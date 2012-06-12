@@ -59,9 +59,6 @@ LLPathfindingLinkset::LLPathfindingLinkset(const LLSD& pTerrainData)
 	: LLPathfindingObject(),
 	mIsTerrain(true),
 	mLandImpact(0U),
-#ifdef MISSING_MODIFIABLE_FIELD_WAR
-	mHasModifiable(true),
-#endif // MISSING_MODIFIABLE_FIELD_WAR
 	mIsModifiable(FALSE),
 	mCanBeVolume(FALSE),
 	mLinksetUse(kUnknown),
@@ -77,9 +74,6 @@ LLPathfindingLinkset::LLPathfindingLinkset(const std::string &pUUID, const LLSD&
 	: LLPathfindingObject(pUUID, pLinksetData),
 	mIsTerrain(false),
 	mLandImpact(0U),
-#ifdef MISSING_MODIFIABLE_FIELD_WAR
-	mHasModifiable(false),
-#endif // MISSING_MODIFIABLE_FIELD_WAR
 	mIsModifiable(TRUE),
 	mCanBeVolume(TRUE),
 	mLinksetUse(kUnknown),
@@ -96,12 +90,7 @@ LLPathfindingLinkset::LLPathfindingLinkset(const LLPathfindingLinkset& pOther)
 	: LLPathfindingObject(pOther),
 	mIsTerrain(pOther.mIsTerrain),
 	mLandImpact(pOther.mLandImpact),
-#ifdef MISSING_MODIFIABLE_FIELD_WAR
-	mHasModifiable(pOther.mHasModifiable),
-	mIsModifiable(pOther.mHasModifiable ? pOther.mIsModifiable : TRUE),
-#else // MISSING_MODIFIABLE_FIELD_WAR
 	mIsModifiable(pOther.mIsModifiable),
-#endif // MISSING_MODIFIABLE_FIELD_WAR
 	mCanBeVolume(pOther.mCanBeVolume),
 	mLinksetUse(pOther.mLinksetUse),
 	mWalkabilityCoefficientA(pOther.mWalkabilityCoefficientA),
@@ -121,15 +110,7 @@ LLPathfindingLinkset& LLPathfindingLinkset::operator =(const LLPathfindingLinkse
 
 	mIsTerrain = pOther.mIsTerrain;
 	mLandImpact = pOther.mLandImpact;
-#ifdef MISSING_MODIFIABLE_FIELD_WAR
-	if (pOther.mHasModifiable)
-	{
-		mHasModifiable = pOther.mHasModifiable;
-		mIsModifiable = pOther.mIsModifiable;
-	}
-#else // MISSING_MODIFIABLE_FIELD_WAR
 	mIsModifiable = pOther.mIsModifiable;
-#endif // MISSING_MODIFIABLE_FIELD_WAR
 	mCanBeVolume = pOther.mCanBeVolume;
 	mLinksetUse = pOther.mLinksetUse;
 	mWalkabilityCoefficientA = pOther.mWalkabilityCoefficientA;
@@ -208,18 +189,9 @@ void LLPathfindingLinkset::parseLinksetData(const LLSD &pLinksetData)
 	llassert(pLinksetData.get(LINKSET_LAND_IMPACT_FIELD).asInteger() >= 0);
 	mLandImpact = pLinksetData.get(LINKSET_LAND_IMPACT_FIELD).asInteger();
 	
-#ifdef MISSING_MODIFIABLE_FIELD_WAR
-	mHasModifiable = pLinksetData.has(LINKSET_MODIFIABLE_FIELD);
-	if (mHasModifiable)
-	{
-		llassert(pLinksetData.get(LINKSET_MODIFIABLE_FIELD).isBoolean());
-		mIsModifiable = pLinksetData.get(LINKSET_MODIFIABLE_FIELD).asBoolean();
-	}
-#else // MISSING_MODIFIABLE_FIELD_WAR
 	llassert(pLinksetData.has(LINKSET_MODIFIABLE_FIELD));
 	llassert(pLinksetData.get(LINKSET_MODIFIABLE_FIELD).isBoolean());
 	mIsModifiable = pLinksetData.get(LINKSET_MODIFIABLE_FIELD).asBoolean();
-#endif // MISSING_MODIFIABLE_FIELD_WAR
 }
 
 void LLPathfindingLinkset::parsePathfindingData(const LLSD &pLinksetData)

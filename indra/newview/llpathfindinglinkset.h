@@ -32,8 +32,6 @@
 
 #include "llpathfindingobject.h"
 
-#define MISSING_MODIFIABLE_FIELD_WAR
-
 class LLSD;
 
 class LLPathfindingLinkset : public LLPathfindingObject
@@ -99,9 +97,6 @@ private:
 
 	bool         mIsTerrain;
 	U32          mLandImpact;
-#ifdef MISSING_MODIFIABLE_FIELD_WAR
-	bool         mHasModifiable;
-#endif // MISSING_MODIFIABLE_FIELD_WAR
 	BOOL         mIsModifiable;
 	BOOL         mCanBeVolume;
 	ELinksetUse  mLinksetUse;
