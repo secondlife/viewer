@@ -34,19 +34,15 @@
 #include "llpathfindingobject.h"
 #include "llsd.h"
 
-#define LINKSET_LAND_IMPACT_FIELD          "landimpact"
-#define LINKSET_MODIFIABLE_FIELD           "modifiable"
-#ifdef DEPRECATED_NAVMESH_PERMANENT_WALKABLE_FLAGS
-#define DEPRECATED_LINKSET_PERMANENT_FIELD "permanent"
-#define DEPRECATED_LINKSET_WALKABLE_FIELD  "walkable"
-#endif // DEPRECATED_NAVMESH_PERMANENT_WALKABLE_FLAGS
-#define LINKSET_CATEGORY_FIELD             "navmesh_category"
-#define LINKSET_CAN_BE_VOLUME              "can_be_volume"
-#define LINKSET_PHANTOM_FIELD              "phantom"
-#define LINKSET_WALKABILITY_A_FIELD        "A"
-#define LINKSET_WALKABILITY_B_FIELD        "B"
-#define LINKSET_WALKABILITY_C_FIELD        "C"
-#define LINKSET_WALKABILITY_D_FIELD        "D"
+#define LINKSET_LAND_IMPACT_FIELD   "landimpact"
+#define LINKSET_MODIFIABLE_FIELD    "modifiable"
+#define LINKSET_CATEGORY_FIELD      "navmesh_category"
+#define LINKSET_CAN_BE_VOLUME       "can_be_volume"
+#define LINKSET_PHANTOM_FIELD       "phantom"
+#define LINKSET_WALKABILITY_A_FIELD "A"
+#define LINKSET_WALKABILITY_B_FIELD "B"
+#define LINKSET_WALKABILITY_C_FIELD "C"
+#define LINKSET_WALKABILITY_D_FIELD "D"
 
 #define LINKSET_CATEGORY_VALUE_INCLUDE 0
 #define LINKSET_CATEGORY_VALUE_EXCLUDE 1
@@ -179,10 +175,6 @@ LLSD LLPathfindingLinkset::encodeAlteredFields(ELinksetUse pLinksetUse, S32 pA, 
 			itemData[LINKSET_PHANTOM_FIELD] = static_cast<bool>(isPhantom(pLinksetUse));
 		}
 
-#ifdef DEPRECATED_NAVMESH_PERMANENT_WALKABLE_FLAGS
-		itemData[DEPRECATED_LINKSET_PERMANENT_FIELD] = static_cast<bool>(isPermanent(pLinksetUse));
-		itemData[DEPRECATED_LINKSET_WALKABLE_FIELD] = static_cast<bool>(isWalkable(pLinksetUse));
-#endif // DEPRECATED_NAVMESH_PERMANENT_WALKABLE_FLAGS
 		itemData[LINKSET_CATEGORY_FIELD] = convertCategoryToLLSD(getNavMeshGenerationCategory(pLinksetUse));
 	}
 
@@ -239,27 +231,8 @@ void LLPathfindingLinkset::parsePathfindingData(const LLSD &pLinksetData)
 		isPhantom = pLinksetData.get(LINKSET_PHANTOM_FIELD).asBoolean();
 	}
 	
-#ifdef DEPRECATED_NAVMESH_PERMANENT_WALKABLE_FLAGS
-	if (pLinksetData.has(LINKSET_CATEGORY_FIELD))
-	{
-		mLinksetUse = getLinksetUse(isPhantom, convertCategoryFromLLSD(pLinksetData.get(LINKSET_CATEGORY_FIELD)));
-	}
-	else
-	{
-		llassert(pLinksetData.has(DEPRECATED_LINKSET_PERMANENT_FIELD));
-		llassert(pLinksetData.get(DEPRECATED_LINKSET_PERMANENT_FIELD).isBoolean());
-		bool isPermanent = pLinksetData.get(DEPRECATED_LINKSET_PERMANENT_FIELD).asBoolean();
-
-		llassert(pLinksetData.has(DEPRECATED_LINKSET_WALKABLE_FIELD));
-		llassert(pLinksetData.get(DEPRECATED_LINKSET_WALKABLE_FIELD).isBoolean());
-		bool isWalkable = pLinksetData.get(DEPRECATED_LINKSET_WALKABLE_FIELD).asBoolean();
-
-		mLinksetUse = getLinksetUse(isPhantom, isPermanent, isWalkable);
-	}
-#else // DEPRECATED_NAVMESH_PERMANENT_WALKABLE_FLAGS
 	llassert(pLinksetData.has(LINKSET_CATEGORY_FIELD));
 	mLinksetUse = getLinksetUse(isPhantom, convertCategoryFromLLSD(pLinksetData.get(LINKSET_CATEGORY_FIELD)));
-#endif // DEPRECATED_NAVMESH_PERMANENT_WALKABLE_FLAGS
 
 	if (pLinksetData.has(LINKSET_CAN_BE_VOLUME))
 	{
@@ -291,66 +264,6 @@ void LLPathfindingLinkset::parsePathfindingData(const LLSD &pLinksetData)
 	llassert(mWalkabilityCoefficientD >= MIN_WALKABILITY_VALUE);
 	llassert(mWalkabilityCoefficientD <= MAX_WALKABILITY_VALUE);
 }
-
-#ifdef DEPRECATED_NAVMESH_PERMANENT_WALKABLE_FLAGS
-LLPathfindingLinkset::ELinksetUse LLPathfindingLinkset::getLinksetUse(bool pIsPhantom, bool pIsPermanent, bool pIsWalkable)
-{
-	return (pIsPhantom ? (pIsPermanent ? (pIsWalkable ? kMaterialVolume : kExclusionVolume) : kDynamicPhantom) :
-		(pIsPermanent ? (pIsWalkable ? kWalkable : kStaticObstacle) : kDynamicObstacle));
-}
-
-BOOL LLPathfindingLinkset::isPermanent(ELinksetUse pLinksetUse)
-{
-	BOOL retVal;
-
-	switch (pLinksetUse)
-	{
-	case kWalkable :
-	case kStaticObstacle :
-	case kMaterialVolume :
-	case kExclusionVolume :
-		retVal = true;
-		break;
-	case kDynamicObstacle :
-	case kDynamicPhantom :
-		retVal = false;
-		break;
-	case kUnknown :
-	default :
-		retVal = false;
-		llassert(0);
-		break;
-	}
-
-	return retVal;
-}
-
-BOOL LLPathfindingLinkset::isWalkable(ELinksetUse pLinksetUse)
-{
-	BOOL retVal;
-
-	switch (pLinksetUse)
-	{
-	case kWalkable :
-	case kMaterialVolume :
-		retVal = true;
-		break;
-	case kStaticObstacle :
-	case kDynamicObstacle :
-	case kExclusionVolume :
-	case kDynamicPhantom :
-		retVal = false;
-		break;
-	case kUnknown :
-	default :
-		retVal = false;
-		llassert(0);
-		break;
-	}
-
-	return retVal;
-}
-#endif // DEPRECATED_NAVMESH_PERMANENT_WALKABLE_FLAGS
 
 BOOL LLPathfindingLinkset::isPhantom(ELinksetUse pLinksetUse)
 {

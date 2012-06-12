@@ -32,7 +32,6 @@
 
 #include "llpathfindingobject.h"
 
-#define DEPRECATED_NAVMESH_PERMANENT_WALKABLE_FLAGS
 #define MISSING_MODIFIABLE_FIELD_WAR
 
 class LLSD;
@@ -92,11 +91,6 @@ private:
 	void                              parseLinksetData(const LLSD &pLinksetData);
 	void                              parsePathfindingData(const LLSD &pLinksetData);
 
-#ifdef DEPRECATED_NAVMESH_PERMANENT_WALKABLE_FLAGS
-	static ELinksetUse                getLinksetUse(bool pIsPhantom, bool pIsPermanent, bool pIsWalkable);
-	static BOOL                       isPermanent(ELinksetUse pLinksetUse);
-	static BOOL                       isWalkable(ELinksetUse pLinksetUse);
-#endif // DEPRECATED_NAVMESH_PERMANENT_WALKABLE_FLAGS
 	static BOOL                       isPhantom(ELinksetUse pLinksetUse);
 	static ELinksetUse                getLinksetUse(bool pIsPhantom, ENavMeshGenerationCategory pNavMeshGenerationCategory);
 	static ENavMeshGenerationCategory getNavMeshGenerationCategory(ELinksetUse pLinksetUse);
