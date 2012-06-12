@@ -59,7 +59,6 @@
 
 #define CAP_SERVICE_AGENT_STATE     "AgentPreferences"
 #define ALTER_NAVMESH_OBJECTS_FIELD "alter_navmesh_objects"
-#define DEPRECATED_ALTER_NAVMESH_OBJECTS_FIELD "alter_permanent_objects"
 
 #define CAP_SERVICE_OBJECT_LINKSETS  "ObjectNavMeshProperties"
 #define CAP_SERVICE_TERRAIN_LINKSETS "TerrainNavMeshProperties"
@@ -377,9 +376,6 @@ void LLPathfindingManager::requestSetAgentState(EAgentState pRequestedAgentState
 	{
 		LLSD request;
 		request[ALTER_NAVMESH_OBJECTS_FIELD] = static_cast<LLSD::Boolean>(pRequestedAgentState == kAgentStateUnfrozen);
-#ifdef DEPRECATED_ALTER_NAVMESH_OBJECTS_FIELD
-		request[DEPRECATED_ALTER_NAVMESH_OBJECTS_FIELD] = static_cast<LLSD::Boolean>(pRequestedAgentState == kAgentStateUnfrozen);
-#endif // DEPRECATED_ALTER_NAVMESH_OBJECTS_FIELD
 
 		LLHTTPClient::ResponderPtr responder = new AgentStateResponder(agentStateURL, pRequestedAgentState);
 		LLHTTPClient::post(agentStateURL, request, responder);
@@ -661,24 +657,9 @@ void LLPathfindingManager::setAgentState(EAgentState pAgentState)
 
 void LLPathfindingManager::handleAgentStateResult(const LLSD &pContent, EAgentState pRequestedAgentState)
 {
-#ifndef DEPRECATED_ALTER_NAVMESH_OBJECTS_FIELD
 	llassert(pContent.has(ALTER_NAVMESH_OBJECTS_FIELD));
 	llassert(pContent.get(ALTER_NAVMESH_OBJECTS_FIELD).isBoolean());
 	EAgentState agentState = (pContent.get(ALTER_NAVMESH_OBJECTS_FIELD).asBoolean() ? kAgentStateUnfrozen : kAgentStateFrozen);
-#else // DEPRECATED_ALTER_NAVMESH_OBJECTS_FIELD
-	EAgentState agentState = kAgentStateUnknown;
-	if (pContent.has(ALTER_NAVMESH_OBJECTS_FIELD))
-	{
-		llassert(pContent.get(ALTER_NAVMESH_OBJECTS_FIELD).isBoolean());
-		agentState = (pContent.get(ALTER_NAVMESH_OBJECTS_FIELD).asBoolean() ? kAgentStateUnfrozen : kAgentStateFrozen);
-	}
-	else
-	{
-		llassert(pContent.has(DEPRECATED_ALTER_NAVMESH_OBJECTS_FIELD));
-		llassert(pContent.get(DEPRECATED_ALTER_NAVMESH_OBJECTS_FIELD).isBoolean());
-		agentState = (pContent.get(DEPRECATED_ALTER_NAVMESH_OBJECTS_FIELD).asBoolean() ? kAgentStateUnfrozen : kAgentStateFrozen);
-	}
-#endif // DEPRECATED_ALTER_NAVMESH_OBJECTS_FIELD
 
 	if (isValidAgentState(pRequestedAgentState) && (agentState != pRequestedAgentState))
 	{
