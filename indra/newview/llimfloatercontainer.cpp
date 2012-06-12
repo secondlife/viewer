@@ -85,6 +85,7 @@ BOOL LLIMFloaterContainer::postBuild()
 
 void LLIMFloaterContainer::onOpen(const LLSD& key)
 {
+	llinfos << "Merov debug : onOpen, key = " << key.asUUID() << llendl;
 	LLMultiFloater::onOpen(key);
 /*
 	if (key.isDefined())
@@ -114,9 +115,11 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 
 	LLMultiFloater::addFloater(floaterp, select_added_floater, insertion_point);
 
+	LLUUID session_id = floaterp->getKey();
+
 	// CHUI-137
 	// Create a conversation item
-	LLConversationItem* item = new LLConversationItem(floaterp->getTitle());
+	LLConversationItem* item = new LLConversationItem(floaterp->getTitle(),session_id, floaterp, this);
 	mConversationsItems.push_back(item);
 	// Create a widget from it
 	LLFolderViewItem* widget = createConversationItemWidget(item);
@@ -138,8 +141,6 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 	// we don't show the header when the floater is hosted,
 	// so reshape floater contents to occupy the header space
 	floater_contents->setShape(floaterp->getRect());
-
-	LLUUID session_id = floaterp->getKey();
 
 	LLIconCtrl* icon = 0;
 
@@ -164,6 +165,8 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 		floaterp->mCloseSignal.connect(boost::bind(&LLIMFloaterContainer::onCloseFloater, this, session_id));
 	}
 	mTabContainer->setTabImage(floaterp, icon);
+    
+	llinfos << "Merov debug : addFloater, title = " << floaterp->getTitle() << ", uuid = " << session_id << llendl;
 }
 
 // virtual
@@ -171,7 +174,7 @@ void LLIMFloaterContainer::removeFloater(LLFloater* floaterp)
 {
 	LLMultiFloater::removeFloater(floaterp);
 
-	llinfos << "Merov debug : removeFloater, title = " << floaterp->getTitle() << llendl;
+	llinfos << "Merov debug : removeFloater, title = " << floaterp->getTitle() << ", uuid = " << floaterp->getKey() << llendl;
 
 	LLRect contents_rect = floaterp->getRect();
 
@@ -355,9 +358,11 @@ LLFolderViewItem* LLIMFloaterContainer::createConversationItemWidget(LLConversat
 }
 
 // Conversation items
-LLConversationItem::LLConversationItem(std::string name) :
+LLConversationItem::LLConversationItem(std::string name, const LLUUID& uuid, LLFloater* floaterp, LLIMFloaterContainer* containerp) :
 	mName(name),
-	mUUID(LLUUID::null)
+	mUUID(uuid),
+    mFloater(floaterp),
+    mContainer(containerp)
 {
 	if (name == "")
 		mName = "Nearby Chat";
@@ -386,7 +391,8 @@ void LLConversationItem::previewItem( void )
 
 void LLConversationItem::selectItem(void)
 {
-	llinfos << "Merov debug : selectItem, title = " << mName << llendl;
+	llinfos << "Merov debug : selectItem, title = " << mName << ", uuid = " << mUUID << llendl;
+    mContainer->selectFloater(mFloater);
 }
 
 void LLConversationItem::showProperties(void)

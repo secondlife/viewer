@@ -45,6 +45,7 @@ class LLTabContainer;
 
 // CHUI-137 : Temporary implementation of conversations list
 class LLConversationItem;
+class LLIMFloaterContainer;
 
 typedef std::list<LLConversationItem*> conversations_items_list_t;
 typedef std::list<LLFolderViewItem*> conversations_widgets_list_t;
@@ -54,7 +55,7 @@ typedef std::list<LLFolderViewItem*> conversations_widgets_list_t;
 class LLConversationItem : public LLFolderViewEventListener
 {
 public:
-	LLConversationItem(std::string name);
+	LLConversationItem(std::string name, const LLUUID& uuid, LLFloater* floaterp, LLIMFloaterContainer* containerp);
 	virtual ~LLConversationItem() {}
 
 	// Stub those things we won't really be using in this conversation context
@@ -111,6 +112,8 @@ public:
 private:
 	std::string mName;
 	const LLUUID mUUID;
+    LLFloater* mFloater;
+    LLIMFloaterContainer* mContainer;
 };
 	// CHUI-137 : End
 

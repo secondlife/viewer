@@ -387,6 +387,10 @@ void LLFolderViewItem::setSelectionFromRoot(LLFolderViewItem* selection,
 	{
 		getRoot()->setSelection(selection, openitem, take_keyboard_focus);
 	}
+    else if (mListener)
+    {
+        mListener->selectItem();
+    }
 }
 
 // helper function to change the selection from the root.
