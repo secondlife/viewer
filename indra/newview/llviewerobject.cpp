@@ -2555,17 +2555,6 @@ void LLViewerObject::doUpdateInventory(
 		doInventoryCallback();
 		++mInventorySerialNum;
 	}
-
-	if(is_new && mInventory)
-	{
-		std::string name = item->getName();
-llwarns << "DBG " << name << llendl;
-		LLPermissions perm = item->getPermissions();
-		perm.setMaskNext(LLFloaterPerms::getNextOwnerPerms("Scripts"));
-		perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Scripts"));
-		perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Scripts"));
-		item->setPermissions(perm);
-	}
 }
 
 // save a script, which involves removing the old one, and rezzing

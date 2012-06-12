@@ -183,6 +183,16 @@ void LLPanelContents::onClickNewScript(void *userdata)
 				time_corrected());
 		object->saveScript(new_item, TRUE, true);
 
+		std::string name = new_item->getName();
+llwarns << "DBG " << new_item->getUUID() << llendl;
+
+//	LLPermissions perm = new_item->getPermissions();
+	perm.setMaskNext(LLFloaterPerms::getNextOwnerPerms("Scripts"));
+	perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Scripts"));
+	perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Scripts"));
+	new_item->setPermissions(perm);
+
+
 		// *NOTE: In order to resolve SL-22177, we needed to create
 		// the script first, and then you have to click it in
 		// inventory to edit it.

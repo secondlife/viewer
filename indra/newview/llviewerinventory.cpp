@@ -1025,9 +1025,9 @@ void CreateScriptCallback::fire(const LLUUID& inv_item)
 	LLPermissions perm = item->getPermissions();
 	perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Scripts"));
 	perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Scripts"));
-
 	item->setPermissions(perm);
 
+	item->updateServer(FALSE);
     gInventory.updateItem(item);
     gInventory.notifyObservers();
 }
@@ -1047,8 +1047,9 @@ void CreateGestureCallback::fire(const LLUUID& inv_item)
 	perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Gestures"));
 	item->setPermissions(perm);
 
-    gInventory.updateItem(item);
-    gInventory.notifyObservers();
+	item->updateServer(FALSE);
+	gInventory.updateItem(item);
+	gInventory.notifyObservers();
 
 	LLPreviewGesture* preview = LLPreviewGesture::show(inv_item,  LLUUID::null);
 	// Force to be entirely onscreen.
@@ -1068,6 +1069,7 @@ void CreateNotecardCallback::fire(const LLUUID& inv_item)
 	perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Notecards"));
 	item->setPermissions(perm);
 
+	item->updateServer(FALSE);
     gInventory.updateItem(item);
     gInventory.notifyObservers();
 }

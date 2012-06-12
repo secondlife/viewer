@@ -66,21 +66,18 @@ class LLWearAndEditCallback : public LLInventoryCallback
 {
 	void fire(const LLUUID& inv_item)
 	{
-llwarns << "DBG 1" << llendl;
 		if (inv_item.isNull()) return;
 
-llwarns << "DBG 2" << llendl;
 		LLViewerInventoryItem* item = gInventory.getItem(inv_item);
 		if (!item) return;
 
-llwarns << "DBG 3" << llendl;
 		LLPermissions perm = item->getPermissions();
 		perm.setMaskNext(LLFloaterPerms::getNextOwnerPerms("Wearables"));
 		perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Wearables"));
 		perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Wearables"));
 		item->setPermissions(perm);
 
-llwarns << "DBG 4" << llendl;
+		item->updateServer(FALSE);
 		gInventory.updateItem(item);
 		gInventory.notifyObservers();
 
@@ -108,6 +105,7 @@ class LLCreateWearableCallback : public LLInventoryCallback
 		perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Wearables"));
 		item->setPermissions(perm);
 
+		item->updateServer(FALSE);
 		gInventory.updateItem(item);
 		gInventory.notifyObservers();
 	}
@@ -521,6 +519,7 @@ void LLAgentWearables::saveWearableAs(const LLWearableType::EType type,
 	LLWearable* new_wearable = LLWearableList::instance().createCopy(
 		old_wearable,
 		trunc_name);
+
 	LLPointer<LLInventoryCallback> cb =
 		new addWearableToAgentInventoryCallback(
 			LLPointer<LLRefCount>(NULL),

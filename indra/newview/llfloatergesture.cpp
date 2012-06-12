@@ -84,6 +84,7 @@ public:
 			perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Gestures"));
 			perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Gestures"));
 			item->setPermissions(perm);
+			item->updateServer(FALSE);
 		}
 	}
 };

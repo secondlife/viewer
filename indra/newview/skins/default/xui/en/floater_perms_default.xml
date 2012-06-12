@@ -8,7 +8,6 @@
  save_rect="true"
  title="DEFAULT CREATION PERMISSIONS"
  width="700">
-
   <panel
    follows="left|top|right|bottom"
    height="200"
@@ -18,7 +17,6 @@
    name="default permissions"
    top="20"
    width="690">
-
      <text
       type="string"
       length="1"
@@ -31,7 +29,6 @@
       width="100">
          Copy
       </text>
-
       <text
        type="string"
        length="1"
@@ -44,7 +41,6 @@
        width="100">
           Modify
       </text>
-
       <text
        type="string"
        length="1"
@@ -57,7 +53,6 @@
        width="100">
           Transfer
       </text>
-
       <text
        type="string"
        length="1"
@@ -71,7 +66,6 @@
        width="100">
           Share with group
       </text>
-
       <text
        type="string"
        length="1"
@@ -85,8 +79,6 @@
        width="120">
           Allow anyone to copy
       </text>
-
-
       <text
        type="string"
        length="1"
@@ -106,7 +98,6 @@
        layout="topleft"
        left_pad="2"
        width="18"/>
-
       <check_box
        control_name="ObjectsNextOwnerCopy"
        height="16"
@@ -152,7 +143,6 @@
        left_pad="0"
        top_delta="0"
        width="100" />
-
       <text
        type="string"
        length="1"
@@ -171,7 +161,6 @@
        layout="topleft"
        left_pad="2"
        width="18"/>
-
       <check_box
        control_name="UploadsNextOwnerCopy"
        height="16"
@@ -217,7 +206,6 @@
        left_pad="0"
        top_delta="0"
        width="100" />
-
       <text
        type="string"
        length="1"
@@ -236,7 +224,6 @@
        layout="topleft"
        left_pad="2"
        width="18"/>
-
       <check_box
        control_name="ScriptsNextOwnerCopy"
        height="16"
@@ -282,7 +269,6 @@
        left_pad="0"
        top_delta="0"
        width="100" />
-
       <text
        type="string"
        length="1"
@@ -301,7 +287,6 @@
        layout="topleft"
        left_pad="2"
        width="18"/>
-
       <check_box
        control_name="NotecardsNextOwnerCopy"
        height="16"
@@ -347,7 +332,6 @@
        left_pad="0"
        top_delta="0"
        width="100" />
-
       <text
        type="string"
        length="1"
@@ -366,7 +350,6 @@
        layout="topleft"
        left_pad="2"
        width="18"/>
-
       <check_box
        control_name="GesturesNextOwnerCopy"
        height="16"
@@ -412,8 +395,6 @@
        left_pad="0"
        top_delta="0"
        width="100" />
-
-
       <text
        type="string"
        length="1"
@@ -432,7 +413,6 @@
        layout="topleft"
        left_pad="2"
        width="18"/>
-
       <check_box
        control_name="WearablesNextOwnerCopy"
        height="16"
@@ -478,9 +458,7 @@
        left_pad="0"
        top_delta="0"
        width="100" />
-
   </panel>
-
   <button
    height="20"
    label="OK"
@@ -492,7 +470,6 @@
 	<button.commit_callback
 	 function="PermsDefault.OK" />
   </button>
-
   <button
    height="20"
    label="Cancel"

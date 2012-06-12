@@ -47,7 +47,7 @@ BOOL LLFloaterPerms::postBuild()
 //static 
 U32 LLFloaterPerms::getGroupPerms(std::string prefix)
 {	
-	return gSavedSettings.getBOOL(prefix+"ShareWithGroup") ? PERM_COPY : PERM_NONE;
+	return gSavedSettings.getBOOL(prefix+"ShareWithGroup") ? PERM_COPY | PERM_MOVE | PERM_MODIFY : PERM_NONE;
 }
 
 //static 
