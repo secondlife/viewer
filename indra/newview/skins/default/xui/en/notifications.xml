@@ -1293,25 +1293,6 @@ The region [REGION] does not allow terraforming.
 
   <notification
    icon="alertmodal.tga"
-   name="AutomaticAgentStateUnfreeze"
-   type="alertmodal">
-You have automatically switched into Unfrozen mode because of one of the following reasons:
-
-- You rezzed an object marked as permanent
-- You returned an object marked as permanent
-
-After you finish modifying your permanent objects, please remember to switch back to Frozen mode  from the menu option Build->Pathfinding->Basic Setup.
-    <tag>confirm</tag>
-    <usetemplate
-      name="okhelpignore"
-      yestext="OK"
-      helptext="More Info"
-      ignoretext="Launch browser to view pathfinding help"
-      />
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
    name="CannotCopyWarning"
    type="alertmodal">
 You do not have permission to copy the following items:

@@ -46,23 +46,9 @@ class LLPathfindingNavMeshStatus;
 class LLPathfindingManager : public LLSingleton<LLPathfindingManager>
 {
 	friend class LLNavMeshSimStateChangeNode;
-	friend class LLAgentStateChangeNode;
 	friend class NavMeshStatusResponder;
-	friend class AgentStateResponder;
 public:
 	typedef std::map<LLUUID, LLPathfindingNavMeshPtr> NavMeshMap;
-
-	typedef enum {
-		kAgentStateUnknown,
-		kAgentStateFrozen,
-		kAgentStateUnfrozen,
-		kAgentStateNotEnabled,
-		kAgentStateError
-	} EAgentState;
-
-	typedef boost::function<void (EAgentState)>         agent_state_callback_t;
-	typedef boost::signals2::signal<void (EAgentState)> agent_state_signal_t;
-	typedef boost::signals2::connection                 agent_state_slot_t;
 
 	typedef enum {
 		kRequestStarted,
@@ -86,11 +72,6 @@ public:
 	LLPathfindingNavMesh::navmesh_slot_t registerNavMeshListenerForRegion(LLViewerRegion *pRegion, LLPathfindingNavMesh::navmesh_callback_t pNavMeshCallback);
 	void requestGetNavMeshForRegion(LLViewerRegion *pRegion);
 
-	agent_state_slot_t registerAgentStateListener(agent_state_callback_t pAgentStateCallback);
-	EAgentState        getAgentState();
-	EAgentState        getLastKnownNonErrorAgentState() const;
-	void               requestSetAgentState(EAgentState pAgentState);
-
 	typedef U32 request_id_t;
 	typedef boost::function<void (request_id_t, ERequestStatus, LLPathfindingObjectListPtr)> object_request_callback_t;
 
@@ -98,6 +79,16 @@ public:
 	void requestSetLinksets(request_id_t pRequestId, const LLPathfindingObjectListPtr &pLinksetListPtr, LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD, object_request_callback_t pLinksetsCallback) const;
 
 	void requestGetCharacters(request_id_t pRequestId, object_request_callback_t pCharactersCallback) const;
+
+#ifdef XXX_STINSON_AGENT_STATE_DELETE_ME
+	friend class LLAgentStateChangeNode;
+	friend class AgentStateResponder;
+	typedef boost::function<void (EAgentState)>         agent_state_callback_t;
+	typedef boost::signals2::signal<void (EAgentState)> agent_state_signal_t;
+	typedef boost::signals2::connection                 agent_state_slot_t;
+
+	agent_state_slot_t registerAgentStateListener(agent_state_callback_t pAgentStateCallback);
+#endif // XXX_STINSON_AGENT_STATE_DELETE_ME
 
 protected:
 
@@ -114,18 +105,8 @@ private:
 	LLPathfindingNavMeshPtr getNavMeshForRegion(const LLUUID &pRegionUUID);
 	LLPathfindingNavMeshPtr getNavMeshForRegion(LLViewerRegion *pRegion);
 
-	static bool isValidAgentState(EAgentState pAgentState);
-
-	void requestGetAgentState();
-	void setAgentState(EAgentState pAgentState);
-	void handleAgentStateResult(const LLSD &pContent, EAgentState pRequestedAgentState);
-	void handleAgentStateError(U32 pStatus, const std::string &pReason, const std::string &pURL);
-	void handleAgentStateUpdate(const LLSD &pContent);
-	void handleAgentStateUserNotification(const LLSD &pNotification, const LLSD &pResponse);
-
 	std::string getNavMeshStatusURLForRegion(LLViewerRegion *pRegion) const;
 	std::string getRetrieveNavMeshURLForRegion(LLViewerRegion *pRegion) const;
-	std::string getAgentStateURLForCurrentRegion() const;
 	std::string getObjectLinksetsURLForCurrentRegion() const;
 	std::string getTerrainLinksetsURLForCurrentRegion() const;
 	std::string getCharactersURLForCurrentRegion() const;
@@ -134,11 +115,13 @@ private:
 	std::string    getCapabilityURLForRegion(LLViewerRegion *pRegion, const std::string &pCapabilityName) const;
 	LLViewerRegion *getCurrentRegion() const;
 
-	NavMeshMap           mNavMeshMap;
+#ifdef XXX_STINSON_AGENT_STATE_DELETE_ME
+	void requestGetAgentState();
+	void handleAgentStateResult(const LLSD &pContent, EAgentState pRequestedAgentState);
+	void handleAgentStateError(U32 pStatus, const std::string &pReason, const std::string &pURL);
+#endif // XXX_STINSON_AGENT_STATE_DELETE_ME
 
-	agent_state_signal_t mAgentStateSignal;
-	EAgentState          mAgentState;
-	EAgentState          mLastKnownNonErrorAgentState;
+	NavMeshMap mNavMeshMap;
 };
 
 #endif // LL_LLPATHFINDINGMANAGER_H

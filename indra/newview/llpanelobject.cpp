@@ -279,8 +279,6 @@ BOOL	LLPanelObject::postBuild()
 	mCtrlSculptInvert = getChild<LLCheckBoxCtrl>("sculpt invert control");
 	childSetCommitCallback("sculpt invert control", onCommitSculptType, this);
 
-	LLPathfindingManager::getInstance()->registerAgentStateListener(boost::bind(&LLPanelObject::handleAgentStateCallback, this));
-	
 	// Start with everyone disabled
 	clearCtrls();
 
@@ -1993,11 +1991,6 @@ void LLPanelObject::onSelectSculpt(const LLSD& data)
 void LLPanelObject::onCommitSculpt( const LLSD& data )
 {
 	sendSculpt();
-}
-
-void LLPanelObject::handleAgentStateCallback() const
-{
-	gFloaterTools->dirty();
 }
 
 BOOL LLPanelObject::onDropSculpt(LLInventoryItem* item)
