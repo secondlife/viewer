@@ -117,7 +117,7 @@ private:
 		SCRIPTS_ICON,		// 4
 		DAMAGE_ICON,		// 5
 		SEE_AVATARS_ICON,   // 6
-		PATHFINDING_DYNAMIC,// 7
+		PATHFINDING_DYNAMIC_ICON,// 7
 		ICON_COUNT			// 8 total
 	};
 
