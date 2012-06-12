@@ -32,11 +32,11 @@
             </panel.string>
             <panel.string
              name="text modify info 5">
-                You can't modify this object in frozen mode
+                You can't modify this object across a region boundary
             </panel.string>
             <panel.string
              name="text modify info 6">
-                You can't modify these objects in frozen mode
+                You can't modify these objects across a region boundary
             </panel.string>
             <panel.string
              name="text modify warning">

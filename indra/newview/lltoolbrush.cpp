@@ -672,12 +672,6 @@ void LLToolBrushLand::alertNoTerraform(LLViewerRegion* regionp)
 
 }
 
-// static
-void LLToolBrushLand::alertNoTerraformWhileFrozen()
-{
-	LLNotificationsUtil::add("RegionNoTerraformingWhileFrozen");
-}
-
 ///============================================================================
 /// Local function definitions
 ///============================================================================
