@@ -207,7 +207,7 @@
   <button
    follows="left|top"
    height="23"
-   label="Chat Translation Settings"
+   label="Translation..."
    layout="topleft"
    left="30"
    name="ok_btn"
@@ -224,7 +224,7 @@
    left_pad="5"
    name="autoreplace_showgui"
    commit_callback.function="Pref.AutoReplace"
-   label="AutoReplace Settings"
+   label="Auto-Replace..."
    width="150">
   </button>
   <button
@@ -235,7 +235,7 @@
    left_pad="5"
    name="spellcheck_showgui"
    commit_callback.function="Pref.SpellChecker"
-   label="Spell Checker Settings"
+   label="Spell Checking..."
    width="150">
   </button>
 

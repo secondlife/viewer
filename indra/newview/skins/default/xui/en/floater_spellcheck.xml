@@ -3,10 +3,10 @@
  border="true"
  can_close="true"
  can_minimize="true"
- bottom="300"
- left="300"
+ save_rect="true"
+ help_topic="spelling_settings"
  can_resize="false"
- height="355"
+ height="315"
  width="490"
  name="spellcheck_floater"
  title="Spell Checker Settings">
@@ -157,38 +157,4 @@
    name="spellcheck_import_btn"
    top_delta="0"
    width="80" />
-  <view_border
-   top_pad="10"
-   left="2"
-   height="0"
-   width="491"
-   follows="left|top"
-   bevel_style="none"
-   border_thickness="1"
-   mouse_opaque="false"
-   name="divisor4"/>
-  <button
-   top_pad="8"
-   right="380"
-   height="22"
-   width="90"
-   enabled="true"
-   follows="left|top"
-   mouse_opaque="true"
-   halign="center"
-   scale_image="true"
-   name="spellcheck_ok"
-   label="OK" />
-  <button
-   top_delta="0"
-   right="480"
-   height="22"
-   width="90"
-   enabled="true"
-   follows="left|top"
-   mouse_opaque="true"
-   halign="center"
-   scale_image="true"
-   name="spellcheck_cancel"
-   label="Cancel" />
 </floater>

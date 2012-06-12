@@ -128,6 +128,8 @@ BOOL LLFloaterAutoReplaceSettings::postBuild(void)
 	mReplacementsList->setCommitCallback(boost::bind(&LLFloaterAutoReplaceSettings::onSelectEntry, this));
 	mReplacementsList->setCommitOnSelectionChange(true);
 
+	center();
+
 	mSelectedListName.clear();
 	updateListNames();
 	updateListNamesControls();

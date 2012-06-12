@@ -37,12 +37,11 @@ public:
 	/*virtual*/ void draw();
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
+	/*virtual*/ void onClose(bool app_quitting);
 
 protected:
-	void onBtnCancel();
 	void onBtnImport();
 	void onBtnMove(const std::string& from, const std::string& to);
-	void onBtnOK();
 	void onBtnRemove();
 	void onSpellCheckSettingsChange();
 	void refreshDictionaries(bool from_settings);

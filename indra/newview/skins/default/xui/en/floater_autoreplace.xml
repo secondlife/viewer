@@ -3,20 +3,20 @@
  border="true"
  can_close="true"
  can_minimize="true"
- bottom="400"
- left="300"
  can_resize="false"
+ help_topic="autoreplace_settings"
+ save_rect="true"
  height="455"
  width="490"
  name="autoreplace_floater"
- title="Autoreplace Settings">
+ title="Auto-Replace Settings">
   <check_box
    bottom_delta="30"
    left_delta="15"
    height="16"
    width="100"
    follows="left|top"
-   label="Enable Autoreplace"
+   label="Enable Auto-Replace"
    name="autoreplace_enable"
    tool_tip="As you enter chat text, replace any of the keywords entered with the corresponding replacement"/>
   <view_border

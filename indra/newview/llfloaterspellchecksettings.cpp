@@ -68,15 +68,8 @@ BOOL LLFloaterSpellCheckerSettings::postBuild(void)
 	getChild<LLUICtrl>("spellcheck_main_combo")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::refreshDictionaries, this, false));
 	getChild<LLUICtrl>("spellcheck_moveleft_btn")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::onBtnMove, this, "spellcheck_active_list", "spellcheck_available_list"));
 	getChild<LLUICtrl>("spellcheck_moveright_btn")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::onBtnMove, this, "spellcheck_available_list", "spellcheck_active_list"));
-	getChild<LLUICtrl>("spellcheck_ok")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::onBtnOK, this));
-	getChild<LLUICtrl>("spellcheck_cancel")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::onBtnCancel, this));
 
 	return true;
-}
-
-void LLFloaterSpellCheckerSettings::onBtnCancel()
-{
-	closeFloater(false);
 }
 
 void LLFloaterSpellCheckerSettings::onBtnImport()
@@ -104,8 +97,14 @@ void LLFloaterSpellCheckerSettings::onBtnMove(const std::string& from, const std
 	from_ctrl->deleteSelectedItems();
 }
 
-void LLFloaterSpellCheckerSettings::onBtnOK()
+void LLFloaterSpellCheckerSettings::onClose(bool app_quitting)
 {
+	if (app_quitting)
+	{
+		// don't save anything
+		return;
+	}
+	
 	std::list<std::string> list_dict;
 
 	LLComboBox* dict_combo = findChild<LLComboBox>("spellcheck_main_combo");
@@ -126,8 +125,6 @@ void LLFloaterSpellCheckerSettings::onBtnOK()
 		}
 	}
 	gSavedSettings.setString("SpellCheckDictionary", boost::join(list_dict, ","));
-
-	closeFloater(false);
 }
 
 void LLFloaterSpellCheckerSettings::onOpen(const LLSD& key)
@@ -254,7 +251,7 @@ BOOL LLFloaterSpellCheckerImport::postBuild(void)
 	getChild<LLUICtrl>("dictionary_path_browse")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerImport::onBtnBrowse, this));
 	getChild<LLUICtrl>("ok_btn")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerImport::onBtnOK, this));
 	getChild<LLUICtrl>("cancel_btn")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerImport::onBtnCancel, this));
-
+	center();
 	return true;
 }
 
