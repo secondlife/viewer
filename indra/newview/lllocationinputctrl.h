@@ -78,7 +78,8 @@ public:
 											build_icon,
 											scripts_icon,
 											damage_icon,
-											see_avatars_icon;
+											see_avatars_icon,
+											pathfinding_dynamic_icon;
 		Optional<LLTextBox::Params>			damage_text;
 		Params();
 	};
@@ -116,7 +117,8 @@ private:
 		SCRIPTS_ICON,		// 4
 		DAMAGE_ICON,		// 5
 		SEE_AVATARS_ICON,   // 6
-		ICON_COUNT			// 7 total
+		PATHFINDING_DYNAMIC,// 7
+		ICON_COUNT			// 8 total
 	};
 
 	friend class LLUICtrlFactory;
@@ -184,6 +186,7 @@ private:
 	LLPointer<LLUIImage> mIconMaturityGeneral;
 	LLPointer<LLUIImage> mIconMaturityAdult;
 	LLPointer<LLUIImage> mIconMaturityModerate;
+	LLPointer<LLUIImage> mIconPathfindingDynamic;
 
 	std::string mAddLandmarkTooltip;
 	std::string mEditLandmarkTooltip;

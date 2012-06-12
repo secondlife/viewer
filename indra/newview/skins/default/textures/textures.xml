@@ -432,6 +432,8 @@ with the same filename but different name
  <texture name="Parcel_Voice_Light" file_name="icons/Parcel_Voice_Light.png" preload="false" />
  <texture name="Parcel_VoiceNo_Light" file_name="icons/Parcel_VoiceNo_Light.png" preload="false" />
 
+  <texture name="Pathfinding_Dynamic" file_name="icons/Pathfinding_Dynamic.png" preload="false" />
+
   <texture name="Pause_Off" file_name="icons/Pause_Off.png" preload="false" />
   <texture name="Pause_Over" file_name="icons/Pause_Over.png" preload="false" />
   <texture name="Pause_Press" file_name="icons/Pause_Press.png" preload="false" />
