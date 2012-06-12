@@ -1699,9 +1699,6 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 		while ( LLUrlRegistry::instance().findUrl(text, match,
 				boost::bind(&LLTextBase::replaceUrl, this, _1, _2, _3)) )
 		{
-			
-			LLTextUtil::processUrlMatch(&match,this);
-
 			start = match.getStart();
 			end = match.getEnd()+1;
 
@@ -1736,6 +1733,8 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 						segment->setToolTip(match.getTooltip());
 					}
 			}
+
+			LLTextUtil::processUrlMatch(&match,this);
 
 			// move on to the rest of the text after the Url
 			if (end < (S32)text.length()) 
