@@ -30,6 +30,12 @@
 namespace LLCoreInt
 {
 
+#if		! defined(WIN32)
+
+const S32 RefCounted::NOT_REF_COUNTED;
+
+#endif	// ! defined(WIN32)
+
 RefCounted::~RefCounted()
 {}
 
