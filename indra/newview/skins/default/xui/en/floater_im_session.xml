@@ -15,6 +15,9 @@
  can_tear_off="false"
  min_width="250"
  min_height="190">
+    <floater.string 
+     name="NearbyChatTitle"
+     value="Nearby Chat"/>
     <floater.string name="call_btn_start">VoicePTT_Off</floater.string>
     <floater.string name="call_btn_stop">VoicePTT_On</floater.string>
     <floater.string
@@ -131,9 +134,7 @@
   name="im_panels"
   tab_group="1"
   top_pad="0"
-  left="0"
-  auto_resize="true"
-  user_resize="true">
+  left="0">
     <layout_panel
       name="speakers_list_panel"
       follows="all"
@@ -185,8 +186,6 @@
           orientation="vertical"
           name="translate_and_chat_stack"
           tab_group="1"
-          auto_resize="true"
-          user_resize="true"
           left_pad="0"
           top="0"
           left="0">

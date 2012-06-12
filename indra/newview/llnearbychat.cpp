@@ -126,7 +126,7 @@ LLNearbyChat::LLNearbyChat(const LLSD& key)
 :	LLIMConversation(key),
 	mChatBox(NULL),
 	mChatHistory(NULL),
-	mOutputMonitor(NULL),
+	//mOutputMonitor(NULL),
 	mSpeakerMgr(NULL),
 	mExpandedHeight(COLLAPSED_HEIGHT + EXPANDED_HEIGHT)
 {
@@ -152,8 +152,8 @@ BOOL LLNearbyChat::postBuild()
 	mChatBox->setEnableLineHistory(TRUE);
 	mChatBox->setFont(LLViewerChat::getChatFont());
 
-	mOutputMonitor = getChild<LLOutputMonitorCtrl>("chat_zone_indicator");
-	mOutputMonitor->setVisible(FALSE);
+//	mOutputMonitor = getChild<LLOutputMonitorCtrl>("chat_zone_indicator");
+//	mOutputMonitor->setVisible(FALSE);
 
 	// Register for font change notifications
 	LLViewerChat::setFontChangedCallback(boost::bind(&LLNearbyChat::onChatFontChange, this, _1));
@@ -183,6 +183,8 @@ BOOL LLNearbyChat::postBuild()
 	{
 		loadHistory();
 	}
+
+	setTitle(getString("NearbyChatTitle"));
 
 	return LLIMConversation::postBuild();
 }
@@ -718,12 +720,12 @@ void LLNearbyChat::displaySpeakingIndicator()
 
 	if (!id.isNull())
 	{
-		mOutputMonitor->setVisible(TRUE);
-		mOutputMonitor->setSpeakerId(id);
+		//mOutputMonitor->setVisible(TRUE);
+		//mOutputMonitor->setSpeakerId(id);
 	}
 	else
 	{
-		mOutputMonitor->setVisible(FALSE);
+		//mOutputMonitor->setVisible(FALSE);
 	}
 }
 

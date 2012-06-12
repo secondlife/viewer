@@ -85,11 +85,11 @@ BOOL LLIMConversation::postBuild()
 	mParticipantListPanel = getChild<LLLayoutPanel>("speakers_list_panel");
 
 	// Show the participants list in torn off floaters only.
-	mParticipantListPanel->setVisible(gSavedSettings.getBOOL("IMShowControlPanel")
-									  && !mIsNearbyChat); // *TODO: temporarily disabled for Nearby chat
-	mExpandCollapseBtn->setImageOverlay(
-				getString(mParticipantListPanel->getVisible() ? "collapse_icon" : "expand_icon"));
-	mExpandCollapseBtn->setEnabled(!mIsP2PChat);
+//	mParticipantListPanel->setVisible(gSavedSettings.getBOOL("IMShowControlPanel")
+//									  && !mIsNearbyChat); // *TODO: temporarily disabled for Nearby chat
+//	mExpandCollapseBtn->setImageOverlay(
+//				getString(mParticipantListPanel->getVisible() ? "collapse_icon" : "expand_icon"));
+//	mExpandCollapseBtn->setEnabled(!mIsP2PChat);
 
 	mTearOffBtn = getChild<LLButton>("tear_off_btn");
 	mTearOffBtn->setCommitCallback(boost::bind(&LLIMConversation::onTearOffClicked, this));
@@ -210,30 +210,22 @@ void LLIMConversation::updateHeaderAndToolbar()
 		}
 	}
 
-	bool is_control_panel_visible = false;
-		// Control panel should be visible only in torn off floaters.
-		is_control_panel_visible = !is_hosted && gSavedSettings.getBOOL("IMShowControlPanel");
-		mParticipantListPanel->setVisible(!mIsP2PChat && is_control_panel_visible
-				&& !mIsNearbyChat); // *TODO: temporarily disabled for Nearby chat
+	// Participant list should be visible only in torn off floaters.
+	bool is_participant_list_visible =
+			!is_hosted
+			&& gSavedSettings.getBOOL("IMShowControlPanel")
+			&& !mIsP2PChat
+			&& !mIsNearbyChat; // *TODO: temporarily disabled for Nearby chat
+
+	mParticipantListPanel->setVisible(is_participant_list_visible);
 
 	// Display collapse image (<<) if the floater is hosted
 	// or if it is torn off but has an open control panel.
-	bool is_expanded = is_hosted || is_control_panel_visible;
+	bool is_expanded = is_hosted || is_participant_list_visible;
 	mExpandCollapseBtn->setImageOverlay(getString(is_expanded ? "collapse_icon" : "expand_icon"));
 
-	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(mSessionID);
-	if (session)
-	{
-		// The button (>>) should be disabled for torn off P2P conversations.
-		mExpandCollapseBtn->setEnabled(is_hosted || !session->isP2PSessionType());
-	}
-	else
-	{
-		if (!mIsNearbyChat)
-		{
-			llwarns << "IM session not found." << llendl;
-		}
-	}
+	// The button (>>) should be disabled for torn off P2P conversations.
+	mExpandCollapseBtn->setEnabled(is_hosted || !mIsP2PChat && !mIsNearbyChat);
 
 	if (mDragHandle)
 	{
