@@ -95,7 +95,9 @@ public:
 		{
 			return mGlobalOptions;
 		}
-	
+
+	void setPolicies(const HttpPolicyGlobal & global);
+			
 protected:
 	struct State
 	{

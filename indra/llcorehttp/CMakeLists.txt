@@ -10,12 +10,14 @@ include(OpenSSL)
 include(ZLIB)
 include(LLCoreHttp)
 include(LLAddBuildTest)
+include(LLMessage)
 include(LLCommon)
 include(Tut)
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR})
 
 include_directories(
+    ${LLMESSAGE_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLCOREHTTP_INCLUDE_DIRS}
     )
@@ -31,6 +33,7 @@ set(llcorehttp_SOURCE_FILES
     _httpopcancel.cpp
     _httpoperation.cpp
     _httpoprequest.cpp
+    _httpopsetget.cpp
     _httpopsetpriority.cpp
     _httppolicy.cpp
     _httppolicyglobal.cpp
@@ -54,6 +57,7 @@ set(llcorehttp_HEADER_FILES
     _httpopcancel.h
     _httpoperation.h
     _httpoprequest.h
+    _httpopsetget.h
     _httpopsetpriority.h
     _httppolicy.h
     _httppolicyglobal.h
@@ -113,6 +117,7 @@ if (LL_TESTS)
   set(test_libs
       ${LLCOREHTTP_LIBRARIES}
       ${WINDOWS_LIBRARIES}
+      ${LLMESSAGE_LIBRARIES}
       ${LLCOMMON_LIBRARIES}
       ${GOOGLEMOCK_LIBRARIES}
       ${CURL_LIBRARIES}

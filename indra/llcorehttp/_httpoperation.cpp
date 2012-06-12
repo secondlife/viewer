@@ -47,7 +47,6 @@ namespace LLCore
 HttpOperation::HttpOperation()
 	: LLCoreInt::RefCounted(true),
 	  mReplyQueue(NULL),
-	  mLibraryHandler(NULL),
 	  mUserHandler(NULL),
 	  mReqPolicy(HttpRequest::DEFAULT_POLICY_ID),
 	  mReqPriority(0U)
@@ -57,13 +56,12 @@ HttpOperation::HttpOperation()
 
 HttpOperation::~HttpOperation()
 {
-	setHandlers(NULL, NULL, NULL);
+	setReplyPath(NULL, NULL);
 }
 
 
-void HttpOperation::setHandlers(HttpReplyQueue * reply_queue,
-								HttpHandler * lib_handler,
-								HttpHandler * user_handler)
+void HttpOperation::setReplyPath(HttpReplyQueue * reply_queue,
+								 HttpHandler * user_handler)
 {
 	if (reply_queue != mReplyQueue)
 	{
@@ -79,9 +77,6 @@ void HttpOperation::setHandlers(HttpReplyQueue * reply_queue,
 
 		mReplyQueue = reply_queue;
 	}
-
-	// Not refcounted
-	mLibraryHandler = lib_handler;
 
 	// Not refcounted
 	mUserHandler = user_handler;
@@ -121,11 +116,12 @@ void HttpOperation::stageFromActive(HttpService *)
 	
 void HttpOperation::visitNotifier(HttpRequest *)
 {
-	if (mLibraryHandler)
+	if (mUserHandler)
 	{
 		HttpResponse * response = new HttpResponse();
 
-		mLibraryHandler->onCompleted(static_cast<HttpHandle>(this), response);
+		response->setStatus(mStatus);
+		mUserHandler->onCompleted(static_cast<HttpHandle>(this), response);
 
 		response->release();
 	}
@@ -142,7 +138,7 @@ HttpStatus HttpOperation::cancel()
 
 void HttpOperation::addAsReply()
 {
-	if (mReplyQueue && mLibraryHandler)
+	if (mReplyQueue)
 	{
 		addRef();
 		mReplyQueue->addOp(this);

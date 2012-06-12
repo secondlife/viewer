@@ -85,7 +85,15 @@ class TestHTTPRequestHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         # Read the provided POST data.
-        self.answer(self.read())
+        # self.answer(self.read())
+        self.answer(dict(reply="success", status=200,
+                         reason=self.read()))
+
+    def do_PUT(self):
+        # Read the provided PUT data.
+        # self.answer(self.read())
+        self.answer(dict(reply="success", status=200,
+                         reason=self.read()))
 
     def answer(self, data):
         debug("%s.answer(%s): self.path = %r", self.__class__.__name__, data, self.path)

@@ -56,10 +56,8 @@ private:
 public:
 	virtual void stageFromRequest(HttpService *);
 
-	virtual void visitNotifier(HttpRequest * request);
-
 protected:
-	HttpStatus					mStatus;
+	// Request Data
 	HttpHandle					mHandle;
 	HttpRequest::priority_t		mPriority;
 }; // end class HttpOpSetPriority

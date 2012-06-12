@@ -97,13 +97,12 @@ namespace tut
 
 		// Get some handlers
 		TestHandler * h1 = new TestHandler();
-		TestHandler * h2 = new TestHandler();
 		
 		// create a new ref counted object with an implicit reference
 		HttpOpNull * op = new HttpOpNull();
 
 		// Add the handlers
-		op->setHandlers(NULL, h1, h2);
+		op->setReplyPath(NULL, h1);
 
 		// Check ref count
 		ensure(op->getRefCount() == 1);
@@ -117,8 +116,6 @@ namespace tut
 		// release the handlers
 		delete h1;
 		h1 = NULL;
-		delete h2;
-		h2 = NULL;
 
 		ensure(mMemTotal == GetMemTotal());
 	}

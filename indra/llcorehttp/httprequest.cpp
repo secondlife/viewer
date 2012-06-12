@@ -34,6 +34,7 @@
 #include "_httpoprequest.h"
 #include "_httpopsetpriority.h"
 #include "_httpopcancel.h"
+#include "_httpopsetget.h"
 
 #include "lltimer.h"
 
@@ -49,39 +50,6 @@ namespace LLCore
 {
 
 // ====================================
-// InternalHandler Implementation
-// ====================================
-
-
-class HttpRequest::InternalHandler : public HttpHandler
-{
-public:
-	InternalHandler(HttpRequest & request)
-		: mRequest(request)
-		{}
-
-protected:
-	InternalHandler(const InternalHandler &);			// Not defined
-	void operator=(const InternalHandler &);			// Not defined
-
-public:
-	void onCompleted(HttpHandle handle, HttpResponse * response)
-		{
-			HttpOperation * op(static_cast<HttpOperation *>(handle));
-			HttpHandler * user_handler(op->getUserHandler());
-			if (user_handler)
-			{
-				user_handler->onCompleted(handle, response);
-			}
-		}
-
-protected:
-	HttpRequest &		mRequest;
-	
-};  // end class HttpRequest::InternalHandler
-
-
-// ====================================
 // HttpRequest Implementation
 // ====================================
 
@@ -92,15 +60,12 @@ HttpRequest::policy_t HttpRequest::sNextPolicyID(1);
 HttpRequest::HttpRequest()
 	: //HttpHandler(),
 	  mReplyQueue(NULL),
-	  mRequestQueue(NULL),
-	  mSelfHandler(NULL)
+	  mRequestQueue(NULL)
 {
 	mRequestQueue = HttpRequestQueue::instanceOf();
 	mRequestQueue->addRef();
 
 	mReplyQueue = new HttpReplyQueue();
-
-	mSelfHandler = new InternalHandler(*this);
 }
 
 
@@ -117,9 +82,6 @@ HttpRequest::~HttpRequest()
 		mReplyQueue->release();
 		mReplyQueue = NULL;
 	}
-
-	delete mSelfHandler;
-	mSelfHandler = NULL;
 }
 
 
@@ -132,7 +94,7 @@ HttpStatus HttpRequest::setPolicyGlobalOption(EGlobalPolicy opt, long value)
 {
 	// *FIXME:  Fail if thread is running.
 
-	return HttpService::instanceOf()->getPolicy().getGlobalOptions().set(opt, value);
+	return HttpService::instanceOf()->getGlobalOptions().set(opt, value);
 }
 
 
@@ -140,7 +102,7 @@ HttpStatus HttpRequest::setPolicyGlobalOption(EGlobalPolicy opt, const std::stri
 {
 	// *FIXME:  Fail if thread is running.
 
-	return HttpService::instanceOf()->getPolicy().getGlobalOptions().set(opt, value);
+	return HttpService::instanceOf()->getGlobalOptions().set(opt, value);
 }
 
 
@@ -192,7 +154,7 @@ HttpHandle HttpRequest::requestGetByteRange(policy_t policy_id,
 		mLastReqStatus = status;
 		return handle;
 	}
-	op->setHandlers(mReplyQueue, mSelfHandler, user_handler);
+	op->setReplyPath(mReplyQueue, user_handler);
 	mRequestQueue->addOp(op);			// transfers refcount
 	
 	mLastReqStatus = status;
@@ -220,7 +182,7 @@ HttpHandle HttpRequest::requestPost(policy_t policy_id,
 		mLastReqStatus = status;
 		return handle;
 	}
-	op->setHandlers(mReplyQueue, mSelfHandler, user_handler);
+	op->setReplyPath(mReplyQueue, user_handler);
 	mRequestQueue->addOp(op);			// transfers refcount
 	
 	mLastReqStatus = status;
@@ -230,19 +192,31 @@ HttpHandle HttpRequest::requestPost(policy_t policy_id,
 }
 
 
-HttpHandle HttpRequest::requestCancel(HttpHandle handle, HttpHandler * user_handler)
+HttpHandle HttpRequest::requestPut(policy_t policy_id,
+								   priority_t priority,
+								   const std::string & url,
+								   BufferArray * body,
+								   HttpOptions * options,
+								   HttpHeaders * headers,
+								   HttpHandler * user_handler)
 {
 	HttpStatus status;
-	HttpHandle ret_handle(LLCORE_HTTP_HANDLE_INVALID);
+	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
 
-	HttpOpCancel * op = new HttpOpCancel(handle);
-	op->setHandlers(mReplyQueue, mSelfHandler, user_handler);
-	mRequestQueue->addOp(op);			// transfer refcount as well
-
-	mLastReqStatus = status;
-	ret_handle = static_cast<HttpHandle>(op);
+	HttpOpRequest * op = new HttpOpRequest();
+	if (! (status = op->setupPut(policy_id, priority, url, body, options, headers)))
+	{
+		op->release();
+		mLastReqStatus = status;
+		return handle;
+	}
+	op->setReplyPath(mReplyQueue, user_handler);
+	mRequestQueue->addOp(op);			// transfers refcount
 	
-	return ret_handle;
+	mLastReqStatus = status;
+	handle = static_cast<HttpHandle>(op);
+	
+	return handle;
 }
 
 
@@ -252,30 +226,13 @@ HttpHandle HttpRequest::requestNoOp(HttpHandler * user_handler)
 	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
 
 	HttpOpNull * op = new HttpOpNull();
-	op->setHandlers(mReplyQueue, mSelfHandler, user_handler);
+	op->setReplyPath(mReplyQueue, user_handler);
 	mRequestQueue->addOp(op);			// transfer refcount as well
 
 	mLastReqStatus = status;
 	handle = static_cast<HttpHandle>(op);
 	
 	return handle;
-}
-
-
-HttpHandle HttpRequest::requestSetPriority(HttpHandle request, priority_t priority,
-										   HttpHandler * handler)
-{
-	HttpStatus status;
-	HttpHandle ret_handle(LLCORE_HTTP_HANDLE_INVALID);
-
-	HttpOpSetPriority * op = new HttpOpSetPriority(request, priority);
-	op->setHandlers(mReplyQueue, mSelfHandler, handler);
-	mRequestQueue->addOp(op);			// transfer refcount as well
-
-	mLastReqStatus = status;
-	ret_handle = static_cast<HttpHandle>(op);
-	
-	return ret_handle;
 }
 
 
@@ -301,6 +258,38 @@ HttpStatus HttpRequest::update(long millis)
 // ====================================
 // Request Management Methods
 // ====================================
+
+HttpHandle HttpRequest::requestCancel(HttpHandle handle, HttpHandler * user_handler)
+{
+	HttpStatus status;
+	HttpHandle ret_handle(LLCORE_HTTP_HANDLE_INVALID);
+
+	HttpOpCancel * op = new HttpOpCancel(handle);
+	op->setReplyPath(mReplyQueue, user_handler);
+	mRequestQueue->addOp(op);			// transfer refcount as well
+
+	mLastReqStatus = status;
+	ret_handle = static_cast<HttpHandle>(op);
+	
+	return ret_handle;
+}
+
+
+HttpHandle HttpRequest::requestSetPriority(HttpHandle request, priority_t priority,
+										   HttpHandler * handler)
+{
+	HttpStatus status;
+	HttpHandle ret_handle(LLCORE_HTTP_HANDLE_INVALID);
+
+	HttpOpSetPriority * op = new HttpOpSetPriority(request, priority);
+	op->setReplyPath(mReplyQueue, handler);
+	mRequestQueue->addOp(op);			// transfer refcount as well
+
+	mLastReqStatus = status;
+	ret_handle = static_cast<HttpHandle>(op);
+	
+	return ret_handle;
+}
 
 
 // ====================================
@@ -350,7 +339,27 @@ HttpHandle HttpRequest::requestStopThread(HttpHandler * user_handler)
 	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
 
 	HttpOpStop * op = new HttpOpStop();
-	op->setHandlers(mReplyQueue, mSelfHandler, user_handler);
+	op->setReplyPath(mReplyQueue, user_handler);
+	mRequestQueue->addOp(op);			// transfer refcount as well
+
+	mLastReqStatus = status;
+	handle = static_cast<HttpHandle>(op);
+
+	return handle;
+}
+
+// ====================================
+// Dynamic Policy Methods
+// ====================================
+
+HttpHandle HttpRequest::requestSetHttpProxy(const std::string & proxy, HttpHandler * handler)
+{
+	HttpStatus status;
+	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
+
+	HttpOpSetGet * op = new HttpOpSetGet();
+	op->setupSet(GP_HTTP_PROXY, proxy);
+	op->setReplyPath(mReplyQueue, handler);
 	mRequestQueue->addOp(op);			// transfer refcount as well
 
 	mLastReqStatus = status;

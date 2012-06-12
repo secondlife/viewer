@@ -60,18 +60,4 @@ void HttpOpSetPriority::stageFromRequest(HttpService * service)
 }
 
 
-void HttpOpSetPriority::visitNotifier(HttpRequest * request)
-{
-	if (mLibraryHandler)
-	{
-		HttpResponse * response = new HttpResponse();
-
-		response->setStatus(mStatus);
-		mLibraryHandler->onCompleted(static_cast<HttpHandle>(this), response);
-
-		response->release();
-	}
-}
-
-
 }   // end namespace LLCore

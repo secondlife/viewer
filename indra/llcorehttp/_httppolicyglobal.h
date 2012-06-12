@@ -40,18 +40,19 @@ public:
 	HttpPolicyGlobal();
 	~HttpPolicyGlobal();
 
+	HttpPolicyGlobal & operator=(const HttpPolicyGlobal &);
+	
 private:
 	HttpPolicyGlobal(const HttpPolicyGlobal &);			// Not defined
-	void operator=(const HttpPolicyGlobal &);			// Not defined
 
 public:
 	HttpStatus set(HttpRequest::EGlobalPolicy opt, long value);
 	HttpStatus set(HttpRequest::EGlobalPolicy opt, const std::string & value);
 	HttpStatus get(HttpRequest::EGlobalPolicy opt, long & value);
-	HttpStatus get(HttpRequest::EGlobalPolicy opt, std::string & value);
+	HttpStatus get(HttpRequest::EGlobalPolicy opt, const std::string *& value);
 	
 public:
-	unsigned long		mValidMask;
+	unsigned long		mSetMask;
 	long				mConnectionLimit;
 	std::string			mCAPath;
 	std::string			mCAFile;

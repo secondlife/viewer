@@ -91,6 +91,13 @@ public:
 						 HttpOptions * options,
 						 HttpHeaders * headers);
 	
+	HttpStatus setupPut(HttpRequest::policy_t policy_id,
+						HttpRequest::priority_t priority,
+						const std::string & url,
+						BufferArray * body,
+						HttpOptions * options,
+						HttpHeaders * headers);
+	
 	HttpStatus prepareRequest(HttpService * service);
 	
 	virtual HttpStatus cancel();

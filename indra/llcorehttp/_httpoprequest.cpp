@@ -44,6 +44,7 @@
 #include "_httplibcurl.h"
 
 #include "llhttpstatuscodes.h"
+#include "llproxy.h"
 
 namespace
 {
@@ -207,7 +208,7 @@ void HttpOpRequest::visitNotifier(HttpRequest * request)
 {
 	static const HttpStatus partial_content(HTTP_PARTIAL_CONTENT, HE_SUCCESS);
 	
-	if (mLibraryHandler)
+	if (mUserHandler)
 	{
 		HttpResponse * response = new HttpResponse();
 		response->setStatus(mStatus);
@@ -219,7 +220,7 @@ void HttpOpRequest::visitNotifier(HttpRequest * request)
 			response->setRange(mReplyOffset, mReplyLength);
 		}
 
-		mLibraryHandler->onCompleted(static_cast<HttpHandle>(this), response);
+		mUserHandler->onCompleted(static_cast<HttpHandle>(this), response);
 
 		response->release();
 	}
@@ -304,6 +305,39 @@ HttpStatus HttpOpRequest::setupPost(HttpRequest::policy_t policy_id,
 }
 
 
+HttpStatus HttpOpRequest::setupPut(HttpRequest::policy_t policy_id,
+								   HttpRequest::priority_t priority,
+								   const std::string & url,
+								   BufferArray * body,
+								   HttpOptions * options,
+								   HttpHeaders * headers)
+{
+	HttpStatus status;
+
+	mProcFlags = 0;
+	mReqPolicy = policy_id;
+	mReqPriority = priority;
+	mReqMethod = HOR_PUT;
+	mReqURL = url;
+	if (body)
+	{
+		body->addRef();
+		mReqBody = body;
+	}
+	if (headers && ! mReqHeaders)
+	{
+		headers->addRef();
+		mReqHeaders = headers;
+	}
+	if (options && ! mReqOptions)
+	{
+		mReqOptions = new HttpOptions(*options);
+	}
+	
+	return status;
+}
+
+
 HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 {
 	// Scrub transport and result data for retried op case
@@ -346,8 +380,6 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	curl_easy_setopt(mCurlHandle, CURLOPT_URL, mReqURL.c_str());
 	curl_easy_setopt(mCurlHandle, CURLOPT_PRIVATE, this);
 	curl_easy_setopt(mCurlHandle, CURLOPT_ENCODING, "");
-	// *FIXME:  Need to deal with proxy setup...
-	// curl_easy_setopt(handle, CURLOPT_PROXY, "");
 
 	// *FIXME:  Revisit this old DNS timeout setting - may no longer be valid
 	curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, 0);
@@ -361,18 +393,31 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYPEER, 1);
 	curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYHOST, 0);
 
-	std::string opt_value;
+	const std::string * opt_value(NULL);
 	if (policy.get(HttpRequest::GP_CA_PATH, opt_value))
 	{
-		curl_easy_setopt(mCurlHandle, CURLOPT_CAPATH, opt_value.c_str());
+		curl_easy_setopt(mCurlHandle, CURLOPT_CAPATH, opt_value->c_str());
 	}
 	if (policy.get(HttpRequest::GP_CA_FILE, opt_value))
 	{
-		curl_easy_setopt(mCurlHandle, CURLOPT_CAINFO, opt_value.c_str());
+		curl_easy_setopt(mCurlHandle, CURLOPT_CAINFO, opt_value->c_str());
 	}
 	if (policy.get(HttpRequest::GP_HTTP_PROXY, opt_value))
 	{
-		curl_easy_setopt(mCurlHandle, CURLOPT_PROXY, opt_value.c_str());
+		if (*opt_value == "LLProxy")
+		{
+			// Use the viewer-based thread-safe API which has a
+			// fast/safe check for proxy enable.  Would like to
+			// encapsulate this someway...
+			LLProxy::getInstance()->applyProxySettings(mCurlHandle);
+		}
+		else
+		{
+			// *TODO:  This is fine for now but get fuller socks/
+			// authentication thing going later....
+			curl_easy_setopt(mCurlHandle, CURLOPT_PROXY, opt_value->c_str());
+			curl_easy_setopt(mCurlHandle, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
+		}
 	}
 	
 	switch (mReqMethod)
@@ -394,7 +439,6 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 			}
 			curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDS, static_cast<void *>(NULL));
 			curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDSIZE, data_size);
-			mCurlHeaders = curl_slist_append(mCurlHeaders, "Transfer-Encoding: chunked");
 			mCurlHeaders = curl_slist_append(mCurlHeaders, "Expect:");
 		}
 		break;
@@ -409,7 +453,6 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 			}
 			curl_easy_setopt(mCurlHandle, CURLOPT_INFILESIZE, data_size);
 			curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDS, (void *) NULL);
-			mCurlHeaders = curl_slist_append(mCurlHeaders, "Transfer-Encoding: chunked");
 			mCurlHeaders = curl_slist_append(mCurlHeaders, "Expect:");
 			mCurlHeaders = curl_slist_append(mCurlHeaders, "Connection: keep-alive");
 			mCurlHeaders = curl_slist_append(mCurlHeaders, "Keep-alive: 300");

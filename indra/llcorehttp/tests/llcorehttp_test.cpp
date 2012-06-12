@@ -44,6 +44,8 @@
 #include "test_bufferarray.hpp"
 #include "test_httprequestqueue.hpp"
 
+#include "llproxy.h"
+
 unsigned long ssl_thread_id_callback(void);
 void ssl_locking_callback(int mode, int type, const char * file, int line);
 
@@ -91,11 +93,15 @@ void init_curl()
 		CRYPTO_set_locking_callback(ssl_locking_callback);
 		CRYPTO_set_id_callback(ssl_thread_id_callback);
 	}
+
+	LLProxy::getInstance();
 }
 
 
 void term_curl()
 {
+	LLProxy::cleanupClass();
+	
 	CRYPTO_set_locking_callback(NULL);
 	for (int i(0); i < ssl_mutex_count; ++i)
 	{

@@ -71,6 +71,12 @@ HttpPolicy::~HttpPolicy()
 }
 
 
+void HttpPolicy::setPolicies(const HttpPolicyGlobal & global)
+{
+	mGlobalOptions = global;
+}
+
+
 void HttpPolicy::addOp(HttpOpRequest * op)
 {
 	const int policy_class(op->mReqPolicy);

@@ -1,6 +1,6 @@
 /**
- * @file _httpopcancel.cpp
- * @brief Definitions for internal class HttpOpCancel
+ * @file _httpopsetget.cpp
+ * @brief Definitions for internal class HttpOpSetGet
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -24,7 +24,7 @@
  * $/LicenseInfo$
  */
 
-#include "_httpopcancel.h"
+#include "_httpopsetget.h"
 
 #include <cstdio>
 #include <algorithm>
@@ -45,23 +45,57 @@ namespace LLCore
 
 
 // ==================================
-// HttpOpCancel
+// HttpOpSetget
 // ==================================
 
 
-HttpOpCancel::HttpOpCancel(HttpHandle handle)
+HttpOpSetGet::HttpOpSetGet()
 	: HttpOperation(),
-	  mHandle(handle)
+	  mIsGlobal(false),
+	  mDoSet(false),
+	  mSetting(-1),				// Nothing requested
+	  mLongValue(0L)
 {}
 
 
-HttpOpCancel::~HttpOpCancel()
+HttpOpSetGet::~HttpOpSetGet()
 {}
 
 
-void HttpOpCancel::stageFromRequest(HttpService * service)
+void HttpOpSetGet::setupGet(HttpRequest::EGlobalPolicy setting)
 {
-	// *FIXME:  Need cancel functionality into services
+	mIsGlobal = true;
+	mSetting = setting;
+}
+
+
+void HttpOpSetGet::setupSet(HttpRequest::EGlobalPolicy setting, const std::string & value)
+{
+	mIsGlobal = true;
+	mDoSet = true;
+	mSetting = setting;
+	mStrValue = value;
+}
+
+
+void HttpOpSetGet::stageFromRequest(HttpService * service)
+{
+	HttpPolicyGlobal & pol_opt(service->getPolicy().getGlobalOptions());
+	HttpRequest::EGlobalPolicy setting(static_cast<HttpRequest::EGlobalPolicy>(mSetting));
+	
+	if (mDoSet)
+	{
+		mStatus = pol_opt.set(setting, mStrValue);
+	}
+	if (mStatus)
+	{
+		const std::string * value;
+		if ((mStatus = pol_opt.get(setting, value)))
+		{
+			mStrValue = *value;
+		}
+	}
+	
 	addAsReply();
 }
 

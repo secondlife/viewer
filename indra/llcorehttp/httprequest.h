@@ -124,8 +124,8 @@ public:
 	/// @param opt		Enum of option to be set.
 	/// @param value	Desired value of option.
 	/// @return			Standard status code.
-	HttpStatus setPolicyGlobalOption(EGlobalPolicy opt, long value);
-	HttpStatus setPolicyGlobalOption(EGlobalPolicy opt, const std::string & value);
+	static HttpStatus setPolicyGlobalOption(EGlobalPolicy opt, long value);
+	static HttpStatus setPolicyGlobalOption(EGlobalPolicy opt, const std::string & value);
 
 	/// Create a new policy class into which requests can be made.
 	///
@@ -236,6 +236,32 @@ public:
 						   HttpHandler * handler);
 
 
+	///
+	/// @param	policy_id		Default or user-defined policy class under
+	///							which this request is to be serviced.
+	/// @param	priority		Standard priority scheme inherited from
+	///							Indra code base.
+	/// @param	url
+	/// @param	body			Byte stream to be sent as the body.  No
+	///							further encoding or escaping will be done
+	///							to the content.
+	/// @param	options			(optional)
+	/// @param	headers			(optional)
+	/// @param	handler			(optional)
+	/// @return					The handle of the request if successfully
+	///							queued or LLCORE_HTTP_HANDLE_INVALID if the
+	///							request could not be queued.  In the latter
+	///							case, @see getStatus() will return more info.
+	///
+	HttpHandle requestPut(policy_t policy_id,
+						  priority_t priority,
+						  const std::string & url,
+						  BufferArray * body,
+						  HttpOptions * options,
+						  HttpHeaders * headers,
+						  HttpHandler * handler);
+
+
 	/// Queue a NoOp request.
 	/// The request is queued and serviced by the working thread which
 	/// immediately processes it and returns the request to the reply
@@ -325,12 +351,19 @@ public:
 	HttpHandle requestStopThread(HttpHandler * handler);
 
 	/// @}
+	
+	/// @name DynamicPolicyMethods
+	///
+	/// @{
+
+	/// Request that a running transport pick up a new proxy setting.
+	/// An empty string will indicate no proxy is to be used.
+	HttpHandle requestSetHttpProxy(const std::string & proxy, HttpHandler * handler);
+
+    /// @}
 
 protected:
 	void generateNotification(HttpOperation * op);
-
-	class InternalHandler;
-	friend class InternalHandler;
 
 private:
 	/// @name InstanceData
@@ -339,7 +372,6 @@ private:
 	HttpStatus			mLastReqStatus;
 	HttpReplyQueue *	mReplyQueue;
 	HttpRequestQueue *	mRequestQueue;
-	InternalHandler *	mSelfHandler;
 	
 	/// @}
 	

@@ -80,9 +80,8 @@ private:
 	void operator=(const HttpOperation &);				// Not defined
 
 public:
-	void setHandlers(HttpReplyQueue * reply_queue,
-					 HttpHandler * lib_handler,
-					 HttpHandler * user_handler);
+	void setReplyPath(HttpReplyQueue * reply_queue,
+					  HttpHandler * handler);
 
 	HttpHandler * getUserHandler() const
 		{
@@ -102,13 +101,15 @@ protected:
 	
 protected:
 	HttpReplyQueue *			mReplyQueue;			// Have refcount
-	HttpHandler *				mLibraryHandler;		// Have refcount
-	HttpHandler *				mUserHandler;			// Have refcount
+	HttpHandler *				mUserHandler;
 
 public:
+	// Request Data
 	HttpRequest::policy_t		mReqPolicy;
 	HttpRequest::priority_t		mReqPriority;
-	
+
+	// Reply Data
+	HttpStatus					mStatus;
 };  // end class HttpOperation
 
 

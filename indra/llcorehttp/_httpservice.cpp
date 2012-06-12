@@ -79,11 +79,8 @@ HttpService::~HttpService()
 		mTransport = NULL;
 	}
 	
-	if (mPolicy)
-	{
-		delete mPolicy;
-		mPolicy = NULL;
-	}
+	delete mPolicy;
+	mPolicy = NULL;
 
 	if (mThread)
 	{
@@ -145,6 +142,10 @@ void HttpService::startThread()
 	{
 		mThread->release();
 	}
+
+	// Push current policy definitions
+	mPolicy->setPolicies(mPolicyGlobal);
+	
 	mThread = new LLCoreInt::HttpThread(boost::bind(&HttpService::threadRun, this, _1));
 	mThread->addRef();		// Need an explicit reference, implicit one is used internally
 	sState = RUNNING;

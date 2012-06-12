@@ -1,6 +1,6 @@
 /**
- * @file _httpopcancel.h
- * @brief Internal declarations for the HttpOpCancel subclass
+ * @file _httpopsetget.h
+ * @brief Internal declarations for the HttpOpSetGet subclass
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef	_LLCORE_HTTP_OPCANCEL_H_
-#define	_LLCORE_HTTP_OPCANCEL_H_
+#ifndef	_LLCORE_HTTP_OPSETGET_H_
+#define	_LLCORE_HTTP_OPSETGET_H_
 
 
 #include "linden_common.h"		// Modifies curl/curl.h interfaces
@@ -42,31 +42,37 @@ namespace LLCore
 {
 
 
-/// HttpOpCancel requests that a previously issued request
-/// be canceled, if possible.  Requests that have been made
-/// active and are available for sending on the wire cannot
-/// be canceled.  
+/// HttpOpSetGet requests dynamic changes to policy and
+/// configuration settings.
 
-class HttpOpCancel : public HttpOperation
+class HttpOpSetGet : public HttpOperation
 {
 public:
-	HttpOpCancel(HttpHandle handle);
-	virtual ~HttpOpCancel();
+	HttpOpSetGet();
+	virtual ~HttpOpSetGet();
 
 private:
-	HttpOpCancel(const HttpOpCancel &);					// Not defined
-	void operator=(const HttpOpCancel &);				// Not defined
+	HttpOpSetGet(const HttpOpSetGet &);					// Not defined
+	void operator=(const HttpOpSetGet &);				// Not defined
 
 public:
+	void setupGet(HttpRequest::EGlobalPolicy setting);
+	void setupSet(HttpRequest::EGlobalPolicy setting, const std::string & value);
+
 	virtual void stageFromRequest(HttpService *);
-			
+
 public:
 	// Request data
-	HttpHandle			mHandle;
-};  // end class HttpOpCancel
+	bool				mIsGlobal;
+	bool				mDoSet;
+	int					mSetting;
+	long				mLongValue;
+	std::string			mStrValue;
+
+};  // end class HttpOpSetGet
 
 
 }   // end namespace LLCore
 
-#endif	// _LLCORE_HTTP_OPCANCEL_H_
+#endif	// _LLCORE_HTTP_OPSETGET_H_
 

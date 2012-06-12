@@ -30,6 +30,7 @@
 
 #include "httpcommon.h"
 #include "httprequest.h"
+#include "_httppolicyglobal.h"
 
 
 namespace LLCoreInt
@@ -157,6 +158,11 @@ public:
 		{
 			return *mTransport;
 		}
+
+	HttpPolicyGlobal & getGlobalOptions()
+		{
+			return mPolicyGlobal;
+		}
 	
 protected:
 	void threadRun(LLCoreInt::HttpThread * thread);
@@ -173,11 +179,11 @@ protected:
 	
 	// === calling-thread-only data ===
 	LLCoreInt::HttpThread *		mThread;
-
+	HttpPolicyGlobal			mPolicyGlobal;
+	
 	// === working-thread-only data ===
 	HttpPolicy *				mPolicy;		// Simple pointer, has ownership
 	HttpLibcurl *				mTransport;		// Simple pointer, has ownership
-	
 };  // end class HttpService
 
 }  // end namespace LLCore

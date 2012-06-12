@@ -5358,11 +5358,24 @@ void CoreHttp::init()
 
 	mRequest = new LLCore::HttpRequest;
 
+	// Point to our certs or SSH/https: will fail on connect
 	status = mRequest->setPolicyGlobalOption(LLCore::HttpRequest::GP_CA_FILE,
 											 gDirUtilp->getCAFile());
 	if (! status)
 	{
 		LL_ERRS("Init") << "Failed to set CA File for HTTP services.  Reason:  "
+						<< status.toString()
+						<< LL_ENDL;
+	}
+
+	// Establish HTTP Proxy.  "LLProxy" is a special string which directs
+	// the code to use LLProxy::applyProxySettings() to establish any
+	// HTTP or SOCKS proxy for http operations.
+	status = mRequest->setPolicyGlobalOption(LLCore::HttpRequest::GP_HTTP_PROXY,
+											 std::string("LLProxy"));
+	if (! status)
+	{
+		LL_ERRS("Init") << "Failed to set HTTP proxy for HTTP services.  Reason:  "
 						<< status.toString()
 						<< LL_ENDL;
 	}
