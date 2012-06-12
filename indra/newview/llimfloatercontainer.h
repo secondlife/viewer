@@ -47,8 +47,8 @@ class LLTabContainer;
 class LLConversationItem;
 class LLIMFloaterContainer;
 
-typedef std::list<LLConversationItem*> conversations_items_list_t;
-typedef std::list<LLFolderViewItem*> conversations_widgets_list_t;
+typedef std::map<LLUUID, LLConversationItem*> conversations_items_map;
+typedef std::map<LLUUID, LLFolderViewItem*> conversations_widgets_map;
 
 // Conversation items: we hold a list of those and create an LLFolderViewItem widget for each that we tuck 
 // into the mConversationsListPanel. 
@@ -166,8 +166,8 @@ private:
 	
 	// CHUI-137 : Data
 	LLPanel* mConversationsListPanel;	// The widget we add list item to (title of each conversation)
-	conversations_items_list_t mConversationsItems;
-	conversations_widgets_list_t mConversationsWidgets;
+	conversations_items_map mConversationsItems;
+	conversations_widgets_map mConversationsWidgets;
 };
 
 #endif // LL_LLIMFLOATERCONTAINER_H
