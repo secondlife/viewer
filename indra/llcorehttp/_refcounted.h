@@ -28,9 +28,11 @@
 #define LLCOREINT__REFCOUNTED_H_
 
 
+#include "linden_common.h"
+
 #include <boost/thread.hpp>
 
-#include "linden_common.h"
+#include "llapr.h"
 
 
 namespace LLCoreInt
@@ -44,7 +46,7 @@ private:
 	void operator=(const RefCounted &);			// Not defined
 	
 public:
-	explicit RefCounted(bool const implicit) 
+	explicit RefCounted(bool const implicit)
 		: mRefCount(implicit)
 		{}
 
@@ -52,42 +54,34 @@ public:
 	void addRef() const;
 	void release() const;
 	bool isLastRef() const;
-	int getRefCount() const;
+	S32 getRefCount() const;
 	void noRef() const;
 
-	static const int			NOT_REF_COUNTED = -1;
+	static const S32			NOT_REF_COUNTED = -1;
 	
 protected:
 	virtual ~RefCounted();
 	virtual void destroySelf();
 
 private:
-	mutable int					mRefCount;
-	mutable boost::mutex		mRefLock;
+	mutable LLAtomicS32			mRefCount;
 
 }; // end class RefCounted
 
 
 inline void RefCounted::addRef() const
 {
-	boost::mutex::scoped_lock lock(mRefLock);
-	llassert_always(mRefCount >= 0);
-	++mRefCount;
+	S32 count(mRefCount++);
+	llassert_always(count >= 0);
 }
 
 
 inline void RefCounted::release() const
 {
-	int count(0);
-	{
-		// CRITICAL SECTION
-		boost::mutex::scoped_lock lock(mRefLock);
-		llassert_always(mRefCount != NOT_REF_COUNTED);
-		llassert_always(mRefCount > 0);
-		count = --mRefCount;
-		// CRITICAL SECTION
-	}
-
+	S32 count(mRefCount);
+	llassert_always(count != NOT_REF_COUNTED);
+	llassert_always(count > 0);
+	count = mRefCount--;
 
 	// clean ourselves up if that was the last reference
 	if (0 == count)
@@ -99,32 +93,22 @@ inline void RefCounted::release() const
 
 inline bool RefCounted::isLastRef() const
 {
-	int count(0);
-	{
-		// CRITICAL SECTION
-		boost::mutex::scoped_lock lock(mRefLock);
-
-		llassert_always(mRefCount != NOT_REF_COUNTED);
-		llassert_always(mRefCount >= 1);
-		count = mRefCount;
-		// CRITICAL SECTION
-	}
-
+	const S32 count(mRefCount);
+	llassert_always(count != NOT_REF_COUNTED);
+	llassert_always(count >= 1);
 	return (1 == count);
 }
 
 
-inline int RefCounted::getRefCount() const
+inline S32 RefCounted::getRefCount() const
 {
-	boost::mutex::scoped_lock lock(mRefLock);
-	const int result(mRefCount);
+	const S32 result(mRefCount);
 	return result;
 }
 
 
 inline void RefCounted::noRef() const
 {
-	boost::mutex::scoped_lock lock(mRefLock);
 	llassert_always(mRefCount <= 1);
 	mRefCount = NOT_REF_COUNTED;
 }

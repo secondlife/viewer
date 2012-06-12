@@ -175,7 +175,7 @@ size_t BufferArray::read(size_t pos, void * dst, size_t len)
 	if (pos >= mLen)
 		return 0;
 	size_t len_limit(mLen - pos);
-	len = std::min(len, len_limit);
+	len = (std::min)(len, len_limit);
 	if (0 == len)
 		return 0;
 	
@@ -189,7 +189,7 @@ size_t BufferArray::read(size_t pos, void * dst, size_t len)
 	{
 		Block & block(*mBlocks[block_start]);
 		size_t block_limit(block.mUsed - offset);
-		size_t block_len(std::min(block_limit, len));
+		size_t block_len((std::min)(block_limit, len));
 		
 		memcpy(c_dst, &block.mData[offset], block_len);
 		result += block_len;
@@ -223,7 +223,7 @@ size_t BufferArray::write(size_t pos, const void * src, size_t len)
 		{
 			Block & block(*mBlocks[block_start]);
 			size_t block_limit(block.mUsed - offset);
-			size_t block_len(std::min(block_limit, len));
+			size_t block_len((std::min)(block_limit, len));
 		
 			memcpy(&block.mData[offset], c_src, block_len);
 			result += block_len;
