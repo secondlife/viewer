@@ -116,9 +116,6 @@
 #include "lltoolgrab.h"
 #include "llwindow.h"
 #include "boost/unordered_map.hpp"
-#ifndef STINSON_ADULT_CHECK_HACK
-#include "llviewercontrol.h"
-#endif // STINSON_ADULT_CHECK_HACK
 
 using namespace LLVOAvatarDefines;
 
@@ -342,11 +339,7 @@ void LLMenuParcelObserver::changed()
 {
 	gMenuHolder->childSetEnabled("Land Buy Pass", LLPanelLandGeneral::enableBuyPass(NULL));
 	
-#ifndef STINSON_ADULT_CHECK_HACK
-	BOOL buyable = gSavedSettings.getBOOL("AdultCheckEnablePurchse") || enable_buy_land(NULL);
-#else // STINSON_ADULT_CHECK_HACK
 	BOOL buyable = enable_buy_land(NULL);
-#endif // STINSON_ADULT_CHECK_HACK
 	gMenuHolder->childSetEnabled("Land Buy", buyable);
 	gMenuHolder->childSetEnabled("Buy Land...", buyable);
 }
@@ -3244,12 +3237,6 @@ void append_aggregate(std::string& string, const LLAggregatePermissions& ag_perm
 
 bool enable_buy_object()
 {
-#ifndef STINSON_ADULT_CHECK_HACK
-	if (gSavedSettings.getBOOL("AdultCheckEnablePurchse"))
-	{
-		return true;
-	}
-#endif // STINSON_ADULT_CHECK_HACK
     // In order to buy, there must only be 1 purchaseable object in
     // the selection manger.
 	if(LLSelectMgr::getInstance()->getSelection()->getRootObjectCount() != 1) return false;
@@ -5966,12 +5953,6 @@ class LLWorldEnableBuyLand : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-#ifndef STINSON_ADULT_CHECK_HACK
-		if (gSavedSettings.getBOOL("AdultCheckEnablePurchse"))
-		{
-			return true;
-		}
-#endif // STINSON_ADULT_CHECK_HACK
 		bool new_value = LLViewerParcelMgr::getInstance()->canAgentBuyParcel(
 								LLViewerParcelMgr::getInstance()->selectionEmpty()
 									? LLViewerParcelMgr::getInstance()->getAgentParcel()
