@@ -138,7 +138,7 @@ private:
 	// For display name lookups for IM window titles
 	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
 
-	bool dropPerson(LLInventoryObject* item, bool drop);
+	bool dropPerson(LLUUID* person_id, bool drop);
 
 	BOOL isInviteAllowed() const;
 	BOOL inviteToSession(const uuid_vec_t& agent_ids);
