@@ -468,9 +468,16 @@ void LLPanelObject::getState( )
 		getChildView("select_single")->setVisible( TRUE);
 		getChildView("select_single")->setEnabled(TRUE);
 	}
+
+	BOOL is_flexible = volobjp && volobjp->isFlexible();
+	BOOL is_permanent = root_objectp->flagObjectPermanent();
+	BOOL is_permanent_enforced = root_objectp->isPermanentEnforced();
+	BOOL is_character = root_objectp->flagCharacter();
+	llassert(!is_permanent || !is_character); // should never have a permanent object that is also a character
+
 	// Lock checkbox - only modifiable if you own the object.
 	BOOL self_owned = (gAgent.getID() == owner_id);
-	mCheckLock->setEnabled( roots_selected > 0 && self_owned );
+	mCheckLock->setEnabled( roots_selected > 0 && self_owned && !is_permanent_enforced);
 
 	// More lock and debit checkbox - get the values
 	BOOL valid;
@@ -499,12 +506,6 @@ void LLPanelObject::getState( )
 			mCheckLock->setTentative(TRUE);
 		}
 	}
-
-	BOOL is_flexible = volobjp && volobjp->isFlexible();
-	BOOL is_permanent = root_objectp->flagObjectPermanent();
-	BOOL is_permanent_enforced = root_objectp->isPermanentEnforced();
-	BOOL is_character = root_objectp->flagCharacter();
-	llassert(!is_permanent || !is_character); // should never have a permanent object that is also a character
 
 	// Physics checkbox
 	mIsPhysical = root_objectp->flagUsePhysics();

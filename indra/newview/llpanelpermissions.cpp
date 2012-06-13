@@ -393,7 +393,7 @@ void LLPanelPermissions::refresh()
 		}
 	}
 	
-	getChildView("button set group")->setEnabled(owners_identical && (mOwnerID == gAgent.getID()));
+	getChildView("button set group")->setEnabled(owners_identical && (mOwnerID == gAgent.getID()) && is_nonpermanent);
 
 	getChildView("Name:")->setEnabled(TRUE);
 	LLLineEditor* LineEditorObjectName = getChild<LLLineEditor>("Object Name");
@@ -423,7 +423,7 @@ void LLPanelPermissions::refresh()
 
 	// figure out the contents of the name, description, & category
 	BOOL edit_name_desc = FALSE;
-	if (is_one_object && objectp->permModify())
+	if (is_one_object && objectp->permModify() && !objectp->isPermanentEnforced())
 	{
 		edit_name_desc = TRUE;
 	}
@@ -603,12 +603,12 @@ void LLPanelPermissions::refresh()
 	BOOL has_change_perm_ability = FALSE;
 	BOOL has_change_sale_ability = FALSE;
 
-	if (valid_base_perms &&
+	if (valid_base_perms && is_nonpermanent &&
 		(self_owned || (group_owned && gAgent.hasPowerInGroup(group_id, GP_OBJECT_MANIPULATE))))
 	{
 		has_change_perm_ability = TRUE;
 	}
-	if (valid_base_perms &&
+	if (valid_base_perms && is_nonpermanent &&
 	   (self_owned || (group_owned && gAgent.hasPowerInGroup(group_id, GP_OBJECT_SET_SALE))))
 	{
 		has_change_sale_ability = TRUE;
@@ -821,8 +821,8 @@ void LLPanelPermissions::refresh()
 			combo_click_action->setValue(LLSD(combo_value));
 		}
 	}
-	getChildView("label click action")->setEnabled(is_perm_modify && all_volume);
-	getChildView("clickaction")->setEnabled(is_perm_modify && all_volume);
+	getChildView("label click action")->setEnabled(is_perm_modify && is_nonpermanent  && all_volume);
+	getChildView("clickaction")->setEnabled(is_perm_modify && is_nonpermanent && all_volume);
 }
 
 
