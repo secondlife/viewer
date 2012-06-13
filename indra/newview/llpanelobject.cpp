@@ -513,7 +513,7 @@ void LLPanelObject::getState( )
 	mCheckPhysics->set( mIsPhysical );
 	mCheckPhysics->setEnabled( roots_selected>0 
 								&& (editable || gAgent.isGodlike()) 
-								&& !is_flexible && !is_permanent && !is_character);
+								&& !is_flexible && !is_permanent);
 
 	mIsTemporary = root_objectp->flagTemporaryOnRez();
 	llassert(!is_permanent || !mIsTemporary); // should never has a permanent object that is also temporary
