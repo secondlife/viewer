@@ -93,7 +93,8 @@ public:
 #endif // XXX_STINSON_AGENT_STATE_DELETE_ME
 
 	void handleNavMeshRebakeResult( const LLSD &pContent );
-	void handleNavMeshRebakeError(U32 pStatus, const std::string &pReason, const std::string &pURL);
+	void handleNavMeshRebakeError( U32 pStatus, const std::string &pReason, const std::string &pURL );
+	void triggerNavMeshRebuild();
 
 protected:
 
@@ -123,7 +124,6 @@ private:
 	
 	void displayNavMeshRebakePanel();
 	void hideNavMeshRebakePanel();	
-	void triggerNavMeshRebuild();
 
 #ifdef XXX_STINSON_AGENT_STATE_DELETE_ME
 	void requestGetAgentState();
