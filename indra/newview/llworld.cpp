@@ -657,7 +657,10 @@ void LLWorld::updateRegions(F32 max_update_time)
 		if (did_one && max_time <= 0.f)
 			break;
 		max_time = llmin(max_time, max_update_time*.1f);
-		did_one |= regionp->idleUpdate(max_update_time);
+		if (regionp->idleUpdate(max_update_time))
+		{
+			did_one = TRUE;
+		}
 	}
 }
 

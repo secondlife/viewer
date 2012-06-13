@@ -1461,7 +1461,8 @@ void LLViewerRegion::unpackRegionHandshake()
 		// all of our terrain stuff, by
 		if (compp->getParamsReady())
 		{
-			getLand().dirtyAllPatches();
+			//this line creates frame stalls on region crossing and removing it appears to have no effect
+			//getLand().dirtyAllPatches();
 		}
 		else
 		{
