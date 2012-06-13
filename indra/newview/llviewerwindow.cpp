@@ -200,6 +200,9 @@
 #include "llviewerwindowlistener.h"
 #include "llpaneltopinfobar.h"
 
+//prep#
+#include "llpathfindingmanager.h"
+
 #if LL_WINDOWS
 #include <tchar.h> // For Unicode conversion methods
 #endif
@@ -1923,7 +1926,12 @@ void LLViewerWindow::initWorldUI()
 	LLPanelStandStopFlying* panel_stand_stop_flying	= LLPanelStandStopFlying::getInstance();
 	panel_ssf_container->addChild(panel_stand_stop_flying);
 	panel_ssf_container->setVisible(TRUE);
-
+	//prep#
+	/*LLPanel* panel_nmr_container = getRootView()->getChild<LLPanel>("navmesh_rebake_container");
+	LLPanelNavMeshRebake* panel_namesh_rebake	= LLPanelNavMeshRebake::getInstance();
+	panel_nmr_container->addChild(panel_namesh_rebake);
+	panel_nmr_container->setVisible(TRUE);
+	*/
 	// Load and make the toolbars visible
 	// Note: we need to load the toolbars only *after* the user is logged in and IW
 	if (gToolBarView)

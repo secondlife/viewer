@@ -383,6 +383,7 @@ set(viewer_SOURCE_FILES
     llpanelmediasettingspermissions.cpp
     llpanelmediasettingssecurity.cpp
     llpanelme.cpp
+    llpanelnavmeshrebake.cpp
     llpanelnearbymedia.cpp
     llpanelobject.cpp
     llpanelobjectinventory.cpp
@@ -948,6 +949,7 @@ set(viewer_HEADER_FILES
     llpanelmediasettingspermissions.h
     llpanelmediasettingssecurity.h
     llpanelme.h
+    llpanelnavmeshrebake.h
     llpanelnearbymedia.h
     llpanelobject.h
     llpanelobjectinventory.h

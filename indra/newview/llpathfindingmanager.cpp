@@ -52,6 +52,7 @@
 #include "lluuid.h"
 #include "llviewerregion.h"
 #include "llweb.h"
+#include "llpanelnavmeshrebake.h"
 
 #define CAP_SERVICE_RETRIEVE_NAVMESH      "RetrieveNavMeshSrc"
 
@@ -268,7 +269,7 @@ private:
 
 LLPathfindingManager::LLPathfindingManager()
 	: LLSingleton<LLPathfindingManager>(),
-	mNavMeshMap()
+	mNavMeshMap(),mShowNavMeshRebake(false)
 {
 }
 
@@ -315,7 +316,15 @@ LLPathfindingNavMesh::navmesh_slot_t LLPathfindingManager::registerNavMeshListen
 void LLPathfindingManager::requestGetNavMeshForRegion(LLViewerRegion *pRegion)
 {
 	LLPathfindingNavMeshPtr navMeshPtr = getNavMeshForRegion(pRegion);
-
+	//prep#s#test
+	LLView* rootp = LLUI::getRootView();
+ 	LLPanel* panel_nmr_container = rootp->getChild<LLPanel>("navmesh_rebake_container");
+	LLPanelNavMeshRebake* panel_namesh_rebake = LLPanelNavMeshRebake::getInstance();
+	panel_nmr_container->addChild( panel_namesh_rebake );
+	panel_nmr_container->setVisible( TRUE );
+	panel_namesh_rebake->reparent( rootp );
+	LLPanelNavMeshRebake::getInstance()->setVisible( TRUE );
+	//prep#e
 	if (pRegion == NULL)
 	{
 		navMeshPtr->handleNavMeshNotEnabled();
@@ -955,3 +964,4 @@ void CharactersResponder::error(U32 pStatus, const std::string &pReason)
 	LLPathfindingObjectListPtr characterListPtr =  LLPathfindingObjectListPtr(new LLPathfindingCharacterList());
 	mCharactersCallback(mRequestId, LLPathfindingManager::kRequestError, characterListPtr);
 }
+

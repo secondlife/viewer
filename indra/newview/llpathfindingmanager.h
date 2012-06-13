@@ -39,6 +39,8 @@
 #include "llpathfindingnavmesh.h"
 #include "llsingleton.h"
 #include "lluuid.h"
+#include "llpanel.h"
+#include "llmoveview.h"
 
 class LLViewerRegion;
 class LLPathfindingNavMeshStatus;
@@ -122,6 +124,10 @@ private:
 #endif // XXX_STINSON_AGENT_STATE_DELETE_ME
 
 	NavMeshMap mNavMeshMap;
+
+
+	BOOL mShowNavMeshRebake;
 };
+
 
 #endif // LL_LLPATHFINDINGMANAGER_H
