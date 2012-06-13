@@ -96,7 +96,6 @@ BOOL LLPanelNavMeshRebake::postBuild()
 	
 	//Baking
 	mNavMeshBakingButton = getChild<LLButton>("navmesh_btn_baking");
-	mNavMeshBakingButton->setCommitCallback(boost::bind(&LLPanelNavMeshRebake::onNavMeshRebakeClick, this));
 	mNavMeshBakingButton->setVisible( FALSE );
 	LLHints::registerHintTarget("navmesh_btn_baking", mNavMeshBakingButton->getHandle());
 	return TRUE;
@@ -146,6 +145,8 @@ void LLPanelNavMeshRebake::onNavMeshRebakeClick()
 	setFocus(FALSE); 
 	mNavMeshRebakeButton->setVisible( FALSE ); 
 	mNavMeshBakingButton->setVisible( TRUE ); 
+	mNavMeshBakingButton->setForcePressedState( TRUE );
+	//post 
 }
 
 /**

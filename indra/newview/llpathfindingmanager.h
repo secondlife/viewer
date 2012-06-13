@@ -92,6 +92,9 @@ public:
 	agent_state_slot_t registerAgentStateListener(agent_state_callback_t pAgentStateCallback);
 #endif // XXX_STINSON_AGENT_STATE_DELETE_ME
 
+	void handleNavMeshRebakeResult( const LLSD &pContent );
+	void handleNavMeshRebakeError(U32 pStatus, const std::string &pReason, const std::string &pURL);
+
 protected:
 
 private:
@@ -116,6 +119,11 @@ private:
 	std::string    getCapabilityURLForCurrentRegion(const std::string &pCapabilityName) const;
 	std::string    getCapabilityURLForRegion(LLViewerRegion *pRegion, const std::string &pCapabilityName) const;
 	LLViewerRegion *getCurrentRegion() const;
+
+	
+	void displayNavMeshRebakePanel();
+	void hideNavMeshRebakePanel();	
+	void triggerNavMeshRebuild();
 
 #ifdef XXX_STINSON_AGENT_STATE_DELETE_ME
 	void requestGetAgentState();

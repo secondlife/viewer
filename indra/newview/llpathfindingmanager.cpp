@@ -163,6 +163,23 @@ private:
 #endif // XXX_STINSON_AGENT_STATE_DELETE_ME
 
 //---------------------------------------------------------------------------
+// NavMeshRebakeResponder
+//---------------------------------------------------------------------------
+class NavMeshRebakeResponder : public LLHTTPClient::Responder
+{
+public:
+	NavMeshRebakeResponder( const std::string &pCapabilityURL );
+	virtual ~NavMeshRebakeResponder();
+
+	virtual void result( const LLSD &pContent );
+	virtual void error( U32 pStatus, const std::string& pReason );
+
+protected:
+
+private:
+	std::string                       mCapabilityURL;
+};
+//---------------------------------------------------------------------------
 // LinksetsResponder
 //---------------------------------------------------------------------------
 
@@ -269,7 +286,7 @@ private:
 
 LLPathfindingManager::LLPathfindingManager()
 	: LLSingleton<LLPathfindingManager>(),
-	mNavMeshMap(),mShowNavMeshRebake(false)
+	mNavMeshMap(), mShowNavMeshRebake(false)
 {
 }
 
@@ -316,15 +333,7 @@ LLPathfindingNavMesh::navmesh_slot_t LLPathfindingManager::registerNavMeshListen
 void LLPathfindingManager::requestGetNavMeshForRegion(LLViewerRegion *pRegion)
 {
 	LLPathfindingNavMeshPtr navMeshPtr = getNavMeshForRegion(pRegion);
-	//prep#s#test
-	LLView* rootp = LLUI::getRootView();
-	LLPanel* panel_nmr_container = rootp->getChild<LLPanel>("navmesh_rebake_container");
-	LLPanelNavMeshRebake* panel_namesh_rebake = LLPanelNavMeshRebake::getInstance();
-	panel_nmr_container->addChild( panel_namesh_rebake );
-	panel_nmr_container->setVisible( TRUE );
-	panel_namesh_rebake->reparent( rootp );
-	LLPanelNavMeshRebake::getInstance()->setVisible( TRUE );
-	//prep#e
+	
 	if (pRegion == NULL)
 	{
 		navMeshPtr->handleNavMeshNotEnabled();
@@ -684,6 +693,50 @@ LLViewerRegion *LLPathfindingManager::getCurrentRegion() const
 	return gAgent.getRegion();
 }
 
+void LLPathfindingManager::displayNavMeshRebakePanel()
+{
+	LLView* rootp = LLUI::getRootView();
+	LLPanel* panel_nmr_container = rootp->getChild<LLPanel>("navmesh_rebake_container");
+	LLPanelNavMeshRebake* panel_namesh_rebake = LLPanelNavMeshRebake::getInstance();
+	panel_nmr_container->addChild( panel_namesh_rebake );
+	panel_nmr_container->setVisible( TRUE );
+	panel_namesh_rebake->reparent( rootp );
+	LLPanelNavMeshRebake::getInstance()->setVisible( TRUE );
+}
+
+void  LLPathfindingManager::hideNavMeshRebakePanel()
+{
+	LLPanelNavMeshRebake::getInstance()->setVisible( FALSE );
+}
+
+void LLPathfindingManager::handleNavMeshRebakeResult( const LLSD &pContent )
+{
+
+}
+
+void LLPathfindingManager::handleNavMeshRebakeError(U32 pStatus, const std::string &pReason, const std::string &pURL)
+{
+	llwarns << "error with request to URL '" << pURL << "' because " << pReason << " (statusCode:" << pStatus << ")" << llendl;
+}
+//prep#
+void LLPathfindingManager::triggerNavMeshRebuild()
+{
+	LLSD mPostData;
+	std::string url = getNavMeshStatusURLForRegion( getCurrentRegion() );
+
+	if ( url.empty() )
+	{
+		//prep#fix#error?
+	}
+	else
+	{
+		LLSD mPostData;			
+		mPostData["command"] = "rebuild";
+		LLHTTPClient::ResponderPtr responder = new NavMeshRebakeResponder( url );
+		LLHTTPClient::post( url, mPostData, responder );
+	}
+
+}
 //---------------------------------------------------------------------------
 // LLNavMeshSimStateChangeNode
 //---------------------------------------------------------------------------
@@ -804,6 +857,28 @@ void AgentStateResponder::error(U32 pStatus, const std::string &pReason)
 }
 #endif // XXX_STINSON_AGENT_STATE_DELETE_ME
 
+//---------------------------------------------------------------------------
+// navmesh rebake responder
+//---------------------------------------------------------------------------
+NavMeshRebakeResponder::NavMeshRebakeResponder(const std::string &pCapabilityURL )
+: LLHTTPClient::Responder()
+, mCapabilityURL( pCapabilityURL )
+{
+}
+
+NavMeshRebakeResponder::~NavMeshRebakeResponder()
+{
+}
+
+void NavMeshRebakeResponder::result(const LLSD &pContent)
+{
+	LLPathfindingManager::getInstance()->handleNavMeshRebakeResult( pContent );
+}
+
+void NavMeshRebakeResponder::error(U32 pStatus, const std::string &pReason)
+{
+	LLPathfindingManager::getInstance()->handleNavMeshRebakeError( pStatus, pReason, mCapabilityURL );
+}
 //---------------------------------------------------------------------------
 // LinksetsResponder
 //---------------------------------------------------------------------------
