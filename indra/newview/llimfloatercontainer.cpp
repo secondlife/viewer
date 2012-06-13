@@ -116,7 +116,7 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 
 	LLUUID session_id = floaterp->getKey();
 
-	// CHUI-137
+	// CHUI-137 : Temporary implementation of conversations list
 	// Create a conversation item
 	LLConversationItem* item = new LLConversationItem(floaterp->getTitle(),session_id, floaterp, this);
 	mConversationsItems[session_id] = item;
@@ -171,11 +171,12 @@ void LLIMFloaterContainer::removeFloater(LLFloater* floaterp)
 {
 	LLMultiFloater::removeFloater(floaterp);
 
-    // CHUI-137 : Clean up the conversations list
+    // CHUI-137 : Temporary implementation of conversations list
+	// Clean up the conversations list
  	LLUUID session_id = floaterp->getKey();
     // Delete the widget and the associated conversation item
-    // Note : since the mConversationsItems is a listener to the widget, deleting the widget also
-    // delete its listener
+    // Note : since the mConversationsItems is also the listener to the widget, deleting 
+    // the widget will also delete its listener
 	conversations_widgets_map::iterator widget_it = mConversationsWidgets.find(session_id);
 	if (widget_it != mConversationsWidgets.end())
     {
@@ -197,7 +198,7 @@ void LLIMFloaterContainer::removeFloater(LLFloater* floaterp)
                                panel_rect.getWidth(),
                                panel_rect.getHeight() - item_height*(index+1)));
     }
-    // CHUI-137
+    // CHUI-137 : end
    
 	LLRect contents_rect = floaterp->getRect();
 
@@ -362,7 +363,7 @@ void LLIMFloaterContainer::updateState(bool collapse, S32 delta_width)
 	setCanMinimize(is_left_pane_expanded || is_right_pane_expanded);
 }
 
-// CHUI-137 : Temp implementation of conversations list
+// CHUI-137 : Temporary implementation of conversations list
 LLFolderViewItem* LLIMFloaterContainer::createConversationItemWidget(LLConversationItem* item)
 {
 	LLFolderViewItem::Params params;
@@ -370,7 +371,6 @@ LLFolderViewItem* LLIMFloaterContainer::createConversationItemWidget(LLConversat
 	params.name = item->getDisplayName();
 	//params.icon = bridge->getIcon();
 	//params.icon_open = bridge->getOpenIcon();
-		
 	//params.creation_date = bridge->getCreationDate();
 	//params.root = mFolderRoot;
 	params.listener = item;
@@ -387,7 +387,8 @@ LLConversationItem::LLConversationItem(std::string name, const LLUUID& uuid, LLF
     mFloater(floaterp),
     mContainer(containerp)
 {
-    // Hack: the nearby chat has no name so we catch that and impose one
+    // Hack: the nearby chat has no name so we catch that case and impose one
+	// Of course, we won't be doing this in the final code
 	if (name == "")
 		mName = "Nearby Chat";
 }
@@ -395,7 +396,7 @@ LLConversationItem::LLConversationItem(std::string name, const LLUUID& uuid, LLF
 // Virtual action callbacks
 void LLConversationItem::selectItem(void)
 {
-    // Select the conversation floater that is being selected
+    // Switch to the conversation floater that is being selected
     mContainer->selectFloater(mFloater);
 }
 

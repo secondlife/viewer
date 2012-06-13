@@ -42,16 +42,16 @@ class LLButton;
 class LLLayoutPanel;
 class LLLayoutStack;
 class LLTabContainer;
+class LLIMFloaterContainer;
 
 // CHUI-137 : Temporary implementation of conversations list
 class LLConversationItem;
-class LLIMFloaterContainer;
 
 typedef std::map<LLUUID, LLConversationItem*> conversations_items_map;
 typedef std::map<LLUUID, LLFolderViewItem*> conversations_widgets_map;
 
-// Conversation items: we hold a list of those and create an LLFolderViewItem widget for each that we tuck 
-// into the mConversationsListPanel. 
+// Conversation items: we hold a list of those and create an LLFolderViewItem widget for each  
+// that we tuck into the mConversationsListPanel. 
 class LLConversationItem : public LLFolderViewEventListener
 {
 public:
@@ -89,7 +89,7 @@ public:
 	virtual LLInventoryType::EType getInventoryType() const { return LLInventoryType::IT_NONE; }
 	virtual LLWearableType::EType getWearableType() const { return LLWearableType::WT_NONE; }
 
-	// The action callbacks (or so we think...)
+	// The action callbacks
 	virtual void performAction(LLInventoryModel* model, std::string action);
 	virtual void openItem( void );
 	virtual void closeItem( void );
@@ -97,14 +97,14 @@ public:
 	virtual void selectItem(void);
 	virtual void showProperties(void);
 	
-	// This method should be called when a drag begins. returns TRUE
-	// if the drag can begin, otherwise FALSE.
+	// This method should be called when a drag begins.
+	// Returns TRUE if the drag can begin, FALSE otherwise.
 	virtual BOOL startDrag(EDragAndDropType* type, LLUUID* id) const { return FALSE; }
 	
 	// This method will be called to determine if a drop can be
 	// performed, and will set drop to TRUE if a drop is
-	// requested. Returns TRUE if a drop is possible/happened,
-	// otherwise FALSE.
+	// requested. 
+	// Returns TRUE if a drop is possible/happened, FALSE otherwise.
 	virtual BOOL dragOrDrop(MASK mask, BOOL drop,
 							EDragAndDropType cargo_type,
 							void* cargo_data,
@@ -115,7 +115,7 @@ private:
     LLFloater* mFloater;
     LLIMFloaterContainer* mContainer;
 };
-	// CHUI-137 : End
+// CHUI-137 : End
 
 class LLIMFloaterContainer : public LLMultiFloater
 {
@@ -164,8 +164,9 @@ private:
 	LLLayoutPanel* mConversationsPane;
 	LLLayoutStack* mConversationsStack;
 	
-	// CHUI-137 : Data
-	LLPanel* mConversationsListPanel;	// The widget we add list item to (title of each conversation)
+	// CHUI-137 : Temporary implementation of conversations list
+	// Conversation list data
+	LLPanel* mConversationsListPanel;	// This is the widget we add items to (i.e. clickable title for each conversation)
 	conversations_items_map mConversationsItems;
 	conversations_widgets_map mConversationsWidgets;
 };
