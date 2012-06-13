@@ -51,6 +51,7 @@
 #include "pipeline.h"
 #include "llpathinglib.h"
 #include "llviewerparcelmgr.h"
+#include "llpanelnavmeshrebake.h"
 
 #define XUI_RENDER_HEATMAP_NONE 0
 #define XUI_RENDER_HEATMAP_A 1
@@ -264,6 +265,9 @@ void LLFloaterPathfindingConsole::onClose(bool pIsAppQuitting)
 	setDefaultInputs();
 	setConsoleState(kConsoleStateUnknown);
 	cleanupRenderableRestoreItems();
+	LLPanelNavMeshRebake* pPanelNavMeshRebake = LLPanelNavMeshRebake::getInstance();
+	if ( pPanelNavMeshRebake ) { pPanelNavMeshRebake->setVisible( FALSE ); }
+
 	LLFloater::onClose(pIsAppQuitting);
 }
 
