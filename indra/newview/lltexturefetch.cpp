@@ -203,7 +203,7 @@
 // Priority Scheme
 //
 // [PRIORITY_LOW, PRIORITY_NORMAL)   - for WAIT_HTTP_RESOURCE state
-// [PRIORITY_NORMAL, PRIORITY_HIGH)  - waiting for external event
+//									   and other wait states
 // [PRIORITY_HIGH, PRIORITY_URGENT)  - External event delivered,
 //                                     rapidly transitioning through states,
 //                                     no waiting allowed
@@ -1102,7 +1102,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			
 			if (mUrl.compare(0, 7, "file://") == 0)
 			{
-				setPriority(LLWorkerThread::PRIORITY_NORMAL | mWorkPriority); // Set priority first since Responder may change it
+				setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority); // Set priority first since Responder may change it
 
 				// read file from local disk
 				std::string filename = mUrl.substr(7, std::string::npos);
@@ -1112,7 +1112,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			}
 			else if (mUrl.empty())
 			{
-				setPriority(LLWorkerThread::PRIORITY_NORMAL | mWorkPriority); // Set priority first since Responder may change it
+				setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority); // Set priority first since Responder may change it
 
 				CacheReadResponder* responder = new CacheReadResponder(mFetcher, mID, mFormattedImage);
 				mCacheReadHandle = mFetcher->mTextureCache->readFromCache(mID, cache_priority,
@@ -1241,7 +1241,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			mSentRequest = QUEUED;
 			mFetcher->addToNetworkQueue(this);
 			recordTextureStart(false);
-			setPriority(LLWorkerThread::PRIORITY_NORMAL | mWorkPriority);
+			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
 			
 			return false;
 		}
@@ -1252,7 +1252,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			// Make certain this is in the network queue
 			//mFetcher->addToNetworkQueue(this);
 			//recordTextureStart(false);
-			//setPriority(LLWorkerThread::PRIORITY_NORMAL | mWorkPriority);
+			//setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
 			return false;
 		}
 	}
@@ -1281,7 +1281,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		else
 		{
 			mFetcher->addToNetworkQueue(this); // failsafe
-			setPriority(LLWorkerThread::PRIORITY_NORMAL | mWorkPriority);
+			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
 			recordTextureStart(false);
 		}
 		return false;
@@ -1371,7 +1371,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		mHttpActive = true;
 		mFetcher->addToHTTPQueue(mID);
 		recordTextureStart(true);
-		setPriority(LLWorkerThread::PRIORITY_NORMAL | mWorkPriority);
+		setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
 		mState = WAIT_HTTP_REQ;	
 		
 		// fall through
@@ -1495,7 +1495,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		}
 		else
 		{
-			setPriority(LLWorkerThread::PRIORITY_NORMAL | mWorkPriority);
+			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
 			return false;
 		}
 	}
@@ -1504,7 +1504,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	{
 		static LLCachedControl<bool> textures_decode_disabled(gSavedSettings,"TextureDecodeDisabled");
 
-		setPriority(LLWorkerThread::PRIORITY_NORMAL | mWorkPriority); // Set priority first since Responder may change it
+		setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority); // Set priority first since Responder may change it
 		if (textures_decode_disabled)
 		{
 			// for debug use, don't decode
@@ -1540,7 +1540,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		mAuxImage = NULL;
 		llassert_always(mFormattedImage.notNull());
 		S32 discard = mHaveAllData ? 0 : mLoadedDiscard;
-		U32 image_priority = LLWorkerThread::PRIORITY_NORMAL | mWorkPriority;
+		U32 image_priority = LLWorkerThread::PRIORITY_LOW | mWorkPriority;
 		mDecoded  = FALSE;
 		mState = DECODE_IMAGE_UPDATE;
 		LL_DEBUGS("Texture") << mID << ": Decoding. Bytes: " << mFormattedImage->getDataSize() << " Discard: " << discard
@@ -1612,7 +1612,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			}
 		}
 		llassert_always(datasize);
-		setPriority(LLWorkerThread::PRIORITY_NORMAL | mWorkPriority); // Set priority first since Responder may change it
+		setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority); // Set priority first since Responder may change it
 		U32 cache_priority = mWorkPriority;
 		mWritten = FALSE;
 		mState = WAIT_ON_WRITE;
@@ -1654,7 +1654,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		}
 		else
 		{
-			setPriority(LLWorkerThread::PRIORITY_NORMAL | mWorkPriority);
+			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
 			return true;
 		}
 	}
