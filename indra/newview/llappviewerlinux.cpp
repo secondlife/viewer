@@ -365,7 +365,7 @@ void LLAppViewerLinux::handleCrashReporting(bool reportFreeze)
 		const char * cmdargv[] =
 			{cmd.c_str(),
 			 "-user",
-			 (char*)LLGridManager::getInstance()->getGridLabel().c_str(),
+			 (char*)LLGridManager::getInstance()->getGridId().c_str(),
 			 "-name",
 			 LLAppViewer::instance()->getSecondLifeTitle().c_str(),
 			 NULL};
