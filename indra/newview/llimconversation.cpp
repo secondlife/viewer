@@ -114,6 +114,10 @@ BOOL LLIMConversation::postBuild()
 
 BOOL LLIMConversation::tick()
 {
+	// This check is needed until LLFloaterReg::removeInstance() is synchronized with deleting the floater
+	// via LLMortician::updateClass(), to avoid calling dead instances. See LLFloater::destroy().
+	if (isDead()) return false;
+
 	// Need to resort the participant list if it's in sort by recent speaker order.
 	if (mParticipantList)
 	{
