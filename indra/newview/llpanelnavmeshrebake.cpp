@@ -44,7 +44,8 @@
 #include "llpanel.h"
 
 LLPanelNavMeshRebake::LLPanelNavMeshRebake() 
-: mNavMeshRebakeButton(NULL)
+: mNavMeshRebakeButton( NULL )
+, mNavMeshBakingButton( NULL )
 , mAttached(false)
 {
 	// make sure we have the only instance of this class
@@ -87,11 +88,17 @@ void LLPanelNavMeshRebake::clearMode( ESNavMeshRebakeMode mode )
 
 BOOL LLPanelNavMeshRebake::postBuild()
 {
+	//Rebake
 	mNavMeshRebakeButton = getChild<LLButton>("navmesh_btn");
 	mNavMeshRebakeButton->setCommitCallback(boost::bind(&LLPanelNavMeshRebake::onNavMeshRebakeClick, this));
 	mNavMeshRebakeButton->setVisible( TRUE );
 	LLHints::registerHintTarget("navmesh_btn", mNavMeshRebakeButton->getHandle());
-
+	
+	//Baking
+	mNavMeshBakingButton = getChild<LLButton>("navmesh_btn_baking");
+	mNavMeshBakingButton->setCommitCallback(boost::bind(&LLPanelNavMeshRebake::onNavMeshRebakeClick, this));
+	mNavMeshBakingButton->setVisible( FALSE );
+	LLHints::registerHintTarget("navmesh_btn_baking", mNavMeshBakingButton->getHandle());
 	return TRUE;
 }
 
@@ -129,11 +136,7 @@ LLPanelNavMeshRebake* LLPanelNavMeshRebake::getPanel()
 {
 	LLPanelNavMeshRebake* panel = new LLPanelNavMeshRebake();
 	panel->buildFromFile("panel_navmesh_rebake.xml");
-
 	panel->setVisible(FALSE);
-
-	llinfos << "Build LLPanelNavMeshRebake panel" << llendl;
-
 	//prep#panel->updatePosition();
 	return panel;
 }
@@ -141,7 +144,8 @@ LLPanelNavMeshRebake* LLPanelNavMeshRebake::getPanel()
 void LLPanelNavMeshRebake::onNavMeshRebakeClick()
 {
 	setFocus(FALSE); 
-	mNavMeshRebakeButton->setVisible(FALSE); 
+	mNavMeshRebakeButton->setVisible( FALSE ); 
+	mNavMeshBakingButton->setVisible( TRUE ); 
 }
 
 /**

@@ -9,7 +9,7 @@
     <button
      follows="left|bottom"
      height="19"
-     label="NavMeshRebake"
+     label="Rebake NavMesh"
      layout="topleft"
      left="10"
      name="navmesh_btn"
@@ -17,5 +17,16 @@
      top="2"
      visible="false"
      width="113" />
+  <button
+   follows="left|bottom"
+   height="19"
+   label="NavMesh Baking..."
+   layout="topleft"
+   left="10"
+   name="navmesh_btn_baking"
+   tool_tip="NavMesh is baking"
+   top="2"
+   visible="false"
+   width="113" />
 </panel>
 

@@ -65,6 +65,7 @@ private:
 	//void updatePosition();
 
 	LLButton* mNavMeshRebakeButton;
+	LLButton* mNavMeshBakingButton;
 	
 
 	LLHandle<LLPanel> mOriginalParent;
