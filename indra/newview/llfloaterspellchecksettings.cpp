@@ -88,11 +88,13 @@ void LLFloaterSpellCheckerSettings::onBtnMove(const std::string& from, const std
 	row["columns"][0]["font"]["style"] = "NORMAL";
 
 	std::vector<LLScrollListItem*> sel_items = from_ctrl->getAllSelected();
-	for (std::vector<LLScrollListItem*>::const_iterator sel_it = sel_items.begin(); sel_it != sel_items.end(); ++sel_it)
+	std::vector<LLScrollListItem*>::const_iterator sel_it;
+	for ( sel_it = sel_items.begin(); sel_it != sel_items.end(); ++sel_it)
 	{
 		row["value"] = (*sel_it)->getValue();
 		row["columns"][0]["value"] = (*sel_it)->getColumn(0)->getValue();
 		to_ctrl->addElement(row);
+		to_ctrl->setSelectedByValue( (*sel_it)->getValue(), true );
 	}
 	from_ctrl->deleteSelectedItems();
 }
