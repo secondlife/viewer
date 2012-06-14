@@ -197,7 +197,7 @@ public:
 	S32 findReferences(LLDrawable *drawablep); // Not const because of @#$! iterators...
 
 	void setSpatialGroup(LLSpatialGroup *groupp);
-	LLSpatialGroup *getSpatialGroup() const			{ return mSpatialGroupp; }
+	LLSpatialGroup *getSpatialGroup() const;
 	LLSpatialPartition* getSpatialPartition();
 	
 	// Statics

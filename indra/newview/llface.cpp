@@ -1189,19 +1189,25 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	{
 		if (num_indices + (S32) mIndicesIndex > mVertexBuffer->getNumIndices())
 		{
-			llwarns	<< "Index buffer overflow!" << llendl;
-			llwarns << "Indices Count: " << mIndicesCount
-					<< " VF Num Indices: " << num_indices
-					<< " Indices Index: " << mIndicesIndex
-					<< " VB Num Indices: " << mVertexBuffer->getNumIndices() << llendl;
-			llwarns	<< " Face Index: " << f
-					<< " Pool Type: " << mPoolType << llendl;
+			if (gDebugGL)
+			{
+				llwarns	<< "Index buffer overflow!" << llendl;
+				llwarns << "Indices Count: " << mIndicesCount
+						<< " VF Num Indices: " << num_indices
+						<< " Indices Index: " << mIndicesIndex
+						<< " VB Num Indices: " << mVertexBuffer->getNumIndices() << llendl;
+				llwarns	<< " Face Index: " << f
+						<< " Pool Type: " << mPoolType << llendl;
+			}
 			return FALSE;
 		}
 
 		if (num_vertices + mGeomIndex > mVertexBuffer->getNumVerts())
 		{
-			llwarns << "Vertex buffer overflow!" << llendl;
+			if (gDebugGL)
+			{
+				llwarns << "Vertex buffer overflow!" << llendl;
+			}
 			return FALSE;
 		}
 	}

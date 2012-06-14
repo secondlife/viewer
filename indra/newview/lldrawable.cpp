@@ -57,6 +57,8 @@ const F32 MIN_SHADOW_CASTER_RADIUS = 2.0f;
 
 static LLFastTimer::DeclareTimer FTM_CULL_REBOUND("Cull Rebound");
 
+extern bool gShiftFrame;
+
 
 ////////////////////////
 //
@@ -716,6 +718,11 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 		return;
 	}
 
+	if (gShiftFrame)
+	{
+		return;
+	}
+
 	//switch LOD with the spatial group to avoid artifacts
 	//LLSpatialGroup* sg = getSpatialGroup();
 
@@ -825,14 +832,19 @@ void LLDrawable::shiftPos(const LLVector4a &shift_vector)
 		mXform.setPosition(mVObjp->getPositionAgent());
 	}
 
-	mXform.setRotation(mVObjp->getRotation());
-	mXform.setScale(1,1,1);
 	mXform.updateMatrix();
 
 	if (isStatic())
 	{
 		LLVOVolume* volume = getVOVolume();
-		if (!volume)
+
+		bool rebuild = (!volume && 
+						getRenderType() != LLPipeline::RENDER_TYPE_TREE &&
+						getRenderType() != LLPipeline::RENDER_TYPE_TERRAIN &&
+						getRenderType() != LLPipeline::RENDER_TYPE_SKY &&
+						getRenderType() != LLPipeline::RENDER_TYPE_GROUND);
+
+		if (rebuild)
 		{
 			gPipeline.markRebuild(this, LLDrawable::REBUILD_ALL, TRUE);
 		}
@@ -846,7 +858,7 @@ void LLDrawable::shiftPos(const LLVector4a &shift_vector)
 				facep->mExtents[0].add(shift_vector);
 				facep->mExtents[1].add(shift_vector);
 			
-				if (!volume && facep->hasGeometry())
+				if (rebuild && facep->hasGeometry())
 				{
 					facep->clearVertexBuffer();
 				}
@@ -957,6 +969,12 @@ void LLDrawable::updateUVMinMax()
 {
 }
 
+LLSpatialGroup* LLDrawable::getSpatialGroup() const
+{ 
+	llassert((mSpatialGroupp == NULL) ? getBinIndex() == -1 : getBinIndex() != -1);
+	return mSpatialGroupp; 
+}
+
 void LLDrawable::setSpatialGroup(LLSpatialGroup *groupp)
 {
 /*if (mSpatialGroupp && (groupp != mSpatialGroupp))
@@ -979,6 +997,8 @@ void LLDrawable::setSpatialGroup(LLSpatialGroup *groupp)
 	}
 
 	mSpatialGroupp = groupp;
+
+	llassert((mSpatialGroupp == NULL) ? getBinIndex() == -1 : getBinIndex() != -1);
 }
 
 LLSpatialPartition* LLDrawable::getSpatialPartition()
@@ -1406,6 +1426,11 @@ void LLSpatialBridge::updateDistance(LLCamera& camera_in, bool force_update)
 		markDead();
 		return;
 	}
+	
+	if (gShiftFrame)
+	{
+		return;
+	}
 
 	if (mDrawable->getVObj())
 	{
@@ -1484,7 +1509,13 @@ void LLSpatialBridge::cleanupReferences()
 	LLDrawable::cleanupReferences();
 	if (mDrawable)
 	{
-		mDrawable->setSpatialGroup(NULL);
+		LLSpatialGroup* group = mDrawable->getSpatialGroup();
+		if (group)
+		{
+			group->mOctreeNode->remove(mDrawable);
+			mDrawable->setSpatialGroup(NULL);
+		}
+		
 		if (mDrawable->getVObj())
 		{
 			LLViewerObject::const_child_list_t& child_list = mDrawable->getVObj()->getChildren();
@@ -1495,7 +1526,12 @@ void LLSpatialBridge::cleanupReferences()
 				LLDrawable* drawable = child->mDrawable;					
 				if (drawable)
 				{
-					drawable->setSpatialGroup(NULL);
+					LLSpatialGroup* group = drawable->getSpatialGroup();
+					if (group)
+					{
+						group->mOctreeNode->remove(drawable);
+						drawable->setSpatialGroup(NULL);
+					}
 				}
 			}
 		}
