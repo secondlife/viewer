@@ -4156,6 +4156,9 @@ The region you're trying to visit contains [REGIONMATURITY] content, but your cu
    icon="alertmodal.tga"
    name="TeleportEntryAccessBlocked_AdultsOnlyContent"
    type="alertmodal">
+    <unique>
+      <context>REGIONMATURITY</context>
+    </unique>
     <tag>fail</tag>
     <tag>confirm</tag>
     The region you're trying to visit contains [REGIONMATURITY] content, which is accessible to adults only.
@@ -4173,6 +4176,9 @@ The region you're trying to visit contains [REGIONMATURITY] content, but your cu
    icon="notifytip.tga"
    name="TeleportEntryAccessBlocked_Notify"
    type="notifytip">
+    <unique>
+      <context>REGIONMATURITY</context>
+    </unique>
     <tag>fail</tag>
     The region you're trying to visit contains [REGIONMATURITY] content, but your current preferences are set to exclude [REGIONMATURITY] content.
   </notification>
@@ -4181,6 +4187,9 @@ The region you're trying to visit contains [REGIONMATURITY] content, but your cu
    icon="notifytip.tga"
    name="TeleportEntryAccessBlocked_NotifyAdultsOnly"
    type="notifytip">
+    <unique>
+      <context>REGIONMATURITY</context>
+    </unique>
     <tag>fail</tag>
     The region you're trying to visit contains [REGIONMATURITY] content, which is accessible to adults only.
   </notification>
@@ -4189,6 +4198,9 @@ The region you're trying to visit contains [REGIONMATURITY] content, but your cu
    icon="alertmodal.tga"
    name="TeleportEntryAccessBlocked_ChangeAndReTeleport"
    type="alertmodal">
+    <unique>
+      <context>REGIONMATURITY</context>
+    </unique>
     <tag>fail</tag>
     <tag>confirm</tag>
     The region you're trying to visit contains [REGIONMATURITY] content, but your current preferences are set to exclude [REGIONMATURITY] content. We can change your preferences and continue with the teleport, or you can cancel this teleport.
@@ -4210,6 +4222,9 @@ The region you're trying to visit contains [REGIONMATURITY] content, but your cu
    icon="alertmodal.tga"
    name="TeleportEntryAccessBlocked_Change"
    type="alertmodal">
+    <unique>
+      <context>REGIONMATURITY</context>
+    </unique>
     <tag>fail</tag>
     <tag>confirm</tag>
     The region you're trying to visit contains [REGIONMATURITY] content, but your current preferences are set to exclude [REGIONMATURITY] content. We can change your preferences, or you can cancel the teleport. After your preferences are changed, you will need to attempt the teleport again.
