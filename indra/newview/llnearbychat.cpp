@@ -408,8 +408,6 @@ BOOL LLNearbyChat::tick()
 	// via LLMortician::updateClass(), to avoid calling dead instances. See LLFloater::destroy().
 	if (isDead()) return false;
 
-	BOOL parents_retcode = LLIMConversation::tick();
-
 	displaySpeakingIndicator();
 	updateCallBtnState(LLVoiceClient::getInstance()->getUserPTTState());
 
@@ -421,7 +419,7 @@ BOOL LLNearbyChat::tick()
 		setTransparencyType(hasFocus() ? TT_ACTIVE : TT_INACTIVE);
 	}
 
-	return parents_retcode;
+	return LLIMConversation::tick();
 }
 
 std::string LLNearbyChat::getCurrentChat()
