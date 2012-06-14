@@ -76,6 +76,12 @@ public:
 			
 public:
 	// Setup Methods
+	HttpStatus setupGet(HttpRequest::policy_t policy_id,
+						HttpRequest::priority_t priority,
+						const std::string & url,
+						HttpOptions * options,
+						HttpHeaders * headers);
+	
 	HttpStatus setupGetByteRange(HttpRequest::policy_t policy_id,
 								 HttpRequest::priority_t priority,
 								 const std::string & url,
@@ -103,15 +109,23 @@ public:
 	virtual HttpStatus cancel();
 
 protected:
+	void setupCommon(HttpRequest::policy_t policy_id,
+					 HttpRequest::priority_t priority,
+					 const std::string & url,
+					 BufferArray * body,
+					 HttpOptions * options,
+					 HttpHeaders * headers);
+	
 	static size_t writeCallback(void * data, size_t size, size_t nmemb, void * userdata);
 	static size_t readCallback(void * data, size_t size, size_t nmemb, void * userdata);
 	static size_t headerCallback(void * data, size_t size, size_t nmemb, void * userdata);
+	static int debugCallback(CURL *, curl_infotype info, char * buffer, size_t len, void * userdata);
 
 protected:
 	unsigned int		mProcFlags;
 	static const unsigned int	PF_SCAN_RANGE_HEADER = 0x00000001U;
 	static const unsigned int	PF_SAVE_HEADERS = 0x00000002U;
-	
+
 public:
 	// Request data
 	EMethod				mReqMethod;

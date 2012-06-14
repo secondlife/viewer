@@ -34,6 +34,8 @@
 #include "_httpreplyqueue.h"
 #include "_httpservice.h"
 
+#include "lltimer.h"
+
 
 namespace LLCore
 {
@@ -49,8 +51,10 @@ HttpOperation::HttpOperation()
 	  mReplyQueue(NULL),
 	  mUserHandler(NULL),
 	  mReqPolicy(HttpRequest::DEFAULT_POLICY_ID),
-	  mReqPriority(0U)
+	  mReqPriority(0U),
+	  mTracing(0)
 {
+	mMetricCreated = totalTime();
 }
 
 
@@ -113,7 +117,7 @@ void HttpOperation::stageFromActive(HttpService *)
 	llassert_always(false);
 }
 
-	
+
 void HttpOperation::visitNotifier(HttpRequest *)
 {
 	if (mUserHandler)
@@ -138,6 +142,13 @@ HttpStatus HttpOperation::cancel()
 
 void HttpOperation::addAsReply()
 {
+	if (mTracing > 0)
+	{
+		LL_INFOS("CoreHttp") << "TRACE, ToReplyQueue, Handle:  "
+							 << static_cast<HttpHandle>(this)
+							 << LL_ENDL;
+	}
+	
 	if (mReplyQueue)
 	{
 		addRef();

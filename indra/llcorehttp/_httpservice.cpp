@@ -36,6 +36,7 @@
 #include "_thread.h"
 
 #include "lltimer.h"
+#include "llthread.h"
 
 
 // Tuning parameters
@@ -186,8 +187,10 @@ void HttpService::shutdown()
 void HttpService::threadRun(LLCoreInt::HttpThread * thread)
 {
 	boost::this_thread::disable_interruption di;
-	ELoopSpeed loop(REQUEST_SLEEP);
+
+	LLThread::registerThreadID();
 	
+	ELoopSpeed loop(REQUEST_SLEEP);
 	while (! mExitRequested)
 	{
 		loop = processRequestQueue(loop);
@@ -226,6 +229,19 @@ HttpService::ELoopSpeed HttpService::processRequestQueue(ELoopSpeed loop)
 		// Process operation
 		if (! mExitRequested)
 		{
+			// Setup for subsequent tracing
+			long tracing(0);
+			mPolicy->getGlobalOptions().get(HttpRequest::GP_TRACE, &tracing);
+			op->mTracing = (std::max)(op->mTracing, int(tracing));
+
+			if (op->mTracing > 0)
+			{
+				LL_INFOS("CoreHttp") << "TRACE, FromRequestQueue, Handle:  "
+									 << static_cast<HttpHandle>(op)
+									 << LL_ENDL;
+			}
+
+			// Stage
 			op->stageFromRequest(this);
 		}
 				

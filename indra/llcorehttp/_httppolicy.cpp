@@ -107,6 +107,12 @@ void HttpPolicy::retryOp(HttpOpRequest * op)
 	LL_WARNS("CoreHttp") << "URL op retry #" << op->mPolicyRetries
 						 << " being scheduled for " << delta << " uSecs from now."
 						 << LL_ENDL;
+	if (op->mTracing > 0)
+	{
+		LL_INFOS("CoreHttp") << "TRACE, ToRetryQueue, Handle:  "
+							 << static_cast<HttpHandle>(op)
+							 << LL_ENDL;
+	}
 	mState[policy_class].mRetryQueue.push(op);
 }
 
@@ -224,13 +230,24 @@ bool HttpPolicy::stageAfterCompletion(HttpOpRequest * op)
 	}
 	else if (op->mPolicyRetries)
 	{
-		LL_WARNS("CoreHttp") << "URL op succeeded after " << op->mPolicyRetries << " retries."
-							 << LL_ENDL;
+		LL_DEBUGS("CoreHttp") << "URL op succeeded after " << op->mPolicyRetries << " retries."
+							  << LL_ENDL;
 	}
 
 	op->stageFromActive(mService);
 	op->release();
 	return false;						// not active
+}
+
+
+int HttpPolicy::getReadyCount(HttpRequest::policy_t policy_class)
+{
+	if (policy_class < HttpRequest::POLICY_CLASS_LIMIT)
+	{
+		return (mState[policy_class].mReadyQueue.size()
+				+ mState[policy_class].mRetryQueue.size());
+	}
+	return 0;
 }
 
 

@@ -33,7 +33,9 @@ namespace LLCore
 
 HttpPolicyGlobal::HttpPolicyGlobal()
 	: mSetMask(0UL),
-	  mConnectionLimit(32L)
+	  mConnectionLimit(32L),
+	  mTrace(0),
+	  mUseLLProxy(0)
 {}
 
 
@@ -50,6 +52,8 @@ HttpPolicyGlobal & HttpPolicyGlobal::operator=(const HttpPolicyGlobal & other)
 		mCAPath = other.mCAPath;
 		mCAFile = other.mCAFile;
 		mHttpProxy = other.mHttpProxy;
+		mTrace = other.mTrace;
+		mUseLLProxy = other.mUseLLProxy;
 	}
 	return *this;
 }
@@ -61,6 +65,14 @@ HttpStatus HttpPolicyGlobal::set(HttpRequest::EGlobalPolicy opt, long value)
 	{
 	case HttpRequest::GP_CONNECTION_LIMIT:
 		mConnectionLimit = value;
+		break;
+
+	case HttpRequest::GP_TRACE:
+		mTrace = llclamp(value, 0L, 3L);
+		break;
+
+	case HttpRequest::GP_LLPROXY:
+		mUseLLProxy = llclamp(value, 0L, 1L);
 		break;
 
 	default:
@@ -97,54 +109,64 @@ HttpStatus HttpPolicyGlobal::set(HttpRequest::EGlobalPolicy opt, const std::stri
 }
 
 
-HttpStatus HttpPolicyGlobal::get(HttpRequest::EGlobalPolicy opt, long & value)
+HttpStatus HttpPolicyGlobal::get(HttpRequest::EGlobalPolicy opt, long * value)
 {
 	static const HttpStatus not_set(HttpStatus::LLCORE, HE_OPT_NOT_SET);
+	long * src(NULL);
 	
 	switch (opt)
 	{
 	case HttpRequest::GP_CONNECTION_LIMIT:
-		if (! (mSetMask & (1UL << int(opt))))
-			return not_set;
-		value = mConnectionLimit;
+		src = &mConnectionLimit;
+		break;
+
+	case HttpRequest::GP_TRACE:
+		src = &mTrace;
+		break;
+
+	case HttpRequest::GP_LLPROXY:
+		src = &mUseLLProxy;
 		break;
 
 	default:
 		return HttpStatus(HttpStatus::LLCORE, HE_INVALID_ARG);
 	}
 
+	if (! (mSetMask & (1UL << int(opt))))
+		return not_set;
+
+	*value = *src;
 	return HttpStatus();
 }
 
 
-HttpStatus HttpPolicyGlobal::get(HttpRequest::EGlobalPolicy opt, const std::string *& value)
+HttpStatus HttpPolicyGlobal::get(HttpRequest::EGlobalPolicy opt, const std::string ** value)
 {
 	static const HttpStatus not_set(HttpStatus::LLCORE, HE_OPT_NOT_SET);
+	const std::string * src(NULL);
 
 	switch (opt)
 	{
 	case HttpRequest::GP_CA_PATH:
-		if (! (mSetMask & (1UL << int(opt))))
-			return not_set;
-		value = &mCAPath;
+		src = &mCAPath;
 		break;
 
 	case HttpRequest::GP_CA_FILE:
-		if (! (mSetMask & (1UL << int(opt))))
-			return not_set;
-		value = &mCAFile;
+		src = &mCAFile;
 		break;
 
 	case HttpRequest::GP_HTTP_PROXY:
-		if (! (mSetMask & (1UL << int(opt))))
-			return not_set;
-		value = &mHttpProxy;
+		src = &mHttpProxy;
 		break;
 
 	default:
 		return HttpStatus(HttpStatus::LLCORE, HE_INVALID_ARG);
 	}
 	
+	if (! (mSetMask & (1UL << int(opt))))
+		return not_set;
+
+	*value = src;
 	return HttpStatus();
 }
 

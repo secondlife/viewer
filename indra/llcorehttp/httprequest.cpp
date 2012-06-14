@@ -135,6 +135,33 @@ HttpStatus HttpRequest::getStatus() const
 }
 
 
+HttpHandle HttpRequest::requestGet(policy_t policy_id,
+								   priority_t priority,
+								   const std::string & url,
+								   HttpOptions * options,
+								   HttpHeaders * headers,
+								   HttpHandler * user_handler)
+{
+	HttpStatus status;
+	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
+
+	HttpOpRequest * op = new HttpOpRequest();
+	if (! (status = op->setupGet(policy_id, priority, url, options, headers)))
+	{
+		op->release();
+		mLastReqStatus = status;
+		return handle;
+	}
+	op->setReplyPath(mReplyQueue, user_handler);
+	mRequestQueue->addOp(op);			// transfers refcount
+	
+	mLastReqStatus = status;
+	handle = static_cast<HttpHandle>(op);
+	
+	return handle;
+}
+
+
 HttpHandle HttpRequest::requestGetByteRange(policy_t policy_id,
 											priority_t priority,
 											const std::string & url,

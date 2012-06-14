@@ -312,6 +312,15 @@ private:
 	LLCore::HttpOptions *		mHttpOptions;							// Ttf
 	LLCore::HttpHeaders *		mHttpHeaders;							// Ttf
 
+	// We use a resource semaphore to keep HTTP requests in
+	// WAIT_HTTP_RESOURCE2 if there aren't sufficient slots in the
+	// transport.  This keeps them near where they can be cheaply
+	// reprioritized rather than dumping them all across a thread
+	// where it's more expensive to get at them.  Requests in either
+	// SEND_HTTP_REQ or WAIT_HTTP_REQ charge against the semaphore
+	// and tracking state transitions is critical to liveness.
+	int							mHttpSemaphore;							// Ttf
+	
 	typedef std::set<LLUUID> wait_http_res_queue_t;
 	wait_http_res_queue_t		mHttpWaitResource;						// Mfnq
 	

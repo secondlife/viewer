@@ -159,6 +159,17 @@ void HttpLibcurl::addOp(HttpOpRequest * op)
 	curl_multi_add_handle(mMultiHandles[op->mReqPolicy], op->mCurlHandle);
 	op->mCurlActive = true;
 	
+	if (op->mTracing > 0)
+	{
+		HttpPolicy & policy(mService->getPolicy());
+		
+		LL_INFOS("CoreHttp") << "TRACE, ToActiveQueue, Handle:  "
+							 << static_cast<HttpHandle>(op)
+							 << ", Actives:  " << mActiveOps.size()
+							 << ", Readies:  " << policy.getReadyCount(op->mReqPolicy)
+							 << LL_ENDL;
+	}
+	
 	// On success, make operation active
 	mActiveOps.insert(op);
 }
@@ -190,10 +201,9 @@ bool HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode 
 	// Deactivate request
 	op->mCurlActive = false;
 
-	// Set final status of request
+	// Set final status of request if it hasn't failed by other mechanisms yet
 	if (op->mStatus)
 	{
-		// Only set if it hasn't failed by other mechanisms yet
 		op->mStatus = HttpStatus(HttpStatus::EXT_CURL_EASY, status);
 	}
 	if (op->mStatus)
@@ -209,6 +219,16 @@ bool HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode 
 	curl_easy_cleanup(handle);
 	op->mCurlHandle = NULL;
 
+	// Tracing
+	if (op->mTracing > 0)
+	{
+		LL_INFOS("CoreHttp") << "TRACE, RequestComplete, Handle:  "
+							 << static_cast<HttpHandle>(op)
+							 << ", Status:  " << op->mStatus.toHex()
+							 << LL_ENDL;
+	}
+
+	// Dispatch to next stage
 	HttpPolicy & policy(mService->getPolicy());
 	bool still_active(policy.stageAfterCompletion(op));
 

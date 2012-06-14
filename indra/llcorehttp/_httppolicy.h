@@ -97,7 +97,10 @@ public:
 		}
 
 	void setPolicies(const HttpPolicyGlobal & global);
-			
+
+	// Get ready counts for a particular class
+	int getReadyCount(HttpRequest::policy_t policy_class);
+	
 protected:
 	struct State
 	{

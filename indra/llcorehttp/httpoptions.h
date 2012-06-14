@@ -67,11 +67,21 @@ protected:
 	void operator=(const HttpOptions &);		// Not defined
 
 public:
+	void		setWantHeaders();
+	bool		getWantHeaders() const
+		{
+			return mWantHeaders;
+		}
+	
+	void		setTrace(long level);
+	int			getTrace() const
+		{
+			return mTracing;
+		}
 	
 protected:
-	// *TODO:  add some options
 	bool		mWantHeaders;
-	
+	long		int mTracing;
 }; // end class HttpOptions
 
 

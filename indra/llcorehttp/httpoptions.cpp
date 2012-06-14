@@ -33,18 +33,32 @@ namespace LLCore
 
 HttpOptions::HttpOptions()
 	: RefCounted(true),
-	  mWantHeaders(false)
+	  mWantHeaders(false),
+	  mTracing(0)
 {}
 
 
 HttpOptions::HttpOptions(const HttpOptions & rhs)
 	: RefCounted(true),
-	  mWantHeaders(rhs.mWantHeaders)
+	  mWantHeaders(rhs.mWantHeaders),
+	  mTracing(rhs.mTracing)
 {}
 
 
 HttpOptions::~HttpOptions()
 {}
+
+
+void HttpOptions::setWantHeaders()
+{
+	mWantHeaders = true;
+}
+
+
+void HttpOptions::setTrace(long level)
+{
+	mTracing = int(level);
+}
 
 
 }   // end namespace LLCore

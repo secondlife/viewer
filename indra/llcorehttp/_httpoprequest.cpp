@@ -63,6 +63,16 @@ int parse_content_range_header(char * buffer,
 							   unsigned int * last,
 							   unsigned int * length);
 
+
+// Take data from libcurl's CURLOPT_DEBUGFUNCTION callback and
+// escape and format it for a tracing line in logging.  Absolutely
+// anything including NULs can be in the data.  If @scrub is true,
+// non-printing or non-ascii characters are replaced with spaces
+// otherwise a %XX form of escaping is used.
+void escape_libcurl_debug_data(char * buffer, size_t len, bool scrub,
+							   std::string & safe_line);
+
+
 #if defined(WIN32)
 
 // Not available on windows where the legacy strtok interface
@@ -76,11 +86,6 @@ char *strtok_r(char *str, const char *delim, char **saveptr);
 
 namespace LLCore
 {
-
-
-// ==================================
-// HttpOpRequest
-// ==================================
 
 
 HttpOpRequest::HttpOpRequest()
@@ -237,6 +242,19 @@ HttpStatus HttpOpRequest::cancel()
 }
 
 
+HttpStatus HttpOpRequest::setupGet(HttpRequest::policy_t policy_id,
+								   HttpRequest::priority_t priority,
+								   const std::string & url,
+								   HttpOptions * options,
+								   HttpHeaders * headers)
+{
+	setupCommon(policy_id, priority, url, NULL, options, headers);
+	mReqMethod = HOR_GET;
+	
+	return HttpStatus();
+}
+
+
 HttpStatus HttpOpRequest::setupGetByteRange(HttpRequest::policy_t policy_id,
 											HttpRequest::priority_t priority,
 											const std::string & url,
@@ -245,30 +263,16 @@ HttpStatus HttpOpRequest::setupGetByteRange(HttpRequest::policy_t policy_id,
 											HttpOptions * options,
 											HttpHeaders * headers)
 {
-	HttpStatus status;
-
-	mProcFlags = 0;
-	mReqPolicy = policy_id;
-	mReqPriority = priority;
+	setupCommon(policy_id, priority, url, NULL, options, headers);
 	mReqMethod = HOR_GET;
-	mReqURL = url;
 	mReqOffset = offset;
 	mReqLength = len;
 	if (offset || len)
 	{
 		mProcFlags |= PF_SCAN_RANGE_HEADER;
 	}
-	if (headers && ! mReqHeaders)
-	{
-		headers->addRef();
-		mReqHeaders = headers;
-	}
-	if (options && ! mReqOptions)
-	{
-		mReqOptions = new HttpOptions(*options);
-	}
 	
-	return status;
+	return HttpStatus();
 }
 
 
@@ -279,29 +283,10 @@ HttpStatus HttpOpRequest::setupPost(HttpRequest::policy_t policy_id,
 									HttpOptions * options,
 									HttpHeaders * headers)
 {
-	HttpStatus status;
-
-	mProcFlags = 0;
-	mReqPolicy = policy_id;
-	mReqPriority = priority;
+	setupCommon(policy_id, priority, url, body, options, headers);
 	mReqMethod = HOR_POST;
-	mReqURL = url;
-	if (body)
-	{
-		body->addRef();
-		mReqBody = body;
-	}
-	if (headers && ! mReqHeaders)
-	{
-		headers->addRef();
-		mReqHeaders = headers;
-	}
-	if (options && ! mReqOptions)
-	{
-		mReqOptions = new HttpOptions(*options);
-	}
 	
-	return status;
+	return HttpStatus();
 }
 
 
@@ -312,12 +297,23 @@ HttpStatus HttpOpRequest::setupPut(HttpRequest::policy_t policy_id,
 								   HttpOptions * options,
 								   HttpHeaders * headers)
 {
-	HttpStatus status;
+	setupCommon(policy_id, priority, url, body, options, headers);
+	mReqMethod = HOR_PUT;
+	
+	return HttpStatus();
+}
 
+
+void HttpOpRequest::setupCommon(HttpRequest::policy_t policy_id,
+								HttpRequest::priority_t priority,
+								const std::string & url,
+								BufferArray * body,
+								HttpOptions * options,
+								HttpHeaders * headers)
+{
 	mProcFlags = 0;
 	mReqPolicy = policy_id;
 	mReqPriority = priority;
-	mReqMethod = HOR_PUT;
 	mReqURL = url;
 	if (body)
 	{
@@ -331,10 +327,14 @@ HttpStatus HttpOpRequest::setupPut(HttpRequest::policy_t policy_id,
 	}
 	if (options && ! mReqOptions)
 	{
-		mReqOptions = new HttpOptions(*options);
+		options->addRef();
+		mReqOptions = options;
+		if (options->getWantHeaders())
+		{
+			mProcFlags |= PF_SAVE_HEADERS;
+		}
+		mTracing = (std::max)(mTracing, llclamp(options->getTrace(), 0, 3));
 	}
-	
-	return status;
 }
 
 
@@ -394,30 +394,29 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYHOST, 0);
 
 	const std::string * opt_value(NULL);
-	if (policy.get(HttpRequest::GP_CA_PATH, opt_value))
+	long opt_long(0L);
+	policy.get(HttpRequest::GP_LLPROXY, &opt_long);
+	if (opt_long)
+	{
+		// Use the viewer-based thread-safe API which has a
+		// fast/safe check for proxy enable.  Would like to
+		// encapsulate this someway...
+		LLProxy::getInstance()->applyProxySettings(mCurlHandle);
+	}
+	else if (policy.get(HttpRequest::GP_HTTP_PROXY, &opt_value))
+	{
+		// *TODO:  This is fine for now but get fuller socks/
+		// authentication thing going later....
+		curl_easy_setopt(mCurlHandle, CURLOPT_PROXY, opt_value->c_str());
+		curl_easy_setopt(mCurlHandle, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
+	}
+	if (policy.get(HttpRequest::GP_CA_PATH, &opt_value))
 	{
 		curl_easy_setopt(mCurlHandle, CURLOPT_CAPATH, opt_value->c_str());
 	}
-	if (policy.get(HttpRequest::GP_CA_FILE, opt_value))
+	if (policy.get(HttpRequest::GP_CA_FILE, &opt_value))
 	{
 		curl_easy_setopt(mCurlHandle, CURLOPT_CAINFO, opt_value->c_str());
-	}
-	if (policy.get(HttpRequest::GP_HTTP_PROXY, opt_value))
-	{
-		if (*opt_value == "LLProxy")
-		{
-			// Use the viewer-based thread-safe API which has a
-			// fast/safe check for proxy enable.  Would like to
-			// encapsulate this someway...
-			LLProxy::getInstance()->applyProxySettings(mCurlHandle);
-		}
-		else
-		{
-			// *TODO:  This is fine for now but get fuller socks/
-			// authentication thing going later....
-			curl_easy_setopt(mCurlHandle, CURLOPT_PROXY, opt_value->c_str());
-			curl_easy_setopt(mCurlHandle, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
-		}
 	}
 	
 	switch (mReqMethod)
@@ -462,6 +461,14 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	default:
 		// *FIXME:  fail out here
 		break;
+	}
+
+	// Tracing
+	if (mTracing > 1)
+	{
+		curl_easy_setopt(mCurlHandle, CURLOPT_VERBOSE, 1);
+		curl_easy_setopt(mCurlHandle, CURLOPT_DEBUGDATA, mCurlHandle);
+		curl_easy_setopt(mCurlHandle, CURLOPT_DEBUGFUNCTION, debugCallback);
 	}
 	
 	// There's a CURLOPT for this now...
@@ -621,6 +628,101 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 	return hdr_size;
 }
 
+
+int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffer, size_t len, void * userdata)
+{
+	HttpOpRequest * op(NULL);
+	curl_easy_getinfo(handle, CURLINFO_PRIVATE, &op);
+	// *FIXME:  check the pointer
+
+	std::string safe_line;
+	std::string tag;
+	bool logit(false);
+	len = (std::min)(len, size_t(256));					// Keep things reasonable in all cases
+	
+	switch (info)
+	{
+	case CURLINFO_TEXT:
+		if (op->mTracing > 1)
+		{
+			tag = "TEXT";
+			escape_libcurl_debug_data(buffer, len, true, safe_line);
+			logit = true;
+		}
+		break;
+			
+	case CURLINFO_HEADER_IN:
+		if (op->mTracing > 1)
+		{
+			tag = "HEADERIN";
+			escape_libcurl_debug_data(buffer, len, true, safe_line);
+			logit = true;
+		}
+		break;
+			
+	case CURLINFO_HEADER_OUT:
+		if (op->mTracing > 1)
+		{
+			tag = "HEADEROUT";
+			escape_libcurl_debug_data(buffer, len, true, safe_line);
+			logit = true;
+		}
+		break;
+			
+	case CURLINFO_DATA_IN:
+		if (op->mTracing > 1)
+		{
+			tag = "DATAIN";
+			logit = true;
+			if (op->mTracing > 2)
+			{
+				escape_libcurl_debug_data(buffer, len, false, safe_line);
+			}
+			else
+			{
+				std::ostringstream out;
+				out << len << " Bytes";
+				safe_line = out.str();
+			}
+		}
+		break;
+			
+	case CURLINFO_DATA_OUT:
+		if (op->mTracing > 1)
+		{
+			tag = "DATAOUT";
+			logit = true;
+			if (op->mTracing > 2)
+			{
+				escape_libcurl_debug_data(buffer, len, false, safe_line);
+			}
+			else
+			{
+				std::ostringstream out;
+				out << len << " Bytes";
+				safe_line = out.str();
+			}
+		}
+		break;
+			
+	default:
+		logit = false;
+		break;
+	}
+
+	if (logit)
+	{
+		LL_INFOS("CoreHttp") << "TRACE, LibcurlDebug, Handle:  "
+							 << static_cast<HttpHandle>(op)
+							 << ", Type:  " << tag
+							 << ", Data:  " << safe_line
+							 << LL_ENDL;
+	}
+		
+	return 0;
+}
+
+
 }   // end namespace LLCore
 
 
@@ -693,6 +795,43 @@ char *strtok_r(char *str, const char *delim, char ** savestate)
 }
 
 #endif
+
+
+void escape_libcurl_debug_data(char * buffer, size_t len, bool scrub, std::string & safe_line)
+{
+	std::string out;
+	len = (std::min)(len, size_t(200));
+	out.reserve(3 * len);
+	for (int i(0); i < len; ++i)
+	{
+		unsigned char uc(static_cast<unsigned char>(buffer[i]));
+
+		if (uc < 32 || uc > 126)
+		{
+			if (scrub)
+			{
+				out.append(1, ' ');
+			}
+			else
+			{
+				static const char hex[] = "0123456789ABCDEF";
+				char convert[4];
+
+				convert[0] = '%';
+				convert[1] = hex[(uc >> 4) % 16];
+				convert[2] = hex[uc % 16];
+				convert[3] = '\0';
+				out.append(convert);
+			}
+		}
+		else
+		{
+			out.append(1, buffer[i]);
+		}
+	}
+	safe_line.swap(out);
+}
+
 
 }  // end anonymous namespace
 

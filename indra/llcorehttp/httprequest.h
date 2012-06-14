@@ -111,10 +111,43 @@ public:
 		/// Maximum number of connections the library will use to
 		/// perform operations.  This is somewhat soft as the underlying
 		/// transport will cache some connections (up to 5).
-		GP_CONNECTION_LIMIT,		///< Takes long giving number of connections
-		GP_CA_PATH,					///< System path/directory where SSL certs are stored.
-		GP_CA_FILE,					///< System path/file containing certs.
-		GP_HTTP_PROXY				///< String giving host/port to use for HTTP proxy
+
+		/// A long value setting the maximum number of connections
+		/// allowed over all policy classes.  Note that this will be
+		/// a somewhat soft value.  There may be an additional five
+		/// connections per policy class depending upon runtime
+		/// behavior.
+		GP_CONNECTION_LIMIT,
+
+		/// String containing a system-appropriate directory name
+		/// where SSL certs are stored.
+		GP_CA_PATH,
+
+		/// String giving a full path to a file containing SSL certs.
+		GP_CA_FILE,
+
+		/// String of host/port to use as simple HTTP proxy.  This is
+		/// going to change in the future into something more elaborate
+		/// that may support richer schemes.
+		GP_HTTP_PROXY,
+
+		/// Long value that if non-zero enables the use of the
+		/// traditional LLProxy code for http/socks5 support.  If
+		/// enabled, has priority over GP_HTTP_PROXY.
+		GP_LLPROXY,
+
+		/// Long value setting the logging trace level for the
+		/// library.  Possible values are:
+		/// 0 - No tracing (default)
+		/// 1 - Basic tracing of request start, stop and major events.
+		/// 2 - Connection, header and payload size information from
+		///     HTTP transactions.
+		/// 3 - Partial logging of payload itself.
+		///
+		/// These values are also used in the trace modes for
+		/// individual requests in HttpOptions.  Also be aware that
+		/// tracing tends to impact performance of the viewer.
+		GP_TRACE
 	};
 
 	/// Set a parameter on a global policy option.  Calls
@@ -133,7 +166,7 @@ public:
 	///					the class in other methods.  If -1, an error
 	///					occurred and @see getStatus() may provide more
 	///					detail on the reason.
-	policy_t createPolicyClass();
+	static policy_t createPolicyClass();
 
 	enum EClassPolicy
 	{
@@ -157,7 +190,7 @@ public:
 	/// @param opt				Enum of option to be set.
 	/// @param value			Desired value of option.
 	/// @return					Standard status code.
-	HttpStatus setPolicyClassOption(policy_t policy_id, EClassPolicy opt, long value);
+	static HttpStatus setPolicyClassOption(policy_t policy_id, EClassPolicy opt, long value);
 
 	/// @}
 
@@ -175,6 +208,36 @@ public:
 	///					the returned value may not be reliable.
 	///
 	HttpStatus getStatus() const;
+
+	/// Queue a full HTTP GET request to be issued for entire entity.
+	/// The request is queued and serviced by the working thread and
+	/// notification of completion delivered to the optional HttpHandler
+	/// argument during @see update() calls.
+	///
+	/// With a valid handle returned, it can be used to reference the
+	/// request in other requests (like cancellation) and will be an
+	/// argument when any HttpHandler object is invoked.
+	///
+	/// @param	policy_id		Default or user-defined policy class under
+	///							which this request is to be serviced.
+	/// @param	priority		Standard priority scheme inherited from
+	///							Indra code base (U32-type scheme).
+	/// @param	url
+	/// @param	options			(optional)
+	/// @param	headers			(optional)
+	/// @param	handler			(optional)
+	/// @return					The handle of the request if successfully
+	///							queued or LLCORE_HTTP_HANDLE_INVALID if the
+	///							request could not be queued.  In the latter
+	///							case, @see getStatus() will return more info.
+	///
+	HttpHandle requestGet(policy_t policy_id,
+						  priority_t priority,
+						  const std::string & url,
+						  HttpOptions * options,
+						  HttpHeaders * headers,
+						  HttpHandler * handler);
+
 
 	/// Queue a full HTTP GET request to be issued with a 'Range' header.
 	/// The request is queued and serviced by the working thread and

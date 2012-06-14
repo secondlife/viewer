@@ -110,6 +110,10 @@ public:
 
 	// Reply Data
 	HttpStatus					mStatus;
+
+	// Tracing, debug and metrics
+	HttpTime					mMetricCreated;
+	int							mTracing;
 };  // end class HttpOperation
 
 

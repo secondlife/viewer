@@ -234,15 +234,16 @@ void LLTextureBar::draw()
 		{ "DSK", LLColor4::blue },	// CACHE_POST
 		{ "NET", LLColor4::green },	// LOAD_FROM_NETWORK
 		{ "SIM", LLColor4::green },	// LOAD_FROM_SIMULATOR
+		{ "HTW", LLColor4::green },	// WAIT_HTTP_RESOURCE
+		{ "HTW", LLColor4::green },	// WAIT_HTTP_RESOURCE2
 		{ "REQ", LLColor4::yellow },// SEND_HTTP_REQ
-		{ "HTW", LLColor4::green },	// WAIT_HTTP_RES
 		{ "HTP", LLColor4::green },	// WAIT_HTTP_REQ
 		{ "DEC", LLColor4::yellow },// DECODE_IMAGE
 		{ "DEC", LLColor4::green }, // DECODE_IMAGE_UPDATE
 		{ "WRT", LLColor4::purple },// WRITE_TO_CACHE
 		{ "WRT", LLColor4::orange },// WAIT_ON_WRITE
 		{ "END", LLColor4::red },   // DONE
-#define LAST_STATE 13
+#define LAST_STATE 14
 		{ "CRE", LLColor4::magenta }, // LAST_STATE+1
 		{ "FUL", LLColor4::green }, // LAST_STATE+2
 		{ "BAD", LLColor4::red }, // LAST_STATE+3

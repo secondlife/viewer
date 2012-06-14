@@ -89,8 +89,8 @@ void HttpOpSetGet::stageFromRequest(HttpService * service)
 	}
 	if (mStatus)
 	{
-		const std::string * value;
-		if ((mStatus = pol_opt.get(setting, value)))
+		const std::string * value(NULL);
+		if ((mStatus = pol_opt.get(setting, &value)))
 		{
 			mStrValue = *value;
 		}

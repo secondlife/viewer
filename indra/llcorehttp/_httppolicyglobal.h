@@ -48,8 +48,8 @@ private:
 public:
 	HttpStatus set(HttpRequest::EGlobalPolicy opt, long value);
 	HttpStatus set(HttpRequest::EGlobalPolicy opt, const std::string & value);
-	HttpStatus get(HttpRequest::EGlobalPolicy opt, long & value);
-	HttpStatus get(HttpRequest::EGlobalPolicy opt, const std::string *& value);
+	HttpStatus get(HttpRequest::EGlobalPolicy opt, long * value);
+	HttpStatus get(HttpRequest::EGlobalPolicy opt, const std::string ** value);
 	
 public:
 	unsigned long		mSetMask;
@@ -57,6 +57,8 @@ public:
 	std::string			mCAPath;
 	std::string			mCAFile;
 	std::string			mHttpProxy;
+	long				mTrace;
+	long				mUseLLProxy;
 };  // end class HttpPolicyGlobal
 
 }  // end namespace LLCore

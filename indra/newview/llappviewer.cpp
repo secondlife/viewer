@@ -5356,11 +5356,9 @@ void CoreHttp::init()
 						<< LL_ENDL;
 	}
 
-	mRequest = new LLCore::HttpRequest;
-
 	// Point to our certs or SSH/https: will fail on connect
-	status = mRequest->setPolicyGlobalOption(LLCore::HttpRequest::GP_CA_FILE,
-											 gDirUtilp->getCAFile());
+	status = LLCore::HttpRequest::setPolicyGlobalOption(LLCore::HttpRequest::GP_CA_FILE,
+														gDirUtilp->getCAFile());
 	if (! status)
 	{
 		LL_ERRS("Init") << "Failed to set CA File for HTTP services.  Reason:  "
@@ -5371,15 +5369,22 @@ void CoreHttp::init()
 	// Establish HTTP Proxy.  "LLProxy" is a special string which directs
 	// the code to use LLProxy::applyProxySettings() to establish any
 	// HTTP or SOCKS proxy for http operations.
-	status = mRequest->setPolicyGlobalOption(LLCore::HttpRequest::GP_HTTP_PROXY,
-											 std::string("LLProxy"));
+	status = LLCore::HttpRequest::setPolicyGlobalOption(LLCore::HttpRequest::GP_LLPROXY, 1);
 	if (! status)
 	{
 		LL_ERRS("Init") << "Failed to set HTTP proxy for HTTP services.  Reason:  "
 						<< status.toString()
 						<< LL_ENDL;
 	}
-	
+
+	// Tracing levels for library & libcurl (note that 2 & 3 are beyond spammy):
+	// 0 - None
+	// 1 - Basic start, stop simple transitions
+	// 2 - libcurl CURLOPT_VERBOSE mode with brief lines
+	// 3 - with partial data content
+	status = LLCore::HttpRequest::setPolicyGlobalOption(LLCore::HttpRequest::GP_TRACE, 0);
+
+	// Kick the thread
 	status = LLCore::HttpRequest::startThread();
 	if (! status)
 	{
@@ -5388,6 +5393,7 @@ void CoreHttp::init()
 						<< LL_ENDL;
 	}
 
+	mRequest = new LLCore::HttpRequest;
 }
 
 

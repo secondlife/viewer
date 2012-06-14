@@ -431,6 +431,22 @@ private:
 	void lockWorkMutex() { mWorkMutex.lock(); }
 	void unlockWorkMutex() { mWorkMutex.unlock(); }
 
+	// Locks:  Mw
+	void acquireHttpSemaphore()
+		{
+			llassert(! mHttpHasResource);
+			mHttpHasResource = true;
+			--mFetcher->mHttpSemaphore;
+		}
+
+	// Locks:  Mw
+	void releaseHttpSemaphore()
+		{
+			llassert(mHttpHasResource);
+			mHttpHasResource = false;
+			++mFetcher->mHttpSemaphore;
+		}
+	
 private:
 	enum e_state // mState
 	{
@@ -444,8 +460,9 @@ private:
 		CACHE_POST,
 		LOAD_FROM_NETWORK,
 		LOAD_FROM_SIMULATOR,
-		SEND_HTTP_REQ,					// Commit to sending as HTTP
 		WAIT_HTTP_RESOURCE,				// Waiting for HTTP resources
+		WAIT_HTTP_RESOURCE2,			// Waiting for HTTP resources
+		SEND_HTTP_REQ,					// Commit to sending as HTTP
 		WAIT_HTTP_REQ,					// Request sent, wait for completion
 		DECODE_IMAGE,
 		DECODE_IMAGE_UPDATE,
@@ -532,7 +549,7 @@ private:
 	bool					mHttpActive;				// Active request to http library
 	unsigned int			mHttpReplySize;
 	unsigned int			mHttpReplyOffset;
-	bool					mHttpReleased;				// Has been released from resource wait once
+	bool					mHttpHasResource;			// Counts against Fetcher's mHttpSemaphore
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -768,8 +785,9 @@ const char* LLTextureFetchWorker::sStateDescs[] = {
 	"CACHE_POST",
 	"LOAD_FROM_NETWORK",
 	"LOAD_FROM_SIMULATOR",
-	"SEND_HTTP_REQ",
 	"WAIT_HTTP_RESOURCE",
+	"WAIT_HTTP_RESOURCE2",
+	"SEND_HTTP_REQ",
 	"WAIT_HTTP_REQ",
 	"DECODE_IMAGE",
 	"DECODE_IMAGE_UPDATE",
@@ -836,7 +854,7 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 	  mHttpActive(false),
 	  mHttpReplySize(0U),
 	  mHttpReplyOffset(0U),
-	  mHttpReleased(true)
+	  mHttpHasResource(false)
 {
 	mCanUseNET = mUrl.empty() ;
 
@@ -860,6 +878,10 @@ LLTextureFetchWorker::~LLTextureFetchWorker()
 	llassert_always(!haveWork());
 
 	lockWorkMutex();													// +Mw (should be useless)
+	if (mHttpHasResource)
+	{
+		releaseHttpSemaphore();
+	}
 	if (mHttpActive)
 	{
 		// Issue a cancel on a live request...
@@ -1126,7 +1148,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 					llwarns << "Unknown URL Type: " << mUrl << llendl;
 				}
 				setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
-				mState = SEND_HTTP_REQ;
+				mState = WAIT_HTTP_RESOURCE;
 			}
 			else
 			{
@@ -1223,7 +1245,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		}
 		if (mCanUseHTTP && !mUrl.empty())
 		{
-			mState = SEND_HTTP_REQ;
+			mState = WAIT_HTTP_RESOURCE;
 			setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 			if(mWriteToCacheState != NOT_WRITE)
 			{
@@ -1287,31 +1309,38 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		return false;
 	}
 	
-	if (mState == SEND_HTTP_REQ)
+	if (mState == WAIT_HTTP_RESOURCE)
 	{
-		if (! mCanUseHTTP)
-		{
-			return true; // abort
-		}
-
 		// NOTE:
 		// control the number of the http requests issued for:
 		// 1, not openning too many file descriptors at the same time;
 		// 2, control the traffic of http so udp gets bandwidth.
 		//
-		if (! mHttpReleased)
+		// If it looks like we're busy, keep this request here.
+		// Otherwise, advance into the HTTP states.
+		if (mFetcher->mHttpSemaphore <= 0 || mFetcher->getHttpWaitersCount())
 		{
-			// If this request hasn't been released before and it looks like
-			// we're busy, put this request into resource wait and allow something
-			// else to come to the front.
-			if (mFetcher->getNumHTTPRequests() >= HTTP_REQUESTS_IN_QUEUE_HIGH_WATER ||
-				mFetcher->getHttpWaitersCount())
-			{
-				mState = WAIT_HTTP_RESOURCE;
-				setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
-				mFetcher->addHttpWaiter(this->mID);
-				return false;
-			}
+			mState = WAIT_HTTP_RESOURCE2;
+			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
+			mFetcher->addHttpWaiter(this->mID);
+			return false;
+		}
+		mState = SEND_HTTP_REQ;
+		acquireHttpSemaphore();
+	}
+
+	if (mState == WAIT_HTTP_RESOURCE2)
+	{
+		// Just idle it if we make it to the head...
+		return false;
+	}
+	
+	if (mState == SEND_HTTP_REQ)
+	{
+		if (! mCanUseHTTP)
+		{
+			releaseHttpSemaphore();
+			return true; // abort
 		}
 
 		mFetcher->removeFromNetworkQueue(this, false);
@@ -1327,10 +1356,12 @@ bool LLTextureFetchWorker::doWork(S32 param)
 					// We already have all the data, just decode it
 					mLoadedDiscard = mFormattedImage->getDiscardLevel();
 					mState = DECODE_IMAGE;
+					releaseHttpSemaphore();
 					return false;
 				}
 				else
 				{
+					releaseHttpSemaphore();
 					return true; // abort.
 				}
 			}
@@ -1365,6 +1396,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		{
 			llwarns << "HTTP GET request failed for " << mID << llendl;
 			resetFormattedData();
+			releaseHttpSemaphore();
 			return true; // failed
 		}
 
@@ -1375,13 +1407,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		mState = WAIT_HTTP_REQ;	
 		
 		// fall through
-	}
-	
-	if (mState == WAIT_HTTP_RESOURCE)
-	{
-		// Nothing to do until releaseHttpWaiters() puts us back
-		// into the flow...
-		return false;
 	}
 	
 	if (mState == WAIT_HTTP_REQ)
@@ -1401,6 +1426,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 						mState = INIT;
 						mCanUseHTTP = false;
 						setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
+						releaseHttpSemaphore();
 						return false;
 					}
 				}
@@ -1423,12 +1449,14 @@ bool LLTextureFetchWorker::doWork(S32 param)
 					// Use available data
 					mLoadedDiscard = mFormattedImage->getDiscardLevel();
 					mState = DECODE_IMAGE;
+					releaseHttpSemaphore();
 					return false; 
 				}
 
 				// Fail harder
 				resetFormattedData();
 				mState = DONE;
+				releaseHttpSemaphore();
 				return true; // failed
 			}
 			
@@ -1443,6 +1471,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 				// abort.
 				mState = DONE;
+				releaseHttpSemaphore();
 				return true;
 			}
 
@@ -1491,6 +1520,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				mWriteToCacheState = SHOULD_WRITE ;
 			}
 			setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
+			releaseHttpSemaphore();
 			return false;
 		}
 		else
@@ -2137,7 +2167,8 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	  mQAMode(qa_mode),
 	  mHttpRequest(NULL),
 	  mHttpOptions(NULL),
-	  mHttpHeaders(NULL)
+	  mHttpHeaders(NULL),
+	  mHttpSemaphore(HTTP_REQUESTS_IN_QUEUE_HIGH_WATER)
 {
 	mMaxBandwidth = gSavedSettings.getF32("ThrottleBandwidthKBPS");
 	mTextureInfo.setUpLogging(gSavedSettings.getBOOL("LogTextureDownloadsToViewerLog"), gSavedSettings.getBOOL("LogTextureDownloadsToSimulator"), gSavedSettings.getU32("TextureLoggingThreshold"));
@@ -3155,12 +3186,11 @@ void LLTextureFetch::removeHttpWaiter(const LLUUID & tid)
 // Locks:  -Mw (must not hold any worker when called)
 void LLTextureFetch::releaseHttpWaiters()
 {
-	if (HTTP_REQUESTS_IN_QUEUE_LOW_WATER < getNumHTTPRequests())
+	if (mHttpSemaphore < HTTP_REQUESTS_IN_QUEUE_LOW_WATER)
 		return;
 
 	// Quickly make a copy of all the LLUIDs.  Get off the
 	// mutex as early as possible.
-
 	typedef std::vector<LLUUID> uuid_vec_t;
 	uuid_vec_t tids;
 
@@ -3171,13 +3201,12 @@ void LLTextureFetch::releaseHttpWaiters()
 			return;
 
 		const size_t limit(mHttpWaitResource.size());
-		tids.resize(limit);
-		wait_http_res_queue_t::iterator iter(mHttpWaitResource.begin());
-		for (int i(0);
-			 i < limit && mHttpWaitResource.end() != iter;
-			 ++i, ++iter)
+		tids.reserve(limit);
+		for (wait_http_res_queue_t::iterator iter(mHttpWaitResource.begin());
+			 mHttpWaitResource.end() != iter;
+			 ++iter)
 		{
-			tids[i] = *iter;
+			tids.push_back(*iter);
 		}
 	}																	// -Mfnq
 
@@ -3196,28 +3225,29 @@ void LLTextureFetch::releaseHttpWaiters()
 			tids2.insert(worker);
 		}
 	}
+	tids.clear();
 
 	// Release workers up to the high water mark.  Since we aren't
 	// holding any locks at this point, we can be in competition
 	// with other callers.  Do defensive things like getting
 	// refreshed counts of requests and checking if someone else
 	// has moved any worker state around....
-	tids.clear();
 	for (worker_set_t::iterator iter2(tids2.begin());
-		 tids2.end() != iter2 && 0 < (HTTP_REQUESTS_IN_QUEUE_HIGH_WATER - getNumHTTPRequests());
+		 tids2.end() != iter2 && mHttpSemaphore > 0;
 		 ++iter2)
 	{
 		LLTextureFetchWorker * worker(* iter2);
 
 		worker->lockWorkMutex();										// +Mw
-		if (LLTextureFetchWorker::WAIT_HTTP_RESOURCE != worker->mState)
+		if (LLTextureFetchWorker::WAIT_HTTP_RESOURCE2 != worker->mState)
 		{
 			worker->unlockWorkMutex();									// -Mw
 			continue;
 		}
-		worker->mHttpReleased = true;
+
 		worker->mState = LLTextureFetchWorker::SEND_HTTP_REQ;
 		worker->setPriority(LLWorkerThread::PRIORITY_HIGH | worker->mWorkPriority);
+		worker->acquireHttpSemaphore();
 		worker->unlockWorkMutex();										// -Mw
 
 		removeHttpWaiter(worker->mID);
@@ -3456,7 +3486,7 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 	}
 
 	// In QA mode, Metrics submode, log the result for ease of testing
-	if (fetcher->isQAMode() || true)
+	if (fetcher->isQAMode())
 	{
 		LL_INFOS("Textures") << merged_llsd << LL_ENDL;
 	}
