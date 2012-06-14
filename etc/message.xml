@@ -555,7 +555,7 @@
           <boolean>true</boolean>
         </map>
 
-        <key>AgentPreferencesUpdate</key>
+        <key>AgentStateUpdate</key>
         <map>
           <key>flavor</key>
           <string>llsd</string>

@@ -82,19 +82,22 @@ public:
 
 	void requestGetCharacters(request_id_t pRequestId, object_request_callback_t pCharactersCallback) const;
 
-#ifdef XXX_STINSON_AGENT_STATE_DELETE_ME
 	friend class LLAgentStateChangeNode;
 	friend class AgentStateResponder;
-	typedef boost::function<void (EAgentState)>         agent_state_callback_t;
-	typedef boost::signals2::signal<void (EAgentState)> agent_state_signal_t;
-	typedef boost::signals2::connection                 agent_state_slot_t;
+	
+	typedef boost::function< void () >				agent_state_callback_t;
+	typedef boost::signals2::signal< void () >		agent_state_signal_t;
+	typedef boost::signals2::connection				agent_state_slot_t;	
+
+	agent_state_slot_t								mCrossingSlot;
+	agent_state_signal_t							mAgentStateSignal;
 
 	agent_state_slot_t registerAgentStateListener(agent_state_callback_t pAgentStateCallback);
-#endif // XXX_STINSON_AGENT_STATE_DELETE_ME
 
 	void handleNavMeshRebakeResult( const LLSD &pContent );
 	void handleNavMeshRebakeError( U32 pStatus, const std::string &pReason, const std::string &pURL );
 	void triggerNavMeshRebuild();
+	void onRegionBoundaryCrossed();
 
 protected:
 
@@ -108,6 +111,8 @@ private:
 	void handleNavMeshStatusRequest(const LLPathfindingNavMeshStatus &pNavMeshStatus, LLViewerRegion *pRegion);
 	void handleNavMeshStatusUpdate(const LLPathfindingNavMeshStatus &pNavMeshStatus);
 
+	void handleAgentStateUpdate();
+
 	LLPathfindingNavMeshPtr getNavMeshForRegion(const LLUUID &pRegionUUID);
 	LLPathfindingNavMeshPtr getNavMeshForRegion(LLViewerRegion *pRegion);
 
@@ -116,20 +121,20 @@ private:
 	std::string getObjectLinksetsURLForCurrentRegion() const;
 	std::string getTerrainLinksetsURLForCurrentRegion() const;
 	std::string getCharactersURLForCurrentRegion() const;
-
-	std::string    getCapabilityURLForCurrentRegion(const std::string &pCapabilityName) const;
-	std::string    getCapabilityURLForRegion(LLViewerRegion *pRegion, const std::string &pCapabilityName) const;
+	std::string	getAgentStateURLForCurrentRegion(LLViewerRegion *pRegion) const;
+	std::string getCapabilityURLForCurrentRegion(const std::string &pCapabilityName) const;
+	std::string getCapabilityURLForRegion(LLViewerRegion *pRegion, const std::string &pCapabilityName) const;
 	LLViewerRegion *getCurrentRegion() const;
 
 	
 	void displayNavMeshRebakePanel();
 	void hideNavMeshRebakePanel();	
 
-#ifdef XXX_STINSON_AGENT_STATE_DELETE_ME
+
 	void requestGetAgentState();
-	void handleAgentStateResult(const LLSD &pContent, EAgentState pRequestedAgentState);
+	void handleAgentStateResult(const LLSD &pContent );//, EAgentState pRequestedAgentState);
 	void handleAgentStateError(U32 pStatus, const std::string &pReason, const std::string &pURL);
-#endif // XXX_STINSON_AGENT_STATE_DELETE_ME
+
 
 	NavMeshMap mNavMeshMap;
 

@@ -1490,7 +1490,7 @@ void LLViewerRegion::unpackRegionHandshake()
 
 void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 {
-	capabilityNames.append("AgentPreferences");
+	capabilityNames.append("AgentState");
 	capabilityNames.append("AttachmentResources");
 	capabilityNames.append("AvatarPickerSearch");
 	capabilityNames.append("CharacterProperties");

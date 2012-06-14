@@ -53,6 +53,7 @@
 #include "llviewerregion.h"
 #include "llweb.h"
 #include "llpanelnavmeshrebake.h"
+#include "llenvmanager.h"
 
 #define CAP_SERVICE_RETRIEVE_NAVMESH      "RetrieveNavMeshSrc"
 
@@ -66,11 +67,9 @@
 #define SIM_MESSAGE_NAVMESH_STATUS_UPDATE "/message/NavMeshStatusUpdate"
 #define SIM_MESSAGE_BODY_FIELD            "body"
 
-#ifdef XXX_STINSON_AGENT_STATE_DELETE_ME
-#define CAP_SERVICE_AGENT_STATE     "AgentPreferences"
-#define ALTER_NAVMESH_OBJECTS_FIELD "alter_navmesh_objects"
-#define SIM_MESSAGE_AGENT_STATE_UPDATE    "/message/AgentPreferencesUpdate"
-#endif // XXX_STINSON_AGENT_STATE_DELETE_ME
+#define CAP_SERVICE_AGENT_STATE				"AgentState"
+#define ALTER_NAVMESH_OBJECTS_FIELD			"alter_navmesh_objects"
+#define SIM_MESSAGE_AGENT_STATE_UPDATE		"/message/AgentStateUpdate"
 
 //---------------------------------------------------------------------------
 // LLNavMeshSimStateChangeNode
@@ -84,11 +83,10 @@ public:
 
 LLHTTPRegistration<LLNavMeshSimStateChangeNode> gHTTPRegistrationNavMeshSimStateChangeNode(SIM_MESSAGE_NAVMESH_STATUS_UPDATE);
 
-#ifdef XXX_STINSON_AGENT_STATE_DELETE_ME
+
 //---------------------------------------------------------------------------
 // LLAgentStateChangeNode
 //---------------------------------------------------------------------------
-
 class LLAgentStateChangeNode : public LLHTTPNode
 {
 public:
@@ -96,7 +94,6 @@ public:
 };
 
 LLHTTPRegistration<LLAgentStateChangeNode> gHTTPRegistrationAgentStateChangeNode(SIM_MESSAGE_AGENT_STATE_UPDATE);
-#endif // XXX_STINSON_AGENT_STATE_DELETE_ME
 
 //---------------------------------------------------------------------------
 // NavMeshStatusResponder
@@ -140,7 +137,6 @@ private:
 	LLPathfindingNavMeshPtr mNavMeshPtr;
 };
 
-#ifdef XXX_STINSON_AGENT_STATE_DELETE_ME
 //---------------------------------------------------------------------------
 // AgentStateResponder
 //---------------------------------------------------------------------------
@@ -148,7 +144,7 @@ private:
 class AgentStateResponder : public LLHTTPClient::Responder
 {
 public:
-	AgentStateResponder(const std::string &pCapabilityURL, LLPathfindingManager::EAgentState pRequestedAgentState = LLPathfindingManager::kAgentStateUnknown);
+	AgentStateResponder(const std::string &pCapabilityURL);
 	virtual ~AgentStateResponder();
 
 	virtual void result(const LLSD &pContent);
@@ -158,9 +154,8 @@ protected:
 
 private:
 	std::string                       mCapabilityURL;
-	LLPathfindingManager::EAgentState mRequestedAgentState;
 };
-#endif // XXX_STINSON_AGENT_STATE_DELETE_ME
+
 
 //---------------------------------------------------------------------------
 // NavMeshRebakeResponder
@@ -286,12 +281,27 @@ private:
 
 LLPathfindingManager::LLPathfindingManager()
 	: LLSingleton<LLPathfindingManager>(),
-	mNavMeshMap(), mShowNavMeshRebake(false)
+	mNavMeshMap(),
+	mShowNavMeshRebake(false),
+	mCrossingSlot()
 {
+	if ( !mCrossingSlot.connected() )
+	{
+		mCrossingSlot = LLEnvManagerNew::getInstance()->setRegionChangeCallback(boost::bind(&LLPathfindingManager::onRegionBoundaryCrossed, this));
+	}
+}
+
+void LLPathfindingManager::onRegionBoundaryCrossed()
+{ 
+	displayNavMeshRebakePanel();
 }
 
 LLPathfindingManager::~LLPathfindingManager()
-{
+{	
+	if (mCrossingSlot.connected())
+	{
+		mCrossingSlot.disconnect();
+	}
 }
 
 void LLPathfindingManager::initSystem()
@@ -357,12 +367,11 @@ void LLPathfindingManager::requestGetNavMeshForRegion(LLViewerRegion *pRegion)
 	}
 }
 
-#ifdef XXX_STINSON_AGENT_STATE_DELETE_ME
 LLPathfindingManager::agent_state_slot_t LLPathfindingManager::registerAgentStateListener(agent_state_callback_t pAgentStateCallback)
 {
 	return mAgentStateSignal.connect(pAgentStateCallback);
 }
-#endif // XXX_STINSON_AGENT_STATE_DELETE_ME
+
 
 void LLPathfindingManager::requestGetLinksets(request_id_t pRequestId, object_request_callback_t pLinksetsCallback) const
 {
@@ -605,39 +614,31 @@ LLPathfindingNavMeshPtr LLPathfindingManager::getNavMeshForRegion(LLViewerRegion
 	return getNavMeshForRegion(regionUUID);
 }
 
-#ifdef XXX_STINSON_AGENT_STATE_DELETE_ME
 void LLPathfindingManager::requestGetAgentState()
 {
-	std::string agentStateURL = getAgentStateURLForCurrentRegion();
+	std::string agentStateURL = getAgentStateURLForCurrentRegion( getCurrentRegion() );
 
-	if (agentStateURL.empty())
+	if ( !agentStateURL.empty() )
 	{
-	}
-	else
-	{
-		LLHTTPClient::ResponderPtr responder = new AgentStateResponder(agentStateURL);
-		LLHTTPClient::get(agentStateURL, responder);
+		LLHTTPClient::ResponderPtr responder = new AgentStateResponder( agentStateURL );
+		LLHTTPClient::get( agentStateURL, responder );
 	}
 }
 
-void LLPathfindingManager::handleAgentStateResult(const LLSD &pContent, EAgentState pRequestedAgentState)
-{
-	llassert(pContent.has(ALTER_NAVMESH_OBJECTS_FIELD));
-	llassert(pContent.get(ALTER_NAVMESH_OBJECTS_FIELD).isBoolean());
-	EAgentState agentState = (pContent.get(ALTER_NAVMESH_OBJECTS_FIELD).asBoolean() ? kAgentStateUnfrozen : kAgentStateFrozen);
-
-	if ((agentState != pRequestedAgentState))
-	{
-		agentState = kAgentStateError;
-		llassert(0);
-	}
+void LLPathfindingManager::handleAgentStateResult(const LLSD &pContent) 
+{	
+	displayNavMeshRebakePanel();
 }
 
 void LLPathfindingManager::handleAgentStateError(U32 pStatus, const std::string &pReason, const std::string &pURL)
 {
 	llwarns << "error with request to URL '" << pURL << "' because " << pReason << " (statusCode:" << pStatus << ")" << llendl;
 }
-#endif // XXX_STINSON_AGENT_STATE_DELETE_ME
+
+std::string LLPathfindingManager::getAgentStateURLForCurrentRegion(LLViewerRegion *pRegion) const
+{
+	return getCapabilityURLForRegion( pRegion, CAP_SERVICE_AGENT_STATE );
+}
 
 
 std::string LLPathfindingManager::getNavMeshStatusURLForRegion(LLViewerRegion *pRegion) const
@@ -750,21 +751,19 @@ void LLNavMeshSimStateChangeNode::post(ResponsePtr pResponse, const LLSD &pConte
 	LLPathfindingManager::getInstance()->handleNavMeshStatusUpdate(navMeshStatus);
 }
 
-#ifdef XXX_STINSON_AGENT_STATE_DELETE_ME
 //---------------------------------------------------------------------------
 // LLAgentStateChangeNode
 //---------------------------------------------------------------------------
 
 void LLAgentStateChangeNode::post(ResponsePtr pResponse, const LLSD &pContext, const LLSD &pInput) const
 {
-#ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
-	llinfos << "STINSON DEBUG: Received AgentPreferencesUpdate: " << pInput << llendl;
-#endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
-	llassert(pInput.has(SIM_MESSAGE_BODY_FIELD));
-	llassert(pInput.get(SIM_MESSAGE_BODY_FIELD).isMap());
-	LLPathfindingManager::getInstance()->handleAgentStateUpdate(pInput.get(SIM_MESSAGE_BODY_FIELD));
+	LLPathfindingManager::getInstance()->handleAgentStateUpdate();
 }
-#endif // XXX_STINSON_AGENT_STATE_DELETE_ME
+
+void LLPathfindingManager::handleAgentStateUpdate()
+{
+	displayNavMeshRebakePanel();
+}
 
 //---------------------------------------------------------------------------
 // NavMeshStatusResponder
@@ -828,15 +827,13 @@ void NavMeshResponder::error(U32 pStatus, const std::string& pReason)
 	mNavMeshPtr->handleNavMeshError(pStatus, pReason, mCapabilityURL, mNavMeshVersion);
 }
 
-#ifdef XXX_STINSON_AGENT_STATE_DELETE_ME
 //---------------------------------------------------------------------------
 // AgentStateResponder
 //---------------------------------------------------------------------------
 
-AgentStateResponder::AgentStateResponder(const std::string &pCapabilityURL, LLPathfindingManager::EAgentState pRequestedAgentState)
-	: LLHTTPClient::Responder(),
-	mCapabilityURL(pCapabilityURL),
-	mRequestedAgentState(pRequestedAgentState)
+AgentStateResponder::AgentStateResponder(const std::string &pCapabilityURL)
+: LLHTTPClient::Responder()
+, mCapabilityURL(pCapabilityURL)
 {
 }
 
@@ -846,14 +843,14 @@ AgentStateResponder::~AgentStateResponder()
 
 void AgentStateResponder::result(const LLSD &pContent)
 {
-	LLPathfindingManager::getInstance()->handleAgentStateResult(pContent, mRequestedAgentState);
+	LLPathfindingManager::getInstance()->handleAgentStateResult(pContent);
 }
 
 void AgentStateResponder::error(U32 pStatus, const std::string &pReason)
 {
 	LLPathfindingManager::getInstance()->handleAgentStateError(pStatus, pReason, mCapabilityURL);
 }
-#endif // XXX_STINSON_AGENT_STATE_DELETE_ME
+
 
 //---------------------------------------------------------------------------
 // navmesh rebake responder
@@ -877,6 +874,7 @@ void NavMeshRebakeResponder::error(U32 pStatus, const std::string &pReason)
 {
 	LLPathfindingManager::getInstance()->handleNavMeshRebakeError( pStatus, pReason, mCapabilityURL );
 }
+
 //---------------------------------------------------------------------------
 // LinksetsResponder
 //---------------------------------------------------------------------------
