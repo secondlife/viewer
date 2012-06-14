@@ -333,7 +333,7 @@ LLPathfindingNavMesh::navmesh_slot_t LLPathfindingManager::registerNavMeshListen
 void LLPathfindingManager::requestGetNavMeshForRegion(LLViewerRegion *pRegion)
 {
 	LLPathfindingNavMeshPtr navMeshPtr = getNavMeshForRegion(pRegion);
-	
+
 	if (pRegion == NULL)
 	{
 		navMeshPtr->handleNavMeshNotEnabled();
@@ -702,31 +702,30 @@ void LLPathfindingManager::displayNavMeshRebakePanel()
 	panel_nmr_container->setVisible( TRUE );
 	panel_namesh_rebake->reparent( rootp );
 	LLPanelNavMeshRebake::getInstance()->setVisible( TRUE );
+	LLPanelNavMeshRebake::getInstance()->resetButtonStates();
 }
 
-void  LLPathfindingManager::hideNavMeshRebakePanel()
+void LLPathfindingManager::hideNavMeshRebakePanel()
 {
 	LLPanelNavMeshRebake::getInstance()->setVisible( FALSE );
-}
-
-void LLPathfindingManager::handleNavMeshRebakeResult( const LLSD &pContent )
-{
-
 }
 
 void LLPathfindingManager::handleNavMeshRebakeError(U32 pStatus, const std::string &pReason, const std::string &pURL)
 {
 	llwarns << "error with request to URL '" << pURL << "' because " << pReason << " (statusCode:" << pStatus << ")" << llendl;
 }
-//prep#
+
+void LLPathfindingManager::handleNavMeshRebakeResult( const LLSD &pContent )
+{
+	hideNavMeshRebakePanel();
+}
+
 void LLPathfindingManager::triggerNavMeshRebuild()
 {
-	LLSD mPostData;
 	std::string url = getNavMeshStatusURLForRegion( getCurrentRegion() );
-
 	if ( url.empty() )
 	{
-		//prep#fix#error?
+		llwarns << "Error with request due to nonexistent URL"<<llendl;
 	}
 	else
 	{
@@ -735,7 +734,6 @@ void LLPathfindingManager::triggerNavMeshRebuild()
 		LLHTTPClient::ResponderPtr responder = new NavMeshRebakeResponder( url );
 		LLHTTPClient::post( url, mPostData, responder );
 	}
-
 }
 //---------------------------------------------------------------------------
 // LLNavMeshSimStateChangeNode

@@ -1,7 +1,7 @@
 /**
  * @file llpanelenavmeshrebake.h
- * @author 
- * @brief 
+ * @author prep
+ * @brief handles the buttons for navmesh rebaking
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -31,6 +31,7 @@
 
 class LLPanelNavMeshRebake : public LLPanel
 {
+
 	LOG_CLASS(LLPanelNavMeshRebake);
 
 public:
@@ -43,10 +44,9 @@ public:
 	} ESNavMeshRebakeMode;
 
 	void reparent( LLView* rootp );
-
+	void resetButtonStates();
 	static LLPanelNavMeshRebake* getInstance();
-	static void setMode( ESNavMeshRebakeMode mode );
-	static void clearMode( ESNavMeshRebakeMode mode );
+	
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void setVisible( BOOL visible );
 
@@ -54,10 +54,9 @@ public:
 	/*virtual*/ void draw(){/*updatePosition(); */LLPanel::draw();}
 	/*virtual*/ BOOL handleToolTip( S32 x, S32 y, MASK mask );
 
-
 protected:
-	LLPanelNavMeshRebake();
 
+	LLPanelNavMeshRebake();
 
 private:
 	static LLPanelNavMeshRebake* getPanel();
@@ -65,13 +64,10 @@ private:
 	//void updatePosition();
 
 	LLButton* mNavMeshRebakeButton;
-	LLButton* mNavMeshBakingButton;
-	
+	LLButton* mNavMeshBakingButton;	
 
-	LLHandle<LLPanel> mOriginalParent;
-
+	LLHandle<LLPanel> mOriginalParent;	
 	
-	bool	mAttached;
 };
 
 #endif //LL_NAVMESHREBAKE_H
