@@ -58,7 +58,6 @@
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
 #include "llworld.h"
-#include "llclipboard.h"
 
 // syntactic sugar
 #define callMemberFunction(object,ptrToMember)  ((object).*(ptrToMember))
@@ -654,33 +653,41 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, BOOL drop,
 		sOperationId++;
 	}
 
+	// For people drag and drop we don't need an actual inventory object,
+	// instead we need the current cargo id, which should be a person id.
+	bool is_uuid_dragged = (mSource == SOURCE_PEOPLE);
+
 	if (top_view)
 	{
 		handled = TRUE;
 
 		for (mCurItemIndex = 0; mCurItemIndex < (S32)mCargoIDs.size(); mCurItemIndex++)
 		{
-			LLInventoryObject* cargo = locateInventory(item, cat);
+			S32 local_x, local_y;
+			top_view->screenPointToLocal( x, y, &local_x, &local_y );
+			EAcceptance item_acceptance = ACCEPT_NO;
 
+			LLInventoryObject* cargo = locateInventory(item, cat);
 			if (cargo)
 			{
-				S32 local_x, local_y;
-				top_view->screenPointToLocal( x, y, &local_x, &local_y );
-				EAcceptance item_acceptance = ACCEPT_NO;
 				handled = handled && top_view->handleDragAndDrop(local_x, local_y, mask, FALSE,
 													mCargoTypes[mCurItemIndex],
 													(void*)cargo,
 													&item_acceptance,
 													mToolTipMsg);
-				if (handled)
-				{
-					// use sort order to determine priority of acceptance
-					*acceptance = (EAcceptance)llmin((U32)item_acceptance, (U32)*acceptance);
-				}
 			}
-			else
+			else if (is_uuid_dragged)
 			{
-				return;		
+				handled = handled && top_view->handleDragAndDrop(local_x, local_y, mask, FALSE,
+													mCargoTypes[mCurItemIndex],
+													(void*)&mCargoIDs[mCurItemIndex],
+													&item_acceptance,
+													mToolTipMsg);
+			}
+			if (handled)
+			{
+				// use sort order to determine priority of acceptance
+				*acceptance = (EAcceptance)llmin((U32)item_acceptance, (U32)*acceptance);
 			}
 		}
 
@@ -697,17 +704,24 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, BOOL drop,
 
 			for (mCurItemIndex = 0; mCurItemIndex < (S32)mCargoIDs.size(); mCurItemIndex++)
 			{
-				LLInventoryObject* cargo = locateInventory(item, cat);
+				S32 local_x, local_y;
+				EAcceptance item_acceptance;
+				top_view->screenPointToLocal( x, y, &local_x, &local_y );
 
+				LLInventoryObject* cargo = locateInventory(item, cat);
 				if (cargo)
 				{
-					S32 local_x, local_y;
-
-					EAcceptance item_acceptance;
-					top_view->screenPointToLocal( x, y, &local_x, &local_y );
 					handled = handled && top_view->handleDragAndDrop(local_x, local_y, mask, TRUE,
 														mCargoTypes[mCurItemIndex],
 														(void*)cargo,
+														&item_acceptance,
+														mToolTipMsg);
+				}
+				else if (is_uuid_dragged)
+				{
+					handled = handled && top_view->handleDragAndDrop(local_x, local_y, mask, FALSE,
+														mCargoTypes[mCurItemIndex],
+														(void*)&mCargoIDs[mCurItemIndex],
 														&item_acceptance,
 														mToolTipMsg);
 				}
@@ -727,17 +741,27 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, BOOL drop,
 
 		for (mCurItemIndex = 0; mCurItemIndex < (S32)mCargoIDs.size(); mCurItemIndex++)
 		{
+			EAcceptance item_acceptance = ACCEPT_NO;
+
 			LLInventoryObject* cargo = locateInventory(item, cat);
 
 			// fix for EXT-3191
-			if (NULL == cargo) return;
-
-			EAcceptance item_acceptance = ACCEPT_NO;
-			handled = handled && root_view->handleDragAndDrop(x, y, mask, FALSE,
-												mCargoTypes[mCurItemIndex],
-												(void*)cargo,
-												&item_acceptance,
-												mToolTipMsg);
+			if (cargo)
+			{
+				handled = handled && root_view->handleDragAndDrop(x, y, mask, FALSE,
+													mCargoTypes[mCurItemIndex],
+													(void*)cargo,
+													&item_acceptance,
+													mToolTipMsg);
+			}
+			else if (is_uuid_dragged)
+			{
+				handled = handled && root_view->handleDragAndDrop(x, y, mask, FALSE,
+													mCargoTypes[mCurItemIndex],
+													(void*)&mCargoIDs[mCurItemIndex],
+													&item_acceptance,
+													mToolTipMsg);
+			}
 			if (handled)
 			{
 				// use sort order to determine priority of acceptance
@@ -757,14 +781,22 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, BOOL drop,
 
 			for (mCurItemIndex = 0; mCurItemIndex < (S32)mCargoIDs.size(); mCurItemIndex++)
 			{
-				LLInventoryObject* cargo = locateInventory(item, cat);
+				EAcceptance item_acceptance;
 
+				LLInventoryObject* cargo = locateInventory(item, cat);
 				if (cargo)
 				{
-					EAcceptance item_acceptance;
 					handled = handled && root_view->handleDragAndDrop(x, y, mask, TRUE,
 											  mCargoTypes[mCurItemIndex],
 											  (void*)cargo,
+											  &item_acceptance,
+											  mToolTipMsg);
+				}
+				else if (is_uuid_dragged)
+				{
+					handled = handled && root_view->handleDragAndDrop(x, y, mask, TRUE,
+											  mCargoTypes[mCurItemIndex],
+											  (void*)&mCargoIDs[mCurItemIndex],
 											  &item_acceptance,
 											  mToolTipMsg);
 				}
@@ -2495,7 +2527,13 @@ LLInventoryObject* LLToolDragAndDrop::locateInventory(
 {
 	item = NULL;
 	cat = NULL;
-	if(mCargoIDs.empty()) return NULL;
+
+	if (mCargoIDs.empty()
+		|| (mSource == SOURCE_PEOPLE)) ///< There is no inventory item for people drag and drop.
+	{
+		return NULL;
+	}
+
 	if((mSource == SOURCE_AGENT) || (mSource == SOURCE_LIBRARY))
 	{
 		// The object should be in user inventory.
@@ -2527,10 +2565,11 @@ LLInventoryObject* LLToolDragAndDrop::locateInventory(
 			item = (LLViewerInventoryItem*)preview->getDragItem();
 		}
 	}
-	else if(mSource == SOURCE_VIEWER || mSource == SOURCE_PEOPLE)
+	else if(mSource == SOURCE_VIEWER)
 	{
 		item = (LLViewerInventoryItem*)gToolBarView->getDragItem();
 	}
+
 	if(item) return item;
 	if(cat) return cat;
 	return NULL;

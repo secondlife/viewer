@@ -35,8 +35,10 @@
 #include "llnearbychat.h"
 
 #include "llagent.h"
+#include "llavataractions.h"
 #include "llavatariconctrl.h"
 #include "llgroupiconctrl.h"
+#include "llfloateravatarpicker.h"
 #include "llimview.h"
 #include "lltransientfloatermgr.h"
 #include "llviewercontrol.h"
@@ -77,6 +79,8 @@ BOOL LLIMFloaterContainer::postBuild()
 
 	mExpandCollapseBtn = getChild<LLButton>("expand_collapse_btn");
 	mExpandCollapseBtn->setClickedCallback(boost::bind(&LLIMFloaterContainer::onExpandCollapseButtonClicked, this));
+
+	childSetAction("add_btn", boost::bind(&LLIMFloaterContainer::onAddButtonClicked, this));
 
 	collapseMessagesPane(gSavedPerAccountSettings.getBOOL("ConversationsMessagePaneCollapsed"));
 	collapseConversationsPane(gSavedPerAccountSettings.getBOOL("ConversationsListPaneCollapsed"));
@@ -370,6 +374,28 @@ void LLIMFloaterContainer::updateState(bool collapse, S32 delta_width)
 
 	setCanResize(is_left_pane_expanded || is_right_pane_expanded);
 	setCanMinimize(is_left_pane_expanded || is_right_pane_expanded);
+}
+
+void LLIMFloaterContainer::onAddButtonClicked()
+{
+    LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLIMFloaterContainer::onAvatarPicked, this, _1), TRUE, TRUE);
+    LLFloater* root_floater = gFloaterView->getParentFloater(this);
+    if (picker && root_floater)
+    {
+        root_floater->addDependentFloater(picker);
+    }
+}
+
+void LLIMFloaterContainer::onAvatarPicked(const uuid_vec_t& ids)
+{
+    if (ids.size() == 1)
+    {
+        LLAvatarActions::startIM(ids.back());
+    }
+    else
+    {
+        LLAvatarActions::startConference(ids);
+    }
 }
 
 // CHUI-137 : Temporary implementation of conversations list

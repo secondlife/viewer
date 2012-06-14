@@ -159,6 +159,9 @@ private:
 
 	void updateState(bool collapse, S32 delta_width);
 
+	void onAddButtonClicked();
+	void onAvatarPicked(const uuid_vec_t& ids);
+
 	LLButton* mExpandCollapseBtn;
 	LLLayoutPanel* mMessagesPane;
 	LLLayoutPanel* mConversationsPane;

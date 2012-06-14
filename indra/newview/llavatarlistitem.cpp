@@ -31,7 +31,6 @@
 #include "llavatarlistitem.h"
 
 #include "llbutton.h"
-#include "llclipboard.h"
 #include "llfloaterreg.h"
 #include "lltextutil.h"
 

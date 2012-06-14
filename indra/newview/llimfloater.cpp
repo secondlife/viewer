@@ -487,6 +487,10 @@ void LLIMFloater::onAvatarNameCache(const LLUUID& agent_id,
 // virtual
 BOOL LLIMFloater::tick()
 {
+	// This check is needed until LLFloaterReg::removeInstance() is synchronized with deleting the floater
+	// via LLMortician::updateClass(), to avoid calling dead instances. See LLFloater::destroy().
+	if (isDead()) return false;
+
 	BOOL parents_retcode = LLIMConversation::tick();
 
 	if ( mMeTyping )
@@ -1000,7 +1004,7 @@ BOOL LLIMFloater::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 {
 	if (cargo_type == DAD_PERSON)
 	{
-		if (dropPerson(static_cast<LLInventoryObject*>(cargo_data), drop))
+		if (dropPerson(static_cast<LLUUID*>(cargo_data), drop))
 		{
 			*accept = ACCEPT_YES_MULTI;
 		}
@@ -1012,13 +1016,13 @@ BOOL LLIMFloater::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	return TRUE;
 }
 
-bool LLIMFloater::dropPerson(LLInventoryObject* item, bool drop)
+bool LLIMFloater::dropPerson(LLUUID* person_id, bool drop)
 {
-	bool res = item && item->getUUID().notNull();
+	bool res = person_id && person_id->notNull();
 	if(res)
 	{
 		uuid_vec_t ids;
-		ids.push_back(item->getUUID());
+		ids.push_back(*person_id);
 
 		res = canAddSelectedToChat(ids);
 		if(res && drop)
