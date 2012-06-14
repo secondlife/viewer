@@ -27,6 +27,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llimfloater.h"
 #include "llimfloatercontainer.h"
 
 #include "llfloaterreg.h"
@@ -86,7 +87,15 @@ BOOL LLIMFloaterContainer::postBuild()
 void LLIMFloaterContainer::onOpen(const LLSD& key)
 {
 	LLMultiFloater::onOpen(key);
-/*
+	if (getFloaterCount() == 0)
+	{
+		// If there's *no* conversation open so far, we force the opening of the nearby chat conversation
+		// *TODO: find a way to move this to XML as a default panel or something like that
+		LLSD name("chat_bar");
+		LLSD key("");
+		LLFloaterReg::toggleInstanceOrBringToFront(name,key);
+	}
+	/*
 	if (key.isDefined())
 	{
 		LLIMFloater* im_floater = LLIMFloater::findInstance(key.asUUID());
@@ -95,7 +104,7 @@ void LLIMFloaterContainer::onOpen(const LLSD& key)
 			im_floater->openFloater();
 		}
 	}
-*/
+	 */
 }
 
 // virtual
