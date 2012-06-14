@@ -4702,8 +4702,14 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 						if (buff)
 						{
 							llassert(!face->isState(LLFace::RIGGED));
-							face->getGeometryVolume(*volume, face->getTEOffset(), 
-								vobj->getRelativeXform(), vobj->getRelativeXformInvTrans(), face->getGeomIndex());
+
+							if (!face->getGeometryVolume(*volume, face->getTEOffset(), 
+								vobj->getRelativeXform(), vobj->getRelativeXformInvTrans(), face->getGeomIndex()))
+							{ //something's gone wrong with the vertex buffer accounting, rebuild this group 
+								group->dirtyGeom();
+								gPipeline.markRebuild(group, TRUE);
+							}
+
 
 							if (buff->isLocked())
 							{
@@ -5037,8 +5043,11 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 
 					llassert(!facep->isState(LLFace::RIGGED));
 
-					facep->getGeometryVolume(*volume, te_idx, 
-						vobj->getRelativeXform(), vobj->getRelativeXformInvTrans(), index_offset,true);
+					if (!facep->getGeometryVolume(*volume, te_idx, 
+						vobj->getRelativeXform(), vobj->getRelativeXformInvTrans(), index_offset,true))
+					{
+						llwarns << "Failed to get geometry for face!" << llendl;
+					}
 
 					if (drawablep->isState(LLDrawable::ANIMATED_CHILD))
 					{
