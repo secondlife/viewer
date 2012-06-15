@@ -5786,7 +5786,7 @@ This area has building disabled. You can&apos;t build or rez objects here.
      persist="true"
      type="notify">
     <unique/>
-    Dynamic pathing is enabled.
+    Dynamic pathing is not available.
   </notification>
   
   <notification
