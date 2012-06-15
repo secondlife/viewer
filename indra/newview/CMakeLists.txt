@@ -1755,8 +1755,13 @@ if (WINDOWS)
         #${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.bz2)
 
     endif (PACKAGE)
+elseif (DARWIN)
+    set_target_properties(${VIEWER_BINARY_NAME}
+        PROPERTIES
+        LINK_FLAGS_RELEASE "${LINK_FLAGS_RELEASE} -Wl,--map=${VIEWER_BINARY_NAME}.MAP"
+        )
 else (WINDOWS)
-	# Linux and Darwin
+	# Linux 
     set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
         LINK_FLAGS_RELEASE "${LINK_FLAGS_RELEASE} -Wl,--Map=${VIEWER_BINARY_NAME}.MAP"
