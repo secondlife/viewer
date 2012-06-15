@@ -657,7 +657,10 @@ void LLWorld::updateRegions(F32 max_update_time)
 		if (did_one && max_time <= 0.f)
 			break;
 		max_time = llmin(max_time, max_update_time*.1f);
-		did_one |= regionp->idleUpdate(max_update_time);
+		if (regionp->idleUpdate(max_update_time))
+		{
+			did_one = TRUE;
+		}
 	}
 }
 
@@ -837,21 +840,23 @@ void LLWorld::updateWaterObjects()
 	}
 	mHoleWaterObjects.clear();
 
+	// Use the water height of the region we're on for areas where there is no region
+	F32 water_height = gAgent.getRegion()->getWaterHeight();
+
 	// Now, get a list of the holes
 	S32 x, y;
-	F32 water_height = gAgent.getRegion()->getWaterHeight() + 256.f;
 	for (x = min_x; x <= max_x; x += rwidth)
 	{
 		for (y = min_y; y <= max_y; y += rwidth)
 		{
 			U64 region_handle = to_region_handle(x, y);
 			if (!getRegionFromHandle(region_handle))
-			{
+			{	// No region at that area, so make water
 				LLVOWater* waterp = (LLVOWater *)gObjectList.createObjectViewer(LLViewerObject::LL_VO_WATER, gAgent.getRegion());
 				waterp->setUseTexture(FALSE);
 				waterp->setPositionGlobal(LLVector3d(x + rwidth/2,
 													 y + rwidth/2,
-													 water_height));
+													 256.f + water_height));
 				waterp->setScale(LLVector3((F32)rwidth, (F32)rwidth, 512.f));
 				gPipeline.createObject(waterp);
 				mHoleWaterObjects.push_back(waterp);
@@ -908,7 +913,7 @@ void LLWorld::updateWaterObjects()
 		}
 
 		waterp->setRegion(gAgent.getRegion());
-		LLVector3d water_pos(water_center_x, water_center_y, water_height) ;
+		LLVector3d water_pos(water_center_x, water_center_y, 256.f + water_height) ;
 		LLVector3 water_scale((F32) dim[0], (F32) dim[1], 512.f);
 
 		//stretch out to horizon

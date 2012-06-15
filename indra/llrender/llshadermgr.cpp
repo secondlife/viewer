@@ -1026,6 +1026,9 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("size");
 	mReservedUniforms.push_back("falloff");
 
+	mReservedUniforms.push_back("box_center");
+	mReservedUniforms.push_back("box_size");
+
 
 	mReservedUniforms.push_back("minLuminance");
 	mReservedUniforms.push_back("maxExtractAlpha");

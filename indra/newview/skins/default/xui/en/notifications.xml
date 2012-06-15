@@ -1245,6 +1245,25 @@ Visit [_URL] for more information?
 
   <notification
    icon="alertmodal.tga"
+   name="IntelOldDriver"
+   type="alertmodal">
+     There is likely a newer driver for your graphics chip.  Updating graphics drivers can substantially improve performance.
+
+    Visit [_URL] to check for driver updates?
+    <tag>confirm</tag>
+    <url option="0" name="url">
+      http://www.intel.com/p/en_US/support/detect/graphics
+    </url>
+    <usetemplate
+     ignoretext="My graphics driver is out of date"
+     name="okcancelignore"
+     notext="No"
+     yestext="Yes"/>
+    <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="UnknownGPU"
    type="alertmodal">
 Your system contains a graphics card that [APP_NAME] doesn't recognize.
@@ -7177,6 +7196,18 @@ You uploaded a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME] second
    type="notifytip">
 ( [EXISTENCE] seconds alive )
 You locally updated a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME] seconds.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="LivePreviewUnavailable"
+   type="alert">
+   
+We cannot display a preview of this texture because it is no-copy and/or no-transfer.
+  <usetemplate
+    ignoretext="Warn me that Live Preview mode is not available for no-copy and/or no-transfer textures"
+    name="okignore"
+    yestext="OK"/>
   </notification>
 
   <notification

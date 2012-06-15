@@ -3237,7 +3237,6 @@ public:
 			//just like a normal IM
 			//this is just replicated code from process_improved_im
 			//and should really go in it's own function -jwolk
-			LLChat chat;
 
 			std::string message = message_params["message"].asString();
 			std::string name = message_params["from_name"].asString();
@@ -3255,14 +3254,7 @@ public:
 				name,
 				LLMute::flagTextChat);
 
-			BOOL is_linden = LLMuteList::getInstance()->isLinden(name);
-			std::string separator_string(": ");
-			
-			chat.mMuted = is_muted && !is_linden;
-			chat.mFromID = from_id;
-			chat.mFromName = name;
-
-			if (!is_linden && is_busy)
+			if (is_busy || is_muted)
 			{
 				return;
 			}

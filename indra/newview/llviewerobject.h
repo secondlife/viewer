@@ -229,6 +229,8 @@ public:
 	const LLUUID &getID() const						{ return mID; }
 	U32 getLocalID() const							{ return mLocalID; }
 	U32 getCRC() const								{ return mTotalCRC; }
+	S32 getListIndex() const						{ return mListIndex; }
+	void setListIndex(S32 idx)						{ mListIndex = idx; }
 
 	virtual BOOL isFlexible() const					{ return FALSE; }
 	virtual BOOL isSculpted() const 				{ return FALSE; }
@@ -589,6 +591,9 @@ public:
 	// Last total CRC received from sim, used for caching
 	U32				mTotalCRC;
 
+	// index into LLViewerObjectList::mActiveObjects or -1 if not in list
+	S32				mListIndex;
+
 	LLPointer<LLViewerTexture> *mTEImages;
 
 	// Selection, picking and rendering variables
@@ -683,6 +688,10 @@ protected:
 	
 	F32				mAppAngle;	// Apparent visual arc in degrees
 	F32				mPixelArea; // Apparent area in pixels
+
+	// IDs of of all items in the object's content which are added to the object's content,
+	// but not updated on the server yet. After item was updated, its ID will be removed from this list.
+	std::list<LLUUID> mPendingInventoryItemsIDs;
 
 	// This is the object's inventory from the viewer's perspective.
 	LLInventoryObject::object_list_t* mInventory;

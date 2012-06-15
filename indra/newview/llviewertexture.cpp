@@ -1377,10 +1377,10 @@ void LLViewerFetchedTexture::dump()
 // ONLY called from LLViewerFetchedTextureList
 void LLViewerFetchedTexture::destroyTexture() 
 {
-	if(LLImageGL::sGlobalTextureMemoryInBytes < sMaxDesiredTextureMemInBytes)//not ready to release unused memory.
-	{
-		return ;
-	}
+	//if(LLImageGL::sGlobalTextureMemoryInBytes < sMaxDesiredTextureMemInBytes)//not ready to release unused memory.
+	//{
+	//	return ;
+	//}
 	if (mNeedsCreateTexture)//return if in the process of generating a new texture.
 	{
 		return ;
@@ -3290,10 +3290,14 @@ LLViewerMediaTexture::LLViewerMediaTexture(const LLUUID& id, BOOL usemipmaps, LL
 	sMediaMap.insert(std::make_pair(id, this));
 
 	mGLTexturep = gl_image ;
+
 	if(mGLTexturep.isNull())
 	{
 		generateGLTexture() ;
 	}
+
+	mGLTexturep->setAllowCompression(false);
+
 	mGLTexturep->setNeedsAlphaAndPickMask(FALSE) ;
 
 	mIsPlaying = FALSE ;

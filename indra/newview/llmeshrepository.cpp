@@ -1620,7 +1620,7 @@ void LLMeshUploadThread::doWholeModelUpload()
 			mCurlRequest->process();
 			//sleep for 10ms to prevent eating a whole core
 			apr_sleep(10000);
-		} while (mCurlRequest->getQueued() > 0);
+		} while (!LLAppViewer::isQuitting() && mCurlRequest->getQueued() > 0);
 	}
 
 	delete mCurlRequest;
@@ -1659,7 +1659,7 @@ void LLMeshUploadThread::requestWholeModelFee()
 		mCurlRequest->process();
 		//sleep for 10ms to prevent eating a whole core
 		apr_sleep(10000);
-	} while (mCurlRequest->getQueued() > 0);
+	} while (!LLApp::isQuitting() && mCurlRequest->getQueued() > 0);
 
 	delete mCurlRequest;
 	mCurlRequest = NULL;

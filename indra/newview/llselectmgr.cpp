@@ -1508,6 +1508,49 @@ struct LLSelectMgrSendFunctor : public LLSelectedObjectFunctor
 	}
 };
 
+void LLObjectSelection::applyNoCopyTextureToTEs(LLViewerInventoryItem* item)
+{
+	if (!item)
+	{
+		return;
+	}
+	LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture(item->getAssetUUID());
+
+	for (iterator iter = begin(); iter != end(); ++iter)
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = (*iter)->getObject();
+		if (!object)
+		{
+			continue;
+		}
+
+		S32 num_tes = llmin((S32)object->getNumTEs(), (S32)object->getNumFaces());
+		bool texture_copied = false;
+		for (S32 te = 0; te < num_tes; ++te)
+		{
+			if (node->isTESelected(te))
+			{
+				//(no-copy) textures must be moved to the object's inventory only once
+				// without making any copies
+				if (!texture_copied)
+				{
+					LLToolDragAndDrop::handleDropTextureProtections(object, item, LLToolDragAndDrop::SOURCE_AGENT, LLUUID::null);
+					texture_copied = true;
+				}
+
+				// apply texture for the selected faces
+				LLViewerStats::getInstance()->incStat(LLViewerStats::ST_EDIT_TEXTURE_COUNT );
+				object->setTEImage(te, image);
+				dialog_refresh_all();
+
+				// send the update to the simulator
+				object->sendTEUpdate();
+			}
+		}
+	}
+}
+
 //-----------------------------------------------------------------------------
 // selectionSetImage()
 //-----------------------------------------------------------------------------
@@ -1559,8 +1602,18 @@ void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 			}
 			return true;
 		}
-	} setfunc(item, imageid);
-	getSelection()->applyToTEs(&setfunc);
+	};
+
+	if (item && !item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
+	{
+		getSelection()->applyNoCopyTextureToTEs(item);
+	}
+	else
+	{
+		f setfunc(item, imageid);
+		getSelection()->applyToTEs(&setfunc);
+	}
+
 
 	struct g : public LLSelectedObjectFunctor
 	{
@@ -3051,11 +3104,11 @@ bool LLSelectMgr::confirmDelete(const LLSD& notification, const LLSD& response, 
 			// TODO: Make sure you have delete permissions on all of them.
 			const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
 			// attempt to derez into the trash.
-			LLDeRezInfo* info = new LLDeRezInfo(DRD_TRASH, trash_id);
+			LLDeRezInfo info(DRD_TRASH, trash_id);
 			LLSelectMgr::getInstance()->sendListToRegions("DeRezObject",
 										  packDeRezHeader,
 										  packObjectLocalID,
-										  (void*)info,
+										  (void*) &info,
 										  SEND_ONLY_ROOTS);
 			// VEFFECT: Delete Object - one effect for all deletes
 			if (LLSelectMgr::getInstance()->mSelectedObjects->mSelectType != SELECT_TYPE_HUD)
@@ -3745,13 +3798,15 @@ void LLSelectMgr::deselectAllIfTooFar()
 
 void LLSelectMgr::selectionSetObjectName(const std::string& name)
 {
+	std::string name_copy(name);
+
 	// we only work correctly if 1 object is selected.
 	if(mSelectedObjects->getRootObjectCount() == 1)
 	{
 		sendListToRegions("ObjectName",
 						  packAgentAndSessionID,
 						  packObjectName,
-						  (void*)(new std::string(name)),
+						  (void*)(&name_copy),
 						  SEND_ONLY_ROOTS);
 	}
 	else if(mSelectedObjects->getObjectCount() == 1)
@@ -3759,20 +3814,22 @@ void LLSelectMgr::selectionSetObjectName(const std::string& name)
 		sendListToRegions("ObjectName",
 						  packAgentAndSessionID,
 						  packObjectName,
-						  (void*)(new std::string(name)),
+						  (void*)(&name_copy),
 						  SEND_INDIVIDUALS);
 	}
 }
 
 void LLSelectMgr::selectionSetObjectDescription(const std::string& desc)
 {
+	std::string desc_copy(desc);
+
 	// we only work correctly if 1 object is selected.
 	if(mSelectedObjects->getRootObjectCount() == 1)
 	{
 		sendListToRegions("ObjectDescription",
 						  packAgentAndSessionID,
 						  packObjectDescription,
-						  (void*)(new std::string(desc)),
+						  (void*)(&desc_copy),
 						  SEND_ONLY_ROOTS);
 	}
 	else if(mSelectedObjects->getObjectCount() == 1)
@@ -3780,7 +3837,7 @@ void LLSelectMgr::selectionSetObjectDescription(const std::string& desc)
 		sendListToRegions("ObjectDescription",
 						  packAgentAndSessionID,
 						  packObjectDescription,
-						  (void*)(new std::string(desc)),
+						  (void*)(&desc_copy),
 						  SEND_INDIVIDUALS);
 	}
 }
@@ -4298,15 +4355,14 @@ void LLSelectMgr::packObjectName(LLSelectNode* node, void* user_data)
 		gMessageSystem->addU32Fast(_PREHASH_LocalID, node->getObject()->getLocalID());
 		gMessageSystem->addStringFast(_PREHASH_Name, *name);
 	}
-	delete name;
 }
 
 // static
 void LLSelectMgr::packObjectDescription(LLSelectNode* node, void* user_data)
 {
 	const std::string* desc = (const std::string*)user_data;
-	if(!desc->empty())
-	{
+	if(desc)
+	{	// Empty (non-null, but zero length) descriptions are OK
 		gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
 		gMessageSystem->addU32Fast(_PREHASH_LocalID, node->getObject()->getLocalID());
 		gMessageSystem->addStringFast(_PREHASH_Description, *desc);
@@ -5580,7 +5636,7 @@ void pushWireframe(LLDrawable* drawable)
 			for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
 			{
 				const LLVolumeFace& face = volume->getVolumeFace(i);
-				LLVertexBuffer::drawElements(LLRender::TRIANGLES, face.mPositions, face.mTexCoords, face.mNumIndices, face.mIndices);
+				LLVertexBuffer::drawElements(LLRender::TRIANGLES, face.mPositions, NULL, face.mNumIndices, face.mIndices);
 			}
 		}
 
@@ -5607,7 +5663,7 @@ void LLSelectNode::renderOneWireframe(const LLColor4& color)
 
 	if (shader)
 	{
-		gHighlightProgram.bind();
+		gDebugProgram.bind();
 	}
 
 	gGL.matrixMode(LLRender::MM_MODELVIEW);

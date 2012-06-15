@@ -367,6 +367,10 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 							 U32 fsaa_samples)
 	: LLWindow(callbacks, fullscreen, flags)
 {
+	
+	//MAINT-516 -- force a load of opengl32.dll just in case windows went sideways 
+	LoadLibrary(L"opengl32.dll");
+
 	mFSAASamples = fsaa_samples;
 	mIconResource = gIconResource;
 	mOverrideAspectRatio = 0.f;
@@ -1477,7 +1481,8 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 			}
 			else
 			{
-				llinfos << "Created OpenGL " << llformat("%d.%d", attribs[1], attribs[3]) << " context." << llendl;
+				llinfos << "Created OpenGL " << llformat("%d.%d", attribs[1], attribs[3]) << 
+					(LLRender::sGLCoreProfile ? " core" : " compatibility") << " context." << llendl;
 				done = true;
 
 				if (LLRender::sGLCoreProfile)

@@ -93,6 +93,7 @@
 #include "lltoolpie.h"
 #include "lltoolselectland.h"
 #include "lltrans.h"
+#include "llviewerdisplay.h" //for gWindowResized
 #include "llviewergenericmessage.h"
 #include "llviewerhelp.h"
 #include "llviewermenufile.h"	// init_menu_file()
@@ -205,7 +206,7 @@ BOOL enable_take();
 void handle_take();
 void handle_object_show_inspector();
 void handle_avatar_show_inspector();
-bool confirm_take(const LLSD& notification, const LLSD& response);
+bool confirm_take(const LLSD& notification, const LLSD& response, LLObjectSelectionHandle selection_handle);
 
 void handle_buy_object(LLSaleInfo sale_info);
 void handle_buy_contents(LLSaleInfo sale_info);
@@ -1118,6 +1119,7 @@ class LLAdvancedToggleWireframe : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		gUseWireframe = !(gUseWireframe);
+		gWindowResized = TRUE;
 		LLPipeline::updateRenderDeferred();
 		gPipeline.resetVertexBuffers();
 		return true;
@@ -4448,7 +4450,10 @@ void handle_take()
 
 	LLNotification::Params params("ConfirmObjectTakeLock");
 	params.payload(payload);
-	params.functor.function(confirm_take);
+	// MAINT-290
+	// Reason: Showing the confirmation dialog resets object selection,	thus there is nothing to derez.
+	// Fix: pass selection to the confirm_take, so that selection doesn't "die" after confirmation dialog is opened
+	params.functor.function(boost::bind(confirm_take, _1, _2, LLSelectMgr::instance().getSelection()));
 
 	if(locked_but_takeable_object ||
 	   !you_own_everything)
@@ -4501,7 +4506,7 @@ void handle_avatar_show_inspector()
 
 
 
-bool confirm_take(const LLSD& notification, const LLSD& response)
+bool confirm_take(const LLSD& notification, const LLSD& response, LLObjectSelectionHandle selection_handle)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if(enable_take() && (option == 0))

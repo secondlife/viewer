@@ -847,12 +847,12 @@ void LLDrawPoolBump::renderDeferred(S32 pass)
 	LLFastTimer ftm(FTM_RENDER_BUMP);
 
 	U32 type = LLRenderPass::PASS_BUMP;
-	LLCullResult::drawinfo_list_t::iterator begin = gPipeline.beginRenderMap(type);
-	LLCullResult::drawinfo_list_t::iterator end = gPipeline.endRenderMap(type);
+	LLCullResult::drawinfo_iterator begin = gPipeline.beginRenderMap(type);
+	LLCullResult::drawinfo_iterator end = gPipeline.endRenderMap(type);
 
 	U32 mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_BINORMAL | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_COLOR;
 	
-	for (LLCullResult::drawinfo_list_t::iterator i = begin; i != end; ++i)	
+	for (LLCullResult::drawinfo_iterator i = begin; i != end; ++i)	
 	{
 		LLDrawInfo& params = **i;
 
@@ -1341,8 +1341,7 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 			// immediately assign bump to a global smart pointer in case some local smart pointer
 			// accidentally releases it.
 			LLPointer<LLViewerTexture> bump = LLViewerTextureManager::getLocalTexture( TRUE );
-			
-			
+
 			if (!LLPipeline::sRenderDeferred)
 			{
 				LLFastTimer t(FTM_BUMP_SOURCE_CREATE);
@@ -1351,6 +1350,10 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 			}
 			else 
 			{ //convert to normal map
+				
+				//disable compression on normal maps to prevent errors below
+				bump->getGLTexture()->setAllowCompression(false);
+
 				{
 					LLFastTimer t(FTM_BUMP_SOURCE_CREATE);
 					bump->setExplicitFormat(GL_RGBA8, GL_ALPHA);
@@ -1445,10 +1448,10 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 
 void LLDrawPoolBump::renderBump(U32 type, U32 mask)
 {	
-	LLCullResult::drawinfo_list_t::iterator begin = gPipeline.beginRenderMap(type);
-	LLCullResult::drawinfo_list_t::iterator end = gPipeline.endRenderMap(type);
+	LLCullResult::drawinfo_iterator begin = gPipeline.beginRenderMap(type);
+	LLCullResult::drawinfo_iterator end = gPipeline.endRenderMap(type);
 
-	for (LLCullResult::drawinfo_list_t::iterator i = begin; i != end; ++i)	
+	for (LLCullResult::drawinfo_iterator i = begin; i != end; ++i)	
 	{
 		LLDrawInfo& params = **i;
 

@@ -31,6 +31,8 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
+uniform float minimum_alpha;
+
 uniform sampler2DRectShadow shadowMap0;
 uniform sampler2DRectShadow shadowMap1;
 uniform sampler2DRectShadow shadowMap2;
@@ -94,6 +96,13 @@ void main()
 	
 	float shadow = 0.0;
 	vec4 pos = vec4(vary_position, 1.0);
+	
+	vec4 diff = texture2D(diffuseMap,vary_texcoord0.xy);
+
+	if (diff.a < minimum_alpha)
+	{
+		discard;
+	}
 	
 	vec4 spos = pos;
 		
@@ -162,8 +171,6 @@ void main()
 		shadow = 1.0;
 	}
 	
-	vec4 diff = texture2D(diffuseMap,vary_texcoord0.xy);
-
 	vec4 col = vec4(vary_ambient + vary_directional.rgb*shadow, 1.0);
 	vec4 color = diff * col;
 	
