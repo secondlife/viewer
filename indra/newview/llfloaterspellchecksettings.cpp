@@ -69,7 +69,7 @@ BOOL LLFloaterSpellCheckerSettings::postBuild(void)
 	getChild<LLUICtrl>("spellcheck_main_combo")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::refreshDictionaries, this, false));
 	getChild<LLUICtrl>("spellcheck_moveleft_btn")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::onBtnMove, this, "spellcheck_active_list", "spellcheck_available_list"));
 	getChild<LLUICtrl>("spellcheck_moveright_btn")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::onBtnMove, this, "spellcheck_available_list", "spellcheck_active_list"));
-
+	center();
 	return true;
 }
 
@@ -85,8 +85,6 @@ void LLFloaterSpellCheckerSettings::onBtnMove(const std::string& from, const std
 
 	LLSD row;
 	row["columns"][0]["column"] = "name";
-	row["columns"][0]["font"]["name"] = "SANSSERIF_SMALL";
-	row["columns"][0]["font"]["style"] = "NORMAL";
 
 	std::vector<LLScrollListItem*> sel_items = from_ctrl->getAllSelected();
 	std::vector<LLScrollListItem*>::const_iterator sel_it;
@@ -164,7 +162,6 @@ void LLFloaterSpellCheckerSettings::refreshDictionaries(bool from_settings)
 		dict_cur = LLSpellChecker::instance().getPrimaryDictionary();
 	}
 	dict_combo->clearRows();
-	dict_combo->setEnabled(enabled);
 
 	const LLSD& dict_map = LLSpellChecker::getDictionaryMap();
 	if (dict_map.size())
@@ -182,6 +179,7 @@ void LLFloaterSpellCheckerSettings::refreshDictionaries(bool from_settings)
 			dict_combo->clear();
 		}
 	}
+	dict_combo->setEnabled(enabled);
 
 	// Populate the available and active dictionary list
 	LLScrollListCtrl* avail_ctrl = findChild<LLScrollListCtrl>("spellcheck_available_list");
@@ -210,8 +208,6 @@ void LLFloaterSpellCheckerSettings::refreshDictionaries(bool from_settings)
 
 	LLSD row;
 	row["columns"][0]["column"] = "name";
-	row["columns"][0]["font"]["name"] = "SANSSERIF_SMALL";
-	row["columns"][0]["font"]["style"] = "NORMAL";
 
 	active_ctrl->clearRows();
 	active_ctrl->setEnabled(enabled);
