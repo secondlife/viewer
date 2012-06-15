@@ -27,6 +27,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llimfloater.h"
 #include "llimfloatercontainer.h"
 
 #include "llfloaterreg.h"
@@ -34,8 +35,10 @@
 #include "llnearbychat.h"
 
 #include "llagent.h"
+#include "llavataractions.h"
 #include "llavatariconctrl.h"
 #include "llgroupiconctrl.h"
+#include "llfloateravatarpicker.h"
 #include "llimview.h"
 #include "lltransientfloatermgr.h"
 #include "llviewercontrol.h"
@@ -71,9 +74,13 @@ BOOL LLIMFloaterContainer::postBuild()
 	mConversationsStack = getChild<LLLayoutStack>("conversations_stack");
 	mConversationsPane = getChild<LLLayoutPanel>("conversations_layout_panel");
 	mMessagesPane = getChild<LLLayoutPanel>("messages_layout_panel");
+	
+	mConversationsListPanel = getChild<LLPanel>("conversations_list_panel");
 
 	mExpandCollapseBtn = getChild<LLButton>("expand_collapse_btn");
 	mExpandCollapseBtn->setClickedCallback(boost::bind(&LLIMFloaterContainer::onExpandCollapseButtonClicked, this));
+
+	childSetAction("add_btn", boost::bind(&LLIMFloaterContainer::onAddButtonClicked, this));
 
 	collapseMessagesPane(gSavedPerAccountSettings.getBOOL("ConversationsMessagePaneCollapsed"));
 	collapseConversationsPane(gSavedPerAccountSettings.getBOOL("ConversationsListPaneCollapsed"));
@@ -84,7 +91,15 @@ BOOL LLIMFloaterContainer::postBuild()
 void LLIMFloaterContainer::onOpen(const LLSD& key)
 {
 	LLMultiFloater::onOpen(key);
-/*
+	if (getFloaterCount() == 0)
+	{
+		// If there's *no* conversation open so far, we force the opening of the nearby chat conversation
+		// *TODO: find a way to move this to XML as a default panel or something like that
+		LLSD name("chat_bar");
+		LLSD key("");
+		LLFloaterReg::toggleInstanceOrBringToFront(name,key);
+	}
+	/*
 	if (key.isDefined())
 	{
 		LLIMFloater* im_floater = LLIMFloater::findInstance(key.asUUID());
@@ -93,7 +108,7 @@ void LLIMFloaterContainer::onOpen(const LLSD& key)
 			im_floater->openFloater();
 		}
 	}
-*/
+	 */
 }
 
 // virtual
@@ -112,13 +127,32 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 
 	LLMultiFloater::addFloater(floaterp, select_added_floater, insertion_point);
 
+	LLUUID session_id = floaterp->getKey();
+
+	// CHUI-137 : Temporary implementation of conversations list
+	// Create a conversation item
+	LLConversationItem* item = new LLConversationItem(floaterp->getTitle(),session_id, floaterp, this);
+	mConversationsItems[session_id] = item;
+	// Create a widget from it
+	LLFolderViewItem* widget = createConversationItemWidget(item);
+	mConversationsWidgets[session_id] = widget;
+	// Add it to the UI
+	widget->setVisible(TRUE);
+	mConversationsListPanel->addChild(widget);
+	LLRect panel_rect = mConversationsListPanel->getRect();
+	S32 item_height = 16;
+	S32 index = mConversationsWidgets.size() - 1;
+	widget->setRect(LLRect(0,
+						   panel_rect.getHeight() - item_height*index,
+						   panel_rect.getWidth(),
+						   panel_rect.getHeight() - item_height*(index+1)));
+	// CHUI-137 : end
+	
 	LLView* floater_contents = floaterp->getChild<LLView>("contents_view");
 
 	// we don't show the header when the floater is hosted,
 	// so reshape floater contents to occupy the header space
 	floater_contents->setShape(floaterp->getRect());
-
-	LLUUID session_id = floaterp->getKey();
 
 	LLIconCtrl* icon = 0;
 
@@ -150,6 +184,35 @@ void LLIMFloaterContainer::removeFloater(LLFloater* floaterp)
 {
 	LLMultiFloater::removeFloater(floaterp);
 
+    // CHUI-137 : Temporary implementation of conversations list
+	// Clean up the conversations list
+ 	LLUUID session_id = floaterp->getKey();
+    // Delete the widget and the associated conversation item
+    // Note : since the mConversationsItems is also the listener to the widget, deleting 
+    // the widget will also delete its listener
+	conversations_widgets_map::iterator widget_it = mConversationsWidgets.find(session_id);
+	if (widget_it != mConversationsWidgets.end())
+    {
+        LLFolderViewItem* widget = widget_it->second;
+        delete widget;
+    }
+    // Suppress the conversation items and widgets from their respective maps
+	mConversationsItems.erase(session_id);
+	mConversationsWidgets.erase(session_id);
+    // Reposition the leftover conversation items
+	LLRect panel_rect = mConversationsListPanel->getRect();
+	S32 item_height = 16;
+    int index = 0;
+    for (widget_it = mConversationsWidgets.begin(); widget_it != mConversationsWidgets.end(); ++widget_it, ++index)
+    {
+        LLFolderViewItem* widget = widget_it->second;
+        widget->setRect(LLRect(0,
+                               panel_rect.getHeight() - item_height*index,
+                               panel_rect.getWidth(),
+                               panel_rect.getHeight() - item_height*(index+1)));
+    }
+    // CHUI-137 : end
+   
 	LLRect contents_rect = floaterp->getRect();
 
 	// reduce the floater contents height by header height
@@ -311,6 +374,85 @@ void LLIMFloaterContainer::updateState(bool collapse, S32 delta_width)
 
 	setCanResize(is_left_pane_expanded || is_right_pane_expanded);
 	setCanMinimize(is_left_pane_expanded || is_right_pane_expanded);
+}
+
+void LLIMFloaterContainer::onAddButtonClicked()
+{
+    LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLIMFloaterContainer::onAvatarPicked, this, _1), TRUE, TRUE);
+    LLFloater* root_floater = gFloaterView->getParentFloater(this);
+    if (picker && root_floater)
+    {
+        root_floater->addDependentFloater(picker);
+    }
+}
+
+void LLIMFloaterContainer::onAvatarPicked(const uuid_vec_t& ids)
+{
+    if (ids.size() == 1)
+    {
+        LLAvatarActions::startIM(ids.back());
+    }
+    else
+    {
+        LLAvatarActions::startConference(ids);
+    }
+}
+
+// CHUI-137 : Temporary implementation of conversations list
+LLFolderViewItem* LLIMFloaterContainer::createConversationItemWidget(LLConversationItem* item)
+{
+	LLFolderViewItem::Params params;
+	
+	params.name = item->getDisplayName();
+	//params.icon = bridge->getIcon();
+	//params.icon_open = bridge->getOpenIcon();
+	//params.creation_date = bridge->getCreationDate();
+	//params.root = mFolderRoot;
+	params.listener = item;
+	params.rect = LLRect (0, 0, 0, 0);
+	params.tool_tip = params.name;
+	
+	return LLUICtrlFactory::create<LLFolderViewItem>(params);
+}
+
+// Conversation items
+LLConversationItem::LLConversationItem(std::string name, const LLUUID& uuid, LLFloater* floaterp, LLIMFloaterContainer* containerp) :
+	mName(name),
+	mUUID(uuid),
+    mFloater(floaterp),
+    mContainer(containerp)
+{
+    // Hack: the nearby chat has no name so we catch that case and impose one
+	// Of course, we won't be doing this in the final code
+	if (name == "")
+		mName = "Nearby Chat";
+}
+
+// Virtual action callbacks
+void LLConversationItem::selectItem(void)
+{
+    // Switch to the conversation floater that is being selected
+    mContainer->selectFloater(mFloater);
+}
+
+void LLConversationItem::performAction(LLInventoryModel* model, std::string action)
+{
+}
+
+void LLConversationItem::openItem( void )
+{
+}
+
+void LLConversationItem::closeItem( void )
+{
+}
+
+void LLConversationItem::previewItem( void )
+{
+}
+
+void LLConversationItem::showProperties(void)
+{
 }
 
 // EOF

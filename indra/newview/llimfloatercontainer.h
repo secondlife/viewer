@@ -35,10 +35,87 @@
 #include "llavatarpropertiesprocessor.h"
 #include "llgroupmgr.h"
 
+#include "llfolderviewitem.h"
+#include "llfoldervieweventlistener.h"
+
 class LLButton;
 class LLLayoutPanel;
 class LLLayoutStack;
 class LLTabContainer;
+class LLIMFloaterContainer;
+
+// CHUI-137 : Temporary implementation of conversations list
+class LLConversationItem;
+
+typedef std::map<LLUUID, LLConversationItem*> conversations_items_map;
+typedef std::map<LLUUID, LLFolderViewItem*> conversations_widgets_map;
+
+// Conversation items: we hold a list of those and create an LLFolderViewItem widget for each  
+// that we tuck into the mConversationsListPanel. 
+class LLConversationItem : public LLFolderViewEventListener
+{
+public:
+	LLConversationItem(std::string name, const LLUUID& uuid, LLFloater* floaterp, LLIMFloaterContainer* containerp);
+	virtual ~LLConversationItem() {}
+
+	// Stub those things we won't really be using in this conversation context
+	virtual const std::string& getName() const { return mName; }
+	virtual const std::string& getDisplayName() const { return mName; }
+	virtual const LLUUID& getUUID() const { return mUUID; }
+	virtual time_t getCreationDate() const { return 0; }
+	virtual PermissionMask getPermissionMask() const { return PERM_ALL; }
+	virtual LLFolderType::EType getPreferredType() const { return LLFolderType::FT_NONE; }
+	virtual LLPointer<LLUIImage> getIcon() const { return NULL; }
+	virtual LLPointer<LLUIImage> getOpenIcon() const { return getIcon(); }
+	virtual LLFontGL::StyleFlags getLabelStyle() const { return LLFontGL::NORMAL; }
+	virtual std::string getLabelSuffix() const { return LLStringUtil::null; }
+	virtual BOOL isItemRenameable() const { return FALSE; }
+	virtual BOOL renameItem(const std::string& new_name) { return FALSE; }
+	virtual BOOL isItemMovable( void ) const { return FALSE; }
+	virtual BOOL isItemRemovable( void ) const { return FALSE; }
+	virtual BOOL isItemInTrash( void) const { return FALSE; }
+	virtual BOOL removeItem() { return FALSE; }
+	virtual void removeBatch(LLDynamicArray<LLFolderViewEventListener*>& batch) { }
+	virtual void move( LLFolderViewEventListener* parent_listener ) { }
+	virtual BOOL isItemCopyable() const { return FALSE; }
+	virtual BOOL copyToClipboard() const { return FALSE; }
+	virtual BOOL cutToClipboard() const { return FALSE; }
+	virtual BOOL isClipboardPasteable() const { return FALSE; }
+	virtual void pasteFromClipboard() { }
+	virtual void pasteLinkFromClipboard() { }
+	virtual void buildContextMenu(LLMenuGL& menu, U32 flags) { }
+	virtual BOOL isUpToDate() const { return TRUE; }
+	virtual BOOL hasChildren() const { return FALSE; }
+	virtual LLInventoryType::EType getInventoryType() const { return LLInventoryType::IT_NONE; }
+	virtual LLWearableType::EType getWearableType() const { return LLWearableType::WT_NONE; }
+
+	// The action callbacks
+	virtual void performAction(LLInventoryModel* model, std::string action);
+	virtual void openItem( void );
+	virtual void closeItem( void );
+	virtual void previewItem( void );
+	virtual void selectItem(void);
+	virtual void showProperties(void);
+	
+	// This method should be called when a drag begins.
+	// Returns TRUE if the drag can begin, FALSE otherwise.
+	virtual BOOL startDrag(EDragAndDropType* type, LLUUID* id) const { return FALSE; }
+	
+	// This method will be called to determine if a drop can be
+	// performed, and will set drop to TRUE if a drop is
+	// requested. 
+	// Returns TRUE if a drop is possible/happened, FALSE otherwise.
+	virtual BOOL dragOrDrop(MASK mask, BOOL drop,
+							EDragAndDropType cargo_type,
+							void* cargo_data,
+							std::string& tooltip_msg) { return FALSE; }
+private:
+	std::string mName;
+	const LLUUID mUUID;
+    LLFloater* mFloater;
+    LLIMFloaterContainer* mContainer;
+};
+// CHUI-137 : End
 
 class LLIMFloaterContainer : public LLMultiFloater
 {
@@ -64,6 +141,8 @@ public:
 	virtual void setMinimized(BOOL b);
 
 	void collapseMessagesPane(bool collapse);
+	
+	LLFolderViewItem* createConversationItemWidget(LLConversationItem* item);
 
 private:
 	typedef std::map<LLUUID,LLFloater*> avatarID_panel_map_t;
@@ -80,10 +159,19 @@ private:
 
 	void updateState(bool collapse, S32 delta_width);
 
+	void onAddButtonClicked();
+	void onAvatarPicked(const uuid_vec_t& ids);
+
 	LLButton* mExpandCollapseBtn;
 	LLLayoutPanel* mMessagesPane;
 	LLLayoutPanel* mConversationsPane;
 	LLLayoutStack* mConversationsStack;
+	
+	// CHUI-137 : Temporary implementation of conversations list
+	// Conversation list data
+	LLPanel* mConversationsListPanel;	// This is the widget we add items to (i.e. clickable title for each conversation)
+	conversations_items_map mConversationsItems;
+	conversations_widgets_map mConversationsWidgets;
 };
 
 #endif // LL_LLIMFLOATERCONTAINER_H

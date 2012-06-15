@@ -293,7 +293,7 @@ void LLFolderViewItem::refreshFromListener()
 			setCreationDate(creation_date);
 			dirtyFilter();
 		}
-		if (mRoot->useLabelSuffix())
+		if (mRoot && mRoot->useLabelSuffix())
 		{
 			mLabelStyle = mListener->getLabelStyle();
 			mLabelSuffix = mListener->getLabelSuffix();
@@ -383,7 +383,14 @@ void LLFolderViewItem::setSelectionFromRoot(LLFolderViewItem* selection,
 											BOOL openitem,
 											BOOL take_keyboard_focus)
 {
-	getRoot()->setSelection(selection, openitem, take_keyboard_focus);
+	if (getRoot())
+	{
+		getRoot()->setSelection(selection, openitem, take_keyboard_focus);
+	}
+    else if (mListener)
+    {
+        mListener->selectItem();
+    }
 }
 
 // helper function to change the selection from the root.
@@ -760,7 +767,10 @@ BOOL LLFolderViewItem::handleHover( S32 x, S32 y, MASK mask )
 	}
 	else
 	{
-		getRoot()->setShowSelectionContext(FALSE);
+		if (getRoot())
+		{
+			getRoot()->setShowSelectionContext(FALSE);
+		}
 		gViewerWindow->setCursor(UI_CURSOR_ARROW);
 		// let parent handle this then...
 		return FALSE;
@@ -803,7 +813,10 @@ BOOL LLFolderViewItem::handleMouseUp( S32 x, S32 y, MASK mask )
 
 	if( hasMouseCapture() )
 	{
-		getRoot()->setShowSelectionContext(FALSE);
+		if (getRoot())
+		{
+			getRoot()->setShowSelectionContext(FALSE);
+		}
 		gFocusMgr.setMouseCapture( NULL );
 	}
 	return TRUE;
@@ -870,8 +883,9 @@ void LLFolderViewItem::draw()
 	const S32 FOCUS_LEFT = 1;
 	const LLFontGL* font = getLabelFontForStyle(mLabelStyle);
 
-	const BOOL in_inventory = getListener() && gInventory.isObjectDescendentOf(getListener()->getUUID(), gInventory.getRootFolderID());
-	const BOOL in_library = getListener() && gInventory.isObjectDescendentOf(getListener()->getUUID(), gInventory.getLibraryRootFolderID());
+	const LLUUID uuid = (getListener() ? getListener()->getUUID() : LLUUID::null);
+	const BOOL in_inventory = (uuid.notNull() ? gInventory.isObjectDescendentOf(uuid, gInventory.getRootFolderID()) : FALSE);
+	const BOOL in_library   = (uuid.notNull() ? gInventory.isObjectDescendentOf(uuid, gInventory.getLibraryRootFolderID()) : FALSE);
 
 	//--------------------------------------------------------------------------------//
 	// Draw open folder arrow
@@ -891,8 +905,8 @@ void LLFolderViewItem::draw()
 	//--------------------------------------------------------------------------------//
 	// Draw highlight for selected items
 	//
-	const BOOL show_context = getRoot()->getShowSelectionContext();
-	const BOOL filled = show_context || (getRoot()->getParentPanel()->hasFocus()); // If we have keyboard focus, draw selection filled
+	const BOOL show_context = (getRoot() ? getRoot()->getShowSelectionContext() : FALSE);
+	const BOOL filled = show_context || (getRoot() ? getRoot()->getParentPanel()->hasFocus() : FALSE); // If we have keyboard focus, draw selection filled
 	const S32 focus_top = getRect().getHeight();
 	const S32 focus_bottom = getRect().getHeight() - mItemHeight;
 	const bool folder_open = (getRect().getHeight() > mItemHeight + 4);
@@ -903,8 +917,8 @@ void LLFolderViewItem::draw()
 		if (!mIsCurSelection)
 		{
 			// do time-based fade of extra objects
-			F32 fade_time = getRoot()->getSelectionFadeElapsedTime();
-			if (getRoot()->getShowSingleSelection())
+			F32 fade_time = (getRoot() ? getRoot()->getSelectionFadeElapsedTime() : 0.0f);
+			if (getRoot() && getRoot()->getShowSingleSelection())
 			{
 				// fading out
 				bg_color.mV[VALPHA] = clamp_rescale(fade_time, 0.f, 0.4f, bg_color.mV[VALPHA], 0.f);
@@ -1015,7 +1029,7 @@ void LLFolderViewItem::draw()
 	//--------------------------------------------------------------------------------//
 	// Highlight filtered text
 	//
-	if (getRoot()->getDebugFilters())
+	if (getRoot() && getRoot()->getDebugFilters())
 	{
 		if (!getFiltered() && !possibly_has_children)
 		{
@@ -1076,7 +1090,7 @@ void LLFolderViewItem::draw()
 	if (mStringMatchOffset != std::string::npos)
 	{
 		// don't draw backgrounds for zero-length strings
-		S32 filter_string_length = getRoot()->getFilterSubString().size();
+		S32 filter_string_length = (getRoot() ? getRoot()->getFilterSubString().size() : 0);
 		if (filter_string_length > 0)
 		{
 			std::string combined_string = mLabel + mLabelSuffix;
