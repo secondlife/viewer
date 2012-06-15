@@ -2398,6 +2398,17 @@ Would you be my friend?
 
   <notification
    icon="alertmodal.tga"
+   name="SpellingDictIsSecondary"
+   type="alertmodal">
+The dictionary [DIC_NAME] does not appear to have an "aff" file; this means that it is a "secondary" dictionary.
+It can be used as an additional dictionary, but not as your Main dictionary.
+
+See https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
+    <tag>confirm</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="SpellingDictImportFailed"
    type="alertmodal">
     Unable to copy

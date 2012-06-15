@@ -310,6 +310,10 @@ void LLFloaterSpellCheckerImport::onBtnOK()
 		}
 		else
 		{
+			LLSD args = LLSD::emptyMap();
+			args["DIC_NAME"] = dict_dic;
+			LLNotificationsUtil::add("SpellingDictIsSecondary", args);
+
 			imported = true;
 		}
 	}
