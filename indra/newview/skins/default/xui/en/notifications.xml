@@ -2397,6 +2397,17 @@ Would you be my friend?
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   name="SpellingDictImportFailed"
+   type="alertmodal">
+    Unable to copy
+    [FROM_NAME]
+    to
+    [TO_NAME]
+    <tag>fail</tag>
+  </notification>
+
+  <notification
  icon="alertmodal.tga"
  label="Save Outfit"
  name="SaveOutfitAs"
