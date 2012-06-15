@@ -42,13 +42,16 @@
 	<string name="effect_Demon">
 		デーモン
 	</string>
+	<string name="effect_Female Elf">
+		女性のエルフ
+	</string>
 	<string name="effect_Flirty">
 		気のありそうな
 	</string>
 	<string name="effect_Foxy">
 		魅惑的
 	</string>
-	<string name="effect_Halloween_2010_Bonus">
+	<string name="effect_Halloween 2010 Bonus">
 		ハロウィン_2010_ボーナス
 	</string>
 	<string name="effect_Helium">
@@ -57,8 +60,17 @@
 	<string name="effect_Husky">
 		ハスキー
 	</string>
+	<string name="effect_Husky Whisper">
+		スモーキーウィスパー
+	</string>
 	<string name="effect_Intercom">
 		インターホン
+	</string>
+	<string name="effect_Julia">
+		ジュリア
+	</string>
+	<string name="effect_Lo Lilt">
+		軽快
 	</string>
 	<string name="effect_Macho">
 		マッチョ
@@ -68,6 +80,9 @@
 	</string>
 	<string name="effect_Mini">
 		ミニ
+	</string>
+	<string name="effect_Model">
+		モデル
 	</string>
 	<string name="effect_Nano">
 		ナノ
@@ -90,6 +105,9 @@
 	<string name="effect_Roxanne">
 		ロクサン
 	</string>
+	<string name="effect_Rumble">
+		ランブル
+	</string>
 	<string name="effect_Sabrina">
 		サブリナ
 	</string>
@@ -101,6 +119,9 @@
 	</string>
 	<string name="effect_Shorty">
 		チビ
+	</string>
+	<string name="effect_Smaller">
+		小さめ
 	</string>
 	<string name="effect_Sneaky">
 		コソコソ

@@ -14,7 +14,7 @@
 					<text name="inbox_fresh_new_count">
 						[NUM] nouv.
 					</text>
-					<panel tool_tip="Drag and drop items to your inventory to manage and use them">
+					<panel name="inbox_inventory_placeholder_panel" tool_tip="Glisser-déposer des articles dans votre inventaire pour les utiliser.">
 						<text name="inbox_inventory_placeholder">
 							Ici seront livrés les achats effectués sur la Place du marché.
 						</text>

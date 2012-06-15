@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
- open_positioning="centered"
+ positioning="centered"
  default_tab_group="1"
  height="460"
  layout="topleft"

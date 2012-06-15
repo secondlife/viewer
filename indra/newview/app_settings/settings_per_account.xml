@@ -33,6 +33,28 @@
         <key>Value</key>
             <string />
         </map>
+    <key>InventoryInboxHeight</key>
+    <map>
+        <key>Comment</key>
+            <string>Inventory inbox panel height in Inventory floater.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>S32</string>
+        <key>Value</key>
+            <integer>200</integer>
+    </map>
+    <key>InventoryInboxToggleState</key>
+    <map>
+        <key>Comment</key>
+            <string>Stores the open/closed state of inventory Received Items panel.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>0</integer>
+    </map>
     <key>DisplayDestinationsOnInitialRun</key>
         <map>
         <key>Comment</key>

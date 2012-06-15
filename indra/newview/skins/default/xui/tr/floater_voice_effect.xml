@@ -42,13 +42,16 @@
 	<string name="effect_Demon">
 		İblis
 	</string>
+	<string name="effect_Female Elf">
+		Dişi Cin
+	</string>
 	<string name="effect_Flirty">
 		Cilveli
 	</string>
 	<string name="effect_Foxy">
 		Alımlı
 	</string>
-	<string name="effect_Halloween_2010_Bonus">
+	<string name="effect_Halloween 2010 Bonus">
 		Halloween_2010_Bonus
 	</string>
 	<string name="effect_Helium">
@@ -57,8 +60,17 @@
 	<string name="effect_Husky">
 		Güçlü
 	</string>
+	<string name="effect_Husky Whisper">
+		Boğuk Fısıltı
+	</string>
 	<string name="effect_Intercom">
 		İnterkom
+	</string>
+	<string name="effect_Julia">
+		Julia
+	</string>
+	<string name="effect_Lo Lilt">
+		Yavaş Mırıltı
 	</string>
 	<string name="effect_Macho">
 		Maço
@@ -68,6 +80,9 @@
 	</string>
 	<string name="effect_Mini">
 		Mini
+	</string>
+	<string name="effect_Model">
+		Model
 	</string>
 	<string name="effect_Nano">
 		Nano
@@ -90,6 +105,9 @@
 	<string name="effect_Roxanne">
 		Roxanne
 	</string>
+	<string name="effect_Rumble">
+		Gurultu
+	</string>
 	<string name="effect_Sabrina">
 		Sabrina
 	</string>
@@ -101,6 +119,9 @@
 	</string>
 	<string name="effect_Shorty">
 		Bücür
+	</string>
+	<string name="effect_Smaller">
+		Daha Küçük
 	</string>
 	<string name="effect_Sneaky">
 		Sinsi

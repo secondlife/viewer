@@ -4,7 +4,7 @@
 		テクスチャ： [NAME]
 	</floater.string>
 	<floater.string name="Copy">
-		持ち物にコピー
+		インベントリにコピー
 	</floater.string>
 	<text name="desc txt">
 		説明：

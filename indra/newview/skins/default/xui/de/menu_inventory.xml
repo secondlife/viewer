@@ -59,6 +59,7 @@
 	<menu_item_call label="Eigenschaften" name="Properties"/>
 	<menu_item_call label="Umbenennen" name="Rename"/>
 	<menu_item_call label="Asset-UUID kopieren" name="Copy Asset UUID"/>
+	<menu_item_call label="Ausschneiden" name="Cut"/>
 	<menu_item_call label="Kopieren" name="Copy"/>
 	<menu_item_call label="Einfügen" name="Paste"/>
 	<menu_item_call label="Als Link einfügen" name="Paste As Link"/>

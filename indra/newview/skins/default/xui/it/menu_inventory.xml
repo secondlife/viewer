@@ -59,6 +59,7 @@
 	<menu_item_call label="Proprietà" name="Properties"/>
 	<menu_item_call label="Rinomina" name="Rename"/>
 	<menu_item_call label="Copia UUID dell&apos;oggetto" name="Copy Asset UUID"/>
+	<menu_item_call label="Taglia" name="Cut"/>
 	<menu_item_call label="Copia" name="Copy"/>
 	<menu_item_call label="Incolla" name="Paste"/>
 	<menu_item_call label="Incolla come link" name="Paste As Link"/>

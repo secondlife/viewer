@@ -149,10 +149,6 @@ const F32 PELVIS_LAG_WALKING	= 0.4f;	// ...while walking
 const F32 PELVIS_LAG_MOUSELOOK = 0.15f;
 const F32 MOUSELOOK_PELVIS_FOLLOW_FACTOR = 0.5f;
 const F32 PELVIS_LAG_WHEN_FOLLOW_CAM_IS_ON = 0.0001f; // not zero! - something gets divided by this!
-
-const F32 PELVIS_ROT_THRESHOLD_SLOW = 60.0f;	// amount of deviation allowed between
-const F32 PELVIS_ROT_THRESHOLD_FAST = 2.0f;	// the pelvis and the view direction
-											// when moving fast & slow
 const F32 TORSO_NOISE_AMOUNT = 1.0f;	// Amount of deviation from up-axis, in degrees
 const F32 TORSO_NOISE_SPEED = 0.2f;	// Time scale factor on torso noise.
 
@@ -3668,7 +3664,11 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 			BOOL self_in_mouselook = isSelf() && gAgentCamera.cameraMouselook();
 
 			LLVector3 pelvisDir( mRoot.getWorldMatrix().getFwdRow4().mV );
-			F32 pelvis_rot_threshold = clamp_rescale(speed, 0.1f, 1.0f, PELVIS_ROT_THRESHOLD_SLOW, PELVIS_ROT_THRESHOLD_FAST);
+
+			static LLCachedControl<F32> s_pelvis_rot_threshold_slow(gSavedSettings, "AvatarRotateThresholdSlow");
+			static LLCachedControl<F32> s_pelvis_rot_threshold_fast(gSavedSettings, "AvatarRotateThresholdFast");
+
+			F32 pelvis_rot_threshold = clamp_rescale(speed, 0.1f, 1.0f, s_pelvis_rot_threshold_slow, s_pelvis_rot_threshold_fast);
 						
 			if (self_in_mouselook)
 			{
@@ -7565,11 +7565,15 @@ void LLVOAvatar::useBakedTexture( const LLUUID& id )
 void LLVOAvatar::dumpArchetypeXML( void* )
 {
 	LLAPRFile outfile;
-	outfile.open(gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,"new archetype.xml"), LL_APR_WB );
-	apr_file_t* file = outfile.getFileHandle() ;
+	outfile.open(gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,"new archetype.xml"), LL_APR_WB );
+	apr_file_t* file = outfile.getFileHandle();
 	if (!file)
 	{
 		return;
+	}
+	else
+	{
+		llinfos << "xmlfile write handle obtained : " << gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,"new archetype.xml") << llendl;
 	}
 
 	apr_file_printf( file, "<?xml version=\"1.0\" encoding=\"US-ASCII\" standalone=\"yes\"?>\n" );
@@ -7610,6 +7614,11 @@ void LLVOAvatar::dumpArchetypeXML( void* )
 	}
 	apr_file_printf( file, "\t</archetype>\n" );
 	apr_file_printf( file, "\n</linden_genepool>\n" );
+	//explictly close the file if it is still open which it should be
+	if (file)
+	{
+		outfile.close();
+	}
 }
 
 

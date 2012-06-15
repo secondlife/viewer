@@ -181,6 +181,16 @@ static bool handleReleaseGLBufferChanged(const LLSD& newvalue)
 	return true;
 }
 
+static bool handleLUTBufferChanged(const LLSD& newvalue)
+{
+	if (gPipeline.isInit())
+	{
+		gPipeline.releaseLUTBuffers();
+		gPipeline.createLUTBuffers();
+	}
+	return true;
+}
+
 static bool handleAnisotropicChanged(const LLSD& newvalue)
 {
 	LLImageGL::sGlobalUseAnisotropic = newvalue.asBoolean();
@@ -569,9 +579,9 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("RenderUIBuffer")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
 	gSavedSettings.getControl("RenderDepthOfField")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
 	gSavedSettings.getControl("RenderFSAASamples")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
-	gSavedSettings.getControl("RenderSpecularResX")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
-	gSavedSettings.getControl("RenderSpecularResY")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
-	gSavedSettings.getControl("RenderSpecularExponent")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
+	gSavedSettings.getControl("RenderSpecularResX")->getSignal()->connect(boost::bind(&handleLUTBufferChanged, _2));
+	gSavedSettings.getControl("RenderSpecularResY")->getSignal()->connect(boost::bind(&handleLUTBufferChanged, _2));
+	gSavedSettings.getControl("RenderSpecularExponent")->getSignal()->connect(boost::bind(&handleLUTBufferChanged, _2));
 	gSavedSettings.getControl("RenderAnisotropic")->getSignal()->connect(boost::bind(&handleAnisotropicChanged, _2));
 	gSavedSettings.getControl("RenderShadowResolutionScale")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
 	gSavedSettings.getControl("RenderGlow")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));

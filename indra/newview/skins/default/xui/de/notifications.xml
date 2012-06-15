@@ -677,7 +677,7 @@ Erwartet wurde [VALIDS]
 		Ausgabedatei konnte nicht erstellt werden: [FILE]
 	</notification>
 	<notification name="DoNotSupportBulkAnimationUpload">
-		Der Mehrfach-Upload von Animationsdateien wird zurzeit von [APP_NAME] nicht unterstützt.
+		Der Bulk-Upload von BVH-Animationsdateien wird zurzeit von [APP_NAME] nicht unterstützt.
 	</notification>
 	<notification name="CannotUploadReason">
 		Datei [FILE] kann aus folgendem Grund nicht hochgeladen werden: [REASON]
@@ -2644,16 +2644,16 @@ Anfrage gestatten?
 		„&lt;nolink&gt;[TITLE]&lt;/nolink&gt;“ von [NAME]
 [MESSAGE]
 		<form name="form">
-			<button name="Mute" text="Blockieren"/>
-			<button name="Ignore" text="Ignorieren"/>
+			<button name="Client_Side_Mute" text="Blockieren"/>
+			<button name="Client_Side_Ignore" text="Ignorieren"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialogGroup">
 		„&lt;nolink&gt;[TITLE]&lt;/nolink&gt;“ von [GROUPNAME]
 [MESSAGE]
 		<form name="form">
-			<button name="Mute" text="Blockieren"/>
-			<button name="Ignore" text="Ignorieren"/>
+			<button name="Client_Side_Mute" text="Blockieren"/>
+			<button name="Client_Side_Ignore" text="Ignorieren"/>
 		</form>
 	</notification>
 	<notification name="BuyLindenDollarSuccess">

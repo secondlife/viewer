@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Inventory Finder" title="最近取得した持ち物アイテム">
+<floater name="Inventory Finder" title="インベントリ最近取得したアイテム">
 	<check_box label="アニメーション" name="check_animation"/>
 	<check_box label="コーリング・カード" name="check_calling_card"/>
 	<check_box label="服" name="check_clothing"/>
