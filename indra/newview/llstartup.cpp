@@ -2169,6 +2169,8 @@ bool idle_startup()
 		LLIMFloater::initIMFloater();
 		display_startup();
 
+		LLPathfindingManager::getInstance()->requestGetAgentState();
+
 		return TRUE;
 	}
 

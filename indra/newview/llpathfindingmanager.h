@@ -98,6 +98,7 @@ public:
 	void handleNavMeshRebakeError( U32 pStatus, const std::string &pReason, const std::string &pURL );
 	void triggerNavMeshRebuild();
 	void onRegionBoundaryCrossed();
+	void requestGetAgentState();
 
 protected:
 
@@ -129,16 +130,13 @@ private:
 	
 	void displayNavMeshRebakePanel();
 	void hideNavMeshRebakePanel();	
-
-
-	void requestGetAgentState();
-	void handleAgentStateResult(const LLSD &pContent );//, EAgentState pRequestedAgentState);
+	void handleAgentStateResult(const LLSD &pContent );
 	void handleAgentStateError(U32 pStatus, const std::string &pReason, const std::string &pURL);
 
 
 	NavMeshMap mNavMeshMap;
 
-
+	//prep#stinson# set this flag instead of directly showing/hiding the rebake panel
 	BOOL mShowNavMeshRebake;
 };
 
