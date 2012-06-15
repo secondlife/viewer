@@ -39,25 +39,58 @@
 #include "lluictrlfactory.h"
 #include <set>
 
-class LLFolderView;
-class LLFolderViewFolder;
-class LLFolderViewItem;
-class LLInventoryFilter;
-class LLInventoryModel;
 class LLInvFVBridge;
 class LLInventoryFVBridgeBuilder;
-class LLMenuBarGL;
-class LLCheckBoxCtrl;
-class LLSpinCtrl;
-class LLTextBox;
-class LLIconCtrl;
-class LLSaveFolderState;
-class LLFilterEditor;
-class LLTabContainer;
 class LLInvPanelComplObserver;
 
+class LLFolderViewModelItemInventory
+	:	public LLFolderViewModelItemCommon
+{
+public:
+	virtual const LLUUID& getUUID() const = 0;
+	virtual time_t getCreationDate() const = 0;	// UTC seconds
+	virtual void setCreationDate(time_t creation_date_utc) = 0;
+	virtual PermissionMask getPermissionMask() const = 0;
+	virtual LLFolderType::EType getPreferredType() const = 0;
+	virtual void showProperties(void) = 0;
+	virtual BOOL isItemInTrash( void) const { return FALSE; } // TODO: make   into pure virtual.
+	virtual BOOL isUpToDate() const = 0;
+	virtual bool hasChildren() const = 0;
+	virtual LLInventoryType::EType getInventoryType() const = 0;
+	virtual void performAction(LLInventoryModel* model, std::string action)   = 0;
+	virtual LLWearableType::EType getWearableType() const = 0;
+	virtual EInventorySortGroup getSortGroup() const = 0;
+	virtual LLInventoryObject* getInventoryObject() const = 0;
+};
+
+class LLInventorySort
+{
+public:
+	LLInventorySort(U32 order)
+		:	mSortOrder(0),
+		mByDate(false),
+		mSystemToTop(false),
+		mFoldersByName(false)
+	{
+		mSortOrder = order;
+		mByDate = (order & LLInventoryFilter::SO_DATE);
+		mSystemToTop = (order & LLInventoryFilter::SO_SYSTEM_FOLDERS_TO_TOP);
+		mFoldersByName = (order & LLInventoryFilter::SO_FOLDERS_BY_NAME);
+	}
+
+	bool isByDate() { return mByDate; }
+	U32 getSortOrder() { return mSortOrder; }
+
+	bool operator()(const LLFolderViewModelItemInventory* const& a, const LLFolderViewModelItemInventory* const& b);
+private:
+	U32  mSortOrder;
+	bool mByDate;
+	bool mSystemToTop;
+	bool mFoldersByName;
+};
+
 class LLFolderViewModelInventory
-:	public LLFolderViewModel<LLInventorySort,   LLFolderViewModelItemInventory, LLFolderViewModelItemInventory,   LLInventoryFilter>
+	:	public LLFolderViewModel<LLInventorySort,   LLFolderViewModelItemInventory, LLFolderViewModelItemInventory,   LLInventoryFilter>
 {
 	typedef LLFolderViewModel<LLInventorySort,   LLFolderViewModelItemInventory, LLFolderViewModelItemInventory,   LLInventoryFilter> base_t;
 
@@ -200,8 +233,8 @@ public:
 	void setSelectionByID(const LLUUID& obj_id, BOOL take_keyboard_focus);
 	void updateSelection();
 	 	
-	LLFolderViewModelInventory* getViewModel() { return &mViewModel; }
-	const LLFolderViewModelInventory* getViewModel() const { return   &mViewModel; }
+	LLFolderViewModelInventory* getFolderViewModel() { return &mViewModel; }
+	const LLFolderViewModelInventory* getFolderViewModel() const { return   &mViewModel; }
 
 protected:
 	void openStartFolderOrMyInventory(); // open the first level of inventory
@@ -274,27 +307,6 @@ private:
 	// UUID of category from which hierarchy should be built.  Set with the 
 	// "start_folder" xml property.  Default is LLUUID::null that means total Inventory hierarchy. 
 	LLUUID				mStartFolderID;
-};
-
-class LLFolderViewModelItemInventory
-	:	public LLFolderViewModelItemCommon
-{
-public:
-	virtual const LLUUID& getUUID() const = 0;
-	virtual time_t getCreationDate() const = 0;	// UTC seconds
-	virtual void setCreationDate(time_t creation_date_utc) = 0;
-	virtual PermissionMask getPermissionMask() const = 0;
-	virtual LLFolderType::EType getPreferredType() const = 0;
-	virtual void previewItem( void ) = 0;
-	virtual void showProperties(void) = 0;
-	virtual BOOL isItemInTrash( void) const { return FALSE; } // TODO: make   into pure virtual.
-	virtual BOOL isUpToDate() const = 0;
-	virtual BOOL hasChildren() const = 0;
-	virtual LLInventoryType::EType getInventoryType() const = 0;
-	virtual void performAction(LLInventoryModel* model, std::string action)   = 0;
-	virtual LLWearableType::EType getWearableType() const = 0;
-	virtual EInventorySortGroup getSortGroup() const;
-	virtual void requestSort(const LLInventorySort& sorter);
 };
 
 #endif // LL_LLINVENTORYPANEL_H

@@ -251,7 +251,7 @@ void LLFloaterOutbox::setupOutbox(const LLUUID& outboxId)
 	
 	// Set the sort order newest to oldest
 
-	mOutboxInventoryPanel->getViewModel()->setSorter(LLInventoryFilter::SO_FOLDERS_BY_NAME);	
+	mOutboxInventoryPanel->getFolderViewModel()->setSorter(LLInventoryFilter::SO_FOLDERS_BY_NAME);	
 	mOutboxInventoryPanel->getFilter()->markDefault();
 	
 	fetchOutboxContents();

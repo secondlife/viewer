@@ -304,7 +304,7 @@ BOOL LLFolderView::canFocusChildren() const
 BOOL LLFolderView::addFolder( LLFolderViewFolder* folder)
 {
 	// enforce sort order of My Inventory followed by Library
-	if (folder->getListener()->getUUID() == gInventory.getLibraryRootFolderID())
+	if (folder->getViewModelItem()->getUUID() == gInventory.getLibraryRootFolderID())
 	{
 		mFolders.push_back(folder);
 	}
@@ -366,7 +366,7 @@ S32 LLFolderView::arrange( S32* unused_width, S32* unused_height, S32 filter_gen
 
 static LLFastTimer::DeclareTimer FTM_FILTER("Filter Inventory");
 
-void LLFolderView::filter( LLInventoryFilter& filter )
+void LLFolderView::filter( LLFolderViewFilter& filter )
 {
 	LLFastTimer t2(FTM_FILTER);
 	filter.setFilterCount(llclamp(gSavedSettings.getS32("FilterItemsPerFrame"), 1, 5000));
@@ -667,7 +667,7 @@ BOOL LLFolderView::startDrag(LLToolDragAndDrop::ESource source)
 		{
 			EDragAndDropType type = DAD_NONE;
 			LLUUID id = LLUUID::null;
-			can_drag = can_drag && (*item_it)->getListener()->startDrag(&type, &id);
+			can_drag = can_drag && (*item_it)->getViewModelItem()->startDrag(&type, &id);
 
 			types.push_back(type);
 			cargo_ids.push_back(id);
@@ -947,7 +947,7 @@ void LLFolderView::onItemsRemovalConfirmation(const LLSD& notification, const LL
 
 			for(S32 i = 0; i < count; ++i)
 			{
-				listener = items[i]->getListener();
+				listener = items[i]->getViewModelItem();
 				if(listener && (listeners.find(listener) == LLDynamicArray<LLFolderViewModelItemInventory*>::FAIL))
 				{
 					listeners.put(listener);
@@ -984,7 +984,7 @@ void LLFolderView::openSelectedItems( void )
 				// IT_{OBJECT,ATTACHMENT} creates LLProperties
 				// floaters; others create LLPreviews.  Put
 				// each one in the right type of container.
-				LLFolderViewModelItemInventory* listener = (*item_it)->getListener();
+				LLFolderViewModelItemInventory* listener = (*item_it)->getViewModelItem();
 				bool is_prop = listener && (listener->getInventoryType() == LLInventoryType::IT_OBJECT || listener->getInventoryType() == LLInventoryType::IT_ATTACHMENT);
 				if (is_prop)
 					LLFloater::setFloaterHost(multi_propertiesp);
@@ -1010,7 +1010,7 @@ void LLFolderView::propertiesSelectedItems( void )
 		{
 			LLFolderViewItem* folder_item = mSelectedItems.front();
 			if(!folder_item) return;
-			folder_item->getListener()->showProperties();
+			folder_item->getViewModelItem()->showProperties();
 		}
 		else
 		{
@@ -1021,7 +1021,7 @@ void LLFolderView::propertiesSelectedItems( void )
 			selected_items_t::iterator item_it;
 			for (item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
 			{
-				(*item_it)->getListener()->showProperties();
+				(*item_it)->getViewModelItem()->showProperties();
 			}
 
 			LLFloater::setFloaterHost(NULL);
@@ -1124,7 +1124,7 @@ BOOL LLFolderView::canCopy() const
 	for (selected_items_t::const_iterator selected_it = mSelectedItems.begin(); selected_it != mSelectedItems.end(); ++selected_it)
 	{
 		const LLFolderViewItem* item = *selected_it;
-		if (!item->getListener()->isItemCopyable())
+		if (!item->getViewModelItem()->isItemCopyable())
 		{
 			return FALSE;
 		}
@@ -1144,7 +1144,7 @@ void LLFolderView::copy()
 		selected_items_t::iterator item_it;
 		for (item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
 		{
-			listener = (*item_it)->getListener();
+			listener = (*item_it)->getViewModelItem();
 			if(listener)
 			{
 				listener->copyToClipboard();
@@ -1164,7 +1164,7 @@ BOOL LLFolderView::canCut() const
 	for (selected_items_t::const_iterator selected_it = mSelectedItems.begin(); selected_it != mSelectedItems.end(); ++selected_it)
 	{
 		const LLFolderViewItem* item = *selected_it;
-		const LLFolderViewModelItemInventory* listener = item->getListener();
+		const LLFolderViewModelItemInventory* listener = item->getViewModelItem();
 
 		if (!listener || !listener->isItemRemovable())
 		{
@@ -1185,7 +1185,7 @@ void LLFolderView::cut()
 		selected_items_t::iterator item_it;
 		for (item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
 		{
-			listener = (*item_it)->getListener();
+			listener = (*item_it)->getViewModelItem();
 			if(listener)
 			{
 				listener->cutToClipboard();
@@ -1210,11 +1210,11 @@ BOOL LLFolderView::canPaste() const
 		{
 			// *TODO: only check folders and parent folders of items
 			const LLFolderViewItem* item = (*item_it);
-			const LLFolderViewModelItemInventory* listener = item->getListener();
+			const LLFolderViewModelItemInventory* listener = item->getViewModelItem();
 			if(!listener || !listener->isClipboardPasteable())
 			{
 				const LLFolderViewFolder* folderp = item->getParentFolder();
-				listener = folderp->getListener();
+				listener = folderp->getViewModelItem();
 				if (!listener || !listener->isClipboardPasteable())
 				{
 					return FALSE;
@@ -1238,7 +1238,7 @@ void LLFolderView::paste()
 		for (selected_it = mSelectedItems.begin(); selected_it != mSelectedItems.end(); ++selected_it)
 		{
 			LLFolderViewItem* item = *selected_it;
-			LLFolderViewModelItemInventory* listener = item->getListener();
+			LLFolderViewModelItemInventory* listener = item->getViewModelItem();
 			if (listener->getInventoryType() != LLInventoryType::IT_CATEGORY)
 			{
 				item = item->getParentFolder();
@@ -1271,8 +1271,8 @@ void LLFolderView::startRenamingSelectedItem( void )
 	{
 		item = mSelectedItems.front();
 	}
-	if(getVisible() && getEnabled() && (count == 1) && item && item->getListener() &&
-	   item->getListener()->isItemRenameable())
+	if(getVisible() && getEnabled() && (count == 1) && item && item->getViewModelItem() &&
+	   item->getViewModelItem()->isItemRenameable())
 	{
 		mRenameItem = item;
 
@@ -1581,7 +1581,7 @@ BOOL LLFolderView::canDoDelete() const
 
 	for (selected_items_t::const_iterator item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
 	{
-		if (!(*item_it)->getListener()->isItemRemovable())
+		if (!(*item_it)->getViewModelItem()->isItemRemovable())
 		{
 			return FALSE;
 		}
@@ -1766,7 +1766,7 @@ BOOL LLFolderView::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	// when drop is not handled by child, it should be handled
 	// by the folder which is the hierarchy root.
 	if (!handled
-		&& getListener()->getUUID().notNull())
+		&& getViewModelItem()->getUUID().notNull())
 		{
 			handled = LLFolderViewFolder::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
 		}
@@ -1930,7 +1930,7 @@ bool LLFolderView::doToSelected(LLInventoryModel* model, const LLSD& userdata)
 	{
 		LLFolderViewItem* folder_item = *set_iter;
 		if(!folder_item) continue;
-		LLInvFVBridge* bridge = (LLInvFVBridge*)folder_item->getListener();
+		LLInvFVBridge* bridge = (LLInvFVBridge*)folder_item->getViewModelItem();
 		if(!bridge) continue;
 		bridge->performAction(model, action);
 	}

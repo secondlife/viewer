@@ -111,7 +111,7 @@ public:
 
 	virtual LLFolderView*	getRoot() { return this; }
 
-	LLFolderViewModelInterface* getViewModel() { return mViewModel; }
+	LLFolderViewModelInterface* getFolderViewModel() { return mViewModel; }
 
 	void setFilterPermMask(PermissionMask filter_perm_mask);
 	
@@ -272,8 +272,6 @@ protected:
 
 	void onItemsRemovalConfirmation(const LLSD& notification, const LLSD& response);
 
-	LLInventorySort& getSortFunction() { return mSortFunction; }
-
 protected:
 	LLHandle<LLView>					mPopupMenuHandle;
 	
@@ -318,7 +316,6 @@ protected:
 	
 	LLPanel*						mParentPanel;
 	
-	LLInventorySort					mSortFunction;
 	LLFolderViewModelInterface*		mViewModel;
 
 	/**

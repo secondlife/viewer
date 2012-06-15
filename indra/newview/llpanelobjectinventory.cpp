@@ -113,7 +113,6 @@ public:
 	virtual void openItem();
 	virtual BOOL canOpenItem() const { return FALSE; }
 	virtual void closeItem() {}
-	virtual void previewItem();
 	virtual void selectItem() {}
 	virtual BOOL isItemRenameable() const;
 	virtual BOOL renameItem(const std::string& new_name);
@@ -350,11 +349,6 @@ void LLTaskInvFVBridge::openItem()
 {
 	// no-op.
 	lldebugs << "LLTaskInvFVBridge::openItem()" << llendl;
-}
-
-void LLTaskInvFVBridge::previewItem()
-{
-	openItem();
 }
 
 BOOL LLTaskInvFVBridge::isItemRenameable() const
@@ -1754,7 +1748,7 @@ void LLPanelObjectInventory::createViewsForCategory(LLInventoryObject::object_li
 				view = LLUICtrlFactory::create<LLFolderViewItem> (params);
 			}
 			view->addToFolder(folder);
-                        addItemID(view->getListener()->getUUID(), view);
+                        addItemID(view->getViewModelItem()->getUUID(), view);
 		}
 	}
 

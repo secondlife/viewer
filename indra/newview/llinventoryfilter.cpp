@@ -29,7 +29,7 @@
 #include "llinventoryfilter.h"
 
 // viewer includes
-#include "llfoldervieweventlistener.h"
+#include "llfolderviewmodel.h"
 #include "llfolderviewitem.h"
 #include "llinventorymodel.h"
 #include "llinventorymodelbackgroundfetch.h"
@@ -92,7 +92,7 @@ LLInventoryFilter::~LLInventoryFilter()
 BOOL LLInventoryFilter::check(const LLFolderViewItem* item) 
 {
 	// Clipboard cut items are *always* filtered so we need this value upfront
-	const LLFolderViewEventListener* listener = item->getListener();
+	const LLFolderViewEventListener* listener = item->getViewModelItem();
 	const BOOL passed_clipboard = (listener ? checkAgainstClipboard(listener->getUUID()) : TRUE);
 
 	// If it's a folder and we're showing all folders, return automatically.
@@ -140,7 +140,7 @@ bool LLInventoryFilter::checkFolder(const LLFolderViewFolder* folder) const
 		return false;
 	}
 
-	const LLFolderViewModelItemInventory* listener = folder->getListener();
+	const LLFolderViewModelItemInventory* listener = folder->getViewModelItem();
 	if (!listener)
 	{
 		llwarns << "Folder view event listener not found." << llendl;
@@ -155,6 +155,13 @@ bool LLInventoryFilter::checkFolder(const LLFolderViewFolder* folder) const
 
 bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
 {
+	// when applying a filter, matching folders get their contents downloaded first
+	if (isNotDefault()
+		&& !gInventory.isCategoryComplete(getUUID())))
+	{
+		LLInventoryModelBackgroundFetch::instance().start(getViewModelItem()->getUUID());
+	}
+
 	// Always check against the clipboard
 	const BOOL passed_clipboard = checkAgainstClipboard(folder_id);
 	
@@ -181,7 +188,7 @@ bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
 
 BOOL LLInventoryFilter::checkAgainstFilterType(const LLFolderViewItem* item) const
 {
-	const LLFolderViewModelItemInventory* listener = item->getListener();
+	const LLFolderViewModelItemInventory* listener = item->getViewModelItem();
 	if (!listener) return FALSE;
 
 	LLInventoryType::EType object_type = listener->getInventoryType();
@@ -349,11 +356,11 @@ bool LLInventoryFilter::checkAgainstClipboard(const LLUUID& object_id) const
 
 BOOL LLInventoryFilter::checkAgainstPermissions(const LLFolderViewItem* item) const
 {
-	const LLFolderViewModelItemInventory* listener = item->getListener();
+	const LLFolderViewModelItemInventory* listener = item->getViewModelItem();
 	if (!listener) return FALSE;
 
 	PermissionMask perm = listener->getPermissionMask();
-	const LLInvFVBridge *bridge = dynamic_cast<const LLInvFVBridge *>(item->getListener());
+	const LLInvFVBridge *bridge = dynamic_cast<const LLInvFVBridge *>(item->getViewModelItem());
 	if (bridge && bridge->isLink())
 	{
 		const LLUUID& linked_uuid = gInventory.getLinkedItemID(bridge->getUUID());
@@ -377,7 +384,7 @@ bool LLInventoryFilter::checkAgainstPermissions(const LLInventoryItem* item) con
 
 BOOL LLInventoryFilter::checkAgainstFilterLinks(const LLFolderViewItem* item) const
 {
-	const LLFolderViewModelItemInventory* listener = item->getListener();
+	const LLFolderViewModelItemInventory* listener = item->getViewModelItem();
 	if (!listener) return TRUE;
 
 	const LLUUID object_id = listener->getUUID();
@@ -408,9 +415,9 @@ BOOL LLInventoryFilter::isDefault() const
 }
 
 // has user modified default filter params?
-BOOL LLInventoryFilter::isNotDefault() const
+bool LLInventoryFilter::isNotDefault() const
 {
-	BOOL not_default = FALSE;
+	bool not_default = FALSE;
 
 	not_default |= (mFilterOps.mFilterObjectTypes != mDefaultFilterOps.mFilterObjectTypes);
 	not_default |= (mFilterOps.mFilterCategoryTypes != mDefaultFilterOps.mFilterCategoryTypes);
@@ -1124,6 +1131,12 @@ LLInventoryFilter& LLInventoryFilter::operator=( const  LLInventoryFilter&  othe
 {
 	fromParams(other.toParams());
 }
+
+bool LLInventoryFilter::showAllResults() const
+{
+	return hasFilterString();
+}
+
 
 
 bool LLInventoryFilter::FilterOps::DateRange::validateBlock( bool   emit_errors /*= true*/ )

@@ -94,7 +94,7 @@ LLInventoryPanel * LLPanelMarketplaceInbox::setupInventoryPanel()
 	mInventoryPanel->setShape(inventory_placeholder_rect);
 	
 	// Set the sort order newest to oldest
-	mInventoryPanel->getViewModel()->setSorter(LLInventoryFilter::SO_DATE);
+	mInventoryPanel->getFolderViewModel()->setSorter(LLInventoryFilter::SO_DATE);
 	mInventoryPanel->getFilter()->markDefault();
 
 	// Set selection callback for proper update of inventory status buttons

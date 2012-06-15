@@ -208,7 +208,11 @@ const std::string& LLInvFVBridge::getName() const
 
 const std::string& LLInvFVBridge::getDisplayName() const
 {
-	return getName();
+	if(mDisplayName.empty())
+	{
+		buildDisplayName();
+	}
+	return mDisplayName;
 }
 
 // Folders have full perms
@@ -1292,7 +1296,7 @@ bool LLInvFVBridge::canListOnMarketplaceNow() const
 				void * cargo_data = (void *) obj;
 				std::string tooltip_msg;
 				
-				can_list = outbox_itemp->getListener()->dragOrDrop(mask, drop, cargo_type, cargo_data, tooltip_msg);
+				can_list = outbox_itemp->getViewModelItem()->dragOrDrop(mask, drop, cargo_type, cargo_data, tooltip_msg);
 			}
 		}
 	}
@@ -1407,7 +1411,7 @@ void LLItemBridge::performAction(LLInventoryModel* model, std::string action)
 		LLFolderViewItem* folder_view_itemp =   mInventoryPanel.get()->getItemByID(itemp->getParentUUID());
 		if (!folder_view_itemp) return;
 
-		folder_view_itemp->getListener()->pasteFromClipboard();
+		folder_view_itemp->getViewModelItem()->pasteFromClipboard();
 		return;
 	}
 	else if ("paste_link" == action)
@@ -1419,7 +1423,7 @@ void LLItemBridge::performAction(LLInventoryModel* model, std::string action)
 		LLFolderViewItem* folder_view_itemp =   mInventoryPanel.get()->getItemByID(itemp->getParentUUID());
 		if (!folder_view_itemp) return;
 
-		folder_view_itemp->getListener()->pasteLinkFromClipboard();
+		folder_view_itemp->getViewModelItem()->pasteLinkFromClipboard();
 		return;
 	}
 	else if (isMarketplaceCopyAction(action))
@@ -1530,24 +1534,15 @@ PermissionMask LLItemBridge::getPermissionMask() const
 	return perm_mask;
 }
 
-const std::string& LLItemBridge::getDisplayName() const
+void LLItemBridge::buildDisplayName()
 {
-	if(mDisplayName.empty())
+	if(getItem())
 	{
-		buildDisplayName(getItem(), mDisplayName);
-	}
-	return mDisplayName;
-}
-
-void LLItemBridge::buildDisplayName(LLInventoryItem* item, std::string& name)
-{
-	if(item)
-	{
-		name.assign(item->getName());
+		mDisplayName.assign(getItem()->getName());
 	}
 	else
 	{
-		name.assign(LLStringUtil::null);
+		mDisplayName.assign(LLStringUtil::null);
 	}
 }
 
@@ -1665,11 +1660,11 @@ BOOL LLItemBridge::renameItem(const std::string& new_name)
 	{
 		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
 		new_item->rename(new_name);
-		buildDisplayName(new_item, mDisplayName);
 		new_item->updateServer(FALSE);
 		model->updateItem(new_item);
 
 		model->notifyObservers();
+		buildDisplayName();
 	}
 	// return FALSE because we either notified observers (& therefore
 	// rebuilt) or we didn't update.
@@ -1821,9 +1816,37 @@ void LLFolderBridge::selectItem()
 	// Have no fear: the first thing start() does is to test if everything for that folder has been fetched...
 	LLInventoryModelBackgroundFetch::instance().start(getUUID(), true);
 }
-std::string& LLFolderBridge::getDisplayName() const
+
+void LLFolderBridge::buildDisplayName()
 {
-	return mDisplayName;
+	LLFolderType::EType preferred_type = getPreferredType();
+
+	// *TODO: to be removed when database supports multi language. This is a
+	// temporary attempt to display the inventory folder in the user locale.
+	// mantipov: *NOTE: be sure this code is synchronized with LLFriendCardsManager::findChildFolderUUID
+	//		it uses the same way to find localized string
+
+	// HACK: EXT - 6028 ([HARD CODED]? Inventory > Library > "Accessories" folder)
+	// Translation of Accessories folder in Library inventory folder
+	bool accessories = false;
+	if(getName() == "Accessories")
+	{
+		//To ensure that Accessories folder is in Library we have to check its parent folder.
+		//Due to parent LLFolderViewFloder is not set to this item yet we have to check its parent via Inventory Model
+		LLInventoryCategory* cat = gInventory.getCategory(getUUID());
+		if(cat)
+		{
+			const LLUUID& parent_folder_id = cat->getParentUUID();
+			accessories = (parent_folder_id == gInventory.getLibraryRootFolderID());
+		}
+	}
+
+	//"Accessories" inventory category has folder type FT_NONE. So, this folder
+	//can not be detected as protected with LLFolderType::lookupIsProtectedType
+	if (accessories || LLFolderType::lookupIsProtectedType(preferred_type))
+	{
+		LLTrans::findString(mDisplayName, "InvFolder " + getName());
+	};
 }
 
 
@@ -1884,11 +1907,11 @@ public:
 	LLIsItemRemovable() : mPassed(TRUE) {}
 	virtual void doFolder(LLFolderViewFolder* folder)
 	{
-		mPassed &= folder->getListener()->isItemRemovable();
+		mPassed &= folder->getViewModelItem()->isItemRemovable();
 	}
 	virtual void doItem(LLFolderViewItem* item)
 	{
-		mPassed &= item->getListener()->isItemRemovable();
+		mPassed &= item->getViewModelItem()->isItemRemovable();
 	}
 	BOOL mPassed;
 };
@@ -3084,7 +3107,7 @@ void LLFolderBridge::pasteFromClipboard()
 						void * cargo_data = (void *) item;
 						std::string tooltip_msg;
 
-						can_list = outbox_itemp->getListener()->dragOrDrop(mask, drop, cargo_type, cargo_data, tooltip_msg);
+						can_list = outbox_itemp->getViewModelItem()->dragOrDrop(mask, drop, cargo_type, cargo_data, tooltip_msg);
 					}
 				}
 
@@ -3494,6 +3517,11 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
 	sSelf.markDead();
 
+	// fetch contents of this folder, as context menu can depend on contents
+	// still, user would have to open context menu again to see the changes
+	gInventory.fetchDescendentsOf(getUUID());
+
+
 	menuentry_vec_t items;
 	menuentry_vec_t disabled_items;
 
@@ -3510,7 +3538,7 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	menu.arrangeAndClear();
 }
 
-BOOL LLFolderBridge::hasChildren() const
+bool LLFolderBridge::hasChildren() const
 {
 	LLInventoryModel* model = getInventoryModel();
 	if(!model) return FALSE;
@@ -3802,9 +3830,9 @@ void LLFolderBridge::dropToFavorites(LLInventoryItem* inv_item)
 	LLPointer<AddFavoriteLandmarkCallback> cb = new AddFavoriteLandmarkCallback();
 	LLInventoryPanel* panel = mInventoryPanel.get();
 	LLFolderViewItem* drag_over_item = panel ? panel->getRootFolder()->getDraggingOverItem() : NULL;
-	if (drag_over_item && drag_over_item->getListener())
+	if (drag_over_item && drag_over_item->getViewModelItem())
 	{
-		cb.get()->setTargetLandmarkId(drag_over_item->getListener()->getUUID());
+		cb.get()->setTargetLandmarkId(drag_over_item->getViewModelItem()->getUUID());
 	}
 
 	copy_inventory_item(
@@ -4004,7 +4032,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 				if (itemp)
 				{
 					LLUUID srcItemId = inv_item->getUUID();
-					LLUUID destItemId = itemp->getListener()->getUUID();
+					LLUUID destItemId = itemp->getViewModelItem()->getUUID();
 					gInventory.rearrangeFavoriteLandmarks(srcItemId, destItemId);
 				}
 			}
@@ -4391,15 +4419,6 @@ void LLSoundBridge::openItem()
 	if (item)
 	{
 		LLInvFVBridgeAction::doAction(item->getType(),mUUID,getInventoryModel());
-	}
-}
-
-void LLSoundBridge::previewItem()
-{
-	LLViewerInventoryItem* item = getItem();
-	if(item)
-	{
-		send_sound_trigger(item->getAssetUUID(), 1.0);
 	}
 }
 
@@ -5409,11 +5428,10 @@ BOOL LLObjectBridge::renameItem(const std::string& new_name)
 	{
 		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
 		new_item->rename(new_name);
-		buildDisplayName(new_item, mDisplayName);
 		new_item->updateServer(FALSE);
 		model->updateItem(new_item);
-
 		model->notifyObservers();
+		buildDisplayName();
 
 		if (isAgentAvatarValid())
 		{
@@ -6012,16 +6030,6 @@ void LLMeshBridge::openItem()
 		// open mesh
 	}
 }
-
-void LLMeshBridge::previewItem()
-{
-	LLViewerInventoryItem* item = getItem();
-	if(item)
-	{
-		// preview mesh
-	}
-}
-
 
 void LLMeshBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {

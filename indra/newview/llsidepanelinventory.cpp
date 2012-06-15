@@ -473,7 +473,7 @@ void LLSidepanelInventory::performActionOnSelection(const std::string &action)
 		}
 	}
 
-	current_item->getListener()->performAction(mPanelMainInventory->getActivePanel()->getModel(), action);
+	current_item->getViewModelItem()->performAction(mPanelMainInventory->getActivePanel()->getModel(), action);
 }
 
 void LLSidepanelInventory::onWearButtonClicked()
@@ -663,7 +663,7 @@ LLInventoryItem *LLSidepanelInventory::getSelectedItem()
 			return NULL;
 		}
 	}
-	const LLUUID &item_id = current_item->getListener()->getUUID();
+	const LLUUID &item_id = current_item->getViewModelItem()->getUUID();
 	LLInventoryItem *item = gInventory.getItem(item_id);
 	return item;
 }

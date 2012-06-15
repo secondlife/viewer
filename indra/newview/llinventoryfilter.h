@@ -29,6 +29,7 @@
 
 #include "llinventorytype.h"
 #include "llpermissionsflags.h"
+#include "llfolderviewmodel.h"
 
 class LLFolderViewItem;
 class LLFolderViewFolder;
@@ -42,14 +43,6 @@ public:
 		SHOW_ALL_FOLDERS,
 		SHOW_NON_EMPTY_FOLDERS,
 		SHOW_NO_FOLDERS
-	};
-
-	enum EFilterBehavior
-	{
-		FILTER_NONE,				// nothing to do, already filtered
-		FILTER_RESTART,				// restart filtering from scratch
-		FILTER_LESS_RESTRICTIVE,	// existing filtered items will certainly pass this filter
-		FILTER_MORE_RESTRICTIVE		// if you didn't pass the previous filter, you definitely won't pass this one
 	};
 
 	enum EFilterType	{
@@ -89,7 +82,7 @@ public:
 				max_date("max_date", time_max())
 			{}
 
-			bool validateBlock(bool emit_errors = true);
+			bool validateBlock(bool emit_errors = true) const;
 		};
 
 		struct Params : public LLInitParam::Block<Params>
@@ -200,6 +193,9 @@ public:
 	bool 				checkAgainstFilterLinks(const LLFolderViewItem* item) const;
 	bool				checkAgainstClipboard(const LLUUID& object_id) const;
 
+	bool				showAllResults() const;
+
+
 	std::string::size_type getStringMatchOffset() const;
 
 	std::string::size_type getStringMatchOffset(LLFolderViewItem* item)   const;
@@ -262,24 +258,6 @@ public:
 private:
 	bool				areDateLimitsSet();
 
-	struct FilterOps
-	{
-		FilterOps();
-		U32 			mFilterTypes;
-
-		U64				mFilterObjectTypes; // For _OBJECT
-		U64				mFilterWearableTypes;
-		U64				mFilterCategoryTypes; // For _CATEGORY
-		LLUUID      	mFilterUUID; // for UUID
-
-		time_t			mMinDate;
-		time_t			mMaxDate;
-		U32				mHoursAgo;
-		EFolderShow		mShowFolderState;
-		PermissionMask	mPermissions;
-		U64				mFilterLinks;
-	};
-
 	U32						mOrder;
 	U32 					mLastLogoff;
 
@@ -287,7 +265,6 @@ private:
 	FilterOps				mFilterOps;
 	FilterOps				mDefaultFilterOps;
 
-	std::string::size_type	mSubStringMatchOffset;
 	std::string				mFilterSubString;
 	std::string				mFilterSubStringOrig;
 	const std::string		mName;

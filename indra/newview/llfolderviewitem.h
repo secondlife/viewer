@@ -31,11 +31,10 @@
 #include "lluiimage.h"
 
 class LLFolderView;
-class LLFolderViewModelItemInventory;
+class LLFolderViewModelItem;
 class LLFolderViewFolder;
 class LLFolderViewFunctor;
-class LLInventoryFilter;
-class LLViewerInventoryItem;
+class LLFolderViewFilter;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLFolderViewItem
@@ -57,8 +56,8 @@ public:
 													icon_overlay,  // for links
 													folder_arrow_image,
 													selection_image;
-		Optional<LLFolderView*>					root;
-		Mandatory<LLFolderViewModelItemInventory*>	listener;
+		Optional<LLFolderView*>						root;
+		Mandatory<LLFolderViewModelItem*>			listener;
 
 		Optional<S32>								folder_indentation, // pixels
 													item_height,
@@ -98,7 +97,7 @@ protected:
 	S32							mLabelWidth;
 	bool						mLabelWidthDirty;
 	LLFolderViewFolder*			mParentFolder;
-	LLFolderViewModelItemInventory*	mListener;
+	LLFolderViewModelItem*		mListener;
 	BOOL						mIsCurSelection;
 	BOOL						mSelectPending;
 	LLFontGL::StyleFlags		mLabelStyle;
@@ -112,7 +111,8 @@ protected:
 	S32							mItemHeight;
 	BOOL						mPassedFilter;
 	S32							mLastFilterGeneration;
-	std::string::size_type		mStringMatchOffset;
+	//TODO RN: create interface for string highlighting
+	//std::string::size_type		mStringMatchOffset;
 	F32							mControlLabelRotation;
 	LLFolderView*				mRoot;
 	BOOL						mDragAndDropTarget;
@@ -159,8 +159,8 @@ public:
 	virtual S32 arrange( S32* width, S32* height, S32 filter_generation );
 	virtual S32 getItemHeight();
 
-	// applies filters to control visibility of inventory items
-	virtual void filter( LLInventoryFilter& filter);
+	// applies filters to control visibility of items
+	virtual void filter( LLFolderViewFilter& filter);
 
 	// updates filter serial number and optionally propagated value up to root
 	S32		getLastFilterGeneration() { return mLastFilterGeneration; }
@@ -230,8 +230,8 @@ public:
 	LLFolderViewItem* getNextOpenNode( BOOL include_children = TRUE );
 	LLFolderViewItem* getPreviousOpenNode( BOOL include_children = TRUE );
 
-	const LLFolderViewModelItemInventory* getListener( void ) const { return mListener; }
-	LLFolderViewModelItemInventory* getListener( void ) { return mListener; }
+	const LLFolderViewModelItem* getViewModelItem( void ) const { return mListener; }
+	LLFolderViewModelItem* getViewModelItem( void ) { return mListener; }
 
 	// just rename the object.
 	void rename(const std::string& new_name);
@@ -277,39 +277,8 @@ public:
 		EAcceptance* accept,
 		std::string& tooltip_msg);
 
-	// Gets the inventory item if it exists (null otherwise)
-	LLViewerInventoryItem * getInventoryItem(void);
-	// open
-	virtual void preview(void);
-
 private:
 	static std::map<U8, LLFontGL*> sFonts; // map of styles to fonts
-};
-
-class LLInventorySort
-{
-public:
-	LLInventorySort(U32 order)
-	:	mSortOrder(0),
-		mByDate(false),
-		mSystemToTop(false),
-		mFoldersByName(false)
-	{
-		mSortOrder = order;
-		mByDate = (order & LLInventoryFilter::SO_DATE);
-		mSystemToTop = (order & LLInventoryFilter::SO_SYSTEM_FOLDERS_TO_TOP);
-		mFoldersByName = (order & LLInventoryFilter::SO_FOLDERS_BY_NAME);
-	}
-
-	bool isByDate() { return mByDate; }
-	U32 getSortOrder() { return mSortOrder; }
-
-	bool operator()(const LLFolderViewModelItemInventory* const& a, const LLFolderViewModelItemInventory* const& b);
-private:
-	U32  mSortOrder;
-	bool mByDate;
-	bool mSystemToTop;
-	bool mFoldersByName;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -379,8 +348,8 @@ public:
 	BOOL hasFilteredDescendants(S32 filter_generation);
 	BOOL hasFilteredDescendants();
 
-	// applies filters to control visibility of inventory items
-	virtual void filter( LLInventoryFilter& filter);
+	// applies filters to control visibility of items
+	virtual void filter( LLFolderViewFilter& filter);
 	virtual void setFiltered(BOOL filtered, S32 filter_generation);
 	virtual BOOL getFiltered();
 	virtual BOOL getFiltered(S32 filter_generation);
@@ -388,7 +357,7 @@ public:
 	virtual void dirtyFilter();
 	
 	// folder-specific filtering (filter status propagates top down instead of bottom up)
-	void filterFolder(LLInventoryFilter& filter);
+	void filterFolder(LLFolderViewFilter& filter);
 	void setFilteredFolder(bool filtered, S32 filter_generation);
 	bool getFilteredFolder(S32 filter_generation);
 
@@ -496,12 +465,12 @@ public:
 	virtual void draw();
 
 
-	folders_t::iterator getFoldersBegin() const { return mFolders.begin(); }
-	folders_t::iterator getFoldersEnd() const { return mFolders.end(); }
+	folders_t::iterator getFoldersBegin() { return mFolders.begin(); }
+	folders_t::iterator getFoldersEnd() { return mFolders.end(); }
 	folders_t::size_type getFoldersCount() const { return mFolders.size(); }
 
-	items_t::iterator getItemsBegin() const { return mItems.begin(); }
-	items_t::iterator getItemsEnd() const { return mItems.end(); }
+	items_t::const_iterator getItemsBegin() const { return mItems.begin(); }
+	items_t::const_iterator getItemsEnd() const { return mItems.end(); }
 	items_t::size_type getItemsCount() const { return mItems.size(); }
 
 	LLFolderViewFolder* getCommonAncestor(LLFolderViewItem* item_a, LLFolderViewItem* item_b, bool& reverse);

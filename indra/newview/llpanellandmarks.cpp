@@ -102,7 +102,7 @@ void LLCheckFolderState::doFolder(LLFolderViewFolder* folder)
 	// Counting only folders that pass the filter.
 	// The listener check allow us to avoid counting the folder view
 	// object itself because it has no listener assigned.
-	if (folder->hasFilteredDescendants() && folder->getListener())
+	if (folder->hasFilteredDescendants() && folder->getViewModelItem())
 	{
 		if (folder->isOpen())
 		{
@@ -138,7 +138,7 @@ private:
 // virtual
 void LLOpenFolderByID::doFolder(LLFolderViewFolder* folder)
 {
-	if (folder->getListener() && folder->getListener()->getUUID() == mFolderID)
+	if (folder->getViewModelItem() && folder->getViewModelItem()->getUUID() == mFolderID)
 	{
 		if (!folder->isOpen())
 		{
@@ -286,7 +286,7 @@ void LLLandmarksPanel::onShowProfile()
 	if(!cur_item)
 		return;
 
-	cur_item->getListener()->performAction(mCurrentSelectedList->getModel(),"about");
+	cur_item->getViewModelItem()->performAction(mCurrentSelectedList->getModel(),"about");
 }
 
 // virtual
@@ -299,7 +299,7 @@ void LLLandmarksPanel::onTeleport()
 		return;
 	}
 
-	LLFolderViewModelItem* listenerp = current_item->getListener();
+	LLFolderViewModelItem* listenerp = current_item->getViewModelItem();
 	if (listenerp && listenerp->getInventoryType() == LLInventoryType::IT_LANDMARK)
 	{
 		listenerp->openItem();
@@ -360,7 +360,7 @@ void LLLandmarksPanel::onSelectorButtonClicked()
 	LLFolderViewItem* cur_item = mFavoritesInventoryPanel->getRootFolder()->getCurSelectedItem();
 	if (!cur_item) return;
 
-	LLFolderViewModelItem* listenerp = cur_item->getListener();
+	LLFolderViewModelItem* listenerp = cur_item->getViewModelItem();
 	if (listenerp->getInventoryType() == LLInventoryType::IT_LANDMARK)
 	{
 		LLSD key;
@@ -418,7 +418,7 @@ void LLLandmarksPanel::setItemSelected(const LLUUID& obj_id, BOOL take_keyboard_
 bool LLLandmarksPanel::isLandmarkSelected() const 
 {
 	LLFolderViewItem* current_item = getCurSelectedItem();
-	if(current_item && current_item->getListener()->getInventoryType() == LLInventoryType::IT_LANDMARK)
+	if(current_item && current_item->getViewModelItem()->getInventoryType() == LLInventoryType::IT_LANDMARK)
 	{
 		return true;
 	}
@@ -441,9 +441,9 @@ bool LLLandmarksPanel::isReceivedFolderSelected() const
 void LLLandmarksPanel::doActionOnCurSelectedLandmark(LLLandmarkList::loaded_callback_t cb)
 {
 	LLFolderViewItem* cur_item = getCurSelectedItem();
-	if(cur_item && cur_item->getListener()->getInventoryType() == LLInventoryType::IT_LANDMARK)
+	if(cur_item && cur_item->getViewModelItem()->getInventoryType() == LLInventoryType::IT_LANDMARK)
 	{ 
-		LLLandmark* landmark = LLLandmarkActions::getLandmark(cur_item->getListener()->getUUID(), cb);
+		LLLandmark* landmark = LLLandmarkActions::getLandmark(cur_item->getViewModelItem()->getUUID(), cb);
 		if (landmark)
 		{
 			cb(landmark);
@@ -510,7 +510,7 @@ void LLLandmarksPanel::processParcelInfo(const LLParcelData& parcel_data)
 	{
 		LLFolderViewItem* cur_item = getCurSelectedItem();
 		if (!cur_item) return;
-		LLUUID id = cur_item->getListener()->getUUID();
+		LLUUID id = cur_item->getViewModelItem()->getUUID();
 		LLInventoryItem* inv_item = mCurrentSelectedList->getModel()->getItem(id);
 		doActionOnCurSelectedLandmark(boost::bind(
 				&LLLandmarksPanel::doProcessParcelInfo, this, _1, cur_item, inv_item, parcel_data));
@@ -738,7 +738,7 @@ void LLLandmarksPanel::onActionsButtonClick()
 		if(!cur_item)
 			return;
 
-		LLFolderViewModelItem* listenerp = cur_item->getListener();
+		LLFolderViewModelItem* listenerp = cur_item->getViewModelItem();
 		if(!listenerp)
 			return;
 
@@ -795,17 +795,17 @@ void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
 		if (item && mCurrentSelectedList == mLandmarksInventoryPanel)
 		{
 			LLFolderViewModelItem* folder_bridge = NULL;
-			if (item-> getListener()->getInventoryType()
+			if (item-> getViewModelItem()->getInventoryType()
 					== LLInventoryType::IT_LANDMARK)
 			{
 				// for a landmark get parent folder bridge
-				folder_bridge = item->getParentFolder()->getListener();
+				folder_bridge = item->getParentFolder()->getViewModelItem();
 			}
-			else if (item-> getListener()->getInventoryType()
+			else if (item-> getViewModelItem()->getInventoryType()
 					== LLInventoryType::IT_CATEGORY)
 			{
 				// for a folder get its own bridge
-				folder_bridge = item->getListener();
+				folder_bridge = item->getViewModelItem();
 			}
 
 			menu_create_inventory_item(mCurrentSelectedList,
@@ -836,7 +836,7 @@ void LLLandmarksPanel::onClipboardAction(const LLSD& userdata) const
 	{
     	LLFolderViewItem* cur_item = getCurSelectedItem();
 		if(cur_item)
-			LLLandmarkActions::copySLURLtoClipboard(cur_item->getListener()->getUUID());
+			LLLandmarkActions::copySLURLtoClipboard(cur_item->getViewModelItem()->getUUID());
 	}
 	else if ( "paste" == command_name)
 	{
@@ -1015,7 +1015,7 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 			LLFolderViewItem* cur_item = root_folder_view->getCurSelectedItem();
 			if (!cur_item) return false;
 
-			LLViewerInventoryItem* inv_item = cur_item->getInventoryItem();
+			LLViewerInventoryItem* inv_item = static_cast<LLViewerInventoryItem*>(static_cast<LLFolderViewModelItemInventory*>(cur_item->getViewModelItem())->getInventoryObject());
 			if (!inv_item) return false;
 
 			LLUUID asset_uuid = inv_item->getAssetUUID();
@@ -1116,12 +1116,12 @@ void LLLandmarksPanel::onMenuVisibilityChange(LLUICtrl* ctrl, const LLSD& param)
 			// If no item is found it might be a folder id.
 			if (!item) continue;
 
-			LLFolderViewModelItem* listenerp = item->getListener();
+			LLFolderViewModelItem* listenerp = item->getViewModelItem();
 			if(!listenerp) continue;
 
 			// Trash category itself should not be included because it can't be
 			// actually restored from trash.
-			are_all_items_in_trash &= listenerp->isItemInTrash() &&    (*iter)->getListener()->getUUID() != trash_id;
+			are_all_items_in_trash &= listenerp->isItemInTrash() &&    (*iter)->getItemViewModel()->getUUID() != trash_id;
 
 			// If there are any selected items in Trash including the Trash category itself
 			// we show "Restore Item" in context menu and hide other irrelevant items.
@@ -1160,7 +1160,7 @@ bool LLLandmarksPanel::canItemBeModified(const std::string& command_name, LLFold
 	bool can_be_modified = false;
 
 	// landmarks can be modified in any other accordion...
-	if (item->getListener()->getInventoryType() == LLInventoryType::IT_LANDMARK)
+	if (item->getViewModelItem()->getInventoryType() == LLInventoryType::IT_LANDMARK)
 	{
 		can_be_modified = true;
 
@@ -1198,7 +1198,7 @@ bool LLLandmarksPanel::canItemBeModified(const std::string& command_name, LLFold
 
 	if (can_be_modified)
 	{
-		LLFolderViewModelItemInventory* listenerp = item->getListener();
+		LLFolderViewModelItemInventory* listenerp = item->getViewModelItem();
 
 		if ("cut" == command_name)
 		{

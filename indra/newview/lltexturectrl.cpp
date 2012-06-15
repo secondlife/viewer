@@ -39,7 +39,7 @@
 #include "llfocusmgr.h"
 #include "llviewertexture.h"
 #include "llfolderview.h"
-#include "llfoldervieweventlistener.h"
+#include "llfolderviewmodel.h"
 #include "llinventory.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodelbackgroundfetch.h"
@@ -800,7 +800,7 @@ void LLFloaterTexturePicker::onSelectionChange(const std::deque<LLFolderViewItem
 	if (items.size())
 	{
 		LLFolderViewItem* first_item = items.front();
-		LLInventoryItem* itemp = gInventory.getItem(first_item->getListener()->getUUID());
+		LLInventoryItem* itemp = gInventory.getItem(first_item->getViewModelItem()->getUUID());
 		mNoCopyTextureSelected = FALSE;
 		if (itemp)
 		{

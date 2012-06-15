@@ -270,7 +270,7 @@ private:
 
 		if (inventory_panel->getVisible())
 		{
-			inventory_panel->getViewModel()->setSorter(sort_order);
+			inventory_panel->getFolderViewModel()->setSorter(sort_order);
 		}
 		else
 		{
@@ -1310,7 +1310,7 @@ void LLPanelOutfitEdit::getCurrentItemUUID(LLUUID& selected_id)
 		LLFolderViewItem* curr_item = mInventoryItemsPanel->getRootFolder()->getCurSelectedItem();
 		if (!curr_item) return;
 
-		LLFolderViewModelItemInventory* listenerp  = curr_item->getListener();
+		LLFolderViewModelItemInventory* listenerp  = curr_item->getViewModelItem();
 		if (!listenerp) return;
 
 		selected_id = listenerp->getUUID();
@@ -1332,7 +1332,7 @@ void LLPanelOutfitEdit::getSelectedItemsUUID(uuid_vec_t& uuid_list)
 			it != end_it;
 			++it)
 		{
-			uuid_list.push_back((*it)->getListener()->getUUID());
+			uuid_list.push_back((*it)->getItemViewModel()->getUUID());
 		}
 	}
 	else if (mWearablesListViewPanel->getVisible())
@@ -1384,7 +1384,7 @@ void LLPanelOutfitEdit::saveListSelection()
 
 		for (std::set<LLFolderViewItem*>::const_iterator item_id =    selected_ids.begin(); item_id != selected_ids.end(); ++item_id)
 		{
-			mWearableItemsList->selectItemByUUID((*item_id)->getListener()->getUUID(),    true);
+			mWearableItemsList->selectItemByUUID((*item_id)->getItemViewModel()->getUUID(),    true);
 		}
 		mWearableItemsList->scrollToShowFirstSelectedItem();
 	}

@@ -1,5 +1,5 @@
 /** 
- * @file llfoldervieweventlistener.h
+ * @file llfolderviewmodel.h
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -28,6 +28,7 @@
 #include "lldarray.h"	// *TODO: convert to std::vector
 #include "llfoldertype.h"
 #include "llfontgl.h"	// just for StyleFlags enum
+#include "llfolderviewitem.h"
 #include "llinventorytype.h"
 #include "llpermissionsflags.h"
 #include "llpointer.h"
@@ -55,6 +56,16 @@ class LLFolderViewFolder;
 class LLFolderViewFilter
 {
 public:
+	enum EFilterBehavior
+	{
+		FILTER_NONE,				// nothing to do, already filtered
+		FILTER_RESTART,				// restart filtering from scratch
+		FILTER_LESS_RESTRICTIVE,	// existing filtered items will certainly pass this filter
+		FILTER_MORE_RESTRICTIVE		// if you didn't pass the previous filter, you definitely won't pass this one
+	};
+
+public:
+
 	LLFolderViewFilter() {}
 	virtual ~LLFolderViewFilter() {}
 
@@ -68,6 +79,8 @@ public:
 
 	virtual void 				setEmptyLookupMessage(const std::string& message) = 0;
 	const virtual std::string&	getEmptyLookupMessage() const = 0;
+
+	virtual bool				showAllResults() const = 0;
 
 	// +-------------------------------------------------------------------+
 	// + Status
@@ -91,7 +104,8 @@ public:
 	// +-------------------------------------------------------------------+
 	// + Default
 	// +-------------------------------------------------------------------+
-	virtual BOOL 				isNotDefault() const = 0;
+	virtual bool 				isDefault() const = 0;
+	virtual bool 				isNotDefault() const = 0;
 	virtual void 				markDefault() = 0;
 	virtual void 				resetDefault() = 0;
 
@@ -103,8 +117,9 @@ public:
 	virtual S32 				getFirstRequiredGeneration() const = 0;
 };
 
-struct LLFolderViewModelInterface
+class LLFolderViewModelInterface
 {
+public:
 	virtual void requestSortAll() = 0;
 	virtual void requestSort(class LLFolderViewFolder*) = 0;
 
@@ -130,14 +145,10 @@ struct LLFolderViewModelCommon : public LLFolderViewModelInterface
 	}
 	
 protected:
-	bool needsSort(class LLFolderViewModelItem* item)
-	{
-		return item->getSortVersion() < mTargetSortVersion;
-	}
+	bool needsSort(class LLFolderViewModelItem* item);
 
 	S32 mTargetSortVersion;
 };
-
 
 // This is am abstract base class that users of the folderview classes
 // would use to bridge the folder view with the underlying data
@@ -185,6 +196,8 @@ public:
 	virtual LLToolDragAndDrop::ESource getDragSource() const = 0;
 	virtual BOOL startDrag(EDragAndDropType* type, LLUUID* id) const = 0;
 	
+	virtual bool hasChildren() const = 0;
+
 	// This method will be called to determine if a drop can be
 	// performed, and will set drop to TRUE if a drop is
 	// requested. Returns TRUE if a drop is possible/happened,
@@ -208,7 +221,7 @@ public:
 
 	void requestSort() { mSortVersion = -1; }
 	S32 getSortVersion() { return mSortVersion; }
-	void setSortVersion(S32 version) { mSortVersion = VERSION;}
+	void setSortVersion(S32 version) { mSortVersion = version;}
 
 protected:
 	S32 mSortVersion;
@@ -219,6 +232,7 @@ class LLFolderViewModel : public LLFolderViewModelCommon
 {
 protected:
 	LLFolderViewModel() {}
+	virtual ~LLFolderViewModel() {}
 	
 	typedef SORT_TYPE		SortType;
 	typedef ITEM_TYPE		ItemType;
@@ -226,13 +240,13 @@ protected:
 	typedef FILTER_TYPE		FilterType;
 	
 	virtual const SortType& getSorter() const 		 { return mSorter; }
-	virtual void setSorter(const SortType& type) 	 { mSorter = sorter; requestSortAll(); }
-	virtual FilterType& getFilter() const 			 { return mFilter; }
+	virtual void setSorter(const SortType& sorter) 	 { mSorter = sorter; requestSortAll(); }
+	virtual FilterType& getFilter()					 { return mFilter; }
 	virtual void setFilter(const FilterType& filter) { mFilter = filter; }
 
 public:
 
-	struct ViewModelCompare()
+	struct ViewModelCompare
 	{
 		ViewModelCompare(const SortType& sorter)
 		:	mSorter(sorter)
@@ -240,46 +254,47 @@ public:
 		
 		int operator () (const LLFolderViewItem* a, const LLFolderViewItem* b)
 		{
-			return mSorter(static_cast<const ItemType*>(a->getListener()), static_cast<const ItemType*>(b->getListener()));
+			return mSorter(static_cast<const ItemType*>(a->getViewModelItem()), static_cast<const ItemType*>(b->getViewModelItem()));
 		}
 
 		int operator () (const LLFolderViewFolder* a, const LLFolderViewFolder* b)
 		{
-			return mSorter(static_cast<const ItemType*>(a->getListener()), static_cast<const ItemType*>(b->getListener()));
+			return mSorter(static_cast<const ItemType*>(a->getViewModelItem()), static_cast<const ItemType*>(b->getViewModelItem()));
 		}
 
 		const SortType& mSorter;
-	}
+	};
 
 	void sort(LLFolderViewFolder* folder)
 	{
-		if (needsSort(folder))
+		if (needsSort(folder->getViewModelItem()))
 		{
 			std::sort(folder->getFoldersBegin(), folder->getFoldersEnd(), ViewModelCompare(getSorter()));
 			std::sort(folder->getItemsBegin(), folder->getItemsEnd(), ViewModelCompare(getSorter()));
-			folder->getListener()->setSortVersion(mTargetSortVersion);
+			folder->getViewModelItem()->setSortVersion(mTargetSortVersion);
 			folder->requestArrange();
 		}
 	}
 
+	//TODO RN: fix this
 	void filter(LLFolderViewFolder* folder)
 	{
-		FilterType& filter = getFilter();
-		for (std::list<LLFolderViewItem*>::iterator it = folder->getItemsBegin(), end_it = folder->getItemsEnd();
+		/*FilterType& filter = getFilter();
+		for (std::list<LLFolderViewItem*>::const_iterator it = folder->getItemsBegin(), end_it = folder->getItemsEnd();
 			it != end_it;
 			++it)
 		{
 			LLFolderViewItem* child_item = *it;
-			child_item->setFiltered(filter(static_cast<ItemType*>(child_item->getListener())), filter.getCurrentGeneration())
+			child_item->setFiltered(filter.checkFolder(static_cast<ItemType*>(child_item->getViewModelItem())), filter.getCurrentGeneration());
 		}
 
-		for (std::list<LLFolderViewFolder*>::iterator it = folder->getFoldersBegin(), end_it = folder->getFoldersEnd();
+		for (std::list<LLFolderViewFolder*>::const_iterator it = folder->getFoldersBegin(), end_it = folder->getFoldersEnd();
 			it != end_it;
 			++it)
 		{
 			LLFolderViewItem* child_folder = *it;
-			child_folder->setFiltered(filter(static_cast<ItemType*>(child_folder->getListener())), filter.getCurrentGeneration())
-		}
+			child_folder->setFiltered(filter.check(static_cast<ItemType*>(child_folder->getViewModelItem())), filter.getCurrentGeneration());
+		}*/
 	}
 
 protected:
@@ -288,6 +303,10 @@ protected:
 };
 
 
+bool LLFolderViewModelCommon::needsSort(class LLFolderViewModelItem* item)
+{
+	return item->getSortVersion() < mTargetSortVersion;
+}
 
 
 

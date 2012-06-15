@@ -29,7 +29,7 @@
 
 #include "llcallingcard.h"
 #include "llfloaterproperties.h"
-#include "llfoldervieweventlistener.h"
+#include "llfolderviewmodel.h"
 #include "llinventorymodel.h"
 #include "llinventoryobserver.h"
 #include "llinventorypanel.h"
@@ -96,7 +96,6 @@ public:
 	virtual std::string getLabelSuffix() const { return LLStringUtil::null; }
 	virtual void openItem() {}
 	virtual void closeItem() {}
-	virtual void previewItem() {openItem();}
 	virtual void showProperties();
 	virtual BOOL isItemRenameable() const { return TRUE; }
 	//virtual BOOL renameItem(const std::string& new_name) {}
@@ -126,6 +125,8 @@ public:
 	virtual LLInventoryType::EType getInventoryType() const { return mInvType; }
 	virtual LLWearableType::EType getWearableType() const { return LLWearableType::WT_NONE; }
         EInventorySortGroup getSortGroup()  const { return SG_ITEM; }
+	virtual LLInventoryObject* getInventoryObject() const;
+
 
 	//--------------------------------------------------------------------
 	// Convenience functions for adding various common menu options.
@@ -142,7 +143,6 @@ protected:
 protected:
 	LLInvFVBridge(LLInventoryPanel* inventory, LLFolderView* root, const LLUUID& uuid);
 
-	LLInventoryObject* getInventoryObject() const;
 	LLInventoryModel* getInventoryModel() const;
 	LLInventoryFilter* getInventoryFilter() const;
 	
@@ -167,13 +167,16 @@ protected:
 									 BOOL restamp);
 	void removeBatchNoCheck(std::vector<LLFolderViewModelItem*>& batch);
 protected:
-	LLHandle<LLInventoryPanel> mInventoryPanel;
-	LLFolderView* mRoot;
-	const LLUUID mUUID;	// item id
-	LLInventoryType::EType mInvType;
+	LLHandle<LLInventoryPanel>	mInventoryPanel;
+	LLFolderView*				mRoot;
+	const LLUUID				mUUID;	// item id
+	LLInventoryType::EType		mInvType;
 	bool						mIsLink;
 	LLTimer						mTimeSinceRequestStart;
+	mutable std::string			mDisplayName;
+
 	void purgeItem(LLInventoryModel *model, const LLUUID &uuid);
+	virtual void buildDisplayName();
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -209,7 +212,6 @@ public:
 	virtual void restoreToWorld();
 	virtual void gotoItem();
 	virtual LLUIImagePtr getIcon() const;
-	virtual const std::string& getDisplayName() const;
 	virtual std::string getLabelSuffix() const;
 	virtual LLFontGL::StyleFlags getLabelStyle() const;
 	virtual PermissionMask getPermissionMask() const;
@@ -218,7 +220,7 @@ public:
 	virtual BOOL renameItem(const std::string& new_name);
 	virtual BOOL removeItem();
 	virtual BOOL isItemCopyable() const;
-	virtual BOOL hasChildren() const { return FALSE; }
+	virtual bool hasChildren() const { return FALSE; }
 	virtual BOOL isUpToDate() const { return TRUE; }
 
 	/*virtual*/ void clearDisplayName() { mDisplayName.clear(); }
@@ -228,9 +230,8 @@ public:
 protected:
 	BOOL confirmRemoveItem(const LLSD& notification, const LLSD& response);
 	virtual BOOL isItemPermissive() const;
-	static void buildDisplayName(LLInventoryItem* item, std::string& name);
+	virtual void buildDisplayName();
 
-	mutable std::string mDisplayName;
 };
 
 class LLFolderBridge : public LLInvFVBridge
@@ -248,7 +249,7 @@ public:
 	BOOL dragItemIntoFolder(LLInventoryItem* inv_item, BOOL drop, std::string& tooltip_msg);
 	BOOL dragCategoryIntoFolder(LLInventoryCategory* inv_category, BOOL drop, std::string& tooltip_msg);
 
-        const std::string& getDisplayName() const;
+    virtual void buildDisplayName();
 
 	virtual void performAction(LLInventoryModel* model, std::string action);
 	virtual void openItem();
@@ -271,7 +272,7 @@ public:
 	virtual void pasteFromClipboard();
 	virtual void pasteLinkFromClipboard();
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
-	virtual BOOL hasChildren() const;
+	virtual bool hasChildren() const;
 	virtual BOOL dragOrDrop(MASK mask, BOOL drop,
 							EDragAndDropType cargo_type,
 							void* cargo_data,
@@ -331,6 +332,7 @@ public:
 	static void staticFolderOptionsMenu();
 
 private:
+
 	bool							mCallingCards;
 	bool							mWearables;
 	bool							mIsLoading;
@@ -365,7 +367,6 @@ public:
 				  const LLUUID& uuid) :
 		LLItemBridge(inventory, root, uuid) {}
 	virtual void openItem();
-	virtual void previewItem();
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
 	static void openSoundPreview(void*);
 };
@@ -555,7 +556,6 @@ class LLMeshBridge : public LLItemBridge
 public:
 	virtual LLUIImagePtr getIcon() const;
 	virtual void openItem();
-	virtual void previewItem();
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
 
 protected:

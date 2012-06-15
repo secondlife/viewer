@@ -778,7 +778,7 @@ bool LLAvatarActions::canShareSelectedItems(LLInventoryPanel* inv_panel /* = NUL
 	const std::set<LLFolderViewItem*>::const_iterator it_end = inventory_selected.end();
 	for (; it != it_end; ++it)
 	{
-		LLViewerInventoryCategory* inv_cat = gInventory.getCategory((*it)->getListener()->getUUID());
+		LLViewerInventoryCategory* inv_cat = gInventory.getCategory((*it)->getItemViewModel()->getUUID());
 		// any category can be offered.
 		if (inv_cat)
 		{
@@ -788,7 +788,7 @@ bool LLAvatarActions::canShareSelectedItems(LLInventoryPanel* inv_panel /* = NUL
 		// check if inventory item can be given
 		LLFolderViewItem* item = *it;
 		if (!item) return false;
-		LLInvFVBridge* bridge = dynamic_cast<LLInvFVBridge*>(item->getListener());
+		LLInvFVBridge* bridge = dynamic_cast<LLInvFVBridge*>(item->getViewModelItem());
 		if (bridge && bridge->canShare())
 		{
 			continue;

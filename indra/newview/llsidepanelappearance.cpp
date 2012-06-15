@@ -38,7 +38,7 @@
 #include "llfiltereditor.h"
 #include "llfloaterreg.h"
 #include "llfloaterworldmap.h"
-#include "llfoldervieweventlistener.h"
+#include "llfolderviewmodel.h"
 #include "lloutfitobserver.h"
 #include "llpaneleditwearable.h"
 #include "llpaneloutfitsinventory.h"
