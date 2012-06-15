@@ -82,7 +82,8 @@ protected:
 
 	void                               rebuildScrollListAfterAvatarNameLoads(const LLUUID &pAvatarId);
 
-	virtual void                       updateControls();
+	virtual void                       updateControlsOnScrollListChange();
+	virtual void                       updateControlsOnInWorldSelectionChange();
 
 	virtual S32                        getNameColumnIndex() const;
 	virtual const LLColor4             &getBeaconColor() const;
@@ -124,9 +125,9 @@ private:
 	void                   handleAvatarNameLoads(const LLUUID &pAvatarId, const LLAvatarName &pAvatarName);
 
 	void                   updateMessagingStatus();
-	void                   updateStateOnListActionControls();
-	void                   updateStateOnEditFields();
-	void                   updateOnScrollListChange();
+	void                   updateStateOnListControls();
+	void                   updateStateOnActionControls();
+	void                   selectScrollListItemsInWorld();
 
 	LLPathfindingObjectPtr findObject(const LLScrollListItem *pListItem) const;
 

@@ -271,9 +271,9 @@ LLSD LLFloaterPathfindingLinksets::convertObjectsIntoScrollListData(const LLPath
 	return scrollListData;
 }
 
-void LLFloaterPathfindingLinksets::updateControls()
+void LLFloaterPathfindingLinksets::updateControlsOnScrollListChange()
 {
-	LLFloaterPathfindingObjects::updateControls();
+	LLFloaterPathfindingObjects::updateControlsOnScrollListChange();
 	updateEditFieldValues();
 	updateStateOnEditFields();
 	updateStateOnEditLinksetUse();
@@ -339,7 +339,7 @@ void LLFloaterPathfindingLinksets::onApplyChangesClicked()
 
 void LLFloaterPathfindingLinksets::onAgentStateChange(LLPathfindingManager::EAgentState pAgentState)
 {
-	updateControls();
+	updateControlsOnScrollListChange();
 }
 
 void LLFloaterPathfindingLinksets::applyFilters()

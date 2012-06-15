@@ -160,11 +160,11 @@ LLSD LLFloaterPathfindingCharacters::convertObjectsIntoScrollListData(const LLPa
 	return scrollListData;
 }
 
-void LLFloaterPathfindingCharacters::updateControls()
+void LLFloaterPathfindingCharacters::updateControlsOnScrollListChange()
 {
-	LLFloaterPathfindingObjects::updateControls();
-	updateOnScrollListChange();
-	updateStateOnActionFields();
+	LLFloaterPathfindingObjects::updateControlsOnScrollListChange();
+	updateStateOnDisplayControls();
+	showSelectedCharacterCapsules();
 }
 
 S32 LLFloaterPathfindingCharacters::getNameColumnIndex() const
@@ -233,7 +233,7 @@ LLSD LLFloaterPathfindingCharacters::buildCharacterScrollListData(const LLPathfi
 	return element;
 }
 
-void LLFloaterPathfindingCharacters::updateStateOnActionFields()
+void LLFloaterPathfindingCharacters::updateStateOnDisplayControls()
 {
 	int numSelectedItems = getNumSelectedObjects();;
 #ifndef SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
@@ -249,7 +249,7 @@ void LLFloaterPathfindingCharacters::updateStateOnActionFields()
 	}
 }
 
-void LLFloaterPathfindingCharacters::updateOnScrollListChange()
+void LLFloaterPathfindingCharacters::showSelectedCharacterCapsules()
 {
 	// Hide any previous capsule
 	hideCapsule();
