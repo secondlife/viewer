@@ -179,6 +179,7 @@ void LLFloaterSpellCheckerSettings::refreshDictionaries(bool from_settings)
 			dict_combo->clear();
 		}
 	}
+	dict_combo->sortByName();
 	dict_combo->setEnabled(enabled);
 
 	// Populate the available and active dictionary list
