@@ -1308,7 +1308,7 @@ const std::string NEW_NOTECARD_NAME = "New Note"; // *TODO:Translate? (probably 
 const std::string NEW_GESTURE_NAME = "New Gesture"; // *TODO:Translate? (probably not)
 
 // ! REFACTOR ! Really need to refactor this so that it's not a bunch of if-then statements...
-void menu_create_inventory_item(LLFolderView* root, LLFolderBridge *bridge, const LLSD& userdata, const LLUUID& default_parent_uuid)
+void menu_create_inventory_item(LLInventoryPanel* panel, LLFolderBridge *bridge, const LLSD& userdata, const LLUUID& default_parent_uuid)
 {
 	std::string type_name = userdata.asString();
 	
@@ -1332,7 +1332,7 @@ void menu_create_inventory_item(LLFolderView* root, LLFolderBridge *bridge, cons
 
 		LLUUID category = gInventory.createNewCategory(parent_id, preferred_type, LLStringUtil::null);
 		gInventory.notifyObservers();
-		root->setSelectionByID(category, TRUE);
+		panel->setSelectionByID(category, TRUE);
 	}
 	else if ("lsl" == type_name)
 	{
@@ -1375,7 +1375,7 @@ void menu_create_inventory_item(LLFolderView* root, LLFolderBridge *bridge, cons
 			llwarns << "Can't create unrecognized type " << type_name << llendl;
 		}
 	}
-	root->setNeedsAutoRename(TRUE);	
+	panel->getRoot()->->setNeedsAutoRename(TRUE);	
 }
 
 LLAssetType::EType LLViewerInventoryItem::getType() const
@@ -1785,12 +1785,6 @@ void LLViewerInventoryItem::getSLURL()
 	LLFavoritesOrderStorage::instance().getSLURL(mAssetUUID);
 }
 
-const LLPermissions& LLViewerInventoryItem::getPermissions() const
-{
-	// Use the actual permissions of the symlink, not its parent.
-	return LLInventoryItem::getPermissions();	
-}
-
 const LLUUID& LLViewerInventoryItem::getCreatorUUID() const
 {
 	if (const LLViewerInventoryItem *linked_item = getLinkedItem())
@@ -1859,17 +1853,6 @@ LLWearableType::EType LLViewerInventoryItem::getWearableType() const
 		return LLWearableType::WT_INVALID;
 	}
 	return LLWearableType::EType(getFlags() & LLInventoryItemFlags::II_FLAGS_WEARABLES_MASK);
-}
-
-
-time_t LLViewerInventoryItem::getCreationDate() const
-{
-	return LLInventoryItem::getCreationDate();
-}
-
-U32 LLViewerInventoryItem::getCRC32() const
-{
-	return LLInventoryItem::getCRC32();	
 }
 
 // *TODO: mantipov: should be removed with LMSortPrefix patch in llinventorymodel.cpp, EXT-3985

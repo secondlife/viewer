@@ -181,7 +181,7 @@ protected:
 	F32					mContextConeOpacity;
 	LLSaveFolderState	mSavedFolderState;
 	BOOL				mSelectedItemPinned;
-	
+
 	LLRadioGroup*		mModeSelector;
 	LLScrollListCtrl*	mLocalScrollCtrl;
 };
@@ -358,7 +358,7 @@ BOOL LLFloaterTexturePicker::handleKeyHere(KEY key, MASK mask)
 		{
 			if (!root_folder->getCurSelectedItem())
 			{
-				LLFolderViewItem* itemp = root_folder->getItemByID(gInventory.getRootFolderID());
+				LLFolderViewItem* itemp =    mInventoryPanel->getItemByID(gInventory.getRootFolderID());
 				if (itemp)
 				{
 					root_folder->setSelection(itemp, FALSE, FALSE);
@@ -982,7 +982,7 @@ void LLFloaterTexturePicker::onFilterEdit(const std::string& search_string )
 	else if (mInventoryPanel->getFilterSubString().empty())
 	{
 		// first letter in search term, save existing folder open state
-		if (!mInventoryPanel->getRootFolder()->isFilterModified())
+		if (!mInventoryPanel->getFilter()->isNotDefault())
 		{
 			mSavedFolderState.setApply(FALSE);
 			mInventoryPanel->getRootFolder()->applyFunctorRecursively(mSavedFolderState);
@@ -1280,7 +1280,7 @@ void LLTextureCtrl::onFloaterCommit(ETexturePickOp op, LLUUID id)
 		// (i.e. op == TEXTURE_SELECT) or texture changes via DnD.
 		else if (mCommitOnSelection || op == TEXTURE_SELECT)
 			mViewModel->setDirty(); // *TODO: shouldn't we be using setValue() here?
-
+			
 		if(floaterp->isDirty() || id.notNull()) // mModelView->setDirty does not work.
 		{
 			setTentative( FALSE );
@@ -1292,10 +1292,10 @@ void LLTextureCtrl::onFloaterCommit(ETexturePickOp op, LLUUID id)
 			}
 			else
 			{
-				mImageItemID = floaterp->findItemID(floaterp->getAssetID(), FALSE);
-				lldebugs << "mImageItemID: " << mImageItemID << llendl;
-				mImageAssetID = floaterp->getAssetID();
-				lldebugs << "mImageAssetID: " << mImageAssetID << llendl;
+			mImageItemID = floaterp->findItemID(floaterp->getAssetID(), FALSE);
+			lldebugs << "mImageItemID: " << mImageItemID << llendl;
+			mImageAssetID = floaterp->getAssetID();
+			lldebugs << "mImageAssetID: " << mImageAssetID << llendl;
 			}
 
 			if (op == TEXTURE_SELECT && mOnSelectCallback)

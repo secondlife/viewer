@@ -31,6 +31,7 @@
 #include "llplacesinventorypanel.h"
 
 #include "llfoldervieweventlistener.h"
+#include "llfolderview.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llpanellandmarks.h"
@@ -91,7 +92,7 @@ void LLPlacesInventoryPanel::buildFolderView(const LLInventoryPanel::Params& par
 	p.parent_panel = this;
 	p.allow_multiselect = mAllowMultiSelect;
 	p.use_ellipses = true;	// truncate inventory item text so remove horizontal scroller
-	mFolderRoot = (LLFolderView*)LLUICtrlFactory::create<LLPlacesFolderView>(p);
+	mFolderRoot = LLUICtrlFactory::create<LLPlacesFolderView>(p);
 }
 
 

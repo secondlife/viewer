@@ -29,6 +29,7 @@
 #include "llpanelmarketplaceinboxinventory.h"
 
 #include "llfolderview.h"
+#include "llfolderviewitem.h"
 #include "llfoldervieweventlistener.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
@@ -253,9 +254,9 @@ LLInboxFolderViewItem::LLInboxFolderViewItem(const Params& p)
 #endif
 }
 
-BOOL LLInboxFolderViewItem::addToFolder(LLFolderViewFolder* folder, LLFolderView* root)
+BOOL LLInboxFolderViewItem::addToFolder(LLFolderViewFolder* folder)
 {
-	BOOL retval = LLFolderViewItem::addToFolder(folder, root);
+	BOOL retval = LLFolderViewItem::addToFolder(folder);
 
 #if SUPPORTING_FRESH_ITEM_COUNT
 	// Compute freshness if our parent is the root folder for the inbox

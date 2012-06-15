@@ -36,6 +36,7 @@
 #include "llfirstuse.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfoldertype.h"
+#include "llfolderview.h"
 #include "llhttpclient.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
@@ -383,10 +384,10 @@ void LLSidepanelInventory::onToggleInboxBtn()
 	{
 		inboxPanel->setTargetDim(gSavedPerAccountSettings.getS32("InventoryInboxHeight"));
 		if (inboxPanel->isInVisibleChain())
-		{
-			gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
-		}
+	{
+		gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
 	}
+}
 	else
 	{
 		gSavedPerAccountSettings.setS32("InventoryInboxHeight", inboxPanel->getTargetDim());
@@ -671,7 +672,7 @@ U32 LLSidepanelInventory::getSelectedCount()
 {
 	int count = 0;
 
-	std::set<LLUUID> selection_list = mPanelMainInventory->getActivePanel()->getRootFolder()->getSelectionList();
+	std::set<LLFolderViewItem*> selection_list =    mPanelMainInventory->getActivePanel()->getRootFolder()->getSelectionList();
 	count += selection_list.size();
 
 	if ((count == 0) && mInboxEnabled && (mInventoryPanelInbox != NULL))
@@ -722,9 +723,9 @@ void LLSidepanelInventory::clearSelections(bool clearMain, bool clearInbox)
 	updateVerbs();
 }
 
-std::set<LLUUID> LLSidepanelInventory::getInboxSelectionList()
+std::set<LLFolderViewItem*> LLSidepanelInventory::getInboxSelectionList()
 {
-	std::set<LLUUID> inventory_selected_uuids;
+	std::set<LLFolderViewItem*> inventory_selected_uuids;
 	
 	if (mInboxEnabled && (mInventoryPanelInbox != NULL))
 	{

@@ -212,7 +212,7 @@ namespace LLInitParam
 		{}
 
 		ParamValue(const default_value_t& other)
-			:	T(other),
+		:	T(other),
 			mValidated(false)
 		{}
 
@@ -632,38 +632,38 @@ namespace LLInitParam
 		class BaseBlock*				mCurrentBlockPtr;		// pointer to block currently being constructed
 	};
 
-		//TODO: implement in terms of owned_ptr
-		template<typename T>
+	//TODO: implement in terms of owned_ptr
+	template<typename T>
 	class LazyValue
-		{
+	{
 		public:
 		LazyValue()
-				: mPtr(NULL)
-			{}
+		: mPtr(NULL)
+		{}
 
 		~LazyValue()
-			{
-				delete mPtr;
-			}
+		{
+			delete mPtr;
+		}
 
 		LazyValue(const T& value)
-			{
+		{
 			mPtr = new T(value);
 		}
 
 		LazyValue(const LazyValue& other)
 		:	mPtr(NULL)
-				{
+		{
 			*this = other;
-				}
+		}
 
 		LazyValue& operator = (const LazyValue& other)
 		{
 			if (!other.mPtr)
-				{
+			{
 				delete mPtr;
-					mPtr = NULL;
-				}
+				mPtr = NULL;
+			}
 			else
 			{
 				if (!mPtr)
@@ -674,9 +674,9 @@ namespace LLInitParam
 				{
 					*mPtr = *(other.mPtr);
 				}
-				}
-				return *this;
 			}
+			return *this;
+		}
 
 		bool operator==(const LazyValue& other) const
 		{
@@ -684,13 +684,13 @@ namespace LLInitParam
 			return *mPtr == *other.mPtr;
 		}
 
-			bool empty() const
-			{
-				return mPtr == NULL;
-			}
+		bool empty() const
+		{
+			return mPtr == NULL;
+		}
 
-			void set(const T& other)
-			{
+		void set(const T& other)
+		{
 			if (!mPtr)
 			{
 				mPtr = new T(other);
@@ -701,36 +701,36 @@ namespace LLInitParam
 			}
 		}
 
-			const T& get() const
-			{
+		const T& get() const
+		{
 			return *ensureInstance();
-			}
+		}
 
-			T& get()
-			{
+		T& get()
+		{
 			return *ensureInstance();
 		}
 
 		operator const T&() const
 		{ 
 			return get(); 
-			}
+		}
 
-		private:
-			// lazily allocate an instance of T
-			T* ensureInstance() const
+	private:
+		// lazily allocate an instance of T
+		T* ensureInstance() const
+		{
+			if (mPtr == NULL)
 			{
-				if (mPtr == NULL)
-				{
-					mPtr = new T();
-				}
-				return mPtr;
-			}
+				mPtr = new T();			
+                        }
+			return mPtr;
+		}
 
-		private:
+	private:
 
-			mutable T* mPtr;
-		};
+		mutable T* mPtr;
+	};
 
 	// root class of all parameter blocks
 
@@ -2492,10 +2492,10 @@ namespace LLInitParam
 		} EValueAge;
 
 		typedef ParamValue<T>			derived_t;
-		typedef CustomParamValue<T>				self_t;
-		typedef Block<derived_t>				block_t;
+		typedef CustomParamValue<T>		self_t;
+		typedef Block<derived_t>		block_t;
 		typedef T						default_value_t;
-		typedef T								value_t;
+		typedef T						value_t;
 		typedef void					baseblock_base_class_t;
 
 

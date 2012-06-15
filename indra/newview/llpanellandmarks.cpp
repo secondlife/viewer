@@ -299,7 +299,7 @@ void LLLandmarksPanel::onTeleport()
 		return;
 	}
 
-	LLFolderViewEventListener* listenerp = current_item->getListener();
+	LLFolderViewModelItem* listenerp = current_item->getListener();
 	if (listenerp && listenerp->getInventoryType() == LLInventoryType::IT_LANDMARK)
 	{
 		listenerp->openItem();
@@ -360,7 +360,7 @@ void LLLandmarksPanel::onSelectorButtonClicked()
 	LLFolderViewItem* cur_item = mFavoritesInventoryPanel->getRootFolder()->getCurSelectedItem();
 	if (!cur_item) return;
 
-	LLFolderViewEventListener* listenerp = cur_item->getListener();
+	LLFolderViewModelItem* listenerp = cur_item->getListener();
 	if (listenerp->getInventoryType() == LLInventoryType::IT_LANDMARK)
 	{
 		LLSD key;
@@ -376,7 +376,7 @@ void LLLandmarksPanel::updateShowFolderState()
 	if (!mLandmarksInventoryPanel->getFilter())
 		return;
 
-	bool show_all_folders = mLandmarksInventoryPanel->getRootFolder()->getFilterSubString().empty();
+	bool show_all_folders =   mLandmarksInventoryPanel->getFilterSubString().empty();
 	if (show_all_folders)
 	{
 		show_all_folders = category_has_descendents(mLandmarksInventoryPanel);
@@ -466,7 +466,7 @@ LLFolderViewItem* LLLandmarksPanel::selectItemInAccordionTab(LLPlacesInventoryPa
 
 	LLFolderView* root = inventory_list->getRootFolder();
 
-	LLFolderViewItem* item = root->getItemByID(obj_id);
+	LLFolderViewItem* item = inventory_list->getItemByID(obj_id);
 	if (!item)
 		return NULL;
 
@@ -665,20 +665,20 @@ void LLLandmarksPanel::deselectOtherThan(const LLPlacesInventoryPanel* inventory
 {
 	if (inventory_list != mFavoritesInventoryPanel)
 	{
-		mFavoritesInventoryPanel->getRootFolder()->clearSelection();
+		mFavoritesInventoryPanel->clearSelection();
 	}
 
 	if (inventory_list != mLandmarksInventoryPanel)
 	{
-		mLandmarksInventoryPanel->getRootFolder()->clearSelection();
+		mLandmarksInventoryPanel->clearSelection();
 	}
 	if (inventory_list != mMyInventoryPanel)
 	{
-		mMyInventoryPanel->getRootFolder()->clearSelection();
+		mMyInventoryPanel->clearSelection();
 	}
 	if (inventory_list != mLibraryInventoryPanel)
 	{
-		mLibraryInventoryPanel->getRootFolder()->clearSelection();
+		mLibraryInventoryPanel->clearSelection();
 	}
 }
 
@@ -738,7 +738,7 @@ void LLLandmarksPanel::onActionsButtonClick()
 		if(!cur_item)
 			return;
 
-		LLFolderViewEventListener* listenerp = cur_item->getListener();
+		LLFolderViewModelItem* listenerp = cur_item->getListener();
 		if(!listenerp)
 			return;
 
@@ -794,7 +794,7 @@ void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
 		LLFolderViewItem* item = getCurSelectedItem();
 		if (item && mCurrentSelectedList == mLandmarksInventoryPanel)
 		{
-			LLFolderViewEventListener* folder_bridge = NULL;
+			LLFolderViewModelItem* folder_bridge = NULL;
 			if (item-> getListener()->getInventoryType()
 					== LLInventoryType::IT_LANDMARK)
 			{
@@ -808,7 +808,7 @@ void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
 				folder_bridge = item->getListener();
 			}
 
-			menu_create_inventory_item(mCurrentSelectedList->getRootFolder(),
+			menu_create_inventory_item(mCurrentSelectedList,
 					dynamic_cast<LLFolderBridge*> (folder_bridge), LLSD(
 							"category"), gInventory.findCategoryUUIDForType(
 							LLFolderType::FT_LANDMARK));
@@ -816,7 +816,7 @@ void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
 		else
 		{
 			//in case My Landmarks tab is completely empty (thus cannot be determined as being selected)
-			menu_create_inventory_item(mLandmarksInventoryPanel->getRootFolder(), NULL, LLSD("category"), 
+			menu_create_inventory_item(mLandmarksInventoryPanel, NULL,  LLSD("category"), 
 				gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK));
 
 			if (mMyLandmarksAccordionTab)
@@ -977,12 +977,12 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 	{
 		if (!root_folder_view) return false;
 
-		std::set<LLUUID> selected_uuids = root_folder_view->getSelectionList();
+		std::set<LLFolderViewItem*> selected_uuids =    root_folder_view->getSelectionList();
 
 		// Allow to execute the command only if it can be applied to all selected items.
-		for (std::set<LLUUID>::const_iterator iter = selected_uuids.begin(); iter != selected_uuids.end(); ++iter)
+		for (std::set<LLFolderViewItem*>::const_iterator iter =    selected_uuids.begin(); iter != selected_uuids.end(); ++iter)
 		{
-			LLFolderViewItem* item = root_folder_view->getItemByID(*iter);
+			LLFolderViewItem* item = *iter;
 
 			// If no item is found it might be a folder id.
 			if (!item)
@@ -1049,7 +1049,7 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 	{
 		if (mCurrentSelectedList)
 		{
-			std::set<LLUUID> selection = mCurrentSelectedList->getRootFolder()->getSelectionList();
+			std::set<LLFolderViewItem*> selection =    mCurrentSelectedList->getRootFolder()->getSelectionList();
 			if (!selection.empty())
 			{
 				return ( 1 == selection.size() && !LLAgentPicksInfo::getInstance()->isPickLimitReached() );
@@ -1105,27 +1105,23 @@ void LLLandmarksPanel::onMenuVisibilityChange(LLUICtrl* ctrl, const LLSD& param)
 	{
 		const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
 
-		std::set<LLUUID> selected_uuids = root_folder_view->getSelectionList();
+		std::set<LLFolderViewItem*> selected_uuids =    root_folder_view->getSelectionList();
 
 		// Iterate through selected items to find out if any of these items are in Trash
 		// or all the items are in Trash category.
-		for (std::set<LLUUID>::const_iterator iter = selected_uuids.begin(); iter != selected_uuids.end(); ++iter)
+		for (std::set<LLFolderViewItem*>::const_iterator iter =    selected_uuids.begin(); iter != selected_uuids.end(); ++iter)
 		{
-			LLFolderViewItem* item = root_folder_view->getItemByID(*iter);
+			LLFolderViewItem* item = *iter;
 
 			// If no item is found it might be a folder id.
-			if (!item)
-			{
-				item = root_folder_view->getFolderByID(*iter);
-			}
 			if (!item) continue;
 
-			LLFolderViewEventListener* listenerp = item->getListener();
+			LLFolderViewModelItem* listenerp = item->getListener();
 			if(!listenerp) continue;
 
 			// Trash category itself should not be included because it can't be
 			// actually restored from trash.
-			are_all_items_in_trash &= listenerp->isItemInTrash() && *iter != trash_id;
+			are_all_items_in_trash &= listenerp->isItemInTrash() &&    (*iter)->getListener()->getUUID() != trash_id;
 
 			// If there are any selected items in Trash including the Trash category itself
 			// we show "Restore Item" in context menu and hide other irrelevant items.
@@ -1202,7 +1198,7 @@ bool LLLandmarksPanel::canItemBeModified(const std::string& command_name, LLFold
 
 	if (can_be_modified)
 	{
-		LLFolderViewEventListener* listenerp = item->getListener();
+		LLFolderViewModelItemInventory* listenerp = item->getListener();
 
 		if ("cut" == command_name)
 		{
@@ -1262,8 +1258,9 @@ bool LLLandmarksPanel::handleDragAndDropToTrash(BOOL drop, EDragAndDropType carg
 				LLInventoryItem* item = static_cast<LLInventoryItem*>(cargo_data);
 				if (item)
 				{
-					LLFolderViewItem* fv_item = (mCurrentSelectedList && mCurrentSelectedList->getRootFolder()) ?
-						mCurrentSelectedList->getRootFolder()->getItemByID(item->getUUID()) : NULL;
+					LLFolderViewItem* fv_item = mCurrentSelectedList
+						? mCurrentSelectedList->getItemByID(item->getUUID())
+						: NULL;
 
 					if (fv_item)
 					{
@@ -1391,7 +1388,7 @@ void LLLandmarksPanel::doCreatePick(LLLandmark* landmark)
 static void filter_list(LLPlacesInventoryPanel* inventory_list, const std::string& string)
 {
 	// When search is cleared, restore the old folder state.
-	if (!inventory_list->getRootFolder()->getFilterSubString().empty() && string == "")
+	if (!inventory_list->getFilterSubString().empty() && string == "")
 	{
 		inventory_list->setFilterSubString(LLStringUtil::null);
 		// Re-open folders that were open before
@@ -1405,7 +1402,7 @@ static void filter_list(LLPlacesInventoryPanel* inventory_list, const std::strin
 	}
 
 	// save current folder open state if no filter currently applied
-	if (inventory_list->getRootFolder()->getFilterSubString().empty())
+	if (inventory_list->getFilterSubString().empty())
 	{
 		inventory_list->saveFolderState();
 	}

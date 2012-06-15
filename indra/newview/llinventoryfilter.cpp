@@ -44,39 +44,39 @@
 
 LLFastTimer::DeclareTimer FT_FILTER_CLIPBOARD("Filter Clipboard");
 
-LLInventoryFilter::FilterOps::FilterOps() :
-	mFilterObjectTypes(0xffffffffffffffffULL),
-	mFilterCategoryTypes(0xffffffffffffffffULL),
-	mFilterWearableTypes(0xffffffffffffffffULL),
-	mMinDate(time_min()),
-	mMaxDate(time_max()),
-	mHoursAgo(0),
-	mShowFolderState(SHOW_NON_EMPTY_FOLDERS),
-	mPermissions(PERM_NONE),
-	mFilterTypes(FILTERTYPE_OBJECT),
-	mFilterUUID(LLUUID::null),
-	mFilterLinks(FILTERLINK_INCLUDE_LINKS)
+LLInventoryFilter::FilterOps::FilterOps(const Params& p)
+:	mFilterObjectTypes(p.object_types),
+	mFilterCategoryTypes(p.category_types),
+	mFilterWearableTypes(p.wearable_types),
+	mMinDate(p.date_range.min_date),
+	mMaxDate(p.date_range.max_date),
+	mHoursAgo(p.hours_ago),
+	mShowFolderState(p.show_folder_state),
+	mPermissions(p.permissions),
+	mFilterTypes(p.types),
+	mFilterUUID(p.uuid),
+	mFilterLinks(p.links)
 {
 }
 
 ///----------------------------------------------------------------------------
 /// Class LLInventoryFilter
 ///----------------------------------------------------------------------------
-LLInventoryFilter::LLInventoryFilter(const std::string& name)
+LLInventoryFilter::LLInventoryFilter(const std::string& name, const   Params& p)
 :	mName(name),
 	mModified(FALSE),
 	mNeedTextRebuild(TRUE),
-	mEmptyLookupMessage("InventoryNoMatchingItems")
+	mEmptyLookupMessage("InventoryNoMatchingItems"),
+        mFilterOps(p.filter_ops)
 {
-	mOrder = SO_FOLDERS_BY_NAME; // This gets overridden by a pref immediately
+	mOrder = p.sort_order; // This gets overridden by a pref immediately
 
-	mSubStringMatchOffset = 0;
-	mFilterSubString.clear();
-	mFilterGeneration = 0;
-	mMustPassGeneration = S32_MAX;
-	mMinRequiredGeneration = 0;
+	mFilterSubString(p.substring);
+	mLastSuccessGeneration = 0;
+	mLastFailGeneration = S32_MAX;
+	getFirstSuccessGeneration = 0;
 	mFilterCount = 0;
-	mNextFilterGeneration = mFilterGeneration + 1;
+	mNextFilterGeneration = mLastSuccessGeneration + 1;
 
 	mLastLogoff = gSavedPerAccountSettings.getU32("LastLogoff");
 	mFilterBehavior = FILTER_NONE;
@@ -102,7 +102,7 @@ BOOL LLInventoryFilter::check(const LLFolderViewItem* item)
 		return passed_clipboard;
 	}
 
-	mSubStringMatchOffset = mFilterSubString.size() ? item->getSearchableLabel().find(mFilterSubString) : std::string::npos;
+	std::string::size_type string_offset = mFilterSubString.size() ?   item->getSearchableLabel().find(mFilterSubString) : std::string::npos;
 
 	const BOOL passed_filtertype = checkAgainstFilterType(item);
 	const BOOL passed_permissions = checkAgainstPermissions(item);
@@ -111,22 +111,22 @@ BOOL LLInventoryFilter::check(const LLFolderViewItem* item)
 						 passed_permissions &&
 						 passed_filterlink &&
 						 passed_clipboard &&
-						 (mFilterSubString.size() == 0 || mSubStringMatchOffset != std::string::npos));
+						 (mFilterSubString.size() == 0 || string_offset !=  std::string::npos));
 
 	return passed;
 }
 
 bool LLInventoryFilter::check(const LLInventoryItem* item)
 {
-	mSubStringMatchOffset = mFilterSubString.size() ? item->getName().find(mFilterSubString) : std::string::npos;
+	std::string::size_type string_offset = mFilterSubString.size() ?   item->getName().find(mFilterSubString) : std::string::npos;
 
 	const bool passed_filtertype = checkAgainstFilterType(item);
 	const bool passed_permissions = checkAgainstPermissions(item);
 	const BOOL passed_clipboard = checkAgainstClipboard(item->getUUID());
-	const bool passed = (passed_filtertype &&
-						 passed_permissions &&
-						 passed_clipboard &&
-						 (mFilterSubString.size() == 0 || mSubStringMatchOffset != std::string::npos));
+	const bool passed = (passed_filtertype 
+						&& passed_permissions
+						&& passed_clipboard 
+						&&	(mFilterSubString.size() == 0 || string_offset !=  std::string::npos));
 
 	return passed;
 }
@@ -140,7 +140,7 @@ bool LLInventoryFilter::checkFolder(const LLFolderViewFolder* folder) const
 		return false;
 	}
 
-	const LLFolderViewEventListener* listener = folder->getListener();
+	const LLFolderViewModelItemInventory* listener = folder->getListener();
 	if (!listener)
 	{
 		llwarns << "Folder view event listener not found." << llendl;
@@ -163,7 +163,7 @@ bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
 	{
 		return passed_clipboard;
 	}
-
+	
 	if (mFilterOps.mFilterTypes & FILTERTYPE_CATEGORY)
 	{
 		// Can only filter categories for items in your inventory
@@ -181,7 +181,7 @@ bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
 
 BOOL LLInventoryFilter::checkAgainstFilterType(const LLFolderViewItem* item) const
 {
-	const LLFolderViewEventListener* listener = item->getListener();
+	const LLFolderViewModelItemInventory* listener = item->getListener();
 	if (!listener) return FALSE;
 
 	LLInventoryType::EType object_type = listener->getInventoryType();
@@ -268,7 +268,7 @@ BOOL LLInventoryFilter::checkAgainstFilterType(const LLFolderViewItem* item) con
 			}
 		}
 	}
-
+	
 	return TRUE;
 }
 
@@ -349,7 +349,7 @@ bool LLInventoryFilter::checkAgainstClipboard(const LLUUID& object_id) const
 
 BOOL LLInventoryFilter::checkAgainstPermissions(const LLFolderViewItem* item) const
 {
-	const LLFolderViewEventListener* listener = item->getListener();
+	const LLFolderViewModelItemInventory* listener = item->getListener();
 	if (!listener) return FALSE;
 
 	PermissionMask perm = listener->getPermissionMask();
@@ -377,7 +377,7 @@ bool LLInventoryFilter::checkAgainstPermissions(const LLInventoryItem* item) con
 
 BOOL LLInventoryFilter::checkAgainstFilterLinks(const LLFolderViewItem* item) const
 {
-	const LLFolderViewEventListener* listener = item->getListener();
+	const LLFolderViewModelItemInventory* listener = item->getListener();
 	if (!listener) return TRUE;
 
 	const LLUUID object_id = listener->getUUID();
@@ -397,9 +397,9 @@ const std::string& LLInventoryFilter::getFilterSubString(BOOL trim) const
 	return mFilterSubString;
 }
 
-std::string::size_type LLInventoryFilter::getStringMatchOffset() const
+std::string::size_type   LLInventoryFilter::getStringMatchOffset(LLFolderViewItem* item) const
 {
-	return mSubStringMatchOffset;
+	return mFilterSubString.size() ? item->getName().find(mFilterSubString)   : std::string::npos;
 }
 
 BOOL LLInventoryFilter::isDefault() const
@@ -422,7 +422,7 @@ BOOL LLInventoryFilter::isNotDefault() const
 	not_default |= (mFilterOps.mMinDate != mDefaultFilterOps.mMinDate);
 	not_default |= (mFilterOps.mMaxDate != mDefaultFilterOps.mMaxDate);
 	not_default |= (mFilterOps.mHoursAgo != mDefaultFilterOps.mHoursAgo);
-	
+
 	return not_default;
 }
 
@@ -746,7 +746,7 @@ void LLInventoryFilter::setModified(EFilterBehavior behavior)
 {
 	mModified = TRUE;
 	mNeedTextRebuild = TRUE;
-	mFilterGeneration = mNextFilterGeneration++;
+	mLastSuccessGeneration = mNextFilterGeneration++;
 
 	if (mFilterBehavior == FILTER_NONE)
 	{
@@ -765,17 +765,17 @@ void LLInventoryFilter::setModified(EFilterBehavior behavior)
 		switch(mFilterBehavior)
 		{
 			case FILTER_RESTART:
-				mMustPassGeneration = mFilterGeneration;
-				mMinRequiredGeneration = mFilterGeneration;
+				mLastFailGeneration = mLastSuccessGeneration;
+				mFirstSuccessGeneration = mLastSuccessGeneration;
 				break;
 			case FILTER_LESS_RESTRICTIVE:
-				mMustPassGeneration = mFilterGeneration;
+				mLastFailGeneration = mLastSuccessGeneration;
 				break;
 			case FILTER_MORE_RESTRICTIVE:
-				mMinRequiredGeneration = mFilterGeneration;
+				mFirstSuccessGeneration = mLastSuccessGeneration;
 				// must have passed either current filter generation (meaningless, as it hasn't been run yet)
 				// or some older generation, so keep the value
-				mMustPassGeneration = llmin(mMustPassGeneration, mFilterGeneration);
+				mLastFailGeneration = llmin(mLastFailGeneration,  mLastSuccessGeneration);
 				break;
 			default:
 				llerrs << "Bad filter behavior specified" << llendl;
@@ -991,60 +991,34 @@ const std::string& LLInventoryFilter::getFilterText()
 	return mFilterText;
 }
 
-void LLInventoryFilter::toLLSD(LLSD& data) const
-{
-	data["filter_types"] = (LLSD::Integer)getFilterObjectTypes();
-	data["min_date"] = (LLSD::Integer)getMinDate();
-	data["max_date"] = (LLSD::Integer)getMaxDate();
-	data["hours_ago"] = (LLSD::Integer)getHoursAgo();
-	data["show_folder_state"] = (LLSD::Integer)getShowFolderState();
-	data["permissions"] = (LLSD::Integer)getFilterPermissions();
-	data["substring"] = (LLSD::String)getFilterSubString();
-	data["sort_order"] = (LLSD::Integer)getSortOrder();
-	data["since_logoff"] = (LLSD::Boolean)isSinceLogoff();
-}
-
-void LLInventoryFilter::fromLLSD(LLSD& data)
-{
-	if(data.has("filter_types"))
+void LLInventoryFilter::toParams(Params& params) const
 	{
-		setFilterObjectTypes((U64)data["filter_types"].asInteger());
+	params.filter_ops.types = getFilterObjectTypes();
+	params.filter_ops.date_range.min_date = getMinDate();
+	params.filter_ops.date_range.max_date = getMaxDate();
+	params.filter_ops.hours_ago = getHoursAgo();
+	params.filter_ops.show_folder_state = getShowFolderState();
+	params.filter_ops.permissions = getFilterPermissions();
+	params.substring = getFilterSubString();
+	params.sort_order = getSortOrder();
+	params.since_logoff = isSinceLogoff();
 	}
 
-	if(data.has("min_date") && data.has("max_date"))
+void LLInventoryFilter::fromParams(const Params& data)
 	{
-		setDateRange(data["min_date"].asInteger(), data["max_date"].asInteger());
+	if (!params.validateBlock())
+	{
+		return;
 	}
 
-	if(data.has("hours_ago"))
-	{
-		setHoursAgo((U32)data["hours_ago"].asInteger());
-	}
-
-	if(data.has("show_folder_state"))
-	{
-		setShowFolderState((EFolderShow)data["show_folder_state"].asInteger());
-	}
-
-	if(data.has("permissions"))
-	{
-		setFilterPermissions((PermissionMask)data["permissions"].asInteger());
-	}
-
-	if(data.has("substring"))
-	{
-		setFilterSubString(std::string(data["substring"].asString()));
-	}
-
-	if(data.has("sort_order"))
-	{
-		setSortOrder((U32)data["sort_order"].asInteger());
-	}
-
-	if(data.has("since_logoff"))
-	{
-		setDateRangeLastLogoff((bool)data["since_logoff"].asBoolean());
-	}
+	setFilterObjectTypes(params.filter_ops.types);
+	setDateRange(params.filter_ops.date_range.min_date,   params.filter_ops.date_range.max_date);
+	setHoursAgo(params.filter_ops.hours_ago);
+	setShowFolderState(params.filter_ops.show_folder_state);
+	setFilterPermissions(params.filter_ops.permissions);
+	setFilterSubString(params.substring);
+	setSortOrder(params.sort_order);
+	setDateRangeLastLogoff(params.since_logoff);
 }
 
 U64 LLInventoryFilter::getFilterObjectTypes() const
@@ -1113,15 +1087,15 @@ void LLInventoryFilter::decrementFilterCount()
 
 S32 LLInventoryFilter::getCurrentGeneration() const 
 { 
-	return mFilterGeneration; 
+	return mLastSuccessGeneration;
 }
-S32 LLInventoryFilter::getMinRequiredGeneration() const 
+S32 LLInventoryFilter::getFirstSuccessGeneration() const
 { 
-	return mMinRequiredGeneration; 
+	return mFirstSuccessGeneration; 
 }
-S32 LLInventoryFilter::getMustPassGeneration() const 
+S32 LLInventoryFilter::getFirstRequiredGeneration() const
 { 
-	return mMustPassGeneration; 
+	return mLastFailGeneration; 
 }
 
 void LLInventoryFilter::setEmptyLookupMessage(const std::string& message)
@@ -1129,9 +1103,13 @@ void LLInventoryFilter::setEmptyLookupMessage(const std::string& message)
 	mEmptyLookupMessage = message;
 }
 
+RN: turn this into a param
 const std::string& LLInventoryFilter::getEmptyLookupMessage() const
 {
-	return mEmptyLookupMessage;
+	LLStringUtil::format_map_t args;
+	args["[SEARCH_TERM]"] = LLURI::escape(getFilterSubStringOrig());
+
+	return LLTrans::getString(mEmptyLookupMessage, args);
 
 }
 
@@ -1140,4 +1118,27 @@ bool LLInventoryFilter::areDateLimitsSet()
 	return     mFilterOps.mMinDate != time_min()
 			|| mFilterOps.mMaxDate != time_max()
 			|| mFilterOps.mHoursAgo != 0;
+}
+
+LLInventoryFilter& LLInventoryFilter::operator=( const  LLInventoryFilter&  other )
+{
+	fromParams(other.toParams());
+}
+
+
+bool LLInventoryFilter::FilterOps::DateRange::validateBlock( bool   emit_errors /*= true*/ )
+{
+	bool valid = LLInitParam::Block<DateRange>::validateBlock(emit_errors);
+	if (valid)
+	{
+		if (max_date() < min_date())
+		{
+			if (emit_errors)
+			{
+				llwarns << "max_date should be greater or equal to min_date" <<   llendl;
+			}
+			valid = false;
+		}
+	}
+	return valid;
 }

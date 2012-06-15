@@ -71,7 +71,7 @@
 /// Class LLTaskInvFVBridge
 ///----------------------------------------------------------------------------
 
-class LLTaskInvFVBridge : public LLFolderViewEventListener
+class LLTaskInvFVBridge : public LLFolderViewModelItemInventory
 {
 protected:
 	LLUUID mUUID;
@@ -102,7 +102,7 @@ public:
 	S32 getPrice();
 	static bool commitBuyItem(const LLSD& notification, const LLSD& response);
 
-	// LLFolderViewEventListener functionality
+	// LLFolderViewModelItemInventory functionality
 	virtual const std::string& getName() const;
 	virtual const std::string& getDisplayName() const;
 	virtual PermissionMask getPermissionMask() const { return PERM_NONE; }
@@ -120,8 +120,8 @@ public:
 	virtual BOOL isItemMovable() const;
 	virtual BOOL isItemRemovable() const;
 	virtual BOOL removeItem();
-	virtual void removeBatch(LLDynamicArray<LLFolderViewEventListener*>& batch);
-	virtual void move(LLFolderViewEventListener* parent_listener);
+	virtual void removeBatch(std::vector<LLFolderViewModelItem*>& batch);
+	virtual void move(LLFolderViewModelItem* parent_listener);	
 	virtual BOOL isItemCopyable() const;
 	virtual BOOL copyToClipboard() const;
 	virtual BOOL cutToClipboard() const;
@@ -467,7 +467,7 @@ BOOL LLTaskInvFVBridge::removeItem()
 	return FALSE;
 }
 
-void LLTaskInvFVBridge::removeBatch(LLDynamicArray<LLFolderViewEventListener*>& batch)
+void   LLTaskInvFVBridge::removeBatch(LLDynamicArray<LLFolderViewModelItem*>&   batch)
 {
 	if (!mPanel)
 	{
@@ -507,7 +507,7 @@ void LLTaskInvFVBridge::removeBatch(LLDynamicArray<LLFolderViewEventListener*>& 
 	}
 }
 
-void LLTaskInvFVBridge::move(LLFolderViewEventListener* parent_listener)
+void LLTaskInvFVBridge::move(LLFolderViewModelItem* parent_listener)
 {
 }
 
@@ -1548,7 +1548,8 @@ void LLPanelObjectInventory::reset()
 	p.folder_indentation = -14; // subtract space normally reserved for folder expanders
 	mFolders = LLUICtrlFactory::create<LLFolderView>(p);
 	// this ensures that we never say "searching..." or "no items found"
-	mFolders->getFilter()->setShowFolderState(LLInventoryFilter::SHOW_ALL_FOLDERS);
+	RN: make this happen by manipulating filter object directly
+	//mFolders->getFilter()->setShowFolderState(LLInventoryFilter::SHOW_ALL_FOLDERS);
 	mFolders->setCallbackRegistrar(&mCommitCallbackRegistrar);
 
 	if (hasFocus())
@@ -1608,7 +1609,7 @@ void LLPanelObjectInventory::updateInventory()
 	//		<< " panel UUID: " << panel->mTaskUUID << "\n"
 	//		<< " task  UUID: " << object->mID << llendl;
 	// We're still interested in this task's inventory.
-	std::set<LLUUID> selected_items;
+	std::set<LLFolderViewItem*> selected_items;
 	BOOL inventory_has_focus = FALSE;
 	if (mHaveInventory)
 	{
@@ -1646,11 +1647,11 @@ void LLPanelObjectInventory::updateInventory()
 	}
 
 	// restore previous selection
-	std::set<LLUUID>::iterator selection_it;
+	std::set<LLFolderViewItem*>::iterator selection_it;
 	BOOL first_item = TRUE;
 	for (selection_it = selected_items.begin(); selection_it != selected_items.end(); ++selection_it)
 	{
-		LLFolderViewItem* selected_item = mFolders->getItemByID(*selection_it);
+		LLFolderViewItem* selected_item = (*selection_it);
 		if (selected_item)
 		{
 			//HACK: "set" first item then "change" each other one to get keyboard focus right
@@ -1752,7 +1753,8 @@ void LLPanelObjectInventory::createViewsForCategory(LLInventoryObject::object_li
 				params.tool_tip = params.name;
 				view = LLUICtrlFactory::create<LLFolderViewItem> (params);
 			}
-			view->addToFolder(folder, mFolders);
+			view->addToFolder(folder);
+                        addItemID(view->getListener()->getUUID(), view);
 		}
 	}
 

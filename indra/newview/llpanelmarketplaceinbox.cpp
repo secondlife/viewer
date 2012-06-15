@@ -94,7 +94,7 @@ LLInventoryPanel * LLPanelMarketplaceInbox::setupInventoryPanel()
 	mInventoryPanel->setShape(inventory_placeholder_rect);
 	
 	// Set the sort order newest to oldest
-	mInventoryPanel->setSortOrder(LLInventoryFilter::SO_DATE);	
+	mInventoryPanel->getViewModel()->setSorter(LLInventoryFilter::SO_DATE);
 	mInventoryPanel->getFilter()->markDefault();
 
 	// Set selection callback for proper update of inventory status buttons
@@ -139,12 +139,12 @@ U32 LLPanelMarketplaceInbox::getFreshItemCount() const
 
 	if (mInventoryPanel)
 	{
-		const LLFolderViewFolder * inbox_folder = mInventoryPanel->getRootFolder();
+		LLFolderViewFolder * inbox_folder = mInventoryPanel->getRootFolder();
 		
 		if (inbox_folder)
 		{
-			LLFolderViewFolder::folders_t::const_iterator folders_it = inbox_folder->getFoldersBegin();
-			LLFolderViewFolder::folders_t::const_iterator folders_end = inbox_folder->getFoldersEnd();
+			LLFolderViewFolder::folders_t::iterator folders_it = inbox_folder->getFoldersBegin();
+			LLFolderViewFolder::folders_t::iterator folders_end = inbox_folder->getFoldersEnd();
 
 			for (; folders_it != folders_end; ++folders_it)
 			{
@@ -157,8 +157,8 @@ U32 LLPanelMarketplaceInbox::getFreshItemCount() const
 				}
 			}
 
-			LLFolderViewFolder::items_t::const_iterator items_it = inbox_folder->getItemsBegin();
-			LLFolderViewFolder::items_t::const_iterator items_end = inbox_folder->getItemsEnd();
+			LLFolderViewFolder::items_t::iterator items_it = inbox_folder->getItemsBegin();
+			LLFolderViewFolder::items_t::iterator items_end = inbox_folder->getItemsEnd();
 
 			for (; items_it != items_end; ++items_it)
 			{

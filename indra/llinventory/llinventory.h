@@ -75,6 +75,7 @@ public:
 	virtual LLAssetType::EType getType() const;
 	LLAssetType::EType getActualType() const; // bypasses indirection for linked items
 	BOOL getIsLinkType() const;
+	virtual time_t getCreationDate() const;
 	
 	//--------------------------------------------------------------------
 	// Mutators
@@ -85,6 +86,7 @@ public:
 	virtual void rename(const std::string& new_name);
 	void setParent(const LLUUID& new_parent);
 	void setType(LLAssetType::EType type);
+	virtual void setCreationDate(time_t creation_date_utc); // only stored for items
 
 private:
 	// in place correction for inventory name string
@@ -113,6 +115,7 @@ protected:
 	LLUUID mParentUUID; // Parent category.  Root categories have LLUUID::NULL.
 	LLAssetType::EType mType;
 	std::string mName;
+	time_t mCreationDate; // seconds from 1/1/1970, UTC
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -178,7 +181,6 @@ public:
 	void setPermissions(const LLPermissions& perm);
 	void setInventoryType(LLInventoryType::EType inv_type);
 	void setFlags(U32 flags);
-	void setCreationDate(time_t creation_date_utc);
 	void setCreator(const LLUUID& creator); // only used for calling cards
 
 	// Check for changes in permissions masks and sale info
@@ -224,7 +226,6 @@ protected:
 	LLSaleInfo mSaleInfo;
 	LLInventoryType::EType mInventoryType;
 	U32 mFlags;
-	time_t mCreationDate; // seconds from 1/1/1970, UTC
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
