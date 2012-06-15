@@ -106,6 +106,7 @@ void LLFloaterSpellCheckerSettings::onClose(bool app_quitting)
 		// don't save anything
 		return;
 	}
+	LLFloaterReg::hideInstance("prefs_spellchecker_import");
 	
 	std::list<std::string> list_dict;
 
