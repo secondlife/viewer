@@ -345,7 +345,7 @@ BOOL LLFloaterTexturePicker::handleKeyHere(KEY key, MASK mask)
 		{
 			if (!root_folder->getCurSelectedItem())
 			{
-				LLFolderViewItem* itemp = root_folder->getItemByID(gInventory.getRootFolderID());
+				LLFolderViewItem* itemp =    mInventoryPanel->getItemByID(gInventory.getRootFolderID());
 				if (itemp)
 				{
 					root_folder->setSelection(itemp, FALSE, FALSE);
@@ -848,7 +848,7 @@ void LLFloaterTexturePicker::onFilterEdit(const std::string& search_string )
 	else if (mInventoryPanel->getFilterSubString().empty())
 	{
 		// first letter in search term, save existing folder open state
-		if (!mInventoryPanel->getRootFolder()->isFilterModified())
+		if (!mInventoryPanel->getFilter()->isNotDefault())
 		{
 			mSavedFolderState.setApply(FALSE);
 			mInventoryPanel->getRootFolder()->applyFunctorRecursively(mSavedFolderState);

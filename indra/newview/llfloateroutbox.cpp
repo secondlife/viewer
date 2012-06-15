@@ -250,7 +250,8 @@ void LLFloaterOutbox::setupOutbox(const LLUUID& outboxId)
 	mOutboxInventoryPanel->setShape(inventory_placeholder_rect);
 	
 	// Set the sort order newest to oldest
-	mOutboxInventoryPanel->setSortOrder(LLInventoryFilter::SO_FOLDERS_BY_NAME);	
+
+	mOutboxInventoryPanel->getViewModel()->setSorter(LLInventoryFilter::SO_FOLDERS_BY_NAME);	
 	mOutboxInventoryPanel->getFilter()->markDefault();
 	
 	fetchOutboxContents();
@@ -386,7 +387,7 @@ BOOL LLFloaterOutbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	// Determine if the mouse is inside the inventory panel itself or just within the floater
 	bool pointInInventoryPanel = false;
 	bool pointInInventoryPanelChild = false;
-	LLFolderView * root_folder = mOutboxInventoryPanel->getRootFolder();
+	LLFolderView* root_folder = mOutboxInventoryPanel->getRootFolder();
 	if (mOutboxInventoryPanel->getVisible())
 	{
 		S32 inv_x, inv_y;
@@ -443,10 +444,10 @@ void LLFloaterOutbox::onOutboxChanged()
 {
 	llassert(!mOutboxId.isNull());
 	
-	if (mOutboxInventoryPanel)
-	{
-		mOutboxInventoryPanel->requestSort();
-	}
+	//if (mOutboxInventoryPanel)
+	//{
+	//	mOutboxInventoryPanel->requestSort();
+	//}
 
 	fetchOutboxContents();
 

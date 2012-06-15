@@ -85,34 +85,33 @@ void LLPlacesLandmarkBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 void LLPlacesFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
+	std::vector<std::string> items;
+	std::vector<std::string> disabled_items;
+
+	LLInventoryPanel* inv_panel = mInventoryPanel.get();
+	bool is_open = false;
+	if (inv_panel)
 	{
-		std::vector<std::string> items;
-		std::vector<std::string> disabled_items;
-
-		LLInventoryPanel* inv_panel = mInventoryPanel.get();
-		bool is_open = false;
-		if (inv_panel)
-		{
-			LLFolderViewFolder* folder = dynamic_cast<LLFolderViewFolder*>(inv_panel->getRootFolder()->getItemByID(mUUID));
-			is_open = (NULL != folder) && folder->isOpen();
-		}
-
-		// collect all items' names
-		fill_items_with_menu_items(items, menu);
-
-		// remove expand or collapse menu item depend on folder state
-		std::string collapse_expand_item_to_hide(is_open ? "expand" : "collapse");
-		std::vector<std::string>::iterator it = std::find(items.begin(), items.end(), collapse_expand_item_to_hide);
-		if (it != items.end())	items.erase(it);
-
-		// Disabled items are processed via LLLandmarksPanel::isActionEnabled()
-		// they should be synchronized with Places/My Landmarks/Gear menu. See EXT-1601 
-
-		// repeat parent functionality
- 		sSelf = getHandle(); // necessary for "New Folder" functionality
-
-		hide_context_entries(menu, items, disabled_items);
+		LLFolderViewFolder* folder =  dynamic_cast<LLFolderViewFolder*>(inv_panel->getItemByID(mUUID));
+		is_open = (NULL != folder) && folder->isOpen();
 	}
+
+	// collect all items' names
+	fill_items_with_menu_items(items, menu);
+
+	// remove expand or collapse menu item depend on folder state
+	std::string collapse_expand_item_to_hide(is_open ? "expand" :  "collapse");
+	std::vector<std::string>::iterator it = std::find(items.begin(),  items.end(), collapse_expand_item_to_hide);
+	if (it != items.end())	items.erase(it);
+
+
+	// Disabled items are processed via LLLandmarksPanel::isActionEnabled()
+	// they should be synchronized with Places/My Landmarks/Gear menu. See EXT-1601 
+
+	// repeat parent functionality
+ 	sSelf = getHandle(); // necessary for "New Folder" functionality
+
+	hide_context_entries(menu, items, disabled_items);
 }
 
 //virtual
@@ -140,7 +139,7 @@ LLFolderViewFolder* LLPlacesFolderBridge::getFolder()
 	LLInventoryPanel* inv_panel = mInventoryPanel.get();
 	if (inv_panel)
 	{
-		folder = dynamic_cast<LLFolderViewFolder*>(inv_panel->getRootFolder()->getItemByID(mUUID));
+		folder =    dynamic_cast<LLFolderViewFolder*>(inv_panel->getItemByID(mUUID));
 	}
 
 	return folder;

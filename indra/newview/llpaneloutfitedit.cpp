@@ -270,7 +270,7 @@ private:
 
 		if (inventory_panel->getVisible())
 		{
-			inventory_panel->setSortOrder(sort_order);
+			inventory_panel->getViewModel()->setSorter(sort_order);
 		}
 		else
 		{
@@ -738,7 +738,7 @@ void LLPanelOutfitEdit::onSearchEdit(const std::string& string)
 	}
 	
 	// save current folder open state if no filter currently applied
-	if (mInventoryItemsPanel->getRootFolder()->getFilterSubString().empty())
+	if (mInventoryItemsPanel->getFilterSubString().empty())
 	{
 		mSavedFolderState->setApply(FALSE);
 		mInventoryItemsPanel->getRootFolder()->applyFunctorRecursively(*mSavedFolderState);
@@ -885,13 +885,13 @@ LLPanelOutfitEdit::selection_info_t LLPanelOutfitEdit::getAddMorePanelSelectionT
 	{
 		if (mInventoryItemsPanel != NULL && mInventoryItemsPanel->getVisible())
 		{
-			std::set<LLUUID> selected_uuids = mInventoryItemsPanel->getRootFolder()->getSelectionList();
+			std::set<LLFolderViewItem*> selected_items =    mInventoryItemsPanel->getRootFolder()->getSelectionList();
 
-			result.second = selected_uuids.size();
+			result.second = selected_items.size();
 
 			if (result.second == 1)
 			{
-				result.first = getWearableTypeByItemUUID(*(selected_uuids.begin()));
+				result.first =    getWearableTypeByItemUUID((*selected_items.begin())->getListener()->getUUID());
 			}
 		}
 		else if (mWearableItemsList != NULL && mWearableItemsList->getVisible())
@@ -1310,7 +1310,7 @@ void LLPanelOutfitEdit::getCurrentItemUUID(LLUUID& selected_id)
 		LLFolderViewItem* curr_item = mInventoryItemsPanel->getRootFolder()->getCurSelectedItem();
 		if (!curr_item) return;
 
-		LLFolderViewEventListener* listenerp  = curr_item->getListener();
+		LLFolderViewModelItemInventory* listenerp  = curr_item->getListener();
 		if (!listenerp) return;
 
 		selected_id = listenerp->getUUID();
@@ -1327,9 +1327,13 @@ void LLPanelOutfitEdit::getSelectedItemsUUID(uuid_vec_t& uuid_list)
 	void (uuid_vec_t::* tmp)(LLUUID const &) = &uuid_vec_t::push_back;
 	if (mInventoryItemsPanel->getVisible())
 	{
-		std::set<LLUUID> item_set = mInventoryItemsPanel->getRootFolder()->getSelectionList();
-
-		std::for_each(item_set.begin(), item_set.end(), boost::bind( tmp, &uuid_list, _1));
+		std::set<LLFolderViewItem*> item_set =    mInventoryItemsPanel->getRootFolder()->getSelectionList();
+		for (std::set<LLFolderViewItem*>::iterator it = item_set.begin(),    end_it = item_set.end();
+			it != end_it;
+			++it)
+		{
+			uuid_list.push_back((*it)->getListener()->getUUID());
+		}
 	}
 	else if (mWearablesListViewPanel->getVisible())
 	{
@@ -1374,13 +1378,13 @@ void LLPanelOutfitEdit::saveListSelection()
 {
 	if(mWearablesListViewPanel->getVisible())
 	{
-		std::set<LLUUID> selected_ids = mInventoryItemsPanel->getRootFolder()->getSelectionList();
+		std::set<LLFolderViewItem*> selected_ids =    mInventoryItemsPanel->getRootFolder()->getSelectionList();
 
 		if(!selected_ids.size()) return;
 
-		for (std::set<LLUUID>::const_iterator item_id = selected_ids.begin(); item_id != selected_ids.end(); ++item_id)
+		for (std::set<LLFolderViewItem*>::const_iterator item_id =    selected_ids.begin(); item_id != selected_ids.end(); ++item_id)
 		{
-			mWearableItemsList->selectItemByUUID(*item_id, true);
+			mWearableItemsList->selectItemByUUID((*item_id)->getListener()->getUUID(),    true);
 		}
 		mWearableItemsList->scrollToShowFirstSelectedItem();
 	}
@@ -1398,7 +1402,7 @@ void LLPanelOutfitEdit::saveListSelection()
 
 		for(std::vector<LLUUID>::const_iterator item_id = selected_ids.begin(); item_id != selected_ids.end(); ++item_id)
 		{
-			LLFolderViewItem* item = root->getItemByID(*item_id);
+			LLFolderViewItem* item = mInventoryItemsPanel->getItemByID(*item_id);
 			if (!item) continue;
 
 			LLFolderViewFolder* parent = item->getParentFolder();

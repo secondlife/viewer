@@ -47,9 +47,10 @@
 #include "lltooldraganddrop.h"
 #include "llviewertexture.h"
 
-class LLFolderViewEventListener;
+class LLFolderViewModelInterface;
 class LLFolderViewFolder;
 class LLFolderViewItem;
+class LLFolderViewFilter;
 class LLInventoryModel;
 class LLPanel;
 class LLLineEditor;
@@ -76,8 +77,8 @@ public:
 		Optional<bool>			use_label_suffix,
 								allow_multiselect,
 								show_empty_message,
-								show_load_status,
 								use_ellipses;
+		Mandatory<LLFolderViewModelInterface*>	view_model;
 
 		Params();
 	};
@@ -88,9 +89,8 @@ public:
 
 	virtual LLFolderView*	getRoot() { return this; }
 
-	// FolderViews default to sort by name.  This will change that,
-	// and resort the items if necessary.
-	void setSortOrder(U32 order);
+	LLFolderViewModelInterface* getViewModel() { return mViewModel; }
+
 	void setFilterPermMask(PermissionMask filter_perm_mask);
 	
 	typedef boost::signals2::signal<void (const std::deque<LLFolderViewItem*>& items, BOOL user_action)> signal_t;
@@ -98,14 +98,7 @@ public:
 	void setReshapeCallback(const signal_t::slot_type& cb) { mReshapeSignal.connect(cb); }
 	
 	// filter is never null
-	LLInventoryFilter* getFilter();
-	const std::string getFilterSubString(BOOL trim = FALSE);
-	U32 getFilterObjectTypes() const;
-	PermissionMask getFilterPermissions() const;
-	// *NOTE: use getFilter()->getShowFolderState();
-	//LLInventoryFilter::EFolderShow getShowFolderState();
-	U32 getSortOrder() const;
-	BOOL isFilterModified();
+	LLFolderViewFilter* getFilter();
 
 	bool getAllowMultiSelect() { return mAllowMultiSelect; }
 
@@ -113,19 +106,18 @@ public:
 	void closeAllFolders();
 	void openTopLevelFolders();
 
-	virtual void toggleOpen() {};
-	virtual void setOpenArrangeRecursively(BOOL openitem, ERecurseType recurse);
 	virtual BOOL addFolder( LLFolderViewFolder* folder);
 
 	// Finds width and height of this object and it's children.  Also
 	// makes sure that this view and it's children are the right size.
 	virtual S32 arrange( S32* width, S32* height, S32 filter_generation );
+	virtual S32 getItemHeight();
 
 	void arrangeAll() { mArrangeGeneration++; }
 	S32 getArrangeGeneration() { return mArrangeGeneration; }
 
-	// applies filters to control visibility of inventory items
-	virtual void filter( LLInventoryFilter& filter);
+	// applies filters to control visibility of items
+	virtual void filter( LLFolderViewFilter& filter);
 
 	// get the last selected item
 	virtual LLFolderViewItem* getCurSelectedItem( void );
@@ -134,21 +126,15 @@ public:
 	virtual BOOL setSelection(LLFolderViewItem* selection, BOOL openitem,
 		BOOL take_keyboard_focus);
 
-	// Used by menu callbacks
-	void setSelectionByID(const LLUUID& obj_id, BOOL take_keyboard_focus);
-
-	// Called once a frame to update the selection if mSelectThisID has been set
-	void updateSelection();
-
 	// This method is used to toggle the selection of an item. Walks
 	// children, and keeps track of selected objects.
 	virtual BOOL changeSelection(LLFolderViewItem* selection, BOOL selected);
 
-	virtual std::set<LLUUID> getSelectionList() const;
+	virtual std::set<LLFolderViewItem*> getSelectionList() const;
 
 	// make sure if ancestor is selected, descendents are not
 	void sanitizeSelection();
-	void clearSelection();
+	virtual void clearSelection();
 	void addToSelectionList(LLFolderViewItem* item);
 	void removeFromSelectionList(LLFolderViewItem* item);
 
@@ -170,6 +156,7 @@ public:
 	void autoOpenItem(LLFolderViewFolder* item);
 	void closeAutoOpenedFolders();
 	BOOL autoOpenTest(LLFolderViewFolder* item);
+	BOOL isOpen() const { return TRUE; } // root folder always open
 
 	// copy & paste
 	virtual void	copy();
@@ -218,11 +205,6 @@ public:
 	F32  getSelectionFadeElapsedTime() { return mMultiSelectionFadeTimer.getElapsedTimeF32(); }
 	bool getUseEllipses() { return mUseEllipses; }
 
-	void addItemID(const LLUUID& id, LLFolderViewItem* itemp);
-	void removeItemID(const LLUUID& id);
-	LLFolderViewItem* getItemByID(const LLUUID& id);
-	LLFolderViewFolder* getFolderByID(const LLUUID& id);
-	
 	bool doToSelected(LLInventoryModel* model, const LLSD& userdata);
 	
 	void	doIdle();						// Real idle routine
@@ -267,6 +249,8 @@ protected:
 
 	void onItemsRemovalConfirmation(const LLSD& notification, const LLSD& response);
 
+	LLInventorySort& getSortFunction() { return mSortFunction; }
+
 protected:
 	LLHandle<LLView>					mPopupMenuHandle;
 	
@@ -297,7 +281,7 @@ protected:
 	LLFrameTimer					mAutoOpenTimer;
 	LLFrameTimer					mSearchTimer;
 	std::string						mSearchString;
-	LLInventoryFilter*				mFilter;
+	LLFolderViewFilter*				mFilter;
 	BOOL							mShowSelectionContext;
 	BOOL							mShowSingleSelection;
 	LLFrameTimer					mMultiSelectionFadeTimer;
@@ -307,13 +291,12 @@ protected:
 	signal_t						mReshapeSignal;
 	S32								mSignalSelectCallback;
 	S32								mMinWidth;
-	S32								mRunningHeight;
-	std::map<LLUUID, LLFolderViewItem*> mItemMap;
 	BOOL							mDragAndDropThisFrame;
 	
-	LLUUID							mSelectThisID; // if non null, select this item
-	
 	LLPanel*						mParentPanel;
+
+	LLInventorySort					mSortFunction;
+	LLFolderViewModelInterface*		mViewModel;
 
 	/**
 	 * Is used to determine if we need to cut text In LLFolderViewItem to avoid horizontal scroll.
@@ -333,9 +316,6 @@ public:
 	LLTextBox*						mStatusTextBox;
 
 };
-
-bool sort_item_name(LLFolderViewItem* a, LLFolderViewItem* b);
-bool sort_item_date(LLFolderViewItem* a, LLFolderViewItem* b);
 
 // Flags for buildContextMenu()
 const U32 SUPPRESS_OPEN_ITEM = 0x1;

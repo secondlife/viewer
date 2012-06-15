@@ -53,6 +53,7 @@
 #include "llviewermenu.h"
 #include "llviewertexturelist.h"
 #include "llsidepanelinventory.h"
+#include "llfolderview.h"
 
 const std::string FILTERS_FILENAME("filters.xml");
 
@@ -171,7 +172,10 @@ BOOL LLPanelMainInventory::postBuild()
 			{
 				LLSD recent_items = savedFilterState.get(
 					recent_items_panel->getFilter()->getName());
-				recent_items_panel->getFilter()->fromLLSD(recent_items);
+				LLInventoryFilter::Params p;
+				LLParamSDParser parser;
+				parser.readSD(recent_items, p);
+				recent_items_panel->getFilter()->fromParams(p);
 			}
 		}
 
@@ -212,21 +216,22 @@ LLPanelMainInventory::~LLPanelMainInventory( void )
 		if (filter)
 		{
 			LLSD filterState;
-			filter->toLLSD(filterState);
-			filterRoot[filter->getName()] = filterState;
+			LLInventoryFilter::Params p;
+			filter->toParams(p);
+			if (p.validateBlock(false))
+			{
+				LLParamSDParser().writeSD(filterState, p);
+				filterRoot[filter->getName()] = filterState;
+			}
 		}
 	}
 
-	LLInventoryPanel* recent_items_panel = getChild<LLInventoryPanel>("Recent Items");
-	if (recent_items_panel)
-	{
-		LLInventoryFilter* filter = recent_items_panel->getFilter();
-		if (filter)
-		{
-			LLSD filterState;
-			filter->toLLSD(filterState);
-			filterRoot[filter->getName()] = filterState;
-		}
+        LLInventoryFilter* filter = getChild<LLInventoryPanel>("Recent   Items")->getFilter();
+	if (filter)	
+        {
+		LLSD filterState;
+		filter->toLLSD(filterState);
+		filterRoot[filter->getName()] = filterState;
 	}
 
 	std::ostringstream filterSaveName;
@@ -306,7 +311,7 @@ void LLPanelMainInventory::newWindow()
 
 void LLPanelMainInventory::doCreate(const LLSD& userdata)
 {
-	menu_create_inventory_item(getPanel()->getRootFolder(), NULL, userdata);
+	menu_create_inventory_item(getPanel(), NULL, userdata);
 }
 
 void LLPanelMainInventory::resetFilters()
@@ -417,7 +422,7 @@ void LLPanelMainInventory::onFilterEdit(const std::string& search_string )
 	}
 
 	// save current folder open state if no filter currently applied
-	if (!mActivePanel->getRootFolder()->isFilterModified())
+	if (!mActivePanel->getFilter()->isNotDefault())
 	{
 		mSavedFolderState->setApply(FALSE);
 		mActivePanel->getRootFolder()->applyFunctorRecursively(*mSavedFolderState);
@@ -1110,15 +1115,15 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 		if (root)
 		{
 			can_delete = TRUE;
-			std::set<LLUUID> selection_set = root->getSelectionList();
+			std::set<LLFolderViewItem*> selection_set = root->getSelectionList();
 			if (selection_set.empty()) return FALSE;
-			for (std::set<LLUUID>::iterator iter = selection_set.begin();
+			for (std::set<LLFolderViewItem*>::iterator iter =    selection_set.begin();
 				 iter != selection_set.end();
 				 ++iter)
 			{
 				const LLUUID &item_id = (*iter);
-				LLFolderViewItem *item = root->getItemByID(item_id);
-				const LLFolderViewEventListener *listener = item->getListener();
+				LLFolderViewItem *item = *iter;
+				const LLFolderViewModelItemInventory *listener = item->getListener();
 				llassert(listener);
 				if (!listener) return FALSE;
 				can_delete &= listener->isItemRemovable();
@@ -1148,7 +1153,7 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 	if (command_name == "find_links")
 	{
 		LLFolderView* root = getActivePanel()->getRootFolder();
-		std::set<LLUUID> selection_set = root->getSelectionList();
+		std::set<LLFolderViewItem*> selection_set = root->getSelectionList();
 		if (selection_set.size() != 1) return FALSE;
 		LLFolderViewItem* current_item = root->getCurSelectedItem();
 		if (!current_item) return FALSE;

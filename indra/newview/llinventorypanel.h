@@ -30,6 +30,7 @@
 
 #include "llassetstorage.h"
 #include "lldarray.h"
+#include "llfolderviewitem.h"
 #include "llfloater.h"
 #include "llinventory.h"
 #include "llinventoryfilter.h"
@@ -54,6 +55,18 @@ class LLSaveFolderState;
 class LLFilterEditor;
 class LLTabContainer;
 class LLInvPanelComplObserver;
+
+class LLFolderViewModelInventory
+:	public LLFolderViewModel<LLInventorySort,   LLFolderViewModelItemInventory, LLFolderViewModelItemInventory,   LLInventoryFilter>
+{
+	typedef LLFolderViewModel<LLInventorySort,   LLFolderViewModelItemInventory, LLFolderViewModelItemInventory,   LLInventoryFilter> base_t;
+
+	virtual ~LLFolderViewModelInventory() {}
+
+	void sort(LLFolderViewFolder* folder);
+	void requestSort(LLFolderViewFolder* folder);
+};
+
 
 class LLInventoryPanel : public LLPanel
 {
@@ -85,7 +98,6 @@ public:
 		Optional<std::string>               start_folder;
 		Optional<bool>						use_label_suffix;
 		Optional<bool>						show_empty_message;
-		Optional<bool>						show_load_status;
 		Optional<LLScrollContainer::Params>	scroll;
 		Optional<bool>						accepts_drag_and_drop;
 
@@ -98,7 +110,6 @@ public:
 			start_folder("start_folder"),
 			use_label_suffix("use_label_suffix", true),
 			show_empty_message("show_empty_message", true),
-			show_load_status("show_load_status"),
 			scroll("scroll"),
 			accepts_drag_and_drop("accepts_drag_and_drop")
 		{}
@@ -182,22 +193,35 @@ public:
 	
 	static void openInventoryPanelAndSetSelection(BOOL auto_open, const LLUUID& obj_id);
 
+	void addItemID(const LLUUID& id, LLFolderViewItem* itemp);
+	void removeItemID(const LLUUID& id);
+	LLFolderViewItem* getItemByID(const LLUUID& id);
+	LLFolderViewFolder* getFolderByID(const LLUUID& id);
+	void setSelectionByID(const LLUUID& obj_id, BOOL take_keyboard_focus);
+	void updateSelection();
+	 	
+	LLFolderViewModelInventory* getViewModel() { return &mViewModel; }
+	const LLFolderViewModelInventory* getViewModel() const { return   &mViewModel; }
+
 protected:
 	void openStartFolderOrMyInventory(); // open the first level of inventory
 	void onItemsCompletion();			// called when selected items are complete
 
-	LLInventoryModel*			mInventory;
+        LLUUID						mSelectThisID;	
+        LLInventoryModel*			mInventory;
 	LLInventoryObserver*		mInventoryObserver;
 	LLInvPanelComplObserver*	mCompletionObserver;
 	BOOL						mAcceptsDragAndDrop;
 	BOOL 						mAllowMultiSelect;
 	BOOL 						mShowItemLinkOverlays; // Shows link graphic over inventory item icons
 	BOOL						mShowEmptyMessage;
-	BOOL						mShowLoadStatus;
 
 	LLFolderView*				mFolderRoot;
 	LLScrollContainer*			mScroller;
 
+	LLFolderViewModelInventory	mViewModel;
+	
+	std::map<LLUUID, LLFolderViewItem*> mItemMap;
 	/**
 	 * Pointer to LLInventoryFVBridgeBuilder.
 	 *
@@ -218,7 +242,6 @@ public:
 	
 	void setSortOrder(U32 order);
 	U32 getSortOrder() const;
-	void requestSort();
 
 private:
 	std::string					mSortOrderSetting;
@@ -250,6 +273,27 @@ private:
 	// UUID of category from which hierarchy should be built.  Set with the 
 	// "start_folder" xml property.  Default is LLUUID::null that means total Inventory hierarchy. 
 	LLUUID				mStartFolderID;
+};
+
+class LLFolderViewModelItemInventory
+	:	public LLFolderViewModelItemCommon
+{
+public:
+	virtual const LLUUID& getUUID() const = 0;
+	virtual time_t getCreationDate() const = 0;	// UTC seconds
+	virtual void setCreationDate(time_t creation_date_utc) = 0;
+	virtual PermissionMask getPermissionMask() const = 0;
+	virtual LLFolderType::EType getPreferredType() const = 0;
+	virtual void previewItem( void ) = 0;
+	virtual void showProperties(void) = 0;
+	virtual BOOL isItemInTrash( void) const { return FALSE; } // TODO: make   into pure virtual.
+	virtual BOOL isUpToDate() const = 0;
+	virtual BOOL hasChildren() const = 0;
+	virtual LLInventoryType::EType getInventoryType() const = 0;
+	virtual void performAction(LLInventoryModel* model, std::string action)   = 0;
+	virtual LLWearableType::EType getWearableType() const = 0;
+	virtual EInventorySortGroup getSortGroup() const;
+	virtual void requestSort(const LLInventorySort& sorter);
 };
 
 #endif // LL_LLINVENTORYPANEL_H

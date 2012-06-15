@@ -28,7 +28,7 @@
 
 #include "llpanelmarketplaceoutboxinventory.h"
 
-#include "llfolderview.h"
+#include "llfolderviewitem.h"
 #include "llfoldervieweventlistener.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
