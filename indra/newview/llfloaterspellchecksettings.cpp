@@ -264,7 +264,18 @@ void LLFloaterSpellCheckerImport::onBtnBrowse()
 		return;
 	}
 
-	const std::string filepath = file_picker.getFirstFile();
+	std::string filepath = file_picker.getFirstFile();
+
+	const std::string extension = gDirUtilp->getExtension(filepath);
+	if ("xcu" == extension)
+	{
+		filepath = parseXcuFile(filepath);
+		if (filepath.empty())
+		{
+			return;
+		}
+	}
+
 	getChild<LLUICtrl>("dictionary_path")->setValue(filepath);
 	
 	mDictionaryDir = gDirUtilp->getDirName(filepath);
@@ -397,4 +408,78 @@ bool LLFloaterSpellCheckerImport::copyFile(const std::string from, const std::st
 	}
 	fclose(in);
 	return copied;
+}
+
+std::string LLFloaterSpellCheckerImport::parseXcuFile(const std::string& file_path) const
+{
+	LLXMLNodePtr xml_root;
+	if ( (!LLUICtrlFactory::getLayeredXMLNode(file_path, xml_root)) || (xml_root.isNull()) )
+	{
+		return LLStringUtil::null;
+	}
+
+	// Bury down to the "Dictionaries" parent node
+	LLXMLNode* dict_node = NULL;
+	for (LLXMLNode* outer_node = xml_root->getFirstChild(); outer_node && !dict_node; outer_node = outer_node->getNextSibling())
+	{
+		std::string temp;
+		if ( (outer_node->getAttributeString("oor:name", temp)) && ("ServiceManager" == temp) )
+		{
+			for (LLXMLNode* inner_node = outer_node->getFirstChild(); inner_node && !dict_node; inner_node = inner_node->getNextSibling())
+			{
+				if ( (inner_node->getAttributeString("oor:name", temp)) && ("Dictionaries" == temp) )
+				{
+					dict_node = inner_node;
+					break;
+				}
+			}
+		}
+	}
+
+	if (dict_node)
+	{
+		// Iterate over all child nodes until we find one that has a <value>DICT_SPELL</value> node
+		for (LLXMLNode* outer_node = dict_node->getFirstChild(); outer_node; outer_node = outer_node->getNextSibling())
+		{
+			std::string temp;
+			LLXMLNodePtr location_node, format_node;
+			for (LLXMLNode* inner_node = outer_node->getFirstChild(); inner_node; inner_node = inner_node->getNextSibling())
+			{
+				if (inner_node->getAttributeString("oor:name", temp))
+				{
+					if ("Locations" == temp)
+					{
+						inner_node->getChild("value", location_node, false);
+					}
+					else if ("Format" == temp)
+					{
+						inner_node->getChild("value", format_node, false);
+					}
+				}
+			}
+			if ( (format_node.isNull()) || ("DICT_SPELL" != format_node->getValue()) || (location_node.isNull()) )
+			{
+				continue;
+			}
+
+			// Found a list of file locations, return the .dic (if present)
+			std::list<std::string> location_list;
+			boost::split(location_list, location_node->getValue(), boost::is_any_of(std::string(" ")));
+			for (std::list<std::string>::iterator it = location_list.begin(); it != location_list.end(); ++it)
+			{
+				std::string& location = *it;
+				if ("\\" != gDirUtilp->getDirDelimiter())
+					LLStringUtil::replaceString(location, "\\", gDirUtilp->getDirDelimiter());
+				else
+					LLStringUtil::replaceString(location, "/", gDirUtilp->getDirDelimiter());
+				LLStringUtil::replaceString(location, "%origin%", gDirUtilp->getDirName(file_path));
+				if ("dic" == gDirUtilp->getExtension(location))
+				{
+					return location;
+				}
+			}
+		}
+	}
+
+	return LLStringUtil::null;
 }

@@ -59,7 +59,7 @@ LLFilePicker LLFilePicker::sInstance;
 #define RAW_FILTER L"RAW files (*.raw)\0*.raw\0"
 #define MODEL_FILTER L"Model files (*.dae)\0*.dae\0"
 #define SCRIPT_FILTER L"Script files (*.lsl)\0*.lsl\0"
-#define DICTIONARY_FILTER L"Dictionary files (*.dic)\0*.dic\0"
+#define DICTIONARY_FILTER L"Dictionary files (*.dic; *.xcu)\0*.dic;*.xcu\0"
 #endif
 
 //
@@ -651,7 +651,9 @@ Boolean LLFilePicker::navOpenFilterProc(AEDesc *theItem, void *info, void *callB
 						else if (filter == FFLOAD_DICTIONARY)
 						{
 							if (fileInfo.filetype != 'DIC ' &&
-								(fileInfo.extension && (CFStringCompare(fileInfo.extension, CFSTR("dic"), kCFCompareCaseInsensitive) != kCFCompareEqualTo)) )
+								fileInfo.filetype != 'XCU ' &&
+								(fileInfo.extension && (CFStringCompare(fileInfo.extension, CFSTR("dic"), kCFCompareCaseInsensitive) != kCFCompareEqualTo) &&
+								 fileInfo.extension && (CFStringCompare(fileInfo.extension, CFSTR("xcu"), kCFCompareCaseInsensitive) != kCFCompareEqualTo))
 							{
 								result = false;
 							}
@@ -1251,7 +1253,7 @@ static std::string add_script_filter_to_gtkchooser(GtkWindow *picker)
 static std::string add_dictionary_filter_to_gtkchooser(GtkWindow *picker)
 {
 	return add_simple_mime_filter_to_gtkchooser(picker,  "text/plain",
-							LLTrans::getString("dictionary_files") + " (*.dic)");
+							LLTrans::getString("dictionary_files") + " (*.dic; *.xcu)");
 }
 
 BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename )
