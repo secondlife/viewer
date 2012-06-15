@@ -3325,7 +3325,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="LocationCtrlModerateIconTooltip">Moderate Region</string>
   <string name="LocationCtrlGeneralIconTooltip">General Region</string>
   <string name="LocationCtrlSeeAVsTooltip">Avatars visible and chat allowed outside of this parcel</string>
-
+  <string name="PathfindingDynamicTooltip">Dynamic Pathfinding Enabled</string>
   <!-- Strings used by the (currently Linux) auto-updater app -->
 	<string name="UpdaterWindowTitle">
 	  [APP_NAME] Update
@@ -3832,7 +3832,6 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Outbox_Label">Merchant outbox</string>
   <string name="Command_Pathfinding_Label">Pathfinding</string>
   <string name="Command_People_Label">People</string>
-  <string name="Command_PF_Basic_Label">Pathfinding Basic</string>
   <string name="Command_PF_Characters_Label">Pathfinding Characters</string>
   <string name="Command_PF_Linksets_Label">Pathfinding Linksets</string>
   <string name="Command_Picks_Label">Picks</string>
@@ -3862,7 +3861,6 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Outbox_Tooltip">Transfer items to your marketplace for sale</string>
   <string name="Command_Pathfinding_Tooltip">Information about pathfinding</string>
   <string name="Command_People_Tooltip">Friends, groups, and nearby people</string>
-  <string name="Command_PF_Basic_Tooltip">Manipulation of pathfinding frozen/unfrozen state</string>
   <string name="Command_PF_Characters_Tooltip">Manipulation of pathfinding characters</string>
   <string name="Command_PF_Linksets_Tooltip">Manipulation of pathfinding linksets</string>
   <string name="Command_Picks_Tooltip">Places to show as favorites in your profile</string>

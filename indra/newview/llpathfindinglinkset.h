@@ -32,9 +32,6 @@
 
 #include "llpathfindingobject.h"
 
-#define DEPRECATED_NAVMESH_PERMANENT_WALKABLE_FLAGS
-#define MISSING_MODIFIABLE_FIELD_WAR
-
 class LLSD;
 
 class LLPathfindingLinkset : public LLPathfindingObject
@@ -92,11 +89,6 @@ private:
 	void                              parseLinksetData(const LLSD &pLinksetData);
 	void                              parsePathfindingData(const LLSD &pLinksetData);
 
-#ifdef DEPRECATED_NAVMESH_PERMANENT_WALKABLE_FLAGS
-	static ELinksetUse                getLinksetUse(bool pIsPhantom, bool pIsPermanent, bool pIsWalkable);
-	static BOOL                       isPermanent(ELinksetUse pLinksetUse);
-	static BOOL                       isWalkable(ELinksetUse pLinksetUse);
-#endif // DEPRECATED_NAVMESH_PERMANENT_WALKABLE_FLAGS
 	static BOOL                       isPhantom(ELinksetUse pLinksetUse);
 	static ELinksetUse                getLinksetUse(bool pIsPhantom, ENavMeshGenerationCategory pNavMeshGenerationCategory);
 	static ENavMeshGenerationCategory getNavMeshGenerationCategory(ELinksetUse pLinksetUse);
@@ -105,9 +97,6 @@ private:
 
 	bool         mIsTerrain;
 	U32          mLandImpact;
-#ifdef MISSING_MODIFIABLE_FIELD_WAR
-	bool         mHasModifiable;
-#endif // MISSING_MODIFIABLE_FIELD_WAR
 	BOOL         mIsModifiable;
 	BOOL         mCanBeVolume;
 	ELinksetUse  mLinksetUse;

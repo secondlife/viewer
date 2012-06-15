@@ -32,6 +32,7 @@
 #include "lluuid.h"
 #include "llpathfindingnavmesh.h"
 #include "llpathfindingnavmeshstatus.h"
+#include "llviewerregion.h"
 
 #include <vector>
 
@@ -68,7 +69,7 @@ public:
 
 	typedef boost::function<void (ENavMeshZoneRequestStatus)>         navmesh_zone_callback_t;
 	typedef boost::signals2::signal<void (ENavMeshZoneRequestStatus)> navmesh_zone_signal_t;
-	typedef boost::signals2::connection                                                   navmesh_zone_slot_t;
+	typedef boost::signals2::connection                               navmesh_zone_slot_t;
 
 	LLPathfindingNavMeshZone();
 	virtual ~LLPathfindingNavMeshZone();

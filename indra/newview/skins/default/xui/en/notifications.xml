@@ -1293,33 +1293,6 @@ The region [REGION] does not allow terraforming.
 
   <notification
    icon="alertmodal.tga"
-   name="RegionNoTerraformingWhileFrozen"
-   type="alertmodal">
-    You cannot terraform land while in Frozen mode.  Please switch to Unfrozen mode from the menu option Build->Pathfinding->Basic Setup.
-    <tag>fail</tag>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="AutomaticAgentStateUnfreeze"
-   type="alertmodal">
-You have automatically switched into Unfrozen mode because of one of the following reasons:
-
-- You rezzed an object marked as permanent
-- You returned an object marked as permanent
-
-After you finish modifying your permanent objects, please remember to switch back to Frozen mode  from the menu option Build->Pathfinding->Basic Setup.
-    <tag>confirm</tag>
-    <usetemplate
-      name="okhelpignore"
-      yestext="OK"
-      helptext="More Info"
-      ignoretext="Launch browser to view pathfinding help"
-      />
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
    name="CannotCopyWarning"
    type="alertmodal">
 You do not have permission to copy the following items:
@@ -1526,9 +1499,9 @@ Please make sure none are locked, and that you own all of them.
    icon="alertmodal.tga"
    name="CannotLinkPermanent"
    type="alertmodal">
-Unable to link permanent objects in frozen mode.
+Unable to link permanent objects.
 
-Please switch to unfrozen mode from the menu option Build->Pathfinding->Basic Setup.
+Please move all objects to the same region, and then attempt to link the objects together again.
     <tag>fail</tag>
   </notification>
 
@@ -5806,7 +5779,16 @@ This area has voice chat disabled. You won&apos;t be able to hear anyone talking
     <unique/>    
 This area has building disabled. You can&apos;t build or rez objects here.
   </notification>
-
+  
+  <notification
+     icon="notify.tga"
+     name="PathfindingDynamic"
+     persist="true"
+     type="notify">
+    <unique/>
+    Dynamic pathing is enabled.
+  </notification>
+  
   <notification
    icon="notify.tga"
    name="SeeAvatars"

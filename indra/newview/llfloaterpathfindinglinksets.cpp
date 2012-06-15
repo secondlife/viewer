@@ -60,26 +60,6 @@
 // LLFloaterPathfindingLinksets
 //---------------------------------------------------------------------------
 
-void LLFloaterPathfindingLinksets::onOpen(const LLSD& pKey)
-{
-	LLFloaterPathfindingObjects::onOpen(pKey);
-
-	if (!mAgentStateSlot.connected())
-	{
-		mAgentStateSlot = LLPathfindingManager::getInstance()->registerAgentStateListener(boost::bind(&LLFloaterPathfindingLinksets::onAgentStateChange, this, _1));
-	}
-}
-
-void LLFloaterPathfindingLinksets::onClose(bool pIsAppQuitting)
-{
-	if (mAgentStateSlot.connected())
-	{
-		mAgentStateSlot.disconnect();
-	}
-
-	LLFloaterPathfindingObjects::onClose(pIsAppQuitting);
-}
-
 void LLFloaterPathfindingLinksets::openLinksetsEditor()
 {
 	LLFloaterReg::toggleInstanceOrBringToFront("pathfinding_linksets");
@@ -107,8 +87,7 @@ LLFloaterPathfindingLinksets::LLFloaterPathfindingLinksets(const LLSD& pSeed)
 	mLabelEditD(NULL),
 	mEditD(NULL),
 	mApplyEditsButton(NULL),
-	mBeaconColor(),
-	mAgentStateSlot()
+	mBeaconColor()
 {
 }
 
@@ -337,11 +316,6 @@ void LLFloaterPathfindingLinksets::onApplyChangesClicked()
 	applyEdit();
 }
 
-void LLFloaterPathfindingLinksets::onAgentStateChange(LLPathfindingManager::EAgentState pAgentState)
-{
-	updateControls();
-}
-
 void LLFloaterPathfindingLinksets::applyFilters()
 {
 	rebuildObjectsScrollList();
@@ -530,7 +504,7 @@ bool LLFloaterPathfindingLinksets::isShowCannotBeVolumeWarning(LLPathfindingLink
 void LLFloaterPathfindingLinksets::updateStateOnEditFields()
 {
 	int numSelectedItems = getNumSelectedObjects();
-	bool isEditEnabled = ((numSelectedItems > 0) && LLPathfindingManager::getInstance()->isAllowAlterPermanent());
+	bool isEditEnabled = (numSelectedItems > 0);
 
 	mEditLinksetUse->setEnabled(isEditEnabled);
 

@@ -4802,15 +4802,15 @@ class LLToolsEnablePathfinding : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		return LLPathfindingManager::getInstance()->isPathfindingEnabledForCurrentRegion();
+		return (LLPathfindingManager::getInstance() != NULL) && LLPathfindingManager::getInstance()->isPathfindingEnabledForCurrentRegion();
 	}
 };
 
-class LLToolsEnablePathfindingLinksets : public view_listener_t
+class LLToolsEnablePathfindingDebug : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		return LLPathfindingManager::getInstance()->isPathfindingEnabledForCurrentRegion() && LLPathfindingManager::getInstance()->isAllowAlterPermanent();
+		return (LLPathfindingManager::getInstance() != NULL) && LLPathfindingManager::getInstance()->isPathfindingEnabledForCurrentRegion() && LLPathfindingManager::getInstance()->isPathfindingDebugEnabled();
 	}
 };
 
@@ -8209,7 +8209,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLToolsEnableSaveToObjectInventory(), "Tools.EnableSaveToObjectInventory");
 
 	view_listener_t::addMenu(new LLToolsEnablePathfinding(), "Tools.EnablePathfinding");
-	view_listener_t::addMenu(new LLToolsEnablePathfindingLinksets(), "Tools.EnablePathfindingLinksets");
+	view_listener_t::addMenu(new LLToolsEnablePathfindingDebug(), "Tools.EnablePathfindingDebug");
 
 	// Help menu
 	// most items use the ShowFloater method

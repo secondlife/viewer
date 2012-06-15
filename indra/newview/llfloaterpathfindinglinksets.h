@@ -46,10 +46,6 @@ class LLVector3;
 class LLFloaterPathfindingLinksets : public LLFloaterPathfindingObjects
 {
 public:
-
-	virtual void onOpen(const LLSD& pKey);
-	virtual void onClose(bool pIsAppQuitting);
-
 	static void  openLinksetsEditor();
 
 protected:
@@ -78,7 +74,6 @@ private:
 	void onClearFiltersClicked();
 	void onWalkabilityCoefficientEntered(LLUICtrl *pUICtrl);
 	void onApplyChangesClicked();
-	void onAgentStateChange(LLPathfindingManager::EAgentState pAgentState);
 
 	void applyFilters();
 	void clearFilters();
@@ -131,8 +126,6 @@ private:
 	LLButton                                 *mApplyEditsButton;
 
 	LLColor4                                 mBeaconColor;
-
-	LLPathfindingManager::agent_state_slot_t mAgentStateSlot;
 };
 
 #endif // LL_LLFLOATERPATHFINDINGLINKSETS_H

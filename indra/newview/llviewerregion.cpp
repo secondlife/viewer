@@ -1151,6 +1151,7 @@ void LLViewerRegion::getInfo(LLSD& info)
 void LLViewerRegion::getSimulatorFeatures(LLSD& sim_features)
 {
 	sim_features = mSimulatorFeatures;
+
 }
 
 void LLViewerRegion::setSimulatorFeatures(const LLSD& sim_features)
@@ -1489,7 +1490,7 @@ void LLViewerRegion::unpackRegionHandshake()
 
 void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 {
-	capabilityNames.append("AgentPreferences");
+	capabilityNames.append("AgentState");
 	capabilityNames.append("AttachmentResources");
 	capabilityNames.append("AvatarPickerSearch");
 	capabilityNames.append("CharacterProperties");
@@ -1836,4 +1837,9 @@ bool LLViewerRegion::meshRezEnabled() const
 				mSimulatorFeatures["MeshRezEnabled"].asBoolean());
 }
 
+bool LLViewerRegion::dynamicPathfindingEnabled() const
+{
+	return ( mSimulatorFeatures.has("DynamicPathfindingEnabled") &&
+			 mSimulatorFeatures["DynamicPathfindingEnabled"].asBoolean());
+}
 

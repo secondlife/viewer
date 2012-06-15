@@ -218,7 +218,6 @@ set(viewer_SOURCE_FILES
     llfloaterobjectweights.cpp
     llfloateropenobject.cpp
     llfloateroutbox.cpp
-    llfloaterpathfindingbasic.cpp
     llfloaterpathfindingcharacters.cpp
     llfloaterpathfindingconsole.cpp
     llfloaterpathfindinglinksets.cpp
@@ -384,6 +383,7 @@ set(viewer_SOURCE_FILES
     llpanelmediasettingspermissions.cpp
     llpanelmediasettingssecurity.cpp
     llpanelme.cpp
+    llpanelnavmeshrebake.cpp
     llpanelnearbymedia.cpp
     llpanelobject.cpp
     llpanelobjectinventory.cpp
@@ -790,7 +790,6 @@ set(viewer_HEADER_FILES
     llfloaterobjectweights.h
     llfloateropenobject.h
     llfloateroutbox.h
-    llfloaterpathfindingbasic.h
     llfloaterpathfindingcharacters.h
     llfloaterpathfindingconsole.h
     llfloaterpathfindinglinksets.h
@@ -950,6 +949,7 @@ set(viewer_HEADER_FILES
     llpanelmediasettingspermissions.h
     llpanelmediasettingssecurity.h
     llpanelme.h
+    llpanelnavmeshrebake.h
     llpanelnearbymedia.h
     llpanelobject.h
     llpanelobjectinventory.h

@@ -186,6 +186,7 @@
 #include "llappearancemgr.h"
 #include "llavatariconctrl.h"
 #include "llvoicechannel.h"
+#include "llpathfindingmanager.h"
 
 #include "lllogin.h"
 #include "llevents.h"
@@ -1967,6 +1968,9 @@ bool idle_startup()
 				LLNotificationsUtil::add(msg);
 			}
 		}
+
+		llassert(LLPathfindingManager::getInstance() != NULL);
+		LLPathfindingManager::getInstance()->initSystem();
 
 		display_startup();
         //DEV-17797.  get null folder.  Any items found here moved to Lost and Found

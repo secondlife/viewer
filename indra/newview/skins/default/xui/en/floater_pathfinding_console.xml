@@ -9,7 +9,7 @@
     reuse_instance="true"
     save_rect="true"
     single_instance="true"
-    title="Pathfinding edit / test"
+    title="Pathfinding debug"
     width="456">
   <floater.string name="navmesh_viewer_status_unknown"></floater.string>
   <floater.string name="navmesh_viewer_status_library_not_implemented">Cannot find pathing library implementation.</floater.string>
@@ -21,7 +21,6 @@
   <floater.string name="navmesh_viewer_status_has_navmesh">Latest navmesh has been downloaded.</floater.string>
   <floater.string name="navmesh_viewer_status_error">Unable to download navmesh successfully.</floater.string>
   <floater.string name="navmesh_simulator_status_unknown"></floater.string>
-  <floater.string name="navmesh_simulator_status_region_not_enabled">This region does not expose the navmesh status.</floater.string>
   <floater.string name="navmesh_simulator_status_pending">Navmesh has pending changes.</floater.string>
   <floater.string name="navmesh_simulator_status_building">Navmesh is building.</floater.string>
   <floater.string name="navmesh_simulator_status_some_pending">Some navmesh regions have pending changes.</floater.string>
@@ -238,96 +237,9 @@
         bevel_style="none"
         follows="left|top"
         layout="topleft"
-        name="edit_panel"
-        left="1"
-        label="Edit">
-      <text
-          word_wrap="true"
-          use_ellipses="false"
-          type="string"
-          text_color="LabelTextColor"
-          text_readonly_color="LabelDisabledColor"
-          length="1"
-          follows="left|top"
-          layout="topleft"
-          name="unfreeze_label"
-          left="16"
-          top_pad="16"
-          height="13"
-          width="190">
-        Allow object / terrain changes:
-      </text>
-      <button
-          follows="left|top"
-          height="22"
-          left="16"
-          enabled="false"
-          label="Unfreeze"
-          layout="topleft"
-          name="enter_unfrozen_mode"
-          top_pad="5"
-          width="116"/>
-      <text
-          word_wrap="true"
-          use_ellipses="false"
-          type="string"
-          text_color="LabelTextColor"
-          text_readonly_color="LabelDisabledColor"
-          length="1"
-          follows="left|top"
-          layout="topleft"
-          left="16"
-          name="edit_linksets_label"
-          top_pad="23"
-          height="13"
-          width="190">
-        Edit linkset attributes:
-      </text>
-      <button
-          follows="left|top"
-          height="22"
-          left="16"
-          label="Linksets..."
-          layout="topleft"
-          name="view_and_edit_linksets"
-          top_pad="5"
-          width="116"/>
-      <text
-          word_wrap="true"
-          use_ellipses="false"
-          type="string"
-          text_color="LabelTextColor"
-          text_readonly_color="LabelDisabledColor"
-          length="1"
-          follows="left|top"
-          layout="topleft"
-          left="16"
-          line_spacing.multiple="1.5"
-          name="freeze_label"
-          top_pad="23"
-          height="32"
-          width="190">
-        Prevent object / terrain changes and update the navmesh:
-      </text>
-      <button
-          follows="left|top"
-          height="22"
-          left="16"
-          enabled="false"
-          label="Freeze"
-          layout="topleft"
-          name="enter_frozen_mode"
-          top_pad="3"
-          width="116"/>
-    </panel>
-    <panel
-        border="false"
-        bevel_style="none"
-        follows="left|top"
-        layout="topleft"
         left="1"
         name="test_panel"
-        label="Test">
+        label="Test path">
       <text
           height="14"
           word_wrap="true"
