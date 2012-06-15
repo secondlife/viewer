@@ -268,9 +268,11 @@ then
     else
       upload_item installer "$package" binary/octet-stream
       upload_item quicklink "$package" binary/octet-stream
-	  gzip $build_dir/newview/secondlife-bin-$arch.MAP
+	  mapfilepath=$build_dir/newview
+	  gzip $mapfilepath/secondlife-bin.MAP
 	  mapfile=secondlife-bin-$arch.MAP.gz
-	  upload_item mapfile "$build_dir/newview/$mapfile" binary/octet-stream
+	  mv $mapfilepath/secondlife-bin.MAP.gz $mapfilepath/$mapfile
+	  upload_item mapfile "$mapfilepath/$mapfile" binary/octet-stream
 	  echo "Uploaded mapfile"
       [ -f summary.json ] && upload_item installer summary.json text/plain
 

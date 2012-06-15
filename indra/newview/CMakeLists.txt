@@ -1550,7 +1550,7 @@ if (WINDOWS)
         #LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS /INCLUDE:\"__tcmalloc\""
         LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS /INCLUDE:__tcmalloc "
         LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\" /INCREMENTAL:NO"
-        LINK_FLAGS_RELEASE "/FORCE:MULTIPLE /MAP:secondlife-bin-win32.MAP /OPT:REF"
+        LINK_FLAGS_RELEASE "/FORCE:MULTIPLE /MAP:secondlife-bin.MAP /OPT:REF"
         )
     if(USE_PRECOMPILED_HEADERS)
         set_target_properties(
@@ -1759,7 +1759,7 @@ else (WINDOWS)
 	# Linux and Darwin
     set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
-        LINK_FLAGS_RELEASE "${LINK_FLAGS_RELEASE} -Wl,--Map=${VIEWER_BINARY_NAME}-${ARCH}.MAP"
+        LINK_FLAGS_RELEASE "${LINK_FLAGS_RELEASE} -Wl,--Map=${VIEWER_BINARY_NAME}.MAP"
         )
 endif (WINDOWS)
 
