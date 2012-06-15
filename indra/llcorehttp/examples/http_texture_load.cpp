@@ -267,7 +267,7 @@ bool WorkingSet::reload(LLCore::HttpRequest * hr)
 #if	defined(WIN32)
 		_snprintf_s(buffer, sizeof(buffer), sizeof(buffer) - 1, mUrl.c_str(), mTextures[mAt].mUuid.c_str());
 #else
-		snprintf(buffer, sizeof(buffer), mUrl.c_str(), mUuids[mAt].c_str());
+		snprintf(buffer, sizeof(buffer), mUrl.c_str(), mTextures[mAt].mUuid.c_str());
 #endif
 		int offset(mRandomRange ? ((unsigned long) rand()) % 1000000UL : mTextures[mAt].mOffset);
 		int length(mRandomRange ? ((unsigned long) rand()) % 1000000UL : mTextures[mAt].mLength);
