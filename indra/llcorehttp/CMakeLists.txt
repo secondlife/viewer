@@ -134,5 +134,33 @@ if (LL_TESTS)
                           "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llcorehttp_peer.py"
                           )
 
+  #
+  # Example Programs
+  #
+  SET(llcorehttp_EXAMPLE_SOURCE_FILES
+      examples/http_texture_load.cpp
+      )
+
+  set(example_libs
+      ${LLCOREHTTP_LIBRARIES}
+      ${WINDOWS_LIBRARIES}
+      ${LLMESSAGE_LIBRARIES}
+      ${LLCOMMON_LIBRARIES}
+      ${GOOGLEMOCK_LIBRARIES}
+      ${CURL_LIBRARIES}
+      ${CARES_LIBRARIES}
+      ${OPENSSL_LIBRARIES}
+      ${CRYPTO_LIBRARIES}
+      ${BOOST_THREAD_LIBRARY}
+      )
+
+  add_executable(http_texture_load
+                 ${llcorehttp_EXAMPLE_SOURCE_FILES}
+                 )
+  set_target_properties(http_texture_load
+                        PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${EXE_STAGING_DIR}")
+
+  target_link_libraries(http_texture_load ${example_libs})
+
 endif (LL_TESTS)
 
