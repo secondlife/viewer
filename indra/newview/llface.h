@@ -79,6 +79,7 @@ public:
 		USE_FACE_COLOR	= 0x0010,
 		TEXTURE_ANIM	= 0x0020, 
 		RIGGED			= 0x0040,
+		PARTICLE		= 0x0080,
 	};
 
 	static void initClass();

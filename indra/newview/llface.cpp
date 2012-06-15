@@ -202,13 +202,10 @@ void LLFace::destroy()
 		mTexture->removeFace(this) ;
 	}
 	
-	if (mDrawablep.notNull() &&
-		(mDrawablep->getRenderType() == LLPipeline::RENDER_TYPE_PARTICLES ||
-		mDrawablep->getRenderType() == LLPipeline::RENDER_TYPE_HUD_PARTICLES) &&
-		mIndicesIndex != 0xFFFFFFFF)
+	if (isState(LLFace::PARTICLE))
 	{
 		LLVOPartGroup::freeVBSlot(getGeomIndex()/4);
-		mIndicesIndex = 0xFFFFFFFF;
+		clearState(LLFace::PARTICLE);
 	}
 
 	if (mDrawPoolp)
