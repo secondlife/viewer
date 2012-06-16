@@ -592,7 +592,7 @@ public:
 	~MetricsImpl()
 		{}
 
-	void MetricsImpl::init(Metrics * metrics)
+	void init(Metrics * metrics)
 		{
 			HANDLE self(GetCurrentProcess());		// Does not have to be closed
 			FILETIME ft_dummy, ft_system, ft_user;
@@ -607,7 +607,7 @@ public:
 			metrics->mStartWallTime = totalTime();
 		}
 
-	void MetricsImpl::sample(Metrics * metrics)
+	void sample(Metrics * metrics)
 		{
 			PROCESS_MEMORY_COUNTERS_EX	counters;
 
@@ -622,7 +622,7 @@ public:
 			metrics->mMinVSZ = (std::min)(metrics->mMinVSZ, U64(vsz));
 		}
 
-	void MetricsImpl::term(Metrics * metrics)
+	void term(Metrics * metrics)
 		{
 			HANDLE self(GetCurrentProcess());		// Does not have to be closed
 			FILETIME ft_dummy, ft_system, ft_user;
@@ -652,13 +652,13 @@ public:
 	~MetricsImpl()
 		{}
 
-	void MetricsImpl::init(Metrics *)
+	void init(Metrics *)
 		{}
 
-	void MetricsImpl::sample(Metrics *)
+	void sample(Metrics *)
 		{}
 
-	void MetricsImpl::term(Metrics *)
+	void term(Metrics *)
 		{}
 };
 
@@ -668,23 +668,158 @@ class Metrics::MetricsImpl
 {
 public:
 	MetricsImpl()
+		: mProcFS(NULL),
+		  mUsecsPerTick(U64L(0))
 		{}
 
 	
 	~MetricsImpl()
-		{}
+		{
+			if (mProcFS)
+			{
+				fclose(mProcFS);
+				mProcFS = NULL;
+			}
+		}
 
-	void MetricsImpl::init(Metrics *)
-		{}
+	void init(Metrics * metrics)
+		{
+			if (! mProcFS)
+			{
+				mProcFS = fopen("/proc/self/stat", "r");
+				if (! mProcFS)
+				{
+					const int errnum(errno);
+					LL_ERRS("Main") << "Error opening proc fs:  " << strerror(errnum) << LL_ENDL;
+				}
+			}
+
+			long ticks_per_sec(sysconf(_SC_CLK_TCK));
+			mUsecsPerTick = U64L(1000000) / ticks_per_sec;
+			U64 usecs_per_sec(mUsecsPerTick * ticks_per_sec);
+			if (900000 > usecs_per_sec || 1100000 < usecs_per_sec)
+			{
+				LL_ERRS("Main") << "Resolution problems using uSecs for ticks" << LL_ENDL;
+			}
+
+			U64 utime, stime;
+			if (scanProcFS(&utime, &stime, NULL))
+			{
+				metrics->mStartSTime = stime;
+				metrics->mStartUTime = utime;
+			}
+			metrics->mStartWallTime = totalTime();
+
+			sample(metrics);
+		}
 
 
-	void MetricsImpl::sample(Metrics *)
-		{}
+	void sample(Metrics * metrics)
+		{
+			U64 vsz;
+			if (scanProcFS(NULL, NULL, &vsz))
+			{
+				metrics->mMaxVSZ = (std::max)(metrics->mMaxVSZ, vsz);
+				metrics->mMinVSZ = (std::min)(metrics->mMinVSZ, vsz);
+			}
+		}
 
 
-	void MetricsImpl::term(Metrics *)
-		{}
+	void term(Metrics * metrics)
+		{
+			U64 utime, stime;
+			if (scanProcFS(&utime, &stime, NULL))
+			{
+				metrics->mEndSTime = stime;
+				metrics->mEndUTime = utime;
+			}
+			metrics->mEndWallTime = totalTime();
+
+			sample(metrics);
+			
+			if (mProcFS)
+			{
+				fclose(mProcFS);
+				mProcFS = NULL;
+			}
+		}
+	
+protected:
+	bool scanProcFS(U64 * utime, U64 * stime, U64 * vsz)
+		{
+			if (mProcFS)
+			{
+				int i_dummy;
+				unsigned int ui_dummy;
+				unsigned long ul_dummy, user_ticks, sys_ticks, vsize;
+				long l_dummy, rss;
+				unsigned long long ull_dummy;
+				char c_dummy;
+				
+				char buffer[256];
+				
+				static const char * format("%d %*s %c %d %d %d %d %d %u %lu %lu %lu %lu %lu %lu %ld %ld %ld %ld %ld %ld %llu %lu %ld");
+
+				fseek(mProcFS, 0L, SEEK_SET);
+				size_t len = fread(buffer, 1, sizeof(buffer) - 1, mProcFS);
+				if (! len)
+				{
+					return false;
+				}
+				buffer[len] = '\0';
+				if (23 == sscanf(buffer, format,
+								 &i_dummy,				// pid
+								 // &s_dummy,			// command name
+								 &c_dummy,				// state
+								 &i_dummy,				// ppid
+								 &i_dummy,				// pgrp
+								 &i_dummy,				// session
+								 &i_dummy,				// terminal
+								 &i_dummy,				// terminal group id
+								 &ui_dummy,				// flags
+								 &ul_dummy,				// minor faults
+								 &ul_dummy,				// minor faults in children
+								 &ul_dummy,				// major faults
+								 &ul_dummy,				// major faults in children
+								 &user_ticks,
+								 &sys_ticks,
+								 &l_dummy,				// cutime
+								 &l_dummy,				// cstime
+								 &l_dummy,				// process priority
+								 &l_dummy,				// nice value
+								 &l_dummy,				// thread count
+								 &l_dummy,				// time to SIGALRM
+								 &ull_dummy,			// start time
+								 &vsize,
+								 &rss))
+				{
+					// Looks like we understand the line
+					if (utime)
+					{
+						*utime = user_ticks * mUsecsPerTick;
+					}
+
+					if (stime)
+					{
+						*stime = sys_ticks * mUsecsPerTick;
+					}
+					
+					if (vsz)
+					{
+						*vsz = vsize;
+					}
+					return true;
+				}
+			}
+			return false;
+		}
+	
+protected:
+	FILE *		mProcFS;
+	U64			mUsecsPerTick;
+	
 };
+
 
 #endif  // defined(WIN32)
 
