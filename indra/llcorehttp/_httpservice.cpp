@@ -40,7 +40,7 @@
 
 
 // Tuning parameters
-static const int LOOP_SLEEP_NORMAL_MS = 10;		// Normal per-loop sleep in milliseconds
+static const int LOOP_SLEEP_NORMAL_MS = 2;		// Normal per-loop sleep in milliseconds
 
 
 namespace LLCore

@@ -74,7 +74,7 @@ private:
 
 public:
 	// Internal magic number, may be used by unit tests.
-	static const size_t BLOCK_ALLOC_SIZE = 1504;
+	static const size_t BLOCK_ALLOC_SIZE = 65540;
 	
 	/// Appends the indicated data to the BufferArray
 	/// modifying current position and total size.  New

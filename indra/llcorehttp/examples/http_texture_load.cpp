@@ -33,6 +33,8 @@
 #include <pthread.h>
 #endif
 
+#include "linden_common.h"
+
 #include "httpcommon.h"
 #include "httprequest.h"
 #include "httphandler.h"
@@ -42,6 +44,8 @@
 
 #include <curl/curl.h>
 #include <openssl/crypto.h>
+
+#include "lltimer.h"
 
 
 void init_curl();
@@ -65,6 +69,9 @@ int optind(1);
 
 #endif
 
+
+// Mostly just a container for the texture IDs and fetch
+// parameters....
 class WorkingSet : public LLCore::HttpHandler
 {
 public:
@@ -98,8 +105,43 @@ public:
 	texture_list_t				mTextures;
 	int							mErrorsApi;
 	int							mErrorsHttp;
+	int							mErrorsHttp404;
+	int							mErrorsHttp416;
+	int							mErrorsHttp500;
+	int							mErrorsHttp503;
 	int							mSuccesses;
 	long						mByteCount;
+};
+
+
+// Gather process information while we run.  Process
+// size, cpu consumed, wallclock time.
+
+class Metrics
+{
+public:
+	class MetricsImpl;
+	
+public:
+	Metrics();
+	~Metrics();
+
+	void init();
+	void sample();
+	void term();
+
+protected:
+	MetricsImpl *		mImpl;
+
+public:
+	U64					mMaxVSZ;
+	U64					mMinVSZ;
+	U64					mStartWallTime;
+	U64					mEndWallTime;
+	U64					mStartUTime;
+	U64					mEndUTime;
+	U64					mStartSTime;
+	U64					mEndSTime;
 };
 
 
@@ -191,22 +233,38 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	// Setup metrics
+	Metrics metrics;
+	metrics.init();
+	
 	// Run it
+	int passes(0);
 	while (! ws.reload(hr))
 	{
-		hr->update(1000);
-#if defined(WIN32)
-		Sleep(5);
-#else
-		usleep(5000);
-#endif
+		hr->update(5000);
+		ms_sleep(2);
+		if (0 == (++passes % 200))
+		{
+			metrics.sample();
+		}
 	}
+	metrics.sample();
+	metrics.term();
 
 	// Report
 	std::cout << "HTTP errors: " << ws.mErrorsHttp << "  API errors:  " << ws.mErrorsApi
 			  << "  Successes:  " << ws.mSuccesses << "  Byte count:  " << ws.mByteCount
 			  << std::endl;
-	
+	std::cout << "HTTP 404 errors: " << ws.mErrorsHttp404 << "  HTTP 416 errors: " << ws.mErrorsHttp416
+			  << "  HTTP 500 errors:  " << ws.mErrorsHttp500 << "  HTTP 503 errors: " << ws.mErrorsHttp503 
+			  << std::endl;
+	std::cout << "User CPU: " << (metrics.mEndUTime - metrics.mStartUTime)
+			  << " uS  System CPU: " << (metrics.mEndSTime - metrics.mStartSTime)
+			  << " uS  Wall Time: "  << (metrics.mEndWallTime - metrics.mStartWallTime)
+			  << " uS  Maximum VSZ: " << metrics.mMaxVSZ
+			  << " Bytes  Minimum VSZ: " << metrics.mMinVSZ << " Bytes"
+			  << std::endl;
+
 	// Clean up
 	delete hr;
 	term_curl();
@@ -250,6 +308,10 @@ WorkingSet::WorkingSet()
 	  mAt(0),
 	  mErrorsApi(0),
 	  mErrorsHttp(0),
+	  mErrorsHttp404(0),
+	  mErrorsHttp416(0),
+	  mErrorsHttp500(0),
+	  mErrorsHttp503(0),
 	  mSuccesses(0),
 	  mByteCount(0L)
 {
@@ -333,7 +395,28 @@ void WorkingSet::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * r
 			// Something in this library or libcurl
 			if (status.isHttpStatus())
 			{
+				static const LLCore::HttpStatus hs404(404);
+				static const LLCore::HttpStatus hs416(416);
+				static const LLCore::HttpStatus hs500(500);
+				static const LLCore::HttpStatus hs503(503);
+				
 				++mErrorsHttp;
+				if (hs404 == status)
+				{
+					++mErrorsHttp404;
+				}
+				else if (hs416 == status)
+				{
+					++mErrorsHttp416;
+				}
+				else if (hs500 == status)
+				{
+					++mErrorsHttp500;
+				}
+				else if (hs503 == status)
+				{
+					++mErrorsHttp503;
+				}
 			}
 			else
 			{
@@ -492,3 +575,155 @@ int getopt(int argc, char * const argv[], const char *optstring)
 
 #endif
 
+
+
+#if defined(WIN32)
+
+#define	PSAPI_VERSION	1
+#include "windows.h"
+#include "psapi.h"
+
+class Metrics::MetricsImpl
+{
+public:
+	MetricsImpl()
+		{}
+
+	~MetricsImpl()
+		{}
+
+	void MetricsImpl::init(Metrics * metrics)
+		{
+			HANDLE self(GetCurrentProcess());		// Does not have to be closed
+			FILETIME ft_dummy, ft_system, ft_user;
+			GetProcessTimes(self, &ft_dummy, &ft_dummy, &ft_system, &ft_user);
+			ULARGE_INTEGER uli;
+			uli.u.LowPart = ft_system.dwLowDateTime;
+			uli.u.HighPart = ft_system.dwHighDateTime;
+			metrics->mStartSTime = uli.QuadPart / U64L(10);		// Convert to uS
+			uli.u.LowPart = ft_user.dwLowDateTime;
+			uli.u.HighPart = ft_user.dwHighDateTime;
+			metrics->mStartUTime = uli.QuadPart / U64L(10);
+			metrics->mStartWallTime = totalTime();
+		}
+
+	void MetricsImpl::sample(Metrics * metrics)
+		{
+			PROCESS_MEMORY_COUNTERS_EX	counters;
+
+			GetProcessMemoryInfo(GetCurrentProcess(),
+								 (PROCESS_MEMORY_COUNTERS *) &counters,
+								 sizeof(counters));
+			// Okay, PrivateUsage isn't truly VSZ but it will be
+			// a good tracker for leaks and fragmentation.  Work on
+			// a better estimator later...
+			SIZE_T vsz(counters.PrivateUsage);
+			metrics->mMaxVSZ = (std::max)(metrics->mMaxVSZ, U64(vsz));
+			metrics->mMinVSZ = (std::min)(metrics->mMinVSZ, U64(vsz));
+		}
+
+	void MetricsImpl::term(Metrics * metrics)
+		{
+			HANDLE self(GetCurrentProcess());		// Does not have to be closed
+			FILETIME ft_dummy, ft_system, ft_user;
+			GetProcessTimes(self, &ft_dummy, &ft_dummy, &ft_system, &ft_user);
+			ULARGE_INTEGER uli;
+			uli.u.LowPart = ft_system.dwLowDateTime;
+			uli.u.HighPart = ft_system.dwHighDateTime;
+			metrics->mEndSTime = uli.QuadPart / U64L(10);
+			uli.u.LowPart = ft_user.dwLowDateTime;
+			uli.u.HighPart = ft_user.dwHighDateTime;
+			metrics->mEndUTime = uli.QuadPart / U64L(10);
+			metrics->mEndWallTime = totalTime();
+		}
+
+protected:
+};
+
+#elif defined(DARWIN)
+
+	
+class Metrics::MetricsImpl
+{
+public:
+	MetricsImpl()
+		{}
+
+	~MetricsImpl()
+		{}
+
+	void MetricsImpl::init(Metrics *)
+		{}
+
+	void MetricsImpl::sample(Metrics *)
+		{}
+
+	void MetricsImpl::term(Metrics *)
+		{}
+};
+
+#else
+
+class Metrics::MetricsImpl
+{
+public:
+	MetricsImpl()
+		{}
+
+	
+	~MetricsImpl()
+		{}
+
+	void MetricsImpl::init(Metrics *)
+		{}
+
+
+	void MetricsImpl::sample(Metrics *)
+		{}
+
+
+	void MetricsImpl::term(Metrics *)
+		{}
+};
+
+#endif  // defined(WIN32)
+
+Metrics::Metrics()
+	: mMaxVSZ(U64(0)),
+	  mMinVSZ(U64L(0xffffffffffffffff)),
+	  mStartWallTime(U64(0)),
+	  mEndWallTime(U64(0)),
+	  mStartUTime(U64(0)),
+	  mEndUTime(U64(0)),
+	  mStartSTime(U64(0)),
+	  mEndSTime(U64(0))
+{
+	mImpl = new MetricsImpl();
+}
+
+
+Metrics::~Metrics()
+{
+	delete mImpl;
+	mImpl = NULL;
+}
+
+
+void Metrics::init()
+{
+	mImpl->init(this);
+}
+
+
+void Metrics::sample()
+{
+	mImpl->sample(this);
+}
+
+
+void Metrics::term()
+{
+	mImpl->term(this);
+}
+
+	
