@@ -378,9 +378,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>cefa829b9eca8f22ecd595921e189c11</string>
+              <string>06a6c49eb1873e95623d3d2d07aee903</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz_3p-dictionaries/rev/256063/arch/Darwin/installer/dictionaries-1-darwin-20120508.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-dictionaries/rev/259873/arch/Darwin/installer/dictionaries-1-darwin-20120616.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -390,9 +390,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>dbc8fd886fb639ddbd6614c00654e7b1</string>
+              <string>4f0ca21d27e0cd0b002149062b0a4b25</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz_3p-dictionaries/rev/256063/arch/Linux/installer/dictionaries-1-linux-20120508.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-dictionaries/rev/259873/arch/Linux/installer/dictionaries-1-linux-20120616.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -402,9 +402,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>983fd8afd02b975f85603545983713ed</string>
+              <string>7520d75f6af325328322201c888191d4</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz_3p-dictionaries/rev/256063/arch/CYGWIN/installer/dictionaries-1-windows-20120508.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-dictionaries/rev/259873/arch/CYGWIN/installer/dictionaries-1-windows-20120616.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1062,9 +1062,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a3f0bea9e014773353e2c32223aae054</string>
+              <string>6f5db0ef258df6e5c93c843ec559db6d</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz_3p-hunspell/rev/255153/arch/Darwin/installer/libhunspell-1.3.2-darwin-20120430.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-hunspell/rev/259874/arch/Darwin/installer/libhunspell-1.3.2-darwin-20120616.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1074,9 +1074,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>add23aa863505b1fc168d660ffc4be62</string>
+              <string>0c432d2626aea2e91a56335879c92965</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz_3p-hunspell/rev/255153/arch/Linux/installer/libhunspell-1.3.2-linux-20120430.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-hunspell/rev/259874/arch/Linux/installer/libhunspell-1.3.2-linux-20120616.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1086,9 +1086,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>82df72ddf653392e7a65c96c0e0c6b5d</string>
+              <string>6a140e5620826aa5e587b4157f57b389</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz_3p-hunspell/rev/255153/arch/CYGWIN/installer/libhunspell-1.3.2-windows-20120430.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-hunspell/rev/259874/arch/CYGWIN/installer/libhunspell-1.3.2-windows-20120616.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
