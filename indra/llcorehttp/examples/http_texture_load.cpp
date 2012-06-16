@@ -577,7 +577,7 @@ int getopt(int argc, char * const argv[], const char *optstring)
 
 
 
-#if defined(WIN32)
+#if LL_WINDOWS
 
 #define	PSAPI_VERSION	1
 #include "windows.h"
@@ -640,8 +640,10 @@ public:
 protected:
 };
 
-#elif defined(DARWIN)
+#elif LL_DARWIN
 
+#include <sys/resource.h>
+#include <mach/mach.h>
 	
 class Metrics::MetricsImpl
 {
@@ -652,14 +654,72 @@ public:
 	~MetricsImpl()
 		{}
 
-	void init(Metrics *)
-		{}
+	void init(Metrics * metrics)
+		{
+			U64 utime, stime;
 
-	void sample(Metrics *)
-		{}
+			if (getTimes(&utime, &stime))
+			{
+				metrics->mStartSTime = stime;
+				metrics->mStartUTime = utime;
+			}
+			metrics->mStartWallTime = totalTime();
+			sample(metrics);
+		}
 
-	void term(Metrics *)
-		{}
+	void sample(Metrics * metrics)
+		{
+			U64 vsz;
+			
+			if (getVM(&vsz))
+			{
+				metrics->mMaxVSZ = (std::max)(metrics->mMaxVSZ, vsz);
+				metrics->mMinVSZ = (std::min)(metrics->mMinVSZ, vsz);
+			}
+		}
+
+	void term(Metrics * metrics)
+		{
+			U64 utime, stime;
+
+			if (getTimes(&utime, &stime))
+			{
+				metrics->mEndSTime = stime;
+				metrics->mEndUTime = utime;
+			}
+			metrics->mEndWallTime = totalTime();
+		}
+
+protected:
+	bool getVM(U64 * vsz)
+		{
+			task_basic_info				task_info_block;
+			mach_msg_type_number_t		task_info_count(TASK_BASIC_INFO_COUNT);
+
+			if (KERN_SUCCESS != task_info(mach_task_self(),
+										  TASK_BASIC_INFO,
+										  (task_info_t) &task_info_block,
+										  &task_info_count))
+			{
+				return false;
+			}
+			* vsz = task_info_block.virtual_size;
+			return true;
+		}
+
+	bool getTimes(U64 * utime, U64 * stime)
+		{
+			struct rusage usage;
+
+			if (getrusage(RUSAGE_SELF, &usage))
+			{
+				return false;
+			}
+			* utime = U64(usage.ru_utime.tv_sec) * U64L(1000000) + usage.ru_utime.tv_usec;
+			* stime = U64(usage.ru_stime.tv_sec) * U64L(1000000) + usage.ru_stime.tv_usec;
+			return true;
+		}
+	
 };
 
 #else
@@ -821,7 +881,7 @@ protected:
 };
 
 
-#endif  // defined(WIN32)
+#endif  // LL_WINDOWS
 
 Metrics::Metrics()
 	: mMaxVSZ(U64(0)),
