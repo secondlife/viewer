@@ -489,7 +489,10 @@ BOOL LLIMFloater::tick()
 {
 	// This check is needed until LLFloaterReg::removeInstance() is synchronized with deleting the floater
 	// via LLMortician::updateClass(), to avoid calling dead instances. See LLFloater::destroy().
-	if (isDead()) return false;
+	if (isDead())
+	{
+		return false;
+	}
 
 	BOOL parents_retcode = LLIMConversation::tick();
 

@@ -35,7 +35,6 @@
 #include "llimfloatercontainer.h" // to replace separate IM Floaters with multifloater container
 #include "lllayoutstack.h"
 #include "llnearbychat.h"
-#include "llnearbychat.h"
 
 const F32 REFRESH_INTERVAL = 0.2f;
 
@@ -83,13 +82,6 @@ BOOL LLIMConversation::postBuild()
 	mExpandCollapseBtn->setClickedCallback(boost::bind(&LLIMConversation::onSlide, this));
 
 	mParticipantListPanel = getChild<LLLayoutPanel>("speakers_list_panel");
-
-	// Show the participants list in torn off floaters only.
-//	mParticipantListPanel->setVisible(gSavedSettings.getBOOL("IMShowControlPanel")
-//									  && !mIsNearbyChat); // *TODO: temporarily disabled for Nearby chat
-//	mExpandCollapseBtn->setImageOverlay(
-//				getString(mParticipantListPanel->getVisible() ? "collapse_icon" : "expand_icon"));
-//	mExpandCollapseBtn->setEnabled(!mIsP2PChat);
 
 	mTearOffBtn = getChild<LLButton>("tear_off_btn");
 	mTearOffBtn->setCommitCallback(boost::bind(&LLIMConversation::onTearOffClicked, this));
@@ -144,9 +136,11 @@ void LLIMConversation::buildParticipantList()
 
 void LLIMConversation::onSortMenuItemClicked(const LLSD& userdata)
 {
-	// TODO: Check this code when when sort order menu will be added. (EM)
-	if (true || !mParticipantList)
+	// TODO: Check this code when sort order menu will be added. (EM)
+	if (!mParticipantList)
+	{
 		return;
+	}
 
 	std::string chosen_item = userdata.asString();
 

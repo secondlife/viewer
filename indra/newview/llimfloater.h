@@ -70,9 +70,6 @@ public:
 	static LLIMFloater* getInstance(const LLUUID& session_id);
 	static void addToHost(const LLUUID& session_id);
 
-	static void* createPanelGroupControl(void* userdata);
-	static void* createPanelAdHocControl(void* userdata);
-
 	// LLFloater overrides
 	/*virtual*/ void onClose(bool app_quitting);
 	/*virtual*/ void setDocked(bool docked, bool pop_on_undock = true);
