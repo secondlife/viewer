@@ -44,6 +44,8 @@
 
 #include "llmutelist.h"
 
+#include "pipeline.h"
+
 #include <boost/tokenizer.hpp>
 
 #include "lldispatcher.h"
@@ -192,6 +194,23 @@ BOOL LLMuteList::isLinden(const std::string& name) const
 	return last_name == "Linden";
 }
 
+static LLVOAvatar* find_avatar(const LLUUID& id)
+{
+	LLViewerObject *obj = gObjectList.findObject(id);
+	while (obj && obj->isAttachment())
+	{
+		obj = (LLViewerObject *)obj->getParent();
+	}
+
+	if (obj && obj->isAvatar())
+	{
+		return (LLVOAvatar*)obj;
+	}
+	else
+	{
+		return NULL;
+	}
+}
 
 BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 {
@@ -287,6 +306,12 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 					{
 						LLViewerPartSim::getInstance()->clearParticlesByOwnerID(localmute.mID);
 					}
+				}
+				//mute local lights that are attached to the avatar
+				LLVOAvatar *avatarp = find_avatar(localmute.mID);
+				if (avatarp)
+				{
+					LLPipeline::removeMutedAVsLights(avatarp);
 				}
 				return TRUE;
 			}
