@@ -76,7 +76,7 @@ static std::string title_string4("  W x H (Dis) Mem");
 static S32 title_x1 = 0;
 static S32 title_x2 = 460;
 static S32 title_x3 = title_x2 + 40;
-static S32 title_x4 = title_x3 + 50;
+static S32 title_x4 = title_x3 + 46;
 static S32 texture_bar_height = 8;
 
 ////////////////////////////////////////////////////////////////////////////
@@ -349,7 +349,7 @@ void LLTextureBar::draw()
 		
 		// draw the image size at the end
 		{
-			std::string num_str = llformat("%3dx%3d (%d) %7d", mImagep->getWidth(), mImagep->getHeight(),
+			std::string num_str = llformat("%3dx%3d (%2d) %7d", mImagep->getWidth(), mImagep->getHeight(),
 				mImagep->getDiscardLevel(), mImagep->hasGLTexture() ? mImagep->getTextureMemory() : 0);
 			LLFontGL::getFontMonospace()->renderUTF8(num_str, 0, title_x4, getRect().getHeight(), color,
 											LLFontGL::LEFT, LLFontGL::TOP);
@@ -523,21 +523,41 @@ void LLGLTexMemBar::draw()
 	LLGLSUIDefault gls_ui;
 	LLColor4 text_color(1.f, 1.f, 1.f, 0.75f);
 	LLColor4 color;
-	
-	std::string text = "";
 
+	// Gray background using completely magic numbers
+	gGL.color4f(0.f, 0.f, 0.f, 0.25f);
+	const LLRect & rect(getRect());
+	gl_rect_2d(-4, v_offset, rect.mRight - rect.mLeft + 2, v_offset + line_height*4);
+
+	std::string text = "";
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*6,
 											 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
-	text = llformat("GL Tot: %d/%d MB Bound: %d/%d MB FBO: %d MB Raw Tot: %d MB Bias: %.2f Cache: %.1f/%.1f MB Net Tot Tex: %.1f MB Tot Obj: %.1f MB Tot Htp: %d",
+	text = llformat("GL Tot: %d/%d MB Bound: %d/%d MB FBO: %d MB Raw Tot: %d MB Bias: %.2f Cache: %.1f/%.1f MB",
 					total_mem,
 					max_total_mem,
 					bound_mem,
 					max_bound_mem,
 					LLRenderTarget::sBytesAllocated/(1024*1024),
-					LLImageRaw::sGlobalRawMemory >> 20,	discard_bias,
-					cache_usage, cache_max_usage, total_texture_downloaded, total_object_downloaded, total_http_requests);
+					LLImageRaw::sGlobalRawMemory >> 20,
+					discard_bias,
+					cache_usage,
+					cache_max_usage);
 	//, cache_entries, cache_max_entries
+
+	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*4,
+											 text_color, LLFontGL::LEFT, LLFontGL::TOP);
+
+	U32 cache_read(0U), cache_write(0U), res_wait(0U);
+	LLAppViewer::getTextureFetch()->getStateStats(&cache_read, &cache_write, &res_wait);
+	
+	text = llformat("Net Tot Tex: %.1f MB Tot Obj: %.1f MB Tot Htp: %d Cread: %u Cwrite: %u Rwait: %u",
+					total_texture_downloaded,
+					total_object_downloaded,
+					total_http_requests,
+					cache_read,
+					cache_write,
+					res_wait);
 
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*3,
 											 text_color, LLFontGL::LEFT, LLFontGL::TOP);

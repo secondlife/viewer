@@ -186,6 +186,17 @@ public:
     // Threads:  T*
 	int getHttpWaitersCount();
 	// ----------------------------------
+	// Stats management
+
+	// Add given counts to the global totals for the states/requests
+	// Threads:  T*
+	void updateStateStats(U32 cache_read, U32 cache_write, U32 res_wait);
+
+	// Return the global counts
+	// Threads:  T*
+	void getStateStats(U32 * cache_read, U32 * cache_write, U32 * res_wait);
+
+	// ----------------------------------
 	
 protected:
 	// Threads:  T* (but Ttf in practice)
@@ -323,6 +334,12 @@ private:
 	
 	typedef std::set<LLUUID> wait_http_res_queue_t;
 	wait_http_res_queue_t		mHttpWaitResource;						// Mfnq
+
+	// Cumulative stats on the states/requests issued by
+	// textures running through here.
+	U32 mTotalCacheReadCount;											// Mfq
+	U32 mTotalCacheWriteCount;											// Mfq
+	U32 mTotalResourceWaitCount;										// Mfq
 	
 public:
 	// A probabilistically-correct indicator that the current

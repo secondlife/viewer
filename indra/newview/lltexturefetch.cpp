@@ -550,6 +550,11 @@ private:
 	unsigned int			mHttpReplySize;
 	unsigned int			mHttpReplyOffset;
 	bool					mHttpHasResource;			// Counts against Fetcher's mHttpSemaphore
+
+	// State history
+	U32 mCacheReadCount;
+	U32 mCacheWriteCount;
+	U32 mResourceWaitCount;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -854,7 +859,10 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 	  mHttpActive(false),
 	  mHttpReplySize(0U),
 	  mHttpReplyOffset(0U),
-	  mHttpHasResource(false)
+	  mHttpHasResource(false),
+	  mCacheReadCount(0U),
+	  mCacheWriteCount(0U),
+	  mResourceWaitCount(0U)
 {
 	mCanUseNET = mUrl.empty() ;
 
@@ -905,6 +913,7 @@ LLTextureFetchWorker::~LLTextureFetchWorker()
 	unlockWorkMutex();													// -Mw
 	mFetcher->removeFromHTTPQueue(mID);
 	mFetcher->removeHttpWaiter(mID);
+	mFetcher->updateStateStats(mCacheReadCount, mCacheWriteCount, mResourceWaitCount);
 }
 
 // Locks:  Mw
@@ -1127,6 +1136,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority); // Set priority first since Responder may change it
 
 				// read file from local disk
+				++mCacheReadCount;
 				std::string filename = mUrl.substr(7, std::string::npos);
 				CacheReadResponder* responder = new CacheReadResponder(mFetcher, mID, mFormattedImage);
 				mCacheReadHandle = mFetcher->mTextureCache->readFromCache(filename, mID, cache_priority,
@@ -1136,6 +1146,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			{
 				setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority); // Set priority first since Responder may change it
 
+				++mCacheReadCount;
 				CacheReadResponder* responder = new CacheReadResponder(mFetcher, mID, mFormattedImage);
 				mCacheReadHandle = mFetcher->mTextureCache->readFromCache(mID, cache_priority,
 																		  offset, size, responder);
@@ -1323,6 +1334,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			mState = WAIT_HTTP_RESOURCE2;
 			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
 			mFetcher->addHttpWaiter(this->mID);
+			++mResourceWaitCount;
 			return false;
 		}
 		mState = SEND_HTTP_REQ;
@@ -1646,6 +1658,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		U32 cache_priority = mWorkPriority;
 		mWritten = FALSE;
 		mState = WAIT_ON_WRITE;
+		++mCacheWriteCount;
 		CacheWriteResponder* responder = new CacheWriteResponder(mFetcher, mID);
 		mCacheWriteHandle = mFetcher->mTextureCache->writeToCache(mID, cache_priority,
 																  mFormattedImage->getData(), datasize,
@@ -2168,7 +2181,10 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	  mHttpRequest(NULL),
 	  mHttpOptions(NULL),
 	  mHttpHeaders(NULL),
-	  mHttpSemaphore(HTTP_REQUESTS_IN_QUEUE_HIGH_WATER)
+	  mHttpSemaphore(HTTP_REQUESTS_IN_QUEUE_HIGH_WATER),
+	  mTotalCacheReadCount(0U),
+	  mTotalCacheWriteCount(0U),
+	  mTotalResourceWaitCount(0U)
 {
 	mMaxBandwidth = gSavedSettings.getF32("ThrottleBandwidthKBPS");
 	mTextureInfo.setUpLogging(gSavedSettings.getBOOL("LogTextureDownloadsToViewerLog"), gSavedSettings.getBOOL("LogTextureDownloadsToSimulator"), gSavedSettings.getU32("TextureLoggingThreshold"));
@@ -2661,12 +2677,13 @@ void LLTextureFetch::startThread()
 }
 
 // Threads:  Ttf
-//
-// This detaches the texture fetch thread from the LLCore
-// HTTP library but doesn't stop the thread running in that
-// library...
 void LLTextureFetch::endThread()
 {
+	LL_INFOS("Texture") << "CacheReads:  " << mTotalCacheReadCount
+						<< ", CacheWrites:  " << mTotalCacheWriteCount
+						<< ", ResWaits:  " << mTotalResourceWaitCount
+						<< ", TotalHTTPReq:  " << getTotalNumHTTPRequests()
+						<< LL_ENDL;
 }
 
 // Threads:  Ttf
@@ -3271,6 +3288,34 @@ int LLTextureFetch::getHttpWaitersCount()
 	return ret;
 }
 
+
+// Threads:  T*
+void LLTextureFetch::updateStateStats(U32 cache_read, U32 cache_write, U32 res_wait)
+{
+	LLMutexLock lock(&mQueueMutex);										// +Mfq
+
+	mTotalCacheReadCount += cache_read;
+	mTotalCacheWriteCount += cache_write;
+	mTotalResourceWaitCount += res_wait;
+}																		// -Mfq
+
+
+// Threads:  T*
+void LLTextureFetch::getStateStats(U32 * cache_read, U32 * cache_write, U32 * res_wait)
+{
+	U32 ret1(0U), ret2(0U), ret3(0U);
+	
+	{
+		LLMutexLock lock(&mQueueMutex);									// +Mfq
+		ret1 = mTotalCacheReadCount;
+		ret2 = mTotalCacheWriteCount;
+		ret3 = mTotalResourceWaitCount;
+	}																	// -Mfq
+	
+	*cache_read = ret1;
+	*cache_write = ret2;
+	*res_wait = ret3;
+}
 
 //////////////////////////////////////////////////////////////////////////////
 
