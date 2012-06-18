@@ -285,10 +285,7 @@ LLPathfindingManager::LLPathfindingManager()
 	mShowNavMeshRebake(false),
 	mCrossingSlot()
 {
-	if ( !mCrossingSlot.connected() )
-	{
-		mCrossingSlot = LLEnvManagerNew::getInstance()->setRegionChangeCallback(boost::bind(&LLPathfindingManager::onRegionBoundaryCrossed, this));
-	}
+	
 }
 
 void LLPathfindingManager::onRegionBoundaryCrossed()
@@ -616,6 +613,11 @@ LLPathfindingNavMeshPtr LLPathfindingManager::getNavMeshForRegion(LLViewerRegion
 
 void LLPathfindingManager::requestGetAgentState()
 {
+	if ( !mCrossingSlot.connected() )
+	{
+		mCrossingSlot = LLEnvManagerNew::getInstance()->setRegionChangeCallback(boost::bind(&LLPathfindingManager::onRegionBoundaryCrossed, this));
+	}
+
 	std::string agentStateURL = getAgentStateURLForCurrentRegion( getCurrentRegion() );
 
 	if ( !agentStateURL.empty() )

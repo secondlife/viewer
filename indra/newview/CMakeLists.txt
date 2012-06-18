@@ -1550,7 +1550,7 @@ if (WINDOWS)
         #LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS /INCLUDE:\"__tcmalloc\""
         LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS /INCLUDE:__tcmalloc "
         LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\" /INCREMENTAL:NO"
-        LINK_FLAGS_RELEASE "/FORCE:MULTIPLE"
+        LINK_FLAGS_RELEASE "/FORCE:MULTIPLE /MAP\"secondlife-bin.MAP\" /OPT:REF"
         )
     if(USE_PRECOMPILED_HEADERS)
         set_target_properties(
@@ -1755,6 +1755,17 @@ if (WINDOWS)
         #${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.bz2)
 
     endif (PACKAGE)
+elseif (DARWIN)
+    set_target_properties(${VIEWER_BINARY_NAME}
+        PROPERTIES
+        LINK_FLAGS_RELEASE "${LINK_FLAGS_RELEASE} -Xlinker -dead_strip -Xlinker -map -Xlinker ${CMAKE_CURRENT_BINARY_DIR}/${VIEWER_BINARY_NAME}.MAP"
+        )
+else (WINDOWS)
+        # Linux 
+    set_target_properties(${VIEWER_BINARY_NAME}
+        PROPERTIES
+        LINK_FLAGS_RELEASE "${LINK_FLAGS_RELEASE} -Wl,--Map=${VIEWER_BINARY_NAME}.MAP"
+        )
 endif (WINDOWS)
 
 # *NOTE - this list is very sensitive to ordering, test carefully on all

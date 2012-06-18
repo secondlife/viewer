@@ -348,7 +348,7 @@ void LLFloaterPathfindingObjects::rebuildObjectsScrollList()
 
 	mObjectsScrollList->selectMultiple(selectedUUIDs);
 	mObjectsScrollList->setScrollPos(origScrollPosition);
-	updateControls();
+	updateControlsOnScrollListChange();
 }
 
 LLSD LLFloaterPathfindingObjects::convertObjectsIntoScrollListData(const LLPathfindingObjectListPtr pObjectListPtr)
@@ -368,11 +368,17 @@ void LLFloaterPathfindingObjects::rebuildScrollListAfterAvatarNameLoads(const LL
 	}
 }
 
-void LLFloaterPathfindingObjects::updateControls()
+void LLFloaterPathfindingObjects::updateControlsOnScrollListChange()
 {
 	updateMessagingStatus();
-	updateStateOnListActionControls();
-	updateStateOnEditFields();
+	updateStateOnListControls();
+	selectScrollListItemsInWorld();
+	updateStateOnActionControls();
+}
+
+void LLFloaterPathfindingObjects::updateControlsOnInWorldSelectionChange()
+{
+	updateStateOnActionControls();
 }
 
 S32 LLFloaterPathfindingObjects::getNameColumnIndex() const
@@ -491,7 +497,7 @@ LLFloaterPathfindingObjects::EMessagingState LLFloaterPathfindingObjects::getMes
 void LLFloaterPathfindingObjects::setMessagingState(EMessagingState pMessagingState)
 {
 	mMessagingState = pMessagingState;
-	updateControls();
+	updateControlsOnScrollListChange();
 }
 
 void LLFloaterPathfindingObjects::onRefreshObjectsClicked()
@@ -539,13 +545,12 @@ void LLFloaterPathfindingObjects::onTeleportClicked()
 
 void LLFloaterPathfindingObjects::onScrollListSelectionChanged()
 {
-	updateOnScrollListChange();
-	updateControls();
+	updateControlsOnScrollListChange();
 }
 
 void LLFloaterPathfindingObjects::onInWorldSelectionListChanged()
 {
-	updateControls();
+	updateControlsOnInWorldSelectionChange();
 }
 
 void LLFloaterPathfindingObjects::onRegionBoundaryCrossed()
@@ -632,7 +637,7 @@ void LLFloaterPathfindingObjects::updateMessagingStatus()
 	mMessagingStatus->setText((LLStringExplicit)statusText, styleParams);
 }
 
-void LLFloaterPathfindingObjects::updateStateOnListActionControls()
+void LLFloaterPathfindingObjects::updateStateOnListControls()
 {
 	switch (getMessagingState())
 	{
@@ -665,7 +670,7 @@ void LLFloaterPathfindingObjects::updateStateOnListActionControls()
 	}
 }
 
-void LLFloaterPathfindingObjects::updateStateOnEditFields()
+void LLFloaterPathfindingObjects::updateStateOnActionControls()
 {
 	int numSelectedItems = mObjectsScrollList->getNumSelected();
 	bool isEditEnabled = (numSelectedItems > 0);
@@ -678,7 +683,7 @@ void LLFloaterPathfindingObjects::updateStateOnEditFields()
 	mTeleportButton->setEnabled(numSelectedItems == 1);
 }
 
-void LLFloaterPathfindingObjects::updateOnScrollListChange()
+void LLFloaterPathfindingObjects::selectScrollListItemsInWorld()
 {
 	mObjectsSelection.clear();
 	LLSelectMgr::getInstance()->deselectAll();

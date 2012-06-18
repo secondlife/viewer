@@ -827,7 +827,7 @@ void LLLocationInputCtrl::refreshParcelIcons()
 		bool allow_scripts	= vpm->allowAgentScripts(agent_region, current_parcel);
 		bool allow_damage	= vpm->allowAgentDamage(agent_region, current_parcel);
 		bool see_avs        = current_parcel->getSeeAVs();
-		bool pathfinding_dynamic = gAgent.getRegion()->dynamicPathfindingEnabled();
+		bool pathfinding_dynamic_enabled = gAgent.getRegion()->dynamicPathfindingEnabled();
 
 		// Most icons are "block this ability"
 		mParcelIcon[VOICE_ICON]->setVisible(   !allow_voice );
@@ -836,7 +836,7 @@ void LLLocationInputCtrl::refreshParcelIcons()
 		mParcelIcon[BUILD_ICON]->setVisible(   !allow_build );
 		mParcelIcon[SCRIPTS_ICON]->setVisible( !allow_scripts );
 		mParcelIcon[DAMAGE_ICON]->setVisible(  allow_damage );
-		mParcelIcon[PATHFINDING_DYNAMIC_ICON]->setVisible( pathfinding_dynamic );
+		mParcelIcon[PATHFINDING_DYNAMIC_ICON]->setVisible( !pathfinding_dynamic_enabled );
 
 		mDamageText->setVisible(allow_damage);
 		mParcelIcon[SEE_AVATARS_ICON]->setVisible( !see_avs );
