@@ -37,7 +37,6 @@ set(test_SOURCE_FILES
     lldoubledispatch_tut.cpp
     llevents_tut.cpp
     llhttpdate_tut.cpp
-    llhttpclient_tut.cpp
     llhttpnode_tut.cpp
     lliohttpserver_tut.cpp
     llmessageconfig_tut.cpp
