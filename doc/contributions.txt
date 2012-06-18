@@ -612,6 +612,7 @@ Jonathan Yap
 	STORM-1796
 Kadah Coba
 	STORM-1060
+    STORM-1843
 Jondan Lundquist
 Josef Munster
 Josette Windlow
