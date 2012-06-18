@@ -130,6 +130,7 @@ LLNearbyChat::LLNearbyChat(const LLSD& key)
 	mSpeakerMgr(NULL),
 	mExpandedHeight(COLLAPSED_HEIGHT + EXPANDED_HEIGHT)
 {
+	mKey = LLSD();
 	mIsNearbyChat = true;
 	mSpeakerMgr = LLLocalSpeakerMgr::getInstance();
 }
@@ -382,11 +383,6 @@ LLNearbyChat* LLNearbyChat::getInstance()
 	return LLFloaterReg::getTypedInstance<LLNearbyChat>("chat_bar");
 }
 
-//static
-//LLNearbyChat* LLNearbyChat::findInstance()
-//{
-//	return LLFloaterReg::findTypedInstance<LLNearbyChat>("chat_bar");
-//}
 
 void LLNearbyChat::showHistory()
 {
