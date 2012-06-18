@@ -173,7 +173,7 @@ void LLMultiFloater::addFloater(LLFloater* floaterp, BOOL select_added_floater, 
 	else if (floaterp->getHost())
 	{
 		// floaterp is hosted by somebody else and
-		// this is adding it, so remove it from it's old host
+		// this is adding it, so remove it from its old host
 		floaterp->getHost()->removeFloater(floaterp);
 	}
 	else if (floaterp->getParent() == gFloaterView)

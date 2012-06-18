@@ -431,6 +431,8 @@ LLConversationItem::LLConversationItem(std::string name, const LLUUID& uuid, LLF
 // Virtual action callbacks
 void LLConversationItem::selectItem(void)
 {
+    // Always expand the message pane in that case
+    mContainer->collapseMessagesPane(false);
     // Switch to the conversation floater that is being selected
     mContainer->selectFloater(mFloater);
 }
