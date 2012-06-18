@@ -66,7 +66,9 @@ class BufferArray : public LLCoreInt::RefCounted
 {
 public:
 	BufferArray();
-	virtual ~BufferArray();
+
+protected:
+	virtual ~BufferArray();						// Use release()
 
 private:
 	BufferArray(const BufferArray &);			// Not defined

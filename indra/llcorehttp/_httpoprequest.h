@@ -54,7 +54,9 @@ class HttpOpRequest : public HttpOperation
 {
 public:
 	HttpOpRequest();
-	virtual ~HttpOpRequest();
+
+protected:
+	virtual ~HttpOpRequest();							// Use release()
 
 private:
 	HttpOpRequest(const HttpOpRequest &);				// Not defined

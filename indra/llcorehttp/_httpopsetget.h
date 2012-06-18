@@ -49,7 +49,9 @@ class HttpOpSetGet : public HttpOperation
 {
 public:
 	HttpOpSetGet();
-	virtual ~HttpOpSetGet();
+
+protected:
+	virtual ~HttpOpSetGet();							// Use release()
 
 private:
 	HttpOpSetGet(const HttpOpSetGet &);					// Not defined

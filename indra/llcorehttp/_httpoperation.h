@@ -73,7 +73,9 @@ class HttpOperation : public LLCoreInt::RefCounted
 {
 public:
 	HttpOperation();
-	virtual ~HttpOperation();
+
+protected:
+	virtual ~HttpOperation();							// Use release()
 
 private:
 	HttpOperation(const HttpOperation &);				// Not defined
@@ -131,6 +133,8 @@ class HttpOpStop : public HttpOperation
 {
 public:
 	HttpOpStop();
+
+protected:
 	virtual ~HttpOpStop();
 
 private:
@@ -152,6 +156,8 @@ class HttpOpNull : public HttpOperation
 {
 public:
 	HttpOpNull();
+
+protected:
 	virtual ~HttpOpNull();
 
 private:

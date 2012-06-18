@@ -61,9 +61,10 @@ class HttpOptions : public LLCoreInt::RefCounted
 public:
 	HttpOptions();
 	HttpOptions(const HttpOptions &);
-	virtual ~HttpOptions();
 
 protected:
+	virtual ~HttpOptions();						// Use release()
+	
 	void operator=(const HttpOptions &);		// Not defined
 
 public:

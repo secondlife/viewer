@@ -51,8 +51,10 @@ class HttpOpCancel : public HttpOperation
 {
 public:
 	HttpOpCancel(HttpHandle handle);
-	virtual ~HttpOpCancel();
 
+protected:
+	virtual ~HttpOpCancel();							// Use release()
+	
 private:
 	HttpOpCancel(const HttpOpCancel &);					// Not defined
 	void operator=(const HttpOpCancel &);				// Not defined

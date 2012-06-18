@@ -51,7 +51,9 @@ class HttpRequestQueue : public LLCoreInt::RefCounted
 protected:
 	/// Caller acquires a Refcount on construction
 	HttpRequestQueue();
-	virtual ~HttpRequestQueue();
+
+protected:
+	virtual ~HttpRequestQueue();						// Use release()
 
 private:
 	HttpRequestQueue(const HttpRequestQueue &);			// Not defined

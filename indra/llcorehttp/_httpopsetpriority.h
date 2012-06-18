@@ -47,6 +47,8 @@ class HttpOpSetPriority : public HttpOperation
 {
 public:
 	HttpOpSetPriority(HttpHandle handle, HttpRequest::priority_t priority);
+
+protected:
 	virtual ~HttpOpSetPriority();
 
 private:

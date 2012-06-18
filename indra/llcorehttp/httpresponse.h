@@ -58,9 +58,10 @@ class HttpResponse : public LLCoreInt::RefCounted
 {
 public:
 	HttpResponse();
-	virtual ~HttpResponse();
 
 protected:
+	virtual ~HttpResponse();							// Use release()
+	
 	HttpResponse(const HttpResponse &);					// Not defined
 	void operator=(const HttpResponse &);				// Not defined
 	

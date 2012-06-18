@@ -68,9 +68,10 @@ public:
 	/// to the instance.  A call to @see release() will destroy
 	/// the instance.
 	HttpHeaders();
-	~HttpHeaders();
 
 protected:
+	virtual ~HttpHeaders();						// Use release()
+
 	HttpHeaders(const HttpHeaders &);			// Not defined
 	void operator=(const HttpHeaders &);		// Not defined
 
