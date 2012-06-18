@@ -393,10 +393,6 @@ void LLNearbyChat::showHistory()
 	storeRectControl();
 }
 
-void LLNearbyChat::showTranslationCheckbox(BOOL show)
-{
-	getChild<LLUICtrl>("translate_chat_checkbox_lp")->setVisible(show);
-}
 
 BOOL LLNearbyChat::tick()
 {

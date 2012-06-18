@@ -56,6 +56,9 @@ public:
 	 */
 	static bool isChatMultiTab();
 
+	// show/hide the translation check box
+	void showTranslationCheckbox(const BOOL visible = FALSE);
+
 	// LLFloater overrides
 	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ BOOL postBuild();

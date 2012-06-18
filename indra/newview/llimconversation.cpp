@@ -236,6 +236,13 @@ void LLIMConversation::updateHeaderAndToolbar()
 	mCloseBtn->setVisible(is_hosted);
 
 	enableDisableCallBtn();
+
+	showTranslationCheckbox();
+}
+
+void LLIMConversation::showTranslationCheckbox(BOOL show)
+{
+	getChild<LLUICtrl>("translate_chat_checkbox_lp")->setVisible(mIsNearbyChat? show : FALSE);
 }
 
 // static
