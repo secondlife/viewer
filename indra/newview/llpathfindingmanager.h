@@ -63,6 +63,7 @@ public:
 	virtual ~LLPathfindingManager();
 
 	void initSystem();
+	void quitSystem();
 
 	bool isPathfindingEnabledForCurrentRegion() const;
 	bool isPathfindingEnabledForRegion(LLViewerRegion *pRegion) const;
@@ -72,7 +73,7 @@ public:
 	bool isAllowViewTerrainProperties() const;
 
 	LLPathfindingNavMesh::navmesh_slot_t registerNavMeshListenerForRegion(LLViewerRegion *pRegion, LLPathfindingNavMesh::navmesh_callback_t pNavMeshCallback);
-	void requestGetNavMeshForRegion(LLViewerRegion *pRegion);
+	void requestGetNavMeshForRegion(LLViewerRegion *pRegion, bool pIsGetStatusOnly);
 
 	typedef U32 request_id_t;
 	typedef boost::function<void (request_id_t, ERequestStatus, LLPathfindingObjectListPtr)> object_request_callback_t;
@@ -89,9 +90,6 @@ public:
 	typedef boost::signals2::signal< void () >		agent_state_signal_t;
 	typedef boost::signals2::connection				agent_state_slot_t;	
 
-	agent_state_slot_t								mCrossingSlot;
-	agent_state_signal_t							mAgentStateSignal;
-
 	agent_state_slot_t registerAgentStateListener(agent_state_callback_t pAgentStateCallback);
 
 	void handleNavMeshRebakeResult( const LLSD &pContent );
@@ -105,11 +103,11 @@ protected:
 private:
 	void sendRequestGetNavMeshForRegion(LLPathfindingNavMeshPtr navMeshPtr, LLViewerRegion *pRegion, const LLPathfindingNavMeshStatus &pNavMeshStatus);
 
-	void handleDeferredGetNavMeshForRegion(const LLUUID &pRegionUUID);
+	void handleDeferredGetNavMeshForRegion(const LLUUID &pRegionUUID, bool pIsGetStatusOnly);
 	void handleDeferredGetLinksetsForRegion(const LLUUID &pRegionUUID, request_id_t pRequestId, object_request_callback_t pLinksetsCallback) const;
 	void handleDeferredGetCharactersForRegion(const LLUUID &pRegionUUID, request_id_t pRequestId, object_request_callback_t pCharactersCallback) const;
 
-	void handleNavMeshStatusRequest(const LLPathfindingNavMeshStatus &pNavMeshStatus, LLViewerRegion *pRegion);
+	void handleNavMeshStatusRequest(const LLPathfindingNavMeshStatus &pNavMeshStatus, LLViewerRegion *pRegion, bool pIsGetStatusOnly);
 	void handleNavMeshStatusUpdate(const LLPathfindingNavMeshStatus &pNavMeshStatus);
 
 	void handleAgentStateUpdate();
@@ -127,17 +125,17 @@ private:
 	std::string getCapabilityURLForRegion(LLViewerRegion *pRegion, const std::string &pCapabilityName) const;
 	LLViewerRegion *getCurrentRegion() const;
 
-	
+	void handleNavMeshStatus(LLPathfindingNavMesh::ENavMeshRequestStatus pRequestStatus, const LLPathfindingNavMeshStatus &pNavMeshStatus);
+
 	void displayNavMeshRebakePanel();
 	void hideNavMeshRebakePanel();	
 	void handleAgentStateResult(const LLSD &pContent );
 	void handleAgentStateError(U32 pStatus, const std::string &pReason, const std::string &pURL);
 
-
-	NavMeshMap mNavMeshMap;
-
-	//prep#stinson# set this flag instead of directly showing/hiding the rebake panel
-	BOOL mShowNavMeshRebake;
+	NavMeshMap                           mNavMeshMap;
+	agent_state_slot_t                   mCrossingSlot;
+	agent_state_signal_t                 mAgentStateSignal;
+	LLPathfindingNavMesh::navmesh_slot_t mNavMeshSlot;
 };
 
 

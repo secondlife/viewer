@@ -102,7 +102,7 @@ LLHTTPRegistration<LLAgentStateChangeNode> gHTTPRegistrationAgentStateChangeNode
 class NavMeshStatusResponder : public LLHTTPClient::Responder
 {
 public:
-	NavMeshStatusResponder(const std::string &pCapabilityURL, LLViewerRegion *pRegion);
+	NavMeshStatusResponder(const std::string &pCapabilityURL, LLViewerRegion *pRegion, bool pIsGetStatusOnly);
 	virtual ~NavMeshStatusResponder();
 
 	virtual void result(const LLSD &pContent);
@@ -114,6 +114,7 @@ private:
 	std::string    mCapabilityURL;
 	LLViewerRegion *mRegion;
 	LLUUID         mRegionUUID;
+	bool           mIsGetStatusOnly;
 };
 
 //---------------------------------------------------------------------------
@@ -282,23 +283,30 @@ private:
 LLPathfindingManager::LLPathfindingManager()
 	: LLSingleton<LLPathfindingManager>(),
 	mNavMeshMap(),
-	mShowNavMeshRebake(false),
-	mCrossingSlot()
+	mCrossingSlot(),
+	mAgentStateSignal(),
+	mNavMeshSlot()
 {
-	
 }
 
 void LLPathfindingManager::onRegionBoundaryCrossed()
 { 
+	if (mNavMeshSlot.connected())
+	{
+		mNavMeshSlot.disconnect();
+	}
+	LLViewerRegion *currentRegion = getCurrentRegion();
+	if (currentRegion != NULL)
+	{
+		mNavMeshSlot = registerNavMeshListenerForRegion(currentRegion, boost::bind(&LLPathfindingManager::handleNavMeshStatus, this, _1, _2));
+		requestGetNavMeshForRegion(currentRegion, true);
+	}
 	displayNavMeshRebakePanel();
 }
 
 LLPathfindingManager::~LLPathfindingManager()
 {	
-	if (mCrossingSlot.connected())
-	{
-		mCrossingSlot.disconnect();
-	}
+	quitSystem();
 }
 
 void LLPathfindingManager::initSystem()
@@ -306,6 +314,40 @@ void LLPathfindingManager::initSystem()
 	if (LLPathingLib::getInstance() == NULL)
 	{
 		LLPathingLib::initSystem();
+	}
+
+	if ( !mCrossingSlot.connected() )
+	{
+		mCrossingSlot = LLEnvManagerNew::getInstance()->setRegionChangeCallback(boost::bind(&LLPathfindingManager::onRegionBoundaryCrossed, this));
+	}
+
+	if (mNavMeshSlot.connected())
+	{
+		mNavMeshSlot.disconnect();
+	}
+	LLViewerRegion *currentRegion = getCurrentRegion();
+	if (currentRegion != NULL)
+	{
+		mNavMeshSlot = registerNavMeshListenerForRegion(currentRegion, boost::bind(&LLPathfindingManager::handleNavMeshStatus, this, _1, _2));
+		requestGetNavMeshForRegion(currentRegion, true);
+	}
+}
+
+void LLPathfindingManager::quitSystem()
+{
+	if (mNavMeshSlot.connected())
+	{
+		mNavMeshSlot.disconnect();
+	}
+
+	if (mCrossingSlot.connected())
+	{
+		mCrossingSlot.disconnect();
+	}
+
+	if (LLPathingLib::getInstance() != NULL)
+	{
+		LLPathingLib::quitSystem();
 	}
 }
 
@@ -337,7 +379,7 @@ LLPathfindingNavMesh::navmesh_slot_t LLPathfindingManager::registerNavMeshListen
 	return navMeshPtr->registerNavMeshListener(pNavMeshCallback);
 }
 
-void LLPathfindingManager::requestGetNavMeshForRegion(LLViewerRegion *pRegion)
+void LLPathfindingManager::requestGetNavMeshForRegion(LLViewerRegion *pRegion, bool pIsGetStatusOnly)
 {
 	LLPathfindingNavMeshPtr navMeshPtr = getNavMeshForRegion(pRegion);
 
@@ -348,7 +390,7 @@ void LLPathfindingManager::requestGetNavMeshForRegion(LLViewerRegion *pRegion)
 	else if (!pRegion->capabilitiesReceived())
 	{
 		navMeshPtr->handleNavMeshWaitForRegionLoad();
-		pRegion->setCapabilitiesReceivedCallback(boost::bind(&LLPathfindingManager::handleDeferredGetNavMeshForRegion, this, _1));
+		pRegion->setCapabilitiesReceivedCallback(boost::bind(&LLPathfindingManager::handleDeferredGetNavMeshForRegion, this, _1, pIsGetStatusOnly));
 	}
 	else if (!isPathfindingEnabledForRegion(pRegion))
 	{
@@ -359,7 +401,7 @@ void LLPathfindingManager::requestGetNavMeshForRegion(LLViewerRegion *pRegion)
 		std::string navMeshStatusURL = getNavMeshStatusURLForRegion(pRegion);
 		llassert(!navMeshStatusURL.empty());
 		navMeshPtr->handleNavMeshCheckVersion();
-		LLHTTPClient::ResponderPtr navMeshStatusResponder = new NavMeshStatusResponder(navMeshStatusURL, pRegion);
+		LLHTTPClient::ResponderPtr navMeshStatusResponder = new NavMeshStatusResponder(navMeshStatusURL, pRegion, pIsGetStatusOnly);
 		LLHTTPClient::get(navMeshStatusURL, navMeshStatusResponder);
 	}
 }
@@ -518,13 +560,13 @@ void LLPathfindingManager::sendRequestGetNavMeshForRegion(LLPathfindingNavMeshPt
 	}
 }
 
-void LLPathfindingManager::handleDeferredGetNavMeshForRegion(const LLUUID &pRegionUUID)
+void LLPathfindingManager::handleDeferredGetNavMeshForRegion(const LLUUID &pRegionUUID, bool pIsGetStatusOnly)
 {
 	LLViewerRegion *currentRegion = getCurrentRegion();
 
 	if ((currentRegion != NULL) && (currentRegion->getRegionID() == pRegionUUID))
 	{
-		requestGetNavMeshForRegion(currentRegion);
+		requestGetNavMeshForRegion(currentRegion, pIsGetStatusOnly);
 	}
 }
 
@@ -548,7 +590,7 @@ void LLPathfindingManager::handleDeferredGetCharactersForRegion(const LLUUID &pR
 	}
 }
 
-void LLPathfindingManager::handleNavMeshStatusRequest(const LLPathfindingNavMeshStatus &pNavMeshStatus, LLViewerRegion *pRegion)
+void LLPathfindingManager::handleNavMeshStatusRequest(const LLPathfindingNavMeshStatus &pNavMeshStatus, LLViewerRegion *pRegion, bool pIsGetStatusOnly)
 {
 	LLPathfindingNavMeshPtr navMeshPtr = getNavMeshForRegion(pNavMeshStatus.getRegionUUID());
 
@@ -561,6 +603,10 @@ void LLPathfindingManager::handleNavMeshStatusRequest(const LLPathfindingNavMesh
 		if (navMeshPtr->hasNavMeshVersion(pNavMeshStatus))
 		{
 			navMeshPtr->handleRefresh(pNavMeshStatus);
+		}
+		else if (pIsGetStatusOnly)
+		{
+			navMeshPtr->handleNavMeshNewVersion(pNavMeshStatus);
 		}
 		else
 		{
@@ -613,11 +659,6 @@ LLPathfindingNavMeshPtr LLPathfindingManager::getNavMeshForRegion(LLViewerRegion
 
 void LLPathfindingManager::requestGetAgentState()
 {
-	if ( !mCrossingSlot.connected() )
-	{
-		mCrossingSlot = LLEnvManagerNew::getInstance()->setRegionChangeCallback(boost::bind(&LLPathfindingManager::onRegionBoundaryCrossed, this));
-	}
-
 	std::string agentStateURL = getAgentStateURLForCurrentRegion( getCurrentRegion() );
 
 	if ( !agentStateURL.empty() )
@@ -696,6 +737,36 @@ LLViewerRegion *LLPathfindingManager::getCurrentRegion() const
 	return gAgent.getRegion();
 }
 
+void LLPathfindingManager::handleNavMeshStatus(LLPathfindingNavMesh::ENavMeshRequestStatus pRequestStatus, const LLPathfindingNavMeshStatus &pNavMeshStatus)
+{
+	if (!pNavMeshStatus.isValid())
+	{
+		llinfos << "STINSON DEBUG: navmesh status is invalid" << llendl;
+	}
+	else
+	{
+		switch (pNavMeshStatus.getStatus())
+		{
+		case LLPathfindingNavMeshStatus::kPending : 
+			llinfos << "STINSON DEBUG: navmesh status is kPending" << llendl;
+			break;
+		case LLPathfindingNavMeshStatus::kBuilding : 
+			llinfos << "STINSON DEBUG: navmesh status is kBuilding" << llendl;
+			break;
+		case LLPathfindingNavMeshStatus::kComplete : 
+			llinfos << "STINSON DEBUG: navmesh status is kComplete" << llendl;
+			break;
+		case LLPathfindingNavMeshStatus::kRepending : 
+			llinfos << "STINSON DEBUG: navmesh status is kRepending" << llendl;
+			break;
+		default : 
+			llinfos << "STINSON DEBUG: navmesh status is default" << llendl;
+			llassert(0);
+			break;
+		}
+	}
+}
+
 void LLPathfindingManager::displayNavMeshRebakePanel()
 {
 	LLView* rootp = LLUI::getRootView();
@@ -771,11 +842,12 @@ void LLPathfindingManager::handleAgentStateUpdate()
 // NavMeshStatusResponder
 //---------------------------------------------------------------------------
 
-NavMeshStatusResponder::NavMeshStatusResponder(const std::string &pCapabilityURL, LLViewerRegion *pRegion)
+NavMeshStatusResponder::NavMeshStatusResponder(const std::string &pCapabilityURL, LLViewerRegion *pRegion, bool pIsGetStatusOnly)
 	: LLHTTPClient::Responder(),
 	mCapabilityURL(pCapabilityURL),
 	mRegion(pRegion),
-	mRegionUUID()
+	mRegionUUID(),
+	mIsGetStatusOnly(pIsGetStatusOnly)
 {
 	if (mRegion != NULL)
 	{
@@ -793,14 +865,14 @@ void NavMeshStatusResponder::result(const LLSD &pContent)
 	llinfos << "STINSON DEBUG: Received requested NavMeshStatus: " << pContent << llendl;
 #endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
 	LLPathfindingNavMeshStatus navMeshStatus(mRegionUUID, pContent);
-	LLPathfindingManager::getInstance()->handleNavMeshStatusRequest(navMeshStatus, mRegion);
+	LLPathfindingManager::getInstance()->handleNavMeshStatusRequest(navMeshStatus, mRegion, mIsGetStatusOnly);
 }
 
 void NavMeshStatusResponder::error(U32 pStatus, const std::string& pReason)
 {
 	llwarns << "error with request to URL '" << mCapabilityURL << "' because " << pReason << " (statusCode:" << pStatus << ")" << llendl;
 	LLPathfindingNavMeshStatus navMeshStatus(mRegionUUID);
-	LLPathfindingManager::getInstance()->handleNavMeshStatusRequest(navMeshStatus, mRegion);
+	LLPathfindingManager::getInstance()->handleNavMeshStatusRequest(navMeshStatus, mRegion, mIsGetStatusOnly);
 }
 
 //---------------------------------------------------------------------------
