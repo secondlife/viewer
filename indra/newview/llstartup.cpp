@@ -1969,9 +1969,6 @@ bool idle_startup()
 			}
 		}
 
-		llassert(LLPathfindingManager::getInstance() != NULL);
-		LLPathfindingManager::getInstance()->initSystem();
-
 		display_startup();
         //DEV-17797.  get null folder.  Any items found here moved to Lost and Found
         LLInventoryModelBackgroundFetch::instance().findLostItems();
@@ -2169,6 +2166,8 @@ bool idle_startup()
 		LLIMFloater::initIMFloater();
 		display_startup();
 
+		llassert(LLPathfindingManager::getInstance() != NULL);
+		LLPathfindingManager::getInstance()->initSystem();
 		LLPathfindingManager::getInstance()->requestGetAgentState();
 
 		return TRUE;

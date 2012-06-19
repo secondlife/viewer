@@ -54,6 +54,7 @@
 #include "llweb.h"
 #include "llpanelnavmeshrebake.h"
 #include "llenvmanager.h"
+#include "llstartup.h"
 
 #define CAP_SERVICE_RETRIEVE_NAVMESH      "RetrieveNavMeshSrc"
 
@@ -835,7 +836,8 @@ void LLAgentStateChangeNode::post(ResponsePtr pResponse, const LLSD &pContext, c
 
 void LLPathfindingManager::handleAgentStateUpdate()
 {
-	displayNavMeshRebakePanel();
+	//Don't trigger if we are still loading in
+	if ( LLStartUp::getStartupState() == STATE_STARTED) { displayNavMeshRebakePanel(); }
 }
 
 //---------------------------------------------------------------------------
