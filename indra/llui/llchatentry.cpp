@@ -30,7 +30,7 @@
 
 static LLDefaultChildRegistry::Register<LLChatEntry> r("text_editor");
 
-LLChatEntry::LLChatEntry::Params::Params()
+LLChatEntry::Params::Params()
 :	has_history("has_history", true),
  	is_expandable("is_expandable", false),
  	expand_lines_count("expand_lines_count", 1)
