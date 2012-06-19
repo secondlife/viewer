@@ -34,13 +34,10 @@
 #include "_httppolicy.h"
 #include "_httplibcurl.h"
 #include "_thread.h"
+#include "_httpinternal.h"
 
 #include "lltimer.h"
 #include "llthread.h"
-
-
-// Tuning parameters
-static const int LOOP_SLEEP_NORMAL_MS = 2;		// Normal per-loop sleep in milliseconds
 
 
 namespace LLCore
@@ -230,11 +227,11 @@ HttpService::ELoopSpeed HttpService::processRequestQueue(ELoopSpeed loop)
 		if (! mExitRequested)
 		{
 			// Setup for subsequent tracing
-			long tracing(0);
+			long tracing(TRACE_OFF);
 			mPolicy->getGlobalOptions().get(HttpRequest::GP_TRACE, &tracing);
 			op->mTracing = (std::max)(op->mTracing, int(tracing));
 
-			if (op->mTracing > 0)
+			if (op->mTracing > TRACE_OFF)
 			{
 				LL_INFOS("CoreHttp") << "TRACE, FromRequestQueue, Handle:  "
 									 << static_cast<HttpHandle>(op)

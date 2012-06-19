@@ -172,6 +172,12 @@ public:
 };  // end class HttpOpRequestCompare
 
 
+// ---------------------------------------
+// Free functions
+// ---------------------------------------
+
+curl_slist * append_headers_to_slist(const HttpHeaders *, curl_slist * slist);
+
 }   // end namespace LLCore
 
 #endif	// _LLCORE_HTTP_OPREQUEST_H_

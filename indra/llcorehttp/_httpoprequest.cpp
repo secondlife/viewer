@@ -42,6 +42,7 @@
 #include "_httppolicy.h"
 #include "_httppolicyglobal.h"
 #include "_httplibcurl.h"
+#include "_httpinternal.h"
 
 #include "llhttpstatuscodes.h"
 #include "llproxy.h"
@@ -73,13 +74,14 @@ void escape_libcurl_debug_data(char * buffer, size_t len, bool scrub,
 							   std::string & safe_line);
 
 
-#if defined(WIN32)
+#if LL_WINDOWS
 
 // Not available on windows where the legacy strtok interface
 // is thread-safe.
 char *strtok_r(char *str, const char *delim, char **saveptr);
 
-#endif
+#endif // LL_WINDOWS
+
 
 }
 
@@ -108,7 +110,7 @@ HttpOpRequest::HttpOpRequest()
 	  mReplyHeaders(NULL),
 	  mPolicyRetries(0),
 	  mPolicyRetryAt(HttpTime(0)),
-	  mPolicyRetryLimit(5)
+	  mPolicyRetryLimit(DEFAULT_RETRY_COUNT)
 {
 	// *NOTE:  As members are added, retry initialization/cleanup
 	// may need to be extended in @prepareRequest().
@@ -334,8 +336,8 @@ void HttpOpRequest::setupCommon(HttpRequest::policy_t policy_id,
 			mProcFlags |= PF_SAVE_HEADERS;
 		}
 		mPolicyRetryLimit = options->getRetries();
-		mPolicyRetryLimit = llclamp(mPolicyRetryLimit, 0, 100);
-		mTracing = (std::max)(mTracing, llclamp(options->getTrace(), 0, 3));
+		mPolicyRetryLimit = llclamp(mPolicyRetryLimit, LIMIT_RETRY_MIN, LIMIT_RETRY_MAX);
+		mTracing = (std::max)(mTracing, llclamp(options->getTrace(), TRACE_MIN, TRACE_MAX));
 	}
 }
 
@@ -384,7 +386,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, 0);
 	curl_easy_setopt(mCurlHandle, CURLOPT_AUTOREFERER, 1);
 	curl_easy_setopt(mCurlHandle, CURLOPT_FOLLOWLOCATION, 1);
-	curl_easy_setopt(mCurlHandle, CURLOPT_MAXREDIRS, 10);		// *FIXME:  parameterize this later
+	curl_easy_setopt(mCurlHandle, CURLOPT_MAXREDIRS, DEFAULT_HTTP_REDIRECTS);	// *FIXME:  parameterize this later
 	curl_easy_setopt(mCurlHandle, CURLOPT_WRITEFUNCTION, writeCallback);
 	curl_easy_setopt(mCurlHandle, CURLOPT_WRITEDATA, mCurlHandle);
 	curl_easy_setopt(mCurlHandle, CURLOPT_READFUNCTION, readCallback);
@@ -452,8 +454,6 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 			curl_easy_setopt(mCurlHandle, CURLOPT_INFILESIZE, data_size);
 			curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDS, (void *) NULL);
 			mCurlHeaders = curl_slist_append(mCurlHeaders, "Expect:");
-			mCurlHeaders = curl_slist_append(mCurlHeaders, "Connection: keep-alive");
-			mCurlHeaders = curl_slist_append(mCurlHeaders, "Keep-alive: 300");
 		}
 		break;
 		
@@ -463,7 +463,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	}
 
 	// Tracing
-	if (mTracing > 1)
+	if (mTracing >= TRACE_CURL_HEADERS)
 	{
 		curl_easy_setopt(mCurlHandle, CURLOPT_VERBOSE, 1);
 		curl_easy_setopt(mCurlHandle, CURLOPT_DEBUGDATA, mCurlHandle);
@@ -478,7 +478,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 
 		char range_line[64];
 
-#if defined(WIN32)
+#if LL_WINDOWS
 		_snprintf_s(range_line, sizeof(range_line), sizeof(range_line) - 1,
 					(mReqLength ? fmt1 : fmt2),
 					(unsigned long) mReqOffset, (unsigned long) (mReqOffset + mReqLength - 1));
@@ -486,7 +486,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 		snprintf(range_line, sizeof(range_line),
 				 (mReqLength ? fmt1 : fmt2),
 				 (unsigned long) mReqOffset, (unsigned long) (mReqOffset + mReqLength - 1));
-#endif // defined(WIN32)
+#endif // LL_WINDOWS
 		range_line[sizeof(range_line) - 1] = '\0';
 		mCurlHeaders = curl_slist_append(mCurlHeaders, range_line);
 	}
@@ -494,11 +494,11 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	mCurlHeaders = curl_slist_append(mCurlHeaders, "Pragma:");
 
 	// Request options
-	long timeout(30);
+	long timeout(DEFAULT_TIMEOUT);
 	if (mReqOptions)
 	{
 		timeout = mReqOptions->getTimeout();
-		timeout = llclamp(timeout, 0L, 3600L);
+		timeout = llclamp(timeout, LIMIT_TIMEOUT_MIN, LIMIT_TIMEOUT_MAX);
 	}
 	curl_easy_setopt(mCurlHandle, CURLOPT_TIMEOUT, timeout);
 	curl_easy_setopt(mCurlHandle, CURLOPT_CONNECTTIMEOUT, timeout);
@@ -599,11 +599,11 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 		
 		memcpy(hdr_buffer, hdr_data, frag_size);
 		hdr_buffer[frag_size] = '\0';
-#if defined(WIN32)
+#if LL_WINDOWS
 		if (! _strnicmp(hdr_buffer, con_ran_line, (std::min)(frag_size, con_ran_line_len)))
 #else
 		if (! strncasecmp(hdr_buffer, con_ran_line, (std::min)(frag_size, con_ran_line_len)))
-#endif
+#endif	// LL_WINDOWS
 		{
 			unsigned int first(0), last(0), length(0);
 			int status;
@@ -654,7 +654,7 @@ int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffe
 	switch (info)
 	{
 	case CURLINFO_TEXT:
-		if (op->mTracing > 1)
+		if (op->mTracing >= TRACE_CURL_HEADERS)
 		{
 			tag = "TEXT";
 			escape_libcurl_debug_data(buffer, len, true, safe_line);
@@ -663,7 +663,7 @@ int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffe
 		break;
 			
 	case CURLINFO_HEADER_IN:
-		if (op->mTracing > 1)
+		if (op->mTracing >= TRACE_CURL_HEADERS)
 		{
 			tag = "HEADERIN";
 			escape_libcurl_debug_data(buffer, len, true, safe_line);
@@ -672,20 +672,20 @@ int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffe
 		break;
 			
 	case CURLINFO_HEADER_OUT:
-		if (op->mTracing > 1)
+		if (op->mTracing >= TRACE_CURL_HEADERS)
 		{
 			tag = "HEADEROUT";
-			escape_libcurl_debug_data(buffer, len, true, safe_line);
+			escape_libcurl_debug_data(buffer, 2 * len, true, safe_line);		// Goes out as one line
 			logit = true;
 		}
 		break;
 			
 	case CURLINFO_DATA_IN:
-		if (op->mTracing > 1)
+		if (op->mTracing >= TRACE_CURL_HEADERS)
 		{
 			tag = "DATAIN";
 			logit = true;
-			if (op->mTracing > 2)
+			if (op->mTracing >= TRACE_CURL_BODIES)
 			{
 				escape_libcurl_debug_data(buffer, len, false, safe_line);
 			}
@@ -699,11 +699,11 @@ int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffe
 		break;
 			
 	case CURLINFO_DATA_OUT:
-		if (op->mTracing > 1)
+		if (op->mTracing >= TRACE_CURL_HEADERS)
 		{
 			tag = "DATAOUT";
 			logit = true;
-			if (op->mTracing > 2)
+			if (op->mTracing >= TRACE_CURL_BODIES)
 			{
 				escape_libcurl_debug_data(buffer, len, false, safe_line);
 			}
@@ -755,22 +755,22 @@ int parse_content_range_header(char * buffer,
 	if (! strtok_r(buffer, ": \t", &tok_state))
 		match = false;
 	if (match && (tok = strtok_r(NULL, " \t", &tok_state)))
-#if defined(WIN32)
+#if LL_WINDOWS
 		match = 0 == _stricmp("bytes", tok);
 #else
 		match = 0 == strcasecmp("bytes", tok);
-#endif
+#endif // LL_WINDOWS
 	if (match && ! (tok = strtok_r(NULL, " \t", &tok_state)))
 		match = false;
 	if (match)
 	{
 		unsigned int lcl_first(0), lcl_last(0), lcl_len(0);
 
-#if defined(WIN32)
+#if LL_WINDOWS
 		if (3 == sscanf_s(tok, "%u-%u/%u", &lcl_first, &lcl_last, &lcl_len))
 #else
 		if (3 == sscanf(tok, "%u-%u/%u", &lcl_first, &lcl_last, &lcl_len))
-#endif
+#endif // LL_WINDOWS
 		{
 			if (lcl_first > lcl_last || lcl_last >= lcl_len)
 				return -1;
@@ -779,11 +779,11 @@ int parse_content_range_header(char * buffer,
 			*length = lcl_len;
 			return 0;
 		}
-#if defined(WIN32)
+#if LL_WINDOWS
 		if (2 == sscanf_s(tok, "%u-%u/*", &lcl_first, &lcl_last))
 #else
 		if (2 == sscanf(tok, "%u-%u/*", &lcl_first, &lcl_last))
-#endif
+#endif	// LL_WINDOWS
 		{
 			if (lcl_first > lcl_last)
 				return -1;
@@ -798,14 +798,14 @@ int parse_content_range_header(char * buffer,
 	return 1;
 }
 
-#if defined(WIN32)
+#if LL_WINDOWS
 
 char *strtok_r(char *str, const char *delim, char ** savestate)
 {
 	return strtok_s(str, delim, savestate);
 }
 
-#endif
+#endif // LL_WINDOWS
 
 
 void escape_libcurl_debug_data(char * buffer, size_t len, bool scrub, std::string & safe_line)

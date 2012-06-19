@@ -53,6 +53,7 @@ set(llcorehttp_HEADER_FILES
     httpoptions.h
     httprequest.h
     httpresponse.h
+    _httpinternal.h
     _httplibcurl.h
     _httpopcancel.h
     _httpoperation.h

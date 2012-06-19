@@ -33,6 +33,7 @@
 #include "_httprequestqueue.h"
 #include "_httpreplyqueue.h"
 #include "_httpservice.h"
+#include "_httpinternal.h"
 
 #include "lltimer.h"
 
@@ -142,7 +143,7 @@ HttpStatus HttpOperation::cancel()
 
 void HttpOperation::addAsReply()
 {
-	if (mTracing > 0)
+	if (mTracing > TRACE_OFF)
 	{
 		LL_INFOS("CoreHttp") << "TRACE, ToReplyQueue, Handle:  "
 							 << static_cast<HttpHandle>(this)

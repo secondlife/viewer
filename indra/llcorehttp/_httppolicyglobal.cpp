@@ -26,6 +26,8 @@
 
 #include "_httppolicyglobal.h"
 
+#include "_httpinternal.h"
+
 
 namespace LLCore
 {
@@ -33,8 +35,8 @@ namespace LLCore
 
 HttpPolicyGlobal::HttpPolicyGlobal()
 	: mSetMask(0UL),
-	  mConnectionLimit(32L),
-	  mTrace(0),
+	  mConnectionLimit(DEFAULT_CONNECTIONS),
+	  mTrace(TRACE_OFF),
 	  mUseLLProxy(0)
 {}
 
@@ -64,11 +66,11 @@ HttpStatus HttpPolicyGlobal::set(HttpRequest::EGlobalPolicy opt, long value)
 	switch (opt)
 	{
 	case HttpRequest::GP_CONNECTION_LIMIT:
-		mConnectionLimit = value;
+		mConnectionLimit = llclamp(value, long(LIMIT_CONNECTIONS_MIN), long(LIMIT_CONNECTIONS_MAX));
 		break;
 
 	case HttpRequest::GP_TRACE:
-		mTrace = llclamp(value, 0L, 3L);
+		mTrace = llclamp(value, long(TRACE_MIN), long(TRACE_MAX));
 		break;
 
 	case HttpRequest::GP_LLPROXY:

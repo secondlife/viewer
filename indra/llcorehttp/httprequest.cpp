@@ -108,6 +108,7 @@ HttpStatus HttpRequest::setPolicyGlobalOption(EGlobalPolicy opt, const std::stri
 
 HttpRequest::policy_t HttpRequest::createPolicyClass()
 {
+	// *FIXME:  Implement classes
 	policy_t policy_id = 1;
 	
 	return policy_id;

@@ -31,6 +31,8 @@
 #include "_httpoprequest.h"
 #include "_httppolicy.h"
 
+#include "llhttpstatuscodes.h"
+
 
 namespace LLCore
 {
@@ -39,7 +41,8 @@ namespace LLCore
 HttpLibcurl::HttpLibcurl(HttpService * service)
 	: mService(service)
 {
-	for (int policy_class(0); policy_class < HttpRequest::POLICY_CLASS_LIMIT; ++policy_class)
+	// *FIXME:  Use active policy class count later
+	for (int policy_class(0); policy_class < LL_ARRAY_SIZE(mMultiHandles); ++policy_class)
 	{
 		mMultiHandles[policy_class] = 0;
 	}
@@ -61,7 +64,7 @@ HttpLibcurl::~HttpLibcurl()
 		mActiveOps.erase(item);
 	}
 
-	for (int policy_class(0); policy_class < HttpRequest::POLICY_CLASS_LIMIT; ++policy_class)
+	for (int policy_class(0); policy_class < LL_ARRAY_SIZE(mMultiHandles); ++policy_class)
 	{
 		if (mMultiHandles[policy_class])
 		{
@@ -89,7 +92,7 @@ HttpService::ELoopSpeed HttpLibcurl::processTransport()
 	HttpService::ELoopSpeed	ret(HttpService::REQUEST_SLEEP);
 
 	// Give libcurl some cycles to do I/O & callbacks
-	for (int policy_class(0); policy_class < HttpRequest::POLICY_CLASS_LIMIT; ++policy_class)
+	for (int policy_class(0); policy_class < LL_ARRAY_SIZE(mMultiHandles); ++policy_class)
 	{
 		if (! mMultiHandles[policy_class])
 			continue;
@@ -144,7 +147,7 @@ HttpService::ELoopSpeed HttpLibcurl::processTransport()
 
 void HttpLibcurl::addOp(HttpOpRequest * op)
 {
-	llassert_always(op->mReqPolicy < HttpRequest::POLICY_CLASS_LIMIT);
+	llassert_always(op->mReqPolicy < POLICY_CLASS_LIMIT);
 	llassert_always(mMultiHandles[op->mReqPolicy] != NULL);
 	
 	// Create standard handle
@@ -159,7 +162,7 @@ void HttpLibcurl::addOp(HttpOpRequest * op)
 	curl_multi_add_handle(mMultiHandles[op->mReqPolicy], op->mCurlHandle);
 	op->mCurlActive = true;
 	
-	if (op->mTracing > 0)
+	if (op->mTracing > TRACE_OFF)
 	{
 		HttpPolicy & policy(mService->getPolicy());
 		
@@ -208,7 +211,7 @@ bool HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode 
 	}
 	if (op->mStatus)
 	{
-		int http_status(200);
+		int http_status(HTTP_OK);
 
 		curl_easy_getinfo(handle, CURLINFO_RESPONSE_CODE, &http_status);
 		op->mStatus = LLCore::HttpStatus(http_status);
@@ -220,7 +223,7 @@ bool HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode 
 	op->mCurlHandle = NULL;
 
 	// Tracing
-	if (op->mTracing > 0)
+	if (op->mTracing > TRACE_OFF)
 	{
 		LL_INFOS("CoreHttp") << "TRACE, RequestComplete, Handle:  "
 							 << static_cast<HttpHandle>(op)

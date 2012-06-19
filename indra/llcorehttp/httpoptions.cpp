@@ -26,6 +26,8 @@
 
 #include "httpoptions.h"
 
+#include "_httpinternal.h"
+
 
 namespace LLCore
 {
@@ -34,9 +36,9 @@ namespace LLCore
 HttpOptions::HttpOptions()
 	: RefCounted(true),
 	  mWantHeaders(false),
-	  mTracing(0),
-	  mTimeout(30),
-	  mRetries(5)
+	  mTracing(TRACE_OFF),
+	  mTimeout(DEFAULT_TIMEOUT),
+	  mRetries(DEFAULT_RETRY_COUNT)
 {}
 
 

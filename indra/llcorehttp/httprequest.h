@@ -102,10 +102,6 @@ public:
 	/// eventual service for any HTTP request.
 	static const int DEFAULT_POLICY_ID = 0;
 
-	/// Maximum number of policies that may be defined.  No policy
-	/// ID will equal or exceed this value.
-	static const int POLICY_CLASS_LIMIT = 1;
-	
 	enum EGlobalPolicy
 	{
 		/// Maximum number of connections the library will use to
@@ -163,7 +159,7 @@ public:
 	/// Create a new policy class into which requests can be made.
 	///
 	/// @return			If positive, the policy_id used to reference
-	///					the class in other methods.  If -1, an error
+	///					the class in other methods.  If 0, an error
 	///					occurred and @see getStatus() may provide more
 	///					detail on the reason.
 	static policy_t createPolicyClass();

@@ -54,8 +54,8 @@ std::string HttpStatus::toHex() const
 	result.fill('0');
 	result << std::hex << operator unsigned long();
 	return result.str();
-	
 }
+
 
 std::string HttpStatus::toString() const
 {

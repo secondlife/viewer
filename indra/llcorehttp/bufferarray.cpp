@@ -85,9 +85,9 @@ public:
 // ==================================
 
 
-#if	! defined(WIN32)
+#if	! LL_WINDOWS
 const size_t BufferArray::BLOCK_ALLOC_SIZE;
-#endif	// ! defined(WIN32)
+#endif	// ! LL_WINDOWS
 
 BufferArray::BufferArray()
 	: LLCoreInt::RefCounted(true),

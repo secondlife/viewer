@@ -33,6 +33,7 @@
 #include "_httpreadyqueue.h"
 #include "_httpretryqueue.h"
 #include "_httppolicyglobal.h"
+#include "_httpinternal.h"
 
 
 namespace LLCore
@@ -108,7 +109,7 @@ protected:
 		HttpRetryQueue		mRetryQueue;
 	};
 
-	State				mState[HttpRequest::POLICY_CLASS_LIMIT];
+	State				mState[POLICY_CLASS_LIMIT];
 	HttpService *		mService;				// Naked pointer, not refcounted, not owner
 	HttpPolicyGlobal	mGlobalOptions;
 	

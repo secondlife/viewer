@@ -36,6 +36,7 @@
 
 #include "httprequest.h"
 #include "_httpservice.h"
+#include "_httpinternal.h"
 
 
 namespace LLCore
@@ -91,17 +92,8 @@ protected:
 protected:
 	HttpService *		mService;				// Simple reference, not owner
 	active_set_t		mActiveOps;
-	CURLM *				mMultiHandles[HttpRequest::POLICY_CLASS_LIMIT];
-};  // end class HttpLibcurl
-
-
-// ---------------------------------------
-// Free functions
-// ---------------------------------------
-
-
-curl_slist * append_headers_to_slist(const HttpHeaders *, curl_slist * slist);
-
+	CURLM *				mMultiHandles[POLICY_CLASS_LIMIT];
+}; // end class HttpLibcurl
 
 }  // end namespace LLCore
 

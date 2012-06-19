@@ -126,7 +126,7 @@ HttpService::ELoopSpeed HttpPolicy::processReadyQueue()
 	for (int policy_class(0); policy_class < LL_ARRAY_SIZE(mState); ++policy_class)
 	{
 		int active(transport.getActiveCountInClass(policy_class));
-		int needed(8 - active);
+		int needed(DEFAULT_CONNECTIONS - active);				// *FIXME:  move to policy class
 
 		HttpRetryQueue & retryq(mState[policy_class].mRetryQueue);
 		HttpReadyQueue & readyq(mState[policy_class].mReadyQueue);
@@ -242,7 +242,7 @@ bool HttpPolicy::stageAfterCompletion(HttpOpRequest * op)
 
 int HttpPolicy::getReadyCount(HttpRequest::policy_t policy_class)
 {
-	if (policy_class < HttpRequest::POLICY_CLASS_LIMIT)
+	if (policy_class < POLICY_CLASS_LIMIT)				// *FIXME:  use actual active class count
 	{
 		return (mState[policy_class].mReadyQueue.size()
 				+ mState[policy_class].mRetryQueue.size());
