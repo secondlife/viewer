@@ -123,7 +123,11 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 		openFloater(floaterp->getKey());
 		return;
 	}
+	
+	// Make sure the message panel is open when adding a floater or it stays mysteriously hidden
+	collapseMessagesPane(false);
 
+	// Add the floater
 	LLMultiFloater::addFloater(floaterp, select_added_floater, insertion_point);
 
 	LLUUID session_id = floaterp->getKey();
@@ -355,6 +359,14 @@ void LLIMFloaterContainer::onAvatarPicked(const uuid_vec_t& ids)
 // CHUI-137 : Temporary implementation of conversations list
 void LLIMFloaterContainer::addConversationListItem(std::string name, const LLUUID& uuid, LLFloater* floaterp, LLIMFloaterContainer* containerp)
 {
+	// Check if the item is not already in the list, exit if it is (nothing to do)
+	// Note: this happens often, when reattaching a torn off conversation for instance
+	conversations_items_map::iterator item_it = mConversationsItems.find(uuid);
+	if (item_it != mConversationsItems.end())
+	{
+		return;
+	}
+
 	// Create a conversation item
 	LLConversationItem* item = new LLConversationItem(name, uuid, floaterp, containerp);
 	mConversationsItems[uuid] = item;
