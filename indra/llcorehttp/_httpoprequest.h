@@ -150,6 +150,7 @@ public:
 	BufferArray *		mReplyBody;
 	off_t				mReplyOffset;
 	size_t				mReplyLength;
+	size_t				mReplyFullLength;
 	HttpHeaders *		mReplyHeaders;
 
 	// Policy data

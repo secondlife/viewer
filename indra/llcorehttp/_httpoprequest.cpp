@@ -107,6 +107,7 @@ HttpOpRequest::HttpOpRequest()
 	  mReplyBody(NULL),
 	  mReplyOffset(0),
 	  mReplyLength(0),
+	  mReplyFullLength(0),
 	  mReplyHeaders(NULL),
 	  mPolicyRetries(0),
 	  mPolicyRetryAt(HttpTime(0)),
@@ -154,6 +155,7 @@ HttpOpRequest::~HttpOpRequest()
 
 	mReplyOffset = 0;
 	mReplyLength = 0;
+	mReplyFullLength = 0;
 	if (mReplyBody)
 	{
 		mReplyBody->release();
@@ -224,7 +226,7 @@ void HttpOpRequest::visitNotifier(HttpRequest * request)
 		if (mReplyOffset || mReplyLength)
 		{
 			// Got an explicit offset/length in response
-			response->setRange(mReplyOffset, mReplyLength);
+			response->setRange(mReplyOffset, mReplyLength, mReplyFullLength);
 		}
 
 		mUserHandler->onCompleted(static_cast<HttpHandle>(this), response);
@@ -362,6 +364,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	}
 	mReplyOffset = 0;
 	mReplyLength = 0;
+	mReplyFullLength = 0;
 	if (mReplyHeaders)
 	{
 		mReplyHeaders->release();
@@ -590,6 +593,7 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 		// taking results from the last header stanza we receive.
 		op->mReplyOffset = 0;
 		op->mReplyLength = 0;
+		op->mReplyFullLength = 0;
 		op->mStatus = HttpStatus();
 	}
 	else if (op->mProcFlags & PF_SCAN_RANGE_HEADER)
@@ -613,6 +617,7 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 				// Success, record the fragment position
 				op->mReplyOffset = first;
 				op->mReplyLength = last - first + 1;
+				op->mReplyFullLength = length;
 			}
 			else if (-1 == status)
 			{

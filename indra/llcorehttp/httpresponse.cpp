@@ -37,6 +37,7 @@ HttpResponse::HttpResponse()
 	: LLCoreInt::RefCounted(true),
 	  mReplyOffset(0U),
 	  mReplyLength(0U),
+	  mReplyFullLength(0U),
 	  mBufferArray(NULL),
 	  mHeaders(NULL)
 {}

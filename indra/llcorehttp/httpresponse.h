@@ -111,16 +111,18 @@ public:
 
 	/// If a 'Range:' header was used, these methods are involved
 	/// in setting and returning data about the actual response.
-	void getRange(unsigned int * offset, unsigned int * length) const
+	void getRange(unsigned int * offset, unsigned int * length, unsigned int * full) const
 		{
 			*offset = mReplyOffset;
 			*length = mReplyLength;
+			*full = mReplyFullLength;
 		}
 
-	void setRange(unsigned int offset, unsigned int length)
+	void setRange(unsigned int offset, unsigned int length, unsigned int full_length)
 		{
 			mReplyOffset = offset;
 			mReplyLength = length;
+			mReplyFullLength = full_length;
 		}
 			
 protected:
@@ -128,6 +130,7 @@ protected:
 	HttpStatus			mStatus;
 	unsigned int		mReplyOffset;
 	unsigned int		mReplyLength;
+	unsigned int		mReplyFullLength;
 	BufferArray *		mBufferArray;
 	HttpHeaders *		mHeaders;
 };
