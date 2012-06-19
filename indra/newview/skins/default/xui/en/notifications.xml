@@ -77,6 +77,21 @@
     </form>
   </template>
 
+  <template name="okhelpignore">
+    <form>
+      <button
+       default="true"
+       index="0"
+       name="OK_okhelpignore"
+       text="$yestext"/>
+      <button
+       index="1"
+       name="Help_okhelpignore"
+       text="$helptext"/>
+      <ignore text="$ignoretext"/>
+    </form>
+  </template>
+
   <template name="yesnocancelbuttons">
     <form>
       <button
@@ -1285,6 +1300,33 @@ The region [REGION] does not allow terraforming.
 
   <notification
    icon="alertmodal.tga"
+   name="RegionNoTerraformingWhileFrozen"
+   type="alertmodal">
+    You cannot terraform land while in Frozen mode.  Please switch to Unfrozen mode from the menu option Build->Pathfinding->Basic Setup.
+    <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="AutomaticAgentStateUnfreeze"
+   type="alertmodal">
+You have automatically switched into Unfrozen mode because of one of the following reasons:
+
+- You rezzed an object marked as permanent
+- You returned an object marked as permanent
+
+After you finish modifying your permanent objects, please remember to switch back to Frozen mode  from the menu option Build->Pathfinding->Basic Setup.
+    <tag>confirm</tag>
+    <usetemplate
+      name="okhelpignore"
+      yestext="OK"
+      helptext="More Info"
+      ignoretext="Launch browser to view pathfinding help"
+      />
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="CannotCopyWarning"
    type="alertmodal">
 You do not have permission to copy the following items:
@@ -1485,6 +1527,16 @@ Unable to link because you don&apos;t have modify permission on all the objects.
 
 Please make sure none are locked, and that you own all of them.
   <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CannotLinkPermanent"
+   type="alertmodal">
+Unable to link permanent objects in frozen mode.
+
+Please switch to unfrozen mode from the menu option Build->Pathfinding->Basic Setup.
+    <tag>fail</tag>
   </notification>
 
   <notification
@@ -7670,7 +7722,60 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
       notext="Cancel"
       ignoretext="Confirm before hiding UI"/>
   </notification>
-  
+
+  <notification
+   icon="alertmodal.tga"
+   name="PathfindingLinksets_SetLinksetUseMismatchOnRestricted"
+   type="alertmodal">
+    Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because of permission restrictions on the linkset.  These linksets will be set to be '[RESTRICTED_TYPE]' instead.
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Do you wish to proceed?"
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="PathfindingLinksets_SetLinksetUseMismatchOnVolume"
+   type="alertmodal">
+    Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because of the shape is non-convex.
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Do you wish to proceed?"
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="PathfindingLinksets_SetLinksetUseMismatchOnRestrictedAndVolume"
+   type="alertmodal">
+    Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because of permission restrictions on the linkset.  These linksets will be set to be '[RESTRICTED_TYPE]' instead.
+ Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because of the shape is non-convex. These linksets use types will not change.
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Do you wish to proceed?"
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="PathfindingLinksets_ChangeToFlexiblePath"
+   type="alertmodal">
+    The selected object is marked as permanent and is included in the navmesh.  Setting the object to be a Flexible Path will unset the permanent value and remove the object from the navmesh.  Do you wish to proceed?
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Do you wish to proceed?"
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
   <global name="UnsupportedGLRequirements">
 You do not appear to have the proper hardware requirements for [APP_NAME]. [APP_NAME] requires an OpenGL graphics card that has multitexture support. If this is the case, you may want to make sure that you have the latest drivers for your graphics card, and service packs and patches for your operating system.
 

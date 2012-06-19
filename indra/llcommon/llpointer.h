@@ -140,6 +140,10 @@ public:
 	}
 
 protected:
+#ifdef LL_LIBRARY_INCLUDE
+	void ref();                             
+	void unref();
+#else
 	void ref()                             
 	{ 
 		if (mPointer)
@@ -162,7 +166,7 @@ protected:
 			}
 		}
 	}
-
+#endif
 protected:
 	Type*	mPointer;
 };

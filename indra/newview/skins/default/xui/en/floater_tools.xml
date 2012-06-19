@@ -877,6 +877,14 @@
                 You can't modify these objects
             </panel.string>
             <panel.string
+             name="text modify info 5">
+                You can't modify this object in frozen mode
+            </panel.string>
+            <panel.string
+             name="text modify info 6">
+                You can't modify these objects in frozen mode
+            </panel.string>
+            <panel.string
              name="text modify warning">
                 You must select entire object to set permissions
             </panel.string>
@@ -1355,15 +1363,31 @@ even though the user gets a free copy.
              tool_tip="Causes object to not collide with other objects or avatars"
              top_pad="0"
              width="123" />
+            <check_box
+             height="19"
+             enabled="false"
+             label="Permanent"
+             layout="topleft"
+             name="Permanent Checkbox Ctrl"
+             top_pad="0"
+             width="123" />
+        <check_box
+         height="19"
+         enabled="false"
+         label="Character"
+         layout="topleft"
+         name="Character Checkbox Ctrl"
+         top_pad="0"
+         width="123" />
 
-            <text
+        <text
              type="string"
              length="1"
              follows="left|top"
              height="10"
              layout="topleft"
              name="label position"
-             top_pad="10"
+             top_pad="5"
              width="121">
                 Position (meters)
             </text>

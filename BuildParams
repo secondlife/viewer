@@ -112,6 +112,17 @@ viewer-mesh.login_channel = "Project Viewer - Mesh"
 viewer-mesh.viewer_grid = aditi
 viewer-mesh.email = shining@lists.lindenlab.com
 
+# ========================================
+# viewer-pathfinding
+# ========================================
+
+viewer-pathfinding.viewer_channel = "Project Viewer - Pathfinding"
+viewer-pathfinding.login_channel = "Project Viewer - Pathfinding"
+viewer-pathfinding.viewer_grid = agni
+viewer-pathfinding.build_debug_release_separately = true
+viewer-pathfinding.build_CYGWIN_Debug = false
+viewer-pathfinding.build_viewer_update_version_manager = false
+
 # ================
 # oz
 # ================

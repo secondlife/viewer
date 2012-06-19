@@ -104,7 +104,10 @@
 #include "lltoolpie.h"
 #include "llcurl.h"
 #include "llnotifications.h"
-
+#include "llpathinglib.h"
+#include "llfloaterpathfindingconsole.h"
+#include "llfloaterpathfindingcharacters.h"
+#include "llpathfindingpathtool.h"
 
 #ifdef _DEBUG
 // Debug indices is disabled for now for debug performance - djs 4/24/02
@@ -2646,6 +2649,7 @@ void LLPipeline::markVisible(LLDrawable *drawablep, LLCamera& camera)
 		{
 			const LLDrawable* root = ((LLSpatialBridge*) drawablep)->mDrawable;
 			llassert(root); // trying to catch a bad assumption
+					
 			if (root && //  // this test may not be needed, see above
 					root->getVObj()->isAttachment())
 			{
@@ -2668,6 +2672,7 @@ void LLPipeline::markVisible(LLDrawable *drawablep, LLCamera& camera)
 		}
 		else
 		{
+		
 			sCull->pushDrawable(drawablep);
 		}
 
@@ -3222,7 +3227,7 @@ void renderPhysicalBeacons(LLDrawable* drawablep)
 	if (vobj 
 		&& !vobj->isAvatar() 
 		//&& !vobj->getParent()
-		&& vobj->usePhysics())
+		&& vobj->flagUsePhysics())
 	{
 		if (gPipeline.sRenderBeacons)
 		{
@@ -3811,6 +3816,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 	gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sDefaultImagep);
 	LLViewerFetchedTexture::sDefaultImagep->setAddressMode(LLTexUnit::TAM_WRAP);
 	
+
 	//////////////////////////////////////////////
 	//
 	// Actually render all of the geometry
@@ -3883,7 +3889,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 							break;
 						}
 						
-						p->render(i);
+						if ( !p->getSkipRenderFlag() ) { p->render(i); }
 					}
 					poolp->endRenderPass(i);
 					LLVertexBuffer::unbind();
@@ -4057,7 +4063,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 						break;
 					}
 										
-					p->renderDeferred(i);
+					if ( !p->getSkipRenderFlag() ) { p->renderDeferred(i); }
 				}
 				poolp->endDeferredPass(i);
 				LLVertexBuffer::unbind();
@@ -4345,6 +4351,335 @@ void LLPipeline::renderDebug()
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
 
 	assertInitialized();
+	
+	bool hud_only = hasRenderType(LLPipeline::RENDER_TYPE_HUD);
+
+	if (!hud_only )
+	{
+		//Render any navmesh geometry	
+		LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
+		if ( llPathingLibInstance != NULL ) 
+		{
+			//character floater renderables
+			
+			LLHandle<LLFloaterPathfindingCharacters> pathfindingCharacterHandle = LLFloaterPathfindingCharacters::getInstanceHandle();
+			if ( !pathfindingCharacterHandle.isDead() )
+			{
+				LLFloaterPathfindingCharacters *pathfindingCharacter = pathfindingCharacterHandle.get();
+
+				if ( pathfindingCharacter->getVisible() || gAgentCamera.cameraMouselook() )			
+				{	
+					if (LLGLSLShader::sNoFixedFunction)
+					{					
+						gPathfindingProgram.bind();			
+						gPathfindingProgram.uniform1f("tint", 1.f);
+						gPathfindingProgram.uniform1f("ambiance", 1.f);
+						gPathfindingProgram.uniform1f("alpha_scale", 1.f);
+					}
+
+					//Requried character physics capsule render parameters
+					LLUUID id;					
+					LLVector3 pos;
+					LLQuaternion rot;
+				
+					if ( pathfindingCharacter->isPhysicsCapsuleEnabled( id, pos, rot ) )
+					{
+						if (LLGLSLShader::sNoFixedFunction)
+						{					
+							//remove blending artifacts
+							gGL.setColorMask(false, false);
+							llPathingLibInstance->renderSimpleShapeCapsuleID( gGL, id, pos, rot );				
+							gGL.setColorMask(true, false);
+							LLGLEnable blend(GL_BLEND);
+							gPathfindingProgram.uniform1f("alpha_scale", 0.90f);
+							llPathingLibInstance->renderSimpleShapeCapsuleID( gGL, id, pos, rot );
+							gPathfindingProgram.bind();
+						}
+						else
+						{
+							llPathingLibInstance->renderSimpleShapeCapsuleID( gGL, id, pos, rot );
+						}
+					}
+				}
+			}
+			
+
+			//pathing console renderables
+			LLHandle<LLFloaterPathfindingConsole> pathfindingConsoleHandle = LLFloaterPathfindingConsole::getInstanceHandle();
+			if (!pathfindingConsoleHandle.isDead())
+			{
+				LLFloaterPathfindingConsole *pathfindingConsole = pathfindingConsoleHandle.get();
+
+				if ( pathfindingConsole->getVisible() || gAgentCamera.cameraMouselook() )
+				{				
+					F32 ambiance = gSavedSettings.getF32("PathfindingAmbiance");
+
+					if (LLGLSLShader::sNoFixedFunction)
+					{					
+						gPathfindingProgram.bind();
+			
+						gPathfindingProgram.uniform1f("tint", 1.f);
+						gPathfindingProgram.uniform1f("ambiance", ambiance);
+						gPathfindingProgram.uniform1f("alpha_scale", 1.f);
+					}
+
+					if ( !pathfindingConsole->isRenderWorld() )
+					{
+						const LLColor4 clearColor = gSavedSettings.getColor4("PathfindingNavMeshClear");
+						gGL.setColorMask(true, true);
+						glClearColor(clearColor.mV[0],clearColor.mV[1],clearColor.mV[2],0);
+						glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);					
+						gGL.setColorMask(true, false);
+						glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
+					}
+
+					//NavMesh
+					if ( pathfindingConsole->isRenderNavMesh() )
+					{	
+						gGL.flush();
+						glLineWidth(2.0f);	
+						LLGLEnable cull(GL_CULL_FACE);
+						LLGLDisable blend(GL_BLEND);
+						
+						if ( pathfindingConsole->isRenderWorld() )
+						{					
+							LLGLEnable blend(GL_BLEND);
+							gPathfindingProgram.uniform1f("alpha_scale", 0.66f);
+							llPathingLibInstance->renderNavMesh();
+						}
+						else
+						{
+							llPathingLibInstance->renderNavMesh();
+						}
+						
+						//render edges
+						if (LLGLSLShader::sNoFixedFunction)
+						{
+							gPathfindingNoNormalsProgram.bind();
+							gPathfindingNoNormalsProgram.uniform1f("tint", 1.f);
+							gPathfindingNoNormalsProgram.uniform1f("alpha_scale", 1.f);
+							llPathingLibInstance->renderNavMeshEdges();
+							gPathfindingProgram.bind();
+						}
+						else
+						{
+							llPathingLibInstance->renderNavMeshEdges();
+						}
+
+						gGL.flush();
+						glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
+						glLineWidth(1.0f);	
+						gGL.flush();
+					}
+					//User designated path
+					if ( LLPathfindingPathTool::getInstance()->isRenderPath() )
+					{
+						//The path
+						if (LLGLSLShader::sNoFixedFunction)
+						{
+							gUIProgram.bind();
+							gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sWhiteImagep);
+							llPathingLibInstance->renderPath();
+							gPathfindingProgram.bind();
+						}
+						else
+						{
+							llPathingLibInstance->renderPath();
+						}
+						//The bookends
+						if (LLGLSLShader::sNoFixedFunction)
+						{
+							//remove blending artifacts
+							gGL.setColorMask(false, false);
+							llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_START );
+							llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_END );
+						
+							gGL.setColorMask(true, false);
+							//render the bookends
+							LLGLEnable blend(GL_BLEND);
+							gPathfindingProgram.uniform1f("alpha_scale", 0.90f);
+							llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_START );
+							llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_END );
+							gPathfindingProgram.bind();
+						}
+						else
+						{
+							llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_START );
+							llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_END );
+						}
+					
+					}
+				
+					if ( pathfindingConsole->isRenderWaterPlane() )
+					{	
+						if (LLGLSLShader::sNoFixedFunction)
+						{
+							LLGLEnable blend(GL_BLEND);
+							gPathfindingProgram.uniform1f("alpha_scale", 0.90f);
+							llPathingLibInstance->renderSimpleShapes( gGL, gAgent.getRegion()->getWaterHeight() );
+						}
+						else
+						{
+							llPathingLibInstance->renderSimpleShapes( gGL, gAgent.getRegion()->getWaterHeight() );					
+						}
+					}
+				//physics/exclusion shapes
+				if ( pathfindingConsole->isRenderAnyShapes() )
+				{					
+						U32 render_order[] = {
+							1 << LLPathingLib::LLST_ObstacleObjects,
+							1 << LLPathingLib::LLST_WalkableObjects,
+							1 << LLPathingLib::LLST_ExclusionPhantoms,	
+							1 << LLPathingLib::LLST_MaterialPhantoms,
+						};
+
+						U32 flags = pathfindingConsole->getRenderShapeFlags();
+
+						for (U32 i = 0; i < 4; i++)
+						{
+							if (!(flags & render_order[i]))
+							{
+								continue;
+							}
+
+							//turn off backface culling for volumes so they are visible when camera is inside volume
+							LLGLDisable cull(i >= 2 ? GL_CULL_FACE : 0);
+						
+							gGL.flush();
+							glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
+				
+							//get rid of some z-fighting
+							LLGLEnable polyOffset(GL_POLYGON_OFFSET_FILL);
+							glPolygonOffset(1.0f, 1.0f);
+
+							//render to depth first to avoid blending artifacts
+							gGL.setColorMask(false, false);
+							llPathingLibInstance->renderNavMeshShapesVBO( render_order[i] );		
+							gGL.setColorMask(true, false);
+
+							//get rid of some z-fighting
+							glPolygonOffset(0.f, 0.f);
+
+							LLGLEnable blend(GL_BLEND);
+				
+							{
+								gPathfindingProgram.uniform1f("ambiance", ambiance);
+
+								{ //draw solid overlay
+									LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_LEQUAL);
+									llPathingLibInstance->renderNavMeshShapesVBO( render_order[i] );				
+									gGL.flush();				
+								}
+				
+								LLGLEnable lineOffset(GL_POLYGON_OFFSET_LINE);
+								glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );	
+						
+								F32 offset = gSavedSettings.getF32("PathfindingLineOffset");
+
+								if (pathfindingConsole->isRenderXRay())
+								{
+									gPathfindingProgram.uniform1f("tint", gSavedSettings.getF32("PathfindingXRayTint"));
+									gPathfindingProgram.uniform1f("alpha_scale", gSavedSettings.getF32("PathfindingXRayOpacity"));
+									LLGLEnable blend(GL_BLEND);
+									LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_GREATER);
+								
+									glPolygonOffset(offset, -offset);
+								
+									if (gSavedSettings.getBOOL("PathfindingXRayWireframe"))
+									{ //draw hidden wireframe as darker and less opaque
+										gPathfindingProgram.uniform1f("ambiance", 1.f);
+										llPathingLibInstance->renderNavMeshShapesVBO( render_order[i] );				
+									}
+									else
+									{
+										glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
+										gPathfindingProgram.uniform1f("ambiance", ambiance);
+										llPathingLibInstance->renderNavMeshShapesVBO( render_order[i] );				
+										glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+									}
+								}
+
+								{ //draw visible wireframe as brighter, thicker and more opaque
+									glPolygonOffset(offset, offset);
+									gPathfindingProgram.uniform1f("ambiance", 1.f);
+									gPathfindingProgram.uniform1f("tint", 1.f);
+									gPathfindingProgram.uniform1f("alpha_scale", 1.f);
+
+									glLineWidth(gSavedSettings.getF32("PathfindingLineWidth"));
+									LLGLDisable blendOut(GL_BLEND);
+									llPathingLibInstance->renderNavMeshShapesVBO( render_order[i] );				
+									gGL.flush();
+									glLineWidth(1.f);
+								}
+				
+								glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+							}
+						}
+					}
+
+					glPolygonOffset(0.f, 0.f);
+
+					if ( pathfindingConsole->isRenderNavMesh() && pathfindingConsole->isRenderXRay() )
+					{	//render navmesh xray
+						F32 ambiance = gSavedSettings.getF32("PathfindingAmbiance");
+
+						LLGLEnable lineOffset(GL_POLYGON_OFFSET_LINE);
+						LLGLEnable polyOffset(GL_POLYGON_OFFSET_FILL);
+											
+						F32 offset = gSavedSettings.getF32("PathfindingLineOffset");
+						glPolygonOffset(offset, -offset);
+
+						LLGLEnable blend(GL_BLEND);
+						LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_GREATER);
+						gGL.flush();				
+						glLineWidth(2.0f);	
+						LLGLEnable cull(GL_CULL_FACE);
+																		
+						gPathfindingProgram.uniform1f("tint", gSavedSettings.getF32("PathfindingXRayTint"));
+						gPathfindingProgram.uniform1f("alpha_scale", gSavedSettings.getF32("PathfindingXRayOpacity"));
+								
+						if (gSavedSettings.getBOOL("PathfindingXRayWireframe"))
+						{ //draw hidden wireframe as darker and less opaque
+							glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );	
+							gPathfindingProgram.uniform1f("ambiance", 1.f);
+							llPathingLibInstance->renderNavMesh();
+							glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
+						}	
+						else
+						{
+							gPathfindingProgram.uniform1f("ambiance", ambiance);
+							llPathingLibInstance->renderNavMesh();
+						}
+
+						//render edges
+						if (LLGLSLShader::sNoFixedFunction)
+						{
+							gPathfindingNoNormalsProgram.bind();
+							gPathfindingNoNormalsProgram.uniform1f("tint", gSavedSettings.getF32("PathfindingXRayTint"));
+							gPathfindingNoNormalsProgram.uniform1f("alpha_scale", gSavedSettings.getF32("PathfindingXRayOpacity"));
+							llPathingLibInstance->renderNavMeshEdges();
+							gPathfindingProgram.bind();
+						}
+						else
+						{
+							llPathingLibInstance->renderNavMeshEdges();
+						}
+					
+						gGL.flush();
+						glLineWidth(1.0f);	
+					}
+			
+					glPolygonOffset(0.f, 0.f);
+
+					gGL.flush();
+					if (LLGLSLShader::sNoFixedFunction)
+					{
+						gPathfindingProgram.unbind();
+					}
+				}
+			}
+		}
+	}
 
 	gGL.color4f(1,1,1,1);
 
@@ -4352,9 +4687,7 @@ void LLPipeline::renderDebug()
 	gGL.loadMatrix(gGLModelView);
 	gGL.setColorMask(true, false);
 
-	bool hud_only = hasRenderType(LLPipeline::RENDER_TYPE_HUD);
 
-	
 	if (!hud_only && !mDebugBlips.empty())
 	{ //render debug blips
 		if (LLGLSLShader::sNoFixedFunction)
@@ -6248,6 +6581,10 @@ void LLPipeline::doResetVertexBuffers()
 
 	gSky.resetVertexBuffers();
 
+	if ( LLPathingLib::getInstance() )
+	{
+		LLPathingLib::getInstance()->cleanupVBOManager();
+	}
 	LLVertexBuffer::cleanupClass();
 	
 	//delete all name pool caches
@@ -6693,7 +7030,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 				shader->uniform1f(LLShaderMgr::DOF_MAX_COF, CameraMaxCoF);
 				shader->uniform1f(LLShaderMgr::DOF_RES_SCALE, CameraDoFResScale);
-				
+
 				gGL.begin(LLRender::TRIANGLE_STRIP);
 				gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
 				gGL.vertex2f(-1,-1);
@@ -6839,7 +7176,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 				mFXAABuffer.bindTexture(0, channel);
 				gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
 			}
-			
+						
 			gGLViewport[0] = gViewerWindow->getWorldViewRectRaw().mLeft;
 			gGLViewport[1] = gViewerWindow->getWorldViewRectRaw().mBottom;
 			gGLViewport[2] = gViewerWindow->getWorldViewRectRaw().getWidth();
@@ -7491,7 +7828,7 @@ void LLPipeline::renderDeferredLighting()
 					F32 s = volume->getLightRadius()*1.5f;
 
 					LLColor3 col = volume->getLightColor();
-					
+
 					if (col.magVecSquared() < 0.001f)
 					{
 						continue;
@@ -7604,7 +7941,7 @@ void LLPipeline::renderDeferredLighting()
 					setupSpotLight(gDeferredSpotLightProgram, drawablep);
 					
 					LLColor3 col = volume->getLightColor();
-					
+
 					//vertex positions are encoded so the 3 bits of their vertex index 
 					//correspond to their axis facing, with bit position 3,2,1 matching
 					//axis facing x,y,z, bit set meaning positive facing, bit clear 
@@ -7713,7 +8050,7 @@ void LLPipeline::renderDeferredLighting()
 					setupSpotLight(gDeferredMultiSpotLightProgram, drawablep);
 
 					LLColor3 col = volume->getLightColor();
-					
+
 					gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, tc.v);
 					gDeferredMultiSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s*s);
 					gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
@@ -8189,6 +8526,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 				gGL.setColorMask(true, false);
 
 				renderGeom(camera);
+
 			}
 
 			LLPipeline::sUnderWaterRender = FALSE;
@@ -8850,7 +9188,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 		da = powf(da, split_exp.mV[2]);
 
 		F32 sxp = split_exp.mV[1] + (split_exp.mV[0]-split_exp.mV[1])*da;
-		
+
 		for (U32 i = 0; i < 4; ++i)
 		{
 			F32 x = (F32)(i+1)/4.f;
@@ -9836,4 +10174,144 @@ void LLPipeline::addDebugBlip(const LLVector3& position, const LLColor4& color)
 	DebugBlip blip(position, color);
 	mDebugBlips.push_back(blip);
 }
+
+void LLPipeline::hidePermanentObjects( std::vector<U32>& restoreList )
+{
+	//This method is used to hide any vo's from the object list that may have
+	//the permanent flag set.
+	
+	U32 objCnt = gObjectList.getNumObjects();
+	for (U32 i = 0; i < objCnt; ++i)
+	{
+		LLViewerObject* pObject = gObjectList.getObject(i);
+		if ( pObject && pObject->flagObjectPermanent() )
+		{
+			LLDrawable *pDrawable = pObject->mDrawable;
+		
+			if ( pDrawable )
+			{
+				restoreList.push_back( i );
+				hideDrawable( pDrawable );			
+			}
+		}
+	}
+
+	skipRenderingOfTerrain( true );
+}
+
+void LLPipeline::restorePermanentObjects( const std::vector<U32>& restoreList )
+{
+	//This method is used to restore(unhide) any vo's from the object list that may have
+	//been hidden because their permanency flag was set.
+
+	std::vector<U32>::const_iterator itCurrent	= restoreList.begin();
+	std::vector<U32>::const_iterator itEnd		= restoreList.end();
+	
+	U32 objCnt = gObjectList.getNumObjects();
+
+	while ( itCurrent != itEnd )
+	{
+		U32 index = *itCurrent;
+		LLViewerObject* pObject = NULL;
+		if ( index < objCnt ) 
+		{
+			pObject = gObjectList.getObject( index );
+		}
+		if ( pObject )
+		{
+			LLDrawable *pDrawable = pObject->mDrawable;
+			if ( pDrawable )
+			{
+				pDrawable->clearState( LLDrawable::FORCE_INVISIBLE );
+				unhideDrawable( pDrawable );				
+			}
+		}
+		++itCurrent;
+	}
+	
+	skipRenderingOfTerrain( false );
+}
+
+void LLPipeline::skipRenderingOfTerrain( BOOL flag )
+{
+	pool_set_t::iterator iter = mPools.begin();
+	while ( iter != mPools.end() )
+	{
+		LLDrawPool* pPool = *iter;		
+		U32 poolType = pPool->getType();					
+		if ( hasRenderType( pPool->getType() ) && poolType == LLDrawPool::POOL_TERRAIN )
+		{
+			pPool->setSkipRenderFlag( flag );			
+		}
+		++iter;
+	}
+}
+
+void LLPipeline::hideObject( const LLUUID& id )
+{
+	LLViewerObject *pVO = gObjectList.findObject( id );
+	
+	if ( pVO )
+	{
+		LLDrawable *pDrawable = pVO->mDrawable;
+		
+		if ( pDrawable )
+		{
+			hideDrawable( pDrawable );		
+		}		
+	}
+}
+
+void LLPipeline::hideDrawable( LLDrawable *pDrawable )
+{
+	pDrawable->setState( LLDrawable::FORCE_INVISIBLE );
+	markRebuild( pDrawable, LLDrawable::REBUILD_ALL, TRUE );
+	//hide the children
+	LLViewerObject::const_child_list_t& child_list = pDrawable->getVObj()->getChildren();
+	for ( LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+		  iter != child_list.end(); iter++ )
+	{
+		LLViewerObject* child = *iter;
+		LLDrawable* drawable = child->mDrawable;					
+		if ( drawable )
+		{
+			drawable->setState( LLDrawable::FORCE_INVISIBLE );
+			markRebuild( drawable, LLDrawable::REBUILD_ALL, TRUE );
+		}
+	}
+}
+void LLPipeline::unhideDrawable( LLDrawable *pDrawable )
+{
+	pDrawable->clearState( LLDrawable::FORCE_INVISIBLE );
+	markRebuild( pDrawable, LLDrawable::REBUILD_ALL, TRUE );
+	//restore children
+	LLViewerObject::const_child_list_t& child_list = pDrawable->getVObj()->getChildren();
+	for ( LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+		  iter != child_list.end(); iter++)
+	{
+		LLViewerObject* child = *iter;
+		LLDrawable* drawable = child->mDrawable;					
+		if ( drawable )
+		{
+			drawable->clearState( LLDrawable::FORCE_INVISIBLE );
+			markRebuild( drawable, LLDrawable::REBUILD_ALL, TRUE );
+		}
+	}
+}
+void LLPipeline::restoreHiddenObject( const LLUUID& id )
+{
+	LLViewerObject *pVO = gObjectList.findObject( id );
+	
+	if ( pVO )
+	{
+		LLDrawable *pDrawable = pVO->mDrawable;
+		if ( pDrawable )
+		{
+			unhideDrawable( pDrawable );			
+		}
+	}
+}
+
+
+
 

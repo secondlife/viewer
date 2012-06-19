@@ -122,6 +122,8 @@ TOOLMEDIAOPEN           CURSOR                  "toolmediaopen.cur"
 TOOLBUY                 CURSOR                  "toolbuy.cur"
 TOOLOPEN                CURSOR                  "toolopen.cur"
 TOOLSIT                 CURSOR                  "toolsit.cur"
+TOOLPATHFINDING         CURSOR                  "lltoolpathfinding.cur"
+TOOLNO                  CURSOR                  "llno.cur"
 
 /////////////////////////////////////////////////////////////////////////////
 //

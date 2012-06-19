@@ -66,6 +66,8 @@
 #include "llviewercontrol.h"
 #include "lluictrlfactory.h"
 //#include "llfirstuse.h"
+#include "llfloatertools.h"
+#include "llpathfindingmanager.h"
 
 #include "lldrawpool.h"
 
@@ -119,6 +121,11 @@ BOOL	LLPanelObject::postBuild()
 	mCheckPhantom = getChild<LLCheckBoxCtrl>("Phantom Checkbox Ctrl");
 	childSetCommitCallback("Phantom Checkbox Ctrl",onCommitPhantom,this);
        
+	// Permanent checkbox
+	mCheckPermanent = getChild<LLCheckBoxCtrl>("Permanent Checkbox Ctrl");
+       
+	// Character checkbox
+	mCheckCharacter = getChild<LLCheckBoxCtrl>("Character Checkbox Ctrl");
 
 	// Position
 	mLabelPosition = getChild<LLTextBox>("label position");
@@ -271,6 +278,8 @@ BOOL	LLPanelObject::postBuild()
 	childSetCommitCallback("sculpt mirror control", onCommitSculptType, this);
 	mCtrlSculptInvert = getChild<LLCheckBoxCtrl>("sculpt invert control");
 	childSetCommitCallback("sculpt invert control", onCommitSculptType, this);
+
+	LLPathfindingManager::getInstance()->registerAgentStateListener(boost::bind(&LLPanelObject::handleAgentStateCallback, this));
 	
 	// Start with everyone disabled
 	clearCtrls();
@@ -283,7 +292,6 @@ LLPanelObject::LLPanelObject()
 	mIsPhysical(FALSE),
 	mIsTemporary(FALSE),
 	mIsPhantom(FALSE),
-	mCastShadows(TRUE),
 	mSelectedType(MI_BOX),
 	mSculptTextureRevert(LLUUID::null),
 	mSculptTypeRevert(0)
@@ -342,9 +350,9 @@ void LLPanelObject::getState( )
 	}
 
 	// can move or rotate only linked group with move permissions, or sub-object with move and modify perms
-	BOOL enable_move	= objectp->permMove() && !objectp->isAttachment() && (objectp->permModify() || !gSavedSettings.getBOOL("EditLinkedParts"));
-	BOOL enable_scale	= objectp->permMove() && objectp->permModify();
-	BOOL enable_rotate	= objectp->permMove() && ( (objectp->permModify() && !objectp->isAttachment()) || !gSavedSettings.getBOOL("EditLinkedParts"));
+	BOOL enable_move	= objectp->permMove() && !objectp->isPermanentEnforced() && ((root_objectp == NULL) || !root_objectp->isPermanentEnforced()) && !objectp->isAttachment() && (objectp->permModify() || !gSavedSettings.getBOOL("EditLinkedParts"));
+	BOOL enable_scale	= objectp->permMove() && !objectp->isPermanentEnforced() && ((root_objectp == NULL) || !root_objectp->isPermanentEnforced()) && objectp->permModify();
+	BOOL enable_rotate	= objectp->permMove() && !objectp->isPermanentEnforced() && ((root_objectp == NULL) || !root_objectp->isPermanentEnforced()) && ( (objectp->permModify() && !objectp->isAttachment()) || !gSavedSettings.getBOOL("EditLinkedParts"));
 
 	S32 selected_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
 	BOOL single_volume = (LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME ))
@@ -495,29 +503,37 @@ void LLPanelObject::getState( )
 	}
 
 	BOOL is_flexible = volobjp && volobjp->isFlexible();
+	BOOL is_permanent = root_objectp->flagObjectPermanent();
+	BOOL is_permanent_enforced = root_objectp->isPermanentEnforced();
+	BOOL is_character = root_objectp->flagCharacter();
+	llassert(!is_permanent || !is_character); // should never have a permanent object that is also a character
 
 	// Physics checkbox
-	mIsPhysical = root_objectp->usePhysics();
+	mIsPhysical = root_objectp->flagUsePhysics();
+	llassert(!is_permanent || !mIsPhysical); // should never have a permanent object that is also physical
+
 	mCheckPhysics->set( mIsPhysical );
 	mCheckPhysics->setEnabled( roots_selected>0 
 								&& (editable || gAgent.isGodlike()) 
-								&& !is_flexible);
+								&& !is_flexible && !is_permanent && !is_character);
 
 	mIsTemporary = root_objectp->flagTemporaryOnRez();
+	llassert(!is_permanent || !mIsTemporary); // should never has a permanent object that is also temporary
+
 	mCheckTemporary->set( mIsTemporary );
-	mCheckTemporary->setEnabled( roots_selected>0 && editable );
+	mCheckTemporary->setEnabled( roots_selected>0 && editable && !is_permanent);
 
 	mIsPhantom = root_objectp->flagPhantom();
+	llassert(!is_character || !mIsPhantom); // should never have a character that is also a phantom
 	mCheckPhantom->set( mIsPhantom );
-	mCheckPhantom->setEnabled( roots_selected>0 && editable && !is_flexible );
+	mCheckPhantom->setEnabled( roots_selected>0 && editable && !is_flexible && !is_permanent_enforced && !is_character);
 
+	mCheckPermanent->set(is_permanent);
+	mCheckPermanent->setEnabled(FALSE);
+
+	mCheckCharacter->set(is_character);
+	mCheckCharacter->setEnabled(FALSE);
        
-#if 0 // 1.9.2
-	mCastShadows = root_objectp->flagCastShadows();
-	mCheckCastShadows->set( mCastShadows );
-	mCheckCastShadows->setEnabled( roots_selected==1 && editable );
-#endif
-	
 	//----------------------------------------------------------------------------
 
 	S32 selected_item	= MI_BOX;
@@ -555,7 +571,7 @@ void LLPanelObject::getState( )
 	{
 		// Only allowed to change these parameters for objects
 		// that you have permissions on AND are not attachments.
-		enabled = root_objectp->permModify();
+		enabled = root_objectp->permModify() && !root_objectp->isPermanentEnforced();
 		
 		// Volume type
 		const LLVolumeParams &volume_params = objectp->getVolume()->getParams();
@@ -1214,22 +1230,6 @@ void LLPanelObject::sendIsPhantom()
 	}
 }
 
-void LLPanelObject::sendCastShadows()
-{
-	BOOL value = mCheckCastShadows->get();
-	if( mCastShadows != value )
-	{
-		LLSelectMgr::getInstance()->selectionUpdateCastShadows(value);
-		mCastShadows = value;
-
-		llinfos << "update cast shadows sent" << llendl;
-	}
-	else
-	{
-		llinfos << "update cast shadows not changed" << llendl;
-	}
-}
-
 // static
 void LLPanelObject::onCommitParametric( LLUICtrl* ctrl, void* userdata )
 {
@@ -1885,11 +1885,11 @@ void LLPanelObject::clearCtrls()
 	mCheckTemporary	->setEnabled( FALSE );
 	mCheckPhantom	->set(FALSE);
 	mCheckPhantom	->setEnabled( FALSE );
+	mCheckPermanent	->set(FALSE);
+	mCheckPermanent	->setEnabled( FALSE );
+	mCheckCharacter	->set(FALSE);
+	mCheckCharacter	->setEnabled( FALSE );
 	
-#if 0 // 1.9.2
-	mCheckCastShadows->set(FALSE);
-	mCheckCastShadows->setEnabled( FALSE );
-#endif
 	// Disable text labels
 	mLabelPosition	->setEnabled( FALSE );
 	mLabelSize		->setEnabled( FALSE );
@@ -1977,14 +1977,6 @@ void LLPanelObject::onCommitPhantom( LLUICtrl* ctrl, void* userdata )
 	self->sendIsPhantom();
 }
 
-// static
-void LLPanelObject::onCommitCastShadows( LLUICtrl* ctrl, void* userdata )
-{
-	LLPanelObject* self = (LLPanelObject*) userdata;
-	self->sendCastShadows();
-}
-
-
 void LLPanelObject::onSelectSculpt(const LLSD& data)
 {
     LLTextureCtrl* mTextureCtrl = getChild<LLTextureCtrl>("sculpt texture control");
@@ -2001,6 +1993,11 @@ void LLPanelObject::onSelectSculpt(const LLSD& data)
 void LLPanelObject::onCommitSculpt( const LLSD& data )
 {
 	sendSculpt();
+}
+
+void LLPanelObject::handleAgentStateCallback() const
+{
+	gFloaterTools->dirty();
 }
 
 BOOL LLPanelObject::onDropSculpt(LLInventoryItem* item)

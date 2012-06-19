@@ -325,6 +325,7 @@ public:
 	bool objectsCrossParcel(const std::vector<LLBBox>& boxes) const;
 
 	void getNeighboringRegions( std::vector<LLViewerRegion*>& uniqueRegions );
+	void getNeighboringRegionsStatus( std::vector<S32>& regions );
 	
 public:
 	struct CompareDistance

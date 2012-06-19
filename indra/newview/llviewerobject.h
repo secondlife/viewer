@@ -45,6 +45,7 @@
 #include "llvertexbuffer.h"
 #include "llbbox.h"
 #include "llbbox.h"
+#include "llviewercontrol.h"
 
 class LLAgent;			// TODO: Get rid of this.
 class LLAudioSource;
@@ -308,7 +309,6 @@ public:
 
 	inline void setRotation(const F32 x, const F32 y, const F32 z, BOOL damped = FALSE);
 	inline void setRotation(const LLQuaternion& quat, BOOL damped = FALSE);
-	void sendRotationUpdate() const;
 
 	/*virtual*/	void	setNumTEs(const U8 num_tes);
 	/*virtual*/	void	setTE(const U8 te, const LLTextureEntry &texture_entry);
@@ -468,26 +468,36 @@ public:
 	BOOL			permCopy() const;	
 	BOOL			permMove() const;		
 	BOOL			permTransfer() const;
-	inline BOOL		usePhysics() const				{ return ((mFlags & FLAGS_USE_PHYSICS) != 0); }
+	inline BOOL		flagUsePhysics() const			{ return ((mFlags & FLAGS_USE_PHYSICS) != 0); }
+	inline BOOL		flagObjectAnyOwner() const		{ return ((mFlags & FLAGS_OBJECT_ANY_OWNER) != 0); }
+	inline BOOL		flagObjectYouOwner() const		{ return ((mFlags & FLAGS_OBJECT_YOU_OWNER) != 0); }
+	inline BOOL		flagObjectGroupOwned() const	{ return ((mFlags & FLAGS_OBJECT_GROUP_OWNED) != 0); }
+	inline BOOL		flagObjectOwnerModify() const	{ return ((mFlags & FLAGS_OBJECT_OWNER_MODIFY) != 0); }
+	inline BOOL		flagObjectModify() const		{ return ((mFlags & FLAGS_OBJECT_MODIFY) != 0); }
+	inline BOOL		flagObjectCopy() const			{ return ((mFlags & FLAGS_OBJECT_COPY) != 0); }
+	inline BOOL		flagObjectMove() const			{ return ((mFlags & FLAGS_OBJECT_MOVE) != 0); }
+	inline BOOL		flagObjectTransfer() const		{ return ((mFlags & FLAGS_OBJECT_TRANSFER) != 0); }
+	inline BOOL		flagObjectPermanent() const		{ return gSavedSettings.getBOOL("PathfindingDisablePermanentObjects") ? FALSE : ((mFlags & FLAGS_OBJECT_PERMANENT) != 0); }
+	inline BOOL		flagCharacter() const			{ return gSavedSettings.getBOOL("PathfindingDisableCharacterObjects") ? FALSE : ((mFlags & FLAGS_CHARACTER) != 0); }
+	inline BOOL		flagIncludeInSearch() const     { return ((mFlags & FLAGS_INCLUDE_IN_SEARCH) != 0); }
 	inline BOOL		flagScripted() const			{ return ((mFlags & FLAGS_SCRIPTED) != 0); }
 	inline BOOL		flagHandleTouch() const			{ return ((mFlags & FLAGS_HANDLE_TOUCH) != 0); }
 	inline BOOL		flagTakesMoney() const			{ return ((mFlags & FLAGS_TAKES_MONEY) != 0); }
 	inline BOOL		flagPhantom() const				{ return ((mFlags & FLAGS_PHANTOM) != 0); }
 	inline BOOL		flagInventoryEmpty() const		{ return ((mFlags & FLAGS_INVENTORY_EMPTY) != 0); }
-	inline BOOL		flagCastShadows() const			{ return ((mFlags & FLAGS_CAST_SHADOWS) != 0); }
 	inline BOOL		flagAllowInventoryAdd() const	{ return ((mFlags & FLAGS_ALLOW_INVENTORY_DROP) != 0); }
-	inline BOOL		flagTemporary() const			{ return ((mFlags & FLAGS_TEMPORARY) != 0); }
 	inline BOOL		flagTemporaryOnRez() const		{ return ((mFlags & FLAGS_TEMPORARY_ON_REZ) != 0); }
 	inline BOOL		flagAnimSource() const			{ return ((mFlags & FLAGS_ANIM_SOURCE) != 0); }
 	inline BOOL		flagCameraSource() const		{ return ((mFlags & FLAGS_CAMERA_SOURCE) != 0); }
 	inline BOOL		flagCameraDecoupled() const		{ return ((mFlags & FLAGS_CAMERA_DECOUPLED) != 0); }
-	inline BOOL		flagObjectMove() const			{ return ((mFlags & FLAGS_OBJECT_MOVE) != 0); }
 
 	U8       getPhysicsShapeType() const;
 	inline F32      getPhysicsGravity() const       { return mPhysicsGravity; }
 	inline F32      getPhysicsFriction() const      { return mPhysicsFriction; }
 	inline F32      getPhysicsDensity() const       { return mPhysicsDensity; }
 	inline F32      getPhysicsRestitution() const   { return mPhysicsRestitution; }
+
+	bool            isPermanentEnforced() const;
 	
 	bool getIncludeInSearch() const;
 	void setIncludeInSearch(bool include_in_search);
@@ -504,6 +514,7 @@ public:
 
 	void updateFlags(BOOL physics_changed = FALSE);
 	BOOL setFlags(U32 flag, BOOL state);
+	BOOL setFlagsWithoutUpdate(U32 flag, BOOL state);
 	void setPhysicsShapeType(U8 type);
 	void setPhysicsGravity(F32 gravity);
 	void setPhysicsFriction(F32 friction);
@@ -595,9 +606,11 @@ public:
 	U32				mGLName;			// GL "name" used by selection code
 	BOOL			mbCanSelect;		// true if user can select this object by clicking
 
+private:
 	// Grabbed from UPDATE_FLAGS
 	U32				mFlags;
 
+public:
 	// Sent to sim in UPDATE_FLAGS, received in ObjectPhysicsProperties
 	U8              mPhysicsShapeType;
 	F32             mPhysicsGravity;
@@ -710,7 +723,6 @@ protected:
 
 	F32				mTimeDilation;				// Time dilation sent with the object.
 	F32				mRotTime;					// Amount (in seconds) that object has rotated according to angular velocity (llSetTargetOmega)
-	LLQuaternion	mLastRot;					// last rotation received from the simulator
 
 	LLVOJointInfo*  mJointInfo;
 	U8				mState;	// legacy

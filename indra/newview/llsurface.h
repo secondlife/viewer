@@ -142,6 +142,7 @@ public:
 	friend std::ostream& operator<<(std::ostream &s, const LLSurface &S);
 	
 	void getNeighboringRegions( std::vector<LLViewerRegion*>& uniqueRegions );
+	void getNeighboringRegionsStatus( std::vector<S32>& regions );
 	
 public:
 	// Number of grid points on one side of a region, including +1 buffer for

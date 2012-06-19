@@ -479,9 +479,12 @@ BOOL LLManipRotate::handleMouseUp(S32 x, S32 y, MASK mask)
 		{
 			LLSelectNode* selectNode = *iter;
 			LLViewerObject* object = selectNode->getObject();
+			LLViewerObject* root_object = (object == NULL) ? NULL : object->getRootEdit();
 
 			// have permission to move and object is root of selection or individually selected
-			if (object->permMove() && (object->isRootEdit() || selectNode->mIndividualSelection))
+			if (object->permMove() && !object->isPermanentEnforced() &&
+				((root_object == NULL) || !root_object->isPermanentEnforced()) &&
+				(object->isRootEdit() || selectNode->mIndividualSelection))
 			{
 				object->mUnselectedChildrenPositions.clear() ;
 			}
@@ -567,9 +570,12 @@ void LLManipRotate::drag( S32 x, S32 y )
 	{
 		LLSelectNode* selectNode = *iter;
 		LLViewerObject* object = selectNode->getObject();
+		LLViewerObject* root_object = (object == NULL) ? NULL : object->getRootEdit();
 
 		// have permission to move and object is root of selection or individually selected
-		if (object->permMove() && (object->isRootEdit() || selectNode->mIndividualSelection))
+		if (object->permMove() && !object->isPermanentEnforced() &&
+			((root_object == NULL) || !root_object->isPermanentEnforced()) &&
+			(object->isRootEdit() || selectNode->mIndividualSelection))
 		{
 			if (!object->isRootEdit())
 			{
@@ -621,9 +627,11 @@ void LLManipRotate::drag( S32 x, S32 y )
 	{
 		LLSelectNode* selectNode = *iter;
 		LLViewerObject* object = selectNode->getObject();
+		LLViewerObject* root_object = (object == NULL) ? NULL : object->getRootEdit();
 
 		// to avoid cumulative position changes we calculate the objects new position using its saved position
-		if (object && object->permMove())
+		if (object && object->permMove() && !object->isPermanentEnforced() &&
+			((root_object == NULL) || !root_object->isPermanentEnforced()))
 		{
 			LLVector3 center   = gAgent.getPosAgentFromGlobal( mRotationCenter );
 
@@ -704,7 +712,10 @@ void LLManipRotate::drag( S32 x, S32 y )
 	{
 		LLSelectNode* selectNode = *iter;
 		LLViewerObject*cur = selectNode->getObject();
-		if( cur->permModify() && cur->permMove() && !cur->isAvatar())
+		LLViewerObject *root_object = (cur == NULL) ? NULL : cur->getRootEdit();
+		if( cur->permModify() && cur->permMove() && !cur->isPermanentEnforced() &&
+			((root_object == NULL) || !root_object->isPermanentEnforced()) &&
+			!cur->isAvatar())
 		{
 			selectNode->mLastRotation = cur->getRotation();
 			selectNode->mLastPositionLocal = cur->getPosition();
@@ -1871,7 +1882,10 @@ BOOL LLManipRotate::canAffectSelection()
 		{
 			virtual bool apply(LLViewerObject* objectp)
 			{
-				return objectp->permMove() && (objectp->permModify() || !gSavedSettings.getBOOL("EditLinkedParts"));
+				LLViewerObject *root_object = (objectp == NULL) ? NULL : objectp->getRootEdit();
+				return objectp->permMove() && !objectp->isPermanentEnforced() &&
+					((root_object == NULL) || !root_object->isPermanentEnforced()) &&
+					(objectp->permModify() || !gSavedSettings.getBOOL("EditLinkedParts"));
 			}
 		} func;
 		can_rotate = mObjectSelection->applyToObjects(&func);

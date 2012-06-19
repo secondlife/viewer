@@ -106,6 +106,7 @@
 #include "llvfsthread.h"
 #include "llvolumemgr.h"
 #include "llxfermanager.h"
+#include "llphysicsextensions.h"
 
 #include "llnotificationmanager.h"
 #include "llnotifications.h"
@@ -1547,6 +1548,9 @@ bool LLAppViewer::cleanup()
 
 	// shut down mesh streamer
 	gMeshRepo.shutdown();
+
+	// shut down Havok
+	LLPhysicsExtensions::quitSystem();
 
 	// Must clean up texture references before viewer window is destroyed.
 	if(LLHUDManager::instanceExists())

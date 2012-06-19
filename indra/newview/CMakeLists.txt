@@ -17,12 +17,12 @@ include(JsonCpp)
 include(LLAudio)
 include(LLCharacter)
 include(LLCommon)
-include(LLConvexDecomposition)
 include(LLImage)
 include(LLImageJ2COJ)
 include(LLInventory)
 include(LLMath)
 include(LLMessage)
+include(LLPhysicsExtensions)
 include(LLPlugin)
 include(LLPrimitive)
 include(LLRender)
@@ -52,7 +52,7 @@ include_directories(
     ${LLAUDIO_INCLUDE_DIRS}
     ${LLCHARACTER_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
-    ${LLCONVEXDECOMP_INCLUDE_DIRS}
+    ${LLPHYSICS_INCLUDE_DIRS}
     ${FMOD_INCLUDE_DIR}
     ${LLIMAGE_INCLUDE_DIRS}
     ${LLKDU_INCLUDE_DIRS}
@@ -218,6 +218,11 @@ set(viewer_SOURCE_FILES
     llfloaterobjectweights.cpp
     llfloateropenobject.cpp
     llfloateroutbox.cpp
+    llfloaterpathfindingbasic.cpp
+    llfloaterpathfindingcharacters.cpp
+    llfloaterpathfindingconsole.cpp
+    llfloaterpathfindinglinksets.cpp
+    llfloaterpathfindingobjects.cpp
     llfloaterpay.cpp
     llfloaterperms.cpp
     llfloaterpostprocess.cpp
@@ -413,6 +418,17 @@ set(viewer_SOURCE_FILES
     llparcelselection.cpp
     llparticipantlist.cpp
     llpatchvertexarray.cpp
+    llpathfindingcharacter.cpp
+    llpathfindingcharacterlist.cpp
+    llpathfindinglinkset.cpp
+    llpathfindinglinksetlist.cpp
+    llpathfindingmanager.cpp
+    llpathfindingnavmesh.cpp
+    llpathfindingnavmeshstatus.cpp
+    llpathfindingnavmeshzone.cpp
+    llpathfindingobject.cpp
+    llpathfindingobjectlist.cpp
+    llpathfindingpathtool.cpp
     llphysicsmotion.cpp
     llphysicsshapebuilderutil.cpp
     llplacesinventorybridge.cpp
@@ -774,6 +790,11 @@ set(viewer_HEADER_FILES
     llfloaterobjectweights.h
     llfloateropenobject.h
     llfloateroutbox.h
+    llfloaterpathfindingbasic.h
+    llfloaterpathfindingcharacters.h
+    llfloaterpathfindingconsole.h
+    llfloaterpathfindinglinksets.h
+    llfloaterpathfindingobjects.h
     llfloaterpay.h
     llfloaterperms.h
     llfloaterpostprocess.h
@@ -958,6 +979,17 @@ set(viewer_HEADER_FILES
     llparcelselection.h
     llparticipantlist.h
     llpatchvertexarray.h
+    llpathfindingcharacter.h
+    llpathfindingcharacterlist.h
+    llpathfindinglinkset.h
+    llpathfindinglinksetlist.h
+    llpathfindingmanager.h
+    llpathfindingnavmesh.h
+    llpathfindingnavmeshstatus.h
+    llpathfindingnavmeshzone.h
+    llpathfindingobject.h
+    llpathfindingobjectlist.h
+    llpathfindingpathtool.h
     llphysicsmotion.h
     llphysicsshapebuilderutil.h
     llplacesinventorybridge.h
@@ -1306,6 +1338,7 @@ if (WINDOWS)
         res/lltoolgrab.cur
         res/lltoolland.cur
         res/lltoolpan.cur
+        res/lltoolpathfinding.cur
         res/lltoolpipette.cur
         res/lltoolrotate.cur
         res/lltoolscale.cur
@@ -1515,9 +1548,9 @@ if (WINDOWS)
         PROPERTIES
         # *TODO -reenable this once we get server usage sorted out
         #LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS /INCLUDE:\"__tcmalloc\""
-        LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS /INCLUDE:__tcmalloc"
+        LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS /INCLUDE:__tcmalloc "
         LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\" /INCREMENTAL:NO"
-        LINK_FLAGS_RELEASE ""
+        LINK_FLAGS_RELEASE "/FORCE:MULTIPLE"
         )
     if(USE_PRECOMPILED_HEADERS)
         set_target_properties(
@@ -1731,6 +1764,7 @@ endif (WINDOWS)
 # To work around this, higher level modules should be listed before the modules
 # that they depend upon. -brad
 target_link_libraries(${VIEWER_BINARY_NAME}
+    ${LLPATHING_LIBRARIES}
     ${UPDATER_LIBRARIES}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
     ${LLAUDIO_LIBRARIES}
@@ -1769,7 +1803,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${OPENSSL_LIBRARIES}
     ${CRYPTO_LIBRARIES}
     ${LLLOGIN_LIBRARIES}
-    ${LLCONVEXDECOMP_LIBRARY}
+    ${LLPHYSICS_LIBRARIES}
     ${TCMALLOC_LIBRARIES}
     )
 

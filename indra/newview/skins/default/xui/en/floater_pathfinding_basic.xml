@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+    open_positioning="cascading"
+    can_tear_off="false"
+    height="213"
+    layout="topleft"
+    name="floater_pathfinding_basic"
+    help_topic="floater_pathfinding_basic"
+    reuse_instance="false"
+    save_rect="false"
+    single_instance="true"
+    title="Basic pathfinding setup"
+    width="312">
+  <floater.string name="status_pathfinding_not_enabled">This region is not enabled for pathfinding.</floater.string>
+  <floater.string name="status_unable_to_change_state">Unable to change modes successfully.</floater.string>
+  <floater.string name="status_querying_state">Checking status ...</floater.string>
+  <text
+      height="13"
+      word_wrap="false"
+      use_ellipses="false"
+      type="string"
+      text_color="LabelTextColor"
+      length="1"
+      follows="left|top"
+      layout="topleft"
+      left="15"
+      name="status_label"
+      top="8"
+      width="289">
+  </text>
+  <text
+      height="13"
+      word_wrap="true"
+      use_ellipses="false"
+      type="string"
+      text_color="LabelTextColor"
+      text_readonly_color="LabelDisabledColor"
+      length="1"
+      follows="left|top"
+      layout="topleft"
+      left="15"
+      name="unfreeze_label"
+      top_pad="4"
+      width="289">
+    Allow object / terrain changes:
+  </text>
+  <button
+      follows="left|top"
+      height="22"
+      label="Unfreeze"
+      layout="topleft"
+      name="enter_unfrozen_mode"
+      width="116"/>
+  <text
+      height="82"
+      word_wrap="true"
+      use_ellipses="false"
+      type="string"
+      text_color="LabelTextColor"
+      text_readonly_color="LabelDisabledColor"
+      length="1"
+      follows="left|top"
+      layout="topleft"
+      line_spacing.multiple="1.5"
+      left="15"
+      name="freeze_label"
+      top_pad="23"
+      width="289">
+    In unfrozen mode, you can move and make changes to objects and terrain.  When you are finished, click the Freeze button.  It may require a few minutes to process your changes.
+  </text>
+  <button
+      follows="left|top"
+      height="22"
+      label="Freeze"
+      layout="topleft"
+      name="enter_frozen_mode"
+      top_pad="0"
+      width="116"/>
+</floater>

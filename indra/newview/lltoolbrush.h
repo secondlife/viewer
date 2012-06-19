@@ -86,6 +86,9 @@ protected:
 	// Modal dialog that you can't terraform the region
 	void alertNoTerraform(LLViewerRegion* regionp);
 
+	// Modal dialog that you can't terraform in frozen mode
+	void alertNoTerraformWhileFrozen();
+
 protected:
 	F32 mStartingZ;
 	S32 mMouseX;
