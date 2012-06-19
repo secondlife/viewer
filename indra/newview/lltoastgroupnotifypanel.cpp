@@ -112,7 +112,7 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(const LLNotificationPtr& notifi
 		style.font = date_font;
 	pMessageText->appendText(timeStr + "\n", TRUE, style);
 	
-	style.font = pMessageText->getDefaultFont();
+	style.font = pMessageText->getFont();
 	pMessageText->appendText(message, TRUE, style);
 
 	//attachment

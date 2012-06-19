@@ -105,7 +105,7 @@ class LLNormalTextSegment : public LLTextSegment
 public:
 	LLNormalTextSegment( LLStyleConstSP style, S32 start, S32 end, LLTextBase& editor );
 	LLNormalTextSegment( const LLColor4& color, S32 start, S32 end, LLTextBase& editor, BOOL is_visible = TRUE);
-	~LLNormalTextSegment();
+	virtual ~LLNormalTextSegment();
 
 	/*virtual*/ bool				getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const;
 	/*virtual*/ S32					getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const;
@@ -130,6 +130,9 @@ public:
 protected:
 	F32					drawClippedSegment(S32 seg_start, S32 seg_end, S32 selection_start, S32 selection_end, LLRect rect);
 
+	virtual		const LLWString&	getWText()	const;
+	virtual		const S32			getLength()	const;
+
 protected:
 	class LLTextBase&	mEditor;
 	LLStyleConstSP		mStyle;
@@ -137,6 +140,21 @@ protected:
 	LLKeywordToken* 	mToken;
 	std::string     	mTooltip;
 	boost::signals2::connection mImageLoadedConnection;
+};
+
+// This text segment is the same as LLNormalTextSegment, the only difference
+// is that LLNormalTextSegment draws value of LLTextBase (LLTextBase::getWText()),
+// but LLLabelTextSegment draws label of the LLTextBase (LLTextBase::mLabel)
+class LLLabelTextSegment : public LLNormalTextSegment
+{
+public:
+	LLLabelTextSegment( LLStyleConstSP style, S32 start, S32 end, LLTextBase& editor );
+	LLLabelTextSegment( const LLColor4& color, S32 start, S32 end, LLTextBase& editor, BOOL is_visible = TRUE);
+
+protected:
+
+	/*virtual*/	const LLWString&	getWText()	const;
+	/*virtual*/	const S32			getLength()	const;
 };
 
 // Text segment that changes it's style depending of mouse pointer position ( is it inside or outside segment)
@@ -249,6 +267,7 @@ public:
 		Optional<LLUIColor>		cursor_color,
 								text_color,
 								text_readonly_color,
+								text_tentative_color,
 								bg_readonly_color,
 								bg_writeable_color,
 								bg_focus_color,
@@ -311,6 +330,9 @@ public:
 	/*virtual*/ BOOL		canDeselect() const;
 	/*virtual*/ void		deselect();
 
+	virtual void	onFocusReceived();
+	virtual void	onFocusLost();
+
 	// used by LLTextSegment layout code
 	bool					getWordWrap() { return mWordWrap; }
 	bool					getUseEllipses() { return mUseEllipses; }
@@ -330,6 +352,21 @@ public:
 	const LLWString&       	getWText() const;
 
 	void					appendText(const std::string &new_text, bool prepend_newline, const LLStyle::Params& input_params = LLStyle::Params());
+
+	void					setLabel(const LLStringExplicit& label);
+	virtual BOOL			setLabelArg(const std::string& key, const LLStringExplicit& text );
+
+	const	std::string& 	getLabel()	{ return mLabel.getString(); }
+	const	LLWString&		getWlabel() { return mLabel.getWString();}
+
+	/**
+	 * If label is set, draws text label (which is LLLabelTextSegment)
+	 * that is visible when no user text provided and has no focus
+	 */
+	void					resetLabel();
+
+	void					setFont(const LLFontGL* font);
+
 	// force reflow of text
 	void					needsReflow(S32 index = 0);
 
@@ -369,7 +406,7 @@ public:
 	bool					scrolledToStart();
 	bool					scrolledToEnd();
 
-	const LLFontGL*			getDefaultFont() const					{ return mDefaultFont; }
+	const LLFontGL*			getFont() const					{ return mFont; }
 
 	virtual void			appendLineBreakSegment(const LLStyle::Params& style_params);
 	virtual void			appendImageSegment(const LLStyle::Params& style_params);
@@ -469,7 +506,7 @@ protected:
 	void							createDefaultSegment();
 	virtual void					updateSegments();
 	void							insertSegment(LLTextSegmentPtr segment_to_insert);
-	const LLStyle::Params&			getDefaultStyleParams();
+	const LLStyle::Params&			getStyleParams();
 
 	//  manage lines
 	S32								getLineStart( S32 line ) const;
@@ -514,15 +551,16 @@ protected:
 	LLRect						mTextBoundingRect;
 
 	// default text style
-	LLStyle::Params				mDefaultStyle;
+	LLStyle::Params				mStyle;
 	bool						mStyleDirty;
-	const LLFontGL* const		mDefaultFont;		// font that is used when none specified, can only be set by constructor
-	const LLFontGL::ShadowType	mFontShadow;		// shadow style, can only be set by constructor
+	const LLFontGL*				mFont;
+	const LLFontGL::ShadowType	mFontShadow;
 
 	// colors
 	LLUIColor					mCursorColor;
 	LLUIColor					mFgColor;
 	LLUIColor					mReadOnlyFgColor;
+	LLUIColor					mTentativeFgColor;
 	LLUIColor					mWriteableBgColor;
 	LLUIColor					mReadOnlyBgColor;
 	LLUIColor					mFocusBgColor;
@@ -558,6 +596,7 @@ protected:
 	bool						mClip;				// clip text to widget rect
 	bool						mClipPartial;		// false if we show lines that are partially inside bounding rect
 	bool						mPlainText;			// didn't use Image or Icon segments
+	bool						mAutoIndent;
 	S32							mMaxTextByteLength;	// Maximum length mText is allowed to be in bytes
 
 	// support widgets
@@ -573,6 +612,7 @@ protected:
 	// Fired when a URL link is clicked
 	commit_signal_t*			mURLClickSignal;
 
+	LLUIString					mLabel;	// text label that is visible when no user text provided
 };
 
 #endif

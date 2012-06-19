@@ -230,7 +230,7 @@ void LLPanelTopInfoBar::buildLocationString(std::string& loc_str, bool show_coor
 void LLPanelTopInfoBar::setParcelInfoText(const std::string& new_text)
 {
 	LLRect old_rect = getRect();
-	const LLFontGL* font = mParcelInfoText->getDefaultFont();
+	const LLFontGL* font = mParcelInfoText->getFont();
 	S32 new_text_width = font->getWidth(new_text);
 
 	mParcelInfoText->setText(new_text);

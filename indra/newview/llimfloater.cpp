@@ -44,7 +44,7 @@
 #include "llimfloatercontainer.h" // to replace separate IM Floaters with multifloater container
 #include "llinventoryfunctions.h"
 //#include "lllayoutstack.h"
-#include "lllineeditor.h"
+#include "llchatentry.h"
 #include "lllogchat.h"
 #include "llscreenchannel.h"
 #include "llsyswellwindow.h"
@@ -64,6 +64,7 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 	mLastMessageIndex(-1),
 	mDialog(IM_NOTHING_SPECIAL),
 	mInputEditor(NULL),
+	mInputEditorTopPad(0),
 	mSavedTitle(),
 	mTypingStart(),
 	mShouldSendTypingState(false),
@@ -190,7 +191,9 @@ void LLIMFloater::sendMsg()
 	{
 		if (mInputEditor)
 		{
-			LLWString text = mInputEditor->getConvertedText();
+			LLWString text = mInputEditor->getWText();
+			LLWStringUtil::trim(text);
+			LLWStringUtil::replaceChar(text,182,'\n'); // Convert paragraph symbols back into newlines.
 			if(!text.empty())
 			{
 				// Truncate and convert to UTF8 for transport
@@ -287,25 +290,25 @@ BOOL LLIMFloater::postBuild()
 {
 	LLIMConversation::postBuild();
 
-	mInputEditor = getChild<LLLineEditor>("chat_editor");
+	mInputEditor = getChild<LLChatEntry>("chat_editor");
 	mInputEditor->setMaxTextLength(1023);
 	// enable line history support for instant message bar
-	mInputEditor->setEnableLineHistory(TRUE);
 
 	LLFontGL* font = LLViewerChat::getChatFont();
 	mInputEditor->setFont(font);	
 	
 	mInputEditor->setFocusReceivedCallback( boost::bind(onInputEditorFocusReceived, _1, this) );
 	mInputEditor->setFocusLostCallback( boost::bind(onInputEditorFocusLost, _1, this) );
-	mInputEditor->setKeystrokeCallback( onInputEditorKeystroke, this );
+	mInputEditor->setKeystrokeCallback( boost::bind(onInputEditorKeystroke, _1, this) );
 	mInputEditor->setCommitOnFocusLost( FALSE );
-	mInputEditor->setRevertOnEsc( FALSE );
-	mInputEditor->setReplaceNewlinesWithSpaces( FALSE );
 	mInputEditor->setPassDelete( TRUE );
 
-	childSetCommitCallback("chat_editor", onSendMsg, this);
+	mInputEditor->setCommitCallback(boost::bind(onSendMsg, _1, this));
+	mInputEditor->setTextExpandedCallback(boost::bind(&LLIMFloater::reshapeChatHistory, this));
 	
 	mChatHistory = getChild<LLChatHistory>("chat_history");
+
+	mInputEditorTopPad = mChatHistory->getRect().mBottom - mInputEditor->getRect().mTop;
 
 	setDocked(true);
 
@@ -880,7 +883,7 @@ void LLIMFloater::onInputEditorFocusLost(LLFocusableElement* caller, void* userd
 }
 
 // static
-void LLIMFloater::onInputEditorKeystroke(LLLineEditor* caller, void* userdata)
+void LLIMFloater::onInputEditorKeystroke(LLTextEditor* caller, void* userdata)
 {
 	LLIMFloater* self = (LLIMFloater*) userdata;
 	std::string text = self->mInputEditor->getText();
@@ -1077,7 +1080,7 @@ private:
 BOOL LLIMFloater::inviteToSession(const uuid_vec_t& ids)
 {
 	LLViewerRegion* region = gAgent.getRegion();
-	bool is_region_exist = !!region;
+	bool is_region_exist = region != NULL;
 
 	if (is_region_exist)
 	{
@@ -1156,6 +1159,17 @@ void LLIMFloater::removeTypingIndicator(const LLIMInfo* im_info)
 			}
 		}
 	}
+}
+
+void LLIMFloater::reshapeChatHistory()
+{
+	LLRect chat_rect  = mChatHistory->getRect();
+	LLRect input_rect = mInputEditor->getRect();
+
+	int delta_height = chat_rect.mBottom - (input_rect.mTop + mInputEditorTopPad);
+
+	chat_rect.setLeftTopAndSize(chat_rect.mLeft, chat_rect.mTop, chat_rect.getWidth(), chat_rect.getHeight() + delta_height);
+	mChatHistory->setShape(chat_rect);
 }
 
 // static
