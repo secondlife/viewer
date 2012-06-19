@@ -756,6 +756,7 @@ void LLPathfindingManager::handleNavMeshStatus(LLPathfindingNavMesh::ENavMeshReq
 			break;
 		case LLPathfindingNavMeshStatus::kComplete : 
 			llinfos << "STINSON DEBUG: navmesh status is kComplete" << llendl;
+			displayNavMeshRebakePanel();
 			break;
 		case LLPathfindingNavMeshStatus::kRepending : 
 			llinfos << "STINSON DEBUG: navmesh status is kRepending" << llendl;
