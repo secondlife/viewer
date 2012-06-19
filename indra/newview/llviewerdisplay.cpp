@@ -393,14 +393,14 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			gAgent.setTeleportState( LLAgent::TELEPORT_REQUESTED );
 			gAgent.setTeleportMessage(
 				LLAgent::sTeleportProgressMessages["requesting"]);			
-			LLPathfindingManager::getInstance()->hideNavMeshRebakePanel();
+			if ( LLPathfindingManager::getInstance() ) { LLPathfindingManager::getInstance()->hideNavMeshRebakePanel(); }
 			break;
 
 		case LLAgent::TELEPORT_REQUESTED:
 			// Waiting for source simulator to respond
 			gViewerWindow->setProgressPercent( llmin(teleport_percent, 37.5f) );
 			gViewerWindow->setProgressString(message);		
-			LLPathfindingManager::getInstance()->hideNavMeshRebakePanel();
+			if ( LLPathfindingManager::getInstance() ) { LLPathfindingManager::getInstance()->hideNavMeshRebakePanel(); }
 			break;
 
 		case LLAgent::TELEPORT_MOVING:
@@ -454,7 +454,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			// No teleport in progress
 			gViewerWindow->setShowProgress(FALSE);
 			gTeleportDisplay = FALSE;			
-			LLPathfindingManager::getInstance()->requestGetAgentState();
+			if ( LLPathfindingManager::getInstance() ) { LLPathfindingManager::getInstance()->requestGetAgentState(); }
 			break;
 		}
 	}
