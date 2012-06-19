@@ -1095,6 +1095,7 @@ Sudane Erato
 Synystyr Texan
 Takeda Terrawyng
 TankMaster Finesmith
+	OPEN-142
 	STORM-1100
 	STORM-1258
 	STORM-1602
