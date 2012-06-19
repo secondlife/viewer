@@ -405,6 +405,15 @@ void LLIMFloaterContainer::removeConversationListItem(const LLUUID& session_id)
 							   panel_rect.getWidth(),
 							   panel_rect.getHeight() - item_height*(index+1)));
 	}
+	
+	// Don't let the focus fall IW, select and refocus on the first conversation in the list
+	setFocus(TRUE);
+	conversations_items_map::iterator item_it = mConversationsItems.begin();
+	if (item_it != mConversationsItems.end())
+	{
+		LLConversationItem* item = item_it->second;
+		item->selectItem();
+	}
 	return;
 }
 
