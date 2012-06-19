@@ -34,7 +34,6 @@
 #include <string>
 
 #define REGION_FIELD  "region_id"
-#define DEPRECATED_STATE_FIELD "state"
 #define STATUS_FIELD  "status"
 #define VERSION_FIELD "version"
 
@@ -115,25 +114,9 @@ void LLPathfindingNavMeshStatus::parseStatus(const LLSD &pContent)
 	llassert(pContent.get(VERSION_FIELD).asInteger() >= 0);
 	mVersion = static_cast<U32>(pContent.get(VERSION_FIELD).asInteger());
 
-#ifdef DEPRECATED_STATE_FIELD
-	std::string status;
-	if (pContent.has(DEPRECATED_STATE_FIELD))
-	{
-		llassert(pContent.has(DEPRECATED_STATE_FIELD));
-		llassert(pContent.get(DEPRECATED_STATE_FIELD).isString());
-		status = pContent.get(DEPRECATED_STATE_FIELD).asString();
-	}
-	else
-	{
-		llassert(pContent.has(STATUS_FIELD));
-		llassert(pContent.get(STATUS_FIELD).isString());
-		status = pContent.get(STATUS_FIELD).asString();
-	}
-#else // DEPRECATED_STATE_FIELD
 	llassert(pContent.has(STATUS_FIELD));
 	llassert(pContent.get(STATUS_FIELD).isString());
 	std::string status = pContent.get(STATUS_FIELD).asString();
-#endif // DEPRECATED_STATE_FIELD
 
 	if (LLStringUtil::compareStrings(status, sStatusPending) == 0)
 	{
