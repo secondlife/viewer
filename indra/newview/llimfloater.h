@@ -37,7 +37,9 @@
 
 class LLAvatarName;
 class LLButton;
-class LLLineEditor;
+class LLChatEntry;
+class LLTextEditor;
+class LLPanelChatControlPanel;
 class LLChatHistory;
 class LLInventoryItem;
 class LLInventoryCategory;
@@ -142,7 +144,7 @@ private:
 	void appendMessage(const LLChat& chat, const LLSD &args = 0);
 	static void onInputEditorFocusReceived( LLFocusableElement* caller,void* userdata );
 	static void onInputEditorFocusLost(LLFocusableElement* caller, void* userdata);
-	static void onInputEditorKeystroke(LLLineEditor* caller, void* userdata);
+	static void onInputEditorKeystroke(LLTextEditor* caller, void* userdata);
 	void setTyping(bool typing);
 	void onAddButtonClicked();
 	void onAvatarPicked(const uuid_vec_t& ids, const std::vector<LLAvatarName> names);
@@ -161,6 +163,13 @@ private:
 	// Remove the "User is typing..." indicator.
 	void removeTypingIndicator(const LLIMInfo* im_info = NULL);
 
+	/**
+	 * Adjusts chat history height to fit vertically with input chat field
+	 * and avoid overlapping, since input chat field can be vertically expanded.
+	 * Implementation: chat history bottom "follows" top+top_pad of input chat field
+	 */
+	void reshapeChatHistory();
+
 	static void closeHiddenIMToasts();
 
 	static void confirmLeaveCallCallback(const LLSD& notification, const LLSD& response);
@@ -171,9 +180,11 @@ private:
 
 	LLChatHistory* mChatHistory;
 
+	int mInputEditorTopPad; // padding between input field and chat history
+
 	EInstantMessage mDialog;
 	LLUUID mOtherParticipantUUID;
-	LLLineEditor* mInputEditor;
+	LLChatEntry* mInputEditor;
 	bool mPositioned;
 
 	std::string mSavedTitle;

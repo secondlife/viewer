@@ -406,7 +406,7 @@ void LLGroupListItem::setActive(bool active)
 	// *BUG: setName() overrides the style params.
 
 	// Active group should be bold.
-	LLFontDescriptor new_desc(mGroupNameBox->getDefaultFont()->getFontDesc());
+	LLFontDescriptor new_desc(mGroupNameBox->getFont()->getFontDesc());
 
 	// *NOTE dzaporozhan
 	// On Windows LLFontGL::NORMAL will not remove LLFontGL::BOLD if font 

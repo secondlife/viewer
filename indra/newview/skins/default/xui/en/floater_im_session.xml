@@ -242,18 +242,21 @@
              bottom="-1" 
              follows="left|right|bottom" 
              tab_group="1">    
-            	<line_editor
+            	<text_editor
              		bottom="0"
+             		expand_lines_count="5"
              		follows="left|right|bottom"
 	         		font="SansSerifSmall"
 	         		visible="true"
              		height="20"
+             		is_expandable="true"
              		label="To"
              		layout="bottomleft"
              		name="chat_editor"
              		tab_group="3"
-             		width="220">
-            	</line_editor>
+             		width="240"
+             		wrap="true">
+            	</text_editor>
               </panel>
     </layout_panel>
   </layout_stack>

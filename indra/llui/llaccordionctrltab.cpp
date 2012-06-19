@@ -184,7 +184,7 @@ void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::setTitleFontStyle(std::string
 	if (mHeaderTextbox)
 	{
 		std::string text = mHeaderTextbox->getText();
-		mStyleParams.font(mHeaderTextbox->getDefaultFont());
+		mStyleParams.font(mHeaderTextbox->getFont());
 		mStyleParams.font.style(style);
 		mHeaderTextbox->setText(text, mStyleParams);
 	}

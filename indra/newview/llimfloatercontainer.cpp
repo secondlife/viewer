@@ -96,8 +96,7 @@ void LLIMFloaterContainer::onOpen(const LLSD& key)
 		// If there's *no* conversation open so far, we force the opening of the nearby chat conversation
 		// *TODO: find a way to move this to XML as a default panel or something like that
 		LLSD name("chat_bar");
-		LLSD key("");
-		LLFloaterReg::toggleInstanceOrBringToFront(name,key);
+		LLFloaterReg::toggleInstanceOrBringToFront(name);
 	}
 	/*
 	if (key.isDefined())

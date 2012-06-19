@@ -68,7 +68,7 @@ void LLToastPanel::snapToMessageHeight(LLTextBase* message, S32 maxLineCount)
 	if (message->getVisible())
 	{
 		S32 heightDelta = 0;
-		S32 maxTextHeight = message->getDefaultFont()->getLineHeight() * maxLineCount;
+		S32 maxTextHeight = message->getFont()->getLineHeight() * maxLineCount;
 
 		LLRect messageRect = message->getRect();
 		S32 oldTextHeight = messageRect.getHeight();
