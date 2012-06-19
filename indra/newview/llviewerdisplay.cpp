@@ -77,6 +77,7 @@
 #include "llwlparammanager.h"
 #include "llwaterparammanager.h"
 #include "llpostprocess.h"
+#include "llpathfindingmanager.h"
 
 extern LLPointer<LLViewerTexture> gStartTexture;
 
@@ -391,13 +392,15 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			gViewerWindow->setProgressPercent(0);
 			gAgent.setTeleportState( LLAgent::TELEPORT_REQUESTED );
 			gAgent.setTeleportMessage(
-				LLAgent::sTeleportProgressMessages["requesting"]);
+				LLAgent::sTeleportProgressMessages["requesting"]);			
+			LLPathfindingManager::getInstance()->hideNavMeshRebakePanel();
 			break;
 
 		case LLAgent::TELEPORT_REQUESTED:
 			// Waiting for source simulator to respond
 			gViewerWindow->setProgressPercent( llmin(teleport_percent, 37.5f) );
-			gViewerWindow->setProgressString(message);
+			gViewerWindow->setProgressString(message);		
+			LLPathfindingManager::getInstance()->hideNavMeshRebakePanel();
 			break;
 
 		case LLAgent::TELEPORT_MOVING:
@@ -415,7 +418,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			gAgent.setTeleportMessage(
 				LLAgent::sTeleportProgressMessages["arriving"]);
 			gTextureList.mForceResetTextureStats = TRUE;
-			gAgentCamera.resetView(TRUE, TRUE);
+			gAgentCamera.resetView(TRUE, TRUE);	
+			
 			break;
 
 		case LLAgent::TELEPORT_ARRIVING:
@@ -449,7 +453,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		case LLAgent::TELEPORT_NONE:
 			// No teleport in progress
 			gViewerWindow->setShowProgress(FALSE);
-			gTeleportDisplay = FALSE;
+			gTeleportDisplay = FALSE;			
+			LLPathfindingManager::getInstance()->requestGetAgentState();
 			break;
 		}
 	}
