@@ -51,7 +51,7 @@ public:
 	/*virtual*/ void setVisible( BOOL visible );
 
 	
-	/*virtual*/ void draw(){/*updatePosition(); */LLPanel::draw();}
+	/*virtual*/ void draw(){ LLPanel::draw(); }
 	/*virtual*/ BOOL handleToolTip( S32 x, S32 y, MASK mask );
 
 protected:
@@ -61,7 +61,6 @@ protected:
 private:
 	static LLPanelNavMeshRebake* getPanel();
 	void onNavMeshRebakeClick();
-	//void updatePosition();
 
 	LLButton* mNavMeshRebakeButton;
 	LLButton* mNavMeshBakingButton;	

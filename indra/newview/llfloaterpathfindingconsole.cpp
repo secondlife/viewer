@@ -265,8 +265,6 @@ void LLFloaterPathfindingConsole::onClose(bool pIsAppQuitting)
 	setDefaultInputs();
 	setConsoleState(kConsoleStateUnknown);
 	cleanupRenderableRestoreItems();
-	LLPanelNavMeshRebake* pPanelNavMeshRebake = LLPanelNavMeshRebake::getInstance();
-	if ( pPanelNavMeshRebake ) { pPanelNavMeshRebake->setVisible( FALSE ); }
 
 	LLFloater::onClose(pIsAppQuitting);
 }

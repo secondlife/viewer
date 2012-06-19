@@ -100,7 +100,6 @@ LLPanelNavMeshRebake* LLPanelNavMeshRebake::getPanel()
 	LLPanelNavMeshRebake* panel = new LLPanelNavMeshRebake();
 	panel->buildFromFile("panel_navmesh_rebake.xml");
 	panel->setVisible(FALSE);
-	//panel->updatePosition();
 	return panel;
 }
 
