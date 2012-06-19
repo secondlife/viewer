@@ -129,24 +129,8 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 
 	LLUUID session_id = floaterp->getKey();
 
-	// CHUI-137 : Temporary implementation of conversations list
-	// Create a conversation item
-	LLConversationItem* item = new LLConversationItem(floaterp->getTitle(),session_id, floaterp, this);
-	mConversationsItems[session_id] = item;
-	// Create a widget from it
-	LLFolderViewItem* widget = createConversationItemWidget(item);
-	mConversationsWidgets[session_id] = widget;
-	// Add it to the UI
-	widget->setVisible(TRUE);
-	mConversationsListPanel->addChild(widget);
-	LLRect panel_rect = mConversationsListPanel->getRect();
-	S32 item_height = 16;
-	S32 index = mConversationsWidgets.size() - 1;
-	widget->setRect(LLRect(0,
-						   panel_rect.getHeight() - item_height*index,
-						   panel_rect.getWidth(),
-						   panel_rect.getHeight() - item_height*(index+1)));
-	// CHUI-137 : end
+	// Add a conversation list item in the left pane
+	addConversationListItem(floaterp->getTitle(), session_id, floaterp, this);
 	
 	LLView* floater_contents = floaterp->getChild<LLView>("contents_view");
 
@@ -184,35 +168,6 @@ void LLIMFloaterContainer::removeFloater(LLFloater* floaterp)
 {
 	LLMultiFloater::removeFloater(floaterp);
 
-    // CHUI-137 : Temporary implementation of conversations list
-	// Clean up the conversations list
- 	LLUUID session_id = floaterp->getKey();
-    // Delete the widget and the associated conversation item
-    // Note : since the mConversationsItems is also the listener to the widget, deleting 
-    // the widget will also delete its listener
-	conversations_widgets_map::iterator widget_it = mConversationsWidgets.find(session_id);
-	if (widget_it != mConversationsWidgets.end())
-    {
-        LLFolderViewItem* widget = widget_it->second;
-        delete widget;
-    }
-    // Suppress the conversation items and widgets from their respective maps
-	mConversationsItems.erase(session_id);
-	mConversationsWidgets.erase(session_id);
-    // Reposition the leftover conversation items
-	LLRect panel_rect = mConversationsListPanel->getRect();
-	S32 item_height = 16;
-    int index = 0;
-    for (widget_it = mConversationsWidgets.begin(); widget_it != mConversationsWidgets.end(); ++widget_it, ++index)
-    {
-        LLFolderViewItem* widget = widget_it->second;
-        widget->setRect(LLRect(0,
-                               panel_rect.getHeight() - item_height*index,
-                               panel_rect.getWidth(),
-                               panel_rect.getHeight() - item_height*(index+1)));
-    }
-    // CHUI-137 : end
-   
 	LLRect contents_rect = floaterp->getRect();
 
 	// reduce the floater contents height by header height
@@ -399,6 +354,60 @@ void LLIMFloaterContainer::onAvatarPicked(const uuid_vec_t& ids)
 }
 
 // CHUI-137 : Temporary implementation of conversations list
+void LLIMFloaterContainer::addConversationListItem(std::string name, const LLUUID& uuid, LLFloater* floaterp, LLIMFloaterContainer* containerp)
+{
+	// Create a conversation item
+	LLConversationItem* item = new LLConversationItem(name, uuid, floaterp, containerp);
+	mConversationsItems[uuid] = item;
+
+	// Create a widget from it
+	LLFolderViewItem* widget = createConversationItemWidget(item);
+	mConversationsWidgets[uuid] = widget;
+
+	// Add it to the UI
+	widget->setVisible(TRUE);
+	mConversationsListPanel->addChild(widget);
+	LLRect panel_rect = mConversationsListPanel->getRect();
+	S32 item_height = 16;
+	S32 index = mConversationsWidgets.size() - 1;
+	widget->setRect(LLRect(0,
+						   panel_rect.getHeight() - item_height*index,
+						   panel_rect.getWidth(),
+						   panel_rect.getHeight() - item_height*(index+1)));
+	return;
+}
+
+void LLIMFloaterContainer::removeConversationListItem(const LLUUID& session_id)
+{
+	// Delete the widget and the associated conversation item
+	// Note : since the mConversationsItems is also the listener to the widget, deleting 
+	// the widget will also delete its listener
+	conversations_widgets_map::iterator widget_it = mConversationsWidgets.find(session_id);
+	if (widget_it != mConversationsWidgets.end())
+	{
+		LLFolderViewItem* widget = widget_it->second;
+		delete widget;
+	}
+
+	// Suppress the conversation items and widgets from their respective maps
+	mConversationsItems.erase(session_id);
+	mConversationsWidgets.erase(session_id);
+
+	// Reposition the leftover conversation items
+	LLRect panel_rect = mConversationsListPanel->getRect();
+	S32 item_height = 16;
+	int index = 0;
+	for (widget_it = mConversationsWidgets.begin(); widget_it != mConversationsWidgets.end(); ++widget_it, ++index)
+	{
+		LLFolderViewItem* widget = widget_it->second;
+		widget->setRect(LLRect(0,
+							   panel_rect.getHeight() - item_height*index,
+							   panel_rect.getWidth(),
+							   panel_rect.getHeight() - item_height*(index+1)));
+	}
+	return;
+}
+
 LLFolderViewItem* LLIMFloaterContainer::createConversationItemWidget(LLConversationItem* item)
 {
 	LLFolderViewItem::Params params;
@@ -431,10 +440,16 @@ LLConversationItem::LLConversationItem(std::string name, const LLUUID& uuid, LLF
 // Virtual action callbacks
 void LLConversationItem::selectItem(void)
 {
-    // Always expand the message pane in that case
-    mContainer->collapseMessagesPane(false);
-    // Switch to the conversation floater that is being selected
-    mContainer->selectFloater(mFloater);
+	LLMultiFloater* host_floater = mFloater->getHost();
+	if (host_floater == mContainer)
+	{
+		// Always expand the message pane if the panel is hosted by the container
+		mContainer->collapseMessagesPane(false);
+		// Switch to the conversation floater that is being selected
+		mContainer->selectFloater(mFloater);
+	}
+	// Set the focus on the selected floater
+	mFloater->setFocus(TRUE);    
 }
 
 void LLConversationItem::performAction(LLInventoryModel* model, std::string action)

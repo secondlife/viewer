@@ -142,7 +142,6 @@ public:
 
 	void collapseMessagesPane(bool collapse);
 	
-	LLFolderViewItem* createConversationItemWidget(LLConversationItem* item);
 
 private:
 	typedef std::map<LLUUID,LLFloater*> avatarID_panel_map_t;
@@ -168,6 +167,11 @@ private:
 	LLLayoutStack* mConversationsStack;
 	
 	// CHUI-137 : Temporary implementation of conversations list
+public:
+	void removeConversationListItem(const LLUUID& session_id);
+private:
+	void addConversationListItem(std::string name, const LLUUID& uuid, LLFloater* floaterp, LLIMFloaterContainer* containerp);
+	LLFolderViewItem* createConversationItemWidget(LLConversationItem* item);
 	// Conversation list data
 	LLPanel* mConversationsListPanel;	// This is the widget we add items to (i.e. clickable title for each conversation)
 	conversations_items_map mConversationsItems;
