@@ -192,7 +192,7 @@ LLLocationInputCtrl::Params::Params()
 	damage_text("damage_text"),
 	see_avatars_icon("see_avatars_icon"),
 	maturity_help_topic("maturity_help_topic"),
-	pathfinding_dynamic_icon("pathfinding_dynamic_icon")
+	pathfinding_disabled_icon("pathfinding_disabled_icon")
 {
 }
 
@@ -338,12 +338,12 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	mParcelIcon[DAMAGE_ICON]->setMouseDownCallback(boost::bind(&LLLocationInputCtrl::onParcelIconClick, this, DAMAGE_ICON));
 	addChild(mParcelIcon[DAMAGE_ICON]);
 
-	LLIconCtrl::Params pathfinding_dynamic_icon = p.pathfinding_dynamic_icon;
-	pathfinding_dynamic_icon.tool_tip = LLTrans::getString("PathfindingDynamicTooltip");
-	pathfinding_dynamic_icon.mouse_opaque = true;
-	mParcelIcon[PATHFINDING_DYNAMIC_ICON] = LLUICtrlFactory::create<LLIconCtrl>(pathfinding_dynamic_icon);
-	mParcelIcon[PATHFINDING_DYNAMIC_ICON]->setMouseDownCallback(boost::bind(&LLLocationInputCtrl::onParcelIconClick, this, PATHFINDING_DYNAMIC_ICON));
-	addChild(mParcelIcon[PATHFINDING_DYNAMIC_ICON]);
+	LLIconCtrl::Params pathfinding_disabled_icon = p.pathfinding_disabled_icon;
+	pathfinding_disabled_icon.tool_tip = LLTrans::getString("LocationCtrlPathfindingDisabledTooltip");
+	pathfinding_disabled_icon.mouse_opaque = true;
+	mParcelIcon[PATHFINDING_DISABLED_ICON] = LLUICtrlFactory::create<LLIconCtrl>(pathfinding_disabled_icon);
+	mParcelIcon[PATHFINDING_DISABLED_ICON]->setMouseDownCallback(boost::bind(&LLLocationInputCtrl::onParcelIconClick, this, PATHFINDING_DISABLED_ICON));
+	addChild(mParcelIcon[PATHFINDING_DISABLED_ICON]);
 
 	LLTextBox::Params damage_text = p.damage_text;
 	damage_text.tool_tip = LLTrans::getString("LocationCtrlDamageTooltip");
@@ -827,7 +827,7 @@ void LLLocationInputCtrl::refreshParcelIcons()
 		bool allow_scripts	= vpm->allowAgentScripts(agent_region, current_parcel);
 		bool allow_damage	= vpm->allowAgentDamage(agent_region, current_parcel);
 		bool see_avs        = current_parcel->getSeeAVs();
-		bool pathfinding_dynamic_enabled = gAgent.getRegion()->dynamicPathfindingEnabled();
+		bool pathfinding_dynamic_enabled = agent_region->dynamicPathfindingEnabled();
 
 		// Most icons are "block this ability"
 		mParcelIcon[VOICE_ICON]->setVisible(   !allow_voice );
@@ -836,7 +836,7 @@ void LLLocationInputCtrl::refreshParcelIcons()
 		mParcelIcon[BUILD_ICON]->setVisible(   !allow_build );
 		mParcelIcon[SCRIPTS_ICON]->setVisible( !allow_scripts );
 		mParcelIcon[DAMAGE_ICON]->setVisible(  allow_damage );
-		mParcelIcon[PATHFINDING_DYNAMIC_ICON]->setVisible( !pathfinding_dynamic_enabled );
+		mParcelIcon[PATHFINDING_DISABLED_ICON]->setVisible( !pathfinding_dynamic_enabled );
 
 		mDamageText->setVisible(allow_damage);
 		mParcelIcon[SEE_AVATARS_ICON]->setVisible( !see_avs );
@@ -1176,8 +1176,8 @@ void LLLocationInputCtrl::onParcelIconClick(EParcelIcon icon)
 	case BUILD_ICON:
 		LLNotificationsUtil::add("NoBuild");
 		break;
-	case PATHFINDING_DYNAMIC_ICON:
-		LLNotificationsUtil::add("PathfindingDynamic");
+	case PATHFINDING_DISABLED_ICON:
+		LLNotificationsUtil::add("DynamicPathfindingDisabled");
 		break;
 	case SCRIPTS_ICON:
 	{

@@ -3325,7 +3325,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="LocationCtrlModerateIconTooltip">Moderate Region</string>
   <string name="LocationCtrlGeneralIconTooltip">General Region</string>
   <string name="LocationCtrlSeeAVsTooltip">Avatars visible and chat allowed outside of this parcel</string>
-  <string name="PathfindingDynamicTooltip">Dynamic Pathfinding is not available</string>
+  <string name="LocationCtrlPathfindingDisabledTooltip">Dynamic pathfinding is not disabled on this region</string>
   <!-- Strings used by the (currently Linux) auto-updater app -->
 	<string name="UpdaterWindowTitle">
 	  [APP_NAME] Update

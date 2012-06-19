@@ -5782,11 +5782,11 @@ This area has building disabled. You can&apos;t build or rez objects here.
   
   <notification
      icon="notify.tga"
-     name="PathfindingDynamic"
+     name="DynamicPathfindingDisabled"
      persist="true"
      type="notify">
     <unique/>
-    Dynamic pathing is not available.
+    Dynamic pathfinding is not enabled on this region.
   </notification>
   
   <notification

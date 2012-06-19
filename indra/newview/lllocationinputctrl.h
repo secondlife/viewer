@@ -79,7 +79,7 @@ public:
 											scripts_icon,
 											damage_icon,
 											see_avatars_icon,
-											pathfinding_dynamic_icon;
+											pathfinding_disabled_icon;
 		Optional<LLTextBox::Params>			damage_text;
 		Params();
 	};
@@ -111,14 +111,14 @@ private:
 	enum EParcelIcon
 	{
 		VOICE_ICON = 0,
-		FLY_ICON,			// 1
-		PUSH_ICON,			// 2
-		BUILD_ICON,			// 3
-		SCRIPTS_ICON,		// 4
-		DAMAGE_ICON,		// 5
-		SEE_AVATARS_ICON,   // 6
-		PATHFINDING_DYNAMIC_ICON,// 7
-		ICON_COUNT			// 8 total
+		FLY_ICON,			      // 1
+		PUSH_ICON,			      // 2
+		BUILD_ICON,			      // 3
+		SCRIPTS_ICON,		      // 4
+		DAMAGE_ICON,		      // 5
+		SEE_AVATARS_ICON,         // 6
+		PATHFINDING_DISABLED_ICON,// 7
+		ICON_COUNT			      // 8 total
 	};
 
 	friend class LLUICtrlFactory;
