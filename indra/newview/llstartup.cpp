@@ -995,7 +995,7 @@ bool idle_startup()
 
 	if(STATE_LOGIN_AUTH_INIT == LLStartUp::getStartupState())
 	{
-		gDebugInfo["GridName"] = LLGridManager::getInstance()->getGridLabel();
+		gDebugInfo["GridName"] = LLGridManager::getInstance()->getGridId();
 
 		// Update progress status and the display loop.
 		auth_desc = LLTrans::getString("LoginInProgress");
@@ -1159,7 +1159,6 @@ bool idle_startup()
 				LLVoiceClient::getInstance()->userAuthorized(gUserCredential->userID(), gAgentID);
 				// create the default proximal channel
 				LLVoiceChannel::initClass();
-				LLGridManager::getInstance()->setFavorite(); 
 				LLStartUp::setStartupState( STATE_WORLD_INIT);
 			}
 			else

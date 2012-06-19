@@ -761,7 +761,7 @@ void LLPanelLogin::loadLoginPage()
 	curl_free(curl_version);
 
 	// Grid
-	char* curl_grid = curl_escape(LLGridManager::getInstance()->getGridLabel().c_str(), 0);
+	char* curl_grid = curl_escape(LLGridManager::getInstance()->getGridId().c_str(), 0);
 	oStr << "&grid=" << curl_grid;
 	curl_free(curl_grid);
 	
@@ -828,7 +828,7 @@ void LLPanelLogin::onClickConnect(void *)
 		catch (LLInvalidGridName ex)
 		{
 			LLSD args;
-			args["GRID"] = combo_val.asString();
+			args["GRID"] = ex.name();
 			LLNotificationsUtil::add("InvalidGrid", args);
 			return;
 		}
@@ -939,7 +939,11 @@ void LLPanelLogin::updateServer()
 	}
 	catch (LLInvalidGridName ex)
 	{
-		// do nothing
+		LL_WARNS("AppInit")<<"server '"<<ex.name()<<"' selection failed"<<LL_ENDL;
+		LLSD args;
+		args["GRID"] = ex.name();
+		LLNotificationsUtil::add("InvalidGrid", args);	
+		return;
 	}
 }
 
@@ -953,14 +957,16 @@ void LLPanelLogin::updateServerCombo()
 	LLComboBox* server_choice_combo = sInstance->getChild<LLComboBox>("server_combo");	
 	server_choice_combo->removeall();
 
-	std::map<std::string, std::string> known_grids = LLGridManager::getInstance()->getKnownGrids(!gSavedSettings.getBOOL("ShowBetaGrids"));
+	std::string current_grid = LLGridManager::getInstance()->getGrid();
+	std::map<std::string, std::string> known_grids = LLGridManager::getInstance()->getKnownGrids();
 
 	for (std::map<std::string, std::string>::iterator grid_choice = known_grids.begin();
 		 grid_choice != known_grids.end();
 		 grid_choice++)
 	{
-		if (!grid_choice->first.empty())
+		if (!grid_choice->first.empty() && current_grid != grid_choice->first)
 		{
+			LL_DEBUGS("AppInit")<<"adding "<<grid_choice->first<<LL_ENDL;
 			server_choice_combo->add(grid_choice->second, grid_choice->first);
 		}
 	}
@@ -968,9 +974,11 @@ void LLPanelLogin::updateServerCombo()
 	
 	server_choice_combo->addSeparator(ADD_TOP);
 	
+	LL_DEBUGS("AppInit")<<"adding current "<<current_grid<<LL_ENDL;
 	server_choice_combo->add(LLGridManager::getInstance()->getGridLabel(), 
-		LLGridManager::getInstance()->getGrid(), ADD_TOP);	
-	
+							 current_grid,
+							 ADD_TOP);	
+
 	server_choice_combo->selectFirstItem();	
 }
 
@@ -980,7 +988,7 @@ void LLPanelLogin::onSelectServer(LLUICtrl*, void*)
 	// *NOTE: The paramters for this method are ignored. 
 	// LLPanelLogin::onServerComboLostFocus(LLFocusableElement* fe, void*)
 	// calls this method.
-	LL_INFOS("AppInit") << "onSelectServer" << LL_ENDL;
+
 	// The user twiddled with the grid choice ui.
 	// apply the selection to the grid setting.
 	LLPointer<LLCredential> credential;
@@ -991,6 +999,7 @@ void LLPanelLogin::onSelectServer(LLUICtrl*, void*)
 	{
 		combo_val = combo->getValue();
 	}
+	LL_INFOS("AppInit") << "onSelectServer "<<combo_val.asString()<< LL_ENDL;
 	
 	combo = sInstance->getChild<LLComboBox>("start_location_combo");	
 	combo->setCurrentByIndex(1);
@@ -1019,9 +1028,7 @@ void LLPanelLogin::onServerComboLostFocus(LLFocusableElement* fe)
 
 void LLPanelLogin::updateLoginPanelLinks()
 {
-	LLSD grid_data;
-	LLGridManager::getInstance()->getGridInfo(grid_data);
-	bool system_grid = grid_data.has(GRID_IS_SYSTEM_GRID_VALUE);
+	bool system_grid = LLGridManager::getInstance()->isSystemGrid();
 	
 	// need to call through sInstance, as it's called from onSelectServer, which
 	// is static.

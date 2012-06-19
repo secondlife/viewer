@@ -138,7 +138,7 @@ LLSLURL::LLSLURL(const std::string& slurl)
 				// so parse the grid name to derive the grid ID
 				if (!slurl_uri.hostName().empty())
 				{
-					mGrid = LLGridManager::getInstance()->getGridByLabel(slurl_uri.hostName());
+					mGrid = LLGridManager::getInstance()->getGrid(slurl_uri.hostName());
 				}
 				else if(path_array[0].asString() == LLSLURL::SLURL_SECONDLIFE_PATH)
 				{

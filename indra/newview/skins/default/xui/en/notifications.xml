@@ -913,7 +913,14 @@ You need an account to enter [SECOND_LIFE]. Would you like to create one now?
 You need to enter either the Username or both the First and Last name of your avatar into the Username field, then login again.
   </notification>
   
-
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidGrid"
+   type="alertmodal">
+   <tag>fail</tag>
+'[GRID]' is not a valid grid identifier.
+  </notification>
+  
   <notification
    icon="alertmodal.tga"
    name="DeleteClassified"
