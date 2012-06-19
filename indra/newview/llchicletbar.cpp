@@ -102,6 +102,13 @@ void LLChicletBar::sessionAdded(const LLUUID& session_id, const std::string& nam
 	// no need to spawn chiclets for participants in P2P calls called through Avaline
 	if (session->isP2P() && session->isOtherParticipantAvaline()) return;
 
+	// Do not spawn chiclet when using the new multitab conversation UI
+	if (LLIMConversation::isChatMultiTab())
+	{
+		LLIMFloater::addToHost(session_id);
+		return;
+	}
+	
 	if (getChicletPanel()->findChiclet<LLChiclet>(session_id)) return;
 
 	LLIMChiclet* chiclet = createIMChiclet(session_id);
@@ -109,7 +116,7 @@ void LLChicletBar::sessionAdded(const LLUUID& session_id, const std::string& nam
 	{
 		chiclet->setIMSessionName(name);
 		chiclet->setOtherParticipantId(other_participant_id);
-		
+
 		LLIMFloater::onIMChicletCreated(session_id);
 
 	}

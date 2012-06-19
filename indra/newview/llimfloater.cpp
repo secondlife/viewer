@@ -109,6 +109,16 @@ void LLIMFloater::onFocusReceived()
 // virtual
 void LLIMFloater::onClose(bool app_quitting)
 {
+	// Always suppress the IM from the conversations list on close if present for any reason
+	if (LLIMConversation::isChatMultiTab())
+	{
+		LLIMFloaterContainer* im_box = LLIMFloaterContainer::findInstance();
+		if (im_box)
+		{
+            im_box->removeConversationListItem(mSessionID);
+        }
+    }
+
 	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(
 				mSessionID);
 
@@ -140,16 +150,6 @@ void LLIMFloater::onClose(bool app_quitting)
 	// Last change:
 	// EXT-3516 X Button should end IM session, _ button should hide
 	gIMMgr->leaveSession(mSessionID);
-    
-	// Suppress the IM from the conversations list
-	if (LLIMConversation::isChatMultiTab())
-	{
-		LLIMFloaterContainer* im_box = LLIMFloaterContainer::findInstance();
-		if (im_box)
-		{
-            im_box->removeConversationListItem(mSessionID);
-        }
-    }
 }
 
 /* static */
