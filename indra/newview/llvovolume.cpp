@@ -635,47 +635,35 @@ void LLVOVolume::animateTextures()
 		}
 	}
 }
-BOOL LLVOVolume::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
+
+void LLVOVolume::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
-	LLViewerObject::idleUpdate(agent, world, time);
-
-	//static LLFastTimer::DeclareTimer ftm("Volume Idle");
-	//LLFastTimer t(ftm);
-
-	if (mDead || mDrawable.isNull())
+	if (!mDead)
 	{
-		return TRUE;
-	}
-	
-	///////////////////////
-	//
-	// Do texture animation stuff
-	//
+		if (!mStatic)
+		{ //do some velocity interpolation/rotation
+			LLViewerObject::idleUpdate(agent, world, time);
+		}
 
-	if (mTextureAnimp && gAnimateTextures)
-	{
-		animateTextures();
-	}
+		//static LLFastTimer::DeclareTimer ftm("Volume Idle");
+		//LLFastTimer t(ftm);
+		
+		///////////////////////
+		//
+		// Do texture animation stuff
+		//
 
-	// Dispatch to implementation
-	if (mVolumeImpl)
-	{
-		mVolumeImpl->doIdleUpdate(agent, world, time);
-	}
-
-	const S32 MAX_ACTIVE_OBJECT_QUIET_FRAMES = 40;
-
-	if (mDrawable->isActive())
-	{
-		if (mDrawable->isRoot() && 
-			mDrawable->mQuietCount++ > MAX_ACTIVE_OBJECT_QUIET_FRAMES && 
-			(!mDrawable->getParent() || !mDrawable->getParent()->isActive()))
+		if (mTextureAnimp && gAnimateTextures)
 		{
-			mDrawable->makeStatic();
+			animateTextures();
+		}
+
+		// Dispatch to implementation
+		if (mVolumeImpl)
+		{
+			mVolumeImpl->doIdleUpdate(agent, world, time);
 		}
 	}
-
-	return TRUE;
 }
 
 void LLVOVolume::updateTextures()
@@ -916,8 +904,8 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 
 BOOL LLVOVolume::isActive() const
 {
-	return !mStatic || mTextureAnimp || (mVolumeImpl && mVolumeImpl->isActive()) || 
-		(mDrawable.notNull() && mDrawable->isActive());
+	return !mStatic || mTextureAnimp || (mVolumeImpl && mVolumeImpl->isActive());// || 
+		//(mDrawable.notNull() && mDrawable->isActive());
 }
 
 BOOL LLVOVolume::setMaterial(const U8 material)

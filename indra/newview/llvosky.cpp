@@ -1052,9 +1052,8 @@ void LLVOSky::calcAtmospherics(void)
 	mFadeColor.setAlpha(0);
 }
 
-BOOL LLVOSky::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
+void LLVOSky::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
-	return TRUE;
 }
 
 BOOL LLVOSky::updateSky()
