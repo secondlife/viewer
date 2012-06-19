@@ -423,7 +423,7 @@ void  LLInvFVBridge::removeBatchNoCheck(std::vector<LLFolderViewModelItem*>&  ba
 
 	for(i = 0; i < count; ++i)
 	{
-		bridge = (LLInvFVBridge*)(batch.get(i));
+		bridge = (LLInvFVBridge*)(batch[i]);
 		if(!bridge || !bridge->isItemRemovable()) continue;
 		LLViewerInventoryCategory* cat = (LLViewerInventoryCategory*)model->getCategory(bridge->getUUID());
 		if(cat)
@@ -1275,7 +1275,7 @@ bool LLInvFVBridge::canListOnMarketplaceNow() const
 
 		if (can_list)
 		{
-			LLFolderViewFolder * object_folderp =   mInventoryPanel->getFolderByID(object_id);
+			LLFolderViewFolder * object_folderp =   mInventoryPanel.get() ? mInventoryPanel.get()->getFolderByID(object_id) : NULL;
 			if (object_folderp)
 			{
 				can_list = !object_folderp->isLoading();
@@ -1286,7 +1286,7 @@ bool LLInvFVBridge::canListOnMarketplaceNow() const
 		{
 			// Get outbox id
 			const LLUUID & outbox_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
-			LLFolderViewItem * outbox_itemp =   mInventoryPanel->getItemByID(outbox_id);
+			LLFolderViewItem * outbox_itemp =   mInventoryPanel.get() ? mInventoryPanel.get()->getItemByID(outbox_id) : NULL;
 
 			if (outbox_itemp)
 			{

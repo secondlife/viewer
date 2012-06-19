@@ -1542,7 +1542,7 @@ void LLPanelObjectInventory::reset()
 	p.folder_indentation = -14; // subtract space normally reserved for folder expanders
 	mFolders = LLUICtrlFactory::create<LLFolderView>(p);
 	// this ensures that we never say "searching..." or "no items found"
-	RN: make this happen by manipulating filter object directly
+	//TODO RN: make this happen by manipulating filter object directly
 	//mFolders->getFilter()->setShowFolderState(LLInventoryFilter::SHOW_ALL_FOLDERS);
 	mFolders->setCallbackRegistrar(&mCommitCallbackRegistrar);
 

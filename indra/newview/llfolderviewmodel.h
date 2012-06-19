@@ -56,7 +56,7 @@ class LLFolderViewFolder;
 class LLFolderViewFilter
 {
 public:
-	enum EFilterBehavior
+	enum EFilterModified
 	{
 		FILTER_NONE,				// nothing to do, already filtered
 		FILTER_RESTART,				// restart filtering from scratch
@@ -78,7 +78,7 @@ public:
 	virtual bool				checkFolder(const LLUUID& folder_id) const = 0;
 
 	virtual void 				setEmptyLookupMessage(const std::string& message) = 0;
-	const virtual std::string&	getEmptyLookupMessage() const = 0;
+	virtual std::string			getEmptyLookupMessage() const = 0;
 
 	virtual bool				showAllResults() const = 0;
 
@@ -87,12 +87,11 @@ public:
 	// +-------------------------------------------------------------------+
 	virtual bool 				isActive() const = 0;
 	virtual bool 				isModified() const = 0;
-	virtual bool 				isModifiedAndClear() = 0;
 	virtual void 				clearModified() = 0;
 	virtual const std::string& 	getName() const = 0;
 	virtual const std::string& 	getFilterText() = 0;
 	//RN: this is public to allow system to externally force a global refilter
-	virtual void 				setModified(EFilterBehavior behavior = FILTER_RESTART) = 0;
+	virtual void 				setModified(EFilterModified behavior = FILTER_RESTART) = 0;
 
 	// +-------------------------------------------------------------------+
 	// + Count
@@ -125,6 +124,8 @@ public:
 
 	virtual void sort(class LLFolderViewFolder*) = 0;
 	virtual void filter(class LLFolderViewFolder*) = 0;
+
+	virtual bool contentsReady() = 0;
 };
 
 struct LLFolderViewModelCommon : public LLFolderViewModelInterface
@@ -230,7 +231,7 @@ protected:
 template <typename SORT_TYPE, typename ITEM_TYPE, typename FOLDER_TYPE, typename FILTER_TYPE>
 class LLFolderViewModel : public LLFolderViewModelCommon
 {
-protected:
+public:
 	LLFolderViewModel() {}
 	virtual ~LLFolderViewModel() {}
 	
@@ -239,12 +240,14 @@ protected:
 	typedef FOLDER_TYPE		FolderType;
 	typedef FILTER_TYPE		FilterType;
 	
+	virtual SortType& getSorter()					 { return mSorter; }
 	virtual const SortType& getSorter() const 		 { return mSorter; }
 	virtual void setSorter(const SortType& sorter) 	 { mSorter = sorter; requestSortAll(); }
-	virtual FilterType& getFilter()					 { return mFilter; }
+	virtual FilterType& getFilter() 				 { return mFilter; }
+	virtual const FilterType& getFilter() const		 { return mFilter; }
 	virtual void setFilter(const FilterType& filter) { mFilter = filter; }
 
-public:
+	virtual bool contentsReady()					{ return true; }
 
 	struct ViewModelCompare
 	{
@@ -252,12 +255,12 @@ public:
 		:	mSorter(sorter)
 		{}
 		
-		int operator () (const LLFolderViewItem* a, const LLFolderViewItem* b)
+		bool operator () (const LLFolderViewItem* a, const LLFolderViewItem* b)
 		{
 			return mSorter(static_cast<const ItemType*>(a->getViewModelItem()), static_cast<const ItemType*>(b->getViewModelItem()));
 		}
 
-		int operator () (const LLFolderViewFolder* a, const LLFolderViewFolder* b)
+		bool operator () (const LLFolderViewFolder* a, const LLFolderViewFolder* b)
 		{
 			return mSorter(static_cast<const ItemType*>(a->getViewModelItem()), static_cast<const ItemType*>(b->getViewModelItem()));
 		}
@@ -269,8 +272,8 @@ public:
 	{
 		if (needsSort(folder->getViewModelItem()))
 		{
-			std::sort(folder->getFoldersBegin(), folder->getFoldersEnd(), ViewModelCompare(getSorter()));
-			std::sort(folder->getItemsBegin(), folder->getItemsEnd(), ViewModelCompare(getSorter()));
+			folder->sortFolders(ViewModelCompare(getSorter()));
+			folder->sortItems(ViewModelCompare(getSorter()));
 			folder->getViewModelItem()->setSortVersion(mTargetSortVersion);
 			folder->requestArrange();
 		}

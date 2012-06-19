@@ -475,6 +475,11 @@ public:
 
 	LLFolderViewFolder* getCommonAncestor(LLFolderViewItem* item_a, LLFolderViewItem* item_b, bool& reverse);
 	void gatherChildRangeExclusive(LLFolderViewItem* start, LLFolderViewItem* end, bool reverse,  std::vector<LLFolderViewItem*>& items);
+
+public:
+	//WARNING: do not call directly...use the appropriate LLFolderViewModel-derived class instead
+	template<typename SORT_FUNC> void sortFolders(SORT_FUNC& func) { mFolders.sort(func); }
+	template<typename SORT_FUNC> void sortItems(SORT_FUNC& func) { mItems.sort(func); }
 };
 
 

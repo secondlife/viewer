@@ -32,12 +32,8 @@
 #include "llcallbacklist.h"
 #include "llinventorybridge.h"
 #include "llclipboard.h" // *TODO: remove this once hack below gone.
-#include "llinventoryfilter.h"
-#include "llinventoryfunctions.h"
-#include "llinventorymodelbackgroundfetch.h"
 #include "llinventorypanel.h"
 #include "llfoldertype.h"
-#include "llfloaterinventory.h"// hacked in for the bonus context menu items.
 #include "llkeyboard.h"
 #include "lllineeditor.h"
 #include "llmenugl.h"
@@ -65,7 +61,6 @@
 #include "llfontgl.h"
 #include "llgl.h" 
 #include "llrender.h"
-#include "llinventory.h"
 
 // Third-party library includes
 #include <algorithm>
@@ -141,7 +136,7 @@ const LLRect LLFolderViewScrollContainer::getScrolledViewRect() const
 		LLFolderView* folder_view = dynamic_cast<LLFolderView*>(mScrolledView);
 		if (folder_view)
 		{
-			S32 height = folder_view->mRunningHeight;
+			S32 height = folder_view->getRect().getHeight();
 
 			rect = mScrolledView->getRect();
 			rect.setLeftTopAndSize(rect.mLeft, rect.mTop, rect.getWidth(), height);
@@ -188,7 +183,7 @@ LLFolderView::LLFolderView(const Params& p)
 	mNeedsAutoRename(FALSE),
 	mDebugFilters(FALSE),
 	mSortOrder(LLInventoryFilter::SO_FOLDERS_BY_NAME),	// This gets overridden by a pref immediately
-	mFilter( new LLInventoryFilter(p.title) ),
+	mFilter(),
 	mShowSelectionContext(FALSE),
 	mShowSingleSelection(FALSE),
 	mArrangeGeneration(0),
@@ -304,7 +299,7 @@ BOOL LLFolderView::canFocusChildren() const
 BOOL LLFolderView::addFolder( LLFolderViewFolder* folder)
 {
 	// enforce sort order of My Inventory followed by Library
-	if (folder->getViewModelItem()->getUUID() == gInventory.getLibraryRootFolderID())
+	if (((LLFolderViewModelItemInventory*)folder->getViewModelItem())->getUUID() == gInventory.getLibraryRootFolderID())
 	{
 		mFolders.push_back(folder);
 	}
@@ -364,7 +359,7 @@ S32 LLFolderView::arrange( S32* unused_width, S32* unused_height, S32 filter_gen
 	return llround(mTargetHeight);
 }
 
-static LLFastTimer::DeclareTimer FTM_FILTER("Filter Inventory");
+static LLFastTimer::DeclareTimer FTM_FILTER("Filter Folder View");
 
 void LLFolderView::filter( LLFolderViewFilter& filter )
 {
@@ -392,7 +387,7 @@ void LLFolderView::reshape(S32 width, S32 height, BOOL called_from_parent)
 		scroll_rect = mScrollContainer->getContentWindowRect();
 	}
 	width = llmax(mMinWidth, scroll_rect.getWidth());
-	height = llmax(mCurHeight, scroll_rect.getHeight());
+	height = llmax(llround(mCurHeight), scroll_rect.getHeight());
 
 	// Restrict width within scroll container's width
 	if (mUseEllipses && mScrollContainer)
@@ -645,7 +640,6 @@ void LLFolderView::clearSelection()
 	}
 
 	mSelectedItems.clear();
-	mSelectThisID.setNull();
 }
 
 std::set<LLFolderViewItem*> LLFolderView::getSelectionList() const
@@ -735,9 +729,9 @@ void LLFolderView::draw()
 	}
 	else if (mShowEmptyMessage)
 	{
-		if (LLInventoryModelBackgroundFetch::instance().folderFetchActive() || mCompletedFilterGeneration < mFilter->getFirstSuccessGeneration())
+		if (!mViewModel->contentsReady() || mCompletedFilterGeneration < mFilter->getFirstSuccessGeneration())
 		{
-			RN: Get this from filter
+			// TODO RN: Get this from filter
 			mStatusText = LLTrans::getString("Searching");
 		}
 		else
@@ -921,7 +915,7 @@ void LLFolderView::onItemsRemovalConfirmation(const LLSD& notification, const LL
 		else if (count > 1)
 		{
 			LLDynamicArray<LLFolderViewModelItem*> listeners;
-			LLFolderViewModelItemInventory* listener;
+			LLFolderViewModelItem* listener;
 			LLFolderViewItem* last_item = items[count - 1];
 			LLFolderViewItem* new_selection = last_item->getNextOpenNode(FALSE);
 			while(new_selection && new_selection->isSelected())
@@ -948,12 +942,12 @@ void LLFolderView::onItemsRemovalConfirmation(const LLSD& notification, const LL
 			for(S32 i = 0; i < count; ++i)
 			{
 				listener = items[i]->getViewModelItem();
-				if(listener && (listeners.find(listener) == LLDynamicArray<LLFolderViewModelItemInventory*>::FAIL))
+				if(listener && (listeners.find(listener) == LLDynamicArray<LLFolderViewModelItem*>::FAIL))
 				{
 					listeners.put(listener);
 				}
 			}
-			listener = static_cast<LLFolderViewModelItemInventory*>(listeners.get(0));
+			listener = static_cast<LLFolderViewModelItem*>(listeners.get(0));
 			if(listener)
 			{
 				listener->removeBatch(listeners);
@@ -969,36 +963,37 @@ void LLFolderView::openSelectedItems( void )
 {
 	if(getVisible() && getEnabled())
 	{
-		if (mSelectedItems.size() == 1)
-		{
-			mSelectedItems.front()->openItem();
-		}
-		else
-		{
-			LLMultiPreview* multi_previewp = new LLMultiPreview();
-			LLMultiProperties* multi_propertiesp = new LLMultiProperties();
+		// TODO RN: move to LLFolderViewModelInventory
+		//if (mSelectedItems.size() == 1)
+		//{
+		//	mSelectedItems.front()->openItem();
+		//}
+		//else
+		//{
+		//	LLMultiPreview* multi_previewp = new LLMultiPreview();
+		//	LLMultiProperties* multi_propertiesp = new LLMultiProperties();
 
-			selected_items_t::iterator item_it;
-			for (item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
-			{
-				// IT_{OBJECT,ATTACHMENT} creates LLProperties
-				// floaters; others create LLPreviews.  Put
-				// each one in the right type of container.
-				LLFolderViewModelItemInventory* listener = (*item_it)->getViewModelItem();
-				bool is_prop = listener && (listener->getInventoryType() == LLInventoryType::IT_OBJECT || listener->getInventoryType() == LLInventoryType::IT_ATTACHMENT);
-				if (is_prop)
-					LLFloater::setFloaterHost(multi_propertiesp);
-				else
-					LLFloater::setFloaterHost(multi_previewp);
-				(*item_it)->openItem();
-			}
+		//	selected_items_t::iterator item_it;
+		//	for (item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
+		//	{
+		//		// IT_{OBJECT,ATTACHMENT} creates LLProperties
+		//		// floaters; others create LLPreviews.  Put
+		//		// each one in the right type of container.
+		//		LLFolderViewModelItemInventory* listener = (*item_it)->getViewModelItem();
+		//		bool is_prop = listener && (listener->getInventoryType() == LLInventoryType::IT_OBJECT || listener->getInventoryType() == LLInventoryType::IT_ATTACHMENT);
+		//		if (is_prop)
+		//			LLFloater::setFloaterHost(multi_propertiesp);
+		//		else
+		//			LLFloater::setFloaterHost(multi_previewp);
+		//		(*item_it)->openItem();
+		//	}
 
-			LLFloater::setFloaterHost(NULL);
-			// *NOTE: LLMulti* will safely auto-delete when open'd
-			// without any children.
-			multi_previewp->openFloater(LLSD());
-			multi_propertiesp->openFloater(LLSD());
-		}
+		//	LLFloater::setFloaterHost(NULL);
+		//	// *NOTE: LLMulti* will safely auto-delete when open'd
+		//	// without any children.
+		//	multi_previewp->openFloater(LLSD());
+		//	multi_propertiesp->openFloater(LLSD());
+		//}
 	}
 }
 
@@ -1006,27 +1001,28 @@ void LLFolderView::propertiesSelectedItems( void )
 {
 	if(getVisible() && getEnabled())
 	{
-		if (mSelectedItems.size() == 1)
-		{
-			LLFolderViewItem* folder_item = mSelectedItems.front();
-			if(!folder_item) return;
-			folder_item->getViewModelItem()->showProperties();
-		}
-		else
-		{
-			LLMultiProperties* multi_propertiesp = new LLMultiProperties();
+		// TODO RN: move to LLFolderViewModelInventory
+		//if (mSelectedItems.size() == 1)
+		//{
+		//	LLFolderViewItem* folder_item = mSelectedItems.front();
+		//	if(!folder_item) return;
+		//	folder_item->getViewModelItem()->showProperties();
+		//}
+		//else
+		//{
+		//	LLMultiProperties* multi_propertiesp = new LLMultiProperties();
 
-			LLFloater::setFloaterHost(multi_propertiesp);
+		//	LLFloater::setFloaterHost(multi_propertiesp);
 
-			selected_items_t::iterator item_it;
-			for (item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
-			{
-				(*item_it)->getViewModelItem()->showProperties();
-			}
+		//	selected_items_t::iterator item_it;
+		//	for (item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
+		//	{
+		//		(*item_it)->getViewModelItem()->showProperties();
+		//	}
 
-			LLFloater::setFloaterHost(NULL);
-			multi_propertiesp->openFloater(LLSD());
-		}
+		//	LLFloater::setFloaterHost(NULL);
+		//	multi_propertiesp->openFloater(LLSD());
+		//}
 	}
 }
 
@@ -1140,7 +1136,7 @@ void LLFolderView::copy()
 	S32 count = mSelectedItems.size();
 	if(getVisible() && getEnabled() && (count > 0))
 	{
-		LLFolderViewModelItemInventory* listener = NULL;
+		LLFolderViewModelItem* listener = NULL;
 		selected_items_t::iterator item_it;
 		for (item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
 		{
@@ -1164,7 +1160,7 @@ BOOL LLFolderView::canCut() const
 	for (selected_items_t::const_iterator selected_it = mSelectedItems.begin(); selected_it != mSelectedItems.end(); ++selected_it)
 	{
 		const LLFolderViewItem* item = *selected_it;
-		const LLFolderViewModelItemInventory* listener = item->getViewModelItem();
+		const LLFolderViewModelItem* listener = item->getViewModelItem();
 
 		if (!listener || !listener->isItemRemovable())
 		{
@@ -1181,7 +1177,7 @@ void LLFolderView::cut()
 	S32 count = mSelectedItems.size();
 	if(getVisible() && getEnabled() && (count > 0))
 	{
-		LLFolderViewModelItemInventory* listener = NULL;
+		LLFolderViewModelItem* listener = NULL;
 		selected_items_t::iterator item_it;
 		for (item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
 		{
@@ -1210,7 +1206,7 @@ BOOL LLFolderView::canPaste() const
 		{
 			// *TODO: only check folders and parent folders of items
 			const LLFolderViewItem* item = (*item_it);
-			const LLFolderViewModelItemInventory* listener = item->getViewModelItem();
+			const LLFolderViewModelItem* listener = item->getViewModelItem();
 			if(!listener || !listener->isClipboardPasteable())
 			{
 				const LLFolderViewFolder* folderp = item->getParentFolder();
@@ -1232,24 +1228,24 @@ void LLFolderView::paste()
 	if(getVisible() && getEnabled())
 	{
 		// find set of unique folders to paste into
-		std::set<LLFolderViewItem*> folder_set;
+		std::set<LLFolderViewFolder*> folder_set;
 
 		selected_items_t::iterator selected_it;
 		for (selected_it = mSelectedItems.begin(); selected_it != mSelectedItems.end(); ++selected_it)
 		{
 			LLFolderViewItem* item = *selected_it;
-			LLFolderViewModelItemInventory* listener = item->getViewModelItem();
-			if (listener->getInventoryType() != LLInventoryType::IT_CATEGORY)
+			LLFolderViewFolder* folder = dynamic_cast<LLFolderViewFolder*>(item);
+			if (folder == NULL)
 			{
 				item = item->getParentFolder();
 			}
-			folder_set.insert(item);
+			folder_set.insert(folder);
 		}
 
-		std::set<LLFolderViewItem*>::iterator set_iter;
+		std::set<LLFolderViewFolder*>::iterator set_iter;
 		for(set_iter = folder_set.begin(); set_iter != folder_set.end(); ++set_iter)
 		{
-			LLFolderViewModelItemInventory* listener = (*set_iter)->getListener();
+			LLFolderViewModelItem* listener = (*set_iter)->getViewModelItem();
 			if(listener && listener->isClipboardPasteable())
 			{
 				listener->pasteFromClipboard();
@@ -1765,15 +1761,9 @@ BOOL LLFolderView::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 
 	// when drop is not handled by child, it should be handled
 	// by the folder which is the hierarchy root.
-	if (!handled
-		&& getViewModelItem()->getUUID().notNull())
-		{
-			handled = LLFolderViewFolder::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
-		}
-
-	if (handled)
+	if (!handled)
 	{
-		lldebugst(LLERR_USER_INPUT) << "dragAndDrop handled by LLFolderView" << llendl;
+		handled = LLFolderViewFolder::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
 	}
 
 	return handled;
@@ -1996,7 +1986,7 @@ void LLFolderView::doIdle()
 
 		// Open filtered folders for folder views with mAutoSelectOverride=TRUE.
 		// Used by LLPlacesFolderView.
-		if (mAutoSelectOverride && !mFilter->getFilterSubString().empty())
+		if (mAutoSelectOverride && mFilter->showAllResults())
 		{
 			// these are named variables to get around gcc not binding non-const references to rvalues
 			// and functor application is inherently non-const to allow for stateful functors
@@ -2008,7 +1998,7 @@ void LLFolderView::doIdle()
 	}
 
 	BOOL filter_finished = mCompletedFilterGeneration >= mFilter->getCurrentGeneration() 
-						&& !LLInventoryModelBackgroundFetch::instance().folderFetchActive();
+						&& mViewModel->contentsReady();
 	if (filter_finished 
 		|| gFocusMgr.childHasKeyboardFocus(inventory_panel) 
 		|| gFocusMgr.childHasMouseCapture(inventory_panel))

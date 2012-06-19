@@ -63,8 +63,7 @@ public:
 	BOOL isMainInventoryPanelActive() const;
 
 	void clearSelections(bool clearMain, bool clearInbox);
-        std::set<LLFolderViewItem*> getInboxSelectionList();
-	std::set<LLUUID> getInboxSelectionList();
+    std::set<LLFolderViewItem*> getInboxSelectionList();
 
 	void showItemInfoPanel();
 	void showTaskInfoPanel();

@@ -144,16 +144,18 @@ public:
 		{}
 	};
 									
-	LLInventoryFilter(const std::string& name, const Params& p);
-	virtual ~LLInventoryFilter();
+	LLInventoryFilter(const Params& p = Params());
+	LLInventoryFilter(const LLInventoryFilter& other) { *this = other; }
+	virtual ~LLInventoryFilter() {}
 
 	// +-------------------------------------------------------------------+
 	// + Parameters
 	// +-------------------------------------------------------------------+
-	void 				setFilterObjectTypes(U64 types);
 	U64 				getFilterObjectTypes() const;
 	U64					getFilterCategoryTypes() const;
+	U64					getFilterWearableTypes() const;
 	bool 				isFilterObjectTypesWith(LLInventoryType::EType t) const;
+	void 				setFilterObjectTypes(U64 types);
 	void 				setFilterCategoryTypes(U64 types);
 	void 				setFilterUUID(const LLUUID &object_id);
 	void				setFilterWearableTypes(U64 types);
@@ -209,20 +211,19 @@ public:
 	U32 				getSortOrder() const;
 
 	void 				setEmptyLookupMessage(const std::string& message);
-	const std::string&	getEmptyLookupMessage() const;
+	std::string			getEmptyLookupMessage() const;
 
 	// +-------------------------------------------------------------------+
 	// + Status
 	// +-------------------------------------------------------------------+
 	bool 				isActive() const;
 	bool 				isModified() const;
-	bool 				isModifiedAndClear();
 	bool 				isSinceLogoff() const;
 	void 				clearModified();
 	const std::string& 	getName() const;
 	const std::string& 	getFilterText();
 	//RN: this is public to allow system to externally force a global refilter
-	void 				setModified(EFilterBehavior behavior = FILTER_RESTART);
+	void 				setModified(EFilterModified behavior = FILTER_RESTART);
 
 	// +-------------------------------------------------------------------+
 	// + Count
@@ -259,15 +260,12 @@ private:
 	bool				areDateLimitsSet();
 
 	U32						mOrder;
-	U32 					mLastLogoff;
 
-	std::string::size_type	mSubStringMatchOffset;
 	FilterOps				mFilterOps;
 	FilterOps				mDefaultFilterOps;
 
 	std::string				mFilterSubString;
 	std::string				mFilterSubStringOrig;
-	const std::string		mName;
 
 	S32						mLastSuccessGeneration;
 	S32						mLastFailGeneration;
@@ -275,10 +273,8 @@ private:
 	S32						mNextFilterGeneration;
 
 	S32						mFilterCount;
-	EFilterBehavior 		mFilterBehavior;
+	EFilterModified 		mFilterModified;
 
-	BOOL 					mModified;
-	BOOL 					mNeedTextRebuild;
 	std::string 			mFilterText;
 	std::string 			mEmptyLookupMessage;
 };

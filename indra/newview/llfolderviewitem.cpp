@@ -2529,7 +2529,7 @@ LLFolderViewItem* LLFolderViewFolder::getPreviousFromChild( LLFolderViewItem* it
 	return result;
 }
 
-bool LLInventorySort::operator()(const LLFolderViewModelItemInventory* const& a, const LLFolderViewModelItemInventory* const& b)
+bool LLInventorySort::operator()(const LLFolderViewModelItemInventory* const& a, const LLFolderViewModelItemInventory* const& b) const
 {
 	// ignore sort order for landmarks in the Favorites folder.
 	// they should be always sorted as in Favorites bar. See EXT-719

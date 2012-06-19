@@ -66,22 +66,21 @@ public:
 class LLInventorySort
 {
 public:
-	LLInventorySort(U32 order)
-		:	mSortOrder(0),
+	LLInventorySort(U32 order = 0)
+	:	mSortOrder(order),
 		mByDate(false),
 		mSystemToTop(false),
 		mFoldersByName(false)
 	{
-		mSortOrder = order;
 		mByDate = (order & LLInventoryFilter::SO_DATE);
 		mSystemToTop = (order & LLInventoryFilter::SO_SYSTEM_FOLDERS_TO_TOP);
 		mFoldersByName = (order & LLInventoryFilter::SO_FOLDERS_BY_NAME);
 	}
 
-	bool isByDate() { return mByDate; }
-	U32 getSortOrder() { return mSortOrder; }
+	bool isByDate() const { return mByDate; }
+	U32 getSortOrder() const { return mSortOrder; }
 
-	bool operator()(const LLFolderViewModelItemInventory* const& a, const LLFolderViewModelItemInventory* const& b);
+	bool operator()(const LLFolderViewModelItemInventory* const& a, const LLFolderViewModelItemInventory* const& b) const;
 private:
 	U32  mSortOrder;
 	bool mByDate;
@@ -92,12 +91,16 @@ private:
 class LLFolderViewModelInventory
 	:	public LLFolderViewModel<LLInventorySort,   LLFolderViewModelItemInventory, LLFolderViewModelItemInventory,   LLInventoryFilter>
 {
+public:
 	typedef LLFolderViewModel<LLInventorySort,   LLFolderViewModelItemInventory, LLFolderViewModelItemInventory,   LLInventoryFilter> base_t;
 
 	virtual ~LLFolderViewModelInventory() {}
 
 	void sort(LLFolderViewFolder* folder);
 	void requestSort(LLFolderViewFolder* folder);
+
+	bool contentsReady();
+
 };
 
 
@@ -234,7 +237,7 @@ public:
 	void updateSelection();
 	 	
 	LLFolderViewModelInventory* getFolderViewModel() { return &mViewModel; }
-	const LLFolderViewModelInventory* getFolderViewModel() const { return   &mViewModel; }
+	const LLFolderViewModelInventory* getFolderViewModel() const { return &mViewModel; }
 
 protected:
 	void openStartFolderOrMyInventory(); // open the first level of inventory
@@ -287,8 +290,7 @@ public:
 	void addHideFolderType(LLFolderType::EType folder_type);
 
 public:
-	BOOL 				getIsViewsInitialized() const { return mViewsInitialized; }
-	const LLUUID&		getRootFolderID() const;
+	BOOL getIsViewsInitialized() const { return mViewsInitialized; }
 protected:
 	// Builds the UI.  Call this once the inventory is usable.
 	void 				initializeViews();
