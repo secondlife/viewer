@@ -38,8 +38,8 @@
 #endif
 
 static const std::string DICT_DIR = "dictionaries";
-static const std::string DICT_CUSTOM_SUFFIX = "_custom";
-static const std::string DICT_IGNORE_SUFFIX = "_ignore";
+static const std::string DICT_FILE_CUSTOM = "user_custom.dic";
+static const std::string DICT_FILE_IGNORE = "user_ignore.dic";
 
 static const std::string DICT_FILE_MAIN = "dictionaries.xml";
 static const std::string DICT_FILE_USER = "user_dictionaries.xml";
@@ -178,8 +178,6 @@ void LLSpellChecker::refreshDictionaryMap()
 		tmp_user_path = (sdDict.has("name")) ? user_path + sdDict["name"].asString() : LLStringUtil::null;
 		sdDict["installed"] = 
 			(!tmp_app_path.empty()) && ((gDirUtilp->fileExists(tmp_user_path + ".dic")) || (gDirUtilp->fileExists(tmp_app_path + ".dic")));
-		sdDict["has_custom"] = (!tmp_user_path.empty()) && (gDirUtilp->fileExists(tmp_user_path + DICT_CUSTOM_SUFFIX + ".dic"));
-		sdDict["has_ignore"] = (!tmp_user_path.empty()) && (gDirUtilp->fileExists(tmp_user_path + DICT_IGNORE_SUFFIX + ".dic"));
 	}
 
 	sSettingsChangeSignal();
@@ -191,7 +189,7 @@ void LLSpellChecker::addToCustomDictionary(const std::string& word)
 	{
 		mHunspell->add(word.c_str());
 	}
-	addToDictFile(getDictionaryUserPath() + mDictFile + DICT_CUSTOM_SUFFIX + ".dic", word);
+	addToDictFile(getDictionaryUserPath() + DICT_FILE_CUSTOM, word);
 	sSettingsChangeSignal();
 }
 
@@ -202,7 +200,7 @@ void LLSpellChecker::addToIgnoreList(const std::string& word)
 	if (mIgnoreList.end() == std::find(mIgnoreList.begin(), mIgnoreList.end(), word_lower))
 	{
 		mIgnoreList.push_back(word_lower);
-		addToDictFile(getDictionaryUserPath() + mDictFile + DICT_IGNORE_SUFFIX + ".dic", word_lower);
+		addToDictFile(getDictionaryUserPath() + DICT_FILE_IGNORE, word_lower);
 		sSettingsChangeSignal();
 	}
 }
@@ -343,15 +341,14 @@ void LLSpellChecker::initHunspell(const std::string& dict_language)
 		mDictLanguage = dict_language;
 		mDictFile = dict_entry["name"].asString();
 
-		if (dict_entry["has_custom"].asBoolean())
+		if (gDirUtilp->fileExists(user_path + DICT_FILE_CUSTOM))
 		{
-			const std::string filename_dic = user_path + mDictFile + DICT_CUSTOM_SUFFIX + ".dic";
-			mHunspell->add_dic(filename_dic.c_str());
+			mHunspell->add_dic((user_path + DICT_FILE_CUSTOM).c_str());
 		}
 
-		if (dict_entry["has_ignore"].asBoolean())
+		if (gDirUtilp->fileExists(user_path + DICT_FILE_IGNORE))
 		{
-			llifstream file_in(user_path + mDictFile + DICT_IGNORE_SUFFIX + ".dic", std::ios::in);
+			llifstream file_in(user_path + DICT_FILE_IGNORE, std::ios::in);
 			if (file_in.is_open())
 			{
 				std::string word; int idxLine = 0;
