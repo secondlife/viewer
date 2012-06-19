@@ -142,7 +142,6 @@ with the same filename but different name
   <texture name="Command_Outbox_Icon"       file_name="toolbar_icons/outbox.png"       preload="true" />
   <texture name="Command_Pathfinding_Icon"  file_name="toolbar_icons/land.png"         preload="true" />
   <texture name="Command_People_Icon"       file_name="toolbar_icons/people.png"       preload="true" />
-  <texture name="Command_PF_Basic_Icon"     file_name="toolbar_icons/land.png"         preload="true" />
   <texture name="Command_PF_Characters_Icon" file_name="toolbar_icons/land.png"        preload="true" />
   <texture name="Command_PF_Linksets_Icon"  file_name="toolbar_icons/land.png"         preload="true" />
   <texture name="Command_Picks_Icon"        file_name="toolbar_icons/picks.png"        preload="true" />
@@ -432,6 +431,9 @@ with the same filename but different name
  <texture name="Parcel_ScriptsNo_Light" file_name="icons/Parcel_ScriptsNo_Dark.png" preload="false" />
  <texture name="Parcel_Voice_Light" file_name="icons/Parcel_Voice_Light.png" preload="false" />
  <texture name="Parcel_VoiceNo_Light" file_name="icons/Parcel_VoiceNo_Light.png" preload="false" />
+
+  <texture name="Pathfinding_Dirty" file_name="icons/Pathfinding_Dirty.png" preload="false" />
+  <texture name="Pathfinding_Disabled" file_name="icons/Pathfinding_Disabled.png" preload="false" />
 
   <texture name="Pause_Off" file_name="icons/Pause_Off.png" preload="false" />
   <texture name="Pause_Over" file_name="icons/Pause_Over.png" preload="false" />

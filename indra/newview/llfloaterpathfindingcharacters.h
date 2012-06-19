@@ -61,7 +61,7 @@ protected:
 
 	virtual LLSD                       convertObjectsIntoScrollListData(const LLPathfindingObjectListPtr pObjectListPtr);
 
-	virtual void                       updateControls();
+	virtual void                       updateControlsOnScrollListChange();
 
 	virtual S32                        getNameColumnIndex() const;
 	virtual const LLColor4             &getBeaconColor() const;
@@ -73,8 +73,8 @@ private:
 
 	LLSD buildCharacterScrollListData(const LLPathfindingCharacter *pCharacterPtr) const;
 
-	void updateStateOnActionFields();
-	void updateOnScrollListChange();
+	void updateStateOnDisplayControls();
+	void showSelectedCharacterCapsules();
 
 	void showCapsule() const;
 	void hideCapsule() const;

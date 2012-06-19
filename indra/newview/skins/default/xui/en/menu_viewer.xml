@@ -943,31 +943,13 @@
          name="Pathfinding"
          tear_off="false">
         <menu_item_call
-            label="Basic setup..."
-            name="pathfinding_basic_menu_item">
-          <menu_item_call.on_click
-              function="Floater.ToggleOrBringToFront"
-              parameter="pathfinding_basic" />
-          <menu_item_call.on_enable
-              function="Tools.EnablePathfinding" />
-        </menu_item_call>
-        <menu_item_call
-            label="Edit / test..."
-            name="pathfinding_console_menu_item">
-          <menu_item_call.on_click
-              function="Floater.ToggleOrBringToFront"
-              parameter="pathfinding_console" />
-          <menu_item_call.on_enable
-              function="Tools.EnablePathfinding" />
-        </menu_item_call>
-        <menu_item_call
             label="Linksets..."
             name="pathfinding_linksets_menu_item">
           <menu_item_call.on_click
               function="Floater.ToggleOrBringToFront"
               parameter="pathfinding_linksets" />
           <menu_item_call.on_enable
-              function="Tools.EnablePathfindingLinksets" />
+              function="Tools.EnablePathfinding" />
         </menu_item_call>
         <menu_item_call
             label="Characters..."
@@ -977,6 +959,15 @@
               parameter="pathfinding_characters" />
           <menu_item_call.on_enable
               function="Tools.EnablePathfinding" />
+        </menu_item_call>
+        <menu_item_call
+            label="Pathfinding debug..."
+            name="pathfinding_console_menu_item">
+          <menu_item_call.on_click
+              function="Floater.ToggleOrBringToFront"
+              parameter="pathfinding_console" />
+          <menu_item_call.on_enable
+              function="Tools.EnablePathfindingDebug" />
         </menu_item_call>
       </menu>
 

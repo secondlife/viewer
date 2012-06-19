@@ -47,12 +47,10 @@ LLPathfindingCharacterList::LLPathfindingCharacterList()
 LLPathfindingCharacterList::LLPathfindingCharacterList(const LLSD& pCharacterListData)
 	: LLPathfindingObjectList()
 {
-	if ( LLPathingLib::getInstance() == NULL )
+	if (LLPathingLib::getInstance() != NULL)
 	{
-		LLPathingLib::initSystem();
+		LLPathingLib::getInstance()->cleanupPhysicsCapsuleRepResiduals( );
 	}
-	
-	LLPathingLib::getInstance()->cleanupPhysicsCapsuleRepResiduals( );
 
 	parseCharacterListData(pCharacterListData);
 }

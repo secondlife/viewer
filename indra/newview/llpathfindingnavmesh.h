@@ -66,10 +66,6 @@ public:
 
 	navmesh_slot_t registerNavMeshListener(navmesh_callback_t pNavMeshCallback);
 
-#ifdef DEPRECATED_UNVERSIONED_NAVMESH
-	const LLPathfindingNavMeshStatus &getNavMeshStatusXXX() const {return mNavMeshStatus;};
-#endif // DEPRECATED_UNVERSIONED_NAVMESH
-
 	bool hasNavMeshVersion(const LLPathfindingNavMeshStatus &pNavMeshStatus) const;
 
 	void handleNavMeshWaitForRegionLoad();

@@ -268,6 +268,12 @@ then
     else
       upload_item installer "$package" binary/octet-stream
       upload_item quicklink "$package" binary/octet-stream
+	  mapfilepath=$build_dir/newview
+	  gzip $mapfilepath/secondlife-bin.MAP
+	  mapfile=secondlife-bin-$arch.MAP.gz
+	  mv $mapfilepath/secondlife-bin.MAP.gz $mapfilepath/$mapfile
+	  upload_item mapfile "$mapfilepath/$mapfile" binary/octet-stream
+	  echo "Uploaded mapfile"
       [ -f summary.json ] && upload_item installer summary.json text/plain
 
       # Upload crash reporter files.

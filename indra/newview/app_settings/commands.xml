@@ -157,16 +157,6 @@
            is_running_function="Floater.IsOpen"
            is_running_parameters="people"
            />
-  <command name="pathfinding_basic"
-           available_in_toybox="false"
-           icon="Command_PF_Basic_Icon"
-           label_ref="Command_PF_Basic_Label"
-           tooltip_ref="Command_PF_Basic_Tooltip"
-           execute_function="Floater.ToggleOrBringToFront"
-           execute_parameters="pathfinding_basic"
-           is_running_function="Floater.IsOpen"
-           is_running_parameters="pathfinding_basic"
-           />
   <command name="pathfinding_console"
            available_in_toybox="false"
            icon="Command_Pathfinding_Icon"

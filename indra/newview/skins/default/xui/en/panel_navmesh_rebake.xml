@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ height="25"
+ layout="topleft"
+ name="panel_navmesh_rebake"
+ mouse_opaque="false"
+ visible="true"
+ width="133">
+    <button
+     follows="left|bottom"
+     height="19"
+     label="Rebake NavMesh"
+     layout="topleft"
+     left="10"
+     name="navmesh_btn"
+     tool_tip="Click here to rebake."
+     top="2"
+     visible="false"
+     width="113" />
+  <button
+   follows="left|bottom"
+   height="19"
+   label="NavMesh Baking..."
+   layout="topleft"
+   left="10"
+   name="navmesh_btn_baking"
+   tool_tip="NavMesh is baking"
+   top="2"
+   visible="false"
+   width="113" />
+</panel>
+

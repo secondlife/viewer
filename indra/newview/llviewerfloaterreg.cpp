@@ -84,7 +84,6 @@
 #include "llfloaterobjectweights.h"
 #include "llfloateropenobject.h"
 #include "llfloateroutbox.h"
-#include "llfloaterpathfindingbasic.h"
 #include "llfloaterpathfindingcharacters.h"
 #include "llfloaterpathfindinglinksets.h"
 #include "llfloaterpathfindingconsole.h"
@@ -247,7 +246,6 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("outgoing_call", "floater_outgoing_call.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLOutgoingCallDialog>);
 	LLFloaterPayUtil::registerFloater();
 
-	LLFloaterReg::add("pathfinding_basic", "floater_pathfinding_basic.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPathfindingBasic>);
 	LLFloaterReg::add("pathfinding_characters", "floater_pathfinding_characters.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPathfindingCharacters>);
 	LLFloaterReg::add("pathfinding_linksets", "floater_pathfinding_linksets.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPathfindingLinksets>);
 	LLFloaterReg::add("pathfinding_console", "floater_pathfinding_console.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPathfindingConsole>);

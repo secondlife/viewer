@@ -186,6 +186,7 @@
 #include "llappearancemgr.h"
 #include "llavatariconctrl.h"
 #include "llvoicechannel.h"
+#include "llpathfindingmanager.h"
 
 #include "lllogin.h"
 #include "llevents.h"
@@ -2163,6 +2164,10 @@ bool idle_startup()
 
 		LLIMFloater::initIMFloater();
 		display_startup();
+
+		llassert(LLPathfindingManager::getInstance() != NULL);
+		LLPathfindingManager::getInstance()->initSystem();
+		LLPathfindingManager::getInstance()->requestGetAgentState();
 
 		return TRUE;
 	}

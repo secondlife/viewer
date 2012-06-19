@@ -285,6 +285,9 @@ public:
 	void getSimulatorFeatures(LLSD& info);	
 	void setSimulatorFeatures(const LLSD& info);
 
+	
+	bool dynamicPathfindingEnabled() const;
+
 	typedef enum
 	{
 		CACHE_MISS_TYPE_FULL = 0,

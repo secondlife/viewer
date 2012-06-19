@@ -45,29 +45,32 @@
 #include "llpathfindingnavmesh.h"
 #include "llpathfindingnavmeshstatus.h"
 #include "llpathfindingobject.h"
+#include "llpathinglib.h"
 #include "llsingleton.h"
 #include "llsd.h"
 #include "lltrans.h"
 #include "lluuid.h"
 #include "llviewerregion.h"
 #include "llweb.h"
+#include "llpanelnavmeshrebake.h"
+#include "llenvmanager.h"
+#include "llstartup.h"
 
-#define CAP_SERVICE_RETRIEVE_NAVMESH  "RetrieveNavMeshSrc"
+#define CAP_SERVICE_RETRIEVE_NAVMESH      "RetrieveNavMeshSrc"
 
-#define CAP_SERVICE_NAVMESH_STATUS "NavMeshGenerationStatus"
+#define CAP_SERVICE_NAVMESH_STATUS        "NavMeshGenerationStatus"
 
-#define CAP_SERVICE_AGENT_STATE     "AgentPreferences"
-#define ALTER_NAVMESH_OBJECTS_FIELD "alter_navmesh_objects"
-#define DEPRECATED_ALTER_NAVMESH_OBJECTS_FIELD "alter_permanent_objects"
+#define CAP_SERVICE_OBJECT_LINKSETS       "ObjectNavMeshProperties"
+#define CAP_SERVICE_TERRAIN_LINKSETS      "TerrainNavMeshProperties"
 
-#define CAP_SERVICE_OBJECT_LINKSETS  "ObjectNavMeshProperties"
-#define CAP_SERVICE_TERRAIN_LINKSETS "TerrainNavMeshProperties"
-
-#define CAP_SERVICE_CHARACTERS  "CharacterProperties"
+#define CAP_SERVICE_CHARACTERS            "CharacterProperties"
 
 #define SIM_MESSAGE_NAVMESH_STATUS_UPDATE "/message/NavMeshStatusUpdate"
-#define SIM_MESSAGE_AGENT_STATE_UPDATE    "/message/AgentPreferencesUpdate"
 #define SIM_MESSAGE_BODY_FIELD            "body"
+
+#define CAP_SERVICE_AGENT_STATE				"AgentState"
+#define ALTER_NAVMESH_OBJECTS_FIELD			"alter_navmesh_objects"
+#define SIM_MESSAGE_AGENT_STATE_UPDATE		"/message/AgentStateUpdate"
 
 //---------------------------------------------------------------------------
 // LLNavMeshSimStateChangeNode
@@ -81,10 +84,10 @@ public:
 
 LLHTTPRegistration<LLNavMeshSimStateChangeNode> gHTTPRegistrationNavMeshSimStateChangeNode(SIM_MESSAGE_NAVMESH_STATUS_UPDATE);
 
+
 //---------------------------------------------------------------------------
 // LLAgentStateChangeNode
 //---------------------------------------------------------------------------
-
 class LLAgentStateChangeNode : public LLHTTPNode
 {
 public:
@@ -100,7 +103,7 @@ LLHTTPRegistration<LLAgentStateChangeNode> gHTTPRegistrationAgentStateChangeNode
 class NavMeshStatusResponder : public LLHTTPClient::Responder
 {
 public:
-	NavMeshStatusResponder(const std::string &pCapabilityURL, LLViewerRegion *pRegion);
+	NavMeshStatusResponder(const std::string &pCapabilityURL, LLViewerRegion *pRegion, bool pIsGetStatusOnly);
 	virtual ~NavMeshStatusResponder();
 
 	virtual void result(const LLSD &pContent);
@@ -112,6 +115,7 @@ private:
 	std::string    mCapabilityURL;
 	LLViewerRegion *mRegion;
 	LLUUID         mRegionUUID;
+	bool           mIsGetStatusOnly;
 };
 
 //---------------------------------------------------------------------------
@@ -142,7 +146,7 @@ private:
 class AgentStateResponder : public LLHTTPClient::Responder
 {
 public:
-	AgentStateResponder(const std::string &pCapabilityURL, LLPathfindingManager::EAgentState pRequestedAgentState = LLPathfindingManager::kAgentStateUnknown);
+	AgentStateResponder(const std::string &pCapabilityURL);
 	virtual ~AgentStateResponder();
 
 	virtual void result(const LLSD &pContent);
@@ -152,9 +156,26 @@ protected:
 
 private:
 	std::string                       mCapabilityURL;
-	LLPathfindingManager::EAgentState mRequestedAgentState;
 };
 
+
+//---------------------------------------------------------------------------
+// NavMeshRebakeResponder
+//---------------------------------------------------------------------------
+class NavMeshRebakeResponder : public LLHTTPClient::Responder
+{
+public:
+	NavMeshRebakeResponder( const std::string &pCapabilityURL );
+	virtual ~NavMeshRebakeResponder();
+
+	virtual void result( const LLSD &pContent );
+	virtual void error( U32 pStatus, const std::string& pReason );
+
+protected:
+
+private:
+	std::string                       mCapabilityURL;
+};
 //---------------------------------------------------------------------------
 // LinksetsResponder
 //---------------------------------------------------------------------------
@@ -263,14 +284,72 @@ private:
 LLPathfindingManager::LLPathfindingManager()
 	: LLSingleton<LLPathfindingManager>(),
 	mNavMeshMap(),
+	mCrossingSlot(),
 	mAgentStateSignal(),
-	mAgentState(kAgentStateUnknown),
-	mLastKnownNonErrorAgentState(kAgentStateUnknown)
+	mNavMeshSlot()
 {
 }
 
+void LLPathfindingManager::onRegionBoundaryCrossed()
+{ 
+	if (mNavMeshSlot.connected())
+	{
+		mNavMeshSlot.disconnect();
+	}
+	LLViewerRegion *currentRegion = getCurrentRegion();
+	if (currentRegion != NULL)
+	{
+		mNavMeshSlot = registerNavMeshListenerForRegion(currentRegion, boost::bind(&LLPathfindingManager::handleNavMeshStatus, this, _1, _2));
+		requestGetNavMeshForRegion(currentRegion, true);
+	}
+	displayNavMeshRebakePanel();
+}
+
 LLPathfindingManager::~LLPathfindingManager()
+{	
+	quitSystem();
+}
+
+void LLPathfindingManager::initSystem()
 {
+	if (LLPathingLib::getInstance() == NULL)
+	{
+		LLPathingLib::initSystem();
+	}
+
+	if ( !mCrossingSlot.connected() )
+	{
+		mCrossingSlot = LLEnvManagerNew::getInstance()->setRegionChangeCallback(boost::bind(&LLPathfindingManager::onRegionBoundaryCrossed, this));
+	}
+
+	if (mNavMeshSlot.connected())
+	{
+		mNavMeshSlot.disconnect();
+	}
+	LLViewerRegion *currentRegion = getCurrentRegion();
+	if (currentRegion != NULL)
+	{
+		mNavMeshSlot = registerNavMeshListenerForRegion(currentRegion, boost::bind(&LLPathfindingManager::handleNavMeshStatus, this, _1, _2));
+		requestGetNavMeshForRegion(currentRegion, true);
+	}
+}
+
+void LLPathfindingManager::quitSystem()
+{
+	if (mNavMeshSlot.connected())
+	{
+		mNavMeshSlot.disconnect();
+	}
+
+	if (mCrossingSlot.connected())
+	{
+		mCrossingSlot.disconnect();
+	}
+
+	if (LLPathingLib::getInstance() != NULL)
+	{
+		LLPathingLib::quitSystem();
+	}
 }
 
 bool LLPathfindingManager::isPathfindingEnabledForCurrentRegion() const
@@ -284,17 +363,9 @@ bool LLPathfindingManager::isPathfindingEnabledForRegion(LLViewerRegion *pRegion
 	return !retrieveNavMeshURL.empty();
 }
 
-#ifdef DEPRECATED_UNVERSIONED_NAVMESH
-bool LLPathfindingManager::isPathfindingNavMeshVersioningEnabledForCurrentRegionXXX() const
+bool LLPathfindingManager::isPathfindingDebugEnabled() const
 {
-	std::string navMeshStatusURL = getNavMeshStatusURLForRegion(getCurrentRegion());
-	return !navMeshStatusURL.empty();
-}
-#endif // DEPRECATED_UNVERSIONED_NAVMESH
-
-bool LLPathfindingManager::isAllowAlterPermanent()
-{
-	return (!isPathfindingEnabledForCurrentRegion() || (getAgentState() == kAgentStateUnfrozen));
+	return (LLPathingLib::getInstance() != NULL);
 }
 
 bool LLPathfindingManager::isAllowViewTerrainProperties() const
@@ -309,7 +380,7 @@ LLPathfindingNavMesh::navmesh_slot_t LLPathfindingManager::registerNavMeshListen
 	return navMeshPtr->registerNavMeshListener(pNavMeshCallback);
 }
 
-void LLPathfindingManager::requestGetNavMeshForRegion(LLViewerRegion *pRegion)
+void LLPathfindingManager::requestGetNavMeshForRegion(LLViewerRegion *pRegion, bool pIsGetStatusOnly)
 {
 	LLPathfindingNavMeshPtr navMeshPtr = getNavMeshForRegion(pRegion);
 
@@ -320,7 +391,7 @@ void LLPathfindingManager::requestGetNavMeshForRegion(LLViewerRegion *pRegion)
 	else if (!pRegion->capabilitiesReceived())
 	{
 		navMeshPtr->handleNavMeshWaitForRegionLoad();
-		pRegion->setCapabilitiesReceivedCallback(boost::bind(&LLPathfindingManager::handleDeferredGetNavMeshForRegion, this, _1));
+		pRegion->setCapabilitiesReceivedCallback(boost::bind(&LLPathfindingManager::handleDeferredGetNavMeshForRegion, this, _1, pIsGetStatusOnly));
 	}
 	else if (!isPathfindingEnabledForRegion(pRegion))
 	{
@@ -329,25 +400,10 @@ void LLPathfindingManager::requestGetNavMeshForRegion(LLViewerRegion *pRegion)
 	else
 	{
 		std::string navMeshStatusURL = getNavMeshStatusURLForRegion(pRegion);
-#ifdef DEPRECATED_UNVERSIONED_NAVMESH
-		if (navMeshStatusURL.empty())
-		{
-			LLPathfindingNavMeshStatus navMeshStatus = navMeshPtr->getNavMeshStatusXXX();
-			navMeshStatus.incrementNavMeshVersionXXX();
-			sendRequestGetNavMeshForRegion(navMeshPtr, pRegion, navMeshStatus);
-		}
-		else
-		{
-			navMeshPtr->handleNavMeshCheckVersion();
-			LLHTTPClient::ResponderPtr navMeshStatusResponder = new NavMeshStatusResponder(navMeshStatusURL, pRegion);
-			LLHTTPClient::get(navMeshStatusURL, navMeshStatusResponder);
-		}
-#else // DEPRECATED_UNVERSIONED_NAVMESH
 		llassert(!navMeshStatusURL.empty());
 		navMeshPtr->handleNavMeshCheckVersion();
-		LLHTTPClient::ResponderPtr navMeshStatusResponder = new NavMeshStatusResponder(navMeshStatusURL, pRegion);
+		LLHTTPClient::ResponderPtr navMeshStatusResponder = new NavMeshStatusResponder(navMeshStatusURL, pRegion, pIsGetStatusOnly);
 		LLHTTPClient::get(navMeshStatusURL, navMeshStatusResponder);
-#endif // DEPRECATED_UNVERSIONED_NAVMESH
 	}
 }
 
@@ -356,49 +412,6 @@ LLPathfindingManager::agent_state_slot_t LLPathfindingManager::registerAgentStat
 	return mAgentStateSignal.connect(pAgentStateCallback);
 }
 
-LLPathfindingManager::EAgentState LLPathfindingManager::getAgentState()
-{
-	if (!isPathfindingEnabledForCurrentRegion())
-	{
-		setAgentState(kAgentStateNotEnabled);
-	}
-	else
-	{
-		if (!isValidAgentState(mAgentState))
-		{
-			requestGetAgentState();
-		}
-	}
-
-	return mAgentState;
-}
-
-LLPathfindingManager::EAgentState LLPathfindingManager::getLastKnownNonErrorAgentState() const
-{
-	return mLastKnownNonErrorAgentState;
-}
-
-void LLPathfindingManager::requestSetAgentState(EAgentState pRequestedAgentState)
-{
-	llassert(isValidAgentState(pRequestedAgentState));
-	std::string agentStateURL = getAgentStateURLForCurrentRegion();
-
-	if (agentStateURL.empty())
-	{
-		setAgentState(kAgentStateNotEnabled);
-	}
-	else
-	{
-		LLSD request;
-		request[ALTER_NAVMESH_OBJECTS_FIELD] = static_cast<LLSD::Boolean>(pRequestedAgentState == kAgentStateUnfrozen);
-#ifdef DEPRECATED_ALTER_NAVMESH_OBJECTS_FIELD
-		request[DEPRECATED_ALTER_NAVMESH_OBJECTS_FIELD] = static_cast<LLSD::Boolean>(pRequestedAgentState == kAgentStateUnfrozen);
-#endif // DEPRECATED_ALTER_NAVMESH_OBJECTS_FIELD
-
-		LLHTTPClient::ResponderPtr responder = new AgentStateResponder(agentStateURL, pRequestedAgentState);
-		LLHTTPClient::post(agentStateURL, request, responder);
-	}
-}
 
 void LLPathfindingManager::requestGetLinksets(request_id_t pRequestId, object_request_callback_t pLinksetsCallback) const
 {
@@ -548,13 +561,13 @@ void LLPathfindingManager::sendRequestGetNavMeshForRegion(LLPathfindingNavMeshPt
 	}
 }
 
-void LLPathfindingManager::handleDeferredGetNavMeshForRegion(const LLUUID &pRegionUUID)
+void LLPathfindingManager::handleDeferredGetNavMeshForRegion(const LLUUID &pRegionUUID, bool pIsGetStatusOnly)
 {
 	LLViewerRegion *currentRegion = getCurrentRegion();
 
 	if ((currentRegion != NULL) && (currentRegion->getRegionID() == pRegionUUID))
 	{
-		requestGetNavMeshForRegion(currentRegion);
+		requestGetNavMeshForRegion(currentRegion, pIsGetStatusOnly);
 	}
 }
 
@@ -578,7 +591,7 @@ void LLPathfindingManager::handleDeferredGetCharactersForRegion(const LLUUID &pR
 	}
 }
 
-void LLPathfindingManager::handleNavMeshStatusRequest(const LLPathfindingNavMeshStatus &pNavMeshStatus, LLViewerRegion *pRegion)
+void LLPathfindingManager::handleNavMeshStatusRequest(const LLPathfindingNavMeshStatus &pNavMeshStatus, LLViewerRegion *pRegion, bool pIsGetStatusOnly)
 {
 	LLPathfindingNavMeshPtr navMeshPtr = getNavMeshForRegion(pNavMeshStatus.getRegionUUID());
 
@@ -591,6 +604,10 @@ void LLPathfindingManager::handleNavMeshStatusRequest(const LLPathfindingNavMesh
 		if (navMeshPtr->hasNavMeshVersion(pNavMeshStatus))
 		{
 			navMeshPtr->handleRefresh(pNavMeshStatus);
+		}
+		else if (pIsGetStatusOnly)
+		{
+			navMeshPtr->handleNavMeshNewVersion(pNavMeshStatus);
 		}
 		else
 		{
@@ -641,93 +658,32 @@ LLPathfindingNavMeshPtr LLPathfindingManager::getNavMeshForRegion(LLViewerRegion
 	return getNavMeshForRegion(regionUUID);
 }
 
-bool LLPathfindingManager::isValidAgentState(EAgentState pAgentState)
-{
-	return ((pAgentState == kAgentStateFrozen) || (pAgentState == kAgentStateUnfrozen));
-}
-
 void LLPathfindingManager::requestGetAgentState()
 {
-	std::string agentStateURL = getAgentStateURLForCurrentRegion();
+	std::string agentStateURL = getAgentStateURLForCurrentRegion( getCurrentRegion() );
 
-	if (agentStateURL.empty())
+	if ( !agentStateURL.empty() )
 	{
-		setAgentState(kAgentStateNotEnabled);
-	}
-	else
-	{
-		LLHTTPClient::ResponderPtr responder = new AgentStateResponder(agentStateURL);
-		LLHTTPClient::get(agentStateURL, responder);
+		LLHTTPClient::ResponderPtr responder = new AgentStateResponder( agentStateURL );
+		LLHTTPClient::get( agentStateURL, responder );
 	}
 }
 
-void LLPathfindingManager::setAgentState(EAgentState pAgentState)
-{
-	mAgentState = pAgentState;
-
-	if (mAgentState != kAgentStateError)
-	{
-		mLastKnownNonErrorAgentState = mAgentState;
-	}
-
-	mAgentStateSignal(mAgentState);
-}
-
-void LLPathfindingManager::handleAgentStateResult(const LLSD &pContent, EAgentState pRequestedAgentState)
-{
-#ifndef DEPRECATED_ALTER_NAVMESH_OBJECTS_FIELD
-	llassert(pContent.has(ALTER_NAVMESH_OBJECTS_FIELD));
-	llassert(pContent.get(ALTER_NAVMESH_OBJECTS_FIELD).isBoolean());
-	EAgentState agentState = (pContent.get(ALTER_NAVMESH_OBJECTS_FIELD).asBoolean() ? kAgentStateUnfrozen : kAgentStateFrozen);
-#else // DEPRECATED_ALTER_NAVMESH_OBJECTS_FIELD
-	EAgentState agentState = kAgentStateUnknown;
-	if (pContent.has(ALTER_NAVMESH_OBJECTS_FIELD))
-	{
-		llassert(pContent.get(ALTER_NAVMESH_OBJECTS_FIELD).isBoolean());
-		agentState = (pContent.get(ALTER_NAVMESH_OBJECTS_FIELD).asBoolean() ? kAgentStateUnfrozen : kAgentStateFrozen);
-	}
-	else
-	{
-		llassert(pContent.has(DEPRECATED_ALTER_NAVMESH_OBJECTS_FIELD));
-		llassert(pContent.get(DEPRECATED_ALTER_NAVMESH_OBJECTS_FIELD).isBoolean());
-		agentState = (pContent.get(DEPRECATED_ALTER_NAVMESH_OBJECTS_FIELD).asBoolean() ? kAgentStateUnfrozen : kAgentStateFrozen);
-	}
-#endif // DEPRECATED_ALTER_NAVMESH_OBJECTS_FIELD
-
-	if (isValidAgentState(pRequestedAgentState) && (agentState != pRequestedAgentState))
-	{
-		agentState = kAgentStateError;
-		llassert(0);
-	}
-
-	setAgentState(agentState);
+void LLPathfindingManager::handleAgentStateResult(const LLSD &pContent) 
+{	
+	displayNavMeshRebakePanel();
 }
 
 void LLPathfindingManager::handleAgentStateError(U32 pStatus, const std::string &pReason, const std::string &pURL)
 {
 	llwarns << "error with request to URL '" << pURL << "' because " << pReason << " (statusCode:" << pStatus << ")" << llendl;
-	setAgentState(kAgentStateError);
 }
 
-void LLPathfindingManager::handleAgentStateUpdate(const LLSD &pContent)
+std::string LLPathfindingManager::getAgentStateURLForCurrentRegion(LLViewerRegion *pRegion) const
 {
-	llassert(pContent.has(ALTER_NAVMESH_OBJECTS_FIELD));
-	llassert(pContent.get(ALTER_NAVMESH_OBJECTS_FIELD).isBoolean());
-	EAgentState agentState = (pContent.get(ALTER_NAVMESH_OBJECTS_FIELD).asBoolean() ? kAgentStateUnfrozen : kAgentStateFrozen);
-
-	setAgentState(agentState);
-
-	LLSD substitutions, payload;
-	LLNotificationsUtil::add("AutomaticAgentStateUnfreeze", substitutions, payload, boost::bind(&LLPathfindingManager::handleAgentStateUserNotification, this, _1, _2));
+	return getCapabilityURLForRegion( pRegion, CAP_SERVICE_AGENT_STATE );
 }
 
-void LLPathfindingManager::handleAgentStateUserNotification(const LLSD &pNotification, const LLSD &pResponse)
-{
-	if (LLNotificationsUtil::getSelectedOption(pNotification, pResponse) == 1)
-	{
-		LLWeb::loadURL(LLTrans::getString("Pathfinding_Wiki_URL"));
-	}
-}
 
 std::string LLPathfindingManager::getNavMeshStatusURLForRegion(LLViewerRegion *pRegion) const
 {
@@ -737,11 +693,6 @@ std::string LLPathfindingManager::getNavMeshStatusURLForRegion(LLViewerRegion *p
 std::string LLPathfindingManager::getRetrieveNavMeshURLForRegion(LLViewerRegion *pRegion) const
 {
 	return getCapabilityURLForRegion(pRegion, CAP_SERVICE_RETRIEVE_NAVMESH);
-}
-
-std::string LLPathfindingManager::getAgentStateURLForCurrentRegion() const
-{
-	return getCapabilityURLForCurrentRegion(CAP_SERVICE_AGENT_STATE);
 }
 
 std::string LLPathfindingManager::getObjectLinksetsURLForCurrentRegion() const
@@ -787,6 +738,79 @@ LLViewerRegion *LLPathfindingManager::getCurrentRegion() const
 	return gAgent.getRegion();
 }
 
+void LLPathfindingManager::handleNavMeshStatus(LLPathfindingNavMesh::ENavMeshRequestStatus pRequestStatus, const LLPathfindingNavMeshStatus &pNavMeshStatus)
+{
+	if (!pNavMeshStatus.isValid())
+	{
+		llinfos << "STINSON DEBUG: navmesh status is invalid" << llendl;
+	}
+	else
+	{
+		switch (pNavMeshStatus.getStatus())
+		{
+		case LLPathfindingNavMeshStatus::kPending : 
+			llinfos << "STINSON DEBUG: navmesh status is kPending" << llendl;
+			break;
+		case LLPathfindingNavMeshStatus::kBuilding : 
+			llinfos << "STINSON DEBUG: navmesh status is kBuilding" << llendl;
+			break;
+		case LLPathfindingNavMeshStatus::kComplete : 
+			llinfos << "STINSON DEBUG: navmesh status is kComplete" << llendl;
+			displayNavMeshRebakePanel();
+			break;
+		case LLPathfindingNavMeshStatus::kRepending : 
+			llinfos << "STINSON DEBUG: navmesh status is kRepending" << llendl;
+			break;
+		default : 
+			llinfos << "STINSON DEBUG: navmesh status is default" << llendl;
+			llassert(0);
+			break;
+		}
+	}
+}
+
+void LLPathfindingManager::displayNavMeshRebakePanel()
+{
+	LLView* rootp = LLUI::getRootView();
+	LLPanel* panel_nmr_container = rootp->getChild<LLPanel>("navmesh_rebake_container");
+	LLPanelNavMeshRebake* panel_namesh_rebake = LLPanelNavMeshRebake::getInstance();
+	panel_nmr_container->addChild( panel_namesh_rebake );
+	panel_nmr_container->setVisible( TRUE );
+	panel_namesh_rebake->reparent( rootp );
+	LLPanelNavMeshRebake::getInstance()->setVisible( TRUE );
+	LLPanelNavMeshRebake::getInstance()->resetButtonStates();
+}
+
+void LLPathfindingManager::hideNavMeshRebakePanel()
+{
+	LLPanelNavMeshRebake::getInstance()->setVisible( FALSE );
+}
+
+void LLPathfindingManager::handleNavMeshRebakeError(U32 pStatus, const std::string &pReason, const std::string &pURL)
+{
+	llwarns << "error with request to URL '" << pURL << "' because " << pReason << " (statusCode:" << pStatus << ")" << llendl;
+}
+
+void LLPathfindingManager::handleNavMeshRebakeResult( const LLSD &pContent )
+{
+	hideNavMeshRebakePanel();
+}
+
+void LLPathfindingManager::triggerNavMeshRebuild()
+{
+	std::string url = getNavMeshStatusURLForRegion( getCurrentRegion() );
+	if ( url.empty() )
+	{
+		llwarns << "Error with request due to nonexistent URL"<<llendl;
+	}
+	else
+	{
+		LLSD mPostData;			
+		mPostData["command"] = "rebuild";
+		LLHTTPClient::ResponderPtr responder = new NavMeshRebakeResponder( url );
+		LLHTTPClient::post( url, mPostData, responder );
+	}
+}
 //---------------------------------------------------------------------------
 // LLNavMeshSimStateChangeNode
 //---------------------------------------------------------------------------
@@ -808,23 +832,25 @@ void LLNavMeshSimStateChangeNode::post(ResponsePtr pResponse, const LLSD &pConte
 
 void LLAgentStateChangeNode::post(ResponsePtr pResponse, const LLSD &pContext, const LLSD &pInput) const
 {
-#ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
-	llinfos << "STINSON DEBUG: Received AgentPreferencesUpdate: " << pInput << llendl;
-#endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
-	llassert(pInput.has(SIM_MESSAGE_BODY_FIELD));
-	llassert(pInput.get(SIM_MESSAGE_BODY_FIELD).isMap());
-	LLPathfindingManager::getInstance()->handleAgentStateUpdate(pInput.get(SIM_MESSAGE_BODY_FIELD));
+	LLPathfindingManager::getInstance()->handleAgentStateUpdate();
+}
+
+void LLPathfindingManager::handleAgentStateUpdate()
+{
+	//Don't trigger if we are still loading in
+	if ( LLStartUp::getStartupState() == STATE_STARTED) { displayNavMeshRebakePanel(); }
 }
 
 //---------------------------------------------------------------------------
 // NavMeshStatusResponder
 //---------------------------------------------------------------------------
 
-NavMeshStatusResponder::NavMeshStatusResponder(const std::string &pCapabilityURL, LLViewerRegion *pRegion)
+NavMeshStatusResponder::NavMeshStatusResponder(const std::string &pCapabilityURL, LLViewerRegion *pRegion, bool pIsGetStatusOnly)
 	: LLHTTPClient::Responder(),
 	mCapabilityURL(pCapabilityURL),
 	mRegion(pRegion),
-	mRegionUUID()
+	mRegionUUID(),
+	mIsGetStatusOnly(pIsGetStatusOnly)
 {
 	if (mRegion != NULL)
 	{
@@ -842,14 +868,14 @@ void NavMeshStatusResponder::result(const LLSD &pContent)
 	llinfos << "STINSON DEBUG: Received requested NavMeshStatus: " << pContent << llendl;
 #endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
 	LLPathfindingNavMeshStatus navMeshStatus(mRegionUUID, pContent);
-	LLPathfindingManager::getInstance()->handleNavMeshStatusRequest(navMeshStatus, mRegion);
+	LLPathfindingManager::getInstance()->handleNavMeshStatusRequest(navMeshStatus, mRegion, mIsGetStatusOnly);
 }
 
 void NavMeshStatusResponder::error(U32 pStatus, const std::string& pReason)
 {
 	llwarns << "error with request to URL '" << mCapabilityURL << "' because " << pReason << " (statusCode:" << pStatus << ")" << llendl;
 	LLPathfindingNavMeshStatus navMeshStatus(mRegionUUID);
-	LLPathfindingManager::getInstance()->handleNavMeshStatusRequest(navMeshStatus, mRegion);
+	LLPathfindingManager::getInstance()->handleNavMeshStatusRequest(navMeshStatus, mRegion, mIsGetStatusOnly);
 }
 
 //---------------------------------------------------------------------------
@@ -882,10 +908,9 @@ void NavMeshResponder::error(U32 pStatus, const std::string& pReason)
 // AgentStateResponder
 //---------------------------------------------------------------------------
 
-AgentStateResponder::AgentStateResponder(const std::string &pCapabilityURL, LLPathfindingManager::EAgentState pRequestedAgentState)
-	: LLHTTPClient::Responder(),
-	mCapabilityURL(pCapabilityURL),
-	mRequestedAgentState(pRequestedAgentState)
+AgentStateResponder::AgentStateResponder(const std::string &pCapabilityURL)
+: LLHTTPClient::Responder()
+, mCapabilityURL(pCapabilityURL)
 {
 }
 
@@ -895,12 +920,36 @@ AgentStateResponder::~AgentStateResponder()
 
 void AgentStateResponder::result(const LLSD &pContent)
 {
-	LLPathfindingManager::getInstance()->handleAgentStateResult(pContent, mRequestedAgentState);
+	LLPathfindingManager::getInstance()->handleAgentStateResult(pContent);
 }
 
 void AgentStateResponder::error(U32 pStatus, const std::string &pReason)
 {
 	LLPathfindingManager::getInstance()->handleAgentStateError(pStatus, pReason, mCapabilityURL);
+}
+
+
+//---------------------------------------------------------------------------
+// navmesh rebake responder
+//---------------------------------------------------------------------------
+NavMeshRebakeResponder::NavMeshRebakeResponder(const std::string &pCapabilityURL )
+: LLHTTPClient::Responder()
+, mCapabilityURL( pCapabilityURL )
+{
+}
+
+NavMeshRebakeResponder::~NavMeshRebakeResponder()
+{
+}
+
+void NavMeshRebakeResponder::result(const LLSD &pContent)
+{
+	LLPathfindingManager::getInstance()->handleNavMeshRebakeResult( pContent );
+}
+
+void NavMeshRebakeResponder::error(U32 pStatus, const std::string &pReason)
+{
+	LLPathfindingManager::getInstance()->handleNavMeshRebakeError( pStatus, pReason, mCapabilityURL );
 }
 
 //---------------------------------------------------------------------------
@@ -1063,3 +1112,4 @@ void CharactersResponder::error(U32 pStatus, const std::string &pReason)
 	LLPathfindingObjectListPtr characterListPtr =  LLPathfindingObjectListPtr(new LLPathfindingCharacterList());
 	mCharactersCallback(mRequestId, LLPathfindingManager::kRequestError, characterListPtr);
 }
+

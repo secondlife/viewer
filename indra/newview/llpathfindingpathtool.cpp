@@ -54,11 +54,6 @@ LLPathfindingPathTool::LLPathfindingPathTool()
 	mIsMiddleMouseButtonHeld(false),
 	mIsRightMouseButtonHeld(false)
 {
-	if (!LLPathingLib::getInstance())
-	{
-		LLPathingLib::initSystem();
-	}	
-
 	setCharacterWidth(1.0f);
 	setCharacterType(mCharacterType);
 }

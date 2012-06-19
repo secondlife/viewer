@@ -393,7 +393,7 @@ void LLPathfindingNavMeshZone::NavMeshLocation::refresh()
 	else
 	{
 		llassert(mRegionUUID == region->getRegionID());
-		LLPathfindingManager::getInstance()->requestGetNavMeshForRegion(region);
+		LLPathfindingManager::getInstance()->requestGetNavMeshForRegion(region, false);
 	}
 }
 

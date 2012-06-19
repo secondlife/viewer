@@ -112,6 +112,24 @@
     follows="right|top"
     image_name="Parcel_Health_Dark"
     />
+  <pathfinding_dirty_icon
+    name="pathfinding_dirty_icon"
+    width="14"
+    height="13"
+    top="19"
+    left="2"
+    follows="right|top"
+    image_name="Pathfinding_Dirty"
+    />
+  <pathfinding_disabled_icon
+    name="pathfinding_disabled_icon"
+    width="14"
+    height="13"
+    top="19"
+    left="2"
+    follows="right|top"
+    image_name="Pathfinding_Disabled"
+    />
   <!-- Default text color is invisible on top of nav bar background -->
   <damage_text
     name="damage_text"
