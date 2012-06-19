@@ -236,7 +236,6 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mNumFaces(0),
 	mTimeDilation(1.f),
 	mRotTime(0.f),
-	mJointInfo(NULL),
 	mState(0),
 	mMedia(NULL),
 	mClickAction(0),
@@ -279,12 +278,6 @@ LLViewerObject::~LLViewerObject()
 		mInventory->clear();  // will deref and delete entries
 		delete mInventory;
 		mInventory = NULL;
-	}
-
-	if (mJointInfo)
-	{
-		delete mJointInfo;
-		mJointInfo = NULL;
 	}
 
 	if (mPartSourcep)
@@ -337,9 +330,6 @@ void LLViewerObject::markDead()
 		if (getParent())
 		{
 			((LLViewerObject *)getParent())->removeChild(this);
-			// go ahead and delete any jointinfo's that we find
-			delete mJointInfo;
-			mJointInfo = NULL;
 		}
 
 		// Mark itself as dead
@@ -742,7 +732,7 @@ void LLViewerObject::addThisAndNonJointChildren(std::vector<LLViewerObject*>& ob
 		 iter != mChildList.end(); iter++)
 	{
 		LLViewerObject* child = *iter;
-		if ( (!child->isAvatar()) && (!child->isJointChild()))
+		if ( (!child->isAvatar()))
 		{
 			child->addThisAndNonJointChildren(objects);
 		}
@@ -1293,26 +1283,6 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 						// Send an update message in case it was formerly in use
 						parameterChanged(iter->first, iter->second->data, FALSE, false);
 					}
-				}
-
-				U8 joint_type = 0;
-				mesgsys->getU8Fast(_PREHASH_ObjectData, _PREHASH_JointType, joint_type, block_num);
-				if (joint_type)
-				{
-					// create new joint info 
-					if (!mJointInfo)
-					{
-						mJointInfo = new LLVOJointInfo;
-					}
-					mJointInfo->mJointType = (EHavokJointType) joint_type;
-					mesgsys->getVector3Fast(_PREHASH_ObjectData, _PREHASH_JointPivot, mJointInfo->mPivot, block_num);
-					mesgsys->getVector3Fast(_PREHASH_ObjectData, _PREHASH_JointAxisOrAnchor, mJointInfo->mAxisOrAnchor, block_num);
-				}
-				else if (mJointInfo)
-				{
-					// this joint info is no longer needed
-					delete mJointInfo;
-					mJointInfo = NULL;
 				}
 
 				break;
@@ -1962,14 +1932,6 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 						cur_parentp->removeChild(this);
 
-						if (mJointInfo && !parent_id)
-						{
-							// since this object is no longer parent-relative
-							// we make sure we delete any joint info
-							delete mJointInfo;
-							mJointInfo = NULL;
-						}
-
 						setChanged(MOVED | SILHOUETTE);
 
 						if (mDrawable.notNull())
@@ -2097,9 +2059,15 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		gPipeline.addDebugBlip(getPositionAgent(), color);
 	}
 
-	if ((0.0f == vel_mag_sq) && 
-		(0.0f == accel_mag_sq) &&
-		(0.0f == getAngularVelocity().magVecSquared()))
+	const F32 MAG_CUTOFF = F_APPROXIMATELY_ZERO;
+
+	llassert(vel_mag_sq >= 0.f);
+	llassert(accel_mag_sq >= 0.f);
+	llassert(getAngularVelocity().magVecSquared() >= 0.f);
+
+	if ((MAG_CUTOFF >= vel_mag_sq) && 
+		(MAG_CUTOFF >= accel_mag_sq) &&
+		(MAG_CUTOFF >= getAngularVelocity().magVecSquared()))
 	{
 		mStatic = TRUE; // This object doesn't move!
 	}
@@ -2170,117 +2138,36 @@ BOOL LLViewerObject::isActive() const
 
 
 
-BOOL LLViewerObject::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
+void LLViewerObject::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
 	//static LLFastTimer::DeclareTimer ftm("Viewer Object");
 	//LLFastTimer t(ftm);
 
-	if (mDead)
+	if (!mDead)
 	{
-		// It's dead.  Don't update it.
-		return TRUE;
-	}
-
-	// CRO - don't velocity interp linked objects!
-	// Leviathan - but DO velocity interp joints
-	if (!mStatic && sVelocityInterpolate && !isSelected())
-	{
-		// calculate dt from last update
-		F32 dt_raw = (F32)(time - mLastInterpUpdateSecs);
-		F32 dt = mTimeDilation * dt_raw;
-
-		if (!mJointInfo)
+		// CRO - don't velocity interp linked objects!
+		// Leviathan - but DO velocity interp joints
+		if (!mStatic && sVelocityInterpolate && !isSelected())
 		{
+			// calculate dt from last update
+			F32 dt_raw = (F32)(time - mLastInterpUpdateSecs);
+			F32 dt = mTimeDilation * dt_raw;
+
 			applyAngularVelocity(dt);
-		}
-
-		LLViewerObject *parentp = (LLViewerObject *) getParent();
-		if (mJointInfo)
-		{
-			if (parentp)
+			
+			if (isAttachment())
 			{
-				// do parent-relative stuff
-				LLVector3 ang_vel = getAngularVelocity();
-				F32 omega = ang_vel.magVecSquared();
-				F32 angle = 0.0f;
-				LLQuaternion dQ;
-				if (omega > 0.00001f)
-				{
-					omega = sqrt(omega);
-					angle = omega * dt;
-					dQ.setQuat(angle, ang_vel);
-				}
-				LLVector3 pos = getPosition();
-	
-				if (HJT_HINGE == mJointInfo->mJointType)
-				{
-					// hinge = uniform circular motion
-					LLVector3 parent_pivot = getVelocity();
-					LLVector3 parent_axis = getAcceleration();
-	
-					angle = dt * (ang_vel * mJointInfo->mAxisOrAnchor);	// AxisOrAnchor = axis
-					dQ.setQuat(angle, mJointInfo->mAxisOrAnchor);		// AxisOrAnchor = axis
-					LLVector3 pivot_offset = pos - mJointInfo->mPivot;	// pos in pivot-frame
-					pivot_offset = pivot_offset * dQ;					// new rotated pivot-frame pos
-					pos = mJointInfo->mPivot + pivot_offset;			// parent-frame
-					LLViewerObject::setPosition(pos);
-					LLQuaternion Q_PC = getRotation();
-					setRotation(Q_PC * dQ);
-					mLastInterpUpdateSecs = time;
-				}
-				else if (HJT_POINT == mJointInfo->mJointType)
-						// || HJT_LPOINT == mJointInfo->mJointType)
-				{
-					// point-to-point = spin about axis and uniform circular motion
-					// 					of axis about the pivot point
-					//
-					// NOTE: this interpolation scheme is not quite good enough to
-					// reduce the bandwidth -- needs a gravitational correction. 
-					// Similarly for hinges with axes that deviate from vertical.
-	
-					LLQuaternion Q_PC = getRotation();
-					Q_PC = Q_PC * dQ;
-					setRotation(Q_PC);
-
-					LLVector3 pivot_to_child = - mJointInfo->mAxisOrAnchor;	// AxisOrAnchor = anchor
-					pos = mJointInfo->mPivot + pivot_to_child * Q_PC;
-					LLViewerObject::setPosition(pos);
-					mLastInterpUpdateSecs = time;
-				}
-				/* else if (HJT_WHEEL == mJointInfo->mJointInfo)
-				{
-					// wheel = uniform rotation about axis, with linear
-					//		   velocity interpolation (if any)
-					LLVector3 parent_axis = getAcceleration();	// HACK -- accel stores the parent-axis (parent-frame)
-	
-					LLQuaternion Q_PC = getRotation();
-	
-					angle = dt * (parent_axis * ang_vel);
-					dQ.setQuat(angle, parent_axis);
-	
-					Q_PC = Q_PC * dQ;
-					setRotation(Q_PC);
-
-					pos = getPosition() + dt * getVelocity();
-					LLViewerObject::setPosition(pos);
-					mLastInterpUpdateSecs = time;
-				}*/
+				mLastInterpUpdateSecs = time;
+				return;
+			}
+			else
+			{	// Move object based on it's velocity and rotation
+				interpolateLinearMotion(time, dt);
 			}
 		}
-		else if (isAttachment())
-		{
-			mLastInterpUpdateSecs = time;
-			return TRUE;
-		}
-		else
-		{	// Move object based on it's velocity and rotation
-			interpolateLinearMotion(time, dt);
-		}
+
+		updateDrawable(FALSE);
 	}
-
-	updateDrawable(FALSE);
-
-	return TRUE;
 }
 
 
@@ -3857,15 +3744,6 @@ void LLViewerObject::setPositionEdit(const LLVector3 &pos_edit, BOOL damped)
 		((LLViewerObject *)getParent())->setPositionEdit(pos_edit - position_offset);
 		updateDrawable(damped);
 	}
-	else if (isJointChild())
-	{
-		// compute new parent-relative position
-		LLViewerObject *parent = (LLViewerObject *) getParent();
-		LLQuaternion inv_parent_rot = parent->getRotation();
-		inv_parent_rot.transQuat();
-		LLVector3 pos_parent = (pos_edit - parent->getPositionRegion()) * inv_parent_rot;
-		LLViewerObject::setPosition(pos_parent, damped);
-	}
 	else
 	{
 		LLViewerObject::setPosition(pos_edit, damped);
@@ -3879,8 +3757,7 @@ LLViewerObject* LLViewerObject::getRootEdit() const
 {
 	const LLViewerObject* root = this;
 	while (root->mParent 
-		   && !(root->mJointInfo
-			   || ((LLViewerObject*)root->mParent)->isAvatar()) )
+		   && !((LLViewerObject*)root->mParent)->isAvatar()) 
 	{
 		root = (LLViewerObject*)root->mParent;
 	}
@@ -4621,19 +4498,11 @@ void LLViewerObject::clearIcon()
 
 LLViewerObject* LLViewerObject::getSubParent() 
 { 
-	if (isJointChild())
-	{
-		return this;
-	}
 	return (LLViewerObject*) getParent();
 }
 
 const LLViewerObject* LLViewerObject::getSubParent() const
 {
-	if (isJointChild())
-	{
-		return this;
-	}
 	return (const LLViewerObject*) getParent();
 }
 

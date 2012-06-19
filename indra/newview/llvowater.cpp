@@ -100,17 +100,8 @@ void LLVOWater::updateTextures()
 }
 
 // Never gets called
-BOOL LLVOWater::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
+void  LLVOWater::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
- 	/*if (mDead || !(gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_WATER)))
-	{
-		return TRUE;
-	}
-	if (mDrawable) 
-	{
-		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
-	}*/
-	return TRUE;
 }
 
 LLDrawable *LLVOWater::createDrawable(LLPipeline *pipeline)
