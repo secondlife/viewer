@@ -5779,7 +5779,16 @@ This area has voice chat disabled. You won&apos;t be able to hear anyone talking
     <unique/>    
 This area has building disabled. You can&apos;t build or rez objects here.
   </notification>
-  
+
+  <notification
+     icon="notify.tga"
+     name="PathfindingDirty"
+     persist="true"
+     type="notify">
+    <unique/>
+    The pathfinding navmesh is not up-to-date on the current region.  If you have build rights, you may rebake the navmesh by clicking on the Rebake Region button.
+  </notification>
+
   <notification
      icon="notify.tga"
      name="DynamicPathfindingDisabled"
