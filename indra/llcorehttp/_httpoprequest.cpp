@@ -108,7 +108,7 @@ HttpOpRequest::HttpOpRequest()
 	  mReplyHeaders(NULL),
 	  mPolicyRetries(0),
 	  mPolicyRetryAt(HttpTime(0)),
-	  mPolicyRetryLimit(5)				// *FIXME:  Get from policy definitions
+	  mPolicyRetryLimit(5)
 {
 	// *NOTE:  As members are added, retry initialization/cleanup
 	// may need to be extended in @prepareRequest().
@@ -333,6 +333,8 @@ void HttpOpRequest::setupCommon(HttpRequest::policy_t policy_id,
 		{
 			mProcFlags |= PF_SAVE_HEADERS;
 		}
+		mPolicyRetryLimit = options->getRetries();
+		mPolicyRetryLimit = llclamp(mPolicyRetryLimit, 0, 100);
 		mTracing = (std::max)(mTracing, llclamp(options->getTrace(), 0, 3));
 	}
 }
@@ -371,10 +373,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	HttpPolicyGlobal & policy(service->getPolicy().getGlobalOptions());
 	
 	mCurlHandle = curl_easy_init();
-	// curl_easy_setopt(mCurlHandle, CURLOPT_VERBOSE, 1);
 	curl_easy_setopt(mCurlHandle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-	curl_easy_setopt(mCurlHandle, CURLOPT_TIMEOUT, 30);
-	curl_easy_setopt(mCurlHandle, CURLOPT_CONNECTTIMEOUT, 30);
 	curl_easy_setopt(mCurlHandle, CURLOPT_NOSIGNAL, 1);
 	curl_easy_setopt(mCurlHandle, CURLOPT_NOPROGRESS, 1);
 	curl_easy_setopt(mCurlHandle, CURLOPT_URL, mReqURL.c_str());
@@ -493,13 +492,25 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	}
 
 	mCurlHeaders = curl_slist_append(mCurlHeaders, "Pragma:");
+
+	// Request options
+	long timeout(30);
+	if (mReqOptions)
+	{
+		timeout = mReqOptions->getTimeout();
+		timeout = llclamp(timeout, 0L, 3600L);
+	}
+	curl_easy_setopt(mCurlHandle, CURLOPT_TIMEOUT, timeout);
+	curl_easy_setopt(mCurlHandle, CURLOPT_CONNECTTIMEOUT, timeout);
+
+	// Request headers
 	if (mReqHeaders)
 	{
 		// Caller's headers last to override
 		mCurlHeaders = append_headers_to_slist(mReqHeaders, mCurlHeaders);
 	}
 	curl_easy_setopt(mCurlHandle, CURLOPT_HTTPHEADER, mCurlHeaders);
-	
+
 	if (mProcFlags & (PF_SCAN_RANGE_HEADER | PF_SAVE_HEADERS))
 	{
 		curl_easy_setopt(mCurlHandle, CURLOPT_HEADERFUNCTION, headerCallback);

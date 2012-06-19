@@ -60,29 +60,44 @@ class HttpOptions : public LLCoreInt::RefCounted
 {
 public:
 	HttpOptions();
-	HttpOptions(const HttpOptions &);
 
 protected:
 	virtual ~HttpOptions();						// Use release()
 	
+	HttpOptions(const HttpOptions &);			// Not defined
 	void operator=(const HttpOptions &);		// Not defined
 
 public:
-	void		setWantHeaders();
-	bool		getWantHeaders() const
+	void				setWantHeaders();
+	bool				getWantHeaders() const
 		{
 			return mWantHeaders;
 		}
 	
-	void		setTrace(long level);
-	int			getTrace() const
+	void				setTrace(int long);
+	int					getTrace() const
 		{
 			return mTracing;
 		}
+
+	void				setTimeout(unsigned int timeout);
+	unsigned int		getTimeout() const
+		{
+			return mTimeout;
+		}
+
+	void				setRetries(unsigned int retries);
+	unsigned int		getRetries() const
+		{
+			return mRetries;
+		}
 	
 protected:
-	bool		mWantHeaders;
-	long		int mTracing;
+	bool				mWantHeaders;
+	int					mTracing;
+	unsigned int		mTimeout;
+	unsigned int		mRetries;
+	
 }; // end class HttpOptions
 
 

@@ -34,14 +34,9 @@ namespace LLCore
 HttpOptions::HttpOptions()
 	: RefCounted(true),
 	  mWantHeaders(false),
-	  mTracing(0)
-{}
-
-
-HttpOptions::HttpOptions(const HttpOptions & rhs)
-	: RefCounted(true),
-	  mWantHeaders(rhs.mWantHeaders),
-	  mTracing(rhs.mTracing)
+	  mTracing(0),
+	  mTimeout(30),
+	  mRetries(5)
 {}
 
 
@@ -58,6 +53,18 @@ void HttpOptions::setWantHeaders()
 void HttpOptions::setTrace(long level)
 {
 	mTracing = int(level);
+}
+
+
+void HttpOptions::setTimeout(unsigned int timeout)
+{
+	mTimeout = timeout;
+}
+
+
+void HttpOptions::setRetries(unsigned int retries)
+{
+	mRetries = retries;
 }
 
 

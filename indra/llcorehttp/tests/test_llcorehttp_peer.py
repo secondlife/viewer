@@ -31,6 +31,7 @@ $/LicenseInfo$
 
 import os
 import sys
+import time
 from threading import Thread
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 
@@ -97,6 +98,9 @@ class TestHTTPRequestHandler(BaseHTTPRequestHandler):
 
     def answer(self, data):
         debug("%s.answer(%s): self.path = %r", self.__class__.__name__, data, self.path)
+        if self.path.find("/sleep/") != -1:
+            time.sleep(30)
+
         if "fail" not in self.path:
             response = llsd.format_xml(data.get("reply", llsd.LLSD("success")))
             debug("success: %s", response)

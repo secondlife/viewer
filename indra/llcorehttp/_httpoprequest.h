@@ -155,7 +155,7 @@ public:
 	// Policy data
 	int					mPolicyRetries;
 	HttpTime			mPolicyRetryAt;
-	const int			mPolicyRetryLimit;
+	int					mPolicyRetryLimit;
 };  // end class HttpOpRequest
 
 
