@@ -87,8 +87,11 @@ BOOL LLPanelNavMeshRebake::postBuild()
 
 void LLPanelNavMeshRebake::draw()
 {
-	updatePosition();
-	LLPanel::draw();
+	if (doDraw())
+	{
+		updatePosition();
+		LLPanel::draw();
+	}
 }
 
 BOOL LLPanelNavMeshRebake::handleToolTip( S32 x, S32 y, MASK mask )
@@ -104,9 +107,10 @@ BOOL LLPanelNavMeshRebake::handleToolTip( S32 x, S32 y, MASK mask )
 }
 
 LLPanelNavMeshRebake::LLPanelNavMeshRebake() 
-	: mCanRebakeRegion(TRUE),
-	mNavMeshRebakeButton( NULL ),
-	mNavMeshBakingButton( NULL ),
+	: mCanRebakeRegion(FALSE),
+	mRebakeNavMeshMode(kRebakeNavMesh_Default),
+	mNavMeshRebakeButton(NULL),
+	mNavMeshBakingButton(NULL),
 	mNavMeshSlot(),
 	mRegionCrossingSlot(),
 	mAgentStateSlot()
@@ -125,7 +129,6 @@ LLPanelNavMeshRebake* LLPanelNavMeshRebake::getPanel()
 {
 	LLPanelNavMeshRebake* panel = new LLPanelNavMeshRebake();
 	panel->buildFromFile("panel_navmesh_rebake.xml");
-	panel->setVisible(FALSE);
 	return panel;
 }
 
@@ -133,7 +136,7 @@ void LLPanelNavMeshRebake::setMode(ERebakeNavMeshMode pRebakeNavMeshMode)
 {
 	mNavMeshRebakeButton->setVisible(pRebakeNavMeshMode == kRebakeNavMesh_Available);
 	mNavMeshBakingButton->setVisible(pRebakeNavMeshMode == kRebakeNavMesh_RequestSent);
-	setVisible(pRebakeNavMeshMode != kRebakeNavMesh_NotAvailable);
+	mRebakeNavMeshMode = pRebakeNavMeshMode;
 }
 
 void LLPanelNavMeshRebake::onNavMeshRebakeClick()
@@ -144,8 +147,8 @@ void LLPanelNavMeshRebake::onNavMeshRebakeClick()
 
 void LLPanelNavMeshRebake::handleAgentState(BOOL pCanRebakeRegion)
 {
-	mCanRebakeRegion = pCanRebakeRegion;
 	llinfos << "STINSON DEBUG: canRebakeRegion => " << (pCanRebakeRegion ? "TRUE" : "FALSE") << llendl;
+	mCanRebakeRegion = pCanRebakeRegion;
 }
 
 void LLPanelNavMeshRebake::handleRebakeNavMeshResponse(bool pResponseStatus)
@@ -161,16 +164,12 @@ void LLPanelNavMeshRebake::handleNavMeshStatus(const LLPathfindingNavMeshStatus 
 		switch (pNavMeshStatus.getStatus())
 		{
 		case LLPathfindingNavMeshStatus::kPending :
+		case LLPathfindingNavMeshStatus::kRepending :
 			rebakeNavMeshMode = kRebakeNavMesh_Available;
 			break;
 		case LLPathfindingNavMeshStatus::kBuilding :
-			rebakeNavMeshMode = kRebakeNavMesh_NotAvailable;
-			break;
 		case LLPathfindingNavMeshStatus::kComplete :
 			rebakeNavMeshMode = kRebakeNavMesh_NotAvailable;
-			break;
-		case LLPathfindingNavMeshStatus::kRepending :
-			rebakeNavMeshMode = kRebakeNavMesh_Available;
 			break;
 		default : 
 			rebakeNavMeshMode = kRebakeNavMesh_Default;
@@ -194,6 +193,7 @@ void LLPanelNavMeshRebake::createNavMeshStatusListenerForCurrentRegion()
 	{
 		mNavMeshSlot.disconnect();
 	}
+	mCanRebakeRegion = FALSE;
 
 	LLViewerRegion *currentRegion = gAgent.getRegion();
 	if (currentRegion != NULL)
@@ -201,6 +201,11 @@ void LLPanelNavMeshRebake::createNavMeshStatusListenerForCurrentRegion()
 		mNavMeshSlot = LLPathfindingManager::getInstance()->registerNavMeshListenerForRegion(currentRegion, boost::bind(&LLPanelNavMeshRebake::handleNavMeshStatus, this, _2));
 		LLPathfindingManager::getInstance()->requestGetNavMeshForRegion(currentRegion, true);
 	}
+}
+
+bool LLPanelNavMeshRebake::doDraw() const
+{
+	return (mCanRebakeRegion && (mRebakeNavMeshMode != kRebakeNavMesh_NotAvailable));
 }
 
 void LLPanelNavMeshRebake::updatePosition()

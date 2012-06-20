@@ -80,11 +80,15 @@ private:
 
 	void createNavMeshStatusListenerForCurrentRegion();
 
+	bool doDraw() const;
 	void updatePosition();
 
 	BOOL                                     mCanRebakeRegion;
+	ERebakeNavMeshMode                       mRebakeNavMeshMode;
+	
 	LLButton*                                mNavMeshRebakeButton;
 	LLButton*                                mNavMeshBakingButton;
+
 	LLPathfindingNavMesh::navmesh_slot_t     mNavMeshSlot;
 	boost::signals2::connection              mRegionCrossingSlot;
 	LLPathfindingManager::agent_state_slot_t mAgentStateSlot;
