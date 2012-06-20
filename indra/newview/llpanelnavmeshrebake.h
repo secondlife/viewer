@@ -28,10 +28,15 @@
 #ifndef LL_NAVMESHREBAKE_H
 #define LL_NAVMESHREBAKE_H
 
+#include <boost/bind.hpp>
+#include <boost/signals2.hpp>
+
 #include "llhandle.h"
 #include "llpanel.h"
+#include "llpathfindingnavmesh.h"
 
 class LLButton;
+class LLPathfindingNavMeshStatus;
 class LLView;
 
 class LLPanelNavMeshRebake : public LLPanel
@@ -40,19 +45,8 @@ class LLPanelNavMeshRebake : public LLPanel
 	LOG_CLASS(LLPanelNavMeshRebake);
 
 public:
-
-	typedef enum
-	{
-		kRebakeNavMesh_Available,
-		kRebakeNavMesh_RequestSent,
-		kRebakeNavMesh_NotAvailable,
-		kRebakeNavMesh_Default = kRebakeNavMesh_NotAvailable
-	} ERebakeNavMeshMode;
-
 	static LLPanelNavMeshRebake* getInstance();
 
-	void setMode(ERebakeNavMeshMode pRebakeNavMeshMode);
-	
 	virtual BOOL postBuild();
 
 	virtual void draw();
@@ -61,16 +55,34 @@ public:
 protected:
 
 private:
+	typedef enum
+	{
+		kRebakeNavMesh_Available,
+		kRebakeNavMesh_RequestSent,
+		kRebakeNavMesh_NotAvailable,
+		kRebakeNavMesh_Default = kRebakeNavMesh_NotAvailable
+	} ERebakeNavMeshMode;
+
 	LLPanelNavMeshRebake();
 	virtual ~LLPanelNavMeshRebake();
 
 	static LLPanelNavMeshRebake* getPanel();
 
+	void setMode(ERebakeNavMeshMode pRebakeNavMeshMode);
+	
 	void onNavMeshRebakeClick();
+
+	void handleNavMeshStatus(const LLPathfindingNavMeshStatus &pNavMeshStatus);
+	void handleRegionBoundaryCrossed();
+
+	void createNavMeshStatusListenerForCurrentRegion();
+
 	void updatePosition();
 
-	LLButton* mNavMeshRebakeButton;
-	LLButton* mNavMeshBakingButton;
+	LLButton*                            mNavMeshRebakeButton;
+	LLButton*                            mNavMeshBakingButton;
+	LLPathfindingNavMesh::navmesh_slot_t mNavMeshSlot;
+	boost::signals2::connection          mRegionCrossingSlot;
 };
 
 #endif //LL_NAVMESHREBAKE_H

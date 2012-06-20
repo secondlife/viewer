@@ -30,29 +30,28 @@
 #include "llpanelnavmeshrebake.h"
 
 #include <boost/bind.hpp>
+#include <boost/signals2.hpp>
 
+#include "llagent.h"
 #include "llbutton.h"
+#include "llenvmanager.h"
 #include "llhandle.h"
 #include "llhints.h"
 #include "llpanel.h"
 #include "llpathfindingmanager.h"
+#include "llpathfindingnavmesh.h"
+#include "llpathfindingnavmeshstatus.h"
 #include "lltoolbar.h"
 #include "lltoolbarview.h"
 #include "lltoolmgr.h"
 #include "lltooltip.h"
 #include "llview.h"
+#include "llviewerregion.h"
 
 LLPanelNavMeshRebake* LLPanelNavMeshRebake::getInstance()
 {
 	static LLPanelNavMeshRebake* panel = getPanel();
 	return panel;
-}
-
-void LLPanelNavMeshRebake::setMode(ERebakeNavMeshMode pRebakeNavMeshMode)
-{
-	mNavMeshRebakeButton->setVisible(pRebakeNavMeshMode == kRebakeNavMesh_Available);
-	mNavMeshBakingButton->setVisible(pRebakeNavMeshMode == kRebakeNavMesh_RequestSent);
-	setVisible(pRebakeNavMeshMode != kRebakeNavMesh_NotAvailable);
 }
 
 BOOL LLPanelNavMeshRebake::postBuild()
@@ -67,6 +66,13 @@ BOOL LLPanelNavMeshRebake::postBuild()
 	LLHints::registerHintTarget("navmesh_btn_baking", mNavMeshBakingButton->getHandle());
 
 	setMode(kRebakeNavMesh_Default);
+
+	createNavMeshStatusListenerForCurrentRegion();
+
+	if ( !mRegionCrossingSlot.connected() )
+	{
+		mRegionCrossingSlot = LLEnvManagerNew::getInstance()->setRegionChangeCallback(boost::bind(&LLPanelNavMeshRebake::handleRegionBoundaryCrossed, this));
+	}
 
 	return LLPanel::postBuild();
 }
@@ -91,7 +97,9 @@ BOOL LLPanelNavMeshRebake::handleToolTip( S32 x, S32 y, MASK mask )
 
 LLPanelNavMeshRebake::LLPanelNavMeshRebake() 
 	: mNavMeshRebakeButton( NULL ),
-	mNavMeshBakingButton( NULL )
+	mNavMeshBakingButton( NULL ),
+	mNavMeshSlot(),
+	mRegionCrossingSlot()
 {
 	// make sure we have the only instance of this class
 	static bool b = true;
@@ -111,6 +119,13 @@ LLPanelNavMeshRebake* LLPanelNavMeshRebake::getPanel()
 	return panel;
 }
 
+void LLPanelNavMeshRebake::setMode(ERebakeNavMeshMode pRebakeNavMeshMode)
+{
+	mNavMeshRebakeButton->setVisible(pRebakeNavMeshMode == kRebakeNavMesh_Available);
+	mNavMeshBakingButton->setVisible(pRebakeNavMeshMode == kRebakeNavMesh_RequestSent);
+	setVisible(pRebakeNavMeshMode != kRebakeNavMesh_NotAvailable);
+}
+
 void LLPanelNavMeshRebake::onNavMeshRebakeClick()
 {
 #if 0
@@ -119,6 +134,55 @@ void LLPanelNavMeshRebake::onNavMeshRebakeClick()
 	mNavMeshBakingButton->setForcePressedState( TRUE );
 #endif
 	LLPathfindingManager::getInstance()->triggerNavMeshRebuild();
+}
+
+void LLPanelNavMeshRebake::handleNavMeshStatus(const LLPathfindingNavMeshStatus &pNavMeshStatus)
+{
+	ERebakeNavMeshMode rebakeNavMeshMode = kRebakeNavMesh_Default;
+	if (pNavMeshStatus.isValid())
+	{
+		switch (pNavMeshStatus.getStatus())
+		{
+		case LLPathfindingNavMeshStatus::kPending :
+			rebakeNavMeshMode = kRebakeNavMesh_Available;
+			break;
+		case LLPathfindingNavMeshStatus::kBuilding :
+			rebakeNavMeshMode = kRebakeNavMesh_NotAvailable;
+			break;
+		case LLPathfindingNavMeshStatus::kComplete :
+			rebakeNavMeshMode = kRebakeNavMesh_NotAvailable;
+			break;
+		case LLPathfindingNavMeshStatus::kRepending :
+			rebakeNavMeshMode = kRebakeNavMesh_Available;
+			break;
+		default : 
+			rebakeNavMeshMode = kRebakeNavMesh_Default;
+			llassert(0);
+			break;
+		}
+	}
+
+	setMode(rebakeNavMeshMode);
+}
+
+void LLPanelNavMeshRebake::handleRegionBoundaryCrossed()
+{
+	createNavMeshStatusListenerForCurrentRegion();
+}
+
+void LLPanelNavMeshRebake::createNavMeshStatusListenerForCurrentRegion()
+{
+	if (mNavMeshSlot.connected())
+	{
+		mNavMeshSlot.disconnect();
+	}
+
+	LLViewerRegion *currentRegion = gAgent.getRegion();
+	if (currentRegion != NULL)
+	{
+		mNavMeshSlot = LLPathfindingManager::getInstance()->registerNavMeshListenerForRegion(currentRegion, boost::bind(&LLPanelNavMeshRebake::handleNavMeshStatus, this, _2));
+		LLPathfindingManager::getInstance()->requestGetNavMeshForRegion(currentRegion, true);
+	}
 }
 
 void LLPanelNavMeshRebake::updatePosition()
@@ -143,7 +207,7 @@ void LLPanelNavMeshRebake::updatePosition()
 		panel_ssf_container->setOrigin(0, y_pos);
 	}
 
-	S32 x_pos = bottom_tb_center-getRect().getWidth()/2 - left_tb_width + 113 /*width of stand/fly button */ + 10;
+	S32 x_pos = bottom_tb_center-getRect().getWidth()/2 - left_tb_width + 113 /* width of stand/fly button */ + 10 /* margin */;
 
 	setOrigin( x_pos, 0);
 }

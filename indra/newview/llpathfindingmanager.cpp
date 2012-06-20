@@ -54,7 +54,9 @@
 #include "llweb.h"
 #include "llpanelnavmeshrebake.h"
 #include "llenvmanager.h"
+#if 0
 #include "llstartup.h"
+#endif
 
 #define CAP_SERVICE_RETRIEVE_NAVMESH      "RetrieveNavMeshSrc"
 
@@ -670,7 +672,9 @@ void LLPathfindingManager::requestGetAgentState()
 
 void LLPathfindingManager::handleAgentStateResult(const LLSD &pContent) 
 {	
+#if 0
 	displayNavMeshRebakePanel();
+#endif
 }
 
 void LLPathfindingManager::handleAgentStateError(U32 pStatus, const std::string &pReason, const std::string &pURL)
@@ -755,7 +759,6 @@ void LLPathfindingManager::handleNavMeshStatus(LLPathfindingNavMesh::ENavMeshReq
 			break;
 		case LLPathfindingNavMeshStatus::kComplete : 
 			llinfos << "STINSON DEBUG: navmesh status is kComplete" << llendl;
-			displayNavMeshRebakePanel();
 			break;
 		case LLPathfindingNavMeshStatus::kRepending : 
 			llinfos << "STINSON DEBUG: navmesh status is kRepending" << llendl;
@@ -768,6 +771,7 @@ void LLPathfindingManager::handleNavMeshStatus(LLPathfindingNavMesh::ENavMeshReq
 	}
 }
 
+#if 0
 void LLPathfindingManager::displayNavMeshRebakePanel()
 {
 	LLPanelNavMeshRebake::getInstance()->setMode(LLPanelNavMeshRebake::kRebakeNavMesh_Available);
@@ -777,6 +781,7 @@ void LLPathfindingManager::hideNavMeshRebakePanel()
 {
 	LLPanelNavMeshRebake::getInstance()->setMode(LLPanelNavMeshRebake::kRebakeNavMesh_NotAvailable);
 }
+#endif
 
 void LLPathfindingManager::handleNavMeshRebakeError(U32 pStatus, const std::string &pReason, const std::string &pURL)
 {
@@ -785,7 +790,10 @@ void LLPathfindingManager::handleNavMeshRebakeError(U32 pStatus, const std::stri
 
 void LLPathfindingManager::handleNavMeshRebakeResult( const LLSD &pContent )
 {
+
+#if 0
 	hideNavMeshRebakePanel();
+#endif
 }
 
 void LLPathfindingManager::triggerNavMeshRebuild()
@@ -830,7 +838,9 @@ void LLAgentStateChangeNode::post(ResponsePtr pResponse, const LLSD &pContext, c
 void LLPathfindingManager::handleAgentStateUpdate()
 {
 	//Don't trigger if we are still loading in
+#if 0
 	if ( LLStartUp::getStartupState() == STATE_STARTED) { displayNavMeshRebakePanel(); }
+#endif
 }
 
 //---------------------------------------------------------------------------

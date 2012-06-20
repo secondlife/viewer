@@ -97,7 +97,6 @@ public:
 	void triggerNavMeshRebuild();
 	void onRegionBoundaryCrossed();
 	void requestGetAgentState();	
-	void hideNavMeshRebakePanel();	
 
 protected:
 
@@ -128,7 +127,10 @@ private:
 
 	void handleNavMeshStatus(LLPathfindingNavMesh::ENavMeshRequestStatus pRequestStatus, const LLPathfindingNavMeshStatus &pNavMeshStatus);
 
+#if 0
 	void displayNavMeshRebakePanel();
+	void hideNavMeshRebakePanel();	
+#endif
 	void handleAgentStateResult(const LLSD &pContent );
 	void handleAgentStateError(U32 pStatus, const std::string &pReason, const std::string &pURL);
 
