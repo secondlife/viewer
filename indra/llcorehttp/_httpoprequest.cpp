@@ -595,6 +595,10 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 		op->mReplyLength = 0;
 		op->mReplyFullLength = 0;
 		op->mStatus = HttpStatus();
+		if (op->mReplyHeaders)
+		{
+			op->mReplyHeaders->mHeaders.clear();
+		}
 	}
 	else if (op->mProcFlags & PF_SCAN_RANGE_HEADER)
 	{
@@ -636,9 +640,19 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 	if (op->mProcFlags & PF_SAVE_HEADERS)
 	{
 		// Save headers in response
-		// *FIXME:  Implement this...
-		;
-		
+		if (! op->mReplyHeaders)
+		{
+			op->mReplyHeaders = new HttpHeaders;
+		}
+		size_t wanted_size(hdr_size);
+		if (wanted_size && '\n' == hdr_data[wanted_size - 1])
+		{
+			if (--wanted_size && '\r' == hdr_data[wanted_size - 1])
+			{
+				--wanted_size;
+			}
+		}
+		op->mReplyHeaders->mHeaders.push_back(std::string(hdr_data, wanted_size));
 	}
 
 	return hdr_size;

@@ -1043,8 +1043,9 @@ void LLTextureFetchWorker::startWork(S32 param)
 // Threads:  Ttf
 bool LLTextureFetchWorker::doWork(S32 param)
 {
-	static const LLCore::HttpStatus http_not_found(HTTP_NOT_FOUND);
-	static const LLCore::HttpStatus http_service_unavail(HTTP_SERVICE_UNAVAILABLE);
+	static const LLCore::HttpStatus http_not_found(HTTP_NOT_FOUND);						// 404
+	static const LLCore::HttpStatus http_service_unavail(HTTP_SERVICE_UNAVAILABLE);		// 503
+	static const LLCore::HttpStatus http_not_sat(HTTP_REQUESTED_RANGE_NOT_SATISFIABLE);	// 416;
 	
 	// Release waiters while we aren't holding the Mw lock.
 	mFetcher->releaseHttpWaiters();

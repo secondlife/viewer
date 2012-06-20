@@ -107,6 +107,7 @@ class TestHTTPRequestHandler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header("Content-type", "application/llsd+xml")
             self.send_header("Content-Length", str(len(response)))
+            self.send_header("X-LL-Special", "Mememememe");
             self.end_headers()
             self.wfile.write(response)
         else:                           # fail requested
