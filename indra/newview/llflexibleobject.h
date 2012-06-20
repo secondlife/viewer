@@ -70,8 +70,16 @@ struct LLFlexibleObjectSection
 //---------------------------------------------------------
 class LLVolumeImplFlexible : public LLVolumeInterface
 {
+private:
+	static std::vector<LLVolumeImplFlexible*> sInstanceList;
+	static std::vector<S32> sUpdateDelay;
+	S32 mInstanceIndex;
+
 	public:
+		static void updateClass();
+
 		LLVolumeImplFlexible(LLViewerObject* volume, LLFlexibleObjectData* attributes);
+		~LLVolumeImplFlexible();
 
 		// Implements LLVolumeInterface
 		U32 getID() const { return mID; }
@@ -79,7 +87,7 @@ class LLVolumeImplFlexible : public LLVolumeInterface
 		LLQuaternion getFrameRotation() const;
 		LLVolumeInterfaceType getInterfaceType() const		{ return INTERFACE_FLEXIBLE; }
 		void updateRenderRes();
-		void doIdleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
+		void doIdleUpdate();
 		BOOL doUpdateGeometry(LLDrawable *drawable);
 		LLVector3 getPivotPosition() const;
 		void onSetVolume(const LLVolumeParams &volume_params, const S32 detail);

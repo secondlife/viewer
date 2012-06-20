@@ -49,6 +49,8 @@
 #include "llstring.h"
 #include "llhudnametag.h"
 #include "lldrawable.h"
+#include "llflexibleobject.h"
+#include "llviewertextureanim.h"
 #include "xform.h"
 #include "llsky.h"
 #include "llviewercamera.h"
@@ -941,6 +943,8 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 			objectp = *active_iter;
 			if (objectp)
 			{
+				llassert(objectp->isActive());
+
 				if (idle_count >= idle_list.size())
 				{
 					idle_list.push_back( objectp );
@@ -979,9 +983,18 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 			idle_iter != idle_end; idle_iter++)
 		{
 			objectp = *idle_iter;
+			llassert(objectp->isActive());
 			objectp->idleUpdate(agent, world, frame_time);
 		}
+
+		//update flexible objects
+		LLVolumeImplFlexible::updateClass();
+
+		//update animated textures
+		LLViewerTextureAnim::updateClass();
 	}
+
+
 
 	fetchObjectCosts();
 	fetchPhysicsFlags();
@@ -1402,8 +1415,9 @@ void LLViewerObjectList::removeFromActiveList(LLViewerObject* objectp)
 		{
 			mActiveObjects[idx] = mActiveObjects[last_index];
 			mActiveObjects[idx]->setListIndex(idx);
-			mActiveObjects.pop_back();
 		}
+
+		mActiveObjects.pop_back();
 	}
 }
 
@@ -1447,6 +1461,9 @@ void LLViewerObjectList::updateActive(LLViewerObject *objectp)
 			objectp->setOnActiveList(FALSE);
 		}
 	}
+
+	llassert(objectp->isActive() || objectp->getListIndex() == -1);
+
 }
 
 void LLViewerObjectList::updateObjectCost(LLViewerObject* object)
