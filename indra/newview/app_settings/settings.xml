@@ -1538,7 +1538,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>ChatBubbleOpacity</key>
     <map>
@@ -1616,17 +1616,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
-    </map>
-    <key>ChatWindow</key>
-    <map>
-      <key>Comment</key>
-      <string>Show chat in multiple windows(by default) or in one multi-tabbed window(requires restart)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>0</integer>
     </map>
     <key>CheesyBeacon</key>
     <map>
@@ -9809,7 +9798,7 @@
 	<key>ShowScriptErrorsLocation</key>
     <map>
       <key>Comment</key>
-      <string>Show script error in chat or window</string>
+      <string>Show script error in chat (0) or window (1).</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
