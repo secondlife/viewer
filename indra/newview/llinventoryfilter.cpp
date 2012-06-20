@@ -65,7 +65,8 @@ LLInventoryFilter::FilterOps::FilterOps(const Params& p)
 /// Class LLInventoryFilter
 ///----------------------------------------------------------------------------
 LLInventoryFilter::LLInventoryFilter(const Params& p)
-:	mFilterModified(FILTER_NONE),
+:	mName(p.name),
+	mFilterModified(FILTER_NONE),
 	mEmptyLookupMessage("InventoryNoMatchingItems"),
     mFilterOps(p.filter_ops),
 	mOrder(p.sort_order),

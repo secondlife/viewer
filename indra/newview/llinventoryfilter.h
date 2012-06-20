@@ -131,13 +131,15 @@ public:
 							
 	struct Params : public LLInitParam::Block<Params>
 	{
+		Optional<std::string>		name;
 		Optional<FilterOps::Params>	filter_ops;
 		Optional<std::string>		substring;
 		Optional<U32>				sort_order;
 		Optional<bool>				since_logoff;
 
 		Params()
-		:	filter_ops(""),
+		:	name("name"),
+			filter_ops(""),
 			substring("substring"),
 			sort_order("sort_order"),
 			since_logoff("since_logoff")
@@ -220,6 +222,7 @@ public:
 	bool 				isModified() const;
 	bool 				isSinceLogoff() const;
 	void 				clearModified();
+	const std::string& 	getName() const { return mName; }
 	const std::string& 	getFilterText();
 	//RN: this is public to allow system to externally force a global refilter
 	void 				setModified(EFilterModified behavior = FILTER_RESTART);
@@ -265,6 +268,7 @@ private:
 
 	std::string				mFilterSubString;
 	std::string				mFilterSubStringOrig;
+	const std::string		mName;
 
 	S32						mLastSuccessGeneration;
 	S32						mLastFailGeneration;

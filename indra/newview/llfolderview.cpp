@@ -183,7 +183,7 @@ LLFolderView::LLFolderView(const Params& p)
 	mNeedsAutoRename(FALSE),
 	mDebugFilters(FALSE),
 	mSortOrder(LLInventoryFilter::SO_FOLDERS_BY_NAME),	// This gets overridden by a pref immediately
-	mFilter(),
+	mFilter(new LLInventoryFilter(LLInventoryFilter::Params().name(p.title))),
 	mShowSelectionContext(FALSE),
 	mShowSingleSelection(FALSE),
 	mArrangeGeneration(0),
