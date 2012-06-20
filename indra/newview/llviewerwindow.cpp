@@ -126,6 +126,7 @@
 #include "llmorphview.h"
 #include "llmoveview.h"
 #include "llnavigationbar.h"
+#include "llpanelnavmeshrebake.h"
 #include "llpaneltopinfobar.h"
 #include "llpopupview.h"
 #include "llpreviewtexture.h"
@@ -1919,9 +1920,14 @@ void LLViewerWindow::initWorldUI()
 		getRootView()->addChild(gHUDView);
 	}
 
-	LLPanel* panel_ssf_container = getRootView()->getChild<LLPanel>("stand_stop_flying_container");
+	LLPanel* panel_ssf_container = getRootView()->getChild<LLPanel>("state_management_buttons_container");
+
 	LLPanelStandStopFlying* panel_stand_stop_flying	= LLPanelStandStopFlying::getInstance();
 	panel_ssf_container->addChild(panel_stand_stop_flying);
+
+	LLPanelNavMeshRebake *panel_rebake_navmesh = LLPanelNavMeshRebake::getInstance();
+	panel_ssf_container->addChild(panel_rebake_navmesh);
+
 	panel_ssf_container->setVisible(TRUE);
 	
 	// Load and make the toolbars visible

@@ -93,7 +93,7 @@
                left="0"
                mouse_opaque="false"
                tab_stop="false"
-               name="stand_stop_flying_container"
+               name="state_management_buttons_container"
                visible="false"
                width="200"/>
       </layout_panel>

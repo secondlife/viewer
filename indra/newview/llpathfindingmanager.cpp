@@ -770,22 +770,12 @@ void LLPathfindingManager::handleNavMeshStatus(LLPathfindingNavMesh::ENavMeshReq
 
 void LLPathfindingManager::displayNavMeshRebakePanel()
 {
-	if ( LLStartUp::getStartupState() == STATE_STARTED && gAgent.getTeleportState() == LLAgent::TELEPORT_NONE )
-	{
-		LLView* rootp = LLUI::getRootView();
-		LLPanel* panel_nmr_container = rootp->getChild<LLPanel>("navmesh_rebake_container");
-		LLPanelNavMeshRebake* panel_namesh_rebake = LLPanelNavMeshRebake::getInstance();
-		panel_nmr_container->addChild( panel_namesh_rebake );
-		panel_nmr_container->setVisible( TRUE );
-		panel_namesh_rebake->reparent( rootp );
-		LLPanelNavMeshRebake::getInstance()->setVisible( TRUE );
-		LLPanelNavMeshRebake::getInstance()->resetButtonStates();
-	}
+	LLPanelNavMeshRebake::getInstance()->setMode(LLPanelNavMeshRebake::kRebakeNavMesh_Available);
 }
 
 void LLPathfindingManager::hideNavMeshRebakePanel()
 {
-	LLPanelNavMeshRebake::getInstance()->setVisible( FALSE );
+	LLPanelNavMeshRebake::getInstance()->setMode(LLPanelNavMeshRebake::kRebakeNavMesh_NotAvailable);
 }
 
 void LLPathfindingManager::handleNavMeshRebakeError(U32 pStatus, const std::string &pReason, const std::string &pURL)

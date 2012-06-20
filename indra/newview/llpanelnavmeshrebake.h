@@ -28,6 +28,11 @@
 #ifndef LL_NAVMESHREBAKE_H
 #define LL_NAVMESHREBAKE_H
 
+#include "llhandle.h"
+#include "llpanel.h"
+
+class LLButton;
+class LLView;
 
 class LLPanelNavMeshRebake : public LLPanel
 {
@@ -36,38 +41,36 @@ class LLPanelNavMeshRebake : public LLPanel
 
 public:
 
-	typedef enum navmesh_rebake_mode_t
+	typedef enum
 	{
-		NMRM_Visible,
-		NMRM_Visible_Waiting_Response,
-		NVRM_Hiddeb
-	} ESNavMeshRebakeMode;
+		kRebakeNavMesh_Available,
+		kRebakeNavMesh_RequestSent,
+		kRebakeNavMesh_NotAvailable,
+		kRebakeNavMesh_Default = kRebakeNavMesh_NotAvailable
+	} ERebakeNavMeshMode;
 
-	void reparent( LLView* rootp );
-	void resetButtonStates();
 	static LLPanelNavMeshRebake* getInstance();
-	
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void setVisible( BOOL visible );
 
+	void setMode(ERebakeNavMeshMode pRebakeNavMeshMode);
 	
-	/*virtual*/ void draw(){ LLPanel::draw(); }
-	/*virtual*/ BOOL handleToolTip( S32 x, S32 y, MASK mask );
+	virtual BOOL postBuild();
+
+	virtual void draw();
+	virtual BOOL handleToolTip( S32 x, S32 y, MASK mask );
 
 protected:
 
-	LLPanelNavMeshRebake();
-
 private:
+	LLPanelNavMeshRebake();
+	virtual ~LLPanelNavMeshRebake();
+
 	static LLPanelNavMeshRebake* getPanel();
+
 	void onNavMeshRebakeClick();
+	void updatePosition();
 
 	LLButton* mNavMeshRebakeButton;
-	LLButton* mNavMeshBakingButton;	
-
-	LLHandle<LLPanel> mOriginalParent;	
-	
+	LLButton* mNavMeshBakingButton;
 };
 
 #endif //LL_NAVMESHREBAKE_H
-

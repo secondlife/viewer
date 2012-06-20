@@ -26,27 +26,21 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-#include "llpathfindingmanager.h"
-#include <string>
-#include <map>
-#include <boost/function.hpp>
-#include <boost/signals2.hpp>
-#include "llpanelnavmeshrebake.h"
-#include "llagent.h"
-#include "llhints.h"
-#include "lltooltip.h"
-#include "llbutton.h"
-#include "llpanel.h"
 
-LLPanelNavMeshRebake::LLPanelNavMeshRebake() 
-: mNavMeshRebakeButton( NULL )
-, mNavMeshBakingButton( NULL )
-{
-	// make sure we have the only instance of this class
-	static bool b = true;
-	llassert_always(b);
-	b=false;
-}
+#include "llpanelnavmeshrebake.h"
+
+#include <boost/bind.hpp>
+
+#include "llbutton.h"
+#include "llhandle.h"
+#include "llhints.h"
+#include "llpanel.h"
+#include "llpathfindingmanager.h"
+#include "lltoolbar.h"
+#include "lltoolbarview.h"
+#include "lltoolmgr.h"
+#include "lltooltip.h"
+#include "llview.h"
 
 LLPanelNavMeshRebake* LLPanelNavMeshRebake::getInstance()
 {
@@ -54,24 +48,33 @@ LLPanelNavMeshRebake* LLPanelNavMeshRebake::getInstance()
 	return panel;
 }
 
+void LLPanelNavMeshRebake::setMode(ERebakeNavMeshMode pRebakeNavMeshMode)
+{
+	mNavMeshRebakeButton->setVisible(pRebakeNavMeshMode == kRebakeNavMesh_Available);
+	mNavMeshBakingButton->setVisible(pRebakeNavMeshMode == kRebakeNavMesh_RequestSent);
+	setVisible(pRebakeNavMeshMode != kRebakeNavMesh_NotAvailable);
+}
+
 BOOL LLPanelNavMeshRebake::postBuild()
 {
 	//Rebake initiated
 	mNavMeshRebakeButton = getChild<LLButton>("navmesh_btn");
 	mNavMeshRebakeButton->setCommitCallback(boost::bind(&LLPanelNavMeshRebake::onNavMeshRebakeClick, this));
-	mNavMeshRebakeButton->setVisible( TRUE );
 	LLHints::registerHintTarget("navmesh_btn", mNavMeshRebakeButton->getHandle());
 	
 	//Baking...
 	mNavMeshBakingButton = getChild<LLButton>("navmesh_btn_baking");
-	mNavMeshBakingButton->setVisible( FALSE );
 	LLHints::registerHintTarget("navmesh_btn_baking", mNavMeshBakingButton->getHandle());
-	return TRUE;
+
+	setMode(kRebakeNavMesh_Default);
+
+	return LLPanel::postBuild();
 }
 
-void LLPanelNavMeshRebake::setVisible( BOOL visible )
+void LLPanelNavMeshRebake::draw()
 {
-	LLPanel::setVisible(visible);
+	updatePosition();
+	LLPanel::draw();
 }
 
 BOOL LLPanelNavMeshRebake::handleToolTip( S32 x, S32 y, MASK mask )
@@ -82,17 +85,22 @@ BOOL LLPanelNavMeshRebake::handleToolTip( S32 x, S32 y, MASK mask )
 	{
 		LLToolTipMgr::instance().show(mNavMeshRebakeButton->getToolTip());
 	}
+
 	return LLPanel::handleToolTip(x, y, mask);
 }
 
-void LLPanelNavMeshRebake::reparent( LLView* rootp )
+LLPanelNavMeshRebake::LLPanelNavMeshRebake() 
+	: mNavMeshRebakeButton( NULL ),
+	mNavMeshBakingButton( NULL )
 {
-	LLPanel* parent = dynamic_cast<LLPanel*>( getParent() );
-	if (!parent)
-	{
-		return;
-	}
-	rootp->addChild(this);
+	// make sure we have the only instance of this class
+	static bool b = true;
+	llassert_always(b);
+	b=false;
+}
+
+LLPanelNavMeshRebake::~LLPanelNavMeshRebake() 
+{
 }
 
 LLPanelNavMeshRebake* LLPanelNavMeshRebake::getPanel()
@@ -105,15 +113,37 @@ LLPanelNavMeshRebake* LLPanelNavMeshRebake::getPanel()
 
 void LLPanelNavMeshRebake::onNavMeshRebakeClick()
 {
+#if 0
 	mNavMeshRebakeButton->setVisible( FALSE ); 
 	mNavMeshBakingButton->setVisible( TRUE ); 
 	mNavMeshBakingButton->setForcePressedState( TRUE );
+#endif
 	LLPathfindingManager::getInstance()->triggerNavMeshRebuild();
 }
 
-void LLPanelNavMeshRebake::resetButtonStates()
+void LLPanelNavMeshRebake::updatePosition()
 {
-	mNavMeshRebakeButton->setVisible( TRUE ); 
-	mNavMeshBakingButton->setVisible( FALSE ); 
-}
+	S32 y_pos = 0;
+	S32 bottom_tb_center = 0;
 
+	if (LLToolBar* toolbar_bottom = gToolBarView->getChild<LLToolBar>("toolbar_bottom"))
+	{
+		y_pos = toolbar_bottom->getRect().getHeight();
+		bottom_tb_center = toolbar_bottom->getRect().getCenterX();
+	}
+
+	S32 left_tb_width = 0;
+	if (LLToolBar* toolbar_left = gToolBarView->getChild<LLToolBar>("toolbar_left"))
+	{
+		left_tb_width = toolbar_left->getRect().getWidth();
+	}
+
+	if(LLPanel* panel_ssf_container = getRootView()->getChild<LLPanel>("state_management_buttons_container"))
+	{
+		panel_ssf_container->setOrigin(0, y_pos);
+	}
+
+	S32 x_pos = bottom_tb_center-getRect().getWidth()/2 - left_tb_width + 113 /*width of stand/fly button */ + 10;
+
+	setOrigin( x_pos, 0);
+}
