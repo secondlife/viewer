@@ -286,24 +286,8 @@ private:
 LLPathfindingManager::LLPathfindingManager()
 	: LLSingleton<LLPathfindingManager>(),
 	mNavMeshMap(),
-	mCrossingSlot(),
-	mAgentStateSignal(),
-	mNavMeshSlot()
+	mAgentStateSignal()
 {
-}
-
-void LLPathfindingManager::onRegionBoundaryCrossed()
-{ 
-	if (mNavMeshSlot.connected())
-	{
-		mNavMeshSlot.disconnect();
-	}
-	LLViewerRegion *currentRegion = getCurrentRegion();
-	if (currentRegion != NULL)
-	{
-		mNavMeshSlot = registerNavMeshListenerForRegion(currentRegion, boost::bind(&LLPathfindingManager::handleNavMeshStatus, this, _1, _2));
-		requestGetNavMeshForRegion(currentRegion, true);
-	}
 }
 
 LLPathfindingManager::~LLPathfindingManager()
@@ -317,36 +301,10 @@ void LLPathfindingManager::initSystem()
 	{
 		LLPathingLib::initSystem();
 	}
-
-	if ( !mCrossingSlot.connected() )
-	{
-		mCrossingSlot = LLEnvManagerNew::getInstance()->setRegionChangeCallback(boost::bind(&LLPathfindingManager::onRegionBoundaryCrossed, this));
-	}
-
-	if (mNavMeshSlot.connected())
-	{
-		mNavMeshSlot.disconnect();
-	}
-	LLViewerRegion *currentRegion = getCurrentRegion();
-	if (currentRegion != NULL)
-	{
-		mNavMeshSlot = registerNavMeshListenerForRegion(currentRegion, boost::bind(&LLPathfindingManager::handleNavMeshStatus, this, _1, _2));
-		requestGetNavMeshForRegion(currentRegion, true);
-	}
 }
 
 void LLPathfindingManager::quitSystem()
 {
-	if (mNavMeshSlot.connected())
-	{
-		mNavMeshSlot.disconnect();
-	}
-
-	if (mCrossingSlot.connected())
-	{
-		mCrossingSlot.disconnect();
-	}
-
 	if (LLPathingLib::getInstance() != NULL)
 	{
 		LLPathingLib::quitSystem();
@@ -739,36 +697,6 @@ std::string LLPathfindingManager::getCapabilityURLForRegion(LLViewerRegion *pReg
 LLViewerRegion *LLPathfindingManager::getCurrentRegion() const
 {
 	return gAgent.getRegion();
-}
-
-void LLPathfindingManager::handleNavMeshStatus(LLPathfindingNavMesh::ENavMeshRequestStatus pRequestStatus, const LLPathfindingNavMeshStatus &pNavMeshStatus)
-{
-	if (!pNavMeshStatus.isValid())
-	{
-		llinfos << "STINSON DEBUG: navmesh status is invalid" << llendl;
-	}
-	else
-	{
-		switch (pNavMeshStatus.getStatus())
-		{
-		case LLPathfindingNavMeshStatus::kPending : 
-			llinfos << "STINSON DEBUG: navmesh status is kPending" << llendl;
-			break;
-		case LLPathfindingNavMeshStatus::kBuilding : 
-			llinfos << "STINSON DEBUG: navmesh status is kBuilding" << llendl;
-			break;
-		case LLPathfindingNavMeshStatus::kComplete : 
-			llinfos << "STINSON DEBUG: navmesh status is kComplete" << llendl;
-			break;
-		case LLPathfindingNavMeshStatus::kRepending : 
-			llinfos << "STINSON DEBUG: navmesh status is kRepending" << llendl;
-			break;
-		default : 
-			llinfos << "STINSON DEBUG: navmesh status is default" << llendl;
-			llassert(0);
-			break;
-		}
-	}
 }
 
 #if 0

@@ -95,7 +95,6 @@ public:
 	void handleNavMeshRebakeResult( const LLSD &pContent );
 	void handleNavMeshRebakeError( U32 pStatus, const std::string &pReason, const std::string &pURL );
 	void triggerNavMeshRebuild();
-	void onRegionBoundaryCrossed();
 	void requestGetAgentState();	
 
 protected:
@@ -125,8 +124,6 @@ private:
 	std::string getCapabilityURLForRegion(LLViewerRegion *pRegion, const std::string &pCapabilityName) const;
 	LLViewerRegion *getCurrentRegion() const;
 
-	void handleNavMeshStatus(LLPathfindingNavMesh::ENavMeshRequestStatus pRequestStatus, const LLPathfindingNavMeshStatus &pNavMeshStatus);
-
 #if 0
 	void displayNavMeshRebakePanel();
 	void hideNavMeshRebakePanel();	
@@ -134,10 +131,8 @@ private:
 	void handleAgentStateResult(const LLSD &pContent );
 	void handleAgentStateError(U32 pStatus, const std::string &pReason, const std::string &pURL);
 
-	NavMeshMap                           mNavMeshMap;
-	agent_state_slot_t                   mCrossingSlot;
-	agent_state_signal_t                 mAgentStateSignal;
-	LLPathfindingNavMesh::navmesh_slot_t mNavMeshSlot;
+	NavMeshMap           mNavMeshMap;
+	agent_state_signal_t mAgentStateSignal;
 };
 
 
