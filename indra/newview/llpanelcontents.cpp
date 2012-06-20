@@ -162,9 +162,9 @@ void LLPanelContents::onClickNewScript(void *userdata)
 		perm.initMasks(
 			PERM_ALL,
 			PERM_ALL,
-			PERM_NONE,
-			PERM_NONE,
-			// this does not work
+			// *NOTE: this does not work, needs server change
+			LLFloaterPerms::getEveryonePerms("Scripts"),
+			LLFloaterPerms::getGroupPerms("Scripts"),
 			PERM_MOVE | LLFloaterPerms::getNextOwnerPerms("Scripts"));
 		std::string desc;
 		LLViewerAssetType::generateDescriptionFor(LLAssetType::AT_LSL_TEXT, desc);
@@ -184,14 +184,6 @@ void LLPanelContents::onClickNewScript(void *userdata)
 		object->saveScript(new_item, TRUE, true);
 
 		std::string name = new_item->getName();
-llwarns << "DBG " << new_item->getUUID() << llendl;
-
-//	LLPermissions perm = new_item->getPermissions();
-	perm.setMaskNext(LLFloaterPerms::getNextOwnerPerms("Scripts"));
-	perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Scripts"));
-	perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Scripts"));
-	new_item->setPermissions(perm);
-
 
 		// *NOTE: In order to resolve SL-22177, we needed to create
 		// the script first, and then you have to click it in
