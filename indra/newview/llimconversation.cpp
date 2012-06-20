@@ -120,8 +120,11 @@ BOOL LLIMConversation::tick()
 }
 
 void LLIMConversation::buildParticipantList()
-{	if (mIsNearbyChat)
+{
+	if (mIsNearbyChat)
 	{
+		LLLocalSpeakerMgr* speaker_manager = LLLocalSpeakerMgr::getInstance();
+		mParticipantList = new LLParticipantList(speaker_manager, getChild<LLAvatarList>("speakers_list"), true, false);
 	}
 	else
 	{
@@ -212,8 +215,7 @@ void LLIMConversation::updateHeaderAndToolbar()
 	bool is_participant_list_visible =
 			!is_hosted
 			&& gSavedSettings.getBOOL("IMShowControlPanel")
-			&& !mIsP2PChat
-			&& !mIsNearbyChat; // *TODO: temporarily disabled for Nearby chat
+			&& !mIsP2PChat;
 
 	mParticipantListPanel->setVisible(is_participant_list_visible);
 
@@ -223,7 +225,7 @@ void LLIMConversation::updateHeaderAndToolbar()
 	mExpandCollapseBtn->setImageOverlay(getString(is_expanded ? "collapse_icon" : "expand_icon"));
 
 	// The button (>>) should be disabled for torn off P2P conversations.
-	mExpandCollapseBtn->setEnabled(is_hosted || !mIsP2PChat && !mIsNearbyChat);
+	mExpandCollapseBtn->setEnabled(is_hosted || !mIsP2PChat);
 
 	if (mDragHandle)
 	{
