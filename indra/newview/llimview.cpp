@@ -2582,7 +2582,9 @@ LLUUID LLIMMgr::addSession(
 {
 	LLDynamicArray<LLUUID> ids;
 	ids.put(other_participant_id);
-	return addSession(name, dialog, other_participant_id, ids, voice);
+	LLUUID session_id = addSession(name, dialog, other_participant_id, ids, voice);
+	notifyObserverSessionVoiceOrIMStarted(session_id);
+	return session_id;
 }
 
 // Adds a session using the given session_id.  If the session already exists 
@@ -2609,7 +2611,8 @@ LLUUID LLIMMgr::addSession(
 
 	if (floater_id.notNull())
 	{
-		LLIMFloater* im_floater = LLIMFloater::findInstance(floater_id);
+		LLIMFloater* im_floater = LLIMFloater::findInstance(session_id);
+
 		if (im_floater && im_floater->getStartConferenceInSameFloater())
 		{
 			// The IM floater should be initialized with a new session_id
@@ -2933,6 +2936,14 @@ void LLIMMgr::notifyObserverSessionAdded(const LLUUID& session_id, const std::st
 	for (session_observers_list_t::iterator it = mSessionObservers.begin(); it != mSessionObservers.end(); it++)
 	{
 		(*it)->sessionAdded(session_id, name, other_participant_id);
+	}
+}
+
+void LLIMMgr::notifyObserverSessionVoiceOrIMStarted(const LLUUID& session_id)
+{
+	for (session_observers_list_t::iterator it = mSessionObservers.begin(); it != mSessionObservers.end(); it++)
+	{
+		(*it)->sessionVoiceOrIMStarted(session_id);
 	}
 }
 

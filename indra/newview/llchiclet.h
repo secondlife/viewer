@@ -873,9 +873,10 @@ class LLIMWellChiclet : public LLSysWellChiclet, LLIMSessionObserver
 {
 	friend class LLUICtrlFactory;
 public:
-	virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id) {}
-	virtual void sessionRemoved(const LLUUID& session_id) { messageCountChanged(LLSD()); }
-	virtual void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id) {}
+	/*virtual*/ void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id) {}
+	/*virtual*/ void sessionVoiceOrIMStarted(const LLUUID& session_id) {};
+	/*virtual*/ void sessionRemoved(const LLUUID& session_id) { messageCountChanged(LLSD()); }
+	/*virtual*/ void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id) {}
 
 	~LLIMWellChiclet();
 protected:

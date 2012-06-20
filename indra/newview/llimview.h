@@ -298,6 +298,7 @@ class LLIMSessionObserver
 public:
 	virtual ~LLIMSessionObserver() {}
 	virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id) = 0;
+	virtual void sessionVoiceOrIMStarted(const LLUUID& session_id) = 0;
 	virtual void sessionRemoved(const LLUUID& session_id) = 0;
 	virtual void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id) = 0;
 };
@@ -462,6 +463,7 @@ private:
 	static void onInviteNameLookup(LLSD payload, const LLUUID& id, const std::string& name, bool is_group);
 
 	void notifyObserverSessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id);
+	void notifyObserverSessionVoiceOrIMStarted(const LLUUID& session_id);
 	void notifyObserverSessionRemoved(const LLUUID& session_id);
 	void notifyObserverSessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id);
 
