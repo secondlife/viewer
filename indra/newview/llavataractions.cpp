@@ -733,7 +733,7 @@ std::set<LLUUID> LLAvatarActions::getInventorySelectedUUIDs()
 		it != end_it;
 		++it)
 	{
-		inventory_selected_uuids.insert((*it)->getListener()->getUUID());
+		inventory_selected_uuids.insert(static_cast<LLFolderViewModelItemInventory*>((*it)->getViewModelItem())->getUUID());
 	}
 	return inventory_selected_uuids;
 }
@@ -778,7 +778,7 @@ bool LLAvatarActions::canShareSelectedItems(LLInventoryPanel* inv_panel /* = NUL
 	const std::set<LLFolderViewItem*>::const_iterator it_end = inventory_selected.end();
 	for (; it != it_end; ++it)
 	{
-		LLViewerInventoryCategory* inv_cat = gInventory.getCategory((*it)->getItemViewModel()->getUUID());
+		LLViewerInventoryCategory* inv_cat = gInventory.getCategory(static_cast<LLFolderViewModelItemInventory*>((*it)->getViewModelItem())->getUUID());
 		// any category can be offered.
 		if (inv_cat)
 		{

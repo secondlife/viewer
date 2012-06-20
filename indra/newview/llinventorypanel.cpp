@@ -600,6 +600,11 @@ LLFolderView* LLInventoryPanel::getRootFolder()
 	return mFolderRoot; 
 }
 
+LLUUID LLInventoryPanel::getRootFolderID()
+{
+	return static_cast<LLFolderViewModelItemInventory*>(mFolderRoot->getViewModelItem())->getUUID();
+}
+
 
 // static
 void LLInventoryPanel::onIdle(void *userdata)
@@ -1146,6 +1151,7 @@ LLInventoryPanel* LLInventoryPanel::getActiveInventoryPanel(BOOL auto_open)
 	if (!floater_inventory)
 	{
 		llwarns << "Could not find My Inventory floater" << llendl;
+
 		return FALSE;
 	}
 

@@ -44,6 +44,7 @@ class LLMenuGL;
 class LLToggleableMenu;
 class LLInventoryPanel;
 class LLPlacesInventoryPanel;
+class LLFolderViewModelItemInventory;
 
 class LLLandmarksPanel : public LLPanelPlacesTab, LLRemoteParcelInfoObserver
 {
@@ -87,6 +88,7 @@ protected:
 	bool isReceivedFolderSelected() const;
 	void doActionOnCurSelectedLandmark(LLLandmarkList::loaded_callback_t cb);
 	LLFolderViewItem* getCurSelectedItem() const;
+	LLFolderViewModelItemInventory* getCurSelectedViewModelItem() const;
 
 	/**
 	 * Selects item with "obj_id" in "inventory_list" and scrolls accordion

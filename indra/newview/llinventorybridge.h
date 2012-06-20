@@ -176,7 +176,7 @@ protected:
 	mutable std::string			mDisplayName;
 
 	void purgeItem(LLInventoryModel *model, const LLUUID &uuid);
-	virtual void buildDisplayName();
+	virtual void buildDisplayName() const;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -230,7 +230,7 @@ public:
 protected:
 	BOOL confirmRemoveItem(const LLSD& notification, const LLSD& response);
 	virtual BOOL isItemPermissive() const;
-	virtual void buildDisplayName();
+	virtual void buildDisplayName() const;
 
 };
 
@@ -249,7 +249,7 @@ public:
 	BOOL dragItemIntoFolder(LLInventoryItem* inv_item, BOOL drop, std::string& tooltip_msg);
 	BOOL dragCategoryIntoFolder(LLInventoryCategory* inv_category, BOOL drop, std::string& tooltip_msg);
 
-    virtual void buildDisplayName();
+    virtual void buildDisplayName() const;
 
 	virtual void performAction(LLInventoryModel* model, std::string action);
 	virtual void openItem();
@@ -293,6 +293,8 @@ public:
 	LLViewerInventoryCategory* getCategory() const;
 	LLHandle<LLFolderBridge> getHandle() { mHandle.bind(this); return mHandle; }
 
+	bool isLoading() { return mIsLoading; }
+
 protected:
 	void buildContextMenuOptions(U32 flags, menuentry_vec_t& items,   menuentry_vec_t& disabled_items);
 	void buildContextMenuFolderOptions(U32 flags, menuentry_vec_t& items,   menuentry_vec_t& disabled_items);
@@ -301,7 +303,6 @@ protected:
 	// Menu callbacks
 	//--------------------------------------------------------------------
 	static void pasteClipboard(void* user_data);
-	static void createNewCategory(void* user_data);
 	static void createNewShirt(void* user_data);
 	static void createNewPants(void* user_data);
 	static void createNewShoes(void* user_data);
@@ -337,7 +338,7 @@ private:
 	bool							mWearables;
 	bool							mIsLoading;
 	LLTimer							mTimeSinceRequestStart;
-	std::string						mDisplayName;
+	mutable std::string				mDisplayName;
 	LLRootHandle<LLFolderBridge> mHandle;
 };
 

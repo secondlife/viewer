@@ -30,7 +30,7 @@
 
 #include "llfolderview.h"
 #include "llfolderviewitem.h"
-#include "llfoldervieweventlistener.h"
+#include "llfolderviewmodel.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llpanellandmarks.h"

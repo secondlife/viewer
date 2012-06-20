@@ -143,8 +143,8 @@ U32 LLPanelMarketplaceInbox::getFreshItemCount() const
 		
 		if (inbox_folder)
 		{
-			LLFolderViewFolder::folders_t::iterator folders_it = inbox_folder->getFoldersBegin();
-			LLFolderViewFolder::folders_t::iterator folders_end = inbox_folder->getFoldersEnd();
+			LLFolderViewFolder::folders_t::const_iterator folders_it = inbox_folder->getFoldersBegin();
+			LLFolderViewFolder::folders_t::const_iterator folders_end = inbox_folder->getFoldersEnd();
 
 			for (; folders_it != folders_end; ++folders_it)
 			{
@@ -157,8 +157,8 @@ U32 LLPanelMarketplaceInbox::getFreshItemCount() const
 				}
 			}
 
-			LLFolderViewFolder::items_t::iterator items_it = inbox_folder->getItemsBegin();
-			LLFolderViewFolder::items_t::iterator items_end = inbox_folder->getItemsEnd();
+			LLFolderViewFolder::items_t::const_iterator items_it = inbox_folder->getItemsBegin();
+			LLFolderViewFolder::items_t::const_iterator items_end = inbox_folder->getItemsEnd();
 
 			for (; items_it != items_end; ++items_it)
 			{

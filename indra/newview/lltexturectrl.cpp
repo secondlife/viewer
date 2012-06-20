@@ -623,7 +623,7 @@ void LLFloaterTexturePicker::draw()
 		LLFolderView* folder_view = mInventoryPanel->getRootFolder();
 		if (!folder_view) return;
 
-		LLInventoryFilter* filter = folder_view->getFilter();
+		LLInventoryFilter* filter = static_cast<LLInventoryFilter*>(folder_view->getFilter());
 		if (!filter) return;
 
 		bool is_filter_active = folder_view->getCompletedFilterGeneration() < filter->getCurrentGeneration() &&

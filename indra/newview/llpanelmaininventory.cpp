@@ -47,6 +47,7 @@
 #include "llresmgr.h"
 #include "llscrollcontainer.h"
 #include "llsdserialize.h"
+#include "llsdparam.h"
 #include "llspinctrl.h"
 #include "lltoggleablemenu.h"
 #include "lltooldraganddrop.h"
@@ -230,7 +231,10 @@ LLPanelMainInventory::~LLPanelMainInventory( void )
 		if (filter)
 		{
 			LLSD filterState;
-			filter->toLLSD(filterState);
+			LLInventoryFilter::Params p;
+			filter->toParams(p);
+			LLParamSDParser parser;
+			parser.writeSD(filterState, p);
 			filterRoot[filter->getName()] = filterState;
 		}
 

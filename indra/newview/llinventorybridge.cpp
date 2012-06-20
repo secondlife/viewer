@@ -895,7 +895,7 @@ LLInventoryModel* LLInvFVBridge::getInventoryModel() const
 	return panel ? panel->getModel() : NULL;
 }
 
-LLInventoryFilter* getInventoryFilter() const
+LLInventoryFilter* LLInvFVBridge::getInventoryFilter() const
 {
 	LLInventoryPanel* panel = mInventoryPanel.get();
 	return panel ? panel->getFilter() : NULL;
@@ -1278,7 +1278,7 @@ bool LLInvFVBridge::canListOnMarketplaceNow() const
 			LLFolderViewFolder * object_folderp =   mInventoryPanel.get() ? mInventoryPanel.get()->getFolderByID(object_id) : NULL;
 			if (object_folderp)
 			{
-				can_list = !object_folderp->isLoading();
+				can_list = !static_cast<LLFolderBridge*>(object_folderp->getViewModelItem())->isLoading();
 			}
 		}
 		
@@ -1319,7 +1319,7 @@ LLToolDragAndDrop::ESource LLInvFVBridge::getDragSource() const
 		return LLToolDragAndDrop::SOURCE_LIBRARY;
 	}
 
-	return SOURCE_VIEWER;
+	return LLToolDragAndDrop::SOURCE_VIEWER;
 }
 
 
@@ -1534,7 +1534,7 @@ PermissionMask LLItemBridge::getPermissionMask() const
 	return perm_mask;
 }
 
-void LLItemBridge::buildDisplayName()
+void LLItemBridge::buildDisplayName() const
 {
 	if(getItem())
 	{
@@ -1817,7 +1817,7 @@ void LLFolderBridge::selectItem()
 	LLInventoryModelBackgroundFetch::instance().start(getUUID(), true);
 }
 
-void LLFolderBridge::buildDisplayName()
+void LLFolderBridge::buildDisplayName() const
 {
 	LLFolderType::EType preferred_type = getPreferredType();
 
@@ -1845,7 +1845,7 @@ void LLFolderBridge::buildDisplayName()
 	//can not be detected as protected with LLFolderType::lookupIsProtectedType
 	if (accessories || LLFolderType::lookupIsProtectedType(preferred_type))
 	{
-		LLTrans::findString(mDisplayName, "InvFolder " + getName());
+		LLTrans::findString(mDisplayName, std::string("InvFolder ") + getName(), LLSD());
 	};
 }
 
@@ -1859,7 +1859,7 @@ void LLFolderBridge::update()
 		possibly_has_children = true;
 	}
 
-	BOOL loading = (possibly_has_children
+	bool loading = (possibly_has_children
 		&& !up_to_date );
 
 	if (loading != mIsLoading)
@@ -3415,7 +3415,7 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 			// Do not call execute() or done() here as if the folder is here, there's likely no point drilling down 
 			// This saves lots of time as buildContextMenu() is called a lot
 			delete fetch;
-			buildContextMenuFolderOptions(flags);
+			buildContextMenuFolderOptions(flags, items, disabled_items);
 		}
 		else
 		{
@@ -3628,23 +3628,6 @@ void LLFolderBridge::pasteClipboard(void* user_data)
 	if(self) self->pasteFromClipboard();
 }
 
-void LLFolderBridge::createNewCategory(void* user_data)
-{
-	LLFolderBridge* bridge = (LLFolderBridge*)user_data;
-	if(!bridge) return;
-	LLInventoryModel* model = bridge->getInventoryModel();
-	if(!model) return;
-	LLUUID id;
-	id = model->createNewCategory(bridge->getUUID(),
-								  LLFolderType::FT_NONE,
-								  LLStringUtil::null);
-	model->notifyObservers();
-
-	// At this point, the bridge has probably been deleted, but the
-	// view is still there.
-	panel->setSelection(id, TAKE_FOCUS_YES);
-}
-
 void LLFolderBridge::createNewShirt(void* user_data)
 {
 	LLFolderBridge::createWearable((LLFolderBridge*)user_data, LLWearableType::WT_SHIRT);
@@ -3830,9 +3813,10 @@ void LLFolderBridge::dropToFavorites(LLInventoryItem* inv_item)
 	LLPointer<AddFavoriteLandmarkCallback> cb = new AddFavoriteLandmarkCallback();
 	LLInventoryPanel* panel = mInventoryPanel.get();
 	LLFolderViewItem* drag_over_item = panel ? panel->getRootFolder()->getDraggingOverItem() : NULL;
-	if (drag_over_item && drag_over_item->getViewModelItem())
+	LLFolderViewModelItemInventory* view_model = drag_over_item ? static_cast<LLFolderViewModelItemInventory*>(drag_over_item->getViewModelItem()) : NULL;
+	if (view_model)
 	{
-		cb.get()->setTargetLandmarkId(drag_over_item->getViewModelItem()->getUUID());
+		cb.get()->setTargetLandmarkId(view_model->getUUID());
 	}
 
 	copy_inventory_item(
@@ -4032,7 +4016,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 				if (itemp)
 				{
 					LLUUID srcItemId = inv_item->getUUID();
-					LLUUID destItemId = itemp->getViewModelItem()->getUUID();
+					LLUUID destItemId = static_cast<LLFolderViewModelItemInventory*>(itemp->getViewModelItem())->getUUID();
 					gInventory.rearrangeFavoriteLandmarks(srcItemId, destItemId);
 				}
 			}
@@ -6119,7 +6103,7 @@ void LLLinkFolderBridge::gotoItem()
 	const LLUUID &cat_uuid = getFolderID();
 	if (!cat_uuid.isNull())
 	{
-                LLFolderViewItem *base_folder =   mInventoryPanel.get()->getItemByID(cat_uuid)
+		LLFolderViewItem *base_folder = mInventoryPanel.get()->getItemByID(cat_uuid);
 		if (base_folder)
 		{
 			if (LLInventoryModel* model = getInventoryModel())

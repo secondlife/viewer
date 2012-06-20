@@ -109,6 +109,8 @@ public:
 	/*virtual*/ LLFolderType::EType getPreferredType() const { return LLFolderType::FT_NONE; }
 	virtual const LLUUID& getUUID() const { return mUUID; }
 	virtual time_t getCreationDate() const;
+	virtual void setCreationDate(time_t creation_date_utc);
+
 	virtual LLUIImagePtr getIcon() const;
 	virtual void openItem();
 	virtual BOOL canOpenItem() const { return FALSE; }
@@ -130,11 +132,15 @@ public:
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
 	virtual void performAction(LLInventoryModel* model, std::string action);
 	virtual BOOL isUpToDate() const { return TRUE; }
-	virtual BOOL hasChildren() const { return FALSE; }
+	virtual bool hasChildren() const { return FALSE; }
 	virtual LLInventoryType::EType getInventoryType() const { return LLInventoryType::IT_NONE; }
 	virtual LLWearableType::EType getWearableType() const { return LLWearableType::WT_NONE; }
+	virtual EInventorySortGroup getSortGroup() const { return SG_ITEM; }
+	virtual LLInventoryObject* getInventoryObject() const { return findInvObject(); }
+
 
 	// LLDragAndDropBridge functionality
+	virtual LLToolDragAndDrop::ESource getDragSource() const { return LLToolDragAndDrop::SOURCE_WORLD; }
 	virtual BOOL startDrag(EDragAndDropType* type, LLUUID* id) const;
 	virtual BOOL dragOrDrop(MASK mask, BOOL drop,
 							EDragAndDropType cargo_type,
@@ -338,6 +344,10 @@ time_t LLTaskInvFVBridge::getCreationDate() const
 	return 0;
 }
 
+void LLTaskInvFVBridge::setCreationDate(time_t creation_date_utc)
+{}
+
+
 LLUIImagePtr LLTaskInvFVBridge::getIcon() const
 {
 	const BOOL item_is_multi = (mFlags & LLInventoryItemFlags::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS);
@@ -461,7 +471,7 @@ BOOL LLTaskInvFVBridge::removeItem()
 	return FALSE;
 }
 
-void   LLTaskInvFVBridge::removeBatch(LLDynamicArray<LLFolderViewModelItem*>&   batch)
+void   LLTaskInvFVBridge::removeBatch(std::vector<LLFolderViewModelItem*>& batch)
 {
 	if (!mPanel)
 	{
@@ -703,7 +713,7 @@ public:
 	virtual BOOL renameItem(const std::string& new_name);
 	virtual BOOL isItemRemovable() const;
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
-	virtual BOOL hasChildren() const;
+	virtual bool hasChildren() const;
 	virtual BOOL startDrag(EDragAndDropType* type, LLUUID* id) const;
 	virtual BOOL dragOrDrop(MASK mask, BOOL drop,
 							EDragAndDropType cargo_type,
@@ -711,6 +721,7 @@ public:
 							std::string& tooltip_msg);
 	virtual BOOL canOpenItem() const { return TRUE; }
 	virtual void openItem();
+	virtual EInventorySortGroup getSortGroup() const { return SG_NORMAL_FOLDER; }
 };
 
 LLTaskCategoryBridge::LLTaskCategoryBridge(
@@ -761,7 +772,7 @@ void LLTaskCategoryBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	hide_context_entries(menu, items, disabled_items);
 }
 
-BOOL LLTaskCategoryBridge::hasChildren() const
+bool LLTaskCategoryBridge::hasChildren() const
 {
 	// return TRUE if we have or do know know if we have children.
 	// *FIX: For now, return FALSE - we will know for sure soon enough.
@@ -1748,7 +1759,7 @@ void LLPanelObjectInventory::createViewsForCategory(LLInventoryObject::object_li
 				view = LLUICtrlFactory::create<LLFolderViewItem> (params);
 			}
 			view->addToFolder(folder);
-                        addItemID(view->getViewModelItem()->getUUID(), view);
+			addItemID(view->getViewModelItem()->getUUID(), view);
 		}
 	}
 
