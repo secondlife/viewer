@@ -208,7 +208,7 @@ void LLInboxFolderViewFolder::computeFreshness()
 
 	if (last_expansion_utc > 0)
 	{
-		mFresh = (mCreationDate > last_expansion_utc);
+		mFresh = (static_cast<LLFolderViewModelItemInventory*>(getViewModelItem())->getCreationDate() > last_expansion_utc);
 
 #if DEBUGGING_FRESHNESS
 		if (mFresh)
@@ -230,15 +230,16 @@ void LLInboxFolderViewFolder::deFreshify()
 	gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
 }
 
-void LLInboxFolderViewFolder::setCreationDate(time_t creation_date_utc)
-{ 
-	mCreationDate = creation_date_utc; 
-
-	if (mParentFolder == mRoot)
-	{
-		computeFreshness();
-	}
-}
+// TODO RN: move this behavior to modelview?
+//void LLInboxFolderViewFolder::setCreationDate(time_t creation_date_utc)
+//{ 
+//	mCreationDate = creation_date_utc; 
+//
+//	if (LLFolderViewItem::mParentFolder == mRoot)
+//	{
+//		computeFreshness();
+//	}
+//}
 
 //
 // LLInboxFolderViewItem Implementation
@@ -304,7 +305,7 @@ void LLInboxFolderViewItem::computeFreshness()
 
 	if (last_expansion_utc > 0)
 	{
-		mFresh = (mCreationDate > last_expansion_utc);
+		mFresh = (static_cast<LLFolderViewModelItemInventory*>(getViewModelItem())->getCreationDate() > last_expansion_utc);
 
 #if DEBUGGING_FRESHNESS
 		if (mFresh)

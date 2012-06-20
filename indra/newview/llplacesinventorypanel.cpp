@@ -162,7 +162,7 @@ BOOL LLPlacesFolderView::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	// then determine its type and set necessary menu handle
 	if (getCurSelectedItem())
 	{
-		LLInventoryType::EType inventory_type = getCurSelectedItem()->getViewModelItem()->getInventoryType();
+		LLInventoryType::EType inventory_type = static_cast<LLFolderViewModelItemInventory*>(getCurSelectedItem()->getViewModelItem())->getInventoryType();
 		inventory_type_menu_handle_t::iterator it_handle = mMenuHandlesByInventoryType.find(inventory_type);
 
 		if (it_handle != mMenuHandlesByInventoryType.end())

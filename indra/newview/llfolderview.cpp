@@ -1976,7 +1976,7 @@ void LLFolderView::doIdle()
 		LLFastTimer t3(FTM_AUTO_SELECT);
 		// select new item only if a filtered item not currently selected
 		LLFolderViewItem* selected_itemp = mSelectedItems.empty() ? NULL : mSelectedItems.back();
-		if (!mAutoSelectOverride && (!selected_itemp || !selected_itemp->potentiallyFiltered()))
+		if (!mAutoSelectOverride && (!selected_itemp || !selected_itemp->potentiallyHidden()))
 		{
 			// these are named variables to get around gcc not binding non-const references to rvalues
 			// and functor application is inherently non-const to allow for stateful functors
@@ -2292,4 +2292,10 @@ S32 LLFolderView::getItemHeight()
 		return llmax(debug_height, mStatusTextBox->getTextPixelHeight());
 	}
 	return debug_height;
+}
+
+//TODO RN: move to llfolderviewmodel.cpp file
+bool LLFolderViewModelCommon::needsSort(LLFolderViewModelItem* item)
+{
+	return item->getSortVersion() < mTargetSortVersion;
 }

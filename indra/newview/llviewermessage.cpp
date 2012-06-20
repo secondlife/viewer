@@ -821,7 +821,7 @@ private:
 				it != end_it;
 				++it)
 			{
-				mSelectedItems.insert((*it)->getListener()->getUUID());
+				mSelectedItems.insert(static_cast<LLFolderViewModelItemInventory*>((*it)->getViewModelItem())->getUUID());
 			}
 		}
 		mSelectedItems.erase(mMoveIntoFolderID);
@@ -864,7 +864,7 @@ private:
 			it != end_it;
 			++it)
 		{
-			selected_items.insert((*it)->getListener()->getUUID());
+			selected_items.insert(static_cast<LLFolderViewModelItemInventory*>((*it)->getViewModelItem())->getUUID());
 		}
 		selected_items.erase(mMoveIntoFolderID);
 

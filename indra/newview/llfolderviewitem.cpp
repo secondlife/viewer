@@ -221,6 +221,12 @@ BOOL LLFolderViewItem::potentiallyVisible()
 		||	getLastFilterGeneration() < getRoot()->getFilter()->getFirstSuccessGeneration(); // or we don't know yet
 }
 
+BOOL LLFolderViewItem::potentiallyHidden()
+{
+	return !mPassedFilter // didn't pass the filter
+		|| getLastFilterGeneration() < getRoot()->getFilter()->getFirstSuccessGeneration(); // or we don't know yet
+}
+
 BOOL LLFolderViewItem::getFiltered() 
 { 
 	return mPassedFilter && mLastFilterGeneration >= getRoot()->getFilter()->getFirstSuccessGeneration();

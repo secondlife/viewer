@@ -800,7 +800,7 @@ void LLFloaterTexturePicker::onSelectionChange(const std::deque<LLFolderViewItem
 	if (items.size())
 	{
 		LLFolderViewItem* first_item = items.front();
-		LLInventoryItem* itemp = gInventory.getItem(first_item->getViewModelItem()->getUUID());
+		LLInventoryItem* itemp = gInventory.getItem(static_cast<LLFolderViewModelItemInventory*>(first_item->getViewModelItem())->getUUID());
 		mNoCopyTextureSelected = FALSE;
 		if (itemp)
 		{

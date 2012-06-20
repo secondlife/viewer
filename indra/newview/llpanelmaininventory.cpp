@@ -981,7 +981,7 @@ void LLPanelMainInventory::saveTexture(const LLSD& userdata)
 		return;
 	}
 	
-	const LLUUID& item_id = current_item->getViewModelItem()->getUUID();
+	const LLUUID& item_id = static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->getUUID();
 	LLPreviewTexture* preview_texture = LLFloaterReg::showTypedInstance<LLPreviewTexture>("preview_texture", LLSD(item_id), TAKE_FOCUS_YES);
 	if (preview_texture)
 	{
@@ -1054,7 +1054,7 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 		{
 			return;
 		}
-		const LLUUID item_id = current_item->getViewModelItem()->getUUID();
+		const LLUUID item_id = static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->getUUID();
 		LLViewerInventoryItem *item = gInventory.getItem(item_id);
 		if (item)
 		{
@@ -1069,7 +1069,7 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 		{
 			return;
 		}
-		current_item->getViewModelItem()->performAction(getActivePanel()->getModel(), "goto");
+		static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->performAction(getActivePanel()->getModel(), "goto");
 	}
 
 	if (command_name == "find_links")
@@ -1079,7 +1079,7 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 		{
 			return;
 		}
-		const LLUUID& item_id = current_item->getViewModelItem()->getUUID();
+		const LLUUID& item_id = static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->getUUID();
 		const std::string &item_name = current_item->getViewModelItem()->getName();
 		mFilterSubString = item_name;
 		LLInventoryFilter *filter = mActivePanel->getFilter();
@@ -1125,9 +1125,8 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 				 iter != selection_set.end();
 				 ++iter)
 			{
-				const LLUUID &item_id = (*iter);
 				LLFolderViewItem *item = *iter;
-				const LLFolderViewModelItemInventory *listener = item->getViewModelItem();
+				const LLFolderViewModelItemInventory *listener = static_cast<const LLFolderViewModelItemInventory*>(item->getViewModelItem());
 				llassert(listener);
 				if (!listener) return FALSE;
 				can_delete &= listener->isItemRemovable();
@@ -1145,7 +1144,7 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 	{
 		LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
 		if (!current_item) return FALSE;
-		const LLUUID& item_id = current_item->getViewModelItem()->getUUID();
+		const LLUUID& item_id = static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->getUUID();
 		const LLViewerInventoryItem *item = gInventory.getItem(item_id);
 		if (item && item->getIsLinkType() && !item->getIsBrokenLink())
 		{
@@ -1161,7 +1160,7 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 		if (selection_set.size() != 1) return FALSE;
 		LLFolderViewItem* current_item = root->getCurSelectedItem();
 		if (!current_item) return FALSE;
-		const LLUUID& item_id = current_item->getViewModelItem()->getUUID();
+		const LLUUID& item_id = static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->getUUID();
 		const LLInventoryObject *obj = gInventory.getObject(item_id);
 		if (obj && !obj->getIsLinkType() && LLAssetType::lookupCanLink(obj->getType()))
 		{
@@ -1174,7 +1173,7 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 	{
 		LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
 		if (!current_item) return FALSE;
-		const LLUUID& item_id = current_item->getViewModelItem()->getUUID();
+		const LLUUID& item_id = static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->getUUID();
 		const LLViewerInventoryItem *item = gInventory.getItem(item_id);
 		if (item && item->getIsBrokenLink())
 		{

@@ -358,6 +358,11 @@ const LLInventoryFilter* LLInventoryPanel::getFilter() const
 	return &getFolderViewModel()->getFilter();
 }
 
+LLInventoryFilter* LLInventoryPanel::getFilter()
+{
+	return &getFolderViewModel()->getFilter();
+}
+
 void LLInventoryPanel::setFilterTypes(U64 types, LLInventoryFilter::EFilterType filter_type)
 {
 	if (filter_type == LLInventoryFilter::FILTERTYPE_OBJECT)

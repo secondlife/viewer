@@ -509,6 +509,12 @@ U32 LLInventoryItem::getFlags() const
 	return mFlags;
 }
 
+time_t LLInventoryItem::getCreationDate() const
+{
+	return mCreationDate;
+}
+
+
 // virtual
 void LLInventoryItem::packMessage(LLMessageSystem* msg) const
 {

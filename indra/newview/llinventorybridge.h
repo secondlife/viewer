@@ -176,7 +176,7 @@ protected:
 	mutable std::string			mDisplayName;
 
 	void purgeItem(LLInventoryModel *model, const LLUUID &uuid);
-	virtual void buildDisplayName() const;
+	virtual void buildDisplayName() const {}
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

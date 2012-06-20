@@ -220,7 +220,6 @@ public:
 	bool 				isModified() const;
 	bool 				isSinceLogoff() const;
 	void 				clearModified();
-	const std::string& 	getName() const;
 	const std::string& 	getFilterText();
 	//RN: this is public to allow system to externally force a global refilter
 	void 				setModified(EFilterModified behavior = FILTER_RESTART);

@@ -88,7 +88,6 @@ public:
 	virtual bool 				isActive() const = 0;
 	virtual bool 				isModified() const = 0;
 	virtual void 				clearModified() = 0;
-	virtual const std::string& 	getName() const = 0;
 	virtual const std::string& 	getFilterText() = 0;
 	//RN: this is public to allow system to externally force a global refilter
 	virtual void 				setModified(EFilterModified behavior = FILTER_RESTART) = 0;
@@ -304,13 +303,5 @@ protected:
 	SortType	mSorter;
 	FilterType	mFilter;
 };
-
-
-bool LLFolderViewModelCommon::needsSort(class LLFolderViewModelItem* item)
-{
-	return item->getSortVersion() < mTargetSortVersion;
-}
-
-
 
 #endif

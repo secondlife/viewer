@@ -1759,7 +1759,6 @@ void LLPanelObjectInventory::createViewsForCategory(LLInventoryObject::object_li
 				view = LLUICtrlFactory::create<LLFolderViewItem> (params);
 			}
 			view->addToFolder(folder);
-			addItemID(view->getViewModelItem()->getUUID(), view);
 		}
 	}
 

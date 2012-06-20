@@ -245,8 +245,8 @@ public:
 	BOOL			isDescendantOf( const LLFolderViewFolder* potential_ancestor );
 	S32				getIndentation() { return mIndentation; }
 
-	virtual BOOL	potentiallyVisible(); // do we know for a fact that this item won't be displayed?
-	virtual BOOL	potentiallyFiltered(); // do we know for a fact that this item has been filtered out?
+	virtual BOOL	potentiallyVisible(); // is the item definitely visible or we haven't made up our minds yet?
+	virtual BOOL	potentiallyHidden(); // did this item not pass the filter or do we not know yet?
 
 	virtual BOOL	getFiltered();
 	virtual BOOL	getFiltered(S32 filter_generation);
