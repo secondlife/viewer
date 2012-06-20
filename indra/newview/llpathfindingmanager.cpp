@@ -55,21 +55,22 @@
 #include "llpanelnavmeshrebake.h"
 #include "llenvmanager.h"
 
-#define CAP_SERVICE_RETRIEVE_NAVMESH      "RetrieveNavMeshSrc"
+#define CAP_SERVICE_RETRIEVE_NAVMESH        "RetrieveNavMeshSrc"
 
-#define CAP_SERVICE_NAVMESH_STATUS        "NavMeshGenerationStatus"
+#define CAP_SERVICE_NAVMESH_STATUS          "NavMeshGenerationStatus"
 
-#define CAP_SERVICE_OBJECT_LINKSETS       "ObjectNavMeshProperties"
-#define CAP_SERVICE_TERRAIN_LINKSETS      "TerrainNavMeshProperties"
+#define CAP_SERVICE_OBJECT_LINKSETS         "ObjectNavMeshProperties"
+#define CAP_SERVICE_TERRAIN_LINKSETS        "TerrainNavMeshProperties"
 
-#define CAP_SERVICE_CHARACTERS            "CharacterProperties"
+#define CAP_SERVICE_CHARACTERS              "CharacterProperties"
 
-#define SIM_MESSAGE_NAVMESH_STATUS_UPDATE "/message/NavMeshStatusUpdate"
-#define SIM_MESSAGE_BODY_FIELD            "body"
+#define SIM_MESSAGE_NAVMESH_STATUS_UPDATE   "/message/NavMeshStatusUpdate"
+#define SIM_MESSAGE_AGENT_STATE_UPDATE      "/message/AgentStateUpdate"
+#define SIM_MESSAGE_BODY_FIELD              "body"
 
-#define CAP_SERVICE_AGENT_STATE				"AgentState"
-#define ALTER_NAVMESH_OBJECTS_FIELD			"alter_navmesh_objects"
-#define SIM_MESSAGE_AGENT_STATE_UPDATE		"/message/AgentStateUpdate"
+#define CAP_SERVICE_AGENT_STATE             "AgentState"
+
+#define AGENT_STATE_CAN_REBAKE_REGION_FIELD "can_modify_navmesh"
 
 //---------------------------------------------------------------------------
 // LLNavMeshSimStateChangeNode
@@ -154,7 +155,7 @@ public:
 protected:
 
 private:
-	std::string                       mCapabilityURL;
+	std::string mCapabilityURL;
 };
 
 
@@ -494,6 +495,34 @@ void LLPathfindingManager::requestGetCharacters(request_id_t pRequestId, object_
 	}
 }
 
+void LLPathfindingManager::requestGetAgentState()
+{
+	LLViewerRegion *currentRegion = getCurrentRegion();
+
+	if (currentRegion == NULL)
+	{
+		mAgentStateSignal(FALSE);
+	}
+	else
+	{
+		if (!currentRegion->capabilitiesReceived())
+		{
+			currentRegion->setCapabilitiesReceivedCallback(boost::bind(&LLPathfindingManager::handleDeferredGetAgentStateForRegion, this, _1));
+		}
+		else if (!isPathfindingEnabledForRegion(currentRegion))
+		{
+			mAgentStateSignal(FALSE);
+		}
+		else
+		{
+			std::string agentStateURL = getAgentStateURLForRegion(currentRegion);
+			llassert(!agentStateURL.empty());
+			LLHTTPClient::ResponderPtr responder = new AgentStateResponder(agentStateURL);
+			LLHTTPClient::get(agentStateURL, responder);
+		}
+	}
+}
+
 void LLPathfindingManager::requestRebakeNavMesh(rebake_navmesh_callback_t pRebakeNavMeshCallback)
 {
 	std::string navMeshStatusURL = getNavMeshStatusURLForCurrentRegion();
@@ -529,6 +558,16 @@ void LLPathfindingManager::sendRequestGetNavMeshForRegion(LLPathfindingNavMeshPt
 			LLSD postData;
 			LLHTTPClient::post(navMeshURL, postData, responder);
 		}
+	}
+}
+
+void LLPathfindingManager::handleDeferredGetAgentStateForRegion(const LLUUID &pRegionUUID)
+{
+	LLViewerRegion *currentRegion = getCurrentRegion();
+
+	if ((currentRegion != NULL) && (currentRegion->getRegionID() == pRegionUUID))
+	{
+		requestGetAgentState();
 	}
 }
 
@@ -601,6 +640,11 @@ void LLPathfindingManager::handleNavMeshStatusUpdate(const LLPathfindingNavMeshS
 	}
 }
 
+void LLPathfindingManager::handleAgentState(BOOL pCanRebakeRegion) 
+{
+	mAgentStateSignal(pCanRebakeRegion);
+}
+
 LLPathfindingNavMeshPtr LLPathfindingManager::getNavMeshForRegion(const LLUUID &pRegionUUID)
 {
 	LLPathfindingNavMeshPtr navMeshPtr;
@@ -629,27 +673,7 @@ LLPathfindingNavMeshPtr LLPathfindingManager::getNavMeshForRegion(LLViewerRegion
 	return getNavMeshForRegion(regionUUID);
 }
 
-void LLPathfindingManager::requestGetAgentState()
-{
-	std::string agentStateURL = getAgentStateURLForCurrentRegion( getCurrentRegion() );
-
-	if ( !agentStateURL.empty() )
-	{
-		LLHTTPClient::ResponderPtr responder = new AgentStateResponder( agentStateURL );
-		LLHTTPClient::get( agentStateURL, responder );
-	}
-}
-
-void LLPathfindingManager::handleAgentStateResult(const LLSD &pContent) 
-{	
-}
-
-void LLPathfindingManager::handleAgentStateError(U32 pStatus, const std::string &pReason, const std::string &pURL)
-{
-	llwarns << "error with request to URL '" << pURL << "' because " << pReason << " (statusCode:" << pStatus << ")" << llendl;
-}
-
-std::string LLPathfindingManager::getAgentStateURLForCurrentRegion(LLViewerRegion *pRegion) const
+std::string LLPathfindingManager::getAgentStateURLForRegion(LLViewerRegion *pRegion) const
 {
 	return getCapabilityURLForRegion(pRegion, CAP_SERVICE_AGENT_STATE);
 }
@@ -733,12 +757,13 @@ void LLNavMeshSimStateChangeNode::post(ResponsePtr pResponse, const LLSD &pConte
 
 void LLAgentStateChangeNode::post(ResponsePtr pResponse, const LLSD &pContext, const LLSD &pInput) const
 {
-	LLPathfindingManager::getInstance()->handleAgentStateUpdate();
-}
-
-void LLPathfindingManager::handleAgentStateUpdate()
-{
-	//Don't trigger if we are still loading in
+	llassert(pInput.has(SIM_MESSAGE_BODY_FIELD));
+	llassert(pInput.get(SIM_MESSAGE_BODY_FIELD).isMap());
+	llassert(pInput.get(SIM_MESSAGE_BODY_FIELD).has(AGENT_STATE_CAN_REBAKE_REGION_FIELD));
+	llassert(pInput.get(SIM_MESSAGE_BODY_FIELD).get(AGENT_STATE_CAN_REBAKE_REGION_FIELD).isBoolean());
+	BOOL canRebakeRegion = pInput.get(SIM_MESSAGE_BODY_FIELD).get(AGENT_STATE_CAN_REBAKE_REGION_FIELD).asBoolean();
+	
+	LLPathfindingManager::getInstance()->handleAgentState(canRebakeRegion);
 }
 
 //---------------------------------------------------------------------------
@@ -820,12 +845,16 @@ AgentStateResponder::~AgentStateResponder()
 
 void AgentStateResponder::result(const LLSD &pContent)
 {
-	LLPathfindingManager::getInstance()->handleAgentStateResult(pContent);
+	llassert(pContent.has(AGENT_STATE_CAN_REBAKE_REGION_FIELD));
+	llassert(pContent.get(AGENT_STATE_CAN_REBAKE_REGION_FIELD).isBoolean());
+	BOOL canRebakeRegion = pContent.get(AGENT_STATE_CAN_REBAKE_REGION_FIELD).asBoolean();
+	LLPathfindingManager::getInstance()->handleAgentState(canRebakeRegion);
 }
 
 void AgentStateResponder::error(U32 pStatus, const std::string &pReason)
 {
-	LLPathfindingManager::getInstance()->handleAgentStateError(pStatus, pReason, mCapabilityURL);
+	llwarns << "error with request to URL '" << mCapabilityURL << "' because " << pReason << " (statusCode:" << pStatus << ")" << llendl;
+	LLPathfindingManager::getInstance()->handleAgentState(FALSE);
 }
 
 

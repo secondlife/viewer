@@ -33,6 +33,7 @@
 
 #include "llhandle.h"
 #include "llpanel.h"
+#include "llpathfindingmanager.h"
 #include "llpathfindingnavmesh.h"
 
 class LLButton;
@@ -72,6 +73,7 @@ private:
 	
 	void onNavMeshRebakeClick();
 
+	void handleAgentState(BOOL pCanRebakeRegion);
 	void handleRebakeNavMeshResponse(bool pResponseStatus);
 	void handleNavMeshStatus(const LLPathfindingNavMeshStatus &pNavMeshStatus);
 	void handleRegionBoundaryCrossed();
@@ -80,10 +82,12 @@ private:
 
 	void updatePosition();
 
-	LLButton*                            mNavMeshRebakeButton;
-	LLButton*                            mNavMeshBakingButton;
-	LLPathfindingNavMesh::navmesh_slot_t mNavMeshSlot;
-	boost::signals2::connection          mRegionCrossingSlot;
+	BOOL                                     mCanRebakeRegion;
+	LLButton*                                mNavMeshRebakeButton;
+	LLButton*                                mNavMeshBakingButton;
+	LLPathfindingNavMesh::navmesh_slot_t     mNavMeshSlot;
+	boost::signals2::connection              mRegionCrossingSlot;
+	LLPathfindingManager::agent_state_slot_t mAgentStateSlot;
 };
 
 #endif //LL_NAVMESHREBAKE_H

@@ -49,6 +49,8 @@ class LLPathfindingManager : public LLSingleton<LLPathfindingManager>
 {
 	friend class LLNavMeshSimStateChangeNode;
 	friend class NavMeshStatusResponder;
+	friend class LLAgentStateChangeNode;
+	friend class AgentStateResponder;
 public:
 	typedef std::map<LLUUID, LLPathfindingNavMeshPtr> NavMeshMap;
 
@@ -83,12 +85,9 @@ public:
 
 	void requestGetCharacters(request_id_t pRequestId, object_request_callback_t pCharactersCallback) const;
 
-	friend class LLAgentStateChangeNode;
-	friend class AgentStateResponder;
-	
-	typedef boost::function< void () >				agent_state_callback_t;
-	typedef boost::signals2::signal< void () >		agent_state_signal_t;
-	typedef boost::signals2::connection				agent_state_slot_t;	
+	typedef boost::function<void (BOOL)>         agent_state_callback_t;
+	typedef boost::signals2::signal<void (BOOL)> agent_state_signal_t;
+	typedef boost::signals2::connection          agent_state_slot_t;	
 
 	agent_state_slot_t registerAgentStateListener(agent_state_callback_t pAgentStateCallback);
 	void requestGetAgentState();	
@@ -101,6 +100,7 @@ protected:
 private:
 	void sendRequestGetNavMeshForRegion(LLPathfindingNavMeshPtr navMeshPtr, LLViewerRegion *pRegion, const LLPathfindingNavMeshStatus &pNavMeshStatus);
 
+	void handleDeferredGetAgentStateForRegion(const LLUUID &pRegionUUID);
 	void handleDeferredGetNavMeshForRegion(const LLUUID &pRegionUUID, bool pIsGetStatusOnly);
 	void handleDeferredGetLinksetsForRegion(const LLUUID &pRegionUUID, request_id_t pRequestId, object_request_callback_t pLinksetsCallback) const;
 	void handleDeferredGetCharactersForRegion(const LLUUID &pRegionUUID, request_id_t pRequestId, object_request_callback_t pCharactersCallback) const;
@@ -108,7 +108,7 @@ private:
 	void handleNavMeshStatusRequest(const LLPathfindingNavMeshStatus &pNavMeshStatus, LLViewerRegion *pRegion, bool pIsGetStatusOnly);
 	void handleNavMeshStatusUpdate(const LLPathfindingNavMeshStatus &pNavMeshStatus);
 
-	void handleAgentStateUpdate();
+	void handleAgentState(BOOL pCanRebakeRegion);
 
 	LLPathfindingNavMeshPtr getNavMeshForRegion(const LLUUID &pRegionUUID);
 	LLPathfindingNavMeshPtr getNavMeshForRegion(LLViewerRegion *pRegion);
@@ -119,13 +119,10 @@ private:
 	std::string getObjectLinksetsURLForCurrentRegion() const;
 	std::string getTerrainLinksetsURLForCurrentRegion() const;
 	std::string getCharactersURLForCurrentRegion() const;
-	std::string	getAgentStateURLForCurrentRegion(LLViewerRegion *pRegion) const;
+	std::string	getAgentStateURLForRegion(LLViewerRegion *pRegion) const;
 	std::string getCapabilityURLForCurrentRegion(const std::string &pCapabilityName) const;
 	std::string getCapabilityURLForRegion(LLViewerRegion *pRegion, const std::string &pCapabilityName) const;
 	LLViewerRegion *getCurrentRegion() const;
-
-	void handleAgentStateResult(const LLSD &pContent );
-	void handleAgentStateError(U32 pStatus, const std::string &pReason, const std::string &pURL);
 
 	NavMeshMap           mNavMeshMap;
 	agent_state_signal_t mAgentStateSignal;

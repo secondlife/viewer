@@ -76,6 +76,12 @@ BOOL LLPanelNavMeshRebake::postBuild()
 		mRegionCrossingSlot = LLEnvManagerNew::getInstance()->setRegionChangeCallback(boost::bind(&LLPanelNavMeshRebake::handleRegionBoundaryCrossed, this));
 	}
 
+	if (!mAgentStateSlot.connected())
+	{
+		mAgentStateSlot = LLPathfindingManager::getInstance()->registerAgentStateListener(boost::bind(&LLPanelNavMeshRebake::handleAgentState, this, _1));
+	}
+	LLPathfindingManager::getInstance()->requestGetAgentState();
+
 	return LLPanel::postBuild();
 }
 
@@ -98,10 +104,12 @@ BOOL LLPanelNavMeshRebake::handleToolTip( S32 x, S32 y, MASK mask )
 }
 
 LLPanelNavMeshRebake::LLPanelNavMeshRebake() 
-	: mNavMeshRebakeButton( NULL ),
+	: mCanRebakeRegion(TRUE),
+	mNavMeshRebakeButton( NULL ),
 	mNavMeshBakingButton( NULL ),
 	mNavMeshSlot(),
-	mRegionCrossingSlot()
+	mRegionCrossingSlot(),
+	mAgentStateSlot()
 {
 	// make sure we have the only instance of this class
 	static bool b = true;
@@ -130,13 +138,14 @@ void LLPanelNavMeshRebake::setMode(ERebakeNavMeshMode pRebakeNavMeshMode)
 
 void LLPanelNavMeshRebake::onNavMeshRebakeClick()
 {
-#if 0
-	mNavMeshRebakeButton->setVisible( FALSE ); 
-	mNavMeshBakingButton->setVisible( TRUE ); 
-	mNavMeshBakingButton->setForcePressedState( TRUE );
-#endif
 	setMode(kRebakeNavMesh_RequestSent);
 	LLPathfindingManager::getInstance()->requestRebakeNavMesh(boost::bind(&LLPanelNavMeshRebake::handleRebakeNavMeshResponse, this, _1));
+}
+
+void LLPanelNavMeshRebake::handleAgentState(BOOL pCanRebakeRegion)
+{
+	mCanRebakeRegion = pCanRebakeRegion;
+	llinfos << "STINSON DEBUG: canRebakeRegion => " << (pCanRebakeRegion ? "TRUE" : "FALSE") << llendl;
 }
 
 void LLPanelNavMeshRebake::handleRebakeNavMeshResponse(bool pResponseStatus)
@@ -176,6 +185,7 @@ void LLPanelNavMeshRebake::handleNavMeshStatus(const LLPathfindingNavMeshStatus 
 void LLPanelNavMeshRebake::handleRegionBoundaryCrossed()
 {
 	createNavMeshStatusListenerForCurrentRegion();
+	LLPathfindingManager::getInstance()->requestGetAgentState();
 }
 
 void LLPanelNavMeshRebake::createNavMeshStatusListenerForCurrentRegion()

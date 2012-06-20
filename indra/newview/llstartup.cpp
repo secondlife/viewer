@@ -2167,7 +2167,6 @@ bool idle_startup()
 
 		llassert(LLPathfindingManager::getInstance() != NULL);
 		LLPathfindingManager::getInstance()->initSystem();
-		LLPathfindingManager::getInstance()->requestGetAgentState();
 
 		return TRUE;
 	}
