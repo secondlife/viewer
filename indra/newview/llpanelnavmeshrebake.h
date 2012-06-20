@@ -72,6 +72,7 @@ private:
 	
 	void onNavMeshRebakeClick();
 
+	void handleRebakeNavMeshResponse(bool pResponseStatus);
 	void handleNavMeshStatus(const LLPathfindingNavMeshStatus &pNavMeshStatus);
 	void handleRegionBoundaryCrossed();
 

@@ -57,12 +57,14 @@ LLPanelNavMeshRebake* LLPanelNavMeshRebake::getInstance()
 BOOL LLPanelNavMeshRebake::postBuild()
 {
 	//Rebake initiated
-	mNavMeshRebakeButton = getChild<LLButton>("navmesh_btn");
+	mNavMeshRebakeButton = findChild<LLButton>("navmesh_btn");
+	llassert(mNavMeshRebakeButton != NULL);
 	mNavMeshRebakeButton->setCommitCallback(boost::bind(&LLPanelNavMeshRebake::onNavMeshRebakeClick, this));
 	LLHints::registerHintTarget("navmesh_btn", mNavMeshRebakeButton->getHandle());
 	
 	//Baking...
-	mNavMeshBakingButton = getChild<LLButton>("navmesh_btn_baking");
+	mNavMeshBakingButton = findChild<LLButton>("navmesh_btn_baking");
+	llassert(mNavMeshBakingButton != NULL);
 	LLHints::registerHintTarget("navmesh_btn_baking", mNavMeshBakingButton->getHandle());
 
 	setMode(kRebakeNavMesh_Default);
@@ -133,7 +135,13 @@ void LLPanelNavMeshRebake::onNavMeshRebakeClick()
 	mNavMeshBakingButton->setVisible( TRUE ); 
 	mNavMeshBakingButton->setForcePressedState( TRUE );
 #endif
-	LLPathfindingManager::getInstance()->triggerNavMeshRebuild();
+	setMode(kRebakeNavMesh_RequestSent);
+	LLPathfindingManager::getInstance()->requestRebakeNavMesh(boost::bind(&LLPanelNavMeshRebake::handleRebakeNavMeshResponse, this, _1));
+}
+
+void LLPanelNavMeshRebake::handleRebakeNavMeshResponse(bool pResponseStatus)
+{
+	setMode(pResponseStatus ? kRebakeNavMesh_NotAvailable : kRebakeNavMesh_Available);
 }
 
 void LLPanelNavMeshRebake::handleNavMeshStatus(const LLPathfindingNavMeshStatus &pNavMeshStatus)

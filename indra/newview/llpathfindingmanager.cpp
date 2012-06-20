@@ -54,9 +54,6 @@
 #include "llweb.h"
 #include "llpanelnavmeshrebake.h"
 #include "llenvmanager.h"
-#if 0
-#include "llstartup.h"
-#endif
 
 #define CAP_SERVICE_RETRIEVE_NAVMESH      "RetrieveNavMeshSrc"
 
@@ -167,17 +164,19 @@ private:
 class NavMeshRebakeResponder : public LLHTTPClient::Responder
 {
 public:
-	NavMeshRebakeResponder( const std::string &pCapabilityURL );
+	NavMeshRebakeResponder(const std::string &pCapabilityURL, LLPathfindingManager::rebake_navmesh_callback_t pRebakeNavMeshCallback);
 	virtual ~NavMeshRebakeResponder();
 
-	virtual void result( const LLSD &pContent );
-	virtual void error( U32 pStatus, const std::string& pReason );
+	virtual void result(const LLSD &pContent);
+	virtual void error(U32 pStatus, const std::string& pReason);
 
 protected:
 
 private:
-	std::string                       mCapabilityURL;
+	std::string                                     mCapabilityURL;
+	LLPathfindingManager::rebake_navmesh_callback_t mRebakeNavMeshCallback;
 };
+
 //---------------------------------------------------------------------------
 // LinksetsResponder
 //---------------------------------------------------------------------------
@@ -495,6 +494,19 @@ void LLPathfindingManager::requestGetCharacters(request_id_t pRequestId, object_
 	}
 }
 
+void LLPathfindingManager::requestRebakeNavMesh(rebake_navmesh_callback_t pRebakeNavMeshCallback)
+{
+	std::string navMeshStatusURL = getNavMeshStatusURLForCurrentRegion();
+	llassert(!navMeshStatusURL.empty())
+	if (!navMeshStatusURL.empty())
+	{
+		LLSD mPostData;			
+		mPostData["command"] = "rebuild";
+		LLHTTPClient::ResponderPtr responder = new NavMeshRebakeResponder(navMeshStatusURL, pRebakeNavMeshCallback);
+		LLHTTPClient::post(navMeshStatusURL, mPostData, responder);
+	}
+}
+
 void LLPathfindingManager::sendRequestGetNavMeshForRegion(LLPathfindingNavMeshPtr navMeshPtr, LLViewerRegion *pRegion, const LLPathfindingNavMeshStatus &pNavMeshStatus)
 {
 	if ((pRegion == NULL) || !pRegion->isAlive())
@@ -630,9 +642,6 @@ void LLPathfindingManager::requestGetAgentState()
 
 void LLPathfindingManager::handleAgentStateResult(const LLSD &pContent) 
 {	
-#if 0
-	displayNavMeshRebakePanel();
-#endif
 }
 
 void LLPathfindingManager::handleAgentStateError(U32 pStatus, const std::string &pReason, const std::string &pURL)
@@ -642,9 +651,13 @@ void LLPathfindingManager::handleAgentStateError(U32 pStatus, const std::string 
 
 std::string LLPathfindingManager::getAgentStateURLForCurrentRegion(LLViewerRegion *pRegion) const
 {
-	return getCapabilityURLForRegion( pRegion, CAP_SERVICE_AGENT_STATE );
+	return getCapabilityURLForRegion(pRegion, CAP_SERVICE_AGENT_STATE);
 }
 
+std::string LLPathfindingManager::getNavMeshStatusURLForCurrentRegion() const
+{
+	return getNavMeshStatusURLForRegion(getCurrentRegion());
+}
 
 std::string LLPathfindingManager::getNavMeshStatusURLForRegion(LLViewerRegion *pRegion) const
 {
@@ -699,46 +712,6 @@ LLViewerRegion *LLPathfindingManager::getCurrentRegion() const
 	return gAgent.getRegion();
 }
 
-#if 0
-void LLPathfindingManager::displayNavMeshRebakePanel()
-{
-	LLPanelNavMeshRebake::getInstance()->setMode(LLPanelNavMeshRebake::kRebakeNavMesh_Available);
-}
-
-void LLPathfindingManager::hideNavMeshRebakePanel()
-{
-	LLPanelNavMeshRebake::getInstance()->setMode(LLPanelNavMeshRebake::kRebakeNavMesh_NotAvailable);
-}
-#endif
-
-void LLPathfindingManager::handleNavMeshRebakeError(U32 pStatus, const std::string &pReason, const std::string &pURL)
-{
-	llwarns << "error with request to URL '" << pURL << "' because " << pReason << " (statusCode:" << pStatus << ")" << llendl;
-}
-
-void LLPathfindingManager::handleNavMeshRebakeResult( const LLSD &pContent )
-{
-
-#if 0
-	hideNavMeshRebakePanel();
-#endif
-}
-
-void LLPathfindingManager::triggerNavMeshRebuild()
-{
-	std::string url = getNavMeshStatusURLForRegion( getCurrentRegion() );
-	if ( url.empty() )
-	{
-		llwarns << "Error with request due to nonexistent URL"<<llendl;
-	}
-	else
-	{
-		LLSD mPostData;			
-		mPostData["command"] = "rebuild";
-		LLHTTPClient::ResponderPtr responder = new NavMeshRebakeResponder( url );
-		LLHTTPClient::post( url, mPostData, responder );
-	}
-}
 //---------------------------------------------------------------------------
 // LLNavMeshSimStateChangeNode
 //---------------------------------------------------------------------------
@@ -766,9 +739,6 @@ void LLAgentStateChangeNode::post(ResponsePtr pResponse, const LLSD &pContext, c
 void LLPathfindingManager::handleAgentStateUpdate()
 {
 	//Don't trigger if we are still loading in
-#if 0
-	if ( LLStartUp::getStartupState() == STATE_STARTED) { displayNavMeshRebakePanel(); }
-#endif
 }
 
 //---------------------------------------------------------------------------
@@ -862,9 +832,10 @@ void AgentStateResponder::error(U32 pStatus, const std::string &pReason)
 //---------------------------------------------------------------------------
 // navmesh rebake responder
 //---------------------------------------------------------------------------
-NavMeshRebakeResponder::NavMeshRebakeResponder(const std::string &pCapabilityURL )
-: LLHTTPClient::Responder()
-, mCapabilityURL( pCapabilityURL )
+NavMeshRebakeResponder::NavMeshRebakeResponder(const std::string &pCapabilityURL, LLPathfindingManager::rebake_navmesh_callback_t pRebakeNavMeshCallback)
+	: LLHTTPClient::Responder(),
+	mCapabilityURL(pCapabilityURL),
+	mRebakeNavMeshCallback(pRebakeNavMeshCallback)
 {
 }
 
@@ -874,12 +845,13 @@ NavMeshRebakeResponder::~NavMeshRebakeResponder()
 
 void NavMeshRebakeResponder::result(const LLSD &pContent)
 {
-	LLPathfindingManager::getInstance()->handleNavMeshRebakeResult( pContent );
+	mRebakeNavMeshCallback(true);
 }
 
 void NavMeshRebakeResponder::error(U32 pStatus, const std::string &pReason)
 {
-	LLPathfindingManager::getInstance()->handleNavMeshRebakeError( pStatus, pReason, mCapabilityURL );
+	llwarns << "error with request to URL '" << mCapabilityURL << "' because " << pReason << " (statusCode:" << pStatus << ")" << llendl;
+	mRebakeNavMeshCallback(false);
 }
 
 //---------------------------------------------------------------------------

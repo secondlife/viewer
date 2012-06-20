@@ -91,11 +91,10 @@ public:
 	typedef boost::signals2::connection				agent_state_slot_t;	
 
 	agent_state_slot_t registerAgentStateListener(agent_state_callback_t pAgentStateCallback);
-
-	void handleNavMeshRebakeResult( const LLSD &pContent );
-	void handleNavMeshRebakeError( U32 pStatus, const std::string &pReason, const std::string &pURL );
-	void triggerNavMeshRebuild();
 	void requestGetAgentState();	
+
+	typedef boost::function<void (bool)> rebake_navmesh_callback_t;
+	void requestRebakeNavMesh(rebake_navmesh_callback_t pRebakeNavMeshCallback);
 
 protected:
 
@@ -114,6 +113,7 @@ private:
 	LLPathfindingNavMeshPtr getNavMeshForRegion(const LLUUID &pRegionUUID);
 	LLPathfindingNavMeshPtr getNavMeshForRegion(LLViewerRegion *pRegion);
 
+	std::string getNavMeshStatusURLForCurrentRegion() const;
 	std::string getNavMeshStatusURLForRegion(LLViewerRegion *pRegion) const;
 	std::string getRetrieveNavMeshURLForRegion(LLViewerRegion *pRegion) const;
 	std::string getObjectLinksetsURLForCurrentRegion() const;
@@ -124,16 +124,11 @@ private:
 	std::string getCapabilityURLForRegion(LLViewerRegion *pRegion, const std::string &pCapabilityName) const;
 	LLViewerRegion *getCurrentRegion() const;
 
-#if 0
-	void displayNavMeshRebakePanel();
-	void hideNavMeshRebakePanel();	
-#endif
 	void handleAgentStateResult(const LLSD &pContent );
 	void handleAgentStateError(U32 pStatus, const std::string &pReason, const std::string &pURL);
 
 	NavMeshMap           mNavMeshMap;
 	agent_state_signal_t mAgentStateSignal;
 };
-
 
 #endif // LL_LLPATHFINDINGMANAGER_H
