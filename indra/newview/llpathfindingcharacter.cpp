@@ -45,9 +45,6 @@
 LLPathfindingCharacter::LLPathfindingCharacter(const std::string &pUUID, const LLSD& pCharacterData)
 	: LLPathfindingObject(pUUID, pCharacterData),
 	mCPUTime(0U),
-#ifndef SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
-	mHasShapeData(false),
-#endif // SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
 	mIsHorizontal(FALSE),
 	mLength(0.0f),
 	mRadius(0.0f)
@@ -58,9 +55,6 @@ LLPathfindingCharacter::LLPathfindingCharacter(const std::string &pUUID, const L
 LLPathfindingCharacter::LLPathfindingCharacter(const LLPathfindingCharacter& pOther)
 	: LLPathfindingObject(pOther),
 	mCPUTime(pOther.mCPUTime),
-#ifndef SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
-	mHasShapeData(pOther.mHasShapeData),
-#endif // SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
 	mIsHorizontal(pOther.mIsHorizontal),
 	mLength(pOther.mLength),
 	mRadius(pOther.mRadius)
@@ -76,9 +70,6 @@ LLPathfindingCharacter& LLPathfindingCharacter::operator =(const LLPathfindingCh
 	dynamic_cast<LLPathfindingObject &>(*this) = pOther;
 
 	mCPUTime = pOther.mCPUTime;
-#ifndef SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
-	mHasShapeData = pOther.mHasShapeData;
-#endif // SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
 	mIsHorizontal = pOther.mIsHorizontal;
 	mLength = pOther.mLength;
 	mRadius = pOther.mRadius;
@@ -92,27 +83,6 @@ void LLPathfindingCharacter::parseCharacterData(const LLSD &pCharacterData)
 	llassert(pCharacterData.get(CHARACTER_CPU_TIME_FIELD).isReal());
 	mCPUTime = pCharacterData.get(CHARACTER_CPU_TIME_FIELD).asReal();
 
-#ifndef SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
-	mHasShapeData = pCharacterData.has(CHARACTER_HORIZONTAL_FIELD);
-	if (mHasShapeData)
-	{
-		llassert(pCharacterData.has(CHARACTER_HORIZONTAL_FIELD));
-		llassert(pCharacterData.get(CHARACTER_HORIZONTAL_FIELD).isBoolean());
-		mIsHorizontal = pCharacterData.get(CHARACTER_HORIZONTAL_FIELD).asBoolean();
-
-		llassert(pCharacterData.has(CHARACTER_LENGTH_FIELD));
-		llassert(pCharacterData.get(CHARACTER_LENGTH_FIELD).isReal());
-		mLength = pCharacterData.get(CHARACTER_LENGTH_FIELD).asReal();
-
-		llassert(pCharacterData.has(CHARACTER_RADIUS_FIELD));
-		llassert(pCharacterData.get(CHARACTER_RADIUS_FIELD).isReal());
-		mRadius = pCharacterData.get(CHARACTER_RADIUS_FIELD).asReal();
-
-		//Create the rep inside the pathing library
-		LLVector3 empty(0,0,0);
-		LLPathingLib::getInstance()->createPhysicsCapsuleRep( mLength, mRadius, mIsHorizontal, empty, getUUID() );
-	}
-#else // SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
 	llassert(pCharacterData.has(CHARACTER_HORIZONTAL_FIELD));
 	llassert(pCharacterData.get(CHARACTER_HORIZONTAL_FIELD).isBoolean());
 	mIsHorizontal = pCharacterData.get(CHARACTER_HORIZONTAL_FIELD).asBoolean();
@@ -128,5 +98,4 @@ void LLPathfindingCharacter::parseCharacterData(const LLSD &pCharacterData)
 	//Create the rep inside the pathing library
 	LLVector3 empty(0,0,0);
 	LLPathingLib::getInstance()->createPhysicsCapsuleRep( mLength, mRadius, mIsHorizontal, empty, getUUID() );
-#endif // SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
 }

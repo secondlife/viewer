@@ -83,9 +83,6 @@ private:
 
 	LLCheckBoxCtrl                                   *mShowPhysicsCapsuleCheckBox;
 
-#ifndef SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
-	bool                                             mHasCharacterShapeData;
-#endif // SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
 	LLUUID                                           mSelectedCharacterId;
 
 	LLColor4                                         mBeaconColor;
