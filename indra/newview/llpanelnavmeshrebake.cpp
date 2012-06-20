@@ -46,6 +46,7 @@
 #include "lltoolmgr.h"
 #include "lltooltip.h"
 #include "llview.h"
+#include "llviewercontrol.h"
 #include "llviewerregion.h"
 
 LLPanelNavMeshRebake* LLPanelNavMeshRebake::getInstance()
@@ -147,7 +148,6 @@ void LLPanelNavMeshRebake::onNavMeshRebakeClick()
 
 void LLPanelNavMeshRebake::handleAgentState(BOOL pCanRebakeRegion)
 {
-	llinfos << "STINSON DEBUG: canRebakeRegion => " << (pCanRebakeRegion ? "TRUE" : "FALSE") << llendl;
 	mCanRebakeRegion = pCanRebakeRegion;
 }
 
@@ -205,7 +205,7 @@ void LLPanelNavMeshRebake::createNavMeshStatusListenerForCurrentRegion()
 
 bool LLPanelNavMeshRebake::doDraw() const
 {
-	return (mCanRebakeRegion && (mRebakeNavMeshMode != kRebakeNavMesh_NotAvailable));
+	return ((mCanRebakeRegion || gSavedSettings.getBOOL("PathfindingEnableAlwaysAllowRebakeNavMesh")) && (mRebakeNavMeshMode != kRebakeNavMesh_NotAvailable));
 }
 
 void LLPanelNavMeshRebake::updatePosition()

@@ -13829,7 +13829,18 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
- <key>PathfindingWaterColor</key>
+  <key>PathfindingEnableAlwaysAllowRebakeNavMesh</key>
+  <map>
+    <key>Comment</key>
+    <string>Always allows the rebake navmesh button to appear on dirty regions, regardless of whether the user has permissions.</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>PathfindingWaterColor</key>
     <map>
       <key>Comment</key>
       <string>yay!</string>
@@ -13845,7 +13856,5 @@
         <real>1.0</real>
       </array>
     </map>
-  
-
 </map>
 </llsd>
