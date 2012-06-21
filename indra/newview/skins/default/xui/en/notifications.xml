@@ -2398,6 +2398,14 @@ Would you be my friend?
 
   <notification
    icon="alertmodal.tga"
+   name="SpellingDictImportRequired"
+   type="alertmodal">
+    You must specify a file, a name, and a language.
+    <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="SpellingDictIsSecondary"
    type="alertmodal">
 The dictionary [DIC_NAME] does not appear to have an "aff" file; this means that it is a "secondary" dictionary.

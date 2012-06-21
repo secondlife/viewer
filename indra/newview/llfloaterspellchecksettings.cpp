@@ -294,46 +294,52 @@ void LLFloaterSpellCheckerImport::onBtnOK()
 	const std::string dict_aff = mDictionaryDir + gDirUtilp->getDirDelimiter() + mDictionaryBasename + ".aff";
 	std::string dict_language = getChild<LLUICtrl>("dictionary_language")->getValue().asString();
 	LLStringUtil::trim(dict_language);
-	if ( (dict_language.empty()) || (!gDirUtilp->fileExists(dict_dic)) || 
-		 (mDictionaryDir.empty()) || (mDictionaryBasename.empty()) )
-	{
-		return;
-	}
 
 	bool imported = false;
-	std::string settings_dic = LLSpellChecker::getDictionaryUserPath() + mDictionaryBasename + ".dic";
-	if ( copyFile( dict_dic, settings_dic ) )
+	if (   dict_language.empty()
+		|| mDictionaryDir.empty()
+		|| mDictionaryBasename.empty()
+		|| ! gDirUtilp->fileExists(dict_dic)
+		)
 	{
-		if (gDirUtilp->fileExists(dict_aff))
+		LLNotificationsUtil::add("SpellingDictImportRequired");
+	}
+	else
+	{
+		std::string settings_dic = LLSpellChecker::getDictionaryUserPath() + mDictionaryBasename + ".dic";
+		if ( copyFile( dict_dic, settings_dic ) )
 		{
-			std::string settings_aff = LLSpellChecker::getDictionaryUserPath() + mDictionaryBasename + ".aff";
-			if (copyFile( dict_aff, settings_aff ))
+			if (gDirUtilp->fileExists(dict_aff))
 			{
-				imported = true;
+				std::string settings_aff = LLSpellChecker::getDictionaryUserPath() + mDictionaryBasename + ".aff";
+				if (copyFile( dict_aff, settings_aff ))
+				{
+					imported = true;
+				}
+				else
+				{
+					LLSD args = LLSD::emptyMap();
+					args["FROM_NAME"] = dict_aff;
+					args["TO_NAME"] = settings_aff;
+					LLNotificationsUtil::add("SpellingDictImportFailed", args);
+				}
 			}
 			else
 			{
 				LLSD args = LLSD::emptyMap();
-				args["FROM_NAME"] = dict_aff;
-				args["TO_NAME"] = settings_aff;
-				LLNotificationsUtil::add("SpellingDictImportFailed", args);
+				args["DIC_NAME"] = dict_dic;
+				LLNotificationsUtil::add("SpellingDictIsSecondary", args);
+
+				imported = true;
 			}
 		}
 		else
 		{
 			LLSD args = LLSD::emptyMap();
-			args["DIC_NAME"] = dict_dic;
-			LLNotificationsUtil::add("SpellingDictIsSecondary", args);
-
-			imported = true;
+			args["FROM_NAME"] = dict_dic;
+			args["TO_NAME"] = settings_dic;
+			LLNotificationsUtil::add("SpellingDictImportFailed", args);
 		}
-	}
-	else
-	{
-		LLSD args = LLSD::emptyMap();
-		args["FROM_NAME"] = dict_dic;
-		args["TO_NAME"] = settings_dic;
-		LLNotificationsUtil::add("SpellingDictImportFailed", args);
 	}
 
 	if ( imported )
