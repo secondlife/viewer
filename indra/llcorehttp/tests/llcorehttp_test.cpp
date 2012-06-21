@@ -36,12 +36,13 @@
 #include "../test/lltut.h"
 
 // Pull in each of the test sets
+#include "test_bufferarray.hpp"
+#include "test_bufferstream.hpp"
 #include "test_httpstatus.hpp"
 #include "test_refcounted.hpp"
 #include "test_httpoperation.hpp"
 #include "test_httprequest.hpp"
 #include "test_httpheaders.hpp"
-#include "test_bufferarray.hpp"
 #include "test_httprequestqueue.hpp"
 
 #include "llproxy.h"

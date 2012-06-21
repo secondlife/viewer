@@ -24,6 +24,7 @@ include_directories(
 
 set(llcorehttp_SOURCE_FILES
     bufferarray.cpp
+    bufferstream.cpp
     httpcommon.cpp
     httpheaders.cpp
     httpoptions.cpp
@@ -47,6 +48,7 @@ set(llcorehttp_HEADER_FILES
     CMakeLists.txt
 
     bufferarray.h
+    bufferstream.h
     httpcommon.h
     httphandler.h
     httpheaders.h
@@ -105,6 +107,7 @@ if (LL_TESTS)
       tests/test_httprequestqueue.hpp
       tests/test_httpheaders.hpp
       tests/test_bufferarray.hpp
+      tests/test_bufferstream.hpp
       )
 
   set_source_files_properties(${llcorehttp_TEST_HEADER_FILES}

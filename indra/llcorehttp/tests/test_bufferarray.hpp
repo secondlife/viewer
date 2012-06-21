@@ -33,7 +33,7 @@
 #include "test_allocator.h"
 
 
-using namespace LLCoreInt;
+using namespace LLCore;
 
 
 

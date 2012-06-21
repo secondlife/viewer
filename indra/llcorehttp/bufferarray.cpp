@@ -288,6 +288,20 @@ int BufferArray::findBlock(size_t pos, size_t * ret_offset)
 }
 
 
+bool BufferArray::getBlockStartEnd(int block, const char ** start, const char ** end)
+{
+	if (block < 0 || block >= mBlocks.size())
+	{
+		return false;
+	}
+
+	const Block & b(*mBlocks[block]);
+	*start = &b.mData[0];
+	*end = &b.mData[b.mUsed];
+	return true;
+}
+
+
 // ==================================
 // BufferArray::Block Definitions
 // ==================================

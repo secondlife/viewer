@@ -37,6 +37,7 @@
 namespace LLCore
 {
 
+class BufferArrayStreamBuf;
 
 /// A very simple scatter/gather type map for bulk data.  The motivation
 /// for this class is the writedata callback used by libcurl.  Response
@@ -65,6 +66,11 @@ namespace LLCore
 class BufferArray : public LLCoreInt::RefCounted
 {
 public:
+	// BufferArrayStreamBuf has intimate knowledge of this
+	// implementation to implement a buffer-free adapter.
+	// Changes here will likely need to be reflected there.
+	friend class BufferArrayStreamBuf;
+	
 	BufferArray();
 
 protected:
@@ -114,6 +120,8 @@ public:
 	
 protected:
 	int findBlock(size_t pos, size_t * ret_offset);
+
+	bool getBlockStartEnd(int block, const char ** start, const char ** end);
 	
 protected:
 	class Block;
