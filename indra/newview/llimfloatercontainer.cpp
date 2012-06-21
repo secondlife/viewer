@@ -50,6 +50,9 @@ LLIMFloaterContainer::LLIMFloaterContainer(const LLSD& seed)
 :	LLMultiFloater(seed)
 	,mExpandCollapseBtn(NULL)
 {
+	// Firstly add our self to IMSession observers, so we catch session events
+    LLIMMgr::getInstance()->addSessionObserver(this);
+
 	mAutoResize = FALSE;
 	LLTransientFloaterMgr::getInstance()->addControlView(LLTransientFloaterMgr::IM, this);
 }
@@ -61,7 +64,17 @@ LLIMFloaterContainer::~LLIMFloaterContainer()
 
 	gSavedPerAccountSettings.setBOOL("ConversationsListPaneCollapsed", mConversationsPane->isCollapsed());
 	gSavedPerAccountSettings.setBOOL("ConversationsMessagePaneCollapsed", mMessagesPane->isCollapsed());
+
+	if (!LLSingleton<LLIMMgr>::destroyed())
+	{
+		LLIMMgr::getInstance()->removeSessionObserver(this);
+	}
 }
+
+void LLIMFloaterContainer::sessionVoiceOrIMStarted(const LLUUID& session_id)
+{
+		LLIMFloater::show(session_id);
+};
 
 BOOL LLIMFloaterContainer::postBuild()
 {

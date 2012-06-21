@@ -57,19 +57,24 @@ LLChicletBar::LLChicletBar(const LLSD&)
 :	mChicletPanel(NULL),
 	mToolbarStack(NULL)
 {
-	// Firstly add our self to IMSession observers, so we catch session events
-	// before chiclets do that.
-	LLIMMgr::getInstance()->addSessionObserver(this);
+	// IM floaters are from now managed by LLIMFloaterContainer.
+	// See LLIMFloaterContainer::sessionVoiceOrIMStarted() and CHUI-125
+
+//	// Firstly add our self to IMSession observers, so we catch session events
+//	// before chiclets do that.
+//	LLIMMgr::getInstance()->addSessionObserver(this);
 
 	buildFromFile("panel_chiclet_bar.xml");
 }
 
 LLChicletBar::~LLChicletBar()
 {
-	if (!LLSingleton<LLIMMgr>::destroyed())
-	{
-		LLIMMgr::getInstance()->removeSessionObserver(this);
-	}
+	// IM floaters are from now managed by LLIMFloaterContainer.
+	// See LLIMFloaterContainer::sessionVoiceOrIMStarted() and CHUI-125
+//	if (!LLSingleton<LLIMMgr>::destroyed())
+//	{
+//		LLIMMgr::getInstance()->removeSessionObserver(this);
+//	}
 }
 
 LLIMChiclet* LLChicletBar::createIMChiclet(const LLUUID& session_id)

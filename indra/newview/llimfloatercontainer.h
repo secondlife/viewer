@@ -30,6 +30,7 @@
 #include <map>
 #include <vector>
 
+#include "llimview.h"
 #include "llfloater.h"
 #include "llmultifloater.h"
 #include "llavatarpropertiesprocessor.h"
@@ -117,7 +118,9 @@ private:
 };
 // CHUI-137 : End
 
-class LLIMFloaterContainer : public LLMultiFloater
+class LLIMFloaterContainer
+	: public LLMultiFloater
+	, public LLIMSessionObserver
 {
 public:
 	LLIMFloaterContainer(const LLSD& seed);
@@ -142,6 +145,12 @@ public:
 
 	void collapseMessagesPane(bool collapse);
 	
+
+	// LLIMSessionObserver observe triggers
+	/*virtual*/ void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id) {};
+	/*virtual*/ void sessionVoiceOrIMStarted(const LLUUID& session_id);
+	/*virtual*/ void sessionRemoved(const LLUUID& session_id) {};
+	/*virtual*/ void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id) {};
 
 private:
 	typedef std::map<LLUUID,LLFloater*> avatarID_panel_map_t;
