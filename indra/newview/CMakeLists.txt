@@ -1339,6 +1339,8 @@ if (WINDOWS)
         res/lltoolland.cur
         res/lltoolpan.cur
         res/lltoolpathfinding.cur
+        res/lltoolpathfindingpathend.cur
+        res/lltoolpathfindingpathstart.cur
         res/lltoolpipette.cur
         res/lltoolrotate.cur
         res/lltoolscale.cur

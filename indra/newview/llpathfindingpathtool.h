@@ -98,6 +98,7 @@ private:
 	bool              isAnyPathToolModKeys(MASK pMask) const;
 	bool              isPointAModKeys(MASK pMask) const;
 	bool              isPointBModKeys(MASK pMask) const;
+	bool              isCameraModKeys(MASK pMask) const;
 
 	void              getRayPoints(S32 pX, S32 pY, LLVector3 &pRayStart, LLVector3 &pRayEnd) const;
 	void              computeFinalPoints(S32 pX, S32 pY, MASK pMask);
