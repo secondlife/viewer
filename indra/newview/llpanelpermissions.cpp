@@ -62,6 +62,7 @@
 #include "llspinctrl.h"
 #include "roles_constants.h"
 #include "llgroupactions.h"
+#include "lltrans.h"
 
 
 U8 string_value_to_click_action(std::string p_value);
@@ -179,6 +180,9 @@ void LLPanelPermissions::disableAll()
 {
 	getChildView("perm_modify")->setEnabled(FALSE);
 	getChild<LLUICtrl>("perm_modify")->setValue(LLStringUtil::null);
+
+	getChildView("pathfinding_attributes_value")->setEnabled(FALSE);
+	getChild<LLUICtrl>("pathfinding_attributes_value")->setValue(LLStringUtil::null);
 
 	getChildView("Creator:")->setEnabled(FALSE);
 	getChild<LLUICtrl>("Creator Name")->setValue(LLStringUtil::null);
@@ -328,6 +332,29 @@ void LLPanelPermissions::refresh()
 	}
 	getChildView("perm_modify")->setEnabled(TRUE);
 	getChild<LLUICtrl>("perm_modify")->setValue(MODIFY_INFO_STRINGS[string_index]);
+
+	getChildView("pathfinding_attributes_value")->setEnabled(TRUE);
+	std::string pfAttrName;
+	if (is_one_object)
+	{
+		if (objectp->flagObjectPermanent())
+		{
+			pfAttrName = "Pathfinding_Object_Attr_Permanent";
+		}
+		else if (objectp->flagCharacter())
+		{
+			pfAttrName = "Pathfinding_Object_Attr_Character";
+		}
+		else
+		{
+			pfAttrName = "Pathfinding_Object_Attr_None";
+		}
+	}
+	else
+	{
+		pfAttrName = "Pathfinding_Object_Attr_MultiSelect";
+	}
+	getChild<LLUICtrl>("pathfinding_attributes_value")->setValue(LLTrans::getString(pfAttrName));
 
 	getChildView("Permissions:")->setEnabled(TRUE);
 	

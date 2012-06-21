@@ -121,12 +121,6 @@ BOOL	LLPanelObject::postBuild()
 	mCheckPhantom = getChild<LLCheckBoxCtrl>("Phantom Checkbox Ctrl");
 	childSetCommitCallback("Phantom Checkbox Ctrl",onCommitPhantom,this);
        
-	// Permanent checkbox
-	mCheckPermanent = getChild<LLCheckBoxCtrl>("Permanent Checkbox Ctrl");
-       
-	// Character checkbox
-	mCheckCharacter = getChild<LLCheckBoxCtrl>("Character Checkbox Ctrl");
-
 	// Position
 	mLabelPosition = getChild<LLTextBox>("label position");
 	mCtrlPosX = getChild<LLSpinCtrl>("Pos X");
@@ -527,12 +521,6 @@ void LLPanelObject::getState( )
 	mCheckPhantom->set( mIsPhantom );
 	mCheckPhantom->setEnabled( roots_selected>0 && editable && !is_flexible && !is_permanent_enforced && !is_character);
 
-	mCheckPermanent->set(is_permanent);
-	mCheckPermanent->setEnabled(FALSE);
-
-	mCheckCharacter->set(is_character);
-	mCheckCharacter->setEnabled(FALSE);
-       
 	//----------------------------------------------------------------------------
 
 	S32 selected_item	= MI_BOX;
@@ -1884,10 +1872,6 @@ void LLPanelObject::clearCtrls()
 	mCheckTemporary	->setEnabled( FALSE );
 	mCheckPhantom	->set(FALSE);
 	mCheckPhantom	->setEnabled( FALSE );
-	mCheckPermanent	->set(FALSE);
-	mCheckPermanent	->setEnabled( FALSE );
-	mCheckCharacter	->set(FALSE);
-	mCheckCharacter	->setEnabled( FALSE );
 	
 	// Disable text labels
 	mLabelPosition	->setEnabled( FALSE );
