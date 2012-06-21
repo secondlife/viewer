@@ -3131,12 +3131,6 @@
                     <menu_item_call.on_click
                      function="Advanced.TestFemale" />
                 </menu_item_call>
-                <menu_item_call
-                 label="Toggle PG"
-                 name="Toggle PG">
-                    <menu_item_call.on_click
-                     function="Advanced.TogglePG" />
-                </menu_item_call>
                 <menu_item_check
                  label="Allow Select Avatar"
                  name="Allow Select Avatar">

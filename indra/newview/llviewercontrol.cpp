@@ -337,15 +337,6 @@ static bool handleUploadBakedTexOldChanged(const LLSD& newvalue)
 }
 
 
-static bool handleNumpadControlChanged(const LLSD& newvalue)
-{
-	if (gKeyboard)
-	{
-		gKeyboard->setNumpadDistinct(static_cast<LLKeyboard::e_numpad_distinct>(newvalue.asInteger()));
-	}
-	return true;
-}
-
 static bool handleWLSkyDetailChanged(const LLSD&)
 {
 	if (gSky.mVOWLSkyp.notNull())
@@ -637,7 +628,6 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("RenderUseStreamVBO")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
 	gSavedSettings.getControl("RenderPreferStreamDraw")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
 	gSavedSettings.getControl("WLSkyDetail")->getSignal()->connect(boost::bind(&handleWLSkyDetailChanged, _2));
-	gSavedSettings.getControl("NumpadControl")->getSignal()->connect(boost::bind(&handleNumpadControlChanged, _2));
 	gSavedSettings.getControl("JoystickAxis0")->getSignal()->connect(boost::bind(&handleJoystickChanged, _2));
 	gSavedSettings.getControl("JoystickAxis1")->getSignal()->connect(boost::bind(&handleJoystickChanged, _2));
 	gSavedSettings.getControl("JoystickAxis2")->getSignal()->connect(boost::bind(&handleJoystickChanged, _2));

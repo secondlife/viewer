@@ -300,7 +300,6 @@ BOOL enable_buy_land(void*);
 
 void handle_test_male(void *);
 void handle_test_female(void *);
-void handle_toggle_pg(void*);
 void handle_dump_attachments(void *);
 void handle_dump_avatar_local_textures(void*);
 void handle_debug_avatar_textures(void*);
@@ -1642,23 +1641,6 @@ class LLAdvancedTestFemale : public view_listener_t
 		return true;
 	}
 };
-
-
-
-///////////////
-// TOGGLE PG //
-///////////////
-
-
-class LLAdvancedTogglePG : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		handle_toggle_pg(NULL);
-		return true;
-	}
-};
-
 
 class LLAdvancedForceParamsToDefault : public view_listener_t
 {
@@ -6746,15 +6728,6 @@ void handle_test_female(void*)
 	//gGestureList.requestResetFromServer( FALSE );
 }
 
-void handle_toggle_pg(void*)
-{
-	gAgent.setTeen( !gAgent.isTeen() );
-
-	LLFloaterWorldMap::reloadIcons(NULL);
-
-	llinfos << "PG status set to " << (S32)gAgent.isTeen() << llendl;
-}
-
 void handle_dump_attachments(void*)
 {
 	if(!isAgentAvatarValid()) return;
@@ -8322,7 +8295,6 @@ void initialize_menus()
 
 	view_listener_t::addMenu(new LLAdvancedTestMale(), "Advanced.TestMale");
 	view_listener_t::addMenu(new LLAdvancedTestFemale(), "Advanced.TestFemale");
-	view_listener_t::addMenu(new LLAdvancedTogglePG(), "Advanced.TogglePG");
 	
 	// Advanced > Character (toplevel)
 	view_listener_t::addMenu(new LLAdvancedForceParamsToDefault(), "Advanced.ForceParamsToDefault");
