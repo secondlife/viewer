@@ -123,7 +123,7 @@ void main()
 	vec4 pos = getPosition(pos_screen);
 	
 	vec3 norm = texture2DRect(normalMap, pos_screen).xyz;
-	norm = vec3((norm.xy-0.5)*2.0,norm.z); // unpack norm
+	norm = (norm.xyz-0.5)*2.0; // unpack norm
 		
 	frag_color[0] = 1.0;
 	frag_color[1] = calcAmbientOcclusion(pos, norm);

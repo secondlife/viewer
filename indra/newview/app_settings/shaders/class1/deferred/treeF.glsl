@@ -48,5 +48,5 @@ void main()
 	frag_data[0] = vec4(vertex_color.rgb*col.rgb, 0.0);
 	frag_data[1] = vec4(0,0,0,0);
 	vec3 nvn = normalize(vary_normal);
-	frag_data[2] = vec4(nvn.xy * 0.5 + 0.5, nvn.z, 0.0);
+	frag_data[2] = vec4(nvn.xyz * 0.5 + 0.5, 0.0);
 }
