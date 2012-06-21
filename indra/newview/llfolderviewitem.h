@@ -464,7 +464,6 @@ public:
 									   std::string& tooltip_msg);
 	virtual void draw();
 
-
 	folders_t::iterator getFoldersBegin() { return mFolders.begin(); }
 	folders_t::iterator getFoldersEnd() { return mFolders.end(); }
 	folders_t::size_type getFoldersCount() const { return mFolders.size(); }
@@ -478,8 +477,8 @@ public:
 
 public:
 	//WARNING: do not call directly...use the appropriate LLFolderViewModel-derived class instead
-	template<typename SORT_FUNC> void sortFolders(SORT_FUNC& func) { mFolders.sort(func); }
-	template<typename SORT_FUNC> void sortItems(SORT_FUNC& func) { mItems.sort(func); }
+	template<typename SORT_FUNC> void sortFolders(const SORT_FUNC& func) { mFolders.sort(func); }
+	template<typename SORT_FUNC> void sortItems(const SORT_FUNC& func) { mItems.sort(func); }
 };
 
 

@@ -255,12 +255,12 @@ public:
 		:	mSorter(sorter)
 		{}
 		
-		bool operator () (const LLFolderViewItem* a, const LLFolderViewItem* b)
+		bool operator () (const LLFolderViewItem* a, const LLFolderViewItem* b) const
 		{
 			return mSorter(static_cast<const ItemType*>(a->getViewModelItem()), static_cast<const ItemType*>(b->getViewModelItem()));
 		}
 
-		bool operator () (const LLFolderViewFolder* a, const LLFolderViewFolder* b)
+		bool operator () (const LLFolderViewFolder* a, const LLFolderViewFolder* b) const
 		{
 			return mSorter(static_cast<const ItemType*>(a->getViewModelItem()), static_cast<const ItemType*>(b->getViewModelItem()));
 		}
