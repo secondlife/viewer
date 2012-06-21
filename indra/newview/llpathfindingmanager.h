@@ -70,8 +70,6 @@ public:
 	bool isPathfindingEnabledForCurrentRegion() const;
 	bool isPathfindingEnabledForRegion(LLViewerRegion *pRegion) const;
 
-	bool isPathfindingDebugEnabled() const;
-
 	bool isAllowViewTerrainProperties() const;
 
 	LLPathfindingNavMesh::navmesh_slot_t registerNavMeshListenerForRegion(LLViewerRegion *pRegion, LLPathfindingNavMesh::navmesh_callback_t pNavMeshCallback);

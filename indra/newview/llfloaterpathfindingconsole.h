@@ -42,6 +42,7 @@ class LLSliderCtrl;
 class LLLineEditor;
 class LLTextBase;
 class LLCheckBoxCtrl;
+class LLTabContainer;
 class LLComboBox;
 class LLButton;
 class LLToolset;
@@ -113,11 +114,11 @@ private:
 	LLFloaterPathfindingConsole(const LLSD& pSeed);
 	virtual ~LLFloaterPathfindingConsole();
 
+	void onTabSwitch();
 	void onShowWorldSet();
 	void onShowWorldMovablesOnlySet();
 	void onShowNavMeshSet();
 	void onShowWalkabilitySet();
-	void onViewCharactersClicked();
 	void onCharacterWidthSet();
 	void onCharacterTypeSwitch();
 	void onClearPathClicked();
@@ -153,6 +154,8 @@ private:
 	void cleanupRenderableRestoreItems();
 
 	LLRootHandle<LLFloaterPathfindingConsole>     mSelfHandle;
+	LLTabContainer                                *mViewTestTabContainer;
+	LLPanel                                       *mViewTab;
 	LLTextBase                                    *mShowLabel;
 	LLCheckBoxCtrl                                *mShowWorldCheckBox;
 	LLCheckBoxCtrl                                *mShowWorldMovablesOnlyCheckBox;
@@ -167,7 +170,6 @@ private:
 	LLCheckBoxCtrl								  *mShowXRayCheckBox;
 	LLTextBase                                    *mPathfindingViewerStatus;
 	LLTextBase                                    *mPathfindingSimulatorStatus;
-	LLButton                                      *mViewCharactersButton;
 	LLPanel                                       *mTestTab;
 	LLTextBase                                    *mCtrlClickLabel;
 	LLTextBase                                    *mShiftClickLabel;

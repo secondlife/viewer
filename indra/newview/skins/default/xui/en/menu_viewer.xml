@@ -961,13 +961,13 @@
               function="Tools.EnablePathfinding" />
         </menu_item_call>
         <menu_item_call
-            label="Pathfinding debug..."
+            label="View..."
             name="pathfinding_console_menu_item">
           <menu_item_call.on_click
               function="Floater.ToggleOrBringToFront"
               parameter="pathfinding_console" />
           <menu_item_call.on_enable
-              function="Tools.EnablePathfindingDebug" />
+              function="Tools.EnablePathfinding" />
         </menu_item_call>
       </menu>
 

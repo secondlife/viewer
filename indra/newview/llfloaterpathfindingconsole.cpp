@@ -65,6 +65,9 @@
 #define XUI_CHARACTER_TYPE_C 3
 #define XUI_CHARACTER_TYPE_D 4
 
+#define XUI_VIEW_TAB_INDEX 0
+#define XUI_TEST_TAB_INDEX 1
+
 #define SET_SHAPE_RENDER_FLAG(_flag,_type) _flag |= (1U << _type)
 
 #define CONTROL_NAME_RETRIEVE_NEIGHBOR       "RetrieveNeighboringRegion"
@@ -92,6 +95,13 @@ extern LLPipeline gPipeline;
 
 BOOL LLFloaterPathfindingConsole::postBuild()
 {
+	mViewTestTabContainer = findChild<LLTabContainer>("view_test_tab_container");
+	llassert(mViewTestTabContainer != NULL);
+	mViewTestTabContainer->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onTabSwitch, this));
+
+	mViewTab = findChild<LLPanel>("view_panel");
+	llassert(mViewTab != NULL);
+
 	mShowLabel = findChild<LLTextBase>("show_label");
 	llassert(mShowLabel != NULL);
 
@@ -131,10 +141,6 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 
 	mShowXRayCheckBox = findChild<LLCheckBoxCtrl>("show_xray");
 	llassert(mShowXRayCheckBox != NULL);
-
-	mViewCharactersButton = findChild<LLButton>("view_characters_floater");
-	llassert(mViewCharactersButton != NULL);
-	mViewCharactersButton->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onViewCharactersClicked, this));
 
 	mTestTab = findChild<LLPanel>("test_panel");
 	llassert(mTestTab != NULL);
@@ -229,7 +235,10 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 	setDefaultInputs();
 	updatePathTestStatus();
 
-	switchIntoTestPathMode();
+	if (mViewTestTabContainer->getCurrentPanelIndex() == XUI_TEST_TAB_INDEX)
+	{
+		switchIntoTestPathMode();
+	}
 }
 
 void LLFloaterPathfindingConsole::onClose(bool pIsAppQuitting)
@@ -438,11 +447,13 @@ void LLFloaterPathfindingConsole::setRenderHeatmapType(LLPathingLib::LLPLCharact
 LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	: LLFloater(pSeed),
 	mSelfHandle(),
-	mShowLabel(),
+	mViewTestTabContainer(NULL),
+	mViewTab(NULL),
+	mShowLabel(NULL),
 	mShowWorldCheckBox(NULL),
 	mShowWorldMovablesOnlyCheckBox(NULL),
 	mShowNavMeshCheckBox(NULL),
-	mShowNavMeshWalkabilityLabel(),
+	mShowNavMeshWalkabilityLabel(NULL),
 	mShowNavMeshWalkabilityComboBox(NULL),
 	mShowWalkablesCheckBox(NULL),
 	mShowStaticObstaclesCheckBox(NULL),
@@ -452,7 +463,6 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mShowXRayCheckBox(NULL),
 	mPathfindingViewerStatus(NULL),
 	mPathfindingSimulatorStatus(NULL),
-	mViewCharactersButton(NULL),
 	mTestTab(NULL),
 	mCtrlClickLabel(),
 	mShiftClickLabel(),
@@ -494,6 +504,18 @@ LLFloaterPathfindingConsole::~LLFloaterPathfindingConsole()
 {
 }
 
+void LLFloaterPathfindingConsole::onTabSwitch()
+{
+	if (mViewTestTabContainer->getCurrentPanelIndex() == XUI_TEST_TAB_INDEX)
+	{
+		switchIntoTestPathMode();
+	}
+	else
+	{
+		switchOutOfTestPathMode();
+	}
+}
+
 void LLFloaterPathfindingConsole::onShowWorldSet()
 {
 	setWorldRenderState();
@@ -513,11 +535,6 @@ void LLFloaterPathfindingConsole::onShowNavMeshSet()
 void LLFloaterPathfindingConsole::onShowWalkabilitySet()
 {
 	LLPathingLib::getInstance()->setNavMeshMaterialType(getRenderHeatmapType());
-}
-
-void LLFloaterPathfindingConsole::onViewCharactersClicked()
-{
-	LLFloaterPathfindingCharacters::openCharactersViewer();
 }
 
 void LLFloaterPathfindingConsole::onCharacterWidthSet()
@@ -615,6 +632,7 @@ void LLFloaterPathfindingConsole::onPathEvent()
 
 void LLFloaterPathfindingConsole::setDefaultInputs()
 {
+	mViewTestTabContainer->selectTab(XUI_VIEW_TAB_INDEX);
 	setRenderWorld(TRUE);
 	setRenderNavMesh(FALSE);
 	setRenderWalkables(FALSE);
@@ -637,7 +655,7 @@ void LLFloaterPathfindingConsole::setWorldRenderState()
 {
 	BOOL renderWorld = isRenderWorld();
 
-	mShowWorldMovablesOnlyCheckBox->setEnabled(renderWorld);
+	mShowWorldMovablesOnlyCheckBox->setEnabled(renderWorld && mShowWorldCheckBox->getEnabled());
 	if (!renderWorld)
 	{
 		mShowWorldMovablesOnlyCheckBox->set(FALSE);
@@ -671,6 +689,8 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 	case kConsoleStateUnknown :
 	case kConsoleStateRegionNotEnabled :
 	case kConsoleStateRegionLoading :
+		mViewTestTabContainer->selectTab(XUI_VIEW_TAB_INDEX);
+		mViewTab->setEnabled(FALSE);
 		mShowLabel->setEnabled(FALSE);
 		mShowWorldCheckBox->setEnabled(FALSE);
 		mShowWorldMovablesOnlyCheckBox->setEnabled(FALSE);
@@ -683,7 +703,6 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 		mShowExclusionVolumesCheckBox->setEnabled(FALSE);
 		mShowRenderWaterPlaneCheckBox->setEnabled(FALSE);
 		mShowXRayCheckBox->setEnabled(FALSE);
-		mViewCharactersButton->setEnabled(FALSE);
 		mTestTab->setEnabled(FALSE);
 		mCtrlClickLabel->setEnabled(FALSE);
 		mShiftClickLabel->setEnabled(FALSE);
@@ -696,6 +715,8 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 		clearPath();
 		break;
 	case kConsoleStateLibraryNotImplemented :
+		mViewTestTabContainer->selectTab(XUI_VIEW_TAB_INDEX);
+		mViewTab->setEnabled(FALSE);
 		mShowLabel->setEnabled(FALSE);
 		mShowWorldCheckBox->setEnabled(FALSE);
 		mShowWorldMovablesOnlyCheckBox->setEnabled(FALSE);
@@ -708,7 +729,6 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 		mShowExclusionVolumesCheckBox->setEnabled(FALSE);
 		mShowRenderWaterPlaneCheckBox->setEnabled(FALSE);
 		mShowXRayCheckBox->setEnabled(FALSE);
-		mViewCharactersButton->setEnabled(TRUE);
 		mTestTab->setEnabled(FALSE);
 		mCtrlClickLabel->setEnabled(FALSE);
 		mShiftClickLabel->setEnabled(FALSE);
@@ -723,6 +743,8 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 	case kConsoleStateCheckingVersion :
 	case kConsoleStateDownloading :
 	case kConsoleStateError :
+		mViewTestTabContainer->selectTab(XUI_VIEW_TAB_INDEX);
+		mViewTab->setEnabled(FALSE);
 		mShowLabel->setEnabled(FALSE);
 		mShowWorldCheckBox->setEnabled(FALSE);
 		mShowWorldMovablesOnlyCheckBox->setEnabled(FALSE);
@@ -735,7 +757,6 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 		mShowExclusionVolumesCheckBox->setEnabled(FALSE);
 		mShowRenderWaterPlaneCheckBox->setEnabled(FALSE);
 		mShowXRayCheckBox->setEnabled(FALSE);
-		mViewCharactersButton->setEnabled(TRUE);
 		mTestTab->setEnabled(FALSE);
 		mCtrlClickLabel->setEnabled(FALSE);
 		mShiftClickLabel->setEnabled(FALSE);
@@ -748,6 +769,7 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 		clearPath();
 		break;
 	case kConsoleStateHasNavMesh :
+		mViewTab->setEnabled(TRUE);
 		mShowLabel->setEnabled(TRUE);
 		mShowWorldCheckBox->setEnabled(TRUE);
 		setWorldRenderState();
@@ -759,7 +781,6 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 		mShowExclusionVolumesCheckBox->setEnabled(TRUE);
 		mShowRenderWaterPlaneCheckBox->setEnabled(TRUE);
 		mShowXRayCheckBox->setEnabled(TRUE);
-		mViewCharactersButton->setEnabled(TRUE);
 		mTestTab->setEnabled(TRUE);
 		mCtrlClickLabel->setEnabled(TRUE);
 		mShiftClickLabel->setEnabled(TRUE);

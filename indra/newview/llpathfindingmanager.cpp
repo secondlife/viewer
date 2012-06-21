@@ -322,11 +322,6 @@ bool LLPathfindingManager::isPathfindingEnabledForRegion(LLViewerRegion *pRegion
 	return !retrieveNavMeshURL.empty();
 }
 
-bool LLPathfindingManager::isPathfindingDebugEnabled() const
-{
-	return (LLPathingLib::getInstance() != NULL);
-}
-
 bool LLPathfindingManager::isAllowViewTerrainProperties() const
 {
 	LLViewerRegion* region = getCurrentRegion();
