@@ -685,7 +685,8 @@ LLFolderView * LLInventoryPanel::createFolderView(LLInvFVBridge * bridge, bool u
 	p.rect = folder_rect;
 	p.parent_panel = this;
 	p.tool_tip = p.name;
-	p.listener =  bridge;
+	p.listener = bridge;
+	p.view_model = new LLFolderViewModelInventory();
 	p.use_label_suffix = useLabelSuffix;
 	p.allow_multiselect = mAllowMultiSelect;
 	p.show_empty_message = mShowEmptyMessage;

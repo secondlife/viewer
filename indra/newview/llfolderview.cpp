@@ -289,6 +289,9 @@ LLFolderView::~LLFolderView( void )
 
 	delete mFilter;
 	mFilter = NULL;
+
+	delete mViewModel;
+	mViewModel = NULL;
 }
 
 BOOL LLFolderView::canFocusChildren() const
@@ -345,12 +348,12 @@ S32 LLFolderView::arrange( S32* unused_width, S32* unused_height, S32 filter_gen
 	LLFolderViewFolder::arrange(&mMinWidth, &target_height, mFilter->getFirstSuccessGeneration());
 
 	LLRect scroll_rect = mScrollContainer->getContentWindowRect();
-	reshape( llmax(scroll_rect.getWidth(), mMinWidth), mCurHeight );
+	reshape( llmax(scroll_rect.getWidth(), mMinWidth), llround(mCurHeight) );
 
 	LLRect new_scroll_rect = mScrollContainer->getContentWindowRect();
 	if (new_scroll_rect.getWidth() != scroll_rect.getWidth())
 	{
-		reshape( llmax(scroll_rect.getWidth(), mMinWidth), mCurHeight );
+		reshape( llmax(scroll_rect.getWidth(), mMinWidth), llround(mCurHeight) );
 	}
 
 	// move item renamer text field to item's new position
