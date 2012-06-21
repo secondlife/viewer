@@ -441,6 +441,7 @@ Please try logging in again in a minute.</string>
 	<string name="load_files">Load Files</string>
 	<string name="choose_the_directory">Choose Directory</string>
 	<string name="script_files">Scripts</string>
+	<string name="dictionary_files">Dictionaries</string>
 
   <!-- LSL Usage Hover Tips -->
   <!-- NOTE: For now these are set as translate="false", until DEV-40761 is implemented (to internationalize the rest of tooltips in the same window).
@@ -3760,4 +3761,7 @@ Try enclosing path to the editor with double quotes.
 
   <string name="TeleportMaturityExceeded">The Resident cannot visit this region.</string>
 
+  <!-- Spell check settings floater -->
+  <string name="UserDictionary">[User]</string>
+  
   </strings>

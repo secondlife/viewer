@@ -2359,6 +2359,93 @@ Would you be my friend?
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   label="Add Auto-Replace List"
+   name="AddAutoReplaceList"
+   type="alertmodal">
+    <tag>addlist</tag>
+    Name for the new list:
+    <tag>confirm</tag>
+    <form name="form">
+      <input name="listname" type="text"/>
+      <button
+       default="true"
+       index="0"
+       name="SetName"
+       text="OK"/>
+    </form>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   label="Rename Auto-Replace List"
+   name="RenameAutoReplaceList"
+   type="alertmodal">
+    The name '[DUPNAME]' is in use
+    Enter a new unique name:
+    <tag>confirm</tag>
+    <form name="form">
+      <input name="listname" type="text"/>
+      <button
+       default="false"
+       index="0"
+       name="ReplaceList"
+       text="Replace Current List"/>
+      <button
+       default="true"
+       index="1"
+       name="SetName"
+       text="Use New Name"/>
+    </form>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidAutoReplaceEntry"
+   type="alertmodal">
+    The keyword must be a single word, and the replacement may not be empty.
+    <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidAutoReplaceList"
+   type="alertmodal">
+    That replacement list is not valid.
+    <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SpellingDictImportRequired"
+   type="alertmodal">
+    You must specify a file, a name, and a language.
+    <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SpellingDictIsSecondary"
+   type="alertmodal">
+The dictionary [DIC_NAME] does not appear to have an "aff" file; this means that it is a "secondary" dictionary.
+It can be used as an additional dictionary, but not as your Main dictionary.
+
+See https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
+    <tag>confirm</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SpellingDictImportFailed"
+   type="alertmodal">
+    Unable to copy
+    [FROM_NAME]
+    to
+    [TO_NAME]
+    <tag>fail</tag>
+  </notification>
+
+  <notification
  icon="alertmodal.tga"
  label="Save Outfit"
  name="SaveOutfitAs"

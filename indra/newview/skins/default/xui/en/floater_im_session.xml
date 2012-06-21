@@ -84,6 +84,7 @@
          label="To"
          layout="bottomleft"
          name="chat_editor"
+         spellcheck="true"
          tab_group="3"
          width="236">
         </line_editor>
