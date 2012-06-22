@@ -1195,7 +1195,6 @@ void LLWorld::getAvatars(uuid_vec_t* avatar_ids, std::vector<LLVector3d>* positi
 
 			if (!uuid.isNull()
 				&& dist_vec_squared(pos_global, relative_to) <= radius_squared)
-			dist_vec_squared(pos_global, relative_to) <= radius_squared)
 			{
 				if(positions != NULL)
 				{

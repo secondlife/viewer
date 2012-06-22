@@ -134,16 +134,6 @@
      top_delta="-25"
      name="Pipette"
      width="28" />
-   <check_box
-     follows="left|bottom"
-     height="20"
-     initial_value="true"
-     label="Live Preview"
-     layout="topleft"
-     left="4"
-     name="apply_immediate_check"
-     top="262"
-     width="120" />
    <text
      follows="left|bottom"
      height="20"
