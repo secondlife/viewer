@@ -149,7 +149,7 @@ void HttpRequestTestObjectType::test<1>()
 		
 		// create a new ref counted object with an implicit reference
 		req = new HttpRequest();
-		ensure(mMemTotal < GetMemTotal());
+		ensure("Memory being used", mMemTotal < GetMemTotal());
 		
 		// release the request object
 		delete req;
@@ -158,7 +158,7 @@ void HttpRequestTestObjectType::test<1>()
 		HttpRequest::destroyService();
 
 		// make sure we didn't leak any memory
-		ensure(mMemTotal == GetMemTotal());
+		ensure("Memory returned", mMemTotal == GetMemTotal());
 	}
 	catch (...)
 	{
@@ -187,11 +187,11 @@ void HttpRequestTestObjectType::test<2>()
 		
 		// create a new ref counted object with an implicit reference
 		req = new HttpRequest();
-		ensure(mMemTotal < GetMemTotal());
+		ensure("Memory being used", mMemTotal < GetMemTotal());
 
 		// Issue a NoOp
 		HttpHandle handle = req->requestNoOp(NULL);
-		ensure(handle != LLCORE_HTTP_HANDLE_INVALID);
+		ensure("Request issued", handle != LLCORE_HTTP_HANDLE_INVALID);
 		
 		// release the request object
 		delete req;
@@ -199,15 +199,15 @@ void HttpRequestTestObjectType::test<2>()
 
 		// We're still holding onto the operation which is
 		// sitting, unserviced, on the request queue so...
-		ensure(mMemTotal < GetMemTotal());
+		ensure("Memory being used 2", mMemTotal < GetMemTotal());
 
 		// Request queue should have two references:  global singleton & service object
 		ensure("Two references to request queue", 2 == HttpRequestQueue::instanceOf()->getRefCount());
 
 		// Okay, tear it down
 		HttpRequest::destroyService();
-		// printf("Old mem:  %d, New mem:  %d\n", mMemTotal, GetMemTotal());
-		ensure(mMemTotal == GetMemTotal());
+		printf("Old mem:  %d, New mem:  %d\n", mMemTotal, GetMemTotal());
+		ensure("Memory returned", mMemTotal == GetMemTotal());
 	}
 	catch (...)
 	{

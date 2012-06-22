@@ -154,7 +154,12 @@ HttpHandle HttpRequest::requestGet(policy_t policy_id,
 		return handle;
 	}
 	op->setReplyPath(mReplyQueue, user_handler);
-	mRequestQueue->addOp(op);			// transfers refcount
+	if (! (status = mRequestQueue->addOp(op)))			// transfers refcount
+	{
+		op->release();
+		mLastReqStatus = status;
+		return handle;
+	}
 	
 	mLastReqStatus = status;
 	handle = static_cast<HttpHandle>(op);
@@ -183,7 +188,12 @@ HttpHandle HttpRequest::requestGetByteRange(policy_t policy_id,
 		return handle;
 	}
 	op->setReplyPath(mReplyQueue, user_handler);
-	mRequestQueue->addOp(op);			// transfers refcount
+	if (! (status = mRequestQueue->addOp(op)))			// transfers refcount
+	{
+		op->release();
+		mLastReqStatus = status;
+		return handle;
+	}
 	
 	mLastReqStatus = status;
 	handle = static_cast<HttpHandle>(op);
@@ -211,7 +221,12 @@ HttpHandle HttpRequest::requestPost(policy_t policy_id,
 		return handle;
 	}
 	op->setReplyPath(mReplyQueue, user_handler);
-	mRequestQueue->addOp(op);			// transfers refcount
+	if (! (status = mRequestQueue->addOp(op)))			// transfers refcount
+	{
+		op->release();
+		mLastReqStatus = status;
+		return handle;
+	}
 	
 	mLastReqStatus = status;
 	handle = static_cast<HttpHandle>(op);
@@ -239,7 +254,12 @@ HttpHandle HttpRequest::requestPut(policy_t policy_id,
 		return handle;
 	}
 	op->setReplyPath(mReplyQueue, user_handler);
-	mRequestQueue->addOp(op);			// transfers refcount
+	if (! (status = mRequestQueue->addOp(op)))			// transfers refcount
+	{
+		op->release();
+		mLastReqStatus = status;
+		return handle;
+	}
 	
 	mLastReqStatus = status;
 	handle = static_cast<HttpHandle>(op);
@@ -255,7 +275,12 @@ HttpHandle HttpRequest::requestNoOp(HttpHandler * user_handler)
 
 	HttpOpNull * op = new HttpOpNull();
 	op->setReplyPath(mReplyQueue, user_handler);
-	mRequestQueue->addOp(op);			// transfer refcount as well
+	if (! (status = mRequestQueue->addOp(op)))			// transfers refcount
+	{
+		op->release();
+		mLastReqStatus = status;
+		return handle;
+	}
 
 	mLastReqStatus = status;
 	handle = static_cast<HttpHandle>(op);
@@ -287,14 +312,19 @@ HttpStatus HttpRequest::update(long millis)
 // Request Management Methods
 // ====================================
 
-HttpHandle HttpRequest::requestCancel(HttpHandle handle, HttpHandler * user_handler)
+HttpHandle HttpRequest::requestCancel(HttpHandle request, HttpHandler * user_handler)
 {
 	HttpStatus status;
 	HttpHandle ret_handle(LLCORE_HTTP_HANDLE_INVALID);
 
-	HttpOpCancel * op = new HttpOpCancel(handle);
+	HttpOpCancel * op = new HttpOpCancel(request);
 	op->setReplyPath(mReplyQueue, user_handler);
-	mRequestQueue->addOp(op);			// transfer refcount as well
+	if (! (status = mRequestQueue->addOp(op)))			// transfers refcount
+	{
+		op->release();
+		mLastReqStatus = status;
+		return ret_handle;
+	}
 
 	mLastReqStatus = status;
 	ret_handle = static_cast<HttpHandle>(op);
@@ -311,7 +341,12 @@ HttpHandle HttpRequest::requestSetPriority(HttpHandle request, priority_t priori
 
 	HttpOpSetPriority * op = new HttpOpSetPriority(request, priority);
 	op->setReplyPath(mReplyQueue, handler);
-	mRequestQueue->addOp(op);			// transfer refcount as well
+	if (! (status = mRequestQueue->addOp(op)))			// transfers refcount
+	{
+		op->release();
+		mLastReqStatus = status;
+		return ret_handle;
+	}
 
 	mLastReqStatus = status;
 	ret_handle = static_cast<HttpHandle>(op);
@@ -368,7 +403,12 @@ HttpHandle HttpRequest::requestStopThread(HttpHandler * user_handler)
 
 	HttpOpStop * op = new HttpOpStop();
 	op->setReplyPath(mReplyQueue, user_handler);
-	mRequestQueue->addOp(op);			// transfer refcount as well
+	if (! (status = mRequestQueue->addOp(op)))			// transfers refcount
+	{
+		op->release();
+		mLastReqStatus = status;
+		return handle;
+	}
 
 	mLastReqStatus = status;
 	handle = static_cast<HttpHandle>(op);
@@ -388,7 +428,12 @@ HttpHandle HttpRequest::requestSetHttpProxy(const std::string & proxy, HttpHandl
 	HttpOpSetGet * op = new HttpOpSetGet();
 	op->setupSet(GP_HTTP_PROXY, proxy);
 	op->setReplyPath(mReplyQueue, handler);
-	mRequestQueue->addOp(op);			// transfer refcount as well
+	if (! (status = mRequestQueue->addOp(op)))			// transfers refcount
+	{
+		op->release();
+		mLastReqStatus = status;
+		return handle;
+	}
 
 	mLastReqStatus = status;
 	handle = static_cast<HttpHandle>(op);

@@ -172,6 +172,8 @@ bool HttpService::changePriority(HttpHandle handle, HttpRequest::priority_t prio
 
 void HttpService::shutdown()
 {
+	mRequestQueue->stopQueue();
+
 	// *FIXME:  Run down everything....
 }
 

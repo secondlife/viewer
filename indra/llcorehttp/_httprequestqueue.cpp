@@ -39,7 +39,8 @@ HttpRequestQueue * HttpRequestQueue::sInstance(NULL);
 
 
 HttpRequestQueue::HttpRequestQueue()
-	: RefCounted(true)
+	: RefCounted(true),
+	  mQueueStopped(false)
 {
 }
 
@@ -72,14 +73,25 @@ void HttpRequestQueue::term()
 }
 
 
-void HttpRequestQueue::addOp(HttpOperation * op)
+HttpStatus HttpRequestQueue::addOp(HttpOperation * op)
 {
+	bool wake(false);
 	{
 		HttpScopedLock lock(mQueueMutex);
 
+		if (mQueueStopped)
+		{
+			// Return op and error to caller
+			return HttpStatus(HttpStatus::LLCORE, HE_SHUTTING_DOWN);
+		}
+		wake = mQueue.empty();
 		mQueue.push_back(op);
 	}
-	mQueueCV.notify_all();
+	if (wake)
+	{
+		mQueueCV.notify_all();
+	}
+	return HttpStatus();
 }
 
 
@@ -128,5 +140,16 @@ void HttpRequestQueue::fetchAll(bool wait, OpContainer & ops)
 	// Caller also acquires the reference counts on each op.
 	return;
 }
+
+
+void HttpRequestQueue::stopQueue()
+{
+	{
+		HttpScopedLock lock(mQueueMutex);
+
+		mQueueStopped = true;
+	}
+}
+
 
 } // end namespace LLCore

@@ -30,6 +30,7 @@
 
 #include <vector>
 
+#include "httpcommon.h"
 #include "_refcounted.h"
 #include "_mutex.h"
 
@@ -74,11 +75,11 @@ public:
 
 	/// Insert an object at the back of the reply queue.
 	///
-	/// Caller my provide one refcount to the Library which takes
+	/// Caller must provide one refcount to the queue which takes
 	/// possession of the count.
 	///
 	/// Threading:  callable by any thread.
-	void addOp(HttpOperation * op);
+	HttpStatus addOp(HttpOperation * op);
 
 	/// Caller acquires reference count on returned operation
 	///
@@ -89,6 +90,11 @@ public:
 	///
 	/// Threading:  callable by any thread.
 	void fetchAll(bool wait, OpContainer & ops);
+
+	/// Disallow further request queuing
+	///
+	/// Threading:  callable by any thread.
+	void stopQueue();
 	
 protected:
 	static HttpRequestQueue *			sInstance;
@@ -97,6 +103,7 @@ protected:
 	OpContainer							mQueue;
 	LLCoreInt::HttpMutex				mQueueMutex;
 	LLCoreInt::HttpConditionVariable	mQueueCV;
+	bool								mQueueStopped;
 	
 }; // end class HttpRequestQueue
 
