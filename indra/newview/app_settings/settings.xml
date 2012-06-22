@@ -12302,6 +12302,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>UseServerTextureBaking</key>
+    <map>
+      <key>Comment</key>
+      <string>Update appearance via the ServerTextureBaking cap, if available</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>RenderDelayVBUpdate</key>
     <map>
       <key>Comment</key>
