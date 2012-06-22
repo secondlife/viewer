@@ -60,6 +60,8 @@
 #include "llfloatergodtools.h"
 #include "llfloaterinventory.h"
 #include "llfloaterland.h"
+#include "llfloaterpathfindingcharacters.h"
+#include "llfloaterpathfindinglinksets.h"
 #include "llfloaterpay.h"
 #include "llfloaterreporter.h"
 #include "llfloatersearch.h"
@@ -2733,6 +2735,16 @@ bool enable_object_edit()
 bool enable_object_build()
 {
 	return !enable_object_edit();
+}
+
+bool enable_object_select_in_pathfinding_linksets()
+{
+	return LLSelectMgr::getInstance()->selectGetNonCharacter();
+}
+
+bool enable_object_select_in_pathfinding_characters()
+{
+	return LLSelectMgr::getInstance()->selectGetCharacter();
 }
 
 class LLSelfRemoveAllAttachments : public view_listener_t
@@ -8485,6 +8497,10 @@ void initialize_menus()
 	enable.add("EnablePayAvatar", boost::bind(&enable_pay_avatar));
 	enable.add("EnableEdit", boost::bind(&enable_object_edit));
 	enable.add("VisibleBuild", boost::bind(&enable_object_build));
+	commit.add("Pathfinding.Linksets.Select", boost::bind(&LLFloaterPathfindingLinksets::openLinksetsWithSelectedObjects));
+	enable.add("EnableSelectInPathfindingLinksets", boost::bind(&enable_object_select_in_pathfinding_linksets));
+	commit.add("Pathfinding.Characters.Select", boost::bind(&LLFloaterPathfindingCharacters::openCharactersWithSelectedObjects));
+	enable.add("EnableSelectInPathfindingCharacters", boost::bind(&enable_object_select_in_pathfinding_characters));
 
 	view_listener_t::addMenu(new LLFloaterVisible(), "FloaterVisible");
 	view_listener_t::addMenu(new LLShowSidetrayPanel(), "ShowSidetrayPanel");

@@ -36,6 +36,7 @@
 #include "llpathfindingobject.h"
 #include "llpathfindingobjectlist.h"
 #include "llselectmgr.h"
+#include "lluuid.h"
 #include "v4color.h"
 
 class LLAvatarName;
@@ -89,6 +90,8 @@ protected:
 	virtual const LLColor4             &getBeaconColor() const;
 	virtual const LLColor4             &getBeaconTextColor() const;
 	virtual S32                        getBeaconWidth() const;
+
+	void                               showFloaterWithSelectionObjects();
 
 	BOOL                               isShowBeacons() const;
 	void                               clearAllObjects();
@@ -157,6 +160,9 @@ private:
 	LLPathfindingObjectListPtr         mObjectList;
 
 	LLObjectSelectionHandle            mObjectsSelection;
+
+	bool                               mHasObjectsToBeSelected;
+	uuid_vec_t                         mObjectsToBeSelected;
 
 	boost::signals2::connection        mSelectionUpdateSlot;
 	boost::signals2::connection        mRegionBoundaryCrossingSlot;

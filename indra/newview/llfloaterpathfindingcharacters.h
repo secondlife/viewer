@@ -46,7 +46,7 @@ public:
 
 	BOOL                                            isPhysicsCapsuleEnabled(LLUUID& id, LLVector3& pos, LLQuaternion& rot ) const;
 
-	static void                                     openCharactersViewer();
+	static void                                     openCharactersWithSelectedObjects();
 	static LLHandle<LLFloaterPathfindingCharacters> getInstanceHandle();
 
 protected:
