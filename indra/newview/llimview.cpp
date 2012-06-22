@@ -2611,7 +2611,7 @@ LLUUID LLIMMgr::addSession(
 
 	if (floater_id.notNull())
 	{
-		LLIMFloater* im_floater = LLIMFloater::findInstance(session_id);
+		LLIMFloater* im_floater = LLIMFloater::findInstance(floater_id);
 
 		if (im_floater && im_floater->getStartConferenceInSameFloater())
 		{
