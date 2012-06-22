@@ -33,6 +33,7 @@
 #include "llpathinglib.h"
 #include "llpathfindingnavmeshzone.h"
 #include "llpathfindingpathtool.h"
+#include "v4color.h"
 
 #include <boost/signals2.hpp>
 
@@ -46,7 +47,6 @@ class LLTabContainer;
 class LLComboBox;
 class LLButton;
 class LLToolset;
-class LLColor4;
 class LLControlVariable;
 
 class LLFloaterPathfindingConsole
@@ -133,9 +133,9 @@ private:
 	void setNavMeshRenderState();
 	void updateRenderablesObjects();
 
-	void        updateControlsOnConsoleState();
-	void        updateStatusOnConsoleState();
-	std::string getSimulatorStatusText() const;
+	void updateControlsOnConsoleState();
+	void updateViewerStatusOnConsoleState();
+	void updateSimulatorStatusOnConsoleState();
 
 	void initializeNavMeshZoneForCurrentRegion();
 
@@ -180,6 +180,9 @@ private:
 	LLComboBox                                    *mCharacterTypeComboBox;
 	LLTextBase                                    *mPathTestingStatus;
 	LLButton                                      *mClearPathButton;
+
+	LLColor4                                      mErrorColor;
+	LLColor4                                      mWarningColor;
 
 	LLPathfindingNavMeshZone::navmesh_zone_slot_t mNavMeshZoneSlot;
 	LLPathfindingNavMeshZone                      mNavMeshZone;
