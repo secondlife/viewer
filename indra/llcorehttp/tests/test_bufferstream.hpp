@@ -242,7 +242,7 @@ void BufferStreamTestObjectType::test<6>()
 
 	// make sure we didn't leak any memory
 	// ensure("Allocated memory returned", mMemTotal == GetMemTotal());
-	static U64 mem = GetMemTotal();
+	// static U64 mem = GetMemTotal();
 }
 
 
