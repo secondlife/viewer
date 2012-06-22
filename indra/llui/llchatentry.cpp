@@ -170,13 +170,14 @@ BOOL LLChatEntry::handleSpecialKey(const KEY key, const MASK mask)
 	case KEY_DOWN:
 		if (mHasHistory && MASK_CONTROL == mask)
 		{
-			if (!mLineHistory.empty() && ++mCurrentHistoryLine < mLineHistory.end())
+			if (!mLineHistory.empty() && mCurrentHistoryLine < (mLineHistory.end() - 1) )
 			{
-				setText(*mCurrentHistoryLine);
+				setText(*(++mCurrentHistoryLine));
 				endOfDoc();
 			}
-			else if (!mLineHistory.empty() && mCurrentHistoryLine == mLineHistory.end())
+			else if (!mLineHistory.empty() && mCurrentHistoryLine == (mLineHistory.end() - 1) )
 			{
+				mCurrentHistoryLine++;
 				std::string empty("");
 				setText(empty);
 				needsReflow();
