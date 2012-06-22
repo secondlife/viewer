@@ -37,6 +37,16 @@
      top="2"
      visible="false"
      width="20" />
+    <group_icon
+     default_icon_name="Generic_Group"
+     follows="top|left"
+     height="20"
+     layout="topleft"
+     left="5"
+     mouse_opaque="true"
+     top="2"
+     visible="false"
+     width="20" />
     <icon
      follows="top|left"
      height="16"

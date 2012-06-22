@@ -38,6 +38,7 @@
 
 // newview
 #include "llavatariconctrl.h"
+#include "llgroupiconctrl.h"
 #include "llinventoryicon.h"
 #include "llviewerobject.h"
 
@@ -58,14 +59,22 @@ BOOL LLBlockedListItem::postBuild()
 	switch (mMuteType)
 	{
 	case LLMute::AGENT:
+	case LLMute::EXTERNAL:
 		{
 			LLAvatarIconCtrl* avatar_icon = getChild<LLAvatarIconCtrl>("avatar_icon");
 			avatar_icon->setVisible(TRUE);
 			avatar_icon->setValue(mItemID);
 		}
 		break;
-
+	case LLMute::GROUP:
+		{
+			LLGroupIconCtrl* group_icon = getChild<LLGroupIconCtrl>("group_icon");
+			group_icon->setVisible(TRUE);
+			group_icon->setValue(mItemID);
+		}
+		break;
 	case LLMute::OBJECT:
+	case LLMute::BY_NAME:
 		getChild<LLUICtrl>("object_icon")->setVisible(TRUE);
 		break;
 
