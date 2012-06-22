@@ -122,14 +122,6 @@ LLFolderViewFolder * LLInboxInventoryPanel::createFolderViewFolder(LLInvFVBridge
 	LLInboxFolderViewFolder::Params params;
 	
 	params.name = bridge->getDisplayName();
-	params.icon = bridge->getIcon();
-	params.icon_open = bridge->getOpenIcon();
-	
-	if (mShowItemLinkOverlays) // if false, then links show up just like normal items
-	{
-		params.icon_overlay = LLUI::getUIImage("Inv_Link");
-	}
-	
 	params.root = mFolderRoot;
 	params.listener = bridge;
 	params.tool_tip = params.name;
@@ -142,14 +134,6 @@ LLFolderViewItem * LLInboxInventoryPanel::createFolderViewItem(LLInvFVBridge * b
 	LLInboxFolderViewItem::Params params;
 
 	params.name = bridge->getDisplayName();
-	params.icon = bridge->getIcon();
-	params.icon_open = bridge->getOpenIcon();
-
-	if (mShowItemLinkOverlays) // if false, then links show up just like normal items
-	{
-		params.icon_overlay = LLUI::getUIImage("Inv_Link");
-	}
-
 	params.creation_date = bridge->getCreationDate();
 	params.root = mFolderRoot;
 	params.listener = bridge;

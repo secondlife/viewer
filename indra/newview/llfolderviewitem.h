@@ -51,10 +51,7 @@ public:
 
 	struct Params : public LLInitParam::Block<Params, LLView::Params>
 	{
-		Optional<LLUIImage*>						icon,
-													icon_open,     // used for folders
-													icon_overlay,  // for links
-													folder_arrow_image,
+		Optional<LLUIImage*>						folder_arrow_image,
 													selection_image;
 		Optional<LLFolderView*>						root;
 		Mandatory<LLFolderViewModelItem*>			listener;
@@ -252,9 +249,6 @@ public:
 	virtual BOOL	getFiltered(S32 filter_generation);
 	virtual void	setFiltered(BOOL filtered, S32 filter_generation);
 
-	// change the icon
-	void setIcon(LLUIImagePtr icon);
-
 	// refresh information from the object being viewed.
 	virtual void refresh();
 
@@ -416,8 +410,7 @@ public:
 	virtual void setOpen(BOOL openitem = TRUE);
 
 	// Called when a child is refreshed.
-	// don't rearrange child folder contents unless explicitly requested
-	virtual void requestArrange(BOOL include_descendants = FALSE);
+	virtual void requestArrange();
 
 	virtual void requestSort();
 

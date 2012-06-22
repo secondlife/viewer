@@ -195,8 +195,10 @@ LLFolderView::LLFolderView(const Params& p)
 	mUseEllipses(p.use_ellipses),
 	mDraggingOverItem(NULL),
 	mStatusTextBox(NULL),
+	mShowItemLinkOverlays(p.show_item_link_overlays),
 	mViewModel(p.view_model)
 {
+	mViewModel->setFolderView(this);
 	mRoot = this;
 
 	LLRect rect = p.rect;

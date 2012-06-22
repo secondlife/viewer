@@ -260,7 +260,9 @@ public:
 
 	virtual LLFolderType::EType getPreferredType() const;
 	virtual LLUIImagePtr getIcon() const;
-	virtual LLUIImagePtr getOpenIcon() const;
+	virtual LLUIImagePtr getIconOpen() const;
+	virtual LLUIImagePtr getIconOverlay() const;
+
 	static LLUIImagePtr getIcon(LLFolderType::EType preferred_type);
 
 	virtual BOOL renameItem(const std::string& new_name);
@@ -338,8 +340,7 @@ private:
 	bool							mWearables;
 	bool							mIsLoading;
 	LLTimer							mTimeSinceRequestStart;
-	mutable std::string				mDisplayName;
-	LLRootHandle<LLFolderBridge> mHandle;
+	LLRootHandle<LLFolderBridge>	mHandle;
 };
 
 class LLTextureBridge : public LLItemBridge

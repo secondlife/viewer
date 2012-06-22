@@ -91,10 +91,7 @@ void LLFolderViewItem::cleanupClass()
 
 // NOTE: Optimize this, we call it a *lot* when opening a large inventory
 LLFolderViewItem::Params::Params()
-:	icon(),
-	icon_open(),
-	icon_overlay(),
-	root(),
+:	root(),
 	listener(),
 	folder_arrow_image("folder_arrow_image"),
 	folder_indentation("folder_indentation"),
@@ -125,12 +122,10 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 	mDragAndDropTarget(FALSE),
 	mLabel(p.name),
 	mRoot(p.root),
-	mIcon(p.icon),
-	mIconOpen(p.icon_open),
-	mIconOverlay(p.icon_overlay),
 	mListener(p.listener),
 	mIsMouseOverTitle(false)
 {
+	mListener->setFolderViewItem(this);
 }
 
 BOOL LLFolderViewItem::postBuild()
@@ -243,11 +238,6 @@ void LLFolderViewItem::setFiltered(BOOL filtered, S32 filter_generation)
 	mLastFilterGeneration = filter_generation;
 }
 
-void LLFolderViewItem::setIcon(LLUIImagePtr icon)
-{
-	mIcon = icon;
-}
-
 void LLFolderViewItem::refresh()
 {
 	if(!getViewModelItem()) return;
@@ -255,7 +245,10 @@ void LLFolderViewItem::refresh()
 	mLabel = getViewModelItem()->getDisplayName();
 
 	setToolTip(mLabel);
-	setIcon(getViewModelItem()->getIcon());
+	mIcon = getViewModelItem()->getIcon();
+	mIconOpen = getViewModelItem()->getIconOpen();
+	mIconOverlay = getViewModelItem()->getIconOverlay();
+
 	if (mRoot->useLabelSuffix())
 	{
 		mLabelStyle = getViewModelItem()->getLabelStyle();
@@ -907,27 +900,23 @@ void LLFolderViewItem::draw()
 		mDragAndDropTarget = FALSE;
 	}
 
-	//TODO RN: implement this in terms of getIcon() and getIconOverlay()
+	//--------------------------------------------------------------------------------//
+	// Draw open icon
+	//
+	const S32 icon_x = mIndentation + ARROW_SIZE + TEXT_PAD;
+	if (!mIconOpen.isNull() && (llabs(mControlLabelRotation) > 80)) // For open folders
+ 	{
+		mIconOpen->draw(icon_x, getRect().getHeight() - mIconOpen->getHeight() - TOP_PAD + 1);
+	}
+	else if (mIcon)
+	{
+ 		mIcon->draw(icon_x, getRect().getHeight() - mIcon->getHeight() - TOP_PAD + 1);
+ 	}
 
-	//const LLViewerInventoryItem *item = getInventoryItem();
-	//const BOOL highlight_link = mIconOverlay && item && item->getIsLinkType();
-	////--------------------------------------------------------------------------------//
-	//// Draw open icon
-	////
-	//const S32 icon_x = mIndentation + ARROW_SIZE + TEXT_PAD;
-	//if (!mIconOpen.isNull() && (llabs(mControlLabelRotation) > 80)) // For open folders
- //	{
-	//	mIconOpen->draw(icon_x, getRect().getHeight() - mIconOpen->getHeight() - TOP_PAD + 1);
-	//}
-	//else if (mIcon)
-	//{
- //		mIcon->draw(icon_x, getRect().getHeight() - mIcon->getHeight() - TOP_PAD + 1);
- //	}
-
-	//if (highlight_link)
-	//{
-	//	mIconOverlay->draw(icon_x, getRect().getHeight() - mIcon->getHeight() - TOP_PAD + 1);
-	//}
+	if (mIconOverlay && getRoot()->showItemLinkOverlays())
+	{
+		mIconOverlay->draw(icon_x, getRect().getHeight() - mIcon->getHeight() - TOP_PAD + 1);
+	}
 
 	//--------------------------------------------------------------------------------//
 	// Exit if no label to draw
@@ -1242,7 +1231,7 @@ BOOL LLFolderViewFolder::needsArrange()
 
 void LLFolderViewFolder::requestSort()
 {
-	getRoot()->getFolderViewModel()->requestSort(this);
+	getViewModelItem()->requestSort();
 }
 
 void LLFolderViewFolder::setCompletedFilterGeneration(S32 generation, BOOL recurse_up)
@@ -2007,29 +1996,19 @@ BOOL LLFolderViewFolder::addFolder(LLFolderViewFolder* folder)
 	addChild( folder );
 	folder->dirtyFilter();
 	// rearrange all descendants too, as our indentation level might have changed
-	folder->requestArrange(TRUE);
+	folder->requestArrange();
 	requestSort();
 
 	return TRUE;
 }
 
-void LLFolderViewFolder::requestArrange(BOOL include_descendants)	
+void LLFolderViewFolder::requestArrange()
 { 
 	mLastArrangeGeneration = -1; 
 	// flag all items up to root
 	if (mParentFolder)
 	{
 		mParentFolder->requestArrange();
-	}
-
-	if (include_descendants)
-	{
-		for (folders_t::iterator iter = mFolders.begin();
-			iter != mFolders.end();
-			++iter)
-		{
-			(*iter)->requestArrange(TRUE);
-		}
 	}
 }
 

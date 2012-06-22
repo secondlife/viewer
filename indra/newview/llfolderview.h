@@ -96,7 +96,8 @@ public:
 		Optional<bool>			use_label_suffix,
 								allow_multiselect,
 								show_empty_message,
-								use_ellipses;
+								use_ellipses,
+								show_item_link_overlays;
 		Mandatory<LLFolderViewModelInterface*>	view_model;
 
 		Params();
@@ -239,6 +240,8 @@ public:
 	void setPinningSelectedItem(BOOL val) { mPinningSelectedItem = val; }
 	void setAutoSelectOverride(BOOL val) { mAutoSelectOverride = val; }
 
+	bool showItemLinkOverlays() { return mShowItemLinkOverlays; }
+
 	void setCallbackRegistrar(LLUICtrl::CommitCallbackRegistry::ScopedRegistrar* registrar) { mCallbackRegistrar = registrar; }
 
 	BOOL getDebugFilters() { return mDebugFilters; }
@@ -294,6 +297,7 @@ protected:
 	BOOL							mAutoSelectOverride;
 	BOOL							mNeedsAutoRename;
 	bool							mUseLabelSuffix;
+	bool							mShowItemLinkOverlays;
 	
 	BOOL							mDebugFilters;
 	U32								mSortOrder;

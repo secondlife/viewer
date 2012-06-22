@@ -120,18 +120,20 @@ class LLFolderViewModelInterface
 {
 public:
 	virtual void requestSortAll() = 0;
-	virtual void requestSort(class LLFolderViewFolder*) = 0;
 
 	virtual void sort(class LLFolderViewFolder*) = 0;
 	virtual void filter(class LLFolderViewFolder*) = 0;
 
 	virtual bool contentsReady() = 0;
+	virtual void setFolderView(LLFolderView* folder_view) = 0;
 };
 
-struct LLFolderViewModelCommon : public LLFolderViewModelInterface
+class LLFolderViewModelCommon : public LLFolderViewModelInterface
 {
+public:
 	LLFolderViewModelCommon()
-	:	mTargetSortVersion(0)
+	:	mTargetSortVersion(0),
+		mFolderView(NULL)
 	{}
 
 	virtual void requestSortAll()
@@ -140,15 +142,14 @@ struct LLFolderViewModelCommon : public LLFolderViewModelInterface
 		mTargetSortVersion++;
 	}
 
-	virtual void requestSort(class LLFolderViewFolder* folder)
-	{
-		folder->requestSort();
-	}
-	
+	void setFolderView(LLFolderView* folder_view) { mFolderView = folder_view;}
+
 protected:
 	bool needsSort(class LLFolderViewModelItem* item);
 
 	S32 mTargetSortVersion;
+	LLFolderView* mFolderView;
+
 };
 
 // This is am abstract base class that users of the folderview classes
@@ -156,6 +157,10 @@ protected:
 class LLFolderViewModelItem
 {
 public:
+	LLFolderViewModelItem()
+	:	mFolderViewItem(NULL)
+	{}
+
 	virtual ~LLFolderViewModelItem( void ) {};
 
 	virtual void update() {}	//called when drawing
@@ -163,7 +168,8 @@ public:
 	virtual const std::string& getDisplayName() const = 0;
 
 	virtual LLPointer<LLUIImage> getIcon() const = 0;
-	virtual LLPointer<LLUIImage> getOpenIcon() const { return getIcon(); }
+	virtual LLPointer<LLUIImage> getIconOpen() const { return getIcon(); }
+	virtual LLPointer<LLUIImage> getIconOverlay() const { return NULL; }
 
 	virtual LLFontGL::StyleFlags getLabelStyle() const = 0;
 	virtual std::string getLabelSuffix() const = 0;
@@ -211,6 +217,11 @@ public:
 	virtual void requestSort() = 0;
 	virtual S32 getSortVersion() = 0;
 	virtual void setSortVersion(S32 version) = 0;
+protected:
+	friend LLFolderViewItem;
+	void setFolderViewItem(LLFolderViewItem* folder_view_item) { mFolderViewItem = folder_view_item;}
+	LLFolderViewItem*	mFolderViewItem;
+
 };
 
 class LLFolderViewModelItemCommon : public LLFolderViewModelItem
@@ -225,6 +236,7 @@ public:
 	void setSortVersion(S32 version) { mSortVersion = version;}
 
 protected:
+
 	S32 mSortVersion;
 };
 
@@ -232,7 +244,7 @@ template <typename SORT_TYPE, typename ITEM_TYPE, typename FOLDER_TYPE, typename
 class LLFolderViewModel : public LLFolderViewModelCommon
 {
 public:
-	LLFolderViewModel() {}
+	LLFolderViewModel(){}
 	virtual ~LLFolderViewModel() {}
 	
 	typedef SORT_TYPE		SortType;
@@ -247,6 +259,8 @@ public:
 	virtual const FilterType& getFilter() const		 { return mFilter; }
 	virtual void setFilter(const FilterType& filter) { mFilter = filter; }
 
+	// TODO RN: remove this and put all filtering logic in view model
+	// add getStatusText and isFiltering()
 	virtual bool contentsReady()					{ return true; }
 
 	struct ViewModelCompare
@@ -301,8 +315,8 @@ public:
 	}
 
 protected:
-	SortType	mSorter;
-	FilterType	mFilter;
+	SortType		mSorter;
+	FilterType		mFilter;
 };
 
 #endif

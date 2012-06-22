@@ -1551,6 +1551,7 @@ void LLPanelObjectInventory::reset()
 	p.tool_tip= LLTrans::getString("PanelContentsTooltip");
 	p.listener = LLTaskInvFVBridge::createObjectBridge(this, NULL);
 	p.folder_indentation = -14; // subtract space normally reserved for folder expanders
+	p.view_model = new LLFolderViewModelInventory();
 	mFolders = LLUICtrlFactory::create<LLFolderView>(p);
 	// this ensures that we never say "searching..." or "no items found"
 	//TODO RN: make this happen by manipulating filter object directly
@@ -1693,18 +1694,6 @@ void LLPanelObjectInventory::createFolderViews(LLInventoryObject* inventory_root
 	bridge = LLTaskInvFVBridge::createObjectBridge(this, inventory_root);
 	if(bridge)
 	{
-		//LLFolderViewFolder* new_folder = NULL;
-		//LLFolderViewFolder::Params p;
-		//p.name = inventory_root->getName();
-		//p.icon = LLUI::getUIImage("Inv_FolderClosed");
-		//p.icon_open = LLUI::getUIImage("Inv_FolderOpen");
-		//p.root = mFolders;
-		//p.listener = bridge;
-		//p.tool_tip = p.name;
-		//new_folder = LLUICtrlFactory::create<LLFolderViewFolder>(p);
-		//new_folder->addToFolder(mFolders, mFolders);
-		//new_folder->toggleOpen();
-
 		createViewsForCategory(&contents, inventory_root, mFolders);
 	}
 }
@@ -1737,8 +1726,6 @@ void LLPanelObjectInventory::createViewsForCategory(LLInventoryObject::object_li
 			{
 				LLFolderViewFolder::Params p;
 				p.name = obj->getName();
-				p.icon = LLUI::getUIImage("Inv_FolderClosed");
-				p.icon_open = LLUI::getUIImage("Inv_FolderOpen");
 				p.root = mFolders;
 				p.listener = bridge;
 				p.tool_tip = p.name;
@@ -1750,7 +1737,6 @@ void LLPanelObjectInventory::createViewsForCategory(LLInventoryObject::object_li
 			{
 				LLFolderViewItem::Params params;
 				params.name(obj->getName());
-				params.icon(bridge->getIcon());
 				params.creation_date(bridge->getCreationDate());
 				params.root(mFolders);
 				params.listener(bridge);

@@ -60,9 +60,6 @@ public:
 	virtual const LLUUID& getAssetUUID() const;
 	virtual const LLUUID& getProtectedAssetUUID() const; // returns LLUUID::null if current agent does not have permission to expose this asset's UUID to the user
 	virtual const std::string& getName() const;
-	virtual S32 getSortField() const;
-	virtual void setSortField(S32 sortField);
-	virtual void getSLURL(); //Caches SLURL for landmark. //*TODO: Find a better way to do it and remove this method from here.
 	virtual const bool getIsFullPerm() const; // 'fullperm' in the popular sense: modify-ok & copy-ok & transfer-ok, no special god rules applied
 	virtual const LLUUID& getCreatorUUID() const;
 	virtual const std::string& getDescription() const;
@@ -72,7 +69,7 @@ public:
 	virtual LLWearableType::EType getWearableType() const;
 	virtual U32 getFlags() const;
 
-        using LLInventoryItem::getPermissions;
+    using LLInventoryItem::getPermissions;
 	using LLInventoryItem::getCreationDate;
 	using LLInventoryItem::setCreationDate;
 	using LLInventoryItem::getCRC32;
@@ -285,18 +282,6 @@ class CreateGestureCallback : public LLInventoryCallback
 {
 public:
 	void fire(const LLUUID& inv_item);
-};
-
-class AddFavoriteLandmarkCallback : public LLInventoryCallback
-{
-public:
-	AddFavoriteLandmarkCallback() : mTargetLandmarkId(LLUUID::null) {}
-	void setTargetLandmarkId(const LLUUID& target_uuid) { mTargetLandmarkId = target_uuid; }
-
-private:
-	void fire(const LLUUID& inv_item);
-
-	LLUUID mTargetLandmarkId;
 };
 
 // misc functions

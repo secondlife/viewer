@@ -59,17 +59,6 @@ static const LLInventoryFVBridgeBuilder INVENTORY_BRIDGE_BUILDER;
 //
 // class LLFolderViewModelInventory
 //
-void LLFolderViewModelInventory::requestSort(class LLFolderViewFolder* folder)
-{
-	base_t::requestSort(folder);
-	if (getSorter().isByDate())
-	{
-		// sort by date potentially affects parent folders which use a date
-		// derived from newest item in them
-		requestSort(folder->getParentFolder());
-	}
-}
-
 static LLFastTimer::DeclareTimer FTM_INVENTORY_SORT("Sort");
 
 void LLFolderViewModelInventory::sort( LLFolderViewFolder* folder )
@@ -690,6 +679,7 @@ LLFolderView * LLInventoryPanel::createFolderView(LLInvFVBridge * bridge, bool u
 	p.use_label_suffix = useLabelSuffix;
 	p.allow_multiselect = mAllowMultiSelect;
 	p.show_empty_message = mShowEmptyMessage;
+	p.show_item_link_overlays = mShowItemLinkOverlays;
 
 	return LLUICtrlFactory::create<LLFolderView>(p);
 }
@@ -699,14 +689,6 @@ LLFolderViewFolder * LLInventoryPanel::createFolderViewFolder(LLInvFVBridge * br
 	LLFolderViewFolder::Params params;
 
 	params.name = bridge->getDisplayName();
-	params.icon = bridge->getIcon();
-	params.icon_open = bridge->getOpenIcon();
-
-	if (mShowItemLinkOverlays) // if false, then links show up just like normal items
-	{
-		params.icon_overlay = LLUI::getUIImage("Inv_Link");
-	}
-	
 	params.root = mFolderRoot;
 	params.listener = bridge;
 	params.tool_tip = params.name;
@@ -719,14 +701,6 @@ LLFolderViewItem * LLInventoryPanel::createFolderViewItem(LLInvFVBridge * bridge
 	LLFolderViewItem::Params params;
 	
 	params.name = bridge->getDisplayName();
-	params.icon = bridge->getIcon();
-	params.icon_open = bridge->getOpenIcon();
-
-	if (mShowItemLinkOverlays) // if false, then links show up just like normal items
-	{
-		params.icon_overlay = LLUI::getUIImage("Inv_Link");
-	}
-
 	params.creation_date = bridge->getCreationDate();
 	params.root = mFolderRoot;
 	params.listener = bridge;
@@ -743,7 +717,9 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
 	if (!objectp) return NULL;
 
 	LLFolderViewItem* folder_view_item = getItemByID(id);
-	LLFolderViewFolder* parent_folder = folder_view_item->getParentFolder();
+
+	const LLUUID &parent_id = objectp->getParentUUID();
+	LLFolderViewFolder* parent_folder = (LLFolderViewFolder*)getItemByID(parent_id);
 	 
  	if (!folder_view_item && parent_folder)
   	{
@@ -1370,3 +1346,15 @@ LLInventoryRecentItemsPanel::LLInventoryRecentItemsPanel( const Params& params)
 	mInvFVBridgeBuilder = &RECENT_ITEMS_BUILDER;
 }
 
+
+void LLFolderViewModelItemInventory::requestSort()
+{
+	LLFolderViewModelItemCommon::requestSort();
+	//TODO RN: need better way to get to root viewmodel, also consider reflecting hierarchy in viewmodel space as well
+	if (static_cast<LLFolderViewModelInventory*>(mFolderViewItem->getRoot()->getFolderViewModel())->getSorter().isByDate())
+	{
+		// sort by date potentially affects parent folders which use a date
+		// derived from newest item in them
+		mFolderViewItem->getParentFolder()->getViewModelItem()->requestSort();
+	}
+}

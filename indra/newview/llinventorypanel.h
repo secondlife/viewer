@@ -61,6 +61,7 @@ public:
 	virtual LLWearableType::EType getWearableType() const = 0;
 	virtual EInventorySortGroup getSortGroup() const = 0;
 	virtual LLInventoryObject* getInventoryObject() const = 0;
+	virtual void requestSort();
 };
 
 class LLInventorySort
@@ -97,7 +98,6 @@ public:
 	virtual ~LLFolderViewModelInventory() {}
 
 	void sort(LLFolderViewFolder* folder);
-	void requestSort(LLFolderViewFolder* folder);
 
 	bool contentsReady();
 

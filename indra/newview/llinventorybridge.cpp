@@ -37,6 +37,7 @@
 #include "llappearancemgr.h"
 #include "llattachmentsmgr.h"
 #include "llavataractions.h" 
+#include "llfavoritesbar.h" // management of favorites folder
 #include "llfloateropenobject.h"
 #include "llfloaterreg.h"
 #include "llfloatersidepanelcontainer.h"
@@ -1846,7 +1847,11 @@ void LLFolderBridge::buildDisplayName() const
 	if (accessories || LLFolderType::lookupIsProtectedType(preferred_type))
 	{
 		LLTrans::findString(mDisplayName, std::string("InvFolder ") + getName(), LLSD());
-	};
+	}
+	else
+	{
+		mDisplayName.assign(getName());
+	}
 }
 
 
@@ -2993,16 +2998,23 @@ LLUIImagePtr LLFolderBridge::getIcon() const
 LLUIImagePtr LLFolderBridge::getIcon(LLFolderType::EType preferred_type)
 {
 	return LLUI::getUIImage(LLViewerFolderType::lookupIconName(preferred_type, FALSE));
-		/*case LLAssetType::AT_MESH:
-			control = "inv_folder_mesh.tga";
-			break;*/
 }
 
-LLUIImagePtr LLFolderBridge::getOpenIcon() const
+LLUIImagePtr LLFolderBridge::getIconOpen() const
 {
 	return LLUI::getUIImage(LLViewerFolderType::lookupIconName(getPreferredType(), TRUE));
 
 }
+
+LLUIImagePtr LLFolderBridge::getIconOverlay() const
+{
+	if (getInventoryObject() && getInventoryObject()->getIsLinkType())
+	{
+		return LLUI::getUIImage("Inv_Link");
+	}
+	return NULL;
+}
+
 
 BOOL LLFolderBridge::renameItem(const std::string& new_name)
 {
@@ -4017,7 +4029,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 				{
 					LLUUID srcItemId = inv_item->getUUID();
 					LLUUID destItemId = static_cast<LLFolderViewModelItemInventory*>(itemp->getViewModelItem())->getUUID();
-					gInventory.rearrangeFavoriteLandmarks(srcItemId, destItemId);
+					LLFavoritesOrderStorage::instance().rearrangeFavoriteLandmarks(srcItemId, destItemId);
 				}
 			}
 
