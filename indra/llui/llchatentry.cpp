@@ -28,7 +28,7 @@
 
 #include "llchatentry.h"
 
-static LLDefaultChildRegistry::Register<LLChatEntry> r("text_editor");
+static LLDefaultChildRegistry::Register<LLChatEntry> r("chat_editor");
 
 LLChatEntry::Params::Params()
 :	has_history("has_history", true),

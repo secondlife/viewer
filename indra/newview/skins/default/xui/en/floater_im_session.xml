@@ -242,7 +242,7 @@
              bottom="-1" 
              follows="left|right|bottom" 
              tab_group="1">    
-            	<text_editor
+            	<chat_editor
              		bottom="0"
              		expand_lines_count="5"
              		follows="left|right|bottom"
@@ -256,7 +256,7 @@
              		tab_group="3"
              		width="240"
              		wrap="true">
-            	</text_editor>
+            	</chat_editor>
               </panel>
     </layout_panel>
   </layout_stack>
