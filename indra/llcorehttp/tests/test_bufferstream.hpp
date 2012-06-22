@@ -31,6 +31,8 @@
 #include <iostream>
 
 #include "test_allocator.h"
+#include "llsd.h"
+#include "llsdserialize.h"
 
 
 using namespace LLCore;
@@ -173,6 +175,8 @@ void BufferStreamTestObjectType::test<5>()
 	const char * content("This is a string.  A fragment.");
 	const size_t c_len(strlen(content));
 	ba->append(content, c_len);
+
+	// Creat an adapter for the BufferArray
 	BufferArrayStreamBuf * bsb = new BufferArrayStreamBuf(ba);
 	ensure("Memory being used", mMemTotal < GetMemTotal());
 
@@ -223,7 +227,7 @@ void BufferStreamTestObjectType::test<6>()
 	//ba->append(content, strlen(content));
 
 	{
-		// create a new ref counted object with an implicit reference
+		// Creat an adapter for the BufferArray
 		BufferArrayStream bas(ba);
 		ensure("Memory being used", mMemTotal < GetMemTotal());
 
@@ -243,6 +247,54 @@ void BufferStreamTestObjectType::test<6>()
 	// make sure we didn't leak any memory
 	// ensure("Allocated memory returned", mMemTotal == GetMemTotal());
 	// static U64 mem = GetMemTotal();
+}
+
+
+template <> template <>
+void BufferStreamTestObjectType::test<7>()
+{
+	set_test_name("BufferArrayStream with LLSD serialization");
+
+	// record the total amount of dynamically allocated memory
+	mMemTotal = GetMemTotal();
+
+	// create a new ref counted BufferArray with implicit reference
+	BufferArray * ba = new BufferArray;
+
+	{
+		// Creat an adapter for the BufferArray
+		BufferArrayStream bas(ba);
+		ensure("Memory being used", mMemTotal < GetMemTotal());
+
+		// LLSD
+		LLSD llsd = LLSD::emptyMap();
+
+		llsd["int"] = LLSD::Integer(3);
+		llsd["float"] = LLSD::Real(923289.28992);
+		llsd["string"] = LLSD::String("aksjdl;ajsdgfjgfal;sdgjakl;sdfjkl;ajsdfkl;ajsdfkl;jaskl;dfj");
+
+		LLSD llsd_map = LLSD::emptyMap();
+		llsd_map["int"] = LLSD::Integer(-2889);
+		llsd_map["float"] = LLSD::Real(2.37829e32);
+		llsd_map["string"] = LLSD::String("OHIGODHSPDGHOSDHGOPSHDGP");
+
+		llsd["map"] = llsd_map;
+		
+		// Serialize it
+		LLSDSerialize::toXML(llsd, bas);
+
+		std::string str;
+		bas >> str;
+		// std::cout << "SERIALIZED LLSD:  " << str << std::endl;
+		ensure("Extracted string has reasonable length", str.size() > 60);
+	}
+
+	// release the implicit reference, causing the object to be released
+	ba->release();
+	ba = NULL;
+
+	// make sure we didn't leak any memory
+	// ensure("Allocated memory returned", mMemTotal == GetMemTotal());
 }
 
 

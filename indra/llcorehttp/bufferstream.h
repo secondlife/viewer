@@ -34,13 +34,59 @@
 #include "bufferarray.h"
 
 
+/// @file bufferstream.h
+///
+/// std::streambuf and std::iostream adapters for BufferArray
+/// objects.
+///
+/// BufferArrayStreamBuf inherits std::streambuf and implements
+/// an unbuffered interface for streambuf.  This may or may not
+/// be the most time efficient implementation and it is a little
+/// challenging.
+///
+/// BufferArrayStream inherits std::iostream and will be the
+/// adapter object most callers will be interested in (though
+/// it uses BufferArrayStreamBuf internally).  Instances allow
+/// for the usual streaming operators ('<<', '>>') and serialization
+/// methods.
+///
+/// Example of LLSD serialization to a BufferArray:
+///
+///   BufferArray * ba = new BufferArray;
+///   BufferArrayStream bas(ba);
+///   LLSDSerialize::toXML(llsd, bas);
+///   operationOnBufferArray(ba);
+///   ba->release();
+///   ba = NULL;
+///   // operationOnBufferArray and bas are each holding
+///   // references to the ba instance at this point.
+///
+
 namespace LLCore
 {
 
 
+// =====================================================
+// BufferArrayStreamBuf
+// =====================================================
+
+/// Adapter class to put a std::streambuf interface on a BufferArray
+///
+/// Application developers will rarely be interested in anything
+/// other than the constructor and even that will rarely be used
+/// except indirectly via the @BufferArrayStream class.  The
+/// choice of interfaces implemented yields a bufferless adapter
+/// that doesn't used either the input or output pointer triplets
+/// of the more common buffered implementations.  This may or may
+/// not be faster and that question could stand to be looked at
+/// sometime.
+///
+
 class BufferArrayStreamBuf : public std::streambuf
 {
 public:
+	/// Constructor increments the reference count on the
+	/// BufferArray argument and calls release() on destruction.
 	BufferArrayStreamBuf(BufferArray * array);
 	virtual ~BufferArrayStreamBuf();
 
@@ -74,9 +120,22 @@ protected:
 }; // end class BufferArrayStreamBuf
 
 
+// =====================================================
+// BufferArrayStream
+// =====================================================
+
+/// Adapter class that supplies streaming operators to BufferArray
+///
+/// Provides a streaming adapter to an existing BufferArray
+/// instance so that the convenient '<<' and '>>' conversions
+/// can be applied to a BufferArray.  Very convenient for LLSD
+/// serialization and parsing as well.
+
 class BufferArrayStream : public std::iostream
 {
 public:
+	/// Constructor increments the reference count on the
+	/// BufferArray argument and calls release() on destruction.
 	BufferArrayStream(BufferArray * ba);
 	~BufferArrayStream();
 

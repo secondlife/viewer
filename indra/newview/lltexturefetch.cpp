@@ -58,6 +58,7 @@
 #include "httphandler.h"
 #include "httpresponse.h"
 #include "bufferarray.h"
+#include "bufferstream.h"
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2182,6 +2183,7 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	  mHttpRequest(NULL),
 	  mHttpOptions(NULL),
 	  mHttpHeaders(NULL),
+	  mHttpMetricsHeaders(NULL),
 	  mHttpSemaphore(HTTP_REQUESTS_IN_QUEUE_HIGH_WATER),
 	  mTotalCacheReadCount(0U),
 	  mTotalCacheWriteCount(0U),
@@ -2194,6 +2196,8 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	mHttpOptions = new LLCore::HttpOptions;
 	mHttpHeaders = new LLCore::HttpHeaders;
 	mHttpHeaders->mHeaders.push_back("Accept: image/x-j2c");
+	mHttpMetricsHeaders = new LLCore::HttpHeaders;
+	mHttpMetricsHeaders->mHeaders.push_back("Content-Type: application/llsd+xml");
 }
 
 LLTextureFetch::~LLTextureFetch()
@@ -2217,6 +2221,12 @@ LLTextureFetch::~LLTextureFetch()
 	{
 		mHttpHeaders->release();
 		mHttpHeaders = NULL;
+	}
+
+	if (mHttpMetricsHeaders)
+	{
+		mHttpMetricsHeaders->release();
+		mHttpMetricsHeaders = NULL;
 	}
 
 	mHttpWaitResource.clear();
@@ -3501,29 +3511,18 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 
 	if (! mCapsURL.empty())
 	{
-		// *FIXME:  This mess to get an llsd into a string though
-		// it's actually no worse than what we currently do...
-		std::stringstream body;
-		LLSDSerialize::toXML(merged_llsd, body);
-		std::string body_str(body.str());
-		body.clear();
-		
-		LLCore::HttpHeaders * headers = new LLCore::HttpHeaders;
-		headers->mHeaders.push_back("Content-Type: application/llsd+xml");
-
 		LLCore::BufferArray * ba = new LLCore::BufferArray;
-		ba->append(body_str.c_str(), body_str.length());
-		body_str.clear();
+		LLCore::BufferArrayStream bas(ba);
+		LLSDSerialize::toXML(merged_llsd, bas);
 		
 		fetcher->getHttpRequest().requestPost(report_policy_class,
 											  report_priority,
 											  mCapsURL,
 											  ba,
 											  NULL,
-											  headers,
+											  fetcher->getMetricsHeaders(),
 											  handler);
 		ba->release();
-		headers->release();
 		LLTextureFetch::svMetricsDataBreak = false;
 	}
 	else

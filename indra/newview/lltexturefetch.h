@@ -157,6 +157,13 @@ public:
 	// Threads:  T*
 	LLCore::HttpRequest & getHttpRequest()	{ return *mHttpRequest; }
 
+	// Return a pointer to the shared metrics headers definition.
+	// Does not increment the reference count, caller is required
+	// to do that to hold a reference for any length of time.
+	//
+	// Threads:  T*
+	LLCore::HttpHeaders * getMetricsHeaders() const	{ return mHttpMetricsHeaders; }
+
 	bool isQAMode() const				{ return mQAMode; }
 
 	// ----------------------------------
@@ -322,6 +329,7 @@ private:
 	LLCore::HttpRequest *		mHttpRequest;							// Ttf
 	LLCore::HttpOptions *		mHttpOptions;							// Ttf
 	LLCore::HttpHeaders *		mHttpHeaders;							// Ttf
+	LLCore::HttpHeaders *		mHttpMetricsHeaders;					// Ttf
 
 	// We use a resource semaphore to keep HTTP requests in
 	// WAIT_HTTP_RESOURCE2 if there aren't sufficient slots in the
