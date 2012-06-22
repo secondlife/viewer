@@ -961,7 +961,7 @@
               function="Tools.EnablePathfinding" />
         </menu_item_call>
         <menu_item_call
-            label="View..."
+            label="View / test..."
             name="pathfinding_console_menu_item">
           <menu_item_call.on_click
               function="Floater.ToggleOrBringToFront"
