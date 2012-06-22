@@ -24,8 +24,11 @@
  * $/LicenseInfo$
  */
 
-#include "llavataractions.h"
+#include "llviewerprecompiledheaders.h"
+
 #include "llblocklist.h"
+
+#include "llavataractions.h"
 #include "llblockedlistitem.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llviewermenu.h"
