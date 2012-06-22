@@ -643,7 +643,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		text[count++] = strdup("#define textureCube texture\n");
 		text[count++] = strdup("#define texture2DLod textureLod\n");
 		text[count++] = strdup("#define	shadow2D(a,b) vec2(texture(a,b))\n");
-
+		
 		if (major_version > 1 || minor_version >= 40)
 		{ //GLSL 1.40 replaces texture2DRect et al with texture
 			text[count++] = strdup("#define texture2DRect texture\n");
