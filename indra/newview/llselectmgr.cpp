@@ -2648,6 +2648,52 @@ BOOL LLSelectMgr::selectGetRootsCharacter()
 }
 
 //-----------------------------------------------------------------------------
+// selectGetNonPathfinding() - return TRUE if all objects are not pathfinding
+//-----------------------------------------------------------------------------
+BOOL LLSelectMgr::selectGetNonPathfinding()
+{
+	for (LLObjectSelection::iterator iter = getSelection()->begin();
+		 iter != getSelection()->end(); iter++ )
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
+		if( !object || !node->mValid )
+		{
+			return FALSE;
+		}
+		if( object->flagObjectPermanent() || object->flagCharacter())
+		{
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+
+//-----------------------------------------------------------------------------
+// selectGetRootsNonPathfinding() - return TRUE if all root objects are not
+// pathfinding
+//-----------------------------------------------------------------------------
+BOOL LLSelectMgr::selectGetRootsNonPathfinding()
+{
+	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
+		 iter != getSelection()->root_end(); iter++ )
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
+		if( !node->mValid )
+		{
+			return FALSE;
+		}
+		if( object->flagObjectPermanent() || object->flagCharacter())
+		{
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}
+
+//-----------------------------------------------------------------------------
 // selectGetNonPermanent() - return TRUE if all objects are not permanent
 //-----------------------------------------------------------------------------
 BOOL LLSelectMgr::selectGetNonPermanent()

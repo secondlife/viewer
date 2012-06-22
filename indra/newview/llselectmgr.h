@@ -573,6 +573,10 @@ public:
 	BOOL selectGetCharacter();
 
 	// returns TRUE if is all objects are not permanent
+	BOOL selectGetRootsNonPathfinding();
+	BOOL selectGetNonPathfinding();
+
+	// returns TRUE if is all objects are not permanent
 	BOOL selectGetRootsNonPermanent();
 	BOOL selectGetNonPermanent();
 

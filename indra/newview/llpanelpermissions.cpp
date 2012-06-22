@@ -336,6 +336,12 @@ void LLPanelPermissions::refresh()
 	std::string pfAttrName;
 
 	if ((LLSelectMgr::getInstance()->getSelection()->getFirstRootNode() 
+		&& LLSelectMgr::getInstance()->selectGetRootsNonPathfinding())
+		|| LLSelectMgr::getInstance()->selectGetNonPathfinding())
+	{
+		pfAttrName = "Pathfinding_Object_Attr_None";
+	}
+	else if ((LLSelectMgr::getInstance()->getSelection()->getFirstRootNode() 
 		&& LLSelectMgr::getInstance()->selectGetRootsPermanent())
 		|| LLSelectMgr::getInstance()->selectGetPermanent())
 	{
@@ -346,15 +352,6 @@ void LLPanelPermissions::refresh()
 		|| LLSelectMgr::getInstance()->selectGetCharacter())
 	{
 		pfAttrName = "Pathfinding_Object_Attr_Character";
-	}
-	else if (((LLSelectMgr::getInstance()->getSelection()->getFirstRootNode() 
-		&& LLSelectMgr::getInstance()->selectGetRootsNonPermanent())
-		|| LLSelectMgr::getInstance()->selectGetNonPermanent()) &&
-		((LLSelectMgr::getInstance()->getSelection()->getFirstRootNode() 
-		&& LLSelectMgr::getInstance()->selectGetRootsNonCharacter())
-		|| LLSelectMgr::getInstance()->selectGetNonCharacter()))
-	{
-		pfAttrName = "Pathfinding_Object_Attr_None";
 	}
 	else
 	{
