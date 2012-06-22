@@ -78,6 +78,10 @@ public:
 	/// additional references will be added.)
 	void addOp(HttpOpRequest * op);
 
+	/// One-time call to set the number of policy classes to be
+	/// serviced and to create the resources for each.
+	void setPolicyCount(int policy_count);
+	
 	int getActiveCount() const;
 	int getActiveCountInClass(int policy_class) const;
 	
@@ -92,7 +96,8 @@ protected:
 protected:
 	HttpService *		mService;				// Simple reference, not owner
 	active_set_t		mActiveOps;
-	CURLM *				mMultiHandles[POLICY_CLASS_LIMIT];
+	int					mPolicyCount;
+	CURLM **			mMultiHandles;
 }; // end class HttpLibcurl
 
 }  // end namespace LLCore

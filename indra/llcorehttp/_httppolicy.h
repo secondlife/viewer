@@ -33,6 +33,7 @@
 #include "_httpreadyqueue.h"
 #include "_httpretryqueue.h"
 #include "_httppolicyglobal.h"
+#include "_httppolicyclass.h"
 #include "_httpinternal.h"
 
 
@@ -92,26 +93,25 @@ public:
 	
 	// Get pointer to global policy options.  Caller is expected
 	// to do context checks like no setting once running.
-	HttpPolicyGlobal &	getGlobalOptions()
+	HttpPolicyGlobal & getGlobalOptions()
 		{
 			return mGlobalOptions;
 		}
 
-	void setPolicies(const HttpPolicyGlobal & global);
+	void setPolicies(const HttpPolicyGlobal & global,
+					 const std::vector<HttpPolicyClass> & classes);
+
 
 	// Get ready counts for a particular class
 	int getReadyCount(HttpRequest::policy_t policy_class);
 	
 protected:
-	struct State
-	{
-		HttpReadyQueue		mReadyQueue;
-		HttpRetryQueue		mRetryQueue;
-	};
+	struct State;
 
-	State				mState[POLICY_CLASS_LIMIT];
-	HttpService *		mService;				// Naked pointer, not refcounted, not owner
-	HttpPolicyGlobal	mGlobalOptions;
+	int									mActiveClasses;
+	State *								mState;
+	HttpService *						mService;				// Naked pointer, not refcounted, not owner
+	HttpPolicyGlobal					mGlobalOptions;
 	
 };  // end class HttpPolicy
 

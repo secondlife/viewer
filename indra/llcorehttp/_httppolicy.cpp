@@ -31,6 +31,7 @@
 #include "_httpoprequest.h"
 #include "_httpservice.h"
 #include "_httplibcurl.h"
+#include "_httppolicyclass.h"
 
 #include "lltimer.h"
 
@@ -38,14 +39,44 @@
 namespace LLCore
 {
 
+
+struct HttpPolicy::State
+{
+public:
+	State()
+		: mConnMax(DEFAULT_CONNECTIONS),
+		  mConnAt(DEFAULT_CONNECTIONS),
+		  mConnMin(2),
+		  mNextSample(0),
+		  mErrorCount(0),
+		  mErrorFactor(0)
+		{}
+	
+	HttpReadyQueue		mReadyQueue;
+	HttpRetryQueue		mRetryQueue;
+
+	HttpPolicyClass		mOptions;
+
+	long				mConnMax;
+	long				mConnAt;
+	long				mConnMin;
+
+	HttpTime			mNextSample;
+	unsigned long		mErrorCount;
+	unsigned long		mErrorFactor;
+};
+
+
 HttpPolicy::HttpPolicy(HttpService * service)
-	: mService(service)
+	: mActiveClasses(0),
+	  mState(NULL),
+	  mService(service)
 {}
 
 
 HttpPolicy::~HttpPolicy()
 {
-	for (int policy_class(0); policy_class < LL_ARRAY_SIZE(mState); ++policy_class)
+	for (int policy_class(0); policy_class < mActiveClasses; ++policy_class)
 	{
 		HttpRetryQueue & retryq(mState[policy_class].mRetryQueue);
 		while (! retryq.empty())
@@ -67,13 +98,27 @@ HttpPolicy::~HttpPolicy()
 			readyq.pop();
 		}
 	}
+	delete [] mState;
+	mState = NULL;
 	mService = NULL;
 }
 
 
-void HttpPolicy::setPolicies(const HttpPolicyGlobal & global)
+void HttpPolicy::setPolicies(const HttpPolicyGlobal & global,
+							 const std::vector<HttpPolicyClass> & classes)
 {
+	llassert_always(! mState);
+
 	mGlobalOptions = global;
+	mActiveClasses = classes.size();
+	mState = new State [mActiveClasses];
+	for (int i(0); i < mActiveClasses; ++i)
+	{
+		mState[i].mOptions = classes[i];
+		mState[i].mConnMax = classes[i].mConnectionLimit;
+		mState[i].mConnAt = mState[i].mConnMax;
+		mState[i].mConnMin = 2;
+	}
 }
 
 
@@ -123,13 +168,14 @@ HttpService::ELoopSpeed HttpPolicy::processReadyQueue()
 	HttpService::ELoopSpeed result(HttpService::REQUEST_SLEEP);
 	HttpLibcurl & transport(mService->getTransport());
 	
-	for (int policy_class(0); policy_class < LL_ARRAY_SIZE(mState); ++policy_class)
+	for (int policy_class(0); policy_class < mActiveClasses; ++policy_class)
 	{
+		State & state(mState[policy_class]);
 		int active(transport.getActiveCountInClass(policy_class));
-		int needed(DEFAULT_CONNECTIONS - active);				// *FIXME:  move to policy class
+		int needed(state.mConnAt - active);		// Expect negatives here
 
-		HttpRetryQueue & retryq(mState[policy_class].mRetryQueue);
-		HttpReadyQueue & readyq(mState[policy_class].mReadyQueue);
+		HttpRetryQueue & retryq(state.mRetryQueue);
+		HttpReadyQueue & readyq(state.mReadyQueue);
 		
 		if (needed > 0)
 		{
@@ -174,9 +220,10 @@ HttpService::ELoopSpeed HttpPolicy::processReadyQueue()
 
 bool HttpPolicy::changePriority(HttpHandle handle, HttpRequest::priority_t priority)
 {
-	for (int policy_class(0); policy_class < LL_ARRAY_SIZE(mState); ++policy_class)
+	for (int policy_class(0); policy_class < mActiveClasses; ++policy_class)
 	{
-		HttpReadyQueue::container_type & c(mState[policy_class].mReadyQueue.get_container());
+		State & state(mState[policy_class]);
+		HttpReadyQueue::container_type & c(state.mReadyQueue.get_container());
 	
 		// Scan ready queue for requests that match policy
 		for (HttpReadyQueue::container_type::iterator iter(c.begin()); c.end() != iter;)
@@ -188,7 +235,7 @@ bool HttpPolicy::changePriority(HttpHandle handle, HttpRequest::priority_t prior
 				HttpOpRequest * op(*cur);
 				c.erase(cur);									// All iterators are now invalidated
 				op->mReqPriority = priority;
-				mState[policy_class].mReadyQueue.push(op);		// Re-insert using adapter class
+				state.mReadyQueue.push(op);						// Re-insert using adapter class
 				return true;
 			}
 		}
@@ -242,7 +289,7 @@ bool HttpPolicy::stageAfterCompletion(HttpOpRequest * op)
 
 int HttpPolicy::getReadyCount(HttpRequest::policy_t policy_class)
 {
-	if (policy_class < POLICY_CLASS_LIMIT)				// *FIXME:  use actual active class count
+	if (policy_class < mActiveClasses)
 	{
 		return (mState[policy_class].mReadyQueue.size()
 				+ mState[policy_class].mRetryQueue.size());

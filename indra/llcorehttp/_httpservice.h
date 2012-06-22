@@ -28,9 +28,12 @@
 #define	_LLCORE_HTTP_SERVICE_H_
 
 
+#include <vector>
+
 #include "httpcommon.h"
 #include "httprequest.h"
 #include "_httppolicyglobal.h"
+#include "_httppolicyclass.h"
 
 
 namespace LLCoreInt
@@ -163,6 +166,14 @@ public:
 		{
 			return mPolicyGlobal;
 		}
+
+	HttpRequest::policy_t createPolicyClass();
+	
+	HttpPolicyClass & getClassOptions(HttpRequest::policy_t policy_class)
+		{
+			llassert(policy_class >= 0 && policy_class < mPolicyClasses.size());
+			return mPolicyClasses[policy_class];
+		}
 	
 protected:
 	void threadRun(LLCoreInt::HttpThread * thread);
@@ -170,20 +181,21 @@ protected:
 	ELoopSpeed processRequestQueue(ELoopSpeed loop);
 	
 protected:
-	static HttpService *		sInstance;
+	static HttpService *				sInstance;
 	
 	// === shared data ===
-	static volatile EState		sState;
-	HttpRequestQueue *			mRequestQueue;
-	volatile bool				mExitRequested;
+	static volatile EState				sState;
+	HttpRequestQueue *					mRequestQueue;
+	volatile bool						mExitRequested;
 	
 	// === calling-thread-only data ===
-	LLCoreInt::HttpThread *		mThread;
-	HttpPolicyGlobal			mPolicyGlobal;
+	LLCoreInt::HttpThread *				mThread;
+	HttpPolicyGlobal					mPolicyGlobal;
+	std::vector<HttpPolicyClass>		mPolicyClasses;
 	
 	// === working-thread-only data ===
-	HttpPolicy *				mPolicy;		// Simple pointer, has ownership
-	HttpLibcurl *				mTransport;		// Simple pointer, has ownership
+	HttpPolicy *						mPolicy;		// Simple pointer, has ownership
+	HttpLibcurl *						mTransport;		// Simple pointer, has ownership
 };  // end class HttpService
 
 }  // end namespace LLCore

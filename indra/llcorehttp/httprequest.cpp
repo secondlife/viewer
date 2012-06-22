@@ -92,26 +92,31 @@ HttpRequest::~HttpRequest()
 
 HttpStatus HttpRequest::setPolicyGlobalOption(EGlobalPolicy opt, long value)
 {
-	// *FIXME:  Fail if thread is running.
-
+	if (HttpService::RUNNING == HttpService::instanceOf()->getState())
+	{
+		return HttpStatus(HttpStatus::LLCORE, HE_OPT_NOT_DYNAMIC);
+	}
 	return HttpService::instanceOf()->getGlobalOptions().set(opt, value);
 }
 
 
 HttpStatus HttpRequest::setPolicyGlobalOption(EGlobalPolicy opt, const std::string & value)
 {
-	// *FIXME:  Fail if thread is running.
-
+	if (HttpService::RUNNING == HttpService::instanceOf()->getState())
+	{
+		return HttpStatus(HttpStatus::LLCORE, HE_OPT_NOT_DYNAMIC);
+	}
 	return HttpService::instanceOf()->getGlobalOptions().set(opt, value);
 }
 
 
 HttpRequest::policy_t HttpRequest::createPolicyClass()
 {
-	// *FIXME:  Implement classes
-	policy_t policy_id = 1;
-	
-	return policy_id;
+	if (HttpService::RUNNING == HttpService::instanceOf()->getState())
+	{
+		return 0;
+	}
+	return HttpService::instanceOf()->createPolicyClass();
 }
 
 
@@ -119,9 +124,11 @@ HttpStatus HttpRequest::setPolicyClassOption(policy_t policy_id,
 											 EClassPolicy opt,
 											 long value)
 {
-	HttpStatus status;
-
-	return status;
+	if (HttpService::RUNNING == HttpService::instanceOf()->getState())
+	{
+		return HttpStatus(HttpStatus::LLCORE, HE_OPT_NOT_DYNAMIC);
+	}
+	return HttpService::instanceOf()->getClassOptions(policy_id).set(opt, value);
 }
 
 

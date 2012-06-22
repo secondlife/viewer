@@ -53,6 +53,12 @@ HttpService::HttpService()
 	  mPolicy(NULL),
 	  mTransport(NULL)
 {
+	HttpPolicyClass pol_class;
+	pol_class.set(HttpRequest::CP_CONNECTION_LIMIT, DEFAULT_CONNECTIONS);
+	pol_class.set(HttpRequest::CP_PER_HOST_CONNECTION_LIMIT, DEFAULT_CONNECTIONS);
+	pol_class.set(HttpRequest::CP_ENABLE_PIPELINING, 0L);
+
+	mPolicyClasses.push_back(pol_class);
 }
 
 
@@ -114,6 +120,18 @@ void HttpService::term()
 }
 
 
+HttpRequest::policy_t HttpService::createPolicyClass()
+{
+	const HttpRequest::policy_t policy_class(mPolicyClasses.size());
+	if (policy_class >= POLICY_CLASS_LIMIT)
+	{
+		return 0;
+	}
+	mPolicyClasses.push_back(HttpPolicyClass());
+	return policy_class;
+}
+
+
 bool HttpService::isStopped()
 {
 	// What is really wanted here is something like:
@@ -142,7 +160,8 @@ void HttpService::startThread()
 	}
 
 	// Push current policy definitions
-	mPolicy->setPolicies(mPolicyGlobal);
+	mPolicy->setPolicies(mPolicyGlobal, mPolicyClasses);
+	mTransport->setPolicyCount(mPolicyClasses.size());
 	
 	mThread = new LLCoreInt::HttpThread(boost::bind(&HttpService::threadRun, this, _1));
 	mThread->addRef();		// Need an explicit reference, implicit one is used internally

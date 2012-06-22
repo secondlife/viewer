@@ -39,17 +39,10 @@ namespace LLCore
 
 
 HttpLibcurl::HttpLibcurl(HttpService * service)
-	: mService(service)
-{
-	// *FIXME:  Use active policy class count later
-	for (int policy_class(0); policy_class < LL_ARRAY_SIZE(mMultiHandles); ++policy_class)
-	{
-		mMultiHandles[policy_class] = 0;
-	}
-
-	// Create multi handle for default class
-	mMultiHandles[0] = curl_multi_init();
-}
+	: mService(service),
+	  mPolicyCount(0),
+	  mMultiHandles(NULL)
+{}
 
 
 HttpLibcurl::~HttpLibcurl()
@@ -64,17 +57,23 @@ HttpLibcurl::~HttpLibcurl()
 		mActiveOps.erase(item);
 	}
 
-	for (int policy_class(0); policy_class < LL_ARRAY_SIZE(mMultiHandles); ++policy_class)
+	if (mMultiHandles)
 	{
-		if (mMultiHandles[policy_class])
+		for (int policy_class(0); policy_class < mPolicyCount; ++policy_class)
 		{
-			// *FIXME:  Do some multi cleanup here first
+			if (mMultiHandles[policy_class])
+			{
+				// *FIXME:  Do some multi cleanup here first
 		
-			curl_multi_cleanup(mMultiHandles[policy_class]);
-			mMultiHandles[policy_class] = 0;
+				curl_multi_cleanup(mMultiHandles[policy_class]);
+				mMultiHandles[policy_class] = 0;
+			}
 		}
-	}
 
+		delete [] mMultiHandles;
+		mMultiHandles = NULL;
+	}
+	
 	mService = NULL;
 }
 	
@@ -87,12 +86,26 @@ void HttpLibcurl::term()
 {}
 
 
+void HttpLibcurl::setPolicyCount(int policy_count)
+{
+	llassert_always(policy_count <= POLICY_CLASS_LIMIT);
+	llassert_always(! mMultiHandles);					// One-time call only
+	
+	mPolicyCount = policy_count;
+	mMultiHandles = new CURLM * [mPolicyCount];
+	for (int policy_class(0); policy_class < mPolicyCount; ++policy_class)
+	{
+		mMultiHandles[policy_class] = curl_multi_init();
+	}
+}
+
+
 HttpService::ELoopSpeed HttpLibcurl::processTransport()
 {
 	HttpService::ELoopSpeed	ret(HttpService::REQUEST_SLEEP);
 
 	// Give libcurl some cycles to do I/O & callbacks
-	for (int policy_class(0); policy_class < LL_ARRAY_SIZE(mMultiHandles); ++policy_class)
+	for (int policy_class(0); policy_class < mPolicyCount; ++policy_class)
 	{
 		if (! mMultiHandles[policy_class])
 			continue;
@@ -147,7 +160,7 @@ HttpService::ELoopSpeed HttpLibcurl::processTransport()
 
 void HttpLibcurl::addOp(HttpOpRequest * op)
 {
-	llassert_always(op->mReqPolicy < POLICY_CLASS_LIMIT);
+	llassert_always(op->mReqPolicy < mPolicyCount);
 	llassert_always(mMultiHandles[op->mReqPolicy] != NULL);
 	
 	// Create standard handle
