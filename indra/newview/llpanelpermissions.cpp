@@ -304,8 +304,8 @@ void LLPanelPermissions::refresh()
 						   && LLSelectMgr::getInstance()->selectGetRootsModify())
 		|| LLSelectMgr::getInstance()->selectGetModify();
 	BOOL is_nonpermanent = (LLSelectMgr::getInstance()->getSelection()->getFirstRootNode() 
-						   && LLSelectMgr::getInstance()->selectGetRootsNonPermanent())
-		|| LLSelectMgr::getInstance()->selectGetNonPermanent();
+						   && LLSelectMgr::getInstance()->selectGetRootsNonPermanentEnforced())
+		|| LLSelectMgr::getInstance()->selectGetNonPermanentEnforced();
 	const LLFocusableElement* keyboard_focus_view = gFocusMgr.getKeyboardFocus();
 
 	S32 string_index = 0;

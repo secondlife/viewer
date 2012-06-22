@@ -593,7 +593,7 @@ bool LLSelectMgr::linkObjects()
 		return true;
 	}
 
-	if (!LLSelectMgr::getInstance()->selectGetRootsNonPermanent())
+	if (!LLSelectMgr::getInstance()->selectGetRootsNonPermanentEnforced())
 	{
 		LLNotificationsUtil::add("CannotLinkPermanent");
 		return true;
@@ -2509,10 +2509,10 @@ BOOL LLSelectMgr::selectGetRootsModify()
 
 
 //-----------------------------------------------------------------------------
-// selectGetPermanent() - return TRUE if current agent can modify all
-// selected objects.
+// selectGetNonPermanentEnforced() - return TRUE if all objects are not
+// permanent enforced
 //-----------------------------------------------------------------------------
-BOOL LLSelectMgr::selectGetNonPermanent()
+BOOL LLSelectMgr::selectGetNonPermanentEnforced()
 {
 	for (LLObjectSelection::iterator iter = getSelection()->begin();
 		 iter != getSelection()->end(); iter++ )
@@ -2532,10 +2532,10 @@ BOOL LLSelectMgr::selectGetNonPermanent()
 }
 
 //-----------------------------------------------------------------------------
-// selectGetRootsModify() - return TRUE if current agent can modify all
-// selected root objects.
+// selectGetRootsNonPermanentEnforced() - return TRUE if all root objects are
+// not permanent enforced
 //-----------------------------------------------------------------------------
-BOOL LLSelectMgr::selectGetRootsNonPermanent()
+BOOL LLSelectMgr::selectGetRootsNonPermanentEnforced()
 {
 	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
 		 iter != getSelection()->root_end(); iter++ )

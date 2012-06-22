@@ -1199,8 +1199,8 @@ void LLFloaterTools::getMediaState()
 	}
 	
 	BOOL is_nonpermanent = (LLSelectMgr::getInstance()->getSelection()->getFirstRootNode() 
-		&& LLSelectMgr::getInstance()->selectGetRootsNonPermanent())
-		|| LLSelectMgr::getInstance()->selectGetNonPermanent();
+		&& LLSelectMgr::getInstance()->selectGetRootsNonPermanentEnforced())
+		|| LLSelectMgr::getInstance()->selectGetNonPermanentEnforced();
 	bool editable = is_nonpermanent && (first_object->permModify() || selectedMediaEditable());
 
 	// Check modify permissions and whether any selected objects are in
