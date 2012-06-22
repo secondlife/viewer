@@ -1,4 +1,4 @@
-/** 
+/**
  * @file linux_updater.cpp
  * @author Kyle Ambroff <ambroff@lindenlab.com>, Tofu Linden
  * @brief Viewer update program for unix platforms that support GTK+
@@ -6,21 +6,21 @@
  * $LicenseInfo:firstyear=2008&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -34,10 +34,30 @@
 #include "llfile.h"
 #include "lldir.h"
 #include "lldiriterator.h"
+
+/*==========================================================================*|
+// IQA-490: Use of LLTrans -- by this program at least -- appears to be buggy.
+// With it, the 3.3.2 beta 1 linux-updater.bin crashes; without it seems stable.
 #include "llxmlnode.h"
 #include "lltrans.h"
+|*==========================================================================*/
+
+static class LLTrans
+{
+public:
+	LLTrans();
+	static std::string getString(const std::string& key);
+
+private:
+	std::string _getString(const std::string& key) const;
+
+	typedef std::map<std::string, std::string> MessageMap;
+	MessageMap mMessages;
+} sLLTransInstance;
 
 #include <curl/curl.h>
+#include <map>
+#include <boost/foreach.hpp>
 
 extern "C" {
 #include <gtk/gtk.h>
@@ -85,6 +105,8 @@ void init_default_trans_args()
 bool translate_init(std::string comma_delim_path_list,
 		    std::string base_xml_name)
 {
+	return true;
+/*==========================================================================*|
 	init_default_trans_args();
 
 	// extract paths string vector from comma-delimited flat string
@@ -112,6 +134,7 @@ bool translate_init(std::string comma_delim_path_list,
 		LLTrans::parseStrings(root, default_trans_args);
 		return true;
 	}
+|*==========================================================================*/
 }
 
 
@@ -151,7 +174,7 @@ void updater_app_ui_init(UpdaterAppState *app_state)
 				GTK_WIN_POS_CENTER_ALWAYS);
 
 	gtk_container_set_border_width(GTK_CONTAINER(app_state->window), 12);
-	g_signal_connect(G_OBJECT(app_state->window), "delete-event", 
+	g_signal_connect(G_OBJECT(app_state->window), "delete-event",
 			 G_CALLBACK(on_window_closed), app_state);
 
 	vbox = gtk_vbox_new(FALSE, 6);
@@ -165,7 +188,7 @@ void updater_app_ui_init(UpdaterAppState *app_state)
 
 	summary_label = gtk_label_new(NULL);
 	gtk_label_set_use_markup(GTK_LABEL(summary_label), TRUE);
-	gtk_label_set_markup(GTK_LABEL(summary_label), 
+	gtk_label_set_markup(GTK_LABEL(summary_label),
 			     label_ostr.str().c_str());
 	gtk_misc_set_alignment(GTK_MISC(summary_label), 0, 0.5);
 	gtk_box_pack_start(GTK_BOX(vbox), summary_label, FALSE, FALSE, 0);
@@ -195,9 +218,9 @@ void updater_app_ui_init(UpdaterAppState *app_state)
 
 	// set up progress bar, and update it roughly every 1/10 of a second
 	app_state->progress_bar = gtk_progress_bar_new();
-	gtk_progress_bar_set_text(GTK_PROGRESS_BAR(app_state->progress_bar), 
+	gtk_progress_bar_set_text(GTK_PROGRESS_BAR(app_state->progress_bar),
 				  LLTrans::getString("UpdaterProgressBarTextWithEllipses").c_str());
-	gtk_box_pack_start(GTK_BOX(vbox), 
+	gtk_box_pack_start(GTK_BOX(vbox),
 			   app_state->progress_bar, FALSE, TRUE, 0);
 	app_state->progress_update_timeout_id = g_timeout_add
 		(UPDATE_PROGRESS_TIMEOUT, progress_update_timeout, app_state);
@@ -299,7 +322,7 @@ gpointer worker_thread_cb(gpointer data)
 				g_error_free(error);
 				throw 0;
 			}
-			
+
 			if(tmp_local_filename != NULL)
 			{
 				app_state->file = tmp_local_filename;
@@ -342,7 +365,7 @@ gpointer worker_thread_cb(gpointer data)
 			curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, TRUE);
 			curl_easy_setopt(curl, CURLOPT_WRITEDATA, package_file);
 			curl_easy_setopt(curl, CURLOPT_NOPROGRESS, FALSE);
-			curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, 
+			curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION,
 							 &download_progress_cb);
 			curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, app_state);
 
@@ -352,8 +375,8 @@ gpointer worker_thread_cb(gpointer data)
 
 			if (result)
 			{
-				llerrs << "Failed to download update: " 
-					   << app_state->url 
+				llerrs << "Failed to download update: "
+					   << app_state->url
 					   << llendl;
 
 				gdk_threads_enter();
@@ -365,7 +388,7 @@ gpointer worker_thread_cb(gpointer data)
 				throw 0;
 			}
 		}
-		
+
 		// now pulse the progres bar back and forth while the package is
 		// being unpacked
 		gdk_threads_enter();
@@ -386,8 +409,8 @@ gpointer worker_thread_cb(gpointer data)
 
 			gdk_threads_enter();
 			display_error(app_state->window,
-				      LLTrans::getString("UpdaterFailInstallTitle"),
-				      LLTrans::getString("UpdaterFailUpdateDescriptive"));
+						  LLTrans::getString("UpdaterFailInstallTitle"),
+						  LLTrans::getString("UpdaterFailUpdateDescriptive"));
 			//"Failed to update " + app_state->app_name,
 			gdk_threads_leave();
 			throw 0;
@@ -402,8 +425,8 @@ gpointer worker_thread_cb(gpointer data)
 
 			gdk_threads_enter();
 			display_error(app_state->window,
-				      LLTrans::getString("UpdaterFailStartTitle"),
-				      LLTrans::getString("UpdaterFailUpdateDescriptive"));
+						  LLTrans::getString("UpdaterFailStartTitle"),
+						  LLTrans::getString("UpdaterFailUpdateDescriptive"));
 			gdk_threads_leave();
 			throw 0;
 		}
@@ -448,7 +471,7 @@ gboolean less_anal_gspawnsync(gchar **argv,
 
 	// restore SIGCHLD handler
 	sigaction(SIGCHLD, &sigchld_backup, NULL);
-	
+
 	return rtn;
 }
 
@@ -477,7 +500,7 @@ rename_with_sudo_fallback(const std::string& filename, const std::string& newnam
 			{
 				char *src_string_copy = g_strdup(filename.c_str());
 				char *dst_string_copy = g_strdup(newname.c_str());
-				char* argv[] = 
+				char* argv[] =
 					{
 						sudo_cmd,
 						mv_cmd,
@@ -492,8 +515,8 @@ rename_with_sudo_fallback(const std::string& filename, const std::string& newnam
 				if (!less_anal_gspawnsync(argv, &stderr_output,
 							  &child_exit_status, &spawn_error))
 				{
-					llwarns << "Failed to spawn child process: " 
-						<< spawn_error->message 
+					llwarns << "Failed to spawn child process: "
+						<< spawn_error->message
 						<< llendl;
 				}
 				else if (child_exit_status)
@@ -506,7 +529,7 @@ rename_with_sudo_fallback(const std::string& filename, const std::string& newnam
 				{
 					// everything looks good, clear the error code
 					rtncode = 0;
-				}				
+				}
 
 				g_free(src_string_copy);
 				g_free(dst_string_copy);
@@ -531,7 +554,7 @@ gboolean install_package(std::string package_file, std::string destination)
 	}
 	llinfos << "Found tar command: " << tar_cmd << llendl;
 
-	// Unpack the tarball in a temporary place first, then move it to 
+	// Unpack the tarball in a temporary place first, then move it to
 	// its final destination
 	std::string tmp_dest_dir = gDirUtilp->getTempFilename();
 	if (LLFile::mkdir(tmp_dest_dir, 0744))
@@ -571,8 +594,8 @@ gboolean install_package(std::string package_file, std::string destination)
 	if (!less_anal_gspawnsync(argv, &stderr_output,
 				  &child_exit_status, &untar_error))
 	{
-		llwarns << "Failed to spawn child process: " 
-			<< untar_error->message 
+		llwarns << "Failed to spawn child process: "
+			<< untar_error->message
 			<< llendl;
 		return FALSE;
 	}
@@ -605,8 +628,8 @@ gboolean install_package(std::string package_file, std::string destination)
 
 		if (rename_with_sudo_fallback(destination, backup_dir))
 		{
-			llwarns << "Failed to move directory: '" 
-				<< destination << "' -> '" << backup_dir 
+			llwarns << "Failed to move directory: '"
+				<< destination << "' -> '" << backup_dir
 				<< llendl;
 			return FALSE;
 		}
@@ -617,7 +640,7 @@ gboolean install_package(std::string package_file, std::string destination)
 	if (rename_with_sudo_fallback(tmp_dest_dir, destination))
 	{
 		llwarns << "Failed to move installation to the destination: "
-			<< destination 
+			<< destination
 			<< llendl;
 		return FALSE;
 	}
@@ -713,7 +736,7 @@ BOOL spawn_viewer(UpdaterAppState *app_state)
 
 	if (!success)
 	{
-		llwarns << "Failed to launch viewer: " << error->message 
+		llwarns << "Failed to launch viewer: " << error->message
 			<< llendl;
 	}
 
@@ -751,7 +774,7 @@ void parse_args_and_init(int argc, char **argv, UpdaterAppState *app_state)
 		else if ((!strcmp(argv[i], "--image-dir")) && (++i < argc))
 		{
 			app_state->image_dir = argv[i];
-			app_state->image_dir_iter = new LLDirIterator(argv[i], "/*.jpg");
+			app_state->image_dir_iter = new LLDirIterator(argv[i], "*.jpg");
 		}
 		else if ((!strcmp(argv[i], "--dest")) && (++i < argc))
 		{
@@ -772,8 +795,8 @@ void parse_args_and_init(int argc, char **argv, UpdaterAppState *app_state)
 		}
 	}
 
-	if (app_state->app_name.empty() 
-	    || (app_state->url.empty() && app_state->file.empty())  
+	if (app_state->app_name.empty()
+	    || (app_state->url.empty() && app_state->file.empty())
 	    || app_state->dest_dir.empty())
 	{
 		show_usage_and_exit();
@@ -799,7 +822,7 @@ int main(int argc, char **argv)
 		(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
 	std::string old_log_file = gDirUtilp->getExpandedFilename
 		(LL_PATH_LOGS, "updater.log.old");
-	std::string log_file = 
+	std::string log_file =
 		gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "updater.log");
 	LLFile::rename(log_file, old_log_file);
 	LLError::logToFile(log_file);
@@ -841,3 +864,63 @@ int main(int argc, char **argv)
 	return success ? 0 : 1;
 }
 
+/*****************************************************************************
+*   Dummy LLTrans implementation (IQA-490)
+*****************************************************************************/
+static LLTrans sStaticStrings;
+
+// lookup
+std::string LLTrans::_getString(const std::string& key) const
+{
+	MessageMap::const_iterator found = mMessages.find(key);
+	if (found != mMessages.end())
+	{
+		return found->second;
+	}
+	LL_WARNS("linux_updater") << "No message for key '" << key
+							  << "' -- add to LLTrans::LLTrans() in linux_updater.cpp"
+							  << LL_ENDL;
+	return key;
+}
+
+// static lookup
+std::string LLTrans::getString(const std::string& key)
+{
+    return sLLTransInstance._getString(key);
+}
+
+// initialization
+LLTrans::LLTrans()
+{
+	typedef std::pair<const char*, const char*> Pair;
+	static const Pair data[] =
+	{
+		Pair("UpdaterFailDownloadTitle",
+			 "Failed to download update"),
+		Pair("UpdaterFailInstallTitle",
+			 "Failed to install update"),
+		Pair("UpdaterFailStartTitle",
+			 "Failed to start viewer"),
+		Pair("UpdaterFailUpdateDescriptive",
+			 "An error occurred while updating Second Life. "
+			 "Please download the latest version from www.secondlife.com."),
+		Pair("UpdaterNowInstalling",
+			 "Installing Second Life..."),
+		Pair("UpdaterNowUpdating",
+			 "Now updating Second Life..."),
+		Pair("UpdaterProgressBarText",
+			 "Downloading update"),
+		Pair("UpdaterProgressBarTextWithEllipses",
+			 "Downloading update..."),
+		Pair("UpdaterUpdatingDescriptive",
+			 "Your Second Life Viewer is being updated to the latest release. "
+			 "This may take some time, so please be patient."),
+		Pair("UpdaterWindowTitle",
+			 "Second Life Update")
+	};
+
+	BOOST_FOREACH(Pair pair, data)
+	{
+		mMessages[pair.first] = pair.second;
+	}
+}

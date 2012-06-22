@@ -1,24 +1,24 @@
-/** 
+/**
  * @file llupdatedownloader.cpp
  *
  * $LicenseInfo:firstyear=2010&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -58,7 +58,7 @@ public:
 	int onProgress(double downloadSize, double bytesDownloaded);
 	void resume(void);
 	void setBandwidthLimit(U64 bytesPerSecond);
-	
+
 private:
 	curl_off_t mBandwidthLimit;
 	bool mCancelled;
@@ -69,7 +69,7 @@ private:
 	unsigned char mDownloadPercent;
 	std::string mDownloadRecordPath;
 	curl_slist * mHeaderList;
-	
+
 	void initializeCurlGet(std::string const & url, bool processHeader);
 	void resumeDownloading(size_t startByte);
 	void run(void);
@@ -93,7 +93,7 @@ namespace {
 		}
 	};
 
-		
+
 	const char * gSecondLifeUpdateRecord = "SecondLifeUpdateDownload.xml";
 };
 
@@ -192,18 +192,18 @@ LLUpdateDownloader::Implementation::Implementation(LLUpdateDownloader::Client & 
 	mHeaderList(0)
 {
 	CURLcode code = curl_global_init(CURL_GLOBAL_ALL); // Just in case.
-	llverify(code == CURLE_OK); // TODO: real error handling here. 
+	llverify(code == CURLE_OK); // TODO: real error handling here.
 }
 
 
 LLUpdateDownloader::Implementation::~Implementation()
 {
-	if(isDownloading()) 
+	if(isDownloading())
 	{
 		cancel();
 		shutdown();
-	} 
-	else 
+	}
+	else
 	{
 		; // No op.
 	}
@@ -218,7 +218,7 @@ void LLUpdateDownloader::Implementation::cancel(void)
 {
 	mCancelled = true;
 }
-	
+
 
 void LLUpdateDownloader::Implementation::download(LLURI const & uri,
 												  std::string const & hash,
@@ -259,24 +259,24 @@ void LLUpdateDownloader::Implementation::resume(void)
 		mClient.downloadError("no download marker");
 		return;
 	}
-	
+
 	LLSDSerialize::fromXMLDocument(mDownloadData, dataStream);
-	
+
 	if(!mDownloadData.asBoolean()) {
 		mClient.downloadError("no download information in marker");
 		return;
 	}
-	
+
 	std::string filePath = mDownloadData["path"].asString();
 	try {
-		if(LLFile::isfile(filePath)) {		
+		if(LLFile::isfile(filePath)) {
 			llstat fileStatus;
 			LLFile::stat(filePath, &fileStatus);
 			if(fileStatus.st_size != mDownloadData["size"].asInteger()) {
 				resumeDownloading(fileStatus.st_size);
 			} else if(!validateDownload()) {
 				LLFile::remove(filePath);
-				download(LLURI(mDownloadData["url"].asString()), 
+				download(LLURI(mDownloadData["url"].asString()),
 						 mDownloadData["hash"].asString(),
 						 mDownloadData["update_version"].asString(),
 						 mDownloadData["required"].asBoolean());
@@ -284,7 +284,7 @@ void LLUpdateDownloader::Implementation::resume(void)
 				mClient.downloadComplete(mDownloadData);
 			}
 		} else {
-			download(LLURI(mDownloadData["url"].asString()), 
+			download(LLURI(mDownloadData["url"].asString()),
 					 mDownloadData["hash"].asString(),
 					 mDownloadData["update_version"].asString(),
 					 mDownloadData["required"].asBoolean());
@@ -301,7 +301,7 @@ void LLUpdateDownloader::Implementation::setBandwidthLimit(U64 bytesPerSecond)
 		llassert(mCurl != 0);
 		mBandwidthLimit = bytesPerSecond;
 		CURLcode code = curl_easy_setopt(mCurl, CURLOPT_MAX_RECV_SPEED_LARGE, &mBandwidthLimit);
-		if(code != CURLE_OK) LL_WARNS("UpdateDownload") << 
+		if(code != CURLE_OK) LL_WARNS("UpdateDownload") <<
 			"unable to change dowload bandwidth" << LL_ENDL;
 	} else {
 		mBandwidthLimit = bytesPerSecond;
@@ -315,7 +315,7 @@ size_t LLUpdateDownloader::Implementation::onHeader(void * buffer, size_t size)
 	std::string header(headerPtr, headerPtr + size);
 	size_t colonPosition = header.find(':');
 	if(colonPosition == std::string::npos) return size; // HTML response; ignore.
-	
+
 	if(header.substr(0, colonPosition) == "Content-Length") {
 		try {
 			size_t firstDigitPos = header.find_first_of("0123456789", colonPosition);
@@ -323,18 +323,18 @@ size_t LLUpdateDownloader::Implementation::onHeader(void * buffer, size_t size)
 			std::string contentLength = header.substr(firstDigitPos, lastDigitPos - firstDigitPos + 1);
 			size_t size = boost::lexical_cast<size_t>(contentLength);
 			LL_INFOS("UpdateDownload") << "download size is " << size << LL_ENDL;
-			
+
 			mDownloadData["size"] = LLSD(LLSD::Integer(size));
 			llofstream odataStream(mDownloadRecordPath);
 			LLSDSerialize::toPrettyXML(mDownloadData, odataStream);
 		} catch (std::exception const & e) {
-			LL_WARNS("UpdateDownload") << "unable to read content length (" 
+			LL_WARNS("UpdateDownload") << "unable to read content length ("
 				<< e.what() << ")" << LL_ENDL;
 		}
 	} else {
 		; // No op.
 	}
-	
+
 	return size;
 }
 
@@ -342,9 +342,9 @@ size_t LLUpdateDownloader::Implementation::onHeader(void * buffer, size_t size)
 size_t LLUpdateDownloader::Implementation::onBody(void * buffer, size_t size)
 {
 	if(mCancelled) return 0; // Forces a write error which will halt curl thread.
-	if((size == 0) || (buffer == 0)) return 0; 
-	
-	mDownloadStream.write(reinterpret_cast<const char *>(buffer), size);
+	if((size == 0) || (buffer == 0)) return 0;
+
+	mDownloadStream.write(static_cast<const char *>(buffer), size);
 	if(mDownloadStream.bad()) {
 		return 0;
 	} else {
@@ -358,7 +358,7 @@ int LLUpdateDownloader::Implementation::onProgress(double downloadSize, double b
 	int downloadPercent = static_cast<int>(100. * (bytesDownloaded / downloadSize));
 	if(downloadPercent > mDownloadPercent) {
 		mDownloadPercent = downloadPercent;
-		
+
 		LLSD event;
 		event["pump"] = LLUpdaterService::pumpName();
 		LLSD payload;
@@ -367,12 +367,12 @@ int LLUpdateDownloader::Implementation::onProgress(double downloadSize, double b
 		payload["bytes_downloaded"] = bytesDownloaded;
 		event["payload"] = payload;
 		LLEventPumps::instance().obtain("mainlooprepeater").post(event);
-		
+
 		LL_INFOS("UpdateDownload") << "progress event " << payload << LL_ENDL;
 	} else {
 		; // Keep events to a reasonalbe number.
 	}
-	
+
 	return 0;
 }
 
@@ -396,13 +396,13 @@ void LLUpdateDownloader::Implementation::run(void)
 		LL_INFOS("UpdateDownload") << "download canceled by user" << LL_ENDL;
 		// Do not call back client.
 	} else {
-		LL_WARNS("UpdateDownload") << "download failed with error '" << 
+		LL_WARNS("UpdateDownload") << "download failed with error '" <<
 			curl_easy_strerror(code) << "'" << LL_ENDL;
 		LLFile::remove(mDownloadRecordPath);
 		if(mDownloadData.has("path")) LLFile::remove(mDownloadData["path"].asString());
 		mClient.downloadError("curl error");
 	}
-	
+
 	if(mHeaderList) {
 		curl_slist_free_all(mHeaderList);
 		mHeaderList = 0;
@@ -412,17 +412,17 @@ void LLUpdateDownloader::Implementation::run(void)
 
 void LLUpdateDownloader::Implementation::initializeCurlGet(std::string const & url, bool processHeader)
 {
-	if(mCurl == 0) 
+	if(mCurl == 0)
 	{
 		mCurl = LLCurl::newEasyHandle();
-	} 
-	else 
+	}
+	else
 	{
 		curl_easy_reset(mCurl);
 	}
-	
+
 	if(mCurl == 0) throw DownloadError("failed to initialize curl");
-	
+
 	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_NOSIGNAL, true));
 	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_FOLLOWLOCATION, true));
 	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_WRITEFUNCTION, &write_function));
@@ -439,7 +439,7 @@ void LLUpdateDownloader::Implementation::initializeCurlGet(std::string const & u
 	// if it's a required update set the bandwidth limit to 0 (unlimited)
 	curl_off_t limit = mDownloadData["required"].asBoolean() ? 0 : mBandwidthLimit;
 	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_MAX_RECV_SPEED_LARGE, limit));
-	
+
 	mDownloadPercent = 0;
 }
 
@@ -450,7 +450,7 @@ void LLUpdateDownloader::Implementation::resumeDownloading(size_t startByte)
 		<< " at byte " << startByte << LL_ENDL;
 
 	initializeCurlGet(mDownloadData["url"].asString(), false);
-	
+
 	// The header 'Range: bytes n-' will request the bytes remaining in the
 	// source begining with byte n and ending with the last byte.
 	boost::format rangeHeaderFormat("Range: bytes=%u-");
@@ -458,7 +458,7 @@ void LLUpdateDownloader::Implementation::resumeDownloading(size_t startByte)
 	mHeaderList = curl_slist_append(mHeaderList, rangeHeaderFormat.str().c_str());
 	if(mHeaderList == 0) throw DownloadError("cannot add Range header");
 	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_HTTPHEADER, mHeaderList));
-	
+
 	mDownloadStream.open(mDownloadData["path"].asString(),
 						 std::ios_base::out | std::ios_base::binary | std::ios_base::app);
 	start();
@@ -479,10 +479,10 @@ void LLUpdateDownloader::Implementation::startDownloading(LLURI const & uri, std
 	LL_INFOS("UpdateDownload") << "downloading " << filePath
 		<< " from " << uri.asString() << LL_ENDL;
 	LL_INFOS("UpdateDownload") << "hash of file is " << hash << LL_ENDL;
-		
+
 	llofstream dataStream(mDownloadRecordPath);
 	LLSDSerialize::toPrettyXML(mDownloadData, dataStream);
-	
+
 	mDownloadStream.open(filePath, std::ios_base::out | std::ios_base::binary);
 	initializeCurlGet(uri.asString(), true);
 	start();

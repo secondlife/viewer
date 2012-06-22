@@ -398,6 +398,8 @@ public:
 	LL_ALIGN_16(LLVector4a mObjectBounds[2]); // bounding box (center, size) of objects in this node
 	LL_ALIGN_16(LLVector4a mViewAngle);
 	LL_ALIGN_16(LLVector4a mLastUpdateViewAngle);
+
+	F32 mObjectBoxSize; //cached mObjectBounds[1].getLength3()
 		
 private:
 	U32                     mCurUpdatingTime ;

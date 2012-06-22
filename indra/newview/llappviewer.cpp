@@ -93,6 +93,7 @@
 #include "llsecondlifeurls.h"
 #include "llupdaterservice.h"
 #include "llcallfloater.h"
+#include "llfloatertexturefetchdebugger.h"
 
 // Linden library includes
 #include "llavatarnamecache.h"
@@ -111,6 +112,8 @@
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 
+#include "llleap.h"
+
 // Third party library includes
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
@@ -124,7 +127,6 @@
 #endif
 
 #include "llapr.h"
-#include "apr_dso.h"
 #include <boost/lexical_cast.hpp>
 
 #include "llviewerkeyboard.h"
@@ -161,6 +163,7 @@
 #include "llcontainerview.h"
 #include "lltooltip.h"
 
+#include "llsdutil.h"
 #include "llsdserialize.h"
 
 #include "llworld.h"
@@ -528,6 +531,7 @@ static void settings_to_globals()
 	LLRender::sGLCoreProfile = gSavedSettings.getBOOL("RenderGLCoreProfile");
 
 	LLImageGL::sGlobalUseAnisotropic	= gSavedSettings.getBOOL("RenderAnisotropic");
+	LLImageGL::sCompressTextures		= gSavedSettings.getBOOL("RenderCompressTextures");
 	LLVOVolume::sLODFactor				= gSavedSettings.getF32("RenderVolumeLODFactor");
 	LLVOVolume::sDistanceFactor			= 1.f-LLVOVolume::sLODFactor * 0.1f;
 	LLVolumeImplFlexible::sUpdateFactor = gSavedSettings.getF32("RenderFlexTimeFactor");
@@ -545,7 +549,7 @@ static void settings_to_globals()
 	gAgentPilot.setNumRuns(gSavedSettings.getS32("StatsNumRuns"));
 	gAgentPilot.setQuitAfterRuns(gSavedSettings.getBOOL("StatsQuitAfterRuns"));
 	gAgent.setHideGroupTitle(gSavedSettings.getBOOL("RenderHideGroupTitle"));
-
+		
 	gDebugWindowProc = gSavedSettings.getBOOL("DebugWindowProc");
 	gShowObjectUpdates = gSavedSettings.getBOOL("ShowObjectUpdates");
 	LLWorldMapView::sMapScale = gSavedSettings.getF32("MapScale");
@@ -560,7 +564,6 @@ static void settings_modify()
 	LLVOSurfacePatch::sLODFactor *= LLVOSurfacePatch::sLODFactor; //square lod factor to get exponential range of [1,4]
 	gDebugGL = gSavedSettings.getBOOL("RenderDebugGL") || gDebugSession;
 	gDebugPipeline = gSavedSettings.getBOOL("RenderDebugPipeline");
-	gAuditTexture = gSavedSettings.getBOOL("AuditTexture");
 }
 
 class LLFastTimerLogThread : public LLThread
@@ -731,12 +734,12 @@ bool LLAppViewer::init()
 	
 	{
 		// Viewer metrics initialization
-		static LLCachedControl<bool> metrics_submode(gSavedSettings,
-													 "QAModeMetrics",
-													 false,
-													 "Enables QA features (logging, faster cycling) for metrics collector");
+		//static LLCachedControl<bool> metrics_submode(gSavedSettings,
+		//											 "QAModeMetrics",
+		//											 false,
+		//											 "Enables QA features (logging, faster cycling) for metrics collector");
 
-		if (metrics_submode)
+		if (gSavedSettings.getBOOL("QAModeMetrics"))
 		{
 			app_metrics_qa_mode = true;
 			app_metrics_interval = METRICS_INTERVAL_QA;
@@ -1014,6 +1017,15 @@ bool LLAppViewer::init()
 		}
 	}
 
+#if LL_WINDOWS
+	if (gGLManager.mIsIntel && 
+		LLFeatureManager::getInstance()->getGPUClass() > 0 &&
+		gGLManager.mGLVersion <= 3.f)
+	{
+		LLNotificationsUtil::add("IntelOldDriver");
+	}
+#endif
+
 
 	// save the graphics card
 	gDebugInfo["GraphicsCard"] = LLFeatureManager::getInstance()->getGPUString();
@@ -1038,11 +1050,38 @@ bool LLAppViewer::init()
 
 
 	gGLActive = FALSE;
+
+	// Iterate over --leap command-line options. But this is a bit tricky: if
+	// there's only one, it won't be an array at all.
+	LLSD LeapCommand(gSavedSettings.getLLSD("LeapCommand"));
+	LL_DEBUGS("InitInfo") << "LeapCommand: " << LeapCommand << LL_ENDL;
+	if (LeapCommand.isDefined() && ! LeapCommand.isArray())
+	{
+		// If LeapCommand is actually a scalar value, make an array of it.
+		// Have to do it in two steps because LeapCommand.append(LeapCommand)
+		// trashes content! :-P
+		LLSD item(LeapCommand);
+		LeapCommand.append(item);
+	}
+	BOOST_FOREACH(const std::string& leap, llsd::inArray(LeapCommand))
+	{
+		LL_INFOS("InitInfo") << "processing --leap \"" << leap << '"' << LL_ENDL;
+		// We don't have any better description of this plugin than the
+		// user-specified command line. Passing "" causes LLLeap to derive a
+		// description from the command line itself.
+		// Suppress LLLeap::Error exception: trust LLLeap's own logging. We
+		// don't consider any one --leap command mission-critical, so if one
+		// fails, log it, shrug and carry on.
+		LLLeap::create("", leap, false); // exception=false
+	}
+
 	if (gSavedSettings.getBOOL("QAMode") && gSavedSettings.getS32("QAModeEventHostPort") > 0)
 	{
-		loadEventHostModule(gSavedSettings.getS32("QAModeEventHostPort"));
+		LL_WARNS("InitInfo") << "QAModeEventHostPort DEPRECATED: "
+							 << "lleventhost no longer supported as a dynamic library"
+							 << LL_ENDL;
 	}
-	
+
 	LLViewerMedia::initClass();
 	LL_INFOS("InitInfo") << "Viewer media initialized." << LL_ENDL ;
 
@@ -1219,7 +1258,7 @@ bool LLAppViewer::mainLoop()
 			if(mem_leak_instance)
 			{
 				mem_leak_instance->idle() ;				
-			}			
+			}							
 
             // canonical per-frame event
             mainloop.post(newFrame);
@@ -1340,13 +1379,11 @@ bool LLAppViewer::mainLoop()
 					ms_sleep(500);
 				}
 
-				static const F64 FRAME_SLOW_THRESHOLD = 0.5; //2 frames per seconds				
 				const F64 max_idle_time = llmin(.005*10.0*gFrameTimeSeconds, 0.005); // 5 ms a second
 				idleTimer.reset();
-				bool is_slow = (frameTimer.getElapsedTimeF64() > FRAME_SLOW_THRESHOLD) ;
 				S32 total_work_pending = 0;
 				S32 total_io_pending = 0;	
-				while(!is_slow)//do not unpause threads if the frame rates are very low.
+				while(1)
 				{
 					S32 work_pending = 0;
 					S32 io_pending = 0;
@@ -1405,6 +1442,17 @@ bool LLAppViewer::mainLoop()
 					LLVFSThread::sLocal->pause(); 
 					LLLFSThread::sLocal->pause(); 
 				}									
+
+				//texture fetching debugger
+				if(LLTextureFetchDebugger::isEnabled())
+				{
+					LLFloaterTextureFetchDebugger* tex_fetch_debugger_instance =
+						LLFloaterReg::findTypedInstance<LLFloaterTextureFetchDebugger>("tex_fetch_debugger");
+					if(tex_fetch_debugger_instance)
+					{
+						tex_fetch_debugger_instance->idle() ;				
+					}
+				}
 
 				if ((LLStartUp::getStartupState() >= STATE_CLEANUP) &&
 					(frameTimer.getElapsedTimeF64() > FRAME_STALL_THRESHOLD))
@@ -1511,21 +1559,27 @@ bool LLAppViewer::cleanup()
 	if (! isError())
 	{
 		std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
-		logdir += gDirUtilp->getDirDelimiter();
 		gDirUtilp->deleteFilesInDir(logdir, "*-*-*-*-*.dmp");
 	}
 
-	// *TODO - generalize this and move DSO wrangling to a helper class -brad
-	std::set<struct apr_dso_handle_t *>::const_iterator i;
-	for(i = mPlugins.begin(); i != mPlugins.end(); ++i)
 	{
-		int (*ll_plugin_stop_func)(void) = NULL;
-		apr_status_t rv = apr_dso_sym((apr_dso_handle_sym_t*)&ll_plugin_stop_func, *i, "ll_plugin_stop");
-		ll_plugin_stop_func();
-
-		rv = apr_dso_unload(*i);
-	}
-	mPlugins.clear();
+		// Kill off LLLeap objects. We can find them all because LLLeap is derived
+		// from LLInstanceTracker. But collect instances first: LLInstanceTracker
+		// specifically forbids adding/deleting instances while iterating.
+		std::vector<LLLeap*> leaps;
+		leaps.reserve(LLLeap::instanceCount());
+		for (LLLeap::instance_iter li(LLLeap::beginInstances()), lend(LLLeap::endInstances());
+			 li != lend; ++li)
+		{
+			leaps.push_back(&*li);
+		}
+		// Okay, now trash them all. We don't have to NULL or erase the entry
+		// in 'leaps' because the whole vector is going away momentarily.
+		BOOST_FOREACH(LLLeap* leap, leaps)
+		{
+			delete leap;
+		}
+	} // destroy 'leaps'
 
 	//flag all elements as needing to be destroyed immediately
 	// to ensure shutdown order
@@ -1760,8 +1814,7 @@ bool LLAppViewer::cleanup()
 	if (mPurgeOnExit)
 	{
 		llinfos << "Purging all cache files on exit" << llendflush;
-		std::string mask = gDirUtilp->getDirDelimiter() + "*.*";
-		gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE,""),mask);
+		gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE,""), "*.*");
 	}
 
 	removeMarkerFile(); // Any crashes from here on we'll just have to ignore
@@ -1951,7 +2004,7 @@ bool LLAppViewer::initThreads()
 	static const bool enable_threads = true;
 #endif
 
-	LLImage::initClass();
+	LLImage::initClass(gSavedSettings.getBOOL("TextureNewByteRange"),gSavedSettings.getS32("TextureReverseByteRange"));
 
 	LLVFSThread::initClass(enable_threads && false);
 	LLLFSThread::initClass(enable_threads && false);
@@ -2995,8 +3048,7 @@ void LLAppViewer::cleanupSavedSettings()
 
 void LLAppViewer::removeCacheFiles(const std::string& file_mask)
 {
-	std::string mask = gDirUtilp->getDirDelimiter() + file_mask;
-	gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, ""), mask);
+	gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, ""), file_mask);
 }
 
 void LLAppViewer::writeSystemInfo()
@@ -3855,8 +3907,7 @@ void LLAppViewer::purgeCache()
 	LL_INFOS("AppCache") << "Purging Cache and Texture Cache..." << LL_ENDL;
 	LLAppViewer::getTextureCache()->purgeCache(LL_PATH_CACHE);
 	LLVOCache::getInstance()->removeCache(LL_PATH_CACHE);
-	std::string mask = "*.*";
-	gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, ""), mask);
+	gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, ""), "*.*");
 }
 
 std::string LLAppViewer::getSecondLifeTitle() const
@@ -4201,6 +4252,7 @@ void LLAppViewer::idle()
 			// The 5-second interval is nice for this purpose.  If the object debug
 			// bit moves or is disabled, please give this a suitable home.
 			LLViewerAssetStatsFF::record_fps_main(gFPSClamped);
+			LLViewerAssetStatsFF::record_avatar_stats();
 		}
 	}
 
@@ -4248,7 +4300,8 @@ void LLAppViewer::idle()
 		static LLTimer report_interval;
 
 		// *TODO:  Add configuration controls for this
-		if (report_interval.getElapsedTimeF32() >= app_metrics_interval)
+		F32 seconds = report_interval.getElapsedTimeF32();
+		if (seconds >= app_metrics_interval)
 		{
 			metricsSend(! gDisconnected);
 			report_interval.reset();
@@ -4956,87 +5009,6 @@ void LLAppViewer::handleLoginComplete()
 	mOnLoginCompleted();
 
 	writeDebugInfo();
-}
-
-// *TODO - generalize this and move DSO wrangling to a helper class -brad
-void LLAppViewer::loadEventHostModule(S32 listen_port)
-{
-	std::string dso_name =
-#if LL_WINDOWS
-	    "lleventhost.dll";
-#elif LL_DARWIN
-	    "liblleventhost.dylib";
-#else
-	    "liblleventhost.so";
-#endif
-
-	std::string dso_path = gDirUtilp->findFile(dso_name,
-		gDirUtilp->getAppRODataDir(),
-		gDirUtilp->getExecutableDir());
-
-	if(dso_path == "")
-	{
-		llerrs << "QAModeEventHost requested but module \"" << dso_name << "\" not found!" << llendl;
-		return;
-	}
-
-	LL_INFOS("eventhost") << "Found lleventhost at '" << dso_path << "'" << LL_ENDL;
-#if ! defined(LL_WINDOWS)
-	{
-		std::string outfile("/tmp/lleventhost.file.out");
-		std::string command("file '" + dso_path + "' > '" + outfile + "' 2>&1");
-		int rc = system(command.c_str());
-		if (rc != 0)
-		{
-			LL_WARNS("eventhost") << command << " ==> " << rc << ':' << LL_ENDL;
-		}
-		else
-		{
-			LL_INFOS("eventhost") << command << ':' << LL_ENDL;
-		}
-		{
-			std::ifstream reader(outfile.c_str());
-			std::string line;
-			while (std::getline(reader, line))
-			{
-				size_t len = line.length();
-				if (len && line[len-1] == '\n')
-					line.erase(len-1);
-				LL_INFOS("eventhost") << line << LL_ENDL;
-			}
-		}
-		remove(outfile.c_str());
-	}
-#endif // LL_WINDOWS
-
-	apr_dso_handle_t * eventhost_dso_handle = NULL;
-	apr_pool_t * eventhost_dso_memory_pool = NULL;
-
-	//attempt to load the shared library
-	apr_pool_create(&eventhost_dso_memory_pool, NULL);
-	apr_status_t rv = apr_dso_load(&eventhost_dso_handle,
-		dso_path.c_str(),
-		eventhost_dso_memory_pool);
-	llassert_always(! ll_apr_warn_status(rv, eventhost_dso_handle));
-	llassert_always(eventhost_dso_handle != NULL);
-
-	int (*ll_plugin_start_func)(LLSD const &) = NULL;
-	rv = apr_dso_sym((apr_dso_handle_sym_t*)&ll_plugin_start_func, eventhost_dso_handle, "ll_plugin_start");
-
-	llassert_always(! ll_apr_warn_status(rv, eventhost_dso_handle));
-	llassert_always(ll_plugin_start_func != NULL);
-
-	LLSD args;
-	args["listen_port"] = listen_port;
-
-	int status = ll_plugin_start_func(args);
-
-	if(status != 0)
-	{
-		llerrs << "problem loading eventhost plugin, status: " << status << llendl;
-	}
-
-	mPlugins.insert(eventhost_dso_handle);
 }
 
 void LLAppViewer::launchUpdater()

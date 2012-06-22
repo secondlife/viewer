@@ -60,7 +60,7 @@ public:
 	 * @deprecated if you intend to instantiate LLToastNotifyPanel - it's point to
 	 * implement right class for desired toast panel. @see LLGenericTipPanel as example.
 	 */
-	LLToastNotifyPanel(LLNotificationPtr& pNotification, const LLRect& rect = LLRect::null, bool show_images = true);
+	LLToastNotifyPanel(const LLNotificationPtr& pNotification, const LLRect& rect = LLRect::null, bool show_images = true);
 	virtual ~LLToastNotifyPanel();
 	LLPanel * getControlPanel() { return mControlPanel; }
 
@@ -118,7 +118,7 @@ protected:
 	/**
 	 * Process response data. Will disable selected options
 	 */
-	void disableRespondedOptions(LLNotificationPtr& notification);
+	void disableRespondedOptions(const LLNotificationPtr& notification);
 
 	bool mIsTip;
 	bool mAddedDefaultBtn;

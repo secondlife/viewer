@@ -2183,14 +2183,8 @@ BOOL LLFolderViewFolder::addItem(LLFolderViewItem* item)
 	
 	item->dirtyFilter();
 
-	// Update the folder creation date if the folder has no creation date
-	bool setting_date = false;
-	const time_t item_creation_date = item->getCreationDate();
-	if ((item_creation_date > 0) && (mCreationDate == 0))
-	{
-		setCreationDate(item_creation_date);
-		setting_date = true;
-	}
+	// Update the folder creation date if the child is newer than our current date
+	setCreationDate(llmax<time_t>(mCreationDate, item->getCreationDate()));
 
 	// Handle sorting
 	requestArrange();
@@ -2200,11 +2194,8 @@ BOOL LLFolderViewFolder::addItem(LLFolderViewItem* item)
 	LLFolderViewFolder* parentp = getParentFolder();
 	while (parentp)
 	{
-		// Update the parent folder creation date
-		if (setting_date && (parentp->mCreationDate == 0))
-		{
-			parentp->setCreationDate(item_creation_date);
-		}
+		// Update the folder creation date if the child is newer than our current date
+		parentp->setCreationDate(llmax<time_t>(parentp->mCreationDate, item->getCreationDate()));
 
 		if (parentp->mSortFunction.isByDate())
 		{
