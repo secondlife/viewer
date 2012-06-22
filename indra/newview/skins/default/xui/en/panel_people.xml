@@ -611,6 +611,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
            filename="panel_block_list_sidetray.xml"
            follows="all"
            label="Blocked Residents &amp; Objects"
+           layout="topleft"
            left="0"
            font="SansSerifBold"
            top="0"

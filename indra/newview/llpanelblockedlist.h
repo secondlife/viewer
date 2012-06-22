@@ -30,21 +30,15 @@
 #include "llpanel.h"
 #include "llmutelist.h"
 #include "llfloater.h"
-// #include <vector>
 
-// class LLButton;
-// class LLLineEditor;
-// class LLMessageSystem;
-// class LLUUID;
 class LLAvatarName;
-class LLScrollListCtrl;
+class LLBlockList;
 
-class LLPanelBlockedList
-	:	public LLPanel, public LLMuteListObserver
+class LLPanelBlockedList : public LLPanel
 {
 public:
 	LLPanelBlockedList();
-	~LLPanelBlockedList();
+	~LLPanelBlockedList(){};
 
 	virtual BOOL postBuild();
 	virtual void draw();
@@ -59,24 +53,31 @@ public:
 	 *			If it is LLUUID::null, nothing will be selected.
 	 */
 	static void showPanelAndSelect(const LLUUID& idToSelect);
-
-	// LLMuteListObserver callback interface implementation.
-	/* virtual */ void onChange() {	refreshBlockedList();}
 	
 private:
-	void refreshBlockedList();
+
+	typedef enum e_sort_oder{
+		E_SORT_BY_NAME = 0,
+		E_SORT_BY_TYPE = 1,
+	} ESortOrder;
+
 	void updateButtons();
 
 	// UI callbacks
-	void onRemoveBtnClick();
-	void onPickBtnClick();
-	void onBlockByNameClick();
+	void unblockItem();
+	void blockResidentByName();
+	void blockObjectByName();
+	void onFilterEdit(const std::string& search_string);
+
+	// List commnads
+	void onCustomAction(const LLSD& userdata);
+	BOOL isActionChecked(const LLSD& userdata);
 
 	void callbackBlockPicked(const uuid_vec_t& ids, const std::vector<LLAvatarName> names);
 	static void callbackBlockByName(const std::string& text);
 
 private:
-	LLScrollListCtrl* mBlockedList;
+	LLBlockList* mBlockedList;
 };
 
 //-----------------------------------------------------------------------------

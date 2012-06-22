@@ -103,6 +103,8 @@ set(viewer_SOURCE_FILES
     llavatarlist.cpp
     llavatarlistitem.cpp
     llavatarpropertiesprocessor.cpp
+    llblockedlistitem.cpp
+    llblocklist.cpp
     llbox.cpp
     llbreadcrumbview.cpp
     llbrowsernotification.cpp
@@ -659,6 +661,8 @@ set(viewer_HEADER_FILES
     llavatarlist.h
     llavatarlistitem.h
     llavatarpropertiesprocessor.h
+    llblockedlistitem.h
+    llblocklist.h
     llbox.h
     llbreadcrumbview.h
     llbuycurrencyhtml.h

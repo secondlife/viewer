@@ -48,6 +48,10 @@ class LLGroupList: public LLFlatListViewEx, public LLOldEvents::LLSimpleListener
 {
 	LOG_CLASS(LLGroupList);
 public:
+	struct Params : public LLInitParam::Block<Params, LLFlatListViewEx::Params>
+	{
+		Params(){};
+	};
 
 	LLGroupList(const Params& p);
 	virtual ~LLGroupList();

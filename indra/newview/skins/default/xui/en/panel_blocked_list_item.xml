@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ follows="top|right|left"
+ height="23"
+ layout="topleft"
+ left="0"
+ name="blocked_list_item"
+ top="0"
+ width="380">
+    <icon
+     height="24"
+     follows="top|right|left"
+     image_name="ListItem_Select"
+     layout="topleft"
+     left="0"
+     name="selected_icon"
+     top="0"
+     visible="false"
+     width="380" />
+    <icon
+     follows="top|right|left"
+     height="24"
+     image_name="ListItem_Over"
+     layout="topleft"
+     left="0"
+     name="hovered_icon"
+     top="0"
+     visible="false"
+     width="380" />
+    <avatar_icon
+     default_icon_name="Generic_Person"
+     follows="top|left"
+     height="20"
+     layout="topleft"
+     left="5"
+     mouse_opaque="true"
+     top="2"
+     visible="false"
+     width="20" />
+    <icon
+     follows="top|left"
+     height="16"
+     image_name="Inv_Object"
+     layout="topleft"
+     left="7"
+     name="object_icon"
+     top="4"
+     visible="false"
+     width="16" />
+    <text
+     follows="left|right"
+     font="SansSerifSmall"
+     font.color="DkGray"
+     height="15"
+     layout="topleft"
+     left_pad="5"
+     name="item_name"
+     parse_urls="false"
+     top="6"
+     use_ellipses="true"
+     width="180" />
+</panel>

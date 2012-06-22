@@ -5,90 +5,94 @@
  height="305"
  layout="topleft"
  left="0"
- right="-1"
  name="block_list_panel"
  help_topic="blocked_list"
  min_height="350"
  min_width="240"
- width="280">
-        <button
-     follows="top|left"
-     height="24"
-     image_hover_unselected="BackButton_Over"
-     image_pressed="BackButton_Press"
-     image_unselected="BackButton_Off"
-     layout="topleft"
-     name="back"
-     left="4"
-     tab_stop="false"
-     top="1"
-     width="30"/>
-    <text
-     follows="top|left|right"
-     font="SansSerifLargeBold"
-     height="20"
-     layout="topleft"
-     left_pad="10"
-     name="title_text"
-     text_color="white"
-     top="5"
-     width="250">
-        Block List
-     </text>
-    <scroll_list
+ width="323">
+     <panel
+      follows="left|top|right"
+      height="27"
+      label="bottom_panel"
+      layout="topleft"
+      left="0"
+      name="blocked_buttons_panel"
+      right="-1"
+      top="0">
+         <filter_editor
+          follows="left|top|right"
+          height="23"
+          layout="topleft"
+          left="6"
+          label="Filter"
+          max_length_chars="300"
+          name="blocked_filter_input"
+          text_color="Black"
+          text_pad_left="10"
+          top="4"
+          width="177" />
+         <menu_button
+          follows="right"
+          height="25"
+          image_hover_unselected="Toolbar_Middle_Over"
+          image_overlay="OptionsMenu_Off"
+          image_selected="Toolbar_Middle_Selected"
+          image_unselected="Toolbar_Middle_Off"
+          layout="topleft"
+          left_pad="8"
+          menu_filename="menu_people_blocked_gear.xml"
+          menu_position="bottomleft"
+          name="blocked_gear_btn"
+          top="3"
+          width="31" />
+         <menu_button
+          follows="right"
+          height="25"
+          image_hover_unselected="Toolbar_Middle_Over"
+          image_overlay="Inv_Underpants"
+          image_selected="Toolbar_Middle_Selected"
+          image_unselected="Toolbar_Middle_Off"
+          layout="topleft"
+          left_pad="2"
+          menu_filename="menu_people_blocked_view.xml"
+          menu_position="bottomleft"
+          name="view_btn"
+          top_delta="0"
+          width="31" />
+         <menu_button
+          follows="right"
+          height="25"
+          image_hover_unselected="Toolbar_Middle_Over"
+          image_overlay="AddItem_Off"
+          image_selected="Toolbar_Middle_Selected"
+          image_unselected="Toolbar_Middle_Off"
+          layout="topleft"
+          left_pad="2"
+          menu_filename="menu_people_blocked_plus.xml"
+          menu_position="bottomleft"
+          name="plus_btn"
+          top_delta="0"
+          width="31"/>
+          <button
+          follows="right"
+          height="25"
+          image_hover_unselected="Toolbar_Middle_Over"
+          image_overlay="TrashItem_Off"
+          image_selected="Toolbar_Middle_Selected"
+          image_unselected="Toolbar_Middle_Off"
+          left_pad="2"
+          layout="topleft"
+          name="unblock_btn"
+          top_delta="0"
+          width="31"/>
+     </panel>
+    <block_list
      follows="all"
-     height="190"
+     height="273"
      layout="topleft"
-     left="5"
+     left="3"
      name="blocked"
      tool_tip="List of currently blocked Residents"
-     top="30"
-  	 right="-1"
-     width="270">
-        <scroll_list.columns
-         name="item_name" />
-        <scroll_list.columns
-         name="item_type"
-         width="96" />
-    </scroll_list>
-    <button
-     follows="left|bottom"
-     height="23"
-     label="Block person"
-     layout="topleft"
-     left_delta="0"
-     name="Block resident..."
-     tool_tip="Pick a Resident to block"
-     top_pad="4"
-     width="210">
-        <button.commit_callback
-         function="Block.ClickPick" />
-    </button>
-    <button
-     follows="left|bottom"
-     height="23"
-     label="Block object by name"
-     layout="topleft"
-     left_delta="0"
-     name="Block object by name..."
-     tool_tip="Pick an object to block by name"
-     top_pad="4"
-     width="210" >
-        <button.commit_callback
-         function="Block.ClickBlockByName" />
-    </button>
-    <button
-     enabled="false"
-     follows="left|bottom"
-     height="23"
-     label="Unblock"
-     layout="topleft"
-     left_delta="0"
-     name="Unblock"
-     tool_tip="Remove Resident or object from blocked list"
-     top_pad="4"
-     width="210" >
-        <button.commit_callback
-         function="Block.ClickRemove" />
-    </button>
+     top="31"
+  	 right="-1"/>
 </panel>
