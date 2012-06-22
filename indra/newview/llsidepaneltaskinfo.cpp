@@ -301,7 +301,7 @@ void LLSidepanelTaskInfo::refresh()
 	// BUG: fails if a root and non-root are both single-selected.
 	const BOOL is_perm_modify = (mObjectSelection->getFirstRootNode() && LLSelectMgr::getInstance()->selectGetRootsModify()) ||
 		LLSelectMgr::getInstance()->selectGetModify();
-	const BOOL is_nonpermanent = (mObjectSelection->getFirstRootNode() && LLSelectMgr::getInstance()->selectGetRootsNonPermanentEnforced()) ||
+	const BOOL is_nonpermanent_enforced = (mObjectSelection->getFirstRootNode() && LLSelectMgr::getInstance()->selectGetRootsNonPermanentEnforced()) ||
 		LLSelectMgr::getInstance()->selectGetNonPermanentEnforced();
 
 	S32 string_index = 0;
@@ -318,7 +318,7 @@ void LLSidepanelTaskInfo::refresh()
 	{
 		string_index += 2;
 	}
-	else if (!is_nonpermanent)
+	else if (!is_nonpermanent_enforced)
 	{
 		string_index += 4;
 	}
@@ -393,7 +393,7 @@ void LLSidepanelTaskInfo::refresh()
 		}
 	}
 	
-	getChildView("button set group")->setEnabled(owners_identical && (mOwnerID == gAgent.getID()) && is_nonpermanent);
+	getChildView("button set group")->setEnabled(owners_identical && (mOwnerID == gAgent.getID()) && is_nonpermanent_enforced);
 
 	getChildView("Name:")->setEnabled(TRUE);
 	LLLineEditor* LineEditorObjectName = getChild<LLLineEditor>("Object Name");
@@ -603,12 +603,12 @@ void LLSidepanelTaskInfo::refresh()
 	BOOL has_change_perm_ability = FALSE;
 	BOOL has_change_sale_ability = FALSE;
 
-	if (valid_base_perms && is_nonpermanent &&
+	if (valid_base_perms && is_nonpermanent_enforced &&
 		(self_owned || (group_owned && gAgent.hasPowerInGroup(group_id, GP_OBJECT_MANIPULATE))))
 	{
 		has_change_perm_ability = TRUE;
 	}
-	if (valid_base_perms && is_nonpermanent &&
+	if (valid_base_perms && is_nonpermanent_enforced &&
 	   (self_owned || (group_owned && gAgent.hasPowerInGroup(group_id, GP_OBJECT_SET_SALE))))
 	{
 		has_change_sale_ability = TRUE;
@@ -820,8 +820,8 @@ void LLSidepanelTaskInfo::refresh()
 			ComboClickAction->setCurrentByIndex((S32)click_action);
 		}
 	}
-	getChildView("label click action")->setEnabled(is_perm_modify && is_nonpermanent && all_volume);
-	getChildView("clickaction")->setEnabled(is_perm_modify && is_nonpermanent && all_volume);
+	getChildView("label click action")->setEnabled(is_perm_modify && is_nonpermanent_enforced && all_volume);
+	getChildView("clickaction")->setEnabled(is_perm_modify && is_nonpermanent_enforced && all_volume);
 
 	if (!getIsEditing())
 	{

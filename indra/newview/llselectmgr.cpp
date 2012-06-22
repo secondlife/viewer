@@ -2555,6 +2555,190 @@ BOOL LLSelectMgr::selectGetRootsNonPermanentEnforced()
 	return TRUE;
 }
 
+//-----------------------------------------------------------------------------
+// selectGetPermanent() - return TRUE if all objects are permanent
+//-----------------------------------------------------------------------------
+BOOL LLSelectMgr::selectGetPermanent()
+{
+	for (LLObjectSelection::iterator iter = getSelection()->begin();
+		 iter != getSelection()->end(); iter++ )
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
+		if( !object || !node->mValid )
+		{
+			return FALSE;
+		}
+		if( !object->flagObjectPermanent())
+		{
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+
+//-----------------------------------------------------------------------------
+// selectGetRootsPermanent() - return TRUE if all root objects are
+// permanent
+//-----------------------------------------------------------------------------
+BOOL LLSelectMgr::selectGetRootsPermanent()
+{
+	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
+		 iter != getSelection()->root_end(); iter++ )
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
+		if( !node->mValid )
+		{
+			return FALSE;
+		}
+		if( !object->flagObjectPermanent())
+		{
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}
+
+//-----------------------------------------------------------------------------
+// selectGetCharacter() - return TRUE if all objects are character
+//-----------------------------------------------------------------------------
+BOOL LLSelectMgr::selectGetCharacter()
+{
+	for (LLObjectSelection::iterator iter = getSelection()->begin();
+		 iter != getSelection()->end(); iter++ )
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
+		if( !object || !node->mValid )
+		{
+			return FALSE;
+		}
+		if( !object->flagCharacter())
+		{
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+
+//-----------------------------------------------------------------------------
+// selectGetRootsCharacter() - return TRUE if all root objects are
+// character
+//-----------------------------------------------------------------------------
+BOOL LLSelectMgr::selectGetRootsCharacter()
+{
+	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
+		 iter != getSelection()->root_end(); iter++ )
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
+		if( !node->mValid )
+		{
+			return FALSE;
+		}
+		if( !object->flagCharacter())
+		{
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}
+
+//-----------------------------------------------------------------------------
+// selectGetNonPermanent() - return TRUE if all objects are not permanent
+//-----------------------------------------------------------------------------
+BOOL LLSelectMgr::selectGetNonPermanent()
+{
+	for (LLObjectSelection::iterator iter = getSelection()->begin();
+		 iter != getSelection()->end(); iter++ )
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
+		if( !object || !node->mValid )
+		{
+			return FALSE;
+		}
+		if( object->flagObjectPermanent())
+		{
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+
+//-----------------------------------------------------------------------------
+// selectGetRootsNonPermanent() - return TRUE if all root objects are not
+// permanent
+//-----------------------------------------------------------------------------
+BOOL LLSelectMgr::selectGetRootsNonPermanent()
+{
+	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
+		 iter != getSelection()->root_end(); iter++ )
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
+		if( !node->mValid )
+		{
+			return FALSE;
+		}
+		if( object->flagObjectPermanent())
+		{
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}
+
+//-----------------------------------------------------------------------------
+// selectGetNonCharacter() - return TRUE if all objects are not character
+//-----------------------------------------------------------------------------
+BOOL LLSelectMgr::selectGetNonCharacter()
+{
+	for (LLObjectSelection::iterator iter = getSelection()->begin();
+		 iter != getSelection()->end(); iter++ )
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
+		if( !object || !node->mValid )
+		{
+			return FALSE;
+		}
+		if( object->flagCharacter())
+		{
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+
+//-----------------------------------------------------------------------------
+// selectGetRootsNonCharacter() - return TRUE if all root objects are not 
+// character
+//-----------------------------------------------------------------------------
+BOOL LLSelectMgr::selectGetRootsNonCharacter()
+{
+	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
+		 iter != getSelection()->root_end(); iter++ )
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
+		if( !node->mValid )
+		{
+			return FALSE;
+		}
+		if( object->flagCharacter())
+		{
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}
+
 
 //-----------------------------------------------------------------------------
 // selectGetRootsTransfer() - return TRUE if current agent can transfer all

@@ -303,7 +303,7 @@ void LLPanelPermissions::refresh()
 	BOOL is_perm_modify = (LLSelectMgr::getInstance()->getSelection()->getFirstRootNode() 
 						   && LLSelectMgr::getInstance()->selectGetRootsModify())
 		|| LLSelectMgr::getInstance()->selectGetModify();
-	BOOL is_nonpermanent = (LLSelectMgr::getInstance()->getSelection()->getFirstRootNode() 
+	BOOL is_nonpermanent_enforced = (LLSelectMgr::getInstance()->getSelection()->getFirstRootNode() 
 						   && LLSelectMgr::getInstance()->selectGetRootsNonPermanentEnforced())
 		|| LLSelectMgr::getInstance()->selectGetNonPermanentEnforced();
 	const LLFocusableElement* keyboard_focus_view = gFocusMgr.getKeyboardFocus();
@@ -322,7 +322,7 @@ void LLPanelPermissions::refresh()
 	{
 		string_index += 2;
 	}
-	else if (!is_nonpermanent)
+	else if (!is_nonpermanent_enforced)
 	{
 		string_index += 4;
 	}
@@ -333,27 +333,35 @@ void LLPanelPermissions::refresh()
 	getChildView("perm_modify")->setEnabled(TRUE);
 	getChild<LLUICtrl>("perm_modify")->setValue(MODIFY_INFO_STRINGS[string_index]);
 
-	getChildView("pathfinding_attributes_value")->setEnabled(TRUE);
 	std::string pfAttrName;
-	if (is_one_object)
+
+	if ((LLSelectMgr::getInstance()->getSelection()->getFirstRootNode() 
+		&& LLSelectMgr::getInstance()->selectGetRootsPermanent())
+		|| LLSelectMgr::getInstance()->selectGetPermanent())
 	{
-		if (objectp->flagObjectPermanent())
-		{
-			pfAttrName = "Pathfinding_Object_Attr_Permanent";
-		}
-		else if (objectp->flagCharacter())
-		{
-			pfAttrName = "Pathfinding_Object_Attr_Character";
-		}
-		else
-		{
-			pfAttrName = "Pathfinding_Object_Attr_None";
-		}
+		pfAttrName = "Pathfinding_Object_Attr_Permanent";
+	}
+	else if ((LLSelectMgr::getInstance()->getSelection()->getFirstRootNode() 
+		&& LLSelectMgr::getInstance()->selectGetRootsCharacter())
+		|| LLSelectMgr::getInstance()->selectGetCharacter())
+	{
+		pfAttrName = "Pathfinding_Object_Attr_Character";
+	}
+	else if (((LLSelectMgr::getInstance()->getSelection()->getFirstRootNode() 
+		&& LLSelectMgr::getInstance()->selectGetRootsNonPermanent())
+		|| LLSelectMgr::getInstance()->selectGetNonPermanent()) &&
+		((LLSelectMgr::getInstance()->getSelection()->getFirstRootNode() 
+		&& LLSelectMgr::getInstance()->selectGetRootsNonCharacter())
+		|| LLSelectMgr::getInstance()->selectGetNonCharacter()))
+	{
+		pfAttrName = "Pathfinding_Object_Attr_None";
 	}
 	else
 	{
 		pfAttrName = "Pathfinding_Object_Attr_MultiSelect";
 	}
+
+	getChildView("pathfinding_attributes_value")->setEnabled(TRUE);
 	getChild<LLUICtrl>("pathfinding_attributes_value")->setValue(LLTrans::getString(pfAttrName));
 
 	getChildView("Permissions:")->setEnabled(TRUE);
@@ -420,7 +428,7 @@ void LLPanelPermissions::refresh()
 		}
 	}
 	
-	getChildView("button set group")->setEnabled(owners_identical && (mOwnerID == gAgent.getID()) && is_nonpermanent);
+	getChildView("button set group")->setEnabled(owners_identical && (mOwnerID == gAgent.getID()) && is_nonpermanent_enforced);
 
 	getChildView("Name:")->setEnabled(TRUE);
 	LLLineEditor* LineEditorObjectName = getChild<LLLineEditor>("Object Name");
@@ -630,12 +638,12 @@ void LLPanelPermissions::refresh()
 	BOOL has_change_perm_ability = FALSE;
 	BOOL has_change_sale_ability = FALSE;
 
-	if (valid_base_perms && is_nonpermanent &&
+	if (valid_base_perms && is_nonpermanent_enforced &&
 		(self_owned || (group_owned && gAgent.hasPowerInGroup(group_id, GP_OBJECT_MANIPULATE))))
 	{
 		has_change_perm_ability = TRUE;
 	}
-	if (valid_base_perms && is_nonpermanent &&
+	if (valid_base_perms && is_nonpermanent_enforced &&
 	   (self_owned || (group_owned && gAgent.hasPowerInGroup(group_id, GP_OBJECT_SET_SALE))))
 	{
 		has_change_sale_ability = TRUE;
@@ -848,8 +856,8 @@ void LLPanelPermissions::refresh()
 			combo_click_action->setValue(LLSD(combo_value));
 		}
 	}
-	getChildView("label click action")->setEnabled(is_perm_modify && is_nonpermanent  && all_volume);
-	getChildView("clickaction")->setEnabled(is_perm_modify && is_nonpermanent && all_volume);
+	getChildView("label click action")->setEnabled(is_perm_modify && is_nonpermanent_enforced  && all_volume);
+	getChildView("clickaction")->setEnabled(is_perm_modify && is_nonpermanent_enforced && all_volume);
 }
 
 
