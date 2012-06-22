@@ -39,6 +39,8 @@ class LLViewerRegion;
 class LLViewerTexture;
 class LLVOPartGroup;
 
+#define LL_MAX_PARTICLE_COUNT 8192
+
 typedef void (*LLVPCallback)(LLViewerPart &part, const F32 dt);
 
 ///////////////////

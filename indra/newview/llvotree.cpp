@@ -490,11 +490,16 @@ BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 	if(mTrunkLOD >= sMAX_NUM_TREE_LOD_LEVELS) //do not display the tree.
 	{
 		mReferenceBuffer = NULL ;
-		mDrawable->getFace(0)->setVertexBuffer(NULL);
+		LLFace * facep = drawable->getFace(0);
+		if (facep)
+		{
+			facep->setVertexBuffer(NULL);
+		}
 		return TRUE ;
 	}
 
-	if (mReferenceBuffer.isNull() || !mDrawable->getFace(0)->getVertexBuffer())
+	if (mDrawable->getFace(0) &&
+		(mReferenceBuffer.isNull() || !mDrawable->getFace(0)->getVertexBuffer()))
 	{
 		const F32 SRR3 = 0.577350269f; // sqrt(1/3)
 		const F32 SRR2 = 0.707106781f; // sqrt(1/2)
@@ -507,6 +512,7 @@ BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 		S32 lod;
 
 		LLFace *face = drawable->getFace(0);
+		if (!face) return TRUE;
 
 		face->mCenterAgent = getPositionAgent();
 		face->mCenterLocal = face->mCenterAgent;
@@ -879,6 +885,7 @@ void LLVOTree::updateMesh()
 	calcNumVerts(vert_count, index_count, mTrunkLOD, stop_depth, mDepth, mTrunkDepth, mBranches);
 
 	LLFace* facep = mDrawable->getFace(0);
+	if (!facep) return;
 	LLVertexBuffer* buff = new LLVertexBuffer(LLDrawPoolTree::VERTEX_DATA_MASK, GL_STATIC_DRAW_ARB);
 	buff->allocateBuffer(vert_count, index_count, TRUE);
 	facep->setVertexBuffer(buff);

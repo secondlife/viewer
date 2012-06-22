@@ -24,16 +24,22 @@
  */
 
 uniform mat4 modelview_projection_matrix;
+uniform mat4 modelview_matrix;
 
 ATTRIBUTE vec3 position;
 
+uniform vec3 center;
+uniform float size;
+
 VARYING vec4 vary_fragcoord;
+VARYING vec3 trans_center;
 
 void main()
 {
 	//transform vertex
-	vec4 pos = modelview_projection_matrix * vec4(position.xyz, 1.0);
+	vec3 p = position*sqrt(size)+center;
+	vec4 pos = modelview_projection_matrix * vec4(p.xyz, 1.0);
 	vary_fragcoord = pos;
-		
+	trans_center = (modelview_matrix*vec4(center.xyz, 1.0)).xyz;
 	gl_Position = pos;
 }

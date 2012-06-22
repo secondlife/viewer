@@ -44,18 +44,20 @@
 #include "llsky.h"
 #include "llviewercamera.h"
 #include "llviewertexturelist.h"
+#include "llvopartgroup.h"
 #include "llvosky.h"
 #include "llvovolume.h"
 #include "pipeline.h"
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
+#include "llviewershadermgr.h"
+
 
 #define LL_MAX_INDICES_COUNT 1000000
 
 BOOL LLFace::sSafeRenderSelect = TRUE; // FALSE
 
 #define DOTVEC(a,b) (a.mV[0]*b.mV[0] + a.mV[1]*b.mV[1] + a.mV[2]*b.mV[2])
-
 
 /*
 For each vertex, given:
@@ -161,7 +163,15 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 	mGeomCount		= 0;
 	mGeomIndex		= 0;
 	mIndicesCount	= 0;
-	mIndicesIndex	= 0;
+	if (drawablep->getRenderType() == LLPipeline::RENDER_TYPE_PARTICLES ||
+		drawablep->getRenderType() == LLPipeline::RENDER_TYPE_HUD_PARTICLES)
+	{ //indicate to LLParticlePartition that this particle is uninitialized
+		mIndicesIndex = 0xFFFFFFFF;
+	}
+	else
+	{
+		mIndicesIndex	= 0;
+	}
 	mIndexInTex = 0;
 	mTexture		= NULL;
 	mTEOffset		= -1;
@@ -176,12 +186,6 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 	mDrawInfo = NULL;
 
 	mFaceColor = LLColor4(1,0,0,1);
-
-	mLastVertexBuffer = mVertexBuffer;
-	mLastGeomCount = mGeomCount;
-	mLastGeomIndex = mGeomIndex;
-	mLastIndicesCount = mIndicesCount;
-	mLastIndicesIndex = mIndicesIndex;
 
 	mImportanceToCamera = 0.f ;
 	mBoundingSphereRadius = 0.0f ;
@@ -203,6 +207,15 @@ void LLFace::destroy()
 		mTexture->removeFace(this) ;
 	}
 	
+	if (mDrawablep.notNull() &&
+		(mDrawablep->getRenderType() == LLPipeline::RENDER_TYPE_PARTICLES ||
+		mDrawablep->getRenderType() == LLPipeline::RENDER_TYPE_HUD_PARTICLES) &&
+		mIndicesIndex != 0xFFFFFFFF)
+	{
+		LLVOPartGroup::freeVBSlot(getGeomIndex()/4);
+		mIndicesIndex = 0xFFFFFFFF;
+	}
+
 	if (mDrawPoolp)
 	{
 		if (this->isState(LLFace::RIGGED) && mDrawPoolp->getType() == LLDrawPool::POOL_AVATAR)
@@ -372,7 +385,6 @@ void LLFace::setSize(S32 num_vertices, S32 num_indices, bool align)
 		mGeomCount    = num_vertices;
 		mIndicesCount = num_indices;
 		mVertexBuffer = NULL;
-		mLastVertexBuffer = NULL;
 	}
 
 	llassert(verify());
@@ -765,12 +777,6 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 		LLMatrix4a mat_normal;
 		mat_normal.loadu(mat_normal_in);
 
-		//if (mDrawablep->isState(LLDrawable::REBUILD_VOLUME))
-		//{ //vertex buffer no longer valid
-		//	mVertexBuffer = NULL;
-		//	mLastVertexBuffer = NULL;
-		//}
-
 		//VECTORIZE THIS
 		LLVector4a min,max;
 	
@@ -1032,30 +1038,13 @@ bool LLFace::calcAlignedPlanarTE(const LLFace* align_to,  LLVector2* res_st_offs
 
 void LLFace::updateRebuildFlags()
 {
-	if (!mDrawablep->isState(LLDrawable::REBUILD_VOLUME))
-	{
-		BOOL moved = TRUE;
-		if (mLastVertexBuffer == mVertexBuffer && 
-			!mVertexBuffer->isEmpty())
-		{	//this face really doesn't need to be regenerated, try real hard not to do so
-			if (mLastGeomCount == mGeomCount &&
-				mLastGeomIndex == mGeomIndex &&
-				mLastIndicesCount == mIndicesCount &&
-				mLastIndicesIndex == mIndicesIndex)
-			{ //data is in same location in vertex buffer
-				moved = FALSE;
-			}
-		}
-		mLastMoveTime = gFrameTimeSeconds;
-		
-		if (moved)
-		{
-			mDrawablep->setState(LLDrawable::REBUILD_VOLUME);
-		}
+	if (mDrawablep->isState(LLDrawable::REBUILD_VOLUME))
+	{ //this rebuild is zero overhead (direct consequence of some change that affects this face)
+		mLastUpdateTime = gFrameTimeSeconds;
 	}
 	else
-	{
-		mLastUpdateTime = gFrameTimeSeconds;
+	{ //this rebuild is overhead (side effect of some change that does not affect this face)
+		mLastMoveTime = gFrameTimeSeconds;
 	}
 }
 
@@ -1094,6 +1083,73 @@ bool LLFace::canRenderAsMask()
 }
 
 
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_VOLUME("Volume VB Cache");
+
+//static 
+void LLFace::cacheFaceInVRAM(const LLVolumeFace& vf)
+{
+	LLFastTimer t(FTM_FACE_GEOM_VOLUME);
+	U32 mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 |
+				LLVertexBuffer::MAP_BINORMAL | LLVertexBuffer::MAP_NORMAL;
+	
+	if (vf.mWeights)
+	{
+		mask |= LLVertexBuffer::MAP_WEIGHT4;
+	}
+
+	LLVertexBuffer* buff = new LLVertexBuffer(mask, GL_STATIC_DRAW_ARB);
+	vf.mVertexBuffer = buff;
+
+	buff->allocateBuffer(vf.mNumVertices, 0, true);
+
+	LLStrider<LLVector4a> f_vert;
+	LLStrider<LLVector3> f_binorm;
+	LLStrider<LLVector3> f_norm;
+	LLStrider<LLVector2> f_tc;
+
+	buff->getBinormalStrider(f_binorm);
+	buff->getVertexStrider(f_vert);
+	buff->getNormalStrider(f_norm);
+	buff->getTexCoord0Strider(f_tc);
+
+	for (U32 i = 0; i < vf.mNumVertices; ++i)
+	{
+		*f_vert++ = vf.mPositions[i];
+		(*f_binorm++).set(vf.mBinormals[i].getF32ptr());
+		*f_tc++ = vf.mTexCoords[i];
+		(*f_norm++).set(vf.mNormals[i].getF32ptr());
+	}
+
+	if (vf.mWeights)
+	{
+		LLStrider<LLVector4> f_wght;
+		buff->getWeight4Strider(f_wght);
+		for (U32 i = 0; i < vf.mNumVertices; ++i)
+		{
+			(*f_wght++).set(vf.mWeights[i].getF32ptr());
+		}
+	}
+
+	buff->flush();
+}
+
+//helper function for pushing primitives for transform shaders and cleaning up
+//uninitialized data on the tail, plus tracking number of expected primitives
+void push_for_transform(LLVertexBuffer* buff, U32 source_count, U32 dest_count)
+{
+	if (source_count > 0 && dest_count >= source_count) //protect against possible U32 wrapping
+	{
+		//push source primitives
+		buff->drawArrays(LLRender::POINTS, 0, source_count);
+		U32 tail = dest_count-source_count;
+		for (U32 i = 0; i < tail; ++i)
+		{ //copy last source primitive into each element in tail
+			buff->drawArrays(LLRender::POINTS, source_count-1, 1);
+		}
+		gPipeline.mTransformFeedbackPrimitives += dest_count;
+	}
+}
+
 static LLFastTimer::DeclareTimer FTM_FACE_GET_GEOM("Face Geom");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_POSITION("Position");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_NORMAL("Normal");
@@ -1111,7 +1167,6 @@ static LLFastTimer::DeclareTimer FTM_FACE_TEX_DEFAULT("Default");
 static LLFastTimer::DeclareTimer FTM_FACE_TEX_QUICK("Quick");
 static LLFastTimer::DeclareTimer FTM_FACE_TEX_QUICK_NO_XFORM("No Xform");
 static LLFastTimer::DeclareTimer FTM_FACE_TEX_QUICK_XFORM("Xform");
-
 static LLFastTimer::DeclareTimer FTM_FACE_TEX_QUICK_PLANAR("Quick Planar");
 
 BOOL LLFace::getGeometryVolume(const LLVolume& volume,
@@ -1144,9 +1199,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 					<< " VF Num Indices: " << num_indices
 					<< " Indices Index: " << mIndicesIndex
 					<< " VB Num Indices: " << mVertexBuffer->getNumIndices() << llendl;
-			llwarns	<< "Last Indices Count: " << mLastIndicesCount
-					<< " Last Indices Index: " << mLastIndicesIndex
-					<< " Face Index: " << f
+			llwarns	<< " Face Index: " << f
 					<< " Pool Type: " << mPoolType << llendl;
 			return FALSE;
 		}
@@ -1284,17 +1337,10 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	LLMatrix4a mat_normal;
 	mat_normal.loadu(mat_norm_in);
 	
-	//if it's not fullbright and has no normals, bake sunlight based on face normal
-	//bool bake_sunlight = !getTextureEntry()->getFullbright() &&
-	//  !mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_NORMAL);
-
 	F32 r = 0, os = 0, ot = 0, ms = 0, mt = 0, cos_ang = 0, sin_ang = 0;
-
+	bool do_xform = false;
 	if (rebuild_tcoord)
 	{
-		LLFastTimer t(FTM_FACE_GEOM_TEXTURE);
-		bool do_xform;
-			
 		if (tep)
 		{
 			r  = tep->getRotation();
@@ -1323,396 +1369,368 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		{
 			do_xform = false;
 		}
-						
-		//bump setup
-		LLVector4a binormal_dir( -sin_ang, cos_ang, 0.f );
-		LLVector4a bump_s_primary_light_ray(0.f, 0.f, 0.f);
-		LLVector4a bump_t_primary_light_ray(0.f, 0.f, 0.f);
-
-		LLQuaternion bump_quat;
-		if (mDrawablep->isActive())
-		{
-			bump_quat = LLQuaternion(mDrawablep->getRenderMatrix());
-		}
-		
-		if (bump_code)
-		{
-			mVObjp->getVolume()->genBinormals(f);
-			F32 offset_multiple; 
-			switch( bump_code )
-			{
-				case BE_NO_BUMP:
-				offset_multiple = 0.f;
-				break;
-				case BE_BRIGHTNESS:
-				case BE_DARKNESS:
-				if( mTexture.notNull() && mTexture->hasGLTexture())
-				{
-					// Offset by approximately one texel
-					S32 cur_discard = mTexture->getDiscardLevel();
-					S32 max_size = llmax( mTexture->getWidth(), mTexture->getHeight() );
-					max_size <<= cur_discard;
-					const F32 ARTIFICIAL_OFFSET = 2.f;
-					offset_multiple = ARTIFICIAL_OFFSET / (F32)max_size;
-				}
-				else
-				{
-					offset_multiple = 1.f/256;
-				}
-				break;
-
-				default:  // Standard bumpmap textures.  Assumed to be 256x256
-				offset_multiple = 1.f / 256;
-				break;
-			}
-
-			F32 s_scale = 1.f;
-			F32 t_scale = 1.f;
-			if( tep )
-			{
-				tep->getScale( &s_scale, &t_scale );
-			}
-			// Use the nudged south when coming from above sun angle, such
-			// that emboss mapping always shows up on the upward faces of cubes when 
-			// it's noon (since a lot of builders build with the sun forced to noon).
-			LLVector3   sun_ray  = gSky.mVOSkyp->mBumpSunDir;
-			LLVector3   moon_ray = gSky.getMoonDirection();
-			LLVector3& primary_light_ray = (sun_ray.mV[VZ] > 0) ? sun_ray : moon_ray;
-
-			bump_s_primary_light_ray.load3((offset_multiple * s_scale * primary_light_ray).mV);
-			bump_t_primary_light_ray.load3((offset_multiple * t_scale * primary_light_ray).mV);
-		}
-
-		U8 texgen = getTextureEntry()->getTexGen();
-		if (rebuild_tcoord && texgen != LLTextureEntry::TEX_GEN_DEFAULT)
-		{ //planar texgen needs binormals
-			mVObjp->getVolume()->genBinormals(f);
-		}
-
-		U8 tex_mode = 0;
+	}
 	
-		if (isState(TEXTURE_ANIM))
+	static LLCachedControl<bool> use_transform_feedback(gSavedSettings, "RenderUseTransformFeedback");
+
+#ifdef GL_TRANSFORM_FEEDBACK_BUFFER
+	if (use_transform_feedback &&
+		gTransformPositionProgram.mProgramObject && //transform shaders are loaded
+		mVertexBuffer->useVBOs() && //target buffer is in VRAM
+		!rebuild_weights && //TODO: add support for weights
+		!volume.isUnique()) //source volume is NOT flexi
+	{ //use transform feedback to pack vertex buffer
+
+		LLVertexBuffer* buff = (LLVertexBuffer*) vf.mVertexBuffer.get();
+
+		if (vf.mVertexBuffer.isNull() || buff->getNumVerts() != vf.mNumVertices)
 		{
-			LLVOVolume* vobj = (LLVOVolume*) (LLViewerObject*) mVObjp;	
-			tex_mode = vobj->mTexAnimMode;
+			mVObjp->getVolume()->genBinormals(f);
+			LLFace::cacheFaceInVRAM(vf);
+			buff = (LLVertexBuffer*) vf.mVertexBuffer.get();
+		}		
 
-			if (!tex_mode)
-			{
-				clearState(TEXTURE_ANIM);
-			}
-			else
-			{
-				os = ot = 0.f;
-				r = 0.f;
-				cos_ang = 1.f;
-				sin_ang = 0.f;
-				ms = mt = 1.f;
-
-				do_xform = false;
-			}
-
-			if (getVirtualSize() >= MIN_TEX_ANIM_SIZE)
-			{ //don't override texture transform during tc bake
-				tex_mode = 0;
-			}
-		}
-
-		LLVector4a scalea;
-		scalea.load3(scale.mV);
-
-		bool do_bump = bump_code && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD1);
-		bool do_tex_mat = tex_mode && mTextureMatrix;
-
-		if (!in_atlas && !do_bump)
-		{ //not in atlas or not bump mapped, might be able to do a cheap update
-			mVertexBuffer->getTexCoord0Strider(tex_coords, mGeomIndex, mGeomCount);
-
-			if (texgen != LLTextureEntry::TEX_GEN_PLANAR)
-			{
-				LLFastTimer t(FTM_FACE_TEX_QUICK);
-				if (!do_tex_mat)
-				{
-					if (!do_xform)
-					{
-						LLFastTimer t(FTM_FACE_TEX_QUICK_NO_XFORM);
-						LLVector4a::memcpyNonAliased16((F32*) tex_coords.get(), (F32*) vf.mTexCoords, num_vertices*2*sizeof(F32));
-					}
-					else
-					{
-						LLFastTimer t(FTM_FACE_TEX_QUICK_XFORM);
-						F32* dst = (F32*) tex_coords.get();
-						LLVector4a* src = (LLVector4a*) vf.mTexCoords;
-
-						LLVector4a trans;
-						trans.splat(-0.5f);
-
-						LLVector4a rot0;
-						rot0.set(cos_ang, -sin_ang, cos_ang, -sin_ang);
-
-						LLVector4a rot1;
-						rot1.set(sin_ang, cos_ang, sin_ang, cos_ang);
-
-						LLVector4a scale;
-						scale.set(ms, mt, ms, mt);
-
-						LLVector4a offset;
-						offset.set(os+0.5f, ot+0.5f, os+0.5f, ot+0.5f);
-
-						LLVector4Logical mask;
-						mask.clear();
-						mask.setElement<2>();
-						mask.setElement<3>();
-
-						U32 count = num_vertices/2 + num_vertices%2;
-
-						for (S32 i = 0; i < count; i++)
-						{	
-							LLVector4a res = *src++;
-							xform4a(res, trans, mask, rot0, rot1, offset, scale);
-							res.store4a(dst);
-							dst += 4;
-						}
-					}
-				}
-				else
-				{ //do tex mat, no texgen, no atlas, no bump
-					for (S32 i = 0; i < num_vertices; i++)
-					{	
-						LLVector2 tc(vf.mTexCoords[i]);
-						//LLVector4a& norm = vf.mNormals[i];
-						//LLVector4a& center = *(vf.mCenter);
-
-						LLVector3 tmp(tc.mV[0], tc.mV[1], 0.f);
-						tmp = tmp * *mTextureMatrix;
-						tc.mV[0] = tmp.mV[0];
-						tc.mV[1] = tmp.mV[1];
-						*tex_coords++ = tc;	
-					}
-				}
-			}
-			else
-			{ //no bump, no atlas, tex gen planar
-				LLFastTimer t(FTM_FACE_TEX_QUICK_PLANAR);
-				if (do_tex_mat)
-				{
-					for (S32 i = 0; i < num_vertices; i++)
-					{	
-						LLVector2 tc(vf.mTexCoords[i]);
-						LLVector4a& norm = vf.mNormals[i];
-						LLVector4a& center = *(vf.mCenter);
-						LLVector4a vec = vf.mPositions[i];	
-						vec.mul(scalea);
-						planarProjection(tc, norm, center, vec);
-						
-						LLVector3 tmp(tc.mV[0], tc.mV[1], 0.f);
-						tmp = tmp * *mTextureMatrix;
-						tc.mV[0] = tmp.mV[0];
-						tc.mV[1] = tmp.mV[1];
-				
-						*tex_coords++ = tc;	
-					}
-				}
-				else
-				{
-					for (S32 i = 0; i < num_vertices; i++)
-					{	
-						LLVector2 tc(vf.mTexCoords[i]);
-						LLVector4a& norm = vf.mNormals[i];
-						LLVector4a& center = *(vf.mCenter);
-						LLVector4a vec = vf.mPositions[i];	
-						vec.mul(scalea);
-						planarProjection(tc, norm, center, vec);
-						
-						xform(tc, cos_ang, sin_ang, os, ot, ms, mt);
-
-						*tex_coords++ = tc;	
-					}
-				}
-			}
-
-			if (map_range)
-			{
-				mVertexBuffer->flush();
-			}
-		}
-		else
-		{ //either bump mapped or in atlas, just do the whole expensive loop
-			LLFastTimer t(FTM_FACE_TEX_DEFAULT);
-			mVertexBuffer->getTexCoord0Strider(tex_coords, mGeomIndex, mGeomCount, map_range);
-
-			std::vector<LLVector2> bump_tc;
+		LLGLSLShader* cur_shader = LLGLSLShader::sCurBoundShaderPtr;
 		
-			for (S32 i = 0; i < num_vertices; i++)
-			{	
-				LLVector2 tc(vf.mTexCoords[i]);
+		gGL.pushMatrix();
+		gGL.loadMatrix((GLfloat*) mat_vert_in.mMatrix);
+
+		if (rebuild_pos)
+		{
+			LLFastTimer t(FTM_FACE_GEOM_POSITION);
+			gTransformPositionProgram.bind();
+
+			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_VERTEX, mGeomIndex, mGeomCount);
+
+			U8 index = mTextureIndex < 255 ? mTextureIndex : 0;
+
+			S32 val = 0;
+			U8* vp = (U8*) &val;
+			vp[0] = index;
+			vp[1] = 0;
+			vp[2] = 0;
+			vp[3] = 0;
 			
-				LLVector4a& norm = vf.mNormals[i];
-				
-				LLVector4a& center = *(vf.mCenter);
-		   
-				if (texgen != LLTextureEntry::TEX_GEN_DEFAULT)
-				{
-					LLVector4a vec = vf.mPositions[i];
-				
-					vec.mul(scalea);
+			gTransformPositionProgram.uniform1i("texture_index_in", val);
+			glBeginTransformFeedback(GL_POINTS);
+			buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
 
-					switch (texgen)
-					{
-						case LLTextureEntry::TEX_GEN_PLANAR:
-							planarProjection(tc, norm, center, vec);
-							break;
-						case LLTextureEntry::TEX_GEN_SPHERICAL:
-							sphericalProjection(tc, norm, center, vec);
-							break;
-						case LLTextureEntry::TEX_GEN_CYLINDRICAL:
-							cylindricalProjection(tc, norm, center, vec);
-							break;
-						default:
-							break;
-					}		
-				}
+			push_for_transform(buff, vf.mNumVertices, mGeomCount);
 
-				if (tex_mode && mTextureMatrix)
-				{
-					LLVector3 tmp(tc.mV[0], tc.mV[1], 0.f);
-					tmp = tmp * *mTextureMatrix;
-					tc.mV[0] = tmp.mV[0];
-					tc.mV[1] = tmp.mV[1];
-				}
-				else
-				{
-					xform(tc, cos_ang, sin_ang, os, ot, ms, mt);
-				}
+			glEndTransformFeedback();
+		}
 
-				if(in_atlas)
-				{
-					//
-					//manually calculate tex-coord per vertex for varying address modes.
-					//should be removed if shader can handle this.
-					//
+		if (rebuild_color)
+		{
+			LLFastTimer t(FTM_FACE_GEOM_COLOR);
+			gTransformColorProgram.bind();
+			
+			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_COLOR, mGeomIndex, mGeomCount);
 
-					S32 int_part = 0 ;
-					switch(mTexture->getAddressMode())
-					{
-					case LLTexUnit::TAM_CLAMP:
-						if(tc.mV[0] < 0.f)
-						{
-							tc.mV[0] = 0.f ;
-						}
-						else if(tc.mV[0] > 1.f)
-						{
-							tc.mV[0] = 1.f;
-						}
+			S32 val = *((S32*) color.mV);
 
-						if(tc.mV[1] < 0.f)
-						{
-							tc.mV[1] = 0.f ;
-						}
-						else if(tc.mV[1] > 1.f)
-						{
-							tc.mV[1] = 1.f;
-						}
-						break;
-					case LLTexUnit::TAM_MIRROR:
-						if(tc.mV[0] < 0.f)
-						{
-							tc.mV[0] = -tc.mV[0] ;
-						}
-						int_part = (S32)tc.mV[0] ;
-						if(int_part & 1) //odd number
-						{
-							tc.mV[0] = int_part + 1 - tc.mV[0] ;
-						}
-						else //even number
-						{
-							tc.mV[0] -= int_part ;
-						}
+			gTransformColorProgram.uniform1i("color_in", val);
+			glBeginTransformFeedback(GL_POINTS);
+			buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
+			push_for_transform(buff, vf.mNumVertices, mGeomCount);
+			glEndTransformFeedback();
+		}
 
-						if(tc.mV[1] < 0.f)
-						{
-							tc.mV[1] = -tc.mV[1] ;
-						}
-						int_part = (S32)tc.mV[1] ;
-						if(int_part & 1) //odd number
-						{
-							tc.mV[1] = int_part + 1 - tc.mV[1] ;
-						}
-						else //even number
-						{
-							tc.mV[1] -= int_part ;
-						}
-						break;
-					case LLTexUnit::TAM_WRAP:
-						if(tc.mV[0] > 1.f)
-							tc.mV[0] -= (S32)(tc.mV[0] - 0.00001f) ;
-						else if(tc.mV[0] < -1.f)
-							tc.mV[0] -= (S32)(tc.mV[0] + 0.00001f) ;
+		if (rebuild_emissive)
+		{
+			LLFastTimer t(FTM_FACE_GEOM_EMISSIVE);
+			gTransformColorProgram.bind();
+			
+			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_EMISSIVE, mGeomIndex, mGeomCount);
 
-						if(tc.mV[1] > 1.f)
-							tc.mV[1] -= (S32)(tc.mV[1] - 0.00001f) ;
-						else if(tc.mV[1] < -1.f)
-							tc.mV[1] -= (S32)(tc.mV[1] + 0.00001f) ;
+			U8 glow = (U8) llclamp((S32) (getTextureEntry()->getGlow()*255), 0, 255);
 
-						if(tc.mV[0] < 0.f)
-						{
-							tc.mV[0] = 1.0f + tc.mV[0] ;
-						}
-						if(tc.mV[1] < 0.f)
-						{
-							tc.mV[1] = 1.0f + tc.mV[1] ;
-						}
-						break;
-					default:
-						break;
-					}
-				
-					tc.mV[0] = tcoord_xoffset + tcoord_xscale * tc.mV[0] ;
-					tc.mV[1] = tcoord_yoffset + tcoord_yscale * tc.mV[1] ;
-				}
-				
+			S32 glow32 = glow |
+						 (glow << 8) |
+						 (glow << 16) |
+						 (glow << 24);
 
-				*tex_coords++ = tc;
-				if (do_bump)
-				{
-					bump_tc.push_back(tc);
-				}
-			}
+			gTransformColorProgram.uniform1i("color_in", glow32);
+			glBeginTransformFeedback(GL_POINTS);
+			buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
+			push_for_transform(buff, vf.mNumVertices, mGeomCount);
+			glEndTransformFeedback();
+		}
 
-			if (map_range)
-			{
-				mVertexBuffer->flush();
-			}
+		if (rebuild_normal)
+		{
+			LLFastTimer t(FTM_FACE_GEOM_NORMAL);
+			gTransformNormalProgram.bind();
+			
+			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_NORMAL, mGeomIndex, mGeomCount);
+						
+			glBeginTransformFeedback(GL_POINTS);
+			buff->setBuffer(LLVertexBuffer::MAP_NORMAL);
+			push_for_transform(buff, vf.mNumVertices, mGeomCount);
+			glEndTransformFeedback();
+		}
+
+		if (rebuild_binormal)
+		{
+			LLFastTimer t(FTM_FACE_GEOM_BINORMAL);
+			gTransformBinormalProgram.bind();
+			
+			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_BINORMAL, mGeomIndex, mGeomCount);
+						
+			glBeginTransformFeedback(GL_POINTS);
+			buff->setBuffer(LLVertexBuffer::MAP_BINORMAL);
+			push_for_transform(buff, vf.mNumVertices, mGeomCount);
+			glEndTransformFeedback();
+		}
+
+		if (rebuild_tcoord)
+		{
+			LLFastTimer t(FTM_FACE_GEOM_TEXTURE);
+			gTransformTexCoordProgram.bind();
+			
+			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_TEXCOORD0, mGeomIndex, mGeomCount);
+						
+			glBeginTransformFeedback(GL_POINTS);
+			buff->setBuffer(LLVertexBuffer::MAP_TEXCOORD0);
+			push_for_transform(buff, vf.mNumVertices, mGeomCount);
+			glEndTransformFeedback();
+
+			bool do_bump = bump_code && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD1);
 
 			if (do_bump)
 			{
-				mVertexBuffer->getTexCoord1Strider(tex_coords2, mGeomIndex, mGeomCount, map_range);
+				mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_TEXCOORD1, mGeomIndex, mGeomCount);
+				glBeginTransformFeedback(GL_POINTS);
+				buff->setBuffer(LLVertexBuffer::MAP_TEXCOORD0);
+				push_for_transform(buff, vf.mNumVertices, mGeomCount);
+				glEndTransformFeedback();
+			}				
+		}
+
+		glBindBufferARB(GL_TRANSFORM_FEEDBACK_BUFFER, 0);
+
+		gGL.popMatrix();
+
+		if (cur_shader)
+		{
+			cur_shader->bind();
+		}
+	}
+	else
+#endif
+	{
+		//if it's not fullbright and has no normals, bake sunlight based on face normal
+		//bool bake_sunlight = !getTextureEntry()->getFullbright() &&
+		//  !mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_NORMAL);
+
+		if (rebuild_tcoord)
+		{
+			LLFastTimer t(FTM_FACE_GEOM_TEXTURE);
+									
+			//bump setup
+			LLVector4a binormal_dir( -sin_ang, cos_ang, 0.f );
+			LLVector4a bump_s_primary_light_ray(0.f, 0.f, 0.f);
+			LLVector4a bump_t_primary_light_ray(0.f, 0.f, 0.f);
+
+			LLQuaternion bump_quat;
+			if (mDrawablep->isActive())
+			{
+				bump_quat = LLQuaternion(mDrawablep->getRenderMatrix());
+			}
 		
-				for (S32 i = 0; i < num_vertices; i++)
+			if (bump_code)
+			{
+				mVObjp->getVolume()->genBinormals(f);
+				F32 offset_multiple; 
+				switch( bump_code )
 				{
-					LLVector4a tangent;
-					tangent.setCross3(vf.mBinormals[i], vf.mNormals[i]);
-
-					LLMatrix4a tangent_to_object;
-					tangent_to_object.setRows(tangent, vf.mBinormals[i], vf.mNormals[i]);
-					LLVector4a t;
-					tangent_to_object.rotate(binormal_dir, t);
-					LLVector4a binormal;
-					mat_normal.rotate(t, binormal);
-						
-					//VECTORIZE THIS
-					if (mDrawablep->isActive())
+					case BE_NO_BUMP:
+					offset_multiple = 0.f;
+					break;
+					case BE_BRIGHTNESS:
+					case BE_DARKNESS:
+					if( mTexture.notNull() && mTexture->hasGLTexture())
 					{
-						LLVector3 t;
-						t.set(binormal.getF32ptr());
-						t *= bump_quat;
-						binormal.load3(t.mV);
+						// Offset by approximately one texel
+						S32 cur_discard = mTexture->getDiscardLevel();
+						S32 max_size = llmax( mTexture->getWidth(), mTexture->getHeight() );
+						max_size <<= cur_discard;
+						const F32 ARTIFICIAL_OFFSET = 2.f;
+						offset_multiple = ARTIFICIAL_OFFSET / (F32)max_size;
 					}
+					else
+					{
+						offset_multiple = 1.f/256;
+					}
+					break;
 
-					binormal.normalize3fast();
-					LLVector2 tc = bump_tc[i];
-					tc += LLVector2( bump_s_primary_light_ray.dot3(tangent).getF32(), bump_t_primary_light_ray.dot3(binormal).getF32() );
-					
-					*tex_coords2++ = tc;
+					default:  // Standard bumpmap textures.  Assumed to be 256x256
+					offset_multiple = 1.f / 256;
+					break;
+				}
+
+				F32 s_scale = 1.f;
+				F32 t_scale = 1.f;
+				if( tep )
+				{
+					tep->getScale( &s_scale, &t_scale );
+				}
+				// Use the nudged south when coming from above sun angle, such
+				// that emboss mapping always shows up on the upward faces of cubes when 
+				// it's noon (since a lot of builders build with the sun forced to noon).
+				LLVector3   sun_ray  = gSky.mVOSkyp->mBumpSunDir;
+				LLVector3   moon_ray = gSky.getMoonDirection();
+				LLVector3& primary_light_ray = (sun_ray.mV[VZ] > 0) ? sun_ray : moon_ray;
+
+				bump_s_primary_light_ray.load3((offset_multiple * s_scale * primary_light_ray).mV);
+				bump_t_primary_light_ray.load3((offset_multiple * t_scale * primary_light_ray).mV);
+			}
+
+			U8 texgen = getTextureEntry()->getTexGen();
+			if (rebuild_tcoord && texgen != LLTextureEntry::TEX_GEN_DEFAULT)
+			{ //planar texgen needs binormals
+				mVObjp->getVolume()->genBinormals(f);
+			}
+
+			U8 tex_mode = 0;
+	
+			if (isState(TEXTURE_ANIM))
+			{
+				LLVOVolume* vobj = (LLVOVolume*) (LLViewerObject*) mVObjp;	
+				tex_mode = vobj->mTexAnimMode;
+
+				if (!tex_mode)
+				{
+					clearState(TEXTURE_ANIM);
+				}
+				else
+				{
+					os = ot = 0.f;
+					r = 0.f;
+					cos_ang = 1.f;
+					sin_ang = 0.f;
+					ms = mt = 1.f;
+
+					do_xform = false;
+				}
+
+				if (getVirtualSize() >= MIN_TEX_ANIM_SIZE)
+				{ //don't override texture transform during tc bake
+					tex_mode = 0;
+				}
+			}
+
+			LLVector4a scalea;
+			scalea.load3(scale.mV);
+
+			bool do_bump = bump_code && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD1);
+			bool do_tex_mat = tex_mode && mTextureMatrix;
+
+			if (!in_atlas && !do_bump)
+			{ //not in atlas or not bump mapped, might be able to do a cheap update
+				mVertexBuffer->getTexCoord0Strider(tex_coords, mGeomIndex, mGeomCount);
+
+				if (texgen != LLTextureEntry::TEX_GEN_PLANAR)
+				{
+					LLFastTimer t(FTM_FACE_TEX_QUICK);
+					if (!do_tex_mat)
+					{
+						if (!do_xform)
+						{
+							LLFastTimer t(FTM_FACE_TEX_QUICK_NO_XFORM);
+							LLVector4a::memcpyNonAliased16((F32*) tex_coords.get(), (F32*) vf.mTexCoords, num_vertices*2*sizeof(F32));
+						}
+						else
+						{
+							LLFastTimer t(FTM_FACE_TEX_QUICK_XFORM);
+							F32* dst = (F32*) tex_coords.get();
+							LLVector4a* src = (LLVector4a*) vf.mTexCoords;
+
+							LLVector4a trans;
+							trans.splat(-0.5f);
+
+							LLVector4a rot0;
+							rot0.set(cos_ang, -sin_ang, cos_ang, -sin_ang);
+
+							LLVector4a rot1;
+							rot1.set(sin_ang, cos_ang, sin_ang, cos_ang);
+
+							LLVector4a scale;
+							scale.set(ms, mt, ms, mt);
+
+							LLVector4a offset;
+							offset.set(os+0.5f, ot+0.5f, os+0.5f, ot+0.5f);
+
+							LLVector4Logical mask;
+							mask.clear();
+							mask.setElement<2>();
+							mask.setElement<3>();
+
+							U32 count = num_vertices/2 + num_vertices%2;
+
+							for (S32 i = 0; i < count; i++)
+							{	
+								LLVector4a res = *src++;
+								xform4a(res, trans, mask, rot0, rot1, offset, scale);
+								res.store4a(dst);
+								dst += 4;
+							}
+						}
+					}
+					else
+					{ //do tex mat, no texgen, no atlas, no bump
+						for (S32 i = 0; i < num_vertices; i++)
+						{	
+							LLVector2 tc(vf.mTexCoords[i]);
+							//LLVector4a& norm = vf.mNormals[i];
+							//LLVector4a& center = *(vf.mCenter);
+
+							LLVector3 tmp(tc.mV[0], tc.mV[1], 0.f);
+							tmp = tmp * *mTextureMatrix;
+							tc.mV[0] = tmp.mV[0];
+							tc.mV[1] = tmp.mV[1];
+							*tex_coords++ = tc;	
+						}
+					}
+				}
+				else
+				{ //no bump, no atlas, tex gen planar
+					LLFastTimer t(FTM_FACE_TEX_QUICK_PLANAR);
+					if (do_tex_mat)
+					{
+						for (S32 i = 0; i < num_vertices; i++)
+						{	
+							LLVector2 tc(vf.mTexCoords[i]);
+							LLVector4a& norm = vf.mNormals[i];
+							LLVector4a& center = *(vf.mCenter);
+							LLVector4a vec = vf.mPositions[i];	
+							vec.mul(scalea);
+							planarProjection(tc, norm, center, vec);
+						
+							LLVector3 tmp(tc.mV[0], tc.mV[1], 0.f);
+							tmp = tmp * *mTextureMatrix;
+							tc.mV[0] = tmp.mV[0];
+							tc.mV[1] = tmp.mV[1];
+				
+							*tex_coords++ = tc;	
+						}
+					}
+					else
+					{
+						for (S32 i = 0; i < num_vertices; i++)
+						{	
+							LLVector2 tc(vf.mTexCoords[i]);
+							LLVector4a& norm = vf.mNormals[i];
+							LLVector4a& center = *(vf.mCenter);
+							LLVector4a vec = vf.mPositions[i];	
+							vec.mul(scalea);
+							planarProjection(tc, norm, center, vec);
+						
+							xform(tc, cos_ang, sin_ang, os, ot, ms, mt);
+
+							*tex_coords++ = tc;	
+						}
+					}
 				}
 
 				if (map_range)
@@ -1720,202 +1738,390 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 					mVertexBuffer->flush();
 				}
 			}
-		}
-	}
+			else
+			{ //either bump mapped or in atlas, just do the whole expensive loop
+				LLFastTimer t(FTM_FACE_TEX_DEFAULT);
+				mVertexBuffer->getTexCoord0Strider(tex_coords, mGeomIndex, mGeomCount, map_range);
 
-	if (rebuild_pos)
-	{
-		LLFastTimer t(FTM_FACE_GEOM_POSITION);
-		llassert(num_vertices > 0);
+				std::vector<LLVector2> bump_tc;
 		
-		mVertexBuffer->getVertexStrider(vert, mGeomIndex, mGeomCount, map_range);
+				for (S32 i = 0; i < num_vertices; i++)
+				{	
+					LLVector2 tc(vf.mTexCoords[i]);
+			
+					LLVector4a& norm = vf.mNormals[i];
+				
+					LLVector4a& center = *(vf.mCenter);
+		   
+					if (texgen != LLTextureEntry::TEX_GEN_DEFAULT)
+					{
+						LLVector4a vec = vf.mPositions[i];
+				
+						vec.mul(scalea);
+
+						switch (texgen)
+						{
+							case LLTextureEntry::TEX_GEN_PLANAR:
+								planarProjection(tc, norm, center, vec);
+								break;
+							case LLTextureEntry::TEX_GEN_SPHERICAL:
+								sphericalProjection(tc, norm, center, vec);
+								break;
+							case LLTextureEntry::TEX_GEN_CYLINDRICAL:
+								cylindricalProjection(tc, norm, center, vec);
+								break;
+							default:
+								break;
+						}		
+					}
+
+					if (tex_mode && mTextureMatrix)
+					{
+						LLVector3 tmp(tc.mV[0], tc.mV[1], 0.f);
+						tmp = tmp * *mTextureMatrix;
+						tc.mV[0] = tmp.mV[0];
+						tc.mV[1] = tmp.mV[1];
+					}
+					else
+					{
+						xform(tc, cos_ang, sin_ang, os, ot, ms, mt);
+					}
+
+					if(in_atlas)
+					{
+						//
+						//manually calculate tex-coord per vertex for varying address modes.
+						//should be removed if shader can handle this.
+						//
+
+						S32 int_part = 0 ;
+						switch(mTexture->getAddressMode())
+						{
+						case LLTexUnit::TAM_CLAMP:
+							if(tc.mV[0] < 0.f)
+							{
+								tc.mV[0] = 0.f ;
+							}
+							else if(tc.mV[0] > 1.f)
+							{
+								tc.mV[0] = 1.f;
+							}
+
+							if(tc.mV[1] < 0.f)
+							{
+								tc.mV[1] = 0.f ;
+							}
+							else if(tc.mV[1] > 1.f)
+							{
+								tc.mV[1] = 1.f;
+							}
+							break;
+						case LLTexUnit::TAM_MIRROR:
+							if(tc.mV[0] < 0.f)
+							{
+								tc.mV[0] = -tc.mV[0] ;
+							}
+							int_part = (S32)tc.mV[0] ;
+							if(int_part & 1) //odd number
+							{
+								tc.mV[0] = int_part + 1 - tc.mV[0] ;
+							}
+							else //even number
+							{
+								tc.mV[0] -= int_part ;
+							}
+
+							if(tc.mV[1] < 0.f)
+							{
+								tc.mV[1] = -tc.mV[1] ;
+							}
+							int_part = (S32)tc.mV[1] ;
+							if(int_part & 1) //odd number
+							{
+								tc.mV[1] = int_part + 1 - tc.mV[1] ;
+							}
+							else //even number
+							{
+								tc.mV[1] -= int_part ;
+							}
+							break;
+						case LLTexUnit::TAM_WRAP:
+							if(tc.mV[0] > 1.f)
+								tc.mV[0] -= (S32)(tc.mV[0] - 0.00001f) ;
+							else if(tc.mV[0] < -1.f)
+								tc.mV[0] -= (S32)(tc.mV[0] + 0.00001f) ;
+
+							if(tc.mV[1] > 1.f)
+								tc.mV[1] -= (S32)(tc.mV[1] - 0.00001f) ;
+							else if(tc.mV[1] < -1.f)
+								tc.mV[1] -= (S32)(tc.mV[1] + 0.00001f) ;
+
+							if(tc.mV[0] < 0.f)
+							{
+								tc.mV[0] = 1.0f + tc.mV[0] ;
+							}
+							if(tc.mV[1] < 0.f)
+							{
+								tc.mV[1] = 1.0f + tc.mV[1] ;
+							}
+							break;
+						default:
+							break;
+						}
+				
+						tc.mV[0] = tcoord_xoffset + tcoord_xscale * tc.mV[0] ;
+						tc.mV[1] = tcoord_yoffset + tcoord_yscale * tc.mV[1] ;
+					}
+				
+
+					*tex_coords++ = tc;
+					if (do_bump)
+					{
+						bump_tc.push_back(tc);
+					}
+				}
+
+				if (map_range)
+				{
+					mVertexBuffer->flush();
+				}
+
+				if (do_bump)
+				{
+					mVertexBuffer->getTexCoord1Strider(tex_coords2, mGeomIndex, mGeomCount, map_range);
+		
+					for (S32 i = 0; i < num_vertices; i++)
+					{
+						LLVector4a tangent;
+						tangent.setCross3(vf.mBinormals[i], vf.mNormals[i]);
+
+						LLMatrix4a tangent_to_object;
+						tangent_to_object.setRows(tangent, vf.mBinormals[i], vf.mNormals[i]);
+						LLVector4a t;
+						tangent_to_object.rotate(binormal_dir, t);
+						LLVector4a binormal;
+						mat_normal.rotate(t, binormal);
+						
+						//VECTORIZE THIS
+						if (mDrawablep->isActive())
+						{
+							LLVector3 t;
+							t.set(binormal.getF32ptr());
+							t *= bump_quat;
+							binormal.load3(t.mV);
+						}
+
+						binormal.normalize3fast();
+						LLVector2 tc = bump_tc[i];
+						tc += LLVector2( bump_s_primary_light_ray.dot3(tangent).getF32(), bump_t_primary_light_ray.dot3(binormal).getF32() );
+					
+						*tex_coords2++ = tc;
+					}
+
+					if (map_range)
+					{
+						mVertexBuffer->flush();
+					}
+				}
+			}
+		}
+
+		if (rebuild_pos)
+		{
+			LLFastTimer t(FTM_FACE_GEOM_POSITION);
+			llassert(num_vertices > 0);
+		
+			mVertexBuffer->getVertexStrider(vert, mGeomIndex, mGeomCount, map_range);
 			
 
-		LLMatrix4a mat_vert;
-		mat_vert.loadu(mat_vert_in);
+			LLMatrix4a mat_vert;
+			mat_vert.loadu(mat_vert_in);
 
-		LLVector4a* src = vf.mPositions;
-		volatile F32* dst = (volatile F32*) vert.get();
+			LLVector4a* src = vf.mPositions;
+			volatile F32* dst = (volatile F32*) vert.get();
 
-		volatile F32* end = dst+num_vertices*4;
-		LLVector4a res;
+			volatile F32* end = dst+num_vertices*4;
+			LLVector4a res;
 
-		LLVector4a texIdx;
+			LLVector4a texIdx;
 
-		U8 index = mTextureIndex < 255 ? mTextureIndex : 0;
+			U8 index = mTextureIndex < 255 ? mTextureIndex : 0;
 
-		F32 val = 0.f;
-		U8* vp = (U8*) &val;
-		vp[0] = index;
-		vp[1] = 0;
-		vp[2] = 0;
-		vp[3] = 0;
+			F32 val = 0.f;
+			U8* vp = (U8*) &val;
+			vp[0] = index;
+			vp[1] = 0;
+			vp[2] = 0;
+			vp[3] = 0;
 
-		llassert(index <= LLGLSLShader::sIndexedTextureChannels-1);
+			llassert(index <= LLGLSLShader::sIndexedTextureChannels-1);
 
-		LLVector4Logical mask;
-		mask.clear();
-		mask.setElement<3>();
+			LLVector4Logical mask;
+			mask.clear();
+			mask.setElement<3>();
 		
-		texIdx.set(0,0,0,val);
+			texIdx.set(0,0,0,val);
 
-		{
-			LLFastTimer t(FTM_FACE_POSITION_STORE);
-			LLVector4a tmp;
-
-			do
-			{	
-				mat_vert.affineTransform(*src++, res);
-				tmp.setSelectWithMask(mask, texIdx, res);
-				tmp.store4a((F32*) dst);
-				dst += 4;
-			}
-			while(dst < end);
-		}
-
-		{
-			LLFastTimer t(FTM_FACE_POSITION_PAD);
-			S32 aligned_pad_vertices = mGeomCount - num_vertices;
-			res.set(res[0], res[1], res[2], 0.f);
-
-			while (aligned_pad_vertices > 0)
 			{
-				--aligned_pad_vertices;
-				res.store4a((F32*) dst);
-				dst += 4;
+				LLFastTimer t(FTM_FACE_POSITION_STORE);
+				LLVector4a tmp;
+
+				do
+				{	
+					mat_vert.affineTransform(*src++, res);
+					tmp.setSelectWithMask(mask, texIdx, res);
+					tmp.store4a((F32*) dst);
+					dst += 4;
+				}
+				while(dst < end);
+			}
+
+			{
+				LLFastTimer t(FTM_FACE_POSITION_PAD);
+				S32 aligned_pad_vertices = mGeomCount - num_vertices;
+				res.set(res[0], res[1], res[2], 0.f);
+
+				while (aligned_pad_vertices > 0)
+				{
+					--aligned_pad_vertices;
+					res.store4a((F32*) dst);
+					dst += 4;
+				}
+			}
+
+			if (map_range)
+			{
+				mVertexBuffer->flush();
 			}
 		}
 
-		if (map_range)
-		{
-			mVertexBuffer->flush();
-		}
-	}
 		
-	if (rebuild_normal)
-	{
-		LLFastTimer t(FTM_FACE_GEOM_NORMAL);
-		mVertexBuffer->getNormalStrider(norm, mGeomIndex, mGeomCount, map_range);
-		F32* normals = (F32*) norm.get();
+		if (rebuild_normal)
+		{
+			LLFastTimer t(FTM_FACE_GEOM_NORMAL);
+			mVertexBuffer->getNormalStrider(norm, mGeomIndex, mGeomCount, map_range);
+			F32* normals = (F32*) norm.get();
 	
-		for (S32 i = 0; i < num_vertices; i++)
-		{	
-			LLVector4a normal;
-			mat_normal.rotate(vf.mNormals[i], normal);
-			normal.normalize3fast();
-			normal.store4a(normals);
-			normals += 4;
-		}
+			for (S32 i = 0; i < num_vertices; i++)
+			{	
+				LLVector4a normal;
+				mat_normal.rotate(vf.mNormals[i], normal);
+				normal.normalize3fast();
+				normal.store4a(normals);
+				normals += 4;
+			}
 
-		if (map_range)
+			if (map_range)
+			{
+				mVertexBuffer->flush();
+			}
+		}
+		
+		if (rebuild_binormal)
 		{
-			mVertexBuffer->flush();
-		}
-	}
+			LLFastTimer t(FTM_FACE_GEOM_BINORMAL);
+			mVertexBuffer->getBinormalStrider(binorm, mGeomIndex, mGeomCount, map_range);
+			F32* binormals = (F32*) binorm.get();
 		
-	if (rebuild_binormal)
-	{
-		LLFastTimer t(FTM_FACE_GEOM_BINORMAL);
-		mVertexBuffer->getBinormalStrider(binorm, mGeomIndex, mGeomCount, map_range);
-		F32* binormals = (F32*) binorm.get();
-		
-		for (S32 i = 0; i < num_vertices; i++)
-		{	
-			LLVector4a binormal;
-			mat_normal.rotate(vf.mBinormals[i], binormal);
-			binormal.normalize3fast();
-			binormal.store4a(binormals);
-			binormals += 4;
-		}
+			for (S32 i = 0; i < num_vertices; i++)
+			{	
+				LLVector4a binormal;
+				mat_normal.rotate(vf.mBinormals[i], binormal);
+				binormal.normalize3fast();
+				binormal.store4a(binormals);
+				binormals += 4;
+			}
 
-		if (map_range)
-		{
-			mVertexBuffer->flush();
+			if (map_range)
+			{
+				mVertexBuffer->flush();
+			}
 		}
-	}
 	
-	if (rebuild_weights && vf.mWeights)
-	{
-		LLFastTimer t(FTM_FACE_GEOM_WEIGHTS);
-		mVertexBuffer->getWeight4Strider(wght, mGeomIndex, mGeomCount, map_range);
-		F32* weights = (F32*) wght.get();
-		LLVector4a::memcpyNonAliased16(weights, (F32*) vf.mWeights, num_vertices*4*sizeof(F32));
-		if (map_range)
+		if (rebuild_weights && vf.mWeights)
 		{
-			mVertexBuffer->flush();
+			LLFastTimer t(FTM_FACE_GEOM_WEIGHTS);
+			mVertexBuffer->getWeight4Strider(wght, mGeomIndex, mGeomCount, map_range);
+			F32* weights = (F32*) wght.get();
+			LLVector4a::memcpyNonAliased16(weights, (F32*) vf.mWeights, num_vertices*4*sizeof(F32));
+			if (map_range)
+			{
+				mVertexBuffer->flush();
+			}
+		}
+
+		if (rebuild_color && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_COLOR) )
+		{
+			LLFastTimer t(FTM_FACE_GEOM_COLOR);
+			mVertexBuffer->getColorStrider(colors, mGeomIndex, mGeomCount, map_range);
+
+			LLVector4a src;
+
+			U32 vec[4];
+			vec[0] = vec[1] = vec[2] = vec[3] = color.mAll;
+		
+			src.loadua((F32*) vec);
+
+			F32* dst = (F32*) colors.get();
+			S32 num_vecs = num_vertices/4;
+			if (num_vertices%4 > 0)
+			{
+				++num_vecs;
+			}
+
+			for (S32 i = 0; i < num_vecs; i++)
+			{	
+				src.store4a(dst);
+				dst += 4;
+			}
+
+			if (map_range)
+			{
+				mVertexBuffer->flush();
+			}
+		}
+
+		if (rebuild_emissive)
+		{
+			LLFastTimer t(FTM_FACE_GEOM_EMISSIVE);
+			LLStrider<LLColor4U> emissive;
+			mVertexBuffer->getEmissiveStrider(emissive, mGeomIndex, mGeomCount, map_range);
+
+			U8 glow = (U8) llclamp((S32) (getTextureEntry()->getGlow()*255), 0, 255);
+
+			LLVector4a src;
+
+		
+			U32 glow32 = glow |
+						 (glow << 8) |
+						 (glow << 16) |
+						 (glow << 24);
+
+			U32 vec[4];
+			vec[0] = vec[1] = vec[2] = vec[3] = glow32;
+		
+			src.loadua((F32*) vec);
+
+			F32* dst = (F32*) emissive.get();
+			S32 num_vecs = num_vertices/4;
+			if (num_vertices%4 > 0)
+			{
+				++num_vecs;
+			}
+
+			for (S32 i = 0; i < num_vecs; i++)
+			{	
+				src.store4a(dst);
+				dst += 4;
+			}
+
+			if (map_range)
+			{
+				mVertexBuffer->flush();
+			}
 		}
 	}
 
-	if (rebuild_color && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_COLOR) )
-	{
-		LLFastTimer t(FTM_FACE_GEOM_COLOR);
-		mVertexBuffer->getColorStrider(colors, mGeomIndex, mGeomCount, map_range);
-
-		LLVector4a src;
-
-		U32 vec[4];
-		vec[0] = vec[1] = vec[2] = vec[3] = color.mAll;
-		
-		src.loadua((F32*) vec);
-
-		F32* dst = (F32*) colors.get();
-		S32 num_vecs = num_vertices/4;
-		if (num_vertices%4 > 0)
-		{
-			++num_vecs;
-		}
-
-		for (S32 i = 0; i < num_vecs; i++)
-		{	
-			src.store4a(dst);
-			dst += 4;
-		}
-
-		if (map_range)
-		{
-			mVertexBuffer->flush();
-		}
-	}
-
-	if (rebuild_emissive)
-	{
-		LLFastTimer t(FTM_FACE_GEOM_EMISSIVE);
-		LLStrider<LLColor4U> emissive;
-		mVertexBuffer->getEmissiveStrider(emissive, mGeomIndex, mGeomCount, map_range);
-
-		U8 glow = (U8) llclamp((S32) (getTextureEntry()->getGlow()*255), 0, 255);
-
-		LLVector4a src;
-
-		
-		U32 glow32 = glow |
-					 (glow << 8) |
-					 (glow << 16) |
-					 (glow << 24);
-
-		U32 vec[4];
-		vec[0] = vec[1] = vec[2] = vec[3] = glow32;
-		
-		src.loadua((F32*) vec);
-
-		F32* dst = (F32*) emissive.get();
-		S32 num_vecs = num_vertices/4;
-		if (num_vertices%4 > 0)
-		{
-			++num_vecs;
-		}
-
-		for (S32 i = 0; i < num_vecs; i++)
-		{	
-			src.store4a(dst);
-			dst += 4;
-		}
-
-		if (map_range)
-		{
-			mVertexBuffer->flush();
-		}
-	}
 	if (rebuild_tcoord)
 	{
 		mTexExtents[0].setVec(0,0);
@@ -1931,12 +2137,6 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		mTexExtents[1][1] *= et ;
 	}
 
-
-	mLastVertexBuffer = mVertexBuffer;
-	mLastGeomCount = mGeomCount;
-	mLastGeomIndex = mGeomIndex;
-	mLastIndicesCount = mIndicesCount;
-	mLastIndicesIndex = mIndicesIndex;
 
 	return TRUE;
 }
@@ -2516,7 +2716,6 @@ void LLFace::setVertexBuffer(LLVertexBuffer* buffer)
 void LLFace::clearVertexBuffer()
 {
 	mVertexBuffer = NULL;
-	mLastVertexBuffer = NULL;
 }
 
 //static

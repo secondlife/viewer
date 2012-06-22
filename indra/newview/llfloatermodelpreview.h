@@ -256,7 +256,6 @@ protected:
 	S32				mLastMouseX;
 	S32				mLastMouseY;
 	LLRect			mPreviewRect;
-	U32				mGLName;
 	static S32		sUploadAmount;
 	
 	std::set<LLPointer<DecompRequest> > mCurRequest;

@@ -48,6 +48,117 @@ const F32 MAX_PART_LIFETIME = 120.f;
 
 extern U64 gFrameTime;
 
+LLPointer<LLVertexBuffer> LLVOPartGroup::sVB = NULL;
+S32 LLVOPartGroup::sVBSlotFree[];
+S32* LLVOPartGroup::sVBSlotCursor = NULL;
+
+//static
+void LLVOPartGroup::restoreGL()
+{
+	for (S32 i = 0; i < LL_MAX_PARTICLE_COUNT; ++i)
+	{
+		sVBSlotFree[i] = i;
+	}
+
+	sVBSlotCursor = sVBSlotFree;
+
+	sVB = new LLVertexBuffer(VERTEX_DATA_MASK, GL_STREAM_DRAW_ARB);
+	U32 count = LL_MAX_PARTICLE_COUNT;
+	sVB->allocateBuffer(count*4, count*6, true);
+
+	//indices and texcoords are always the same, set once
+	LLStrider<U16> indicesp;
+
+	LLStrider<LLVector4a> verticesp;
+
+	sVB->getIndexStrider(indicesp);
+	sVB->getVertexStrider(verticesp);
+
+	LLVector4a v;
+	v.set(0,0,0,0);
+
+	
+	U16 vert_offset = 0;
+
+	for (U32 i = 0; i < LL_MAX_PARTICLE_COUNT; i++)
+	{
+		*indicesp++ = vert_offset + 0;
+		*indicesp++ = vert_offset + 1;
+		*indicesp++ = vert_offset + 2;
+
+		*indicesp++ = vert_offset + 1;
+		*indicesp++ = vert_offset + 3;
+		*indicesp++ = vert_offset + 2;
+
+		*verticesp++ = v;
+
+		vert_offset += 4;
+	}
+
+	LLStrider<LLVector2> texcoordsp;
+	sVB->getTexCoord0Strider(texcoordsp);
+
+	for (U32 i = 0; i < LL_MAX_PARTICLE_COUNT; i++)
+	{
+		*texcoordsp++ = LLVector2(0.f, 1.f);
+		*texcoordsp++ = LLVector2(0.f, 0.f);
+		*texcoordsp++ = LLVector2(1.f, 1.f);
+		*texcoordsp++ = LLVector2(1.f, 0.f);
+	}
+
+	sVB->flush();
+
+}
+
+//static
+void LLVOPartGroup::destroyGL()
+{
+	sVB = NULL;
+}
+
+//static
+S32 LLVOPartGroup::findAvailableVBSlot()
+{
+	if (sVBSlotCursor >= sVBSlotFree+LL_MAX_PARTICLE_COUNT)
+	{ //no more available slots
+		return -1;
+	}
+
+	S32 ret = *sVBSlotCursor;
+	sVBSlotCursor++;
+
+	return ret;
+}
+
+bool ll_is_part_idx_allocated(S32 idx, S32* start, S32* end)
+{
+	while (start < end)
+	{
+		if (*start == idx)
+		{ //not allocated (in free list)
+			return false;
+		}
+		++start;
+	}
+
+	//allocated (not in free list)
+	return true;
+}
+
+//static
+void LLVOPartGroup::freeVBSlot(S32 idx)
+{
+	llassert(idx < LL_MAX_PARTICLE_COUNT && idx >= 0);
+	llassert(sVBSlotCursor > sVBSlotFree);
+	llassert(ll_is_part_idx_allocated(idx, sVBSlotCursor, sVBSlotFree+LL_MAX_PARTICLE_COUNT));
+
+	if (sVBSlotCursor > sVBSlotFree)
+	{
+		sVBSlotCursor--;
+		*sVBSlotCursor = idx;
+	}
+}
+
 LLVOPartGroup::LLVOPartGroup(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 	:	LLAlphaObject(id, pcode, regionp),
 		mViewerPartGroupp(NULL)
@@ -61,7 +172,6 @@ LLVOPartGroup::LLVOPartGroup(const LLUUID &id, const LLPCode pcode, LLViewerRegi
 LLVOPartGroup::~LLVOPartGroup()
 {
 }
-
 
 BOOL LLVOPartGroup::isActive() const
 {
@@ -287,9 +397,6 @@ void LLVOPartGroup::getGeometry(S32 idx,
 
 	const LLViewerPart &part = *((LLViewerPart*) (mViewerPartGroupp->mParticles[idx]));
 
-	U32 vert_offset = mDrawable->getFace(idx)->getGeomIndex();
-
-	
 	LLVector4a part_pos_agent;
 	part_pos_agent.load3(part.mPosAgent.mV);
 	LLVector4a camera_agent;
@@ -361,33 +468,18 @@ void LLVOPartGroup::getGeometry(S32 idx,
 	verticesp->setAdd(ppamu, right);
 	(*verticesp++).getF32ptr()[3] = 0.f;
 
-	//*verticesp++ = part_pos_agent + up - right;
-	//*verticesp++ = part_pos_agent - up - right;
-	//*verticesp++ = part_pos_agent + up + right;
-	//*verticesp++ = part_pos_agent - up + right;
-
 	*colorsp++ = part.mColor;
 	*colorsp++ = part.mColor;
 	*colorsp++ = part.mColor;
 	*colorsp++ = part.mColor;
 
-	*texcoordsp++ = LLVector2(0.f, 1.f);
-	*texcoordsp++ = LLVector2(0.f, 0.f);
-	*texcoordsp++ = LLVector2(1.f, 1.f);
-	*texcoordsp++ = LLVector2(1.f, 0.f);
-
-	*normalsp++   = normal;
-	*normalsp++   = normal;
-	*normalsp++   = normal;
-	*normalsp++   = normal;
-
-	*indicesp++ = vert_offset + 0;
-	*indicesp++ = vert_offset + 1;
-	*indicesp++ = vert_offset + 2;
-
-	*indicesp++ = vert_offset + 1;
-	*indicesp++ = vert_offset + 3;
-	*indicesp++ = vert_offset + 2;
+	if (!(part.mFlags & LLPartData::LL_PART_EMISSIVE_MASK))
+	{ //not fullbright, needs normal
+		*normalsp++   = normal;
+		*normalsp++   = normal;
+		*normalsp++   = normal;
+		*normalsp++   = normal;
+	}
 }
 
 U32 LLVOPartGroup::getPartitionType() const
@@ -412,6 +504,49 @@ LLHUDParticlePartition::LLHUDParticlePartition() :
 	mPartitionType = LLViewerRegion::PARTITION_HUD_PARTICLE;
 }
 
+static LLFastTimer::DeclareTimer FTM_REBUILD_PARTICLE_VBO("Particle VBO");
+
+void LLParticlePartition::rebuildGeom(LLSpatialGroup* group)
+{
+	if (group->isDead() || !group->isState(LLSpatialGroup::GEOM_DIRTY))
+	{
+		return;
+	}
+
+	if (group->changeLOD())
+	{
+		group->mLastUpdateDistance = group->mDistance;
+		group->mLastUpdateViewAngle = group->mViewAngle;
+	}
+	
+	LLFastTimer ftm(FTM_REBUILD_PARTICLE_VBO);	
+
+	group->clearDrawMap();
+	
+	//get geometry count
+	U32 index_count = 0;
+	U32 vertex_count = 0;
+
+	addGeometryCount(group, vertex_count, index_count);
+	
+
+	if (vertex_count > 0 && index_count > 0)
+	{ 
+		group->mBuilt = 1.f;
+		//use one vertex buffer for all groups
+		group->mVertexBuffer = LLVOPartGroup::sVB;
+		getGeometry(group);
+	}
+	else
+	{
+		group->mVertexBuffer = NULL;
+		group->mBufferMap.clear();
+	}
+
+	group->mLastUpdateTime = gFrameTimeSeconds;
+	group->clearState(LLSpatialGroup::GEOM_DIRTY);
+}
+
 void LLParticlePartition::addGeometryCount(LLSpatialGroup* group, U32& vertex_count, U32& index_count)
 {
 	group->mBufferUsage = mBufferUsage;
@@ -431,11 +566,6 @@ void LLParticlePartition::addGeometryCount(LLSpatialGroup* group, U32& vertex_co
 		LLAlphaObject* obj = (LLAlphaObject*) drawablep->getVObj().get();
 		obj->mDepth = 0.f;
 		
-		if (drawablep->isAnimating())
-		{
-			group->mBufferUsage = GL_STREAM_DRAW_ARB;
-		}
-
 		U32 count = 0;
 		for (S32 j = 0; j < drawablep->getNumFaces(); ++j)
 		{
@@ -447,13 +577,14 @@ void LLParticlePartition::addGeometryCount(LLSpatialGroup* group, U32& vertex_co
 				continue;
 			}
 			
+			vertex_count += facep->getGeomCount();
+			index_count += facep->getIndicesCount();
+
 			count++;
 			facep->mDistance = (facep->mCenterLocal - camera->getOrigin()) * camera->getAtAxis();
 			obj->mDepth += facep->mDistance;
 			
 			mFaceList.push_back(facep);
-			vertex_count += facep->getGeomCount();
-			index_count += facep->getIndicesCount();
 			llassert(facep->getIndicesCount() < 65536);
 		}
 		
@@ -461,15 +592,13 @@ void LLParticlePartition::addGeometryCount(LLSpatialGroup* group, U32& vertex_co
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_REBUILD_GRASS_VB("Grass VB");
-static LLFastTimer::DeclareTimer FTM_REBUILD_PARTICLE_VB("Particle VB");
+
+static LLFastTimer::DeclareTimer FTM_REBUILD_PARTICLE_GEOM("Particle Geom");
 
 void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 {
 	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
-	LLFastTimer ftm(mDrawableType == LLPipeline::RENDER_TYPE_GRASS ?
-					FTM_REBUILD_GRASS_VB :
-					FTM_REBUILD_PARTICLE_VB);
+	LLFastTimer ftm(FTM_REBUILD_PARTICLE_GEOM);
 
 	std::sort(mFaceList.begin(), mFaceList.end(), LLFace::CompareDistanceGreater());
 
@@ -489,21 +618,44 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 	buffer->getVertexStrider(verticesp);
 	buffer->getNormalStrider(normalsp);
 	buffer->getColorStrider(colorsp);
-	buffer->getTexCoord0Strider(texcoordsp);
-	buffer->getIndexStrider(indicesp);
-
+	
 	LLSpatialGroup::drawmap_elem_t& draw_vec = group->mDrawMap[mRenderPass];	
 
 	for (std::vector<LLFace*>::iterator i = mFaceList.begin(); i != mFaceList.end(); ++i)
 	{
 		LLFace* facep = *i;
 		LLAlphaObject* object = (LLAlphaObject*) facep->getViewerObject();
-		facep->setGeomIndex(vertex_count);
-		facep->setIndicesIndex(index_count);
-		facep->setVertexBuffer(buffer);
-		facep->setPoolType(LLDrawPool::POOL_ALPHA);
-		object->getGeometry(facep->getTEOffset(), verticesp, normalsp, texcoordsp, colorsp, indicesp);
+
+		if (facep->getIndicesStart() == 0xFFFFFFFF)
+		{ //set the indices of this face
+			S32 idx = LLVOPartGroup::findAvailableVBSlot();
+			if (idx >= 0)
+			{
+				facep->setGeomIndex(idx*4);
+				facep->setIndicesIndex(idx*6);
+				facep->setVertexBuffer(LLVOPartGroup::sVB);
+				facep->setPoolType(LLDrawPool::POOL_ALPHA);
+			}
+			else
+			{
+				continue; //out of space in particle buffer
+			}		
+		}
+
+		S32 geom_idx = (S32) facep->getGeomIndex();
+
+		LLStrider<U16> cur_idx = indicesp + facep->getIndicesStart();
+		LLStrider<LLVector4a> cur_vert = verticesp + geom_idx;
+		LLStrider<LLVector3> cur_norm = normalsp + geom_idx;
+		LLStrider<LLVector2> cur_tc = texcoordsp + geom_idx;
+		LLStrider<LLColor4U> cur_col = colorsp + geom_idx;
+
+		object->getGeometry(facep->getTEOffset(), cur_vert, cur_norm, cur_tc, cur_col, cur_idx);
 		
+		llassert(facep->getGeomCount() == 4);
+		llassert(facep->getIndicesCount() == 6);
+
+
 		vertex_count += facep->getGeomCount();
 		index_count += facep->getIndicesCount();
 
@@ -512,18 +664,31 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 		BOOL fullbright = facep->isState(LLFace::FULLBRIGHT);
 		F32 vsize = facep->getVirtualSize();
 
-		if (idx >= 0 && draw_vec[idx]->mEnd == facep->getGeomIndex()-1 &&
+		bool batched = false;
+	
+		if (idx >= 0 &&
 			draw_vec[idx]->mTexture == facep->getTexture() &&
-			(U16) (draw_vec[idx]->mEnd - draw_vec[idx]->mStart + facep->getGeomCount()) <= (U32) gGLManager.mGLMaxVertexRange &&
-			//draw_vec[idx]->mCount + facep->getIndicesCount() <= (U32) gGLManager.mGLMaxIndexRange &&
-			draw_vec[idx]->mEnd - draw_vec[idx]->mStart + facep->getGeomCount() < 4096 &&
 			draw_vec[idx]->mFullbright == fullbright)
 		{
-			draw_vec[idx]->mCount += facep->getIndicesCount();
-			draw_vec[idx]->mEnd += facep->getGeomCount();
-			draw_vec[idx]->mVSize = llmax(draw_vec[idx]->mVSize, vsize);
+			if (draw_vec[idx]->mEnd == facep->getGeomIndex()-1)
+			{
+				batched = true;
+				draw_vec[idx]->mCount += facep->getIndicesCount();
+				draw_vec[idx]->mEnd += facep->getGeomCount();
+				draw_vec[idx]->mVSize = llmax(draw_vec[idx]->mVSize, vsize);
+			}
+			else if (draw_vec[idx]->mStart == facep->getGeomIndex()+facep->getGeomCount()+1)
+			{
+				batched = true;
+				draw_vec[idx]->mCount += facep->getIndicesCount();
+				draw_vec[idx]->mStart -= facep->getGeomCount();
+				draw_vec[idx]->mOffset = facep->getIndicesStart();
+				draw_vec[idx]->mVSize = llmax(draw_vec[idx]->mVSize, vsize);
+			}
 		}
-		else
+
+
+		if (!batched)
 		{
 			U32 start = facep->getGeomIndex();
 			U32 end = start + facep->getGeomCount()-1;
@@ -541,7 +706,6 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 		}
 	}
 
-	buffer->flush();
 	mFaceList.clear();
 }
 

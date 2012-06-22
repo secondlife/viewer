@@ -704,9 +704,13 @@ BOOL LLImagePreviewAvatar::render()
 		// make sure alpha=0 shows avatar material color
 		LLGLDisable no_blend(GL_BLEND);
 
-		LLDrawPoolAvatar *avatarPoolp = (LLDrawPoolAvatar *)avatarp->mDrawable->getFace(0)->getPool();
-		gPipeline.enableLightsPreview();
-		avatarPoolp->renderAvatars(avatarp);  // renders only one avatar
+		LLFace* face = avatarp->mDrawable->getFace(0);
+		if (face)
+		{
+			LLDrawPoolAvatar *avatarPoolp = (LLDrawPoolAvatar *)face->getPool();
+			gPipeline.enableLightsPreview();
+			avatarPoolp->renderAvatars(avatarp);  // renders only one avatar
+		}
 	}
 
 	gGL.popUIMatrix();

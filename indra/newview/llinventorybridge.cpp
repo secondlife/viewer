@@ -3008,8 +3008,6 @@ void LLFolderBridge::pasteFromClipboard()
 			}
 		}
 
-		const LLUUID parent_id(mUUID);
-
 		for (LLDynamicArray<LLUUID>::const_iterator iter = objects.begin();
 			 iter != objects.end();
 			 ++iter)

@@ -1054,6 +1054,7 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libopenjpeg.so*")
             self.path("libdirectfb-1.4.so.5")
             self.path("libfusion-1.4.so.5")
+            self.path("libdirect-1.4.so.5.0.4")
             self.path("libdirect-1.4.so.5")
             self.path("libhunspell-1.3.so")
             self.path("libhunspell-1.3.so.0")
