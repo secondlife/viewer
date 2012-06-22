@@ -206,7 +206,7 @@ void HttpRequestTestObjectType::test<2>()
 
 		// Okay, tear it down
 		HttpRequest::destroyService();
-		printf("Old mem:  %d, New mem:  %d\n", mMemTotal, GetMemTotal());
+		// printf("Old mem:  %d, New mem:  %d\n", mMemTotal, GetMemTotal());
 		ensure("Memory returned", mMemTotal == GetMemTotal());
 	}
 	catch (...)
