@@ -218,7 +218,7 @@ public:
 	virtual S32 getSortVersion() = 0;
 	virtual void setSortVersion(S32 version) = 0;
 protected:
-	friend LLFolderViewItem;
+	friend class LLFolderViewItem;
 	void setFolderViewItem(LLFolderViewItem* folder_view_item) { mFolderViewItem = folder_view_item;}
 	LLFolderViewItem*	mFolderViewItem;
 
