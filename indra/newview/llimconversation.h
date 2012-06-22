@@ -35,6 +35,8 @@
 #include "lleventtimer.h"
 
 class LLPanelChatControlPanel;
+class LLChatEntry;
+class LLChatHistory;
 
 class LLIMConversation
 	: public LLTransientDockableFloater
@@ -102,6 +104,18 @@ protected:
 private:
 	/// Update floater header and toolbar buttons when hosted/torn off state is toggled.
 	void updateHeaderAndToolbar();
+
+	/**
+	 * Adjusts chat history height to fit vertically with input chat field
+	 * and avoid overlapping, since input chat field can be vertically expanded.
+	 * Implementation: chat history bottom "follows" top+top_pad of input chat field
+	 */
+	void reshapeChatHistory();
+
+
+	LLChatHistory* mChatHistory;
+	LLChatEntry* mInputEditor;
+	int mInputEditorTopPad; // padding between input field and chat history
 };
 
 

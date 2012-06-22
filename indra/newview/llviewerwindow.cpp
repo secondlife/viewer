@@ -56,6 +56,7 @@
 
 // linden library includes
 #include "llaudioengine.h"		// mute on minimize
+#include "llchatentry.h"
 #include "indra_constants.h"
 #include "llassetstorage.h"
 #include "llerrorcontrol.h"
@@ -2492,7 +2493,7 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 
 		if (nearby_chat)
 		{
-			LLLineEditor* chat_editor = nearby_chat->getChatBox();
+			LLChatEntry* chat_editor = nearby_chat->getChatBox();
 		
 		// arrow keys move avatar while chatting hack
 		if (chat_editor && chat_editor->hasFocus())
@@ -2555,7 +2556,7 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	if ( gSavedSettings.getS32("LetterKeysFocusChatBar") && !gAgentCamera.cameraMouselook() && 
 		!keyboard_focus && key < 0x80 && (mask == MASK_NONE || mask == MASK_SHIFT) )
 	{
-		LLLineEditor* chat_editor = LLNearbyChat::getInstance()->getChatBox();
+		LLChatEntry* chat_editor = LLNearbyChat::getInstance()->getChatBox();
 		if (chat_editor)
 		{
 			// passing NULL here, character will be added later when it is handled by character handler.

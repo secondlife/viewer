@@ -29,6 +29,8 @@
 
 #include "llimconversation.h"
 
+#include "llchatentry.h"
+#include "llchathistory.h"
 #include "lldraghandle.h"
 #include "llfloaterreg.h"
 #include "llimfloater.h"
@@ -47,6 +49,9 @@ LLIMConversation::LLIMConversation(const LLUUID& session_id)
   ,  mCloseBtn(NULL)
   ,  mSessionID(session_id)
   , mParticipantList(NULL)
+  , mChatHistory(NULL)
+  , mInputEditor(NULL)
+  , mInputEditorTopPad(0)
 {
 	mCommitCallbackRegistrar.add("IMSession.Menu.Action",
 			boost::bind(&LLIMConversation::onIMSessionMenuItemClicked,  this, _2));
@@ -85,6 +90,12 @@ BOOL LLIMConversation::postBuild()
 
 	mTearOffBtn = getChild<LLButton>("tear_off_btn");
 	mTearOffBtn->setCommitCallback(boost::bind(&LLIMConversation::onTearOffClicked, this));
+
+	mChatHistory = getChild<LLChatHistory>("chat_history");
+	mInputEditor = getChild<LLChatEntry>("chat_editor");
+
+	mInputEditor->setTextExpandedCallback(boost::bind(&LLIMConversation::reshapeChatHistory, this));
+	mInputEditorTopPad = mChatHistory->getRect().mBottom - mInputEditor->getRect().mTop;
 
 	if (!getTornOff())
 	{
@@ -240,6 +251,17 @@ void LLIMConversation::updateHeaderAndToolbar()
 	enableDisableCallBtn();
 
 	showTranslationCheckbox();
+}
+
+void LLIMConversation::reshapeChatHistory()
+{
+	LLRect chat_rect  = mChatHistory->getRect();
+	LLRect input_rect = mInputEditor->getRect();
+
+	int delta_height = chat_rect.mBottom - (input_rect.mTop + mInputEditorTopPad);
+
+	chat_rect.setLeftTopAndSize(chat_rect.mLeft, chat_rect.mTop, chat_rect.getWidth(), chat_rect.getHeight() + delta_height);
+	mChatHistory->setShape(chat_rect);
 }
 
 void LLIMConversation::showTranslationCheckbox(BOOL show)

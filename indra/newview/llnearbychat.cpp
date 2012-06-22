@@ -30,6 +30,7 @@
 
 #include "lliconctrl.h"
 #include "llappviewer.h"
+#include "llchatentry.h"
 #include "llfloaterreg.h"
 #include "lltrans.h"
 #include "llimfloatercontainer.h"
@@ -138,19 +139,14 @@ LLNearbyChat::LLNearbyChat(const LLSD& key)
 //virtual
 BOOL LLNearbyChat::postBuild()
 {
-	mChatBox = getChild<LLLineEditor>("chat_editor");
+	mChatBox = getChild<LLChatEntry>("chat_editor");
 
 	mChatBox->setCommitCallback(boost::bind(&LLNearbyChat::onChatBoxCommit, this));
-	mChatBox->setKeystrokeCallback(&onChatBoxKeystroke, this);
+	mChatBox->setKeystrokeCallback(boost::bind(&onChatBoxKeystroke, _1, this));
 	mChatBox->setFocusLostCallback(boost::bind(&onChatBoxFocusLost, _1, this));
 	mChatBox->setFocusReceivedCallback(boost::bind(&LLNearbyChat::onChatBoxFocusReceived, this));
-	mChatBox->setIgnoreArrowKeys( FALSE ); 
 	mChatBox->setCommitOnFocusLost( FALSE );
-	mChatBox->setRevertOnEsc( FALSE );
-	mChatBox->setIgnoreTab(TRUE);
 	mChatBox->setPassDelete(TRUE);
-	mChatBox->setReplaceNewlinesWithSpaces(FALSE);
-	mChatBox->setEnableLineHistory(TRUE);
 	mChatBox->setFont(LLViewerChat::getChatFont());
 
 //	mOutputMonitor = getChild<LLOutputMonitorCtrl>("chat_zone_indicator");
@@ -459,7 +455,7 @@ BOOL LLNearbyChat::matchChatTypeTrigger(const std::string& in_str, std::string* 
 	return string_was_found;
 }
 
-void LLNearbyChat::onChatBoxKeystroke(LLLineEditor* caller, void* userdata)
+void LLNearbyChat::onChatBoxKeystroke(LLTextEditor* caller, void* userdata)
 {
 	LLFirstUse::otherAvatarChatFirst(false);
 
@@ -513,17 +509,16 @@ void LLNearbyChat::onChatBoxKeystroke(LLLineEditor* caller, void* userdata)
 		{
 			std::string rest_of_match = utf8_out_str.substr(utf8_trigger.size());
 			self->mChatBox->setText(utf8_trigger + rest_of_match); // keep original capitalization for user-entered part
-			S32 outlength = self->mChatBox->getLength(); // in characters
 
 			// Select to end of line, starting from the character
 			// after the last one the user typed.
-			self->mChatBox->setSelection(length, outlength);
+			self->mChatBox->selectNext(rest_of_match, false);
 		}
 		else if (matchChatTypeTrigger(utf8_trigger, &utf8_out_str))
 		{
 			std::string rest_of_match = utf8_out_str.substr(utf8_trigger.size());
 			self->mChatBox->setText(utf8_trigger + rest_of_match + " "); // keep original capitalization for user-entered part
-			self->mChatBox->setCursorToEnd();
+			self->mChatBox->endOfDoc();
 		}
 
 		//llinfos << "GESTUREDEBUG " << trigger 
@@ -581,11 +576,11 @@ void LLNearbyChat::sendChat( EChatType type )
 {
 	if (mChatBox)
 	{
-		LLWString text = mChatBox->getConvertedText();
+		LLWString text = mChatBox->getWText();
+		LLWStringUtil::trim(text);
+		LLWStringUtil::replaceChar(text,182,'\n'); // Convert paragraph symbols back into newlines.
 		if (!text.empty())
 		{
-			// store sent line in history, duplicates will get filtered
-			mChatBox->updateHistory();
 			// Check if this is destined for another channel
 			S32 channel = 0;
 			stripChannelNumber(text, &channel);
@@ -794,7 +789,7 @@ void LLNearbyChat::startChat(const char* line)
 			cb->mChatBox->setText(line_string);
 		}
 
-		cb->mChatBox->setCursorToEnd();
+		cb->mChatBox->endOfDoc();
 	}
 }
 

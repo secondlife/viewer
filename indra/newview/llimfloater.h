@@ -163,13 +163,6 @@ private:
 	// Remove the "User is typing..." indicator.
 	void removeTypingIndicator(const LLIMInfo* im_info = NULL);
 
-	/**
-	 * Adjusts chat history height to fit vertically with input chat field
-	 * and avoid overlapping, since input chat field can be vertically expanded.
-	 * Implementation: chat history bottom "follows" top+top_pad of input chat field
-	 */
-	void reshapeChatHistory();
-
 	static void closeHiddenIMToasts();
 
 	static void confirmLeaveCallCallback(const LLSD& notification, const LLSD& response);
@@ -179,8 +172,6 @@ private:
 	S32 mLastMessageIndex;
 
 	LLChatHistory* mChatHistory;
-
-	int mInputEditorTopPad; // padding between input field and chat history
 
 	EInstantMessage mDialog;
 	LLUUID mOtherParticipantUUID;

@@ -71,7 +71,7 @@ public:
 	void	onNearbyChatContextMenuItemClicked(const LLSD& userdata);
 	bool	onNearbyChatCheckContextMenuItem(const LLSD& userdata);
 
-	LLLineEditor* getChatBox() { return mChatBox; }
+	LLChatEntry* getChatBox() { return mChatBox; }
 
 	//virtual void draw();
 
@@ -90,7 +90,7 @@ public:
 
 protected:
 	static BOOL matchChatTypeTrigger(const std::string& in_str, std::string* out_str);
-	static void onChatBoxKeystroke(LLLineEditor* caller, void* userdata);
+	static void onChatBoxKeystroke(LLTextEditor* caller, void* userdata);
 	static void onChatBoxFocusLost(LLFocusableElement* caller, void* userdata);
 	void onChatBoxFocusReceived();
 
@@ -113,7 +113,7 @@ protected:
 	// Which non-zero channel did we last chat on?
 	static S32 sLastSpecialChatChannel;
 
-	LLLineEditor*			mChatBox;
+	LLChatEntry*			mChatBox;
 	LLOutputMonitorCtrl*	mOutputMonitor;
 	LLLocalSpeakerMgr*		mSpeakerMgr;
 

@@ -64,7 +64,6 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 	mLastMessageIndex(-1),
 	mDialog(IM_NOTHING_SPECIAL),
 	mInputEditor(NULL),
-	mInputEditorTopPad(0),
 	mSavedTitle(),
 	mTypingStart(),
 	mShouldSendTypingState(false),
@@ -314,11 +313,8 @@ BOOL LLIMFloater::postBuild()
 	mInputEditor->setPassDelete( TRUE );
 
 	mInputEditor->setCommitCallback(boost::bind(onSendMsg, _1, this));
-	mInputEditor->setTextExpandedCallback(boost::bind(&LLIMFloater::reshapeChatHistory, this));
 	
 	mChatHistory = getChild<LLChatHistory>("chat_history");
-
-	mInputEditorTopPad = mChatHistory->getRect().mBottom - mInputEditor->getRect().mTop;
 
 	setDocked(true);
 
@@ -1169,17 +1165,6 @@ void LLIMFloater::removeTypingIndicator(const LLIMInfo* im_info)
 			}
 		}
 	}
-}
-
-void LLIMFloater::reshapeChatHistory()
-{
-	LLRect chat_rect  = mChatHistory->getRect();
-	LLRect input_rect = mInputEditor->getRect();
-
-	int delta_height = chat_rect.mBottom - (input_rect.mTop + mInputEditorTopPad);
-
-	chat_rect.setLeftTopAndSize(chat_rect.mLeft, chat_rect.mTop, chat_rect.getWidth(), chat_rect.getHeight() + delta_height);
-	mChatHistory->setShape(chat_rect);
 }
 
 // static
