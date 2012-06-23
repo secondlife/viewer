@@ -5793,7 +5793,7 @@ This area has building disabled. You can&apos;t build or rez objects here.
      persist="true"
      type="notify">
     <unique/>
-    The pathfinding navmesh has pending changes and is not up-to-date on the current region.  If you have build rights, you may rebake the navmesh by clicking on the Clean Up Region button.
+    The pathfinding navmesh has pending changes and is not up-to-date on the current region.  If you have build rights, you may rebake the navmesh by clicking on the “Clean up region” button.
   </notification>
 
   <notification
@@ -5804,7 +5804,27 @@ This area has building disabled. You can&apos;t build or rez objects here.
     <unique/>
     Dynamic pathfinding is not enabled on this region.  Scripted objects with pathfinding LSL calls may not operate as expected on this region.
   </notification>
-  
+
+  <notification
+   icon="alertmodal.tga"
+   name="PathfindingRebakeNavmesh"
+   type="alertmodal">
+    <unique/>
+    Changing certain objects in this region could cause other moving objects to behave incorrectly.  To make such objects work again, click the “Clean up region” button.  Choose “Help” to read more information.
+    <url
+      option="1"
+      name="url"
+      target = "_external">
+      http://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer
+    </url>
+    <usetemplate
+     name="okhelpignore"
+     ignoretext="Changing certain objects in this region could cause other moving objects to behave incorrectly."
+     yestext="OK"
+     helptext="Help"
+     />
+  </notification>
+
   <notification
    icon="notify.tga"
    name="SeeAvatars"

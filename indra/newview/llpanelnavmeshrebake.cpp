@@ -37,6 +37,7 @@
 #include "llenvmanager.h"
 #include "llhandle.h"
 #include "llhints.h"
+#include "llnotificationsutil.h"
 #include "llpanel.h"
 #include "llpathfindingmanager.h"
 #include "llpathfindingnavmesh.h"
@@ -135,6 +136,10 @@ LLPanelNavMeshRebake* LLPanelNavMeshRebake::getPanel()
 
 void LLPanelNavMeshRebake::setMode(ERebakeNavMeshMode pRebakeNavMeshMode)
 {
+	if (pRebakeNavMeshMode == kRebakeNavMesh_Available)
+	{
+		LLNotificationsUtil::add("PathfindingRebakeNavmesh");
+	}
 	mNavMeshRebakeButton->setVisible(pRebakeNavMeshMode == kRebakeNavMesh_Available);
 	mNavMeshBakingButton->setVisible(pRebakeNavMeshMode == kRebakeNavMesh_RequestSent);
 	mRebakeNavMeshMode = pRebakeNavMeshMode;
