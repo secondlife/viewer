@@ -27,8 +27,6 @@
 #include "llviewerprecompiledheaders.h"
 #include "llvoicevivox.h"
 
-#include <boost/tokenizer.hpp>
-
 #include "llsdutil.h"
 
 // Linden library includes
@@ -47,6 +45,7 @@
 #include "llbase64.h"
 #include "llviewercontrol.h"
 #include "llappviewer.h"	// for gDisconnected, gDisableVoice
+#include "llprocess.h"
 
 // Viewer includes
 #include "llmutelist.h"  // to check for muted avatars
@@ -242,58 +241,20 @@ void LLVivoxVoiceClientCapResponder::result(const LLSD& content)
 	}
 }
 
-
-
-#if LL_WINDOWS
-static HANDLE sGatewayHandle = 0;
+static LLProcessPtr sGatewayPtr;
 
 static bool isGatewayRunning()
 {
-	bool result = false;
-	if(sGatewayHandle != 0)		
-	{
-		DWORD waitresult = WaitForSingleObject(sGatewayHandle, 0);
-		if(waitresult != WAIT_OBJECT_0)
-		{
-			result = true;
-		}			
-	}
-	return result;
-}
-static void killGateway()
-{
-	if(sGatewayHandle != 0)
-	{
-		TerminateProcess(sGatewayHandle,0);
-	}
-}
-
-#else // Mac and linux
-
-static pid_t sGatewayPID = 0;
-static bool isGatewayRunning()
-{
-	bool result = false;
-	if(sGatewayPID != 0)
-	{
-		// A kill with signal number 0 has no effect, just does error checking.  It should return an error if the process no longer exists.
-		if(kill(sGatewayPID, 0) == 0)
-		{
-			result = true;
-		}
-	}
-	return result;
+	return sGatewayPtr && sGatewayPtr->isRunning();
 }
 
 static void killGateway()
 {
-	if(sGatewayPID != 0)
+	if (sGatewayPtr)
 	{
-		kill(sGatewayPID, SIGTERM);
+		sGatewayPtr->kill();
 	}
 }
-
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -790,7 +751,7 @@ void LLVivoxVoiceClient::stateMachine()
 			}
 			else if(!isGatewayRunning())
 			{
-				if(true)
+				if (true)           // production build, not test
 				{
 					// Launch the voice daemon
 					
@@ -809,102 +770,33 @@ void LLVivoxVoiceClient::stateMachine()
 #endif
 					// See if the vivox executable exists
 					llstat s;
-					if(!LLFile::stat(exe_path, &s))
+					if (!LLFile::stat(exe_path, &s))
 					{
 						// vivox executable exists.  Build the command line and launch the daemon.
+						LLProcess::Params params;
+						params.executable = exe_path;
 						// SLIM SDK: these arguments are no longer necessary.
 //						std::string args = " -p tcp -h -c";
-						std::string args;
-						std::string cmd;
 						std::string loglevel = gSavedSettings.getString("VivoxDebugLevel");
-						
 						if(loglevel.empty())
 						{
 							loglevel = "-1";	// turn logging off completely
 						}
-						
-						args += " -ll ";
-						args += loglevel;
-						
-						LL_DEBUGS("Voice") << "Args for SLVoice: " << args << LL_ENDL;
 
-#if LL_WINDOWS
-						PROCESS_INFORMATION pinfo;
-						STARTUPINFOA sinfo;
-						
-						memset(&sinfo, 0, sizeof(sinfo));
-						
-						std::string exe_dir = gDirUtilp->getAppRODataDir();
-						cmd = "SLVoice.exe";
-						cmd += args;
+						params.args.add("-ll");
+						params.args.add(loglevel);
+						params.cwd = gDirUtilp->getAppRODataDir();
+						sGatewayPtr = LLProcess::create(params);
 
-						// So retarded.  Windows requires that the second parameter to CreateProcessA be writable (non-const) string...
-						char *args2 = new char[args.size() + 1];
-						strcpy(args2, args.c_str());
-						if(!CreateProcessA(exe_path.c_str(), args2, NULL, NULL, FALSE, 0, NULL, exe_dir.c_str(), &sinfo, &pinfo))
-						{
-//							DWORD dwErr = GetLastError();
-						}
-						else
-						{
-							// foo = pinfo.dwProcessId; // get your pid here if you want to use it later on
-							// CloseHandle(pinfo.hProcess); // stops leaks - nothing else
-							sGatewayHandle = pinfo.hProcess;
-							CloseHandle(pinfo.hThread); // stops leaks - nothing else
-						}		
-						
-						delete[] args2;
-#else	// LL_WINDOWS
-						// This should be the same for mac and linux
-						{
-							std::vector<std::string> arglist;
-							arglist.push_back(exe_path);
-							
-							// Split the argument string into separate strings for each argument
-							typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-							boost::char_separator<char> sep(" ");
-							tokenizer tokens(args, sep);
-							tokenizer::iterator token_iter;
-
-							for(token_iter = tokens.begin(); token_iter != tokens.end(); ++token_iter)
-							{
-								arglist.push_back(*token_iter);
-							}
-							
-							// create an argv vector for the child process
-							char **fakeargv = new char*[arglist.size() + 1];
-							int i;
-							for(i=0; i < arglist.size(); i++)
-								fakeargv[i] = const_cast<char*>(arglist[i].c_str());
-
-							fakeargv[i] = NULL;
-							
-							fflush(NULL); // flush all buffers before the child inherits them
-							pid_t id = vfork();
-							if(id == 0)
-							{
-								// child
-								execv(exe_path.c_str(), fakeargv);
-								
-								// If we reach this point, the exec failed.
-								// Use _exit() instead of exit() per the vfork man page.
-								_exit(0);
-							}
-
-							// parent
-							delete[] fakeargv;
-							sGatewayPID = id;
-						}
-#endif	// LL_WINDOWS
 						mDaemonHost = LLHost(gSavedSettings.getString("VivoxVoiceHost").c_str(), gSavedSettings.getU32("VivoxVoicePort"));
-					}	
+					}
 					else
 					{
 						LL_INFOS("Voice") << exe_path << " not found." << LL_ENDL;
-					}	
+					}
 				}
 				else
-				{		
+				{
 					// SLIM SDK: port changed from 44124 to 44125.
 					// We can connect to a client gateway running on another host.  This is useful for testing.
 					// To do this, launch the gateway on a nearby host like this:

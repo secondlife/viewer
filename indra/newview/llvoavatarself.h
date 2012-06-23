@@ -93,14 +93,26 @@ public:
 	/*virtual*/ void updateVisualParams();
 	/*virtual*/ void idleUpdateAppearanceAnimation();
 
+	/*virtual*/ U32  processUpdateMessage(LLMessageSystem *mesgsys,
+													 void **user_data,
+													 U32 block_num,
+													 const EObjectUpdateType update_type,
+													 LLDataPacker *dp);
+
 private:
 	// helper function. Passed in param is assumed to be in avatar's parameter list.
 	BOOL setParamWeight(LLViewerVisualParam *param, F32 weight, BOOL upload_bake = FALSE );
 
 
+
 /**                    Initialization
  **                                                                            **
  *******************************************************************************/
+
+private:
+	LLUUID mInitialBakeIDs[6];
+	bool mInitialBakesLoaded;
+
 
 /********************************************************************************
  **                                                                            **
@@ -121,7 +133,7 @@ public:
 	// Loading state
 	//--------------------------------------------------------------------
 public:
-	/*virtual*/ BOOL    getIsCloud();
+	/*virtual*/ BOOL    getIsCloud() const;
 
 	//--------------------------------------------------------------------
 	// Region state
@@ -229,6 +241,7 @@ public:
 	void				requestLayerSetUpload(LLVOAvatarDefines::EBakedTextureIndex i);
 	void				requestLayerSetUpdate(LLVOAvatarDefines::ETextureIndex i);
 	LLTexLayerSet*		getLayerSet(LLVOAvatarDefines::ETextureIndex index) const;
+	LLTexLayerSet* 		getLayerSet(LLVOAvatarDefines::EBakedTextureIndex baked_index) const;
 	
 	//--------------------------------------------------------------------
 	// Composites
@@ -369,6 +382,8 @@ public:
 	const LLTexLayerSet*  	debugGetLayerSet(LLVOAvatarDefines::EBakedTextureIndex index) const { return mBakedTextureDatas[index].mTexLayerSet; }
 	const std::string		debugDumpLocalTextureDataInfo(const LLTexLayerSet* layerset) const; // Lists out state of this particular baked texture layer
 	const std::string		debugDumpAllLocalTextureDataInfo() const; // Lists out which baked textures are at highest LOD
+	LLSD					metricsData();
+	void					sendAppearanceChangeMetrics(); // send data associated with completing a change.
 private:
 	LLFrameTimer    		mDebugSelfLoadTimer;
 	F32						mDebugTimeWearablesLoaded;
@@ -386,5 +401,10 @@ private:
 extern LLPointer<LLVOAvatarSelf> gAgentAvatarp;
 
 BOOL isAgentAvatarValid();
+
+void selfStartPhase(const std::string& phase_name);
+void selfStopPhase(const std::string& phase_name);
+void selfStopAllPhases();
+void selfClearPhases();
 
 #endif // LL_VO_AVATARSELF_H
