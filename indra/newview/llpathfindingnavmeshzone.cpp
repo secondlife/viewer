@@ -68,24 +68,6 @@ void LLPathfindingNavMeshZone::initialize()
 {
 	mNavMeshLocationPtrs.clear();
 
-#ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
-	LLViewerRegion *currentRegion = gAgent.getRegion();
-	if (currentRegion != NULL)
-	{
-		llinfos << "STINSON DEBUG: currentRegion: '" << currentRegion->getName() << "' (" << currentRegion->getRegionID().asString() << ")" << llendl;
-		std::vector<S32> availableRegions;
-		currentRegion->getNeighboringRegionsStatus( availableRegions );
-		std::vector<LLViewerRegion*> neighborRegionsPtrs;
-		currentRegion->getNeighboringRegions( neighborRegionsPtrs );
-		for (std::vector<S32>::const_iterator statusIter = availableRegions.begin();
-			statusIter != availableRegions.end(); ++statusIter)
-		{
-			LLViewerRegion *region = neighborRegionsPtrs[statusIter - availableRegions.begin()];
-			llinfos << "STINSON DEBUG: region #" << *statusIter << ": '" << region->getName() << "' (" << region->getRegionID().asString() << ")" << llendl;
-		}
- 	}
-
-#endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
 	NavMeshLocationPtr centerNavMeshPtr(new NavMeshLocation(CENTER_REGION, boost::bind(&LLPathfindingNavMeshZone::handleNavMeshLocation, this)));
 	mNavMeshLocationPtrs.push_back(centerNavMeshPtr);
 
@@ -214,16 +196,10 @@ void LLPathfindingNavMeshZone::updateStatus()
 	bool hasRequestNotEnabled = false;
 	bool hasRequestError = false;
 
-#ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
-	llinfos << "STINSON DEBUG: Navmesh zone update BEGIN" << llendl;
-#endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
 	for (NavMeshLocationPtrs::const_iterator navMeshLocationPtrIter = mNavMeshLocationPtrs.begin();
 		navMeshLocationPtrIter != mNavMeshLocationPtrs.end(); ++navMeshLocationPtrIter)
 	{
 		const NavMeshLocationPtr navMeshLocationPtr = *navMeshLocationPtrIter;
-#ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
-		llinfos << "STINSON DEBUG:    region #" << navMeshLocationPtr->getDirection() << ": region(" << navMeshLocationPtr->getRegionUUID().asString() << ") status:" << navMeshLocationPtr->getRequestStatus() << llendl;
-#endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
 		switch (navMeshLocationPtr->getRequestStatus())
 		{
 		case LLPathfindingNavMesh::kNavMeshRequestUnknown :
@@ -261,82 +237,49 @@ void LLPathfindingNavMeshZone::updateStatus()
 	if (hasRequestWaiting)
 	{
 		zoneRequestStatus = kNavMeshZoneRequestWaiting;
-#ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
-		llinfos << "STINSON DEBUG: Navmesh zone update is WAITING" << llendl;
-#endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
 	}
 	else if (hasRequestNeedsUpdate)
 	{
 		zoneRequestStatus = kNavMeshZoneRequestNeedsUpdate;
-#ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
-		llinfos << "STINSON DEBUG: Navmesh zone update is NEEDS UPDATE" << llendl;
-#endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
 	}
 	else if (hasRequestChecking)
 	{
 		zoneRequestStatus = kNavMeshZoneRequestChecking;
-#ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
-		llinfos << "STINSON DEBUG: Navmesh zone update is CHECKING" << llendl;
-#endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
 	}
 	else if (hasRequestStarted)
 	{
 		zoneRequestStatus = kNavMeshZoneRequestStarted;
-#ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
-		llinfos << "STINSON DEBUG: Navmesh zone update is STARTED" << llendl;
-#endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
 	}
 	else if (hasRequestError)
 	{
 		zoneRequestStatus = kNavMeshZoneRequestError;
-#ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
-		llinfos << "STINSON DEBUG: Navmesh zone update is ERROR" << llendl;
-#endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
 	}
 	else if (hasRequestUnknown)
 	{
 		zoneRequestStatus = kNavMeshZoneRequestUnknown;
-#ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
-		llinfos << "STINSON DEBUG: Navmesh zone update is UNKNOWN" << llendl;
-#endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
 	}
 	else if (hasRequestCompleted)
 	{
 		zoneRequestStatus = kNavMeshZoneRequestCompleted;
-#ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
-		llinfos << "STINSON DEBUG: Navmesh zone update is COMPLETED" << llendl;
-#endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
 	}
 	else if (hasRequestNotEnabled)
 	{
 		zoneRequestStatus = kNavMeshZoneRequestNotEnabled;
-#ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
-		llinfos << "STINSON DEBUG: Navmesh zone update is NOT ENABLED" << llendl;
-#endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
 	}
 	else
 	{
 		zoneRequestStatus = kNavMeshZoneRequestError;
-#ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
-		llinfos << "STINSON DEBUG: Navmesh zone update is BAD ERROR" << llendl;
-#endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
 		llassert(0);
 	}
 
 	if ((mNavMeshZoneRequestStatus != kNavMeshZoneRequestCompleted) &&
 		(zoneRequestStatus == kNavMeshZoneRequestCompleted))
 	{
-#ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
-		llinfos << "STINSON DEBUG: Navmesh zone update is stitching" << llendl;
-#endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
 		llassert(LLPathingLib::getInstance() != NULL);
 		if (LLPathingLib::getInstance() != NULL)
 		{
 			LLPathingLib::getInstance()->processNavMeshData();
 		}
-#ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
-		llinfos << "STINSON DEBUG: Navmesh zone update stitching is done" << llendl;
-#endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
 	}
 
 	mNavMeshZoneRequestStatus = zoneRequestStatus;
