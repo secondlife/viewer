@@ -5793,7 +5793,7 @@ This area has building disabled. You can&apos;t build or rez objects here.
      persist="true"
      type="notify">
     <unique/>
-    The pathfinding navmesh is not up-to-date on the current region.  If you have build rights, you may rebake the navmesh by clicking on the Rebake Region button.
+    The pathfinding navmesh has pending changes and is not up-to-date on the current region.  If you have build rights, you may rebake the navmesh by clicking on the Clean Up Region button.
   </notification>
 
   <notification
@@ -5802,7 +5802,7 @@ This area has building disabled. You can&apos;t build or rez objects here.
      persist="true"
      type="notify">
     <unique/>
-    Dynamic pathfinding is not enabled on this region.
+    Dynamic pathfinding is not enabled on this region.  Scripted objects with pathfinding LSL calls may not operate as expected on this region.
   </notification>
   
   <notification
