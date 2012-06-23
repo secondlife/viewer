@@ -57,6 +57,7 @@ LLFloaterBulkPermission::LLFloaterBulkPermission(const LLSD& seed)
 	mDone(FALSE)
 {
 	mID.generate();
+	mCommitCallbackRegistrar.add("BulkPermission.Ok",		boost::bind(&LLFloaterBulkPermission::onOkBtn, this));
 	mCommitCallbackRegistrar.add("BulkPermission.Apply",	boost::bind(&LLFloaterBulkPermission::onApplyBtn, this));
 	mCommitCallbackRegistrar.add("BulkPermission.Close",	boost::bind(&LLFloaterBulkPermission::onCloseBtn, this));
 	mCommitCallbackRegistrar.add("BulkPermission.CheckAll",	boost::bind(&LLFloaterBulkPermission::onCheckAll, this));
@@ -142,6 +143,12 @@ void LLFloaterBulkPermission::inventoryChanged(LLViewerObject* viewer_object,
 		llwarns << "No inventory for " << mCurrentObjectID << llendl;
 		nextObject();
 	}
+}
+
+void LLFloaterBulkPermission::onOkBtn()
+{
+	doApply();
+	closeFloater();
 }
 
 void LLFloaterBulkPermission::onApplyBtn()
