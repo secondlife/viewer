@@ -134,7 +134,7 @@ public:
 	/// acquires its weaknesses.
 	static bool isStopped();
 
-	/// Threading:  callable by application thread *once*.
+	/// Threading:  callable by consumer thread *once*.
 	void startThread();
 
 	/// Threading:  callable by worker thread.
@@ -152,23 +152,28 @@ public:
 	/// Threading:  callable by worker thread.
 	bool changePriority(HttpHandle handle, HttpRequest::priority_t priority);
 	
+	/// Threading:  callable by worker thread.
 	HttpPolicy & getPolicy()
 		{
 			return *mPolicy;
 		}
 
+	/// Threading:  callable by worker thread.
 	HttpLibcurl & getTransport()
 		{
 			return *mTransport;
 		}
 
+	/// Threading:  callable by consumer thread.
 	HttpPolicyGlobal & getGlobalOptions()
 		{
 			return mPolicyGlobal;
 		}
 
+	/// Threading:  callable by consumer thread.
 	HttpRequest::policy_t createPolicyClass();
 	
+	/// Threading:  callable by consumer thread.
 	HttpPolicyClass & getClassOptions(HttpRequest::policy_t policy_class)
 		{
 			llassert(policy_class >= 0 && policy_class < mPolicyClasses.size());
@@ -187,9 +192,9 @@ protected:
 	static volatile EState				sState;
 	HttpRequestQueue *					mRequestQueue;
 	volatile bool						mExitRequested;
-	
-	// === calling-thread-only data ===
 	LLCoreInt::HttpThread *				mThread;
+	
+	// === consumer-thread-only data ===
 	HttpPolicyGlobal					mPolicyGlobal;
 	std::vector<HttpPolicyClass>		mPolicyClasses;
 	

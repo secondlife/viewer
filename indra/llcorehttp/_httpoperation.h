@@ -170,6 +170,31 @@ public:
 };  // end class HttpOpNull
 
 
+/// HttpOpSpin is a test-only request that puts the worker
+/// thread into a cpu spin.  Used for unit tests and cleanup
+/// evaluation.  You do not want to use this.
+class HttpOpSpin : public HttpOperation
+{
+public:
+	// 0 does a hard spin in the operation
+	// 1 does a soft spin continuously requeuing itself
+	HttpOpSpin(int mode);
+
+protected:
+	virtual ~HttpOpSpin();
+
+private:
+	HttpOpSpin(const HttpOpSpin &);					// Not defined
+	void operator=(const HttpOpSpin &);				// Not defined
+
+public:
+	virtual void stageFromRequest(HttpService *);
+
+protected:
+	int			mMode;
+};  // end class HttpOpSpin
+
+
 }   // end namespace LLCore
 
 #endif	// _LLCORE_HTTP_OPERATION_H_

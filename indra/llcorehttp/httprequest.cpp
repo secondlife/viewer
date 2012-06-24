@@ -370,11 +370,13 @@ HttpStatus HttpRequest::createService()
 {
 	HttpStatus status;
 
-	llassert_always(! has_inited);
-	HttpRequestQueue::init();
-	HttpRequestQueue * rq = HttpRequestQueue::instanceOf();
-	HttpService::init(rq);
-	has_inited = true;
+	if (! has_inited)
+	{
+		HttpRequestQueue::init();
+		HttpRequestQueue * rq = HttpRequestQueue::instanceOf();
+		HttpService::init(rq);
+		has_inited = true;
+	}
 	
 	return status;
 }
@@ -384,10 +386,12 @@ HttpStatus HttpRequest::destroyService()
 {
 	HttpStatus status;
 
-	llassert_always(has_inited);
-	HttpService::term();
-	HttpRequestQueue::term();
-	has_inited = false;
+	if (has_inited)
+	{
+		HttpService::term();
+		HttpRequestQueue::term();
+		has_inited = false;
+	}
 	
 	return status;
 }
@@ -410,6 +414,27 @@ HttpHandle HttpRequest::requestStopThread(HttpHandler * user_handler)
 
 	HttpOpStop * op = new HttpOpStop();
 	op->setReplyPath(mReplyQueue, user_handler);
+	if (! (status = mRequestQueue->addOp(op)))			// transfers refcount
+	{
+		op->release();
+		mLastReqStatus = status;
+		return handle;
+	}
+
+	mLastReqStatus = status;
+	handle = static_cast<HttpHandle>(op);
+
+	return handle;
+}
+
+
+HttpHandle HttpRequest::requestSpin(int mode)
+{
+	HttpStatus status;
+	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
+
+	HttpOpSpin * op = new HttpOpSpin(mode);
+	op->setReplyPath(mReplyQueue, NULL);
 	if (! (status = mRequestQueue->addOp(op)))			// transfers refcount
 	{
 		op->release();

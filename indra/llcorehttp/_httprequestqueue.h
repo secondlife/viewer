@@ -73,10 +73,14 @@ public:
 public:
 	typedef std::vector<HttpOperation *> OpContainer;
 
-	/// Insert an object at the back of the reply queue.
+	/// Insert an object at the back of the request queue.
 	///
 	/// Caller must provide one refcount to the queue which takes
 	/// possession of the count.
+	///
+	/// @return			Standard status.  On failure, caller
+	///					must dispose of the operation with
+	///					an explicit release() call.
 	///
 	/// Threading:  callable by any thread.
 	HttpStatus addOp(HttpOperation * op);

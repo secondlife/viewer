@@ -53,35 +53,43 @@ HttpService::HttpService()
 	  mPolicy(NULL),
 	  mTransport(NULL)
 {
+	// Create the default policy class
 	HttpPolicyClass pol_class;
 	pol_class.set(HttpRequest::CP_CONNECTION_LIMIT, DEFAULT_CONNECTIONS);
 	pol_class.set(HttpRequest::CP_PER_HOST_CONNECTION_LIMIT, DEFAULT_CONNECTIONS);
 	pol_class.set(HttpRequest::CP_ENABLE_PIPELINING, 0L);
-
 	mPolicyClasses.push_back(pol_class);
 }
 
 
 HttpService::~HttpService()
 {
+	mExitRequested = true;
+	if (RUNNING == sState)
+	{
+		// Trying to kill the service object with a running thread
+		// is a bit tricky.
+		if (mThread)
+		{
+			mThread->cancel();
+			
+			if (! mThread->timedJoin(2000))
+			{
+				// Failed to join, expect problems ahead...
+				LL_WARNS("CoreHttp") << "Destroying HttpService with running thread.  Expect problems."
+									 << LL_ENDL;
+			}
+		}
+	}
+	
 	if (mRequestQueue)
 	{
 		mRequestQueue->release();
 		mRequestQueue = NULL;
 	}
 
-	if (mPolicy)
-	{
-		// *TODO:  need a finalization here
-		;
-	}
-	
-	if (mTransport)
-	{
-		// *TODO:  need a finalization here
-		delete mTransport;
-		mTransport = NULL;
-	}
+	delete mTransport;
+	mTransport = NULL;
 	
 	delete mPolicy;
 	mPolicy = NULL;
@@ -110,9 +118,22 @@ void HttpService::init(HttpRequestQueue * queue)
 
 void HttpService::term()
 {
-	llassert_always(RUNNING != sState);
 	if (sInstance)
 	{
+		if (RUNNING == sState)
+		{
+			// Unclean termination.  Thread appears to be running.  We'll
+			// try to give the worker thread a chance to cancel using the
+			// exit flag...
+			sInstance->mExitRequested = true;
+
+			// And a little sleep
+			ms_sleep(1000);
+
+			// Dtor will make some additional efforts and issue any final
+			// warnings...
+		}
+
 		delete sInstance;
 		sInstance = NULL;
 	}
@@ -159,9 +180,9 @@ void HttpService::startThread()
 		mThread->release();
 	}
 
-	// Push current policy definitions
-	mPolicy->setPolicies(mPolicyGlobal, mPolicyClasses);
-	mTransport->setPolicyCount(mPolicyClasses.size());
+	// Push current policy definitions, enable policy & transport components
+	mPolicy->start(mPolicyGlobal, mPolicyClasses);
+	mTransport->start(mPolicyClasses.size());
 	
 	mThread = new LLCoreInt::HttpThread(boost::bind(&HttpService::threadRun, this, _1));
 	mThread->addRef();		// Need an explicit reference, implicit one is used internally
@@ -173,6 +194,7 @@ void HttpService::stopRequested()
 {
 	mExitRequested = true;
 }
+
 
 bool HttpService::changePriority(HttpHandle handle, HttpRequest::priority_t priority)
 {
@@ -191,9 +213,26 @@ bool HttpService::changePriority(HttpHandle handle, HttpRequest::priority_t prio
 
 void HttpService::shutdown()
 {
+	// Disallow future enqueue of requests
 	mRequestQueue->stopQueue();
 
-	// *FIXME:  Run down everything....
+	// Cancel requests alread on the request queue
+	HttpRequestQueue::OpContainer ops;
+	mRequestQueue->fetchAll(false, ops);
+	while (! ops.empty())
+	{
+		HttpOperation * op(ops.front());
+		ops.erase(ops.begin());
+
+		op->cancel();
+		op->release();
+	}
+
+	// Shutdown transport canceling requests, freeing resources
+	mTransport->shutdown();
+
+	// And now policy
+	mPolicy->shutdown();
 }
 
 

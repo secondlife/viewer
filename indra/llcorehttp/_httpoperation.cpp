@@ -208,4 +208,40 @@ void HttpOpNull::stageFromRequest(HttpService * service)
 }
 
 
+// ==================================
+// HttpOpSpin
+// ==================================
+
+
+HttpOpSpin::HttpOpSpin(int mode)
+	: HttpOperation(),
+	  mMode(mode)
+{}
+
+
+HttpOpSpin::~HttpOpSpin()
+{}
+
+
+void HttpOpSpin::stageFromRequest(HttpService * service)
+{
+	if (0 == mMode)
+	{
+		// Spin forever
+		while (true)
+		{
+			ms_sleep(100);
+		}
+	}
+	else
+	{
+		this->addRef();
+		if (! HttpRequestQueue::instanceOf()->addOp(this))
+		{
+			this->release();
+		}
+	}
+}
+
+
 }   // end namespace LLCore

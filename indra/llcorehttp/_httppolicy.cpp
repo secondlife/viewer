@@ -76,6 +76,14 @@ HttpPolicy::HttpPolicy(HttpService * service)
 
 HttpPolicy::~HttpPolicy()
 {
+	shutdown();
+	
+	mService = NULL;
+}
+
+
+void HttpPolicy::shutdown()
+{
 	for (int policy_class(0); policy_class < mActiveClasses; ++policy_class)
 	{
 		HttpRetryQueue & retryq(mState[policy_class].mRetryQueue);
@@ -100,12 +108,12 @@ HttpPolicy::~HttpPolicy()
 	}
 	delete [] mState;
 	mState = NULL;
-	mService = NULL;
+	mActiveClasses = 0;
 }
 
 
-void HttpPolicy::setPolicies(const HttpPolicyGlobal & global,
-							 const std::vector<HttpPolicyClass> & classes)
+void HttpPolicy::start(const HttpPolicyGlobal & global,
+					   const std::vector<HttpPolicyClass> & classes)
 {
 	llassert_always(! mState);
 
@@ -243,6 +251,7 @@ bool HttpPolicy::changePriority(HttpHandle handle, HttpRequest::priority_t prior
 	
 	return false;
 }
+
 
 bool HttpPolicy::stageAfterCompletion(HttpOpRequest * op)
 {

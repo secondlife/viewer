@@ -27,9 +27,11 @@
 #ifndef LLCOREINT_THREAD_H_
 #define LLCOREINT_THREAD_H_
 
+#include "linden_common.h"
+
 #include <boost/thread.hpp>
 #include <boost/function.hpp>
-
+#include <boost/date_time/posix_time/posix_time_types.hpp>
 
 #include "_refcounted.h"
 
@@ -91,11 +93,27 @@ public:
 			mThread->join();
 		}
 
+	inline bool timedJoin(S32 millis)
+		{
+			return mThread->timed_join(boost::posix_time::milliseconds(millis));
+		}
+
 	inline bool joinable() const
 		{
 			return mThread->joinable();
 		}
 
+	// A very hostile method to force a thread to quit
+	inline void cancel()
+		{
+			boost::thread::native_handle_type thread(mThread->native_handle());
+#if		LL_WINDOWS
+			TerminateThread(thread, 0);
+#else
+			pthread_cancel(thread);
+#endif
+		}
+	
 private:
 	boost::function<void(HttpThread *)> mThreadFunc;
 	boost::thread * mThread;

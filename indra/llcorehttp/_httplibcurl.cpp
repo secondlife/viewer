@@ -47,12 +47,19 @@ HttpLibcurl::HttpLibcurl(HttpService * service)
 
 HttpLibcurl::~HttpLibcurl()
 {
-	// *FIXME:  need to cancel requests in this class, not in op class.
+	shutdown();
+	
+	mService = NULL;
+}
+
+
+void HttpLibcurl::shutdown()
+{
 	while (! mActiveOps.empty())
 	{
 		active_set_t::iterator item(mActiveOps.begin());
 
-		(*item)->cancel();
+		cancelRequest(*item);
 		(*item)->release();
 		mActiveOps.erase(item);
 	}
@@ -63,8 +70,6 @@ HttpLibcurl::~HttpLibcurl()
 		{
 			if (mMultiHandles[policy_class])
 			{
-				// *FIXME:  Do some multi cleanup here first
-		
 				curl_multi_cleanup(mMultiHandles[policy_class]);
 				mMultiHandles[policy_class] = 0;
 			}
@@ -73,20 +78,12 @@ HttpLibcurl::~HttpLibcurl()
 		delete [] mMultiHandles;
 		mMultiHandles = NULL;
 	}
-	
-	mService = NULL;
+
+	mPolicyCount = 0;
 }
-	
-
-void HttpLibcurl::init()
-{}
 
 
-void HttpLibcurl::term()
-{}
-
-
-void HttpLibcurl::setPolicyCount(int policy_count)
+void HttpLibcurl::start(int policy_count)
 {
 	llassert_always(policy_count <= POLICY_CLASS_LIMIT);
 	llassert_always(! mMultiHandles);					// One-time call only
@@ -143,8 +140,9 @@ HttpService::ELoopSpeed HttpLibcurl::processTransport()
 			}
 			else
 			{
-				// *FIXME:  Issue a logging event for this.
-				;
+				LL_WARNS_ONCE("CoreHttp") << "Unexpected message from libcurl.  Msg code:  "
+										  << msg->msg
+										  << LL_ENDL;
 			}
 			msgs_in_queue = 0;
 		}
@@ -191,30 +189,61 @@ void HttpLibcurl::addOp(HttpOpRequest * op)
 }
 
 
+// *NOTE:  cancelRequest logic parallels completeRequest logic.
+// Keep them synchronized as necessary.  Caller is expected to
+// remove to op from the active list and release the op *after*
+// calling this method.  It must be called first to deliver the
+// op to the reply queue with refcount intact.
+void HttpLibcurl::cancelRequest(HttpOpRequest * op)
+{
+	// Deactivate request
+	op->mCurlActive = false;
+
+	// Detach from multi and recycle handle
+	curl_multi_remove_handle(mMultiHandles[op->mReqPolicy], op->mCurlHandle);
+	curl_easy_cleanup(op->mCurlHandle);
+	op->mCurlHandle = NULL;
+
+	// Tracing
+	if (op->mTracing > TRACE_OFF)
+	{
+		LL_INFOS("CoreHttp") << "TRACE, RequestCanceled, Handle:  "
+							 << static_cast<HttpHandle>(op)
+							 << ", Status:  " << op->mStatus.toHex()
+							 << LL_ENDL;
+	}
+
+	// Cancel op and deliver for notification
+	op->cancel();
+}
+
+
+// *NOTE:  cancelRequest logic parallels completeRequest logic.
+// Keep them synchronized as necessary.
 bool HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode status)
 {
 	HttpOpRequest * op(NULL);
 	curl_easy_getinfo(handle, CURLINFO_PRIVATE, &op);
-	// *FIXME:  check the pointer
 
 	if (handle != op->mCurlHandle || ! op->mCurlActive)
 	{
-		// *FIXME:  This is a sanity check that needs validation/termination.
-		;
+		LL_WARNS("CoreHttp") << "libcurl handle and HttpOpRequest handle in disagreement or inactive request."
+							 << "  Handle:  " << static_cast<HttpHandle>(handle)
+							 << LL_ENDL;
+		return false;
 	}
 
 	active_set_t::iterator it(mActiveOps.find(op));
 	if (mActiveOps.end() == it)
 	{
-		// *FIXME:  Fatal condition.  This must be here.
-		;
-	}
-	else
-	{
-		mActiveOps.erase(it);
+		LL_WARNS("CoreHttp") << "libcurl completion for request not on active list.  Continuing."
+							 << "  Handle:  " << static_cast<HttpHandle>(handle)
+							 << LL_ENDL;
+		return false;
 	}
 
 	// Deactivate request
+	mActiveOps.erase(it);
 	op->mCurlActive = false;
 
 	// Set final status of request if it hasn't failed by other mechanisms yet
@@ -258,9 +287,21 @@ int HttpLibcurl::getActiveCount() const
 }
 
 
-int HttpLibcurl::getActiveCountInClass(int /* policy_class */) const
+int HttpLibcurl::getActiveCountInClass(int policy_class) const
 {
-	return getActiveCount();
+	int count(0);
+	
+	for (active_set_t::const_iterator iter(mActiveOps.begin());
+		 mActiveOps.end() != iter;
+		 ++iter)
+	{
+		if ((*iter)->mReqPolicy == policy_class)
+		{
+			++count;
+		}
+	}
+	
+	return count;
 }
 
 

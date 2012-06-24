@@ -60,6 +60,17 @@ private:
 	void operator=(const HttpPolicy &);			// Not defined
 
 public:
+	/// Cancel all ready and retry requests sending them to
+	/// their notification queues.  Release state resources
+	/// making further request handling impossible.
+	void shutdown();
+
+	/// Deliver policy definitions and enable handling of
+	/// requests.  One-time call invoked before starting
+	/// the worker thread.
+	void start(const HttpPolicyGlobal & global,
+			   const std::vector<HttpPolicyClass> & classes);
+
 	/// Give the policy layer some cycles to scan the ready
 	/// queue promoting higher-priority requests to active
 	/// as permited.
@@ -97,10 +108,6 @@ public:
 		{
 			return mGlobalOptions;
 		}
-
-	void setPolicies(const HttpPolicyGlobal & global,
-					 const std::vector<HttpPolicyClass> & classes);
-
 
 	// Get ready counts for a particular class
 	int getReadyCount(HttpRequest::policy_t policy_class);

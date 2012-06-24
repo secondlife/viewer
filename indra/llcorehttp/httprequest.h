@@ -409,6 +409,15 @@ public:
 	///
 	HttpHandle requestStopThread(HttpHandler * handler);
 
+	/// Queue a Spin request.
+	/// DEBUG/TESTING ONLY.  This puts the worker into a CPU spin for
+	/// test purposes.
+	///
+	/// @param	mode			0 for hard spin, 1 for soft spin
+	/// @return					Standard handle return cases.
+	///
+	HttpHandle requestSpin(int mode);
+
 	/// @}
 	
 	/// @name DynamicPolicyMethods

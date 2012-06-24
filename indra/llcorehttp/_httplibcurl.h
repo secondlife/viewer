@@ -65,9 +65,6 @@ private:
 	void operator=(const HttpLibcurl &);		// Not defined
 
 public:
-	static void init();
-	static void term();
-
 	/// Give cycles to libcurl to run active requests.  Completed
 	/// operations (successful or failed) will be retried or handed
 	/// over to the reply queue as final responses.
@@ -79,16 +76,23 @@ public:
 	void addOp(HttpOpRequest * op);
 
 	/// One-time call to set the number of policy classes to be
-	/// serviced and to create the resources for each.
-	void setPolicyCount(int policy_count);
+	/// serviced and to create the resources for each.  Value
+	/// must agree with HttpPolicy::setPolicies() call.
+	void start(int policy_count);
+	
+	void shutdown();
 	
 	int getActiveCount() const;
 	int getActiveCountInClass(int policy_class) const;
-	
+
 protected:
 	/// Invoked when libcurl has indicated a request has been processed
 	/// to completion and we need to move the request to a new state.
 	bool completeRequest(CURLM * multi_handle, CURL * handle, CURLcode status);
+
+	/// Invoked to cancel an active request, mainly during shutdown
+	/// and destroy.
+	void cancelRequest(HttpOpRequest * op);
 	
 protected:
 	typedef std::set<HttpOpRequest *> active_set_t;

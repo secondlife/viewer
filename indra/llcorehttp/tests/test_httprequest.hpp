@@ -1230,10 +1230,158 @@ void HttpRequestTestObjectType::test<11>()
 	}
 }
 
+template <> template <>
+void HttpRequestTestObjectType::test<12>()
+{
+	ScopedCurlInit ready;
+	
+	set_test_name("HttpRequest Spin + NoOp + hard termination");
+
+	// Handler can be stack-allocated *if* there are no dangling
+	// references to it after completion of this method.
+	// Create before memory record as the string copy will bump numbers.
+	TestHandler2 handler(this, "handler");
+		
+	// record the total amount of dynamically allocated memory
+	mMemTotal = GetMemTotal();
+	mHandlerCalls = 0;
+
+	HttpRequest * req = NULL;
+	
+	try
+	{
+		
+		// Get singletons created
+		HttpRequest::createService();
+		
+		// Start threading early so that thread memory is invariant
+		// over the test.
+		HttpRequest::startThread();
+
+		// create a new ref counted object with an implicit reference
+		req = new HttpRequest();
+		ensure("Memory allocated on construction", mMemTotal < GetMemTotal());
+
+		// Issue a Spin
+		HttpHandle handle = req->requestSpin(0);		// Hard spin
+		ensure("Valid handle returned for spin request", handle != LLCORE_HTTP_HANDLE_INVALID);
+
+		// Issue a NoOp
+		handle = req->requestNoOp(&handler);
+		ensure("Valid handle returned for no-op request", handle != LLCORE_HTTP_HANDLE_INVALID);
+
+		// Run the notification pump.
+		int count(0);
+		int limit(10);
+		while (count++ < limit && mHandlerCalls < 1)
+		{
+			req->update(1000);
+			usleep(100000);
+		}
+		ensure("No notifications received", mHandlerCalls == 0);
+
+		// release the request object
+		delete req;
+		req = NULL;
+
+		// Shut down service
+		HttpRequest::destroyService();
+
+		// Check memory usage
+		// printf("Old mem:  %d, New mem:  %d\n", mMemTotal, GetMemTotal());
+		// ensure("Memory usage back to that at entry", mMemTotal == GetMemTotal());
+		// This memory test won't work because we're killing the thread
+		// hard with the hard spinner.  There's no opportunity to join
+		// nicely so many things leak or get destroyed unilaterally.
+	}
+	catch (...)
+	{
+		stop_thread(req);
+		delete req;
+		HttpRequest::destroyService();
+		throw;
+	}
+}
+
+template <> template <>
+void HttpRequestTestObjectType::test<13>()
+{
+	ScopedCurlInit ready;
+	
+	set_test_name("HttpRequest Spin (soft) + NoOp + hard termination");
+
+	// Handler can be stack-allocated *if* there are no dangling
+	// references to it after completion of this method.
+	// Create before memory record as the string copy will bump numbers.
+	TestHandler2 handler(this, "handler");
+		
+	// record the total amount of dynamically allocated memory
+	mMemTotal = GetMemTotal();
+	mHandlerCalls = 0;
+
+	HttpRequest * req = NULL;
+	
+	try
+	{
+		
+		// Get singletons created
+		HttpRequest::createService();
+		
+		// Start threading early so that thread memory is invariant
+		// over the test.
+		HttpRequest::startThread();
+
+		// create a new ref counted object with an implicit reference
+		req = new HttpRequest();
+		ensure("Memory allocated on construction", mMemTotal < GetMemTotal());
+
+		// Issue a Spin
+		HttpHandle handle = req->requestSpin(1);
+		ensure("Valid handle returned for spin request", handle != LLCORE_HTTP_HANDLE_INVALID);
+
+		// Issue a NoOp
+		handle = req->requestNoOp(&handler);
+		ensure("Valid handle returned for no-op request", handle != LLCORE_HTTP_HANDLE_INVALID);
+
+		// Run the notification pump.
+		int count(0);
+		int limit(10);
+		while (count++ < limit && mHandlerCalls < 1)
+		{
+			req->update(1000);
+			usleep(100000);
+		}
+		ensure("NoOp notification received", mHandlerCalls == 1);
+
+		// release the request object
+		delete req;
+		req = NULL;
+
+		// Shut down service
+		HttpRequest::destroyService();
+
+		// Check memory usage
+		// printf("Old mem:  %d, New mem:  %d\n", mMemTotal, GetMemTotal());
+		ensure("Memory usage back to that at entry", mMemTotal == GetMemTotal());
+		// This memory test should work but could give problems as it
+		// relies on the worker thread picking up a friendly request
+		// to shutdown.  Doing so, it drops references to things and
+		// we should go back to where we started.  If it gives you
+		// problems, look into the code before commenting things out.
+	}
+	catch (...)
+	{
+		stop_thread(req);
+		delete req;
+		HttpRequest::destroyService();
+		throw;
+	}
+}
+
 // *NB:  This test must be last.  The sleeping webserver
 // won't respond for a long time.
 template <> template <>
-void HttpRequestTestObjectType::test<12>()
+void HttpRequestTestObjectType::test<14>()
 {
 	ScopedCurlInit ready;
 
@@ -1352,7 +1500,9 @@ void HttpRequestTestObjectType::test<12>()
 		throw;
 	}
 }
-
+// *NOTE:  This test ^^^^^^^^ must be the last one in the set.  It uses a
+// sleeping service that interferes with other HTTP tests.  Keep it
+// last until that little HTTP server can get some attention...
 
 }  // end namespace tut
 
