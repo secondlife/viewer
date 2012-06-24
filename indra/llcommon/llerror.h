@@ -35,7 +35,7 @@
 #include "stdtypes.h"
 
 
-/* Error Logging Facility
+/** Error Logging Facility
 
 	Information for most users:
 	
@@ -100,7 +100,6 @@
 	even release.  Which means you can use them to help debug even when deployed
 	to a real grid.
 */
-
 namespace LLError
 {
 	enum ELevel

@@ -534,7 +534,7 @@ namespace
 	}
 	
 	
-	void commonInit(const std::string& dir)
+	void commonInit(const std::string& dir, bool log_to_stderr = true)
 	{
 		LLError::Settings::reset();
 		
@@ -542,7 +542,8 @@ namespace
 		LLError::setFatalFunction(LLError::crashAndLoop);
 		LLError::setTimeFunction(LLError::utcTime);
 
-		if (shouldLogToStderr())
+		// log_to_stderr is only false in the unit and integration tests to keep builds quieter
+		if (log_to_stderr && shouldLogToStderr())
 		{
 			LLError::addRecorder(new RecordToStderr(stderrLogWantsTime()));
 		}
@@ -580,9 +581,9 @@ namespace LLError
 #endif
 	}
 
-	void initForApplication(const std::string& dir)
+	void initForApplication(const std::string& dir, bool log_to_stderr)
 	{
-		commonInit(dir);
+		commonInit(dir, log_to_stderr);
 	}
 
 	void setPrintLocation(bool print)
