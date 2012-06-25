@@ -105,51 +105,6 @@ void LLIMFloater::onFocusReceived()
 	}
 }
 
-// virtual
-void LLIMFloater::onClose(bool app_quitting)
-{
-	// Always suppress the IM from the conversations list on close if present for any reason
-	if (LLIMConversation::isChatMultiTab())
-	{
-		LLIMFloaterContainer* im_box = LLIMFloaterContainer::findInstance();
-		if (im_box)
-		{
-            im_box->removeConversationListItem(mSessionID);
-        }
-    }
-
-	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(
-				mSessionID);
-
-	if (session == NULL)
-	{
-		llwarns << "Empty session." << llendl;
-		return;
-	}
-
-	bool is_call_with_chat = session->isGroupSessionType()
-			|| session->isAdHocSessionType() || session->isP2PSessionType();
-
-	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(mSessionID);
-
-	if (is_call_with_chat && voice_channel != NULL
-			&& voice_channel->isActive())
-	{
-		LLSD payload;
-		payload["session_id"] = mSessionID;
-		LLNotificationsUtil::add("ConfirmLeaveCall", LLSD(), payload, confirmLeaveCallCallback);
-		return;
-	}
-
-	setTyping(false);
-
-	// The source of much argument and design thrashing
-	// Should the window hide or the session close when the X is clicked?
-	//
-	// Last change:
-	// EXT-3516 X Button should end IM session, _ button should hide
-	gIMMgr->leaveSession(mSessionID);
-}
 
 /* static */
 void LLIMFloater::newIMCallback(const LLSD& data)
@@ -609,6 +564,45 @@ LLIMFloater* LLIMFloater::getInstance(const LLUUID& session_id)
 				LLFloaterReg::getTypedInstance<LLIMFloater>("impanel", session_id);
 
 	return conversation;
+}
+
+void LLIMFloater::onClose(bool app_quitting)
+{
+	LLIMConversation::onClose(app_quitting);
+
+
+	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(
+				mSessionID);
+
+	if (session == NULL)
+	{
+		llwarns << "Empty session." << llendl;
+		return;
+	}
+
+	bool is_call_with_chat = session->isGroupSessionType()
+			|| session->isAdHocSessionType() || session->isP2PSessionType();
+
+	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(mSessionID);
+
+	if (is_call_with_chat && voice_channel != NULL
+			&& voice_channel->isActive())
+	{
+		LLSD payload;
+		payload["session_id"] = mSessionID;
+		LLNotificationsUtil::add("ConfirmLeaveCall", LLSD(), payload, confirmLeaveCallCallback);
+		return;
+	}
+
+	setTyping(false);
+
+	// The source of much argument and design thrashing
+	// Should the window hide or the session close when the X is clicked?
+	//
+	// Last change:
+	// EXT-3516 X Button should end IM session, _ button should hide
+	gIMMgr->leaveSession(mSessionID);
+
 }
 
 void LLIMFloater::setDocked(bool docked, bool pop_on_undock)
