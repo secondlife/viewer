@@ -1921,7 +1921,8 @@ bool idle_startup()
 		{
 			llinfos << "gAgentStartLocation : " << gAgentStartLocation << llendl;
 			LLSLURL start_slurl = LLStartUp::getStartSLURL();
-			
+			LL_DEBUGS("AppInit") << "start slurl "<<start_slurl.asString()<<LL_ENDL;
+
 			if (((start_slurl.getType() == LLSLURL::LOCATION) && (gAgentStartLocation == "url")) ||
 				((start_slurl.getType() == LLSLURL::LAST_LOCATION) && (gAgentStartLocation == "last")) ||
 				((start_slurl.getType() == LLSLURL::HOME_LOCATION) && (gAgentStartLocation == "home")))
@@ -2183,21 +2184,13 @@ void login_show()
 {
 	LL_INFOS("AppInit") << "Initializing Login Screen" << LL_ENDL;
 
-#ifdef LL_RELEASE_FOR_DOWNLOAD
-	BOOL bUseDebugLogin = gSavedSettings.getBOOL("UseDebugLogin");
-#else
-	BOOL bUseDebugLogin = TRUE;
-#endif
 	// Hide the toolbars: may happen to come back here if login fails after login agent but before login in region
 	if (gToolBarView)
 	{
 		gToolBarView->setVisible(FALSE);
 	}
 	
-	LLPanelLogin::show(	gViewerWindow->getWindowRectScaled(),
-						bUseDebugLogin || gSavedSettings.getBOOL("SecondLifeEnterprise"),
-						login_callback, NULL );
-
+	LLPanelLogin::show(	gViewerWindow->getWindowRectScaled(), login_callback, NULL );
 }
 
 // Callback for when login screen is closed.  Option 0 = connect, option 1 = quit.
@@ -2276,7 +2269,7 @@ bool login_alert_status(const LLSD& notification, const LLSD& response)
       //      break;
         case 2:     // Teleport
             // Restart the login process, starting at our home locaton
-	  LLStartUp::setStartSLURL(LLSLURL(LLSLURL::SIM_LOCATION_HOME));
+			LLStartUp::setStartSLURL(LLSLURL(LLSLURL::SIM_LOCATION_HOME));
             LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
             break;
         default:
@@ -2826,22 +2819,21 @@ bool LLStartUp::dispatchURL()
 void LLStartUp::setStartSLURL(const LLSLURL& slurl) 
 {
   sStartSLURL = slurl;
+  LL_DEBUGS("AppInit")<<slurl.asString()<<LL_ENDL;
+
   switch(slurl.getType())
     {
     case LLSLURL::HOME_LOCATION:
-      {
-		  gSavedSettings.setString("LoginLocation", LLSLURL::SIM_LOCATION_HOME);
-	break;
-      }
+		gSavedSettings.setString("LoginLocation", LLSLURL::SIM_LOCATION_HOME);
+		break;
     case LLSLURL::LAST_LOCATION:
-      {
-	gSavedSettings.setString("LoginLocation", LLSLURL::SIM_LOCATION_LAST);
-	break;
-      }
+		gSavedSettings.setString("LoginLocation", LLSLURL::SIM_LOCATION_LAST);
+		break;
     default:
-			LLGridManager::getInstance()->setGridChoice(slurl.getGrid());
-			break;
+		break;
     }
+
+  LLPanelLogin::onUpdateStartSLURL(slurl); // updates grid if needed
 }
 
 /**

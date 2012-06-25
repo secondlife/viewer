@@ -923,6 +923,14 @@ You need to enter either the Username or both the First and Last name of your av
   
   <notification
    icon="alertmodal.tga"
+   name="InvalidLocationSLURL"
+   type="alertmodal">
+   <tag>fail</tag>
+Your start location did not specify a valid grid.
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
    name="DeleteClassified"
    type="alertmodal">
 Delete classified &apos;[NAME]&apos;?
@@ -1212,7 +1220,7 @@ There was a problem saving a compiled script due to the following reason: [REASO
    icon="alertmodal.tga"
    name="StartRegionEmpty"
    type="alertmodal">
-Oops, Your Start Region is not defined.
+Your Start Region is not defined.
 Please type the Region name in Start Location box or choose My Last Location or My Home as your Start Location.
 <tag>fail</tag>
     <usetemplate

@@ -44,7 +44,7 @@ class LLPanelLogin:
 {
 	LOG_CLASS(LLPanelLogin);
 public:
-	LLPanelLogin(const LLRect &rect, BOOL show_server, 
+	LLPanelLogin(const LLRect &rect,
 				void (*callback)(S32 option, void* user_data),
 				void *callback_data);
 	~LLPanelLogin();
@@ -57,7 +57,7 @@ public:
 	// hidden on startup for reg-in-client
 	static void showLoginWidgets();
 
-	static void show(const LLRect &rect, BOOL show_server, 
+	static void show(const LLRect &rect,
 		void (*callback)(S32 option, void* user_data), 
 		void* callback_data);
 
@@ -65,11 +65,12 @@ public:
 
 	static void getFields(LLPointer<LLCredential>& credential, BOOL& remember);
 
-	static BOOL isGridComboDirty();
 	static BOOL areCredentialFieldsDirty();
 	static void setLocation(const LLSLURL& slurl);
 	
-	static void updateLocationCombo(bool force_visible);  // simply update the combo box
+	/// Call when preferences that control visibility may have changed
+	static void updateLocationSelectorsVisibility();
+
 	static void closePanel();
 
 	void setSiteIsAlive( bool alive );
@@ -82,22 +83,24 @@ public:
 	/*virtual*/ void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
 	static void updateServer();  // update the combo box, change the login page to the new server, clear the combo
 
+	/// to be called from LLStartUp::setStartSLURL
+	static void onUpdateStartSLURL(const LLSLURL& new_start_slurl);
+
 private:
 	friend class LLPanelLoginListener;
 	void reshapeBrowser();
 	void addFavoritesToStartLocation();
 	void addUsersWithFavoritesToUsername();
+	void onSelectServer();
+	void onLocationSLURL();
+
 	static void onClickConnect(void*);
 	static void onClickNewAccount(void*);
 	static void onClickVersion(void*);
 	static void onClickForgotPassword(void*);
 	static void onClickHelp(void*);
 	static void onPassKey(LLLineEditor* caller, void* user_data);
-	static void onSelectServer(LLUICtrl*, void*);
-	static void onServerComboLostFocus(LLFocusableElement*);
 	static void updateServerCombo();
-	static void updateStartSLURL();
-	static void updateLoginPanelLinks();
 
 private:
 	LLPointer<LLUIImage> mLogoImage;
