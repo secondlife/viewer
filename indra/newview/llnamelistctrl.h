@@ -110,6 +110,8 @@ public:
 
 	void setAllowCallingCardDrop(BOOL b) { mAllowCallingCardDrop = b; }
 
+	void sortByName(BOOL ascending);
+
 	/*virtual*/ void updateColumns();
 
 	/*virtual*/ void	mouseOverHighlightNthItem( S32 index );
