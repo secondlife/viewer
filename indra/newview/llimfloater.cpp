@@ -105,6 +105,18 @@ void LLIMFloater::onFocusReceived()
 	}
 }
 
+// virtual
+void LLIMFloater::refresh()
+{
+	if (mMeTyping)
+	{
+		// Time out if user hasn't typed for a while.
+		if (mTypingTimeoutTimer.getElapsedTimeF32() > LLAgent::TYPING_TIMEOUT_SECS)
+		{
+			setTyping(false);
+		}
+	}
+}
 
 /* static */
 void LLIMFloater::newIMCallback(const LLSD& data)
@@ -188,6 +200,7 @@ void LLIMFloater::sendMsg()
 
 LLIMFloater::~LLIMFloater()
 {
+	mParticipantsListRefreshConnection.disconnect();
 	mVoiceChannelStateChangeConnection.disconnect();
 	if(LLVoiceClient::instanceExists())
 	{
@@ -225,6 +238,8 @@ void LLIMFloater::initIMFloater()
 
 	boundVoiceChannel();
 
+	mTypingStart = LLTrans::getString("IM_typing_start_string");
+
 	// Show control panel in torn off floaters only.
 	mParticipantListPanel->setVisible(!getHost() && gSavedSettings.getBOOL("IMShowControlPanel"));
 
@@ -246,6 +261,20 @@ void LLIMFloater::initIMFloater()
 	{
 		std::string session_name(LLIMModel::instance().getName(mSessionID));
 		updateSessionName(session_name, session_name);
+
+		// For ad hoc conferences we should update the title with participants names.
+		if ((IM_SESSION_INVITE == mDialog && !gAgent.isInGroup(mSessionID))
+						|| mDialog == IM_SESSION_CONFERENCE_START)
+		{
+			if (mParticipantsListRefreshConnection.connected())
+			{
+				mParticipantsListRefreshConnection.disconnect();
+			}
+
+			LLAvatarList* avatar_list = getChild<LLAvatarList>("speakers_list");
+			mParticipantsListRefreshConnection = avatar_list->setRefreshCompleteCallback(
+					boost::bind(&LLIMFloater::onParticipantsListChanged, this, _1));
+		}
 	}
 }
 
@@ -272,8 +301,6 @@ BOOL LLIMFloater::postBuild()
 	mChatHistory = getChild<LLChatHistory>("chat_history");
 
 	setDocked(true);
-
-	mTypingStart = LLTrans::getString("IM_typing_start_string");
 
 	LLButton* add_btn = getChild<LLButton>("add_btn");
 
@@ -341,7 +368,9 @@ bool LLIMFloater::canAddSelectedToChat(const uuid_vec_t& uuids)
        for (uuid_vec_t::const_iterator id = uuids.begin();
                        id != uuids.end(); ++id)
        {
-               if (*id == mOtherParticipantUUID)
+    	   	   // Skip this check for ad hoc conferences,
+    	       // conference participants should be listed in mSession->mInitialTargetIDs.
+               if (mIsP2PChat && *id == mOtherParticipantUUID)
                {
                        return false;
                }
@@ -411,11 +440,6 @@ void LLIMFloater::onCallButtonClicked()
 	}
 }
 
-/*void LLIMFloater::onOpenVoiceControlsClicked()
-{
-	LLFloaterReg::showInstance("voice_controls");
-}*/
-
 void LLIMFloater::onChange(EStatusType status, const std::string &channelURI, bool proximal)
 {
 	if(status != STATUS_JOINING && status != STATUS_LEFT_CHANNEL)
@@ -448,28 +472,55 @@ void LLIMFloater::onAvatarNameCache(const LLUUID& agent_id,
 	mTypingStart.setArg("[NAME]", ui_title);
 }
 
-// virtual
-BOOL LLIMFloater::tick()
+void LLIMFloater::onParticipantsListChanged(LLUICtrl* ctrl)
 {
-	// This check is needed until LLFloaterReg::removeInstance() is synchronized with deleting the floater
-	// via LLMortician::updateClass(), to avoid calling dead instances. See LLFloater::destroy().
-	if (isDead())
+	LLAvatarList* avatar_list = dynamic_cast<LLAvatarList*>(ctrl);
+	if (!avatar_list)
 	{
-		return false;
+		return;
 	}
 
-	BOOL parents_retcode = LLIMConversation::tick();
+	bool all_names_resolved = true;
+	std::vector<LLSD> participants_uuids;
 
-	if ( mMeTyping )
+	avatar_list->getValues(participants_uuids);
+
+	// Check whether we have all participants names in LLAvatarNameCache
+	for (std::vector<LLSD>::const_iterator it = participants_uuids.begin(); it != participants_uuids.end(); ++it)
 	{
-		// Time out if user hasn't typed for a while.
-		if ( mTypingTimeoutTimer.getElapsedTimeF32() > LLAgent::TYPING_TIMEOUT_SECS )
+		const LLUUID& id = it->asUUID();
+		LLAvatarName av_name;
+		if (!LLAvatarNameCache::get(id, &av_name))
 		{
-			setTyping(false);
+			all_names_resolved = false;
+
+			// If a name is not found in cache, request it and continue the process recursively
+			// until all ids are resolved into names.
+			LLAvatarNameCache::get(id,
+					boost::bind(&LLIMFloater::onParticipantsListChanged, this, avatar_list));
+			break;
 		}
 	}
 
-	return parents_retcode;
+	if (all_names_resolved)
+	{
+		std::vector<LLAvatarName> avatar_names;
+		std::vector<LLSD>::const_iterator it = participants_uuids.begin();
+		for (; it != participants_uuids.end(); ++it)
+		{
+			const LLUUID& id = it->asUUID();
+			LLAvatarName av_name;
+			if (LLAvatarNameCache::get(id, &av_name))
+			{
+				avatar_names.push_back(av_name);
+			}
+		}
+
+		std::string ui_title;
+		LLAvatarActions::buildResidentsString(avatar_names, ui_title);
+
+		updateSessionName(ui_title, ui_title);
+	}
 }
 
 //static
@@ -736,8 +787,6 @@ void LLIMFloater::sessionInitReplyReceived(const LLUUID& im_session_id)
 	if (mSessionID != im_session_id)
 	{
 		initIMSession(im_session_id);
-
-		boundVoiceChannel();
 
 		buildParticipantList();
 	}

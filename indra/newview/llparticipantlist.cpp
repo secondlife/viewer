@@ -475,6 +475,7 @@ void LLParticipantList::update()
 {
 	mSpeakerMgr->update(true);
 
+	// Need to resort the participant list if it's in sort by recent speaker order.
 	if (E_SORT_BY_RECENT_SPEAKERS == getSortOrder() && !isHovered())
 	{
 		// Resort avatar list

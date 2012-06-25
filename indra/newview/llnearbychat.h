@@ -73,8 +73,6 @@ public:
 
 	LLChatEntry* getChatBox() { return mChatBox; }
 
-	//virtual void draw();
-
 	std::string getCurrentChat();
 
 	virtual BOOL handleKeyHere( KEY key, MASK mask );
@@ -119,14 +117,14 @@ protected:
 
 	S32 mExpandedHeight;
 
-	/*virtual*/ BOOL tick();
-
 private:
 
 	void	getAllowedRect		(LLRect& rect);
 	// prepare chat's params and out one message to chatHistory
 	void appendMessage(const LLChat& chat, const LLSD &args = 0);
 	void	onNearbySpeakers	();
+
+	/*virtual*/ void refresh();
 
 	LLHandle<LLView>	mPopupMenuHandle;
 	std::vector<LLChat> mMessageArchive;

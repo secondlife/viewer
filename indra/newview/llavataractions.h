@@ -34,6 +34,7 @@
 #include <string>
 #include <vector>
 
+class LLAvatarName;
 class LLInventoryPanel;
 class LLFloater;
 
@@ -207,6 +208,14 @@ public:
 	 * @return false if the selected items cannot be shared or the active inventory panel cannot be obtained
 	 */
 	static bool canShareSelectedItems(LLInventoryPanel* inv_panel = NULL);
+
+	/**
+	 * Builds a string of residents' display names separated by "words_separator" string.
+	 *
+	 * @param avatar_names - a vector of given avatar names from which resulting string is built
+	 * @param residents_string - the resulting string
+	 */
+	static void buildResidentsString(const std::vector<LLAvatarName> avatar_names, std::string& residents_string);
 
 	static std::set<LLUUID> getInventorySelectedUUIDs();
 

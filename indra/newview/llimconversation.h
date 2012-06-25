@@ -40,7 +40,6 @@ class LLChatHistory;
 
 class LLIMConversation
 	: public LLTransientDockableFloater
-	, public LLEventTimer
 {
 
 public:
@@ -65,6 +64,7 @@ public:
 	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ void onClose(bool app_quitting);
 	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void draw();
 
 protected:
 
@@ -89,8 +89,6 @@ protected:
 	void buildParticipantList();
 	void onSortMenuItemClicked(const LLSD& userdata);
 
-	/*virtual*/ BOOL tick();
-
 	bool mIsNearbyChat;
 	bool mIsP2PChat;
 
@@ -103,6 +101,9 @@ protected:
 	LLButton* mCloseBtn;
 
 private:
+	/// Refreshes the floater at a constant rate.
+	virtual void refresh() = 0;
+
 	/// Update floater header and toolbar buttons when hosted/torn off state is toggled.
 	void updateHeaderAndToolbar();
 
@@ -113,10 +114,11 @@ private:
 	 */
 	void reshapeChatHistory();
 
-
 	LLChatHistory* mChatHistory;
 	LLChatEntry* mInputEditor;
 	int mInputEditorTopPad; // padding between input field and chat history
+
+	LLTimer* mRefreshTimer; ///< Defines the rate at which refresh() is called.
 };
 
 

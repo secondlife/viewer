@@ -529,23 +529,6 @@ namespace action_give_inventory
 		return acceptable;
 	}
 
-	static void build_residents_string(const std::vector<LLAvatarName> avatar_names, std::string& residents_string)
-	{
-		llassert(avatar_names.size() > 0);
-
-		const std::string& separator = LLTrans::getString("words_separator");
-		for (std::vector<LLAvatarName>::const_iterator it = avatar_names.begin(); ; )
-		{
-			LLAvatarName av_name = *it;
-			residents_string.append(av_name.mDisplayName);
-			if	(++it == avatar_names.end())
-			{
-				break;
-			}
-			residents_string.append(separator);
-		}
-	}
-
 	static void build_items_string(const std::set<LLUUID>& inventory_selected_uuids , std::string& items_string)
 	{
 		llassert(inventory_selected_uuids.size() > 0);
@@ -675,7 +658,7 @@ namespace action_give_inventory
 		}
 
 		std::string residents;
-		build_residents_string(avatar_names, residents);
+		LLAvatarActions::buildResidentsString(avatar_names, residents);
 
 		std::string items;
 		build_items_string(inventory_selected_uuids, items);
@@ -706,7 +689,23 @@ namespace action_give_inventory
 	}
 }
 
+// static
+void LLAvatarActions::buildResidentsString(const std::vector<LLAvatarName> avatar_names, std::string& residents_string)
+{
+	llassert(avatar_names.size() > 0);
 
+	const std::string& separator = LLTrans::getString("words_separator");
+	for (std::vector<LLAvatarName>::const_iterator it = avatar_names.begin(); ; )
+	{
+		LLAvatarName av_name = *it;
+		residents_string.append(av_name.mDisplayName);
+		if	(++it == avatar_names.end())
+		{
+			break;
+		}
+		residents_string.append(separator);
+	}
+}
 
 //static
 std::set<LLUUID> LLAvatarActions::getInventorySelectedUUIDs()

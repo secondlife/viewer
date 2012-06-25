@@ -42,7 +42,6 @@ const F32 REFRESH_INTERVAL = 0.2f;
 
 LLIMConversation::LLIMConversation(const LLUUID& session_id)
   : LLTransientDockableFloater(NULL, true, session_id)
-  ,	LLEventTimer(REFRESH_INTERVAL)
   ,  mIsP2PChat(false)
   ,  mExpandCollapseBtn(NULL)
   ,  mTearOffBtn(NULL)
@@ -52,6 +51,7 @@ LLIMConversation::LLIMConversation(const LLUUID& session_id)
   , mChatHistory(NULL)
   , mInputEditor(NULL)
   , mInputEditorTopPad(0)
+  , mRefreshTimer(new LLTimer())
 {
 	mCommitCallbackRegistrar.add("IMSession.Menu.Action",
 			boost::bind(&LLIMConversation::onIMSessionMenuItemClicked,  this, _2));
@@ -67,6 +67,10 @@ LLIMConversation::LLIMConversation(const LLUUID& session_id)
 			boost::bind(&LLIMConversation::onIMShowModesMenuItemCheck,   this, _2));
 	mEnableCallbackRegistrar.add("IMSession.Menu.ShowModes.Enable",
 			boost::bind(&LLIMConversation::onIMShowModesMenuItemEnable,  this, _2));
+
+	// Zero expiry time is set only once to allow initial update.
+	mRefreshTimer->setTimerExpirySec(0);
+	mRefreshTimer->start();
 }
 
 LLIMConversation::~LLIMConversation()
@@ -76,6 +80,8 @@ LLIMConversation::~LLIMConversation()
 		delete mParticipantList;
 		mParticipantList = NULL;
 	}
+
+	delete mRefreshTimer;
 }
 
 BOOL LLIMConversation::postBuild()
@@ -120,19 +126,22 @@ BOOL LLIMConversation::postBuild()
 
 }
 
-BOOL LLIMConversation::tick()
+void LLIMConversation::draw()
 {
-	// This check is needed until LLFloaterReg::removeInstance() is synchronized with deleting the floater
-	// via LLMortician::updateClass(), to avoid calling dead instances. See LLFloater::destroy().
-	if (isDead()) return false;
+	LLTransientDockableFloater::draw();
 
-	// Need to resort the participant list if it's in sort by recent speaker order.
-	if (mParticipantList)
+	if (mRefreshTimer->hasExpired())
 	{
-		mParticipantList->update();
-	}
+		if (mParticipantList)
+		{
+			mParticipantList->update();
+		}
 
-	return false;
+		refresh();
+
+		// Restart the refresh timer
+		mRefreshTimer->setTimerExpirySec(REFRESH_INTERVAL);
+	}
 }
 
 void LLIMConversation::buildParticipantList()
@@ -144,10 +153,11 @@ void LLIMConversation::buildParticipantList()
 	}
 	else
 	{
+		LLSpeakerMgr* speaker_manager = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
 		// for group and ad-hoc chat we need to include agent into list
-		if(!mIsP2PChat && !mParticipantList && mSessionID.notNull())
+		if(!mIsP2PChat && mSessionID.notNull() && speaker_manager)
 		{
-			LLSpeakerMgr* speaker_manager = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
+			delete mParticipantList; // remove the old list and create a new one if the session id has changed
 			mParticipantList = new LLParticipantList(speaker_manager, getChild<LLAvatarList>("speakers_list"), true, false);
 		}
 	}

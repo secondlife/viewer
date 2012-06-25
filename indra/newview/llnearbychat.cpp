@@ -186,6 +186,21 @@ BOOL LLNearbyChat::postBuild()
 	return LLIMConversation::postBuild();
 }
 
+// virtual
+void LLNearbyChat::refresh()
+{
+	displaySpeakingIndicator();
+	updateCallBtnState(LLVoiceClient::getInstance()->getUserPTTState());
+
+	// *HACK: Update transparency type depending on whether our children have focus.
+	// This is needed because this floater is chrome and thus cannot accept focus, so
+	// the transparency type setting code from LLFloater::setFocus() isn't reached.
+	if (getTransparencyType() != TT_DEFAULT)
+	{
+		setTransparencyType(hasFocus() ? TT_ACTIVE : TT_INACTIVE);
+	}
+}
+
 void LLNearbyChat::onNearbySpeakers()
 {
 	LLSD param;
@@ -387,27 +402,6 @@ void LLNearbyChat::showHistory()
 	reshape(getRect().getWidth(), mExpandedHeight);
 	enableResizeCtrls(true);
 	storeRectControl();
-}
-
-
-BOOL LLNearbyChat::tick()
-{
-	// This check is needed until LLFloaterReg::removeInstance() is synchronized with deleting the floater
-	// via LLMortician::updateClass(), to avoid calling dead instances. See LLFloater::destroy().
-	if (isDead()) return false;
-
-	displaySpeakingIndicator();
-	updateCallBtnState(LLVoiceClient::getInstance()->getUserPTTState());
-
-	// *HACK: Update transparency type depending on whether our children have focus.
-	// This is needed because this floater is chrome and thus cannot accept focus, so
-	// the transparency type setting code from LLFloater::setFocus() isn't reached.
-	if (getTransparencyType() != TT_DEFAULT)
-	{
-		setTransparencyType(hasFocus() ? TT_ACTIVE : TT_INACTIVE);
-	}
-
-	return LLIMConversation::tick();
 }
 
 std::string LLNearbyChat::getCurrentChat()

@@ -66,7 +66,6 @@ public:
 	/*virtual*/ void setVisible(BOOL visible);
 	/*virtual*/ BOOL getVisible();
 	// Check typing timeout timer.
-	/*virtual*/ BOOL tick();
 
 	static LLIMFloater* findInstance(const LLUUID& session_id);
 	static LLIMFloater* getInstance(const LLUUID& session_id);
@@ -131,11 +130,17 @@ private:
 	/* virtual */ void onFocusLost();
 	/* virtual */ void onFocusReceived();
 
+	/*virtual*/ void refresh();
+
 	// Update the window title, input field help text, etc.
 	void updateSessionName(const std::string& ui_title, const std::string& ui_label);
 
 	// For display name lookups for IM window titles
 	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
+
+	/// Updates the list of ad hoc conference participants
+	/// in an IM floater title.
+	void onParticipantsListChanged(LLUICtrl* ctrl);
 
 	bool dropPerson(LLUUID* person_id, bool drop);
 
@@ -193,6 +198,8 @@ private:
 
 	// connection to voice channel state change signal
 	boost::signals2::connection mVoiceChannelStateChangeConnection;
+
+	boost::signals2::connection mParticipantsListRefreshConnection;
 };
 
 #endif  // LL_IMFLOATER_H
