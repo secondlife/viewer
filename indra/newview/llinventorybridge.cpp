@@ -1844,14 +1844,17 @@ void LLFolderBridge::buildDisplayName() const
 
 	//"Accessories" inventory category has folder type FT_NONE. So, this folder
 	//can not be detected as protected with LLFolderType::lookupIsProtectedType
+	mDisplayName.assign(getName());
 	if (accessories || LLFolderType::lookupIsProtectedType(preferred_type))
 	{
 		LLTrans::findString(mDisplayName, std::string("InvFolder ") + getName(), LLSD());
 	}
-	else
-	{
-		mDisplayName.assign(getName());
-	}
+
+	//if (mDisplayName.empty())
+	//{
+	//	S32 foo;
+	//	foo = 0;
+	//}
 }
 
 
