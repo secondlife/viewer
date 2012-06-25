@@ -103,6 +103,7 @@ BOOL LLIMConversation::postBuild()
 	}
 
 	buildParticipantList();
+	updateHeaderAndToolbar();
 
 	if (isChatMultiTab())
 	{
