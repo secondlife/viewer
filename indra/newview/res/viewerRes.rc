@@ -124,7 +124,9 @@ TOOLOPEN                CURSOR                  "toolopen.cur"
 TOOLSIT                 CURSOR                  "toolsit.cur"
 TOOLPATHFINDING         CURSOR                  "lltoolpathfinding.cur"
 TOOLPATHFINDINGPATHSTART CURSOR                 "lltoolpathfindingpathstart.cur"
-TOOLPATHFINDINGPATHEND   CURSOR                 "lltoolpathfindingpathend.cur"
+TOOLPATHFINDINGPATHSTARTADD CURSOR              "lltoolpathfindingpathstartadd.cur"
+TOOLPATHFINDINGPATHEND  CURSOR                  "lltoolpathfindingpathend.cur"
+TOOLPATHFINDINGPATHENDADD CURSOR                "lltoolpathfindingpathendadd.cur"
 TOOLNO                  CURSOR                  "llno.cur"
 
 /////////////////////////////////////////////////////////////////////////////

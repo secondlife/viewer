@@ -1342,7 +1342,9 @@ if (WINDOWS)
         res/lltoolpan.cur
         res/lltoolpathfinding.cur
         res/lltoolpathfindingpathend.cur
+        res/lltoolpathfindingpathendadd.cur
         res/lltoolpathfindingpathstart.cur
+        res/lltoolpathfindingpathstartadd.cur
         res/lltoolpipette.cur
         res/lltoolrotate.cur
         res/lltoolscale.cur

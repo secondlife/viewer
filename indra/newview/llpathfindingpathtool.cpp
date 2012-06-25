@@ -72,11 +72,11 @@ BOOL LLPathfindingPathTool::handleMouseDown(S32 pX, S32 pY, MASK pMask)
 		{
 			if (isPointAModKeys(pMask))
 			{
-				gViewerWindow->setCursor(UI_CURSOR_TOOLPATHFINDING_PATH_START);
+				gViewerWindow->setCursor(UI_CURSOR_TOOLPATHFINDING_PATH_START_ADD);
 			}
 			else if (isPointBModKeys(pMask))
 			{
-				gViewerWindow->setCursor(UI_CURSOR_TOOLPATHFINDING_PATH_END);
+				gViewerWindow->setCursor(UI_CURSOR_TOOLPATHFINDING_PATH_END_ADD);
 			}
 			computeFinalPoints(pX, pY, pMask);
 			mIsLeftMouseButtonHeld = true;
@@ -169,11 +169,25 @@ BOOL LLPathfindingPathTool::handleHover(S32 pX, S32 pY, MASK pMask)
 	{
 		if (isPointAModKeys(pMask))
 		{
-			gViewerWindow->setCursor(UI_CURSOR_TOOLPATHFINDING_PATH_START);
+			if (mIsLeftMouseButtonHeld)
+			{
+				gViewerWindow->setCursor(UI_CURSOR_TOOLPATHFINDING_PATH_START_ADD);
+			}
+			else
+			{
+				gViewerWindow->setCursor(UI_CURSOR_TOOLPATHFINDING_PATH_START);
+			}
 		}
 		else if (isPointBModKeys(pMask))
 		{
-			gViewerWindow->setCursor(UI_CURSOR_TOOLPATHFINDING_PATH_END);
+			if (mIsLeftMouseButtonHeld)
+			{
+				gViewerWindow->setCursor(UI_CURSOR_TOOLPATHFINDING_PATH_END_ADD);
+			}
+			else
+			{
+				gViewerWindow->setCursor(UI_CURSOR_TOOLPATHFINDING_PATH_END);
+			}
 		}
 		computeTempPoints(pX, pY, pMask);
 		returnVal = TRUE;
