@@ -103,14 +103,14 @@ BOOL LLIMFloaterContainer::postBuild()
 
 void LLIMFloaterContainer::onOpen(const LLSD& key)
 {
-	LLMultiFloater::onOpen(key);
 	if (getFloaterCount() == 0)
 	{
-		// If there's *no* conversation open so far, we force the opening of the nearby chat conversation
+		// We always force the opening of the nearby chat conversation when we open for the first  time
 		// *TODO: find a way to move this to XML as a default panel or something like that
 		LLSD name("chat_bar");
 		LLFloaterReg::toggleInstanceOrBringToFront(name);
 	}
+	LLMultiFloater::onOpen(key);
 	/*
 	if (key.isDefined())
 	{
@@ -282,6 +282,44 @@ void LLIMFloaterContainer::setMinimized(BOOL b)
 	{
 		getActiveFloater()->setVisible(TRUE);
 	}
+}
+
+void LLIMFloaterContainer::draw()
+{
+	if (mTabContainer->getTabCount() == 0)
+	{
+		// Do not close the container when every conversation is torn off because the user
+		// still needs the conversation list. Simply collapse the message pane in that case.
+		collapseMessagesPane(true);
+	}
+	LLFloater::draw();
+}
+
+void LLIMFloaterContainer::tabClose()
+{
+	if (mTabContainer->getTabCount() == 0)
+	{
+		// Do not close the container when every conversation is torn off because the user
+		// still needs the conversation list. Simply collapse the message pane in that case.
+		collapseMessagesPane(true);
+	}
+}
+
+void LLIMFloaterContainer::setVisible(BOOL visible)
+{
+	// We need to show/hide all the associated conversations that have been torn off
+	// (and therefore, are not longer managed by the multifloater),
+	// so that they show/hide with the conversations manager.
+	conversations_items_map::iterator item_it = mConversationsItems.begin();
+	for (;item_it != mConversationsItems.end(); ++item_it)
+	{
+		LLConversationItem* item = item_it->second;
+		item->setVisibleIfDetached(visible);
+	}
+	
+	// Now, do the normal multifloater show/hide
+	LLMultiFloater::setVisible(visible);
+	
 }
 
 void LLIMFloaterContainer::collapseMessagesPane(bool collapse)
@@ -483,6 +521,15 @@ void LLConversationItem::selectItem(void)
 	}
 	// Set the focus on the selected floater
 	mFloater->setFocus(TRUE);    
+}
+
+void LLConversationItem::setVisibleIfDetached(BOOL visible)
+{
+	// Do this only if the conversation floater has been torn off (i.e. no multi floater host)
+	if (!mFloater->getHost())
+	{
+		mFloater->setVisible(visible);    
+	}
 }
 
 void LLConversationItem::performAction(LLInventoryModel* model, std::string action)

@@ -45,8 +45,8 @@ public:
 	
 	virtual BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ void draw();
-	/*virtual*/ void setVisible(BOOL visible);
+	virtual void draw();
+	virtual void setVisible(BOOL visible);
 	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);
 	/*virtual*/ bool addChild(LLView* view, S32 tab_group = 0);
 

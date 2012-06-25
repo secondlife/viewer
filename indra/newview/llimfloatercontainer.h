@@ -97,6 +97,8 @@ public:
 	virtual void previewItem( void );
 	virtual void selectItem(void);
 	virtual void showProperties(void);
+
+	void setVisibleIfDetached(BOOL visible);
 	
 	// This method should be called when a drag begins.
 	// Returns TRUE if the drag can begin, FALSE otherwise.
@@ -128,12 +130,16 @@ public:
 	
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
+	/*virtual*/ void draw();
+	/*virtual*/ void setVisible(BOOL visible);
 	void onCloseFloater(LLUUID& id);
 
 	/*virtual*/ void addFloater(LLFloater* floaterp, 
 								BOOL select_added_floater, 
 								LLTabContainer::eInsertionPoint insertion_point = LLTabContainer::END);
 	/*virtual*/ void removeFloater(LLFloater* floaterp);
+
+	/*virtual*/ void tabClose();
 
 	static LLFloater* getCurrentVoiceFloater();
 

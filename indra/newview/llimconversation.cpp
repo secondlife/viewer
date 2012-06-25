@@ -106,6 +106,10 @@ BOOL LLIMConversation::postBuild()
 
 	if (isChatMultiTab())
 	{
+		if (mIsNearbyChat)
+		{
+			setCanClose(FALSE);
+		}
 		return LLFloater::postBuild();
 	}
 	else
@@ -246,7 +250,7 @@ void LLIMConversation::updateHeaderAndToolbar()
 
 	mTearOffBtn->setImageOverlay(getString(is_hosted ? "tear_off_icon" : "return_icon"));
 
-	mCloseBtn->setVisible(is_hosted);
+	mCloseBtn->setVisible(is_hosted && !mIsNearbyChat);
 
 	enableDisableCallBtn();
 
