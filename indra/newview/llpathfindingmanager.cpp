@@ -737,9 +737,6 @@ LLViewerRegion *LLPathfindingManager::getCurrentRegion() const
 
 void LLNavMeshSimStateChangeNode::post(ResponsePtr pResponse, const LLSD &pContext, const LLSD &pInput) const
 {
-#ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
-	llinfos << "STINSON DEBUG: Received NavMeshStatusUpdate: " << pInput << llendl;
-#endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
 	llassert(pInput.has(SIM_MESSAGE_BODY_FIELD));
 	llassert(pInput.get(SIM_MESSAGE_BODY_FIELD).isMap());
 	LLPathfindingNavMeshStatus navMeshStatus(pInput.get(SIM_MESSAGE_BODY_FIELD));
@@ -784,9 +781,6 @@ NavMeshStatusResponder::~NavMeshStatusResponder()
 
 void NavMeshStatusResponder::result(const LLSD &pContent)
 {
-#ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
-	llinfos << "STINSON DEBUG: Received requested NavMeshStatus: " << pContent << llendl;
-#endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
 	LLPathfindingNavMeshStatus navMeshStatus(mRegionUUID, pContent);
 	LLPathfindingManager::getInstance()->handleNavMeshStatusRequest(navMeshStatus, mRegion, mIsGetStatusOnly);
 }

@@ -60,9 +60,10 @@
 // LLFloaterPathfindingLinksets
 //---------------------------------------------------------------------------
 
-void LLFloaterPathfindingLinksets::openLinksetsEditor()
+void LLFloaterPathfindingLinksets::openLinksetsWithSelectedObjects()
 {
-	LLFloaterReg::toggleInstanceOrBringToFront("pathfinding_linksets");
+	LLFloaterPathfindingLinksets *linksetsFloater = LLFloaterReg::getTypedInstance<LLFloaterPathfindingLinksets>("pathfinding_linksets");
+	linksetsFloater->showFloaterWithSelectionObjects();
 }
 
 LLFloaterPathfindingLinksets::LLFloaterPathfindingLinksets(const LLSD& pSeed)

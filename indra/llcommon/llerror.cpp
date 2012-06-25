@@ -655,9 +655,7 @@ namespace LLError
 		g.invalidateCallSites();
 		s.tagLevelMap[tag_name] = level;
 	}
-}
 
-namespace {
 	LLError::ELevel decodeLevel(std::string name)
 	{
 		static LevelMap level_names;
@@ -682,7 +680,9 @@ namespace {
 		
 		return i->second;
 	}
-	
+}
+
+namespace {
 	void setLevels(LevelMap& map, const LLSD& list, LLError::ELevel level)
 	{
 		LLSD::array_const_iterator i, end;

@@ -1477,7 +1477,8 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 			}
 			else
 			{
-				llinfos << "Created OpenGL " << llformat("%d.%d", attribs[1], attribs[3]) << " context." << llendl;
+				llinfos << "Created OpenGL " << llformat("%d.%d", attribs[1], attribs[3]) << 
+					(LLRender::sGLCoreProfile ? " core" : " compatibility") << " context." << llendl;
 				done = true;
 
 				if (LLRender::sGLCoreProfile)
@@ -1698,6 +1699,8 @@ void LLWindowWin32::initCursors()
 	mCursor[ UI_CURSOR_TOOLBUY ]	= LoadCursor(module, TEXT("TOOLBUY"));
 	mCursor[ UI_CURSOR_TOOLOPEN ]	= LoadCursor(module, TEXT("TOOLOPEN"));
 	mCursor[ UI_CURSOR_TOOLPATHFINDING ]	= LoadCursor(module, TEXT("TOOLPATHFINDING"));
+	mCursor[ UI_CURSOR_TOOLPATHFINDING_PATH_START ]	= LoadCursor(module, TEXT("TOOLPATHFINDINGPATHSTART"));
+	mCursor[ UI_CURSOR_TOOLPATHFINDING_PATH_END ]	= LoadCursor(module, TEXT("TOOLPATHFINDINGPATHEND"));
 	mCursor[ UI_CURSOR_TOOLNO ]	= LoadCursor(module, TEXT("TOOLNO"));
 
 	// Color cursors

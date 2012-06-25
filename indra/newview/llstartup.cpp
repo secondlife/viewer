@@ -241,6 +241,7 @@ static bool mLoginStatePastUI = false;
 
 boost::scoped_ptr<LLEventPump> LLStartUp::sStateWatcher(new LLEventStream("StartupState"));
 boost::scoped_ptr<LLStartupListener> LLStartUp::sListener(new LLStartupListener());
+boost::scoped_ptr<LLViewerStats::PhaseMap> LLStartUp::sPhases(new LLViewerStats::PhaseMap);
 
 //
 // local function declaration
@@ -2701,7 +2702,10 @@ void LLStartUp::setStartupState( EStartupState state )
 	LL_INFOS("AppInit") << "Startup state changing from " <<  
 		getStartupStateString() << " to " <<  
 		startupStateToString(state) << LL_ENDL;
+
+	sPhases->stopPhase(getStartupStateString());
 	gStartupState = state;
+	sPhases->startPhase(getStartupStateString());
 	postStartupState();
 }
 

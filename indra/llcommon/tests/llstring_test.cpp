@@ -29,7 +29,11 @@
 #include "linden_common.h"
 #include "../test/lltut.h"
 
+#include <boost/assign/list_of.hpp>
 #include "../llstring.h"
+#include "StringVec.h"
+
+using boost::assign::list_of;
 
 namespace tut
 {
@@ -750,4 +754,118 @@ namespace tut
 		ensure("empty substr.", !LLStringUtil::endsWith(empty, value));
 		ensure("empty everything.", !LLStringUtil::endsWith(empty, empty));
 	}
+
+	template<> template<>
+	void string_index_object_t::test<41>()
+	{
+		set_test_name("getTokens(\"delims\")");
+		ensure_equals("empty string", LLStringUtil::getTokens("", " "), StringVec());
+		ensure_equals("only delims",
+					  LLStringUtil::getTokens("   \r\n   ", " \r\n"), StringVec());
+		ensure_equals("sequence of delims",
+					  LLStringUtil::getTokens(",,, one ,,,", ","), list_of("one"));
+		// nat considers this a dubious implementation side effect, but I'd
+		// hate to change it now...
+		ensure_equals("noncontiguous tokens",
+					  LLStringUtil::getTokens(", ,, , one ,,,", ","), list_of("")("")("one"));
+		ensure_equals("space-padded tokens",
+					  LLStringUtil::getTokens(",    one  ,  two  ,", ","), list_of("one")("two"));
+		ensure_equals("no delims", LLStringUtil::getTokens("one", ","), list_of("one"));
+	}
+
+	// Shorthand for verifying that getTokens() behaves the same when you
+	// don't pass a string of escape characters, when you pass an empty string
+	// (different overloads), and when you pass a string of characters that
+	// aren't actually present.
+	void ensure_getTokens(const std::string& desc,
+						  const std::string& string,
+						  const std::string& drop_delims,
+						  const std::string& keep_delims,
+						  const std::string& quotes,
+						  const std::vector<std::string>& expect)
+	{
+		ensure_equals(desc + " - no esc",
+					  LLStringUtil::getTokens(string, drop_delims, keep_delims, quotes),
+					  expect);
+		ensure_equals(desc + " - empty esc",
+					  LLStringUtil::getTokens(string, drop_delims, keep_delims, quotes, ""),
+					  expect);
+		ensure_equals(desc + " - unused esc",
+					  LLStringUtil::getTokens(string, drop_delims, keep_delims, quotes, "!"),
+					  expect);
+	}
+
+	void ensure_getTokens(const std::string& desc,
+						  const std::string& string,
+						  const std::string& drop_delims,
+						  const std::string& keep_delims,
+						  const std::vector<std::string>& expect)
+	{
+		ensure_getTokens(desc, string, drop_delims, keep_delims, "", expect);
+	}
+
+	template<> template<>
+	void string_index_object_t::test<42>()
+	{
+		set_test_name("getTokens(\"delims\", etc.)");
+		// Signatures to test in this method:
+		// getTokens(string, drop_delims, keep_delims [, quotes [, escapes]])
+		// If you omit keep_delims, you get the older function (test above).
+
+		// cases like the getTokens(string, delims) tests above
+		ensure_getTokens("empty string", "", " ", "", StringVec());
+		ensure_getTokens("only delims",
+						 "   \r\n   ", " \r\n", "", StringVec());
+		ensure_getTokens("sequence of delims",
+						 ",,, one ,,,", ", ", "", list_of("one"));
+		// Note contrast with the case in the previous method
+		ensure_getTokens("noncontiguous tokens",
+						 ", ,, , one ,,,", ", ", "", list_of("one"));
+		ensure_getTokens("space-padded tokens",
+						 ",    one  ,  two  ,", ", ", "",
+                         list_of("one")("two"));
+		ensure_getTokens("no delims", "one", ",", "", list_of("one"));
+
+		// drop_delims vs. keep_delims
+		ensure_getTokens("arithmetic",
+						 " ab+def  / xx*  yy ", " ", "+-*/",
+						 list_of("ab")("+")("def")("/")("xx")("*")("yy"));
+
+		// quotes
+		ensure_getTokens("no quotes",
+						 "She said, \"Don't go.\"", " ", ",", "",
+						 list_of("She")("said")(",")("\"Don't")("go.\""));
+		ensure_getTokens("quotes",
+						 "She said, \"Don't go.\"", " ", ",", "\"",
+						 list_of("She")("said")(",")("Don't go."));
+		ensure_getTokens("quotes and delims",
+						 "run c:/'Documents and Settings'/someone", " ", "", "'",
+						 list_of("run")("c:/Documents and Settings/someone"));
+		ensure_getTokens("unmatched quote",
+						 "baby don't leave", " ", "", "'",
+						 list_of("baby")("don't")("leave"));
+		ensure_getTokens("adjacent quoted",
+						 "abc'def \"ghi'\"jkl' mno\"pqr", " ", "", "\"'",
+						 list_of("abcdef \"ghijkl' mnopqr"));
+		ensure_getTokens("quoted empty string",
+						 "--set SomeVar ''", " ", "", "'",
+						 list_of("--set")("SomeVar")(""));
+
+		// escapes
+		// Don't use backslash as an escape for these tests -- you'll go nuts
+		// between the C++ string scanner and getTokens() escapes. Test with
+		// something else!
+		ensure_equals("escaped delims",
+					  LLStringUtil::getTokens("^ a - dog^-gone^ phrase", " ", "-", "", "^"),
+					  list_of(" a")("-")("dog-gone phrase"));
+		ensure_equals("escaped quotes",
+					  LLStringUtil::getTokens("say: 'this isn^'t w^orking'.", " ", "", "'", "^"),
+					  list_of("say:")("this isn't working."));
+		ensure_equals("escaped escape",
+					  LLStringUtil::getTokens("want x^^2", " ", "", "", "^"),
+					  list_of("want")("x^2"));
+		ensure_equals("escape at end",
+					  LLStringUtil::getTokens("it's^ up there^", " ", "", "'", "^"),
+					  list_of("it's up")("there^"));
+    }
 }

@@ -560,9 +560,29 @@ public:
 	BOOL selectGetRootsModify();
 	BOOL selectGetModify();
 
-	// returns TRUE if is all objects are non-permanent
+	// returns TRUE if is all objects are non-permanent-enforced
+	BOOL selectGetRootsNonPermanentEnforced();
+	BOOL selectGetNonPermanentEnforced();
+
+	// returns TRUE if is all objects are permanent
+	BOOL selectGetRootsPermanent();
+	BOOL selectGetPermanent();
+
+	// returns TRUE if is all objects are character
+	BOOL selectGetRootsCharacter();
+	BOOL selectGetCharacter();
+
+	// returns TRUE if is all objects are not permanent
+	BOOL selectGetRootsNonPathfinding();
+	BOOL selectGetNonPathfinding();
+
+	// returns TRUE if is all objects are not permanent
 	BOOL selectGetRootsNonPermanent();
 	BOOL selectGetNonPermanent();
+
+	// returns TRUE if is all objects are not character
+	BOOL selectGetRootsNonCharacter();
+	BOOL selectGetNonCharacter();
 
 	// returns TRUE if selected objects can be transferred.
 	BOOL selectGetRootsTransfer();

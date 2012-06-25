@@ -46,7 +46,7 @@ class LLVector3;
 class LLFloaterPathfindingLinksets : public LLFloaterPathfindingObjects
 {
 public:
-	static void  openLinksetsEditor();
+	static void  openLinksetsWithSelectedObjects();
 
 protected:
 	friend class LLFloaterReg;

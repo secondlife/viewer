@@ -66,12 +66,30 @@ BOOL LLPathfindingPathTool::handleMouseDown(S32 pX, S32 pY, MASK pMask)
 {
 	BOOL returnVal = FALSE;
 
-	if (!mIsLeftMouseButtonHeld && !mIsMiddleMouseButtonHeld && !mIsRightMouseButtonHeld && isAnyPathToolModKeys(pMask))
+	if (!mIsLeftMouseButtonHeld && !mIsMiddleMouseButtonHeld && !mIsRightMouseButtonHeld)
 	{
-		computeFinalPoints(pX, pY, pMask);
-		mIsLeftMouseButtonHeld = true;
-		setMouseCapture(TRUE);
-		returnVal = TRUE;
+		if (isAnyPathToolModKeys(pMask))
+		{
+			if (isPointAModKeys(pMask))
+			{
+				gViewerWindow->setCursor(UI_CURSOR_TOOLPATHFINDING_PATH_START);
+			}
+			else if (isPointBModKeys(pMask))
+			{
+				gViewerWindow->setCursor(UI_CURSOR_TOOLPATHFINDING_PATH_END);
+			}
+			computeFinalPoints(pX, pY, pMask);
+			mIsLeftMouseButtonHeld = true;
+			setMouseCapture(TRUE);
+			returnVal = TRUE;
+		}
+		else if (!isCameraModKeys(pMask))
+		{
+			gViewerWindow->setCursor(UI_CURSOR_TOOLNO);
+			mIsLeftMouseButtonHeld = true;
+			setMouseCapture(TRUE);
+			returnVal = TRUE;
+		}
 	}
 	mIsLeftMouseButtonHeld = true;
 
@@ -82,7 +100,7 @@ BOOL LLPathfindingPathTool::handleMouseUp(S32 pX, S32 pY, MASK pMask)
 {
 	BOOL returnVal = FALSE;
 
-	if (mIsLeftMouseButtonHeld && !mIsMiddleMouseButtonHeld && !mIsRightMouseButtonHeld && isAnyPathToolModKeys(pMask))
+	if (mIsLeftMouseButtonHeld && !mIsMiddleMouseButtonHeld && !mIsRightMouseButtonHeld)
 	{
 		computeFinalPoints(pX, pY, pMask);
 		setMouseCapture(FALSE);
@@ -142,9 +160,21 @@ BOOL LLPathfindingPathTool::handleHover(S32 pX, S32 pY, MASK pMask)
 {
 	BOOL returnVal = FALSE;
 
-	if (!mIsMiddleMouseButtonHeld && !mIsRightMouseButtonHeld && isAnyPathToolModKeys(pMask))
+	if (!mIsLeftMouseButtonHeld && !mIsMiddleMouseButtonHeld && !mIsRightMouseButtonHeld && !isAnyPathToolModKeys(pMask))
 	{
 		gViewerWindow->setCursor(UI_CURSOR_TOOLPATHFINDING);
+	}
+
+	if (!mIsMiddleMouseButtonHeld && !mIsRightMouseButtonHeld && isAnyPathToolModKeys(pMask))
+	{
+		if (isPointAModKeys(pMask))
+		{
+			gViewerWindow->setCursor(UI_CURSOR_TOOLPATHFINDING_PATH_START);
+		}
+		else if (isPointBModKeys(pMask))
+		{
+			gViewerWindow->setCursor(UI_CURSOR_TOOLPATHFINDING_PATH_END);
+		}
 		computeTempPoints(pX, pY, pMask);
 		returnVal = TRUE;
 	}
@@ -289,6 +319,11 @@ bool LLPathfindingPathTool::isPointAModKeys(MASK pMask) const
 bool LLPathfindingPathTool::isPointBModKeys(MASK pMask) const
 {
 	return ((pMask & MASK_SHIFT) != 0);
+}
+
+bool LLPathfindingPathTool::isCameraModKeys(MASK pMask) const
+{
+	return ((pMask & MASK_ALT) != 0);
 }
 
 void LLPathfindingPathTool::getRayPoints(S32 pX, S32 pY, LLVector3 &pRayStart, LLVector3 &pRayEnd) const

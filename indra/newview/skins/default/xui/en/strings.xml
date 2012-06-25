@@ -393,6 +393,7 @@ Please try logging in again in a minute.</string>
   <string name="reconnect_nearby">You will now be reconnected to Nearby Voice Chat</string>
 	<string name="ScriptQuestionCautionChatGranted">'[OBJECTNAME]', an object owned by '[OWNERNAME]', located in [REGIONNAME] at [REGIONPOS], has been granted permission to: [PERMISSIONS].</string>
 	<string name="ScriptQuestionCautionChatDenied">'[OBJECTNAME]', an object owned by '[OWNERNAME]', located in [REGIONNAME] at [REGIONPOS], has been denied permission to: [PERMISSIONS].</string>
+	<string name="AdditionalPermissionsRequestHeader">If you allow access to your account, you will also be allowing the object to:</string>
 	<string name="ScriptTakeMoney">Take Linden dollars (L$) from you</string>
 	<string name="ActOnControlInputs">Act on your control inputs</string>
 	<string name="RemapControlInputs">Remap your control inputs</string>
@@ -3325,8 +3326,8 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="LocationCtrlModerateIconTooltip">Moderate Region</string>
   <string name="LocationCtrlGeneralIconTooltip">General Region</string>
   <string name="LocationCtrlSeeAVsTooltip">Avatars visible and chat allowed outside of this parcel</string>
-  <string name="LocationCtrlPathfindingDirtyTooltip">The pathfinding navmesh is not up-to-date.</string>
-  <string name="LocationCtrlPathfindingDisabledTooltip">Dynamic pathfinding is not disabled on this region.</string>
+  <string name="LocationCtrlPathfindingDirtyTooltip">Objects that move may not behave correctly in this region until the region is cleaned up.</string>
+  <string name="LocationCtrlPathfindingDisabledTooltip">Dynamic pathfinding is not enabled on this region.</string>
   <!-- Strings used by the (currently Linux) auto-updater app -->
 	<string name="UpdaterWindowTitle">
 	  [APP_NAME] Update
@@ -3890,10 +3891,10 @@ Try enclosing path to the editor with double quotes.
 
   <!-- Pathfinding -->
   <string name="Pathfinding_Wiki_URL">http://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer</string>
-  <string name="Pathfinding_Object_Attr_None">&lt;none&gt;</string>
-  <string name="Pathfinding_Object_Attr_Permanent">Permanent</string>
+  <string name="Pathfinding_Object_Attr_None">None</string>
+  <string name="Pathfinding_Object_Attr_Permanent">Affects navmesh</string>
   <string name="Pathfinding_Object_Attr_Character">Character</string>
-  <string name="Pathfinding_Object_Attr_MultiSelect">&lt;multiple&gt;</string>
+  <string name="Pathfinding_Object_Attr_MultiSelect">(Multiple)</string>
 
   <!-- Snapshot image quality levels -->
   <string name="snapshot_quality_very_low">Very Low</string>

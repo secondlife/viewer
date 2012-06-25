@@ -35,8 +35,12 @@
 #include "lloutputmonitorctrl.h"
 #include "llspeakers.h"
 
+class LLNearbyChatBarListener;
+
 class LLNearbyChatBar :	public LLFloater
 {
+	LOG_CLASS(LLNearbyChatBar);
+
 public:
 	// constructor for inline chat-bars (e.g. hosted in chat history window)
 	LLNearbyChatBar(const LLSD& key);
@@ -76,6 +80,7 @@ protected:
 
 	/* virtual */ bool applyRectControl();
 
+	void showNearbyChatPanel(bool show);
 	void onToggleNearbyChatPanel();
 
 	static LLWString stripChannelNumber(const LLWString &mesg, S32* channel);
@@ -92,6 +97,8 @@ protected:
 	LLLocalSpeakerMgr*		mSpeakerMgr;
 
 	S32 mExpandedHeight;
+
+	boost::shared_ptr<LLNearbyChatBarListener> mListener;
 };
 
 #endif

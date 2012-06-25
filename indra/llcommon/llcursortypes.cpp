@@ -70,6 +70,8 @@ ECursorType getCursorFromString(const std::string& cursor_string)
 		cursor_string_table["UI_CURSOR_TOOLBUY"] = UI_CURSOR_TOOLBUY;
 		cursor_string_table["UI_CURSOR_TOOLOPEN"] = UI_CURSOR_TOOLOPEN;
 		cursor_string_table["UI_CURSOR_TOOLPATHFINDING"] = UI_CURSOR_TOOLPATHFINDING;
+		cursor_string_table["UI_CURSOR_TOOLPATHFINDINGPATHSTART"] = UI_CURSOR_TOOLPATHFINDING_PATH_START;
+		cursor_string_table["UI_CURSOR_TOOLPATHFINDINGPATHEND"] = UI_CURSOR_TOOLPATHFINDING_PATH_END;
 		cursor_string_table["UI_CURSOR_TOOLNO"] = UI_CURSOR_TOOLNO;
 	}
 

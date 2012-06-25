@@ -9,7 +9,7 @@
     reuse_instance="true"
     save_rect="true"
     single_instance="true"
-    title="Pathfinding view"
+    title="Pathfinding view / test"
     width="240">
   <floater.string name="navmesh_viewer_status_unknown"></floater.string>
   <floater.string name="navmesh_viewer_status_library_not_implemented">Cannot find pathing library implementation.</floater.string>

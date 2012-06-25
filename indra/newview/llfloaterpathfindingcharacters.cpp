@@ -74,9 +74,10 @@ BOOL LLFloaterPathfindingCharacters::isPhysicsCapsuleEnabled(LLUUID& id, LLVecto
 	return (isShowPhysicsCapsule() &&  getCapsuleRenderData(pos, rot ));
 }
 
-void LLFloaterPathfindingCharacters::openCharactersViewer()
+void LLFloaterPathfindingCharacters::openCharactersWithSelectedObjects()
 {
-	LLFloaterReg::toggleInstanceOrBringToFront("pathfinding_characters");
+	LLFloaterPathfindingCharacters *charactersFloater = LLFloaterReg::getTypedInstance<LLFloaterPathfindingCharacters>("pathfinding_characters");
+	charactersFloater->showFloaterWithSelectionObjects();
 }
 
 LLHandle<LLFloaterPathfindingCharacters> LLFloaterPathfindingCharacters::getInstanceHandle()

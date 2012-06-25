@@ -173,6 +173,8 @@ LLFloaterPathfindingObjects::LLFloaterPathfindingObjects(const LLSD &pSeed)
 	mMessagingRequestId(0U),
 	mObjectList(),
 	mObjectsSelection(),
+	mHasObjectsToBeSelected(false),
+	mObjectsToBeSelected(),
 	mSelectionUpdateSlot(),
 	mRegionBoundaryCrossingSlot()
 {
@@ -318,17 +320,19 @@ void LLFloaterPathfindingObjects::handleUpdateObjectList(LLPathfindingManager::r
 
 void LLFloaterPathfindingObjects::rebuildObjectsScrollList()
 {
-	std::vector<LLScrollListItem*> selectedItems = mObjectsScrollList->getAllSelected();
-	int numSelectedItems = selectedItems.size();
-	uuid_vec_t selectedUUIDs;
-	if (numSelectedItems > 0)
+	if (!mHasObjectsToBeSelected)
 	{
-		selectedUUIDs.reserve(selectedItems.size());
-		for (std::vector<LLScrollListItem*>::const_iterator itemIter = selectedItems.begin();
-			itemIter != selectedItems.end(); ++itemIter)
+		std::vector<LLScrollListItem*> selectedItems = mObjectsScrollList->getAllSelected();
+		int numSelectedItems = selectedItems.size();
+		if (numSelectedItems > 0)
 		{
-			const LLScrollListItem *listItem = *itemIter;
-			selectedUUIDs.push_back(listItem->getUUID());
+			mObjectsToBeSelected.reserve(selectedItems.size());
+			for (std::vector<LLScrollListItem*>::const_iterator itemIter = selectedItems.begin();
+				itemIter != selectedItems.end(); ++itemIter)
+			{
+				const LLScrollListItem *listItem = *itemIter;
+				mObjectsToBeSelected.push_back(listItem->getUUID());
+			}
 		}
 	}
 
@@ -346,8 +350,19 @@ void LLFloaterPathfindingObjects::rebuildObjectsScrollList()
 		}
 	}
 
-	mObjectsScrollList->selectMultiple(selectedUUIDs);
-	mObjectsScrollList->setScrollPos(origScrollPosition);
+	mObjectsScrollList->selectMultiple(mObjectsToBeSelected);
+	if (mHasObjectsToBeSelected)
+	{
+		mObjectsScrollList->scrollToShowSelected();
+	}
+	else
+	{
+		mObjectsScrollList->setScrollPos(origScrollPosition);
+	}
+
+	mObjectsToBeSelected.clear();
+	mHasObjectsToBeSelected = false;
+
 	updateControlsOnScrollListChange();
 }
 
@@ -399,6 +414,44 @@ const LLColor4 &LLFloaterPathfindingObjects::getBeaconTextColor() const
 S32 LLFloaterPathfindingObjects::getBeaconWidth() const
 {
 	return DEFAULT_BEACON_WIDTH;
+}
+
+void LLFloaterPathfindingObjects::showFloaterWithSelectionObjects()
+{
+	mObjectsToBeSelected.clear();
+
+	LLObjectSelectionHandle selectedObjectsHandle = LLSelectMgr::getInstance()->getSelection();
+	if (selectedObjectsHandle.notNull())
+	{
+		LLObjectSelection *selectedObjects = selectedObjectsHandle.get();
+		if (!selectedObjects->isEmpty())
+		{
+			for (LLObjectSelection::valid_iterator objectIter = selectedObjects->valid_begin();
+				objectIter != selectedObjects->valid_end(); ++objectIter)
+			{
+				LLSelectNode *object = *objectIter;
+				LLViewerObject *viewerObject = object->getObject();
+				mObjectsToBeSelected.push_back(viewerObject->getID());
+			}
+		}
+	}
+	mHasObjectsToBeSelected = true;
+
+	if (!isShown())
+	{
+		openFloater();
+		setVisibleAndFrontmost();
+	}
+	else
+	{
+		rebuildObjectsScrollList();
+		if (isMinimized())
+		{
+			setMinimized(FALSE);
+		}
+		setVisibleAndFrontmost();
+	}
+	setFocus(TRUE);
 }
 
 BOOL LLFloaterPathfindingObjects::isShowBeacons() const

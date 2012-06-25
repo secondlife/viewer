@@ -42,8 +42,6 @@
 
 class LLPathfindingNavMeshStatus;
 
-//#define XXX_STINSON_DEBUG_NAVMESH_ZONE
-
 class LLPathfindingNavMeshZone
 {
 public:
@@ -99,10 +97,6 @@ private:
 
 		LLPathfindingNavMesh::ENavMeshRequestStatus getRequestStatus() const;
 		LLPathfindingNavMeshStatus::ENavMeshStatus  getNavMeshStatus() const;
-#ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
-		const LLUUID &getRegionUUID() const {return mRegionUUID;};
-		S32          getDirection() const {return mDirection;};
-#endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
 
 	protected:
 

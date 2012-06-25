@@ -143,7 +143,7 @@ bool LLRenderTarget::addColorAttachment(U32 color_fmt)
 
 	{
 		clear_glerror();
-		LLImageGL::setManualImage(LLTexUnit::getInternalType(mUsage), 0, color_fmt, mResX, mResY, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		LLImageGL::setManualImage(LLTexUnit::getInternalType(mUsage), 0, color_fmt, mResX, mResY, GL_RGBA, GL_UNSIGNED_BYTE, NULL, false);
 		if (glGetError() != GL_NO_ERROR)
 		{
 			llwarns << "Could not allocate color buffer for render target." << llendl;
@@ -223,7 +223,7 @@ bool LLRenderTarget::allocateDepth()
 		U32 internal_type = LLTexUnit::getInternalType(mUsage);
 		stop_glerror();
 		clear_glerror();
-		LLImageGL::setManualImage(internal_type, 0, GL_DEPTH_COMPONENT24, mResX, mResY, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
+		LLImageGL::setManualImage(internal_type, 0, GL_DEPTH_COMPONENT24, mResX, mResY, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL, false);
 		gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
 	}
 

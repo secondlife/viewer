@@ -167,8 +167,9 @@ public:
 
 	static T* getInstance(const KEY& k)
 	{
-		typename InstanceMap::const_iterator found = getMap_().find(k);
-		return (found == getMap_().end()) ? NULL : found->second;
+		const InstanceMap& map(getMap_());
+		typename InstanceMap::const_iterator found = map.find(k);
+		return (found == map.end()) ? NULL : found->second;
 	}
 
 	static instance_iter beginInstances() 
@@ -239,8 +240,20 @@ class LLInstanceTracker<T, T*> : public LLInstanceTrackerBase
 
 public:
 
-	/// for completeness of analogy with the generic implementation
-	static T* getInstance(T* k) { return k; }
+	/**
+	 * Does a particular instance still exist? Of course, if you already have
+	 * a T* in hand, you need not call getInstance() to @em locate the
+	 * instance -- unlike the case where getInstance() accepts some kind of
+	 * key. Nonetheless this method is still useful to @em validate a
+	 * particular T*, since each instance's destructor removes itself from the
+	 * underlying set.
+	 */
+	static T* getInstance(T* k)
+	{
+		const InstanceSet& set(getSet_());
+		typename InstanceSet::const_iterator found = set.find(k);
+		return (found == set.end())? NULL : *found;
+	}
 	static S32 instanceCount() { return getSet_().size(); }
 
 	class instance_iter : public boost::iterator_facade<instance_iter, T, boost::forward_traversal_tag>
