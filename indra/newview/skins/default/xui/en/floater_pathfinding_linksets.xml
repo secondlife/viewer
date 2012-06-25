@@ -322,14 +322,23 @@
     <button
         follows="left|bottom"
         height="21"
+        label="Teleport me to it"
+        layout="topleft"
+        name="teleport_me_to_object"
+        top_pad="-21"
+        left_pad="206"
+        width="160"/>
+    <button
+        follows="right|bottom"
+        height="21"
         label="Return"
         layout="topleft"
         name="return_objects"
         top_pad="-21"
-        left_pad="6"
+        left_pad="220"
         width="95"/>
     <button
-        follows="left|bottom"
+        follows="right|bottom"
         height="21"
         label="Delete"
         layout="topleft"
@@ -337,15 +346,6 @@
         top_pad="-21"
         left_pad="6"
         width="95"/>
-    <button
-        follows="left|bottom"
-        height="21"
-        label="Teleport me to it"
-        layout="topleft"
-        name="teleport_me_to_object"
-        top_pad="-21"
-        left_pad="6"
-        width="160"/>
   </panel>
   <view_border
       bevel_style="none"

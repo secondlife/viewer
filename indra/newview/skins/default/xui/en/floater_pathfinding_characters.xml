@@ -179,14 +179,24 @@
     <button
         follows="left|bottom"
         height="22"
+        label="Teleport me to it"
+        layout="topleft"
+        name="teleport_me_to_object"
+        tool_tip="Enabled only when one character is selected."
+        top_pad="-22"
+        left_pad="26"
+        width="159"/>
+    <button
+        follows="right|bottom"
+        height="22"
         label="Return"
         layout="topleft"
         name="return_objects"
         top_pad="-22"
-        left_pad="6"
+        left_pad="26"
         width="94"/>
     <button
-        follows="left|bottom"
+        follows="right|bottom"
         height="22"
         label="Delete"
         layout="topleft"
@@ -194,15 +204,5 @@
         top_pad="-22"
         left_pad="6"
         width="94"/>
-    <button
-        follows="left|bottom"
-        height="22"
-        label="Teleport me to it"
-        layout="topleft"
-        name="teleport_me_to_object"
-        tool_tip="Enabled only when one character is selected."
-        top_pad="-22"
-        left_pad="6"
-        width="159"/>
   </panel>
 </floater>

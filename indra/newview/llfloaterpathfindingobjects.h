@@ -132,6 +132,9 @@ private:
 	void                   updateStateOnActionControls();
 	void                   selectScrollListItemsInWorld();
 
+	void                   handleReturnItemsResponse(const LLSD &pNotification, const LLSD &pResponse);
+	void                   handleDeleteItemsResponse(const LLSD &pNotification, const LLSD &pResponse);
+
 	LLPathfindingObjectPtr findObject(const LLScrollListItem *pListItem) const;
 
 	LLScrollListCtrl                   *mObjectsScrollList;
