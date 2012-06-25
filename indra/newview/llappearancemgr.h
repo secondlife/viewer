@@ -182,6 +182,8 @@ public:
 
 	bool isInUpdateAppearanceFromCOF() { return mIsInUpdateAppearanceFromCOF; }
 
+	bool useServerTextureBaking();
+
 protected:
 	LLAppearanceMgr();
 	~LLAppearanceMgr();
