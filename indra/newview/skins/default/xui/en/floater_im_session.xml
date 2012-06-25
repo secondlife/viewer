@@ -235,29 +235,22 @@
             </layout_panel>
            </layout_stack>
            </panel>
-            <panel width="225" 
-             height="31" 
-             left="4" 
-             name="bottom_panel"
-             bottom="-1" 
-             follows="left|right|bottom" 
-             tab_group="1">    
-            	<chat_editor
-             		bottom="0"
-             		expand_lines_count="5"
-             		follows="left|right|bottom"
-	         		font="SansSerifSmall"
-	         		visible="true"
-             		height="20"
-             		is_expandable="true"
-             		label="To"
-             		layout="bottomleft"
-             		name="chat_editor"
-             		tab_group="3"
-             		width="240"
-             		wrap="true">
-            	</chat_editor>
-              </panel>
+            <chat_editor
+              bottom="0"
+              expand_lines_count="5"
+              follows="left|right|bottom"
+              font="SansSerifSmall"
+              visible="true"
+              height="20"
+              is_expandable="true"
+              label="To"
+              layout="bottomleft"
+              name="chat_editor"
+              max_length="1024"
+              tab_group="3"
+              width="240"
+              wrap="true">
+            </chat_editor>
     </layout_panel>
   </layout_stack>
     </view>
