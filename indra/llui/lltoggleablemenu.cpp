@@ -57,7 +57,9 @@ void LLToggleableMenu::handleVisibilityChange (BOOL curVisibilityIn)
 	S32 x,y;
 	LLUI::getMousePositionLocal(LLUI::getRootView(), &x, &y);
 
-	if (!curVisibilityIn && mButtonRect.pointInRect(x, y))
+	// STORM-1879: also check MouseCapture to see if the button was really
+        // clicked (otherwise the VisibilityChange was triggered via keyboard shortcut)
+	if (!curVisibilityIn && mButtonRect.pointInRect(x, y) && gFocusMgr.getMouseCapture())
 	{
 		mClosedByButtonClick = true;
 	}
