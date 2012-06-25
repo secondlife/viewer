@@ -84,7 +84,7 @@ LLHandle<LLFloaterPathfindingCharacters> LLFloaterPathfindingCharacters::getInst
 {
 	if ( sInstanceHandle.isDead() )
 	{
-		LLFloaterPathfindingCharacters *floaterInstance = LLFloaterReg::getTypedInstance<LLFloaterPathfindingCharacters>("pathfinding_characters");
+		LLFloaterPathfindingCharacters *floaterInstance = LLFloaterReg::findTypedInstance<LLFloaterPathfindingCharacters>("pathfinding_characters");
 		if (floaterInstance != NULL)
 		{
 			sInstanceHandle = floaterInstance->mSelfHandle;
