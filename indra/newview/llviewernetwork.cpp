@@ -354,15 +354,13 @@ void LLGridManager::addSystemGrid(const std::string& label,
 		grid[GRID_ID_VALUE] = login_id;
 	}
 
-	// only add the system grids beyond agni to the visible list
-	// if we're building a debug version.
 	if (name == std::string(MAINGRID))
 	{
 		grid[GRID_SLURL_BASE] = MAIN_GRID_SLURL_BASE;
 	}
 	else
 	{
-		grid[GRID_SLURL_BASE] = llformat(SYSTEM_GRID_SLURL_BASE, label.c_str());
+		grid[GRID_SLURL_BASE] = llformat(SYSTEM_GRID_SLURL_BASE, grid[GRID_ID_VALUE].asString().c_str());
 	}
 	addGrid(grid);
 }
@@ -384,28 +382,22 @@ std::map<std::string, std::string> LLGridManager::getKnownGrids()
 void LLGridManager::setGridChoice(const std::string& grid)
 {
 	// Set the grid choice based on a string.
-	// The string must be a grid label from the gGridInfo table
+	LL_DEBUGS("GridManager")<<"requested "<<grid<<LL_ENDL;
+ 	std::string grid_name = getGrid(grid); // resolved either the name or the id to the name
 
-	// loop through.  We could do just a hash lookup but we also want to match
-	// on the id
-	std::string grid_name = grid;
-	if(!mGridList.has(grid_name))
+	if(!grid_name.empty())
 	{
-		// case insensitive
-		grid_name = getGrid(grid);
+		LL_INFOS("GridManager")<<"setting "<<grid_name<<LL_ENDL;
+		mGrid = grid_name;
+		gSavedSettings.setString("CurrentGrid", grid_name);
+		
+		updateIsInProductionGrid();
 	}
-
-	if(grid_name.empty())
+	else
 	{
 		// the grid was not in the list of grids.
-		LLSD grid_data = LLSD::emptyMap();
-		grid_data[GRID_VALUE] = grid;
-		addGrid(grid_data);
+		LL_WARNS("GridManager")<<"unknown grid "<<grid<<LL_ENDL;
 	}
-	mGrid = grid;
-	gSavedSettings.setString("CurrentGrid", grid);
-
-	updateIsInProductionGrid();
 }
 
 std::string LLGridManager::getGrid( const std::string &grid )
@@ -434,6 +426,14 @@ std::string LLGridManager::getGrid( const std::string &grid )
 				}
 			}
 		}
+	}
+	if (grid_name.empty())
+	{
+		LL_WARNS("GridManager")<<"No name found for grid '"<<grid<<"'"<<LL_ENDL;
+	}
+	else
+	{
+		LL_DEBUGS("GridManager")<<"grid '"<<grid<<"' name is '"<<grid_name<<"'"<<LL_ENDL;
 	}
 	return grid_name;
 }
@@ -589,27 +589,39 @@ bool LLGridManager::isSystemGrid(const std::string& grid)
 // build a slurl for the given region within the selected grid
 std::string LLGridManager::getSLURLBase(const std::string& grid)
 {
-	std::string grid_base;
-	if(mGridList.has(grid) && mGridList[grid].has(GRID_SLURL_BASE))
+	std::string grid_base = "";
+	std::string grid_name = getGrid(grid);
+	if( ! grid_name.empty() && mGridList.has(grid_name) )
 	{
-		return mGridList[grid][GRID_SLURL_BASE].asString();
+		if (mGridList[grid_name].has(GRID_SLURL_BASE))
+		{
+			grid_base = mGridList[grid_name][GRID_SLURL_BASE].asString();
+		}
+		else
+		{
+			grid_base = llformat(DEFAULT_SLURL_BASE, grid_name.c_str());
+		}
 	}
-	else
-	{
-		return  llformat(DEFAULT_SLURL_BASE, grid.c_str());
-	}
+	LL_DEBUGS("GridManager")<<"returning '"<<grid_base<<"'"<<LL_ENDL;
+	return grid_base;
 }
 
 // build a slurl for the given region within the selected grid
 std::string LLGridManager::getAppSLURLBase(const std::string& grid)
 {
-	std::string grid_base;
-	if(mGridList.has(grid) && mGridList[grid].has(GRID_APP_SLURL_BASE))
+	std::string grid_base = "";
+	std::string grid_name = getGrid(grid);
+	if(!grid_name.empty() && mGridList.has(grid))
 	{
-	  return mGridList[grid][GRID_APP_SLURL_BASE].asString();
+		if (mGridList[grid].has(GRID_APP_SLURL_BASE))
+		{
+			grid_base = mGridList[grid][GRID_APP_SLURL_BASE].asString();
+		}
+		else
+		{
+			grid_base = llformat(DEFAULT_APP_SLURL_BASE, grid_name.c_str());
+		}
 	}
-	else
-	{
-	  return  llformat(DEFAULT_APP_SLURL_BASE, grid.c_str());
-	}
+	LL_DEBUGS("GridManager")<<"returning '"<<grid_base<<"'"<<LL_ENDL;
+	return grid_base;
 }

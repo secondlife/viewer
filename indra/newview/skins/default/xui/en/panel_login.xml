@@ -200,17 +200,6 @@
           right="-10"
           width="200">
       Need help logging in?   </text>
-      <!--  <text
-           follows="right|bottom"
-           font="SansSerifSmall"
-           halign="right"
-           height="28"
-           top_pad="2"
-           name="channel_text"
-           width="180"
-           word_wrap="true">
-           [VERSION]
-           </text>-->
     </layout_panel>
   </layout_stack>
 </panel>

@@ -772,7 +772,7 @@ void LLFloaterPreference::onBtnOK()
 		llinfos << "Can't close preferences!" << llendl;
 	}
 
-	LLPanelLogin::updateLocationCombo( false );
+	LLPanelLogin::updateLocationSelectorsVisibility();
 }
 
 // static 
@@ -789,7 +789,7 @@ void LLFloaterPreference::onBtnApply( )
 	apply();
 	saveSettings();
 
-	LLPanelLogin::updateLocationCombo( false );
+	LLPanelLogin::updateLocationSelectorsVisibility();
 }
 
 // static 
