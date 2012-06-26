@@ -267,19 +267,19 @@
                 <combo_box.item
                  label="Touch  (default)"
                  name="Touch/grab(default)"
-                 value="Touch/grab (default)" />
+                 value="Touch" />
                 <combo_box.item
                  label="Sit on object"
                  name="Sitonobject"
-                 value="Sit on object" />
+                 value="Sit" />
                 <combo_box.item
                  label="Buy object"
                  name="Buyobject"
-                 value="Buy object" />
+                 value="Buy" />
                 <combo_box.item
                  label="Pay object"
                  name="Payobject"
-                 value="Pay object" />
+                 value="Pay" />
                 <combo_box.item
                  label="Open"
                  name="Open"

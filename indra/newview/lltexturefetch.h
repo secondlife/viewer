@@ -209,6 +209,7 @@ public:
 	// reporting due to either startup or a problem POSTing data.
 	static volatile bool svMetricsDataBreak;
 
+<<<<<<< local
 public:
 	//debug use
 	enum e_tex_source
@@ -217,26 +218,37 @@ public:
 		FROM_HTTP_ONLY,
 		INVALID_SOURCE
 	};
+=======
+>>>>>>> other
 private:
 	//debug use
 	LLTextureFetchDebugger* mFetchDebugger;
 	bool mFetcherLocked;
+<<<<<<< local
 	
 	e_tex_source mFetchSource;
 	e_tex_source mOriginFetchSource;
+=======
+>>>>>>> other
 
 public:
 	//debug use
 	LLTextureFetchDebugger* getFetchDebugger() { return mFetchDebugger;}
 	void lockFetcher(bool lock) { mFetcherLocked = lock;}
+<<<<<<< local
 
 	void setLoadSource(e_tex_source source) {mFetchSource = source;}
 	void resetLoadSource() {mFetchSource = mOriginFetchSource;}
 	bool canLoadFromCache() { return mFetchSource != FROM_HTTP_ONLY;}
+=======
+>>>>>>> other
 };
 
 //debug use
+<<<<<<< local
 class LLViewerFetchedTexture;
+=======
+>>>>>>> other
 class LLTextureFetchDebugger
 {
 	friend class LLTextureFetch;
@@ -248,7 +260,10 @@ public:
 	enum e_debug_state
 	{
 		IDLE = 0,
+<<<<<<< local
 		START_DEBUG,
+=======
+>>>>>>> other
 		READ_CACHE,
 		WRITE_CACHE,
 		DECODING,
@@ -311,15 +326,22 @@ private:
 	F32 mTotalFetchingTime;
 	F32 mRefetchVisCacheTime;
 	F32 mRefetchVisHTTPTime;
+<<<<<<< local
 	F32 mRefetchAllCacheTime;
 	F32 mRefetchAllHTTPTime;
+=======
+>>>>>>> other
 
 	LLTimer mTimer;
 	
 	LLTextureFetch* mFetcher;
 	LLTextureCache* mTextureCache;
 	LLImageDecodeThread* mImageDecodeThread;
+<<<<<<< local
 	LLCurlTextureRequest* mCurlGetRequest;
+=======
+	LLCurlRequest* mCurlGetRequest;
+>>>>>>> other
 	
 	S32 mNumFetchedTextures;
 	S32 mNumCacheHits;
@@ -333,39 +355,71 @@ private:
 	U32 mRenderedDecodedData;
 	U32 mFetchedPixels;
 	U32 mRenderedPixels;
+<<<<<<< local
 	U32 mRefetchedVisData;
 	U32 mRefetchedVisPixels;
 	U32 mRefetchedAllData;
 	U32 mRefetchedAllPixels;
+=======
+	U32 mRefetchedData;
+	U32 mRefetchedPixels;
+>>>>>>> other
 
 	BOOL mFreezeHistory;
+<<<<<<< local
 	BOOL mStopDebug;
 	BOOL mClearHistory;
 	BOOL mRefetchNonVis;
+=======
+>>>>>>> other
 
 	std::string mHTTPUrl;
 	S32 mNbCurlRequests;
 	S32 mNbCurlCompleted;
 
+<<<<<<< local
 	std::map< LLPointer<LLViewerFetchedTexture>, std::vector<S32> > mRefetchList;
 	std::vector< LLPointer<LLViewerFetchedTexture> > mTempTexList;
 	S32 mTempIndex;
 	S32 mHistoryListIndex;
 
+=======
+>>>>>>> other
 public:
+<<<<<<< local
 	bool update(F32 max_time); //called in the main thread once per frame
+=======
+	bool update(); //called in the main thread once per frame
+>>>>>>> other
 
 	//fetching history
 	void clearHistory();
 	void addHistoryEntry(LLTextureFetchWorker* worker);
 	
+<<<<<<< local
 	void setCurlGetRequest(LLCurlTextureRequest* request) { mCurlGetRequest = request;}
 	LLCurlTextureRequest* getCurlGetRequest() { return mCurlGetRequest;}
+=======
+	void setCurlGetRequest(LLCurlRequest* request) { mCurlGetRequest = request;}
+	
+	void startDebug();
+	void stopDebug(); //stop everything
+	void debugCacheRead();
+	void debugCacheWrite();	
+	void debugHTTP();
+	void debugDecoder();
+	void debugGLTextureCreation();
+	void debugRefetchVisibleFromCache();
+	void debugRefetchVisibleFromHTTP();
+>>>>>>> other
 
+<<<<<<< local
 	void startWork(e_debug_state state);
 	void setStopDebug() {mStopDebug = TRUE;}
 	void tryToStopDebug(); //stop everything
 	
+=======
+>>>>>>> other
 	void callbackCacheRead(S32 id, bool success, LLImageFormatted* image,
 						   S32 imagesize, BOOL islocal);
 	void callbackCacheWrite(S32 id, bool success);
@@ -389,10 +443,15 @@ public:
 	U32  getRenderedDecodedData()        {return mRenderedDecodedData;}
 	U32  getFetchedPixels()              {return mFetchedPixels;}
 	U32  getRenderedPixels()             {return mRenderedPixels;}
+<<<<<<< local
 	U32  getRefetchedVisData()              {return mRefetchedVisData;}
 	U32  getRefetchedVisPixels()            {return mRefetchedVisPixels;}
 	U32  getRefetchedAllData()              {return mRefetchedAllData;}
 	U32  getRefetchedAllPixels()            {return mRefetchedAllPixels;}
+=======
+	U32  getRefetchedData()              {return mRefetchedData;}
+	U32  getRefetchedPixels()            {return mRefetchedPixels;}
+>>>>>>> other
 
 	F32  getCacheReadTime()     {return mCacheReadTime;}
 	F32  getCacheWriteTime()    {return mCacheWriteTime;}
@@ -402,15 +461,21 @@ public:
 	F32  getTotalFetchingTime() {return mTotalFetchingTime;}
 	F32  getRefetchVisCacheTime() {return mRefetchVisCacheTime;}
 	F32  getRefetchVisHTTPTime()  {return mRefetchVisHTTPTime;}
+<<<<<<< local
 	F32  getRefetchAllCacheTime() {return mRefetchAllCacheTime;}
 	F32  getRefetchAllHTTPTime()  {return mRefetchAllHTTPTime;}
+=======
+>>>>>>> other
 
 private:
 	void init();
 	void clearTextures();//clear fetching results of all textures.
 	void clearCache();
+<<<<<<< local
 	void makeRefetchList();
 	void scanRefetchList();
+=======
+>>>>>>> other
 
 	void lockFetcher();
 	void unlockFetcher();
@@ -423,6 +488,7 @@ private:
 	
 	S32 fillCurlQueue();
 
+<<<<<<< local
 	void startDebug();
 	void debugCacheRead();
 	void debugCacheWrite();	
@@ -437,6 +503,8 @@ private:
 	bool processStartDebug(F32 max_time);
 	bool processGLCreation(F32 max_time);
 
+=======
+>>>>>>> other
 private:
 	static bool sDebuggerEnabled;
 public:

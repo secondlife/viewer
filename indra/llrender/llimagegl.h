@@ -94,12 +94,13 @@ public:
 	
 	void setSize(S32 width, S32 height, S32 ncomponents);
 	void setComponents(S32 ncomponents) { mComponents = (S8)ncomponents ;}
+	void setAllowCompression(bool allow) { mAllowCompression = allow; }
 
 	// These 3 functions currently wrap glGenTextures(), glDeleteTextures(), and glTexImage2D() 
 	// for tracking purposes and will be deprecated in the future
 	static void generateTextures(S32 numTextures, U32 *textures);
 	static void deleteTextures(S32 numTextures, U32 *textures, bool immediate = false);
-	static void setManualImage(U32 target, S32 miplevel, S32 intformat, S32 width, S32 height, U32 pixformat, U32 pixtype, const void *pixels);
+	static void setManualImage(U32 target, S32 miplevel, S32 intformat, S32 width, S32 height, U32 pixformat, U32 pixtype, const void *pixels, bool allow_compression = true);
 
 	BOOL createGLTexture() ;
 	BOOL createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename = 0, BOOL to_create = TRUE,
@@ -210,6 +211,8 @@ private:
 	U32      mTexelsInAtlas ;
 	U32      mTexelsInGLTexture;
 
+	bool mAllowCompression;
+
 protected:
 	LLGLenum mTarget;		// Normally GL_TEXTURE2D, sometimes something else (ex. cube maps)
 	LLTexUnit::eTextureType mBindTarget;	// Normally TT_TEXTURE, sometimes something else (ex. cube maps)
@@ -245,7 +248,7 @@ public:
 	static BOOL sGlobalUseAnisotropic;
 	static LLImageGL* sDefaultGLTexture ;	
 	static BOOL sAutomatedTest;
-
+	static bool sCompressTextures;			//use GL texture compression
 #if DEBUG_MISS
 	BOOL mMissed; // Missed on last bind?
 	BOOL getMissed() const { return mMissed; };

@@ -1,21 +1,76 @@
 <?xml version="1.0"?>
 <llsd>
   <map>
-    <key>help</key>
+    <!-- Please insert new keys in alphabetical order. -->
+    <key>analyzeperformance</key>
     <map>
       <key>desc</key>
-      <string>display this help message</string>
-
-      <key>short</key>
-      <string>h</string>
+      <string>When used in conjunction with logperformance, analyzes result of log against baseline.</string>
+      <key>map-to</key>
+      <string>AnalyzePerformance</string>
     </map>
 
-    <key>port</key>
+    <key>autologin</key>
+    <map>
+      <key>desc</key>
+      <string>log in as last saved user</string>
+      <key>map-to</key>
+      <string>AutoLogin</string>
+    </map>
+
+    <key>channel</key>
+    <map>
+      <key>count</key>
+      <integer>1</integer>
+      <!-- Special case. Not mapped to a setting. -->
+    </map>
+
+    <key>console</key>
     <map>
       <key>count</key>
       <integer>1</integer>
       <key>map-to</key>
-      <string>UserConnectionPort</string>
+      <string>ShowConsoleWindow</string>
+    </map>
+
+    <key>cooperative</key>
+    <map>
+      <key>desc</key>
+      <string>Yield some idle time to local host.</string>
+      <key>count</key>
+      <integer>1</integer>
+      <key>map-to</key>
+      <string>YieldTime</string>
+    </map>
+
+    <key>crashonstartup</key>
+    <map>
+      <key>desc</key>
+      <string>Crashes on startup. For QA use.</string>
+      <key>map-to</key>
+      <string>CrashOnStartup</string>
+    </map>
+
+    <key>debugsession</key>
+    <map>
+      <key>desc</key>
+      <string>Run as if RenderDebugGL is TRUE, but log errors until end of session.</string>
+      <key>map-to</key>
+      <string>DebugSession</string>
+    </map>
+
+    <key>debugviews</key>
+    <map>
+      <key>map-to</key>
+      <string>DebugViews</string>
+    </map>
+
+    <key>disablecrashlogger</key>
+    <map>
+      <key>desc</key>
+      <string>Disables the crash logger and lets the OS handle crashes</string>
+      <key>map-to</key>
+      <string>DisableCrashLogger</string>
     </map>
 
     <key>drop</key>
@@ -26,20 +81,21 @@
       <string>PacketDropPercentage</string>
     </map>
 
-    <key>inbw</key>
+    <key>god</key>
     <map>
-      <key>count</key>
-      <integer>1</integer>
+      <key>desc</key>
+      <string>Log in a god if you have god access.</string>
       <key>map-to</key>
-      <string>InBandwidth</string>
+      <string>ConnectAsGod</string>
     </map>
 
-    <key>outbw</key>
+    <key>graphicslevel</key>
     <map>
+      <key>desc</key>
+      <string>Set the detail level. 
+0 - low, 1 - medium, 2 - high, 3 - ultra</string>
       <key>count</key>
       <integer>1</integer>
-      <key>map-to</key>
-      <string>OutBandwidth</string>
     </map>
 
     <key>grid</key>
@@ -50,6 +106,82 @@
       <integer>1</integer>
       <key>map-to</key>
       <string>CmdLineGridChoice</string>
+    </map>
+
+    <key>help</key>
+    <map>
+      <key>desc</key>
+      <string>display this help message</string>
+
+      <key>short</key>
+      <string>h</string>
+    </map>
+
+    <key>helperuri</key>
+    <map>
+      <key>desc</key>
+      <string>helper web CGI prefix to use</string>
+      <key>count</key>
+      <integer>1</integer>
+      <key>map-to</key>
+      <string>CmdLineHelperURI</string>
+    </map>
+
+    <key>ignorepixeldepth</key>
+    <map>
+      <key>desc</key>
+      <string>Ignore pixel depth settings.</string>
+      <key>map-to</key>
+      <string>IgnorePixelDepth</string>
+    </map>
+
+    <key>inbw</key>
+    <map>
+      <key>count</key>
+      <integer>1</integer>
+      <key>map-to</key>
+      <string>InBandwidth</string>
+    </map>
+
+    <key>leap</key>
+    <map>
+      <key>desc</key>
+      <string>command line to run an LLSD Event API Plugin</string>
+      <key>count</key>
+      <integer>1</integer>
+      <!-- you can specify multiple such plugins -->
+      <key>compose</key>
+      <boolean>true</boolean>
+      <key>map-to</key>
+      <string>LeapCommand</string>
+    </map>
+
+    <key>logfile</key>
+    <map>
+      <key>count</key>
+      <integer>1</integer>
+      <key>map-to</key>
+      <string>UserLogFile</string>
+    </map>
+    
+    <key>login</key>
+    <map>
+      <key>desc</key>
+      <string>3 tokens: first, last and password</string>
+      <key>count</key>
+      <integer>3</integer>
+      <key>map-to</key>
+      <string>UserLoginInfo</string>
+    </map>
+
+    <key>loginpage</key>
+    <map>
+      <key>desc</key>
+      <string>Login authentication page to use.</string>
+      <key>count</key>
+      <integer>1</integer>
+      <key>map-to</key>
+      <string>LoginPage</string>
     </map>
 
     <key>loginuri</key>
@@ -64,46 +196,14 @@
       <string>CmdLineLoginURI</string>
     </map>
 
-    <key>helperuri</key>
+    <key>logmetrics</key>
     <map>
       <key>desc</key>
-      <string>helper web CGI prefix to use</string>
+      <string>Log metrics for benchmarking</string>
       <key>count</key>
       <integer>1</integer>
       <key>map-to</key>
-      <string>CmdLineHelperURI</string>
-    </map>
-
-    <key>debugviews</key>
-    <map>
-      <key>map-to</key>
-      <string>DebugViews</string>
-    </map>
-
-    <key>skin</key>
-    <map>
-      <key>desc</key>
-      <string>ui/branding skin folder to use</string>
-      <key>count</key>
-      <integer>1</integer>
-      <key>map-to</key>
-      <string>SkinFolder</string>
-    </map>
-
-    <key>autologin</key>
-    <map>
-      <key>desc</key>
-      <string>log in as last saved user</string>
-      <key>map-to</key>
-      <string>AutoLogin</string>
-    </map>
-
-    <key>quitafter</key>
-    <map>
-      <key>count</key>
-      <integer>1</integer>
-      <key>map-to</key>
-      <string>QuitAfterSeconds</string>
+      <string>LogMetrics</string>
     </map>
 
     <key>logperformance</key>
@@ -114,38 +214,26 @@
       <string>LogPerformance</string>
     </map>
 
-    <key>logmetrics</key>
+    <key>multiple</key>		  
     <map>
       <key>desc</key>
-      <string>Log metrics for benchmarking</string>
-      <key>count</key>
-      <integer>1</integer>
+      <string>Allow multiple viewers.</string>
       <key>map-to</key>
-      <string>LogMetrics</string>
-    </map>
-    
-    <key>analyzeperformance</key>
-    <map>
-      <key>desc</key>
-      <string>When used in conjunction with logperformance, analyzes result of log against baseline.</string>
-      <key>map-to</key>
-      <string>AnalyzePerformance</string>
+      <string>AllowMultipleViewers</string>
     </map>
 
-    <key>debugsession</key>
+    <key>noaudio</key>
     <map>
-      <key>desc</key>
-      <string>Run as if RenderDebugGL is TRUE, but log errors until end of session.</string>
       <key>map-to</key>
-      <string>DebugSession</string>
+      <string>NoAudio</string>
     </map>
 
-    <key>replaysession</key>
+    <key>noinvlib</key>
     <map>
       <key>desc</key>
-      <string>After login, replay last recorded session and quit.</string>
+      <string>Do not request the inventory library.</string>
       <key>map-to</key>
-      <string>ReplaySession</string>
+      <string>NoInventoryLibrary</string>
     </map>
 
     <key>nonotifications</key>
@@ -156,22 +244,10 @@
       <string>IgnoreAllNotifications</string>      
     </map>    
 
-    <key>rotate</key>
+    <key>nopreload</key>
     <map>
       <key>map-to</key>
-      <string>RotateRight</string>
-    </map>
-
-    <key>noaudio</key>
-    <map>
-      <key>map-to</key>
-      <string>NoAudio</string>
-    </map>
-
-    <key>nosound</key>
-    <map>
-      <key>map-to</key>
-      <string>NoAudio</string>
+      <string>NoPreload</string>
     </map>
 
     <key>noprobe</key>
@@ -186,10 +262,40 @@
       <string>NoQuickTime</string>
     </map>
 
-    <key>nopreload</key>
+    <key>nosound</key>
     <map>
       <key>map-to</key>
-      <string>NoPreload</string>
+      <string>NoAudio</string>
+    </map>
+
+    <key>no-verify-ssl-cert</key>
+    <map>
+      <key>map-to</key>
+      <string>NoVerifySSLCert</string>
+    </map>
+
+    <key>novoice</key>
+    <map>
+      <key>desc</key>
+      <string>Disable voice.</string>
+      <key>map-to</key>
+      <string>CmdLineDisableVoice</string>
+    </map>
+
+    <key>outbw</key>
+    <map>
+      <key>count</key>
+      <integer>1</integer>
+      <key>map-to</key>
+      <string>OutBandwidth</string>
+    </map>
+
+    <key>port</key>
+    <map>
+      <key>count</key>
+      <integer>1</integer>
+      <key>map-to</key>
+      <string>UserConnectionPort</string>
     </map>
 
     <key>purge</key>
@@ -200,37 +306,50 @@
       <string>PurgeCacheOnNextStartup</string>
     </map>
 
-    <key>noinvlib</key>
+    <key>qa</key>
     <map>
       <key>desc</key>
-      <string>Do not request the inventory library.</string>
+      <string>Activated debugging menu in Advanced Settings.</string>
       <key>map-to</key>
-      <string>NoInventoryLibrary</string>
+      <string>QAMode</string>
     </map>
 
-    <key>logfile</key>
+    <key>quitafter</key>
     <map>
       <key>count</key>
       <integer>1</integer>
       <key>map-to</key>
-      <string>UserLogFile</string>
+      <string>QuitAfterSeconds</string>
     </map>
-
-    <key>graphicslevel</key>
+    
+    <key>replaysession</key>
     <map>
       <key>desc</key>
-      <string>Set the detail level. 
-0 - low, 1 - medium, 2 - high, 3 - ultra</string>
+      <string>After login, replay last recorded session and quit.</string>
+      <key>map-to</key>
+      <string>ReplaySession</string>
+    </map>
+
+    <key>rotate</key>
+    <map>
+      <key>map-to</key>
+      <string>RotateRight</string>
+    </map>
+
+    <key>safe</key>
+    <map>
+      <key>desc</key>
+      <string>Reset preferences, run in safe mode.</string>
+      <key>map-to</key>
+      <string>SafeMode</string>
+    </map>
+
+    <key>sessionsettings</key>
+    <map>
+      <key>desc</key>
+      <string>Specify the filename of a configuration file that contains temporary per-session configuration overrides.</string>
       <key>count</key>
       <integer>1</integer>
-    </map>
-
-    <key>setdefault</key>
-    <map>
-      <key>desc</key>
-      <string>specify the value of a particular configuration variable which can be overridden by settings.xml.</string>
-      <key>count</key>
-      <integer>2</integer>
       <!-- Special case. Mapped to settings procedurally. -->
     </map>
 
@@ -245,6 +364,15 @@
       <!-- Special case. Mapped to settings procedurally. -->
     </map>
 
+    <key>setdefault</key>
+    <map>
+      <key>desc</key>
+      <string>specify the value of a particular configuration variable which can be overridden by settings.xml.</string>
+      <key>count</key>
+      <integer>2</integer>
+      <!-- Special case. Mapped to settings procedurally. -->
+    </map>
+
     <key>settings</key>
     <map>
       <key>desc</key>
@@ -254,83 +382,14 @@
       <!-- Special case. Mapped to settings procedurally. -->
     </map>
 
-    <key>sessionsettings</key>
+    <key>skin</key>
     <map>
       <key>desc</key>
-      <string>Specify the filename of a configuration file that contains temporary per-session configuration overrides.</string>
-      <key>count</key>
-      <integer>1</integer>
-      <!-- Special case. Mapped to settings procedurally. -->
-    </map>
-
-    <key>usersessionsettings</key>
-    <map>
-      <key>desc</key>
-      <string>Specify the filename of a configuration file that contains temporary per-session configuration user overrides.</string>
-      <key>count</key>
-      <integer>1</integer>
-      <!-- Special case. Mapped to settings procedurally. -->
-    </map>
-    
-    <key>login</key>
-    <map>
-      <key>desc</key>
-      <string>3 tokens: first, last and password</string>
-      <key>count</key>
-      <integer>3</integer>
-      <key>map-to</key>
-      <string>UserLoginInfo</string>
-    </map>
-
-    <key>god</key>
-    <map>
-      <key>desc</key>
-      <string>Log in a god if you have god access.</string>
-      <key>map-to</key>
-      <string>ConnectAsGod</string>
-    </map>
-
-    <key>console</key>
-    <map>
+      <string>ui/branding skin folder to use</string>
       <key>count</key>
       <integer>1</integer>
       <key>map-to</key>
-      <string>ShowConsoleWindow</string>
-    </map>
-
-    <key>safe</key>
-    <map>
-      <key>desc</key>
-      <string>Reset preferences, run in safe mode.</string>
-      <key>map-to</key>
-      <string>SafeMode</string>
-    </map>
-
-    <key>multiple</key>		  
-    <map>
-      <key>desc</key>
-      <string>Allow multiple viewers.</string>
-      <key>map-to</key>
-      <string>AllowMultipleViewers</string>
-    </map>
-
-    <key>novoice</key>
-    <map>
-      <key>desc</key>
-      <string>Disable voice.</string>
-      <key>map-to</key>
-      <string>CmdLineDisableVoice</string>
-    </map>
-
-    <key>url</key>
-    <map>
-      <key>desc</key>
-      <string>Startup location</string>            
-      <key>count</key>
-      <integer>1</integer>
-      <key>last_option</key>
-      <boolean>true</boolean>
-      <!-- Special case. Not mapped to a setting. -->
+      <string>SkinFolder</string>
     </map>
 
     <key>slurl</key>
@@ -346,69 +405,24 @@
       <!-- Special case. Not mapped to a setting. -->
     </map>
 
-    <key>ignorepixeldepth</key>
+    <key>url</key>
     <map>
       <key>desc</key>
-      <string>Ignore pixel depth settings.</string>
-      <key>map-to</key>
-      <string>IgnorePixelDepth</string>
-    </map>
-
-    <key>cooperative</key>
-    <map>
-      <key>desc</key>
-      <string>Yield some idle time to local host.</string>
+      <string>Startup location</string>            
       <key>count</key>
       <integer>1</integer>
-      <key>map-to</key>
-      <string>YieldTime</string>
-    </map>
-
-    <key>no-verify-ssl-cert</key>
-    <map>
-      <key>map-to</key>
-      <string>NoVerifySSLCert</string>
-    </map>
-
-    <key>channel</key>
-    <map>
-      <key>count</key>
-      <integer>1</integer>
+      <key>last_option</key>
+      <boolean>true</boolean>
       <!-- Special case. Not mapped to a setting. -->
     </map>
 
-    <key>loginpage</key>
+    <key>usersessionsettings</key>
     <map>
       <key>desc</key>
-      <string>Login authentication page to use.</string>
+      <string>Specify the filename of a configuration file that contains temporary per-session configuration user overrides.</string>
       <key>count</key>
       <integer>1</integer>
-      <key>map-to</key>
-      <string>LoginPage</string>
-    </map>
-
-    <key>qa</key>
-    <map>
-      <key>desc</key>
-      <string>Activated debugging menu in Advanced Settings.</string>
-      <key>map-to</key>
-      <string>QAMode</string>
-    </map>
-
-    <key>crashonstartup</key>
-    <map>
-      <key>desc</key>
-      <string>Crashes on startup. For QA use.</string>
-      <key>map-to</key>
-      <string>CrashOnStartup</string>
-    </map>
-
-    <key>disablecrashlogger</key>
-    <map>
-      <key>desc</key>
-      <string>Disables the crash logger and lets the OS handle crashes</string>
-      <key>map-to</key>
-      <string>DisableCrashLogger</string>
+      <!-- Special case. Mapped to settings procedurally. -->
     </map>
   </map>
 </llsd>

@@ -265,7 +265,7 @@ public:
 	void setHighlightObject(LLDrawable* obj) { mHighlightObject = obj; }
 
 
-	void renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera& camera, LLCullResult& result, BOOL use_shader = TRUE, BOOL use_occlusion = TRUE);
+	void renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera& camera, LLCullResult& result, BOOL use_shader, BOOL use_occlusion, U32 target_width);
 	void renderHighlights();
 	void renderDebug();
 	void renderPhysicsDisplay();
@@ -853,6 +853,7 @@ public:
 	static BOOL CameraOffset;
 	static F32 CameraMaxCoF;
 	static F32 CameraDoFResScale;
+	static F32 RenderAutoHideSurfaceAreaLimit;
 };
 
 void render_bbox(const LLVector3 &min, const LLVector3 &max);

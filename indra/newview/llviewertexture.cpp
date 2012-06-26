@@ -410,11 +410,15 @@ void LLViewerTextureManager::cleanup()
 void LLViewerTexture::initClass()
 {
 	LLImageGL::sDefaultGLTexture = LLViewerFetchedTexture::sDefaultImagep->getGLTexture() ;
+<<<<<<< local
 	
 	if(gSavedSettings.getBOOL("TextureFetchDebuggerEnabled"))
 	{
 		sTexelPixelRatio = gSavedSettings.getF32("TexelPixelRatio");
 	}
+=======
+	sTexelPixelRatio = gSavedSettings.getF32("TexelPixelRatio");
+>>>>>>> other
 }
 
 // static
@@ -1315,6 +1319,7 @@ void LLViewerFetchedTexture::cleanup()
 	mCachedRawDiscardLevel = -1 ;
 	mCachedRawImageReady = FALSE ;
 	mSavedRawImage = NULL ;
+	mSavedRawDiscardLevel = -1;
 }
 
 //access the fast cache
@@ -2216,10 +2221,14 @@ bool LLViewerFetchedTexture::updateFetch()
 
 void LLViewerFetchedTexture::clearFetchedResults()
 {
+<<<<<<< local
 	if(mNeedsCreateTexture || mIsFetching)
 	{
 		return ;
 	}
+=======
+	llassert_always(!mNeedsCreateTexture && !mIsFetching);
+>>>>>>> other
 	
 	cleanup();
 	destroyGLTexture();
@@ -2234,13 +2243,24 @@ void LLViewerFetchedTexture::forceToDeleteRequest()
 {
 	if (mHasFetcher)
 	{
+<<<<<<< local
+=======
+		LLAppViewer::getTextureFetch()->deleteRequest(getID(), true);
+>>>>>>> other
 		mHasFetcher = FALSE;
 		mIsFetching = FALSE ;
+<<<<<<< local
+=======
+		resetTextureStats();
+>>>>>>> other
 	}
+<<<<<<< local
 		
 	resetTextureStats();
 
 	mDesiredDiscardLevel = getMaxDiscardLevel() + 1;
+=======
+>>>>>>> other
 }
 
 void LLViewerFetchedTexture::setIsMissingAsset()
@@ -3420,10 +3440,14 @@ LLViewerMediaTexture::LLViewerMediaTexture(const LLUUID& id, BOOL usemipmaps, LL
 	sMediaMap.insert(std::make_pair(id, this));
 
 	mGLTexturep = gl_image ;
+
 	if(mGLTexturep.isNull())
 	{
 		generateGLTexture() ;
 	}
+
+	mGLTexturep->setAllowCompression(false);
+
 	mGLTexturep->setNeedsAlphaAndPickMask(FALSE) ;
 
 	mIsPlaying = FALSE ;

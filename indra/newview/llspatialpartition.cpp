@@ -1186,6 +1186,7 @@ void LLSpatialGroup::clearOcclusionState(U32 state, S32 mode)
 //======================================
 
 LLSpatialGroup::LLSpatialGroup(OctreeNode* node, LLSpatialPartition* part) :
+	mObjectBoxSize(1.f),
 	mState(0),
 	mGeometryBytes(0),
 	mSurfaceArea(0.f),

@@ -127,7 +127,6 @@ kdu_subband kdu_resolution::access_subband(int ) { kdu_subband a; return a; }
 void kdu_resolution::get_dims(kdu_dims& ) { }
 int kdu_resolution::which() { return 0; }
 int kdu_resolution::get_valid_band_indices(int &) { return 1; }
-//kdu_decoder::kdu_decoder(kdu_subband , kdu_sample_allocator*, bool , float, int, kdu_thread_env*, kdu_thread_queue*) { }
 kdu_synthesis::kdu_synthesis(kdu_resolution, kdu_sample_allocator*, bool, float, kdu_thread_env*, kdu_thread_queue*) { }
 kdu_params::kdu_params(const char*, bool, bool, bool, bool, bool) { }
 kdu_params::~kdu_params() { }
