@@ -70,7 +70,7 @@
 
 #define SET_SHAPE_RENDER_FLAG(_flag,_type) _flag |= (1U << _type)
 
-#define CONTROL_NAME_RETRIEVE_NEIGHBOR       "RetrieveNeighboringRegion"
+#define CONTROL_NAME_RETRIEVE_NEIGHBOR       "PathfindingRetrieveNeighboringRegion"
 #define CONTROL_NAME_WALKABLE_OBJECTS        "PathfindingWalkable"
 #define CONTROL_NAME_STATIC_OBSTACLE_OBJECTS "PathfindingObstacle"
 #define CONTROL_NAME_MATERIAL_VOLUMES        "PathfindingMaterial"
@@ -80,8 +80,8 @@
 #define CONTROL_NAME_HEATMAP_MIN             "PathfindingHeatColorBase"
 #define CONTROL_NAME_HEATMAP_MAX             "PathfindingHeatColorMax"
 #define CONTROL_NAME_NAVMESH_FACE            "PathfindingFaceColor"
-#define CONTROL_NAME_TEST_PATH_VALID_END     "PathfindingStarValidColor"
-#define CONTROL_NAME_TEST_PATH_INVALID_END   "PathfindingStarInvalidColor"
+#define CONTROL_NAME_TEST_PATH_VALID_END     "PathfindingTestPathValidEndColor"
+#define CONTROL_NAME_TEST_PATH_INVALID_END   "PathfindingTestPathInvalidEndColor"
 #define CONTROL_NAME_TEST_PATH               "PathfindingTestPathColor"
 #define CONTROL_NAME_WATER					 "PathfindingWaterColor"
 

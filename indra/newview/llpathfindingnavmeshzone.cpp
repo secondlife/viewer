@@ -71,7 +71,7 @@ void LLPathfindingNavMeshZone::initialize()
 	NavMeshLocationPtr centerNavMeshPtr(new NavMeshLocation(CENTER_REGION, boost::bind(&LLPathfindingNavMeshZone::handleNavMeshLocation, this)));
 	mNavMeshLocationPtrs.push_back(centerNavMeshPtr);
 
-	U32 neighborRegionDir = gSavedSettings.getU32("RetrieveNeighboringRegion");
+	U32 neighborRegionDir = gSavedSettings.getU32("PathfindingRetrieveNeighboringRegion");
 	if (neighborRegionDir != CENTER_REGION)
 	{
 		NavMeshLocationPtr neighborNavMeshPtr(new NavMeshLocation(neighborRegionDir, boost::bind(&LLPathfindingNavMeshZone::handleNavMeshLocation, this)));
