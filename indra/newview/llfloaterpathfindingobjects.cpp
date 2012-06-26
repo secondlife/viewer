@@ -283,13 +283,14 @@ void LLFloaterPathfindingObjects::handleNewObjectList(LLPathfindingManager::requ
 
 void LLFloaterPathfindingObjects::handleUpdateObjectList(LLPathfindingManager::request_id_t pRequestId, LLPathfindingManager::ERequestStatus pRequestStatus, LLPathfindingObjectListPtr pObjectList)
 {
+	// We current assume that handleUpdateObjectList is called only when objects are being SET
 	llassert(pRequestId <= mMessagingRequestId);
 	if (pRequestId == mMessagingRequestId)
 	{
 		switch (pRequestStatus)
 		{
 		case LLPathfindingManager::kRequestStarted :
-			setMessagingState(kMessagingGetRequestSent);
+			setMessagingState(kMessagingSetRequestSent);
 			break;
 		case LLPathfindingManager::kRequestCompleted :
 			if (mObjectList == NULL)
