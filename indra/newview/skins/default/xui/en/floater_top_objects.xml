@@ -23,10 +23,6 @@
         Time
     </floater.string>
     <floater.string
-     name="scripts_mono_time_label">
-        Mono Time
-    </floater.string>
-    <floater.string
      name="top_colliders_title">
         Top Colliders
     </floater.string>
@@ -68,31 +64,35 @@
         <scroll_list.columns
          label="Score"
          name="score"
-         width="55" />
+         width="45" />
         <scroll_list.columns
          label="Name"
          name="name"
-         width="140" />
+         width="130" />
         <scroll_list.columns
          label="Owner"
          name="owner"
-         width="105" />
+         width="100" />
         <scroll_list.columns
          label="Location"
          name="location"
-         width="130" />
+         width="120" />
+        <scroll_list.columns
+         label="Parcel"
+         name="parcel"
+         width="120" />
         <scroll_list.columns
          label="Time"
          name="time"
-         width="150" />
-        <scroll_list.columns
-         label="Mono Time"
-         name="mono_time"
-         width="100" />
+         width="130" />
           <scroll_list.columns
           	label="URLs"
           	name="URLs"
-          	width="100" />
+         width="40" />
+        <scroll_list.columns
+         label="Memory (KB)"
+         name="memory"
+         width="40" />
 		<scroll_list.commit_callback
           function="TopObjects.CommitObjectsList" />
     </scroll_list>
