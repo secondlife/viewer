@@ -432,7 +432,7 @@ void LLDrawable::makeActive()
 		updatePartition();
 	}
 
-	llassert(isRoot() || mParent->isActive());
+	llassert(isAvatar() || isRoot() || mParent->isActive());
 }
 
 
