@@ -2583,7 +2583,7 @@ void LLAppearanceMgr::updateClothingOrderingInfo(LLUUID cat_id, bool update_base
 
 // Should be true iff both the appropriate debug setting is enabled
 // and the corresponding cap has been found.
-bool useServerTextureBaking()
+bool LLAppearanceMgr::useServerTextureBaking()
 {
 	// TODO: add cap check.
 	return gSavedSettings.getBOOL("UseServerTextureBaking");
