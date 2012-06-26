@@ -967,7 +967,7 @@
               function="Floater.ToggleOrBringToFront"
               parameter="pathfinding_console" />
           <menu_item_call.on_enable
-              function="Tools.EnablePathfinding" />
+              function="Tools.EnablePathfindingView" />
         </menu_item_call>
       </menu>
 

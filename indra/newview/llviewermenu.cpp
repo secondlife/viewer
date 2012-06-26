@@ -4886,6 +4886,14 @@ class LLToolsEnablePathfinding : public view_listener_t
 	}
 };
 
+class LLToolsEnablePathfindingView : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		return (LLPathfindingManager::getInstance() != NULL) && LLPathfindingManager::getInstance()->isPathfindingEnabledForCurrentRegion() && LLPathfindingManager::getInstance()->isPathfindingViewEnabled();
+	}
+};
+
 // Round the position of all root objects to the grid
 class LLToolsSnapObjectXY : public view_listener_t
 {
@@ -8281,6 +8289,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLToolsEnableSaveToObjectInventory(), "Tools.EnableSaveToObjectInventory");
 
 	view_listener_t::addMenu(new LLToolsEnablePathfinding(), "Tools.EnablePathfinding");
+	view_listener_t::addMenu(new LLToolsEnablePathfindingView(), "Tools.EnablePathfindingView");
 
 	// Help menu
 	// most items use the ShowFloater method
