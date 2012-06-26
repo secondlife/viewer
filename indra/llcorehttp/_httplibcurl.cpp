@@ -57,11 +57,11 @@ void HttpLibcurl::shutdown()
 {
 	while (! mActiveOps.empty())
 	{
-		active_set_t::iterator item(mActiveOps.begin());
+		HttpOpRequest * op(* mActiveOps.begin());
+		mActiveOps.erase(mActiveOps.begin());
 
-		cancelRequest(*item);
-		(*item)->release();
-		mActiveOps.erase(item);
+		cancelRequest(op);
+		op->release();
 	}
 
 	if (mMultiHandles)

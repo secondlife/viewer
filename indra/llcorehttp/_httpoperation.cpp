@@ -235,8 +235,9 @@ void HttpOpSpin::stageFromRequest(HttpService * service)
 	}
 	else
 	{
+		ms_sleep(1);			// backoff interlock plumbing a bit
 		this->addRef();
-		if (! HttpRequestQueue::instanceOf()->addOp(this))
+		if (! service->getRequestQueue().addOp(this))
 		{
 			this->release();
 		}

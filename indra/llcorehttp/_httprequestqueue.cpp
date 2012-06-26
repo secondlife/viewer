@@ -104,7 +104,7 @@ HttpOperation * HttpRequestQueue::fetchOp(bool wait)
 
 		while (mQueue.empty())
 		{
-			if (! wait)
+			if (! wait || mQueueStopped)
 				return NULL;
 			mQueueCV.wait(lock);
 		}
@@ -129,7 +129,7 @@ void HttpRequestQueue::fetchAll(bool wait, OpContainer & ops)
 
 		while (mQueue.empty())
 		{
-			if (! wait)
+			if (! wait || mQueueStopped)
 				return;
 			mQueueCV.wait(lock);
 		}
@@ -142,12 +142,19 @@ void HttpRequestQueue::fetchAll(bool wait, OpContainer & ops)
 }
 
 
+void HttpRequestQueue::wakeAll()
+{
+	mQueueCV.notify_all();
+}
+
+
 void HttpRequestQueue::stopQueue()
 {
 	{
 		HttpScopedLock lock(mQueueMutex);
 
 		mQueueStopped = true;
+		wakeAll();
 	}
 }
 

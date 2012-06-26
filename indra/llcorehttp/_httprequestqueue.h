@@ -76,7 +76,7 @@ public:
 	/// Insert an object at the back of the request queue.
 	///
 	/// Caller must provide one refcount to the queue which takes
-	/// possession of the count.
+	/// possession of the count on success.
 	///
 	/// @return			Standard status.  On failure, caller
 	///					must dispose of the operation with
@@ -85,17 +85,41 @@ public:
 	/// Threading:  callable by any thread.
 	HttpStatus addOp(HttpOperation * op);
 
-	/// Caller acquires reference count on returned operation
+	/// Return the operation on the front of the queue.  If
+	/// the queue is empty and @wait is false, call returns
+	/// immediately and a NULL pointer is returned.  If true,
+	/// caller will sleep until explicitly woken.  Wakeups
+	/// can be spurious and callers must expect NULL pointers
+	/// even if waiting is indicated.
+	///
+	/// Caller acquires reference count any returned operation
 	///
 	/// Threading:  callable by any thread.
 	HttpOperation * fetchOp(bool wait);
 
+	/// Return all queued requests to caller.  The @ops argument
+	/// should be empty when called and will be swap()'d with
+	/// current contents.  Handling of the @wait argument is
+	/// identical to @fetchOp.
+	///
 	/// Caller acquires reference count on each returned operation
 	///
 	/// Threading:  callable by any thread.
 	void fetchAll(bool wait, OpContainer & ops);
 
-	/// Disallow further request queuing
+	/// Wake any sleeping threads.  Normal queuing operations
+	/// won't require this but it may be necessary for termination
+	/// requests.
+	///
+	/// Threading:  callable by any thread.
+	void wakeAll();
+
+	/// Disallow further request queuing.  Callers to @addOp will
+	/// get a failure status (LLCORE, HE_SHUTTING_DOWN).  Callers
+	/// to @fetchAll or @fetchOp will get requests that are on the
+	/// queue but the calls will no longer wait.  Instead they'll
+	/// return immediately.  Also wakes up all sleepers to send
+	/// them on their way.
 	///
 	/// Threading:  callable by any thread.
 	void stopQueue();

@@ -90,20 +90,20 @@ void HttpPolicy::shutdown()
 		while (! retryq.empty())
 		{
 			HttpOpRequest * op(retryq.top());
+			retryq.pop();
 		
 			op->cancel();
 			op->release();
-			retryq.pop();
 		}
 
 		HttpReadyQueue & readyq(mState[policy_class].mReadyQueue);
 		while (! readyq.empty())
 		{
 			HttpOpRequest * op(readyq.top());
+			readyq.pop();
 		
 			op->cancel();
 			op->release();
-			readyq.pop();
 		}
 	}
 	delete [] mState;
@@ -218,7 +218,7 @@ HttpService::ELoopSpeed HttpPolicy::processReadyQueue()
 		if (! readyq.empty() || ! retryq.empty())
 		{
 			// If anything is ready, continue looping...
-			result = (std::min)(result, HttpService::NORMAL);
+			result = HttpService::NORMAL;
 		}
 	} // end foreach policy_class
 

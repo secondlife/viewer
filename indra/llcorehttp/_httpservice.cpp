@@ -48,7 +48,7 @@ volatile HttpService::EState HttpService::sState(NOT_INITIALIZED);
 
 HttpService::HttpService()
 	: mRequestQueue(NULL),
-	  mExitRequested(false),
+	  mExitRequested(0U),
 	  mThread(NULL),
 	  mPolicy(NULL),
 	  mTransport(NULL)
@@ -64,18 +64,23 @@ HttpService::HttpService()
 
 HttpService::~HttpService()
 {
-	mExitRequested = true;
+	mExitRequested = 1U;
 	if (RUNNING == sState)
 	{
 		// Trying to kill the service object with a running thread
 		// is a bit tricky.
+		if (mRequestQueue)
+		{
+			mRequestQueue->stopQueue();
+		}
+		
 		if (mThread)
 		{
-			mThread->cancel();
-			
-			if (! mThread->timedJoin(2000))
+			if (! mThread->timedJoin(250))
 			{
-				// Failed to join, expect problems ahead...
+				// Failed to join, expect problems ahead so do a hard termination.
+				mThread->cancel();
+
 				LL_WARNS("CoreHttp") << "Destroying HttpService with running thread.  Expect problems."
 									 << LL_ENDL;
 			}
@@ -120,18 +125,19 @@ void HttpService::term()
 {
 	if (sInstance)
 	{
-		if (RUNNING == sState)
+		if (RUNNING == sState && sInstance->mThread)
 		{
 			// Unclean termination.  Thread appears to be running.  We'll
 			// try to give the worker thread a chance to cancel using the
 			// exit flag...
-			sInstance->mExitRequested = true;
-
+			sInstance->mExitRequested = 1U;
+			sInstance->mRequestQueue->stopQueue();
+			
 			// And a little sleep
-			ms_sleep(1000);
-
-			// Dtor will make some additional efforts and issue any final
-			// warnings...
+			for (int i(0); i < 10 && RUNNING == sState; ++i)
+			{
+				ms_sleep(100);
+			}
 		}
 
 		delete sInstance;
@@ -170,6 +176,7 @@ bool HttpService::isStopped()
 }
 
 
+/// Threading:  callable by consumer thread *once*.
 void HttpService::startThread()
 {
 	llassert_always(! mThread || STOPPED == sState);
@@ -183,19 +190,20 @@ void HttpService::startThread()
 	// Push current policy definitions, enable policy & transport components
 	mPolicy->start(mPolicyGlobal, mPolicyClasses);
 	mTransport->start(mPolicyClasses.size());
-	
+
 	mThread = new LLCoreInt::HttpThread(boost::bind(&HttpService::threadRun, this, _1));
-	mThread->addRef();		// Need an explicit reference, implicit one is used internally
 	sState = RUNNING;
 }
 
 
+/// Threading:  callable by worker thread.
 void HttpService::stopRequested()
 {
-	mExitRequested = true;
+	mExitRequested = 1U;
 }
 
 
+/// Threading:  callable by worker thread.
 bool HttpService::changePriority(HttpHandle handle, HttpRequest::priority_t priority)
 {
 	bool found(false);
@@ -211,12 +219,13 @@ bool HttpService::changePriority(HttpHandle handle, HttpRequest::priority_t prio
 }
 
 
+/// Threading:  callable by worker thread.
 void HttpService::shutdown()
 {
 	// Disallow future enqueue of requests
 	mRequestQueue->stopQueue();
 
-	// Cancel requests alread on the request queue
+	// Cancel requests already on the request queue
 	HttpRequestQueue::OpContainer ops;
 	mRequestQueue->fetchAll(false, ops);
 	while (! ops.empty())

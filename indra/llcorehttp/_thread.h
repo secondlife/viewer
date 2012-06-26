@@ -52,12 +52,10 @@ private:
 		}
 
 	void run()
-		{ // THREAD CONTEXT 
+		{ // THREAD CONTEXT
 
-			// The implicit reference to this object is taken for the at_exit
-			// function so that the HttpThread instance doesn't disappear out
-			// from underneath it.  Other holders of the object may want to
-			// take a reference as well.
+			// Take out additional reference for the at_exit handler
+			addRef();
 			boost::this_thread::at_thread_exit(boost::bind(&HttpThread::at_exit, this));
 
 			// run the thread function
@@ -65,13 +63,17 @@ private:
 
 		} // THREAD CONTEXT
 
+protected:
+	virtual ~HttpThread()
+		{
+			delete mThread;
+		}
+
 public:
 	/// Constructs a thread object for concurrent execution but does
-	/// not start running.  Unlike other classes that mixin RefCounted,
-	/// this does take out a reference but it is used internally for
-	/// final cleanup during at_exit processing.  Callers needing to
-	/// keep a reference must increment it themselves.
-	///
+	/// not start running.  Caller receives on refcount on the thread
+	/// instance.  If the thread is started, another will be taken
+	/// out for the exit handler.
 	explicit HttpThread(boost::function<void (HttpThread *)> threadFunc)
 		: RefCounted(true), // implicit reference
 		  mThreadFunc(threadFunc)
@@ -81,11 +83,6 @@ public:
 			boost::function<void()> f = boost::bind(&HttpThread::run, this);
 
 			mThread = new boost::thread(f);
-		}
-
-	virtual ~HttpThread()
-		{
-			delete mThread;
 		}
 
 	inline void join()

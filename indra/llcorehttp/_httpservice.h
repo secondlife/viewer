@@ -30,6 +30,8 @@
 
 #include <vector>
 
+#include "linden_common.h"
+#include "llapr.h"
 #include "httpcommon.h"
 #include "httprequest.h"
 #include "_httppolicyglobal.h"
@@ -164,6 +166,12 @@ public:
 			return *mTransport;
 		}
 
+	/// Threading:  callable by worker thread.
+	HttpRequestQueue & getRequestQueue()
+		{
+			return *mRequestQueue;
+		}
+
 	/// Threading:  callable by consumer thread.
 	HttpPolicyGlobal & getGlobalOptions()
 		{
@@ -191,7 +199,7 @@ protected:
 	// === shared data ===
 	static volatile EState				sState;
 	HttpRequestQueue *					mRequestQueue;
-	volatile bool						mExitRequested;
+	LLAtomicU32							mExitRequested;
 	LLCoreInt::HttpThread *				mThread;
 	
 	// === consumer-thread-only data ===
