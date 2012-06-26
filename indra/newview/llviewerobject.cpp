@@ -100,7 +100,6 @@
 #include "lltrans.h"
 #include "llsdutil.h"
 #include "llmediaentry.h"
-#include "llpathfindingmanager.h"
 
 //#define DEBUG_UPDATE_TYPE
 
