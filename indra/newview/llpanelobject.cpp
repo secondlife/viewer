@@ -66,8 +66,6 @@
 #include "llviewercontrol.h"
 #include "lluictrlfactory.h"
 //#include "llfirstuse.h"
-#include "llfloatertools.h"
-#include "llpathfindingmanager.h"
 
 #include "lldrawpool.h"
 
