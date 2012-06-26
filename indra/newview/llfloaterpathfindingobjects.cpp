@@ -57,9 +57,10 @@
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
-#include "v4color.h"
 #include "pipeline.h"
-#include "llfloaterreg.h"
+#include "v3dmath.h"
+#include "v3math.h"
+#include "v4color.h"
 
 #define DEFAULT_BEACON_WIDTH 6
 
@@ -488,14 +489,20 @@ void LLFloaterPathfindingObjects::teleportToSelectedObject()
 		std::vector<LLScrollListItem*>::const_reference selectedItemRef = selectedItems.front();
 		const LLScrollListItem *selectedItem = selectedItemRef;
 		llassert(mObjectList != NULL);
-		const LLPathfindingObjectPtr objectPtr = mObjectList->find(selectedItem->getUUID().asString());
-		const LLVector3 &objectLocation = objectPtr->getLocation();
-
-		LLViewerRegion* region = gAgent.getRegion();
-		if (region != NULL)
+		LLVector3d teleportLocation;
+		LLViewerObject *viewerObject = gObjectList.findObject(selectedItem->getUUID());
+		if (viewerObject == NULL)
 		{
-			gAgent.teleportRequest(region->getHandle(), objectLocation, true);
+			// If we cannot find the object in the viewer list, teleport to the last reported position
+			const LLPathfindingObjectPtr objectPtr = mObjectList->find(selectedItem->getUUID().asString());
+			teleportLocation = gAgent.getPosGlobalFromAgent(objectPtr->getLocation());
 		}
+		else
+		{
+			// If we can find the object in the viewer list, teleport to the known current position
+			teleportLocation = viewerObject->getPositionGlobal();
+		}
+		gAgent.teleportViaLocationLookAt(teleportLocation);
 	}
 }
 
