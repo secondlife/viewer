@@ -7869,5 +7869,31 @@ Disabling future updates for this file.
 Attempted to add an invalid or unreadable image file [FNAME] which could not be opened or decoded.
 Attempt cancelled.
   </notification>
-  
+
+  <notification
+   icon="alertmodal.tga"
+   name="PathfindingReturnMultipleItems"
+   type="alertmodal">
+    You are returning [NUM_ITEMS] items.  Are you sure you want to continue?
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Are you sure you want to return multiple items?"
+     name="okcancelignore"
+     notext="No"
+     yestext="Yes"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="PathfindingDeleteMultipleItems"
+   type="alertmodal">
+    You are deleting [NUM_ITEMS] items.  Are you sure you want to continue?
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Are you sure you want to delete multiple items?"
+     name="okcancelignore"
+     notext="No"
+     yestext="Yes"/>
+  </notification>
+
 </notifications>

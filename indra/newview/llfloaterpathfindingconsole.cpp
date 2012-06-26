@@ -285,7 +285,7 @@ LLHandle<LLFloaterPathfindingConsole> LLFloaterPathfindingConsole::getInstanceHa
 {
 	if (sInstanceHandle.isDead())
 	{
-		LLFloaterPathfindingConsole *floaterInstance = LLFloaterReg::getTypedInstance<LLFloaterPathfindingConsole>("pathfinding_console");
+		LLFloaterPathfindingConsole *floaterInstance = LLFloaterReg::findTypedInstance<LLFloaterPathfindingConsole>("pathfinding_console");
 		if (floaterInstance != NULL)
 		{
 			sInstanceHandle = floaterInstance->mSelfHandle;

@@ -311,6 +311,11 @@ void LLPathfindingManager::quitSystem()
 	}
 }
 
+bool LLPathfindingManager::isPathfindingViewEnabled() const
+{
+	return (LLPathingLib::getInstance() != NULL);
+}
+
 bool LLPathfindingManager::isPathfindingEnabledForCurrentRegion() const
 {
 	return isPathfindingEnabledForRegion(getCurrentRegion());

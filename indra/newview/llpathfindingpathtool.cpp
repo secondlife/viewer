@@ -70,14 +70,9 @@ BOOL LLPathfindingPathTool::handleMouseDown(S32 pX, S32 pY, MASK pMask)
 	{
 		if (isAnyPathToolModKeys(pMask))
 		{
-			if (isPointAModKeys(pMask))
-			{
-				gViewerWindow->setCursor(UI_CURSOR_TOOLPATHFINDING_PATH_START);
-			}
-			else if (isPointBModKeys(pMask))
-			{
-				gViewerWindow->setCursor(UI_CURSOR_TOOLPATHFINDING_PATH_END);
-			}
+			gViewerWindow->setCursor(isPointAModKeys(pMask)
+				? UI_CURSOR_TOOLPATHFINDING_PATH_START_ADD
+				: UI_CURSOR_TOOLPATHFINDING_PATH_END_ADD);
 			computeFinalPoints(pX, pY, pMask);
 			mIsLeftMouseButtonHeld = true;
 			setMouseCapture(TRUE);
@@ -167,14 +162,9 @@ BOOL LLPathfindingPathTool::handleHover(S32 pX, S32 pY, MASK pMask)
 
 	if (!mIsMiddleMouseButtonHeld && !mIsRightMouseButtonHeld && isAnyPathToolModKeys(pMask))
 	{
-		if (isPointAModKeys(pMask))
-		{
-			gViewerWindow->setCursor(UI_CURSOR_TOOLPATHFINDING_PATH_START);
-		}
-		else if (isPointBModKeys(pMask))
-		{
-			gViewerWindow->setCursor(UI_CURSOR_TOOLPATHFINDING_PATH_END);
-		}
+		gViewerWindow->setCursor(isPointAModKeys(pMask)
+			? (mIsLeftMouseButtonHeld ? UI_CURSOR_TOOLPATHFINDING_PATH_START_ADD : UI_CURSOR_TOOLPATHFINDING_PATH_START)
+			: (mIsLeftMouseButtonHeld ? UI_CURSOR_TOOLPATHFINDING_PATH_END_ADD : UI_CURSOR_TOOLPATHFINDING_PATH_END));
 		computeTempPoints(pX, pY, pMask);
 		returnVal = TRUE;
 	}

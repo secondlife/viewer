@@ -41,6 +41,8 @@
 #include "llcheckboxctrl.h"
 #include "llenvmanager.h"
 #include "llfloater.h"
+#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llpathfindingmanager.h"
 #include "llresmgr.h"
 #include "llscrolllistctrl.h"
@@ -281,13 +283,14 @@ void LLFloaterPathfindingObjects::handleNewObjectList(LLPathfindingManager::requ
 
 void LLFloaterPathfindingObjects::handleUpdateObjectList(LLPathfindingManager::request_id_t pRequestId, LLPathfindingManager::ERequestStatus pRequestStatus, LLPathfindingObjectListPtr pObjectList)
 {
+	// We current assume that handleUpdateObjectList is called only when objects are being SET
 	llassert(pRequestId <= mMessagingRequestId);
 	if (pRequestId == mMessagingRequestId)
 	{
 		switch (pRequestStatus)
 		{
 		case LLPathfindingManager::kRequestStarted :
-			setMessagingState(kMessagingGetRequestSent);
+			setMessagingState(kMessagingSetRequestSent);
 			break;
 		case LLPathfindingManager::kRequestCompleted :
 			if (mObjectList == NULL)
@@ -581,14 +584,42 @@ void LLFloaterPathfindingObjects::onTakeCopyClicked()
 
 void LLFloaterPathfindingObjects::onReturnClicked()
 {
-	handle_object_return();
-	requestGetObjects();
+	LLNotification::Params params("PathfindingReturnMultipleItems");
+	params.functor.function(boost::bind(&LLFloaterPathfindingObjects::handleReturnItemsResponse, this, _1, _2));
+
+	LLSD substitutions;
+	int numItems = getNumSelectedObjects();
+	substitutions["NUM_ITEMS"] = static_cast<LLSD::Integer>(numItems);
+	params.substitutions = substitutions;
+
+	if (numItems == 1)
+	{
+		LLNotifications::getInstance()->forceResponse(params, 0);
+	}
+	else if (numItems > 1)
+	{
+		LLNotifications::getInstance()->add(params);
+	}
 }
 
 void LLFloaterPathfindingObjects::onDeleteClicked()
 {
-	handle_object_delete();
-	requestGetObjects();
+	LLNotification::Params params("PathfindingDeleteMultipleItems");
+	params.functor.function(boost::bind(&LLFloaterPathfindingObjects::handleDeleteItemsResponse, this, _1, _2));
+
+	LLSD substitutions;
+	int numItems = getNumSelectedObjects();
+	substitutions["NUM_ITEMS"] = static_cast<LLSD::Integer>(numItems);
+	params.substitutions = substitutions;
+
+	if (numItems == 1)
+	{
+		LLNotifications::getInstance()->forceResponse(params, 0);
+	}
+	else if (numItems > 1)
+	{
+		LLNotifications::getInstance()->add(params);
+	}
 }
 
 void LLFloaterPathfindingObjects::onTeleportClicked()
@@ -765,6 +796,24 @@ void LLFloaterPathfindingObjects::selectScrollListItemsInWorld()
 		{
 			mObjectsSelection = LLSelectMgr::getInstance()->selectObjectAndFamily(viewerObjects);
 		}
+	}
+}
+
+void LLFloaterPathfindingObjects::handleReturnItemsResponse(const LLSD &pNotification, const LLSD &pResponse)
+{
+	if (LLNotificationsUtil::getSelectedOption(pNotification, pResponse) == 0)
+	{
+		handle_object_return();
+		requestGetObjects();
+	}
+}
+
+void LLFloaterPathfindingObjects::handleDeleteItemsResponse(const LLSD &pNotification, const LLSD &pResponse)
+{
+	if (LLNotificationsUtil::getSelectedOption(pNotification, pResponse) == 0)
+	{
+		handle_object_delete();
+		requestGetObjects();
 	}
 }
 

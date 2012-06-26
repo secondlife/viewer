@@ -67,6 +67,7 @@ public:
 	void initSystem();
 	void quitSystem();
 
+	bool isPathfindingViewEnabled() const;
 	bool isPathfindingEnabledForCurrentRegion() const;
 	bool isPathfindingEnabledForRegion(LLViewerRegion *pRegion) const;
 
