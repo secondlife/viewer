@@ -57,12 +57,12 @@ LLChatEntry::~LLChatEntry()
 
 void LLChatEntry::draw()
 {
-	LLTextEditor::draw();
-
 	if(mIsExpandable)
 	{
 		expandText();
 	}
+
+	LLTextEditor::draw();
 }
 
 void LLChatEntry::onCommit()
