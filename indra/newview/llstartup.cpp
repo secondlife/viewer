@@ -2828,16 +2828,14 @@ void LLStartUp::setStartSLURL(const LLSLURL& slurl)
   switch(slurl.getType())
     {
     case LLSLURL::HOME_LOCATION:
-		gSavedSettings.setString("LoginLocation", LLSLURL::SIM_LOCATION_HOME);
-		break;
     case LLSLURL::LAST_LOCATION:
-		gSavedSettings.setString("LoginLocation", LLSLURL::SIM_LOCATION_LAST);
+    case LLSLURL::LOCATION:
+		gSavedSettings.setString("LoginLocation", LLSLURL::SIM_LOCATION_HOME);
+		LLPanelLogin::onUpdateStartSLURL(slurl); // updates grid if needed
 		break;
     default:
 		break;
     }
-
-  LLPanelLogin::onUpdateStartSLURL(slurl); // updates grid if needed
 }
 
 /**
