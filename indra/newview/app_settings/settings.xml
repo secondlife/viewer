@@ -71,6 +71,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>AgentAppearanceServiceURL</key>
+    <map>
+      <key>Comment</key>
+      <string>Current Session Agent Appearance Service URL</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string></string>
+    </map>
     <key>AlertedUnsupportedHardware</key>
     <map>
       <key>Comment</key>

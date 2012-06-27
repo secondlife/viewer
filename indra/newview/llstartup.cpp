@@ -3442,6 +3442,14 @@ bool process_login_success_response()
 
 	}
 
+	// set the location of the Agent Appearance service, from which we can request
+	// avatar baked textures if they are supported by the current region
+	std::string agent_appearance_url = response["agent_appearance_service"];
+	if (!agent_appearance_url.empty())
+	{
+		gSavedSettings.setString("AgentAppearanceServiceURL", agent_appearance_url);
+	}
+
 	// Set the location of the snapshot sharing config endpoint
 	std::string snapshot_config_url = response["snapshot_config_url"];
 	if(!snapshot_config_url.empty())
