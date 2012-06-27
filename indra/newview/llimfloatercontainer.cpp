@@ -146,7 +146,7 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 	LLUUID session_id = floaterp->getKey();
 
 	// Add a conversation list item in the left pane
-	addConversationListItem(floaterp->getTitle(), session_id, floaterp, this);
+	addConversationListItem(floaterp->getTitle(), session_id, floaterp);
 	
 	LLView* floater_contents = floaterp->getChild<LLView>("contents_view");
 
@@ -408,18 +408,33 @@ void LLIMFloaterContainer::onAvatarPicked(const uuid_vec_t& ids)
 }
 
 // CHUI-137 : Temporary implementation of conversations list
-void LLIMFloaterContainer::addConversationListItem(std::string name, const LLUUID& uuid, LLFloater* floaterp, LLIMFloaterContainer* containerp)
+void LLIMFloaterContainer::addConversationListItem(std::string name, const LLUUID& uuid, LLFloater* floaterp)
 {
-	// Check if the item is not already in the list, exit if it is (nothing to do)
+	// Check if the item is not already in the list, exit if it is and has the same name and points to the same floater (nothing to do)
 	// Note: this happens often, when reattaching a torn off conversation for instance
 	conversations_items_map::iterator item_it = mConversationsItems.find(uuid);
 	if (item_it != mConversationsItems.end())
 	{
-		return;
+		LLConversationItem* item = item_it->second;
+		// Check if the item has changed
+		if (item->hasSameValues(name,floaterp))
+		{
+			// If it hasn't, nothing to do -> exit
+			return;
+		}
+		// If it has, remove it: it'll be recreated anew further down
+		removeConversationListItem(uuid,false);
+	}
+	
+	// Reverse find and clean up: we need to make sure that no other uuid is pointing to that same floater
+	LLUUID found_id = LLUUID::null;
+	if (findConversationItem(floaterp,found_id))
+	{
+		removeConversationListItem(found_id,false);
 	}
 
 	// Create a conversation item
-	LLConversationItem* item = new LLConversationItem(name, uuid, floaterp, containerp);
+	LLConversationItem* item = new LLConversationItem(name, uuid, floaterp, this);
 	mConversationsItems[uuid] = item;
 
 	// Create a widget from it
@@ -439,7 +454,7 @@ void LLIMFloaterContainer::addConversationListItem(std::string name, const LLUUI
 	return;
 }
 
-void LLIMFloaterContainer::removeConversationListItem(const LLUUID& session_id)
+void LLIMFloaterContainer::removeConversationListItem(const LLUUID& session_id, bool change_focus)
 {
 	// Delete the widget and the associated conversation item
 	// Note : since the mConversationsItems is also the listener to the widget, deleting 
@@ -469,14 +484,33 @@ void LLIMFloaterContainer::removeConversationListItem(const LLUUID& session_id)
 	}
 	
 	// Don't let the focus fall IW, select and refocus on the first conversation in the list
-	setFocus(TRUE);
-	conversations_items_map::iterator item_it = mConversationsItems.begin();
-	if (item_it != mConversationsItems.end())
+	if (change_focus)
 	{
-		LLConversationItem* item = item_it->second;
-		item->selectItem();
+		setFocus(TRUE);
+		conversations_items_map::iterator item_it = mConversationsItems.begin();
+		if (item_it != mConversationsItems.end())
+		{
+			LLConversationItem* item = item_it->second;
+			item->selectItem();
+		}
 	}
 	return;
+}
+
+bool LLIMFloaterContainer::findConversationItem(LLFloater* floaterp, LLUUID& uuid)
+{
+	bool found = false;
+	for (conversations_items_map::iterator item_it = mConversationsItems.begin(); item_it != mConversationsItems.end(); ++item_it)
+	{
+		LLConversationItem* item = item_it->second;
+		uuid = item_it->first;
+		if (item->hasSameValue(floaterp))
+		{
+			found = true;
+			break;
+		}
+	}
+	return found;
 }
 
 LLFolderViewItem* LLIMFloaterContainer::createConversationItemWidget(LLConversationItem* item)

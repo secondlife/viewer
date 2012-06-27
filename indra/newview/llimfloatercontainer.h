@@ -112,6 +112,9 @@ public:
 							EDragAndDropType cargo_type,
 							void* cargo_data,
 							std::string& tooltip_msg) { return FALSE; }
+	
+	bool hasSameValues(std::string name, LLFloater* floaterp) { return ((name == mName) && (floaterp == mFloater)); }
+	bool hasSameValue(LLFloater* floaterp) { return (floaterp == mFloater); }
 private:
 	std::string mName;
 	const LLUUID mUUID;
@@ -183,9 +186,10 @@ private:
 	
 	// CHUI-137 : Temporary implementation of conversations list
 public:
-	void removeConversationListItem(const LLUUID& session_id);
+	void removeConversationListItem(const LLUUID& session_id, bool change_focus = true);
+	void addConversationListItem(std::string name, const LLUUID& uuid, LLFloater* floaterp);
+	bool findConversationItem(LLFloater* floaterp, LLUUID& uuid);
 private:
-	void addConversationListItem(std::string name, const LLUUID& uuid, LLFloater* floaterp, LLIMFloaterContainer* containerp);
 	LLFolderViewItem* createConversationItemWidget(LLConversationItem* item);
 	// Conversation list data
 	LLPanel* mConversationsListPanel;	// This is the widget we add items to (i.e. clickable title for each conversation)

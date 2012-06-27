@@ -540,8 +540,10 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 		}
 	}
 
+	// Test the existence of the floater before we try to create it
 	bool exist = findInstance(session_id);
 
+	// Get the floater: this will create the instance if it didn't exist
 	LLIMFloater* floater = getInstance(session_id);
 	if (!floater)
 		return NULL;
@@ -550,18 +552,21 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 	{
 		LLIMFloaterContainer* floater_container = LLIMFloaterContainer::getInstance();
 
-		// do not add existed floaters to avoid adding torn off instances
+		// Do not add again existing floaters
 		if (!exist)
 		{
 			//		LLTabContainer::eInsertionPoint i_pt = user_initiated ? LLTabContainer::RIGHT_OF_CURRENT : LLTabContainer::END;
 			// TODO: mantipov: use LLTabContainer::RIGHT_OF_CURRENT if it exists
 			LLTabContainer::eInsertionPoint i_pt = LLTabContainer::END;
-			
 			if (floater_container)
 			{
 				floater_container->addFloater(floater, TRUE, i_pt);
 			}
 		}
+		
+		// Add a conversation list item in the left pane: nothing will be done if already in there
+		// but relevant clean up will be done to ensure consistency of the conversation list
+		floater_container->addConversationListItem(floater->getTitle(), session_id, floater);
 
 		floater->openFloater(floater->getKey());
 	}
