@@ -111,10 +111,7 @@ public:
 	void doPrefetchImages();
 
 	void clearFetchingRequests();
-<<<<<<< local
 	void setDebugFetching(LLViewerFetchedTexture* tex, S32 debug_level);
-=======
->>>>>>> other
 
 	static S32 getMinVideoRamSetting();
 	static S32 getMaxVideoRamSetting(bool get_recommended = false);

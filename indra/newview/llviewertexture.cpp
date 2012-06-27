@@ -410,15 +410,11 @@ void LLViewerTextureManager::cleanup()
 void LLViewerTexture::initClass()
 {
 	LLImageGL::sDefaultGLTexture = LLViewerFetchedTexture::sDefaultImagep->getGLTexture() ;
-<<<<<<< local
 	
 	if(gSavedSettings.getBOOL("TextureFetchDebuggerEnabled"))
 	{
 		sTexelPixelRatio = gSavedSettings.getF32("TexelPixelRatio");
 	}
-=======
-	sTexelPixelRatio = gSavedSettings.getF32("TexelPixelRatio");
->>>>>>> other
 }
 
 // static
@@ -2221,14 +2217,10 @@ bool LLViewerFetchedTexture::updateFetch()
 
 void LLViewerFetchedTexture::clearFetchedResults()
 {
-<<<<<<< local
 	if(mNeedsCreateTexture || mIsFetching)
 	{
 		return ;
 	}
-=======
-	llassert_always(!mNeedsCreateTexture && !mIsFetching);
->>>>>>> other
 	
 	cleanup();
 	destroyGLTexture();
@@ -2243,24 +2235,13 @@ void LLViewerFetchedTexture::forceToDeleteRequest()
 {
 	if (mHasFetcher)
 	{
-<<<<<<< local
-=======
-		LLAppViewer::getTextureFetch()->deleteRequest(getID(), true);
->>>>>>> other
 		mHasFetcher = FALSE;
 		mIsFetching = FALSE ;
-<<<<<<< local
-=======
-		resetTextureStats();
->>>>>>> other
 	}
-<<<<<<< local
 		
 	resetTextureStats();
 
 	mDesiredDiscardLevel = getMaxDiscardLevel() + 1;
-=======
->>>>>>> other
 }
 
 void LLViewerFetchedTexture::setIsMissingAsset()

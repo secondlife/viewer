@@ -990,18 +990,8 @@ void LLCurlThread::killMulti(LLCurl::Multi* multi)
 		return ;
 	}
 
-<<<<<<< local
-	if(multi->isValid())
-	{
-		multi->markDead() ;
-	}
-	else
-	{
-		deleteMulti(multi) ;
-	}
-=======
+
 	multi->markDead() ;
->>>>>>> other
 }
 
 //private
