@@ -103,24 +103,7 @@ BOOL LLIMFloaterContainer::postBuild()
 
 void LLIMFloaterContainer::onOpen(const LLSD& key)
 {
-	if (getFloaterCount() == 0)
-	{
-		// We always force the opening of the nearby chat conversation when we open for the first  time
-		// *TODO: find a way to move this to XML as a default panel or something like that
-		LLSD name("chat_bar");
-		LLFloaterReg::toggleInstanceOrBringToFront(name);
-	}
 	LLMultiFloater::onOpen(key);
-	/*
-	if (key.isDefined())
-	{
-		LLIMFloater* im_floater = LLIMFloater::findInstance(key.asUUID());
-		if (im_floater)
-		{
-			im_floater->openFloater();
-		}
-	}
-	 */
 }
 
 // virtual
@@ -307,6 +290,20 @@ void LLIMFloaterContainer::tabClose()
 
 void LLIMFloaterContainer::setVisible(BOOL visible)
 {
+	if (visible)
+	{
+		// Make sure we have the Nearby Chat present when showing the conversation container
+		LLUUID nearbychat_uuid = LLUUID::null;	// Hacky but true: the session id for nearby chat is null
+		conversations_items_map::iterator item_it = mConversationsItems.find(nearbychat_uuid);
+		if (item_it == mConversationsItems.end())
+		{
+			// If not found, force the creation of the nearby chat conversation panel
+			// *TODO: find a way to move this to XML as a default panel or something like that
+			LLSD name("chat_bar");
+			LLFloaterReg::toggleInstanceOrBringToFront(name);
+		}
+	}
+	
 	// We need to show/hide all the associated conversations that have been torn off
 	// (and therefore, are not longer managed by the multifloater),
 	// so that they show/hide with the conversations manager.
