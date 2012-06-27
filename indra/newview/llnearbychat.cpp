@@ -131,6 +131,7 @@ LLNearbyChat::LLNearbyChat(const LLSD& key)
 	mSpeakerMgr(NULL),
 	mExpandedHeight(COLLAPSED_HEIGHT + EXPANDED_HEIGHT)
 {
+	setIsChrome(TRUE);
 	mKey = LLSD();
 	mIsNearbyChat = true;
 	mSpeakerMgr = LLLocalSpeakerMgr::getInstance();
@@ -394,6 +395,26 @@ LLNearbyChat* LLNearbyChat::getInstance()
 	return LLFloaterReg::getTypedInstance<LLNearbyChat>("chat_bar");
 }
 
+void LLNearbyChat::show()
+{
+	// Get the floater
+	LLNearbyChat* floater = LLNearbyChat::getInstance();
+	if (floater)
+	{
+		if(isChatMultiTab())
+		{
+			LLIMFloaterContainer* floater_container = LLIMFloaterContainer::getInstance();
+
+			// Add a conversation list item in the left pane: nothing will be done if already in there
+			// but relevant clean up will be done to ensure consistency of the conversation list
+			floater_container->addConversationListItem(floater->getTitle(), LLUUID(), floater);
+
+			floater->openFloater(floater->getKey());
+		}
+
+		floater->setVisible(TRUE);
+	}
+}
 
 void LLNearbyChat::showHistory()
 {
@@ -773,6 +794,7 @@ void LLNearbyChat::startChat(const char* line)
 
 	if (cb )
 	{
+		cb->show();
 		cb->setVisible(TRUE);
 		cb->setFocus(TRUE);
 		cb->mChatBox->setFocus(TRUE);
