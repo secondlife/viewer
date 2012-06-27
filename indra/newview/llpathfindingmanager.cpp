@@ -53,7 +53,6 @@
 #include "lluuid.h"
 #include "llviewerregion.h"
 #include "llweb.h"
-#include "llpanelnavmeshrebake.h"
 #include "llenvmanager.h"
 
 #define CAP_SERVICE_RETRIEVE_NAVMESH        "RetrieveNavMeshSrc"

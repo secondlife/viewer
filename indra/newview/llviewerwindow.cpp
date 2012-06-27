@@ -126,7 +126,7 @@
 #include "llmorphview.h"
 #include "llmoveview.h"
 #include "llnavigationbar.h"
-#include "llpanelnavmeshrebake.h"
+#include "llpanelpathfindingrebakenavmesh.h"
 #include "llpaneltopinfobar.h"
 #include "llpopupview.h"
 #include "llpreviewtexture.h"
@@ -1929,7 +1929,7 @@ void LLViewerWindow::initWorldUI()
 	LLPanelStandStopFlying* panel_stand_stop_flying	= LLPanelStandStopFlying::getInstance();
 	panel_ssf_container->addChild(panel_stand_stop_flying);
 
-	LLPanelNavMeshRebake *panel_rebake_navmesh = LLPanelNavMeshRebake::getInstance();
+	LLPanelPathfindingRebakeNavmesh *panel_rebake_navmesh = LLPanelPathfindingRebakeNavmesh::getInstance();
 	panel_ssf_container->addChild(panel_rebake_navmesh);
 
 	panel_ssf_container->setVisible(TRUE);
