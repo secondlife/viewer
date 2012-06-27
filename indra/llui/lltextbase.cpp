@@ -508,7 +508,7 @@ void LLTextBase::drawText()
 	{
 		return;
 	}
-	else if (text_len <= 0 && !mLabel.empty())
+	else if (text_len <= 0 && !mLabel.empty() && !hasFocus())
 	{
 		text_len = mLabel.length();
 	}
