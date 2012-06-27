@@ -1077,6 +1077,12 @@ BOOL LLIMFloater::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 			*accept = ACCEPT_NO;
 		}
 	}
+	else if (mDialog == IM_NOTHING_SPECIAL)
+	{
+		LLToolDragAndDrop::handleGiveDragAndDrop(mOtherParticipantUUID, mSessionID, drop,
+				cargo_type, cargo_data, accept);
+	}
+
 	return TRUE;
 }
 
