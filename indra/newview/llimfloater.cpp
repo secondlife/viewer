@@ -56,7 +56,7 @@
 #include "llrootview.h"
 #include "llspeakers.h"
 #include "llviewerchat.h"
-
+#include "llautoreplace.h"
 
 LLIMFloater::LLIMFloater(const LLUUID& session_id)
   : LLTransientDockableFloater(NULL, true, session_id),
@@ -255,6 +255,8 @@ BOOL LLIMFloater::postBuild()
 	mInputEditor->setMaxTextLength(1023);
 	// enable line history support for instant message bar
 	mInputEditor->setEnableLineHistory(TRUE);
+	// *TODO Establish LineEditor with autoreplace callback
+	mInputEditor->setAutoreplaceCallback(boost::bind(&LLAutoReplace::autoreplaceCallback, LLAutoReplace::getInstance(), _1, _2));
 
 	LLFontGL* font = LLViewerChat::getChatFont();
 	mInputEditor->setFont(font);	

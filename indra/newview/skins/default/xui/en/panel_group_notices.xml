@@ -141,6 +141,7 @@ Maximum 200 per group daily
          max_length_bytes="63"
          name="create_subject"
          prevalidate_callback="ascii"
+         spellcheck="true"
          width="218" />
         <text
          follows="left|top"
@@ -161,6 +162,7 @@ Maximum 200 per group daily
          left_pad="3"
          max_length="511"
          name="create_message"
+         spellcheck="true"
          top_delta="0"
          width="218"
          word_wrap="true" />
@@ -309,6 +311,7 @@ Maximum 200 per group daily
          left_pad="3"
          max_length_bytes="63"
          name="view_subject"
+         spellcheck="true"
          top_delta="-1"
          visible="false"
          width="200" />
@@ -333,6 +336,7 @@ Maximum 200 per group daily
          right="-1"
          max_length="511"
          name="view_message"
+         spellcheck="true"
          top_delta="-40"
          width="313"
          word_wrap="true" />

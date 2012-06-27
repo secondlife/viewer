@@ -299,28 +299,11 @@ void LLKeyboardMacOSX::scanKeyboard()
 
 BOOL LLKeyboardMacOSX::translateNumpadKey( const U16 os_key, KEY *translated_key )
 {
-	if(mNumpadDistinct == ND_NUMLOCK_ON)
-	{
-		std::map<U16, KEY>::iterator iter= mTranslateNumpadMap.find(os_key);
-		if(iter != mTranslateNumpadMap.end())
-		{
-			*translated_key = iter->second;
-			return TRUE;
-		}
-	}
 	return translateKey(os_key, translated_key);
 }
 
 U16	LLKeyboardMacOSX::inverseTranslateNumpadKey(const KEY translated_key)
 {
-	if(mNumpadDistinct == ND_NUMLOCK_ON)
-	{
-		std::map<KEY, U16>::iterator iter= mInvTranslateNumpadMap.find(translated_key);
-		if(iter != mInvTranslateNumpadMap.end())
-		{
-			return iter->second;
-		}
-	}
 	return inverseTranslateKey(translated_key);
 }
 

@@ -450,7 +450,7 @@ void LLDrawable::makeStatic(BOOL warning_enabled)
 {
 	if (isState(ACTIVE))
 	{
-		clearState(ACTIVE);
+		clearState(ACTIVE | ANIMATED_CHILD);
 
 		if (mParent.notNull() && mParent->isActive() && warning_enabled)
 		{
@@ -538,9 +538,9 @@ F32 LLDrawable::updateXform(BOOL undamped)
 			target_rot = new_rot;
 			target_scale = new_scale;
 		}
-		else
+		else if (mVObjp->getAngularVelocity().isExactlyZero())
 		{
-			// snap to final position
+			// snap to final position (only if no target omega is applied)
 			dist_squared = 0.0f;
 			if (getVOVolume() && !isRoot())
 			{ //child prim snapping to some position, needs a rebuild
@@ -549,14 +549,24 @@ F32 LLDrawable::updateXform(BOOL undamped)
 		}
 	}
 
-	if ((mCurrentScale != target_scale) ||
-		(!isRoot() && 
-		 (dist_squared >= MIN_INTERPOLATE_DISTANCE_SQUARED || 
-		 !mVObjp->getAngularVelocity().isExactlyZero() ||
-		 target_pos != mXform.getPosition() ||
-		 target_rot != mXform.getRotation())))
-	{ //child prim moving or scale change requires immediate rebuild
+	LLVector3 vec = mCurrentScale-target_scale;
+	
+	if (vec*vec > MIN_INTERPOLATE_DISTANCE_SQUARED)
+	{ //scale change requires immediate rebuild
+		mCurrentScale = target_scale;
 		gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
+	}
+	else if (!isRoot() && 
+		 (!mVObjp->getAngularVelocity().isExactlyZero() ||
+			dist_squared > 0.f))
+	{ //child prim moving relative to parent, tag as needing to be rendered atomically and rebuild
+		dist_squared = 1.f; //keep this object on the move list
+		if (!isState(LLDrawable::ANIMATED_CHILD))
+		{			
+			setState(LLDrawable::ANIMATED_CHILD);
+			gPipeline.markRebuild(this, LLDrawable::REBUILD_ALL, TRUE);
+			mVObjp->dirtySpatialGroup();
+		}
 	}
 	else if (!getVOVolume() && !isAvatar())
 	{
@@ -568,9 +578,7 @@ F32 LLDrawable::updateXform(BOOL undamped)
 	mXform.setRotation(target_rot);
 	mXform.setScale(LLVector3(1,1,1)); //no scale in drawable transforms (IT'S A RULE!)
 	mXform.updateMatrix();
-	
-	mCurrentScale = target_scale;
-	
+
 	if (mSpatialBridge)
 	{
 		gPipeline.markMoved(mSpatialBridge, FALSE);
@@ -596,7 +604,11 @@ void LLDrawable::moveUpdatePipeline(BOOL moved)
 	// Update the face centers.
 	for (S32 i = 0; i < getNumFaces(); i++)
 	{
-		getFace(i)->updateCenterAgent();
+		LLFace* face = getFace(i);
+		if (face)
+		{
+			face->updateCenterAgent();
+		}
 	}
 }
 
@@ -651,7 +663,6 @@ BOOL LLDrawable::updateMoveUndamped()
 	}
 
 	mVObjp->clearChanged(LLXform::MOVED);
-	
 	return TRUE;
 }
 
@@ -727,7 +738,8 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 				for (S32 i = 0; i < getNumFaces(); i++)
 				{
 					LLFace* facep = getFace(i);
-					if (force_update || facep->getPoolType() == LLDrawPool::POOL_ALPHA)
+					if (facep && 
+						(force_update || facep->getPoolType() == LLDrawPool::POOL_ALPHA))
 					{
 						LLVector4a box;
 						box.setSub(facep->mExtents[1], facep->mExtents[0]);
@@ -826,13 +838,16 @@ void LLDrawable::shiftPos(const LLVector4a &shift_vector)
 		for (S32 i = 0; i < getNumFaces(); i++)
 		{
 			LLFace *facep = getFace(i);
-			facep->mCenterAgent += LLVector3(shift_vector.getF32ptr());
-			facep->mExtents[0].add(shift_vector);
-			facep->mExtents[1].add(shift_vector);
-			
-			if (!volume && facep->hasGeometry())
+			if (facep)
 			{
-				facep->clearVertexBuffer();
+				facep->mCenterAgent += LLVector3(shift_vector.getF32ptr());
+				facep->mExtents[0].add(shift_vector);
+				facep->mExtents[1].add(shift_vector);
+			
+				if (!volume && facep->hasGeometry())
+				{
+					facep->clearVertexBuffer();
+				}
 			}
 		}
 		
@@ -954,7 +969,10 @@ void LLDrawable::setSpatialGroup(LLSpatialGroup *groupp)
 		for (S32 i = 0; i < getNumFaces(); ++i)
 		{
 			LLFace* facep = getFace(i);
-			facep->clearVertexBuffer();
+			if (facep)
+			{
+				facep->clearVertexBuffer();
+			}
 		}
 	}
 
@@ -1529,10 +1547,10 @@ BOOL LLDrawable::isAnimating() const
 		return TRUE;
 	}
 
-	if (!isRoot() && !mVObjp->getAngularVelocity().isExactlyZero())
-	{
+	/*if (!isRoot() && !mVObjp->getAngularVelocity().isExactlyZero())
+	{ //target omega
 		return TRUE;
-	}
+	}*/
 
 	return FALSE;
 }

@@ -18,6 +18,7 @@ include(LLWindow)
 include(LLUI)
 include(LLVFS)        # ugh, needed for LLDir
 include(LLXML)
+include(Hunspell)
 include(Linking)
 # include(Tut)
 
@@ -31,6 +32,7 @@ include_directories(
     ${LLVFS_INCLUDE_DIRS}
     ${LLWINDOW_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
+    ${LIBS_PREBUILD_DIR}/include/hunspell
     )
 
 set(llui_libtest_SOURCE_FILES
@@ -78,6 +80,7 @@ target_link_libraries(llui_libtest
     ${LLIMAGEJ2COJ_LIBRARIES}
     ${OS_LIBRARIES}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
+    ${HUNSPELL_LIBRARY}
     )
 
 if (WINDOWS)

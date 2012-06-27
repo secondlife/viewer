@@ -1508,6 +1508,49 @@ struct LLSelectMgrSendFunctor : public LLSelectedObjectFunctor
 	}
 };
 
+void LLObjectSelection::applyNoCopyTextureToTEs(LLViewerInventoryItem* item)
+{
+	if (!item)
+	{
+		return;
+	}
+	LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture(item->getAssetUUID());
+
+	for (iterator iter = begin(); iter != end(); ++iter)
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = (*iter)->getObject();
+		if (!object)
+		{
+			continue;
+		}
+
+		S32 num_tes = llmin((S32)object->getNumTEs(), (S32)object->getNumFaces());
+		bool texture_copied = false;
+		for (S32 te = 0; te < num_tes; ++te)
+		{
+			if (node->isTESelected(te))
+			{
+				//(no-copy) textures must be moved to the object's inventory only once
+				// without making any copies
+				if (!texture_copied)
+				{
+					LLToolDragAndDrop::handleDropTextureProtections(object, item, LLToolDragAndDrop::SOURCE_AGENT, LLUUID::null);
+					texture_copied = true;
+				}
+
+				// apply texture for the selected faces
+				LLViewerStats::getInstance()->incStat(LLViewerStats::ST_EDIT_TEXTURE_COUNT );
+				object->setTEImage(te, image);
+				dialog_refresh_all();
+
+				// send the update to the simulator
+				object->sendTEUpdate();
+			}
+		}
+	}
+}
+
 //-----------------------------------------------------------------------------
 // selectionSetImage()
 //-----------------------------------------------------------------------------
@@ -1559,8 +1602,18 @@ void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 			}
 			return true;
 		}
-	} setfunc(item, imageid);
-	getSelection()->applyToTEs(&setfunc);
+	};
+
+	if (item && !item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
+	{
+		getSelection()->applyNoCopyTextureToTEs(item);
+	}
+	else
+	{
+		f setfunc(item, imageid);
+		getSelection()->applyToTEs(&setfunc);
+	}
+
 
 	struct g : public LLSelectedObjectFunctor
 	{
@@ -5583,7 +5636,7 @@ void pushWireframe(LLDrawable* drawable)
 			for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
 			{
 				const LLVolumeFace& face = volume->getVolumeFace(i);
-				LLVertexBuffer::drawElements(LLRender::TRIANGLES, face.mPositions, face.mTexCoords, face.mNumIndices, face.mIndices);
+				LLVertexBuffer::drawElements(LLRender::TRIANGLES, face.mPositions, NULL, face.mNumIndices, face.mIndices);
 			}
 		}
 
@@ -5610,7 +5663,7 @@ void LLSelectNode::renderOneWireframe(const LLColor4& color)
 
 	if (shader)
 	{
-		gHighlightProgram.bind();
+		gDebugProgram.bind();
 	}
 
 	gGL.matrixMode(LLRender::MM_MODELVIEW);

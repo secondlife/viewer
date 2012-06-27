@@ -91,6 +91,13 @@ class ViewerManifest(LLManifest):
 
                 # ... and the entire windlight directory
                 self.path("windlight")
+
+                # ... and the included spell checking dictionaries
+                pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
+                if self.prefix(src=pkgdir,dst=""):
+                    self.path("dictionaries")
+                    self.end_prefix(pkgdir)
+
                 self.end_prefix("app_settings")
 
             if self.prefix(src="character"):
@@ -393,6 +400,9 @@ class WindowsManifest(ViewerManifest):
             self.path("ssleay32.dll")
             self.path("libeay32.dll")
 
+            # Hunspell
+            self.path("libhunspell.dll")
+
             # For google-perftools tcmalloc allocator.
             try:
                 if self.args['configuration'].lower() == 'debug':
@@ -659,6 +669,7 @@ class DarwinManifest(ViewerManifest):
 
             # copy additional libs in <bundle>/Contents/MacOS/
             self.path("../packages/lib/release/libndofdev.dylib", dst="Resources/libndofdev.dylib")
+            self.path("../packages/lib/release/libhunspell-1.3.0.dylib", dst="Resources/libhunspell-1.3.0.dylib")
 
             self.path("../viewer_components/updater/scripts/darwin/update_install", "MacOS/update_install")
 
@@ -1043,7 +1054,11 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libopenjpeg.so*")
             self.path("libdirectfb-1.4.so.5")
             self.path("libfusion-1.4.so.5")
+            self.path("libdirect-1.4.so.5.0.4")
             self.path("libdirect-1.4.so.5")
+            self.path("libhunspell-1.3.so")
+            self.path("libhunspell-1.3.so.0")
+            self.path("libhunspell-1.3.so.0.0.0")
             self.path("libalut.so")
             self.path("libopenal.so", "libopenal.so.1")
             self.path("libopenal.so", "libvivoxoal.so.1") # vivox's sdk expects this soname

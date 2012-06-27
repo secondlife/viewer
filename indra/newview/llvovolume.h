@@ -79,7 +79,7 @@ public:
 	virtual bool isVolumeGlobal() const = 0; // Are we in global space?
 	virtual bool isActive() const = 0; // Is this object currently active?
 	virtual const LLMatrix4& getWorldMatrix(LLXformMatrix* xform) const = 0;
-	virtual void updateRelativeXform() = 0;
+	virtual void updateRelativeXform(bool force_identity = false) = 0;
 	virtual U32 getID() const = 0;
 	virtual void preRebuild() = 0;
 };
@@ -203,7 +203,7 @@ public:
 														  LLAssetType::EType type,
 														  void* user_data, S32 status, LLExtStat ext_status);
 					
-				void	updateRelativeXform();
+				void	updateRelativeXform(bool force_identity = false);
 	/*virtual*/ BOOL	updateGeometry(LLDrawable *drawable);
 	/*virtual*/ void	updateFaceSize(S32 idx);
 	/*virtual*/ BOOL	updateLOD();

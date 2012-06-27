@@ -112,6 +112,17 @@ viewer-mesh.login_channel = "Project Viewer - Mesh"
 viewer-mesh.viewer_grid = aditi
 viewer-mesh.email = shining@lists.lindenlab.com
 
+# ========================================
+# viewer-adult-check
+# ========================================
+
+viewer-adult-check.viewer_channel = "Project Viewer - AdultCheck"
+viewer-adult-check.login_channel = "Project Viewer - AdultCheck"
+viewer-adult-check.viewer_grid = agni
+viewer-adult-check.build_debug_release_separately = true
+viewer-adult-check.build_CYGWIN_Debug = false
+viewer-adult-check.build_viewer_update_version_manager = false
+
 # ================
 # oz
 # ================
@@ -137,6 +148,10 @@ oz_viewer-beta-review.codeticket_add_context = false
 oz_viewer-beta-review.viewer_channel = "Second Life Beta Viewer"
 oz_viewer-beta-review.login_channel = "Second Life Beta Viewer"
 oz_viewer-beta-review.email = oz@lindenlab.com
+
+oz_project-7.build_debug_release_separately = true
+oz_project-7.codeticket_add_context = false
+oz_project-7.email = "sldev@catznip.com oz@lindenlab.com"
 
 # =================================================================
 # asset delivery 2010 projects

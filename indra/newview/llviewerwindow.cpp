@@ -175,6 +175,7 @@
 #include "llviewershadermgr.h"
 #include "llviewerstats.h"
 #include "llvoavatarself.h"
+#include "llvopartgroup.h"
 #include "llvovolume.h"
 #include "llworld.h"
 #include "llworldmapview.h"
@@ -613,7 +614,7 @@ public:
 				addText(xpos, ypos, llformat("%d/%d Mesh HTTP Requests/Retries", LLMeshRepository::sHTTPRequestCount,
 					LLMeshRepository::sHTTPRetryCount));
 				ypos += y_inc;
-
+				
 				addText(xpos, ypos, llformat("%d/%d Mesh LOD Pending/Processing", LLMeshRepository::sLODPending, LLMeshRepository::sLODProcessing));
 				ypos += y_inc;
 
@@ -1704,9 +1705,6 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	// Can't have spaces in settings.ini strings, so use underscores instead and convert them.
 	LLStringUtil::replaceChar(mOverlayTitle, '_', ' ');
 
-	// sync the keyboard's setting with the saved setting
-	gSavedSettings.getControl("NumpadControl")->firePropertyChanged();
-
 	mDebugText = new LLDebugText(this);
 
 	mWorldViewRectScaled = calcScaledRect(mWorldViewRectRaw, mDisplayScale);
@@ -1973,12 +1971,12 @@ void LLViewerWindow::shutdownViews()
 		gMorphView->setVisible(FALSE);
 	}
 	llinfos << "Global views cleaned." << llendl ;
-	
+
 	// DEV-40930: Clear sModalStack. Otherwise, any LLModalDialog left open
 	// will crump with LL_ERRS.
 	LLModalDialog::shutdownModals();
 	llinfos << "LLModalDialog shut down." << llendl; 
-
+	
 	// destroy the nav bar, not currently part of gViewerWindow
 	// *TODO: Make LLNavigationBar part of gViewerWindow
 	if (LLNavigationBar::instanceExists())
@@ -1986,17 +1984,17 @@ void LLViewerWindow::shutdownViews()
 		delete LLNavigationBar::getInstance();
 	}
 	llinfos << "LLNavigationBar destroyed." << llendl ;
-	
+
 	// destroy menus after instantiating navbar above, as it needs
 	// access to gMenuHolder
 	cleanup_menus();
 	llinfos << "menus destroyed." << llendl ;
-	
+
 	// Delete all child views.
 	delete mRootView;
 	mRootView = NULL;
 	llinfos << "RootView deleted." << llendl ;
-	
+
 	// Automatically deleted as children of mRootView.  Fix the globals.
 	gStatusBar = NULL;
 	gIMMgr = NULL;
@@ -4660,6 +4658,8 @@ void LLViewerWindow::stopGL(BOOL save_state)
 		LLVOAvatar::destroyGL();
 		stop_glerror();
 
+		LLVOPartGroup::destroyGL();
+
 		LLViewerDynamicTexture::destroyGL();
 		stop_glerror();
 
@@ -4713,7 +4713,8 @@ void LLViewerWindow::restoreGL(const std::string& progress_message)
 		gBumpImageList.restoreGL();
 		LLViewerDynamicTexture::restoreGL();
 		LLVOAvatar::restoreGL();
-		
+		LLVOPartGroup::restoreGL();
+
 		gResizeScreenTexture = TRUE;
 		gWindowResized = TRUE;
 
@@ -5196,8 +5197,10 @@ void LLPickInfo::getSurfaceInfo()
 			if (objectp->mDrawable.notNull() && mObjectFace > -1)
 			{
 				LLFace* facep = objectp->mDrawable->getFace(mObjectFace);
-
-				mUVCoords = facep->surfaceToTexture(mSTCoords, mIntersection, mNormal);
+				if (facep)
+				{
+					mUVCoords = facep->surfaceToTexture(mSTCoords, mIntersection, mNormal);
+				}
 			}
 
 			// and XY coords:

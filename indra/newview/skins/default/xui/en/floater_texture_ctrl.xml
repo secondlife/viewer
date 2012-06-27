@@ -134,6 +134,16 @@
      top_delta="-25"
      name="Pipette"
      width="28" />
+   <text
+     follows="left|bottom"
+     height="20"
+     layout="topleft"
+     left="8"
+     name="preview_disabled"
+     top="266"
+     value="Preview Disabled"
+     visible="false"
+     width="120" />
     <filter_editor
      follows="left|top|right"
      height="23"

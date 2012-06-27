@@ -59,6 +59,7 @@ LLFilePicker LLFilePicker::sInstance;
 #define RAW_FILTER L"RAW files (*.raw)\0*.raw\0"
 #define MODEL_FILTER L"Model files (*.dae)\0*.dae\0"
 #define SCRIPT_FILTER L"Script files (*.lsl)\0*.lsl\0"
+#define DICTIONARY_FILTER L"Dictionary files (*.dic; *.xcu)\0*.dic;*.xcu\0"
 #endif
 
 //
@@ -216,6 +217,10 @@ BOOL LLFilePicker::setupFilter(ELoadFilter filter)
 		break;
 	case FFLOAD_SCRIPT:
 		mOFN.lpstrFilter = SCRIPT_FILTER \
+			L"\0";
+		break;
+	case FFLOAD_DICTIONARY:
+		mOFN.lpstrFilter = DICTIONARY_FILTER \
 			L"\0";
 		break;
 	default:
@@ -639,6 +644,16 @@ Boolean LLFilePicker::navOpenFilterProc(AEDesc *theItem, void *info, void *callB
 						{
 							if (fileInfo.filetype != 'LSL ' &&
 								(fileInfo.extension && (CFStringCompare(fileInfo.extension, CFSTR("lsl"), kCFCompareCaseInsensitive) != kCFCompareEqualTo)) )
+							{
+								result = false;
+							}
+						}
+						else if (filter == FFLOAD_DICTIONARY)
+						{
+							if (fileInfo.filetype != 'DIC ' &&
+								fileInfo.filetype != 'XCU ' &&
+								(fileInfo.extension && (CFStringCompare(fileInfo.extension, CFSTR("dic"), kCFCompareCaseInsensitive) != kCFCompareEqualTo) &&
+								 fileInfo.extension && (CFStringCompare(fileInfo.extension, CFSTR("xcu"), kCFCompareCaseInsensitive) != kCFCompareEqualTo)))
 							{
 								result = false;
 							}
@@ -1235,6 +1250,12 @@ static std::string add_script_filter_to_gtkchooser(GtkWindow *picker)
 							LLTrans::getString("script_files") + " (*.lsl)");
 }
 
+static std::string add_dictionary_filter_to_gtkchooser(GtkWindow *picker)
+{
+	return add_simple_mime_filter_to_gtkchooser(picker,  "text/plain",
+							LLTrans::getString("dictionary_files") + " (*.dic; *.xcu)");
+}
+
 BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename )
 {
 	BOOL rtn = FALSE;
@@ -1370,6 +1391,9 @@ BOOL LLFilePicker::getOpenFile( ELoadFilter filter, bool blocking )
 			break;
 		case FFLOAD_SCRIPT:
 			filtername = add_script_filter_to_gtkchooser(picker);
+			break;
+		case FFLOAD_DICTIONARY:
+			filtername = add_dictionary_filter_to_gtkchooser(picker);
 			break;
 		default:;
 			break;

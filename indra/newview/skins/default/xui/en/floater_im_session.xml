@@ -46,7 +46,7 @@
        tab_group="2"
        top="0"
        height="200"
-	     width="254"
+	     width="244"
        user_resize="true">
         <button
           height="20"
@@ -73,18 +73,20 @@
          parse_highlights="true"
          parse_urls="true"
         left="1"
-         width="249">
+         width="238">
         </chat_history>
         <line_editor
          bottom="0"
+         left="3"
          follows="left|right|bottom"
 	 font="SansSerifSmall"
          height="20"
          label="To"
          layout="bottomleft"
          name="chat_editor"
+         spellcheck="true"
          tab_group="3"
-         width="249">
+         width="236">
         </line_editor>
     </layout_panel>
   </layout_stack>

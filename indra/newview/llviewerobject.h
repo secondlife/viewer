@@ -684,6 +684,10 @@ protected:
 	F32				mAppAngle;	// Apparent visual arc in degrees
 	F32				mPixelArea; // Apparent area in pixels
 
+	// IDs of of all items in the object's content which are added to the object's content,
+	// but not updated on the server yet. After item was updated, its ID will be removed from this list.
+	std::list<LLUUID> mPendingInventoryItemsIDs;
+
 	// This is the object's inventory from the viewer's perspective.
 	LLInventoryObject::object_list_t* mInventory;
 	class LLInventoryCallbackInfo

@@ -705,7 +705,7 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 			// Flush formatted images using a lazy flush
 			//
 			const F32 LAZY_FLUSH_TIMEOUT = 30.f; // stop decoding
-			const F32 MAX_INACTIVE_TIME  = 50.f; // actually delete
+			const F32 MAX_INACTIVE_TIME  = 20.f; // actually delete
 			S32 min_refs = 3; // 1 for mImageList, 1 for mUUIDMap, 1 for local reference
 			
 			S32 num_refs = imagep->getNumRefs();

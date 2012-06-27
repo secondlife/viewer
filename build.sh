@@ -15,6 +15,12 @@
 # * The basic convention is that the build name can be mapped onto a mercurial URL,
 #   which is also used as the "branch" name.
 
+check_for()
+{
+    if [ -e "$2" ]; then found_dict='FOUND'; else found_dict='MISSING'; fi
+    echo "$1 ${found_dict} '$2' " 1>&2
+}
+
 build_dir_Darwin()
 {
   echo build-darwin-i386
@@ -59,6 +65,8 @@ pre_build()
     && [ -r "$master_message_template_checkout/message_template.msg" ] \
     && template_verifier_master_url="-DTEMPLATE_VERIFIER_MASTER_URL=file://$master_message_template_checkout/message_template.msg"
 
+    check_for "Before 'autobuild configure'" ${build_dir}/packages/dictionaries
+
     "$AUTOBUILD" configure -c $variant -- \
      -DPACKAGE:BOOL=ON \
      -DRELEASE_CRASH_REPORTING:BOOL=ON \
@@ -67,7 +75,10 @@ pre_build()
      -DGRID:STRING="\"$viewer_grid\"" \
      -DLL_TESTS:BOOL="$run_tests" \
      -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url
- end_section "Pre$variant"
+
+    check_for "After 'autobuild configure'" ${build_dir}/packages/dictionaries
+
+  end_section "Pre$variant"
 }
 
 build()
@@ -76,12 +87,17 @@ build()
   if $build_viewer
   then
     begin_section "Viewer$variant"
+
+    check_for "Before 'autobuild build'" ${build_dir}/packages/dictionaries
+
     if "$AUTOBUILD" build --no-configure -c $variant
     then
       echo true >"$build_dir"/build_ok
     else
       echo false >"$build_dir"/build_ok
     fi
+    check_for "After 'autobuild configure'" ${build_dir}/packages/dictionaries
+
     end_section "Viewer$variant"
   fi
 }
@@ -172,7 +188,10 @@ eval "$("$AUTOBUILD" source_environment)"
 # dump environment variables for debugging
 env|sort
 
+check_for "Before 'autobuild install'" ${build_dir}/packages/dictionaries
 
+
+check_for "After 'autobuild install'" ${build_dir}/packages/dictionaries
 # Now run the build
 succeeded=true
 build_processes=
