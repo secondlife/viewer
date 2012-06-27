@@ -556,8 +556,9 @@ void LLConversationItem::selectItem(void)
 
 void LLConversationItem::setVisibleIfDetached(BOOL visible)
 {
-	// Do this only if the conversation floater has been torn off (i.e. no multi floater host)
-	if (!mFloater->getHost())
+	// Do this only if the conversation floater has been torn off (i.e. no multi floater host) and is not minimized
+	// Note: minimized dockable floaters are brought to front hence unminimized when made visible and we don't want that here
+	if (!mFloater->getHost() && !mFloater->isMinimized())
 	{
 		mFloater->setVisible(visible);    
 	}
