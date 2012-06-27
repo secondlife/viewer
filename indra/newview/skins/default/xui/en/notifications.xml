@@ -5853,6 +5853,18 @@ This area has building disabled. You can&apos;t build or rez objects here.
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   name="PathfindingCannotRebakeNavmesh"
+   type="alertmodal">
+    <unique/>
+    You are not allowed to rebake the navmesh at the current time.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"
+     />
+  </notification>
+
+  <notification
    icon="notify.tga"
    name="SeeAvatars"
    persist="true"

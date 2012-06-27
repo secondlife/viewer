@@ -17,7 +17,19 @@
       top="2"
       visible="false"
       enabled="true"
-      width="113" />
+      width="120" />
+  <button
+      follows="left|bottom"
+      height="19"
+      label="Sending rebake request"
+      layout="topleft"
+      left="10"
+      name="navmesh_btn_sending"
+      tool_tip="Sending rebake request"
+      top="2"
+      visible="false"
+      enabled="false"
+      width="120" />
   <button
       follows="left|bottom"
       height="19"
@@ -25,10 +37,10 @@
       layout="topleft"
       left="10"
       name="navmesh_btn_baking"
-      tool_tip="Region is cleaning up."
+      tool_tip="Region is cleaning."
       top="2"
       visible="false"
       enabled="false"
-      width="113" />
+      width="120" />
 </panel>
 

@@ -59,6 +59,7 @@ private:
 	{
 		kRebakeNavMesh_Available,
 		kRebakeNavMesh_RequestSent,
+		kRebakeNavMesh_InProgress,
 		kRebakeNavMesh_NotAvailable,
 		kRebakeNavMesh_Default = kRebakeNavMesh_NotAvailable
 	} ERebakeNavMeshMode;
@@ -86,6 +87,7 @@ private:
 	ERebakeNavMeshMode                       mRebakeNavMeshMode;
 	
 	LLButton*                                mNavMeshRebakeButton;
+	LLButton*                                mNavMeshSendingButton;
 	LLButton*                                mNavMeshBakingButton;
 
 	LLPathfindingNavMesh::navmesh_slot_t     mNavMeshSlot;
