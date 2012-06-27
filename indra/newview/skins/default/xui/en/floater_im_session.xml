@@ -246,7 +246,7 @@
               label="To"
               layout="bottomleft"
               name="chat_editor"
-              max_length="1024"
+              max_length="1023"
               tab_group="3"
               width="240"
               wrap="true">

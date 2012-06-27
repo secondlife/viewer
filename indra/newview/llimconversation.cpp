@@ -103,6 +103,7 @@ BOOL LLIMConversation::postBuild()
 	}
 
 	buildParticipantList();
+	updateHeaderAndToolbar();
 
 	if (isChatMultiTab())
 	{
@@ -337,6 +338,20 @@ void LLIMConversation::onOpen(const LLSD& key)
 	}
 
 	updateHeaderAndToolbar();
+}
+
+// virtual
+void LLIMConversation::onClose(bool app_quitting)
+{
+	// Always suppress the IM from the conversations list on close if present for any reason
+	if (LLIMConversation::isChatMultiTab())
+	{
+		LLIMFloaterContainer* im_box = LLIMFloaterContainer::findInstance();
+		if (im_box)
+		{
+            im_box->removeConversationListItem(mSessionID);
+        }
+    }
 }
 
 void LLIMConversation::onTearOffClicked()
