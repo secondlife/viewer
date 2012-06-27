@@ -2,7 +2,7 @@
 <floater
  legacy_header_height="18"
  can_resize="true"
- height="350"
+ height="372"
  layout="topleft"
  min_height="300"
  min_width="450"
@@ -192,6 +192,38 @@
      width="100">
       <button.commit_callback
           function="TopObjects.GetByOwnerName" />
+    </button>
+    <text
+     type="string"
+     length="1"
+     follows="left|bottom"
+     height="20"
+     layout="topleft"
+     left="10"
+     top_pad="5"
+     name="parcel_name_text"
+     width="107">
+        Parcel:
+    </text>
+    <line_editor
+     follows="left|bottom|right"
+     height="20"
+     layout="topleft"
+     left_pad="3"
+     name="parcel_name_editor"
+     top_delta="-3"
+     width="568" />
+    <button
+     follows="bottom|right"
+     height="23"
+     label="Filter"
+     layout="topleft"
+     left_pad="5"
+     name="filter_parcel_btn"
+     top_delta="0"
+     width="100">
+      <button.commit_callback
+          function="TopObjects.GetByParcelName" />
     </button>
     <button
      follows="bottom|right"

@@ -82,6 +82,7 @@ LLFloaterTopObjects::LLFloaterTopObjects(const LLSD& key)
 	mCommitCallbackRegistrar.add("TopObjects.Refresh",			boost::bind(&LLFloaterTopObjects::onRefresh, this));
 	mCommitCallbackRegistrar.add("TopObjects.GetByObjectName",	boost::bind(&LLFloaterTopObjects::onGetByObjectName, this));
 	mCommitCallbackRegistrar.add("TopObjects.GetByOwnerName",	boost::bind(&LLFloaterTopObjects::onGetByOwnerName, this));
+	mCommitCallbackRegistrar.add("TopObjects.GetByParcelName",	boost::bind(&LLFloaterTopObjects::onGetByParcelName, this));
 	mCommitCallbackRegistrar.add("TopObjects.CommitObjectsList",boost::bind(&LLFloaterTopObjects::onCommitObjectsList, this));
 }
 
@@ -98,21 +99,6 @@ BOOL LLFloaterTopObjects::postBuild()
 	objects_list->setCommitOnSelectionChange(TRUE);
 
 	setDefaultBtn("show_beacon_btn");
-
-	/*
-	LLLineEditor* line_editor = getChild<LLLineEditor>("owner_name_editor");
-	if (line_editor)
-	{
-		line_editor->setCommitOnFocusLost(FALSE);
-		line_editor->setCommitCallback(onGetByOwnerName, this);
-	}
-
-	line_editor = getChild<LLLineEditor>("object_name_editor");
-	if (line_editor)
-	{
-		line_editor->setCommitOnFocusLost(FALSE);
-		line_editor->setCommitCallback(onGetByObjectName, this);
-	}*/
 
 	mCurrentMode = STAT_REPORT_TOP_SCRIPTS;
 	mFlags = 0;
@@ -277,7 +263,7 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 		
 		LLUIString format = getString("top_scripts_text");
 		format.setArg("[COUNT]", llformat("%d", total_count));
-		format.setArg("[TIME]", llformat("%0.1f", mtotalScore));
+		format.setArg("[TIME]", llformat("%0.3f", mtotalScore));
 		getChild<LLUICtrl>("title_text")->setValue(LLSD(format));
 	}
 	else
@@ -315,6 +301,7 @@ void LLFloaterTopObjects::updateSelectionInfo()
 	{
 		getChild<LLUICtrl>("object_name_editor")->setValue(sli->getColumn(1)->getValue().asString());
 		getChild<LLUICtrl>("owner_name_editor")->setValue(sli->getColumn(2)->getValue().asString());
+		getChild<LLUICtrl>("parcel_name_editor")->setValue(sli->getColumn(4)->getValue().asString());
 	}
 }
 
@@ -493,6 +480,15 @@ void LLFloaterTopObjects::onGetByOwnerName()
 	mFilter = getChild<LLUICtrl>("owner_name_editor")->getValue().asString();
 	onRefresh();
 }
+
+
+void LLFloaterTopObjects::onGetByParcelName()
+{
+	mFlags  = STAT_FILTER_BY_PARCEL_NAME;
+	mFilter = getChild<LLUICtrl>("parcel_name_editor")->getValue().asString();
+	onRefresh();
+}
+
 
 void LLFloaterTopObjects::showBeacon()
 {
