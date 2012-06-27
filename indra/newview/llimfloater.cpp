@@ -516,10 +516,14 @@ void LLIMFloater::onParticipantsListChanged(LLUICtrl* ctrl)
 			}
 		}
 
-		std::string ui_title;
-		LLAvatarActions::buildResidentsString(avatar_names, ui_title);
-
-		updateSessionName(ui_title, ui_title);
+		// We should check whether the vector is not empty to pass the assertion
+		// that avatar_names.size() > 0 in LLAvatarActions::buildResidentsString.
+		if (!avatar_names.empty())
+		{
+			std::string ui_title;
+			LLAvatarActions::buildResidentsString(avatar_names, ui_title);
+			updateSessionName(ui_title, ui_title);
+		}
 	}
 }
 
