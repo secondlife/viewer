@@ -167,6 +167,17 @@ struct LLNotificationTemplate
 		{}
 	};
 
+	struct Footer : public LLInitParam::Block<Footer>
+	{
+		Mandatory<std::string> value;
+
+		Footer()
+		:	value("value")
+		{
+			addSynonym(value, "");
+		}
+	};
+
 	struct Params : public LLInitParam::Block<Params>
 	{
 		Mandatory<std::string>			name;
@@ -184,7 +195,8 @@ struct LLNotificationTemplate
 		Optional<FormRef>				form_ref;
 		Optional<ENotificationPriority, 
 			NotificationPriorityValues> priority;
-		Multiple<Tag>		tags;
+		Multiple<Tag>					tags;
+		Optional<Footer>				footer;
 
 
 		Params()
@@ -202,7 +214,8 @@ struct LLNotificationTemplate
 			url("url"),
 			unique("unique"),
 			form_ref(""),
-			tags("tag")
+			tags("tag"),
+			footer("footer")
 		{}
 
 	};
@@ -231,6 +244,8 @@ struct LLNotificationTemplate
     // The text used to display the notification. Replaceable parameters
     // are enclosed in square brackets like this [].
     std::string mMessage;
+    // The text used to display the notification, but under the form.
+    std::string mFooter;
 	// The label for the notification; used for 
 	// certain classes of notification (those with a window and a window title). 
 	// Also used when a notification pops up underneath the current one.

@@ -138,20 +138,7 @@ oz_viewer-beta-review.viewer_channel = "Second Life Beta Viewer"
 oz_viewer-beta-review.login_channel = "Second Life Beta Viewer"
 oz_viewer-beta-review.email = oz@lindenlab.com
 
-oz_project-1.build_debug_release_separately = true
-oz_project-1.codeticket_add_context = false
 oz_project-1_Linux.build_docs = true
-oz_project-1.email = oz@lindenlab.com
-
-oz_project-2.build_debug_release_separately = true
-oz_project-2.codeticket_add_context = false
-oz_project-2.email = oz@lindenlab.com
-oz_project-3.build_debug_release_separately = true
-oz_project-3.codeticket_add_context = false
-oz_project-3.email = oz@lindenlab.com
-oz_project-4.build_debug_release_separately = true
-oz_project-4.codeticket_add_context = false
-oz_project-4.email = oz@lindenlab.com
 
 # =================================================================
 # asset delivery 2010 projects
@@ -182,5 +169,36 @@ simon_viewer-dev-private.email_status_this_is_os = false
 # ========================================
 vir-project-1.viewer_channel = "Second Life Release"
 vir-project-1.login_channel = "Second Life Release"
+
+# ========================================
+# THX-1138 / Runway projects
+# ========================================
+viewer-thx1138-runway-shared.viewer_channel = "Project Viewer - THX-1138 Runway"
+viewer-thx1138-runway-shared.login_channel = "Project Viewer - THX-1138 Runway"
+viewer-thx1138-runway-shared.viewer_grid = uma
+viewer-thx1138-runway-shared.build_debug_release_separately = true
+viewer-thx1138-runway-shared.build_CYGWIN_Debug = false
+viewer-thx1138-runway-shared.build_viewer_update_version_manager = false
+
+viewer-thx1138.viewer_channel = "Project Viewer - THX-1138"
+viewer-thx1138.login_channel = "Project Viewer - THX-1138"
+viewer-thx1138.viewer_grid = uma
+viewer-thx1138.build_debug_release_separately = true
+viewer-thx1138.build_CYGWIN_Debug = false
+viewer-thx1138.build_viewer_update_version_manager = false
+
+runway-merge.viewer_channel = "Project Viewer - Runway Merge"
+runway-merge.login_channel = "Project Viewer - Runway Merge"
+runway-merge.viewer_grid = agni
+runway-merge.build_debug_release_separately = true
+runway-merge.build_CYGWIN_Debug = false
+runway-merge.build_viewer_update_version_manager = false
+
+runway.viewer_channel = "Project Viewer - Runway"
+runway.login_channel = "Project Viewer - Runway"
+runway.viewer_grid = agni
+runway.build_debug_release_separately = true
+runway.build_CYGWIN_Debug = false
+runway.build_viewer_update_version_manager = false
 
 # eof

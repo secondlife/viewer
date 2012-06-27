@@ -342,8 +342,8 @@ void LLViewerInventoryItem::cloneViewerItem(LLPointer<LLViewerInventoryItem>& ne
 
 void LLViewerInventoryItem::removeFromServer()
 {
-	llinfos << "Removing inventory item " << mUUID << " from server."
-			<< llendl;
+	lldebugs << "Removing inventory item " << mUUID << " from server."
+			 << llendl;
 
 	LLInventoryModel::LLCategoryUpdate up(mParentUUID, -1);
 	gInventory.accountForUpdate(up);

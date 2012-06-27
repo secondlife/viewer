@@ -509,6 +509,7 @@ public:
 
 	std::string getType() const;
 	std::string getMessage() const;
+	std::string getFooter() const;
 	std::string getLabel() const;
 	std::string getURL() const;
 	S32 getURLOption() const;

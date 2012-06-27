@@ -119,6 +119,7 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 void LLIMFloaterContainer::onCloseFloater(LLUUID& id)
 {
 	mSessions.erase(id);
+	setFocus(TRUE);
 }
 
 void LLIMFloaterContainer::onNewMessageReceived(const LLSD& data)
