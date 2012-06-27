@@ -1,6 +1,6 @@
 /** 
 * @file   llfloaterpathfindingobjects.h
-* @brief  Header file for llfloaterpathfindingobjects
+* @brief  Base class for both the pathfinding linksets and characters floater.
 * @author Stinson@lindenlab.com
 *
 * $LicenseInfo:firstyear=2012&license=viewerlgpl$
