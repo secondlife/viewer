@@ -529,6 +529,7 @@ void LLSpatialGroup::setVisible()
 
 void LLSpatialGroup::validate()
 {
+	ll_assert_aligned(this,64);
 #if LL_OCTREE_PARANOIA_CHECK
 
 	sg_assert(!isState(DIRTY));
@@ -1195,6 +1196,8 @@ LLSpatialGroup::LLSpatialGroup(OctreeNode* node, LLSpatialPartition* part) :
 	mCurUpdatingSlotp(NULL),
 	mCurUpdatingTexture (NULL)
 {
+	ll_assert_aligned(this,16);
+	
 	sNodeCount++;
 	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 

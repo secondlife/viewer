@@ -32,6 +32,7 @@ class LLRotation;
 
 #include <assert.h>
 #include "llpreprocessor.h"
+#include "llmemory.h"
 
 ///////////////////////////////////
 // FIRST TIME USERS PLEASE READ
@@ -46,6 +47,7 @@ class LLRotation;
 // LLVector3/LLVector4. 
 /////////////////////////////////
 
+LL_ALIGN_PREFIX(16)
 class LLVector4a
 {
 public:
@@ -82,6 +84,7 @@ public:
 	}
 
 	// Copy words 16-byte blocks from src to dst. Source and destination must not overlap. 
+	// Source and dest must be 16-byte aligned and size must be multiple of 16.
 	static void memcpyNonAliased16(F32* __restrict dst, const F32* __restrict src, size_t bytes);
 
 	////////////////////////////////////
@@ -90,6 +93,7 @@ public:
 	
 	LLVector4a()
 	{ //DO NOT INITIALIZE -- The overhead is completely unnecessary
+		ll_assert_aligned(this,16);
 	}
 	
 	LLVector4a(F32 x, F32 y, F32 z, F32 w = 0.f)
@@ -313,7 +317,7 @@ public:
 
 private:
 	LLQuad mQ;
-};
+} LL_ALIGN_POSTFIX(16);
 
 inline void update_min_max(LLVector4a& min, LLVector4a& max, const LLVector4a& p)
 {
