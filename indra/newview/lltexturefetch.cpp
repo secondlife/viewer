@@ -1384,27 +1384,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			//
 			//No need to timeout, the responder should be triggered automatically.
 			//
-
-			//if(FETCHING_TIMEOUT < mRequestedTimer.getElapsedTimeF32())
-			//{
-			//	if(mFetcher->getCurlRequest().isWaiting(mHTTPHandle))
-			//	{
-			//		mRequestedTimer.reset(); //still waiting, request not issued yet.
-			//	}
-			//	else if(!mHTTPWaitCount)
-			//	{
-			//		mHTTPWaitCount++;
-			//		mRequestedTimer.reset(); //wait for one more FETCHING_TIMEOUT cycle in case the request is just issued.
-			//	}
-			//	else
-			//	{
-			//		//timeout, abort.
-			//		removeFromHTTPQueue();
-			//		mState = DONE;
-			//		return true;
-			//	}
-			//}
-
 			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
 			return false;
 		}

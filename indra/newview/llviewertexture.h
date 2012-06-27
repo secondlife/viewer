@@ -264,6 +264,9 @@ protected:
 	void reorganizeVolumeList() ;
 	void setTexelsPerImage();
 private:
+	friend class LLBumpImageList;
+	friend class LLUIImageList;
+
 	//note: do not make this function public.
 	/*virtual*/ LLImageGL* getGLTexture() const ;
 	virtual void switchToCachedImage();

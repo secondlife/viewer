@@ -342,6 +342,15 @@ bool LLCommandLineParser::parseCommandLine(int argc, char **argv)
     return parseAndStoreResults(clp);
 }
 
+// TODO:
+// - Break out this funky parsing logic into separate method
+// - Unit-test it with tests like LLStringUtil::getTokens() (the command-line
+//   overload that supports quoted tokens)
+// - Unless this logic offers significant semantic benefits, replace it with
+//   LLStringUtil::getTokens(). This would fix a known bug: you cannot --set a
+//   string-valued variable to the empty string, because empty strings are
+//   eliminated below.
+
 bool LLCommandLineParser::parseCommandLineString(const std::string& str)
 {
     // Split the string content into tokens

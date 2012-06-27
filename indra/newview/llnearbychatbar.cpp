@@ -105,15 +105,17 @@ BOOL LLNearbyChatBar::postBuild()
 
 	mNearbyChat = getChildView("nearby_chat");
 
-	LLUICtrl* show_btn = getChild<LLUICtrl>("show_nearby_chat");
+	gSavedSettings.declareBOOL("nearbychat_history_visibility", mNearbyChat->getVisible(), "Visibility state of nearby chat history", TRUE);
+	BOOL show_nearby_chat = gSavedSettings.getBOOL("nearbychat_history_visibility");
+
+	LLButton* show_btn = getChild<LLButton>("show_nearby_chat");
 	show_btn->setCommitCallback(boost::bind(&LLNearbyChatBar::onToggleNearbyChatPanel, this));
+	show_btn->setToggleState(show_nearby_chat);
 
 	mOutputMonitor = getChild<LLOutputMonitorCtrl>("chat_zone_indicator");
 	mOutputMonitor->setVisible(FALSE);
 
-	gSavedSettings.declareBOOL("nearbychat_history_visibility", mNearbyChat->getVisible(), "Visibility state of nearby chat history", TRUE);
-
-	mNearbyChat->setVisible(gSavedSettings.getBOOL("nearbychat_history_visibility"));
+	showNearbyChatPanel(show_nearby_chat);
 
 	// Register for font change notifications
 	LLViewerChat::setFontChangedCallback(boost::bind(&LLNearbyChatBar::onChatFontChange, this, _1));
@@ -394,26 +396,23 @@ void LLNearbyChatBar::sendChat( EChatType type )
 	}
 }
 
-
-void LLNearbyChatBar::onToggleNearbyChatPanel()
+void LLNearbyChatBar::showNearbyChatPanel(bool show)
 {
-	LLView* nearby_chat = getChildView("nearby_chat");
-
-	if (nearby_chat->getVisible())
+	if (!show)
 	{
-		if (!isMinimized())
+		if (mNearbyChat->getVisible() && !isMinimized())
 		{
 			mExpandedHeight = getRect().getHeight();
 		}
 		setResizeLimits(getMinWidth(), COLLAPSED_HEIGHT);
-		nearby_chat->setVisible(FALSE);
+		mNearbyChat->setVisible(FALSE);
 		reshape(getRect().getWidth(), COLLAPSED_HEIGHT);
 		enableResizeCtrls(true, true, false);
 		storeRectControl();
 	}
 	else
 	{
-		nearby_chat->setVisible(TRUE);
+		mNearbyChat->setVisible(TRUE);
 		setResizeLimits(getMinWidth(), EXPANDED_MIN_HEIGHT);
 		reshape(getRect().getWidth(), mExpandedHeight);
 		enableResizeCtrls(true);
@@ -421,6 +420,11 @@ void LLNearbyChatBar::onToggleNearbyChatPanel()
 	}
 
 	gSavedSettings.setBOOL("nearbychat_history_visibility", mNearbyChat->getVisible());
+}
+
+void LLNearbyChatBar::onToggleNearbyChatPanel()
+{
+	showNearbyChatPanel(!mNearbyChat->getVisible());
 }
 
 void LLNearbyChatBar::setMinimized(BOOL b)
