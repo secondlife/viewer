@@ -3495,6 +3495,8 @@ void renderPhysicsShapes(LLSpatialGroup* group)
 			LLViewerObject* object = drawable->getVObj();
 			if (object && object->getPCode() == LLViewerObject::LL_VO_SURFACE_PATCH)
 			{
+				gGL.pushMatrix();
+				gGL.multMatrix((F32*) object->getRegion()->mRenderMatrix.mMatrix);
 				//push face vertices for terrain
 				for (S32 i = 0; i < drawable->getNumFaces(); ++i)
 				{
@@ -3516,6 +3518,7 @@ void renderPhysicsShapes(LLSpatialGroup* group)
 						}
 					}
 				}
+				gGL.popMatrix();
 			}
 		}
 	}
