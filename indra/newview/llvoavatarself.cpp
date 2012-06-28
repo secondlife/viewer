@@ -887,7 +887,10 @@ void LLVOAvatarSelf::removeMissingBakedTextures()
 			invalidateComposite(mBakedTextureDatas[i].mTexLayerSet, FALSE);
 		}
 		updateMeshTextures();
-		requestLayerSetUploads();
+		if (!LLAppearanceMgr::instance().useServerTextureBaking())
+		{
+			requestLayerSetUploads();
+		}
 	}
 }
 
@@ -1630,7 +1633,7 @@ void LLVOAvatarSelf::invalidateComposite( LLTexLayerSet* layerset, BOOL upload_r
 	layerset->requestUpdate();
 	layerset->invalidateMorphMasks();
 
-	if( upload_result )
+	if( upload_result  && !LLAppearanceMgr::instance().useServerTextureBaking())
 	{
 		llassert(isSelf());
 
