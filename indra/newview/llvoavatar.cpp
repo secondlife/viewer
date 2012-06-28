@@ -7283,7 +7283,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	if( isSelf() )
 	{
 		llwarns << avString() << "Received AvatarAppearance for self" << llendl;
-		if( mFirstTEMessageReceived )
+		if( mFirstTEMessageReceived && !LLAppearanceMgr::instance().useServerTextureBaking())
 		{
 //			llinfos << "processAvatarAppearance end  " << mID << llendl;
 			return;
@@ -7294,7 +7294,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 
 //	llinfos << "LLVOAvatar::processAvatarAppearance()" << llendl;
 //	dumpAvatarTEs( "PRE  processAvatarAppearance()" );
-	unpackTEMessage(mesgsys, _PREHASH_ObjectData);
+	unpackTEMessage(mesgsys, _PREHASH_ObjectData, LLAppearanceMgr::instance().useServerTextureBaking());
 //	dumpAvatarTEs( "POST processAvatarAppearance()" );
 
 	// prevent the overwriting of valid baked textures with invalid baked textures

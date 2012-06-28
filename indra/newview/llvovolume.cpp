@@ -370,7 +370,7 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 		// Unpack texture entry data
 		//
 
-		S32 result = unpackTEMessage(mesgsys, _PREHASH_ObjectData, block_num);
+		S32 result = unpackTEMessage(mesgsys, _PREHASH_ObjectData, (S32) block_num);
 		if (result & teDirtyBits)
 		{
 			updateTEData();

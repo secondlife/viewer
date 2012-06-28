@@ -39,6 +39,7 @@
 #include "lldatapacker.h"
 #include "llsdutil_math.h"
 #include "llprimtexturelist.h"
+#include "imageids.h"
 
 /**
  * exported constants
@@ -1227,12 +1228,12 @@ BOOL LLPrimitive::packTEMessage(LLDataPacker &dp) const
 	return FALSE;
 }
 
-S32 LLPrimitive::unpackTEMessage(LLMessageSystem* mesgsys, char const* block_name)
+S32 LLPrimitive::unpackTEMessage(LLMessageSystem* mesgsys, char const* block_name, bool fake_images)
 {
-	return(unpackTEMessage(mesgsys,block_name,-1));
+	return(unpackTEMessage(mesgsys,block_name,-1,fake_images));
 }
 
-S32 LLPrimitive::unpackTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num)
+S32 LLPrimitive::unpackTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num, bool fake_images)
 {
 	// use a negative block_num to indicate a single-block read (a non-variable block)
 	S32 retval = 0;
@@ -1307,7 +1308,15 @@ S32 LLPrimitive::unpackTEMessage(LLMessageSystem* mesgsys, char const* block_nam
 	LLColor4U coloru;
 	for (U32 i = 0; i < face_count; i++)
 	{
-		retval |= setTETexture(i, ((LLUUID*)image_data)[i]);
+		LLUUID& req_id = ((LLUUID*)image_data)[i];
+		if (fake_images & (req_id != IMG_DEFAULT) && (req_id != IMG_DEFAULT_AVATAR) && (req_id != IMG_INVISIBLE))
+		{
+			retval |= setTETexture(i, IMG_CHECKERBOARD_RGBA);
+		}
+		else
+		{
+			retval |= setTETexture(i, req_id);
+		}
 		retval |= setTEScale(i, scale_s[i], scale_t[i]);
 		retval |= setTEOffset(i, (F32)offset_s[i] / (F32)0x7FFF, (F32) offset_t[i] / (F32) 0x7FFF);
 		retval |= setTERotation(i, ((F32)image_rot[i] / TEXTURE_ROTATION_PACK_FACTOR) * F_TWO_PI);
