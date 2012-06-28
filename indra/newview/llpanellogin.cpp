@@ -877,7 +877,7 @@ void LLPanelLogin::onClickConnect(void *)
 // static
 void LLPanelLogin::onClickNewAccount(void*)
 {
-	LLWeb::loadURLExternal(sInstance->getString("create_account_url"));
+	LLWeb::loadURLExternal(LLTrans::getString("create_account_url"));
 }
 
 

@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_login">
-	<panel.string name="create_account_url">
-		http://join.secondlife.com/
-	</panel.string>
 	<panel.string name="forgot_password_url">
 		http://secondlife.com/account/request.php
 	</panel.string>

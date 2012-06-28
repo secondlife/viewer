@@ -8,10 +8,6 @@ name="panel_login"
 focus_root="true" 
 top="600"
  width="996">
-<panel.string
-     name="create_account_url">
-       http://join.secondlife.com/
-</panel.string>
 <string name="reg_in_client_url" translate="false">
      http://secondlife.eniac15.lindenlab.com/reg-in-client/
 </string>
