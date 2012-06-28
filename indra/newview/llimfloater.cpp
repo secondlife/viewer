@@ -628,9 +628,6 @@ LLIMFloater* LLIMFloater::getInstance(const LLUUID& session_id)
 
 void LLIMFloater::onClose(bool app_quitting)
 {
-	LLIMConversation::onClose(app_quitting);
-
-
 	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(
 				mSessionID);
 
@@ -663,6 +660,8 @@ void LLIMFloater::onClose(bool app_quitting)
 	// EXT-3516 X Button should end IM session, _ button should hide
 	gIMMgr->leaveSession(mSessionID);
 
+	// Clean up the conversation *after* the session has been ended
+	LLIMConversation::onClose(app_quitting);
 }
 
 void LLIMFloater::setDocked(bool docked, bool pop_on_undock)
