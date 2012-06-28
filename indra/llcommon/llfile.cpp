@@ -1,4 +1,4 @@
-/** 
+/**
  * @file llfile.cpp
  * @author Michael Schlachter
  * @date 2006-03-23
@@ -8,60 +8,194 @@
  * $LicenseInfo:firstyear=2006&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
 
 #if LL_WINDOWS
 #include <windows.h>
+#include <stdlib.h>                 // Windows errno
+#else
+#include <errno.h>
 #endif
 
 #include "linden_common.h"
 #include "llfile.h"
 #include "llstring.h"
 #include "llerror.h"
+#include "stringize.h"
 
 using namespace std;
+
+static std::string empty;
+
+// Many of the methods below use OS-level functions that mess with errno. Wrap
+// variants of strerror() to report errors.
+
+#if LL_WINDOWS
+// On Windows, use strerror_s().
+std::string strerr(int errn)
+{
+	char buffer[256];
+	strerror_s(buffer, errn);       // infers sizeof(buffer) -- love it!
+	return buffer;
+}
+
+#else
+// On Posix we want to call strerror_r(), but alarmingly, there are two
+// different variants. The one that returns int always populates the passed
+// buffer (except in case of error), whereas the other one always returns a
+// valid char* but might or might not populate the passed buffer. How do we
+// know which one we're getting? Define adapters for each and let the compiler
+// select the applicable adapter.
+
+// strerror_r() returns char*
+std::string message_from(int /*orig_errno*/, const char* /*buffer*/, size_t /*bufflen*/,
+						 const char* strerror_ret)
+{
+	return strerror_ret;
+}
+
+// strerror_r() returns int
+std::string message_from(int orig_errno, const char* buffer, size_t bufflen,
+						 int strerror_ret)
+{
+	if (strerror_ret == 0)
+	{
+		return buffer;
+	}
+	// Here strerror_r() has set errno. Since strerror_r() has already failed,
+	// seems like a poor bet to call it again to diagnose its own error...
+	int stre_errno = errno;
+	if (stre_errno == ERANGE)
+	{
+		return STRINGIZE("strerror_r() can't explain errno " << orig_errno
+						 << " (" << bufflen << "-byte buffer too small)");
+	}
+	if (stre_errno == EINVAL)
+	{
+		return STRINGIZE("unknown errno " << orig_errno);
+	}
+	// Here we don't even understand the errno from strerror_r()!
+	return STRINGIZE("strerror_r() can't explain errno " << orig_errno
+					 << " (error " << stre_errno << ')');
+}
+
+std::string strerr(int errn)
+{
+	char buffer[256];
+	// Select message_from() function matching the strerror_r() we have on hand.
+	return message_from(errn, buffer, sizeof(buffer),
+						strerror_r(errn, buffer, sizeof(buffer)));
+}
+#endif	// ! LL_WINDOWS
+
+// On either system, shorthand call just infers global 'errno'.
+std::string strerr()
+{
+	return strerr(errno);
+}
+
+int warnif(const std::string& desc, const std::string& filename, int rc, int accept=0)
+{
+	if (rc < 0)
+	{
+		// Capture errno before we start emitting output
+		int errn = errno;
+		// For certain operations, a particular errno value might be
+		// acceptable -- e.g. stat() could permit ENOENT, mkdir() could permit
+		// EEXIST. Don't warn if caller explicitly says this errno is okay.
+		if (errn != accept)
+		{
+			LL_WARNS("LLFile") << "Couldn't " << desc << " '" << filename
+							   << "' (errno " << errn << "): " << strerr(errn) << LL_ENDL;
+		}
+#if 0 && LL_WINDOWS                 // turn on to debug file-locking problems
+		// If the problem is "Permission denied," maybe it's because another
+		// process has the file open. Try to find out.
+		if (errn == EACCES)         // *not* EPERM
+		{
+			// Only do any of this stuff (before LL_ENDL) if it will be logged.
+			LL_DEBUGS("LLFile") << empty;
+			const char* TEMP = getenv("TEMP");
+			if (! TEMP)
+			{
+				LL_CONT << "No $TEMP, not running 'handle'";
+			}
+			else
+			{
+				std::string tf(TEMP);
+				tf += "\\handle.tmp";
+				// http://technet.microsoft.com/en-us/sysinternals/bb896655
+				std::string cmd(STRINGIZE("handle \"" << filename
+										  // "openfiles /query /v | fgrep -i \"" << filename
+										  << "\" > \"" << tf << '"'));
+				LL_CONT << cmd;
+				if (system(cmd.c_str()) != 0)
+				{
+					LL_CONT << "\nDownload 'handle.exe' from http://technet.microsoft.com/en-us/sysinternals/bb896655";
+				}
+				else
+				{
+					std::ifstream inf(tf);
+					std::string line;
+					while (std::getline(inf, line))
+					{
+						LL_CONT << '\n' << line;
+					}
+				}
+				LLFile::remove(tf);
+			}
+			LL_CONT << LL_ENDL;
+		}
+#endif  // LL_WINDOWS hack to identify processes holding file open
+	}
+	return rc;
+}
 
 // static
 int	LLFile::mkdir(const std::string& dirname, int perms)
 {
-#if LL_WINDOWS	
+#if LL_WINDOWS
 	// permissions are ignored on Windows
 	std::string utf8dirname = dirname;
 	llutf16string utf16dirname = utf8str_to_utf16str(utf8dirname);
-	return _wmkdir(utf16dirname.c_str());
+	int rc = _wmkdir(utf16dirname.c_str());
 #else
-	return ::mkdir(dirname.c_str(), (mode_t)perms);
+	int rc = ::mkdir(dirname.c_str(), (mode_t)perms);
 #endif
+	// We often use mkdir() to ensure the existence of a directory that might
+	// already exist. Don't spam the log if it does.
+	return warnif("mkdir", dirname, rc, EEXIST);
 }
 
 // static
 int	LLFile::rmdir(const std::string& dirname)
 {
-#if LL_WINDOWS	
+#if LL_WINDOWS
 	// permissions are ignored on Windows
 	std::string utf8dirname = dirname;
 	llutf16string utf16dirname = utf8str_to_utf16str(utf8dirname);
-	return _wrmdir(utf16dirname.c_str());
+	int rc = _wrmdir(utf16dirname.c_str());
 #else
-	return ::rmdir(dirname.c_str());
+	int rc = ::rmdir(dirname.c_str());
 #endif
+	return warnif("rmdir", dirname, rc);
 }
 
 // static
@@ -108,10 +242,11 @@ int	LLFile::remove(const std::string& filename)
 #if	LL_WINDOWS
 	std::string utf8filename = filename;
 	llutf16string utf16filename = utf8str_to_utf16str(utf8filename);
-	return _wremove(utf16filename.c_str());
+	int rc = _wremove(utf16filename.c_str());
 #else
-	return ::remove(filename.c_str());
+	int rc = ::remove(filename.c_str());
 #endif
+	return warnif("remove", filename, rc);
 }
 
 int	LLFile::rename(const std::string& filename, const std::string& newname)
@@ -121,10 +256,11 @@ int	LLFile::rename(const std::string& filename, const std::string& newname)
 	std::string utf8newname = newname;
 	llutf16string utf16filename = utf8str_to_utf16str(utf8filename);
 	llutf16string utf16newname = utf8str_to_utf16str(utf8newname);
-	return _wrename(utf16filename.c_str(),utf16newname.c_str());
+	int rc = _wrename(utf16filename.c_str(),utf16newname.c_str());
 #else
-	return ::rename(filename.c_str(),newname.c_str());
+	int rc = ::rename(filename.c_str(),newname.c_str());
 #endif
+	return warnif(STRINGIZE("rename to '" << newname << "' from"), filename, rc);
 }
 
 int	LLFile::stat(const std::string& filename, llstat* filestatus)
@@ -132,23 +268,26 @@ int	LLFile::stat(const std::string& filename, llstat* filestatus)
 #if LL_WINDOWS
 	std::string utf8filename = filename;
 	llutf16string utf16filename = utf8str_to_utf16str(utf8filename);
-	return _wstat(utf16filename.c_str(),filestatus);
+	int rc = _wstat(utf16filename.c_str(),filestatus);
 #else
-	return ::stat(filename.c_str(),filestatus);
+	int rc = ::stat(filename.c_str(),filestatus);
 #endif
+	// We use stat() to determine existence (see isfile(), isdir()).
+	// Don't spam the log if the subject pathname doesn't exist.
+	return warnif("stat", filename, rc, ENOENT);
 }
 
 bool LLFile::isdir(const std::string& filename)
 {
 	llstat st;
-	
+
 	return stat(filename, &st) == 0 && S_ISDIR(st.st_mode);
 }
 
 bool LLFile::isfile(const std::string& filename)
 {
 	llstat st;
-	
+
 	return stat(filename, &st) == 0 && S_ISREG(st.st_mode);
 }
 
@@ -260,7 +399,7 @@ void llifstream::open(const std::string& _Filename,	/* Flawfinder: ignore */
 	ios_base::openmode _Mode,
 	int _Prot)
 {	// open a C stream with specified mode
-	
+
 	LLFILE* filep = LLFile::_Fiopen(_Filename,_Mode | ios_base::in, _Prot);
 	if(filep == NULL)
 	{
@@ -280,7 +419,7 @@ bool llifstream::is_open() const
 	return false;
 }
 llifstream::~llifstream()
-{	
+{
 	if (_ShouldClose)
 	{
 		close();
@@ -309,7 +448,7 @@ bool llofstream::is_open() const
 
 void llofstream::open(const std::string& _Filename,	/* Flawfinder: ignore */
 	ios_base::openmode _Mode,
-	int _Prot)	
+	int _Prot)
 {	// open a C stream with specified mode
 
 	LLFILE* filep = LLFile::_Fiopen(_Filename,_Mode | ios_base::out, _Prot);
@@ -340,14 +479,14 @@ void llofstream::close()
 
 llofstream::llofstream(const std::string& _Filename,
 	std::ios_base::openmode _Mode,
-	int _Prot) 
+	int _Prot)
 		: std::basic_ostream<char,std::char_traits < char > >(NULL,true),_Filebuffer(NULL),_ShouldClose(false)
 {	// construct with named file and specified mode
 	open(_Filename, _Mode , _Prot);	/* Flawfinder: ignore */
 }
 
 llofstream::~llofstream()
-{	
+{
 	// destroy the object
 	if (_ShouldClose)
 	{

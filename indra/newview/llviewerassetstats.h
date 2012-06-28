@@ -36,6 +36,7 @@
 #include "llviewerassetstorage.h"
 #include "llsimplestat.h"
 #include "llsd.h"
+#include "llvoavatar.h"
 
 /**
  * @class LLViewerAssetStats
@@ -181,6 +182,9 @@ public:
 	// Frames-Per-Second Samples
 	void recordFPS(F32 fps);
 
+	// Avatar-related statistics
+	void recordAvatarStats();
+
 	// Merge a source instance into a destination instance.  This is
 	// conceptually an 'operator+=()' method:
 	// - counts are added
@@ -252,6 +256,10 @@ protected:
 
 	// Time of last reset
 	duration_t mResetTimestamp;
+
+	// Nearby avatar stats
+	std::vector<S32> mAvatarRezStates;
+	LLViewerStats::phase_stats_t mPhaseStats;
 };
 
 
@@ -310,6 +318,7 @@ void record_response_main(LLViewerAssetType::EType at, bool with_http, bool is_t
 
 void record_fps_main(F32 fps);
 
+void record_avatar_stats();
 
 /**
  * Region context, event and duration loggers for Thread 1.

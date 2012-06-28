@@ -873,9 +873,10 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 
 		if (shadow_detail > 0)
 		{ //allocate 4 sun shadow maps
+			U32 sun_shadow_map_width = ((U32(resX*scale)+1)&~1); // must be even to avoid a stripe in the horizontal shadow blur
 			for (U32 i = 0; i < 4; i++)
 			{
-				if (!mShadow[i].allocate(U32(resX*scale),U32(resY*scale), 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE)) return false;
+				if (!mShadow[i].allocate(sun_shadow_map_width,U32(resY*scale), 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE)) return false;
 			}
 		}
 		else
@@ -891,9 +892,10 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 
 		if (shadow_detail > 1)
 		{ //allocate two spot shadow maps
+			U32 spot_shadow_map_width = width;
 			for (U32 i = 4; i < 6; i++)
 			{
-				if (!mShadow[i].allocate(width, height, 0, TRUE, FALSE)) return false;
+				if (!mShadow[i].allocate(spot_shadow_map_width, height, 0, TRUE, FALSE)) return false;
 			}
 		}
 		else
@@ -8442,7 +8444,7 @@ static LLFastTimer::DeclareTimer FTM_SHADOW_RENDER("Render Shadows");
 static LLFastTimer::DeclareTimer FTM_SHADOW_ALPHA("Alpha Shadow");
 static LLFastTimer::DeclareTimer FTM_SHADOW_SIMPLE("Simple Shadow");
 
-void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera& shadow_cam, LLCullResult &result, BOOL use_shader, BOOL use_occlusion)
+void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera& shadow_cam, LLCullResult &result, BOOL use_shader, BOOL use_occlusion, U32 target_width)
 {
 	LLFastTimer t(FTM_SHADOW_RENDER);
 
@@ -8530,7 +8532,8 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 		LLFastTimer ftm(FTM_SHADOW_ALPHA);
 		gDeferredShadowAlphaMaskProgram.bind();
 		gDeferredShadowAlphaMaskProgram.setMinimumAlpha(0.598f);
-		
+		gDeferredShadowAlphaMaskProgram.uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
+
 		U32 mask =	LLVertexBuffer::MAP_VERTEX | 
 					LLVertexBuffer::MAP_TEXCOORD0 | 
 					LLVertexBuffer::MAP_COLOR | 
@@ -9387,11 +9390,13 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 			mShadow[j].getViewport(gGLViewport);
 			mShadow[j].clear();
 		
+			U32 target_width = mShadow[j].getWidth();
+
 			{
 				static LLCullResult result[4];
 
 				//LLGLEnable enable(GL_DEPTH_CLAMP_NV);
-				renderShadow(view[j], proj[j], shadow_cam, result[j], TRUE);
+				renderShadow(view[j], proj[j], shadow_cam, result[j], TRUE, TRUE, target_width);
 			}
 
 			mShadow[j].flush();
@@ -9530,11 +9535,13 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 			mShadow[i+4].getViewport(gGLViewport);
 			mShadow[i+4].clear();
 
+			U32 target_width = mShadow[i+4].getWidth();
+
 			static LLCullResult result[2];
 
 			LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_SHADOW0+i+4;
 
-			renderShadow(view[i+4], proj[i+4], shadow_cam, result[i], FALSE, FALSE);
+			renderShadow(view[i+4], proj[i+4], shadow_cam, result[i], FALSE, FALSE, target_width);
 
 			mShadow[i+4].flush();
  		}

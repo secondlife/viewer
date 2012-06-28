@@ -49,45 +49,11 @@
 #include <boost/assign/list_of.hpp>
 // other Linden headers
 #include "lltut.h"
+#include "catch_and_store_what_in.h"
 #include "stringize.h"
 #include "tests/listener.h"
 
 using boost::assign::list_of;
-
-#ifdef LL_LINUX
-#define CATCH_MISSED_LINUX_EXCEPTION(exception, threw)										\
-catch (const std::runtime_error& ex)														\
-{																							\
-	/* This clause is needed on Linux, on the viewer side, because the	*/					\
-	/* exception isn't caught by the clause above. Warn the user...		*/					\
-	std::cerr << "Failed to catch " << typeid(ex).name() << std::endl;						\
-	/* But if the expected exception was thrown, allow the test to		*/					\
-	/* succeed anyway. Not sure how else to handle this odd case.		*/					\
-	/* This approach is also used in llsdmessage_test.cpp. 				*/					\
-	if (std::string(typeid(ex).name()) == typeid(exception).name())							\
-	{																						\
-		threw = ex.what();																	\
-		/*std::cout << ex.what() << std::endl;*/											\
-	}																						\
-	else																					\
-	{																						\
-		/* We don't even recognize this exception. Let it propagate		*/					\
-		/* out to TUT to fail the test.									*/					\
-		throw;																				\
-	}																						\
-}																							\
-catch (...)																					\
-{																							\
-	std::cerr << "Utterly failed to catch expected exception " << #exception << "!" <<		\
-	std::endl;																				\
-	/* This indicates a problem in the test that should be addressed.   */					\
-	throw;																					\
-}
-
-#else // LL_LINUX
-#define CATCH_MISSED_LINUX_EXCEPTION(exception, threw)										\
-	/* Not needed on other platforms */
-#endif // LL_LINUX
 
 template<typename T>
 T make(const T& value)
@@ -178,11 +144,7 @@ void events_object::test<1>()
 		per_frame.listen(listener0.getName(), // note bug, dup name
 						 boost::bind(&Listener::call, boost::ref(listener1), _1));
 	}
-	catch (const LLEventPump::DupListenerName& e)
-	{
-		threw = e.what();
-	}
-	CATCH_MISSED_LINUX_EXCEPTION(LLEventPump::DupListenerName, threw)
+	CATCH_AND_STORE_WHAT_IN(threw, LLEventPump::DupListenerName)
 	ensure_equals(threw,
 				  std::string("DupListenerName: "
 							  "Attempt to register duplicate listener name '") +
@@ -354,7 +316,6 @@ void events_object::test<7>()
 {
 	set_test_name("listener dependency order");
 	typedef LLEventPump::NameList NameList;
-	typedef Collect::StringList StringList;
 	LLEventPump& button(pumps.obtain("button"));
 	Collect collector;
 	button.listen("Mary",
@@ -368,7 +329,7 @@ void events_object::test<7>()
 	button.listen("spot",
 				  boost::bind(&Collect::add, boost::ref(collector), "spot", _1));
 	button.post(1);
-	ensure_equals(collector.result, make<StringList>(list_of("spot")("checked")("Mary")));
+	ensure_equals(collector.result, make<StringVec>(list_of("spot")("checked")("Mary")));
 	collector.clear();
 	button.stopListening("Mary");
 	button.listen("Mary",
@@ -377,7 +338,7 @@ void events_object::test<7>()
 			// now "Mary" must come before "spot"
 			make<NameList>(list_of("spot")));
 	button.post(2);
-	ensure_equals(collector.result, make<StringList>(list_of("Mary")("spot")("checked")));
+	ensure_equals(collector.result, make<StringVec>(list_of("Mary")("spot")("checked")));
 	collector.clear();
 	button.stopListening("spot");
 	std::string threw;
@@ -388,12 +349,7 @@ void events_object::test<7>()
 					  // after "Mary" and "checked" -- whoops!
 			 		  make<NameList>(list_of("Mary")("checked")));
 	}
-	catch (const LLEventPump::Cycle& e)
-	{
-		threw = e.what();
-		// std::cout << "Caught: " << e.what() << '\n';
-	}
-	CATCH_MISSED_LINUX_EXCEPTION(LLEventPump::Cycle, threw)
+	CATCH_AND_STORE_WHAT_IN(threw, LLEventPump::Cycle)
 	// Obviously the specific wording of the exception text can
 	// change; go ahead and change the test to match.
 	// Establish that it contains:
@@ -416,7 +372,7 @@ void events_object::test<7>()
 				  boost::bind(&Collect::add, boost::ref(collector), "shoelaces", _1),
 				  make<NameList>(list_of("checked")));
 	button.post(3);
-	ensure_equals(collector.result, make<StringList>(list_of("Mary")("checked")("yellow")("shoelaces")));
+	ensure_equals(collector.result, make<StringVec>(list_of("Mary")("checked")("yellow")("shoelaces")));
 	collector.clear();
 	threw.clear();
 	try
@@ -426,12 +382,7 @@ void events_object::test<7>()
 					  make<NameList>(list_of("shoelaces")),
 					  make<NameList>(list_of("yellow")));
 	}
-	catch (const LLEventPump::OrderChange& e)
-	{
-		threw = e.what();
-		// std::cout << "Caught: " << e.what() << '\n';
-	}
-	CATCH_MISSED_LINUX_EXCEPTION(LLEventPump::OrderChange, threw)
+	CATCH_AND_STORE_WHAT_IN(threw, LLEventPump::OrderChange)
 	// Same remarks about the specific wording of the exception. Just
 	// ensure that it contains enough information to clarify the
 	// problem and what must be done to resolve it.
@@ -443,7 +394,7 @@ void events_object::test<7>()
 	ensure_contains("old order", threw, "was: Mary, checked, yellow, shoelaces");
 	ensure_contains("new order", threw, "now: Mary, checked, shoelaces, of, yellow");
 	button.post(4);
-	ensure_equals(collector.result, make<StringList>(list_of("Mary")("checked")("yellow")("shoelaces")));
+	ensure_equals(collector.result, make<StringVec>(list_of("Mary")("checked")("yellow")("shoelaces")));
 }
 
 template<> template<>
@@ -459,12 +410,7 @@ void events_object::test<8>()
 			// then another with a duplicate name.
 			LLEventStream bob2("bob");
 		}
-		catch (const LLEventPump::DupPumpName& e)
-		{
-			threw = e.what();
-			// std::cout << "Caught: " << e.what() << '\n';
-		}
-		CATCH_MISSED_LINUX_EXCEPTION(LLEventPump::DupPumpName, threw)
+		CATCH_AND_STORE_WHAT_IN(threw, LLEventPump::DupPumpName)
 		ensure("Caught DupPumpName", !threw.empty());
 	} 	// delete first 'bob'
 	LLEventStream bob("bob"); 		// should work, previous one unregistered
@@ -505,11 +451,7 @@ void events_object::test<9>()
 		LLListenerOrPumpName empty;
 		empty(17);
 	}
-	catch (const LLListenerOrPumpName::Empty& e)
-	{
-		threw = e.what();
-	}
-	CATCH_MISSED_LINUX_EXCEPTION(LLListenerOrPumpName::Empty, threw)
+	CATCH_AND_STORE_WHAT_IN(threw, LLListenerOrPumpName::Empty)
 
 	ensure("threw Empty", !threw.empty());
 }

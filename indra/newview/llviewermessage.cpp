@@ -6009,16 +6009,21 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 		args["OBJECTNAME"] = object_name;
 		args["NAME"] = LLCacheName::cleanFullName(owner_name);
 
+		BOOL has_not_only_debit = questions ^ LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_DEBIT];
 		// check the received permission flags against each permission
 		for (S32 i = 0; i < SCRIPT_PERMISSION_EOF; i++)
 		{
 			if (questions & LSCRIPTRunTimePermissionBits[i])
 			{
 				count++;
-				script_question += "    " + LLTrans::getString(SCRIPT_QUESTIONS[i]) + "\n";
 
 				// check whether permission question should cause special caution dialog
 				caution |= (SCRIPT_QUESTION_IS_CAUTION[i]);
+
+				if (("ScriptTakeMoney" ==  SCRIPT_QUESTIONS[i]) && has_not_only_debit)
+					continue;
+
+				script_question += "    " + LLTrans::getString(SCRIPT_QUESTIONS[i]) + "\n";
 			}
 		}
 		args["QUESTIONS"] = script_question;
@@ -6034,6 +6039,10 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 		// check whether cautions are even enabled or not
 		if (gSavedSettings.getBOOL("PermissionsCautionEnabled"))
 		{
+			if (caution)
+			{
+				args["FOOTERTEXT"] = (count > 1) ? LLTrans::getString("AdditionalPermissionsRequestHeader") + "\n\n" + script_question : "";
+			}
 			// display the caution permissions prompt
 			LLNotificationsUtil::add(caution ? "ScriptQuestionCaution" : "ScriptQuestion", args, payload);
 		}

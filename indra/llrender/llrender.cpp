@@ -246,14 +246,6 @@ bool LLTexUnit::bind(LLTexture* texture, bool for_rendering, bool forceBind)
 	}
 
 	//in audit, replace the selected texture by the default one.
-	if(gAuditTexture && for_rendering && LLImageGL::sCurTexPickSize > 0)
-	{
-		if(texture->getWidth() * texture->getHeight() == LLImageGL::sCurTexPickSize)
-		{
-			gl_tex->updateBindStats(gl_tex->mTextureMemory);
-			return bind(LLImageGL::sHighlightTexturep.get());
-		}
-	}
 	if ((mCurrTexture != gl_tex->getTexName()) || forceBind)
 	{
 		activate();

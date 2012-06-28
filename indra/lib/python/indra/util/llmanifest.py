@@ -41,6 +41,14 @@ import tarfile
 import errno
 import subprocess
 
+class ManifestError(RuntimeError):
+    """Use an exception more specific than generic Python RuntimeError"""
+    pass
+
+class MissingError(ManifestError):
+    """You specified a file that doesn't exist"""
+    pass
+
 def path_ancestors(path):
     drive, path = os.path.splitdrive(os.path.normpath(path))
     result = []
@@ -180,6 +188,9 @@ def usage(srctree=""):
             arg['description'] % nd)
 
 def main():
+##  import itertools
+##  print ' '.join((("'%s'" % item) if ' ' in item else item)
+##                 for item in itertools.chain([sys.executable], sys.argv))
     option_names = [arg['name'] + '=' for arg in ARGUMENTS]
     option_names.append('help')
     options, remainder = getopt.getopt(sys.argv[1:], "", option_names)
@@ -385,7 +396,7 @@ class LLManifest(object):
         child.stdout.close()
         status = child.wait()
         if status:
-            raise RuntimeError(
+            raise ManifestError(
                 "Command %s returned non-zero status (%s) \noutput:\n%s"
                 % (command, status, output) )
         return output
@@ -395,7 +406,7 @@ class LLManifest(object):
           a) verify that you really have created it
           b) schedule it for cleanup"""
         if not os.path.exists(path):
-            raise RuntimeError, "Should be something at path " + path
+            raise ManifestError, "Should be something at path " + path
         self.created_paths.append(path)
 
     def put_in_file(self, contents, dst):
@@ -550,7 +561,7 @@ class LLManifest(object):
             except (IOError, os.error), why:
                 errors.append((srcname, dstname, why))
         if errors:
-            raise RuntimeError, errors
+            raise ManifestError, errors
 
 
     def cmakedirs(self, path):
@@ -598,11 +609,10 @@ class LLManifest(object):
 
     def check_file_exists(self, path):
         if not os.path.exists(path) and not os.path.islink(path):
-            raise RuntimeError("Path %s doesn't exist" % (
-                os.path.normpath(os.path.join(os.getcwd(), path)),))
+            raise MissingError("Path %s doesn't exist" % (os.path.abspath(path),))
 
 
-    wildcard_pattern = re.compile('\*')
+    wildcard_pattern = re.compile(r'\*')
     def expand_globs(self, src, dst):
         src_list = glob.glob(src)
         src_re, d_template = self.wildcard_regex(src.replace('\\', '/'),
@@ -615,7 +625,7 @@ class LLManifest(object):
         sys.stdout.write("Processing %s => %s ... " % (src, dst))
         sys.stdout.flush()
         if src == None:
-            raise RuntimeError("No source file, dst is " + dst)
+            raise ManifestError("No source file, dst is " + dst)
         if dst == None:
             dst = src
         dst = os.path.join(self.get_dst_prefix(), dst)
@@ -637,13 +647,23 @@ class LLManifest(object):
                 else:
                     count += self.process_file(src, dst)
             return count
-        try:
-            count = try_path(os.path.join(self.get_src_prefix(), src))
-        except RuntimeError:
+
+        for pfx in self.get_src_prefix(), self.get_artwork_prefix(), self.get_build_prefix():
             try:
-                count = try_path(os.path.join(self.get_artwork_prefix(), src))
-            except RuntimeError:
-                count = try_path(os.path.join(self.get_build_prefix(), src))
+                count = try_path(os.path.join(pfx, src))
+            except MissingError:
+                # If src isn't a wildcard, and if that file doesn't exist in
+                # this pfx, try next pfx.
+                count = 0
+                continue
+
+            # Here try_path() didn't raise MissingError. Did it process any files?
+            if count:
+                break
+            # Even though try_path() didn't raise MissingError, it returned 0
+            # files. src is probably a wildcard meant for some other pfx. Loop
+            # back to try the next.
+
         print "%d files" % count
 
     def do(self, *actions):

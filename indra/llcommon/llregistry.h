@@ -31,11 +31,30 @@
 
 #include <boost/type_traits.hpp>
 #include "llsingleton.h"
+#include "lltypeinfolookup.h"
 
 template <typename T>
 class LLRegistryDefaultComparator
 {
 	bool operator()(const T& lhs, const T& rhs) { return lhs < rhs; }
+};
+
+template <typename KEY, typename VALUE>
+struct LLRegistryMapSelector
+{
+    typedef std::map<KEY, VALUE> type;
+};
+
+template <typename VALUE>
+struct LLRegistryMapSelector<std::type_info*, VALUE>
+{
+    typedef LLTypeInfoLookup<VALUE> type;
+};
+
+template <typename VALUE>
+struct LLRegistryMapSelector<const std::type_info*, VALUE>
+{
+    typedef LLTypeInfoLookup<VALUE> type;
 };
 
 template <typename KEY, typename VALUE, typename COMPARATOR = LLRegistryDefaultComparator<KEY> >
@@ -53,7 +72,7 @@ public:
 	{
 		friend class LLRegistry<KEY, VALUE, COMPARATOR>;
 	public:
-		typedef typename std::map<KEY, VALUE> registry_map_t;
+		typedef typename LLRegistryMapSelector<KEY, VALUE>::type registry_map_t;
 
 		bool add(ref_const_key_t key, ref_const_value_t value)
 		{

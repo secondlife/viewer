@@ -6392,31 +6392,28 @@ Is this OK?
   <notification
    icon="notify.tga"
    name="ScriptQuestionCaution"
-   priority="high"
+   priority="critical"
    persist="true"
    type="notify">
-An object named &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, owned by &apos;[NAME]&apos; would like to:
+Warning: The object &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; wants total access to your Linden Dollars account. If you allow access, it can remove funds from your account at any time, or empty your account completely, on an ongoing basis with no additional warnings.
+  
+It is rare that such a request is legitimate. Do not allow access if you do not fully understand why it wants access to your account.
 
-[QUESTIONS]
-If you do not trust this object and its creator, you should deny the request.
-
-Grant this request?
   <tag>confirm</tag>
     <form name="form">
       <button
        index="0"
        name="Grant"
-       text="Grant"/>
+       text="Allow total access"/>
       <button
        default="true"
        index="1"
        name="Deny"
        text="Deny"/>
-      <button
-       index="2"
-       name="Details"
-       text="Details..."/>
     </form>
+    <footer>
+[FOOTERTEXT]
+    </footer>
   </notification>
 
   <notification
