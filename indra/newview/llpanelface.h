@@ -91,6 +91,15 @@ protected:
 	static void		onClickAutoFix(void*);
 	static F32      valueGlow(LLViewerObject* object, S32 face);
 
+private:
+
+	/*
+	 * Checks whether the selected texture from the LLFloaterTexturePicker can be applied to the currently selected object.
+	 * If agent selects texture which is not allowed to be applied for the currently selected object,
+	 * all controls of the floater texture picker which allow to apply the texture will be disabled.
+	 */
+	void onTextureSelectionChanged(LLInventoryItem* itemp);
+
 };
 
 #endif

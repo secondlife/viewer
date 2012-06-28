@@ -81,7 +81,7 @@ void LLCubeMap::initGL()
 		{
 			U32 texname = 0;
 			
-			LLImageGL::generateTextures(1, &texname);
+			LLImageGL::generateTextures(LLTexUnit::TT_CUBE_MAP, GL_RGB8, 1, &texname);
 
 			for (int i = 0; i < 6; i++)
 			{

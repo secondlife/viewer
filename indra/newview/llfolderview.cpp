@@ -2236,12 +2236,16 @@ void LLFolderView::doIdle()
 		arrangeAll();
 	}
 
+	mNeedsAutoSelect = mFilter->hasFilterString() &&
+							!(gFocusMgr.childHasKeyboardFocus(this) || gFocusMgr.getMouseCapture());
+
+		
 	if (mFilter->isModified() && mFilter->isNotDefault())
 	{
 		mNeedsAutoSelect = TRUE;
 	}
 	mFilter->clearModified();
-
+			
 	// filter to determine visibility before arranging
 	filterFromRoot();
 

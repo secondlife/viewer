@@ -356,6 +356,10 @@ public:
 
 	LLVector3			mHeadOffset; // current head position
 	LLViewerJoint		mRoot;
+
+	typedef std::map<std::string, LLJoint*> joint_map_t;
+	joint_map_t			mJointMap;
+
 protected:
 	static BOOL			parseSkeletonFile(const std::string& filename);
 	void				buildCharacter();

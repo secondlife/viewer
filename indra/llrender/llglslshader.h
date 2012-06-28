@@ -76,7 +76,9 @@ public:
 
 	void unload();
 	BOOL createShader(std::vector<std::string> * attributes,
-						std::vector<std::string> * uniforms);
+						std::vector<std::string> * uniforms,
+						U32 varying_count = 0,
+						const char** varyings = NULL);
 	BOOL attachObject(std::string object);
 	void attachObject(GLhandleARB object);
 	void attachObjects(GLhandleARB* objects = NULL, S32 count = 0);

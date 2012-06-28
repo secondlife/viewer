@@ -79,9 +79,12 @@ public:
 		USE_FACE_COLOR	= 0x0010,
 		TEXTURE_ANIM	= 0x0020, 
 		RIGGED			= 0x0040,
+		PARTICLE		= 0x0080,
 	};
 
 	static void initClass();
+
+	static void cacheFaceInVRAM(const LLVolumeFace& vf);
 
 public:
 	LLFace(LLDrawable* drawablep, LLViewerObject* objp)   { init(drawablep, objp); }
@@ -222,7 +225,7 @@ public:
 
 	//vertex buffer tracking
 	void setVertexBuffer(LLVertexBuffer* buffer);
-	void clearVertexBuffer(); //sets mVertexBuffer and mLastVertexBuffer to NULL
+	void clearVertexBuffer(); //sets mVertexBuffer to NULL
 	LLVertexBuffer* getVertexBuffer()	const	{ return mVertexBuffer; }
 	U32 getRiggedVertexBufferDataMask() const;
 	S32 getRiggedIndex(U32 type) const;
@@ -255,8 +258,7 @@ public:
 
 private:
 	LLPointer<LLVertexBuffer> mVertexBuffer;
-	LLPointer<LLVertexBuffer> mLastVertexBuffer;
-	
+		
 	U32			mState;
 	LLFacePool*	mDrawPoolp;
 	U32			mPoolType;
@@ -268,12 +270,6 @@ private:
 	U32			mIndicesCount;
 	U32			mIndicesIndex;		// index into draw pool for indices (yeah, I know!)
 	S32         mIndexInTex ;
-
-	//previous rebuild's geometry info
-	U16			mLastGeomCount;
-	U16			mLastGeomIndex;
-	U32			mLastIndicesCount;
-	U32			mLastIndicesIndex;
 
 	LLXformMatrix* mXform;
 	LLPointer<LLViewerTexture> mTexture;
