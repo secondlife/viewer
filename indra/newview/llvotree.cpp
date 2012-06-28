@@ -339,11 +339,11 @@ U32 LLVOTree::processUpdateMessage(LLMessageSystem *mesgsys,
 	return retval;
 }
 
-BOOL LLVOTree::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
+void LLVOTree::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
  	if (mDead || !(gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_TREE)))
 	{
-		return TRUE;
+		return;
 	}
 	
 	S32 trunk_LOD = sMAX_NUM_TREE_LOD_LEVELS ;
@@ -374,7 +374,7 @@ BOOL LLVOTree::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 		// *TODO: I don't know what's so special about trees
 		// that they don't get REBUILD_POSITION automatically
 		// at a higher level.
-		const LLVector3 &this_position = getPositionAgent();
+		const LLVector3 &this_position = getPositionRegion();
 		if (this_position != mLastPosition)
 		{
 			gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_POSITION);
@@ -393,8 +393,6 @@ BOOL LLVOTree::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 	}
 
 	mTrunkLOD = trunk_LOD;
-
-	return TRUE;
 }
 
 const F32 TREE_BLEND_MIN = 1.f;
@@ -490,11 +488,16 @@ BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 	if(mTrunkLOD >= sMAX_NUM_TREE_LOD_LEVELS) //do not display the tree.
 	{
 		mReferenceBuffer = NULL ;
-		mDrawable->getFace(0)->setVertexBuffer(NULL);
+		LLFace * facep = drawable->getFace(0);
+		if (facep)
+		{
+			facep->setVertexBuffer(NULL);
+		}
 		return TRUE ;
 	}
 
-	if (mReferenceBuffer.isNull() || !mDrawable->getFace(0)->getVertexBuffer())
+	if (mDrawable->getFace(0) &&
+		(mReferenceBuffer.isNull() || !mDrawable->getFace(0)->getVertexBuffer()))
 	{
 		const F32 SRR3 = 0.577350269f; // sqrt(1/3)
 		const F32 SRR2 = 0.707106781f; // sqrt(1/2)
@@ -507,6 +510,7 @@ BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 		S32 lod;
 
 		LLFace *face = drawable->getFace(0);
+		if (!face) return TRUE;
 
 		face->mCenterAgent = getPositionAgent();
 		face->mCenterLocal = face->mCenterAgent;
@@ -837,10 +841,10 @@ void LLVOTree::updateMesh()
 	LLMatrix4 matrix;
 	
 	// Translate to tree base  HACK - adjustment in Z plants tree underground
-	const LLVector3 &pos_agent = getPositionAgent();
+	const LLVector3 &pos_region = getPositionRegion();
 	//gGL.translatef(pos_agent.mV[VX], pos_agent.mV[VY], pos_agent.mV[VZ] - 0.1f);
 	LLMatrix4 trans_mat;
-	trans_mat.setTranslation(pos_agent.mV[VX], pos_agent.mV[VY], pos_agent.mV[VZ] - 0.1f);
+	trans_mat.setTranslation(pos_region.mV[VX], pos_region.mV[VY], pos_region.mV[VZ] - 0.1f);
 	trans_mat *= matrix;
 	
 	// Rotate to tree position and bend for current trunk/wind
@@ -879,6 +883,7 @@ void LLVOTree::updateMesh()
 	calcNumVerts(vert_count, index_count, mTrunkLOD, stop_depth, mDepth, mTrunkDepth, mBranches);
 
 	LLFace* facep = mDrawable->getFace(0);
+	if (!facep) return;
 	LLVertexBuffer* buff = new LLVertexBuffer(LLDrawPoolTree::VERTEX_DATA_MASK, GL_STATIC_DRAW_ARB);
 	buff->allocateBuffer(vert_count, index_count, TRUE);
 	facep->setVertexBuffer(buff);

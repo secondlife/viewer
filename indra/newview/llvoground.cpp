@@ -49,18 +49,8 @@ LLVOGround::~LLVOGround()
 {
 }
 
-BOOL LLVOGround::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
+void LLVOGround::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
- 	if (mDead || !(gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_GROUND)))
-	{
-		return TRUE;
-	}
-	
-	/*if (mDrawable)
-	{
-		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
-	}*/
-	return TRUE;
 }
 
 
@@ -82,6 +72,7 @@ LLDrawable *LLVOGround::createDrawable(LLPipeline *pipeline)
 	return mDrawable;
 }
 
+// TO DO - this always returns TRUE, 
 BOOL LLVOGround::updateGeometry(LLDrawable *drawable)
 {
 	LLStrider<LLVector3> verticesp;
@@ -96,6 +87,8 @@ BOOL LLVOGround::updateGeometry(LLDrawable *drawable)
 	if (drawable->getNumFaces() < 1)
 		drawable->addFace(poolp, NULL);
 	face = drawable->getFace(0); 
+	if (!face)
+		return TRUE;
 		
 	if (!face->getVertexBuffer())
 	{

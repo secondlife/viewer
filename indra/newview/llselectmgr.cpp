@@ -390,7 +390,7 @@ LLObjectSelectionHandle LLSelectMgr::selectObjectAndFamily(LLViewerObject* obj, 
 	// don't include an avatar.
 	LLViewerObject* root = obj;
 	
-	while(!root->isAvatar() && root->getParent() && !root->isJointChild())
+	while(!root->isAvatar() && root->getParent())
 	{
 		LLViewerObject* parent = (LLViewerObject*)root->getParent();
 		if (parent->isAvatar())
@@ -674,7 +674,7 @@ void LLSelectMgr::deselectObjectAndFamily(LLViewerObject* object, BOOL send_to_s
 		// don't include an avatar.
 		LLViewerObject* root = object;
 	
-		while(!root->isAvatar() && root->getParent() && !root->isJointChild())
+		while(!root->isAvatar() && root->getParent())
 		{
 			LLViewerObject* parent = (LLViewerObject*)root->getParent();
 			if (parent->isAvatar())
@@ -1387,7 +1387,7 @@ void LLSelectMgr::promoteSelectionToRoot()
 		}
 
 		LLViewerObject* parentp = object;
-		while(parentp->getParent() && !(parentp->isRootEdit() || parentp->isJointChild()))
+		while(parentp->getParent() && !(parentp->isRootEdit()))
 		{
 			parentp = (LLViewerObject*)parentp->getParent();
 		}
@@ -1508,6 +1508,49 @@ struct LLSelectMgrSendFunctor : public LLSelectedObjectFunctor
 	}
 };
 
+void LLObjectSelection::applyNoCopyTextureToTEs(LLViewerInventoryItem* item)
+{
+	if (!item)
+	{
+		return;
+	}
+	LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture(item->getAssetUUID());
+
+	for (iterator iter = begin(); iter != end(); ++iter)
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = (*iter)->getObject();
+		if (!object)
+		{
+			continue;
+		}
+
+		S32 num_tes = llmin((S32)object->getNumTEs(), (S32)object->getNumFaces());
+		bool texture_copied = false;
+		for (S32 te = 0; te < num_tes; ++te)
+		{
+			if (node->isTESelected(te))
+			{
+				//(no-copy) textures must be moved to the object's inventory only once
+				// without making any copies
+				if (!texture_copied)
+				{
+					LLToolDragAndDrop::handleDropTextureProtections(object, item, LLToolDragAndDrop::SOURCE_AGENT, LLUUID::null);
+					texture_copied = true;
+				}
+
+				// apply texture for the selected faces
+				LLViewerStats::getInstance()->incStat(LLViewerStats::ST_EDIT_TEXTURE_COUNT );
+				object->setTEImage(te, image);
+				dialog_refresh_all();
+
+				// send the update to the simulator
+				object->sendTEUpdate();
+			}
+		}
+	}
+}
+
 //-----------------------------------------------------------------------------
 // selectionSetImage()
 //-----------------------------------------------------------------------------
@@ -1559,8 +1602,18 @@ void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 			}
 			return true;
 		}
-	} setfunc(item, imageid);
-	getSelection()->applyToTEs(&setfunc);
+	};
+
+	if (item && !item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
+	{
+		getSelection()->applyNoCopyTextureToTEs(item);
+	}
+	else
+	{
+		f setfunc(item, imageid);
+		getSelection()->applyToTEs(&setfunc);
+	}
+
 
 	struct g : public LLSelectedObjectFunctor
 	{
@@ -4121,8 +4174,7 @@ struct LLSelectMgrApplyFlags : public LLSelectedObjectFunctor
 	virtual bool apply(LLViewerObject* object)
 	{
 		if ( object->permModify() &&	// preemptive permissions check
-			 object->isRoot() &&		// don't send for child objects
-			 !object->isJointChild())
+			 object->isRoot()) 		// don't send for child objects
 		{
 			object->setFlags( mFlags, mState);
 		}
@@ -5583,7 +5635,7 @@ void pushWireframe(LLDrawable* drawable)
 			for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
 			{
 				const LLVolumeFace& face = volume->getVolumeFace(i);
-				LLVertexBuffer::drawElements(LLRender::TRIANGLES, face.mPositions, face.mTexCoords, face.mNumIndices, face.mIndices);
+				LLVertexBuffer::drawElements(LLRender::TRIANGLES, face.mPositions, NULL, face.mNumIndices, face.mIndices);
 			}
 		}
 
@@ -5610,7 +5662,7 @@ void LLSelectNode::renderOneWireframe(const LLColor4& color)
 
 	if (shader)
 	{
-		gHighlightProgram.bind();
+		gDebugProgram.bind();
 	}
 
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
@@ -5983,8 +6035,6 @@ void LLSelectMgr::updateSelectionCenter()
 		// matches the root prim's (affecting the orientation of the manipulators). 
 		bbox.addBBoxAgent( (mSelectedObjects->getFirstRootObject(TRUE))->getBoundingBoxAgent() ); 
 	                 
-		std::vector < LLViewerObject *> jointed_objects;
-
 		for (LLObjectSelection::iterator iter = mSelectedObjects->begin();
 			 iter != mSelectedObjects->end(); iter++)
 		{
@@ -6002,11 +6052,6 @@ void LLSelectMgr::updateSelectionCenter()
 			}
 
 			bbox.addBBoxAgent( object->getBoundingBoxAgent() );
-
-			if (object->isJointChild())
-			{
-				jointed_objects.push_back(object);
-			}
 		}
 		
 		LLVector3 bbox_center_agent = bbox.getCenterAgent();
@@ -6296,19 +6341,19 @@ void LLSelectMgr::setAgentHUDZoom(F32 target_zoom, F32 current_zoom)
 bool LLObjectSelection::is_root::operator()(LLSelectNode *node)
 {
 	LLViewerObject* object = node->getObject();
-	return (object != NULL) && !node->mIndividualSelection && (object->isRootEdit() || object->isJointChild());
+	return (object != NULL) && !node->mIndividualSelection && (object->isRootEdit());
 }
 
 bool LLObjectSelection::is_valid_root::operator()(LLSelectNode *node)
 {
 	LLViewerObject* object = node->getObject();
-	return (object != NULL) && node->mValid && !node->mIndividualSelection && (object->isRootEdit() || object->isJointChild());
+	return (object != NULL) && node->mValid && !node->mIndividualSelection && (object->isRootEdit());
 }
 
 bool LLObjectSelection::is_root_object::operator()(LLSelectNode *node)
 {
 	LLViewerObject* object = node->getObject();
-	return (object != NULL) && (object->isRootEdit() || object->isJointChild());
+	return (object != NULL) && (object->isRootEdit());
 }
 
 LLObjectSelection::LLObjectSelection() : 

@@ -31,6 +31,8 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
+uniform float minimum_alpha;
+
 uniform sampler2DRect depthMap;
 uniform sampler2D diffuseMap;
 
@@ -70,8 +72,14 @@ void main()
 	
 	vec4 diff= texture2D(diffuseMap,vary_texcoord0.xy);
 
+	if (diff.a < minimum_alpha)
+	{
+		discard;
+	}
+
 	vec4 col = vec4(vary_ambient + vary_directional.rgb, 1.0);
 	vec4 color = diff * col;
+	
 	
 	color.rgb = atmosLighting(color.rgb);
 

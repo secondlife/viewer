@@ -89,6 +89,7 @@
 #include "lllogininstance.h"
 #include "llprogressview.h"
 #include "llvocache.h"
+#include "llvopartgroup.h"
 #include "llweb.h"
 #include "llsecondlifeurls.h"
 #include "llupdaterservice.h"
@@ -675,6 +676,9 @@ bool LLAppViewer::init()
 	// initialize SSE options
 	LLVector4a::initClass();
 
+	//initialize particle index pool
+	LLVOPartGroup::initClass();
+
 	// Need to do this initialization before we do anything else, since anything
 	// that touches files should really go through the lldir API
 	gDirUtilp->initAppDirs("SecondLife");
@@ -1162,6 +1166,8 @@ void LLAppViewer::checkMemory()
 
 static LLFastTimer::DeclareTimer FTM_MESSAGES("System Messages");
 static LLFastTimer::DeclareTimer FTM_SLEEP("Sleep");
+static LLFastTimer::DeclareTimer FTM_YIELD("Yield");
+
 static LLFastTimer::DeclareTimer FTM_TEXTURE_CACHE("Texture Cache");
 static LLFastTimer::DeclareTimer FTM_DECODE("Image Decode");
 static LLFastTimer::DeclareTimer FTM_VFS("VFS Thread");
@@ -1347,6 +1353,7 @@ bool LLAppViewer::mainLoop()
 				// yield some time to the os based on command line option
 				if(mYieldTime >= 0)
 				{
+					LLFastTimer t(FTM_YIELD);
 					ms_sleep(mYieldTime);
 				}
 
