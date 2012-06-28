@@ -27,30 +27,20 @@
 #ifndef LL_LLRENDERNAVPRIM_H
 #define LL_LLRENDERNAVPRIM_H
 
-#include "llmath.h"
-#include "v3math.h"
-#include "v4math.h"
-#include "m3math.h"
-#include "m4math.h"
-#include "v4color.h"
-#include "llgl.h"
+#include "stdtypes.h"
+
+class LLColor4U;
+class LLVector3;
+class LLVertexBuffer;
 
 
 class LLRenderNavPrim
 {
 public:
-	//Draw a line
-	void renderLLSegment( const LLVector3& start, const LLVector3& end, const LLColor4U& color ) const;
-	//Draw simple tri
-	void renderTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, int color ) const;
 	//Draw simple tri
 	void renderLLTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, const LLColor4U& color ) const;
 	//Draw the contents of vertex buffer
 	void renderNavMeshVB( U32 mode, LLVertexBuffer* pVBO, int vertCnt );
-	//Draw a star
-	void renderStar( const LLVector3& center, const float scale, const LLColor4U& color ) const;
-	//Flush the device
-	void flushDevice() { gGL.flush(); }
 private:
 };
 

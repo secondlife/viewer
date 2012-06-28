@@ -30,40 +30,13 @@
 
 #include "llrendernavprim.h"
 
-#include "llerror.h"
-#include "llglheaders.h"
-#include "llglslshader.h"
+#include "llrender.h"
 #include "llvertexbuffer.h"
+#include "v4coloru.h"
+#include "v3math.h"
 
 //=============================================================================
 LLRenderNavPrim gRenderNav;
-//=============================================================================
-void LLRenderNavPrim::renderLLSegment( const LLVector3& start, const LLVector3& end, const LLColor4U& color ) const
-{	
-	LLColor4 colorA( color );	
-	gGL.color3fv( colorA.mV );
-
-	gGL.begin(LLRender::LINES);
-	{
-		gGL.vertex3fv( start.mV );
-		gGL.vertex3fv( end.mV );
-	}
-	gGL.end();	
-}
-//=============================================================================
-void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, int color ) const
-{
-	LLColor4 colorA( color );	
-	colorA*=1.25f;
-	gGL.color4fv( colorA.mV );
-	gGL.begin(LLRender::TRIANGLES);
-	{
-		gGL.vertex3fv( a.mV );
-		gGL.vertex3fv( b.mV );
-		gGL.vertex3fv( c.mV );
-	}
-	gGL.end();		
-}
 //=============================================================================
 void LLRenderNavPrim::renderLLTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, const LLColor4U& color ) const
 {
@@ -82,18 +55,5 @@ void LLRenderNavPrim::renderNavMeshVB( U32 mode, LLVertexBuffer* pVBO, int vertC
 {	
 	pVBO->setBuffer( LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR | LLVertexBuffer::MAP_NORMAL );
 	pVBO->drawArrays( mode, 0, vertCnt );	
-}
-//=============================================================================
-void LLRenderNavPrim::renderStar( const LLVector3& center, const float scale, const LLColor4U& color ) const
-{	
-	for (int k=0; k<3; k++)
-	{
-		LLVector3 star, pt1, pt2;
-		star = LLVector3( 0.0f,0.0f,0.0f);
-		star[k] = 0.5f;
-		pt1 =  center + star;
-		pt2 =  center - star;	
-		renderLLSegment( pt1, pt2, color );
-	}
 }
 //=============================================================================
