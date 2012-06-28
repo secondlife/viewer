@@ -83,6 +83,7 @@ public:
 	LLTextBox		*mGroupName;
 	std::string		mOwnerWarning;
 	std::string		mAlreadyInGroup;
+	std::string		mTooManySelected;
 	bool		mConfirmedOwnerInvite;
 
 	void (*mCloseCallback)(void* data);
@@ -185,6 +186,17 @@ void LLPanelGroupInvite::impl::submitInvitations()
 		role_member_pairs[item->getUUID()] = role_id;
 	}
 	
+	const S32 MAX_GROUP_INVITES = 100; // Max invites per request. 100 to match server cap.
+	if (role_member_pairs.size() > MAX_GROUP_INVITES)
+	{
+		// Fail!
+		LLSD msg;
+		msg["MESSAGE"] = mTooManySelected;
+		LLNotificationsUtil::add("GenericAlert", msg);
+		(*mCloseCallback)(mCloseCallbackUserData);
+		return;
+	}
+
 	LLGroupMgr::getInstance()->sendGroupMemberInvites(mGroupID, role_member_pairs);
 	
 	if(already_in_group)
@@ -621,6 +633,7 @@ BOOL LLPanelGroupInvite::postBuild()
 
 	mImplementation->mOwnerWarning = getString("confirm_invite_owner_str");
 	mImplementation->mAlreadyInGroup = getString("already_in_group");
+	mImplementation->mTooManySelected = getString("invite_selection_too_large");
 
 	update();
 	
