@@ -118,7 +118,7 @@
 			<menu_item_call label="Devolver objeto" name="Return Object back to Owner"/>
 		</menu>
 		<menu label="Scripts" name="Scripts">
-			<menu_item_call label="Recompilar scripts (LSL)" name="Mono"/>
+			<menu_item_call label="Recompilar scripts (Mono)" name="Mono"/>
 			<menu_item_call label="Recompilar scripts (LSL)" name="LSL"/>
 			<menu_item_call label="Resetar scripts" name="Reset Scripts"/>
 			<menu_item_call label="Scripts em modo execução" name="Set Scripts to Running"/>
@@ -163,7 +163,7 @@
 		<menu_item_check label="Limitar distância da seleção" name="Limit Select Distance"/>
 		<menu_item_check label="Disable Camera Constraints" name="Disable Camera Distance"/>
 		<menu_item_check label="Foto de alta resolução" name="HighResSnapshot"/>
-		<menu_item_check label="Compactar fotos para HD" name="QuietSnapshotsToDisk"/>
+		<menu_item_check label="Fotos sem barulho para HD" name="QuietSnapshotsToDisk"/>
 		<menu label="Ferramentas de desempenho" name="Performance Tools">
 			<menu_item_call label="Medidor de lag" name="Lag Meter"/>
 			<menu_item_check label="Barra de estatísticas" name="Statistics Bar"/>

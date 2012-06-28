@@ -534,7 +534,10 @@ public:
 			
 			}
 
-			addText(xpos, ypos, llformat("%d MB Vertex Data (%d MB Pooled)", LLVertexBuffer::sAllocatedBytes/(1024*1024), LLVBOPool::sBytesPooled/(1024*1024)));
+			addText(xpos, ypos, llformat("%d MB Index Data (%d MB Pooled, %d KIndices)", LLVertexBuffer::sAllocatedIndexBytes/(1024*1024), LLVBOPool::sIndexBytesPooled/(1024*1024), LLVertexBuffer::sIndexCount/1024));
+			ypos += y_inc;
+
+			addText(xpos, ypos, llformat("%d MB Vertex Data (%d MB Pooled, %d KVerts)", LLVertexBuffer::sAllocatedBytes/(1024*1024), LLVBOPool::sBytesPooled/(1024*1024), LLVertexBuffer::sVertexCount/1024));
 			ypos += y_inc;
 
 			addText(xpos, ypos, llformat("%d Vertex Buffers", LLVertexBuffer::sGLCount));
@@ -742,40 +745,41 @@ public:
 		if (gSavedSettings.getBOOL("DebugShowTextureInfo"))
 		{
 			LLViewerObject* objectp = NULL ;
-			//objectp = = gAgentCamera.getFocusObject();
 			
 			LLSelectNode* nodep = LLSelectMgr::instance().getHoverNode();
 			if (nodep)
 			{
-				objectp = nodep->getObject();			
+				objectp = nodep->getObject();
 			}
+
 			if (objectp && !objectp->isDead())
 			{
 				S32 num_faces = objectp->mDrawable->getNumFaces() ;
-				
+				std::set<LLViewerFetchedTexture*> tex_list;
+
 				for(S32 i = 0 ; i < num_faces; i++)
 				{
 					LLFace* facep = objectp->mDrawable->getFace(i) ;
 					if(facep)
-					{
-						//addText(xpos, ypos, llformat("ts_min: %.3f ts_max: %.3f tt_min: %.3f tt_max: %.3f", facep->mTexExtents[0].mV[0], facep->mTexExtents[1].mV[0],
-						//		facep->mTexExtents[0].mV[1], facep->mTexExtents[1].mV[1]));
-						//ypos += y_inc;
-						
-						addText(xpos, ypos, llformat("v_size: %.3f:  p_size: %.3f", facep->getVirtualSize(), facep->getPixelArea()));
-						ypos += y_inc;
-						
-						//const LLTextureEntry *tep = facep->getTextureEntry();
-						//if(tep)
-						//{
-						//	addText(xpos, ypos, llformat("scale_s: %.3f:  scale_t: %.3f", tep->mScaleS, tep->mScaleT)) ;
-						//	ypos += y_inc;
-						//}
-						
-						LLViewerTexture* tex = facep->getTexture() ;
+					{						
+						LLViewerFetchedTexture* tex = dynamic_cast<LLViewerFetchedTexture*>(facep->getTexture()) ;
 						if(tex)
 						{
-							addText(xpos, ypos, llformat("ID: %s v_size: %.3f", tex->getID().asString().c_str(), tex->getMaxVirtualSize()));
+							if(tex_list.find(tex) != tex_list.end())
+							{
+								continue ; //already displayed.
+							}
+							tex_list.insert(tex);
+
+							std::string uuid_str;
+							tex->getID().toString(uuid_str);
+							uuid_str = uuid_str.substr(0,7);
+
+							addText(xpos, ypos, llformat("ID: %s v_size: %.3f", uuid_str.c_str(), tex->getMaxVirtualSize()));
+							ypos += y_inc;
+
+							addText(xpos, ypos, llformat("discard level: %d desired level: %d Missing: %s", tex->getDiscardLevel(), 
+								tex->getDesiredDiscardLevel(), tex->isMissingAsset() ? "Y" : "N"));
 							ypos += y_inc;
 						}
 					}

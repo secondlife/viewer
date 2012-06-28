@@ -56,7 +56,7 @@ std::string LLImageJ2C::getEngineInfo()
 LLImageJ2C::LLImageJ2C() : 	LLImageFormatted(IMG_CODEC_J2C),
 							mMaxBytes(0),
 							mRawDiscardLevel(-1),
-							mRate(0.0f),
+							mRate(DEFAULT_COMPRESSION_RATE),
 							mReversible(FALSE),
 							mAreaUsedForDataSizeCalcs(0)
 {
@@ -142,6 +142,7 @@ BOOL LLImageJ2C::updateData()
 
 BOOL LLImageJ2C::initDecode(LLImageRaw &raw_image, int discard_level, int* region)
 {
+	setDiscardLevel(discard_level != -1 ? discard_level : 0);
 	return mImpl->initDecode(*this,raw_image,discard_level,region);
 }
 
@@ -261,19 +262,34 @@ S32 LLImageJ2C::calcHeaderSizeJ2C()
 //static
 S32 LLImageJ2C::calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, F32 rate)
 {
-	// Note: this only provides an *estimate* of the size in bytes of an image level
-	// *TODO: find a way to read the true size (when available) and convey the fact
-	// that the result is an estimate in the other cases
-	if (rate <= 0.f) rate = .125f;
-	while (discard_level > 0)
+	// Note: This provides an estimation for the first to last quality layer of a given discard level
+	// This is however an efficient approximation, as the true discard level boundary would be
+	// in general too big for fast fetching.
+	// For details about the equation used here, see https://wiki.lindenlab.com/wiki/THX1138_KDU_Improvements#Byte_Range_Study
+
+	// Estimate the number of layers. This is consistent with what's done for j2c encoding in LLImageJ2CKDU::encodeImpl().
+	S32 nb_layers = 1;
+	S32 surface = w*h;
+	S32 s = 64*64;
+	while (surface > s)
 	{
-		if (w < 1 || h < 1)
-			break;
-		w >>= 1;
-		h >>= 1;
-		discard_level--;
+		nb_layers++;
+		s *= 4;
 	}
-	S32 bytes = (S32)((F32)(w*h*comp)*rate);
+	F32 layer_factor =  3.0f * (7 - llclamp(nb_layers,1,6));
+	
+	// Compute w/pow(2,discard_level) and h/pow(2,discard_level)
+	w >>= discard_level;
+	h >>= discard_level;
+	w = llmax(w, 1);
+	h = llmax(h, 1);
+
+	// Temporary: compute both new and old range and pick one according to the settings TextureNewByteRange 
+	// *TODO: Take the old code out once we have enough tests done
+	S32 bytes;
+	S32 new_bytes = (S32) (sqrt((F32)(w*h))*(F32)(comp)*rate*1000.f/layer_factor);
+	S32 old_bytes = (S32)((F32)(w*h*comp)*rate);
+	bytes = (LLImage::useNewByteRange() && (new_bytes < old_bytes) ? new_bytes : old_bytes);
 	bytes = llmax(bytes, calcHeaderSizeJ2C());
 	return bytes;
 }
@@ -283,15 +299,12 @@ S32 LLImageJ2C::calcHeaderSize()
 	return calcHeaderSizeJ2C();
 }
 
-
-// calcDataSize() returns how many bytes to read 
-// to load discard_level (including header and higher discard levels)
+// calcDataSize() returns how many bytes to read to load discard_level (including header)
 S32 LLImageJ2C::calcDataSize(S32 discard_level)
 {
 	discard_level = llclamp(discard_level, 0, MAX_DISCARD_LEVEL);
-
 	if ( mAreaUsedForDataSizeCalcs != (getHeight() * getWidth()) 
-		|| mDataSizes[0] == 0)
+		|| (mDataSizes[0] == 0))
 	{
 		mAreaUsedForDataSizeCalcs = getHeight() * getWidth();
 		
@@ -301,25 +314,6 @@ S32 LLImageJ2C::calcDataSize(S32 discard_level)
 			mDataSizes[level] = calcDataSizeJ2C(getWidth(), getHeight(), getComponents(), level, mRate);
 			level--;
 		}
-
-		/* This is technically a more correct way to calculate the size required
-		   for each discard level, since they should include the size needed for
-		   lower levels.   Unfortunately, this doesn't work well and will lead to 
-		   download stalls.  The true correct way is to parse the header.  This will
-		   all go away with http textures at some point.
-
-		// Calculate the size for each discard level.   Lower levels (higher quality)
-		// contain the cumulative size of higher levels		
-		S32 total_size = calcHeaderSizeJ2C();
-
-		S32 level = MAX_DISCARD_LEVEL;	// Start at the highest discard
-		while ( level >= 0 )
-		{	// Add in this discard level and all before it
-			total_size += calcDataSizeJ2C(getWidth(), getHeight(), getComponents(), level, mRate);
-			mDataSizes[level] = total_size;
-			level--;
-		}
-		*/
 	}
 	return mDataSizes[discard_level];
 }
@@ -334,8 +328,9 @@ S32 LLImageJ2C::calcDiscardLevelBytes(S32 bytes)
 	}
 	while (1)
 	{
-		S32 bytes_needed = calcDataSize(discard_level); // virtual
-		if (bytes >= bytes_needed - (bytes_needed>>2)) // For J2c, up the res at 75% of the optimal number of bytes
+		S32 bytes_needed = calcDataSize(discard_level);
+		// Use TextureReverseByteRange percent (see settings.xml) of the optimal size to qualify as correct rendering for the given discard level
+		if (bytes >= (bytes_needed*LLImage::getReverseByteRangePercent()/100))
 		{
 			break;
 		}
@@ -346,11 +341,6 @@ S32 LLImageJ2C::calcDiscardLevelBytes(S32 bytes)
 		}
 	}
 	return discard_level;
-}
-
-void LLImageJ2C::setRate(F32 rate)
-{
-	mRate = rate;
 }
 
 void LLImageJ2C::setMaxBytes(S32 max_bytes)
@@ -474,6 +464,7 @@ LLImageCompressionTester::LLImageCompressionTester() : LLMetricPerformanceTester
 	addMetric("Perf Compression (kB/s)");
 
 	mRunBytesInDecompression = 0;
+	mRunBytesOutDecompression = 0;
 	mRunBytesInCompression = 0;
 
 	mTotalBytesInDecompression = 0;
@@ -483,6 +474,7 @@ LLImageCompressionTester::LLImageCompressionTester() : LLMetricPerformanceTester
 
 	mTotalTimeDecompression = 0.0f;
 	mTotalTimeCompression = 0.0f;
+	mRunTimeDecompression = 0.0f;
 }
 
 LLImageCompressionTester::~LLImageCompressionTester()
@@ -565,12 +557,17 @@ void LLImageCompressionTester::updateDecompressionStats(const S32 bytesIn, const
 	mTotalBytesInDecompression += bytesIn;
 	mRunBytesInDecompression += bytesIn;
 	mTotalBytesOutDecompression += bytesOut;
-	if (mRunBytesInDecompression > (1000000))
+	mRunBytesOutDecompression += bytesOut;
+	//if (mRunBytesInDecompression > (1000000))
+	if (mRunBytesOutDecompression > (10000000))
+	//if ((mTotalTimeDecompression - mRunTimeDecompression) >= (5.0f))
 	{
 		// Output everything
 		outputTestResults();
 		// Reset the decompression data of the run
 		mRunBytesInDecompression = 0;
+		mRunBytesOutDecompression = 0;
+		mRunTimeDecompression = mTotalTimeDecompression;
 	}
 }
 

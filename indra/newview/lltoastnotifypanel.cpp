@@ -52,7 +52,7 @@ const LLFontGL* LLToastNotifyPanel::sFontSmall = NULL;
 
 LLToastNotifyPanel::button_click_signal_t LLToastNotifyPanel::sButtonClickSignal;
 
-LLToastNotifyPanel::LLToastNotifyPanel(LLNotificationPtr& notification, const LLRect& rect, bool show_images) : 
+LLToastNotifyPanel::LLToastNotifyPanel(const LLNotificationPtr& notification, const LLRect& rect, bool show_images) :
 LLToastPanel(notification),
 mTextBox(NULL),
 mInfoPanel(NULL),
@@ -528,7 +528,7 @@ void LLToastNotifyPanel::onToastPanelButtonClicked(const LLUUID& notification_id
 	}
 }
 
-void LLToastNotifyPanel::disableRespondedOptions(LLNotificationPtr& notification)
+void LLToastNotifyPanel::disableRespondedOptions(const LLNotificationPtr& notification)
 {
 	LLSD response = notification->getResponse();
 	for (LLSD::map_const_iterator response_it = response.beginMap(); 

@@ -54,6 +54,11 @@ static const char USAGE[] = "\n"
 " -o, --output <file1 .. file2> OR <type>\n"
 "        List of image files to create (assumes same order as for input files)\n"
 "        OR 3 letters file type extension to convert each input file into.\n"
+" -load, --load_size <n>\n"
+"        Portion of the input file to load, in bytes."
+"        If (load == 0), it will load the whole file."
+"        If (load == -1), it will load the size relevant to reach the requested discard level (see -d)."
+"        Only valid for j2c images. Default is 0 (load whole file).\n"
 " -r, --region <x0, y0, x1, y1>\n"
 "        Crop region applied to the input files in pixels.\n"
 "        Only used for j2c images. Default is no region cropping.\n"
@@ -104,22 +109,52 @@ void output_image_stats(LLPointer<LLImageFormatted> image, const std::string &fi
 	// Print out some statistical data on the image
 	std::cout << "Image stats for : " << filename << ", extension : " << image->getExtension() << std::endl;
 
-	std::cout << "    with : " << (int)(image->getWidth())       << ", height : " << (int)(image->getHeight())       << std::endl;
-	std::cout << "    comp : " << (int)(image->getComponents())  << ", levels : " << (int)(image->getDiscardLevel()) << std::endl;
-	std::cout << "    head : " << (int)(image->calcHeaderSize()) << ",   data : " << (int)(image->getDataSize())     << std::endl;
+	std::cout << "    with : " << (int)(image->getWidth())       << ", height : " << (int)(image->getHeight())   << std::endl;
+	std::cout << "    comp : " << (int)(image->getComponents())  << ", levels : " << (int)(image->getLevels())   << std::endl;
+	std::cout << "    head : " << (int)(image->calcHeaderSize()) << ",   data : " << (int)(image->getDataSize()) << std::endl;
 
 	return;
 }
 
 // Load an image from file and return a raw (decompressed) instance of its data
-LLPointer<LLImageRaw> load_image(const std::string &src_filename, int discard_level, int* region, bool output_stats)
+LLPointer<LLImageRaw> load_image(const std::string &src_filename, int discard_level, int* region, int load_size, bool output_stats)
 {
 	LLPointer<LLImageFormatted> image = create_image(src_filename);
 	
-	// This just loads the image file stream into a buffer. No decoding done.
-	if (!image->load(src_filename))
+	// We support partial loading only for j2c images
+	if (image->getCodec() == IMG_CODEC_J2C)
 	{
-		return NULL;
+		// Load the header
+		if (!image->load(src_filename, 600))
+		{
+			return NULL;
+		}
+		S32 h = ((LLImageJ2C*)(image.get()))->calcHeaderSize();
+		S32 d = (load_size > 0 ? ((LLImageJ2C*)(image.get()))->calcDiscardLevelBytes(load_size) : 0);
+		S8  r = ((LLImageJ2C*)(image.get()))->getRawDiscardLevel();
+		std::cout << "Merov debug : header = " << h << ", load_size = " << load_size << ", discard level = " << d << ", raw discard level = " << r << std::endl;
+		for (d = 0; d < MAX_DISCARD_LEVEL; d++)
+		{
+			S32 data_size = ((LLImageJ2C*)(image.get()))->calcDataSize(d);
+			std::cout << "Merov debug : discard_level = " << d << ", data_size = " << data_size << std::endl;
+		}
+		if (load_size < 0)
+		{
+			load_size = (discard_level != -1 ? ((LLImageJ2C*)(image.get()))->calcDataSize(discard_level) : 0);
+		}
+		// Load the requested byte range
+		if (!image->load(src_filename, load_size))
+		{
+			return NULL;
+		}
+	}
+	else 
+	{
+		// This just loads the image file stream into a buffer. No decoding done.
+		if (!image->load(src_filename))
+		{
+			return NULL;
+		}
 	}
 	
 	if(	(image->getComponents() != 3) && (image->getComponents() != 4) )
@@ -310,6 +345,7 @@ int main(int argc, char** argv)
 	bool image_stats = false;
 	int* region = NULL;
 	int discard_level = -1;
+	int load_size = 0;
 	int precincts_size = -1;
 	int blocks_size = -1;
 	int levels = 0;
@@ -394,6 +430,22 @@ int main(int argc, char** argv)
 				discard_level = atoi(value_str.c_str());
 				// Clamp to the values accepted by the viewer
 				discard_level = llclamp(discard_level,0,5);
+			}
+		}
+		else if (!strcmp(argv[arg], "--load_size") || !strcmp(argv[arg], "-load"))
+		{
+			std::string value_str;
+			if ((arg + 1) < argc)
+			{
+				value_str = argv[arg+1];
+			}
+			if (((arg + 1) >= argc) || (value_str[0] == '-'))
+			{
+				std::cout << "No valid --load_size argument given, load_size ignored" << std::endl;
+			}
+			else
+			{
+				load_size = atoi(value_str.c_str());
 			}
 		}
 		else if (!strcmp(argv[arg], "--precincts") || !strcmp(argv[arg], "-p"))
@@ -510,7 +562,7 @@ int main(int argc, char** argv)
 	for (; in_file != in_end; ++in_file, ++out_file)
 	{
 		// Load file
-		LLPointer<LLImageRaw> raw_image = load_image(*in_file, discard_level, region, image_stats);
+		LLPointer<LLImageRaw> raw_image = load_image(*in_file, discard_level, region, load_size, image_stats);
 		if (!raw_image)
 		{
 			std::cout << "Error: Image " << *in_file << " could not be loaded" << std::endl;

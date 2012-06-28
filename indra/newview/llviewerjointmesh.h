@@ -61,6 +61,7 @@ public:
 //-----------------------------------------------------------------------------
 class LLViewerJointMesh : public LLViewerJoint
 {
+	friend class LLVOAvatar;
 protected:
 	LLColor4					mColor;			// color value
 // 	LLColor4					mSpecular;		// specular color (always white for now)

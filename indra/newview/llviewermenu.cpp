@@ -93,6 +93,7 @@
 #include "lltoolpie.h"
 #include "lltoolselectland.h"
 #include "lltrans.h"
+#include "llviewerdisplay.h" //for gWindowResized
 #include "llviewergenericmessage.h"
 #include "llviewerhelp.h"
 #include "llviewermenufile.h"	// init_menu_file()
@@ -205,7 +206,7 @@ BOOL enable_take();
 void handle_take();
 void handle_object_show_inspector();
 void handle_avatar_show_inspector();
-bool confirm_take(const LLSD& notification, const LLSD& response);
+bool confirm_take(const LLSD& notification, const LLSD& response, LLObjectSelectionHandle selection_handle);
 
 void handle_buy_object(LLSaleInfo sale_info);
 void handle_buy_contents(LLSaleInfo sale_info);
@@ -516,14 +517,6 @@ class LLAdvancedToggleConsole : public view_listener_t
 		{
 			toggle_visibility( (void*)static_cast<LLUICtrl*>(gDebugView->mDebugConsolep));
 		}
-		else if (gTextureSizeView && "texture size" == console_type)
-		{
-			toggle_visibility( (void*)gTextureSizeView );
-		}
-		else if (gTextureCategoryView && "texture category" == console_type)
-		{
-			toggle_visibility( (void*)gTextureCategoryView );
-		}
 		else if ("fast timers" == console_type)
 		{
 			LLFloaterReg::toggleInstance("fast_timers");
@@ -555,14 +548,6 @@ class LLAdvancedCheckConsole : public view_listener_t
 		else if ("debug" == console_type)
 		{
 			new_value = get_visibility( (void*)((LLView*)gDebugView->mDebugConsolep) );
-		}
-		else if (gTextureSizeView && "texture size" == console_type)
-		{
-			new_value = get_visibility( (void*)gTextureSizeView );
-		}
-		else if (gTextureCategoryView && "texture category" == console_type)
-		{
-			new_value = get_visibility( (void*)gTextureCategoryView );
 		}
 		else if ("fast timers" == console_type)
 		{
@@ -866,6 +851,73 @@ class LLAdvancedCheckFeature : public view_listener_t
 }
 };
 
+class LLAdvancedCheckDisplayTextureDensity : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		std::string mode = userdata.asString();
+		if (!gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXEL_DENSITY))
+		{
+			return mode == "none";
+		}
+		if (mode == "current")
+		{
+			return LLViewerTexture::sDebugTexelsMode == LLViewerTexture::DEBUG_TEXELS_CURRENT;
+		}
+		else if (mode == "desired")
+		{
+			return LLViewerTexture::sDebugTexelsMode == LLViewerTexture::DEBUG_TEXELS_DESIRED;
+		}
+		else if (mode == "full")
+		{
+			return LLViewerTexture::sDebugTexelsMode == LLViewerTexture::DEBUG_TEXELS_FULL;
+		}
+		return false;
+	}
+};
+
+class LLAdvancedSetDisplayTextureDensity : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		std::string mode = userdata.asString();
+		if (mode == "none")
+		{
+			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXEL_DENSITY) == TRUE) 
+			{
+				gPipeline.toggleRenderDebug((void*)LLPipeline::RENDER_DEBUG_TEXEL_DENSITY);
+			}
+			LLViewerTexture::sDebugTexelsMode = LLViewerTexture::DEBUG_TEXELS_OFF;
+		}
+		else if (mode == "current")
+		{
+			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXEL_DENSITY) == FALSE) 
+			{
+				gPipeline.toggleRenderDebug((void*)LLPipeline::RENDER_DEBUG_TEXEL_DENSITY);
+			}
+			LLViewerTexture::sDebugTexelsMode = LLViewerTexture::DEBUG_TEXELS_CURRENT;
+		}
+		else if (mode == "desired")
+		{
+			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXEL_DENSITY) == FALSE) 
+			{
+				gPipeline.toggleRenderDebug((void*)LLPipeline::RENDER_DEBUG_TEXEL_DENSITY);
+			}
+			gPipeline.setRenderDebugFeatureControl(LLPipeline::RENDER_DEBUG_TEXEL_DENSITY, true);
+			LLViewerTexture::sDebugTexelsMode = LLViewerTexture::DEBUG_TEXELS_DESIRED;
+		}
+		else if (mode == "full")
+		{
+			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXEL_DENSITY) == FALSE) 
+			{
+				gPipeline.toggleRenderDebug((void*)LLPipeline::RENDER_DEBUG_TEXEL_DENSITY);
+			}
+			LLViewerTexture::sDebugTexelsMode = LLViewerTexture::DEBUG_TEXELS_FULL;
+		}
+		return true;
+	}
+};
+
 
 //////////////////
 // INFO DISPLAY //
@@ -979,6 +1031,10 @@ U32 info_display_from_string(std::string info_display)
 	else if ("wind vectors" == info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_WIND_VECTORS;
+	}
+	else if ("texel density" == info_display)
+	{
+		return LLPipeline::RENDER_DEBUG_TEXEL_DENSITY;
 	}
 	else
 	{
@@ -1118,6 +1174,7 @@ class LLAdvancedToggleWireframe : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		gUseWireframe = !(gUseWireframe);
+		gWindowResized = TRUE;
 		LLPipeline::updateRenderDeferred();
 		gPipeline.resetVertexBuffers();
 		return true;
@@ -2242,6 +2299,14 @@ class LLDevelopSetLoggingLevel : public view_listener_t
 		U32 level = userdata.asInteger();
 		LLError::setDefaultLevel(static_cast<LLError::ELevel>(level));
 		return true;
+	}
+};
+
+class LLDevelopTextureFetchDebugger : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		return gSavedSettings.getBOOL("TextureFetchDebuggerEnabled");
 	}
 };
 
@@ -4448,7 +4513,10 @@ void handle_take()
 
 	LLNotification::Params params("ConfirmObjectTakeLock");
 	params.payload(payload);
-	params.functor.function(confirm_take);
+	// MAINT-290
+	// Reason: Showing the confirmation dialog resets object selection,	thus there is nothing to derez.
+	// Fix: pass selection to the confirm_take, so that selection doesn't "die" after confirmation dialog is opened
+	params.functor.function(boost::bind(confirm_take, _1, _2, LLSelectMgr::instance().getSelection()));
 
 	if(locked_but_takeable_object ||
 	   !you_own_everything)
@@ -4501,7 +4569,7 @@ void handle_avatar_show_inspector()
 
 
 
-bool confirm_take(const LLSD& notification, const LLSD& response)
+bool confirm_take(const LLSD& notification, const LLSD& response, LLObjectSelectionHandle selection_handle)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if(enable_take() && (option == 0))
@@ -8164,6 +8232,10 @@ void initialize_menus()
 	//// Advanced > Render > Features
 	view_listener_t::addMenu(new LLAdvancedToggleFeature(), "Advanced.ToggleFeature");
 	view_listener_t::addMenu(new LLAdvancedCheckFeature(), "Advanced.CheckFeature");
+
+	view_listener_t::addMenu(new LLAdvancedCheckDisplayTextureDensity(), "Advanced.CheckDisplayTextureDensity");
+	view_listener_t::addMenu(new LLAdvancedSetDisplayTextureDensity(), "Advanced.SetDisplayTextureDensity");
+
 	// Advanced > Render > Info Displays
 	view_listener_t::addMenu(new LLAdvancedToggleInfoDisplay(), "Advanced.ToggleInfoDisplay");
 	view_listener_t::addMenu(new LLAdvancedCheckInfoDisplay(), "Advanced.CheckInfoDisplay");
@@ -8295,6 +8367,9 @@ void initialize_menus()
 	// Develop >Set logging level
 	view_listener_t::addMenu(new LLDevelopCheckLoggingLevel(), "Develop.CheckLoggingLevel");
 	view_listener_t::addMenu(new LLDevelopSetLoggingLevel(), "Develop.SetLoggingLevel");
+	
+	//Develop (Texture Fetch Debug Console)
+	view_listener_t::addMenu(new LLDevelopTextureFetchDebugger(), "Develop.SetTexFetchDebugger");
 
 	// Admin >Object
 	view_listener_t::addMenu(new LLAdminForceTakeCopy(), "Admin.ForceTakeCopy");

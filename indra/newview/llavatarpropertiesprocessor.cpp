@@ -33,6 +33,7 @@
 #include "llagentpicksinfo.h"
 #include "lldateutil.h"
 #include "llviewergenericmessage.h"
+#include "llstartup.h"
 
 // Linden library includes
 #include "llavatarconstants.h"	// AVATAR_TRANSACTED, etc.
@@ -113,6 +114,14 @@ void LLAvatarPropertiesProcessor::sendGenericRequest(const LLUUID& avatar_id, EA
 
 void LLAvatarPropertiesProcessor::sendAvatarPropertiesRequest(const LLUUID& avatar_id)
 {
+	// this is the startup state when send_complete_agent_movement() message is sent.
+	// Before this, the AvatarPropertiesRequest message  
+	// won't work so don't bother trying
+	if (LLStartUp::getStartupState() <= STATE_AGENT_SEND)
+	{
+		return;
+	}
+
 	if (isPendingRequest(avatar_id, APT_PROPERTIES))
 	{
 		// waiting for a response, don't re-request

@@ -3051,11 +3051,11 @@ bool LLSelectMgr::confirmDelete(const LLSD& notification, const LLSD& response, 
 			// TODO: Make sure you have delete permissions on all of them.
 			const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
 			// attempt to derez into the trash.
-			LLDeRezInfo* info = new LLDeRezInfo(DRD_TRASH, trash_id);
+			LLDeRezInfo info(DRD_TRASH, trash_id);
 			LLSelectMgr::getInstance()->sendListToRegions("DeRezObject",
 										  packDeRezHeader,
 										  packObjectLocalID,
-										  (void*)info,
+										  (void*) &info,
 										  SEND_ONLY_ROOTS);
 			// VEFFECT: Delete Object - one effect for all deletes
 			if (LLSelectMgr::getInstance()->mSelectedObjects->mSelectType != SELECT_TYPE_HUD)
@@ -3745,13 +3745,15 @@ void LLSelectMgr::deselectAllIfTooFar()
 
 void LLSelectMgr::selectionSetObjectName(const std::string& name)
 {
+	std::string name_copy(name);
+
 	// we only work correctly if 1 object is selected.
 	if(mSelectedObjects->getRootObjectCount() == 1)
 	{
 		sendListToRegions("ObjectName",
 						  packAgentAndSessionID,
 						  packObjectName,
-						  (void*)(new std::string(name)),
+						  (void*)(&name_copy),
 						  SEND_ONLY_ROOTS);
 	}
 	else if(mSelectedObjects->getObjectCount() == 1)
@@ -3759,20 +3761,22 @@ void LLSelectMgr::selectionSetObjectName(const std::string& name)
 		sendListToRegions("ObjectName",
 						  packAgentAndSessionID,
 						  packObjectName,
-						  (void*)(new std::string(name)),
+						  (void*)(&name_copy),
 						  SEND_INDIVIDUALS);
 	}
 }
 
 void LLSelectMgr::selectionSetObjectDescription(const std::string& desc)
 {
+	std::string desc_copy(desc);
+
 	// we only work correctly if 1 object is selected.
 	if(mSelectedObjects->getRootObjectCount() == 1)
 	{
 		sendListToRegions("ObjectDescription",
 						  packAgentAndSessionID,
 						  packObjectDescription,
-						  (void*)(new std::string(desc)),
+						  (void*)(&desc_copy),
 						  SEND_ONLY_ROOTS);
 	}
 	else if(mSelectedObjects->getObjectCount() == 1)
@@ -3780,7 +3784,7 @@ void LLSelectMgr::selectionSetObjectDescription(const std::string& desc)
 		sendListToRegions("ObjectDescription",
 						  packAgentAndSessionID,
 						  packObjectDescription,
-						  (void*)(new std::string(desc)),
+						  (void*)(&desc_copy),
 						  SEND_INDIVIDUALS);
 	}
 }
@@ -4298,15 +4302,14 @@ void LLSelectMgr::packObjectName(LLSelectNode* node, void* user_data)
 		gMessageSystem->addU32Fast(_PREHASH_LocalID, node->getObject()->getLocalID());
 		gMessageSystem->addStringFast(_PREHASH_Name, *name);
 	}
-	delete name;
 }
 
 // static
 void LLSelectMgr::packObjectDescription(LLSelectNode* node, void* user_data)
 {
 	const std::string* desc = (const std::string*)user_data;
-	if(!desc->empty())
-	{
+	if(desc)
+	{	// Empty (non-null, but zero length) descriptions are OK
 		gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
 		gMessageSystem->addU32Fast(_PREHASH_LocalID, node->getObject()->getLocalID());
 		gMessageSystem->addStringFast(_PREHASH_Description, *desc);

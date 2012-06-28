@@ -168,4 +168,35 @@ simon_viewer-dev-private.email_status_this_is_os = false
 vir-project-1.viewer_channel = "Second Life Release"
 vir-project-1.login_channel = "Second Life Release"
 
+# ========================================
+# THX-1138 / Runway projects
+# ========================================
+viewer-thx1138-runway-shared.viewer_channel = "Project Viewer - THX-1138 Runway"
+viewer-thx1138-runway-shared.login_channel = "Project Viewer - THX-1138 Runway"
+viewer-thx1138-runway-shared.viewer_grid = uma
+viewer-thx1138-runway-shared.build_debug_release_separately = true
+viewer-thx1138-runway-shared.build_CYGWIN_Debug = false
+viewer-thx1138-runway-shared.build_viewer_update_version_manager = false
+
+viewer-thx1138.viewer_channel = "Project Viewer - THX-1138"
+viewer-thx1138.login_channel = "Project Viewer - THX-1138"
+viewer-thx1138.viewer_grid = uma
+viewer-thx1138.build_debug_release_separately = true
+viewer-thx1138.build_CYGWIN_Debug = false
+viewer-thx1138.build_viewer_update_version_manager = false
+
+runway-merge.viewer_channel = "Project Viewer - Runway Merge"
+runway-merge.login_channel = "Project Viewer - Runway Merge"
+runway-merge.viewer_grid = agni
+runway-merge.build_debug_release_separately = true
+runway-merge.build_CYGWIN_Debug = false
+runway-merge.build_viewer_update_version_manager = false
+
+runway.viewer_channel = "Project Viewer - Runway"
+runway.login_channel = "Project Viewer - Runway"
+runway.viewer_grid = agni
+runway.build_debug_release_separately = true
+runway.build_CYGWIN_Debug = false
+runway.build_viewer_update_version_manager = false
+
 # eof
