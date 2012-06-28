@@ -75,7 +75,6 @@ private:
 	void onWalkabilityCoefficientEntered(LLUICtrl *pUICtrl);
 	void onApplyChangesClicked();
 
-	void applyFilters();
 	void clearFilters();
 
 	void updateEditFieldValues();

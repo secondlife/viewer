@@ -68,6 +68,7 @@
 void LLFloaterPathfindingLinksets::openLinksetsWithSelectedObjects()
 {
 	LLFloaterPathfindingLinksets *linksetsFloater = LLFloaterReg::getTypedInstance<LLFloaterPathfindingLinksets>("pathfinding_linksets");
+	linksetsFloater->clearFilters();
 	linksetsFloater->showFloaterWithSelectionObjects();
 }
 
@@ -287,12 +288,13 @@ void LLFloaterPathfindingLinksets::requestSetLinksets(LLPathfindingObjectListPtr
 
 void LLFloaterPathfindingLinksets::onApplyAllFilters()
 {
-	applyFilters();
+	rebuildObjectsScrollList();
 }
 
 void LLFloaterPathfindingLinksets::onClearFiltersClicked()
 {
 	clearFilters();
+	rebuildObjectsScrollList();
 }
 
 void LLFloaterPathfindingLinksets::onWalkabilityCoefficientEntered(LLUICtrl *pUICtrl)
@@ -322,17 +324,11 @@ void LLFloaterPathfindingLinksets::onApplyChangesClicked()
 	applyEdit();
 }
 
-void LLFloaterPathfindingLinksets::applyFilters()
-{
-	rebuildObjectsScrollList();
-}
-
 void LLFloaterPathfindingLinksets::clearFilters()
 {
 	mFilterByName->clear();
 	mFilterByDescription->clear();
 	setFilterLinksetUse(LLPathfindingLinkset::kUnknown);
-	rebuildObjectsScrollList();
 }
 
 void LLFloaterPathfindingLinksets::updateEditFieldValues()
