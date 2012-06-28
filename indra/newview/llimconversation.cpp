@@ -250,14 +250,16 @@ void LLIMConversation::updateHeaderAndToolbar()
 	bool is_expanded = is_hosted || is_participant_list_visible;
 	mExpandCollapseBtn->setImageOverlay(getString(is_expanded ? "collapse_icon" : "expand_icon"));
 
-	// The button (>>) should be disabled for torn off P2P conversations.
-	mExpandCollapseBtn->setEnabled(is_hosted || !mIsP2PChat);
-
+	// toggle floater's drag handle and title visibility
 	if (mDragHandle)
 	{
-		// toggle floater's drag handle and title visibility
-		mDragHandle->setVisible(!is_hosted);
+		mDragHandle->setTitleVisible(!is_hosted);
+		setCanDrag(!is_hosted);
 	}
+	setCanResize(!is_hosted);
+
+	// The button (>>) should be disabled for torn off P2P conversations.
+	mExpandCollapseBtn->setEnabled(is_hosted || !mIsP2PChat);
 
 	mTearOffBtn->setImageOverlay(getString(is_hosted ? "tear_off_icon" : "return_icon"));
 
@@ -346,6 +348,8 @@ void LLIMConversation::onOpen(const LLSD& key)
 		// Show the messages pane when opening a floater hosted in the Conversations
 		host_floater->collapseMessagesPane(false);
 	}
+
+	setCanResize(TRUE);
 
 	updateHeaderAndToolbar();
 }
