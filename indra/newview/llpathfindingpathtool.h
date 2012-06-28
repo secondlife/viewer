@@ -27,12 +27,12 @@
 #ifndef LL_LLPATHFINDINGPATHTOOL_H
 #define LL_LLPATHFINDINGPATHTOOL_H
 
-#include "llsingleton.h"
-#include "lltool.h"
-#include "llpathinglib.h"
-
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
+
+#include "llpathinglib.h"
+#include "llsingleton.h"
+#include "lltool.h"
 
 class LLPathfindingPathTool : public LLTool, public LLSingleton<LLPathfindingPathTool>
 {

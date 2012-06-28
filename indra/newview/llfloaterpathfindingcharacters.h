@@ -30,10 +30,14 @@
 #include "llfloaterpathfindingobjects.h"
 #include "llhandle.h"
 #include "llpathfindingobjectlist.h"
+#include "lluuid.h"
 #include "v4color.h"
 
+class LLCheckBoxCtrl;
 class LLPathfindingCharacter;
+class LLQuaternion;
 class LLSD;
+class LLVector3;
 
 class LLFloaterPathfindingCharacters : public LLFloaterPathfindingObjects
 {
@@ -43,7 +47,7 @@ public:
 	BOOL                                            isShowPhysicsCapsule() const;
 	void                                            setShowPhysicsCapsule(BOOL pIsShowPhysicsCapsule);
 
-	BOOL                                            isPhysicsCapsuleEnabled(LLUUID& id, LLVector3& pos, LLQuaternion& rot ) const;
+	BOOL                                            isPhysicsCapsuleEnabled(LLUUID& id, LLVector3& pos, LLQuaternion& rot) const;
 
 	static void                                     openCharactersWithSelectedObjects();
 	static LLHandle<LLFloaterPathfindingCharacters> getInstanceHandle();

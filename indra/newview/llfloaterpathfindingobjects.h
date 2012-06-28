@@ -28,6 +28,7 @@
 #define LL_LLFLOATERPATHFINDINGOBJECTS_H
 
 #include <set>
+
 #include <boost/signals2.hpp>
 
 #include "llagent.h"

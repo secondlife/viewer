@@ -27,6 +27,8 @@
 #ifndef LL_LLPATHFINDINGCHARACTER_H
 #define LL_LLPATHFINDINGCHARACTER_H
 
+#include <string>
+
 #include "llpathfindingobject.h"
 
 class LLSD;
@@ -47,8 +49,6 @@ public:
 	inline F32  getRadius() const    {return mRadius;};
 
 protected:
-
-public:
 
 private:
 	void parseCharacterData(const LLSD &pCharacterData);

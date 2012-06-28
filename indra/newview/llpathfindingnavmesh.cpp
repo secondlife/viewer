@@ -30,11 +30,12 @@
 
 #include "llpathfindingnavmesh.h"
 
+#include <string>
+
 #include "llpathfindingnavmeshstatus.h"
+#include "llsd.h"
 #include "llsdserialize.h"
 #include "lluuid.h"
-
-#include <string>
 
 #define NAVMESH_VERSION_FIELD "navmesh_version"
 #define NAVMESH_DATA_FIELD    "navmesh_data"
@@ -119,6 +120,7 @@ void LLPathfindingNavMesh::handleNavMeshStart(const LLPathfindingNavMeshStatus &
 
 void LLPathfindingNavMesh::handleNavMeshResult(const LLSD &pContent, U32 pNavMeshVersion)
 {
+	llassert(pContent.has(NAVMESH_VERSION_FIELD));
 	if (pContent.has(NAVMESH_VERSION_FIELD))
 	{
 		llassert(pContent.get(NAVMESH_VERSION_FIELD).isInteger());

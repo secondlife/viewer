@@ -30,11 +30,14 @@
 
 #include "llfloaterpathfindinglinksets.h"
 
+#include <string>
+
 #include <boost/bind.hpp>
 
 #include "llagent.h"
 #include "llbutton.h"
 #include "llcombobox.h"
+#include "llfloaterpathfindingobjects.h"
 #include "llfloaterreg.h"
 #include "lllineeditor.h"
 #include "llnotificationsutil.h"
@@ -46,6 +49,7 @@
 #include "lltextbase.h"
 #include "lltextvalidate.h"
 #include "lluicolortable.h"
+#include "lluictrl.h"
 #include "v3math.h"
 #include "v4color.h"
 

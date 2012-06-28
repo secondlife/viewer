@@ -30,17 +30,17 @@
 
 #include "llpathfindingpathtool.h"
 
+#include <boost/function.hpp>
+#include <boost/signals2.hpp>
+
 #include "llagent.h"
+#include "llpathfindingmanager.h"
+#include "llpathinglib.h"
 #include "llsingleton.h"
 #include "lltool.h"
 #include "llviewercamera.h"
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
-#include "llpathfindingmanager.h"
-#include "llpathinglib.h"
-
-#include <boost/function.hpp>
-#include <boost/signals2.hpp>
 
 #define PATH_TOOL_NAME "PathfindingPathTool"
 

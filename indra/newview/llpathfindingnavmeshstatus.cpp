@@ -33,8 +33,8 @@
 #include <string>
 
 #include "llsd.h"
-#include "lluuid.h"
 #include "llstring.h"
+#include "lluuid.h"
 
 #define REGION_FIELD  "region_id"
 #define STATUS_FIELD  "status"

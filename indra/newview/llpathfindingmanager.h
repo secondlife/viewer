@@ -37,12 +37,10 @@
 #include "llpathfindingobjectlist.h"
 #include "llpathfindingnavmesh.h"
 #include "llsingleton.h"
-#include "lluuid.h"
-#include "llpanel.h"
-#include "llmoveview.h"
 
-class LLViewerRegion;
 class LLPathfindingNavMeshStatus;
+class LLUUID;
+class LLViewerRegion;
 
 class LLPathfindingManager : public LLSingleton<LLPathfindingManager>
 {
@@ -51,8 +49,6 @@ class LLPathfindingManager : public LLSingleton<LLPathfindingManager>
 	friend class LLAgentStateChangeNode;
 	friend class AgentStateResponder;
 public:
-	typedef std::map<LLUUID, LLPathfindingNavMeshPtr> NavMeshMap;
-
 	typedef enum {
 		kRequestStarted,
 		kRequestCompleted,
@@ -96,6 +92,8 @@ public:
 protected:
 
 private:
+	typedef std::map<LLUUID, LLPathfindingNavMeshPtr> NavMeshMap;
+
 	void sendRequestGetNavMeshForRegion(LLPathfindingNavMeshPtr navMeshPtr, LLViewerRegion *pRegion, const LLPathfindingNavMeshStatus &pNavMeshStatus);
 
 	void handleDeferredGetAgentStateForRegion(const LLUUID &pRegionUUID);

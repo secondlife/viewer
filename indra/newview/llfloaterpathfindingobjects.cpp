@@ -57,7 +57,6 @@
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
-#include "pipeline.h"
 #include "v3dmath.h"
 #include "v3math.h"
 #include "v4color.h"
@@ -835,4 +834,3 @@ LLPathfindingObjectPtr LLFloaterPathfindingObjects::findObject(const LLScrollLis
 
 	return objectPtr;
 }
-

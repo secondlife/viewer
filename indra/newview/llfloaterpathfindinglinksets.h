@@ -27,9 +27,10 @@
 #ifndef LL_LLFLOATERPATHFINDINGLINKSETS_H
 #define LL_LLFLOATERPATHFINDINGLINKSETS_H
 
+#include <string>
+
 #include "llfloaterpathfindingobjects.h"
 #include "llpathfindinglinkset.h"
-#include "llpathfindingmanager.h"
 #include "llpathfindingobjectlist.h"
 #include "v4color.h"
 
@@ -102,29 +103,29 @@ private:
 	LLPathfindingLinkset::ELinksetUse convertToLinksetUse(LLSD pXuiValue) const;
 	LLSD                              convertToXuiValue(LLPathfindingLinkset::ELinksetUse pLinksetUse) const;
 
-	LLLineEditor                             *mFilterByName;
-	LLLineEditor                             *mFilterByDescription;
-	LLComboBox                               *mFilterByLinksetUse;
-	LLComboBox                               *mEditLinksetUse;
-	LLScrollListItem                         *mEditLinksetUseUnset;
-	LLScrollListItem                         *mEditLinksetUseWalkable;
-	LLScrollListItem                         *mEditLinksetUseStaticObstacle;
-	LLScrollListItem                         *mEditLinksetUseDynamicObstacle;
-	LLScrollListItem                         *mEditLinksetUseMaterialVolume;
-	LLScrollListItem                         *mEditLinksetUseExclusionVolume;
-	LLScrollListItem                         *mEditLinksetUseDynamicPhantom;
-	LLTextBase                               *mLabelWalkabilityCoefficients;
-	LLTextBase                               *mLabelEditA;
-	LLLineEditor                             *mEditA;
-	LLTextBase                               *mLabelEditB;
-	LLLineEditor                             *mEditB;
-	LLTextBase                               *mLabelEditC;
-	LLLineEditor                             *mEditC;
-	LLTextBase                               *mLabelEditD;
-	LLLineEditor                             *mEditD;
-	LLButton                                 *mApplyEditsButton;
+	LLLineEditor     *mFilterByName;
+	LLLineEditor     *mFilterByDescription;
+	LLComboBox       *mFilterByLinksetUse;
+	LLComboBox       *mEditLinksetUse;
+	LLScrollListItem *mEditLinksetUseUnset;
+	LLScrollListItem *mEditLinksetUseWalkable;
+	LLScrollListItem *mEditLinksetUseStaticObstacle;
+	LLScrollListItem *mEditLinksetUseDynamicObstacle;
+	LLScrollListItem *mEditLinksetUseMaterialVolume;
+	LLScrollListItem *mEditLinksetUseExclusionVolume;
+	LLScrollListItem *mEditLinksetUseDynamicPhantom;
+	LLTextBase       *mLabelWalkabilityCoefficients;
+	LLTextBase       *mLabelEditA;
+	LLLineEditor     *mEditA;
+	LLTextBase       *mLabelEditB;
+	LLLineEditor     *mEditB;
+	LLTextBase       *mLabelEditC;
+	LLLineEditor     *mEditC;
+	LLTextBase       *mLabelEditD;
+	LLLineEditor     *mEditD;
+	LLButton         *mApplyEditsButton;
 
-	LLColor4                                 mBeaconColor;
+	LLColor4         mBeaconColor;
 };
 
 #endif // LL_LLFLOATERPATHFINDINGLINKSETS_H

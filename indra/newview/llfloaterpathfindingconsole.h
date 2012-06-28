@@ -27,26 +27,27 @@
 #ifndef LL_LLFLOATERPATHFINDINGCONSOLE_H
 #define LL_LLFLOATERPATHFINDINGCONSOLE_H
 
-#include "llfloater.h"
-#include "llhandle.h"
-#include "llpathinglib.h"
-#include "llpathfindingnavmeshzone.h"
-#include "llpathfindingpathtool.h"
-#include "v4color.h"
+#include <vector>
 
 #include <boost/signals2.hpp>
 
-class LLSD;
-class LLPanel;
-class LLSliderCtrl;
-class LLLineEditor;
-class LLTextBase;
-class LLCheckBoxCtrl;
-class LLTabContainer;
-class LLComboBox;
+#include "llfloater.h"
+#include "llhandle.h"
+#include "llpathfindingnavmeshzone.h"
+#include "llpathfindingpathtool.h"
+#include "llpathinglib.h"
+#include "v4color.h"
+
 class LLButton;
-class LLToolset;
+class LLCheckBoxCtrl;
+class LLComboBox;
 class LLControlVariable;
+class LLPanel;
+class LLSD;
+class LLSliderCtrl;
+class LLTabContainer;
+class LLTextBase;
+class LLToolset;
 
 class LLFloaterPathfindingConsole
 :	public LLFloater
@@ -122,7 +123,7 @@ private:
 	void onCharacterTypeSwitch();
 	void onClearPathClicked();
 
-	void onNavMeshZoneCB(LLPathfindingNavMeshZone::ENavMeshZoneRequestStatus pNavMeshZoneRequestStatus);
+	void handleNavMeshZoneStatus(LLPathfindingNavMeshZone::ENavMeshZoneRequestStatus pNavMeshZoneRequestStatus);
 	void onRegionBoundaryCross();
 	void onPathEvent();
 

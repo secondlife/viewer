@@ -27,13 +27,13 @@
 #ifndef LL_LLPATHFINDINGOBJECT_H
 #define LL_LLPATHFINDINGOBJECT_H
 
-#include "llavatarname.h"
-#include "lluuid.h"
-#include "v3math.h"
-
 #include <string>
 
 #include <boost/shared_ptr.hpp>
+
+#include "llavatarname.h"
+#include "lluuid.h"
+#include "v3math.h"
 
 class LLPathfindingObject;
 class LLSD;

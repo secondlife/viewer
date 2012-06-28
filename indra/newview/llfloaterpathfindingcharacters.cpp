@@ -40,11 +40,15 @@
 #include "llpathfindingobject.h"
 #include "llpathfindingobjectlist.h"
 #include "llpathinglib.h"
+#include "llquaternion.h"
 #include "llsd.h"
 #include "lluicolortable.h"
+#include "lluuid.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
 #include "pipeline.h"
+#include "v3math.h"
+#include "v4color.h"
 
 LLHandle<LLFloaterPathfindingCharacters> LLFloaterPathfindingCharacters::sInstanceHandle;
 

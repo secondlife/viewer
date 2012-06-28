@@ -36,7 +36,6 @@
 #include "llagent.h"
 #include "llbutton.h"
 #include "llenvmanager.h"
-#include "llhandle.h"
 #include "llhints.h"
 #include "llnotificationsutil.h"
 #include "llpanel.h"
@@ -45,9 +44,7 @@
 #include "llpathfindingnavmeshstatus.h"
 #include "lltoolbar.h"
 #include "lltoolbarview.h"
-#include "lltoolmgr.h"
 #include "lltooltip.h"
-#include "llview.h"
 #include "llviewercontrol.h"
 #include "llviewerregion.h"
 
@@ -218,6 +215,7 @@ void LLPanelPathfindingRebakeNavmesh::handleNavMeshStatus(const LLPathfindingNav
 void LLPanelPathfindingRebakeNavmesh::handleRegionBoundaryCrossed()
 {
 	createNavMeshStatusListenerForCurrentRegion();
+	mCanRebakeRegion = FALSE;
 	LLPathfindingManager::getInstance()->requestGetAgentState();
 }
 
@@ -227,7 +225,6 @@ void LLPanelPathfindingRebakeNavmesh::createNavMeshStatusListenerForCurrentRegio
 	{
 		mNavMeshSlot.disconnect();
 	}
-	mCanRebakeRegion = FALSE;
 
 	LLViewerRegion *currentRegion = gAgent.getRegion();
 	if (currentRegion != NULL)

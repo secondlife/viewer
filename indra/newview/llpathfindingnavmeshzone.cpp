@@ -30,20 +30,22 @@
 
 #include "llpathfindingnavmeshzone.h"
 
-#include "llsd.h"
-#include "lluuid.h"
-#include "llagent.h"
-#include "llviewerregion.h"
-#include "llpathfindingnavmesh.h"
-#include "llpathfindingmanager.h"
-#include "llviewercontrol.h"
-
-#include "llpathinglib.h"
-
-#include <string>
 #include <vector>
 
 #include <boost/bind.hpp>
+#include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/signals2.hpp>
+
+#include "llagent.h"
+#include "llpathfindingmanager.h"
+#include "llpathfindingnavmesh.h"
+#include "llpathfindingnavmeshstatus.h"
+#include "llpathinglib.h"
+#include "llsd.h"
+#include "lluuid.h"
+#include "llviewercontrol.h"
+#include "llviewerregion.h"
 
 #define CENTER_REGION 99
 
@@ -104,7 +106,6 @@ void LLPathfindingNavMeshZone::disable()
 
 void LLPathfindingNavMeshZone::refresh()
 {
-	llassert(LLPathingLib::getInstance() != NULL);
 	if (LLPathingLib::getInstance() != NULL)
 	{
 		LLPathingLib::getInstance()->cleanupResidual();

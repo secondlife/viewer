@@ -32,11 +32,11 @@
 
 #include <string>
 
-#include "v3math.h"
 #include "llavatarname.h"
 #include "llavatarnamecache.h"
 #include "llsd.h"
 #include "lluuid.h"
+#include "v3math.h"
 
 #define PATHFINDING_OBJECT_NAME_FIELD        "name"
 #define PATHFINDING_OBJECT_DESCRIPTION_FIELD "description"

@@ -27,17 +27,14 @@
 #ifndef LL_LLPANELPATHFINDINGREBAKENAVMESH_H
 #define LL_LLPANELPATHFINDINGREBAKENAVMESH_H
 
-#include <boost/bind.hpp>
 #include <boost/signals2.hpp>
 
-#include "llhandle.h"
 #include "llpanel.h"
 #include "llpathfindingmanager.h"
 #include "llpathfindingnavmesh.h"
 
 class LLButton;
 class LLPathfindingNavMeshStatus;
-class LLView;
 
 class LLPanelPathfindingRebakeNavmesh : public LLPanel
 {

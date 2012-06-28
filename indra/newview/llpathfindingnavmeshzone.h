@@ -27,19 +27,18 @@
 #ifndef LL_LLPATHFINDINGNAVMESHZONE_H
 #define LL_LLPATHFINDINGNAVMESHZONE_H
 
-#include "llsd.h"
-#include "lluuid.h"
-#include "llpathfindingnavmesh.h"
-#include "llpathfindingnavmeshstatus.h"
-#include "llviewerregion.h"
-
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
 
-class LLPathfindingNavMeshStatus;
+#include "llpathfindingnavmesh.h"
+#include "llpathfindingnavmeshstatus.h"
+#include "llsd.h"
+#include "lluuid.h"
+
+class LLViewerRegion;
 
 class LLPathfindingNavMeshZone
 {

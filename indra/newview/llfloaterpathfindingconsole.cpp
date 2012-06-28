@@ -30,30 +30,31 @@
 
 #include "llfloaterpathfindingconsole.h"
 
-#include "llfloaterpathfindinglinksets.h"
-#include "llfloaterpathfindingcharacters.h"
+#include <vector>
 
-#include "llsd.h"
-#include "llhandle.h"
-#include "llcontrol.h"
-#include "llpanel.h"
+#include <boost/signals2.hpp>
+
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
-#include "llsliderctrl.h"
-#include "lllineeditor.h"
-#include "lltextbase.h"
-#include "lltabcontainer.h"
 #include "llcombobox.h"
-#include "llfloaterreg.h"
-#include "llpathfindingnavmeshzone.h"
-#include "llpathfindingmanager.h"
+#include "llcontrol.h"
 #include "llenvmanager.h"
+#include "llfloaterpathfindingcharacters.h"
+#include "llfloaterpathfindinglinksets.h"
+#include "llfloaterreg.h"
+#include "llhandle.h"
+#include "llpanel.h"
+#include "llpathfindingnavmeshzone.h"
 #include "llpathfindingpathtool.h"
+#include "llpathinglib.h"
+#include "llsliderctrl.h"
+#include "llsd.h"
+#include "lltabcontainer.h"
+#include "lltextbase.h"
 #include "lltoolmgr.h"
 #include "lltoolfocus.h"
-#include "pipeline.h"
-#include "llpathinglib.h"
 #include "llviewerparcelmgr.h"
+#include "pipeline.h"
 
 #define XUI_RENDER_HEATMAP_NONE 0
 #define XUI_RENDER_HEATMAP_A 1
@@ -88,8 +89,6 @@
 #define CONTROL_NAME_WATER					 "PathfindingWaterColor"
 
 LLHandle<LLFloaterPathfindingConsole> LLFloaterPathfindingConsole::sInstanceHandle;
-
-extern LLPipeline gPipeline;
 
 //---------------------------------------------------------------------------
 // LLFloaterPathfindingConsole
@@ -213,7 +212,7 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 	{	
 		if (!mNavMeshZoneSlot.connected())
 		{
-			mNavMeshZoneSlot = mNavMeshZone.registerNavMeshZoneListener(boost::bind(&LLFloaterPathfindingConsole::onNavMeshZoneCB, this, _1));
+			mNavMeshZoneSlot = mNavMeshZone.registerNavMeshZoneListener(boost::bind(&LLFloaterPathfindingConsole::handleNavMeshZoneStatus, this, _1));
 		}
 
 		mIsNavMeshUpdating = false;
@@ -500,9 +499,10 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mSavedSettingNavMeshFaceSlot(),
 	mSavedSettingTestPathValidEndSlot(),
 	mSavedSettingTestPathInvalidEndSlot(),
-	mSavedSettingWaterSlot(),
 	mSavedSettingTestPathSlot(),
-	mConsoleState(kConsoleStateUnknown)
+	mSavedSettingWaterSlot(),
+	mConsoleState(kConsoleStateUnknown),
+	mRenderableRestoreList()
 {
 	mSelfHandle.bind(this);
 }
@@ -541,7 +541,10 @@ void LLFloaterPathfindingConsole::onShowNavMeshSet()
 
 void LLFloaterPathfindingConsole::onShowWalkabilitySet()
 {
-	LLPathingLib::getInstance()->setNavMeshMaterialType(getRenderHeatmapType());
+	if (LLPathingLib::getInstance() != NULL)
+	{
+		LLPathingLib::getInstance()->setNavMeshMaterialType(getRenderHeatmapType());
+	}
 }
 
 void LLFloaterPathfindingConsole::onCharacterWidthSet()
@@ -559,7 +562,7 @@ void LLFloaterPathfindingConsole::onClearPathClicked()
 	clearPath();
 }
 
-void LLFloaterPathfindingConsole::onNavMeshZoneCB(LLPathfindingNavMeshZone::ENavMeshZoneRequestStatus pNavMeshZoneRequestStatus)
+void LLFloaterPathfindingConsole::handleNavMeshZoneStatus(LLPathfindingNavMeshZone::ENavMeshZoneRequestStatus pNavMeshZoneRequestStatus)
 {
 	switch (pNavMeshZoneRequestStatus)
 	{
@@ -641,6 +644,7 @@ void LLFloaterPathfindingConsole::setDefaultInputs()
 {
 	mViewTestTabContainer->selectTab(XUI_VIEW_TAB_INDEX);
 	setRenderWorld(TRUE);
+	setRenderWorldMovablesOnly(FALSE);
 	setRenderNavMesh(FALSE);
 	setRenderWalkables(FALSE);
 	setRenderMaterialVolumes(FALSE);
@@ -648,7 +652,6 @@ void LLFloaterPathfindingConsole::setDefaultInputs()
 	setRenderExclusionVolumes(FALSE);
 	setRenderWaterPlane(FALSE);
 	setRenderXRay(FALSE);
-	setRenderWorldMovablesOnly(FALSE);
 }
 
 void LLFloaterPathfindingConsole::setConsoleState(EConsoleState pConsoleState)
@@ -1204,6 +1207,10 @@ void LLFloaterPathfindingConsole::deregisterSavedSettingsListeners()
 	if (mSavedSettingTestPathSlot.connected())
 	{
 		mSavedSettingTestPathSlot.disconnect();
+	}
+	if (mSavedSettingWaterSlot.connected())
+	{
+		mSavedSettingWaterSlot.disconnect();
 	}
 }
 
