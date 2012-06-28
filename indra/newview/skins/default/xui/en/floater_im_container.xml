@@ -15,10 +15,10 @@
  width="680">
     <string
      name="collapse_icon"
-     value="TabIcon_Open_Off"/>
+     value="Conv_toolbar_collapse"/>
     <string
      name="expand_icon"
-     value="TabIcon_Close_Off"/>
+     value="Conv_toolbar_expand"/>
     <layout_stack
      animate="true" 
      follows="all"
@@ -53,7 +53,7 @@
                      follows="top|left"
                      height="25"
                      image_hover_unselected="Toolbar_Middle_Over"
-                     image_overlay="OptionsMenu_Off"
+                     image_overlay="Conv_toolbar_sort"
                      image_selected="Toolbar_Middle_Selected"
                      image_unselected="Toolbar_Middle_Off"
                      layout="topleft"
@@ -65,7 +65,7 @@
                      follows="top|left"
                      height="25"
                      image_hover_unselected="Toolbar_Middle_Over"
-                     image_overlay="AddItem_Off"
+                     image_overlay="Conv_toolbar_plus"
                      image_selected="Toolbar_Middle_Selected"
                       image_unselected="Toolbar_Middle_Off"
                      layout="topleft"
@@ -84,7 +84,7 @@
                      follows="right|top"
                      height="25"
                      image_hover_unselected="Toolbar_Middle_Over"
-                     image_overlay="TabIcon_Open_Off"
+                     image_overlay="Conv_toolbar_collapse"
                      image_selected="Toolbar_Middle_Selected"
                      image_unselected="Toolbar_Middle_Off"
                      layout="topleft"

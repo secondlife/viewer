@@ -18,20 +18,20 @@
     <floater.string 
      name="NearbyChatTitle"
      value="Nearby Chat"/>
-    <floater.string name="call_btn_start">VoicePTT_Off</floater.string>
-    <floater.string name="call_btn_stop">VoicePTT_On</floater.string>
+    <floater.string name="call_btn_start">Conv_toolbar_open_call</floater.string>
+    <floater.string name="call_btn_stop">Conv_toolbar_hang_up</floater.string>
     <floater.string
      name="collapse_icon"
-     value="TabIcon_Open_Off"/>
+     value="Conv_toolbar_collapse"/>
     <floater.string
      name="expand_icon"
-     value="TabIcon_Close_Off"/>
+     value="Conv_toolbar_expand"/>
     <floater.string
      name="tear_off_icon"
-     value="tearoffbox.tga"/>
+     value="Conv_toolbar_arrow_ne"/>
     <floater.string
      name="return_icon"
-     value="Icon_Dock_Foreground"/>
+     value="Conv_toolbar_arrow_sw"/>
     <view
         follows="all"
         layout="topleft"
@@ -52,10 +52,10 @@
                  menu_filename="menu_im_session_showmodes.xml"
                  follows="top|left"
                  height="25"
-                 image_hover_unselected="Toolbar_Left_Over"
-                 image_overlay="OptionsMenu_Off"
-                 image_selected="Toolbar_Left_Selected"
-                 image_unselected="Toolbar_Left_Off"
+                 image_hover_unselected="Toolbar_Middle_Over"
+                 image_overlay="Conv_toolbar_sort"
+                 image_selected="Toolbar_Middle_Selected"
+                 image_unselected="Toolbar_Middle_Off"
                  layout="topleft"
                  left="5"
                  name="view_options_btn"
@@ -66,7 +66,7 @@
                  follows="top|left"
                  height="25"
                  image_hover_unselected="Toolbar_Middle_Over"
-                 image_overlay="AddItem_Off"
+                 image_overlay="Conv_toolbar_add_person"
                  image_selected="Toolbar_Middle_Selected"
                  image_unselected="Toolbar_Middle_Off"
                  layout="topleft"
@@ -77,10 +77,10 @@
              <button
                  follows="top|left"
                  height="25"
-                 image_hover_unselected="Toolbar_Right_Over"
-                 image_overlay="VoicePTT_Off"
-                 image_selected="Toolbar_Right_Selected"
-                 image_unselected="Toolbar_Right_Off"
+                 image_hover_unselected="Toolbar_Middle_Over"
+                 image_overlay="Conv_toolbar_open_call"
+                 image_selected="Toolbar_Middle_Selected"
+                 image_unselected="Toolbar_Middle_Off"
                  layout="topleft"
                  top="5"
                  left_pad="4"
@@ -90,7 +90,7 @@
                  follows="right|top"
                  height="25"
                  image_hover_unselected="Toolbar_Middle_Over"
-                 image_overlay="Icon_Close_Foreground"
+                 image_overlay="Conv_toolbar_close"
                  image_selected="Toolbar_Middle_Selected"
                  image_unselected="Toolbar_Middle_Off"
                  layout="topleft"
@@ -102,7 +102,7 @@
                  follows="right|top"
                  height="25"
                  image_hover_unselected="Toolbar_Middle_Over"
-                 image_overlay="TabIcon_Open_Off"
+                 image_overlay="Conv_toolbar_collapse"
                  image_selected="Toolbar_Middle_Selected"
              	 image_unselected="Toolbar_Middle_Off"
                  layout="topleft"
@@ -114,7 +114,7 @@
                  follows="right|top"
                  height="25"
                  image_hover_unselected="Toolbar_Middle_Over"
-                 image_overlay="tearoffbox.tga"
+                 image_overlay="Conv_toolbar_arrow_ne"
                  image_selected="Toolbar_Middle_Selected"
              	 image_unselected="Toolbar_Middle_Off"
                  layout="topleft"

@@ -49,7 +49,7 @@
           follows="right"
           height="25"
           image_hover_unselected="Toolbar_Middle_Over"
-          image_overlay="Inv_Underpants"
+          image_overlay="Conv_toolbar_sort"
           image_selected="Toolbar_Middle_Selected"
           image_unselected="Toolbar_Middle_Off"
           layout="topleft"

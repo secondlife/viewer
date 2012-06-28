@@ -160,7 +160,21 @@ with the same filename but different name
   <texture name="ComboButton_On" file_name="widgets/ComboButton_On.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="ComboButton_Off" file_name="widgets/ComboButton_Off.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="ComboButton_UpOff" file_name="widgets/ComboButton_UpOff.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
+
   <texture name="Container" file_name="containers/Container.png" preload="false" />
+
+  <texture name="Conv_toolbar_add_person" file_name="icons/Conv_toolbar_add_person.png" preload="false" />
+  <texture name="Conv_toolbar_arrow_ne" file_name="icons/Conv_toolbar_arrow_ne.png" preload="false" />
+  <texture name="Conv_toolbar_arrow_sw" file_name="icons/Conv_toolbar_arrow_sw.png" preload="false" />
+  <texture name="Conv_toolbar_call_log" file_name="icons/Conv_toolbar_call_log.png" preload="false" />
+  <texture name="Conv_toolbar_close" file_name="icons/Conv_toolbar_close.png" preload="false" />
+  <texture name="Conv_toolbar_collapse" file_name="icons/Conv_toolbar_collapse.png" preload="false" />
+  <texture name="Conv_toolbar_expand" file_name="icons/Conv_toolbar_expand.png" preload="false" />
+  <texture name="Conv_toolbar_hang_up" file_name="icons/Conv_toolbar_hang_up.png" preload="false" />
+  <texture name="Conv_toolbar_open_call" file_name="icons/Conv_toolbar_open_call.png" preload="false" />
+  <texture name="Conv_toolbar_plus" file_name="icons/Conv_toolbar_plus.png" preload="false" />
+  <texture name="Conv_toolbar_sort" file_name="icons/Conv_toolbar_sort.png" preload="false" />
+
   <texture name="Copy" file_name="icons/Copy.png" preload="false" />
   
   <texture name="DisclosureArrow_Opened_Off" file_name="widgets/DisclosureArrow_Opened_Off.png" preload="true" />
