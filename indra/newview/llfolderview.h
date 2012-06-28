@@ -110,9 +110,11 @@ public:
 
 	virtual BOOL canFocusChildren() const;
 
+	virtual const LLFolderView*	getRoot() const { return this; }
 	virtual LLFolderView*	getRoot() { return this; }
 
 	LLFolderViewModelInterface* getFolderViewModel() { return mViewModel; }
+	const LLFolderViewModelInterface* getFolderViewModel() const { return mViewModel; }
 
 	void setFilterPermMask(PermissionMask filter_perm_mask);
 	
@@ -120,9 +122,6 @@ public:
 	void setSelectCallback(const signal_t::slot_type& cb) { mSelectSignal.connect(cb); }
 	void setReshapeCallback(const signal_t::slot_type& cb) { mReshapeSignal.connect(cb); }
 	
-	// filter is never null
-	LLFolderViewFilter* getFilter();
-
 	bool getAllowMultiSelect() { return mAllowMultiSelect; }
 
 	// Close all folders in the view
@@ -133,7 +132,7 @@ public:
 
 	// Find width and height of this object and its children. Also
 	// makes sure that this view and its children are the right size.
-	virtual S32 arrange( S32* width, S32* height, S32 filter_generation );
+	virtual S32 arrange( S32* width, S32* height );
 	virtual S32 getItemHeight();
 
 	void arrangeAll() { mArrangeGeneration++; }
@@ -147,7 +146,7 @@ public:
 
 	// Record the selected item and pass it down the hierarchy.
 	virtual BOOL setSelection(LLFolderViewItem* selection, BOOL openitem,
-		BOOL take_keyboard_focus);
+		BOOL take_keyboard_focus = TRUE);
 
 	// This method is used to toggle the selection of an item. Walks
 	// children, and keeps track of selected objects.
@@ -244,8 +243,6 @@ public:
 
 	void setCallbackRegistrar(LLUICtrl::CommitCallbackRegistry::ScopedRegistrar* registrar) { mCallbackRegistrar = registrar; }
 
-	BOOL getDebugFilters() { return mDebugFilters; }
-
 	LLPanel* getParentPanel() { return mParentPanel; }
 	// DEBUG only
 	void dumpSelectionInformation();
@@ -299,7 +296,6 @@ protected:
 	bool							mUseLabelSuffix;
 	bool							mShowItemLinkOverlays;
 	
-	BOOL							mDebugFilters;
 	U32								mSortOrder;
 	LLDepthStack<LLFolderViewFolder>	mAutoOpenItems;
 	LLFolderViewFolder*				mAutoOpenCandidate;

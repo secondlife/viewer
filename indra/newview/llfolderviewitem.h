@@ -35,6 +35,7 @@ class LLFolderViewModelItem;
 class LLFolderViewFolder;
 class LLFolderViewFunctor;
 class LLFolderViewFilter;
+class LLFolderViewModelInterface;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLFolderViewItem
@@ -78,8 +79,6 @@ public:
 	static const F32 FOLDER_CLOSE_TIME_CONSTANT;
 	static const F32 FOLDER_OPEN_TIME_CONSTANT;
 
-	const std::string& getSearchableLabel() { return mSearchableLabel; }
-	
 private:
 	BOOL						mIsSelected;
 
@@ -90,7 +89,6 @@ protected:
 	LLFolderViewItem(const Params& p);
 
 	std::string					mLabel;
-	std::string					mSearchableLabel;
 	S32							mLabelWidth;
 	bool						mLabelWidthDirty;
 	LLFolderViewFolder*			mParentFolder;
@@ -106,17 +104,13 @@ protected:
 	BOOL						mHasVisibleChildren;
 	S32							mIndentation;
 	S32							mItemHeight;
-	BOOL						mPassedFilter;
-	S32							mLastFilterGeneration;
+
 	//TODO RN: create interface for string highlighting
 	//std::string::size_type		mStringMatchOffset;
 	F32							mControlLabelRotation;
 	LLFolderView*				mRoot;
 	BOOL						mDragAndDropTarget;
 	bool						mIsMouseOverTitle;
-
-	// helper function to change the selection from the root.
-	void changeSelectionFromRoot(LLFolderViewItem* selection, BOOL selected);
 
 	// this is an internal method used for adding items to folders. A
 	// no-op at this level, but reimplemented in derived classes.
@@ -130,39 +124,20 @@ public:
 
 	virtual void openItem( void );
 
-	// This function clears the currently selected item, and records
-	// the specified selected item appropriately for display and use
-	// in the UI. If open is TRUE, then folders are opened up along
-	// the way to the selection.
-	void setSelectionFromRoot(LLFolderViewItem* selection, BOOL openitem,
-		BOOL take_keyboard_focus = TRUE);
-
-	// This function is called when the folder view is dirty. It's
-	// implemented here but called by derived classes when folding the
-	// views.
-	void arrangeFromRoot();
-	void filterFromRoot( void );
-	
 	void arrangeAndSet(BOOL set_selection, BOOL take_keyboard_focus);
 
 	virtual ~LLFolderViewItem( void );
 
 	// addToFolder() returns TRUE if it succeeds. FALSE otherwise
-	enum { ARRANGE = TRUE, DO_NOT_ARRANGE = FALSE };
 	virtual BOOL addToFolder(LLFolderViewFolder* folder);
 
 	// Finds width and height of this object and it's children.  Also
 	// makes sure that this view and it's children are the right size.
-	virtual S32 arrange( S32* width, S32* height, S32 filter_generation );
+	virtual S32 arrange( S32* width, S32* height );
 	virtual S32 getItemHeight();
 
-	// applies filters to control visibility of items
-	virtual void filter( LLFolderViewFilter& filter);
-
 	// updates filter serial number and optionally propagated value up to root
-	S32		getLastFilterGeneration() { return mLastFilterGeneration; }
-
-	virtual void	dirtyFilter();
+	S32		getLastFilterGeneration() const;
 
 	// If 'selection' is 'this' then note that otherwise ignore.
 	// Returns TRUE if this item ends up being selected.
@@ -213,8 +188,6 @@ public:
 	// viewed. This method will ask the viewed object itself.
 	const std::string& getName( void ) const;
 
-	const std::string& getSearchableLabel( void ) const;
-
 	// This method returns the label displayed on the view. This
 	// method was primarily added to allow sorting on the folder
 	// contents possible before the entire view has been constructed.
@@ -224,11 +197,16 @@ public:
 	LLFolderViewFolder* getParentFolder( void ) { return mParentFolder; }
 	const LLFolderViewFolder* getParentFolder( void ) const { return mParentFolder; }
 
+	void setParentFolder(LLFolderViewFolder* parent) { mParentFolder = parent; }
+
 	LLFolderViewItem* getNextOpenNode( BOOL include_children = TRUE );
 	LLFolderViewItem* getPreviousOpenNode( BOOL include_children = TRUE );
 
 	const LLFolderViewModelItem* getViewModelItem( void ) const { return mListener; }
 	LLFolderViewModelItem* getViewModelItem( void ) { return mListener; }
+
+	const LLFolderViewModelInterface* getFolderViewModel( void ) const;
+	LLFolderViewModelInterface* getFolderViewModel( void );
 
 	// just rename the object.
 	void rename(const std::string& new_name);
@@ -239,15 +217,11 @@ public:
 	virtual BOOL isOpen() const { return FALSE; }
 
 	virtual LLFolderView*	getRoot();
+	virtual const LLFolderView*	getRoot() const;
 	BOOL			isDescendantOf( const LLFolderViewFolder* potential_ancestor );
 	S32				getIndentation() { return mIndentation; }
 
-	virtual BOOL	potentiallyVisible(); // is the item definitely visible or we haven't made up our minds yet?
-	virtual BOOL	potentiallyHidden(); // did this item not pass the filter or do we not know yet?
-
-	virtual BOOL	getFiltered();
-	virtual BOOL	getFiltered(S32 filter_generation);
-	virtual void	setFiltered(BOOL filtered, S32 filter_generation);
+	virtual BOOL	passedFilter(S32 filter_generation = -1);
 
 	// refresh information from the object being viewed.
 	virtual void refresh();
@@ -305,7 +279,6 @@ protected:
 	F32			mAutoOpenCountdown;
 	S32			mLastArrangeGeneration;
 	S32			mLastCalculatedWidth;
-	S32			mCompletedFilterGeneration;
 	S32			mMostFilteredDescendantGeneration;
 	bool		mNeedsSort;
 	bool		mPassedFolderFilter;
@@ -322,8 +295,6 @@ public:
 
 	virtual ~LLFolderViewFolder( void );
 
-	virtual BOOL	potentiallyVisible();
-
 	LLFolderViewItem* getNextFromChild( LLFolderViewItem*, BOOL include_children = TRUE );
 	LLFolderViewItem* getPreviousFromChild( LLFolderViewItem*, BOOL include_children = TRUE  );
 
@@ -332,34 +303,17 @@ public:
 
 	// Finds width and height of this object and it's children.  Also
 	// makes sure that this view and it's children are the right size.
-	virtual S32 arrange( S32* width, S32* height, S32 filter_generation );
+	virtual S32 arrange( S32* width, S32* height );
 
 	BOOL needsArrange();
 
-	virtual void	setCompletedFilterGeneration(S32 generation, BOOL recurse_up);
-	virtual S32		getCompletedFilterGeneration() { return mCompletedFilterGeneration; }
-
-	BOOL hasFilteredDescendants(S32 filter_generation);
-	BOOL hasFilteredDescendants();
-
-	// applies filters to control visibility of items
-	virtual void filter( LLFolderViewFilter& filter);
-	virtual void setFiltered(BOOL filtered, S32 filter_generation);
-	virtual BOOL getFiltered();
-	virtual BOOL getFiltered(S32 filter_generation);
-
-	virtual void dirtyFilter();
-	
-	// folder-specific filtering (filter status propagates top down instead of bottom up)
-	void filterFolder(LLFolderViewFilter& filter);
-	void setFilteredFolder(bool filtered, S32 filter_generation);
-	bool getFilteredFolder(S32 filter_generation);
+	bool descendantsPassedFilter(S32 filter_generation = -1);
 
 	// Passes selection information on to children and record
 	// selection information if necessary.
 	// Returns TRUE if this object (or a child) ends up being selected.
 	// If 'openitem' is TRUE then folders are opened up along the way to the selection.
-	virtual BOOL setSelection(LLFolderViewItem* selection, BOOL openitem, BOOL take_keyboard_focus);
+	virtual BOOL setSelection(LLFolderViewItem* selection, BOOL openitem, BOOL take_keyboard_focus = TRUE);
 
 	// This method is used to change the selection of an item.
 	// Recursively traverse all children; if 'selection' is 'this' then change
@@ -384,14 +338,6 @@ public:
 	// it's viewed folder object can be removed.
 	//virtual BOOL removeRecursively(BOOL single_item);
 	//virtual BOOL remove();
-
-	// remove the specified item (and any children) if
-	// possible. Return TRUE if the item was deleted.
-	BOOL removeItem(LLFolderViewItem* item);
-
-	// simply remove the view (and any children) Don't bother telling
-	// the listeners.
-	void removeView(LLFolderViewItem* item);
 
 	// extractItem() removes the specified item from the folder, but
 	// doesn't delete it.

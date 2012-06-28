@@ -77,6 +77,7 @@ protected:
 	LLUUID mUUID;
 	std::string mName;
 	mutable std::string mDisplayName;
+	mutable std::string mSearchableName;
 	LLPanelObjectInventory* mPanel;
 	U32 mFlags;
 	LLAssetType::EType mAssetType;	
@@ -105,6 +106,8 @@ public:
 	// LLFolderViewModelItemInventory functionality
 	virtual const std::string& getName() const;
 	virtual const std::string& getDisplayName() const;
+	virtual const std::string& getSearchableName() const;
+
 	virtual PermissionMask getPermissionMask() const { return PERM_NONE; }
 	/*virtual*/ LLFolderType::EType getPreferredType() const { return LLFolderType::FT_NONE; }
 	virtual const LLUUID& getUUID() const { return mUUID; }
@@ -335,8 +338,16 @@ const std::string& LLTaskInvFVBridge::getDisplayName() const
 		}
 	}
 
+	mSearchableName.assign(mDisplayName + getLabelSuffix());
+
 	return mDisplayName;
 }
+
+const std::string& LLTaskInvFVBridge::getSearchableName() const
+{
+	return mSearchableName;
+}
+
 
 // BUG: No creation dates for task inventory
 time_t LLTaskInvFVBridge::getCreationDate() const

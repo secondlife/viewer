@@ -181,7 +181,6 @@ LLFolderView::LLFolderView(const Params& p)
 	mNeedsAutoSelect( FALSE ),
 	mAutoSelectOverride(FALSE),
 	mNeedsAutoRename(FALSE),
-	mDebugFilters(FALSE),
 	mSortOrder(LLInventoryFilter::SO_FOLDERS_BY_NAME),	// This gets overridden by a pref immediately
 	mFilter(new LLInventoryFilter(LLInventoryFilter::Params().name(p.title))),
 	mShowSelectionContext(FALSE),
@@ -316,7 +315,7 @@ BOOL LLFolderView::addFolder( LLFolderViewFolder* folder)
 	folder->reshape(getRect().getWidth(), 0);
 	folder->setVisible(FALSE);
 	addChild( folder );
-	folder->dirtyFilter();
+	folder->getViewModelItem()->dirtyFilter();
 	folder->requestArrange();
 	return TRUE;
 }
@@ -339,15 +338,14 @@ void LLFolderView::openTopLevelFolders()
 }
 
 // This view grows and shrinks to enclose all of its children items and folders.
-// mItemHeight = mDebugFilters ? LLFontGL::getFontMonospace()->getLineHeight() : 0;
 // *width should be 0
 // conform show folder state works
-S32 LLFolderView::arrange( S32* unused_width, S32* unused_height, S32 filter_generation )
+S32 LLFolderView::arrange( S32* unused_width, S32* unused_height )
 {
 	mMinWidth = 0;
 	S32 target_height;
 
-	LLFolderViewFolder::arrange(&mMinWidth, &target_height, mFilter->getFirstSuccessGeneration());
+	LLFolderViewFolder::arrange(&mMinWidth, &target_height);
 
 	LLRect scroll_rect = mScrollContainer->getContentWindowRect();
 	reshape( llmax(scroll_rect.getWidth(), mMinWidth), llround(mCurHeight) );
@@ -371,15 +369,10 @@ void LLFolderView::filter( LLFolderViewFilter& filter )
 	LLFastTimer t2(FTM_FILTER);
 	filter.setFilterCount(llclamp(gSavedSettings.getS32("FilterItemsPerFrame"), 1, 5000));
 
-	if (getCompletedFilterGeneration() < filter.getCurrentGeneration())
+	if (getLastFilterGeneration() < filter.getCurrentGeneration())
 	{
-		mPassedFilter = FALSE;
 		mMinWidth = 0;
-		LLFolderViewFolder::filter(filter);
-	}
-	else
-	{
-		mPassedFilter = TRUE;
+		getViewModelItem()->filter(filter);
 	}
 }
 
@@ -548,15 +541,15 @@ void LLFolderView::sanitizeSelection()
 		LLFolderViewItem* item = *item_iter;
 
 		// ensure that each ancestor is open and potentially passes filtering
-		BOOL visible = item->potentiallyVisible(); // initialize from filter state for this item
+		BOOL visible = item->getViewModelItem()->potentiallyVisible(); // initialize from filter state for this item
 		// modify with parent open and filters states
 		LLFolderViewFolder* parent_folder = item->getParentFolder();
 		// Move up through parent folders and see what's visible
-				while(parent_folder)
-				{
-					visible = visible && parent_folder->isOpen() && parent_folder->potentiallyVisible();
-					parent_folder = parent_folder->getParentFolder();
-				}
+		while(parent_folder)
+		{
+			visible = visible && parent_folder->isOpen() && parent_folder->getViewModelItem()->potentiallyVisible();
+			parent_folder = parent_folder->getParentFolder();
+		}
 
 		//  deselect item if any ancestor is closed or didn't pass filter requirements.
 		if (!visible)
@@ -606,7 +599,7 @@ void LLFolderView::sanitizeSelection()
 				parent_folder;
 				parent_folder = parent_folder->getParentFolder())
 			{
-				if (parent_folder->potentiallyVisible())
+				if (parent_folder->getViewModelItem()->potentiallyVisible())
 				{
 					// give initial selection to first ancestor folder that potentially passes the filter
 					if (!new_selection)
@@ -684,16 +677,6 @@ void LLFolderView::commitRename( const LLSD& data )
 
 void LLFolderView::draw()
 {
-	static LLUIColor sSearchStatusColor = LLUIColorTable::instance().getColor("InventorySearchStatusColor", LLColor4::white);
-	if (mDebugFilters)
-	{
-		std::string current_filter_string = llformat("Current Filter: %d, Least Filter: %d, Auto-accept Filter: %d",
-										mFilter->getCurrentGeneration(), mFilter->getFirstSuccessGeneration(), mFilter->getFirstRequiredGeneration());
-		LLFontGL::getFontMonospace()->renderUTF8(current_filter_string, 0, 2, 
-			getRect().getHeight() - LLFontGL::getFontMonospace()->getLineHeight(), LLColor4(0.5f, 0.5f, 0.8f, 1.f), 
-			LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE );
-	}
-
 	//LLFontGL* font = getLabelFontForStyle(mLabelStyle);
 
 	// if cursor has moved off of me during drag and drop
@@ -734,17 +717,14 @@ void LLFolderView::draw()
 	}
 	else if (mShowEmptyMessage)
 	{
-		if (!mViewModel->contentsReady() || mCompletedFilterGeneration < mFilter->getFirstSuccessGeneration())
+		if (!mViewModel->contentsReady() || getLastFilterGeneration() < mFilter->getFirstSuccessGeneration())
 		{
 			// TODO RN: Get this from filter
 			mStatusText = LLTrans::getString("Searching");
 		}
 		else
 		{
-			if (getFilter())
-			{
-				mStatusText = getFilter()->getEmptyLookupMessage();
-			}
+			mStatusText = getFolderViewModel()->getFilter()->getEmptyLookupMessage();
 		}
 		mStatusTextBox->setValue(mStatusText);
 		mStatusTextBox->setVisible( TRUE );
@@ -763,7 +743,11 @@ void LLFolderView::draw()
 			// This will indirectly call ::arrange and reshape of the status textbox.
 			// We should call this method to also notify parent about required rect.
 			// See EXT-7564, EXT-7047.
-			arrangeFromRoot();
+			S32 height = 0;
+			S32 width = 0;
+			S32 total_height = arrange( &width, &height );
+			notifyParent(LLSD().with("action", "size_changes").with("height", total_height));
+
 			LLUI::popMatrix();
 			LLUI::pushMatrix();
 			LLUI::translate((F32)getRect().mLeft, (F32)getRect().mBottom);
@@ -902,16 +886,16 @@ void LLFolderView::onItemsRemovalConfirmation(const LLSD& notification, const LL
 			}
 			if(parent)
 			{
-				if (parent->removeItem(item_to_delete))
+				if (item_to_delete->remove())
 				{
 					// change selection on successful delete
 					if (new_selection)
 					{
-						setSelectionFromRoot(new_selection, new_selection->isOpen(), mParentPanel->hasFocus());
+						getRoot()->setSelection(new_selection, new_selection->isOpen(), mParentPanel->hasFocus());
 					}
 					else
 					{
-						setSelectionFromRoot(NULL, mParentPanel->hasFocus());
+						getRoot()->setSelection(NULL, mParentPanel->hasFocus());
 					}
 				}
 			}
@@ -937,11 +921,11 @@ void LLFolderView::onItemsRemovalConfirmation(const LLSD& notification, const LL
 			}
 			if (new_selection)
 			{
-				setSelectionFromRoot(new_selection, new_selection->isOpen(), mParentPanel->hasFocus());
+				getRoot()->setSelection(new_selection, new_selection->isOpen(), mParentPanel->hasFocus());
 			}
 			else
 			{
-				setSelectionFromRoot(NULL, mParentPanel->hasFocus());
+				getRoot()->setSelection(NULL, mParentPanel->hasFocus());
 			}
 
 			for(S32 i = 0; i < count; ++i)
@@ -1386,12 +1370,12 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 					if (next->isSelected())
 					{
 						// shrink selection
-						changeSelectionFromRoot(last_selected, FALSE);
+						getRoot()->changeSelection(last_selected, FALSE);
 					}
 					else if (last_selected->getParentFolder() == next->getParentFolder())
 					{
 						// grow selection
-						changeSelectionFromRoot(next, TRUE);
+						getRoot()->changeSelection(next, TRUE);
 					}
 				}
 			}
@@ -1450,12 +1434,12 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 					if (prev->isSelected())
 					{
 						// shrink selection
-						changeSelectionFromRoot(last_selected, FALSE);
+						getRoot()->changeSelection(last_selected, FALSE);
 					}
 					else if (last_selected->getParentFolder() == prev->getParentFolder())
 					{
 						// grow selection
-						changeSelectionFromRoot(prev, TRUE);
+						getRoot()->changeSelection(prev, TRUE);
 					}
 				}
 			}
@@ -1649,7 +1633,7 @@ BOOL LLFolderView::search(LLFolderViewItem* first_item, const std::string &searc
 			}
 		}
 
-		const std::string current_item_label(search_item->getSearchableLabel());
+		const std::string current_item_label(search_item->getViewModelItem()->getSearchableName());
 		S32 search_string_length = llmin(upper_case_string.size(), current_item_label.size());
 		if (!current_item_label.compare(0, search_string_length, upper_case_string))
 		{
@@ -1959,13 +1943,6 @@ void LLFolderView::doIdle()
 	
 	LLFastTimer t2(FTM_INVENTORY);
 
-	BOOL debug_filters = gSavedSettings.getBOOL("DebugInventoryFilters");
-	if (debug_filters != getDebugFilters())
-	{
-		mDebugFilters = debug_filters;
-		arrangeAll();
-	}
-
 	if (mFilter->isModified() && mFilter->isNotDefault())
 	{
 		mNeedsAutoSelect = TRUE;
@@ -1973,7 +1950,7 @@ void LLFolderView::doIdle()
 	mFilter->clearModified();
 
 	// filter to determine visibility before arranging
-	filterFromRoot();
+	filter(*(getFolderViewModel()->getFilter()));
 
 	// automatically show matching items, and select first one if we had a selection
 	if (mNeedsAutoSelect)
@@ -1981,7 +1958,7 @@ void LLFolderView::doIdle()
 		LLFastTimer t3(FTM_AUTO_SELECT);
 		// select new item only if a filtered item not currently selected
 		LLFolderViewItem* selected_itemp = mSelectedItems.empty() ? NULL : mSelectedItems.back();
-		if (!mAutoSelectOverride && (!selected_itemp || !selected_itemp->potentiallyHidden()))
+		if (!mAutoSelectOverride && (!selected_itemp || selected_itemp->passedFilter()))
 		{
 			// these are named variables to get around gcc not binding non-const references to rvalues
 			// and functor application is inherently non-const to allow for stateful functors
@@ -1991,7 +1968,7 @@ void LLFolderView::doIdle()
 
 		// Open filtered folders for folder views with mAutoSelectOverride=TRUE.
 		// Used by LLPlacesFolderView.
-		if (mAutoSelectOverride && mFilter->showAllResults())
+		if (mFilter->showAllResults())
 		{
 			// these are named variables to get around gcc not binding non-const references to rvalues
 			// and functor application is inherently non-const to allow for stateful functors
@@ -2002,7 +1979,7 @@ void LLFolderView::doIdle()
 		scrollToShowSelection();
 	}
 
-	BOOL filter_finished = mCompletedFilterGeneration >= mFilter->getCurrentGeneration() 
+	BOOL filter_finished = getLastFilterGeneration() >= mFilter->getCurrentGeneration() 
 						&& mViewModel->contentsReady();
 	if (filter_finished 
 		|| gFocusMgr.childHasKeyboardFocus(inventory_panel) 
@@ -2073,7 +2050,10 @@ void LLFolderView::doIdle()
 		sanitizeSelection();
 		if( needsArrange() )
 		{
-			arrangeFromRoot();
+			S32 height = 0;
+			S32 width = 0;
+			S32 total_height = arrange( &width, &height );
+			notifyParent(LLSD().with("action", "size_changes").with("height", total_height));
 		}
 	}
 
@@ -2278,25 +2258,19 @@ void LLFolderView::onRenamerLost()
 
 	if( mRenameItem )
 	{
-		setSelectionFromRoot( mRenameItem, TRUE );
+		setSelection( mRenameItem, TRUE );
 		mRenameItem = NULL;
 	}
 }
 
-LLFolderViewFilter* LLFolderView::getFilter()
-{
-	return mFilter;
-}
-
 S32 LLFolderView::getItemHeight()
 {
-	S32 debug_height = mDebugFilters ? LLFontGL::getFontMonospace()->getLineHeight() : 0;
 	if(!hasVisibleChildren())
 	{
 		//We need to display status textbox, let's reserve some place for it
-		return llmax(debug_height, mStatusTextBox->getTextPixelHeight());
+		return llmax(0, mStatusTextBox->getTextPixelHeight());
 	}
-	return debug_height;
+	return 0;
 }
 
 //TODO RN: move to llfolderviewmodel.cpp file

@@ -271,7 +271,7 @@ void LLSidepanelAppearance::onOpenOutfitButtonClicked()
 			if (outfit_folder)
 			{
 				outfit_folder->setOpen(!outfit_folder->isOpen());
-				root->setSelectionFromRoot(outfit_folder,TRUE);
+				root->setSelection(outfit_folder,TRUE);
 				root->scrollToShowSelection();
 			}
 		}

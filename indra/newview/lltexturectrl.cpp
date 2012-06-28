@@ -623,10 +623,9 @@ void LLFloaterTexturePicker::draw()
 		LLFolderView* folder_view = mInventoryPanel->getRootFolder();
 		if (!folder_view) return;
 
-		LLInventoryFilter* filter = static_cast<LLInventoryFilter*>(folder_view->getFilter());
-		if (!filter) return;
+		LLInventoryFilter* filter = static_cast<LLFolderViewModelInventory*>(folder_view->getFolderViewModel())->getFilter();
 
-		bool is_filter_active = folder_view->getCompletedFilterGeneration() < filter->getCurrentGeneration() &&
+		bool is_filter_active = folder_view->getLastFilterGeneration() < filter->getCurrentGeneration() &&
 				filter->isNotDefault();
 
 		// After inventory panel filter is applied we have to update
@@ -637,8 +636,9 @@ void LLFloaterTexturePicker::draw()
 		if (!is_filter_active && !mSelectedItemPinned)
 		{
 			folder_view->setPinningSelectedItem(mSelectedItemPinned);
-			folder_view->dirtyFilter();
-			folder_view->arrangeFromRoot();
+			folder_view->getViewModelItem()->dirtyFilter();
+			//TODO RN: test
+			//folder_view->arrangeFromRoot();
 
 			mSelectedItemPinned = TRUE;
 		}

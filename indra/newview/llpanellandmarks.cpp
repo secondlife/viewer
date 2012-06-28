@@ -102,7 +102,7 @@ void LLCheckFolderState::doFolder(LLFolderViewFolder* folder)
 	// Counting only folders that pass the filter.
 	// The listener check allow us to avoid counting the folder view
 	// object itself because it has no listener assigned.
-	if (folder->hasFilteredDescendants() && folder->getViewModelItem())
+	if (folder->getViewModelItem()->descendantsPassedFilter())
 	{
 		if (folder->isOpen())
 		{

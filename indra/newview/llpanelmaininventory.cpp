@@ -227,7 +227,7 @@ LLPanelMainInventory::~LLPanelMainInventory( void )
 	}
 	}
 
-        LLInventoryFilter* filter = getChild<LLInventoryPanel>("Recent   Items")->getFilter();
+        LLInventoryFilter* filter = findChild<LLInventoryPanel>("Recent   Items")->getFilter();
 		if (filter)
 		{
 			LLSD filterState;

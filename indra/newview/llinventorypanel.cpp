@@ -254,18 +254,16 @@ void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 	mFolderRoot->setCallbackRegistrar(&mCommitCallbackRegistrar);
 	
 	// Scroller
-	{
-		LLRect scroller_view_rect = getRect();
-		scroller_view_rect.translate(-scroller_view_rect.mLeft, -scroller_view_rect.mBottom);
-		LLScrollContainer::Params scroller_params(params.scroll());
-		scroller_params.rect(scroller_view_rect);
-		mScroller = LLUICtrlFactory::create<LLFolderViewScrollContainer>(scroller_params);
-		addChild(mScroller);
-		mScroller->addChild(mFolderRoot);
-		mFolderRoot->setScrollContainer(mScroller);
-		mFolderRoot->setFollowsAll();
-		mFolderRoot->addChild(mFolderRoot->mStatusTextBox);
-	}
+	LLRect scroller_view_rect = getRect();
+	scroller_view_rect.translate(-scroller_view_rect.mLeft, -scroller_view_rect.mBottom);
+	LLScrollContainer::Params scroller_params(params.scroll());
+	scroller_params.rect(scroller_view_rect);
+	mScroller = LLUICtrlFactory::create<LLFolderViewScrollContainer>(scroller_params);
+	addChild(mScroller);
+	mScroller->addChild(mFolderRoot);
+	mFolderRoot->setScrollContainer(mScroller);
+	mFolderRoot->setFollowsAll();
+	mFolderRoot->addChild(mFolderRoot->mStatusTextBox);
 
 	// Set up the callbacks from the inventory we're viewing, and then build everything.
 	mInventoryObserver = new LLInventoryPanelObserver(this);
@@ -344,12 +342,12 @@ void LLInventoryPanel::draw()
 
 const LLInventoryFilter* LLInventoryPanel::getFilter() const
 {
-	return &getFolderViewModel()->getFilter();
+	return getFolderViewModel()->getFilter();
 }
 
 LLInventoryFilter* LLInventoryPanel::getFilter()
 {
-	return &getFolderViewModel()->getFilter();
+	return getFolderViewModel()->getFilter();
 }
 
 void LLInventoryPanel::setFilterTypes(U64 types, LLInventoryFilter::EFilterType filter_type)
@@ -561,7 +559,6 @@ void LLInventoryPanel::modelChanged(U32 mask)
 						if (new_parent != NULL)
 						{
 							// Item is to be moved and we found its new parent in the panel's directory, so move the item's UI.
-							view_item->getParentFolder()->extractItem(view_item);
 							view_item->addToFolder(new_parent);
 							addItemID(viewmodel_item->getUUID(), view_item);
 						}
@@ -1356,5 +1353,106 @@ void LLFolderViewModelItemInventory::requestSort()
 		// sort by date potentially affects parent folders which use a date
 		// derived from newest item in them
 		mFolderViewItem->getParentFolder()->getViewModelItem()->requestSort();
+	}
+}
+
+bool LLFolderViewModelItemInventory::potentiallyVisible()
+{
+	return passedFilter() // we've passed the filter
+		|| getLastFilterGeneration() < mFolderViewItem->getRoot()->getFolderViewModel()->getFilter()->getFirstSuccessGeneration() // or we don't know yet
+		|| descendantsPassedFilter();
+}
+
+bool LLFolderViewModelItemInventory::passedFilter(S32 filter_generation) 
+{ 
+	if (filter_generation < 0) filter_generation = mFolderViewItem->getRoot()->getFolderViewModel()->getFilter()->getFirstSuccessGeneration();
+	return mPassedFolderFilter 
+		&& mLastFilterGeneration >= filter_generation
+		&& (mPassedFilter || descendantsPassedFilter(filter_generation));
+}
+
+bool LLFolderViewModelItemInventory::descendantsPassedFilter(S32 filter_generation)
+{ 
+	if (filter_generation < 0) filter_generation = mFolderViewItem->getRoot()->getFolderViewModel()->getFilter()->getFirstSuccessGeneration();
+	return mMostFilteredDescendantGeneration >= filter_generation; 
+}
+
+void LLFolderViewModelItemInventory::setPassedFilter(bool passed, bool passed_folder, S32 filter_generation)
+{
+	mPassedFilter = passed;
+	mPassedFolderFilter = passed_folder;
+	mLastFilterGeneration = filter_generation;
+}
+
+void LLFolderViewModelItemInventory::filterChildItem( LLFolderViewModelItem* item, LLFolderViewFilter& filter )
+{
+	S32 filter_generation = filter.getCurrentGeneration();
+	S32 must_pass_generation = filter.getFirstRequiredGeneration();
+
+	// mMostFilteredDescendantGeneration might have been reset
+	// in which case we need to update it even for folders that
+	// don't need to be filtered anymore
+	if (item->getLastFilterGeneration() < filter_generation)
+	{
+		if (item->getLastFilterGeneration() >= must_pass_generation && 
+			!item->passedFilter(must_pass_generation))
+		{
+			// failed to pass an earlier filter that was a subset of the current one
+			// go ahead and flag this item as done
+			item->setPassedFilter(false, false, filter_generation);
+		}
+		else
+		{
+			//TODO RN:
+			item->filter( filter );
+		}
+	}
+
+	// track latest generation to pass any child items
+	if (item->passedFilter())
+	{
+		mMostFilteredDescendantGeneration = filter_generation;
+		//TODO RN: ensure this still happens
+		//requestArrange();
+	}
+}
+
+void LLFolderViewModelItemInventory::filter( LLFolderViewFilter& filter)
+{
+	if(getLastFilterGeneration() < filter.getFirstRequiredGeneration() // haven't checked descendants against minimum required generation to pass
+		|| descendantsPassedFilter(filter.getFirstRequiredGeneration())) // or at least one descendant has passed the minimum requirement
+	{
+		// now query children
+		for (child_list_t::iterator iter = mChildren.begin();
+			iter != mChildren.end() && filter.getFilterCount() > 0;
+			++iter)
+		{
+			filterChildItem((*iter), filter);
+		}
+	}
+
+	// if we didn't use all filter iterations
+	// that means we filtered all of our descendants
+	// so filter ourselves now
+	if (filter.getFilterCount() > 0)
+	{
+		const BOOL previous_passed_filter = mPassedFilter;
+		const BOOL passed_filter = filter.check(this);
+		const BOOL passed_filter_folder = (getInventoryType() == LLInventoryType::IT_CATEGORY) 
+								? filter.checkFolder(this)
+								: true;
+
+		// If our visibility will change as a result of this filter, then
+		// we need to be rearranged in our parent folder
+		LLFolderViewFolder* parent_folder = mFolderViewItem->getParentFolder();
+		if (parent_folder && passed_filter != previous_passed_filter)
+		{
+			parent_folder->requestArrange();
+		}
+	
+		setPassedFilter(passed_filter, passed_filter_folder, filter.getCurrentGeneration());
+		//TODO RN: create interface for string highlighting
+		//mStringMatchOffset = filter.getStringMatchOffset(this);
+		filter.decrementFilterCount();
 	}
 }

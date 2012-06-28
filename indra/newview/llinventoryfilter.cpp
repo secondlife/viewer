@@ -71,35 +71,35 @@ LLInventoryFilter::LLInventoryFilter(const Params& p)
     mFilterOps(p.filter_ops),
 	mOrder(p.sort_order),
 	mFilterSubString(p.substring),
-	mLastSuccessGeneration(0),
-	mLastFailGeneration(S32_MAX),
+	mCurrentGeneration(0),
+	mFirstRequiredGeneration(0),
 	mFirstSuccessGeneration(0),
 	mFilterCount(0)
 {
-	mNextFilterGeneration = mLastSuccessGeneration + 1;
+	mNextFilterGeneration = mCurrentGeneration + 1;
 
 	// copy mFilterOps into mDefaultFilterOps
 	markDefault();
 }
 
-bool LLInventoryFilter::check(const LLFolderViewItem* item) 
+bool LLInventoryFilter::check(const LLFolderViewModelItem* item) 
 {
+	const LLFolderViewModelItemInventory* listener = static_cast<const LLFolderViewModelItemInventory*>(item);
 	// Clipboard cut items are *always* filtered so we need this value upfront
-	const LLFolderViewModelItemInventory* listener = static_cast<const LLFolderViewModelItemInventory*>(item->getViewModelItem());
 	const BOOL passed_clipboard = (listener ? checkAgainstClipboard(listener->getUUID()) : TRUE);
 
 	// If it's a folder and we're showing all folders, return automatically.
-	const BOOL is_folder = (dynamic_cast<const LLFolderViewFolder*>(item) != NULL);
+	const BOOL is_folder = listener->getInventoryType() == LLInventoryType::IT_CATEGORY;;
 	if (is_folder && (mFilterOps.mShowFolderState == LLInventoryFilter::SHOW_ALL_FOLDERS))
 	{
 		return passed_clipboard;
 	}
 
-	std::string::size_type string_offset = mFilterSubString.size() ?   item->getSearchableLabel().find(mFilterSubString) : std::string::npos;
+	std::string::size_type string_offset = mFilterSubString.size() ? listener->getSearchableName().find(mFilterSubString) : std::string::npos;
 
-	const BOOL passed_filtertype = checkAgainstFilterType(item);
-	const BOOL passed_permissions = checkAgainstPermissions(item);
-	const BOOL passed_filterlink = checkAgainstFilterLinks(item);
+	const BOOL passed_filtertype = checkAgainstFilterType(listener);
+	const BOOL passed_permissions = checkAgainstPermissions(listener);
+	const BOOL passed_filterlink = checkAgainstFilterLinks(listener);
 	const BOOL passed = (passed_filtertype &&
 						 passed_permissions &&
 						 passed_filterlink &&
@@ -117,27 +117,19 @@ bool LLInventoryFilter::check(const LLInventoryItem* item)
 	const bool passed_permissions = checkAgainstPermissions(item);
 	const BOOL passed_clipboard = checkAgainstClipboard(item->getUUID());
 	const bool passed = (passed_filtertype 
-						&& passed_permissions
-						&& passed_clipboard 
-						&&	(mFilterSubString.size() == 0 || string_offset !=  std::string::npos));
+		&& passed_permissions
+		&& passed_clipboard 
+		&&	(mFilterSubString.size() == 0 || string_offset !=  std::string::npos));
 
 	return passed;
 }
 
-bool LLInventoryFilter::checkFolder(const LLFolderViewFolder* folder) const
+bool LLInventoryFilter::checkFolder(const LLFolderViewModelItem* item) const
 {
-	if (!folder)
-	{
-		llwarns << "The filter can not be checked on an invalid folder." << llendl;
-		llassert(false); // crash in development builds
-		return false;
-	}
-
-	const LLFolderViewModelItemInventory* listener = static_cast<const LLFolderViewModelItemInventory*>(folder->getViewModelItem());
+	const LLFolderViewModelItemInventory* listener = static_cast<const LLFolderViewModelItemInventory*>(item);
 	if (!listener)
 	{
-		llwarns << "Folder view event listener not found." << llendl;
-		llassert(false); // crash in development builds
+		llerrs << "Folder view event listener not found." << llendl;
 		return false;
 	}
 
@@ -179,9 +171,8 @@ bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
 	return passed_clipboard;
 }
 
-bool LLInventoryFilter::checkAgainstFilterType(const LLFolderViewItem* item) const
+bool LLInventoryFilter::checkAgainstFilterType(const LLFolderViewModelItemInventory* listener) const
 {
-	const LLFolderViewModelItemInventory* listener = static_cast<const LLFolderViewModelItemInventory*>(item->getViewModelItem());
 	if (!listener) return FALSE;
 
 	LLInventoryType::EType object_type = listener->getInventoryType();
@@ -347,13 +338,12 @@ bool LLInventoryFilter::checkAgainstClipboard(const LLUUID& object_id) const
 	return true;
 }
 
-bool LLInventoryFilter::checkAgainstPermissions(const LLFolderViewItem* item) const
+bool LLInventoryFilter::checkAgainstPermissions(const LLFolderViewModelItemInventory* listener) const
 {
-	const LLFolderViewModelItemInventory* listener = static_cast<const LLFolderViewModelItemInventory*>(item->getViewModelItem());
 	if (!listener) return FALSE;
 
 	PermissionMask perm = listener->getPermissionMask();
-	const LLInvFVBridge *bridge = dynamic_cast<const LLInvFVBridge *>(item->getViewModelItem());
+	const LLInvFVBridge *bridge = dynamic_cast<const LLInvFVBridge *>(listener);
 	if (bridge && bridge->isLink())
 	{
 		const LLUUID& linked_uuid = gInventory.getLinkedItemID(bridge->getUUID());
@@ -375,9 +365,8 @@ bool LLInventoryFilter::checkAgainstPermissions(const LLInventoryItem* item) con
 	return (perm & mFilterOps.mPermissions) == mFilterOps.mPermissions;
 }
 
-bool LLInventoryFilter::checkAgainstFilterLinks(const LLFolderViewItem* item) const
+bool LLInventoryFilter::checkAgainstFilterLinks(const LLFolderViewModelItemInventory* listener) const
 {
-	const LLFolderViewModelItemInventory* listener = static_cast<const LLFolderViewModelItemInventory*>(item->getViewModelItem());
 	if (!listener) return TRUE;
 
 	const LLUUID object_id = listener->getUUID();
@@ -740,7 +729,7 @@ void LLInventoryFilter::resetDefault()
 void LLInventoryFilter::setModified(EFilterModified behavior)
 {
 	mFilterText.clear();
-	mLastSuccessGeneration = mNextFilterGeneration++;
+	mCurrentGeneration = mNextFilterGeneration++;
 
 	if (mFilterModified == FILTER_NONE)
 	{
@@ -753,33 +742,21 @@ void LLInventoryFilter::setModified(EFilterModified behavior)
 		mFilterModified = FILTER_RESTART;
 	}
 
-	if (isNotDefault())
+	// if not keeping current filter results, update last valid as well
+	switch(mFilterModified)
 	{
-		// if not keeping current filter results, update last valid as well
-		switch(mFilterModified)
-		{
-			case FILTER_RESTART:
-				mLastFailGeneration = mLastSuccessGeneration;
-				mFirstSuccessGeneration = mLastSuccessGeneration;
-				break;
-			case FILTER_LESS_RESTRICTIVE:
-				mLastFailGeneration = mLastSuccessGeneration;
-				break;
-			case FILTER_MORE_RESTRICTIVE:
-				mFirstSuccessGeneration = mLastSuccessGeneration;
-				// must have passed either current filter generation (meaningless, as it hasn't been run yet)
-				// or some older generation, so keep the value
-				mLastFailGeneration = llmin(mLastFailGeneration,  mLastSuccessGeneration);
-				break;
-			default:
-				llerrs << "Bad filter behavior specified" << llendl;
-		}
-	}
-	else
-	{
-		// shortcut disabled filters to show everything immediately
-		mLastFailGeneration = 0;
-		mFirstSuccessGeneration = S32_MAX;
+		case FILTER_RESTART:
+			mFirstRequiredGeneration = mCurrentGeneration;
+			mFirstSuccessGeneration = mCurrentGeneration;
+			break;
+		case FILTER_LESS_RESTRICTIVE:
+			mFirstRequiredGeneration = mCurrentGeneration;
+			break;
+		case FILTER_MORE_RESTRICTIVE:
+			mFirstSuccessGeneration = mCurrentGeneration;
+			break;
+		default:
+			llerrs << "Bad filter behavior specified" << llendl;
 	}
 }
 
@@ -1101,7 +1078,7 @@ void LLInventoryFilter::decrementFilterCount()
 
 S32 LLInventoryFilter::getCurrentGeneration() const 
 { 
-	return mLastSuccessGeneration;
+	return mCurrentGeneration;
 }
 S32 LLInventoryFilter::getFirstSuccessGeneration() const
 { 
@@ -1109,7 +1086,7 @@ S32 LLInventoryFilter::getFirstSuccessGeneration() const
 }
 S32 LLInventoryFilter::getFirstRequiredGeneration() const
 { 
-	return mLastFailGeneration; 
+	return mFirstRequiredGeneration; 
 }
 
 void LLInventoryFilter::setEmptyLookupMessage(const std::string& message)

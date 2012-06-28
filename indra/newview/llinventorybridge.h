@@ -88,6 +88,8 @@ public:
 	//--------------------------------------------------------------------
 	virtual const std::string& getName() const;
 	virtual const std::string& getDisplayName() const;
+	const std::string& getSearchableName() const { return mSearchableName; }
+
 	virtual PermissionMask getPermissionMask() const;
 	virtual LLFolderType::EType getPreferredType() const;
 	virtual time_t getCreationDate() const;
@@ -174,6 +176,7 @@ protected:
 	bool						mIsLink;
 	LLTimer						mTimeSinceRequestStart;
 	mutable std::string			mDisplayName;
+	mutable std::string			mSearchableName;
 
 	void purgeItem(LLInventoryModel *model, const LLUUID &uuid);
 	virtual void buildDisplayName() const {}

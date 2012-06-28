@@ -186,16 +186,10 @@ public:
 	// +-------------------------------------------------------------------+
 	// + Execution And Results
 	// +-------------------------------------------------------------------+
-	bool 				check(const LLFolderViewItem* item);
+	bool				check(const LLFolderViewModelItem* listener);
 	bool				check(const LLInventoryItem* item);
-	bool				checkFolder(const LLFolderViewFolder* folder) const;
+	bool				checkFolder(const LLFolderViewModelItem* listener) const;
 	bool				checkFolder(const LLUUID& folder_id) const;
-	bool 				checkAgainstFilterType(const LLFolderViewItem* item) const;
-	bool 				checkAgainstFilterType(const LLInventoryItem* item) const;
-	bool 				checkAgainstPermissions(const LLFolderViewItem* item) const;
-	bool 				checkAgainstPermissions(const LLInventoryItem* item) const;
-	bool 				checkAgainstFilterLinks(const LLFolderViewItem* item) const;
-	bool				checkAgainstClipboard(const LLUUID& object_id) const;
 
 	bool				showAllResults() const;
 
@@ -260,6 +254,12 @@ public:
 
 private:
 	bool				areDateLimitsSet();
+	bool 				checkAgainstFilterType(const class LLFolderViewModelItemInventory* listener) const;
+	bool 				checkAgainstFilterType(const LLInventoryItem* item) const;
+	bool 				checkAgainstPermissions(const class LLFolderViewModelItemInventory* listener) const;
+	bool 				checkAgainstPermissions(const LLInventoryItem* item) const;
+	bool 				checkAgainstFilterLinks(const class LLFolderViewModelItemInventory* listener) const;
+	bool				checkAgainstClipboard(const LLUUID& object_id) const;
 
 	U32						mOrder;
 
@@ -270,8 +270,8 @@ private:
 	std::string				mFilterSubStringOrig;
 	const std::string		mName;
 
-	S32						mLastSuccessGeneration;
-	S32						mLastFailGeneration;
+	S32						mCurrentGeneration;
+	S32						mFirstRequiredGeneration;
 	S32						mFirstSuccessGeneration;
 	S32						mNextFilterGeneration;
 

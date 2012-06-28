@@ -1545,6 +1545,10 @@ void LLItemBridge::buildDisplayName() const
 	{
 		mDisplayName.assign(LLStringUtil::null);
 	}
+
+	mSearchableName.assign(mDisplayName);
+	mSearchableName.append(getLabelSuffix());
+	LLStringUtil::toUpper(mSearchableName);
 }
 
 LLFontGL::StyleFlags LLItemBridge::getLabelStyle() const
@@ -1850,11 +1854,9 @@ void LLFolderBridge::buildDisplayName() const
 		LLTrans::findString(mDisplayName, std::string("InvFolder ") + getName(), LLSD());
 	}
 
-	//if (mDisplayName.empty())
-	//{
-	//	S32 foo;
-	//	foo = 0;
-	//}
+	mSearchableName.assign(mDisplayName);
+	mSearchableName.append(getLabelSuffix());
+	LLStringUtil::toUpper(mSearchableName);
 }
 
 
@@ -4000,7 +4002,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			LLFolderViewItem* fv_item =   active_panel->getItemByID(inv_item->getUUID());
 			if (!fv_item) return false;
 
-			accept = filter->check(fv_item);
+			accept = filter->check(fv_item->getViewModelItem());
 		}
 
 		if (accept && drop)
@@ -4222,7 +4224,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 				LLFolderViewItem* fv_item =   active_panel->getItemByID(inv_item->getUUID());
 				if (!fv_item) return false;
 
-				accept = filter->check(fv_item);
+				accept = filter->check(fv_item->getViewModelItem());
 			}
 
 			if (accept && drop)
@@ -4319,7 +4321,7 @@ bool check_item(const LLUUID& item_id,
 	LLFolderViewItem* fv_item = active_panel->getItemByID(item_id);
 	if (!fv_item) return false;
 
-	return filter->check(fv_item);
+	return filter->check(fv_item->getViewModelItem());
 }
 
 // +=================================================+
@@ -6126,7 +6128,7 @@ void LLLinkFolderBridge::gotoItem()
 				model->fetchDescendentsOf(cat_uuid);
 			}
 			base_folder->setOpen(TRUE);
-			mRoot->setSelectionFromRoot(base_folder,TRUE);
+			mRoot->setSelection(base_folder,TRUE);
 			mRoot->scrollToShowSelection();
 		}
 	}

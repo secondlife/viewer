@@ -62,6 +62,12 @@ public:
 	virtual EInventorySortGroup getSortGroup() const = 0;
 	virtual LLInventoryObject* getInventoryObject() const = 0;
 	virtual void requestSort();
+	virtual bool potentiallyVisible();
+	virtual bool passedFilter(S32 filter_generation = -1);
+	virtual bool descendantsPassedFilter(S32 filter_generation = -1);
+	virtual void setPassedFilter(bool filtered, bool filtered_folder, S32 filter_generation);
+	virtual void filter( LLFolderViewFilter& filter);
+	virtual void filterChildItem( LLFolderViewModelItem* item, LLFolderViewFilter& filter);
 };
 
 class LLInventorySort

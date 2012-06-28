@@ -72,9 +72,9 @@ public:
 	// +-------------------------------------------------------------------+
 	// + Execution And Results
 	// +-------------------------------------------------------------------+
-	virtual bool 				check(const LLFolderViewItem* item) = 0;
+	virtual bool 				check(const LLFolderViewModelItem* item) = 0;
 	virtual bool				check(const LLInventoryItem* item) = 0;
-	virtual bool				checkFolder(const LLFolderViewFolder* folder) const = 0;
+	virtual bool				checkFolder(const LLFolderViewModelItem* folder) const = 0;
 	virtual bool				checkFolder(const LLUUID& folder_id) const = 0;
 
 	virtual void 				setEmptyLookupMessage(const std::string& message) = 0;
@@ -126,6 +126,8 @@ public:
 
 	virtual bool contentsReady() = 0;
 	virtual void setFolderView(LLFolderView* folder_view) = 0;
+	virtual LLFolderViewFilter* getFilter() = 0;
+	virtual const LLFolderViewFilter* getFilter() const = 0;
 };
 
 class LLFolderViewModelCommon : public LLFolderViewModelInterface
@@ -152,94 +154,6 @@ protected:
 
 };
 
-// This is am abstract base class that users of the folderview classes
-// would use to bridge the folder view with the underlying data
-class LLFolderViewModelItem
-{
-public:
-	LLFolderViewModelItem()
-	:	mFolderViewItem(NULL)
-	{}
-
-	virtual ~LLFolderViewModelItem( void ) {};
-
-	virtual void update() {}	//called when drawing
-	virtual const std::string& getName() const = 0;
-	virtual const std::string& getDisplayName() const = 0;
-
-	virtual LLPointer<LLUIImage> getIcon() const = 0;
-	virtual LLPointer<LLUIImage> getIconOpen() const { return getIcon(); }
-	virtual LLPointer<LLUIImage> getIconOverlay() const { return NULL; }
-
-	virtual LLFontGL::StyleFlags getLabelStyle() const = 0;
-	virtual std::string getLabelSuffix() const = 0;
-
-	virtual void openItem( void ) = 0;
-	virtual void closeItem( void ) = 0;
-	virtual void selectItem(void) = 0;
-
-	virtual BOOL isItemRenameable() const = 0;
-	virtual BOOL renameItem(const std::string& new_name) = 0;
-
-	virtual BOOL isItemMovable( void ) const = 0;		// Can be moved to another folder
-	virtual void move( LLFolderViewModelItem* parent_listener ) = 0;
-
-	virtual BOOL isItemRemovable( void ) const = 0;		// Can be destroyed
-	virtual BOOL removeItem() = 0;
-	virtual void removeBatch(std::vector<LLFolderViewModelItem*>& batch) = 0;
-
-	virtual BOOL isItemCopyable() const = 0;
-	virtual BOOL copyToClipboard() const = 0;
-	virtual BOOL cutToClipboard() const = 0;
-
-	virtual BOOL isClipboardPasteable() const = 0;
-	virtual void pasteFromClipboard() = 0;
-	virtual void pasteLinkFromClipboard() = 0;
-
-	virtual void buildContextMenu(LLMenuGL& menu, U32 flags) = 0;
-	
-	// This method should be called when a drag begins. returns TRUE
-	// if the drag can begin, otherwise FALSE.
-	virtual LLToolDragAndDrop::ESource getDragSource() const = 0;
-	virtual BOOL startDrag(EDragAndDropType* type, LLUUID* id) const = 0;
-	
-	virtual bool hasChildren() const = 0;
-
-	// This method will be called to determine if a drop can be
-	// performed, and will set drop to TRUE if a drop is
-	// requested. Returns TRUE if a drop is possible/happened,
-	// otherwise FALSE.
-	virtual BOOL dragOrDrop(MASK mask, BOOL drop,
-							EDragAndDropType cargo_type,
-							void* cargo_data,
-							std::string& tooltip_msg) = 0;
-
-	virtual void requestSort() = 0;
-	virtual S32 getSortVersion() = 0;
-	virtual void setSortVersion(S32 version) = 0;
-protected:
-	friend class LLFolderViewItem;
-	void setFolderViewItem(LLFolderViewItem* folder_view_item) { mFolderViewItem = folder_view_item;}
-	LLFolderViewItem*	mFolderViewItem;
-
-};
-
-class LLFolderViewModelItemCommon : public LLFolderViewModelItem
-{
-public:
-	LLFolderViewModelItemCommon()
-	:	mSortVersion(-1)
-	{}
-
-	void requestSort() { mSortVersion = -1; }
-	S32 getSortVersion() { return mSortVersion; }
-	void setSortVersion(S32 version) { mSortVersion = version;}
-
-protected:
-
-	S32 mSortVersion;
-};
-
 template <typename SORT_TYPE, typename ITEM_TYPE, typename FOLDER_TYPE, typename FILTER_TYPE>
 class LLFolderViewModel : public LLFolderViewModelCommon
 {
@@ -255,8 +169,9 @@ public:
 	virtual SortType& getSorter()					 { return mSorter; }
 	virtual const SortType& getSorter() const 		 { return mSorter; }
 	virtual void setSorter(const SortType& sorter) 	 { mSorter = sorter; requestSortAll(); }
-	virtual FilterType& getFilter() 				 { return mFilter; }
-	virtual const FilterType& getFilter() const		 { return mFilter; }
+
+	virtual FilterType* getFilter() 				 { return &mFilter; }
+	virtual const FilterType* getFilter() const		 { return &mFilter; }
 	virtual void setFilter(const FilterType& filter) { mFilter = filter; }
 
 	// TODO RN: remove this and put all filtering logic in view model
@@ -296,27 +211,142 @@ public:
 	//TODO RN: fix this
 	void filter(LLFolderViewFolder* folder)
 	{
-		/*FilterType& filter = getFilter();
-		for (std::list<LLFolderViewItem*>::const_iterator it = folder->getItemsBegin(), end_it = folder->getItemsEnd();
-			it != end_it;
-			++it)
-		{
-			LLFolderViewItem* child_item = *it;
-			child_item->setFiltered(filter.checkFolder(static_cast<ItemType*>(child_item->getViewModelItem())), filter.getCurrentGeneration());
-		}
-
-		for (std::list<LLFolderViewFolder*>::const_iterator it = folder->getFoldersBegin(), end_it = folder->getFoldersEnd();
-			it != end_it;
-			++it)
-		{
-			LLFolderViewItem* child_folder = *it;
-			child_folder->setFiltered(filter.check(static_cast<ItemType*>(child_folder->getViewModelItem())), filter.getCurrentGeneration());
-		}*/
+		
 	}
 
 protected:
 	SortType		mSorter;
 	FilterType		mFilter;
 };
+
+// This is am abstract base class that users of the folderview classes
+// would use to bridge the folder view with the underlying data
+class LLFolderViewModelItem
+{
+public:
+	virtual ~LLFolderViewModelItem( void ) {};
+
+	virtual void update() {}	//called when drawing
+	virtual const std::string& getName() const = 0;
+	virtual const std::string& getDisplayName() const = 0;
+	virtual const std::string& getSearchableName() const = 0;
+
+	virtual LLPointer<LLUIImage> getIcon() const = 0;
+	virtual LLPointer<LLUIImage> getIconOpen() const { return getIcon(); }
+	virtual LLPointer<LLUIImage> getIconOverlay() const { return NULL; }
+
+	virtual LLFontGL::StyleFlags getLabelStyle() const = 0;
+	virtual std::string getLabelSuffix() const = 0;
+
+	virtual void openItem( void ) = 0;
+	virtual void closeItem( void ) = 0;
+	virtual void selectItem(void) = 0;
+
+	virtual BOOL isItemRenameable() const = 0;
+	virtual BOOL renameItem(const std::string& new_name) = 0;
+
+	virtual BOOL isItemMovable( void ) const = 0;		// Can be moved to another folder
+	virtual void move( LLFolderViewModelItem* parent_listener ) = 0;
+
+	virtual BOOL isItemRemovable( void ) const = 0;		// Can be destroyed
+	virtual BOOL removeItem() = 0;
+	virtual void removeBatch(std::vector<LLFolderViewModelItem*>& batch) = 0;
+
+	virtual BOOL isItemCopyable() const = 0;
+	virtual BOOL copyToClipboard() const = 0;
+	virtual BOOL cutToClipboard() const = 0;
+
+	virtual BOOL isClipboardPasteable() const = 0;
+	virtual void pasteFromClipboard() = 0;
+	virtual void pasteLinkFromClipboard() = 0;
+
+	virtual void buildContextMenu(LLMenuGL& menu, U32 flags) = 0;
+	
+	virtual bool potentiallyVisible() = 0; // is the item definitely visible or we haven't made up our minds yet?
+
+	virtual void filter( LLFolderViewFilter& filter) = 0;
+	virtual bool passedFilter(S32 filter_generation = -1) = 0;
+	virtual bool descendantsPassedFilter(S32 filter_generation = -1) = 0;
+	virtual void setPassedFilter(bool passed, bool passed_folder, S32 filter_generation) = 0;
+	virtual void dirtyFilter() = 0;
+
+	virtual S32	getLastFilterGeneration() const = 0;
+
+	// This method should be called when a drag begins. returns TRUE
+	// if the drag can begin, otherwise FALSE.
+	virtual LLToolDragAndDrop::ESource getDragSource() const = 0;
+	virtual BOOL startDrag(EDragAndDropType* type, LLUUID* id) const = 0;
+	
+	virtual bool hasChildren() const = 0;
+	virtual void addChild(LLFolderViewModelItem* child) = 0;
+
+	// This method will be called to determine if a drop can be
+	// performed, and will set drop to TRUE if a drop is
+	// requested. Returns TRUE if a drop is possible/happened,
+	// otherwise FALSE.
+	virtual BOOL dragOrDrop(MASK mask, BOOL drop,
+							EDragAndDropType cargo_type,
+							void* cargo_data,
+							std::string& tooltip_msg) = 0;
+
+	virtual void requestSort() = 0;
+	virtual S32 getSortVersion() = 0;
+	virtual void setSortVersion(S32 version) = 0;
+	virtual void setParent(LLFolderViewModelItem* parent) = 0;
+
+protected:
+
+	friend class LLFolderViewItem;
+	virtual void setFolderViewItem(LLFolderViewItem* folder_view_item) = 0;
+
+};
+
+class LLFolderViewModelItemCommon : public LLFolderViewModelItem
+{
+public:
+	LLFolderViewModelItemCommon()
+	:	mSortVersion(-1),
+		mPassedFilter(false),
+		mPassedFolderFilter(false),
+		mFolderViewItem(NULL),
+		mLastFilterGeneration(-1),
+		mMostFilteredDescendantGeneration(-1)
+	{}
+
+	void requestSort() { mSortVersion = -1; }
+	S32 getSortVersion() { return mSortVersion; }
+	void setSortVersion(S32 version) { mSortVersion = version;}
+
+	S32	getLastFilterGeneration() const { return mLastFilterGeneration; }
+	void dirtyFilter()
+	{
+		mLastFilterGeneration = -1;
+		// bubble up dirty flag all the way to root
+		if (mParent)
+		{
+			mParent->dirtyFilter();
+		}
+	}
+	virtual void addChild(LLFolderViewModelItem* child) { mChildren.push_back(child); child->setParent(this); }
+
+protected:
+	virtual void setParent(LLFolderViewModelItem* parent) { mParent = parent; }
+
+	S32						mSortVersion;
+	bool					mPassedFilter;
+	bool					mPassedFolderFilter;
+
+	S32						mLastFilterGeneration;
+	S32						mMostFilteredDescendantGeneration;
+
+
+	typedef std::list<LLFolderViewModelItem*> child_list_t;
+	child_list_t			mChildren;
+	LLFolderViewModelItem*	mParent;
+
+	void setFolderViewItem(LLFolderViewItem* folder_view_item) { mFolderViewItem = folder_view_item;}
+	LLFolderViewItem*		mFolderViewItem;
+};
+
 
 #endif
