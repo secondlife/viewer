@@ -310,7 +310,8 @@ public:
 		mPassedFolderFilter(false),
 		mFolderViewItem(NULL),
 		mLastFilterGeneration(-1),
-		mMostFilteredDescendantGeneration(-1)
+		mMostFilteredDescendantGeneration(-1),
+		mParent(NULL)
 	{}
 
 	void requestSort() { mSortVersion = -1; }
