@@ -280,12 +280,23 @@ bool LLTextBase::truncate()
 	if (getLength() >= S32(mMaxTextByteLength / 4))
 	{	
 		// Have to check actual byte size
-		LLWString text(getWText());
-		S32 utf8_byte_size = wstring_utf8_length(text);
+		S32 utf8_byte_size = 0;
+		LLSD value = getViewModel()->getValue();
+		if (value.type() == LLSD::TypeString)
+		{
+			// save a copy for strings.
+			utf8_byte_size = value.size();
+		}
+		else
+		{
+			// non string LLSDs need explicit conversion to string
+			utf8_byte_size = value.asString().size();
+		}
+
 		if ( utf8_byte_size > mMaxTextByteLength )
 		{
 			// Truncate safely in UTF-8
-			std::string temp_utf8_text = wstring_to_utf8str(text);
+			std::string temp_utf8_text = value.asString();
 			temp_utf8_text = utf8str_truncate( temp_utf8_text, mMaxTextByteLength );
 			LLWString text = utf8str_to_wstring( temp_utf8_text );
 			// remove extra bit of current string, to preserve formatting, etc.
@@ -592,8 +603,7 @@ void LLTextBase::drawText()
 
 S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::segment_vec_t* segments )
 {
-	LLWString text(getWText());
-	S32 old_len = text.length();		// length() returns character length
+	S32 old_len = getLength();		// length() returns character length
 	S32 insert_len = wstr.length();
 
 	pos = getEditableIndex(pos, true);
@@ -653,8 +663,7 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
 		}
 	}
 
-	text.insert(pos, wstr);
-	getViewModel()->setDisplay(text);
+	getViewModel()->getEditableDisplay().insert(pos, wstr);
 
 	if ( truncate() )
 	{
@@ -669,7 +678,6 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
 
 S32 LLTextBase::removeStringNoUndo(S32 pos, S32 length)
 {
-	LLWString text(getWText());
 	segment_set_t::iterator seg_iter = getSegIterContaining(pos);
 	while(seg_iter != mSegments.end())
 	{
@@ -715,8 +723,7 @@ S32 LLTextBase::removeStringNoUndo(S32 pos, S32 length)
 		++seg_iter;
 	}
 
-	text.erase(pos, length);
-	getViewModel()->setDisplay(text);
+	getViewModel()->getEditableDisplay().erase(pos, length);
 
 	// recreate default segment in case we erased everything
 	createDefaultSegment();
@@ -733,9 +740,7 @@ S32 LLTextBase::overwriteCharNoUndo(S32 pos, llwchar wc)
 	{
 		return 0;
 	}
-	LLWString text(getWText());
-	text[pos] = wc;
-	getViewModel()->setDisplay(text);
+	getViewModel()->getEditableDisplay()[pos] = wc;
 
 	onValueChange(pos, pos + 1);
 	needsReflow(pos);
@@ -1685,6 +1690,8 @@ static LLUIImagePtr image_from_icon_name(const std::string& icon_name)
 	}
 }
 
+static LLFastTimer::DeclareTimer FTM_PARSE_HTML("Parse HTML");
+
 void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Params& input_params)
 {
 	LLStyle::Params style_params(input_params);
@@ -1693,6 +1700,7 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 	S32 part = (S32)LLTextParser::WHOLE;
 	if (mParseHTML && !style_params.is_link) // Don't search for URLs inside a link segment (STORM-358).
 	{
+		LLFastTimer _(FTM_PARSE_HTML);
 		S32 start=0,end=0;
 		LLUrlMatch match;
 		std::string text = new_text;
@@ -1760,8 +1768,11 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 	}
 }
 
+static LLFastTimer::DeclareTimer FTM_APPEND_TEXT("Append Text");
+
 void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, const LLStyle::Params& input_params)
 {
+	LLFastTimer _(FTM_APPEND_TEXT);
 	if (new_text.empty()) 
 		return;
 

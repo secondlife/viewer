@@ -68,7 +68,7 @@ class LLVolumeInterface
 public:
 	virtual ~LLVolumeInterface() { }
 	virtual LLVolumeInterfaceType getInterfaceType() const = 0;
-	virtual BOOL doIdleUpdate(LLAgent &agent, LLWorld &world, const F64 &time) = 0;
+	virtual void doIdleUpdate() = 0;
 	virtual BOOL doUpdateGeometry(LLDrawable *drawable) = 0;
 	virtual LLVector3 getPivotPosition() const = 0;
 	virtual void onSetVolume(const LLVolumeParams &volume_params, const S32 detail) = 0;
@@ -79,7 +79,7 @@ public:
 	virtual bool isVolumeGlobal() const = 0; // Are we in global space?
 	virtual bool isActive() const = 0; // Is this object currently active?
 	virtual const LLMatrix4& getWorldMatrix(LLXformMatrix* xform) const = 0;
-	virtual void updateRelativeXform() = 0;
+	virtual void updateRelativeXform(bool force_identity = false) = 0;
 	virtual U32 getID() const = 0;
 	virtual void preRebuild() = 0;
 };
@@ -114,8 +114,7 @@ public:
 				void	deleteFaces();
 
 				void	animateTextures();
-	/*virtual*/ BOOL	idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
-
+	
 	            BOOL    isVisible() const ;
 	/*virtual*/ BOOL	isActive() const;
 	/*virtual*/ BOOL	isAttachment() const;
@@ -203,7 +202,7 @@ public:
 														  LLAssetType::EType type,
 														  void* user_data, S32 status, LLExtStat ext_status);
 					
-				void	updateRelativeXform();
+				void	updateRelativeXform(bool force_identity = false);
 	/*virtual*/ BOOL	updateGeometry(LLDrawable *drawable);
 	/*virtual*/ void	updateFaceSize(S32 idx);
 	/*virtual*/ BOOL	updateLOD();

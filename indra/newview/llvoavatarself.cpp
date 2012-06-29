@@ -668,15 +668,13 @@ BOOL LLVOAvatarSelf::updateCharacter(LLAgent &agent)
 }
 
 // virtual
-BOOL LLVOAvatarSelf::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
+void LLVOAvatarSelf::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
-	if (!isAgentAvatarValid())
+	if (isAgentAvatarValid())
 	{
-		return TRUE;
+		LLVOAvatar::idleUpdate(agent, world, time);
+		idleUpdateTractorBeam();
 	}
-	LLVOAvatar::idleUpdate(agent, world, time);
-	idleUpdateTractorBeam();
-	return TRUE;
 }
 
 // virtual
@@ -2751,7 +2749,7 @@ void LLVOAvatarSelf::deleteScratchTextures()
 		 namep; 
 		 namep = sScratchTexNames.getNextData() )
 	{
-		LLImageGL::deleteTextures(1, (U32 *)namep );
+		LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, 0, -1, 1, (U32 *)namep );
 		stop_glerror();
 	}
 

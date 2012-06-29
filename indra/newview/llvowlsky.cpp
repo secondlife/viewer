@@ -92,9 +92,9 @@ void LLVOWLSky::initSunDirection(LLVector3 const & sun_direction,
 {
 }
 
-BOOL LLVOWLSky::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
+void LLVOWLSky::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
-	return TRUE;
+	
 }
 
 BOOL LLVOWLSky::isActive(void) const

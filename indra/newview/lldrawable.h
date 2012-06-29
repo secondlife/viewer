@@ -109,6 +109,9 @@ public:
 	F32			          getIntensity() const			{ return llmin(mXform.getScale().mV[0], 4.f); }
 	S32					  getLOD() const				{ return mVObjp ? mVObjp->getLOD() : 1; }
 	F32					  getBinRadius() const			{ return mBinRadius; }
+	S32					  getBinIndex() const			{ return mBinIndex; }
+	void				  setBinIndex(S32 index) const	{ mBinIndex = index; }
+
 	void  getMinMax(LLVector3& min,LLVector3& max) const { mXform.getMinMax(min,max); }
 	LLXformMatrix*		getXform() { return &mXform; }
 
@@ -194,7 +197,7 @@ public:
 	S32 findReferences(LLDrawable *drawablep); // Not const because of @#$! iterators...
 
 	void setSpatialGroup(LLSpatialGroup *groupp);
-	LLSpatialGroup *getSpatialGroup() const			{ return mSpatialGroupp; }
+	LLSpatialGroup *getSpatialGroup() const;
 	LLSpatialPartition* getSpatialPartition();
 	
 	// Statics
@@ -277,6 +280,8 @@ public:
 		HAS_ALPHA		= 0x04000000,
 		RIGGED			= 0x08000000,
 		PARTITION_MOVE	= 0x10000000,
+		ANIMATED_CHILD  = 0x20000000,
+		ACTIVE_CHILD	= 0x40000000,
 	} EDrawableFlags;
 
 private: //aligned members
@@ -290,8 +295,6 @@ public:
 	LLPointer<LLDrawable> mParent;
 
 	F32				mDistanceWRTCamera;
-	
-	S32				mQuietCount;
 
 	static S32 getCurrentFrame() { return sCurVisible; }
 	static S32 getMinVisFrameRange();
@@ -314,6 +317,7 @@ private:
 	mutable U32		mVisible;
 	F32				mRadius;
 	F32				mBinRadius;
+	mutable S32		mBinIndex;
 	S32				mGeneration;
 	
 	LLVector3		mCurrentScale;
@@ -333,12 +337,14 @@ inline LLFace* LLDrawable::getFace(const S32 i) const
 
 	if ((U32) i >= mFaces.size())
 	{
-		llerrs << "Invalid face index." << llendl;
+		llwarns << "Invalid face index." << llendl;
+		return NULL;
 	}
 
 	if (!mFaces[i])
 	{
-		llerrs << "Null face found." << llendl;
+		llwarns << "Null face found." << llendl;
+		return NULL;
 	}
 	
 	return mFaces[i];

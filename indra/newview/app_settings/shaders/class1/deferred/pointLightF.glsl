@@ -42,12 +42,13 @@ uniform sampler2DRect depthMap;
 uniform vec3 env_mat[3];
 uniform float sun_wash;
 
-uniform vec3 center;
 uniform vec3 color;
 uniform float falloff;
 uniform float size;
 
 VARYING vec4 vary_fragcoord;
+VARYING vec3 trans_center;
+
 uniform vec2 screen_res;
 
 uniform mat4 inv_proj;
@@ -74,7 +75,7 @@ void main()
 	frag.xy *= screen_res;
 	
 	vec3 pos = getPosition(frag.xy).xyz;
-	vec3 lv = center.xyz-pos;
+	vec3 lv = trans_center.xyz-pos;
 	float dist2 = dot(lv,lv);
 	dist2 /= size;
 	if (dist2 > 1.0)

@@ -189,6 +189,7 @@ void LLCharacter::requestStopMotion( LLMotion* motion)
 //-----------------------------------------------------------------------------
 static LLFastTimer::DeclareTimer FTM_UPDATE_ANIMATION("Update Animation");
 static LLFastTimer::DeclareTimer FTM_UPDATE_HIDDEN_ANIMATION("Update Hidden Anim");
+static LLFastTimer::DeclareTimer FTM_UPDATE_MOTIONS("Update Motions");
 
 void LLCharacter::updateMotions(e_update_t update_type)
 {
@@ -206,7 +207,10 @@ void LLCharacter::updateMotions(e_update_t update_type)
 			mMotionController.unpauseAllMotions();
 		}
 		bool force_update = (update_type == FORCE_UPDATE);
-		mMotionController.updateMotions(force_update);
+		{
+			LLFastTimer t(FTM_UPDATE_MOTIONS);
+			mMotionController.updateMotions(force_update);
+		}
 	}
 }
 

@@ -59,7 +59,7 @@ public:
 											void **user_data,
 											U32 block_num, const EObjectUpdateType update_type,
 											LLDataPacker *dp);
-	/*virtual*/ BOOL idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
+	/*virtual*/ void idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
 	
 	// Graphical stuff for objects - maybe broken out into render class later?
 	/*virtual*/ void render(LLAgent &agent);

@@ -88,18 +88,6 @@ typedef void (*inventory_callback)(LLViewerObject*,
 								   S32 serial_num,
 								   void*);
 
-// a small struct for keeping track of joints
-struct LLVOJointInfo
-{
-	EHavokJointType mJointType;
-	LLVector3 mPivot;			// parent-frame
-	// whether the below an axis or anchor (and thus its frame)
-	// depends on the joint type:
-	//     HINGE   ==>   axis=parent-frame
-	//     P2P     ==>   anchor=child-frame
-	LLVector3 mAxisOrAnchor;	
-};
-
 // for exporting textured materials from SL
 struct LLMaterialExportInfo
 {
@@ -157,7 +145,7 @@ public:
 	LLNameValue*	getNVPair(const std::string& name) const;			// null if no name value pair by that name
 
 	// Object create and update functions
-	virtual BOOL	idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
+	virtual void	idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
 
 	// Types of media we can associate
 	enum { MEDIA_NONE = 0, MEDIA_SET = 1 };
@@ -188,8 +176,6 @@ public:
 	virtual void 	updateRadius() {};
 	virtual F32 	getVObjRadius() const; // default implemenation is mDrawable->getRadius()
 	
-	BOOL 			isJointChild() const { return mJointInfo ? TRUE : FALSE; } 
-	EHavokJointType	getJointType() const { return mJointInfo ? mJointInfo->mJointType : HJT_INVALID; }
 	// for jointed and other parent-relative hacks
 	LLViewerObject* getSubParent();
 	const LLViewerObject* getSubParent() const;
@@ -229,6 +215,8 @@ public:
 	const LLUUID &getID() const						{ return mID; }
 	U32 getLocalID() const							{ return mLocalID; }
 	U32 getCRC() const								{ return mTotalCRC; }
+	S32 getListIndex() const						{ return mListIndex; }
+	void setListIndex(S32 idx)						{ mListIndex = idx; }
 
 	virtual BOOL isFlexible() const					{ return FALSE; }
 	virtual BOOL isSculpted() const 				{ return FALSE; }
@@ -589,6 +577,9 @@ public:
 	// Last total CRC received from sim, used for caching
 	U32				mTotalCRC;
 
+	// index into LLViewerObjectList::mActiveObjects or -1 if not in list
+	S32				mListIndex;
+
 	LLPointer<LLViewerTexture> *mTEImages;
 
 	// Selection, picking and rendering variables
@@ -684,6 +675,10 @@ protected:
 	F32				mAppAngle;	// Apparent visual arc in degrees
 	F32				mPixelArea; // Apparent area in pixels
 
+	// IDs of of all items in the object's content which are added to the object's content,
+	// but not updated on the server yet. After item was updated, its ID will be removed from this list.
+	std::list<LLUUID> mPendingInventoryItemsIDs;
+
 	// This is the object's inventory from the viewer's perspective.
 	LLInventoryObject::object_list_t* mInventory;
 	class LLInventoryCallbackInfo
@@ -712,7 +707,6 @@ protected:
 	F32				mRotTime;					// Amount (in seconds) that object has rotated according to angular velocity (llSetTargetOmega)
 	LLQuaternion	mLastRot;					// last rotation received from the simulator
 
-	LLVOJointInfo*  mJointInfo;
 	U8				mState;	// legacy
 	LLViewerObjectMedia* mMedia;	// NULL if no media associated
 	U8 mClickAction;
