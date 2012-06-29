@@ -222,21 +222,21 @@ LLPanelMainInventory::~LLPanelMainInventory( void )
 			if (p.validateBlock(false))
 			{
 				LLParamSDParser().writeSD(filterState, p);
-			filterRoot[filter->getName()] = filterState;
+				filterRoot[filter->getName()] = filterState;
+			}
 		}
-	}
 	}
 
-        LLInventoryFilter* filter = findChild<LLInventoryPanel>("Recent   Items")->getFilter();
-		if (filter)
-		{
-			LLSD filterState;
-			LLInventoryFilter::Params p;
-			filter->toParams(p);
-			LLParamSDParser parser;
-			parser.writeSD(filterState, p);
-			filterRoot[filter->getName()] = filterState;
-		}
+	LLInventoryFilter* filter = findChild<LLInventoryPanel>("Recent Items")->getFilter();
+	if (filter)
+	{
+		LLSD filterState;
+		LLInventoryFilter::Params p;
+		filter->toParams(p);
+		LLParamSDParser parser;
+		parser.writeSD(filterState, p);
+		filterRoot[filter->getName()] = filterState;
+	}
 
 	std::ostringstream filterSaveName;
 	filterSaveName << gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, FILTERS_FILENAME);

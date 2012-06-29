@@ -281,7 +281,6 @@ protected:
 	S32			mLastCalculatedWidth;
 	S32			mMostFilteredDescendantGeneration;
 	bool		mNeedsSort;
-	bool		mPassedFolderFilter;
 
 public:
 	typedef enum e_recurse_type

@@ -95,16 +95,13 @@ bool LLInventoryFilter::check(const LLFolderViewModelItem* item)
 		return passed_clipboard;
 	}
 
-	std::string::size_type string_offset = mFilterSubString.size() ? listener->getSearchableName().find(mFilterSubString) : std::string::npos;
+	std::string::size_type string_offset = mFilterSubString.size() ? listener->getSearchableName().find(mFilterSubString) : 0;
 
-	const BOOL passed_filtertype = checkAgainstFilterType(listener);
-	const BOOL passed_permissions = checkAgainstPermissions(listener);
-	const BOOL passed_filterlink = checkAgainstFilterLinks(listener);
-	const BOOL passed = (passed_filtertype &&
-						 passed_permissions &&
-						 passed_filterlink &&
-						 passed_clipboard &&
-						 (mFilterSubString.size() == 0 || string_offset !=  std::string::npos));
+	BOOL passed = string_offset !=  std::string::npos;
+	passed = passed && checkAgainstFilterType(listener);
+	passed = passed && checkAgainstPermissions(listener);
+	passed = passed && checkAgainstFilterLinks(listener);
+	passed = passed && passed_clipboard;
 
 	return passed;
 }
@@ -595,7 +592,7 @@ void LLInventoryFilter::setDateRange(time_t min_date, time_t max_date)
 
 void LLInventoryFilter::setDateRangeLastLogoff(BOOL sl)
 {
-	static LLCachedControl<U32> s_last_logoff(gSavedSettings, "LastLogoff", 0);
+	static LLCachedControl<U32> s_last_logoff(gSavedPerAccountSettings, "LastLogoff", 0);
 	if (sl && !isSinceLogoff())
 	{
 		setDateRange(s_last_logoff(), time_max());

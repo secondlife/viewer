@@ -302,7 +302,6 @@ protected:
 	LLFrameTimer					mAutoOpenTimer;
 	LLFrameTimer					mSearchTimer;
 	std::string						mSearchString;
-	LLFolderViewFilter*				mFilter;
 	BOOL							mShowSelectionContext;
 	BOOL							mShowSingleSelection;
 	LLFrameTimer					mMultiSelectionFadeTimer;
