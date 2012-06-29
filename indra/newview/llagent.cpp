@@ -35,6 +35,7 @@
 #include "llagentlistener.h"
 #include "llagentwearables.h"
 #include "llagentui.h"
+#include "llappearancemgr.h"
 #include "llanimationstates.h"
 #include "llcallingcard.h"
 #include "llcapabilitylistener.h"
@@ -3771,7 +3772,7 @@ void LLAgent::requestLeaveGodMode()
 //-----------------------------------------------------------------------------
 void LLAgent::sendAgentSetAppearance()
 {
-	if (!isAgentAvatarValid()) return;
+	if (!isAgentAvatarValid() || LLAppearanceMgr::instance().useServerTextureBaking()) return;
 
 	if (gAgentQueryManager.mNumPendingQueries > 0 && (isAgentAvatarValid() && gAgentAvatarp->isUsingBakedTextures())) 
 	{

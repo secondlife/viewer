@@ -1597,7 +1597,7 @@ void LLAgentWearables::setWearableFinal(LLInventoryItem* new_item, LLWearable* n
 
 void LLAgentWearables::queryWearableCache()
 {
-	if (!areWearablesLoaded())
+	if (!areWearablesLoaded() || LLAppearanceMgr::instance().useServerTextureBaking())
 	{
 		return;
 	}
