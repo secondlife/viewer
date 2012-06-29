@@ -416,19 +416,14 @@ void LLIMFloaterContainer::addConversationListItem(std::string name, const LLUUI
 		// Check if the item has changed
 		if (item->hasSameValues(name,floaterp))
 		{
-			// If it hasn't, nothing to do -> exit
+			// If it hasn't changed, nothing to do -> exit
 			return;
 		}
-		// If it has, remove it: it'll be recreated anew further down
-		removeConversationListItem(uuid,false);
 	}
 	
-	// Reverse find and clean up: we need to make sure that no other uuid is pointing to that same floater
-	LLUUID found_id = LLUUID::null;
-	if (findConversationItem(floaterp,found_id))
-	{
-		removeConversationListItem(found_id,false);
-	}
+	// Remove the conversation item that might exist already: it'll be recreated anew further down anyway
+	// and nothing wrong will happen removing it if it doesn't exist
+	removeConversationListItem(uuid,floaterp,false);
 
 	// Create a conversation item
 	LLConversationItem* item = new LLConversationItem(name, uuid, floaterp, this);
@@ -451,21 +446,32 @@ void LLIMFloaterContainer::addConversationListItem(std::string name, const LLUUI
 	return;
 }
 
-void LLIMFloaterContainer::removeConversationListItem(const LLUUID& session_id, bool change_focus)
+void LLIMFloaterContainer::removeConversationListItem(const LLUUID& session_id, LLFloater* floaterp, bool change_focus)
 {
+	// Reverse find : we need to find the item that point to that floater
+	// Note : the session UUID actually might change so we cannot really use it here
+	// *TODO : Change the structure so that we use the floaterp and not the uuid as a map index
+	LLUUID found_id = LLUUID::null;
+	if (!findConversationItem(floaterp,found_id))
+	{
+		// If the floater wasn't found, we trust the passed id
+		// Note: in most cases, the id doesn't correspond to any conversation either
+		found_id = session_id;
+	}
+
 	// Delete the widget and the associated conversation item
 	// Note : since the mConversationsItems is also the listener to the widget, deleting 
 	// the widget will also delete its listener
-	conversations_widgets_map::iterator widget_it = mConversationsWidgets.find(session_id);
+	conversations_widgets_map::iterator widget_it = mConversationsWidgets.find(found_id);
 	if (widget_it != mConversationsWidgets.end())
 	{
 		LLFolderViewItem* widget = widget_it->second;
 		delete widget;
 	}
-
+	
 	// Suppress the conversation items and widgets from their respective maps
-	mConversationsItems.erase(session_id);
-	mConversationsWidgets.erase(session_id);
+	mConversationsItems.erase(found_id);
+	mConversationsWidgets.erase(found_id);
 
 	// Reposition the leftover conversation items
 	LLRect panel_rect = mConversationsListPanel->getRect();

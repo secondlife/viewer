@@ -186,7 +186,7 @@ private:
 	
 	// CHUI-137 : Temporary implementation of conversations list
 public:
-	void removeConversationListItem(const LLUUID& session_id, bool change_focus = true);
+	void removeConversationListItem(const LLUUID& session_id, LLFloater* floaterp, bool change_focus = true);
 	void addConversationListItem(std::string name, const LLUUID& uuid, LLFloater* floaterp);
 	bool findConversationItem(LLFloater* floaterp, LLUUID& uuid);
 private:
