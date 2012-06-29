@@ -981,30 +981,30 @@ void LLFolderView::openSelectedItems( void )
 
 void LLFolderView::propertiesSelectedItems( void )
 {
-	if(getVisible() && getEnabled())
-	{
-		if (mSelectedItems.size() == 1)
-		{
-			LLFolderViewItem* folder_item = mSelectedItems.front();
-			if(!folder_item) return;
-			folder_item->getViewModelItem()->showProperties();
-		}
-		else
-		{
-			LLMultiProperties* multi_propertiesp = new LLMultiProperties();
+	//if(getVisible() && getEnabled())
+	//{
+	//	if (mSelectedItems.size() == 1)
+	//	{
+	//		LLFolderViewItem* folder_item = mSelectedItems.front();
+	//		if(!folder_item) return;
+	//		folder_item->getViewModelItem()->showProperties();
+	//	}
+	//	else
+	//	{
+	//		LLMultiProperties* multi_propertiesp = new LLMultiProperties();
 
-			LLFloater::setFloaterHost(multi_propertiesp);
+	//		LLFloater::setFloaterHost(multi_propertiesp);
 
-			selected_items_t::iterator item_it;
-			for (item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
-			{
-				(*item_it)->getViewModelItem()->showProperties();
-			}
+	//		selected_items_t::iterator item_it;
+	//		for (item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
+	//		{
+	//			(*item_it)->getViewModelItem()->showProperties();
+	//		}
 
-			LLFloater::setFloaterHost(NULL);
-			multi_propertiesp->openFloater(LLSD());
-		}
-	}
+	//		LLFloater::setFloaterHost(NULL);
+	//		multi_propertiesp->openFloater(LLSD());
+	//	}
+	//}
 }
 
 void LLFolderView::changeType(LLInventoryModel *model, LLFolderType::EType new_folder_type)
