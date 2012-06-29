@@ -1865,23 +1865,8 @@ BOOL LLPanelLandOptions::postBuild()
 	childSetCommitCallback("ShowDirectoryCheck", onCommitAny, this);
 
 	
-	if (gAgent.getAgentAccess().isInTransition())
-	{
-		// during the AO transition, this combo has an Adult item.
-		// Post-transition, it goes away. We can remove this conditional
-		// after the transition and just use the "else" clause.
-		mCategoryCombo = getChild<LLComboBox>( "land category with adult");
-		childSetCommitCallback("land category with adult", onCommitAny, this);
-	}
-	else
-	{
-		// this is the code that should be preserved post-transition
-		// you could also change the XML to set visibility and enabled true.
-		mCategoryCombo = getChild<LLComboBox>( "land category");
-		childSetCommitCallback("land category", onCommitAny, this);
-	}
-	mCategoryCombo->setVisible(true);
-	mCategoryCombo->setEnabled(true);
+	mCategoryCombo = getChild<LLComboBox>( "land category");
+	childSetCommitCallback("land category", onCommitAny, this);
 	
 
 	mMatureCtrl = getChild<LLCheckBoxCtrl>( "MatureCheck");
@@ -1901,6 +1886,7 @@ BOOL LLPanelLandOptions::postBuild()
 		mSnapshotCtrl->setCommitCallback( onCommitAny, this );
 		mSnapshotCtrl->setAllowNoTexture ( TRUE );
 		mSnapshotCtrl->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
+		mSnapshotCtrl->setDnDFilterPermMask(PERM_COPY | PERM_TRANSFER);
 		mSnapshotCtrl->setNonImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
 	}
 	else

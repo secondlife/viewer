@@ -94,6 +94,7 @@
 #include "llupdaterservice.h"
 #include "llcallfloater.h"
 #include "llfloatertexturefetchdebugger.h"
+#include "llspellcheck.h"
 
 // Linden library includes
 #include "llavatarnamecache.h"
@@ -117,6 +118,7 @@
 // Third party library includes
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
+#include <boost/algorithm/string.hpp>
 
 
 
@@ -625,6 +627,7 @@ LLAppViewer::LLAppViewer() :
 	mPurgeOnExit(false),
 	mSecondInstance(false),
 	mSavedFinalSnapshot(false),
+	mSavePerAccountSettings(false),		// don't save settings on logout unless login succeeded.
 	mForceGraphicsDetail(false),
 	mQuitRequested(false),
 	mLogoutRequestSent(false),
@@ -1162,6 +1165,8 @@ void LLAppViewer::checkMemory()
 
 static LLFastTimer::DeclareTimer FTM_MESSAGES("System Messages");
 static LLFastTimer::DeclareTimer FTM_SLEEP("Sleep");
+static LLFastTimer::DeclareTimer FTM_YIELD("Yield");
+
 static LLFastTimer::DeclareTimer FTM_TEXTURE_CACHE("Texture Cache");
 static LLFastTimer::DeclareTimer FTM_DECODE("Image Decode");
 static LLFastTimer::DeclareTimer FTM_VFS("VFS Thread");
@@ -1347,6 +1352,7 @@ bool LLAppViewer::mainLoop()
 				// yield some time to the os based on command line option
 				if(mYieldTime >= 0)
 				{
+					LLFastTimer t(FTM_YIELD);
 					ms_sleep(mYieldTime);
 				}
 
@@ -1795,6 +1801,13 @@ bool LLAppViewer::cleanup()
 	if (gSavedSettings.getString("PerAccountSettingsFile").empty())
 	{
 		llinfos << "Not saving per-account settings; don't know the account name yet." << llendl;
+	}
+	// Only save per account settings if the previous login succeeded, otherwise
+	// we might end up with a cleared out settings file in case a previous login
+	// failed after loading per account settings.
+	else if (!mSavePerAccountSettings)
+	{
+		llinfos << "Not saving per-account settings; last login was not successful." << llendl;
 	}
 	else
 	{
@@ -2549,6 +2562,19 @@ bool LLAppViewer::initConfiguration()
         gDirUtilp->setSkinFolder(skinfolder->getValue().asString());
 		//gDirUtilp->setSkinFolder("default");
     }
+
+	if (gSavedSettings.getBOOL("SpellCheck"))
+	{
+		std::list<std::string> dict_list;
+		std::string dict_setting = gSavedSettings.getString("SpellCheckDictionary");
+		boost::split(dict_list, dict_setting, boost::is_any_of(std::string(",")));
+		if (!dict_list.empty())
+		{
+			LLSpellChecker::setUseSpellCheck(dict_list.front());
+			dict_list.pop_front();
+			LLSpellChecker::instance().setSecondaryDictionaries(dict_list);
+		}
+	}
 
     mYieldTime = gSavedSettings.getS32("YieldTime");
 
@@ -5009,6 +5035,10 @@ void LLAppViewer::handleLoginComplete()
 	mOnLoginCompleted();
 
 	writeDebugInfo();
+
+	// we logged in successfully, so save settings on logout
+	llinfos << "Login successful, per account settings will be saved on log out." << llendl;
+	mSavePerAccountSettings=true;
 }
 
 void LLAppViewer::launchUpdater()

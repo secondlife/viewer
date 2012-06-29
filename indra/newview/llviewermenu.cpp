@@ -86,6 +86,7 @@
 #include "llrootview.h"
 #include "llsceneview.h"
 #include "llselectmgr.h"
+#include "llspellcheckmenuhandler.h"
 #include "llstatusbar.h"
 #include "lltextureview.h"
 #include "lltoolcomp.h"
@@ -300,7 +301,6 @@ BOOL enable_buy_land(void*);
 
 void handle_test_male(void *);
 void handle_test_female(void *);
-void handle_toggle_pg(void*);
 void handle_dump_attachments(void *);
 void handle_dump_avatar_local_textures(void*);
 void handle_debug_avatar_textures(void*);
@@ -1643,23 +1643,6 @@ class LLAdvancedTestFemale : public view_listener_t
 	}
 };
 
-
-
-///////////////
-// TOGGLE PG //
-///////////////
-
-
-class LLAdvancedTogglePG : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		handle_toggle_pg(NULL);
-		return true;
-	}
-};
-
-
 class LLAdvancedForceParamsToDefault : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -2037,7 +2020,6 @@ class LLAdvancedCompressImage : public view_listener_t
 		return true;
 	}
 };
-
 
 
 /////////////////////////
@@ -5122,6 +5104,78 @@ class LLEditDelete : public view_listener_t
 	}
 };
 
+void handle_spellcheck_replace_with_suggestion(const LLUICtrl* ctrl, const LLSD& param)
+{
+	const LLContextMenu* menu = dynamic_cast<const LLContextMenu*>(ctrl->getParent());
+	LLSpellCheckMenuHandler* spellcheck_handler = (menu) ? dynamic_cast<LLSpellCheckMenuHandler*>(menu->getSpawningView()) : NULL;
+	if ( (!spellcheck_handler) || (!spellcheck_handler->getSpellCheck()) )
+	{
+		return;
+	}
+
+	U32 index = 0;
+	if ( (!LLStringUtil::convertToU32(param.asString(), index)) || (index >= spellcheck_handler->getSuggestionCount()) )
+	{
+		return;
+	}
+
+	spellcheck_handler->replaceWithSuggestion(index);
+}
+
+bool visible_spellcheck_suggestion(LLUICtrl* ctrl, const LLSD& param)
+{
+	LLMenuItemGL* item = dynamic_cast<LLMenuItemGL*>(ctrl);
+	const LLContextMenu* menu = (item) ? dynamic_cast<const LLContextMenu*>(item->getParent()) : NULL;
+	const LLSpellCheckMenuHandler* spellcheck_handler = (menu) ? dynamic_cast<const LLSpellCheckMenuHandler*>(menu->getSpawningView()) : NULL;
+	if ( (!spellcheck_handler) || (!spellcheck_handler->getSpellCheck()) )
+	{
+		return false;
+	}
+
+	U32 index = 0;
+	if ( (!LLStringUtil::convertToU32(param.asString(), index)) || (index >= spellcheck_handler->getSuggestionCount()) )
+	{
+		return false;
+	}
+
+	item->setLabel(spellcheck_handler->getSuggestion(index));
+	return true;
+}
+
+void handle_spellcheck_add_to_dictionary(const LLUICtrl* ctrl)
+{
+	const LLContextMenu* menu = dynamic_cast<const LLContextMenu*>(ctrl->getParent());
+	LLSpellCheckMenuHandler* spellcheck_handler = (menu) ? dynamic_cast<LLSpellCheckMenuHandler*>(menu->getSpawningView()) : NULL;
+	if ( (spellcheck_handler) && (spellcheck_handler->canAddToDictionary()) )
+	{
+		spellcheck_handler->addToDictionary();
+	}
+}
+
+bool enable_spellcheck_add_to_dictionary(const LLUICtrl* ctrl)
+{
+	const LLContextMenu* menu = dynamic_cast<const LLContextMenu*>(ctrl->getParent());
+	const LLSpellCheckMenuHandler* spellcheck_handler = (menu) ? dynamic_cast<const LLSpellCheckMenuHandler*>(menu->getSpawningView()) : NULL;
+	return (spellcheck_handler) && (spellcheck_handler->canAddToDictionary());
+}
+
+void handle_spellcheck_add_to_ignore(const LLUICtrl* ctrl)
+{
+	const LLContextMenu* menu = dynamic_cast<const LLContextMenu*>(ctrl->getParent());
+	LLSpellCheckMenuHandler* spellcheck_handler = (menu) ? dynamic_cast<LLSpellCheckMenuHandler*>(menu->getSpawningView()) : NULL;
+	if ( (spellcheck_handler) && (spellcheck_handler->canAddToIgnore()) )
+	{
+		spellcheck_handler->addToIgnore();
+	}
+}
+
+bool enable_spellcheck_add_to_ignore(const LLUICtrl* ctrl)
+{
+	const LLContextMenu* menu = dynamic_cast<const LLContextMenu*>(ctrl->getParent());
+	const LLSpellCheckMenuHandler* spellcheck_handler = (menu) ? dynamic_cast<const LLSpellCheckMenuHandler*>(menu->getSpawningView()) : NULL;
+	return (spellcheck_handler) && (spellcheck_handler->canAddToIgnore());
+}
+
 bool enable_object_delete()
 {
 	bool new_value = 
@@ -5367,6 +5421,14 @@ void toggle_debug_menus(void*)
 // }
 //
 
+class LLCommunicateBlockList : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLFloaterSidePanelContainer::showPanel("people", "panel_block_list_sidetray", LLSD());
+		return true;
+	}
+};
 
 class LLWorldSetHomeLocation : public view_listener_t
 {
@@ -6738,15 +6800,6 @@ void handle_test_female(void*)
 	//gGestureList.requestResetFromServer( FALSE );
 }
 
-void handle_toggle_pg(void*)
-{
-	gAgent.setTeen( !gAgent.isTeen() );
-
-	LLFloaterWorldMap::reloadIcons(NULL);
-
-	llinfos << "PG status set to " << (S32)gAgent.isTeen() << llendl;
-}
-
 void handle_dump_attachments(void*)
 {
 	if(!isAgentAvatarValid()) return;
@@ -8072,6 +8125,19 @@ void initialize_edit_menu()
 
 }
 
+void initialize_spellcheck_menu()
+{
+	LLUICtrl::CommitCallbackRegistry::Registrar& commit = LLUICtrl::CommitCallbackRegistry::currentRegistrar();
+	LLUICtrl::EnableCallbackRegistry::Registrar& enable = LLUICtrl::EnableCallbackRegistry::currentRegistrar();
+
+	commit.add("SpellCheck.ReplaceWithSuggestion", boost::bind(&handle_spellcheck_replace_with_suggestion, _1, _2));
+	enable.add("SpellCheck.VisibleSuggestion", boost::bind(&visible_spellcheck_suggestion, _1, _2));
+	commit.add("SpellCheck.AddToDictionary", boost::bind(&handle_spellcheck_add_to_dictionary, _1));
+	enable.add("SpellCheck.EnableAddToDictionary", boost::bind(&enable_spellcheck_add_to_dictionary, _1));
+	commit.add("SpellCheck.AddToIgnore", boost::bind(&handle_spellcheck_add_to_ignore, _1));
+	enable.add("SpellCheck.EnableAddToIgnore", boost::bind(&enable_spellcheck_add_to_ignore, _1));
+}
+
 void initialize_menus()
 {
 	// A parameterized event handler used as ctrl-8/9/0 zoom controls below.
@@ -8152,6 +8218,9 @@ void initialize_menus()
 
 	// Me > Movement
 	view_listener_t::addMenu(new LLAdvancedAgentFlyingInfo(), "Agent.getFlying");
+
+	// Communicate
+	view_listener_t::addMenu(new LLCommunicateBlockList(), "Communicate.BlockList");
 	
 	// World menu
 	view_listener_t::addMenu(new LLWorldAlwaysRun(), "World.AlwaysRun");
@@ -8311,7 +8380,6 @@ void initialize_menus()
 
 	view_listener_t::addMenu(new LLAdvancedTestMale(), "Advanced.TestMale");
 	view_listener_t::addMenu(new LLAdvancedTestFemale(), "Advanced.TestFemale");
-	view_listener_t::addMenu(new LLAdvancedTogglePG(), "Advanced.TogglePG");
 	
 	// Advanced > Character (toplevel)
 	view_listener_t::addMenu(new LLAdvancedForceParamsToDefault(), "Advanced.ForceParamsToDefault");

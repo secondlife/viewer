@@ -363,6 +363,54 @@
           </map>
         </map>
       </map>
+      <key>dictionaries</key>
+      <map>
+        <key>license</key>
+        <string>various open</string>
+        <key>license_file</key>
+        <string>LICENSES/dictionaries.txt</string>
+        <key>name</key>
+        <string>dictionaries</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>06a6c49eb1873e95623d3d2d07aee903</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-dictionaries/rev/259873/arch/Darwin/installer/dictionaries-1-darwin-20120616.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>4f0ca21d27e0cd0b002149062b0a4b25</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-dictionaries/rev/259873/arch/Linux/installer/dictionaries-1-linux-20120616.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>7520d75f6af325328322201c888191d4</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-dictionaries/rev/259873/arch/CYGWIN/installer/dictionaries-1-windows-20120616.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+      </map>
       <key>elfio</key>
       <map>
         <key>license</key>
@@ -999,6 +1047,54 @@
           </map>
         </map>
       </map>
+      <key>libhunspell</key>
+      <map>
+        <key>license</key>
+        <string>libhunspell</string>
+        <key>license_file</key>
+        <string>LICENSES/hunspell.txt</string>
+        <key>name</key>
+        <string>libhunspell</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>6f5db0ef258df6e5c93c843ec559db6d</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-hunspell/rev/259874/arch/Darwin/installer/libhunspell-1.3.2-darwin-20120616.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>0c432d2626aea2e91a56335879c92965</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-hunspell/rev/259874/arch/Linux/installer/libhunspell-1.3.2-linux-20120616.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>6a140e5620826aa5e587b4157f57b389</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-hunspell/rev/259874/arch/CYGWIN/installer/libhunspell-1.3.2-windows-20120616.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+      </map>
       <key>libpng</key>
       <map>
         <key>license</key>
@@ -1099,8 +1195,6 @@
       <map>
         <key>license</key>
         <string>havok</string>
-        <key>license_file</key>
-        <string>on_file</string>
         <key>name</key>
         <string>llconvexdecomposition</string>
         <key>platforms</key>
@@ -1762,8 +1856,12 @@
     </map>
     <key>package_description</key>
     <map>
+      <key>description</key>
+      <string>Spell checking dictionaries</string>
+      <key>license</key>
+      <string>various open</string>
       <key>name</key>
-      <string>viewer_development</string>
+      <string>dictionaries</string>
       <key>platforms</key>
       <map>
         <key>common</key>
@@ -2473,6 +2571,8 @@
           <string>windows</string>
         </map>
       </map>
+      <key>version</key>
+      <string>1.0</string>
     </map>
     <key>type</key>
     <string>autobuild</string>

@@ -495,7 +495,7 @@ protected:
 
 	void showInfoCtrl()
 	{
-		if (mAvatarID.isNull() || mFrom.empty() || SYSTEM_FROM == mFrom) return;
+		if (mAvatarID.isNull() || mFrom.empty() || CHAT_SOURCE_SYSTEM == mSourceType) return;
 				
 		if (!sInfoCtrl)
 		{
@@ -689,8 +689,11 @@ void LLChatHistory::clear()
 	mLastFromID = LLUUID::null;
 }
 
+static LLFastTimer::DeclareTimer FTM_APPEND_MESSAGE("Append Chat Message");
+
 void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LLStyle::Params& input_append_params)
 {
+	LLFastTimer _(FTM_APPEND_MESSAGE);
 	bool use_plain_text_chat_history = args["use_plain_text_chat_history"].asBoolean();
 
 	llassert(mEditor);
@@ -783,7 +786,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			timestamp_style.color(timestamp_color);
 			timestamp_style.readonly_color(timestamp_color);
 		}
-		mEditor->appendText("[" + chat.mTimeStr + "] ", mEditor->getText().size() != 0, timestamp_style);
+		mEditor->appendText("[" + chat.mTimeStr + "] ", mEditor->getLength() != 0, timestamp_style);
 
 		if (utf8str_trim(chat.mFromName).size() != 0)
 		{
@@ -842,7 +845,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		else
 		{
 			view = getHeader(chat, style_params, args);
-			if (mEditor->getText().size() == 0)
+			if (mEditor->getLength() == 0)
 				p.top_pad = 0;
 			else
 				p.top_pad = mTopHeaderPad;

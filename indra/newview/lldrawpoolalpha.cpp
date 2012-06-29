@@ -405,6 +405,12 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 			{
 				LLDrawInfo& params = **k;
 
+				if ((params.mVertexBuffer->getTypeMask() & mask) != mask)
+				{ //FIXME!
+					llwarns << "Missing required components, skipping render batch." << llendl;
+					continue;
+				}
+
 				LLRenderPass::applyModelMatrix(params);
 
 				

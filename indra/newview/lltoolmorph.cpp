@@ -225,7 +225,8 @@ BOOL LLVisualParamHint::render()
 
 	LLViewerCamera::getInstance()->setPerspective(FALSE, mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight, FALSE);
 
-	if (gAgentAvatarp->mDrawable.notNull())
+	if (gAgentAvatarp->mDrawable.notNull() &&
+		gAgentAvatarp->mDrawable->getFace(0))
 	{
 		LLDrawPoolAvatar *avatarPoolp = (LLDrawPoolAvatar *)gAgentAvatarp->mDrawable->getFace(0)->getPool();
 		LLGLDepthTest gls_depth(GL_TRUE, GL_TRUE);

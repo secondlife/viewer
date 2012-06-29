@@ -71,7 +71,11 @@
 #include "llpaneloutfitsinventory.h"
 #include "llpanellogin.h"
 #include "llpaneltopinfobar.h"
+#include "llspellcheck.h"
 #include "llupdaterservice.h"
+
+// Third party library includes
+#include <boost/algorithm/string.hpp>
 
 #ifdef TOGGLE_HACKED_GODLIKE_VIEWER
 BOOL 				gHackGodmode = FALSE;
@@ -325,7 +329,7 @@ static bool handleJoystickChanged(const LLSD& newvalue)
 
 static bool handleUseOcclusionChanged(const LLSD& newvalue)
 {
-	LLPipeline::sUseOcclusion = (newvalue.asBoolean() && gGLManager.mHasOcclusionQuery 
+	LLPipeline::sUseOcclusion = (newvalue.asBoolean() && gGLManager.mHasOcclusionQuery && LLGLSLShader::sNoFixedFunction
 		&& LLFeatureManager::getInstance()->isFeatureAvailable("UseOcclusion") && !gUseWireframe) ? 2 : 0;
 	return true;
 }
@@ -336,15 +340,6 @@ static bool handleUploadBakedTexOldChanged(const LLSD& newvalue)
 	return true;
 }
 
-
-static bool handleNumpadControlChanged(const LLSD& newvalue)
-{
-	if (gKeyboard)
-	{
-		gKeyboard->setNumpadDistinct(static_cast<LLKeyboard::e_numpad_distinct>(newvalue.asInteger()));
-	}
-	return true;
-}
 
 static bool handleWLSkyDetailChanged(const LLSD&)
 {
@@ -501,6 +496,25 @@ bool handleForceShowGrid(const LLSD& newvalue)
 	return true;
 }
 
+bool handleSpellCheckChanged()
+{
+	if (gSavedSettings.getBOOL("SpellCheck"))
+	{
+		std::list<std::string> dict_list;
+		std::string dict_setting = gSavedSettings.getString("SpellCheckDictionary");
+		boost::split(dict_list, dict_setting, boost::is_any_of(std::string(",")));
+		if (!dict_list.empty())
+		{
+			LLSpellChecker::setUseSpellCheck(dict_list.front());
+			dict_list.pop_front();
+			LLSpellChecker::instance().setSecondaryDictionaries(dict_list);
+			return true;
+		}
+	}
+	LLSpellChecker::setUseSpellCheck(LLStringUtil::null);
+	return true;
+}
+
 bool toggle_agent_pause(const LLSD& newvalue)
 {
 	if ( newvalue.asBoolean() )
@@ -637,7 +651,6 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("RenderUseStreamVBO")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
 	gSavedSettings.getControl("RenderPreferStreamDraw")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
 	gSavedSettings.getControl("WLSkyDetail")->getSignal()->connect(boost::bind(&handleWLSkyDetailChanged, _2));
-	gSavedSettings.getControl("NumpadControl")->getSignal()->connect(boost::bind(&handleNumpadControlChanged, _2));
 	gSavedSettings.getControl("JoystickAxis0")->getSignal()->connect(boost::bind(&handleJoystickChanged, _2));
 	gSavedSettings.getControl("JoystickAxis1")->getSignal()->connect(boost::bind(&handleJoystickChanged, _2));
 	gSavedSettings.getControl("JoystickAxis2")->getSignal()->connect(boost::bind(&handleJoystickChanged, _2));
@@ -706,6 +719,8 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("UpdaterServiceSetting")->getSignal()->connect(boost::bind(&toggle_updater_service_active, _2));
 	gSavedSettings.getControl("ForceShowGrid")->getSignal()->connect(boost::bind(&handleForceShowGrid, _2));
 	gSavedSettings.getControl("RenderTransparentWater")->getSignal()->connect(boost::bind(&handleRenderTransparentWaterChanged, _2));
+	gSavedSettings.getControl("SpellCheck")->getSignal()->connect(boost::bind(&handleSpellCheckChanged));
+	gSavedSettings.getControl("SpellCheckDictionary")->getSignal()->connect(boost::bind(&handleSpellCheckChanged));
 }
 
 #if TEST_CACHED_CONTROL

@@ -432,7 +432,9 @@ void LLViewerObject::dump() const
 	llinfos << "PositionAgent: " << getPositionAgent() << llendl;
 	llinfos << "PositionGlobal: " << getPositionGlobal() << llendl;
 	llinfos << "Velocity: " << getVelocity() << llendl;
-	if (mDrawable.notNull() && mDrawable->getNumFaces())
+	if (mDrawable.notNull() && 
+		mDrawable->getNumFaces() && 
+		mDrawable->getFace(0))
 	{
 		LLFacePool *poolp = mDrawable->getFace(0)->getPool();
 		if (poolp)
@@ -2389,10 +2391,11 @@ void LLViewerObject::interpolateLinearMotion(const F64 & time, const F32 & dt)
 		{	// This will put the object underground, but we can't tell if it will stop 
 			// at ground level or not
 			min_height = LLWorld::getInstance()->getMinAllowedZ(this, new_pos_global);
+			// Cap maximum height
+			new_pos.mV[VZ] = llmin(LLWorld::getInstance()->getRegionMaxHeight(), new_pos.mV[VZ]);
 		}
 
 		new_pos.mV[VZ] = llmax(min_height, new_pos.mV[VZ]);
-		new_pos.mV[VZ] = llmin(LLWorld::getInstance()->getRegionMaxHeight(), new_pos.mV[VZ]);
 
 		// Check to see if it's going off the region
 		LLVector3 temp(new_pos);
@@ -2798,6 +2801,23 @@ void LLViewerObject::processTaskInvFile(void** user_data, S32 error_code, LLExtS
 	   (object = gObjectList.findObject(ft->mTaskID)))
 	{
 		object->loadTaskInvFile(ft->mFilename);
+
+		LLInventoryObject::object_list_t::iterator it = object->mInventory->begin();
+		LLInventoryObject::object_list_t::iterator end = object->mInventory->end();
+		std::list<LLUUID>& pending_lst = object->mPendingInventoryItemsIDs;
+
+		for (; it != end && pending_lst.size(); ++it)
+		{
+			LLViewerInventoryItem* item = dynamic_cast<LLViewerInventoryItem*>(it->get());
+			if(item && item->getType() != LLAssetType::AT_CATEGORY)
+			{
+				std::list<LLUUID>::iterator id_it = std::find(pending_lst.begin(), pending_lst.begin(), item->getAssetUUID());
+				if (id_it != pending_lst.end())
+				{
+					pending_lst.erase(id_it);
+				}
+			}
+		}
 	}
 	else
 	{
@@ -2910,7 +2930,22 @@ void LLViewerObject::updateInventory(
 	bool is_new)
 {
 	LLMemType mt(LLMemType::MTYPE_OBJECT);
-	
+
+	std::list<LLUUID>::iterator begin = mPendingInventoryItemsIDs.begin();
+	std::list<LLUUID>::iterator end = mPendingInventoryItemsIDs.end();
+
+	bool is_fetching = std::find(begin, end, item->getAssetUUID()) != end;
+	bool is_fetched = getInventoryItemByAsset(item->getAssetUUID()) != NULL;
+
+	if (is_fetched || is_fetching)
+	{
+		return;
+	}
+	else
+	{
+		mPendingInventoryItemsIDs.push_back(item->getAssetUUID());
+	}
+
 	// This slices the object into what we're concerned about on the
 	// viewer. The simulator will take the permissions and transfer
 	// ownership.
@@ -4477,7 +4512,11 @@ U32 LLViewerObject::getNumVertices() const
 		num_faces = mDrawable->getNumFaces();
 		for (i = 0; i < num_faces; i++)
 		{
-			num_vertices += mDrawable->getFace(i)->getGeomCount();
+			LLFace * facep = mDrawable->getFace(i);
+			if (facep)
+			{
+				num_vertices += facep->getGeomCount();
+			}
 		}
 	}
 	return num_vertices;
@@ -4492,7 +4531,11 @@ U32 LLViewerObject::getNumIndices() const
 		num_faces = mDrawable->getNumFaces();
 		for (i = 0; i < num_faces; i++)
 		{
-			num_indices += mDrawable->getFace(i)->getIndicesCount();
+			LLFace * facep = mDrawable->getFace(i);
+			if (facep)
+			{
+				num_indices += facep->getIndicesCount();
+			}
 		}
 	}
 	return num_indices;

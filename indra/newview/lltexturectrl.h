@@ -43,6 +43,7 @@ class LLViewerFetchedTexture;
 
 // used for setting drag & drop callbacks.
 typedef boost::function<BOOL (LLUICtrl*, LLInventoryItem*)> drag_n_drop_callback;
+typedef boost::function<void (LLInventoryItem*)> texture_selected_callback;
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -147,8 +148,12 @@ public:
 	void			setCaption(const std::string& caption);
 	void			setCanApplyImmediately(BOOL b);
 
+	void			setCanApply(bool can_preview, bool can_apply);
+
 	void			setImmediateFilterPermMask(PermissionMask mask)
 					{ mImmediateFilterPermMask = mask; }
+	void			setDnDFilterPermMask(PermissionMask mask)
+						{ mDnDFilterPermMask = mask; }
 	void			setNonImmediateFilterPermMask(PermissionMask mask)
 					{ mNonImmediateFilterPermMask = mask; }
 	PermissionMask	getImmediateFilterPermMask() { return mImmediateFilterPermMask; }
@@ -172,6 +177,11 @@ public:
 	
 	void setOnSelectCallback(commit_callback_t cb)	{ mOnSelectCallback = cb; }
 
+	/*
+	 * callback for changing texture selection in inventory list of texture floater
+	 */
+	void setOnTextureSelectedCallback(texture_selected_callback cb);
+
 	void setShowLoadingPlaceholder(BOOL showLoadingPlaceholder);
 
 	LLViewerFetchedTexture* getTexture() { return mTexturep; }
@@ -185,6 +195,7 @@ private:
 	drag_n_drop_callback	 	mDropCallback;
 	commit_callback_t		 	mOnCancelCallback;
 	commit_callback_t		 	mOnSelectCallback;
+	texture_selected_callback	mOnTextureSelectedCallback;
 	LLPointer<LLViewerFetchedTexture> mTexturep;
 	LLUIColor				 	mBorderColor;
 	LLUUID					 	mImageItemID;
@@ -198,6 +209,7 @@ private:
 	std::string				 	mLabel;
 	BOOL					 	mAllowNoTexture; // If true, the user can select "none" as an option
 	PermissionMask			 	mImmediateFilterPermMask;
+	PermissionMask				mDnDFilterPermMask;
 	PermissionMask			 	mNonImmediateFilterPermMask;
 	BOOL					 	mCanApplyImmediately;
 	BOOL					 	mCommitOnSelection;

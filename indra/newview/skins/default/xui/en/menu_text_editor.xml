@@ -2,6 +2,85 @@
 <context_menu
  name="Text editor context menu">
   <menu_item_call
+   label="(unknown)"
+   layout="topleft"
+   name="Suggestion 1">
+    <menu_item_call.on_click
+     function="SpellCheck.ReplaceWithSuggestion"
+     parameter="0" />
+    <menu_item_call.on_visible
+     function="SpellCheck.VisibleSuggestion"
+     parameter="0" />
+  </menu_item_call>
+  <menu_item_call
+   label="(unknown)"
+   layout="topleft"
+   name="Suggestion 2">
+    <menu_item_call.on_click
+     function="SpellCheck.ReplaceWithSuggestion"
+     parameter="1" />
+    <menu_item_call.on_visible
+     function="SpellCheck.VisibleSuggestion"
+     parameter="1" />
+  </menu_item_call>
+  <menu_item_call
+   label="(unknown)"
+   layout="topleft"
+   name="Suggestion 3">
+    <menu_item_call.on_click
+     function="SpellCheck.ReplaceWithSuggestion"
+     parameter="2" />
+    <menu_item_call.on_visible
+     function="SpellCheck.VisibleSuggestion"
+     parameter="2" />
+  </menu_item_call>
+  <menu_item_call
+   label="(unknown)"
+   layout="topleft"
+   name="Suggestion 4">
+    <menu_item_call.on_click
+     function="SpellCheck.ReplaceWithSuggestion"
+     parameter="3" />
+    <menu_item_call.on_visible
+     function="SpellCheck.VisibleSuggestion"
+     parameter="3" />
+  </menu_item_call>
+  <menu_item_call
+   label="(unknown)"
+   layout="topleft"
+   name="Suggestion 5">
+    <menu_item_call.on_click
+     function="SpellCheck.ReplaceWithSuggestion"
+     parameter="4" />
+    <menu_item_call.on_visible
+     function="SpellCheck.VisibleSuggestion"
+     parameter="4" />
+  </menu_item_call>
+  <menu_item_separator
+   layout="topleft"
+   name="Suggestion Separator" />
+  <menu_item_call
+   label="Add to Dictionary"
+   layout="topleft"
+   name="Add to Dictionary">
+    <menu_item_call.on_click
+     function="SpellCheck.AddToDictionary" />
+    <menu_item_call.on_enable
+     function="SpellCheck.EnableAddToDictionary" />
+  </menu_item_call>
+  <menu_item_call
+   label="Add to Ignore"
+   layout="topleft"
+   name="Add to Ignore">
+    <menu_item_call.on_click
+     function="SpellCheck.AddToIgnore" />
+    <menu_item_call.on_enable
+     function="SpellCheck.EnableAddToIgnore" />
+  </menu_item_call>
+  <menu_item_separator
+   layout="topleft"
+   name="Spellcheck Separator" />
+  <menu_item_call
    label="Cut"
    layout="topleft"
    name="Cut">
