@@ -360,7 +360,7 @@ Inserisci il Nome utente del tuo avatar.
 
 Devi avere un account per entrare in [SECOND_LIFE]. Vuoi crearne uno adesso?
 		<url name="url">
-			https://join.secondlife.com/index.php?lang=it-IT
+			[create_account_url]
 		</url>
 		<usetemplate name="okcancelbuttons" notext="Riprova" yestext="Crea un nuovo account"/>
 	</notification>
@@ -1167,7 +1167,7 @@ Puoi comunque usare [SECOND_LIFE] normalmente e gli altri residenti ti vedranno 
 		L&apos;installazione di [APP_NAME] è terminata.
 
 Se questa è la prima volta che usi [SECOND_LIFE], devi creare un account prima che tu possa effettuare l&apos;accesso.
-Vuoi tornare a [http://join.secondlife.com secondlife.com] per creare un nuovo account?
+Vuoi tornare a [[create_account_url] secondlife.com] per creare un nuovo account?
 		<usetemplate name="okcancelbuttons" notext="Continua" yestext="Nuovo Account..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">

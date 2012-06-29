@@ -375,6 +375,9 @@ void init_default_trans_args()
 	default_trans_args.insert("CAPITALIZED_APP_NAME");
 	default_trans_args.insert("SECOND_LIFE_GRID");
 	default_trans_args.insert("SUPPORT_SITE");
+	// This URL shows up in a surprising number of places in various skin
+	// files. We really only want to have to maintain a single copy of it.
+	default_trans_args.insert("create_account_url");
 }
 
 //----------------------------------------------------------------------------

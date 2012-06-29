@@ -881,8 +881,7 @@ You need an account to enter [SECOND_LIFE]. Would you like to create one now?
 	option="0"
 	name="url"
 	target = "_external">
-
-			http://join.secondlife.com/
+		[create_account_url]
     </url>
     <usetemplate
      name="okcancelbuttons"
@@ -2804,7 +2803,7 @@ You can use [SECOND_LIFE] normally and other people will see you correctly.
 [APP_NAME] installation is complete.
 
 If this is your first time using [SECOND_LIFE], you will need to create an account before you can log in.
-Return to [http://join.secondlife.com secondlife.com] to create a new account?
+Return to [[create_account_url] secondlife.com] to create a new account?
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"

@@ -382,7 +382,7 @@ L$ が不足しているのでこのグループに参加することができ�
 
 [SECOND_LIFE] に入るにはアカウントが必要です。今すぐアカウントを作成しますか？
 		<url name="url">
-			https://join.secondlife.com/index.php?lang=ja-JP
+			[create_account_url]
 		</url>
 		<usetemplate name="okcancelbuttons" notext="もう一度試す" yestext="新しいアカウントを作成"/>
 	</notification>
@@ -1201,7 +1201,7 @@ L$ は返金されません。
 		[APP_NAME] のインストールが完了しました。
 
 [SECOND_LIFE] を使ったことがない場合は、ログインする前にアカウントの作成を行ってください。
-[http://join.secondlife.com/?lang=ja-JP] で新しいアカウントを作成しますか？
+[[create_account_url] secondlife.com] で新しいアカウントを作成しますか？
 		<usetemplate name="okcancelbuttons" notext="続行" yestext="新規アカウント..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">

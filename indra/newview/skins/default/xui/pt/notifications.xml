@@ -357,7 +357,7 @@ Digite o nome de usuário de seu avatar.
 
 É preciso ter uma conta para entrar no [SECOND_LIFE]. Deseja criar uma conta agora?
 		<url name="url">
-			https://join.secondlife.com/index.php?lang=pt-BR
+			[create_account_url]
 		</url>
 		<usetemplate name="okcancelbuttons" notext="Tentar novamente" yestext="Abrir conta"/>
 	</notification>
@@ -1156,7 +1156,7 @@ Enquando isso, use o [SECOND_LIFE] normalmente. Seu visual será exibido correta
 		A instalação do [APP_NAME] está pronta. 
 
 Se você ainda não conhece o [SECOND_LIFE], basta criar uma conta para começar. 
-Voltar para [http://join.secondlife.com secondlife.com] para criar sua conta?
+Voltar para [[create_account_url] secondlife.com] para criar sua conta?
 		<usetemplate name="okcancelbuttons" notext="Continuar" yestext="Nova conta.."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">

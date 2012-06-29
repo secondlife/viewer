@@ -357,7 +357,7 @@ Tienes que volver a introducir el nombre de usuario de tu avatar.
 
 Necesitas una cuenta para acceder a [SECOND_LIFE]. ¿Te gustaría crear una ahora?
 		<url name="url">
-			https://join.secondlife.com/index.php?lang=es-ES
+			[create_account_url]
 		</url>
 		<usetemplate name="okcancelbuttons" notext="Volver a intentarlo" yestext="Crear una cuenta nueva"/>
 	</notification>
@@ -1171,7 +1171,7 @@ Puedes usar [SECOND_LIFE] de forma normal; los demás residentes te verán corre
 		Se ha completado la instalación de [SECOND_LIFE].
 
 Si es la primera vez que usas [SECOND_LIFE], debes crear una cuenta antes de poder iniciar una sesión.
-¿Volver a [http://join.secondlife.com secondlife.com] para crear una cuenta nueva?
+¿Volver a [[create_account_url] secondlife.com] para crear una cuenta nueva?
 		<usetemplate name="okcancelbuttons" notext="Continuar" yestext="Cuenta nueva..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">
