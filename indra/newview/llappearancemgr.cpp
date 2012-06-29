@@ -1730,6 +1730,12 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering)
 	// the saved outfit stored as a folder link
 	updateIsDirty();
 
+	// Send server request for appearance update
+	if (useServerTextureBaking())
+	{
+		requestServerAppearanceUpdate();
+	}
+	
 	//dumpCat(getCOF(),"COF, start");
 
 	bool follow_folder_links = true;
@@ -2587,6 +2593,30 @@ bool LLAppearanceMgr::useServerTextureBaking()
 {
 	// TODO: add cap check.
 	return gSavedSettings.getBOOL("UseServerTextureBaking");
+}
+
+class RequestAgentUpdateAppearanceResponder: public LLHTTPClient::Responder
+{
+public:
+	RequestAgentUpdateAppearanceResponder() {}
+	/*virtual*/ void error(U32 status, const std::string& reason)
+	{
+		llwarns << "appearance update request failed, reason: " << reason << llendl;
+	}	
+};
+
+void LLAppearanceMgr::requestServerAppearanceUpdate()
+{
+	std::string url = gAgent.getRegion()->getCapability("UpdateAgentAppearance");	
+	if (!url.empty())
+	{
+		LLSD body;
+		LLHTTPClient::post(url, body, new RequestAgentUpdateAppearanceResponder);
+	}
+	else
+	{
+		llwarns << "no cap for UpdateAgentAppearance" << llendl;
+	}
 }
 
 class LLShowCreatedOutfit: public LLInventoryCallback

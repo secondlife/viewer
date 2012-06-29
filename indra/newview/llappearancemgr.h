@@ -184,6 +184,8 @@ public:
 
 	bool useServerTextureBaking();
 
+	void requestServerAppearanceUpdate();
+
 protected:
 	LLAppearanceMgr();
 	~LLAppearanceMgr();

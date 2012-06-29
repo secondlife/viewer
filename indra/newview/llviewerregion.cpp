@@ -1545,6 +1545,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("UntrustedSimulatorMessage");
 	capabilityNames.append("UpdateAgentInformation");
 	capabilityNames.append("UpdateAgentLanguage");
+	capabilityNames.append("UpdateAgentAppearance");
 	capabilityNames.append("UpdateGestureAgentInventory");
 	capabilityNames.append("UpdateNotecardAgentInventory");
 	capabilityNames.append("UpdateScriptAgent");
