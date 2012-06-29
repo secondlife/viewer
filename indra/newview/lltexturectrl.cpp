@@ -819,7 +819,10 @@ void LLFloaterTexturePicker::onSelectionChange(const std::deque<LLFolderViewItem
 		mNoCopyTextureSelected = FALSE;
 		if (itemp)
 		{
-			mTextureSelectedCallback(itemp);
+			if (!mTextureSelectedCallback.empty())
+			{
+				mTextureSelectedCallback(itemp);
+			}
 			if (!itemp->getPermissions().allowCopyBy(gAgent.getID()))
 			{
 				mNoCopyTextureSelected = TRUE;
