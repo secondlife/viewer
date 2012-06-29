@@ -358,8 +358,6 @@ namespace tut
 	template<> template<>
 		void HTTPClientTestObject::test<8>()
 	{
-		skip("google.com unit tests fail.");
-
 		// This is testing for the presence of the Header in the returned results
 		// from an HTTP::get call.
 		LLHTTPClient::get(local_server, newResult());
