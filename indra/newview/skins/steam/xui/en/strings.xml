@@ -59,7 +59,7 @@
 	<string name="LoginFailedNoNetwork">Network error: Could not establish connection, please check your network connection.</string>
 	<string name="LoginFailed">Login failed.</string>
 	<string name="Quit">Quit</string>
-	<string name="create_account_url">http://join.secondlife.com/</string>
+	<string name="create_account_url">http://join.secondlife.com/?sourceid=1206_steam</string>
 
 	<string name="LoginFailedViewerNotPermitted">
 The viewer you are using can no longer access Second Life. Please visit the following page to download a new viewer:

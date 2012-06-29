@@ -128,7 +128,7 @@
 		Salir
 	</string>
 	<string name="create_account_url">
-		http://join.secondlife.com/index.php?lang=es-ES
+		http://join.secondlife.com/index.php?sourceid=1206_steam&amp;lang=es-ES
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		Ya no puedes acceder a Second Life con el visor que estás utilizando. Visita la siguiente página para descargar un nuevo visor:

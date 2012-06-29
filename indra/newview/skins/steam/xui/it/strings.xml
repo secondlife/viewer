@@ -134,7 +134,7 @@
 		Esci
 	</string>
 	<string name="create_account_url">
-		http://join.secondlife.com/index.php?lang=it-IT
+		http://join.secondlife.com/index.php?sourceid=1206_steam&amp;lang=it-IT
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		Il viewer utilizzato non è più in grado di accedere a Second Life. Visita la parina seguente per scaricare un nuovo viewer:

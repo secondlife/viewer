@@ -137,7 +137,7 @@
 		終了
 	</string>
 	<string name="create_account_url">
-		http://join.secondlife.com/index.php?lang=ja-JP
+		http://join.secondlife.com/index.php?sourceid=1206_steam&amp;lang=ja-JP
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		お使いの古いビューワでは Second Life にアクセスできません。以下のページから新しいビューワをダウンロードしてください：

@@ -128,7 +128,7 @@
 		結束退出
 	</string>
 	<string name="create_account_url">
-		http://join.secondlife.com/
+		http://join.secondlife.com/?sourceid=1206_steam
 	</string>
 	<string name="AgentLostConnection">
 		這個地區可能遭遇問題，請檢查你的網路連線。

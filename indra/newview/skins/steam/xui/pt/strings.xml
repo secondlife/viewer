@@ -128,7 +128,7 @@
 		Sair
 	</string>
 	<string name="create_account_url">
-		http://join.secondlife.com/index.php?lang=pt-BR
+		http://join.secondlife.com/index.php?sourceid=1206_steam&amp;lang=pt-BR
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		O visualizador utilizado já não é compatível com o Second Life.  Visite a página abaixo para baixar uma versão atual: http://secondlife.com/download

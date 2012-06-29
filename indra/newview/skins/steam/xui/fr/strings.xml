@@ -137,7 +137,7 @@
 		Quitter
 	</string>
 	<string name="create_account_url">
-		http://www.wunderground.com/global/FR.html
+		http://join.secondlife.com/index.php?sourceid=1206_steam&amp;lang=fr-FR
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		Le client que vous utilisez ne permet plus d&apos;accéder à Second Life. Téléchargez un nouveau client à la page suivante :
