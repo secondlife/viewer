@@ -1388,10 +1388,12 @@ void LLFolderViewModelItemInventory::setPassedFilter(bool passed, bool passed_fo
 	mLastFilterGeneration = filter_generation;
 }
 
-void LLFolderViewModelItemInventory::filterChildItem( LLFolderViewModelItem* item, LLFolderViewFilter& filter )
+bool LLFolderViewModelItemInventory::filterChildItem( LLFolderViewModelItem* item, LLFolderViewFilter& filter )
 {
+	bool passed_filter_before = item->passedFilter();
 	S32 filter_generation = filter.getCurrentGeneration();
 	S32 must_pass_generation = filter.getFirstRequiredGeneration();
+	bool changed = false;
 
 	// mMostFilteredDescendantGeneration might have been reset
 	// in which case we need to update it even for folders that
@@ -1407,22 +1409,37 @@ void LLFolderViewModelItemInventory::filterChildItem( LLFolderViewModelItem* ite
 		}
 		else
 		{
-			//TODO RN:
-			item->filter( filter );
+			changed |= item->filter( filter );
 		}
 	}
 
 	// track latest generation to pass any child items
 	if (item->passedFilter())
 	{
-		mMostFilteredDescendantGeneration = filter_generation;
-		//TODO RN: ensure this still happens
-		//requestArrange();
+		LLFolderViewModelItemInventory* view_model = this;
+		
+		while(view_model && view_model->mMostFilteredDescendantGeneration < filter_generation)
+		{
+			view_model->mMostFilteredDescendantGeneration = filter_generation;
+			view_model = static_cast<LLFolderViewModelItemInventory*>(view_model->mParent);
+		}
 	}
+
+	changed |= (item->passedFilter() != passed_filter_before);
+	if (changed)
+	{
+		//TODO RN: ensure this still happens, but without dependency on folderview
+		LLFolderViewFolder* parent = mFolderViewItem->getParentFolder();
+		if (parent) parent->requestArrange();
+	}
+
+	return changed;
 }
 
-void LLFolderViewModelItemInventory::filter( LLFolderViewFilter& filter)
+bool LLFolderViewModelItemInventory::filter( LLFolderViewFilter& filter)
 {
+	bool changed = false;
+
 	if(!mChildren.empty()
 		&& (getLastFilterGeneration() < filter.getFirstRequiredGeneration() // haven't checked descendants against minimum required generation to pass
 			|| descendantsPassedFilter(filter.getFirstRequiredGeneration()))) // or at least one descendant has passed the minimum requirement
@@ -1432,7 +1449,7 @@ void LLFolderViewModelItemInventory::filter( LLFolderViewFilter& filter)
 			iter != mChildren.end() && filter.getFilterCount() > 0;
 			++iter)
 		{
-			filterChildItem((*iter), filter);
+			changed |= filterChildItem((*iter), filter);
 		}
 	}
 
@@ -1460,6 +1477,7 @@ void LLFolderViewModelItemInventory::filter( LLFolderViewFilter& filter)
 		//mStringMatchOffset = filter.getStringMatchOffset(this);
 		filter.decrementFilterCount();
 	}
+	return changed;
 }
 
 LLFolderViewModelInventory* LLInventoryPanel::getFolderViewModel()

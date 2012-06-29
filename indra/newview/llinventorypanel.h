@@ -74,8 +74,8 @@ public:
 	virtual bool passedFilter(S32 filter_generation = -1);
 	virtual bool descendantsPassedFilter(S32 filter_generation = -1);
 	virtual void setPassedFilter(bool filtered, bool filtered_folder, S32 filter_generation);
-	virtual void filter( LLFolderViewFilter& filter);
-	virtual void filterChildItem( LLFolderViewModelItem* item, LLFolderViewFilter& filter);
+	virtual bool filter( LLFolderViewFilter& filter);
+	virtual bool filterChildItem( LLFolderViewModelItem* item, LLFolderViewFilter& filter);
 protected:
 	LLFolderViewModelInventory* mRootViewModel;
 };

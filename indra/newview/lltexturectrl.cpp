@@ -637,7 +637,7 @@ void LLFloaterTexturePicker::draw()
 		{
 			folder_view->setPinningSelectedItem(mSelectedItemPinned);
 			folder_view->getViewModelItem()->dirtyFilter();
-			//TODO RN: test
+			//TODO RN: test..still works without this?
 			//folder_view->arrangeFromRoot();
 
 			mSelectedItemPinned = TRUE;

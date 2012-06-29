@@ -713,7 +713,6 @@ void LLFolderView::draw()
 	{
 		if (!mViewModel->contentsReady() || getLastFilterGeneration() < getFolderViewModel()->getFilter()->getFirstSuccessGeneration())
 		{
-			// TODO RN: Get this from filter
 			mStatusText = LLTrans::getString("Searching");
 		}
 		else
@@ -981,6 +980,7 @@ void LLFolderView::openSelectedItems( void )
 
 void LLFolderView::propertiesSelectedItems( void )
 {
+	//TODO RN: get working again
 	//if(getVisible() && getEnabled())
 	//{
 	//	if (mSelectedItems.size() == 1)

@@ -159,7 +159,7 @@ bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
 		// (e.g. versus in-world object contents).
 		const LLViewerInventoryCategory *cat = gInventory.getCategory(folder_id);
 		if (!cat)
-			return false;
+			return folder_id.isNull();
 		LLFolderType::EType cat_type = cat->getPreferredType();
 		if (cat_type != LLFolderType::FT_NONE && (1LL << cat_type & mFilterOps.mFilterCategoryTypes) == U64(0))
 			return false;
@@ -1091,7 +1091,6 @@ void LLInventoryFilter::setEmptyLookupMessage(const std::string& message)
 	mEmptyLookupMessage = message;
 }
 
-// TODO RN: turn this into a param and move to llfolderviewmodelinterface
 std::string LLInventoryFilter::getEmptyLookupMessage() const
 {
 	LLStringUtil::format_map_t args;

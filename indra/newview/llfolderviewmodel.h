@@ -122,7 +122,6 @@ public:
 	virtual void requestSortAll() = 0;
 
 	virtual void sort(class LLFolderViewFolder*) = 0;
-	virtual void filter(class LLFolderViewFolder*) = 0;
 
 	virtual bool contentsReady() = 0;
 	virtual void setFolderView(LLFolderView* folder_view) = 0;
@@ -208,12 +207,6 @@ public:
 		}
 	}
 
-	//TODO RN: fix this
-	void filter(LLFolderViewFolder* folder)
-	{
-		
-	}
-
 protected:
 	SortType		mSorter;
 	FilterType		mFilter;
@@ -264,7 +257,7 @@ public:
 	
 	virtual bool potentiallyVisible() = 0; // is the item definitely visible or we haven't made up our minds yet?
 
-	virtual void filter( LLFolderViewFilter& filter) = 0;
+	virtual bool filter( LLFolderViewFilter& filter) = 0;
 	virtual bool passedFilter(S32 filter_generation = -1) = 0;
 	virtual bool descendantsPassedFilter(S32 filter_generation = -1) = 0;
 	virtual void setPassedFilter(bool passed, bool passed_folder, S32 filter_generation) = 0;
@@ -306,8 +299,8 @@ class LLFolderViewModelItemCommon : public LLFolderViewModelItem
 public:
 	LLFolderViewModelItemCommon()
 	:	mSortVersion(-1),
-		mPassedFilter(false),
-		mPassedFolderFilter(false),
+		mPassedFilter(true),
+		mPassedFolderFilter(true),
 		mFolderViewItem(NULL),
 		mLastFilterGeneration(-1),
 		mMostFilteredDescendantGeneration(-1),
