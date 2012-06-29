@@ -359,7 +359,7 @@ void LLIMConversation::onClose(bool app_quitting)
 		LLIMFloaterContainer* im_box = LLIMFloaterContainer::findInstance();
 		if (im_box)
 		{
-            im_box->removeConversationListItem(mSessionID,this);
+            im_box->removeConversationListItem(this);
         }
     }
 }

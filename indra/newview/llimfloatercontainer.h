@@ -48,8 +48,8 @@ class LLIMFloaterContainer;
 // CHUI-137 : Temporary implementation of conversations list
 class LLConversationItem;
 
-typedef std::map<LLUUID, LLConversationItem*> conversations_items_map;
-typedef std::map<LLUUID, LLFolderViewItem*> conversations_widgets_map;
+typedef std::map<LLFloater*, LLConversationItem*> conversations_items_map;
+typedef std::map<LLFloater*, LLFolderViewItem*> conversations_widgets_map;
 
 // Conversation items: we hold a list of those and create an LLFolderViewItem widget for each  
 // that we tuck into the mConversationsListPanel. 
@@ -113,8 +113,8 @@ public:
 							void* cargo_data,
 							std::string& tooltip_msg) { return FALSE; }
 	
-	bool hasSameValues(std::string name, LLFloater* floaterp) { return ((name == mName) && (floaterp == mFloater)); }
-	bool hasSameValue(LLFloater* floaterp) { return (floaterp == mFloater); }
+	bool hasSameValues(std::string name, const LLUUID& uuid) { return ((name == mName) && (uuid == mUUID)); }
+	bool hasSameValue(const LLUUID& uuid) { return (uuid == mUUID); }
 private:
 	std::string mName;
 	const LLUUID mUUID;
@@ -186,9 +186,9 @@ private:
 	
 	// CHUI-137 : Temporary implementation of conversations list
 public:
-	void removeConversationListItem(const LLUUID& session_id, LLFloater* floaterp, bool change_focus = true);
+	void removeConversationListItem(LLFloater* floaterp, bool change_focus = true);
 	void addConversationListItem(std::string name, const LLUUID& uuid, LLFloater* floaterp);
-	bool findConversationItem(LLFloater* floaterp, LLUUID& uuid);
+	LLFloater* findConversationItem(LLUUID& uuid);
 private:
 	LLFolderViewItem* createConversationItemWidget(LLConversationItem* item);
 	// Conversation list data

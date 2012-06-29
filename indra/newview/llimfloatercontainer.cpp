@@ -293,9 +293,9 @@ void LLIMFloaterContainer::setVisible(BOOL visible)
 	if (visible)
 	{
 		// Make sure we have the Nearby Chat present when showing the conversation container
-		LLUUID nearbychat_uuid = LLUUID::null;	// Hacky but true: the session id for nearby chat is null
-		conversations_items_map::iterator item_it = mConversationsItems.find(nearbychat_uuid);
-		if (item_it == mConversationsItems.end())
+		LLUUID nearbychat_uuid = LLUUID::null;	// Hacky but true: the session id for nearby chat is always null
+		LLFloater* floaterp = findConversationItem(nearbychat_uuid);
+		if (floaterp == NULL)
 		{
 			// If not found, force the creation of the nearby chat conversation panel
 			// *TODO: find a way to move this to XML as a default panel or something like that
@@ -407,14 +407,14 @@ void LLIMFloaterContainer::onAvatarPicked(const uuid_vec_t& ids)
 // CHUI-137 : Temporary implementation of conversations list
 void LLIMFloaterContainer::addConversationListItem(std::string name, const LLUUID& uuid, LLFloater* floaterp)
 {
-	// Check if the item is not already in the list, exit if it is and has the same name and points to the same floater (nothing to do)
+	// Check if the item is not already in the list, exit if it is and has the same name and uuid (nothing to do)
 	// Note: this happens often, when reattaching a torn off conversation for instance
-	conversations_items_map::iterator item_it = mConversationsItems.find(uuid);
+	conversations_items_map::iterator item_it = mConversationsItems.find(floaterp);
 	if (item_it != mConversationsItems.end())
 	{
 		LLConversationItem* item = item_it->second;
 		// Check if the item has changed
-		if (item->hasSameValues(name,floaterp))
+		if (item->hasSameValues(name,uuid))
 		{
 			// If it hasn't changed, nothing to do -> exit
 			return;
@@ -423,15 +423,15 @@ void LLIMFloaterContainer::addConversationListItem(std::string name, const LLUUI
 	
 	// Remove the conversation item that might exist already: it'll be recreated anew further down anyway
 	// and nothing wrong will happen removing it if it doesn't exist
-	removeConversationListItem(uuid,floaterp,false);
+	removeConversationListItem(floaterp,false);
 
 	// Create a conversation item
 	LLConversationItem* item = new LLConversationItem(name, uuid, floaterp, this);
-	mConversationsItems[uuid] = item;
+	mConversationsItems[floaterp] = item;
 
 	// Create a widget from it
 	LLFolderViewItem* widget = createConversationItemWidget(item);
-	mConversationsWidgets[uuid] = widget;
+	mConversationsWidgets[floaterp] = widget;
 
 	// Add it to the UI
 	widget->setVisible(TRUE);
@@ -446,23 +446,12 @@ void LLIMFloaterContainer::addConversationListItem(std::string name, const LLUUI
 	return;
 }
 
-void LLIMFloaterContainer::removeConversationListItem(const LLUUID& session_id, LLFloater* floaterp, bool change_focus)
+void LLIMFloaterContainer::removeConversationListItem(LLFloater* floaterp, bool change_focus)
 {
-	// Reverse find : we need to find the item that point to that floater
-	// Note : the session UUID actually might change so we cannot really use it here
-	// *TODO : Change the structure so that we use the floaterp and not the uuid as a map index
-	LLUUID found_id = LLUUID::null;
-	if (!findConversationItem(floaterp,found_id))
-	{
-		// If the floater wasn't found, we trust the passed id
-		// Note: in most cases, the id doesn't correspond to any conversation either
-		found_id = session_id;
-	}
-
 	// Delete the widget and the associated conversation item
 	// Note : since the mConversationsItems is also the listener to the widget, deleting 
 	// the widget will also delete its listener
-	conversations_widgets_map::iterator widget_it = mConversationsWidgets.find(found_id);
+	conversations_widgets_map::iterator widget_it = mConversationsWidgets.find(floaterp);
 	if (widget_it != mConversationsWidgets.end())
 	{
 		LLFolderViewItem* widget = widget_it->second;
@@ -470,8 +459,8 @@ void LLIMFloaterContainer::removeConversationListItem(const LLUUID& session_id, 
 	}
 	
 	// Suppress the conversation items and widgets from their respective maps
-	mConversationsItems.erase(found_id);
-	mConversationsWidgets.erase(found_id);
+	mConversationsItems.erase(floaterp);
+	mConversationsWidgets.erase(floaterp);
 
 	// Reposition the leftover conversation items
 	LLRect panel_rect = mConversationsListPanel->getRect();
@@ -500,20 +489,19 @@ void LLIMFloaterContainer::removeConversationListItem(const LLUUID& session_id, 
 	return;
 }
 
-bool LLIMFloaterContainer::findConversationItem(LLFloater* floaterp, LLUUID& uuid)
+LLFloater* LLIMFloaterContainer::findConversationItem(LLUUID& uuid)
 {
-	bool found = false;
+	LLFloater* floaterp = NULL;
 	for (conversations_items_map::iterator item_it = mConversationsItems.begin(); item_it != mConversationsItems.end(); ++item_it)
 	{
 		LLConversationItem* item = item_it->second;
-		uuid = item_it->first;
-		if (item->hasSameValue(floaterp))
+		if (item->hasSameValue(uuid))
 		{
-			found = true;
+			floaterp = item_it->first;
 			break;
 		}
 	}
-	return found;
+	return floaterp;
 }
 
 LLFolderViewItem* LLIMFloaterContainer::createConversationItemWidget(LLConversationItem* item)
