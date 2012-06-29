@@ -137,7 +137,7 @@
 		Выйти
 	</string>
 	<string name="create_account_url">
-		http://join.secondlife.com/
+		http://join.secondlife.com/index.php?lang=ru-RU
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		У клиента, которым вы пользуетесь, больше нет доступа к игре Second Life. Загрузить новую версию клиента можно по адресу

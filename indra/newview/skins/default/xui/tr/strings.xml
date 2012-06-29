@@ -137,7 +137,7 @@
 		Çık
 	</string>
 	<string name="create_account_url">
-		http://join.secondlife.com/
+		http://join.secondlife.com/index.php?lang=tr-TR
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		Kullandığınız görüntüleyici ile artık Second Life&apos;a erişemezsiniz. Yeni bir görüntüleyiciyi karşıdan yüklemek için lütfen şu sayfayı ziyaret edin:
