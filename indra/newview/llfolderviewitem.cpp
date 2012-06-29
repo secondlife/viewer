@@ -123,7 +123,10 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 	mListener(p.listener),
 	mIsMouseOverTitle(false)
 {
-	mListener->setFolderViewItem(this);
+	if (mListener)
+	{
+		mListener->setFolderViewItem(this);
+	}
 }
 
 BOOL LLFolderViewItem::postBuild()

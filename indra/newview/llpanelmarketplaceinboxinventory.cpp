@@ -111,6 +111,7 @@ void LLInboxInventoryPanel::buildFolderView(const LLInventoryPanel::Params& para
 																	LLAssetType::AT_CATEGORY,
 																	LLInventoryType::IT_CATEGORY,
 																	this,
+																	&mInventoryViewModel,
 																	NULL,
 																	root_id);
 	

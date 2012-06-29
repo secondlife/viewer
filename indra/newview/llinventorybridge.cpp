@@ -1026,6 +1026,7 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 										   LLAssetType::EType actual_asset_type,
 										   LLInventoryType::EType inv_type,
 										   LLInventoryPanel* inventory,
+										   LLFolderViewModelInventory* view_model,
 										   LLFolderView* root,
 										   const LLUUID& uuid,
 										   U32 flags)
@@ -1151,12 +1152,13 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 		default:
 			llinfos << "Unhandled asset type (llassetstorage.h): "
 					<< (S32)asset_type << " (" << LLAssetType::lookup(asset_type) << ")" << llendl;
-			break;
+			break;	
 	}
 
 	if (new_listener)
 	{
 		new_listener->mInvType = inv_type;
+		new_listener->setRootViewModel(view_model);
 	}
 
 	return new_listener;
@@ -1332,6 +1334,7 @@ LLInvFVBridge* LLInventoryFVBridgeBuilder::createBridge(LLAssetType::EType asset
 														LLAssetType::EType actual_asset_type,
 														LLInventoryType::EType inv_type,
 														LLInventoryPanel* inventory,
+														LLFolderViewModelInventory* view_model,
 														LLFolderView* root,
 														const LLUUID& uuid,
 														U32 flags /* = 0x00 */) const
@@ -1340,6 +1343,7 @@ LLInvFVBridge* LLInventoryFVBridgeBuilder::createBridge(LLAssetType::EType asset
 									   actual_asset_type,
 									   inv_type,
 									   inventory,
+									   view_model,
 									   root,
 									   uuid,
 									   flags);
@@ -6472,41 +6476,30 @@ LLInvFVBridge* LLRecentInventoryBridgeBuilder::createBridge(
 	LLAssetType::EType actual_asset_type,
 	LLInventoryType::EType inv_type,
 	LLInventoryPanel* inventory,
+	LLFolderViewModelInventory* view_model,
 	LLFolderView* root,
 	const LLUUID& uuid,
 	U32 flags /*= 0x00*/ ) const
 {
 	LLInvFVBridge* new_listener = NULL;
-	switch(asset_type)
+	if (asset_type == LLAssetType::AT_CATEGORY 
+		&& actual_asset_type != LLAssetType::AT_LINK_FOLDER)
 	{
-	case LLAssetType::AT_CATEGORY:
-		if (actual_asset_type == LLAssetType::AT_LINK_FOLDER)
-		{
-			// *TODO: Create a link folder handler instead if it is necessary
-			new_listener = LLInventoryFVBridgeBuilder::createBridge(
-				asset_type,
-				actual_asset_type,
-				inv_type,
-				inventory,
-				root,
-				uuid,
-				flags);
-			break;
-		}
 		new_listener = new LLRecentItemsFolderBridge(inv_type, inventory, root, uuid);
-		break;
-	default:
-		new_listener = LLInventoryFVBridgeBuilder::createBridge(
-			asset_type,
-			actual_asset_type,
-			inv_type,
-			inventory,
-			root,
-			uuid,
-			flags);
+		new_listener->setRootViewModel(view_model);
+	}
+	else
+	{
+		new_listener = LLInventoryFVBridgeBuilder::createBridge(asset_type,
+																actual_asset_type,
+																inv_type,
+																inventory,
+																view_model,
+																root,
+																uuid,
+																flags);
 	}
 	return new_listener;
-
 }
 
 // EOF

@@ -42,11 +42,19 @@
 class LLInvFVBridge;
 class LLInventoryFVBridgeBuilder;
 class LLInvPanelComplObserver;
+class LLFolderViewModelInventory;
 
 class LLFolderViewModelItemInventory
 	:	public LLFolderViewModelItemCommon
 {
 public:
+	LLFolderViewModelItemInventory()
+	:	mRootViewModel(NULL)
+	{}
+	void setRootViewModel(LLFolderViewModelInventory* root_view_model)
+	{
+		mRootViewModel = root_view_model;
+	}
 	virtual const LLUUID& getUUID() const = 0;
 	virtual time_t getCreationDate() const = 0;	// UTC seconds
 	virtual void setCreationDate(time_t creation_date_utc) = 0;
@@ -68,6 +76,8 @@ public:
 	virtual void setPassedFilter(bool filtered, bool filtered_folder, S32 filter_generation);
 	virtual void filter( LLFolderViewFilter& filter);
 	virtual void filterChildItem( LLFolderViewModelItem* item, LLFolderViewFilter& filter);
+protected:
+	LLFolderViewModelInventory* mRootViewModel;
 };
 
 class LLInventorySort
@@ -243,8 +253,8 @@ public:
 	void setSelectionByID(const LLUUID& obj_id, BOOL take_keyboard_focus);
 	void updateSelection();
 	 	
-	LLFolderViewModelInventory* getFolderViewModel() { return &mViewModel; }
-	const LLFolderViewModelInventory* getFolderViewModel() const { return &mViewModel; }
+	LLFolderViewModelInventory* getFolderViewModel();
+	const LLFolderViewModelInventory* getFolderViewModel() const;
 
 protected:
 	void openStartFolderOrMyInventory(); // open the first level of inventory
@@ -262,8 +272,8 @@ protected:
 	LLFolderView*				mFolderRoot;
 	LLScrollContainer*			mScroller;
 
-	LLFolderViewModelInventory	mViewModel;
-	
+	LLFolderViewModelInventory	mInventoryViewModel;
+
 	std::map<LLUUID, LLFolderViewItem*> mItemMap;
 	/**
 	 * Pointer to LLInventoryFVBridgeBuilder.

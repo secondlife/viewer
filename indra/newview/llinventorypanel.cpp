@@ -234,6 +234,7 @@ void LLInventoryPanel::buildFolderView(const LLInventoryPanel::Params& params)
 																	LLAssetType::AT_CATEGORY,
 																	LLInventoryType::IT_CATEGORY,
 																	this,
+																	&mInventoryViewModel,
 																	NULL,
 																	root_id);
 	
@@ -672,7 +673,7 @@ LLFolderView * LLInventoryPanel::createFolderView(LLInvFVBridge * bridge, bool u
 	p.parent_panel = this;
 	p.tool_tip = p.name;
 	p.listener = bridge;
-	p.view_model = new LLFolderViewModelInventory();
+	p.view_model = &mInventoryViewModel;
 	p.use_label_suffix = useLabelSuffix;
 	p.allow_multiselect = mAllowMultiSelect;
 	p.show_empty_message = mShowEmptyMessage;
@@ -736,6 +737,7 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
   																			objectp->getType(),
   																			LLInventoryType::IT_CATEGORY,
   																			this,
+																			&mInventoryViewModel,
   																			mFolderRoot,
   																			objectp->getUUID());
   			if (new_listener)
@@ -751,6 +753,7 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
   																			item->getActualType(),
   																			item->getInventoryType(),
   																			this,
+																			&mInventoryViewModel,
   																			mFolderRoot,
   																			item->getUUID(),
   																			item->getFlags());
@@ -1130,7 +1133,6 @@ LLInventoryPanel* LLInventoryPanel::getActiveInventoryPanel(BOOL auto_open)
 	if (!floater_inventory)
 	{
 		llwarns << "Could not find My Inventory floater" << llendl;
-
 		return FALSE;
 	}
 
@@ -1347,25 +1349,27 @@ LLInventoryRecentItemsPanel::LLInventoryRecentItemsPanel( const Params& params)
 void LLFolderViewModelItemInventory::requestSort()
 {
 	LLFolderViewModelItemCommon::requestSort();
-	//TODO RN: need better way to get to root viewmodel, also consider reflecting hierarchy in viewmodel space as well
-	if (static_cast<LLFolderViewModelInventory*>(mFolderViewItem->getRoot()->getFolderViewModel())->getSorter().isByDate())
+	if (mRootViewModel->getSorter().isByDate())
 	{
 		// sort by date potentially affects parent folders which use a date
 		// derived from newest item in them
-		mFolderViewItem->getParentFolder()->getViewModelItem()->requestSort();
+		if (mParent)
+		{
+			mParent->requestSort();
+		}
 	}
 }
 
 bool LLFolderViewModelItemInventory::potentiallyVisible()
 {
 	return passedFilter() // we've passed the filter
-		|| getLastFilterGeneration() < mFolderViewItem->getRoot()->getFolderViewModel()->getFilter()->getFirstSuccessGeneration() // or we don't know yet
+		|| getLastFilterGeneration() < mRootViewModel->getFilter()->getFirstSuccessGeneration() // or we don't know yet
 		|| descendantsPassedFilter();
 }
 
 bool LLFolderViewModelItemInventory::passedFilter(S32 filter_generation) 
 { 
-	if (filter_generation < 0) filter_generation = mFolderViewItem->getRoot()->getFolderViewModel()->getFilter()->getFirstSuccessGeneration();
+	if (filter_generation < 0) filter_generation = mRootViewModel->getFilter()->getFirstSuccessGeneration();
 	return mPassedFolderFilter 
 		&& mLastFilterGeneration >= filter_generation
 		&& (mPassedFilter || descendantsPassedFilter(filter_generation));
@@ -1373,7 +1377,7 @@ bool LLFolderViewModelItemInventory::passedFilter(S32 filter_generation)
 
 bool LLFolderViewModelItemInventory::descendantsPassedFilter(S32 filter_generation)
 { 
-	if (filter_generation < 0) filter_generation = mFolderViewItem->getRoot()->getFolderViewModel()->getFilter()->getFirstSuccessGeneration();
+	if (filter_generation < 0) filter_generation = mRootViewModel->getFilter()->getFirstSuccessGeneration();
 	return mMostFilteredDescendantGeneration >= filter_generation; 
 }
 
@@ -1419,8 +1423,9 @@ void LLFolderViewModelItemInventory::filterChildItem( LLFolderViewModelItem* ite
 
 void LLFolderViewModelItemInventory::filter( LLFolderViewFilter& filter)
 {
-	if(getLastFilterGeneration() < filter.getFirstRequiredGeneration() // haven't checked descendants against minimum required generation to pass
-		|| descendantsPassedFilter(filter.getFirstRequiredGeneration())) // or at least one descendant has passed the minimum requirement
+	if(!mChildren.empty()
+		&& (getLastFilterGeneration() < filter.getFirstRequiredGeneration() // haven't checked descendants against minimum required generation to pass
+			|| descendantsPassedFilter(filter.getFirstRequiredGeneration()))) // or at least one descendant has passed the minimum requirement
 	{
 		// now query children
 		for (child_list_t::iterator iter = mChildren.begin();
@@ -1456,3 +1461,15 @@ void LLFolderViewModelItemInventory::filter( LLFolderViewFilter& filter)
 		filter.decrementFilterCount();
 	}
 }
+
+LLFolderViewModelInventory* LLInventoryPanel::getFolderViewModel()
+{
+	return &mInventoryViewModel;
+}
+
+
+const LLFolderViewModelInventory* LLInventoryPanel::getFolderViewModel() const
+{
+	return &mInventoryViewModel;
+}
+

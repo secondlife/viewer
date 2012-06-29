@@ -89,6 +89,7 @@ public:
 											LLAssetType::EType actual_asset_type,
 											LLInventoryType::EType inv_type,
 											LLInventoryPanel* inventory,
+											LLFolderViewModelInventory* view_model,
 											LLFolderView* root,
 											const LLUUID& uuid,
 											U32 flags = 0x00) const;

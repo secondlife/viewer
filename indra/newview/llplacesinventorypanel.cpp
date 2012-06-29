@@ -87,6 +87,7 @@ void LLPlacesInventoryPanel::buildFolderView(const LLInventoryPanel::Params& par
 													LLAssetType::AT_CATEGORY,
 													LLInventoryType::IT_CATEGORY,
 													this,
+													&mInventoryViewModel,
 													NULL,
 													root_id);
 	p.parent_panel = this;
