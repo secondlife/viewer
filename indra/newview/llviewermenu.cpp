@@ -7086,8 +7086,8 @@ BOOL enable_save_into_inventory(void*)
 			return TRUE;
 		}
 	}
-#endif
 	return FALSE;
+#endif
 }
 
 class LLToolsEnableSaveToInventory : public view_listener_t
