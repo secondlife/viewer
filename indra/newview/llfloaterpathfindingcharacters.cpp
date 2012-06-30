@@ -205,17 +205,14 @@ LLSD LLFloaterPathfindingCharacters::buildCharacterScrollListData(const LLPathfi
 
 	columns[0]["column"] = "name";
 	columns[0]["value"] = pCharacterPtr->getName();
-	columns[0]["font"] = "SANSSERIF";
 
 	columns[1]["column"] = "description";
 	columns[1]["value"] = pCharacterPtr->getDescription();
-	columns[1]["font"] = "SANSSERIF";
 
 	columns[2]["column"] = "owner";
 	columns[2]["value"] = (pCharacterPtr->hasOwner() ?
 		(pCharacterPtr->hasOwnerName() ? pCharacterPtr->getOwnerName() : getString("character_owner_loading")) :
 		getString("character_owner_unknown"));
-	columns[2]["font"] = "SANSSERIF";
 
 	S32 cpuTime = llround(pCharacterPtr->getCPUTime());
 	std::string cpuTimeString = llformat("%d", cpuTime);
@@ -224,11 +221,9 @@ LLSD LLFloaterPathfindingCharacters::buildCharacterScrollListData(const LLPathfi
 
 	columns[3]["column"] = "cpu_time";
 	columns[3]["value"] = getString("character_cpu_time", string_args);
-	columns[3]["font"] = "SANSSERIF";
 
 	columns[4]["column"] = "altitude";
 	columns[4]["value"] = llformat("%1.0f m", pCharacterPtr->getLocation()[2]);
-	columns[4]["font"] = "SANSSERIF";
 
 	LLSD element;
 	element["id"] = pCharacterPtr->getUUID().asString();

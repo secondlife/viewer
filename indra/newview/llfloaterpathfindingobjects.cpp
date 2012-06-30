@@ -41,10 +41,12 @@
 #include "llcheckboxctrl.h"
 #include "llenvmanager.h"
 #include "llfloater.h"
+#include "llfontgl.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llpathfindingmanager.h"
 #include "llresmgr.h"
+#include "llscrolllistcell.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
 #include "llselectmgr.h"
@@ -346,10 +348,38 @@ void LLFloaterPathfindingObjects::rebuildObjectsScrollList()
 	{
 		LLSD scrollListData = convertObjectsIntoScrollListData(mObjectList);
 		llassert(scrollListData.isArray());
-		for (LLSD::array_const_iterator elementIter = scrollListData.beginArray(); elementIter != scrollListData.endArray(); ++elementIter)
+
+		LLScrollListCell::Params cellParams;
+		cellParams.font = LLFontGL::getFontSansSerif();
+
+		for (LLSD::array_const_iterator rowElementIter = scrollListData.beginArray(); rowElementIter != scrollListData.endArray(); ++rowElementIter)
 		{
-			const LLSD &element = *elementIter;
-			mObjectsScrollList->addElement(element);
+			const LLSD &rowElement = *rowElementIter;
+
+			LLScrollListItem::Params rowParams;
+			llassert(rowElement.has("id"));
+			llassert(rowElement.get("id").isString());
+			rowParams.value = rowElement.get("id");
+
+			llassert(rowElement.has("column"));
+			llassert(rowElement.get("column").isArray());
+			const LLSD &columnElement = rowElement.get("column");
+			for (LLSD::array_const_iterator cellIter = columnElement.beginArray(); cellIter != columnElement.endArray(); ++cellIter)
+			{
+				const LLSD &cellElement = *cellIter;
+
+				llassert(cellElement.has("column"));
+				llassert(cellElement.get("column").isString());
+				cellParams.column = cellElement.get("column").asString();
+
+				llassert(cellElement.has("value"));
+				llassert(cellElement.get("value").isString());
+				cellParams.value = cellElement.get("value").asString();
+
+				rowParams.columns.add(cellParams);
+			}
+
+			mObjectsScrollList->addRow(rowParams);
 		}
 	}
 
