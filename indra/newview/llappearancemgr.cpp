@@ -2607,7 +2607,7 @@ public:
 
 void LLAppearanceMgr::requestServerAppearanceUpdate()
 {
-	std::string url = gAgent.getRegion()->getCapability("UpdateAgentAppearance");	
+	std::string url = gAgent.getRegion()->getCapability("UpdateAvatarAppearance");	
 	if (!url.empty())
 	{
 		LLSD body;
@@ -2615,7 +2615,7 @@ void LLAppearanceMgr::requestServerAppearanceUpdate()
 	}
 	else
 	{
-		llwarns << "no cap for UpdateAgentAppearance" << llendl;
+		llwarns << "no cap for UpdateAvatarAppearance" << llendl;
 	}
 }
 
