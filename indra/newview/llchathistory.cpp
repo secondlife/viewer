@@ -734,17 +734,23 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	}
 
 	LLColor4 txt_color = LLUIColorTable::instance().getColor("White");
+	LLColor4 name_color(txt_color);
+
 	LLViewerChat::getChatColor(chat,txt_color);
 	LLFontGL* fontp = LLViewerChat::getChatFont();	
 	std::string font_name = LLFontGL::nameFromFont(fontp);
 	std::string font_size = LLFontGL::sizeFromFont(fontp);
 
-	LLStyle::Params style_params;
-	style_params.color(txt_color);
-	style_params.readonly_color(txt_color);
-	style_params.font.name(font_name);
-	style_params.font.size(font_size);	
-	style_params.font.style(input_append_params.font.style);
+	LLStyle::Params body_message_params;
+	body_message_params.color(txt_color);
+	body_message_params.readonly_color(txt_color);
+	body_message_params.font.name(font_name);
+	body_message_params.font.size(font_size);
+	body_message_params.font.style(input_append_params.font.style);
+
+	LLStyle::Params name_params(body_message_params);
+	name_params.color(name_color);
+	name_params.readonly_color(name_color);
 
 	std::string prefix = chat.mText.substr(0, 4);
 
@@ -767,7 +773,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	if (irc_me || chat.mChatStyle == CHAT_STYLE_IRC)
 	{
 		delimiter = LLStringUtil::null;
-		style_params.font.style = "ITALIC";
+		name_params.font.style = "ITALIC";
 	}
 
 	bool message_from_log = chat.mChatStyle == CHAT_STYLE_HISTORY;
@@ -775,18 +781,20 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	if (message_from_log)
 	{
 		txt_color = LLColor4::grey;
-		style_params.color(txt_color);
-		style_params.readonly_color(txt_color);
+		body_message_params.color(txt_color);
+		body_message_params.readonly_color(txt_color);
+		name_params.color(txt_color);
+		name_params.readonly_color(txt_color);
 	}
 
 	bool prependNewLineState = mEditor->getText().size() != 0;
 
-	// show timestamps and names in the compact mode
+	// compact mode: show a timestamp and name
 	if (use_plain_text_chat_history)
 	{
 		square_brackets = chat.mFromName == SYSTEM_FROM;
 
-		LLStyle::Params timestamp_style(style_params);
+		LLStyle::Params timestamp_style(body_message_params);
 
 		// out of the timestamp
 		if (args["show_time"].asBoolean())
@@ -804,7 +812,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
         // out the opening square bracket (if need)
 		if (square_brackets)
 		{
-			mEditor->appendText("[", prependNewLineState, style_params);
+			mEditor->appendText("[", prependNewLineState, body_message_params);
 			prependNewLineState = false;
 		}
 
@@ -819,7 +827,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 
 				// set the link for the object name to be the objectim SLapp
 				// (don't let object names with hyperlinks override our objectim Url)
-				LLStyle::Params link_params(style_params);
+				LLStyle::Params link_params(body_message_params);
 				LLColor4 link_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
 				link_params.color = link_color;
 				link_params.readonly_color = link_color;
@@ -831,7 +839,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			}
 			else if ( chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() && !message_from_log)
 			{
-				LLStyle::Params link_params(style_params);
+				LLStyle::Params link_params(body_message_params);
 				link_params.overwriteFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
 
 				if (from_me)
@@ -852,7 +860,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			else
 			{
 				mEditor->appendText("<nolink>" + chat.mFromName + "</nolink>" + delimiter,
-						prependNewLineState, style_params);
+						prependNewLineState, body_message_params);
 				prependNewLineState = false;
 			}
 		}
@@ -880,7 +888,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		}
 		else
 		{
-			view = getHeader(chat, style_params, args);
+			view = getHeader(chat, name_params, args);
 			if (mEditor->getText().size() == 0)
 				p.top_pad = 0;
 			else
@@ -909,6 +917,9 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		mIsLastMessageFromLog = message_from_log;
 	}
 
+	// body of the message processing
+
+	// notify processing
 	if (chat.mNotifId.notNull())
 	{
 		LLNotificationPtr notification = LLNotificationsUtil::find(chat.mNotifId);
@@ -932,6 +943,8 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			mEditor->appendWidget(params, "\n", false);
 		}
 	}
+
+	// usual messages showing
 	else
 	{
 		std::string message = irc_me ? chat.mText.substr(3) : chat.mText;
@@ -959,7 +972,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			message += "]";
 		}
 
-		mEditor->appendText(message, prependNewLineState, style_params);
+		mEditor->appendText(message, prependNewLineState, body_message_params);
 		prependNewLineState = false;
 	}
 
