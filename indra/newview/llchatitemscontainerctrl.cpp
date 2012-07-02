@@ -96,8 +96,15 @@ void	LLNearbyChatToastPanel::reshape		(S32 width, S32 height, BOOL called_from_p
 {
 	LLPanel::reshape(width, height,called_from_parent);
 
-	LLUICtrl* msg_text = getChild<LLUICtrl>("msg_text", false);
-	LLUICtrl* icon = getChild<LLUICtrl>("avatar_icon", false);
+	// reshape() may be called from LLView::initFromParams() before the children are created.
+	// We call findChild() instead of getChild() here to avoid creating dummy controls.
+	LLUICtrl* msg_text = findChild<LLUICtrl>("msg_text", false);
+	LLUICtrl* icon = findChild<LLUICtrl>("avatar_icon", false);
+
+	if (!msg_text || !icon)
+	{
+		return;
+	}
 
 	LLRect msg_text_rect = msg_text->getRect();
 	LLRect avatar_rect = icon->getRect();
@@ -355,6 +362,8 @@ BOOL	LLNearbyChatToastPanel::handleRightMouseDown(S32 x, S32 y, MASK mask)
 }
 void LLNearbyChatToastPanel::draw()
 {
+	LLPanel::draw();
+
 	if(mIsDirty)
 	{
 		LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon", false);
