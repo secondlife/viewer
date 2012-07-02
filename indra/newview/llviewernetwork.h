@@ -195,8 +195,9 @@ class LLGridManager : public LLSingleton<LLGridManager>
 
   private:
 	
-	/// Add a grid to the list of grids
-	void addGrid(LLSD& grid_info);	
+	/// Add a grid to the list of grids 
+	bool addGrid(LLSD& grid_info);
+	///< @returns true if successfully added
 
 	/// find the LLSD definition for a given grid
 	void getGridInfo(const std::string& grid, LLSD &grid_info);
