@@ -440,7 +440,7 @@ void show_item_original(const LLUUID& item_uuid)
 	//sidetray inventory panel
 	LLSidepanelInventory *sidepanel_inventory =	LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
 
-	bool reset_inventory_filter = !floater_inventory->isInVisibleChain();
+	bool do_reset_inventory_filter = !floater_inventory->isInVisibleChain();
 
 	LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel();
 	if (!active_panel) 
@@ -460,36 +460,48 @@ void show_item_original(const LLUUID& item_uuid)
 	}
 	active_panel->setSelection(gInventory.getLinkedItemID(item_uuid), TAKE_FOCUS_NO);
 	
-	if(reset_inventory_filter)
+	if(do_reset_inventory_filter)
 	{
-		//inventory floater
-		bool floater_inventory_visible = false;
-
-		LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("inventory");
-		for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin(); iter != inst_list.end(); ++iter)
-		{
-			LLFloaterInventory* floater_inventory = dynamic_cast<LLFloaterInventory*>(*iter);
-			if (floater_inventory)
-			{
-				LLPanelMainInventory* main_inventory = floater_inventory->getMainInventoryPanel();
-
-				main_inventory->onFilterEdit("");
-
-				if(floater_inventory->getVisible())
-				{
-					floater_inventory_visible = true;
-				}
-			}
-		}
-		if(sidepanel_inventory && !floater_inventory_visible)
-		{
-			LLPanelMainInventory* main_inventory = sidepanel_inventory->getMainInventoryPanel();
-
-			main_inventory->onFilterEdit("");
-		}
+		reset_inventory_filter();
 	}
 }
 
+
+void reset_inventory_filter()
+{
+	//inventory floater
+	bool floater_inventory_visible = false;
+
+	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("inventory");
+	for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin(); iter != inst_list.end(); ++iter)
+	{
+		LLFloaterInventory* floater_inventory = dynamic_cast<LLFloaterInventory*>(*iter);
+		if (floater_inventory)
+		{
+			LLPanelMainInventory* main_inventory = floater_inventory->getMainInventoryPanel();
+
+			main_inventory->onFilterEdit("");
+
+			if(floater_inventory->getVisible())
+			{
+				floater_inventory_visible = true;
+			}
+		}
+	}
+
+	if(!floater_inventory_visible)
+	{
+		LLSidepanelInventory *sidepanel_inventory =	LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
+		if (sidepanel_inventory)
+		{
+			LLPanelMainInventory* main_inventory = sidepanel_inventory->getMainInventoryPanel();
+			if (main_inventory)
+			{
+				main_inventory->onFilterEdit("");
+			}
+		}
+	}
+}
 
 void open_outbox()
 {
