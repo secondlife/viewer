@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2012, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -74,7 +74,7 @@ static std::string title_string4("  W x H (Dis) Mem");
 static S32 title_x1 = 0;
 static S32 title_x2 = 460;
 static S32 title_x3 = title_x2 + 40;
-static S32 title_x4 = title_x3 + 50;
+static S32 title_x4 = title_x3 + 46;
 static S32 texture_bar_height = 8;
 
 ////////////////////////////////////////////////////////////////////////////
@@ -232,6 +232,8 @@ void LLTextureBar::draw()
 		{ "DSK", LLColor4::blue },	// CACHE_POST
 		{ "NET", LLColor4::green },	// LOAD_FROM_NETWORK
 		{ "SIM", LLColor4::green },	// LOAD_FROM_SIMULATOR
+		{ "HTW", LLColor4::green },	// WAIT_HTTP_RESOURCE
+		{ "HTW", LLColor4::green },	// WAIT_HTTP_RESOURCE2
 		{ "REQ", LLColor4::yellow },// SEND_HTTP_REQ
 		{ "HTP", LLColor4::green },	// WAIT_HTTP_REQ
 		{ "DEC", LLColor4::yellow },// DECODE_IMAGE
@@ -239,7 +241,7 @@ void LLTextureBar::draw()
 		{ "WRT", LLColor4::purple },// WRITE_TO_CACHE
 		{ "WRT", LLColor4::orange },// WAIT_ON_WRITE
 		{ "END", LLColor4::red },   // DONE
-#define LAST_STATE 12
+#define LAST_STATE 14
 		{ "CRE", LLColor4::magenta }, // LAST_STATE+1
 		{ "FUL", LLColor4::green }, // LAST_STATE+2
 		{ "BAD", LLColor4::red }, // LAST_STATE+3
@@ -345,7 +347,7 @@ void LLTextureBar::draw()
 		
 		// draw the image size at the end
 		{
-			std::string num_str = llformat("%3dx%3d (%d) %7d", mImagep->getWidth(), mImagep->getHeight(),
+			std::string num_str = llformat("%3dx%3d (%2d) %7d", mImagep->getWidth(), mImagep->getHeight(),
 				mImagep->getDiscardLevel(), mImagep->hasGLTexture() ? mImagep->getTextureMemory() : 0);
 			LLFontGL::getFontMonospace()->renderUTF8(num_str, 0, title_x4, getRect().getHeight(), color,
 											LLFontGL::LEFT, LLFontGL::TOP);
@@ -519,9 +521,13 @@ void LLGLTexMemBar::draw()
 	LLGLSUIDefault gls_ui;
 	LLColor4 text_color(1.f, 1.f, 1.f, 0.75f);
 	LLColor4 color;
-	
-	std::string text = "";
 
+	// Gray background using completely magic numbers
+	gGL.color4f(0.f, 0.f, 0.f, 0.25f);
+	const LLRect & rect(getRect());
+	gl_rect_2d(-4, v_offset, rect.mRight - rect.mLeft + 2, v_offset + line_height*4);
+
+	std::string text = "";
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*6,
 											 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
@@ -531,14 +537,26 @@ void LLGLTexMemBar::draw()
 					bound_mem,
 					max_bound_mem,
 					LLRenderTarget::sBytesAllocated/(1024*1024),
-					LLImageRaw::sGlobalRawMemory >> 20,	discard_bias,
-					cache_usage, cache_max_usage);
+					LLImageRaw::sGlobalRawMemory >> 20,
+					discard_bias,
+					cache_usage,
+					cache_max_usage);
+	//, cache_entries, cache_max_entries
+
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*4,
 											 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
-	text = llformat("Net Tot Tex: %.1f MB Tot Obj: %.1f MB Tot Htp: %d",
-					total_texture_downloaded, total_object_downloaded, total_http_requests);
-	//, cache_entries, cache_max_entries
+	U32 cache_read(0U), cache_write(0U), res_wait(0U);
+	LLAppViewer::getTextureFetch()->getStateStats(&cache_read, &cache_write, &res_wait);
+	
+	text = llformat("Net Tot Tex: %.1f MB Tot Obj: %.1f MB Tot Htp: %d Cread: %u Cwrite: %u Rwait: %u",
+					total_texture_downloaded,
+					total_object_downloaded,
+					total_http_requests,
+					cache_read,
+					cache_write,
+					res_wait);
+
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*3,
 											 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 

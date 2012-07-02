@@ -18,6 +18,7 @@ include(LLAudio)
 include(LLCharacter)
 include(LLCommon)
 include(LLConvexDecomposition)
+include(LLCoreHttp)
 include(LLImage)
 include(LLImageJ2COJ)
 include(LLInventory)
@@ -52,6 +53,7 @@ include_directories(
     ${LLCHARACTER_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLCONVEXDECOMP_INCLUDE_DIRS}
+    ${LLCOREHTTP_INCLUDE_DIRS}
     ${FMOD_INCLUDE_DIR}
     ${LLIMAGE_INCLUDE_DIRS}
     ${LLKDU_INCLUDE_DIRS}
@@ -1750,6 +1752,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${LLXML_LIBRARIES}
     ${LSCRIPT_LIBRARIES}
     ${LLMATH_LIBRARIES}
+    ${LLCOREHTTP_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
     ${NDOF_LIBRARY}
     ${viewer_LIBRARIES}

@@ -251,20 +251,26 @@ elseif(LINUX)
         libapr-1.so.0
         libaprutil-1.so.0
         libatk-1.0.so
+        libboost_program_options-mt.so.1.48.0
+        libboost_regex-mt.so.1.48.0
+        libboost_thread-mt.so.1.48.0
+        libboost_filesystem-mt.so.1.48.0
+        libboost_signals-mt.so.1.48.0
+        libboost_system-mt.so.1.48.0
         libbreakpad_client.so.0
         libcollada14dom.so
         libcrypto.so.1.0.0
         libdb-5.1.so
         libexpat.so
         libexpat.so.1
-    libglod.so
+        libglod.so
         libgmock_main.so
         libgmock.so.0
         libgmodule-2.0.so
         libgobject-2.0.so
         libgtest_main.so
         libgtest.so.0
-    libminizip.so
+        libminizip.so
         libopenal.so
         libopenjpeg.so
         libssl.so

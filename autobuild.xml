@@ -186,9 +186,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d98078791ce345bf6168ce9ba53ca2d7</string>
+              <string>0c4678ac85395f5f5294b63da1d79007</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-boost/rev/222752/arch/Darwin/installer/boost-1.45.0-darwin-20110304.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-boost/rev/249117/arch/Darwin/installer/boost-1.48.0-darwin-20120208.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -198,9 +198,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a34e7fffdb94a6a4d8a2966b1f216da3</string>
+              <string>848766eac189e0fa785f4a025532acd9</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.45.0-linux-20110310.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-boost/rev/249117/arch/Linux/installer/boost-1.48.0-linux-20120208.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -210,9 +210,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>98be22c8833aa2bca184b9fa09fbb82b</string>
+              <string>cd1e60a00d40f4475ae5e0aca86f74c1</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.45.0-windows-20110124.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-boost/rev/249117/arch/CYGWIN/installer/boost-1.48.0-windows-20120208.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
