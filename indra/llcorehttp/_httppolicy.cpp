@@ -46,7 +46,7 @@ public:
 	State()
 		: mConnMax(DEFAULT_CONNECTIONS),
 		  mConnAt(DEFAULT_CONNECTIONS),
-		  mConnMin(2),
+		  mConnMin(1),
 		  mNextSample(0),
 		  mErrorCount(0),
 		  mErrorFactor(0)
@@ -303,6 +303,8 @@ bool HttpPolicy::stageAfterCompletion(HttpOpRequest * op)
 	static const HttpStatus cant_connect(HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_CONNECT);
 	static const HttpStatus cant_res_proxy(HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_RESOLVE_PROXY);
 	static const HttpStatus cant_res_host(HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_RESOLVE_HOST);
+	static const HttpStatus send_error(HttpStatus::EXT_CURL_EASY, CURLE_SEND_ERROR);
+	static const HttpStatus recv_error(HttpStatus::EXT_CURL_EASY, CURLE_RECV_ERROR);
 
 	// Retry or finalize
 	if (! op->mStatus)
@@ -313,7 +315,9 @@ bool HttpPolicy::stageAfterCompletion(HttpOpRequest * op)
 			((op->mStatus.isHttpStatus() && op->mStatus.mType >= 499 && op->mStatus.mType <= 599) ||
 			 cant_connect == op->mStatus ||
 			 cant_res_proxy == op->mStatus ||
-			 cant_res_host == op->mStatus))
+			 cant_res_host == op->mStatus ||
+			 send_error == op->mStatus ||
+			 recv_error == op->mStatus))
 		{
 			// Okay, worth a retry.  We include 499 in this test as
 			// it's the old 'who knows?' error from many grid services...
