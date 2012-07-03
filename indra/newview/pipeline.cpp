@@ -1105,6 +1105,7 @@ void LLPipeline::releaseScreenBuffers()
 
 void LLPipeline::createGLBuffers()
 {
+	if (gHeadlessClient) return;
 	stop_glerror();
 	LLMemType mt_cb(LLMemType::MTYPE_PIPELINE_CREATE_BUFFERS);
 	assertInitialized();
