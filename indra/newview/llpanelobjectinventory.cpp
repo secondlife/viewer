@@ -1522,7 +1522,7 @@ BOOL LLPanelObjectInventory::postBuild()
 
 void LLPanelObjectInventory::doToSelected(const LLSD& userdata)
 {
-	mFolders->doToSelected(&gInventory, userdata);
+	LLInventoryAction::doToSelected(&gInventory, mFolders, userdata.asString());
 }
 
 void LLPanelObjectInventory::clearContents()

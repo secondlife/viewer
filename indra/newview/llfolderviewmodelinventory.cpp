@@ -223,3 +223,84 @@ const LLFolderViewModelInventory* LLInventoryPanel::getFolderViewModel() const
 	return &mInventoryViewModel;
 }
 
+bool LLInventorySort::operator()(const LLFolderViewModelItemInventory* const& a, const LLFolderViewModelItemInventory* const& b) const
+{
+	// ignore sort order for landmarks in the Favorites folder.
+	// they should be always sorted as in Favorites bar. See EXT-719
+	//TODO RN: fix sorting in favorites folder
+	//if (a->getSortGroup() == SG_ITEM
+	//	&& b->getSortGroup() == SG_ITEM
+	//	&& a->getInventoryType() == LLInventoryType::IT_LANDMARK
+	//	&& b->getInventoryType() == LLInventoryType::IT_LANDMARK)
+	//{
+
+	//	static const LLUUID& favorites_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
+
+	//	LLUUID a_uuid = a->getParentFolder()->getUUID();
+	//	LLUUID b_uuid = b->getParentFolder()->getUUID();
+
+	//	if ((a_uuid == favorites_folder_id && b_uuid == favorites_folder_id))
+	//	{
+	//		// *TODO: mantipov: probably it is better to add an appropriate method to LLFolderViewItem
+	//		// or to LLInvFVBridge
+	//		LLViewerInventoryItem* aitem = (static_cast<const LLItemBridge*>(a))->getItem();
+	//		LLViewerInventoryItem* bitem = (static_cast<const LLItemBridge*>(b))->getItem();
+	//		if (!aitem || !bitem)
+	//			return false;
+	//		S32 a_sort = aitem->getSortField();
+	//		S32 b_sort = bitem->getSortField();
+	//		return a_sort < b_sort;
+	//	}
+	//}
+
+	// We sort by name if we aren't sorting by date
+	// OR if these are folders and we are sorting folders by name.
+	bool by_name = (!mByDate 
+		|| (mFoldersByName 
+		&& (a->getSortGroup() != SG_ITEM)));
+
+	if (a->getSortGroup() != b->getSortGroup())
+	{
+		if (mSystemToTop)
+		{
+			// Group order is System Folders, Trash, Normal Folders, Items
+			return (a->getSortGroup() < b->getSortGroup());
+		}
+		else if (mByDate)
+		{
+			// Trash needs to go to the bottom if we are sorting by date
+			if ( (a->getSortGroup() == SG_TRASH_FOLDER)
+				|| (b->getSortGroup() == SG_TRASH_FOLDER))
+			{
+				return (b->getSortGroup() == SG_TRASH_FOLDER);
+			}
+		}
+	}
+
+	if (by_name)
+	{
+		S32 compare = LLStringUtil::compareDict(a->getDisplayName(), b->getDisplayName());
+		if (0 == compare)
+		{
+			return (a->getCreationDate() > b->getCreationDate());
+		}
+		else
+		{
+			return (compare < 0);
+		}
+	}
+	else
+	{
+		time_t first_create = a->getCreationDate();
+		time_t second_create = b->getCreationDate();
+		if (first_create == second_create)
+		{
+			return (LLStringUtil::compareDict(a->getDisplayName(), b->getDisplayName()) < 0);
+		}
+		else
+		{
+			return (first_create > second_create);
+		}
+	}
+}
+

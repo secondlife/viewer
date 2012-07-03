@@ -39,20 +39,17 @@
 
 #include "lluictrl.h"
 #include "v4color.h"
-#include "lldarray.h"
 #include "stdenums.h"
 #include "lldepthstack.h"
 #include "lleditmenuhandler.h"
 #include "llfontgl.h"
 #include "llscrollcontainer.h"
 #include "lltooldraganddrop.h"
-#include "llviewertexture.h"
 
 class LLFolderViewModelInterface;
 class LLFolderViewFolder;
 class LLFolderViewItem;
 class LLFolderViewFilter;
-class LLInventoryModel;
 class LLPanel;
 class LLLineEditor;
 class LLMenuGL;
@@ -153,8 +150,9 @@ public:
 	virtual BOOL changeSelection(LLFolderViewItem* selection, BOOL selected);
 
 	virtual std::set<LLFolderViewItem*> getSelectionList() const;
+	S32 getNumSelectedItems() { return mSelectedItems.size(); }
 
-	// Make sure if ancestor is selected, descendents are not
+	// Make sure if ancestor is selected, descendants are not
 	void sanitizeSelection();
 	virtual void clearSelection();
 	void addToSelectionList(LLFolderViewItem* item);
@@ -172,9 +170,6 @@ public:
 	// Open the selected item
 	void openSelectedItems( void );
 	void propertiesSelectedItems( void );
-
-	// Change the folder type
-	void changeType(LLInventoryModel *model, LLFolderType::EType new_folder_type);
 
 	void autoOpenItem(LLFolderViewFolder* item);
 	void closeAutoOpenedFolders();
@@ -228,8 +223,6 @@ public:
 	F32  getSelectionFadeElapsedTime() { return mMultiSelectionFadeTimer.getElapsedTimeF32(); }
 	bool getUseEllipses() { return mUseEllipses; }
 
-	bool doToSelected(LLInventoryModel* model, const LLSD& userdata);
-	
 	void	doIdle();						// Real idle routine
 	static void idle(void* user_data);		// static glue to doIdle()
 
@@ -270,7 +263,6 @@ protected:
 	
 	BOOL addNoOptions(LLMenuGL* menu) const;
 
-	void onItemsRemovalConfirmation(const LLSD& notification, const LLSD& response);
 
 protected:
 	LLHandle<LLView>					mPopupMenuHandle;

@@ -27,33 +27,24 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llfolderview.h"
-#include "llfolderview.h"
 
-#include "llcallbacklist.h"
-#include "llinventorybridge.h"
 #include "llclipboard.h" // *TODO: remove this once hack below gone.
-#include "llinventorypanel.h"
-#include "llfoldertype.h"
 #include "llkeyboard.h"
 #include "lllineeditor.h"
 #include "llmenugl.h"
 #include "llpanel.h"
-#include "llpreview.h"
 #include "llscrollcontainer.h" // hack to allow scrolling
-#include "lltooldraganddrop.h"
 #include "lltrans.h"
 #include "llui.h"
-#include "llviewertexture.h"
-#include "llviewertexturelist.h"
-#include "llviewerjointattachment.h"
-#include "llviewermenu.h"
 #include "lluictrlfactory.h"
-#include "llviewercontrol.h"
-#include "llviewerfoldertype.h"
-#include "llviewerwindow.h"
-#include "llvoavatar.h"
-#include "llfloaterproperties.h"
-#include "llnotificationsutil.h"
+
+// TODO RN: kill these
+// newview includes
+#include "llcallbacklist.h"			// per-frame on-idle
+#include "llfloaterproperties.h"	// showProperties
+#include "llviewerwindow.h"			// renamer popup handling
+#include "llpreview.h"				// openSelectedItems
+#include "llinventorypanel.h"		// idle loop for filtering, sort order declarations, etc.
 
 // Linden library includes
 #include "lldbstrings.h"
@@ -251,7 +242,7 @@ LLFolderView::LLFolderView(const Params& p)
 
 
 	// make the popup menu available
-	LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_inventory.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_inventory.xml", LLMenuGL::sMenuContainer, LLMenuHolderGL::child_registry_t::instance());
 	if (!menu)
 	{
 		menu = LLUICtrlFactory::getDefaultWidget<LLMenuGL>("inventory_menu");
@@ -361,7 +352,7 @@ static LLFastTimer::DeclareTimer FTM_FILTER("Filter Folder View");
 void LLFolderView::filter( LLFolderViewFilter& filter )
 {
 	LLFastTimer t2(FTM_FILTER);
-	filter.setFilterCount(llclamp(gSavedSettings.getS32("FilterItemsPerFrame"), 1, 5000));
+	filter.setFilterCount(llclamp(LLUI::sSettingGroups["config"]->getS32("FilterItemsPerFrame"), 1, 5000));
 
 	getViewModelItem()->filter(filter);
 }
@@ -631,7 +622,7 @@ void LLFolderView::clearSelection()
 }
 
 std::set<LLFolderViewItem*> LLFolderView::getSelectionList() const
-	{
+{
 	std::set<LLFolderViewItem*> selection;
 	std::copy(mSelectedItems.begin(), mSelectedItems.end(), std::inserter(selection, selection.begin()));
 	return selection;
@@ -695,7 +686,7 @@ void LLFolderView::draw()
 	}
 
 
-	if (mSearchTimer.getElapsedTimeF32() > gSavedSettings.getF32("TypeAheadTimeout") || !mSearchString.size())
+	if (mSearchTimer.getElapsedTimeF32() > LLUI::sSettingGroups["config"]->getF32("TypeAheadTimeout") || !mSearchString.size())
 	{
 		mSearchString.clear();
 	}
@@ -767,14 +758,6 @@ void LLFolderView::closeRenamer( void )
 	}
 }
 
-void LLFolderView::removeSelectedItems( void )
-{
-	if (mSelectedItems.empty()) return;
-	LLSD args;
-	args["QUESTION"] = LLTrans::getString(mSelectedItems.size() > 1 ? "DeleteItems" :  "DeleteItem");
-	LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLFolderView::onItemsRemovalConfirmation, this, _1, _2));
-}
-
 bool isDescendantOfASelectedItem(LLFolderViewItem* item, const std::vector<LLFolderViewItem*>& selectedItems)
 {
 	LLFolderViewItem* item_parent = dynamic_cast<LLFolderViewItem*>(item->getParent());
@@ -820,11 +803,8 @@ void LLFolderView::removeCutItems()
 	}
 }
 
-void LLFolderView::onItemsRemovalConfirmation(const LLSD& notification, const LLSD& response)
+void LLFolderView::removeSelectedItems()
 {
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	if (option != 0) return; // canceled
-
 	if(getVisible() && getEnabled())
 	{
 		// just in case we're removing the renaming item.
@@ -927,42 +907,44 @@ void LLFolderView::onItemsRemovalConfirmation(const LLSD& notification, const LL
 	}
 }
 
+// TODO RN: abstract 
 // open the selected item.
 void LLFolderView::openSelectedItems( void )
 {
-	if(getVisible() && getEnabled())
-	{
-		if (mSelectedItems.size() == 1)
-		{
-			mSelectedItems.front()->openItem();
-		}
-		else
-		{
-			LLMultiPreview* multi_previewp = new LLMultiPreview();
-			LLMultiProperties* multi_propertiesp = new LLMultiProperties();
+	//TODO RN: get working again
+	//if(getVisible() && getEnabled())
+	//{
+	//	if (mSelectedItems.size() == 1)
+	//	{
+	//		mSelectedItems.front()->openItem();
+	//	}
+	//	else
+	//	{
+	//		LLMultiPreview* multi_previewp = new LLMultiPreview();
+	//		LLMultiProperties* multi_propertiesp = new LLMultiProperties();
 
-			selected_items_t::iterator item_it;
-			for (item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
-			{
-				// IT_{OBJECT,ATTACHMENT} creates LLProperties
-				// floaters; others create LLPreviews.  Put
-				// each one in the right type of container.
-				LLFolderViewModelItemInventory* listener = static_cast<LLFolderViewModelItemInventory*>((*item_it)->getViewModelItem());
-				bool is_prop = listener && (listener->getInventoryType() == LLInventoryType::IT_OBJECT || listener->getInventoryType() == LLInventoryType::IT_ATTACHMENT);
-				if (is_prop)
-					LLFloater::setFloaterHost(multi_propertiesp);
-				else
-					LLFloater::setFloaterHost(multi_previewp);
-				listener->openItem();
-			}
+	//		selected_items_t::iterator item_it;
+	//		for (item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
+	//		{
+	//			// IT_{OBJECT,ATTACHMENT} creates LLProperties
+	//			// floaters; others create LLPreviews.  Put
+	//			// each one in the right type of container.
+	//			LLFolderViewModelItemInventory* listener = static_cast<LLFolderViewModelItemInventory*>((*item_it)->getViewModelItem());
+	//			bool is_prop = listener && (listener->getInventoryType() == LLInventoryType::IT_OBJECT || listener->getInventoryType() == LLInventoryType::IT_ATTACHMENT);
+	//			if (is_prop)
+	//				LLFloater::setFloaterHost(multi_propertiesp);
+	//			else
+	//				LLFloater::setFloaterHost(multi_previewp);
+	//			listener->openItem();
+	//		}
 
-			LLFloater::setFloaterHost(NULL);
-			// *NOTE: LLMulti* will safely auto-delete when open'd
-			// without any children.
-			multi_previewp->openFloater(LLSD());
-			multi_propertiesp->openFloater(LLSD());
-		}
-	}
+	//		LLFloater::setFloaterHost(NULL);
+	//		// *NOTE: LLMulti* will safely auto-delete when open'd
+	//		// without any children.
+	//		multi_previewp->openFloater(LLSD());
+	//		multi_propertiesp->openFloater(LLSD());
+	//	}
+	//}
 }
 
 void LLFolderView::propertiesSelectedItems( void )
@@ -994,15 +976,6 @@ void LLFolderView::propertiesSelectedItems( void )
 	//}
 }
 
-void LLFolderView::changeType(LLInventoryModel *model, LLFolderType::EType new_folder_type)
-{
-	LLFolderBridge *folder_bridge = LLFolderBridge::sSelf.get();
-
-	if (!folder_bridge) return;
-	LLViewerInventoryCategory *cat = folder_bridge->getCategory();
-	if (!cat) return;
-	cat->changeType(new_folder_type);
-}
 
 void LLFolderView::autoOpenItem( LLFolderViewFolder* item )
 {
@@ -1521,7 +1494,7 @@ BOOL LLFolderView::handleUnicodeCharHere(llwchar uni_char)
 		}
 
 		//do text search
-		if (mSearchTimer.getElapsedTimeF32() > gSavedSettings.getF32("TypeAheadTimeout"))
+		if (mSearchTimer.getElapsedTimeF32() > LLUI::sSettingGroups["config"]->getF32("TypeAheadTimeout"))
 		{
 			mSearchString.clear();
 		}
@@ -1829,81 +1802,6 @@ void LLFolderView::setShowSingleSelection(BOOL show)
 		mMultiSelectionFadeTimer.reset();
 		mShowSingleSelection = show;
 	}
-}
-
-bool LLFolderView::doToSelected(LLInventoryModel* model, const LLSD& userdata)
-{
-	std::string action = userdata.asString();
-	
-	if ("rename" == action)
-	{
-		startRenamingSelectedItem();
-		return true;
-	}
-	if ("delete" == action)
-	{
-		removeSelectedItems();
-		return true;
-	}
-	if (("copy" == action) || ("cut" == action))
-	{	
-		// Clear the clipboard before we start adding things on it
-		LLClipboard::instance().reset();
-	}
-
-	static const std::string change_folder_string = "change_folder_type_";
-	if (action.length() > change_folder_string.length() && 
-		(action.compare(0,change_folder_string.length(),"change_folder_type_") == 0))
-	{
-		LLFolderType::EType new_folder_type = LLViewerFolderType::lookupTypeFromXUIName(action.substr(change_folder_string.length()));
-		changeType(model, new_folder_type);
-		return true;
-	}
-
-
-	std::set<LLFolderViewItem*> selected_items = getSelectionList();
-
-	LLMultiPreview* multi_previewp = NULL;
-	LLMultiProperties* multi_propertiesp = NULL;
-
-	if (("task_open" == action  || "open" == action) && selected_items.size() > 1)
-	{
-		multi_previewp = new LLMultiPreview();
-		gFloaterView->addChild(multi_previewp);
-
-		LLFloater::setFloaterHost(multi_previewp);
-	
-	}
-	else if (("task_properties" == action || "properties" == action) && selected_items.size() > 1)
-	{
-		multi_propertiesp = new LLMultiProperties();
-		gFloaterView->addChild(multi_propertiesp);
-
-		LLFloater::setFloaterHost(multi_propertiesp);
-	}
-
-	std::set<LLFolderViewItem*>::iterator set_iter;
-
-	for (set_iter = selected_items.begin(); set_iter != selected_items.end(); ++set_iter)
-	{
-		LLFolderViewItem* folder_item = *set_iter;
-		if(!folder_item) continue;
-		LLInvFVBridge* bridge = (LLInvFVBridge*)folder_item->getViewModelItem();
-		if(!bridge) continue;
-		bridge->performAction(model, action);
-	}
-
-	LLFloater::setFloaterHost(NULL);
-	if (multi_previewp)
-	{
-		multi_previewp->openFloater(LLSD());
-	}
-	else if (multi_propertiesp)
-	{
-		multi_propertiesp->openFloater(LLSD());
-	}
-
-	return true;
 }
 
 static LLFastTimer::DeclareTimer FTM_AUTO_SELECT("Open and Select");

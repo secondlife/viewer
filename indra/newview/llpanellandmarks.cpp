@@ -851,7 +851,7 @@ void LLLandmarksPanel::onClipboardAction(const LLSD& userdata) const
 	}
 	else
 	{
-		mCurrentSelectedList->getRootFolder()->doToSelected(mCurrentSelectedList->getModel(),command_name);
+		mCurrentSelectedList->doToSelected(command_name);
 	}
 }
 
@@ -896,7 +896,7 @@ void LLLandmarksPanel::onFoldingAction(const LLSD& userdata)
 	{
 		if(mCurrentSelectedList)
 		{
-			mCurrentSelectedList->getRootFolder()->doToSelected(&gInventory, userdata);
+			mCurrentSelectedList->doToSelected(userdata);
 		}
 	}
 }

@@ -176,7 +176,7 @@ public:
 	LLFolderViewFolder* getFolderByID(const LLUUID& id);
 	void setSelectionByID(const LLUUID& obj_id, BOOL take_keyboard_focus);
 	void updateSelection();
-	 	
+
 	LLFolderViewModelInventory* getFolderViewModel();
 	const LLFolderViewModelInventory* getFolderViewModel() const;
 

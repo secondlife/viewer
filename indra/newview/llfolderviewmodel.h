@@ -22,18 +22,11 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef LLFOLDERVIEWEVENTLISTENER_H
-#define LLFOLDERVIEWEVENTLISTENER_H
+#ifndef LLFOLDERVIEWMODEL_H
+#define LLFOLDERVIEWMODEL_H
 
-#include "lldarray.h"	// *TODO: convert to std::vector
-#include "llfoldertype.h"
 #include "llfontgl.h"	// just for StyleFlags enum
 #include "llfolderview.h"
-#include "llfolderviewitem.h"
-#include "llinventorytype.h"
-#include "llpermissionsflags.h"
-#include "llpointer.h"
-#include "llwearabletype.h"
 #include "lltooldraganddrop.h"
 
 // These are grouping of inventory types.
@@ -362,4 +355,4 @@ protected:
 };
 
 
-#endif
+#endif // LLFOLDERVIEWMODEL_H

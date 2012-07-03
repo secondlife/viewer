@@ -294,7 +294,7 @@ BOOL LLPanelMainInventory::handleKeyHere(KEY key, MASK mask)
 
 void LLPanelMainInventory::doToSelected(const LLSD& userdata)
 {
-	getPanel()->getRootFolder()->doToSelected(&gInventory, userdata);
+	getPanel()->doToSelected(userdata);
 }
 
 void LLPanelMainInventory::closeAllFolders()
@@ -970,7 +970,7 @@ void LLPanelMainInventory::onTrashButtonClick()
 void LLPanelMainInventory::onClipboardAction(const LLSD& userdata)
 {
 	std::string command_name = userdata.asString();
-	getActivePanel()->getRootFolder()->doToSelected(getActivePanel()->getModel(),command_name);
+	getActivePanel()->doToSelected(command_name);
 }
 
 void LLPanelMainInventory::saveTexture(const LLSD& userdata)

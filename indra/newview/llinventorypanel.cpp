@@ -44,6 +44,7 @@
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodelbackgroundfetch.h"
+#include "llpreview.h"
 #include "llsidepanelinventory.h"
 #include "llviewerattachmenu.h"
 #include "llviewerfoldertype.h"
@@ -926,11 +927,6 @@ void LLInventoryPanel::onSelectionChange(const std::deque<LLFolderViewItem*>& it
 	}
 }
 
-void LLInventoryPanel::doToSelected(const LLSD& userdata)
-{
-	mFolderRoot->doToSelected(&gInventory, userdata);
-}
-
 void LLInventoryPanel::doCreate(const LLSD& userdata)
 {
 	menu_create_inventory_item(this, LLFolderBridge::sSelf.get(), userdata);
@@ -1258,6 +1254,13 @@ void LLInventoryPanel::updateSelection()
 	{
 		setSelectionByID(mSelectThisID, false);
 	}
+}
+
+void LLInventoryPanel::doToSelected(const LLSD& userdata)
+{
+	LLInventoryAction::doToSelected(mInventory, mFolderRoot, userdata.asString());
+
+	return;
 }
 
 

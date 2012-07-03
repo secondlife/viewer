@@ -427,6 +427,13 @@ public:
 	static LLUUID sWearNewClothingTransactionID;	// wear all clothing in this transaction	
 };
 
+struct LLInventoryAction
+{
+	static void doToSelected(class LLInventoryModel* model, class LLFolderView* root, const std::string& action);
+
+	static void onItemsRemovalConfirmation(const LLSD& notification, const LLSD& response, LLFolderView* root);
+};
+
 
 #endif // LL_LLINVENTORYFUNCTIONS_H
 
