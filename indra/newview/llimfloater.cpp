@@ -339,34 +339,54 @@ void LLIMFloater::onAddButtonClicked()
 
 bool LLIMFloater::canAddSelectedToChat(const uuid_vec_t& uuids)
 {
-       if (!mSession
-               || mDialog == IM_SESSION_GROUP_START
-               || mDialog == IM_SESSION_INVITE && gAgent.isInGroup(mSessionID))
-       {
-               return false;
-       }
+	if (!mSession
+		|| mDialog == IM_SESSION_GROUP_START
+		|| mDialog == IM_SESSION_INVITE && gAgent.isInGroup(mSessionID))
+	{
+		return false;
+	}
 
-       for (uuid_vec_t::const_iterator id = uuids.begin();
-                       id != uuids.end(); ++id)
-       {
-    	   	   // Skip this check for ad hoc conferences,
-    	       // conference participants should be listed in mSession->mInitialTargetIDs.
-               if (mIsP2PChat && *id == mOtherParticipantUUID)
-               {
-                       return false;
-               }
+	if (mIsP2PChat)
+	{
+		// For a P2P session just check if we are not adding the other participant.
 
-               for (uuid_vec_t::const_iterator target_id = mSession->mInitialTargetIDs.begin();
-                               target_id != mSession->mInitialTargetIDs.end(); ++target_id)
-               {
-                       if (*id == *target_id)
-                       {
-                               return false;
-                       }
-               }
-       }
+		for (uuid_vec_t::const_iterator id = uuids.begin();
+				id != uuids.end(); ++id)
+		{
+			if (*id == mOtherParticipantUUID)
+			{
+				return false;
+			}
+		}
+	}
+	else
+	{
+		// For a conference session we need to check against the list from LLSpeakerMgr,
+		// because this list may change when participants join or leave the session.
 
-       return true;
+		LLSpeakerMgr::speaker_list_t speaker_list;
+		LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
+		if (speaker_mgr)
+		{
+			speaker_mgr->getSpeakerList(&speaker_list, true);
+		}
+
+		for (uuid_vec_t::const_iterator id = uuids.begin();
+				id != uuids.end(); ++id)
+		{
+			for (LLSpeakerMgr::speaker_list_t::const_iterator it = speaker_list.begin();
+					it != speaker_list.end(); ++it)
+			{
+				const LLPointer<LLSpeaker>& speaker = *it;
+				if (*id == speaker->mID)
+				{
+					return false;
+				}
+			}
+		}
+	}
+
+	return true;
 }
 
 void LLIMFloater::addSessionParticipants(const uuid_vec_t& uuids)
