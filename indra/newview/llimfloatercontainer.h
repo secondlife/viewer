@@ -37,7 +37,7 @@
 #include "llgroupmgr.h"
 
 #include "llfolderviewitem.h"
-#include "llfoldervieweventlistener.h"
+#include "llfolderviewmodel.h"
 
 class LLButton;
 class LLLayoutPanel;
@@ -53,7 +53,7 @@ typedef std::map<LLFloater*, LLFolderViewItem*> conversations_widgets_map;
 
 // Conversation items: we hold a list of those and create an LLFolderViewItem widget for each  
 // that we tuck into the mConversationsListPanel. 
-class LLConversationItem : public LLFolderViewEventListener
+class LLConversationItem : public LLFolderViewModelItemCommon
 {
 public:
 	LLConversationItem(std::string name, const LLUUID& uuid, LLFloater* floaterp, LLIMFloaterContainer* containerp);
@@ -62,6 +62,7 @@ public:
 	// Stub those things we won't really be using in this conversation context
 	virtual const std::string& getName() const { return mName; }
 	virtual const std::string& getDisplayName() const { return mName; }
+	virtual const std::string& getSearchableName() const { return mName; }
 	virtual const LLUUID& getUUID() const { return mUUID; }
 	virtual time_t getCreationDate() const { return 0; }
 	virtual PermissionMask getPermissionMask() const { return PERM_ALL; }
@@ -76,8 +77,8 @@ public:
 	virtual BOOL isItemRemovable( void ) const { return FALSE; }
 	virtual BOOL isItemInTrash( void) const { return FALSE; }
 	virtual BOOL removeItem() { return FALSE; }
-	virtual void removeBatch(LLDynamicArray<LLFolderViewEventListener*>& batch) { }
-	virtual void move( LLFolderViewEventListener* parent_listener ) { }
+	virtual void removeBatch(std::vector<LLFolderViewModelItem*>& batch) { }
+	virtual void move( LLFolderViewModelItem* parent_listener ) { }
 	virtual BOOL isItemCopyable() const { return FALSE; }
 	virtual BOOL copyToClipboard() const { return FALSE; }
 	virtual BOOL cutToClipboard() const { return FALSE; }
@@ -86,9 +87,15 @@ public:
 	virtual void pasteLinkFromClipboard() { }
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags) { }
 	virtual BOOL isUpToDate() const { return TRUE; }
-	virtual BOOL hasChildren() const { return FALSE; }
+	virtual bool hasChildren() const { return FALSE; }
 	virtual LLInventoryType::EType getInventoryType() const { return LLInventoryType::IT_NONE; }
 	virtual LLWearableType::EType getWearableType() const { return LLWearableType::WT_NONE; }
+
+	virtual bool potentiallyVisible() { return true; }
+	virtual bool filter( LLFolderViewFilter& filter) { return true; }
+	virtual bool descendantsPassedFilter(S32 filter_generation = -1) { return true; }
+	virtual void setPassedFilter(bool passed, bool passed_folder, S32 filter_generation) { }
+	virtual bool passedFilter(S32 filter_generation = -1) { return true; }
 
 	// The action callbacks
 	virtual void performAction(LLInventoryModel* model, std::string action);
@@ -102,6 +109,7 @@ public:
 	
 	// This method should be called when a drag begins.
 	// Returns TRUE if the drag can begin, FALSE otherwise.
+	virtual LLToolDragAndDrop::ESource getDragSource() const { return LLToolDragAndDrop::SOURCE_PEOPLE; }
 	virtual BOOL startDrag(EDragAndDropType* type, LLUUID* id) const { return FALSE; }
 	
 	// This method will be called to determine if a drop can be
