@@ -418,6 +418,7 @@ void LLRenderPass::applyModelMatrix(LLDrawInfo& params)
 		gGL.loadMatrix(gGLModelView);
 		if (params.mModelMatrix)
 		{
+			llassert(gGL.getMatrixMode() == LLRender::MM_MODELVIEW);
 			gGL.multMatrix((GLfloat*) params.mModelMatrix->mMatrix);
 		}
 		gPipeline.mMatrixOpCount++;
