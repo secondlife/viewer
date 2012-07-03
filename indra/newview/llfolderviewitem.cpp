@@ -627,17 +627,17 @@ BOOL LLFolderViewItem::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 
 void LLFolderViewItem::draw()
 {
-	static LLUIColor sFgColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
-	static LLUIColor sHighlightBgColor = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", DEFAULT_WHITE);
-	static LLUIColor sHighlightFgColor = LLUIColorTable::instance().getColor("MenuItemHighlightFgColor", DEFAULT_WHITE);
+	static LLUIColor sFgColor 			= LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
+	static LLUIColor sHighlightBgColor 	= LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", DEFAULT_WHITE);
+	static LLUIColor sHighlightFgColor 	= LLUIColorTable::instance().getColor("MenuItemHighlightFgColor", DEFAULT_WHITE);
 	static LLUIColor sFocusOutlineColor = LLUIColorTable::instance().getColor("InventoryFocusOutlineColor", DEFAULT_WHITE);
-	static LLUIColor sFilterBGColor = LLUIColorTable::instance().getColor("FilterBackgroundColor", DEFAULT_WHITE);
-	static LLUIColor sFilterTextColor = LLUIColorTable::instance().getColor("FilterTextColor", DEFAULT_WHITE);
-	static LLUIColor sSuffixColor = LLUIColorTable::instance().getColor("InventoryItemColor", DEFAULT_WHITE);
-	static LLUIColor sLibraryColor = LLUIColorTable::instance().getColor("InventoryItemLibraryColor", DEFAULT_WHITE);
-	static LLUIColor sLinkColor = LLUIColorTable::instance().getColor("InventoryItemLinkColor", DEFAULT_WHITE);
+	static LLUIColor sFilterBGColor 	= LLUIColorTable::instance().getColor("FilterBackgroundColor", DEFAULT_WHITE);
+	static LLUIColor sFilterTextColor 	= LLUIColorTable::instance().getColor("FilterTextColor", DEFAULT_WHITE);
+	static LLUIColor sSuffixColor 		= LLUIColorTable::instance().getColor("InventoryItemColor", DEFAULT_WHITE);
+	static LLUIColor sLibraryColor 		= LLUIColorTable::instance().getColor("InventoryItemLibraryColor", DEFAULT_WHITE);
+	static LLUIColor sLinkColor 		= LLUIColorTable::instance().getColor("InventoryItemLinkColor", DEFAULT_WHITE);
 	static LLUIColor sSearchStatusColor = LLUIColorTable::instance().getColor("InventorySearchStatusColor", DEFAULT_WHITE);
-	static LLUIColor sMouseOverColor = LLUIColorTable::instance().getColor("InventoryMouseOverColor", DEFAULT_WHITE);
+	static LLUIColor sMouseOverColor 	= LLUIColorTable::instance().getColor("InventoryMouseOverColor", DEFAULT_WHITE);
 
 	const Params& default_params = LLUICtrlFactory::getDefaultParams<LLFolderViewItem>();
 	const S32 TOP_PAD = default_params.item_top_pad;
@@ -863,7 +863,7 @@ LLFolderViewFolder::~LLFolderViewFolder( void )
 
 // addToFolder() returns TRUE if it succeeds. FALSE otherwise
 BOOL LLFolderViewFolder::addToFolder(LLFolderViewFolder* folder)
-	{
+{
 	return folder->addFolder(this);
 }
 
@@ -1594,12 +1594,12 @@ void LLFolderViewFolder::setOpenArrangeRecursively(BOOL openitem, ERecurseType r
 {
 	BOOL was_open = isOpen();
 	mIsOpen = openitem;
-		if(!was_open && openitem)
-		{
+	if(!was_open && openitem)
+	{
 		getViewModelItem()->openItem();
-		}
-		else if(was_open && !openitem)
-		{
+	}
+	else if(was_open && !openitem)
+	{
 		getViewModelItem()->closeItem();
 	}
 
