@@ -502,6 +502,15 @@ Weitere Informationen finden Sie auf [_URL].
 		</url>
 		<usetemplate ignoretext="Meine Hardware wird nicht unterstützt" name="okcancelignore" notext="Nein" yestext="Ja"/>
 	</notification>
+	<notification name="IntelOldDriver">
+		Wahrscheinlich gibt es einen neueren Treiber für Ihren Grafikchip. Durch Aktualisieren der Grafiktreiber lässt sich die Leistung u. U. beträchtlich verbessern.
+
+    Unter [_URL] nach aktualisierten Treibern suchen?
+		<url name="url">
+			http://www.intel.com/p/de_DE/support/detect/graphics
+		</url>
+		<usetemplate ignoretext="Mein Grafiktreiber ist veraltet" name="okcancelignore" notext="Nein" yestext="Ja"/>
+	</notification>
 	<notification name="UnknownGPU">
 		Ihr System verwendet eine Grafikkarte, die [APP_NAME] nicht erkennt.
 Dies passiert dann, wenn die neue Hardware noch nicht mit [APP_NAME] getestet wurde.  Wahrscheinlich wird das Programm richtig ausgeführt, aber Sie müssen eventuell ein paar Grafikeinstellungen vornehmen.
@@ -2628,16 +2637,12 @@ Ist das OK?
 		</form>
 	</notification>
 	<notification name="ScriptQuestionCaution">
-		Das Objekt „&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;“, das „[NAME]“ gehört, stellt folgende Anfrage:
-
-[QUESTIONS]
-Wenn Sie diesem Objekt und seinem Ersteller nicht vertrauen, sollten Sie diese Anfrage ablehnen.
-
-Anfrage gestatten?
+		Achtung: Das Objekt „&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;“ fordert uneingeschränkten Zugriff auf Ihr Linden-Dollar-Konto an. Wenn Sie Zugriff gewähren, kann dieses Objekt jederzeit und ohne weitere Warnung Ihr Konto belasten bzw. ganz leeren.
+  
+Eine solche Anforderung ist nur in seltenen Fällen legitim. Gewähren Sie dem Objekt nur dann Zugriff, wenn Sie genau verstehen, wieso ein solcher Zugriff auf Ihr Konto erforderlich ist.
 		<form name="form">
-			<button name="Grant" text="Gewähren"/>
+			<button name="Grant" text="Uneingeschränkten Zugriff gewähren"/>
 			<button name="Deny" text="Verweigern"/>
-			<button name="Details" text="Info..."/>
 		</form>
 	</notification>
 	<notification name="ScriptDialog">
@@ -3135,4 +3140,16 @@ Ansonsten können Sie auf der Karte nachsehen und dort Ort suchen, die als „In
 	<global name="You died and have been teleported to your home location">
 		Sie sind gestorben und wurden zu Ihrem Zuhause teleportiert.
 	</global>
+	<notification name="LocalBitmapsUpdateFileNotFound">
+		[FNAME] wurde nicht gefunden und konnte deshalb nicht aktualisiert werden.
+Zukünftige Aktualisierungen dieser Datei werden deaktiviert.
+	</notification>
+	<notification name="LocalBitmapsUpdateFailedFinal">
+		[FNAME] konnte auch nach [NRETRIES] Versuchen nicht geöffnet oder decodiert werden und gilt als beschädigt.
+Zukünftige Aktualisierungen dieser Datei werden deaktiviert.
+	</notification>
+	<notification name="LocalBitmapsVerifyFail">
+		Versuch, eine ungültige oder nicht lesbare Bilddatei ([FNAME]) hinzuzufügen, die nicht geöffnet oder decodiert werden konnte.
+Versuch abgebrochen.
+	</notification>
 </notifications>

@@ -14,8 +14,11 @@
 					<stat_bar label="Треугольников в секунду" name="ktrissec"/>
 					<stat_bar label="Всего объектов" name="objs"/>
 					<stat_bar label="Новых объектов" name="newobjs"/>
+					<stat_bar label="Частота попаданий в кэш объектов" name="object_cache_hits"/>
 				</stat_view>
 				<stat_view label="Текстура" name="texture">
+					<stat_bar label="Частота попаданий в кэш" name="texture_cache_hits"/>
+					<stat_bar label="Задержка чтения кэша" name="texture_cache_read_latency"/>
 					<stat_bar label="Количество" name="numimagesstat"/>
 					<stat_bar label="Необраб. изображений" name="numrawimagesstat"/>
 					<stat_bar label="Память GL" name="gltexmemstat"/>

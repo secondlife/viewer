@@ -835,6 +835,9 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	<string name="ScriptQuestionCautionChatDenied">
 		&apos;[OBJECTNAME]&apos;, um objeto de  &apos;[OWNERNAME]&apos;, localizado em [REGIONNAME] a [REGIONPOS], teve permissão negada para: [PERMISSIONS].
 	</string>
+	<string name="AdditionalPermissionsRequestHeader">
+		Se você permitir acesso à sua conta, o objeto também poderá:
+	</string>
 	<string name="ScriptTakeMoney">
 		Tomar linden dólares (L$) de você
 	</string>
@@ -867,6 +870,9 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	</string>
 	<string name="ControlYourCamera">
 		Controle sua camera
+	</string>
+	<string name="TeleportYourAgent">
+		Teletransportá-lo
 	</string>
 	<string name="SIM_ACCESS_PG">
 		Público geral

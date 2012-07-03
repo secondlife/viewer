@@ -880,6 +880,9 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="ScriptQuestionCautionChatDenied">
 		A &apos;[OBJECTNAME]&apos;, un oggetto di proprietà di &apos;[OWNERNAME]&apos;, situato in [REGIONNAME] [REGIONPOS], è stato negato il permesso di: [PERMISSIONS].
 	</string>
+	<string name="AdditionalPermissionsRequestHeader">
+		Se consenti l&apos;accesso al tuo account, consentirai anche all&apos;oggetto di:
+	</string>
 	<string name="ScriptTakeMoney">
 		Prendere dollari Linden (L$) da te
 	</string>
@@ -912,6 +915,9 @@ Prova ad accedere nuovamente tra un minuto.
 	</string>
 	<string name="ControlYourCamera">
 		Controllare la tua fotocamera
+	</string>
+	<string name="TeleportYourAgent">
+		Teleportarti
 	</string>
 	<string name="SIM_ACCESS_PG">
 		Generale
