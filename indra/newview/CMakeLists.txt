@@ -812,7 +812,7 @@ set(viewer_HEADER_FILES
     llfloaterwindowsize.h
     llfloaterworldmap.h
     llfolderview.h
-    llfoldervieweventlistener.h
+    llfolderviewmodel.h
     llfolderviewitem.h
     llfollowcam.h
     llfriendcard.h

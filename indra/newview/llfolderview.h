@@ -48,9 +48,10 @@
 #include "lltooldraganddrop.h"
 #include "llviewertexture.h"
 
-class LLFolderViewEventListener;
+class LLFolderViewModelInterface;
 class LLFolderViewFolder;
 class LLFolderViewItem;
+class LLFolderViewFilter;
 class LLInventoryModel;
 class LLPanel;
 class LLLineEditor;
@@ -95,8 +96,9 @@ public:
 		Optional<bool>			use_label_suffix,
 								allow_multiselect,
 								show_empty_message,
-								show_load_status,
-								use_ellipses;
+								use_ellipses,
+								show_item_link_overlays;
+		Mandatory<LLFolderViewModelInterface*>	view_model;
 
 		Params();
 	};
@@ -108,69 +110,53 @@ public:
 
 	virtual BOOL canFocusChildren() const;
 
+	virtual const LLFolderView*	getRoot() const { return this; }
 	virtual LLFolderView*	getRoot() { return this; }
 
-	// FolderViews default to sort by name. This will change that,
-	// and resort the items if necessary.
-	void setSortOrder(U32 order);
+	LLFolderViewModelInterface* getFolderViewModel() { return mViewModel; }
+	const LLFolderViewModelInterface* getFolderViewModel() const { return mViewModel; }
+
 	void setFilterPermMask(PermissionMask filter_perm_mask);
 	
 	typedef boost::signals2::signal<void (const std::deque<LLFolderViewItem*>& items, BOOL user_action)> signal_t;
 	void setSelectCallback(const signal_t::slot_type& cb) { mSelectSignal.connect(cb); }
 	void setReshapeCallback(const signal_t::slot_type& cb) { mReshapeSignal.connect(cb); }
 	
-	// filter is never null
-	LLInventoryFilter* getFilter();
-	const std::string getFilterSubString(BOOL trim = FALSE);
-	U32 getFilterObjectTypes() const;
-	PermissionMask getFilterPermissions() const;
-	// *NOTE: use getFilter()->getShowFolderState();
-	//LLInventoryFilter::EFolderShow getShowFolderState();
-	U32 getSortOrder() const;
-	BOOL isFilterModified();
-
 	bool getAllowMultiSelect() { return mAllowMultiSelect; }
 
 	// Close all folders in the view
 	void closeAllFolders();
 	void openTopLevelFolders();
 
-	virtual void toggleOpen() {};
-	virtual void setOpenArrangeRecursively(BOOL openitem, ERecurseType recurse);
 	virtual BOOL addFolder( LLFolderViewFolder* folder);
 
 	// Find width and height of this object and its children. Also
 	// makes sure that this view and its children are the right size.
-	virtual S32 arrange( S32* width, S32* height, S32 filter_generation );
+	virtual S32 arrange( S32* width, S32* height );
+	virtual S32 getItemHeight();
 
 	void arrangeAll() { mArrangeGeneration++; }
 	S32 getArrangeGeneration() { return mArrangeGeneration; }
 
-	// Apply filters to control visibility of inventory items
-	virtual void filter( LLInventoryFilter& filter);
+	// applies filters to control visibility of items
+	virtual void filter( LLFolderViewFilter& filter);
 
 	// Get the last selected item
 	virtual LLFolderViewItem* getCurSelectedItem( void );
 
 	// Record the selected item and pass it down the hierarchy.
 	virtual BOOL setSelection(LLFolderViewItem* selection, BOOL openitem,
-		BOOL take_keyboard_focus);
+		BOOL take_keyboard_focus = TRUE);
 
-	// Used by menu callbacks
-	void setSelectionByID(const LLUUID& obj_id, BOOL take_keyboard_focus);
-
-	// Called once a frame to update the selection if mSelectThisID has been set
-	void updateSelection();
-
-	// This method is used to toggle the selection of an item. 
-	// Walks children and keeps track of selected objects.
+	// This method is used to toggle the selection of an item. Walks
+	// children, and keeps track of selected objects.
 	virtual BOOL changeSelection(LLFolderViewItem* selection, BOOL selected);
 
-	virtual std::set<LLUUID> getSelectionList() const;
+	virtual std::set<LLFolderViewItem*> getSelectionList() const;
 
 	// Make sure if ancestor is selected, descendents are not
 	void sanitizeSelection();
-	void clearSelection();
+	virtual void clearSelection();
 	void addToSelectionList(LLFolderViewItem* item);
 	void removeFromSelectionList(LLFolderViewItem* item);
 
@@ -193,6 +179,7 @@ public:
 	void autoOpenItem(LLFolderViewFolder* item);
 	void closeAutoOpenedFolders();
 	BOOL autoOpenTest(LLFolderViewFolder* item);
+	BOOL isOpen() const { return TRUE; } // root folder always open
 
 	// Copy & paste
 	virtual void	copy();
@@ -241,11 +228,6 @@ public:
 	F32  getSelectionFadeElapsedTime() { return mMultiSelectionFadeTimer.getElapsedTimeF32(); }
 	bool getUseEllipses() { return mUseEllipses; }
 
-	void addItemID(const LLUUID& id, LLFolderViewItem* itemp);
-	void removeItemID(const LLUUID& id);
-	LLFolderViewItem* getItemByID(const LLUUID& id);
-	LLFolderViewFolder* getFolderByID(const LLUUID& id);
-	
 	bool doToSelected(LLInventoryModel* model, const LLSD& userdata);
 	
 	void	doIdle();						// Real idle routine
@@ -257,9 +239,9 @@ public:
 	void setPinningSelectedItem(BOOL val) { mPinningSelectedItem = val; }
 	void setAutoSelectOverride(BOOL val) { mAutoSelectOverride = val; }
 
-	void setCallbackRegistrar(LLUICtrl::CommitCallbackRegistry::ScopedRegistrar* registrar) { mCallbackRegistrar = registrar; }
+	bool showItemLinkOverlays() { return mShowItemLinkOverlays; }
 
-	BOOL getDebugFilters() { return mDebugFilters; }
+	void setCallbackRegistrar(LLUICtrl::CommitCallbackRegistry::ScopedRegistrar* registrar) { mCallbackRegistrar = registrar; }
 
 	LLPanel* getParentPanel() { return mParentPanel; }
 	// DEBUG only
@@ -312,15 +294,14 @@ protected:
 	BOOL							mAutoSelectOverride;
 	BOOL							mNeedsAutoRename;
 	bool							mUseLabelSuffix;
+	bool							mShowItemLinkOverlays;
 	
-	BOOL							mDebugFilters;
 	U32								mSortOrder;
 	LLDepthStack<LLFolderViewFolder>	mAutoOpenItems;
 	LLFolderViewFolder*				mAutoOpenCandidate;
 	LLFrameTimer					mAutoOpenTimer;
 	LLFrameTimer					mSearchTimer;
 	std::string						mSearchString;
-	LLInventoryFilter*				mFilter;
 	BOOL							mShowSelectionContext;
 	BOOL							mShowSingleSelection;
 	LLFrameTimer					mMultiSelectionFadeTimer;
@@ -330,13 +311,11 @@ protected:
 	signal_t						mReshapeSignal;
 	S32								mSignalSelectCallback;
 	S32								mMinWidth;
-	S32								mRunningHeight;
-	std::map<LLUUID, LLFolderViewItem*> mItemMap;
 	BOOL							mDragAndDropThisFrame;
 	
-	LLUUID							mSelectThisID; // if non null, select this item
-	
 	LLPanel*						mParentPanel;
+	
+	LLFolderViewModelInterface*		mViewModel;
 
 	/**
 	 * Is used to determine if we need to cut text In LLFolderViewItem to avoid horizontal scroll.
@@ -357,8 +336,66 @@ public:
 
 };
 
-bool sort_item_name(LLFolderViewItem* a, LLFolderViewItem* b);
-bool sort_item_date(LLFolderViewItem* a, LLFolderViewItem* b);
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLFolderViewFunctor
+//
+// Simple abstract base class for applying a functor to folders and
+// items in a folder view hierarchy. This is suboptimal for algorithms
+// that only work folders or only work on items, but I'll worry about
+// that later when it's determined to be too slow.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class LLFolderViewFunctor
+{
+public:
+	virtual ~LLFolderViewFunctor() {}
+	virtual void doFolder(LLFolderViewFolder* folder) = 0;
+	virtual void doItem(LLFolderViewItem* item) = 0;
+};
+
+class LLSelectFirstFilteredItem : public LLFolderViewFunctor
+{
+public:
+	LLSelectFirstFilteredItem() : mItemSelected(FALSE) {}
+	virtual ~LLSelectFirstFilteredItem() {}
+	virtual void doFolder(LLFolderViewFolder* folder);
+	virtual void doItem(LLFolderViewItem* item);
+	BOOL wasItemSelected() { return mItemSelected; }
+protected:
+	BOOL mItemSelected;
+};
+
+class LLOpenFilteredFolders : public LLFolderViewFunctor
+{
+public:
+	LLOpenFilteredFolders()  {}
+	virtual ~LLOpenFilteredFolders() {}
+	virtual void doFolder(LLFolderViewFolder* folder);
+	virtual void doItem(LLFolderViewItem* item);
+};
+
+class LLSaveFolderState : public LLFolderViewFunctor
+{
+public:
+	LLSaveFolderState() : mApply(FALSE) {}
+	virtual ~LLSaveFolderState() {}
+	virtual void doFolder(LLFolderViewFolder* folder);
+	virtual void doItem(LLFolderViewItem* item) {}
+	void setApply(BOOL apply);
+	void clearOpenFolders() { mOpenFolders.clear(); }
+protected:
+	std::set<LLUUID> mOpenFolders;
+	BOOL mApply;
+};
+
+class LLOpenFoldersWithSelection : public LLFolderViewFunctor
+{
+public:
+	LLOpenFoldersWithSelection() {}
+	virtual ~LLOpenFoldersWithSelection() {}
+	virtual void doFolder(LLFolderViewFolder* folder);
+	virtual void doItem(LLFolderViewItem* item);
+};
 
 // Flags for buildContextMenu()
 const U32 SUPPRESS_OPEN_ITEM = 0x1;

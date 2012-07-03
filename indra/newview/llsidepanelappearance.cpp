@@ -38,7 +38,7 @@
 #include "llfiltereditor.h"
 #include "llfloaterreg.h"
 #include "llfloaterworldmap.h"
-#include "llfoldervieweventlistener.h"
+#include "llfolderviewmodel.h"
 #include "lloutfitobserver.h"
 #include "llpaneleditwearable.h"
 #include "llpaneloutfitsinventory.h"
@@ -267,11 +267,11 @@ void LLSidepanelAppearance::onOpenOutfitButtonClicked()
 		if (inventory_panel)
 		{
 			LLFolderView* root = inventory_panel->getRootFolder();
-			LLFolderViewItem *outfit_folder = root->getItemByID(outfit_link->getLinkedUUID());
+			LLFolderViewItem *outfit_folder =    inventory_panel->getItemByID(outfit_link->getLinkedUUID());
 			if (outfit_folder)
 			{
 				outfit_folder->setOpen(!outfit_folder->isOpen());
-				root->setSelectionFromRoot(outfit_folder,TRUE);
+				root->setSelection(outfit_folder,TRUE);
 				root->scrollToShowSelection();
 			}
 		}

@@ -418,21 +418,6 @@ public:
 class LLFolderViewItem;
 class LLFolderViewFolder;
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Class LLFolderViewFunctor
-//
-// Simple abstract base class for applying a functor to folders and
-// items in a folder view hierarchy. This is suboptimal for algorithms
-// that only work folders or only work on items, but I'll worry about
-// that later when it's determined to be too slow.
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-class LLFolderViewFunctor
-{
-public:
-	virtual ~LLFolderViewFunctor() {}
-	virtual void doFolder(LLFolderViewFolder* folder) = 0;
-	virtual void doItem(LLFolderViewItem* item) = 0;
-};
 
 class LLInventoryState
 {
@@ -442,49 +427,6 @@ public:
 	static LLUUID sWearNewClothingTransactionID;	// wear all clothing in this transaction	
 };
 
-class LLSelectFirstFilteredItem : public LLFolderViewFunctor
-{
-public:
-	LLSelectFirstFilteredItem() : mItemSelected(FALSE) {}
-	virtual ~LLSelectFirstFilteredItem() {}
-	virtual void doFolder(LLFolderViewFolder* folder);
-	virtual void doItem(LLFolderViewItem* item);
-	BOOL wasItemSelected() { return mItemSelected; }
-protected:
-	BOOL mItemSelected;
-};
-
-class LLOpenFilteredFolders : public LLFolderViewFunctor
-{
-public:
-	LLOpenFilteredFolders()  {}
-	virtual ~LLOpenFilteredFolders() {}
-	virtual void doFolder(LLFolderViewFolder* folder);
-	virtual void doItem(LLFolderViewItem* item);
-};
-
-class LLSaveFolderState : public LLFolderViewFunctor
-{
-public:
-	LLSaveFolderState() : mApply(FALSE) {}
-	virtual ~LLSaveFolderState() {}
-	virtual void doFolder(LLFolderViewFolder* folder);
-	virtual void doItem(LLFolderViewItem* item) {}
-	void setApply(BOOL apply);
-	void clearOpenFolders() { mOpenFolders.clear(); }
-protected:
-	std::set<LLUUID> mOpenFolders;
-	BOOL mApply;
-};
-
-class LLOpenFoldersWithSelection : public LLFolderViewFunctor
-{
-public:
-	LLOpenFoldersWithSelection() {}
-	virtual ~LLOpenFoldersWithSelection() {}
-	virtual void doFolder(LLFolderViewFolder* folder);
-	virtual void doItem(LLFolderViewItem* item);
-};
 
 #endif // LL_LLINVENTORYFUNCTIONS_H
 

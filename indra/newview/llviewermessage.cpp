@@ -728,7 +728,7 @@ static void highlight_inventory_objects_in_panel(const std::vector<LLUUID>& item
 		LLFolderView* fv = inventory_panel->getRootFolder();
 		if (fv)
 		{
-			LLFolderViewItem* fv_item = fv->getItemByID(item_id);
+			LLFolderViewItem* fv_item = inventory_panel->getItemByID(item_id);
 			if (fv_item)
 			{
 				LLFolderViewItem* fv_folder = fv_item->getParentFolder();
@@ -816,7 +816,13 @@ private:
 		mSelectedItems.clear();
 		if (LLInventoryPanel::getActiveInventoryPanel())
 		{
-			mSelectedItems = LLInventoryPanel::getActiveInventoryPanel()->getRootFolder()->getSelectionList();
+			std::set<LLFolderViewItem*> selection =    LLInventoryPanel::getActiveInventoryPanel()->getRootFolder()->getSelectionList();
+			for (std::set<LLFolderViewItem*>::iterator it = selection.begin(),    end_it = selection.end();
+				it != end_it;
+				++it)
+			{
+				mSelectedItems.insert(static_cast<LLFolderViewModelItemInventory*>((*it)->getViewModelItem())->getUUID());
+			}
 		}
 		mSelectedItems.erase(mMoveIntoFolderID);
 	}
@@ -851,7 +857,15 @@ private:
 		}
 
 		// get selected items (without destination folder)
-		selected_items_t selected_items = active_panel->getRootFolder()->getSelectionList();
+		selected_items_t selected_items;
+ 		
+ 		std::set<LLFolderViewItem*> selection =    LLInventoryPanel::getActiveInventoryPanel()->getRootFolder()->getSelectionList();
+		for (std::set<LLFolderViewItem*>::iterator it = selection.begin(),    end_it = selection.end();
+			it != end_it;
+			++it)
+		{
+			selected_items.insert(static_cast<LLFolderViewModelItemInventory*>((*it)->getViewModelItem())->getUUID());
+		}
 		selected_items.erase(mMoveIntoFolderID);
 
 		// compare stored & current sets of selected items

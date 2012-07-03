@@ -30,7 +30,8 @@
 
 #include "llplacesinventorypanel.h"
 
-#include "llfoldervieweventlistener.h"
+#include "llfolderviewmodel.h"
+#include "llfolderview.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llpanellandmarks.h"
@@ -86,12 +87,13 @@ void LLPlacesInventoryPanel::buildFolderView(const LLInventoryPanel::Params& par
 													LLAssetType::AT_CATEGORY,
 													LLInventoryType::IT_CATEGORY,
 													this,
+													&mInventoryViewModel,
 													NULL,
 													root_id);
 	p.parent_panel = this;
 	p.allow_multiselect = mAllowMultiSelect;
 	p.use_ellipses = true;	// truncate inventory item text so remove horizontal scroller
-	mFolderRoot = (LLFolderView*)LLUICtrlFactory::create<LLPlacesFolderView>(p);
+	mFolderRoot = LLUICtrlFactory::create<LLPlacesFolderView>(p);
 }
 
 
@@ -161,7 +163,7 @@ BOOL LLPlacesFolderView::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	// then determine its type and set necessary menu handle
 	if (getCurSelectedItem())
 	{
-		LLInventoryType::EType inventory_type = getCurSelectedItem()->getListener()->getInventoryType();
+		LLInventoryType::EType inventory_type = static_cast<LLFolderViewModelItemInventory*>(getCurSelectedItem()->getViewModelItem())->getInventoryType();
 		inventory_type_menu_handle_t::iterator it_handle = mMenuHandlesByInventoryType.find(inventory_type);
 
 		if (it_handle != mMenuHandlesByInventoryType.end())

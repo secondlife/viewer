@@ -302,6 +302,10 @@ public:
 		virtual ~StaticRegistrar() {}
 		StaticRegistrar(ref_const_key_t key, ref_const_value_t value)
 		{
+			if (singleton_t::instance().exists(key))
+			{
+				llerrs << "Duplicate registry entry under key \"" << key << "\"" << llendl;
+			}
 			singleton_t::instance().mStaticScope->add(key, value);
 		}
 	};

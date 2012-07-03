@@ -3201,68 +3201,7 @@ void LLInventoryModel::updateItemsOrder(LLInventoryModel::item_array_t& items, c
 	}
 }
 
-//* @param[in] items vector of items in order to be saved.
-void LLInventoryModel::saveItemsOrder(const LLInventoryModel::item_array_t& items)
-{
-	int sortField = 0;
 
-	// current order is saved by setting incremental values (1, 2, 3, ...) for the sort field
-	for (item_array_t::const_iterator i = items.begin(); i != items.end(); ++i)
-	{
-		LLViewerInventoryItem* item = *i;
-
-		item->setSortField(++sortField);
-		item->setComplete(TRUE);
-		item->updateServer(FALSE);
-
-		updateItem(item);
-
-		// Tell the parent folder to refresh its sort order.
-		addChangedMask(LLInventoryObserver::SORT, item->getParentUUID());
-	}
-
-	notifyObservers();
-}
-
-// See also LLInventorySort where landmarks in the Favorites folder are sorted.
-class LLViewerInventoryItemSort
-{
-public:
-	bool operator()(const LLPointer<LLViewerInventoryItem>& a, const LLPointer<LLViewerInventoryItem>& b)
-	{
-		return a->getSortField() < b->getSortField();
-	}
-};
-
-/**
- * Sorts passed items by LLViewerInventoryItem sort field.
- *
- * @param[in, out] items - array of items, not sorted.
- */
-static void rearrange_item_order_by_sort_field(LLInventoryModel::item_array_t& items)
-{
-	static LLViewerInventoryItemSort sort_functor;
-	std::sort(items.begin(), items.end(), sort_functor);
-}
-
-// * @param source_item_id - LLUUID of the source item to be moved into new position
-// * @param target_item_id - LLUUID of the target item before which source item should be placed.
-void LLInventoryModel::rearrangeFavoriteLandmarks(const LLUUID& source_item_id, const LLUUID& target_item_id)
-{
-	LLInventoryModel::cat_array_t cats;
-	LLInventoryModel::item_array_t items;
-	LLIsType is_type(LLAssetType::AT_LANDMARK);
-	LLUUID favorites_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
-	gInventory.collectDescendentsIf(favorites_id, cats, items, LLInventoryModel::EXCLUDE_TRASH, is_type);
-
-	// ensure items are sorted properly before changing order. EXT-3498
-	rearrange_item_order_by_sort_field(items);
-
-	// update order
-	updateItemsOrder(items, source_item_id, target_item_id);
-
-	saveItemsOrder(items);
-}
 
 //----------------------------------------------------------------------------
 

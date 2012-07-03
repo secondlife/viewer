@@ -1542,34 +1542,32 @@ void LLNotifications::addFromCallback(const LLSD& name)
 	add(name.asString(), LLSD(), LLSD());
 }
 
-LLNotificationPtr LLNotifications::add(const std::string& name, 
-									   const LLSD& substitutions, 
-									   const LLSD& payload)
+LLNotificationPtr LLNotifications::add(const std::string& name, const LLSD& substitutions, const LLSD& payload)
 {
 	LLNotification::Params::Functor functor_p;
 	functor_p.name = name;
 	return add(LLNotification::Params().name(name).substitutions(substitutions).payload(payload).functor(functor_p));	
 }
 
-LLNotificationPtr LLNotifications::add(const std::string& name, 
-									   const LLSD& substitutions, 
-									   const LLSD& payload, 
-									   const std::string& functor_name)
+LLNotificationPtr LLNotifications::add(const std::string& name, const LLSD& substitutions, const LLSD& payload, const std::string& functor_name)
 {
 	LLNotification::Params::Functor functor_p;
 	functor_p.name = functor_name;
-	return add(LLNotification::Params().name(name).substitutions(substitutions).payload(payload).functor(functor_p));	
+	return add(LLNotification::Params().name(name)
+										.substitutions(substitutions)
+										.payload(payload)
+										.functor(functor_p));	
 }
 							  
 //virtual
-LLNotificationPtr LLNotifications::add(const std::string& name, 
-										const LLSD& substitutions, 
-										const LLSD& payload, 
-										LLNotificationFunctorRegistry::ResponseFunctor functor)
+LLNotificationPtr LLNotifications::add(const std::string& name, const LLSD& substitutions, const LLSD& payload, LLNotificationFunctorRegistry::ResponseFunctor functor)
 {
 	LLNotification::Params::Functor functor_p;
 	functor_p.function = functor;
-	return add(LLNotification::Params().name(name).substitutions(substitutions).payload(payload).functor(functor_p));	
+	return add(LLNotification::Params().name(name)
+										.substitutions(substitutions)
+										.payload(payload)
+										.functor(functor_p));	
 }
 
 // generalized add function that takes a parameter block object for more complex instantiations

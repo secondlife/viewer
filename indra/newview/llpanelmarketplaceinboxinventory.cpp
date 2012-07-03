@@ -29,7 +29,8 @@
 #include "llpanelmarketplaceinboxinventory.h"
 
 #include "llfolderview.h"
-#include "llfoldervieweventlistener.h"
+#include "llfolderviewitem.h"
+#include "llfolderviewmodel.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llpanellandmarks.h"
@@ -110,6 +111,7 @@ void LLInboxInventoryPanel::buildFolderView(const LLInventoryPanel::Params& para
 																	LLAssetType::AT_CATEGORY,
 																	LLInventoryType::IT_CATEGORY,
 																	this,
+																	&mInventoryViewModel,
 																	NULL,
 																	root_id);
 	
@@ -121,14 +123,6 @@ LLFolderViewFolder * LLInboxInventoryPanel::createFolderViewFolder(LLInvFVBridge
 	LLInboxFolderViewFolder::Params params;
 	
 	params.name = bridge->getDisplayName();
-	params.icon = bridge->getIcon();
-	params.icon_open = bridge->getOpenIcon();
-	
-	if (mShowItemLinkOverlays) // if false, then links show up just like normal items
-	{
-		params.icon_overlay = LLUI::getUIImage("Inv_Link");
-	}
-	
 	params.root = mFolderRoot;
 	params.listener = bridge;
 	params.tool_tip = params.name;
@@ -141,14 +135,6 @@ LLFolderViewItem * LLInboxInventoryPanel::createFolderViewItem(LLInvFVBridge * b
 	LLInboxFolderViewItem::Params params;
 
 	params.name = bridge->getDisplayName();
-	params.icon = bridge->getIcon();
-	params.icon_open = bridge->getOpenIcon();
-
-	if (mShowItemLinkOverlays) // if false, then links show up just like normal items
-	{
-		params.icon_overlay = LLUI::getUIImage("Inv_Link");
-	}
-
 	params.creation_date = bridge->getCreationDate();
 	params.root = mFolderRoot;
 	params.listener = bridge;
@@ -207,7 +193,7 @@ void LLInboxFolderViewFolder::computeFreshness()
 
 	if (last_expansion_utc > 0)
 	{
-		mFresh = (mCreationDate > last_expansion_utc);
+		mFresh = (static_cast<LLFolderViewModelItemInventory*>(getViewModelItem())->getCreationDate() > last_expansion_utc);
 
 #if DEBUGGING_FRESHNESS
 		if (mFresh)
@@ -229,15 +215,16 @@ void LLInboxFolderViewFolder::deFreshify()
 	gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
 }
 
-void LLInboxFolderViewFolder::setCreationDate(time_t creation_date_utc)
-{ 
-	mCreationDate = creation_date_utc; 
-
-	if (mParentFolder == mRoot)
-	{
-		computeFreshness();
-	}
-}
+// TODO RN: move this behavior to modelview?
+//void LLInboxFolderViewFolder::setCreationDate(time_t creation_date_utc)
+//{ 
+//	mCreationDate = creation_date_utc; 
+//
+//	if (LLFolderViewItem::mParentFolder == mRoot)
+//	{
+//		computeFreshness();
+//	}
+//}
 
 //
 // LLInboxFolderViewItem Implementation
@@ -253,9 +240,9 @@ LLInboxFolderViewItem::LLInboxFolderViewItem(const Params& p)
 #endif
 }
 
-BOOL LLInboxFolderViewItem::addToFolder(LLFolderViewFolder* folder, LLFolderView* root)
+BOOL LLInboxFolderViewItem::addToFolder(LLFolderViewFolder* folder)
 {
-	BOOL retval = LLFolderViewItem::addToFolder(folder, root);
+	BOOL retval = LLFolderViewItem::addToFolder(folder);
 
 #if SUPPORTING_FRESH_ITEM_COUNT
 	// Compute freshness if our parent is the root folder for the inbox
@@ -303,7 +290,7 @@ void LLInboxFolderViewItem::computeFreshness()
 
 	if (last_expansion_utc > 0)
 	{
-		mFresh = (mCreationDate > last_expansion_utc);
+		mFresh = (static_cast<LLFolderViewModelItemInventory*>(getViewModelItem())->getCreationDate() > last_expansion_utc);
 
 #if DEBUGGING_FRESHNESS
 		if (mFresh)
