@@ -28,6 +28,7 @@
 #include "lldarray.h"	// *TODO: convert to std::vector
 #include "llfoldertype.h"
 #include "llfontgl.h"	// just for StyleFlags enum
+#include "llfolderview.h"
 #include "llfolderviewitem.h"
 #include "llinventorytype.h"
 #include "llpermissionsflags.h"
@@ -122,11 +123,13 @@ public:
 	virtual void requestSortAll() = 0;
 
 	virtual void sort(class LLFolderViewFolder*) = 0;
+	virtual void filter() = 0;
 
 	virtual bool contentsReady() = 0;
 	virtual void setFolderView(LLFolderView* folder_view) = 0;
 	virtual LLFolderViewFilter* getFilter() = 0;
 	virtual const LLFolderViewFilter* getFilter() const = 0;
+	virtual std::string getStatusText() = 0;
 };
 
 class LLFolderViewModelCommon : public LLFolderViewModelInterface
@@ -142,6 +145,8 @@ public:
 		// sort everything
 		mTargetSortVersion++;
 	}
+	virtual std::string getStatusText();
+	virtual void filter();
 
 	void setFolderView(LLFolderView* folder_view) { mFolderView = folder_view;}
 
@@ -176,6 +181,7 @@ public:
 	// TODO RN: remove this and put all filtering logic in view model
 	// add getStatusText and isFiltering()
 	virtual bool contentsReady()					{ return true; }
+
 
 	struct ViewModelCompare
 	{
@@ -272,6 +278,7 @@ public:
 	
 	virtual bool hasChildren() const = 0;
 	virtual void addChild(LLFolderViewModelItem* child) = 0;
+	virtual void removeChild(LLFolderViewModelItem* child) = 0;
 
 	// This method will be called to determine if a drop can be
 	// performed, and will set drop to TRUE if a drop is
@@ -305,7 +312,9 @@ public:
 		mLastFilterGeneration(-1),
 		mMostFilteredDescendantGeneration(-1),
 		mParent(NULL)
-	{}
+	{
+		std::for_each(mChildren.begin(), mChildren.end(), DeletePointer());
+	}
 
 	void requestSort() { mSortVersion = -1; }
 	S32 getSortVersion() { return mSortVersion; }
@@ -315,13 +324,23 @@ public:
 	void dirtyFilter()
 	{
 		mLastFilterGeneration = -1;
+
 		// bubble up dirty flag all the way to root
 		if (mParent)
 		{
 			mParent->dirtyFilter();
-		}
+		}	
 	}
-	virtual void addChild(LLFolderViewModelItem* child) { mChildren.push_back(child); child->setParent(this); }
+	virtual void addChild(LLFolderViewModelItem* child) 
+	{ 
+		mChildren.push_back(child); 
+		child->setParent(this); 
+	}
+	virtual void removeChild(LLFolderViewModelItem* child) 
+	{ 
+		mChildren.remove(child); 
+		child->setParent(NULL); 
+	}
 
 protected:
 	virtual void setParent(LLFolderViewModelItem* parent) { mParent = parent; }

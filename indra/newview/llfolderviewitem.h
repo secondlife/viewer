@@ -92,13 +92,12 @@ protected:
 	S32							mLabelWidth;
 	bool						mLabelWidthDirty;
 	LLFolderViewFolder*			mParentFolder;
-	LLFolderViewModelItem*		mListener;
+	LLFolderViewModelItem*		mViewModelItem;
 	BOOL						mIsCurSelection;
 	BOOL						mSelectPending;
 	LLFontGL::StyleFlags		mLabelStyle;
 	std::string					mLabelSuffix;
 	LLUIImagePtr				mIcon;
-	std::string					mStatusText;
 	LLUIImagePtr				mIconOpen;
 	LLUIImagePtr				mIconOverlay;
 	BOOL						mHasVisibleChildren;
@@ -135,9 +134,6 @@ public:
 	// makes sure that this view and it's children are the right size.
 	virtual S32 arrange( S32* width, S32* height );
 	virtual S32 getItemHeight();
-
-	// updates filter serial number and optionally propagated value up to root
-	S32		getLastFilterGeneration() const;
 
 	// If 'selection' is 'this' then note that otherwise ignore.
 	// Returns TRUE if this item ends up being selected.
@@ -202,8 +198,8 @@ public:
 	LLFolderViewItem* getNextOpenNode( BOOL include_children = TRUE );
 	LLFolderViewItem* getPreviousOpenNode( BOOL include_children = TRUE );
 
-	const LLFolderViewModelItem* getViewModelItem( void ) const { return mListener; }
-	LLFolderViewModelItem* getViewModelItem( void ) { return mListener; }
+	const LLFolderViewModelItem* getViewModelItem( void ) const { return mViewModelItem; }
+	LLFolderViewModelItem* getViewModelItem( void ) { return mViewModelItem; }
 
 	const LLFolderViewModelInterface* getFolderViewModel( void ) const;
 	LLFolderViewModelInterface* getFolderViewModel( void );

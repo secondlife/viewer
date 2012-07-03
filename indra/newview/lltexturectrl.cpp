@@ -623,9 +623,9 @@ void LLFloaterTexturePicker::draw()
 		LLFolderView* folder_view = mInventoryPanel->getRootFolder();
 		if (!folder_view) return;
 
-		LLInventoryFilter* filter = static_cast<LLFolderViewModelInventory*>(folder_view->getFolderViewModel())->getFilter();
+		LLFolderViewFilter* filter = static_cast<LLFolderViewModelInventory*>(folder_view->getFolderViewModel())->getFilter();
 
-		bool is_filter_active = folder_view->getLastFilterGeneration() < filter->getCurrentGeneration() &&
+		bool is_filter_active = folder_view->getViewModelItem()->getLastFilterGeneration() < filter->getCurrentGeneration() &&
 				filter->isNotDefault();
 
 		// After inventory panel filter is applied we have to update

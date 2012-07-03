@@ -259,7 +259,7 @@ LLFolderView::LLFolderView(const Params& p)
 	menu->setBackgroundColor(LLUIColorTable::instance().getColor("MenuPopupBgColor"));
 	mPopupMenuHandle = menu->getHandle();
 
-	mListener->openItem();
+	mViewModelItem->openItem();
 }
 
 // Destroys the object
@@ -363,11 +363,7 @@ void LLFolderView::filter( LLFolderViewFilter& filter )
 	LLFastTimer t2(FTM_FILTER);
 	filter.setFilterCount(llclamp(gSavedSettings.getS32("FilterItemsPerFrame"), 1, 5000));
 
-	if (getLastFilterGeneration() < filter.getCurrentGeneration())
-	{
-		mMinWidth = 0;
-		getViewModelItem()->filter(filter);
-	}
+	getViewModelItem()->filter(filter);
 }
 
 void LLFolderView::reshape(S32 width, S32 height, BOOL called_from_parent)
@@ -706,20 +702,11 @@ void LLFolderView::draw()
 
 	if (hasVisibleChildren())
 	{
-		mStatusText.clear();
 		mStatusTextBox->setVisible( FALSE );
 	}
 	else if (mShowEmptyMessage)
 	{
-		if (!mViewModel->contentsReady() || getLastFilterGeneration() < getFolderViewModel()->getFilter()->getFirstSuccessGeneration())
-		{
-			mStatusText = LLTrans::getString("Searching");
-		}
-		else
-		{
-			mStatusText = getFolderViewModel()->getFilter()->getEmptyLookupMessage();
-		}
-		mStatusTextBox->setValue(mStatusText);
+		mStatusTextBox->setValue(getFolderViewModel()->getStatusText());
 		mStatusTextBox->setVisible( TRUE );
 		
 		// firstly reshape message textbox with current size. This is necessary to
@@ -1971,7 +1958,7 @@ void LLFolderView::doIdle()
 		scrollToShowSelection();
 	}
 
-	BOOL filter_finished = getLastFilterGeneration() >= getFolderViewModel()->getFilter()->getCurrentGeneration() 
+	BOOL filter_finished = getViewModelItem()->passedFilter()
 						&& mViewModel->contentsReady();
 	if (filter_finished 
 		|| gFocusMgr.childHasKeyboardFocus(inventory_panel) 
@@ -2263,10 +2250,4 @@ S32 LLFolderView::getItemHeight()
 		return llmax(0, mStatusTextBox->getTextPixelHeight());
 	}
 	return 0;
-}
-
-//TODO RN: move to llfolderviewmodel.cpp file
-bool LLFolderViewModelCommon::needsSort(LLFolderViewModelItem* item)
-{
-	return item->getSortVersion() < mTargetSortVersion;
 }

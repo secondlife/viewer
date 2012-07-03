@@ -120,12 +120,12 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 	mDragAndDropTarget(FALSE),
 	mLabel(p.name),
 	mRoot(p.root),
-	mListener(p.listener),
+	mViewModelItem(p.listener),
 	mIsMouseOverTitle(false)
 {
-	if (mListener)
+	if (mViewModelItem)
 	{
-		mListener->setFolderViewItem(this);
+		mViewModelItem->setFolderViewItem(this);
 	}
 }
 
@@ -138,8 +138,8 @@ BOOL LLFolderViewItem::postBuild()
 // Destroys the object
 LLFolderViewItem::~LLFolderViewItem( void )
 {
-	delete mListener;
-	mListener = NULL;
+	delete mViewModelItem;
+	mViewModelItem = NULL;
 }
 
 LLFolderView* LLFolderViewItem::getRoot()
@@ -837,12 +837,6 @@ LLFolderViewModelInterface* LLFolderViewItem::getFolderViewModel( void )
 	return getRoot()->getFolderViewModel();
 }
 
-S32 LLFolderViewItem::getLastFilterGeneration() const
-{
-	return getViewModelItem()->getLastFilterGeneration();
-}
-
-
 
 ///----------------------------------------------------------------------------
 /// Class LLFolderViewFolder
@@ -1446,6 +1440,7 @@ void LLFolderViewFolder::extractItem( LLFolderViewItem* item )
 		mItems.erase(it);
 	}
 	//item has been removed, need to update filter
+	getViewModelItem()->removeChild(item->getViewModelItem());
 	getViewModelItem()->dirtyFilter();
 	//because an item is going away regardless of filter status, force rearrange
 	requestArrange();
@@ -1638,7 +1633,7 @@ BOOL LLFolderViewFolder::handleDragAndDropFromChild(MASK mask,
 													EAcceptance* accept,
 													std::string& tooltip_msg)
 {
-	BOOL accepted = mListener->dragOrDrop(mask,drop,c_type,cargo_data, tooltip_msg);
+	BOOL accepted = mViewModelItem->dragOrDrop(mask,drop,c_type,cargo_data, tooltip_msg);
 	if (accepted) 
 	{
 		mDragAndDropTarget = TRUE;
