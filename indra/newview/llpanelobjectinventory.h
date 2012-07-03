@@ -29,6 +29,7 @@
 
 #include "llvoinventorylistener.h"
 #include "llpanel.h"
+#include "llinventorypanel.h" // for LLFolderViewModelInventory
 
 #include "llinventory.h"
 
@@ -94,6 +95,7 @@ private:
 	BOOL mHaveInventory;
 	BOOL mIsInventoryEmpty;
 	BOOL mInventoryNeedsUpdate;
+	LLFolderViewModelInventory	mInventoryViewModel;	
 };
 
 #endif // LL_LLPANELOBJECTINVENTORY_H

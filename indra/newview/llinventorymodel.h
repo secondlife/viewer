@@ -362,15 +362,6 @@ public:
 	// Returns end() of the vector if not found.
 	static LLInventoryModel::item_array_t::iterator findItemIterByUUID(LLInventoryModel::item_array_t& items, const LLUUID& id);
 
-	// Saves current order of the passed items using inventory item sort field.
-	// Resets 'items' sort fields and saves them on server.
-	// Is used to save order for Favorites folder.
-	void saveItemsOrder(const LLInventoryModel::item_array_t& items);
-
-	// Rearranges Landmarks inside Favorites folder.
-	// Moves source landmark before target one.
-	void rearrangeFavoriteLandmarks(const LLUUID& source_item_id, const LLUUID& target_item_id);
-
 	//--------------------------------------------------------------------
 	// Creation
 	//--------------------------------------------------------------------

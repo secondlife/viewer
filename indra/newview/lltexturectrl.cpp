@@ -39,7 +39,7 @@
 #include "llfocusmgr.h"
 #include "llviewertexture.h"
 #include "llfolderview.h"
-#include "llfoldervieweventlistener.h"
+#include "llfolderviewmodel.h"
 #include "llinventory.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodelbackgroundfetch.h"
@@ -181,7 +181,7 @@ protected:
 	F32					mContextConeOpacity;
 	LLSaveFolderState	mSavedFolderState;
 	BOOL				mSelectedItemPinned;
-	
+
 	LLRadioGroup*		mModeSelector;
 	LLScrollListCtrl*	mLocalScrollCtrl;
 };
@@ -358,7 +358,7 @@ BOOL LLFloaterTexturePicker::handleKeyHere(KEY key, MASK mask)
 		{
 			if (!root_folder->getCurSelectedItem())
 			{
-				LLFolderViewItem* itemp = root_folder->getItemByID(gInventory.getRootFolderID());
+				LLFolderViewItem* itemp =    mInventoryPanel->getItemByID(gInventory.getRootFolderID());
 				if (itemp)
 				{
 					root_folder->setSelection(itemp, FALSE, FALSE);
@@ -623,10 +623,9 @@ void LLFloaterTexturePicker::draw()
 		LLFolderView* folder_view = mInventoryPanel->getRootFolder();
 		if (!folder_view) return;
 
-		LLInventoryFilter* filter = folder_view->getFilter();
-		if (!filter) return;
+		LLFolderViewFilter* filter = static_cast<LLFolderViewModelInventory*>(folder_view->getFolderViewModel())->getFilter();
 
-		bool is_filter_active = folder_view->getCompletedFilterGeneration() < filter->getCurrentGeneration() &&
+		bool is_filter_active = folder_view->getViewModelItem()->getLastFilterGeneration() < filter->getCurrentGeneration() &&
 				filter->isNotDefault();
 
 		// After inventory panel filter is applied we have to update
@@ -637,8 +636,9 @@ void LLFloaterTexturePicker::draw()
 		if (!is_filter_active && !mSelectedItemPinned)
 		{
 			folder_view->setPinningSelectedItem(mSelectedItemPinned);
-			folder_view->dirtyFilter();
-			folder_view->arrangeFromRoot();
+			folder_view->getViewModelItem()->dirtyFilter();
+			//TODO RN: test..still works without this?
+			//folder_view->arrangeFromRoot();
 
 			mSelectedItemPinned = TRUE;
 		}
@@ -800,7 +800,7 @@ void LLFloaterTexturePicker::onSelectionChange(const std::deque<LLFolderViewItem
 	if (items.size())
 	{
 		LLFolderViewItem* first_item = items.front();
-		LLInventoryItem* itemp = gInventory.getItem(first_item->getListener()->getUUID());
+		LLInventoryItem* itemp = gInventory.getItem(static_cast<LLFolderViewModelItemInventory*>(first_item->getViewModelItem())->getUUID());
 		mNoCopyTextureSelected = FALSE;
 		if (itemp)
 		{
@@ -982,7 +982,7 @@ void LLFloaterTexturePicker::onFilterEdit(const std::string& search_string )
 	else if (mInventoryPanel->getFilterSubString().empty())
 	{
 		// first letter in search term, save existing folder open state
-		if (!mInventoryPanel->getRootFolder()->isFilterModified())
+		if (!mInventoryPanel->getFilter()->isNotDefault())
 		{
 			mSavedFolderState.setApply(FALSE);
 			mInventoryPanel->getRootFolder()->applyFunctorRecursively(mSavedFolderState);
@@ -1280,7 +1280,7 @@ void LLTextureCtrl::onFloaterCommit(ETexturePickOp op, LLUUID id)
 		// (i.e. op == TEXTURE_SELECT) or texture changes via DnD.
 		else if (mCommitOnSelection || op == TEXTURE_SELECT)
 			mViewModel->setDirty(); // *TODO: shouldn't we be using setValue() here?
-
+			
 		if(floaterp->isDirty() || id.notNull()) // mModelView->setDirty does not work.
 		{
 			setTentative( FALSE );
@@ -1292,10 +1292,10 @@ void LLTextureCtrl::onFloaterCommit(ETexturePickOp op, LLUUID id)
 			}
 			else
 			{
-				mImageItemID = floaterp->findItemID(floaterp->getAssetID(), FALSE);
-				lldebugs << "mImageItemID: " << mImageItemID << llendl;
-				mImageAssetID = floaterp->getAssetID();
-				lldebugs << "mImageAssetID: " << mImageAssetID << llendl;
+			mImageItemID = floaterp->findItemID(floaterp->getAssetID(), FALSE);
+			lldebugs << "mImageItemID: " << mImageItemID << llendl;
+			mImageAssetID = floaterp->getAssetID();
+			lldebugs << "mImageAssetID: " << mImageAssetID << llendl;
 			}
 
 			if (op == TEXTURE_SELECT && mOnSelectCallback)

@@ -948,7 +948,7 @@ void LLSaveFolderState::setApply(BOOL apply)
 void LLSaveFolderState::doFolder(LLFolderViewFolder* folder)
 {
 	LLMemType mt(LLMemType::MTYPE_INVENTORY_DO_FOLDER);
-	LLInvFVBridge* bridge = (LLInvFVBridge*)folder->getListener();
+	LLInvFVBridge* bridge = (LLInvFVBridge*)folder->getViewModelItem();
 	if(!bridge) return;
 	
 	if(mApply)
@@ -983,7 +983,7 @@ void LLSaveFolderState::doFolder(LLFolderViewFolder* folder)
 
 void LLOpenFilteredFolders::doItem(LLFolderViewItem *item)
 {
-	if (item->getFiltered())
+	if (item->passedFilter())
 	{
 		item->getParentFolder()->setOpenArrangeRecursively(TRUE, LLFolderViewFolder::RECURSE_UP);
 	}
@@ -991,12 +991,12 @@ void LLOpenFilteredFolders::doItem(LLFolderViewItem *item)
 
 void LLOpenFilteredFolders::doFolder(LLFolderViewFolder* folder)
 {
-	if (folder->getFiltered() && folder->getParentFolder())
+	if (folder->LLFolderViewItem::passedFilter() && folder->getParentFolder())
 	{
 		folder->getParentFolder()->setOpenArrangeRecursively(TRUE, LLFolderViewFolder::RECURSE_UP);
 	}
 	// if this folder didn't pass the filter, and none of its descendants did
-	else if (!folder->getFiltered() && !folder->hasFilteredDescendants())
+	else if (!folder->getViewModelItem()->passedFilter() && !folder->getViewModelItem()->descendantsPassedFilter())
 	{
 		folder->setOpenArrangeRecursively(FALSE, LLFolderViewFolder::RECURSE_NO);
 	}
@@ -1004,7 +1004,7 @@ void LLOpenFilteredFolders::doFolder(LLFolderViewFolder* folder)
 
 void LLSelectFirstFilteredItem::doItem(LLFolderViewItem *item)
 {
-	if (item->getFiltered() && !mItemSelected)
+	if (item->passedFilter() && !mItemSelected)
 	{
 		item->getRoot()->setSelection(item, FALSE, FALSE);
 		if (item->getParentFolder())
@@ -1017,7 +1017,7 @@ void LLSelectFirstFilteredItem::doItem(LLFolderViewItem *item)
 
 void LLSelectFirstFilteredItem::doFolder(LLFolderViewFolder* folder)
 {
-	if (folder->getFiltered() && !mItemSelected)
+	if (folder->LLFolderViewItem::passedFilter() && !mItemSelected)
 	{
 		folder->getRoot()->setSelection(folder, FALSE, FALSE);
 		if (folder->getParentFolder())

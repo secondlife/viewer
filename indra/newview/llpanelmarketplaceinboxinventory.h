@@ -81,8 +81,6 @@ public:
 	bool isFresh() const { return mFresh; }
 	
 protected:
-	void setCreationDate(time_t creation_date_utc);
-
 	bool mFresh;
 };
 
@@ -102,7 +100,7 @@ public:
 
 	LLInboxFolderViewItem(const Params& p);
 
-	BOOL addToFolder(LLFolderViewFolder* folder, LLFolderView* root);
+	BOOL addToFolder(LLFolderViewFolder* folder);
 	BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
 
 	void draw();

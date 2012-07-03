@@ -30,6 +30,8 @@
 
 #include "llassetstorage.h"
 #include "lldarray.h"
+#include "llfolderviewitem.h"
+#include "llfolderviewmodelinventory.h"
 #include "llfloater.h"
 #include "llinventory.h"
 #include "llinventoryfilter.h"
@@ -38,21 +40,8 @@
 #include "lluictrlfactory.h"
 #include <set>
 
-class LLFolderView;
-class LLFolderViewFolder;
-class LLFolderViewItem;
-class LLInventoryFilter;
-class LLInventoryModel;
 class LLInvFVBridge;
 class LLInventoryFVBridgeBuilder;
-class LLMenuBarGL;
-class LLCheckBoxCtrl;
-class LLSpinCtrl;
-class LLTextBox;
-class LLIconCtrl;
-class LLSaveFolderState;
-class LLFilterEditor;
-class LLTabContainer;
 class LLInvPanelComplObserver;
 
 class LLInventoryPanel : public LLPanel
@@ -85,7 +74,6 @@ public:
 		Optional<std::string>               start_folder;
 		Optional<bool>						use_label_suffix;
 		Optional<bool>						show_empty_message;
-		Optional<bool>						show_load_status;
 		Optional<LLScrollContainer::Params>	scroll;
 		Optional<bool>						accepts_drag_and_drop;
 
@@ -98,7 +86,6 @@ public:
 			start_folder("start_folder"),
 			use_label_suffix("use_label_suffix", true),
 			show_empty_message("show_empty_message", true),
-			show_load_status("show_load_status"),
 			scroll("scroll"),
 			accepts_drag_and_drop("accepts_drag_and_drop")
 		{}
@@ -156,6 +143,7 @@ public:
 	// This method is called when something has changed about the inventory.
 	void modelChanged(U32 mask);
 	LLFolderView* getRootFolder();
+	LLUUID getRootFolderID();
 	LLScrollContainer* getScrollableContainer() { return mScroller; }
 	
 	void onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
@@ -182,10 +170,21 @@ public:
 	
 	static void openInventoryPanelAndSetSelection(BOOL auto_open, const LLUUID& obj_id);
 
+	void addItemID(const LLUUID& id, LLFolderViewItem* itemp);
+	void removeItemID(const LLUUID& id);
+	LLFolderViewItem* getItemByID(const LLUUID& id);
+	LLFolderViewFolder* getFolderByID(const LLUUID& id);
+	void setSelectionByID(const LLUUID& obj_id, BOOL take_keyboard_focus);
+	void updateSelection();
+	 	
+	LLFolderViewModelInventory* getFolderViewModel();
+	const LLFolderViewModelInventory* getFolderViewModel() const;
+
 protected:
 	void openStartFolderOrMyInventory(); // open the first level of inventory
 	void onItemsCompletion();			// called when selected items are complete
 
+        LLUUID						mSelectThisID;	
 	LLInventoryModel*			mInventory;
 	LLInventoryObserver*		mInventoryObserver;
 	LLInvPanelComplObserver*	mCompletionObserver;
@@ -193,11 +192,13 @@ protected:
 	BOOL 						mAllowMultiSelect;
 	BOOL 						mShowItemLinkOverlays; // Shows link graphic over inventory item icons
 	BOOL						mShowEmptyMessage;
-	BOOL						mShowLoadStatus;
 
 	LLFolderView*				mFolderRoot;
 	LLScrollContainer*			mScroller;
 
+	LLFolderViewModelInventory	mInventoryViewModel;
+
+	std::map<LLUUID, LLFolderViewItem*> mItemMap;
 	/**
 	 * Pointer to LLInventoryFVBridgeBuilder.
 	 *
@@ -218,7 +219,6 @@ public:
 	
 	void setSortOrder(U32 order);
 	U32 getSortOrder() const;
-	void requestSort();
 
 private:
 	std::string					mSortOrderSetting;
@@ -231,8 +231,7 @@ public:
 	void addHideFolderType(LLFolderType::EType folder_type);
 
 public:
-	BOOL 				getIsViewsInitialized() const { return mViewsInitialized; }
-	const LLUUID&		getRootFolderID() const;
+	BOOL getIsViewsInitialized() const { return mViewsInitialized; }
 protected:
 	// Builds the UI.  Call this once the inventory is usable.
 	void 				initializeViews();

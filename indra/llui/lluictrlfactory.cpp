@@ -278,13 +278,13 @@ const LLInitParam::BaseBlock& get_empty_param_block()
 
 // adds a widget and its param block to various registries
 //static 
-void LLUICtrlFactory::registerWidget(const std::type_info* widget_type, const std::type_info* param_block_type, const std::string& tag)
+void LLUICtrlFactory::registerWidget(const std::type_info* widget_type, const std::type_info* param_block_type, const std::string& name)
 {
 	// associate parameter block type with template .xml file
-	std::string* existing_tag = LLWidgetNameRegistry::instance().getValue(param_block_type);
-	if (existing_tag != NULL)
+	std::string* existing_name = LLWidgetNameRegistry::instance().getValue(param_block_type);
+	if (existing_name != NULL)
 	{
-		if(*existing_tag != tag)
+		if(*existing_name != name)
 		{
 			std::cerr << "Duplicate entry for T::Params, try creating empty param block in derived classes that inherit T::Params" << std::endl;
 			// forcing crash here
@@ -293,18 +293,19 @@ void LLUICtrlFactory::registerWidget(const std::type_info* widget_type, const st
 		}
 		else
 		{
-			// widget already registered
+			// widget already registered this name
 			return;
 		}
 	}
-	LLWidgetNameRegistry::instance().defaultRegistrar().add(param_block_type, tag);
+
+	LLWidgetNameRegistry::instance().defaultRegistrar().add(param_block_type, name);
 	//FIXME: comment this in when working on schema generation
 	//LLWidgetTypeRegistry::instance().defaultRegistrar().add(tag, widget_type);
 	//LLDefaultParamBlockRegistry::instance().defaultRegistrar().add(widget_type, &get_empty_param_block<T>);
 }
 
 //static 
-const std::string* LLUICtrlFactory::getWidgetTag(const std::type_info* widget_type)
+const std::string* LLUICtrlFactory::getWidgetName(const std::type_info* widget_type)
 {
 	return LLWidgetNameRegistry::instance().getValue(widget_type);
 }

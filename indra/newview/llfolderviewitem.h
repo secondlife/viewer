@@ -30,51 +30,12 @@
 #include "lldarray.h"  // *TODO: Eliminate, forward declare
 #include "lluiimage.h"
 
-class LLFontGL;
 class LLFolderView;
-class LLFolderViewEventListener;
+class LLFolderViewModelItem;
 class LLFolderViewFolder;
 class LLFolderViewFunctor;
-class LLFolderViewItem;
-class LLFolderViewListenerFunctor;
-class LLInventoryFilter;
-class LLMenuGL;
-class LLUIImage;
-class LLViewerInventoryItem;
-
-// These are grouping of inventory types.
-// Order matters when sorting system folders to the top.
-enum EInventorySortGroup
-{ 
-	SG_SYSTEM_FOLDER, 
-	SG_TRASH_FOLDER, 
-	SG_NORMAL_FOLDER, 
-	SG_ITEM 
-};
-
-// *TODO: do we really need one sort object per folder?
-// can we just have one of these per LLFolderView ?
-class LLInventorySort
-{
-public:
-	LLInventorySort() 
-		: mSortOrder(0),
-		mByDate(false),
-		mSystemToTop(false),
-		mFoldersByName(false) { }
-
-	// Returns true if order has changed
-	bool updateSort(U32 order);
-	U32 getSort() { return mSortOrder; }
-	bool isByDate() { return mByDate; }
-
-	bool operator()(const LLFolderViewItem* const& a, const LLFolderViewItem* const& b);
-private:
-	U32  mSortOrder;
-	bool mByDate;
-	bool mSystemToTop;
-	bool mFoldersByName;
-};
+class LLFolderViewFilter;
+class LLFolderViewModelInterface;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLFolderViewItem
@@ -91,19 +52,16 @@ public:
 
 	struct Params : public LLInitParam::Block<Params, LLView::Params>
 	{
-		Optional<LLUIImage*>					icon;
-		Optional<LLUIImage*>					icon_open;  // used for folders
-		Optional<LLUIImage*>					icon_overlay;  // for links
-		Optional<LLFolderView*>					root;
-		Mandatory<LLFolderViewEventListener*>	listener;
+		Optional<LLUIImage*>						folder_arrow_image,
+													selection_image;
+		Optional<LLFolderView*>						root;
+		Mandatory<LLFolderViewModelItem*>			listener;
 
-		Optional<LLUIImage*>					folder_arrow_image;
-		Optional<S32>							folder_indentation; // pixels
-		Optional<LLUIImage*>					selection_image;
-		Optional<S32>							item_height; // pixels
-		Optional<S32>							item_top_pad; // pixels
+		Optional<S32>								folder_indentation, // pixels
+													item_height,
+													item_top_pad;
 
-		Optional<S32>							creation_date; //UTC seconds
+		Optional<time_t>							creation_date;
 
 		Params();
 	};
@@ -121,51 +79,37 @@ public:
 	static const F32 FOLDER_CLOSE_TIME_CONSTANT;
 	static const F32 FOLDER_OPEN_TIME_CONSTANT;
 
-	// Mostly for debugging printout purposes.
-	const std::string& getSearchableLabel() { return mSearchableLabel; }
-	
-	BOOL isLoading() const { return mIsLoading; }
-
 private:
 	BOOL						mIsSelected;
 
 protected:
 	friend class LLUICtrlFactory;
-	friend class LLFolderViewEventListener;
+	friend class LLFolderViewModelItem;
 
 	LLFolderViewItem(const Params& p);
 
 	std::string					mLabel;
-	std::string					mSearchableLabel;
 	S32							mLabelWidth;
 	bool						mLabelWidthDirty;
-	time_t						mCreationDate;
 	LLFolderViewFolder*			mParentFolder;
-	LLFolderViewEventListener*	mListener;
+	LLFolderViewModelItem*		mViewModelItem;
 	BOOL						mIsCurSelection;
 	BOOL						mSelectPending;
 	LLFontGL::StyleFlags		mLabelStyle;
 	std::string					mLabelSuffix;
 	LLUIImagePtr				mIcon;
-	std::string					mStatusText;
 	LLUIImagePtr				mIconOpen;
 	LLUIImagePtr				mIconOverlay;
 	BOOL						mHasVisibleChildren;
 	S32							mIndentation;
 	S32							mItemHeight;
-	BOOL						mPassedFilter;
-	S32							mLastFilterGeneration;
-	std::string::size_type		mStringMatchOffset;
+
+	//TODO RN: create interface for string highlighting
+	//std::string::size_type		mStringMatchOffset;
 	F32							mControlLabelRotation;
 	LLFolderView*				mRoot;
 	BOOL						mDragAndDropTarget;
-	BOOL                        mIsLoading;
-	LLTimer                     mTimeSinceRequestStart;
-	bool						mShowLoadStatus;
 	bool						mIsMouseOverTitle;
-
-	// helper function to change the selection from the root.
-	void changeSelectionFromRoot(LLFolderViewItem* selection, BOOL selected);
 
 	// this is an internal method used for adding items to folders. A
 	// no-op at this level, but reimplemented in derived classes.
@@ -174,46 +118,22 @@ protected:
 
 	static LLFontGL* getLabelFontForStyle(U8 style);
 
-	virtual void setCreationDate(time_t creation_date_utc)	{ mCreationDate = creation_date_utc; }
-
 public:
 	BOOL postBuild();
 
-	// This function clears the currently selected item, and records
-	// the specified selected item appropriately for display and use
-	// in the UI. If open is TRUE, then folders are opened up along
-	// the way to the selection.
-	void setSelectionFromRoot(LLFolderViewItem* selection, BOOL openitem,
-		BOOL take_keyboard_focus = TRUE);
+	virtual void openItem( void );
 
-	// This function is called when the folder view is dirty. It's
-	// implemented here but called by derived classes when folding the
-	// views.
-	void arrangeFromRoot();
-	void filterFromRoot( void );
-	
 	void arrangeAndSet(BOOL set_selection, BOOL take_keyboard_focus);
 
 	virtual ~LLFolderViewItem( void );
 
 	// addToFolder() returns TRUE if it succeeds. FALSE otherwise
-	enum { ARRANGE = TRUE, DO_NOT_ARRANGE = FALSE };
-	virtual BOOL addToFolder(LLFolderViewFolder* folder, LLFolderView* root);
-
-	virtual EInventorySortGroup getSortGroup() const;
+	virtual BOOL addToFolder(LLFolderViewFolder* folder);
 
 	// Finds width and height of this object and it's children.  Also
 	// makes sure that this view and it's children are the right size.
-	virtual S32 arrange( S32* width, S32* height, S32 filter_generation );
+	virtual S32 arrange( S32* width, S32* height );
 	virtual S32 getItemHeight();
-
-	// applies filters to control visibility of inventory items
-	virtual void filter( LLInventoryFilter& filter);
-
-	// updates filter serial number and optionally propagated value up to root
-	S32		getLastFilterGeneration() { return mLastFilterGeneration; }
-
-	virtual void	dirtyFilter();
 
 	// If 'selection' is 'this' then note that otherwise ignore.
 	// Returns TRUE if this item ends up being selected.
@@ -231,7 +151,7 @@ public:
 	virtual void selectItem();
 
 	// gets multiple-element selection
-	virtual std::set<LLUUID> getSelectionList() const;
+	virtual std::set<LLFolderViewItem*> getSelectionList() const;
 
 	// Returns true is this object and all of its children can be removed (deleted by user)
 	virtual BOOL isRemovable();
@@ -252,73 +172,55 @@ public:
 
 	BOOL hasVisibleChildren() { return mHasVisibleChildren; }
 
-	void setShowLoadStatus(bool status) { mShowLoadStatus = status; }
-
 	// Call through to the viewed object and return true if it can be
 	// removed. Returns true if it's removed.
 	//virtual BOOL removeRecursively(BOOL single_item);
 	BOOL remove();
 
 	// Build an appropriate context menu for the item.	Flags unused.
-	void buildContextMenu(LLMenuGL& menu, U32 flags);
+	void buildContextMenu(class LLMenuGL& menu, U32 flags);
 
 	// This method returns the actual name of the thing being
 	// viewed. This method will ask the viewed object itself.
 	const std::string& getName( void ) const;
-
-	const std::string& getSearchableLabel( void ) const;
 
 	// This method returns the label displayed on the view. This
 	// method was primarily added to allow sorting on the folder
 	// contents possible before the entire view has been constructed.
 	const std::string& getLabel() const { return mLabel; }
 
-	// Used for sorting, like getLabel() above.
-	virtual time_t getCreationDate() const { return mCreationDate; }
 
 	LLFolderViewFolder* getParentFolder( void ) { return mParentFolder; }
 	const LLFolderViewFolder* getParentFolder( void ) const { return mParentFolder; }
 
+	void setParentFolder(LLFolderViewFolder* parent) { mParentFolder = parent; }
+
 	LLFolderViewItem* getNextOpenNode( BOOL include_children = TRUE );
 	LLFolderViewItem* getPreviousOpenNode( BOOL include_children = TRUE );
 
-	const LLFolderViewEventListener* getListener( void ) const { return mListener; }
-	LLFolderViewEventListener* getListener( void ) { return mListener; }
-	
-	// Gets the inventory item if it exists (null otherwise)
-	LLViewerInventoryItem * getInventoryItem(void);
+	const LLFolderViewModelItem* getViewModelItem( void ) const { return mViewModelItem; }
+	LLFolderViewModelItem* getViewModelItem( void ) { return mViewModelItem; }
+
+	const LLFolderViewModelInterface* getFolderViewModel( void ) const;
+	LLFolderViewModelInterface* getFolderViewModel( void );
 
 	// just rename the object.
 	void rename(const std::string& new_name);
 
-	// open
-	virtual void openItem( void );
-	virtual void preview(void);
 
 	// Show children (unfortunate that this is called "open")
 	virtual void setOpen(BOOL open = TRUE) {};
-
 	virtual BOOL isOpen() const { return FALSE; }
 
 	virtual LLFolderView*	getRoot();
+	virtual const LLFolderView*	getRoot() const;
 	BOOL			isDescendantOf( const LLFolderViewFolder* potential_ancestor );
 	S32				getIndentation() { return mIndentation; }
 
-	virtual BOOL	potentiallyVisible(); // do we know for a fact that this item won't be displayed?
-	virtual BOOL	potentiallyFiltered(); // do we know for a fact that this item has been filtered out?
-
-	virtual BOOL	getFiltered();
-	virtual BOOL	getFiltered(S32 filter_generation);
-	virtual void	setFiltered(BOOL filtered, S32 filter_generation);
-
-	// change the icon
-	void setIcon(LLUIImagePtr icon);
+	virtual BOOL	passedFilter(S32 filter_generation = -1);
 
 	// refresh information from the object being viewed.
-	void refreshFromListener();
 	virtual void refresh();
-
-	virtual void applyListenerFunctorRecursively(LLFolderViewListenerFunctor& functor);
 
 	// LLView functionality
 	virtual BOOL handleRightMouseDown( S32 x, S32 y, MASK mask );
@@ -343,11 +245,6 @@ private:
 	static std::map<U8, LLFontGL*> sFonts; // map of styles to fonts
 };
 
-
-// function used for sorting.
-typedef bool (*sort_order_f)(LLFolderViewItem* a, LLFolderViewItem* b);
-
-
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLFolderViewFolder
 //
@@ -363,10 +260,6 @@ protected:
 	friend class LLUICtrlFactory;
 
 public:
-	typedef enum e_trash
-	{
-		UNKNOWN, TRASH, NOT_TRASH
-	} ETrash;
 
 	typedef std::list<LLFolderViewItem*> items_t;
 	typedef std::list<LLFolderViewFolder*> folders_t;
@@ -374,21 +267,16 @@ public:
 protected:
 	items_t mItems;
 	folders_t mFolders;
-	LLInventorySort	mSortFunction;
 
 	BOOL		mIsOpen;
 	BOOL		mExpanderHighlighted;
 	F32			mCurHeight;
 	F32			mTargetHeight;
 	F32			mAutoOpenCountdown;
-	time_t		mSubtreeCreationDate;
-	mutable ETrash mAmTrash;
 	S32			mLastArrangeGeneration;
 	S32			mLastCalculatedWidth;
-	S32			mCompletedFilterGeneration;
 	S32			mMostFilteredDescendantGeneration;
 	bool		mNeedsSort;
-	bool		mPassedFolderFilter;
 
 public:
 	typedef enum e_recurse_type
@@ -402,48 +290,25 @@ public:
 
 	virtual ~LLFolderViewFolder( void );
 
-	virtual BOOL	potentiallyVisible();
-
 	LLFolderViewItem* getNextFromChild( LLFolderViewItem*, BOOL include_children = TRUE );
 	LLFolderViewItem* getPreviousFromChild( LLFolderViewItem*, BOOL include_children = TRUE  );
 
 	// addToFolder() returns TRUE if it succeeds. FALSE otherwise
-	virtual BOOL addToFolder(LLFolderViewFolder* folder, LLFolderView* root);
+	virtual BOOL addToFolder(LLFolderViewFolder* folder);
 
 	// Finds width and height of this object and it's children.  Also
 	// makes sure that this view and it's children are the right size.
-	virtual S32 arrange( S32* width, S32* height, S32 filter_generation );
+	virtual S32 arrange( S32* width, S32* height );
 
 	BOOL needsArrange();
-	void requestSort();
 
-	// Returns the sort group (system, trash, folder) for this folder.
-	virtual EInventorySortGroup getSortGroup() const;
-
-	virtual void	setCompletedFilterGeneration(S32 generation, BOOL recurse_up);
-	virtual S32		getCompletedFilterGeneration() { return mCompletedFilterGeneration; }
-
-	BOOL hasFilteredDescendants(S32 filter_generation);
-	BOOL hasFilteredDescendants();
-
-	// applies filters to control visibility of inventory items
-	virtual void filter( LLInventoryFilter& filter);
-	virtual void setFiltered(BOOL filtered, S32 filter_generation);
-	virtual BOOL getFiltered();
-	virtual BOOL getFiltered(S32 filter_generation);
-
-	virtual void dirtyFilter();
-	
-	// folder-specific filtering (filter status propagates top down instead of bottom up)
-	void filterFolder(LLInventoryFilter& filter);
-	void setFilteredFolder(bool filtered, S32 filter_generation);
-	bool getFilteredFolder(S32 filter_generation);
+	bool descendantsPassedFilter(S32 filter_generation = -1);
 
 	// Passes selection information on to children and record
 	// selection information if necessary.
 	// Returns TRUE if this object (or a child) ends up being selected.
 	// If 'openitem' is TRUE then folders are opened up along the way to the selection.
-	virtual BOOL setSelection(LLFolderViewItem* selection, BOOL openitem, BOOL take_keyboard_focus);
+	virtual BOOL setSelection(LLFolderViewItem* selection, BOOL openitem, BOOL take_keyboard_focus = TRUE);
 
 	// This method is used to change the selection of an item.
 	// Recursively traverse all children; if 'selection' is 'this' then change
@@ -469,24 +334,12 @@ public:
 	//virtual BOOL removeRecursively(BOOL single_item);
 	//virtual BOOL remove();
 
-	// remove the specified item (and any children) if
-	// possible. Return TRUE if the item was deleted.
-	BOOL removeItem(LLFolderViewItem* item);
-
-	// simply remove the view (and any children) Don't bother telling
-	// the listeners.
-	void removeView(LLFolderViewItem* item);
-
 	// extractItem() removes the specified item from the folder, but
 	// doesn't delete it.
-	void extractItem( LLFolderViewItem* item );
+	virtual void extractItem( LLFolderViewItem* item );
 
 	// This function is called by a child that needs to be resorted.
 	void resort(LLFolderViewItem* item);
-
-	void setItemSortOrder(U32 ordering);
-	void sortBy(U32);
-	//BOOL (*func)(LLFolderViewItem* a, LLFolderViewItem* b));
 
 	void setAutoOpenCountdown(F32 countdown) { mAutoOpenCountdown = countdown; }
 
@@ -498,8 +351,9 @@ public:
 	virtual void setOpen(BOOL openitem = TRUE);
 
 	// Called when a child is refreshed.
-	// don't rearrange child folder contents unless explicitly requested
-	virtual void requestArrange(BOOL include_descendants = FALSE);
+	virtual void requestArrange();
+
+	virtual void requestSort();
 
 	// internal method which doesn't update the entire view. This
 	// method was written because the list iterators destroy the state
@@ -519,7 +373,6 @@ public:
 		std::string& tooltip_msg);
 
 	void applyFunctorRecursively(LLFolderViewFunctor& functor);
-	virtual void applyListenerFunctorRecursively(LLFolderViewListenerFunctor& functor);
 
 	// Just apply this functor to the folder's immediate children.
 	void applyFunctorToChildren(LLFolderViewFunctor& functor);
@@ -545,32 +398,22 @@ public:
 									   std::string& tooltip_msg);
 	virtual void draw();
 
-	time_t getCreationDate() const;
-	bool isTrash() const;
-
-	folders_t::const_iterator getFoldersBegin() const { return mFolders.begin(); }
-	folders_t::const_iterator getFoldersEnd() const { return mFolders.end(); }
+	folders_t::iterator getFoldersBegin() { return mFolders.begin(); }
+	folders_t::iterator getFoldersEnd() { return mFolders.end(); }
 	folders_t::size_type getFoldersCount() const { return mFolders.size(); }
 
 	items_t::const_iterator getItemsBegin() const { return mItems.begin(); }
 	items_t::const_iterator getItemsEnd() const { return mItems.end(); }
 	items_t::size_type getItemsCount() const { return mItems.size(); }
+
 	LLFolderViewFolder* getCommonAncestor(LLFolderViewItem* item_a, LLFolderViewItem* item_b, bool& reverse);
 	void gatherChildRangeExclusive(LLFolderViewItem* start, LLFolderViewItem* end, bool reverse,  std::vector<LLFolderViewItem*>& items);
-};
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Class LLFolderViewListenerFunctor
-//
-// This simple abstract base class can be used to applied to all
-// listeners in a hierarchy.
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-class LLFolderViewListenerFunctor
-{
 public:
-	virtual ~LLFolderViewListenerFunctor() {}
-	virtual void operator()(LLFolderViewEventListener* listener) = 0;
+	//WARNING: do not call directly...use the appropriate LLFolderViewModel-derived class instead
+	template<typename SORT_FUNC> void sortFolders(const SORT_FUNC& func) { mFolders.sort(func); }
+	template<typename SORT_FUNC> void sortItems(const SORT_FUNC& func) { mItems.sort(func); }
 };
+
 
 #endif  // LLFOLDERVIEWITEM_H

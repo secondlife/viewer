@@ -47,13 +47,13 @@ static const std::string INVENTORY_STRING_FRIENDS_ALL_SUBFOLDER = "All";
 // helper functions
 
 // NOTE: For now Friends & All folders are created as protected folders of the LLFolderType::FT_CALLINGCARD type.
-// So, their names will be processed in the LLFolderViewItem::refreshFromListener() to be localized
+// So, their names will be processed in the LLFolderViewItem::refresh() to be localized
 // using "InvFolder LABEL_NAME" as LLTrans::findString argument.
 
 // We must use in this file their hard-coded names to ensure found them on different locales. EXT-5829.
 // These hard-coded names will be stored in InventoryItems but shown localized in FolderViewItems
 
-// If hack in the LLFolderViewItem::refreshFromListener() to localize protected folder is removed
+// If hack in the LLFolderViewItem::refresh() to localize protected folder is removed
 // or these folders are not protected these names should be localized in another place/way.
 inline const std::string get_friend_folder_name()
 {

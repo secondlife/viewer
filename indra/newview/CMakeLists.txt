@@ -255,6 +255,8 @@ set(viewer_SOURCE_FILES
     llfloaterworldmap.cpp
     llfolderview.cpp
     llfolderviewitem.cpp
+    llfolderviewmodel.cpp
+    llfolderviewmodelinventory.cpp
     llfollowcam.cpp
     llfriendcard.cpp
     llgesturelistener.cpp
@@ -812,7 +814,8 @@ set(viewer_HEADER_FILES
     llfloaterwindowsize.h
     llfloaterworldmap.h
     llfolderview.h
-    llfoldervieweventlistener.h
+    llfolderviewmodel.h
+    llfolderviewmodelinventory.h
     llfolderviewitem.h
     llfollowcam.h
     llfriendcard.h

@@ -29,10 +29,10 @@
 
 // viewer includes
 #include "llfolderview.h"		// Items depend extensively on LLFolderViews
-#include "llfoldervieweventlistener.h"
+#include "llfolderview.h"
+#include "llfolderviewmodel.h"
 #include "llviewerfoldertype.h"
 #include "llinventorybridge.h"	// for LLItemBridge in LLInventorySort::operator()
-#include "llinventoryfilter.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodelbackgroundfetch.h"
 #include "llpanel.h"
@@ -91,10 +91,7 @@ void LLFolderViewItem::cleanupClass()
 
 // NOTE: Optimize this, we call it a *lot* when opening a large inventory
 LLFolderViewItem::Params::Params()
-:	icon(),
-	icon_open(),
-	icon_overlay(),
-	root(),
+:	root(),
 	listener(),
 	folder_arrow_image("folder_arrow_image"),
 	folder_indentation("folder_indentation"),
@@ -117,22 +114,19 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 	mHasVisibleChildren(FALSE),
 	mIndentation(0),
 	mItemHeight(p.item_height),
-	mPassedFilter(FALSE),
-	mLastFilterGeneration(-1),
-	mStringMatchOffset(std::string::npos),
+	//TODO RN: create interface for string highlighting
+	//mStringMatchOffset(std::string::npos),
 	mControlLabelRotation(0.f),
 	mDragAndDropTarget(FALSE),
-	mIsLoading(FALSE),
 	mLabel(p.name),
 	mRoot(p.root),
-	mCreationDate(p.creation_date),
-	mIcon(p.icon),
-	mIconOpen(p.icon_open),
-	mIconOverlay(p.icon_overlay),
-	mListener(p.listener),
-	mShowLoadStatus(false),
+	mViewModelItem(p.listener),
 	mIsMouseOverTitle(false)
 {
+	if (mViewModelItem)
+	{
+		mViewModelItem->setFolderViewItem(this);
+	}
 }
 
 BOOL LLFolderViewItem::postBuild()
@@ -144,8 +138,8 @@ BOOL LLFolderViewItem::postBuild()
 // Destroys the object
 LLFolderViewItem::~LLFolderViewItem( void )
 {
-	delete mListener;
-	mListener = NULL;
+	delete mViewModelItem;
+	mViewModelItem = NULL;
 }
 
 LLFolderView* LLFolderViewItem::getRoot()
@@ -153,6 +147,10 @@ LLFolderView* LLFolderViewItem::getRoot()
 	return mRoot;
 }
 
+const LLFolderView* LLFolderViewItem::getRoot() const
+{
+	return mRoot;
+}
 // Returns true if this object is a child (or grandchild, etc.) of potential_ancestor.
 BOOL LLFolderViewItem::isDescendantOf( const LLFolderViewFolder* potential_ancestor )
 {
@@ -214,146 +212,47 @@ LLFolderViewItem* LLFolderViewItem::getPreviousOpenNode(BOOL include_children)
 	return itemp;
 }
 
-// is this item something we think we should be showing?
-// for example, if we haven't gotten around to filtering it yet, then the answer is yes
-// until we find out otherwise
-BOOL LLFolderViewItem::potentiallyVisible()
+BOOL LLFolderViewItem::passedFilter(S32 filter_generation) 
 {
-	// we haven't been checked against min required filter
-	// or we have and we passed
-	return potentiallyFiltered();
-}
-
-BOOL LLFolderViewItem::potentiallyFiltered()
-{
-	return getLastFilterGeneration() < getRoot()->getFilter()->getMinRequiredGeneration() || getFiltered();
-}
-
-BOOL LLFolderViewItem::getFiltered() 
-{ 
-	return mPassedFilter && mLastFilterGeneration >= getRoot()->getFilter()->getMinRequiredGeneration(); 
-}
-
-BOOL LLFolderViewItem::getFiltered(S32 filter_generation) 
-{
-	return mPassedFilter && mLastFilterGeneration >= filter_generation;
-}
-
-void LLFolderViewItem::setFiltered(BOOL filtered, S32 filter_generation)
-{
-	mPassedFilter = filtered;
-	mLastFilterGeneration = filter_generation;
-}
-
-void LLFolderViewItem::setIcon(LLUIImagePtr icon)
-{
-	mIcon = icon;
-}
-
-// refresh information from the listener
-void LLFolderViewItem::refreshFromListener()
-{
-	if(mListener)
-	{
-		mLabel = mListener->getDisplayName();
-		LLFolderType::EType preferred_type = mListener->getPreferredType();
-
-		// *TODO: to be removed when database supports multi language. This is a
-		// temporary attempt to display the inventory folder in the user locale.
-		// mantipov: *NOTE: be sure this code is synchronized with LLFriendCardsManager::findChildFolderUUID
-		//		it uses the same way to find localized string
-
-		// HACK: EXT - 6028 ([HARD CODED]? Inventory > Library > "Accessories" folder)
-		// Translation of Accessories folder in Library inventory folder
-		bool accessories = false;
-		if(mLabel == std::string("Accessories"))
-		{
-			//To ensure that Accessories folder is in Library we have to check its parent folder.
-			//Due to parent LLFolderViewFloder is not set to this item yet we have to check its parent via Inventory Model
-			LLInventoryCategory* cat = gInventory.getCategory(mListener->getUUID());
-			if(cat)
-			{
-				const LLUUID& parent_folder_id = cat->getParentUUID();
-				accessories = (parent_folder_id == gInventory.getLibraryRootFolderID());
-			}
-		}
-
-		//"Accessories" inventory category has folder type FT_NONE. So, this folder
-		//can not be detected as protected with LLFolderType::lookupIsProtectedType
-		if (accessories || LLFolderType::lookupIsProtectedType(preferred_type))
-		{
-			LLTrans::findString(mLabel, "InvFolder " + mLabel);
-		};
-
-		setToolTip(mLabel);
-		setIcon(mListener->getIcon());
-		time_t creation_date = mListener->getCreationDate();
-		if ((creation_date > 0) && (mCreationDate != creation_date))
-		{
-			setCreationDate(creation_date);
-			dirtyFilter();
-		}
-		if (mRoot && mRoot->useLabelSuffix())
-		{
-			mLabelStyle = mListener->getLabelStyle();
-			mLabelSuffix = mListener->getLabelSuffix();
-		}
-	}
+	return getViewModelItem()->passedFilter(filter_generation);
 }
 
 void LLFolderViewItem::refresh()
-{
-	refreshFromListener();
+{ 
+	LLFolderViewModelItem& vmi = *getViewModelItem();
 
-	std::string searchable_label(mLabel);
-	searchable_label.append(mLabelSuffix);
-	LLStringUtil::toUpper(searchable_label);
+	mLabel = vmi.getDisplayName();
 
-	if (mSearchableLabel.compare(searchable_label))
+	setToolTip(mLabel);
+	mIcon = vmi.getIcon();
+	mIconOpen = vmi.getIconOpen();
+	mIconOverlay = vmi.getIconOverlay();
+
+	if (mRoot->useLabelSuffix())
 	{
-		mSearchableLabel.assign(searchable_label);
-		dirtyFilter();
-		// some part of label has changed, so overall width has potentially changed, and sort order too
-		if (mParentFolder)
-		{
-			mParentFolder->requestSort();
-			mParentFolder->requestArrange();
-		}
+		mLabelStyle = vmi.getLabelStyle();
+		mLabelSuffix = vmi.getLabelSuffix();
 	}
 
+	//TODO RN: make sure this logic still fires
+	//std::string searchable_label(mLabel);
+	//searchable_label.append(mLabelSuffix);
+	//LLStringUtil::toUpper(searchable_label);
+
+	//if (mSearchableLabel.compare(searchable_label))
+	//{
+	//	mSearchableLabel.assign(searchable_label);
+	//	vmi.dirtyFilter();
+	//	// some part of label has changed, so overall width has potentially changed, and sort order too
+	//	if (mParentFolder)
+	//	{
+	//		mParentFolder->requestSort();
+	//		mParentFolder->requestArrange();
+	//	}
+	//}
+
 	mLabelWidthDirty = true;
-}
-
-void LLFolderViewItem::applyListenerFunctorRecursively(LLFolderViewListenerFunctor& functor)
-{
-	functor(mListener);
-}
-
-// This function is called when items are added or view filters change. It's
-// implemented here but called by derived classes when folding the
-// views.
-void LLFolderViewItem::filterFromRoot( void )
-{
-	LLFolderViewItem* root = getRoot();
-
-	root->filter(*((LLFolderView*)root)->getFilter());
-}
-
-// This function is called when the folder view is dirty. It's
-// implemented here but called by derived classes when folding the
-// views.
-void LLFolderViewItem::arrangeFromRoot()
-{
-	LLFolderViewItem* root = getRoot();
-
-	S32 height = 0;
-	S32 width = 0;
-	S32 total_height = root->arrange( &width, &height, 0 );
-
-	LLSD params;
-	params["action"] = "size_changes";
-	params["height"] = total_height;
-	getParent()->notifyParent(params);
+	vmi.dirtyFilter();
 }
 
 // Utility function for LLFolderView
@@ -367,7 +266,7 @@ void LLFolderViewItem::arrangeAndSet(BOOL set_selection,
 	}
 	if(set_selection)
 	{
-		setSelectionFromRoot(this, TRUE, take_keyboard_focus);
+		getRoot()->setSelection(this, TRUE, take_keyboard_focus);
 		if(root)
 		{
 			root->scrollToShowSelection();
@@ -375,57 +274,23 @@ void LLFolderViewItem::arrangeAndSet(BOOL set_selection,
 	}		
 }
 
-// This function clears the currently selected item, and records the
-// specified selected item appropriately for display and use in the
-// UI. If open is TRUE, then folders are opened up along the way to
-// the selection.
-void LLFolderViewItem::setSelectionFromRoot(LLFolderViewItem* selection,
-											BOOL openitem,
-											BOOL take_keyboard_focus)
-{
-	if (getRoot())
-	{
-		getRoot()->setSelection(selection, openitem, take_keyboard_focus);
-	}
-    else if (mListener)
-    {
-        mListener->selectItem();
-    }
-}
 
-// helper function to change the selection from the root.
-void LLFolderViewItem::changeSelectionFromRoot(LLFolderViewItem* selection, BOOL selected)
+std::set<LLFolderViewItem*> LLFolderViewItem::getSelectionList() const
 {
-	getRoot()->changeSelection(selection, selected);
-}
-
-std::set<LLUUID> LLFolderViewItem::getSelectionList() const
-{
-	std::set<LLUUID> selection;
+	std::set<LLFolderViewItem*> selection;
 	return selection;
 }
 
-EInventorySortGroup LLFolderViewItem::getSortGroup()  const
-{ 
-	return SG_ITEM; 
-}
-
 // addToFolder() returns TRUE if it succeeds. FALSE otherwise
-BOOL LLFolderViewItem::addToFolder(LLFolderViewFolder* folder, LLFolderView* root)
+BOOL LLFolderViewItem::addToFolder(LLFolderViewFolder* folder)
 {
-	if (!folder)
-	{
-		return FALSE;
-	}
-	mParentFolder = folder;
-	root->addItemID(getListener()->getUUID(), this);
 	return folder->addItem(this);
 }
 
 
 // Finds width and height of this object and its children.  Also
 // makes sure that this view and its children are the right size.
-S32 LLFolderViewItem::arrange( S32* width, S32* height, S32 filter_generation)
+S32 LLFolderViewItem::arrange( S32* width, S32* height )
 {
 	const Params& p = LLUICtrlFactory::getDefaultParams<LLFolderViewItem>();
 	S32 indentation = p.folder_indentation();
@@ -455,40 +320,6 @@ S32 LLFolderViewItem::arrange( S32* width, S32* height, S32 filter_generation)
 S32 LLFolderViewItem::getItemHeight()
 {
 	return mItemHeight;
-}
-
-void LLFolderViewItem::filter( LLInventoryFilter& filter)
-{
-	const BOOL previous_passed_filter = mPassedFilter;
-	const BOOL passed_filter = filter.check(this);
-
-	// If our visibility will change as a result of this filter, then
-	// we need to be rearranged in our parent folder
-	if (mParentFolder)
-	{
-		if (getVisible() != passed_filter
-			||	previous_passed_filter != passed_filter )
-			mParentFolder->requestArrange();
-	}
-
-	setFiltered(passed_filter, filter.getCurrentGeneration());
-	mStringMatchOffset = filter.getStringMatchOffset();
-	filter.decrementFilterCount();
-
-	if (getRoot()->getDebugFilters())
-	{
-		mStatusText = llformat("%d", mLastFilterGeneration);
-	}
-}
-
-void LLFolderViewItem::dirtyFilter()
-{
-	mLastFilterGeneration = -1;
-	// bubble up dirty flag all the way to root
-	if (getParentFolder())
-	{
-		getParentFolder()->setCompletedFilterGeneration(-1, TRUE);
-	}
 }
 
 // *TODO: This can be optimized a lot by simply recording that it is
@@ -535,45 +366,31 @@ void LLFolderViewItem::selectItem(void)
 {
 	if (mIsSelected == FALSE)
 	{
-		if (mListener)
-		{
-			mListener->selectItem();
-		}
+		getViewModelItem()->selectItem();
 		mIsSelected = TRUE;
 	}
 }
 
 BOOL LLFolderViewItem::isMovable()
 {
-	if( mListener )
-	{
-		return mListener->isItemMovable();
-	}
-	else
-	{
-		return TRUE;
-	}
+	return getViewModelItem()->isItemMovable();
 }
 
 BOOL LLFolderViewItem::isRemovable()
 {
-	if( mListener )
-	{
-		return mListener->isItemRemovable();
-	}
-	else
-	{
-		return TRUE;
-	}
+	return getViewModelItem()->isItemRemovable();
 }
 
 void LLFolderViewItem::destroyView()
 {
+	getRoot()->removeFromSelectionList(this);
+
 	if (mParentFolder)
 	{
 		// removeView deletes me
-		mParentFolder->removeView(this);
+		mParentFolder->extractItem(this);
 	}
+	delete this;
 }
 
 // Call through to the viewed object and return true if it can be
@@ -585,45 +402,25 @@ BOOL LLFolderViewItem::remove()
 	{
 		return FALSE;
 	}
-	if(mListener)
-	{
-		return mListener->removeItem();
-	}
-	return TRUE;
+	return getViewModelItem()->removeItem();
 }
 
 // Build an appropriate context menu for the item.
 void LLFolderViewItem::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
-	if(mListener)
-	{
-		mListener->buildContextMenu(menu, flags);
-	}
+	getViewModelItem()->buildContextMenu(menu, flags);
 }
 
 void LLFolderViewItem::openItem( void )
 {
-	if( mListener )
-	{
-		mListener->openItem();
-	}
-}
-
-void LLFolderViewItem::preview( void )
-{
-	if (mListener)
-	{
-		mListener->previewItem();
-	}
+	getViewModelItem()->openItem();
 }
 
 void LLFolderViewItem::rename(const std::string& new_name)
 {
 	if( !new_name.empty() )
 	{
-		if( mListener )
-		{
-			mListener->renameItem(new_name);
+		getViewModelItem()->renameItem(new_name);
 
 			if(mParentFolder)
 			{
@@ -631,26 +428,10 @@ void LLFolderViewItem::rename(const std::string& new_name)
 			}
 		}
 	}
-}
-
-const std::string& LLFolderViewItem::getSearchableLabel() const
-{
-	return mSearchableLabel;
-}
-
-LLViewerInventoryItem * LLFolderViewItem::getInventoryItem(void)
-{
-	if (!getListener()) return NULL;
-	return gInventory.getItem(getListener()->getUUID());
-}
 
 const std::string& LLFolderViewItem::getName( void ) const
 {
-	if(mListener)
-	{
-		return mListener->getName();
-	}
-	return mLabel;
+	return getViewModelItem()->getName();
 }
 
 // LLView functionality
@@ -658,7 +439,7 @@ BOOL LLFolderViewItem::handleRightMouseDown( S32 x, S32 y, MASK mask )
 {
 	if(!mIsSelected)
 	{
-		setSelectionFromRoot(this, FALSE);
+		getRoot()->setSelection(this, FALSE);
 	}
 	make_ui_sound("UISndClick");
 	return TRUE;
@@ -679,7 +460,7 @@ BOOL LLFolderViewItem::handleMouseDown( S32 x, S32 y, MASK mask )
 	{
 		if(mask & MASK_CONTROL)
 		{
-			changeSelectionFromRoot(this, !mIsSelected);
+			getRoot()->changeSelection(this, !mIsSelected);
 		}
 		else if (mask & MASK_SHIFT)
 		{
@@ -687,7 +468,7 @@ BOOL LLFolderViewItem::handleMouseDown( S32 x, S32 y, MASK mask )
 		}
 		else
 		{
-			setSelectionFromRoot(this, FALSE);
+			getRoot()->setSelection(this, FALSE);
 		}
 		make_ui_sound("UISndClick");
 	}
@@ -726,21 +507,12 @@ BOOL LLFolderViewItem::handleHover( S32 x, S32 y, MASK mask )
 
 				// *TODO: push this into listener and remove
 				// dependency on llagent
-				if (mListener
-					&& gInventory.isObjectDescendentOf(mListener->getUUID(), gInventory.getRootFolderID()))
-				{
-					src = LLToolDragAndDrop::SOURCE_AGENT;
-				}
-				else if (mListener
-					&& gInventory.isObjectDescendentOf(mListener->getUUID(), gInventory.getLibraryRootFolderID()))
-				{
-					src = LLToolDragAndDrop::SOURCE_LIBRARY;
-				}
+				src = getViewModelItem()->getDragSource();
 
 				can_drag = root->startDrag(src);
 				if (can_drag)
 				{
-					// if (mListener) mListener->startDrag();
+					// if (getViewModelItem()) getViewModelItem()->startDrag();
 					// RN: when starting drag and drop, clear out last auto-open
 					root->autoOpenTest(NULL);
 					root->setShowSelectionContext(TRUE);
@@ -769,7 +541,7 @@ BOOL LLFolderViewItem::handleHover( S32 x, S32 y, MASK mask )
 	{
 		if (getRoot())
 		{
-			getRoot()->setShowSelectionContext(FALSE);
+		getRoot()->setShowSelectionContext(FALSE);
 		}
 		gViewerWindow->setCursor(UI_CURSOR_ARROW);
 		// let parent handle this then...
@@ -780,7 +552,7 @@ BOOL LLFolderViewItem::handleHover( S32 x, S32 y, MASK mask )
 
 BOOL LLFolderViewItem::handleDoubleClick( S32 x, S32 y, MASK mask )
 {
-	preview();
+	getViewModelItem()->openItem();
 	return TRUE;
 }
 
@@ -797,7 +569,7 @@ BOOL LLFolderViewItem::handleMouseUp( S32 x, S32 y, MASK mask )
 		//...then select
 		if(mask & MASK_CONTROL)
 		{
-			changeSelectionFromRoot(this, !mIsSelected);
+			getRoot()->changeSelection(this, !mIsSelected);
 		}
 		else if (mask & MASK_SHIFT)
 		{
@@ -805,7 +577,7 @@ BOOL LLFolderViewItem::handleMouseUp( S32 x, S32 y, MASK mask )
 		}
 		else
 		{
-			setSelectionFromRoot(this, FALSE);
+			getRoot()->setSelection(this, FALSE);
 		}
 	}
 
@@ -815,7 +587,7 @@ BOOL LLFolderViewItem::handleMouseUp( S32 x, S32 y, MASK mask )
 	{
 		if (getRoot())
 		{
-			getRoot()->setShowSelectionContext(FALSE);
+		getRoot()->setShowSelectionContext(FALSE);
 		}
 		gFocusMgr.setMouseCapture( NULL );
 	}
@@ -833,11 +605,8 @@ BOOL LLFolderViewItem::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 										 EAcceptance* accept,
 										 std::string& tooltip_msg)
 {
-	BOOL accepted = FALSE;
 	BOOL handled = FALSE;
-	if(mListener)
-	{
-		accepted = mListener->dragOrDrop(mask,drop,cargo_type,cargo_data, tooltip_msg);
+	BOOL accepted = getViewModelItem()->dragOrDrop(mask,drop,cargo_type,cargo_data, tooltip_msg);
 		handled = accepted;
 		if (accepted)
 		{
@@ -848,7 +617,6 @@ BOOL LLFolderViewItem::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 		{
 			*accept = ACCEPT_NO;
 		}
-	}
 	if(mParentFolder && !handled)
 	{
 		// store this item to get it in LLFolderBridge::dragItemIntoFolder on drop event.
@@ -883,17 +651,12 @@ void LLFolderViewItem::draw()
 	const S32 FOCUS_LEFT = 1;
 	const LLFontGL* font = getLabelFontForStyle(mLabelStyle);
 
-	const LLUUID uuid = (getListener() ? getListener()->getUUID() : LLUUID::null);
-	const BOOL in_inventory = (uuid.notNull() ? gInventory.isObjectDescendentOf(uuid, gInventory.getRootFolderID()) : FALSE);
-	const BOOL in_library   = (uuid.notNull() ? gInventory.isObjectDescendentOf(uuid, gInventory.getLibraryRootFolderID()) : FALSE);
+	getViewModelItem()->update();
 
 	//--------------------------------------------------------------------------------//
 	// Draw open folder arrow
 	//
-	const bool up_to_date = mListener && mListener->isUpToDate();
-	const bool possibly_has_children = ((up_to_date && hasVisibleChildren()) // we fetched our children and some of them have passed the filter...
-										|| (!up_to_date && mListener && mListener->hasChildren())); // ...or we know we have children but haven't fetched them (doesn't obey filter)
-	if (possibly_has_children)
+	if (hasVisibleChildren() || getViewModelItem()->hasChildren())
 	{
 		LLUIImage* arrow_image = default_params.folder_arrow_image;
 		gl_draw_scaled_rotated_image(
@@ -990,8 +753,6 @@ void LLFolderViewItem::draw()
 		mDragAndDropTarget = FALSE;
 	}
 
-	const LLViewerInventoryItem *item = getInventoryItem();
-	const BOOL highlight_link = mIconOverlay && item && item->getIsLinkType();
 	//--------------------------------------------------------------------------------//
 	// Draw open icon
 	//
@@ -1005,7 +766,7 @@ void LLFolderViewItem::draw()
  		mIcon->draw(icon_x, getRect().getHeight() - mIcon->getHeight() - TOP_PAD + 1);
  	}
 
-	if (highlight_link)
+	if (mIconOverlay && getRoot()->showItemLinkOverlays())
 	{
 		mIconOverlay->draw(icon_x, getRect().getHeight() - mIcon->getHeight() - TOP_PAD + 1);
 	}
@@ -1019,60 +780,20 @@ void LLFolderViewItem::draw()
 	}
 
 	LLColor4 color = (mIsSelected && filled) ? sHighlightFgColor : sFgColor;
-	if (highlight_link) color = sLinkColor;
-	if (in_library) color = sLibraryColor;
+	//TODO RN: implement this in terms of getColor()
+	//if (highlight_link) color = sLinkColor;
+	//if (gInventory.isObjectDescendentOf(getViewModelItem()->getUUID(), gInventory.getLibraryRootFolderID())) color = sLibraryColor;
 	
 	F32 right_x  = 0;
 	F32 y = (F32)getRect().getHeight() - font->getLineHeight() - (F32)TEXT_PAD - (F32)TOP_PAD;
 	F32 text_left = (F32)(ARROW_SIZE + TEXT_PAD + ICON_WIDTH + ICON_PAD + mIndentation);
 
 	//--------------------------------------------------------------------------------//
-	// Highlight filtered text
-	//
-	if (getRoot() && getRoot()->getDebugFilters())
-	{
-		if (!getFiltered() && !possibly_has_children)
-		{
-			color.mV[VALPHA] *= 0.5f;
-		}
-		LLColor4 filter_color = mLastFilterGeneration >= getRoot()->getFilter()->getCurrentGeneration() ? 
-			LLColor4(0.5f, 0.8f, 0.5f, 1.f) : 
-			LLColor4(0.8f, 0.5f, 0.5f, 1.f);
-		LLFontGL::getFontMonospace()->renderUTF8(mStatusText, 0, text_left, y, filter_color,
-												 LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
-												 S32_MAX, S32_MAX, &right_x, FALSE );
-		text_left = right_x;
-	}
-	//--------------------------------------------------------------------------------//
 	// Draw the actual label text
 	//
 	font->renderUTF8(mLabel, 0, text_left, y, color,
 					 LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
 					 S32_MAX, getRect().getWidth() - (S32) text_left, &right_x, TRUE);
-
-	//--------------------------------------------------------------------------------//
-	// Draw "Loading..." text
-	//
-	bool root_is_loading = false;
-	if (in_inventory)
-	{
-		root_is_loading = LLInventoryModelBackgroundFetch::instance().inventoryFetchInProgress(); 
-	}
-	if (in_library)
-	{
-		root_is_loading = LLInventoryModelBackgroundFetch::instance().libraryFetchInProgress();
-	}
-	if ((mIsLoading
-		&&	mTimeSinceRequestStart.getElapsedTimeF32() >= gSavedSettings.getF32("FolderLoadingMessageWaitTime"))
-			||	(LLInventoryModelBackgroundFetch::instance().folderFetchActive()
-				&&	root_is_loading
-				&&	mShowLoadStatus))
-	{
-		std::string load_string = " ( " + LLTrans::getString("LoadingData") + " ) ";
-		font->renderUTF8(load_string, 0, right_x, y, sSearchStatusColor,
-						 LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, 
-						 S32_MAX, S32_MAX, &right_x, FALSE);
-	}
 
 	//--------------------------------------------------------------------------------//
 	// Draw label suffix
@@ -1087,28 +808,39 @@ void LLFolderViewItem::draw()
 	//--------------------------------------------------------------------------------//
 	// Highlight string match
 	//
-	if (mStringMatchOffset != std::string::npos)
+	//TODO RN: expose interface for highlighting
+	//if (mStringMatchOffset != std::string::npos)
+	//{
+	//	// don't draw backgrounds for zero-length strings
+	//	S32 filter_string_length = getRoot()->getFilterSubString().size();
+	//	if (filter_string_length > 0)
+	//	{
+	//		std::string combined_string = mLabel + mLabelSuffix;
+	//		S32 left = llround(text_left) + font->getWidth(combined_string, 0, mStringMatchOffset) - 1;
+	//		S32 right = left + font->getWidth(combined_string, mStringMatchOffset, filter_string_length) + 2;
+	//		S32 bottom = llfloor(getRect().getHeight() - font->getLineHeight() - 3 - TOP_PAD);
+	//		S32 top = getRect().getHeight() - TOP_PAD;
+	//	
+	//		LLUIImage* box_image = default_params.selection_image;
+	//		LLRect box_rect(left, top, right, bottom);
+	//		box_image->draw(box_rect, sFilterBGColor);
+	//		F32 match_string_left = text_left + font->getWidthF32(combined_string, 0, mStringMatchOffset);
+	//		F32 yy = (F32)getRect().getHeight() - font->getLineHeight() - (F32)TEXT_PAD - (F32)TOP_PAD;
+	//		font->renderUTF8( combined_string, mStringMatchOffset, match_string_left, yy,
+	//						  sFilterTextColor, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
+	//						  filter_string_length, S32_MAX, &right_x, FALSE );
+	//	}
+	//}
+}
+
+const LLFolderViewModelInterface* LLFolderViewItem::getFolderViewModel( void ) const
 	{
-		// don't draw backgrounds for zero-length strings
-		S32 filter_string_length = (getRoot() ? getRoot()->getFilterSubString().size() : 0);
-		if (filter_string_length > 0)
+	return getRoot()->getFolderViewModel();
+}
+
+LLFolderViewModelInterface* LLFolderViewItem::getFolderViewModel( void )
 		{
-			std::string combined_string = mLabel + mLabelSuffix;
-			S32 left = llround(text_left) + font->getWidth(combined_string, 0, mStringMatchOffset) - 1;
-			S32 right = left + font->getWidth(combined_string, mStringMatchOffset, filter_string_length) + 2;
-			S32 bottom = llfloor(getRect().getHeight() - font->getLineHeight() - 3 - TOP_PAD);
-			S32 top = getRect().getHeight() - TOP_PAD;
-		
-			LLUIImage* box_image = default_params.selection_image;
-			LLRect box_rect(left, top, right, bottom);
-			box_image->draw(box_rect, sFilterBGColor);
-			F32 match_string_left = text_left + font->getWidthF32(combined_string, 0, mStringMatchOffset);
-			F32 yy = (F32)getRect().getHeight() - font->getLineHeight() - (F32)TEXT_PAD - (F32)TOP_PAD;
-			font->renderUTF8( combined_string, mStringMatchOffset, match_string_left, yy,
-							  sFilterTextColor, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
-							  filter_string_length, S32_MAX, &right_x, FALSE );
-		}
-	}
+	return getRoot()->getFolderViewModel();
 }
 
 
@@ -1117,20 +849,14 @@ void LLFolderViewItem::draw()
 ///----------------------------------------------------------------------------
 
 LLFolderViewFolder::LLFolderViewFolder( const LLFolderViewItem::Params& p ): 
-	LLFolderViewItem( p ),	// 0 = no create time
+	LLFolderViewItem( p ),
 	mIsOpen(FALSE),
 	mExpanderHighlighted(FALSE),
 	mCurHeight(0.f),
 	mTargetHeight(0.f),
 	mAutoOpenCountdown(0.f),
-	mSubtreeCreationDate(0),
-	mAmTrash(LLFolderViewFolder::UNKNOWN),
 	mLastArrangeGeneration( -1 ),
-	mLastCalculatedWidth(0),
-	mCompletedFilterGeneration(-1),
-	mMostFilteredDescendantGeneration(-1),
-	mNeedsSort(false),
-	mPassedFolderFilter(FALSE)
+	mLastCalculatedWidth(0)
 {
 }
 
@@ -1142,44 +868,26 @@ LLFolderViewFolder::~LLFolderViewFolder( void )
 	gFocusMgr.releaseFocusIfNeeded( this ); // calls onCommit()
 }
 
-void LLFolderViewFolder::setFilteredFolder(bool filtered, S32 filter_generation)
-{
-	mPassedFolderFilter = filtered;
-	mLastFilterGeneration = filter_generation;
-}
-
-bool LLFolderViewFolder::getFilteredFolder(S32 filter_generation)
-{
-	return mPassedFolderFilter && mLastFilterGeneration >= getRoot()->getFilter()->getMinRequiredGeneration();
-}
-
 // addToFolder() returns TRUE if it succeeds. FALSE otherwise
-BOOL LLFolderViewFolder::addToFolder(LLFolderViewFolder* folder, LLFolderView* root)
-{
-	if (!folder)
+BOOL LLFolderViewFolder::addToFolder(LLFolderViewFolder* folder)
 	{
-		return FALSE;
-	}
-	mParentFolder = folder;
-	root->addItemID(getListener()->getUUID(), this);
 	return folder->addFolder(this);
 }
 
+static LLFastTimer::DeclareTimer FTM_ARRANGE("Arrange");
+
 // Finds width and height of this object and its children. Also
 // makes sure that this view and its children are the right size.
-S32 LLFolderViewFolder::arrange( S32* width, S32* height, S32 filter_generation)
+S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 {
 	// sort before laying out contents
-	if (mNeedsSort)
-	{
-		mFolders.sort(mSortFunction);
-		mItems.sort(mSortFunction);
-		mNeedsSort = false;
-	}
+	getRoot()->getFolderViewModel()->sort(this);
+
+	LLFastTimer t2(FTM_ARRANGE);
 
 	// evaluate mHasVisibleChildren
 	mHasVisibleChildren = false;
-	if (hasFilteredDescendants(filter_generation))
+	if (getViewModelItem()->descendantsPassedFilter())
 	{
 		// We have to verify that there's at least one child that's not filtered out
 		bool found = false;
@@ -1187,7 +895,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height, S32 filter_generation)
 		for (items_t::iterator iit = mItems.begin(); iit != mItems.end(); ++iit)
 		{
 			LLFolderViewItem* itemp = (*iit);
-			found = (itemp->getFiltered(filter_generation));
+			found = itemp->passedFilter();
 			if (found)
 				break;
 		}
@@ -1197,10 +905,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height, S32 filter_generation)
 			for (folders_t::iterator fit = mFolders.begin(); fit != mFolders.end(); ++fit)
 			{
 				LLFolderViewFolder* folderp = (*fit);
-				found = ( folderp->getListener()
-								&&	(folderp->getFiltered(filter_generation)
-									 ||	(folderp->getFilteredFolder(filter_generation) 
-										 && folderp->hasFilteredDescendants(filter_generation))));
+				found = folderp->passedFilter();
 				if (found)
 					break;
 			}
@@ -1210,13 +915,12 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height, S32 filter_generation)
 	}
 
 	// calculate height as a single item (without any children), and reshapes rectangle to match
-	LLFolderViewItem::arrange( width, height, filter_generation );
+	LLFolderViewItem::arrange( width, height );
 
 	// clamp existing animated height so as to never get smaller than a single item
 	mCurHeight = llmax((F32)*height, mCurHeight);
 
 	// initialize running height value as height of single item in case we have no children
-	*height = getItemHeight();
 	F32 running_height = (F32)*height;
 	F32 target_height = (F32)*height;
 
@@ -1226,7 +930,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height, S32 filter_generation)
 		// set last arrange generation first, in case children are animating
 		// and need to be arranged again
 		mLastArrangeGeneration = getRoot()->getArrangeGeneration();
-		if (mIsOpen)
+		if (isOpen())
 		{
 			// Add sizes of children
 			S32 parent_item_height = getRect().getHeight();
@@ -1234,17 +938,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height, S32 filter_generation)
 			for(folders_t::iterator fit = mFolders.begin(); fit != mFolders.end(); ++fit)
 			{
 				LLFolderViewFolder* folderp = (*fit);
-				if (getRoot()->getDebugFilters())
-				{
-					folderp->setVisible(TRUE);
-				}
-				else
-				{
-					folderp->setVisible( folderp->getListener()
-										&&	(folderp->getFiltered(filter_generation)
-											||	(folderp->getFilteredFolder(filter_generation) 
-												&& folderp->hasFilteredDescendants(filter_generation)))); // passed filter or has descendants that passed filter
-				}
+				folderp->setVisible(folderp->passedFilter()); // passed filter or has descendants that passed filter
 
 				if (folderp->getVisible())
 				{
@@ -1252,7 +946,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height, S32 filter_generation)
 					S32 child_height = 0;
 					S32 child_top = parent_item_height - llround(running_height);
 
-					target_height += folderp->arrange( &child_width, &child_height, filter_generation );
+					target_height += folderp->arrange( &child_width, &child_height );
 
 					running_height += (F32)child_height;
 					*width = llmax(*width, child_width);
@@ -1263,14 +957,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height, S32 filter_generation)
 				iit != mItems.end(); ++iit)
 			{
 				LLFolderViewItem* itemp = (*iit);
-				if (getRoot()->getDebugFilters())
-				{
-					itemp->setVisible(TRUE);
-				}
-				else
-				{
-					itemp->setVisible(itemp->getFiltered(filter_generation));
-				}
+				itemp->setVisible(itemp->passedFilter());
 
 				if (itemp->getVisible())
 				{
@@ -1278,7 +965,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height, S32 filter_generation)
 					S32 child_height = 0;
 					S32 child_top = parent_item_height - llround(running_height);
 
-					target_height += itemp->arrange( &child_width, &child_height, filter_generation );
+					target_height += itemp->arrange( &child_width, &child_height );
 					// don't change width, as this item is as wide as its parent folder by construction
 					itemp->reshape( itemp->getRect().getWidth(), child_height);
 
@@ -1302,7 +989,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height, S32 filter_generation)
 	// animate current height towards target height
 	if (llabs(mCurHeight - mTargetHeight) > 1.f)
 	{
-		mCurHeight = lerp(mCurHeight, mTargetHeight, LLCriticalDamp::getInterpolant(mIsOpen ? FOLDER_OPEN_TIME_CONSTANT : FOLDER_CLOSE_TIME_CONSTANT));
+		mCurHeight = lerp(mCurHeight, mTargetHeight, LLCriticalDamp::getInterpolant(isOpen() ? FOLDER_OPEN_TIME_CONSTANT : FOLDER_CLOSE_TIME_CONSTANT));
 
 		requestArrange();
 
@@ -1353,247 +1040,24 @@ BOOL LLFolderViewFolder::needsArrange()
 
 void LLFolderViewFolder::requestSort()
 {
-	mNeedsSort = true;
-	// whenever item order changes, we need to lay things out again
-	requestArrange();
+	getViewModelItem()->requestSort();
 }
 
-void LLFolderViewFolder::setCompletedFilterGeneration(S32 generation, BOOL recurse_up)
-{
-	//mMostFilteredDescendantGeneration = llmin(mMostFilteredDescendantGeneration, generation);
-	mCompletedFilterGeneration = generation;
-	// only aggregate up if we are a lower (older) value
-	if (recurse_up
-		&& mParentFolder
-		&& generation < mParentFolder->getCompletedFilterGeneration())
-	{
-		mParentFolder->setCompletedFilterGeneration(generation, TRUE);
-	}
-}
+//TODO RN: get height resetting working
+//void LLFolderViewFolder::setPassedFilter(BOOL passed, BOOL passed_folder, S32 filter_generation)
+//{
+//	// if this folder is now filtered, but wasn't before
+//	// (it just passed)
+//	if (passed && !passedFilter(filter_generation))
+//	{
+//		// reset current height, because last time we drew it
+//		// it might have had more visible items than now
+//		mCurHeight = 0.f;
+//	}
+//
+//	LLFolderViewItem::setPassedFilter(passed, passed_folder, filter_generation);
+//}
 
-void LLFolderViewFolder::filter( LLInventoryFilter& filter)
-{
-	S32 filter_generation = filter.getCurrentGeneration();
-	// if failed to pass filter newer than must_pass_generation
-	// you will automatically fail this time, so we only
-	// check against items that have passed the filter
-	S32 must_pass_generation = filter.getMustPassGeneration();
-	
-	bool autoopen_folders = (filter.hasFilterString());
-
-	// if we have already been filtered against this generation, skip out
-	if (getCompletedFilterGeneration() >= filter_generation)
-	{
-		return;
-	}
-
-	// filter folder itself
-	if (getLastFilterGeneration() < filter_generation)
-	{
-		if (getLastFilterGeneration() >= must_pass_generation	// folder has been compared to a valid precursor filter
-			&& !mPassedFilter)									// and did not pass the filter
-		{
-			// go ahead and flag this folder as done
-			mLastFilterGeneration = filter_generation;
-			mStringMatchOffset = std::string::npos;
-		}
-		else // filter self only on first pass through
-		{
-			// filter against folder rules
-			filterFolder(filter);
-			// and then item rules
-			LLFolderViewItem::filter( filter );
-		}
-	}
-
-	if (getRoot()->getDebugFilters())
-	{
-		mStatusText = llformat("%d", mLastFilterGeneration);
-		mStatusText += llformat("(%d)", mCompletedFilterGeneration);
-		mStatusText += llformat("+%d", mMostFilteredDescendantGeneration);
-	}
-
-	// all descendants have been filtered later than must pass generation
-	// but none passed
-	if(getCompletedFilterGeneration() >= must_pass_generation && !hasFilteredDescendants(must_pass_generation))
-	{
-		// don't traverse children if we've already filtered them since must_pass_generation
-		// and came back with nothing
-		return;
-	}
-
-	// we entered here with at least one filter iteration left
-	// check to see if we have any more before continuing on to children
-	if (filter.getFilterCount() < 0)
-	{
-		return;
-	}
-
-	// when applying a filter, matching folders get their contents downloaded first
-	if (filter.isNotDefault()
-		&& getFiltered(filter.getMinRequiredGeneration())
-		&&	(mListener
-			&& !gInventory.isCategoryComplete(mListener->getUUID())))
-	{
-		LLInventoryModelBackgroundFetch::instance().start(mListener->getUUID());
-	}
-
-	// now query children
-	for (folders_t::iterator iter = mFolders.begin();
-		 iter != mFolders.end();
-		 ++iter)
-	{
-		LLFolderViewFolder* folder = (*iter);
-		// have we run out of iterations this frame?
-		if (filter.getFilterCount() < 0)
-		{
-			break;
-		}
-
-		// mMostFilteredDescendantGeneration might have been reset
-		// in which case we need to update it even for folders that
-		// don't need to be filtered anymore
-		if (folder->getCompletedFilterGeneration() >= filter_generation)
-		{
-			// track latest generation to pass any child items
-			if (folder->getFiltered() || folder->hasFilteredDescendants(filter.getMinRequiredGeneration()))
-			{
-				mMostFilteredDescendantGeneration = filter_generation;
-				requestArrange();
-			}
-			// just skip it, it has already been filtered
-			continue;
-		}
-
-		// update this folders filter status (and children)
-		folder->filter( filter );
-
-		// track latest generation to pass any child items
-		if (folder->getFiltered() || folder->hasFilteredDescendants(filter_generation))
-		{
-			mMostFilteredDescendantGeneration = filter_generation;
-			requestArrange();
-			if (getRoot()->needsAutoSelect() && autoopen_folders)
-			{
-				folder->setOpenArrangeRecursively(TRUE);
-			}
-		}
-	}
-
-	for (items_t::iterator iter = mItems.begin();
-		 iter != mItems.end();
-		 ++iter)
-	{
-		LLFolderViewItem* item = (*iter);
-		if (filter.getFilterCount() < 0)
-		{
-			break;
-		}
-		if (item->getLastFilterGeneration() >= filter_generation)
-		{
-			if (item->getFiltered())
-			{
-				mMostFilteredDescendantGeneration = filter_generation;
-				requestArrange();
-			}
-			continue;
-		}
-
-		if (item->getLastFilterGeneration() >= must_pass_generation && 
-			!item->getFiltered(must_pass_generation))
-		{
-			// failed to pass an earlier filter that was a subset of the current one
-			// go ahead and flag this item as done
-			item->setFiltered(FALSE, filter_generation);
-			continue;
-		}
-
-		item->filter( filter );
-
-		if (item->getFiltered(filter.getMinRequiredGeneration()))
-		{
-			mMostFilteredDescendantGeneration = filter_generation;
-			requestArrange();
-		}
-	}
-
-	// if we didn't use all filter iterations
-	// that means we filtered all of our descendants
-	// instead of exhausting the filter count for this frame
-	if (filter.getFilterCount() > 0)
-	{
-		// flag this folder as having completed filter pass for all descendants
-		setCompletedFilterGeneration(filter_generation, FALSE/*dont recurse up to root*/);
-	}
-}
-
-void LLFolderViewFolder::filterFolder(LLInventoryFilter& filter)
-{
-	const BOOL previous_passed_filter = mPassedFolderFilter;
-	const BOOL passed_filter = filter.checkFolder(this);
-
-	// If our visibility will change as a result of this filter, then
-	// we need to be rearranged in our parent folder
-	if (mParentFolder)
-	{
-		if (getVisible() != passed_filter
-			|| previous_passed_filter != passed_filter )
-		{
-			mParentFolder->requestArrange();
-		}
-	}
-
-	setFilteredFolder(passed_filter, filter.getCurrentGeneration());
-	filter.decrementFilterCount();
-
-	if (getRoot()->getDebugFilters())
-	{
-		mStatusText = llformat("%d", mLastFilterGeneration);
-	}
-}
-
-void LLFolderViewFolder::setFiltered(BOOL filtered, S32 filter_generation)
-{
-	// if this folder is now filtered, but wasn't before
-	// (it just passed)
-	if (filtered && !mPassedFilter)
-	{
-		// reset current height, because last time we drew it
-		// it might have had more visible items than now
-		mCurHeight = 0.f;
-	}
-
-	LLFolderViewItem::setFiltered(filtered, filter_generation);
-}
-
-void LLFolderViewFolder::dirtyFilter()
-{
-	// we're a folder, so invalidate our completed generation
-	setCompletedFilterGeneration(-1, FALSE);
-	LLFolderViewItem::dirtyFilter();
-}
-
-BOOL LLFolderViewFolder::getFiltered() 
-{ 
-	return getFilteredFolder(getRoot()->getFilter()->getMinRequiredGeneration()) 
-		&& LLFolderViewItem::getFiltered(); 
-}
-
-BOOL LLFolderViewFolder::getFiltered(S32 filter_generation) 
-{
-	return getFilteredFolder(filter_generation) && LLFolderViewItem::getFiltered(filter_generation);
-}
-
-BOOL LLFolderViewFolder::hasFilteredDescendants(S32 filter_generation)
-{ 
-	return mMostFilteredDescendantGeneration >= filter_generation; 
-}
-
-
-BOOL LLFolderViewFolder::hasFilteredDescendants()
-{
-	return mMostFilteredDescendantGeneration >= getRoot()->getFilter()->getCurrentGeneration();
-}
 
 // Passes selection information on to children and record selection
 // information if necessary.
@@ -1947,14 +1411,6 @@ void LLFolderViewFolder::extendSelectionTo(LLFolderViewItem* new_selection)
 
 void LLFolderViewFolder::destroyView()
 {
-	for (items_t::iterator iter = mItems.begin();
-		iter != mItems.end();)
-	{
-		items_t::iterator iit = iter++;
-		LLFolderViewItem* item = (*iit);
-		getRoot()->removeItemID(item->getListener()->getUUID());
-	}
-
 	std::for_each(mItems.begin(), mItems.end(), DeletePointer());
 	mItems.clear();
 
@@ -1964,41 +1420,7 @@ void LLFolderViewFolder::destroyView()
 		folderp->destroyView(); // removes entry from mFolders
 	}
 
-	//deleteAllChildren();
-
-	if (mParentFolder)
-	{
-		mParentFolder->removeView(this);
-	}
-}
-
-// remove the specified item (and any children) if possible. Return
-// TRUE if the item was deleted.
-BOOL LLFolderViewFolder::removeItem(LLFolderViewItem* item)
-{
-	if(item->remove())
-	{
-		return TRUE;
-	}
-	return FALSE;
-}
-
-// simply remove the view (and any children) Don't bother telling the
-// listeners.
-void LLFolderViewFolder::removeView(LLFolderViewItem* item)
-{
-	if (!item || item->getParentFolder() != this)
-	{
-		return;
-	}
-	// deselect without traversing hierarchy
-	if (item->isSelected())
-	{
-		item->deselectItem();
-	}
-	getRoot()->removeFromSelectionList(item);
-	extractItem(item);
-	delete item;
+	LLFolderViewItem::destroyView();
 }
 
 // extractItem() removes the specified item from the folder, but
@@ -2024,106 +1446,16 @@ void LLFolderViewFolder::extractItem( LLFolderViewItem* item )
 		mItems.erase(it);
 	}
 	//item has been removed, need to update filter
-	dirtyFilter();
+	getViewModelItem()->removeChild(item->getViewModelItem());
+	getViewModelItem()->dirtyFilter();
 	//because an item is going away regardless of filter status, force rearrange
 	requestArrange();
-	getRoot()->removeItemID(item->getListener()->getUUID());
 	removeChild(item);
-}
-
-bool LLFolderViewFolder::isTrash() const
-{
-	if (mAmTrash == LLFolderViewFolder::UNKNOWN)
-	{
-		mAmTrash = mListener->getUUID() == gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH, false) ? LLFolderViewFolder::TRASH : LLFolderViewFolder::NOT_TRASH;
-	}
-	return mAmTrash == LLFolderViewFolder::TRASH;
-}
-
-void LLFolderViewFolder::sortBy(U32 order)
-{
-	if (!mSortFunction.updateSort(order))
-	{
-		// No changes.
-		return;
-	}
-
-	// Propagate this change to sub folders
-	for (folders_t::iterator iter = mFolders.begin();
-		iter != mFolders.end();)
-	{
-		folders_t::iterator fit = iter++;
-		(*fit)->sortBy(order);
-	}
-
-	// Don't sort the topmost folders (My Inventory and Library)
-	if (mListener->getUUID().notNull())
-	{
-		mFolders.sort(mSortFunction);
-		mItems.sort(mSortFunction);
-	}
-
-	if (order & LLInventoryFilter::SO_DATE)
-	{
-		time_t latest = 0;
-
-		if (!mItems.empty())
-		{
-			LLFolderViewItem* item = *(mItems.begin());
-			latest = item->getCreationDate();
-		}
-
-		if (!mFolders.empty())
-		{
-			LLFolderViewFolder* folder = *(mFolders.begin());
-			if (folder->getCreationDate() > latest)
-			{
-				latest = folder->getCreationDate();
-			}
-		}
-		mSubtreeCreationDate = latest;
-	}
-}
-
-void LLFolderViewFolder::setItemSortOrder(U32 ordering)
-{
-	if (mSortFunction.updateSort(ordering))
-	{
-		for (folders_t::iterator iter = mFolders.begin();
-			iter != mFolders.end();)
-		{
-			folders_t::iterator fit = iter++;
-			(*fit)->setItemSortOrder(ordering);
-		}
-
-		mFolders.sort(mSortFunction);
-		mItems.sort(mSortFunction);
-	}
-}
-
-EInventorySortGroup LLFolderViewFolder::getSortGroup() const
-{
-	if (isTrash())
-	{
-		return SG_TRASH_FOLDER;
-	}
-
-	if( mListener )
-	{
-		if(LLFolderType::lookupIsProtectedType(mListener->getPreferredType()))
-		{
-			return SG_SYSTEM_FOLDER;
-		}
-	}
-
-	return SG_NORMAL_FOLDER;
 }
 
 BOOL LLFolderViewFolder::isMovable()
 {
-	if( mListener )
-	{
-		if( !(mListener->isItemMovable()) )
+	if( !(getViewModelItem()->isItemMovable()) )
 		{
 			return FALSE;
 		}
@@ -2147,16 +1479,13 @@ BOOL LLFolderViewFolder::isMovable()
 				return FALSE;
 			}
 		}
-	}
 	return TRUE;
 }
 
 
 BOOL LLFolderViewFolder::isRemovable()
 {
-	if( mListener )
-	{
-		if( !(mListener->isItemRemovable()) )
+	if( !(getViewModelItem()->isItemRemovable()) )
 		{
 			return FALSE;
 		}
@@ -2180,13 +1509,18 @@ BOOL LLFolderViewFolder::isRemovable()
 				return FALSE;
 			}
 		}
-	}
 	return TRUE;
 }
 
 // this is an internal method used for adding items to folders. 
 BOOL LLFolderViewFolder::addItem(LLFolderViewItem* item)
 {
+	if (item->getParentFolder())
+	{
+		item->getParentFolder()->extractItem(item);
+	}
+	item->setParentFolder(this);
+
 	mItems.push_back(item);
 	
 	item->setRect(LLRect(0, 0, getRect().getWidth(), 0));
@@ -2194,39 +1528,27 @@ BOOL LLFolderViewFolder::addItem(LLFolderViewItem* item)
 	
 	addChild(item);
 	
-	item->dirtyFilter();
-
-	// Update the folder creation date if the folder has no creation date
-	bool setting_date = false;
-	const time_t item_creation_date = item->getCreationDate();
-	if ((item_creation_date > 0) && (mCreationDate == 0))
-	{
-		setCreationDate(item_creation_date);
-		setting_date = true;
-	}
+	item->getViewModelItem()->dirtyFilter();
 
 	// Handle sorting
 	requestArrange();
 	requestSort();
 
-	// Traverse parent folders and update creation date and resort, if necessary
-	LLFolderViewFolder* parentp = getParentFolder();
-	while (parentp)
-	{
-		// Update the parent folder creation date
-		if (setting_date && (parentp->mCreationDate == 0))
-		{
-			parentp->setCreationDate(item_creation_date);
-		}
+	getViewModelItem()->addChild(item->getViewModelItem());
 
-		if (parentp->mSortFunction.isByDate())
-		{
-			// parent folder doesn't have a time stamp yet, so get it from us
-			parentp->requestSort();
-		}
+	//TODO RN - make sort bubble up as long as parent Folder doesn't have anything matching sort criteria
+	//// Traverse parent folders and update creation date and resort, if necessary
+	//LLFolderViewFolder* parentp = this;
+	//while (parentp)
+	//{
+	//	if (parentp->mSortFunction.isByDate())
+	//	{
+	//		// parent folder doesn't have a time stamp yet, so get it from us
+	//		parentp->requestSort();
+	//	}
 
-		parentp = parentp->getParentFolder();
-	}
+	//	parentp = parentp->getParentFolder();
+	//}
 
 	return TRUE;
 }
@@ -2234,26 +1556,27 @@ BOOL LLFolderViewFolder::addItem(LLFolderViewItem* item)
 // this is an internal method used for adding items to folders. 
 BOOL LLFolderViewFolder::addFolder(LLFolderViewFolder* folder)
 {
+	if (folder->mParentFolder)
+	{
+		folder->mParentFolder->extractItem(folder);
+	}
+	folder->mParentFolder = this;
 	mFolders.push_back(folder);
 	folder->setOrigin(0, 0);
 	folder->reshape(getRect().getWidth(), 0);
 	folder->setVisible(FALSE);
 	addChild( folder );
-	folder->dirtyFilter();
+	folder->getViewModelItem()->dirtyFilter();
 	// rearrange all descendants too, as our indentation level might have changed
-	folder->requestArrange(TRUE);
+	folder->requestArrange();
 	requestSort();
-	LLFolderViewFolder* parentp = getParentFolder();
-	while (parentp && !parentp->mSortFunction.isByDate())
-	{
-		// parent folder doesn't have a time stamp yet, so get it from us
-		parentp->requestSort();
-		parentp = parentp->getParentFolder();
-	}
+
+	getViewModelItem()->addChild(folder->getViewModelItem());
+
 	return TRUE;
 }
 
-void LLFolderViewFolder::requestArrange(BOOL include_descendants)	
+void LLFolderViewFolder::requestArrange()
 { 
 	mLastArrangeGeneration = -1; 
 	// flag all items up to root
@@ -2261,21 +1584,11 @@ void LLFolderViewFolder::requestArrange(BOOL include_descendants)
 	{
 		mParentFolder->requestArrange();
 	}
-
-	if (include_descendants)
-	{
-		for (folders_t::iterator iter = mFolders.begin();
-			iter != mFolders.end();
-			++iter)
-		{
-			(*iter)->requestArrange(TRUE);
-		}
-	}
 }
 
 void LLFolderViewFolder::toggleOpen()
 {
-	setOpen(!mIsOpen);
+	setOpen(!isOpen());
 }
 
 // Force a folder open or closed
@@ -2286,18 +1599,15 @@ void LLFolderViewFolder::setOpen(BOOL openitem)
 
 void LLFolderViewFolder::setOpenArrangeRecursively(BOOL openitem, ERecurseType recurse)
 {
-	BOOL was_open = mIsOpen;
+	BOOL was_open = isOpen();
 	mIsOpen = openitem;
-	if (mListener)
-	{
 		if(!was_open && openitem)
 		{
-			mListener->openItem();
+		getViewModelItem()->openItem();
 		}
 		else if(was_open && !openitem)
 		{
-			mListener->closeItem();
-		}
+		getViewModelItem()->closeItem();
 	}
 
 	if (recurse == RECURSE_DOWN || recurse == RECURSE_UP_DOWN)
@@ -2316,7 +1626,7 @@ void LLFolderViewFolder::setOpenArrangeRecursively(BOOL openitem, ERecurseType r
 		mParentFolder->setOpenArrangeRecursively(openitem, RECURSE_UP);
 	}
 
-	if (was_open != mIsOpen)
+	if (was_open != isOpen())
 	{
 		requestArrange();
 	}
@@ -2329,7 +1639,7 @@ BOOL LLFolderViewFolder::handleDragAndDropFromChild(MASK mask,
 													EAcceptance* accept,
 													std::string& tooltip_msg)
 {
-	BOOL accepted = mListener && mListener->dragOrDrop(mask,drop,c_type,cargo_data, tooltip_msg);
+	BOOL accepted = mViewModelItem->dragOrDrop(mask,drop,c_type,cargo_data, tooltip_msg);
 	if (accepted) 
 	{
 		mDragAndDropTarget = TRUE;
@@ -2385,23 +1695,6 @@ void LLFolderViewFolder::applyFunctorRecursively(LLFolderViewFunctor& functor)
 	}
 }
 
-void LLFolderViewFolder::applyListenerFunctorRecursively(LLFolderViewListenerFunctor& functor)
-{
-	functor(mListener);
-	for (folders_t::iterator iter = mFolders.begin();
-		iter != mFolders.end();)
-	{
-		folders_t::iterator fit = iter++;
-		(*fit)->applyListenerFunctorRecursively(functor);
-	}
-	for (items_t::iterator iter = mItems.begin();
-		iter != mItems.end();)
-	{
-		items_t::iterator iit = iter++;
-		(*iit)->applyListenerFunctorRecursively(functor);
-	}
-}
-
 // LLView functionality
 BOOL LLFolderViewFolder::handleDragAndDrop(S32 x, S32 y, MASK mask,
 										   BOOL drop,
@@ -2412,7 +1705,7 @@ BOOL LLFolderViewFolder::handleDragAndDrop(S32 x, S32 y, MASK mask,
 {
 	BOOL handled = FALSE;
 
-	if (mIsOpen)
+	if (isOpen())
 	{
 		handled = (childrenHandleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg) != NULL);
 	}
@@ -2434,7 +1727,7 @@ BOOL LLFolderViewFolder::handleDragAndDropToThisFolder(MASK mask,
 													   EAcceptance* accept,
 													   std::string& tooltip_msg)
 {
-	BOOL accepted = mListener && mListener->dragOrDrop(mask, drop, cargo_type, cargo_data, tooltip_msg);
+	BOOL accepted = getViewModelItem()->dragOrDrop(mask,drop,cargo_type,cargo_data, tooltip_msg);
 	
 	if (accepted) 
 	{
@@ -2458,11 +1751,8 @@ BOOL LLFolderViewFolder::handleDragAndDropToThisFolder(MASK mask,
 BOOL LLFolderViewFolder::handleRightMouseDown( S32 x, S32 y, MASK mask )
 {
 	BOOL handled = FALSE;
-	// fetch contents of this folder, as context menu can depend on contents
-	// still, user would have to open context menu again to see the changes
-	gInventory.fetchDescendentsOf(mListener->getUUID());
 
-	if( mIsOpen )
+	if( isOpen() )
 	{
 		handled = childrenHandleRightMouseDown( x, y, mask ) != NULL;
 	}
@@ -2492,7 +1782,7 @@ BOOL LLFolderViewFolder::handleHover(S32 x, S32 y, MASK mask)
 BOOL LLFolderViewFolder::handleMouseDown( S32 x, S32 y, MASK mask )
 {
 	BOOL handled = FALSE;
-	if( mIsOpen )
+	if( isOpen() )
 	{
 		handled = childrenHandleMouseDown(x,y,mask) != NULL;
 	}
@@ -2516,17 +1806,17 @@ BOOL LLFolderViewFolder::handleMouseDown( S32 x, S32 y, MASK mask )
 BOOL LLFolderViewFolder::handleDoubleClick( S32 x, S32 y, MASK mask )
 {
 	/* Disable outfit double click to wear
-	const LLUUID &cat_uuid = getListener()->getUUID();
+	const LLUUID &cat_uuid = getViewModelItem()->getUUID();
 	const LLViewerInventoryCategory *cat = gInventory.getCategory(cat_uuid);
 	if (cat && cat->getPreferredType() == LLFolderType::FT_OUTFIT)
 	{
-		getListener()->performAction(NULL, NULL,"replaceoutfit");
+		getViewModelItem()->performAction(NULL, NULL,"replaceoutfit");
 		return TRUE;
 	}
 	*/
 
 	BOOL handled = FALSE;
-	if( mIsOpen )
+	if( isOpen() )
 	{
 		handled = childrenHandleDoubleClick( x, y, mask ) != NULL;
 	}
@@ -2540,7 +1830,7 @@ BOOL LLFolderViewFolder::handleDoubleClick( S32 x, S32 y, MASK mask )
 		}
 		else
 		{
-			setSelectionFromRoot(this, FALSE);
+			getRoot()->setSelection(this, FALSE);
 			toggleOpen();
 		}
 		handled = TRUE;
@@ -2554,7 +1844,7 @@ void LLFolderViewFolder::draw()
 	{
 		mControlLabelRotation = mAutoOpenCountdown * -90.f;
 	}
-	else if (mIsOpen)
+	else if (isOpen())
 	{
 		mControlLabelRotation = lerp(mControlLabelRotation, -90.f, LLCriticalDamp::getInterpolant(0.04f));
 	}
@@ -2563,52 +1853,15 @@ void LLFolderViewFolder::draw()
 		mControlLabelRotation = lerp(mControlLabelRotation, 0.f, LLCriticalDamp::getInterpolant(0.025f));
 	}
 
-	bool possibly_has_children = false;
-	bool up_to_date = mListener && mListener->isUpToDate();
-	if(!up_to_date
-		&& mListener->hasChildren()) // we know we have children but haven't fetched them (doesn't obey filter)
-	{
-		possibly_has_children = true;
-	}
-
-
-	BOOL loading = (mIsOpen
-					&& possibly_has_children
-					&& !up_to_date );
-
-	if ( loading && !mIsLoading )
-	{
-		// Measure how long we've been in the loading state
-		mTimeSinceRequestStart.reset();
-	}
-
-	mIsLoading = loading;
-
 	LLFolderViewItem::draw();
 
 	// draw children if root folder, or any other folder that is open or animating to closed state
-	if( getRoot() == this || (mIsOpen || mCurHeight != mTargetHeight ))
+	if( getRoot() == this || (isOpen() || mCurHeight != mTargetHeight ))
 	{
 		LLView::draw();
 	}
 
 	mExpanderHighlighted = FALSE;
-}
-
-time_t LLFolderViewFolder::getCreationDate() const
-{
-	return llmax<time_t>(mCreationDate, mSubtreeCreationDate);
-}
-
-
-BOOL	LLFolderViewFolder::potentiallyVisible()
-{
-	// folder should be visible by it's own filter status
-	return LLFolderViewItem::potentiallyVisible() 	
-		// or one or more of its descendants have passed the minimum filter requirement
-		|| hasFilteredDescendants(getRoot()->getFilter()->getMinRequiredGeneration())
-		// or not all of its descendants have been checked against minimum filter requirement
-		|| getCompletedFilterGeneration() < getRoot()->getFilter()->getMinRequiredGeneration(); 
 }
 
 // this does prefix traversal, as folders are listed above their contents
@@ -2822,48 +2075,35 @@ LLFolderViewItem* LLFolderViewFolder::getPreviousFromChild( LLFolderViewItem* it
 	return result;
 }
 
-
-bool LLInventorySort::updateSort(U32 order)
-{
-	if (order != mSortOrder)
-	{
-		mSortOrder = order;
-		mByDate = (order & LLInventoryFilter::SO_DATE);
-		mSystemToTop = (order & LLInventoryFilter::SO_SYSTEM_FOLDERS_TO_TOP);
-		mFoldersByName = (order & LLInventoryFilter::SO_FOLDERS_BY_NAME);
-		return true;
-	}
-	return false;
-}
-
-bool LLInventorySort::operator()(const LLFolderViewItem* const& a, const LLFolderViewItem* const& b)
+bool LLInventorySort::operator()(const LLFolderViewModelItemInventory* const& a, const LLFolderViewModelItemInventory* const& b) const
 {
 	// ignore sort order for landmarks in the Favorites folder.
 	// they should be always sorted as in Favorites bar. See EXT-719
-	if (a->getSortGroup() == SG_ITEM
-		&& b->getSortGroup() == SG_ITEM
-		&& a->getListener()->getInventoryType() == LLInventoryType::IT_LANDMARK
-		&& b->getListener()->getInventoryType() == LLInventoryType::IT_LANDMARK)
-	{
+	//TODO RN: fix sorting in favorites folder
+	//if (a->getSortGroup() == SG_ITEM
+	//	&& b->getSortGroup() == SG_ITEM
+	//	&& a->getInventoryType() == LLInventoryType::IT_LANDMARK
+	//	&& b->getInventoryType() == LLInventoryType::IT_LANDMARK)
+	//{
 
-		static const LLUUID& favorites_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
+	//	static const LLUUID& favorites_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
 
-		LLUUID a_uuid = a->getParentFolder()->getListener()->getUUID();
-		LLUUID b_uuid = b->getParentFolder()->getListener()->getUUID();
+	//	LLUUID a_uuid = a->getParentFolder()->getUUID();
+	//	LLUUID b_uuid = b->getParentFolder()->getUUID();
 
-		if ((a_uuid == favorites_folder_id && b_uuid == favorites_folder_id))
-		{
-			// *TODO: mantipov: probably it is better to add an appropriate method to LLFolderViewItem
-			// or to LLInvFVBridge
-			LLViewerInventoryItem* aitem = (static_cast<const LLItemBridge*>(a->getListener()))->getItem();
-			LLViewerInventoryItem* bitem = (static_cast<const LLItemBridge*>(b->getListener()))->getItem();
-			if (!aitem || !bitem)
-				return false;
-			S32 a_sort = aitem->getSortField();
-			S32 b_sort = bitem->getSortField();
-			return a_sort < b_sort;
-		}
-	}
+	//	if ((a_uuid == favorites_folder_id && b_uuid == favorites_folder_id))
+	//	{
+	//		// *TODO: mantipov: probably it is better to add an appropriate method to LLFolderViewItem
+	//		// or to LLInvFVBridge
+	//		LLViewerInventoryItem* aitem = (static_cast<const LLItemBridge*>(a))->getItem();
+	//		LLViewerInventoryItem* bitem = (static_cast<const LLItemBridge*>(b))->getItem();
+	//		if (!aitem || !bitem)
+	//			return false;
+	//		S32 a_sort = aitem->getSortField();
+	//		S32 b_sort = bitem->getSortField();
+	//		return a_sort < b_sort;
+	//	}
+	//}
 
 	// We sort by name if we aren't sorting by date
 	// OR if these are folders and we are sorting folders by name.
@@ -2891,7 +2131,7 @@ bool LLInventorySort::operator()(const LLFolderViewItem* const& a, const LLFolde
 
 	if (by_name)
 	{
-		S32 compare = LLStringUtil::compareDict(a->getLabel(), b->getLabel());
+		S32 compare = LLStringUtil::compareDict(a->getDisplayName(), b->getDisplayName());
 		if (0 == compare)
 		{
 			return (a->getCreationDate() > b->getCreationDate());
@@ -2903,13 +2143,11 @@ bool LLInventorySort::operator()(const LLFolderViewItem* const& a, const LLFolde
 	}
 	else
 	{
-		// BUG: This is very very slow.  The getCreationDate() is log n in number
-		// of inventory items.
 		time_t first_create = a->getCreationDate();
 		time_t second_create = b->getCreationDate();
 		if (first_create == second_create)
 		{
-			return (LLStringUtil::compareDict(a->getLabel(), b->getLabel()) < 0);
+			return (LLStringUtil::compareDict(a->getDisplayName(), b->getDisplayName()) < 0);
 		}
 		else
 		{
@@ -2917,3 +2155,4 @@ bool LLInventorySort::operator()(const LLFolderViewItem* const& a, const LLFolde
 		}
 	}
 }
+
