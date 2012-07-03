@@ -219,6 +219,31 @@ bool HttpService::changePriority(HttpHandle handle, HttpRequest::priority_t prio
 }
 
 
+	/// Try to find the given request handle on any of the request
+	/// queues and cancel the operation.
+	///
+	/// @return			True if the request was canceled.
+	///
+	/// Threading:  callable by worker thread.
+bool HttpService::cancel(HttpHandle handle)
+{
+	bool canceled(false);
+
+	// Request can't be on request queue so skip that.
+
+	// Check the policy component's queues first
+	canceled = mPolicy->cancel(handle);
+
+	if (! canceled)
+	{
+		// If that didn't work, check transport's.
+		canceled = mTransport->cancel(handle);
+	}
+	
+	return canceled;
+}
+
+	
 /// Threading:  callable by worker thread.
 void HttpService::shutdown()
 {

@@ -85,6 +85,9 @@ public:
 	int getActiveCount() const;
 	int getActiveCountInClass(int policy_class) const;
 
+	// Shadows HttpService's method
+	bool cancel(HttpHandle handle);
+
 protected:
 	/// Invoked when libcurl has indicated a request has been processed
 	/// to completion and we need to move the request to a new state.

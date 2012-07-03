@@ -92,6 +92,9 @@ public:
 	// Shadows HttpService's method
 	bool changePriority(HttpHandle handle, HttpRequest::priority_t priority);
 
+	// Shadows HttpService's method as well
+	bool cancel(HttpHandle handle);
+
 	/// When transport is finished with an op and takes it off the
 	/// active queue, it is delivered here for dispatch.  Policy
 	/// may send it back to the ready/retry queues if it needs another

@@ -61,7 +61,11 @@ HttpOpCancel::~HttpOpCancel()
 
 void HttpOpCancel::stageFromRequest(HttpService * service)
 {
-	// *FIXME:  Need cancel functionality into services
+	if (! service->cancel(mHandle))
+	{
+		mStatus = HttpStatus(HttpStatus::LLCORE, HE_HANDLE_NOT_FOUND);
+	}
+	
 	addAsReply();
 }
 

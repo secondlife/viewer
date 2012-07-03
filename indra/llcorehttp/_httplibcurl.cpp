@@ -189,6 +189,30 @@ void HttpLibcurl::addOp(HttpOpRequest * op)
 }
 
 
+// Implements the transport part of any cancel operation.
+// See if the handle is an active operation and if so,
+// use the more complicated transport-based cancelation
+// method to kill the request.
+bool HttpLibcurl::cancel(HttpHandle handle)
+{
+	HttpOpRequest * op(static_cast<HttpOpRequest *>(handle));
+	active_set_t::iterator it(mActiveOps.find(op));
+	if (mActiveOps.end() == it)
+	{
+		return false;
+	}
+
+	// Cancel request
+	cancelRequest(op);
+
+	// Drop references
+	mActiveOps.erase(it);
+	op->release();
+
+	return true;
+}
+
+
 // *NOTE:  cancelRequest logic parallels completeRequest logic.
 // Keep them synchronized as necessary.  Caller is expected to
 // remove to op from the active list and release the op *after*

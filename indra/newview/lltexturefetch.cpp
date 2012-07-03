@@ -1560,8 +1560,24 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			if(FETCHING_TIMEOUT < mRequestedTimer.getElapsedTimeF32())
 			{
 				//timeout, abort.
-				mState = DONE;
-				return true;
+				LL_WARNS("Texture") << "Fetch of texture " << mID << " timed out after "
+									<< mRequestedTimer.getElapsedTimeF32()
+									<< " seconds.  Canceling request." << LL_ENDL;
+
+				if (LLCORE_HTTP_HANDLE_INVALID != mHttpHandle)
+				{
+					// Issue cancel on any outstanding request.  Asynchronous
+					// so cancel may not actually take effect if operation is
+					// complete & queued.  Either way, notification will
+					// complete and the request can be transitioned.
+					mFetcher->mHttpRequest->requestCancel(mHttpHandle, NULL);
+				}
+				else
+				{
+					// Shouldn't happen but if it does, cancel quickly.
+					mState = DONE;
+					return true;
+				}
 			}
 
 			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);

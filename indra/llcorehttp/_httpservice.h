@@ -154,6 +154,14 @@ public:
 	/// Threading:  callable by worker thread.
 	bool changePriority(HttpHandle handle, HttpRequest::priority_t priority);
 	
+	/// Try to find the given request handle on any of the request
+	/// queues and cancel the operation.
+	///
+	/// @return			True if the request was found and canceled.
+	///
+	/// Threading:  callable by worker thread.
+	bool cancel(HttpHandle handle);
+	
 	/// Threading:  callable by worker thread.
 	HttpPolicy & getPolicy()
 		{

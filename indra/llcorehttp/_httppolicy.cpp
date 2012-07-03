@@ -231,9 +231,12 @@ bool HttpPolicy::changePriority(HttpHandle handle, HttpRequest::priority_t prior
 	for (int policy_class(0); policy_class < mActiveClasses; ++policy_class)
 	{
 		State & state(mState[policy_class]);
-		HttpReadyQueue::container_type & c(state.mReadyQueue.get_container());
-	
+		// We don't scan retry queue because a priority change there
+		// is meaningless.  The request will be issued based on retry
+		// intervals not priority value, which is now moot.
+		
 		// Scan ready queue for requests that match policy
+		HttpReadyQueue::container_type & c(state.mReadyQueue.get_container());
 		for (HttpReadyQueue::container_type::iterator iter(c.begin()); c.end() != iter;)
 		{
 			HttpReadyQueue::container_type::iterator cur(iter++);
@@ -252,6 +255,48 @@ bool HttpPolicy::changePriority(HttpHandle handle, HttpRequest::priority_t prior
 	return false;
 }
 
+
+bool HttpPolicy::cancel(HttpHandle handle)
+{
+	for (int policy_class(0); policy_class < mActiveClasses; ++policy_class)
+	{
+		State & state(mState[policy_class]);
+
+		// Scan retry queue
+		HttpRetryQueue::container_type & c1(state.mRetryQueue.get_container());
+		for (HttpRetryQueue::container_type::iterator iter(c1.begin()); c1.end() != iter;)
+		{
+			HttpRetryQueue::container_type::iterator cur(iter++);
+
+			if (static_cast<HttpHandle>(*cur) == handle)
+			{
+				HttpOpRequest * op(*cur);
+				c1.erase(cur);									// All iterators are now invalidated
+				op->cancel();
+				op->release();
+				return true;
+			}
+		}
+		
+		// Scan ready queue
+		HttpReadyQueue::container_type & c2(state.mReadyQueue.get_container());
+		for (HttpReadyQueue::container_type::iterator iter(c2.begin()); c2.end() != iter;)
+		{
+			HttpReadyQueue::container_type::iterator cur(iter++);
+
+			if (static_cast<HttpHandle>(*cur) == handle)
+			{
+				HttpOpRequest * op(*cur);
+				c2.erase(cur);									// All iterators are now invalidated
+				op->cancel();
+				op->release();
+				return true;
+			}
+		}
+	}
+	
+	return false;
+}
 
 bool HttpPolicy::stageAfterCompletion(HttpOpRequest * op)
 {
