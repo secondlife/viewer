@@ -56,7 +56,7 @@
 #include "llnavigationbar.h" // to show/hide navigation bar when changing mouse look state
 #include "llnearbychatbar.h"
 #include "llnotificationsutil.h"
-#include "llpanelnavmeshrebake.h"
+#include "llpanelpathfindingrebakenavmesh.h"
 #include "llpaneltopinfobar.h"
 #include "llparcel.h"
 #include "llrendersphere.h"
@@ -1871,7 +1871,7 @@ void LLAgent::endAnimationUpdateUI()
 		LLChicletBar::getInstance()->setVisible(TRUE);
 
 		LLPanelStandStopFlying::getInstance()->setVisible(TRUE);
-		LLPanelNavMeshRebake::getInstance()->setVisible(TRUE);
+		LLPanelPathfindingRebakeNavmesh::getInstance()->setVisible(TRUE);
 
 		LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
 
@@ -1981,7 +1981,7 @@ void LLAgent::endAnimationUpdateUI()
 		LLChicletBar::getInstance()->setVisible(FALSE);
 
 		LLPanelStandStopFlying::getInstance()->setVisible(FALSE);
-		LLPanelNavMeshRebake::getInstance()->setVisible(FALSE);
+		LLPanelPathfindingRebakeNavmesh::getInstance()->setVisible(FALSE);
 
 		// clear out camera lag effect
 		gAgentCamera.clearCameraLag();

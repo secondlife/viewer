@@ -52,7 +52,6 @@
 #include "llworld.h"
 #include "llappviewer.h"
 #include "llparcel.h"
-#include "llpathfindingmanager.h"
 
 #include "llglheaders.h"
 

@@ -9,26 +9,37 @@
   <button
       follows="left|bottom"
       height="19"
-      label="Clean up region"
+      label="Rebake region"
       layout="topleft"
       left="10"
       name="navmesh_btn"
-      tool_tip="Click here to rebake the region&apos;s navmesh."
+      tool_tip="Click to rebake the region&apos;s navmesh."
       top="2"
       visible="false"
       enabled="true"
-      width="113" />
+      width="120" />
   <button
       follows="left|bottom"
       height="19"
-      label="Region is cleaning"
+      label="Requesting rebake"
       layout="topleft"
       left="10"
-      name="navmesh_btn_baking"
-      tool_tip="Region is cleaning up."
+      name="navmesh_btn_sending"
+      tool_tip="Sending rebake request to the server."
       top="2"
       visible="false"
       enabled="false"
-      width="113" />
+      width="120" />
+  <button
+      follows="left|bottom"
+      height="19"
+      label="Region is rebaking"
+      layout="topleft"
+      left="10"
+      name="navmesh_btn_baking"
+      tool_tip="Region is being rebaked.  When completed, this button will disappear."
+      top="2"
+      visible="false"
+      enabled="false"
+      width="120" />
 </panel>
-

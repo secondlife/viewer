@@ -114,8 +114,9 @@ LLGridManager::~LLGridManager()
 {
 }
 
-void LLGridManager::addGrid(LLSD& grid_data)
+bool LLGridManager::addGrid(LLSD& grid_data)
 {
+	return true;
 }
 LLGridManager::LLGridManager()
 :

@@ -1,39 +1,43 @@
 /** 
 * @file llfloaterpathfindinglinksets.cpp
-* @author William Todd Stinson
-* @brief "Pathfinding linksets" floater, allowing manipulation of the Havok AI pathfinding settings.
+* @brief "Pathfinding linksets" floater, allowing manipulation of the linksets on the current region.
+* @author Stinson@lindenlab.com
 *
-* $LicenseInfo:firstyear=2002&license=viewerlgpl$
+* $LicenseInfo:firstyear=2012&license=viewerlgpl$
 * Second Life Viewer Source Code
-* Copyright (C) 2010, Linden Research, Inc.
-* 
+* Copyright (C) 2012, Linden Research, Inc.
+*
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public
 * License as published by the Free Software Foundation;
 * version 2.1 of the License only.
-* 
+*
 * This library is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 * Lesser General Public License for more details.
-* 
+*
 * You should have received a copy of the GNU Lesser General Public
 * License along with this library; if not, write to the Free Software
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-* 
+*
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
 
+
 #include "llviewerprecompiledheaders.h"
 
 #include "llfloaterpathfindinglinksets.h"
+
+#include <string>
 
 #include <boost/bind.hpp>
 
 #include "llagent.h"
 #include "llbutton.h"
 #include "llcombobox.h"
+#include "llfloaterpathfindingobjects.h"
 #include "llfloaterreg.h"
 #include "lllineeditor.h"
 #include "llnotificationsutil.h"
@@ -45,6 +49,7 @@
 #include "lltextbase.h"
 #include "lltextvalidate.h"
 #include "lluicolortable.h"
+#include "lluictrl.h"
 #include "v3math.h"
 #include "v4color.h"
 
@@ -63,6 +68,7 @@
 void LLFloaterPathfindingLinksets::openLinksetsWithSelectedObjects()
 {
 	LLFloaterPathfindingLinksets *linksetsFloater = LLFloaterReg::getTypedInstance<LLFloaterPathfindingLinksets>("pathfinding_linksets");
+	linksetsFloater->clearFilters();
 	linksetsFloater->showFloaterWithSelectionObjects();
 }
 
@@ -282,12 +288,13 @@ void LLFloaterPathfindingLinksets::requestSetLinksets(LLPathfindingObjectListPtr
 
 void LLFloaterPathfindingLinksets::onApplyAllFilters()
 {
-	applyFilters();
+	rebuildObjectsScrollList();
 }
 
 void LLFloaterPathfindingLinksets::onClearFiltersClicked()
 {
 	clearFilters();
+	rebuildObjectsScrollList();
 }
 
 void LLFloaterPathfindingLinksets::onWalkabilityCoefficientEntered(LLUICtrl *pUICtrl)
@@ -317,17 +324,11 @@ void LLFloaterPathfindingLinksets::onApplyChangesClicked()
 	applyEdit();
 }
 
-void LLFloaterPathfindingLinksets::applyFilters()
-{
-	rebuildObjectsScrollList();
-}
-
 void LLFloaterPathfindingLinksets::clearFilters()
 {
 	mFilterByName->clear();
 	mFilterByDescription->clear();
 	setFilterLinksetUse(LLPathfindingLinkset::kUnknown);
-	rebuildObjectsScrollList();
 }
 
 void LLFloaterPathfindingLinksets::updateEditFieldValues()
@@ -365,47 +366,37 @@ LLSD LLFloaterPathfindingLinksets::buildLinksetScrollListData(const LLPathfindin
 	{
 		columns[0]["column"] = "name";
 		columns[0]["value"] = getString("linkset_terrain_name");
-		columns[0]["font"] = "SANSSERIF";
 
 		columns[1]["column"] = "description";
 		columns[1]["value"] = getString("linkset_terrain_description");
-		columns[1]["font"] = "SANSSERIF";
 
 		columns[2]["column"] = "owner";
 		columns[2]["value"] = getString("linkset_terrain_owner");
-		columns[2]["font"] = "SANSSERIF";
 
 		columns[3]["column"] = "land_impact";
 		columns[3]["value"] = getString("linkset_terrain_land_impact");
-		columns[3]["font"] = "SANSSERIF";
 
 		columns[4]["column"] = "dist_from_you";
 		columns[4]["value"] = getString("linkset_terrain_dist_from_you");
-		columns[4]["font"] = "SANSSERIF";
 	}
 	else
 	{
 		columns[0]["column"] = "name";
 		columns[0]["value"] = pLinksetPtr->getName();
-		columns[0]["font"] = "SANSSERIF";
 
 		columns[1]["column"] = "description";
 		columns[1]["value"] = pLinksetPtr->getDescription();
-		columns[1]["font"] = "SANSSERIF";
 
 		columns[2]["column"] = "owner";
 		columns[2]["value"] = (pLinksetPtr->hasOwner() ?
 			(pLinksetPtr->hasOwnerName() ? pLinksetPtr->getOwnerName() : getString("linkset_owner_loading")) :
 			getString("linkset_owner_unknown"));
-		columns[2]["font"] = "SANSSERIF";
 
 		columns[3]["column"] = "land_impact";
 		columns[3]["value"] = llformat("%1d", pLinksetPtr->getLandImpact());
-		columns[3]["font"] = "SANSSERIF";
 
 		columns[4]["column"] = "dist_from_you";
 		columns[4]["value"] = llformat("%1.0f m", dist_vec(pAvatarPosition, pLinksetPtr->getLocation()));
-		columns[4]["font"] = "SANSSERIF";
 	}
 
 	columns[5]["column"] = "linkset_use";
@@ -427,23 +418,18 @@ LLSD LLFloaterPathfindingLinksets::buildLinksetScrollListData(const LLPathfindin
 		linksetUse += (" " + getString("linkset_is_restricted_non_volume_state"));
 	}
 	columns[5]["value"] = linksetUse;
-	columns[5]["font"] = "SANSSERIF";
 
 	columns[6]["column"] = "a_percent";
 	columns[6]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientA());
-	columns[6]["font"] = "SANSSERIF";
 
 	columns[7]["column"] = "b_percent";
 	columns[7]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientB());
-	columns[7]["font"] = "SANSSERIF";
 
 	columns[8]["column"] = "c_percent";
 	columns[8]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientC());
-	columns[8]["font"] = "SANSSERIF";
 
 	columns[9]["column"] = "d_percent";
 	columns[9]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientD());
-	columns[9]["font"] = "SANSSERIF";
 
 	LLSD element;
 	element["id"] = pLinksetPtr->getUUID().asString();

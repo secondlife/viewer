@@ -1402,7 +1402,7 @@ even though the user gets a free copy.
              height="10"
              layout="topleft"
              name="label position"
-             top_pad="5"
+             top_pad="10"
              width="121">
                 Position (meters)
             </text>

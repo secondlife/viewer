@@ -1,57 +1,60 @@
 /** 
 * @file llfloaterpathfindingconsole.cpp
-* @author William Todd Stinson
-* @brief "Pathfinding console" floater, allowing manipulation of the Havok AI pathfinding settings.
+* @brief "Pathfinding console" floater, allowing for viewing and testing of the pathfinding navmesh through Havok AI utilities.
+* @author Stinson@lindenlab.com
 *
-* $LicenseInfo:firstyear=2002&license=viewerlgpl$
+* $LicenseInfo:firstyear=2012&license=viewerlgpl$
 * Second Life Viewer Source Code
-* Copyright (C) 2010, Linden Research, Inc.
-* 
+* Copyright (C) 2012, Linden Research, Inc.
+*
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public
 * License as published by the Free Software Foundation;
 * version 2.1 of the License only.
-* 
+*
 * This library is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 * Lesser General Public License for more details.
-* 
+*
 * You should have received a copy of the GNU Lesser General Public
 * License along with this library; if not, write to the Free Software
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-* 
+*
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
 
-#include "llviewerprecompiledheaders.h"
-#include "llfloaterpathfindingconsole.h"
-#include "llfloaterpathfindinglinksets.h"
-#include "llfloaterpathfindingcharacters.h"
 
-#include "llsd.h"
-#include "llhandle.h"
-#include "llcontrol.h"
-#include "llpanel.h"
+#include "llviewerprecompiledheaders.h"
+
+#include "llfloaterpathfindingconsole.h"
+
+#include <vector>
+
+#include <boost/signals2.hpp>
+
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
-#include "llsliderctrl.h"
-#include "lllineeditor.h"
-#include "lltextbase.h"
-#include "lltabcontainer.h"
 #include "llcombobox.h"
-#include "llfloaterreg.h"
-#include "llpathfindingnavmeshzone.h"
-#include "llpathfindingmanager.h"
+#include "llcontrol.h"
 #include "llenvmanager.h"
+#include "llfloaterpathfindingcharacters.h"
+#include "llfloaterpathfindinglinksets.h"
+#include "llfloaterreg.h"
+#include "llhandle.h"
+#include "llpanel.h"
+#include "llpathfindingnavmeshzone.h"
 #include "llpathfindingpathtool.h"
+#include "llpathinglib.h"
+#include "llsliderctrl.h"
+#include "llsd.h"
+#include "lltabcontainer.h"
+#include "lltextbase.h"
 #include "lltoolmgr.h"
 #include "lltoolfocus.h"
-#include "pipeline.h"
-#include "llpathinglib.h"
 #include "llviewerparcelmgr.h"
-#include "llpanelnavmeshrebake.h"
+#include "pipeline.h"
 
 #define XUI_RENDER_HEATMAP_NONE 0
 #define XUI_RENDER_HEATMAP_A 1
@@ -70,7 +73,7 @@
 
 #define SET_SHAPE_RENDER_FLAG(_flag,_type) _flag |= (1U << _type)
 
-#define CONTROL_NAME_RETRIEVE_NEIGHBOR       "RetrieveNeighboringRegion"
+#define CONTROL_NAME_RETRIEVE_NEIGHBOR       "PathfindingRetrieveNeighboringRegion"
 #define CONTROL_NAME_WALKABLE_OBJECTS        "PathfindingWalkable"
 #define CONTROL_NAME_STATIC_OBSTACLE_OBJECTS "PathfindingObstacle"
 #define CONTROL_NAME_MATERIAL_VOLUMES        "PathfindingMaterial"
@@ -80,14 +83,12 @@
 #define CONTROL_NAME_HEATMAP_MIN             "PathfindingHeatColorBase"
 #define CONTROL_NAME_HEATMAP_MAX             "PathfindingHeatColorMax"
 #define CONTROL_NAME_NAVMESH_FACE            "PathfindingFaceColor"
-#define CONTROL_NAME_TEST_PATH_VALID_END     "PathfindingStarValidColor"
-#define CONTROL_NAME_TEST_PATH_INVALID_END   "PathfindingStarInvalidColor"
+#define CONTROL_NAME_TEST_PATH_VALID_END     "PathfindingTestPathValidEndColor"
+#define CONTROL_NAME_TEST_PATH_INVALID_END   "PathfindingTestPathInvalidEndColor"
 #define CONTROL_NAME_TEST_PATH               "PathfindingTestPathColor"
 #define CONTROL_NAME_WATER					 "PathfindingWaterColor"
 
 LLHandle<LLFloaterPathfindingConsole> LLFloaterPathfindingConsole::sInstanceHandle;
-
-extern LLPipeline gPipeline;
 
 //---------------------------------------------------------------------------
 // LLFloaterPathfindingConsole
@@ -211,7 +212,7 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 	{	
 		if (!mNavMeshZoneSlot.connected())
 		{
-			mNavMeshZoneSlot = mNavMeshZone.registerNavMeshZoneListener(boost::bind(&LLFloaterPathfindingConsole::onNavMeshZoneCB, this, _1));
+			mNavMeshZoneSlot = mNavMeshZone.registerNavMeshZoneListener(boost::bind(&LLFloaterPathfindingConsole::handleNavMeshZoneStatus, this, _1));
 		}
 
 		mIsNavMeshUpdating = false;
@@ -498,9 +499,10 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mSavedSettingNavMeshFaceSlot(),
 	mSavedSettingTestPathValidEndSlot(),
 	mSavedSettingTestPathInvalidEndSlot(),
-	mSavedSettingWaterSlot(),
 	mSavedSettingTestPathSlot(),
-	mConsoleState(kConsoleStateUnknown)
+	mSavedSettingWaterSlot(),
+	mConsoleState(kConsoleStateUnknown),
+	mRenderableRestoreList()
 {
 	mSelfHandle.bind(this);
 }
@@ -539,7 +541,10 @@ void LLFloaterPathfindingConsole::onShowNavMeshSet()
 
 void LLFloaterPathfindingConsole::onShowWalkabilitySet()
 {
-	LLPathingLib::getInstance()->setNavMeshMaterialType(getRenderHeatmapType());
+	if (LLPathingLib::getInstance() != NULL)
+	{
+		LLPathingLib::getInstance()->setNavMeshMaterialType(getRenderHeatmapType());
+	}
 }
 
 void LLFloaterPathfindingConsole::onCharacterWidthSet()
@@ -557,7 +562,7 @@ void LLFloaterPathfindingConsole::onClearPathClicked()
 	clearPath();
 }
 
-void LLFloaterPathfindingConsole::onNavMeshZoneCB(LLPathfindingNavMeshZone::ENavMeshZoneRequestStatus pNavMeshZoneRequestStatus)
+void LLFloaterPathfindingConsole::handleNavMeshZoneStatus(LLPathfindingNavMeshZone::ENavMeshZoneRequestStatus pNavMeshZoneRequestStatus)
 {
 	switch (pNavMeshZoneRequestStatus)
 	{
@@ -639,6 +644,7 @@ void LLFloaterPathfindingConsole::setDefaultInputs()
 {
 	mViewTestTabContainer->selectTab(XUI_VIEW_TAB_INDEX);
 	setRenderWorld(TRUE);
+	setRenderWorldMovablesOnly(FALSE);
 	setRenderNavMesh(FALSE);
 	setRenderWalkables(FALSE);
 	setRenderMaterialVolumes(FALSE);
@@ -646,7 +652,6 @@ void LLFloaterPathfindingConsole::setDefaultInputs()
 	setRenderExclusionVolumes(FALSE);
 	setRenderWaterPlane(FALSE);
 	setRenderXRay(FALSE);
-	setRenderWorldMovablesOnly(FALSE);
 }
 
 void LLFloaterPathfindingConsole::setConsoleState(EConsoleState pConsoleState)
@@ -1202,6 +1207,10 @@ void LLFloaterPathfindingConsole::deregisterSavedSettingsListeners()
 	if (mSavedSettingTestPathSlot.connected())
 	{
 		mSavedSettingTestPathSlot.disconnect();
+	}
+	if (mSavedSettingWaterSlot.connected())
+	{
+		mSavedSettingWaterSlot.disconnect();
 	}
 }
 

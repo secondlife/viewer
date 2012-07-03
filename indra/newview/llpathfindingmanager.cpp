@@ -1,29 +1,30 @@
-/**
- * @file llpathfindingmanager.cpp
- * @author William Todd Stinson
- * @brief A state manager for the various pathfinding states.
- *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
- * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- *
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
- * $/LicenseInfo$
- */
+/** 
+* @file llpathfindingmanager.cpp
+* @brief Implementation of llpathfindingmanager
+* @author Stinson@lindenlab.com
+*
+* $LicenseInfo:firstyear=2012&license=viewerlgpl$
+* Second Life Viewer Source Code
+* Copyright (C) 2012, Linden Research, Inc.
+*
+* This library is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public
+* License as published by the Free Software Foundation;
+* version 2.1 of the License only.
+*
+* This library is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+* Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public
+* License along with this library; if not, write to the Free Software
+* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+*
+* Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+* $/LicenseInfo$
+*/
+
 
 #include "llviewerprecompiledheaders.h"
 
@@ -32,7 +33,9 @@
 #include <string>
 #include <map>
 
+#include <boost/bind.hpp>
 #include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
 #include <boost/signals2.hpp>
 
 #include "llagent.h"
@@ -52,8 +55,6 @@
 #include "lluuid.h"
 #include "llviewerregion.h"
 #include "llweb.h"
-#include "llpanelnavmeshrebake.h"
-#include "llenvmanager.h"
 
 #define CAP_SERVICE_RETRIEVE_NAVMESH        "RetrieveNavMeshSrc"
 
@@ -366,12 +367,6 @@ void LLPathfindingManager::requestGetNavMeshForRegion(LLViewerRegion *pRegion, b
 	}
 }
 
-LLPathfindingManager::agent_state_slot_t LLPathfindingManager::registerAgentStateListener(agent_state_callback_t pAgentStateCallback)
-{
-	return mAgentStateSignal.connect(pAgentStateCallback);
-}
-
-
 void LLPathfindingManager::requestGetLinksets(request_id_t pRequestId, object_request_callback_t pLinksetsCallback) const
 {
 	LLPathfindingObjectListPtr emptyLinksetListPtr;
@@ -495,6 +490,11 @@ void LLPathfindingManager::requestGetCharacters(request_id_t pRequestId, object_
 	}
 }
 
+LLPathfindingManager::agent_state_slot_t LLPathfindingManager::registerAgentStateListener(agent_state_callback_t pAgentStateCallback)
+{
+	return mAgentStateSignal.connect(pAgentStateCallback);
+}
+
 void LLPathfindingManager::requestGetAgentState()
 {
 	LLViewerRegion *currentRegion = getCurrentRegion();
@@ -525,14 +525,24 @@ void LLPathfindingManager::requestGetAgentState()
 
 void LLPathfindingManager::requestRebakeNavMesh(rebake_navmesh_callback_t pRebakeNavMeshCallback)
 {
-	std::string navMeshStatusURL = getNavMeshStatusURLForCurrentRegion();
-	llassert(!navMeshStatusURL.empty())
-	if (!navMeshStatusURL.empty())
+	LLViewerRegion *currentRegion = getCurrentRegion();
+
+	if (currentRegion == NULL)
 	{
-		LLSD mPostData;			
-		mPostData["command"] = "rebuild";
+		pRebakeNavMeshCallback(false);
+	}
+	else if (!isPathfindingEnabledForRegion(currentRegion))
+	{
+		pRebakeNavMeshCallback(false);
+	}
+	else
+	{
+		std::string navMeshStatusURL = getNavMeshStatusURLForCurrentRegion();
+		llassert(!navMeshStatusURL.empty());
+		LLSD postData;			
+		postData["command"] = "rebuild";
 		LLHTTPClient::ResponderPtr responder = new NavMeshRebakeResponder(navMeshStatusURL, pRebakeNavMeshCallback);
-		LLHTTPClient::post(navMeshStatusURL, mPostData, responder);
+		LLHTTPClient::post(navMeshStatusURL, postData, responder);
 	}
 }
 
@@ -673,11 +683,6 @@ LLPathfindingNavMeshPtr LLPathfindingManager::getNavMeshForRegion(LLViewerRegion
 	return getNavMeshForRegion(regionUUID);
 }
 
-std::string LLPathfindingManager::getAgentStateURLForRegion(LLViewerRegion *pRegion) const
-{
-	return getCapabilityURLForRegion(pRegion, CAP_SERVICE_AGENT_STATE);
-}
-
 std::string LLPathfindingManager::getNavMeshStatusURLForCurrentRegion() const
 {
 	return getNavMeshStatusURLForRegion(getCurrentRegion());
@@ -706,6 +711,11 @@ std::string LLPathfindingManager::getTerrainLinksetsURLForCurrentRegion() const
 std::string LLPathfindingManager::getCharactersURLForCurrentRegion() const
 {
 	return getCapabilityURLForCurrentRegion(CAP_SERVICE_CHARACTERS);
+}
+
+std::string LLPathfindingManager::getAgentStateURLForRegion(LLViewerRegion *pRegion) const
+{
+	return getCapabilityURLForRegion(pRegion, CAP_SERVICE_AGENT_STATE);
 }
 
 std::string LLPathfindingManager::getCapabilityURLForCurrentRegion(const std::string &pCapabilityName) const
@@ -1037,4 +1047,3 @@ void CharactersResponder::error(U32 pStatus, const std::string &pReason)
 	LLPathfindingObjectListPtr characterListPtr =  LLPathfindingObjectListPtr(new LLPathfindingCharacterList());
 	mCharactersCallback(mRequestId, LLPathfindingManager::kRequestError, characterListPtr);
 }
-

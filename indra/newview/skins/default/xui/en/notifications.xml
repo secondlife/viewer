@@ -1533,9 +1533,7 @@ Please make sure none are locked, and that you own all of them.
    icon="alertmodal.tga"
    name="CannotLinkPermanent"
    type="alertmodal">
-Unable to link permanent objects.
-
-Please move all objects to the same region, and then attempt to link the objects together again.
+    Objects cannot be linked across region boundaries.
     <tag>fail</tag>
   </notification>
 
@@ -5820,7 +5818,7 @@ This area has building disabled. You can&apos;t build or rez objects here.
      persist="true"
      type="notify">
     <unique/>
-    The pathfinding navmesh has pending changes and is not up-to-date on the current region.  If you have build rights, you may rebake the navmesh by clicking on the “Clean up region” button.
+    The region has pending pathfinding changes.  If you have build rights, you may rebake the region by clicking on the “Rebake region” button.
   </notification>
 
   <notification
@@ -5829,7 +5827,7 @@ This area has building disabled. You can&apos;t build or rez objects here.
      persist="true"
      type="notify">
     <unique/>
-    Dynamic pathfinding is not enabled on this region.  Scripted objects with pathfinding LSL calls may not operate as expected on this region.
+    Dynamic pathfinding is not enabled on this region.  Scripted objects using pathfinding LSL calls may not operate as expected on this region.
   </notification>
 
   <notification
@@ -5837,7 +5835,7 @@ This area has building disabled. You can&apos;t build or rez objects here.
    name="PathfindingRebakeNavmesh"
    type="alertmodal">
     <unique/>
-    Changing certain objects in this region could cause other moving objects to behave incorrectly.  To make such objects work again, click the “Clean up region” button.  Choose “Help” to read more information.
+    Changing certain objects in this region could cause other moving objects to behave incorrectly.  To make moving objects behave correctly, click the “Rebake region” button.  Choose “Help” for more information.
     <url
       option="1"
       name="url"
@@ -5849,6 +5847,18 @@ This area has building disabled. You can&apos;t build or rez objects here.
      ignoretext="Changing certain objects in this region could cause other moving objects to behave incorrectly."
      yestext="OK"
      helptext="Help"
+     />
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="PathfindingCannotRebakeNavmesh"
+   type="alertmodal">
+    <unique/>
+    An error occurred.  There may be a network or server problem, or you may not have build rights.  Sometimes logging out and back in will solve this problem.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"
      />
   </notification>
 
@@ -7765,7 +7775,7 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
     Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because of permission restrictions on the linkset.  These linksets will be set to be '[RESTRICTED_TYPE]' instead.
     <tag>confirm</tag>
     <usetemplate
-     ignoretext="Do you wish to proceed?"
+     ignoretext="Some selected linksets cannot be set because of permission restrictions on the linkset."
      name="okcancelignore"
      notext="Cancel"
      yestext="OK"/>
@@ -7775,10 +7785,10 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
    icon="alertmodal.tga"
    name="PathfindingLinksets_SetLinksetUseMismatchOnVolume"
    type="alertmodal">
-    Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because of the shape is non-convex.
+    Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because the shape is non-convex.
     <tag>confirm</tag>
     <usetemplate
-     ignoretext="Do you wish to proceed?"
+     ignoretext="Some selected linksets cannot be set because the shape is non-convex"
      name="okcancelignore"
      notext="Cancel"
      yestext="OK"/>
@@ -7789,10 +7799,10 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
    name="PathfindingLinksets_SetLinksetUseMismatchOnRestrictedAndVolume"
    type="alertmodal">
     Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because of permission restrictions on the linkset.  These linksets will be set to be '[RESTRICTED_TYPE]' instead.
- Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because of the shape is non-convex. These linksets use types will not change.
+ Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because the shape is non-convex. These linksets&apos; use types will not change.
     <tag>confirm</tag>
     <usetemplate
-     ignoretext="Do you wish to proceed?"
+     ignoretext="Some selected linksets cannot be set because of permission restrictions on the linkset and because the shape is non-convex."
      name="okcancelignore"
      notext="Cancel"
      yestext="OK"/>
@@ -7802,10 +7812,10 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
    icon="alertmodal.tga"
    name="PathfindingLinksets_ChangeToFlexiblePath"
    type="alertmodal">
-    The selected object is marked as permanent and is included in the navmesh.  Setting the object to be a Flexible Path will unset the permanent value and remove the object from the navmesh.  Do you wish to proceed?
+    The selected object affects the navmesh.  Changing it to a Flexible Path will remove it from the navmesh.
     <tag>confirm</tag>
     <usetemplate
-     ignoretext="Do you wish to proceed?"
+     ignoretext="The selected object affects the navmesh.  Changing it to a Flexible Path will remove it from the navmesh."
      name="okcancelignore"
      notext="Cancel"
      yestext="OK"/>

@@ -34,7 +34,6 @@
 
 #include "llpathfindingobject.h"
 
-class LLSD;
 class LLPathfindingObjectList;
 
 typedef boost::shared_ptr<LLPathfindingObjectList> LLPathfindingObjectListPtr;

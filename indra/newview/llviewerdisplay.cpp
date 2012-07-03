@@ -77,7 +77,6 @@
 #include "llwlparammanager.h"
 #include "llwaterparammanager.h"
 #include "llpostprocess.h"
-#include "llpathfindingmanager.h"
 
 extern LLPointer<LLViewerTexture> gStartTexture;
 

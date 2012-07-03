@@ -1,46 +1,51 @@
 /** 
- * @file llpathfindingnavmeshzone.cpp
- * @author William Todd Stinson
- * @brief A class for representing the zone of navmeshes containing and possible surrounding the current region.
- *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
- * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
- * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
- * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
- * $/LicenseInfo$
- */
+* @file llpathfindingnavmeshzone.cpp
+* @brief Implementation of llpathfindingnavmeshzone
+* @author Stinson@lindenlab.com
+*
+* $LicenseInfo:firstyear=2012&license=viewerlgpl$
+* Second Life Viewer Source Code
+* Copyright (C) 2012, Linden Research, Inc.
+*
+* This library is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public
+* License as published by the Free Software Foundation;
+* version 2.1 of the License only.
+*
+* This library is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+* Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public
+* License along with this library; if not, write to the Free Software
+* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+*
+* Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+* $/LicenseInfo$
+*/
+
 
 #include "llviewerprecompiledheaders.h"
-#include "llsd.h"
-#include "lluuid.h"
-#include "llagent.h"
-#include "llviewerregion.h"
-#include "llpathfindingnavmesh.h"
+
 #include "llpathfindingnavmeshzone.h"
-#include "llpathfindingmanager.h"
-#include "llviewercontrol.h"
 
-#include "llpathinglib.h"
-
-#include <string>
 #include <vector>
 
 #include <boost/bind.hpp>
+#include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/signals2.hpp>
+
+#include "llagent.h"
+#include "llpathfindingmanager.h"
+#include "llpathfindingnavmesh.h"
+#include "llpathfindingnavmeshstatus.h"
+#include "llpathinglib.h"
+#include "llsd.h"
+#include "lluuid.h"
+#include "llviewercontrol.h"
+#include "llviewerregion.h"
 
 #define CENTER_REGION 99
 
@@ -71,7 +76,7 @@ void LLPathfindingNavMeshZone::initialize()
 	NavMeshLocationPtr centerNavMeshPtr(new NavMeshLocation(CENTER_REGION, boost::bind(&LLPathfindingNavMeshZone::handleNavMeshLocation, this)));
 	mNavMeshLocationPtrs.push_back(centerNavMeshPtr);
 
-	U32 neighborRegionDir = gSavedSettings.getU32("RetrieveNeighboringRegion");
+	U32 neighborRegionDir = gSavedSettings.getU32("PathfindingRetrieveNeighboringRegion");
 	if (neighborRegionDir != CENTER_REGION)
 	{
 		NavMeshLocationPtr neighborNavMeshPtr(new NavMeshLocation(neighborRegionDir, boost::bind(&LLPathfindingNavMeshZone::handleNavMeshLocation, this)));
@@ -101,7 +106,6 @@ void LLPathfindingNavMeshZone::disable()
 
 void LLPathfindingNavMeshZone::refresh()
 {
-	llassert(LLPathingLib::getInstance() != NULL);
 	if (LLPathingLib::getInstance() != NULL)
 	{
 		LLPathingLib::getInstance()->cleanupResidual();

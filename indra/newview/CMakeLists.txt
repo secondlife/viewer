@@ -382,13 +382,13 @@ set(viewer_SOURCE_FILES
     llpanelmediasettingspermissions.cpp
     llpanelmediasettingssecurity.cpp
     llpanelme.cpp
-    llpanelnavmeshrebake.cpp
     llpanelnearbymedia.cpp
     llpanelobject.cpp
     llpanelobjectinventory.cpp
     llpanelonlinestatus.cpp
     llpaneloutfitedit.cpp
     llpaneloutfitsinventory.cpp
+    llpanelpathfindingrebakenavmesh.cpp
     llpanelpeople.cpp
     llpanelpeoplemenus.cpp
     llpanelpermissions.cpp
@@ -950,13 +950,13 @@ set(viewer_HEADER_FILES
     llpanelmediasettingspermissions.h
     llpanelmediasettingssecurity.h
     llpanelme.h
-    llpanelnavmeshrebake.h
     llpanelnearbymedia.h
     llpanelobject.h
     llpanelobjectinventory.h
     llpanelonlinestatus.h
     llpaneloutfitedit.h
     llpaneloutfitsinventory.h
+    llpanelpathfindingrebakenavmesh.h
     llpanelpeople.h
     llpanelpeoplemenus.h
     llpanelpermissions.h
@@ -1781,7 +1781,6 @@ endif (WINDOWS)
 # To work around this, higher level modules should be listed before the modules
 # that they depend upon. -brad
 target_link_libraries(${VIEWER_BINARY_NAME}
-    ${LLPATHING_LIBRARIES}
     ${UPDATER_LIBRARIES}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
     ${LLAUDIO_LIBRARIES}

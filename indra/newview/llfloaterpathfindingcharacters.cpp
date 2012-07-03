@@ -1,29 +1,30 @@
 /** 
- * @file llfloaterpathfindingcharacters.cpp
- * @author William Todd Stinson
- * @brief "Pathfinding characters" floater, allowing for identification of pathfinding characters and their cpu usage.
- *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
- * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
- * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
- * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
- * $/LicenseInfo$
- */
+* @file llfloaterpathfindingcharacters.cpp
+* @brief "Pathfinding characters" floater, allowing for identification of pathfinding characters and their cpu usage.
+* @author Stinson@lindenlab.com
+*
+* $LicenseInfo:firstyear=2012&license=viewerlgpl$
+* Second Life Viewer Source Code
+* Copyright (C) 2012, Linden Research, Inc.
+*
+* This library is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public
+* License as published by the Free Software Foundation;
+* version 2.1 of the License only.
+*
+* This library is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+* Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public
+* License along with this library; if not, write to the Free Software
+* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+*
+* Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+* $/LicenseInfo$
+*/
+
 
 #include "llviewerprecompiledheaders.h"
 
@@ -39,11 +40,15 @@
 #include "llpathfindingobject.h"
 #include "llpathfindingobjectlist.h"
 #include "llpathinglib.h"
+#include "llquaternion.h"
 #include "llsd.h"
 #include "lluicolortable.h"
+#include "lluuid.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
 #include "pipeline.h"
+#include "v3math.h"
+#include "v4color.h"
 
 LLHandle<LLFloaterPathfindingCharacters> LLFloaterPathfindingCharacters::sInstanceHandle;
 
@@ -200,17 +205,14 @@ LLSD LLFloaterPathfindingCharacters::buildCharacterScrollListData(const LLPathfi
 
 	columns[0]["column"] = "name";
 	columns[0]["value"] = pCharacterPtr->getName();
-	columns[0]["font"] = "SANSSERIF";
 
 	columns[1]["column"] = "description";
 	columns[1]["value"] = pCharacterPtr->getDescription();
-	columns[1]["font"] = "SANSSERIF";
 
 	columns[2]["column"] = "owner";
 	columns[2]["value"] = (pCharacterPtr->hasOwner() ?
 		(pCharacterPtr->hasOwnerName() ? pCharacterPtr->getOwnerName() : getString("character_owner_loading")) :
 		getString("character_owner_unknown"));
-	columns[2]["font"] = "SANSSERIF";
 
 	S32 cpuTime = llround(pCharacterPtr->getCPUTime());
 	std::string cpuTimeString = llformat("%d", cpuTime);
@@ -219,11 +221,9 @@ LLSD LLFloaterPathfindingCharacters::buildCharacterScrollListData(const LLPathfi
 
 	columns[3]["column"] = "cpu_time";
 	columns[3]["value"] = getString("character_cpu_time", string_args);
-	columns[3]["font"] = "SANSSERIF";
 
 	columns[4]["column"] = "altitude";
 	columns[4]["value"] = llformat("%1.0f m", pCharacterPtr->getLocation()[2]);
-	columns[4]["font"] = "SANSSERIF";
 
 	LLSD element;
 	element["id"] = pCharacterPtr->getUUID().asString();

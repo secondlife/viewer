@@ -3326,7 +3326,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="LocationCtrlModerateIconTooltip">Moderate Region</string>
   <string name="LocationCtrlGeneralIconTooltip">General Region</string>
   <string name="LocationCtrlSeeAVsTooltip">Avatars visible and chat allowed outside of this parcel</string>
-  <string name="LocationCtrlPathfindingDirtyTooltip">Objects that move may not behave correctly in this region until the region is cleaned up.</string>
+  <string name="LocationCtrlPathfindingDirtyTooltip">Objects that move may not behave correctly in this region until the region is rebaked.</string>
   <string name="LocationCtrlPathfindingDisabledTooltip">Dynamic pathfinding is not enabled on this region.</string>
   <!-- Strings used by the (currently Linux) auto-updater app -->
 	<string name="UpdaterWindowTitle">
@@ -3832,10 +3832,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_MiniMap_Label">Mini-map</string>
   <string name="Command_Move_Label">Walk / run / fly</string>
   <string name="Command_Outbox_Label">Merchant outbox</string>
-  <string name="Command_Pathfinding_Label">Pathfinding</string>
   <string name="Command_People_Label">People</string>
-  <string name="Command_PF_Characters_Label">Pathfinding Characters</string>
-  <string name="Command_PF_Linksets_Label">Pathfinding Linksets</string>
   <string name="Command_Picks_Label">Picks</string>
   <string name="Command_Places_Label">Places</string>
   <string name="Command_Preferences_Label">Preferences</string>
@@ -3861,10 +3858,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_MiniMap_Tooltip">Show nearby people</string>
   <string name="Command_Move_Tooltip">Moving your avatar</string>
   <string name="Command_Outbox_Tooltip">Transfer items to your marketplace for sale</string>
-  <string name="Command_Pathfinding_Tooltip">Information about pathfinding</string>
   <string name="Command_People_Tooltip">Friends, groups, and nearby people</string>
-  <string name="Command_PF_Characters_Tooltip">Manipulation of pathfinding characters</string>
-  <string name="Command_PF_Linksets_Tooltip">Manipulation of pathfinding linksets</string>
   <string name="Command_Picks_Tooltip">Places to show as favorites in your profile</string>
   <string name="Command_Places_Tooltip">Places you've saved</string>
   <string name="Command_Preferences_Tooltip">Preferences</string>

@@ -32,11 +32,11 @@
 
 #include <string>
 
-#include "v3math.h"
 #include "llavatarname.h"
 #include "llavatarnamecache.h"
 #include "llsd.h"
 #include "lluuid.h"
+#include "v3math.h"
 
 #define PATHFINDING_OBJECT_NAME_FIELD        "name"
 #define PATHFINDING_OBJECT_DESCRIPTION_FIELD "description"
@@ -120,19 +120,10 @@ void LLPathfindingObject::parseObjectData(const LLSD &pObjectData)
 	llassert(pObjectData.get(PATHFINDING_OBJECT_DESCRIPTION_FIELD).isString());
 	mDescription = pObjectData.get(PATHFINDING_OBJECT_DESCRIPTION_FIELD).asString();
 
-#ifdef SERVER_SIDE_OWNER_ROLLOUT_COMPLETE
 	llassert(pObjectData.has(PATHFINDING_OBJECT_OWNER_FIELD));
 	llassert(pObjectData.get(PATHFINDING_OBJECT_OWNER_FIELD).isUUID());
 	mOwnerUUID = pObjectData.get(PATHFINDING_OBJECT_OWNER_FIELD).asUUID();
-	LLAvatarNameCache::get(mOwnerUUID, &mOwnerName);
-#else // SERVER_SIDE_OWNER_ROLLOUT_COMPLETE
-	if (pObjectData.has(PATHFINDING_OBJECT_OWNER_FIELD))
-	{
-		llassert(pObjectData.get(PATHFINDING_OBJECT_OWNER_FIELD).isUUID());
-		mOwnerUUID = pObjectData.get(PATHFINDING_OBJECT_OWNER_FIELD).asUUID();
-		fetchOwnerName();
-	}
-#endif // SERVER_SIDE_OWNER_ROLLOUT_COMPLETE
+	fetchOwnerName();
 
 	llassert(pObjectData.has(PATHFINDING_OBJECT_POSITION_FIELD));
 	llassert(pObjectData.get(PATHFINDING_OBJECT_POSITION_FIELD).isArray());

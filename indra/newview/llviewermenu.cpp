@@ -2804,12 +2804,12 @@ bool enable_object_build()
 
 bool enable_object_select_in_pathfinding_linksets()
 {
-	return LLSelectMgr::getInstance()->selectGetNonCharacter();
+	return LLPathfindingManager::getInstance()->isPathfindingEnabledForCurrentRegion() &&  LLSelectMgr::getInstance()->selectGetNonCharacter();
 }
 
 bool enable_object_select_in_pathfinding_characters()
 {
-	return LLSelectMgr::getInstance()->selectGetCharacter();
+	return LLPathfindingManager::getInstance()->isPathfindingEnabledForCurrentRegion() &&  LLSelectMgr::getInstance()->selectGetCharacter();
 }
 
 class LLSelfRemoveAllAttachments : public view_listener_t
@@ -7086,8 +7086,8 @@ BOOL enable_save_into_inventory(void*)
 			return TRUE;
 		}
 	}
-#endif
 	return FALSE;
+#endif
 }
 
 class LLToolsEnableSaveToInventory : public view_listener_t

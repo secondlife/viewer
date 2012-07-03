@@ -36,7 +36,7 @@
 
 
 /// key used to store the grid, and the name attribute in the grid data
-const std::string  GRID_VALUE = "name";
+const std::string  GRID_VALUE = "keyname";
 /// the value displayed in the grid selector menu, and other human-oriented text
 const std::string  GRID_LABEL_VALUE = "label";
 /// the value used on the --grid command line argument
@@ -154,15 +154,13 @@ void LLGridManager::initialize(const std::string& grid_file)
 					{
 						LL_WARNS("GridManager") << "Cannot override existing grid '" << key_name << "'; ignoring definition from '"<<grid_file<<"'" << LL_ENDL;
 					}
+					else if ( addGrid(grid) )
+					{
+						LL_INFOS("GridManager") << "added grid '"<<key_name<<"'"<<LL_ENDL;
+					}
 					else
 					{
-						try
-						{
-							addGrid(grid); // does all the logging that's needed
-						}
-						catch (...)
-						{
-						}
+						LL_WARNS("GridManager") << "failed to add invalid grid '"<<key_name<<"'"<<LL_ENDL;
 					}
 				}
 				llsd_xml.close();
@@ -245,8 +243,9 @@ LLGridManager::~LLGridManager()
 // if they're not populated yet.
 //
 
-void LLGridManager::addGrid(LLSD& grid_data)
+bool LLGridManager::addGrid(LLSD& grid_data)
 {
+	bool added = false;
 	if (grid_data.isMap() && grid_data.has(GRID_VALUE))
 	{
 		std::string grid = utf8str_tolower(grid_data[GRID_VALUE].asString());
@@ -307,6 +306,7 @@ void LLGridManager::addGrid(LLSD& grid_data)
 				}
 				LL_CONT << LL_ENDL;
 				mGridList[grid] = grid_data;
+				added = true;
 			}
 			else
 			{
@@ -320,8 +320,9 @@ void LLGridManager::addGrid(LLSD& grid_data)
 	}
 	else
 	{
-		LL_WARNS("GridManager")<<"invalid value passed"<<LL_ENDL;
+		LL_WARNS("GridManager")<<"invalid grid definition ignored"<<LL_ENDL;
 	}
+	return added;
 }
 
 //
@@ -362,6 +363,7 @@ void LLGridManager::addSystemGrid(const std::string& label,
 	{
 		grid[GRID_SLURL_BASE] = llformat(SYSTEM_GRID_SLURL_BASE, grid[GRID_ID_VALUE].asString().c_str());
 	}
+
 	addGrid(grid);
 }
 
@@ -426,14 +428,6 @@ std::string LLGridManager::getGrid( const std::string &grid )
 				}
 			}
 		}
-	}
-	if (grid_name.empty())
-	{
-		LL_WARNS("GridManager")<<"No name found for grid '"<<grid<<"'"<<LL_ENDL;
-	}
-	else
-	{
-		LL_DEBUGS("GridManager")<<"grid '"<<grid<<"' name is '"<<grid_name<<"'"<<LL_ENDL;
 	}
 	return grid_name;
 }

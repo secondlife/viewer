@@ -686,7 +686,7 @@ void LLPanelStandStopFlying::onStopFlyingButtonClick()
 	gAgent.setFlying(FALSE);
 
 	setFocus(FALSE); // EXT-482
-	setVisible(FALSE);
+	mStopFlyingButton->setVisible(FALSE);
 }
 
 /**
