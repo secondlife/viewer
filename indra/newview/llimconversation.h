@@ -78,7 +78,7 @@ protected:
 	bool onIMShowModesMenuItemCheck(const LLSD& userdata);
 	bool onIMShowModesMenuItemEnable(const LLSD& userdata);
 	static void onSlide(LLIMConversation *self);
-	void onTearOffClicked();
+	virtual void onTearOffClicked();
 
 	// refresh a visual state of the Call button
 	void updateCallBtnState(bool callIsActive);

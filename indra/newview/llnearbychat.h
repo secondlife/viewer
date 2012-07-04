@@ -101,6 +101,8 @@ protected:
 
 	void onToggleNearbyChatPanel();
 
+	/*virtual*/ void onTearOffClicked();
+
 	static LLWString stripChannelNumber(const LLWString &mesg, S32* channel);
 	EChatType processChatTypeTriggers(EChatType type, std::string &str);
 

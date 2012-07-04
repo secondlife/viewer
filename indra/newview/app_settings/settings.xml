@@ -1639,6 +1639,17 @@
       <key>Value</key>
       <string />
     </map>
+    <key>NearbyChatIsNotTornOff</key>
+    <map>
+      <key>Comment</key>
+      <string>saving torn-off state of the nearby chat between sessions</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>CloseChatOnReturn</key>
     <map>
       <key>Comment</key>

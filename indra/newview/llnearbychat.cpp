@@ -345,15 +345,36 @@ void LLNearbyChat::enableDisableCallBtn()
 	getChildView("voice_call_btn")->setEnabled(false /*btn_enabled*/);
 }
 
+void LLNearbyChat::onTearOffClicked()
+{
+	LLIMConversation::onTearOffClicked();
+
+	LLIMFloaterContainer* im_box = LLIMFloaterContainer::getInstance();
+
+	// see CHUI-170: Save torn-off state of the nearby chat between sessions
+	BOOL in_the_multifloater = (getHost() == im_box);
+	gSavedSettings.setBOOL("NearbyChatIsNotTornOff", in_the_multifloater);
+}
+
 void LLNearbyChat::addToHost()
 {
-	if (LLIMConversation::isChatMultiTab())
+	if ( LLIMConversation::isChatMultiTab())
 	{
 		LLIMFloaterContainer* im_box = LLIMFloaterContainer::getInstance();
-
 		if (im_box)
 		{
-			im_box->addFloater(this, FALSE, LLTabContainer::END);
+			if (gSavedSettings.getBOOL("NearbyChatIsNotTornOff"))
+			{
+				im_box->addFloater(this, TRUE, LLTabContainer::END);
+			}
+			else
+			{
+				// setting of the "potential" host: this sequence sets
+				// LLFloater::mHostHandle = NULL (a current host), but
+				// LLFloater::mLastHostHandle = im_box (a "future" host)
+				setHost(im_box);
+				setHost(NULL);
+			}
 		}
 	}
 }

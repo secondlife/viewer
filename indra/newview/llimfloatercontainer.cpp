@@ -302,9 +302,8 @@ void LLIMFloaterContainer::setVisible(BOOL visible)
 	if (visible)
 	{
 		// Make sure we have the Nearby Chat present when showing the conversation container
-		LLUUID nearbychat_uuid = LLUUID::null;	// Hacky but true: the session id for nearby chat is always null
-		LLFloater* floaterp = findConversationItem(nearbychat_uuid);
-		if (floaterp == NULL)
+		LLFloater* nearby_chat = LLFloaterReg::findInstance("chat_bar");
+		if (nearby_chat == NULL)
 		{
 			// If not found, force the creation of the nearby chat conversation panel
 			// *TODO: find a way to move this to XML as a default panel or something like that
