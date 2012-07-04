@@ -235,7 +235,7 @@ void LLAvatarActions::startCall(const LLUUID& id)
 }
 
 // static
-void LLAvatarActions::startAdhocCall(const uuid_vec_t& ids)
+void LLAvatarActions::startAdhocCall(const uuid_vec_t& ids, const LLUUID& floater_id)
 {
 	if (ids.size() == 0)
 	{
@@ -252,7 +252,7 @@ void LLAvatarActions::startAdhocCall(const uuid_vec_t& ids)
 	// create the new ad hoc voice session
 	const std::string title = LLTrans::getString("conference-title");
 	LLUUID session_id = gIMMgr->addSession(title, IM_SESSION_CONFERENCE_START,
-										   ids[0], id_array, true);
+										   ids[0], id_array, true, floater_id);
 	if (session_id == LLUUID::null)
 	{
 		return;
