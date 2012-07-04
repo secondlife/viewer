@@ -195,7 +195,13 @@ bool LLBlockList::isActionEnabled(const LLSD& userdata)
 
 	const std::string command_name = userdata.asString();
 
-	if ("unblock_item" == command_name || "profile_item" == command_name)
+	if ("profile_item" == command_name)
+	{
+		LLBlockedListItem* item = getBlockedItem();
+		action_enabled = item && (LLMute::AGENT == item->getType());
+	}
+
+	if ("unblock_item" == command_name)
 	{
 		action_enabled = getSelectedItem() != NULL;
 	}
@@ -225,10 +231,6 @@ void LLBlockList::onCustomAction(const LLSD& userdata)
 
 		case LLMute::AGENT:
 			LLAvatarActions::showProfile(item->getUUID());
-			break;
-
-		case LLMute::OBJECT:
-			LLFloaterSidePanelContainer::showPanel("inventory", LLSD().with("id", item->getUUID()));
 			break;
 
 		default:
