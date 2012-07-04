@@ -2583,7 +2583,6 @@ LLUUID LLIMMgr::addSession(
 	LLDynamicArray<LLUUID> ids;
 	ids.put(other_participant_id);
 	LLUUID session_id = addSession(name, dialog, other_participant_id, ids, voice);
-	notifyObserverSessionVoiceOrIMStarted(session_id);
 	return session_id;
 }
 
@@ -2652,6 +2651,8 @@ LLUUID LLIMMgr::addSession(
 	{
 		noteMutedUsers(session_id, ids);
 	}
+
+	notifyObserverSessionVoiceOrIMStarted(session_id);
 
 	return session_id;
 }
