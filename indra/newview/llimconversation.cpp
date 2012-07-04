@@ -254,9 +254,7 @@ void LLIMConversation::updateHeaderAndToolbar()
 	if (mDragHandle)
 	{
 		mDragHandle->setTitleVisible(!is_hosted);
-		setCanDrag(!is_hosted);
 	}
-	setCanResize(!is_hosted);
 
 	// The button (>>) should be disabled for torn off P2P conversations.
 	mExpandCollapseBtn->setEnabled(is_hosted || !mIsP2PChat);
@@ -348,8 +346,6 @@ void LLIMConversation::onOpen(const LLSD& key)
 		// Show the messages pane when opening a floater hosted in the Conversations
 		host_floater->collapseMessagesPane(false);
 	}
-
-	setCanResize(TRUE);
 
 	updateHeaderAndToolbar();
 }

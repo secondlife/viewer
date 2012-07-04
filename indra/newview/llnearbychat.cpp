@@ -364,20 +364,18 @@ void LLNearbyChat::onOpen(const LLSD& key)
 
 bool LLNearbyChat::applyRectControl()
 {
-	bool rect_controlled = LLFloater::applyRectControl();
+	bool is_torn_off = getHost() == NULL;
 
-/*	if (!mNearbyChat->getVisible())
+	// Resize is limited to torn off floaters.
+	// A hosted floater is not resizable.
+	if (is_torn_off)
 	{
-		reshape(getRect().getWidth(), getMinHeight());
-		enableResizeCtrls(true, true, false);
-	}
-	else
-	{*/
 		enableResizeCtrls(true);
-		setResizeLimits(getMinWidth(), EXPANDED_MIN_HEIGHT);
-//	}
+	}
 	
-	return rect_controlled;
+	setResizeLimits(getMinWidth(), EXPANDED_MIN_HEIGHT);
+
+	return LLFloater::applyRectControl();
 }
 
 void LLNearbyChat::onChatFontChange(LLFontGL* fontp)
@@ -408,9 +406,17 @@ void LLNearbyChat::showHistory()
 {
 	openFloater();
 	setResizeLimits(getMinWidth(), EXPANDED_MIN_HEIGHT);
-	reshape(getRect().getWidth(), mExpandedHeight);
-	enableResizeCtrls(true);
-	storeRectControl();
+
+	bool is_torn_off = getHost() == NULL;
+
+	// Reshape and enable resize controls only if it's a torn off floater.
+	// Otherwise all the size changes should be handled by LLIMFloaterContainer.
+	if (is_torn_off)
+	{
+		reshape(getRect().getWidth(), mExpandedHeight);
+		enableResizeCtrls(true);
+		storeRectControl();
+	}
 }
 
 std::string LLNearbyChat::getCurrentChat()
