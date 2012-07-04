@@ -73,8 +73,15 @@ LLIMFloaterContainer::~LLIMFloaterContainer()
 
 void LLIMFloaterContainer::sessionVoiceOrIMStarted(const LLUUID& session_id)
 {
-		LLIMFloater::show(session_id);
-};
+	LLIMFloater::show(session_id);
+}
+
+void LLIMFloaterContainer::sessionRemoved(const LLUUID& session_id)
+{
+	LLIMFloater* floaterp = LLIMFloater::findInstance(session_id);
+	LLFloater::onClickClose(floaterp);
+	removeConversationListItem(floaterp);
+}
 
 BOOL LLIMFloaterContainer::postBuild()
 {
