@@ -1,0 +1,16 @@
+Source: secondlife-viewer
+Section: unknown
+Priority: extra
+Maintainer: Don Linden <don@lindenlab.com>
+Build-Depends: debhelper (>= 5)
+Homepage: http://secondlife.com
+Standards-Version: 3.7.2
+
+Package: secondlife-viewer
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends},
+ ia32-libs,
+ ia32-libs-gtk
+Description: Second Life Viewer
+ Second Life is an online virtual world developed by Linden Lab.
+ 
