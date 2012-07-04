@@ -53,7 +53,7 @@ public:
 	{
 		Optional<LLUIImage*>						folder_arrow_image,
 													selection_image;
-		Optional<LLFolderView*>						root;
+		Mandatory<LLFolderView*>					root;
 		Mandatory<LLFolderViewModelItem*>			listener;
 
 		Optional<S32>								folder_indentation, // pixels

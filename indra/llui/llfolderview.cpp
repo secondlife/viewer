@@ -1798,8 +1798,8 @@ void LLFolderView::update()
 	BOOL filter_finished = getViewModelItem()->passedFilter()
 						&& mViewModel->contentsReady();
 	if (filter_finished 
-		|| gFocusMgr.childHasKeyboardFocus(getParent()) // assume we are inside a scroll container
-		|| gFocusMgr.childHasMouseCapture(getParent()))
+		|| gFocusMgr.childHasKeyboardFocus(mParentPanel)
+		|| gFocusMgr.childHasMouseCapture(mParentPanel))
 	{
 		// finishing the filter process, giving focus to the folder view, or dragging the scrollbar all stop the auto select process
 		mNeedsAutoSelect = FALSE;

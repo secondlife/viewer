@@ -47,8 +47,9 @@
 // LLIMFloaterContainer
 //
 LLIMFloaterContainer::LLIMFloaterContainer(const LLSD& seed)
-:	LLMultiFloater(seed)
-	,mExpandCollapseBtn(NULL)
+:	LLMultiFloater(seed),
+	mExpandCollapseBtn(NULL),
+	mFolders(NULL)
 {
 	// Firstly add our self to IMSession observers, so we catch session events
     LLIMMgr::getInstance()->addSessionObserver(this);
@@ -89,6 +90,16 @@ BOOL LLIMFloaterContainer::postBuild()
 	mMessagesPane = getChild<LLLayoutPanel>("messages_layout_panel");
 	
 	mConversationsListPanel = getChild<LLPanel>("conversations_list_panel");
+
+	LLFolderView::Params p;
+	//TODO RN: define view model for conversations
+	//p.view_model = ?;
+	p.parent_panel = mConversationsListPanel;
+	p.rect = mConversationsListPanel->getLocalRect();
+	p.follows.flags = FOLLOWS_ALL;
+
+	mFolders = LLUICtrlFactory::create<LLFolderView>(p);
+	mConversationsListPanel->addChild(mFolders);
 
 	mExpandCollapseBtn = getChild<LLButton>("expand_collapse_btn");
 	mExpandCollapseBtn->setClickedCallback(boost::bind(&LLIMFloaterContainer::onExpandCollapseButtonClicked, this));
@@ -512,7 +523,7 @@ LLFolderViewItem* LLIMFloaterContainer::createConversationItemWidget(LLConversat
 	//params.icon = bridge->getIcon();
 	//params.icon_open = bridge->getOpenIcon();
 	//params.creation_date = bridge->getCreationDate();
-	//params.root = mFolderRoot;
+	params.root = mFolders;
 	params.listener = item;
 	params.rect = LLRect (0, 0, 0, 0);
 	params.tool_tip = params.name;

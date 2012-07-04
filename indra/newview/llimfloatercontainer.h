@@ -194,6 +194,7 @@ private:
 	LLPanel* mConversationsListPanel;	// This is the widget we add items to (i.e. clickable title for each conversation)
 	conversations_items_map mConversationsItems;
 	conversations_widgets_map mConversationsWidgets;
+	LLFolderView* mFolders;
 };
 
 #endif // LL_LLIMFLOATERCONTAINER_H
