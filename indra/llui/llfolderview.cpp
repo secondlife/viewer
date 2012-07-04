@@ -24,7 +24,7 @@
  * $/LicenseInfo$
  */
 
-#include "llviewerprecompiledheaders.h"
+#include "linden_common.h"
 
 #include "llfolderview.h"
 #include "llfolderviewmodel.h"
@@ -138,8 +138,7 @@ LLFolderViewScrollContainer::LLFolderViewScrollContainer(const LLScrollContainer
 /// Class LLFolderView
 ///----------------------------------------------------------------------------
 LLFolderView::Params::Params()
-:	task_id("task_id"),
-	title("title"),
+:	title("title"),
 	use_label_suffix("use_label_suffix"),
 	allow_multiselect("allow_multiselect", true),
 	show_empty_message("show_empty_message", true),
@@ -157,7 +156,6 @@ LLFolderView::LLFolderView(const Params& p)
 	mAllowMultiSelect(p.allow_multiselect),
 	mShowEmptyMessage(p.show_empty_message),
 	mShowFolderHierarchy(FALSE),
-	mSourceID(p.task_id),
 	mRenameItem( NULL ),
 	mNeedsScroll( FALSE ),
 	mUseLabelSuffix(p.use_label_suffix),
@@ -618,27 +616,21 @@ std::set<LLFolderViewItem*> LLFolderView::getSelectionList() const
 	return selection;
 }
 
-BOOL LLFolderView::startDrag(LLToolDragAndDrop::ESource source)
+bool LLFolderView::startDrag()
 {
-	std::vector<EDragAndDropType> types;
-	uuid_vec_t cargo_ids;
+	std::vector<LLFolderViewModelItem*> selected_items;
 	selected_items_t::iterator item_it;
-	BOOL can_drag = TRUE;
+
 	if (!mSelectedItems.empty())
 	{
 		for (item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
 		{
-			EDragAndDropType type = DAD_NONE;
-			LLUUID id = LLUUID::null;
-			can_drag = can_drag && (*item_it)->getViewModelItem()->startDrag(&type, &id);
-
-			types.push_back(type);
-			cargo_ids.push_back(id);
+			selected_items.push_back((*item_it)->getViewModelItem());
 		}
 
-		LLToolDragAndDrop::getInstance()->beginMultiDrag(types, cargo_ids, source, mSourceID); 
+		return getFolderViewModel()->startDrag(selected_items);
 	}
-	return can_drag;
+	return false;
 }
 
 void LLFolderView::commitRename( const LLSD& data )
@@ -656,25 +648,6 @@ void LLFolderView::draw()
 	{
 		closeAutoOpenedFolders();
 	}
-
-	// while dragging, update selection rendering to reflect single/multi drag status
-	if (LLToolDragAndDrop::getInstance()->hasMouseCapture())
-	{
-		EAcceptance last_accept = LLToolDragAndDrop::getInstance()->getLastAccept();
-		if (last_accept == ACCEPT_YES_SINGLE || last_accept == ACCEPT_YES_COPY_SINGLE)
-		{
-			setShowSingleSelection(TRUE);
-		}
-		else
-		{
-			setShowSingleSelection(FALSE);
-		}
-	}
-	else
-	{
-		setShowSingleSelection(FALSE);
-	}
-
 
 	if (mSearchTimer.getElapsedTimeF32() > LLUI::sSettingGroups["config"]->getF32("TypeAheadTimeout") || !mSearchString.size())
 	{

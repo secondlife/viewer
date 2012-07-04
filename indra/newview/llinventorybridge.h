@@ -35,6 +35,7 @@
 #include "llinventorypanel.h"
 #include "llviewercontrol.h"
 #include "llwearable.h"
+#include "lltooldraganddrop.h"
 
 class LLInventoryFilter;
 class LLInventoryPanel;
@@ -119,7 +120,7 @@ public:
 	void getClipboardEntries(bool show_asset_id, menuentry_vec_t &items, 
 							 menuentry_vec_t &disabled_items, U32 flags);
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
-        virtual LLToolDragAndDrop::ESource getDragSource() const;
+    virtual LLToolDragAndDrop::ESource getDragSource() const;
 	virtual BOOL startDrag(EDragAndDropType* type, LLUUID* id) const;
 	virtual BOOL dragOrDrop(MASK mask, BOOL drop,
 							EDragAndDropType cargo_type,

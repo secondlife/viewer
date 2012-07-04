@@ -102,6 +102,8 @@ protected:
 	BOOL						mHasVisibleChildren;
 	S32							mIndentation;
 	S32							mItemHeight;
+	S32							mDragStartX,
+								mDragStartY;
 
 	//TODO RN: create interface for string highlighting
 	//std::string::size_type		mStringMatchOffset;

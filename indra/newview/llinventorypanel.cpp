@@ -571,7 +571,24 @@ void LLInventoryPanel::onIdle(void *userdata)
 void LLInventoryPanel::idle(void* user_data)
 {
 	LLInventoryPanel* panel = (LLInventoryPanel*)user_data;
-	panel->mFolderRoot->doIdle();
+	panel->mFolderRoot->update();
+	// while dragging, update selection rendering to reflect single/multi drag status
+	if (LLToolDragAndDrop::getInstance()->hasMouseCapture())
+	{
+		EAcceptance last_accept = LLToolDragAndDrop::getInstance()->getLastAccept();
+		if (last_accept == ACCEPT_YES_SINGLE || last_accept == ACCEPT_YES_COPY_SINGLE)
+		{
+			panel->mFolderRoot->setShowSingleSelection(TRUE);
+		}
+		else
+		{
+			panel->mFolderRoot->setShowSingleSelection(FALSE);
+		}
+	}
+	else
+	{
+		panel->mFolderRoot->setShowSingleSelection(FALSE);
+	}
 }
 
 

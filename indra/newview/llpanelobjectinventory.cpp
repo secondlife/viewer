@@ -1557,7 +1557,6 @@ void LLPanelObjectInventory::reset()
 	LLFolderView::Params p;
 	p.name = "task inventory";
 	p.title = "task inventory";
-	p.task_id = getTaskUUID();
 	p.parent_panel = this;
 	p.tool_tip= LLTrans::getString("PanelContentsTooltip");
 	p.listener = LLTaskInvFVBridge::createObjectBridge(this, NULL);
@@ -1823,6 +1822,7 @@ void LLPanelObjectInventory::refresh()
 		removeVOInventoryListener();
 		clearContents();
 	}
+	mInventoryViewModel.setTaskID(mTaskUUID);
 	//llinfos << "LLPanelObjectInventory::refresh() " << mTaskUUID << llendl;
 }
 

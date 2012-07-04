@@ -65,8 +65,6 @@ public:
 	virtual const std::string& getSearchableName() const { return mName; }
 	virtual const LLUUID& getUUID() const { return mUUID; }
 	virtual time_t getCreationDate() const { return 0; }
-	virtual PermissionMask getPermissionMask() const { return PERM_ALL; }
-	virtual LLFolderType::EType getPreferredType() const { return LLFolderType::FT_NONE; }
 	virtual LLPointer<LLUIImage> getIcon() const { return NULL; }
 	virtual LLPointer<LLUIImage> getOpenIcon() const { return getIcon(); }
 	virtual LLFontGL::StyleFlags getLabelStyle() const { return LLFontGL::NORMAL; }
@@ -88,8 +86,6 @@ public:
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags) { }
 	virtual BOOL isUpToDate() const { return TRUE; }
 	virtual bool hasChildren() const { return FALSE; }
-	virtual LLInventoryType::EType getInventoryType() const { return LLInventoryType::IT_NONE; }
-	virtual LLWearableType::EType getWearableType() const { return LLWearableType::WT_NONE; }
 
 	virtual bool potentiallyVisible() { return true; }
 	virtual bool filter( LLFolderViewFilter& filter) { return true; }
@@ -106,11 +102,6 @@ public:
 	virtual void showProperties(void);
 
 	void setVisibleIfDetached(BOOL visible);
-	
-	// This method should be called when a drag begins.
-	// Returns TRUE if the drag can begin, FALSE otherwise.
-	virtual LLToolDragAndDrop::ESource getDragSource() const { return LLToolDragAndDrop::SOURCE_PEOPLE; }
-	virtual BOOL startDrag(EDragAndDropType* type, LLUUID* id) const { return FALSE; }
 	
 	// This method will be called to determine if a drop can be
 	// performed, and will set drop to TRUE if a drop is

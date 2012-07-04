@@ -29,6 +29,9 @@
 #define LL_LLFOLDERVIEWMODELINVENTORY_H
 
 #include "llinventoryfilter.h"
+#include "llinventory.h"
+#include "llwearabletype.h"
+#include "lltooldraganddrop.h"
 
 class LLFolderViewModelItemInventory
 	:	public LLFolderViewModelItemCommon
@@ -62,6 +65,10 @@ public:
 	virtual void setPassedFilter(bool filtered, bool filtered_folder, S32 filter_generation);
 	virtual bool filter( LLFolderViewFilter& filter);
 	virtual bool filterChildItem( LLFolderViewModelItem* item, LLFolderViewFilter& filter);
+
+	virtual BOOL startDrag(EDragAndDropType* type, LLUUID* id) const = 0;
+	virtual LLToolDragAndDrop::ESource getDragSource() const = 0;
+
 protected:
 	class LLFolderViewModelInventory* mRootViewModel;
 };
@@ -97,11 +104,13 @@ class LLFolderViewModelInventory
 public:
 	typedef LLFolderViewModel<LLInventorySort,   LLFolderViewModelItemInventory, LLFolderViewModelItemInventory,   LLInventoryFilter> base_t;
 
-	virtual ~LLFolderViewModelInventory() {}
+	void setTaskID(const LLUUID& id) {mTaskID = id;}
 
 	void sort(LLFolderViewFolder* folder);
-
 	bool contentsReady();
+	bool startDrag(std::vector<LLFolderViewModelItem*>& items);
 
+private:
+	LLUUID mTaskID;
 };
 #endif // LL_LLFOLDERVIEWMODELINVENTORY_H

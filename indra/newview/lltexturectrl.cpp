@@ -58,6 +58,7 @@
 #include "lltoolmgr.h"
 #include "lltoolpipette.h"
 #include "llfiltereditor.h"
+#include "llwindow.h"
 
 #include "lltool.h"
 #include "llviewerwindow.h"

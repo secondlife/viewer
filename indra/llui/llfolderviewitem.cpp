@@ -23,19 +23,17 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#include "llviewerprecompiledheaders.h"
-
+#include "linden_common.h"
 #include "llfolderviewitem.h"
 
-// viewer includes
 #include "llfolderview.h"
 #include "llfolderviewmodel.h"
 #include "llpanel.h"
-
-// linden library includes
+#include "llcriticaldamp.h"
 #include "llclipboard.h"
 #include "llfocusmgr.h"		// gFocusMgr
 #include "lltrans.h"
+#include "llwindow.h"
 
 ///----------------------------------------------------------------------------
 /// Class LLFolderViewItem
@@ -470,72 +468,46 @@ BOOL LLFolderViewItem::handleMouseDown( S32 x, S32 y, MASK mask )
 		mSelectPending = TRUE;
 	}
 
-	if( isMovable() )
-	{
-		S32 screen_x;
-		S32 screen_y;
-		localPointToScreen(x, y, &screen_x, &screen_y );
-		LLToolDragAndDrop::getInstance()->setDragStart( screen_x, screen_y );
-	}
+	mDragStartX = x;
+	mDragStartY = y;
 	return TRUE;
 }
 
 BOOL LLFolderViewItem::handleHover( S32 x, S32 y, MASK mask )
 {
+	static LLCachedControl<S32> drag_and_drop_threshold(*LLUI::sSettingGroups["config"],"DragAndDropDistanceThreshold");
+
 	mIsMouseOverTitle = (y > (getRect().getHeight() - mItemHeight));
 
 	if( hasMouseCapture() && isMovable() )
 	{
-		S32 screen_x;
-		S32 screen_y;
-		localPointToScreen(x, y, &screen_x, &screen_y );
-		BOOL can_drag = TRUE;
-		if( LLToolDragAndDrop::getInstance()->isOverThreshold( screen_x, screen_y ) )
+		LLFolderView* root = getRoot();
+
+		if( (x - mDragStartX) * (x - mDragStartX) + (y - mDragStartY) * (y - mDragStartY) > drag_and_drop_threshold() * drag_and_drop_threshold() 
+			&& root->getCurSelectedItem()
+			&& root->startDrag())
 		{
-			LLFolderView* root = getRoot();
+			// RN: when starting drag and drop, clear out last auto-open
+			root->autoOpenTest(NULL);
+			root->setShowSelectionContext(TRUE);
 
-			if(root->getCurSelectedItem())
-			{
-				LLToolDragAndDrop::ESource src = LLToolDragAndDrop::SOURCE_WORLD;
+			// Release keyboard focus, so that if stuff is dropped into the
+			// world, pressing the delete key won't blow away the inventory
+			// item.
+			gFocusMgr.setKeyboardFocus(NULL);
 
-				// *TODO: push this into listener and remove
-				// dependency on llagent
-				src = getViewModelItem()->getDragSource();
-
-				can_drag = root->startDrag(src);
-				if (can_drag)
-				{
-					// if (getViewModelItem()) getViewModelItem()->startDrag();
-					// RN: when starting drag and drop, clear out last auto-open
-					root->autoOpenTest(NULL);
-					root->setShowSelectionContext(TRUE);
-
-					// Release keyboard focus, so that if stuff is dropped into the
-					// world, pressing the delete key won't blow away the inventory
-					// item.
-					gFocusMgr.setKeyboardFocus(NULL);
-
-					return LLToolDragAndDrop::getInstance()->handleHover( x, y, mask );
-				}
-			}
-		}
-
-		if (can_drag)
-		{
 			getWindow()->setCursor(UI_CURSOR_ARROW);
+			return TRUE;
 		}
 		else
 		{
 			getWindow()->setCursor(UI_CURSOR_NOLOCKED);
+			return TRUE;
 		}
-		return TRUE;
 	}
 	else
 	{
-		if (getRoot())
-		{
-			getRoot()->setShowSelectionContext(FALSE);
-		}
+		getRoot()->setShowSelectionContext(FALSE);
 		getWindow()->setCursor(UI_CURSOR_ARROW);
 		// let parent handle this then...
 		return FALSE;

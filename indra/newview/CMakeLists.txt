@@ -253,9 +253,6 @@ set(viewer_SOURCE_FILES
     llfloaterwhitelistentry.cpp
     llfloaterwindowsize.cpp
     llfloaterworldmap.cpp
-    llfolderview.cpp
-    llfolderviewitem.cpp
-    llfolderviewmodel.cpp
     llfolderviewmodelinventory.cpp
     llfollowcam.cpp
     llfriendcard.cpp
@@ -813,10 +810,7 @@ set(viewer_HEADER_FILES
     llfloaterwhitelistentry.h
     llfloaterwindowsize.h
     llfloaterworldmap.h
-    llfolderview.h
-    llfolderviewmodel.h
     llfolderviewmodelinventory.h
-    llfolderviewitem.h
     llfollowcam.h
     llfriendcard.h
     llgesturelistener.h

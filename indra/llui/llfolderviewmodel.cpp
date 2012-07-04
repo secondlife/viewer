@@ -24,7 +24,7 @@
  * $/LicenseInfo$
  */
 
-#include "llviewerprecompiledheaders.h"
+#include "linden_common.h"
 
 #include "llfolderviewmodel.h"
 #include "lltrans.h"

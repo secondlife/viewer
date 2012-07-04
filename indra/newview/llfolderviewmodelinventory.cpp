@@ -28,11 +28,37 @@
 #include "llfolderviewmodelinventory.h"
 #include "llinventorymodelbackgroundfetch.h"
 #include "llinventorypanel.h"
+#include "lltooldraganddrop.h"
 
 //
 // class LLFolderViewModelInventory
 //
 static LLFastTimer::DeclareTimer FTM_INVENTORY_SORT("Sort");
+
+bool LLFolderViewModelInventory::startDrag(std::vector<LLFolderViewModelItem*>& items)
+{
+	std::vector<EDragAndDropType> types;
+	uuid_vec_t cargo_ids;
+	std::vector<LLFolderViewModelItem*>::iterator item_it;
+	bool can_drag = true;
+	if (!items.empty())
+	{
+		for (item_it = items.begin(); item_it != items.end(); ++item_it)
+		{
+			EDragAndDropType type = DAD_NONE;
+			LLUUID id = LLUUID::null;
+			can_drag = can_drag && static_cast<LLFolderViewModelItemInventory*>(*item_it)->startDrag(&type, &id);
+
+			types.push_back(type);
+			cargo_ids.push_back(id);
+		}
+
+		LLToolDragAndDrop::getInstance()->beginMultiDrag(types, cargo_ids, 
+			static_cast<LLFolderViewModelItemInventory*>(items.front())->getDragSource(), mTaskID); 
+	}
+	return can_drag;
+}
+
 
 void LLFolderViewModelInventory::sort( LLFolderViewFolder* folder )
 {

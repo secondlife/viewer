@@ -54,6 +54,9 @@ set(llui_SOURCE_FILES
     llfloaterreglistener.cpp
     llflyoutbutton.cpp 
     llfocusmgr.cpp
+    llfolderview.cpp
+    llfolderviewitem.cpp
+    llfolderviewmodel.cpp
     llfunctorregistry.cpp
     lliconctrl.cpp
     llkeywords.cpp
@@ -154,6 +157,9 @@ set(llui_HEADER_FILES
     llfloaterreglistener.h
     llflyoutbutton.h 
     llfocusmgr.h
+    llfolderview.h
+    llfolderviewitem.h
+    llfolderviewmodel.h
     llfunctorregistry.h
     llhandle.h
     llhelp.h

@@ -44,7 +44,6 @@
 #include "lleditmenuhandler.h"
 #include "llfontgl.h"
 #include "llscrollcontainer.h"
-#include "lltooldraganddrop.h"
 
 class LLFolderViewModelInterface;
 class LLFolderViewFolder;
@@ -88,7 +87,6 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLFolderViewFolder::Params>
 	{
 		Mandatory<LLPanel*>	    parent_panel;
-		Optional<LLUUID>        task_id;
 		Optional<std::string>   title;
 		Optional<bool>			use_label_suffix,
 								allow_multiselect,
@@ -113,8 +111,6 @@ public:
 	LLFolderViewModelInterface* getFolderViewModel() { return mViewModel; }
 	const LLFolderViewModelInterface* getFolderViewModel() const { return mViewModel; }
 
-	void setFilterPermMask(PermissionMask filter_perm_mask);
-	
 	typedef boost::signals2::signal<void (const std::deque<LLFolderViewItem*>& items, BOOL user_action)> signal_t;
 	void setSelectCallback(const signal_t::slot_type& cb) { mSelectSignal.connect(cb); }
 	void setReshapeCallback(const signal_t::slot_type& cb) { mReshapeSignal.connect(cb); }
@@ -158,7 +154,7 @@ public:
 	void addToSelectionList(LLFolderViewItem* item);
 	void removeFromSelectionList(LLFolderViewItem* item);
 
-	BOOL startDrag(LLToolDragAndDrop::ESource source);
+	bool startDrag();
 	void setDragAndDropThisFrame() { mDragAndDropThisFrame = TRUE; }
 	void setDraggingOverItem(LLFolderViewItem* item) { mDraggingOverItem = item; }
 	LLFolderViewItem* getDraggingOverItem() { return mDraggingOverItem; }
@@ -271,7 +267,6 @@ protected:
 	BOOL							mAllowMultiSelect;
 	BOOL							mShowEmptyMessage;
 	BOOL							mShowFolderHierarchy;
-	LLUUID							mSourceID;
 
 	// Renaming variables and methods
 	LLFolderViewItem*				mRenameItem;  // The item currently being renamed

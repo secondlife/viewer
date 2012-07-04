@@ -66,9 +66,7 @@ public:
 	// + Execution And Results
 	// +-------------------------------------------------------------------+
 	virtual bool 				check(const LLFolderViewModelItem* item) = 0;
-	virtual bool				check(const LLInventoryItem* item) = 0;
 	virtual bool				checkFolder(const LLFolderViewModelItem* folder) const = 0;
-	virtual bool				checkFolder(const LLUUID& folder_id) const = 0;
 
 	virtual void 				setEmptyLookupMessage(const std::string& message) = 0;
 	virtual std::string			getEmptyLookupMessage() const = 0;
@@ -112,6 +110,7 @@ public:
 class LLFolderViewModelInterface
 {
 public:
+	virtual ~LLFolderViewModelInterface() {}
 	virtual void requestSortAll() = 0;
 
 	virtual void sort(class LLFolderViewFolder*) = 0;
@@ -122,6 +121,8 @@ public:
 	virtual LLFolderViewFilter* getFilter() = 0;
 	virtual const LLFolderViewFilter* getFilter() const = 0;
 	virtual std::string getStatusText() = 0;
+
+	virtual bool startDrag(std::vector<LLFolderViewModelItem*>& items) = 0;
 };
 
 class LLFolderViewModelCommon : public LLFolderViewModelInterface
@@ -263,11 +264,6 @@ public:
 
 	virtual S32	getLastFilterGeneration() const = 0;
 
-	// This method should be called when a drag begins. returns TRUE
-	// if the drag can begin, otherwise FALSE.
-	virtual LLToolDragAndDrop::ESource getDragSource() const = 0;
-	virtual BOOL startDrag(EDragAndDropType* type, LLUUID* id) const = 0;
-	
 	virtual bool hasChildren() const = 0;
 	virtual void addChild(LLFolderViewModelItem* child) = 0;
 	virtual void removeChild(LLFolderViewModelItem* child) = 0;
