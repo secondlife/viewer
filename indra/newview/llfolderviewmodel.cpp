@@ -28,7 +28,6 @@
 
 #include "llfolderviewmodel.h"
 #include "lltrans.h"
-#include "llviewercontrol.h"
 
 bool LLFolderViewModelCommon::needsSort(LLFolderViewModelItem* item)
 {
@@ -49,6 +48,6 @@ std::string LLFolderViewModelCommon::getStatusText()
 
 void LLFolderViewModelCommon::filter()
 {
-	getFilter()->setFilterCount(llclamp(gSavedSettings.getS32("FilterItemsPerFrame"), 1, 5000));
+	getFilter()->setFilterCount(llclamp(LLUI::sSettingGroups["config"]->getS32("FilterItemsPerFrame"), 1, 5000));
 	mFolderView->getViewModelItem()->filter(*getFilter());
 }

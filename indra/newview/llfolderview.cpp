@@ -27,24 +27,17 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llfolderview.h"
-
+#include "llfolderviewmodel.h"
 #include "llclipboard.h" // *TODO: remove this once hack below gone.
 #include "llkeyboard.h"
 #include "lllineeditor.h"
 #include "llmenugl.h"
 #include "llpanel.h"
 #include "llscrollcontainer.h" // hack to allow scrolling
+#include "lltextbox.h"
 #include "lltrans.h"
 #include "llui.h"
 #include "lluictrlfactory.h"
-
-// TODO RN: kill these
-// newview includes
-#include "llcallbacklist.h"			// per-frame on-idle
-#include "llfloaterproperties.h"	// showProperties
-#include "llviewerwindow.h"			// renamer popup handling
-#include "llpreview.h"				// openSelectedItems
-#include "llinventorypanel.h"		// idle loop for filtering, sort order declarations, etc.
 
 // Linden library includes
 #include "lldbstrings.h"
@@ -172,7 +165,6 @@ LLFolderView::LLFolderView(const Params& p)
 	mNeedsAutoSelect( FALSE ),
 	mAutoSelectOverride(FALSE),
 	mNeedsAutoRename(FALSE),
-	mSortOrder(LLInventoryFilter::SO_FOLDERS_BY_NAME),	// This gets overridden by a pref immediately
 	mShowSelectionContext(FALSE),
 	mShowSingleSelection(FALSE),
 	mArrangeGeneration(0),
@@ -199,7 +191,6 @@ LLFolderView::LLFolderView(const Params& p)
 	mAutoOpenTimer.stop();
 	mKeyboardSelection = FALSE;
 	mIndentation = p.folder_indentation;
-	gIdleCallbacks.addFunction(idle, this);
 
 	//clear label
 	// go ahead and render root folder as usual
@@ -269,7 +260,6 @@ LLFolderView::~LLFolderView( void )
 	mStatusTextBox = NULL;
 
 	mAutoOpenItems.removeAllNodes();
-	gIdleCallbacks.deleteFunction(idle, this);
 
 	if (mPopupMenuHandle.get()) mPopupMenuHandle.get()->die();
 
@@ -291,16 +281,16 @@ BOOL LLFolderView::addFolder( LLFolderViewFolder* folder)
 {
 	LLFolderViewFolder::addFolder(folder);
 
-	mFolders.remove(folder);
-	// enforce sort order of My Inventory followed by Library
-	if (((LLFolderViewModelItemInventory*)folder->getViewModelItem())->getUUID() == gInventory.getLibraryRootFolderID())
-	{
-		mFolders.push_back(folder);
-	}
-	else
-	{
-		mFolders.insert(mFolders.begin(), folder);
-	}
+	// TODO RN: enforce sort order of My Inventory followed by Library
+	//mFolders.remove(folder);
+	//if (((LLFolderViewModelItemInventory*)folder->getViewModelItem())->getUUID() == gInventory.getLibraryRootFolderID())
+	//{
+	//	mFolders.push_back(folder);
+	//}
+	//else
+	//{
+	//	mFolders.insert(mFolders.begin(), folder);
+	//}
 
 	return TRUE;
 }
@@ -754,7 +744,7 @@ void LLFolderView::closeRenamer( void )
 	if (mRenamer && mRenamer->getVisible())
 	{
 		// Triggers onRenamerLost() that actually closes the renamer.
-		gViewerWindow->removePopup(mRenamer);
+		LLUI::removePopup(mRenamer);
 	}
 }
 
@@ -783,24 +773,6 @@ bool isDescendantOfASelectedItem(LLFolderViewItem* item, const std::vector<LLFol
 	}
 
 	return false;
-}
-
-// static
-void LLFolderView::removeCutItems()
-{
-	// There's no item in "cut" mode on the clipboard -> exit
-	if (!LLClipboard::instance().isCutMode())
-		return;
-
-	// Get the list of clipboard item uuids and iterate through them
-	LLDynamicArray<LLUUID> objects;
-	LLClipboard::instance().pasteFromClipboard(objects);
-	for (LLDynamicArray<LLUUID>::const_iterator iter = objects.begin();
-		 iter != objects.end();
-		 ++iter)
-	{
-		gInventory.removeObject(*iter);
-	}
 }
 
 void LLFolderView::removeSelectedItems()
@@ -1126,9 +1098,9 @@ void LLFolderView::cut()
 			if(listener)
 			{
 				listener->cutToClipboard();
+				listener->removeItem();
 			}
 		}
-		LLFolderView::removeCutItems();
 	}
 	mSearchString.clear();
 }
@@ -1222,7 +1194,7 @@ void LLFolderView::startRenamingSelectedItem( void )
 		// set focus will fail unless item is visible
 		mRenamer->setFocus( TRUE );
 		mRenamer->setTopLostCallback(boost::bind(&LLFolderView::onRenamerLost, this));
-		gViewerWindow->addPopup(mRenamer);
+		LLUI::addPopup(mRenamer);
 	}
 }
 
@@ -1808,16 +1780,10 @@ static LLFastTimer::DeclareTimer FTM_AUTO_SELECT("Open and Select");
 static LLFastTimer::DeclareTimer FTM_INVENTORY("Inventory");
 
 // Main idle routine
-void LLFolderView::doIdle()
+void LLFolderView::update()
 {
 	// If this is associated with the user's inventory, don't do anything
 	// until that inventory is loaded up.
-	const LLInventoryPanel *inventory_panel = dynamic_cast<LLInventoryPanel*>(mParentPanel);
-	if (inventory_panel && !inventory_panel->getIsViewsInitialized())
-	{
-		return;
-	}
-	
 	LLFastTimer t2(FTM_INVENTORY);
 
 	if (getFolderViewModel()->getFilter()->isModified() && getFolderViewModel()->getFilter()->isNotDefault())
@@ -1859,8 +1825,8 @@ void LLFolderView::doIdle()
 	BOOL filter_finished = getViewModelItem()->passedFilter()
 						&& mViewModel->contentsReady();
 	if (filter_finished 
-		|| gFocusMgr.childHasKeyboardFocus(inventory_panel) 
-		|| gFocusMgr.childHasMouseCapture(inventory_panel))
+		|| gFocusMgr.childHasKeyboardFocus(getParent()) // assume we are inside a scroll container
+		|| gFocusMgr.childHasMouseCapture(getParent()))
 	{
 		// finishing the filter process, giving focus to the folder view, or dragging the scrollbar all stop the auto select process
 		mNeedsAutoSelect = FALSE;
@@ -1919,7 +1885,6 @@ void LLFolderView::doIdle()
 		constraint_rect.setOriginAndSize(0, 0, content_rect.getWidth(), content_rect.getHeight());
 	}
 
-
 	BOOL is_visible = isInVisibleChain();
 
 	if ( is_visible )
@@ -1954,17 +1919,6 @@ void LLFolderView::doIdle()
 	mSignalSelectCallback = FALSE;
 }
 
-
-//static
-void LLFolderView::idle(void* user_data)
-{
-	LLFolderView* self = (LLFolderView*)user_data;
-	if ( self )
-	{	// Do the real idle 
-		self->doIdle();
-	}
-}
-
 void LLFolderView::dumpSelectionInformation()
 {
 	llinfos << "LLFolderView::dumpSelectionInformation()" << llendl;
@@ -1988,7 +1942,7 @@ void LLFolderView::updateRenamerPosition()
 		screenPointToLocal( x, y, &x, &y );
 		mRenamer->setOrigin( x, y );
 
-		LLRect scroller_rect(0, 0, gViewerWindow->getWindowWidthScaled(), 0);
+		LLRect scroller_rect(0, 0, LLUI::getWindowSize().mV[VX], 0);
 		if (mScrollContainer)
 		{
 			scroller_rect = mScrollContainer->getContentWindowRect();

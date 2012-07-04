@@ -1798,16 +1798,6 @@ BOOL LLFolderViewFolder::handleMouseDown( S32 x, S32 y, MASK mask )
 
 BOOL LLFolderViewFolder::handleDoubleClick( S32 x, S32 y, MASK mask )
 {
-	/* Disable outfit double click to wear
-	const LLUUID &cat_uuid = getViewModelItem()->getUUID();
-	const LLViewerInventoryCategory *cat = gInventory.getCategory(cat_uuid);
-	if (cat && cat->getPreferredType() == LLFolderType::FT_OUTFIT)
-	{
-		getViewModelItem()->performAction(NULL, NULL,"replaceoutfit");
-		return TRUE;
-	}
-	*/
-
 	BOOL handled = FALSE;
 	if( isOpen() )
 	{

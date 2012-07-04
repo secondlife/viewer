@@ -165,7 +165,6 @@ public:
 
 	// Deletion functionality
  	void removeSelectedItems();
- 	static void removeCutItems();
 
 	// Open the selected item
 	void openSelectedItems( void );
@@ -223,8 +222,7 @@ public:
 	F32  getSelectionFadeElapsedTime() { return mMultiSelectionFadeTimer.getElapsedTimeF32(); }
 	bool getUseEllipses() { return mUseEllipses; }
 
-	void	doIdle();						// Real idle routine
-	static void idle(void* user_data);		// static glue to doIdle()
+	void	update();						// needs to be called periodically (e.g. once per frame)
 
 	BOOL needsAutoSelect() { return mNeedsAutoSelect && !mAutoSelectOverride; }
 	BOOL needsAutoRename() { return mNeedsAutoRename; }
@@ -288,7 +286,6 @@ protected:
 	bool							mUseLabelSuffix;
 	bool							mShowItemLinkOverlays;
 	
-	U32								mSortOrder;
 	LLDepthStack<LLFolderViewFolder>	mAutoOpenItems;
 	LLFolderViewFolder*				mAutoOpenCandidate;
 	LLFrameTimer					mAutoOpenTimer;

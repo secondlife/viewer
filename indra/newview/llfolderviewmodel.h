@@ -27,7 +27,6 @@
 
 #include "llfontgl.h"	// just for StyleFlags enum
 #include "llfolderview.h"
-#include "lltooldraganddrop.h"
 
 // These are grouping of inventory types.
 // Order matters when sorting system folders to the top.

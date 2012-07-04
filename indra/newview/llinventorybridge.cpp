@@ -1400,7 +1400,7 @@ void LLItemBridge::performAction(LLInventoryModel* model, std::string action)
 	else if ("cut" == action)
 	{
 		cutToClipboard();
-		LLFolderView::removeCutItems();
+		gInventory.removeObject(mUUID);
 		return;
 	}
 	else if ("copy" == action)
@@ -1680,14 +1680,12 @@ BOOL LLItemBridge::renameItem(const std::string& new_name)
 	return FALSE;
 }
 
-
 BOOL LLItemBridge::removeItem()
 {
 	if(!isItemRemovable())
 	{
 		return FALSE;
 	}
-
 	
 	// move it to the trash
 	LLPreview::hide(mUUID, TRUE);
@@ -2870,7 +2868,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 	else if ("cut" == action)
 	{
 		cutToClipboard();
-		LLFolderView::removeCutItems();
+		gInventory.removeObject(mUUID);
 		return;
 	}
 	else if ("copy" == action)

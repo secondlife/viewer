@@ -258,6 +258,8 @@ void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 
 LLInventoryPanel::~LLInventoryPanel()
 {
+	gIdleCallbacks.deleteFunction(idle, this);
+
 	U32 sort_order = getFolderViewModel()->getSorter().getSortOrder();
 	if (mSortOrderSetting != INHERIT_SORT_ORDER)
 	{
@@ -566,11 +568,20 @@ void LLInventoryPanel::onIdle(void *userdata)
 	}
 }
 
+void LLInventoryPanel::idle(void* user_data)
+{
+	LLInventoryPanel* panel = (LLInventoryPanel*)user_data;
+	panel->mFolderRoot->doIdle();
+}
+
+
 void LLInventoryPanel::initializeViews()
 {
 	if (!gInventory.isInventoryUsable()) return;
 
 	rebuildViewsFor(gInventory.getRootFolderID());
+
+	gIdleCallbacks.addFunction(idle, this);
 
 	mViewsInitialized = true;
 	
