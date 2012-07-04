@@ -1481,7 +1481,6 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 	}
 	 
 	LLNotificationPtr notification_ptr = LLNotifications::instance().find(notification["id"].asUUID());
-	llassert(notification_ptr != NULL);
 	
 	// For muting, we need to add the mute, then decline the offer.
 	// This must be done here because:
@@ -1504,7 +1503,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 	
 	bool busy = gAgent.getBusy();
 	
-	LLNotificationFormPtr modified_form(new LLNotificationForm(*notification_ptr->getForm()));
+	LLNotificationFormPtr modified_form(notification_ptr ? new LLNotificationForm(*notification_ptr->getForm()) : new LLNotificationForm());
 
 	switch(button)
 	{
@@ -1550,7 +1549,10 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 			break;
 		}
 
-		modified_form->setElementEnabled("Show", false);
+		if (modified_form != NULL)
+		{
+			modified_form->setElementEnabled("Show", false);
+		}
 		break;
 		// end switch (mIM)
 			
@@ -1567,7 +1569,10 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 		break;
 
 	case IOR_MUTE:
-		modified_form->setElementEnabled("Mute", false);
+		if (modified_form != NULL)
+		{
+			modified_form->setElementEnabled("Mute", false);
+		}
 		// MUTE falls through to decline
 	case IOR_DECLINE:
 		{
@@ -1604,8 +1609,11 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 				busy_message(gMessageSystem, mFromID);
 			}
 
-			modified_form->setElementEnabled("Show", false);
-			modified_form->setElementEnabled("Discard", false);
+			if (modified_form != NULL)
+			{
+				modified_form->setElementEnabled("Show", false);
+				modified_form->setElementEnabled("Discard", false);
+			}
 
 			break;
 		}
@@ -1627,8 +1635,11 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 		delete this;
 	}
 
-	notification_ptr->updateForm(modified_form);
-	notification_ptr->repost();
+	if (notification_ptr != NULL)
+	{
+		notification_ptr->updateForm(modified_form);
+		notification_ptr->repost();
+	}
 
 	return false;
 }
