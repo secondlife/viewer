@@ -1158,11 +1158,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ea98ebb0babcf7018bf5c10996be178a</string>
+              <string>75b3266c3d51b6ae767158969a20a324</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>file:////Users/oz/Work/llphysicsextensions-src/llphysicsextensions_source-0.2-darwin-20120704.tar.bz2</string>
+              <string>file:////Users/oz/Work/llphysicsextensions-src/llphysicsextensions_source-0.2-darwin-20120705.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1186,11 +1186,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>eb016d162ac4714ebdfc3331ce080827</string>
+              <string>5e6db8ede04aeda9f508fe31df6500c9</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>file:////Users/oz/Work/llphysicsextensions-src/llphysicsextensions_stub-0.2-darwin-20120704.tar.bz2</string>
+              <string>file:////Users/oz/Work/llphysicsextensions-src/llphysicsextensions_stub-0.2-darwin-20120705.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>

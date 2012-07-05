@@ -15,10 +15,12 @@ if (HAVOK)
    include(Havok)
    use_prebuilt_binary(llphysicsextensions_source)
    set(LLPHYSICSEXTENSIONS_SRC_DIR ${LIBS_PREBUILT_DIR}/llphysicsextensions/src)
+   set(LLPHYSICSEXTENSIONS_LIBRARIES    llphysicsextensions)
 
 else (HAVOK)
    use_prebuilt_binary(llphysicsextensions_stub)
    set(LLPHYSICSEXTENSIONS_SRC_DIR ${LIBS_PREBUILT_DIR}/llphysicsextensions/stub)
+   set(LLPHYSICSEXTENSIONS_LIBRARIES    llphysicsextensionsstub)
 
 endif (HAVOK)
 
