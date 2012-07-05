@@ -104,6 +104,8 @@ BOOL LLIMFloaterContainer::postBuild()
 
 	collapseMessagesPane(gSavedPerAccountSettings.getBOOL("ConversationsMessagePaneCollapsed"));
 	collapseConversationsPane(gSavedPerAccountSettings.getBOOL("ConversationsListPaneCollapsed"));
+	LLAvatarNameCache::addUseDisplayNamesCallback(
+			boost::bind(&LLIMConversation::processChatHistoryStyleUpdate));
 
 	return TRUE;
 }
