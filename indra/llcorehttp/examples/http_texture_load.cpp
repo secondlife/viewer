@@ -39,6 +39,7 @@
 #include "httprequest.h"
 #include "httphandler.h"
 #include "httpresponse.h"
+#include "httpheaders.h"
 #include "bufferarray.h"
 #include "_mutex.h"
 
@@ -76,6 +77,7 @@ class WorkingSet : public LLCore::HttpHandler
 {
 public:
 	WorkingSet();
+	~WorkingSet();
 
 	bool reload(LLCore::HttpRequest *);
 	
@@ -111,6 +113,7 @@ public:
 	int							mErrorsHttp503;
 	int							mSuccesses;
 	long						mByteCount;
+	LLCore::HttpHeaders *		mHeaders;
 };
 
 
@@ -316,6 +319,19 @@ WorkingSet::WorkingSet()
 	  mByteCount(0L)
 {
 	mTextures.reserve(30000);
+
+	mHeaders = new LLCore::HttpHeaders;
+	mHeaders->mHeaders.push_back("Accept: image/x-j2c");
+}
+
+
+WorkingSet::~WorkingSet()
+{
+	if (mHeaders)
+	{
+		mHeaders->release();
+		mHeaders = NULL;
+	}
 }
 
 
@@ -337,11 +353,11 @@ bool WorkingSet::reload(LLCore::HttpRequest * hr)
 		LLCore::HttpHandle handle;
 		if (offset || length)
 		{
-			handle = hr->requestGetByteRange(0, 0, buffer, offset, length, NULL, NULL, this);
+			handle = hr->requestGetByteRange(0, 0, buffer, offset, length, NULL, mHeaders, this);
 		}
 		else
 		{
-			handle = hr->requestGet(0, 0, buffer, NULL, NULL, this);
+			handle = hr->requestGet(0, 0, buffer, NULL, mHeaders, this);
 		}
 		if (! handle)
 		{
