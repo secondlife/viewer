@@ -158,6 +158,10 @@ BOOL LLNearbyChat::postBuild()
 
 	enableResizeCtrls(true, true, false);
 
+	// title must be defined BEFORE call addToHost() because
+	// it is used for show the item's name in the conversations list
+	setTitle(getString("NearbyChatTitle"));
+
 	addToHost();
 
 	//for menu
@@ -182,7 +186,6 @@ BOOL LLNearbyChat::postBuild()
 		loadHistory();
 	}
 
-	setTitle(getString("NearbyChatTitle"));
 
 	return LLIMConversation::postBuild();
 }

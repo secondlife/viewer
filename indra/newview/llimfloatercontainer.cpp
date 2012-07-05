@@ -534,10 +534,6 @@ LLConversationItem::LLConversationItem(std::string name, const LLUUID& uuid, LLF
     mFloater(floaterp),
     mContainer(containerp)
 {
-    // Hack: the nearby chat has no name so we catch that case and impose one
-	// Of course, we won't be doing this in the final code
-	if (name == "")
-		mName = "Nearby Chat";
 }
 
 // Virtual action callbacks
