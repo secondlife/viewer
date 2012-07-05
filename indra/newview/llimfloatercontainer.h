@@ -57,6 +57,7 @@ class LLConversationItem : public LLFolderViewModelItemCommon
 {
 public:
 	LLConversationItem(std::string name, const LLUUID& uuid, LLFloater* floaterp, LLIMFloaterContainer* containerp);
+	LLConversationItem();
 	virtual ~LLConversationItem() {}
 
 	// Stub those things we won't really be using in this conversation context
@@ -120,6 +121,86 @@ private:
     LLFloater* mFloater;
     LLIMFloaterContainer* mContainer;
 };
+
+// We don't want to ever filter conversations but we need to declare that class to create a conversation view model.
+// We just stubb everything for the moment.
+class LLConversationFilter : public LLFolderViewFilter
+{
+public:
+		
+	enum ESortOrderType
+	{
+		SO_NAME = 0,						// Sort inventory by name
+		SO_DATE = 0x1,						// Sort inventory by date
+	};
+
+	LLConversationFilter() { mEmpty = ""; }
+	~LLConversationFilter() {}
+		
+	bool 				check(const LLFolderViewModelItem* item) { return true; }
+	bool				checkFolder(const LLFolderViewModelItem* folder) const { return true; }
+	void 				setEmptyLookupMessage(const std::string& message) { }
+	std::string			getEmptyLookupMessage() const { return mEmpty; }
+	bool				showAllResults() const { return true; }
+		
+	bool 				isActive() const { return false; }
+	bool 				isModified() const { return false; }
+	void 				clearModified() { }
+	const std::string& 	getName() const { return mEmpty; }
+	const std::string& 	getFilterText() { return mEmpty; }
+	void 				setModified(EFilterModified behavior = FILTER_RESTART) { }
+		
+	void 				setFilterCount(S32 count) { }
+	S32 				getFilterCount() const { return 0; }
+	void 				decrementFilterCount() { }
+		
+	bool 				isDefault() const { return true; }
+	bool 				isNotDefault() const { return false; }
+	void 				markDefault() { }
+	void 				resetDefault() { }
+		
+	S32 				getCurrentGeneration() const { return 0; }
+	S32 				getFirstSuccessGeneration() const { return 0; }
+	S32 				getFirstRequiredGeneration() const { return 0; }
+private:
+	std::string mEmpty;
+};
+
+class LLConversationSort
+{
+public:
+	LLConversationSort(U32 order = 0)
+	:	mSortOrder(order),
+	mByDate(false),
+	mByName(false)
+	{
+		mByDate = (order & LLConversationFilter::SO_DATE);
+		mByName = (order & LLConversationFilter::SO_NAME);
+	}
+	
+	bool isByDate() const { return mByDate; }
+	U32 getSortOrder() const { return mSortOrder; }
+	
+	bool operator()(const LLConversationItem* const& a, const LLConversationItem* const& b) const;
+private:
+	U32  mSortOrder;
+	bool mByDate;
+	bool mByName;
+};
+
+class LLConversationViewModel
+:	public LLFolderViewModel<LLConversationSort, LLConversationItem, LLConversationItem, LLConversationFilter>
+{
+public:
+	typedef LLFolderViewModel<LLConversationSort, LLConversationItem, LLConversationItem, LLConversationFilter> base_t;
+	
+	void sort(LLFolderViewFolder* folder) { } // *TODO : implement conversation sort
+	bool contentsReady() { return true; }	// *TODO : we need to check that participants names are available somewhat
+	bool startDrag(std::vector<LLFolderViewModelItem*>& items) { return false; } // We do not allow drag of conversation items
+	
+private:
+};
+
 // CHUI-137 : End
 
 class LLIMFloaterContainer
@@ -189,6 +270,8 @@ public:
 	void addConversationListItem(std::string name, const LLUUID& uuid, LLFloater* floaterp);
 	LLFloater* findConversationItem(LLUUID& uuid);
 private:
+	LLConversationViewModel mConversationViewModel;
+	LLConversationItem* mRoot; 
 	LLFolderViewItem* createConversationItemWidget(LLConversationItem* item);
 	// Conversation list data
 	LLPanel* mConversationsListPanel;	// This is the widget we add items to (i.e. clickable title for each conversation)

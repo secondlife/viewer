@@ -91,12 +91,14 @@ BOOL LLIMFloaterContainer::postBuild()
 	
 	mConversationsListPanel = getChild<LLPanel>("conversations_list_panel");
 
+	mRoot = new LLConversationItem();
 	LLFolderView::Params p;
-	//TODO RN: define view model for conversations
-	//p.view_model = ?;
+	// CHUI-98 : View Model for conversations
+	p.view_model = &mConversationViewModel;
 	p.parent_panel = mConversationsListPanel;
 	p.rect = mConversationsListPanel->getLocalRect();
 	p.follows.flags = FOLLOWS_ALL;
+	p.listener = mRoot;
 
 	mFolders = LLUICtrlFactory::create<LLFolderView>(p);
 	mConversationsListPanel->addChild(mFolders);
@@ -544,6 +546,15 @@ LLConversationItem::LLConversationItem(std::string name, const LLUUID& uuid, LLF
 		mName = "Nearby Chat";
 }
 
+LLConversationItem::LLConversationItem() :
+	mName(""),
+	mUUID(),
+	mFloater(NULL),
+	mContainer(NULL)
+{
+}
+
+
 // Virtual action callbacks
 void LLConversationItem::selectItem(void)
 {
@@ -587,6 +598,14 @@ void LLConversationItem::previewItem( void )
 
 void LLConversationItem::showProperties(void)
 {
+}
+
+bool LLConversationSort::operator()(const LLConversationItem* const& a, const LLConversationItem* const& b) const
+{
+	// We compare only by name for the moment
+	// *TODO : Implement the sorting by date
+	S32 compare = LLStringUtil::compareDict(a->getDisplayName(), b->getDisplayName());
+	return (compare < 0);
 }
 
 // EOF

@@ -320,10 +320,10 @@ S32 LLFolderView::arrange( S32* unused_width, S32* unused_height )
 
 	LLFolderViewFolder::arrange(&mMinWidth, &target_height);
 
-	LLRect scroll_rect = mScrollContainer->getContentWindowRect();
+	LLRect scroll_rect = (mScrollContainer ? mScrollContainer->getContentWindowRect() : LLRect());
 	reshape( llmax(scroll_rect.getWidth(), mMinWidth), llround(mCurHeight) );
 
-	LLRect new_scroll_rect = mScrollContainer->getContentWindowRect();
+	LLRect new_scroll_rect = (mScrollContainer ? mScrollContainer->getContentWindowRect() : LLRect());
 	if (new_scroll_rect.getWidth() != scroll_rect.getWidth())
 	{
 		reshape( llmax(scroll_rect.getWidth(), mMinWidth), llround(mCurHeight) );
@@ -945,7 +945,7 @@ void LLFolderView::autoOpenItem( LLFolderViewFolder* item )
 	mAutoOpenItems.push(item);
 	
 	item->setOpen(TRUE);
-	LLRect content_rect = mScrollContainer->getContentWindowRect();
+	LLRect content_rect = (mScrollContainer ? mScrollContainer->getContentWindowRect() : LLRect());
 	LLRect constraint_rect(0,content_rect.getHeight(), content_rect.getWidth(), 0);
 	scrollToShowItem(item, constraint_rect);
 }
@@ -1225,25 +1225,37 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 
 	case KEY_PAGE_UP:
 		mSearchString.clear();
-		mScrollContainer->pageUp(30);
+		if (mScrollContainer)
+		{
+			mScrollContainer->pageUp(30);
+		}
 		handled = TRUE;
 		break;
 
 	case KEY_PAGE_DOWN:
 		mSearchString.clear();
-		mScrollContainer->pageDown(30);
+		if (mScrollContainer)
+		{
+			mScrollContainer->pageDown(30);
+		}
 		handled = TRUE;
 		break;
 
 	case KEY_HOME:
 		mSearchString.clear();
-		mScrollContainer->goToTop();
+		if (mScrollContainer)
+		{
+			mScrollContainer->goToTop();
+		}
 		handled = TRUE;
 		break;
 
 	case KEY_END:
 		mSearchString.clear();
-		mScrollContainer->goToBottom();
+		if (mScrollContainer)
+		{
+			mScrollContainer->goToBottom();
+		}
 		break;
 
 	case KEY_DOWN:
@@ -1719,8 +1731,8 @@ void LLFolderView::scrollToShowItem(LLFolderViewItem* item, const LLRect& constr
 
 LLRect LLFolderView::getVisibleRect()
 {
-	S32 visible_height = mScrollContainer->getRect().getHeight();
-	S32 visible_width = mScrollContainer->getRect().getWidth();
+	S32 visible_height = (mScrollContainer ? mScrollContainer->getRect().getHeight() : 0);
+	S32 visible_width  = (mScrollContainer ? mScrollContainer->getRect().getWidth()  : 0);
 	LLRect visible_rect;
 	visible_rect.setLeftTopAndSize(-getRect().mLeft, visible_height - getRect().mBottom, visible_width, visible_height);
 	return visible_rect;
@@ -1816,7 +1828,7 @@ void LLFolderView::update()
 			// lets pin it!
 			mPinningSelectedItem = TRUE;
 
-			LLRect visible_content_rect = mScrollContainer->getVisibleContentRect();
+			LLRect visible_content_rect = (mScrollContainer ? mScrollContainer->getVisibleContentRect() : LLRect());
 			LLFolderViewItem* selected_item = mSelectedItems.back();
 
 			LLRect item_rect;
@@ -1831,7 +1843,7 @@ void LLFolderView::update()
 			else
 			{
 				// otherwise we just want it onscreen somewhere
-				LLRect content_rect = mScrollContainer->getContentWindowRect();
+				LLRect content_rect = (mScrollContainer ? mScrollContainer->getContentWindowRect() : LLRect());
 				mScrollConstraintRect.setOriginAndSize(0, 0, content_rect.getWidth(), content_rect.getHeight());
 			}
 		}
@@ -1854,7 +1866,7 @@ void LLFolderView::update()
 	else
 	{
 		// during normal use (page up/page down, etc), just try to fit item on screen
-		LLRect content_rect = mScrollContainer->getContentWindowRect();
+		LLRect content_rect = (mScrollContainer ? mScrollContainer->getContentWindowRect() : LLRect());
 		constraint_rect.setOriginAndSize(0, 0, content_rect.getWidth(), content_rect.getHeight());
 	}
 
