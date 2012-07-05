@@ -870,9 +870,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b5d4e877d18b6cb03d63a6c2d9db30b3</string>
+              <string>4ceeb68ac59a2b999a069b27020f76d3</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/prep_3p-havok-source-vs2010/rev/256766/arch/Darwin/installer/havok_source-2011.3-darwin-20120514.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/falcon_3p-havok-source/rev/261056/arch/Darwin/installer/havok_source-2012.1-darwin-20120702.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -882,9 +882,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9f34927ecb175b1d6fa18bd079afeac4</string>
+              <string>0591902d3e7eff848f71915df86d8837</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-havok-source_vs2010/rev/256766/arch/Linux/installer/havok_source-2011.3-linux-20120514.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/falcon_3p-havok-source/rev/261056/arch/Linux/installer/havok_source-2012.1-linux-20120702.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -894,9 +894,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>da689c64e71cc9a26e71d376054daab5</string>
+              <string>3a860c548aa311dc4e09d17a3a914a98</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-havok-source_Windows-vs2010/rev/256766/arch/CYGWIN/installer/havok_source-2011.3-windows-20120514.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/falcon_3p-havok-source/rev/261056/arch/CYGWIN/installer/havok_source-2012.1-windows-20120702.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
