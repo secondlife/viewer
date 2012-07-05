@@ -1,29 +1,27 @@
 # -*- cmake -*-
 include(Prebuilt)
 
-if (INSTALL_PROPRIETARY AND NOT STANDALONE)
-   use_prebuilt_binary(llphysicsextensions)
-   set(LLPHYSICS_EXTENSIONS_LIB_NAME llphysicsextensions)
-else (INSTALL_PROPRIETARY AND NOT STANDALONE)
-  use_prebuilt_binary(llphysicsextensionsstub)
-  set(LLPHYSICS_EXTENSIONS_LIB_NAME llphysicsextensionsstub)
-endif (INSTALL_PROPRIETARY AND NOT STANDALONE)
+# Note that the use_prebuilt_binary macros below do not in fact include binaries;
+# the llphysicsextensions_* packages are source only and are built here.
+# The source package and the stub package both build libraries of the same name.
 
-set(LLPHYSICS_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/lib/include)
+# Using the real wrapper or the stub can be controlled with -DHAVOK:BOOL={ON,OFF}
+# the default
+if (INSTALL_PROPRIETARY)
+   set(HAVOK ON CACHE BOOL "Use Havok physics library")
+endif (INSTALL_PROPRIETARY)
 
-set(LLPHYSICS_DEBUG_LIBRARY_PATH ${LIBS_PREBUILT_DIR}/lib/debug)
-set(LLPHYSICS_RELEASE_LIBRARY_PATH ${LIBS_PREBUILT_DIR}/lib/release)
+if (HAVOK)
+   include(Havok)
+   use_prebuilt_binary(llphysicsextensions_source)
+   set(LLPHYSICSEXTENSIONS_SRC_DIR ${LIBS_PREBUILT_DIR}/llphysicsextensions/src)
 
-find_library(LL_PHYSICS_DEBUG_LIB ${LLPHYSICS_EXTENSIONS_LIB_NAME} PATHS ${LLPHYSICS_DEBUG_LIBRARY_PATH})
-find_library(LL_PHYSICS_RELEASE_LIB ${LLPHYSICS_EXTENSIONS_LIB_NAME} PATHS ${LLPHYSICS_RELEASE_LIBRARY_PATH})
+else (HAVOK)
+   use_prebuilt_binary(llphysicsextensions_stub)
+   set(LLPHYSICSEXTENSIONS_SRC_DIR ${LIBS_PREBUILT_DIR}/llphysicsextensions/stub)
 
-set(LLPHYSICS_LIBRARIES
+endif (HAVOK)
 
-    debug     ${LL_PHYSICS_DEBUG_LIB}
-    optimized ${LL_PHYSICS_RELEASE_LIB}
-)
+set(LLPHYSICSEXTENSIONS_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include/llphysicsextensions)
 
-if (LINUX)
-    list(INSERT LLPHYSICS_LIBRARIES 0 -Wl,--start-group)
-    list(APPEND LLPHYSICS_LIBRARIES -Wl,--end-group)
-endif (LINUX)
+add_subdirectory(${LLPHYSICSEXTENSIONS_SRC_DIR} llphysicsextensions)
