@@ -25,5 +25,3 @@ else (HAVOK)
 endif (HAVOK)
 
 set(LLPHYSICSEXTENSIONS_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include/llphysicsextensions)
-
-add_subdirectory(${LLPHYSICSEXTENSIONS_SRC_DIR} llphysicsextensions)
