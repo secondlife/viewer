@@ -61,6 +61,9 @@
 #include "llspinctrl.h"
 #include "roles_constants.h"
 #include "llgroupactions.h"
+#include "lltextbase.h"
+#include "llstring.h"
+#include "lltrans.h"
 
 ///----------------------------------------------------------------------------
 /// Class llsidepaneltaskinfo
@@ -146,6 +149,7 @@ BOOL LLSidepanelTaskInfo::postBuild()
 	mDAEditCost = getChild<LLUICtrl>("Edit Cost");
 	mDALabelClickAction = getChildView("label click action");
 	mDAComboClickAction = getChild<LLComboBox>("clickaction");
+	mDAPathfindingAttributes = getChild<LLTextBase>("pathfinding_attributes_value");
 	mDAB = getChildView("B:");
 	mDAO = getChildView("O:");
 	mDAG = getChildView("G:");
@@ -242,6 +246,9 @@ void LLSidepanelTaskInfo::disableAll()
 		mDAComboClickAction->clear();
 	}
 
+	mDAPathfindingAttributes->setEnabled(FALSE);
+	mDAPathfindingAttributes->setValue(LLStringUtil::null);
+
 	mDAB->setVisible(FALSE);
 	mDAO->setVisible(FALSE);
 	mDAG->setVisible(FALSE);
@@ -328,6 +335,34 @@ void LLSidepanelTaskInfo::refresh()
 	}
 	getChildView("perm_modify")->setEnabled(TRUE);
 	getChild<LLUICtrl>("perm_modify")->setValue(MODIFY_INFO_STRINGS[string_index]);
+
+	std::string pfAttrName;
+
+	if ((mObjectSelection->getFirstRootNode() 
+		&& LLSelectMgr::getInstance()->selectGetRootsNonPathfinding())
+		|| LLSelectMgr::getInstance()->selectGetNonPathfinding())
+	{
+		pfAttrName = "Pathfinding_Object_Attr_None";
+	}
+	else if ((mObjectSelection->getFirstRootNode() 
+		&& LLSelectMgr::getInstance()->selectGetRootsPermanent())
+		|| LLSelectMgr::getInstance()->selectGetPermanent())
+	{
+		pfAttrName = "Pathfinding_Object_Attr_Permanent";
+	}
+	else if ((mObjectSelection->getFirstRootNode() 
+		&& LLSelectMgr::getInstance()->selectGetRootsCharacter())
+		|| LLSelectMgr::getInstance()->selectGetCharacter())
+	{
+		pfAttrName = "Pathfinding_Object_Attr_Character";
+	}
+	else
+	{
+		pfAttrName = "Pathfinding_Object_Attr_MultiSelect";
+	}
+
+	mDAPathfindingAttributes->setEnabled(TRUE);
+	mDAPathfindingAttributes->setValue(LLTrans::getString(pfAttrName));
 
 	getChildView("Permissions:")->setEnabled(TRUE);
 	

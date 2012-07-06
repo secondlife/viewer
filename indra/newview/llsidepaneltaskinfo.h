@@ -41,6 +41,7 @@ class LLCheckBoxCtrl;
 class LLComboBox;
 class LLNameBox;
 class LLViewerObject;
+class LLTextBase;
 
 class LLSidepanelTaskInfo : public LLSidepanelInventorySubpanel
 {
@@ -150,6 +151,7 @@ private:
 	LLUICtrl*	mDAEditCost;
 	LLView*		mDALabelClickAction;
 	LLComboBox*	mDAComboClickAction;
+	LLTextBase* mDAPathfindingAttributes;
 	LLView*		mDAB;
 	LLView*		mDAO;
 	LLView*		mDAG;
