@@ -1756,7 +1756,10 @@ S32 LLTextureFetchWorker::callbackHttpGet(const LLChannelDescriptors& channels,
 	// Clear the url since we're done with the fetch
 	// Note: mUrl is used to check is fetching is required so failure to clear it will force an http fetch
 	// next time the texture is requested, even if the data have already been fetched.
-	mUrl.clear();
+	if(mWriteToCacheState != NOT_WRITE)
+	{
+		mUrl.clear();
+	}
 	mLoaded = TRUE;
 	setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 
