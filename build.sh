@@ -271,12 +271,89 @@ then
   end_section WaitParallel
 fi
 
+# build debian package
+if [ "$arch" == "Linux" ]
+then
+  if $succeeded
+  then
+    if $build_viewer_deb && [ "$last_built_variant" == "Release" ]
+    then
+      begin_section "Build Debian Package"
+      # mangle the changelog
+      dch --force-bad-version \
+          --distribution unstable \
+          --newversion "${VIEWER_VERSION}" \
+          "Automated build #$build_id, repository $branch revision $revision." \
+          >> "$build_log" 2>&1
+
+      # build the debian package
+      $pkg_default_debuild_command  >>"$build_log" 2>&1 || record_failure "\"$pkg_default_debuild_command\" failed."
+
+      # Unmangle the changelog file
+      hg revert debian/changelog
+
+      end_section "Build Debian Package"
+
+      # upload debian package and create repository
+      begin_section "Upload Debian Repository"
+      for deb_file in ./*.deb; do
+        upload_item debian $deb_file binary/octet-stream
+      done
+      if [ -d "$build_log_dir/debian_repo" ]
+      then
+        pushd "$build_log_dir/debian_repo"
+        cat > Release <<EOF
+Archive: stable
+Component: main
+Origin: Teamcity
+Label: Teamcity built .debs
+Architecture: i386 amd64 any
+EOF
+        if dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz \
+        && dpkg-scansources . /dev/null | gzip -9c > Sources.gz
+        then
+          begin_section Packages.gz
+          gunzip --stdout Packages.gz
+          for file in *.deb
+          do  
+            stat "$file" | sed 2q
+            md5sum "$file"
+          done
+          end_section Packages.gz
+
+          for file in *
+          do
+            upload_item debian_repo "$file" binary/octet-stream
+          done
+        else
+          record_failure 'Unable to generate Packages.gz or Sources.gz'
+        fi
+        popd
+
+        process_pending_uploads
+
+        # Rename the local debian_repo directory so that the master buildscript
+        # doesn't make a remote repo again.
+
+        mv $build_log_dir/debian_repo $build_log_dir/debian_repo_pushed
+      fi
+      end_section "Upload Debian Repository"
+      
+    else
+      echo skipping debian build
+    fi
+  else
+    echo skipping debian build due to failed build.
+  fi
+fi
+
+
 # check status and upload results to S3
 if $succeeded
 then
   if $build_viewer
   then
-    begin_section Upload
+    begin_section Upload Installer
     # Upload installer - note that ONLY THE FIRST ITEM uploaded as "installer"
     # will appear in the version manager.
     package=$(installer_$arch)
@@ -302,12 +379,12 @@ then
       # Upload stub installers
       upload_stub_installers "$build_dir_stubs"
     fi
-    end_section Upload
+    end_section Upload Installer
   else
-    echo skipping viewer
+    echo skipping upload of installer
   fi
 else
-  echo skipping upload of build results due to failed build.
+  echo skipping upload of installer due to failed build.
 fi
 
 # The branch independent build.sh script invoking this script will finish processing
