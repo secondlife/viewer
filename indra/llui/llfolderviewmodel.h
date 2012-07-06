@@ -107,110 +107,6 @@ public:
 	virtual S32 				getFirstRequiredGeneration() const = 0;
 };
 
-class LLFolderViewModelInterface
-{
-public:
-	virtual ~LLFolderViewModelInterface() {}
-	virtual void requestSortAll() = 0;
-
-	virtual void sort(class LLFolderViewFolder*) = 0;
-	virtual void filter() = 0;
-
-	virtual bool contentsReady() = 0;
-	virtual void setFolderView(LLFolderView* folder_view) = 0;
-	virtual LLFolderViewFilter* getFilter() = 0;
-	virtual const LLFolderViewFilter* getFilter() const = 0;
-	virtual std::string getStatusText() = 0;
-
-	virtual bool startDrag(std::vector<LLFolderViewModelItem*>& items) = 0;
-};
-
-class LLFolderViewModelCommon : public LLFolderViewModelInterface
-{
-public:
-	LLFolderViewModelCommon()
-	:	mTargetSortVersion(0),
-		mFolderView(NULL)
-	{}
-
-	virtual void requestSortAll()
-	{
-		// sort everything
-		mTargetSortVersion++;
-	}
-	virtual std::string getStatusText();
-	virtual void filter();
-
-	void setFolderView(LLFolderView* folder_view) { mFolderView = folder_view;}
-
-protected:
-	bool needsSort(class LLFolderViewModelItem* item);
-
-	S32 mTargetSortVersion;
-	LLFolderView* mFolderView;
-
-};
-
-template <typename SORT_TYPE, typename ITEM_TYPE, typename FOLDER_TYPE, typename FILTER_TYPE>
-class LLFolderViewModel : public LLFolderViewModelCommon
-{
-public:
-	LLFolderViewModel(){}
-	virtual ~LLFolderViewModel() {}
-	
-	typedef SORT_TYPE		SortType;
-	typedef ITEM_TYPE		ItemType;
-	typedef FOLDER_TYPE		FolderType;
-	typedef FILTER_TYPE		FilterType;
-	
-	virtual SortType& getSorter()					 { return mSorter; }
-	virtual const SortType& getSorter() const 		 { return mSorter; }
-	virtual void setSorter(const SortType& sorter) 	 { mSorter = sorter; requestSortAll(); }
-
-	virtual FilterType* getFilter() 				 { return &mFilter; }
-	virtual const FilterType* getFilter() const		 { return &mFilter; }
-	virtual void setFilter(const FilterType& filter) { mFilter = filter; }
-
-	// TODO RN: remove this and put all filtering logic in view model
-	// add getStatusText and isFiltering()
-	virtual bool contentsReady()					{ return true; }
-
-
-	struct ViewModelCompare
-	{
-		ViewModelCompare(const SortType& sorter)
-		:	mSorter(sorter)
-		{}
-		
-		bool operator () (const LLFolderViewItem* a, const LLFolderViewItem* b) const
-		{
-			return mSorter(static_cast<const ItemType*>(a->getViewModelItem()), static_cast<const ItemType*>(b->getViewModelItem()));
-		}
-
-		bool operator () (const LLFolderViewFolder* a, const LLFolderViewFolder* b) const
-		{
-			return mSorter(static_cast<const ItemType*>(a->getViewModelItem()), static_cast<const ItemType*>(b->getViewModelItem()));
-		}
-
-		const SortType& mSorter;
-	};
-
-	void sort(LLFolderViewFolder* folder)
-	{
-		if (needsSort(folder->getViewModelItem()))
-		{
-			folder->sortFolders(ViewModelCompare(getSorter()));
-			folder->sortItems(ViewModelCompare(getSorter()));
-			folder->getViewModelItem()->setSortVersion(mTargetSortVersion);
-			folder->requestArrange();
-		}
-	}
-
-protected:
-	SortType		mSorter;
-	FilterType		mFilter;
-};
-
 // This is am abstract base class that users of the folderview classes
 // would use to bridge the folder view with the underlying data
 class LLFolderViewModelItem
@@ -349,5 +245,108 @@ protected:
 	LLFolderViewItem*		mFolderViewItem;
 };
 
+class LLFolderViewModelInterface
+{
+public:
+	virtual ~LLFolderViewModelInterface() {}
+	virtual void requestSortAll() = 0;
+
+	virtual void sort(class LLFolderViewFolder*) = 0;
+	virtual void filter() = 0;
+
+	virtual bool contentsReady() = 0;
+	virtual void setFolderView(LLFolderView* folder_view) = 0;
+	virtual LLFolderViewFilter* getFilter() = 0;
+	virtual const LLFolderViewFilter* getFilter() const = 0;
+	virtual std::string getStatusText() = 0;
+
+	virtual bool startDrag(std::vector<LLFolderViewModelItem*>& items) = 0;
+};
+
+class LLFolderViewModelCommon : public LLFolderViewModelInterface
+{
+public:
+	LLFolderViewModelCommon()
+	:	mTargetSortVersion(0),
+		mFolderView(NULL)
+	{}
+
+	virtual void requestSortAll()
+	{
+		// sort everything
+		mTargetSortVersion++;
+	}
+	virtual std::string getStatusText();
+	virtual void filter();
+
+	void setFolderView(LLFolderView* folder_view) { mFolderView = folder_view;}
+
+protected:
+	bool needsSort(class LLFolderViewModelItem* item);
+
+	S32 mTargetSortVersion;
+	LLFolderView* mFolderView;
+
+};
+
+template <typename SORT_TYPE, typename ITEM_TYPE, typename FOLDER_TYPE, typename FILTER_TYPE>
+class LLFolderViewModel : public LLFolderViewModelCommon
+{
+public:
+	LLFolderViewModel(){}
+	virtual ~LLFolderViewModel() {}
+
+	typedef SORT_TYPE		SortType;
+	typedef ITEM_TYPE		ItemType;
+	typedef FOLDER_TYPE		FolderType;
+	typedef FILTER_TYPE		FilterType;
+
+	virtual SortType& getSorter()					 { return mSorter; }
+	virtual const SortType& getSorter() const 		 { return mSorter; }
+	virtual void setSorter(const SortType& sorter) 	 { mSorter = sorter; requestSortAll(); }
+
+	virtual FilterType* getFilter() 				 { return &mFilter; }
+	virtual const FilterType* getFilter() const		 { return &mFilter; }
+	virtual void setFilter(const FilterType& filter) { mFilter = filter; }
+
+	// TODO RN: remove this and put all filtering logic in view model
+	// add getStatusText and isFiltering()
+	virtual bool contentsReady()					{ return true; }
+
+
+	struct ViewModelCompare
+	{
+		ViewModelCompare(const SortType& sorter)
+		:	mSorter(sorter)
+		{}
+
+		bool operator () (const LLFolderViewItem* a, const LLFolderViewItem* b) const
+		{
+			return mSorter(static_cast<const ItemType*>(a->getViewModelItem()), static_cast<const ItemType*>(b->getViewModelItem()));
+		}
+
+		bool operator () (const LLFolderViewFolder* a, const LLFolderViewFolder* b) const
+		{
+			return mSorter(static_cast<const ItemType*>(a->getViewModelItem()), static_cast<const ItemType*>(b->getViewModelItem()));
+		}
+
+		const SortType& mSorter;
+	};
+
+	void sort(LLFolderViewFolder* folder)
+	{
+		if (needsSort(folder->getViewModelItem()))
+		{
+			folder->sortFolders(ViewModelCompare(getSorter()));
+			folder->sortItems(ViewModelCompare(getSorter()));
+			folder->getViewModelItem()->setSortVersion(mTargetSortVersion);
+			folder->requestArrange();
+		}
+	}
+
+protected:
+	SortType		mSorter;
+	FilterType		mFilter;
+};
 
 #endif // LLFOLDERVIEWMODEL_H
