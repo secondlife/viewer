@@ -385,8 +385,15 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	curl_easy_setopt(mCurlHandle, CURLOPT_PRIVATE, this);
 	curl_easy_setopt(mCurlHandle, CURLOPT_ENCODING, "");
 
-	// *FIXME:  Revisit this old DNS timeout setting - may no longer be valid
-	curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, 0);
+	if (ENABLE_LINKSYS_WRT54G_V5_DNS_FIX)
+	{
+		curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, 10);
+	}
+	else
+	{
+		// *FIXME:  Revisit this old DNS timeout setting - may no longer be valid
+		curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, 0);
+	}
 	curl_easy_setopt(mCurlHandle, CURLOPT_AUTOREFERER, 1);
 	curl_easy_setopt(mCurlHandle, CURLOPT_FOLLOWLOCATION, 1);
 	curl_easy_setopt(mCurlHandle, CURLOPT_MAXREDIRS, DEFAULT_HTTP_REDIRECTS);	// *FIXME:  parameterize this later

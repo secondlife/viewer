@@ -77,6 +77,9 @@ const int LOOP_SLEEP_NORMAL_MS = 2;
 // Block allocation size (a tuning parameter) is found
 // in bufferarray.h.
 
+// Compatibility controls
+const bool ENABLE_LINKSYS_WRT54G_V5_DNS_FIX = true;
+
 }  // end namespace LLCore
 
 #endif	// _LLCORE_HTTP_INTERNAL_H_
