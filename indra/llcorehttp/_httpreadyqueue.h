@@ -82,7 +82,7 @@ public:
 	// purposes.
 	typedef HttpReadyQueueBase container_type;
 	
-	const_reference & top() const
+	const_reference top() const
 		{
 			return front();
 		}
