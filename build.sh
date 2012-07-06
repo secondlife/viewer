@@ -296,7 +296,7 @@ then
 
       # upload debian package and create repository
       begin_section "Upload Debian Repository"
-      for deb_file in ./*.deb; do
+      for deb_file in ../*.deb; do
         upload_item debian $deb_file binary/octet-stream
       done
       if [ -d "$build_log_dir/debian_repo" ]

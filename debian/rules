@@ -11,7 +11,9 @@
 
 SRCDIR=build-linux-i686/newview/packaged
 DESTDIR=$(CURDIR)/debian/secondlife-viewer
-INSTALLDIR=opt/linden/viewer
+BASEDIR=opt/linden/viewer
+VIEWER_VERSION:=$(shell dpkg-parsechangelog | grep ^Version | sed 's/^Version: //')
+INSTALLDIR:=$(BASEDIR)/SecondLife-i686-$(VIEWER_VERSION)
 
 configure: configure-stamp
 configure-stamp:
@@ -59,6 +61,7 @@ install: build
 		install -v -m $$PERM -o root -g root "$(SRCDIR)/$$file" "$(DESTDIR)/$(INSTALLDIR)/$$file"; \
 	done
 	dh_link /$(INSTALLDIR)/secondlife /usr/bin/secondlife
+	dh_link $(BASEDIR)/SecondLife-i686-$(VIEWER_VERSION) $(BASEDIR)/SecondLife
 
 
 # Build architecture-independent files here.
