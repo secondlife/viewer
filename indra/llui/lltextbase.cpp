@@ -510,7 +510,7 @@ void LLTextBase::drawText()
 	}
 	else if (text_len <= 0 && !mLabel.empty() && !hasFocus())
 	{
-		text_len = mLabel.length();
+		text_len = mLabel.getWString().length();
 	}
 
 	S32 selection_left = -1;
@@ -1816,7 +1816,7 @@ void LLTextBase::resetLabel()
 		style->setColor(mTentativeFgColor);
 		LLStyleConstSP sp(style);
 
-		LLTextSegmentPtr label = new LLLabelTextSegment(sp, 0, getLabel().length() + 1, *this);
+		LLTextSegmentPtr label = new LLLabelTextSegment(sp, 0, mLabel.getWString().length() + 1, *this);
 		insertSegment(label);
 	}
 }
@@ -2988,7 +2988,7 @@ const LLWString& LLLabelTextSegment::getWText()	const
 /*virtual*/
 const S32 LLLabelTextSegment::getLength() const
 {
-	return mEditor.getLabel().length();
+	return mEditor.getWlabel().length();
 }
 
 //
