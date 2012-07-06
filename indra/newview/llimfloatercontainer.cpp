@@ -37,6 +37,7 @@
 #include "llagent.h"
 #include "llavataractions.h"
 #include "llavatariconctrl.h"
+#include "llavatarnamecache.h"
 #include "llgroupiconctrl.h"
 #include "llfloateravatarpicker.h"
 #include "llimview.h"
