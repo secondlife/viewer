@@ -32,6 +32,14 @@
 // something wrong is probably happening.
 
 
+// If '1', internal ready queues will not order ready
+// requests by priority, instead it's first-come-first-served.
+// Reprioritization requests have the side-effect of then
+// putting the modified request at the back of the ready queue.
+
+#define	LLCORE_READY_QUEUE_IGNORES_PRIORITY		1
+
+
 namespace LLCore
 {
 

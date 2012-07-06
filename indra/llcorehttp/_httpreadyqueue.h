@@ -30,6 +30,7 @@
 
 #include <queue>
 
+#include "_httpinternal.h"
 #include "_httpoprequest.h"
 
 
@@ -47,9 +48,17 @@ namespace LLCore
 /// Threading:  not thread-safe.  Expected to be used entirely by
 /// a single thread, typically a worker thread of some sort.
 
+#if LLCORE_READY_QUEUE_IGNORES_PRIORITY
+
+typedef std::deque<HttpOpRequest *> HttpReadyQueueBase;
+
+#else
+
 typedef std::priority_queue<HttpOpRequest *,
 							std::deque<HttpOpRequest *>,
 							LLCore::HttpOpRequestCompare> HttpReadyQueueBase;
+
+#endif // LLCORE_READY_QUEUE_IGNORES_PRIORITY
 
 class HttpReadyQueue : public HttpReadyQueueBase
 {
@@ -66,16 +75,40 @@ protected:
 	void operator=(const HttpReadyQueue &);		// Not defined
 
 public:
+
+#if LLCORE_READY_QUEUE_IGNORES_PRIORITY
+	// Types and methods needed to make a std::deque look
+	// more like a std::priority_queue, at least for our
+	// purposes.
+	typedef HttpReadyQueueBase container_type;
+	
+	const_reference & top() const
+		{
+			return front();
+		}
+
+	void pop()
+		{
+			pop_front();
+		}
+
+	void push(const value_type & v)
+		{
+			push_back(v);
+		}
+	
+#endif // LLCORE_READY_QUEUE_IGNORES_PRIORITY
+	
 	const container_type & get_container() const
 		{
-			return c;
+			return *this;
 		}
 
 	container_type & get_container()
 		{
-			return c;
+			return *this;
 		}
-
+	
 }; // end class HttpReadyQueue
 
 
