@@ -91,31 +91,31 @@ void HttpOperation::setReplyPath(HttpReplyQueue * reply_queue,
 
 void HttpOperation::stageFromRequest(HttpService *)
 {
-	// *FIXME:  Message this a better way later.
 	// Default implementation should never be called.  This
 	// indicates an operation making a transition that isn't
 	// defined.
-	llassert_always(false);
+	LL_ERRS("HttpCore") << "Default stateFromRequest method may not be called."
+						<< LL_ENDL;
 }
 
 
 void HttpOperation::stageFromReady(HttpService *)
 {
-	// *FIXME:  Message this a better way later.
 	// Default implementation should never be called.  This
 	// indicates an operation making a transition that isn't
 	// defined.
-	llassert_always(false);
+	LL_ERRS("HttpCore") << "Default stateFromReady method may not be called."
+						<< LL_ENDL;
 }
 
 
 void HttpOperation::stageFromActive(HttpService *)
 {
-	// *FIXME:  Message this a better way later.
 	// Default implementation should never be called.  This
 	// indicates an operation making a transition that isn't
 	// defined.
-	llassert_always(false);
+	LL_ERRS("HttpCore") << "Default stateFromActive method may not be called."
+						<< LL_ENDL;
 }
 
 

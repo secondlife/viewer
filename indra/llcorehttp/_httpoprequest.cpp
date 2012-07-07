@@ -344,6 +344,13 @@ void HttpOpRequest::setupCommon(HttpRequest::policy_t policy_id,
 }
 
 
+// Sets all libcurl options and data for a request.
+//
+// Used both for initial requests and to 'reload' for
+// a retry, generally with a different CURL handle.
+// Junk may be left around from a failed request and that
+// needs to be cleaned out.
+//
 HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 {
 	// Scrub transport and result data for retried op case
@@ -387,20 +394,29 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 
 	if (ENABLE_LINKSYS_WRT54G_V5_DNS_FIX)
 	{
+		// The Linksys WRT54G V5 router has an issue with frequent
+		// DNS lookups from LAN machines.  If they happen too often,
+		// like for every HTTP request, the router gets annoyed after
+		// about 700 or so requests and starts issuing TCP RSTs to
+		// new connections.  Reuse the DNS lookups for even a few
+		// seconds and no RSTs.
 		curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, 10);
 	}
 	else
 	{
-		// *FIXME:  Revisit this old DNS timeout setting - may no longer be valid
+		// *TODO:  Revisit this old DNS timeout setting - may no longer be valid
+		// I don't think this is valid anymore, the Multi shared DNS
+		// cache is working well.  For the case of naked easy handles,
+		// consider using a shared DNS object.
 		curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, 0);
 	}
 	curl_easy_setopt(mCurlHandle, CURLOPT_AUTOREFERER, 1);
 	curl_easy_setopt(mCurlHandle, CURLOPT_FOLLOWLOCATION, 1);
-	curl_easy_setopt(mCurlHandle, CURLOPT_MAXREDIRS, DEFAULT_HTTP_REDIRECTS);	// *FIXME:  parameterize this later
+	curl_easy_setopt(mCurlHandle, CURLOPT_MAXREDIRS, DEFAULT_HTTP_REDIRECTS);
 	curl_easy_setopt(mCurlHandle, CURLOPT_WRITEFUNCTION, writeCallback);
-	curl_easy_setopt(mCurlHandle, CURLOPT_WRITEDATA, mCurlHandle);
+	curl_easy_setopt(mCurlHandle, CURLOPT_WRITEDATA, this);
 	curl_easy_setopt(mCurlHandle, CURLOPT_READFUNCTION, readCallback);
-	curl_easy_setopt(mCurlHandle, CURLOPT_READDATA, mCurlHandle);
+	curl_easy_setopt(mCurlHandle, CURLOPT_READDATA, this);
 	curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYPEER, 1);
 	curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYHOST, 0);
 
@@ -468,7 +484,9 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 		break;
 		
 	default:
-		// *FIXME:  fail out here
+		LL_ERRS("CoreHttp") << "Invalid HTTP method in request:  "
+							<< int(mReqMethod)  << ".  Can't recover."
+							<< LL_ENDL;
 		break;
 	}
 
@@ -476,7 +494,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	if (mTracing >= TRACE_CURL_HEADERS)
 	{
 		curl_easy_setopt(mCurlHandle, CURLOPT_VERBOSE, 1);
-		curl_easy_setopt(mCurlHandle, CURLOPT_DEBUGDATA, mCurlHandle);
+		curl_easy_setopt(mCurlHandle, CURLOPT_DEBUGDATA, this);
 		curl_easy_setopt(mCurlHandle, CURLOPT_DEBUGFUNCTION, debugCallback);
 	}
 	
@@ -524,7 +542,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	if (mProcFlags & (PF_SCAN_RANGE_HEADER | PF_SAVE_HEADERS))
 	{
 		curl_easy_setopt(mCurlHandle, CURLOPT_HEADERFUNCTION, headerCallback);
-		curl_easy_setopt(mCurlHandle, CURLOPT_HEADERDATA, mCurlHandle);
+		curl_easy_setopt(mCurlHandle, CURLOPT_HEADERDATA, this);
 	}
 	
 	if (status)
@@ -537,10 +555,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 
 size_t HttpOpRequest::writeCallback(void * data, size_t size, size_t nmemb, void * userdata)
 {
-	CURL * handle(static_cast<CURL *>(userdata));
-	HttpOpRequest * op(NULL);
-	curl_easy_getinfo(handle, CURLINFO_PRIVATE, &op);
-	// *FIXME:  check the pointer
+	HttpOpRequest * op(static_cast<HttpOpRequest *>(userdata));
 
 	if (! op->mReplyBody)
 	{
@@ -554,10 +569,7 @@ size_t HttpOpRequest::writeCallback(void * data, size_t size, size_t nmemb, void
 		
 size_t HttpOpRequest::readCallback(void * data, size_t size, size_t nmemb, void * userdata)
 {
-	CURL * handle(static_cast<CURL *>(userdata));
-	HttpOpRequest * op(NULL);
-	curl_easy_getinfo(handle, CURLINFO_PRIVATE, &op);
-	// *FIXME:  check the pointer
+	HttpOpRequest * op(static_cast<HttpOpRequest *>(userdata));
 
 	if (! op->mReqBody)
 	{
@@ -567,7 +579,8 @@ size_t HttpOpRequest::readCallback(void * data, size_t size, size_t nmemb, void 
 	const size_t body_size(op->mReqBody->size());
 	if (body_size <= op->mCurlBodyPos)
 	{
-		// *FIXME:  should probably log this event - unexplained
+		LL_WARNS("HttpCore") << "Request body position beyond body size.  Aborting request."
+							 << LL_ENDL;
 		return 0;
 	}
 
@@ -586,10 +599,7 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 	static const char con_ran_line[] = "content-range:";
 	static const size_t con_ran_line_len = sizeof(con_ran_line) - 1;
 	
-	CURL * handle(static_cast<CURL *>(userdata));
-	HttpOpRequest * op(NULL);
-	curl_easy_getinfo(handle, CURLINFO_PRIVATE, &op);
-	// *FIXME:  check the pointer
+	HttpOpRequest * op(static_cast<HttpOpRequest *>(userdata));
 
 	const size_t hdr_size(size * nmemb);
 	const char * hdr_data(static_cast<const char *>(data));		// Not null terminated
@@ -609,7 +619,7 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 	}
 	else if (op->mProcFlags & PF_SCAN_RANGE_HEADER)
 	{
-		char hdr_buffer[128];
+		char hdr_buffer[128];			// Enough for a reasonable header
 		size_t frag_size((std::min)(hdr_size, sizeof(hdr_buffer) - 1));
 		
 		memcpy(hdr_buffer, hdr_data, frag_size);
@@ -638,8 +648,10 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 			else
 			{
 				// Ignore the unparsable.
-				// *FIXME:  Maybe issue a warning into the log here
-				;
+				LL_INFOS_ONCE("CoreHttp") << "Problem parsing odd Content-Range header:  '"
+										  << std::string(hdr_data, frag_size)
+										  << "'.  Ignoring."
+										  << LL_ENDL;
 			}
 		}
 	}
@@ -668,9 +680,7 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 
 int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffer, size_t len, void * userdata)
 {
-	HttpOpRequest * op(NULL);
-	curl_easy_getinfo(handle, CURLINFO_PRIVATE, &op);
-	// *FIXME:  check the pointer
+	HttpOpRequest * op(static_cast<HttpOpRequest *>(userdata));
 
 	std::string safe_line;
 	std::string tag;

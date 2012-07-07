@@ -49,6 +49,16 @@ class HttpOptions;
 
 /// HttpOpRequest requests a supported HTTP method invocation with
 /// option and header overrides.
+///
+/// Essentially an RPC to get an HTTP GET, POST or PUT executed
+/// asynchronously with options to override behaviors and HTTP
+/// headers.
+///
+/// Constructor creates a raw object incapable of useful work.
+/// A subsequent call to one of the setupXXX() methods provides
+/// the information needed to make a working request which can
+/// then be enqueued to a request queue.
+///
 
 class HttpOpRequest : public HttpOperation
 {
@@ -177,6 +187,8 @@ public:
 // Free functions
 // ---------------------------------------
 
+// Internal function to append the contents of an HttpHeaders
+// instance to a curl_slist object.
 curl_slist * append_headers_to_slist(const HttpHeaders *, curl_slist * slist);
 
 }   // end namespace LLCore

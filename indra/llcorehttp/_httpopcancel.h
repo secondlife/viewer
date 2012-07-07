@@ -43,9 +43,10 @@ namespace LLCore
 
 
 /// HttpOpCancel requests that a previously issued request
-/// be canceled, if possible.  Requests that have been made
-/// active and are available for sending on the wire cannot
-/// be canceled.  
+/// be canceled, if possible.  This includes active requests
+/// that may be in the middle of an HTTP transaction.  Any
+/// completed request will not be canceled and will return
+/// its final status unchanged.
 
 class HttpOpCancel : public HttpOperation
 {

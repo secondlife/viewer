@@ -168,6 +168,24 @@ enum HttpError
 /// a successful status or an error.  The application is responsible
 /// for making that determination and a range like [200, 299] isn't
 /// automatically assumed to be definitive.
+///
+/// Examples:
+///
+/// 1.  Construct a default, successful status code:
+///				HttpStatus();
+///
+/// 2.  Construct a successful, HTTP 200 status code:
+///				HttpStatus(200);
+///
+/// 3.  Construct a failed, HTTP 404 not-found status code:
+///				HttpStatus(404);
+///
+/// 4.  Construct a failed libcurl couldn't connect status code:
+///				HttpStatus(HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_CONNECT);
+///
+/// 5.  Construct an HTTP 301 status code to be treated as success:
+///				HttpStatus(301, HE_SUCCESS);
+///
 
 struct HttpStatus
 {

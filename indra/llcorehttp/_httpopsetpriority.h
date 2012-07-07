@@ -42,6 +42,9 @@ namespace LLCore
 /// searches the various queues looking for a given
 /// request handle and changing it's priority if
 /// found.
+///
+/// *NOTE:  This will very likely be removed in the near future
+/// when priority is removed from the library.
 
 class HttpOpSetPriority : public HttpOperation
 {

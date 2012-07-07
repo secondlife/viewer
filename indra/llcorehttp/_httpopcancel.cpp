@@ -59,6 +59,11 @@ HttpOpCancel::~HttpOpCancel()
 {}
 
 
+// Immediately search for the request on various queues
+// and cancel operations if found.  Return the status of
+// the search and cancel as the status of this request.
+// The canceled request will return a canceled status to
+// its handler.
 void HttpOpCancel::stageFromRequest(HttpService * service)
 {
 	if (! service->cancel(mHandle))
