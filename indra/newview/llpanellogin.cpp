@@ -405,16 +405,19 @@ void LLPanelLogin::giveFocus()
 // static
 void LLPanelLogin::showLoginWidgets()
 {
-	// *NOTE: Mani - This may or may not be obselete code.
-	// It seems to be part of the defunct? reg-in-client project.
-	sInstance->getChildView("login_widgets")->setVisible( true);
-	LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
-	sInstance->reshapeBrowser();
-	// *TODO: Append all the usual login parameters, like first_login=Y etc.
-	std::string splash_screen_url = LLGridManager::getInstance()->getLoginPage();
-	web_browser->navigateTo( splash_screen_url, "text/html" );
-	LLUICtrl* username_combo = sInstance->getChild<LLUICtrl>("username_combo");
-	username_combo->setFocus(TRUE);
+	if (sInstance)
+	{
+		// *NOTE: Mani - This may or may not be obselete code.
+		// It seems to be part of the defunct? reg-in-client project.
+		sInstance->getChildView("login_widgets")->setVisible( true);
+		LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
+		sInstance->reshapeBrowser();
+		// *TODO: Append all the usual login parameters, like first_login=Y etc.
+		std::string splash_screen_url = LLGridManager::getInstance()->getLoginPage();
+		web_browser->navigateTo( splash_screen_url, "text/html" );
+		LLUICtrl* username_combo = sInstance->getChild<LLUICtrl>("username_combo");
+		username_combo->setFocus(TRUE);
+	}
 }
 
 // static
@@ -691,13 +694,14 @@ void LLPanelLogin::closePanel()
 // static
 void LLPanelLogin::setAlwaysRefresh(bool refresh)
 {
-	if (LLStartUp::getStartupState() >= STATE_LOGIN_CLEANUP) return;
-
-	LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
-
-	if (web_browser)
+	if (sInstance && LLStartUp::getStartupState() < STATE_LOGIN_CLEANUP)
 	{
-		web_browser->setAlwaysRefresh(refresh);
+		LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
+
+		if (web_browser)
+		{
+			web_browser->setAlwaysRefresh(refresh);
+		}
 	}
 }
 
@@ -768,21 +772,6 @@ void LLPanelLogin::loadLoginPage()
 
 void LLPanelLogin::handleMediaEvent(LLPluginClassMedia* /*self*/, EMediaEvent event)
 {
-	if(event == MEDIA_EVENT_NAVIGATE_COMPLETE)
-	{
-		LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
-		if (web_browser)
-		{
-			// *HACK HACK HACK HACK!
-			/* Stuff a Tab key into the browser now so that the first field will
-			** get the focus!  The embedded javascript on the page that properly
-			** sets the initial focus in a real web browser is not working inside
-			** the viewer, so this is an UGLY HACK WORKAROUND for now.
-			*/
-			// Commented out as it's not reliable
-			//web_browser->handleKey(KEY_TAB, MASK_NONE, false);
-		}
-	}
 }
 
 //---------------------------------------------------------------------------
@@ -859,7 +848,10 @@ void LLPanelLogin::onClickConnect(void *)
 // static
 void LLPanelLogin::onClickNewAccount(void*)
 {
-	LLWeb::loadURLExternal(sInstance->getString("create_account_url"));
+	if (sInstance)
+	{
+		LLWeb::loadURLExternal(sInstance->getString("create_account_url"));
+	}
 }
 
 
@@ -895,7 +887,7 @@ void LLPanelLogin::onPassKey(LLLineEditor* caller, void* user_data)
 	This->mPasswordModified = TRUE;
 	if (gKeyboard->getKeyDown(KEY_CAPSLOCK) && sCapslockDidNotification == FALSE)
 	{
-// *TODO: use another way to notify user about enabled caps lock, see EXT-6858
+		// *TODO: use another way to notify user about enabled caps lock, see EXT-6858
 		sCapslockDidNotification = TRUE;
 	}
 }
@@ -903,33 +895,36 @@ void LLPanelLogin::onPassKey(LLLineEditor* caller, void* user_data)
 
 void LLPanelLogin::updateServer()
 {
-	try 
+	if (sInstance)
 	{
-		// if they've selected another grid, we should load the credentials
-		// for that grid and set them to the UI.
-		if(sInstance && !sInstance->areCredentialFieldsDirty())
+		try 
 		{
-			LLPointer<LLCredential> credential = gSecAPIHandler->loadCredential(LLGridManager::getInstance()->getGrid());	
-			bool remember = sInstance->getChild<LLUICtrl>("remember_check")->getValue();
-			sInstance->setFields(credential, remember);
-		}
+			// if they've selected another grid, we should load the credentials
+			// for that grid and set them to the UI.
+			if(!sInstance->areCredentialFieldsDirty())
+			{
+				LLPointer<LLCredential> credential = gSecAPIHandler->loadCredential(LLGridManager::getInstance()->getGrid());	
+				bool remember = sInstance->getChild<LLUICtrl>("remember_check")->getValue();
+				sInstance->setFields(credential, remember);
+			}
 
-		// update the login panel links 
-		bool system_grid = LLGridManager::getInstance()->isSystemGrid();
+			// update the login panel links 
+			bool system_grid = LLGridManager::getInstance()->isSystemGrid();
 	
-		sInstance->getChildView("create_new_account_text")->setVisible( system_grid);
-		sInstance->getChildView("forgot_password_text")->setVisible( system_grid);
+			sInstance->getChildView("create_new_account_text")->setVisible( system_grid);
+			sInstance->getChildView("forgot_password_text")->setVisible( system_grid);
 
-		// grid changed so show new splash screen (possibly)
-		loadLoginPage();
-	}
-	catch (LLInvalidGridName ex)
-	{
-		LL_WARNS("AppInit")<<"server '"<<ex.name()<<"' selection failed"<<LL_ENDL;
-		LLSD args;
-		args["GRID"] = ex.name();
-		LLNotificationsUtil::add("InvalidGrid", args);	
-		return;
+			// grid changed so show new splash screen (possibly)
+			loadLoginPage();
+		}
+		catch (LLInvalidGridName ex)
+		{
+			LL_WARNS("AppInit")<<"server '"<<ex.name()<<"' selection failed"<<LL_ENDL;
+			LLSD args;
+			args["GRID"] = ex.name();
+			LLNotificationsUtil::add("InvalidGrid", args);	
+			return;
+		}
 	}
 }
 
