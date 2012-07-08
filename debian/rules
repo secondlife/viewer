@@ -50,15 +50,21 @@ install: build
 	dh_installdirs
 
 	# Add here commands to install the package into debian/secondlife-viewer.
-	#$(MAKE) DESTDIR=$(CURDIR)/debian/secondlife-viewer install
-	for file in $$(find $(SRCDIR) -type f | sed 's~$(SRCDIR)/~~'); do \
+	for file in $$(find $(SRCDIR) -type f -o -type l | sed 's~$(SRCDIR)/~~'); do \
 		# create containing directory \
 		install -v -m 755 -o root -g root -d "$$(dirname "$(DESTDIR)/$(INSTALLDIR)/$$file")"; \
 		PERM=644; \
 		if [ -x "$(SRCDIR)/$$file" ]; then \
 			PERM=755; \
 		fi; \
-		install -v -m $$PERM -o root -g root "$(SRCDIR)/$$file" "$(DESTDIR)/$(INSTALLDIR)/$$file"; \
+		if [ -L "$(SRCDIR)/$$file" ]; then \
+			REAL="$$( readlink -f $(SRCDIR)/$$file )"; \
+			RELATIVE="$$( echo $$REAL | sed 's~$(CURDIR)/$(SRCDIR)/~~' )"; \
+			echo dh_link "$(INSTALLDIR)/$$RELATIVE" "$(INSTALLDIR)/$$file" ; \
+			dh_link "$(INSTALLDIR)/$$RELATIVE" "$(INSTALLDIR)/$$file" ; \
+		else \
+			install -v -m $$PERM -o root -g root "$(SRCDIR)/$$file" "$(DESTDIR)/$(INSTALLDIR)/$$file"; \
+		fi; \
 	done
 	dh_link /$(INSTALLDIR)/secondlife /usr/bin/secondlife
 	dh_link $(BASEDIR)/SecondLife-i686-$(VIEWER_VERSION) $(BASEDIR)/SecondLife
