@@ -2074,7 +2074,7 @@ S32 LLTextureFetchWorker::callbackHttpGet(LLCore::HttpResponse * response,
 					// This could be because it was badly formatted but is more
 					// likely due to capabilities services which scrub headers
 					// from responses.  Assume we got what we asked for...
-					mHttpReplySize = mRequestedSize;
+					mHttpReplySize = data_size;
 					mHttpReplyOffset = mRequestedOffset;
 				}
 				else
