@@ -28,6 +28,7 @@
 
 #include <iostream>
 #include <map>
+#include <algorithm>
 
 #include "llstl.h"
 
@@ -3358,32 +3359,35 @@ void LLTextureFetch::releaseHttpWaiters()
 
 		if (mHttpWaitResource.empty())
 			return;
-
-		const size_t limit(mHttpWaitResource.size());
-		tids.reserve(limit);
-		for (wait_http_res_queue_t::iterator iter(mHttpWaitResource.begin());
-			 mHttpWaitResource.end() != iter;
-			 ++iter)
-		{
-			tids.push_back(*iter);
-		}
+		tids.reserve(mHttpWaitResource.size());
+		tids.assign(mHttpWaitResource.begin(), mHttpWaitResource.end());
 	}																	// -Mfnq
 
 	// Now lookup the UUUIDs to find valid requests and sort
-	// them in priority order, highest to lowest.
-	typedef std::set<LLTextureFetchWorker *, LLTextureFetchWorker::Compare> worker_set_t;
-	worker_set_t tids2;
+	// them in priority order, highest to lowest.  We're going
+	// to modify priority later as a side-effect of releasing
+	// these objects.  That, in turn, would violate the partial
+	// ordering assumption of std::set, std::map, etc. so we
+	// don't use those containers.  We use a vector and an explicit
+	// sort to keep the containers valid later.
+	typedef std::vector<LLTextureFetchWorker *> worker_list_t;
+	worker_list_t tids2;
 
-	for (uuid_vec_t::const_iterator iter(tids.begin());
+	tids2.reserve(tids.size());
+	for (uuid_vec_t::iterator iter(tids.begin());
 		 tids.end() != iter;
 		 ++iter)
 	{
 		LLTextureFetchWorker * worker(getWorker(* iter));
 		if (worker)
 		{
-			tids2.insert(worker);
+			tids2.push_back(worker);
 		}
 	}
+
+	// Sort into priority order
+	LLTextureFetchWorker::Compare compare;
+	std::sort(tids2.begin(), tids2.end(), compare);
 	tids.clear();
 
 	// Release workers up to the high water mark.  Since we aren't
@@ -3391,7 +3395,7 @@ void LLTextureFetch::releaseHttpWaiters()
 	// with other callers.  Do defensive things like getting
 	// refreshed counts of requests and checking if someone else
 	// has moved any worker state around....
-	for (worker_set_t::iterator iter2(tids2.begin());
+	for (worker_list_t::iterator iter2(tids2.begin());
 		 tids2.end() != iter2 && mHttpSemaphore > 0;
 		 ++iter2)
 	{
