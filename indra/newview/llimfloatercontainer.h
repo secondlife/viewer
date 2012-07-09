@@ -264,20 +264,20 @@ private:
 	LLLayoutPanel* mConversationsPane;
 	LLLayoutStack* mConversationsStack;
 	
-	// CHUI-137 : Temporary implementation of conversations list
+	// Conversation list implementation
 public:
 	void removeConversationListItem(LLFloater* floaterp, bool change_focus = true);
 	void addConversationListItem(std::string name, const LLUUID& uuid, LLFloater* floaterp);
 	LLFloater* findConversationItem(LLUUID& uuid);
 private:
-	LLConversationViewModel mConversationViewModel;
-	LLConversationItem* mRoot; 
 	LLFolderViewItem* createConversationItemWidget(LLConversationItem* item);
+
 	// Conversation list data
-	LLPanel* mConversationsListPanel;	// This is the widget we add items to (i.e. clickable title for each conversation)
+	LLPanel* mConversationsListPanel;	// This is the main widget we add conversation widget to
 	conversations_items_map mConversationsItems;
 	conversations_widgets_map mConversationsWidgets;
-	LLFolderView* mFolders;
+	LLConversationViewModel mConversationViewModel;
+	LLFolderView* mConversationsRoot;
 };
 
 #endif // LL_LLIMFLOATERCONTAINER_H
