@@ -32,10 +32,12 @@ $/LicenseInfo$
 import os
 import sys
 import time
+import select
 from threading import Thread
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
+from SocketServer import ThreadingMixIn
 
-mydir = os.path.dirname(__file__)       # expected to be .../indra/llmessage/tests/
+mydir = os.path.dirname(__file__)       # expected to be .../indra/llcorehttp/tests/
 sys.path.insert(0, os.path.join(mydir, os.pardir, os.pardir, "lib", "python"))
 from indra.util.fastest_elementtree import parse as xml_parse
 from indra.base import llsd
@@ -144,7 +146,7 @@ class TestHTTPRequestHandler(BaseHTTPRequestHandler):
             # Suppress error output as well
             pass
 
-class Server(HTTPServer):
+class Server(ThreadingMixIn, HTTPServer):
     # This pernicious flag is on by default in HTTPServer. But proper
     # operation of freeport() absolutely depends on it being off.
     allow_reuse_address = False

@@ -1381,8 +1381,6 @@ void HttpRequestTestObjectType::test<13>()
 }
 
 
-// *NB:  This test must be last.  The sleeping webserver
-// won't respond for a long time.
 template <> template <>
 void HttpRequestTestObjectType::test<14>()
 {
@@ -1503,9 +1501,6 @@ void HttpRequestTestObjectType::test<14>()
 		throw;
 	}
 }
-// *NOTE:  This test ^^^^^^^^ must be the last one in the set.  It uses a
-// sleeping service that interferes with other HTTP tests.  Keep it
-// last until that little HTTP server can get some attention...
 
 }  // end namespace tut
 
