@@ -4567,7 +4567,20 @@ void LLVOAvatar::updateTextures()
 		LLWearableType::EType wearable_type = LLVOAvatarDictionary::getTEWearableType((ETextureIndex)texture_index);
 		U32 num_wearables = gAgentWearables.getWearableCount(wearable_type);
 		const LLTextureEntry *te = getTE(texture_index);
-		const F32 texel_area_ratio = fabs(te->mScaleS * te->mScaleT);
+
+		// getTE can return 0.
+		// Not sure yet why it does, but of course it crashes when te->mScale? gets used.
+		// Put safeguard in place so this corner case get better handling and does not result in a crash.
+		F32 texel_area_ratio = 1.0f;
+		if( te )
+		{
+			texel_area_ratio = fabs(te->mScaleS * te->mScaleT);
+		}
+		else
+		{
+			llwarns << "getTE( " << texture_index << " ) returned 0" <<llendl;
+		}
+
 		LLViewerFetchedTexture *imagep = NULL;
 		for (U32 wearable_index = 0; wearable_index < num_wearables; wearable_index++)
 		{
