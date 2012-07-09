@@ -489,6 +489,15 @@ Consultar [_URL] para mais informações?
 		</url>
 		<usetemplate ignoretext="O hardware do meu computador não é suportado" name="okcancelignore" notext="Não" yestext="Sim"/>
 	</notification>
+	<notification name="IntelOldDriver">
+		Provavelmente, há um driver mais recente para o seu chip gráfico.  A atualização dos drivers gráficos pode melhorar significativamente o desempenho.
+
+    Visitar [_URL] para verificar se há atualizações do driver?
+		<url name="url">
+			http://www.intel.com/p/pt_BR/support/detect/graphics
+		</url>
+		<usetemplate ignoretext="Meu driver gráfico está desatualizado" name="okcancelignore" notext="Não" yestext="Sim"/>
+	</notification>
 	<notification name="UnknownGPU">
 		A placa de vídeo do seu sistema não é reconhecida pelo [APP_NAME].
 Isto acontece quando novos hardwares que ainda não foram testados no [APP_NAME].  Talvez isso não cause problemas, mas pode ser preciso checar as configurações de vídeo. 
@@ -2596,16 +2605,12 @@ OK?
 		</form>
 	</notification>
 	<notification name="ScriptQuestionCaution">
-		Um objeto chamado &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;&apos;, de &apos;[NAME]&apos;, gostaria de:
-
-[QUESTIONS]
-Se você não confia nos objetos deste autor, recuse-o.
-
-Deseja aceitar?
+		Aviso: O objeto &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; deseja obter acesso total à sua conta de dólares Linden. Se você conceder acesso, ele poderá remover fundos de sua conta a qualquer momento ou esvaziar sua conta completamente, continuamente e sem avisos adicionais.
+  
+Esse tipo de pedido raramente é legítimo. Não conceda acesso se você não entender completamente por que ele deseja acessar sua conta.
 		<form name="form">
-			<button name="Grant" text="Autorizar"/>
+			<button name="Grant" text="Permitir acesso total"/>
 			<button name="Deny" text="Negar"/>
-			<button name="Details" text="Detalhes..."/>
 		</form>
 	</notification>
 	<notification name="ScriptDialog">
@@ -3096,4 +3101,16 @@ Outra opção é procurar por lugares com a tag &apos;Infohub&apos; no mapa.
 	<global name="You died and have been teleported to your home location">
 		Você morreu e foi reenviado ao seu início.
 	</global>
+	<notification name="LocalBitmapsUpdateFileNotFound">
+		Não foi possível atualizar [FNAME], pois o arquivo não pôde ser encontrado.
+Desabilitando atualizações futuras deste arquivo.
+	</notification>
+	<notification name="LocalBitmapsUpdateFailedFinal">
+		[FNAME] não pode ser aberto ou decodificado em [NRETRIES] tentativas, e agora é considerado corrompido.
+Desabilitando atualizações futuras deste arquivo.
+	</notification>
+	<notification name="LocalBitmapsVerifyFail">
+		Tentativa de adição de um formato de imagem inválido ou ilegível [FNAME] que não pode ser aberto ou decodificado.
+Tentativa cancelada.
+	</notification>
 </notifications>

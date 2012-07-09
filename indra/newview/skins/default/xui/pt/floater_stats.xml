@@ -14,8 +14,11 @@
 					<stat_bar label="KTris desenhados por segundo" name="ktrissec"/>
 					<stat_bar label="Total Objects" name="objs"/>
 					<stat_bar label="New Objects" name="newobjs"/>
+					<stat_bar label="Taxa de acertos do cache do objeto" name="object_cache_hits"/>
 				</stat_view>
 				<stat_view label="Texture" name="texture">
+					<stat_bar label="Taxa de acertos do cache" name="texture_cache_hits"/>
+					<stat_bar label="Latência de leitura do cache" name="texture_cache_read_latency"/>
 					<stat_bar label="Count" name="numimagesstat"/>
 					<stat_bar label="Raw Count" name="numrawimagesstat"/>
 					<stat_bar label="GL Mem" name="gltexmemstat"/>

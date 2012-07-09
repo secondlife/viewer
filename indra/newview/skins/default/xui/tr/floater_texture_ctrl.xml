@@ -9,15 +9,26 @@
 	<text name="Multiple">
 		Birden çok doku
 	</text>
+	<radio_group name="mode_selection">
+		<radio_item label="Envanter" name="inventory" value="0"/>
+		<radio_item label="Yerel" name="local" value="1"/>
+	</radio_group>
 	<text name="unknown">
 		Büyüklük: [DIMENSIONS]
 	</text>
 	<button label="Varsayılan" label_selected="Varsayılan" name="Default"/>
-	<button label="Hiçbiri" label_selected="Hiçbiri" name="None"/>
 	<button label="Boş" label_selected="Boş" name="Blank"/>
-	<check_box initial_value="true" label="Şimdi uygula" name="apply_immediate_check"/>
+	<button label="Hiçbiri" label_selected="Hiçbiri" name="None"/>
 	<filter_editor label="Dokuları Filtrele" name="inventory search editor"/>
 	<check_box initial_value="false" label="Klasörleri göster" name="show_folders_check"/>
+	<button label="Ekle" label_selected="Ekle" name="l_add_btn"/>
+	<button label="Kaldır" label_selected="Kaldır" name="l_rem_btn"/>
+	<button label="Karşıya Yükle" label_selected="Karşıya Yükle" name="l_upl_btn"/>
+	<scroll_list name="l_name_list">
+		<column label="Ad" name="unit_name"/>
+		<column label="Kimlik" name="unit_id_HIDDEN"/>
+	</scroll_list>
 	<button label="Tamam" label_selected="Tamam" name="Select"/>
 	<button label="İptal" label_selected="İptal" name="Cancel"/>
+	<check_box initial_value="true" label="Şimdi uygula" name="apply_immediate_check"/>
 </floater>

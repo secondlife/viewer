@@ -9,15 +9,26 @@
 	<text name="Multiple">
 		Несколько текстур
 	</text>
+	<radio_group name="mode_selection">
+		<radio_item label="Инвентарь" name="inventory" value="0"/>
+		<radio_item label="Локально" name="local" value="1"/>
+	</radio_group>
 	<text name="unknown">
 		Размер: [DIMENSIONS]
 	</text>
 	<button label="По умолчанию" label_selected="По умолчанию" name="Default"/>
-	<button label="Нет" label_selected="Нет" name="None"/>
 	<button label="Очистить" label_selected="Очистить" name="Blank"/>
-	<check_box initial_value="истина" label="Применить сейчас" name="apply_immediate_check"/>
+	<button label="Нет" label_selected="Нет" name="None"/>
 	<filter_editor label="Фильтровать текстуры" name="inventory search editor"/>
 	<check_box initial_value="ложь" label="Показывать папки" name="show_folders_check"/>
+	<button label="Добавить" label_selected="Добавить" name="l_add_btn"/>
+	<button label="Удалить" label_selected="Удалить" name="l_rem_btn"/>
+	<button label="Передать" label_selected="Передать" name="l_upl_btn"/>
+	<scroll_list name="l_name_list">
+		<column label="Имя" name="unit_name"/>
+		<column label="ID" name="unit_id_HIDDEN"/>
+	</scroll_list>
 	<button label="ОК" label_selected="ОК" name="Select"/>
 	<button label="Отмена" label_selected="Отмена" name="Cancel"/>
+	<check_box initial_value="истина" label="Применить сейчас" name="apply_immediate_check"/>
 </floater>

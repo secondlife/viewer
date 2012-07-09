@@ -1,24 +1,35 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="texture picker" title="テクスチャの選択">
-	<string name="choose_picture">
+	<floater.string name="choose_picture">
 		クリックして写真を選択
-	</string>
+	</floater.string>
+	<floater.string name="pick title">
+		ピック:
+	</floater.string>
 	<text name="Multiple">
 		複数のテクスチャ
 	</text>
+	<radio_group name="mode_selection">
+		<radio_item label="インベントリ" name="inventory" value="0"/>
+		<radio_item label="ローカル" name="local" value="1"/>
+	</radio_group>
 	<text name="unknown">
 		サイズ： [DIMENSIONS]
 	</text>
 	<button label="デフォルト" label_selected="デフォルト" name="Default"/>
-	<button label="なし" label_selected="なし" name="None"/>
 	<button label="ブランク" label_selected="ブランク" name="Blank"/>
-	<check_box label="フォルダを表示" name="show_folders_check"/>
-	<search_editor label="テクスチャをフィルター" name="inventory search editor"/>
-	<check_box label="すぐ適用" name="apply_immediate_check"/>
+	<button label="なし" label_selected="なし" name="None"/>
 	<button label="" label_selected="" name="Pipette"/>
-	<button label="取り消し" label_selected="取り消し" name="Cancel"/>
+	<filter_editor label="テクスチャをフィルター" name="inventory search editor"/>
+	<check_box initial_value="false" label="フォルダを表示" name="show_folders_check"/>
+	<button label="追加" label_selected="追加" name="l_add_btn"/>
+	<button label="削除" label_selected="削除" name="l_rem_btn"/>
+	<button label="アップロード" label_selected="アップロード" name="l_upl_btn"/>
+	<scroll_list name="l_name_list">
+		<column label="名前" name="unit_name"/>
+		<column label="ID" name="unit_id_HIDDEN"/>
+	</scroll_list>
 	<button label="OK" label_selected="OK" name="Select"/>
-	<text name="pick title">
-		ピック:
-	</text>
+	<button label="取り消し" label_selected="取り消し" name="Cancel"/>
+	<check_box initial_value="true" label="すぐ適用" name="apply_immediate_check"/>
 </floater>

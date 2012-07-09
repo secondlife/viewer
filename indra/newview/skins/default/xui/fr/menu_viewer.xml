@@ -227,11 +227,10 @@
 			<menu_item_check label="Console de textures" name="Texture Console"/>
 			<menu_item_check label="Console de débogage" name="Debug Console"/>
 			<menu_item_call label="Console de notifications" name="Notifications"/>
-			<menu_item_check label="Console de tailles de textures" name="Texture Size"/>
-			<menu_item_check label="Console des catégories de textures" name="Texture Category"/>
 			<menu_item_check label="Chronos" name="Fast Timers"/>
 			<menu_item_check label="Mémoire" name="Memory"/>
 			<menu_item_check label="Statistiques de la scène" name="Scene Statistics"/>
+			<menu_item_call label="Console de débogage de la récupération des textures" name="Texture Fetch Debug Console"/>
 			<menu_item_call label="Infos de région vers la console de débogage" name="Region Info to Debug Console"/>
 			<menu_item_call label="Infos de groupe vers la console de débogage" name="Group Info to Debug Console"/>
 			<menu_item_call label="Infos de capacités vers la console de débogage" name="Capabilities Info to Debug Console"/>
@@ -289,6 +288,12 @@
 			<menu_item_check label="Complexité du rendu" name="rendercomplexity"/>
 			<menu_item_check label="Octets d&apos;éléments attachés" name="attachment bytes"/>
 			<menu_item_check label="Sculpture" name="Sculpt"/>
+			<menu label="Densité des textures" name="Texture Density">
+				<menu_item_check label="Aucune" name="None"/>
+				<menu_item_check label="Actuelle" name="Current"/>
+				<menu_item_check label="Souhaitée" name="Desired"/>
+				<menu_item_check label="Complète" name="Full"/>
+			</menu>
 		</menu>
 		<menu label="Rendu" name="Rendering">
 			<menu_item_check label="Axes" name="Axes"/>
@@ -306,7 +311,6 @@
 			<menu_item_check label="Textures d&apos;animation" name="Animation Textures"/>
 			<menu_item_check label="Désactiver les textures" name="Disable Textures"/>
 			<menu_item_check label="Textures pleine résolution" name="Rull Res Textures"/>
-			<menu_item_check label="Audit Textures" name="Audit Textures"/>
 			<menu_item_check label="Atlas des textures (expérimental)" name="Texture Atlas"/>
 			<menu_item_check label="Rendu des lumières jointes" name="Render Attached Lights"/>
 			<menu_item_check label="Rendu des particules jointes" name="Render Attached Particles"/>
