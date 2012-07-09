@@ -4141,6 +4141,23 @@ void LLViewerObject::setTEImage(const U8 te, LLViewerTexture *imagep)
 }
 
 
+S32 LLViewerObject::setTETextureCore(const U8 te, const LLUUID& uuid, const std::string &url )
+{
+	S32 retval = 0;
+	if (uuid != getTE(te)->getID() ||
+		uuid == LLUUID::null)
+	{
+		retval = LLPrimitive::setTETexture(te, uuid);
+		mTEImages[te] = LLViewerTextureManager::getFetchedTextureFromUrl  (url, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, uuid);
+		setChanged(TEXTURE);
+		if (mDrawable.notNull())
+		{
+			gPipeline.markTextured(mDrawable);
+		}
+	}
+	return retval;
+}
+
 S32 LLViewerObject::setTETextureCore(const U8 te, const LLUUID& uuid, LLHost host)
 {
 	S32 retval = 0;

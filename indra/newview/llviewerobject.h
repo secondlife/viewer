@@ -314,6 +314,7 @@ public:
 	/*virtual*/	void	setTE(const U8 te, const LLTextureEntry &texture_entry);
 	/*virtual*/ S32		setTETexture(const U8 te, const LLUUID &uuid);
 	S32 setTETextureCore(const U8 te, const LLUUID& uuid, LLHost host);
+	S32 setTETextureCore(const U8 te, const LLUUID& uuid, const std::string &url );
 	/*virtual*/ S32		setTEColor(const U8 te, const LLColor3 &color);
 	/*virtual*/ S32		setTEColor(const U8 te, const LLColor4 &color);
 	/*virtual*/ S32		setTEScale(const U8 te, const F32 s, const F32 t);

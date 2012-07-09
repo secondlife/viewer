@@ -2370,6 +2370,17 @@ S32 LLVOAvatar::setTETexture(const U8 te, const LLUUID& uuid)
 	// to redirect certain avatar texture requests to different sims.
 	if (isIndexBakedTexture((ETextureIndex)te))
 	{
+		std::string url = gSavedSettings.getString("AgentAppearanceServiceURL");
+		if (LLAppearanceMgr::instance().useServerTextureBaking() && !url.empty())
+		{
+			const LLVOAvatarDictionary::TextureEntry* texture_entry = LLVOAvatarDictionary::getInstance()->getTexture((ETextureIndex)te);
+			if (texture_entry != NULL)
+			{
+				url += "texture/" + getID().asString() + "/" + texture_entry->mDefaultImageName + "/" + uuid.asString();
+				return setTETextureCore(te, uuid, url);
+			}
+		}
+
 		LLHost target_host = getObjectHost();
 		return setTETextureCore(te, uuid, target_host);
 	}
@@ -4669,7 +4680,10 @@ void LLVOAvatar::addBakedTextureStats( LLViewerFetchedTexture* imagep, F32 pixel
 	//the texture pipeline will stop fetching this texture.
 
 	imagep->resetTextureStats();
-	imagep->setCanUseHTTP(false) ; //turn off http fetching for baked textures.
+	if (!LLAppearanceMgr::instance().useServerTextureBaking())
+	{
+		imagep->setCanUseHTTP(false); //turn off http fetching for baked textures.
+	}
 	imagep->setMaxVirtualSizeResetInterval(MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL);
 	imagep->resetMaxVirtualSizeResetCounter() ;
 
@@ -7294,7 +7308,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 
 //	llinfos << "LLVOAvatar::processAvatarAppearance()" << llendl;
 //	dumpAvatarTEs( "PRE  processAvatarAppearance()" );
-	unpackTEMessage(mesgsys, _PREHASH_ObjectData, LLAppearanceMgr::instance().useServerTextureBaking());
+	unpackTEMessage(mesgsys, _PREHASH_ObjectData, FALSE);
 //	dumpAvatarTEs( "POST processAvatarAppearance()" );
 
 	// prevent the overwriting of valid baked textures with invalid baked textures
