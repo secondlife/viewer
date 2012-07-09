@@ -111,6 +111,12 @@ public:
 
 	/// If a 'Range:' header was used, these methods are involved
 	/// in setting and returning data about the actual response.
+	/// If both @offset and @length are returned as 0, we probably
+	/// didn't get a Content-Range header in the response.  This
+	/// occurs with various Capabilities-based services and the
+	/// caller is going to have to make assumptions on receipt of
+	/// a 206 status.  The @full value may also be zero in cases of
+	/// parsing problems or a wild-carded length response.
 	void getRange(unsigned int * offset, unsigned int * length, unsigned int * full) const
 		{
 			*offset = mReplyOffset;

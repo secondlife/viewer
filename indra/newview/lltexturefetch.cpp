@@ -557,14 +557,14 @@ private:
 	LLCore::BufferArray	*	mHttpBufferArray;			// Refcounted pointer to response data 
 	int						mHttpPolicyClass;
 	bool					mHttpActive;				// Active request to http library
-	unsigned int			mHttpReplySize;
-	unsigned int			mHttpReplyOffset;
+	unsigned int			mHttpReplySize;				// Actual received data size
+	unsigned int			mHttpReplyOffset;			// Actual received data offset
 	bool					mHttpHasResource;			// Counts against Fetcher's mHttpSemaphore
 
 	// State history
-	U32 mCacheReadCount;
-	U32 mCacheWriteCount;
-	U32 mResourceWaitCount;
+	U32						mCacheReadCount;
+	U32						mCacheWriteCount;
+	U32						mResourceWaitCount;			// Requests entering WAIT_HTTP_RESOURCE2
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1043,6 +1043,8 @@ void LLTextureFetchWorker::resetFormattedData()
 	{
 		mFormattedImage->deleteData();
 	}
+	mHttpReplySize = 0;
+	mHttpReplyOffset = 0;
 	mHaveAllData = FALSE;
 }
 
@@ -1120,6 +1122,8 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			mHttpBufferArray->release();
 			mHttpBufferArray = NULL;
 		}
+		mHttpReplySize = 0;
+		mHttpReplyOffset = 0;
 		mHaveAllData = FALSE;
 		clearPackets(); // TODO: Shouldn't be necessary
 		mCacheReadHandle = LLTextureCache::nullHandle();
@@ -1402,6 +1406,21 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		mRequestedDiscard = mDesiredDiscard;
 		mRequestedSize -= cur_size;
 		mRequestedOffset = cur_size;
+		if (mRequestedOffset)
+		{
+			// Texture fetching often issues 'speculative' loads that
+			// start beyond the end of the actual asset.  Some cache/web
+			// systems, e.g. Varnish, will respond to this not with a
+			// 416 but with a 200 and the entire asset in the response
+			// body.  By ensuring that we always have a partially
+			// satisfiable Range request, we avoid that hit to the network.
+			// We just have to deal with the overlapping data which is made
+			// somewhat harder by the fact that grid services don't necessarily
+			// return the Content-Range header on 206 responses.  *Sigh*
+			mRequestedOffset -= 1;
+			mRequestedSize += 1;
+		}
+		
 		mHttpHandle = LLCORE_HTTP_HANDLE_INVALID;
 		if (!mUrl.empty())
 		{
@@ -1507,9 +1526,29 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				return true;
 			}
 
-			const S32 append_size(mHttpBufferArray->size());
-			const S32 total_size(cur_size + append_size);
+			S32 append_size(mHttpBufferArray->size());
+			S32 total_size(cur_size + append_size);
+			S32 src_offset(0);
 			llassert_always(append_size == mRequestedSize);
+			if (mHttpReplyOffset && mHttpReplyOffset != cur_size)
+			{
+				// In case of a partial response, our offset may
+				// not be trivially contiguous with the data we have.
+				// Get back into alignment.
+				if (mHttpReplyOffset > cur_size)
+				{
+					LL_WARNS("Texture") << "Partial HTTP response produces break in image data for texture "
+										<< mID << ".  Aborting load."  << LL_ENDL;
+					mState = DONE;
+					releaseHttpSemaphore();
+					return true;
+				}
+				src_offset = cur_size - mHttpReplyOffset;
+				append_size -= src_offset;
+				total_size -= src_offset;
+				mRequestedSize -= src_offset;			// Make requested values reflect useful part
+				mRequestedOffset += src_offset;
+			}
 			
 			if (mFormattedImage.isNull())
 			{
@@ -1522,7 +1561,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				}
 			}
 						
-			if (mHaveAllData /* && mRequestedDiscard == 0*/) //the image file is fully loaded.
+			if (mHaveAllData) //the image file is fully loaded.
 			{
 				mFileSize = total_size;
 			}
@@ -1536,7 +1575,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			{
 				memcpy(buffer, mFormattedImage->getData(), cur_size);
 			}
-			mHttpBufferArray->read(0, (char *) buffer + cur_size, append_size);
+			mHttpBufferArray->read(src_offset, (char *) buffer + cur_size, append_size);
 
 			// NOTE: setData releases current data and owns new data (buffer)
 			mFormattedImage->setData(buffer, total_size);
@@ -1544,6 +1583,8 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			// Done with buffer array
 			mHttpBufferArray->release();
 			mHttpBufferArray = NULL;
+			mHttpReplySize = 0;
+			mHttpReplyOffset = 0;
 			
 			mLoadedDiscard = mRequestedDiscard;
 			mState = DECODE_IMAGE;
@@ -1576,6 +1617,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				{
 					// Shouldn't happen but if it does, cancel quickly.
 					mState = DONE;
+					releaseHttpSemaphore();
 					return true;
 				}
 			}
@@ -2014,14 +2056,32 @@ S32 LLTextureFetchWorker::callbackHttpGet(LLCore::HttpResponse * response,
 		if (data_size > 0)
 		{
 			// *TODO: set the formatted image data here directly to avoid the copy
-			// *FIXME:  deal with actual offset and actual datasize, don't assume
-			// server gave exactly what was asked for.
-			
-			llassert_always(NULL == mHttpBufferArray);
 
 			// Hold on to body for later copy
+			llassert_always(NULL == mHttpBufferArray);
 			body->addRef();
 			mHttpBufferArray = body;
+
+			if (partial)
+			{
+				unsigned int offset(0), length(0), full_length(0);
+				response->getRange(&offset, &length, &full_length);
+				if (! offset && ! length)
+				{
+					// This is the case where we receive a 206 status but
+					// there wasn't a useful Content-Range header in the response.
+					// This could be because it was badly formatted but is more
+					// likely due to capabilities services which scrub headers
+					// from responses.  Assume we got what we asked for...
+					mHttpReplySize = mRequestedSize;
+					mHttpReplyOffset = mRequestedOffset;
+				}
+				else
+				{
+					mHttpReplySize = length;
+					mHttpReplyOffset = offset;
+				}
+			}
 
 			if (! partial)
 			{
@@ -2040,10 +2100,8 @@ S32 LLTextureFetchWorker::callbackHttpGet(LLCore::HttpResponse * response,
 				llassert_always(mDecodeHandle == 0);
 				mFormattedImage = NULL; // discard any previous data we had
 			}
-			else if (data_size < mRequestedSize /*&& mRequestedDiscard == 0*/)
+			else if (data_size < mRequestedSize)
 			{
-				// *FIXME:  I think we can treat this as complete regardless
-				// of requested discard level.  Revisit this...
 				mHaveAllData = TRUE;
 			}
 			else if (data_size > mRequestedSize)
