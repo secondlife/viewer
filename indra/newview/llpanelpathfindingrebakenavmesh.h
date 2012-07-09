@@ -66,7 +66,8 @@ private:
 
 	static LLPanelPathfindingRebakeNavmesh* getPanel();
 
-	void setMode(ERebakeNavMeshMode pRebakeNavMeshMode);
+	void               setMode(ERebakeNavMeshMode pRebakeNavMeshMode);
+	ERebakeNavMeshMode getMode() const;
 	
 	void onNavMeshRebakeClick();
 

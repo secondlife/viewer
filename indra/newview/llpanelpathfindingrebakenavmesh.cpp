@@ -159,6 +159,11 @@ void LLPanelPathfindingRebakeNavmesh::setMode(ERebakeNavMeshMode pRebakeNavMeshM
 	mRebakeNavMeshMode = pRebakeNavMeshMode;
 }
 
+LLPanelPathfindingRebakeNavmesh::ERebakeNavMeshMode LLPanelPathfindingRebakeNavmesh::getMode() const
+{
+	return mRebakeNavMeshMode;
+}
+
 void LLPanelPathfindingRebakeNavmesh::onNavMeshRebakeClick()
 {
 	setMode(kRebakeNavMesh_RequestSent);
@@ -172,16 +177,14 @@ void LLPanelPathfindingRebakeNavmesh::handleAgentState(BOOL pCanRebakeRegion)
 
 void LLPanelPathfindingRebakeNavmesh::handleRebakeNavMeshResponse(bool pResponseStatus)
 {
-	setMode(pResponseStatus ? kRebakeNavMesh_InProgress : kRebakeNavMesh_Default);
+	if (getMode() == kRebakeNavMesh_RequestSent)
+	{
+		setMode(pResponseStatus ? kRebakeNavMesh_InProgress : kRebakeNavMesh_Default);
+	}
+
 	if (!pResponseStatus)
 	{
 		LLNotificationsUtil::add("PathfindingCannotRebakeNavmesh");
-	}
-
-	LLViewerRegion *currentRegion = gAgent.getRegion();
-	if (currentRegion != NULL)
-	{
-		LLPathfindingManager::getInstance()->requestGetNavMeshForRegion(currentRegion, true);
 	}
 }
 
