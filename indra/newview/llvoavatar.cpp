@@ -8707,6 +8707,12 @@ BOOL LLVOAvatar::isTextureDefined(LLVOAvatarDefines::ETextureIndex te, U32 index
 		return FALSE;
 	}
 
+	if( !getImage( te, index ) )
+	{
+		llwarns << "getImage( " << te << ", " << index << " ) returned 0" << llendl;
+		return FALSE;
+	}
+
 	return (getImage(te, index)->getID() != IMG_DEFAULT_AVATAR && 
 			getImage(te, index)->getID() != IMG_DEFAULT);
 }
