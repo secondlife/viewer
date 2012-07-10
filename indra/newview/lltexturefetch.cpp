@@ -1364,6 +1364,10 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		}
 		mState = SEND_HTTP_REQ;
 		acquireHttpSemaphore();
+
+		// *NOTE:  You must invoke releaseHttpSemaphore() if you transition
+		// to a state other than SEND_HTTP_REQ or WAIT_HTTP_REQ or abort
+		// the request.
 	}
 
 	if (mState == WAIT_HTTP_RESOURCE2)
@@ -1486,13 +1490,16 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				{
 					LL_INFOS_ONCE("Texture") << "Texture server busy (503): " << mUrl << LL_ENDL;
 				}
+				else if (http_not_sat == mGetStatus)
+				{
+					// Allowed, we'll accept whatever data we have as complete.
+					mHaveAllData = TRUE;
+				}
 				else
 				{
 					llinfos << "HTTP GET failed for: " << mUrl
 							<< " Status: " << mGetStatus.toHex()
 							<< " Reason: '" << mGetReason << "'"
-						// *FIXME:  Add retry info for reporting purposes...
-						// << " Attempt:" << mHTTPFailCount+1 << "/" << max_attempts
 							<< llendl;
 				}
 
@@ -1839,7 +1846,7 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 		success = false;
 		std::string reason(status.toString());
 		setGetStatus(status, reason);
- 		llwarns << "CURL GET FAILED, status: " << status.toHex()
+		llwarns << "CURL GET FAILED, status: " << status.toHex()
 				<< " reason: " << reason << llendl;
 	}
 	else
