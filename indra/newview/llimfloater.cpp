@@ -118,6 +118,35 @@ void LLIMFloater::refresh()
 	}
 }
 
+// virtual
+void LLIMFloater::onClickCloseBtn()
+{
+	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(
+				mSessionID);
+
+	if (session == NULL)
+	{
+		llwarns << "Empty session." << llendl;
+		return;
+	}
+
+	bool is_call_with_chat = session->isGroupSessionType()
+			|| session->isAdHocSessionType() || session->isP2PSessionType();
+
+	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(mSessionID);
+
+	if (is_call_with_chat && voice_channel != NULL
+			&& voice_channel->isActive())
+	{
+		LLSD payload;
+		payload["session_id"] = mSessionID;
+		LLNotificationsUtil::add("ConfirmLeaveCall", LLSD(), payload, confirmLeaveCallCallback);
+		return;
+	}
+
+	LLIMConversation::onClickCloseBtn();
+}
+
 /* static */
 void LLIMFloater::newIMCallback(const LLSD& data)
 {
@@ -407,8 +436,7 @@ void LLIMFloater::addSessionParticipants(const uuid_vec_t& uuids)
 		bool is_voice_call = voice_channel != NULL && voice_channel->isActive();
 
 		// then we can close the current session
-		gIMMgr->leaveSession(mSessionID);
-		LLIMConversation::onClose(false);
+		onClose(false);
 
 		// Start a new ad hoc voice call if we invite new participants to a P2P call,
 		// or start a text chat otherwise.
@@ -667,29 +695,6 @@ LLIMFloater* LLIMFloater::getInstance(const LLUUID& session_id)
 
 void LLIMFloater::onClose(bool app_quitting)
 {
-	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(
-				mSessionID);
-
-	if (session == NULL)
-	{
-		llwarns << "Empty session." << llendl;
-		return;
-	}
-
-	bool is_call_with_chat = session->isGroupSessionType()
-			|| session->isAdHocSessionType() || session->isP2PSessionType();
-
-	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(mSessionID);
-
-	if (is_call_with_chat && voice_channel != NULL
-			&& voice_channel->isActive())
-	{
-		LLSD payload;
-		payload["session_id"] = mSessionID;
-		LLNotificationsUtil::add("ConfirmLeaveCall", LLSD(), payload, confirmLeaveCallCallback);
-		return;
-	}
-
 	setTyping(false);
 
 	// The source of much argument and design thrashing
@@ -1278,7 +1283,7 @@ void LLIMFloater::confirmLeaveCallCallback(const LLSD& notification, const LLSD&
 	const LLSD& payload = notification["payload"];
 	LLUUID session_id = payload["session_id"];
 
-	LLFloater* im_floater = LLFloaterReg::findInstance("impanel", session_id);
+	LLFloater* im_floater = findInstance(session_id);
 	if (option == 0 && im_floater != NULL)
 	{
 		im_floater->closeFloater();
