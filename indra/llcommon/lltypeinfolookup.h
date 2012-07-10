@@ -66,8 +66,8 @@ public:
 
     iterator begin() { return transform(mMap.begin()); }
     iterator end()   { return transform(mMap.end()); }
-    const_iterator begin() const { return transform(mMap.begin()); }
-    const_iterator end() const   { return transform(mMap.end()); }
+    const_iterator begin() const { return const_transform(mMap.begin()); }
+    const_iterator end() const   { return const_transform(mMap.end()); }
     bool empty() const { return mMap.empty(); }
     std::size_t size() const { return mMap.size(); }
 
@@ -94,7 +94,7 @@ public:
 
     const_iterator find(const std::type_info* key) const
     {
-        return transform(mMap.find(key->name()));
+        return const_transform(mMap.find(key->name()));
     }
 
 private:
@@ -102,7 +102,7 @@ private:
     {
         return iterator(iter, boost::mem_fn(&impl_value_type::second));
     }
-    const_iterator transform(impl_const_iterator iter)
+    const_iterator const_transform(impl_const_iterator iter)
     {
         return const_iterator(iter, boost::mem_fn(&impl_value_type::second));
     }
