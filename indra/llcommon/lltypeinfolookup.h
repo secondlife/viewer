@@ -100,11 +100,11 @@ public:
 private:
     iterator transform(impl_iterator iter)
     {
-        return boost::make_transform_iterator(iter, boost::mem_fn(&impl_value_type::second));
+        return iterator(iter, boost::mem_fn(&impl_value_type::second));
     }
     const_iterator transform(impl_const_iterator iter)
     {
-        return boost::make_transform_iterator(iter, boost::mem_fn(&impl_value_type::second));
+        return const_iterator(iter, boost::mem_fn(&impl_value_type::second));
     }
 
     impl_map_type mMap;
