@@ -115,12 +115,16 @@ private:
 	LLScrollListItem *mEditLinksetUseDynamicPhantom;
 	LLTextBase       *mLabelWalkabilityCoefficients;
 	LLTextBase       *mLabelEditA;
+	LLTextBase       *mLabelSuggestedUseA;
 	LLLineEditor     *mEditA;
 	LLTextBase       *mLabelEditB;
+	LLTextBase       *mLabelSuggestedUseB;
 	LLLineEditor     *mEditB;
 	LLTextBase       *mLabelEditC;
+	LLTextBase       *mLabelSuggestedUseC;
 	LLLineEditor     *mEditC;
 	LLTextBase       *mLabelEditD;
+	LLTextBase       *mLabelSuggestedUseD;
 	LLLineEditor     *mEditD;
 	LLButton         *mApplyEditsButton;
 

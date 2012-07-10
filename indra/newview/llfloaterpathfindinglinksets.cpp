@@ -86,12 +86,16 @@ LLFloaterPathfindingLinksets::LLFloaterPathfindingLinksets(const LLSD& pSeed)
 	mEditLinksetUseDynamicPhantom(NULL),
 	mLabelWalkabilityCoefficients(NULL),
 	mLabelEditA(NULL),
+	mLabelSuggestedUseA(NULL),
 	mEditA(NULL),
 	mLabelEditB(NULL),
+	mLabelSuggestedUseB(NULL),
 	mEditB(NULL),
 	mLabelEditC(NULL),
+	mLabelSuggestedUseC(NULL),
 	mEditC(NULL),
 	mLabelEditD(NULL),
+	mLabelSuggestedUseD(NULL),
 	mEditD(NULL),
 	mApplyEditsButton(NULL),
 	mBeaconColor()
@@ -158,6 +162,9 @@ BOOL LLFloaterPathfindingLinksets::postBuild()
 	mLabelEditA = findChild<LLTextBase>("edit_a_label");
 	llassert(mLabelEditA != NULL);
 
+	mLabelSuggestedUseA = findChild<LLTextBase>("suggested_use_a_label");
+	llassert(mLabelSuggestedUseA != NULL);
+
 	mEditA = findChild<LLLineEditor>("edit_a_value");
 	llassert(mEditA != NULL);
 	mEditA->setPrevalidate(LLTextValidate::validateNonNegativeS32);
@@ -165,6 +172,9 @@ BOOL LLFloaterPathfindingLinksets::postBuild()
 
 	mLabelEditB = findChild<LLTextBase>("edit_b_label");
 	llassert(mLabelEditB != NULL);
+
+	mLabelSuggestedUseB = findChild<LLTextBase>("suggested_use_b_label");
+	llassert(mLabelSuggestedUseB != NULL);
 
 	mEditB = findChild<LLLineEditor>("edit_b_value");
 	llassert(mEditB != NULL);
@@ -174,6 +184,9 @@ BOOL LLFloaterPathfindingLinksets::postBuild()
 	mLabelEditC = findChild<LLTextBase>("edit_c_label");
 	llassert(mLabelEditC != NULL);
 
+	mLabelSuggestedUseC = findChild<LLTextBase>("suggested_use_c_label");
+	llassert(mLabelSuggestedUseC != NULL);
+
 	mEditC = findChild<LLLineEditor>("edit_c_value");
 	llassert(mEditC != NULL);
 	mEditC->setPrevalidate(LLTextValidate::validateNonNegativeS32);
@@ -181,6 +194,9 @@ BOOL LLFloaterPathfindingLinksets::postBuild()
 
 	mLabelEditD = findChild<LLTextBase>("edit_d_label");
 	llassert(mLabelEditD != NULL);
+
+	mLabelSuggestedUseD = findChild<LLTextBase>("suggested_use_d_label");
+	llassert(mLabelSuggestedUseD != NULL);
 
 	mEditD = findChild<LLLineEditor>("edit_d_value");
 	llassert(mEditD != NULL);
@@ -500,6 +516,10 @@ void LLFloaterPathfindingLinksets::updateStateOnEditFields()
 	mLabelEditB->setEnabled(isEditEnabled);
 	mLabelEditC->setEnabled(isEditEnabled);
 	mLabelEditD->setEnabled(isEditEnabled);
+	mLabelSuggestedUseA->setEnabled(isEditEnabled);
+	mLabelSuggestedUseB->setEnabled(isEditEnabled);
+	mLabelSuggestedUseC->setEnabled(isEditEnabled);
+	mLabelSuggestedUseD->setEnabled(isEditEnabled);
 	mEditA->setEnabled(isEditEnabled);
 	mEditB->setEnabled(isEditEnabled);
 	mEditC->setEnabled(isEditEnabled);
