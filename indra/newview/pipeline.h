@@ -311,9 +311,12 @@ public:
 	BOOL hasAnyRenderType(const U32 type, ...) const;
 
 	void setRenderTypeMask(U32 type, ...);
-	void orRenderTypeMask(U32 type, ...);
+	// This is equivalent to 'setRenderTypeMask'
+	//void orRenderTypeMask(U32 type, ...);
 	void andRenderTypeMask(U32 type, ...);
 	void clearRenderTypeMask(U32 type, ...);
+	void setAllRenderTypes();
+	void clearAllRenderTypes();
 	
 	void pushRenderTypeMask();
 	void popRenderTypeMask();

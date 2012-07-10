@@ -471,19 +471,29 @@ void LLPipeline::init()
 	LLViewerStats::getInstance()->mTrianglesDrawnStat.reset();
 	resetFrameStats();
 
-	for (U32 i = 0; i < NUM_RENDER_TYPES; ++i)
+	if (gSavedSettings.getBOOL("DisableAllRenderFeatures"))
 	{
-		mRenderTypeEnabled[i] = TRUE; //all rendering types start enabled
+		mRenderDebugFeatureMask = 0x0;
 	}
-
-	mRenderDebugFeatureMask = 0xffffffff; // All debugging features on
+	else
+	{
+		mRenderDebugFeatureMask = 0xffffffff; // By default, all debugging features on
+	}
 	mRenderDebugMask = 0;	// All debug starts off
 
-	// Don't turn on ground when this is set
-	// Mac Books with intel 950s need this
-	if(!gSavedSettings.getBOOL("RenderGround"))
+	if (gSavedSettings.getBOOL("DisableAllRenderTypes"))
 	{
-		toggleRenderType(RENDER_TYPE_GROUND);
+		clearAllRenderTypes();
+	}
+	else
+	{
+		setAllRenderTypes(); // By default, all rendering types start enabled
+		// Don't turn on ground when this is set
+		// Mac Books with intel 950s need this
+		if(!gSavedSettings.getBOOL("RenderGround"))
+		{
+			toggleRenderType(RENDER_TYPE_GROUND);
+		}
 	}
 
 	// make sure RenderPerformanceTest persists (hackity hack hack)
@@ -9942,6 +9952,22 @@ void LLPipeline::clearRenderTypeMask(U32 type, ...)
 	if (type > END_RENDER_TYPES)
 	{
 		llerrs << "Invalid render type." << llendl;
+	}
+}
+
+void LLPipeline::setAllRenderTypes()
+{
+	for (U32 i = 0; i < NUM_RENDER_TYPES; ++i)
+	{
+		mRenderTypeEnabled[i] = TRUE;
+	}
+}
+
+void LLPipeline::clearAllRenderTypes()
+{
+	for (U32 i = 0; i < NUM_RENDER_TYPES; ++i)
+	{
+		mRenderTypeEnabled[i] = FALSE;
 	}
 }
 

@@ -8705,6 +8705,28 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>DisableAllRenderTypes</key>
+    <map>
+      <key>Comment</key>
+      <string>Disables all rendering types.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>DisableAllRenderFeatures</key>
+    <map>
+      <key>Comment</key>
+      <string>Disables all rendering features.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>RenderHUDInSnapshot</key>
     <map>
       <key>Comment</key>
@@ -13009,6 +13031,17 @@
       <string>S32</string>
       <key>Value</key>
       <integer>-1</integer>
+    </map>
+    <key>MaxFPS</key>
+    <map>
+      <key>Comment</key>
+      <string>Yield some time to the local host if we reach a threshold framerate.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <integer>-1.0</integer>
     </map>
     <key>ZoomDirect</key>
     <map>

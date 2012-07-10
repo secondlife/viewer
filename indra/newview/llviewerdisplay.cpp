@@ -1042,7 +1042,7 @@ void render_hud_attachments()
 		gPipeline.pushRenderTypeMask();
 		
 		// turn off everything
-		gPipeline.andRenderTypeMask(LLPipeline::END_RENDER_TYPES);
+		gPipeline.clearAllRenderTypes();
 		// turn on HUD
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_HUD);
 		// turn on HUD particles

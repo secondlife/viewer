@@ -632,6 +632,7 @@ LLAppViewer::LLAppViewer() :
 	mQuitRequested(false),
 	mLogoutRequestSent(false),
 	mYieldTime(-1),
+	mMinFrameTime(-1.0),
 	mMainloopTimeout(NULL),
 	mAgentRegionLastAlive(false),
 	mRandomizeFramerate(LLCachedControl<bool>(gSavedSettings,"Randomize Framerate", FALSE)),
@@ -1465,6 +1466,19 @@ bool LLAppViewer::mainLoop()
 				{
 					gFrameStalls++;
 				}
+
+				// Limit FPS
+				if (mMinFrameTime > F_APPROXIMATELY_ZERO)
+				{
+					// Sleep a while to limit frame rate.
+					S32 milliseconds_to_sleep = llclamp((S32)((mMinFrameTime - frameTimer.getElapsedTimeF64()) * 1000.f), 0, 1000);
+					if (milliseconds_to_sleep > 0)
+					{
+						LLFastTimer t(FTM_YIELD);
+						ms_sleep(milliseconds_to_sleep);
+					}
+				}
+
 				frameTimer.reset();
 
 				resumeMainloopTimeout();
@@ -2577,6 +2591,12 @@ bool LLAppViewer::initConfiguration()
 	}
 
     mYieldTime = gSavedSettings.getS32("YieldTime");
+	mMinFrameTime = -1.0f;
+	F32 max_fps = gSavedSettings.getF32("MaxFPS");
+	if (max_fps > F_APPROXIMATELY_ZERO)
+	{
+		mMinFrameTime = 1.0f / max_fps;
+	}
 
 	// Read skin/branding settings if specified.
 	//if (! gDirUtilp->getSkinDir().empty() )
