@@ -195,7 +195,13 @@ bool LLBlockList::isActionEnabled(const LLSD& userdata)
 
 	const std::string command_name = userdata.asString();
 
-	if ("unblock_item" == command_name || "profile_item" == command_name)
+	if ("profile_item" == command_name)
+	{
+		LLBlockedListItem* item = getBlockedItem();
+		action_enabled = item && (LLMute::AGENT == item->getType());
+	}
+
+	if ("unblock_item" == command_name)
 	{
 		action_enabled = getSelectedItem() != NULL;
 	}
@@ -225,10 +231,6 @@ void LLBlockList::onCustomAction(const LLSD& userdata)
 
 		case LLMute::AGENT:
 			LLAvatarActions::showProfile(item->getUUID());
-			break;
-
-		case LLMute::OBJECT:
-			LLFloaterSidePanelContainer::showPanel("inventory", LLSD().with("id", item->getUUID()));
 			break;
 
 		default:
@@ -267,9 +269,15 @@ bool LLBlockListNameTypeComparator::doCompare(const LLBlockedListItem* blocked_i
 	LLMute::EType type1 = blocked_item1->getType();
 	LLMute::EType type2 = blocked_item2->getType();
 
-	if (type1 != type2)
+	// if mute type is LLMute::BY_NAME or LLMute::OBJECT it means that this mute is an object
+	bool both_mutes_are_objects = (LLMute::OBJECT == type1 || LLMute::BY_NAME == type1) && (LLMute::OBJECT == type2 || LLMute::BY_NAME == type2);
+
+	// mute types may be different, but since both LLMute::BY_NAME and LLMute::OBJECT types represent objects
+	// it's needed to perform additional checking of both_mutes_are_objects variable
+	if (type1 != type2 && !both_mutes_are_objects)
 	{
-		return type1 > type2;
+		// objects in block list go first, so return true if mute type is not an avatar
+		return LLMute::AGENT != type1;
 	}
 
 	return NAME_COMPARATOR.compare(blocked_item1, blocked_item2);

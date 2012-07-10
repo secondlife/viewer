@@ -55,12 +55,6 @@ LLIMConversation::LLIMConversation(const LLUUID& session_id)
 {
 	mCommitCallbackRegistrar.add("IMSession.Menu.Action",
 			boost::bind(&LLIMConversation::onIMSessionMenuItemClicked,  this, _2));
-//	mCommitCallbackRegistrar.add("IMSession.ExpCollapseBtn.Click",
-//			boost::bind(&LLIMConversation::onSlide,  this));
-//	mCommitCallbackRegistrar.add("IMSession.CloseBtn.Click",
-//			boost::bind(&LLFloater::onClickClose, this));
-	mCommitCallbackRegistrar.add("IMSession.TearOffBtn.Click",
-			boost::bind(&LLIMConversation::onTearOffClicked, this));
 	mEnableCallbackRegistrar.add("IMSession.Menu.CompactExpandedModes.CheckItem",
 			boost::bind(&LLIMConversation::onIMCompactExpandedMenuItemCheck, this, _2));
 	mEnableCallbackRegistrar.add("IMSession.Menu.ShowModes.CheckItem",
@@ -254,9 +248,7 @@ void LLIMConversation::updateHeaderAndToolbar()
 	if (mDragHandle)
 	{
 		mDragHandle->setTitleVisible(!is_hosted);
-		setCanDrag(!is_hosted);
 	}
-	setCanResize(!is_hosted);
 
 	// The button (>>) should be disabled for torn off P2P conversations.
 	mExpandCollapseBtn->setEnabled(is_hosted || !mIsP2PChat);
@@ -349,8 +341,6 @@ void LLIMConversation::onOpen(const LLSD& key)
 		host_floater->collapseMessagesPane(false);
 	}
 
-	setCanResize(TRUE);
-
 	updateHeaderAndToolbar();
 }
 
@@ -370,7 +360,7 @@ void LLIMConversation::onClose(bool app_quitting)
 
 void LLIMConversation::onTearOffClicked()
 {
-	onClickTearOff(this);
+	LLFloater::onClickTearOff(this);
 	updateHeaderAndToolbar();
 }
 

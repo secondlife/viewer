@@ -152,7 +152,7 @@ private:
 	static void onInputEditorKeystroke(LLTextEditor* caller, void* userdata);
 	void setTyping(bool typing);
 	void onAddButtonClicked();
-	void onAvatarPicked(const uuid_vec_t& ids, const std::vector<LLAvatarName> names);
+	void addSessionParticipants(const uuid_vec_t& uuids);
 	bool canAddSelectedToChat(const uuid_vec_t& uuids);
 
 	void onCallButtonClicked();

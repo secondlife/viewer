@@ -82,9 +82,9 @@ public:
 	static void startCall(const LLUUID& id);
 
 	/**
-	 * Start an ad-hoc conference voice call with multiple users
+	 * Start an ad-hoc conference voice call with multiple users in a specific IM floater.
 	 */
-	static void startAdhocCall(const uuid_vec_t& ids);
+	static void startAdhocCall(const uuid_vec_t& ids, const LLUUID& floater_id = LLUUID::null);
 
 	/**
 	 * Start conference chat with the given avatars in a specific IM floater.

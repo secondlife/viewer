@@ -158,6 +158,10 @@ BOOL LLNearbyChat::postBuild()
 
 	enableResizeCtrls(true, true, false);
 
+	// title must be defined BEFORE call addToHost() because
+	// it is used for show the item's name in the conversations list
+	setTitle(getString("NearbyChatTitle"));
+
 	addToHost();
 
 	//for menu
@@ -182,7 +186,6 @@ BOOL LLNearbyChat::postBuild()
 		loadHistory();
 	}
 
-	setTitle(getString("NearbyChatTitle"));
 
 	return LLIMConversation::postBuild();
 }
@@ -342,15 +345,36 @@ void LLNearbyChat::enableDisableCallBtn()
 	getChildView("voice_call_btn")->setEnabled(false /*btn_enabled*/);
 }
 
+void LLNearbyChat::onTearOffClicked()
+{
+	LLIMConversation::onTearOffClicked();
+
+	LLIMFloaterContainer* im_box = LLIMFloaterContainer::getInstance();
+
+	// see CHUI-170: Save torn-off state of the nearby chat between sessions
+	BOOL in_the_multifloater = (getHost() == im_box);
+	gSavedSettings.setBOOL("NearbyChatIsNotTornOff", in_the_multifloater);
+}
+
 void LLNearbyChat::addToHost()
 {
-	if (LLIMConversation::isChatMultiTab())
+	if ( LLIMConversation::isChatMultiTab())
 	{
 		LLIMFloaterContainer* im_box = LLIMFloaterContainer::getInstance();
-
 		if (im_box)
 		{
-			im_box->addFloater(this, FALSE, LLTabContainer::END);
+			if (gSavedSettings.getBOOL("NearbyChatIsNotTornOff"))
+			{
+				im_box->addFloater(this, TRUE, LLTabContainer::END);
+			}
+			else
+			{
+				// setting of the "potential" host: this sequence sets
+				// LLFloater::mHostHandle = NULL (a current host), but
+				// LLFloater::mLastHostHandle = im_box (a "future" host)
+				setHost(im_box);
+				setHost(NULL);
+			}
 		}
 	}
 }
@@ -364,20 +388,18 @@ void LLNearbyChat::onOpen(const LLSD& key)
 
 bool LLNearbyChat::applyRectControl()
 {
-	bool rect_controlled = LLFloater::applyRectControl();
+	bool is_torn_off = getHost() == NULL;
 
-/*	if (!mNearbyChat->getVisible())
+	// Resize is limited to torn off floaters.
+	// A hosted floater is not resizable.
+	if (is_torn_off)
 	{
-		reshape(getRect().getWidth(), getMinHeight());
-		enableResizeCtrls(true, true, false);
-	}
-	else
-	{*/
 		enableResizeCtrls(true);
-		setResizeLimits(getMinWidth(), EXPANDED_MIN_HEIGHT);
-//	}
+	}
 	
-	return rect_controlled;
+	setResizeLimits(getMinWidth(), EXPANDED_MIN_HEIGHT);
+
+	return LLFloater::applyRectControl();
 }
 
 void LLNearbyChat::onChatFontChange(LLFontGL* fontp)
@@ -408,9 +430,17 @@ void LLNearbyChat::showHistory()
 {
 	openFloater();
 	setResizeLimits(getMinWidth(), EXPANDED_MIN_HEIGHT);
-	reshape(getRect().getWidth(), mExpandedHeight);
-	enableResizeCtrls(true);
-	storeRectControl();
+
+	bool is_torn_off = getHost() == NULL;
+
+	// Reshape and enable resize controls only if it's a torn off floater.
+	// Otherwise all the size changes should be handled by LLIMFloaterContainer.
+	if (is_torn_off)
+	{
+		reshape(getRect().getWidth(), mExpandedHeight);
+		enableResizeCtrls(true);
+		storeRectControl();
+	}
 }
 
 std::string LLNearbyChat::getCurrentChat()

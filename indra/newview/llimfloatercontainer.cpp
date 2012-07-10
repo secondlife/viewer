@@ -37,6 +37,7 @@
 #include "llagent.h"
 #include "llavataractions.h"
 #include "llavatariconctrl.h"
+#include "llavatarnamecache.h"
 #include "llgroupiconctrl.h"
 #include "llfloateravatarpicker.h"
 #include "llimview.h"
@@ -74,8 +75,15 @@ LLIMFloaterContainer::~LLIMFloaterContainer()
 
 void LLIMFloaterContainer::sessionVoiceOrIMStarted(const LLUUID& session_id)
 {
-		LLIMFloater::show(session_id);
-};
+	LLIMFloater::show(session_id);
+}
+
+void LLIMFloaterContainer::sessionRemoved(const LLUUID& session_id)
+{
+	LLIMFloater* floaterp = LLIMFloater::findInstance(session_id);
+	LLFloater::onClickClose(floaterp);
+	removeConversationListItem(floaterp);
+}
 
 BOOL LLIMFloaterContainer::postBuild()
 {
@@ -110,6 +118,8 @@ BOOL LLIMFloaterContainer::postBuild()
 
 	collapseMessagesPane(gSavedPerAccountSettings.getBOOL("ConversationsMessagePaneCollapsed"));
 	collapseConversationsPane(gSavedPerAccountSettings.getBOOL("ConversationsListPaneCollapsed"));
+	LLAvatarNameCache::addUseDisplayNamesCallback(
+			boost::bind(&LLIMConversation::processChatHistoryStyleUpdate));
 
 	return TRUE;
 }
@@ -306,9 +316,8 @@ void LLIMFloaterContainer::setVisible(BOOL visible)
 	if (visible)
 	{
 		// Make sure we have the Nearby Chat present when showing the conversation container
-		LLUUID nearbychat_uuid = LLUUID::null;	// Hacky but true: the session id for nearby chat is always null
-		LLFloater* floaterp = findConversationItem(nearbychat_uuid);
-		if (floaterp == NULL)
+		LLFloater* nearby_chat = LLFloaterReg::findInstance("chat_bar");
+		if (nearby_chat == NULL)
 		{
 			// If not found, force the creation of the nearby chat conversation panel
 			// *TODO: find a way to move this to XML as a default panel or something like that
@@ -540,10 +549,6 @@ LLConversationItem::LLConversationItem(std::string name, const LLUUID& uuid, LLF
     mFloater(floaterp),
     mContainer(containerp)
 {
-    // Hack: the nearby chat has no name so we catch that case and impose one
-	// Of course, we won't be doing this in the final code
-	if (name == "")
-		mName = "Nearby Chat";
 }
 
 LLConversationItem::LLConversationItem() :

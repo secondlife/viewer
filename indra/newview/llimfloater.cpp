@@ -322,7 +322,7 @@ BOOL LLIMFloater::postBuild()
 
 void LLIMFloater::onAddButtonClicked()
 {
-       LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLIMFloater::onAvatarPicked, this, _1, _2), TRUE, TRUE);
+       LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLIMFloater::addSessionParticipants, this, _1), TRUE, TRUE);
        if (!picker)
        {
                return;
@@ -337,55 +337,94 @@ void LLIMFloater::onAddButtonClicked()
        }
 }
 
-void LLIMFloater::onAvatarPicked(const uuid_vec_t& ids, const std::vector<LLAvatarName> names)
-{
-       if (mIsP2PChat)
-       {
-               mStartConferenceInSameFloater = true;
-               onClose(false);
-
-               uuid_vec_t temp_ids;
-               temp_ids.push_back(mOtherParticipantUUID);
-               temp_ids.insert(temp_ids.end(), ids.begin(), ids.end());
-
-               LLAvatarActions::startConference(temp_ids, mSessionID);
-       }
-       else
-       {
-               inviteToSession(ids);
-       }
-}
-
 bool LLIMFloater::canAddSelectedToChat(const uuid_vec_t& uuids)
 {
-       if (!mSession
-               || mDialog == IM_SESSION_GROUP_START
-               || mDialog == IM_SESSION_INVITE && gAgent.isInGroup(mSessionID))
-       {
-               return false;
-       }
+	if (!mSession
+		|| mDialog == IM_SESSION_GROUP_START
+		|| mDialog == IM_SESSION_INVITE && gAgent.isInGroup(mSessionID))
+	{
+		return false;
+	}
 
-       for (uuid_vec_t::const_iterator id = uuids.begin();
-                       id != uuids.end(); ++id)
-       {
-    	   	   // Skip this check for ad hoc conferences,
-    	       // conference participants should be listed in mSession->mInitialTargetIDs.
-               if (mIsP2PChat && *id == mOtherParticipantUUID)
-               {
-                       return false;
-               }
+	if (mIsP2PChat)
+	{
+		// For a P2P session just check if we are not adding the other participant.
 
-               for (uuid_vec_t::const_iterator target_id = mSession->mInitialTargetIDs.begin();
-                               target_id != mSession->mInitialTargetIDs.end(); ++target_id)
-               {
-                       if (*id == *target_id)
-                       {
-                               return false;
-                       }
-               }
-       }
+		for (uuid_vec_t::const_iterator id = uuids.begin();
+				id != uuids.end(); ++id)
+		{
+			if (*id == mOtherParticipantUUID)
+			{
+				return false;
+			}
+		}
+	}
+	else
+	{
+		// For a conference session we need to check against the list from LLSpeakerMgr,
+		// because this list may change when participants join or leave the session.
 
-       return true;
+		LLSpeakerMgr::speaker_list_t speaker_list;
+		LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
+		if (speaker_mgr)
+		{
+			speaker_mgr->getSpeakerList(&speaker_list, true);
+		}
+
+		for (uuid_vec_t::const_iterator id = uuids.begin();
+				id != uuids.end(); ++id)
+		{
+			for (LLSpeakerMgr::speaker_list_t::const_iterator it = speaker_list.begin();
+					it != speaker_list.end(); ++it)
+			{
+				const LLPointer<LLSpeaker>& speaker = *it;
+				if (*id == speaker->mID)
+				{
+					return false;
+				}
+			}
+		}
+	}
+
+	return true;
+}
+
+void LLIMFloater::addSessionParticipants(const uuid_vec_t& uuids)
+{
+	if (mIsP2PChat)
+	{
+		mStartConferenceInSameFloater = true;
+
+		uuid_vec_t temp_ids;
+
+		// Add the initial participant of a P2P session
+		temp_ids.push_back(mOtherParticipantUUID);
+		temp_ids.insert(temp_ids.end(), uuids.begin(), uuids.end());
+
+		LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(mSessionID);
+
+		// first check whether this is a voice session
+		bool is_voice_call = voice_channel != NULL && voice_channel->isActive();
+
+		// then we can close the current session
+		gIMMgr->leaveSession(mSessionID);
+		LLIMConversation::onClose(false);
+
+		// Start a new ad hoc voice call if we invite new participants to a P2P call,
+		// or start a text chat otherwise.
+		if (is_voice_call)
+		{
+			LLAvatarActions::startAdhocCall(temp_ids, mSessionID);
+		}
+		else
+		{
+			LLAvatarActions::startConference(temp_ids, mSessionID);
+		}
+	}
+	else
+	{
+		inviteToSession(uuids);
+	}
 }
 
 void LLIMFloater::boundVoiceChannel()
@@ -1096,19 +1135,7 @@ bool LLIMFloater::dropPerson(LLUUID* person_id, bool drop)
 		res = canAddSelectedToChat(ids);
 		if(res && drop)
 		{
-			if (mIsP2PChat)
-			{
-				mStartConferenceInSameFloater = true;
-				onClose(false);
-
-				ids.push_back(mOtherParticipantUUID);
-
-				LLAvatarActions::startConference(ids, mSessionID);
-			}
-			else
-			{
-				inviteToSession(ids);
-			}
+			addSessionParticipants(ids);
 		}
 	}
 
