@@ -120,10 +120,9 @@ HttpOperation * HttpRequestQueue::fetchOp(bool wait)
 
 void HttpRequestQueue::fetchAll(bool wait, OpContainer & ops)
 {
-	// Note:  Should probably test whether we're empty or not here.
-	// A target passed in with entries is likely also carrying
-	// reference counts and we're going to leak something.
-	ops.clear();
+	// Not valid putting something back on the queue...
+	llassert_always(ops.empty());
+
 	{
 		HttpScopedLock lock(mQueueMutex);
 

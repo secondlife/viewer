@@ -260,7 +260,7 @@ void HttpRequestTestObjectType::test<3>()
 		int limit(20);
 		while (count++ < limit && mHandlerCalls < 1)
 		{
-			req->update(1000);
+			req->update(1000000);
 			usleep(100000);
 		}
 		ensure("Request executed in reasonable time", count < limit);
@@ -275,7 +275,7 @@ void HttpRequestTestObjectType::test<3>()
 		limit = 100;
 		while (count++ < limit && mHandlerCalls < 2)
 		{
-			req->update(1000);
+			req->update(1000000);
 			usleep(100000);
 		}
 		ensure("Second request executed in reasonable time", count < limit);
@@ -358,8 +358,8 @@ void HttpRequestTestObjectType::test<4>()
 		int limit(20);
 		while (count++ < limit && mHandlerCalls < 2)
 		{
-			req1->update(1000);
-			req2->update(1000);
+			req1->update(1000000);
+			req2->update(1000000);
 			usleep(100000);
 		}
 		ensure("Request executed in reasonable time", count < limit);
@@ -375,8 +375,8 @@ void HttpRequestTestObjectType::test<4>()
 		limit = 100;
 		while (count++ < limit && mHandlerCalls < 3)
 		{
-			req1->update(1000);
-			req2->update(1000);
+			req1->update(1000000);
+			req2->update(1000000);
 			usleep(100000);
 		}
 		ensure("Second request executed in reasonable time", count < limit);
@@ -459,7 +459,7 @@ void HttpRequestTestObjectType::test<5>()
 		int limit(10);
 		while (count++ < limit && mHandlerCalls < 1)
 		{
-			req->update(1000);
+			req->update(1000000);
 			usleep(100000);
 		}
 		ensure("NoOp notification received", mHandlerCalls == 1);
@@ -535,7 +535,7 @@ void HttpRequestTestObjectType::test<6>()
 		int limit(10);
 		while (count++ < limit && mHandlerCalls < 1)
 		{
-			req->update(1000);
+			req->update(1000000);
 			usleep(100000);
 		}
 		ensure("No notifications received", mHandlerCalls == 0);
@@ -616,7 +616,7 @@ void HttpRequestTestObjectType::test<7>()
 		int limit(50);				// With one retry, should fail quickish
 		while (count++ < limit && mHandlerCalls < 1)
 		{
-			req->update(1000);
+			req->update(1000000);
 			usleep(100000);
 		}
 		ensure("Request executed in reasonable time", count < limit);
@@ -632,7 +632,7 @@ void HttpRequestTestObjectType::test<7>()
 		limit = 100;
 		while (count++ < limit && mHandlerCalls < 2)
 		{
-			req->update(1000);
+			req->update(1000000);
 			usleep(100000);
 		}
 		ensure("Second request executed in reasonable time", count < limit);
@@ -733,7 +733,7 @@ void HttpRequestTestObjectType::test<8>()
 		int limit(10);
 		while (count++ < limit && mHandlerCalls < 1)
 		{
-			req->update(1000);
+			req->update(1000000);
 			usleep(100000);
 		}
 		ensure("Request executed in reasonable time", count < limit);
@@ -749,7 +749,7 @@ void HttpRequestTestObjectType::test<8>()
 		limit = 10;
 		while (count++ < limit && mHandlerCalls < 2)
 		{
-			req->update(1000);
+			req->update(1000000);
 			usleep(100000);
 		}
 		ensure("Second request executed in reasonable time", count < limit);
@@ -843,7 +843,7 @@ void HttpRequestTestObjectType::test<9>()
 		int limit(10);
 		while (count++ < limit && mHandlerCalls < 1)
 		{
-			req->update(1000);
+			req->update(1000000);
 			usleep(100000);
 		}
 		ensure("Request executed in reasonable time", count < limit);
@@ -859,7 +859,7 @@ void HttpRequestTestObjectType::test<9>()
 		limit = 10;
 		while (count++ < limit && mHandlerCalls < 2)
 		{
-			req->update(1000);
+			req->update(1000000);
 			usleep(100000);
 		}
 		ensure("Second request executed in reasonable time", count < limit);
@@ -955,7 +955,7 @@ void HttpRequestTestObjectType::test<10>()
 		int limit(10);
 		while (count++ < limit && mHandlerCalls < 1)
 		{
-			req->update(1000);
+			req->update(1000000);
 			usleep(100000);
 		}
 		ensure("Request executed in reasonable time", count < limit);
@@ -971,7 +971,7 @@ void HttpRequestTestObjectType::test<10>()
 		limit = 10;
 		while (count++ < limit && mHandlerCalls < 2)
 		{
-			req->update(1000);
+			req->update(1000000);
 			usleep(100000);
 		}
 		ensure("Second request executed in reasonable time", count < limit);
@@ -1074,7 +1074,7 @@ void HttpRequestTestObjectType::test<11>()
 		int limit(10);
 		while (count++ < limit && mHandlerCalls < 1)
 		{
-			req->update(1000);
+			req->update(1000000);
 			usleep(100000);
 		}
 		ensure("Request executed in reasonable time", count < limit);
@@ -1090,7 +1090,7 @@ void HttpRequestTestObjectType::test<11>()
 		limit = 10;
 		while (count++ < limit && mHandlerCalls < 2)
 		{
-			req->update(1000);
+			req->update(1000000);
 			usleep(100000);
 		}
 		ensure("Second request executed in reasonable time", count < limit);
@@ -1194,7 +1194,7 @@ void HttpRequestTestObjectType::test<12>()
 		int limit(10);
 		while (count++ < limit && mHandlerCalls < 1)
 		{
-			req->update(1000);
+			req->update(1000000);
 			usleep(100000);
 		}
 		ensure("Request executed in reasonable time", count < limit);
@@ -1210,7 +1210,7 @@ void HttpRequestTestObjectType::test<12>()
 		limit = 10;
 		while (count++ < limit && mHandlerCalls < 2)
 		{
-			req->update(1000);
+			req->update(1000000);
 			usleep(100000);
 		}
 		ensure("Second request executed in reasonable time", count < limit);
@@ -1316,7 +1316,7 @@ void HttpRequestTestObjectType::test<13>()
 		int limit(10);
 		while (count++ < limit && mHandlerCalls < 1)
 		{
-			req->update(1000);
+			req->update(1000000);
 			usleep(100000);
 		}
 		ensure("Request executed in reasonable time", count < limit);
@@ -1333,7 +1333,7 @@ void HttpRequestTestObjectType::test<13>()
 		limit = 10;
 		while (count++ < limit && mHandlerCalls < 2)
 		{
-			req->update(1000);
+			req->update(1000000);
 			usleep(100000);
 		}
 		ensure("Second request executed in reasonable time", count < limit);
@@ -1435,7 +1435,7 @@ void HttpRequestTestObjectType::test<14>()
 		int limit(50);				// With one retry, should fail quickish
 		while (count++ < limit && mHandlerCalls < 1)
 		{
-			req->update(1000);
+			req->update(1000000);
 			usleep(100000);
 		}
 		ensure("Request executed in reasonable time", count < limit);
@@ -1451,7 +1451,7 @@ void HttpRequestTestObjectType::test<14>()
 		limit = 100;
 		while (count++ < limit && mHandlerCalls < 2)
 		{
-			req->update(1000);
+			req->update(1000000);
 			usleep(100000);
 		}
 		ensure("Second request executed in reasonable time", count < limit);

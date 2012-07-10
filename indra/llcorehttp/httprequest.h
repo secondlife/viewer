@@ -341,13 +341,14 @@ public:
 	/// are expected to return 'quickly' and do any significant processing
 	/// outside of the notification callback to onCompleted().
 	///
-	/// @param	millis			Maximum number of wallclock milliseconds to
+	/// @param	usecs			Maximum number of wallclock microseconds to
 	///							spend in the call.  As hinted at above, this
 	///							is partly a function of application code so it's
-	///							a soft limit.
+	///							a soft limit.  A '0' value will run without
+	///							time limit.
 	///
 	/// @return					Standard status code.
-	HttpStatus update(long millis);
+	HttpStatus update(long usecs);
 
 	/// @}
 	

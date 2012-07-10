@@ -84,4 +84,24 @@ HttpOperation * HttpReplyQueue::fetchOp()
 	return result;
 }
 
+
+void HttpReplyQueue::fetchAll(OpContainer & ops)
+{
+	// Not valid putting something back on the queue...
+	llassert_always(ops.empty());
+
+	{
+		HttpScopedLock lock(mQueueMutex);
+
+		if (! mQueue.empty())
+		{
+			mQueue.swap(ops);
+		}
+	}
+
+	// Caller also acquires the reference counts on each op.
+	return;
+}
+
+
 }  // end namespace LLCore

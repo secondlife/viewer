@@ -5398,7 +5398,7 @@ void CoreHttp::cleanup()
 	{
 		while (! mStopped && LLTimer::getTotalSeconds() < (mStopRequested + MAX_THREAD_WAIT_TIME))
 		{
-			mRequest->update(200);
+			mRequest->update(200000);
 			ms_sleep(50);
 		}
 		if (! mStopped)

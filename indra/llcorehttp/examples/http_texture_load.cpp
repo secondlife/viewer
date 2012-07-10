@@ -244,7 +244,7 @@ int main(int argc, char** argv)
 	int passes(0);
 	while (! ws.reload(hr))
 	{
-		hr->update(5000);
+		hr->update(5000000);
 		ms_sleep(2);
 		if (0 == (++passes % 200))
 		{

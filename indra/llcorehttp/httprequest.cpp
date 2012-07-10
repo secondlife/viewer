@@ -296,17 +296,43 @@ HttpHandle HttpRequest::requestNoOp(HttpHandler * user_handler)
 }
 
 
-HttpStatus HttpRequest::update(long millis)
+HttpStatus HttpRequest::update(long usecs)
 {
-	const HttpTime limit(totalTime() + (1000 * HttpTime(millis)));
 	HttpOperation * op(NULL);
-	while (limit >= totalTime() && (op = mReplyQueue->fetchOp()))
+	
+	if (usecs)
 	{
-		// Process operation
-		op->visitNotifier(this);
+		const HttpTime limit(totalTime() + HttpTime(usecs));
+		while (limit >= totalTime() && (op = mReplyQueue->fetchOp()))
+		{
+			// Process operation
+			op->visitNotifier(this);
 		
-		// We're done with the operation
-		op->release();
+			// We're done with the operation
+			op->release();
+		}
+	}
+	else
+	{
+		// Same as above, just no time limit
+		HttpReplyQueue::OpContainer replies;
+		mReplyQueue->fetchAll(replies);
+		if (! replies.empty())
+		{
+			for (HttpReplyQueue::OpContainer::iterator iter(replies.begin());
+				 replies.end() != iter;
+				 ++iter)
+			{
+				// Swap op pointer for NULL;
+				op = *iter; *iter = NULL;	
+			
+				// Process operation
+				op->visitNotifier(this);
+		
+				// We're done with the operation
+				op->release();
+			}
+		}
 	}
 	
 	return HttpStatus();

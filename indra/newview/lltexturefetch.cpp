@@ -2740,22 +2740,14 @@ void LLTextureFetch::commonUpdate()
 	// Run a cross-thread command, if any.
 	cmdDoWork();
 	
-	// Update Curl on same thread as mCurlGetRequest was constructed
-	LLCore::HttpStatus status = mHttpRequest->update(200);
+	// Deliver all completion notifications
+	LLCore::HttpStatus status = mHttpRequest->update(0);
 	if (! status)
 	{
 		LL_INFOS_ONCE("Texture") << "Problem during HTTP servicing.  Reason:  "
 								 << status.toString()
 								 << LL_ENDL;
 	}
-		
-#if 0
-	// *FIXME:  maybe implement this another way...
-	if (processed > 0)
-	{
-		lldebugs << "processed: " << processed << " messages." << llendl;
-	}
-#endif
 }
 
 
@@ -2840,7 +2832,8 @@ void LLTextureFetch::endThread()
 void LLTextureFetch::threadedUpdate()
 {
 	llassert_always(mHttpRequest);
-	
+
+#if 0
 	// Limit update frequency
 	const F32 PROCESS_TIME = 0.05f; 
 	static LLFrameTimer process_timer;
@@ -2849,9 +2842,10 @@ void LLTextureFetch::threadedUpdate()
 		return;
 	}
 	process_timer.reset();
+#endif
 	
 	commonUpdate();
-
+	
 #if 0
 	const F32 INFO_TIME = 1.0f; 
 	static LLFrameTimer info_timer;
@@ -2865,7 +2859,6 @@ void LLTextureFetch::threadedUpdate()
 		}
 	}
 #endif
-	
 }
 
 //////////////////////////////////////////////////////////////////////////////
