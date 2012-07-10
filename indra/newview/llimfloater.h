@@ -132,6 +132,8 @@ private:
 
 	/*virtual*/ void refresh();
 
+	/*virtual*/ void onClickCloseBtn();
+
 	// Update the window title, input field help text, etc.
 	void updateSessionName(const std::string& ui_title, const std::string& ui_label);
 
