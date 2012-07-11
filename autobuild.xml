@@ -855,6 +855,54 @@
           </map>
         </map>
       </map>
+      <key>havok-source</key>
+      <map>
+        <key>license</key>
+        <string>havok-ares</string>
+        <key>license_file</key>
+        <string>LICENSES/havok.txt</string>
+        <key>name</key>
+        <string>havok-source</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>4ceeb68ac59a2b999a069b27020f76d3</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/falcon_3p-havok-source/rev/261056/arch/Darwin/installer/havok_source-2012.1-darwin-20120702.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>0591902d3e7eff848f71915df86d8837</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/falcon_3p-havok-source/rev/261056/arch/Linux/installer/havok_source-2012.1-linux-20120702.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>3a860c548aa311dc4e09d17a3a914a98</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/falcon_3p-havok-source/rev/261056/arch/CYGWIN/installer/havok_source-2012.1-windows-20120702.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+      </map>
       <key>jpeglib</key>
       <map>
         <key>license</key>
@@ -1095,14 +1143,14 @@
           </map>
         </map>
       </map>
-      <key>llphysicsextensions</key>
+      <key>llphysicsextensions_source</key>
       <map>
         <key>license</key>
-        <string>llphysicsextensions</string>
+        <string>TEMPORARY</string>
         <key>license_file</key>
         <string>LICENSES/llphysicsextensions.txt</string>
         <key>name</key>
-        <string>llphysicsextensions</string>
+        <string>llphysicsextensions_source</string>
         <key>platforms</key>
         <map>
           <key>darwin</key>
@@ -1110,9 +1158,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a860cbd4f30c51c8a3579f952afbdfec</string>
+              <string>5f75735d1092b087b3373ca874c41593</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/261379/arch/Darwin/installer/llphysicsextensions-0.1-darwin-20120709.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/oz_llphysicsextensions-source/rev/261490/arch/Darwin/installer/llphysicsextensions_source-0.2-darwin-20120710.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1122,9 +1172,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7ea1a0269c3468663ad2935245694341</string>
+              <string>911f46354e338a7013f023385a3f905f</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/261379/arch/Linux/installer/llphysicsextensions-0.1-linux-20120709.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/oz_llphysicsextensions-source/rev/261490/arch/Linux/installer/llphysicsextensions_source-0.2-linux-20120710.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1134,14 +1184,44 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3d34d2181d6056521e0d92a8e27a79ee</string>
+              <string>b1212ec910042d186836d496d288984c</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/261379/arch/CYGWIN/installer/llphysicsextensions-0.1-windows-20120709.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/oz_llphysicsextensions-source/rev/261490/arch/CYGWIN/installer/llphysicsextensions_source-0.2-windows-20120710.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>0.2</string>
+      </map>
+      <key>llphysicsextensions_stub</key>
+      <map>
+        <key>license</key>
+        <string>TEMPORARY</string>
+        <key>license_file</key>
+        <string>LICENSES/llphysicsextensions.txt</string>
+        <key>name</key>
+        <string>llphysicsextensions_stub</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>d7665ce1324110bdfad0b846e864f6f9</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>file:////Users/oz/Work/llphysicsextensions-src/llphysicsextensions_stub-0.2-darwin-20120710.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>0.2</string>
       </map>
       <key>llqtwebkit</key>
       <map>
