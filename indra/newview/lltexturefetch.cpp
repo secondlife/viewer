@@ -1276,6 +1276,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 					{
 						mState = INIT ;
 						mCanUseHTTP = false ;
+						mUrl.clear();
 						setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 						return false ;
 					}
@@ -1304,6 +1305,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 				if (mHTTPFailCount >= max_attempts)
 				{
+					mUrl.clear();
 					if (cur_size > 0)
 					{
 						// Use available data
@@ -1327,6 +1329,14 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				}
 			}
 			
+			// Clear the url since we're done with the fetch
+			// Note: mUrl is used to check is fetching is required so failure to clear it will force an http fetch
+			// next time the texture is requested, even if the data have already been fetched.
+			if(mWriteToCacheState != NOT_WRITE)
+			{
+				mUrl.clear();
+			}
+
 			llassert_always(mBufferSize == cur_size + mRequestedSize);
 			if(!mBufferSize)//no data received.
 			{
@@ -1753,13 +1763,7 @@ S32 LLTextureFetchWorker::callbackHttpGet(const LLChannelDescriptors& channels,
 	{
 		mRequestedSize = -1; // error
 	}
-	// Clear the url since we're done with the fetch
-	// Note: mUrl is used to check is fetching is required so failure to clear it will force an http fetch
-	// next time the texture is requested, even if the data have already been fetched.
-	if(mWriteToCacheState != NOT_WRITE)
-	{
-		mUrl.clear();
-	}
+	
 	mLoaded = TRUE;
 	setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 
