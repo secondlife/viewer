@@ -40,7 +40,7 @@
 #include "llinventorymodel.h"
 #include "llviewerinventory.h"
 
-static LLWidgetNameRegistry::StaticRegistrar sRegisterPanelInventoryListItemBaseParams(&typeid(LLPanelInventoryListItemBase::Params), "inventory_list_item");
+static LLWidgetNameRegistry::StaticRegistrar sRegisterPanelInventoryListItemBaseParams(typeid(LLPanelInventoryListItemBase::Params).name(), "inventory_list_item");
 
 static const S32 WIDGET_SPACING = 3;
 

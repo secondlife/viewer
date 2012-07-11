@@ -55,8 +55,9 @@ typedef boost::function<LLView* (LLXMLNodePtr node, LLView *parent, LLXMLNodePtr
 
 typedef LLRegistry<std::string, LLWidgetCreatorFunc> widget_registry_t;
 
+// const char* key used for std::type_info::name() string
 class LLChildRegistryRegistry
-: public LLRegistrySingleton<const std::type_info*, widget_registry_t, LLChildRegistryRegistry>
+: public LLRegistrySingleton<const char*, widget_registry_t, LLChildRegistryRegistry>
 {};
 
 

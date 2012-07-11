@@ -606,7 +606,7 @@ void LLXUIXSDWriter::writeXSD(const std::string& type_name, const std::string& p
 
 	// add includes for all possible children
 	const std::type_info* type = *LLWidgetTypeRegistry::instance().getValue(type_name);
-	const widget_registry_t* widget_registryp = LLChildRegistryRegistry::instance().getValue(type);
+	const widget_registry_t* widget_registryp = LLChildRegistryRegistry::instance().getValue(type->name());
 
 	// add choices for valid children
 	if (widget_registryp)

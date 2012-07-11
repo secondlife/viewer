@@ -131,7 +131,7 @@ struct LLTextBase::line_end_compare
 //
 
 // register LLTextBase::Params under name "textbase"
-static LLWidgetNameRegistry::StaticRegistrar sRegisterTextBaseParams(&typeid(LLTextBase::Params), "textbase");
+static LLWidgetNameRegistry::StaticRegistrar sRegisterTextBaseParams(typeid(LLTextBase::Params).name(), "textbase");
 
 LLTextBase::LineSpacingParams::LineSpacingParams()
 :	multiple("multiple", 1.f),

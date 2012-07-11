@@ -129,7 +129,7 @@ void LLToolTipView::drawStickyRect()
 }
 
 // defaults for floater param block pulled from widgets/floater.xml
-static LLWidgetNameRegistry::StaticRegistrar sRegisterInspectorParams(&typeid(LLInspector::Params), "inspector");
+static LLWidgetNameRegistry::StaticRegistrar sRegisterInspectorParams(typeid(LLInspector::Params).name(), "inspector");
 
 //
 // LLToolTip

@@ -92,7 +92,7 @@ void LLRNGWriter::addDefinition(const std::string& type_name, const LLInitParam:
 
 	// add includes for all possible children
 	const std::type_info* type = *LLWidgetTypeRegistry::instance().getValue(type_name);
-	const widget_registry_t* widget_registryp = LLChildRegistryRegistry::instance().getValue(type);
+	const widget_registry_t* widget_registryp = LLChildRegistryRegistry::instance().getValue(type->name());
 	
 	// add include declarations for all valid children
 	for (widget_registry_t::Registrar::registry_map_t::const_iterator it = widget_registryp->currentRegistrar().beginItems();

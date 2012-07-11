@@ -281,7 +281,7 @@ const LLInitParam::BaseBlock& get_empty_param_block()
 void LLUICtrlFactory::registerWidget(const std::type_info* widget_type, const std::type_info* param_block_type, const std::string& tag)
 {
 	// associate parameter block type with template .xml file
-	std::string* existing_tag = LLWidgetNameRegistry::instance().getValue(param_block_type);
+	std::string* existing_tag = LLWidgetNameRegistry::instance().getValue(param_block_type->name());
 	if (existing_tag != NULL)
 	{
 		if(*existing_tag != tag)
@@ -297,7 +297,7 @@ void LLUICtrlFactory::registerWidget(const std::type_info* widget_type, const st
 			return;
 		}
 	}
-	LLWidgetNameRegistry::instance().defaultRegistrar().add(param_block_type, tag);
+	LLWidgetNameRegistry::instance().defaultRegistrar().add(param_block_type->name(), tag);
 	//FIXME: comment this in when working on schema generation
 	//LLWidgetTypeRegistry::instance().defaultRegistrar().add(tag, widget_type);
 	//LLDefaultParamBlockRegistry::instance().defaultRegistrar().add(widget_type, &get_empty_param_block<T>);
@@ -306,6 +306,6 @@ void LLUICtrlFactory::registerWidget(const std::type_info* widget_type, const st
 //static 
 const std::string* LLUICtrlFactory::getWidgetTag(const std::type_info* widget_type)
 {
-	return LLWidgetNameRegistry::instance().getValue(widget_type);
+	return LLWidgetNameRegistry::instance().getValue(widget_type->name());
 }
 

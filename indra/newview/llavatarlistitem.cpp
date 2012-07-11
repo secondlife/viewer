@@ -44,7 +44,7 @@ S32 LLAvatarListItem::sLeftPadding = 0;
 S32 LLAvatarListItem::sNameRightPadding = 0;
 S32 LLAvatarListItem::sChildrenWidths[LLAvatarListItem::ALIC_COUNT];
 
-static LLWidgetNameRegistry::StaticRegistrar sRegisterAvatarListItemParams(&typeid(LLAvatarListItem::Params), "avatar_list_item");
+static LLWidgetNameRegistry::StaticRegistrar sRegisterAvatarListItemParams(typeid(LLAvatarListItem::Params).name(), "avatar_list_item");
 
 LLAvatarListItem::Params::Params()
 :	default_style("default_style"),

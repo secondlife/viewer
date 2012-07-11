@@ -69,9 +69,9 @@ protected:
 	friend class LLSingleton<LLDefaultChildRegistry>;
 };
 
-// lookup widget name by type
+// lookup widget name by type (actually by std::type_info::name())
 class LLWidgetNameRegistry 
-:	public LLRegistrySingleton<const std::type_info*, std::string, LLWidgetNameRegistry , LLCompareTypeID>
+:	public LLRegistrySingleton<const char*, std::string, LLWidgetNameRegistry , LLCompareTypeID>
 {};
 
 // lookup function for generating empty param block by widget type

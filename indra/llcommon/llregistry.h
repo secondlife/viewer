@@ -30,8 +30,8 @@
 #include <list>
 
 #include <boost/type_traits.hpp>
+#include <boost/static_assert.hpp>
 #include "llsingleton.h"
-#include "lltypeinfolookup.h"
 
 template <typename T>
 class LLRegistryDefaultComparator
@@ -39,27 +39,17 @@ class LLRegistryDefaultComparator
 	bool operator()(const T& lhs, const T& rhs) { return lhs < rhs; }
 };
 
-template <typename KEY, typename VALUE>
-struct LLRegistryMapSelector
-{
-    typedef std::map<KEY, VALUE> type;
-};
-
-template <typename VALUE>
-struct LLRegistryMapSelector<std::type_info*, VALUE>
-{
-    typedef LLTypeInfoLookup<VALUE> type;
-};
-
-template <typename VALUE>
-struct LLRegistryMapSelector<const std::type_info*, VALUE>
-{
-    typedef LLTypeInfoLookup<VALUE> type;
-};
-
 template <typename KEY, typename VALUE, typename COMPARATOR = LLRegistryDefaultComparator<KEY> >
 class LLRegistry
 {
+	// Do not use LLRegistry with KEY = std::type_info* or KEY = const std::type_info*.
+	// This is known to fail on Linux.
+	// If you must use LLRegistry with dynamic type info, use KEY = const char*
+	// and pass std::type_info::name(); this works across load modules.
+	// Disallow both std::type_info* and const std::type_info*. First remove
+	// the pointer, then remove const, then compare is_same<std::type_info>.
+	BOOST_STATIC_ASSERT(! (boost::is_same<typename boost::remove_const<typename boost::remove_pointer<KEY>::type>::type, std::type_info>::value));
+
 public:
 	typedef LLRegistry<KEY, VALUE, COMPARATOR>											registry_t;
 	typedef typename boost::add_reference<typename boost::add_const<KEY>::type>::type	ref_const_key_t;
@@ -72,7 +62,7 @@ public:
 	{
 		friend class LLRegistry<KEY, VALUE, COMPARATOR>;
 	public:
-		typedef typename LLRegistryMapSelector<KEY, VALUE>::type registry_map_t;
+		typedef std::map<KEY, VALUE> registry_map_t;
 
 		bool add(ref_const_key_t key, ref_const_value_t value)
 		{

@@ -39,7 +39,7 @@
 const S32 MIN_COLUMN_WIDTH = 20;
 
 // defaults for LLScrollColumnHeader param block pulled from widgets/scroll_column_header.xml
-static LLWidgetNameRegistry::StaticRegistrar sRegisterColumnHeaderParams(&typeid(LLScrollColumnHeader::Params), "scroll_column_header");
+static LLWidgetNameRegistry::StaticRegistrar sRegisterColumnHeaderParams(typeid(LLScrollColumnHeader::Params).name(), "scroll_column_header");
 
 //---------------------------------------------------------------------------
 // LLScrollColumnHeader

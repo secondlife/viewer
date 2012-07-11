@@ -135,7 +135,7 @@ void LLPanelWearableOutfitItem::updateItem(const std::string& name,
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-static LLWidgetNameRegistry::StaticRegistrar sRegisterPanelClothingListItem(&typeid(LLPanelClothingListItem::Params), "clothing_list_item");
+static LLWidgetNameRegistry::StaticRegistrar sRegisterPanelClothingListItem(typeid(LLPanelClothingListItem::Params).name(), "clothing_list_item");
 
 
 LLPanelClothingListItem::Params::Params()
@@ -222,7 +222,7 @@ BOOL LLPanelClothingListItem::postBuild()
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-static LLWidgetNameRegistry::StaticRegistrar sRegisterPanelBodyPartsListItem(&typeid(LLPanelBodyPartsListItem::Params), "bodyparts_list_item");
+static LLWidgetNameRegistry::StaticRegistrar sRegisterPanelBodyPartsListItem(typeid(LLPanelBodyPartsListItem::Params).name(), "bodyparts_list_item");
 
 
 LLPanelBodyPartsListItem::Params::Params()
@@ -293,7 +293,7 @@ BOOL LLPanelBodyPartsListItem::postBuild()
 	return TRUE;
 }
 
-static LLWidgetNameRegistry::StaticRegistrar sRegisterPanelDeletableWearableListItem(&typeid(LLPanelDeletableWearableListItem::Params), "deletable_wearable_list_item");
+static LLWidgetNameRegistry::StaticRegistrar sRegisterPanelDeletableWearableListItem(typeid(LLPanelDeletableWearableListItem::Params).name(), "deletable_wearable_list_item");
 
 LLPanelDeletableWearableListItem::Params::Params()
 :	delete_btn("delete_btn")
@@ -373,7 +373,7 @@ void LLPanelAttachmentListItem::updateItem(const std::string& name,
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-static LLWidgetNameRegistry::StaticRegistrar sRegisterPanelDummyClothingListItem(&typeid(LLPanelDummyClothingListItem::Params), "dummy_clothing_list_item");
+static LLWidgetNameRegistry::StaticRegistrar sRegisterPanelDummyClothingListItem(typeid(LLPanelDummyClothingListItem::Params).name(), "dummy_clothing_list_item");
 
 LLPanelDummyClothingListItem::Params::Params()
 :	add_panel("add_panel"),

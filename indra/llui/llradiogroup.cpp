@@ -66,7 +66,7 @@ protected:
 
 	LLSD mPayload;	// stores data that this item represents in the radio group
 };
-static LLWidgetNameRegistry::StaticRegistrar register_radio_item(&typeid(LLRadioGroup::ItemParams), "radio_item");
+static LLWidgetNameRegistry::StaticRegistrar register_radio_item(typeid(LLRadioGroup::ItemParams).name(), "radio_item");
 
 LLRadioGroup::Params::Params()
 :	allow_deselect("allow_deselect"),
