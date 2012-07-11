@@ -117,18 +117,32 @@ export LD_LIBRARY_PATH="$PWD/lib:${LD_LIBRARY_PATH}"
 # Simply embedding $(<etc/gridargs.dat) into a command line treats each of
 # Second, Life and Developer as separate args -- no good. We need bash to
 # process quotes using eval.
-# First read it without scanning, then scan that string. Break quoted words
+# First, check if we have been instructed to skip reading in gridargs.dat:
+skip_gridargs=false
+argnum=0
+for ARG in "$@"; do
+    if [ "--skip-gridargs" == "$ARG" ]; then
+        skip_gridargs=true
+    else
+        ARGS[$argnum]="$ARG"
+        argnum=$(($argnum+1))
+    fi
+done
+
+# Second, read it without scanning, then scan that string. Break quoted words
 # into a bash array. Note that if gridargs.dat is empty, or contains only
 # whitespace, the resulting gridargs array will be empty -- zero entries --
 # therefore "${gridargs[@]}" entirely vanishes from the command line below,
 # just as we want.
-eval gridargs=("$(<etc/gridargs.dat)")
+if ! $skip_gridargs ; then
+    eval gridargs=("$(<etc/gridargs.dat)")
+fi
 
 # Run the program.
 # Don't quote $LL_WRAPPER because, if empty, it should simply vanish from the
 # command line. But DO quote "$@": preserve separate args as individually
 # quoted. Similar remarks about the contents of gridargs.
-$LL_WRAPPER bin/do-not-directly-run-secondlife-bin "${gridargs[@]}" "$@"
+$LL_WRAPPER bin/do-not-directly-run-secondlife-bin "${gridargs[@]}" "${ARGS[@]}"
 LL_RUN_ERR=$?
 
 # Handle any resulting errors
