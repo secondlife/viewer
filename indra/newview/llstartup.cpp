@@ -740,6 +740,7 @@ bool idle_startup()
 		{
 			display_startup();
 			initialize_edit_menu();
+			initialize_spellcheck_menu();
 			display_startup();
 			init_menus();
 			display_startup();
@@ -3214,17 +3215,6 @@ bool process_login_success_response()
 		U32 preferredMaturity = (U32)LLAgent::convertTextToMaturity(text[0]);
 
 		gSavedSettings.setU32("PreferredMaturity", preferredMaturity);
-	}
-	// During the AO transition, this flag will be true. Then the flag will
-	// go away. After the AO transition, this code and all the code that
-	// uses it can be deleted.
-	text = response["ao_transition"].asString();
-	if (!text.empty())
-	{
-		if (text == "1")
-		{
-			gAgent.setAOTransition();
-		}
 	}
 
 	text = response["start_location"].asString();

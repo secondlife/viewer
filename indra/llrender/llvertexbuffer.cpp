@@ -286,8 +286,10 @@ void LLVBOPool::seedPool()
 				allocate(dummy_name, size, true);
 			}
 		}
+		}
 	}
 }
+
 
 
 void LLVBOPool::cleanup()

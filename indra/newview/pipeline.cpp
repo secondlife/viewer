@@ -2530,6 +2530,11 @@ void LLPipeline::updateGL()
 			glu->mInQ = FALSE;
 			LLGLUpdate::sGLQ.pop_front();
 		}
+
+	{ //seed VBO Pools
+		LLFastTimer t(FTM_SEED_VBO_POOLS);
+		LLVertexBuffer::seedPools();
+	}
 	}
 
 	{ //seed VBO Pools

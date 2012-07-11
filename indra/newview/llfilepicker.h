@@ -85,6 +85,7 @@ public:
 		FFLOAD_MODEL = 9,
 		FFLOAD_COLLADA = 10,
 		FFLOAD_SCRIPT = 11,
+		FFLOAD_DICTIONARY = 12
 	};
 
 	enum ESaveFilter

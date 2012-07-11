@@ -48,7 +48,7 @@
                       height="300"
                       width="330" />
              </layout_panel>
-			 <layout_panel
+			    <layout_panel
                  width="330"
                  layout="topleft"
                  auto_resize="false"

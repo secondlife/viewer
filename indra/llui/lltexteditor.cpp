@@ -54,6 +54,7 @@
 #include "llwindow.h"
 #include "lltextparser.h"
 #include "llscrollcontainer.h"
+#include "llspellcheck.h"
 #include "llpanel.h"
 #include "llurlregistry.h"
 #include "lltooltip.h"
@@ -77,6 +78,7 @@ template class LLTextEditor* LLView::getChild<class LLTextEditor>(
 const S32	UI_TEXTEDITOR_LINE_NUMBER_MARGIN = 32;
 const S32	UI_TEXTEDITOR_LINE_NUMBER_DIGITS = 4;
 const S32	SPACES_PER_TAB = 4;
+const F32	SPELLCHECK_DELAY = 0.5f;	// delay between the last keypress and spell checking the word the cursor is on
 
 ///////////////////////////////////////////////////////////////////
 
@@ -1953,7 +1955,38 @@ void LLTextEditor::showContextMenu(S32 x, S32 y)
 
 	S32 screen_x, screen_y;
 	localPointToScreen(x, y, &screen_x, &screen_y);
-	mContextMenu->show(screen_x, screen_y);
+
+	setCursorAtLocalPos(x, y, false);
+	if (hasSelection())
+	{
+		if ( (mCursorPos < llmin(mSelectionStart, mSelectionEnd)) || (mCursorPos > llmax(mSelectionStart, mSelectionEnd)) )
+		{
+			deselect();
+		}
+		else
+		{
+			setCursorPos(llmax(mSelectionStart, mSelectionEnd));
+		}
+	}
+
+	bool use_spellcheck = getSpellCheck(), is_misspelled = false;
+	if (use_spellcheck)
+	{
+		mSuggestionList.clear();
+
+		// If the cursor is on a misspelled word, retrieve suggestions for it
+		std::string misspelled_word = getMisspelledWord(mCursorPos);
+		if ((is_misspelled = !misspelled_word.empty()) == true)
+		{
+			LLSpellChecker::instance().getSuggestions(misspelled_word, mSuggestionList);
+		}
+	}
+
+	mContextMenu->setItemVisible("Suggestion Separator", (use_spellcheck) && (!mSuggestionList.empty()));
+	mContextMenu->setItemVisible("Add to Dictionary", (use_spellcheck) && (is_misspelled));
+	mContextMenu->setItemVisible("Add to Ignore", (use_spellcheck) && (is_misspelled));
+	mContextMenu->setItemVisible("Spellcheck Separator", (use_spellcheck) && (is_misspelled));
+	mContextMenu->show(screen_x, screen_y, this);
 }
 
 
@@ -2838,6 +2871,9 @@ void LLTextEditor::setKeystrokeCallback(const keystroke_signal_t::slot_type& cal
 void LLTextEditor::onKeyStroke()
 {
 	mKeystrokeSignal(this);
+
+	mSpellCheckStart = mSpellCheckEnd = -1;
+	mSpellCheckTimer.setTimerExpirySec(SPELLCHECK_DELAY);
 }
 
 //virtual

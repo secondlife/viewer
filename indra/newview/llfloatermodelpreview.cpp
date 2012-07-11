@@ -4774,7 +4774,8 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
 			if (vf.mTexCoords)
 			{
 				vb->getTexCoord0Strider(tc_strider);
-				LLVector4a::memcpyNonAliased16((F32*) tc_strider.get(), (F32*) vf.mTexCoords, num_vertices*2*sizeof(F32));
+				S32 tex_size = (num_vertices*2*sizeof(F32)+0xF) & ~0xF;
+				LLVector4a::memcpyNonAliased16((F32*) tc_strider.get(), (F32*) vf.mTexCoords, tex_size);
 			}
 			
 			if (vf.mNormals)
@@ -5047,15 +5048,7 @@ BOOL LLModelPreview::render()
 
 	LLRect preview_rect;
 
-	LLFloaterModelWizard* floater_wizard = dynamic_cast<LLFloaterModelWizard*>(mFMP);
-	if (floater_wizard)
-	{
-		preview_rect = floater_wizard->getPreviewRect();
-	}
-	else
-	{
-		preview_rect = mFMP->getChildView("preview_panel")->getRect();
-	}
+	preview_rect = mFMP->getChildView("preview_panel")->getRect();
 
 	F32 aspect = (F32) preview_rect.getWidth()/preview_rect.getHeight();
 
@@ -5599,7 +5592,6 @@ void LLModelPreview::setPreviewLOD(S32 lod)
 		combo_box->setCurrentByIndex((NUM_LOD-1)-mPreviewLOD); // combo box list of lods is in reverse order
 		mFMP->childSetText("lod_file_" + lod_name[mPreviewLOD], mLODFile[mPreviewLOD]);
 
-		// the wizard has three lod drop downs
 		LLComboBox* combo_box2 = mFMP->getChild<LLComboBox>("preview_lod_combo2");
 		combo_box2->setCurrentByIndex((NUM_LOD-1)-mPreviewLOD); // combo box list of lods is in reverse order
 		
