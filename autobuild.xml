@@ -882,7 +882,7 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d429de68361ef74081c5a96e444e877b</string>
+              <string>50037fff3fd3356a073cdae88348c9ab</string>
               <key>url</key>
               <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/falcon_3p-havok-source/rev/261536/arch/Linux/installer/havok_source-2012.1-linux-20120711.tar.bz2</string>
             </map>
