@@ -206,12 +206,9 @@ void LLSidepanelAppearance::updateToVisibility(const LLSD &new_visibility)
 			}
 			// Disable camera switch is currently just for WT_PHYSICS type since we don't want to freeze the avatar
 			// when editing its physics.
-			const BOOL disable_camera_motion = LLWearableType::getDisableCameraSwitch(wearable_ptr->getType());
-			if (!gAgentCamera.cameraCustomizeAvatar() && 
-				!disable_camera_motion &&
-				gSavedSettings.getBOOL("AppearanceCameraMovement"))
+			if (!gAgentCamera.cameraCustomizeAvatar())
 			{
-				gAgentCamera.changeCameraToCustomizeAvatar();
+				LLVOAvatarSelf::onCustomizeStart(LLWearableType::getDisableCameraSwitch(wearable_ptr->getType()));
 			}
 			if (is_wearable_edit_visible)
 			{
@@ -283,7 +280,7 @@ void LLSidepanelAppearance::onEditAppearanceButtonClicked()
 {
 	if (gAgentWearables.areWearablesLoaded())
 	{
-		gAgentCamera.changeCameraToCustomizeAvatar();
+		LLVOAvatarSelf::onCustomizeStart();
 	}
 }
 
@@ -371,15 +368,14 @@ void LLSidepanelAppearance::toggleOutfitEditPanel(BOOL visible, BOOL disable_cam
 	if (visible)
 	{
 		mOutfitEdit->onOpen(LLSD());
-		if (!disable_camera_switch && gSavedSettings.getBOOL("AppearanceCameraMovement") )
-		{
-			gAgentCamera.changeCameraToCustomizeAvatar();
-		}
+		LLVOAvatarSelf::onCustomizeStart(disable_camera_switch);
 	}
-	else if (!disable_camera_switch && gSavedSettings.getBOOL("AppearanceCameraMovement") )
+	else 
 	{
-		gAgentCamera.changeCameraToDefault();
-		gAgentCamera.resetView();
+		if (!disable_camera_switch)   // if we're just switching between outfit and wearable editing, don't end customization.
+		{
+			LLVOAvatarSelf::onCustomizeEnd(disable_camera_switch);
+		}
 	}
 }
 
@@ -405,10 +401,7 @@ void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLWearable *we
 
 	if (visible)
 	{
-		if (!disable_camera_switch && gSavedSettings.getBOOL("AppearanceCameraMovement") )
-		{
-			gAgentCamera.changeCameraToCustomizeAvatar();
-		}
+		LLVOAvatarSelf::onCustomizeStart(disable_camera_switch);
 		mEditWearable->setWearable(wearable, disable_camera_switch);
 		mEditWearable->onOpen(LLSD()); // currently no-op, just for consistency
 	}
@@ -416,10 +409,9 @@ void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLWearable *we
 	{
 		// Save changes if closing.
 		mEditWearable->saveChanges();
-		if (!disable_camera_switch && gSavedSettings.getBOOL("AppearanceCameraMovement") )
+		if (!disable_camera_switch)   // if we're just switching between outfit and wearable editing, don't end customization.
 		{
-			gAgentCamera.changeCameraToDefault();
-			gAgentCamera.resetView();
+			LLVOAvatarSelf::onCustomizeEnd(disable_camera_switch);
 		}
 	}
 }

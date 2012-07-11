@@ -692,8 +692,9 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mLoadedCallbacksPaused(FALSE),
 	mHasPelvisOffset( FALSE ),
 	mRenderUnloadedAvatar(LLCachedControl<bool>(gSavedSettings, "RenderUnloadedAvatar")),
-	mLastRezzedStatus(-1)
-
+	mLastRezzedStatus(-1),
+	mIsEditingAppearance(FALSE),
+	mUseLocalAppearance(FALSE)
 {
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 	//VTResume();  // VTune
@@ -7336,13 +7337,6 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	mMeshTexturesDirty = TRUE;
 	gPipeline.markGLRebuild(this);
 
-	// ! BACKWARDS COMPATIBILITY !
-	// Non-self avatars will no longer have component textures
-	if (!isSelf())
-	{
-		releaseComponentTextures();
-	}
-	
 	// parse visual params
 	S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_VisualParam);
 	bool drop_visual_params_debug = gSavedSettings.getBOOL("BlockSomeAvatarAppearanceVisualParams") && (ll_rand(2) == 0); // pretend that ~12% of AvatarAppearance messages arrived without a VisualParam block, for testing
