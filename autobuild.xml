@@ -1210,14 +1210,38 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d7665ce1324110bdfad0b846e864f6f9</string>
+              <string>b86dd3437c0c5376bc10a1cc68c03948</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>file:////Users/oz/Work/llphysicsextensions-src/llphysicsextensions_stub-0.2-darwin-20120710.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/oz_llphysicsextensions-stub/rev/261538/arch/Darwin/installer/llphysicsextensions_stub-0.2-darwin-20120710.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>b95738c8d2c29eb21fe107aeb413bff2</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/oz_llphysicsextensions-stub/rev/261538/arch/Linux/installer/llphysicsextensions_stub-0.2-linux-20120711.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>1bfff2876d8785c5fdff56ae3dacb80a</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/oz_llphysicsextensions-stub/rev/261538/arch/CYGWIN/installer/llphysicsextensions_stub-0.2-windows-20120710.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
           </map>
         </map>
         <key>version</key>
