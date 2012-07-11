@@ -74,16 +74,16 @@ void escape_libcurl_debug_data(char * buffer, size_t len, bool scrub,
 							   std::string & safe_line);
 
 
-#if LL_WINDOWS
-
-// Not available on windows where the legacy strtok interface
-// is thread-safe.
-char *strtok_r(char *str, const char *delim, char **saveptr);
-
-#endif // LL_WINDOWS
+// OS-neutral string comparisons of various types
+int os_strncasecmp(const char *s1, const char *s2, size_t n);
+int os_strcasecmp(const char *s1, const char *s2);
+char * os_strtok_r(char *str, const char *delim, char **saveptr);
 
 
-}
+static const char * const hdr_whitespace(" \t");
+static const char * const hdr_separator(": \t");
+
+} // end anonymous namespace
 
 
 namespace LLCore
@@ -228,7 +228,8 @@ void HttpOpRequest::visitNotifier(HttpRequest * request)
 			// Got an explicit offset/length in response
 			response->setRange(mReplyOffset, mReplyLength, mReplyFullLength);
 		}
-
+		response->setContent(mReplyConType, mReplyConEncode);
+		
 		mUserHandler->onCompleted(static_cast<HttpHandle>(this), response);
 
 		response->release();
@@ -315,7 +316,7 @@ void HttpOpRequest::setupCommon(HttpRequest::policy_t policy_id,
 								HttpOptions * options,
 								HttpHeaders * headers)
 {
-	mProcFlags = 0;
+	mProcFlags = PF_SCAN_CONTENT_HEADERS;		// Always scan for content headers
 	mReqPolicy = policy_id;
 	mReqPriority = priority;
 	mReqURL = url;
@@ -377,6 +378,8 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 		mReplyHeaders->release();
 		mReplyHeaders = NULL;
 	}
+	mReplyConType.clear();
+	mReplyConEncode.clear();
 	
 	// *FIXME:  better error handling later
 	HttpStatus status;
@@ -539,7 +542,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	}
 	curl_easy_setopt(mCurlHandle, CURLOPT_HTTPHEADER, mCurlHeaders);
 
-	if (mProcFlags & (PF_SCAN_RANGE_HEADER | PF_SAVE_HEADERS))
+	if (mProcFlags & (PF_SCAN_RANGE_HEADER | PF_SAVE_HEADERS | PF_SCAN_CONTENT_HEADERS))
 	{
 		curl_easy_setopt(mCurlHandle, CURLOPT_HEADERFUNCTION, headerCallback);
 		curl_easy_setopt(mCurlHandle, CURLOPT_HEADERDATA, this);
@@ -598,12 +601,18 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 
 	static const char con_ran_line[] = "content-range:";
 	static const size_t con_ran_line_len = sizeof(con_ran_line) - 1;
+
+	static const char con_type_line[] = "content-type:";
+	static const size_t con_type_line_len = sizeof(con_type_line) - 1;
+	
+	static const char con_enc_line[] = "content-encoding:";
+	static const size_t con_enc_line_len = sizeof(con_enc_line) - 1;
 	
 	HttpOpRequest * op(static_cast<HttpOpRequest *>(userdata));
 
 	const size_t hdr_size(size * nmemb);
 	const char * hdr_data(static_cast<const char *>(data));		// Not null terminated
-	
+
 	if (hdr_size >= status_line_len && ! strncmp(status_line, hdr_data, status_line_len))
 	{
 		// One of possibly several status lines.  Reset what we know and start over
@@ -611,24 +620,47 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 		op->mReplyOffset = 0;
 		op->mReplyLength = 0;
 		op->mReplyFullLength = 0;
+		op->mReplyConType.clear();
+		op->mReplyConEncode.clear();
 		op->mStatus = HttpStatus();
 		if (op->mReplyHeaders)
 		{
 			op->mReplyHeaders->mHeaders.clear();
 		}
 	}
-	else if (op->mProcFlags & PF_SCAN_RANGE_HEADER)
+
+	// Nothing in here wants a final CR/LF combination.  Remove
+	// it as much as possible.
+	size_t wanted_hdr_size(hdr_size);
+	if (wanted_hdr_size && '\n' == hdr_data[wanted_hdr_size - 1])
+	{
+		if (--wanted_hdr_size && '\r' == hdr_data[wanted_hdr_size - 1])
+		{
+			--wanted_hdr_size;
+		}
+	}
+	
+	// Save header if caller wants them in the response
+	if (op->mProcFlags & PF_SAVE_HEADERS)
+	{
+		// Save headers in response
+		if (! op->mReplyHeaders)
+		{
+			op->mReplyHeaders = new HttpHeaders;
+		}
+		op->mReplyHeaders->mHeaders.push_back(std::string(hdr_data, wanted_hdr_size));
+	}
+
+	// Detect and parse 'Content-Range' headers
+	if (op->mProcFlags & PF_SCAN_RANGE_HEADER)
 	{
 		char hdr_buffer[128];			// Enough for a reasonable header
-		size_t frag_size((std::min)(hdr_size, sizeof(hdr_buffer) - 1));
+		size_t frag_size((std::min)(wanted_hdr_size, sizeof(hdr_buffer) - 1));
 		
 		memcpy(hdr_buffer, hdr_data, frag_size);
 		hdr_buffer[frag_size] = '\0';
-#if LL_WINDOWS
-		if (! _strnicmp(hdr_buffer, con_ran_line, (std::min)(frag_size, con_ran_line_len)))
-#else
-		if (! strncasecmp(hdr_buffer, con_ran_line, (std::min)(frag_size, con_ran_line_len)))
-#endif	// LL_WINDOWS
+		if (frag_size > con_ran_line_len &&
+			! os_strncasecmp(hdr_buffer, con_ran_line, con_ran_line_len))
 		{
 			unsigned int first(0), last(0), length(0);
 			int status;
@@ -656,22 +688,43 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 		}
 	}
 
-	if (op->mProcFlags & PF_SAVE_HEADERS)
+	// Detect and parse 'Content-Type' and 'Content-Encoding' headers
+	if (op->mProcFlags & PF_SCAN_CONTENT_HEADERS)
 	{
-		// Save headers in response
-		if (! op->mReplyHeaders)
+		if (wanted_hdr_size > con_type_line_len &&
+			! os_strncasecmp(hdr_data, con_type_line, con_type_line_len))
 		{
-			op->mReplyHeaders = new HttpHeaders;
-		}
-		size_t wanted_size(hdr_size);
-		if (wanted_size && '\n' == hdr_data[wanted_size - 1])
-		{
-			if (--wanted_size && '\r' == hdr_data[wanted_size - 1])
+			// Found 'Content-Type:', extract single-token value
+			std::string rhs(hdr_data + con_type_line_len, wanted_hdr_size - con_type_line_len);
+			std::string::size_type begin(0), end(rhs.size()), pos;
+
+			if ((pos = rhs.find_first_not_of(hdr_whitespace)) != std::string::npos)
 			{
-				--wanted_size;
+				begin = pos;
 			}
+			if ((pos = rhs.find_first_of(hdr_whitespace, begin)) != std::string::npos)
+			{
+				end = pos;
+			}
+			op->mReplyConType.assign(rhs, begin, end - begin);
 		}
-		op->mReplyHeaders->mHeaders.push_back(std::string(hdr_data, wanted_size));
+		else if (wanted_hdr_size > con_enc_line_len &&
+				 ! os_strncasecmp(hdr_data, con_enc_line, con_enc_line_len))
+		{
+			// Found 'Content-Encoding:', extract single-token value
+			std::string rhs(hdr_data + con_enc_line_len, wanted_hdr_size - con_enc_line_len);
+			std::string::size_type begin(0), end(rhs.size()), pos;
+
+			if ((pos = rhs.find_first_not_of(hdr_whitespace)) != std::string::npos)
+			{
+				begin = pos;
+			}
+			if ((pos = rhs.find_first_of(hdr_whitespace, begin)) != std::string::npos)
+			{
+				end = pos;
+			}
+			op->mReplyConEncode.assign(rhs, begin, end - begin);
+		}
 	}
 
 	return hdr_size;
@@ -788,15 +841,11 @@ int parse_content_range_header(char * buffer,
 	char * tok_state(NULL), * tok(NULL);
 	bool match(true);
 			
-	if (! strtok_r(buffer, ": \t", &tok_state))
+	if (! os_strtok_r(buffer, hdr_separator, &tok_state))
 		match = false;
-	if (match && (tok = strtok_r(NULL, " \t", &tok_state)))
-#if LL_WINDOWS
-		match = 0 == _stricmp("bytes", tok);
-#else
-		match = 0 == strcasecmp("bytes", tok);
-#endif // LL_WINDOWS
-	if (match && ! (tok = strtok_r(NULL, " \t", &tok_state)))
+	if (match && (tok = os_strtok_r(NULL, hdr_whitespace, &tok_state)))
+		match = 0 == os_strcasecmp("bytes", tok);
+	if (match && ! (tok = os_strtok_r(NULL, " \t", &tok_state)))
 		match = false;
 	if (match)
 	{
@@ -834,15 +883,6 @@ int parse_content_range_header(char * buffer,
 	return 1;
 }
 
-#if LL_WINDOWS
-
-char *strtok_r(char *str, const char *delim, char ** savestate)
-{
-	return strtok_s(str, delim, savestate);
-}
-
-#endif // LL_WINDOWS
-
 
 void escape_libcurl_debug_data(char * buffer, size_t len, bool scrub, std::string & safe_line)
 {
@@ -877,6 +917,36 @@ void escape_libcurl_debug_data(char * buffer, size_t len, bool scrub, std::strin
 		}
 	}
 	safe_line.swap(out);
+}
+
+
+int os_strncasecmp(const char *s1, const char *s2, size_t n)
+{
+#if LL_WINDOWS
+	return _strnicmp(s1, s2, n);
+#else
+	return strncasecmp(s1, s2, n);
+#endif	// LL_WINDOWS
+}
+
+
+int os_strcasecmp(const char *s1, const char *s2)
+{
+#if LL_WINDOWS
+	return _stricmp(s1, s2);
+#else
+	return strcasecmp(s1, s2);
+#endif // LL_WINDOWS
+}
+
+
+char * os_strtok_r(char *str, const char *delim, char ** savestate)
+{
+#if LL_WINDOWS
+	return strtok_s(str, delim, savestate);
+#else
+	return strtok_r(str, delim, savestate);
+#endif
 }
 
 

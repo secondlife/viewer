@@ -28,6 +28,8 @@
 #define	_LLCORE_HTTP_RESPONSE_H_
 
 
+#include <string>
+
 #include "httpcommon.h"
 
 #include "_refcounted.h"
@@ -130,7 +132,20 @@ public:
 			mReplyLength = length;
 			mReplyFullLength = full_length;
 		}
-			
+
+	///
+	void getContent(std::string & con_type, std::string & con_encode) const
+		{
+			con_type = mContentType;
+			con_encode = mContentEncoding;
+		}
+
+	void setContent(const std::string & con_type, const std::string & con_encode)
+		{
+			mContentType = con_type;
+			mContentEncoding = con_encode;
+		}
+
 protected:
 	// Response data here
 	HttpStatus			mStatus;
@@ -139,6 +154,8 @@ protected:
 	unsigned int		mReplyFullLength;
 	BufferArray *		mBufferArray;
 	HttpHeaders *		mHeaders;
+	std::string			mContentType;
+	std::string			mContentEncoding;
 };
 
 
