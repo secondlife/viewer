@@ -2787,6 +2787,36 @@ BOOL LLSelectMgr::selectGetRootsNonCharacter()
 
 
 //-----------------------------------------------------------------------------
+// selectGetEditableLinksets() - return TRUE if all objects are editable
+//                               pathfinding linksets
+//-----------------------------------------------------------------------------
+BOOL LLSelectMgr::selectGetEditableLinksets()
+{
+	for (LLObjectSelection::iterator iter = getSelection()->begin();
+		 iter != getSelection()->end(); iter++ )
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
+		if( !object || !node->mValid )
+		{
+			return FALSE;
+		}
+		if (object->flagUsePhysics() ||
+			object->flagTemporaryOnRez() ||
+			object->flagCharacter() ||
+			object->flagAnimSource() ||
+			(!gAgent.isGodlike() && 
+			!gAgent.canManageEstate() &&
+			!object->permYouOwner() &&
+			!object->permMove()))
+		{
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+
+//-----------------------------------------------------------------------------
 // selectGetRootsTransfer() - return TRUE if current agent can transfer all
 // selected root objects.
 //-----------------------------------------------------------------------------

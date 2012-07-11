@@ -584,6 +584,8 @@ public:
 	BOOL selectGetRootsNonCharacter();
 	BOOL selectGetNonCharacter();
 
+	BOOL selectGetEditableLinksets();
+
 	// returns TRUE if selected objects can be transferred.
 	BOOL selectGetRootsTransfer();
 

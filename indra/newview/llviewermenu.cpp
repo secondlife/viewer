@@ -2804,7 +2804,7 @@ bool enable_object_build()
 
 bool enable_object_select_in_pathfinding_linksets()
 {
-	return LLPathfindingManager::getInstance()->isPathfindingEnabledForCurrentRegion() &&  LLSelectMgr::getInstance()->selectGetNonCharacter();
+	return LLPathfindingManager::getInstance()->isPathfindingEnabledForCurrentRegion() && LLSelectMgr::getInstance()->selectGetEditableLinksets();
 }
 
 bool enable_object_select_in_pathfinding_characters()
