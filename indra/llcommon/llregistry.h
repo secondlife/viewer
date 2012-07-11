@@ -34,9 +34,19 @@
 #include "llsingleton.h"
 
 template <typename T>
-class LLRegistryDefaultComparator
+struct LLRegistryDefaultComparator
 {
-	bool operator()(const T& lhs, const T& rhs) { return lhs < rhs; }
+	bool operator()(const T& lhs, const T& rhs) const { return lhs < rhs; }
+};
+
+// comparator for const char* registry keys
+template <>
+struct LLRegistryDefaultComparator<const char*>
+{
+	bool operator()(const char* lhs, const char* rhs) const
+	{
+		return strcmp(lhs, rhs) < 0;
+	}
 };
 
 template <typename KEY, typename VALUE, typename COMPARATOR = LLRegistryDefaultComparator<KEY> >
@@ -62,7 +72,7 @@ public:
 	{
 		friend class LLRegistry<KEY, VALUE, COMPARATOR>;
 	public:
-		typedef std::map<KEY, VALUE> registry_map_t;
+		typedef std::map<KEY, VALUE, COMPARATOR> registry_map_t;
 
 		bool add(ref_const_key_t key, ref_const_value_t value)
 		{

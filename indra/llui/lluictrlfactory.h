@@ -34,15 +34,6 @@
 
 class LLView;
 
-// sort functor for typeid maps
-struct LLCompareTypeID
-{
-	bool operator()(const std::type_info* lhs, const std::type_info* rhs) const
-	{
-		return lhs->before(*rhs);
-	}
-};
-
 // lookup widget constructor funcs by widget name
 template <typename DERIVED_TYPE>
 class LLChildRegistry : public LLRegistrySingleton<std::string, LLWidgetCreatorFunc, DERIVED_TYPE>
@@ -71,7 +62,7 @@ protected:
 
 // lookup widget name by type (actually by std::type_info::name())
 class LLWidgetNameRegistry 
-:	public LLRegistrySingleton<const char*, std::string, LLWidgetNameRegistry , LLCompareTypeID>
+:	public LLRegistrySingleton<const char*, std::string, LLWidgetNameRegistry>
 {};
 
 // lookup function for generating empty param block by widget type

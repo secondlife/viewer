@@ -212,14 +212,6 @@ namespace LLInitParam
 
 	public:
 		
-		struct CompareTypeID
-		{
-			bool operator()(const std::type_info* lhs, const std::type_info* rhs) const
-			{
-				return lhs->before(*rhs);
-			}
-		};
-
 		typedef std::vector<std::pair<std::string, bool> >					name_stack_t;
 		typedef std::pair<name_stack_t::iterator, name_stack_t::iterator>	name_stack_range_t;
 		typedef std::vector<std::string>									possible_values_t;
