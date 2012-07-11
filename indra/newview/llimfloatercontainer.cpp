@@ -393,7 +393,9 @@ void LLIMFloaterContainer::updateState(bool collapse, S32 delta_width)
 {
 	LLRect floater_rect = getRect();
 	floater_rect.mRight += ((collapse ? -1 : 1) * delta_width);
-	setShape(floater_rect);
+
+	// Set by_user = true so that reshaped rect is saved in user_settings.
+	setShape(floater_rect, true);
 
 	updateResizeLimits();
 
