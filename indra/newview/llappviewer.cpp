@@ -631,8 +631,6 @@ LLAppViewer::LLAppViewer() :
 	mForceGraphicsDetail(false),
 	mQuitRequested(false),
 	mLogoutRequestSent(false),
-	mYieldTime(-1),
-	mMinFrameTime(-1.0),
 	mMainloopTimeout(NULL),
 	mAgentRegionLastAlive(false),
 	mRandomizeFramerate(LLCachedControl<bool>(gSavedSettings,"Randomize Framerate", FALSE)),
@@ -1200,7 +1198,7 @@ bool LLAppViewer::mainLoop()
 	LLVoiceChannel::initClass();
 	LLVoiceClient::getInstance()->init(gServicePump);
 	LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLCallFloater::sOnCurrentChannelChanged, _1), true);
-	LLTimer frameTimer,idleTimer;
+	LLTimer frameTimer,idleTimer,periodicRenderingTimer;
 	LLTimer debugTime;
 	LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
 	joystick->setNeedsReset(true);
@@ -1211,6 +1209,8 @@ bool LLAppViewer::mainLoop()
     // time. Obviously, if that changes, just instantiate the LLSD at the
     // point of posting.
     LLSD newFrame;
+
+	BOOL restore_rendering_masks = FALSE;
 
 	//LLPrivateMemoryPoolTester::getInstance()->run(false) ;
 	//LLPrivateMemoryPoolTester::getInstance()->run(true) ;
@@ -1229,6 +1229,28 @@ bool LLAppViewer::mainLoop()
 		
 		try
 		{
+			// Check if we need to restore rendering masks.
+			if (restore_rendering_masks)
+			{
+				gPipeline.popRenderDebugFeatureMask();
+				gPipeline.popRenderTypeMask();
+			}
+			// Check if we need to temporarily enable rendering.
+			F32 periodic_rendering = gSavedSettings.getF32("ForcePeriodicRenderingTime");
+			if (periodic_rendering > F_APPROXIMATELY_ZERO && periodicRenderingTimer.getElapsedTimeF64() > periodic_rendering)
+			{
+				periodicRenderingTimer.reset();
+				restore_rendering_masks = TRUE;
+				gPipeline.pushRenderTypeMask();
+				gPipeline.pushRenderDebugFeatureMask();
+				gPipeline.setAllRenderTypes();
+				gPipeline.setAllRenderDebugFeatures();
+			}
+			else
+			{
+				restore_rendering_masks = FALSE;
+			}
+
 			pingMainloopTimeout("Main:MiscNativeWindowEvents");
 
 			if (gViewerWindow)
@@ -1351,10 +1373,11 @@ bool LLAppViewer::mainLoop()
 				LLFastTimer t2(FTM_SLEEP);
 				
 				// yield some time to the os based on command line option
-				if(mYieldTime >= 0)
+				S32 yield_time = gSavedSettings.getS32("YieldTime");
+				if(yield_time >= 0)
 				{
 					LLFastTimer t(FTM_YIELD);
-					ms_sleep(mYieldTime);
+					ms_sleep(yield_time);
 				}
 
 				// yield cooperatively when not running as foreground window
@@ -1468,10 +1491,12 @@ bool LLAppViewer::mainLoop()
 				}
 
 				// Limit FPS
-				if (mMinFrameTime > F_APPROXIMATELY_ZERO)
+				F32 max_fps = gSavedSettings.getF32("MaxFPS");
+				if (max_fps > F_APPROXIMATELY_ZERO)
 				{
 					// Sleep a while to limit frame rate.
-					S32 milliseconds_to_sleep = llclamp((S32)((mMinFrameTime - frameTimer.getElapsedTimeF64()) * 1000.f), 0, 1000);
+					F32 min_frame_time = 1.f / max_fps;
+					S32 milliseconds_to_sleep = llclamp((S32)((min_frame_time - frameTimer.getElapsedTimeF64()) * 1000.f), 0, 1000);
 					if (milliseconds_to_sleep > 0)
 					{
 						LLFastTimer t(FTM_YIELD);
@@ -2588,14 +2613,6 @@ bool LLAppViewer::initConfiguration()
 			dict_list.pop_front();
 			LLSpellChecker::instance().setSecondaryDictionaries(dict_list);
 		}
-	}
-
-    mYieldTime = gSavedSettings.getS32("YieldTime");
-	mMinFrameTime = -1.0f;
-	F32 max_fps = gSavedSettings.getF32("MaxFPS");
-	if (max_fps > F_APPROXIMATELY_ZERO)
-	{
-		mMinFrameTime = 1.0f / max_fps;
 	}
 
 	// Read skin/branding settings if specified.

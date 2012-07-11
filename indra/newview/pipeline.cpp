@@ -72,6 +72,7 @@
 #include "llhudtext.h"
 #include "lllightconstants.h"
 #include "llmeshrepository.h"
+#include "llpipelinelistener.h"
 #include "llresmgr.h"
 #include "llselectmgr.h"
 #include "llsky.h"
@@ -368,6 +369,8 @@ BOOL    LLPipeline::sMemAllocationThrottled = FALSE;
 S32		LLPipeline::sVisibleLightCount = 0;
 F32		LLPipeline::sMinRenderSize = 0.f;
 
+// EventHost API LLPipeline listener.
+static LLPipelineListener sPipelineListener;
 
 static LLCullResult* sCull = NULL;
 
@@ -473,13 +476,13 @@ void LLPipeline::init()
 
 	if (gSavedSettings.getBOOL("DisableAllRenderFeatures"))
 	{
-		mRenderDebugFeatureMask = 0x0;
+		clearAllRenderDebugFeatures();
 	}
 	else
 	{
-		mRenderDebugFeatureMask = 0xffffffff; // By default, all debugging features on
+		setAllRenderDebugFeatures(); // By default, all debugging features on
 	}
-	mRenderDebugMask = 0;	// All debug starts off
+	clearAllRenderDebugDisplays(); // All debug displays off
 
 	if (gSavedSettings.getBOOL("DisableAllRenderTypes"))
 	{
@@ -6006,6 +6009,22 @@ void LLPipeline::setRenderDebugFeatureControl(U32 bit, bool value)
 	{
 		gPipeline.mRenderDebugFeatureMask &= !bit;
 	}
+}
+
+void LLPipeline::pushRenderDebugFeatureMask()
+{
+	mRenderDebugFeatureStack.push(mRenderDebugFeatureMask);
+}
+
+void LLPipeline::popRenderDebugFeatureMask()
+{
+	if (mRenderDebugFeatureStack.empty())
+	{
+		llerrs << "Depleted render feature stack." << llendl;
+	}
+
+	mRenderDebugFeatureMask = mRenderDebugFeatureStack.top();
+	mRenderDebugFeatureStack.pop();
 }
 
 // static

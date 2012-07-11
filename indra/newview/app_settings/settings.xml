@@ -13043,6 +13043,17 @@
       <key>Value</key>
       <integer>-1.0</integer>
     </map>
+    <key>ForcePeriodicRenderingTime</key>
+    <map>
+      <key>Comment</key>
+      <string>Periodically enable all rendering masks for a single frame.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <integer>-1.0</integer>
+    </map>
     <key>ZoomDirect</key>
     <map>
       <key>Comment</key>
