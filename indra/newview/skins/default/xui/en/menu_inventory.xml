@@ -537,6 +537,14 @@
      layout="topleft"
      name="Landmark Separator" />
     <menu_item_call
+    label="Copy SLurl"
+    layout="topleft"
+    name="url_copy">
+       <menu_item_call.on_click
+        function="Inventory.DoToSelected"
+        parameter="copy_slurl" />
+   </menu_item_call> 
+   <menu_item_call
      label="About Landmark"
      layout="topleft"
      name="About Landmark">

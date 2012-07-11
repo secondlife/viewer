@@ -71,6 +71,9 @@
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
 #include "llwearablelist.h"
+#include "lllandmarkactions.h"
+
+void copy_slurl_to_clipboard_callback_inv(const std::string& slurl);
 
 // Marketplace outbox current disabled
 #define ENABLE_MERCHANT_OUTBOX_CONTEXT_MENU	1
@@ -1396,6 +1399,29 @@ void LLItemBridge::performAction(LLInventoryModel* model, std::string action)
 		const LLUUID outbox_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false, false);
 		copy_item_to_outbox(itemp, outbox_id, LLUUID::null, LLToolDragAndDrop::getOperationId());
 	}
+	else if ("copy_slurl" == action)
+	{
+		LLViewerInventoryItem* item = static_cast<LLViewerInventoryItem*>(getItem());
+		if(item)
+		{
+			LLUUID asset_id = item->getAssetUUID();
+			LLLandmark* landmark = gLandmarkList.getAsset(asset_id);
+			if (landmark)
+			{
+				LLVector3d global_pos;
+				landmark->getGlobalPos(global_pos);
+				LLLandmarkActions::getSLURLfromPosGlobal(global_pos, &copy_slurl_to_clipboard_callback_inv, true);
+			}
+		}
+	}
+}
+
+void copy_slurl_to_clipboard_callback_inv(const std::string& slurl)
+{
+	gViewerWindow->getWindow()->copyTextToClipboard(utf8str_to_wstring(slurl));
+	LLSD args;
+	args["SLURL"] = slurl;
+	LLNotificationsUtil::add("CopySLURL", args);
 }
 
 void LLItemBridge::selectItem()
@@ -4397,6 +4423,7 @@ void LLLandmarkBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		}
 
 		items.push_back(std::string("Landmark Separator"));
+		items.push_back(std::string("url_copy"));
 		items.push_back(std::string("About Landmark"));
 	}
 
@@ -4405,6 +4432,7 @@ void LLLandmarkBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	// info panel can be shown at a time.
 	if ((flags & FIRST_SELECTED_ITEM) == 0)
 	{
+		disabled_items.push_back(std::string("url_copy"));
 		disabled_items.push_back(std::string("About Landmark"));
 	}
 
