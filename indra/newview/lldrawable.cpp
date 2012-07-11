@@ -625,8 +625,6 @@ BOOL LLDrawable::updateMove()
 		return FALSE;
 	}
 	
-	makeActive();
-	
 	BOOL done;
 
 	if (isState(MOVE_UNDAMPED))
@@ -635,6 +633,7 @@ BOOL LLDrawable::updateMove()
 	}
 	else
 	{
+		makeActive();
 		done = updateMoveDamped();
 	}
 	return done;

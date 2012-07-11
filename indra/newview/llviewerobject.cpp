@@ -782,7 +782,13 @@ BOOL LLViewerObject::setDrawableParent(LLDrawable* parentp)
 	}
 	LLDrawable* old_parent = mDrawable->mParent;
 	mDrawable->mParent = parentp; 
-		
+	
+	if (parentp && mDrawable->isActive())
+	{
+		parentp->makeActive();
+		parentp->setState(LLDrawable::ACTIVE_CHILD);
+	}
+
 	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
 	if(	(old_parent != parentp && old_parent)
 		|| (parentp && parentp->isActive()))
