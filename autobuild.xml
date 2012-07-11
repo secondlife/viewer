@@ -870,9 +870,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4ceeb68ac59a2b999a069b27020f76d3</string>
+              <string>efaf5cb3e861d44518eb03f4c406f03c</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/falcon_3p-havok-source/rev/261056/arch/Darwin/installer/havok_source-2012.1-darwin-20120702.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/falcon_3p-havok-source/rev/261536/arch/Darwin/installer/havok_source-2012.1-darwin-20120710.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -882,9 +882,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0591902d3e7eff848f71915df86d8837</string>
+              <string>d429de68361ef74081c5a96e444e877b</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/falcon_3p-havok-source/rev/261056/arch/Linux/installer/havok_source-2012.1-linux-20120702.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/falcon_3p-havok-source/rev/261536/arch/Linux/installer/havok_source-2012.1-linux-20120711.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -894,9 +894,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3a860c548aa311dc4e09d17a3a914a98</string>
+              <string>cd6638f5a03469654615730c16889a60</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/falcon_3p-havok-source/rev/261056/arch/CYGWIN/installer/havok_source-2012.1-windows-20120702.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/falcon_3p-havok-source/rev/261536/arch/CYGWIN/installer/havok_source-2012.1-windows-20120710.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1158,11 +1158,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5f75735d1092b087b3373ca874c41593</string>
+              <string>11bfb4c6ca2bfe64375f7ece1ea1d313</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/oz_llphysicsextensions-source/rev/261490/arch/Darwin/installer/llphysicsextensions_source-0.2-darwin-20120710.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/oz_llphysicsextensions-source/rev/261538/arch/Darwin/installer/llphysicsextensions_source-0.2-darwin-20120710.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1172,9 +1172,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>911f46354e338a7013f023385a3f905f</string>
+              <string>71505a9cd2d4490ba1bea6a67f20ecac</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/oz_llphysicsextensions-source/rev/261490/arch/Linux/installer/llphysicsextensions_source-0.2-linux-20120710.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/oz_llphysicsextensions-source/rev/261538/arch/Linux/installer/llphysicsextensions_source-0.2-linux-20120711.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1184,9 +1184,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b1212ec910042d186836d496d288984c</string>
+              <string>1286c0fb573498f7aa419174e0f46d7c</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/oz_llphysicsextensions-source/rev/261490/arch/CYGWIN/installer/llphysicsextensions_source-0.2-windows-20120710.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/oz_llphysicsextensions-source/rev/261538/arch/CYGWIN/installer/llphysicsextensions_source-0.2-windows-20120710.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
