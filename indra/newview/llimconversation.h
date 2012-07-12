@@ -91,6 +91,7 @@ protected:
 
 	bool mIsNearbyChat;
 	bool mIsP2PChat;
+	bool mWasHosted;
 
 	LLLayoutPanel* mParticipantListPanel;
 	LLParticipantList* mParticipantList;

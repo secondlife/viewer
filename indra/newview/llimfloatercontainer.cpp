@@ -154,12 +154,6 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 	// Add a conversation list item in the left pane
 	addConversationListItem(floaterp->getTitle(), session_id, floaterp);
 	
-	LLView* floater_contents = floaterp->getChild<LLView>("contents_view");
-
-	// we don't show the header when the floater is hosted,
-	// so reshape floater contents to occupy the header space
-	floater_contents->setShape(floaterp->getRect());
-
 	LLIconCtrl* icon = 0;
 
 	if(gAgent.isInGroup(session_id, TRUE))
@@ -185,19 +179,6 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 	mTabContainer->setTabImage(floaterp, icon);
 }
 
-// virtual
-void LLIMFloaterContainer::removeFloater(LLFloater* floaterp)
-{
-	LLMultiFloater::removeFloater(floaterp);
-
-	LLRect contents_rect = floaterp->getRect();
-
-	// reduce the floater contents height by header height
-	contents_rect.mTop -= floaterp->getHeaderHeight();
-
-	LLView* floater_contents = floaterp->getChild<LLView>("contents_view");
-	floater_contents->setShape(contents_rect);
-}
 
 void LLIMFloaterContainer::onCloseFloater(LLUUID& id)
 {

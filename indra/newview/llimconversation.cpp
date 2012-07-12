@@ -219,16 +219,39 @@ void LLIMConversation::updateHeaderAndToolbar()
 {
 	bool is_hosted = getHost() != NULL;
 
-	if (is_hosted)
+	if (mWasHosted != is_hosted)
 	{
-		for (S32 i = 0; i < BUTTON_COUNT; i++)
+		mWasHosted = is_hosted;
+		LLView* floater_contents = getChild<LLView>("contents_view");
+		LLRect contents_rect = floater_contents->getRect();
+
+		if (is_hosted)
 		{
-			if (mButtons[i])
+			for (S32 i = 0; i < BUTTON_COUNT; i++)
 			{
-				// Hide the standard header buttons in a docked IM floater.
-				mButtons[i]->setVisible(false);
+				if (mButtons[i])
+				{
+					// Hide the standard header buttons in a docked IM floater.
+					mButtons[i]->setVisible(false);
+				}
 			}
+
+			// we don't show the header when the floater is hosted, so reshape floater contents
+			// to occupy the header space.
+			LLRect floater_rect = getRect();
+			contents_rect.setOriginAndSize(
+					contents_rect.mLeft,
+					contents_rect.mBottom,
+					floater_rect.getWidth(),
+					floater_rect.getHeight());
 		}
+		else
+		{
+			// reduce the floater contents height by header height
+			contents_rect.mTop -= getHeaderHeight();
+		}
+
+		floater_contents->setShape(contents_rect);
 	}
 
 	// Participant list should be visible only in torn off floaters.

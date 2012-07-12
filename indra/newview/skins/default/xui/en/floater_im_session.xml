@@ -9,6 +9,7 @@
  can_dock="false"
  can_minimize="true"
  can_close="true"
+ save_rect="true"
  visible="false"
  width="394"
  can_resize="true"
