@@ -2806,10 +2806,35 @@ BOOL LLSelectMgr::selectGetEditableLinksets()
 			object->flagCharacter() ||
 			object->flagVolumeDetect() ||
 			object->flagAnimSource() ||
+			(object->getRegion() != gAgent.getRegion()) ||
 			(!gAgent.isGodlike() && 
 			!gAgent.canManageEstate() &&
 			!object->permYouOwner() &&
 			!object->permMove()))
+		{
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+
+//-----------------------------------------------------------------------------
+// selectGetViewableCharacters() - return TRUE if all objects are characters
+//                        viewable within the pathfinding characters floater
+//-----------------------------------------------------------------------------
+BOOL LLSelectMgr::selectGetViewableCharacters()
+{
+	for (LLObjectSelection::iterator iter = getSelection()->begin();
+		 iter != getSelection()->end(); iter++ )
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
+		if( !object || !node->mValid )
+		{
+			return FALSE;
+		}
+		if( !object->flagCharacter() ||
+			(object->getRegion() != gAgent.getRegion()))
 		{
 			return FALSE;
 		}

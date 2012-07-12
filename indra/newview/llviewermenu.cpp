@@ -2809,7 +2809,7 @@ bool enable_object_select_in_pathfinding_linksets()
 
 bool enable_object_select_in_pathfinding_characters()
 {
-	return LLPathfindingManager::getInstance()->isPathfindingEnabledForCurrentRegion() &&  LLSelectMgr::getInstance()->selectGetCharacter();
+	return LLPathfindingManager::getInstance()->isPathfindingEnabledForCurrentRegion() &&  LLSelectMgr::getInstance()->selectGetViewableCharacters();
 }
 
 class LLSelfRemoveAllAttachments : public view_listener_t
