@@ -135,7 +135,11 @@ void LLPathfindingObject::fetchOwnerName()
 	mHasOwnerName = false;
 	if (hasOwner())
 	{
-		LLAvatarNameCache::get(mOwnerUUID, boost::bind(&LLPathfindingObject::handleAvatarNameFetch, this, _1, _2));
+		mHasOwnerName = LLAvatarNameCache::get(mOwnerUUID, &mOwnerName);
+		if (!mHasOwnerName)
+		{
+			LLAvatarNameCache::get(mOwnerUUID, boost::bind(&LLPathfindingObject::handleAvatarNameFetch, this, _1, _2));
+		}
 	}
 }
 
