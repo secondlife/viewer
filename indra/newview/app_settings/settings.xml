@@ -13886,39 +13886,6 @@
     <real>2.3</real>
   </map>
 
-  <key>PathfindingDisablePermanentObjects</key>
-  <map>
-    <key>Comment</key>
-    <string>Disables the viewer from seeing the permanent object flag.  Useful for testing server-side enforcement of permanent object rules.</string>
-    <key>Persist</key>
-    <integer>0</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
-  <key>PathfindingDisableCharacterObjects</key>
-  <map>
-    <key>Comment</key>
-    <string>Disables the viewer from seeing the character object flag.  Useful for testing server-side enforcement of character object rules.</string>
-    <key>Persist</key>
-    <integer>0</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
-  <key>PathfindingEnableAlwaysAllowRebakeNavMesh</key>
-  <map>
-    <key>Comment</key>
-    <string>Always allows the rebake navmesh button to appear on dirty regions, regardless of whether the user has permissions.</string>
-    <key>Persist</key>
-    <integer>0</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
   <key>PathfindingWaterColor</key>
     <map>
       <key>Comment</key>

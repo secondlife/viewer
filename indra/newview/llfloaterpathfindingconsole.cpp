@@ -53,6 +53,7 @@
 #include "lltextbase.h"
 #include "lltoolmgr.h"
 #include "lltoolfocus.h"
+#include "llviewercontrol.h"
 #include "llviewerparcelmgr.h"
 #include "pipeline.h"
 
