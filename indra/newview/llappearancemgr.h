@@ -95,6 +95,8 @@ public:
 	const LLUUID getCOF() const;
 	S32 getCOFVersion() const;
 
+	S32 mLastUpdateRequestCOFVersion;
+
 	// Finds the folder link to the currently worn outfit
 	const LLViewerInventoryItem *getBaseOutfitLink();
 	bool getBaseOutfitName(std::string &name);

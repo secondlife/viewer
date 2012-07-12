@@ -2623,8 +2623,11 @@ void LLAppearanceMgr::requestServerAppearanceUpdate()
 	if (!url.empty())
 	{
 		LLSD body;
-		body["cof_version"] = getCOFVersion();
+		S32 cof_version = getCOFVersion();
+		body["cof_version"] = cof_version;
 		LLHTTPClient::post(url, body, new RequestAgentUpdateAppearanceResponder);
+		llassert(cof_version >= mLastUpdateRequestCOFVersion);
+		mLastUpdateRequestCOFVersion = cof_version;
 	}
 	else
 	{
@@ -2842,7 +2845,8 @@ LLAppearanceMgr::LLAppearanceMgr():
 	mAttachmentInvLinkEnabled(false),
 	mOutfitIsDirty(false),
 	mOutfitLocked(false),
-	mIsInUpdateAppearanceFromCOF(false)
+	mIsInUpdateAppearanceFromCOF(false),
+	mLastUpdateRequestCOFVersion(LLViewerInventoryCategory::VERSION_UNKNOWN)
 {
 	LLOutfitObserver& outfit_observer = LLOutfitObserver::instance();
 

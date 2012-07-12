@@ -289,6 +289,34 @@ public:
 };
 
 
+struct LLTEContents
+{
+	LLTEContents()
+	{
+	}
+
+	static const U32 MAX_TES = 32;
+
+	U8     image_data[MAX_TES*16];
+	U8	  colors[MAX_TES*4];
+	F32    scale_s[MAX_TES];
+	F32    scale_t[MAX_TES];
+	S16    offset_s[MAX_TES];
+	S16    offset_t[MAX_TES];
+	S16    image_rot[MAX_TES];
+	U8	   bump[MAX_TES];
+	U8	   media_flags[MAX_TES];
+    U8     glow[MAX_TES];
+	
+	static const U32 MAX_TE_BUFFER = 4096;
+	U8 packed_buffer[MAX_TE_BUFFER];
+
+	U32 size;
+	U32 face_count;
+
+	bool fake_images;
+};
+
 class LLPrimitive : public LLXform
 {
 public:
@@ -360,9 +388,10 @@ public:
 	S32 unpackTEField(U8 *cur_ptr, U8 *buffer_end, U8 *data_ptr, U8 data_size, U8 face_count, EMsgVariableType type);
 	BOOL packTEMessage(LLMessageSystem *mesgsys) const;
 	BOOL packTEMessage(LLDataPacker &dp) const;
-	S32 unpackTEMessage(LLMessageSystem* mesgsys, char const* block_name, bool fake_images = false);
 	S32 unpackTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num, bool fake_images = false); // Variable num of blocks
 	BOOL unpackTEMessage(LLDataPacker &dp);
+	S32 parseTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num, bool fake_images,LLTEContents& tec);
+	S32 unpackParsedTEMessage(LLTEContents& tec);
 	
 #ifdef CHECK_FOR_FINITE
 	inline void setPosition(const LLVector3& pos);
