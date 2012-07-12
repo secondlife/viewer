@@ -272,8 +272,13 @@ then
 	  gzip $mapfilepath/secondlife-bin.MAP
 	  mapfile=secondlife-bin-$arch.MAP.gz
 	  mv $mapfilepath/secondlife-bin.MAP.gz $mapfilepath/$mapfile
-	  upload_item mapfile "$mapfilepath/$mapfile" binary/octet-stream
-	  echo "Uploaded mapfile"
+	  if [ x"$variant" = xRelease ]
+	  then
+	      upload_item mapfile "$mapfilepath/$mapfile" binary/octet-stream
+	      echo "Uploaded mapfile for $variant"
+	  else
+	      echo "Skipping mapfile upload for $variant"
+	  fi
       [ -f summary.json ] && upload_item installer summary.json text/plain
 
       # Upload crash reporter files.
