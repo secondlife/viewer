@@ -2804,6 +2804,7 @@ BOOL LLSelectMgr::selectGetEditableLinksets()
 		if (object->flagUsePhysics() ||
 			object->flagTemporaryOnRez() ||
 			object->flagCharacter() ||
+			object->flagVolumeDetect() ||
 			object->flagAnimSource() ||
 			(!gAgent.isGodlike() && 
 			!gAgent.canManageEstate() &&

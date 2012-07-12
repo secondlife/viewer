@@ -477,8 +477,9 @@ public:
 	inline BOOL		flagObjectCopy() const			{ return ((mFlags & FLAGS_OBJECT_COPY) != 0); }
 	inline BOOL		flagObjectMove() const			{ return ((mFlags & FLAGS_OBJECT_MOVE) != 0); }
 	inline BOOL		flagObjectTransfer() const		{ return ((mFlags & FLAGS_OBJECT_TRANSFER) != 0); }
-	inline BOOL		flagObjectPermanent() const		{ return gSavedSettings.getBOOL("PathfindingDisablePermanentObjects") ? FALSE : ((mFlags & FLAGS_OBJECT_PERMANENT) != 0); }
+	inline BOOL		flagObjectPermanent() const		{ return gSavedSettings.getBOOL("PathfindingDisablePermanentObjects") ? FALSE : ((mFlags & FLAGS_AFFECTS_NAVMESH) != 0); }
 	inline BOOL		flagCharacter() const			{ return gSavedSettings.getBOOL("PathfindingDisableCharacterObjects") ? FALSE : ((mFlags & FLAGS_CHARACTER) != 0); }
+	inline BOOL		flagVolumeDetect() const		{ return ((mFlags & FLAGS_VOLUME_DETECT) != 0); }
 	inline BOOL		flagIncludeInSearch() const     { return ((mFlags & FLAGS_INCLUDE_IN_SEARCH) != 0); }
 	inline BOOL		flagScripted() const			{ return ((mFlags & FLAGS_SCRIPTED) != 0); }
 	inline BOOL		flagHandleTouch() const			{ return ((mFlags & FLAGS_HANDLE_TOUCH) != 0); }
