@@ -833,7 +833,7 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 				}
 			}
 	
-			S32 texture_discard = mSculptTexture->getDiscardLevel(); //try to match the texture
+			S32 texture_discard = mSculptTexture->getCachedRawImageLevel(); //try to match the texture
 			S32 current_discard = getVolume() ? getVolume()->getSculptLevel() : -2 ;
 
 			if (texture_discard >= 0 && //texture has some data available
@@ -1116,7 +1116,7 @@ void LLVOVolume::sculpt()
 		S8 sculpt_components = 0;
 		const U8* sculpt_data = NULL;
 	
-		S32 discard_level = mSculptTexture->getDiscardLevel() ;
+		S32 discard_level = mSculptTexture->getCachedRawImageLevel() ;
 		LLImageRaw* raw_image = mSculptTexture->getCachedRawImage() ;
 		
 		S32 max_discard = mSculptTexture->getMaxDiscardLevel();
