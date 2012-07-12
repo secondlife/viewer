@@ -4199,7 +4199,6 @@ public:
 								{
 									llerrs << "Face texture index incorrect." << llendl;
 								}
-								}
 							}
 						}
 					}
