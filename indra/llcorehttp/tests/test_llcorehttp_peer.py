@@ -33,6 +33,7 @@ import os
 import sys
 import time
 import select
+import getopt
 from threading import Thread
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from SocketServer import ThreadingMixIn
@@ -152,6 +153,13 @@ class Server(ThreadingMixIn, HTTPServer):
     allow_reuse_address = False
 
 if __name__ == "__main__":
+    do_valgrind = False
+    path_search = False
+    options, args = getopt.getopt(sys.argv[1:], "V", ["valgrind"])
+    for option, value in options:
+        if option == "-V" or option == "--valgrind":
+            do_valgrind = True
+
     # Instantiate a Server(TestHTTPRequestHandler) on the first free port
     # in the specified port range. Doing this inline is better than in a
     # daemon thread: if it blows up here, we'll get a traceback. If it blew up
@@ -159,10 +167,14 @@ if __name__ == "__main__":
     # subject test program anyway.
     httpd, port = freeport(xrange(8000, 8020),
                            lambda port: Server(('127.0.0.1', port), TestHTTPRequestHandler))
+
     # Pass the selected port number to the subject test program via the
     # environment. We don't want to impose requirements on the test program's
     # command-line parsing -- and anyway, for C++ integration tests, that's
     # performed in TUT code rather than our own.
     os.environ["LL_TEST_PORT"] = str(port)
     debug("$LL_TEST_PORT = %s", port)
-    sys.exit(run(server=Thread(name="httpd", target=httpd.serve_forever), *sys.argv[1:]))
+    if do_valgrind:
+        args = ["valgrind", "--log-file=./valgrind.log"] + args
+        path_search = True
+    sys.exit(run(server=Thread(name="httpd", target=httpd.serve_forever), use_path=path_search, *args))

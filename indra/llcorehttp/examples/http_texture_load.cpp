@@ -269,7 +269,10 @@ int main(int argc, char** argv)
 			  << std::endl;
 
 	// Clean up
+	hr->requestStopThread(NULL);
+	ms_sleep(1000);
 	delete hr;
+	LLCore::HttpRequest::destroyService();
 	term_curl();
 	
     return 0;

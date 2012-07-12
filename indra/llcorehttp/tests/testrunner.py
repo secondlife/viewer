@@ -168,7 +168,10 @@ def run(*args, **kwds):
     #   executable passed as our first arg,
     # - [no e] child should inherit this process's environment.
     debug("Running %s...", " ".join(args))
-    rc = os.spawnv(os.P_WAIT, args[0], args)
+    if kwds.get("use_path", False):
+        rc = os.spawnvp(os.P_WAIT, args[0], args)
+    else:
+        rc = os.spawnv(os.P_WAIT, args[0], args)
     debug("%s returned %s", args[0], rc)
     return rc
 
