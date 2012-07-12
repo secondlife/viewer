@@ -363,6 +363,9 @@ void LLNearbyChat::addToHost()
 		LLIMFloaterContainer* im_box = LLIMFloaterContainer::getInstance();
 		if (im_box)
 		{
+			// Make sure the Nearby Chat is present in the conversations list
+			im_box->addConversationListItem(getTitle(), getKey(), this);
+
 			if (gSavedSettings.getBOOL("NearbyChatIsNotTornOff"))
 			{
 				im_box->addFloater(this, TRUE, LLTabContainer::END);
