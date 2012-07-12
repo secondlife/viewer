@@ -2705,19 +2705,38 @@ LLTexLayerSet* LLVOAvatarSelf::getLayerSet(EBakedTextureIndex baked_index) const
 
 
 // static
-void LLVOAvatarSelf::onCustomizeStart()
-{
-	// We're no longer doing any baking or invalidating on entering 
-	// appearance editing mode. Leaving function in place in case 
-	// further changes require us to do something at this point - Nyx
-}
-
-// static
-void LLVOAvatarSelf::onCustomizeEnd()
+void LLVOAvatarSelf::onCustomizeStart(bool disable_camera_switch)
 {
 	if (isAgentAvatarValid())
 	{
+		gAgentAvatarp->mIsEditingAppearance = true;
+		gAgentAvatarp->mUseLocalAppearance = true;
+
+		if (gSavedSettings.getBOOL("AppearanceCameraMovement") && !disable_camera_switch)
+		{
+			gAgentCamera.changeCameraToCustomizeAvatar();
+		}
+
 		gAgentAvatarp->invalidateAll();
+		gAgentAvatarp->updateMeshTextures();
+	}
+}
+
+// static
+void LLVOAvatarSelf::onCustomizeEnd(bool disable_camera_switch)
+{
+	gAgentAvatarp->mIsEditingAppearance = false;
+	if (isAgentAvatarValid())
+	{
+		gAgentAvatarp->invalidateAll();
+
+		if (gSavedSettings.getBOOL("AppearanceCameraMovement") && !disable_camera_switch)
+		{
+			gAgentCamera.changeCameraToDefault();
+			gAgentCamera.resetView();
+		}
+
+		LLAppearanceMgr::instance().updateAppearanceFromCOF();
 	}
 }
 

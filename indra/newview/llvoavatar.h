@@ -702,6 +702,8 @@ private:
 	BOOL			mAppearanceAnimating;
 	LLFrameTimer	mAppearanceMorphTimer;
 	F32				mLastAppearanceBlendTime;
+	BOOL			mIsEditingAppearance;
+	BOOL			mUseLocalAppearance;
 
 	//--------------------------------------------------------------------
 	// Clothing colors (convenience functions to access visual parameters)
