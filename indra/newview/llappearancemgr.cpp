@@ -925,6 +925,18 @@ const LLUUID LLAppearanceMgr::getCOF() const
 	return gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
 }
 
+S32 LLAppearanceMgr::getCOFVersion() const
+{
+	LLViewerInventoryCategory *cof = gInventory.getCategory(getCOF());
+	if (cof)
+	{
+		return cof->getVersion();
+	}
+	else
+	{
+		return LLViewerInventoryCategory::VERSION_UNKNOWN;
+	}
+}
 
 const LLViewerInventoryItem* LLAppearanceMgr::getBaseOutfitLink()
 {
@@ -2611,6 +2623,7 @@ void LLAppearanceMgr::requestServerAppearanceUpdate()
 	if (!url.empty())
 	{
 		LLSD body;
+		body["cof_version"] = getCOFVersion();
 		LLHTTPClient::post(url, body, new RequestAgentUpdateAppearanceResponder);
 	}
 	else

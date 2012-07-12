@@ -93,6 +93,7 @@ public:
 
 	// Find the Current Outfit folder.
 	const LLUUID getCOF() const;
+	S32 getCOFVersion() const;
 
 	// Finds the folder link to the currently worn outfit
 	const LLViewerInventoryItem *getBaseOutfitLink();
