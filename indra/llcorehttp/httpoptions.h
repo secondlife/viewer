@@ -68,7 +68,7 @@ protected:
 	void operator=(const HttpOptions &);		// Not defined
 
 public:
-	void				setWantHeaders();
+	void				setWantHeaders(bool wanted);
 	bool				getWantHeaders() const
 		{
 			return mWantHeaders;

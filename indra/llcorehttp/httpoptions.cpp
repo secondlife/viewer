@@ -46,9 +46,9 @@ HttpOptions::~HttpOptions()
 {}
 
 
-void HttpOptions::setWantHeaders()
+void HttpOptions::setWantHeaders(bool wanted)
 {
-	mWantHeaders = true;
+	mWantHeaders = wanted;
 }
 
 

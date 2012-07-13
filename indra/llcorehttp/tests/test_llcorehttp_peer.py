@@ -104,7 +104,7 @@ class TestHTTPRequestHandler(BaseHTTPRequestHandler):
 
     def answer(self, data, withdata=True):
         debug("%s.answer(%s): self.path = %r", self.__class__.__name__, data, self.path)
-        if self.path.find("/sleep/") != -1:
+        if "/sleep/" in self.path:
             time.sleep(30)
 
         if "fail" not in self.path:
@@ -114,6 +114,8 @@ class TestHTTPRequestHandler(BaseHTTPRequestHandler):
             response = llsd.format_xml(data)
             debug("success: %s", response)
             self.send_response(200)
+            if "/reflect/" in self.path:
+                self.reflect_headers()
             self.send_header("Content-type", "application/llsd+xml")
             self.send_header("Content-Length", str(len(response)))
             self.send_header("X-LL-Special", "Mememememe");
@@ -133,6 +135,13 @@ class TestHTTPRequestHandler(BaseHTTPRequestHandler):
                                                    "without providing a reason" % status))[1])
             debug("fail requested: %s: %r", status, reason)
             self.send_error(status, reason)
+            if "/reflect/" in self.path:
+                self.reflect_headers()
+            self.end_headers()
+
+    def reflect_headers(self):
+        for name in self.headers.keys():
+            self.send_header("X-Reflect-" + name, self.headers[name])
 
     if not VERBOSE:
         # When VERBOSE is set, skip both these overrides because they exist to
