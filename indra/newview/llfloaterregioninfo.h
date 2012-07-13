@@ -312,9 +312,6 @@ public:
 	const std::string getOwnerName() const;
 	void setOwnerName(const std::string& name);
 
-	// If visible from mainland, allowed agent and allowed groups
-	// are ignored, so must disable UI.
-	void setAccessAllowedEnabled(bool enable_agent, bool enable_group, bool enable_ban);
 protected:
 	virtual BOOL sendUpdate();
 	// confirmation dialog callback
@@ -324,7 +321,6 @@ protected:
 	void commitEstateManagers();
 	
 	void clearAccessLists();
-	BOOL checkRemovalButton(std::string name);
 	BOOL checkSunHourSlider(LLUICtrl* child_ctrl);
 
 	U32 mEstateID;

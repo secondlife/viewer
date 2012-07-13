@@ -401,7 +401,7 @@ void LLNameListCtrl::onAvatarNameCache(const LLUUID& agent_id,
 		name = av_name.getCompleteName();
 
 	item_list::iterator iter;
-	for (iter = getItemList().begin(); iter != getItemList().end(); iter++)
+	for (iter = getItemList().begin(); iter != getItemList().end(); ++iter)
 	{
 		LLScrollListItem* item = *iter;
 		if (item->getUUID() == agent_id)
@@ -410,6 +410,7 @@ void LLNameListCtrl::onAvatarNameCache(const LLUUID& agent_id,
 			if (cell)
 			{
 				cell->setValue(name);
+				setNeedsSort();
 			}
 		}
 	}
@@ -430,4 +431,9 @@ void LLNameListCtrl::updateColumns()
 			mNameColumnIndex = name_column->mIndex;
 		}
 	}
+}
+
+void LLNameListCtrl::sortByName(BOOL ascending)
+{
+	sortByColumnIndex(mNameColumnIndex,ascending);
 }

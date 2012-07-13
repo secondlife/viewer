@@ -373,6 +373,7 @@ public:
 	std::string     getSortColumnName();
 	BOOL			getSortAscending() { return mSortColumns.empty() ? TRUE : mSortColumns.back().second; }
 	BOOL			hasSortOrder() const;
+	void			clearSortOrder();
 
 	S32		selectMultiple( uuid_vec_t ids );
 	// conceptually const, but mutates mItemList
