@@ -1492,7 +1492,12 @@ bool LLAppViewer::mainLoop()
 
 				// Limit FPS
 				F32 max_fps = gSavedSettings.getF32("MaxFPS");
-				if (max_fps > F_APPROXIMATELY_ZERO)
+				// Only limit FPS when we are actually rendering something.  Otherwise
+				// logins, logouts and teleports take much longer to complete.
+				if (max_fps > F_APPROXIMATELY_ZERO && 
+					LLStartUp::getStartupState() == STATE_STARTED &&
+					!gTeleportDisplay &&
+					!logoutRequestSent())
 				{
 					// Sleep a while to limit frame rate.
 					F32 min_frame_time = 1.f / max_fps;
