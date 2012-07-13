@@ -5,6 +5,9 @@
 	</panel.string>
 	<layout_stack name="login_widgets">
 		<layout_panel name="login">
+			<text name="log_in_text">
+				POŁĄCZ
+			</text>
 			<text name="username_text">
 				Użytkownik:
 			</text>
@@ -29,17 +32,20 @@
 				<combo_box.item label="Moje Miejsce Startu" name="MyHome"/>
 				<combo_box.item label="&lt;Wpisz Region&gt;" name="Typeregionname"/>
 			</combo_box>
-		</layout_panel>
-		<layout_panel name="links">
-			<text name="create_new_account_text">
-				Utwórz nowe konto
-			</text>
 			<text name="forgot_password_text">
 				Zapomniałeś swojej nazwy użytkownika lub hasła?
 			</text>
-			<text name="login_help">
-				Potrzebujesz pomocy z logowaniem się?
+			<text name="login_help" left="395">
+				☠
 			</text>
+		</layout_panel>
+		<layout_panel name="links">
+			<text name="create_account_text">
+				CREATE YǾUR ACCǾUNT
+			</text>
+			<button name="create_new_account_btn"
+					label="Utwórz nowe konto"
+					width="120"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

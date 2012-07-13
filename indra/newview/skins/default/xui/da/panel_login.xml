@@ -5,6 +5,9 @@
 	</panel.string>
 	<layout_stack name="login_widgets">
 		<layout_panel name="login">
+			<text name="log_in_text">
+				LOG PÅ
+			</text>
 			<text name="username_text">
 				Brugernavn:
 			</text>
@@ -29,17 +32,15 @@
 				<combo_box.item label="Hjem" name="MyHome"/>
 				<combo_box.item label="&lt;Indtast regionnavn&gt;" name="Typeregionname"/>
 			</combo_box>
-		</layout_panel>
-		<layout_panel name="links">
-			<text name="create_new_account_text">
-				Opret bruger
-			</text>
 			<text name="forgot_password_text">
 				Har du glemt brugernavn eller password?
 			</text>
-			<text name="login_help">
-				Hjælp til login
+		</layout_panel>
+		<layout_panel name="links">
+			<text name="create_account_text">
+				CREATE YǾUR ACCǾUNT
 			</text>
+			<button name="create_new_account_btn" label="Opret bruger"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

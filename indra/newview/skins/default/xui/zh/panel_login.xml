@@ -5,6 +5,9 @@
 	</panel.string>
 	<layout_stack name="login_widgets">
 		<layout_panel name="login">
+			<text name="log_in_text">
+				登入
+			</text>
 			<text name="username_text">
 				使用者名稱：
 			</text>
@@ -29,17 +32,15 @@
 				<combo_box.item label="我的家" name="MyHome"/>
 				<combo_box.item label="&lt; 請輸入地區名稱 &gt;" name="Typeregionname"/>
 			</combo_box>
-		</layout_panel>
-		<layout_panel name="links">
-			<text name="create_new_account_text">
-				註冊
-			</text>
 			<text name="forgot_password_text">
 				忘記你的使用者名稱或密碼？
 			</text>
-			<text name="login_help">
-				登入時需要幫助？
+		</layout_panel>
+		<layout_panel name="links">
+			<text name="create_account_text">
+				CREATE YǾUR ACCǾUNT
 			</text>
+			<button name="create_new_account_btn" label="註冊"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

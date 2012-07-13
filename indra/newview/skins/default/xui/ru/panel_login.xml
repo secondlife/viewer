@@ -5,6 +5,9 @@
 	</panel.string>
 	<layout_stack name="login_widgets">
 		<layout_panel name="login">
+			<text name="log_in_text">
+				ВОЙТИ
+			</text>
 			<text name="username_text">
 				Имя пользователя:
 			</text>
@@ -29,17 +32,18 @@
 				<combo_box.item label="Мой дом" name="MyHome"/>
 				<combo_box.item label="&lt;Введите название региона&gt;" name="Typeregionname"/>
 			</combo_box>
-		</layout_panel>
-		<layout_panel name="links">
-			<text name="create_new_account_text">
-				Регистрация
-			</text>
 			<text name="forgot_password_text">
 				Забыли имя или пароль?
 			</text>
-			<text name="login_help">
-				Нужна помощь при входе?
+			<text name="login_help" left="410">
+				☠
 			</text>
+		</layout_panel>
+		<layout_panel name="links">
+			<text name="create_account_text">
+				CREATE YǾUR ACCǾUNT
+			</text>
+			<button name="create_new_account_btn" label="Регистрация"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

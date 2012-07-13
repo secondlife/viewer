@@ -5,6 +5,9 @@
 	</panel.string>
 	<layout_stack name="login_widgets">
 		<layout_panel name="login">
+			<text name="log_in_text">
+				ログイン
+			</text>
 			<text name="username_text">
 				ユーザーネーム：
 			</text>
@@ -29,17 +32,15 @@
 				<combo_box.item label="ホーム" name="MyHome"/>
 				<combo_box.item label="＜地域名を入力＞" name="Typeregionname"/>
 			</combo_box>
-		</layout_panel>
-		<layout_panel name="links">
-			<text name="create_new_account_text">
-				お申し込み
-			</text>
 			<text name="forgot_password_text">
 				ユーザー名またはパスワードをお忘れですか？
 			</text>
-			<text name="login_help">
-				ログインの方法
+		</layout_panel>
+		<layout_panel name="links">
+			<text name="create_account_text">
+				CREATE YǾUR ACCǾUNT
 			</text>
+			<button name="create_new_account_btn" label="お申し込み"/>
 		</layout_panel>
 	</layout_stack>
 </panel>
