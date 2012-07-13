@@ -175,8 +175,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	LLTextBox* forgot_password_text = getChild<LLTextBox>("forgot_password_text");
 	forgot_password_text->setClickedCallback(onClickForgotPassword, NULL);
 
-	LLTextBox* create_new_account_text = getChild<LLTextBox>("create_new_account_text");
-	create_new_account_text->setClickedCallback(onClickNewAccount, NULL);
+	childSetAction("create_new_account_btn", onClickNewAccount, NULL);
 
 	LLTextBox* need_help_text = getChild<LLTextBox>("login_help");
 	need_help_text->setClickedCallback(onClickHelp, NULL);
@@ -1025,7 +1024,7 @@ void LLPanelLogin::updateLoginPanelLinks()
 	
 	// need to call through sInstance, as it's called from onSelectServer, which
 	// is static.
-	sInstance->getChildView("create_new_account_text")->setVisible( system_grid);
+	sInstance->getChildView("create_new_account_btn")->setVisible( system_grid);
 	sInstance->getChildView("forgot_password_text")->setVisible( system_grid);
 }
 
