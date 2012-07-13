@@ -158,21 +158,19 @@ bool LLFolderViewModelItemInventory::filterChildItem( LLFolderViewModelItem* ite
 
 	if (item->getLastFilterGeneration() < filter_generation)
 	{
+		// recursive application of the filter for child items
+		item->filter( filter );
+
 		if (item->getLastFilterGeneration() >= must_pass_generation 
 			&& !item->passedFilter(must_pass_generation))
 		{
 			// failed to pass an earlier filter that was a subset of the current one
 			// go ahead and flag this item as done
-			item->filter(filter);
 			if (item->passedFilter())
 			{
 				llerrs << "Invalid shortcut in inventory filtering!" << llendl;
 			}
 			item->setPassedFilter(false, false, filter_generation);
-		}
-		else
-		{
-			item->filter( filter );
 		}
 	}
 
