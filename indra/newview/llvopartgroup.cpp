@@ -52,8 +52,7 @@ LLPointer<LLVertexBuffer> LLVOPartGroup::sVB = NULL;
 S32 LLVOPartGroup::sVBSlotFree[];
 S32* LLVOPartGroup::sVBSlotCursor = NULL;
 
-//static
-void LLVOPartGroup::restoreGL()
+void LLVOPartGroup::initClass()
 {
 	for (S32 i = 0; i < LL_MAX_PARTICLE_COUNT; ++i)
 	{
@@ -61,7 +60,11 @@ void LLVOPartGroup::restoreGL()
 	}
 
 	sVBSlotCursor = sVBSlotFree;
+}
 
+//static
+void LLVOPartGroup::restoreGL()
+{
 	sVB = new LLVertexBuffer(VERTEX_DATA_MASK, GL_STREAM_DRAW_ARB);
 	U32 count = LL_MAX_PARTICLE_COUNT;
 	sVB->allocateBuffer(count*4, count*6, true);
@@ -554,7 +557,7 @@ void LLParticlePartition::addGeometryCount(LLSpatialGroup* group, U32& vertex_co
 	mFaceList.clear();
 
 	LLViewerCamera* camera = LLViewerCamera::getInstance();
-	for (LLSpatialGroup::element_iter i = group->getData().begin(); i != group->getData().end(); ++i)
+	for (LLSpatialGroup::element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
 	{
 		LLDrawable* drawablep = *i;
 		
@@ -626,7 +629,7 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 		LLFace* facep = *i;
 		LLAlphaObject* object = (LLAlphaObject*) facep->getViewerObject();
 
-		if (facep->getIndicesStart() == 0xFFFFFFFF)
+		if (!facep->isState(LLFace::PARTICLE))
 		{ //set the indices of this face
 			S32 idx = LLVOPartGroup::findAvailableVBSlot();
 			if (idx >= 0)
@@ -635,6 +638,7 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 				facep->setIndicesIndex(idx*6);
 				facep->setVertexBuffer(LLVOPartGroup::sVB);
 				facep->setPoolType(LLDrawPool::POOL_ALPHA);
+				facep->setState(LLFace::PARTICLE);
 			}
 			else
 			{

@@ -4760,8 +4760,11 @@ void LLViewerWindow::requestResolutionUpdate()
 	mResDirty = true;
 }
 
+static LLFastTimer::DeclareTimer FTM_WINDOW_CHECK_SETTINGS("Window Settings");
+
 void LLViewerWindow::checkSettings()
 {
+	LLFastTimer t(FTM_WINDOW_CHECK_SETTINGS);
 	if (mStatesDirty)
 	{
 		gGL.refreshState();

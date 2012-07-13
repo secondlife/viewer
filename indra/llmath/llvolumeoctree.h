@@ -49,7 +49,7 @@ public:
 
 	LLVolumeTriangle()
 	{
-		
+		mBinIndex = -1;	
 	}
 
 	LLVolumeTriangle(const LLVolumeTriangle& rhs)
@@ -74,9 +74,16 @@ public:
 	U16 mIndex[3];
 
 	F32 mRadius;
+	mutable S32 mBinIndex;
+
 
 	virtual const LLVector4a& getPositionGroup() const;
 	virtual const F32& getBinRadius() const;
+	
+	S32 getBinIndex() const { return mBinIndex; }
+	void setBinIndex(S32 idx) const { mBinIndex = idx; }
+
+
 };
 
 class LLVolumeOctreeListener : public LLOctreeListener<LLVolumeTriangle>
