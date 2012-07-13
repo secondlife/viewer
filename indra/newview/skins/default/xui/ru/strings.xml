@@ -883,6 +883,9 @@ support@secondlife.com.
 	<string name="ScriptQuestionCautionChatDenied">
 		Объекту «[OBJECTNAME]», который принадлежит пользователю «[OWNERNAME]» и находится в [REGIONPOS] в регионе «[REGIONNAME]», отказано в разрешении: [PERMISSIONS].
 	</string>
+	<string name="AdditionalPermissionsRequestHeader">
+		Разрешив доступ к своему аккаунту, вы также разрешите объекту:
+	</string>
 	<string name="ScriptTakeMoney">
 		У вас берут Linden-деньги
 	</string>
@@ -915,6 +918,9 @@ support@secondlife.com.
 	</string>
 	<string name="ControlYourCamera">
 		Управлять камерой
+	</string>
+	<string name="TeleportYourAgent">
+		Телепортировать вас
 	</string>
 	<string name="NotConnected">
 		Нет подключения
