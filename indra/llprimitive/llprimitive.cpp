@@ -1228,11 +1228,8 @@ BOOL LLPrimitive::packTEMessage(LLDataPacker &dp) const
 	return FALSE;
 }
 
-S32 LLPrimitive::parseTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num, bool fake_images,
-	LLTEContents& tec)
+S32 LLPrimitive::parseTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num, LLTEContents& tec)
 {
-	tec.fake_images = fake_images;
-	
 	S32 retval = 0;
 
 	if (block_num < 0)
@@ -1285,7 +1282,7 @@ S32 LLPrimitive::parseTEMessage(LLMessageSystem* mesgsys, char const* block_name
 	return retval;
 }
 
-S32 LLPrimitive::unpackParsedTEMessage(LLTEContents& tec)
+S32 LLPrimitive::applyParsedTEMessage(LLTEContents& tec)
 {
 	S32 retval = 0;
 
@@ -1294,14 +1291,7 @@ S32 LLPrimitive::unpackParsedTEMessage(LLTEContents& tec)
 	for (U32 i = 0; i < tec.face_count; i++)
 	{
 		LLUUID& req_id = ((LLUUID*)tec.image_data)[i];
-		if (tec.fake_images & (req_id != IMG_DEFAULT) && (req_id != IMG_DEFAULT_AVATAR) && (req_id != IMG_INVISIBLE))
-		{
-			retval |= setTETexture(i, IMG_CHECKERBOARD_RGBA);
-		}
-		else
-		{
-			retval |= setTETexture(i, req_id);
-		}
+		retval |= setTETexture(i, req_id);
 		retval |= setTEScale(i, tec.scale_s[i], tec.scale_t[i]);
 		retval |= setTEOffset(i, (F32)tec.offset_s[i] / (F32)0x7FFF, (F32) tec.offset_t[i] / (F32) 0x7FFF);
 		retval |= setTERotation(i, ((F32)tec.image_rot[i] / TEXTURE_ROTATION_PACK_FACTOR) * F_TWO_PI);
@@ -1325,123 +1315,14 @@ S32 LLPrimitive::unpackParsedTEMessage(LLTEContents& tec)
 	return retval;
 }
 
-S32 LLPrimitive::unpackTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num, bool fake_images)
+S32 LLPrimitive::unpackTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num)
 {
 	LLTEContents tec;
-	S32 retval = parseTEMessage(mesgsys, block_name, block_num, fake_images, tec);
+	S32 retval = parseTEMessage(mesgsys, block_name, block_num, tec);
 	if (!retval)
 		return retval;
-	return unpackParsedTEMessage(tec);
+	return applyParsedTEMessage(tec);
 }
-
-#if 0
-S32 LLPrimitive::unpackTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num, bool fake_images)
-{
-	// use a negative block_num to indicate a single-block read (a non-variable block)
-	S32 retval = 0;
-	const U32 MAX_TES = 32;
-
-	// Avoid construction of 32 UUIDs per call. JC
-
-	U8     image_data[MAX_TES*16];
-	U8	  colors[MAX_TES*4];
-	F32    scale_s[MAX_TES];
-	F32    scale_t[MAX_TES];
-	S16    offset_s[MAX_TES];
-	S16    offset_t[MAX_TES];
-	S16    image_rot[MAX_TES];
-	U8	   bump[MAX_TES];
-	U8	   media_flags[MAX_TES];
-    U8     glow[MAX_TES];
-	
-	const U32 MAX_TE_BUFFER = 4096;
-	U8 packed_buffer[MAX_TE_BUFFER];
-	U8 *cur_ptr = packed_buffer;
-
-	U32 size;
-	U32 face_count = 0;
-
-	if (block_num < 0)
-	{
-		size = mesgsys->getSizeFast(block_name, _PREHASH_TextureEntry);
-	}
-	else
-	{
-		size = mesgsys->getSizeFast(block_name, block_num, _PREHASH_TextureEntry);
-	}
-
-	if (size == 0)
-	{
-		return retval;
-	}
-
-	if (block_num < 0)
-	{
-		mesgsys->getBinaryDataFast(block_name, _PREHASH_TextureEntry, packed_buffer, 0, 0, MAX_TE_BUFFER);
-	}
-	else
-	{
-		mesgsys->getBinaryDataFast(block_name, _PREHASH_TextureEntry, packed_buffer, 0, block_num, MAX_TE_BUFFER);
-	}
-
-	face_count = getNumTEs();
-
-	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)image_data, 16, face_count, MVT_LLUUID);
-	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)colors, 4, face_count, MVT_U8);
-	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)scale_s, 4, face_count, MVT_F32);
-	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)scale_t, 4, face_count, MVT_F32);
-	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)offset_s, 2, face_count, MVT_S16Array);
-	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)offset_t, 2, face_count, MVT_S16Array);
-	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)image_rot, 2, face_count, MVT_S16Array);
-	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)bump, 1, face_count, MVT_U8);
-	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)media_flags, 1, face_count, MVT_U8);
-	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)glow, 1, face_count, MVT_U8);
-	
-	LLColor4 color;
-	LLColor4U coloru;
-	for (U32 i = 0; i < face_count; i++)
-	{
-		LLUUID& req_id = ((LLUUID*)image_data)[i];
-		if (fake_images & (req_id != IMG_DEFAULT) && (req_id != IMG_DEFAULT_AVATAR) && (req_id != IMG_INVISIBLE))
-		{
-			retval |= setTETexture(i, IMG_CHECKERBOARD_RGBA);
-		}
-		else
-		{
-			retval |= setTETexture(i, req_id);
-		}
-		retval |= setTEScale(i, scale_s[i], scale_t[i]);
-		retval |= setTEOffset(i, (F32)offset_s[i] / (F32)0x7FFF, (F32) offset_t[i] / (F32) 0x7FFF);
-		retval |= setTERotation(i, ((F32)image_rot[i] / TEXTURE_ROTATION_PACK_FACTOR) * F_TWO_PI);
-		retval |= setTEBumpShinyFullbright(i, bump[i]);
-		retval |= setTEMediaTexGen(i, media_flags[i]);
-		retval |= setTEGlow(i, (F32)glow[i] / (F32)0xFF);
-		coloru = LLColor4U(colors + 4*i);
-
-		// Note:  This is an optimization to send common colors (1.f, 1.f, 1.f, 1.f)
-		// as all zeros.  However, the subtraction and addition must be done in unsigned
-		// byte space, not in float space, otherwise off-by-one errors occur. JC
-		color.mV[VRED]		= F32(255 - coloru.mV[VRED])   / 255.f;
-		color.mV[VGREEN]	= F32(255 - coloru.mV[VGREEN]) / 255.f;
-		color.mV[VBLUE]		= F32(255 - coloru.mV[VBLUE])  / 255.f;
-		color.mV[VALPHA]	= F32(255 - coloru.mV[VALPHA]) / 255.f;
-
-		retval |= setTEColor(i, color);
-
-	}
-
-	return retval;
-}
-#endif
 
 S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 {

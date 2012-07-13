@@ -2619,20 +2619,22 @@ public:
 
 void LLAppearanceMgr::requestServerAppearanceUpdate()
 {
-	std::string url = gAgent.getRegion()->getCapability("UpdateAvatarAppearance");	
-	if (!url.empty())
+	if (!gAgent.getRegion())
 	{
-		LLSD body;
-		S32 cof_version = getCOFVersion();
-		body["cof_version"] = cof_version;
-		LLHTTPClient::post(url, body, new RequestAgentUpdateAppearanceResponder);
-		llassert(cof_version >= mLastUpdateRequestCOFVersion);
-		mLastUpdateRequestCOFVersion = cof_version;
+		llwarns << "Region not set, cannot request server appearance update" << llendl;
 	}
-	else
+	std::string url = gAgent.getRegion()->getCapability("UpdateAvatarAppearance");	
+	if (url.empty())
 	{
 		llwarns << "no cap for UpdateAvatarAppearance" << llendl;
 	}
+	
+	LLSD body;
+	S32 cof_version = getCOFVersion();
+	body["cof_version"] = cof_version;
+	LLHTTPClient::post(url, body, new RequestAgentUpdateAppearanceResponder);
+	llassert(cof_version >= mLastUpdateRequestCOFVersion);
+	mLastUpdateRequestCOFVersion = cof_version;
 }
 
 class LLShowCreatedOutfit: public LLInventoryCallback

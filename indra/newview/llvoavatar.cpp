@@ -7310,7 +7310,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 //	llinfos << "LLVOAvatar::processAvatarAppearance()" << llendl;
 //	dumpAvatarTEs( "PRE  processAvatarAppearance()" );
 	LLTEContents tec;
-	parseTEMessage(mesgsys, _PREHASH_ObjectData, -1, FALSE, tec);
+	parseTEMessage(mesgsys, _PREHASH_ObjectData, -1, tec);
 //	dumpAvatarTEs( "POST processAvatarAppearance()" );
 
 	// Check for stale update.
@@ -7321,14 +7321,16 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		S32 last_update_request_cof_version = LLAppearanceMgr::instance().mLastUpdateRequestCOFVersion;
 		S32 *s_words = (S32*) texture_id.mData;
 		S32 this_update_cof_version = s_words[0];
-		if (this_update_cof_version < last_update_request_cof_version)
+		if ((this_update_cof_version > 0) && 
+			(this_update_cof_version < last_update_request_cof_version))
 		{
 			llwarns << "Stale appearance update, wanted version " << last_update_request_cof_version
 					<< ", got " << this_update_cof_version << llendl;
 			return;
 		}
+		((LLUUID*)tec.image_data)[0].setNull();
 	}
-	unpackParsedTEMessage(tec);
+	applyParsedTEMessage(tec);
 
 	// prevent the overwriting of valid baked textures with invalid baked textures
 	for (U8 baked_index = 0; baked_index < mBakedTextureDatas.size(); baked_index++)

@@ -289,12 +289,14 @@ public:
 };
 
 
+// This code is not naming-standards compliant. Leaving it like this for
+// now to make the connection to code in
+// 	BOOL packTEMessage(LLDataPacker &dp) const;
+// more obvious. This should be refactored to remove the duplication, at which
+// point we can fix the names as well.
+// - Vir
 struct LLTEContents
 {
-	LLTEContents()
-	{
-	}
-
 	static const U32 MAX_TES = 32;
 
 	U8     image_data[MAX_TES*16];
@@ -313,8 +315,6 @@ struct LLTEContents
 
 	U32 size;
 	U32 face_count;
-
-	bool fake_images;
 };
 
 class LLPrimitive : public LLXform
@@ -388,10 +388,10 @@ public:
 	S32 unpackTEField(U8 *cur_ptr, U8 *buffer_end, U8 *data_ptr, U8 data_size, U8 face_count, EMsgVariableType type);
 	BOOL packTEMessage(LLMessageSystem *mesgsys) const;
 	BOOL packTEMessage(LLDataPacker &dp) const;
-	S32 unpackTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num, bool fake_images = false); // Variable num of blocks
+	S32 unpackTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num); // Variable num of blocks
 	BOOL unpackTEMessage(LLDataPacker &dp);
-	S32 parseTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num, bool fake_images,LLTEContents& tec);
-	S32 unpackParsedTEMessage(LLTEContents& tec);
+	S32 parseTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num, LLTEContents& tec);
+	S32 applyParsedTEMessage(LLTEContents& tec);
 	
 #ifdef CHECK_FOR_FINITE
 	inline void setPosition(const LLVector3& pos);
