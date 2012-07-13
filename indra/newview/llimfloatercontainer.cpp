@@ -438,6 +438,9 @@ void LLIMFloaterContainer::addConversationListItem(std::string name, const LLUUI
 	LLFolderViewItem* widget = createConversationItemWidget(item);
 	mConversationsWidgets[floaterp] = widget;
 
+	// Add a new conversation widget to the root folder of a folder view.
+	mConversationsRoot->addItem(widget);
+
 	// Add it to the UI
 	widget->setVisible(TRUE);
 	mConversationsListPanel->addChild(widget);
@@ -460,7 +463,7 @@ void LLIMFloaterContainer::removeConversationListItem(LLFloater* floaterp, bool 
 	if (widget_it != mConversationsWidgets.end())
 	{
 		LLFolderViewItem* widget = widget_it->second;
-		delete widget;
+		widget->destroyView();
 	}
 	
 	// Suppress the conversation items and widgets from their respective maps
