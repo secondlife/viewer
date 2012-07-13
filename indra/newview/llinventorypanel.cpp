@@ -533,7 +533,6 @@ void LLInventoryPanel::modelChanged(U32 mask)
 				// Remove the item's UI.
                 removeItemID(viewmodel_item->getUUID());
 				view_item->destroyView();
-                removeItemID(viewmodel_item->getUUID());
 			}
 		}
 	}
