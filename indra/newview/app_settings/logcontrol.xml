@@ -48,6 +48,24 @@
 						-->
 						</array>
 				</map>
-			</array>
+        <map>
+          <key>level</key>
+          <string>NONE</string>
+          <key>functions</key>
+          <array>
+          </array>
+          <key>classes</key>
+          <array>
+            <string>LLViewerStatsRecorder</string>
+          </array>
+          <key>files</key>
+          <array>
+          </array>
+          <key>tags</key>
+          <array>
+
+          </array>
+        </map>
+      </array>
 	</map>
 </llsd>

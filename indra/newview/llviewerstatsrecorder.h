@@ -32,7 +32,7 @@
 // for analysis.
 
 // This is normally 0.  Set to 1 to enable viewer stats recording
-#define LL_RECORD_VIEWER_STATS	0
+#define LL_RECORD_VIEWER_STATS	1
 
 
 #if LL_RECORD_VIEWER_STATS
@@ -41,52 +41,59 @@
 #include "llviewerregion.h"
 
 class LLMutex;
-class LLViewerRegion;
 class LLViewerObject;
 
-class LLViewerStatsRecorder
+class LLViewerStatsRecorder : public LLSingleton<LLViewerStatsRecorder>
 {
  public:
+	LOG_CLASS(LLViewerStatsRecorder);	 
 	LLViewerStatsRecorder();
 	~LLViewerStatsRecorder();
 
-	static void initClass();
-	static void cleanupClass();
-	static LLViewerStatsRecorder* instance() {return sInstance; }
+	void beginObjectUpdateEvents(F32 interval);
 
-	void initStatsRecorder(LLViewerRegion *regionp);
-
-	void beginObjectUpdateEvents(LLViewerRegion *regionp);
-	void recordObjectUpdateFailure(U32 local_id, const EObjectUpdateType update_type);
-	void recordCacheMissEvent(U32 local_id, const EObjectUpdateType update_type, U8 cache_miss_type);
-	void recordObjectUpdateEvent(U32 local_id, const EObjectUpdateType update_type, LLViewerObject * objectp);
-	void recordCacheFullUpdate(U32 local_id, const EObjectUpdateType update_type, LLViewerRegion::eCacheUpdateResult update_result, LLViewerObject* objectp);
+	void recordObjectUpdateFailure(U32 local_id, const EObjectUpdateType update_type, S32 msg_size);
+	void recordCacheMissEvent(U32 local_id, const EObjectUpdateType update_type, U8 cache_miss_type, S32 msg_size);
+	void recordObjectUpdateEvent(U32 local_id, const EObjectUpdateType update_type, LLViewerObject * objectp, S32 msg_size);
+	void recordCacheFullUpdate(U32 local_id, const EObjectUpdateType update_type, LLViewerRegion::eCacheUpdateResult update_result, LLViewerObject* objectp, S32 msg_size);
 	void recordRequestCacheMissesEvent(S32 count);
+	
 	void endObjectUpdateEvents();
 
 	F32 getTimeSinceStart();
 
 private:
+	void takeSnapshot();
+
 	static LLViewerStatsRecorder* sInstance;
 
 	LLFILE *	mObjectCacheFile;		// File to write data into
 	LLFrameTimer	mTimer;
-	LLViewerRegion*	mRegionp;
 	F64			mStartTime;
-	F64			mProcessingTime;
+	F64			mProcessingStartTime;
+	F64			mProcessingTotalTime;
+	F64			mSnapshotInterval;
+	F64			mLastSnapshotTime;
 
 	S32			mObjectCacheHitCount;
+	S32			mObjectCacheHitSize;
 	S32			mObjectCacheMissFullCount;
+	S32			mObjectCacheMissFullSize;
 	S32			mObjectCacheMissCrcCount;
+	S32			mObjectCacheMissCrcSize;
 	S32			mObjectFullUpdates;
+	S32			mObjectFullUpdatesSize;
 	S32			mObjectTerseUpdates;
+	S32			mObjectTerseUpdatesSize;
 	S32			mObjectCacheMissRequests;
 	S32			mObjectCacheMissResponses;
+	S32			mObjectCacheMissResponsesSize;
 	S32			mObjectCacheUpdateDupes;
 	S32			mObjectCacheUpdateChanges;
 	S32			mObjectCacheUpdateAdds;
 	S32			mObjectCacheUpdateReplacements;
 	S32			mObjectUpdateFailures;
+	S32			mObjectUpdateFailuresSize;
 
 
 	void	clearStats();
