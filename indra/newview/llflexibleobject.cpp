@@ -364,7 +364,7 @@ void LLVolumeImplFlexible::doIdleUpdate()
 				if	(visible)
 				{
 					if (!drawablep->isState(LLDrawable::IN_REBUILD_Q1) &&
-					mVO->getPixelArea() > 256.f)
+						pixel_area > 256.f)
 					{
 						U32 id;
 				
@@ -416,10 +416,11 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 	LLPath *path = &volume->getPath();
 	if ((mSimulateRes == 0 || !mInitialized) && mVO->mDrawable->isVisible()) 
 	{
-		//mVO->markForUpdate(TRUE);
+		BOOL force_update = mSimulateRes == 0 ? TRUE : FALSE;
+
 		doIdleUpdate();
 
-		if (mSimulateRes == 0)
+		if (!force_update || !gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_FLEXIBLE))
 		{
 			return;	// we did not get updated or initialized, proceeding without can be dangerous
 		}
