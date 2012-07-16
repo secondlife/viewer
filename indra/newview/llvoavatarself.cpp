@@ -2726,6 +2726,11 @@ void LLVOAvatarSelf::onCustomizeStart(bool disable_camera_switch)
 void LLVOAvatarSelf::onCustomizeEnd(bool disable_camera_switch)
 {
 	gAgentAvatarp->mIsEditingAppearance = false;
+	if (!LLAppearanceMgr::instance().useServerTextureBaking())
+	{
+		gAgentAvatarp->mUseLocalAppearance = false;
+	}
+
 	if (isAgentAvatarValid())
 	{
 		gAgentAvatarp->invalidateAll();

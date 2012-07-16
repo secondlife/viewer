@@ -217,9 +217,6 @@ public:
 private: //aligned members
 	LLVector4a	mImpostorExtents[2];
 
-private:
-	BOOL			mSupportsAlphaLayers; // For backwards compatibility, TRUE for 1.23+ clients
-
 	//--------------------------------------------------------------------
 	// Updates
 	//--------------------------------------------------------------------
@@ -603,6 +600,7 @@ protected:
 private:
 	virtual	void				setImage(const U8 te, LLViewerTexture *imagep, const U32 index); 
 	virtual LLViewerTexture*	getImage(const U8 te, const U32 index) const;
+	const std::string 			getImageURL(const U8 te, const LLUUID &uuid);
 
 	virtual const LLTextureEntry* getTexEntry(const U8 te_num) const;
 	virtual void setTexEntry(const U8 index, const LLTextureEntry &te);
