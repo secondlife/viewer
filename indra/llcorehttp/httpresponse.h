@@ -134,16 +134,14 @@ public:
 		}
 
 	///
-	void getContent(std::string & con_type, std::string & con_encode) const
+	const std::string & getContentType() const
 		{
-			con_type = mContentType;
-			con_encode = mContentEncoding;
+			return mContentType;
 		}
 
-	void setContent(const std::string & con_type, const std::string & con_encode)
+	void setContentType(const std::string & con_type)
 		{
 			mContentType = con_type;
-			mContentEncoding = con_encode;
 		}
 
 protected:
@@ -155,7 +153,6 @@ protected:
 	BufferArray *		mBufferArray;
 	HttpHeaders *		mHeaders;
 	std::string			mContentType;
-	std::string			mContentEncoding;
 };
 
 

@@ -228,7 +228,7 @@ void HttpOpRequest::visitNotifier(HttpRequest * request)
 			// Got an explicit offset/length in response
 			response->setRange(mReplyOffset, mReplyLength, mReplyFullLength);
 		}
-		response->setContent(mReplyConType, mReplyConEncode);
+		response->setContentType(mReplyConType);
 		
 		mUserHandler->onCompleted(static_cast<HttpHandle>(this), response);
 
@@ -316,7 +316,7 @@ void HttpOpRequest::setupCommon(HttpRequest::policy_t policy_id,
 								HttpOptions * options,
 								HttpHeaders * headers)
 {
-	mProcFlags = PF_SCAN_CONTENT_HEADERS;		// Always scan for content headers
+	mProcFlags = 0U;
 	mReqPolicy = policy_id;
 	mReqPriority = priority;
 	mReqURL = url;
@@ -379,7 +379,6 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 		mReplyHeaders = NULL;
 	}
 	mReplyConType.clear();
-	mReplyConEncode.clear();
 	
 	// *FIXME:  better error handling later
 	HttpStatus status;
@@ -542,7 +541,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	}
 	curl_easy_setopt(mCurlHandle, CURLOPT_HTTPHEADER, mCurlHeaders);
 
-	if (mProcFlags & (PF_SCAN_RANGE_HEADER | PF_SAVE_HEADERS | PF_SCAN_CONTENT_HEADERS))
+	if (mProcFlags & (PF_SCAN_RANGE_HEADER | PF_SAVE_HEADERS))
 	{
 		curl_easy_setopt(mCurlHandle, CURLOPT_HEADERFUNCTION, headerCallback);
 		curl_easy_setopt(mCurlHandle, CURLOPT_HEADERDATA, this);
@@ -620,8 +619,6 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 		op->mReplyOffset = 0;
 		op->mReplyLength = 0;
 		op->mReplyFullLength = 0;
-		op->mReplyConType.clear();
-		op->mReplyConEncode.clear();
 		op->mStatus = HttpStatus();
 		if (op->mReplyHeaders)
 		{
@@ -685,45 +682,6 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 										  << "'.  Ignoring."
 										  << LL_ENDL;
 			}
-		}
-	}
-
-	// Detect and parse 'Content-Type' and 'Content-Encoding' headers
-	if (op->mProcFlags & PF_SCAN_CONTENT_HEADERS)
-	{
-		if (wanted_hdr_size > con_type_line_len &&
-			! os_strncasecmp(hdr_data, con_type_line, con_type_line_len))
-		{
-			// Found 'Content-Type:', extract single-token value
-			std::string rhs(hdr_data + con_type_line_len, wanted_hdr_size - con_type_line_len);
-			std::string::size_type begin(0), end(rhs.size()), pos;
-
-			if ((pos = rhs.find_first_not_of(hdr_whitespace)) != std::string::npos)
-			{
-				begin = pos;
-			}
-			if ((pos = rhs.find_first_of(hdr_whitespace, begin)) != std::string::npos)
-			{
-				end = pos;
-			}
-			op->mReplyConType.assign(rhs, begin, end - begin);
-		}
-		else if (wanted_hdr_size > con_enc_line_len &&
-				 ! os_strncasecmp(hdr_data, con_enc_line, con_enc_line_len))
-		{
-			// Found 'Content-Encoding:', extract single-token value
-			std::string rhs(hdr_data + con_enc_line_len, wanted_hdr_size - con_enc_line_len);
-			std::string::size_type begin(0), end(rhs.size()), pos;
-
-			if ((pos = rhs.find_first_not_of(hdr_whitespace)) != std::string::npos)
-			{
-				begin = pos;
-			}
-			if ((pos = rhs.find_first_of(hdr_whitespace, begin)) != std::string::npos)
-			{
-				end = pos;
-			}
-			op->mReplyConEncode.assign(rhs, begin, end - begin);
 		}
 	}
 

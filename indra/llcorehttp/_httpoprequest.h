@@ -138,7 +138,6 @@ protected:
 	unsigned int		mProcFlags;
 	static const unsigned int	PF_SCAN_RANGE_HEADER = 0x00000001U;
 	static const unsigned int	PF_SAVE_HEADERS = 0x00000002U;
-	static const unsigned int	PF_SCAN_CONTENT_HEADERS = 0x00000004U;
 
 public:
 	// Request data
@@ -165,7 +164,6 @@ public:
 	size_t				mReplyFullLength;
 	HttpHeaders *		mReplyHeaders;
 	std::string			mReplyConType;
-	std::string			mReplyConEncode;
 
 	// Policy data
 	int					mPolicyRetries;

@@ -149,7 +149,10 @@ enum HttpError
 	HE_OPT_NOT_SET = 7,
 	
 	// Option not dynamic, must be set during init phase
-	HE_OPT_NOT_DYNAMIC = 8
+	HE_OPT_NOT_DYNAMIC = 8,
+	
+	// Invalid HTTP status code returned by server
+	HE_INVALID_HTTP_STATUS = 9
 	
 }; // end enum HttpError
 

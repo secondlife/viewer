@@ -3342,6 +3342,17 @@ void LLTextureFetch::removeHttpWaiter(const LLUUID & tid)
 	mNetworkQueueMutex.unlock();										// -Mfnq
 }
 
+// Release as many requests as permitted from the WAIT_HTTP_RESOURCE2
+// state to the SEND_HTTP_REQ state based on their current priority.
+//
+// This data structures and code associated with this looks a bit
+// indirect and naive but it's done in the name of safety.  An
+// ordered container may become invalid from time to time due to
+// priority changes caused by actions in other threads.  State itself
+// could also suffer the same fate with canceled operations.  Even
+// done this way, I'm not fully trusting we're truly safe.  This
+// module is due for a major refactoring and we'll deal with it then.
+//
 // Threads:  Ttf
 // Locks:  -Mw (must not hold any worker when called)
 void LLTextureFetch::releaseHttpWaiters()
@@ -3384,11 +3395,14 @@ void LLTextureFetch::releaseHttpWaiters()
 			tids2.push_back(worker);
 		}
 	}
-
-	// Sort into priority order
-	LLTextureFetchWorker::Compare compare;
-	std::sort(tids2.begin(), tids2.end(), compare);
 	tids.clear();
+
+	// Sort into priority order, if necessary and only as much as needed
+	if (tids2.size() > mHttpSemaphore)
+	{
+		LLTextureFetchWorker::Compare compare;
+		std::partial_sort(tids2.begin(), tids2.begin() + mHttpSemaphore, tids2.end(), compare);
+	}
 
 	// Release workers up to the high water mark.  Since we aren't
 	// holding any locks at this point, we can be in competition

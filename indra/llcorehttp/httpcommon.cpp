@@ -69,7 +69,8 @@ std::string HttpStatus::toString() const
 			"Request handle not found",
 			"Invalid datatype for argument or option",
 			"Option has not been explicitly set",
-			"Option is not dynamic and must be set early"
+			"Option is not dynamic and must be set early",
+			"Invalid HTTP status code received from server"
 		};
 	static const int llcore_errors_count(sizeof(llcore_errors) / sizeof(llcore_errors[0]));
 

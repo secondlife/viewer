@@ -280,7 +280,23 @@ bool HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode 
 		int http_status(HTTP_OK);
 
 		curl_easy_getinfo(handle, CURLINFO_RESPONSE_CODE, &http_status);
-		op->mStatus = LLCore::HttpStatus(http_status);
+		if (http_status >= 100 && http_status <= 999)
+		{
+			char * cont_type(NULL);
+			curl_easy_getinfo(handle, CURLINFO_CONTENT_TYPE, &cont_type);
+			if (cont_type)
+			{
+				op->mReplyConType = cont_type;
+			}
+			op->mStatus = HttpStatus(http_status);
+		}
+		else
+		{
+			LL_WARNS("CoreHttp") << "Invalid HTTP response code ("
+								 << http_status << ") received from server."
+								 << LL_ENDL;
+			op->mStatus = HttpStatus(HttpStatus::LLCORE, HE_INVALID_HTTP_STATUS);
+		}
 	}
 
 	// Detach from multi and recycle handle

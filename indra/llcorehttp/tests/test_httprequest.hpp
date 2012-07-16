@@ -147,8 +147,7 @@ public:
 			if (! mCheckContentType.empty())
 			{
 				ensure("Response required with content type check", response != NULL);
-				std::string con_type, con_enc;
-				response->getContent(con_type, con_enc);
+				std::string con_type(response->getContentType());
 				ensure("Content-Type as expected (" + mCheckContentType + ")",
 					   mCheckContentType == con_type);
 			}
