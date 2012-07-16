@@ -688,7 +688,6 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mFullyLoaded(FALSE),
 	mPreviousFullyLoaded(FALSE),
 	mFullyLoadedInitialized(FALSE),
-	mSupportsAlphaLayers(FALSE),
 	mLoadedCallbacksPaused(FALSE),
 	mHasPelvisOffset( FALSE ),
 	mRenderUnloadedAvatar(LLCachedControl<bool>(gSavedSettings, "RenderUnloadedAvatar")),
@@ -2371,15 +2370,10 @@ S32 LLVOAvatar::setTETexture(const U8 te, const LLUUID& uuid)
 	// to redirect certain avatar texture requests to different sims.
 	if (isIndexBakedTexture((ETextureIndex)te))
 	{
-		std::string url = gSavedSettings.getString("AgentAppearanceServiceURL");
-		if (LLAppearanceMgr::instance().useServerTextureBaking() && !url.empty())
+		const std::string url = getImageURL(te,uuid);
+		if (!url.empty())
 		{
-			const LLVOAvatarDictionary::TextureEntry* texture_entry = LLVOAvatarDictionary::getInstance()->getTexture((ETextureIndex)te);
-			if (texture_entry != NULL)
-			{
-				url += "texture/" + getID().asString() + "/" + texture_entry->mDefaultImageName + "/" + uuid.asString();
-				return setTETextureCore(te, uuid, url);
-			}
+			return setTETextureCore(te, uuid, url);
 		}
 
 		LLHost target_host = getObjectHost();
@@ -4152,7 +4146,7 @@ void LLVOAvatar::updateVisibility()
 // private
 bool LLVOAvatar::shouldAlphaMask()
 {
-	const bool should_alpha_mask = mSupportsAlphaLayers && !LLDrawPoolAlpha::sShowDebugAlpha // Don't alpha mask if "Highlight Transparent" checked
+	const bool should_alpha_mask = !LLDrawPoolAlpha::sShowDebugAlpha // Don't alpha mask if "Highlight Transparent" checked
 							&& !LLDrawPoolAvatar::sSkipTransparent;
 
 	return should_alpha_mask;
@@ -4724,6 +4718,20 @@ const LLTextureEntry* LLVOAvatar::getTexEntry(const U8 te_num) const
 void LLVOAvatar::setTexEntry(const U8 index, const LLTextureEntry &te)
 {
 	setTE(index, te);
+}
+
+const std::string LLVOAvatar::getImageURL(const U8 te, const LLUUID &uuid)
+{
+	std::string url = "";
+	if (LLAppearanceMgr::instance().useServerTextureBaking() && !gSavedSettings.getString("AgentAppearanceServiceURL").empty())
+	{
+		const LLVOAvatarDictionary::TextureEntry* texture_entry = LLVOAvatarDictionary::getInstance()->getTexture((ETextureIndex)te);
+		if (texture_entry != NULL)
+		{
+			url = gSavedSettings.getString("AgentAppearanceServiceURL") + "texture/" + getID().asString() + "/" + texture_entry->mDefaultImageName + "/" + uuid.asString();
+		}
+	}
+	return url;
 }
 
 //-----------------------------------------------------------------------------
@@ -6658,7 +6666,6 @@ void LLVOAvatar::updateMeshTextures()
 		}
 	}
 
-	const BOOL self_customizing = isSelf() && gAgentCamera.cameraCustomizeAvatar(); // During face edit mode, we don't use baked textures
 	const BOOL other_culled = !isSelf() && mCulled;
 	LLLoadedCallbackEntry::source_callback_list_t* src_callback_list = NULL ;
 	BOOL paused = FALSE;
@@ -6698,36 +6705,39 @@ void LLVOAvatar::updateMeshTextures()
 		{
 			use_lkg_baked_layer[i] = (!is_layer_baked[i] 
 									  && mBakedTextureDatas[i].mLastTextureIndex != IMG_DEFAULT_AVATAR);
-			if (mBakedTextureDatas[i].mTexLayerSet)
-			{
-				mBakedTextureDatas[i].mTexLayerSet->destroyComposite();
-			}
 		}
 
-	}
-
-	// Turn on alpha masking correctly for yourself and other avatars on 1.23+
-	mSupportsAlphaLayers = isSelf() || is_layer_baked[BAKED_HAIR];
-
-	// Baked textures should be requested from the sim this avatar is on. JC
-	const LLHost target_host = getObjectHost();
-	if (!target_host.isOk())
-	{
-		llwarns << "updateMeshTextures: invalid host for object: " << getID() << llendl;
 	}
 	
 	for (U32 i=0; i < mBakedTextureDatas.size(); i++)
 	{
-		if (use_lkg_baked_layer[i] && !self_customizing )
+		if (use_lkg_baked_layer[i] && !mUseLocalAppearance )
 		{
-			LLViewerFetchedTexture* baked_img = LLViewerTextureManager::getFetchedTextureFromHost( mBakedTextureDatas[i].mLastTextureIndex, target_host );
+			LLViewerFetchedTexture* baked_img;
+			const std::string url = getImageURL(i, mBakedTextureDatas[i].mLastTextureIndex);
+			if (!url.empty())
+			{
+				baked_img = LLViewerTextureManager::getFetchedTextureFromUrl(url, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, mBakedTextureDatas[i].mLastTextureIndex);
+			}
+			else
+			{
+				// Baked textures should be requested from the sim this avatar is on. JC
+				const LLHost target_host = getObjectHost();
+				if (!target_host.isOk())
+				{
+					llwarns << "updateMeshTextures: invalid host for object: " << getID() << llendl;
+				}
+
+				baked_img = LLViewerTextureManager::getFetchedTextureFromHost( mBakedTextureDatas[i].mLastTextureIndex, target_host );
+			}
+
 			mBakedTextureDatas[i].mIsUsed = TRUE;
 			for (U32 k=0; k < mBakedTextureDatas[i].mMeshes.size(); k++)
 			{
 				mBakedTextureDatas[i].mMeshes[k]->setTexture( baked_img );
 			}
 		}
-		else if (!self_customizing && is_layer_baked[i])
+		else if (!mUseLocalAppearance && is_layer_baked[i])
 		{
 			LLViewerFetchedTexture* baked_img = LLViewerTextureManager::staticCastToFetchedTexture(getImage( mBakedTextureDatas[i].mTextureIndex, 0 ), TRUE) ;
 			if( baked_img->getID() == mBakedTextureDatas[i].mLastTextureIndex )
@@ -6747,8 +6757,7 @@ void LLVOAvatar::updateMeshTextures()
 					src_callback_list, paused );
 			}
 		}
-		else if (mBakedTextureDatas[i].mTexLayerSet 
-				 && !other_culled) 
+		else if (mBakedTextureDatas[i].mTexLayerSet && mUseLocalAppearance) 
 		{
 			mBakedTextureDatas[i].mTexLayerSet->createComposite();
 			mBakedTextureDatas[i].mTexLayerSet->setUpdatesEnabled( TRUE );
@@ -6763,7 +6772,7 @@ void LLVOAvatar::updateMeshTextures()
 	// set texture and color of hair manually if we are not using a baked image.
 	// This can happen while loading hair for yourself, or for clients that did not
 	// bake a hair texture. Still needed for yourself after 1.22 is depricated.
-	if (!is_layer_baked[BAKED_HAIR] || self_customizing)
+	if (!is_layer_baked[BAKED_HAIR] || mIsEditingAppearance)
 	{
 		const LLColor4 color = mTexHairColor ? mTexHairColor->getColor() : LLColor4(1,1,1,1);
 		LLViewerTexture* hair_img = getImage( TEX_HAIR, 0 );
