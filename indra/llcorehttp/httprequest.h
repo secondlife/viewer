@@ -214,14 +214,46 @@ public:
 	/// request in other requests (like cancellation) and will be an
 	/// argument when any HttpHandler object is invoked.
 	///
+	/// Headers supplied by default:
+	/// - Connection: keep-alive
+	/// - Accept: */*
+	/// - Accept-Encoding: deflate, gzip
+	/// - Keep-alive: 300
+	/// - Host: <stuff>
+	///
+	/// Some headers excluded by default:
+	/// - Pragma:
+	/// - Cache-control:
+	/// - Range:
+	/// - Transfer-Encoding:
+	/// - Referer:
+	///
 	/// @param	policy_id		Default or user-defined policy class under
 	///							which this request is to be serviced.
 	/// @param	priority		Standard priority scheme inherited from
 	///							Indra code base (U32-type scheme).
-	/// @param	url
-	/// @param	options			(optional)
-	/// @param	headers			(optional)
-	/// @param	handler			(optional)
+	/// @param	url				URL with any encoded query parameters to
+	///							be accessed.
+	/// @param	options			Optional instance of an HttpOptions object
+	///							to provide additional controls over the request
+	///							function for this request only.  Any such
+	///							object then becomes shared-read across threads
+	///							and no code should modify the HttpOptions
+	///							instance.
+	/// @param	headers			Optional instance of an HttpHeaders object
+	///							to provide additional and/or overridden
+	///							headers for the request.  As with options,
+	///							the instance becomes shared-read across threads
+	///							and no code should modify the HttpHeaders
+	///							instance.
+	/// @param	handler			Optional pointer to an HttpHandler instance
+	///							whose onCompleted() method will be invoked
+	///							during calls to update().  This is a non-
+	///							reference-counted object which would be a
+	///							problem for shutdown and other edge cases but
+	///							the pointer is only dereferenced during
+	///							calls to update().
+	///
 	/// @return					The handle of the request if successfully
 	///							queued or LLCORE_HTTP_HANDLE_INVALID if the
 	///							request could not be queued.  In the latter
@@ -244,20 +276,29 @@ public:
 	/// request in other requests (like cancellation) and will be an
 	/// argument when any HttpHandler object is invoked.
 	///
-	/// @param	policy_id		Default or user-defined policy class under
-	///							which this request is to be serviced.
-	/// @param	priority		Standard priority scheme inherited from
-	///							Indra code base (U32-type scheme).
-	/// @param	url
-	/// @param	offset
-	/// @param	len
-	/// @param	options			(optional)
-	/// @param	headers			(optional)
-	/// @param	handler			(optional)
-	/// @return					The handle of the request if successfully
-	///							queued or LLCORE_HTTP_HANDLE_INVALID if the
-	///							request could not be queued.  In the latter
-	///							case, @see getStatus() will return more info.
+	/// Headers supplied by default:
+	/// - Connection: keep-alive
+	/// - Accept: */*
+	/// - Accept-Encoding: deflate, gzip
+	/// - Keep-alive: 300
+	/// - Host: <stuff>
+	/// - Range: <stuff>  (will be omitted if offset == 0 and len == 0)
+	///
+	/// Some headers excluded by default:
+	/// - Pragma:
+	/// - Cache-control:
+	/// - Transfer-Encoding:
+	/// - Referer:
+	///
+	/// @param	policy_id		@see requestGet()
+	/// @param	priority		"
+	/// @param	url				"
+	/// @param	offset			Offset of first byte into resource to be returned.
+	/// @param	len				Count of bytes to be returned
+	/// @param	options			@see requestGet()
+	/// @param	headers			"
+	/// @param	handler			"
+	/// @return					"
 	///
 	HttpHandle requestGetByteRange(policy_t policy_id,
 								   priority_t priority,
@@ -269,22 +310,37 @@ public:
 								   HttpHandler * handler);
 
 
+	/// Queue a full HTTP POST.  Query arguments and body may
+	/// be provided.  Caller is responsible for escaping and
+	/// encoding and communicating the content types.
 	///
-	/// @param	policy_id		Default or user-defined policy class under
-	///							which this request is to be serviced.
-	/// @param	priority		Standard priority scheme inherited from
-	///							Indra code base.
-	/// @param	url
+	/// Headers supplied by default:
+	/// - Connection: keep-alive
+	/// - Accept: */*
+	/// - Accept-Encoding: deflate, gzip
+	/// - Keep-Alive: 300
+	/// - Host: <stuff>
+	/// - Content-Length: <digits>
+	/// - Content-Type: application/x-www-form-urlencoded
+	///
+	/// Some headers excluded by default:
+	/// - Pragma:
+	/// - Cache-Control:
+	/// - Transfer-Encoding: ... chunked ...
+	/// - Referer:
+	/// - Content-Encoding:
+	/// - Expect:
+	///
+	/// @param	policy_id		@see requestGet()
+	/// @param	priority		"
+	/// @param	url				"
 	/// @param	body			Byte stream to be sent as the body.  No
 	///							further encoding or escaping will be done
 	///							to the content.
-	/// @param	options			(optional)
-	/// @param	headers			(optional)
-	/// @param	handler			(optional)
-	/// @return					The handle of the request if successfully
-	///							queued or LLCORE_HTTP_HANDLE_INVALID if the
-	///							request could not be queued.  In the latter
-	///							case, @see getStatus() will return more info.
+	/// @param	options			@see requestGet()K(optional)
+	/// @param	headers			"
+	/// @param	handler			"
+	/// @return					"
 	///
 	HttpHandle requestPost(policy_t policy_id,
 						   priority_t priority,
@@ -295,22 +351,37 @@ public:
 						   HttpHandler * handler);
 
 
+	/// Queue a full HTTP PUT.  Query arguments and body may
+	/// be provided.  Caller is responsible for escaping and
+	/// encoding and communicating the content types.
 	///
-	/// @param	policy_id		Default or user-defined policy class under
-	///							which this request is to be serviced.
-	/// @param	priority		Standard priority scheme inherited from
-	///							Indra code base.
-	/// @param	url
+	/// Headers supplied by default:
+	/// - Connection: keep-alive
+	/// - Accept: */*
+	/// - Accept-Encoding: deflate, gzip
+	/// - Keep-Alive: 300
+	/// - Host: <stuff>
+	/// - Content-Length: <digits>
+	///
+	/// Some headers excluded by default:
+	/// - Pragma:
+	/// - Cache-Control:
+	/// - Transfer-Encoding: ... chunked ...
+	/// - Referer:
+	/// - Content-Encoding:
+	/// - Expect:
+	/// - Content-Type:
+	///
+	/// @param	policy_id		@see requestGet()
+	/// @param	priority		"
+	/// @param	url				"
 	/// @param	body			Byte stream to be sent as the body.  No
 	///							further encoding or escaping will be done
 	///							to the content.
-	/// @param	options			(optional)
-	/// @param	headers			(optional)
-	/// @param	handler			(optional)
-	/// @return					The handle of the request if successfully
-	///							queued or LLCORE_HTTP_HANDLE_INVALID if the
-	///							request could not be queued.  In the latter
-	///							case, @see getStatus() will return more info.
+	/// @param	options			@see requestGet()K(optional)
+	/// @param	headers			"
+	/// @param	handler			"
+	/// @return					"
 	///
 	HttpHandle requestPut(policy_t policy_id,
 						  priority_t priority,
@@ -326,11 +397,8 @@ public:
 	/// immediately processes it and returns the request to the reply
 	/// queue.
 	///
-	/// @param	handler			(optional)
-	/// @return					The handle of the request if successfully
-	///							queued or LLCORE_HTTP_HANDLE_INVALID if the
-	///							request could not be queued.  In the latter
-	///							case, @see getStatus() will return more info.
+	/// @param	handler			@see requestGet()
+	/// @return					"
 	///
 	HttpHandle requestNoOp(HttpHandler * handler);
 
@@ -345,7 +413,8 @@ public:
 	///							spend in the call.  As hinted at above, this
 	///							is partly a function of application code so it's
 	///							a soft limit.  A '0' value will run without
-	///							time limit.
+	///							time limit until everything queued has been
+	///							delivered.
 	///
 	/// @return					Standard status code.
 	HttpStatus update(long usecs);
@@ -365,10 +434,8 @@ public:
 	/// @param	request			Handle of previously-issued request to
 	///							be changed.
 	/// @param	priority		New priority value.
-	/// @param	handler			(optional)
-	/// @return					The handle of the request if successfully
-	///							queued or LLCORE_HTTP_HANDLE_INVALID if the
-	///							request could not be queued.
+	/// @param	handler			@see requestGet()
+	/// @return					"
 	///
 	HttpHandle requestSetPriority(HttpHandle request, priority_t priority, HttpHandler * handler);
 

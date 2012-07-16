@@ -141,6 +141,7 @@ class TestHTTPRequestHandler(BaseHTTPRequestHandler):
 
     def reflect_headers(self):
         for name in self.headers.keys():
+            # print "Header:  %s: %s" % (name, self.headers[name])
             self.send_header("X-Reflect-" + name, self.headers[name])
 
     if not VERBOSE:

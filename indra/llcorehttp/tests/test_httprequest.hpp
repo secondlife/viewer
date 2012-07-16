@@ -1705,11 +1705,18 @@ void HttpRequestTestObjectType::test<16>()
 		
 		// Issue a GET that *can* connect
 		mStatus = HttpStatus(200);
-		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-connection:\\W*keep-alive", boost::regex::icase));
-		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-accept:\\W*\\*/\\*", boost::regex::icase));
-		handler.mHeadersDisallowed.push_back(boost::regex("\\W*X-Reflect-cache-control:.*", boost::regex::icase));
-		handler.mHeadersDisallowed.push_back(boost::regex("\\W*X-Reflect-pragma:.*", boost::regex::icase));
-		handler.mHeadersDisallowed.push_back(boost::regex("\\W*X-Reflect-range:.*", boost::regex::icase));
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-connection:\\s*keep-alive", boost::regex::icase));
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-accept:\\s*\\*/\\*", boost::regex::icase));
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-accept-encoding:\\s*((gzip|deflate),\\s*)+(gzip|deflate)", boost::regex::icase)); // close enough
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-keep-alive:\\s*\\d+", boost::regex::icase));
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-host:\\s*.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-cache-control:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-pragma:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-range:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-transfer-encoding:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-referer:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-content-type:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-content-encoding:.*", boost::regex::icase));
 		HttpHandle handle = req->requestGet(HttpRequest::DEFAULT_POLICY_ID,
 											0U,
 											url_base + "reflect/",
@@ -1735,12 +1742,19 @@ void HttpRequestTestObjectType::test<16>()
 		
 		mStatus = HttpStatus(200);
 		handler.mHeadersRequired.clear();
-		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-connection:\\W*keep-alive", boost::regex::icase));
-		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-accept:\\W*\\image/x-j2c", boost::regex::icase));
-		handler.mHeadersDisallowed.push_back(boost::regex("\\W*X-Reflect-range:.*", boost::regex::icase));
 		handler.mHeadersDisallowed.clear();
-		handler.mHeadersDisallowed.push_back(boost::regex("\\W*X-Reflect-cache-control:.*", boost::regex::icase));
-		handler.mHeadersDisallowed.push_back(boost::regex("\\W*X-Reflect-pragma:.*", boost::regex::icase));
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-connection:\\s*keep-alive", boost::regex::icase));
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-accept:\\s*image/x-j2c", boost::regex::icase));
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-accept-encoding:\\s*((gzip|deflate),\\s*)+(gzip|deflate)", boost::regex::icase)); // close enough
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-keep-alive:\\s*\\d+", boost::regex::icase));
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-host:\\s*.*", boost::regex::icase));
+		handler.mHeadersRequired.push_back(boost::regex("\\W*X-Reflect-range:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-cache-control:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-pragma:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-transfer-encoding:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-referer:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-content-type:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-content-encoding:.*", boost::regex::icase));
 		handle = req->requestGetByteRange(HttpRequest::DEFAULT_POLICY_ID,
 										  0U,
 										  url_base + "reflect/",
@@ -1813,6 +1827,816 @@ void HttpRequestTestObjectType::test<16>()
 	catch (...)
 	{
 		stop_thread(req);
+		if (options)
+		{
+			options->release();
+			options = NULL;
+		}
+		if (headers)
+		{
+			headers->release();
+			headers = NULL;
+		}
+		delete req;
+		HttpRequest::destroyService();
+		throw;
+	}
+}
+
+
+// Test header generation on POST requests
+template <> template <>
+void HttpRequestTestObjectType::test<17>()
+{
+	ScopedCurlInit ready;
+
+	// Warmup boost::regex to pre-alloc memory for memory size tests
+	boost::regex warmup("askldjflasdj;f", boost::regex::icase);
+	boost::regex_match("akl;sjflajfk;ajsk", warmup);
+
+	std::string url_base(get_base_url());
+	
+	set_test_name("Header generation for HttpRequest POST");
+
+	// Handler can be stack-allocated *if* there are no dangling
+	// references to it after completion of this method.
+	// Create before memory record as the string copy will bump numbers.
+	TestHandler2 handler(this, "handler");
+
+	// record the total amount of dynamically allocated memory
+	mMemTotal = GetMemTotal();
+	mHandlerCalls = 0;
+
+	HttpRequest * req = NULL;
+	HttpOptions * options = NULL;
+	HttpHeaders * headers = NULL;
+	BufferArray * ba = NULL;
+	
+	try
+	{
+		// Get singletons created
+		HttpRequest::createService();
+		
+		// Start threading early so that thread memory is invariant
+		// over the test.
+		HttpRequest::startThread();
+
+		// create a new ref counted object with an implicit reference
+		req = new HttpRequest();
+
+		// options set
+		options = new HttpOptions();
+		options->setWantHeaders(true);
+
+		// And a buffer array
+		const char * msg("It was the best of times, it was the worst of times.");
+		ba = new BufferArray;
+		ba->append(msg, strlen(msg));
+			
+		// Issue a default POST
+		mStatus = HttpStatus(200);
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-connection:\\s*keep-alive", boost::regex::icase));
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-accept:\\s*\\*/\\*", boost::regex::icase));
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-accept-encoding:\\s*((gzip|deflate),\\s*)+(gzip|deflate)", boost::regex::icase)); // close enough
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-keep-alive:\\s*\\d+", boost::regex::icase));
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-host:\\s*.*", boost::regex::icase));
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-content-length:\\s*\\d+", boost::regex::icase));
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-content-type:\\s*application/x-www-form-urlencoded", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-cache-control:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-pragma:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-range:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-referer:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-content-encoding:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-expect:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-transfer-encoding:\\s*.*chunked.*", boost::regex::icase));
+		HttpHandle handle = req->requestPost(HttpRequest::DEFAULT_POLICY_ID,
+											 0U,
+											 url_base + "reflect/",
+											 ba,
+											 options,
+											 NULL,
+											 &handler);
+		ensure("Valid handle returned for get request", handle != LLCORE_HTTP_HANDLE_INVALID);
+		ba->release();
+		ba = NULL;
+			
+		// Run the notification pump.
+		int count(0);
+		int limit(10);
+		while (count++ < limit && mHandlerCalls < 1)
+		{
+			req->update(1000000);
+			usleep(100000);
+		}
+		ensure("Request executed in reasonable time", count < limit);
+		ensure("One handler invocation for request", mHandlerCalls == 1);
+
+
+		// Okay, request a shutdown of the servicing thread
+		mStatus = HttpStatus();
+		handler.mHeadersRequired.clear();
+		handler.mHeadersDisallowed.clear();
+		handle = req->requestStopThread(&handler);
+		ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
+	
+		// Run the notification pump again
+		count = 0;
+		limit = 10;
+		while (count++ < limit && mHandlerCalls < 2)
+		{
+			req->update(1000000);
+			usleep(100000);
+		}
+		ensure("Second request executed in reasonable time", count < limit);
+		ensure("Second handler invocation", mHandlerCalls == 2);
+
+		// See that we actually shutdown the thread
+		count = 0;
+		limit = 10;
+		while (count++ < limit && ! HttpService::isStopped())
+		{
+			usleep(100000);
+		}
+		ensure("Thread actually stopped running", HttpService::isStopped());
+	
+		// release options & headers
+		if (options)
+		{
+			options->release();
+		}
+		options = NULL;
+
+		if (headers)
+		{
+			headers->release();
+		}
+		headers = NULL;
+		
+		// release the request object
+		delete req;
+		req = NULL;
+
+		// Shut down service
+		HttpRequest::destroyService();
+	}
+	catch (...)
+	{
+		stop_thread(req);
+		if (ba)
+		{
+			ba->release();
+			ba = NULL;
+		}
+		if (options)
+		{
+			options->release();
+			options = NULL;
+		}
+		if (headers)
+		{
+			headers->release();
+			headers = NULL;
+		}
+		delete req;
+		HttpRequest::destroyService();
+		throw;
+	}
+}
+
+
+// Test header generation on PUT requests
+template <> template <>
+void HttpRequestTestObjectType::test<18>()
+{
+	ScopedCurlInit ready;
+
+	// Warmup boost::regex to pre-alloc memory for memory size tests
+	boost::regex warmup("askldjflasdj;f", boost::regex::icase);
+	boost::regex_match("akl;sjflajfk;ajsk", warmup);
+
+	std::string url_base(get_base_url());
+	
+	set_test_name("Header generation for HttpRequest PUT");
+
+	// Handler can be stack-allocated *if* there are no dangling
+	// references to it after completion of this method.
+	// Create before memory record as the string copy will bump numbers.
+	TestHandler2 handler(this, "handler");
+
+	// record the total amount of dynamically allocated memory
+	mMemTotal = GetMemTotal();
+	mHandlerCalls = 0;
+
+	HttpRequest * req = NULL;
+	HttpOptions * options = NULL;
+	HttpHeaders * headers = NULL;
+	BufferArray * ba = NULL;
+	
+	try
+	{
+		// Get singletons created
+		HttpRequest::createService();
+		
+		// Start threading early so that thread memory is invariant
+		// over the test.
+		HttpRequest::startThread();
+
+		// create a new ref counted object with an implicit reference
+		req = new HttpRequest();
+
+		// options set
+		options = new HttpOptions();
+		options->setWantHeaders(true);
+
+		// And a buffer array
+		const char * msg("It was the best of times, it was the worst of times.");
+		ba = new BufferArray;
+		ba->append(msg, strlen(msg));
+			
+		// Issue a default PUT
+		mStatus = HttpStatus(200);
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-connection:\\s*keep-alive", boost::regex::icase));
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-accept:\\s*\\*/\\*", boost::regex::icase));
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-accept-encoding:\\s*((gzip|deflate),\\s*)+(gzip|deflate)", boost::regex::icase)); // close enough
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-keep-alive:\\s*\\d+", boost::regex::icase));
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-host:\\s*.*", boost::regex::icase));
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-content-length:\\s*\\d+", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-cache-control:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-pragma:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-range:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-referer:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-content-encoding:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-expect:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-transfer-encoding:\\s*.*chunked.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("X-Reflect-content-type:.*", boost::regex::icase));
+		HttpHandle handle = req->requestPut(HttpRequest::DEFAULT_POLICY_ID,
+											0U,
+											url_base + "reflect/",
+											ba,
+											options,
+											NULL,
+											&handler);
+		ensure("Valid handle returned for get request", handle != LLCORE_HTTP_HANDLE_INVALID);
+		ba->release();
+		ba = NULL;
+			
+		// Run the notification pump.
+		int count(0);
+		int limit(10);
+		while (count++ < limit && mHandlerCalls < 1)
+		{
+			req->update(1000000);
+			usleep(100000);
+		}
+		ensure("Request executed in reasonable time", count < limit);
+		ensure("One handler invocation for request", mHandlerCalls == 1);
+
+
+		// Okay, request a shutdown of the servicing thread
+		mStatus = HttpStatus();
+		handler.mHeadersRequired.clear();
+		handler.mHeadersDisallowed.clear();
+		handle = req->requestStopThread(&handler);
+		ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
+	
+		// Run the notification pump again
+		count = 0;
+		limit = 10;
+		while (count++ < limit && mHandlerCalls < 2)
+		{
+			req->update(1000000);
+			usleep(100000);
+		}
+		ensure("Second request executed in reasonable time", count < limit);
+		ensure("Second handler invocation", mHandlerCalls == 2);
+
+		// See that we actually shutdown the thread
+		count = 0;
+		limit = 10;
+		while (count++ < limit && ! HttpService::isStopped())
+		{
+			usleep(100000);
+		}
+		ensure("Thread actually stopped running", HttpService::isStopped());
+	
+		// release options & headers
+		if (options)
+		{
+			options->release();
+		}
+		options = NULL;
+
+		if (headers)
+		{
+			headers->release();
+		}
+		headers = NULL;
+		
+		// release the request object
+		delete req;
+		req = NULL;
+
+		// Shut down service
+		HttpRequest::destroyService();
+	}
+	catch (...)
+	{
+		stop_thread(req);
+		if (ba)
+		{
+			ba->release();
+			ba = NULL;
+		}
+		if (options)
+		{
+			options->release();
+			options = NULL;
+		}
+		if (headers)
+		{
+			headers->release();
+			headers = NULL;
+		}
+		delete req;
+		HttpRequest::destroyService();
+		throw;
+	}
+}
+
+
+// Test header generation on GET requests with overrides
+template <> template <>
+void HttpRequestTestObjectType::test<19>()
+{
+	ScopedCurlInit ready;
+
+	// Warmup boost::regex to pre-alloc memory for memory size tests
+	boost::regex warmup("askldjflasdj;f", boost::regex::icase);
+	boost::regex_match("akl;sjflajfk;ajsk", warmup);
+
+	std::string url_base(get_base_url());
+	
+	set_test_name("Header generation for HttpRequest GET with header overrides");
+
+	// Handler can be stack-allocated *if* there are no dangling
+	// references to it after completion of this method.
+	// Create before memory record as the string copy will bump numbers.
+	TestHandler2 handler(this, "handler");
+
+	// record the total amount of dynamically allocated memory
+	mMemTotal = GetMemTotal();
+	mHandlerCalls = 0;
+
+	HttpRequest * req = NULL;
+	HttpOptions * options = NULL;
+	HttpHeaders * headers = NULL;
+
+	try
+	{
+		// Get singletons created
+		HttpRequest::createService();
+		
+		// Start threading early so that thread memory is invariant
+		// over the test.
+		HttpRequest::startThread();
+
+		// create a new ref counted object with an implicit reference
+		req = new HttpRequest();
+
+		// options set
+		options = new HttpOptions();
+		options->setWantHeaders(true);
+
+		// headers
+		headers = new HttpHeaders;
+		headers->mHeaders.push_back("Keep-Alive: 120");
+		headers->mHeaders.push_back("Accept-encoding: deflate");
+		headers->mHeaders.push_back("Accept: text/plain");
+
+		// Issue a GET with modified headers
+		mStatus = HttpStatus(200);
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-connection:\\s*keep-alive", boost::regex::icase));
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-accept:\\s*text/plain", boost::regex::icase));
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-accept-encoding:\\s*deflate", boost::regex::icase)); // close enough
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-keep-alive:\\s*120", boost::regex::icase));
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-host:\\s*.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("X-Reflect-accept-encoding:\\s*((gzip|deflate),\\s*)+(gzip|deflate)", boost::regex::icase)); // close enough
+		handler.mHeadersDisallowed.push_back(boost::regex("X-Reflect-keep-alive:\\s*300", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("X-Reflect-accept:\\s*\\*/\\*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-cache-control:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-pragma:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-range:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-transfer-encoding:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-referer:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-content-type:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-content-encoding:.*", boost::regex::icase));
+		HttpHandle handle = req->requestGet(HttpRequest::DEFAULT_POLICY_ID,
+											0U,
+											url_base + "reflect/",
+											options,
+											headers,
+											&handler);
+		ensure("Valid handle returned for get request", handle != LLCORE_HTTP_HANDLE_INVALID);
+
+		// Run the notification pump.
+		int count(0);
+		int limit(10);
+		while (count++ < limit && mHandlerCalls < 1)
+		{
+			req->update(1000000);
+			usleep(100000);
+		}
+		ensure("Request executed in reasonable time", count < limit);
+		ensure("One handler invocation for request", mHandlerCalls == 1);
+
+		// Okay, request a shutdown of the servicing thread
+		mStatus = HttpStatus();
+		handler.mHeadersRequired.clear();
+		handler.mHeadersDisallowed.clear();
+		handle = req->requestStopThread(&handler);
+		ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
+	
+		// Run the notification pump again
+		count = 0;
+		limit = 10;
+		while (count++ < limit && mHandlerCalls < 2)
+		{
+			req->update(1000000);
+			usleep(100000);
+		}
+		ensure("Second request executed in reasonable time", count < limit);
+		ensure("Second handler invocation", mHandlerCalls == 2);
+
+		// See that we actually shutdown the thread
+		count = 0;
+		limit = 10;
+		while (count++ < limit && ! HttpService::isStopped())
+		{
+			usleep(100000);
+		}
+		ensure("Thread actually stopped running", HttpService::isStopped());
+	
+		// release options & headers
+		if (options)
+		{
+			options->release();
+		}
+		options = NULL;
+
+		if (headers)
+		{
+			headers->release();
+		}
+		headers = NULL;
+		
+		// release the request object
+		delete req;
+		req = NULL;
+
+		// Shut down service
+		HttpRequest::destroyService();
+	}
+	catch (...)
+	{
+		stop_thread(req);
+		if (options)
+		{
+			options->release();
+			options = NULL;
+		}
+		if (headers)
+		{
+			headers->release();
+			headers = NULL;
+		}
+		delete req;
+		HttpRequest::destroyService();
+		throw;
+	}
+}
+
+
+// Test header generation on POST requests with overrides
+template <> template <>
+void HttpRequestTestObjectType::test<20>()
+{
+	ScopedCurlInit ready;
+
+	// Warmup boost::regex to pre-alloc memory for memory size tests
+	boost::regex warmup("askldjflasdj;f", boost::regex::icase);
+	boost::regex_match("akl;sjflajfk;ajsk", warmup);
+
+	std::string url_base(get_base_url());
+	
+	set_test_name("Header generation for HttpRequest POST with header overrides");
+
+	// Handler can be stack-allocated *if* there are no dangling
+	// references to it after completion of this method.
+	// Create before memory record as the string copy will bump numbers.
+	TestHandler2 handler(this, "handler");
+
+	// record the total amount of dynamically allocated memory
+	mMemTotal = GetMemTotal();
+	mHandlerCalls = 0;
+
+	HttpRequest * req = NULL;
+	HttpOptions * options = NULL;
+	HttpHeaders * headers = NULL;
+	BufferArray * ba = NULL;
+	
+	try
+	{
+		// Get singletons created
+		HttpRequest::createService();
+		
+		// Start threading early so that thread memory is invariant
+		// over the test.
+		HttpRequest::startThread();
+
+		// create a new ref counted object with an implicit reference
+		req = new HttpRequest();
+
+		// options set
+		options = new HttpOptions();
+		options->setWantHeaders(true);
+
+		// headers
+		headers = new HttpHeaders();
+		headers->mHeaders.push_back("keep-Alive: 120");
+		headers->mHeaders.push_back("Accept:  text/html");
+		headers->mHeaders.push_back("content-type:  application/llsd+xml");
+		headers->mHeaders.push_back("cache-control: no-store");
+		
+		// And a buffer array
+		const char * msg("<xml><llsd><string>It was the best of times, it was the worst of times.</string></llsd></xml>");
+		ba = new BufferArray;
+		ba->append(msg, strlen(msg));
+			
+		// Issue a default POST
+		mStatus = HttpStatus(200);
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-connection:\\s*keep-alive", boost::regex::icase));
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-accept:\\s*text/html", boost::regex::icase));
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-accept-encoding:\\s*((gzip|deflate),\\s*)+(gzip|deflate)", boost::regex::icase)); // close enough
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-keep-alive:\\s*120", boost::regex::icase));
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-host:\\s*.*", boost::regex::icase));
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-content-length:\\s*\\d+", boost::regex::icase));
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-content-type:\\s*application/llsd\\+xml", boost::regex::icase));
+		handler.mHeadersRequired.push_back(boost::regex("\\s*X-Reflect-cache-control:\\s*no-store", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("X-Reflect-content-type:\\s*application/x-www-form-urlencoded", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("X-Reflect-accept:\\s*\\*/\\*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("X-Reflect-keep-alive:\\s*300", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-pragma:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-range:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-referer:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-content-encoding:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-expect:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-transfer-encoding:\\s*.*chunked.*", boost::regex::icase));
+		HttpHandle handle = req->requestPost(HttpRequest::DEFAULT_POLICY_ID,
+											 0U,
+											 url_base + "reflect/",
+											 ba,
+											 options,
+											 headers,
+											 &handler);
+		ensure("Valid handle returned for get request", handle != LLCORE_HTTP_HANDLE_INVALID);
+		ba->release();
+		ba = NULL;
+			
+		// Run the notification pump.
+		int count(0);
+		int limit(10);
+		while (count++ < limit && mHandlerCalls < 1)
+		{
+			req->update(1000000);
+			usleep(100000);
+		}
+		ensure("Request executed in reasonable time", count < limit);
+		ensure("One handler invocation for request", mHandlerCalls == 1);
+
+
+		// Okay, request a shutdown of the servicing thread
+		mStatus = HttpStatus();
+		handler.mHeadersRequired.clear();
+		handler.mHeadersDisallowed.clear();
+		handle = req->requestStopThread(&handler);
+		ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
+	
+		// Run the notification pump again
+		count = 0;
+		limit = 10;
+		while (count++ < limit && mHandlerCalls < 2)
+		{
+			req->update(1000000);
+			usleep(100000);
+		}
+		ensure("Second request executed in reasonable time", count < limit);
+		ensure("Second handler invocation", mHandlerCalls == 2);
+
+		// See that we actually shutdown the thread
+		count = 0;
+		limit = 10;
+		while (count++ < limit && ! HttpService::isStopped())
+		{
+			usleep(100000);
+		}
+		ensure("Thread actually stopped running", HttpService::isStopped());
+	
+		// release options & headers
+		if (options)
+		{
+			options->release();
+		}
+		options = NULL;
+
+		if (headers)
+		{
+			headers->release();
+		}
+		headers = NULL;
+		
+		// release the request object
+		delete req;
+		req = NULL;
+
+		// Shut down service
+		HttpRequest::destroyService();
+	}
+	catch (...)
+	{
+		stop_thread(req);
+		if (ba)
+		{
+			ba->release();
+			ba = NULL;
+		}
+		if (options)
+		{
+			options->release();
+			options = NULL;
+		}
+		if (headers)
+		{
+			headers->release();
+			headers = NULL;
+		}
+		delete req;
+		HttpRequest::destroyService();
+		throw;
+	}
+}
+
+
+// Test header generation on PUT requests with overrides
+template <> template <>
+void HttpRequestTestObjectType::test<21>()
+{
+	ScopedCurlInit ready;
+
+	// Warmup boost::regex to pre-alloc memory for memory size tests
+	boost::regex warmup("askldjflasdj;f", boost::regex::icase);
+	boost::regex_match("akl;sjflajfk;ajsk", warmup);
+
+	std::string url_base(get_base_url());
+	
+	set_test_name("Header generation for HttpRequest PUT with header overrides");
+
+	// Handler can be stack-allocated *if* there are no dangling
+	// references to it after completion of this method.
+	// Create before memory record as the string copy will bump numbers.
+	TestHandler2 handler(this, "handler");
+
+	// record the total amount of dynamically allocated memory
+	mMemTotal = GetMemTotal();
+	mHandlerCalls = 0;
+
+	HttpRequest * req = NULL;
+	HttpOptions * options = NULL;
+	HttpHeaders * headers = NULL;
+	BufferArray * ba = NULL;
+	
+	try
+	{
+		// Get singletons created
+		HttpRequest::createService();
+		
+		// Start threading early so that thread memory is invariant
+		// over the test.
+		HttpRequest::startThread();
+
+		// create a new ref counted object with an implicit reference
+		req = new HttpRequest();
+
+		// options set
+		options = new HttpOptions();
+		options->setWantHeaders(true);
+
+		// headers
+		headers = new HttpHeaders;
+		headers->mHeaders.push_back("content-type:  text/plain");
+		headers->mHeaders.push_back("content-type:  text/html");
+		headers->mHeaders.push_back("content-type:  application/llsd+xml");
+		
+		// And a buffer array
+		const char * msg("<xml><llsd><string>It was the best of times, it was the worst of times.</string></llsd></xml>");
+		ba = new BufferArray;
+		ba->append(msg, strlen(msg));
+			
+		// Issue a default PUT
+		mStatus = HttpStatus(200);
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-connection:\\s*keep-alive", boost::regex::icase));
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-accept:\\s*\\*/\\*", boost::regex::icase));
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-accept-encoding:\\s*((gzip|deflate),\\s*)+(gzip|deflate)", boost::regex::icase)); // close enough
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-keep-alive:\\s*\\d+", boost::regex::icase));
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-host:\\s*.*", boost::regex::icase));
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-content-length:\\s*\\d+", boost::regex::icase));
+		handler.mHeadersRequired.push_back(boost::regex("X-Reflect-content-type:\\s*application/llsd\\+xml", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-cache-control:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-pragma:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-range:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-referer:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-content-encoding:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-expect:.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("\\s*X-Reflect-transfer-encoding:\\s*.*chunked.*", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("X-Reflect-content-type:\\s*text/plain", boost::regex::icase));
+		handler.mHeadersDisallowed.push_back(boost::regex("X-Reflect-content-type:\\s*text/html", boost::regex::icase));
+		HttpHandle handle = req->requestPut(HttpRequest::DEFAULT_POLICY_ID,
+											0U,
+											url_base + "reflect/",
+											ba,
+											options,
+											headers,
+											&handler);
+		ensure("Valid handle returned for get request", handle != LLCORE_HTTP_HANDLE_INVALID);
+		ba->release();
+		ba = NULL;
+			
+		// Run the notification pump.
+		int count(0);
+		int limit(10);
+		while (count++ < limit && mHandlerCalls < 1)
+		{
+			req->update(1000000);
+			usleep(100000);
+		}
+		ensure("Request executed in reasonable time", count < limit);
+		ensure("One handler invocation for request", mHandlerCalls == 1);
+
+
+		// Okay, request a shutdown of the servicing thread
+		mStatus = HttpStatus();
+		handler.mHeadersRequired.clear();
+		handler.mHeadersDisallowed.clear();
+		handle = req->requestStopThread(&handler);
+		ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
+	
+		// Run the notification pump again
+		count = 0;
+		limit = 10;
+		while (count++ < limit && mHandlerCalls < 2)
+		{
+			req->update(1000000);
+			usleep(100000);
+		}
+		ensure("Second request executed in reasonable time", count < limit);
+		ensure("Second handler invocation", mHandlerCalls == 2);
+
+		// See that we actually shutdown the thread
+		count = 0;
+		limit = 10;
+		while (count++ < limit && ! HttpService::isStopped())
+		{
+			usleep(100000);
+		}
+		ensure("Thread actually stopped running", HttpService::isStopped());
+	
+		// release options & headers
+		if (options)
+		{
+			options->release();
+		}
+		options = NULL;
+
+		if (headers)
+		{
+			headers->release();
+		}
+		headers = NULL;
+		
+		// release the request object
+		delete req;
+		req = NULL;
+
+		// Shut down service
+		HttpRequest::destroyService();
+	}
+	catch (...)
+	{
+		stop_thread(req);
+		if (ba)
+		{
+			ba->release();
+			ba = NULL;
+		}
 		if (options)
 		{
 			options->release();

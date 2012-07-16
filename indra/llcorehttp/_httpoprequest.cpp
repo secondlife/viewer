@@ -468,6 +468,8 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 			curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDS, static_cast<void *>(NULL));
 			curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDSIZE, data_size);
 			mCurlHeaders = curl_slist_append(mCurlHeaders, "Expect:");
+			mCurlHeaders = curl_slist_append(mCurlHeaders, "Connection: keep-alive");
+			mCurlHeaders = curl_slist_append(mCurlHeaders, "Keep-alive: 300");
 		}
 		break;
 		
@@ -482,6 +484,8 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 			curl_easy_setopt(mCurlHandle, CURLOPT_INFILESIZE, data_size);
 			curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDS, (void *) NULL);
 			mCurlHeaders = curl_slist_append(mCurlHeaders, "Expect:");
+			mCurlHeaders = curl_slist_append(mCurlHeaders, "Connection: keep-alive");
+			mCurlHeaders = curl_slist_append(mCurlHeaders, "Keep-alive: 300");
 		}
 		break;
 		
