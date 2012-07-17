@@ -32,11 +32,11 @@
 				<combo_box.item label="Ana Konumum" name="MyHome"/>
 				<combo_box.item label="&lt;Bölge adını girin&gt;" name="Typeregionname"/>
 			</combo_box>
+			<text name="login_help">
+				Oturum açarken yardım mı gerekiyor?
+			</text>
 			<text name="forgot_password_text">
 				Kullanıcı adınızı veya parolanızı mı unuttunuz?
-			</text>
-			<text name="login_help" left="410">
-				&#xFFFD;
 			</text>
 		</layout_panel>
 		<layout_panel name="links">

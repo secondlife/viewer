@@ -32,11 +32,11 @@
 				<combo_box.item label="Мой дом" name="MyHome"/>
 				<combo_box.item label="&lt;Введите название региона&gt;" name="Typeregionname"/>
 			</combo_box>
+			<text name="login_help">
+				Нужна помощь при входе?
+			</text>
 			<text name="forgot_password_text">
 				Забыли имя или пароль?
-			</text>
-			<text name="login_help" left="410">
-				&#xFFFD;
 			</text>
 		</layout_panel>
 		<layout_panel name="links">

@@ -32,6 +32,9 @@
 				<combo_box.item label="我的家" name="MyHome"/>
 				<combo_box.item label="&lt; 請輸入地區名稱 &gt;" name="Typeregionname"/>
 			</combo_box>
+			<text name="login_help">
+				登入時需要幫助？
+			</text>
 			<text name="forgot_password_text">
 				忘記你的使用者名稱或密碼？
 			</text>

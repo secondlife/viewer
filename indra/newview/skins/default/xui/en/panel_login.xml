@@ -135,18 +135,6 @@ name="MyHome"
 label="&lt;Type region name&gt;"
 name="Typeregionname"   value="" />
 </combo_box>
-<text
-follows="left|bottom"
-font="SansSerif"
-font.style="BOLD"
-font.size="Large"
-text_color="EmphasisColor"
-left="370"
-name="login_help"
-top="32"
-width="16">
- &#xFFFD;
-</text>
 <combo_box
 allow_text_entry="true"
 font="SansSerifSmall"
@@ -164,11 +152,20 @@ width="135"
 follows="left|bottom"
 font="SansSerifSmall"
 text_color="EmphasisColor"
+left="630"
+name="login_help"
+top="19"
+width="280">
+       Need help logging in?
+</text>
+<text
+follows="left|bottom"
+font="SansSerifSmall"
+text_color="EmphasisColor"
 height="16"
 name="forgot_password_text"
 top="35"
-left="630"
-  width="280">
+width="280">
        Forgot your username or password?
 </text>
 <button

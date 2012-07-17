@@ -32,11 +32,11 @@
 				<combo_box.item label="Moje Miejsce Startu" name="MyHome"/>
 				<combo_box.item label="&lt;Wpisz Region&gt;" name="Typeregionname"/>
 			</combo_box>
+			<text name="login_help">
+				Potrzebujesz pomocy z logowaniem się?
+			</text>
 			<text name="forgot_password_text">
 				Zapomniałeś swojej nazwy użytkownika lub hasła?
-			</text>
-			<text name="login_help" left="395">
-				&#xFFFD;
 			</text>
 		</layout_panel>
 		<layout_panel name="links">

@@ -32,6 +32,9 @@
 				<combo_box.item label="Hjem" name="MyHome"/>
 				<combo_box.item label="&lt;Indtast regionnavn&gt;" name="Typeregionname"/>
 			</combo_box>
+			<text name="login_help">
+				Hjælp til login
+			</text>
 			<text name="forgot_password_text">
 				Har du glemt brugernavn eller password?
 			</text>

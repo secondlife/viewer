@@ -32,6 +32,9 @@
 				<combo_box.item label="Casa mia" name="MyHome"/>
 				<combo_box.item label="&lt;Scrivi nome regione&gt;" name="Typeregionname"/>
 			</combo_box>
+			<text name="login_help">
+				Ti serve aiuto con la fase di accesso?
+			</text>
 			<text name="forgot_password_text">
 				Hai dimenticato il nome utente o la password?
 			</text>
