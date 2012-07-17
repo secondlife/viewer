@@ -50,6 +50,7 @@
 #include "llviewertexture.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
+#include "llviewerstatsrecorder.h"
 #include "llviewerassetstats.h"
 #include "llworld.h"
 #include "llsdutil.h"
@@ -1703,6 +1704,7 @@ S32 LLTextureFetchWorker::callbackHttpGet(const LLChannelDescriptors& channels,
 		LL_DEBUGS("Texture") << "HTTP RECEIVED: " << mID.asString() << " Bytes: " << data_size << LL_ENDL;
 		if (data_size > 0)
 		{
+			LLViewerStatsRecorder::instance().textureFetch(data_size);
 			// *TODO: set the formatted image data here directly to avoid the copy
 			mBuffer = (U8*)ALLOCATE_MEM(LLImageBase::getPrivatePool(), data_size);
 			buffer->readAfter(channels.in(), NULL, mBuffer, data_size);
@@ -1736,6 +1738,7 @@ S32 LLTextureFetchWorker::callbackHttpGet(const LLChannelDescriptors& channels,
 	mLoaded = TRUE;
 	setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 
+	LLViewerStatsRecorder::instance().log(0.2f);
 	return data_size ;
 }
 
@@ -2639,6 +2642,9 @@ bool LLTextureFetch::receiveImageHeader(const LLHost& host, const LLUUID& id, U8
 		return false;
 	}
 
+	LLViewerStatsRecorder::instance().textureFetch(data_size);
+	LLViewerStatsRecorder::instance().log(0.1f);
+
 	worker->lockWorkMutex();
 
 	//	Copy header data into image object
@@ -2684,6 +2690,9 @@ bool LLTextureFetch::receiveImagePacket(const LLHost& host, const LLUUID& id, U1
 		mNetworkQueueMutex.unlock() ;
 		return false;
 	}
+
+	LLViewerStatsRecorder::instance().textureFetch(data_size);
+	LLViewerStatsRecorder::instance().log(0.1f);
 
 	worker->lockWorkMutex();
 	

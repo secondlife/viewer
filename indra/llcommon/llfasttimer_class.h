@@ -30,7 +30,6 @@
 #include "llinstancetracker.h"
 
 #define FAST_TIMER_ON 1
-#define TIME_FAST_TIMERS 0
 #define DEBUG_FAST_TIMER_THREADS 1
 
 class LLMutex;
@@ -157,9 +156,6 @@ public:
 	LL_FORCE_INLINE LLFastTimer(LLFastTimer::DeclareTimer& timer)
 	:	mFrameState(timer.mFrameState)
 	{
-#if TIME_FAST_TIMERS
-		U64 timer_start = getCPUClockCount64();
-#endif
 #if FAST_TIMER_ON
 		LLFastTimer::FrameState* frame_state = mFrameState;
 		mStartTime = getCPUClockCount32();
@@ -175,10 +171,6 @@ public:
 		cur_timer_data->mFrameState = frame_state;
 		cur_timer_data->mChildTime = 0;
 #endif
-#if TIME_FAST_TIMERS
-		U64 timer_end = getCPUClockCount64();
-		sTimerCycles += timer_end - timer_start;
-#endif
 #if DEBUG_FAST_TIMER_THREADS
 #if !LL_RELEASE
 		assert_main_thread();
@@ -188,9 +180,6 @@ public:
 
 	LL_FORCE_INLINE ~LLFastTimer()
 	{
-#if TIME_FAST_TIMERS
-		U64 timer_start = getCPUClockCount64();
-#endif
 #if FAST_TIMER_ON
 		LLFastTimer::FrameState* frame_state = mFrameState;
 		U32 total_time = getCPUClockCount32() - mStartTime;
@@ -207,11 +196,6 @@ public:
 
 		LLFastTimer::sCurTimerData = mLastTimerData;
 #endif
-#if TIME_FAST_TIMERS
-		U64 timer_end = getCPUClockCount64();
-		sTimerCycles += timer_end - timer_start;
-		sTimerCalls++;
-#endif
 	}
 
 public:
@@ -222,8 +206,6 @@ public:
 	static std::string		sLogName;
 	static bool 			sPauseHistory;
 	static bool 			sResetHistory;
-	static U64				sTimerCycles;
-	static U32				sTimerCalls;
 
 	typedef std::vector<FrameState> info_list_t;
 	static info_list_t& getFrameStateList();

@@ -1317,11 +1317,8 @@ void LLViewerRegion::requestCacheMisses()
 
 	mCacheDirty = TRUE ;
 	// llinfos << "KILLDEBUG Sent cache miss full " << full_count << " crc " << crc_count << llendl;
-	#if LL_RECORD_VIEWER_STATS
-	LLViewerStatsRecorder::instance().beginObjectUpdateEvents(1.f);
-	LLViewerStatsRecorder::instance().recordRequestCacheMissesEvent(full_count + crc_count);
-	LLViewerStatsRecorder::instance().endObjectUpdateEvents();
-	#endif
+	LLViewerStatsRecorder::instance().requestCacheMissesEvent(full_count + crc_count);
+	LLViewerStatsRecorder::instance().log(0.2f);
 }
 
 void LLViewerRegion::dumpCache()

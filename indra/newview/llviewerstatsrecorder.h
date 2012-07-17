@@ -35,7 +35,6 @@
 #define LL_RECORD_VIEWER_STATS	1
 
 
-#if LL_RECORD_VIEWER_STATS
 #include "llframetimer.h"
 #include "llviewerobject.h"
 #include "llviewerregion.h"
@@ -50,29 +49,71 @@ class LLViewerStatsRecorder : public LLSingleton<LLViewerStatsRecorder>
 	LLViewerStatsRecorder();
 	~LLViewerStatsRecorder();
 
-	void beginObjectUpdateEvents(F32 interval);
+	void objectUpdateFailure(U32 local_id, const EObjectUpdateType update_type, S32 msg_size)
+	{
+#if LL_RECORD_VIEWER_STATS
+		recordObjectUpdateFailure(local_id, update_type, msg_size);
+#endif
+	}
 
+	void cacheMissEvent(U32 local_id, const EObjectUpdateType update_type, U8 cache_miss_type, S32 msg_size)
+	{
+#if LL_RECORD_VIEWER_STATS
+		recordCacheMissEvent(local_id, update_type, cache_miss_type, msg_size);
+#endif
+	}
+
+	void objectUpdateEvent(U32 local_id, const EObjectUpdateType update_type, LLViewerObject * objectp, S32 msg_size)
+	{
+#if LL_RECORD_VIEWER_STATS
+		recordObjectUpdateEvent(local_id, update_type, objectp, msg_size);
+#endif
+	}
+
+	void cacheFullUpdate(U32 local_id, const EObjectUpdateType update_type, LLViewerRegion::eCacheUpdateResult update_result, LLViewerObject* objectp, S32 msg_size)
+	{
+#if LL_RECORD_VIEWER_STATS
+		recordCacheFullUpdate(local_id, update_type, update_result, objectp, msg_size);
+#endif
+	}
+
+	void requestCacheMissesEvent(S32 count)
+	{
+#if LL_RECORD_VIEWER_STATS
+		recordRequestCacheMissesEvent(count);
+#endif
+	}
+
+	void textureFetch(S32 msg_size)
+	{
+#if LL_RECORD_VIEWER_STATS
+		recordTextureFetch(msg_size);
+#endif
+	}
+
+	void log(F32 interval)
+	{
+#if LL_RECORD_VIEWER_STATS
+		writeToLog(interval);
+#endif
+	}
+
+	F32 getTimeSinceStart();
+
+private:
 	void recordObjectUpdateFailure(U32 local_id, const EObjectUpdateType update_type, S32 msg_size);
 	void recordCacheMissEvent(U32 local_id, const EObjectUpdateType update_type, U8 cache_miss_type, S32 msg_size);
 	void recordObjectUpdateEvent(U32 local_id, const EObjectUpdateType update_type, LLViewerObject * objectp, S32 msg_size);
 	void recordCacheFullUpdate(U32 local_id, const EObjectUpdateType update_type, LLViewerRegion::eCacheUpdateResult update_result, LLViewerObject* objectp, S32 msg_size);
 	void recordRequestCacheMissesEvent(S32 count);
-	
-	void endObjectUpdateEvents();
-
-	F32 getTimeSinceStart();
-
-private:
-	void takeSnapshot();
+	void recordTextureFetch(S32 msg_size);
+	void writeToLog(F32 interval);
 
 	static LLViewerStatsRecorder* sInstance;
 
 	LLFILE *	mObjectCacheFile;		// File to write data into
 	LLFrameTimer	mTimer;
 	F64			mStartTime;
-	F64			mProcessingStartTime;
-	F64			mProcessingTotalTime;
-	F64			mSnapshotInterval;
 	F64			mLastSnapshotTime;
 
 	S32			mObjectCacheHitCount;
@@ -94,11 +135,11 @@ private:
 	S32			mObjectCacheUpdateReplacements;
 	S32			mObjectUpdateFailures;
 	S32			mObjectUpdateFailuresSize;
+	S32			mTextureFetchSize;
 
 
 	void	clearStats();
 };
-#endif	// LL_RECORD_VIEWER_STATS
 
 #endif // LLVIEWERSTATSRECORDER_H
 

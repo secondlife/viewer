@@ -323,55 +323,55 @@ void LLViewerStats::updateFrameStats(const F64 time_diff)
 {
 	if (mPacketsLostPercentStat.getCurrent() > 5.0)
 	{
-		incStat(LLViewerStats::ST_LOSS_05_SECONDS, time_diff);
+		incStat(ST_LOSS_05_SECONDS, time_diff);
 	}
 	
 	if (mSimFPS.getCurrent() < 20.f && mSimFPS.getCurrent() > 0.f)
 	{
-		incStat(LLViewerStats::ST_SIM_FPS_20_SECONDS, time_diff);
+		incStat(ST_SIM_FPS_20_SECONDS, time_diff);
 	}
 	
 	if (mSimPhysicsFPS.getCurrent() < 20.f && mSimPhysicsFPS.getCurrent() > 0.f)
 	{
-		incStat(LLViewerStats::ST_PHYS_FPS_20_SECONDS, time_diff);
+		incStat(ST_PHYS_FPS_20_SECONDS, time_diff);
 	}
 		
 	if (time_diff >= 0.5)
 	{
-		incStat(LLViewerStats::ST_FPS_2_SECONDS, time_diff);
+		incStat(ST_FPS_2_SECONDS, time_diff);
 	}
 	if (time_diff >= 0.125)
 	{
-		incStat(LLViewerStats::ST_FPS_8_SECONDS, time_diff);
+		incStat(ST_FPS_8_SECONDS, time_diff);
 	}
 	if (time_diff >= 0.1)
 	{
-		incStat(LLViewerStats::ST_FPS_10_SECONDS, time_diff);
+		incStat(ST_FPS_10_SECONDS, time_diff);
 	}
 
 	if (gFrameCount && mLastTimeDiff > 0.0)
 	{
 		// new "stutter" meter
-		setStat(LLViewerStats::ST_FPS_DROP_50_RATIO,
-				(getStat(LLViewerStats::ST_FPS_DROP_50_RATIO) * (F64)(gFrameCount - 1) + 
+		setStat(ST_FPS_DROP_50_RATIO,
+				(getStat(ST_FPS_DROP_50_RATIO) * (F64)(gFrameCount - 1) + 
 				 (time_diff >= 2.0 * mLastTimeDiff ? 1.0 : 0.0)) / gFrameCount);
 			
 
 		// old stats that were never really used
-		setStat(LLViewerStats::ST_FRAMETIME_JITTER,
-				(getStat(LLViewerStats::ST_FRAMETIME_JITTER) * (gFrameCount - 1) + 
+		setStat(ST_FRAMETIME_JITTER,
+				(getStat(ST_FRAMETIME_JITTER) * (gFrameCount - 1) + 
 				 fabs(mLastTimeDiff - time_diff) / mLastTimeDiff) / gFrameCount);
 			
 		F32 average_frametime = gRenderStartTime.getElapsedTimeF32() / (F32)gFrameCount;
-		setStat(LLViewerStats::ST_FRAMETIME_SLEW,
-				(getStat(LLViewerStats::ST_FRAMETIME_SLEW) * (gFrameCount - 1) + 
+		setStat(ST_FRAMETIME_SLEW,
+				(getStat(ST_FRAMETIME_SLEW) * (gFrameCount - 1) + 
 				 fabs(average_frametime - time_diff) / average_frametime) / gFrameCount);
 
 		F32 max_bandwidth = gViewerThrottle.getMaxBandwidth();
 		F32 delta_bandwidth = gViewerThrottle.getCurrentBandwidth() - max_bandwidth;
-		setStat(LLViewerStats::ST_DELTA_BANDWIDTH, delta_bandwidth / 1024.f);
+		setStat(ST_DELTA_BANDWIDTH, delta_bandwidth / 1024.f);
 
-		setStat(LLViewerStats::ST_MAX_BANDWIDTH, max_bandwidth / 1024.f);
+		setStat(ST_MAX_BANDWIDTH, max_bandwidth / 1024.f);
 		
 	}
 	
@@ -398,19 +398,6 @@ void LLViewerStats::addToMessage(LLSD &body) const
 	llinfos << "STAT: AgentPositionSnaps: Mean = " << mAgentPositionSnaps.getMean() << "; StdDev = " << mAgentPositionSnaps.getStdDev() 
 			<< "; Count = " << mAgentPositionSnaps.getCount() << llendl;
 }
-
-// static
-// const std::string LLViewerStats::statTypeToText(EStatType type)
-// {
-// 	if (type >= 0 && type < ST_COUNT)
-// 	{
-// 		return STAT_INFO[type].mName;
-// 	}
-// 	else
-// 	{
-// 		return "Unknown statistic";
-// 	}
-// }
 
 // *NOTE:Mani The following methods used to exist in viewer.cpp
 // Moving them here, but not merging them into LLViewerStats yet.
@@ -579,6 +566,8 @@ void update_statistics(U32 frame_count)
 	gTotalWorldBytes += gVLManager.getTotalBytes();
 	gTotalObjectBytes += gObjectBits / 8;
 
+	LLViewerStats& stats = LLViewerStats::instance();
+
 	// make sure we have a valid time delta for this frame
 	if (gFrameIntervalSeconds > 0.f)
 	{
@@ -595,42 +584,42 @@ void update_statistics(U32 frame_count)
 			LLViewerStats::getInstance()->incStat(LLViewerStats::ST_TOOLBOX_SECONDS, gFrameIntervalSeconds);
 		}
 	}
-	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_ENABLE_VBO, (F64)gSavedSettings.getBOOL("RenderVBOEnable"));
-	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_LIGHTING_DETAIL, (F64)gPipeline.getLightingDetail());
-	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_DRAW_DIST, (F64)gSavedSettings.getF32("RenderFarClip"));
-	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_CHAT_BUBBLES, (F64)gSavedSettings.getBOOL("UseChatBubbles"));
+	stats.setStat(LLViewerStats::ST_ENABLE_VBO, (F64)gSavedSettings.getBOOL("RenderVBOEnable"));
+	stats.setStat(LLViewerStats::ST_LIGHTING_DETAIL, (F64)gPipeline.getLightingDetail());
+	stats.setStat(LLViewerStats::ST_DRAW_DIST, (F64)gSavedSettings.getF32("RenderFarClip"));
+	stats.setStat(LLViewerStats::ST_CHAT_BUBBLES, (F64)gSavedSettings.getBOOL("UseChatBubbles"));
 #if 0 // 1.9.2
-	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_SHADER_OBJECTS, (F64)gSavedSettings.getS32("VertexShaderLevelObject"));
-	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_SHADER_AVATAR, (F64)gSavedSettings.getBOOL("VertexShaderLevelAvatar"));
-	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_SHADER_ENVIRONMENT, (F64)gSavedSettings.getBOOL("VertexShaderLevelEnvironment"));
+	stats.setStat(LLViewerStats::ST_SHADER_OBJECTS, (F64)gSavedSettings.getS32("VertexShaderLevelObject"));
+	stats.setStat(LLViewerStats::ST_SHADER_AVATAR, (F64)gSavedSettings.getBOOL("VertexShaderLevelAvatar"));
+	stats.setStat(LLViewerStats::ST_SHADER_ENVIRONMENT, (F64)gSavedSettings.getBOOL("VertexShaderLevelEnvironment"));
 #endif
-	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_FRAME_SECS, gDebugView->mFastTimerView->getTime("Frame"));
+	stats.setStat(LLViewerStats::ST_FRAME_SECS, gDebugView->mFastTimerView->getTime("Frame"));
 	F64 idle_secs = gDebugView->mFastTimerView->getTime("Idle");
 	F64 network_secs = gDebugView->mFastTimerView->getTime("Network");
-	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_UPDATE_SECS, idle_secs - network_secs);
-	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_NETWORK_SECS, network_secs);
-	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_IMAGE_SECS, gDebugView->mFastTimerView->getTime("Update Images"));
-	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_REBUILD_SECS, gDebugView->mFastTimerView->getTime("Sort Draw State"));
-	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_RENDER_SECS, gDebugView->mFastTimerView->getTime("Geometry"));
+	stats.setStat(LLViewerStats::ST_UPDATE_SECS, idle_secs - network_secs);
+	stats.setStat(LLViewerStats::ST_NETWORK_SECS, network_secs);
+	stats.setStat(LLViewerStats::ST_IMAGE_SECS, gDebugView->mFastTimerView->getTime("Update Images"));
+	stats.setStat(LLViewerStats::ST_REBUILD_SECS, gDebugView->mFastTimerView->getTime("Sort Draw State"));
+	stats.setStat(LLViewerStats::ST_RENDER_SECS, gDebugView->mFastTimerView->getTime("Geometry"));
 		
 	LLCircuitData *cdp = gMessageSystem->mCircuitInfo.findCircuit(gAgent.getRegion()->getHost());
 	if (cdp)
 	{
-		LLViewerStats::getInstance()->mSimPingStat.addValue(cdp->getPingDelay());
+		stats.mSimPingStat.addValue(cdp->getPingDelay());
 		gAvgSimPing = ((gAvgSimPing * (F32)gSimPingCount) + (F32)(cdp->getPingDelay())) / ((F32)gSimPingCount + 1);
 		gSimPingCount++;
 	}
 	else
 	{
-		LLViewerStats::getInstance()->mSimPingStat.addValue(10000);
+		stats.mSimPingStat.addValue(10000);
 	}
 
-	LLViewerStats::getInstance()->mFPSStat.addValue(1);
+	stats.mFPSStat.addValue(1);
 	F32 layer_bits = (F32)(gVLManager.getLandBits() + gVLManager.getWindBits() + gVLManager.getCloudBits());
-	LLViewerStats::getInstance()->mLayersKBitStat.addValue(layer_bits/1024.f);
-	LLViewerStats::getInstance()->mObjectKBitStat.addValue(gObjectBits/1024.f);
-	LLViewerStats::getInstance()->mVFSPendingOperations.addValue(LLVFile::getVFSThread()->getPending());
-	LLViewerStats::getInstance()->mAssetKBitStat.addValue(gTransferManager.getTransferBitsIn(LLTCT_ASSET)/1024.f);
+	stats.mLayersKBitStat.addValue(layer_bits/1024.f);
+	stats.mObjectKBitStat.addValue(gObjectBits/1024.f);
+	stats.mVFSPendingOperations.addValue(LLVFile::getVFSThread()->getPending());
+	stats.mAssetKBitStat.addValue(gTransferManager.getTransferBitsIn(LLTCT_ASSET)/1024.f);
 	gTransferManager.resetTransferBitsIn(LLTCT_ASSET);
 
 	if (LLAppViewer::getTextureFetch()->getNumRequests() == 0)
@@ -651,7 +640,7 @@ void update_statistics(U32 frame_count)
 			visible_avatar_frames = 1.f;
 			avg_visible_avatars = (avg_visible_avatars * (F32)(visible_avatar_frames - 1.f) + visible_avatars) / visible_avatar_frames;
 		}
-		LLViewerStats::getInstance()->setStat(LLViewerStats::ST_VISIBLE_AVATARS, (F64)avg_visible_avatars);
+		stats.setStat(LLViewerStats::ST_VISIBLE_AVATARS, (F64)avg_visible_avatars);
 	}
 	LLWorld::getInstance()->updateNetStats();
 	LLWorld::getInstance()->requestCacheMisses();
@@ -667,8 +656,8 @@ void update_statistics(U32 frame_count)
 		static LLFrameTimer texture_stats_timer;
 		if (texture_stats_timer.getElapsedTimeF32() >= texture_stats_freq)
 		{
-			LLViewerStats::getInstance()->mTextureKBitStat.addValue(LLViewerTextureList::sTextureBits/1024.f);
-			LLViewerStats::getInstance()->mTexturePacketsStat.addValue(LLViewerTextureList::sTexturePackets);
+			stats.mTextureKBitStat.addValue(LLViewerTextureList::sTextureBits/1024.f);
+			stats.mTexturePacketsStat.addValue(LLViewerTextureList::sTexturePackets);
 			gTotalTextureBytes += LLViewerTextureList::sTextureBits / 8;
 			LLViewerTextureList::sTextureBits = 0;
 			LLViewerTextureList::sTexturePackets = 0;

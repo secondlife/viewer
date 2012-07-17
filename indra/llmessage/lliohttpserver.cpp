@@ -141,6 +141,11 @@ private:
 };
 
 static LLFastTimer::DeclareTimer FTM_PROCESS_HTTP_PIPE("HTTP Pipe");
+static LLFastTimer::DeclareTimer FTM_PROCESS_HTTP_GET("HTTP Get");
+static LLFastTimer::DeclareTimer FTM_PROCESS_HTTP_PUT("HTTP Put");
+static LLFastTimer::DeclareTimer FTM_PROCESS_HTTP_POST("HTTP Post");
+static LLFastTimer::DeclareTimer FTM_PROCESS_HTTP_DELETE("HTTP Delete");
+
 LLIOPipe::EStatus LLHTTPPipe::process_impl(
 	const LLChannelDescriptors& channels,
     buffer_ptr_t& buffer,
@@ -177,12 +182,12 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
 		std::string verb = context[CONTEXT_REQUEST][CONTEXT_VERB];
 		if(verb == HTTP_VERB_GET)
 		{
-            LLPerfBlock getblock("http_get");   
+			LLFastTimer _(FTM_PROCESS_HTTP_GET);
 			mNode.get(LLHTTPNode::ResponsePtr(mResponse), context);
 		}
 		else if(verb == HTTP_VERB_PUT)
 		{
-            LLPerfBlock putblock("http_put");
+			LLFastTimer _(FTM_PROCESS_HTTP_PUT);
 			LLSD input;
 			if (mNode.getContentType() == LLHTTPNode::CONTENT_TYPE_LLSD)
 			{
@@ -198,7 +203,7 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
 		}
 		else if(verb == HTTP_VERB_POST)
 		{
-            LLPerfBlock postblock("http_post");
+			LLFastTimer _(FTM_PROCESS_HTTP_POST);
 			LLSD input;
 			if (mNode.getContentType() == LLHTTPNode::CONTENT_TYPE_LLSD)
 			{
@@ -214,7 +219,7 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
 		}
 		else if(verb == HTTP_VERB_DELETE)
 		{
-            LLPerfBlock delblock("http_delete");
+			LLFastTimer _(FTM_PROCESS_HTTP_DELETE);
 			mNode.del(LLHTTPNode::ResponsePtr(mResponse), context);
 		}		
 		else if(verb == HTTP_VERB_OPTIONS)

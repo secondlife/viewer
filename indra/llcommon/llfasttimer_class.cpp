@@ -73,9 +73,6 @@ U64 LLFastTimer::sClockResolution = 1000000; // Microsecond resolution
 #endif
 
 std::vector<LLFastTimer::FrameState>* LLFastTimer::sTimerInfos = NULL;
-U64				LLFastTimer::sTimerCycles = 0;
-U32				LLFastTimer::sTimerCalls = 0;
-
 
 // FIXME: move these declarations to the relevant modules
 
@@ -425,8 +422,8 @@ void LLFastTimer::NamedTimer::buildHierarchy()
 		{
 			// since ancestors have already been visited, reparenting won't affect tree traversal
 			//step up tree, bringing our descendants with us
-			//llinfos << "Moving " << timerp->getName() << " from child of " << timerp->getParent()->getName() <<
-			//	" to child of " << timerp->getParent()->getParent()->getName() << llendl;
+			LL_DEBUGS("FastTimers") << "Moving " << timerp->getName() << " from child of " << timerp->getParent()->getName() <<
+				" to child of " << timerp->getParent()->getParent()->getName() << LL_ENDL;
 			timerp->setParent(timerp->getParent()->getParent());
 			timerp->getFrameState().mMoveUpTree = false;
 
@@ -507,12 +504,12 @@ void LLFastTimer::NamedTimer::resetFrame()
 		static S32 call_count = 0;
 		if (call_count % 100 == 0)
 		{
-			llinfos << "countsPerSecond (32 bit): " << countsPerSecond() << llendl;
-			llinfos << "get_clock_count (64 bit): " << get_clock_count() << llendl;
-			llinfos << "LLProcessorInfo().getCPUFrequency() " << LLProcessorInfo().getCPUFrequency() << llendl;
-			llinfos << "getCPUClockCount32() " << getCPUClockCount32() << llendl;
-			llinfos << "getCPUClockCount64() " << getCPUClockCount64() << llendl;
-			llinfos << "elapsed sec " << ((F64)getCPUClockCount64())/((F64)LLProcessorInfo().getCPUFrequency()*1000000.0) << llendl;
+			LL_DEBUGS("FastTimers") << "countsPerSecond (32 bit): " << countsPerSecond() << LL_ENDL;
+			LL_DEBUGS("FastTimers") << "get_clock_count (64 bit): " << get_clock_count() << llendl;
+			LL_DEBUGS("FastTimers") << "LLProcessorInfo().getCPUFrequency() " << LLProcessorInfo().getCPUFrequency() << LL_ENDL;
+			LL_DEBUGS("FastTimers") << "getCPUClockCount32() " << getCPUClockCount32() << LL_ENDL;
+			LL_DEBUGS("FastTimers") << "getCPUClockCount64() " << getCPUClockCount64() << LL_ENDL;
+			LL_DEBUGS("FastTimers") << "elapsed sec " << ((F64)getCPUClockCount64())/((F64)LLProcessorInfo().getCPUFrequency()*1000000.0) << LL_ENDL;
 		}
 		call_count++;
 
@@ -566,26 +563,21 @@ void LLFastTimer::NamedTimer::resetFrame()
 	DeclareTimer::updateCachedPointers();
 
 	// reset for next frame
+	for (instance_iter it = beginInstances(); it != endInstances(); ++it)
 	{
-		for (instance_iter it = beginInstances(); it != endInstances(); ++it)
-		{
-			NamedTimer& timer = *it;
+		NamedTimer& timer = *it;
 			
-			FrameState& info = timer.getFrameState();
-			info.mSelfTimeCounter = 0;
-			info.mCalls = 0;
-			info.mLastCaller = NULL;
-			info.mMoveUpTree = false;
-			// update parent pointer in timer state struct
-			if (timer.mParent)
-			{
-				info.mParent = &timer.mParent->getFrameState();
-			}
+		FrameState& info = timer.getFrameState();
+		info.mSelfTimeCounter = 0;
+		info.mCalls = 0;
+		info.mLastCaller = NULL;
+		info.mMoveUpTree = false;
+		// update parent pointer in timer state struct
+		if (timer.mParent)
+		{
+			info.mParent = &timer.mParent->getFrameState();
 		}
 	}
-
-	//sTimerCycles = 0;
-	//sTimerCalls = 0;
 }
 
 //static

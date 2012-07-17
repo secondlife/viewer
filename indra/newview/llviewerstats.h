@@ -112,8 +112,7 @@ public:
 
 	void resetStats();
 public:
-	// If you change this, please also add a corresponding text label
-	// in statTypeToText in llviewerstats.cpp
+	// If you change this, please also add a corresponding text label in llviewerstats.cpp
 	enum EStatType
 	{
 		ST_VERSION = 0,

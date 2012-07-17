@@ -95,7 +95,6 @@ LLFastTimerView::LLFastTimerView(const LLSD& key)
 	mHoverBarIndex = -1;
 	FTV_NUM_TIMERS = LLFastTimer::NamedTimer::instanceCount();
 	mPrintStats = -1;	
-	mAverageCyclesPerTimer = 0;
 }
 
 void LLFastTimerView::onPause()
@@ -379,12 +378,6 @@ void LLFastTimerView::draw()
 	S32 xleft = margin;
 	S32 ytop = margin;
 	
-	mAverageCyclesPerTimer = LLFastTimer::sTimerCalls == 0 
-		? 0 
-		: llround(lerp((F32)mAverageCyclesPerTimer, (F32)(LLFastTimer::sTimerCycles / (U64)LLFastTimer::sTimerCalls), 0.1f));
-	LLFastTimer::sTimerCycles = 0;
-	LLFastTimer::sTimerCalls = 0;
-
 	// Draw some help
 	{
 		
@@ -392,10 +385,6 @@ void LLFastTimerView::draw()
 		y = height - ytop;
 		texth = (S32)LLFontGL::getFontMonospace()->getLineHeight();
 
-#if TIME_FAST_TIMERS
-		tdesc = llformat("Cycles per timer call: %d", mAverageCyclesPerTimer);
-		LLFontGL::getFontMonospace()->renderUTF8(tdesc, 0, x, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
-#else
 		char modedesc[][32] = {
 			"2 x Average ",
 			"Max         ",
@@ -419,7 +408,6 @@ void LLFastTimerView::draw()
 
 		LLFontGL::getFontMonospace()->renderUTF8(std::string("[Right-Click log selected] [ALT-Click toggle counts] [ALT-SHIFT-Click sub hidden]"),
 										 0, x, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
-#endif
 		y -= (texth + 2);
 	}
 
