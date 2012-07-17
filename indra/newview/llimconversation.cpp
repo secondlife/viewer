@@ -43,6 +43,7 @@ const F32 REFRESH_INTERVAL = 0.2f;
 LLIMConversation::LLIMConversation(const LLUUID& session_id)
   : LLTransientDockableFloater(NULL, true, session_id)
   ,  mIsP2PChat(false)
+  ,  mWasHosted(false)
   ,  mExpandCollapseBtn(NULL)
   ,  mTearOffBtn(NULL)
   ,  mCloseBtn(NULL)
@@ -80,6 +81,8 @@ LLIMConversation::~LLIMConversation()
 
 BOOL LLIMConversation::postBuild()
 {
+	BOOL result;
+
 	mCloseBtn = getChild<LLButton>("close_btn");
 	mCloseBtn->setCommitCallback(boost::bind(&LLFloater::onClickClose, this));
 
@@ -103,6 +106,7 @@ BOOL LLIMConversation::postBuild()
 	}
 
 	buildParticipantList();
+
 	updateHeaderAndToolbar();
 
 	if (isChatMultiTab())
@@ -111,13 +115,14 @@ BOOL LLIMConversation::postBuild()
 		{
 			setCanClose(FALSE);
 		}
-		return LLFloater::postBuild();
+		result = LLFloater::postBuild();
 	}
 	else
 	{
-		return LLDockableFloater::postBuild();
+		result = LLDockableFloater::postBuild();
 	}
 
+	return result;
 }
 
 void LLIMConversation::draw()
@@ -215,7 +220,7 @@ bool LLIMConversation::onIMShowModesMenuItemEnable(const LLSD& userdata)
 	return (plain_text && (is_not_names || mIsP2PChat));
 }
 
-void LLIMConversation::updateHeaderAndToolbar()
+void LLIMConversation::hideOrShowTitle()
 {
 	bool is_hosted = getHost() != NULL;
 
@@ -227,23 +232,9 @@ void LLIMConversation::updateHeaderAndToolbar()
 
 		if (is_hosted)
 		{
-			for (S32 i = 0; i < BUTTON_COUNT; i++)
-			{
-				if (mButtons[i])
-				{
-					// Hide the standard header buttons in a docked IM floater.
-					mButtons[i]->setVisible(false);
-				}
-			}
-
 			// we don't show the header when the floater is hosted, so reshape floater contents
 			// to occupy the header space.
-			LLRect floater_rect = getRect();
-			contents_rect.setOriginAndSize(
-					contents_rect.mLeft,
-					contents_rect.mBottom,
-					floater_rect.getWidth(),
-					floater_rect.getHeight());
+			contents_rect.mTop += getHeaderHeight();
 		}
 		else
 		{
@@ -253,6 +244,30 @@ void LLIMConversation::updateHeaderAndToolbar()
 
 		floater_contents->setShape(contents_rect);
 	}
+}
+
+void LLIMConversation::hideAllStandardButtons()
+{
+	for (S32 i = 0; i < BUTTON_COUNT; i++)
+	{
+		if (mButtons[i])
+		{
+			// Hide the standard header buttons in a docked IM floater.
+			mButtons[i]->setVisible(false);
+		}
+	}
+}
+
+void LLIMConversation::updateHeaderAndToolbar()
+{
+	bool is_hosted = getHost() != NULL;
+
+	if (is_hosted)
+	{
+		hideAllStandardButtons();
+	}
+
+	hideOrShowTitle();
 
 	// Participant list should be visible only in torn off floaters.
 	bool is_participant_list_visible =

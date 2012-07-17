@@ -89,6 +89,9 @@ protected:
 	void buildParticipantList();
 	void onSortMenuItemClicked(const LLSD& userdata);
 
+	void hideOrShowTitle();
+	void hideAllStandardButtons();
+
 	bool mIsNearbyChat;
 	bool mIsP2PChat;
 	bool mWasHosted;
