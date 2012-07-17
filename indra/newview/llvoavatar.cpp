@@ -4581,6 +4581,7 @@ void LLVOAvatar::updateTextures()
 			if (isIndexBakedTexture((ETextureIndex)texture_index)
 				&& imagep->getID() != IMG_DEFAULT_AVATAR
 				&& imagep->getID() != IMG_INVISIBLE
+				&& !LLAppearanceMgr::instance().useServerTextureBaking()
 				&& !imagep->getTargetHost().isOk())
 			{
 				LL_WARNS_ONCE("Texture") << "LLVOAvatar::updateTextures No host for texture "
@@ -7363,7 +7364,6 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	}
 
 	setCompositeUpdatesEnabled( FALSE );
-	mMeshTexturesDirty = TRUE;
 	gPipeline.markGLRebuild(this);
 
 	// parse visual params
@@ -7474,6 +7474,13 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 
 	// If all of the avatars are completely baked, release the global image caches to conserve memory.
 	LLVOAvatar::cullAvatarsByPixelArea();
+
+	if (isSelf() && LLAppearanceMgr::instance().useServerTextureBaking())
+	{
+		mUseLocalAppearance = false;
+	}
+
+	updateMeshTextures();
 
 //	llinfos << "processAvatarAppearance end " << mID << llendl;
 }
