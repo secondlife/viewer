@@ -340,7 +340,8 @@ public:
 	U8 mTexAnimMode;
 private:
 	friend class LLDrawable;
-	
+	friend class LLFace;
+
 	BOOL		mFaceMappingChanged;
 	LLFrameTimer mTextureUpdateTimer;
 	S32			mLOD;
