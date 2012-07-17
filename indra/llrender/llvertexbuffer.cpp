@@ -38,10 +38,6 @@
 #include "llglslshader.h"
 #include "llmemory.h"
 
-#if LL_DARWIN
-#define LL_VBO_POOLING 1
-#else
-#endif
 //Next Highest Power Of Two
 //helper function, returns first number > v that is a power of 2, or v if v is already a power of 2
 U32 nhpo2(U32 v)
@@ -292,6 +288,7 @@ void LLVBOPool::seedPool()
 		}
 	}
 }
+
 
 
 void LLVBOPool::cleanup()
@@ -1330,7 +1327,7 @@ void LLVertexBuffer::setupVertexArray()
 		1, //TYPE_WEIGHT,
 		4, //TYPE_WEIGHT4,
 		4, //TYPE_CLOTHWEIGHT,
-		4, //TYPE_TEXTURE_INDEX
+		1, //TYPE_TEXTURE_INDEX
 	};
 
 	U32 attrib_type[] =
@@ -1347,7 +1344,7 @@ void LLVertexBuffer::setupVertexArray()
 		GL_FLOAT, //TYPE_WEIGHT,
 		GL_FLOAT, //TYPE_WEIGHT4,
 		GL_FLOAT, //TYPE_CLOTHWEIGHT,
-		GL_UNSIGNED_BYTE, //TYPE_TEXTURE_INDEX
+		GL_UNSIGNED_INT, //TYPE_TEXTURE_INDEX
 	};
 
 	bool attrib_integer[] = 
@@ -2404,7 +2401,7 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask)
 #if !LL_DARWIN
 			S32 loc = TYPE_TEXTURE_INDEX;
 			void *ptr = (void*) (base + mOffsets[TYPE_VERTEX] + 12);
-			glVertexAttribIPointer(loc, 4, GL_UNSIGNED_BYTE, LLVertexBuffer::sTypeSize[TYPE_VERTEX], ptr);
+			glVertexAttribIPointer(loc, 1, GL_UNSIGNED_INT, LLVertexBuffer::sTypeSize[TYPE_VERTEX], ptr);
 #endif
 		}
 		if (data_mask & MAP_VERTEX)

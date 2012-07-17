@@ -76,11 +76,11 @@ public:
 
 	// LLViewerVisualParam Virtual functions
 	/*virtual*/ F32					getTotalDistortion()									{ return 1.f; }
-	/*virtual*/ const LLVector3&	getAvgDistortion()										{ return mAvgDistortionVec; }
+	/*virtual*/ const LLVector4a&	getAvgDistortion()										{ return mAvgDistortionVec; }
 	/*virtual*/ F32					getMaxDistortion()										{ return 3.f; }
-	/*virtual*/ LLVector3			getVertexDistortion(S32 index, LLPolyMesh *poly_mesh)	{ return LLVector3(1.f, 1.f, 1.f);}
-	/*virtual*/ const LLVector3*	getFirstDistortion(U32 *index, LLPolyMesh **poly_mesh)	{ index = 0; poly_mesh = NULL; return &mAvgDistortionVec;};
-	/*virtual*/ const LLVector3*	getNextDistortion(U32 *index, LLPolyMesh **poly_mesh)	{ index = 0; poly_mesh = NULL; return NULL;};
+	/*virtual*/ LLVector4a			getVertexDistortion(S32 index, LLPolyMesh *poly_mesh)	{ return LLVector4a(1.f, 1.f, 1.f);}
+	/*virtual*/ const LLVector4a*	getFirstDistortion(U32 *index, LLPolyMesh **poly_mesh)	{ index = 0; poly_mesh = NULL; return &mAvgDistortionVec;};
+	/*virtual*/ const LLVector4a*	getNextDistortion(U32 *index, LLPolyMesh **poly_mesh)	{ index = 0; poly_mesh = NULL; return NULL;};
 
 	// New functions
 	BOOL					render( S32 x, S32 y, S32 width, S32 height );
@@ -94,7 +94,7 @@ private:
 	LLPointer<LLImageRaw>	mStaticImageRaw;
 	BOOL					mNeedsCreateTexture;
 	BOOL					mStaticImageInvalid;
-	LLVector3				mAvgDistortionVec;
+	LLVector4a				mAvgDistortionVec;
 	F32						mCachedEffectiveWeight;
 
 public:
@@ -155,18 +155,18 @@ public:
 
 	// LLViewerVisualParam Virtual functions
 	/*virtual*/ F32					getTotalDistortion()									{ return 1.f; }
-	/*virtual*/ const LLVector3&	getAvgDistortion()										{ return mAvgDistortionVec; }
+	/*virtual*/ const LLVector4a&	getAvgDistortion()										{ return mAvgDistortionVec; }
 	/*virtual*/ F32					getMaxDistortion()										{ return 3.f; }
-	/*virtual*/ LLVector3			getVertexDistortion(S32 index, LLPolyMesh *poly_mesh)	{ return LLVector3(1.f, 1.f, 1.f); }
-	/*virtual*/ const LLVector3*	getFirstDistortion(U32 *index, LLPolyMesh **poly_mesh)	{ index = 0; poly_mesh = NULL; return &mAvgDistortionVec;};
-	/*virtual*/ const LLVector3*	getNextDistortion(U32 *index, LLPolyMesh **poly_mesh)	{ index = 0; poly_mesh = NULL; return NULL;};
+	/*virtual*/ LLVector4a			getVertexDistortion(S32 index, LLPolyMesh *poly_mesh)	{ return LLVector4a(1.f, 1.f, 1.f); }
+	/*virtual*/ const LLVector4a*	getFirstDistortion(U32 *index, LLPolyMesh **poly_mesh)	{ index = 0; poly_mesh = NULL; return &mAvgDistortionVec;};
+	/*virtual*/ const LLVector4a*	getNextDistortion(U32 *index, LLPolyMesh **poly_mesh)	{ index = 0; poly_mesh = NULL; return NULL;};
 
 	// New functions
 	LLColor4				getNetColor() const;
 protected:
 	virtual void onGlobalColorChanged(bool upload_bake) {}
 private:
-	LLVector3				mAvgDistortionVec;
+	LLVector4a				mAvgDistortionVec;
 };
 
 class LLTexLayerParamColorInfo : public LLViewerVisualParamInfo
