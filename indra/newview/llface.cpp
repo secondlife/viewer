@@ -326,7 +326,20 @@ void LLFace::setTexture(LLViewerTexture* tex)
 
 void LLFace::dirtyTexture()
 {
-	gPipeline.markTextured(getDrawable());
+	LLDrawable* drawablep = getDrawable();
+
+	if (mVObjp.notNull() && mVObjp->getVolume() && 
+		mTexture.notNull() && mTexture->getComponents() == 4)
+	{ //dirty texture on an alpha object should be treated as an LoD update
+		LLVOVolume* vobj = drawablep->getVOVolume();
+		if (vobj)
+		{
+			vobj->mLODChanged = TRUE;
+		}
+		gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_VOLUME, FALSE);
+	}		
+			
+	gPipeline.markTextured(drawablep);
 }
 
 void LLFace::switchTexture(LLViewerTexture* new_texture)
