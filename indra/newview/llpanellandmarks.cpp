@@ -651,7 +651,7 @@ void LLLandmarksPanel::onAccordionExpandedCollapsed(const LLSD& param, LLPlacesI
 	// Start background fetch, mostly for My Inventory and Library
 	if (expanded)
 	{
-		const LLUUID &cat_id = mCurrentSelectedList->getRootFolderID();
+		const LLUUID &cat_id = inventory_list->getRootFolderID();
 		// Just because the category itself has been fetched, doesn't mean its child folders have.
 		/*
 		  if (!gInventory.isCategoryComplete(cat_id))

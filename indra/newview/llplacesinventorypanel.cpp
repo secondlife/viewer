@@ -93,6 +93,7 @@ void LLPlacesInventoryPanel::buildFolderView(const LLInventoryPanel::Params& par
 	p.parent_panel = this;
 	p.allow_multiselect = mAllowMultiSelect;
 	p.use_ellipses = true;	// truncate inventory item text so remove horizontal scroller
+	p.view_model = &mInventoryViewModel;
 	mFolderRoot = LLUICtrlFactory::create<LLPlacesFolderView>(p);
 }
 
