@@ -13,8 +13,47 @@
 #define LL_LLTYPEINFOLOOKUP_H
 
 #include <boost/unordered_map.hpp>
+#include <boost/functional/hash.hpp>
 #include <boost/optional.hpp>
+#include <functional>               // std::binary_function
 #include <typeinfo>
+
+/**
+ * The following helper classes are based on the Boost.Unordered documentation:
+ * http://www.boost.org/doc/libs/1_45_0/doc/html/unordered/hash_equality.html
+ */
+
+/**
+ * Compute hash for a string passed as const char*
+ */
+struct const_char_star_hash: public std::unary_function<const char*, std::size_t>
+{
+    std::size_t operator()(const char* str) const
+    {
+        std::size_t seed = 0;
+        for ( ; *str; ++str)
+        {
+            boost::hash_combine(seed, *str);
+        }
+        return seed;
+    }
+};
+
+/**
+ * Compute equality for strings passed as const char*
+ *
+ * I (nat) suspect that this is where the default behavior breaks for the
+ * const char* values returned from std::type_info::name(). If you compare the
+ * two const char* pointer values, as a naive, unspecialized implementation
+ * will surely do, they'll compare unequal.
+ */
+struct const_char_star_equal: public std::binary_function<const char*, const char*, bool>
+{
+    bool operator()(const char* lhs, const char* rhs) const
+    {
+        return strcmp(lhs, rhs) == 0;
+    }
+};
 
 /**
  * LLTypeInfoLookup is specifically designed for use cases for which you might
@@ -40,7 +79,10 @@ class LLTypeInfoLookup
     // std::type_info::name() string. This is one of the rare cases in which I
     // dare use const char* directly, rather than std::string, because I'm
     // sure that every value returned by std::type_info::name() is static.
-    typedef boost::unordered_map<const char*, VALUE> impl_map_type;
+    // HOWEVER, specify our own hash + equality functors: naively comparing
+    // distinct const char* values won't work.
+    typedef boost::unordered_map<const char*, VALUE,
+                                 const_char_star_hash, const_char_star_equal> impl_map_type;
 
 public:
     typedef VALUE value_type;
