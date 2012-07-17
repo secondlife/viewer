@@ -145,7 +145,7 @@ left="370"
 name="login_help"
 top="32"
 width="16">
- ☠
+ &#xFFFD;
 </text>
 <combo_box
 allow_text_entry="true"

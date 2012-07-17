@@ -36,7 +36,7 @@
 				Nom d&apos;utilisateur ou mot de passe oublié ?
 			</text>
 			<text name="login_help" left="410">
-				☠
+				&#xFFFD;
 			</text>
 		</layout_panel>
 		<layout_panel name="links">

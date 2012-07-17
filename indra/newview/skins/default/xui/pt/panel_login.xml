@@ -35,7 +35,7 @@
 				Esqueceu seu nome ou senha?
 			</text>
 			<text name="login_help" left="400">
-				☠
+				&#xFFFD;
 			</text>
 		</layout_panel>
 		<layout_panel name="links">
