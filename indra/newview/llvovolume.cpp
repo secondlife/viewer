@@ -1883,6 +1883,9 @@ S32 LLVOVolume::setTEColor(const U8 te, const LLColor4& color)
 		if (color.mV[3] != old_alpha)
 		{
 			gPipeline.markTextured(mDrawable);
+			//treat this alpha change as an LoD update since render batches may need to get rebuilt
+			mLODChanged = TRUE;
+			gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, FALSE);
 		}
 		retval = LLPrimitive::setTEColor(te, color);
 		if (mDrawable.notNull() && retval)
@@ -1890,12 +1893,6 @@ S32 LLVOVolume::setTEColor(const U8 te, const LLColor4& color)
 			// These should only happen on updates which are not the initial update.
 			mDrawable->setState(LLDrawable::REBUILD_COLOR);
 			dirtyMesh();
-
-			if (old_alpha >= 1.f || color.mV[3] <= 0.f)
-			{ //treat this alpha change as an LoD update since render batches will need to get rebuilt
-				mLODChanged = TRUE;
-				gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, FALSE);
-			}
 		}
 	}
 
