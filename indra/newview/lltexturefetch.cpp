@@ -1064,9 +1064,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	static const LLCore::HttpStatus http_service_unavail(HTTP_SERVICE_UNAVAILABLE);		// 503
 	static const LLCore::HttpStatus http_not_sat(HTTP_REQUESTED_RANGE_NOT_SATISFIABLE);	// 416;
 	
-	// Release waiters while we aren't holding the Mw lock.
-	mFetcher->releaseHttpWaiters();
-	
 	LLMutexLock lock(&mWorkMutex);										// +Mw
 
 	if ((mFetcher->isQuitting() || getFlags(LLWorkerClass::WCF_DELETE_REQUESTED)))
@@ -1927,6 +1924,14 @@ bool LLTextureFetchWorker::deleteOK()
 		// and will dereference it to do notification.
 		delete_ok = false;
 	}
+
+	if (WAIT_HTTP_RESOURCE2 == mState)
+	{
+		// Don't delete the worker out from under the
+		// releaseHttpWaiters() method.  Keep the pointers
+		// valid, clean up after transition.
+		delete_ok = false;
+	}
 	
 	// Allow any pending reads or writes to complete
 	if (mCacheReadHandle != LLTextureCache::nullHandle())
@@ -2737,6 +2742,9 @@ bool LLTextureFetch::runCondition()
 // Threads:  Ttf
 void LLTextureFetch::commonUpdate()
 {
+	// Release waiters
+	releaseHttpWaiters();
+	
 	// Run a cross-thread command, if any.
 	cmdDoWork();
 	
