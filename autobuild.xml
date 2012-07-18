@@ -1158,11 +1158,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9bba702fbbd41d3f6cd288ae1c763753</string>
+              <string>993c34b85bfb4e2eb7983c3e4e86c391</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source/rev/261592/arch/Darwin/installer/llphysicsextensions_source-0.2-darwin-20120711.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source/rev/262057/arch/Darwin/installer/llphysicsextensions_source-0.2-darwin-20120717.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1172,9 +1172,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7989a1e993a5e08cd9832d9f68cd025f</string>
+              <string>40d9b5a2de930e73dd18ded97ddf5232</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source/rev/261592/arch/Linux/installer/llphysicsextensions_source-0.2-linux-20120711.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source/rev/262057/arch/Linux/installer/llphysicsextensions_source-0.2-linux-20120718.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1184,9 +1184,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>846b4efadf740b2fe6ea800d4f8608c1</string>
+              <string>1ed0d8c8ecdb6c8d3068a789415d9747</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source/rev/261592/arch/CYGWIN/installer/llphysicsextensions_source-0.2-windows-20120711.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source/rev/262057/arch/CYGWIN/installer/llphysicsextensions_source-0.2-windows-20120717.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
