@@ -286,19 +286,19 @@ LLViewerStats::~LLViewerStats()
 
 void LLViewerStats::resetStats()
 {
-	LLViewerStats::getInstance()->mKBitStat.reset();
-	LLViewerStats::getInstance()->mLayersKBitStat.reset();
-	LLViewerStats::getInstance()->mObjectKBitStat.reset();
-	LLViewerStats::getInstance()->mTextureKBitStat.reset();
-	LLViewerStats::getInstance()->mVFSPendingOperations.reset();
-	LLViewerStats::getInstance()->mAssetKBitStat.reset();
-	LLViewerStats::getInstance()->mPacketsInStat.reset();
-	LLViewerStats::getInstance()->mPacketsLostStat.reset();
-	LLViewerStats::getInstance()->mPacketsOutStat.reset();
-	LLViewerStats::getInstance()->mFPSStat.reset();
-	LLViewerStats::getInstance()->mTexturePacketsStat.reset();
-	
-	LLViewerStats::getInstance()->mAgentPositionSnaps.reset();
+	LLViewerStats& stats = LLViewerStats::instance();
+	stats.mKBitStat.reset();
+	stats.mLayersKBitStat.reset();
+	stats.mObjectKBitStat.reset();
+	stats.mTextureKBitStat.reset();
+	stats.mVFSPendingOperations.reset();
+	stats.mAssetKBitStat.reset();
+	stats.mPacketsInStat.reset();
+	stats.mPacketsLostStat.reset();
+	stats.mPacketsOutStat.reset();
+	stats.mFPSStat.reset();
+	stats.mTexturePacketsStat.reset();
+	stats.mAgentPositionSnaps.reset();
 }
 
 
@@ -401,140 +401,6 @@ void LLViewerStats::addToMessage(LLSD &body) const
 
 // *NOTE:Mani The following methods used to exist in viewer.cpp
 // Moving them here, but not merging them into LLViewerStats yet.
-void reset_statistics()
-{
-	if (LLSurface::sTextureUpdateTime)
-	{
-		LLSurface::sTexelsUpdated = 0;
-		LLSurface::sTextureUpdateTime = 0.f;
-	}
-}
-
-
-void output_statistics(void*)
-{
-	llinfos << "Number of orphans: " << gObjectList.getOrphanCount() << llendl;
-	llinfos << "Number of dead objects: " << gObjectList.mNumDeadObjects << llendl;
-	llinfos << "Num images: " << gTextureList.getNumImages() << llendl;
-	llinfos << "Texture usage: " << LLImageGL::sGlobalTextureMemoryInBytes << llendl;
-	llinfos << "Texture working set: " << LLImageGL::sBoundTextureMemoryInBytes << llendl;
-	llinfos << "Raw usage: " << LLImageRaw::sGlobalRawMemory << llendl;
-	llinfos << "Formatted usage: " << LLImageFormatted::sGlobalFormattedMemory << llendl;
-	llinfos << "Zombie Viewer Objects: " << LLViewerObject::getNumZombieObjects() << llendl;
-	llinfos << "Number of lights: " << gPipeline.getLightCount() << llendl;
-
-	llinfos << "Memory Usage:" << llendl;
-	llinfos << "--------------------------------" << llendl;
-	llinfos << "Pipeline:" << llendl;
-	llinfos << llendl;
-
-#if LL_SMARTHEAP
-	llinfos << "--------------------------------" << llendl;
-	{
-		llinfos << "sizeof(LLVOVolume) = " << sizeof(LLVOVolume) << llendl;
-
-		U32 total_pool_size = 0;
-		U32 total_used_size = 0;
-		MEM_POOL_INFO pool_info;
-		MEM_POOL_STATUS pool_status;
-		U32 pool_num = 0;
-		for(pool_status = MemPoolFirst( &pool_info, 1 ); 
-			pool_status != MEM_POOL_END; 
-			pool_status = MemPoolNext( &pool_info, 1 ) )
-		{
-			llinfos << "Pool #" << pool_num << llendl;
-			if( MEM_POOL_OK != pool_status )
-			{
-				llwarns << "Pool not ok" << llendl;
-				continue;
-			}
-
-			llinfos << "Pool blockSizeFS " << pool_info.blockSizeFS
-				<< " pageSize " << pool_info.pageSize
-				<< llendl;
-
-			U32 pool_count = MemPoolCount(pool_info.pool);
-			llinfos << "Blocks " << pool_count << llendl;
-
-			U32 pool_size = MemPoolSize( pool_info.pool );
-			if( pool_size == MEM_ERROR_RET )
-			{
-				llinfos << "MemPoolSize() failed (" << pool_num << ")" << llendl;
-			}
-			else
-			{
-				llinfos << "MemPool Size " << pool_size / 1024 << "K" << llendl;
-			}
-
-			total_pool_size += pool_size;
-
-			if( !MemPoolLock( pool_info.pool ) )
-			{
-				llinfos << "MemPoolLock failed (" << pool_num << ") " << llendl;
-				continue;
-			}
-
-			U32 used_size = 0; 
-			MEM_POOL_ENTRY entry;
-			entry.entry = NULL;
-			while( MemPoolWalk( pool_info.pool, &entry ) == MEM_POOL_OK )
-			{
-				if( entry.isInUse )
-				{
-					used_size += entry.size;
-				}
-			}
-
-			MemPoolUnlock( pool_info.pool );
-
-			llinfos << "MemPool Used " << used_size/1024 << "K" << llendl;
-			total_used_size += used_size;
-			pool_num++;
-		}
-		
-		llinfos << "Total Pool Size " << total_pool_size/1024 << "K" << llendl;
-		llinfos << "Total Used Size " << total_used_size/1024 << "K" << llendl;
-
-	}
-#endif
-
-	llinfos << "--------------------------------" << llendl;
-	llinfos << "Avatar Memory (partly overlaps with above stats):" << llendl;
-	LLTexLayerStaticImageList::getInstance()->dumpByteCount();
-	LLVOAvatarSelf::dumpScratchTextureByteCount();
-	LLTexLayerSetBuffer::dumpTotalByteCount();
-	LLVOAvatarSelf::dumpTotalLocalTextureByteCount();
-	LLTexLayerParamAlpha::dumpCacheByteCount();
-	LLVOAvatar::dumpBakedStatus();
-
-	llinfos << llendl;
-
-	llinfos << "Object counts:" << llendl;
-	S32 i;
-	S32 obj_counts[256];
-//	S32 app_angles[256];
-	for (i = 0; i < 256; i++)
-	{
-		obj_counts[i] = 0;
-	}
-	for (i = 0; i < gObjectList.getNumObjects(); i++)
-	{
-		LLViewerObject *objectp = gObjectList.getObject(i);
-		if (objectp)
-		{
-			obj_counts[objectp->getPCode()]++;
-		}
-	}
-	for (i = 0; i < 256; i++)
-	{
-		if (obj_counts[i])
-		{
-			llinfos << LLPrimitive::pCodeToString(i) << ":" << obj_counts[i] << llendl;
-		}
-	}
-}
-
-
 U32		gTotalLandIn = 0, gTotalLandOut = 0;
 U32		gTotalWaterIn = 0, gTotalWaterOut = 0;
 
@@ -552,16 +418,9 @@ U32     gTotalTextureBytesPerBoostLevel[LLViewerTexture::MAX_GL_IMAGE_CATEGORY] 
 extern U32  gVisCompared;
 extern U32  gVisTested;
 
-std::map<S32,LLFrameTimer> gDebugTimers;
-std::map<S32,std::string> gDebugTimerLabel;
+extern LLFrameTimer gTextureTimer;
 
-void init_statistics()
-{
-	// Label debug timers
-	gDebugTimerLabel[0] = "Texture";
-}
-
-void update_statistics(U32 frame_count)
+void update_statistics()
 {
 	gTotalWorldBytes += gVLManager.getTotalBytes();
 	gTotalObjectBytes += gObjectBits / 8;
@@ -588,11 +447,7 @@ void update_statistics(U32 frame_count)
 	stats.setStat(LLViewerStats::ST_LIGHTING_DETAIL, (F64)gPipeline.getLightingDetail());
 	stats.setStat(LLViewerStats::ST_DRAW_DIST, (F64)gSavedSettings.getF32("RenderFarClip"));
 	stats.setStat(LLViewerStats::ST_CHAT_BUBBLES, (F64)gSavedSettings.getBOOL("UseChatBubbles"));
-#if 0 // 1.9.2
-	stats.setStat(LLViewerStats::ST_SHADER_OBJECTS, (F64)gSavedSettings.getS32("VertexShaderLevelObject"));
-	stats.setStat(LLViewerStats::ST_SHADER_AVATAR, (F64)gSavedSettings.getBOOL("VertexShaderLevelAvatar"));
-	stats.setStat(LLViewerStats::ST_SHADER_ENVIRONMENT, (F64)gSavedSettings.getBOOL("VertexShaderLevelEnvironment"));
-#endif
+
 	stats.setStat(LLViewerStats::ST_FRAME_SECS, gDebugView->mFastTimerView->getTime("Frame"));
 	F64 idle_secs = gDebugView->mFastTimerView->getTime("Idle");
 	F64 network_secs = gDebugView->mFastTimerView->getTime("Network");
@@ -624,11 +479,11 @@ void update_statistics(U32 frame_count)
 
 	if (LLAppViewer::getTextureFetch()->getNumRequests() == 0)
 	{
-		gDebugTimers[0].pause();
+		gTextureTimer.pause();
 	}
 	else
 	{
-		gDebugTimers[0].unpause();
+		gTextureTimer.unpause();
 	}
 	
 	{
@@ -664,7 +519,6 @@ void update_statistics(U32 frame_count)
 			texture_stats_timer.reset();
 		}
 	}
-
 }
 
 class ViewerStatsResponder : public LLHTTPClient::Responder
@@ -824,10 +678,7 @@ void send_stats()
 	S32 window_height = gViewerWindow->getWindowHeightRaw();
 	S32 window_size = (window_width * window_height) / 1024;
 	misc["string_1"] = llformat("%d", window_size);
-	if (gDebugTimers.find(0) != gDebugTimers.end() && gFrameTimeSeconds > 0)
-	{
-		misc["string_2"] = llformat("Texture Time: %.2f, Total Time: %.2f", gDebugTimers[0].getElapsedTimeF32(), gFrameTimeSeconds);
-	}
+	misc["string_2"] = llformat("Texture Time: %.2f, Total Time: %.2f", gTextureTimer.getElapsedTimeF32(), gFrameTimeSeconds);
 
 // 	misc["int_1"] = LLSD::Integer(gSavedSettings.getU32("RenderQualityPerformance")); // Steve: 1.21
 // 	misc["int_2"] = LLSD::Integer(gFrameStalls); // Steve: 1.21
@@ -918,13 +769,6 @@ LLSD LLViewerStats::PhaseMap::dumpPhases()
 		const std::string& phase_name = iter->first;
 		result[phase_name]["completed"] = !(iter->second.getStarted());
 		result[phase_name]["elapsed"] = iter->second.getElapsedTimeF32();
-#if 0 // global stats for each phase seem like overkill here
-		phase_stats_t::iterator stats_iter = sPhaseStats.find(phase_name);
-		if (stats_iter != sPhaseStats.end())
-		{
-			result[phase_name]["stats"] = stats_iter->second.getData();
-		}
-#endif
 	}
 	return result;
 }

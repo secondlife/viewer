@@ -906,14 +906,6 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
 		}
 		min_count--;
 	}
-	//if (fetch_count == 0)
-	//{
-	//	gDebugTimers[0].pause();
-	//}
-	//else
-	//{
-	//	gDebugTimers[0].unpause();
-	//}
 	return image_op_timer.getElapsedTimeF32();
 }
 

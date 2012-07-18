@@ -1394,7 +1394,7 @@ bool idle_startup()
 		display_startup();
 
 		//reset statistics
-		LLViewerStats::getInstance()->resetStats();
+		LLViewerStats::instance().resetStats();
 
 		display_startup();
 		//

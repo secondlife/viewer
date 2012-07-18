@@ -333,19 +333,13 @@ public:
 		if (gSavedSettings.getBOOL("DebugShowTime"))
 		{
 			const U32 y_inc2 = 15;
-			for (std::map<S32,LLFrameTimer>::reverse_iterator iter = gDebugTimers.rbegin();
-				 iter != gDebugTimers.rend(); ++iter)
-			{
-				S32 idx = iter->first;
-				LLFrameTimer& timer = iter->second;
-				F32 time = timer.getElapsedTimeF32();
-				S32 hours = (S32)(time / (60*60));
-				S32 mins = (S32)((time - hours*(60*60)) / 60);
-				S32 secs = (S32)((time - hours*(60*60) - mins*60));
-				std::string label = gDebugTimerLabel[idx];
-				if (label.empty()) label = llformat("Debug: %d", idx);
-				addText(xpos, ypos, llformat(" %s: %d:%02d:%02d", label.c_str(), hours,mins,secs)); ypos += y_inc2;
-			}
+			LLFrameTimer& timer = gTextureTimer;
+			F32 time = timer.getElapsedTimeF32();
+			S32 hours = (S32)(time / (60*60));
+			S32 mins = (S32)((time - hours*(60*60)) / 60);
+			S32 secs = (S32)((time - hours*(60*60) - mins*60));
+			addText(xpos, ypos, llformat(" "Texture": %d:%02d:%02d", hours,mins,secs)); ypos += y_inc2;
+		
 			
 			F32 time = gFrameTimeSeconds;
 			S32 hours = (S32)(time / (60*60));

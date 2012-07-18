@@ -785,9 +785,6 @@ bool LLAppViewer::init()
 	//////////////////////////////////////////////////////////////////////////////
 	// *FIX: The following code isn't grouped into functions yet.
 
-	// Statistics / debug timer initialization
-	init_statistics();
-	
 	//
 	// Various introspection concerning the libs we're using - particularly
 	// the libs involved in getting to a full login screen.
@@ -4208,7 +4205,6 @@ void LLAppViewer::idle()
 		// of SEND_STATS_PERIOD so that the initial stats report will
 		// be sent immediately.
 		static LLFrameStatsTimer viewer_stats_timer(SEND_STATS_PERIOD);
-		reset_statistics();
 
 		// Update session stats every large chunk of time
 		// *FIX: (???) SAMANTHA
@@ -4268,7 +4264,7 @@ void LLAppViewer::idle()
 		idle_afk_check();
 
 		//  Update statistics for this frame
-		update_statistics(gFrameCount);
+		update_statistics();
 	}
 
 	////////////////////////////////////////

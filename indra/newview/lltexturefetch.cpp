@@ -3242,7 +3242,7 @@ void LLTextureFetchDebugger::startDebug()
 	}
 
 	//collect statistics
-	mTotalFetchingTime = gDebugTimers[0].getElapsedTimeF32() - mTotalFetchingTime;
+	mTotalFetchingTime = gTextureTimer.getElapsedTimeF32() - mTotalFetchingTime;
 	
 	std::set<LLUUID> fetched_textures;
 	S32 size = mFetchingHistory.size();
@@ -3324,7 +3324,7 @@ void LLTextureFetchDebugger::stopDebug()
 	//unlock the fetcher
 	mFetcher->lockFetcher(false);
 	mFreezeHistory = FALSE;
-	mTotalFetchingTime = gDebugTimers[0].getElapsedTimeF32(); //reset
+	mTotalFetchingTime = gTextureTimer.getElapsedTimeF32(); //reset
 }
 
 //called in the main thread and when the fetching queue is empty
@@ -3637,7 +3637,7 @@ bool LLTextureFetchDebugger::update()
 	case REFETCH_VIS_CACHE:
 		if (LLAppViewer::getTextureFetch()->getNumRequests() == 0)
 		{
-			mRefetchVisCacheTime = gDebugTimers[0].getElapsedTimeF32() - mTotalFetchingTime;
+			mRefetchVisCacheTime = gTextureTimer.getElapsedTimeF32() - mTotalFetchingTime;
 			mState = IDLE;
 			mFetcher->lockFetcher(true);
 		}
@@ -3645,7 +3645,7 @@ bool LLTextureFetchDebugger::update()
 	case REFETCH_VIS_HTTP:
 		if (LLAppViewer::getTextureFetch()->getNumRequests() == 0)
 		{
-			mRefetchVisHTTPTime = gDebugTimers[0].getElapsedTimeF32() - mTotalFetchingTime;
+			mRefetchVisHTTPTime = gTextureTimer.getElapsedTimeF32() - mTotalFetchingTime;
 			mState = IDLE;
 			mFetcher->lockFetcher(true);
 		}
