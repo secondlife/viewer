@@ -119,8 +119,14 @@ public:
 	void createGLBuffers();
 	void createLUTBuffers();
 
-	void allocateScreenBuffer(U32 resX, U32 resY);
+	//allocate the largest screen buffer possible up to resX, resY
+	//returns true if full size buffer allocated, false if some other size is allocated
+	bool allocateScreenBuffer(U32 resX, U32 resY);
+
+	//attempt to allocate screen buffers at resX, resY
+	//returns true if allocation successful, false otherwise
 	bool allocateScreenBuffer(U32 resX, U32 resY, U32 samples);
+
 	void allocatePhysicsBuffer();
 	
 	void resetVertexBuffers(LLDrawable* drawable);
