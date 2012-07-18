@@ -34,9 +34,21 @@
 #include "lltypeinfolookup.h"
 
 template <typename T>
-class LLRegistryDefaultComparator
+struct LLRegistryDefaultComparator
 {
-	bool operator()(const T& lhs, const T& rhs) { return lhs < rhs; }
+	// It would be Bad if this comparison were used for const char*
+	BOOST_STATIC_ASSERT(! (boost::is_same<typename boost::remove_const<typename boost::remove_pointer<T>::type>::type, char>::value));
+	bool operator()(const T& lhs, const T& rhs) const { return lhs < rhs; }
+};
+
+// comparator for const char* registry keys
+template <>
+struct LLRegistryDefaultComparator<const char*>
+{
+	bool operator()(const char* lhs, const char* rhs) const
+	{
+		return strcmp(lhs, rhs) < 0;
+	}
 };
 
 template <typename KEY, typename VALUE>
@@ -72,7 +84,7 @@ public:
 	{
 		friend class LLRegistry<KEY, VALUE, COMPARATOR>;
 	public:
-		typedef typename LLRegistryMapSelector<KEY, VALUE>::type registry_map_t;
+		typedef std::map<KEY, VALUE, COMPARATOR> registry_map_t;
 
 		bool add(ref_const_key_t key, ref_const_value_t value)
 		{
