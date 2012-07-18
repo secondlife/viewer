@@ -15,15 +15,8 @@
 			<text name="password_text">
 				Password:
 			</text>
-			<check_box label="Husk password" name="remember_check"/>
-			<button label="Log på" name="connect_btn"/>
-			<text name="mode_selection_text">
-				Tilstand:
-			</text>
-			<combo_box name="mode_combo" tool_tip="Vælg ønsket tilstand. Vælg basis for hurtig og nem udforskning og chat. Vælg avanceret for at få adgang til flere muligheder.">
-				<combo_box.item label="Basis" name="Basic"/>
-				<combo_box.item label="Avanceret" name="Advanced"/>
-			</combo_box>
+		</layout_panel>
+		<layout_panel name="start_location_panel">
 			<text name="start_location_text">
 				Start ved:
 			</text>
@@ -32,12 +25,16 @@
 				<combo_box.item label="Hjem" name="MyHome"/>
 				<combo_box.item label="&lt;Indtast regionnavn&gt;" name="Typeregionname"/>
 			</combo_box>
+		</layout_panel>
+		<layout_panel name="links_login_panel">
 			<text name="login_help">
 				Hjælp til login
 			</text>
 			<text name="forgot_password_text">
 				Har du glemt brugernavn eller password?
 			</text>
+			<button label="Log på" name="connect_btn"/>
+			<check_box label="Husk password" name="remember_check"/>
 		</layout_panel>
 		<layout_panel name="links">
 			<text name="create_account_text">

@@ -15,15 +15,8 @@
 			<text name="password_text">
 				Password:
 			</text>
-			<check_box label="Ricorda password" name="remember_check"/>
-			<button label="Accedi" name="connect_btn"/>
-			<text name="mode_selection_text">
-				Modalità:
-			</text>
-			<combo_box name="mode_combo" tool_tip="Seleziona la modalità. Seleziona Di base per esplorare facilmente e rapidamente e per la chat. Seleziona Avanzata per accedere ad altre funzionalità.">
-				<combo_box.item label="Di base" name="Basic"/>
-				<combo_box.item label="Avanzate" name="Advanced"/>
-			</combo_box>
+		</layout_panel>
+		<layout_panel name="start_location_panel">
 			<text name="start_location_text">
 				Inizia da:
 			</text>
@@ -32,12 +25,16 @@
 				<combo_box.item label="Casa mia" name="MyHome"/>
 				<combo_box.item label="&lt;Scrivi nome regione&gt;" name="Typeregionname"/>
 			</combo_box>
+		</layout_panel>
+		<layout_panel name="links_login_panel">
 			<text name="login_help">
 				Ti serve aiuto con la fase di accesso?
 			</text>
 			<text name="forgot_password_text">
 				Hai dimenticato il nome utente o la password?
 			</text>
+			<button label="Accedi" name="connect_btn"/>
+			<check_box label="Ricorda password" name="remember_check"/>
 		</layout_panel>
 		<layout_panel name="links">
 			<text name="create_account_text">

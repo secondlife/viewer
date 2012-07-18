@@ -15,15 +15,8 @@
 			<text name="password_text">
 				Kennwort:
 			</text>
-			<check_box label="Kennwort merken" name="remember_check"/>
-			<button label="Anmelden" name="connect_btn"/>
-			<text name="mode_selection_text">
-				Modus:
-			</text>
-			<combo_box name="mode_combo" tool_tip="Wählen Sie den gewünschten Modus aus. Basis: Second Life schnell und einfach erkunden und chatten. Erweitert: Zugriff auf zusätzliche Funktionen.">
-				<combo_box.item label="Basis" name="Basic"/>
-				<combo_box.item label="Erweitert" name="Advanced"/>
-			</combo_box>
+		</layout_panel>
+		<layout_panel name="start_location_panel">
 			<text name="start_location_text">
 				Hier anfangen:
 			</text>
@@ -32,12 +25,16 @@
 				<combo_box.item label="Mein Zuhause" name="MyHome"/>
 				<combo_box.item label="&lt;Region eingeben&gt;" name="Typeregionname"/>
 			</combo_box>
+		</layout_panel>
+		<layout_panel name="links_login_panel">
 			<text name="login_help">
 				Sie brauchen Hilfe?
 			</text>
 			<text name="forgot_password_text">
 				Benutzernamen oder Kennwort vergessen?
 			</text>
+			<button label="Anmelden" name="connect_btn"/>
+			<check_box label="Kennwort merken" name="remember_check"/>
 		</layout_panel>
 		<layout_panel name="links">
 			<text name="create_account_text">

@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llpanellogin.h"
+#include "lllayoutstack.h"
 
 #include "indra_constants.h"		// for key and mask constants
 #include "llfloaterreg.h"
@@ -161,7 +162,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	childSetAction("connect_btn", onClickConnect, this);
 
-	getChild<LLPanel>("login")->setDefaultBtn("connect_btn");
+	getChild<LLPanel>("links_login_panel")->setDefaultBtn("connect_btn");
 
 	std::string channel = LLVersionInfo::getChannel();
 	std::string version = llformat("%s (%d)",
@@ -640,13 +641,11 @@ void LLPanelLogin::updateLocationCombo( bool force_visible )
 	
 	if ( ! force_visible )
 		show_start = gSavedSettings.getBOOL("ShowStartLocation");
-	
-	sInstance->getChildView("start_location_combo")->setVisible( show_start);
-	sInstance->getChildView("start_location_text")->setVisible( show_start);
-	
+
+	sInstance->getChild<LLLayoutPanel>("start_location_panel")->setVisible(show_start);
+
 	BOOL show_server = gSavedSettings.getBOOL("ForceShowGrid");
-	sInstance->getChildView("server_combo_text")->setVisible( show_server);	
-	sInstance->getChildView("server_combo")->setVisible( show_server);
+	sInstance->getChild<LLLayoutPanel>("grid_panel")->setVisible(show_server);
 }
 
 // static

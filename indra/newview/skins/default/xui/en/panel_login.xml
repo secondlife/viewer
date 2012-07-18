@@ -7,7 +7,7 @@ left="0"
 name="panel_login"
 focus_root="true" 
 top="600"
- width="996">
+ width="1130">
 <string name="reg_in_client_url" translate="false">
      http://secondlife.eniac15.lindenlab.com/reg-in-client/
 </string>
@@ -28,22 +28,23 @@ top="600"
   start_url=""
   top="0"
   height="600"
-  width="980"/>
+    width="996"/>
 <layout_stack
+animate="false"
 follows="left|bottom|right"
 name="login_widgets"
 layout="topleft"
 orientation="horizontal"
 top="519"
-width="996"
+width="1130"
 height="80">
 <layout_panel
 auto_resize="false"
 follows="left|bottom"
 name="login"
 layout="topleft"
-width="900"
-min_width="865"
+width="310"
+min_width="310"
 height="80">
 <text
 follows="left|bottom"
@@ -104,11 +105,20 @@ is_password="true"
 select_on_focus="true"
   top_pad="0"
   width="135" />
+</layout_panel>
+<layout_panel
+auto_resize="false"
+follows="left|bottom"
+name="start_location_panel"
+layout="topleft"
+width="175"
+min_width="175"
+height="80">
 <text
 follows="left|bottom"
 font="SansSerifSmall"
 height="16"
-left="320"
+left="10"
 name="start_location_text"
 top="35"
 width="130">
@@ -135,24 +145,41 @@ name="MyHome"
 label="&lt;Type region name&gt;"
 name="Typeregionname"   value="" />
 </combo_box>
+</layout_panel>
+<layout_panel
+auto_resize="false"
+follows="left|bottom"
+name="grid_panel"
+layout="topleft"
+width="145"
+height="80"
+visible="false">
 <combo_box
 allow_text_entry="true"
 font="SansSerifSmall"
    follows="left|right|bottom"
    height="23"
    max_chars="256"
-left="490"
+left="10"
 top="51"
 layout="topleft"
 top_pad="2"
 name="server_combo"
-width="135"
-  visible="false" />
+width="135" />
+</layout_panel>
+<layout_panel
+auto_resize="false"
+follows="left|bottom"
+name="links_login_panel"
+layout="topleft"
+width="290"
+height="80">
 <text
 follows="left|bottom"
 font="SansSerifSmall"
 text_color="EmphasisColor"
-left="630"
+left="10"
+height="16"
 name="login_help"
 top="19"
 width="280">
@@ -171,21 +198,19 @@ width="280">
 <button
   follows="left|bottom"
   top_pad="0"
-  left="630"
   height="23"
   image_unselected="PushButton_On"
   image_selected="PushButton_On_Selected"
   label="Log In"
   label_color="White"
   layout="topleft"
-  left_pad="10"
   name="connect_btn"
   width="90" />
 <check_box
 control_name="RememberPassword"
 follows="left|bottom"
 font="SansSerifSmall"
-left="730"
+left="100"
 top="56"
 height="16"
 label="Remember password"
@@ -196,7 +221,7 @@ label="Remember password"
 <layout_panel
 tab_stop="false"
 follows="right|bottom"
-name="links"
+name="links" 
 width="210"
 min_width="210"
 height="80">
