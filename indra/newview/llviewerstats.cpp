@@ -418,7 +418,7 @@ U32     gTotalTextureBytesPerBoostLevel[LLViewerTexture::MAX_GL_IMAGE_CATEGORY] 
 extern U32  gVisCompared;
 extern U32  gVisTested;
 
-extern LLFrameTimer gTextureTimer;
+LLFrameTimer gTextureTimer;
 
 void update_statistics()
 {
