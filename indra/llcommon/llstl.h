@@ -33,6 +33,7 @@
 #include <vector>
 #include <set>
 #include <deque>
+#include <typeinfo>
 
 // Use to compare the first element only of a pair
 // e.g. typedef std::set<std::pair<int, Data*>, compare_pair<int, Data*> > some_pair_set_t; 
@@ -469,5 +470,34 @@ llbind2nd(const _Operation& __oper, const _Tp& __x)
   typedef typename _Operation::second_argument_type _Arg2_type;
   return llbinder2nd<_Operation>(__oper, _Arg2_type(__x));
 }
+
+/**
+ * Specialize std::less<std::type_info*> to use std::type_info::before().
+ * See MAINT-1175. It is NEVER a good idea to directly compare std::type_info*
+ * because, on Linux, you might get different std::type_info* pointers for the
+ * same type (from different load modules)!
+ */
+namespace std
+{
+    template <>
+    struct less<const std::type_info*>:
+        public std::binary_function<const std::type_info*, const std::type_info*, bool>
+    {
+        bool operator()(const std::type_info* lhs, const std::type_info* rhs) const
+        {
+            return lhs->before(*rhs);
+        }
+    };
+
+    template <>
+    struct less<std::type_info*>:
+        public std::binary_function<std::type_info*, std::type_info*, bool>
+    {
+        bool operator()(std::type_info* lhs, std::type_info* rhs) const
+        {
+            return lhs->before(*rhs);
+        }
+    };
+} // std
 
 #endif // LL_LLSTL_H

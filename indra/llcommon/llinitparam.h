@@ -35,7 +35,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "llerror.h"
-#include "lltypeinfolookup.h"
+#include "llstl.h"
 
 namespace LLInitParam
 {
@@ -220,9 +220,9 @@ namespace LLInitParam
 		typedef bool (*parser_write_func_t)(Parser& parser, const void*, name_stack_t&);
 		typedef boost::function<void (name_stack_t&, S32, S32, const possible_values_t*)>	parser_inspect_func_t;
 
-		typedef LLTypeInfoLookup<parser_read_func_t>		parser_read_func_map_t;
-		typedef LLTypeInfoLookup<parser_write_func_t>		parser_write_func_map_t;
-		typedef LLTypeInfoLookup<parser_inspect_func_t>		parser_inspect_func_map_t;
+		typedef std::map<const std::type_info*, parser_read_func_t>		parser_read_func_map_t;
+		typedef std::map<const std::type_info*, parser_write_func_t>	parser_write_func_map_t;
+		typedef std::map<const std::type_info*, parser_inspect_func_t>	parser_inspect_func_map_t;
 
 		Parser(parser_read_func_map_t& read_map, parser_write_func_map_t& write_map, parser_inspect_func_map_t& inspect_map)
 		:	mParseSilently(false),
@@ -234,20 +234,20 @@ namespace LLInitParam
 
 		template <typename T> bool readValue(T& param)
 	    {
-		    boost::optional<parser_read_func_t> found_it = mParserReadFuncs->find<T>();
-		    if (found_it)
+		    parser_read_func_map_t::iterator found_it = mParserReadFuncs->find(&typeid(T));
+		    if (found_it != mParserReadFuncs->end())
 		    {
-			    return (*found_it)(*this, (void*)&param);
+			    return found_it->second(*this, (void*)&param);
 		    }
 		    return false;
 	    }
 
 		template <typename T> bool writeValue(const T& param, name_stack_t& name_stack)
 		{
-		    boost::optional<parser_write_func_t> found_it = mParserWriteFuncs->find<T>();
-		    if (found_it)
+		    parser_write_func_map_t::iterator found_it = mParserWriteFuncs->find(&typeid(T));
+		    if (found_it != mParserWriteFuncs->end())
 		    {
-			    return (*found_it)(*this, (const void*)&param, name_stack);
+			    return found_it->second(*this, (const void*)&param, name_stack);
 		    }
 		    return false;
 		}
@@ -255,10 +255,10 @@ namespace LLInitParam
 		// dispatch inspection to registered inspection functions, for each parameter in a param block
 		template <typename T> bool inspectValue(name_stack_t& name_stack, S32 min_count, S32 max_count, const possible_values_t* possible_values)
 		{
-		    boost::optional<parser_inspect_func_t> found_it = mParserInspectFuncs->find<T>();
-		    if (found_it)
+		    parser_inspect_func_map_t::iterator found_it = mParserInspectFuncs->find(&typeid(T));
+		    if (found_it != mParserInspectFuncs->end())
 		    {
-			    (*found_it)(name_stack, min_count, max_count, possible_values);
+			    found_it->second(name_stack, min_count, max_count, possible_values);
 				return true;
 		    }
 			return false;
@@ -273,14 +273,14 @@ namespace LLInitParam
 		template <typename T>
 		void registerParserFuncs(parser_read_func_t read_func, parser_write_func_t write_func = NULL)
 		{
-			mParserReadFuncs->insert<T>(read_func);
-			mParserWriteFuncs->insert<T>(write_func);
+			mParserReadFuncs->insert(std::make_pair(&typeid(T), read_func));
+			mParserWriteFuncs->insert(std::make_pair(&typeid(T), write_func));
 		}
 
 		template <typename T>
 		void registerInspectFunc(parser_inspect_func_t inspect_func)
 		{
-			mParserInspectFuncs->insert<T>(inspect_func);
+			mParserInspectFuncs->insert(std::make_pair(&typeid(T), inspect_func));
 		}
 
 		bool				mParseSilently;

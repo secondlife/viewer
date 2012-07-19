@@ -31,6 +31,7 @@
 #include "llinitparam.h"
 #include "llregistry.h"
 #include "llxuiparser.h"
+#include "llstl.h"
 
 class LLView;
 
@@ -62,14 +63,14 @@ protected:
 
 // lookup widget name by type
 class LLWidgetNameRegistry 
-:	public LLRegistrySingleton<const std::type_info*, std::string, LLWidgetNameRegistry , LLCompareTypeID>
+:	public LLRegistrySingleton<const std::type_info*, std::string, LLWidgetNameRegistry>
 {};
 
 // lookup function for generating empty param block by widget type
 // this is used for schema generation
 //typedef const LLInitParam::BaseBlock& (*empty_param_block_func_t)();
 //class LLDefaultParamBlockRegistry
-//:	public LLRegistrySingleton<const std::type_info*, empty_param_block_func_t, LLDefaultParamBlockRegistry, LLCompareTypeID>
+//:	public LLRegistrySingleton<const std::type_info*, empty_param_block_func_t, LLDefaultParamBlockRegistry>
 //{};
 
 extern LLFastTimer::DeclareTimer FTM_WIDGET_SETUP;
