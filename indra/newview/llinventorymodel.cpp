@@ -210,7 +210,7 @@ const LLViewerInventoryCategory *LLInventoryModel::getFirstNondefaultParent(cons
 		if (!cat) break;
 		const LLFolderType::EType folder_type = cat->getPreferredType();
 		if (folder_type != LLFolderType::FT_NONE &&
-			folder_type != LLFolderType::FT_ROOT_INVENTORY &&
+//			folder_type != LLFolderType::FT_ROOT_INVENTORY &&
 			!LLFolderType::lookupIsEnsembleType(folder_type))
 		{
 			return cat;
@@ -380,11 +380,12 @@ const LLUUID LLInventoryModel::findCategoryUUIDForType(LLFolderType::EType prefe
 	LLUUID rv = LLUUID::null;
 	
 	const LLUUID &root_id = (find_in_library) ? gInventory.getLibraryRootFolderID() : gInventory.getRootFolderID();
-	if(LLFolderType::FT_ROOT_INVENTORY == preferred_type)
-	{
-		rv = root_id;
-	}
-	else if (root_id.notNull())
+//	if(LLFolderType::FT_ROOT_INVENTORY == preferred_type)
+//	{
+//		rv = root_id;
+//	}
+//	else if (root_id.notNull())
+	if (root_id.notNull())
 	{
 		cat_array_t* cats = NULL;
 		cats = get_ptr_in_map(mParentChildCategoryTree, root_id);
@@ -2026,11 +2027,11 @@ void LLInventoryModel::buildParentChildMap()
 			{
 				cat->setParent(findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND));
 			}
-			else if(LLFolderType::FT_ROOT_INVENTORY == pref)
-			{
+//			else if(LLFolderType::FT_ROOT_INVENTORY == pref)
+//			{
 				// it's the root
-				cat->setParent(LLUUID::null);
-			}
+//				cat->setParent(LLUUID::null);
+//			}
 			else
 			{
 				// it's a protected folder.
@@ -2160,14 +2161,14 @@ void LLInventoryModel::buildParentChildMap()
 
 					if(category && category->getPreferredType() != LLFolderType::FT_ROOT_INVENTORY)
 						continue;
-					if ( category && 0 == LLStringUtil::compareInsensitive(name, category->getName()) )
-					{
-						if(category->getUUID()!=mRootFolderID)
-						{
-							LLUUID& new_inv_root_folder_id = const_cast<LLUUID&>(mRootFolderID);
-							new_inv_root_folder_id = category->getUUID();
-						}
-					}
+//					if ( category && 0 == LLStringUtil::compareInsensitive(name, category->getName()) )
+//					{
+//						if(category->getUUID()!=mRootFolderID)
+//						{
+//							LLUUID& new_inv_root_folder_id = const_cast<LLUUID&>(mRootFolderID);
+//							new_inv_root_folder_id = category->getUUID();
+//						}
+//					}
 				}
 			}
 

@@ -60,43 +60,8 @@ LLPlacesInventoryPanel::~LLPlacesInventoryPanel()
 
 void LLPlacesInventoryPanel::buildFolderView(const LLInventoryPanel::Params& params)
 {
-	// Determine the root folder in case specified, and
-	// build the views starting with that folder.
-	const LLFolderType::EType preferred_type = LLViewerFolderType::lookupTypeFromNewCategoryName(params.start_folder);
-
-	LLUUID root_id;
-
-	if ("LIBRARY" == params.start_folder())
-	{
-		root_id = gInventory.getLibraryRootFolderID();
-	}
-	else
-	{
-		root_id = (preferred_type != LLFolderType::FT_NONE ? gInventory.findCategoryUUIDForType(preferred_type) : LLUUID::null);
-	}
-
-	LLRect folder_rect(0,
-		0,
-		getRect().getWidth(),
-		0);
-	LLPlacesFolderView::Params p;
-	p.name = getName();
-	p.title = getLabel();
-	p.rect = folder_rect;
-	p.listener =  mInvFVBridgeBuilder->createBridge(LLAssetType::AT_CATEGORY,
-													LLAssetType::AT_CATEGORY,
-													LLInventoryType::IT_CATEGORY,
-													this,
-													&mInventoryViewModel,
-													NULL,
-													root_id);
-	p.parent_panel = this;
-	p.allow_multiselect = mAllowMultiSelect;
-	p.use_ellipses = true;	// truncate inventory item text so remove horizontal scroller
-	p.view_model = &mInventoryViewModel;
-	mFolderRoot = LLUICtrlFactory::create<LLPlacesFolderView>(p);
+	LLInventoryPanel::buildFolderView(params);
 }
-
 
 // save current folder open state
 void LLPlacesInventoryPanel::saveFolderState()
