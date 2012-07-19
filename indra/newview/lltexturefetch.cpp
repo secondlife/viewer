@@ -868,7 +868,7 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 	  mMetricsStartTime(0),
 	  mHttpHandle(LLCORE_HTTP_HANDLE_INVALID),
 	  mHttpBufferArray(NULL),
-	  mHttpPolicyClass(LLCore::HttpRequest::DEFAULT_POLICY_ID),
+	  mHttpPolicyClass(mFetcher->mHttpPolicyClass),
 	  mHttpActive(false),
 	  mHttpReplySize(0U),
 	  mHttpReplyOffset(0U),
@@ -2302,6 +2302,7 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	  mHttpOptions(NULL),
 	  mHttpHeaders(NULL),
 	  mHttpMetricsHeaders(NULL),
+	  mHttpPolicyClass(LLCore::HttpRequest::DEFAULT_POLICY_ID),
 	  mHttpSemaphore(HTTP_REQUESTS_IN_QUEUE_HIGH_WATER),
 	  mTotalCacheReadCount(0U),
 	  mTotalCacheWriteCount(0U),
@@ -2324,6 +2325,7 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	mHttpHeaders->mHeaders.push_back("Accept: image/x-j2c");
 	mHttpMetricsHeaders = new LLCore::HttpHeaders;
 	mHttpMetricsHeaders->mHeaders.push_back("Content-Type: application/llsd+xml");
+	mHttpPolicyClass = LLAppViewer::instance()->getAppCoreHttp().getPolicyDefault();
 }
 
 LLTextureFetch::~LLTextureFetch()
@@ -3631,7 +3633,6 @@ bool
 TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 {
 	static const U32 report_priority(1);
-	static const int report_policy_class(LLCore::HttpRequest::DEFAULT_POLICY_ID);
 	static LLCore::HttpHandler * const handler(fetcher->isQAMode() || true ? &stats_handler : NULL);
 	
 	if (! gViewerAssetStatsThread1)
@@ -3671,7 +3672,7 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 		LLCore::BufferArrayStream bas(ba);
 		LLSDSerialize::toXML(merged_llsd, bas);
 		
-		fetcher->getHttpRequest().requestPost(report_policy_class,
+		fetcher->getHttpRequest().requestPost(fetcher->getPolicyClass(),
 											  report_priority,
 											  mCapsURL,
 											  ba,
@@ -3797,7 +3798,7 @@ LLTextureFetchDebugger::LLTextureFetchDebugger(LLTextureFetch* fetcher, LLTextur
 	mTextureCache(cache),
 	mImageDecodeThread(imagedecodethread),
 	mHttpHeaders(NULL),
-	mHttpPolicyClass(LLCore::HttpRequest::DEFAULT_POLICY_ID)
+	mHttpPolicyClass(fetcher->getPolicyClass())
 {
 	init();
 }

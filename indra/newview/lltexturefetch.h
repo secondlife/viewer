@@ -164,6 +164,9 @@ public:
 	// Threads:  T*
 	LLCore::HttpRequest & getHttpRequest()	{ return *mHttpRequest; }
 
+	// Threads:  T*
+	LLCore::HttpRequest::policy_t getPolicyClass() const { return mHttpPolicyClass; }
+	
 	// Return a pointer to the shared metrics headers definition.
 	// Does not increment the reference count, caller is required
 	// to do that to hold a reference for any length of time.
@@ -339,10 +342,11 @@ private:
 	// Interfaces and objects into the core http library used
 	// to make our HTTP requests.  These replace the various
 	// LLCurl interfaces used in the past.
-	LLCore::HttpRequest *		mHttpRequest;							// Ttf
-	LLCore::HttpOptions *		mHttpOptions;							// Ttf
-	LLCore::HttpHeaders *		mHttpHeaders;							// Ttf
-	LLCore::HttpHeaders *		mHttpMetricsHeaders;					// Ttf
+	LLCore::HttpRequest *				mHttpRequest;					// Ttf
+	LLCore::HttpOptions *				mHttpOptions;					// Ttf
+	LLCore::HttpHeaders *				mHttpHeaders;					// Ttf
+	LLCore::HttpHeaders *				mHttpMetricsHeaders;			// Ttf
+	LLCore::HttpRequest::policy_t		mHttpPolicyClass;				// T*
 
 	// We use a resource semaphore to keep HTTP requests in
 	// WAIT_HTTP_RESOURCE2 if there aren't sufficient slots in the
