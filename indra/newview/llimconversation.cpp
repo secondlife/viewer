@@ -43,7 +43,6 @@ const F32 REFRESH_INTERVAL = 0.2f;
 LLIMConversation::LLIMConversation(const LLUUID& session_id)
   : LLTransientDockableFloater(NULL, true, session_id)
   ,  mIsP2PChat(false)
-  ,  mWasHosted(false)
   ,  mExpandCollapseBtn(NULL)
   ,  mTearOffBtn(NULL)
   ,  mCloseBtn(NULL)
@@ -224,26 +223,17 @@ void LLIMConversation::hideOrShowTitle()
 {
 	bool is_hosted = getHost() != NULL;
 
-	if (mWasHosted != is_hosted)
-	{
-		mWasHosted = is_hosted;
-		LLView* floater_contents = getChild<LLView>("contents_view");
-		LLRect contents_rect = floater_contents->getRect();
+	const LLFloater::Params& default_params = LLFloater::getDefaultParams();
+	S32 floater_header_size = default_params.header_height;
+	LLView* floater_contents = getChild<LLView>("contents_view");
 
-		if (is_hosted)
-		{
-			// we don't show the header when the floater is hosted, so reshape floater contents
-			// to occupy the header space.
-			contents_rect.mTop += getHeaderHeight();
-		}
-		else
-		{
-			// reduce the floater contents height by header height
-			contents_rect.mTop -= getHeaderHeight();
-		}
-
-		floater_contents->setShape(contents_rect);
-	}
+	LLRect floater_rect = getLocalRect();
+	S32 top_border_of_contents = floater_rect.mTop - (is_hosted? 0 : floater_header_size);
+	LLRect handle_rect (0, floater_rect.mTop, floater_rect.mRight, top_border_of_contents);
+	LLRect contents_rect (0, top_border_of_contents, floater_rect.mRight, floater_rect.mBottom);
+	mDragHandle->setShape(handle_rect);
+	mDragHandle->setVisible(! is_hosted);
+	floater_contents->setShape(contents_rect);
 }
 
 void LLIMConversation::hideAllStandardButtons()
