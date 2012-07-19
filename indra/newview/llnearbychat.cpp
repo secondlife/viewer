@@ -158,7 +158,7 @@ BOOL LLNearbyChat::postBuild()
 
 	enableResizeCtrls(true, true, false);
 
-	// title must be defined BEFORE call addToHost() because
+	// title must be defined BEFORE call addConversationListItem() because
 	// it is used for show the item's name in the conversations list
 	setTitle(getString("NearbyChatTitle"));
 
@@ -186,6 +186,9 @@ BOOL LLNearbyChat::postBuild()
 		loadHistory();
 	}
 
+	// added row in the conversations list when nearby chat is tear-off
+	LLIMFloaterContainer* im_box = LLIMFloaterContainer::getInstance();
+	im_box->addConversationListItem(getTitle(), LLSD(), this);
 
 	return LLIMConversation::postBuild();
 }
@@ -363,9 +366,6 @@ void LLNearbyChat::addToHost()
 		LLIMFloaterContainer* im_box = LLIMFloaterContainer::getInstance();
 		if (im_box)
 		{
-			// Make sure the Nearby Chat is present in the conversations list
-			im_box->addConversationListItem(getTitle(), getKey(), this);
-
 			if (gSavedSettings.getBOOL("NearbyChatIsNotTornOff"))
 			{
 				im_box->addFloater(this, TRUE, LLTabContainer::END);

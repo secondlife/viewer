@@ -150,9 +150,6 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 	LLMultiFloater::addFloater(floaterp, select_added_floater, insertion_point);
 
 	LLUUID session_id = floaterp->getKey();
-
-	// Add a conversation list item in the left pane
-	addConversationListItem(floaterp->getTitle(), session_id, floaterp);
 	
 	LLIconCtrl* icon = 0;
 
@@ -280,6 +277,8 @@ void LLIMFloaterContainer::draw()
 		collapseMessagesPane(true);
 	}
 	LLFloater::draw();
+
+	repositioningWidgets();
 }
 
 void LLIMFloaterContainer::tabClose()
@@ -306,7 +305,7 @@ void LLIMFloaterContainer::setVisible(BOOL visible)
 			LLFloaterReg::toggleInstanceOrBringToFront(name);
 		}
 	}
-	
+
 	// We need to show/hide all the associated conversations that have been torn off
 	// (and therefore, are not longer managed by the multifloater),
 	// so that they show/hide with the conversations manager.
@@ -409,6 +408,23 @@ void LLIMFloaterContainer::onAvatarPicked(const uuid_vec_t& ids)
     }
 }
 
+void LLIMFloaterContainer::repositioningWidgets()
+{
+	LLRect panel_rect = mConversationsListPanel->getRect();
+	S32 item_height = 16;
+	int index = 0;
+	for (conversations_widgets_map::iterator widget_it = mConversationsWidgets.begin();
+		 widget_it != mConversationsWidgets.end();
+		 widget_it++, ++index)
+	{
+		LLFolderViewItem* widget = widget_it->second;
+		widget->setRect(LLRect(0,
+							   panel_rect.getHeight() - item_height*index,
+							   panel_rect.getWidth(),
+							   panel_rect.getHeight() - item_height*(index+1)));
+	}
+}
+
 // CHUI-137 : Temporary implementation of conversations list
 void LLIMFloaterContainer::addConversationListItem(std::string name, const LLUUID& uuid, LLFloater* floaterp)
 {
@@ -443,14 +459,11 @@ void LLIMFloaterContainer::addConversationListItem(std::string name, const LLUUI
 
 	// Add it to the UI
 	widget->setVisible(TRUE);
+
+	repositioningWidgets();
+
 	mConversationsListPanel->addChild(widget);
-	LLRect panel_rect = mConversationsListPanel->getRect();
-	S32 item_height = 16;
-	S32 index = mConversationsWidgets.size() - 1;
-	widget->setRect(LLRect(0,
-						   panel_rect.getHeight() - item_height*index,
-						   panel_rect.getWidth(),
-						   panel_rect.getHeight() - item_height*(index+1)));
+
 	return;
 }
 
@@ -470,18 +483,7 @@ void LLIMFloaterContainer::removeConversationListItem(LLFloater* floaterp, bool 
 	mConversationsItems.erase(floaterp);
 	mConversationsWidgets.erase(floaterp);
 
-	// Reposition the leftover conversation items
-	LLRect panel_rect = mConversationsListPanel->getRect();
-	S32 item_height = 16;
-	int index = 0;
-	for (widget_it = mConversationsWidgets.begin(); widget_it != mConversationsWidgets.end(); ++widget_it, ++index)
-	{
-		LLFolderViewItem* widget = widget_it->second;
-		widget->setRect(LLRect(0,
-							   panel_rect.getHeight() - item_height*index,
-							   panel_rect.getWidth(),
-							   panel_rect.getHeight() - item_height*(index+1)));
-	}
+	repositioningWidgets();
 	
 	// Don't let the focus fall IW, select and refocus on the first conversation in the list
 	if (change_focus)

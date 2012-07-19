@@ -346,6 +346,10 @@ BOOL LLIMFloater::postBuild()
 
 	initIMFloater();
 
+	// Add a conversation list item in the left pane
+	LLIMFloaterContainer* im_box = LLIMFloaterContainer::getInstance();
+	im_box->addConversationListItem(getTitle(), getKey(), this);
+
 	return TRUE;
 }
 
@@ -641,10 +645,6 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 			}
 		}
 		
-		// Add a conversation list item in the left pane: nothing will be done if already in there
-		// but relevant clean up will be done to ensure consistency of the conversation list
-		floater_container->addConversationListItem(floater->getTitle(), session_id, floater);
-
 		floater->openFloater(floater->getKey());
 	}
 	else
