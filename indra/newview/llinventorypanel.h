@@ -237,7 +237,6 @@ public:
 protected:
 	// Builds the UI.  Call this once the inventory is usable.
 	void 				initializeViews();
-	LLFolderViewItem*	rebuildViewsFor(const LLUUID& id); // Given the id and the parent, build all of the folder views.
 
 	virtual void		buildFolderView(const LLInventoryPanel::Params& params);
 	LLFolderViewItem*	buildNewViews(const LLUUID& id);

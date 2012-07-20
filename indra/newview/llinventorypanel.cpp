@@ -193,6 +193,15 @@ void LLInventoryPanel::buildFolderView(const LLInventoryPanel::Params& params)
 
 void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 {
+	// Clear up the root view
+	// Note: This needs to be done *before* we build the new folder view 
+	LLFolderViewItem* root_view = getItemByID(gInventory.getRootFolderID());
+	if (root_view)
+	{
+		removeItemID(static_cast<LLFolderViewModelItemInventory*>(root_view->getViewModelItem())->getUUID());
+		root_view->destroyView();
+	}
+
 	LLMemType mt(LLMemType::MTYPE_INVENTORY_POST_BUILD);
 
 	mCommitCallbackRegistrar.pushScope(); // registered as a widget; need to push callback scope ourselves
@@ -228,6 +237,7 @@ void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 	{
 		initializeViews();
 	}
+	
 	gIdleCallbacks.addFunction(onIdle, (void*)this);
 
 	if (mSortOrderSetting != INHERIT_SORT_ORDER)
@@ -595,7 +605,7 @@ void LLInventoryPanel::initializeViews()
 {
 	if (!gInventory.isInventoryUsable()) return;
 
-	rebuildViewsFor(gInventory.getRootFolderID());
+	buildNewViews(gInventory.getRootFolderID());
 
 	gIdleCallbacks.addFunction(idle, this);
 
@@ -620,19 +630,6 @@ void LLInventoryPanel::initializeViews()
 			my_inv_folder->setOpenArrangeRecursively(FALSE, LLFolderViewFolder::RECURSE_DOWN);
 		}
 	}
-}
-
-LLFolderViewItem* LLInventoryPanel::rebuildViewsFor(const LLUUID& id)
-{
-	// Destroy the old view for this ID so we can rebuild it.
-	LLFolderViewItem* old_view = getItemByID(id);
-	if (old_view)
-	{
-		old_view->destroyView();
-		removeItemID(static_cast<LLFolderViewModelItemInventory*>(old_view->getViewModelItem())->getUUID());
-	}
-
-	return buildNewViews(id);
 }
 
 LLFolderView * LLInventoryPanel::createFolderView(LLInvFVBridge * bridge, bool useLabelSuffix)
