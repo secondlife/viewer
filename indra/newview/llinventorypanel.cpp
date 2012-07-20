@@ -421,7 +421,14 @@ void LLInventoryPanel::modelChanged(U32 mask)
 
 		// LLFolderViewFolder is derived from LLFolderViewItem so dynamic_cast from item
 		// to folder is the fast way to get a folder without searching through folders tree.
-		LLFolderViewFolder* view_folder = dynamic_cast<LLFolderViewFolder*>(view_item);
+		LLFolderViewFolder* view_folder = NULL;
+
+		// Check requires as this item might have already been deleted
+		// as a child of its deleted parent.
+		if (model_item && view_item)
+		{
+			view_folder = dynamic_cast<LLFolderViewFolder*>(view_item);
+		}
 
 		//////////////////////////////
 		// LABEL Operation
@@ -448,7 +455,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 		if (mask & LLInventoryObserver::REBUILD)
 		{
 			handled = true;
-			if (model_item && view_item)
+			if (model_item && view_item && viewmodel_item)
 			{
 				view_item->destroyView();
 				removeItemID(viewmodel_item->getUUID());
@@ -538,7 +545,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 			//////////////////////////////
 			// REMOVE Operation
 			// This item has been removed from memory, but its associated UI element still exists.
-			else if (!model_item && view_item)
+			else if (!model_item && view_item && viewmodel_item)
 			{
 				// Remove the item's UI.
                 removeItemID(viewmodel_item->getUUID());

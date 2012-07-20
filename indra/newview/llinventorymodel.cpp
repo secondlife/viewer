@@ -1240,14 +1240,33 @@ void LLInventoryModel::purgeDescendentsOf(const LLUUID& id)
 							   items,
 							   INCLUDE_TRASH);
 			S32 count = items.count();
+
+			item_map_t::iterator item_map_end = mItemMap.end();
+			cat_map_t::iterator cat_map_end = mCategoryMap.end();
+			LLUUID uu_id;
+
 			for(S32 i = 0; i < count; ++i)
 			{
-				deleteObject(items.get(i)->getUUID());
+				uu_id = items.get(i)->getUUID();
+
+				// This check prevents the deletion of a previously deleted item.
+				// This is necessary because deletion is not done in a hierarchical
+				// order. The current item may have been already deleted as a child
+				// of its deleted parent.
+				if (mItemMap.find(uu_id) != item_map_end)
+				{
+					deleteObject(uu_id);
+				}
 			}
+
 			count = categories.count();
 			for(S32 i = 0; i < count; ++i)
 			{
-				deleteObject(categories.get(i)->getUUID());
+				uu_id = categories.get(i)->getUUID();
+				if (mCategoryMap.find(uu_id) != cat_map_end)
+				{
+					deleteObject(uu_id);
+				}
 			}
 		}
 	}
