@@ -34,7 +34,6 @@
 #include "llhudicon.h"
 #include "llinventory.h"
 #include "llrefcount.h"
-#include "llmemtype.h"
 #include "llprimitive.h"
 #include "lluuid.h"
 #include "llvoinventorylistener.h"
@@ -128,7 +127,6 @@ public:
 	typedef const child_list_t const_child_list_t;
 
 	LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp, BOOL is_global = FALSE);
-	MEM_TYPE_NEW(LLMemType::MTYPE_OBJECT);
 
 	virtual void markDead();				// Mark this object as dead, and clean up its references
 	BOOL isDead() const									{return mDead;}

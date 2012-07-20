@@ -1282,7 +1282,6 @@ void LLViewerTextureList::receiveImagePacket(LLMessageSystem *msg, void **user_d
 {
 	static LLCachedControl<bool> log_texture_traffic(gSavedSettings,"LogTextureNetworkTraffic") ;
 
-	LLMemType mt1(LLMemType::MTYPE_APPFMTIMAGE);
 	LLFastTimer t(FTM_PROCESS_IMAGES);
 	
 	// Receives image packet, copy into image object,

@@ -3941,7 +3941,6 @@ static LLFastTimer::DeclareTimer FTM_REGISTER_FACE("Register Face");
 void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep, U32 type)
 {
 	LLFastTimer t(FTM_REGISTER_FACE);
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 
 	if (facep->getViewerObject()->isSelected() && LLSelectMgr::getInstance()->mHideSelectedObjects)
 	{

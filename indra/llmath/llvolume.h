@@ -1023,17 +1023,6 @@ public:
 								   LLVector3* normal = NULL,
 								   LLVector3* bi_normal = NULL);
 	
-	// The following cleans up vertices and triangles,
-	// getting rid of degenerate triangles and duplicate vertices,
-	// and allocates new arrays with the clean data.
-	static BOOL cleanupTriangleData( const S32 num_input_vertices,
-								const std::vector<Point> &input_vertices,
-								const S32 num_input_triangles,
-								S32 *input_triangles,
-								S32 &num_output_vertices,
-								LLVector3 **output_vertices,
-								S32 &num_output_triangles,
-								S32 **output_triangles);
 	LLFaceID generateFaceMask();
 
 	BOOL isFaceMaskValid(LLFaceID face_mask);

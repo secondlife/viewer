@@ -71,7 +71,6 @@ set(llcommon_SOURCE_FILES
     llmd5.cpp
     llmemory.cpp
     llmemorystream.cpp
-    llmemtype.cpp
     llmetrics.cpp
     llmetricperformancetester.cpp
     llmortician.cpp
@@ -195,7 +194,6 @@ set(llcommon_HEADER_FILES
     llmd5.h
     llmemory.h
     llmemorystream.h
-    llmemtype.h
     llmetrics.h
     llmetricperformancetester.h
     llmortician.h

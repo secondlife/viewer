@@ -29,8 +29,6 @@
 //-----------------------------------------------------------------------------
 #include "linden_common.h"
 
-#include "llmemtype.h"
-
 #include "llmotioncontroller.h"
 #include "llkeyframemotion.h"
 #include "llmath.h"
@@ -335,7 +333,6 @@ void LLMotionController::removeMotionInstance(LLMotion* motionp)
 //-----------------------------------------------------------------------------
 LLMotion* LLMotionController::createMotion( const LLUUID &id )
 {
-	LLMemType mt(LLMemType::MTYPE_ANIMATION);
 	// do we have an instance of this motion for this character?
 	LLMotion *motion = findMotion(id);
 

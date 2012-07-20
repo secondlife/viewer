@@ -191,8 +191,6 @@ void LLInventoryPanel::buildFolderView(const LLInventoryPanel::Params& params)
 
 void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 {
-	LLMemType mt(LLMemType::MTYPE_INVENTORY_POST_BUILD);
-
 	mCommitCallbackRegistrar.pushScope(); // registered as a widget; need to push callback scope ourselves
 	
 	buildFolderView(params);

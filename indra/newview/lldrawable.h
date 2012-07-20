@@ -38,7 +38,6 @@
 #include "llvector4a.h"
 #include "llquaternion.h"
 #include "xform.h"
-#include "llmemtype.h"
 #include "lldarray.h"
 #include "llviewerobject.h"
 #include "llrect.h"
@@ -76,7 +75,6 @@ public:
 	static void initClass();
 
 	LLDrawable()				{ init(); }
-	MEM_TYPE_NEW(LLMemType::MTYPE_DRAWABLE);
 	
 	void markDead();			// Mark this drawable as dead
 	BOOL isDead() const			{ return isState(DEAD); }

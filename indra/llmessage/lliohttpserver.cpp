@@ -37,7 +37,6 @@
 #include "lliopipe.h"
 #include "lliosocket.h"
 #include "llioutil.h"
-#include "llmemtype.h"
 #include "llmemorystream.h"
 #include "llpumpio.h"
 #include "llsd.h"
@@ -443,7 +442,6 @@ LLIOPipe::EStatus LLHTTPResponseHeader::process_impl(
 {
 	LLFastTimer t(FTM_PROCESS_HTTP_HEADER);
 	PUMP_DEBUG;
-	LLMemType m1(LLMemType::MTYPE_IO_HTTP_SERVER);
 	if(eos)
 	{
 		PUMP_DEBUG;
@@ -587,13 +585,11 @@ LLHTTPResponder::LLHTTPResponder(const LLHTTPNode& tree, const LLSD& ctx) :
 	mContentLength(0),
 	mRootNode(tree)
 {
-	LLMemType m1(LLMemType::MTYPE_IO_HTTP_SERVER);
 }
 
 // virtual
 LLHTTPResponder::~LLHTTPResponder()
 {
-	LLMemType m1(LLMemType::MTYPE_IO_HTTP_SERVER);
 	//lldebugs << "destroying LLHTTPResponder" << llendl;
 }
 
@@ -603,7 +599,6 @@ bool LLHTTPResponder::readHeaderLine(
 	U8* dest,
 	S32& len)
 {
-	LLMemType m1(LLMemType::MTYPE_IO_HTTP_SERVER);
 	--len;
 	U8* last = buffer->readAfter(channels.in(), mLastRead, dest, len);
 	dest[len] = '\0';
@@ -628,7 +623,6 @@ void LLHTTPResponder::markBad(
 	const LLChannelDescriptors& channels,
 	buffer_ptr_t buffer)
 {
-	LLMemType m1(LLMemType::MTYPE_IO_HTTP_SERVER);
 	mState = STATE_SHORT_CIRCUIT;
 	LLBufferStream out(channels, buffer.get());
 	out << HTTP_VERSION_STR << " 400 Bad Request\r\n\r\n<html>\n"
@@ -648,7 +642,6 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 {
 	LLFastTimer t(FTM_PROCESS_HTTP_RESPONDER);
 	PUMP_DEBUG;
-	LLMemType m1(LLMemType::MTYPE_IO_HTTP_SERVER);
 	LLIOPipe::EStatus status = STATUS_OK;
 
 	// parsing headers
