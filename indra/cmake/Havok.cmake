@@ -7,13 +7,16 @@ list(APPEND Havok_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include/havok/Demo)
 set(HAVOK_DEBUG_LIBRARY_PATH ${LIBS_PREBUILT_DIR}/lib/debug/havok-fulldebug)
 set(HAVOK_RELEASE_LIBRARY_PATH ${LIBS_PREBUILT_DIR}/lib/release/havok)
 
-if (LL_DEBUG_HAVOK AND NOT WIN32)
-    set(HAVOK_RELWITHDEBINFO_LIBRARY_PATH ${LIBS_PREBUILT_DIR}/lib/debug/havok-fulldebug)
-else (LL_DEBUG_HAVOK AND NOT WIN32)
-    # Always link relwithdebinfo to havok-hybrid on windows.
-    set(HAVOK_RELWITHDEBINFO_LIBRARY_PATH ${LIBS_PREBUILT_DIR}/lib/debug/havok-hybrid)
-endif (LL_DEBUG_HAVOK AND NOT WIN32)
-
+if (LL_DEBUG_HAVOK)
+   if (WIN32)
+      # Always link relwithdebinfo to havok-hybrid on windows.
+      set(HAVOK_RELWITHDEBINFO_LIBRARY_PATH ${LIBS_PREBUILT_DIR}/lib/debug/havok-hybrid)
+   else (WIN32)
+      set(HAVOK_RELWITHDEBINFO_LIBRARY_PATH ${LIBS_PREBUILT_DIR}/lib/debug/havok-fulldebug)
+   endif (WIN32)
+else (LL_DEBUG_HAVOK)
+   set(HAVOK_RELWITHDEBINFO_LIBRARY_PATH ${LIBS_PREBUILT_DIR}/lib/release/havok)
+endif (LL_DEBUG_HAVOK)
 
 set(HAVOK_LIBS
     hkBase
