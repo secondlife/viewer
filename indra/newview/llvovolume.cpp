@@ -4880,6 +4880,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 		
 		std::vector<LLViewerTexture*> texture_list;
 
+		if( pos && weight && dst_face.mExtents )
 		{
 			LLFastTimer t(FTM_GEN_DRAW_INFO_FACE_SIZE);
 			if (batch_textures)
@@ -4976,6 +4977,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 		//create vertex buffer
 		LLVertexBuffer* buffer = NULL;
 
+		if( dst_face.mExtents )
 		{
 			LLFastTimer t(FTM_GEN_DRAW_INFO_ALLOCATE);
 			buffer = createVertexBuffer(mask, buffer_usage);
