@@ -1,5 +1,5 @@
 /**
- * @file httpinternal.h
+ * @file _httpinternal.h
  * @brief Implementation constants and magic numbers
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
@@ -44,7 +44,7 @@ namespace LLCore
 {
 
 // Maxium number of policy classes that can be defined.
-// *FIXME:  Currently limited to the default class, extend.
+// *TODO:  Currently limited to the default class, extend.
 const int POLICY_CLASS_LIMIT = 1;
 
 // Debug/informational tracing.  Used both

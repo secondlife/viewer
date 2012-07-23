@@ -45,6 +45,12 @@ namespace LLCore
 /// important of those rules is that any iterator becomes invalid
 /// on element erasure.  So pay attention.
 ///
+/// If LLCORE_READY_QUEUE_IGNORES_PRIORITY tests true, the class
+/// implements a std::priority_queue interface but on std::deque
+/// behavior to eliminate sensitivity to priority.  In the future,
+/// this will likely become the only behavior or it may become
+/// a run-time election.
+///
 /// Threading:  not thread-safe.  Expected to be used entirely by
 /// a single thread, typically a worker thread of some sort.
 
