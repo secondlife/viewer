@@ -99,10 +99,21 @@ endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(DARWIN 1)
   
+  execute_process(
+	COMMAND sh -c "sw_vers -productVersion | cut -d'.' -f1-2"
+	OUTPUT_VARIABLE DARWIN_VERSION )
+
   # To support a different SDK update these Xcode settings:
-  set(CMAKE_OSX_DEPLOYMENT_TARGET 10.6)
-  set(CMAKE_OSX_SYSROOT macosx10.6)
-  set(CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "com.apple.compilers.llvmgcc42")
+  if (DARWIN_VERSION GREATER 10.6)
+  	set(CMAKE_OSX_DEPLOYMENT_TARGET 10.6)
+	set(CMAKE_OSX_SYSROOT macosx10.6)
+	set(CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "com.apple.compilers.llvmgcc42")
+  else (DARWIN_VERSION GREATER 10.6)
+  	set(CMAKE_OSX_DEPLOYMENT_TARGET 10.5)
+    set(CMAKE_OSX_SYSROOT /Developer/SDKs/MacOSX10.5.sdk)
+  	set(CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "4.0")
+  endif (DARWIN_VERSION GREATER 10.6)
+      
   set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT dwarf-with-dsym)
 
   # NOTE: To attempt an i386/PPC Universal build, add this on the configure line:
