@@ -45,7 +45,7 @@ namespace LLCore
 /// important of those rules is that any iterator becomes invalid
 /// on element erasure.  So pay attention.
 ///
-/// If LLCORE_READY_QUEUE_IGNORES_PRIORITY tests true, the class
+/// If LLCORE_HTTP_READY_QUEUE_IGNORES_PRIORITY tests true, the class
 /// implements a std::priority_queue interface but on std::deque
 /// behavior to eliminate sensitivity to priority.  In the future,
 /// this will likely become the only behavior or it may become
@@ -54,7 +54,7 @@ namespace LLCore
 /// Threading:  not thread-safe.  Expected to be used entirely by
 /// a single thread, typically a worker thread of some sort.
 
-#if LLCORE_READY_QUEUE_IGNORES_PRIORITY
+#if LLCORE_HTTP_READY_QUEUE_IGNORES_PRIORITY
 
 typedef std::deque<HttpOpRequest *> HttpReadyQueueBase;
 
@@ -64,7 +64,7 @@ typedef std::priority_queue<HttpOpRequest *,
 							std::deque<HttpOpRequest *>,
 							LLCore::HttpOpRequestCompare> HttpReadyQueueBase;
 
-#endif // LLCORE_READY_QUEUE_IGNORES_PRIORITY
+#endif // LLCORE_HTTP_READY_QUEUE_IGNORES_PRIORITY
 
 class HttpReadyQueue : public HttpReadyQueueBase
 {
@@ -82,7 +82,7 @@ protected:
 
 public:
 
-#if LLCORE_READY_QUEUE_IGNORES_PRIORITY
+#if LLCORE_HTTP_READY_QUEUE_IGNORES_PRIORITY
 	// Types and methods needed to make a std::deque look
 	// more like a std::priority_queue, at least for our
 	// purposes.
@@ -103,7 +103,7 @@ public:
 			push_back(v);
 		}
 	
-#endif // LLCORE_READY_QUEUE_IGNORES_PRIORITY
+#endif // LLCORE_HTTP_READY_QUEUE_IGNORES_PRIORITY
 	
 	const container_type & get_container() const
 		{

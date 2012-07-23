@@ -46,11 +46,14 @@ namespace LLCore
 /// be canceled, if possible.  This includes active requests
 /// that may be in the middle of an HTTP transaction.  Any
 /// completed request will not be canceled and will return
-/// its final status unchanged.
+/// its final status unchanged and *this* request will complete
+/// with an HE_HANDLE_NOT_FOUND error status.
 
 class HttpOpCancel : public HttpOperation
 {
 public:
+	/// @param	handle	Handle of previously-issued request to
+	///					be canceled.
 	HttpOpCancel(HttpHandle handle);
 
 protected:

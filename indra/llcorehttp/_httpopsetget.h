@@ -44,6 +44,8 @@ namespace LLCore
 
 /// HttpOpSetGet requests dynamic changes to policy and
 /// configuration settings.
+///
+/// *NOTE:  Expect this to change.  Don't really like it yet.
 
 class HttpOpSetGet : public HttpOperation
 {
@@ -58,6 +60,7 @@ private:
 	void operator=(const HttpOpSetGet &);				// Not defined
 
 public:
+	/// Threading:  called by application thread
 	void setupGet(HttpRequest::EGlobalPolicy setting);
 	void setupSet(HttpRequest::EGlobalPolicy setting, const std::string & value);
 

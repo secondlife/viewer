@@ -26,18 +26,10 @@
 
 #include "_httpopsetget.h"
 
-#include <cstdio>
-#include <algorithm>
-
 #include "httpcommon.h"
-#include "httphandler.h"
-#include "httpresponse.h"
 
-#include "_httprequestqueue.h"
-#include "_httpreplyqueue.h"
 #include "_httpservice.h"
 #include "_httppolicy.h"
-#include "_httplibcurl.h"
 
 
 namespace LLCore

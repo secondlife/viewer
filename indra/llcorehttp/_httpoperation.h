@@ -72,9 +72,11 @@ class HttpService;
 class HttpOperation : public LLCoreInt::RefCounted
 {
 public:
+	/// Threading:  called by a consumer/application thread.
 	HttpOperation();
 
 protected:
+	/// Threading:  called by any thread.
 	virtual ~HttpOperation();							// Use release()
 
 private:
@@ -82,28 +84,87 @@ private:
 	void operator=(const HttpOperation &);				// Not defined
 
 public:
+	/// Register a reply queue and a handler for completion notifications.
+	///
+	/// Invokers of operations that want to receive notification that an
+	/// operation has been completed do so by binding a reply queue and
+	/// a handler object to the request.
+	///
+	/// @param	reply_queue		Pointer to the reply queue where completion
+	///							notifications are to be queued (typically
+	///							by addAsReply()).  This will typically be
+	///							the reply queue referenced by the request
+	///							object.  This method will increment the
+	///							refcount on the queue holding the queue
+	///							until delivery is complete.  Using a reply_queue
+	///							even if the handler is NULL has some benefits
+	///							for memory deallocation by keeping it in the
+	///							originating thread.
+	///
+	/// @param	handler			Possibly NULL pointer to a non-refcounted
+	////						handler object to be invoked (onCompleted)
+	///							when the operation is finished.  Note that
+	///							the handler object is never dereferenced
+	///							by the worker thread.  This is passible data
+	///							until notification is performed.
+	///
+	/// Threading:  called by application thread.
+	///
 	void setReplyPath(HttpReplyQueue * reply_queue,
 					  HttpHandler * handler);
 
-	HttpHandler * getUserHandler() const
-		{
-			return mUserHandler;
-		}
-	
+	/// The three possible staging steps in an operation's lifecycle.
+	/// Asynchronous requests like HTTP operations move from the
+	/// request queue to the ready queue via stageFromRequest.  Then
+	/// from the ready queue to the active queue by stageFromReady.  And
+	/// when complete, to the reply queue via stageFromActive and the
+	/// addAsReply utility.
+	///
+	/// Immediate mode operations (everything else) move from the
+	/// request queue to the reply queue directly via stageFromRequest
+	/// and addAsReply with no existence on the ready or active queues.
+	///
+	/// These methods will take out a reference count on the request,
+	/// caller only needs to dispose of its reference when done with
+	/// the request. 
+	///
+	/// Threading:  called by worker thread.
+	///
 	virtual void stageFromRequest(HttpService *);
 	virtual void stageFromReady(HttpService *);
 	virtual void stageFromActive(HttpService *);
 
+	/// Delivers a notification to a handler object on completion.
+	///
+	/// Once a request is complete and it has been removed from its
+	/// reply queue, a handler notification may be delivered by a
+	/// call to HttpRequest::update().  This method does the necessary
+	/// dispatching.
+	///
+	/// Threading:  called by application thread.
+	///
 	virtual void visitNotifier(HttpRequest *);
-	
+
+	/// Cancels the operation whether queued or active.
+	/// Final status of the request becomes canceled (an error) and
+	/// that will be delivered to caller via notification scheme.
+	///
+	/// Threading:  called by worker thread.
+	///
 	virtual HttpStatus cancel();
 	
 protected:
+	/// Delivers request to reply queue on completion.  After this
+	/// call, worker thread no longer accesses the object and it
+	/// is owned by the reply queue.
+	///
+	/// Threading:  called by worker thread.
+	///
 	void addAsReply();
 	
 protected:
 	HttpReplyQueue *			mReplyQueue;			// Have refcount
-	HttpHandler *				mUserHandler;
+	HttpHandler *				mUserHandler;			// Naked pointer
 
 public:
 	// Request Data
@@ -172,7 +233,7 @@ public:
 
 /// HttpOpSpin is a test-only request that puts the worker
 /// thread into a cpu spin.  Used for unit tests and cleanup
-/// evaluation.  You do not want to use this.
+/// evaluation.  You do not want to use this in production.
 class HttpOpSpin : public HttpOperation
 {
 public:

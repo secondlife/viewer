@@ -88,7 +88,14 @@ public:
 	virtual void visitNotifier(HttpRequest * request);
 			
 public:
-	// Setup Methods
+	/// Setup Methods
+	///
+	/// Basically an RPC setup for each type of HTTP method
+	/// invocation with one per method type.  These are
+	/// generally invoked right after construction.
+	///
+	/// Threading:  called by application thread
+	///
 	HttpStatus setupGet(HttpRequest::policy_t policy_id,
 						HttpRequest::priority_t priority,
 						const std::string & url,
@@ -116,19 +123,32 @@ public:
 						BufferArray * body,
 						HttpOptions * options,
 						HttpHeaders * headers);
-	
+
+	// Internal method used to setup the libcurl options for a request.
+	// Does all the libcurl handle setup in one place.
+	//
+	// Threading:  called by worker thread
+	//
 	HttpStatus prepareRequest(HttpService * service);
 	
 	virtual HttpStatus cancel();
 
 protected:
+	// Common setup for all the request methods.
+	//
+	// Threading:  called by application thread
+	//
 	void setupCommon(HttpRequest::policy_t policy_id,
 					 HttpRequest::priority_t priority,
 					 const std::string & url,
 					 BufferArray * body,
 					 HttpOptions * options,
 					 HttpHeaders * headers);
-	
+
+	// libcurl operational callbacks
+	//
+	// Threading:  called by worker thread
+	//
 	static size_t writeCallback(void * data, size_t size, size_t nmemb, void * userdata);
 	static size_t readCallback(void * data, size_t size, size_t nmemb, void * userdata);
 	static size_t headerCallback(void * data, size_t size, size_t nmemb, void * userdata);

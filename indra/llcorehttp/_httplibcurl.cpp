@@ -85,7 +85,7 @@ void HttpLibcurl::shutdown()
 
 void HttpLibcurl::start(int policy_count)
 {
-	llassert_always(policy_count <= POLICY_CLASS_LIMIT);
+	llassert_always(policy_count <= HTTP_POLICY_CLASS_LIMIT);
 	llassert_always(! mMultiHandles);					// One-time call only
 	
 	mPolicyCount = policy_count;
@@ -156,6 +156,7 @@ HttpService::ELoopSpeed HttpLibcurl::processTransport()
 }
 
 
+// Caller has provided us with a ref count on op.
 void HttpLibcurl::addOp(HttpOpRequest * op)
 {
 	llassert_always(op->mReqPolicy < mPolicyCount);
@@ -165,7 +166,7 @@ void HttpLibcurl::addOp(HttpOpRequest * op)
 	if (! op->prepareRequest(mService))
 	{
 		// Couldn't issue request, fail with notification
-		// *FIXME:  Need failure path
+		// *TODO:  Need failure path
 		return;
 	}
 
@@ -173,7 +174,7 @@ void HttpLibcurl::addOp(HttpOpRequest * op)
 	curl_multi_add_handle(mMultiHandles[op->mReqPolicy], op->mCurlHandle);
 	op->mCurlActive = true;
 	
-	if (op->mTracing > TRACE_OFF)
+	if (op->mTracing > HTTP_TRACE_OFF)
 	{
 		HttpPolicy & policy(mService->getPolicy());
 		
@@ -215,7 +216,7 @@ bool HttpLibcurl::cancel(HttpHandle handle)
 
 // *NOTE:  cancelRequest logic parallels completeRequest logic.
 // Keep them synchronized as necessary.  Caller is expected to
-// remove to op from the active list and release the op *after*
+// remove the op from the active list and release the op *after*
 // calling this method.  It must be called first to deliver the
 // op to the reply queue with refcount intact.
 void HttpLibcurl::cancelRequest(HttpOpRequest * op)
@@ -229,7 +230,7 @@ void HttpLibcurl::cancelRequest(HttpOpRequest * op)
 	op->mCurlHandle = NULL;
 
 	// Tracing
-	if (op->mTracing > TRACE_OFF)
+	if (op->mTracing > HTTP_TRACE_OFF)
 	{
 		LL_INFOS("CoreHttp") << "TRACE, RequestCanceled, Handle:  "
 							 << static_cast<HttpHandle>(op)
@@ -305,7 +306,7 @@ bool HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode 
 	op->mCurlHandle = NULL;
 
 	// Tracing
-	if (op->mTracing > TRACE_OFF)
+	if (op->mTracing > HTTP_TRACE_OFF)
 	{
 		LL_INFOS("CoreHttp") << "TRACE, RequestComplete, Handle:  "
 							 << static_cast<HttpHandle>(op)

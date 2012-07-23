@@ -36,9 +36,9 @@ namespace LLCore
 HttpOptions::HttpOptions()
 	: RefCounted(true),
 	  mWantHeaders(false),
-	  mTracing(TRACE_OFF),
-	  mTimeout(DEFAULT_TIMEOUT),
-	  mRetries(DEFAULT_RETRY_COUNT)
+	  mTracing(HTTP_TRACE_OFF),
+	  mTimeout(HTTP_REQUEST_TIMEOUT_DEFAULT),
+	  mRetries(HTTP_RETRY_COUNT_DEFAULT)
 {}
 
 

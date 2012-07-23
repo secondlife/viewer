@@ -40,12 +40,17 @@ namespace LLCore
 {
 
 
+// Per-policy-class data for a running system.
+// Collection of queues, parameters, history, metrics, etc.
+// for a single policy class.
+//
+// Threading:  accessed only by worker thread
 struct HttpPolicy::State
 {
 public:
 	State()
-		: mConnMax(DEFAULT_CONNECTIONS),
-		  mConnAt(DEFAULT_CONNECTIONS),
+		: mConnMax(HTTP_CONNECTION_LIMIT_DEFAULT),
+		  mConnAt(HTTP_CONNECTION_LIMIT_DEFAULT),
 		  mConnMin(1),
 		  mNextSample(0),
 		  mErrorCount(0),
@@ -298,6 +303,7 @@ bool HttpPolicy::cancel(HttpHandle handle)
 	return false;
 }
 
+
 bool HttpPolicy::stageAfterCompletion(HttpOpRequest * op)
 {
 	static const HttpStatus cant_connect(HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_CONNECT);
@@ -345,7 +351,7 @@ bool HttpPolicy::stageAfterCompletion(HttpOpRequest * op)
 }
 
 
-int HttpPolicy::getReadyCount(HttpRequest::policy_t policy_class)
+int HttpPolicy::getReadyCount(HttpRequest::policy_t policy_class) const
 {
 	if (policy_class < mActiveClasses)
 	{

@@ -68,24 +68,41 @@ public:
 	/// Give cycles to libcurl to run active requests.  Completed
 	/// operations (successful or failed) will be retried or handed
 	/// over to the reply queue as final responses.
+	///
+	/// @return			Indication of how long this method is
+	///					willing to wait for next service call.
 	HttpService::ELoopSpeed processTransport();
 
 	/// Add request to the active list.  Caller is expected to have
-	/// provided us with a reference count to hold the request.  (No
-	/// additional references will be added.)
+	/// provided us with a reference count on the op to hold the
+	/// request.  (No additional references will be added.)
 	void addOp(HttpOpRequest * op);
 
 	/// One-time call to set the number of policy classes to be
 	/// serviced and to create the resources for each.  Value
 	/// must agree with HttpPolicy::setPolicies() call.
 	void start(int policy_count);
-	
+
+	/// Synchronously stop libcurl operations.  All active requests
+	/// are canceled and removed from libcurl's handling.  Easy
+	/// handles are detached from their multi handles and released.
+	/// Multi handles are also released.  Canceled requests are
+	/// completed with canceled status and made available on their
+	/// respective reply queues.
+	///
+	/// Can be restarted with a start() call.
 	void shutdown();
-	
+
+	/// Return global and per-class counts of active requests.
 	int getActiveCount() const;
 	int getActiveCountInClass(int policy_class) const;
 
-	// Shadows HttpService's method
+	/// Attempt to cancel a request identified by handle.
+	///
+	/// Interface shadows HttpService's method.
+	///
+	/// @return			True if handle was found and operation canceled.
+	///
 	bool cancel(HttpHandle handle);
 
 protected:

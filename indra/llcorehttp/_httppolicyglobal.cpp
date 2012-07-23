@@ -35,8 +35,8 @@ namespace LLCore
 
 HttpPolicyGlobal::HttpPolicyGlobal()
 	: mSetMask(0UL),
-	  mConnectionLimit(DEFAULT_CONNECTIONS),
-	  mTrace(TRACE_OFF),
+	  mConnectionLimit(HTTP_CONNECTION_LIMIT_DEFAULT),
+	  mTrace(HTTP_TRACE_OFF),
 	  mUseLLProxy(0)
 {}
 
@@ -66,11 +66,11 @@ HttpStatus HttpPolicyGlobal::set(HttpRequest::EGlobalPolicy opt, long value)
 	switch (opt)
 	{
 	case HttpRequest::GP_CONNECTION_LIMIT:
-		mConnectionLimit = llclamp(value, long(LIMIT_CONNECTIONS_MIN), long(LIMIT_CONNECTIONS_MAX));
+		mConnectionLimit = llclamp(value, long(HTTP_CONNECTION_LIMIT_MIN), long(HTTP_CONNECTION_LIMIT_MAX));
 		break;
 
 	case HttpRequest::GP_TRACE:
-		mTrace = llclamp(value, long(TRACE_MIN), long(TRACE_MAX));
+		mTrace = llclamp(value, long(HTTP_TRACE_MIN), long(HTTP_TRACE_MAX));
 		break;
 
 	case HttpRequest::GP_LLPROXY:

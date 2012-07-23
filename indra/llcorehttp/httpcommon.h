@@ -60,8 +60,10 @@
 /// Using the library is fairly easy.  Global setup needs a few
 /// steps:
 ///
-/// - libcurl initialization with thread-safely callbacks for c-ares
-///   DNS lookups.
+/// - libcurl initialization including thread-safely callbacks for SSL:
+///   .  curl_global_init(...)
+///   .  CRYPTO_set_locking_callback(...)
+///   .  CRYPTO_set_id_callback(...)
 /// - HttpRequest::createService() called to instantiate singletons
 ///   and support objects.
 ///
@@ -90,8 +92,18 @@
 /// - Do completion processing in your onCompletion() method.
 ///
 /// Code fragments:
-/// <TBD>
+/// Rather than a poorly-maintained example in comments, look in the
+/// example subdirectory which is a minimal yet functional tool to do
+/// GET request performance testing.  With four calls:
 ///
+///   	init_curl();
+///     LLCore::HttpRequest::createService();
+///     LLCore::HttpRequest::startThread();
+///     LLCore::HttpRequest * hr = new LLCore::HttpRequest();
+///
+/// the program is basically ready to issue requests.
+///
+
 
 #include "linden_common.h"		// Modifies curl/curl.h interfaces
 

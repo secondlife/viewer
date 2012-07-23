@@ -55,7 +55,7 @@ class HttpPolicy;
 class HttpLibcurl;
 
 
-/// The HttpService class does the work behind the request  queue.  It
+/// The HttpService class does the work behind the request queue.  It
 /// oversees the HTTP workflow carrying out a number of tasks:
 /// - Pulling requests from the global request queue
 /// - Executing 'immediate' requests directly
@@ -76,7 +76,7 @@ class HttpLibcurl;
 /// HttpPolicy and HttpLibcurl (transport).  These always exist in a
 /// 1:1:1 relationship with HttpService managing instances of the other
 /// two.  So, these classes do not use reference counting to refer
-/// to one-another, their lifecycles are always managed together.
+/// to one another, their lifecycles are always managed together.
 
 class HttpService
 {
@@ -206,7 +206,7 @@ protected:
 	
 	// === shared data ===
 	static volatile EState				sState;
-	HttpRequestQueue *					mRequestQueue;
+	HttpRequestQueue *					mRequestQueue;	// Refcounted
 	LLAtomicU32							mExitRequested;
 	LLCoreInt::HttpThread *				mThread;
 	

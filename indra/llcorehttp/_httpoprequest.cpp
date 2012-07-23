@@ -111,10 +111,10 @@ HttpOpRequest::HttpOpRequest()
 	  mReplyHeaders(NULL),
 	  mPolicyRetries(0),
 	  mPolicyRetryAt(HttpTime(0)),
-	  mPolicyRetryLimit(DEFAULT_RETRY_COUNT)
+	  mPolicyRetryLimit(HTTP_RETRY_COUNT_DEFAULT)
 {
 	// *NOTE:  As members are added, retry initialization/cleanup
-	// may need to be extended in @prepareRequest().
+	// may need to be extended in @see prepareRequest().
 }
 
 
@@ -153,9 +153,6 @@ HttpOpRequest::~HttpOpRequest()
 		mCurlHeaders = NULL;
 	}
 
-	mReplyOffset = 0;
-	mReplyLength = 0;
-	mReplyFullLength = 0;
 	if (mReplyBody)
 	{
 		mReplyBody->release();
@@ -215,8 +212,6 @@ void HttpOpRequest::stageFromActive(HttpService * service)
 
 void HttpOpRequest::visitNotifier(HttpRequest * request)
 {
-	static const HttpStatus partial_content(HTTP_PARTIAL_CONTENT, HE_SUCCESS);
-	
 	if (mUserHandler)
 	{
 		HttpResponse * response = new HttpResponse();
@@ -339,8 +334,8 @@ void HttpOpRequest::setupCommon(HttpRequest::policy_t policy_id,
 			mProcFlags |= PF_SAVE_HEADERS;
 		}
 		mPolicyRetryLimit = options->getRetries();
-		mPolicyRetryLimit = llclamp(mPolicyRetryLimit, LIMIT_RETRY_MIN, LIMIT_RETRY_MAX);
-		mTracing = (std::max)(mTracing, llclamp(options->getTrace(), TRACE_MIN, TRACE_MAX));
+		mPolicyRetryLimit = llclamp(mPolicyRetryLimit, HTTP_RETRY_COUNT_MIN, HTTP_RETRY_COUNT_MAX);
+		mTracing = (std::max)(mTracing, llclamp(options->getTrace(), HTTP_TRACE_MIN, HTTP_TRACE_MAX));
 	}
 }
 
@@ -394,7 +389,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	curl_easy_setopt(mCurlHandle, CURLOPT_PRIVATE, this);
 	curl_easy_setopt(mCurlHandle, CURLOPT_ENCODING, "");
 
-	if (ENABLE_LINKSYS_WRT54G_V5_DNS_FIX)
+	if (HTTP_ENABLE_LINKSYS_WRT54G_V5_DNS_FIX)
 	{
 		// The Linksys WRT54G V5 router has an issue with frequent
 		// DNS lookups from LAN machines.  If they happen too often,
@@ -402,7 +397,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 		// about 700 or so requests and starts issuing TCP RSTs to
 		// new connections.  Reuse the DNS lookups for even a few
 		// seconds and no RSTs.
-		curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, 10);
+		curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, 15);
 	}
 	else
 	{
@@ -414,7 +409,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	}
 	curl_easy_setopt(mCurlHandle, CURLOPT_AUTOREFERER, 1);
 	curl_easy_setopt(mCurlHandle, CURLOPT_FOLLOWLOCATION, 1);
-	curl_easy_setopt(mCurlHandle, CURLOPT_MAXREDIRS, DEFAULT_HTTP_REDIRECTS);
+	curl_easy_setopt(mCurlHandle, CURLOPT_MAXREDIRS, HTTP_REDIRECTS_DEFAULT);
 	curl_easy_setopt(mCurlHandle, CURLOPT_WRITEFUNCTION, writeCallback);
 	curl_easy_setopt(mCurlHandle, CURLOPT_WRITEDATA, this);
 	curl_easy_setopt(mCurlHandle, CURLOPT_READFUNCTION, readCallback);
@@ -434,7 +429,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	}
 	else if (policy.get(HttpRequest::GP_HTTP_PROXY, &opt_value))
 	{
-		// *TODO:  This is fine for now but get fuller socks/
+		// *TODO:  This is fine for now but get fuller socks5/
 		// authentication thing going later....
 		curl_easy_setopt(mCurlHandle, CURLOPT_PROXY, opt_value->c_str());
 		curl_easy_setopt(mCurlHandle, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
@@ -497,7 +492,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	}
 
 	// Tracing
-	if (mTracing >= TRACE_CURL_HEADERS)
+	if (mTracing >= HTTP_TRACE_CURL_HEADERS)
 	{
 		curl_easy_setopt(mCurlHandle, CURLOPT_VERBOSE, 1);
 		curl_easy_setopt(mCurlHandle, CURLOPT_DEBUGDATA, this);
@@ -528,11 +523,11 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	mCurlHeaders = curl_slist_append(mCurlHeaders, "Pragma:");
 
 	// Request options
-	long timeout(DEFAULT_TIMEOUT);
+	long timeout(HTTP_REQUEST_TIMEOUT_DEFAULT);
 	if (mReqOptions)
 	{
 		timeout = mReqOptions->getTimeout();
-		timeout = llclamp(timeout, LIMIT_TIMEOUT_MIN, LIMIT_TIMEOUT_MAX);
+		timeout = llclamp(timeout, HTTP_REQUEST_TIMEOUT_MIN, HTTP_REQUEST_TIMEOUT_MAX);
 	}
 	curl_easy_setopt(mCurlHandle, CURLOPT_TIMEOUT, timeout);
 	curl_easy_setopt(mCurlHandle, CURLOPT_CONNECTTIMEOUT, timeout);
@@ -605,12 +600,6 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 	static const char con_ran_line[] = "content-range:";
 	static const size_t con_ran_line_len = sizeof(con_ran_line) - 1;
 
-	static const char con_type_line[] = "content-type:";
-	static const size_t con_type_line_len = sizeof(con_type_line) - 1;
-	
-	static const char con_enc_line[] = "content-encoding:";
-	static const size_t con_enc_line_len = sizeof(con_enc_line) - 1;
-	
 	HttpOpRequest * op(static_cast<HttpOpRequest *>(userdata));
 
 	const size_t hdr_size(size * nmemb);
@@ -705,7 +694,7 @@ int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffe
 	switch (info)
 	{
 	case CURLINFO_TEXT:
-		if (op->mTracing >= TRACE_CURL_HEADERS)
+		if (op->mTracing >= HTTP_TRACE_CURL_HEADERS)
 		{
 			tag = "TEXT";
 			escape_libcurl_debug_data(buffer, len, true, safe_line);
@@ -714,7 +703,7 @@ int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffe
 		break;
 			
 	case CURLINFO_HEADER_IN:
-		if (op->mTracing >= TRACE_CURL_HEADERS)
+		if (op->mTracing >= HTTP_TRACE_CURL_HEADERS)
 		{
 			tag = "HEADERIN";
 			escape_libcurl_debug_data(buffer, len, true, safe_line);
@@ -723,7 +712,7 @@ int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffe
 		break;
 			
 	case CURLINFO_HEADER_OUT:
-		if (op->mTracing >= TRACE_CURL_HEADERS)
+		if (op->mTracing >= HTTP_TRACE_CURL_HEADERS)
 		{
 			tag = "HEADEROUT";
 			escape_libcurl_debug_data(buffer, 2 * len, true, safe_line);		// Goes out as one line
@@ -732,11 +721,11 @@ int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffe
 		break;
 			
 	case CURLINFO_DATA_IN:
-		if (op->mTracing >= TRACE_CURL_HEADERS)
+		if (op->mTracing >= HTTP_TRACE_CURL_HEADERS)
 		{
 			tag = "DATAIN";
 			logit = true;
-			if (op->mTracing >= TRACE_CURL_BODIES)
+			if (op->mTracing >= HTTP_TRACE_CURL_BODIES)
 			{
 				escape_libcurl_debug_data(buffer, len, false, safe_line);
 			}
@@ -750,11 +739,11 @@ int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffe
 		break;
 			
 	case CURLINFO_DATA_OUT:
-		if (op->mTracing >= TRACE_CURL_HEADERS)
+		if (op->mTracing >= HTTP_TRACE_CURL_HEADERS)
 		{
 			tag = "DATAOUT";
 			logit = true;
-			if (op->mTracing >= TRACE_CURL_BODIES)
+			if (op->mTracing >= HTTP_TRACE_CURL_BODIES)
 			{
 				escape_libcurl_debug_data(buffer, len, false, safe_line);
 			}

@@ -63,22 +63,37 @@ public:
 	/// Cancel all ready and retry requests sending them to
 	/// their notification queues.  Release state resources
 	/// making further request handling impossible.
+	///
+	/// Threading:  called by worker thread
 	void shutdown();
 
 	/// Deliver policy definitions and enable handling of
 	/// requests.  One-time call invoked before starting
 	/// the worker thread.
+	///
+	/// Threading:  called by application thread
 	void start(const HttpPolicyGlobal & global,
 			   const std::vector<HttpPolicyClass> & classes);
 
 	/// Give the policy layer some cycles to scan the ready
 	/// queue promoting higher-priority requests to active
 	/// as permited.
+	///
+	/// @return			Indication of how soon this method
+	///					should be called again.
+	///
+	/// Threading:  called by worker thread
 	HttpService::ELoopSpeed processReadyQueue();
 
 	/// Add request to a ready queue.  Caller is expected to have
 	/// provided us with a reference count to hold the request.  (No
 	/// additional references will be added.)
+	///
+	/// OpRequest is owned by the request queue after this call
+	/// and should not be modified by anyone until retrieved
+	/// from queue.
+	///
+	/// Threading:  called by any thread
 	void addOp(HttpOpRequest *);
 
 	/// Similar to addOp, used when a caller wants to retry a
@@ -87,12 +102,20 @@ public:
 	/// handling is the same and retried operations are considered
 	/// before new ones but that doesn't guarantee completion
 	/// order.
+	///
+	/// Threading:  called by worker thread
 	void retryOp(HttpOpRequest *);
 
-	// Shadows HttpService's method
+	/// Attempt to change the priority of an earlier request.
+	/// Request that Shadows HttpService's method
+	///
+	/// Threading:  called by worker thread
 	bool changePriority(HttpHandle handle, HttpRequest::priority_t priority);
 
-	// Shadows HttpService's method as well
+	/// Attempt to cancel a previous request.
+	/// Shadows HttpService's method as well
+	///
+	/// Threading:  called by worker thread
 	bool cancel(HttpHandle handle);
 
 	/// When transport is finished with an op and takes it off the
@@ -103,17 +126,25 @@ public:
 	/// @return			Returns true of the request is still active
 	///					or ready after staging, false if has been
 	///					sent on to the reply queue.
+	///
+	/// Threading:  called by worker thread
 	bool stageAfterCompletion(HttpOpRequest * op);
 	
 	// Get pointer to global policy options.  Caller is expected
 	// to do context checks like no setting once running.
+	///
+	/// Threading:  called by any thread *but* the object may
+	/// only be modified by the worker thread once running.
+	///
 	HttpPolicyGlobal & getGlobalOptions()
 		{
 			return mGlobalOptions;
 		}
 
-	// Get ready counts for a particular class
-	int getReadyCount(HttpRequest::policy_t policy_class);
+	/// Get ready counts for a particular policy class
+	///
+	/// Threading:  called by worker thread
+	int getReadyCount(HttpRequest::policy_t policy_class) const;
 	
 protected:
 	struct State;

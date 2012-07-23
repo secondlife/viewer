@@ -55,8 +55,8 @@ HttpService::HttpService()
 {
 	// Create the default policy class
 	HttpPolicyClass pol_class;
-	pol_class.set(HttpRequest::CP_CONNECTION_LIMIT, DEFAULT_CONNECTIONS);
-	pol_class.set(HttpRequest::CP_PER_HOST_CONNECTION_LIMIT, DEFAULT_CONNECTIONS);
+	pol_class.set(HttpRequest::CP_CONNECTION_LIMIT, HTTP_CONNECTION_LIMIT_DEFAULT);
+	pol_class.set(HttpRequest::CP_PER_HOST_CONNECTION_LIMIT, HTTP_CONNECTION_LIMIT_DEFAULT);
 	pol_class.set(HttpRequest::CP_ENABLE_PIPELINING, 0L);
 	mPolicyClasses.push_back(pol_class);
 }
@@ -150,7 +150,7 @@ void HttpService::term()
 HttpRequest::policy_t HttpService::createPolicyClass()
 {
 	const HttpRequest::policy_t policy_class(mPolicyClasses.size());
-	if (policy_class >= POLICY_CLASS_LIMIT)
+	if (policy_class >= HTTP_POLICY_CLASS_LIMIT)
 	{
 		return 0;
 	}
@@ -219,12 +219,12 @@ bool HttpService::changePriority(HttpHandle handle, HttpRequest::priority_t prio
 }
 
 
-	/// Try to find the given request handle on any of the request
-	/// queues and cancel the operation.
-	///
-	/// @return			True if the request was canceled.
-	///
-	/// Threading:  callable by worker thread.
+/// Try to find the given request handle on any of the request
+/// queues and cancel the operation.
+///
+/// @return			True if the request was canceled.
+///
+/// Threading:  callable by worker thread.
 bool HttpService::cancel(HttpHandle handle)
 {
 	bool canceled(false);
@@ -297,7 +297,7 @@ void HttpService::threadRun(LLCoreInt::HttpThread * thread)
 		// Determine whether to spin, sleep briefly or sleep for next request
 		if (REQUEST_SLEEP != loop)
 		{
-			ms_sleep(LOOP_SLEEP_NORMAL_MS);
+			ms_sleep(HTTP_SERVICE_LOOP_SLEEP_NORMAL_MS);
 		}
 	}
 
@@ -321,11 +321,11 @@ HttpService::ELoopSpeed HttpService::processRequestQueue(ELoopSpeed loop)
 		if (! mExitRequested)
 		{
 			// Setup for subsequent tracing
-			long tracing(TRACE_OFF);
+			long tracing(HTTP_TRACE_OFF);
 			mPolicy->getGlobalOptions().get(HttpRequest::GP_TRACE, &tracing);
 			op->mTracing = (std::max)(op->mTracing, int(tracing));
 
-			if (op->mTracing > TRACE_OFF)
+			if (op->mTracing > HTTP_TRACE_OFF)
 			{
 				LL_INFOS("CoreHttp") << "TRACE, FromRequestQueue, Handle:  "
 									 << static_cast<HttpHandle>(op)

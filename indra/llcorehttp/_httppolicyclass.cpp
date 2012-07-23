@@ -35,8 +35,8 @@ namespace LLCore
 
 HttpPolicyClass::HttpPolicyClass()
 	: mSetMask(0UL),
-	  mConnectionLimit(DEFAULT_CONNECTIONS),
-	  mPerHostConnectionLimit(DEFAULT_CONNECTIONS),
+	  mConnectionLimit(HTTP_CONNECTION_LIMIT_DEFAULT),
+	  mPerHostConnectionLimit(HTTP_CONNECTION_LIMIT_DEFAULT),
 	  mPipelining(0)
 {}
 
@@ -71,11 +71,11 @@ HttpStatus HttpPolicyClass::set(HttpRequest::EClassPolicy opt, long value)
 	switch (opt)
 	{
 	case HttpRequest::CP_CONNECTION_LIMIT:
-		mConnectionLimit = llclamp(value, long(LIMIT_CONNECTIONS_MIN), long(LIMIT_CONNECTIONS_MAX));
+		mConnectionLimit = llclamp(value, long(HTTP_CONNECTION_LIMIT_MIN), long(HTTP_CONNECTION_LIMIT_MAX));
 		break;
 
 	case HttpRequest::CP_PER_HOST_CONNECTION_LIMIT:
-		mPerHostConnectionLimit = llclamp(value, long(LIMIT_CONNECTIONS_MIN), mConnectionLimit);
+		mPerHostConnectionLimit = llclamp(value, long(HTTP_CONNECTION_LIMIT_MIN), mConnectionLimit);
 		break;
 
 	case HttpRequest::CP_ENABLE_PIPELINING:
