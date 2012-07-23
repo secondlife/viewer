@@ -610,11 +610,14 @@ static LLFastTimer::DeclareTimer FTM_IMAGE_STATS("Stats");
 void LLViewerTextureList::updateImages(F32 max_time)
 {
 	static BOOL cleared = FALSE;
-	if(gTeleportDisplay && !cleared)
+	if(gTeleportDisplay)
 	{
-		clearFetchingRequests();
-		gPipeline.clearRebuildGroups();
-		cleared = TRUE;
+		if(!cleared)
+		{
+			clearFetchingRequests();
+			gPipeline.clearRebuildGroups();
+			cleared = TRUE;
+		}
 		return;
 	}
 	cleared = FALSE;
