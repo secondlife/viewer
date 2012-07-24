@@ -1317,10 +1317,18 @@ namespace LLInitParam
 
 		static bool deserializeParam(Param& param, Parser& parser, const Parser::name_stack_range_t& name_stack_range, bool new_name)
 		{ 
+			Parser::name_stack_range_t new_name_stack_range(name_stack_range);
 			self_t& typed_param = static_cast<self_t&>(param);
 			value_t value;
+
+			// pop first element if empty string
+			if (new_name_stack_range.first != new_name_stack_range.second && new_name_stack_range.first->first.empty())
+			{
+				++new_name_stack_range.first;
+			}
+
 			// no further names in stack, attempt to parse value now
-			if (name_stack_range.first == name_stack_range.second)
+			if (new_name_stack_range.first == new_name_stack_range.second)
 			{
 				// attempt to read value directly
 				if (parser.readValue(value))
@@ -1353,14 +1361,14 @@ namespace LLInitParam
 		static void serializeParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, const Param* diff_param)
 		{
 			const self_t& typed_param = static_cast<const self_t&>(param);
-			if (!typed_param.isProvided() || name_stack.empty()) return;
+			if (!typed_param.isProvided()) return;
 
 			for (const_iterator it = typed_param.mValues.begin(), end_it = typed_param.mValues.end();
 				it != end_it;
 				++it)
 			{
 				std::string key = it->getValueName();
-				name_stack.back().second = true;
+				name_stack.push_back(std::make_pair(std::string(), true));
 
 				if(key.empty())
 				// not parsed via name values, write out value directly
@@ -1382,6 +1390,8 @@ namespace LLInitParam
 						break;
 					}
 				}
+
+				name_stack.pop_back();
 			}
 		}
 
@@ -1519,9 +1529,16 @@ namespace LLInitParam
 
 		static bool deserializeParam(Param& param, Parser& parser, const Parser::name_stack_range_t& name_stack_range, bool new_name) 
 		{ 
+			Parser::name_stack_range_t new_name_stack_range(name_stack_range);
 			self_t& typed_param = static_cast<self_t&>(param);
 			bool new_value = false;
 
+			// pop first element if empty string
+			if (new_name_stack_range.first != new_name_stack_range.second && new_name_stack_range.first->first.empty())
+			{
+				new_value |= new_name_stack_range.first->second;
+				++new_name_stack_range.first;
+			}
 			if (new_name || typed_param.mValues.empty())
 			{
 				new_value = true;
@@ -1531,7 +1548,7 @@ namespace LLInitParam
 			param_value_t& value = typed_param.mValues.back();
 
 			// attempt to parse block...
-			if(value.deserializeBlock(parser, name_stack_range, new_name))
+			if(value.deserializeBlock(parser, new_name_stack_range, new_name))
 			{
 				typed_param.setProvided();
 				return true;
@@ -1564,13 +1581,13 @@ namespace LLInitParam
 		static void serializeParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, const Param* diff_param)
 		{
 			const self_t& typed_param = static_cast<const self_t&>(param);
-			if (!typed_param.isProvided() || name_stack.empty()) return;
+			if (!typed_param.isProvided()) return;
 
 			for (const_iterator it = typed_param.mValues.begin(), end_it = typed_param.mValues.end();
 				it != end_it;
 				++it)
 			{
-				name_stack.back().second = true;
+				name_stack.push_back(std::make_pair(std::string(), true));
 
 				std::string key = it->getValueName();
 				if (!key.empty())
@@ -1583,6 +1600,8 @@ namespace LLInitParam
 				{
 					it->serializeBlock(parser, name_stack, NULL);
 				}
+
+				name_stack.pop_back();
 			}
 		}
 

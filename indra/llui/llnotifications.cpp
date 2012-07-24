@@ -223,14 +223,6 @@ LLNotificationForm::LLNotificationForm(const std::string& name, const LLNotifica
 	LLParamSDParser parser;
 	parser.writeSD(mFormData, p.form_elements);
 
-	if (!mFormData.isArray() && !mFormData.isUndefined())
-	{
-		// change existing contents to a one element array
-		LLSD new_llsd_array = LLSD::emptyArray();
-		new_llsd_array.append(mFormData);
-		mFormData = new_llsd_array;
-	}
-
 	for (LLSD::array_iterator it = mFormData.beginArray(), end_it = mFormData.endArray();
 		it != end_it;
 		++it)
@@ -516,7 +508,7 @@ LLSD LLNotification::asLLSD()
 	p.id = mId;
 	p.name = mTemplatep->mName;
 	p.form_elements = getForm()->asLLSD();
-
+	
 	p.substitutions = mSubstitutions;
 	p.payload = mPayload;
 	p.time_stamp = mTimestamp;

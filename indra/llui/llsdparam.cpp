@@ -223,10 +223,14 @@ LLSD& LLParamSDParserUtilities::getSDWriteNode(LLSD& input, LLInitParam::Parser:
 	{
 		bool new_traversal = it->second;
 
-		LLSD* child_sd = it->first.empty() ? sd_to_write : &(*sd_to_write)[it->first];
-
-		if (child_sd->isArray())
+		LLSD* child_sd;
+		if (it->first.empty())
 		{
+			child_sd = sd_to_write;
+			if (child_sd->isUndefined())
+			{
+				*child_sd = LLSD::emptyArray();
+			}
 			if (new_traversal)
 			{
 				// write to new element at end
@@ -240,22 +244,7 @@ LLSD& LLParamSDParserUtilities::getSDWriteNode(LLSD& input, LLInitParam::Parser:
 		}
 		else
 		{
-			if (new_traversal 
-				&& child_sd->isDefined() 
-				&& !child_sd->isArray())
-			{
-				// copy child contents into first element of an array
-				LLSD new_array = LLSD::emptyArray();
-				new_array.append(*child_sd);
-				// assign array to slot that previously held the single value
-				*child_sd = new_array;
-				// return next element in that array
-				sd_to_write = &((*child_sd)[1]);
-			}
-			else
-			{
-				sd_to_write = child_sd;
-			}
+			sd_to_write = &(*sd_to_write)[it->first];
 		}
 		it->second = false;
 	}
@@ -283,11 +272,9 @@ void LLParamSDParserUtilities::readSDValues(read_sd_cb_t cb, const LLSD& sd, LLI
 			it != sd.endArray();
 			++it)
 		{
-			if (!stack.empty())
-			{
-				stack.back().second = true;
-			}
+			stack.push_back(make_pair(std::string(), true));
 			readSDValues(cb, *it, stack);
+			stack.pop_back();
 		}
 	}
 	else if (sd.isUndefined())
