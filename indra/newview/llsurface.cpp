@@ -56,6 +56,7 @@
 #include "lldrawable.h"
 
 extern LLPipeline gPipeline;
+extern bool gShiftFrame;
 
 LLColor4U MAX_WATER_COLOR(0, 48, 96, 240);
 
@@ -294,7 +295,7 @@ void LLSurface::initTextures()
 		mWaterObjp = (LLVOWater *)gObjectList.createObjectViewer(LLViewerObject::LL_VO_WATER, mRegionp);
 		gPipeline.createObject(mWaterObjp);
 		LLVector3d water_pos_global = from_region_handle(mRegionp->getHandle());
-		water_pos_global += LLVector3d(128.0, 128.0, DEFAULT_WATER_HEIGHT);
+		water_pos_global += LLVector3d(128.0, 128.0, DEFAULT_WATER_HEIGHT);		// region doesn't have a valid water height yet
 		mWaterObjp->setPositionGlobal(water_pos_global);
 	}
 }
@@ -621,6 +622,11 @@ void LLSurface::moveZ(const S32 x, const S32 y, const F32 delta)
 
 void LLSurface::updatePatchVisibilities(LLAgent &agent) 
 {
+	if (gShiftFrame)
+	{
+		return;
+	}
+
 	LLVector3 pos_region = mRegionp->getPosRegionFromGlobal(gAgentCamera.getCameraPositionGlobal());
 
 	LLSurfacePatch *patchp;

@@ -4774,7 +4774,8 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
 			if (vf.mTexCoords)
 			{
 				vb->getTexCoord0Strider(tc_strider);
-				LLVector4a::memcpyNonAliased16((F32*) tc_strider.get(), (F32*) vf.mTexCoords, num_vertices*2*sizeof(F32));
+				S32 tex_size = (num_vertices*2*sizeof(F32)+0xF) & ~0xF;
+				LLVector4a::memcpyNonAliased16((F32*) tc_strider.get(), (F32*) vf.mTexCoords, tex_size);
 			}
 			
 			if (vf.mNormals)
