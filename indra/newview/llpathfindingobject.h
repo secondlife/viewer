@@ -56,6 +56,7 @@ public:
 	inline BOOL               hasOwner() const       {return mOwnerUUID.notNull();};
 	inline bool               hasOwnerName() const   {return mHasOwnerName;};
 	std::string               getOwnerName() const;
+	inline BOOL               isGroupOwned() const   {return mIsGroupOwned;};
 	inline const LLVector3&   getLocation() const    {return mLocation;};
 
 protected:
@@ -72,6 +73,7 @@ private:
 	LLUUID       mOwnerUUID;
 	bool         mHasOwnerName;
 	LLAvatarName mOwnerName;
+	BOOL         mIsGroupOwned;
 	LLVector3    mLocation;
 };
 
