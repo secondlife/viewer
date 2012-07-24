@@ -147,13 +147,15 @@ LLXMLNodePtr LLXMLNode::deepCopy()
 		for (LLXMLChildList::iterator iter = mChildren->map.begin();
 			 iter != mChildren->map.end(); ++iter)	
 		{
-			newnode->addChild(iter->second->deepCopy());
+			LLXMLNodePtr temp_ptr_for_gcc(iter->second->deepCopy());
+			newnode->addChild(temp_ptr_for_gcc);
 		}
 	}
 	for (LLXMLAttribList::iterator iter = mAttributes.begin();
 		 iter != mAttributes.end(); ++iter)
 	{
-		newnode->addChild(iter->second->deepCopy());
+		LLXMLNodePtr temp_ptr_for_gcc(iter->second->deepCopy());
+		newnode->addChild(temp_ptr_for_gcc);
 	}
 
 	return newnode;
@@ -1146,7 +1148,8 @@ void LLXMLNode::scrubToTree(LLXMLNode *tree)
 		std::vector<LLXMLNodePtr>::iterator itor3;
 		for (itor3=to_delete_list.begin(); itor3!=to_delete_list.end(); ++itor3)
 		{
-			(*itor3)->setParent(LLXMLNodePtr());
+			LLXMLNodePtr ptr;
+			(*itor3)->setParent(ptr);
 		}
 	}
 }
