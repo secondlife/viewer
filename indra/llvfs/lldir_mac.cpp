@@ -35,6 +35,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <glob.h>
+#include <boost/filesystem.hpp>
 
 #include <Carbon/Carbon.h>
 
@@ -239,32 +240,10 @@ void LLDir_Mac::initAppDirs(const std::string &app_name,
 	//dumpCurrentDirectories();
 }
 
-U32 LLDir_Mac::countFilesInDir(const std::string &dirname, const std::string &mask)
-{
-	U32 file_count = 0;
-	glob_t g;
-
-	std::string tmp_str;
-	tmp_str = dirname;
-	tmp_str += mask;
-	
-	if(glob(tmp_str.c_str(), GLOB_NOSORT, NULL, &g) == 0)
-	{
-		file_count = g.gl_pathc;
-
-		globfree(&g);
-	}
-
-	return (file_count);
-}
-
 std::string LLDir_Mac::getCurPath()
 {
-	char tmp_str[LL_MAX_PATH];	/* Flawfinder: ignore */ 
-	getcwd(tmp_str, LL_MAX_PATH);
-	return tmp_str;
+    return boost::filesystem::path( boost::filesystem::current_path() ).string();
 }
-
 
 
 BOOL LLDir_Mac::fileExists(const std::string &filename) const

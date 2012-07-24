@@ -54,10 +54,6 @@ class LLDir_Mock : public LLDir
 {
 	void initAppDirs(const std::string &app_name, 
 		   			 const std::string& app_read_only_data_dir = "") {}
-	U32 countFilesInDir(const std::string &dirname, const std::string &mask) 
-	{
-		return 0;
-	}
 
 	void getRandomFileInDir(const std::string &dirname, 
 							const std::string &mask, 

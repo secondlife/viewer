@@ -45,7 +45,6 @@ public:
 		const std::string& app_read_only_data_dir);
 
 	virtual std::string getCurPath();
-	virtual U32 countFilesInDir(const std::string &dirname, const std::string &mask);
 	virtual BOOL fileExists(const std::string &filename) const;
 
 	/*virtual*/ std::string getLLPluginLauncher();
