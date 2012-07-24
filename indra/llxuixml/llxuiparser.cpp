@@ -621,7 +621,7 @@ void LLXUIXSDWriter::writeXSD(const std::string& type_name, const std::string& p
 			nodep->createChild("schemaLocation", true)->setStringValue(widget_name + ".xsd");
 			
 			// add to front of schema
-			mSchemaNode->addChild(nodep, mSchemaNode);
+			mSchemaNode->addChild(nodep);
 		}
 
 		for (widget_registry_t::Registrar::registry_map_t::const_iterator it = widget_registryp->currentRegistrar().beginItems();
@@ -877,16 +877,24 @@ LLXMLNodePtr LLXUIParser::getNode(name_stack_t& stack)
 		it = next_it)
 	{
 		++next_it;
+		bool force_new_node = false;
+
 		if (it->first.empty())
 		{
 			it->second = false;
 			continue;
 		}
 
+		if (next_it != stack.end() && next_it->first.empty() && next_it->second)
+		{
+			force_new_node = true;
+		}
+
+
 		out_nodes_t::iterator found_it = mOutNodes.find(it->first);
 
 		// node with this name not yet written
-		if (found_it == mOutNodes.end() || it->second)
+		if (found_it == mOutNodes.end() || it->second || force_new_node)
 		{
 			// make an attribute if we are the last element on the name stack
 			bool is_attribute = next_it == stack.end();
