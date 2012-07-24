@@ -350,5 +350,3 @@ BufferArray::Block * BufferArray::Block::alloc(size_t len)
 	
 
 }  // end namespace LLCore
-
-
