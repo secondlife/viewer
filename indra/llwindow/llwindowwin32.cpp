@@ -367,6 +367,10 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 							 U32 fsaa_samples)
 	: LLWindow(callbacks, fullscreen, flags)
 {
+	
+	//MAINT-516 -- force a load of opengl32.dll just in case windows went sideways 
+	LoadLibrary(L"opengl32.dll");
+
 	mFSAASamples = fsaa_samples;
 	mIconResource = gIconResource;
 	mOverrideAspectRatio = 0.f;

@@ -45,7 +45,6 @@
 #include "lltoolbar.h"
 #include "lltoolbarview.h"
 #include "lltooltip.h"
-#include "llviewercontrol.h"
 #include "llviewerregion.h"
 
 LLPanelPathfindingRebakeNavmesh* LLPanelPathfindingRebakeNavmesh::getInstance()
@@ -239,7 +238,7 @@ void LLPanelPathfindingRebakeNavmesh::createNavMeshStatusListenerForCurrentRegio
 
 bool LLPanelPathfindingRebakeNavmesh::doDraw() const
 {
-	return ((mCanRebakeRegion || gSavedSettings.getBOOL("PathfindingEnableAlwaysAllowRebakeNavMesh")) && (mRebakeNavMeshMode != kRebakeNavMesh_NotAvailable));
+	return (mCanRebakeRegion && (mRebakeNavMeshMode != kRebakeNavMesh_NotAvailable));
 }
 
 void LLPanelPathfindingRebakeNavmesh::updatePosition()

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
-    open_positioning="cascading"
+    positioning="cascading"
     can_resize="true"
     can_tear_off="false"
     height="395"
@@ -184,7 +184,7 @@
       <scroll_list.columns
           label="Description (root prim)"
           name="description"
-          dynamic_width="true" />
+          width="158" />
       <scroll_list.columns
           label="Owner"
           name="owner"

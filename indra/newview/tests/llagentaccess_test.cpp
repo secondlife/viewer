@@ -119,22 +119,6 @@ namespace tut
 		ensure("1 isAdult",    !aa.isAdult());
 #endif // HACKED_GODLIKE_VIEWER
 		
-		// this is kinda bad -- setting this forces maturity to MATURE but !teen != Mature anymore
-		aa.setTeen(false);
-#ifndef HACKED_GODLIKE_VIEWER
-		ensure("2 isTeen",     !aa.isTeen());
-		ensure("2 isMature",   aa.isMature());
-		ensure("2 isAdult",    !aa.isAdult());
-#endif // HACKED_GODLIKE_VIEWER
-
-		// have to flip it back and make sure it still works
-		aa.setTeen(true);
-#ifndef HACKED_GODLIKE_VIEWER
-		ensure("3 isTeen",     aa.isTeen());
-		ensure("3 isMature",   !aa.isMature());
-		ensure("3 isAdult",    !aa.isAdult());		
-#endif // HACKED_GODLIKE_VIEWER
-
 		// check the conversion routine
 #ifndef HACKED_GODLIKE_VIEWER
 		ensure_equals("1 conversion", SIM_ACCESS_PG, aa.convertTextToMaturity('P'));
@@ -145,26 +129,26 @@ namespace tut
 		
 		// now try the other method of setting it - PG
 		aa.setMaturity('P');
-		ensure("4 isTeen",     aa.isTeen());
+		ensure("2 isTeen",     aa.isTeen());
 #ifndef HACKED_GODLIKE_VIEWER
-		ensure("4 isMature",   !aa.isMature());
-		ensure("4 isAdult",    !aa.isAdult());
+		ensure("2 isMature",   !aa.isMature());
+		ensure("2 isAdult",    !aa.isAdult());
 #endif // HACKED_GODLIKE_VIEWER
 		
 		// Mature
 		aa.setMaturity('M');
 #ifndef HACKED_GODLIKE_VIEWER
-		ensure("5 isTeen",     !aa.isTeen());
-		ensure("5 isMature",   aa.isMature());
-		ensure("5 isAdult",    !aa.isAdult());
+		ensure("3 isTeen",     !aa.isTeen());
+		ensure("3 isMature",   aa.isMature());
+		ensure("3 isAdult",    !aa.isAdult());
 #endif // HACKED_GODLIKE_VIEWER
 		
 		// Adult
 		aa.setMaturity('A');
 #ifndef HACKED_GODLIKE_VIEWER
-		ensure("6 isTeen",     !aa.isTeen());
-		ensure("6 isMature",   aa.isMature());
-		ensure("6 isAdult",    aa.isAdult());
+		ensure("4 isTeen",     !aa.isTeen());
+		ensure("4 isMature",   aa.isMature());
+		ensure("4 isAdult",    aa.isAdult());
 #endif // HACKED_GODLIKE_VIEWER
 		
 	}
@@ -286,22 +270,6 @@ namespace tut
 
 	template<> template<>
 	void agentaccess_object_t::test<5>()
-	{
-		LLControlGroup cgr("test");
-		cgr.declareU32("PreferredMaturity", SIM_ACCESS_PG, "declared_for_test", FALSE);
-		LLAgentAccess aa(cgr);
-		
-#ifndef HACKED_GODLIKE_VIEWER
-		ensure("1 transition starts false", !aa.isInTransition());
-#endif // HACKED_GODLIKE_VIEWER
-		aa.setTransition();
-#ifndef HACKED_GODLIKE_VIEWER
-		ensure("2 transition now true", aa.isInTransition());
-#endif // HACKED_GODLIKE_VIEWER
-	}
-
-	template<> template<>
-	void agentaccess_object_t::test<6>()
 	{
 		LLControlGroup cgr("test");
 		cgr.declareU32("PreferredMaturity", SIM_ACCESS_PG, "declared_for_test", FALSE);

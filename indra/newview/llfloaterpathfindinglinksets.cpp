@@ -459,7 +459,6 @@ LLSD LLFloaterPathfindingLinksets::buildLinksetUseScrollListData(const std::stri
 	LLSD columns;
 
 	columns[0]["column"] = "name";
-	columns[0]["relwidth"] = static_cast<LLSD::Real>(100.0f);
 	columns[0]["value"] = pLabel;
 	columns[0]["font"] = "SANSSERIF";
 

@@ -38,10 +38,11 @@
 #include "lluuid.h"
 #include "v3math.h"
 
-#define PATHFINDING_OBJECT_NAME_FIELD        "name"
-#define PATHFINDING_OBJECT_DESCRIPTION_FIELD "description"
-#define PATHFINDING_OBJECT_OWNER_FIELD       "owner"
-#define PATHFINDING_OBJECT_POSITION_FIELD    "position"
+#define PATHFINDING_OBJECT_NAME_FIELD           "name"
+#define PATHFINDING_OBJECT_DESCRIPTION_FIELD    "description"
+#define PATHFINDING_OBJECT_OWNER_FIELD          "owner"
+#define PATHFINDING_OBJECT_POSITION_FIELD       "position"
+#define PATHFINDING_OBJECT_IS_GROUP_OWNED_FIELD "owner_is_group"
 
 //---------------------------------------------------------------------------
 // LLPathfindingObject
@@ -54,6 +55,7 @@ LLPathfindingObject::LLPathfindingObject()
 	mOwnerUUID(),
 	mHasOwnerName(false),
 	mOwnerName(),
+	mIsGroupOwned(false),
 	mLocation()
 {
 }
@@ -65,6 +67,7 @@ LLPathfindingObject::LLPathfindingObject(const std::string &pUUID, const LLSD &p
 	mOwnerUUID(),
 	mHasOwnerName(false),
 	mOwnerName(),
+	mIsGroupOwned(false),
 	mLocation()
 {
 	parseObjectData(pObjectData);
@@ -77,6 +80,7 @@ LLPathfindingObject::LLPathfindingObject(const LLPathfindingObject& pOther)
 	mOwnerUUID(pOther.mOwnerUUID),
 	mHasOwnerName(false),
 	mOwnerName(),
+	mIsGroupOwned(pOther.mIsGroupOwned),
 	mLocation(pOther.mLocation)
 {
 	fetchOwnerName();
@@ -93,6 +97,7 @@ LLPathfindingObject &LLPathfindingObject::operator =(const LLPathfindingObject& 
 	mDescription = pOther.mDescription;
 	mOwnerUUID = pOther.mOwnerUUID;
 	fetchOwnerName();
+	mIsGroupOwned = pOther.mIsGroupOwned;
 	mLocation = pOther.mLocation;
 
 	return *this;
@@ -125,6 +130,12 @@ void LLPathfindingObject::parseObjectData(const LLSD &pObjectData)
 	mOwnerUUID = pObjectData.get(PATHFINDING_OBJECT_OWNER_FIELD).asUUID();
 	fetchOwnerName();
 
+	if (pObjectData.has(PATHFINDING_OBJECT_IS_GROUP_OWNED_FIELD))
+	{
+		llassert(pObjectData.get(PATHFINDING_OBJECT_IS_GROUP_OWNED_FIELD).isBoolean());
+		mIsGroupOwned = pObjectData.get(PATHFINDING_OBJECT_IS_GROUP_OWNED_FIELD).asBoolean();
+	}
+
 	llassert(pObjectData.has(PATHFINDING_OBJECT_POSITION_FIELD));
 	llassert(pObjectData.get(PATHFINDING_OBJECT_POSITION_FIELD).isArray());
 	mLocation.setValue(pObjectData.get(PATHFINDING_OBJECT_POSITION_FIELD));
@@ -135,7 +146,11 @@ void LLPathfindingObject::fetchOwnerName()
 	mHasOwnerName = false;
 	if (hasOwner())
 	{
-		LLAvatarNameCache::get(mOwnerUUID, boost::bind(&LLPathfindingObject::handleAvatarNameFetch, this, _1, _2));
+		mHasOwnerName = LLAvatarNameCache::get(mOwnerUUID, &mOwnerName);
+		if (!mHasOwnerName)
+		{
+			LLAvatarNameCache::get(mOwnerUUID, boost::bind(&LLPathfindingObject::handleAvatarNameFetch, this, _1, _2));
+		}
 	}
 }
 

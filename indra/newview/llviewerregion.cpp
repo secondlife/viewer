@@ -655,6 +655,31 @@ std::string LLViewerRegion::accessToShortString(U8 sim_access)
 }
 
 // static
+U8 LLViewerRegion::shortStringToAccess(const std::string &sim_access)
+{
+	U8 accessValue;
+
+	if (LLStringUtil::compareStrings(sim_access, "PG") == 0)
+	{
+		accessValue = SIM_ACCESS_PG;
+	}
+	else if (LLStringUtil::compareStrings(sim_access, "M") == 0)
+	{
+		accessValue = SIM_ACCESS_MATURE;
+	}
+	else if (LLStringUtil::compareStrings(sim_access, "A") == 0)
+	{
+		accessValue = SIM_ACCESS_ADULT;
+	}
+	else
+	{
+		accessValue = SIM_ACCESS_MIN;
+	}
+
+	return accessValue;
+}
+
+// static
 void LLViewerRegion::processRegionInfo(LLMessageSystem* msg, void**)
 {
 	// send it to 'observers'
@@ -1462,7 +1487,8 @@ void LLViewerRegion::unpackRegionHandshake()
 		// all of our terrain stuff, by
 		if (compp->getParamsReady())
 		{
-			getLand().dirtyAllPatches();
+			//this line creates frame stalls on region crossing and removing it appears to have no effect
+			//getLand().dirtyAllPatches();
 		}
 		else
 		{

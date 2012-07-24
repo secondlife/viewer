@@ -45,7 +45,6 @@
 #include "llvertexbuffer.h"
 #include "llbbox.h"
 #include "llbbox.h"
-#include "llviewercontrol.h"
 
 class LLAgent;			// TODO: Get rid of this.
 class LLAudioSource;
@@ -230,6 +229,8 @@ public:
 	const LLUUID &getID() const						{ return mID; }
 	U32 getLocalID() const							{ return mLocalID; }
 	U32 getCRC() const								{ return mTotalCRC; }
+	S32 getListIndex() const						{ return mListIndex; }
+	void setListIndex(S32 idx)						{ mListIndex = idx; }
 
 	virtual BOOL isFlexible() const					{ return FALSE; }
 	virtual BOOL isSculpted() const 				{ return FALSE; }
@@ -432,11 +433,14 @@ public:
 	// manager until we have better iterators.
 	void updateInventory(LLViewerInventoryItem* item, U8 key, bool is_new);
 	void updateInventoryLocal(LLInventoryItem* item, U8 key); // Update without messaging.
+	void updateTextureInventory(LLViewerInventoryItem* item, U8 key, bool is_new);
 	LLInventoryObject* getInventoryObject(const LLUUID& item_id);
 	void getInventoryContents(LLInventoryObject::object_list_t& objects);
 	LLInventoryObject* getInventoryRoot();
 	LLViewerInventoryItem* getInventoryItemByAsset(const LLUUID& asset_id);
 	S16 getInventorySerial() const { return mInventorySerialNum; }
+
+	bool isTextureInInventory(LLViewerInventoryItem* item);
 
 	// These functions does viewer-side only object inventory modifications
 	void updateViewerInventoryAsset(
@@ -477,8 +481,9 @@ public:
 	inline BOOL		flagObjectCopy() const			{ return ((mFlags & FLAGS_OBJECT_COPY) != 0); }
 	inline BOOL		flagObjectMove() const			{ return ((mFlags & FLAGS_OBJECT_MOVE) != 0); }
 	inline BOOL		flagObjectTransfer() const		{ return ((mFlags & FLAGS_OBJECT_TRANSFER) != 0); }
-	inline BOOL		flagObjectPermanent() const		{ return gSavedSettings.getBOOL("PathfindingDisablePermanentObjects") ? FALSE : ((mFlags & FLAGS_OBJECT_PERMANENT) != 0); }
-	inline BOOL		flagCharacter() const			{ return gSavedSettings.getBOOL("PathfindingDisableCharacterObjects") ? FALSE : ((mFlags & FLAGS_CHARACTER) != 0); }
+	inline BOOL		flagObjectPermanent() const		{ return ((mFlags & FLAGS_AFFECTS_NAVMESH) != 0); }
+	inline BOOL		flagCharacter() const			{ return ((mFlags & FLAGS_CHARACTER) != 0); }
+	inline BOOL		flagVolumeDetect() const		{ return ((mFlags & FLAGS_VOLUME_DETECT) != 0); }
 	inline BOOL		flagIncludeInSearch() const     { return ((mFlags & FLAGS_INCLUDE_IN_SEARCH) != 0); }
 	inline BOOL		flagScripted() const			{ return ((mFlags & FLAGS_SCRIPTED) != 0); }
 	inline BOOL		flagHandleTouch() const			{ return ((mFlags & FLAGS_HANDLE_TOUCH) != 0); }
@@ -600,6 +605,9 @@ public:
 	// Last total CRC received from sim, used for caching
 	U32				mTotalCRC;
 
+	// index into LLViewerObjectList::mActiveObjects or -1 if not in list
+	S32				mListIndex;
+
 	LLPointer<LLViewerTexture> *mTEImages;
 
 	// Selection, picking and rendering variables
@@ -696,6 +704,10 @@ protected:
 	
 	F32				mAppAngle;	// Apparent visual arc in degrees
 	F32				mPixelArea; // Apparent area in pixels
+
+	// IDs of of all items in the object's content which are added to the object's content,
+	// but not updated on the server yet. After item was updated, its ID will be removed from this list.
+	std::list<LLUUID> mPendingInventoryItemsIDs;
 
 	// This is the object's inventory from the viewer's perspective.
 	LLInventoryObject::object_list_t* mInventory;

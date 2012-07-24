@@ -40,26 +40,34 @@ const U32   FLAGS_OBJECT_MOVE          = (1U << 8);
 const U32   FLAGS_TAKES_MONEY          = (1U << 9);
 const U32   FLAGS_PHANTOM              = (1U << 10);
 const U32   FLAGS_INVENTORY_EMPTY      = (1U << 11);
-const U32   FLAGS_OBJECT_PERMANENT     = (1U << 12);
+
+const U32   FLAGS_AFFECTS_NAVMESH      = (1U << 12);
 const U32   FLAGS_CHARACTER            = (1U << 13);
-//const U32 FLAGS_UNUSED_000           = (1U << 14); // was FLAGS_JOINT_LP2P
+const U32   FLAGS_VOLUME_DETECT        = (1U << 14);
 const U32   FLAGS_INCLUDE_IN_SEARCH    = (1U << 15);
+
 const U32   FLAGS_ALLOW_INVENTORY_DROP = (1U << 16);
 const U32   FLAGS_OBJECT_TRANSFER      = (1U << 17);
 const U32   FLAGS_OBJECT_GROUP_OWNED   = (1U << 18);
-//const U32 FLAGS_UNUSED_001           = (1U << 19); // was FLAGS_OBJECT_YOU_OFFICER
+//const U32 FLAGS_UNUSED_000           = (1U << 19); // was FLAGS_OBJECT_YOU_OFFICER
+
 const U32   FLAGS_CAMERA_DECOUPLED     = (1U << 20);
 const U32   FLAGS_ANIM_SOURCE          = (1U << 21);
 const U32   FLAGS_CAMERA_SOURCE        = (1U << 22);
-//const U32 FLAGS_UNUSED_002           = (1U << 23); // was FLAGS_CAST_SHADOWS
-//const U32 FLAGS_UNUSED_003           = (1U << 24);
-//const U32 FLAGS_UNUSED_004           = (1U << 25);
-//const U32 FLAGS_UNUSED_005           = (1U << 26);
-//const U32 FLAGS_UNUSED_006           = (1U << 27);
+
+//const U32 FLAGS_UNUSED_001           = (1U << 23); // was FLAGS_CAST_SHADOWS
+
+//const U32 FLAGS_UNUSED_002           = (1U << 24);
+//const U32 FLAGS_UNUSED_003           = (1U << 25);
+//const U32 FLAGS_UNUSED_004           = (1U << 26);
+//const U32 FLAGS_UNUSED_005           = (1U << 27);
+
 const U32   FLAGS_OBJECT_OWNER_MODIFY  = (1U << 28);
+
 const U32   FLAGS_TEMPORARY_ON_REZ     = (1U << 29);
-//const U32 FLAGS_UNUSED_007           = (1U << 30); // was FLAGS_TEMPORARY
-//const U32 FLAGS_UNUSED_008           = (1U << 31); // was FLAGS_ZLIB_COMPRESSED
+//const U32 FLAGS_UNUSED_006           = (1U << 30); // was FLAGS_TEMPORARY
+//const U32 FLAGS_UNUSED_007           = (1U << 31); // was FLAGS_ZLIB_COMPRESSED
+
 const U32   FLAGS_LOCAL                = FLAGS_ANIM_SOURCE | FLAGS_CAMERA_SOURCE;
 
 typedef enum e_havok_joint_type

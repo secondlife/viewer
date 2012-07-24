@@ -35,7 +35,7 @@
 #include "llfloaterpreference.h"
 
 #include "message.h"
-
+#include "llfloaterautoreplacesettings.h"
 #include "llagent.h"
 #include "llavatarconstants.h"
 #include "llcheckboxctrl.h"
@@ -346,7 +346,9 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.BlockList",				boost::bind(&LLFloaterPreference::onClickBlockList, this));
 	mCommitCallbackRegistrar.add("Pref.Proxy",					boost::bind(&LLFloaterPreference::onClickProxySettings, this));
 	mCommitCallbackRegistrar.add("Pref.TranslationSettings",	boost::bind(&LLFloaterPreference::onClickTranslationSettings, this));
-	
+	mCommitCallbackRegistrar.add("Pref.AutoReplace",            boost::bind(&LLFloaterPreference::onClickAutoReplace, this));
+	mCommitCallbackRegistrar.add("Pref.SpellChecker",           boost::bind(&LLFloaterPreference::onClickSpellChecker, this));
+
 	sSkin = gSavedSettings.getString("SkinCurrent");
 
 	mCommitCallbackRegistrar.add("Pref.ClickActionChange",				boost::bind(&LLFloaterPreference::onClickActionChange, this));
@@ -354,7 +356,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	gSavedSettings.getControl("NameTagShowUsernames")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
 	gSavedSettings.getControl("NameTagShowFriends")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
 	gSavedSettings.getControl("UseDisplayNames")->getCommitSignal()->connect(boost::bind(&handleDisplayNamesOptionChanged,  _2));
-
+	
 	LLAvatarPropertiesProcessor::getInstance()->addObserver( gAgent.getID(), this );
 }
 
@@ -434,6 +436,8 @@ BOOL LLFloaterPreference::postBuild()
 	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLViewerChat::signalChatFontChanged));
 
 	gSavedSettings.getControl("ChatBubbleOpacity")->getSignal()->connect(boost::bind(&LLFloaterPreference::onNameTagOpacityChange, this, _2));
+
+	gSavedSettings.getControl("PreferredMaturity")->getSignal()->connect(boost::bind(&LLFloaterPreference::onChangeMaturity, this));
 
 	LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
 	if (!tabcontainer->selectTab(gSavedSettings.getS32("LastPrefTab")))
@@ -603,6 +607,9 @@ void LLFloaterPreference::cancel()
 
 	// hide translation settings floater
 	LLFloaterReg::hideInstance("prefs_translation");
+	
+	// hide translation settings floater
+	LLFloaterReg::hideInstance("prefs_autoreplace");
 	
 	// cancel hardware menu
 	LLFloaterHardwareSettings* hardware_settings = LLFloaterReg::getTypedInstance<LLFloaterHardwareSettings>("prefs_hardware_settings");
@@ -930,7 +937,6 @@ void LLFloaterPreference::refreshSkin(void* data)
 	sSkin = gSavedSettings.getString("SkinCurrent");
 	self->getChild<LLRadioGroup>("skin_selection", true)->setValue(sSkin);
 }
-
 
 void LLFloaterPreference::buildPopupLists()
 {
@@ -1513,6 +1519,16 @@ void LLFloaterPreference::onClickProxySettings()
 void LLFloaterPreference::onClickTranslationSettings()
 {
 	LLFloaterReg::showInstance("prefs_translation");
+}
+
+void LLFloaterPreference::onClickAutoReplace()
+{
+	LLFloaterReg::showInstance("prefs_autoreplace");
+}
+
+void LLFloaterPreference::onClickSpellChecker()
+{
+		LLFloaterReg::showInstance("prefs_spellchecker");
 }
 
 void LLFloaterPreference::onClickActionChange()

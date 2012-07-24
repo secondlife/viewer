@@ -65,7 +65,7 @@ LLVolumeImplFlexible::LLVolumeImplFlexible(LLViewerObject* vo, LLFlexibleObjectD
 	mFrameNum = 0;
 	mCollisionSphereRadius = 0.f;
 	mRenderRes = 1;
-
+	
 	if(mVO->mDrawable.notNull())
 	{
 		mVO->mDrawable->makeActive() ;
@@ -255,50 +255,28 @@ void LLVolumeImplFlexible::onSetVolume(const LLVolumeParams &volume_params, cons
 {
 }
 
-//---------------------------------------------------------------------------------
-// This calculates the physics of the flexible object. Note that it has to be 0
-// updated every time step. In the future, perhaps there could be an 
-// optimization similar to what Havok does for objects that are stationary. 
-//---------------------------------------------------------------------------------
-static LLFastTimer::DeclareTimer FTM_FLEXIBLE_UPDATE("Update Flexies");
-BOOL LLVolumeImplFlexible::doIdleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
+
+void LLVolumeImplFlexible::updateRenderRes()
 {
-	if (mVO->mDrawable.isNull())
-	{
-		// Don't do anything until we have a drawable
-		return FALSE; // (we are not initialized or updated)
-	}
+	LLDrawable* drawablep = mVO->mDrawable;
 
-	BOOL force_update = mSimulateRes == 0 ? TRUE : FALSE;
-
-	//flexible objects never go static
-	mVO->mDrawable->mQuietCount = 0;
-	if (!mVO->mDrawable->isRoot())
-	{
-		LLViewerObject* parent = (LLViewerObject*) mVO->getParent();
-		parent->mDrawable->mQuietCount = 0;
-	}
-
-	LLFastTimer ftm(FTM_FLEXIBLE_UPDATE);
-		
 	S32 new_res = mAttributes->getSimulateLOD();
 
-	//number of segments only cares about z axis
-	F32 app_angle = llround((F32) atan2( mVO->getScale().mV[2]*2.f, mVO->mDrawable->mDistanceWRTCamera) * RAD_TO_DEG, 0.01f);
+#if 1 //optimal approximation of previous behavior that doesn't rely on atan2
+	F32 app_angle = mVO->getScale().mV[2]/drawablep->mDistanceWRTCamera;
 
 	// Rendering sections increases with visible angle on the screen
+	mRenderRes = (S32) (12.f*app_angle);
+#else //legacy behavior
+	//number of segments only cares about z axis
+	F32 app_angle = llround((F32) atan2( mVO->getScale().mV[2]*2.f, drawablep->mDistanceWRTCamera) * RAD_TO_DEG, 0.01f);
+
+ 	// Rendering sections increases with visible angle on the screen
 	mRenderRes = (S32)(FLEXIBLE_OBJECT_MAX_SECTIONS*4*app_angle*DEG_TO_RAD/LLViewerCamera::getInstance()->getView());
-	if (mRenderRes > FLEXIBLE_OBJECT_MAX_SECTIONS)
-	{
-		mRenderRes = FLEXIBLE_OBJECT_MAX_SECTIONS;
-	}
-
-
-	// Bottom cap at 1/4 the original number of sections
-	if (mRenderRes < mAttributes->getSimulateLOD()-1)
-	{
-		mRenderRes = mAttributes->getSimulateLOD()-1;
-	}
+#endif
+		
+	mRenderRes = llclamp(mRenderRes, new_res-1, (S32) FLEXIBLE_OBJECT_MAX_SECTIONS);
+		
 	// Throttle back simulation of segments we're not rendering
 	if (mRenderRes < new_res)
 	{
@@ -311,43 +289,65 @@ BOOL LLVolumeImplFlexible::doIdleUpdate(LLAgent &agent, LLWorld &world, const F6
 		setAttributesOfAllSections();
 		mInitialized = TRUE;
 	}
-	if (!gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_FLEXIBLE))
-	{
-		return FALSE; // (we are not initialized or updated)
-	}
+}
+//---------------------------------------------------------------------------------
+// This calculates the physics of the flexible object. Note that it has to be 0
+// updated every time step. In the future, perhaps there could be an 
+// optimization similar to what Havok does for objects that are stationary. 
+//---------------------------------------------------------------------------------
+static LLFastTimer::DeclareTimer FTM_FLEXIBLE_UPDATE("Update Flexies");
+void LLVolumeImplFlexible::doIdleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
+{
+	LLDrawable* drawablep = mVO->mDrawable;
 
-	bool visible = mVO->mDrawable->isVisible();
-
-	if (force_update && visible)
+	if (drawablep)
 	{
-		gPipeline.markRebuild(mVO->mDrawable, LLDrawable::REBUILD_POSITION, FALSE);
-	}
-	else if	(visible &&
-		!mVO->mDrawable->isState(LLDrawable::IN_REBUILD_Q1) &&
-		mVO->getPixelArea() > 256.f)
-	{
-		U32 id;
-		F32 pixel_area = mVO->getPixelArea();
+		//LLFastTimer ftm(FTM_FLEXIBLE_UPDATE);
 
-		if (mVO->isRootEdit())
+		//flexible objects never go static
+		drawablep->mQuietCount = 0;
+		if (!drawablep->isRoot())
 		{
-			id = mID;
-		}
-		else
-		{
-			LLVOVolume* parent = (LLVOVolume*) mVO->getParent();
-			id = parent->getVolumeInterfaceID();
+			LLViewerObject* parent = (LLViewerObject*) mVO->getParent();
+			parent->mDrawable->mQuietCount = 0;
 		}
 
-		U32 update_period = (U32) (LLViewerCamera::getInstance()->getScreenPixelArea()*0.01f/(pixel_area*(sUpdateFactor+1.f)))+1;
-
-		if ((LLDrawable::getCurrentFrame()+id)%update_period == 0)
+		if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_FLEXIBLE))
 		{
-			gPipeline.markRebuild(mVO->mDrawable, LLDrawable::REBUILD_POSITION, FALSE);
+			bool visible = drawablep->isVisible();
+
+			if ((mSimulateRes == 0) && visible)
+			{
+				updateRenderRes();
+				gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_POSITION, FALSE);
+			}
+			else if	(visible &&
+				!drawablep->isState(LLDrawable::IN_REBUILD_Q1) &&
+				mVO->getPixelArea() > 256.f)
+			{
+				U32 id;
+				F32 pixel_area = mVO->getPixelArea();
+
+				if (mVO->isRootEdit())
+				{
+					id = mID;
+				}
+				else
+				{
+					LLVOVolume* parent = (LLVOVolume*) mVO->getParent();
+					id = parent->getVolumeInterfaceID();
+				}
+
+				U32 update_period = (U32) (LLViewerCamera::getInstance()->getScreenPixelArea()*0.01f/(pixel_area*(sUpdateFactor+1.f)))+1;
+
+				if ((LLDrawable::getCurrentFrame()+id)%update_period == 0)
+				{
+					updateRenderRes();
+					gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_POSITION, FALSE);
+				}
+			}
 		}
 	}
-	
-	return force_update;
 }
 
 inline S32 log2(S32 x)
@@ -368,8 +368,10 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 	LLPath *path = &volume->getPath();
 	if ((mSimulateRes == 0 || !mInitialized) && mVO->mDrawable->isVisible()) 
 	{
-		mVO->markForUpdate(TRUE);
-		if (!doIdleUpdate(gAgent, *LLWorld::getInstance(), 0.0))
+		//mVO->markForUpdate(TRUE);
+		doIdleUpdate(gAgent, *LLWorld::getInstance(), 0.0);
+
+		if (mSimulateRes == 0)
 		{
 			return;	// we did not get updated or initialized, proceeding without can be dangerous
 		}
@@ -729,7 +731,11 @@ BOOL LLVolumeImplFlexible::doUpdateGeometry(LLDrawable *drawable)
 	else if (!mUpdated || rotated)
 	{
 		volume->mDrawable->setState(LLDrawable::REBUILD_POSITION);
-		volume->dirtyMesh();
+		LLSpatialGroup* group = volume->mDrawable->getSpatialGroup();
+		if (group)
+		{
+			group->dirtyMesh();
+		}
 		volume->genBBoxes(isVolumeGlobal());
 	}
 			
@@ -814,15 +820,17 @@ LLQuaternion LLVolumeImplFlexible::getEndRotation()
 }//------------------------------------------------------------------
 
 
-void LLVolumeImplFlexible::updateRelativeXform()
+void LLVolumeImplFlexible::updateRelativeXform(bool force_identity)
 {
 	LLQuaternion delta_rot;
 	LLVector3 delta_pos, delta_scale;
 	LLVOVolume* vo = (LLVOVolume*) mVO;
 
+	bool use_identity = vo->mDrawable->isSpatialRoot() || force_identity;
+
 	//matrix from local space to parent relative/global space
-	delta_rot = vo->mDrawable->isSpatialRoot() ? LLQuaternion() : vo->mDrawable->getRotation();
-	delta_pos = vo->mDrawable->isSpatialRoot() ? LLVector3(0,0,0) : vo->mDrawable->getPosition();
+	delta_rot = use_identity ? LLQuaternion() : vo->mDrawable->getRotation();
+	delta_pos = use_identity ? LLVector3(0,0,0) : vo->mDrawable->getPosition();
 	delta_scale = LLVector3(1,1,1);
 
 	// Vertex transform (4x4)

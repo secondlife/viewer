@@ -21,7 +21,6 @@
 			<menu_item_call label="Beschäftigt" name="Set Busy"/>
 		</menu>
 		<menu_item_call label="L$ kaufen..." name="Buy and Sell L$"/>
-		<menu_item_call label="Händler-Outbox..." name="MerchantOutbox"/>
 		<menu_item_call label="Kontoübersicht..." name="Manage My Account">
 			<menu_item_call.on_click name="ManageMyAccount_url" parameter="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=de"/>
 		</menu_item_call>
@@ -227,11 +226,10 @@
 			<menu_item_check label="Textur" name="Texture Console"/>
 			<menu_item_check label="Fehler beseitigen" name="Debug Console"/>
 			<menu_item_call label="Meldungen" name="Notifications"/>
-			<menu_item_check label="Texturgröße" name="Texture Size"/>
-			<menu_item_check label="Texture-Kategorie" name="Texture Category"/>
 			<menu_item_check label="Schnelle Timer" name="Fast Timers"/>
 			<menu_item_check label="Speicher" name="Memory"/>
 			<menu_item_check label="Szenestatistiken" name="Scene Statistics"/>
+			<menu_item_call label="Debug-Konsole für Texturabruffehler" name="Texture Fetch Debug Console"/>
 			<menu_item_call label="Info zu Region in Fenster Fehler beseitigen" name="Region Info to Debug Console"/>
 			<menu_item_call label="Gruppeninfo in Fenster Fehler beseitigen" name="Group Info to Debug Console"/>
 			<menu_item_call label="Info zu Fähigkeiten in Fenster Fehler beseitigen" name="Capabilities Info to Debug Console"/>
@@ -289,6 +287,12 @@
 			<menu_item_check label="Komplexität beim Rendern" name="rendercomplexity"/>
 			<menu_item_check label="Byte in Anhängen" name="attachment bytes"/>
 			<menu_item_check label="Formen" name="Sculpt"/>
+			<menu label="Texturdichte" name="Texture Density">
+				<menu_item_check label="Keine" name="None"/>
+				<menu_item_check label="Aktuelle" name="Current"/>
+				<menu_item_check label="Gewünschte" name="Desired"/>
+				<menu_item_check label="Volle" name="Full"/>
+			</menu>
 		</menu>
 		<menu label="Rendering" name="Rendering">
 			<menu_item_check label="Achsen" name="Axes"/>
@@ -306,7 +310,6 @@
 			<menu_item_check label="Animationstexturen" name="Animation Textures"/>
 			<menu_item_check label="Texturen deaktivieren" name="Disable Textures"/>
 			<menu_item_check label="Voll-Res-Texturen" name="Rull Res Textures"/>
-			<menu_item_check label="Texturen prüfen" name="Audit Textures"/>
 			<menu_item_check label="Textur-Atlas (experimentell)" name="Texture Atlas"/>
 			<menu_item_check label="Angehängte Lichter rendern" name="Render Attached Lights"/>
 			<menu_item_check label="Angehängte Partikel rendern" name="Render Attached Particles"/>
