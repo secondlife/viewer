@@ -81,7 +81,7 @@ public:
 	// LLInvFVBridge functionality
 	//--------------------------------------------------------------------
 	virtual const LLUUID& getUUID() const { return mUUID; }
-	virtual void clearDisplayName() {}
+	virtual void clearDisplayName() { mDisplayName.clear(); }
 	virtual void restoreItem() {}
 	virtual void restoreToWorld() {}
 
@@ -228,8 +228,6 @@ public:
 	virtual BOOL isItemCopyable() const;
 	virtual bool hasChildren() const { return FALSE; }
 	virtual BOOL isUpToDate() const { return TRUE; }
-
-	/*virtual*/ void clearDisplayName() { mDisplayName.clear(); }
 
 	LLViewerInventoryItem* getItem() const;
 
