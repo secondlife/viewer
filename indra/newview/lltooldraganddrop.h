@@ -93,6 +93,13 @@ public:
 
 	static S32 getOperationId() { return sOperationId; }
 
+	// deal with permissions of object, etc. returns TRUE if drop can
+	// proceed, otherwise FALSE.
+	static BOOL handleDropTextureProtections(LLViewerObject* hit_obj,
+						 LLInventoryItem* item,
+						 LLToolDragAndDrop::ESource source,
+						 const LLUUID& src_id);
+
 protected:
 	enum EDropTarget
 	{
@@ -218,13 +225,6 @@ protected:
 	// accessor that looks at permissions, copyability, and names of
 	// inventory items to determine if a drop would be ok.
 	static EAcceptance willObjectAcceptInventory(LLViewerObject* obj, LLInventoryItem* item);
-
-	// deal with permissions of object, etc. returns TRUE if drop can
-	// proceed, otherwise FALSE.
-	static BOOL handleDropTextureProtections(LLViewerObject* hit_obj,
-						 LLInventoryItem* item,
-						 LLToolDragAndDrop::ESource source,
-						 const LLUUID& src_id);
 
 public:
 	// helper functions

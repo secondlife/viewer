@@ -34,6 +34,7 @@
 #include "llagentcamera.h"
 #include "llnotificationsutil.h"
 #include "lldrawable.h"
+#include "lldrawpoolalpha.h"
 #include "llface.h"
 #include "llsky.h"
 #include "llsurface.h"
@@ -380,8 +381,10 @@ BOOL LLVOGrass::updateLOD()
 		{
 			mNumBlades <<= 1;
 		}
-
-		face->setSize(mNumBlades*8, mNumBlades*12);
+		if (face)
+		{
+			face->setSize(mNumBlades*8, mNumBlades*12);
+		}
 		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
 	}
 	else if (num_blades <= (mNumBlades >> 1))
@@ -391,7 +394,10 @@ BOOL LLVOGrass::updateLOD()
 			mNumBlades >>=1;
 		}
 
-		face->setSize(mNumBlades*8, mNumBlades*12);
+		if (face)
+		{
+			face->setSize(mNumBlades*8, mNumBlades*12);
+		}
 		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
 		return TRUE;
 	}
@@ -449,14 +455,16 @@ void LLVOGrass::plantBlades()
 	}
 		
 	LLFace *face = mDrawable->getFace(0);
+	if (face)
+	{
+		face->setTexture(getTEImage(0));
+		face->setState(LLFace::GLOBAL);
+		face->setSize(mNumBlades * 8, mNumBlades * 12);
+		face->setVertexBuffer(NULL);
+		face->setTEOffset(0);
+		face->mCenterLocal = mPosition + mRegionp->getOriginAgent();
+	}
 
-	face->setTexture(getTEImage(0));
-	face->setState(LLFace::GLOBAL);
-	face->setSize(mNumBlades * 8, mNumBlades * 12);
-	face->setVertexBuffer(NULL);
-	face->setTEOffset(0);
-	face->mCenterLocal = mPosition + mRegionp->getOriginAgent();
-	
 	mDepth = (face->mCenterLocal - LLViewerCamera::getInstance()->getOrigin())*LLViewerCamera::getInstance()->getAtAxis();
 	mDrawable->setPosition(face->mCenterLocal);
 	mDrawable->movePartition();
@@ -486,6 +494,8 @@ void LLVOGrass::getGeometry(S32 idx,
 	LLColor4U color(255,255,255,255);
 
 	LLFace *face = mDrawable->getFace(idx);
+	if (!face)
+		return;
 
 	F32 width  = sSpeciesTable[mSpecies]->mBladeSizeX;
 	F32 height = sSpeciesTable[mSpecies]->mBladeSizeY;
@@ -594,6 +604,7 @@ U32 LLVOGrass::getPartitionType() const
 }
 
 LLGrassPartition::LLGrassPartition()
+: LLSpatialPartition(LLDrawPoolAlpha::VERTEX_DATA_MASK | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, GL_STREAM_DRAW_ARB)
 {
 	mDrawableType = LLPipeline::RENDER_TYPE_GRASS;
 	mPartitionType = LLViewerRegion::PARTITION_GRASS;
@@ -602,6 +613,143 @@ LLGrassPartition::LLGrassPartition()
 	mSlopRatio = 0.1f;
 	mRenderPass = LLRenderPass::PASS_GRASS;
 	mBufferUsage = GL_DYNAMIC_DRAW_ARB;
+}
+
+void LLGrassPartition::addGeometryCount(LLSpatialGroup* group, U32& vertex_count, U32& index_count)
+{
+	group->mBufferUsage = mBufferUsage;
+
+	mFaceList.clear();
+
+	LLViewerCamera* camera = LLViewerCamera::getInstance();
+	for (LLSpatialGroup::element_iter i = group->getData().begin(); i != group->getData().end(); ++i)
+	{
+		LLDrawable* drawablep = *i;
+		
+		if (drawablep->isDead())
+		{
+			continue;
+		}
+
+		LLAlphaObject* obj = (LLAlphaObject*) drawablep->getVObj().get();
+		obj->mDepth = 0.f;
+		
+		if (drawablep->isAnimating())
+		{
+			group->mBufferUsage = GL_STREAM_DRAW_ARB;
+		}
+
+		U32 count = 0;
+		for (S32 j = 0; j < drawablep->getNumFaces(); ++j)
+		{
+			drawablep->updateFaceSize(j);
+
+			LLFace* facep = drawablep->getFace(j);
+			if ( !facep || !facep->hasGeometry())
+			{
+				continue;
+			}
+			
+			if ((facep->getGeomCount() + vertex_count) <= 65536)
+			{
+				count++;
+				facep->mDistance = (facep->mCenterLocal - camera->getOrigin()) * camera->getAtAxis();
+				obj->mDepth += facep->mDistance;
+			
+				mFaceList.push_back(facep);
+				vertex_count += facep->getGeomCount();
+				index_count += facep->getIndicesCount();
+				llassert(facep->getIndicesCount() < 65536);
+			}
+			else
+			{
+				facep->clearVertexBuffer();
+			}
+		}
+		
+		obj->mDepth /= count;
+	}
+}
+
+static LLFastTimer::DeclareTimer FTM_REBUILD_GRASS_VB("Grass VB");
+
+void LLGrassPartition::getGeometry(LLSpatialGroup* group)
+{
+	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
+	LLFastTimer ftm(FTM_REBUILD_GRASS_VB);
+
+	std::sort(mFaceList.begin(), mFaceList.end(), LLFace::CompareDistanceGreater());
+
+	U32 index_count = 0;
+	U32 vertex_count = 0;
+
+	group->clearDrawMap();
+
+	LLVertexBuffer* buffer = group->mVertexBuffer;
+
+	LLStrider<U16> indicesp;
+	LLStrider<LLVector4a> verticesp;
+	LLStrider<LLVector3> normalsp;
+	LLStrider<LLVector2> texcoordsp;
+	LLStrider<LLColor4U> colorsp;
+
+	buffer->getVertexStrider(verticesp);
+	buffer->getNormalStrider(normalsp);
+	buffer->getColorStrider(colorsp);
+	buffer->getTexCoord0Strider(texcoordsp);
+	buffer->getIndexStrider(indicesp);
+
+	LLSpatialGroup::drawmap_elem_t& draw_vec = group->mDrawMap[mRenderPass];	
+
+	for (std::vector<LLFace*>::iterator i = mFaceList.begin(); i != mFaceList.end(); ++i)
+	{
+		LLFace* facep = *i;
+		LLAlphaObject* object = (LLAlphaObject*) facep->getViewerObject();
+		facep->setGeomIndex(vertex_count);
+		facep->setIndicesIndex(index_count);
+		facep->setVertexBuffer(buffer);
+		facep->setPoolType(LLDrawPool::POOL_ALPHA);
+		object->getGeometry(facep->getTEOffset(), verticesp, normalsp, texcoordsp, colorsp, indicesp);
+		
+		vertex_count += facep->getGeomCount();
+		index_count += facep->getIndicesCount();
+
+		S32 idx = draw_vec.size()-1;
+
+		BOOL fullbright = facep->isState(LLFace::FULLBRIGHT);
+		F32 vsize = facep->getVirtualSize();
+
+		if (idx >= 0 && draw_vec[idx]->mEnd == facep->getGeomIndex()-1 &&
+			draw_vec[idx]->mTexture == facep->getTexture() &&
+			(U16) (draw_vec[idx]->mEnd - draw_vec[idx]->mStart + facep->getGeomCount()) <= (U32) gGLManager.mGLMaxVertexRange &&
+			//draw_vec[idx]->mCount + facep->getIndicesCount() <= (U32) gGLManager.mGLMaxIndexRange &&
+			draw_vec[idx]->mEnd - draw_vec[idx]->mStart + facep->getGeomCount() < 4096 &&
+			draw_vec[idx]->mFullbright == fullbright)
+		{
+			draw_vec[idx]->mCount += facep->getIndicesCount();
+			draw_vec[idx]->mEnd += facep->getGeomCount();
+			draw_vec[idx]->mVSize = llmax(draw_vec[idx]->mVSize, vsize);
+		}
+		else
+		{
+			U32 start = facep->getGeomIndex();
+			U32 end = start + facep->getGeomCount()-1;
+			U32 offset = facep->getIndicesStart();
+			U32 count = facep->getIndicesCount();
+			LLDrawInfo* info = new LLDrawInfo(start,end,count,offset,facep->getTexture(), 
+				//facep->getTexture(),
+				buffer, fullbright); 
+			info->mExtents[0] = group->mObjectExtents[0];
+			info->mExtents[1] = group->mObjectExtents[1];
+			info->mVSize = vsize;
+			draw_vec.push_back(info);
+			//for alpha sorting
+			facep->setDrawInfo(info);
+		}
+	}
+
+	buffer->flush();
+	mFaceList.clear();
 }
 
 // virtual

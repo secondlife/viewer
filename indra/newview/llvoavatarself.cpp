@@ -2751,7 +2751,7 @@ void LLVOAvatarSelf::deleteScratchTextures()
 		 namep; 
 		 namep = sScratchTexNames.getNextData() )
 	{
-		LLImageGL::deleteTextures(1, (U32 *)namep );
+		LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, 0, -1, 1, (U32 *)namep );
 		stop_glerror();
 	}
 

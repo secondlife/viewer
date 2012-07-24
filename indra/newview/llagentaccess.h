@@ -59,26 +59,16 @@ public:
 	bool isMature() const;
 	bool isAdult() const;
 	
-	void setTeen(bool teen);
 	void setMaturity(char text);
 	
 	static int convertTextToMaturity(char text);
 	
-	void setTransition();	// sets the transition bit, which defaults to false
-	bool isInTransition() const;
 	bool canSetMaturity(S32 maturity);
 	
 private:
 	U8 mAccess;	// SIM_ACCESS_MATURE etc
 	U8 mGodLevel;
 	bool mAdminOverride;
-	
-	// this should be deleted after the 60-day AO transition.
-	// It should be safe to remove it in Viewer 2009
-	// It's set by a special short-term flag in login.cgi 
-	// called ao_transition. When that's gone, this can go, along with
-	// all of the code that depends on it.
-	bool mAOTransition;
 	
 	LLControlGroup& mSavedSettings;
 };

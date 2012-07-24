@@ -562,7 +562,6 @@ void LLFolderView::reshape(S32 width, S32 height, BOOL called_from_parent)
 	{
 		width = scroll_rect.getWidth();
 	}
-
 	LLView::reshape(width, height, called_from_parent);
 	mReshapeSignal(mSelectedItems, FALSE);
 }

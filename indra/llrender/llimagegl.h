@@ -45,8 +45,16 @@ class LLImageGL : public LLRefCount
 {
 	friend class LLTexUnit;
 public:
-	static std::list<U32> sDeadTextureList;
+	static U32 sCurTexName;
 
+	//previously used but now available texture names
+	// sDeadTextureList[<usage>][<internal format>]
+	typedef std::map<U32, std::list<U32> > dead_texturelist_t;
+	static dead_texturelist_t sDeadTextureList[LLTexUnit::TT_NONE];
+
+	// These 2 functions replace glGenTextures() and glDeleteTextures()
+	static void generateTextures(LLTexUnit::eTextureType type, U32 format, S32 numTextures, U32 *textures);
+	static void deleteTextures(LLTexUnit::eTextureType type, U32 format, S32 mip_levels, S32 numTextures, U32 *textures, bool immediate = false);
 	static void deleteDeadTextures();
 
 	// Size calculation
@@ -96,10 +104,6 @@ public:
 	void setComponents(S32 ncomponents) { mComponents = (S8)ncomponents ;}
 	void setAllowCompression(bool allow) { mAllowCompression = allow; }
 
-	// These 3 functions currently wrap glGenTextures(), glDeleteTextures(), and glTexImage2D() 
-	// for tracking purposes and will be deprecated in the future
-	static void generateTextures(S32 numTextures, U32 *textures);
-	static void deleteTextures(S32 numTextures, U32 *textures, bool immediate = false);
 	static void setManualImage(U32 target, S32 miplevel, S32 intformat, S32 width, S32 height, U32 pixformat, U32 pixtype, const void *pixels, bool allow_compression = true);
 
 	BOOL createGLTexture() ;
@@ -217,7 +221,8 @@ protected:
 	LLGLenum mTarget;		// Normally GL_TEXTURE2D, sometimes something else (ex. cube maps)
 	LLTexUnit::eTextureType mBindTarget;	// Normally TT_TEXTURE, sometimes something else (ex. cube maps)
 	bool mHasMipMaps;
-	
+	S32 mMipLevels;
+
 	LLGLboolean mIsResident;
 	
 	S8 mComponents;

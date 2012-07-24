@@ -38,6 +38,7 @@
 #include "llfontgl.h"
 
 // project includes
+#include "llagentdata.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
 #include "llcolorswatch.h"
@@ -46,6 +47,7 @@
 #include "llface.h"
 #include "lllineeditor.h"
 #include "llmediaentry.h"
+#include "llnotificationsutil.h"
 #include "llresmgr.h"
 #include "llselectmgr.h"
 #include "llspinctrl.h"
@@ -104,27 +106,11 @@ BOOL	LLPanelFace::postBuild()
 		mTextureCtrl->setOnCancelCallback( boost::bind(&LLPanelFace::onCancelTexture, this, _2) );
 		mTextureCtrl->setOnSelectCallback( boost::bind(&LLPanelFace::onSelectTexture, this, _2) );
 		mTextureCtrl->setDragCallback(boost::bind(&LLPanelFace::onDragTexture, this, _2));
+		mTextureCtrl->setOnTextureSelectedCallback(boost::bind(&LLPanelFace::onTextureSelectionChanged, this, _1));
 		mTextureCtrl->setFollowsTop();
 		mTextureCtrl->setFollowsLeft();
-		// Don't allow (no copy) or (no transfer) textures to be selected during immediate mode
-		mTextureCtrl->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
-		// Allow any texture to be used during non-immediate mode.
-		mTextureCtrl->setNonImmediateFilterPermMask(PERM_NONE);
-		LLAggregatePermissions texture_perms;
-		if (LLSelectMgr::getInstance()->selectGetAggregateTexturePermissions(texture_perms))
-		{
-			BOOL can_copy = 
-				texture_perms.getValue(PERM_COPY) == LLAggregatePermissions::AP_EMPTY || 
-				texture_perms.getValue(PERM_COPY) == LLAggregatePermissions::AP_ALL;
-			BOOL can_transfer = 
-				texture_perms.getValue(PERM_TRANSFER) == LLAggregatePermissions::AP_EMPTY || 
-				texture_perms.getValue(PERM_TRANSFER) == LLAggregatePermissions::AP_ALL;
-			mTextureCtrl->setCanApplyImmediately(can_copy && can_transfer);
-		}
-		else
-		{
-			mTextureCtrl->setCanApplyImmediately(FALSE);
-		}
+		mTextureCtrl->setImmediateFilterPermMask(PERM_NONE);
+		mTextureCtrl->setDnDFilterPermMask(PERM_COPY | PERM_TRANSFER);
 	}
 
 	mColorSwatch = getChild<LLColorSwatchCtrl>("colorswatch");
@@ -595,28 +581,6 @@ void LLPanelFace::getState()
 		}
 
 		
-		LLAggregatePermissions texture_perms;
-		if(texture_ctrl)
-		{
-// 			texture_ctrl->setValid( editable );
-		
-			if (LLSelectMgr::getInstance()->selectGetAggregateTexturePermissions(texture_perms))
-			{
-				BOOL can_copy = 
-					texture_perms.getValue(PERM_COPY) == LLAggregatePermissions::AP_EMPTY || 
-					texture_perms.getValue(PERM_COPY) == LLAggregatePermissions::AP_ALL;
-				BOOL can_transfer = 
-					texture_perms.getValue(PERM_TRANSFER) == LLAggregatePermissions::AP_EMPTY || 
-					texture_perms.getValue(PERM_TRANSFER) == LLAggregatePermissions::AP_ALL;
-				texture_ctrl->setCanApplyImmediately(can_copy && can_transfer);
-			}
-			else
-			{
-				texture_ctrl->setCanApplyImmediately(FALSE);
-			}
-		}
-
-
 		// planar align
 		bool align_planar = false;
 		bool identical_planar_aligned = false;
@@ -1190,3 +1154,35 @@ void LLPanelFace::onCommitPlanarAlign(LLUICtrl* ctrl, void* userdata)
 	self->sendTextureInfo();
 }
 
+void LLPanelFace::onTextureSelectionChanged(LLInventoryItem* itemp)
+{
+	LLTextureCtrl* texture_ctrl = getChild<LLTextureCtrl>("texture control");
+	if (texture_ctrl)
+	{
+		LLUUID obj_owner_id;
+		std::string obj_owner_name;
+		LLSelectMgr::instance().selectGetOwner(obj_owner_id, obj_owner_name);
+
+		LLSaleInfo sale_info;
+		LLSelectMgr::instance().selectGetSaleInfo(sale_info);
+
+		bool can_copy = itemp->getPermissions().allowCopyBy(gAgentID); // do we have perm to copy this texture?
+		bool can_transfer = itemp->getPermissions().allowOperationBy(PERM_TRANSFER, gAgentID); // do we have perm to transfer this texture?
+		bool is_object_owner = gAgentID == obj_owner_id; // does object for which we are going to apply texture belong to the agent?
+		bool not_for_sale = !sale_info.isForSale(); // is object for which we are going to apply texture not for sale?
+
+		if (can_copy && can_transfer)
+		{
+			texture_ctrl->setCanApply(true, true);
+			return;
+		}
+
+		// if texture has (no-transfer) attribute it can be applied only for object which we own and is not for sale
+		texture_ctrl->setCanApply(false, can_transfer ? true : is_object_owner && not_for_sale);
+
+		if (gSavedSettings.getBOOL("TextureLivePreview"))
+		{
+			LLNotificationsUtil::add("LivePreviewUnavailable");
+		}
+	}
+}

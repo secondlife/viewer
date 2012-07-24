@@ -307,6 +307,15 @@ public:
 	bool applyToRootNodes(LLSelectedNodeFunctor* func, bool firstonly = false);
 	bool applyToNodes(LLSelectedNodeFunctor* func, bool firstonly = false);
 
+	/*
+	 * Used to apply (no-copy) textures to the selected object or
+	 * selected face/faces of the object.
+	 * This method moves (no-copy) texture to the object's inventory
+	 * and doesn't make copy of the texture for each face.
+	 * Then this only texture is used for all selected faces.
+	 */
+	void applyNoCopyTextureToTEs(LLViewerInventoryItem* item);
+
 	ESelectType getSelectType() const { return mSelectType; }
 
 private:

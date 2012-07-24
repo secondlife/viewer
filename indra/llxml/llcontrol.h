@@ -98,7 +98,7 @@ class LLControlVariable : public LLRefCount
 	
 public:
 	typedef boost::signals2::signal<bool(LLControlVariable* control, const LLSD&), boost_boolean_combiner> validate_signal_t;
-	typedef boost::signals2::signal<void(LLControlVariable* control, const LLSD&)> commit_signal_t;
+	typedef boost::signals2::signal<void(LLControlVariable* control, const LLSD&, const LLSD&)> commit_signal_t;
 
 private:
 	std::string		mName;
@@ -146,11 +146,11 @@ public:
 	void setHiddenFromSettingsEditor(bool hide);
 	void setComment(const std::string& comment);
 
-	void firePropertyChanged()
-	{
-		mCommitSignal(this, mValues.back());
-	}
 private:
+	void firePropertyChanged(const LLSD &pPreviousValue)
+	{
+		mCommitSignal(this, mValues.back(), pPreviousValue);
+	}
 	LLSD getComparableValue(const LLSD& value);
 	bool llsd_compare(const LLSD& a, const LLSD & b);
 };

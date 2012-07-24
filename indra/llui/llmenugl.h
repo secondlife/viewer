@@ -670,7 +670,7 @@ public:
 	
 	virtual void	draw				();
 	
-	virtual void	show				(S32 x, S32 y);
+	virtual void	show				(S32 x, S32 y, LLView* spawning_view = NULL);
 	virtual void	hide				();
 
 	virtual BOOL	handleHover			( S32 x, S32 y, MASK mask );
@@ -683,10 +683,14 @@ public:
 
 			LLHandle<LLContextMenu> getHandle() { return getDerivedHandle<LLContextMenu>(); }
 
+			LLView*	getSpawningView() const		{ return mSpawningViewHandle.get(); }
+			void	setSpawningView(LLHandle<LLView> spawning_view) { mSpawningViewHandle = spawning_view; }
+
 protected:
 	BOOL						mHoveredAnyItem;
 	LLMenuItemGL*				mHoverItem;
 	LLRootHandle<LLContextMenu>	mHandle;
+	LLHandle<LLView>			mSpawningViewHandle;
 };
 
 

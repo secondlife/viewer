@@ -97,6 +97,7 @@ public:
 		LLTextureCtrl* owner,
 		const std::string& label,
 		PermissionMask immediate_filter_perm_mask,
+		PermissionMask dnd_filter_perm_mask,
 		PermissionMask non_immediate_filter_perm_mask,
 		BOOL can_apply_immediately,
 		LLUIImagePtr fallback_image_name);
@@ -134,6 +135,9 @@ public:
 	
 	void onFilterEdit(const std::string& search_string );
 	
+	void setCanApply(bool can_preview, bool can_apply);
+	void setTextureSelectedCallback(texture_selected_callback cb) {mTextureSelectedCallback = cb;}
+
 	static void		onBtnSetToDefault( void* userdata );
 	static void		onBtnSelect( void* userdata );
 	static void		onBtnCancel( void* userdata );
@@ -175,6 +179,7 @@ protected:
 	LLFilterEditor*		mFilterEdit;
 	LLInventoryPanel*	mInventoryPanel;
 	PermissionMask		mImmediateFilterPermMask;
+	PermissionMask		mDnDFilterPermMask;
 	PermissionMask		mNonImmediateFilterPermMask;
 	BOOL				mCanApplyImmediately;
 	BOOL				mNoCopyTextureSelected;
@@ -184,12 +189,18 @@ protected:
 	
 	LLRadioGroup*		mModeSelector;
 	LLScrollListCtrl*	mLocalScrollCtrl;
+
+private:
+	bool mCanApply;
+	bool mCanPreview;
+	texture_selected_callback mTextureSelectedCallback;
 };
 
 LLFloaterTexturePicker::LLFloaterTexturePicker(	
 	LLTextureCtrl* owner,
 	const std::string& label,
 	PermissionMask immediate_filter_perm_mask,
+	PermissionMask dnd_filter_perm_mask,
 	PermissionMask non_immediate_filter_perm_mask,
 	BOOL can_apply_immediately,
 	LLUIImagePtr fallback_image)
@@ -205,9 +216,12 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 	mActive( TRUE ),
 	mFilterEdit(NULL),
 	mImmediateFilterPermMask(immediate_filter_perm_mask),
+	mDnDFilterPermMask(dnd_filter_perm_mask),
 	mNonImmediateFilterPermMask(non_immediate_filter_perm_mask),
 	mContextConeOpacity(0.f),
-	mSelectedItemPinned( FALSE )
+	mSelectedItemPinned( FALSE ),
+	mCanApply(true),
+	mCanPreview(true)
 {
 	buildFromFile("floater_texture_ctrl.xml");
 	mCanApplyImmediately = can_apply_immediately;
@@ -319,7 +333,7 @@ BOOL LLFloaterTexturePicker::handleDragAndDrop(
 		if (xfer) item_perm_mask |= PERM_TRANSFER;
 		
 		//PermissionMask filter_perm_mask = getFilterPermMask();  Commented out due to no-copy texture loss.
-		PermissionMask filter_perm_mask = mImmediateFilterPermMask;
+		PermissionMask filter_perm_mask = mDnDFilterPermMask;
 		if ( (item_perm_mask & filter_perm_mask) == filter_perm_mask )
 		{
 			if (drop)
@@ -464,7 +478,7 @@ BOOL LLFloaterTexturePicker::postBuild()
 
 	mNoCopyTextureSelected = FALSE;
 
-	getChild<LLUICtrl>("apply_immediate_check")->setValue(gSavedSettings.getBOOL("ApplyTextureImmediately"));
+	getChild<LLUICtrl>("apply_immediate_check")->setValue(gSavedSettings.getBOOL("TextureLivePreview"));
 	childSetCommitCallback("apply_immediate_check", onApplyImmediateCheck, this);
 
 	if (!mCanApplyImmediately)
@@ -546,7 +560,7 @@ void LLFloaterTexturePicker::draw()
 
 	// if we're inactive, gray out "apply immediate" checkbox
 	getChildView("show_folders_check")->setEnabled(mActive && mCanApplyImmediately && !mNoCopyTextureSelected);
-	getChildView("Select")->setEnabled(mActive);
+	getChildView("Select")->setEnabled(mActive && mCanApply);
 	getChildView("Pipette")->setEnabled(mActive);
 	getChild<LLUICtrl>("Pipette")->setValue(LLToolMgr::getInstance()->getCurrentTool() == LLToolPipette::getInstance());
 
@@ -702,8 +716,7 @@ PermissionMask LLFloaterTexturePicker::getFilterPermMask()
 
 void LLFloaterTexturePicker::commitIfImmediateSet()
 {
-	bool apply_immediate = getChild<LLUICtrl>("apply_immediate_check")->getValue().asBoolean();
-	if (!mNoCopyTextureSelected && apply_immediate && mOwner)
+	if (!mNoCopyTextureSelected && mOwner && mCanApply)
 	{
 		mOwner->onFloaterCommit(LLTextureCtrl::TEXTURE_CHANGE);
 	}
@@ -713,6 +726,7 @@ void LLFloaterTexturePicker::commitIfImmediateSet()
 void LLFloaterTexturePicker::onBtnSetToDefault(void* userdata)
 {
 	LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
+	self->setCanApply(true, true);
 	if (self->mOwner)
 	{
 		self->setImageID( self->mOwner->getDefaultImageAssetID() );
@@ -724,6 +738,7 @@ void LLFloaterTexturePicker::onBtnSetToDefault(void* userdata)
 void LLFloaterTexturePicker::onBtnWhite(void* userdata)
 {
 	LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
+	self->setCanApply(true, true);
 	self->setImageID( self->mWhiteImageAssetID );
 	self->commitIfImmediateSet();
 }
@@ -804,13 +819,17 @@ void LLFloaterTexturePicker::onSelectionChange(const std::deque<LLFolderViewItem
 		mNoCopyTextureSelected = FALSE;
 		if (itemp)
 		{
+			if (!mTextureSelectedCallback.empty())
+			{
+				mTextureSelectedCallback(itemp);
+			}
 			if (!itemp->getPermissions().allowCopyBy(gAgent.getID()))
 			{
 				mNoCopyTextureSelected = TRUE;
 			}
 			mImageAssetID = itemp->getAssetUUID();
 			mViewModel->setDirty(); // *TODO: shouldn't we be using setValue() here?
-			if (user_action)
+			if (user_action && mCanPreview)
 			{
 				// only commit intentional selections, not implicit ones
 				commitIfImmediateSet();
@@ -947,7 +966,7 @@ void LLFloaterTexturePicker::onApplyImmediateCheck(LLUICtrl* ctrl, void *user_da
 	LLFloaterTexturePicker* picker = (LLFloaterTexturePicker*)user_data;
 
 	LLCheckBoxCtrl* check_box = (LLCheckBoxCtrl*)ctrl;
-	gSavedSettings.setBOOL("ApplyTextureImmediately", check_box->get());
+	gSavedSettings.setBOOL("TextureLivePreview", check_box->get());
 
 	picker->updateFilterPermMask();
 	picker->commitIfImmediateSet();
@@ -956,6 +975,16 @@ void LLFloaterTexturePicker::onApplyImmediateCheck(LLUICtrl* ctrl, void *user_da
 void LLFloaterTexturePicker::updateFilterPermMask()
 {
 	//mInventoryPanel->setFilterPermMask( getFilterPermMask() );  Commented out due to no-copy texture loss.
+}
+
+void LLFloaterTexturePicker::setCanApply(bool can_preview, bool can_apply)
+{
+	getChildRef<LLUICtrl>("Select").setEnabled(can_apply);
+	getChildRef<LLUICtrl>("preview_disabled").setVisible(!can_preview);
+	getChildRef<LLUICtrl>("apply_immediate_check").setVisible(can_preview);
+
+	mCanApply = can_apply;
+	mCanPreview = can_preview ? gSavedSettings.getBOOL("TextureLivePreview") : false;
 }
 
 void LLFloaterTexturePicker::onFilterEdit(const std::string& search_string )
@@ -1108,6 +1137,15 @@ void LLTextureCtrl::setCanApplyImmediately(BOOL b)
 	}
 }
 
+void LLTextureCtrl::setCanApply(bool can_preview, bool can_apply)
+{
+	LLFloaterTexturePicker* floaterp = dynamic_cast<LLFloaterTexturePicker*>(mFloaterHandle.get());
+	if( floaterp )
+	{
+		floaterp->setCanApply(can_preview, can_apply);
+	}
+}
+
 void LLTextureCtrl::setVisible( BOOL visible ) 
 {
 	if( !visible )
@@ -1188,11 +1226,18 @@ void LLTextureCtrl::showPicker(BOOL take_focus)
 			this,
 			mLabel,
 			mImmediateFilterPermMask,
+			mDnDFilterPermMask,
 			mNonImmediateFilterPermMask,
 			mCanApplyImmediately,
 			mFallbackImage);
 
 		mFloaterHandle = floaterp->getHandle();
+
+		LLFloaterTexturePicker* texture_floaterp = dynamic_cast<LLFloaterTexturePicker*>(floaterp);
+		if (texture_floaterp && mOnTextureSelectedCallback)
+		{
+			texture_floaterp->setTextureSelectedCallback(mOnTextureSelectedCallback);
+		}
 
 		LLFloater* root_floater = gFloaterView->getParentFloater(this);
 		if (root_floater)
@@ -1315,6 +1360,16 @@ void LLTextureCtrl::onFloaterCommit(ETexturePickOp op, LLUUID id)
 					onCommit();
 			}
 		}
+	}
+}
+
+void LLTextureCtrl::setOnTextureSelectedCallback(texture_selected_callback cb)
+{
+	mOnTextureSelectedCallback = cb;
+	LLFloaterTexturePicker* floaterp = dynamic_cast<LLFloaterTexturePicker*>(mFloaterHandle.get());
+	if (floaterp)
+	{
+		floaterp->setTextureSelectedCallback(cb);
 	}
 }
 
