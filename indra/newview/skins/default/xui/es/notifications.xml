@@ -1171,7 +1171,8 @@ Puedes usar [SECOND_LIFE] de forma normal; los demás residentes te verán corre
 		Se ha completado la instalación de [SECOND_LIFE].
 
 Si es la primera vez que usas [SECOND_LIFE], debes crear una cuenta antes de poder iniciar una sesión.
-¿Volver a [[create_account_url] secondlife.com] para crear una cuenta nueva?
+
+¿Volver a [[create_account_url] [SECOND_LIFE] web site] para crear una cuenta nueva?
 		<usetemplate name="okcancelbuttons" notext="Continuar" yestext="Cuenta nueva..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">

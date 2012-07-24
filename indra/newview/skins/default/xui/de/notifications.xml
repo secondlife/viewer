@@ -1181,7 +1181,8 @@ Sie können [SECOND_LIFE] normal verwenden. Andere Benutzer können Sie korrekt 
 		Installation von [APP_NAME] vollständig abgeschlossen.
 
 Falls Sie [SECOND_LIFE] zum ersten Mal verwenden, müssen Sie zuerst ein Konto erstellen, bevor Sie sich anmelden können.
-Zurück zu [[create_account_url] secondlife.com], um ein neues Konto zu erstellen?
+
+Zurück zu [[create_account_url] [SECOND_LIFE] web site], um ein neues Konto zu erstellen?
 		<usetemplate name="okcancelbuttons" notext="Weiter" yestext="Neues Konto..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">

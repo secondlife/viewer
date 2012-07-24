@@ -1128,7 +1128,8 @@ You may want to set a new home location.
 		[APP_NAME] 安裝完成。
 
 If this is your first time using [SECOND_LIFE], you will need to create an account before you can log in.
-Return to [[create_account_url] secondlife.com] to create a new account?
+
+Return to [[create_account_url] [SECOND_LIFE] web site] to create a new account?
 		<usetemplate name="okcancelbuttons" notext="繼續" yestext="新帳戶..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">
