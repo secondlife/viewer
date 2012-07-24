@@ -263,12 +263,9 @@ S32 LLMachineID::getUniqueID(unsigned char *unique_id, size_t len)
             unsigned byte = unique_id[i];
             LL_CONT << std::hex << std::setw(2) << std::setfill('0') << byte;
         }
-        LL_ENDL;
+        // Reset default output formatting to avoid nasty surprises!
+        LL_CONT << std::dec << std::setw(0) << std::setfill(' ') << LL_ENDL;
         return 1;
     }
     return 0;
 }
-
-
-
-
