@@ -28,7 +28,8 @@
   <floater.string name="linkset_terrain_land_impact">--</floater.string>
   <floater.string name="linkset_terrain_dist_from_you">--</floater.string>
   <floater.string name="linkset_owner_loading">[Loading]</floater.string>
-  <floater.string name="linkset_owner_unknown">Unknown</floater.string>
+  <floater.string name="linkset_owner_unknown">[Unknown]</floater.string>
+  <floater.string name="linkset_owner_group">[group]</floater.string>
   <floater.string name="linkset_use_walkable">Walkable</floater.string>
   <floater.string name="linkset_use_static_obstacle">Static obstacle</floater.string>
   <floater.string name="linkset_use_dynamic_obstacle">Movable obstacle</floater.string>

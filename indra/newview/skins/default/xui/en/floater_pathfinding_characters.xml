@@ -24,7 +24,8 @@
   <floater.string name="messaging_not_enabled">This region is not enabled for pathfinding.</floater.string>
   <floater.string name="character_cpu_time">[CPU_TIME] µs</floater.string>
   <floater.string name="character_owner_loading">[Loading]</floater.string>
-  <floater.string name="character_owner_unknown">Unknown</floater.string>
+  <floater.string name="character_owner_unknown">[Unknown]</floater.string>
+  <floater.string name="character_owner_group">[group]</floater.string>
   <panel
       border="false"
       bevel_style="none"
