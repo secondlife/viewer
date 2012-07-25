@@ -404,9 +404,13 @@ LLSD LLFloaterPathfindingLinksets::buildLinksetScrollListData(const LLPathfindin
 		columns[1]["value"] = pLinksetPtr->getDescription();
 
 		columns[2]["column"] = "owner";
-		columns[2]["value"] = (pLinksetPtr->hasOwner() ?
-			(pLinksetPtr->hasOwnerName() ? pLinksetPtr->getOwnerName() : getString("linkset_owner_loading")) :
-			getString("linkset_owner_unknown"));
+		columns[2]["value"] = (pLinksetPtr->hasOwner()
+			? (pLinksetPtr->hasOwnerName()
+			? (pLinksetPtr->isGroupOwned()
+			? (pLinksetPtr->getOwnerName() + " " + getString("linkset_owner_group"))
+			: pLinksetPtr->getOwnerName())
+			: getString("linkset_owner_loading"))
+			: getString("linkset_owner_unknown"));
 
 		columns[3]["column"] = "land_impact";
 		columns[3]["value"] = llformat("%1d", pLinksetPtr->getLandImpact());

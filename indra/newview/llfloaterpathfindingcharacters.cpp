@@ -30,6 +30,8 @@
 
 #include "llfloaterpathfindingcharacters.h"
 
+#include <string>
+
 #include "llcheckboxctrl.h"
 #include "llfloaterreg.h"
 #include "llfloaterpathfindingobjects.h"
@@ -210,9 +212,13 @@ LLSD LLFloaterPathfindingCharacters::buildCharacterScrollListData(const LLPathfi
 	columns[1]["value"] = pCharacterPtr->getDescription();
 
 	columns[2]["column"] = "owner";
-	columns[2]["value"] = (pCharacterPtr->hasOwner() ?
-		(pCharacterPtr->hasOwnerName() ? pCharacterPtr->getOwnerName() : getString("character_owner_loading")) :
-		getString("character_owner_unknown"));
+	columns[2]["value"] = (pCharacterPtr->hasOwner()
+			? (pCharacterPtr->hasOwnerName()
+			? (pCharacterPtr->isGroupOwned()
+			? (pCharacterPtr->getOwnerName() + " " + getString("character_owner_group"))
+			: pCharacterPtr->getOwnerName())
+			: getString("character_owner_loading"))
+			: getString("character_owner_unknown"));
 
 	S32 cpuTime = llround(pCharacterPtr->getCPUTime());
 	std::string cpuTimeString = llformat("%d", cpuTime);
