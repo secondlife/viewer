@@ -702,6 +702,7 @@ private:
 	F32				mLastAppearanceBlendTime;
 	BOOL			mIsEditingAppearance;
 	BOOL			mUseLocalAppearance;
+	BOOL			mUseServerBakes;
 
 	//--------------------------------------------------------------------
 	// Clothing colors (convenience functions to access visual parameters)
