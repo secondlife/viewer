@@ -163,11 +163,6 @@ bool LLFolderViewModelItemInventory::filterChildItem( LLFolderViewModelItem* ite
 		{
 			// failed to pass an earlier filter that was a subset of the current one
 			// go ahead and flag this item as done
-			item->filter(filter);
-			if (item->passedFilter())
-			{
-				llerrs << "Invalid shortcut in inventory filtering!" << llendl;
-			}
 			item->setPassedFilter(false, false, filter_generation);
 		}
 		else
