@@ -816,6 +816,16 @@ class DarwinManifest(ViewerManifest):
             self.run_command("chmod +x %r" % os.path.join(self.get_dst_prefix(), script))
 
     def package_finish(self):
+		# Sign the app if requested.
+        if 'signature' in self.args:
+            identity = self.args['signature']
+            if identity == '':
+                identity = 'Developer ID Application'
+            self.run_command('codesign --force --sign %(identity)r %(bundle)r' % {
+							'identity': identity,
+							'bundle': self.get_dst_prefix()
+			})
+		
         channel_standin = 'Second Life Viewer'  # hah, our default channel is not usable on its own
         if not self.default_channel():
             channel_standin = self.channel()

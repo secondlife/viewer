@@ -145,6 +145,9 @@ set(VIEWER ON CACHE BOOL "Build Second Life viewer.")
 set(VIEWER_CHANNEL "LindenDeveloper" CACHE STRING "Viewer Channel Name")
 set(VIEWER_LOGIN_CHANNEL ${VIEWER_CHANNEL} CACHE STRING "Fake login channel for A/B Testing")
 
+set(ENABLE_SIGNING OFF CACHE BOOL "Enable signing the viewer")
+set(SIGNING_IDENTITY "" CACHE STRING "Specifies the signing identity to use, if necessary.")
+
 set(VERSION_BUILD "0" CACHE STRING "Revision number passed in from the outside")
 set(STANDALONE OFF CACHE BOOL "Do not use Linden-supplied prebuilt libraries.")
 set(UNATTENDED OFF CACHE BOOL "Should be set to ON for building with VC Express editions.")
