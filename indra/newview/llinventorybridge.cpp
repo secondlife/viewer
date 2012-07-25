@@ -190,7 +190,8 @@ LLInvFVBridge::LLInvFVBridge(LLInventoryPanel* inventory,
 	mUUID(uuid), 
 	mRoot(root),
 	mInvType(LLInventoryType::IT_NONE),
-	mIsLink(FALSE)
+	mIsLink(FALSE),
+	LLFolderViewModelItemInventory(inventory->getRootViewModel())
 {
 	mInventoryPanel = inventory->getInventoryPanelHandle();
 	const LLInventoryObject* obj = getInventoryObject();
@@ -1158,7 +1159,6 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 	if (new_listener)
 	{
 		new_listener->mInvType = inv_type;
-		new_listener->setRootViewModel(view_model);
 	}
 
 	return new_listener;
@@ -6484,7 +6484,6 @@ LLInvFVBridge* LLRecentInventoryBridgeBuilder::createBridge(
 		&& actual_asset_type != LLAssetType::AT_LINK_FOLDER)
 	{
 		new_listener = new LLRecentItemsFolderBridge(inv_type, inventory, root, uuid);
-		new_listener->setRootViewModel(view_model);
 	}
 	else
 	{

@@ -165,7 +165,6 @@ LLInvFVBridge* LLPlacesInventoryBridgeBuilder::createBridge(
 			llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << llendl;
 		}
 		new_listener = new LLPlacesLandmarkBridge(inv_type, inventory, root, uuid, flags);
-		new_listener->setRootViewModel(view_model);
 		break;
 	case LLAssetType::AT_CATEGORY:
 		if (actual_asset_type == LLAssetType::AT_LINK_FOLDER)
@@ -183,7 +182,6 @@ LLInvFVBridge* LLPlacesInventoryBridgeBuilder::createBridge(
 			break;
 		}
 		new_listener = new LLPlacesFolderBridge(inv_type, inventory, root, uuid);
-		new_listener->setRootViewModel(view_model);
 		break;
 	default:
 		new_listener = LLInventoryFVBridgeBuilder::createBridge(

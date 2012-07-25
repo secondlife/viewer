@@ -104,6 +104,7 @@ public:
 
 public:
 	LLInventoryModel* getModel() { return mInventory; }
+	LLFolderViewModelInventory& getRootViewModel() { return mInventoryViewModel; }
 
 	// LLView methods
 	void draw();

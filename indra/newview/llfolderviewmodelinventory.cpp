@@ -109,7 +109,7 @@ bool LLFolderViewModelInventory::contentsReady()
 void LLFolderViewModelItemInventory::requestSort()
 {
 	LLFolderViewModelItemCommon::requestSort();
-	if (mRootViewModel->getSorter().isByDate())
+	if (mRootViewModel.getSorter().isByDate())
 	{
 		// sort by date potentially affects parent folders which use a date
 		// derived from newest item in them
@@ -123,14 +123,14 @@ void LLFolderViewModelItemInventory::requestSort()
 bool LLFolderViewModelItemInventory::potentiallyVisible()
 {
 	return passedFilter() // we've passed the filter
-		|| getLastFilterGeneration() < mRootViewModel->getFilter()->getFirstSuccessGeneration() // or we don't know yet
+		|| getLastFilterGeneration() < mRootViewModel.getFilter()->getFirstSuccessGeneration() // or we don't know yet
 		|| descendantsPassedFilter();
 }
 
 bool LLFolderViewModelItemInventory::passedFilter(S32 filter_generation) 
 { 
-	if (filter_generation < 0 && mRootViewModel) 
-		filter_generation = mRootViewModel->getFilter()->getFirstSuccessGeneration();
+	if (filter_generation < 0) 
+		filter_generation = mRootViewModel.getFilter()->getFirstSuccessGeneration();
 
 	return mPassedFolderFilter 
 		&& mLastFilterGeneration >= filter_generation
@@ -139,7 +139,7 @@ bool LLFolderViewModelItemInventory::passedFilter(S32 filter_generation)
 
 bool LLFolderViewModelItemInventory::descendantsPassedFilter(S32 filter_generation)
 { 
-	if (filter_generation < 0) filter_generation = mRootViewModel->getFilter()->getFirstSuccessGeneration();
+	if (filter_generation < 0) filter_generation = mRootViewModel.getFilter()->getFirstSuccessGeneration();
 	return mMostFilteredDescendantGeneration >= filter_generation; 
 }
 

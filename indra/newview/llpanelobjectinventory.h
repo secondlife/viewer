@@ -56,6 +56,8 @@ public:
 	
 	virtual BOOL postBuild();
 
+	LLFolderViewModelInventory& getRootViewModel() { return mInventoryViewModel; }
+
 	void doToSelected(const LLSD& userdata);
 	
 	void refresh();

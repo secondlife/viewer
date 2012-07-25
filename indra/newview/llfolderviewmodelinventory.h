@@ -37,13 +37,9 @@ class LLFolderViewModelItemInventory
 	:	public LLFolderViewModelItemCommon
 {
 public:
-	LLFolderViewModelItemInventory()
-		:	mRootViewModel(NULL)
+	LLFolderViewModelItemInventory(class LLFolderViewModelInventory& root_view_model)
+	:	mRootViewModel(root_view_model)
 	{}
-	void setRootViewModel(class LLFolderViewModelInventory* root_view_model)
-	{
-		mRootViewModel = root_view_model;
-	}
 	virtual const LLUUID& getUUID() const = 0;
 	virtual time_t getCreationDate() const = 0;	// UTC seconds
 	virtual void setCreationDate(time_t creation_date_utc) = 0;
@@ -70,7 +66,7 @@ public:
 	virtual LLToolDragAndDrop::ESource getDragSource() const = 0;
 
 protected:
-	class LLFolderViewModelInventory* mRootViewModel;
+	class LLFolderViewModelInventory& mRootViewModel;
 };
 
 class LLInventorySort

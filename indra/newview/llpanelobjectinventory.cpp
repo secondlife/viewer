@@ -155,7 +155,8 @@ LLTaskInvFVBridge::LLTaskInvFVBridge(
 	LLPanelObjectInventory* panel,
 	const LLUUID& uuid,
 	const std::string& name,
-	U32 flags):
+	U32 flags)
+:	LLFolderViewModelItemInventory(panel->getRootViewModel()),
 	mUUID(uuid),
 	mName(name),
 	mPanel(panel),
@@ -1915,7 +1916,10 @@ void LLPanelObjectInventory::idle(void* user_data)
 {
 	LLPanelObjectInventory* self = (LLPanelObjectInventory*)user_data;
 
-
+	if (self->mFolders)
+	{
+		self->mFolders->update();
+	}
 	if (self->mInventoryNeedsUpdate)
 	{
 		self->updateInventory();
