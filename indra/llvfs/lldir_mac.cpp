@@ -38,6 +38,21 @@
 #include <boost/filesystem.hpp>
 
 #include <Carbon/Carbon.h>
+//#include "lldir_mac.mm"
+//
+//std::string getApplicationSupportFolder ()
+//{
+//    std::string support_folder_str;
+//    CFArrayRef a = appSupport();
+//    if (CFArrayGetCount(a) > 0) { 
+//        CFStringRef s = CFArrayGetValueAtIndex(a, 0);
+//        char path[PATH_MAX];
+//        CFStringGetFileSystemRepresentation(s, path, sizeof(path));
+//        support_folder_str = std::string(path);
+//    }
+//    CFRelease(a);
+//    return support_folder_str;
+//}
 
 // --------------------------------------------------------------------------------
 
@@ -110,8 +125,6 @@ static void FSRefToLLString(FSRef *fsRef, std::string &llString)
 LLDir_Mac::LLDir_Mac()
 {
 	mDirDelimiter = "/";
-	mCurrentDirIndex = -1;
-	mCurrentDirCount = -1;
 	
 	CFBundleRef		mainBundleRef = NULL;
 	CFURLRef		executableURLRef = NULL;
@@ -236,8 +249,6 @@ void LLDir_Mac::initAppDirs(const std::string &app_name,
 		mSkinBaseDir = mAppRODataDir + mDirDelimiter + "skins";
 	}
 	mCAFile = getExpandedFilename(LL_PATH_APP_SETTINGS, "CA.pem");
-
-	//dumpCurrentDirectories();
 }
 
 std::string LLDir_Mac::getCurPath()
@@ -248,18 +259,7 @@ std::string LLDir_Mac::getCurPath()
 
 BOOL LLDir_Mac::fileExists(const std::string &filename) const
 {
-	struct stat stat_data;
-	// Check the age of the file
-	// Now, we see if the files we've gathered are recent...
-	int res = stat(filename.c_str(), &stat_data);
-	if (!res)
-	{
-		return TRUE;
-	}
-	else
-	{
-		return FALSE;
-	}
+    return boost::filesystem::exists(filename);
 }
 
 
