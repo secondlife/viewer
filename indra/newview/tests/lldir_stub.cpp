@@ -45,6 +45,7 @@ public:
 	/*virtual*/ void initAppDirs(const std::string &app_name) {}
 
 	/*virtual*/ std::string getCurPath() { return "CUR_PATH_FROM_LLDIR"; }
+	/*virtual*/ U32 countFilesInDir(const std::string &dirname, const std::string &mask) { return 42; }
 	/*virtual*/ BOOL getNextFileInDir(const std::string &dirname, const std::string &mask, std::string &fname, BOOL wrap) { fname = fname + "_NEXT"; return false; }
 	/*virtual*/ void getRandomFileInDir(const std::string &dirname, const std::string &mask, std::string &fname) { fname = "RANDOM_FILE"; }
 	/*virtual*/ BOOL fileExists(const std::string &filename) const { return false; }

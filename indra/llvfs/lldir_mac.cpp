@@ -22,7 +22,7 @@
  * 
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
- */
+ */ 
 
 #if LL_DARWIN
 
@@ -35,24 +35,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <glob.h>
-#include <boost/filesystem.hpp>
 
 #include <Carbon/Carbon.h>
-//#include "lldir_mac.mm"
-//
-//std::string getApplicationSupportFolder ()
-//{
-//    std::string support_folder_str;
-//    CFArrayRef a = appSupport();
-//    if (CFArrayGetCount(a) > 0) { 
-//        CFStringRef s = CFArrayGetValueAtIndex(a, 0);
-//        char path[PATH_MAX];
-//        CFStringGetFileSystemRepresentation(s, path, sizeof(path));
-//        support_folder_str = std::string(path);
-//    }
-//    CFRelease(a);
-//    return support_folder_str;
-//}
 
 // --------------------------------------------------------------------------------
 
@@ -125,6 +109,8 @@ static void FSRefToLLString(FSRef *fsRef, std::string &llString)
 LLDir_Mac::LLDir_Mac()
 {
 	mDirDelimiter = "/";
+	mCurrentDirIndex = -1;
+	mCurrentDirCount = -1;
 	
 	CFBundleRef		mainBundleRef = NULL;
 	CFURLRef		executableURLRef = NULL;
@@ -249,17 +235,52 @@ void LLDir_Mac::initAppDirs(const std::string &app_name,
 		mSkinBaseDir = mAppRODataDir + mDirDelimiter + "skins";
 	}
 	mCAFile = getExpandedFilename(LL_PATH_APP_SETTINGS, "CA.pem");
+
+	//dumpCurrentDirectories();
+}
+
+U32 LLDir_Mac::countFilesInDir(const std::string &dirname, const std::string &mask)
+{
+	U32 file_count = 0;
+	glob_t g;
+
+	std::string tmp_str;
+	tmp_str = dirname;
+	tmp_str += mask;
+	
+	if(glob(tmp_str.c_str(), GLOB_NOSORT, NULL, &g) == 0)
+	{
+		file_count = g.gl_pathc;
+
+		globfree(&g);
+	}
+
+	return (file_count);
 }
 
 std::string LLDir_Mac::getCurPath()
 {
-    return boost::filesystem::path( boost::filesystem::current_path() ).string();
+	char tmp_str[LL_MAX_PATH];	/* Flawfinder: ignore */ 
+	getcwd(tmp_str, LL_MAX_PATH);
+	return tmp_str;
 }
+
 
 
 BOOL LLDir_Mac::fileExists(const std::string &filename) const
 {
-    return boost::filesystem::exists(filename);
+	struct stat stat_data;
+	// Check the age of the file
+	// Now, we see if the files we've gathered are recent...
+	int res = stat(filename.c_str(), &stat_data);
+	if (!res)
+	{
+		return TRUE;
+	}
+	else
+	{
+		return FALSE;
+	}
 }
 
 
