@@ -391,17 +391,7 @@ void LLNearbyChat::onOpen(const LLSD& key)
 
 bool LLNearbyChat::applyRectControl()
 {
-	bool is_torn_off = getHost() == NULL;
-
-	// Resize is limited to torn off floaters.
-	// A hosted floater is not resizable.
-	if (is_torn_off)
-	{
-		enableResizeCtrls(true);
-	}
-	
 	setResizeLimits(getMinWidth(), EXPANDED_MIN_HEIGHT);
-
 	return LLFloater::applyRectControl();
 }
 
