@@ -1027,10 +1027,10 @@ class Linux_i686Manifest(LinuxManifest):
         if self.prefix("../packages/lib/release", dst="lib"):
             self.path("libapr-1.so")
             self.path("libapr-1.so.0")
-            self.path("libapr-1.so.0.4.2")
+            self.path("libapr-1.so.0.4.5")
             self.path("libaprutil-1.so")
             self.path("libaprutil-1.so.0")
-            self.path("libaprutil-1.so.0.3.10")
+            self.path("libaprutil-1.so.0.4.1")
             self.path("libboost_program_options-mt.so.1.48.0")
             self.path("libboost_regex-mt.so.1.48.0")
             self.path("libboost_thread-mt.so.1.48.0")
