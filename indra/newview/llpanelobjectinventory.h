@@ -88,8 +88,15 @@ protected:
 								LLInventoryObject* parent,
 								LLFolderViewFolder* folder);
 	void clearContents();
+	LLFolderViewItem* getItemByID(const LLUUID& id);
+
+	void addItemID( const LLUUID& id, LLFolderViewItem*   itemp );
+	void removeItemID(const LLUUID& id);
+	void clearItemIDs();
 
 private:
+	std::map<LLUUID, LLFolderViewItem*> mItemMap;
+
 	LLScrollContainer* mScroller;
 	LLFolderView* mFolders;
 	

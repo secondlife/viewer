@@ -1535,6 +1535,8 @@ void LLPanelObjectInventory::clearContents()
 		LLToolDragAndDrop::getInstance()->endDrag();
 	}
 
+	clearItemIDs();
+
 	if( mScroller )
 	{
 		// removes mFolders
@@ -1550,8 +1552,6 @@ void LLPanelObjectInventory::reset()
 {
 	clearContents();
 
-	//setBorderVisible(FALSE);
-	
 	mCommitCallbackRegistrar.pushScope(); // push local callbacks
 	
 	LLRect dummy_rect(0, 1, 1, 0);
@@ -1631,15 +1631,20 @@ void LLPanelObjectInventory::updateInventory()
 	//		<< " panel UUID: " << panel->mTaskUUID << "\n"
 	//		<< " task  UUID: " << object->mID << llendl;
 	// We're still interested in this task's inventory.
+	std::vector<LLUUID> selected_item_ids;
 	std::set<LLFolderViewItem*> selected_items;
 	BOOL inventory_has_focus = FALSE;
-	if (mHaveInventory)
+	if (mHaveInventory && mFolders)
 	{
 		selected_items = mFolders->getSelectionList();
 		inventory_has_focus = gFocusMgr.childHasKeyboardFocus(mFolders);
 	}
-
-	reset();
+	for (std::set<LLFolderViewItem*>::iterator it = selected_items.begin(), end_it = selected_items.end();
+		it != end_it;
+		++it)
+	{
+		selected_item_ids.push_back(static_cast<LLFolderViewModelItemInventory*>((*it)->getViewModelItem())->getUUID());
+	}
 
 	LLViewerObject* objectp = gObjectList.findObject(mTaskUUID);
 	if (objectp)
@@ -1647,10 +1652,11 @@ void LLPanelObjectInventory::updateInventory()
 		LLInventoryObject* inventory_root = objectp->getInventoryRoot();
 		LLInventoryObject::object_list_t contents;
 		objectp->getInventoryContents(contents);
-		mHaveInventory = TRUE;
 
 		if (inventory_root && !contents.empty())
 		{
+			reset();
+
 			createFolderViews(inventory_root, contents);
 			mIsInventoryEmpty = FALSE;
 			mFolders->setEnabled(TRUE);
@@ -1660,6 +1666,8 @@ void LLPanelObjectInventory::updateInventory()
 			// TODO: create an empty inventory
 			mIsInventoryEmpty = TRUE;
 		}
+
+		mHaveInventory = TRUE;
 	}
 	else
 	{
@@ -1669,11 +1677,12 @@ void LLPanelObjectInventory::updateInventory()
 	}
 
 	// restore previous selection
-	std::set<LLFolderViewItem*>::iterator selection_it;
-	BOOL first_item = TRUE;
-	for (selection_it = selected_items.begin(); selection_it != selected_items.end(); ++selection_it)
+	std::vector<LLUUID>::iterator selection_it;
+	bool first_item = true;
+	for (selection_it = selected_item_ids.begin(); selection_it != selected_item_ids.end(); ++selection_it)
 	{
-		LLFolderViewItem* selected_item = (*selection_it);
+		LLFolderViewItem* selected_item = getItemByID(*selection_it);
+		
 		if (selected_item)
 		{
 			//HACK: "set" first item then "change" each other one to get keyboard focus right
@@ -1689,7 +1698,10 @@ void LLPanelObjectInventory::updateInventory()
 		}
 	}
 
-	mFolders->requestArrange();
+	if (mFolders)
+	{
+		mFolders->requestArrange();
+	}
 	mInventoryNeedsUpdate = FALSE;
 	// Edit menu handler is set in onFocusReceived
 }
@@ -1761,6 +1773,7 @@ void LLPanelObjectInventory::createViewsForCategory(LLInventoryObject::object_li
 				view = LLUICtrlFactory::create<LLFolderViewItem> (params);
 			}
 			view->addToFolder(folder);
+			addItemID(obj->getUUID(), view);
 		}
 	}
 
@@ -1944,3 +1957,32 @@ void LLPanelObjectInventory::onFocusReceived()
 	
 	LLPanel::onFocusReceived();
 }
+
+
+LLFolderViewItem* LLPanelObjectInventory::getItemByID( const LLUUID& id )
+{
+	std::map<LLUUID, LLFolderViewItem*>::iterator map_it;
+	map_it = mItemMap.find(id);
+	if (map_it != mItemMap.end())
+	{
+		return map_it->second;
+	}
+
+	return NULL;
+}
+
+void LLPanelObjectInventory::removeItemID( const LLUUID& id )
+{
+	mItemMap.erase(id);
+}
+
+void LLPanelObjectInventory::addItemID( const LLUUID& id, LLFolderViewItem* itemp )
+{
+	mItemMap[id] = itemp;
+}
+
+void LLPanelObjectInventory::clearItemIDs()
+{
+	mItemMap.clear();
+}
+

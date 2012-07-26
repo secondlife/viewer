@@ -158,13 +158,6 @@ public:
 		return mHandle; 
 	}
 
-protected:
-	typedef LLHandle<T> handle_type_t;
-	LLHandleProvider() 
-	{
-		// provided here to enforce T deriving from LLHandleProvider<T>
-	} 
-
 	template <typename U>
 	LLHandle<U> getDerivedHandle(typename boost::enable_if< typename boost::is_convertible<U*, T*> >::type* dummy = 0) const
 	{
@@ -173,6 +166,12 @@ protected:
 		return downcast_handle;
 	}
 
+protected:
+	typedef LLHandle<T> handle_type_t;
+	LLHandleProvider() 
+	{
+		// provided here to enforce T deriving from LLHandleProvider<T>
+	} 
 
 private:
 	mutable LLRootHandle<T> mHandle;
