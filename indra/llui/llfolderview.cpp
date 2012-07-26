@@ -1122,7 +1122,7 @@ void LLFolderView::paste()
 			LLFolderViewFolder* folder = dynamic_cast<LLFolderViewFolder*>(item);
 			if (folder == NULL)
 			{
-				item = item->getParentFolder();
+				folder = item->getParentFolder();
 			}
 			folder_set.insert(folder);
 		}
