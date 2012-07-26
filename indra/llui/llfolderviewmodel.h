@@ -152,7 +152,7 @@ public:
 	
 	virtual bool potentiallyVisible() = 0; // is the item definitely visible or we haven't made up our minds yet?
 
-	virtual bool filter( LLFolderViewFilter& filter) = 0;
+	virtual void filter( LLFolderViewFilter& filter) = 0;
 	virtual bool passedFilter(S32 filter_generation = -1) = 0;
 	virtual bool descendantsPassedFilter(S32 filter_generation = -1) = 0;
 	virtual void setPassedFilter(bool passed, bool passed_folder, S32 filter_generation) = 0;
@@ -192,6 +192,7 @@ public:
 	:	mSortVersion(-1),
 		mPassedFilter(true),
 		mPassedFolderFilter(true),
+		mPrevPassedAllFilters(false),
 		mFolderViewItem(NULL),
 		mLastFilterGeneration(-1),
 		mMostFilteredDescendantGeneration(-1),
@@ -232,6 +233,7 @@ protected:
 	S32						mSortVersion;
 	bool					mPassedFilter;
 	bool					mPassedFolderFilter;
+	bool					mPrevPassedAllFilters;
 
 	S32						mLastFilterGeneration;
 	S32						mMostFilteredDescendantGeneration;

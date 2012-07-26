@@ -1616,7 +1616,7 @@ void LLPanelObjectInventory::inventoryChanged(LLViewerObject* object,
 			 iter != inventory->end(); )
 		{
 			LLInventoryObject* item = *iter++;
-			LLFloaterProperties* floater = LLFloaterReg::findTypedInstance<LLFloaterProperties>("properites", item->getUUID());
+			LLFloaterProperties* floater = LLFloaterReg::findTypedInstance<LLFloaterProperties>("properties", item->getUUID());
 			if(floater)
 			{
 				floater->refresh();

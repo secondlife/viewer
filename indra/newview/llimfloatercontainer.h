@@ -89,7 +89,7 @@ public:
 	virtual bool hasChildren() const { return FALSE; }
 
 	virtual bool potentiallyVisible() { return true; }
-	virtual bool filter( LLFolderViewFilter& filter) { return true; }
+	virtual void filter( LLFolderViewFilter& filter) { }
 	virtual bool descendantsPassedFilter(S32 filter_generation = -1) { return true; }
 	virtual void setPassedFilter(bool passed, bool passed_folder, S32 filter_generation) { }
 	virtual bool passedFilter(S32 filter_generation = -1) { return true; }

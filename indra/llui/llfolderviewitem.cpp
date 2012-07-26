@@ -1543,11 +1543,14 @@ BOOL LLFolderViewFolder::addFolder(LLFolderViewFolder* folder)
 
 void LLFolderViewFolder::requestArrange()
 { 
-	mLastArrangeGeneration = -1; 
-	// flag all items up to root
-	if (mParentFolder)
+	//if ( mLastArrangeGeneration != -1)
 	{
-		mParentFolder->requestArrange();
+		mLastArrangeGeneration = -1; 
+		// flag all items up to root
+		if (mParentFolder)
+		{
+			mParentFolder->requestArrange();
+		}
 	}
 }
 

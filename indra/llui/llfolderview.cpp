@@ -266,8 +266,6 @@ LLFolderView::~LLFolderView( void )
 	mItems.clear();
 	mFolders.clear();
 
-	//product engine bugfix, prevent deletion of non-heap data
-	//delete mViewModel;
 	mViewModel = NULL;
 }
 

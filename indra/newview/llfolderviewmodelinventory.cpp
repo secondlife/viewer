@@ -133,8 +133,9 @@ bool LLFolderViewModelItemInventory::passedFilter(S32 filter_generation)
 		filter_generation = mRootViewModel.getFilter()->getFirstSuccessGeneration();
 
 	return mPassedFolderFilter 
-		&& mLastFilterGeneration >= filter_generation
-		&& (mPassedFilter || descendantsPassedFilter(filter_generation));
+		&& (descendantsPassedFilter(filter_generation)
+			|| (mLastFilterGeneration >= filter_generation 
+				&& mPassedFilter));
 }
 
 bool LLFolderViewModelItemInventory::descendantsPassedFilter(S32 filter_generation)
@@ -148,30 +149,29 @@ void LLFolderViewModelItemInventory::setPassedFilter(bool passed, bool passed_fo
 	mPassedFilter = passed;
 	mPassedFolderFilter = passed_folder;
 	mLastFilterGeneration = filter_generation;
+
+	bool passed_filter_before = mPrevPassedAllFilters;
+	mPrevPassedAllFilters = passedFilter(filter_generation);
+
+	if (passed_filter_before != mPrevPassedAllFilters)
+	{
+		//TODO RN: ensure this still happens, but without dependency on folderview
+		LLFolderViewFolder* parent_folder = mFolderViewItem->getParentFolder();
+		if (parent_folder)
+		{
+			parent_folder->requestArrange();
+		}
+	}
 }
 
-bool LLFolderViewModelItemInventory::filterChildItem( LLFolderViewModelItem* item, LLFolderViewFilter& filter )
+void LLFolderViewModelItemInventory::filterChildItem( LLFolderViewModelItem* item, LLFolderViewFilter& filter )
 {
-	bool passed_filter_before = item->passedFilter();
 	S32 filter_generation = filter.getCurrentGeneration();
-	S32 must_pass_generation = filter.getFirstRequiredGeneration();
 
 	if (item->getLastFilterGeneration() < filter_generation)
 	{
 		// recursive application of the filter for child items
 		item->filter( filter );
-
-		if (item->getLastFilterGeneration() >= must_pass_generation 
-			&& !item->passedFilter(must_pass_generation))
-		{
-			// failed to pass an earlier filter that was a subset of the current one
-			// go ahead and flag this item as done
-			if (item->passedFilter())
-			{
-				llerrs << "Invalid shortcut in inventory filtering!" << llendl;
-			}
-			item->setPassedFilter(false, false, filter_generation);
-		}
 	}
 
 	// track latest generation to pass any child items, for each folder up to root
@@ -184,37 +184,34 @@ bool LLFolderViewModelItemInventory::filterChildItem( LLFolderViewModelItem* ite
 			view_model->mMostFilteredDescendantGeneration = filter_generation;
 			view_model = static_cast<LLFolderViewModelItemInventory*>(view_model->mParent);
 		}
-		
-		return !passed_filter_before;
-	}
-	else // !item->passedfilter()
-	{
-		return passed_filter_before;
 	}
 }
 
-bool LLFolderViewModelItemInventory::filter( LLFolderViewFilter& filter)
+void LLFolderViewModelItemInventory::filter( LLFolderViewFilter& filter)
 {
-	bool changed = false;
+	const S32 filter_generation = filter.getCurrentGeneration();
+	const S32 must_pass_generation = filter.getFirstRequiredGeneration();
 
-	if(!mChildren.empty()
-		&& (getLastFilterGeneration() < filter.getFirstRequiredGeneration() // haven't checked descendants against minimum required generation to pass
-			|| descendantsPassedFilter(filter.getFirstRequiredGeneration()))) // or at least one descendant has passed the minimum requirement
+	if (getLastFilterGeneration() >= must_pass_generation 
+		&& !passedFilter(must_pass_generation))
 	{
-		// now query children
-		for (child_list_t::iterator iter = mChildren.begin();
-			iter != mChildren.end() && filter.getFilterCount() > 0;
-			++iter)
-		{
-			changed |= filterChildItem((*iter), filter);
-		}
+		// failed to pass an earlier filter that was a subset of the current one
+		// go ahead and flag this item as done
+		setPassedFilter(false, false, filter_generation);
+		return;
 	}
 
-	if (changed)
+	if(!mChildren.empty()
+		&& (getLastFilterGeneration() < must_pass_generation // haven't checked descendants against minimum required generation to pass
+			|| descendantsPassedFilter(must_pass_generation))) // or at least one descendant has passed the minimum requirement
 	{
-		//TODO RN: ensure this still happens, but without dependency on folderview
-		LLFolderViewFolder* folder = static_cast<LLFolderViewFolder*>(mFolderViewItem);
-		folder->requestArrange();
+		// now query children
+		for (child_list_t::iterator iter = mChildren.begin(), end_iter = mChildren.end();
+			iter != end_iter && filter.getFilterCount() > 0;
+			++iter)
+		{
+			filterChildItem((*iter), filter);
+		}
 	}
 
 	// if we didn't use all filter iterations
@@ -229,11 +226,10 @@ bool LLFolderViewModelItemInventory::filter( LLFolderViewFilter& filter)
 								? filter.checkFolder(this)
 								: true;
 
-		setPassedFilter(passed_filter, passed_filter_folder, filter.getCurrentGeneration());
+		setPassedFilter(passed_filter, passed_filter_folder, filter_generation);
 		//TODO RN: create interface for string highlighting
 		//mStringMatchOffset = filter.getStringMatchOffset(this);
 	}
-	return changed;
 }
 
 LLFolderViewModelInventory* LLInventoryPanel::getFolderViewModel()
