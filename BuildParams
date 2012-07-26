@@ -43,18 +43,20 @@ integration_viewer-development.viewer_channel = "Second Life Development"
 integration_viewer-development.login_channel = "Second Life Development"
 integration_viewer-development.build_viewer_update_version_manager = false
 integration_viewer-development.email = viewer-development-builds@lists.secondlife.com
-integration_viewer-development.build_enforce_coding_policy = true
-integration_viewer-development.codeticket_add_context = true
+integration_viewer-development.build_enforce_coding_policy = false
+integration_viewer-development.codeticket_add_context = false
 
 viewer-beta.viewer_channel = "Second Life Beta Viewer"
 viewer-beta.login_channel = "Second Life Beta Viewer"
 viewer-beta.build_debug_release_separately = true
 viewer-beta.build_viewer_update_version_manager = true
+viewer-beta.codeticket_add_context = false
 
 viewer-release.viewer_channel = "Second Life Release"
 viewer-release.login_channel = "Second Life Release"
 viewer-release.build_debug_release_separately = true
 viewer-release.build_viewer_update_version_manager = true
+viewer-release.codeticket_add_context = false
 
 # ========================================
 # mesh-development
