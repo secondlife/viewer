@@ -436,6 +436,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				LLAgent::sTeleportProgressMessages["arriving"]);
 			gTextureList.mForceResetTextureStats = TRUE;
 			gAgentCamera.resetView(TRUE, TRUE);
+			
 			break;
 
 		case LLAgent::TELEPORT_ARRIVING:
@@ -779,7 +780,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				LLImageGL::deleteDeadTextures();
 				stop_glerror();
 			}*/
-		}
+			}
 
 		LLGLState::checkStates();
 		LLGLState::checkClientArrays();

@@ -672,7 +672,7 @@ Sets the texture u &amp; v scales for the chosen face or ALL_SIDES
 	</string>
 	<string name="LSLTipText_llOffsetTexture" translate="false">
 llOffsetTexture(float u, float v, integer face)
-Sets the texture u &amp; v offsets for the chosen face or ALL_SIDES
+Sets the texture u  &amp; v offsets for the chosen face or ALL_SIDES
 	</string>
 	<string name="LSLTipText_llRotateTexture" translate="false">
 llRotateTexture(float rotation, integer face)
@@ -790,9 +790,9 @@ Sets the script timer to zero
 float llGetAndResetTime()
 Returns the script time in seconds and then resets the script timer to zero
 	</string>
-	<string name="LSLTipText_llSoplayund" translate="false">
+	<string name="LSLTipText_llSound" translate="false">
 llSound(string sound, float volume, integer queue, integer loop)
-Plays sound at volume and whether it should loop or not
+Plays sound at volume and whether it should loop or not.
 	</string>
 	<string name="LSLTipText_llPlaySound" translate="false">
 llPlaySound(string sound, float volume)
@@ -1668,7 +1668,7 @@ Returns a list containing results of the sent query
 	</string>
 	<string name="LSLTipText_llModPow" translate="false">
 integer llModPow(integer a, integer b, integer c)
-Returns a raised to the b power, mod c. ( (a**b)%c )
+Returns a raised to the b power, mod c. ( (a**b)%c )
 b is capped at 0xFFFF (16 bits).
 	</string>
 	<string name="LSLTipText_llGetInventoryType" translate="false">
@@ -1781,10 +1781,10 @@ integer llGetParcelMaxPrims(vector pos, integer sim_wide)
 Returns the maximum number of prims allowed on the parcel at pos
 	</string>
 	<string name="LSLTipText_llGetParcelDetails" translate="false">
-    list llGetParcelDetails(vector pos, list params)
-    Returns the parcel details specified in params for the parcel at pos.
-    Params is one or more of: PARCEL_DETAILS_NAME, _DESC, _OWNER, _GROUP, _AREA, _ID, _SEE_AVATARS
-  </string>
+list llGetParcelDetails(vector pos, list params)
+Returns the parcel details specified in params for the parcel at pos.
+Params is one or more of: PARCEL_DETAILS_NAME, _DESC, _OWNER, _GROUP, _AREA, _ID, _SEE_AVATARS
+	</string>
 	<string name="LSLTipText_llSetLinkPrimitiveParams" translate="false">
 llSetLinkPrimitiveParams(integer linknumber, list rules)
 Sets primitive parameters for linknumber based on rules
@@ -1873,71 +1873,202 @@ Releases the specified URL, it will no longer be usable
 	<string name="LSLTipText_llHTTPResponse" translate="false">
 llHTTPResponse(key request_id, integer status, string body)
 Responds to request_id with status and body
-  </string>
+	</string>
 	<string name="LSLTipText_llGetHTTPHeader" translate="false">
 string llGetHTTPHeader(key request_id, string header)
 Returns the value for header for request_id
 	</string>
-  <string name="LSLTipText_llSetPrimMediaParams" translate="false">
+	<string name="LSLTipText_llSetPrimMediaParams" translate="false">
 llSetPrimMediaParams(integer face, list params)
 Sets the media params for a particular face on an object. If media is not already on this object, add it.
 List is a set of name/value pairs in no particular order.  Params not specified are unchanged, or if new media is added then set to the default specified.
 The possible names are below, along with the types of values and what they mean.
-  </string>
-  <string name="LSLTipText_llGetPrimMediaParams" translate="false">
+	</string>
+	<string name="LSLTipText_llGetPrimMediaParams" translate="false">
 list llGetPrimMediaParams(integer face, list params)
 Returns the media params for a particular face on an object, given the desired list of names, in the order requested.
 (Returns an empty list if no media exists on the face.)
-  </string>
-  <string name="LSLTipText_llClearPrimMedia" translate="false">
+	</string>
+	<string name="LSLTipText_llClearPrimMedia" translate="false">
 llClearPrimMedia(integer face)
 Clears (deletes) the media and all params from the given face.
-  </string>
-<string name="LSLTipText_llSetLinkPrimitiveParamsFast" translate="false">
+	</string>
+	<string name="LSLTipText_llSetLinkPrimitiveParamsFast" translate="false">
 llSetLinkPrimitiveParamsFast(integer linknumber,list rules)
 Set primitive parameters for linknumber based on rules.
-</string>
-<string name="LSLTipText_llGetLinkPrimitiveParams" translate="false">
+	</string>
+	<string name="LSLTipText_llGetLinkPrimitiveParams" translate="false">
 llGetLinkPrimitiveParams(integer linknumber,list rules)
 Get primitive parameters for linknumber based on rules.
-</string>
-<string name="LSLTipText_llLinkParticleSystem" translate="false">
+	</string>
+	<string name="LSLTipText_llLinkParticleSystem" translate="false">
 llLinkParticleSystem(integer linknumber,list rules)
 Creates a particle system based on rules.  Empty list removes particle system from object.
 List format is [ rule1, data1, rule2, data2 . . . rulen, datan ].
-</string>
-<string name="LSLTipText_llSetLinkTextureAnim" translate="false">
+	</string>
+	<string name="LSLTipText_llSetLinkTextureAnim" translate="false">
 llSetLinkTextureAnim(integer link, integer mode, integer face, integer sizex, integer sizey, float start, float length, float rate)
-Animate the texture on the specified prim's face/faces.
-</string>
-<string name="LSLTipText_llGetLinkNumberOfSides" translate="false">
+Animate the texture on the specified prim&apos;s face/faces.
+	</string>
+	<string name="LSLTipText_llGetLinkNumberOfSides" translate="false">
 integer llGetLinkNumberOfSides(integer link)
 Returns the number of sides of the specified linked prim.
-</string>
-<string name="LSLTipText_llGetUsername" translate="false">
+	</string>
+	<string name="LSLTipText_llGetUsername" translate="false">
 string llGetUsername(key id)
 Returns the single-word username of an avatar, iff the avatar is in the current region, otherwise the empty string.
-</string>
-<string name="LSLTipText_llRequestUsername" translate="false">
+	</string>
+	<string name="LSLTipText_llRequestUsername" translate="false">
 key llRequestUsername(key id)
 Requests single-word username of an avatar.  When data is available the dataserver event will be raised.
-</string>
-<string name="LSLTipText_llGetDisplayName" translate="false">
-  string llGetDisplayName(key id)
-  Returns the name of an avatar, iff the avatar is in the current simulator, and the name has been cached, otherwise the same as llGetUsername.  Use llRequestDisplayName if you absolutely must have the display name.
-</string>
-<string name="LSLTipText_llRequestDisplayName" translate="false">
+	</string>
+	<string name="LSLTipText_llGetDisplayName" translate="false">
+string llGetDisplayName(key id)
+Returns the name of an avatar, iff the avatar is in the current simulator, and the name has been cached, otherwise the same as llGetUsername.  Use llRequestDisplayName if you absolutely must have the display name.
+	</string>
+	<string name="LSLTipText_llRequestDisplayName" translate="false">
 key llRequestDisplayName(key id)
 Requests name of an avatar.  When data is available the dataserver event will be raised.
-</string>
-<string name="LSLTipText_llRegionSayTo" translate="false">
-llRegionSayTo(key target, integer channel, string msg)
-Sends msg on channel (not DEBUG_CHANNEL) directly to prim or avatar target anywhere within the region
-</string>
-<string name="LSLTipText_llGetEnv" translate="false">
+	</string>
+	<string name="LSLTipText_llGetEnv" translate="false">
 llGetEnv(string name)
 Returns a string with the requested data about the region
-</string>
+	</string>
+	<string name="LSLTipText_llCastRay" translate="false">
+llCastRay(vector start, vector end, list params)
+Casts a ray into the physics world from &apos;start&apos; to &apos;end&apos; and returns data according to details in params.
+	</string>
+	<string name="LSLTipText_llRegionSayTo" translate="false">
+llRegionSayTo(key target, integer channel, string msg)
+Sends msg on channel (not DEBUG_CHANNEL) directly to prim or avatar target anywhere within the region.
+	</string>
+	<string name="LSLTipText_llGetSPMaxMemory" translate="false">
+integer llGetSPMaxMemory()
+Returns the maximum used memory for the current script. Only valid after using PROFILE_SCRIPT_MEMORY. Non-mono scripts always use 16k.
+	</string>
+	<string name="LSLTipText_llGetUsedMemory" translate="false">
+integer llGetUsedMemory()
+Returns the current used memory for the current script. Non-mono scripts always use 16k.
+	</string>
+	<string name="LSLTipText_llScriptProfiler" translate="false">
+llScriptProfiler(integer flags)
+Enabled or disables script profiling options. Currently only supports PROFILE_SCRIPT_MEMORY (mono only) and PROFILE_NONE.
+MAY SIGNIFICANTLY REDUCE SCRIPT PERFORMANCE!
+	</string>
+	<string name="LSLTipText_llSetMemoryLimit" translate="false">
+integer llSetMemoryLimit(integer mem)
+	</string>
+	<string name="LSLTipText_llGetMemoryLimit" translate="false">
+integer llGetMemoryLimit()
+	</string>
+	<string name="LSLTipText_llSetLinkMedia" translate="false">
+llSetLinkMedia(integer link, integer face, list params)
+Set the media params for a particular face on linked prim.  List is a set of name/value pairs (in no particular order). The possible names are below, along with the types of values and what they mean.  If media is not already on this object, add it. Params not specified are unchanged, or if new media is added set to the default specified.
+	</string>
+	<string name="LSLTipText_llGetLinkMedia" translate="false">
+list llGetLinkMedia(integer link, integer face, list params)
+Get the media params for a particular face on linked prim, given the desired list of names. Returns a list of values in the order requested.  Returns an empty list if no media exists on the face.
+	</string>
+	<string name="LSLTipText_llClearLinkMedia" translate="false">
+llClearLinkMedia(integer link, integer face)
+Clears (deletes) the media and all params from the given face on linked prim.
+	</string>
+	<string name="LSLTipText_llSetContentType" translate="false">
+llSetContentType(key id, integer content_type)
+	</string>
+	<string name="LSLTipText_llLinkSitTarget" translate="false">
+llLinkSitTarget(integer link, vector offset, rotation rot)
+Set the sit location for this object (if offset == &lt;0,0,0&gt; clear it)
+	</string>
+	<string name="LSLTipText_llAvatarOnLinkSitTarget" translate="false">
+key llAvatarOnLinkSitTarget(integer link)
+If an avatar is sitting on the sit target, return the avatar&apos;s key, NULL_KEY otherwise
+	</string>
+	<string name="LSLTipText_llSetLinkCamera" translate="false">
+llSetLinkCamera(integer link, vector eye, vector at)
+	</string>
+	<string name="LSLTipText_llSetVelocity" translate="false">
+llSetVelocity(vector velocity, integer local)
+Sets an objects velocity, in local coords if local == TRUE (if the script is physical)
+	</string>
+	<string name="LSLTipText_llSetAngularVelocity" translate="false">
+llSetAngularVelocity(vector angular_velocity, integer local)
+Sets an objects angular velocity, in local coords if local == TRUE (if the script is physical)
+	</string>
+	<string name="LSLTipText_llSetPhysicsMaterial" translate="false">
+llSetPhysicsMaterial(integer flags, float gravity_multiplier, float restitution, float friction, float density )
+Sets the requested attributes of the root object&apos;s physics material.
+	</string>
+	<string name="LSLTipText_llGetPhysicsMaterial" translate="false">
+llGetPhysicsMaterial() returns the gravity multiplier, restitution, friction, and density of the linkset as a list in that order.
+	</string>
+	<string name="LSLTipText_llGetMassMKS" translate="false">
+llGetMassMKS() returns the mass of the linkset in kilograms.
+	</string>
+	<string name="LSLTipText_llGenerateKey" translate="false">
+llGenerateKey()
+Retun a unique generated key
+	</string>
+	<string name="LSLTipText_llSetKeyframedMotion" translate="false">
+llSetKeyframedMotion(list keyframes, list options)
+Requests that a nonphysical object be keyframed according to keyframe list.
+	</string>
+	<string name="LSLTipText_llTransferLindenDollars" translate="false">
+key llTransferLindenDollars(key destination, integer amount)
+Transfer amount of linden dollars (L$) from script owner to destination. Returns a key to a corresponding transaction_result event for the success of the transfer.
+	</string>
+	<string name="LSLTipText_llGetParcelMusicURL" translate="false">
+string llGetParcelMusicURL()
+Gets the streaming audio URL for the parcel of land on which the object is located.
+	</string>
+	<string name="LSLTipText_llSetRegionPos" translate="false">
+integer llSetRegionPos(vector pos)
+Sets the position anywhere within the region (if the object isn&apos;t physical)
+	</string>
+	<string name="LSLTipText_llNavigateTo" translate="false">
+llNavigateTo(vector point, list options)
+For AI Character: Navigate to destination.
+	</string>
+	<string name="LSLTipText_llCreateCharacter" translate="false">
+llCreateCharacter(list options)
+Convert linkset to AI Character which can navigate the world.
+	</string>
+	<string name="LSLTipText_llPursue" translate="false">
+llPursue(key target, list options)
+For AI Character: Chase after a target.
+	</string>
+	<string name="LSLTipText_llWanderWithin" translate="false">
+llWanderWithin(vector center, float radius, list options)
+For AI Character: Wander within a specified volume.
+	</string>
+	<string name="LSLTipText_llFleeFrom" translate="false">
+llFleeFrom(vector source, float radius, list options)
+For AI Character: Flee from a point.
+	</string>
+	<string name="LSLTipText_llPatrolPoints" translate="false">
+llPatrolPoints(list points, list options)
+For AI Character: Patrol a list of points.
+	</string>
+	<string name="LSLTipText_llExecCharacterCmd" translate="false">
+llExecCharacterCmd(integer cmd, list options)
+For AI Character: Execute a character command.
+	</string>
+	<string name="LSLTipText_llDeleteCharacter" translate="false">
+llDeleteCharacter()
+Convert linkset from AI Character to Physics object.
+	</string>
+	<string name="LSLTipText_llUpdateCharacter" translate="false">
+llUpdateCharacter(list options)
+Change the AI Character&apos;s settings.
+	</string>
+	<string name="LSLTipText_llEvade" translate="false">
+llEvade(key target, list options)
+For AI Character: Evade a specified target.
+	</string>
+	<string name="LSLTipText_llGetClosestNavPoint" translate="false">
+list llGetClosestNavPoint(vector point, list options)
+For AI Character: Get the closest navigable point to the point provided.
+	</string>
 
 
   <!-- Avatar busy/away mode -->
@@ -3196,7 +3327,8 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="LocationCtrlModerateIconTooltip">Moderate Region</string>
   <string name="LocationCtrlGeneralIconTooltip">General Region</string>
   <string name="LocationCtrlSeeAVsTooltip">Avatars visible and chat allowed outside of this parcel</string>
-
+  <string name="LocationCtrlPathfindingDirtyTooltip">Objects that move may not behave correctly in this region until the region is rebaked.</string>
+  <string name="LocationCtrlPathfindingDisabledTooltip">Dynamic pathfinding is not enabled on this region.</string>
   <!-- Strings used by the (currently Linux) auto-updater app -->
 	<string name="UpdaterWindowTitle">
 	  [APP_NAME] Update
@@ -3751,6 +3883,13 @@ Try enclosing path to the editor with double quotes.
   <string name="Wrap">Wrap</string>
   <string name="Preview">Preview</string>
   <string name="Normal">Normal</string>
+
+  <!-- Pathfinding -->
+  <string name="Pathfinding_Wiki_URL">http://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer</string>
+  <string name="Pathfinding_Object_Attr_None">None</string>
+  <string name="Pathfinding_Object_Attr_Permanent">Affects navmesh</string>
+  <string name="Pathfinding_Object_Attr_Character">Character</string>
+  <string name="Pathfinding_Object_Attr_MultiSelect">(Multiple)</string>
 
   <!-- Snapshot image quality levels -->
   <string name="snapshot_quality_very_low">Very Low</string>

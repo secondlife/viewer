@@ -13708,5 +13708,312 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+	<key>PathfindingRetrieveNeighboringRegion</key>
+    <map>
+      <key>Comment</key>
+      <string>Download a neighboring region when visualizing a pathfinding navmesh (default val 99 means do not download neighbors).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+	  <integer>99</integer>
+    </map>
+	<key>PathfindingNavMeshClear</key>
+    <map>
+      <key>Comment</key>
+      <string>Background color when displaying pathfinding navmesh.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Color4</string>
+      <key>Value</key>
+      <array>
+        <real>0</real>
+        <real>0</real>
+        <real>0</real>
+        <real>1.0</real>
+      </array>
+    </map>
+ <key>PathfindingWalkable</key>
+    <map>
+      <key>Comment</key>
+      <string>Color of walkable objects when displaying pathfinding navmesh object types.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Color4</string>
+      <key>Value</key>
+      <array>
+        <real>0.45490196078431372549019607843137</real>
+        <real>0.93333333333333333333333333333333</real>
+        <real>0.38823529411764705882352941176471</real>
+        <real>1.0</real>
+      </array>
+    </map>
+ <key>PathfindingObstacle</key>
+    <map>
+      <key>Comment</key>
+      <string>Color of static obstacle objects when displaying pathfinding navmesh object types.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Color4</string>
+      <key>Value</key>
+      <array>
+        <real>1.0</real>
+        <real>0.0</real>
+        <real>0.0</real>
+        <real>1.0</real>
+      </array>
+    </map>
+ <key>PathfindingMaterial</key>
+    <map>
+      <key>Comment</key>
+      <string>Color of material volumes when displaying pathfinding navmesh object types.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Color4</string>
+      <key>Value</key>
+      <array>
+        <real>0.5</real>
+        <real>0.0</real>
+        <real>1.0</real>
+        <real>0.3</real>
+      </array>
+    </map>
+ <key>PathfindingExclusion</key>
+    <map>
+      <key>Comment</key>
+      <string>Color of exclusion volumes when displaying pathfinding navmesh object types.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Color4</string>
+      <key>Value</key>
+      <array>
+        <real>1.0</real>
+        <real>1.0</real>
+        <real>0.0</real>
+        <real>0.3</real>
+      </array>
+    </map>
+ <key>PathfindingConnectedEdge</key>
+    <map>
+      <key>Comment</key>
+      <string>Color of a connected (crossable) edge when displaying pathfinding navmesh.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Color4</string>
+      <key>Value</key>
+      <array>
+        <real>0.86</real>
+        <real>0.86</real>
+        <real>0.86</real>
+        <real>1.0</real>
+      </array>
+    </map>
+ <key>PathfindingBoundaryEdge</key>
+    <map>
+      <key>Comment</key>
+      <string>Color of a boundary (non-crossable) edge when displaying pathfinding navmesh.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Color4</string>
+      <key>Value</key>
+      <array>
+        <real>1.0</real>
+        <real>0.0</real>
+        <real>0.0</real>
+        <real>1.0</real>
+      </array>
+    </map>
+ <key>PathfindingHeatColorBase</key>
+    <map>
+      <key>Comment</key>
+      <string>Color of the least walkable value when displaying the pathfinding navmesh as a heatmap.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Color4</string>
+      <key>Value</key>
+      <array>
+        <real>1.0</real>
+        <real>0.0</real>
+        <real>0.0</real>
+        <real>1.0</real>
+      </array>
+    </map>
+ <key>PathfindingHeatColorMax</key>
+    <map>
+      <key>Comment</key>
+      <string>Color of the most walkable value when displaying the pathfinding navmesh as a heatmap.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Color4</string>
+      <key>Value</key>
+      <array>
+        <real>1.0</real>
+        <real>1.0</real>
+        <real>1.0</real>
+        <real>1.0</real>
+      </array>
+    </map>
+  <key>PathfindingFaceColor</key>
+    <map>
+      <key>Comment</key>
+      <string>Color of the faces when displaying the default view of the pathfinding navmesh.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Color4</string>
+      <key>Value</key>
+      <array>
+        <real>1.0</real>
+        <real>1.0</real>
+        <real>1.0</real>
+        <real>1.0</real>
+      </array>
+    </map>
+ 	 <key>PathfindingTestPathValidEndColor</key>
+    <map>
+      <key>Comment</key>
+      <string>Color of the pathfinding test-pathing tool end-point when the path is valid.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Color4</string>
+      <key>Value</key>
+      <array>
+        <real>0.78</real>
+        <real>0.47</real>
+        <real>0.0</real>
+        <real>1.0</real>
+      </array>
+    </map>
+     <key>PathfindingTestPathInvalidEndColor</key>
+    <map>
+      <key>Comment</key>
+      <string>Color of the pathfinding test-pathing tool end-point when the path is invalid.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Color4</string>
+      <key>Value</key>
+      <array>
+        <real>1.0</real>
+        <real>0.0</real>
+        <real>1.0</real>
+        <real>1.0</real>
+      </array>
+    </map>
+	 <key>PathfindingTestPathColor</key>
+    <map>
+      <key>Comment</key>
+      <string>Color of the pathfinding test-path when the path is valid.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Color4</string>
+      <key>Value</key>
+      <array>
+        <real>1.0</real>
+        <real>0.59</real>
+        <real>0.0</real>
+        <real>0.9</real>
+      </array>
+    </map>
+  <key>PathfindingAmbiance</key>
+  <map>
+    <key>Comment</key>
+    <string>Ambiance of lit pathfinding navmesh displays.</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.5</real>
+  </map>
+
+  <key>PathfindingXRayTint</key>
+  <map>
+    <key>Comment</key>
+    <string>Amount to darken/lighten x-ray lines in pathfinding display.</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.8</real>
+  </map>
+
+  <key>PathfindingXRayOpacity</key>
+  <map>
+    <key>Comment</key>
+    <string>Opacity of xray lines in pathfinding display.</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.25</real>
+  </map>
+
+  <key>PathfindingXRayWireframe</key>
+  <map>
+    <key>Comment</key>
+    <string>Render pathfinding navmesh xray as a wireframe.</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  
+  <key>PathfindingLineWidth</key>
+  <map>
+    <key>Comment</key>
+    <string>Width of volume outlines in pathfinding navmesh display.</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>2.0</real>
+  </map>
+
+  <key>PathfindingLineOffset</key>
+  <map>
+    <key>Comment</key>
+    <string>Depth offset of volume outlines in pathfinding display.</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>2.3</real>
+  </map>
+
+  <key>PathfindingWaterColor</key>
+    <map>
+      <key>Comment</key>
+      <string>Color of water plane when displaying pathfinding navmesh.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Color4</string>
+      <key>Value</key>
+      <array>
+        <real>0.0</real>
+        <real>0.0</real>
+        <real>1.0</real>
+        <real>1.0</real>
+      </array>
+    </map>
 </map>
 </llsd>
