@@ -432,11 +432,14 @@ public:
 	// manager until we have better iterators.
 	void updateInventory(LLViewerInventoryItem* item, U8 key, bool is_new);
 	void updateInventoryLocal(LLInventoryItem* item, U8 key); // Update without messaging.
+	void updateTextureInventory(LLViewerInventoryItem* item, U8 key, bool is_new);
 	LLInventoryObject* getInventoryObject(const LLUUID& item_id);
 	void getInventoryContents(LLInventoryObject::object_list_t& objects);
 	LLInventoryObject* getInventoryRoot();
 	LLViewerInventoryItem* getInventoryItemByAsset(const LLUUID& asset_id);
 	S16 getInventorySerial() const { return mInventorySerialNum; }
+
+	bool isTextureInInventory(LLViewerInventoryItem* item);
 
 	// These functions does viewer-side only object inventory modifications
 	void updateViewerInventoryAsset(
@@ -683,6 +686,10 @@ protected:
 	
 	F32				mAppAngle;	// Apparent visual arc in degrees
 	F32				mPixelArea; // Apparent area in pixels
+
+	// IDs of of all items in the object's content which are added to the object's content,
+	// but not updated on the server yet. After item was updated, its ID will be removed from this list.
+	std::list<LLUUID> mPendingInventoryItemsIDs;
 
 	// This is the object's inventory from the viewer's perspective.
 	LLInventoryObject::object_list_t* mInventory;

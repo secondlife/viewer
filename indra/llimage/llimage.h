@@ -48,6 +48,8 @@ const S32 MAX_PRECINCT_SIZE = 2048;			// No reason to be bigger than MAX_IMAGE_S
 const S32 MIN_PRECINCT_SIZE = 4;			// Can't be smaller than MIN_BLOCK_SIZE
 const S32 MAX_BLOCK_SIZE = 64;				// Max total block size is 4096, hence 64x64 when using square blocks
 const S32 MIN_BLOCK_SIZE = 4;				// Min block dim is 4 according to jpeg2000 spec
+const S32 MIN_LAYER_SIZE = 2000;			// Size of the first quality layer (after header). Must be > to FIRST_PACKET_SIZE!!
+const S32 MAX_NB_LAYERS = 64;				// Max number of layers we'll entertain in SL (practical limit)
 
 const S32 MIN_IMAGE_SIZE = (1<<MIN_IMAGE_MIP); // 4, only used for expand/contract power of 2
 const S32 MAX_IMAGE_SIZE = (1<<MAX_IMAGE_MIP); // 2048
@@ -60,6 +62,7 @@ const S32 MAX_IMAGE_DATA_SIZE = MAX_IMAGE_AREA * MAX_IMAGE_COMPONENTS; //2048 * 
 // *TODO: change both to 1024 when SIM texture fetching is deprecated
 const S32 FIRST_PACKET_SIZE = 600;
 const S32 MAX_IMG_PACKET_SIZE = 1000;
+const S32 HTTP_PACKET_SIZE = 1496;
 
 // Base classes for images.
 // There are two major parts for the image:
@@ -89,15 +92,20 @@ typedef enum e_image_codec
 class LLImage
 {
 public:
-	static void initClass();
+	static void initClass(bool use_new_byte_range = false, S32 minimal_reverse_byte_range_percent = 75);
 	static void cleanupClass();
 
 	static const std::string& getLastError();
 	static void setLastError(const std::string& message);
 	
+	static bool useNewByteRange() { return sUseNewByteRange; }
+    static S32  getReverseByteRangePercent() { return sMinimalReverseByteRangePercent; }
+	
 protected:
 	static LLMutex* sMutex;
 	static std::string sLastErrorMessage;
+	static bool sUseNewByteRange;
+    static S32  sMinimalReverseByteRangePercent;
 };
 
 //============================================================================
@@ -294,7 +302,7 @@ public:
 	// getRawDiscardLevel() by default returns mDiscardLevel, but may be overridden (LLImageJ2C)
 	virtual S8  getRawDiscardLevel() { return mDiscardLevel; }
 	
-	BOOL load(const std::string& filename);
+	BOOL load(const std::string& filename, int load_size = 0);
 	BOOL save(const std::string& filename);
 
 	virtual BOOL updateData() = 0; // pure virtual
@@ -313,6 +321,8 @@ public:
 	BOOL isDecoded()  const { return mDecoded ? TRUE : FALSE; }
 	void setDiscardLevel(S8 discard_level) { mDiscardLevel = discard_level; }
 	S8 getDiscardLevel() const { return mDiscardLevel; }
+	S8 getLevels() const { return mLevels; }
+	void setLevels(S8 nlevels) { mLevels = nlevels; }
 
 	// setLastError needs to be deferred for J2C images since it may be called from a DLL
 	virtual void resetLastError();
@@ -325,7 +335,8 @@ protected:
 	S8 mCodec;
 	S8 mDecoding;
 	S8 mDecoded;  // unused, but changing LLImage layout requires recompiling static Mac/Linux libs. 2009-01-30 JC
-	S8 mDiscardLevel;
+	S8 mDiscardLevel;	// Current resolution level worked on. 0 = full res, 1 = half res, 2 = quarter res, etc...
+	S8 mLevels;			// Number of resolution levels in that image. Min is 1. 0 means unknown.
 	
 public:
 	static S32 sGlobalFormattedMemory;

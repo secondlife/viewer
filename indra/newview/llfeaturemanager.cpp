@@ -670,7 +670,14 @@ void LLFeatureManager::setGraphicsLevel(S32 level, bool skipFeatures)
 	switch (level)
 	{
 		case 0:
-			maskFeatures("Low");			
+			if (gGLManager.mGLVersion < 3.f || gGLManager.mIsIntel)
+			{ //only use fixed function by default if GL version < 3.0 or this is an intel graphics chip
+				maskFeatures("LowFixedFunction");			
+			}
+			else
+			{ //same as low, but with "Basic Shaders" enabled
+				maskFeatures("Low");
+			}
 			break;
 		case 1:
 			maskFeatures("Mid");
@@ -690,6 +697,7 @@ void LLFeatureManager::setGraphicsLevel(S32 level, bool skipFeatures)
 
 	LLViewerShaderMgr::sSkipReload = false;
 	LLViewerShaderMgr::instance()->setShaders();
+	gPipeline.refreshCachedSettings();
 }
 
 void LLFeatureManager::applyBaseMasks()
@@ -778,6 +786,10 @@ void LLFeatureManager::applyBaseMasks()
 	if (gGLManager.mHasMapBufferRange)
 	{
 		maskFeatures("MapBufferRange");
+	}
+	if (gGLManager.mVRAM > 512)
+	{
+		maskFeatures("VRAMGT512");
 	}
 
 	// now mask by gpu string

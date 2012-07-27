@@ -10,14 +10,14 @@ include(UI)
 include(LLCommon)
 include(LLVFS)
 include(LLXML)
-include(LLXUIXML)
+include(LLUI)
 include(Linking)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLVFS_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
-    ${LLXUIXML_INCLUDE_DIRS}
+    ${LLUI_INCLUDE_DIRS}
     ${CURL_INCLUDE_DIRS}
     ${CARES_INCLUDE_DIRS}
     ${OPENSSL_INCLUDE_DIRS}
@@ -42,7 +42,7 @@ target_link_libraries(linux-updater
     ${CRYPTO_LIBRARIES}
     ${UI_LIBRARIES}
     ${LLXML_LIBRARIES}
-    ${LLXUIXML_LIBRARIES}
+    ${LLUI_LIBRARIES}
     ${LLVFS_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
     )

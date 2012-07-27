@@ -139,6 +139,7 @@ public:
 		OTHER,
 		MAX_GL_IMAGE_CATEGORY
 	};
+
 	static S32 getTotalNumOfCategories() ;
 	static S32 getIndexFromCategory(S32 category) ;
 	static S32 getCategoryFromIndex(S32 index) ;
@@ -263,6 +264,9 @@ protected:
 	void reorganizeVolumeList() ;
 	void setTexelsPerImage();
 private:
+	friend class LLBumpImageList;
+	friend class LLUIImageList;
+
 	//note: do not make this function public.
 	/*virtual*/ LLImageGL* getGLTexture() const ;
 	virtual void switchToCachedImage();
@@ -309,6 +313,7 @@ protected:
 	} LLGLTextureState;
 	LLGLTextureState  mTextureState ;
 
+	static F32 sTexelPixelRatio;
 public:
 	static const U32 sCurrentFileVersion;	
 	static S32 sImageCount;
@@ -323,6 +328,7 @@ public:
 	static S32 sMaxTotalTextureMemInMegaBytes;
 	static S32 sMaxDesiredTextureMemInBytes ;
 	static S8  sCameraMovingDiscardBias;
+	static F32 sCameraMovingBias;
 	static S32 sMaxSculptRez ;
 	static S32 sMinLargeImageSize ;
 	static S32 sMaxSmallImageSize ;
@@ -330,8 +336,19 @@ public:
 	static F32  sCurrentTime ;
 	static BOOL sUseTextureAtlas ;
 
+	enum EDebugTexels
+	{
+		DEBUG_TEXELS_OFF,
+		DEBUG_TEXELS_CURRENT,
+		DEBUG_TEXELS_DESIRED,
+		DEBUG_TEXELS_FULL
+	};
+
+	static EDebugTexels sDebugTexelsMode;
+
 	static LLPointer<LLViewerTexture> sNullImagep; // Null texture for non-textured objects.
 	static LLPointer<LLViewerTexture> sBlackImagep;	// Texture to show NOTHING (pure black)
+	static LLPointer<LLViewerTexture> sCheckerBoardImagep;	// Texture to show NOTHING (pure black)
 };
 
 
@@ -420,6 +437,8 @@ public:
 
 	bool updateFetch();
 	
+	void clearFetchedResults(); //clear all fetched results, for debug use.
+
 	// Override the computation of discard levels if we know the exact output
 	// size of the image.  Used for UI textures to not decode, even if we have
 	// more data.
@@ -478,6 +497,7 @@ public:
 	BOOL        hasFetcher() const { return mHasFetcher;}
 	void        setCanUseHTTP(bool can_use_http) {mCanUseHTTP = can_use_http;}
 
+	void        forceToDeleteRequest();
 protected:
 	/*virtual*/ void switchToCachedImage();
 	S32 getCurrentDiscardLevelForFetching() ;
@@ -687,6 +707,7 @@ public:
 	//"find-texture" just check if the texture exists, if yes, return it, otherwise return null.
 	//
 	static LLViewerTexture*           findTexture(const LLUUID& id) ;
+	static LLViewerFetchedTexture*    findFetchedTexture(const LLUUID& id) ;
 	static LLViewerMediaTexture*      findMediaTexture(const LLUUID& id) ;
 	
 	static LLViewerMediaTexture*      createMediaTexture(const LLUUID& id, BOOL usemipmaps = TRUE, LLImageGL* gl_image = NULL) ;

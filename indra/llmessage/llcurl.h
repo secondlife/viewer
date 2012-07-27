@@ -304,7 +304,7 @@ public:
 	ePerformState getState() ;
 	
 	bool isCompleted() ;
-	bool isValid() {return mCurlMultiHandle != NULL ;}
+	bool isValid() {return mCurlMultiHandle != NULL && mValid;}
 	bool isDead() {return mDead;}
 
 	bool waitToComplete() ;
@@ -318,7 +318,7 @@ public:
 	
 private:
 	void easyFree(LLCurl::Easy*);
-	void cleanup() ;
+	void cleanup(bool deleted = false) ;
 	
 	CURLM* mCurlMultiHandle;
 
@@ -333,6 +333,7 @@ private:
 	ePerformState mState;
 
 	BOOL mDead ;
+	BOOL mValid ;
 	LLMutex* mMutexp ;
 	LLMutex* mDeletionMutexp ;
 	LLMutex* mEasyMutexp ;

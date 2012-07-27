@@ -68,8 +68,6 @@ LLDebugView::~LLDebugView()
 	gDebugView = NULL;
 	gTextureView = NULL;
 	gSceneView = NULL;
-	gTextureSizeView = NULL;
-	gTextureCategoryView = NULL;
 }
 
 void LLDebugView::init()
@@ -117,35 +115,11 @@ void LLDebugView::init()
 	LLTextureView::Params tvp;
 	tvp.name("gTextureView");
 	tvp.rect(r);
-	tvp.follows.flags(FOLLOWS_BOTTOM|FOLLOWS_LEFT);
+	tvp.follows.flags(FOLLOWS_TOP|FOLLOWS_LEFT);
 	tvp.visible(false);
 	gTextureView = LLUICtrlFactory::create<LLTextureView>(tvp);
 	addChild(gTextureView);
 	//gTextureView->reshape(r.getWidth(), r.getHeight(), TRUE);
-
-
-	if(gAuditTexture)
-	{
-		r.set(150, rect.getHeight() - 50, 900 + LLImageGL::sTextureLoadedCounter.size() * 30, 100);
-		LLTextureSizeView::Params tsv ;
-		tsv.name("gTextureSizeView");
-		tsv.rect(r);
-		tsv.follows.flags(FOLLOWS_BOTTOM|FOLLOWS_LEFT);
-		tsv.visible(false);
-		gTextureSizeView = LLUICtrlFactory::create<LLTextureSizeView>(tsv);
-		addChild(gTextureSizeView);
-		gTextureSizeView->setType(LLTextureSizeView::TEXTURE_MEM_OVER_SIZE) ;
-
-		r.set(150, rect.getHeight() - 50, 900 + LLViewerTexture::getTotalNumOfCategories() * 30, 100);
-		LLTextureSizeView::Params tcv ;
-		tcv.name("gTextureCategoryView");
-		tcv.rect(r);
-		tcv.follows.flags(FOLLOWS_BOTTOM|FOLLOWS_LEFT);
-		tcv.visible(false);
-		gTextureCategoryView = LLUICtrlFactory::create<LLTextureSizeView>(tcv);
-		gTextureCategoryView->setType(LLTextureSizeView::TEXTURE_MEM_OVER_CATEGORY);
-		addChild(gTextureCategoryView);
-	}
 }
 
 void LLDebugView::draw()

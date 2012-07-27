@@ -1,5 +1,6 @@
 syntax: glob
 
+
 # WinMerge temp files
 *.bak
 # Compiled python bytecode
@@ -24,6 +25,7 @@ indra/lib/mono/indra/*.exe
 indra/lib/mono/indra/*.pdb
 indra/lib/python/eventlet/
 indra/llwindow/glh/glh_linear.h
+indra/newview/app_settings/dictionaries
 indra/newview/app_settings/mozilla
 indra/newview/app_settings/mozilla-runtime-*
 indra/newview/app_settings/mozilla_debug

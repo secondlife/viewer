@@ -202,6 +202,7 @@ public:
 
 	// Returns "M", "PG", "A" etc.
 	static std::string accessToShortString(U8 sim_access);
+	static U8          shortStringToAccess(const std::string &sim_access);
 
 	// Return access icon name
 	static std::string getAccessIcon(U8 sim_access);

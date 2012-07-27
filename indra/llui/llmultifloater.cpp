@@ -349,7 +349,7 @@ void LLMultiFloater::setVisible(BOOL visible)
 
 BOOL LLMultiFloater::handleKeyHere(KEY key, MASK mask)
 {
-	if (key == 'W' && mask == (MASK_CONTROL|MASK_SHIFT))
+	if (key == 'W' && mask == MASK_CONTROL)
 	{
 		LLFloater* floater = getActiveFloater();
 		// is user closeable and is system closeable

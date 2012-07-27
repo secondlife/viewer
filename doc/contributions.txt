@@ -297,6 +297,8 @@ Cherry Cheevers
 ChickyBabes Zuzu
 Christopher  Organiser
 Ciaran Laval
+Cinder Roxley
+    STORM-1703
 Clara Young
 Coaldust Numbers
     VWR-1095
@@ -471,6 +473,7 @@ Hiro Sommambulist
 	VWR-143
 Hitomi Tiponi
 	STORM-1741
+	STORM-1862
 Holger Gilruth
 Horatio Freund
 Hoze Menges
@@ -623,12 +626,22 @@ Jonathan Yap
 	STORM-1799
 	STORM-1796
 	STORM-1807
+	STORM-1812
+	STORM-1820
+	STORM-1839
+	STORM-1842
 	STORM-1808
 	STORM-637
 	STORM-1822
 	STORM-1809
 	STORM-1793
 	STORM-1810
+	STORM-1860
+	STORM-1852
+	STORM-1870
+	STORM-1872
+	STORM-1858
+	STORM-1862
 Kadah Coba
 	STORM-1060
 Jondan Lundquist
@@ -725,6 +738,8 @@ Marc2 Sands
 Marianne McCann
 Marine Kelley
     STORM-281
+MartinRJ Fayray
+    STORM-1845
 Matthew Anthony
 Matthew Dowd
 	VWR-1344
@@ -1052,6 +1067,8 @@ Simon Nolan
 Sini Nubalo
 Sitearm Madonna
 SLB Wirefly
+Slee Mayo
+    SEC-1075
 snowy Sidran
 SpacedOut Frye
 	VWR-34
@@ -1160,9 +1177,9 @@ Tofu Buzzard
 	CTS-411
 	STORM-546
 	VWR-24509
-    STORM-1684
 	SH-2477
 	STORM-1684
+	STORM-1819
 Tony Kembia
 Torben Trautman
 TouchaHoney Perhaps
@@ -1287,6 +1304,7 @@ Zi Ree
 	VWR-24017
 	VWR-25588
 	STORM-1790
+	STORM-1842
 Zipherius Turas
 	VWR-76
 	VWR-77

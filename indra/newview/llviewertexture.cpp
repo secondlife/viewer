@@ -67,6 +67,7 @@
 // statics
 LLPointer<LLViewerTexture>        LLViewerTexture::sNullImagep = NULL;
 LLPointer<LLViewerTexture>        LLViewerTexture::sBlackImagep = NULL;
+LLPointer<LLViewerTexture>        LLViewerTexture::sCheckerBoardImagep = NULL;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sMissingAssetImagep = NULL;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sWhiteImagep = NULL;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sDefaultImagep = NULL;
@@ -87,6 +88,7 @@ S32 LLViewerTexture::sMaxBoundTextureMemInMegaBytes = 0;
 S32 LLViewerTexture::sMaxTotalTextureMemInMegaBytes = 0;
 S32 LLViewerTexture::sMaxDesiredTextureMemInBytes = 0 ;
 S8  LLViewerTexture::sCameraMovingDiscardBias = 0 ;
+F32 LLViewerTexture::sCameraMovingBias = 0.0f ;
 S32 LLViewerTexture::sMaxSculptRez = 128 ; //max sculpt image size
 const S32 MAX_CACHED_RAW_IMAGE_AREA = 64 * 64 ;
 const S32 MAX_CACHED_RAW_SCULPT_IMAGE_AREA = LLViewerTexture::sMaxSculptRez * LLViewerTexture::sMaxSculptRez ;
@@ -96,6 +98,9 @@ S32 LLViewerTexture::sMaxSmallImageSize = MAX_CACHED_RAW_IMAGE_AREA ;
 BOOL LLViewerTexture::sFreezeImageScalingDown = FALSE ;
 F32 LLViewerTexture::sCurrentTime = 0.0f ;
 BOOL LLViewerTexture::sUseTextureAtlas        = FALSE ;
+F32  LLViewerTexture::sTexelPixelRatio = 1.0f;
+
+LLViewerTexture::EDebugTexels LLViewerTexture::sDebugTexelsMode = LLViewerTexture::DEBUG_TEXELS_OFF;
 
 const F32 desired_discard_bias_min = -2.0f; // -max number of levels to improve image quality by
 const F32 desired_discard_bias_max = (F32)MAX_DISCARD_LEVEL; // max number of levels to reduce image quality by
@@ -175,7 +180,12 @@ LLViewerTexture*  LLViewerTextureManager::findTexture(const LLUUID& id)
 	}
 	return tex ;
 }
-		
+
+LLViewerFetchedTexture*  LLViewerTextureManager::findFetchedTexture(const LLUUID& id) 
+{
+	return gTextureList.findImage(id);
+}
+
 LLViewerMediaTexture* LLViewerTextureManager::findMediaTexture(const LLUUID &media_id)
 {
 	return LLViewerMediaTexture::findMediaTexture(media_id) ;	
@@ -347,6 +357,21 @@ void LLViewerTextureManager::init()
  	LLViewerFetchedTexture::sSmokeImagep = LLViewerTextureManager::getFetchedTexture(IMG_SMOKE, TRUE, LLViewerTexture::BOOST_UI);
 	LLViewerFetchedTexture::sSmokeImagep->setNoDelete() ;
 
+	image_raw = new LLImageRaw(32,32,3);
+	data = image_raw->getData();
+
+	for (S32 i = 0; i < (32*32*3); i+=3)
+	{
+		S32 x = (i % (32*3)) / (3*16);
+		S32 y = i / (32*3*16);
+		U8 color = ((x + y) % 2) * 255;
+		data[i] = color;
+		data[i+1] = color;
+		data[i+2] = color;
+	}
+
+	LLViewerTexture::sCheckerBoardImagep = LLViewerTextureManager::getLocalTexture(image_raw.get(), TRUE);
+
 	LLViewerTexture::initClass() ;
 
 	if (LLMetricPerformanceTesterBasic::isMetricLogRequested(sTesterName) && !LLMetricPerformanceTesterBasic::getTester(sTesterName))
@@ -367,6 +392,7 @@ void LLViewerTextureManager::cleanup()
 	LLImageGL::sDefaultGLTexture = NULL ;
 	LLViewerTexture::sNullImagep = NULL;
 	LLViewerTexture::sBlackImagep = NULL;
+	LLViewerTexture::sCheckerBoardImagep = NULL;
 	LLViewerFetchedTexture::sDefaultImagep = NULL;	
 	LLViewerFetchedTexture::sSmokeImagep = NULL;
 	LLViewerFetchedTexture::sMissingAssetImagep = NULL;
@@ -383,11 +409,7 @@ void LLViewerTextureManager::cleanup()
 void LLViewerTexture::initClass()
 {
 	LLImageGL::sDefaultGLTexture = LLViewerFetchedTexture::sDefaultImagep->getGLTexture() ;
-
-	if(gAuditTexture)
-	{
-		LLImageGL::setHighlightTexture(LLViewerTexture::OTHER) ;	
-	}
+	sTexelPixelRatio = gSavedSettings.getF32("TexelPixelRatio");
 }
 
 // static
@@ -534,7 +556,8 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 	
 	F32 camera_moving_speed = LLViewerCamera::getInstance()->getAverageSpeed() ;
 	F32 camera_angular_speed = LLViewerCamera::getInstance()->getAverageAngularSpeed();
-	sCameraMovingDiscardBias = (S8)llmax(0.2f * camera_moving_speed, 2.0f * camera_angular_speed - 1) ;
+	sCameraMovingBias = llmax(0.2f * camera_moving_speed, 2.0f * camera_angular_speed - 1);
+	sCameraMovingDiscardBias = (S8)(sCameraMovingBias);
 
 	LLViewerTexture::sFreezeImageScalingDown = (BYTES_TO_MEGA_BYTES(sBoundTextureMemoryInBytes) < 0.75f * sMaxBoundTextureMemInMegaBytes * texmem_middle_bound_scale) &&
 				(BYTES_TO_MEGA_BYTES(sTotalTextureMemoryInBytes) < 0.75f * sMaxTotalTextureMemInMegaBytes * texmem_middle_bound_scale) ;
@@ -655,10 +678,6 @@ void LLViewerTexture::setBoostLevel(S32 level)
 		{
 			setNoDelete() ;		
 		}
-		if(gAuditTexture)
-		{
-			setCategory(mBoostLevel);
-		}
 	}
 }
 
@@ -712,6 +731,7 @@ void LLViewerTexture::addTextureStats(F32 virtual_size, BOOL needs_gltexture) co
 		mNeedsGLTexture = TRUE ;
 	}
 
+	virtual_size *= sTexelPixelRatio;
 	if(!mMaxVirtualSizeResetCounter)
 	{
 		//flag to reset the values because the old values are used.
@@ -1287,6 +1307,7 @@ void LLViewerFetchedTexture::cleanup()
 	mCachedRawDiscardLevel = -1 ;
 	mCachedRawImageReady = FALSE ;
 	mSavedRawImage = NULL ;
+	mSavedRawDiscardLevel = -1;
 }
 
 void LLViewerFetchedTexture::setForSculpt()
@@ -1377,10 +1398,10 @@ void LLViewerFetchedTexture::dump()
 // ONLY called from LLViewerFetchedTextureList
 void LLViewerFetchedTexture::destroyTexture() 
 {
-	if(LLImageGL::sGlobalTextureMemoryInBytes < sMaxDesiredTextureMemInBytes)//not ready to release unused memory.
-	{
-		return ;
-	}
+	//if(LLImageGL::sGlobalTextureMemoryInBytes < sMaxDesiredTextureMemInBytes)//not ready to release unused memory.
+	//{
+	//	return ;
+	//}
 	if (mNeedsCreateTexture)//return if in the process of generating a new texture.
 	{
 		return ;
@@ -1880,6 +1901,8 @@ S32 LLViewerFetchedTexture::getCurrentDiscardLevelForFetching()
 bool LLViewerFetchedTexture::updateFetch()
 {
 	static LLCachedControl<bool> textures_decode_disabled(gSavedSettings,"TextureDecodeDisabled");
+	static LLCachedControl<F32>  sCameraMotionThreshold(gSavedSettings,"TextureCameraMotionThreshold");
+	static LLCachedControl<S32>  sCameraMotionBoost(gSavedSettings,"TextureCameraMotionBoost");
 	if(textures_decode_disabled)
 	{
 		return false ;
@@ -2042,18 +2065,24 @@ bool LLViewerFetchedTexture::updateFetch()
 	//	make_request = false;
 	//}
 	
-	if(make_request)
+	if (make_request)
 	{
-		//load the texture progressively.
+		// Load the texture progressively: we try not to rush to the desired discard too fast.
+		// If the camera is not moving, we do not tweak the discard level notch by notch but go to the desired discard with larger boosted steps
+		// This mitigates the "textures stay blurry" problem when loading while not killing the texture memory while moving around
 		S32 delta_level = (mBoostLevel > LLViewerTexture::BOOST_NONE) ? 2 : 1 ; 
-		if(current_discard < 0)
+		if (current_discard < 0)
 		{
 			desired_discard = llmax(desired_discard, getMaxDiscardLevel() - delta_level);
 		}
-		else
+		else if (LLViewerTexture::sCameraMovingBias < sCameraMotionThreshold)
 		{
-			desired_discard = llmax(desired_discard, current_discard - delta_level);
+			desired_discard = llmax(desired_discard, current_discard - sCameraMotionBoost);
 		}
+        else
+        {
+			desired_discard = llmax(desired_discard, current_discard - delta_level);
+        }
 
 		if (mIsFetching)
 		{
@@ -2119,6 +2148,30 @@ bool LLViewerFetchedTexture::updateFetch()
 	llassert_always(mRawImage.notNull() || (!mNeedsCreateTexture && !mIsRawImageValid));
 	
 	return mIsFetching ? true : false;
+}
+
+void LLViewerFetchedTexture::clearFetchedResults()
+{
+	llassert_always(!mNeedsCreateTexture && !mIsFetching);
+	
+	cleanup();
+	destroyGLTexture();
+
+	if(getDiscardLevel() >= 0) //sculpty texture, force to invalidate
+	{
+		mGLTexturep->forceToInvalidateGLTexture();
+	}
+}
+
+void LLViewerFetchedTexture::forceToDeleteRequest()
+{
+	if (mHasFetcher)
+	{
+		LLAppViewer::getTextureFetch()->deleteRequest(getID(), true);
+		mHasFetcher = FALSE;
+		mIsFetching = FALSE ;
+		resetTextureStats();
+	}
 }
 
 void LLViewerFetchedTexture::setIsMissingAsset()
@@ -3290,10 +3343,14 @@ LLViewerMediaTexture::LLViewerMediaTexture(const LLUUID& id, BOOL usemipmaps, LL
 	sMediaMap.insert(std::make_pair(id, this));
 
 	mGLTexturep = gl_image ;
+
 	if(mGLTexturep.isNull())
 	{
 		generateGLTexture() ;
 	}
+
+	mGLTexturep->setAllowCompression(false);
+
 	mGLTexturep->setNeedsAlphaAndPickMask(FALSE) ;
 
 	mIsPlaying = FALSE ;

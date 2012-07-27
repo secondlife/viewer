@@ -29,6 +29,7 @@
 // Class to test 
 #include "llimagej2ckdu.h"
 #include "llkdumem.h"
+#include "kdu_block_coding.h"
 // Tut header
 #include "lltut.h"
 
@@ -86,7 +87,7 @@ void LLImageFormatted::resetLastError() { }
 void LLImageFormatted::sanityCheck() { }
 void LLImageFormatted::setLastError(const std::string& , const std::string& ) { }
 
-LLImageJ2C::LLImageJ2C() : LLImageFormatted(IMG_CODEC_J2C) { }
+LLImageJ2C::LLImageJ2C() : LLImageFormatted(IMG_CODEC_J2C), mRate(DEFAULT_COMPRESSION_RATE) { }
 LLImageJ2C::~LLImageJ2C() { }
 S32 LLImageJ2C::calcDataSize(S32 ) { return 0; }
 S32 LLImageJ2C::calcDiscardLevelBytes(S32 ) { return 0; }
@@ -107,16 +108,25 @@ bool LLKDUMemIn::get(int, kdu_line_buf&, int) { return false; }
 
 // Stub Kakadu Library calls
 kdu_tile_comp kdu_tile::access_component(int ) { kdu_tile_comp a; return a; }
+kdu_block_encoder::kdu_block_encoder() { }
+kdu_block_decoder::kdu_block_decoder() { }
+void kdu_block::set_max_passes(int , bool ) { }
+void kdu_block::set_max_bytes(int , bool ) { }
+void kdu_block::set_max_samples(int ) { }
 void kdu_tile::close(kdu_thread_env* ) { }
 int kdu_tile::get_num_components() { return 0; }
 bool kdu_tile::get_ycc() { return false; }
 void kdu_tile::set_components_of_interest(int , const int* ) { }
+int kdu_tile::get_tnum() { return 0; }
 kdu_resolution kdu_tile_comp::access_resolution() { kdu_resolution a; return a; }
+kdu_resolution kdu_tile_comp::access_resolution(int ) { kdu_resolution a; return a; }
 int kdu_tile_comp::get_bit_depth(bool ) { return 8; }
 bool kdu_tile_comp::get_reversible() { return false; }
+int kdu_tile_comp::get_num_resolutions() { return 1; }
 kdu_subband kdu_resolution::access_subband(int ) { kdu_subband a; return a; }
 void kdu_resolution::get_dims(kdu_dims& ) { }
 int kdu_resolution::which() { return 0; }
+int kdu_resolution::get_valid_band_indices(int &) { return 1; }
 kdu_decoder::kdu_decoder(kdu_subband , kdu_sample_allocator*, bool , float, int, kdu_thread_env*, kdu_thread_queue*) { }
 kdu_synthesis::kdu_synthesis(kdu_resolution, kdu_sample_allocator*, bool, float, kdu_thread_env*, kdu_thread_queue*) { }
 kdu_params::kdu_params(const char*, bool, bool, bool, bool, bool) { }
@@ -124,6 +134,7 @@ kdu_params::~kdu_params() { }
 void kdu_params::set(const char* , int , int , bool ) { }
 void kdu_params::set(const char* , int , int , int ) { }
 void kdu_params::finalize_all(bool ) { }
+void kdu_params::finalize_all(int, bool ) { }
 void kdu_params::copy_from(kdu_params*, int, int, int, int, int, bool, bool, bool) { }
 bool kdu_params::parse_string(const char*) { return false; }
 bool kdu_params::get(const char*, int, int, bool&, bool, bool, bool) { return false; }
@@ -135,6 +146,7 @@ void kdu_codestream::set_fast() { }
 void kdu_codestream::set_fussy() { }
 void kdu_codestream::get_dims(int, kdu_dims&, bool ) { }
 int kdu_codestream::get_min_dwt_levels() { return 5; }
+int kdu_codestream::get_max_tile_layers() { return 1; }
 void kdu_codestream::change_appearance(bool, bool, bool) { }
 void kdu_codestream::get_tile_dims(kdu_coords, int, kdu_dims&, bool ) { }
 void kdu_codestream::destroy() { }
@@ -148,9 +160,18 @@ void kdu_codestream::get_subsampling(int , kdu_coords&, bool ) { }
 void kdu_codestream::flush(kdu_long *, int , kdu_uint16 *, bool, bool, double, kdu_thread_env*) { }
 void kdu_codestream::set_resilient(bool ) { }
 int kdu_codestream::get_num_components(bool ) { return 0; }
+kdu_long kdu_codestream::get_total_bytes(bool ) { return 0; }
+kdu_long kdu_codestream::get_compressed_data_memory(bool ) {return 0; }
+void kdu_codestream::share_buffering(kdu_codestream ) { }
+int kdu_codestream::get_num_tparts() { return 0; }
+int kdu_codestream::trans_out(kdu_long, kdu_long*, int, bool, kdu_thread_env* ) { return 0; }
+bool kdu_codestream::ready_for_flush(kdu_thread_env*) { return false; }
 siz_params* kdu_codestream::access_siz() { return NULL; }
 kdu_tile kdu_codestream::open_tile(kdu_coords , kdu_thread_env* ) { kdu_tile a; return a; }
 kdu_codestream_comment kdu_codestream::add_comment() { kdu_codestream_comment a; return a; }
+void kdu_subband::close_block(kdu_block*, kdu_thread_env*) { }
+void kdu_subband::get_valid_blocks(kdu_dims &indices) { }
+kdu_block* kdu_subband::open_block(kdu_coords, int*, kdu_thread_env*) { return NULL; }
 bool kdu_codestream_comment::put_text(const char*) { return false; }
 void kdu_customize_warnings(kdu_message*) { }
 void kdu_customize_errors(kdu_message*) { }

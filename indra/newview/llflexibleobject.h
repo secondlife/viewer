@@ -89,7 +89,7 @@ class LLVolumeImplFlexible : public LLVolumeInterface
 		bool isVolumeGlobal() const { return true; }
 		bool isActive() const { return true; }
 		const LLMatrix4& getWorldMatrix(LLXformMatrix* xform) const;
-		void updateRelativeXform();
+		void updateRelativeXform(bool force_identity);
 		void doFlexibleUpdate(); // Called to update the simulation
 		void doFlexibleRebuild(); // Called to rebuild the geometry
 		void preRebuild();

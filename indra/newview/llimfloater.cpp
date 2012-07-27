@@ -58,6 +58,7 @@
 #include "llspeakers.h"
 #include "llviewerchat.h"
 #include "llnotificationmanager.h"
+#include "llautoreplace.h"
 
 LLIMFloater::LLIMFloater(const LLUUID& session_id)
   : LLIMConversation(session_id),
@@ -78,7 +79,7 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 {
 	mIsNearbyChat = false;
 	initIMSession(session_id);
-
+		
 	setOverlapsScreenChannel(true);
 
 	LLTransientFloaterMgr::getInstance()->addControlView(LLTransientFloaterMgr::IM, this);
@@ -89,7 +90,7 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 void LLIMFloater::onFocusLost()
 {
 	LLIMModel::getInstance()->resetActiveSessionID();
-
+	
 	LLChicletBar::getInstance()->getChicletPanel()->setChicletToggleState(mSessionID, false);
 }
 
@@ -109,11 +110,11 @@ void LLIMFloater::onFocusReceived()
 void LLIMFloater::refresh()
 {
 	if (mMeTyping)
-	{
+{
 		// Time out if user hasn't typed for a while.
 		if (mTypingTimeoutTimer.getElapsedTimeF32() > LLAgent::TYPING_TIMEOUT_SECS)
 		{
-			setTyping(false);
+	setTyping(false);
 		}
 	}
 }
@@ -128,7 +129,7 @@ void LLIMFloater::onClickCloseBtn()
 	{
 		llwarns << "Empty session." << llendl;
 		return;
-	}
+}
 
 	bool is_call_with_chat = session->isGroupSessionType()
 			|| session->isAdHocSessionType() || session->isP2PSessionType();
@@ -194,33 +195,33 @@ void LLIMFloater::sendMsg()
 		|| (mDialog != IM_NOTHING_SPECIAL)
 		|| !mOtherParticipantUUID.isNull())
 	{
-		if (mInputEditor)
-		{
+	if (mInputEditor)
+	{
 			LLWString text = mInputEditor->getWText();
 			LLWStringUtil::trim(text);
 			LLWStringUtil::replaceChar(text,182,'\n'); // Convert paragraph symbols back into newlines.
-			if(!text.empty())
+		if(!text.empty())
+		{
+			// Truncate and convert to UTF8 for transport
+			std::string utf8_text = wstring_to_utf8str(text);
+			utf8_text = utf8str_truncate(utf8_text, MAX_MSG_BUF_SIZE - 1);
+			
+			if (mSessionInitialized)
 			{
-				// Truncate and convert to UTF8 for transport
-				std::string utf8_text = wstring_to_utf8str(text);
-				utf8_text = utf8str_truncate(utf8_text, MAX_MSG_BUF_SIZE - 1);
-
-				if (mSessionInitialized)
-				{
 					LLIMModel::sendMessage(utf8_text, mSessionID, mOtherParticipantUUID, mDialog);
-				}
-				else
-				{
-					//queue up the message to send once the session is initialized
-					mQueuedMsgsForInit.append(utf8_text);
-				}
-
-				mInputEditor->setText(LLStringUtil::null);
-
-				updateMessages();
 			}
+			else
+			{
+				//queue up the message to send once the session is initialized
+				mQueuedMsgsForInit.append(utf8_text);
+			}
+
+			mInputEditor->setText(LLStringUtil::null);
+
+			updateMessages();
 		}
 	}
+}
 	else
 	{
 		llinfos << "Cannot send IM to everyone unless you're a god." << llendl;
@@ -248,7 +249,7 @@ void LLIMFloater::initIMSession(const LLUUID& session_id)
 	mSession = LLIMModel::getInstance()->findIMSession(mSessionID);
 
 	if (mSession)
-	{
+{
 		mIsP2PChat = mSession->isP2PSessionType();
 		mSessionInitialized = mSession->mSessionInitialized;
 
@@ -315,6 +316,11 @@ BOOL LLIMFloater::postBuild()
 	mInputEditor = getChild<LLChatEntry>("chat_editor");
 	mInputEditor->setMaxTextLength(1023);
 	// enable line history support for instant message bar
+	// XXX stinson TODO : resolve merge conflict
+#if 0
+	// *TODO Establish LineEditor with autoreplace callback
+	mInputEditor->setAutoreplaceCallback(boost::bind(&LLAutoReplace::autoreplaceCallback, LLAutoReplace::getInstance(), _1, _2));
+#endif
 
 	LLFontGL* font = LLViewerChat::getChatFont();
 	mInputEditor->setFont(font);	
@@ -354,20 +360,20 @@ BOOL LLIMFloater::postBuild()
 }
 
 void LLIMFloater::onAddButtonClicked()
-{
+	{
        LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLIMFloater::addSessionParticipants, this, _1), TRUE, TRUE);
        if (!picker)
        {
                return;
-       }
+	}
 
        // Need to disable 'ok' button when selected users are already in conversation.
        picker->setOkBtnEnableCb(boost::bind(&LLIMFloater::canAddSelectedToChat, this, _1));
        LLFloater* root_floater = gFloaterView->getParentFloater(this);
        if (root_floater)
-       {
+	{
                root_floater->addDependentFloater(picker);
-       }
+	}
 }
 
 bool LLIMFloater::canAddSelectedToChat(const uuid_vec_t& uuids)
@@ -402,8 +408,8 @@ bool LLIMFloater::canAddSelectedToChat(const uuid_vec_t& uuids)
 		if (speaker_mgr)
 		{
 			speaker_mgr->getSpeakerList(&speaker_list, true);
-		}
-
+	}
+	
 		for (uuid_vec_t::const_iterator id = uuids.begin();
 				id != uuids.end(); ++id)
 		{
@@ -423,7 +429,7 @@ bool LLIMFloater::canAddSelectedToChat(const uuid_vec_t& uuids)
 }
 
 void LLIMFloater::addSessionParticipants(const uuid_vec_t& uuids)
-{
+	{
 	if (mIsP2PChat)
 	{
 		mStartConferenceInSameFloater = true;
@@ -447,12 +453,12 @@ void LLIMFloater::addSessionParticipants(const uuid_vec_t& uuids)
 		if (is_voice_call)
 		{
 			LLAvatarActions::startAdhocCall(temp_ids, mSessionID);
-		}
-		else
-		{
-			LLAvatarActions::startConference(temp_ids, mSessionID);
-		}
 	}
+	else
+	{
+			LLAvatarActions::startConference(temp_ids, mSessionID);
+	}
+}
 	else
 	{
 		inviteToSession(uuids);
@@ -549,7 +555,7 @@ void LLIMFloater::onParticipantsListChanged(LLUICtrl* ctrl)
 	if (!avatar_list)
 	{
 		return;
-	}
+		}
 
 	bool all_names_resolved = true;
 	std::vector<LLSD> participants_uuids;
@@ -558,7 +564,7 @@ void LLIMFloater::onParticipantsListChanged(LLUICtrl* ctrl)
 
 	// Check whether we have all participants names in LLAvatarNameCache
 	for (std::vector<LLSD>::const_iterator it = participants_uuids.begin(); it != participants_uuids.end(); ++it)
-	{
+{
 		const LLUUID& id = it->asUUID();
 		LLAvatarName av_name;
 		if (!LLAvatarNameCache::get(id, &av_name))
@@ -571,7 +577,7 @@ void LLIMFloater::onParticipantsListChanged(LLUICtrl* ctrl)
 					boost::bind(&LLIMFloater::onParticipantsListChanged, this, avatar_list));
 			break;
 		}
-	}
+}
 
 	if (all_names_resolved)
 	{
@@ -582,20 +588,20 @@ void LLIMFloater::onParticipantsListChanged(LLUICtrl* ctrl)
 			const LLUUID& id = it->asUUID();
 			LLAvatarName av_name;
 			if (LLAvatarNameCache::get(id, &av_name))
-			{
+{
 				avatar_names.push_back(av_name);
 			}
-		}
+}
 
 		// We should check whether the vector is not empty to pass the assertion
 		// that avatar_names.size() > 0 in LLAvatarActions::buildResidentsString.
 		if (!avatar_names.empty())
-		{
+{
 			std::string ui_title;
 			LLAvatarActions::buildResidentsString(avatar_names, ui_title);
 			updateSessionName(ui_title, ui_title);
 		}
-	}
+}
 }
 
 //static
@@ -644,7 +650,7 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 				floater_container->addFloater(floater, TRUE, i_pt);
 			}
 		}
-		
+
 		floater->openFloater(floater->getKey());
 	}
 	else
@@ -786,10 +792,10 @@ BOOL LLIMFloater::getVisible()
 		}
 		else
 		{
-			// getVisible() returns TRUE when Tabbed IM window is minimized.
+		// getVisible() returns TRUE when Tabbed IM window is minimized.
 			visible = is_active && !im_container->isMinimized()
 						&& im_container->getVisible();
-		}
+	}
 	}
 	else
 	{
@@ -839,20 +845,20 @@ void LLIMFloater::sessionInitReplyReceived(const LLUUID& im_session_id)
 	}
 
 	initIMFloater();
-
+	
 	//*TODO here we should remove "starting session..." warning message if we added it in postBuild() (IB)
 
 	//need to send delayed messaged collected while waiting for session initialization
 	if (mQueuedMsgsForInit.size())
 	{
-		LLSD::array_iterator iter;
-		for ( iter = mQueuedMsgsForInit.beginArray();
+	LLSD::array_iterator iter;
+	for ( iter = mQueuedMsgsForInit.beginArray();
 				iter != mQueuedMsgsForInit.endArray(); ++iter)
-		{
-			LLIMModel::sendMessage(iter->asString(), mSessionID,
-				mOtherParticipantUUID, mDialog);
-		}
+	{
+		LLIMModel::sendMessage(iter->asString(), mSessionID,
+			mOtherParticipantUUID, mDialog);
 	}
+}
 }
 
 void LLIMFloater::appendMessage(const LLChat& chat, const LLSD &args)
@@ -940,16 +946,16 @@ void LLIMFloater::updateMessages()
 			if (chat.mNotifId.notNull() && LLNotificationsUtil::find(chat.mNotifId) != NULL)
 			{
 				if (++iter == iter_end)
-			    {
-				    break;
-			    }
-			    else
-			    {
-				    mLastMessageIndex++;
-			    }
-		    }
-	    }
-    }
+				{
+					break;
+				}
+				else
+				{
+					mLastMessageIndex++;
+				}
+			}
+		}
+	}
 }
 
 void LLIMFloater::reloadMessages()
@@ -986,22 +992,22 @@ void LLIMFloater::onInputEditorFocusLost(LLFocusableElement* caller, void* userd
 // static
 void LLIMFloater::onInputEditorKeystroke(LLTextEditor* caller, void* userdata)
 {
-	LLIMFloater* self = (LLIMFloater*) userdata;
+	LLIMFloater* self = (LLIMFloater*)userdata;
 	std::string text = self->mInputEditor->getText();
 
-	// Deleting all text counts as stopping typing.
+		// Deleting all text counts as stopping typing.
 	self->setTyping(!text.empty());
-}
+	}
 
 void LLIMFloater::setTyping(bool typing)
 {
-	if (typing)
+	if ( typing )
 	{
 		// Started or proceeded typing, reset the typing timeout timer
 		mTypingTimeoutTimer.reset();
 	}
 
-	if (mMeTyping != typing)
+	if ( mMeTyping != typing )
 	{
 		// Typing state is changed
 		mMeTyping = typing;
@@ -1013,7 +1019,7 @@ void LLIMFloater::setTyping(bool typing)
 
 	// Don't want to send typing indicators to multiple people, potentially too
 	// much network traffic. Only send in person-to-person IMs.
-	if (mShouldSendTypingState && mDialog == IM_NOTHING_SPECIAL)
+	if ( mShouldSendTypingState && mDialog == IM_NOTHING_SPECIAL )
 	{
 		// Still typing, send 'start typing' notification or
 		// send 'stop typing' notification immediately
@@ -1021,24 +1027,24 @@ void LLIMFloater::setTyping(bool typing)
 		{
 			LLIMModel::instance().sendTypingState(mSessionID,
 					mOtherParticipantUUID, mMeTyping);
-			mShouldSendTypingState = false;
+				mShouldSendTypingState = false;
 
+			}
 		}
-	}
 
 	if (!mIsNearbyChat)
-	{
-		LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
-		if (speaker_mgr)
 		{
-			speaker_mgr->setSpeakerTyping(gAgent.getID(), FALSE);
+	LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
+	if (speaker_mgr)
+		{
+		speaker_mgr->setSpeakerTyping(gAgent.getID(), FALSE);
 		}
-	}
+}
 }
 
 void LLIMFloater::processIMTyping(const LLIMInfo* im_info, BOOL typing)
 {
-	if (typing)
+	if ( typing )
 	{
 		// other user started typing
 		addTypingIndicator(im_info);
@@ -1061,7 +1067,7 @@ void LLIMFloater::processAgentListUpdates(const LLSD& body)
 
 			if (agent_info.has("mutes"))
 			{
-				BOOL moderator_muted_text = agent_info["mutes"]["text"].asBoolean();
+				BOOL moderator_muted_text = agent_info["mutes"]["text"].asBoolean(); 
 				mInputEditor->setEnabled(!moderator_muted_text);
 				std::string label;
 				if (moderator_muted_text)
@@ -1080,8 +1086,8 @@ void LLIMFloater::processAgentListUpdates(const LLSD& body)
 void LLIMFloater::processSessionUpdate(const LLSD& session_update)
 {
 	// *TODO : verify following code when moderated mode will be implemented
-	if (false && session_update.has("moderated_mode") &&
-			session_update["moderated_mode"].has("voice"))
+	if ( false && session_update.has("moderated_mode") &&
+		 session_update["moderated_mode"].has("voice") )
 	{
 		BOOL voice_moderated = session_update["moderated_mode"]["voice"];
 		const std::string session_label = LLIMModel::instance().getName(mSessionID);
@@ -1107,24 +1113,24 @@ BOOL LLIMFloater::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 									EDragAndDropType cargo_type,
 									void* cargo_data,
 									EAcceptance* accept,
-									std::string& tooltip_msg)
+						   std::string& tooltip_msg)
 {
 	if (cargo_type == DAD_PERSON)
 	{
 		if (dropPerson(static_cast<LLUUID*>(cargo_data), drop))
-		{
-			*accept = ACCEPT_YES_MULTI;
-		}
-		else
-		{
-			*accept = ACCEPT_NO;
-		}
-	}
-	else if (mDialog == IM_NOTHING_SPECIAL)
 	{
+			*accept = ACCEPT_YES_MULTI;
+	}
+		else
+	{
+		*accept = ACCEPT_NO;
+			}
+		}
+	else if (mDialog == IM_NOTHING_SPECIAL)
+		{
 		LLToolDragAndDrop::handleGiveDragAndDrop(mOtherParticipantUUID, mSessionID, drop,
 				cargo_type, cargo_data, accept);
-	}
+			}
 
 	return TRUE;
 }
@@ -1134,27 +1140,27 @@ bool LLIMFloater::dropPerson(LLUUID* person_id, bool drop)
 	bool res = person_id && person_id->notNull();
 	if(res)
 	{
-		uuid_vec_t ids;
+			uuid_vec_t ids;
 		ids.push_back(*person_id);
 
 		res = canAddSelectedToChat(ids);
 		if(res && drop)
-		{
+	{
 			addSessionParticipants(ids);
-		}
 	}
+}
 
 	return res;
-}
+		}
 
 BOOL LLIMFloater::isInviteAllowed() const
 {
-	return ((IM_SESSION_CONFERENCE_START == mDialog)
+	return ( (IM_SESSION_CONFERENCE_START == mDialog)
 			 || (IM_SESSION_INVITE == mDialog && !gAgent.isInGroup(mSessionID))
 			 || mIsP2PChat);
 }
 
-class LLSessionInviteResponder: public LLHTTPClient::Responder
+class LLSessionInviteResponder : public LLHTTPClient::Responder
 {
 public:
 	LLSessionInviteResponder(const LLUUID& session_id)
@@ -1179,37 +1185,37 @@ BOOL LLIMFloater::inviteToSession(const uuid_vec_t& ids)
 
 	if (is_region_exist)
 	{
-		S32 count = ids.size();
+	S32 count = ids.size();
 
-		if (isInviteAllowed() && (count > 0))
+	if( isInviteAllowed() && (count > 0) )
+	{
+		llinfos << "LLIMFloater::inviteToSession() - inviting participants" << llendl;
+
+		std::string url = region->getCapability("ChatSessionRequest");
+
+		LLSD data;
+
+		data["params"] = LLSD::emptyArray();
+		for (int i = 0; i < count; i++)
 		{
-			llinfos << "LLIMFloater::inviteToSession() - inviting participants" << llendl;
+			data["params"].append(ids[i]);
+		}
 
-			std::string url = region->getCapability("ChatSessionRequest");
-
-			LLSD data;
-
-			data["params"] = LLSD::emptyArray();
-			for (int i = 0; i < count; i++)
-			{
-				data["params"].append(ids[i]);
-			}
-
-			data["method"] = "invite";
-			data["session-id"] = mSessionID;
-			LLHTTPClient::post(
-					url,
-					data,
+		data["method"] = "invite";
+		data["session-id"] = mSessionID;
+		LLHTTPClient::post(
+			url,
+			data,
 					new LLSessionInviteResponder(mSessionID));
-		}
-		else
-		{
-			llinfos << "LLIMFloater::inviteToSession -"
-					<< " no need to invite agents for "
-					<< mDialog << llendl;
-			// successful add, because everyone that needed to get added
-			// was added.
-		}
+	}
+	else
+	{
+		llinfos << "LLIMFloater::inviteToSession -"
+				<< " no need to invite agents for "
+				<< mDialog << llendl;
+		// successful add, because everyone that needed to get added
+		// was added.
+	}
 	}
 
 	return is_region_exist;
@@ -1218,17 +1224,17 @@ BOOL LLIMFloater::inviteToSession(const uuid_vec_t& ids)
 void LLIMFloater::addTypingIndicator(const LLIMInfo* im_info)
 {
 	// We may have lost a "stop-typing" packet, don't add it twice
-	if (im_info && !mOtherTyping)
+	if ( im_info && !mOtherTyping )
 	{
 		mOtherTyping = true;
 
 		// Save and set new title
 		mSavedTitle = getTitle();
-		setTitle(mTypingStart);
+		setTitle (mTypingStart);
 
 		// Update speaker
 		LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
-		if (speaker_mgr)
+		if ( speaker_mgr )
 		{
 			speaker_mgr->setSpeakerTyping(im_info->mFromID, TRUE);
 		}
@@ -1237,18 +1243,18 @@ void LLIMFloater::addTypingIndicator(const LLIMInfo* im_info)
 
 void LLIMFloater::removeTypingIndicator(const LLIMInfo* im_info)
 {
-	if (mOtherTyping)
+	if ( mOtherTyping )
 	{
 		mOtherTyping = false;
 
 		// Revert the title to saved one
 		setTitle(mSavedTitle);
 
-		if (im_info)
+		if ( im_info )
 		{
 			// Update speaker
 			LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
-			if (speaker_mgr)
+			if ( speaker_mgr )
 			{
 				speaker_mgr->setSpeakerTyping(im_info->mFromID, FALSE);
 			}
@@ -1318,19 +1324,19 @@ void LLIMFloater::onIMChicletCreated( const LLUUID& session_id )
 	LLIMFloater::addToHost(session_id);
 }
 void LLIMFloater::addToHost(const LLUUID& session_id)
-{
-	if (LLIMConversation::isChatMultiTab())
 	{
+	if (LLIMConversation::isChatMultiTab())
+{
 		LLIMFloaterContainer* im_box = LLIMFloaterContainer::findInstance();
 		if (!im_box)
-	    {
+	{
 			im_box = LLIMFloaterContainer::getInstance();
-	    }
+	}
 
 		if (im_box && !LLIMFloater::findInstance(session_id))
-		{
+	{
 			LLIMFloater* new_tab = LLIMFloater::getInstance(session_id);
 			im_box->addFloater(new_tab, FALSE, LLTabContainer::END);
-		}
+	}
 	}
 }

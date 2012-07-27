@@ -62,9 +62,10 @@ public:
 	/**
 	 * Gives passed inventory category to specified avatar in specified session.
 	 */
-	static void doGiveInventoryCategory(const LLUUID& to_agent,
+	static bool doGiveInventoryCategory(const LLUUID& to_agent,
 									const LLInventoryCategory* item,
-									const LLUUID &session_id = LLUUID::null);
+									const LLUUID &session_id = LLUUID::null,
+									const std::string& notification = std::string());
 
 	// give inventory item functionality
 	static bool handleCopyProtectedItem(const LLSD& notification, const LLSD& response);
@@ -85,7 +86,7 @@ private:
 
 	// give inventory category functionality
 	static bool handleCopyProtectedCategory(const LLSD& notification, const LLSD& response);
-	static void commitGiveInventoryCategory(const LLUUID& to_agent,
+	static bool commitGiveInventoryCategory(const LLUUID& to_agent,
 									const LLInventoryCategory* cat,
 									const LLUUID &im_session_id = LLUUID::null);
 

@@ -1196,7 +1196,7 @@ void LLFavoritesBarCtrl::doToSelected(const LLSD& userdata)
 	}
 	else if (action == "paste")
 	{
-		pastFromClipboard();
+		pasteFromClipboard();
 	}
 	else if (action == "delete")
 	{
@@ -1244,7 +1244,7 @@ BOOL LLFavoritesBarCtrl::isClipboardPasteable() const
 	return TRUE;
 }
 
-void LLFavoritesBarCtrl::pastFromClipboard() const
+void LLFavoritesBarCtrl::pasteFromClipboard() const
 {
 	LLInventoryModel* model = &gInventory;
 	if(model && isClipboardPasteable())

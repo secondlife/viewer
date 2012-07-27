@@ -240,6 +240,7 @@ static bool mLoginStatePastUI = false;
 
 boost::scoped_ptr<LLEventPump> LLStartUp::sStateWatcher(new LLEventStream("StartupState"));
 boost::scoped_ptr<LLStartupListener> LLStartUp::sListener(new LLStartupListener());
+boost::scoped_ptr<LLViewerStats::PhaseMap> LLStartUp::sPhases(new LLViewerStats::PhaseMap);
 
 //
 // local function declaration
@@ -739,6 +740,7 @@ bool idle_startup()
 		{
 			display_startup();
 			initialize_edit_menu();
+			initialize_spellcheck_menu();
 			display_startup();
 			init_menus();
 			display_startup();
@@ -2699,7 +2701,10 @@ void LLStartUp::setStartupState( EStartupState state )
 	LL_INFOS("AppInit") << "Startup state changing from " <<  
 		getStartupStateString() << " to " <<  
 		startupStateToString(state) << LL_ENDL;
+
+	sPhases->stopPhase(getStartupStateString());
 	gStartupState = state;
+	sPhases->startPhase(getStartupStateString());
 	postStartupState();
 }
 
@@ -3204,17 +3209,6 @@ bool process_login_success_response()
 		U32 preferredMaturity = (U32)LLAgent::convertTextToMaturity(text[0]);
 
 		gSavedSettings.setU32("PreferredMaturity", preferredMaturity);
-	}
-	// During the AO transition, this flag will be true. Then the flag will
-	// go away. After the AO transition, this code and all the code that
-	// uses it can be deleted.
-	text = response["ao_transition"].asString();
-	if (!text.empty())
-	{
-		if (text == "1")
-		{
-			gAgent.setAOTransition();
-		}
 	}
 
 	text = response["start_location"].asString();

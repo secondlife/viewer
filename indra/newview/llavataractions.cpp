@@ -577,7 +577,7 @@ namespace action_give_inventory
 		}
 
 		S32 count = LLShareInfo::instance().mAvatarNames.size();
-		bool shared = false;
+		bool shared = count && !inventory_selected_uuids.empty();
 
 		// iterate through avatars
 		for(S32 i = 0; i < count; ++i)
@@ -599,8 +599,10 @@ namespace action_give_inventory
 				LLViewerInventoryCategory* inv_cat = gInventory.getCategory(*it);
 				if (inv_cat)
 				{
-					LLGiveInventory::doGiveInventoryCategory(avatar_uuid, inv_cat, session_id);
-					shared = true;
+					if (!LLGiveInventory::doGiveInventoryCategory(avatar_uuid, inv_cat, session_id, "ItemsShared"))
+					{
+						shared = false;
+					}
 					break;
 				}
 				LLViewerInventoryItem* inv_item = gInventory.getItem(*it);
@@ -615,8 +617,10 @@ namespace action_give_inventory
 				}
 				else
 				{
-				LLGiveInventory::doGiveInventoryItem(avatar_uuid, inv_item, session_id);
-					shared = true;
+					if (!LLGiveInventory::doGiveInventoryItem(avatar_uuid, inv_item, session_id))
+					{
+						shared = false;
+					}
 				}
 			}
 			if (noncopy_items.beginArray() != noncopy_items.endArray())
@@ -626,8 +630,10 @@ namespace action_give_inventory
 				LLSD payload;
 				payload["agent_id"] = avatar_uuid;
 				payload["items"] = noncopy_items;
+				payload["success_notification"] = "ItemsShared";
 				LLNotificationsUtil::add("CannotCopyWarning", substitutions, payload,
 					&LLGiveInventory::handleCopyProtectedItem);
+				shared = false;
 				break;
 			}
 		}

@@ -35,6 +35,31 @@
 #include "lluuid.h"
 #include "llsdutil.h"
 #include "llregionhandle.h"
+#include "../llvoavatar.h"
+
+void LLVOAvatar::getNearbyRezzedStats(std::vector<S32>& counts)
+{
+	counts.resize(3);
+	counts[0] = 0;
+	counts[1] = 0;
+	counts[2] = 1;
+}
+
+// static
+std::string LLVOAvatar::rezStatusToString(S32 rez_status)
+{
+	if (rez_status==0) return "cloud";
+	if (rez_status==1) return "gray";
+	if (rez_status==2) return "textured";
+	return "unknown";
+}
+
+// static
+LLViewerStats::StatsAccumulator& LLViewerStats::PhaseMap::getPhaseStats(const std::string& phase_name)
+{
+	static LLViewerStats::StatsAccumulator junk;
+	return junk;
+}
 
 static const char * all_keys[] = 
 {
@@ -104,18 +129,25 @@ is_single_key_map(const LLSD & sd, const std::string & key)
 {
 	return sd.isMap() && 1 == sd.size() && sd.has(key);
 }
-#endif
 
 static bool
 is_double_key_map(const LLSD & sd, const std::string & key1, const std::string & key2)
 {
 	return sd.isMap() && 2 == sd.size() && sd.has(key1) && sd.has(key2);
 }
+#endif
+
+static bool
+is_triple_key_map(const LLSD & sd, const std::string & key1, const std::string & key2, const std::string& key3)
+{
+	return sd.isMap() && 3 == sd.size() && sd.has(key1) && sd.has(key2) && sd.has(key3);
+}
+
 
 static bool
 is_no_stats_map(const LLSD & sd)
 {
-	return is_double_key_map(sd, "duration", "regions");
+	return is_triple_key_map(sd, "duration", "regions", "avatar");
 }
 
 static bool
@@ -226,7 +258,7 @@ namespace tut
 		// Once the region is set, we will get a response even with no data collection
 		it->setRegion(region1_handle);
 		sd_full = it->asLLSD(false);
-		ensure("Correct single-key LLSD map root", is_double_key_map(sd_full, "duration", "regions"));
+		ensure("Correct single-key LLSD map root", is_triple_key_map(sd_full, "duration", "regions", "avatar"));
 		ensure("Correct single-slot LLSD array regions", is_single_slot_array(sd_full["regions"], region1_handle));
 		
 		LLSD sd = sd_full["regions"][0];
@@ -267,7 +299,7 @@ namespace tut
 		it->setRegion(region1_handle);
 		
 		LLSD sd = it->asLLSD(false);
-		ensure("Correct single-key LLSD map root", is_double_key_map(sd, "regions", "duration"));
+		ensure("Correct single-key LLSD map root", is_triple_key_map(sd, "regions", "duration", "avatar"));
 		ensure("Correct single-slot LLSD array regions", is_single_slot_array(sd["regions"], region1_handle));
 		sd = sd[0];
 		
@@ -292,7 +324,7 @@ namespace tut
 		LLViewerAssetStatsFF::record_dequeue_main(LLViewerAssetType::AT_BODYPART, false, false);
 
 		LLSD sd = gViewerAssetStatsMain->asLLSD(false);
-		ensure("Correct single-key LLSD map root", is_double_key_map(sd, "regions", "duration"));
+		ensure("Correct single-key LLSD map root", is_triple_key_map(sd, "regions", "duration", "avatar"));
 		ensure("Correct single-slot LLSD array regions", is_single_slot_array(sd["regions"], region1_handle));
 		sd = sd["regions"][0];
 		
@@ -332,7 +364,7 @@ namespace tut
 		LLSD sd = gViewerAssetStatsThread1->asLLSD(false);
 		ensure("Other collector is empty", is_no_stats_map(sd));
 		sd = gViewerAssetStatsMain->asLLSD(false);
-		ensure("Correct single-key LLSD map root", is_double_key_map(sd, "regions", "duration"));
+		ensure("Correct single-key LLSD map root", is_triple_key_map(sd, "regions", "duration", "avatar"));
 		ensure("Correct single-slot LLSD array regions", is_single_slot_array(sd["regions"], region1_handle));
 		sd = sd["regions"][0];
 		
@@ -382,7 +414,7 @@ namespace tut
 
 		// std::cout << sd << std::endl;
 		
-		ensure("Correct double-key LLSD map root", is_double_key_map(sd, "duration", "regions"));
+		ensure("Correct double-key LLSD map root", is_triple_key_map(sd, "duration", "regions", "avatar"));
 		ensure("Correct double-slot LLSD array regions", is_double_slot_array(sd["regions"], region1_handle, region2_handle));
 		LLSD sd1 = get_region(sd, region1_handle);
 		LLSD sd2 = get_region(sd, region2_handle);
@@ -405,7 +437,7 @@ namespace tut
 		// Reset leaves current region in place
 		gViewerAssetStatsMain->reset();
 		sd = gViewerAssetStatsMain->asLLSD(false);
-		ensure("Correct single-key LLSD map root", is_double_key_map(sd, "regions", "duration"));
+		ensure("Correct single-key LLSD map root", is_triple_key_map(sd, "regions", "duration", "avatar"));
 		ensure("Correct single-slot LLSD array regions (p2)", is_single_slot_array(sd["regions"], region2_handle));
 		sd2 = sd["regions"][0];
 		
@@ -454,7 +486,7 @@ namespace tut
 
 		LLSD sd = gViewerAssetStatsMain->asLLSD(false);
 
-		ensure("Correct double-key LLSD map root", is_double_key_map(sd, "duration", "regions"));
+		ensure("Correct double-key LLSD map root", is_triple_key_map(sd, "duration", "regions", "avatar"));
 		ensure("Correct double-slot LLSD array regions", is_double_slot_array(sd["regions"], region1_handle, region2_handle));
 		LLSD sd1 = get_region(sd, region1_handle);
 		LLSD sd2 = get_region(sd, region2_handle);
@@ -477,7 +509,7 @@ namespace tut
 		// Reset leaves current region in place
 		gViewerAssetStatsMain->reset();
 		sd = gViewerAssetStatsMain->asLLSD(false);
-		ensure("Correct single-key LLSD map root", is_double_key_map(sd, "duration", "regions"));
+		ensure("Correct single-key LLSD map root", is_triple_key_map(sd, "duration", "regions", "avatar"));
 		ensure("Correct single-slot LLSD array regions (p2)", is_single_slot_array(sd["regions"], region2_handle));
 		sd2 = get_region(sd, region2_handle);
 		ensure("Region2 is present in results", sd2.isMap());
@@ -523,7 +555,7 @@ namespace tut
 		LLSD sd = gViewerAssetStatsThread1->asLLSD(false);
 		ensure("Other collector is empty", is_no_stats_map(sd));
 		sd = gViewerAssetStatsMain->asLLSD(false);
-		ensure("Correct single-key LLSD map root", is_double_key_map(sd, "regions", "duration"));
+		ensure("Correct single-key LLSD map root", is_triple_key_map(sd, "regions", "duration", "avatar"));
 		ensure("Correct single-slot LLSD array regions", is_single_slot_array(sd["regions"], region1_handle));
 		sd = get_region(sd, region1_handle);
 		ensure("Region1 is present in results", sd.isMap());

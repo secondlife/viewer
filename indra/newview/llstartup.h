@@ -34,6 +34,8 @@ class LLEventPump;
 class LLStartupListener;
 class LLSLURL;
 
+#include "llviewerstats.h"
+
 // functions
 bool idle_startup();
 void release_start_screen();
@@ -113,6 +115,7 @@ public:
 
 	static bool startLLProxy(); // Initialize the SOCKS 5 proxy
 
+	static LLViewerStats::PhaseMap& getPhases() { return *sPhases; }
 private:
 	static LLSLURL sStartSLURL;
 
@@ -120,6 +123,7 @@ private:
 	static EStartupState gStartupState; // Do not set directly, use LLStartup::setStartupState
 	static boost::scoped_ptr<LLEventPump> sStateWatcher;
 	static boost::scoped_ptr<LLStartupListener> sListener;
+	static boost::scoped_ptr<LLViewerStats::PhaseMap> sPhases;
 };
 
 

@@ -393,6 +393,7 @@ Please try logging in again in a minute.</string>
   <string name="reconnect_nearby">You will now be reconnected to Nearby Voice Chat</string>
 	<string name="ScriptQuestionCautionChatGranted">'[OBJECTNAME]', an object owned by '[OWNERNAME]', located in [REGIONNAME] at [REGIONPOS], has been granted permission to: [PERMISSIONS].</string>
 	<string name="ScriptQuestionCautionChatDenied">'[OBJECTNAME]', an object owned by '[OWNERNAME]', located in [REGIONNAME] at [REGIONPOS], has been denied permission to: [PERMISSIONS].</string>
+	<string name="AdditionalPermissionsRequestHeader">If you allow access to your account, you will also be allowing the object to:</string>
 	<string name="ScriptTakeMoney">Take Linden dollars (L$) from you</string>
 	<string name="ActOnControlInputs">Act on your control inputs</string>
 	<string name="RemapControlInputs">Remap your control inputs</string>
@@ -441,6 +442,7 @@ Please try logging in again in a minute.</string>
 	<string name="load_files">Load Files</string>
 	<string name="choose_the_directory">Choose Directory</string>
 	<string name="script_files">Scripts</string>
+	<string name="dictionary_files">Dictionaries</string>
 
   <!-- LSL Usage Hover Tips -->
   <!-- NOTE: For now these are set as translate="false", until DEV-40761 is implemented (to internationalize the rest of tooltips in the same window).
@@ -3759,4 +3761,9 @@ Try enclosing path to the editor with double quotes.
   <string name="snapshot_quality_high">High</string>
   <string name="snapshot_quality_very_high">Very High</string>
 
+  <string name="TeleportMaturityExceeded">The Resident cannot visit this region.</string>
+
+  <!-- Spell check settings floater -->
+  <string name="UserDictionary">[User]</string>
+  
   </strings>

@@ -576,7 +576,6 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 		{
 			old_mode = mTexture->getAddressMode();
 		}
-		gGL.getTexUnit(diffuse_channel)->bind(mTexture.get());
 		gGL.getTexUnit(diffuse_channel)->bind(mTexture);
 		gGL.getTexUnit(diffuse_channel)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 	}

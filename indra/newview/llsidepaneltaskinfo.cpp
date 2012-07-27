@@ -94,7 +94,7 @@ BOOL LLSidepanelTaskInfo::postBuild()
 	mPayBtn = getChild<LLButton>("pay_btn");
 	mPayBtn->setClickedCallback(boost::bind(&LLSidepanelTaskInfo::onPayButtonClicked, this));
 	mBuyBtn = getChild<LLButton>("buy_btn");
-	mBuyBtn->setClickedCallback(boost::bind(&LLSidepanelTaskInfo::onBuyButtonClicked, this));
+	mBuyBtn->setClickedCallback(boost::bind(&handle_buy));
 	mDetailsBtn = getChild<LLButton>("details_btn");
 	mDetailsBtn->setClickedCallback(boost::bind(&LLSidepanelTaskInfo::onDetailsButtonClicked, this));
 
@@ -1114,8 +1114,6 @@ void LLSidepanelTaskInfo::doClickAction(U8 click_action)
 			// Set click action back to its old value
 			U8 click_action = 0;
 			LLSelectMgr::getInstance()->selectionGetClickAction(&click_action);
-//			box->setCurrentByIndex((S32)click_action);
-
 			return;
 		}
 	}

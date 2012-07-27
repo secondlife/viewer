@@ -60,7 +60,7 @@ LLToastNotifyPanel::LLToastNotifyPanel(const LLNotificationPtr& notification, co
 	LLInstanceTracker<LLToastNotifyPanel, LLUUID>(notification->getID())
 {
 	init(rect, show_images);
-}
+	}
 void LLToastNotifyPanel::addDefaultButton()
 {
 	LLSD form_element;
@@ -131,10 +131,10 @@ LLToastNotifyPanel::~LLToastNotifyPanel()
 
 	std::for_each(mBtnCallbackData.begin(), mBtnCallbackData.end(), DeletePointer());
 	if (mIsTip)
-	{
-		LLNotifications::getInstance()->cancel(mNotification);
+		{
+			LLNotifications::getInstance()->cancel(mNotification);
+		}
 	}
-}
 
 void LLToastNotifyPanel::updateButtonsLayout(const std::vector<index_button_pair_t>& buttons, S32 h_pad)
 {
@@ -341,7 +341,7 @@ void LLToastNotifyPanel::onClickButton(void* data)
 	{
 		response[button_name] = true;
 	}
-	
+
 	// disable all buttons
 	self->mControlPanel->setEnabled(FALSE);
 
@@ -387,10 +387,10 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
 	mMessage = mNotification->getMessage();
 	// init font variables
 	if (!sFont)
-	{
+{
 		sFont = LLFontGL::getFontSansSerif();
 		sFontSmall = LLFontGL::getFontSansSerifSmall();
-	}
+}
 	// initialize
 	setFocusRoot(!mIsTip);
 	// get a form for the notification
@@ -425,41 +425,41 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
 		adjustPanelForTipNotice();
 	}
 	else
-	{
+{
 		std::vector<index_button_pair_t> buttons;
 		buttons.reserve(mNumOptions);
 		S32 buttons_width = 0;
 		// create all buttons and accumulate they total width to reshape mControlPanel
 		for (S32 i = 0; i < mNumOptions; i++)
-		{
+	{
 			LLSD form_element = form->getElement(i);
 			if (form_element["type"].asString() != "button")
-			{
+		{
 				// not a button.
 				continue;
-			}
+		}
 			if (form_element["name"].asString() == TEXTBOX_MAGIC_TOKEN)
 			{
 				// a textbox pretending to be a button.
 				continue;
-			}
+	}
 			LLButton* new_button = createButton(form_element, TRUE);
 			buttons_width += new_button->getRect().getWidth();
 			S32 index = form_element["index"].asInteger();
 			buttons.push_back(index_button_pair_t(index,new_button));
-		}
+}
 		if (buttons.empty())
-		{
+{
 			addDefaultButton();
-		}
+	}
 		else
-		{
+	{
 			const S32 button_panel_width = mControlPanel->getRect().getWidth();// do not change width of the panel
 			S32 button_panel_height = mControlPanel->getRect().getHeight();
 			//try get an average h_pad to spread out buttons
 			S32 h_pad = (button_panel_width - buttons_width) / (S32(buttons.size()));
 			if(h_pad < 2*HPAD)
-			{
+	{
 				/*
 				* Probably it is a scriptdialog toast
 				* for a scriptdialog toast h_pad can be < 2*HPAD if we have a lot of buttons.
@@ -468,12 +468,12 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
 				S32 button_per_row = button_panel_width / BUTTON_WIDTH;
 				h_pad = (button_panel_width % BUTTON_WIDTH) / (button_per_row - 1);// -1  because we do not need space after last button in a row   
 				if(h_pad < 2*HPAD) // still not enough space between buttons ?
-				{
+	{
 					h_pad = 2*HPAD;
-				}
-			}
+	}
+}
 			if (mIsScriptDialog)
-			{
+{
 				// we are using default width for script buttons so we can determinate button_rows
 				//to get a number of rows we divide the required width of the buttons to button_panel_width
 				S32 button_rows = llceil(F32(buttons.size() - 1) * (BUTTON_WIDTH + h_pad) / button_panel_width);
@@ -484,13 +484,13 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
 				button_panel_height = button_rows * (BTN_HEIGHT + VPAD)	+ IGNORE_BTN_TOP_DELTA + BOTTOM_PAD;
 			}
 			else
-			{
+	{
 				// in common case buttons can have different widths so we need to calculate button_rows according to buttons_width
 				//S32 button_rows = llceil(F32(buttons.size()) * (buttons_width + h_pad) / button_panel_width);
 				S32 button_rows = llceil(F32((buttons.size() - 1) * h_pad + buttons_width) / button_panel_width);
 				//calculate required panel height 
 				button_panel_height = button_rows * (BTN_HEIGHT + VPAD)	+ BOTTOM_PAD;
-			}
+}
 
 			// we need to keep min width and max height to make visible all buttons, because width of the toast can not be changed
 			adjustPanelForScriptNotice(button_panel_width, button_panel_height);
@@ -544,11 +544,11 @@ LLIMToastNotifyPanel::~LLIMToastNotifyPanel()
 }
 
 void LLIMToastNotifyPanel::reshape(S32 width, S32 height, BOOL called_from_parent /* = TRUE */)
-{
+	{
 	LLToastPanel::reshape(width, height, called_from_parent);
 
 	snapToMessageHeight(mTextBox, MAX_LENGTH);
-}
+	}
 
 void LLIMToastNotifyPanel::compactButtons()
 {
@@ -588,9 +588,9 @@ void LLIMToastNotifyPanel::compactButtons()
 }
 
 void LLIMToastNotifyPanel::updateNotification()
-{
+	{
 	init(LLRect(), true);
-}
+	}
 
 void LLIMToastNotifyPanel::init( LLRect rect, bool show_images )
 {

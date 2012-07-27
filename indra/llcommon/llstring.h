@@ -40,6 +40,7 @@
 #endif
 
 #include <string.h>
+#include <boost/scoped_ptr.hpp>
 
 #if LL_SOLARIS
 // stricmp and strnicmp do not exist on Solaris:
@@ -182,6 +183,9 @@ public:
 	static bool isPunct(char a) { return ispunct((unsigned char)a) != 0; }
 	static bool isPunct(llwchar a) { return iswpunct(a) != 0; }
 
+	static bool isAlpha(char a) { return isalpha((unsigned char)a) != 0; }
+	static bool isAlpha(llwchar a) { return iswalpha(a) != 0; }
+
 	static bool isAlnum(char a) { return isalnum((unsigned char)a) != 0; }
 	static bool isAlnum(llwchar a) { return iswalnum(a) != 0; }
 
@@ -237,40 +241,77 @@ private:
 	static std::string sLocale;
 
 public:
-	typedef typename std::basic_string<T>::size_type size_type;
+	typedef std::basic_string<T> string_type;
+	typedef typename string_type::size_type size_type;
 	
 public:
 	/////////////////////////////////////////////////////////////////////////////////////////
 	// Static Utility functions that operate on std::strings
 
-	static const std::basic_string<T> null;
+	static const string_type null;
 	
 	typedef std::map<LLFormatMapString, LLFormatMapString> format_map_t;
-	LL_COMMON_API static void getTokens(const std::basic_string<T>& instr, std::vector<std::basic_string<T> >& tokens, const std::basic_string<T>& delims);
-	LL_COMMON_API static void formatNumber(std::basic_string<T>& numStr, std::basic_string<T> decimals);
-	LL_COMMON_API static bool formatDatetime(std::basic_string<T>& replacement, std::basic_string<T> token, std::basic_string<T> param, S32 secFromEpoch);
-	LL_COMMON_API static S32 format(std::basic_string<T>& s, const format_map_t& substitutions);
-	LL_COMMON_API static S32 format(std::basic_string<T>& s, const LLSD& substitutions);
-	LL_COMMON_API static bool simpleReplacement(std::basic_string<T>& replacement, std::basic_string<T> token, const format_map_t& substitutions);
-	LL_COMMON_API static bool simpleReplacement(std::basic_string<T>& replacement, std::basic_string<T> token, const LLSD& substitutions);
+	/// considers any sequence of delims as a single field separator
+	LL_COMMON_API static void getTokens(const string_type& instr,
+										std::vector<string_type >& tokens,
+										const string_type& delims);
+	/// like simple scan overload, but returns scanned vector
+	static std::vector<string_type> getTokens(const string_type& instr,
+											  const string_type& delims);
+	/// add support for keep_delims and quotes (either could be empty string)
+	static void getTokens(const string_type& instr,
+						  std::vector<string_type>& tokens,
+						  const string_type& drop_delims,
+						  const string_type& keep_delims,
+						  const string_type& quotes=string_type());
+	/// like keep_delims-and-quotes overload, but returns scanned vector
+	static std::vector<string_type> getTokens(const string_type& instr,
+											  const string_type& drop_delims,
+											  const string_type& keep_delims,
+											  const string_type& quotes=string_type());
+	/// add support for escapes (could be empty string)
+	static void getTokens(const string_type& instr,
+						  std::vector<string_type>& tokens,
+						  const string_type& drop_delims,
+						  const string_type& keep_delims,
+						  const string_type& quotes,
+						  const string_type& escapes);
+	/// like escapes overload, but returns scanned vector
+	static std::vector<string_type> getTokens(const string_type& instr,
+											  const string_type& drop_delims,
+											  const string_type& keep_delims,
+											  const string_type& quotes,
+											  const string_type& escapes);
+
+	LL_COMMON_API static void formatNumber(string_type& numStr, string_type decimals);
+	LL_COMMON_API static bool formatDatetime(string_type& replacement, string_type token, string_type param, S32 secFromEpoch);
+	LL_COMMON_API static S32 format(string_type& s, const format_map_t& substitutions);
+	LL_COMMON_API static S32 format(string_type& s, const LLSD& substitutions);
+	LL_COMMON_API static bool simpleReplacement(string_type& replacement, string_type token, const format_map_t& substitutions);
+	LL_COMMON_API static bool simpleReplacement(string_type& replacement, string_type token, const LLSD& substitutions);
 	LL_COMMON_API static void setLocale (std::string inLocale);
 	LL_COMMON_API static std::string getLocale (void);
 	
-	static bool isValidIndex(const std::basic_string<T>& string, size_type i)
+	static bool isValidIndex(const string_type& string, size_type i)
 	{
 		return !string.empty() && (0 <= i) && (i <= string.size());
 	}
 
-	static void	trimHead(std::basic_string<T>& string);
-	static void	trimTail(std::basic_string<T>& string);
-	static void	trim(std::basic_string<T>& string)	{ trimHead(string); trimTail(string); }
-	static void truncate(std::basic_string<T>& string, size_type count);
+	static bool contains(const string_type& string, T c, size_type i=0)
+	{
+		return string.find(c, i) != string_type::npos;
+	}
 
-	static void	toUpper(std::basic_string<T>& string);
-	static void	toLower(std::basic_string<T>& string);
+	static void	trimHead(string_type& string);
+	static void	trimTail(string_type& string);
+	static void	trim(string_type& string)	{ trimHead(string); trimTail(string); }
+	static void truncate(string_type& string, size_type count);
+
+	static void	toUpper(string_type& string);
+	static void	toLower(string_type& string);
 	
 	// True if this is the head of s.
-	static BOOL	isHead( const std::basic_string<T>& string, const T* s ); 
+	static BOOL	isHead( const string_type& string, const T* s ); 
 
 	/**
 	 * @brief Returns true if string starts with substr
@@ -278,8 +319,8 @@ public:
 	 * If etither string or substr are empty, this method returns false.
 	 */
 	static bool startsWith(
-		const std::basic_string<T>& string,
-		const std::basic_string<T>& substr);
+		const string_type& string,
+		const string_type& substr);
 
 	/**
 	 * @brief Returns true if string ends in substr
@@ -287,19 +328,32 @@ public:
 	 * If etither string or substr are empty, this method returns false.
 	 */
 	static bool endsWith(
-		const std::basic_string<T>& string,
-		const std::basic_string<T>& substr);
+		const string_type& string,
+		const string_type& substr);
 
-	static void	addCRLF(std::basic_string<T>& string);
-	static void	removeCRLF(std::basic_string<T>& string);
+	static void	addCRLF(string_type& string);
+	static void	removeCRLF(string_type& string);
 
-	static void	replaceTabsWithSpaces( std::basic_string<T>& string, size_type spaces_per_tab );
-	static void	replaceNonstandardASCII( std::basic_string<T>& string, T replacement );
-	static void	replaceChar( std::basic_string<T>& string, T target, T replacement );
-	static void replaceString( std::basic_string<T>& string, std::basic_string<T> target, std::basic_string<T> replacement );
+	static void	replaceTabsWithSpaces( string_type& string, size_type spaces_per_tab );
+	static void	replaceNonstandardASCII( string_type& string, T replacement );
+	static void	replaceChar( string_type& string, T target, T replacement );
+	static void replaceString( string_type& string, string_type target, string_type replacement );
 	
-	static BOOL	containsNonprintable(const std::basic_string<T>& string);
-	static void	stripNonprintable(std::basic_string<T>& string);
+	static BOOL	containsNonprintable(const string_type& string);
+	static void	stripNonprintable(string_type& string);
+
+	/**
+	 * Double-quote an argument string if needed, unless it's already
+	 * double-quoted. Decide whether it's needed based on the presence of any
+	 * character in @a triggers (default space or double-quote). If we quote
+	 * it, escape any embedded double-quote with the @a escape string (default
+	 * backslash).
+	 *
+	 * Passing triggers="" means always quote, unless it's already double-quoted.
+	 */
+	static string_type quote(const string_type& str,
+							 const string_type& triggers=" \"",
+							 const string_type& escape="\\");
 
 	/**
 	 * @brief Unsafe way to make ascii characters. You should probably
@@ -308,18 +362,18 @@ public:
 	 * The 2 and 4 byte std::string probably work, so LLWStringUtil::_makeASCII
 	 * should work.
 	 */
-	static void _makeASCII(std::basic_string<T>& string);
+	static void _makeASCII(string_type& string);
 
 	// Conversion to other data types
-	static BOOL	convertToBOOL(const std::basic_string<T>& string, BOOL& value);
-	static BOOL	convertToU8(const std::basic_string<T>& string, U8& value);
-	static BOOL	convertToS8(const std::basic_string<T>& string, S8& value);
-	static BOOL	convertToS16(const std::basic_string<T>& string, S16& value);
-	static BOOL	convertToU16(const std::basic_string<T>& string, U16& value);
-	static BOOL	convertToU32(const std::basic_string<T>& string, U32& value);
-	static BOOL	convertToS32(const std::basic_string<T>& string, S32& value);
-	static BOOL	convertToF32(const std::basic_string<T>& string, F32& value);
-	static BOOL	convertToF64(const std::basic_string<T>& string, F64& value);
+	static BOOL	convertToBOOL(const string_type& string, BOOL& value);
+	static BOOL	convertToU8(const string_type& string, U8& value);
+	static BOOL	convertToS8(const string_type& string, S8& value);
+	static BOOL	convertToS16(const string_type& string, S16& value);
+	static BOOL	convertToU16(const string_type& string, U16& value);
+	static BOOL	convertToU32(const string_type& string, U32& value);
+	static BOOL	convertToS32(const string_type& string, S32& value);
+	static BOOL	convertToF32(const string_type& string, F32& value);
+	static BOOL	convertToF64(const string_type& string, F64& value);
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 	// Utility functions for working with char*'s and strings
@@ -327,24 +381,24 @@ public:
 	// Like strcmp but also handles empty strings. Uses
 	// current locale.
 	static S32		compareStrings(const T* lhs, const T* rhs);
-	static S32		compareStrings(const std::basic_string<T>& lhs, const std::basic_string<T>& rhs);
+	static S32		compareStrings(const string_type& lhs, const string_type& rhs);
 	
 	// case insensitive version of above. Uses current locale on
 	// Win32, and falls back to a non-locale aware comparison on
 	// Linux.
 	static S32		compareInsensitive(const T* lhs, const T* rhs);
-	static S32		compareInsensitive(const std::basic_string<T>& lhs, const std::basic_string<T>& rhs);
+	static S32		compareInsensitive(const string_type& lhs, const string_type& rhs);
 
 	// Case sensitive comparison with good handling of numbers.  Does not use current locale.
 	// a.k.a. strdictcmp()
-	static S32		compareDict(const std::basic_string<T>& a, const std::basic_string<T>& b);
+	static S32		compareDict(const string_type& a, const string_type& b);
 
 	// Case *in*sensitive comparison with good handling of numbers.  Does not use current locale.
 	// a.k.a. strdictcmp()
-	static S32		compareDictInsensitive(const std::basic_string<T>& a, const std::basic_string<T>& b);
+	static S32		compareDictInsensitive(const string_type& a, const string_type& b);
 
 	// Puts compareDict() in a form appropriate for LL container classes to use for sorting.
-	static BOOL		precedesDict( const std::basic_string<T>& a, const std::basic_string<T>& b );
+	static BOOL		precedesDict( const string_type& a, const string_type& b );
 
 	// A replacement for strncpy.
 	// If the dst buffer is dst_size bytes long or more, ensures that dst is null terminated and holds
@@ -352,7 +406,7 @@ public:
 	static void		copy(T* dst, const T* src, size_type dst_size);
 	
 	// Copies src into dst at a given offset.  
-	static void		copyInto(std::basic_string<T>& dst, const std::basic_string<T>& src, size_type offset);
+	static void		copyInto(string_type& dst, const string_type& src, size_type offset);
 	
 	static bool		isPartOfWord(T c) { return (c == (T)'_') || LLStringOps::isAlnum(c); }
 
@@ -362,7 +416,7 @@ public:
 #endif
 
 private:
-	LL_COMMON_API static size_type getSubstitution(const std::basic_string<T>& instr, size_type& start, std::vector<std::basic_string<T> >& tokens);
+	LL_COMMON_API static size_type getSubstitution(const string_type& instr, size_type& start, std::vector<string_type >& tokens);
 };
 
 template<class T> const std::basic_string<T> LLStringUtilBase<T>::null;
@@ -636,10 +690,325 @@ namespace LLStringFn
 ////////////////////////////////////////////////////////////
 // NOTE: LLStringUtil::format, getTokens, and support functions moved to llstring.cpp.
 // There is no LLWStringUtil::format implementation currently.
-// Calling thse for anything other than LLStringUtil will produce link errors.
+// Calling these for anything other than LLStringUtil will produce link errors.
 
 ////////////////////////////////////////////////////////////
 
+// static
+template <class T>
+std::vector<typename LLStringUtilBase<T>::string_type>
+LLStringUtilBase<T>::getTokens(const string_type& instr, const string_type& delims)
+{
+	std::vector<string_type> tokens;
+	getTokens(instr, tokens, delims);
+	return tokens;
+}
+
+// static
+template <class T>
+std::vector<typename LLStringUtilBase<T>::string_type>
+LLStringUtilBase<T>::getTokens(const string_type& instr,
+							   const string_type& drop_delims,
+							   const string_type& keep_delims,
+							   const string_type& quotes)
+{
+	std::vector<string_type> tokens;
+	getTokens(instr, tokens, drop_delims, keep_delims, quotes);
+	return tokens;
+}
+
+// static
+template <class T>
+std::vector<typename LLStringUtilBase<T>::string_type>
+LLStringUtilBase<T>::getTokens(const string_type& instr,
+							   const string_type& drop_delims,
+							   const string_type& keep_delims,
+							   const string_type& quotes,
+							   const string_type& escapes)
+{
+	std::vector<string_type> tokens;
+	getTokens(instr, tokens, drop_delims, keep_delims, quotes, escapes);
+	return tokens;
+}
+
+namespace LLStringUtilBaseImpl
+{
+
+/**
+ * Input string scanner helper for getTokens(), or really any other
+ * character-parsing routine that may have to deal with escape characters.
+ * This implementation defines the concept (also an interface, should you
+ * choose to implement the concept by subclassing) and provides trivial
+ * implementations for a string @em without escape processing.
+ */
+template <class T>
+struct InString
+{
+	typedef std::basic_string<T> string_type;
+	typedef typename string_type::const_iterator const_iterator;
+
+	InString(const_iterator b, const_iterator e):
+		mIter(b),
+		mEnd(e)
+	{}
+	virtual ~InString() {}
+
+	bool done() const { return mIter == mEnd; }
+	/// Is the current character (*mIter) escaped? This implementation can
+	/// answer trivially because it doesn't support escapes.
+	virtual bool escaped() const { return false; }
+	/// Obtain the current character and advance @c mIter.
+	virtual T next() { return *mIter++; }
+	/// Does the current character match specified character?
+	virtual bool is(T ch) const { return (! done()) && *mIter == ch; }
+	/// Is the current character any one of the specified characters?
+	virtual bool oneof(const string_type& delims) const
+	{
+		return (! done()) && LLStringUtilBase<T>::contains(delims, *mIter);
+	}
+
+	/**
+	 * Scan forward from @from until either @a delim or end. This is primarily
+	 * useful for processing quoted substrings.
+	 *
+	 * If we do see @a delim, append everything from @from until (excluding)
+	 * @a delim to @a into, advance @c mIter to skip @a delim, and return @c
+	 * true.
+	 *
+	 * If we do not see @a delim, do not alter @a into or @c mIter and return
+	 * @c false. Do not pass GO, do not collect $200.
+	 *
+	 * @note The @c false case described above implements normal getTokens()
+	 * treatment of an unmatched open quote: treat the quote character as if
+	 * escaped, that is, simply collect it as part of the current token. Other
+	 * plausible behaviors directly affect the way getTokens() deals with an
+	 * unmatched quote: e.g. throwing an exception to treat it as an error, or
+	 * assuming a close quote beyond end of string (in which case return @c
+	 * true).
+	 */
+	virtual bool collect_until(string_type& into, const_iterator from, T delim)
+	{
+		const_iterator found = std::find(from, mEnd, delim);
+		// If we didn't find delim, change nothing, just tell caller.
+		if (found == mEnd)
+			return false;
+		// Found delim! Append everything between from and found.
+		into.append(from, found);
+		// advance past delim in input
+		mIter = found + 1;
+		return true;
+	}
+
+	const_iterator mIter, mEnd;
+};
+
+/// InString subclass that handles escape characters
+template <class T>
+class InEscString: public InString<T>
+{
+public:
+	typedef InString<T> super;
+	typedef typename super::string_type string_type;
+	typedef typename super::const_iterator const_iterator;
+	using super::done;
+	using super::mIter;
+	using super::mEnd;
+
+	InEscString(const_iterator b, const_iterator e, const string_type& escapes):
+		super(b, e),
+		mEscapes(escapes)
+	{
+		// Even though we've already initialized 'mIter' via our base-class
+		// constructor, set it again to check for initial escape char.
+		setiter(b);
+	}
+
+	/// This implementation uses the answer cached by setiter().
+	virtual bool escaped() const { return mIsEsc; }
+	virtual T next()
+	{
+		// If we're looking at the escape character of an escape sequence,
+		// skip that character. This is the one time we can modify 'mIter'
+		// without using setiter: for this one case we DO NOT CARE if the
+		// escaped character is itself an escape.
+		if (mIsEsc)
+			++mIter;
+		// If we were looking at an escape character, this is the escaped
+		// character; otherwise it's just the next character.
+		T result(*mIter);
+		// Advance mIter, checking for escape sequence.
+		setiter(mIter + 1);
+		return result;
+	}
+
+	virtual bool is(T ch) const
+	{
+		// Like base-class is(), except that an escaped character matches
+		// nothing.
+		return (! done()) && (! mIsEsc) && *mIter == ch;
+	}
+
+	virtual bool oneof(const string_type& delims) const
+	{
+		// Like base-class oneof(), except that an escaped character matches
+		// nothing.
+		return (! done()) && (! mIsEsc) && LLStringUtilBase<T>::contains(delims, *mIter);
+	}
+
+	virtual bool collect_until(string_type& into, const_iterator from, T delim)
+	{
+		// Deal with escapes in the characters we collect; that is, an escaped
+		// character must become just that character without the preceding
+		// escape. Collect characters in a separate string rather than
+		// directly appending to 'into' in case we do not find delim, in which
+		// case we're supposed to leave 'into' unmodified.
+		string_type collected;
+		// For scanning purposes, we're going to work directly with 'mIter'.
+		// Save its current value in case we fail to see delim.
+		const_iterator save_iter(mIter);
+		// Okay, set 'mIter', checking for escape.
+		setiter(from);
+		while (! done())
+		{
+			// If we see an unescaped delim, stop and report success.
+			if ((! mIsEsc) && *mIter == delim)
+			{
+				// Append collected chars to 'into'.
+				into.append(collected);
+				// Don't forget to advance 'mIter' past delim.
+				setiter(mIter + 1);
+				return true;
+			}
+			// We're not at end, and either we're not looking at delim or it's
+			// escaped. Collect this character and keep going.
+			collected.push_back(next());
+		}
+		// Here we hit 'mEnd' without ever seeing delim. Restore mIter and tell
+		// caller.
+		setiter(save_iter);
+		return false;
+	}
+
+private:
+	void setiter(const_iterator i)
+	{
+		mIter = i;
+
+		// Every time we change 'mIter', set 'mIsEsc' to be able to repetitively
+		// answer escaped() without having to rescan 'mEscapes'. mIsEsc caches
+		// contains(mEscapes, *mIter).
+
+		// We're looking at an escaped char if we're not already at end (that
+		// is, *mIter is even meaningful); if *mIter is in fact one of the
+		// specified escape characters; and if there's one more character
+		// following it. That is, if an escape character is the very last
+		// character of the input string, it loses its special meaning.
+		mIsEsc = (! done()) &&
+				LLStringUtilBase<T>::contains(mEscapes, *mIter) &&
+				(mIter+1) != mEnd;
+	}
+
+	const string_type mEscapes;
+	bool mIsEsc;
+};
+
+/// getTokens() implementation based on InString concept
+template <typename INSTRING, typename string_type>
+void getTokens(INSTRING& instr, std::vector<string_type>& tokens,
+			   const string_type& drop_delims, const string_type& keep_delims,
+			   const string_type& quotes)
+{
+	// There are times when we want to match either drop_delims or
+	// keep_delims. Concatenate them up front to speed things up.
+	string_type all_delims(drop_delims + keep_delims);
+	// no tokens yet
+	tokens.clear();
+
+	// try for another token
+	while (! instr.done())
+	{
+		// scan past any drop_delims
+		while (instr.oneof(drop_delims))
+		{
+			// skip this drop_delim
+			instr.next();
+			// but if that was the end of the string, done
+			if (instr.done())
+				return;
+		}
+		// found the start of another token: make a slot for it
+		tokens.push_back(string_type());
+		if (instr.oneof(keep_delims))
+		{
+			// *iter is a keep_delim, a token of exactly 1 character. Append
+			// that character to the new token and proceed.
+			tokens.back().push_back(instr.next());
+			continue;
+		}
+		// Here we have a non-delimiter token, which might consist of a mix of
+		// quoted and unquoted parts. Use bash rules for quoting: you can
+		// embed a quoted substring in the midst of an unquoted token (e.g.
+		// ~/"sub dir"/myfile.txt); you can ram two quoted substrings together
+		// to make a single token (e.g. 'He said, "'"Don't."'"'). We diverge
+		// from bash in that bash considers an unmatched quote an error. Our
+		// param signature doesn't allow for errors, so just pretend it's not
+		// a quote and embed it.
+		// At this level, keep scanning until we hit the next delimiter of
+		// either type (drop_delims or keep_delims).
+		while (! instr.oneof(all_delims))
+		{
+			// If we're looking at an open quote, search forward for
+			// a close quote, collecting characters along the way.
+			if (instr.oneof(quotes) &&
+				instr.collect_until(tokens.back(), instr.mIter+1, *instr.mIter))
+			{
+				// collect_until is cleverly designed to do exactly what we
+				// need here. No further action needed if it returns true.
+			}
+			else
+			{
+				// Either *iter isn't a quote, or there's no matching close
+				// quote: in other words, just an ordinary char. Append it to
+				// current token.
+				tokens.back().push_back(instr.next());
+			}
+			// having scanned that segment of this token, if we've reached the
+			// end of the string, we're done
+			if (instr.done())
+				return;
+		}
+	}
+}
+
+} // namespace LLStringUtilBaseImpl
+
+// static
+template <class T>
+void LLStringUtilBase<T>::getTokens(const string_type& string, std::vector<string_type>& tokens,
+									const string_type& drop_delims, const string_type& keep_delims,
+									const string_type& quotes)
+{
+	// Because this overload doesn't support escapes, use simple InString to
+	// manage input range.
+	LLStringUtilBaseImpl::InString<T> instring(string.begin(), string.end());
+	LLStringUtilBaseImpl::getTokens(instring, tokens, drop_delims, keep_delims, quotes);
+}
+
+// static
+template <class T>
+void LLStringUtilBase<T>::getTokens(const string_type& string, std::vector<string_type>& tokens,
+									const string_type& drop_delims, const string_type& keep_delims,
+									const string_type& quotes, const string_type& escapes)
+{
+	// This overload must deal with escapes. Delegate that to InEscString
+	// (unless there ARE no escapes).
+	boost::scoped_ptr< LLStringUtilBaseImpl::InString<T> > instrp;
+	if (escapes.empty())
+		instrp.reset(new LLStringUtilBaseImpl::InString<T>(string.begin(), string.end()));
+	else
+		instrp.reset(new LLStringUtilBaseImpl::InEscString<T>(string.begin(), string.end(), escapes));
+	LLStringUtilBaseImpl::getTokens(*instrp, tokens, drop_delims, keep_delims, quotes);
+}
 
 // static
 template<class T> 
@@ -669,7 +1038,7 @@ S32 LLStringUtilBase<T>::compareStrings(const T* lhs, const T* rhs)
 
 //static 
 template<class T> 
-S32 LLStringUtilBase<T>::compareStrings(const std::basic_string<T>& lhs, const std::basic_string<T>& rhs)
+S32 LLStringUtilBase<T>::compareStrings(const string_type& lhs, const string_type& rhs)
 {
 	return LLStringOps::collate(lhs.c_str(), rhs.c_str());
 }
@@ -695,8 +1064,8 @@ S32 LLStringUtilBase<T>::compareInsensitive(const T* lhs, const T* rhs )
 	}
 	else
 	{
-		std::basic_string<T> lhs_string(lhs);
-		std::basic_string<T> rhs_string(rhs);
+		string_type lhs_string(lhs);
+		string_type rhs_string(rhs);
 		LLStringUtilBase<T>::toUpper(lhs_string);
 		LLStringUtilBase<T>::toUpper(rhs_string);
 		result = LLStringOps::collate(lhs_string.c_str(), rhs_string.c_str());
@@ -706,10 +1075,10 @@ S32 LLStringUtilBase<T>::compareInsensitive(const T* lhs, const T* rhs )
 
 //static 
 template<class T> 
-S32 LLStringUtilBase<T>::compareInsensitive(const std::basic_string<T>& lhs, const std::basic_string<T>& rhs)
+S32 LLStringUtilBase<T>::compareInsensitive(const string_type& lhs, const string_type& rhs)
 {
-	std::basic_string<T> lhs_string(lhs);
-	std::basic_string<T> rhs_string(rhs);
+	string_type lhs_string(lhs);
+	string_type rhs_string(rhs);
 	LLStringUtilBase<T>::toUpper(lhs_string);
 	LLStringUtilBase<T>::toUpper(rhs_string);
 	return LLStringOps::collate(lhs_string.c_str(), rhs_string.c_str());
@@ -720,7 +1089,7 @@ S32 LLStringUtilBase<T>::compareInsensitive(const std::basic_string<T>& lhs, con
 
 //static 
 template<class T>
-S32 LLStringUtilBase<T>::compareDict(const std::basic_string<T>& astr, const std::basic_string<T>& bstr)
+S32 LLStringUtilBase<T>::compareDict(const string_type& astr, const string_type& bstr)
 {
 	const T* a = astr.c_str();
 	const T* b = bstr.c_str();
@@ -761,7 +1130,7 @@ S32 LLStringUtilBase<T>::compareDict(const std::basic_string<T>& astr, const std
 
 // static
 template<class T>
-S32 LLStringUtilBase<T>::compareDictInsensitive(const std::basic_string<T>& astr, const std::basic_string<T>& bstr)
+S32 LLStringUtilBase<T>::compareDictInsensitive(const string_type& astr, const string_type& bstr)
 {
 	const T* a = astr.c_str();
 	const T* b = bstr.c_str();
@@ -796,7 +1165,7 @@ S32 LLStringUtilBase<T>::compareDictInsensitive(const std::basic_string<T>& astr
 // Puts compareDict() in a form appropriate for LL container classes to use for sorting.
 // static 
 template<class T> 
-BOOL LLStringUtilBase<T>::precedesDict( const std::basic_string<T>& a, const std::basic_string<T>& b )
+BOOL LLStringUtilBase<T>::precedesDict( const string_type& a, const string_type& b )
 {
 	if( a.size() && b.size() )
 	{
@@ -810,7 +1179,7 @@ BOOL LLStringUtilBase<T>::precedesDict( const std::basic_string<T>& a, const std
 
 //static
 template<class T> 
-void LLStringUtilBase<T>::toUpper(std::basic_string<T>& string)	
+void LLStringUtilBase<T>::toUpper(string_type& string)	
 { 
 	if( !string.empty() )
 	{ 
@@ -824,7 +1193,7 @@ void LLStringUtilBase<T>::toUpper(std::basic_string<T>& string)
 
 //static
 template<class T> 
-void LLStringUtilBase<T>::toLower(std::basic_string<T>& string)
+void LLStringUtilBase<T>::toLower(string_type& string)
 { 
 	if( !string.empty() )
 	{ 
@@ -838,7 +1207,7 @@ void LLStringUtilBase<T>::toLower(std::basic_string<T>& string)
 
 //static
 template<class T> 
-void LLStringUtilBase<T>::trimHead(std::basic_string<T>& string)
+void LLStringUtilBase<T>::trimHead(string_type& string)
 {			
 	if( !string.empty() )
 	{
@@ -853,7 +1222,7 @@ void LLStringUtilBase<T>::trimHead(std::basic_string<T>& string)
 
 //static
 template<class T> 
-void LLStringUtilBase<T>::trimTail(std::basic_string<T>& string)
+void LLStringUtilBase<T>::trimTail(string_type& string)
 {			
 	if( string.size() )
 	{
@@ -872,7 +1241,7 @@ void LLStringUtilBase<T>::trimTail(std::basic_string<T>& string)
 // Replace line feeds with carriage return-line feed pairs.
 //static
 template<class T>
-void LLStringUtilBase<T>::addCRLF(std::basic_string<T>& string)
+void LLStringUtilBase<T>::addCRLF(string_type& string)
 {
 	const T LF = 10;
 	const T CR = 13;
@@ -914,7 +1283,7 @@ void LLStringUtilBase<T>::addCRLF(std::basic_string<T>& string)
 // Remove all carriage returns
 //static
 template<class T> 
-void LLStringUtilBase<T>::removeCRLF(std::basic_string<T>& string)
+void LLStringUtilBase<T>::removeCRLF(string_type& string)
 {
 	const T CR = 13;
 
@@ -935,10 +1304,10 @@ void LLStringUtilBase<T>::removeCRLF(std::basic_string<T>& string)
 
 //static
 template<class T> 
-void LLStringUtilBase<T>::replaceChar( std::basic_string<T>& string, T target, T replacement )
+void LLStringUtilBase<T>::replaceChar( string_type& string, T target, T replacement )
 {
 	size_type found_pos = 0;
-	while( (found_pos = string.find(target, found_pos)) != std::basic_string<T>::npos ) 
+	while( (found_pos = string.find(target, found_pos)) != string_type::npos ) 
 	{
 		string[found_pos] = replacement;
 		found_pos++; // avoid infinite defeat if target == replacement
@@ -947,10 +1316,10 @@ void LLStringUtilBase<T>::replaceChar( std::basic_string<T>& string, T target, T
 
 //static
 template<class T> 
-void LLStringUtilBase<T>::replaceString( std::basic_string<T>& string, std::basic_string<T> target, std::basic_string<T> replacement )
+void LLStringUtilBase<T>::replaceString( string_type& string, string_type target, string_type replacement )
 {
 	size_type found_pos = 0;
-	while( (found_pos = string.find(target, found_pos)) != std::basic_string<T>::npos )
+	while( (found_pos = string.find(target, found_pos)) != string_type::npos )
 	{
 		string.replace( found_pos, target.length(), replacement );
 		found_pos += replacement.length(); // avoid infinite defeat if replacement contains target
@@ -959,7 +1328,7 @@ void LLStringUtilBase<T>::replaceString( std::basic_string<T>& string, std::basi
 
 //static
 template<class T> 
-void LLStringUtilBase<T>::replaceNonstandardASCII( std::basic_string<T>& string, T replacement )
+void LLStringUtilBase<T>::replaceNonstandardASCII( string_type& string, T replacement )
 {
 	const char LF = 10;
 	const S8 MIN = 32;
@@ -979,12 +1348,12 @@ void LLStringUtilBase<T>::replaceNonstandardASCII( std::basic_string<T>& string,
 
 //static
 template<class T> 
-void LLStringUtilBase<T>::replaceTabsWithSpaces( std::basic_string<T>& str, size_type spaces_per_tab )
+void LLStringUtilBase<T>::replaceTabsWithSpaces( string_type& str, size_type spaces_per_tab )
 {
 	const T TAB = '\t';
 	const T SPACE = ' ';
 
-	std::basic_string<T> out_str;
+	string_type out_str;
 	// Replace tabs with spaces
 	for (size_type i = 0; i < str.length(); i++)
 	{
@@ -1003,7 +1372,7 @@ void LLStringUtilBase<T>::replaceTabsWithSpaces( std::basic_string<T>& str, size
 
 //static
 template<class T> 
-BOOL LLStringUtilBase<T>::containsNonprintable(const std::basic_string<T>& string)
+BOOL LLStringUtilBase<T>::containsNonprintable(const string_type& string)
 {
 	const char MIN = 32;
 	BOOL rv = FALSE;
@@ -1020,7 +1389,7 @@ BOOL LLStringUtilBase<T>::containsNonprintable(const std::basic_string<T>& strin
 
 //static
 template<class T> 
-void LLStringUtilBase<T>::stripNonprintable(std::basic_string<T>& string)
+void LLStringUtilBase<T>::stripNonprintable(string_type& string)
 {
 	const char MIN = 32;
 	size_type j = 0;
@@ -1051,8 +1420,43 @@ void LLStringUtilBase<T>::stripNonprintable(std::basic_string<T>& string)
 	delete []c_string;
 }
 
+template<class T>
+std::basic_string<T> LLStringUtilBase<T>::quote(const string_type& str,
+												const string_type& triggers,
+												const string_type& escape)
+{
+	size_type len(str.length());
+	// If the string is already quoted, assume user knows what s/he's doing.
+	if (len >= 2 && str[0] == '"' && str[len-1] == '"')
+	{
+		return str;
+	}
+
+	// Not already quoted: do we need to? triggers.empty() is a special case
+	// meaning "always quote."
+	if ((! triggers.empty()) && str.find_first_of(triggers) == string_type::npos)
+	{
+		// no trigger characters, don't bother quoting
+		return str;
+	}
+
+	// For whatever reason, we must quote this string.
+	string_type result;
+	result.push_back('"');
+	for (typename string_type::const_iterator ci(str.begin()), cend(str.end()); ci != cend; ++ci)
+	{
+		if (*ci == '"')
+		{
+			result.append(escape);
+		}
+		result.push_back(*ci);
+	}
+	result.push_back('"');
+	return result;
+}
+
 template<class T> 
-void LLStringUtilBase<T>::_makeASCII(std::basic_string<T>& string)
+void LLStringUtilBase<T>::_makeASCII(string_type& string)
 {
 	// Replace non-ASCII chars with LL_UNKNOWN_CHAR
 	for (size_type i = 0; i < string.length(); i++)
@@ -1082,7 +1486,7 @@ void LLStringUtilBase<T>::copy( T* dst, const T* src, size_type dst_size )
 
 // static
 template<class T> 
-void LLStringUtilBase<T>::copyInto(std::basic_string<T>& dst, const std::basic_string<T>& src, size_type offset)
+void LLStringUtilBase<T>::copyInto(string_type& dst, const string_type& src, size_type offset)
 {
 	if ( offset == dst.length() )
 	{
@@ -1092,7 +1496,7 @@ void LLStringUtilBase<T>::copyInto(std::basic_string<T>& dst, const std::basic_s
 	}
 	else
 	{
-		std::basic_string<T> tail = dst.substr(offset);
+		string_type tail = dst.substr(offset);
 
 		dst = dst.substr(0, offset);
 		dst += src;
@@ -1103,7 +1507,7 @@ void LLStringUtilBase<T>::copyInto(std::basic_string<T>& dst, const std::basic_s
 // True if this is the head of s.
 //static
 template<class T> 
-BOOL LLStringUtilBase<T>::isHead( const std::basic_string<T>& string, const T* s ) 
+BOOL LLStringUtilBase<T>::isHead( const string_type& string, const T* s ) 
 { 
 	if( string.empty() )
 	{
@@ -1119,8 +1523,8 @@ BOOL LLStringUtilBase<T>::isHead( const std::basic_string<T>& string, const T* s
 // static
 template<class T> 
 bool LLStringUtilBase<T>::startsWith(
-	const std::basic_string<T>& string,
-	const std::basic_string<T>& substr)
+	const string_type& string,
+	const string_type& substr)
 {
 	if(string.empty() || (substr.empty())) return false;
 	if(0 == string.find(substr)) return true;
@@ -1130,8 +1534,8 @@ bool LLStringUtilBase<T>::startsWith(
 // static
 template<class T> 
 bool LLStringUtilBase<T>::endsWith(
-	const std::basic_string<T>& string,
-	const std::basic_string<T>& substr)
+	const string_type& string,
+	const string_type& substr)
 {
 	if(string.empty() || (substr.empty())) return false;
 	std::string::size_type idx = string.rfind(substr);
@@ -1141,14 +1545,14 @@ bool LLStringUtilBase<T>::endsWith(
 
 
 template<class T> 
-BOOL LLStringUtilBase<T>::convertToBOOL(const std::basic_string<T>& string, BOOL& value)
+BOOL LLStringUtilBase<T>::convertToBOOL(const string_type& string, BOOL& value)
 {
 	if( string.empty() )
 	{
 		return FALSE;
 	}
 
-	std::basic_string<T> temp( string );
+	string_type temp( string );
 	trim(temp);
 	if( 
 		(temp == "1") || 
@@ -1178,7 +1582,7 @@ BOOL LLStringUtilBase<T>::convertToBOOL(const std::basic_string<T>& string, BOOL
 }
 
 template<class T> 
-BOOL LLStringUtilBase<T>::convertToU8(const std::basic_string<T>& string, U8& value) 
+BOOL LLStringUtilBase<T>::convertToU8(const string_type& string, U8& value) 
 {
 	S32 value32 = 0;
 	BOOL success = convertToS32(string, value32);
@@ -1191,7 +1595,7 @@ BOOL LLStringUtilBase<T>::convertToU8(const std::basic_string<T>& string, U8& va
 }
 
 template<class T> 
-BOOL LLStringUtilBase<T>::convertToS8(const std::basic_string<T>& string, S8& value) 
+BOOL LLStringUtilBase<T>::convertToS8(const string_type& string, S8& value) 
 {
 	S32 value32 = 0;
 	BOOL success = convertToS32(string, value32);
@@ -1204,7 +1608,7 @@ BOOL LLStringUtilBase<T>::convertToS8(const std::basic_string<T>& string, S8& va
 }
 
 template<class T> 
-BOOL LLStringUtilBase<T>::convertToS16(const std::basic_string<T>& string, S16& value) 
+BOOL LLStringUtilBase<T>::convertToS16(const string_type& string, S16& value) 
 {
 	S32 value32 = 0;
 	BOOL success = convertToS32(string, value32);
@@ -1217,7 +1621,7 @@ BOOL LLStringUtilBase<T>::convertToS16(const std::basic_string<T>& string, S16& 
 }
 
 template<class T> 
-BOOL LLStringUtilBase<T>::convertToU16(const std::basic_string<T>& string, U16& value) 
+BOOL LLStringUtilBase<T>::convertToU16(const string_type& string, U16& value) 
 {
 	S32 value32 = 0;
 	BOOL success = convertToS32(string, value32);
@@ -1230,17 +1634,17 @@ BOOL LLStringUtilBase<T>::convertToU16(const std::basic_string<T>& string, U16& 
 }
 
 template<class T> 
-BOOL LLStringUtilBase<T>::convertToU32(const std::basic_string<T>& string, U32& value) 
+BOOL LLStringUtilBase<T>::convertToU32(const string_type& string, U32& value) 
 {
 	if( string.empty() )
 	{
 		return FALSE;
 	}
 
-	std::basic_string<T> temp( string );
+	string_type temp( string );
 	trim(temp);
 	U32 v;
-	std::basic_istringstream<T> i_stream((std::basic_string<T>)temp);
+	std::basic_istringstream<T> i_stream((string_type)temp);
 	if(i_stream >> v)
 	{
 		value = v;
@@ -1250,17 +1654,17 @@ BOOL LLStringUtilBase<T>::convertToU32(const std::basic_string<T>& string, U32& 
 }
 
 template<class T> 
-BOOL LLStringUtilBase<T>::convertToS32(const std::basic_string<T>& string, S32& value) 
+BOOL LLStringUtilBase<T>::convertToS32(const string_type& string, S32& value) 
 {
 	if( string.empty() )
 	{
 		return FALSE;
 	}
 
-	std::basic_string<T> temp( string );
+	string_type temp( string );
 	trim(temp);
 	S32 v;
-	std::basic_istringstream<T> i_stream((std::basic_string<T>)temp);
+	std::basic_istringstream<T> i_stream((string_type)temp);
 	if(i_stream >> v)
 	{
 		//TODO: figure out overflow and underflow reporting here
@@ -1277,7 +1681,7 @@ BOOL LLStringUtilBase<T>::convertToS32(const std::basic_string<T>& string, S32& 
 }
 
 template<class T> 
-BOOL LLStringUtilBase<T>::convertToF32(const std::basic_string<T>& string, F32& value) 
+BOOL LLStringUtilBase<T>::convertToF32(const string_type& string, F32& value) 
 {
 	F64 value64 = 0.0;
 	BOOL success = convertToF64(string, value64);
@@ -1290,17 +1694,17 @@ BOOL LLStringUtilBase<T>::convertToF32(const std::basic_string<T>& string, F32& 
 }
 
 template<class T> 
-BOOL LLStringUtilBase<T>::convertToF64(const std::basic_string<T>& string, F64& value)
+BOOL LLStringUtilBase<T>::convertToF64(const string_type& string, F64& value)
 {
 	if( string.empty() )
 	{
 		return FALSE;
 	}
 
-	std::basic_string<T> temp( string );
+	string_type temp( string );
 	trim(temp);
 	F64 v;
-	std::basic_istringstream<T> i_stream((std::basic_string<T>)temp);
+	std::basic_istringstream<T> i_stream((string_type)temp);
 	if(i_stream >> v)
 	{
 		//TODO: figure out overflow and underflow reporting here
@@ -1317,7 +1721,7 @@ BOOL LLStringUtilBase<T>::convertToF64(const std::basic_string<T>& string, F64& 
 }
 
 template<class T> 
-void LLStringUtilBase<T>::truncate(std::basic_string<T>& string, size_type count)
+void LLStringUtilBase<T>::truncate(string_type& string, size_type count)
 {
 	size_type cur_size = string.size();
 	string.resize(count < cur_size ? count : cur_size);

@@ -702,7 +702,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 
 		if (texture_index_channels > 1)
 		{
-			text[count++] = strdup("VARYING_FLAT ivec4 vary_texture_index;\n");
+			text[count++] = strdup("VARYING_FLAT int vary_texture_index;\n");
 		}
 
 		text[count++] = strdup("vec4 diffuseLookup(vec2 texcoord)\n");
@@ -716,20 +716,33 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		}
 		else if (major_version > 1 || minor_version >= 30)
 		{  //switches are supported in GLSL 1.30 and later
-			text[count++] = strdup("\tvec4 ret = vec4(1,0,1,1);\n");
-			text[count++] = strdup("\tswitch (vary_texture_index.r)\n");
-			text[count++] = strdup("\t{\n");
-		
-			//switch body
-			for (S32 i = 0; i < texture_index_channels; ++i)
-			{
-				std::string case_str = llformat("\t\tcase %d: ret = texture2D(tex%d, texcoord); break;\n", i, i);
-				text[count++] = strdup(case_str.c_str());
+			if (gGLManager.mIsNVIDIA)
+			{ //switches are unreliable on some NVIDIA drivers
+				for (U32 i = 0; i < texture_index_channels; ++i)
+				{
+					std::string if_string = llformat("\t%sif (vary_texture_index == %d) { return texture2D(tex%d, texcoord); }\n", i > 0 ? "else " : "", i, i); 
+					text[count++] = strdup(if_string.c_str());
+				}
+				text[count++] = strdup("\treturn vec4(1,0,1,1);\n");
+				text[count++] = strdup("}\n");
 			}
+			else
+			{
+				text[count++] = strdup("\tvec4 ret = vec4(1,0,1,1);\n");
+				text[count++] = strdup("\tswitch (vary_texture_index)\n");
+				text[count++] = strdup("\t{\n");
+		
+				//switch body
+				for (S32 i = 0; i < texture_index_channels; ++i)
+				{
+					std::string case_str = llformat("\t\tcase %d: return texture2D(tex%d, texcoord);\n", i, i);
+					text[count++] = strdup(case_str.c_str());
+				}
 
-			text[count++] = strdup("\t}\n");
-			text[count++] = strdup("\treturn ret;\n");
-			text[count++] = strdup("}\n");
+				text[count++] = strdup("\t}\n");
+				text[count++] = strdup("\treturn ret;\n");
+				text[count++] = strdup("}\n");
+			}
 		}
 		else
 		{ //should never get here.  Indexed texture rendering requires GLSL 1.30 or later 
@@ -1026,6 +1039,9 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("size");
 	mReservedUniforms.push_back("falloff");
 
+	mReservedUniforms.push_back("box_center");
+	mReservedUniforms.push_back("box_size");
+
 
 	mReservedUniforms.push_back("minLuminance");
 	mReservedUniforms.push_back("maxExtractAlpha");
@@ -1062,8 +1078,9 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("proj_shadow_res");
 	mReservedUniforms.push_back("depth_cutoff");
 	mReservedUniforms.push_back("norm_cutoff");
+	mReservedUniforms.push_back("shadow_target_width");
 	
-	llassert(mReservedUniforms.size() == LLShaderMgr::DEFERRED_NORM_CUTOFF+1);
+	llassert(mReservedUniforms.size() == LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH+1);
 
 	mReservedUniforms.push_back("tc_scale");
 	mReservedUniforms.push_back("rcp_screen_res");

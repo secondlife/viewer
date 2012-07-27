@@ -831,7 +831,11 @@ void gl_stippled_line_3d( const LLVector3& start, const LLVector3& end, const LL
 
 	gGL.flush();
 	glLineWidth(2.5f);
-	glLineStipple(2, 0x3333 << shift);
+
+	if (!LLGLSLShader::sNoFixedFunction)
+	{
+		glLineStipple(2, 0x3333 << shift);
+	}
 
 	gGL.begin(LLRender::LINES);
 	{

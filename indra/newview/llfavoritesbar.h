@@ -91,7 +91,7 @@ protected:
 	bool enableSelected(const LLSD& userdata);
 	void doToSelected(const LLSD& userdata);
 	BOOL isClipboardPasteable() const;
-	void pastFromClipboard() const;
+	void pasteFromClipboard() const;
 	
 	void showDropDownMenu();
 

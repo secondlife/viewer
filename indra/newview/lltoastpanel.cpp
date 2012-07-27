@@ -29,7 +29,9 @@
 #include "llpanelgenerictip.h"
 #include "llpanelonlinestatus.h"
 #include "llnotifications.h"
+#include "lltoastnotifypanel.h"
 #include "lltoastpanel.h"
+#include "lltoastscriptquestion.h"
 
 //static
 const S32 LLToastPanel::MIN_PANEL_HEIGHT = 40; // VPAD(4)*2 + ICON_HEIGHT(32)
@@ -107,6 +109,17 @@ LLToastPanel* LLToastPanel::buidPanelFromNotification(
 		else
 		{
 			res = new LLPanelGenericTip(notification);
+		}
+	}
+	else if("notify" == notification->getType())
+	{
+		if (notification->getPriority() == NOTIFICATION_PRIORITY_CRITICAL)
+		{
+			res = new LLToastScriptQuestion(notification);
+		}
+		else
+		{
+			res = new LLToastNotifyPanel(notification);
 		}
 	}
 	/*

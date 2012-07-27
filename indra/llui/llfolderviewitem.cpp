@@ -209,7 +209,7 @@ BOOL LLFolderViewItem::passedFilter(S32 filter_generation)
 }
 
 void LLFolderViewItem::refresh()
-{ 
+{
 	LLFolderViewModelItem& vmi = *getViewModelItem();
 
 	mLabel = vmi.getDisplayName();
@@ -219,11 +219,11 @@ void LLFolderViewItem::refresh()
 	mIconOpen = vmi.getIconOpen();
 	mIconOverlay = vmi.getIconOverlay();
 
-	if (mRoot->useLabelSuffix())
-	{
+		if (mRoot->useLabelSuffix())
+		{
 		mLabelStyle = vmi.getLabelStyle();
 		mLabelSuffix = vmi.getLabelSuffix();
-	}
+}
 
 	//TODO RN: make sure this logic still fires
 	//std::string searchable_label(mLabel);
@@ -253,7 +253,7 @@ void LLFolderViewItem::arrangeAndSet(BOOL set_selection,
 	LLFolderView* root = getRoot();
 	if (getParentFolder())
 	{
-		getParentFolder()->requestArrange();
+	getParentFolder()->requestArrange();
 	}
 	if(set_selection)
 	{
@@ -370,7 +370,7 @@ BOOL LLFolderViewItem::isMovable()
 BOOL LLFolderViewItem::isRemovable()
 {
 	return getViewModelItem()->isItemRemovable();
-}
+	}
 
 void LLFolderViewItem::destroyView()
 {
@@ -394,7 +394,7 @@ BOOL LLFolderViewItem::remove()
 		return FALSE;
 	}
 	return getViewModelItem()->removeItem();
-}
+	}
 
 // Build an appropriate context menu for the item.
 void LLFolderViewItem::buildContextMenu(LLMenuGL& menu, U32 flags)
@@ -481,24 +481,24 @@ BOOL LLFolderViewItem::handleHover( S32 x, S32 y, MASK mask )
 
 	if( hasMouseCapture() && isMovable() )
 	{
-		LLFolderView* root = getRoot();
+			LLFolderView* root = getRoot();
 
 		if( (x - mDragStartX) * (x - mDragStartX) + (y - mDragStartY) * (y - mDragStartY) > drag_and_drop_threshold() * drag_and_drop_threshold() 
 			&& root->getCurSelectedItem()
 			&& root->startDrag())
-		{
-			// RN: when starting drag and drop, clear out last auto-open
-			root->autoOpenTest(NULL);
-			root->setShowSelectionContext(TRUE);
+				{
+					// RN: when starting drag and drop, clear out last auto-open
+					root->autoOpenTest(NULL);
+					root->setShowSelectionContext(TRUE);
 
-			// Release keyboard focus, so that if stuff is dropped into the
-			// world, pressing the delete key won't blow away the inventory
-			// item.
-			gFocusMgr.setKeyboardFocus(NULL);
+					// Release keyboard focus, so that if stuff is dropped into the
+					// world, pressing the delete key won't blow away the inventory
+					// item.
+					gFocusMgr.setKeyboardFocus(NULL);
 
 			getWindow()->setCursor(UI_CURSOR_ARROW);
 			return TRUE;
-		}
+			}
 		else
 		{
 			getWindow()->setCursor(UI_CURSOR_NOLOCKED);
@@ -599,17 +599,17 @@ BOOL LLFolderViewItem::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 
 void LLFolderViewItem::draw()
 {
-	static LLUIColor sFgColor 			= LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
-	static LLUIColor sHighlightBgColor 	= LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", DEFAULT_WHITE);
-	static LLUIColor sHighlightFgColor 	= LLUIColorTable::instance().getColor("MenuItemHighlightFgColor", DEFAULT_WHITE);
+	static LLUIColor sFgColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
+	static LLUIColor sHighlightBgColor = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", DEFAULT_WHITE);
+	static LLUIColor sHighlightFgColor = LLUIColorTable::instance().getColor("MenuItemHighlightFgColor", DEFAULT_WHITE);
 	static LLUIColor sFocusOutlineColor = LLUIColorTable::instance().getColor("InventoryFocusOutlineColor", DEFAULT_WHITE);
-	static LLUIColor sFilterBGColor 	= LLUIColorTable::instance().getColor("FilterBackgroundColor", DEFAULT_WHITE);
-	static LLUIColor sFilterTextColor 	= LLUIColorTable::instance().getColor("FilterTextColor", DEFAULT_WHITE);
-	static LLUIColor sSuffixColor 		= LLUIColorTable::instance().getColor("InventoryItemColor", DEFAULT_WHITE);
-	static LLUIColor sLibraryColor 		= LLUIColorTable::instance().getColor("InventoryItemLibraryColor", DEFAULT_WHITE);
-	static LLUIColor sLinkColor 		= LLUIColorTable::instance().getColor("InventoryItemLinkColor", DEFAULT_WHITE);
+	static LLUIColor sFilterBGColor = LLUIColorTable::instance().getColor("FilterBackgroundColor", DEFAULT_WHITE);
+	static LLUIColor sFilterTextColor = LLUIColorTable::instance().getColor("FilterTextColor", DEFAULT_WHITE);
+	static LLUIColor sSuffixColor = LLUIColorTable::instance().getColor("InventoryItemColor", DEFAULT_WHITE);
+	static LLUIColor sLibraryColor = LLUIColorTable::instance().getColor("InventoryItemLibraryColor", DEFAULT_WHITE);
+	static LLUIColor sLinkColor = LLUIColorTable::instance().getColor("InventoryItemLinkColor", DEFAULT_WHITE);
 	static LLUIColor sSearchStatusColor = LLUIColorTable::instance().getColor("InventorySearchStatusColor", DEFAULT_WHITE);
-	static LLUIColor sMouseOverColor 	= LLUIColorTable::instance().getColor("InventoryMouseOverColor", DEFAULT_WHITE);
+	static LLUIColor sMouseOverColor = LLUIColorTable::instance().getColor("InventoryMouseOverColor", DEFAULT_WHITE);
 
 	const Params& default_params = LLUICtrlFactory::getDefaultParams<LLFolderViewItem>();
 	const S32 TOP_PAD = default_params.item_top_pad;
@@ -806,7 +806,7 @@ const LLFolderViewModelInterface* LLFolderViewItem::getFolderViewModel( void ) c
 LLFolderViewModelInterface* LLFolderViewItem::getFolderViewModel( void )
 		{
 	return getRoot()->getFolderViewModel();
-}
+		}
 
 
 ///----------------------------------------------------------------------------
@@ -1495,11 +1495,27 @@ BOOL LLFolderViewFolder::addItem(LLFolderViewItem* item)
 	
 	item->getViewModelItem()->dirtyFilter();
 
+	// XXX stinson TODO : handle the creation date
+#if 0
+	// Update the folder creation date if the child is newer than our current date
+	setCreationDate(llmax<time_t>(mCreationDate, item->getCreationDate()));
+#endif
+
 	// Handle sorting
 	requestArrange();
 	requestSort();
 
 	getViewModelItem()->addChild(item->getViewModelItem());
+	// XXX stinson TODO : handle the creation date
+#if 0
+	// Traverse parent folders and update creation date and resort, if necessary
+	LLFolderViewFolder* parentp = getParentFolder();
+	while (parentp)
+	{
+		// Update the folder creation date if the child is newer than our current date
+		parentp->setCreationDate(llmax<time_t>(parentp->mCreationDate, item->getCreationDate()));
+	}
+#endif
 
 	//TODO RN - make sort bubble up as long as parent Folder doesn't have anything matching sort criteria
 	//// Traverse parent folders and update creation date and resort, if necessary
@@ -1545,14 +1561,14 @@ void LLFolderViewFolder::requestArrange()
 { 
 	//if ( mLastArrangeGeneration != -1)
 	{
-		mLastArrangeGeneration = -1; 
-		// flag all items up to root
-		if (mParentFolder)
-		{
-			mParentFolder->requestArrange();
+	mLastArrangeGeneration = -1; 
+	// flag all items up to root
+	if (mParentFolder)
+	{
+		mParentFolder->requestArrange();
+	}
 		}
 	}
-}
 
 void LLFolderViewFolder::toggleOpen()
 {
@@ -1569,12 +1585,12 @@ void LLFolderViewFolder::setOpenArrangeRecursively(BOOL openitem, ERecurseType r
 {
 	BOOL was_open = isOpen();
 	mIsOpen = openitem;
-	if(!was_open && openitem)
-	{
+		if(!was_open && openitem)
+		{
 		getViewModelItem()->openItem();
-	}
-	else if(was_open && !openitem)
-	{
+		}
+		else if(was_open && !openitem)
+		{
 		getViewModelItem()->closeItem();
 	}
 

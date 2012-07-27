@@ -75,41 +75,6 @@ public:
 };
 
 class LLGLTexSizeBar;
-class LLTextureSizeView : public LLContainerView
-{
-protected:
-	LLTextureSizeView(const Params&);
-	friend class LLUICtrlFactory;
-public:	
-	~LLTextureSizeView();
 
-	/*virtual*/ void draw();
-	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask) ;
-	
-	void setType(S32 type) {mType = type ;}
-	enum
-	{
-		TEXTURE_MEM_OVER_SIZE,
-		TEXTURE_MEM_OVER_CATEGORY
-	};
-private:
-	//draw background for TEXTURE_MEM_OVER_SIZE
-	F32 drawTextureSizeDistributionGraph() ;
-	//draw real-time texture mem bar over size
-	void drawTextureSizeGraph();
-
-	//draw background for TEXTURE_MEM_OVER_CATEGORY
-	F32 drawTextureCategoryDistributionGraph() ;
-	//draw real-time texture mem bar over category
-	void drawTextureCategoryGraph();
-
-private:
-	std::vector<LLGLTexSizeBar*> mTextureSizeBar ;
-	LLRect mTextureSizeBarRect ;
-	S32    mTextureSizeBarWidth ;	
-	S32    mType ;
-};
 extern LLTextureView *gTextureView;
-extern LLTextureSizeView *gTextureSizeView;
-extern LLTextureSizeView *gTextureCategoryView;
 #endif // LL_TEXTURE_VIEW_H

@@ -63,8 +63,16 @@ bool				LLViewerShaderMgr::sSkipReload = false;
 
 LLVector4			gShinyOrigin;
 
+//transform shaders
+LLGLSLShader			gTransformPositionProgram;
+LLGLSLShader			gTransformTexCoordProgram;
+LLGLSLShader			gTransformNormalProgram;
+LLGLSLShader			gTransformColorProgram;
+LLGLSLShader			gTransformBinormalProgram;
+
 //utility shaders
 LLGLSLShader	gOcclusionProgram;
+LLGLSLShader	gOcclusionCubeProgram;
 LLGLSLShader	gCustomAlphaProgram;
 LLGLSLShader	gGlowCombineProgram;
 LLGLSLShader	gSplatTextureRectProgram;
@@ -72,6 +80,7 @@ LLGLSLShader	gGlowCombineFXAAProgram;
 LLGLSLShader	gTwoTextureAddProgram;
 LLGLSLShader	gOneTextureNoColorProgram;
 LLGLSLShader	gDebugProgram;
+LLGLSLShader	gClipProgram;
 LLGLSLShader	gAlphaMaskProgram;
 
 //object shaders
@@ -178,6 +187,7 @@ LLGLSLShader			gDeferredSunProgram;
 LLGLSLShader			gDeferredBlurLightProgram;
 LLGLSLShader			gDeferredSoftenProgram;
 LLGLSLShader			gDeferredShadowProgram;
+LLGLSLShader			gDeferredShadowCubeProgram;
 LLGLSLShader			gDeferredShadowAlphaMaskProgram;
 LLGLSLShader			gDeferredAvatarShadowProgram;
 LLGLSLShader			gDeferredAttachmentShadowProgram;
@@ -437,7 +447,8 @@ void LLViewerShaderMgr::setShaders()
 		S32 wl_class = 2;
 		S32 water_class = 2;
 		S32 deferred_class = 0;
-		
+		S32 transform_class = gGLManager.mHasTransformFeedback ? 1 : 0;
+
 		if (LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
 		    gSavedSettings.getBOOL("RenderDeferred") &&
 			gSavedSettings.getBOOL("RenderAvatarVP") &&
@@ -475,6 +486,7 @@ void LLViewerShaderMgr::setShaders()
 			gSky.mVOSkyp->forceSkyUpdate();
 		}
 
+		
 		// Load lighting shaders
 		mVertexShaderLevel[SHADER_LIGHTING] = light_class;
 		mVertexShaderLevel[SHADER_INTERFACE] = light_class;
@@ -484,6 +496,7 @@ void LLViewerShaderMgr::setShaders()
 		mVertexShaderLevel[SHADER_EFFECT] = effect_class;
 		mVertexShaderLevel[SHADER_WINDLIGHT] = wl_class;
 		mVertexShaderLevel[SHADER_DEFERRED] = deferred_class;
+		mVertexShaderLevel[SHADER_TRANSFORM] = transform_class;
 
 		BOOL loaded = loadBasicShaders();
 
@@ -493,65 +506,109 @@ void LLViewerShaderMgr::setShaders()
 			gPipeline.mVertexShadersLoaded = 1;
 
 			// Load all shaders to set max levels
-			loadShadersEnvironment();
-			loadShadersWater();
-			loadShadersWindLight();
-			loadShadersEffects();
-			loadShadersInterface();
-			
-			// Load max avatar shaders to set the max level
-			mVertexShaderLevel[SHADER_AVATAR] = 3;
-			mMaxAvatarShaderLevel = 3;
-						
-			if (gSavedSettings.getBOOL("RenderAvatarVP") && loadShadersObject())
-			{ //hardware skinning is enabled and rigged attachment shaders loaded correctly
-				BOOL avatar_cloth = gSavedSettings.getBOOL("RenderAvatarCloth");
-				S32 avatar_class = 1;
-				
-				// cloth is a class3 shader
-				if(avatar_cloth)
-				{
-					avatar_class = 3;
-				}
+			loaded = loadShadersEnvironment();
 
-				// Set the actual level
-				mVertexShaderLevel[SHADER_AVATAR] = avatar_class;
-				loadShadersAvatar();
-				if (mVertexShaderLevel[SHADER_AVATAR] != avatar_class)
-				{
-					if (mVertexShaderLevel[SHADER_AVATAR] == 0)
+			if (loaded)
+			{
+				loaded = loadShadersWater();
+			}
+
+			if (loaded)
+			{
+				loaded = loadShadersWindLight();
+			}
+
+			if (loaded)
+			{
+				loaded = loadShadersEffects();
+			}
+
+			if (loaded)
+			{
+				loaded = loadShadersInterface();
+			}
+			
+			if (loaded)
+			{
+				loaded = loadTransformShaders();
+			}
+
+			if (loaded)
+			{
+				// Load max avatar shaders to set the max level
+				mVertexShaderLevel[SHADER_AVATAR] = 3;
+				mMaxAvatarShaderLevel = 3;
+				
+				if (gSavedSettings.getBOOL("RenderAvatarVP") && loadShadersObject())
+				{ //hardware skinning is enabled and rigged attachment shaders loaded correctly
+					BOOL avatar_cloth = gSavedSettings.getBOOL("RenderAvatarCloth");
+					S32 avatar_class = 1;
+				
+					// cloth is a class3 shader
+					if(avatar_cloth)
 					{
+						avatar_class = 3;
+					}
+
+					// Set the actual level
+					mVertexShaderLevel[SHADER_AVATAR] = avatar_class;
+					loadShadersAvatar();
+					if (mVertexShaderLevel[SHADER_AVATAR] != avatar_class)
+					{
+						if (mVertexShaderLevel[SHADER_AVATAR] == 0)
+						{
+							gSavedSettings.setBOOL("RenderAvatarVP", FALSE);
+						}
+						if(llmax(mVertexShaderLevel[SHADER_AVATAR]-1,0) >= 3)
+						{
+							avatar_cloth = true;
+						}
+						else
+						{
+							avatar_cloth = false;
+						}
+						gSavedSettings.setBOOL("RenderAvatarCloth", avatar_cloth);
+					}
+				}
+				else
+				{ //hardware skinning not possible, neither is deferred rendering
+					mVertexShaderLevel[SHADER_AVATAR] = 0;
+					mVertexShaderLevel[SHADER_DEFERRED] = 0;
+
+					if (gSavedSettings.getBOOL("RenderAvatarVP"))
+					{
+						gSavedSettings.setBOOL("RenderDeferred", FALSE);
+						gSavedSettings.setBOOL("RenderAvatarCloth", FALSE);
 						gSavedSettings.setBOOL("RenderAvatarVP", FALSE);
 					}
-					if(llmax(mVertexShaderLevel[SHADER_AVATAR]-1,0) >= 3)
-					{
-						avatar_cloth = true;
-					}
-					else
-					{
-						avatar_cloth = false;
-					}
-					gSavedSettings.setBOOL("RenderAvatarCloth", avatar_cloth);
+
+					loadShadersAvatar(); // unloads
+
+					loaded = loadShadersObject();
 				}
 			}
-			else
-			{ //hardware skinning not possible, neither is deferred rendering
-				mVertexShaderLevel[SHADER_AVATAR] = 0;
-				mVertexShaderLevel[SHADER_DEFERRED] = 0;
 
-				if (gSavedSettings.getBOOL("RenderAvatarVP"))
-				{
-					gSavedSettings.setBOOL("RenderDeferred", FALSE);
-					gSavedSettings.setBOOL("RenderAvatarCloth", FALSE);
-					gSavedSettings.setBOOL("RenderAvatarVP", FALSE);
+			if (!loaded)
+			{ //some shader absolutely could not load, try to fall back to a simpler setting
+				if (gSavedSettings.getBOOL("WindLightUseAtmosShaders"))
+				{ //disable windlight and try again
+					gSavedSettings.setBOOL("WindLightUseAtmosShaders", FALSE);
+					reentrance = false;
+					setShaders();
+					return;
 				}
 
-				loadShadersAvatar(); // unloads
-				loadShadersObject();
-			}
+				if (gSavedSettings.getBOOL("VertexShaderEnable"))
+				{ //disable shaders outright and try again
+					gSavedSettings.setBOOL("VertexShaderEnable", FALSE);
+					reentrance = false;
+					setShaders();
+					return;
+				}
+			}		
 
-			if (!loadShadersDeferred())
-			{
+			if (loaded && !loadShadersDeferred())
+			{ //everything else succeeded but deferred failed, disable deferred and try again
 				gSavedSettings.setBOOL("RenderDeferred", FALSE);
 				reentrance = false;
 				setShaders();
@@ -600,7 +657,9 @@ void LLViewerShaderMgr::setShaders()
 void LLViewerShaderMgr::unloadShaders()
 {
 	gOcclusionProgram.unload();
+	gOcclusionCubeProgram.unload();
 	gDebugProgram.unload();
+	gClipProgram.unload();
 	gAlphaMaskProgram.unload();
 	gUIProgram.unload();
 	gCustomAlphaProgram.unload();
@@ -692,6 +751,12 @@ void LLViewerShaderMgr::unloadShaders()
 	gDeferredSkinnedBumpProgram.unload();
 	gDeferredSkinnedAlphaProgram.unload();
 
+	gTransformPositionProgram.unload();
+	gTransformTexCoordProgram.unload();
+	gTransformNormalProgram.unload();
+	gTransformColorProgram.unload();
+	gTransformBinormalProgram.unload();
+
 	mVertexShaderLevel[SHADER_LIGHTING] = 0;
 	mVertexShaderLevel[SHADER_OBJECT] = 0;
 	mVertexShaderLevel[SHADER_AVATAR] = 0;
@@ -700,6 +765,7 @@ void LLViewerShaderMgr::unloadShaders()
 	mVertexShaderLevel[SHADER_INTERFACE] = 0;
 	mVertexShaderLevel[SHADER_EFFECT] = 0;
 	mVertexShaderLevel[SHADER_WINDLIGHT] = 0;
+	mVertexShaderLevel[SHADER_TRANSFORM] = 0;
 
 	gPipeline.mVertexShadersLoaded = 0;
 }
@@ -828,7 +894,7 @@ BOOL LLViewerShaderMgr::loadShadersEnvironment()
 	if (mVertexShaderLevel[SHADER_ENVIRONMENT] == 0)
 	{
 		gTerrainProgram.unload();
-		return FALSE;
+		return TRUE;
 	}
 
 	if (success)
@@ -868,7 +934,7 @@ BOOL LLViewerShaderMgr::loadShadersWater()
 		gWaterProgram.unload();
 		gUnderWaterProgram.unload();
 		gTerrainWaterProgram.unload();
-		return FALSE;
+		return TRUE;
 	}
 
 	if (success)
@@ -953,7 +1019,7 @@ BOOL LLViewerShaderMgr::loadShadersEffects()
 		gGlowExtractProgram.unload();
 		gPostColorFilterProgram.unload();	
 		gPostNightVisionProgram.unload();
-		return FALSE;
+		return TRUE;
 	}
 
 	if (success)
@@ -1013,6 +1079,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredBlurLightProgram.unload();
 		gDeferredSoftenProgram.unload();
 		gDeferredShadowProgram.unload();
+		gDeferredShadowCubeProgram.unload();
 		gDeferredShadowAlphaMaskProgram.unload();
 		gDeferredAvatarShadowProgram.unload();
 		gDeferredAttachmentShadowProgram.unload();
@@ -1200,7 +1267,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSpotLightProgram.mName = "Deferred SpotLight Shader";
 		gDeferredSpotLightProgram.mShaderFiles.clear();
 		gDeferredSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/pointLightV.glsl", GL_VERTEX_SHADER_ARB));
-		gDeferredSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/multiSpotLightF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/spotLightF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredSpotLightProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredSpotLightProgram.createShader(NULL, NULL);
 	}
@@ -1209,7 +1276,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	{
 		gDeferredMultiSpotLightProgram.mName = "Deferred MultiSpotLight Shader";
 		gDeferredMultiSpotLightProgram.mShaderFiles.clear();
-		gDeferredMultiSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/pointLightV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredMultiSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/multiPointLightV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredMultiSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/multiSpotLightF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredMultiSpotLightProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredMultiSpotLightProgram.createShader(NULL, NULL);
@@ -1364,6 +1431,16 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredShadowProgram.mShaderFiles.push_back(make_pair("deferred/shadowF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredShadowProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredShadowProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
+		gDeferredShadowCubeProgram.mName = "Deferred Shadow Cube Shader";
+		gDeferredShadowCubeProgram.mShaderFiles.clear();
+		gDeferredShadowCubeProgram.mShaderFiles.push_back(make_pair("deferred/shadowCubeV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredShadowCubeProgram.mShaderFiles.push_back(make_pair("deferred/shadowF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredShadowCubeProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+		success = gDeferredShadowCubeProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
@@ -2410,7 +2487,7 @@ BOOL LLViewerShaderMgr::loadShadersAvatar()
 		gAvatarWaterProgram.unload();
 		gAvatarEyeballProgram.unload();
 		gAvatarPickProgram.unload();
-		return FALSE;
+		return TRUE;
 	}
 
 	if (success)
@@ -2504,7 +2581,7 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 	if (mVertexShaderLevel[SHADER_INTERFACE] == 0)
 	{
 		gHighlightProgram.unload();
-		return FALSE;
+		return TRUE;
 	}
 	
 	if (success)
@@ -2647,12 +2724,32 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 
 	if (success)
 	{
+		gOcclusionCubeProgram.mName = "Occlusion Cube Shader";
+		gOcclusionCubeProgram.mShaderFiles.clear();
+		gOcclusionCubeProgram.mShaderFiles.push_back(make_pair("interface/occlusionCubeV.glsl", GL_VERTEX_SHADER_ARB));
+		gOcclusionCubeProgram.mShaderFiles.push_back(make_pair("interface/occlusionF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gOcclusionCubeProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];
+		success = gOcclusionCubeProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
 		gDebugProgram.mName = "Debug Shader";
 		gDebugProgram.mShaderFiles.clear();
 		gDebugProgram.mShaderFiles.push_back(make_pair("interface/debugV.glsl", GL_VERTEX_SHADER_ARB));
 		gDebugProgram.mShaderFiles.push_back(make_pair("interface/debugF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDebugProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];
 		success = gDebugProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
+		gClipProgram.mName = "Clip Shader";
+		gClipProgram.mShaderFiles.clear();
+		gClipProgram.mShaderFiles.push_back(make_pair("interface/clipV.glsl", GL_VERTEX_SHADER_ARB));
+		gClipProgram.mShaderFiles.push_back(make_pair("interface/clipF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gClipProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];
+		success = gClipProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
@@ -2682,7 +2779,7 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
 	{
 		gWLSkyProgram.unload();
 		gWLCloudProgram.unload();
-		return FALSE;
+		return TRUE;
 	}
 
 	if (success)
@@ -2709,6 +2806,95 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
 		success = gWLCloudProgram.createShader(NULL, &mWLUniforms);
 	}
 
+	return success;
+}
+
+BOOL LLViewerShaderMgr::loadTransformShaders()
+{
+	BOOL success = TRUE;
+	
+	if (mVertexShaderLevel[SHADER_TRANSFORM] < 1)
+	{
+		gTransformPositionProgram.unload();
+		gTransformTexCoordProgram.unload();
+		gTransformNormalProgram.unload();
+		gTransformColorProgram.unload();
+		gTransformBinormalProgram.unload();
+		return TRUE;
+	}
+
+	if (success)
+	{
+		gTransformPositionProgram.mName = "Position Transform Shader";
+		gTransformPositionProgram.mShaderFiles.clear();
+		gTransformPositionProgram.mShaderFiles.push_back(make_pair("transform/positionV.glsl", GL_VERTEX_SHADER_ARB));
+		gTransformPositionProgram.mShaderLevel = mVertexShaderLevel[SHADER_TRANSFORM];
+
+		const char* varyings[] = {
+			"position_out",
+			"texture_index_out",
+		};
+	
+		success = gTransformPositionProgram.createShader(NULL, NULL, 2, varyings);
+	}
+
+	if (success)
+	{
+		gTransformTexCoordProgram.mName = "TexCoord Transform Shader";
+		gTransformTexCoordProgram.mShaderFiles.clear();
+		gTransformTexCoordProgram.mShaderFiles.push_back(make_pair("transform/texcoordV.glsl", GL_VERTEX_SHADER_ARB));
+		gTransformTexCoordProgram.mShaderLevel = mVertexShaderLevel[SHADER_TRANSFORM];
+
+		const char* varyings[] = {
+			"texcoord_out",
+		};
+	
+		success = gTransformTexCoordProgram.createShader(NULL, NULL, 1, varyings);
+	}
+
+	if (success)
+	{
+		gTransformNormalProgram.mName = "Normal Transform Shader";
+		gTransformNormalProgram.mShaderFiles.clear();
+		gTransformNormalProgram.mShaderFiles.push_back(make_pair("transform/normalV.glsl", GL_VERTEX_SHADER_ARB));
+		gTransformNormalProgram.mShaderLevel = mVertexShaderLevel[SHADER_TRANSFORM];
+
+		const char* varyings[] = {
+			"normal_out",
+		};
+	
+		success = gTransformNormalProgram.createShader(NULL, NULL, 1, varyings);
+	}
+
+	if (success)
+	{
+		gTransformColorProgram.mName = "Color Transform Shader";
+		gTransformColorProgram.mShaderFiles.clear();
+		gTransformColorProgram.mShaderFiles.push_back(make_pair("transform/colorV.glsl", GL_VERTEX_SHADER_ARB));
+		gTransformColorProgram.mShaderLevel = mVertexShaderLevel[SHADER_TRANSFORM];
+
+		const char* varyings[] = {
+			"color_out",
+		};
+	
+		success = gTransformColorProgram.createShader(NULL, NULL, 1, varyings);
+	}
+
+	if (success)
+	{
+		gTransformBinormalProgram.mName = "Binormal Transform Shader";
+		gTransformBinormalProgram.mShaderFiles.clear();
+		gTransformBinormalProgram.mShaderFiles.push_back(make_pair("transform/binormalV.glsl", GL_VERTEX_SHADER_ARB));
+		gTransformBinormalProgram.mShaderLevel = mVertexShaderLevel[SHADER_TRANSFORM];
+
+		const char* varyings[] = {
+			"binormal_out",
+		};
+	
+		success = gTransformBinormalProgram.createShader(NULL, NULL, 1, varyings);
+	}
+
+	
 	return success;
 }
 

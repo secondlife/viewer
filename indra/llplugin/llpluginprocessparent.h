@@ -30,13 +30,14 @@
 #define LL_LLPLUGINPROCESSPARENT_H
 
 #include "llapr.h"
-#include "llprocesslauncher.h"
+#include "llprocess.h"
 #include "llpluginmessage.h"
 #include "llpluginmessagepipe.h"
 #include "llpluginsharedmemory.h"
 
 #include "lliosocket.h"
 #include "llthread.h"
+#include "llsd.h"
 
 class LLPluginProcessParentOwner
 {
@@ -139,26 +140,27 @@ private:
 	};
 	EState mState;
 	void setState(EState state);
-	
+
 	bool pluginLockedUp();
 	bool pluginLockedUpOrQuit();
 
 	bool accept();
-		
+
 	LLSocket::ptr_t mListenSocket;
 	LLSocket::ptr_t mSocket;
 	U32 mBoundPort;
-	
-	LLProcessLauncher mProcess;
-	
+
+	LLProcess::Params mProcessParams;
+	LLProcessPtr mProcess;
+
 	std::string mPluginFile;
 	std::string mPluginDir;
 
 	LLPluginProcessParentOwner *mOwner;
-	
+
 	typedef std::map<std::string, LLPluginSharedMemory*> sharedMemoryRegionsType;
 	sharedMemoryRegionsType mSharedMemoryRegions;
-	
+
 	LLSD mMessageClassVersions;
 	std::string mPluginVersionString;
 	
@@ -171,7 +173,7 @@ private:
 	bool mBlocked;
 	bool mPolledInput;
 
-	LLProcessLauncher mDebugger;
+	LLProcessPtr mDebugger;
 	
 	F32 mPluginLaunchTimeout;		// Somewhat longer timeout for initial launch.
 	F32 mPluginLockupTimeout;		// If we don't receive a heartbeat in this many seconds, we declare the plugin locked up.

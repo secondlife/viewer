@@ -146,6 +146,10 @@ BOOL LLVOWater::updateGeometry(LLDrawable *drawable)
 		drawable->addFace(poolp, NULL);
 	}
 	face = drawable->getFace(0);
+	if (!face)
+	{
+		return TRUE;
+	}
 
 //	LLVector2 uvs[4];
 //	LLVector3 vtx[4];

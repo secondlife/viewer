@@ -263,11 +263,10 @@ public:
 		SKIP_FRUSTUM_CHECK		= 0x00000020,
 		IN_IMAGE_QUEUE			= 0x00000040,
 		IMAGE_DIRTY				= 0x00000080,
-		OCCLUSION_DIRTY			= 0x00000100,
-		MESH_DIRTY				= 0x00000200,
-		NEW_DRAWINFO			= 0x00000400,
-		IN_BUILD_Q1				= 0x00000800,
-		IN_BUILD_Q2				= 0x00001000,
+		MESH_DIRTY				= 0x00000100,
+		NEW_DRAWINFO			= 0x00000200,
+		IN_BUILD_Q1				= 0x00000400,
+		IN_BUILD_Q2				= 0x00000800,
 		STATE_MASK				= 0x0000FFFF,
 	} eSpatialState;
 
@@ -313,10 +312,9 @@ public:
 	BOOL boundObjects(BOOL empty, LLVector4a& newMin, LLVector4a& newMax);
 	void unbound();
 	BOOL rebound();
-	void buildOcclusion(); //rebuild mOcclusionVerts
 	void checkOcclusion(); //read back last occlusion query (if any)
 	void doOcclusion(LLCamera* camera); //issue occlusion query
-	void destroyGL();
+	void destroyGL(bool keep_occlusion = false);
 	
 	void updateDistance(LLCamera& camera);
 	BOOL needsUpdate();
@@ -378,6 +376,8 @@ public:
 	LLVector4a mObjectBounds[2]; // bounding box (center, size) of objects in this node
 	LLVector4a mViewAngle;
 	LLVector4a mLastUpdateViewAngle;
+
+	F32 mObjectBoxSize; //cached mObjectBounds[1].getLength3()
 		
 private:
 	U32                     mCurUpdatingTime ;
@@ -413,7 +413,6 @@ public:
 	LLSpatialPartition* mSpatialPartition;
 	
 	LLPointer<LLVertexBuffer> mVertexBuffer;
-	LLPointer<LLVertexBuffer> mOcclusionVerts;
 	GLuint					mOcclusionQuery[LLViewerCamera::NUM_CAMERAS];
 
 	U32 mBufferUsage;
@@ -655,6 +654,7 @@ class LLParticlePartition : public LLSpatialPartition
 {
 public:
 	LLParticlePartition();
+	virtual void rebuildGeom(LLSpatialGroup* group);
 	virtual void getGeometry(LLSpatialGroup* group);
 	virtual void addGeometryCount(LLSpatialGroup* group, U32 &vertex_count, U32& index_count);
 	virtual F32 calcPixelArea(LLSpatialGroup* group, LLCamera& camera);
@@ -669,10 +669,14 @@ public:
 };
 
 //spatial partition for grass (implemented in LLVOGrass.cpp)
-class LLGrassPartition : public LLParticlePartition
+class LLGrassPartition : public LLSpatialPartition
 {
 public:
 	LLGrassPartition();
+	virtual void getGeometry(LLSpatialGroup* group);
+	virtual void addGeometryCount(LLSpatialGroup* group, U32 &vertex_count, U32& index_count);
+protected:
+	U32 mRenderPass;
 };
 
 //class for wrangling geometry out of volumes (implemented in LLVOVolume.cpp)

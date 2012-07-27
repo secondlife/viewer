@@ -145,7 +145,6 @@ private:
 	boost::signals2::connection	mTeleportFailedConnection;
 	boost::signals2::connection	mTeleportFinishConnection;
 	boost::signals2::connection	mHistoryMenuConnection;
-	bool						mPurgeTPHistoryItems;
 	// if true, save location to location history when teleport finishes
 	bool						mSaveToLocationHistory;
 };

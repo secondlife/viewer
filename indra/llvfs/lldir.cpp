@@ -86,6 +86,13 @@ S32 LLDir::deleteFilesInDir(const std::string &dirname, const std::string &mask)
 	std::string fullpath;
 	S32 result;
 
+	// File masks starting with "/" will match nothing, so we consider them invalid.
+	if (LLStringUtil::startsWith(mask, getDirDelimiter()))
+	{
+		llwarns << "Invalid file mask: " << mask << llendl;
+		llassert(!"Invalid file mask");
+	}
+
 	LLDirIterator iter(dirname, mask);
 	while (iter.next(filename))
 	{

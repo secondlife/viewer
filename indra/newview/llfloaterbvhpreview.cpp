@@ -416,6 +416,9 @@ void LLFloaterBvhPreview::draw()
 //-----------------------------------------------------------------------------
 void LLFloaterBvhPreview::resetMotion()
 {
+	if (!mAnimPreview)
+		return;
+
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
 	BOOL paused = avatarp->areAnimationsPaused();
 
@@ -535,6 +538,9 @@ BOOL LLFloaterBvhPreview::handleHover(S32 x, S32 y, MASK mask)
 //-----------------------------------------------------------------------------
 BOOL LLFloaterBvhPreview::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
+	if (!mAnimPreview)
+		return false;
+
 	mAnimPreview->zoom((F32)clicks * -0.2f);
 	mAnimPreview->requestUpdate();
 
@@ -670,7 +676,7 @@ void LLFloaterBvhPreview::onCommitBaseAnim()
 //-----------------------------------------------------------------------------
 void LLFloaterBvhPreview::onCommitLoop()
 {
-	if (!getEnabled())
+	if (!getEnabled() || !mAnimPreview)
 		return;
 	
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
@@ -689,7 +695,7 @@ void LLFloaterBvhPreview::onCommitLoop()
 //-----------------------------------------------------------------------------
 void LLFloaterBvhPreview::onCommitLoopIn()
 {
-	if (!getEnabled())
+	if (!getEnabled() || !mAnimPreview)
 		return;
 
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
@@ -709,7 +715,7 @@ void LLFloaterBvhPreview::onCommitLoopIn()
 //-----------------------------------------------------------------------------
 void LLFloaterBvhPreview::onCommitLoopOut()
 {
-	if (!getEnabled())
+	if (!getEnabled() || !mAnimPreview)
 		return;
 
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
@@ -729,7 +735,7 @@ void LLFloaterBvhPreview::onCommitLoopOut()
 //-----------------------------------------------------------------------------
 void LLFloaterBvhPreview::onCommitName()
 {
-	if (!getEnabled())
+	if (!getEnabled() || !mAnimPreview)
 		return;
 
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
@@ -770,7 +776,7 @@ void LLFloaterBvhPreview::onCommitEmote()
 //-----------------------------------------------------------------------------
 void LLFloaterBvhPreview::onCommitPriority()
 {
-	if (!getEnabled())
+	if (!getEnabled() || !mAnimPreview)
 		return;
 
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
@@ -784,7 +790,7 @@ void LLFloaterBvhPreview::onCommitPriority()
 //-----------------------------------------------------------------------------
 void LLFloaterBvhPreview::onCommitEaseIn()
 {
-	if (!getEnabled())
+	if (!getEnabled() || !mAnimPreview)
 		return;
 
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
@@ -799,7 +805,7 @@ void LLFloaterBvhPreview::onCommitEaseIn()
 //-----------------------------------------------------------------------------
 void LLFloaterBvhPreview::onCommitEaseOut()
 {
-	if (!getEnabled())
+	if (!getEnabled() || !mAnimPreview)
 		return;
 
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
@@ -814,7 +820,7 @@ void LLFloaterBvhPreview::onCommitEaseOut()
 //-----------------------------------------------------------------------------
 bool LLFloaterBvhPreview::validateEaseIn(const LLSD& data)
 {
-	if (!getEnabled())
+	if (!getEnabled() || !mAnimPreview)
 		return false;
 
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
@@ -834,7 +840,7 @@ bool LLFloaterBvhPreview::validateEaseIn(const LLSD& data)
 //-----------------------------------------------------------------------------
 bool LLFloaterBvhPreview::validateEaseOut(const LLSD& data)
 {
-	if (!getEnabled())
+	if (!getEnabled() || !mAnimPreview)
 		return false;
 
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
@@ -1118,9 +1124,13 @@ BOOL	LLPreviewAnimation::render()
 		LLVertexBuffer::unbind();
 		LLGLDepthTest gls_depth(GL_TRUE);
 
-		LLDrawPoolAvatar *avatarPoolp = (LLDrawPoolAvatar *)avatarp->mDrawable->getFace(0)->getPool();
-		avatarp->dirtyMesh();
-		avatarPoolp->renderAvatars(avatarp);  // renders only one avatar
+		LLFace* face = avatarp->mDrawable->getFace(0);
+		if (face)
+		{
+			LLDrawPoolAvatar *avatarPoolp = (LLDrawPoolAvatar *)face->getPool();
+			avatarp->dirtyMesh();
+			avatarPoolp->renderAvatars(avatarp);  // renders only one avatar
+		}
 	}
 
 	gGL.color4f(1,1,1,1);

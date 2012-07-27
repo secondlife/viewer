@@ -57,8 +57,6 @@
 extern F32 texmem_lower_bound_scale;
 
 LLTextureView *gTextureView = NULL;
-LLTextureSizeView *gTextureSizeView = NULL;
-LLTextureSizeView *gTextureCategoryView = NULL;
 
 #define HIGH_PRIORITY 100000000.f
 
@@ -513,7 +511,7 @@ void LLGLTexMemBar::draw()
 	F32 cache_usage = (F32)BYTES_TO_MEGA_BYTES(LLAppViewer::getTextureCache()->getUsage()) ;
 	F32 cache_max_usage = (F32)BYTES_TO_MEGA_BYTES(LLAppViewer::getTextureCache()->getMaxUsage()) ;
 	S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
-	S32 v_offset = (S32)((texture_bar_height + 2.2f) * mTextureView->mNumTextureBars + 2.0f);
+	S32 v_offset = 0;//(S32)((texture_bar_height + 2.2f) * mTextureView->mNumTextureBars + 2.0f);
 	F32 total_texture_downloaded = (F32)gTotalTextureBytes / (1024 * 1024);
 	F32 total_object_downloaded = (F32)gTotalObjectBytes / (1024 * 1024);
 	U32 total_http_requests = LLAppViewer::getTextureFetch()->getTotalNumHTTPRequests() ;
@@ -527,80 +525,24 @@ void LLGLTexMemBar::draw()
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*6,
 											 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
-	text = llformat("GL Tot: %d/%d MB Bound: %d/%d MB FBO: %d MB Raw Tot: %d MB Bias: %.2f Cache: %.1f/%.1f MB Net Tot Tex: %.1f MB Tot Obj: %.1f MB Tot Htp: %d",
+	text = llformat("GL Tot: %d/%d MB Bound: %d/%d MB FBO: %d MB Raw Tot: %d MB Bias: %.2f Cache: %.1f/%.1f MB",
 					total_mem,
 					max_total_mem,
 					bound_mem,
 					max_bound_mem,
 					LLRenderTarget::sBytesAllocated/(1024*1024),
 					LLImageRaw::sGlobalRawMemory >> 20,	discard_bias,
-					cache_usage, cache_max_usage, total_texture_downloaded, total_object_downloaded, total_http_requests);
-	//, cache_entries, cache_max_entries
+					cache_usage, cache_max_usage);
+	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*4,
+											 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
+	text = llformat("Net Tot Tex: %.1f MB Tot Obj: %.1f MB Tot Htp: %d",
+					total_texture_downloaded, total_object_downloaded, total_http_requests);
+	//, cache_entries, cache_max_entries
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*3,
 											 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
-	//----------------------------------------------------------------------------
-#if 0
-	S32 bar_left = 400;
-	S32 bar_width = 200;
-	S32 top = line_height*3 - 2 + v_offset;
-	S32 bottom = top - 6;
-	S32 left = bar_left;
-	S32 right = left + bar_width;
-	F32 bar_scale;
-	
-	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-
-	// GL Mem Bar
-		
-	left = bar_left;
-	text = "GL";
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, left, line_height*3,
-											 text_color, LLFontGL::LEFT, LLFontGL::TOP);
-	
-	left = bar_left+20;
-	right = left + bar_width;
-	
-	gGL.color4f(0.5f, 0.5f, 0.5f, 0.75f); // grey
-	gl_rect_2d(left, top, right, bottom);
-
-	bar_scale = (F32)bar_width / (max_total_mem * 1.5f);
-	right = left + llfloor(total_mem * bar_scale);
-	right = llclamp(right, bar_left, bar_left + bar_width);
-	
-	color = (total_mem < llfloor(max_total_mem * texmem_lower_bound_scale)) ? LLColor4::green :
-		  	(total_mem < max_total_mem) ? LLColor4::yellow : LLColor4::red;
-	color[VALPHA] = .75f;
-	gGL.diffuseColor4fv(color.mV);
-	
-	gl_rect_2d(left, top, right, bottom); // red/yellow/green
-
-	//
-	bar_left += bar_width + bar_space;
-	//top = bottom - 2; bottom = top - 6;
-	
-	// Bound Mem Bar
-
-	left = bar_left;
-	text = "GL";
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, left, line_height*3,
-									 text_color, LLFontGL::LEFT, LLFontGL::TOP);
-	left = bar_left + 20;
-	right = left + bar_width;
-	
-	gGL.color4f(0.5f, 0.5f, 0.5f, 0.75f);
-	gl_rect_2d(left, top, right, bottom);
-
-	color = (bound_mem < llfloor(max_bound_mem * texmem_lower_bound_scale)) ? LLColor4::green :
-		  	(bound_mem < max_bound_mem) ? LLColor4::yellow : LLColor4::red;
-	color[VALPHA] = .75f;
-	gGL.diffuseColor4fv(color.mV);
-
-	gl_rect_2d(left, top, right, bottom);
-#else
 	S32 left = 0 ;
-#endif
 	//----------------------------------------------------------------------------
 
 	text = llformat("Textures: %d Fetch: %d(%d) Pkts:%d(%d) Cache R/W: %d/%d LFS:%d RAW:%d HTP:%d DEC:%d CRE:%d",
@@ -669,8 +611,7 @@ BOOL LLGLTexMemBar::handleMouseDown(S32 x, S32 y, MASK mask)
 LLRect LLGLTexMemBar::getRequiredRect()
 {
 	LLRect rect;
-	//rect.mTop = 50;
-	rect.mTop = 0;
+	rect.mTop = 50; //LLFontGL::getFontMonospace()->getLineHeight() * 6;
 	return rect;
 }
 
@@ -954,9 +895,11 @@ void LLTextureView::draw()
 		LLRect tmbr;
 		tmbp.name("gl texmem bar");
 		tmbp.rect(tmbr);
+		tmbp.follows.flags = FOLLOWS_LEFT|FOLLOWS_TOP;
 		tmbp.texture_view(this);
 		mGLTexMemBar = LLUICtrlFactory::create<LLGLTexMemBar>(tmbp);
-		addChildInBack(mGLTexMemBar);
+		addChild(mGLTexMemBar);
+		sendChildToFront(mGLTexMemBar);
 
 		LLAvatarTexBar::Params atbp;
 		LLRect atbr;
@@ -965,16 +908,13 @@ void LLTextureView::draw()
 		atbp.rect(atbr);
 		mAvatarTexBar = LLUICtrlFactory::create<LLAvatarTexBar>(atbp);
 		addChild(mAvatarTexBar);
+		sendChildToFront(mAvatarTexBar);
 
 		reshape(getRect().getWidth(), getRect().getHeight(), TRUE);
 
-		/*
-		  count = gTextureList.getNumImages();
-		  std::string info_string;
-		  info_string = llformat("Global Info:\nTexture Count: %d", count);
-		  mInfoTextp->setText(info_string);
-		*/
-
+		LLUI::popMatrix();
+		LLUI::pushMatrix();
+		LLUI::translate((F32)getRect().mLeft, (F32)getRect().mBottom);
 
 		for (child_list_const_iter_t child_iter = getChildList()->begin();
 			 child_iter != getChildList()->end(); ++child_iter)
@@ -1049,302 +989,4 @@ BOOL LLTextureView::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 	return FALSE;
 }
 
-//-----------------------------------------------------------------
-LLTextureSizeView::LLTextureSizeView(const LLTextureSizeView::Params& p) : LLContainerView(p)
-{
-	setVisible(FALSE) ;
 
-	mTextureSizeBarWidth = 30 ;
-}
-
-LLTextureSizeView::~LLTextureSizeView()
-{
-	if(mTextureSizeBar.size())
-	{
-		for(U32 i = 0 ; i < mTextureSizeBar.size() ; i++)
-		{
-			delete mTextureSizeBar[i] ;
-		}
-		mTextureSizeBar.clear() ;
-	}
-}
-void LLTextureSizeView::draw()
-{
-	if(mType == TEXTURE_MEM_OVER_SIZE)
-	{
-		drawTextureSizeGraph();
-	}
-	else
-	{
-		drawTextureCategoryGraph() ;
-	}
-	
-	LLView::draw();
-}
-
-BOOL LLTextureSizeView::handleHover(S32 x, S32 y, MASK mask) 
-{
-	if(x > mTextureSizeBarRect.mLeft && x < mTextureSizeBarRect.mRight)
-	{
-		mTextureSizeBar[(x - mTextureSizeBarRect.mLeft) / mTextureSizeBarWidth]->handleHover(x, y, mask, (mType == TEXTURE_MEM_OVER_SIZE)) ;
-	}
-
-	return TRUE ;
-}
-
-//draw real-time texture mem bar over size
-void LLTextureSizeView::drawTextureSizeGraph()
-{
-	if(mTextureSizeBar.size() == 0)
-	{
-		S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
-		mTextureSizeBar.resize(LLImageGL::sTextureLoadedCounter.size()) ;
-		mTextureSizeBarRect.set(700, line_height * 2 + 400, 700 + mTextureSizeBar.size() * mTextureSizeBarWidth, line_height * 2) ;
-		
-		for(U32 i = 0 ; i < mTextureSizeBar.size() ; i++)
-		{				
-			mTextureSizeBar[i] = new LLGLTexSizeBar(i, mTextureSizeBarRect.mLeft + i * mTextureSizeBarWidth , 
-				line_height * 2, mTextureSizeBarRect.mLeft + (i + 1) * mTextureSizeBarWidth, line_height) ;				
-		}			
-	}
-
-	F32 size_bar_scale = drawTextureSizeDistributionGraph() ;		
-	for(U32 i = 0 ; i < mTextureSizeBar.size() ; i++)
-	{
-		mTextureSizeBar[i]->setTop(LLImageGL::sTextureLoadedCounter[i], LLImageGL::sTextureBoundCounter[i], size_bar_scale) ;
-		mTextureSizeBar[i]->draw() ;
-	}		
-	LLImageGL::resetCurTexSizebar();
-}
-
-//draw background of texture size bar graph
-F32 LLTextureSizeView::drawTextureSizeDistributionGraph()
-{	
-	//scale
-	F32 scale = 1.0f ;
-	
-	LLGLSUIDefault gls_ui;
-
-	{
-		S32 count = 0 ;
-		for(U32 i = 0 ; i < LLImageGL::sTextureLoadedCounter.size() ; i++)
-		{
-			if(LLImageGL::sTextureLoadedCounter[i] > count)
-			{
-				count = LLImageGL::sTextureLoadedCounter[i] ;
-			}
-		}
-		if(count > mTextureSizeBarRect.getHeight())
-		{
-			scale = (F32)mTextureSizeBarRect.getHeight() / count ;
-		}
-	}
-
-	S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
-	S32 left = mTextureSizeBarRect.mLeft ;
-	S32 bottom = mTextureSizeBarRect.mBottom ;
-	S32 right = mTextureSizeBarRect.mRight ;
-	S32 top = mTextureSizeBarRect.mTop ;
-
-	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-	
-	//background rect
-	gl_rect_2d(left - 25, top + 30, right + 100, bottom - 25, LLColor4(0.0f, 0.0f, 0.0f, 0.25f)) ;
-
-	//--------------------------------------------------
-	gGL.color4f(1.0f, 0.5f, 0.5f, 0.75f);
-	gl_line_2d(left, bottom, right, bottom) ; //x axis
-	gl_line_2d(left, bottom, left, top) ; //y axis
-
-	//ruler
-	//--------------------------------------------------
-	gGL.color4f(1.0f, 0.5f, 0.5f, 0.5f);
-	for(S32 i = bottom + 50 ; i <= top ; i += 50)
-	{
-		gl_line_2d(left, i, right, i) ;
-	}
-
-	//texts
-	//--------------------------------------------------
-	F32 text_color[] = {1.f, 1.f, 1.f, 0.75f};	
-	std::string text;
-	
-	//-------
-	//x axis: size label
-	text = llformat("%d", 0) ;
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, left + 12, bottom - line_height / 2,
-									 text_color, LLFontGL::LEFT, LLFontGL::TOP);
-	for(U32 i = 1 ; i < mTextureSizeBar.size() ; i++)
-	{
-		text = llformat("%d", (1 << (i / 2)) + ((i & 1) ? ((1 << (i / 2)) >> 1) : 0)) ;
-		LLFontGL::getFontMonospace()->renderUTF8(text, 0, left + i * mTextureSizeBarWidth + 12, bottom - line_height / 2,
-									 text_color, LLFontGL::LEFT, LLFontGL::TOP);
-	}
-	text = llformat("(w + h)/2") ;
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, right + 10, bottom - line_height / 2,
-									 text_color, LLFontGL::LEFT, LLFontGL::TOP);
-	//-------
-
-	//y axis: number label
-	for(S32 i = bottom + 50 ; i <= top ; i += 50)
-	{
-		text = llformat("%d", (S32)((i - bottom) / scale)) ;
-		LLFontGL::getFontMonospace()->renderUTF8(text, 0, left - 20, i + line_height / 2 ,
-									 text_color, LLFontGL::LEFT, LLFontGL::TOP);
-		LLFontGL::getFontMonospace()->renderUTF8(text, 0, right + 5, i + line_height / 2 ,
-									 text_color, LLFontGL::LEFT, LLFontGL::TOP);
-	}
-
-	//--------------------------------------------------
-	F32 loaded_color[] = {1.0f, 0.0f, 0.0f, 0.75f};
-	gl_rect_2d(left + 70, top + line_height * 2, left + 90, top + line_height, loaded_color) ;
-	text = llformat("Loaded") ;
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, left + 100, top + line_height * 2,
-									 loaded_color, LLFontGL::LEFT, LLFontGL::TOP);
-
-	F32 bound_color[] = {1.0f, 1.0f, 0.0f, 0.75f};
-	gl_rect_2d(left + 170, top + line_height * 2, left + 190, top + line_height, bound_color) ;
-	text = llformat("Bound") ;
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, left + 200, top + line_height * 2,
-									 bound_color, LLFontGL::LEFT, LLFontGL::TOP);
-
-	//--------------------------------------------------
-
-	//title
-	text = llformat("Texture Size Distribution") ;
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, left + 250, top + line_height * 3,
-									 text_color, LLFontGL::LEFT, LLFontGL::TOP);
-	return scale ;
-}
-
-//draw real-time texture mem bar over category
-void LLTextureSizeView::drawTextureCategoryGraph()
-{
-	if(mTextureSizeBar.size() == 0)
-	{
-		S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
-		mTextureSizeBar.resize(LLViewerTexture::getTotalNumOfCategories()) ;
-		mTextureSizeBarRect.set(700, line_height * 2 + 400, 700 + mTextureSizeBar.size() * mTextureSizeBarWidth, line_height * 2) ;
-		
-		for(U32 i = 0 ; i < mTextureSizeBar.size() ; i++)
-		{				
-			mTextureSizeBar[i] = new LLGLTexSizeBar(i, mTextureSizeBarRect.mLeft + i * mTextureSizeBarWidth , 
-				line_height * 2, mTextureSizeBarRect.mLeft + (i + 1) * mTextureSizeBarWidth, line_height) ;				
-		}			
-	}
-
-	F32 size_bar_scale = drawTextureCategoryDistributionGraph() ;		
-	for(U32 i = 0 ; i < mTextureSizeBar.size() ; i++)
-	{
-		U32 k = LLViewerTexture::getIndexFromCategory(i) ;
-		mTextureSizeBar[i]->setTop(LLImageGL::sTextureMemByCategory[k] >> 20, LLImageGL::sTextureMemByCategoryBound[k] >> 20, size_bar_scale) ;
-		mTextureSizeBar[i]->draw() ;
-	}		
-	LLImageGL::resetCurTexSizebar();
-}
-
-//draw background for TEXTURE_MEM_OVER_CATEGORY
-F32 LLTextureSizeView::drawTextureCategoryDistributionGraph() 
-{
-	//scale
-	F32 scale = 4.0f ;
-	
-	LLGLSUIDefault gls_ui;
-
-	{
-		S32 count = 0 ;
-		for(U32 i = 0 ; i < LLImageGL::sTextureMemByCategory.size() ; i++)
-		{
-			S32 tmp = LLImageGL::sTextureMemByCategory[i] >> 20 ;
-			if(tmp > count)
-			{
-				count = tmp ;
-			}
-		}
-		if(count > mTextureSizeBarRect.getHeight() * 0.25f)
-		{
-			scale = (F32)mTextureSizeBarRect.getHeight() * 0.25f / count ;
-		}
-	}
-
-	S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
-	S32 left = mTextureSizeBarRect.mLeft ;
-	S32 bottom = mTextureSizeBarRect.mBottom ;
-	S32 right = mTextureSizeBarRect.mRight ;
-	S32 top = mTextureSizeBarRect.mTop ;
-
-	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-	
-	//background rect
-	gl_rect_2d(left - 25, top + 30, right + 100, bottom - 25, LLColor4(0.0f, 0.0f, 0.0f, 0.25f)) ;
-
-	//--------------------------------------------------
-	gGL.color4f(1.0f, 0.5f, 0.5f, 0.75f);
-	gl_line_2d(left, bottom, right, bottom) ; //x axis
-	gl_line_2d(left, bottom, left, top) ; //y axis
-
-	//ruler
-	//--------------------------------------------------
-	gGL.color4f(1.0f, 0.5f, 0.5f, 0.5f);
-	for(S32 i = bottom + 50 ; i <= top ; i += 50)
-	{
-		gl_line_2d(left, i, right, i) ;
-	}
-
-	//texts
-	//--------------------------------------------------
-	F32 text_color[] = {1.f, 1.f, 1.f, 0.75f};	
-	std::string text;
-	
-	//-------
-	//x axis: size label			
-	static char category[LLViewerTexture::MAX_GL_IMAGE_CATEGORY][4] = 
-	{"Non", "Bak", "Av", "Cld", "Scp", "Hi", "Trn", "Slt", "Hud", "Bsf", "UI", "Pvw", "Map", "Mvs", "Slf", "Loc", "Scr", "Dyn", "Mdi", "ALT", "Oth" } ;
-
-	text = llformat("%s", category[0]) ;
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, left + 12, bottom - line_height / 2,
-									 text_color, LLFontGL::LEFT, LLFontGL::TOP);
-	for(U32 i = 1 ; i < mTextureSizeBar.size() ; i++)
-	{
-		text = llformat("%s", category[i]) ;
-		LLFontGL::getFontMonospace()->renderUTF8(text, 0, left + i * mTextureSizeBarWidth + 12, bottom - line_height / 2,
-									 text_color, LLFontGL::LEFT, LLFontGL::TOP);
-	}
-	//-------
-
-	//y axis: number label
-	for(S32 i = bottom + 50 ; i <= top ; i += 50)
-	{
-		text = llformat("%d", (S32)((i - bottom) / scale)) ;
-		LLFontGL::getFontMonospace()->renderUTF8(text, 0, left - 20, i + line_height / 2 ,
-									 text_color, LLFontGL::LEFT, LLFontGL::TOP);
-		LLFontGL::getFontMonospace()->renderUTF8(text, 0, right + 5, i + line_height / 2 ,
-									 text_color, LLFontGL::LEFT, LLFontGL::TOP);
-	}
-
-	text = llformat("MB") ;
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, left - 20, top + line_height * 2 ,
-									 text_color, LLFontGL::LEFT, LLFontGL::TOP);
-	//--------------------------------------------------
-	F32 loaded_color[] = {1.0f, 0.0f, 0.0f, 0.75f};
-	gl_rect_2d(left + 70, top + line_height * 2, left + 90, top + line_height, loaded_color) ;
-	text = llformat("Loaded") ;
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, left + 100, top + line_height * 2,
-									 loaded_color, 
-									 LLFontGL::LEFT, LLFontGL::TOP);
-
-	F32 bound_color[] = {1.0f, 1.0f, 0.0f, 0.75f};
-	gl_rect_2d(left + 170, top + line_height * 2, left + 190, top + line_height, bound_color) ;
-	text = llformat("Bound") ;
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, left + 200, top + line_height * 2,
-									 bound_color, LLFontGL::LEFT, LLFontGL::TOP);
-
-	//--------------------------------------------------
-
-	//title
-	text = llformat("Texture Category Distribution") ;
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, left + 250, top + line_height * 3,
-									 text_color, LLFontGL::LEFT, LLFontGL::TOP);
-
-	return scale ;
-}

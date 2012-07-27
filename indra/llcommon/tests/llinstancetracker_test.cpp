@@ -35,12 +35,18 @@
 #include <vector>
 #include <set>
 #include <algorithm>                // std::sort()
+#include <stdexcept>
 // std headers
 // external library headers
 #include <boost/scoped_ptr.hpp>
 // other Linden headers
 #include "../test/lltut.h"
 #include "wrapllerrs.h"
+
+struct Badness: public std::runtime_error
+{
+    Badness(const std::string& what): std::runtime_error(what) {}
+};
 
 struct Keyed: public LLInstanceTracker<Keyed, std::string>
 {
@@ -53,6 +59,17 @@ struct Keyed: public LLInstanceTracker<Keyed, std::string>
 
 struct Unkeyed: public LLInstanceTracker<Unkeyed>
 {
+    Unkeyed(const std::string& thrw="")
+    {
+        // LLInstanceTracker should respond appropriately if a subclass
+        // constructor throws an exception. Specifically, it should run
+        // LLInstanceTracker's destructor and remove itself from the
+        // underlying container.
+        if (! thrw.empty())
+        {
+            throw Badness(thrw);
+        }
+    }
 };
 
 /*****************************************************************************
@@ -95,6 +112,7 @@ namespace tut
     void object::test<2>()
     {
         ensure_equals(Unkeyed::instanceCount(), 0);
+        Unkeyed* dangling = NULL;
         {
             Unkeyed one;
             ensure_equals(Unkeyed::instanceCount(), 1);
@@ -107,7 +125,11 @@ namespace tut
                 ensure_equals(found, two.get());
             }
             ensure_equals(Unkeyed::instanceCount(), 1);
-        }
+            // store an unwise pointer to a temp Unkeyed instance
+            dangling = &one;
+        } // make that instance vanish
+        // check the now-invalid pointer to the destroyed instance
+        ensure("getInstance(T*) failed to track destruction", ! Unkeyed::getInstance(dangling));
         ensure_equals(Unkeyed::instanceCount(), 0);
     }
 
@@ -228,5 +250,50 @@ namespace tut
             }
         }
         ensure(! what.empty());
+    }
+
+    template<> template<>
+    void object::test<8>()
+    {
+        set_test_name("exception in subclass ctor");
+        typedef std::set<Unkeyed*> InstanceSet;
+        InstanceSet existing;
+        // We can't use the iterator-range InstanceSet constructor because
+        // beginInstances() returns an iterator that dereferences to an
+        // Unkeyed&, not an Unkeyed*.
+        for (Unkeyed::instance_iter uki(Unkeyed::beginInstances()),
+                                    ukend(Unkeyed::endInstances());
+             uki != ukend; ++uki)
+        {
+            existing.insert(&*uki);
+        }
+        Unkeyed* puk = NULL;
+        try
+        {
+            // We don't expect the assignment to take place because we expect
+            // Unkeyed to respond to the non-empty string param by throwing.
+            // We know the LLInstanceTracker base-class constructor will have
+            // run before Unkeyed's constructor, therefore the new instance
+            // will have added itself to the underlying set. The whole
+            // question is, when Unkeyed's constructor throws, will
+            // LLInstanceTracker's destructor remove it from the set? I
+            // realize we're testing the C++ implementation more than
+            // Unkeyed's implementation, but this seems an important point to
+            // nail down.
+            puk = new Unkeyed("throw");
+        }
+        catch (const Badness&)
+        {
+        }
+        // Ensure that every member of the new, updated set of Unkeyed
+        // instances was also present in the original set. If that's not true,
+        // it's because our new Unkeyed ended up in the updated set despite
+        // its constructor exception.
+        for (Unkeyed::instance_iter uki(Unkeyed::beginInstances()),
+                                    ukend(Unkeyed::endInstances());
+             uki != ukend; ++uki)
+        {
+            ensure("failed to remove instance", existing.find(&*uki) != existing.end());
+        }
     }
 } // namespace tut

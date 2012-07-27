@@ -13,6 +13,7 @@ include(EXPAT)
 include(FMOD)
 include(OPENAL)
 include(FindOpenGL)
+include(Hunspell)
 include(JsonCpp)
 include(LLAudio)
 include(LLCharacter)
@@ -30,7 +31,6 @@ include(LLUI)
 include(LLVFS)
 include(LLWindow)
 include(LLXML)
-include(LLXUIXML)
 include(LScript)
 include(Linking)
 include(NDOF)
@@ -66,12 +66,12 @@ include_directories(
     ${LLVFS_INCLUDE_DIRS}
     ${LLWINDOW_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
-    ${LLXUIXML_INCLUDE_DIRS}
     ${LSCRIPT_INCLUDE_DIRS}
     ${LSCRIPT_INCLUDE_DIRS}/lscript_compile
     ${LLLOGIN_INCLUDE_DIRS}
     ${UPDATER_INCLUDE_DIRS}
     ${LIBS_PREBUILT_DIR}/include/collada
+    ${LIBS_PREBUILD_DIR}/include/hunspell
     ${OPENAL_LIB_INCLUDE_DIRS}
     ${LIBS_PREBUILT_DIR}/include/collada/1.4
     )
@@ -98,6 +98,7 @@ set(viewer_SOURCE_FILES
     llassetuploadresponders.cpp
     llattachmentsmgr.cpp
     llaudiosourcevo.cpp
+    llautoreplace.cpp
     llavataractions.cpp
     llavatariconctrl.cpp
     llavatarlist.cpp
@@ -171,6 +172,7 @@ set(viewer_SOURCE_FILES
     llfloaterabout.cpp
     llfloaterbvhpreview.cpp
     llfloaterauction.cpp
+    llfloaterautoreplacesettings.cpp
     llfloateravatar.cpp
     llfloateravatarpicker.cpp
     llfloateravatartextures.cpp
@@ -214,7 +216,6 @@ set(viewer_SOURCE_FILES
     llfloatermemleak.cpp
     llfloatermodelpreview.cpp
     llfloatermodeluploadbase.cpp
-    llfloatermodelwizard.cpp
     llfloaternamedesc.cpp
     llfloaternotificationsconsole.cpp
     llfloaterobjectweights.cpp
@@ -236,9 +237,11 @@ set(viewer_SOURCE_FILES
     llfloatersidepanelcontainer.cpp
     llfloatersnapshot.cpp
     llfloatersounddevices.cpp
+    llfloaterspellchecksettings.cpp
     llfloatertelehub.cpp
     llfloatertestinspectors.cpp
     llfloatertestlistview.cpp
+    llfloatertexturefetchdebugger.cpp
     llfloatertools.cpp
     llfloatertopobjects.cpp
     llfloatertos.cpp
@@ -491,6 +494,7 @@ set(viewer_SOURCE_FILES
     lltoastnotifypanel.cpp
     lltoastpanel.cpp
     lltoastscripttextbox.cpp
+    lltoastscriptquestion.cpp
     lltool.cpp
     lltoolbarview.cpp
     lltoolbrush.cpp
@@ -655,6 +659,7 @@ set(viewer_HEADER_FILES
     llassetuploadresponders.h
     llattachmentsmgr.h
     llaudiosourcevo.h
+    llautoreplace.h
     llavataractions.h
     llavatariconctrl.h
     llavatarlist.h
@@ -728,6 +733,7 @@ set(viewer_HEADER_FILES
     llfloaterabout.h
     llfloaterbvhpreview.h
     llfloaterauction.h
+    llfloaterautoreplacesettings.h
     llfloateravatar.h
     llfloateravatarpicker.h
     llfloateravatartextures.h
@@ -771,7 +777,6 @@ set(viewer_HEADER_FILES
     llfloatermemleak.h
     llfloatermodelpreview.h
     llfloatermodeluploadbase.h
-    llfloatermodelwizard.h
     llfloaternamedesc.h
     llfloaternotificationsconsole.h
     llfloaterobjectweights.h
@@ -793,9 +798,11 @@ set(viewer_HEADER_FILES
     llfloatersidepanelcontainer.h
     llfloatersnapshot.h
     llfloatersounddevices.h
+    llfloaterspellchecksettings.h
     llfloatertelehub.h
     llfloatertestinspectors.h
     llfloatertestlistview.h
+    llfloatertexturefetchdebugger.h
     llfloatertools.h
     llfloatertopobjects.h
     llfloatertos.h
@@ -1038,6 +1045,7 @@ set(viewer_HEADER_FILES
     lltoastnotifypanel.h
     lltoastpanel.h
     lltoastscripttextbox.h
+    lltoastscriptquestion.h
     lltool.h
     lltoolbarview.h
     lltoolbrush.h
@@ -1573,6 +1581,9 @@ if (WINDOWS)
       ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/msvcp100.dll
       ${SHARED_LIB_STAGING_DIR}/Debug/msvcr100d.dll
       ${SHARED_LIB_STAGING_DIR}/Debug/msvcp100d.dll
+      ${SHARED_LIB_STAGING_DIR}/Release/libhunspell.dll
+      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/libhunspell.dll
+      ${SHARED_LIB_STAGING_DIR}/Debug/libhunspell.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/SLVoice.exe
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/vivoxsdk.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/ortp.dll
@@ -1747,11 +1758,11 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${LLVFS_LIBRARIES}
     ${LLWINDOW_LIBRARIES}
     ${LLXML_LIBRARIES}
-    ${LLXUIXML_LIBRARIES}
     ${LSCRIPT_LIBRARIES}
     ${LLMATH_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
     ${NDOF_LIBRARY}
+    ${HUNSPELL_LIBRARY}
     ${viewer_LIBRARIES}
     ${BOOST_PROGRAM_OPTIONS_LIBRARY}
     ${BOOST_REGEX_LIBRARY}

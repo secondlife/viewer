@@ -1221,10 +1221,11 @@ void LLAudioEngine::assetCallback(LLVFS *vfs, const LLUUID &uuid, LLAssetType::E
 		// Need to mark data as bad to avoid constant rerequests.
 		LLAudioData *adp = gAudiop->getAudioData(uuid);
 		if (adp)
-        {
+        {	// Make sure everything is cleared
 			adp->setHasValidData(false);
 			adp->setHasLocalData(false);
 			adp->setHasDecodedData(false);
+			adp->setHasCompletedDecode(true);
 		}
 	}
 	else
@@ -1237,6 +1238,7 @@ void LLAudioEngine::assetCallback(LLVFS *vfs, const LLUUID &uuid, LLAssetType::E
         }
 		else
 		{
+			// llinfos << "Got asset callback with good audio data for " << uuid << ", making decode request" << llendl;
 			adp->setHasValidData(true);
 		    adp->setHasLocalData(true);
 		    gAudioDecodeMgrp->addDecodeRequest(uuid);
@@ -1304,16 +1306,18 @@ void LLAudioSource::update()
 
 	if (!getCurrentBuffer())
 	{
-		if (getCurrentData())
+		LLAudioData *adp = getCurrentData();
+		if (adp)
 		{
 			// Hack - try and load the sound.  Will do this as a callback
 			// on decode later.
-			if (getCurrentData()->load() && getCurrentData()->getBuffer())
+			if (adp->load() && adp->getBuffer())
 			{
-				play(getCurrentData()->getID());
+				play(adp->getID());
 			}
-			else
+			else if (adp->hasCompletedDecode())		// Only mark corrupted after decode is done
 			{
+				llwarns << "Marking LLAudioSource corrupted for " << adp->getID() << llendl;
 				mCorrupted = true ;
 			}
 		}
@@ -1731,6 +1735,7 @@ LLAudioData::LLAudioData(const LLUUID &uuid) :
 	mBufferp(NULL),
 	mHasLocalData(false),
 	mHasDecodedData(false),
+	mHasCompletedDecode(false),
 	mHasValidData(true)
 {
 	if (uuid.isNull())
@@ -1742,12 +1747,13 @@ LLAudioData::LLAudioData(const LLUUID &uuid) :
 	if (gAudiop && gAudiop->hasDecodedFile(uuid))
 	{
 		// Already have a decoded version, don't need to decode it.
-		mHasLocalData = true;
-		mHasDecodedData = true;
+		setHasLocalData(true);
+		setHasDecodedData(true);
+		setHasCompletedDecode(true);
 	}
 	else if (gAssetStorage && gAssetStorage->hasLocalAsset(uuid, LLAssetType::AT_SOUND))
 	{
-		mHasLocalData = true;
+		setHasLocalData(true);
 	}
 }
 

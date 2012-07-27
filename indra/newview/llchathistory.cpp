@@ -496,7 +496,7 @@ protected:
 
 	void showInfoCtrl()
 	{
-		if (mAvatarID.isNull() || mFrom.empty() || SYSTEM_FROM == mFrom) return;
+		if (mAvatarID.isNull() || mFrom.empty() || CHAT_SOURCE_SYSTEM == mSourceType) return;
 				
 		if (!sInfoCtrl)
 		{
@@ -690,8 +690,11 @@ void LLChatHistory::clear()
 	mLastFromID = LLUUID::null;
 }
 
+static LLFastTimer::DeclareTimer FTM_APPEND_MESSAGE("Append Chat Message");
+
 void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LLStyle::Params& input_append_params)
 {
+	LLFastTimer _(FTM_APPEND_MESSAGE);
 	bool use_plain_text_chat_history = args["use_plain_text_chat_history"].asBoolean();
 	bool square_brackets = false; // square brackets necessary for a system messages
 
@@ -739,7 +742,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	LLViewerChat::getChatColor(chat,txt_color);
 	LLFontGL* fontp = LLViewerChat::getChatFont();	
 	std::string font_name = LLFontGL::nameFromFont(fontp);
-	std::string font_size = LLFontGL::sizeFromFont(fontp);
+	std::string font_size = LLFontGL::sizeFromFont(fontp);	
 
 	LLStyle::Params body_message_params;
 	body_message_params.color(txt_color);
@@ -889,7 +892,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		else
 		{
 			view = getHeader(chat, name_params, args);
-			if (mEditor->getText().size() == 0)
+			if (mEditor->getLength() == 0)
 				p.top_pad = 0;
 			else
 				p.top_pad = mTopHeaderPad;
@@ -970,7 +973,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		if (square_brackets)
 		{
 			message += "]";
-		}
+	}
 
 		mEditor->appendText(message, prependNewLineState, body_message_params);
 		prependNewLineState = false;

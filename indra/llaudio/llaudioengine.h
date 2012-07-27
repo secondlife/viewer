@@ -372,10 +372,12 @@ public:
 
 	bool	hasLocalData() const		{ return mHasLocalData; }
 	bool	hasDecodedData() const		{ return mHasDecodedData; }
+	bool	hasCompletedDecode() const	{ return mHasCompletedDecode; }
 	bool	hasValidData() const		{ return mHasValidData; }
 
 	void	setHasLocalData(const bool hld)		{ mHasLocalData = hld; }
 	void	setHasDecodedData(const bool hdd)	{ mHasDecodedData = hdd; }
+	void	setHasCompletedDecode(const bool hcd)	{ mHasCompletedDecode = hcd; }
 	void	setHasValidData(const bool hvd)		{ mHasValidData = hvd; }
 
 	friend class LLAudioEngine; // Severe laziness, bad.
@@ -383,9 +385,10 @@ public:
 protected:
 	LLUUID mID;
 	LLAudioBuffer *mBufferp;	// If this data is being used by the audio system, a pointer to the buffer will be set here.
-	bool mHasLocalData;
-	bool mHasDecodedData;
-	bool mHasValidData;
+	bool mHasLocalData;			// Set true if the sound asset file is available locally
+	bool mHasDecodedData;		// Set true if the sound file has been decoded
+	bool mHasCompletedDecode;	// Set true when the sound is decoded
+	bool mHasValidData;			// Set false if decoding failed, meaning the sound asset is bad
 };
 
 

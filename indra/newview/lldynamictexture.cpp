@@ -216,12 +216,14 @@ BOOL LLViewerDynamicTexture::updateAllInstances()
 		return TRUE;
 	}
 
+#if 0 //THIS CAUSES MAINT-1092
 	bool use_fbo = gGLManager.mHasFramebufferObject && gPipeline.mWaterDis.isComplete();
 
 	if (use_fbo)
 	{
 		gPipeline.mWaterDis.bindTarget();
 	}
+#endif
 
 	LLGLSLShader::bindNoShader();
 	LLVertexBuffer::unbind();
@@ -256,10 +258,12 @@ BOOL LLViewerDynamicTexture::updateAllInstances()
 		}
 	}
 
+#if 0
 	if (use_fbo)
 	{
 		gPipeline.mWaterDis.flush();
 	}
+#endif
 
 	return ret;
 }

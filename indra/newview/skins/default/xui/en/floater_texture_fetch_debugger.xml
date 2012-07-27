@@ -1,0 +1,341 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_minimize="false"
+ height="550"
+ layout="topleft"
+ name="TexFetchDebugger"
+ help_topic="texfetchdebugger"
+ title="Texture Fetching Debugger"
+ width="540">
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="25"
+   layout="topleft"
+   left="10"
+   name="total_num_fetched_label"
+   top="30"
+   width="400">
+    1, Total number of fetched textures: [NUM]
+  </text>
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="25"
+   layout="topleft"
+   left_delta="0"
+   name="total_num_fetching_requests_label"
+   top_delta="25"
+   width="400">
+    2, Total number of fetching requests: [NUM]
+  </text>
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="25"
+   layout="topleft"
+   left_delta="0"
+   name="total_num_cache_hits_label"
+   top_delta="25"
+   width="400">
+    3, Total number of cache hits: [NUM]
+  </text>
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="25"
+   layout="topleft"
+   left_delta="0"
+   name="total_num_visible_tex_label"
+   top_delta="25"
+   width="400">
+    4, Total number of visible textures: [NUM]
+  </text>
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="25"
+   layout="topleft"
+   left_delta="0"
+   name="total_num_visible_tex_fetch_req_label"
+   top_delta="25"
+   width="450">
+    5, Total number of visible texture fetching requests: [NUM]
+  </text>
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="25"
+   layout="topleft"
+   left_delta="0"
+   name="total_fetched_data_label"
+   top_delta="25"
+   width="530">
+    6, Total number of fetched data: [SIZE1]KB, Decoded Data: [SIZE2]KB, [PIXEL]MPixels
+  </text>
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="25"
+   layout="topleft"
+   left_delta="0"
+   name="total_fetched_vis_data_label"
+   top_delta="25"
+   width="480">
+    7, Total number of visible data: [SIZE1]KB, Decoded Data: [SIZE2]KB
+  </text>
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="25"
+   layout="topleft"
+   left_delta="0"
+   name="total_fetched_rendered_data_label"
+   top_delta="25"
+   width="530">
+    8, Total number of rendered data: [SIZE1]KB, Decoded Data: [SIZE2]KB, [PIXEL]MPixels
+  </text>
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="25"
+   layout="topleft"
+   left_delta="0"
+   name="total_time_cache_read_label"
+   top_delta="25"
+   width="400">
+    9, Total time on cache readings: [TIME] seconds
+  </text>
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="25"
+   layout="topleft"
+   left_delta="0"
+   name="total_time_cache_write_label"
+   top_delta="25"
+   width="400">
+    10, Total time on cache writings: [TIME] seconds
+  </text>
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="25"
+   layout="topleft"
+   left_delta="0"
+   name="total_time_decode_label"
+   top_delta="25"
+   width="400">
+    11, Total time on decodings: [TIME] seconds
+  </text>
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="25"
+   layout="topleft"
+   left_delta="0"
+   name="total_time_gl_label"
+   top_delta="25"
+   width="400">
+    12, Total time on gl texture creation: [TIME] seconds
+  </text>
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="25"
+   layout="topleft"
+   left_delta="0"
+   name="total_time_http_label"
+   top_delta="25"
+   width="400">
+    13, Total time on HTTP fetching: [TIME] seconds
+  </text>
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="25"
+   layout="topleft"
+   left_delta="0"
+   name="total_time_fetch_label"
+   top_delta="25"
+   width="400">
+    14, Total time on entire fetching: [TIME] seconds
+  </text>
+  <text
+  type="string"
+  length="1"
+  follows="left|top"
+  height="25"
+  layout="topleft"
+  left_delta="0"
+  name="total_time_refetch_vis_cache_label"
+  top_delta="25"
+  width="540">
+    15, Refetching visibles from cache, Time: [TIME] seconds, Fetched: [SIZE]KB, [PIXEL]MPixels
+  </text>
+  <text
+  type="string"
+  length="1"
+  follows="left|top"
+  height="25"
+  layout="topleft"
+  left_delta="0"
+  name="total_time_refetch_vis_http_label"
+  top_delta="25"
+  width="540">
+    16, Refetching visibles from HTTP, Time: [TIME] seconds, Fetched: [SIZE]KB, [PIXEL]MPixels
+  </text>
+  <spinner
+     decimal_digits="2"
+     follows="left|top"
+     height="20"
+     increment="0.01"
+     initial_value="1.0"
+     label="17, Ratio of Texel/Pixel:"
+     label_width="130"
+     layout="topleft"
+     left_delta="0"
+     max_val="10.0"
+     min_val="0.01"
+     name="texel_pixel_ratio"
+     top_delta="30"
+     width="200">
+    <spinner.commit_callback
+		function="TexFetchDebugger.ChangeTexelPixelRatio" />
+  </spinner>
+  <button
+   follows="left|top"
+   height="20"
+   label="Start"
+   layout="topleft"
+   left_delta="0"
+   name="start_btn"
+   top_delta="30"
+   width="70">
+    <button.commit_callback
+		function="TexFetchDebugger.Start" />
+  </button>
+  <button
+   follows="left|top"
+   height="20"
+   label="Reset"
+   layout="topleft"
+   left_pad="7"
+   name="clear_btn"
+   top_delta="0"
+   width="70">
+    <button.commit_callback
+		function="TexFetchDebugger.Clear" />
+  </button>
+  <button
+   follows="left|top"
+   height="20"
+   label="Close"
+   layout="topleft"
+   left_pad="7"
+   name="close_btn"
+   top_delta="0"
+   width="70">
+    <button.commit_callback
+		function="TexFetchDebugger.Close" />
+  </button>
+  <button
+   follows="left|top"
+   height="20"
+   label="Cache Read"
+   layout="topleft"
+   left="10"
+   name="cacheread_btn"
+   top_delta="30"
+   width="80">
+    <button.commit_callback
+		function="TexFetchDebugger.CacheRead" />
+  </button>
+  <button
+   follows="left|top"
+   height="20"
+   label="Cache Write"
+   layout="topleft"
+   left_pad="7"
+   name="cachewrite_btn"
+   top_delta="0"
+   width="80">
+    <button.commit_callback
+		function="TexFetchDebugger.CacheWrite" />
+  </button>
+  <button
+   follows="left|top"
+   height="20"
+   label="HTTP"
+   layout="topleft"
+   left_pad="7"
+   name="http_btn"
+   top_delta="0"
+   width="70">
+    <button.commit_callback
+		function="TexFetchDebugger.HTTPLoad" />
+  </button>
+  <button
+   follows="left|top"
+   height="20"
+   label="Decode"
+   layout="topleft"
+   left_pad="7"
+   name="decode_btn"
+   top_delta="0"
+   width="70">
+    <button.commit_callback
+		function="TexFetchDebugger.Decode" />
+  </button>
+  <button
+   follows="left|top"
+   height="20"
+   label="GL Texture"
+   layout="topleft"
+   left_pad="7"
+   name="gl_btn"
+   top_delta="0"
+   width="70">
+    <button.commit_callback
+		function="TexFetchDebugger.GLTexture" />
+  </button>
+  <button
+   follows="left|top"
+   height="20"
+   label="Refetch Vis Cache"
+   layout="topleft"
+   left="10"
+   name="refetchviscache_btn"
+   top_delta="30"
+   width="120">
+    <button.commit_callback
+		function="TexFetchDebugger.RefetchVisCache" />
+  </button>
+  <button
+   follows="left|top"
+   height="20"
+   label="Refetch Vis HTTP"
+   layout="topleft"
+   left_pad="7"
+   name="refetchvishttp_btn"
+   top_delta="0"
+   width="120">
+    <button.commit_callback
+		function="TexFetchDebugger.RefetchVisHTTP" />
+  </button>
+</floater>

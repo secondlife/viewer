@@ -233,6 +233,7 @@ public:
 	typedef boost::signals2::signal<void()>	loaded_signal_t;
 	boost::signals2::connection				addLoadedCallback(loaded_callback_t cb);
 
+	bool									changeInProgress() const;
 	void									notifyLoadingStarted();
 	void									notifyLoadingFinished();
 

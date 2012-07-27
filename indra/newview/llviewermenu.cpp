@@ -86,6 +86,7 @@
 #include "llrootview.h"
 #include "llsceneview.h"
 #include "llselectmgr.h"
+#include "llspellcheckmenuhandler.h"
 #include "llstatusbar.h"
 #include "lltextureview.h"
 #include "lltoolcomp.h"
@@ -93,6 +94,7 @@
 #include "lltoolpie.h"
 #include "lltoolselectland.h"
 #include "lltrans.h"
+#include "llviewerdisplay.h" //for gWindowResized
 #include "llviewergenericmessage.h"
 #include "llviewerhelp.h"
 #include "llviewermenufile.h"	// init_menu_file()
@@ -205,7 +207,7 @@ BOOL enable_take();
 void handle_take();
 void handle_object_show_inspector();
 void handle_avatar_show_inspector();
-bool confirm_take(const LLSD& notification, const LLSD& response);
+bool confirm_take(const LLSD& notification, const LLSD& response, LLObjectSelectionHandle selection_handle);
 
 void handle_buy_object(LLSaleInfo sale_info);
 void handle_buy_contents(LLSaleInfo sale_info);
@@ -299,7 +301,6 @@ BOOL enable_buy_land(void*);
 
 void handle_test_male(void *);
 void handle_test_female(void *);
-void handle_toggle_pg(void*);
 void handle_dump_attachments(void *);
 void handle_dump_avatar_local_textures(void*);
 void handle_debug_avatar_textures(void*);
@@ -516,14 +517,6 @@ class LLAdvancedToggleConsole : public view_listener_t
 		{
 			toggle_visibility( (void*)static_cast<LLUICtrl*>(gDebugView->mDebugConsolep));
 		}
-		else if (gTextureSizeView && "texture size" == console_type)
-		{
-			toggle_visibility( (void*)gTextureSizeView );
-		}
-		else if (gTextureCategoryView && "texture category" == console_type)
-		{
-			toggle_visibility( (void*)gTextureCategoryView );
-		}
 		else if ("fast timers" == console_type)
 		{
 			LLFloaterReg::toggleInstance("fast_timers");
@@ -555,14 +548,6 @@ class LLAdvancedCheckConsole : public view_listener_t
 		else if ("debug" == console_type)
 		{
 			new_value = get_visibility( (void*)((LLView*)gDebugView->mDebugConsolep) );
-		}
-		else if (gTextureSizeView && "texture size" == console_type)
-		{
-			new_value = get_visibility( (void*)gTextureSizeView );
-		}
-		else if (gTextureCategoryView && "texture category" == console_type)
-		{
-			new_value = get_visibility( (void*)gTextureCategoryView );
 		}
 		else if ("fast timers" == console_type)
 		{
@@ -866,6 +851,73 @@ class LLAdvancedCheckFeature : public view_listener_t
 }
 };
 
+class LLAdvancedCheckDisplayTextureDensity : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		std::string mode = userdata.asString();
+		if (!gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXEL_DENSITY))
+		{
+			return mode == "none";
+		}
+		if (mode == "current")
+		{
+			return LLViewerTexture::sDebugTexelsMode == LLViewerTexture::DEBUG_TEXELS_CURRENT;
+		}
+		else if (mode == "desired")
+		{
+			return LLViewerTexture::sDebugTexelsMode == LLViewerTexture::DEBUG_TEXELS_DESIRED;
+		}
+		else if (mode == "full")
+		{
+			return LLViewerTexture::sDebugTexelsMode == LLViewerTexture::DEBUG_TEXELS_FULL;
+		}
+		return false;
+	}
+};
+
+class LLAdvancedSetDisplayTextureDensity : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		std::string mode = userdata.asString();
+		if (mode == "none")
+		{
+			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXEL_DENSITY) == TRUE) 
+			{
+				gPipeline.toggleRenderDebug((void*)LLPipeline::RENDER_DEBUG_TEXEL_DENSITY);
+			}
+			LLViewerTexture::sDebugTexelsMode = LLViewerTexture::DEBUG_TEXELS_OFF;
+		}
+		else if (mode == "current")
+		{
+			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXEL_DENSITY) == FALSE) 
+			{
+				gPipeline.toggleRenderDebug((void*)LLPipeline::RENDER_DEBUG_TEXEL_DENSITY);
+			}
+			LLViewerTexture::sDebugTexelsMode = LLViewerTexture::DEBUG_TEXELS_CURRENT;
+		}
+		else if (mode == "desired")
+		{
+			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXEL_DENSITY) == FALSE) 
+			{
+				gPipeline.toggleRenderDebug((void*)LLPipeline::RENDER_DEBUG_TEXEL_DENSITY);
+			}
+			gPipeline.setRenderDebugFeatureControl(LLPipeline::RENDER_DEBUG_TEXEL_DENSITY, true);
+			LLViewerTexture::sDebugTexelsMode = LLViewerTexture::DEBUG_TEXELS_DESIRED;
+		}
+		else if (mode == "full")
+		{
+			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXEL_DENSITY) == FALSE) 
+			{
+				gPipeline.toggleRenderDebug((void*)LLPipeline::RENDER_DEBUG_TEXEL_DENSITY);
+			}
+			LLViewerTexture::sDebugTexelsMode = LLViewerTexture::DEBUG_TEXELS_FULL;
+		}
+		return true;
+	}
+};
+
 
 //////////////////
 // INFO DISPLAY //
@@ -979,6 +1031,10 @@ U32 info_display_from_string(std::string info_display)
 	else if ("wind vectors" == info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_WIND_VECTORS;
+	}
+	else if ("texel density" == info_display)
+	{
+		return LLPipeline::RENDER_DEBUG_TEXEL_DENSITY;
 	}
 	else
 	{
@@ -1118,6 +1174,7 @@ class LLAdvancedToggleWireframe : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		gUseWireframe = !(gUseWireframe);
+		gWindowResized = TRUE;
 		LLPipeline::updateRenderDeferred();
 		gPipeline.resetVertexBuffers();
 		return true;
@@ -1586,23 +1643,6 @@ class LLAdvancedTestFemale : public view_listener_t
 	}
 };
 
-
-
-///////////////
-// TOGGLE PG //
-///////////////
-
-
-class LLAdvancedTogglePG : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		handle_toggle_pg(NULL);
-		return true;
-	}
-};
-
-
 class LLAdvancedForceParamsToDefault : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -1982,7 +2022,6 @@ class LLAdvancedCompressImage : public view_listener_t
 };
 
 
-
 /////////////////////////
 // SHOW DEBUG SETTINGS //
 /////////////////////////
@@ -2242,6 +2281,14 @@ class LLDevelopSetLoggingLevel : public view_listener_t
 		U32 level = userdata.asInteger();
 		LLError::setDefaultLevel(static_cast<LLError::ELevel>(level));
 		return true;
+	}
+};
+
+class LLDevelopTextureFetchDebugger : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		return gSavedSettings.getBOOL("TextureFetchDebuggerEnabled");
 	}
 };
 
@@ -4439,7 +4486,10 @@ void handle_take()
 
 	LLNotification::Params params("ConfirmObjectTakeLock");
 	params.payload(payload);
-	params.functor.function(confirm_take);
+	// MAINT-290
+	// Reason: Showing the confirmation dialog resets object selection,	thus there is nothing to derez.
+	// Fix: pass selection to the confirm_take, so that selection doesn't "die" after confirmation dialog is opened
+	params.functor.function(boost::bind(confirm_take, _1, _2, LLSelectMgr::instance().getSelection()));
 
 	if(locked_but_takeable_object ||
 	   !you_own_everything)
@@ -4492,7 +4542,7 @@ void handle_avatar_show_inspector()
 
 
 
-bool confirm_take(const LLSD& notification, const LLSD& response)
+bool confirm_take(const LLSD& notification, const LLSD& response, LLObjectSelectionHandle selection_handle)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if(enable_take() && (option == 0))
@@ -5045,6 +5095,78 @@ class LLEditDelete : public view_listener_t
 	}
 };
 
+void handle_spellcheck_replace_with_suggestion(const LLUICtrl* ctrl, const LLSD& param)
+{
+	const LLContextMenu* menu = dynamic_cast<const LLContextMenu*>(ctrl->getParent());
+	LLSpellCheckMenuHandler* spellcheck_handler = (menu) ? dynamic_cast<LLSpellCheckMenuHandler*>(menu->getSpawningView()) : NULL;
+	if ( (!spellcheck_handler) || (!spellcheck_handler->getSpellCheck()) )
+	{
+		return;
+	}
+
+	U32 index = 0;
+	if ( (!LLStringUtil::convertToU32(param.asString(), index)) || (index >= spellcheck_handler->getSuggestionCount()) )
+	{
+		return;
+	}
+
+	spellcheck_handler->replaceWithSuggestion(index);
+}
+
+bool visible_spellcheck_suggestion(LLUICtrl* ctrl, const LLSD& param)
+{
+	LLMenuItemGL* item = dynamic_cast<LLMenuItemGL*>(ctrl);
+	const LLContextMenu* menu = (item) ? dynamic_cast<const LLContextMenu*>(item->getParent()) : NULL;
+	const LLSpellCheckMenuHandler* spellcheck_handler = (menu) ? dynamic_cast<const LLSpellCheckMenuHandler*>(menu->getSpawningView()) : NULL;
+	if ( (!spellcheck_handler) || (!spellcheck_handler->getSpellCheck()) )
+	{
+		return false;
+	}
+
+	U32 index = 0;
+	if ( (!LLStringUtil::convertToU32(param.asString(), index)) || (index >= spellcheck_handler->getSuggestionCount()) )
+	{
+		return false;
+	}
+
+	item->setLabel(spellcheck_handler->getSuggestion(index));
+	return true;
+}
+
+void handle_spellcheck_add_to_dictionary(const LLUICtrl* ctrl)
+{
+	const LLContextMenu* menu = dynamic_cast<const LLContextMenu*>(ctrl->getParent());
+	LLSpellCheckMenuHandler* spellcheck_handler = (menu) ? dynamic_cast<LLSpellCheckMenuHandler*>(menu->getSpawningView()) : NULL;
+	if ( (spellcheck_handler) && (spellcheck_handler->canAddToDictionary()) )
+	{
+		spellcheck_handler->addToDictionary();
+	}
+}
+
+bool enable_spellcheck_add_to_dictionary(const LLUICtrl* ctrl)
+{
+	const LLContextMenu* menu = dynamic_cast<const LLContextMenu*>(ctrl->getParent());
+	const LLSpellCheckMenuHandler* spellcheck_handler = (menu) ? dynamic_cast<const LLSpellCheckMenuHandler*>(menu->getSpawningView()) : NULL;
+	return (spellcheck_handler) && (spellcheck_handler->canAddToDictionary());
+}
+
+void handle_spellcheck_add_to_ignore(const LLUICtrl* ctrl)
+{
+	const LLContextMenu* menu = dynamic_cast<const LLContextMenu*>(ctrl->getParent());
+	LLSpellCheckMenuHandler* spellcheck_handler = (menu) ? dynamic_cast<LLSpellCheckMenuHandler*>(menu->getSpawningView()) : NULL;
+	if ( (spellcheck_handler) && (spellcheck_handler->canAddToIgnore()) )
+	{
+		spellcheck_handler->addToIgnore();
+	}
+}
+
+bool enable_spellcheck_add_to_ignore(const LLUICtrl* ctrl)
+{
+	const LLContextMenu* menu = dynamic_cast<const LLContextMenu*>(ctrl->getParent());
+	const LLSpellCheckMenuHandler* spellcheck_handler = (menu) ? dynamic_cast<const LLSpellCheckMenuHandler*>(menu->getSpawningView()) : NULL;
+	return (spellcheck_handler) && (spellcheck_handler->canAddToIgnore());
+}
+
 bool enable_object_delete()
 {
 	bool new_value = 
@@ -5290,6 +5412,14 @@ void toggle_debug_menus(void*)
 // }
 //
 
+class LLCommunicateBlockList : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLFloaterSidePanelContainer::showPanel("people", "panel_block_list_sidetray", LLSD());
+		return true;
+	}
+};
 
 class LLWorldSetHomeLocation : public view_listener_t
 {
@@ -6661,15 +6791,6 @@ void handle_test_female(void*)
 	//gGestureList.requestResetFromServer( FALSE );
 }
 
-void handle_toggle_pg(void*)
-{
-	gAgent.setTeen( !gAgent.isTeen() );
-
-	LLFloaterWorldMap::reloadIcons(NULL);
-
-	llinfos << "PG status set to " << (S32)gAgent.isTeen() << llendl;
-}
-
 void handle_dump_attachments(void*)
 {
 	if(!isAgentAvatarValid()) return;
@@ -7995,6 +8116,19 @@ void initialize_edit_menu()
 
 }
 
+void initialize_spellcheck_menu()
+{
+	LLUICtrl::CommitCallbackRegistry::Registrar& commit = LLUICtrl::CommitCallbackRegistry::currentRegistrar();
+	LLUICtrl::EnableCallbackRegistry::Registrar& enable = LLUICtrl::EnableCallbackRegistry::currentRegistrar();
+
+	commit.add("SpellCheck.ReplaceWithSuggestion", boost::bind(&handle_spellcheck_replace_with_suggestion, _1, _2));
+	enable.add("SpellCheck.VisibleSuggestion", boost::bind(&visible_spellcheck_suggestion, _1, _2));
+	commit.add("SpellCheck.AddToDictionary", boost::bind(&handle_spellcheck_add_to_dictionary, _1));
+	enable.add("SpellCheck.EnableAddToDictionary", boost::bind(&enable_spellcheck_add_to_dictionary, _1));
+	commit.add("SpellCheck.AddToIgnore", boost::bind(&handle_spellcheck_add_to_ignore, _1));
+	enable.add("SpellCheck.EnableAddToIgnore", boost::bind(&enable_spellcheck_add_to_ignore, _1));
+}
+
 void initialize_menus()
 {
 	// A parameterized event handler used as ctrl-8/9/0 zoom controls below.
@@ -8075,6 +8209,9 @@ void initialize_menus()
 
 	// Me > Movement
 	view_listener_t::addMenu(new LLAdvancedAgentFlyingInfo(), "Agent.getFlying");
+
+	// Communicate
+	view_listener_t::addMenu(new LLCommunicateBlockList(), "Communicate.BlockList");
 	
 	// World menu
 	view_listener_t::addMenu(new LLWorldAlwaysRun(), "World.AlwaysRun");
@@ -8155,6 +8292,10 @@ void initialize_menus()
 	//// Advanced > Render > Features
 	view_listener_t::addMenu(new LLAdvancedToggleFeature(), "Advanced.ToggleFeature");
 	view_listener_t::addMenu(new LLAdvancedCheckFeature(), "Advanced.CheckFeature");
+
+	view_listener_t::addMenu(new LLAdvancedCheckDisplayTextureDensity(), "Advanced.CheckDisplayTextureDensity");
+	view_listener_t::addMenu(new LLAdvancedSetDisplayTextureDensity(), "Advanced.SetDisplayTextureDensity");
+
 	// Advanced > Render > Info Displays
 	view_listener_t::addMenu(new LLAdvancedToggleInfoDisplay(), "Advanced.ToggleInfoDisplay");
 	view_listener_t::addMenu(new LLAdvancedCheckInfoDisplay(), "Advanced.CheckInfoDisplay");
@@ -8230,7 +8371,6 @@ void initialize_menus()
 
 	view_listener_t::addMenu(new LLAdvancedTestMale(), "Advanced.TestMale");
 	view_listener_t::addMenu(new LLAdvancedTestFemale(), "Advanced.TestFemale");
-	view_listener_t::addMenu(new LLAdvancedTogglePG(), "Advanced.TogglePG");
 	
 	// Advanced > Character (toplevel)
 	view_listener_t::addMenu(new LLAdvancedForceParamsToDefault(), "Advanced.ForceParamsToDefault");
@@ -8286,6 +8426,9 @@ void initialize_menus()
 	// Develop >Set logging level
 	view_listener_t::addMenu(new LLDevelopCheckLoggingLevel(), "Develop.CheckLoggingLevel");
 	view_listener_t::addMenu(new LLDevelopSetLoggingLevel(), "Develop.SetLoggingLevel");
+	
+	//Develop (Texture Fetch Debug Console)
+	view_listener_t::addMenu(new LLDevelopTextureFetchDebugger(), "Develop.SetTexFetchDebugger");
 
 	// Admin >Object
 	view_listener_t::addMenu(new LLAdminForceTakeCopy(), "Admin.ForceTakeCopy");

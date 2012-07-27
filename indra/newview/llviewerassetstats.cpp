@@ -30,6 +30,7 @@
 #include "llregionhandle.h"
 
 #include "stdtypes.h"
+#include "llvoavatar.h"
 
 /*
  * Classes and utility functions for per-thread and per-region
@@ -126,6 +127,8 @@ LLViewerAssetStats::PerRegionStats::merge(const LLViewerAssetStats::PerRegionSta
 		mFPS.merge(src.mFPS);
 	}
 
+	// Avatar stats - data all comes from main thread, so leave alone.
+
 	// Requests
 	for (int i = 0; i < LL_ARRAY_SIZE(mRequests); ++i)
 	{
@@ -133,6 +136,7 @@ LLViewerAssetStats::PerRegionStats::merge(const LLViewerAssetStats::PerRegionSta
 		mRequests[i].mDequeued.merge(src.mRequests[i].mDequeued);
 		mRequests[i].mResponse.merge(src.mRequests[i].mResponse);
 	}
+
 }
 
 
@@ -156,7 +160,9 @@ LLViewerAssetStats::LLViewerAssetStats()
 
 LLViewerAssetStats::LLViewerAssetStats(const LLViewerAssetStats & src)
 	: mRegionHandle(src.mRegionHandle),
-	  mResetTimestamp(src.mResetTimestamp)
+	  mResetTimestamp(src.mResetTimestamp),
+	  mPhaseStats(src.mPhaseStats),
+	  mAvatarRezStates(src.mAvatarRezStates)
 {
 	const PerRegionContainer::const_iterator it_end(src.mRegionStats.end());
 	for (PerRegionContainer::const_iterator it(src.mRegionStats.begin()); it_end != it; ++it)
@@ -252,6 +258,17 @@ LLViewerAssetStats::recordFPS(F32 fps)
 	mCurRegionStats->mFPS.record(fps);
 }
 
+void
+LLViewerAssetStats::recordAvatarStats()
+{
+	std::vector<S32> rez_counts;
+	LLVOAvatar::getNearbyRezzedStats(rez_counts);
+	mAvatarRezStates = rez_counts;
+	mPhaseStats.clear();
+	mPhaseStats["cloud"] = LLViewerStats::PhaseMap::getPhaseStats("cloud");
+	mPhaseStats["cloud-or-gray"] = LLViewerStats::PhaseMap::getPhaseStats("cloud-or-gray");
+}
+
 LLSD
 LLViewerAssetStats::asLLSD(bool compact_output)
 {
@@ -282,6 +299,11 @@ LLViewerAssetStats::asLLSD(bool compact_output)
 	static const LLSD::String max_tag("max");
 	static const LLSD::String mean_tag("mean");
 
+	// Avatar sub-tags
+	static const LLSD::String avatar_tag("avatar");
+	static const LLSD::String avatar_nearby_tag("nearby");
+	static const LLSD::String avatar_phase_stats_tag("phase_stats");
+	
 	const duration_t now = LLViewerAssetStatsFF::get_timestamp();
 	mCurRegionStats->accumulateTime(now);
 
@@ -329,7 +351,6 @@ LLViewerAssetStats::asLLSD(bool compact_output)
 			slot[max_tag] = LLSD(F64(stats.mFPS.getMax()));
 			slot[mean_tag] = LLSD(F64(stats.mFPS.getMean()));
 		}
-
 		U32 grid_x(0), grid_y(0);
 		grid_from_region_handle(it->first, &grid_x, &grid_y);
 		reg_stat["grid_x"] = LLSD::Integer(grid_x);
@@ -341,6 +362,16 @@ LLViewerAssetStats::asLLSD(bool compact_output)
 	LLSD ret = LLSD::emptyMap();
 	ret["regions"] = regions;
 	ret["duration"] = LLSD::Real((now - mResetTimestamp) * 1.0e-6);
+	LLSD avatar_info;
+	avatar_info[avatar_nearby_tag] = LLSD::emptyArray();
+	for (S32 rez_stat=0; rez_stat < mAvatarRezStates.size(); ++rez_stat)
+	{
+		std::string rez_status_name = LLVOAvatar::rezStatusToString(rez_stat);
+		avatar_info[avatar_nearby_tag][rez_status_name] = mAvatarRezStates[rez_stat];
+	}
+	avatar_info[avatar_phase_stats_tag]["cloud"] = mPhaseStats["cloud"].getData();
+	avatar_info[avatar_phase_stats_tag]["cloud-or-gray"] = mPhaseStats["cloud-or-gray"].getData();
+	ret[avatar_tag] = avatar_info;
 	
 	return ret;
 }
@@ -439,6 +470,14 @@ record_fps_main(F32 fps)
 	gViewerAssetStatsMain->recordFPS(fps);
 }
 
+void
+record_avatar_stats()
+{
+	if (! gViewerAssetStatsMain)
+		return;
+
+	gViewerAssetStatsMain->recordAvatarStats();
+}
 
 // 'thread1' - should be for TextureFetch thread
 

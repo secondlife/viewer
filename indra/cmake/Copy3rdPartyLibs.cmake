@@ -41,6 +41,7 @@ if(WINDOWS)
         libeay32.dll
         libcollada14dom22-d.dll
         glod.dll    
+        libhunspell.dll
         )
 
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
@@ -53,6 +54,7 @@ if(WINDOWS)
         libeay32.dll
         libcollada14dom22.dll
         glod.dll
+        libhunspell.dll
         )
 
     if(USE_GOOGLE_PERFTOOLS)
@@ -212,11 +214,12 @@ elseif(DARWIN)
         libexpat.1.5.2.dylib
         libexpat.dylib
         libGLOD.dylib
-    libllqtwebkit.dylib
-    libminizip.a
+        libllqtwebkit.dylib
+        libminizip.a
         libndofdev.dylib
+        libhunspell-1.3.0.dylib
         libexception_handler.dylib
-    libcollada14dom.dylib
+        libcollada14dom.dylib
        )
 
     # fmod is statically linked on darwin
@@ -257,14 +260,15 @@ elseif(LINUX)
         libdb-5.1.so
         libexpat.so
         libexpat.so.1
-    libglod.so
+        libglod.so
         libgmock_main.so
         libgmock.so.0
         libgmodule-2.0.so
         libgobject-2.0.so
         libgtest_main.so
         libgtest.so.0
-    libminizip.so
+        libhunspell-1.3.so.0.0.0
+        libminizip.so
         libopenal.so
         libopenjpeg.so
         libssl.so

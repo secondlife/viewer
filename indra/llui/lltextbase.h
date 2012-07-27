@@ -30,6 +30,7 @@
 
 #include "v4color.h"
 #include "lleditmenuhandler.h"
+#include "llspellcheckmenuhandler.h"
 #include "llstyle.h"
 #include "llkeywords.h"
 #include "llpanel.h"
@@ -248,7 +249,8 @@ typedef LLPointer<LLTextSegment> LLTextSegmentPtr;
 ///
 class LLTextBase 
 :	public LLUICtrl,
-	protected LLEditMenuHandler
+	protected LLEditMenuHandler,
+	public LLSpellCheckMenuHandler
 {
 public:
 	friend class LLTextSegment;
@@ -278,6 +280,7 @@ public:
 								border_visible,
 								track_end,
 								read_only,
+								spellcheck,
 								allow_scroll,
 								plain_text,
 								wrap,
@@ -332,6 +335,24 @@ public:
 
 	virtual void	onFocusReceived();
 	virtual void	onFocusLost();
+
+	// LLSpellCheckMenuHandler overrides
+	/*virtual*/ bool		getSpellCheck() const;
+
+	/*virtual*/ const std::string& getSuggestion(U32 index) const;
+	/*virtual*/ U32			getSuggestionCount() const;
+	/*virtual*/ void		replaceWithSuggestion(U32 index);
+
+	/*virtual*/ void		addToDictionary();
+	/*virtual*/ bool		canAddToDictionary() const;
+
+	/*virtual*/ void		addToIgnore();
+	/*virtual*/ bool		canAddToIgnore() const;
+
+	// Spell checking helper functions
+	std::string				getMisspelledWord(U32 pos) const;
+	bool					isMisspelledWord(U32 pos) const;
+	void					onSpellCheckSettingsChange();
 
 	// used by LLTextSegment layout code
 	bool					getWordWrap() { return mWordWrap; }
@@ -577,6 +598,14 @@ protected:
 	S32							mSelectionEnd;
 	
 	BOOL						mIsSelecting;		// Are we in the middle of a drag-select? 
+
+	// spell checking
+	bool						mSpellCheck;
+	S32							mSpellCheckStart;
+	S32							mSpellCheckEnd;
+	LLTimer						mSpellCheckTimer;
+	std::list<std::pair<U32, U32> > mMisspellRanges;
+	std::vector<std::string>		mSuggestionList;
 
 	// configuration
 	S32							mHPad;				// padding on left of text

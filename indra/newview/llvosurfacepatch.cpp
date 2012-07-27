@@ -296,18 +296,20 @@ void LLVOSurfacePatch::updateFaceSize(S32 idx)
 	}
 
 	LLFace* facep = mDrawable->getFace(idx);
-
-	S32 num_vertices = 0;
-	S32 num_indices = 0;
-	
-	if (mLastStride)
+	if (facep)
 	{
-		getGeomSizesMain(mLastStride, num_vertices, num_indices);
-		getGeomSizesNorth(mLastStride, mLastNorthStride, num_vertices, num_indices);
-		getGeomSizesEast(mLastStride, mLastEastStride, num_vertices, num_indices);
-	}
+		S32 num_vertices = 0;
+		S32 num_indices = 0;
+	
+		if (mLastStride)
+		{
+			getGeomSizesMain(mLastStride, num_vertices, num_indices);
+			getGeomSizesNorth(mLastStride, mLastNorthStride, num_vertices, num_indices);
+			getGeomSizesEast(mLastStride, mLastEastStride, num_vertices, num_indices);
+		}
 
-	facep->setSize(num_vertices, num_indices);	
+		facep->setSize(num_vertices, num_indices);	
+	}
 }
 
 BOOL LLVOSurfacePatch::updateLOD()
@@ -322,30 +324,32 @@ void LLVOSurfacePatch::getGeometry(LLStrider<LLVector3> &verticesp,
 								LLStrider<U16> &indicesp)
 {
 	LLFace* facep = mDrawable->getFace(0);
+	if (facep)
+	{
+		U32 index_offset = facep->getGeomIndex();
 
-	U32 index_offset = facep->getGeomIndex();
-
-	updateMainGeometry(facep, 
-					verticesp,
-					normalsp,
-					texCoords0p,
-					texCoords1p,
-					indicesp,
-					index_offset);
-	updateNorthGeometry(facep, 
+		updateMainGeometry(facep, 
 						verticesp,
 						normalsp,
 						texCoords0p,
 						texCoords1p,
 						indicesp,
 						index_offset);
-	updateEastGeometry(facep, 
-						verticesp,
-						normalsp,
-						texCoords0p,
-						texCoords1p,
-						indicesp,
-						index_offset);
+		updateNorthGeometry(facep, 
+							verticesp,
+							normalsp,
+							texCoords0p,
+							texCoords1p,
+							indicesp,
+							index_offset);
+		updateEastGeometry(facep, 
+							verticesp,
+							normalsp,
+							texCoords0p,
+							texCoords1p,
+							indicesp,
+							index_offset);
+	}
 }
 
 void LLVOSurfacePatch::updateMainGeometry(LLFace *facep,
@@ -864,7 +868,11 @@ void LLVOSurfacePatch::dirtyGeom()
 	if (mDrawable)
 	{
 		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
-		mDrawable->getFace(0)->setVertexBuffer(NULL);
+		LLFace* facep = mDrawable->getFace(0);
+		if (facep)
+		{
+			facep->setVertexBuffer(NULL);
+		}
 		mDrawable->movePartition();
 	}
 }

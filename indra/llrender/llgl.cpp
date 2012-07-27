@@ -94,6 +94,10 @@ void APIENTRY gl_debug_callback(GLenum source,
 	llwarns << "Severity: " << std::hex << severity << llendl;
 	llwarns << "Message: " << message << llendl;
 	llwarns << "-----------------------" << llendl;
+	if (severity == GL_DEBUG_SEVERITY_HIGH_ARB)
+	{
+		llerrs << "Halting on GL Error" << llendl;
+	}
 }
 #endif
 
@@ -244,6 +248,12 @@ PFNGLTEXIMAGE2DMULTISAMPLEPROC glTexImage2DMultisample = NULL;
 PFNGLTEXIMAGE3DMULTISAMPLEPROC glTexImage3DMultisample = NULL;
 PFNGLGETMULTISAMPLEFVPROC glGetMultisamplefv = NULL;
 PFNGLSAMPLEMASKIPROC glSampleMaski = NULL;
+
+//transform feedback (4.0 core)
+PFNGLBEGINTRANSFORMFEEDBACKPROC glBeginTransformFeedback = NULL;
+PFNGLENDTRANSFORMFEEDBACKPROC glEndTransformFeedback = NULL;
+PFNGLTRANSFORMFEEDBACKVARYINGSPROC glTransformFeedbackVaryings = NULL;
+PFNGLBINDBUFFERRANGEPROC glBindBufferRange = NULL;
 
 //GL_ARB_debug_output
 PFNGLDEBUGMESSAGECONTROLARBPROC glDebugMessageControlARB = NULL;
@@ -417,6 +427,7 @@ LLGLManager::LLGLManager() :
 	mHasDrawBuffers(FALSE),
 	mHasTextureRectangle(FALSE),
 	mHasTextureMultisample(FALSE),
+	mHasTransformFeedback(FALSE),
 	mMaxSampleMaskWords(0),
 	mMaxColorTextureSamples(0),
 	mMaxDepthTextureSamples(0),
@@ -554,7 +565,8 @@ bool LLGLManager::initGL()
 	parse_gl_version( &mDriverVersionMajor, 
 		&mDriverVersionMinor, 
 		&mDriverVersionRelease, 
-		&mDriverVersionVendorString );
+		&mDriverVersionVendorString,
+		&mGLVersionString);
 
 	mGLVersion = mDriverVersionMajor + mDriverVersionMinor * .1f;
 
@@ -572,6 +584,15 @@ bool LLGLManager::initGL()
 #endif
 	}
 
+	if (mGLVersion >= 2.1f && LLImageGL::sCompressTextures)
+	{ //use texture compression
+		glHint(GL_TEXTURE_COMPRESSION_HINT, GL_NICEST);
+	}
+	else
+	{ //GL version is < 3.0, always disable texture compression
+		LLImageGL::sCompressTextures = false;
+	}
+	
 	// Trailing space necessary to keep "nVidia Corpor_ati_on" cards
 	// from being recognized as ATI.
 	if (mGLVendor.substr(0,4) == "ATI ")
@@ -592,11 +613,8 @@ bool LLGLManager::initGL()
 #endif // LL_WINDOWS
 
 #if (LL_WINDOWS || LL_LINUX) && !LL_MESA_HEADLESS
-		// release 7277 is a point at which we verify that ATI OpenGL
-		// drivers get pretty stable with SL, ~Catalyst 8.2,
-		// for both Win32 and Linux.
-		if (mDriverVersionRelease < 7277 &&
-		    mDriverVersionRelease != 0) // 0 == Undetectable driver version - these get to pretend to be new ATI drivers, though that decision may be revisited.
+		// count any pre OpenGL 3.0 implementation as an old driver
+		if (mGLVersion < 3.f) 
 		{
 			mATIOldDriver = TRUE;
 		}
@@ -734,6 +752,11 @@ bool LLGLManager::initGL()
 		mHasTextureMultisample = FALSE;
 	}
 #endif
+
+	if (mIsIntel && mGLVersion <= 3.f)
+	{ //never try to use framebuffer objects on older intel drivers (crashy)
+		mHasFramebufferObject = FALSE;
+	}
 
 	if (mHasFramebufferObject)
 	{
@@ -923,7 +946,6 @@ void LLGLManager::initExtensions()
 	mHasMultitexture = glh_init_extensions("GL_ARB_multitexture");
 	mHasATIMemInfo = ExtensionExists("GL_ATI_meminfo", gGLHExts.mSysExts);
 	mHasNVXMemInfo = ExtensionExists("GL_NVX_gpu_memory_info", gGLHExts.mSysExts);
-	mHasMipMapGeneration = glh_init_extensions("GL_SGIS_generate_mipmap");
 	mHasSeparateSpecularColor = glh_init_extensions("GL_EXT_separate_specular_color");
 	mHasAnisotropic = glh_init_extensions("GL_EXT_texture_filter_anisotropic");
 	glh_init_extensions("GL_ARB_texture_cube_map");
@@ -948,11 +970,14 @@ void LLGLManager::initExtensions()
 							ExtensionExists("GL_EXT_packed_depth_stencil", gGLHExts.mSysExts);
 #endif
 	
+	mHasMipMapGeneration = mHasFramebufferObject || mGLVersion >= 1.4f;
+
 	mHasDrawBuffers = ExtensionExists("GL_ARB_draw_buffers", gGLHExts.mSysExts);
 	mHasBlendFuncSeparate = ExtensionExists("GL_EXT_blend_func_separate", gGLHExts.mSysExts);
 	mHasTextureRectangle = ExtensionExists("GL_ARB_texture_rectangle", gGLHExts.mSysExts);
 	mHasTextureMultisample = ExtensionExists("GL_ARB_texture_multisample", gGLHExts.mSysExts);
 	mHasDebugOutput = ExtensionExists("GL_ARB_debug_output", gGLHExts.mSysExts);
+	mHasTransformFeedback = mGLVersion >= 4.f ? TRUE : FALSE;
 #if !LL_DARWIN
 	mHasPointParameters = !mIsATI && ExtensionExists("GL_ARB_point_parameters", gGLHExts.mSysExts);
 #endif
@@ -1192,7 +1217,14 @@ void LLGLManager::initExtensions()
 		glTexImage3DMultisample = (PFNGLTEXIMAGE3DMULTISAMPLEPROC) GLH_EXT_GET_PROC_ADDRESS("glTexImage3DMultisample");
 		glGetMultisamplefv = (PFNGLGETMULTISAMPLEFVPROC) GLH_EXT_GET_PROC_ADDRESS("glGetMultisamplefv");
 		glSampleMaski = (PFNGLSAMPLEMASKIPROC) GLH_EXT_GET_PROC_ADDRESS("glSampleMaski");
-	}	
+	}
+	if (mHasTransformFeedback)
+	{
+		glBeginTransformFeedback = (PFNGLBEGINTRANSFORMFEEDBACKPROC) GLH_EXT_GET_PROC_ADDRESS("glBeginTransformFeedback");
+		glEndTransformFeedback = (PFNGLENDTRANSFORMFEEDBACKPROC) GLH_EXT_GET_PROC_ADDRESS("glEndTransformFeedback");
+		glTransformFeedbackVaryings = (PFNGLTRANSFORMFEEDBACKVARYINGSPROC) GLH_EXT_GET_PROC_ADDRESS("glTransformFeedbackVaryings");
+		glBindBufferRange = (PFNGLBINDBUFFERRANGEPROC) GLH_EXT_GET_PROC_ADDRESS("glBindBufferRange");
+	}
 	if (mHasDebugOutput)
 	{
 		glDebugMessageControlARB = (PFNGLDEBUGMESSAGECONTROLARBPROC) GLH_EXT_GET_PROC_ADDRESS("glDebugMessageControlARB");
@@ -1897,7 +1929,7 @@ void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
 	glClientActiveTextureARB(GL_TEXTURE0_ARB);
 	gGL.getTexUnit(0)->activate();
 
-	if (gGLManager.mHasVertexShader)
+	if (gGLManager.mHasVertexShader && LLGLSLShader::sNoFixedFunction)
 	{	//make sure vertex attribs are all disabled
 		GLint count;
 		glGetIntegerv(GL_MAX_VERTEX_ATTRIBS_ARB, &count);
@@ -1949,6 +1981,7 @@ LLGLState::LLGLState(LLGLenum state, S32 enabled) :
 			case GL_COLOR_MATERIAL:
 			case GL_FOG:
 			case GL_LINE_STIPPLE:
+			case GL_POLYGON_STIPPLE:
 				mState = 0;
 				break;
 		}
@@ -2037,7 +2070,7 @@ void LLGLManager::initGLStates()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor_specific )
+void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor_specific, std::string* version_string )
 {
 	// GL_VERSION returns a null-terminated string with the format: 
 	// <major>.<minor>[.<release>] [<vendor specific>]
@@ -2052,6 +2085,8 @@ void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor
 	{
 		return;
 	}
+
+	version_string->assign(version);
 
 	std::string ver_copy( version );
 	S32 len = (S32)strlen( version );	/* Flawfinder: ignore */
@@ -2413,4 +2448,66 @@ LLGLSquashToFarClip::~LLGLSquashToFarClip()
 	gGL.popMatrix();
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
 }
+
+
+	
+LLGLSyncFence::LLGLSyncFence()
+{
+#ifdef GL_ARB_sync
+	mSync = 0;
+#endif
+}
+
+LLGLSyncFence::~LLGLSyncFence()
+{
+#ifdef GL_ARB_sync
+	if (mSync)
+	{
+		glDeleteSync(mSync);
+	}
+#endif
+}
+
+void LLGLSyncFence::placeFence()
+{
+#ifdef GL_ARB_sync
+	if (mSync)
+	{
+		glDeleteSync(mSync);
+	}
+	mSync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+#endif
+}
+
+bool LLGLSyncFence::isCompleted()
+{
+	bool ret = true;
+#ifdef GL_ARB_sync
+	if (mSync)
+	{
+		GLenum status = glClientWaitSync(mSync, 0, 1);
+		if (status == GL_TIMEOUT_EXPIRED)
+		{
+			ret = false;
+		}
+	}
+#endif
+	return ret;
+}
+
+void LLGLSyncFence::wait()
+{
+#ifdef GL_ARB_sync
+	if (mSync)
+	{
+		while (glClientWaitSync(mSync, 0, FENCE_WAIT_TIME_NANOSECONDS) == GL_TIMEOUT_EXPIRED)
+		{ //track the number of times we've waited here
+			static S32 waits = 0;
+			waits++;
+		}
+	}
+#endif
+}
+
+
 

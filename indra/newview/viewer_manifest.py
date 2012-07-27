@@ -91,6 +91,13 @@ class ViewerManifest(LLManifest):
 
                 # ... and the entire windlight directory
                 self.path("windlight")
+
+                # ... and the included spell checking dictionaries
+                pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
+                if self.prefix(src=pkgdir,dst=""):
+                    self.path("dictionaries")
+                    self.end_prefix(pkgdir)
+
                 self.end_prefix("app_settings")
 
             if self.prefix(src="character"):
@@ -393,6 +400,9 @@ class WindowsManifest(ViewerManifest):
             self.path("ssleay32.dll")
             self.path("libeay32.dll")
 
+            # Hunspell
+            self.path("libhunspell.dll")
+
             # For google-perftools tcmalloc allocator.
             try:
                 if self.args['configuration'].lower() == 'debug':
@@ -659,6 +669,7 @@ class DarwinManifest(ViewerManifest):
 
             # copy additional libs in <bundle>/Contents/MacOS/
             self.path("../packages/lib/release/libndofdev.dylib", dst="Resources/libndofdev.dylib")
+            self.path("../packages/lib/release/libhunspell-1.3.0.dylib", dst="Resources/libhunspell-1.3.0.dylib")
 
             self.path("../viewer_components/updater/scripts/darwin/update_install", "MacOS/update_install")
 
@@ -1025,45 +1036,51 @@ class Linux_i686Manifest(LinuxManifest):
         super(Linux_i686Manifest, self).construct()
 
         if self.prefix("../packages/lib/release", dst="lib"):
-            self.path("libapr-1.so")
-            self.path("libapr-1.so.0")
-            self.path("libapr-1.so.0.4.2")
-            self.path("libaprutil-1.so")
-            self.path("libaprutil-1.so.0")
-            self.path("libaprutil-1.so.0.3.10")
-            self.path("libbreakpad_client.so.0.0.0")
-            self.path("libbreakpad_client.so.0")
-            self.path("libbreakpad_client.so")
+            self.path("libapr-1.so*")
+            self.path("libaprutil-1.so*")
+            self.path("libbreakpad_client.so*")
             self.path("libcollada14dom.so")
-            self.path("libdb-5.1.so")
-            self.path("libdb-5.so")
-            self.path("libdb.so")
-            self.path("libcrypto.so.1.0.0")
-            self.path("libexpat.so.1.5.2")
+            self.path("libdb*.so")
+            self.path("libcrypto.so.*")
+            self.path("libexpat.so.*")
             self.path("libssl.so.1.0.0")
             self.path("libglod.so")
             self.path("libminizip.so")
-            self.path("libuuid.so")
-            self.path("libuuid.so.16")
-            self.path("libuuid.so.16.0.22")
-            self.path("libSDL-1.2.so.0.11.3")
-            self.path("libSDL-1.2.so.0")
-            self.path("libdirectfb-1.4.so.5.0.4")
+            self.path("libuuid.so*")
+            self.path("libSDL-1.2.so.*")
+            self.path("libdirectfb-1.*.so.*")
+            self.path("libfusion-1.*.so.*")
+            self.path("libdirect-1.*.so.*")
+            self.path("libopenjpeg.so*")
             self.path("libdirectfb-1.4.so.5")
-            self.path("libfusion-1.4.so.5.0.4")
             self.path("libfusion-1.4.so.5")
             self.path("libdirect-1.4.so.5.0.4")
             self.path("libdirect-1.4.so.5")
-            self.path("libopenjpeg.so.1.4.0")
-            self.path("libopenjpeg.so.1")
-            self.path("libopenjpeg.so")
+            self.path("libhunspell-1.3.so")
+            self.path("libhunspell-1.3.so.0")
+            self.path("libhunspell-1.3.so.0.0.0")
             self.path("libalut.so")
             self.path("libopenal.so", "libopenal.so.1")
             self.path("libopenal.so", "libvivoxoal.so.1") # vivox's sdk expects this soname
-            self.path("libfontconfig.so.1.4.4")
-            self.path("libtcmalloc.so", "libtcmalloc.so") #formerly called google perf tools
-            self.path("libtcmalloc.so.0", "libtcmalloc.so.0") #formerly called google perf tools
-            self.path("libtcmalloc.so.0.1.0", "libtcmalloc.so.0.1.0") #formerly called google perf tools
+            # KLUDGE: As of 2012-04-11, the 'fontconfig' package installs
+            # libfontconfig.so.1.4.4, along with symlinks libfontconfig.so.1
+            # and libfontconfig.so. Before we added support for library-file
+            # wildcards, though, this self.path() call specifically named
+            # libfontconfig.so.1.4.4 WITHOUT also copying the symlinks. When I
+            # (nat) changed the call to self.path("libfontconfig.so.*"), we
+            # ended up with the libfontconfig.so.1 symlink in the target
+            # directory as well. But guess what! At least on Ubuntu 10.04,
+            # certain viewer fonts look terrible with libfontconfig.so.1
+            # present in the target directory. Removing that symlink suffices
+            # to improve them. I suspect that means we actually do better when
+            # the viewer fails to find our packaged libfontconfig.so*, falling
+            # back on the system one instead -- but diagnosing and fixing that
+            # is a bit out of scope for the present project. Meanwhile, this
+            # particular wildcard specification gets us exactly what the
+            # previous call did, without having to explicitly state the
+            # version number.
+            self.path("libfontconfig.so.*.*")
+            self.path("libtcmalloc.so*") #formerly called google perf tools
             try:
                     self.path("libfmod-3.75.so")
                     pass

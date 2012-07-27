@@ -110,6 +110,8 @@ public:
 	void doPreloadImages();
 	void doPrefetchImages();
 
+	void clearFetchingRequests();
+
 	static S32 getMinVideoRamSetting();
 	static S32 getMaxVideoRamSetting(bool get_recommended = false);
 	
@@ -164,7 +166,7 @@ private:
 	// Request image from a specific host, used for baked avatar textures.
 	// Implemented in header in case someone changes default params above. JC
 	LLViewerFetchedTexture* getImageFromHost(const LLUUID& image_id, LLHost host)
-	{ return getImage(image_id, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, host); }
+	{ return getImage(image_id, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, host); }	
 
 public:
 	typedef std::set<LLPointer<LLViewerFetchedTexture> > image_list_t;	

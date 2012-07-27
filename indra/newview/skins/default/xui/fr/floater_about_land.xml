@@ -439,7 +439,7 @@ musique :
 			<text name="Sound:">
 				Son :
 			</text>
-			<check_box label="Limiter les gestes et sons d&apos;objet à cette parcelle" name="check sound local"/>
+			<check_box label="Limiter les sons des gestes et des objets à cette parcelle" name="check sound local"/>
 			<text name="Avatar Sounds:">
 				Sons d&apos;avatar :
 			</text>

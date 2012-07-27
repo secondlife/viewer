@@ -148,14 +148,14 @@
              follows="all"
              height="310"
              ignore_online_status="true"
-             layout="topleft"
+        layout="topleft"
              name="speakers_list"
              opaque="false"
              show_info_btn="true"
              show_profile_btn="false"
              show_speaking_indicator="false"
              width="150" />
-    </layout_panel>
+      </layout_panel>
     <layout_panel
        default_tab_group="3"
        left="0"
@@ -213,7 +213,7 @@
             <layout_panel
              height="248"
              width="234"
-             layout="topleft"
+          layout="topleft"
              follows="all"
              left_delta="0"
              top_delta="0"
@@ -222,33 +222,34 @@
              user_resize="true"
              auto_resize="true"
              name="chat_holder">      
-           		<chat_history
-    	     		font="SansSerifSmall"
+        <chat_history
+	 font="SansSerifSmall"
              		follows="all"
              		visible="true"
              		height="240"
-            	 	name="chat_history"
-             		parse_highlights="true"
-             		parse_urls="true"
-             		left="1"
+         name="chat_history"
+         parse_highlights="true"
+         parse_urls="true"
+        left="1"
              		width="229">
-            	</chat_history>           
+        </chat_history>
             </layout_panel>
            </layout_stack>
            </panel>
             <chat_editor
-              bottom="0"
+         bottom="0"
               expand_lines_count="5"
-              follows="left|right|bottom"
-              font="SansSerifSmall"
+         follows="left|right|bottom"
+	 font="SansSerifSmall"
               visible="true"
-              height="20"
+         height="20"
               is_expandable="true"
-              label="To"
-              layout="bottomleft"
-              name="chat_editor"
+         label="To"
+         layout="bottomleft"
+         name="chat_editor"
               max_length="1023"
-              tab_group="3"
+         spellcheck="true"
+         tab_group="3"
               width="240"
               wrap="true">
             </chat_editor>

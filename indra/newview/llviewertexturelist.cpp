@@ -58,6 +58,7 @@
 #include "pipeline.h"
 #include "llappviewer.h"
 #include "llxuiparser.h"
+#include "llagent.h"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -597,6 +598,12 @@ static LLFastTimer::DeclareTimer FTM_IMAGE_STATS("Stats");
 
 void LLViewerTextureList::updateImages(F32 max_time)
 {
+	if(gAgent.getTeleportState() != LLAgent::TELEPORT_NONE)
+	{
+		clearFetchingRequests();
+		return;
+	}
+
 	LLAppViewer::getTextureFetch()->setTextureBandwidth(LLViewerStats::getInstance()->mTextureKBitStat.getMeanPerSec());
 
 	LLViewerStats::getInstance()->mNumImagesStat.addValue(sNumImages);
@@ -659,6 +666,24 @@ void LLViewerTextureList::updateImages(F32 max_time)
 	}
 }
 
+void LLViewerTextureList::clearFetchingRequests()
+{
+	if (LLAppViewer::getTextureFetch()->getNumRequests() == 0)
+	{
+		return;
+	}
+
+	for (image_priority_list_t::iterator iter = mImageList.begin();
+		 iter != mImageList.end(); ++iter)
+	{
+		LLViewerFetchedTexture* image = *iter;
+		if(image->hasFetcher())
+		{
+			image->forceToDeleteRequest() ;
+		}
+	}
+}
+
 void LLViewerTextureList::updateImagesDecodePriorities()
 {
 	// Update the decode priority for N images each frame
@@ -680,7 +705,7 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 			// Flush formatted images using a lazy flush
 			//
 			const F32 LAZY_FLUSH_TIMEOUT = 30.f; // stop decoding
-			const F32 MAX_INACTIVE_TIME  = 50.f; // actually delete
+			const F32 MAX_INACTIVE_TIME  = 20.f; // actually delete
 			S32 min_refs = 3; // 1 for mImageList, 1 for mUUIDMap, 1 for local reference
 			
 			S32 num_refs = imagep->getNumRefs();
@@ -1030,7 +1055,6 @@ LLPointer<LLImageJ2C> LLViewerTextureList::convertToUploadFile(LLPointer<LLImage
 {
 	raw_image->biasedScaleToPowerOfTwo(LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
 	LLPointer<LLImageJ2C> compressedImage = new LLImageJ2C();
-	compressedImage->setRate(0.f);
 	
 	if (gSavedSettings.getBOOL("LosslessJ2CUpload") &&
 		(raw_image->getWidth() * raw_image->getHeight() <= LL_IMAGE_REZ_LOSSLESS_CUTOFF * LL_IMAGE_REZ_LOSSLESS_CUTOFF))
@@ -1431,6 +1455,9 @@ LLUIImagePtr LLUIImageList::loadUIImage(LLViewerFetchedTexture* imagep, const st
 	if (!imagep) return NULL;
 
 	imagep->setAddressMode(LLTexUnit::TAM_CLAMP);
+
+	//don't compress UI images
+	imagep->getGLTexture()->setAllowCompression(false);
 
 	//all UI images are non-deletable
 	imagep->setNoDelete();

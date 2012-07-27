@@ -104,6 +104,7 @@ public:
 	BOOL mHasDepthClamp;
 	BOOL mHasTextureRectangle;
 	BOOL mHasTextureMultisample;
+	BOOL mHasTransformFeedback;
 	S32 mMaxSampleMaskWords;
 	S32 mMaxColorTextureSamples;
 	S32 mMaxDepthTextureSamples;
@@ -141,6 +142,7 @@ public:
 	S32 mGLSLVersionMajor;
 	S32 mGLSLVersionMinor;
 	std::string mDriverVersionVendorString;
+	std::string mGLVersionString;
 
 	S32 mVRAM; // VRAM in MB
 	S32 mGLMaxVertexRange;
@@ -417,13 +419,38 @@ public:
 	virtual void updateGL() = 0;
 };
 
+const U32 FENCE_WAIT_TIME_NANOSECONDS = 1000;  //1 ms
+
+class LLGLFence
+{
+public:
+	virtual void placeFence() = 0;
+	virtual bool isCompleted() = 0;
+	virtual void wait() = 0;
+};
+
+class LLGLSyncFence : public LLGLFence
+{
+public:
+#ifdef GL_ARB_sync
+	GLsync mSync;
+#endif
+	
+	LLGLSyncFence();
+	virtual ~LLGLSyncFence();
+
+	void placeFence();
+	bool isCompleted();
+	void wait();
+};
+
 extern LLMatrix4 gGLObliqueProjectionInverse;
 
 #include "llglstates.h"
 
 void init_glstates();
 
-void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor_specific );
+void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor_specific, std::string* version_string );
 
 extern BOOL gClothRipple;
 extern BOOL gHeadlessClient;

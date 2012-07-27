@@ -46,6 +46,7 @@ $/LicenseInfo$
 
 import os
 import sys
+import signal
 import subprocess
 
 def main(command, libpath=[], vars={}):
@@ -113,6 +114,33 @@ def main(command, libpath=[], vars={}):
     sys.stdout.flush()
     return subprocess.call(command)
 
+# swiped from vita, sigh, seems like a Bad Idea to introduce dependency
+def translate_rc(rc):
+    """
+    Accept an rc encoded as for subprocess.Popen.returncode:
+    None means still running
+    int >= 0 means terminated voluntarily with specified rc
+    int <  0 means terminated by signal (-rc)
+
+    Return a string explaining the outcome. In case of a signal, try to
+    name the corresponding symbol from the 'signal' module.
+    """
+    if rc is None:
+        return "still running"
+    
+    if rc >= 0:
+        return "terminated with rc %s" % rc
+
+    # Negative rc means the child was terminated by signal -rc.
+    rc = -rc
+    for attr in dir(signal):
+        if attr.startswith('SIG') and getattr(signal, attr) == rc:
+            strc = attr
+            break
+    else:
+        strc = str(rc)
+    return "terminated by signal %s" % strc
+
 if __name__ == "__main__":
     from optparse import OptionParser
     parser = OptionParser(usage="usage: %prog [options] command args...")
@@ -140,5 +168,5 @@ if __name__ == "__main__":
               vars=dict([(pair.split('=', 1) + [""])[:2] for pair in opts.vars]))
     if rc not in (None, 0):
         print >>sys.stderr, "Failure running: %s" % " ".join(args)
-        print >>sys.stderr, "Error: %s" % rc
+        print >>sys.stderr, "Error %s: %s" % (rc, translate_rc(rc))
     sys.exit((rc < 0) and 255 or rc)

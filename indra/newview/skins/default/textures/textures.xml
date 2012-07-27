@@ -54,6 +54,8 @@ with the same filename but different name
 
   <texture name="Arrow_Down" file_name="widgets/Arrow_Down.png"	preload="true" />
   <texture name="Arrow_Up" file_name="widgets/Arrow_Up.png" preload="true" />
+  <texture name="Arrow_Left" file_name="widgets/Arrow_Left.png" preload="true" />
+  <texture name="Arrow_Right" file_name="widgets/Arrow_Right.png" preload="true" />
 
   <texture name="AudioMute_Off" file_name="icons/AudioMute_Off.png" preload="false" />
   <texture name="AudioMute_Over" file_name="icons/AudioMute_Over.png" preload="false" />

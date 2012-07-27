@@ -27,7 +27,7 @@
 #ifndef LL_LLEXTERNALEDITOR_H
 #define LL_LLEXTERNALEDITOR_H
 
-#include <llprocesslauncher.h>
+#include "llprocess.h"
 
 /**
  * Usage:
@@ -97,9 +97,7 @@ private:
 	 */
 	static const std::string sSetting;
 
-
-	std::string			mArgs;
-	LLProcessLauncher	mProcess;
+	LLProcess::Params		mProcessParams;
 };
 
 #endif // LL_LLEXTERNALEDITOR_H

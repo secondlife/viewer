@@ -3854,7 +3854,7 @@ void LLContextMenu::setVisible(BOOL visible)
 }
 
 // Takes cursor position in screen space?
-void LLContextMenu::show(S32 x, S32 y)
+void LLContextMenu::show(S32 x, S32 y, LLView* spawning_view)
 {
 	if (getChildList()->empty())
 	{
@@ -3908,6 +3908,14 @@ void LLContextMenu::show(S32 x, S32 y)
 	setRect(rect);
 	arrange();
 
+	if (spawning_view)
+	{
+		mSpawningViewHandle = spawning_view->getHandle();
+	}
+	else
+	{
+		mSpawningViewHandle.markDead();
+	}
 	LLView::setVisible(TRUE);
 }
 

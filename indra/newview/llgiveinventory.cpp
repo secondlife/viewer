@@ -220,17 +220,25 @@ bool LLGiveInventory::doGiveInventoryItem(const LLUUID& to_agent,
 	return res;
 }
 
-void LLGiveInventory::doGiveInventoryCategory(const LLUUID& to_agent,
+bool LLGiveInventory::doGiveInventoryCategory(const LLUUID& to_agent,
 											  const LLInventoryCategory* cat,
-											  const LLUUID& im_session_id)
+											  const LLUUID& im_session_id,
+											  const std::string& notification_name)
 
 {
-	if (!cat) return;
+	if (!cat)
+	{
+		return false;
+	}
 	llinfos << "LLGiveInventory::giveInventoryCategory() - "
 		<< cat->getUUID() << llendl;
 
-	if (!isAgentAvatarValid()) return;
+	if (!isAgentAvatarValid())
+	{
+		return false;
+	}
 
+	bool give_successful = true;
 	// Test out how many items are being given.
 	LLViewerInventoryCategory::cat_array_t cats;
 	LLViewerInventoryItem::item_array_t items;
@@ -253,24 +261,24 @@ void LLGiveInventory::doGiveInventoryCategory(const LLUUID& to_agent,
 	if (!complete)
 	{
 		LLNotificationsUtil::add("IncompleteInventory");
-		return;
+		give_successful = false;
 	}
 	count = items.count() + cats.count();
 	if (count > MAX_ITEMS)
 	{
 		LLNotificationsUtil::add("TooManyItems");
-		return;
+		give_successful = false;
 	}
 	else if (count == 0)
 	{
 		LLNotificationsUtil::add("NoItems");
-		return;
+		give_successful = false;
 	}
-	else
+	else if (give_successful)
 	{
 		if (0 == giveable.countNoCopy())
 		{
-			LLGiveInventory::commitGiveInventoryCategory(to_agent, cat, im_session_id);
+			give_successful = LLGiveInventory::commitGiveInventoryCategory(to_agent, cat, im_session_id);
 		}
 		else
 		{
@@ -279,9 +287,16 @@ void LLGiveInventory::doGiveInventoryCategory(const LLUUID& to_agent,
 			LLSD payload;
 			payload["agent_id"] = to_agent;
 			payload["folder_id"] = cat->getUUID();
+			if (!notification_name.empty())
+			{
+				payload["success_notification"] = notification_name;
+			}
 			LLNotificationsUtil::add("CannotCopyCountItems", args, payload, &LLGiveInventory::handleCopyProtectedCategory);
+			give_successful = false;
 		}
 	}
+
+	return give_successful;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -325,6 +340,7 @@ bool LLGiveInventory::handleCopyProtectedItem(const LLSD& notification, const LL
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	LLSD itmes = notification["payload"]["items"];
 	LLInventoryItem* item = NULL;
+	bool give_successful = true;
 	switch(option)
 	{
 	case 0:  // "Yes"
@@ -343,15 +359,21 @@ bool LLGiveInventory::handleCopyProtectedItem(const LLSD& notification, const LL
 			else
 			{
 				LLNotificationsUtil::add("CannotGiveItem");
+				give_successful = false;
 			}
+		}
+		if (give_successful && notification["payload"]["success_notification"].isDefined())
+		{
+			LLNotificationsUtil::add(notification["payload"]["success_notification"].asString());
 		}
 		break;
 
 	default: // no, cancel, whatever, who cares, not yes.
 		LLNotificationsUtil::add("TransactionCancelled");
+		give_successful = false;
 		break;
 	}
-	return false;
+	return give_successful;
 }
 
 // static
@@ -408,13 +430,14 @@ bool LLGiveInventory::handleCopyProtectedCategory(const LLSD& notification, cons
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	LLInventoryCategory* cat = NULL;
+	bool give_successful = true;
 	switch(option)
 	{
 	case 0:  // "Yes"
 		cat = gInventory.getCategory(notification["payload"]["folder_id"].asUUID());
 		if (cat)
 		{
-			LLGiveInventory::commitGiveInventoryCategory(notification["payload"]["agent_id"].asUUID(),
+			give_successful = LLGiveInventory::commitGiveInventoryCategory(notification["payload"]["agent_id"].asUUID(),
 				cat);
 			LLViewerInventoryCategory::cat_array_t cats;
 			LLViewerInventoryItem::item_array_t items;
@@ -430,27 +453,37 @@ bool LLGiveInventory::handleCopyProtectedCategory(const LLSD& notification, cons
 				gInventory.deleteObject(items.get(i)->getUUID());
 			}
 			gInventory.notifyObservers();
+
+			if (give_successful && notification["payload"]["success_notification"].isDefined())
+			{
+				LLNotificationsUtil::add(notification["payload"]["success_notification"].asString());
+			}
 		}
 		else
 		{
 			LLNotificationsUtil::add("CannotGiveCategory");
+			give_successful = false;
 		}
 		break;
 
 	default: // no, cancel, whatever, who cares, not yes.
 		LLNotificationsUtil::add("TransactionCancelled");
+		give_successful = false;
 		break;
 	}
-	return false;
+	return give_successful;
 }
 
 // static
-void LLGiveInventory::commitGiveInventoryCategory(const LLUUID& to_agent,
+bool LLGiveInventory::commitGiveInventoryCategory(const LLUUID& to_agent,
 													const LLInventoryCategory* cat,
 													const LLUUID& im_session_id)
 
 {
-	if (!cat) return;
+	if (!cat)
+	{
+		return false;
+	}
 	llinfos << "LLGiveInventory::commitGiveInventoryCategory() - "
 		<< cat->getUUID() << llendl;
 
@@ -467,6 +500,7 @@ void LLGiveInventory::commitGiveInventoryCategory(const LLUUID& to_agent,
 		LLInventoryModel::EXCLUDE_TRASH,
 		giveable);
 
+	bool give_successful = true;
 	// MAX ITEMS is based on (sizeof(uuid)+2) * count must be <
 	// MTUBYTES or 18 * count < 1200 => count < 1200/18 =>
 	// 66. I've cut it down a bit from there to give some pad.
@@ -474,12 +508,12 @@ void LLGiveInventory::commitGiveInventoryCategory(const LLUUID& to_agent,
 	if (count > MAX_ITEMS)
 	{
 		LLNotificationsUtil::add("TooManyItems");
-		return;
+		give_successful = false;
 	}
 	else if (count == 0)
 	{
 		LLNotificationsUtil::add("NoItems");
-		return;
+		give_successful = false;
 	}
 	else
 	{
@@ -545,6 +579,8 @@ void LLGiveInventory::commitGiveInventoryCategory(const LLUUID& to_agent,
 
 		logInventoryOffer(to_agent, im_session_id);
 	}
+
+	return give_successful;
 }
 
 // EOF

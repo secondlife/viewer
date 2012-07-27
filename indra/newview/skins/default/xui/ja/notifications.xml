@@ -2895,6 +2895,18 @@ M キーを押して変更します。
 [RESIDENTS]
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="Ok"/>
 	</notification>
+	<notification name="ShareFolderConfirmation">
+		フォルダは一度に 1 つしか共有できません。
+
+次のアイテムを共有しますか？
+
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
+
+次の住人と共有：
+
+[RESIDENTS]
+		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="Ok"/>
+	</notification>
 	<notification name="ItemsShared">
 		アイテムが共有されました。
 	</notification>
