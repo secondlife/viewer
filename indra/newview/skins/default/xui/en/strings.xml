@@ -2140,8 +2140,10 @@ Drag folders to this area and click "Send to Marketplace" to list them for sale 
 	<string name="InvFolder Gestures">Gestures</string>
 	<string name="InvFolder Favorite">My Favorites</string>
   <!-- historically default name of the Favorites folder can start from either "f" or "F" letter.
-  We should localize both of them with the same value -->
+      Also, it can be written as "Favorite" or "Favorites".
+  We should localize all variants of them with the same value -->
 	<string name="InvFolder favorite">My Favorites</string>
+	<string name="InvFolder Favorites">My Favorites</string>
 	<string name="InvFolder Current Outfit">Current Outfit</string>
 	<string name="InvFolder Initial Outfits">Initial Outfits</string>
 	<string name="InvFolder My Outfits">My Outfits</string>
@@ -2150,6 +2152,7 @@ Drag folders to this area and click "Send to Marketplace" to list them for sale 
 
   <!-- are used for Friends and Friends/All folders in Inventory "Calling cards" folder. See EXT-694-->
 	<string name="InvFolder Friends">Friends</string>
+	<string name="InvFolder Received Items">Received Items</string>
 	<string name="InvFolder All">All</string>
 
 	<string name="no_attachments">No attachments worn</string>
