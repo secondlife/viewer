@@ -257,8 +257,6 @@ void LLIMFloaterContainer::setMinimized(BOOL b)
 	if (isMinimized() == b) return;
 	
 	LLMultiFloater::setMinimized(b);
-	// Hide minimized floater (see EXT-5315)
-	setVisible(!b);
 
 	if (isMinimized()) return;
 
