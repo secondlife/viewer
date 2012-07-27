@@ -303,7 +303,7 @@ namespace LLInitParam
 {
 	// LLSD specialization
 	// block param interface
-	bool ParamValue<LLSD, NOT_BLOCK>::deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack, bool new_name)
+	bool ParamValue<LLSD, NOT_BLOCK>::deserializeBlock(Parser& p, Parser::name_stack_range_t& name_stack, bool new_name)
 	{
 		if (name_stack.first == name_stack.second
 			&& p.readValue<LLSD>(mValue))
