@@ -659,6 +659,7 @@ LLFolderView * LLInventoryPanel::createFolderView(LLInvFVBridge * bridge, bool u
 	p.allow_multiselect = mAllowMultiSelect;
 	p.show_empty_message = mShowEmptyMessage;
 	p.show_item_link_overlays = mShowItemLinkOverlays;
+	p.root = NULL;
 
 	return LLUICtrlFactory::create<LLFolderView>(p);
 }
