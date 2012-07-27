@@ -2447,9 +2447,6 @@ Drag folders to this area and click "Send to Marketplace" to list them for sale 
 	<string name="GroupMoneyDebits">Debits</string>
 	<string name="GroupMoneyDate">[weekday,datetime,utc] [mth,datetime,utc] [day,datetime,utc], [year,datetime,utc]</string>
 
-	<!-- viewer object -->
-	<string name="ViewerObjectContents">Contents</string>
-
 	<!-- Viewer menu -->
 	<string name="AcquiredItems">Acquired Items</string>
 	<string name="Cancel">Cancel</string>

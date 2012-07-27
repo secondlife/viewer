@@ -1656,13 +1656,9 @@ void LLPanelObjectInventory::updateInventory()
 		if (inventory_root)
 		{
 			reset();
-			mIsInventoryEmpty = contents.empty();
-			if (!mIsInventoryEmpty)
-			{
-
-				createFolderViews(inventory_root, contents);
-				mFolders->setEnabled(TRUE);
-			}
+			mIsInventoryEmpty = FALSE;
+			createFolderViews(inventory_root, contents);
+			mFolders->setEnabled(TRUE);
 		}
 		else
 		{
@@ -1725,7 +1721,20 @@ void LLPanelObjectInventory::createFolderViews(LLInventoryObject* inventory_root
 	bridge = LLTaskInvFVBridge::createObjectBridge(this, inventory_root);
 	if(bridge)
 	{
-		createViewsForCategory(&contents, inventory_root, mFolders);
+		LLFolderViewFolder::Params p;
+		p.name = inventory_root->getName();
+		p.tool_tip = p.name;
+		p.root = mFolders;
+		p.listener = bridge;
+
+		LLFolderViewFolder* new_folder = LLUICtrlFactory::create<LLFolderViewFolder>(p);
+		new_folder->addToFolder(mFolders);
+		new_folder->toggleOpen();
+
+		if (!contents.empty())
+		{
+			createViewsForCategory(&contents, inventory_root, new_folder);
+		}
 	}
 }
 
