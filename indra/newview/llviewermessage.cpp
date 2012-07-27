@@ -2396,6 +2396,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				from_id,
 				name,
 				buffer,
+				IM_OFFLINE == offline,
 				LLStringUtil::null,
 				dialog,
 				parent_estate_id,
@@ -2435,7 +2436,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				if (!gIMMgr->isNonFriendSessionNotified(session_id))
 				{
 					std::string message = LLTrans::getString("IM_unblock_only_groups_friends");
-					gIMMgr->addMessage(session_id, from_id, name, message);
+					gIMMgr->addMessage(session_id, from_id, name, message, IM_OFFLINE == offline);
 					gIMMgr->addNotifiedNonFriendSessionID(session_id);
 				}
 
@@ -2448,6 +2449,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 					from_id,
 					name,
 					buffer,
+					IM_OFFLINE == offline,
 					LLStringUtil::null,
 					dialog,
 					parent_estate_id,
@@ -2788,6 +2790,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			from_id,
 			name,
 			buffer,
+			IM_OFFLINE == offline,
 			ll_safe_string((char*)binary_bucket),
 			IM_SESSION_INVITE,
 			parent_estate_id,

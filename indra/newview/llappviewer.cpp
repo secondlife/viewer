@@ -59,6 +59,7 @@
 #include "llares.h" 
 #include "llcurl.h"
 #include "llcalc.h"
+#include "llconversationlog.h"
 #include "lltexturestats.h"
 #include "lltexturestats.h"
 #include "llviewerwindow.h"
@@ -1756,6 +1757,9 @@ bool LLAppViewer::cleanup()
 
 	// save mute list. gMuteList used to also be deleted here too.
 	LLMuteList::getInstance()->cache(gAgent.getID());
+
+	//save call log list
+	LLConversationLog::instance().cache();
 
 	if (mPurgeOnExit)
 	{

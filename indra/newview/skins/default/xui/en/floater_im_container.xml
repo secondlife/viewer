@@ -56,6 +56,7 @@
                      image_overlay="Conv_toolbar_sort"
                      image_selected="Toolbar_Middle_Selected"
                      image_unselected="Toolbar_Middle_Off"
+                     menu_filename="menu_participant_view.xml"
                      layout="topleft"
                      left="10"
                      name="sort_btn"

@@ -4072,6 +4072,7 @@ void LLVivoxVoiceClient::messageEvent(
 						session->mCallerID,
 						session->mName.c_str(),
 						message.c_str(),
+						false,
 						LLStringUtil::null,		// default arg
 						IM_NOTHING_SPECIAL,		// default arg
 						0,						// default arg

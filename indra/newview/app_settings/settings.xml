@@ -10004,6 +10004,28 @@
       <key>Value</key>
       <integer>2</integer>
     </map>
+    <key>CallLogSortOrder</key>
+    <map>
+      <key>Comment</key>
+      <string>Specifies sort order for Call Log (0 = by name, 1 = by date)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>2</integer>
+    </map>
+    <key>SortFriendsFirst</key>
+    <map>
+      <key>Comment</key>
+      <string>Specifies whether friends will be sorted first in Call Log</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>ShowPGSearchAll</key>    
     <map>
       <key>Comment</key>

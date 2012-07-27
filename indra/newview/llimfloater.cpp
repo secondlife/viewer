@@ -59,6 +59,8 @@
 #include "llviewerchat.h"
 #include "llnotificationmanager.h"
 
+floater_showed_signal_t LLIMFloater::sIMFloaterShowedSignal;
+
 LLIMFloater::LLIMFloater(const LLUUID& session_id)
   : LLIMConversation(session_id),
 	mLastMessageIndex(-1),
@@ -765,6 +767,11 @@ void LLIMFloater::setVisible(BOOL visible)
 			chiclet->setToggleState(false);
 		}
 	}
+
+	if (visible)
+	{
+		sIMFloaterShowedSignal(mSessionID);
+	}
 }
 
 BOOL LLIMFloater::getVisible()
@@ -1333,4 +1340,9 @@ void LLIMFloater::addToHost(const LLUUID& session_id)
 			im_box->addFloater(new_tab, FALSE, LLTabContainer::END);
 		}
 	}
+}
+
+boost::signals2::connection LLIMFloater::setIMFloaterShowedCallback(const floater_showed_signal_t::slot_type& cb)
+{
+	return LLIMFloater::sIMFloaterShowedSignal.connect(cb);
 }

@@ -70,10 +70,11 @@ public:
 			GROUP_SESSION,
 			ADHOC_SESSION,
 			AVALINE_SESSION,
+			NONE_SESSION,
 		} SType;
 
 		LLIMSession(const LLUUID& session_id, const std::string& name, 
-			const EInstantMessage& type, const LLUUID& other_participant_id, const uuid_vec_t& ids, bool voice);
+			const EInstantMessage& type, const LLUUID& other_participant_id, const uuid_vec_t& ids, bool voice, bool has_offline_msg);
 		virtual ~LLIMSession();
 
 		void sessionInitReplyReceived(const LLUUID& new_session_id);
@@ -133,6 +134,8 @@ public:
 		//if IM session is created for a voice call
 		bool mStartedAsIMCall;
 
+		bool mHasOfflineMessage;
+
 	private:
 		void onAdHocNameCache(const LLAvatarName& av_name);
 
@@ -181,10 +184,10 @@ public:
 	 * @param name session name should not be empty, will return false if empty
 	 */
 	bool newSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, const LLUUID& other_participant_id, 
-		const uuid_vec_t& ids, bool voice = false);
+		const uuid_vec_t& ids, bool voice = false, bool has_offline_msg = false);
 
 	bool newSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type,
-		const LLUUID& other_participant_id, bool voice = false);
+		const LLUUID& other_participant_id, bool voice = false, bool has_offline_msg = false);
 
 	/**
 	 * Remove all session data associated with a session specified by session_id
@@ -325,6 +328,7 @@ public:
 					const LLUUID& target_id,
 					const std::string& from,
 					const std::string& msg,
+					bool  is_offline_msg = false,
 					const std::string& session_name = LLStringUtil::null,
 					EInstantMessage dialog = IM_NOTHING_SPECIAL,
 					U32 parent_estate_id = 0,
