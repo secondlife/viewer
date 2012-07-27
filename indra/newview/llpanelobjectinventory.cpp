@@ -1653,13 +1653,16 @@ void LLPanelObjectInventory::updateInventory()
 		LLInventoryObject::object_list_t contents;
 		objectp->getInventoryContents(contents);
 
-		if (inventory_root && !contents.empty())
+		if (inventory_root)
 		{
 			reset();
+			mIsInventoryEmpty = contents.empty();
+			if (!mIsInventoryEmpty)
+			{
 
-			createFolderViews(inventory_root, contents);
-			mIsInventoryEmpty = FALSE;
-			mFolders->setEnabled(TRUE);
+				createFolderViews(inventory_root, contents);
+				mFolders->setEnabled(TRUE);
+			}
 		}
 		else
 		{
