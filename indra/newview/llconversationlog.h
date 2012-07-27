@@ -31,7 +31,7 @@
 #include "llimview.h"
 
 class LLConversationLogObserver;
-class Conversation_params;
+struct Conversation_params;
 
 typedef LLIMModel::LLIMSession::SType SessionType;
 
