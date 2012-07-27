@@ -571,7 +571,7 @@ namespace LLInitParam
 		};
 
 		typedef bool(*merge_func_t)(Param&, const Param&, bool);
-		typedef bool(*deserialize_func_t)(Param&, Parser&, const Parser::name_stack_range_t&, bool);
+		typedef bool(*deserialize_func_t)(Param&, Parser&, Parser::name_stack_range_t&, bool);
 		typedef void(*serialize_func_t)(const Param&, Parser&, Parser::name_stack_t&, const Param* diff_param);
 		typedef void(*inspect_func_t)(const Param&, Parser&, Parser::name_stack_t&, S32 min_count, S32 max_count);
 		typedef bool(*validation_func_t)(const Param*);
@@ -837,7 +837,7 @@ namespace LLInitParam
 		// Blocks can override this to do custom tracking of changes
 		virtual void paramChanged(const Param& changed_param, bool user_provided) {}
 
-		bool deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack_range, bool new_name);
+		bool deserializeBlock(Parser& p, Parser::name_stack_range_t& name_stack_range, bool new_name);
 		void serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const BaseBlock* diff_block = NULL) const;
 		bool inspectBlock(Parser& p, Parser::name_stack_t name_stack = Parser::name_stack_t(), S32 min_count = 0, S32 max_count = S32_MAX) const;
 
@@ -969,7 +969,7 @@ namespace LLInitParam
 
 		bool isProvided() const { return Param::anyProvided(); }
 
-		static bool deserializeParam(Param& param, Parser& parser, const Parser::name_stack_range_t& name_stack_range, bool new_name)
+		static bool deserializeParam(Param& param, Parser& parser, Parser::name_stack_range_t& name_stack_range, bool new_name)
 		{ 
 			self_t& typed_param = static_cast<self_t&>(param);
 			// no further names in stack, attempt to parse value now
@@ -1127,7 +1127,7 @@ namespace LLInitParam
 			}
 		}
 
-		static bool deserializeParam(Param& param, Parser& parser, const Parser::name_stack_range_t& name_stack_range, bool new_name)
+		static bool deserializeParam(Param& param, Parser& parser, Parser::name_stack_range_t& name_stack_range, bool new_name)
 		{ 
 			self_t& typed_param = static_cast<self_t&>(param);
 			// attempt to parse block...
@@ -1286,7 +1286,7 @@ namespace LLInitParam
 		}
 	};
 
-	// container of non-block parameters
+	// list of non-block parameters
 	template <typename VALUE_TYPE, typename NAME_VALUE_LOOKUP>
 	class TypedParam<VALUE_TYPE, NAME_VALUE_LOOKUP, true, NOT_BLOCK> 
 	:	public Param
@@ -1315,7 +1315,7 @@ namespace LLInitParam
 
 		bool isProvided() const { return Param::anyProvided(); }
 
-		static bool deserializeParam(Param& param, Parser& parser, const Parser::name_stack_range_t& name_stack_range, bool new_name)
+		static bool deserializeParam(Param& param, Parser& parser, Parser::name_stack_range_t& name_stack_range, bool new_name)
 		{ 
 			Parser::name_stack_range_t new_name_stack_range(name_stack_range);
 			self_t& typed_param = static_cast<self_t&>(param);
@@ -1498,7 +1498,7 @@ namespace LLInitParam
 		}
 	};
 
-	// container of block parameters
+	// list of block parameters
 	template <typename VALUE_TYPE, typename NAME_VALUE_LOOKUP>
 	class TypedParam<VALUE_TYPE, NAME_VALUE_LOOKUP, true, IS_A_BLOCK> 
 	:	public Param
@@ -1527,30 +1527,35 @@ namespace LLInitParam
 
 		bool isProvided() const { return Param::anyProvided(); }
 
-		static bool deserializeParam(Param& param, Parser& parser, const Parser::name_stack_range_t& name_stack_range, bool new_name) 
+		static bool deserializeParam(Param& param, Parser& parser, Parser::name_stack_range_t& name_stack_range, bool new_name) 
 		{ 
 			Parser::name_stack_range_t new_name_stack_range(name_stack_range);
 			self_t& typed_param = static_cast<self_t&>(param);
 			bool new_value = false;
+			bool new_array_value = false;
 
 			// pop first element if empty string
 			if (new_name_stack_range.first != new_name_stack_range.second && new_name_stack_range.first->first.empty())
 			{
-				new_value |= new_name_stack_range.first->second;
+				new_array_value = new_name_stack_range.first->second;
 				++new_name_stack_range.first;
 			}
-			if (new_name || typed_param.mValues.empty())
+
+			if (new_name || new_array_value || typed_param.mValues.empty())
 			{
 				new_value = true;
 				typed_param.mValues.push_back(value_t());
 			}
-
 			param_value_t& value = typed_param.mValues.back();
 
 			// attempt to parse block...
 			if(value.deserializeBlock(parser, new_name_stack_range, new_name))
 			{
 				typed_param.setProvided();
+				if (new_array_value)
+				{
+					name_stack_range.first->second = false;
+				}
 				return true;
 			}
 			else if(named_value_t::valueNamesExist())
@@ -1564,6 +1569,10 @@ namespace LLInitParam
 					{
 						typed_param.mValues.back().setValueName(name);
 						typed_param.setProvided();
+						if (new_array_value)
+						{
+							name_stack_range.first->second = false;
+						}
 						return true;
 					}
 
@@ -2036,7 +2045,7 @@ namespace LLInitParam
 				}
 			}
 			
-			static bool deserializeParam(Param& param, Parser& parser, const Parser::name_stack_range_t& name_stack_range, bool new_name)
+			static bool deserializeParam(Param& param, Parser& parser, Parser::name_stack_range_t& name_stack_range, bool new_name)
 			{
 				if (name_stack_range.first == name_stack_range.second)
 				{
@@ -2149,14 +2158,14 @@ namespace LLInitParam
 			return mValue.getValue();
 		}
 
-		bool deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack_range, bool new_name)
+		bool deserializeBlock(Parser& p, Parser::name_stack_range_t& name_stack_range, bool new_name)
 		{
 			if (new_name)
 			{
 				resetToDefault();
 			}
 			return mValue.deserializeBlock(p, name_stack_range, new_name);
-			}
+		}
 
 		void serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const self_t* diff_block = NULL) const
 		{
@@ -2242,7 +2251,7 @@ namespace LLInitParam
 			return mValue.getValue();
 		}
 
-		bool deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack_range, bool new_name)
+		bool deserializeBlock(Parser& p, Parser::name_stack_range_t& name_stack_range, bool new_name)
 		{
 			if (new_name)
 			{
@@ -2372,7 +2381,7 @@ namespace LLInitParam
 			return mValue.get().getValue();
 		}
 
-		bool deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack_range, bool new_name)
+		bool deserializeBlock(Parser& p, Parser::name_stack_range_t& name_stack_range, bool new_name)
 		{
 			return mValue.get().deserializeBlock(p, name_stack_range, new_name);
 		}
@@ -2481,7 +2490,7 @@ namespace LLInitParam
 		LLSD& getValue() { return mValue; }
 
 		// block param interface
-		bool deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack_range, bool new_name);
+		bool deserializeBlock(Parser& p, Parser::name_stack_range_t& name_stack_range, bool new_name);
 		void serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const BaseBlock* diff_block = NULL) const;
 		bool inspectBlock(Parser& p, Parser::name_stack_t name_stack = Parser::name_stack_t(), S32 min_count = 0, S32 max_count = S32_MAX) const
 		{
@@ -2524,7 +2533,7 @@ namespace LLInitParam
 			mValidated(false)
 		{}
 
-		bool deserializeBlock(Parser& parser, Parser::name_stack_range_t name_stack_range, bool new_name)
+		bool deserializeBlock(Parser& parser, Parser::name_stack_range_t& name_stack_range, bool new_name)
 		{
 			derived_t& typed_param = static_cast<derived_t&>(*this);
 			// try to parse direct value T
