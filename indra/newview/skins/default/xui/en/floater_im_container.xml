@@ -33,7 +33,7 @@
          auto_resize="true"
          height="430"
          name="conversations_layout_panel"
-         min_dim="41"
+         min_dim="51"
          width="268">
             <layout_stack
              animate="false" 
