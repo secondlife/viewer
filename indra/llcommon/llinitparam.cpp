@@ -181,7 +181,8 @@ namespace LLInitParam
 
 	bool BaseBlock::submitValue(Parser::name_stack_t& name_stack, Parser& p, bool silent)
 	{
-		if (!deserializeBlock(p, std::make_pair(name_stack.begin(), name_stack.end()), true))
+		Parser::name_stack_range_t range = std::make_pair(name_stack.begin(), name_stack.end());
+		if (!deserializeBlock(p, range, true))
 		{
 			if (!silent)
 			{
@@ -321,7 +322,7 @@ namespace LLInitParam
 		return true;
 	}
 
-	bool BaseBlock::deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack_range, bool ignored)
+	bool BaseBlock::deserializeBlock(Parser& p, Parser::name_stack_range_t& name_stack_range, bool ignored)
 	{
 		BlockDescriptor& block_data = mostDerivedBlockDescriptor();
 		bool names_left = name_stack_range.first != name_stack_range.second;

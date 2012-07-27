@@ -44,6 +44,8 @@ class LLChatHistory;
 class LLInventoryItem;
 class LLInventoryCategory;
 
+typedef boost::signals2::signal<void(const LLUUID& session_id)> floater_showed_signal_t;
+
 /**
  * Individual IM window that appears at the bottom of the screen,
  * optionally "docked" to the bottom tray.
@@ -125,7 +127,11 @@ public:
 
 	bool getStartConferenceInSameFloater() const { return mStartConferenceInSameFloater; }
 
+	static boost::signals2::connection setIMFloaterShowedCallback(const floater_showed_signal_t::slot_type& cb);
+	static floater_showed_signal_t sIMFloaterShowedSignal;
+
 private:
+
 	// process focus events to set a currently active session
 	/* virtual */ void onFocusLost();
 	/* virtual */ void onFocusReceived();

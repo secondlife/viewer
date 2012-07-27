@@ -175,10 +175,11 @@ LLIMModel::LLIMModel()
 	addNewMsgCallback(boost::bind(&toast_callback, _1));
 }
 
-LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, const LLUUID& other_participant_id, const uuid_vec_t& ids, bool voice)
+LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, const LLUUID& other_participant_id, const uuid_vec_t& ids, bool voice, bool has_offline_msg)
 :	mSessionID(session_id),
 	mName(name),
 	mType(type),
+	mHasOfflineMessage(has_offline_msg),
 	mParticipantUnreadMessageCount(0),
 	mNumUnread(0),
 	mOtherParticipantID(other_participant_id),
@@ -375,6 +376,8 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 				break;
 			}
 		}
+	default:
+		break;
 	}
 	// Update speakers list when connected
 	if (LLVoiceChannel::STATE_CONNECTED == new_state)
@@ -676,7 +679,7 @@ void LLIMModel::testMessages()
 
 //session name should not be empty
 bool LLIMModel::newSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, 
-						   const LLUUID& other_participant_id, const uuid_vec_t& ids, bool voice)
+						   const LLUUID& other_participant_id, const uuid_vec_t& ids, bool voice, bool has_offline_msg)
 {
 	if (name.empty())
 	{
@@ -690,7 +693,7 @@ bool LLIMModel::newSession(const LLUUID& session_id, const std::string& name, co
 		return false;
 	}
 
-	LLIMSession* session = new LLIMSession(session_id, name, type, other_participant_id, ids, voice);
+	LLIMSession* session = new LLIMSession(session_id, name, type, other_participant_id, ids, voice, has_offline_msg);
 	mId2SessionMap[session_id] = session;
 
 	// When notifying observer, name of session is used instead of "name", because they may not be the
@@ -702,10 +705,10 @@ bool LLIMModel::newSession(const LLUUID& session_id, const std::string& name, co
 
 }
 
-bool LLIMModel::newSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, const LLUUID& other_participant_id, bool voice)
+bool LLIMModel::newSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, const LLUUID& other_participant_id, bool voice, bool has_offline_msg)
 {
 	uuid_vec_t no_ids;
-	return newSession(session_id, name, type, other_participant_id, no_ids, voice);
+	return newSession(session_id, name, type, other_participant_id, no_ids, voice, has_offline_msg);
 }
 
 bool LLIMModel::clearSession(const LLUUID& session_id)
@@ -2398,6 +2401,7 @@ void LLIMMgr::addMessage(
 	const LLUUID& target_id,
 	const std::string& from,
 	const std::string& msg,
+	bool  is_offline_msg,
 	const std::string& session_name,
 	EInstantMessage dialog,
 	U32 parent_estate_id,
@@ -2423,7 +2427,7 @@ void LLIMMgr::addMessage(
 	bool new_session = !hasSession(new_session_id);
 	if (new_session)
 	{
-		LLIMModel::getInstance()->newSession(new_session_id, fixed_session_name, dialog, other_participant_id);
+		LLIMModel::getInstance()->newSession(new_session_id, fixed_session_name, dialog, other_participant_id, false, is_offline_msg);
 
 		// When we get a new IM, and if you are a god, display a bit
 		// of information about the source. This is to help liaisons
@@ -3307,6 +3311,7 @@ public:
 				from_id,
 				name,
 				buffer,
+				IM_OFFLINE == offline,
 				std::string((char*)&bin_bucket[0]),
 				IM_SESSION_INVITE,
 				message_params["parent_estate_id"].asInteger(),

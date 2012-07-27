@@ -107,6 +107,7 @@ BOOL LLIMFloaterContainer::postBuild()
 	p.rect = mConversationsListPanel->getLocalRect();
 	p.follows.flags = FOLLOWS_ALL;
 	p.listener = base_item;
+	p.root = NULL;
 
 	mConversationsRoot = LLUICtrlFactory::create<LLFolderView>(p);
 	mConversationsListPanel->addChild(mConversationsRoot);

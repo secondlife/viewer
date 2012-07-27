@@ -131,6 +131,9 @@ set(viewer_SOURCE_FILES
     llcommandlineparser.cpp
     llcompilequeue.cpp
     llconfirmationmanager.cpp
+    llconversationlog.cpp
+    llconversationloglist.cpp
+    llconversationloglistitem.cpp
     llcurrencyuimanager.cpp
     llcylinder.cpp
     lldateutil.cpp
@@ -187,6 +190,8 @@ set(viewer_SOURCE_FILES
     llfloaterbuyland.cpp
     llfloatercamera.cpp
     llfloatercolorpicker.cpp
+    llfloaterconversationlog.cpp
+    llfloaterconversationpreview.cpp
     llfloaterdeleteenvpreset.cpp
     llfloaterdestinations.cpp
     llfloaterdisplayname.cpp
@@ -692,6 +697,9 @@ set(viewer_HEADER_FILES
     llcommandlineparser.h
     llcompilequeue.h
     llconfirmationmanager.h
+    llconversationlog.h
+    llconversationloglist.h
+    llconversationloglistitem.h
     llcurrencyuimanager.h
     llcylinder.h
     lldateutil.h
@@ -748,6 +756,8 @@ set(viewer_HEADER_FILES
     llfloaterbuyland.h
     llfloatercamera.h
     llfloatercolorpicker.h
+    llfloaterconversationlog.h
+    llfloaterconversationpreview.h
     llfloaterdeleteenvpreset.h
     llfloaterdestinations.h
     llfloaterdisplayname.h

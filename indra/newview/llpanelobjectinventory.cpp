@@ -1563,6 +1563,7 @@ void LLPanelObjectInventory::reset()
 	p.listener = LLTaskInvFVBridge::createObjectBridge(this, NULL);
 	p.folder_indentation = -14; // subtract space normally reserved for folder expanders
 	p.view_model = &mInventoryViewModel;
+	p.root = NULL;
 	mFolders = LLUICtrlFactory::create<LLFolderView>(p);
 	// this ensures that we never say "searching..." or "no items found"
 	//TODO RN: make this happen by manipulating filter object directly
