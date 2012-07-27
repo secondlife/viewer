@@ -316,7 +316,7 @@ BOOL LLIMFloater::postBuild()
 	mInputEditor = getChild<LLChatEntry>("chat_editor");
 	mInputEditor->setMaxTextLength(1023);
 	// enable line history support for instant message bar
-	// XXX stinson TODO : resolve merge conflict
+	// XXX stinson TODO : resolve merge by adding autoreplace to text editors
 #if 0
 	// *TODO Establish LineEditor with autoreplace callback
 	mInputEditor->setAutoreplaceCallback(boost::bind(&LLAutoReplace::autoreplaceCallback, LLAutoReplace::getInstance(), _1, _2));

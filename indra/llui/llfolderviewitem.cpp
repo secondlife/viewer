@@ -1495,7 +1495,7 @@ BOOL LLFolderViewFolder::addItem(LLFolderViewItem* item)
 	
 	item->getViewModelItem()->dirtyFilter();
 
-	// XXX stinson TODO : handle the creation date
+	// TODO RN - port creation date management to new code location
 #if 0
 	// Update the folder creation date if the child is newer than our current date
 	setCreationDate(llmax<time_t>(mCreationDate, item->getCreationDate()));
@@ -1506,7 +1506,7 @@ BOOL LLFolderViewFolder::addItem(LLFolderViewItem* item)
 	requestSort();
 
 	getViewModelItem()->addChild(item->getViewModelItem());
-	// XXX stinson TODO : handle the creation date
+	// TODO RN - port creation date management to new code location
 #if 0
 	// Traverse parent folders and update creation date and resort, if necessary
 	LLFolderViewFolder* parentp = getParentFolder();
