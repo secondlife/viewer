@@ -93,7 +93,7 @@ namespace LLInitParam
 		mEnclosingBlockOffsetHigh = (enclosing_block_offset & 0x007f0000) >> 16;
 	}
 
-	bool BaseBlock::deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack, bool new_name){ return true; }
+	bool BaseBlock::deserializeBlock(Parser& p, Parser::name_stack_range_t& name_stack, bool new_name){ return true; }
 	void BaseBlock::serializeBlock(Parser& parser, Parser::name_stack_t& name_stack, const LLInitParam::BaseBlock* diff_block) const {}
 	bool BaseBlock::inspectBlock(Parser& parser, Parser::name_stack_t name_stack, S32 min_count, S32 max_count) const { return true; }
 	bool BaseBlock::mergeBlock(BlockDescriptor& block_data, const BaseBlock& other, bool overwrite) { return true; }
