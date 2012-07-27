@@ -2015,10 +2015,12 @@ namespace LLInitParam
 			}
 		};
 
-		class Deprecated : public Param
+		// can appear in data files, but will ignored during parsing
+		// cannot read or write in code
+		class Ignored : public Param
 		{
 		public:
-			explicit Deprecated(const char* name)
+			explicit Ignored(const char* name)
 			:	Param(DERIVED_BLOCK::getBlockDescriptor().mCurrentBlockPtr)
 			{
 				BlockDescriptor& block_descriptor = DERIVED_BLOCK::getBlockDescriptor();
@@ -2049,8 +2051,34 @@ namespace LLInitParam
 			}
 		};
 
-		// different semantics for documentation purposes, but functionally identical
-		typedef Deprecated Ignored;
+		// can appear in data files, or be written to in code, but data will be ignored
+		// cannot be read in code
+		class Deprecated : public Ignored
+		{
+		public:
+			explicit Deprecated(const char* name) : Ignored(name) {}
+
+			// dummy writer interfaces
+			template<typename T>
+			Deprecated& operator =(const T& val)
+			{
+				// do nothing
+				return *this;
+			}
+
+			template<typename T>
+			DERIVED_BLOCK& operator()(const T& val)
+			{
+				// do nothing
+				return static_cast<DERIVED_BLOCK&>(Param::enclosingBlock());
+			}
+
+			template<typename T>
+			void set(const T& val, bool flag_as_provided = true)
+			{
+				// do nothing
+			}
+		};
 
 	public:
 		static BlockDescriptor& getBlockDescriptor()
