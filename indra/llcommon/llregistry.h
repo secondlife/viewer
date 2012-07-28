@@ -30,38 +30,22 @@
 #include <list>
 
 #include <boost/type_traits.hpp>
-#include <boost/static_assert.hpp>
 #include "llsingleton.h"
+#include "llstl.h"
 
 template <typename T>
 struct LLRegistryDefaultComparator
 {
-	// It would be Bad if this comparison were used for const char*
-	BOOST_STATIC_ASSERT(! (boost::is_same<typename boost::remove_const<typename boost::remove_pointer<T>::type>::type, char>::value));
-	bool operator()(const T& lhs, const T& rhs) const { return lhs < rhs; }
-};
-
-// comparator for const char* registry keys
-template <>
-struct LLRegistryDefaultComparator<const char*>
-{
-	bool operator()(const char* lhs, const char* rhs) const
+	bool operator()(const T& lhs, const T& rhs) const
 	{
-		return strcmp(lhs, rhs) < 0;
+		using std::less;
+		return less<T>()(lhs, rhs);
 	}
 };
 
 template <typename KEY, typename VALUE, typename COMPARATOR = LLRegistryDefaultComparator<KEY> >
 class LLRegistry
 {
-	// Do not use LLRegistry with KEY = std::type_info* or KEY = const std::type_info*.
-	// This is known to fail on Linux.
-	// If you must use LLRegistry with dynamic type info, use KEY = const char*
-	// and pass std::type_info::name(); this works across load modules.
-	// Disallow both std::type_info* and const std::type_info*. First remove
-	// the pointer, then remove const, then compare is_same<std::type_info>.
-	BOOST_STATIC_ASSERT(! (boost::is_same<typename boost::remove_const<typename boost::remove_pointer<KEY>::type>::type, std::type_info>::value));
-
 public:
 	typedef LLRegistry<KEY, VALUE, COMPARATOR>											registry_t;
 	typedef typename boost::add_reference<typename boost::add_const<KEY>::type>::type	ref_const_key_t;
