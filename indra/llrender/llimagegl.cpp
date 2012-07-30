@@ -476,7 +476,7 @@ bool LLImageGL::checkSize(S32 width, S32 height)
 	return check_power_of_two(width) && check_power_of_two(height);
 }
 
-void LLImageGL::setSize(S32 width, S32 height, S32 ncomponents)
+void LLImageGL::setSize(S32 width, S32 height, S32 ncomponents, S32 discard_level)
 {
 	if (width != mWidth || height != mHeight || ncomponents != mComponents)
 	{
@@ -508,6 +508,11 @@ void LLImageGL::setSize(S32 width, S32 height, S32 ncomponents)
 				mMaxDiscardLevel++;
 				width >>= 1;
 				height >>= 1;
+			}
+
+			if(discard_level > 0)
+			{
+				mMaxDiscardLevel = llmax(mMaxDiscardLevel, (S8)discard_level);
 			}
 		}
 		else
@@ -858,14 +863,13 @@ BOOL LLImageGL::preAddToAtlas(S32 discard_level, const LLImageRaw* raw_image)
 		llassert(mCurrentDiscardLevel >= 0);
 		discard_level = mCurrentDiscardLevel;
 	}
-	discard_level = llclamp(discard_level, 0, (S32)mMaxDiscardLevel);
-
+	
 	// Actual image width/height = raw image width/height * 2^discard_level
 	S32 w = raw_image->getWidth() << discard_level;
 	S32 h = raw_image->getHeight() << discard_level;
 
 	// setSize may call destroyGLTexture if the size does not match
-	setSize(w, h, raw_image->getComponents());
+	setSize(w, h, raw_image->getComponents(), discard_level);
 
 	if( !mHasExplicitFormat )
 	{
@@ -1262,8 +1266,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
 		llassert(mCurrentDiscardLevel >= 0);
 		discard_level = mCurrentDiscardLevel;
 	}
-	discard_level = llclamp(discard_level, 0, (S32)mMaxDiscardLevel);
-
+	
 	// Actual image width/height = raw image width/height * 2^discard_level
 	S32 raw_w = imageraw->getWidth() ;
 	S32 raw_h = imageraw->getHeight() ;
@@ -1271,7 +1274,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
 	S32 h = raw_h << discard_level;
 
 	// setSize may call destroyGLTexture if the size does not match
-	setSize(w, h, imageraw->getComponents());
+	setSize(w, h, imageraw->getComponents(), discard_level);
 
 	if( !mHasExplicitFormat )
 	{

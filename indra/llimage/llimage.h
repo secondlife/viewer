@@ -189,7 +189,7 @@ protected:
 public:
 	LLImageRaw();
 	LLImageRaw(U16 width, U16 height, S8 components);
-	LLImageRaw(U8 *data, U16 width, U16 height, S8 components);
+	LLImageRaw(U8 *data, U16 width, U16 height, S8 components, bool no_copy = false);
 	// Construct using createFromFile (used by tools)
 	//LLImageRaw(const std::string& filename, bool j2c_lowest_mip_only = false);
 
