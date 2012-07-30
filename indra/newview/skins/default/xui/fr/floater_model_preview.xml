@@ -214,7 +214,7 @@
 			</panel>
 		</tab_container>
 		<panel name="weights_and_warning_panel">
-			<button label="Calculer les poids et les frais." name="calculate_btn" tool_tip="Calculer les poids et les frais."/>
+			<button label="Calculer les poids et les frais" name="calculate_btn" tool_tip="Calculer les poids et les frais."/>
 			<button label="Annuler" name="cancel_btn"/>
 			<button label="Charger le modèle" name="ok_btn" tool_tip="Charger dans le simulateur"/>
 			<button label="Effacer les paramètres et réinitialiser le formulaire" name="reset_btn"/>

@@ -457,7 +457,7 @@ button_name_set_t getButtonDisableList(const std::string& notification_name, con
 	{
 		search_map = user_give_item_disable_map;
 	}
-	else if("TeleportOffered" == notification_name)
+	else if(("TeleportOffered" == notification_name) || ("TeleportOffered_MaturityExceeded" == notification_name))
 	{
 		search_map = teleport_offered_disable_map;
 	}

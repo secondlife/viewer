@@ -14,8 +14,11 @@
 					<stat_bar label="KTris par s" name="ktrissec"/>
 					<stat_bar label="Objets totaux" name="objs"/>
 					<stat_bar label="Nouveaux objets" name="newobjs"/>
+					<stat_bar label="Taux de réussite du cache des objets" name="object_cache_hits"/>
 				</stat_view>
 				<stat_view label="Texture" name="texture">
+					<stat_bar label="Taux de réussite du cache" name="texture_cache_hits"/>
+					<stat_bar label="Latence de lecture du cache" name="texture_cache_read_latency"/>
 					<stat_bar label="Nombre" name="numimagesstat"/>
 					<stat_bar label="Nombre brut" name="numrawimagesstat"/>
 					<stat_bar label="Mém GL" name="gltexmemstat"/>
@@ -57,7 +60,7 @@
 				<stat_bar label="Chargements en attente" name="simpendinguploads"/>
 				<stat_bar label="Total Unacked Bytes" name="simtotalunackedbytes"/>
 				<stat_view label="Temps (ms)" name="simperf">
-					<stat_bar label="Durée totale de l'image" name="simframemsec"/>
+					<stat_bar label="Durée totale de l&apos;image" name="simframemsec"/>
 					<stat_bar label="Durée nette" name="simnetmsec"/>
 					<stat_bar label="Durée sim (physique)" name="simsimphysicsmsec"/>
 					<stat_bar label="Durée sim (autre)" name="simsimothermsec"/>

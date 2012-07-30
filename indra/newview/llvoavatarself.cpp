@@ -795,7 +795,7 @@ void LLVOAvatarSelf::stopMotionFromSource(const LLUUID& source_id)
 	LLViewerObject* object = gObjectList.findObject(source_id);
 	if (object)
 	{
-		object->mFlags &= ~FLAGS_ANIM_SOURCE;
+		object->setFlagsWithoutUpdate(FLAGS_ANIM_SOURCE, FALSE);
 	}
 }
 
@@ -2812,7 +2812,7 @@ void LLVOAvatarSelf::deleteScratchTextures()
 		 namep; 
 		 namep = sScratchTexNames.getNextData() )
 	{
-		LLImageGL::deleteTextures(1, (U32 *)namep );
+		LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, 0, -1, 1, (U32 *)namep );
 		stop_glerror();
 	}
 

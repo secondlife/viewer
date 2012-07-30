@@ -494,6 +494,15 @@ Consulter [_URL] pour en savoir plus ?
 		</url>
 		<usetemplate ignoretext="Mon matériel n&apos;est pas pris en charge" name="okcancelignore" notext="Non" yestext="Oui"/>
 	</notification>
+	<notification name="IntelOldDriver">
+		Il existe probablement un pilote plus récent pour votre puce graphique. La mise à jour des pilotes graphiques est susceptible d&apos;améliorer considérablement les performances.
+
+    Visiter la page [_URL] pour rechercher d&apos;éventuelles mises à jour de pilotes ?
+		<url name="url">
+			http://www.intel.com/p/fr_FR/support/detect/graphics
+		</url>
+		<usetemplate ignoretext="Mon pilote graphique est obsolète." name="okcancelignore" notext="Non" yestext="Oui"/>
+	</notification>
 	<notification name="UnknownGPU">
 		Votre système contient une carte graphique que [APP_NAME] ne reconnaît pas.
 Cela est souvent le cas avec le nouveau matériel qui n&apos;a pas encore été testé avec [APP_NAME].  Cela ne posera probablement pas de problème, mais vous devrez peut-être ajuster vos paramètres graphiques.
@@ -2614,16 +2623,12 @@ Acceptez-vous ?
 		</form>
 	</notification>
 	<notification name="ScriptQuestionCaution">
-		Un objet nommé &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, appartenant à [NAME], aimerait :
-
-[QUESTIONS]
-Si vous n&apos;avez pas confiance en cet objet ni en son créateur, refusez cette requête.
-
-Accepter cette requête ?
+		Avertissement : l&apos;objet &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt; souhaite un accès total à votre compte en Linden dollars. Si vous autorisez cet accès, il pourra supprimer des fonds de votre compte à tout moment ou le vider entièrement de façon continue sans avis préalable.
+  
+Il est rare qu&apos;une telle demande soit légitime. N&apos;autorisez pas cet accès si vous ne comprenez pas entièrement pourquoi l&apos;objet souhaite accéder à votre compte.
 		<form name="form">
-			<button name="Grant" text="Accepter"/>
+			<button name="Grant" text="Permettre un accès total"/>
 			<button name="Deny" text="Refuser"/>
-			<button name="Details" text="Détails..."/>
 		</form>
 	</notification>
 	<notification name="ScriptDialog">
@@ -3122,4 +3127,15 @@ Sinon, consultez la carte et trouvez les &quot; infohubs &quot;.
 	<global name="You died and have been teleported to your home location">
 		Vous êtes mort et avez été téléporté à votre domicile.
 	</global>
+	<notification name="LocalBitmapsUpdateFileNotFound">
+		Impossible de mettre à jour [FNAME] car le fichier est introuvable.
+Désactivation des mises à jour futures de ce fichier...
+	</notification>
+	<notification name="LocalBitmapsUpdateFailedFinal">
+		[NRETRIES] tentatives d&apos;ouverture ou de décodage de [FNAME] ont échoué. Le fichier est désormais considéré comme endommagé.
+Désactivation des mises à jour futures de ce fichier...
+	</notification>
+	<notification name="LocalBitmapsVerifyFail">
+		Tentative d&apos;ajout d&apos;un fichier image [FNAME] non valide ou illisible n&apos;ayant pas pu être ouvert ou décodé. Tentative annulée.
+	</notification>
 </notifications>

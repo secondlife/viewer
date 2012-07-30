@@ -69,6 +69,7 @@ if (WINDOWS)
       /Oy-
       /Zc:wchar_t-
       /arch:SSE2
+      /fp:fast
       )
      
   # Are we using the crummy Visual Studio KDU build workaround?

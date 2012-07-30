@@ -520,6 +520,7 @@ Disregard128DefaultDrawDistance	1	0
 list ATIOldDriver
 RenderAvatarVP				0	0
 RenderAvatarCloth			0	0
+RenderVBOEnable				1	0
 
 // ATI cards generally perform better when not using VBOs for streaming data
 

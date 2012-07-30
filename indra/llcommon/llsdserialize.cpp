@@ -55,6 +55,10 @@ static const char LEGACY_NON_HEADER[] = "<llsd>";
 const std::string LLSD_BINARY_HEADER("LLSD/Binary");
 const std::string LLSD_XML_HEADER("LLSD/XML");
 
+//used to deflate a gzipped asset (currently used for navmeshes)
+#define windowBits 15
+#define ENABLE_ZLIB_GZIP 32
+
 /**
  * LLSDSerialize
  */
@@ -2096,7 +2100,7 @@ bool unzip_llsd(LLSD& data, std::istream& is, S32 size)
 	strm.next_in = in;
 
 	S32 ret = inflateInit(&strm);
-
+	
 	do
 	{
 		strm.avail_out = CHUNK;
@@ -2159,12 +2163,87 @@ bool unzip_llsd(LLSD& data, std::istream& is, S32 size)
 			llwarns << "Failed to unzip LLSD block" << llendl;
 			free(result);
 			return false;
-		}
+		}		
 	}
 
 	free(result);
 	return true;
 }
+//This unzip function will only work with a gzip header and trailer - while the contents
+//of the actual compressed data is the same for either format (gzip vs zlib ), the headers
+//and trailers are different for the formats.
+U8* unzip_llsdNavMesh( bool& valid, unsigned int& outsize, std::istream& is, S32 size )
+{
+	U8* result = NULL;
+	U32 cur_size = 0;
+	z_stream strm;
+		
+	const U32 CHUNK = 0x4000;
 
+	U8 *in = new U8[size];
+	is.read((char*) in, size); 
+
+	U8 out[CHUNK];
+		
+	strm.zalloc = Z_NULL;
+	strm.zfree = Z_NULL;
+	strm.opaque = Z_NULL;
+	strm.avail_in = size;
+	strm.next_in = in;
+
+	
+	S32 ret = inflateInit2(&strm,  windowBits | ENABLE_ZLIB_GZIP );
+	do
+	{
+		strm.avail_out = CHUNK;
+		strm.next_out = out;
+		ret = inflate(&strm, Z_NO_FLUSH);
+		if (ret == Z_STREAM_ERROR)
+		{
+			inflateEnd(&strm);
+			free(result);
+			delete [] in;
+			valid = false;
+		}
+		
+		switch (ret)
+		{
+		case Z_NEED_DICT:
+			ret = Z_DATA_ERROR;
+		case Z_DATA_ERROR:
+		case Z_MEM_ERROR:
+			inflateEnd(&strm);
+			free(result);
+			delete [] in;
+			valid = false;
+			break;
+		}
+
+		U32 have = CHUNK-strm.avail_out;
+
+		result = (U8*) realloc(result, cur_size + have);
+		memcpy(result+cur_size, out, have);
+		cur_size += have;
+
+	} while (ret == Z_OK);
+
+	inflateEnd(&strm);
+	delete [] in;
+
+	if (ret != Z_STREAM_END)
+	{
+		free(result);
+		valid = false;
+		return NULL;
+	}
+
+	//result now points to the decompressed LLSD block
+	{
+		outsize= cur_size;
+		valid = true;		
+	}
+
+	return result;
+}
 
 

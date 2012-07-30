@@ -134,6 +134,7 @@
          top_pad="2"
          max_length="1023"
          name="pick_desc"
+         spellcheck="true"
          text_color="black"
          word_wrap="true" />
         <text

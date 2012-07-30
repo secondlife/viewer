@@ -1488,6 +1488,10 @@ bool LLNotifications::loadTemplates()
 			{
 				replaceFormText(notification.form_ref.form, "$canceltext", notification.form_ref.form_template.cancel_text);
 			}
+			if(notification.form_ref.form_template.help_text.isProvided())
+			{
+				replaceFormText(notification.form_ref.form, "$helptext", notification.form_ref.form_template.help_text);
+			}
 			if(notification.form_ref.form_template.ignore_text.isProvided())
 			{
 				replaceFormText(notification.form_ref.form, "$ignoretext", notification.form_ref.form_template.ignore_text);

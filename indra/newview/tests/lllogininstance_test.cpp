@@ -114,8 +114,9 @@ LLGridManager::~LLGridManager()
 {
 }
 
-void LLGridManager::addGrid(LLSD& grid_data)
+bool LLGridManager::addGrid(LLSD& grid_data)
 {
+	return true;
 }
 LLGridManager::LLGridManager()
 :
@@ -136,7 +137,7 @@ void LLGridManager::addSystemGrid(const std::string& label,
 								  const std::string& login_id)
 {
 }
-std::map<std::string, std::string> LLGridManager::getKnownGrids(bool favorite_only)
+std::map<std::string, std::string> LLGridManager::getKnownGrids()
 {
 	std::map<std::string, std::string> result;
 	return result;
@@ -151,8 +152,6 @@ bool LLGridManager::isInProductionGrid()
 	return false;
 }
 
-void LLGridManager::saveFavorites()
-{}
 std::string LLGridManager::getSLURLBase(const std::string& grid_name)
 {
 	return "myslurl";

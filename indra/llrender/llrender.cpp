@@ -408,12 +408,14 @@ void LLTexUnit::unbind(eTextureType type)
 
 	if (mIndex < 0) return;
 
+	//always flush and activate for consistency 
+	//   some code paths assume unbind always flushes and sets the active texture
+	gGL.flush();
+	activate();
+
 	// Disabled caching of binding state.
 	if (mCurrTexType == type)
 	{
-		gGL.flush();
-
-		activate();
 		mCurrTexture = 0;
 		if (LLGLSLShader::sNoFixedFunction && type == LLTexUnit::TT_TEXTURE)
 		{
@@ -464,11 +466,25 @@ void LLTexUnit::setTextureFilteringOption(LLTexUnit::eTextureFilterOptions optio
 	} 
 	else if (option >= TFO_BILINEAR)
 	{
-		glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		if (mHasMipMaps)
+		{
+			glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+		}
+		else
+		{
+			glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		}
 	}
 	else
 	{
-		glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		if (mHasMipMaps)
+		{
+			glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+		}
+		else
+		{
+			glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		}
 	}
 
 	if (gGLManager.mHasAnisotropic)

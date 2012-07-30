@@ -116,6 +116,7 @@ LLDrawPool::LLDrawPool(const U32 type)
 	sNumDrawPools++;
 	mId = sNumDrawPools;
 	mVertexShaderLevel = 0;
+	mSkipRender = false;
 }
 
 LLDrawPool::~LLDrawPool()
@@ -251,48 +252,6 @@ void LLFacePool::destroy()
 
 void LLFacePool::dirtyTextures(const std::set<LLViewerFetchedTexture*>& textures)
 {
-}
-
-// static
-S32 LLFacePool::drawLoop(face_array_t& face_list)
-{
-	S32 res = 0;
-	if (!face_list.empty())
-	{
-		for (std::vector<LLFace*>::iterator iter = face_list.begin();
-			 iter != face_list.end(); iter++)
-		{
-			LLFace *facep = *iter;
-			res += facep->renderIndexed();
-		}
-	}
-	return res;
-}
-
-// static
-S32 LLFacePool::drawLoopSetTex(face_array_t& face_list, S32 stage)
-{
-	S32 res = 0;
-	if (!face_list.empty())
-	{
-		for (std::vector<LLFace*>::iterator iter = face_list.begin();
-			 iter != face_list.end(); iter++)
-		{
-			LLFace *facep = *iter;
-			gGL.getTexUnit(stage)->bind(facep->getTexture(), TRUE) ;
-			gGL.getTexUnit(0)->activate();
-			res += facep->renderIndexed();
-		}
-	}
-	return res;
-}
-
-void LLFacePool::drawLoop()
-{
-	if (!mDrawFace.empty())
-	{
-		drawLoop(mDrawFace);
-	}
 }
 
 void LLFacePool::enqueue(LLFace* facep)
@@ -442,7 +401,7 @@ void LLRenderPass::renderTexture(U32 type, U32 mask)
 
 void LLRenderPass::pushBatches(U32 type, U32 mask, BOOL texture, BOOL batch_textures)
 {
-	for (LLCullResult::drawinfo_list_t::iterator i = gPipeline.beginRenderMap(type); i != gPipeline.endRenderMap(type); ++i)	
+	for (LLCullResult::drawinfo_iterator i = gPipeline.beginRenderMap(type); i != gPipeline.endRenderMap(type); ++i)	
 	{
 		LLDrawInfo* pparams = *i;
 		if (pparams) 

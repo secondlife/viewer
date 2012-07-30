@@ -14,8 +14,11 @@
 					<stat_bar label="Pro Sek. gezeichnete KTris" name="ktrissec"/>
 					<stat_bar label="Objektanzahl" name="objs"/>
 					<stat_bar label="Neue Objekte" name="newobjs"/>
+					<stat_bar label="Objektcache-Trefferrate" name="object_cache_hits"/>
 				</stat_view>
 				<stat_view label="Textur" name="texture">
+					<stat_bar label="Cache-Trefferrate" name="texture_cache_hits"/>
+					<stat_bar label="Cache-Leselatenz" name="texture_cache_read_latency"/>
 					<stat_bar label="Zählen" name="numimagesstat"/>
 					<stat_bar label="Rohanzahl" name="numrawimagesstat"/>
 					<stat_bar label="GL Sp" name="gltexmemstat"/>
