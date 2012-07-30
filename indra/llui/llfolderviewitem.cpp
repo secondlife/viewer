@@ -1552,8 +1552,8 @@ BOOL LLFolderViewFolder::addFolder(LLFolderViewFolder* folder)
 	requestSort();
 
 	getViewModelItem()->addChild(folder->getViewModelItem());
-
-	folder->getViewModelItem()->dirtyFilter();
+  //After addChild since addChild assigns parent to bubble up to when calling dirtyFilter
+  folder->getViewModelItem()->dirtyFilter();
 
 	return TRUE;
 }
