@@ -812,7 +812,7 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, BOOL drop,
 	if (!handled)
 	{
 		// Disallow drag and drop to 3D from the outbox
-		const LLUUID outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false, false);
+		const LLUUID outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
 		if (outbox_id.notNull())
 		{
 			for (S32 item_index = 0; item_index < (S32)mCargoIDs.size(); item_index++)

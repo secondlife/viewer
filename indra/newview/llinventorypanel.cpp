@@ -55,7 +55,7 @@ static LLDefaultChildRegistry::Register<LLInventoryPanel> r("inventory_panel");
 const std::string LLInventoryPanel::DEFAULT_SORT_ORDER = std::string("InventorySortOrder");
 const std::string LLInventoryPanel::RECENTITEMS_SORT_ORDER = std::string("RecentItemsSortOrder");
 const std::string LLInventoryPanel::INHERIT_SORT_ORDER = std::string("");
-static const LLInventoryFVBridgeBuilder INVENTORY_BRIDGE_BUILDER;
+static const LLInventoryFolderViewModelBuilder INVENTORY_BRIDGE_BUILDER;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLInventoryPanelObserver
@@ -140,7 +140,7 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
 {
 	mInvFVBridgeBuilder = &INVENTORY_BRIDGE_BUILDER;
 
-	// contex menu callbacks
+	// context menu callbacks
 	mCommitCallbackRegistrar.add("Inventory.DoToSelected", boost::bind(&LLInventoryPanel::doToSelected, this, _2));
 	mCommitCallbackRegistrar.add("Inventory.EmptyTrash", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyTrash", LLFolderType::FT_TRASH));
 	mCommitCallbackRegistrar.add("Inventory.EmptyLostAndFound", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyLostAndFound", LLFolderType::FT_LOST_AND_FOUND));
@@ -151,71 +151,60 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
 
 }
 
-void LLInventoryPanel::buildFolderView(const LLInventoryPanel::Params& params)
-{
-	// Determine the root folder in case specified, and
-	// build the views starting with that folder.
-	
-	std::string start_folder_name(params.start_folder());
-	
-	const LLFolderType::EType preferred_type = LLViewerFolderType::lookupTypeFromNewCategoryName(start_folder_name);
-
-	LLUUID root_id;
-
-	if ("LIBRARY" == params.start_folder())
-	{
-		root_id = gInventory.getLibraryRootFolderID();
-	}
-	else
-	{
-		root_id = (preferred_type != LLFolderType::FT_NONE)
-				? gInventory.findCategoryUUIDForType(preferred_type, false, false) 
-				: LLUUID::null;
-	}
-	
-	if ((root_id == LLUUID::null) && !start_folder_name.empty())
-	{
-		llwarns << "No category found that matches start_folder: " << start_folder_name << llendl;
-		root_id = LLUUID::generateNewID();
-	}
-	
-	LLInvFVBridge* new_listener = mInvFVBridgeBuilder->createBridge(LLAssetType::AT_CATEGORY,
-																	LLAssetType::AT_CATEGORY,
-																	LLInventoryType::IT_CATEGORY,
-																	this,
-																	&mInventoryViewModel,
-																	NULL,
-																	root_id);
-	
-	mFolderRoot = createFolderView(new_listener, params.use_label_suffix());
-	addItemID(root_id, mFolderRoot);
-}
 
 void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 {
+	// save off copy of params
+	mParams = params;
 	// Clear up the root view
 	// Note: This needs to be done *before* we build the new folder view 
-	LLFolderViewItem* root_view = getItemByID(gInventory.getRootFolderID());
-	if (root_view)
+	LLUUID root_id = getRootFolderID();
+	if (mFolderRoot)
 	{
-		removeItemID(static_cast<LLFolderViewModelItemInventory*>(root_view->getViewModelItem())->getUUID());
-		root_view->destroyView();
+		removeItemID(root_id);
+		mFolderRoot->destroyView();
+		mFolderRoot = NULL;
 	}
 
 	LLMemType mt(LLMemType::MTYPE_INVENTORY_POST_BUILD);
-
+	
 	mCommitCallbackRegistrar.pushScope(); // registered as a widget; need to push callback scope ourselves
-	
-	buildFolderView(params);
+	{
+		// Determine the root folder in case specified, and
+		// build the views starting with that folder.
 
+
+		LLFolderView::Params p(mParams.folder_view);
+		p.name = getName();
+		p.title = getLabel();
+		p.rect = LLRect(0, 0, getRect().getWidth(), 0);
+		p.parent_panel = this;
+		p.tool_tip = p.name;
+		p.listener = mInvFVBridgeBuilder->createBridge(	LLAssetType::AT_CATEGORY,
+														LLAssetType::AT_CATEGORY,
+														LLInventoryType::IT_CATEGORY,
+														this,
+														&mInventoryViewModel,
+														NULL,
+														root_id);
+		p.view_model = &mInventoryViewModel;
+		p.use_label_suffix = mParams.use_label_suffix;
+		p.allow_multiselect = mAllowMultiSelect;
+		p.show_empty_message = mShowEmptyMessage;
+		p.show_item_link_overlays = mShowItemLinkOverlays;
+		p.root = NULL;
+
+		mFolderRoot = LLUICtrlFactory::create<LLFolderView>(p);
+		
+		addItemID(root_id, mFolderRoot);
+	} 	
 	mCommitCallbackRegistrar.popScope();
-	
 	mFolderRoot->setCallbackRegistrar(&mCommitCallbackRegistrar);
 	
 	// Scroller
 	LLRect scroller_view_rect = getRect();
 	scroller_view_rect.translate(-scroller_view_rect.mLeft, -scroller_view_rect.mBottom);
-	LLScrollContainer::Params scroller_params(params.scroll());
+	LLScrollContainer::Params scroller_params(mParams.scroll());
 	scroller_params.rect(scroller_view_rect);
 	mScroller = LLUICtrlFactory::create<LLFolderViewScrollContainer>(scroller_params);
 	addChild(mScroller);
@@ -263,7 +252,7 @@ void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 	mClipboardState = LLClipboard::instance().getGeneration();
 	
 	// Initialize base class params.
-	LLPanel::initFromParams(params);
+	LLPanel::initFromParams(mParams);
 }
 
 LLInventoryPanel::~LLInventoryPanel()
@@ -562,7 +551,40 @@ LLFolderView* LLInventoryPanel::getRootFolder()
 
 LLUUID LLInventoryPanel::getRootFolderID()
 {
-	return static_cast<LLFolderViewModelItemInventory*>(mFolderRoot->getViewModelItem())->getUUID();
+	if (mFolderRoot && mFolderRoot->getViewModelItem())
+	{
+		return static_cast<LLFolderViewModelItemInventory*>(mFolderRoot->getViewModelItem())->getUUID();
+
+	}
+	else
+	{
+		LLUUID root_id;
+		if (mParams.start_folder.id.isChosen())
+		{
+			root_id = mParams.start_folder.id;
+		}
+		else
+		{
+			const LLFolderType::EType preferred_type = mParams.start_folder.type.isChosen() 
+				? mParams.start_folder.type
+				: LLViewerFolderType::lookupTypeFromNewCategoryName(mParams.start_folder.name);
+
+			if ("LIBRARY" == mParams.start_folder.name())
+			{
+				root_id = gInventory.getLibraryRootFolderID();
+			}
+			else if (preferred_type != LLFolderType::FT_NONE)
+			{
+				root_id = gInventory.findCategoryUUIDForType(preferred_type, false);
+				if (root_id.isNull())
+				{
+					llwarns << "Could not find folder of type " << preferred_type << llendl;
+					root_id.generateNewID();
+				}
+			}
+		}
+		return root_id;
+	}
 }
 
 
@@ -612,7 +634,16 @@ void LLInventoryPanel::initializeViews()
 {
 	if (!gInventory.isInventoryUsable()) return;
 
-	buildNewViews(gInventory.getRootFolderID());
+	LLUUID root_id = getRootFolderID();
+	if (root_id.notNull())
+	{
+		buildNewViews(getRootFolderID());
+	}
+	else
+	{
+		buildNewViews(gInventory.getRootFolderID());
+		buildNewViews(gInventory.getLibraryRootFolderID());
+	}
 
 	gIdleCallbacks.addFunction(idle, this);
 
@@ -639,34 +670,10 @@ void LLInventoryPanel::initializeViews()
 	}
 }
 
-LLFolderView * LLInventoryPanel::createFolderView(LLInvFVBridge * bridge, bool useLabelSuffix)
-{
-	LLRect folder_rect(0,
-					   0,
-					   getRect().getWidth(),
-					   0);
-
-	LLFolderView::Params p;
-	
-	p.name = getName();
-	p.title = getLabel();
-	p.rect = folder_rect;
-	p.parent_panel = this;
-	p.tool_tip = p.name;
-	p.listener = bridge;
-	p.view_model = &mInventoryViewModel;
-	p.use_label_suffix = useLabelSuffix;
-	p.allow_multiselect = mAllowMultiSelect;
-	p.show_empty_message = mShowEmptyMessage;
-	p.show_item_link_overlays = mShowItemLinkOverlays;
-	p.root = NULL;
-
-	return LLUICtrlFactory::create<LLFolderView>(p);
-}
 
 LLFolderViewFolder * LLInventoryPanel::createFolderViewFolder(LLInvFVBridge * bridge)
 {
-	LLFolderViewFolder::Params params;
+	LLFolderViewFolder::Params params(mParams.folder);
 
 	params.name = bridge->getDisplayName();
 	params.root = mFolderRoot;
@@ -678,7 +685,7 @@ LLFolderViewFolder * LLInventoryPanel::createFolderViewFolder(LLInvFVBridge * br
 
 LLFolderViewItem * LLInventoryPanel::createFolderViewItem(LLInvFVBridge * bridge)
 {
-	LLFolderViewItem::Params params;
+	LLFolderViewItem::Params params(mParams.item);
 	
 	params.name = bridge->getDisplayName();
 	params.creation_date = bridge->getCreationDate();
@@ -1329,3 +1336,34 @@ LLInventoryRecentItemsPanel::LLInventoryRecentItemsPanel( const Params& params)
 	mInvFVBridgeBuilder = &RECENT_ITEMS_BUILDER;
 }
 
+namespace LLInitParam
+{
+	void TypeValues<LLFolderType::EType>::declareValues()
+	{
+		declare(LLFolderType::lookup(LLFolderType::FT_TEXTURE)          , LLFolderType::FT_TEXTURE);
+		declare(LLFolderType::lookup(LLFolderType::FT_SOUND)            , LLFolderType::FT_SOUND);
+		declare(LLFolderType::lookup(LLFolderType::FT_CALLINGCARD)      , LLFolderType::FT_CALLINGCARD);
+		declare(LLFolderType::lookup(LLFolderType::FT_LANDMARK)         , LLFolderType::FT_LANDMARK);
+		declare(LLFolderType::lookup(LLFolderType::FT_CLOTHING)         , LLFolderType::FT_CLOTHING);
+		declare(LLFolderType::lookup(LLFolderType::FT_OBJECT)           , LLFolderType::FT_OBJECT);
+		declare(LLFolderType::lookup(LLFolderType::FT_NOTECARD)         , LLFolderType::FT_NOTECARD);
+		declare(LLFolderType::lookup(LLFolderType::FT_ROOT_INVENTORY)   , LLFolderType::FT_ROOT_INVENTORY);
+		declare(LLFolderType::lookup(LLFolderType::FT_LSL_TEXT)         , LLFolderType::FT_LSL_TEXT);
+		declare(LLFolderType::lookup(LLFolderType::FT_BODYPART)         , LLFolderType::FT_BODYPART);
+		declare(LLFolderType::lookup(LLFolderType::FT_TRASH)            , LLFolderType::FT_TRASH);
+		declare(LLFolderType::lookup(LLFolderType::FT_SNAPSHOT_CATEGORY), LLFolderType::FT_SNAPSHOT_CATEGORY);
+		declare(LLFolderType::lookup(LLFolderType::FT_LOST_AND_FOUND)   , LLFolderType::FT_LOST_AND_FOUND);
+		declare(LLFolderType::lookup(LLFolderType::FT_ANIMATION)        , LLFolderType::FT_ANIMATION);
+		declare(LLFolderType::lookup(LLFolderType::FT_GESTURE)          , LLFolderType::FT_GESTURE);
+		declare(LLFolderType::lookup(LLFolderType::FT_FAVORITE)         , LLFolderType::FT_FAVORITE);
+		declare(LLFolderType::lookup(LLFolderType::FT_ENSEMBLE_START)   , LLFolderType::FT_ENSEMBLE_START);
+		declare(LLFolderType::lookup(LLFolderType::FT_ENSEMBLE_END)     , LLFolderType::FT_ENSEMBLE_END);
+		declare(LLFolderType::lookup(LLFolderType::FT_CURRENT_OUTFIT)   , LLFolderType::FT_CURRENT_OUTFIT);
+		declare(LLFolderType::lookup(LLFolderType::FT_OUTFIT)           , LLFolderType::FT_OUTFIT);
+		declare(LLFolderType::lookup(LLFolderType::FT_MY_OUTFITS)       , LLFolderType::FT_MY_OUTFITS);
+		declare(LLFolderType::lookup(LLFolderType::FT_MESH )            , LLFolderType::FT_MESH );
+		declare(LLFolderType::lookup(LLFolderType::FT_INBOX)            , LLFolderType::FT_INBOX);
+		declare(LLFolderType::lookup(LLFolderType::FT_OUTBOX)           , LLFolderType::FT_OUTBOX);
+		declare(LLFolderType::lookup(LLFolderType::FT_BASIC_ROOT)       , LLFolderType::FT_BASIC_ROOT);
+	}
+}

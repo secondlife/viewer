@@ -185,15 +185,15 @@ protected:
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Class LLInvFVBridgeBuilder
+// Class LLInventoryFolderViewModelBuilder
 //
-// This class intended to build Folder View Bridge via LLInvFVBridge::createBridge.
-// It can be overridden with another way of creation necessary Inventory-Folder-View-Bridge.
+// This class intended to build Folder View Model via LLInvFVBridge::createBridge.
+// It can be overridden with another way of creation necessary Inventory Folder View Models.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-class LLInventoryFVBridgeBuilder
+class LLInventoryFolderViewModelBuilder
 {
 public:
- 	virtual ~LLInventoryFVBridgeBuilder() {}
+ 	virtual ~LLInventoryFolderViewModelBuilder() {}
 	virtual LLInvFVBridge* createBridge(LLAssetType::EType asset_type,
 										LLAssetType::EType actual_asset_type,
 										LLInventoryType::EType inv_type,
@@ -637,7 +637,7 @@ public:
 };
 
 // Bridge builder to create Inventory-Folder-View-Bridge for Recent Inventory Panel
-class LLRecentInventoryBridgeBuilder : public LLInventoryFVBridgeBuilder
+class LLRecentInventoryBridgeBuilder : public LLInventoryFolderViewModelBuilder
 {
 public:
 	// Overrides FolderBridge for Recent Inventory Panel.
