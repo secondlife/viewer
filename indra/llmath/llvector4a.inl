@@ -475,6 +475,7 @@ inline void LLVector4a::setLerp(const LLVector4a& lhs, const LLVector4a& rhs, F3
 inline LLBool32 LLVector4a::isFinite3() const
 {
 	static LL_ALIGN_16(const U32 nanOrInfMask[4]) = { 0x7f800000, 0x7f800000, 0x7f800000, 0x7f800000 };
+	ll_assert_aligned(nanOrInfMask,16);
 	const __m128i nanOrInfMaskV = *reinterpret_cast<const __m128i*> (nanOrInfMask);
 	const __m128i maskResult = _mm_and_si128( _mm_castps_si128(mQ), nanOrInfMaskV );
 	const LLVector4Logical equalityCheck = _mm_castsi128_ps(_mm_cmpeq_epi32( maskResult, nanOrInfMaskV ));

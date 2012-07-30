@@ -14,8 +14,11 @@
 					<stat_bar label="秒ごとの KTris 描画" name="ktrissec"/>
 					<stat_bar label="オブジェクト合計" name="objs"/>
 					<stat_bar label="新規オブジェクト" name="newobjs"/>
+					<stat_bar label="オブジェクトキャッシュヒット率" name="object_cache_hits"/>
 				</stat_view>
 				<stat_view label="テクスチャ" name="texture">
+					<stat_bar label="キャッシュヒット率" name="texture_cache_hits"/>
+					<stat_bar label="キャッシュ読み取り遅延" name="texture_cache_read_latency"/>
 					<stat_bar label="カウント" name="numimagesstat"/>
 					<stat_bar label="Raw カウント" name="numrawimagesstat"/>
 					<stat_bar label="GL メモリ" name="gltexmemstat"/>

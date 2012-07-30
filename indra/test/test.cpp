@@ -181,13 +181,16 @@ public:
 	virtual void run_started()
 	{
 		//std::cout << "run_started" << std::endl;
+		LL_INFOS("TestRunner")<<"Test Started"<< LL_ENDL;
 	}
 
 	virtual void group_started(const std::string& name) {
+		LL_INFOS("TestRunner")<<"Unit test group_started name=" << name << LL_ENDL;
 		*mStream << "Unit test group_started name=" << name << std::endl;
 	}
 
 	virtual void group_completed(const std::string& name) {
+		LL_INFOS("TestRunner")<<"Unit test group_completed name=" << name << LL_ENDL;
 		*mStream << "Unit test group_completed name=" << name << std::endl;
 	}
 
@@ -245,9 +248,11 @@ public:
 			if(!tr.message.empty())
 			{
 				*mStream << ": '" << tr.message << "'";
+				LL_WARNS("TestRunner") << "not ok : "<<tr.message << LL_ENDL;
 			}
 			*mStream << std::endl;
 		}
+		LL_INFOS("TestRunner")<<out.str()<<LL_ENDL;
 	}
 
 	virtual int getFailedTests() const { return mFailedTests; }
@@ -451,6 +456,13 @@ void stream_usage(std::ostream& s, const char* app)
 	s << "\tList all available test groups." << std::endl;
 	s << "  " << app << " --group=uuid" << std::endl;
 	s << "\tRun the test group 'uuid'." << std::endl;
+
+	s << "\n\n"
+	  << "In any event, logs are recorded in the build directory by appending\n"
+	  << "the suffix '.log' to the full path name of this application.\n"
+	  << "If no level is specified as described above, these log files are at\n"
+	  << "DEBUG level.\n"
+		;
 }
 
 void stream_groups(std::ostream& s, const char* app)
@@ -477,17 +489,24 @@ int main(int argc, char **argv)
 #ifndef LL_WINDOWS
 	::testing::InitGoogleMock(&argc, argv);
 #endif
-	LLError::initForApplication(".");
-	LLError::setFatalFunction(wouldHaveCrashed);
-	LLError::setDefaultLevel(LLError::LEVEL_ERROR);
-	// ^ possibly overridden by --debug, LOGTEST or LOGFAIL
-
 	// LOGTEST overrides default, but can be overridden by --debug or LOGFAIL.
 	const char* LOGTEST = getenv("LOGTEST");
 	if (LOGTEST)
 	{
+		LLError::initForApplication(".", true /* log to stderr */);
 		LLError::setDefaultLevel(LLError::decodeLevel(LOGTEST));
 	}
+	else
+	{
+		LLError::initForApplication(".", false /* do not log to stderr */);
+		LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
+	}	
+	LLError::setFatalFunction(wouldHaveCrashed);
+	LLError::setPrintLocation(true);
+	std::string test_app_name(argv[0]);
+	std::string test_log = test_app_name + ".log";
+	LLFile::remove(test_log);
+	LLError::logToFile(test_log);
 
 #ifdef CTYPE_WORKAROUND
 	ctype_workaround();

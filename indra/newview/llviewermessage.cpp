@@ -134,6 +134,7 @@ static const U32 LLREQUEST_PERMISSION_THROTTLE_LIMIT	= 5;     // requests
 static const F32 LLREQUEST_PERMISSION_THROTTLE_INTERVAL	= 10.0f; // seconds
 
 extern BOOL gDebugClicks;
+extern bool gShiftFrame;
 
 // function prototypes
 bool check_offer_throttle(const std::string& from_name, bool check_only);
@@ -3930,6 +3931,7 @@ void process_avatar_init_complete(LLMessageSystem* msg, void**)
 
 void process_agent_movement_complete(LLMessageSystem* msg, void**)
 {
+	gShiftFrame = true;
 	gAgentMovementCompleted = true;
 
 	LLUUID agent_id;
@@ -4853,6 +4855,18 @@ void process_sim_stats(LLMessageSystem *msg, void **user_data)
 		case LL_SIM_STAT_IOPUMPTIME:
 			LLViewerStats::getInstance()->mSimPumpIOMsec.addValue(stat_value);
 			break;
+		case LL_SIM_STAT_PCTSCRIPTSRUN:
+			LLViewerStats::getInstance()->mSimPctScriptsRun.addValue(stat_value);
+			break;
+		case LL_SIM_STAT_SIMAISTEPTIMEMS:
+			LLViewerStats::getInstance()->mSimSimAIStepMsec.addValue(stat_value);
+			break;
+		case LL_SIM_STAT_SKIPPEDAISILSTEPS_PS:
+			LLViewerStats::getInstance()->mSimSimSkippedSilhouetteSteps.addValue(stat_value);
+			break;
+		case LL_SIM_STAT_PCTSTEPPEDCHARACTERS:
+			LLViewerStats::getInstance()->mSimSimPctSteppedCharacters.addValue(stat_value);
+			break;
 		default:
 			// Used to be a commented out warning.
  			LL_DEBUGS("Messaging") << "Unknown stat id" << stat_id << LL_ENDL;
@@ -4962,7 +4976,7 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 				LLViewerObject* object = gObjectList.findObject(object_id);
 				if (object)
 				{
-					object->mFlags |= FLAGS_ANIM_SOURCE;
+					object->setFlagsWithoutUpdate(FLAGS_ANIM_SOURCE, TRUE);
 
 					BOOL anim_found = FALSE;
 					LLVOAvatar::AnimSourceIterator anim_it = avatarp->mAnimationSources.find(object_id);
@@ -5109,7 +5123,7 @@ void process_set_follow_cam_properties(LLMessageSystem *mesgsys, void **user_dat
 	LLViewerObject* objectp = gObjectList.findObject(source_id);
 	if (objectp)
 	{
-		objectp->mFlags |= FLAGS_CAMERA_SOURCE;
+		objectp->setFlagsWithoutUpdate(FLAGS_CAMERA_SOURCE, TRUE);
 	}
 
 	S32 num_objects = mesgsys->getNumberOfBlocks("CameraProperty");

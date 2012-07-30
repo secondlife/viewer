@@ -56,6 +56,7 @@
 #include "llnavigationbar.h" // to show/hide navigation bar when changing mouse look state
 #include "llnearbychatbar.h"
 #include "llnotificationsutil.h"
+#include "llpanelpathfindingrebakenavmesh.h"
 #include "llpaneltopinfobar.h"
 #include "llparcel.h"
 #include "llrendersphere.h"
@@ -343,6 +344,7 @@ LLAgent::LLAgent() :
 	mbTeleportKeepsLookAt(false),
 
 	mAgentAccess(new LLAgentAccess(gSavedSettings)),
+	mGodLevelChangeSignal(),
 	mCanEditParcel(false),
 	mTeleportSourceSLURL(new LLSLURL),
 	mTeleportRequest(),
@@ -2000,6 +2002,7 @@ void LLAgent::endAnimationUpdateUI()
 		LLChicletBar::getInstance()->setVisible(TRUE);
 
 		LLPanelStandStopFlying::getInstance()->setVisible(TRUE);
+		LLPanelPathfindingRebakeNavmesh::getInstance()->setVisible(TRUE);
 
 		LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
 
@@ -2109,6 +2112,7 @@ void LLAgent::endAnimationUpdateUI()
 		LLChicletBar::getInstance()->setVisible(FALSE);
 
 		LLPanelStandStopFlying::getInstance()->setVisible(FALSE);
+		LLPanelPathfindingRebakeNavmesh::getInstance()->setVisible(FALSE);
 
 		// clear out camera lag effect
 		gAgentCamera.clearCameraLag();
@@ -2794,6 +2798,12 @@ void LLAgent::setAdminOverride(BOOL b)
 void LLAgent::setGodLevel(U8 god_level)	
 { 
 	mAgentAccess->setGodLevel(god_level);
+	mGodLevelChangeSignal(god_level);
+}
+
+LLAgent::god_level_change_slot_t LLAgent::registerGodLevelChanageListener(god_level_change_callback_t pGodLevelChangeCallback)
+{
+	return mGodLevelChangeSignal.connect(pGodLevelChangeCallback);
 }
 
 const LLAgentAccess& LLAgent::getAgentAccess()

@@ -871,6 +871,9 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="ScriptQuestionCautionChatDenied">
 		A &apos;[OBJECTNAME]&apos;, un objeto propiedad de &apos;[OWNERNAME]&apos;, localizado en [REGIONNAME] con la posición [REGIONPOS], se le ha denegado el permiso para: [PERMISSIONS].
 	</string>
+	<string name="AdditionalPermissionsRequestHeader">
+		Si autorizas el acceso a tu cuenta, también permitirás al objeto:
+	</string>
 	<string name="ScriptTakeMoney">
 		Cogerle a usted dólares Linden (L$)
 	</string>
@@ -903,6 +906,9 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	</string>
 	<string name="ControlYourCamera">
 		Controlar su cámara
+	</string>
+	<string name="TeleportYourAgent">
+		Teleportarte
 	</string>
 	<string name="SIM_ACCESS_PG">
 		General

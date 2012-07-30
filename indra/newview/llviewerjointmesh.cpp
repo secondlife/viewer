@@ -729,8 +729,10 @@ void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_w
 				F32* vw = (F32*) vertex_weightsp.get();
 				F32* cw = (F32*) clothing_weightsp.get();	
 
-				LLVector4a::memcpyNonAliased16(tc, (F32*) mMesh->getTexCoords(), num_verts*2*sizeof(F32));
-				LLVector4a::memcpyNonAliased16(vw, (F32*) mMesh->getWeights(), num_verts*sizeof(F32));	
+				S32 tc_size = (num_verts*2*sizeof(F32)+0xF) & ~0xF;
+				LLVector4a::memcpyNonAliased16(tc, (F32*) mMesh->getTexCoords(), tc_size);
+				S32 vw_size = (num_verts*sizeof(F32)+0xF) & ~0xF;	
+				LLVector4a::memcpyNonAliased16(vw, (F32*) mMesh->getWeights(), vw_size);	
 				LLVector4a::memcpyNonAliased16(cw, (F32*) mMesh->getClothingWeights(), num_verts*4*sizeof(F32));	
 			}
 

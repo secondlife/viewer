@@ -226,11 +226,10 @@
 			<menu_item_check label="Painel de textura" name="Texture Console"/>
 			<menu_item_check label="Console de depuração" name="Debug Console"/>
 			<menu_item_call label="Painel de avisos" name="Notifications"/>
-			<menu_item_check label="Painel de tamanho de textura" name="Texture Size"/>
-			<menu_item_check label="Painel de texturas" name="Texture Category"/>
 			<menu_item_check label="Tempos" name="Fast Timers"/>
 			<menu_item_check label="Memória" name="Memory"/>
 			<menu_item_check label="Estatísticas da cena" name="Scene Statistics"/>
+			<menu_item_call label="Painel de depuração de obtenção de textura" name="Texture Fetch Debug Console"/>
 			<menu_item_call label="Region Info to Debug Console" name="Region Info to Debug Console"/>
 			<menu_item_check label="Câmera:" name="Camera"/>
 			<menu_item_check label="Vento" name="Wind"/>
@@ -271,6 +270,12 @@
 			<menu_item_check label="Renderizar complexidade" name="rendercomplexity"/>
 			<menu_item_check label="Bytes do anexo" name="attachment bytes"/>
 			<menu_item_check label="Esculpir" name="Sculpt"/>
+			<menu label="Densidade da textura" name="Texture Density">
+				<menu_item_check label="Nenhuma" name="None"/>
+				<menu_item_check label="Atual" name="Current"/>
+				<menu_item_check label="Desejada" name="Desired"/>
+				<menu_item_check label="Completa" name="Full"/>
+			</menu>
 		</menu>
 		<menu label="Rendering" name="Rendering">
 			<menu_item_check label="Axes" name="Axes"/>
