@@ -31,7 +31,6 @@
 #include "llcommandlineparser.h"
 
 #include "lldiriterator.h"
-#include "llmemtype.h"
 #include "llurldispatcher.h"		// SLURL from other app instance
 #include "llviewernetwork.h"
 #include "llviewercontrol.h"
@@ -71,8 +70,6 @@ static void exceptionTerminateHandler()
 
 int main( int argc, char **argv ) 
 {
-	LLMemType mt1(LLMemType::MTYPE_STARTUP);
-
 #if LL_SOLARIS && defined(__sparc)
 	asm ("ta\t6");		 // NOTE:  Make sure memory alignment is enforced on SPARC
 #endif
