@@ -1492,8 +1492,6 @@ BOOL LLFolderViewFolder::addItem(LLFolderViewItem* item)
 	item->setVisible(FALSE);
 	
 	addChild(item);
-	
-	item->getViewModelItem()->dirtyFilter();
 
 	// TODO RN - port creation date management to new code location
 #if 0
@@ -1531,6 +1529,8 @@ BOOL LLFolderViewFolder::addItem(LLFolderViewItem* item)
 	//	parentp = parentp->getParentFolder();
 	//}
 
+	item->getViewModelItem()->dirtyFilter();
+
 	return TRUE;
 }
 
@@ -1547,12 +1547,13 @@ BOOL LLFolderViewFolder::addFolder(LLFolderViewFolder* folder)
 	folder->reshape(getRect().getWidth(), 0);
 	folder->setVisible(FALSE);
 	addChild( folder );
-	folder->getViewModelItem()->dirtyFilter();
 	// rearrange all descendants too, as our indentation level might have changed
 	folder->requestArrange();
 	requestSort();
 
 	getViewModelItem()->addChild(folder->getViewModelItem());
+
+	folder->getViewModelItem()->dirtyFilter();
 
 	return TRUE;
 }
