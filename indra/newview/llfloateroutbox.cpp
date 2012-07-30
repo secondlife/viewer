@@ -174,9 +174,8 @@ void LLFloaterOutbox::onOpen(const LLSD& key)
 	if (mOutboxId.isNull())
 	{
 		const bool do_not_create_folder = false;
-		const bool do_not_find_in_library = false;
 		
-		const LLUUID outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, do_not_create_folder, do_not_find_in_library);
+		const LLUUID outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, do_not_create_folder);
 		
 		if (outbox_id.isNull())
 		{

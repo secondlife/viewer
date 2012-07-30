@@ -61,6 +61,7 @@ public:
 													item_top_pad;
 
 		Optional<time_t>							creation_date;
+		Optional<bool>								allow_open;
 
 		Params();
 	};
@@ -92,14 +93,11 @@ protected:
 	bool						mLabelWidthDirty;
 	LLFolderViewFolder*			mParentFolder;
 	LLFolderViewModelItem*		mViewModelItem;
-	BOOL						mIsCurSelection;
-	BOOL						mSelectPending;
 	LLFontGL::StyleFlags		mLabelStyle;
 	std::string					mLabelSuffix;
 	LLUIImagePtr				mIcon;
 	LLUIImagePtr				mIconOpen;
 	LLUIImagePtr				mIconOverlay;
-	BOOL						mHasVisibleChildren;
 	S32							mIndentation;
 	S32							mItemHeight;
 	S32							mDragStartX,
@@ -109,8 +107,12 @@ protected:
 	//std::string::size_type		mStringMatchOffset;
 	F32							mControlLabelRotation;
 	LLFolderView*				mRoot;
-	BOOL						mDragAndDropTarget;
+	bool						mHasVisibleChildren;
+	bool						mIsCurSelection;
+	bool						mDragAndDropTarget;
 	bool						mIsMouseOverTitle;
+	bool						mAllowOpen;
+	bool						mSelectPending;
 
 	// this is an internal method used for adding items to folders. A
 	// no-op at this level, but reimplemented in derived classes.

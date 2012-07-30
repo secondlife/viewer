@@ -89,7 +89,8 @@ LLFolderViewItem::Params::Params()
 	selection_image("selection_image"),
 	item_height("item_height"),
 	item_top_pad("item_top_pad"),
-	creation_date()
+	creation_date(),
+	allow_open("allow_open", true)
 {}
 
 // Default constructor
@@ -112,7 +113,8 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 	mLabel(p.name),
 	mRoot(p.root),
 	mViewModelItem(p.listener),
-	mIsMouseOverTitle(false)
+	mIsMouseOverTitle(false),
+	mAllowOpen(p.allow_open)
 {
 	if (mViewModelItem)
 	{
@@ -404,7 +406,10 @@ void LLFolderViewItem::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 void LLFolderViewItem::openItem( void )
 {
+	if (mAllowOpen)
+	{
 	getViewModelItem()->openItem();
+}
 }
 
 void LLFolderViewItem::rename(const std::string& new_name)
@@ -517,7 +522,7 @@ BOOL LLFolderViewItem::handleHover( S32 x, S32 y, MASK mask )
 
 BOOL LLFolderViewItem::handleDoubleClick( S32 x, S32 y, MASK mask )
 {
-	getViewModelItem()->openItem();
+	openItem();
 	return TRUE;
 }
 
@@ -1553,7 +1558,7 @@ BOOL LLFolderViewFolder::addFolder(LLFolderViewFolder* folder)
 
 	getViewModelItem()->addChild(folder->getViewModelItem());
   //After addChild since addChild assigns parent to bubble up to when calling dirtyFilter
-  folder->getViewModelItem()->dirtyFilter();
+	folder->getViewModelItem()->dirtyFilter();
 
 	return TRUE;
 }

@@ -231,11 +231,12 @@ public:
 	// Returns the uuid of the category that specifies 'type' as what it 
 	// defaults to containing. The category is not necessarily only for that type. 
 	//    NOTE: If create_folder is true, this will create a new inventory category 
-	//    on the fly if one does not exist. *NOTE: if find_in_library is true it 
-	//    will search in the user's library folder instead of "My Inventory"
+	//    on the fly if one does not exist. 
 	const LLUUID findCategoryUUIDForType(LLFolderType::EType preferred_type, 
-										 bool create_folder = true, 
-										 bool find_in_library = false);
+										 bool create_folder = true);
+	//    will search in the user's library folder instead of "My Inventory"
+	const LLUUID findLibraryCategoryUUIDForType(LLFolderType::EType preferred_type, 
+												bool create_folder = true);
 	
 	// Get whatever special folder this object is a child of, if any.
 	const LLViewerInventoryCategory *getFirstNondefaultParent(const LLUUID& obj_id) const;

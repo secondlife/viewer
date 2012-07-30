@@ -58,11 +58,6 @@ LLPlacesInventoryPanel::~LLPlacesInventoryPanel()
 	delete mSavedFolderState;
 }
 
-void LLPlacesInventoryPanel::buildFolderView(const LLInventoryPanel::Params& params)
-{
-	LLInventoryPanel::buildFolderView(params);
-}
-
 // save current folder open state
 void LLPlacesInventoryPanel::saveFolderState()
 {
