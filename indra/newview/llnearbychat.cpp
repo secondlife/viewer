@@ -419,6 +419,35 @@ void LLNearbyChat::show()
 	setVisible(TRUE);
 }
 
+bool LLNearbyChat::isChatVisible() const
+{
+	bool isVisible = false;
+
+	if (isChatMultiTab())
+	{
+		LLIMFloaterContainer* im_box = LLIMFloaterContainer::getInstance();
+		// Is the IM floater container ever null?
+		llassert(im_box != NULL);
+		if (im_box != NULL)
+		{
+			if (gSavedSettings.getBOOL("NearbyChatIsNotTornOff"))
+			{
+				isVisible = (im_box->getVisible() && !im_box->isMinimized());
+			}
+			else
+			{
+				isVisible = (getVisible() && !isMinimized());
+			}
+		}
+	}
+	else
+	{
+		isVisible = (getVisible() && !isMinimized());
+	}
+
+	return isVisible;
+}
+
 void LLNearbyChat::showHistory()
 {
 	openFloater();

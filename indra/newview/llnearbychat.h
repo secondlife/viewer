@@ -66,6 +66,7 @@ public:
 
 	void addToHost();
 	void show();
+	bool isChatVisible() const;
 
 	/** @param archive true - to save a message to the chat history log */
 	void	addMessage			(const LLChat& message,bool archive = true, const LLSD &args = LLSD());
@@ -98,8 +99,6 @@ protected:
 	void onChatFontChange(LLFontGL* fontp);
 
 	/* virtual */ bool applyRectControl();
-
-	void onToggleNearbyChatPanel();
 
 	/*virtual*/ void onTearOffClicked();
 
