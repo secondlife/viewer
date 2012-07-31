@@ -418,6 +418,7 @@ void LLIMFloaterContainer::repositioningWidgets()
 		 widget_it++, ++index)
 	{
 		LLFolderViewItem* widget = widget_it->second;
+		widget->setVisible(TRUE);
 		widget->setRect(LLRect(0,
 							   panel_rect.getHeight() - item_height*index,
 							   panel_rect.getWidth(),
@@ -461,7 +462,7 @@ void LLIMFloaterContainer::addConversationListItem(std::string name, const LLUUI
 	widget->setVisible(TRUE);
 
 	repositioningWidgets();
-
+	
 	mConversationsListPanel->addChild(widget);
 
 	return;
