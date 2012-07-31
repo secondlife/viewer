@@ -83,11 +83,11 @@ public:
 
 	// New Virtual functions
 	virtual F32					getTotalDistortion() = 0;
-	virtual const LLVector3&	getAvgDistortion() = 0;
+	virtual const LLVector4a&	getAvgDistortion() = 0;
 	virtual F32					getMaxDistortion() = 0;
-	virtual LLVector3			getVertexDistortion(S32 index, LLPolyMesh *mesh) = 0;
-	virtual const LLVector3*	getFirstDistortion(U32 *index, LLPolyMesh **mesh) = 0;
-	virtual const LLVector3*	getNextDistortion(U32 *index, LLPolyMesh **mesh) = 0;
+	virtual LLVector4a			getVertexDistortion(S32 index, LLPolyMesh *mesh) = 0;
+	virtual const LLVector4a*	getFirstDistortion(U32 *index, LLPolyMesh **mesh) = 0;
+	virtual const LLVector4a*	getNextDistortion(U32 *index, LLPolyMesh **mesh) = 0;
 	
 	// interface methods
 	F32					getDisplayOrder() const		{ return getInfo()->mEditGroupDisplayOrder; }

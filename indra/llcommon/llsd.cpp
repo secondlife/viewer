@@ -269,6 +269,7 @@ namespace
 		virtual LLSD::UUID		asUUID() const	{ return LLUUID(mValue); }
 		virtual LLSD::Date		asDate() const	{ return LLDate(mValue); }
 		virtual LLSD::URI		asURI() const	{ return LLURI(mValue); }
+		virtual int				size() const	{ return mValue.size(); }
 	};
 	
 	LLSD::Integer	ImplString::asInteger() const

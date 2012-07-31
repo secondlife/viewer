@@ -45,7 +45,7 @@ const S32 PARCEL_UNIT_AREA			= 16;
 const F32 PARCEL_HEIGHT = 50.f;
 
 //Height above ground which parcel boundries exist for explicitly banned avatars
-const F32 BAN_HEIGHT = 768.f;
+const F32 BAN_HEIGHT = 5000.f;
 
 // Maximum number of entries in an access list
 const S32 PARCEL_MAX_ACCESS_LIST = 300;

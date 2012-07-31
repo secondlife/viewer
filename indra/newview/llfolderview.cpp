@@ -562,7 +562,6 @@ void LLFolderView::reshape(S32 width, S32 height, BOOL called_from_parent)
 	{
 		width = scroll_rect.getWidth();
 	}
-
 	LLView::reshape(width, height, called_from_parent);
 	mReshapeSignal(mSelectedItems, FALSE);
 }
@@ -2236,12 +2235,16 @@ void LLFolderView::doIdle()
 		arrangeAll();
 	}
 
+	mNeedsAutoSelect = mFilter->hasFilterString() &&
+							!(gFocusMgr.childHasKeyboardFocus(this) || gFocusMgr.getMouseCapture());
+
+		
 	if (mFilter->isModified() && mFilter->isNotDefault())
 	{
 		mNeedsAutoSelect = TRUE;
 	}
 	mFilter->clearModified();
-
+			
 	// filter to determine visibility before arranging
 	filterFromRoot();
 

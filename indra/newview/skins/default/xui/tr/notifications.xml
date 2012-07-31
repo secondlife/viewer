@@ -495,6 +495,15 @@ Daha fazla bilgi için [_URL] adresini ziyaret etmek ister misiniz?
 		</url>
 		<usetemplate ignoretext="Bilgisayar donanımım desteklenmiyor" name="okcancelignore" notext="Hayır" yestext="Evet"/>
 	</notification>
+	<notification name="IntelOldDriver">
+		Grafik yonganız için muhtemelen daha yeni bir sürücü mevcut.  Grafik sürücüleri güncellemek performansınızı kayda değer şekilde artırabilir.
+
+    Sürücü güncellemeleri için [_URL] adresini ziyaret etmek ister misiniz?
+		<url name="url">
+			http://www.intel.com/p/en_US/support/detect/graphics
+		</url>
+		<usetemplate ignoretext="Grafik sürücüm güncel değil" name="okcancelignore" notext="Hayır" yestext="Evet"/>
+	</notification>
 	<notification name="UnknownGPU">
 		Sisteminiz [APP_NAME] uygulamasının tanımadığı bir grafik kartı içeriyor.
 Bu durum genellikle [APP_NAME] uygulaması ile henüz denenmemiş yeni donanımlar kullanıldığında ortaya çıkar.  Büyük olasılıkla bir sorun çıkmayacaktır, fakat grafik ayarlarınızı değiştirmeniz gerekebilir.
@@ -2614,16 +2623,12 @@ Kabul ediyor musunuz?
 		</form>
 	</notification>
 	<notification name="ScriptQuestionCaution">
-		&apos;[NAME]&apos; adlı kişiye ait &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; adındaki bir nesne şunu yapmak istiyor:
-
-[QUESTIONS]
-Bu nesneye ya da onu oluşturan kişiye güvenmiyorsanız, bu talebi reddetmelisiniz.
-
-Talep kabul edilsin mi?
+		Uyarı: &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; nesnesi, Linden Dolar hesabınıza tam erişim istiyor. Eğer erişime izin verirseniz, süregelen bir şekilde, ilave uyarı olmaksızın, hesabınızdan herhangi bir zamanda fon çekebilir veya hesabınızı tamamen boşaltabilir.
+  
+Bu türden bir talebin yerinde olması nadir bir durumdur. Eğer hesabınıza neden erişmek istediğini tam olarak anlamıyorsanız, erişime izin vermeyin.
 		<form name="form">
-			<button name="Grant" text="Kabul Et"/>
+			<button name="Grant" text="Tam erişime izin ver"/>
 			<button name="Deny" text="Reddet"/>
-			<button name="Details" text="Ayrıntılar..."/>
 		</form>
 	</notification>
 	<notification name="ScriptDialog">
@@ -3122,4 +3127,16 @@ Bir araziye sahip değilseniz, Harita&apos;ya bakıp &quot;Bilgi İstasyonu&quot
 	<global name="You died and have been teleported to your home location">
 		Hayatınızı kaybettiniz ve ana konumunuza ışınlandınız.
 	</global>
+	<notification name="LocalBitmapsUpdateFileNotFound">
+		[FNAME] güncellenemedi çünkü bu dosya artık bulunamıyor.
+Bundan sonra bu dosya için güncellemeler devre dışı bırakılacak.
+	</notification>
+	<notification name="LocalBitmapsUpdateFailedFinal">
+		[NRETRIES] girişimde [FNAME] açılamadı veya şifresi çözülemedi, bu dosya artık bozuk olarak değerlendiriliyor.
+Bundan sonra bu dosya için güncellemeler devre dışı bırakılacak.
+	</notification>
+	<notification name="LocalBitmapsVerifyFail">
+		Geçersiz veya okunamayan bir görüntü dosyası [FNAME] eklenmeye kalkışıldı, ancak dosya açılamadı veya şifresi çözülemedi.
+Girişim iptal edildi.
+	</notification>
 </notifications>

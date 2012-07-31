@@ -1007,7 +1007,14 @@ BOOL LLToolDragAndDrop::handleDropTextureProtections(LLViewerObject* hit_obj,
 			}
 		}
 		// Add the texture item to the target object's inventory.
-		hit_obj->updateInventory(new_item, TASK_INVENTORY_ITEM_KEY, true);
+		if (LLAssetType::AT_TEXTURE == new_item->getType())
+		{
+			hit_obj->updateTextureInventory(new_item, TASK_INVENTORY_ITEM_KEY, true);
+		}
+		else
+		{
+			hit_obj->updateInventory(new_item, TASK_INVENTORY_ITEM_KEY, true);
+		}
  		// TODO: Check to see if adding the item was successful; if not, then
 		// we should return false here.
 	}
@@ -1022,7 +1029,14 @@ BOOL LLToolDragAndDrop::handleDropTextureProtections(LLViewerObject* hit_obj,
 		// *FIX: may want to make sure agent can paint hit_obj.
 
 		// Add the texture item to the target object's inventory.
-		hit_obj->updateInventory(new_item, TASK_INVENTORY_ITEM_KEY, true);
+		if (LLAssetType::AT_TEXTURE == new_item->getType())
+		{
+			hit_obj->updateTextureInventory(new_item, TASK_INVENTORY_ITEM_KEY, true);
+		}
+		else
+		{
+			hit_obj->updateInventory(new_item, TASK_INVENTORY_ITEM_KEY, true);
+		}
 		// Force the object to update its refetch its inventory so it has this texture.
 		hit_obj->fetchInventoryFromServer();
  		// TODO: Check to see if adding the item was successful; if not, then

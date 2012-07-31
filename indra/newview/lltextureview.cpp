@@ -510,7 +510,7 @@ void LLGLTexMemBar::draw()
 	F32 discard_bias = LLViewerTexture::sDesiredDiscardBias;
 	F32 cache_usage = (F32)BYTES_TO_MEGA_BYTES(LLAppViewer::getTextureCache()->getUsage()) ;
 	F32 cache_max_usage = (F32)BYTES_TO_MEGA_BYTES(LLAppViewer::getTextureCache()->getMaxUsage()) ;
-	S32 line_height = (S32)(LLFontGL::getFontMonospace()->getLineHeight() + .5f);
+	S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
 	S32 v_offset = 0;//(S32)((texture_bar_height + 2.2f) * mTextureView->mNumTextureBars + 2.0f);
 	F32 total_texture_downloaded = (F32)gTotalTextureBytes / (1024 * 1024);
 	F32 total_object_downloaded = (F32)gTotalObjectBytes / (1024 * 1024);

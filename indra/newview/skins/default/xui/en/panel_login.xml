@@ -1,216 +1,205 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
-follows="all"
-height="600"
-layout="topleft"
-left="0"
-name="panel_login"
-focus_root="true" 
-top="600"
- width="996">
-<panel.string
-     name="create_account_url">
-       http://join.secondlife.com/
-</panel.string>
-<string name="reg_in_client_url" translate="false">
-     http://secondlife.eniac15.lindenlab.com/reg-in-client/
-</string>
-<panel.string
-     name="forgot_password_url">
-       http://secondlife.com/account/request.php
-</panel.string>
-<!-- *NOTE: Custom resize logic for login_html in llpanellogin.cpp -->
-<web_browser
-  tab_stop="false" 
-  trusted_content="true" 
-  bg_opaque_color="Black"
-  border_visible="false"
-  bottom="600"
-  follows="all"
-  left="0"
-  name="login_html"
-  start_url=""
-  top="0"
-  height="600"
-  width="980"/>
-<layout_stack
-follows="left|bottom|right"
-name="login_widgets"
-layout="topleft"
-orientation="horizontal"
-top="519"
-width="996"
-height="80">
-<layout_panel
-auto_resize="false"
-follows="left|bottom"
-name="login"
-layout="topleft"
-width="705"
-min_width="705"
-height="80">
-<text
-follows="left|bottom"
-font="SansSerifSmall"
-height="16"
-name="username_text"
-top="20"
-left="20"
-width="150">
-Username:
-</text>
-<combo_box
-allow_text_entry="true"
-follows="left|bottom"
-height="22"
-left_delta="0"
-max_chars="128"
-combo_editor.prevalidate_callback="ascii"
-tool_tip="The username you chose when you registered, like bobsmith12 or Steller Sunshine"
-top_pad="0"
-name="username_combo"
-width="178">
-  <combo_box.combo_button
-   visible ="false"/>
-  <combo_box.drop_down_button
-   visible ="false"/>
-</combo_box>
-<text
-follows="left|bottom"
-font="SansSerifSmall"
-height="15"
-left_pad="-19"
-name="password_text"
-top="20"
-    width="150">
-       Password:
-</text>
-<line_editor
-follows="left|bottom"
-  height="22"
-  max_length_bytes="16"
-name="password_edit"
-is_password="true" 
-select_on_focus="true"
-  top_pad="0"
-  width="135" />
- <check_box
-control_name="RememberPassword"
-follows="left|bottom"
-font="SansSerifSmall"
-height="16"
-label="Remember password"
-  top_pad="3"
-  name="remember_check"
- width="135" />
-<button
-  follows="left|bottom"
-  height="23"
-  image_unselected="PushButton_On"
-  image_selected="PushButton_On_Selected"
-  label="Log In"
-  label_color="White"
-  layout="topleft"
-  left_pad="10"
-  name="connect_btn"
-  top="35"
-  width="90" />
-  <text
-  follows="left|bottom"
-  font="SansSerifSmall"
-  height="15"
-  left_pad="8"
-  name="start_location_text"
-  top="20"
-  width="130">
-       Start at:
- </text>
-<combo_box
-allow_text_entry="true"
-control_name="NextLoginLocation"
-  follows="left|bottom"
-  height="23"
-max_chars="128"
-top_pad="0"
-name="start_location_combo"
-     width="165">
-<combo_box.item
-label="My last location"
-name="MyLastLocation"
-         value="last" />
-<combo_box.item
-label="My home"
-name="MyHome"
-         value="home" />
-<combo_box.item
-label="&lt;Type region name&gt;"
-name="Typeregionname"   value="" />
-</combo_box>
-<combo_box
-allow_text_entry="true"
-font="SansSerifSmall"
-   follows="left|right|bottom"
-   height="23"
-   max_chars="256"
-layout="topleft"
-top_pad="2"
-name="server_combo"
-width="135"
-  visible="false" />
-</layout_panel>
-<layout_panel
-tab_stop="false"
-follows="right|bottom"
-name="links"
-width="205"
-min_width="205"
-height="80">
-   <text
-follows="right|bottom"
-font="SansSerifSmall"
-text_color="EmphasisColor"
-halign="right"
-height="16"
-top="12"
-right="-10"
-name="create_new_account_text"
-  width="200">
-       Sign up
- </text>
-<text
-follows="right|bottom"
-font="SansSerifSmall"
-text_color="EmphasisColor"
-halign="right"
-height="16"
-name="forgot_password_text"
-top_pad="12"
-right="-10"
-  width="200">
-       Forgot your username or password?
-</text>
-<text
-follows="right|bottom"
-font="SansSerifSmall"
-text_color="EmphasisColor"
-halign="right"
-height="16"
-name="login_help"
-top_pad="2"
-right="-10"
-    width="200">
-       Need help logging in?   </text>
-<!--  <text
-    follows="right|bottom"
-    font="SansSerifSmall"
-    halign="right"
-    height="28"
-    top_pad="2"
-    name="channel_text"
-    width="180"
-    word_wrap="true">
-       [VERSION]
-   </text>-->
-   </layout_panel>
-</layout_stack>
+    follows="all"
+    height="600"
+    layout="topleft"
+    left="0"
+    name="panel_login"
+    focus_root="true" 
+    top="600"
+    width="996">
+  <panel.string
+      name="create_account_url">
+    http://join.secondlife.com/
+  </panel.string>
+  <string name="reg_in_client_url" translate="false">
+    http://secondlife.eniac15.lindenlab.com/reg-in-client/
+  </string>
+  <panel.string
+      name="forgot_password_url">
+    http://secondlife.com/account/request.php
+  </panel.string>
+  <!-- *NOTE: Custom resize logic for login_html in llpanellogin.cpp -->
+  <web_browser
+      tab_stop="false" 
+      trusted_content="true" 
+      bg_opaque_color="Black"
+      border_visible="false"
+      bottom="600"
+      follows="all"
+      left="0"
+      name="login_html"
+      start_url=""
+      top="0"
+      height="600"
+      width="980"/>
+  <layout_stack
+      follows="left|bottom|right"
+      name="login_widgets"
+      layout="topleft"
+      orientation="horizontal"
+      top="519"
+      width="996"
+      height="80">
+    <layout_panel
+        auto_resize="false"
+        follows="left|bottom"
+        name="login"
+        layout="topleft"
+        width="705"
+        min_width="705"
+        height="80">
+      <text
+          follows="left|bottom"
+          font="SansSerifSmall"
+          height="16"
+          name="username_text"
+          top="20"
+          left="20"
+          width="150">
+        Username:
+      </text>
+      <combo_box
+          allow_text_entry="true"
+          follows="left|bottom"
+          height="22"
+          left_delta="0"
+          max_chars="128"
+          combo_editor.prevalidate_callback="ascii"
+          tool_tip="The username you chose when you registered, like bobsmith12 or Steller Sunshine"
+          top_pad="0"
+          name="username_combo"
+          width="178">
+        <combo_box.combo_button
+            visible ="false"/>
+        <combo_box.drop_down_button
+            visible ="false"/>
+      </combo_box>
+      <text
+          follows="left|bottom"
+          font="SansSerifSmall"
+          height="15"
+          left_pad="-19"
+          name="password_text"
+          top="20"
+          width="150">
+        Password:
+      </text>
+      <line_editor
+          follows="left|bottom"
+          height="22"
+          max_length_bytes="16"
+          name="password_edit"
+          is_password="true" 
+          select_on_focus="true"
+          top_pad="0"
+          width="135" />
+      <check_box
+          control_name="RememberPassword"
+          follows="left|bottom"
+          font="SansSerifSmall"
+          height="16"
+          label="Remember password"
+          top_pad="3"
+          name="remember_check"
+          width="135" />
+      <button
+          follows="left|bottom"
+          height="23"
+          image_unselected="PushButton_On"
+          image_selected="PushButton_On_Selected"
+          label="Log In"
+          label_color="White"
+          layout="topleft"
+          left_pad="10"
+          name="connect_btn"
+          top="35"
+          width="90" />
+      <text
+          follows="left|bottom"
+          font="SansSerifSmall"
+          height="15"
+          left_pad="8"
+          name="start_location_text"
+          top="20"
+          width="130">
+        Start at:
+      </text>
+      <combo_box
+          allow_text_entry="true"
+          control_name="NextLoginLocation"
+          follows="left|bottom"
+          height="23"
+          max_chars="128"
+          top_pad="0"
+          name="start_location_combo"
+          width="165">
+        <combo_box.item
+            label="My last location"
+            name="MyLastLocation"
+            value="last" />
+        <combo_box.item
+            label="My home"
+            name="MyHome"
+            value="home" />
+        <combo_box.item
+            label="&lt;Type region name&gt;"
+            name="Typeregionname"   value="" />
+      </combo_box>
+      <combo_box
+          allow_text_entry="false"
+          font="SansSerifSmall"
+          follows="left|right|bottom"
+          height="23"
+          max_chars="256"
+          layout="topleft"
+          top_pad="2"
+          name="server_combo"
+          width="250"
+          visible="false" />
+    </layout_panel>
+    <layout_panel
+        tab_stop="false"
+        follows="right|bottom"
+        name="links"
+        width="205"
+        min_width="205"
+        height="80">
+      <text
+          follows="right|bottom"
+          font="SansSerifSmall"
+          text_color="EmphasisColor"
+          halign="right"
+          height="16"
+          top="12"
+          right="-10"
+          name="create_new_account_text"
+          width="200">
+        Sign up
+      </text>
+      <text
+          follows="right|bottom"
+          font="SansSerifSmall"
+          text_color="EmphasisColor"
+          halign="right"
+          height="16"
+          name="forgot_password_text"
+          top_pad="12"
+          right="-10"
+          width="200">
+        Forgot your username or password?
+      </text>
+      <text
+          follows="right|bottom"
+          font="SansSerifSmall"
+          text_color="EmphasisColor"
+          halign="right"
+          height="16"
+          name="login_help"
+          top_pad="2"
+          right="-10"
+          width="200">
+      Need help logging in?   </text>
+    </layout_panel>
+  </layout_stack>
 </panel>

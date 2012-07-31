@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="TexFetchDebugger" title="Outil de débogage de la récupération des textures">
+	<text name="total_num_fetched_label">
+		1, nombre total de textures récupérées : [NUM]
+	</text>
+	<text name="total_num_fetching_requests_label">
+		2, nombre total de demandes de récupération : [NUM]
+	</text>
+	<text name="total_num_cache_hits_label">
+		3, nombre total de présences dans le cache : [NUM]
+	</text>
+	<text name="total_num_visible_tex_label">
+		4, nombre total de textures visibles : [NUM]
+	</text>
+	<text name="total_num_visible_tex_fetch_req_label">
+		5, nombre total de demandes de récupération de textures visibles : [NUM]
+	</text>
+	<text name="total_fetched_data_label">
+		6, nombre total de données récupérées : [SIZE1] Ko, données décodées : [SIZE2] Ko, [PIXEL] Mpixels
+	</text>
+	<text name="total_fetched_vis_data_label">
+		7, nombre total de données visibles : [SIZE1] Ko, données décodées : [SIZE2] Ko
+	</text>
+	<text name="total_fetched_rendered_data_label">
+		8, nombre total de données rendues : [SIZE1] Ko, données décodées : [SIZE2] Ko, [PIXEL] Mpixels
+	</text>
+	<text name="total_time_cache_read_label">
+		9, durée totale des lectures du cache : [TIME] secondes
+	</text>
+	<text name="total_time_cache_write_label">
+		10, durée totale des écritures du cache : [TIME] secondes
+	</text>
+	<text name="total_time_decode_label">
+		11, durée totale des décodages : [TIME] secondes
+	</text>
+	<text name="total_time_gl_label">
+		12, durée totale de la création de textures GL : [TIME] secondes
+	</text>
+	<text name="total_time_http_label">
+		13, durée totale de la récupération HTTP : [TIME] secondes
+	</text>
+	<text name="total_time_fetch_label">
+		14, durée totale de la récupération intégrale : [TIME] secondes
+	</text>
+	<text name="total_time_refetch_vis_cache_label">
+		15, nouvelle récupération des données visibles du cache, Durée : [TIME] secondes, Récupéré : [SIZE] Ko, [PIXEL] Mpixels
+	</text>
+	<text name="total_time_refetch_vis_http_label">
+		16, nouvelle récupération des données visibles de la requête HTTP, Durée : [TIME] secondes, Récupéré : [SIZE] Ko, [PIXEL] Mpixels
+	</text>
+	<spinner label="17, taux de texels/pixels :" name="texel_pixel_ratio"/>
+	<button label="Démarrer" name="start_btn"/>
+	<button label="Réinitialiser" name="clear_btn"/>
+	<button label="Fermer" name="close_btn"/>
+	<button label="Lecture du cache" name="cacheread_btn"/>
+	<button label="Écriture du cache" name="cachewrite_btn"/>
+	<button label="HTTP" name="http_btn"/>
+	<button label="Décoder" name="decode_btn"/>
+	<button label="Texture GL" name="gl_btn"/>
+	<button label="Récupérer à nouveau les données visibles du cache" name="refetchviscache_btn"/>
+	<button label="Récupérer à nouveau les données visibles de la requête HTTP" name="refetchvishttp_btn"/>
+</floater>

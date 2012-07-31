@@ -46,6 +46,7 @@
         left="0"
         max_length_bytes="1023"
         name="chat_box"
+        spellcheck="true"
         text_pad_left="5"
         text_pad_right="25"
         tool_tip="Press Enter to say, Ctrl+Enter to shout"

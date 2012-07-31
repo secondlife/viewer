@@ -1026,7 +1026,8 @@ void LLModel::setVolumeFaceData(
 
 	if (tc.get())
 	{
-		LLVector4a::memcpyNonAliased16((F32*) face.mTexCoords, (F32*) tc.get(), num_verts*2*sizeof(F32));
+		U32 tex_size = (num_verts*2*sizeof(F32)+0xF)&~0xF;
+		LLVector4a::memcpyNonAliased16((F32*) face.mTexCoords, (F32*) tc.get(), tex_size);
 	}
 	else
 	{
