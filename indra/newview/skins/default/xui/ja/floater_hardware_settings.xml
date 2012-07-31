@@ -25,6 +25,10 @@
 		VBO を有効化：
 	</text>
 	<check_box initial_value="true" label="OpenGL Vertex Buffer Objectsを有効化" name="vbo" tool_tip="最新のハードウェアでこの設定を有効にすると、パフォーマンスが向上します。  しかし、旧型のハードウェアでは VBO の実装が貧弱な場合が多く、この設定を有効にすることでクラッシュにつながるおそれがあります。"/>
+	<text name="tc label">
+		S3TC を有効にする：
+	</text>
+	<check_box initial_value="true" label="テクスチャ圧縮を有効にする（再起動が必要）" name="texture compression" tool_tip="ビデオメモリ内でテクスチャを圧縮することにより、色の質を多少犠牲にしながら、より高解像度のテクスチャを読み込めるようにします。"/>
 	<slider label="テクスチャメモリ（MB）：" name="GraphicsCardTextureMemory" tool_tip="テクスチャに割り当てられたメモリの量。 ビデオカードのメモリに既定。 数値を下げるとパフォーマンスが向上しますが、テクスチャの精度が落ちることがあります。"/>
 	<spinner label="フォグの距離比率：" name="fog"/>
 	<button label="OK" label_selected="OK" name="OK"/>

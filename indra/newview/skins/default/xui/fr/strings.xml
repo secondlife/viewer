@@ -886,6 +886,9 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="ScriptQuestionCautionChatDenied">
 		&apos;[OBJECTNAME]&apos;, un objet appartenant à [OWNERNAME], situé dans [REGIONNAME] à [REGIONPOS], n&apos;a pas reçu le droit de : [PERMISSIONS].
 	</string>
+	<string name="AdditionalPermissionsRequestHeader">
+		Si vous autorisez un accès à votre compte, vous autorisez également l&apos;objet à :
+	</string>
 	<string name="ScriptTakeMoney">
 		Débiter vos Linden dollars (L$)
 	</string>
@@ -918,6 +921,9 @@ Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="ControlYourCamera">
 		Contrôler votre caméra
+	</string>
+	<string name="TeleportYourAgent">
+		Vous téléporter
 	</string>
 	<string name="NotConnected">
 		Pas connecté(e)

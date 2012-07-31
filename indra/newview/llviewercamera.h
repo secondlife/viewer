@@ -51,9 +51,19 @@ const BOOL NOT_FOR_SELECTION = FALSE;
 extern template class LLViewerCamera* LLSingleton<class LLViewerCamera>::getInstance();
 #endif
 
+LL_ALIGN_PREFIX(16)
 class LLViewerCamera : public LLCamera, public LLSingleton<LLViewerCamera>
 {
 public:
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free_16(ptr);
+	}
 
 	typedef enum
 	{
@@ -137,6 +147,7 @@ protected:
 	S16					mZoomSubregion;
 
 public:
-};
+} LL_ALIGN_POSTFIX(16);
+
 
 #endif // LL_LLVIEWERCAMERA_H

@@ -1,24 +1,35 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="texture picker" title="TEXTUR AUSWÄHLEN">
-	<string name="choose_picture">
+	<floater.string name="choose_picture">
 		Zum Auswählen eines Bildes hier klicken
-	</string>
+	</floater.string>
+	<floater.string name="pick title">
+		Auswählen:
+	</floater.string>
 	<text name="Multiple">
 		Mehrere Texturen
 	</text>
+	<radio_group name="mode_selection">
+		<radio_item label="Inventar" name="inventory" value="0"/>
+		<radio_item label="Lokal" name="local" value="1"/>
+	</radio_group>
 	<text name="unknown">
 		Größe: [DIMENSIONS]
 	</text>
 	<button label="Standard" label_selected="Standard" name="Default"/>
-	<button label="Keine" label_selected="Keine" name="None"/>
 	<button label="Leer" label_selected="Leer" name="Blank"/>
-	<check_box label="Ordner anzeigen" name="show_folders_check"/>
-	<search_editor label="Texturen filtern" name="inventory search editor"/>
-	<check_box label="Jetzt übernehmen" name="apply_immediate_check"/>
+	<button label="Keine" label_selected="Keine" name="None"/>
 	<button label="" label_selected="" name="Pipette"/>
-	<button label="Abbrechen" label_selected="Abbrechen" name="Cancel"/>
+	<filter_editor label="Texturen filtern" name="inventory search editor"/>
+	<check_box initial_value="false" label="Ordner anzeigen" name="show_folders_check"/>
+	<button label="Hinzufügen" label_selected="Hinzufügen" name="l_add_btn"/>
+	<button label="Entfernen" label_selected="Entfernen" name="l_rem_btn"/>
+	<button label="Hochladen" label_selected="Hochladen" name="l_upl_btn"/>
+	<scroll_list name="l_name_list">
+		<column label="Name" name="unit_name"/>
+		<column label="ID" name="unit_id_HIDDEN"/>
+	</scroll_list>
 	<button label="OK" label_selected="OK" name="Select"/>
-	<text name="pick title">
-		Auswählen:
-	</text>
+	<button label="Abbrechen" label_selected="Abbrechen" name="Cancel"/>
+	<check_box initial_value="true" label="Jetzt übernehmen" name="apply_immediate_check"/>
 </floater>

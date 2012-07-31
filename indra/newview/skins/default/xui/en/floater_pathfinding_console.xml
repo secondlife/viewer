@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+    positioning="cascading"
+    can_tear_off="false"
+    height="498"
+    layout="topleft"
+    name="floater_pathfinding_console"
+    help_topic="floater_pathfinding_console"
+    reuse_instance="true"
+    save_rect="true"
+    single_instance="true"
+    title="Pathfinding view / test"
+    width="240">
+  <floater.string name="navmesh_viewer_status_unknown"></floater.string>
+  <floater.string name="navmesh_viewer_status_library_not_implemented">Cannot find pathing library implementation.</floater.string>
+  <floater.string name="navmesh_viewer_status_region_not_enabled">This region is not enabled for pathfinding.</floater.string>
+  <floater.string name="navmesh_viewer_status_region_loading">Waiting for the region to finish loading.</floater.string>
+  <floater.string name="navmesh_viewer_status_checking_version">Checking the status of the navmesh.</floater.string>
+  <floater.string name="navmesh_viewer_status_downloading">Downloading the navmesh.</floater.string>
+  <floater.string name="navmesh_viewer_status_updating">The navmesh has changed on the server. Downloading the latest navmesh.</floater.string>
+  <floater.string name="navmesh_viewer_status_has_navmesh">Latest navmesh has been downloaded.</floater.string>
+  <floater.string name="navmesh_viewer_status_error">Unable to download navmesh successfully.</floater.string>
+  <floater.string name="navmesh_simulator_status_unknown"></floater.string>
+  <floater.string name="navmesh_simulator_status_pending">Navmesh has pending changes.</floater.string>
+  <floater.string name="navmesh_simulator_status_building">Navmesh is building.</floater.string>
+  <floater.string name="navmesh_simulator_status_some_pending">Some navmesh regions have pending changes.</floater.string>
+  <floater.string name="navmesh_simulator_status_some_building">Some navmesh regions are building.</floater.string>
+  <floater.string name="navmesh_simulator_status_pending_and_building">Some navmesh regions have pending changes and others are building.</floater.string>
+  <floater.string name="navmesh_simulator_status_complete">Navmesh is up-to-date.</floater.string>
+  <floater.string name="pathing_unknown"></floater.string>
+  <floater.string name="pathing_library_not_implemented">Cannot find pathing library implementation.</floater.string>
+  <floater.string name="pathing_region_not_enabled">This region is not enabled for pathfinding.</floater.string>
+  <floater.string name="pathing_choose_start_and_end_points">Please choose start and end points.</floater.string>
+  <floater.string name="pathing_choose_start_point">Please choose start point.</floater.string>
+  <floater.string name="pathing_choose_end_point">Please choose end point.</floater.string>
+  <floater.string name="pathing_path_valid">Path is shown in orange.</floater.string>
+  <floater.string name="pathing_path_invalid">A path between the chosen points cannot be found.</floater.string>
+  <floater.string name="pathing_error">An error occurred during path generation.</floater.string>
+  <panel
+      border="false"
+      bevel_style="none"
+      follows="left|top"
+      layout="topleft"
+      left="12"
+      top_pad="10"
+      height="61"
+      width="214">
+    <text
+        height="13"
+        word_wrap="true"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        length="1"
+        layout="topleft"
+        left="0"
+        top_pad="0"
+        width="214">
+      Viewer status
+    </text>
+    <text
+        height="40"
+        word_wrap="true"
+        use_ellipses="false"
+        type="string"
+        text_color="PathfindingGoodColor"
+        length="1"
+        follows="left|top"
+        layout="topleft"
+        left="0"
+        name="pathfinding_viewer_status"
+        top_pad="8"
+        width="214">
+    </text>
+  </panel>
+  <panel
+      border="false"
+      bevel_style="none"
+      follows="left|top"
+      layout="topleft"
+      left="12"
+      height="66"
+      width="214">
+    <text
+        height="13"
+        word_wrap="true"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        length="1"
+        layout="topleft"
+        left="0"
+        top_pad="5"
+        width="214">
+      Simulator status
+    </text>
+    <text
+        height="40"
+        word_wrap="true"
+        use_ellipses="false"
+        type="string"
+        text_color="PathfindingGoodColor"
+        length="1"
+        follows="left|top"
+        layout="topleft"
+        left="0"
+        name="pathfinding_simulator_status"
+        top_pad="8"
+        width="214">
+    </text>
+  </panel>
+  <view_border
+      bevel_style="none"
+      follows="top|left"
+      layout="topleft"
+      left="12"
+      top="179"
+      height="305"
+      width="213"
+      visible="true" />
+  <tab_container
+      follows="left|top"
+      layout="topleft"
+      tab_position="top"
+      name="view_test_tab_container"
+      left="12"
+      top="157"
+      height="328"
+      width="214">
+    <panel
+        border="false"
+        bevel_style="none"
+        follows="left|top"
+        layout="topleft"
+        name="view_panel"
+        label="View">
+      <text
+          height="13"
+          word_wrap="true"
+          use_ellipses="false"
+          type="string"
+          text_color="LabelTextColor"
+          text_readonly_color="LabelDisabledColor"
+          name="show_label"
+          length="1"
+          follows="left|top"
+          layout="topleft"
+          top_pad="20"
+          left="12"
+          width="200">
+        Show:
+      </text>
+      <check_box
+          height="19"
+          label="World"
+          layout="topleft"
+          name="show_world"
+          top_pad="4"
+          width="90" />
+      <check_box
+          height="19"
+          label="Movables only"
+          layout="topleft"
+          left="32"
+          name="show_world_movables_only"
+          top_pad="4"
+          width="90" />
+      <check_box
+          height="19"
+          label="Navmesh"
+          left="12"
+          layout="topleft"
+          name="show_navmesh"
+          top_pad="7"
+          width="90" />
+      <text
+          height="13"
+          word_wrap="true"
+          use_ellipses="false"
+          type="string"
+          text_color="LabelTextColor"
+          text_readonly_color="LabelDisabledColor"
+          name="show_walkability_label"
+          length="1"
+          follows="left|top"
+          layout="topleft"
+          left="32"
+          width="180">
+        Show walkability map:
+      </text>
+      <combo_box
+          height="19"
+          layout="topleft"
+          left="32"
+          name="show_heatmap_mode"
+          top_pad="8"
+          width="156">
+        <combo_box.item
+            label="Do not show"
+            name="show_heatmap_mode_none"
+            value="0" />
+        <combo_box.item
+            label="Character type A"
+            name="show_heatmap_mode_a"
+            value="1" />
+        <combo_box.item
+            label="Character type B"
+            name="show_heatmap_mode_b"
+            value="2" />
+        <combo_box.item
+            label="Character type C"
+            name="show_heatmap_mode_c"
+            value="3" />
+        <combo_box.item
+            label="Character type D"
+            name="show_heatmap_mode_d"
+            value="4" />
+      </combo_box>
+      <check_box
+          height="19"
+          label="Walkables"
+          layout="topleft"
+          left="12"
+          name="show_walkables"
+          top_pad="10"
+          width="90" />
+      <check_box
+          height="19"
+          label="Material volumes"
+          layout="topleft"
+          name="show_material_volumes"
+          top_pad="4"
+          width="90" />
+      <check_box
+          height="19"
+          label="Static obstacles"
+          layout="topleft"
+          name="show_static_obstacles"
+          top_pad="4"
+          width="90" />
+      <check_box
+          height="19"
+          label="Exclusion volumes"
+          layout="topleft"
+          name="show_exclusion_volumes"
+          top_pad="4"
+          width="90" />
+      <check_box
+          height="19"
+          label="Water plane"
+          layout="topleft"
+          name="show_water_plane"
+          top_pad="4"
+          width="90" />
+      <check_box
+          height="19"
+          label="With X-ray vision"
+          layout="topleft"
+          name="show_xray"
+          top_pad="4"
+          width="90" />
+    </panel>
+    <panel
+        border="false"
+        bevel_style="none"
+        follows="left|top"
+        layout="topleft"
+        name="test_panel"
+        label="Test path">
+      <text
+          height="14"
+          word_wrap="true"
+          use_ellipses="false"
+          type="string"
+          text_color="LabelTextColor"
+          text_readonly_color="LabelDisabledColor"
+          name="ctrl_click_label"
+          length="1"
+          left="12"
+          follows="left|top"
+          layout="topleft"
+          top_pad="20"
+          width="202">
+        Ctrl-click to select start point.
+      </text>
+      <text
+          height="14"
+          word_wrap="true"
+          use_ellipses="false"
+          type="string"
+          text_color="LabelTextColor"
+          text_readonly_color="LabelDisabledColor"
+          name="shift_click_label"
+          length="1"
+          follows="left|top"
+          layout="topleft"
+          top_pad="5"
+          width="202">
+        Shift-click to select end point.
+      </text>
+      <view_border
+          bevel_style="none"
+          follows="top|left"
+          layout="topleft"
+          height="0"
+          width="185"
+          top_pad="13"
+          visible="true" />
+      <text
+          height="14"
+          word_wrap="true"
+          use_ellipses="false"
+          type="string"
+          text_color="LabelTextColor"
+          text_readonly_color="LabelDisabledColor"
+          name="character_width_label"
+          length="1"
+          follows="left|top"
+          layout="topleft"
+          top_pad="14"
+          width="202">
+        Character width
+      </text>
+      <slider
+          decimal_digits="1"
+          height="14"
+          increment="0.1"
+          layout="topleft"
+          follows="left|top"
+          max_val="2"
+          min_val="0.2"
+          name="character_width"
+          top_pad="5"
+          value="1"
+          width="145" />
+      <text
+          height="14"
+          word_wrap="false"
+          use_ellipses="false"
+          type="string"
+          text_color="LabelTextColor"
+          text_readonly_color="LabelDisabledColor"
+          name="character_width_unit_label"
+          length="1"
+          follows="left|top"
+          layout="topleft"
+          top_pad="-14"
+          left_pad="0"
+          width="20">
+        m
+      </text>
+      <text
+          height="14"
+          word_wrap="true"
+          use_ellipses="false"
+          type="string"
+          text_color="LabelTextColor"
+          text_readonly_color="LabelDisabledColor"
+          name="character_type_label"
+          length="1"
+          follows="left|top"
+          layout="topleft"
+          left_pad="-165"
+          top_pad="13"
+          width="202">
+        Character type
+      </text>
+      <combo_box
+          follows="top|left"
+          layout="topleft"
+          height="19"
+          width="156"
+          top_pad="5"
+          name="path_character_type">
+        <combo_box.item
+            label="None"
+            name="path_character_type_none"
+            value="0" />
+        <combo_box.item
+            label="A"
+            name="path_character_type_a"
+            value="1" />
+        <combo_box.item
+            label="B"
+            name="path_character_type_b"
+            value="2" />
+        <combo_box.item
+            label="C"
+            name="path_character_type_c"
+            value="3" />
+        <combo_box.item
+            label="D"
+            name="path_character_type_d"
+            value="4" />
+      </combo_box>
+      <text
+          height="14"
+          word_wrap="true"
+          use_ellipses="false"
+          type="string"
+          text_color="PathfindingGoodColor"
+          length="1"
+          follows="left|top"
+          layout="topleft"
+          name="path_test_status"
+          top_pad="11"
+          width="202">
+      </text>
+      <button
+          follows="left|top"
+          height="22"
+          label="Clear path"
+          layout="topleft"
+          name="clear_path"
+          top_pad="27"
+          width="96"/>
+    </panel>
+  </tab_container>
+</floater>

@@ -116,6 +116,7 @@ LLDrawPool::LLDrawPool(const U32 type)
 	sNumDrawPools++;
 	mId = sNumDrawPools;
 	mVertexShaderLevel = 0;
+	mSkipRender = false;
 }
 
 LLDrawPool::~LLDrawPool()

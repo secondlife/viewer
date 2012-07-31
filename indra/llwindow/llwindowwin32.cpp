@@ -1702,6 +1702,12 @@ void LLWindowWin32::initCursors()
 	mCursor[ UI_CURSOR_TOOLSIT ]	= LoadCursor(module, TEXT("TOOLSIT"));
 	mCursor[ UI_CURSOR_TOOLBUY ]	= LoadCursor(module, TEXT("TOOLBUY"));
 	mCursor[ UI_CURSOR_TOOLOPEN ]	= LoadCursor(module, TEXT("TOOLOPEN"));
+	mCursor[ UI_CURSOR_TOOLPATHFINDING ]	= LoadCursor(module, TEXT("TOOLPATHFINDING"));
+	mCursor[ UI_CURSOR_TOOLPATHFINDING_PATH_START_ADD ]	= LoadCursor(module, TEXT("TOOLPATHFINDINGPATHSTARTADD"));
+	mCursor[ UI_CURSOR_TOOLPATHFINDING_PATH_START ]	= LoadCursor(module, TEXT("TOOLPATHFINDINGPATHSTART"));
+	mCursor[ UI_CURSOR_TOOLPATHFINDING_PATH_END ]	= LoadCursor(module, TEXT("TOOLPATHFINDINGPATHEND"));
+	mCursor[ UI_CURSOR_TOOLPATHFINDING_PATH_END_ADD ]	= LoadCursor(module, TEXT("TOOLPATHFINDINGPATHENDADD"));
+	mCursor[ UI_CURSOR_TOOLNO ]	= LoadCursor(module, TEXT("TOOLNO"));
 
 	// Color cursors
 	mCursor[ UI_CURSOR_TOOLPLAY ]		= loadColorCursor(TEXT("TOOLPLAY"));

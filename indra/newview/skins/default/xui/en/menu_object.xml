@@ -1,179 +1,199 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <context_menu
- layout="topleft"
- name="Object Pie">
-   <menu_item_call
-     enabled="false"
-     label="Touch"
-     name="Object Touch">
-        <menu_item_call.on_click
-         function="Object.Touch" />
-        <menu_item_call.on_enable
-         function="Object.EnableTouch"
-         name="EnableTouch"
-         parameter="Touch" />
-   </menu_item_call>
-   <menu_item_call
-     label="Edit"
-     name="Edit...">
-        <menu_item_call.on_click
-         function="Object.Edit" />
+    layout="topleft"
+    name="Object Pie">
+  <menu_item_call
+      enabled="false"
+      label="Touch"
+      name="Object Touch">
+    <menu_item_call.on_click
+        function="Object.Touch" />
     <menu_item_call.on_enable
-         function="EnableEdit"/>
-    </menu_item_call>
-    <menu_item_call
+        function="Object.EnableTouch"
+        name="EnableTouch"
+        parameter="Touch" />
+  </menu_item_call>
+  <menu_item_call
+      label="Edit"
+      name="Edit...">
+    <menu_item_call.on_click
+        function="Object.Edit" />
+    <menu_item_call.on_enable
+        function="EnableEdit"/>
+  </menu_item_call>
+  <menu_item_call
       label="Build"
       name="Build">
-      <menu_item_call.on_click
-        function="Object.Build" />
-        <menu_item_call.on_enable
-         function="EnableEdit"/>
-    </menu_item_call>
-   <menu_item_call
-     enabled="false"
-     label="Open"
-     name="Open">
-        <menu_item_call.on_click
-         function="Object.Open" />
-        <menu_item_call.on_enable
-         function="Object.EnableOpen" />
-   </menu_item_call>
-   <menu_item_call
-     enabled="false"
-     label="Sit Here"
-     name="Object Sit">
-        <menu_item_call.on_click
-         function="Object.SitOrStand" />
-        <menu_item_call.on_enable
-         function="Object.EnableSit" />
-   </menu_item_call>
-   <menu_item_call
-     enabled="false"
-     label="Stand Up"
-     name="Object Stand Up">
-        <menu_item_call.on_click
-         function="Object.SitOrStand" />
-        <menu_item_call.on_enable
-         function="Object.EnableStandUp" />
-   </menu_item_call>
-   <menu_item_call
-       label="Object Profile"
-       name="Object Inspect">
-         <menu_item_call.on_click
-          function="Object.Inspect" />
-         <menu_item_call.on_enable
-          function="Object.EnableInspect" />
-   </menu_item_call>
-  <menu_item_call
-       label="Zoom In"
-       name="Zoom In">
     <menu_item_call.on_click
-     function="Object.ZoomIn" />
+        function="Object.Build" />
+    <menu_item_call.on_enable
+        function="EnableEdit"/>
   </menu_item_call>
-<menu_item_separator layout="topleft" />
-   <context_menu
-         label="Put On"
-         name="Put On" >
-   <menu_item_call
-      enabled="false"
-      label="Wear"
-      name="Wear">
-            <menu_item_call.on_click
-             function="Object.AttachToAvatar" />
-            <menu_item_call.on_enable
-             function="Object.EnableWear" />
-   </menu_item_call>
-   <menu_item_call
-      enabled="false"
-      label="Add"
-      name="Add">
-            <menu_item_call.on_click
-             function="Object.AttachAddToAvatar" />
-            <menu_item_call.on_enable
-             function="Object.EnableWear" />
-   </menu_item_call>
-   <context_menu
-         label="Attach"
-         name="Object Attach" />
-   <context_menu
-         label="Attach HUD"
-         name="Object Attach HUD" />
-   </context_menu>
-   <context_menu
-         label="Manage"
-         name="Remove">
-   <menu_item_call
-         enabled="false"
-         label="Report Abuse"
-         name="Report Abuse...">
-            <menu_item_call.on_click
-             function="Object.ReportAbuse" />
-            <menu_item_call.on_enable
-             function="Object.EnableReportAbuse" />
-   </menu_item_call>
-   <menu_item_call
-          enabled="false"
-          label="Block"
-          name="Object Mute">
-             <menu_item_call.on_click
-              function="Object.Mute" />
-             <menu_item_call.on_enable
-              function="Object.EnableMute" />
-   </menu_item_call>
-   <menu_item_call
-      enabled="false"
-      label="Return"
-      name="Return...">
-         <menu_item_call.on_click
-          function="Object.Return" />
-         <menu_item_call.on_enable
-          function="Object.EnableReturn" />
-     </menu_item_call>
-    </context_menu>
-   <menu_item_separator layout="topleft" />
-   <menu_item_call
-     label="Take"
-     layout="topleft"
-     name="Pie Object Take">
-      <menu_item_call.on_click
-       function="Object.Take"/>
-      <menu_item_call.on_enable
-       function="Object.VisibleTake"/>
-   </menu_item_call>
-   <menu_item_call
-   enabled="false"
-   label="Take Copy"
-   name="Take Copy">
-      <menu_item_call.on_click
-       function="Tools.TakeCopy" />
-      <menu_item_call.on_enable
-       function="Tools.EnableTakeCopy" />
-  </menu_item_call>
-   <menu_item_call
-   enabled="false"
-   label="Pay"
-   name="Pay...">
-  <menu_item_call.on_click
-   function="PayObject" />
-  <menu_item_call.on_enable
-   function="EnablePayObject" />
-</menu_item_call>
   <menu_item_call
-   enabled="false"
-   label="Buy"
-   name="Buy...">
+      label="Show in linksets"
+      name="show_in_linksets">
+    <menu_item_call.on_click
+        function="Pathfinding.Linksets.Select" />
+    <menu_item_call.on_enable
+        function="EnableSelectInPathfindingLinksets"/>
+    <menu_item_call.on_visible
+        function="EnableSelectInPathfindingLinksets"/>
+  </menu_item_call>
+  <menu_item_call
+      label="Show in characters"
+      name="show_in_characters">
+    <menu_item_call.on_click
+        function="Pathfinding.Characters.Select" />
+    <menu_item_call.on_enable
+        function="EnableSelectInPathfindingCharacters"/>
+    <menu_item_call.on_visible
+        function="EnableSelectInPathfindingCharacters"/>
+  </menu_item_call>
+  <menu_item_call
+      enabled="false"
+      label="Open"
+      name="Open">
+    <menu_item_call.on_click
+        function="Object.Open" />
+    <menu_item_call.on_enable
+        function="Object.EnableOpen" />
+  </menu_item_call>
+  <menu_item_call
+      enabled="false"
+      label="Sit Here"
+      name="Object Sit">
+    <menu_item_call.on_click
+        function="Object.SitOrStand" />
+    <menu_item_call.on_enable
+        function="Object.EnableSit" />
+  </menu_item_call>
+  <menu_item_call
+      enabled="false"
+      label="Stand Up"
+      name="Object Stand Up">
+    <menu_item_call.on_click
+        function="Object.SitOrStand" />
+    <menu_item_call.on_enable
+        function="Object.EnableStandUp" />
+  </menu_item_call>
+  <menu_item_call
+      label="Object Profile"
+      name="Object Inspect">
+    <menu_item_call.on_click
+        function="Object.Inspect" />
+    <menu_item_call.on_enable
+        function="Object.EnableInspect" />
+  </menu_item_call>
+  <menu_item_call
+      label="Zoom In"
+      name="Zoom In">
+    <menu_item_call.on_click
+        function="Object.ZoomIn" />
+  </menu_item_call>
+  <menu_item_separator layout="topleft" />
+  <context_menu
+      label="Put On"
+      name="Put On" >
+    <menu_item_call
+        enabled="false"
+        label="Wear"
+        name="Wear">
       <menu_item_call.on_click
-       function="Object.Buy" />
+          function="Object.AttachToAvatar" />
       <menu_item_call.on_enable
-       function="Object.EnableBuy" />
-   </menu_item_call>
-   <menu_item_call
-     enabled="false"
-     label="Delete"
-     name="Delete">
+          function="Object.EnableWear" />
+    </menu_item_call>
+    <menu_item_call
+        enabled="false"
+        label="Add"
+        name="Add">
       <menu_item_call.on_click
-       function="Object.Delete" />
+          function="Object.AttachAddToAvatar" />
       <menu_item_call.on_enable
-       function="Object.EnableDelete" />
+          function="Object.EnableWear" />
+    </menu_item_call>
+    <context_menu
+        label="Attach"
+        name="Object Attach" />
+    <context_menu
+        label="Attach HUD"
+        name="Object Attach HUD" />
+  </context_menu>
+  <context_menu
+      label="Manage"
+      name="Remove">
+    <menu_item_call
+        enabled="false"
+        label="Report Abuse"
+        name="Report Abuse...">
+      <menu_item_call.on_click
+          function="Object.ReportAbuse" />
+      <menu_item_call.on_enable
+          function="Object.EnableReportAbuse" />
+    </menu_item_call>
+    <menu_item_call
+        enabled="false"
+        label="Block"
+        name="Object Mute">
+      <menu_item_call.on_click
+          function="Object.Mute" />
+      <menu_item_call.on_enable
+          function="Object.EnableMute" />
+    </menu_item_call>
+    <menu_item_call
+        enabled="false"
+        label="Return"
+        name="Return...">
+      <menu_item_call.on_click
+          function="Object.Return" />
+      <menu_item_call.on_enable
+          function="Object.EnableReturn" />
+    </menu_item_call>
+  </context_menu>
+  <menu_item_separator layout="topleft" />
+  <menu_item_call
+      label="Take"
+      layout="topleft"
+      name="Pie Object Take">
+    <menu_item_call.on_click
+        function="Object.Take"/>
+    <menu_item_call.on_enable
+        function="Object.VisibleTake"/>
+  </menu_item_call>
+  <menu_item_call
+      enabled="false"
+      label="Take Copy"
+      name="Take Copy">
+    <menu_item_call.on_click
+        function="Tools.TakeCopy" />
+    <menu_item_call.on_enable
+        function="Tools.EnableTakeCopy" />
+  </menu_item_call>
+  <menu_item_call
+      enabled="false"
+      label="Pay"
+      name="Pay...">
+    <menu_item_call.on_click
+        function="PayObject" />
+    <menu_item_call.on_enable
+        function="EnablePayObject" />
+  </menu_item_call>
+  <menu_item_call
+      enabled="false"
+      label="Buy"
+      name="Buy...">
+    <menu_item_call.on_click
+        function="Object.Buy" />
+    <menu_item_call.on_enable
+        function="Object.EnableBuy" />
+  </menu_item_call>
+  <menu_item_call
+      enabled="false"
+      label="Delete"
+      name="Delete">
+    <menu_item_call.on_click
+        function="Object.Delete" />
+    <menu_item_call.on_enable
+        function="Object.EnableDelete" />
   </menu_item_call>
 </context_menu>

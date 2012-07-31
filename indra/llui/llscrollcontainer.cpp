@@ -389,12 +389,11 @@ void LLScrollContainer::calcVisibleSize( S32 *visible_width, S32 *visible_height
 		{
 			*show_h_scrollbar = TRUE;
 			*visible_height -= scrollbar_size;
-
+			// Note: Do *not* recompute *show_v_scrollbar here because with
 			// The view inside the scroll container should not be extended
 			// to container's full height to ensure the correct computation
 			// of *show_v_scrollbar after subtracting horizontal scrollbar_size.
 
-			// Must retest now that visible_height has changed
 			if( !*show_v_scrollbar && ((doc_height - *visible_height) > 1) )
 			{
 				*show_v_scrollbar = TRUE;

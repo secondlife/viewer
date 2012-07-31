@@ -77,6 +77,9 @@ public:
 	S32 getId() const { return mId; }
 	U32 getType() const { return mType; }
 
+	BOOL getSkipRenderFlag() const { return mSkipRender;}
+	void setSkipRenderFlag( BOOL flag ) { mSkipRender = flag; }
+
 	virtual LLViewerTexture *getDebugTexture();
 	virtual void beginRenderPass( S32 pass );
 	virtual void endRenderPass( S32 pass );
@@ -113,6 +116,7 @@ protected:
 	S32 mVertexShaderLevel;
 	S32	mId;
 	U32 mType;				// Type of draw pool
+	BOOL mSkipRender;
 };
 
 class LLRenderPass : public LLDrawPool

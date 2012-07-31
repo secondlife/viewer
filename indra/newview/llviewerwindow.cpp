@@ -126,6 +126,7 @@
 #include "llmorphview.h"
 #include "llmoveview.h"
 #include "llnavigationbar.h"
+#include "llpanelpathfindingrebakenavmesh.h"
 #include "llpaneltopinfobar.h"
 #include "llpopupview.h"
 #include "llpreviewtexture.h"
@@ -614,7 +615,7 @@ public:
 				addText(xpos, ypos, llformat("%d/%d Mesh HTTP Requests/Retries", LLMeshRepository::sHTTPRequestCount,
 					LLMeshRepository::sHTTPRetryCount));
 				ypos += y_inc;
-
+				
 				addText(xpos, ypos, llformat("%d/%d Mesh LOD Pending/Processing", LLMeshRepository::sLODPending, LLMeshRepository::sLODProcessing));
 				ypos += y_inc;
 
@@ -1705,9 +1706,6 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	// Can't have spaces in settings.ini strings, so use underscores instead and convert them.
 	LLStringUtil::replaceChar(mOverlayTitle, '_', ' ');
 
-	// sync the keyboard's setting with the saved setting
-	gSavedSettings.getControl("NumpadControl")->firePropertyChanged();
-
 	mDebugText = new LLDebugText(this);
 
 	mWorldViewRectScaled = calcScaledRect(mWorldViewRectRaw, mDisplayScale);
@@ -1924,11 +1922,16 @@ void LLViewerWindow::initWorldUI()
 		getRootView()->addChild(gHUDView);
 	}
 
-	LLPanel* panel_ssf_container = getRootView()->getChild<LLPanel>("stand_stop_flying_container");
+	LLPanel* panel_ssf_container = getRootView()->getChild<LLPanel>("state_management_buttons_container");
+
 	LLPanelStandStopFlying* panel_stand_stop_flying	= LLPanelStandStopFlying::getInstance();
 	panel_ssf_container->addChild(panel_stand_stop_flying);
-	panel_ssf_container->setVisible(TRUE);
 
+	LLPanelPathfindingRebakeNavmesh *panel_rebake_navmesh = LLPanelPathfindingRebakeNavmesh::getInstance();
+	panel_ssf_container->addChild(panel_rebake_navmesh);
+
+	panel_ssf_container->setVisible(TRUE);
+	
 	// Load and make the toolbars visible
 	// Note: we need to load the toolbars only *after* the user is logged in and IW
 	if (gToolBarView)
@@ -1974,12 +1977,12 @@ void LLViewerWindow::shutdownViews()
 		gMorphView->setVisible(FALSE);
 	}
 	llinfos << "Global views cleaned." << llendl ;
-	
+
 	// DEV-40930: Clear sModalStack. Otherwise, any LLModalDialog left open
 	// will crump with LL_ERRS.
 	LLModalDialog::shutdownModals();
 	llinfos << "LLModalDialog shut down." << llendl; 
-
+	
 	// destroy the nav bar, not currently part of gViewerWindow
 	// *TODO: Make LLNavigationBar part of gViewerWindow
 	if (LLNavigationBar::instanceExists())
@@ -1987,17 +1990,17 @@ void LLViewerWindow::shutdownViews()
 		delete LLNavigationBar::getInstance();
 	}
 	llinfos << "LLNavigationBar destroyed." << llendl ;
-	
+
 	// destroy menus after instantiating navbar above, as it needs
 	// access to gMenuHolder
 	cleanup_menus();
 	llinfos << "menus destroyed." << llendl ;
-	
+
 	// Delete all child views.
 	delete mRootView;
 	mRootView = NULL;
 	llinfos << "RootView deleted." << llendl ;
-	
+
 	// Automatically deleted as children of mRootView.  Fix the globals.
 	gStatusBar = NULL;
 	gIMMgr = NULL;
@@ -3169,8 +3172,7 @@ void LLViewerWindow::updateLayout()
 			||	(tool != LLToolPie::getInstance()						// not default tool
 				&& tool != LLToolCompGun::getInstance()					// not coming out of mouselook
 				&& !suppress_toolbox									// not override in third person
-				&& LLToolMgr::getInstance()->getCurrentToolset() != gFaceEditToolset	// not special mode
-				&& LLToolMgr::getInstance()->getCurrentToolset() != gMouselookToolset
+				&& LLToolMgr::getInstance()->getCurrentToolset()->isShowFloaterTools()
 				&& (!captor || dynamic_cast<LLView*>(captor) != NULL)))						// not dragging
 		{
 			// Force floater tools to be visible (unless minimized)
@@ -3524,8 +3526,11 @@ void LLViewerWindow::renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls,
 					{
 						LLSelectNode* nodep = *iter;
 						LLViewerObject* object = nodep->getObject();
+						LLViewerObject *root_object = (object == NULL) ? NULL : object->getRootEdit();
 						BOOL this_object_movable = FALSE;
-						if (object->permMove() && (object->permModify() || selecting_linked_set))
+						if (object->permMove() && !object->isPermanentEnforced() &&
+							((root_object == NULL) || !root_object->isPermanentEnforced()) &&
+							(object->permModify() || selecting_linked_set))
 						{
 							moveable_object_selected = TRUE;
 							this_object_movable = TRUE;
