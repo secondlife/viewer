@@ -47,9 +47,6 @@ public:
 	~LLInboxInventoryPanel();
 
 	// virtual
-	void buildFolderView(const LLInventoryPanel::Params& params);
-
-	// virtual
 	LLFolderViewFolder * createFolderViewFolder(LLInvFVBridge * bridge);
 	LLFolderViewItem * createFolderViewItem(LLInvFVBridge * bridge);
 };
@@ -63,9 +60,8 @@ public:
 		Optional<LLBadge::Params>	new_badge;
 		
 		Params()
-		: new_badge("new_badge")
-		{
-		}
+		:	new_badge("new_badge")
+		{}
 	};
 	
 	LLInboxFolderViewFolder(const Params& p);
@@ -93,9 +89,8 @@ public:
 		Optional<LLBadge::Params>	new_badge;
 
 		Params()
-			: new_badge("new_badge")
-		{
-		}
+		:	new_badge("new_badge")
+		{}
 	};
 
 	LLInboxFolderViewItem(const Params& p);

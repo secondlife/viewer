@@ -177,7 +177,7 @@ void LLLandmarksPanelObserver::changed(U32 mask)
 	if (!mIsLibraryLandmarksOpen && library)
 	{
 		// Search for "Landmarks" folder in the Library and open it once on start up. See EXT-4827.
-		const LLUUID &landmarks_cat = gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK, false, true);
+		const LLUUID &landmarks_cat = gInventory.findLibraryCategoryUUIDForType(LLFolderType::FT_LANDMARK, false);
 		if (landmarks_cat.notNull())
 		{
 			LLOpenFolderByID opener(landmarks_cat);
@@ -306,8 +306,7 @@ bool LLLandmarksPanel::isSingleItemSelected()
 
 	if (mCurrentSelectedList != NULL)
 	{
-		LLPlacesFolderView* root_view =
-				static_cast<LLPlacesFolderView*>(mCurrentSelectedList->getRootFolder());
+		LLFolderView* root_view = mCurrentSelectedList->getRootFolder();
 
 		if (root_view->getSelectedCount() == 1)
 		{
@@ -588,7 +587,7 @@ void LLLandmarksPanel::initLibraryInventoryPanel()
 	initLandmarksPanel(mLibraryInventoryPanel);
 
 	// We want to fetch only "Landmarks" category from the library.
-	const LLUUID &landmarks_cat = gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK, false, true);
+	const LLUUID &landmarks_cat = gInventory.findLibraryCategoryUUIDForType(LLFolderType::FT_LANDMARK, false);
 	if (landmarks_cat.notNull())
 	{
 		LLInventoryModelBackgroundFetch::instance().start(landmarks_cat);
@@ -918,8 +917,9 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 {
 	std::string command_name = userdata.asString();
 
-	LLPlacesFolderView* root_folder_view = mCurrentSelectedList ?
-		static_cast<LLPlacesFolderView*>(mCurrentSelectedList->getRootFolder()) : NULL;
+	LLFolderView* root_folder_view = mCurrentSelectedList 
+		? mCurrentSelectedList->getRootFolder() 
+		: NULL;
 
 	if ("collapse_all" == command_name)
 	{

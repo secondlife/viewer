@@ -217,6 +217,7 @@ public:
 	BOOL getShowSingleSelection() { return mShowSingleSelection; }
 	F32  getSelectionFadeElapsedTime() { return mMultiSelectionFadeTimer.getElapsedTimeF32(); }
 	bool getUseEllipses() { return mUseEllipses; }
+	S32 getSelectedCount() { return (S32)mSelectedItems.size(); }
 
 	void	update();						// needs to be called periodically (e.g. once per frame)
 

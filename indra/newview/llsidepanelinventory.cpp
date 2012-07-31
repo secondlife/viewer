@@ -260,9 +260,8 @@ void LLSidepanelInventory::updateInbox()
 	//
 
 	const bool do_not_create_folder = false;
-	const bool do_not_find_in_library = false;
 
-	const LLUUID inbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX, do_not_create_folder, do_not_find_in_library);
+	const LLUUID inbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX, do_not_create_folder);
 	
 	// Set up observer to listen for creation of inbox if at least one of them doesn't exist
 	if (inbox_id.isNull())

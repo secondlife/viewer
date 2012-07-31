@@ -46,8 +46,6 @@ public:
 	LLPlacesInventoryPanel(const Params& p);
 	~LLPlacesInventoryPanel();
 
-	/*virtual*/ void buildFolderView(const LLInventoryPanel::Params& params);
-
 	void saveFolderState();
 	void restoreFolderState();
 
@@ -57,7 +55,7 @@ private:
 	LLSaveFolderState*			mSavedFolderState;
 };
 
-
+//TODO RN: this class is currently unused, make sure that behavior remains
 class LLPlacesFolderView : public LLFolderView
 {
 public:
@@ -76,8 +74,6 @@ public:
 	{
 		mParentLandmarksPanel = panel;
 	}
-
-	S32 getSelectedCount() { return (S32)mSelectedItems.size(); }
 
 private:
 	/**
