@@ -77,6 +77,21 @@
     </form>
   </template>
 
+  <template name="okhelpignore">
+    <form>
+      <button
+       default="true"
+       index="0"
+       name="OK_okhelpignore"
+       text="$yestext"/>
+      <button
+       index="1"
+       name="Help_okhelpignore"
+       text="$helptext"/>
+      <ignore text="$ignoretext"/>
+    </form>
+  </template>
+
   <template name="yesnocancelbuttons">
     <form>
       <button
@@ -898,7 +913,22 @@ You need an account to enter [SECOND_LIFE]. Would you like to create one now?
 You need to enter either the Username or both the First and Last name of your avatar into the Username field, then login again.
   </notification>
   
-
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidGrid"
+   type="alertmodal">
+   <tag>fail</tag>
+'[GRID]' is not a valid grid identifier.
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidLocationSLURL"
+   type="alertmodal">
+   <tag>fail</tag>
+Your start location did not specify a valid grid.
+  </notification>
+  
   <notification
    icon="alertmodal.tga"
    name="DeleteClassified"
@@ -1190,7 +1220,7 @@ There was a problem saving a compiled script due to the following reason: [REASO
    icon="alertmodal.tga"
    name="StartRegionEmpty"
    type="alertmodal">
-Oops, Your Start Region is not defined.
+Your Start Region is not defined.
 Please type the Region name in Start Location box or choose My Last Location or My Home as your Start Location.
 <tag>fail</tag>
     <usetemplate
@@ -1497,6 +1527,14 @@ Unable to link because you don&apos;t have modify permission on all the objects.
 
 Please make sure none are locked, and that you own all of them.
   <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CannotLinkPermanent"
+   type="alertmodal">
+    Objects cannot be linked across region boundaries.
+    <tag>fail</tag>
   </notification>
 
   <notification
@@ -6021,6 +6059,56 @@ This area has building disabled. You can&apos;t build or rez objects here.
   </notification>
 
   <notification
+     icon="notify.tga"
+     name="PathfindingDirty"
+     persist="true"
+     type="notify">
+    <unique/>
+    The region has pending pathfinding changes.  If you have build rights, you may rebake the region by clicking on the “Rebake region” button.
+  </notification>
+
+  <notification
+     icon="notify.tga"
+     name="DynamicPathfindingDisabled"
+     persist="true"
+     type="notify">
+    <unique/>
+    Dynamic pathfinding is not enabled on this region.  Scripted objects using pathfinding LSL calls may not operate as expected on this region.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="PathfindingRebakeNavmesh"
+   type="alertmodal">
+    <unique/>
+    Changing certain objects in this region could cause other moving objects to behave incorrectly.  To make moving objects behave correctly, click the “Rebake region” button.  Choose “Help” for more information.
+    <url
+      option="1"
+      name="url"
+      target = "_external">
+      http://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer
+    </url>
+    <usetemplate
+     name="okhelpignore"
+     ignoretext="Changing certain objects in this region could cause other moving objects to behave incorrectly."
+     yestext="OK"
+     helptext="Help"
+     />
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="PathfindingCannotRebakeNavmesh"
+   type="alertmodal">
+    <unique/>
+    An error occurred.  There may be a network or server problem, or you may not have build rights.  Sometimes logging out and back in will solve this problem.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"
+     />
+  </notification>
+
+  <notification
    icon="notify.tga"
    name="SeeAvatars"
    persist="true"
@@ -7490,6 +7578,18 @@ We cannot display a preview of this texture because it is no-copy and/or no-tran
 
   <notification
    icon="alertmodal.tga"
+   name="LivePreviewUnavailable"
+   type="alert">
+   
+We cannot display a preview of this texture because it is no-copy and/or no-transfer.
+  <usetemplate
+    ignoretext="Warn me that Live Preview mode is not available for no-copy and/or no-transfer textures"
+    name="okignore"
+    yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="ConfirmLeaveCall"
    type="alert">
 Are you sure you want to leave this call?
@@ -7972,7 +8072,60 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
       notext="Cancel"
       ignoretext="Confirm before hiding UI"/>
   </notification>
-  
+
+  <notification
+   icon="alertmodal.tga"
+   name="PathfindingLinksets_SetLinksetUseMismatchOnRestricted"
+   type="alertmodal">
+    Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because of permission restrictions on the linkset.  These linksets will be set to be '[RESTRICTED_TYPE]' instead.
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Some selected linksets cannot be set because of permission restrictions on the linkset."
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="PathfindingLinksets_SetLinksetUseMismatchOnVolume"
+   type="alertmodal">
+    Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because the shape is non-convex.
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Some selected linksets cannot be set because the shape is non-convex"
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="PathfindingLinksets_SetLinksetUseMismatchOnRestrictedAndVolume"
+   type="alertmodal">
+    Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because of permission restrictions on the linkset.  These linksets will be set to be '[RESTRICTED_TYPE]' instead.
+ Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because the shape is non-convex. These linksets&apos; use types will not change.
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Some selected linksets cannot be set because of permission restrictions on the linkset and because the shape is non-convex."
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="PathfindingLinksets_ChangeToFlexiblePath"
+   type="alertmodal">
+    The selected object affects the navmesh.  Changing it to a Flexible Path will remove it from the navmesh.
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="The selected object affects the navmesh.  Changing it to a Flexible Path will remove it from the navmesh."
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
   <global name="UnsupportedGLRequirements">
 You do not appear to have the proper hardware requirements for [APP_NAME]. [APP_NAME] requires an OpenGL graphics card that has multitexture support. If this is the case, you may want to make sure that you have the latest drivers for your graphics card, and service packs and patches for your operating system.
 
@@ -8031,5 +8184,31 @@ Disabling future updates for this file.
 Attempted to add an invalid or unreadable image file [FNAME] which could not be opened or decoded.
 Attempt cancelled.
   </notification>
-  
+
+  <notification
+   icon="alertmodal.tga"
+   name="PathfindingReturnMultipleItems"
+   type="alertmodal">
+    You are returning [NUM_ITEMS] items.  Are you sure you want to continue?
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Are you sure you want to return multiple items?"
+     name="okcancelignore"
+     notext="No"
+     yestext="Yes"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="PathfindingDeleteMultipleItems"
+   type="alertmodal">
+    You are deleting [NUM_ITEMS] items.  Are you sure you want to continue?
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Are you sure you want to delete multiple items?"
+     name="okcancelignore"
+     notext="No"
+     yestext="Yes"/>
+  </notification>
+
 </notifications>
