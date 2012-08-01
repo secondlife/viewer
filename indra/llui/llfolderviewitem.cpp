@@ -747,15 +747,29 @@ void LLFolderViewItem::draw()
 		return;
 	}
 
+	std::string::size_type filter_string_length = mViewModelItem->hasFilterStringMatch() ? mViewModelItem->getFilterStringSize() : 0;
+	F32 right_x  = 0;
+	F32 y = (F32)getRect().getHeight() - font->getLineHeight() - (F32)TEXT_PAD - (F32)TOP_PAD;
+	F32 text_left = (F32)(ARROW_SIZE + TEXT_PAD + ICON_WIDTH + ICON_PAD + mIndentation);
+	std::string combined_string = mLabel + mLabelSuffix;
+
+	if (filter_string_length > 0)
+	{
+		S32 left = llround(text_left) + font->getWidth(combined_string, 0, mViewModelItem->getFilterStringOffset()) - 2;
+		S32 right = left + font->getWidth(combined_string, mViewModelItem->getFilterStringOffset(), filter_string_length) + 2;
+		S32 bottom = llfloor(getRect().getHeight() - font->getLineHeight() - 3 - TOP_PAD);
+		S32 top = getRect().getHeight() - TOP_PAD;
+
+		LLUIImage* box_image = default_params.selection_image;
+		LLRect box_rect(left, top, right, bottom);
+		box_image->draw(box_rect, sFilterBGColor);
+	}
+
 	LLColor4 color = (mIsSelected && filled) ? sHighlightFgColor : sFgColor;
 	//TODO RN: implement this in terms of getColor()
 	//if (highlight_link) color = sLinkColor;
 	//if (gInventory.isObjectDescendentOf(getViewModelItem()->getUUID(), gInventory.getLibraryRootFolderID())) color = sLibraryColor;
 	
-	F32 right_x  = 0;
-	F32 y = (F32)getRect().getHeight() - font->getLineHeight() - (F32)TEXT_PAD - (F32)TOP_PAD;
-	F32 text_left = (F32)(ARROW_SIZE + TEXT_PAD + ICON_WIDTH + ICON_PAD + mIndentation);
-
 	//--------------------------------------------------------------------------------//
 	// Draw the actual label text
 	//
@@ -776,27 +790,13 @@ void LLFolderViewItem::draw()
 	//--------------------------------------------------------------------------------//
 	// Highlight string match
 	//
-	if (mViewModelItem->hasFilterStringMatch())
+	if (filter_string_length > 0)
 	{
-		// don't draw backgrounds for zero-length strings
-		std::string::size_type filter_string_length = mViewModelItem->getFilterStringSize();
-		if (filter_string_length > 0)
-		{
-			std::string combined_string = mLabel + mLabelSuffix;
-			S32 left = llround(text_left) + font->getWidth(combined_string, 0, mViewModelItem->getFilterStringOffset()) - 1;
-			S32 right = left + font->getWidth(combined_string, mViewModelItem->getFilterStringOffset(), filter_string_length) + 2;
-			S32 bottom = llfloor(getRect().getHeight() - font->getLineHeight() - 3 - TOP_PAD);
-			S32 top = getRect().getHeight() - TOP_PAD;
-
-			LLUIImage* box_image = default_params.selection_image;
-			LLRect box_rect(left, top, right, bottom);
-			box_image->draw(box_rect, sFilterBGColor);
-			F32 match_string_left = text_left + font->getWidthF32(combined_string, 0, mViewModelItem->getFilterStringOffset());
-			F32 yy = (F32)getRect().getHeight() - font->getLineHeight() - (F32)TEXT_PAD - (F32)TOP_PAD;
-			font->renderUTF8( combined_string, mViewModelItem->getFilterStringOffset(), match_string_left, yy,
-							  sFilterTextColor, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
-							  filter_string_length, S32_MAX, &right_x, FALSE );
-		}
+		F32 match_string_left = text_left + font->getWidthF32(combined_string, 0, mViewModelItem->getFilterStringOffset());
+		F32 yy = (F32)getRect().getHeight() - font->getLineHeight() - (F32)TEXT_PAD - (F32)TOP_PAD;
+		font->renderUTF8( combined_string, mViewModelItem->getFilterStringOffset(), match_string_left, yy,
+							sFilterTextColor, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
+							filter_string_length, S32_MAX, &right_x, FALSE );
 	}
 }
 
