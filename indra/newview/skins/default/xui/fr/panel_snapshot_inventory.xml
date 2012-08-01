@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_snapshot_inventory">
 	<text name="title">
-		Enregistrer dans mon inventaire
+		Enregistrer dans l&apos;inventaire
 	</text>
 	<text name="hint_lbl">
 		L&apos;enregistrement d&apos;une image dans votre inventaire coûte [UPLOAD_COST] L$. Pour enregistrer votre image sous forme de texture, sélectionnez l&apos;un des formats carrés.

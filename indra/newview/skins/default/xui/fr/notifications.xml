@@ -1314,7 +1314,7 @@ Dépasse la limite fixée à [MAX_AGENTS] [LIST_TYPE] de [NUM_EXCESS].
 Veuillez choisir un objet à vendre et réessayer.
 	</notification>
 	<notification name="FinishedRawDownload">
-		Chargement du fichier de terrain raw effectué vers :
+		Téléchargement du fichier de terrain raw effectué vers :
 [DOWNLOAD_PATH].
 	</notification>
 	<notification name="DownloadWindowsMandatory">
