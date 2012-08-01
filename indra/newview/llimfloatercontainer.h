@@ -57,7 +57,7 @@ class LLConversationItem : public LLFolderViewModelItemCommon
 {
 public:
 	LLConversationItem(std::string name, const LLUUID& uuid, LLFloater* floaterp, LLIMFloaterContainer* containerp);
-	LLConversationItem();
+	LLConversationItem(LLIMFloaterContainer* containerp);
 	virtual ~LLConversationItem() {}
 
 	// Stub those things we won't really be using in this conversation context
@@ -241,6 +241,7 @@ public:
 	/*virtual*/ void sessionVoiceOrIMStarted(const LLUUID& session_id);
 	/*virtual*/ void sessionRemoved(const LLUUID& session_id);
 	/*virtual*/ void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id) {};
+	LLConversationViewModel& getRootViewModel() { return mConversationViewModel; }
 
 private:
 	typedef std::map<LLUUID,LLFloater*> avatarID_panel_map_t;

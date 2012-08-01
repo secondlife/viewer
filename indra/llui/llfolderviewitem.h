@@ -406,15 +406,12 @@ public:
 	LLFolderViewFolder* getCommonAncestor(LLFolderViewItem* item_a, LLFolderViewItem* item_b, bool& reverse);
 	void gatherChildRangeExclusive(LLFolderViewItem* start, LLFolderViewItem* end, bool reverse,  std::vector<LLFolderViewItem*>& items);
 
-protected:
-	friend void LLFolderViewItem::addToFolder(LLFolderViewFolder*);
 	// internal functions for tracking folders and items separately
 	// use addToFolder() virtual method to ensure folders are always added to mFolders
 	// and not mItems
 	void addItem(LLFolderViewItem* item);
 	void addFolder( LLFolderViewFolder* folder);
 
-public:
 	//WARNING: do not call directly...use the appropriate LLFolderViewModel-derived class instead
 	template<typename SORT_FUNC> void sortFolders(const SORT_FUNC& func) { mFolders.sort(func); }
 	template<typename SORT_FUNC> void sortItems(const SORT_FUNC& func) { mItems.sort(func); }
