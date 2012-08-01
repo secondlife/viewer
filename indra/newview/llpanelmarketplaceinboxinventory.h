@@ -95,7 +95,7 @@ public:
 
 	LLInboxFolderViewItem(const Params& p);
 
-	BOOL addToFolder(LLFolderViewFolder* folder);
+	void addToFolder(LLFolderViewFolder* folder);
 	BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
 
 	void draw();

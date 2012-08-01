@@ -247,10 +247,7 @@ void LLLandmarksPanel::onSearchEdit(const std::string& string)
 		LLPlacesInventoryPanel* inventory_list = dynamic_cast<LLPlacesInventoryPanel*>(tab->getAccordionView());
 		if (NULL == inventory_list) continue;
 
-		if (inventory_list->getFilter())
-		{
-			filter_list(inventory_list, string);
-		}
+		filter_list(inventory_list, string);
 	}
 
 	if (sFilterSubString != string)
@@ -365,9 +362,6 @@ void LLLandmarksPanel::onSelectorButtonClicked()
 
 void LLLandmarksPanel::updateShowFolderState()
 {
-	if (!mLandmarksInventoryPanel->getFilter())
-		return;
-
 	bool show_all_folders =   mLandmarksInventoryPanel->getFilterSubString().empty();
 	if (show_all_folders)
 	{
@@ -547,7 +541,7 @@ void LLLandmarksPanel::initFavoritesInventoryPanel()
 	mFavoritesInventoryPanel = getChild<LLPlacesInventoryPanel>("favorites_list");
 
 	initLandmarksPanel(mFavoritesInventoryPanel);
-	mFavoritesInventoryPanel->getFilter()->setEmptyLookupMessage("FavoritesNoMatchingItems");
+	mFavoritesInventoryPanel->getFilter().setEmptyLookupMessage("FavoritesNoMatchingItems");
 
 	initAccordion("tab_favorites", mFavoritesInventoryPanel, true);
 }
@@ -558,12 +552,7 @@ void LLLandmarksPanel::initLandmarksInventoryPanel()
 
 	initLandmarksPanel(mLandmarksInventoryPanel);
 
-	// Check if mLandmarksInventoryPanel is properly initialized and has a Filter created.
-	// In case of a dummy widget getFilter() will return NULL.
-	if (mLandmarksInventoryPanel->getFilter())
-	{
-		mLandmarksInventoryPanel->setShowFolderState(LLInventoryFilter::SHOW_ALL_FOLDERS);
-	}
+	mLandmarksInventoryPanel->setShowFolderState(LLInventoryFilter::SHOW_ALL_FOLDERS);
 
 	// subscribe to have auto-rename functionality while creating New Folder
 	mLandmarksInventoryPanel->setSelectCallback(boost::bind(&LLInventoryPanel::onSelectionChange, mLandmarksInventoryPanel, _1, _2));
@@ -599,12 +588,7 @@ void LLLandmarksPanel::initLibraryInventoryPanel()
 
 void LLLandmarksPanel::initLandmarksPanel(LLPlacesInventoryPanel* inventory_list)
 {
-	// In case of a dummy widget further we have no Folder View widget and no Filter,
-	// so further initialization leads to crash.
-	if (!inventory_list->getFilter())
-		return;
-
-	inventory_list->getFilter()->setEmptyLookupMessage("PlacesNoMatchingItems");
+	inventory_list->getFilter().setEmptyLookupMessage("PlacesNoMatchingItems");
 	inventory_list->setFilterTypes(0x1 << LLInventoryType::IT_LANDMARK);
 	inventory_list->setSelectCallback(boost::bind(&LLLandmarksPanel::onSelectionChange, this, inventory_list, _1, _2));
 

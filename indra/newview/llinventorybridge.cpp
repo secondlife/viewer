@@ -900,7 +900,7 @@ LLInventoryModel* LLInvFVBridge::getInventoryModel() const
 LLInventoryFilter* LLInvFVBridge::getInventoryFilter() const
 {
 	LLInventoryPanel* panel = mInventoryPanel.get();
-	return panel ? panel->getFilter() : NULL;
+	return panel ? &(panel->getFilter()) : NULL;
 }
 
 BOOL LLInvFVBridge::isItemInTrash() const

@@ -121,7 +121,7 @@ public:
 	void closeAllFolders();
 	void openTopLevelFolders();
 
-	virtual BOOL addFolder( LLFolderViewFolder* folder);
+	virtual void addFolder( LLFolderViewFolder* folder);
 
 	// Find width and height of this object and its children. Also
 	// makes sure that this view and its children are the right size.

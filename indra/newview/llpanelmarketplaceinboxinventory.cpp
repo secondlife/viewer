@@ -182,9 +182,9 @@ LLInboxFolderViewItem::LLInboxFolderViewItem(const Params& p)
 #endif
 }
 
-BOOL LLInboxFolderViewItem::addToFolder(LLFolderViewFolder* folder)
+void LLInboxFolderViewItem::addToFolder(LLFolderViewFolder* folder)
 {
-	BOOL retval = LLFolderViewItem::addToFolder(folder);
+	LLFolderViewItem::addToFolder(folder);
 
 #if SUPPORTING_FRESH_ITEM_COUNT
 	// Compute freshness if our parent is the root folder for the inbox
@@ -193,8 +193,6 @@ BOOL LLInboxFolderViewItem::addToFolder(LLFolderViewFolder* folder)
 		computeFreshness();
 	}
 #endif
-	
-	return retval;
 }
 
 BOOL LLInboxFolderViewItem::handleDoubleClick(S32 x, S32 y, MASK mask)

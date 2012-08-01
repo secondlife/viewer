@@ -116,8 +116,8 @@ protected:
 
 	// this is an internal method used for adding items to folders. A
 	// no-op at this level, but reimplemented in derived classes.
-	virtual BOOL addItem(LLFolderViewItem*) { return FALSE; }
-	virtual BOOL addFolder(LLFolderViewFolder*) { return FALSE; }
+	virtual void addItem(LLFolderViewItem*) { }
+	virtual void addFolder(LLFolderViewFolder*) { }
 
 	static LLFontGL* getLabelFontForStyle(U8 style);
 
@@ -131,7 +131,7 @@ public:
 	virtual ~LLFolderViewItem( void );
 
 	// addToFolder() returns TRUE if it succeeds. FALSE otherwise
-	virtual BOOL addToFolder(LLFolderViewFolder* folder);
+	virtual void addToFolder(LLFolderViewFolder* folder);
 
 	// Finds width and height of this object and it's children.  Also
 	// makes sure that this view and it's children are the right size.
@@ -297,7 +297,7 @@ public:
 	LLFolderViewItem* getPreviousFromChild( LLFolderViewItem*, BOOL include_children = TRUE  );
 
 	// addToFolder() returns TRUE if it succeeds. FALSE otherwise
-	virtual BOOL addToFolder(LLFolderViewFolder* folder);
+	virtual void addToFolder(LLFolderViewFolder* folder);
 
 	// Finds width and height of this object and it's children.  Also
 	// makes sure that this view and it's children are the right size.
@@ -356,8 +356,6 @@ public:
 	// Called when a child is refreshed.
 	virtual void requestArrange();
 
-	virtual void requestSort();
-
 	// internal method which doesn't update the entire view. This
 	// method was written because the list iterators destroy the state
 	// of other iterations, thus, we can't arrange while iterating
@@ -381,8 +379,6 @@ public:
 	void applyFunctorToChildren(LLFolderViewFunctor& functor);
 
 	virtual void openItem( void );
-	virtual BOOL addItem(LLFolderViewItem* item);
-	virtual BOOL addFolder( LLFolderViewFolder* folder);
 
 	// LLView functionality
 	virtual BOOL handleHover(S32 x, S32 y, MASK mask);
@@ -411,6 +407,14 @@ public:
 
 	LLFolderViewFolder* getCommonAncestor(LLFolderViewItem* item_a, LLFolderViewItem* item_b, bool& reverse);
 	void gatherChildRangeExclusive(LLFolderViewItem* start, LLFolderViewItem* end, bool reverse,  std::vector<LLFolderViewItem*>& items);
+
+protected:
+	friend void LLFolderViewItem::addToFolder(LLFolderViewFolder*);
+	// internal functions for tracking folders and items separately
+	// use addToFolder() virtual method to ensure folders are always added to mFolders
+	// and not mItems
+	void addItem(LLFolderViewItem* item);
+	void addFolder( LLFolderViewFolder* folder);
 
 public:
 	//WARNING: do not call directly...use the appropriate LLFolderViewModel-derived class instead

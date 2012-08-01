@@ -95,13 +95,13 @@ LLInventoryPanel * LLPanelMarketplaceInbox::setupInventoryPanel()
 	
 	// Set the sort order newest to oldest
 	mInventoryPanel->getFolderViewModel()->setSorter(LLInventoryFilter::SO_DATE);
-	mInventoryPanel->getFilter()->markDefault();
+	mInventoryPanel->getFilter().markDefault();
 
 	// Set selection callback for proper update of inventory status buttons
 	mInventoryPanel->setSelectCallback(boost::bind(&LLPanelMarketplaceInbox::onSelectionChange, this));
 
 	// Set up the note to display when the inbox is empty
-	mInventoryPanel->getFilter()->setEmptyLookupMessage("InventoryInboxNoItems");
+	mInventoryPanel->getFilter().setEmptyLookupMessage("InventoryInboxNoItems");
 	
 	// Hide the placeholder text
 	inbox_inventory_placeholder->setVisible(FALSE);

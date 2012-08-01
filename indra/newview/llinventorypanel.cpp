@@ -239,13 +239,13 @@ void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 	}
 
 	// hide inbox
-	getFilter()->setFilterCategoryTypes(getFilter()->getFilterCategoryTypes() & ~(1ULL << LLFolderType::FT_INBOX));
-	getFilter()->setFilterCategoryTypes(getFilter()->getFilterCategoryTypes() & ~(1ULL << LLFolderType::FT_OUTBOX));
+	getFilter().setFilterCategoryTypes(getFilter().getFilterCategoryTypes() & ~(1ULL << LLFolderType::FT_INBOX));
+	getFilter().setFilterCategoryTypes(getFilter().getFilterCategoryTypes() & ~(1ULL << LLFolderType::FT_OUTBOX));
 
 	// set the filter for the empty folder if the debug setting is on
 	if (gSavedSettings.getBOOL("DebugHideEmptySystemFolders"))
 	{
-		getFilter()->setFilterEmptySystemFolders();
+		getFilter().setFilterEmptySystemFolders();
 	}
 	
 	// keep track of the clipboard state so that we avoid filtering too much
@@ -285,18 +285,18 @@ void LLInventoryPanel::draw()
 	if (mClipboardState != LLClipboard::instance().getGeneration())
 	{
 		mClipboardState = LLClipboard::instance().getGeneration();
-		getFilter()->setModified(LLClipboard::instance().isCutMode() ? LLInventoryFilter::FILTER_MORE_RESTRICTIVE : LLInventoryFilter::FILTER_LESS_RESTRICTIVE);
+		getFilter().setModified(LLClipboard::instance().isCutMode() ? LLInventoryFilter::FILTER_MORE_RESTRICTIVE : LLInventoryFilter::FILTER_LESS_RESTRICTIVE);
 	}
 	
 	LLPanel::draw();
 }
 
-const LLInventoryFilter* LLInventoryPanel::getFilter() const
+const LLInventoryFilter& LLInventoryPanel::getFilter() const
 {
 	return getFolderViewModel()->getFilter();
 }
 
-LLInventoryFilter* LLInventoryPanel::getFilter()
+LLInventoryFilter& LLInventoryPanel::getFilter()
 {
 	return getFolderViewModel()->getFilter();
 }
@@ -304,50 +304,49 @@ LLInventoryFilter* LLInventoryPanel::getFilter()
 void LLInventoryPanel::setFilterTypes(U64 types, LLInventoryFilter::EFilterType filter_type)
 {
 	if (filter_type == LLInventoryFilter::FILTERTYPE_OBJECT)
-		getFilter()->setFilterObjectTypes(types);
+		getFilter().setFilterObjectTypes(types);
 	if (filter_type == LLInventoryFilter::FILTERTYPE_CATEGORY)
-		getFilter()->setFilterCategoryTypes(types);
+		getFilter().setFilterCategoryTypes(types);
 }
 
 U32 LLInventoryPanel::getFilterObjectTypes() const 
 { 
-	return getFilter()->getFilterObjectTypes();
+	return getFilter().getFilterObjectTypes();
 }
 
 U32 LLInventoryPanel::getFilterPermMask() const 
 { 
-	return getFilter()->getFilterPermissions();
+	return getFilter().getFilterPermissions();
 }
 
 
 void LLInventoryPanel::setFilterPermMask(PermissionMask filter_perm_mask)
 {
-	getFilter()->setFilterPermissions(filter_perm_mask);
+	getFilter().setFilterPermissions(filter_perm_mask);
 }
 
 void LLInventoryPanel::setFilterWearableTypes(U64 types)
 {
-	getFilter()->setFilterWearableTypes(types);
+	getFilter().setFilterWearableTypes(types);
 }
 
 void LLInventoryPanel::setFilterSubString(const std::string& string)
 {
-	getFilter()->setFilterSubString(string);
+	getFilter().setFilterSubString(string);
 }
 
 const std::string LLInventoryPanel::getFilterSubString() 
 { 
-	return getFilter()->getFilterSubString();
+	return getFilter().getFilterSubString();
 }
 
 
 void LLInventoryPanel::setSortOrder(U32 order)
 {
-        LLInventorySort sorter(order);
-	getFilter()->setSortOrder(order);
+    LLInventorySort sorter(order);
 	if (order != getFolderViewModel()->getSorter().getSortOrder())
 	{
-		getFolderViewModel()->setSorter(LLInventorySort(order));
+		getFolderViewModel()->setSorter(sorter);
 		// try to keep selection onscreen, even if it wasn't to start with
 		mFolderRoot->scrollToShowSelection();
 	}
@@ -360,27 +359,27 @@ U32 LLInventoryPanel::getSortOrder() const
 
 void LLInventoryPanel::setSinceLogoff(BOOL sl)
 {
-	getFilter()->setDateRangeLastLogoff(sl);
+	getFilter().setDateRangeLastLogoff(sl);
 }
 
 void LLInventoryPanel::setHoursAgo(U32 hours)
 {
-	getFilter()->setHoursAgo(hours);
+	getFilter().setHoursAgo(hours);
 }
 
 void LLInventoryPanel::setFilterLinks(U64 filter_links)
 {
-	getFilter()->setFilterLinks(filter_links);
+	getFilter().setFilterLinks(filter_links);
 }
 
 void LLInventoryPanel::setShowFolderState(LLInventoryFilter::EFolderShow show)
 {
-	getFilter()->setShowFolderState(show);
+	getFilter().setShowFolderState(show);
 }
 
 LLInventoryFilter::EFolderShow LLInventoryPanel::getShowFolderState()
 {
-	return getFilter()->getShowFolderState();
+	return getFilter().getShowFolderState();
 }
 
 void LLInventoryPanel::modelChanged(U32 mask)
@@ -473,7 +472,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 		{
 			if (view_folder)
 			{
-				view_folder->requestSort();
+				view_folder->getViewModelItem()->requestSort();
 			}
 		}	
 
@@ -1088,7 +1087,7 @@ bool LLInventoryPanel::attachObject(const LLSD& userdata)
 
 BOOL LLInventoryPanel::getSinceLogoff()
 {
-	return getFilter()->isSinceLogoff();
+	return getFilter().isSinceLogoff();
 }
 
 // DEBUG ONLY
@@ -1214,12 +1213,12 @@ void LLInventoryPanel::openInventoryPanelAndSetSelection(BOOL auto_open, const L
 
 void LLInventoryPanel::addHideFolderType(LLFolderType::EType folder_type)
 {
-	getFilter()->setFilterCategoryTypes(getFilter()->getFilterCategoryTypes() & ~(1ULL << folder_type));
+	getFilter().setFilterCategoryTypes(getFilter().getFilterCategoryTypes() & ~(1ULL << folder_type));
 }
 
 BOOL LLInventoryPanel::getIsHiddenFolderType(LLFolderType::EType folder_type) const
 {
-	return !(getFilter()->getFilterCategoryTypes() & (1ULL << folder_type));
+	return !(getFilter().getFilterCategoryTypes() & (1ULL << folder_type));
 }
 
 void LLInventoryPanel::addItemID( const LLUUID& id, LLFolderViewItem*   itemp )
@@ -1321,7 +1320,7 @@ public:
 	{
 		LLInventoryPanel::initFromParams(p);
 		// turn on inbox for recent items
-		getFilter()->setFilterCategoryTypes(getFilter()->getFilterCategoryTypes() | (1ULL << LLFolderType::FT_INBOX));
+		getFilter().setFilterCategoryTypes(getFilter().getFilterCategoryTypes() | (1ULL << LLFolderType::FT_INBOX));
 	}
 
 protected:

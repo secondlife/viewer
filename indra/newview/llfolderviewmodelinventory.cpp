@@ -109,7 +109,12 @@ bool LLFolderViewModelInventory::contentsReady()
 void LLFolderViewModelItemInventory::requestSort()
 {
 	LLFolderViewModelItemCommon::requestSort();
-	if (mRootViewModel.getSorter().isByDate())
+	LLFolderViewFolder* folderp = dynamic_cast<LLFolderViewFolder*>(mFolderViewItem);
+	if (folderp)
+	{
+		folderp->requestArrange();
+	}
+	if (static_cast<LLFolderViewModelInventory&>(mRootViewModel).getSorter().isByDate())
 	{
 		// sort by date potentially affects parent folders which use a date
 		// derived from newest item in them
@@ -120,35 +125,9 @@ void LLFolderViewModelItemInventory::requestSort()
 	}
 }
 
-bool LLFolderViewModelItemInventory::potentiallyVisible()
-{
-	return passedFilter() // we've passed the filter
-		|| getLastFilterGeneration() < mRootViewModel.getFilter()->getFirstSuccessGeneration() // or we don't know yet
-		|| descendantsPassedFilter();
-}
-
-bool LLFolderViewModelItemInventory::passedFilter(S32 filter_generation) 
-{ 
-	if (filter_generation < 0) 
-		filter_generation = mRootViewModel.getFilter()->getFirstSuccessGeneration();
-
-	return mPassedFolderFilter 
-		&& (descendantsPassedFilter(filter_generation)
-			|| (mLastFilterGeneration >= filter_generation 
-				&& mPassedFilter));
-}
-
-bool LLFolderViewModelItemInventory::descendantsPassedFilter(S32 filter_generation)
-{ 
-	if (filter_generation < 0) filter_generation = mRootViewModel.getFilter()->getFirstSuccessGeneration();
-	return mMostFilteredDescendantGeneration >= filter_generation; 
-}
-
 void LLFolderViewModelItemInventory::setPassedFilter(bool passed, bool passed_folder, S32 filter_generation)
 {
-	mPassedFilter = passed;
-	mPassedFolderFilter = passed_folder;
-	mLastFilterGeneration = filter_generation;
+	LLFolderViewModelItemCommon::setPassedFilter(passed, passed_folder, filter_generation);
 
 	bool passed_filter_before = mPrevPassedAllFilters;
 	mPrevPassedAllFilters = passedFilter(filter_generation);
@@ -324,3 +303,8 @@ bool LLInventorySort::operator()(const LLFolderViewModelItemInventory* const& a,
 	}
 }
 
+LLFolderViewModelItemInventory::LLFolderViewModelItemInventory( class LLFolderViewModelInventory& root_view_model ) 
+	:	LLFolderViewModelItemCommon(root_view_model),
+	mPrevPassedAllFilters(false)
+{
+}

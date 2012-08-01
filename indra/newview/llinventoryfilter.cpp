@@ -69,7 +69,6 @@ LLInventoryFilter::LLInventoryFilter(const Params& p)
 	mFilterModified(FILTER_NONE),
 	mEmptyLookupMessage("InventoryNoMatchingItems"),
     mFilterOps(p.filter_ops),
-	mOrder(p.sort_order),
 	mFilterSubString(p.substring),
 	mCurrentGeneration(0),
 	mFirstRequiredGeneration(0),
@@ -703,15 +702,6 @@ void LLInventoryFilter::setShowFolderState(EFolderShow state)
 	}
 }
 
-void LLInventoryFilter::setSortOrder(U32 order)
-{
-	if (mOrder != order)
-	{
-		mOrder = order;
-		setModified();
-	}
-}
-
 void LLInventoryFilter::markDefault()
 {
 	mDefaultFilterOps = mFilterOps;
@@ -944,7 +934,6 @@ LLInventoryFilter& LLInventoryFilter::operator=( const  LLInventoryFilter&  othe
 	setShowFolderState(other.getShowFolderState());
 	setFilterPermissions(other.getFilterPermissions());
 	setFilterSubString(other.getFilterSubString());
-	setSortOrder(other.getSortOrder());
 	setDateRangeLastLogoff(other.isSinceLogoff());
 	return *this;
 }
@@ -961,7 +950,6 @@ void LLInventoryFilter::toParams(Params& params) const
 	params.filter_ops.show_folder_state = getShowFolderState();
 	params.filter_ops.permissions = getFilterPermissions();
 	params.substring = getFilterSubString();
-	params.sort_order = getSortOrder();
 	params.since_logoff = isSinceLogoff();
 }
 
@@ -980,7 +968,6 @@ void LLInventoryFilter::fromParams(const Params& params)
 	setShowFolderState(params.filter_ops.show_folder_state);
 	setFilterPermissions(params.filter_ops.permissions);
 	setFilterSubString(params.substring);
-	setSortOrder(params.sort_order);
 	setDateRangeLastLogoff(params.since_logoff);
 }
 
@@ -1029,10 +1016,6 @@ U64 LLInventoryFilter::getFilterLinks() const
 LLInventoryFilter::EFolderShow LLInventoryFilter::getShowFolderState() const
 { 
 	return mFilterOps.mShowFolderState; 
-}
-U32 LLInventoryFilter::getSortOrder() const 
-{ 
-	return mOrder; 
 }
 
 void LLInventoryFilter::setFilterCount(S32 count) 

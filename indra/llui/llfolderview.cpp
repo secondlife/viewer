@@ -274,7 +274,7 @@ BOOL LLFolderView::canFocusChildren() const
 	return FALSE;
 }
 
-BOOL LLFolderView::addFolder( LLFolderViewFolder* folder)
+void LLFolderView::addFolder( LLFolderViewFolder* folder)
 {
 	LLFolderViewFolder::addFolder(folder);
 
@@ -288,8 +288,6 @@ BOOL LLFolderView::addFolder( LLFolderViewFolder* folder)
 	//{
 	//	mFolders.insert(mFolders.begin(), folder);
 	//}
-
-	return TRUE;
 }
 
 void LLFolderView::closeAllFolders()
@@ -1769,14 +1767,14 @@ void LLFolderView::update()
 	// until that inventory is loaded up.
 	LLFastTimer t2(FTM_INVENTORY);
 
-	if (getFolderViewModel()->getFilter()->isModified() && getFolderViewModel()->getFilter()->isNotDefault())
+	if (getFolderViewModel()->getFilter().isModified() && getFolderViewModel()->getFilter().isNotDefault())
 	{
 		mNeedsAutoSelect = TRUE;
 	}
-	getFolderViewModel()->getFilter()->clearModified();
+	getFolderViewModel()->getFilter().clearModified();
 
 	// filter to determine visibility before arranging
-	filter(*(getFolderViewModel()->getFilter()));
+	filter(getFolderViewModel()->getFilter());
 
 	// automatically show matching items, and select first one if we had a selection
 	if (mNeedsAutoSelect)
@@ -1794,7 +1792,7 @@ void LLFolderView::update()
 
 		// Open filtered folders for folder views with mAutoSelectOverride=TRUE.
 		// Used by LLPlacesFolderView.
-		if (getFolderViewModel()->getFilter()->showAllResults())
+		if (getFolderViewModel()->getFilter().showAllResults())
 		{
 			// these are named variables to get around gcc not binding non-const references to rvalues
 			// and functor application is inherently non-const to allow for stateful functors
