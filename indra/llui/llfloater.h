@@ -324,7 +324,7 @@ public:
 	virtual void    setDocked(bool docked, bool pop_on_undock = true);
 
 	virtual void    setTornOff(bool torn_off) { mTornOff = torn_off; }
-	bool getTornOff() {return mTornOff;}
+	bool isTornOff() {return mTornOff;}
 	void setOpenPositioning(LLFloaterEnums::EOpenPositioning pos) {mPositioning = pos;}
 
 	// Return a closeable floater, if any, given the current focus.

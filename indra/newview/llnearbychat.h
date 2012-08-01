@@ -39,7 +39,6 @@
 #include "llpanel.h"
 
 class LLResizeBar;
-class LLChatHistory;
 
 class LLNearbyChat
 	:	public LLIMConversation
@@ -73,7 +72,7 @@ public:
 	void	onNearbyChatContextMenuItemClicked(const LLSD& userdata);
 	bool	onNearbyChatCheckContextMenuItem(const LLSD& userdata);
 
-	LLChatEntry* getChatBox() { return mChatBox; }
+	LLChatEntry* getChatBox() { return mInputEditor; }
 
 	std::string getCurrentChat();
 
@@ -98,8 +97,6 @@ protected:
 	void onChatBoxCommit();
 	void onChatFontChange(LLFontGL* fontp);
 
-	/* virtual */ bool applyRectControl();
-
 	/*virtual*/ void onTearOffClicked();
 
 	static LLWString stripChannelNumber(const LLWString &mesg, S32* channel);
@@ -113,7 +110,6 @@ protected:
 	// Which non-zero channel did we last chat on?
 	static S32 sLastSpecialChatChannel;
 
-	LLChatEntry*			mChatBox;
 	LLOutputMonitorCtrl*	mOutputMonitor;
 	LLLocalSpeakerMgr*		mSpeakerMgr;
 
@@ -121,7 +117,6 @@ protected:
 
 private:
 
-	void	getAllowedRect		(LLRect& rect);
 	// prepare chat's params and out one message to chatHistory
 	void appendMessage(const LLChat& chat, const LLSD &args = 0);
 	void	onNearbySpeakers	();
@@ -130,7 +125,6 @@ private:
 
 	LLHandle<LLView>	mPopupMenuHandle;
 	std::vector<LLChat> mMessageArchive;
-	LLChatHistory*		mChatHistory;
 
 };
 
