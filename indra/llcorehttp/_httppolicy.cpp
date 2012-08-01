@@ -162,8 +162,10 @@ void HttpPolicy::retryOp(HttpOpRequest * op)
 	const HttpTime delta(retry_deltas[llclamp(op->mPolicyRetries, 0, delta_max)]);
 	op->mPolicyRetryAt = now + delta;
 	++op->mPolicyRetries;
-	LL_WARNS("CoreHttp") << "URL op retry #" << op->mPolicyRetries
-						 << " being scheduled for " << delta << " uSecs from now."
+	LL_WARNS("CoreHttp") << "HTTP request " << static_cast<HttpHandle>(op)
+						 << " retry " << op->mPolicyRetries
+						 << " scheduled for +" << (delta / HttpTime(1000))
+						 << " mS.  Status:  " << op->mStatus.toHex()
 						 << LL_ENDL;
 	if (op->mTracing > 0)
 	{
@@ -175,6 +177,17 @@ void HttpPolicy::retryOp(HttpOpRequest * op)
 }
 
 
+// Attempt to deliver requests to the transport layer.
+//
+// Tries to find HTTP requests for each policy class with
+// available capacity.  Starts with the retry queue first
+// looking for requests that have waited long enough then
+// moves on to the ready queue.
+//
+// If all queues are empty, will return an indication that
+// the worker thread may sleep hard otherwise will ask for
+// normal polling frequency.
+//
 HttpService::ELoopSpeed HttpPolicy::processReadyQueue()
 {
 	const HttpTime now(totalTime());
@@ -311,6 +324,9 @@ bool HttpPolicy::stageAfterCompletion(HttpOpRequest * op)
 	static const HttpStatus cant_res_host(HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_RESOLVE_HOST);
 	static const HttpStatus send_error(HttpStatus::EXT_CURL_EASY, CURLE_SEND_ERROR);
 	static const HttpStatus recv_error(HttpStatus::EXT_CURL_EASY, CURLE_RECV_ERROR);
+	static const HttpStatus upload_failed(HttpStatus::EXT_CURL_EASY, CURLE_UPLOAD_FAILED);
+	static const HttpStatus op_timedout(HttpStatus::EXT_CURL_EASY, CURLE_OPERATION_TIMEDOUT);
+	static const HttpStatus post_error(HttpStatus::EXT_CURL_EASY, CURLE_HTTP_POST_ERROR);
 
 	// Retry or finalize
 	if (! op->mStatus)
@@ -323,7 +339,10 @@ bool HttpPolicy::stageAfterCompletion(HttpOpRequest * op)
 			 cant_res_proxy == op->mStatus ||
 			 cant_res_host == op->mStatus ||
 			 send_error == op->mStatus ||
-			 recv_error == op->mStatus))
+			 recv_error == op->mStatus ||
+			 upload_failed == op->mStatus ||
+			 op_timedout == op->mStatus ||
+			 post_error == op->mStatus))
 		{
 			// Okay, worth a retry.  We include 499 in this test as
 			// it's the old 'who knows?' error from many grid services...
@@ -335,14 +354,17 @@ bool HttpPolicy::stageAfterCompletion(HttpOpRequest * op)
 	// This op is done, finalize it delivering it to the reply queue...
 	if (! op->mStatus)
 	{
-		LL_WARNS("CoreHttp") << "URL op failed after " << op->mPolicyRetries
+		LL_WARNS("CoreHttp") << "HTTP request " << static_cast<HttpHandle>(op)
+							 << " failed after " << op->mPolicyRetries
 							 << " retries.  Reason:  " << op->mStatus.toString()
+							 << " (" << op->mStatus.toHex() << ")"
 							 << LL_ENDL;
 	}
 	else if (op->mPolicyRetries)
 	{
-		LL_DEBUGS("CoreHttp") << "URL op succeeded after " << op->mPolicyRetries << " retries."
-							  << LL_ENDL;
+		LL_WARNS("CoreHttp") << "HTTP request " << static_cast<HttpHandle>(op)
+							 << " succeeded on retry " << op->mPolicyRetries << "."
+							 << LL_ENDL;
 	}
 
 	op->stageFromActive(mService);

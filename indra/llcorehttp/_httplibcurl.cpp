@@ -97,6 +97,12 @@ void HttpLibcurl::start(int policy_count)
 }
 
 
+// Give libcurl some cycles, invoke it's callbacks, process
+// completed requests finalizing or issuing retries as needed.
+//
+// If active list goes empty *and* we didn't queue any
+// requests for retry, we return a request for a hard
+// sleep otherwise ask for a normal polling interval.
 HttpService::ELoopSpeed HttpLibcurl::processTransport()
 {
 	HttpService::ELoopSpeed	ret(HttpService::REQUEST_SLEEP);
@@ -129,7 +135,7 @@ HttpService::ELoopSpeed HttpLibcurl::processTransport()
 				if (completeRequest(mMultiHandles[policy_class], handle, result))
 				{
 					// Request is still active, don't get too sleepy
-					ret = (std::min)(ret, HttpService::NORMAL);
+					ret = HttpService::NORMAL;
 				}
 				handle = NULL;			// No longer valid on return
 			}
@@ -150,7 +156,7 @@ HttpService::ELoopSpeed HttpLibcurl::processTransport()
 
 	if (! mActiveOps.empty())
 	{
-		ret = (std::min)(ret, HttpService::NORMAL);
+		ret = HttpService::NORMAL;
 	}
 	return ret;
 }
