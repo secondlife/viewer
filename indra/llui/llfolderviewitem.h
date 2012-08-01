@@ -103,8 +103,6 @@ protected:
 	S32							mDragStartX,
 								mDragStartY;
 
-	//TODO RN: create interface for string highlighting
-	//std::string::size_type		mStringMatchOffset;
 	F32							mControlLabelRotation;
 	LLFolderView*				mRoot;
 	bool						mHasVisibleChildren;

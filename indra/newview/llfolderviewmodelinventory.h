@@ -58,7 +58,7 @@ public:
 	virtual bool potentiallyVisible();
 	virtual bool passedFilter(S32 filter_generation = -1);
 	virtual bool descendantsPassedFilter(S32 filter_generation = -1);
-	virtual void setPassedFilter(bool filtered, bool filtered_folder, S32 filter_generation);
+	virtual void setPassedFilter(bool filtered, bool filtered_folder, S32 filter_generation, std::string::size_type string_offset = std::string::npos, std::string::size_type string_size = 0);
 	virtual void filter( LLFolderViewFilter& filter);
 	virtual void filterChildItem( LLFolderViewModelItem* item, LLFolderViewFilter& filter);
 

@@ -73,6 +73,8 @@ public:
 
 	virtual bool				showAllResults() const = 0;
 
+	virtual std::string::size_type getStringMatchOffset(LLFolderViewModelItem* item) const = 0;
+	virtual std::string::size_type getFilterStringSize() const = 0;
 	// +-------------------------------------------------------------------+
 	// + Status
 	// +-------------------------------------------------------------------+
@@ -155,8 +157,11 @@ public:
 	virtual void filter( LLFolderViewFilter& filter) = 0;
 	virtual bool passedFilter(S32 filter_generation = -1) = 0;
 	virtual bool descendantsPassedFilter(S32 filter_generation = -1) = 0;
-	virtual void setPassedFilter(bool passed, bool passed_folder, S32 filter_generation) = 0;
+	virtual void setPassedFilter(bool passed, bool passed_folder, S32 filter_generation, std::string::size_type string_offset = std::string::npos, std::string::size_type string_size = 0) = 0;
 	virtual void dirtyFilter() = 0;
+	virtual bool hasFilterStringMatch() = 0;
+	virtual std::string::size_type getFilterStringOffset() = 0;
+	virtual std::string::size_type getFilterStringSize() = 0;
 
 	virtual S32	getLastFilterGeneration() const = 0;
 
@@ -193,6 +198,8 @@ public:
 		mPassedFilter(true),
 		mPassedFolderFilter(true),
 		mPrevPassedAllFilters(false),
+		mStringMatchOffsetFilter(std::string::npos),
+		mStringFilterSize(0),
 		mFolderViewItem(NULL),
 		mLastFilterGeneration(-1),
 		mMostFilteredDescendantGeneration(-1),
@@ -216,6 +223,10 @@ public:
 			mParent->dirtyFilter();
 		}	
 	}
+	bool hasFilterStringMatch() { return mStringMatchOffsetFilter != std::string::npos; }
+	std::string::size_type getFilterStringOffset() { return mStringMatchOffsetFilter; }
+	std::string::size_type getFilterStringSize() { return mStringFilterSize; }
+	
 	virtual void addChild(LLFolderViewModelItem* child) 
 	{ 
 		mChildren.push_back(child); 
@@ -234,6 +245,8 @@ protected:
 	bool					mPassedFilter;
 	bool					mPassedFolderFilter;
 	bool					mPrevPassedAllFilters;
+	std::string::size_type	mStringMatchOffsetFilter;
+	std::string::size_type	mStringFilterSize;
 
 	S32						mLastFilterGeneration;
 	S32						mMostFilteredDescendantGeneration;

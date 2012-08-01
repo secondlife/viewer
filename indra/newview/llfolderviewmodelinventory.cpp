@@ -144,11 +144,13 @@ bool LLFolderViewModelItemInventory::descendantsPassedFilter(S32 filter_generati
 	return mMostFilteredDescendantGeneration >= filter_generation; 
 }
 
-void LLFolderViewModelItemInventory::setPassedFilter(bool passed, bool passed_folder, S32 filter_generation)
+void LLFolderViewModelItemInventory::setPassedFilter(bool passed, bool passed_folder, S32 filter_generation, std::string::size_type string_offset, std::string::size_type string_size)
 {
 	mPassedFilter = passed;
 	mPassedFolderFilter = passed_folder;
 	mLastFilterGeneration = filter_generation;
+	mStringMatchOffsetFilter = string_offset;
+	mStringFilterSize = string_size;
 
 	bool passed_filter_before = mPrevPassedAllFilters;
 	mPrevPassedAllFilters = passedFilter(filter_generation);
@@ -226,9 +228,7 @@ void LLFolderViewModelItemInventory::filter( LLFolderViewFilter& filter)
 								? filter.checkFolder(this)
 								: true;
 
-		setPassedFilter(passed_filter, passed_filter_folder, filter_generation);
-		//TODO RN: create interface for string highlighting
-		//mStringMatchOffset = filter.getStringMatchOffset(this);
+		setPassedFilter(passed_filter, passed_filter_folder, filter_generation, filter.getStringMatchOffset(this), filter.getFilterStringSize());
 	}
 }
 

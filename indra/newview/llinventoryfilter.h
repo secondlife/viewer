@@ -193,10 +193,8 @@ public:
 
 	bool				showAllResults() const;
 
-
-	std::string::size_type getStringMatchOffset() const;
-
-	std::string::size_type getStringMatchOffset(LLFolderViewItem* item)   const;
+	std::string::size_type getStringMatchOffset(LLFolderViewModelItem* item) const;
+	std::string::size_type getFilterStringSize() const;
 	// +-------------------------------------------------------------------+
 	// + Presentation
 	// +-------------------------------------------------------------------+
