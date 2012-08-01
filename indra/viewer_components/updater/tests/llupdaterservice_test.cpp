@@ -44,7 +44,7 @@
 *****************************************************************************/
 LLUpdateChecker::LLUpdateChecker(LLUpdateChecker::Client & client)
 {}
-void LLUpdateChecker::check(std::string const & protocolVersion, std::string const & hostUrl, 
+void LLUpdateChecker::checkVersion(std::string const & protocolVersion, std::string const & hostUrl, 
 								  std::string const & servicePath, std::string channel, std::string version)
 {}
 LLUpdateDownloader::LLUpdateDownloader(Client & ) {}

@@ -44,7 +44,7 @@ public:
 	LLUpdateChecker(Client & client);
 	
 	// Check status of current app on the given host for the channel and version provided.
-	void check(std::string const & protocolVersion, std::string const & hostUrl, 
+	void checkVersion(std::string const & protocolVersion, std::string const & hostUrl, 
 			   std::string const & servicePath, std::string channel, std::string version);
 	
 private:
