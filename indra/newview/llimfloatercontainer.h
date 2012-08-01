@@ -91,7 +91,7 @@ public:
 	virtual bool potentiallyVisible() { return true; }
 	virtual void filter( LLFolderViewFilter& filter) { }
 	virtual bool descendantsPassedFilter(S32 filter_generation = -1) { return true; }
-	virtual void setPassedFilter(bool passed, bool passed_folder, S32 filter_generation) { }
+	virtual void setPassedFilter(bool passed, bool passed_folder, S32 filter_generation, std::string::size_type string_offset = std::string::npos, std::string::size_type string_size = 0) { }
 	virtual bool passedFilter(S32 filter_generation = -1) { return true; }
 
 	// The action callbacks
@@ -142,6 +142,8 @@ public:
 	void 				setEmptyLookupMessage(const std::string& message) { }
 	std::string			getEmptyLookupMessage() const { return mEmpty; }
 	bool				showAllResults() const { return true; }
+	std::string::size_type getStringMatchOffset(LLFolderViewModelItem* item) const { return std::string::npos; }
+	std::string::size_type getFilterStringSize() const { return 0; }
 		
 	bool 				isActive() const { return false; }
 	bool 				isModified() const { return false; }

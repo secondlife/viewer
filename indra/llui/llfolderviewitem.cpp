@@ -106,8 +106,6 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 	mHasVisibleChildren(FALSE),
 	mIndentation(0),
 	mItemHeight(p.item_height),
-	//TODO RN: create interface for string highlighting
-	//mStringMatchOffset(std::string::npos),
 	mControlLabelRotation(0.f),
 	mDragAndDropTarget(FALSE),
 	mLabel(p.name),
@@ -778,29 +776,28 @@ void LLFolderViewItem::draw()
 	//--------------------------------------------------------------------------------//
 	// Highlight string match
 	//
-	//TODO RN: expose interface for highlighting
-	//if (mStringMatchOffset != std::string::npos)
-	//{
-	//	// don't draw backgrounds for zero-length strings
-	//	S32 filter_string_length = getRoot()->getFilterSubString().size();
-	//	if (filter_string_length > 0)
-	//	{
-	//		std::string combined_string = mLabel + mLabelSuffix;
-	//		S32 left = llround(text_left) + font->getWidth(combined_string, 0, mStringMatchOffset) - 1;
-	//		S32 right = left + font->getWidth(combined_string, mStringMatchOffset, filter_string_length) + 2;
-	//		S32 bottom = llfloor(getRect().getHeight() - font->getLineHeight() - 3 - TOP_PAD);
-	//		S32 top = getRect().getHeight() - TOP_PAD;
-	//	
-	//		LLUIImage* box_image = default_params.selection_image;
-	//		LLRect box_rect(left, top, right, bottom);
-	//		box_image->draw(box_rect, sFilterBGColor);
-	//		F32 match_string_left = text_left + font->getWidthF32(combined_string, 0, mStringMatchOffset);
-	//		F32 yy = (F32)getRect().getHeight() - font->getLineHeight() - (F32)TEXT_PAD - (F32)TOP_PAD;
-	//		font->renderUTF8( combined_string, mStringMatchOffset, match_string_left, yy,
-	//						  sFilterTextColor, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
-	//						  filter_string_length, S32_MAX, &right_x, FALSE );
-	//	}
-	//}
+	if (mViewModelItem->hasFilterStringMatch())
+	{
+		// don't draw backgrounds for zero-length strings
+		std::string::size_type filter_string_length = mViewModelItem->getFilterStringSize();
+		if (filter_string_length > 0)
+		{
+			std::string combined_string = mLabel + mLabelSuffix;
+			S32 left = llround(text_left) + font->getWidth(combined_string, 0, mViewModelItem->getFilterStringOffset()) - 1;
+			S32 right = left + font->getWidth(combined_string, mViewModelItem->getFilterStringOffset(), filter_string_length) + 2;
+			S32 bottom = llfloor(getRect().getHeight() - font->getLineHeight() - 3 - TOP_PAD);
+			S32 top = getRect().getHeight() - TOP_PAD;
+
+			LLUIImage* box_image = default_params.selection_image;
+			LLRect box_rect(left, top, right, bottom);
+			box_image->draw(box_rect, sFilterBGColor);
+			F32 match_string_left = text_left + font->getWidthF32(combined_string, 0, mViewModelItem->getFilterStringOffset());
+			F32 yy = (F32)getRect().getHeight() - font->getLineHeight() - (F32)TEXT_PAD - (F32)TOP_PAD;
+			font->renderUTF8( combined_string, mViewModelItem->getFilterStringOffset(), match_string_left, yy,
+							  sFilterTextColor, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
+							  filter_string_length, S32_MAX, &right_x, FALSE );
+		}
+	}
 }
 
 const LLFolderViewModelInterface* LLFolderViewItem::getFolderViewModel( void ) const

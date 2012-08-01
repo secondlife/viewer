@@ -6413,6 +6413,7 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
    icon="notify.tga"
    name="TeleportOffered"
    log_to_im="true"
+   log_to_chat="false"
    type="offer">
 [NAME_SLURL] has offered to teleport you to their location:
 
@@ -6434,6 +6435,8 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
   <notification
    icon="notify.tga"
    name="TeleportOffered_MaturityExceeded"
+   log_to_im="true"
+   log_to_chat="false"
    type="offer">
 [NAME_SLURL] has offered to teleport you to their location:
 
@@ -6457,6 +6460,8 @@ This region contains [REGION_CONTENT_MATURITY] content, but your current prefere
   <notification
    icon="notify.tga"
    name="TeleportOffered_MaturityBlocked"
+   log_to_im="true"
+   log_to_chat="false"
    type="notifytip">
 [NAME_SLURL] has offered to teleport you to their location:
 
@@ -6471,6 +6476,7 @@ However, this region contains content accessible to adults only.
    icon="notify.tga"
    name="TeleportOfferSent"
    log_to_im="true"
+   log_to_chat="false"
    show_toast="false"
    type="offer">
 	Teleport offer sent to [TO_NAME]

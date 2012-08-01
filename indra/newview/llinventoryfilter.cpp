@@ -94,9 +94,9 @@ bool LLInventoryFilter::check(const LLFolderViewModelItem* item)
 		return passed_clipboard;
 	}
 
-	std::string::size_type string_offset = mFilterSubString.size() ? listener->getSearchableName().find(mFilterSubString) : 0;
+	std::string::size_type string_offset = mFilterSubString.size() ? listener->getSearchableName().find(mFilterSubString) : std::string::npos;
 
-	BOOL passed = string_offset !=  std::string::npos;
+	BOOL passed = (mFilterSubString.size() == 0 || string_offset != std::string::npos);
 	passed = passed && checkAgainstFilterType(listener);
 	passed = passed && checkAgainstPermissions(listener);
 	passed = passed && checkAgainstFilterLinks(listener);
@@ -107,7 +107,7 @@ bool LLInventoryFilter::check(const LLFolderViewModelItem* item)
 
 bool LLInventoryFilter::check(const LLInventoryItem* item)
 {
-	std::string::size_type string_offset = mFilterSubString.size() ?   item->getName().find(mFilterSubString) : std::string::npos;
+	std::string::size_type string_offset = mFilterSubString.size() ? item->getName().find(mFilterSubString) : std::string::npos;
 
 	const bool passed_filtertype = checkAgainstFilterType(item);
 	const bool passed_permissions = checkAgainstPermissions(item);
@@ -115,7 +115,7 @@ bool LLInventoryFilter::check(const LLInventoryItem* item)
 	const bool passed = (passed_filtertype 
 		&& passed_permissions
 		&& passed_clipboard 
-		&&	(mFilterSubString.size() == 0 || string_offset !=  std::string::npos));
+		&&	(mFilterSubString.size() == 0 || string_offset != std::string::npos));
 
 	return passed;
 }
@@ -382,9 +382,10 @@ const std::string& LLInventoryFilter::getFilterSubString(BOOL trim) const
 	return mFilterSubString;
 }
 
-std::string::size_type   LLInventoryFilter::getStringMatchOffset(LLFolderViewItem* item) const
+std::string::size_type LLInventoryFilter::getStringMatchOffset(LLFolderViewModelItem* item) const
 {
-	return mFilterSubString.size() ? item->getName().find(mFilterSubString)   : std::string::npos;
+	const LLFolderViewModelItemInventory* listener = static_cast<const LLFolderViewModelItemInventory*>(item);
+	return mFilterSubString.size() ? listener->getSearchableName().find(mFilterSubString) : std::string::npos;
 }
 
 bool LLInventoryFilter::isDefault() const
@@ -989,6 +990,11 @@ U64 LLInventoryFilter::getFilterWearableTypes() const
 bool LLInventoryFilter::hasFilterString() const
 {
 	return mFilterSubString.size() > 0;
+}
+
+std::string::size_type LLInventoryFilter::getFilterStringSize() const
+{
+	return mFilterSubString.size();
 }
 
 PermissionMask LLInventoryFilter::getFilterPermissions() const
