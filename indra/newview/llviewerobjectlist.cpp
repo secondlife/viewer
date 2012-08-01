@@ -384,9 +384,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 		}
 		else if (compressed)
 		{
-			U8							compbuffer[2048];
 			S32							uncompressed_length = 2048;
-			S32							compressed_length;
 			compressed_dp.reset();
 
 			U32 flags = 0;
@@ -395,24 +393,9 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 				mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_UpdateFlags, flags, i);
 			}
 			
-			// I don't think we ever use this flag from the server.  DK 2010/12/09
-			if (flags & FLAGS_ZLIB_COMPRESSED)
-			{
-				//llinfos << "TEST: flags & FLAGS_ZLIB_COMPRESSED" << llendl;
-				compressed_length = mesgsys->getSizeFast(_PREHASH_ObjectData, i, _PREHASH_Data);
-				mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_Data, compbuffer, 0, i);
-				uncompressed_length = 2048;
-				uncompress(compressed_dpbuffer, (unsigned long *)&uncompressed_length,
-						   compbuffer, compressed_length);
-				compressed_dp.assignBuffer(compressed_dpbuffer, uncompressed_length);
-			}
-			else
-			{
-				uncompressed_length = mesgsys->getSizeFast(_PREHASH_ObjectData, i, _PREHASH_Data);
-				mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_Data, compressed_dpbuffer, 0, i);
-				compressed_dp.assignBuffer(compressed_dpbuffer, uncompressed_length);
-			}
-
+			uncompressed_length = mesgsys->getSizeFast(_PREHASH_ObjectData, i, _PREHASH_Data);
+			mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_Data, compressed_dpbuffer, 0, i);
+			compressed_dp.assignBuffer(compressed_dpbuffer, uncompressed_length);
 
 			if (update_type != OUT_TERSE_IMPROVED) // OUT_FULL_COMPRESSED only?
 			{
@@ -940,8 +923,6 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 			objectp = *active_iter;
 			if (objectp)
 			{
-				llassert(objectp->isActive());
-
 				if (idle_count >= idle_list.size())
 				{
 					idle_list.push_back( objectp );
@@ -964,6 +945,7 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 
 	if (gSavedSettings.getBOOL("FreezeTime"))
 	{	
+		
 		for (std::vector<LLViewerObject*>::iterator iter = idle_list.begin();
 			iter != idle_end; iter++)
 		{
@@ -982,6 +964,7 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 			objectp = *idle_iter;
 			llassert(objectp->isActive());
 			objectp->idleUpdate(agent, world, frame_time);
+
 		}
 
 		//update flexible objects

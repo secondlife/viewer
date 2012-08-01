@@ -1354,79 +1354,13 @@ Only large parcels can be listed in search.
              top="150"
              width="430" />
             <combo_box
-             enabled="false"
-             height="23"
-             layout="topleft"
-             left="20"
-             top="194"
-             name="land category with adult"
-             visible="false"
-             width="140">
-                <combo_box.item
-                 label="Any Category"
-                 name="item0"
-                 value="any" />
-                <combo_box.item
-                 label="Linden Location"
-                 name="item1"
-                 value="linden" />
-                <combo_box.item
-                 label="Adult"
-                 name="item2"
-                 value="adult" />
-                <combo_box.item
-                 label="Arts &amp; Culture"
-                 name="item3"
-                 value="arts" />
-                <combo_box.item
-                 label="Business"
-                 name="item4"
-                 value="store" />
-                <combo_box.item
-                 label="Educational"
-                 name="item5"
-                 value="educational" />
-                <combo_box.item
-                 label="Gaming"
-                 name="item6"
-                 value="game" />
-                <combo_box.item
-                 label="Hangout"
-                 name="item7"
-                 value="gather" />
-                <combo_box.item
-                 label="Newcomer Friendly"
-                 name="item8"
-                 value="newcomer" />
-                <combo_box.item
-                 label="Parks &amp; Nature"
-                 name="item9"
-                 value="park" />
-                <combo_box.item
-                 label="Residential"
-                 name="item10"
-                 value="home" />
-                <combo_box.item
-                 label="Shopping"
-                 name="item11"
-                 value="shopping" />
-                <combo_box.item
-                 label="Rental"
-                 name="item13"
-                 value="rental" />
-                <combo_box.item
-                 label="Other"
-                 name="item12"
-                 value="other" />
-            </combo_box>
-            <combo_box
-             enabled="false"
+             enabled="true"
              height="23"
              layout="topleft"
              left="20"
              top="194"
              name="land category"
-             visible="false"
+             visible="true"
              width="140">
                 <combo_box.item
                  label="Any Category"
@@ -1989,11 +1923,11 @@ Only large parcels can be listed in search.
             <check_box
              follows="top|left"
              height="16"
-             label="Have been age-verified [ESTATE_AGE_LIMIT]"
+             label="Are age 18 or older [ESTATE_AGE_LIMIT]"
              layout="topleft"
              left_delta="0"
              name="limit_age_verified"
-             tool_tip="Residents must be age verified to access this parcel. See the [SUPPORT_SITE] for more information."
+             tool_tip="Residents must be age 18 or older to access this parcel. See the [SUPPORT_SITE] for more information."
              top_pad="4"
              width="278" />
             <check_box

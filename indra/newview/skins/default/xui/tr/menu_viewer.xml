@@ -225,11 +225,10 @@
 			<menu_item_check label="Doku Konsolu" name="Texture Console"/>
 			<menu_item_check label="Hata Ayıklama Konsolu" name="Debug Console"/>
 			<menu_item_call label="Bildirimler Konsolu" name="Notifications"/>
-			<menu_item_check label="Doku Büyüklüğü Konsolu" name="Texture Size"/>
-			<menu_item_check label="Doku Kategorisi Konsolu" name="Texture Category"/>
 			<menu_item_check label="Hızlı Zamanlayıcılar" name="Fast Timers"/>
 			<menu_item_check label="Bellek" name="Memory"/>
 			<menu_item_check label="Sahne İstatistikleri" name="Scene Statistics"/>
+			<menu_item_call label="Doku Alınması Hata Ayıklama Konsolu" name="Texture Fetch Debug Console"/>
 			<menu_item_call label="Hata Ayıklama Konsoluna giden Bölge Bilgisi" name="Region Info to Debug Console"/>
 			<menu_item_call label="Hata Ayıklama Konsoluna giden Grup Bilgisi" name="Group Info to Debug Console"/>
 			<menu_item_call label="Hata Ayıklama Konsoluna giden Özellikler Bilgisi" name="Capabilities Info to Debug Console"/>
@@ -287,6 +286,12 @@
 			<menu_item_check label="İşleme Karmaşıklığı" name="rendercomplexity"/>
 			<menu_item_check label="Aksesuar Bayt Büyüklüğü" name="attachment bytes"/>
 			<menu_item_check label="Şekillendir" name="Sculpt"/>
+			<menu label="Doku Yoğunluğu" name="Texture Density">
+				<menu_item_check label="Yok" name="None"/>
+				<menu_item_check label="Mevcut" name="Current"/>
+				<menu_item_check label="Arzulanan" name="Desired"/>
+				<menu_item_check label="Tam" name="Full"/>
+			</menu>
 		</menu>
 		<menu label="İşleme" name="Rendering">
 			<menu_item_check label="Eksenler" name="Axes"/>
@@ -304,7 +309,6 @@
 			<menu_item_check label="Animasyon Dokuları" name="Animation Textures"/>
 			<menu_item_check label="Dokuları Devre Dışı Bırak" name="Disable Textures"/>
 			<menu_item_check label="Tam Çöz. Dokular" name="Rull Res Textures"/>
-			<menu_item_check label="Dokuları Denetle" name="Audit Textures"/>
 			<menu_item_check label="Doku Atlas (deneysel)" name="Texture Atlas"/>
 			<menu_item_check label="Eklenmiş Işıkları İşle" name="Render Attached Lights"/>
 			<menu_item_check label="Eklenmiş Parçacıkları İşle" name="Render Attached Particles"/>

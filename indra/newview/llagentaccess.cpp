@@ -33,8 +33,7 @@ LLAgentAccess::LLAgentAccess(LLControlGroup& savedSettings) :
 	mSavedSettings(savedSettings),
 	mAccess(SIM_ACCESS_PG),
 	mAdminOverride(false),
-	mGodLevel(GOD_NOT),
-	mAOTransition(false)
+	mGodLevel(GOD_NOT)
 {
 }
 
@@ -133,18 +132,6 @@ bool LLAgentAccess::isAdult() const
 	return mAccess >= SIM_ACCESS_ADULT;
 }
 
-void LLAgentAccess::setTeen(bool teen)
-{
-	if (teen)
-	{
-		mAccess = SIM_ACCESS_PG;
-	}
-	else
-	{
-		mAccess = SIM_ACCESS_MATURE;
-	}
-}
-
 //static 
 int LLAgentAccess::convertTextToMaturity(char text)
 {
@@ -180,16 +167,6 @@ void LLAgentAccess::setMaturity(char text)
 		}
 	}
 	mSavedSettings.setU32("PreferredMaturity", preferred_access);
-}
-
-void LLAgentAccess::setTransition()
-{
-	mAOTransition = true;
-}
-
-bool LLAgentAccess::isInTransition() const
-{
-	return mAOTransition;
 }
 
 bool LLAgentAccess::canSetMaturity(S32 maturity)

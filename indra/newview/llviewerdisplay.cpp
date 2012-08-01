@@ -392,15 +392,24 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		const std::string& message = gAgent.getTeleportMessage();
 		switch( gAgent.getTeleportState() )
 		{
+		case LLAgent::TELEPORT_PENDING:
+			gTeleportDisplayTimer.reset();
+			gViewerWindow->setShowProgress(TRUE);
+			gViewerWindow->setProgressPercent(llmin(teleport_percent, 0.0f));
+			gAgent.setTeleportMessage(LLAgent::sTeleportProgressMessages["pending"]);
+			gViewerWindow->setProgressString(LLAgent::sTeleportProgressMessages["pending"]);
+			break;
+
 		case LLAgent::TELEPORT_START:
 			// Transition to REQUESTED.  Viewer has sent some kind
 			// of TeleportRequest to the source simulator
 			gTeleportDisplayTimer.reset();
 			gViewerWindow->setShowProgress(TRUE);
-			gViewerWindow->setProgressPercent(0);
+			gViewerWindow->setProgressPercent(llmin(teleport_percent, 0.0f));
 			gAgent.setTeleportState( LLAgent::TELEPORT_REQUESTED );
 			gAgent.setTeleportMessage(
 				LLAgent::sTeleportProgressMessages["requesting"]);
+			gViewerWindow->setProgressString(LLAgent::sTeleportProgressMessages["requesting"]);
 			break;
 
 		case LLAgent::TELEPORT_REQUESTED:
@@ -425,6 +434,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				LLAgent::sTeleportProgressMessages["arriving"]);
 			gTextureList.mForceResetTextureStats = TRUE;
 			gAgentCamera.resetView(TRUE, TRUE);
+			
 			break;
 
 		case LLAgent::TELEPORT_ARRIVING:
@@ -761,7 +771,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				LLImageGL::deleteDeadTextures();
 				stop_glerror();
 			}*/
-		}
+			}
 
 		LLGLState::checkStates();
 		LLGLState::checkClientArrays();

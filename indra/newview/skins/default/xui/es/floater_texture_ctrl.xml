@@ -1,24 +1,35 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="texture picker" title="DESTACADO: TEXTURA">
-	<string name="choose_picture">
+	<floater.string name="choose_picture">
 		Pulse para elegir una imagen
-	</string>
+	</floater.string>
+	<floater.string name="pick title">
+		Elegir:
+	</floater.string>
 	<text name="Multiple">
 		Texturas múltiples
 	</text>
+	<radio_group name="mode_selection">
+		<radio_item label="Inventario" name="inventory" value="0"/>
+		<radio_item label="Local" name="local" value="1"/>
+	</radio_group>
 	<text name="unknown">
 		Tamaño: [DIMENSIONS]
 	</text>
 	<button label="Por defecto" label_selected="Por defecto" name="Default" width="84"/>
-	<button label="Ninguna" label_selected="Ninguna" left="90" name="None"/>
 	<button label="Blanca" label_selected="Blanca" name="Blank"/>
-	<check_box label="Ver las carpetas" name="show_folders_check"/>
-	<search_editor label="Filtrar las texturas" name="inventory search editor"/>
-	<check_box label="Aplicarlo ahora" name="apply_immediate_check"/>
+	<button label="Ninguna" label_selected="Ninguna" left="90" name="None"/>
 	<button label="" label_selected="" name="Pipette"/>
-	<button label="Cancelar" label_selected="Cancelar" name="Cancel"/>
+	<filter_editor label="Filtrar las texturas" name="inventory search editor"/>
+	<check_box initial_value="false" label="Ver las carpetas" name="show_folders_check"/>
+	<button label="Añadir" label_selected="Añadir" name="l_add_btn"/>
+	<button label="Eliminar" label_selected="Eliminar" name="l_rem_btn"/>
+	<button label="Subir" label_selected="Subir" name="l_upl_btn"/>
+	<scroll_list name="l_name_list">
+		<column label="Nombre" name="unit_name"/>
+		<column label="ID" name="unit_id_HIDDEN"/>
+	</scroll_list>
 	<button label="OK" label_selected="OK" name="Select"/>
-	<string name="pick title">
-		Elegir:
-	</string>
+	<button label="Cancelar" label_selected="Cancelar" name="Cancel"/>
+	<check_box initial_value="true" label="Aplicarlo ahora" name="apply_immediate_check"/>
 </floater>

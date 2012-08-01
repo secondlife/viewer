@@ -826,7 +826,10 @@ void LLManipScale::drag( S32 x, S32 y )
 	{
 		LLSelectNode* selectNode = *iter;
 		LLViewerObject*cur = selectNode->getObject();
-		if( cur->permModify() && cur->permMove() && !cur->isAvatar())
+		LLViewerObject *root_object = (cur == NULL) ? NULL : cur->getRootEdit();
+		if( cur->permModify() && cur->permMove() && !cur->isPermanentEnforced() &&
+			((root_object == NULL) || !root_object->isPermanentEnforced()) &&
+			!cur->isAvatar())
 		{
 			selectNode->mLastScale = cur->getScale();
 			selectNode->mLastPositionLocal = cur->getPosition();
@@ -973,7 +976,10 @@ void LLManipScale::dragCorner( S32 x, S32 y )
 	{
 		LLSelectNode* selectNode = *iter;
 		LLViewerObject* cur = selectNode->getObject();
-		if(  cur->permModify() && cur->permMove() && !cur->isAvatar() )
+		LLViewerObject *root_object = (cur == NULL) ? NULL : cur->getRootEdit();
+		if(  cur->permModify() && cur->permMove() && !cur->isPermanentEnforced() &&
+			((root_object == NULL) || !root_object->isPermanentEnforced()) &&
+			!cur->isAvatar() )
 		{
 			const LLVector3& scale = selectNode->mSavedScale;
 
@@ -995,7 +1001,10 @@ void LLManipScale::dragCorner( S32 x, S32 y )
 	{
 		LLSelectNode* selectNode = *iter;
 		LLViewerObject* cur = selectNode->getObject();
-		if( cur->permModify() && cur->permMove() && !cur->isAvatar() && cur->isRootEdit() )
+		LLViewerObject *root_object = (cur == NULL) ? NULL : cur->getRootEdit();
+		if( cur->permModify() && cur->permMove() && !cur->isPermanentEnforced() &&
+			((root_object == NULL) || !root_object->isPermanentEnforced()) &&
+			!cur->isAvatar() && cur->isRootEdit() )
 		{
 			const LLVector3& scale = selectNode->mSavedScale;
 			cur->setScale( scale_factor * scale );
@@ -1043,7 +1052,10 @@ void LLManipScale::dragCorner( S32 x, S32 y )
 	{
 		LLSelectNode* selectNode = *iter;
 		LLViewerObject*cur = selectNode->getObject();
-		if( cur->permModify() && cur->permMove() && !cur->isAvatar() && !cur->isRootEdit() )
+		LLViewerObject *root_object = (cur == NULL) ? NULL : cur->getRootEdit();
+		if( cur->permModify() && cur->permMove() && !cur->isPermanentEnforced() &&
+			((root_object == NULL) || !root_object->isPermanentEnforced()) &&
+			!cur->isAvatar() && !cur->isRootEdit() )
 		{
 			const LLVector3& scale = selectNode->mSavedScale;
 			cur->setScale( scale_factor * scale, FALSE );
@@ -1251,7 +1263,10 @@ void LLManipScale::stretchFace( const LLVector3& drag_start_agent, const LLVecto
 	{
 		LLSelectNode* selectNode = *iter;
 		LLViewerObject*cur = selectNode->getObject();
-		if( cur->permModify() && cur->permMove() && !cur->isAvatar() )
+		LLViewerObject *root_object = (cur == NULL) ? NULL : cur->getRootEdit();
+		if( cur->permModify() && cur->permMove() && !cur->isPermanentEnforced() &&
+			((root_object == NULL) || !root_object->isPermanentEnforced()) &&
+			!cur->isAvatar() )
 		{
 			LLBBox cur_bbox			= cur->getBoundingBoxAgent();
 			LLVector3 start_local	= cur_bbox.agentToLocal( drag_start_agent );
@@ -2057,7 +2072,10 @@ BOOL LLManipScale::canAffectSelection()
 		{
 			virtual bool apply(LLViewerObject* objectp)
 			{
-				return objectp->permModify() && objectp->permMove() && !objectp->isSeat();
+				LLViewerObject *root_object = (objectp == NULL) ? NULL : objectp->getRootEdit();
+				return objectp->permModify() && objectp->permMove() && !objectp->isPermanentEnforced() &&
+					((root_object == NULL) || !root_object->isPermanentEnforced()) &&
+					!objectp->isSeat();
 			}
 		} func;
 		can_scale = mObjectSelection->applyToObjects(&func);

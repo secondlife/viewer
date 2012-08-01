@@ -422,6 +422,16 @@ S32 LLFontGL::renderUTF8(const std::string &text, S32 begin_offset, S32 x, S32 y
 }
 
 // font metrics - override for LLFontFreetype that returns units of virtual pixels
+F32 LLFontGL::getAscenderHeight() const
+{ 
+	return mFontFreetype->getAscenderHeight() / sScaleY;
+}
+
+F32 LLFontGL::getDescenderHeight() const
+{ 
+	return mFontFreetype->getDescenderHeight() / sScaleY;
+}
+
 S32 LLFontGL::getLineHeight() const
 { 
 	return llceil(mFontFreetype->getAscenderHeight() / sScaleY) + llceil(mFontFreetype->getDescenderHeight() / sScaleY);

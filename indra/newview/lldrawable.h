@@ -58,6 +58,7 @@ class LLViewerTexture;
 const U32 SILHOUETTE_HIGHLIGHT = 0;
 
 // All data for new renderer goes into this class.
+LL_ALIGN_PREFIX(16)
 class LLDrawable : public LLRefCount
 {
 public:
@@ -73,6 +74,16 @@ public:
 	}
 
 	static void initClass();
+
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free_16(ptr);
+	}
 
 	LLDrawable()				{ init(); }
 	
@@ -283,8 +294,8 @@ public:
 	} EDrawableFlags;
 
 private: //aligned members
-	LLVector4a		mExtents[2];
-	LLVector4a		mPositionGroup;
+	LL_ALIGN_16(LLVector4a		mExtents[2]);
+	LL_ALIGN_16(LLVector4a		mPositionGroup);
 	
 public:
 	LLXformMatrix       mXform;
@@ -324,7 +335,7 @@ private:
 
 	static U32 sNumZombieDrawables;
 	static LLDynamicArrayPtr<LLPointer<LLDrawable> > sDeadList;
-};
+} LL_ALIGN_POSTFIX(16);
 
 
 inline LLFace* LLDrawable::getFace(const S32 i) const

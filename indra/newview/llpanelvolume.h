@@ -61,7 +61,7 @@ public:
 	
 	static void 	onCommitIsLight(		LLUICtrl* ctrl, void* userdata);
 	static void 	onCommitLight(			LLUICtrl* ctrl, void* userdata);
-	static void 	onCommitIsFlexible(		LLUICtrl* ctrl, void* userdata);
+	void 			onCommitIsFlexible(		LLUICtrl* ctrl, void* userdata);
 	static void 	onCommitFlexible(		LLUICtrl* ctrl, void* userdata);
 	static void     onCommitPhysicsParam(       LLUICtrl* ctrl, void* userdata);
 	static void 	onCommitMaterial(		LLUICtrl* ctrl, void* userdata);
@@ -83,6 +83,8 @@ protected:
 	void            sendPhysicsFriction(LLUICtrl* ctrl, void* userdata);
 	void            sendPhysicsRestitution(LLUICtrl* ctrl, void* userdata);
 	void            sendPhysicsDensity(LLUICtrl* ctrl, void* userdata);
+
+	void            handleResponseChangeToFlexible(const LLSD &pNotification, const LLSD &pResponse);
 
 /*
 	LLTextBox*		mLabelSelectSingleMessage;
