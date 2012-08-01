@@ -259,7 +259,7 @@ public:
 		dirtyFilter();
 	}
 
-	void setPassedFilter(bool passed, bool passed_folder, S32 filter_generation, std::string::size_type string_offset, std::string::size_type string_size)
+	void setPassedFilter(bool passed, bool passed_folder, S32 filter_generation, std::string::size_type string_offset = std::string::npos, std::string::size_type string_size = 0)
 	{
 		mPassedFilter = passed;
 		mPassedFolderFilter = passed_folder;
