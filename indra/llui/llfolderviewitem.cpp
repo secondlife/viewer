@@ -810,6 +810,12 @@ LLFolderViewModelInterface* LLFolderViewItem::getFolderViewModel( void )
 	return getRoot()->getFolderViewModel();
 }
 
+bool LLFolderViewItem::isInSelection() const
+{
+	return mIsSelected || (mParentFolder && mParentFolder->isInSelection());
+}
+
+
 
 ///----------------------------------------------------------------------------
 /// Class LLFolderViewFolder

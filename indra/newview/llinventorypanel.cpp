@@ -281,13 +281,6 @@ void LLInventoryPanel::draw()
 	// Select the desired item (in case it wasn't loaded when the selection was requested)
 	updateSelection();
 	
-	// Nudge the filter if the clipboard state changed
-	if (mClipboardState != LLClipboard::instance().getGeneration())
-	{
-		mClipboardState = LLClipboard::instance().getGeneration();
-		getFilter().setModified(LLClipboard::instance().isCutMode() ? LLInventoryFilter::FILTER_MORE_RESTRICTIVE : LLInventoryFilter::FILTER_LESS_RESTRICTIVE);
-	}
-	
 	LLPanel::draw();
 }
 
@@ -586,7 +579,6 @@ LLUUID LLInventoryPanel::getRootFolderID()
 	}
 }
 
-
 // static
 void LLInventoryPanel::onIdle(void *userdata)
 {
@@ -608,6 +600,15 @@ void LLInventoryPanel::onIdle(void *userdata)
 void LLInventoryPanel::idle(void* user_data)
 {
 	LLInventoryPanel* panel = (LLInventoryPanel*)user_data;
+	// Nudge the filter if the clipboard state changed
+	if (panel->mClipboardState != LLClipboard::instance().getGeneration())
+	{
+		panel->mClipboardState = LLClipboard::instance().getGeneration();
+		panel->getFilter().setModified(LLClipboard::instance().isCutMode() 
+										? LLInventoryFilter::FILTER_MORE_RESTRICTIVE 
+										: LLInventoryFilter::FILTER_LESS_RESTRICTIVE);
+	}
+
 	panel->mFolderRoot->update();
 	// while dragging, update selection rendering to reflect single/multi drag status
 	if (LLToolDragAndDrop::getInstance()->hasMouseCapture())

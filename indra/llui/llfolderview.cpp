@@ -717,33 +717,6 @@ void LLFolderView::closeRenamer( void )
 	}
 }
 
-bool isDescendantOfASelectedItem(LLFolderViewItem* item, const std::vector<LLFolderViewItem*>& selectedItems)
-{
-	LLFolderViewItem* item_parent = dynamic_cast<LLFolderViewItem*>(item->getParent());
-
-	if (item_parent)
-	{
-		for(std::vector<LLFolderViewItem*>::const_iterator it = selectedItems.begin(); it != selectedItems.end(); ++it)
-		{
-			const LLFolderViewItem* const selected_item = (*it);
-
-			LLFolderViewItem* parent = item_parent;
-
-			while (parent)
-			{
-				if (selected_item == parent)
-				{
-					return true;
-				}
-
-				parent = dynamic_cast<LLFolderViewItem*>(parent->getParent());
-			}
-		}
-	}
-
-	return false;
-}
-
 void LLFolderView::removeSelectedItems()
 {
 	if(getVisible() && getEnabled())
@@ -815,7 +788,7 @@ void LLFolderView::removeSelectedItems()
 			if (!new_selection)
 			{
 				new_selection = last_item->getPreviousOpenNode(FALSE);
-				while (new_selection && (new_selection->isSelected() || isDescendantOfASelectedItem(new_selection, items)))
+				while (new_selection && (new_selection->isInSelection()))
 				{
 					new_selection = new_selection->getPreviousOpenNode(FALSE);
 				}
@@ -1060,15 +1033,41 @@ void LLFolderView::cut()
 	if(getVisible() && getEnabled() && (count > 0))
 	{
 		LLFolderViewModelItem* listener = NULL;
+
+		LLFolderViewItem* last_item = *mSelectedItems.rbegin();;
+		LLFolderViewItem* new_selection = last_item->getNextOpenNode(FALSE);
+		while(new_selection && new_selection->isSelected())
+		{
+			new_selection = new_selection->getNextOpenNode(FALSE);
+		}
+		if (!new_selection)
+		{
+			new_selection = last_item->getPreviousOpenNode(FALSE);
+			while (new_selection && (new_selection->isInSelection()))
+			{
+				new_selection = new_selection->getPreviousOpenNode(FALSE);
+			}
+		}
+
 		selected_items_t::iterator item_it;
 		for (item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
 		{
-			listener = (*item_it)->getViewModelItem();
+			LLFolderViewItem* item_to_cut = *item_it;
+			listener = item_to_cut->getViewModelItem();
 			if(listener)
 			{
 				listener->cutToClipboard();
 				listener->removeItem();
 			}
+		}
+
+		if (new_selection)
+		{
+			setSelection(new_selection, new_selection->isOpen(), mParentPanel->hasFocus());
+		}
+		else
+		{
+			setSelection(NULL, mParentPanel->hasFocus());
 		}
 	}
 	mSearchString.clear();
