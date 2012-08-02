@@ -14,1234 +14,1228 @@
 		SECOND LIFE
 	</string>
 	<string name="SECOND_LIFE_GRID">
-		Second Life Ağı
+		Сетка Second Life
 	</string>
 	<string name="SUPPORT_SITE">
-		Second Life Destek Portalı
+		Портал поддержки Second Life
 	</string>
 	<string name="StartupDetectingHardware">
-		Donanım saptanıyor...
+		Проверка оборудования...
 	</string>
 	<string name="StartupLoading">
-		[APP_NAME] yükleniyor...
+		Загружается [APP_NAME]...
 	</string>
 	<string name="StartupClearingCache">
-		Önbellek temizleniyor...
+		Очистка кэша...
 	</string>
 	<string name="StartupInitializingTextureCache">
-		Doku önbelleği başlatılıyor...
+		Инициализация кэша текстур...
 	</string>
 	<string name="StartupInitializingVFS">
-		VFS Başlatılıyor...
+		Инициализация виртуальной файловой системы...
 	</string>
 	<string name="StartupRequireDriverUpdate">
-		Grafik başlatma başarılamadı. Lütfen grafik sürücünüzü güncelleştirin!
+		Ошибка инициализации графики. Обновите графический драйвер!
 	</string>
 	<string name="ProgressRestoring">
-		Geri yükleniyor...
+		Восстановление...
 	</string>
 	<string name="ProgressChangingResolution">
-		Çözünürlük değiştiriliyor...
+		Изменение разрешения...
 	</string>
 	<string name="Fullbright">
-		Tam parlak (eski)
+		Собственная яркость (устаревший параметр)
 	</string>
 	<string name="LoginInProgress">
-		Oturum açılıyor. [APP_NAME] kilitlenmiş görünebilir.  Lütfen bekleyin.
+		Вход... Может показаться, что программа [APP_NAME] зависла.  Ожидайте.
 	</string>
 	<string name="LoginInProgressNoFrozen">
-		Oturum açılıyor...
+		Вход...
 	</string>
 	<string name="LoginAuthenticating">
-		Kimlik doğrulaması yapılıyor
+		Аутентификация
 	</string>
 	<string name="LoginMaintenance">
-		Hesap bakımı yapılıyor...
+		Идет обслуживание аккаунта...
 	</string>
 	<string name="LoginAttempt">
-		Önceki oturum açma girişimi başarılamadı. Oturum açılıyor, [NUMBER]. girişim.
+		Предыдущая попытка входа была неудачной. Вход: попытка № [NUMBER]
 	</string>
 	<string name="LoginPrecaching">
-		Dünya yükleniyor...
+		Загрузка мира...
 	</string>
 	<string name="LoginInitializingBrowser">
-		Katıştırılmış web tarayıcısı başlatılıyor...
+		Инициализация встроенного веб-браузера...
 	</string>
 	<string name="LoginInitializingMultimedia">
-		Multimedya başlatılıyor...
+		Инициализация мультимедиа...
 	</string>
 	<string name="LoginInitializingFonts">
-		Fontlar yükleniyor...
+		Загрузка шрифтов...
 	</string>
 	<string name="LoginVerifyingCache">
-		Önbellek dosyaları doğrulanıyor (60-90 saniye zaman alabilir)...
+		Проверка файлов кэша (может занять 60-90 с)...
 	</string>
 	<string name="LoginProcessingResponse">
-		Yanıt işleniyor...
+		Обработка ответа...
 	</string>
 	<string name="LoginInitializingWorld">
-		Dünya başlatılıyor...
+		Инициализация мира...
 	</string>
 	<string name="LoginDecodingImages">
-		Görüntülerin kodu çözülüyor...
+		Декодирование изображений...
 	</string>
 	<string name="LoginInitializingQuicktime">
-		QuickTime Başlatılıyor...
+		Инициализация QuickTime...
 	</string>
 	<string name="LoginQuicktimeNotFound">
-		QuickTime bulunamadı - başlatılamadı.
+		QuickTime не найден – ошибка инициализации.
 	</string>
 	<string name="LoginQuicktimeOK">
-		QuickTime başarıyla başlatıldı.
+		Успешная инициализация QuickTime.
 	</string>
 	<string name="LoginRequestSeedCapGrant">
-		Bölge özellikleri talep ediliyor...
+		Запрос возможностей региона...
 	</string>
 	<string name="LoginRetrySeedCapGrant">
-		Bölge özellikleri talep ediliyor: [NUMBER]. girişim...
+		Запрос возможностей региона, попытка [NUMBER]...
 	</string>
 	<string name="LoginWaitingForRegionHandshake">
-		Bölge el sıkışması bekleniyor...
+		Устанавливается связь с регионом...
 	</string>
 	<string name="LoginConnectingToRegion">
-		Bölgeye bağlanılıyor...
+		Подключение к региону...
 	</string>
 	<string name="LoginDownloadingClothing">
-		Giysiler karşıdan yükleniyor...
+		Загрузка одежды...
 	</string>
 	<string name="InvalidCertificate">
-		Sunucu geçersiz veya bozuk bir sertifika döndürdü. Lütfen Ağ yöneticisine başvurun.
+		Сервер возвратил недействительный или поврежденный сертификат. Обратитесь к администратору сетки.
 	</string>
 	<string name="CertInvalidHostname">
-		Sunucuya erişmek için geçersiz bir ana bilgisayar adı kullanıldı, lütfen SLURL veya Ağ ana bilgisayar adınızı kontrol edin.
+		Для доступа к серверу использовалось недействительное имя узла. Проверьте URL-адрес SL или имя узла в сетке.
 	</string>
 	<string name="CertExpired">
-		Ağ tarafından döndürülen sertifikanın süresi sona ermiş görünüyor.  Lütfen sistem saatinizi kontrol edin veya Ağ yöneticinize başvurun.
+		Судя по всему, истек срок действия сертификата, возвращенного сеткой.  Проверьте время, установленное в системе, или обратитесь к администратору сетки.
 	</string>
 	<string name="CertKeyUsage">
-		Sunucu tarafından döndürülen sertifika SSL için kullanılamadı.  Lütfen Ağ yöneticinize başvurun.
+		Не удалось использовать в протоколе SSL сертификат, возвращенный сервером.  Обратитесь к администратору сетки.
 	</string>
 	<string name="CertBasicConstraints">
-		Sunucunun Sertifika zincirinde çok fazla sertifika vardı.  Lütfen Ağ yöneticinize başvurun.
+		В цепочке сертификатов серверов слишком много сертификатов.  Обратитесь к администратору сетки.
 	</string>
 	<string name="CertInvalidSignature">
-		Ağ sunucusu tarafından döndürülen sertifika imzası doğrulanamadı.  Lütfen Ağ yöneticinize başvurun.
+		Не удалось проверить подпись сертификата, возвращенного сервером сетки.  Обратитесь к администратору сетки.
 	</string>
 	<string name="LoginFailedNoNetwork">
-		Ağ hatası: Bağlantı kurulamadı, lütfen ağ bağlantınızı kontrol edin.
+		Ошибка сети: не удалось установить соединение. Проверьте подключение к сети.
 	</string>
 	<string name="LoginFailed">
-		Oturum açılamadı.
+		Ошибка входа.
 	</string>
 	<string name="Quit">
-		Çık
+		Выйти
 	</string>
 	<string name="create_account_url">
-		http://join.secondlife.com/index.php?lang=tr-TR
+		http://join.secondlife.com/index.php?sourceid=1206_steam&amp;lang=ru-RU
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
-		Kullandığınız görüntüleyici ile artık Second Life&apos;a erişemezsiniz. Yeni bir görüntüleyiciyi karşıdan yüklemek için lütfen şu sayfayı ziyaret edin:
+		У клиента, которым вы пользуетесь, больше нет доступа к игре Second Life. Загрузить новую версию клиента можно по адресу
 http://secondlife.com/download
 
-Daha fazla bilgi edinmek için asağıdaki SSS sayfamızı ziyaret edin:
+Дополнительные сведения см. в разделе вопросов и ответов по адресу
 http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="LoginIntermediateOptionalUpdateAvailable">
-		Opsiyonel görüntüleyici güncelleştirmesi mevcut: [VERSION]
+		Доступно необязательное обновление клиента: [VERSION]
 	</string>
 	<string name="LoginFailedRequiredUpdate">
-		Gerekli görüntüleyici güncelleştirmesi: [VERSION]
+		Необходимо обновить клиент: [VERSION]
 	</string>
 	<string name="LoginFailedAlreadyLoggedIn">
-		Bu aracı zaten oturum açmış durumda.
+		С этого клиента уже выполнен вход.
 	</string>
 	<string name="LoginFailedAuthenticationFailed">
-		Üzgünüz! Oturumunuzu açamadık.
-Lütfen şunları doğru girdiğinizi kontrol edin:
-    * Kullanıcı adı (mustafayalcin12 veya faruk.gungoren gibi)
-    * Parola:
-Ayrıca lütfen Caps Lock tuşuna basmadığınıza emin olun.
+		Извините! Не удается обеспечить ваш вход.
+Убедитесь, что вы правильно ввели:
+    * имя пользователя (например, bobsmith12 или steller.sunshine)
+    * пароль
+Кроме того, убедитесь, что режим Caps Lock отключен.
 	</string>
 	<string name="LoginFailedPasswordChanged">
-		Güvenlik önlemi olarak parolanız değiştirildi.
-Lütfen hesap sayfanıza gidin: http://secondlife.com/password
-ve parolanızı sıfırlamak için güvenlik sorusunu yanıtlayın.
-Bu sorun için özür dileriz.
+		В качестве меры предосторожности ваш пароль изменен.
+Перейдите на страницу своего аккаунта по адресу http://secondlife.com/password
+и ответьте на контрольный вопрос, чтобы восстановить свой пароль
+Приносим извинения за неудобство.
 	</string>
 	<string name="LoginFailedPasswordReset">
-		Sistemimizde bazı değişiklikler yaptık, parolanızı sıfırlamanız gerekecek.
-Lütfen hesap sayfanıza gidin: http://secondlife.com/password
-ve parolanızı sıfırlamak için güvenlik sorusunu yanıtlayın.
-Bu sorun için özür dileriz.
+		В нашу систему внесены изменения, поэтому вам следует восстановить свой пароль.
+Перейдите на страницу своего аккаунта по адресу http://secondlife.com/password
+и ответьте на контрольный вопрос, чтобы восстановить свой пароль
+Приносим извинения за неудобство.
 	</string>
 	<string name="LoginFailedEmployeesOnly">
-		Second Life bakım amacıyla geçici olarak kapatıldı.
-Şu anda sadece çalışanlar oturum açabilir.
-Güncelleştirmeler için www.secondlife.com/status adresini kontrol edin.
+		Сайт Second Life временно закрыт на техническое обслуживание.
+В данное время входить могут только сотрудники.
+Обновление состояния см. на веб-странице www.secondlife.com/status.
 	</string>
 	<string name="LoginFailedPremiumOnly">
-		Second Life üzerindeki aktif kullanıcıların olası en iyi deneyimi yaşamasını sağlamak için, oturum açılması geçici olarak kısıtlanmıştır.
+		Вход в Second Life временно ограничен, чтобы сохранить наивысшее качество игрового мира для текущих пользователей.
 
-Second Life için ödeme yapmış olan kişilere öncelik tanımak amacıyla, ücretsiz hesaplara sahip kişiler bu süre içerisinde Second Life&apos;a erişemeyecekler.
+В это время у пользователей с бесплатными аккаунтами не будет доступа к Second Life, чтобы у тех, кто заплатил, было больше места.
 	</string>
 	<string name="LoginFailedComputerProhibited">
-		Second Life&apos;a bu bilgisayardan erişemezsiniz.
-Bunun bir hata olduğunu düşünüyorsanız, lütfen şu adrese başvurun:
+		Нельзя входить в игру Second Life на этом компьютере.
+Если вы считаете, что это ошибка, отправьте сообщение по адресу
 support@secondlife.com.
 	</string>
 	<string name="LoginFailedAcountSuspended">
-		Hesabınıza şu zamana kadar erişemeyeceksiniz:
-Pasifik Saati ile [TIME].
+		Ваш аккаунт не будет доступен до
+[TIME] по тихоокеанскому времени.
 	</string>
 	<string name="LoginFailedAccountDisabled">
-		Talebinizi şu anda tamamlayamıyoruz.
-Lütfen yardım almak için Second Life destek bölümüne başvurun: http://secondlife.com/support
-Eğer parolanızı değiştiremiyorsanız, lütfen şu numarayı arayın: (866) 476-9763.
+		В данное время нам не удается выполнить ваш запрос.
+Обратитесь за помощью в службу поддержки Second Life по адресу http://secondlife.com/support.
+Если вам не удается изменить свой пароль, позвоните по телефону (866) 476-9763.
 	</string>
 	<string name="LoginFailedTransformError">
-		Oturum açılması sırasında veri tutarsızlığı saptandı.
-Lütfen şu adrese başvurun: support@secondlife.com
+		При входе обнаружена несогласованность данных.
+Напишите сообщения по адресу support@secondlife.com.
 	</string>
 	<string name="LoginFailedAccountMaintenance">
-		Hesabınızda küçük çaplı bir bakım işlemi sürüyor.
-Hesabınıza şu zamana kadar erişemeyeceksiniz:
-Pasifik Saati ile [TIME].
-Bunun bir hata olduğunu düşünüyorsanız, lütfen şu adrese başvurun: support@secondlife.com
+		Выполняется небольшое обслуживание вашего аккаунта.
+Ваш аккаунт не будет доступен до
+[TIME] по тихоокеанскому времени.
+Если вы считаете, что это ошибка, отправьте сообщение по адресу support@secondlife.com.
 	</string>
 	<string name="LoginFailedPendingLogoutFault">
-		Oturum kapatma talebi simülatörden bir hata yanıtı gelmesine neden oldu.
+		В ответ на запрос выхода симулятор возвратил сообщение о сбое.
 	</string>
 	<string name="LoginFailedPendingLogout">
-		Sistem şu anda oturumunuzu sonlandırıyor.
-Hesabınıza şu zamana kadar erişemeyeceksiniz:
-Pasifik Saati ile [TIME].
+		В системе выполняется выход для вашего аккаунта.
+Она будет недоступна до
+[TIME] по тихоокеанскому времени.
 	</string>
 	<string name="LoginFailedUnableToCreateSession">
-		Geçerli bir oturum oluşturulamadı.
+		Не удается создать допустимый сеанс.
 	</string>
 	<string name="LoginFailedUnableToConnectToSimulator">
-		Bir simülatöre bağlanılamadı.
+		Не удается подключиться к симулятору.
 	</string>
 	<string name="LoginFailedRestrictedHours">
-		Hesabınız Second Life&apos;a sadece
-Pasifik Saati ile [START] ve [END] arasında erişebilir.
-Lütfen bu saatler arasında tekrar uğrayın.
-Bunun bir hata olduğunu düşünüyorsanız, lütfen şu adrese başvurun: support@secondlife.com
+		Вы можете входить в Second Life только
+от [START] до [END] по тихоокеанскому времени.
+Заходите в это время.
+Если вы считаете, что это ошибка, отправьте сообщение по адресу support@secondlife.com.
 	</string>
 	<string name="LoginFailedIncorrectParameters">
-		Yanlış parametreler.
-Bunun bir hata olduğunu düşünüyorsanız, lütfen şu adrese başvurun: support@secondlife.com
+		Неправильные параметры.
+Если вы считаете, что это ошибка, отправьте сообщение по адресу support@secondlife.com.
 	</string>
 	<string name="LoginFailedFirstNameNotAlphanumeric">
-		Ad parametresi alfasayısal olmalıdır.
-Bunun bir hata olduğunu düşünüyorsanız, lütfen şu adrese başvurun: support@secondlife.com
+		Имя должно состоять только из букв и цифр.
+Если вы считаете, что это ошибка, отправьте сообщение по адресу support@secondlife.com.
 	</string>
 	<string name="LoginFailedLastNameNotAlphanumeric">
-		Soyadı parametresi alfasayısal olmalıdır.
-Bunun bir hata olduğunu düşünüyorsanız, lütfen şu adrese başvurun: support@secondlife.com
+		Фамилия должна состоять только из букв и цифр.
+Если вы считаете, что это ошибка, отправьте сообщение по адресу support@secondlife.com.
 	</string>
 	<string name="LogoutFailedRegionGoingOffline">
-		Bölge şu anda çevrimdışı oluyor.
-Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
+		Регион переходит в автономный режим.
+Попробуйте повторно войти через минуту.
 	</string>
 	<string name="LogoutFailedAgentNotInRegion">
-		Aracı bölgede değil.
-Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
+		Агент отсутствует в регионе.
+Попробуйте повторно войти через минуту.
 	</string>
 	<string name="LogoutFailedPendingLogin">
-		Bu bölge başka bir oturum açmaktaydı.
-Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
+		Вход в регион выполнен в другом сеансе.
+Попробуйте повторно войти через минуту.
 	</string>
 	<string name="LogoutFailedLoggingOut">
-		Bu bölge önceki oturumu sonlandırmaktaydı.
-Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
+		Для региона выполнен выход в предыдущем сеансе.
+Попробуйте повторно войти через минуту.
 	</string>
 	<string name="LogoutFailedStillLoggingOut">
-		Bu bölge hala bir önceki oturumu sonlandırma işlemini sürdürüyor.
-Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
+		Для региона все еще выполняется выход в предыдущем сеансе.
+Попробуйте повторно войти через минуту.
 	</string>
 	<string name="LogoutSucceeded">
-		Bu bölge son oturumu sonlandırdı.
-Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
+		В последнем сеансе для региона выполнен выход.
+Попробуйте повторно войти через минуту.
 	</string>
 	<string name="LogoutFailedLogoutBegun">
-		Bölge oturumu sonlandırma işlemini başlattı.
-Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
+		Для региона начат процесс выхода.
+Попробуйте повторно войти через минуту.
 	</string>
 	<string name="LoginFailedLoggingOutSession">
-		Sistem son oturumunuzu sonlandırma işlemini başlattı.
-Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
+		Во время вашего последнего сеанса система начала процедуру выхода.
+Попробуйте повторно войти через минуту.
 	</string>
 	<string name="AgentLostConnection">
-		Bu bölgede sorun yaşanıyor olabilir.  Lütfen İnternet bağlantınızı kontrol edin.
+		Возможно, в этом регионе возникли проблемы.  Проверьте подключение к Интернету.
 	</string>
 	<string name="SavingSettings">
-		Ayarlarınız kaydediliyor...
+		Сохранение настроек...
 	</string>
 	<string name="LoggingOut">
-		Oturum kapatılıyor...
+		Выполняется выход...
 	</string>
 	<string name="ShuttingDown">
-		Kapatılıyor...
+		Игра закрывается...
 	</string>
 	<string name="YouHaveBeenDisconnected">
-		Bulunduğunuz bölgeyle bağlantınız kesildi.
+		Произошло отключение от региона, в котором вы находились.
 	</string>
 	<string name="SentToInvalidRegion">
-		Geçersiz bir bölgeye gönderildiniz.
+		Вы отправлены в недействительный регион.
 	</string>
 	<string name="TestingDisconnect">
-		Görüntüleyici bağlantısının kesilmesi test ediliyor
+		Тестирование отключения клиента
 	</string>
 	<string name="TooltipPerson">
-		Kişi
+		Человек
 	</string>
 	<string name="TooltipNoName">
-		(adsız)
+		(нет имени)
 	</string>
 	<string name="TooltipOwner">
-		Sahip:
+		Владелец:
 	</string>
 	<string name="TooltipPublic">
-		Kamuya Açık
+		Общедоступно
 	</string>
 	<string name="TooltipIsGroup">
-		(Grup)
+		(группа)
 	</string>
 	<string name="TooltipForSaleL$">
-		Satılık: L$[AMOUNT]
+		Продается: L$[AMOUNT]
 	</string>
 	<string name="TooltipFlagGroupBuild">
-		Grup İnşası
+		Стройка в составе группы
 	</string>
 	<string name="TooltipFlagNoBuild">
-		İnşa Edilemez
+		Стройка запрещена
 	</string>
 	<string name="TooltipFlagNoEdit">
-		Grup İnşası
+		Стройка в составе группы
 	</string>
 	<string name="TooltipFlagNotSafe">
-		Güvenli Değil
+		Небезопасно
 	</string>
 	<string name="TooltipFlagNoFly">
-		Uçamaz
+		Полеты запрещены
 	</string>
 	<string name="TooltipFlagGroupScripts">
-		Grup Komut Dosyaları
+		Скрипты для группы
 	</string>
 	<string name="TooltipFlagNoScripts">
-		Komut Dosyası Yok
+		Скрипты запрещены
 	</string>
 	<string name="TooltipLand">
-		Arazi:
+		Земля:
 	</string>
 	<string name="TooltipMustSingleDrop">
-		Buraya sadece bir öğe sürüklenebilir.
+		Сюда можно перетащить только одну вещь
 	</string>
 	<string name="TooltipPrice" value="L$[AMOUNT]:"/>
 	<string name="TooltipOutboxDragToWorld">
-		Satıcı giden kutunuzda öğeler oluşturamazsınız
+		Нельзя выложить предметы из папке «Торговые исходящие»
 	</string>
 	<string name="TooltipOutboxNoTransfer">
-		Bu nesnelerden bir veya daha fazlası satılamaz veya aktarılamaz.
+		Часть этих объектов нельзя продать или передать.
 	</string>
 	<string name="TooltipOutboxNotInInventory">
-		Satıcı giden kutunuza sadece doğrudan kendi envanterinizden öğeler koyabilirsiniz
+		Ваша папка «Торговые исходящие» может получать вещи только непосредственно из вашего инвентаря
 	</string>
 	<string name="TooltipOutboxWorn">
-		Giymekte olduğunuz öğeleri Satıcı giden kutunuza koyamazsınız.
+		Носимые предметы нельзя поместить в папку «Торговые исходящие»
 	</string>
 	<string name="TooltipOutboxCallingCard">
-		Satıcı giden kutunuza arama kartları koyamazsınız
+		Визитки нельзя поместить в папку «Торговые исходящие»
 	</string>
 	<string name="TooltipOutboxFolderLevels">
-		İç içe geçmiş klasörlerin derinliği üçü geçiyor
+		Глубина вложения папок превышает 3
 	</string>
 	<string name="TooltipOutboxTooManyFolders">
-		Üst seviyedeki klasördeki alt klasör sayısı 20&apos;yi geçiyor
+		В папке верхнего уровня более 20 подпапок
 	</string>
 	<string name="TooltipOutboxTooManyObjects">
-		Üst seviyedeki klasördeki öğe sayısı 200&apos;ü geçiyor
+		В папке верхнего уровня более 200 предметов
 	</string>
 	<string name="TooltipDragOntoOwnChild">
-		Bir klasörü alt klasörüne taşıyamazsınız
+		Папку нельзя переместить в ее подпапку
 	</string>
 	<string name="TooltipDragOntoSelf">
-		Bir klasörü kendi içine taşıyamazsınız
+		Папку нельзя переместить саму в себя
 	</string>
 	<string name="TooltipHttpUrl">
-		Bu web sayfasını görmek için tıklayın
+		Щелкните, чтобы просмотреть эту веб-страницу
 	</string>
 	<string name="TooltipSLURL">
-		Bu konumun bilgisini görmek için tıklayın
+		Щелкните, чтобы просмотреть информацию об этом месте
 	</string>
 	<string name="TooltipAgentUrl">
-		Bu Sakinin profilini görmek için tıklayın
+		Щелкните, чтобы просмотреть профиль этого жителя
 	</string>
 	<string name="TooltipAgentInspect">
-		Bu Sakin hakkında daha fazla bilgi öğrenin
+		Узнать больше об этом жителе
 	</string>
 	<string name="TooltipAgentMute">
-		Bu Sakini engellemek için tıklayın
+		Щелкните, чтобы не слышать этого жителя
 	</string>
 	<string name="TooltipAgentUnmute">
-		Bu Sakinin engellemesini kaldırmak için tıklayın
+		Щелкните, чтобы слышать этого жителя
 	</string>
 	<string name="TooltipAgentIM">
-		Bu Sakine Aİ göndermek için tıklayın
+		Щелкните, чтобы открыть личный чат с этим жителем
 	</string>
 	<string name="TooltipAgentPay">
-		Bu Sakine ödeme yapmak için tıklayın
+		Щелкните, чтобы заплатить жителю
 	</string>
 	<string name="TooltipAgentOfferTeleport">
-		Bu Sakine bir ışınlama talebi teklif etmek için tıklayın
+		Щелкните, чтобы предложить этому жителю телепортацию
 	</string>
 	<string name="TooltipAgentRequestFriend">
-		Bu Sakine bir arkadaşlık talebi teklif etmek için tıklayın
+		Щелкните, чтобы предложить этому жителю дружбу
 	</string>
 	<string name="TooltipGroupUrl">
-		Bu grubun açıklamasını görmek için tıklayın
+		Щелкните, чтобы просмотреть описание группы
 	</string>
 	<string name="TooltipEventUrl">
-		Bu etkinliğin açıklamasını görmek için tıklayın
+		Щелкните, чтобы просмотреть описание события
 	</string>
 	<string name="TooltipClassifiedUrl">
-		Bu ilanı görmek için tıklayın
+		Щелкните, чтобы просмотреть эту рекламу
 	</string>
 	<string name="TooltipParcelUrl">
-		Bu parselin açıklamasını görmek için tıklayın
+		Щелкните, чтобы посмотреть описание участка
 	</string>
 	<string name="TooltipTeleportUrl">
-		Bu konuma ışınlama yapmak için tıklayın
+		Щелкните, чтобы телепортироваться в это место
 	</string>
 	<string name="TooltipObjectIMUrl">
-		Bu nesnenin açıklamasını görmek için tıklayın
+		Щелкните, открыть описание этого объекта
 	</string>
 	<string name="TooltipMapUrl">
-		Bu konumu bir haritada görmek için tıklayın
+		Щелкните, чтобы посмотреть это место на карте
 	</string>
 	<string name="TooltipSLAPP">
-		secondlife:// komutunu çalıştırmak için tıklayın
+		Щелкните, чтобы выполнить команду secondlife://
 	</string>
-	<string name="CurrentURL" value="Geçerli URL: [CurrentURL]"/>
+	<string name="CurrentURL" value="Текущий URL-адрес: [CurrentURL]"/>
 	<string name="SLurlLabelTeleport">
-		Şuraya ışınla:
+		Телепортироваться в
 	</string>
 	<string name="SLurlLabelShowOnMap">
-		Şunun için Harita göster:
+		Показать карту для
 	</string>
 	<string name="SLappAgentMute">
-		Engelle
+		Откл. звук
 	</string>
 	<string name="SLappAgentUnmute">
-		Engellemeyi kaldır
+		Вкл. звук
 	</string>
 	<string name="SLappAgentIM">
-		Aİ
+		IM
 	</string>
 	<string name="SLappAgentPay">
-		Öde
+		Заплатить
 	</string>
 	<string name="SLappAgentOfferTeleport">
-		Şuraya Işınlama Teklif Et:
+		Предложить телепортацию в
 	</string>
 	<string name="SLappAgentRequestFriend">
-		Arkadaşlık Talebi
+		Предложить дружбу
 	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
-		Kapat (⌘W)
+		Закрыть (⌘W)
 	</string>
 	<string name="BUTTON_CLOSE_WIN">
-		Kapat (Ctrl+W)
+		Закрыть (Ctrl+W)
 	</string>
 	<string name="BUTTON_CLOSE_CHROME">
-		Kapat
+		Закрыть
 	</string>
 	<string name="BUTTON_RESTORE">
-		Geri Yükle
+		Развернуть
 	</string>
 	<string name="BUTTON_MINIMIZE">
-		Simge Durumuna Küçült
+		Свернуть
 	</string>
 	<string name="BUTTON_TEAR_OFF">
-		Böl
+		Отделить
 	</string>
 	<string name="BUTTON_DOCK">
-		Yerleştir
+		Присоединить
 	</string>
 	<string name="BUTTON_HELP">
-		Yardımı Göster
+		Показать справку
 	</string>
 	<string name="Searching">
-		Arıyor...
+		Поиск...
 	</string>
 	<string name="NoneFound">
-		Hiçbiri bulunamadı.
+		Ничего не найдено.
 	</string>
 	<string name="RetrievingData">
-		Alınıyor...
+		Получение...
 	</string>
 	<string name="ReleaseNotes">
-		Sürüm Notları
+		Заметки о выпуске
 	</string>
 	<string name="LoadingData">
-		Yükleniyor...
+		Загрузка...
 	</string>
 	<string name="AvatarNameNobody">
-		(hiçbiri)
+		(без имени)
 	</string>
 	<string name="AvatarNameWaiting">
-		(bekliyor)
+		(ожидание)
 	</string>
 	<string name="AvatarNameMultiple">
-		(birden çok)
+		(несколько)
 	</string>
 	<string name="GroupNameNone">
-		(hiçbiri)
+		(нет)
 	</string>
 	<string name="AvalineCaller">
-		Avaline Arayanı [ORDER]
+		[ORDER] абонента Avaline
 	</string>
 	<string name="AssetErrorNone">
-		Hata yok
+		Ошибок нет
 	</string>
 	<string name="AssetErrorRequestFailed">
-		Varlık talebi: başarısız oldu
+		Запрос актива: сбой
 	</string>
 	<string name="AssetErrorNonexistentFile">
-		Varlık talebi: var olmayan dosya
+		Запрос актива: файл не существует
 	</string>
 	<string name="AssetErrorNotInDatabase">
-		Varlık talebi: veri tabanında varlık bulunamadı
+		Запрос актива: актив не найден в базе данных
 	</string>
 	<string name="AssetErrorEOF">
-		Dosya sonu
+		Конец файла
 	</string>
 	<string name="AssetErrorCannotOpenFile">
-		Dosya açılamadı
+		Не удается открыть файл
 	</string>
 	<string name="AssetErrorFileNotFound">
-		Dosya bulunamadı
+		Файл не найден
 	</string>
 	<string name="AssetErrorTCPTimeout">
-		Dosya aktarımı zaman aşımı
+		Вышло время передачи файла
 	</string>
 	<string name="AssetErrorCircuitGone">
-		Devre yok
+		Обрыв в канале
 	</string>
 	<string name="AssetErrorPriceMismatch">
-		Görüntüleyici ile sunucu fiyatta anlaşmadı
+		Не достигнута договоренность по цене между клиентом и сервером
 	</string>
 	<string name="AssetErrorUnknownStatus">
-		Bilinmeyen durum
+		Неизвестный статус
 	</string>
 	<string name="texture">
-		doku
+		текстуру
 	</string>
 	<string name="sound">
-		ses
+		звук
 	</string>
 	<string name="calling card">
-		arama kartı
+		визитку
 	</string>
 	<string name="landmark">
-		yer imi
+		закладку
 	</string>
 	<string name="legacy script">
-		eski komut dosyası
+		старый скрипт
 	</string>
 	<string name="clothing">
-		giysi
+		одежду
 	</string>
 	<string name="object">
-		nesne
+		объект
 	</string>
 	<string name="note card">
-		not kartı
+		заметку
 	</string>
 	<string name="folder">
-		klasör
+		папку
 	</string>
 	<string name="root">
-		kök
+		корневой каталог
 	</string>
 	<string name="lsl2 script">
-		LSL2 komut dosyası
+		скрипт LSL2
 	</string>
 	<string name="lsl bytecode">
-		LSL bayt kodu
+		байт-код LSL
 	</string>
 	<string name="tga texture">
-		tga dokusu
+		текстуру TGA
 	</string>
 	<string name="body part">
-		vücut bölümü
+		часть тела
 	</string>
 	<string name="snapshot">
-		anlık görüntü
+		снимок
 	</string>
 	<string name="lost and found">
-		Kaybedip Bulduklarım
+		найденные вещи
 	</string>
 	<string name="targa image">
-		targa görüntüsü
+		изображение TGA
 	</string>
 	<string name="trash">
-		Çöp
+		содержимое корзины
 	</string>
 	<string name="jpeg image">
-		jpeg görüntüsü
+		изображение JPEG
 	</string>
 	<string name="animation">
-		animasyon
+		анимацию
 	</string>
 	<string name="gesture">
-		mimik
+		жест
 	</string>
 	<string name="simstate">
-		sim durumu
+		состояние симуляции
 	</string>
 	<string name="favorite">
-		favori
+		избранное
 	</string>
 	<string name="symbolic link">
-		bağlantı
+		ссылку
 	</string>
 	<string name="symbolic folder link">
-		klasör bağlantısı
+		ссылку на папку
 	</string>
 	<string name="mesh">
-		örgü
+		сетка
 	</string>
 	<string name="AvatarEditingAppearance">
-		(Görünümü Düzenliyor)
+		(внешний вид редактируется)
 	</string>
 	<string name="AvatarAway">
-		Uzakta
+		Нет на месте
 	</string>
 	<string name="AvatarBusy">
-		Meşgul
+		Не беспокоить
 	</string>
 	<string name="AvatarMuted">
-		Engellenmiş
+		В черном списке
 	</string>
 	<string name="anim_express_afraid">
-		Korkmuş
+		Страх
 	</string>
 	<string name="anim_express_anger">
-		Kızgın
+		Гнев
 	</string>
 	<string name="anim_away">
-		Uzakta
+		Нет на месте
 	</string>
 	<string name="anim_backflip">
-		Geriye salto
+		Сальто назад
 	</string>
 	<string name="anim_express_laugh">
-		İçten Kahkaha
+		Хохот
 	</string>
 	<string name="anim_express_toothsmile">
-		Büyük Gülümseme
+		Широкая улыбка
 	</string>
 	<string name="anim_blowkiss">
-		Öpücük Atma
+		Воздушный поцелуй
 	</string>
 	<string name="anim_express_bored">
-		Canı Sıkılmış
+		Скука
 	</string>
 	<string name="anim_bow">
-		Selamlama
+		Поклон
 	</string>
 	<string name="anim_clap">
-		Alkış
+		Хлопок
 	</string>
 	<string name="anim_courtbow">
-		Reverans
+		Учтивый поклон
 	</string>
 	<string name="anim_express_cry">
-		Ağlama
+		Плач
 	</string>
 	<string name="anim_dance1">
-		Dans 1
+		Танец 1
 	</string>
 	<string name="anim_dance2">
-		Dans 2
+		Танец 2
 	</string>
 	<string name="anim_dance3">
-		Dans 3
+		Танец 3
 	</string>
 	<string name="anim_dance4">
-		Dans 4
+		Танец 4
 	</string>
 	<string name="anim_dance5">
-		Dans 5
+		Танец 5
 	</string>
 	<string name="anim_dance6">
-		Dans 6
+		Танец 6
 	</string>
 	<string name="anim_dance7">
-		Dans 7
+		Танец 7
 	</string>
 	<string name="anim_dance8">
-		Dans 8
+		Танец 8
 	</string>
 	<string name="anim_express_disdain">
-		Dudak Bükme
+		Презрение
 	</string>
 	<string name="anim_drink">
-		İçme
+		Питьё
 	</string>
 	<string name="anim_express_embarrased">
-		Utanmış
+		Смущение
 	</string>
 	<string name="anim_angry_fingerwag">
-		İşaret Etme
+		Погрозить пальцем
 	</string>
 	<string name="anim_fist_pump">
-		Yumruk Sallama
+		Поднимание кулака
 	</string>
 	<string name="anim_yoga_float">
-		Uçan Yoga
+		Парящий Будда
 	</string>
 	<string name="anim_express_frown">
-		Kaş Çatma
+		Хмурость
 	</string>
 	<string name="anim_impatient">
-		Sabırsız
+		Нетерпение
 	</string>
 	<string name="anim_jumpforjoy">
-		Sevinçten Zıplama
+		Прыжок радости
 	</string>
 	<string name="anim_kissmybutt">
-		Kıçımı Öp
+		Поцелуй в зад
 	</string>
 	<string name="anim_express_kiss">
-		Öpücük
+		Поцелуй
 	</string>
 	<string name="anim_laugh_short">
-		Gülme
+		Смех
 	</string>
 	<string name="anim_musclebeach">
-		Muscle Beach
+		Демонстрация мускулов
 	</string>
 	<string name="anim_no_unhappy">
-		Hayır (Mutsuz)
+		Грустный отказ
 	</string>
 	<string name="anim_no_head">
-		Hayır
+		Отказ
 	</string>
 	<string name="anim_nyanya">
-		Ha-ha-ha
+		Ня-ня-ня
 	</string>
 	<string name="anim_punch_onetwo">
-		Peşpeşe İki Yumruk
+		Двойка руками
 	</string>
 	<string name="anim_express_open_mouth">
-		Ağız Açık
+		Открывание рта
 	</string>
 	<string name="anim_peace">
-		Barış
+		Дружелюбие
 	</string>
 	<string name="anim_point_you">
-		Diğerini Göster
+		Указывание на кого-то
 	</string>
 	<string name="anim_point_me">
-		Kendini Göster
+		Указывание на себя
 	</string>
 	<string name="anim_punch_l">
-		Sola Yumruk At
+		Удар левой рукой
 	</string>
 	<string name="anim_punch_r">
-		Sağa Yumruk At
+		Удар правой рукой
 	</string>
 	<string name="anim_rps_countdown">
-		RPS sayımı
+		Счет в КНБ
 	</string>
 	<string name="anim_rps_paper">
-		RPS kağıdı
+		КНБ – бумага
 	</string>
 	<string name="anim_rps_rock">
-		RPS kayası
+		КНБ – камень
 	</string>
 	<string name="anim_rps_scissors">
-		RPS makası
+		КНБ – ножницы
 	</string>
 	<string name="anim_express_repulsed">
-		Tiksinmiş
+		Отказ
 	</string>
 	<string name="anim_kick_roundhouse_r">
-		Döner Tekme
+		«Вертушка»
 	</string>
 	<string name="anim_express_sad">
-		Üzgün
+		Грусть
 	</string>
 	<string name="anim_salute">
-		Selam
+		Приветствие
 	</string>
 	<string name="anim_shout">
-		Bağırma
+		Крик
 	</string>
 	<string name="anim_express_shrug">
-		Omuz Silkme
+		Пожимание плечами
 	</string>
 	<string name="anim_express_smile">
-		Gülümseme
+		Улыбка
 	</string>
 	<string name="anim_smoke_idle">
-		Duman Tüttürme
+		Курение не в затяжку
 	</string>
 	<string name="anim_smoke_inhale">
-		Duman Çekme
+		Курение в затяжку
 	</string>
 	<string name="anim_smoke_throw_down">
-		Yere İzmarit Atma
+		Бросить сигарету
 	</string>
 	<string name="anim_express_surprise">
-		Sürpriz
+		Удивление
 	</string>
 	<string name="anim_sword_strike_r">
-		Kılıç Darbesi
+		Удар мечом
 	</string>
 	<string name="anim_angry_tantrum">
-		Öfke Nöbeti
+		Вспышка гнева
 	</string>
 	<string name="anim_express_tongue_out">
-		Dil Çıkarma
+		Показ языка
 	</string>
 	<string name="anim_hello">
-		El Sallama
+		Приветствие рукой
 	</string>
 	<string name="anim_whisper">
-		Fısıldama
+		Шепот
 	</string>
 	<string name="anim_whistle">
-		Islık Çalma
+		Свист
 	</string>
 	<string name="anim_express_wink">
-		Göz Kırpma
+		Подмигивание
 	</string>
 	<string name="anim_wink_hollywood">
-		Göz Kırpma (Hollywood)
+		Подмигивание по-голливудски
 	</string>
 	<string name="anim_express_worry">
-		Endişelenme
+		Беспокойство
 	</string>
 	<string name="anim_yes_happy">
-		Evet (Mutlu)
+		Радостное согласие
 	</string>
 	<string name="anim_yes_head">
-		Evet
+		Согласие
 	</string>
 	<string name="multiple_textures">
-		Birden Çok
+		Несколько
 	</string>
 	<string name="texture_loading">
-		Yükleniyor...
+		Загрузка...
 	</string>
 	<string name="worldmap_offline">
-		Çevrimdışı
+		Не в сети
 	</string>
 	<string name="worldmap_item_tooltip_format">
-		[AREA] m² L$[PRICE]
+		[AREA] м² L$[PRICE]
 	</string>
 	<string name="worldmap_results_none_found">
-		Hiçbiri bulunamadı.
+		Ничего не найдено.
 	</string>
 	<string name="Ok">
-		Tamam
+		ОК
 	</string>
 	<string name="Premature end of file">
-		Dosyanın zamanından önce sonu
+		Преждевременный конец файла
 	</string>
 	<string name="ST_NO_JOINT">
-		KÖK veya EKLEM bulunamıyor.
+		Не удается найти объект ROOT или JOINT.
 	</string>
 	<string name="whisper">
-		fısıldar:
+		шепчет:
 	</string>
 	<string name="shout">
-		bağırır:
+		кричит:
 	</string>
 	<string name="ringing">
-		SL dünyası içindeki Sesli Sohbete bağlanılıyor...
+		Подключение к голосовому чату...
 	</string>
 	<string name="connected">
-		Bağlı
+		Подключение установлено
 	</string>
 	<string name="unavailable">
-		Geçerli konumunuzda ses mevcut değil
+		В этом месте голосовая связь недоступна
 	</string>
 	<string name="hang_up">
-		SL dünyası içindeki Sesli Sohbet ile bağlantı kesildi
+		Отключение от общего голосового чата
 	</string>
 	<string name="reconnect_nearby">
-		Şimdi Yakındaki bir Sesli Sohbete yeniden bağlanılacaksınız.
+		Будет установлено подключение к локальному голосовому чату
 	</string>
 	<string name="ScriptQuestionCautionChatGranted">
-		&apos;[OWNERNAME]&apos; adlı kişiye ait, [REGIONPOS] üzerinde [REGIONNAME] içerisinde bulunan &apos;[OBJECTNAME]&apos; nesnesine şunu yapma izni verildi: [PERMISSIONS].
+		Объекту «[OBJECTNAME]», который принадлежит пользователю «[OWNERNAME]» и находится в [REGIONPOS] в регионе «[REGIONNAME]», предоставлено разрешение: [PERMISSIONS].
 	</string>
 	<string name="ScriptQuestionCautionChatDenied">
-		&apos;[OWNERNAME]&apos; adlı kişiye ait, [REGIONPOS] üzerinde [REGIONNAME] içerisinde bulunan &apos;[OBJECTNAME]&apos; nesnesine şunu yapma izni verilmedi: [PERMISSIONS].
-	</string>
-	<string name="AdditionalPermissionsRequestHeader">
-		Eğer hesabınıza erişime izin verirseniz, bu nesneye aynı zamanda şunun için izin vermiş olacaksınız:
+		Объекту «[OBJECTNAME]», который принадлежит пользователю «[OWNERNAME]» и находится в [REGIONPOS] в регионе «[REGIONNAME]», отказано в разрешении: [PERMISSIONS].
 	</string>
 	<string name="ScriptTakeMoney">
-		Sizden Linden dolar (L$) almak
+		У вас берут Linden-деньги
 	</string>
 	<string name="ActOnControlInputs">
-		Denetim girişlerinizle ilgili eylem gerçekleştirmek
+		Действия при активации элементов управления
 	</string>
 	<string name="RemapControlInputs">
-		Denetim girişleriniz için yeniden eşleme yapmak
+		Новое сопоставление элементов управления
 	</string>
 	<string name="AnimateYourAvatar">
-		Avatarınızı canlandırmak
+		Анимировать ваш аватар
 	</string>
 	<string name="AttachToYourAvatar">
-		Avatarınıza eklemek
+		Прикрепить к аватару
 	</string>
 	<string name="ReleaseOwnership">
-		Mülkiyeti bırakmak ve kamuya açık hale gelmek
+		Отказаться от владения, сделать всеобщим
 	</string>
 	<string name="LinkAndDelink">
-		Başka nesnelerle bağlantı kurmak veya koparmak
+		Связать или отменить связь с другими объектами
 	</string>
 	<string name="AddAndRemoveJoints">
-		Başka nesnelerle eklem eklemek ve kaldırmak
+		Добавление и удаление связей с другими объектами
 	</string>
 	<string name="ChangePermissions">
-		İzinlerini değiştirmek
+		Изменить разрешения
 	</string>
 	<string name="TrackYourCamera">
-		Kameranızı takip etmek
+		Следить за камерой
 	</string>
 	<string name="ControlYourCamera">
-		Kameranızı kontrol etmek
-	</string>
-	<string name="TeleportYourAgent">
-		Sizi ışınlama
+		Управлять камерой
 	</string>
 	<string name="NotConnected">
-		Bağlı Değil
+		Нет подключения
 	</string>
 	<string name="SIM_ACCESS_PG">
-		Genel
+		Общий
 	</string>
 	<string name="SIM_ACCESS_MATURE">
-		Orta
+		Умеренный
 	</string>
 	<string name="SIM_ACCESS_ADULT">
-		Yetişkin
+		Для взрослых
 	</string>
 	<string name="SIM_ACCESS_DOWN">
-		Çevrimdışı
+		Не в сети
 	</string>
 	<string name="SIM_ACCESS_MIN">
-		Bilinmiyor
+		Неизвестно
 	</string>
 	<string name="land_type_unknown">
-		(bilinmiyor)
+		(неизвестно)
 	</string>
 	<string name="Estate / Full Region">
-		Gayrimenkul / Tam Bölge
+		Землевладение/весь регион
 	</string>
 	<string name="Estate / Homestead">
-		Gayrimenkul / Banliyö
+		Землевладение/поместье
 	</string>
 	<string name="Mainland / Homestead">
-		Anakara / Banliyö
+		Материк/поместье
 	</string>
 	<string name="Mainland / Full Region">
-		Anakara / Tam Bölge
+		Материк/весь регион
 	</string>
 	<string name="all_files">
-		Tüm Dosyalar
+		Все файлы
 	</string>
 	<string name="sound_files">
-		Sesler
+		Звуки
 	</string>
 	<string name="animation_files">
-		Animasyonlar
+		Анимация
 	</string>
 	<string name="image_files">
-		Görüntüler
+		Изображения
 	</string>
 	<string name="save_file_verb">
-		Kaydet
+		Сохранить
 	</string>
 	<string name="load_file_verb">
-		Yükle
+		Загрузить
 	</string>
 	<string name="targa_image_files">
-		Targa Görüntüleri
+		Изображения TGA
 	</string>
 	<string name="bitmap_image_files">
-		Bitmap Görüntüler
+		Изображения BMP
 	</string>
 	<string name="avi_movie_file">
-		AVI Film Dosyası
+		Видео AVI
 	</string>
 	<string name="xaf_animation_file">
-		XAF Animasyon Dosyası
+		Анимация XAF
 	</string>
 	<string name="xml_file">
-		XML Dosyası
+		XML-файл
 	</string>
 	<string name="raw_file">
-		Ham Dosya
+		RAW-файл
 	</string>
 	<string name="compressed_image_files">
-		Sıkıştırılmış Görüntüler
+		Несжатые изображения
 	</string>
 	<string name="load_files">
-		Dosyalar Yükle
+		Загрузить файлы
 	</string>
 	<string name="choose_the_directory">
-		Dizin Seç
+		Выбрать каталог
 	</string>
 	<string name="script_files">
-		Komut Dosyaları
+		Скрипты
 	</string>
 	<string name="AvatarSetNotAway">
-		Uzakta Değil
+		На месте
 	</string>
 	<string name="AvatarSetAway">
-		Uzakta
+		Нет на месте
 	</string>
 	<string name="AvatarSetNotBusy">
-		Meşgul Değil
+		Не занят(а)
 	</string>
 	<string name="AvatarSetBusy">
-		Meşgul
+		Не беспокоить
 	</string>
 	<string name="shape">
-		Şekil
+		Фигура
 	</string>
 	<string name="skin">
-		Dış Katman
+		Кожа
 	</string>
 	<string name="hair">
-		Saç
+		Волосы
 	</string>
 	<string name="eyes">
-		Gözler
+		Глаза
 	</string>
 	<string name="shirt">
-		Gömlek
+		Рубашка
 	</string>
 	<string name="pants">
-		Pantolon
+		Брюки
 	</string>
 	<string name="shoes">
-		Ayakkabılar
+		Обувь
 	</string>
 	<string name="socks">
-		Çoraplar
+		Носки
 	</string>
 	<string name="jacket">
-		Ceket
+		Пиджак
 	</string>
 	<string name="gloves">
-		Eldivenler
+		Перчатки
 	</string>
 	<string name="undershirt">
-		Fanila
+		Майка
 	</string>
 	<string name="underpants">
-		Külot
+		Трусы
 	</string>
 	<string name="skirt">
-		Etek
+		Юбка
 	</string>
 	<string name="alpha">
-		Alfa
+		Альфа-маска
 	</string>
 	<string name="tattoo">
-		Dövme
+		Тату
 	</string>
 	<string name="physics">
-		Fizik
+		Физические данные
 	</string>
 	<string name="invalid">
-		geçersiz
+		ошибка
 	</string>
 	<string name="none">
-		hiçbiri
+		нет
 	</string>
 	<string name="shirt_not_worn">
-		Giyilmemiş gömlek
+		Рубашка не надета
 	</string>
 	<string name="pants_not_worn">
-		Giyilmemiş pantolon
+		Брюки не надеты
 	</string>
 	<string name="shoes_not_worn">
-		Giyilmemiş ayakkabılar
+		Обувь не надета
 	</string>
 	<string name="socks_not_worn">
-		Giyilmemiş çoraplar
+		Носки не надеты
 	</string>
 	<string name="jacket_not_worn">
-		Giyilmemiş ceket
+		Пиджак не надет
 	</string>
 	<string name="gloves_not_worn">
-		Giyilmemiş eldivenler
+		Перчатки не надеты
 	</string>
 	<string name="undershirt_not_worn">
-		Giyilmemiş fanila
+		Майка не надета
 	</string>
 	<string name="underpants_not_worn">
-		Giyilmemiş külot
+		Трусы не надеты
 	</string>
 	<string name="skirt_not_worn">
-		Giyilmemiş etek
+		Юбка не надета
 	</string>
 	<string name="alpha_not_worn">
-		Giyilmemiş alfa
+		Альфа-маска не надета
 	</string>
 	<string name="tattoo_not_worn">
-		Giyilmemiş dövme
+		Тату не надето
 	</string>
 	<string name="physics_not_worn">
-		Giyilmemiş fizik
+		Физика не учитывается
 	</string>
 	<string name="invalid_not_worn">
-		geçersiz
+		ошибка
 	</string>
 	<string name="create_new_shape">
-		Yeni şekil oluştur
+		Создать фигуру
 	</string>
 	<string name="create_new_skin">
-		Yeni dış katman oluştur
+		Создать кожу
 	</string>
 	<string name="create_new_hair">
-		Yeni saç oluştur
+		Создать волосы
 	</string>
 	<string name="create_new_eyes">
-		Yeni gözler oluştur
+		Создать глаза
 	</string>
 	<string name="create_new_shirt">
-		Yeni gömlek oluştur
+		Создать рубашку
 	</string>
 	<string name="create_new_pants">
-		Yeni pantolon oluştur
+		Создать брюки
 	</string>
 	<string name="create_new_shoes">
-		Yeni ayakkabılar oluştur
+		Создать обувь
 	</string>
 	<string name="create_new_socks">
-		Yeni çoraplar oluştur
+		Создать носки
 	</string>
 	<string name="create_new_jacket">
-		Yeni ceket oluştur
+		Создать пиджак
 	</string>
 	<string name="create_new_gloves">
-		Yeni eldivenler oluştur
+		Создать перчатки
 	</string>
 	<string name="create_new_undershirt">
-		Yeni fanila oluştur
+		Создать майку
 	</string>
 	<string name="create_new_underpants">
-		Yeni külot oluştur
+		Создать трусы
 	</string>
 	<string name="create_new_skirt">
-		Yeni etek oluştur
+		Создать юбку
 	</string>
 	<string name="create_new_alpha">
-		Yeni alfa oluştur
+		Создать альфа-маску
 	</string>
 	<string name="create_new_tattoo">
-		Yeni dövme oluştur
+		Создать тату
 	</string>
 	<string name="create_new_physics">
-		Yeni fizik oluştur
+		Создать физику
 	</string>
 	<string name="create_new_invalid">
-		geçersiz
+		ошибка
 	</string>
 	<string name="NewWearable">
-		Yeni [WEARABLE_ITEM]
+		Создать [WEARABLE_ITEM]
 	</string>
 	<string name="next">
-		Sonraki
+		Далее
 	</string>
 	<string name="ok">
-		Tamam
+		ОК
 	</string>
 	<string name="GroupNotifyGroupNotice">
-		Grup Bildirimi
+		Групповое уведомление
 	</string>
 	<string name="GroupNotifyGroupNotices">
-		Grup Bildirimleri
+		Групповые уведомления
 	</string>
 	<string name="GroupNotifySentBy">
-		Gönderen:
+		Отправитель
 	</string>
 	<string name="GroupNotifyAttached">
-		Eklenmiş:
+		Вложение:
 	</string>
 	<string name="GroupNotifyViewPastNotices">
-		Burada eski bildirimleri görüntüleyin veya bu iletilerin alınmasını iptal edin.
+		Здесь можно просмотреть последние уведомления или отказаться от их получения.
 	</string>
 	<string name="GroupNotifyOpenAttachment">
-		Aksesuarı Aç
+		Открыть вложение
 	</string>
 	<string name="GroupNotifySaveAttachment">
-		Aksesuarı Kaydet
+		Сохранить вложение
 	</string>
 	<string name="TeleportOffer">
-		Işınlama teklifi
+		Предложена телепортация
 	</string>
 	<string name="StartUpNotifications">
-		Siz yokken yeni bildirimler geldi.
+		Пока вы отсутствовали, пришли новые уведомления.
 	</string>
 	<string name="OverflowInfoChannelString">
-		%d ilave bildiriminiz var
+		Других уведомлений: %d
 	</string>
 	<string name="BodyPartsRightArm">
-		Sağ Kol
+		Правая рука
 	</string>
 	<string name="BodyPartsHead">
-		Baş
+		Голова
 	</string>
 	<string name="BodyPartsLeftArm">
-		Sol Kol
+		Левая рука
 	</string>
 	<string name="BodyPartsLeftLeg">
-		Sol Bacak
+		Левая нога
 	</string>
 	<string name="BodyPartsTorso">
-		Gövde
+		Торс
 	</string>
 	<string name="BodyPartsRightLeg">
-		Sağ Bacak
+		Правая нога
 	</string>
 	<string name="GraphicsQualityLow">
-		Düşük
+		низкая
 	</string>
 	<string name="GraphicsQualityMid">
-		Orta
+		средняя
 	</string>
 	<string name="GraphicsQualityHigh">
-		Yüksek
+		высокая
 	</string>
 	<string name="LeaveMouselook">
-		Dünya Görünümüne dönmek için ESC&apos;e basın
+		Нажмите ESC, чтобы вернуться к обычному обзору
 	</string>
 	<string name="InventoryNoMatchingItems">
-		Aradığınızı bulamadınız mı? [secondlife:///app/search/all/[SEARCH_TERM] Arama] ile bulmayı deneyin.
+		Не нашли того, что вам нужно? Воспользуйтесь [secondlife:///app/search/all/[SEARCH_TERM] поиском].
 	</string>
 	<string name="PlacesNoMatchingItems">
-		Aradığınızı bulamadınız mı? [secondlife:///app/search/places/[SEARCH_TERM] Arama] ile bulmayı deneyin.
+		Не нашли того, что вам нужно? Воспользуйтесь [secondlife:///app/search/places/[SEARCH_TERM] поиском].
 	</string>
 	<string name="FavoritesNoMatchingItems">
-		Bir yer imini favorilerinize eklemek için buraya sürükleyin.
+		Перетащите сюда закладку, чтобы добавить ее в список избранного.
 	</string>
 	<string name="InventoryNoTexture">
-		Envanterinizde bu dokunun kopyası yok
+		В вашем инвентаре нет копии этой текстуры
 	</string>
 	<string name="InventoryInboxNoItems">
-		Pazaryerinda satın aldıklarınız burada görünecektir. Bunları kullanmak için envanterinize sürükleyebilirsiniz.
+		Здесь будут показаны ваши покупки из торгового центра. Их можно будет перетащить в ваш инвентарь для использования.
 	</string>
 	<string name="MarketplaceURL">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
@@ -1259,868 +1253,868 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more
 	</string>
 	<string name="InventoryOutboxNotMerchantTitle">
-		Pazaryerinde herkes öğe satabilir.
+		Продавать вещи в торговом центре может кто угодно.
 	</string>
 	<string name="InventoryOutboxNotMerchantTooltip"/>
 	<string name="InventoryOutboxNotMerchant">
-		Eğer bir satıcı olmak istiyorsanız, [Pazaryerinde [MARKETPLACE_CREATE_STORE_URL] bir mağaza açmanız gerekir].
+		Если вы хотите стать торговцем, [[MARKETPLACE_CREATE_STORE_URL] создайте магазин].
 	</string>
 	<string name="InventoryOutboxNoItemsTitle">
-		Giden kutunuz boş.
+		Ваша папка «Исходящие» пуста.
 	</string>
 	<string name="InventoryOutboxNoItemsTooltip"/>
 	<string name="InventoryOutboxNoItems">
-		Bu alana klasörleri sürükleyin ve bunları [[MARKETPLACE_DASHBOARD_URL] Pazaryerinde] satılık olarak duyurmak için &quot;Pazaryerine Gönder&quot; üzerine tıklayın.
+		Перетащите папки в эту область и щелкните «Отправить в торговый центр», чтобы выставить их на продажу в [[MARKETPLACE_DASHBOARD_URL] Торговом центре].
 	</string>
 	<string name="Marketplace Error None">
-		Hata yok
+		Ошибок нет
 	</string>
 	<string name="Marketplace Error Not Merchant">
-		Hata: Öğeleri Pazaryerine göndermeden önce kendinizi bir satıcı olarak belirlemelisiniz (ücretsizdir).
+		Ошибка. Прежде чем отправлять вещи в магазин, необходимо зарегистрироваться как торговец (бесплатно).
 	</string>
 	<string name="Marketplace Error Empty Folder">
-		Hata: Bu klasörün içeriği boş.
+		Ошибка. В этой папке нет контента.
 	</string>
 	<string name="Marketplace Error Unassociated Products">
-		Hata: Bu öğe karşıya yüklenemedi çünkü satıcı hesabınızda ürünlerle ilişkisiz çok fazla öğe mevcut.  Bu hatayı düzeltmek için Pazaryeri web sitesine oturum açın ve ilişkisiz öğe sayınızı azaltın.
+		Ошибка. Не удается передать эту вещь, поскольку в вашем торговом аккаунте слишком много вещей, не связанных с продуктами.  Чтобы исправить эту ошибку, войдите на веб-сайт торгового центра и уменьшите число своих вещей, которые ни с чем не связаны.
 	</string>
 	<string name="Marketplace Error Object Limit">
-		Hata: Bu öğe çok fazla nesne içeriyor.  Bu hatayı düzeltmek için nesneleri birlikte kutulara yerleştirerek, toplam nesne sayısını 200&apos;ün altına düşürün.
+		Ошибка. Эта вещь содержит слишком много объектов.  Исправьте эту ошибку, сложив объекты в коробки и уменьшив их общее число (должно быть меньше 200).
 	</string>
 	<string name="Marketplace Error Folder Depth">
-		Hata: Bu öğede çok fazla iç içe geçmiş klasör seviyesi var.  Bunu tekrar düzenleyerek maksimum 3 iç içe geçmiş klasör seviyesine indirin.
+		Ошибка. Эта вещь содержит слишком много уровней вложенных папок.  Измените структуру так, чтобы уровней вложенных папок было не более 3.
 	</string>
 	<string name="Marketplace Error Unsellable Item">
-		Hata: Bu öğe Pazaryerinde satılamaz.
+		Ошибка. Эту вещь нельзя продать в магазине.
 	</string>
 	<string name="Marketplace Error Internal Import">
-		Hata: Bu öğede bir sorun var.  Daha sonra tekrar deneyin.
+		Ошибка. Эта вещь создает проблему.  Повторите попытку позже.
 	</string>
 	<string name="Open landmarks">
-		Açık yer imleri
+		Открыть закладки
 	</string>
-	<string name="no_transfer" value="(aktarım yok)"/>
-	<string name="no_modify" value="(değiştirme yok)"/>
-	<string name="no_copy" value="(kopya yok)"/>
-	<string name="worn" value="(giyilmiş)"/>
-	<string name="link" value="(bağlantı)"/>
+	<string name="no_transfer" value="(не передается)"/>
+	<string name="no_modify" value="(не изменяется)"/>
+	<string name="no_copy" value="(не копируется)"/>
+	<string name="worn" value="(носится)"/>
+	<string name="link" value="(ссылка)"/>
 	<string name="broken_link" value="(broken_link)"/>
 	<string name="LoadingContents">
-		İçerik yükleniyor...
+		Загрузка содержимого...
 	</string>
 	<string name="NoContents">
-		İçerik yok
+		Нет контента
 	</string>
-	<string name="WornOnAttachmentPoint" value="([ATTACHMENT_POINT] üzerinde giyilmiş)"/>
-	<string name="ActiveGesture" value="[GESLABEL] (etkin)"/>
+	<string name="WornOnAttachmentPoint" value="(где носится: [ATTACHMENT_POINT])"/>
+	<string name="ActiveGesture" value="[GESLABEL] (активно)"/>
 	<string name="PermYes">
-		Evet
+		Да
 	</string>
 	<string name="PermNo">
-		Hayır
+		Нет
 	</string>
-	<string name="Chat Message" value="Sohbet:"/>
-	<string name="Sound" value="Ses:"/>
-	<string name="Wait" value="--- Bekleyin:"/>
-	<string name="AnimFlagStop" value="Animasyonu Durdur:"/>
-	<string name="AnimFlagStart" value="Animasyonu Başlat:"/>
-	<string name="Wave" value="El Sallama"/>
-	<string name="GestureActionNone" value="Hiçbiri"/>
-	<string name="HelloAvatar" value="Merhaba avatar!"/>
-	<string name="ViewAllGestures" value="Tümünü Göster &gt;&gt;"/>
-	<string name="GetMoreGestures" value="İlave Al &gt;&gt;"/>
-	<string name="Animations" value="Animasyonlar,"/>
-	<string name="Calling Cards" value="Arama Kartları,"/>
-	<string name="Clothing" value="Giysiler,"/>
-	<string name="Gestures" value="Mimikler,"/>
-	<string name="Landmarks" value="Yer İmleri,"/>
-	<string name="Notecards" value="Not Kartları,"/>
-	<string name="Objects" value="Nesneler,"/>
-	<string name="Scripts" value="Komut Dosyaları,"/>
-	<string name="Sounds" value="Sesler,"/>
-	<string name="Textures" value="Dokular,"/>
-	<string name="Snapshots" value="Anlık Görüntüler,"/>
-	<string name="No Filters" value="Hayır"/>
-	<string name="Since Logoff" value="- Oturum Kapandıktan Beri"/>
+	<string name="Chat Message" value="Чат:"/>
+	<string name="Sound" value="Звук:"/>
+	<string name="Wait" value="--- Ждите:"/>
+	<string name="AnimFlagStop" value="Остановить анимацию:"/>
+	<string name="AnimFlagStart" value="Начать анимацию:"/>
+	<string name="Wave" value="Приветствие рукой"/>
+	<string name="GestureActionNone" value="Нет"/>
+	<string name="HelloAvatar" value="Привет, аватар!"/>
+	<string name="ViewAllGestures" value="Просмотреть все &gt;&gt;"/>
+	<string name="GetMoreGestures" value="Дополнительно &gt;&gt;"/>
+	<string name="Animations" value="Анимация,"/>
+	<string name="Calling Cards" value="Визитки,"/>
+	<string name="Clothing" value="Одежда,"/>
+	<string name="Gestures" value="Жесты,"/>
+	<string name="Landmarks" value="Закладки,"/>
+	<string name="Notecards" value="Заметки,"/>
+	<string name="Objects" value="Объекты,"/>
+	<string name="Scripts" value="Скрипты,"/>
+	<string name="Sounds" value="Звуки,"/>
+	<string name="Textures" value="Текстуры,"/>
+	<string name="Snapshots" value="Снимки,"/>
+	<string name="No Filters" value="Нет"/>
+	<string name="Since Logoff" value="- С момента выхода"/>
 	<string name="InvFolder My Inventory">
-		Envanterim
+		Мой инвентарь
 	</string>
 	<string name="InvFolder Library">
-		Kütüphane
+		Библиотека
 	</string>
 	<string name="InvFolder Textures">
-		Dokular
+		Текстуры
 	</string>
 	<string name="InvFolder Sounds">
-		Sesler
+		Звуки
 	</string>
 	<string name="InvFolder Calling Cards">
-		Arama Kartları
+		Визитки
 	</string>
 	<string name="InvFolder Landmarks">
-		Yer İmleri
+		Закладки
 	</string>
 	<string name="InvFolder Scripts">
-		Komut Dosyaları
+		Скрипты
 	</string>
 	<string name="InvFolder Clothing">
-		Giysiler
+		Одежда
 	</string>
 	<string name="InvFolder Objects">
-		Nesneler
+		Объекты
 	</string>
 	<string name="InvFolder Notecards">
-		Not Kartları
+		Заметки
 	</string>
 	<string name="InvFolder New Folder">
-		Yeni Klasör
+		Новая папка
 	</string>
 	<string name="InvFolder Inventory">
-		Envanter
+		Инвентарь
 	</string>
 	<string name="InvFolder Uncompressed Images">
-		Sıkıştırılmamış Görüntüler
+		Несжатые изображения
 	</string>
 	<string name="InvFolder Body Parts">
-		Vücut Bölümleri
+		Части тела
 	</string>
 	<string name="InvFolder Trash">
-		Çöp
+		Корзина
 	</string>
 	<string name="InvFolder Photo Album">
-		Fotoğraf Albümü
+		Фотоальбом
 	</string>
 	<string name="InvFolder Lost And Found">
-		Kaybedip Bulduklarım
+		Бюро находок
 	</string>
 	<string name="InvFolder Uncompressed Sounds">
-		Sıkıştırılmamış Sesler
+		Несжатые звуки
 	</string>
 	<string name="InvFolder Animations">
-		Animasyonlar
+		Анимация
 	</string>
 	<string name="InvFolder Gestures">
-		Mimikler
+		Жесты
 	</string>
 	<string name="InvFolder Favorite">
-		Favorilerim
+		Мое избранное
 	</string>
 	<string name="InvFolder favorite">
-		Favorilerim
+		Мое избранное
 	</string>
 	<string name="InvFolder Current Outfit">
-		Mevcut Dış Görünüm
+		Текущий костюм
 	</string>
 	<string name="InvFolder Initial Outfits">
-		Başlangıçtakı Dış Görünümler
+		Начальные костюмы
 	</string>
 	<string name="InvFolder My Outfits">
-		Benim Dış Görünümlerim
+		Мои костюмы
 	</string>
 	<string name="InvFolder Accessories">
-		Aksesuarlar
+		Аксессуары
 	</string>
 	<string name="InvFolder Meshes">
-		Örgüler
+		Меши
 	</string>
 	<string name="InvFolder Friends">
-		Arkadaşlar
+		Друзья
 	</string>
 	<string name="InvFolder All">
-		Tümü
+		Все
 	</string>
 	<string name="no_attachments">
-		Giyilen aksesuar yok
+		Нет прикрепленных объектов
 	</string>
 	<string name="Attachments remain">
-		Aksesuarlar ([COUNT] yuva mevcut)
+		Присоединения (осталось гнезд: [COUNT])
 	</string>
 	<string name="Buy">
-		Satın Al
+		Купить
 	</string>
 	<string name="BuyforL$">
-		L$&apos;a Satın Al
+		Купить за L$
 	</string>
 	<string name="Stone">
-		Taş
+		Камень
 	</string>
 	<string name="Metal">
-		Metal
+		Металл
 	</string>
 	<string name="Glass">
-		Cam
+		Стекло
 	</string>
 	<string name="Wood">
-		Ahşap
+		Дерево
 	</string>
 	<string name="Flesh">
-		Et
+		Плоть
 	</string>
 	<string name="Plastic">
-		Plastik
+		Пластик
 	</string>
 	<string name="Rubber">
-		Lastik
+		Резина
 	</string>
 	<string name="Light">
-		Işık
+		Светлый
 	</string>
 	<string name="KBShift">
-		Shift
+		SHIFT
 	</string>
 	<string name="KBCtrl">
-		Ctrl
+		CTRL
 	</string>
 	<string name="Chest">
-		Göğüs
+		Грудь
 	</string>
 	<string name="Skull">
-		Kafatası
+		Череп
 	</string>
 	<string name="Left Shoulder">
-		Sol Omuz
+		Левое плечо
 	</string>
 	<string name="Right Shoulder">
-		Sağ Omuz
+		Правое плечо
 	</string>
 	<string name="Left Hand">
-		Sol El
+		Левая кисть
 	</string>
 	<string name="Right Hand">
-		Sağ El
+		Правая кисть
 	</string>
 	<string name="Left Foot">
-		Sol Ayak
+		Левая ступня
 	</string>
 	<string name="Right Foot">
-		Sağ Ayak
+		Правая ступня
 	</string>
 	<string name="Spine">
-		Omurga
+		Позвоночник
 	</string>
 	<string name="Pelvis">
-		Leğen Kemiği
+		Таз
 	</string>
 	<string name="Mouth">
-		Ağız
+		Рот
 	</string>
 	<string name="Chin">
-		Çene
+		Подбородок
 	</string>
 	<string name="Left Ear">
-		Sol Kulak
+		Левое ухо
 	</string>
 	<string name="Right Ear">
-		Sağ Kulak
+		Правое ухо
 	</string>
 	<string name="Left Eyeball">
-		Sol Göz Küresi
+		Левый глаз
 	</string>
 	<string name="Right Eyeball">
-		Sağ Göz Küresi
+		Правый глаз
 	</string>
 	<string name="Nose">
-		Burun
+		Нос
 	</string>
 	<string name="R Upper Arm">
-		Sağ Üst Kol
+		Правое плечо
 	</string>
 	<string name="R Forearm">
-		Sağ Ön Kol
+		Правое предплечье
 	</string>
 	<string name="L Upper Arm">
-		Sol Üst Kol
+		Левое плечо
 	</string>
 	<string name="L Forearm">
-		Sol Ön Kol
+		Левое предплечье
 	</string>
 	<string name="Right Hip">
-		Sağ Kalça
+		Правое бедро
 	</string>
 	<string name="R Upper Leg">
-		Sağ Üst Bacak
+		Правое колено
 	</string>
 	<string name="R Lower Leg">
-		Sağ Alt Bacak
+		Правая голень
 	</string>
 	<string name="Left Hip">
-		Sol Kalça
+		Левое бедро
 	</string>
 	<string name="L Upper Leg">
-		Sol Üst Bacak
+		Левое колено
 	</string>
 	<string name="L Lower Leg">
-		Sol Alt Bacak
+		Левая голень
 	</string>
 	<string name="Stomach">
-		Karın
+		Живот
 	</string>
 	<string name="Left Pec">
-		Sol Göğüs
+		Левая грудь
 	</string>
 	<string name="Right Pec">
-		Sağ Göğüs
+		Правая грудь
 	</string>
 	<string name="Neck">
-		Boyun
+		Шея
 	</string>
 	<string name="Avatar Center">
-		Avatar Merkezi
+		Центр аватара
 	</string>
 	<string name="Invalid Attachment">
-		Geçersiz Aksesuar Noktası
+		Неверная точка присоединения
 	</string>
 	<string name="YearsMonthsOld">
-		[AGEYEARS] [AGEMONTHS]&apos;lık
+		[AGEYEARS] [AGEMONTHS]
 	</string>
 	<string name="YearsOld">
-		[AGEYEARS] yaşında
+		[AGEYEARS]
 	</string>
 	<string name="MonthsOld">
-		[AGEMONTHS]&apos;lık
+		[AGEMONTHS]
 	</string>
 	<string name="WeeksOld">
-		[AGEWEEKS]&apos;lık
+		[AGEWEEKS]
 	</string>
 	<string name="DaysOld">
-		[AGEDAYS]&apos;lük
+		[AGEDAYS]
 	</string>
 	<string name="TodayOld">
-		Bugün katıldı
+		Сегодня
 	</string>
 	<string name="AgeYearsA">
-		[COUNT] yıl
+		[COUNT] год
 	</string>
 	<string name="AgeYearsB">
-		[COUNT] yıl
+		[COUNT] года
 	</string>
 	<string name="AgeYearsC">
-		[COUNT] yıl
+		[COUNT] лет
 	</string>
 	<string name="AgeMonthsA">
-		[COUNT] ay
+		[COUNT] месяц
 	</string>
 	<string name="AgeMonthsB">
-		[COUNT] ay
+		[COUNT] месяца
 	</string>
 	<string name="AgeMonthsC">
-		[COUNT] ay
+		[COUNT] месяцев
 	</string>
 	<string name="AgeWeeksA">
-		[COUNT] hafta
+		[COUNT] неделя
 	</string>
 	<string name="AgeWeeksB">
-		[COUNT] hafta
+		[COUNT] недели
 	</string>
 	<string name="AgeWeeksC">
-		[COUNT] hafta
+		[COUNT] недель
 	</string>
 	<string name="AgeDaysA">
-		[COUNT] gün
+		[COUNT] день
 	</string>
 	<string name="AgeDaysB">
-		[COUNT] gün
+		[COUNT] дня
 	</string>
 	<string name="AgeDaysC">
-		[COUNT] gün
+		[COUNT] дней
 	</string>
 	<string name="GroupMembersA">
-		[COUNT] üye
+		[COUNT] участник
 	</string>
 	<string name="GroupMembersB">
-		[COUNT] üye
+		[COUNT] участника
 	</string>
 	<string name="GroupMembersC">
-		[COUNT] üye
+		[COUNT] участников
 	</string>
 	<string name="AcctTypeResident">
-		Sakin
+		Житель
 	</string>
 	<string name="AcctTypeTrial">
-		Deneme
+		Гость
 	</string>
 	<string name="AcctTypeCharterMember">
-		Ayrıcalıklı Üye
+		Учредитель
 	</string>
 	<string name="AcctTypeEmployee">
-		Linden Lab Çalışanı
+		Сотрудник Linden Lab
 	</string>
 	<string name="PaymentInfoUsed">
-		Kullanılan Ödeme Bilgisi
+		Есть информация о платежах
 	</string>
 	<string name="PaymentInfoOnFile">
-		Dosyadaki Ödeme Bilgisi
+		Есть зарегистрир. информация о платежах
 	</string>
 	<string name="NoPaymentInfoOnFile">
-		Dosyada Ödeme Bilgisi Yok
+		Нет информации о платежах
 	</string>
 	<string name="AgeVerified">
-		Yaşı Doğrulanmış
+		Возраст проверен
 	</string>
 	<string name="NotAgeVerified">
-		Yaşı Doğrulanmamış
+		Возраст не проверен
 	</string>
 	<string name="Center 2">
-		2. Merkez
+		В центре 2
 	</string>
 	<string name="Top Right">
-		Sağ Üst
+		Вверху справа
 	</string>
 	<string name="Top">
-		Üst
+		Вверху
 	</string>
 	<string name="Top Left">
-		Sol Üst
+		Вверху слева
 	</string>
 	<string name="Center">
-		Merkez
+		В центре
 	</string>
 	<string name="Bottom Left">
-		Sol Alt
+		Внизу слева
 	</string>
 	<string name="Bottom">
-		Alt
+		Внизу
 	</string>
 	<string name="Bottom Right">
-		Sağ Alt
+		Внизу справа
 	</string>
 	<string name="CompileQueueDownloadedCompiling">
-		Karşıdan yüklendi, şimdi derleniyor
+		Загружено, компилируется
 	</string>
 	<string name="CompileQueueScriptNotFound">
-		Komut dosyası sunucuda bulunamadı.
+		Скрипт не найден на сервере.
 	</string>
 	<string name="CompileQueueProblemDownloading">
-		Karşıdan yüklenirken sorun oluştu
+		Проблема при загрузке
 	</string>
 	<string name="CompileQueueInsufficientPermDownload">
-		Komut dosyasını karşıdan yüklemek için yeterli izin yok.
+		Недостаточно разрешений для загрузки скрипта.
 	</string>
 	<string name="CompileQueueInsufficientPermFor">
-		Şunun için yeterli izin yok:
+		Недостаточно разрешений для
 	</string>
 	<string name="CompileQueueUnknownFailure">
-		Karşıdan yüklerken bilinmeyen hata
+		Неизвестный сбой загрузки
 	</string>
 	<string name="CompileQueueTitle">
-		Tekrar Derleme İlerlemesi
+		Ход повторной компиляции
 	</string>
 	<string name="CompileQueueStart">
-		tekrar derle
+		скомпилировать повторно
 	</string>
 	<string name="ResetQueueTitle">
-		Sıfırlama İlerlemesi
+		Ход сброса
 	</string>
 	<string name="ResetQueueStart">
-		sıfırla
+		сброс
 	</string>
 	<string name="RunQueueTitle">
-		Çalışan Süreçlerin İlerlemesini Ayarla
+		Ход запуска
 	</string>
 	<string name="RunQueueStart">
-		çalıştırmayı ayarla
+		запустить
 	</string>
 	<string name="NotRunQueueTitle">
-		Çalışmayan Süreçlerin İlerlemesini Ayarla
+		Ход остановки выполнения
 	</string>
 	<string name="NotRunQueueStart">
-		çalıştırmamayı ayarla
+		прекратить выполнение
 	</string>
 	<string name="CompileSuccessful">
-		Derleme başarılı oldu!
+		Компиляция успешно выполнена!
 	</string>
 	<string name="CompileSuccessfulSaving">
-		Derleme başarılı, kaydediliyor...
+		Компиляция успешно выполнена, сохраняется...
 	</string>
 	<string name="SaveComplete">
-		Kaydetme tamamlandı.
+		Сохранение завершено.
 	</string>
 	<string name="ObjectOutOfRange">
-		Komut dosyası (nesne kapsam dışı)
+		Скрипт (объект вне области)
 	</string>
 	<string name="GodToolsObjectOwnedBy">
-		[OWNER] mülkiyetindeki [OBJECT] nesnesi
+		Объект [OBJECT] пользователя [OWNER]
 	</string>
 	<string name="GroupsNone">
-		hiçbiri
+		нет
 	</string>
-	<string name="Group" value="(grup)"/>
+	<string name="Group" value="(группа)"/>
 	<string name="Unknown">
-		(Bilinmiyor)
+		(Неизвестно)
 	</string>
-	<string name="SummaryForTheWeek" value="Bu haftanın özeti, şu tarihten itibaren:"/>
-	<string name="NextStipendDay" value="Sonraki ödeme günü şudur:"/>
+	<string name="SummaryForTheWeek" value="Сводка за неделю, начиная с"/>
+	<string name="NextStipendDay" value="Дата очередного жалования:"/>
 	<string name="GroupPlanningDate">
-		[mthnum,datetime,utc]/[day,datetime,utc]/[year,datetime,utc]
+		[day,datetime,utc].[mthnum,datetime,utc].[year,datetime,utc]
 	</string>
-	<string name="GroupIndividualShare" value="Grup       Bireysel Pay"/>
-	<string name="GroupColumn" value="Grup"/>
+	<string name="GroupIndividualShare" value="Для группы       Персонально Совместно"/>
+	<string name="GroupColumn" value="Группа"/>
 	<string name="Balance">
-		Bakiye
+		Баланс
 	</string>
 	<string name="Credits">
-		Katkıda Bulunanlar
+		Расход
 	</string>
 	<string name="Debits">
-		Borçlar
+		Приход
 	</string>
 	<string name="Total">
-		Toplam
+		Итого
 	</string>
 	<string name="NoGroupDataFound">
-		Bu grup için grup verisi bulunamadı
+		Не найдены данные для группы
 	</string>
 	<string name="IMParentEstate">
-		ana gayrimenkul
+		родовое землевладение
 	</string>
 	<string name="IMMainland">
-		anakara
+		материк
 	</string>
 	<string name="IMTeen">
-		on sekiz yaş altı
+		подростковый
 	</string>
 	<string name="Anyone">
-		herkes
+		все
 	</string>
 	<string name="RegionInfoError">
-		hata
+		ошибка
 	</string>
 	<string name="RegionInfoAllEstatesOwnedBy">
-		[OWNER] mülkiyetindeki tüm gayrimenkuller
+		все землевладения пользователя [OWNER]
 	</string>
 	<string name="RegionInfoAllEstatesYouOwn">
-		sahip olduğunuz tüm gayrimenkuller
+		все ваши землевладения
 	</string>
 	<string name="RegionInfoAllEstatesYouManage">
-		[OWNER] adına yönettiğiniz tüm gayrimenkuller
+		все землевладения пользователя [OWNER], которыми вы управляете
 	</string>
 	<string name="RegionInfoAllowedResidents">
-		İzin verilen Sakinler: ([ALLOWEDAGENTS], maks [MAXACCESS])
+		Допущенные жители: ([ALLOWEDAGENTS], не более [MAXACCESS])
 	</string>
 	<string name="RegionInfoAllowedGroups">
-		İzin verilen gruplar: ([ALLOWEDGROUPS], maks [MAXACCESS])
+		Допущенные группы: ([ALLOWEDGROUPS], не более [MAXACCESS])
 	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
-		Parsel Komut Dosyası Belleği
+		Память под скрипты на участке
 	</string>
 	<string name="ScriptLimitsParcelsOwned">
-		Listelenen Parseller: [PARCELS]
+		Участков в списке: [PARCELS]
 	</string>
 	<string name="ScriptLimitsMemoryUsed">
-		Kullanılan bellek: [COUNT] kb / [MAX] kb içerisinden; [AVAILABLE] kb serbest
+		Используется памяти: [COUNT] КБ из [MAX] КБ; доступно: [AVAILABLE] КБ
 	</string>
 	<string name="ScriptLimitsMemoryUsedSimple">
-		Kullanılan bellek: [COUNT] kb
+		Используется памяти: [COUNT] КБ
 	</string>
 	<string name="ScriptLimitsParcelScriptURLs">
-		Parsel Komut Dosyası URL&apos;leri
+		URL-адреса скрипта участков
 	</string>
 	<string name="ScriptLimitsURLsUsed">
-		Kullanılan URL&apos;ler: [COUNT] / [MAX] içerisinden; [AVAILABLE] serbest
+		Используется URL-адресов: [COUNT] из [MAX] (доступно: [AVAILABLE])
 	</string>
 	<string name="ScriptLimitsURLsUsedSimple">
-		Kullanılan URL&apos;ler: [COUNT]
+		Используется URL-адресов: [COUNT]
 	</string>
 	<string name="ScriptLimitsRequestError">
-		Bilgi talep edilirken hata oluştu
+		Ошибка при запросе данных
 	</string>
 	<string name="ScriptLimitsRequestNoParcelSelected">
-		Seçili Parsel Yok
+		Участок не выбран
 	</string>
 	<string name="ScriptLimitsRequestWrongRegion">
-		Hata: Komut dosyası bilgisi sadece mevcut bölgenizde geçerli
+		Ошибка. Сведения о скрипте доступны только в текущем регионе
 	</string>
 	<string name="ScriptLimitsRequestWaiting">
-		Bilgiler alınıyor...
+		Получение данных...
 	</string>
 	<string name="ScriptLimitsRequestDontOwnParcel">
-		Bu parseli inceleme izniniz yok
+		У вас нет прав для исследования этого участка
 	</string>
 	<string name="SITTING_ON">
-		Üzerinde Oturuyor
+		Сидит на
 	</string>
 	<string name="ATTACH_CHEST">
-		Göğüs
+		Грудь
 	</string>
 	<string name="ATTACH_HEAD">
-		Baş
+		Голова
 	</string>
 	<string name="ATTACH_LSHOULDER">
-		Sol Omuz
+		Левое плечо
 	</string>
 	<string name="ATTACH_RSHOULDER">
-		Sağ Omuz
+		Правое плечо
 	</string>
 	<string name="ATTACH_LHAND">
-		Sol El
+		Левая кисть
 	</string>
 	<string name="ATTACH_RHAND">
-		Sağ El
+		Правая кисть
 	</string>
 	<string name="ATTACH_LFOOT">
-		Sol Ayak
+		Левая ступня
 	</string>
 	<string name="ATTACH_RFOOT">
-		Sağ Ayak
+		Правая ступня
 	</string>
 	<string name="ATTACH_BACK">
-		Geri
+		Спина
 	</string>
 	<string name="ATTACH_PELVIS">
-		Leğen Kemiği
+		Таз
 	</string>
 	<string name="ATTACH_MOUTH">
-		Ağız
+		Рот
 	</string>
 	<string name="ATTACH_CHIN">
-		Çene
+		Подбородок
 	</string>
 	<string name="ATTACH_LEAR">
-		Sol Kulak
+		Левое ухо
 	</string>
 	<string name="ATTACH_REAR">
-		Sağ Kulak
+		Правое ухо
 	</string>
 	<string name="ATTACH_LEYE">
-		Sol Göz
+		Левый глаз
 	</string>
 	<string name="ATTACH_REYE">
-		Sağ Göz
+		Правый глаз
 	</string>
 	<string name="ATTACH_NOSE">
-		Burun
+		Нос
 	</string>
 	<string name="ATTACH_RUARM">
-		Sol Üst Kol
+		Правое плечо
 	</string>
 	<string name="ATTACH_RLARM">
-		Sağ Alt Kol
+		Правое предплечье
 	</string>
 	<string name="ATTACH_LUARM">
-		Sol Üst Kol
+		Левое плечо
 	</string>
 	<string name="ATTACH_LLARM">
-		Sol Alt Kol
+		Левое предплечье
 	</string>
 	<string name="ATTACH_RHIP">
-		Sağ Kalça
+		Правое бедро
 	</string>
 	<string name="ATTACH_RULEG">
-		Sağ Üst Bacak
+		Правое колено
 	</string>
 	<string name="ATTACH_RLLEG">
-		Sağ Alt Bacak
+		Правая голень
 	</string>
 	<string name="ATTACH_LHIP">
-		Sol Kalça
+		Левое бедро
 	</string>
 	<string name="ATTACH_LULEG">
-		Sol Üst Bacak
+		Левое колено
 	</string>
 	<string name="ATTACH_LLLEG">
-		Sol Alt Bacak
+		Левая голень
 	</string>
 	<string name="ATTACH_BELLY">
-		Göbek
+		Живот
 	</string>
 	<string name="ATTACH_RPEC">
-		Sağ Göğüs
+		Правая грудь
 	</string>
 	<string name="ATTACH_LPEC">
-		Sol Göğüs
+		Левая грудь
 	</string>
 	<string name="ATTACH_HUD_CENTER_2">
-		BÜG 2. Merkez
+		Данные в игре в центре 2
 	</string>
 	<string name="ATTACH_HUD_TOP_RIGHT">
-		BÜG Sağ Üst
+		Данные в игре вверху справа
 	</string>
 	<string name="ATTACH_HUD_TOP_CENTER">
-		BÜG Merkez Üst
+		Данные в игре вверху в центре
 	</string>
 	<string name="ATTACH_HUD_TOP_LEFT">
-		BÜG Sol Üst
+		Данные в игре вверху слева
 	</string>
 	<string name="ATTACH_HUD_CENTER_1">
-		BÜG 1. Merkez
+		Данные в игре в центре 1
 	</string>
 	<string name="ATTACH_HUD_BOTTOM_LEFT">
-		BÜG Sol Alt
+		Данные в игре внизу слева
 	</string>
 	<string name="ATTACH_HUD_BOTTOM">
-		BÜG Alt
+		Данные в игре внизу
 	</string>
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
-		BÜG Sağ Alt
+		Данные в игре внизу справа
 	</string>
 	<string name="CursorPos">
-		Satır [LINE], Sütun [COLUMN]
+		Строка [LINE], столбец [COLUMN]
 	</string>
 	<string name="PanelDirCountFound">
-		[COUNT] bulundu
+		Найдено: [COUNT]
 	</string>
 	<string name="PanelDirTimeStr">
 		[hour,datetime,slt]:[min,datetime,slt]
 	</string>
 	<string name="PanelDirEventsDateText">
-		[mthnum,datetime,slt]/[day,datetime,slt]
+		[day,datetime,slt].[mthnum,datetime,slt]
 	</string>
 	<string name="PanelContentsTooltip">
-		Nesnenin içeriği
+		Подключение к объекту
 	</string>
 	<string name="PanelContentsNewScript">
-		Yeni Komut Dosyası
+		Новый скрипт
 	</string>
 	<string name="BusyModeResponseDefault">
-		İleti gönderdiğiniz Sakin &apos;meşgul modu&apos;nda, bu da rahatsız edilmek istemediği anlamına geliyor.  İletiniz daha sonra incelenmesi için kendisine ait Aİ panelinde gösterilecektir.
+		У адресата вашего сообщения задан статус «Не беспокоить».  Ваше сообщение все равно будет отображено на панели IM для просмотра позже.
 	</string>
 	<string name="MuteByName">
-		(Adına göre)
+		(по имени)
 	</string>
 	<string name="MuteAgent">
-		(Sakin)
+		(для жителя)
 	</string>
 	<string name="MuteObject">
-		(Nesne)
+		(для объекта)
 	</string>
 	<string name="MuteGroup">
-		(Grup)
+		(для группы)
 	</string>
 	<string name="MuteExternal">
-		(Harici)
+		(внешний)
 	</string>
 	<string name="RegionNoCovenant">
-		Bu Gayrimenkul için Sözleşmesi yok.
+		Нет соглашения для этого землевладения.
 	</string>
 	<string name="RegionNoCovenantOtherOwner">
-		Bu Gayrimenkul için Sözleşmesi yok. Bu gayrimenkul üzerindeki arazi Linden Lab. değil, Gayrimenkul sahibi tarafından satılmaktadır.  Satış ayrıntılarını öğrenmek için lütfen Gayrimenkul Sahibiyle bağlantıya geçin.
+		Нет соглашения для этого землевладения. Земля в этом землевладении продается его владельцем, а не компанией Linden Lab.  Чтобы узнать подробности о продаже, обратитесь к землевладельцу.
 	</string>
-	<string name="covenant_last_modified" value="Son Değiştirildiği Tarih:"/>
-	<string name="none_text" value="(hiçbiri)"/>
-	<string name="never_text" value="(asla)"/>
+	<string name="covenant_last_modified" value="Дата последнего изменения:"/>
+	<string name="none_text" value="(нет)"/>
+	<string name="never_text" value="(никогда)"/>
 	<string name="GroupOwned">
-		Sahibi Olunan Grup
+		Собственность группы
 	</string>
 	<string name="Public">
-		Kamuya Açık
+		Общая собственность
 	</string>
 	<string name="LocalSettings">
-		Yerel Ayarlar
+		Локальные настройки
 	</string>
 	<string name="RegionSettings">
-		Bölge Ayarları
+		Региональные настройки
 	</string>
 	<string name="ClassifiedClicksTxt">
-		Tıklamalar: [TELEPORT] ışınlama, [MAP] harita, [PROFILE] profil
+		Щелчки: телепорт [TELEPORT], карта [MAP], профиль [PROFILE]
 	</string>
 	<string name="ClassifiedUpdateAfterPublish">
-		(yayınlandıktan sonra güncelleştirilir)
+		(будет обновлено после публикации)
 	</string>
 	<string name="NoPicksClassifiedsText">
-		Herhangi bir Seçme veya İlan oluşturmadınız. Bir Seçme veya İlan oluşturmak için aşağıdaki Artı düğmesine tıklayın.
+		Вы не создали подборки или рекламы. Нажмите кнопку со знаком «плюс» ниже, чтобы создать подборку или рекламу
 	</string>
 	<string name="NoAvatarPicksClassifiedsText">
-		Kullanıcının herhangi bir seçmesi veya ilanı yok
+		У жителя нет подборки или рекламы
 	</string>
 	<string name="PicksClassifiedsLoadingText">
-		Yükleniyor...
+		Загрузка...
 	</string>
 	<string name="MultiPreviewTitle">
-		Önizleme
+		Предварительный просмотр
 	</string>
 	<string name="MultiPropertiesTitle">
-		Özellikler
+		Свойства
 	</string>
 	<string name="InvOfferAnObjectNamed">
-		Şu ada sahip bir nesne:
+		Объект с именем
 	</string>
 	<string name="InvOfferOwnedByGroup">
-		grubun sahip olduğu:
+		принадлежит группе
 	</string>
 	<string name="InvOfferOwnedByUnknownGroup">
-		bilinmeyen grubun sahip olduğu:
+		принадлежит известной группе
 	</string>
 	<string name="InvOfferOwnedBy">
-		sahibi:
+		принадлежит
 	</string>
 	<string name="InvOfferOwnedByUnknownUser">
-		bilinmeyen bir kullanıcının sahip olduğu:
+		принадлежит неизвестному пользователю
 	</string>
 	<string name="InvOfferGaveYou">
-		size verdi:
+		дал(а) вам
 	</string>
 	<string name="InvOfferDecline">
-		&lt;nolink&gt;[NAME]&lt;/nolink&gt; tarafından gönderilen [DESC]&apos;i reddettiniz.
+		Вы не приняли [DESC] от жителя &lt;nolink&gt;[NAME]&lt;/nolink&gt;.
 	</string>
 	<string name="GroupMoneyTotal">
-		Toplam
+		Итого
 	</string>
 	<string name="GroupMoneyBought">
-		alınan:
+		куплено
 	</string>
 	<string name="GroupMoneyPaidYou">
-		size ödenen:
+		уплачено вам
 	</string>
 	<string name="GroupMoneyPaidInto">
-		şuraya ödenen:
+		уплачено в
 	</string>
 	<string name="GroupMoneyBoughtPassTo">
-		şuraya geçiş hakkı alınan:
+		куплен пропуск в
 	</string>
 	<string name="GroupMoneyPaidFeeForEvent">
-		etkinlik için ödenen ücret:
+		уплачено за событие
 	</string>
 	<string name="GroupMoneyPaidPrizeForEvent">
-		etkinlik için verilen ödül:
+		выплачено призовых за событие
 	</string>
 	<string name="GroupMoneyBalance">
-		Bakiye
+		Баланс
 	</string>
 	<string name="GroupMoneyCredits">
-		Katkıda Bulunanlar
+		Расход
 	</string>
 	<string name="GroupMoneyDebits">
-		Borçlar
+		Приход
 	</string>
 	<string name="GroupMoneyDate">
-		[weekday,datetime,utc] [mth,datetime,utc] [day,datetime,utc], [year,datetime,utc]
+		[weekday,datetime,utc], [day,datetime,utc] [mth,datetime,utc] [year,datetime,utc]
 	</string>
 	<string name="ViewerObjectContents">
-		İçerik
+		Контент
 	</string>
 	<string name="AcquiredItems">
-		Alınan Öğeler
+		Купленные вещи
 	</string>
 	<string name="Cancel">
-		İptal
+		Отмена
 	</string>
 	<string name="UploadingCosts">
-		[NAME] için karşıya yükleme maliyeti: L$ [AMOUNT]
+		Передача [NAME] стоит L$[AMOUNT]
 	</string>
 	<string name="BuyingCosts">
-		Bunu satın almanın maliyeti: L$ [AMOUNT]
+		Стоимость покупки: L$[AMOUNT]
 	</string>
 	<string name="UnknownFileExtension">
-		Bilinmeyen dosya uzantısı .%s
-.wav, .tga, .bmp, .jpg, .jpeg veya .bvh bekleniyordu
+		Неизвестное расширение файла .%s
+Ожидаются расширения: WAV, TGA, BMP, JPG, JPEG или BVH
 	</string>
 	<string name="MuteObject2">
-		Engelle
+		Заблокировать
 	</string>
 	<string name="MuteAvatar">
-		Engelle
+		Заблокировать
 	</string>
 	<string name="UnmuteObject">
-		Engellemeyi Kaldır
+		Разблокировать
 	</string>
 	<string name="UnmuteAvatar">
-		Engellemeyi Kaldır
+		Разблокировать
 	</string>
 	<string name="AddLandmarkNavBarMenu">
-		Yer İmlerime Ekle...
+		Добавить в мои закладки...
 	</string>
 	<string name="EditLandmarkNavBarMenu">
-		Yer İmimi Düzenle...
+		Изменить мою закладку...
 	</string>
 	<string name="accel-mac-control">
 		⌃
@@ -2135,139 +2129,139 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		⇧
 	</string>
 	<string name="accel-win-control">
-		Ctrl+
+		CTRL+
 	</string>
 	<string name="accel-win-alt">
-		Alt+
+		ALT+
 	</string>
 	<string name="accel-win-shift">
-		Shift+
+		SHIFT+
 	</string>
 	<string name="FileSaved">
-		Dosya Kaydedildi
+		Файл сохранен
 	</string>
 	<string name="Receiving">
-		Alınıyor
+		Получение
 	</string>
 	<string name="AM">
-		ÖÖ
+		до полудня
 	</string>
 	<string name="PM">
-		ÖS
+		после полудня
 	</string>
 	<string name="PST">
-		PST
+		Тихоокеанское время
 	</string>
 	<string name="PDT">
-		PDT
+		Летнее тихоокеанское время
 	</string>
 	<string name="Direction_Forward">
-		İleri
+		Вперед
 	</string>
 	<string name="Direction_Left">
-		Sol
+		Влево
 	</string>
 	<string name="Direction_Right">
-		Sağ
+		Вправо
 	</string>
 	<string name="Direction_Back">
-		Geri
+		Назад
 	</string>
 	<string name="Direction_North">
-		Kuzey
+		Север
 	</string>
 	<string name="Direction_South">
-		Güney
+		Юг
 	</string>
 	<string name="Direction_West">
-		Batı
+		Запад
 	</string>
 	<string name="Direction_East">
-		Doğu
+		Восток
 	</string>
 	<string name="Direction_Up">
-		Yukarı
+		Вверх
 	</string>
 	<string name="Direction_Down">
-		Aşağı
+		Вниз
 	</string>
 	<string name="Any Category">
-		Herh. Bir Kategori
+		Все категории
 	</string>
 	<string name="Shopping">
-		Alışveriş
+		Покупки
 	</string>
 	<string name="Land Rental">
-		Arazi Kiralama
+		Земельная рента
 	</string>
 	<string name="Property Rental">
-		Mülk Kiralama
+		Аренда имущества
 	</string>
 	<string name="Special Attraction">
-		Özel Atraksiyon
+		Особое событие
 	</string>
 	<string name="New Products">
-		Yeni Ürünler
+		Новые продукты
 	</string>
 	<string name="Employment">
-		İstihdam
+		Род занятий
 	</string>
 	<string name="Wanted">
-		Arananlar
+		Хочу найти
 	</string>
 	<string name="Service">
-		Hizmet
+		Услуги
 	</string>
 	<string name="Personal">
-		Kişisel
+		Личное сообщение
 	</string>
 	<string name="None">
-		Renksiz
+		Нет
 	</string>
 	<string name="Linden Location">
-		Linden Konumu
+		Место Linden
 	</string>
 	<string name="Adult">
-		Yetişkin
+		Для взрослых
 	</string>
 	<string name="Arts&amp;Culture">
-		Sanat ve Kültür
+		Искусство и культура
 	</string>
 	<string name="Business">
-		İş
+		Бизнес
 	</string>
 	<string name="Educational">
-		Eğitim
+		Образование
 	</string>
 	<string name="Gaming">
-		Oyun
+		Игры
 	</string>
 	<string name="Hangout">
-		Uğrak Mekan
+		Места встреч
 	</string>
 	<string name="Newcomer Friendly">
-		Yeni Gelenlere Yardım Sunan
+		Для новичков
 	</string>
 	<string name="Parks&amp;Nature">
-		Park ve Doğa
+		Парки и природа
 	</string>
 	<string name="Residential">
-		Yerleşim
+		Проживание
 	</string>
 	<string name="Stage">
-		Sahne
+		Стадия
 	</string>
 	<string name="Other">
-		Diğer
+		Другое
 	</string>
 	<string name="Rental">
-		Kiralık
+		Аренда
 	</string>
 	<string name="Any">
-		Herhangi
+		Все
 	</string>
 	<string name="You">
-		Siz
+		Вы
 	</string>
 	<string name=":">
 		:
@@ -2297,2247 +2291,2246 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		---
 	</string>
 	<string name="Multiple Media">
-		Birden Çok Ortam
+		Несколько источников мультимедиа
 	</string>
 	<string name="Play Media">
-		Ortamı Oynat/Durdur
+		Мультимедиа – воспроизведение/пауза
 	</string>
 	<string name="MBCmdLineError">
-		Komut satırı ayrıştırılırken bir hata oluştu.
-Lütfen bakınız: http://wiki.secondlife.com/wiki/Client_parameters
-Hata:
+		Ошибка при анализе командной строки.
+См.: http://wiki.secondlife.com/wiki/Client_parameters
+Ошибка:
 	</string>
 	<string name="MBCmdLineUsg">
-		[APP_NAME] Komut satırı kullanımı:
+		Использование командной строки [APP_NAME]:
 	</string>
 	<string name="MBUnableToAccessFile">
-		[APP_NAME] ihtiyaç duyduğu bir dosyaya erişemiyor.
-
-Bunun nedeni bir şekilde birden fazla kopyanın çalışıyor olması veya sisteminizin, bir dosyanın açık olduğunu sanması olabilir.
-Bu iletiyi görmeye devam ederseniz, bilgisayarınızı yeniden başlatın ve tekrar deneyin.
-Sorun devam ederse [APP_NAME] uygulamasını tümüyle kaldırmanız ve tekrar yüklemeniz gerekebilir.
+		Приложению [APP_NAME] не удается получить доступ к нужному файлу.
+Возможно, выполняется несколько копий или в системе неправильно открыт файл.
+Если это сообщение по-прежнему будет отображаться, перезагрузите компьютер и повторите попытку.
+Если и это не поможет, возможно, придется повторно установить приложение [APP_NAME].
 	</string>
 	<string name="MBFatalError">
-		Önemli Hata
+		Неустранимая ошибка
 	</string>
 	<string name="MBRequiresAltiVec">
-		[APP_NAME], AltiVec (G4 veya üzeri) bir işlemciye ihtiyaç duyuyor.
+		Для работы [APP_NAME] необходим процессор с поддержкой AltiVec (версии G4 или более поздней).
 	</string>
 	<string name="MBAlreadyRunning">
-		[APP_NAME] zaten çalışıyor.
-Programın simge durumuna küçültülmüş bir kopyası için görev çubuğunuza bakın.
-Bu iletiyi görmeye devam ederseniz, bilgisayarınızı tekrar başlatın.
+		[APP_NAME] уже выполняется.
+Поищите значок программы на панели задач.
+Если это сообщение по-прежнему будет отображаться, перезагрузите компьютер.
 	</string>
 	<string name="MBFrozenCrashed">
-		[APP_NAME] uygulaması bir önceki çalıştırmada kilitlenmiş görünüyor.
-Bir kilitlenme raporu göndermek ister misiniz?
+		По-видимому, при предыдущем запуске приложения [APP_NAME] оно зависло или в нем возник сбой.
+Отправить отчет о сбое?
 	</string>
 	<string name="MBAlert">
-		Bildirim
+		Уведомление
 	</string>
 	<string name="MBNoDirectX">
-		[APP_NAME], DirectX 9.0b veya üzerini saptayamıyor.
-[APP_NAME], kararlılık problemleri, kötü performans ve çökmelere neden olabilecek donanım ve/veya süresi geçmiş sürücüleri saptamak için DirectX kullanır.  [APP_NAME] uygulamasını bu olmadan da çalıştırmanız mümkündür, ancak DirectX 9.0b ile çalıştırmanızı kuvvetle tavsiye ederiz.
-
-Devam etmek istiyor musunuz?
+		Приложению [APP_NAME] не удается обнаружить DirectX 9.0b или более поздних версий.
+В приложении [APP_NAME] используется DirectX для проверки оборудования и выявления устаревших драйверов, из-за которых может снизиться стабильность работы и быстродействие, а также возникнуть сбои.  Настоятельно рекомендуется установить DirectX 9.0b, хотя приложение [APP_NAME] работает и без этого компонента.
+Продолжить?
 	</string>
 	<string name="MBWarning">
-		Uyarı
+		Внимание!
 	</string>
 	<string name="MBNoAutoUpdate">
-		Linux için henüz otomatik güncelleştirme uygulanmamıştır.
-Lütfen www.secondlife.com adresinden son sürümü karşıdan yükleyin.
+		В ОС Linux автоматическое обновление еще не реализовано.
+Загрузите новую версию на сайте www.secondlife.com.
 	</string>
 	<string name="MBRegClassFailed">
-		RegisterClass başarısız oldu
+		Ошибка RegisterClass
 	</string>
 	<string name="MBError">
-		Hata
+		Ошибка
 	</string>
 	<string name="MBFullScreenErr">
-		[WIDTH] x [HEIGHT] çözünürlüğünde tam ekran çalıştırma yapılamıyor.
-Pencerede çalışıyor.
+		Невозможна работа в полноэкранном режиме на экране [WIDTH] x [HEIGHT].
+Запущено в окне.
 	</string>
 	<string name="MBDestroyWinFailed">
-		Pencere yok edilirken Kapatma Hatası oluştu (DestroyWindow() başarısız oldu)
+		Ошибка завершения работы при удалении окна (сбой функции DestroyWindow())
 	</string>
 	<string name="MBShutdownErr">
-		Kapatma Hatası
+		Ошибка завершения работы
 	</string>
 	<string name="MBDevContextErr">
-		GL cihazı içeriği oluşturulamıyor
+		Не удается создать контекст устройства GL
 	</string>
 	<string name="MBPixelFmtErr">
-		Uygun piksel formatı bulunamadı
+		Не удается найти подходящий формат пикселей
 	</string>
 	<string name="MBPixelFmtDescErr">
-		Piksel formatı açıklaması alınamıyor
+		Не удается получить описание формата пикселей
 	</string>
 	<string name="MBTrueColorWindow">
-		[APP_NAME] uygulamasının çalışması için Gerçek Renk (32 bit) gerekiyor.
-Lütfen bilgisayarınızın ekran ayarlarına gidin ve renk modunu 32 bit olarak ayarlayın.
+		Для работы [APP_NAME] необходим режим True Color (32 бита).
+Задайте в настройках дисплея 32-битный режим цвета.
 	</string>
 	<string name="MBAlpha">
-		[APP_NAME] çalışamıyor çünkü 8 bit bir alfa kanalı alamıyor.  Bunun nedeni genellikle video kartı sürücü sorunlarıdır.
-Lütfen en yeni video sürücülerinin yüklü olduğuna emin olun.
-Ayrıca Denetim Masaları &gt; Ekran &gt; Ayarlar içerisinde ekranınız için Gerçek Renk (32 bit) ayarı yapıldığına emin olun.
-Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
+		Не удается запустить [APP_NAME] из-за отсутствия доступа к 8-битному альфа-каналу.  Обычно эта проблема возникает из-за неполадок с драйвером видеокарты.
+Установите новые драйверы видеокарты.
+Также задайте для монитора 32-битный режим True Color (Панель управления &gt; Экран &gt; Параметры).
+Если это сообщение продолжает отображаться, обратитесь на сайт [SUPPORT_SITE].
 	</string>
 	<string name="MBPixelFmtSetErr">
-		Piksel formatı ayarlanamıyor
+		Не удается задать формат пикселей
 	</string>
 	<string name="MBGLContextErr">
-		GL işlemi bağlamı oluşturulamıyor
+		Не удается создать контекст визуализации GL
 	</string>
 	<string name="MBGLContextActErr">
-		GL işlemi bağlamı etkinleştirilemiyor
+		Не удается активировать контекст визуализации GL
 	</string>
 	<string name="MBVideoDrvErr">
-		[APP_NAME] çalışamıyor çünkü video kartı sürücüleriniz düzgün yüklenemedi, süresi geçmiş durumda veya desteklenmeyen donanımlar için geliştirilmiş. Lütfen en yeni video kartı sürücülerine sahip olduğunuza emin olun; en yeni sürücüler mevcutsa da bunları tekrar yüklemeyi deneyin.
-
-Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
+		Не удается запустить приложение [APP_NAME], поскольку драйверы видеокарты неправильно установлены, устарели или предназначены для оборудования, которое не поддерживается. Установите или переустановите последние драйверы видеокарты.
+Если это сообщение продолжает отображаться, обратитесь на сайт [SUPPORT_SITE].
 	</string>
 	<string name="5 O&apos;Clock Shadow">
-		Bir Günlük Sakal
+		Жидкие
 	</string>
 	<string name="All White">
-		Tümü Beyaz
+		Полностью белые
 	</string>
 	<string name="Anime Eyes">
-		Anime Gözler
+		Глаза как в аниме
 	</string>
 	<string name="Arced">
-		Yay Şeklinde
+		Дугой
 	</string>
 	<string name="Arm Length">
-		Kol Uzunluğu
+		Длина рук
 	</string>
 	<string name="Attached">
-		Bitişik
+		Прикреплено
 	</string>
 	<string name="Attached Earlobes">
-		Kafaya Bitişik Kulak Memeleri
+		Приросшие мочки
 	</string>
 	<string name="Back Fringe">
-		Arka Perçem
+		Затылок
 	</string>
 	<string name="Baggy">
-		Torbalı
+		С мешками
 	</string>
 	<string name="Bangs">
-		Kahküller
+		Челки
 	</string>
 	<string name="Beady Eyes">
-		Boncuk Gözler
+		Бусинки
 	</string>
 	<string name="Belly Size">
-		Göbek Büyüklüğü
+		Размер живота
 	</string>
 	<string name="Big">
-		Büyük
+		Большой
 	</string>
 	<string name="Big Butt">
-		Büyük Kıç
+		Большой зад
 	</string>
 	<string name="Big Hair Back">
-		Kabarık Saç: Arkada
+		Пышные волосы: сзади
 	</string>
 	<string name="Big Hair Front">
-		Kabarık Saç: Önde
+		Пышные волосы: спереди
 	</string>
 	<string name="Big Hair Top">
-		Kabarık Saç: Tepede
+		Пышные волосы: сверху
 	</string>
 	<string name="Big Head">
-		Büyük Kafa
+		Большая голова
 	</string>
 	<string name="Big Pectorals">
-		Büyük Göğüs Kasları
+		Выпуклая грудь
 	</string>
 	<string name="Big Spikes">
-		Büyük Dik Kısımlar
+		Большие «шипы»
 	</string>
 	<string name="Black">
-		Siyah
+		Черный
 	</string>
 	<string name="Blonde">
-		Sarışın
+		Светлый
 	</string>
 	<string name="Blonde Hair">
-		Sarı Saç
+		Светлые волосы
 	</string>
 	<string name="Blush">
-		Allık
+		Румяна
 	</string>
 	<string name="Blush Color">
-		Allık Rengi
+		Цвет румян
 	</string>
 	<string name="Blush Opacity">
-		Allık Geçirgenliği
+		Прозрачность румян
 	</string>
 	<string name="Body Definition">
-		Vücut Tanımı
+		Тип тела
 	</string>
 	<string name="Body Fat">
-		Vücut Yağı
+		Жировая прослойка
 	</string>
 	<string name="Body Freckles">
-		Vücut Çilleri
+		Веснушки
 	</string>
 	<string name="Body Thick">
-		Kalın Vücut
+		Полное тело
 	</string>
 	<string name="Body Thickness">
-		Vücut Kalınlığı
+		Полнота
 	</string>
 	<string name="Body Thin">
-		İnce Vücut
+		Худое тело
 	</string>
 	<string name="Bow Legged">
-		Çarpık Bacaklı
+		Ноги колесом
 	</string>
 	<string name="Breast Buoyancy">
-		Göğüs Kalkıklığı
+		Высота груди
 	</string>
 	<string name="Breast Cleavage">
-		Göğüs Çatalı
+		Ложбинка между грудей
 	</string>
 	<string name="Breast Size">
-		Göğüs Büyüklüğü
+		Размер груди
 	</string>
 	<string name="Bridge Width">
-		Burun Kemiği Genişliği
+		Ширина переносицы
 	</string>
 	<string name="Broad">
-		Geniş
+		Широкая
 	</string>
 	<string name="Brow Size">
-		Alın Genişliği
+		Размер надбровных дуг
 	</string>
 	<string name="Bug Eyes">
-		Patlak Gözlü
+		Выпученные глаза
 	</string>
 	<string name="Bugged Eyes">
-		Patlak Gözlü
+		Выпученные глаза
 	</string>
 	<string name="Bulbous">
-		Patates Burunlu
+		Картошкой
 	</string>
 	<string name="Bulbous Nose">
-		Patates Burunlu
+		Нос картошкой
 	</string>
 	<string name="Breast Physics Mass">
-		Göğüs Kütlesi
+		Масса груди
 	</string>
 	<string name="Breast Physics Smoothing">
-		Göğüs Düzleştirme
+		Гладкость груди
 	</string>
 	<string name="Breast Physics Gravity">
-		Göğüs Yerçekimi
+		Обвислость груди
 	</string>
 	<string name="Breast Physics Drag">
-		Göğüs Direnci
+		Аэродинамика груди
 	</string>
 	<string name="Breast Physics InOut Max Effect">
-		Maks Etki
+		Верхняя граница
 	</string>
 	<string name="Breast Physics InOut Spring">
-		Yaylanma
+		Упругость
 	</string>
 	<string name="Breast Physics InOut Gain">
-		Kazanç
+		Отклик
 	</string>
 	<string name="Breast Physics InOut Damping">
-		Sönüm
+		Затухание
 	</string>
 	<string name="Breast Physics UpDown Max Effect">
-		Maks Etki
+		Верхняя граница
 	</string>
 	<string name="Breast Physics UpDown Spring">
-		Yaylanma
+		Упругость
 	</string>
 	<string name="Breast Physics UpDown Gain">
-		Kazanç
+		Отклик
 	</string>
 	<string name="Breast Physics UpDown Damping">
-		Sönüm
+		Затухание
 	</string>
 	<string name="Breast Physics LeftRight Max Effect">
-		Maks Etki
+		Верхняя граница
 	</string>
 	<string name="Breast Physics LeftRight Spring">
-		Yaylanma
+		Упругость
 	</string>
 	<string name="Breast Physics LeftRight Gain">
-		Kazanç
+		Отклик
 	</string>
 	<string name="Breast Physics LeftRight Damping">
-		Sönüm
+		Затухание
 	</string>
 	<string name="Belly Physics Mass">
-		Göbek Kütlesi
+		Масса живота
 	</string>
 	<string name="Belly Physics Smoothing">
-		Göbek Düzleştirme
+		Гладкость живота
 	</string>
 	<string name="Belly Physics Gravity">
-		Göbek Yerçekimi
+		Обвислость живота
 	</string>
 	<string name="Belly Physics Drag">
-		Göbek Direnci
+		Инертность живота
 	</string>
 	<string name="Belly Physics UpDown Max Effect">
-		Maks Etki
+		Верхняя граница
 	</string>
 	<string name="Belly Physics UpDown Spring">
-		Yaylanma
+		Упругость
 	</string>
 	<string name="Belly Physics UpDown Gain">
-		Kazanç
+		Отклик
 	</string>
 	<string name="Belly Physics UpDown Damping">
-		Sönüm
+		Затухание
 	</string>
 	<string name="Butt Physics Mass">
-		Kıç Kütlesi
+		Масса зада
 	</string>
 	<string name="Butt Physics Smoothing">
-		Kıç Düzleştirme
+		Гладкость зада
 	</string>
 	<string name="Butt Physics Gravity">
-		Kıç Yerçekimi
+		Обвислость зада
 	</string>
 	<string name="Butt Physics Drag">
-		Kıç Direnci
+		Инертность зада
 	</string>
 	<string name="Butt Physics UpDown Max Effect">
-		Maks Etki
+		Верхняя граница
 	</string>
 	<string name="Butt Physics UpDown Spring">
-		Yaylanma
+		Упругость
 	</string>
 	<string name="Butt Physics UpDown Gain">
-		Kazanç
+		Отклик
 	</string>
 	<string name="Butt Physics UpDown Damping">
-		Sönüm
+		Затухание
 	</string>
 	<string name="Butt Physics LeftRight Max Effect">
-		Maks Etki
+		Верхняя граница
 	</string>
 	<string name="Butt Physics LeftRight Spring">
-		Yaylanma
+		Упругость
 	</string>
 	<string name="Butt Physics LeftRight Gain">
-		Kazanç
+		Отклик
 	</string>
 	<string name="Butt Physics LeftRight Damping">
-		Sönüm
+		Затухание
 	</string>
 	<string name="Bushy Eyebrows">
-		Gür Kaşlar
+		Кустистые брови
 	</string>
 	<string name="Bushy Hair">
-		Gür Saç
+		Пышные
 	</string>
 	<string name="Butt Size">
-		Kıç Büyüklüğü
+		Размер зада
 	</string>
 	<string name="Butt Gravity">
-		Kıç Yerçekimi
+		Обвислость зада
 	</string>
 	<string name="bustle skirt">
-		Tarlatanlı Etek
+		Турнюр
 	</string>
 	<string name="no bustle">
-		Tarlatansız
+		Без турнюра
 	</string>
 	<string name="more bustle">
-		Çok Tarlatanlı
+		Большой турнюр
 	</string>
 	<string name="Chaplin">
-		Chaplin pantalon
+		«Чарли Чаплин»
 	</string>
 	<string name="Cheek Bones">
-		Elmacık Kemikleri
+		Скулы
 	</string>
 	<string name="Chest Size">
-		Göğüs Büyüklüğü
+		Размер грудной клетки
 	</string>
 	<string name="Chin Angle">
-		Çene Açısı
+		Угол подбородка
 	</string>
 	<string name="Chin Cleft">
-		Çene Çukuru
+		Ямка на подбородке
 	</string>
 	<string name="Chin Curtains">
-		Lincoln Sakal
+		Шкиперская бородка
 	</string>
 	<string name="Chin Depth">
-		Çene Derinliği
+		Толщина подбородка
 	</string>
 	<string name="Chin Heavy">
-		Geniş Çene
+		Мощный подбородок
 	</string>
 	<string name="Chin In">
-		Çene İçeri
+		Подбородок внутрь
 	</string>
 	<string name="Chin Out">
-		Çene Dışarı
+		Подбородок наружу
 	</string>
 	<string name="Chin-Neck">
-		Çene-Boyun
+		Переход от подбородка к шее
 	</string>
 	<string name="Clear">
-		Temizle
+		Чистый
 	</string>
 	<string name="Cleft">
-		Çukur
+		Ямка
 	</string>
 	<string name="Close Set Eyes">
-		Yakın Gözler
+		Близко посаженные
 	</string>
 	<string name="Closed">
-		Kapalı
+		Закрыто
 	</string>
 	<string name="Closed Back">
-		Arkası Kapalı
+		Закрыто сзади
 	</string>
 	<string name="Closed Front">
-		Önü Kapalı
+		Закрыто спереди
 	</string>
 	<string name="Closed Left">
-		Solu Kapalı
+		Закрыто слева
 	</string>
 	<string name="Closed Right">
-		Sağı Kapalı
+		Закрыто справа
 	</string>
 	<string name="Coin Purse">
-		Para Cüzdanı
+		Кошелек для мелочи
 	</string>
 	<string name="Collar Back">
-		Yaka Arkası
+		Вырез сзади
 	</string>
 	<string name="Collar Front">
-		Yaka Önü
+		Вырез спереди
 	</string>
 	<string name="Corner Down">
-		Köşesi Aşağıda
+		Уголки опущены
 	</string>
 	<string name="Corner Up">
-		Köşesi Yukarıda
+		Уголки подняты
 	</string>
 	<string name="Creased">
-		Kırışık
+		Измятый
 	</string>
 	<string name="Crooked Nose">
-		Yamuk Burun
+		Искривленный нос
 	</string>
 	<string name="Cuff Flare">
-		Geniş Paça
+		Манжеты
 	</string>
 	<string name="Dark">
-		Karanlık
+		Темный
 	</string>
 	<string name="Dark Green">
-		Koyu Yeşil
+		Темно-зеленый
 	</string>
 	<string name="Darker">
-		Daha Koyu
+		Темнее
 	</string>
 	<string name="Deep">
-		Derin
+		Глубоко
 	</string>
 	<string name="Default Heels">
-		Varsayılan Topuklar
+		Стандартные каблуки
 	</string>
 	<string name="Dense">
-		Yoğun
+		Густые
 	</string>
 	<string name="Double Chin">
-		Çift Çene
+		Двойной подбородок
 	</string>
 	<string name="Downturned">
-		Aşağı Dönük
+		Вниз
 	</string>
 	<string name="Duffle Bag">
-		Spor Çanta
+		Больше
 	</string>
 	<string name="Ear Angle">
-		Kulak Açısı
+		Оттопыренность ушей
 	</string>
 	<string name="Ear Size">
-		Kulak Büyüklüğü
+		Размер ушей
 	</string>
 	<string name="Ear Tips">
-		Kulak Uçları
+		Кончики ушей
 	</string>
 	<string name="Egg Head">
-		Yumurta Kafa
+		Яйцеголовость
 	</string>
 	<string name="Eye Bags">
-		Göz Altı Torbaları
+		Мешки под глазами
 	</string>
 	<string name="Eye Color">
-		Göz Rengi
+		Цвет глаз
 	</string>
 	<string name="Eye Depth">
-		Gözün İçeri Çöküklüğü
+		Глубина глаз
 	</string>
 	<string name="Eye Lightness">
-		Göz Parlaklığı
+		Светлость глаз
 	</string>
 	<string name="Eye Opening">
-		Göz Açıklığı
+		Открытость глаз
 	</string>
 	<string name="Eye Pop">
-		Gözlerin Dışarı Çıkıklığı
+		Вытаращить глаз
 	</string>
 	<string name="Eye Size">
-		Göz Büyüklüğü
+		Размер глаз
 	</string>
 	<string name="Eye Spacing">
-		Gözlerin Aralığı
+		Расстояние между глазами
 	</string>
 	<string name="Eyebrow Arc">
-		Kaş Kavisi
+		Линия бровей
 	</string>
 	<string name="Eyebrow Density">
-		Kaş Kalınlığı
+		Густота бровей
 	</string>
 	<string name="Eyebrow Height">
-		Kaş Yüksekliği
+		Высота бровей
 	</string>
 	<string name="Eyebrow Points">
-		Kaş Yapısı
+		Кончики бровей
 	</string>
 	<string name="Eyebrow Size">
-		Kaş Büyüklüğü
+		Размер бровей
 	</string>
 	<string name="Eyelash Length">
-		Kirpik Uzunluğu
+		Длина ресниц
 	</string>
 	<string name="Eyeliner">
-		Göz Kalemi
+		Подводка
 	</string>
 	<string name="Eyeliner Color">
-		Göz Kalemi Rengi
+		Цвет подводки
 	</string>
 	<string name="Eyes Bugged">
-		Patlak Gözler
+		Выпученные глаза
 	</string>
 	<string name="Face Shear">
-		Dikey Yüz Kaydırma
+		Перекос лица
 	</string>
 	<string name="Facial Definition">
-		Yüz İfadesi
+		Черты лица
 	</string>
 	<string name="Far Set Eyes">
-		Ayrık Gözler
+		Широко расставленные глаза
 	</string>
 	<string name="Fat Lips">
-		Kalın Dudaklar
+		Толстые губы
 	</string>
 	<string name="Female">
-		Kadın
+		Женщина
 	</string>
 	<string name="Fingerless">
-		Parmaksız
+		Без пальцев
 	</string>
 	<string name="Fingers">
-		Parmaklar
+		С пальцами
 	</string>
 	<string name="Flared Cuffs">
-		Geniş Paçalar
+		С манжетами
 	</string>
 	<string name="Flat">
-		Düz
+		Плоские
 	</string>
 	<string name="Flat Butt">
-		Düz Kıç
+		Плоский зад
 	</string>
 	<string name="Flat Head">
-		Düz Kafa
+		Плоская голова
 	</string>
 	<string name="Flat Toe">
-		Düz Ayak Ucu
+		Плоский носок
 	</string>
 	<string name="Foot Size">
-		Ayak Büyüklüğü
+		Размер ступни
 	</string>
 	<string name="Forehead Angle">
-		Alın Açısı
+		Наклон лба
 	</string>
 	<string name="Forehead Heavy">
-		Belirgin Alın
+		Мощный лоб
 	</string>
 	<string name="Freckles">
-		Çiller
+		Веснушки
 	</string>
 	<string name="Front Fringe">
-		Ön Perçem
+		Челка спереди
 	</string>
 	<string name="Full Back">
-		Arkası Düz
+		Полностью назад
 	</string>
 	<string name="Full Eyeliner">
-		Çift Taraflı Göz Kalemi
+		Подводка полностью
 	</string>
 	<string name="Full Front">
-		Önü Düz
+		Полностью наперед
 	</string>
 	<string name="Full Hair Sides">
-		Saçlar Yanda
+		Волосы по бокам
 	</string>
 	<string name="Full Sides">
-		Saçlar Yanda
+		По бокам
 	</string>
 	<string name="Glossy">
-		Parlak
+		Блестящие
 	</string>
 	<string name="Glove Fingers">
-		Eldiven Parmakları
+		Пальцы перчаток
 	</string>
 	<string name="Glove Length">
-		Eldiven Uzunluğu
+		Длина перчаток
 	</string>
 	<string name="Hair">
-		Saç
+		Волосы
 	</string>
 	<string name="Hair Back">
-		Saç: Arka
+		Волосы: сзади
 	</string>
 	<string name="Hair Front">
-		Saç: Ön
+		Волосы: спереди
 	</string>
 	<string name="Hair Sides">
-		Saç: Yanlar
+		Волосы: по бокам
 	</string>
 	<string name="Hair Sweep">
-		Saçı Yana Tarama
+		Волосы на глаза
 	</string>
 	<string name="Hair Thickess">
-		Saç Kalınlığı
+		Толщина волос
 	</string>
 	<string name="Hair Thickness">
-		Saç Kalınlığı
+		Толщина волос
 	</string>
 	<string name="Hair Tilt">
-		Saç Eğimi
+		Зачес
 	</string>
 	<string name="Hair Tilted Left">
-		Sola Eğimli Saç
+		Зачес назад
 	</string>
 	<string name="Hair Tilted Right">
-		Sağa Eğimli Saç
+		Зачес вправо
 	</string>
 	<string name="Hair Volume">
-		Saç: Hacim
+		Волосы: объем
 	</string>
 	<string name="Hand Size">
-		El Büyüklüğü
+		Размер кисти
 	</string>
 	<string name="Handlebars">
-		Gidon tipi
+		Длинные усы
 	</string>
 	<string name="Head Length">
-		Kafa Uzunluğu
+		Длина головы
 	</string>
 	<string name="Head Shape">
-		Kafa Şekli
+		Форма головы
 	</string>
 	<string name="Head Size">
-		Kafa Büyüklüğü
+		Размер головы
 	</string>
 	<string name="Head Stretch">
-		Kafayı Uzatma
+		Вытянутость головы
 	</string>
 	<string name="Heel Height">
-		Topuk Yüksekliği
+		Высота каблука
 	</string>
 	<string name="Heel Shape">
-		Topuk Şekli
+		Форма каблука
 	</string>
 	<string name="Height">
-		Yükseklik
+		Рост
 	</string>
 	<string name="High">
-		Yüksek
+		Высокие
 	</string>
 	<string name="High Heels">
-		Yüksek Topuklar
+		Высокий каблук
 	</string>
 	<string name="High Jaw">
-		Ayrık
+		Челюсть высоко
 	</string>
 	<string name="High Platforms">
-		Yüksek Topuklu
+		Высокая платформа
 	</string>
 	<string name="High and Tight">
-		Düşük
+		Высокий и плотный
 	</string>
 	<string name="Higher">
-		Daha Yüksek
+		Выше
 	</string>
 	<string name="Hip Length">
-		Kalça Uzunluğu
+		Длина бедер
 	</string>
 	<string name="Hip Width">
-		Kalça Genişliği
+		Ширина бедер
 	</string>
 	<string name="In">
-		İçeri
+		Внутрь
 	</string>
 	<string name="In Shdw Color">
-		İç Gölge Rengi
+		Цвет внутренних теней
 	</string>
 	<string name="In Shdw Opacity">
-		İç Gölge Opaklığı
+		Прозрачность внутр. теней
 	</string>
 	<string name="Inner Eye Corner">
-		Gözün İç Köşesi
+		Внутренние уголки глаз
 	</string>
 	<string name="Inner Eye Shadow">
-		İç Göz Gölgesi
+		Тени на внутренних уголках
 	</string>
 	<string name="Inner Shadow">
-		İç Gölge
+		Внутренние тени
 	</string>
 	<string name="Jacket Length">
-		Ceket Uzunluğu
+		Длина пиджака
 	</string>
 	<string name="Jacket Wrinkles">
-		Ceket Kırışıklıkları
+		Смятый пиджак
 	</string>
 	<string name="Jaw Angle">
-		Çenenin Boyuna Uzaklığı
+		Угол челюсти
 	</string>
 	<string name="Jaw Jut">
-		Alt Çene Uzunluğu
+		Выступание челюсти
 	</string>
 	<string name="Jaw Shape">
-		Çene Kemiği Genişliği
+		Форма челюсти
 	</string>
 	<string name="Join">
-		Birleşik
+		Прикрепить
 	</string>
 	<string name="Jowls">
-		Avurtlar
+		Щеки
 	</string>
 	<string name="Knee Angle">
-		Diz Açısı
+		Угол колен
 	</string>
 	<string name="Knock Kneed">
-		Çarpık Bacaklı
+		Колченогие
 	</string>
 	<string name="Large">
-		Büyük
+		Больше
 	</string>
 	<string name="Large Hands">
-		Büyük Eller
+		Большие кисти
 	</string>
 	<string name="Left Part">
-		Sola Ayırma
+		Левый пробор
 	</string>
 	<string name="Leg Length">
-		Bacak Uzunluğu
+		Длина ног
 	</string>
 	<string name="Leg Muscles">
-		Bacak Kasları
+		Мышцы на ногах
 	</string>
 	<string name="Less">
-		Daha Az
+		Меньше
 	</string>
 	<string name="Less Body Fat">
-		Daha Az Vücut Yağı
+		Меньше жира
 	</string>
 	<string name="Less Curtains">
-		Daha Az Lincoln Sakal
+		Меньше борода
 	</string>
 	<string name="Less Freckles">
-		Daha Az Çil
+		Меньше веснушек
 	</string>
 	<string name="Less Full">
-		Daha Az Dolgun
+		Менее полное
 	</string>
 	<string name="Less Gravity">
-		Dik Göğüs
+		Меньше притяжения
 	</string>
 	<string name="Less Love">
-		Daha İnce Bel
+		Меньше
 	</string>
 	<string name="Less Muscles">
-		Daha Az Kas
+		Меньше мышц
 	</string>
 	<string name="Less Muscular">
-		Daha Az Kaslı
+		Меньше мышц
 	</string>
 	<string name="Less Rosy">
-		Daha Az Pembe
+		Меньше румян
 	</string>
 	<string name="Less Round">
-		Daha Az Yuvarlak
+		Меньше округлости
 	</string>
 	<string name="Less Saddle">
-		Basensiz
+		Меньше
 	</string>
 	<string name="Less Square">
-		Daha Az Küt
+		Меньше угловатости
 	</string>
 	<string name="Less Volume">
-		Daha Az Hacim
+		Меньше объема
 	</string>
 	<string name="Less soul">
-		Daha az ruh
+		Меньше
 	</string>
 	<string name="Lighter">
-		Daha Hafif
+		Светлее
 	</string>
 	<string name="Lip Cleft">
-		Dudak Çukuru
+		Ямка между губ
 	</string>
 	<string name="Lip Cleft Depth">
-		Dudak Çukuru Derinliği
+		Глубина ямки
 	</string>
 	<string name="Lip Fullness">
-		Dudak Dolgunluğu
+		Полнота губ
 	</string>
 	<string name="Lip Pinkness">
-		Dudak Pembeliği
+		Розоватость губ
 	</string>
 	<string name="Lip Ratio">
-		Dudak Oranı
+		Пропорция губ
 	</string>
 	<string name="Lip Thickness">
-		Dudak Kalınlığı
+		Толщина губ
 	</string>
 	<string name="Lip Width">
-		Dudak Genişliği
+		Ширина губ
 	</string>
 	<string name="Lipgloss">
-		Dudak Parlatıcısı
+		Блеск губ
 	</string>
 	<string name="Lipstick">
-		Ruj
+		Губная помада
 	</string>
 	<string name="Lipstick Color">
-		Ruj Rengi
+		Цвет помады
 	</string>
 	<string name="Long">
-		Uzun
+		Длиннее
 	</string>
 	<string name="Long Head">
-		Uzun Kafa
+		Длинная голова
 	</string>
 	<string name="Long Hips">
-		Yüksek kalça
+		Длинные бедра
 	</string>
 	<string name="Long Legs">
-		Uzun Bacaklar
+		Длинные ноги
 	</string>
 	<string name="Long Neck">
-		Uzun Boyun
+		Длинная шея
 	</string>
 	<string name="Long Pigtails">
-		Yandan Uzun Kuyruk
+		Длинные хвосты по бокам
 	</string>
 	<string name="Long Ponytail">
-		Uzun Atkuyruğu
+		Длинный хвост сзади
 	</string>
 	<string name="Long Torso">
-		Uzun Gövde
+		Длинный торс
 	</string>
 	<string name="Long arms">
-		Uzun kollar
+		Длинные руки
 	</string>
 	<string name="Loose Pants">
-		Bol Pantolon
+		Свободные брюки
 	</string>
 	<string name="Loose Shirt">
-		Bol Gömlek
+		Свободная рубашка
 	</string>
 	<string name="Loose Sleeves">
-		Bol Kollu
+		Свободные рукава
 	</string>
 	<string name="Love Handles">
-		Bel Kalınlığı
+		Отложения на талии
 	</string>
 	<string name="Low">
-		Düşük
+		Низкие
 	</string>
 	<string name="Low Heels">
-		Alçak Topuklar
+		Низкий каблук
 	</string>
 	<string name="Low Jaw">
-		Bitişik
+		Челюсть низко
 	</string>
 	<string name="Low Platforms">
-		Alçak Topuklu
+		Низкая платформа
 	</string>
 	<string name="Low and Loose">
-		Yüksek
+		Низкий и свободный
 	</string>
 	<string name="Lower">
-		Daha Alçak
+		Ниже
 	</string>
 	<string name="Lower Bridge">
-		Alt Burun Kemiği
+		Спинка носа
 	</string>
 	<string name="Lower Cheeks">
-		Daha Alçak Yanaklar
+		Щеки ниже
 	</string>
 	<string name="Male">
-		Erkek
+		Мужчина
 	</string>
 	<string name="Middle Part">
-		Ortadan Ayırma
+		Пробор по центру
 	</string>
 	<string name="More">
-		Daha Fazla
+		Больше
 	</string>
 	<string name="More Blush">
-		Daha Fazla Allık
+		Больше румян
 	</string>
 	<string name="More Body Fat">
-		Daha Fazla Vücut Yağı
+		Больше жира
 	</string>
 	<string name="More Curtains">
-		Daha Çok Lincoln Sakal
+		Больше борода
 	</string>
 	<string name="More Eyeshadow">
-		Daha Fazla Göz Farı
+		Больше теней
 	</string>
 	<string name="More Freckles">
-		Daha Çok Çil
+		Больше веснушек
 	</string>
 	<string name="More Full">
-		Daha Dolgun
+		Более полное
 	</string>
 	<string name="More Gravity">
-		Sarkık Göğüs
+		Большее притяжение
 	</string>
 	<string name="More Lipstick">
-		Daha Çok Ruj
+		Больше помады
 	</string>
 	<string name="More Love">
-		Daha Kalın Bel
+		Больше
 	</string>
 	<string name="More Lower Lip">
-		Daha Dolgun Alt Dudak
+		Больше нижняя губа
 	</string>
 	<string name="More Muscles">
-		Daha Çok Kas
+		Больше мышц
 	</string>
 	<string name="More Muscular">
-		Daha Kaslı
+		Больше мышц
 	</string>
 	<string name="More Rosy">
-		Daha Pembe
+		Больше румянца
 	</string>
 	<string name="More Round">
-		Daha Yuvarlak
+		Больше округлости
 	</string>
 	<string name="More Saddle">
-		Basenli
+		Больше
 	</string>
 	<string name="More Sloped">
-		Daha Eğimli
+		Более наклонный
 	</string>
 	<string name="More Square">
-		Daha Küt
+		Более квадратная
 	</string>
 	<string name="More Upper Lip">
-		Daha Dolgun Üst Dudak
+		Больше верхняя губа
 	</string>
 	<string name="More Vertical">
-		Daha Dikey
+		Более вертикальный
 	</string>
 	<string name="More Volume">
-		Daha Hacimli
+		Больше объема
 	</string>
 	<string name="More soul">
-		Daha çok ruh
+		Больше
 	</string>
 	<string name="Moustache">
-		Bıyık
+		Усы
 	</string>
 	<string name="Mouth Corner">
-		Ağız Köşesi
+		Угол рта
 	</string>
 	<string name="Mouth Position">
-		Ağzın Konumu
+		Положение рта
 	</string>
 	<string name="Mowhawk">
-		Mowhawk Saçı
+		Ирокез
 	</string>
 	<string name="Muscular">
-		Kaslı
+		Мускулистое
 	</string>
 	<string name="Mutton Chops">
-		Geniş Favori
+		Бакенбарды
 	</string>
 	<string name="Nail Polish">
-		Tırnak Cilası
+		Лак для ногтей
 	</string>
 	<string name="Nail Polish Color">
-		Tırnak Cilası Rengi
+		Цвет лака
 	</string>
 	<string name="Narrow">
-		Dar
+		Узко
 	</string>
 	<string name="Narrow Back">
-		Arkası Dar
+		Узко сзади
 	</string>
 	<string name="Narrow Front">
-		Önü Dar
+		Узкий перед
 	</string>
 	<string name="Narrow Lips">
-		Küçük Dudaklar
+		Узкие губы
 	</string>
 	<string name="Natural">
-		Doğal
+		Естественный
 	</string>
 	<string name="Neck Length">
-		Boyun Uzunluğu
+		Длина шеи
 	</string>
 	<string name="Neck Thickness">
-		Boyun Kalınlığı
+		Толщина шеи
 	</string>
 	<string name="No Blush">
-		Allık Yok
+		Без румян
 	</string>
 	<string name="No Eyeliner">
-		Göz Kalemi Yok
+		Без подводки
 	</string>
 	<string name="No Eyeshadow">
-		Göz Farı Yok
+		Без теней
 	</string>
 	<string name="No Lipgloss">
-		Dudak Parlatıcısı Yok
+		Без блеска
 	</string>
 	<string name="No Lipstick">
-		Ruj Yok
+		Без помады
 	</string>
 	<string name="No Part">
-		Ayırma Yok
+		Без пробора
 	</string>
 	<string name="No Polish">
-		Cila Yok
+		Без лака
 	</string>
 	<string name="No Red">
-		Kırmızı Yok
+		Не красные
 	</string>
 	<string name="No Spikes">
-		Dikleştirme Yok
+		Без «шипов»
 	</string>
 	<string name="No White">
-		Beyaz Yok
+		Нет белого
 	</string>
 	<string name="No Wrinkles">
-		Kırışıklık Yok
+		Без морщин
 	</string>
 	<string name="Normal Lower">
-		Normal Alt
+		Ниже обычного
 	</string>
 	<string name="Normal Upper">
-		Normal Üst
+		Выше обычного
 	</string>
 	<string name="Nose Left">
-		Sola Eğimli Burun
+		Нос влево
 	</string>
 	<string name="Nose Right">
-		Sağa Eğimli Burun
+		Нос вправо
 	</string>
 	<string name="Nose Size">
-		Burun Büyüklüğü
+		Размер носа
 	</string>
 	<string name="Nose Thickness">
-		Burun Kalınlığı
+		Толщина носа
 	</string>
 	<string name="Nose Tip Angle">
-		Burun Ucu Açısı
+		Загнутость кончика носа
 	</string>
 	<string name="Nose Tip Shape">
-		Burun Ucu Şekli
+		Форма кончика носа
 	</string>
 	<string name="Nose Width">
-		Burun Genişliği
+		Ширина носа
 	</string>
 	<string name="Nostril Division">
-		Burun Deliği Ayrımı
+		Перегородка
 	</string>
 	<string name="Nostril Width">
-		Burun Deliği Genişliği
+		Ширина ноздрей
 	</string>
 	<string name="Opaque">
-		Opak
+		Непрозрачный
 	</string>
 	<string name="Open">
-		Aç
+		Открыто
 	</string>
 	<string name="Open Back">
-		Arkayı Aç
+		Открыто сзади
 	</string>
 	<string name="Open Front">
-		Önü Aç
+		Открыто спереди
 	</string>
 	<string name="Open Left">
-		Solu Aç
+		Открыто слева
 	</string>
 	<string name="Open Right">
-		Sağı Aç
+		Открыто справа
 	</string>
 	<string name="Orange">
-		Turuncu
+		Оранжевый
 	</string>
 	<string name="Out">
-		Dışarı
+		Наружу
 	</string>
 	<string name="Out Shdw Color">
-		Dış Gölge Rengi
+		Цвет внешних теней
 	</string>
 	<string name="Out Shdw Opacity">
-		Dış Gölge Opaklığı
+		Прозрачность внеш. теней
 	</string>
 	<string name="Outer Eye Corner">
-		Gözün Dış Köşesi
+		Внешние уголки глаз
 	</string>
 	<string name="Outer Eye Shadow">
-		Dış Göz Gölgesi
+		Тени во внешних уголках
 	</string>
 	<string name="Outer Shadow">
-		Dış Gölge
+		Внешние тени
 	</string>
 	<string name="Overbite">
-		Öne Doğru
+		Глубокий прикус
 	</string>
 	<string name="Package">
-		Apış Arası Şişkinliği
+		Гульфик
 	</string>
 	<string name="Painted Nails">
-		Ojeli Tırnaklar
+		Покрашенные
 	</string>
 	<string name="Pale">
-		Soluk
+		Бледный
 	</string>
 	<string name="Pants Crotch">
-		Pantolon Ağı
+		Шаг
 	</string>
 	<string name="Pants Fit">
-		Pantolon Oturması
+		Облегающие брюки
 	</string>
 	<string name="Pants Length">
-		Pantolon Uzunluğu
+		Длина
 	</string>
 	<string name="Pants Waist">
-		Pantolon Bel Ölçüsü
+		Талия брюк
 	</string>
 	<string name="Pants Wrinkles">
-		Pantolon Kırışıklıkları
+		Смятость брюк
 	</string>
 	<string name="Part">
-		Ayırma
+		Пробор
 	</string>
 	<string name="Part Bangs">
-		Ayrılmış Kahküller
+		Челка с пробором
 	</string>
 	<string name="Pectorals">
-		Göğüs Kasları
+		Грудные мышцы
 	</string>
 	<string name="Pigment">
-		Pigment
+		Пигментация
 	</string>
 	<string name="Pigtails">
-		Yan Kuyruklar
+		Хвосты по бокам
 	</string>
 	<string name="Pink">
-		Pembe
+		Розовый
 	</string>
 	<string name="Pinker">
-		Daha Pembe
+		Розовее
 	</string>
 	<string name="Platform Height">
-		Topuk Yüksekliği
+		Высота платформы
 	</string>
 	<string name="Platform Width">
-		Topuk Genişliği
+		Ширина платформы
 	</string>
 	<string name="Pointy">
-		Dar
+		Острые
 	</string>
 	<string name="Pointy Heels">
-		Sivri Topuklar
+		Острый каблук
 	</string>
 	<string name="Ponytail">
-		Atkuyruğu
+		Хвост сзади
 	</string>
 	<string name="Poofy Skirt">
-		Kabarık Etek
+		Пышная юбка
 	</string>
 	<string name="Pop Left Eye">
-		Sol Gözü Dışarı Çıkar
+		Левый глаз
 	</string>
 	<string name="Pop Right Eye">
-		Sağ Gözü Dışarı Çıkar
+		Правый глаз
 	</string>
 	<string name="Puffy">
-		Şişkin
+		Пухлые
 	</string>
 	<string name="Puffy Eyelids">
-		Şişkin Göz Kapakları
+		Припухлость век
 	</string>
 	<string name="Rainbow Color">
-		Gökkuşağı Rengi
+		Цвета радуги
 	</string>
 	<string name="Red Hair">
-		Kırmızı Saç
+		Рыжие волосы
 	</string>
 	<string name="Regular">
-		Normal
+		Обычное
 	</string>
 	<string name="Right Part">
-		Sağa Ayırma
+		Правый пробор
 	</string>
 	<string name="Rosy Complexion">
-		Kırmızı Yanaklı
+		Розовое лицо
 	</string>
 	<string name="Round">
-		Yuvarlak
+		Круглое
 	</string>
 	<string name="Ruddiness">
-		Kırmızılık
+		Румянец
 	</string>
 	<string name="Ruddy">
-		Kırmızı
+		Румяный
 	</string>
 	<string name="Rumpled Hair">
-		Dağınık Saç
+		Взъерошенные
 	</string>
 	<string name="Saddle Bags">
-		Basen Genişliği
+		Галифе
 	</string>
 	<string name="Scrawny Leg">
-		Sıska Bacak
+		Сухопарая нога
 	</string>
 	<string name="Separate">
-		Ayrık
+		Разделить
 	</string>
 	<string name="Shallow">
-		Sığ
+		Мелко
 	</string>
 	<string name="Shear Back">
-		Arka Dolgunluğu
+		Скос сзади
 	</string>
 	<string name="Shear Face">
-		Yüzü Dikey Kaydır
+		Перекос лица
 	</string>
 	<string name="Shear Front">
-		Ön Dolgunluğu
+		Скос спереди
 	</string>
 	<string name="Shear Left Up">
-		Solu Yukarı Kaydır
+		Скос влево вверх
 	</string>
 	<string name="Shear Right Up">
-		Sağı Yukarı Kaydır
+		Скос вправо вверх
 	</string>
 	<string name="Sheared Back">
-		Arkası Dolgun
+		Уменьшено сзади
 	</string>
 	<string name="Sheared Front">
-		Önü Dolgun
+		Уменьшено спереди
 	</string>
 	<string name="Shift Left">
-		Sola Kaydır
+		Сдвинуть влево
 	</string>
 	<string name="Shift Mouth">
-		Ağzı Kaydırma
+		Сдвинуть рот
 	</string>
 	<string name="Shift Right">
-		Sağa Kaydır
+		Сдвинуть вправо
 	</string>
 	<string name="Shirt Bottom">
-		Gömlek Eteği
+		Низ рубашки
 	</string>
 	<string name="Shirt Fit">
-		Gömlek Boyu
+		Облегание рубашки
 	</string>
 	<string name="Shirt Wrinkles">
-		Gömlek Kırışıklıkları
+		Помятость рубашки
 	</string>
 	<string name="Shoe Height">
-		Ayakkabı Yüksekliği
+		Высота обуви
 	</string>
 	<string name="Short">
-		Kısa
+		Ниже
 	</string>
 	<string name="Short Arms">
-		Kısa Kollar
+		Короткие руки
 	</string>
 	<string name="Short Legs">
-		Kısa Bacaklar
+		Короткие ноги
 	</string>
 	<string name="Short Neck">
-		Kısa Boyun
+		Короткая шея
 	</string>
 	<string name="Short Pigtails">
-		Yandan Kısa Kuyruk
+		Короткие хвосты по бокам
 	</string>
 	<string name="Short Ponytail">
-		Kısa Atkuyruğu
+		Короткий хвост сзади
 	</string>
 	<string name="Short Sideburns">
-		Kısa Favoriler
+		Короткие баки
 	</string>
 	<string name="Short Torso">
-		Kısa Gövde
+		Короткий торс
 	</string>
 	<string name="Short hips">
-		Düşük kalça
+		Короткие бедра
 	</string>
 	<string name="Shoulders">
-		Omuzlar
+		Плечи
 	</string>
 	<string name="Side Fringe">
-		Yan Perçem
+		Челка набок
 	</string>
 	<string name="Sideburns">
-		Favoriler
+		Бакенбарды
 	</string>
 	<string name="Sides Hair">
-		Yan Saçlar
+		Волосы по бокам
 	</string>
 	<string name="Sides Hair Down">
-		Aşağı Doğru Yan Saç
+		Волосы по бокам внизу
 	</string>
 	<string name="Sides Hair Up">
-		Yukarı Doğru Yan Saç
+		Волосы по бокам вверху
 	</string>
 	<string name="Skinny Neck">
-		İnce Boyun
+		Худая шея
 	</string>
 	<string name="Skirt Fit">
-		Etek Boyu
+		Облегающая юбка
 	</string>
 	<string name="Skirt Length">
-		Etek Uzunluğu
+		Длина юбки
 	</string>
 	<string name="Slanted Forehead">
-		Eğimli Alın
+		Наклонный лоб
 	</string>
 	<string name="Sleeve Length">
-		Kol Uzunluğu
+		Длина рукавов
 	</string>
 	<string name="Sleeve Looseness">
-		Kol Bolluğu
+		Ширина рукавов
 	</string>
 	<string name="Slit Back">
-		Yırtmaç: Geri
+		Разрез: сзади
 	</string>
 	<string name="Slit Front">
-		Yırtmaç: Ön
+		Разрез: спереди
 	</string>
 	<string name="Slit Left">
-		Yırtmaç: Sol
+		Разрез: слева
 	</string>
 	<string name="Slit Right">
-		Yırtmaç: Sağ
+		Разрез: справа
 	</string>
 	<string name="Small">
-		Küçük
+		Меньше
 	</string>
 	<string name="Small Hands">
-		Küçük Eller
+		Маленькие кисти
 	</string>
 	<string name="Small Head">
-		Küçük Kafa
+		Маленькая голова
 	</string>
 	<string name="Smooth">
-		Düz
+		Гладко
 	</string>
 	<string name="Smooth Hair">
-		Düz Saç
+		Приглаженные
 	</string>
 	<string name="Socks Length">
-		Çorap Uzunluğu
+		Длина носков
 	</string>
 	<string name="Soulpatch">
-		Dudak Altı Sakal
+		Эспаньолка
 	</string>
 	<string name="Sparse">
-		Seyrek
+		Жидкие
 	</string>
 	<string name="Spiked Hair">
-		Dikleştirilmiş Saç
+		Прическа «шипами»
 	</string>
 	<string name="Square">
-		Geniş
+		Квадратный
 	</string>
 	<string name="Square Toe">
-		Küt Burunlu
+		Квадратный носок
 	</string>
 	<string name="Squash Head">
-		Kafayı Bastır
+		Голова-тыква
 	</string>
 	<string name="Stretch Head">
-		Kafayı Uzat
+		Вытянутость головы
 	</string>
 	<string name="Sunken">
-		Çökük
+		Впалые
 	</string>
 	<string name="Sunken Chest">
-		Çökük Göğüs
+		Впалая грудь
 	</string>
 	<string name="Sunken Eyes">
-		Çökük Gözler
+		Впалые глаза
 	</string>
 	<string name="Sweep Back">
-		Arkaya Tarama
+		Зачесанные назад
 	</string>
 	<string name="Sweep Forward">
-		Öne Tarama
+		Зачесанные вперед
 	</string>
 	<string name="Tall">
-		Uzun
+		Выше
 	</string>
 	<string name="Taper Back">
-		Arkası Kısa
+		Конус сзади
 	</string>
 	<string name="Taper Front">
-		Önü Kısa
+		Конус спереди
 	</string>
 	<string name="Thick Heels">
-		Kalın Topuklar
+		Широкий каблук
 	</string>
 	<string name="Thick Neck">
-		Kalın Boyun
+		Толстая шея
 	</string>
 	<string name="Thick Toe">
-		Kalın Ayak Ucu
+		Толстый носок
 	</string>
 	<string name="Thin">
-		İnce
+		Тонкий
 	</string>
 	<string name="Thin Eyebrows">
-		İnce Kaşlar
+		Тонкие брови
 	</string>
 	<string name="Thin Lips">
-		İnce Dudaklar
+		Тонкие губы
 	</string>
 	<string name="Thin Nose">
-		İnce Burun
+		Тонкий нос
 	</string>
 	<string name="Tight Chin">
-		Çift Çene
+		Тонкий подбородок
 	</string>
 	<string name="Tight Cuffs">
-		Dar Paçalar
+		Манжеты на резинке
 	</string>
 	<string name="Tight Pants">
-		Dar Pantolon
+		Облегающие брюки
 	</string>
 	<string name="Tight Shirt">
-		Dar Gömlek
+		Облегающая рубашка
 	</string>
 	<string name="Tight Skirt">
-		Dar Etek
+		Облегающая юбка
 	</string>
 	<string name="Tight Sleeves">
-		Dar Kollu
+		Облегающие рукава
 	</string>
 	<string name="Toe Shape">
-		Ayakkabu Burnu Şekli
+		Форма носка
 	</string>
 	<string name="Toe Thickness">
-		Ayakkabu Burnu Kalınlığı
+		Толщина носка
 	</string>
 	<string name="Torso Length">
-		Gövde Uzunluğu
+		Длина торса
 	</string>
 	<string name="Torso Muscles">
-		Gövde Kasları
+		Мускулистость торса
 	</string>
 	<string name="Torso Scrawny">
-		Sıska Gövde
+		Сухопарость торса
 	</string>
 	<string name="Unattached">
-		Ayrık
+		Не прикреплено
 	</string>
 	<string name="Uncreased">
-		Buruşuk olmayan
+		Без складок
 	</string>
 	<string name="Underbite">
-		Geriye Doğru
+		Мезиальный прикус
 	</string>
 	<string name="Unnatural">
-		Doğal Olmayan
+		Неестественный
 	</string>
 	<string name="Upper Bridge">
-		Üst Burun Kemiği
+		Переносица
 	</string>
 	<string name="Upper Cheeks">
-		Üst Yanaklar
+		Щеки выше
 	</string>
 	<string name="Upper Chin Cleft">
-		Üst Çene Çukuru
+		Ямка на подбородке выше
 	</string>
 	<string name="Upper Eyelid Fold">
-		Üst Göz Kapağı Kıvrımı
+		Складка верхнего века
 	</string>
 	<string name="Upturned">
-		Yukarı dönük
+		Вверх
 	</string>
 	<string name="Very Red">
-		Çok Kırmızı
+		Очень красные
 	</string>
 	<string name="Waist Height">
-		Bel Yüksekliği
+		Высота талии
 	</string>
 	<string name="Well-Fed">
-		Dolgun
+		Упитанные
 	</string>
 	<string name="White Hair">
-		Beyaz Saç
+		Белые волосы
 	</string>
 	<string name="Wide">
-		Geniş
+		Широко
 	</string>
 	<string name="Wide Back">
-		Geniş Arka
+		Широко сзади
 	</string>
 	<string name="Wide Front">
-		Geniş Ön
+		Широкий перед
 	</string>
 	<string name="Wide Lips">
-		Geniş Dudaklar
+		Широкие губы
 	</string>
 	<string name="Wild">
-		Çılgın
+		Безумный
 	</string>
 	<string name="Wrinkles">
-		Kırışıklıklar
+		Складки
 	</string>
 	<string name="LocationCtrlAddLandmarkTooltip">
-		Yer İmlerime Ekle
+		Добавить в закладки
 	</string>
 	<string name="LocationCtrlEditLandmarkTooltip">
-		Yer İmimi Düzenle
+		Изменить закладку
 	</string>
 	<string name="LocationCtrlInfoBtnTooltip">
-		Geçerli konum hakkında daha fazla bilgi gör
+		Посмотреть подробную информацию о текущем месте
 	</string>
 	<string name="LocationCtrlComboBtnTooltip">
-		Konum geçmişim
+		Моя история посещений
 	</string>
 	<string name="LocationCtrlForSaleTooltip">
-		Bu araziyi satın al
+		Купить эту землю
 	</string>
 	<string name="LocationCtrlVoiceTooltip">
-		Ses burada kullanılamaz
+		Голосовое общение здесь недоступно
 	</string>
 	<string name="LocationCtrlFlyTooltip">
-		Uçmaya izin verilmiyor
+		Полеты запрещены
 	</string>
 	<string name="LocationCtrlPushTooltip">
-		İtme yok
+		Нельзя толкаться
 	</string>
 	<string name="LocationCtrlBuildTooltip">
-		Nesne inşa etmeye/düşürmeye izin verilmiyor
+		Строительство/выкладывание объектов не разрешено
 	</string>
 	<string name="LocationCtrlScriptsTooltip">
-		Komut dosyalarına izin verilmiyor
+		Запускать скрипты запрещено
 	</string>
 	<string name="LocationCtrlDamageTooltip">
-		Sağlık
+		Здоровье
 	</string>
 	<string name="LocationCtrlAdultIconTooltip">
-		Yetişkin Bölgesi
+		Область для взрослых
 	</string>
 	<string name="LocationCtrlModerateIconTooltip">
-		Orta Bölge
+		Область умеренной дозволенности
 	</string>
 	<string name="LocationCtrlGeneralIconTooltip">
-		Genel Bölge
+		Область общей дозволенности
 	</string>
 	<string name="LocationCtrlSeeAVsTooltip">
-		Bu parselin dışında avatarlar görünür durumda ve sohbete izin veriliyor
+		Все жители с других участков могут видеть аватары и общаться в чате
 	</string>
 	<string name="UpdaterWindowTitle">
-		[APP_NAME] Güncelleştirme
+		Обновление [APP_NAME]
 	</string>
 	<string name="UpdaterNowUpdating">
-		[APP_NAME] güncelleştiriliyor...
+		Обновляется [APP_NAME]...
 	</string>
 	<string name="UpdaterNowInstalling">
-		[APP_NAME] yükleniyor...
+		Устанавливается [APP_NAME]...
 	</string>
 	<string name="UpdaterUpdatingDescriptive">
-		[APP_NAME] Görüntüleyiciniz en son sürüme güncelleştiriliyor.  Bu biraz zaman alabilir, bu nedenle sabırlı olun.
+		Клиент [APP_NAME] обновляется до последнего выпуска.  Это может занять какое-то время. Проявите терпение.
 	</string>
 	<string name="UpdaterProgressBarTextWithEllipses">
-		Güncelleştirme karşıdan yükleniyor...
+		Загрузка обновления...
 	</string>
 	<string name="UpdaterProgressBarText">
-		Güncelleştirme karşıdan yükleniyor
+		Загружается обновление
 	</string>
 	<string name="UpdaterFailDownloadTitle">
-		Güncelleştirmenin karşıdan yüklenmesi başarılamadı
+		Не удалось загрузить обновление
 	</string>
 	<string name="UpdaterFailUpdateDescriptive">
-		[APP_NAME] güncellenirken bir hata oluştu. Lütfen www.secondlife.com adresinden son sürümü karşıdan yükleyin.
+		При обновлении приложения [APP_NAME] возникла ошибка. Загрузите новую версию на сайте www.secondlife.com.
 	</string>
 	<string name="UpdaterFailInstallTitle">
-		Güncelleştirmenin yüklenmesi başarılamadı
+		Не удалось установить обновление
 	</string>
 	<string name="UpdaterFailStartTitle">
-		Görüntüleyici başlatılamadı
+		Не удалось запустить клиент
 	</string>
 	<string name="ItemsComingInTooFastFrom">
-		[APP_NAME]: [FROM_NAME]&apos;den öğeler çok hızlı geliyor, [TIME] saniye boyunca otomatik ön izleme devre dışı bırakıldı
+		[APP_NAME]: Из-за слишком быстрого поступления элементов с [FROM_NAME] автоматический просмотр отключен на [TIME] с
 	</string>
 	<string name="ItemsComingInTooFast">
-		[APP_NAME]: Öğeler çok hızlı geliyor, [TIME] saniye boyunca otomatik ön izleme devre dışı bırakıldı
+		[APP_NAME]: из-за слишком быстрого поступления элементов автоматический просмотр отключен на [TIME] с
 	</string>
 	<string name="IM_logging_string">
-		-- Anlık ileti günlük tutulması etkin --
+		-- Включена регистрация сообщений IM --
 	</string>
 	<string name="IM_typing_start_string">
-		[NAME] yazıyor...
+		[NAME] вводит текст...
 	</string>
 	<string name="Unnamed">
-		(İsimsiz)
+		(Без имени)
 	</string>
 	<string name="IM_moderated_chat_label">
-		(Yönetilen: Varsayılan durumda sesler kapalı)
+		(Модерируется: голоса по умолчанию отключены)
 	</string>
 	<string name="IM_unavailable_text_label">
-		Bu aramada metin sohbeti kullanılamaz.
+		Во время этого звонка текстовый чат недоступен.
 	</string>
 	<string name="IM_muted_text_label">
-		Bir Grup Moderatörü tarafından metin sohbetiniz devre dışı bırakıldı.
+		Ваш текстовый чат отключен модератором группы.
 	</string>
 	<string name="IM_default_text_label">
-		Anlık ileti göndermek için buraya tıklayın.
+		Щелкните здесь, чтобы создать IM-сообщение.
 	</string>
 	<string name="IM_to_label">
-		Kime
+		Кому
 	</string>
 	<string name="IM_moderator_label">
-		(Moderatör)
+		(Модератор)
 	</string>
 	<string name="Saved_message">
-		(Kaydedildi [LONG_TIMESTAMP])
+		(Сохранено [LONG_TIMESTAMP])
 	</string>
 	<string name="IM_unblock_only_groups_friends">
-		Bu mesajı görmek için Tercihler/Gizlilik&apos;de &apos;Sadece arkadaşlar ve gruplar beni arasın veya Aİ göndersin&apos; seçeneğinin işaretini kaldırmalısınız.
+		Для просмотра этого сообщения снимите флажок «Только друзья и группы могут звонить мне и отправлять IM» в окне «Настройки/Приватность».
 	</string>
 	<string name="answered_call">
-		Aramanız yanıtlandı
+		На ваш звонок ответили
 	</string>
 	<string name="you_started_call">
-		Bir sesli arama başlattınız
+		Вы начали голосовую беседу
 	</string>
 	<string name="you_joined_call">
-		Sesli aramaya katıldınız
+		Вы присоединились к голосовой беседе
 	</string>
 	<string name="name_started_call">
-		[NAME] bir sesli arama başlattı
+		Житель [NAME] начал голосовую беседу
 	</string>
 	<string name="ringing-im">
-		Sesli aramaya katılınılıyor...
+		Присоединение к голосовой беседе...
 	</string>
 	<string name="connected-im">
-		Bağlandı, kapatmak için Aramadan Çık üzerine tıklayın
+		Соединение установлено. Выберите команду «Прервать звонок», чтобы повесить трубку
 	</string>
 	<string name="hang_up-im">
-		Sesli aramadan çıkıldı
+		Голосовой звонок прерван
 	</string>
 	<string name="answering-im">
-		Bağlanıyor...
+		Соединяется...
 	</string>
 	<string name="conference-title">
-		Özel Konferans
+		Спонтанная конференция
 	</string>
 	<string name="conference-title-incoming">
-		[AGENT_NAME] ile konferans
+		Конференция с жителем [AGENT_NAME]
 	</string>
 	<string name="inventory_item_offered-im">
-		Teklif edilen envanter öğesi:
+		Предложено пополнить инвентарь
 	</string>
 	<string name="share_alert">
-		Envanterinizden buraya öğeler sürükleyin
+		Перетаскивайте вещи из инвентаря сюда
 	</string>
 	<string name="no_session_message">
-		(Aİ Oturumu Mevcut Değil)
+		(Сеанс IM не существует)
 	</string>
 	<string name="only_user_message">
-		Bu oturumdaki tek kullanıcısınız.
+		Вы – единственный пользователь в этом сеансе.
 	</string>
 	<string name="offline_message">
-		[NAME] çevrim dışı.
+		[NAME] не в сети.
 	</string>
 	<string name="invite_message">
-		Bu sesli sohbeti kabul etmek/bağlanmak için [BUTTON NAME] düğmesine tıklayın.
+		Нажмите кнопку [BUTTON NAME], чтобы участвовать в этом голосовом чате.
 	</string>
 	<string name="muted_message">
-		Bu Sakini engellediniz. Bir ileti gönderdiğinizde engelleme otomatik olarak kaldırılır.
+		Вы заблокировали этого жителя. Если отправить ему сообщение, блок автоматически снимется.
 	</string>
 	<string name="generic">
-		Talep gönderilirken hata oluştu, lütfen daha sonra tekrar deneyin.
+		Ошибка при запросе. Повторите попытку.
 	</string>
 	<string name="generic_request_error">
-		Talep gönderilirken hata oluştu, lütfen daha sonra tekrar deneyin.
+		Ошибка при запросе. Повторите попытку.
 	</string>
 	<string name="insufficient_perms_error">
-		Yeterli izne sahip değilsiniz.
+		У вас недостаточно разрешений.
 	</string>
 	<string name="session_does_not_exist_error">
-		Bu oturum artık mevcut değil.
+		Сеанс больше не существует
 	</string>
 	<string name="no_ability_error">
-		Bu yeteneğe sahip değilsiniz.
+		У вас нет этой способности.
 	</string>
 	<string name="no_ability">
-		Bu yeteneğe sahip değilsiniz.
+		У вас нет этой способности.
 	</string>
 	<string name="not_a_mod_error">
-		Bir oturum moderatörü değilsiniz.
+		Вы – не модератор сеанса.
 	</string>
 	<string name="muted">
-		Bir grup moderatörü metin sohbetinizi devre dışı bıraktı.
+		Модератор группы отключил для вас текстовый чат.
 	</string>
 	<string name="muted_error">
-		Bir grup moderatörü metin sohbetinizi devre dışı bıraktı.
+		Модератор группы отключил для вас текстовый чат.
 	</string>
 	<string name="add_session_event">
-		[RECIPIENT] ile sohbet oturumuna kullanıcı eklenemiyor.
+		Не удается добавить пользователей в сеанс чата с жителем [RECIPIENT].
 	</string>
 	<string name="message">
-		İletiniz [RECIPIENT] ile sohbet oturumuna gönderilemedi.
+		Не удается отправить ваше сообщение в сеанс чата с жителем [RECIPIENT].
 	</string>
 	<string name="message_session_event">
-		İletiniz [RECIPIENT] ile sohbet oturumuna gönderilemedi.
+		Не удается отправить ваше сообщение в сеанс чата с жителем [RECIPIENT].
 	</string>
 	<string name="mute">
-		Yönetme sırasında hata oluştu.
+		Ошибка при модерировании.
 	</string>
 	<string name="removed">
-		Gruptan çıkarıldınız.
+		Вы исключены из группы.
 	</string>
 	<string name="removed_from_group">
-		Gruptan çıkarıldınız.
+		Вы исключены из группы.
 	</string>
 	<string name="close_on_no_ability">
-		Sohbet oturumunda bulunma yeteneğine artık sahip değilsiniz.
+		У вас больше нет возможности участвовать в сеансе чата.
 	</string>
 	<string name="unread_chat_single">
-		[SOURCES] yeni bir şey söyledi
+		[SOURCES] сказал что-то новое
 	</string>
 	<string name="unread_chat_multiple">
-		[SOURCES] yeni bir şey söyledi
+		[SOURCES] сказал что-то новое
 	</string>
 	<string name="session_initialization_timed_out_error">
-		Oturum başlatılması zaman aşımına uğradı.
+		Истекло время ожидания инициализации сеанса
 	</string>
 	<string name="Home position set.">
-		Ana konum ayarlandı.
+		Задано положение дома.
 	</string>
 	<string name="voice_morphing_url">
 		http://secondlife.com/landing/voicemorphing
 	</string>
 	<string name="paid_you_ldollars">
-		[NAME] size [REASON] L$[AMOUNT] ödedi.
+		Житель [NAME] заплатил вам L$[AMOUNT] за [REASON].
 	</string>
 	<string name="paid_you_ldollars_no_reason">
-		[NAME] size L$[AMOUNT] ödedi.
+		Житель [NAME] заплатил вам L$[AMOUNT].
 	</string>
 	<string name="you_paid_ldollars">
-		[NAME]&apos;e [REASON] L$[AMOUNT]  ödediniz.
+		Вы заплатили жителю [NAME] L$[AMOUNT] за [REASON].
 	</string>
 	<string name="you_paid_ldollars_no_info">
-		L$[AMOUNT] ödediniz.
+		Вы заплатили L$[AMOUNT].
 	</string>
 	<string name="you_paid_ldollars_no_reason">
-		[NAME]&apos;e L$[AMOUNT] ödediniz.
+		Вы заплатили жителю [NAME] L$[AMOUNT].
 	</string>
 	<string name="you_paid_ldollars_no_name">
-		[REASON] L$[AMOUNT] ödediniz.
+		Вы заплатили L$[AMOUNT] за [REASON].
 	</string>
 	<string name="you_paid_failure_ldollars">
-		[REASON] [NAME]&apos;e L$[AMOUNT] ödeyemediniz.
+		Вы не смогли заплатить пользователю [NAME] L$[AMOUNT]: [REASON].
 	</string>
 	<string name="you_paid_failure_ldollars_no_info">
-		L$[AMOUNT] ödeyemediniz.
+		Вы не смогли заплатить L$[AMOUNT]
 	</string>
 	<string name="you_paid_failure_ldollars_no_reason">
-		[NAME]&apos;e L$[AMOUNT] ödeyemediniz.
+		Вы не смогли заплатить пользователю [NAME] L$[AMOUNT]
 	</string>
 	<string name="you_paid_failure_ldollars_no_name">
-		[REASON] L$[AMOUNT] ödeyemediniz.
+		Вы не смогли заплатить L$[AMOUNT]: [REASON].
 	</string>
 	<string name="for item">
-		[ITEM] için.
+		за [ITEM]
 	</string>
 	<string name="for a parcel of land">
-		bir arazi parseli için.
+		за земельный участок
 	</string>
 	<string name="for a land access pass">
-		bir arazi erişim hakkı için
+		за пропуск на землю
 	</string>
 	<string name="for deeding land">
-		arazi devretmek için
+		за передачу земли
 	</string>
 	<string name="to create a group">
-		bir grup oluşturmak için
+		за создание группы
 	</string>
 	<string name="to join a group">
-		bir grupa katılmak için
+		за вступление в группу
 	</string>
 	<string name="to upload">
-		karşıya yüklemek için
+		за передачу по сети
 	</string>
 	<string name="to publish a classified ad">
-		bir ilan yayınlamak için
+		за публикацию рекламы
 	</string>
 	<string name="giving">
-		L$ [AMOUNT] veriliyor
+		Уплата L$[AMOUNT]
 	</string>
 	<string name="uploading_costs">
-		Karşıya yüklemenin maliyeti: L$ [AMOUNT]
+		Передача стоит L$[AMOUNT]
 	</string>
 	<string name="this_costs">
-		Bunun maliyeti: L$ [AMOUNT]
+		Это стоит L$[AMOUNT]
 	</string>
 	<string name="buying_selected_land">
-		L$ [AMOUNT] karşılığında seçilen arazi satın alınıyor
+		Покупка выбранной земли за L$[AMOUNT]
 	</string>
 	<string name="this_object_costs">
-		Bu nesnenin maliyeti: L$ [AMOUNT]
+		Этот объект стоит L$[AMOUNT]
 	</string>
 	<string name="group_role_everyone">
-		Herkes
+		Все
 	</string>
 	<string name="group_role_officers">
-		Yetkililer
+		Должностные лица
 	</string>
 	<string name="group_role_owners">
-		Sahipler
+		Владельцы
 	</string>
 	<string name="group_member_status_online">
-		Çevrimiçi
+		В сети
 	</string>
 	<string name="uploading_abuse_report">
-		Kötüye Kullanım Bildirimi Karşıya Yükleniyor...
+		Загружается...
+
+Жалоба
 	</string>
 	<string name="New Shape">
-		Yeni Şekil
+		Новая фигура
 	</string>
 	<string name="New Skin">
-		Yeni Dış Katman
+		Новая кожа
 	</string>
 	<string name="New Hair">
-		Yeni Saç
+		Новые волосы
 	</string>
 	<string name="New Eyes">
-		Yeni Gözler
+		Новые глаза
 	</string>
 	<string name="New Shirt">
-		Yeni Gömlek
+		Новая рубашка
 	</string>
 	<string name="New Pants">
-		Yeni Pantolon
+		Новые брюки
 	</string>
 	<string name="New Shoes">
-		Yeni Ayakkabılar
+		Новая обувь
 	</string>
 	<string name="New Socks">
-		Yeni Çoraplar
+		Новые носки
 	</string>
 	<string name="New Jacket">
-		Yeni Ceket
+		Новый пиджак
 	</string>
 	<string name="New Gloves">
-		Yeni Eldivenler
+		Новые перчатки
 	</string>
 	<string name="New Undershirt">
-		Yeni Fanila
+		Новая майка
 	</string>
 	<string name="New Underpants">
-		Yeni Külot
+		Новые трусы
 	</string>
 	<string name="New Skirt">
-		Yeni Etek
+		Новая юбка
 	</string>
 	<string name="New Alpha">
-		Yeni Alfa
+		Новая альфа-маска
 	</string>
 	<string name="New Tattoo">
-		Yeni Dövme
+		Новое тату
 	</string>
 	<string name="New Physics">
-		Yeni Fizik
+		Новая физика
 	</string>
 	<string name="Invalid Wearable">
-		Geçersiz Giyilebilir
+		Нельзя носить
 	</string>
 	<string name="New Gesture">
-		Yeni Mimik
+		Новый жест
 	</string>
 	<string name="New Script">
-		Yeni Komut Dosyası
+		Новый скрипт
 	</string>
 	<string name="New Note">
-		Yeni Not
+		Новая заметка
 	</string>
 	<string name="New Folder">
-		Yeni Klasör
+		Новая папка
 	</string>
 	<string name="Contents">
-		İçerik
+		Контент
 	</string>
 	<string name="Gesture">
-		Mimik
+		Жест
 	</string>
 	<string name="Male Gestures">
-		Erkek Mimikleri
+		Мужские жесты
 	</string>
 	<string name="Female Gestures">
-		Kadın Mimikleri
+		Женские жесты
 	</string>
 	<string name="Other Gestures">
-		Diğer Mimikler
+		Прочие жесты
 	</string>
 	<string name="Speech Gestures">
-		Konuşma Mimikleri
+		Жесты в разговорах
 	</string>
 	<string name="Common Gestures">
-		Favori Mimikler
+		Стандартные жесты
 	</string>
 	<string name="Male - Excuse me">
-		Erkek - Afedersiniz
+		Мужчина – извинение
 	</string>
 	<string name="Male - Get lost">
-		Erkek - İşine bak
+		Мужчина – скройтесь
 	</string>
 	<string name="Male - Blow kiss">
-		Erkek - Öpücük gönderme
+		Мужчина – воздушный поцелуй
 	</string>
 	<string name="Male - Boo">
-		Erkek - Yuh çekme
+		Мужчина – фу!
 	</string>
 	<string name="Male - Bored">
-		Erkek - Canı sıkılmış
+		Мужчина – скука
 	</string>
 	<string name="Male - Hey">
-		Erkek - Hey
+		Мужчина – эй!
 	</string>
 	<string name="Male - Laugh">
-		Erkek - Gülme
+		Мужчина – смех
 	</string>
 	<string name="Male - Repulsed">
-		Erkek - Tiksinmiş
+		Мужчина – неприятие
 	</string>
 	<string name="Male - Shrug">
-		Erkek - Omuz Silkme
+		Мужчина – пожимает плечами
 	</string>
 	<string name="Male - Stick tougue out">
-		Erkek - Dil çıkarma
+		Мужчина – показывает язык
 	</string>
 	<string name="Male - Wow">
-		Erkek - Vay be
+		Мужчина – ух ты!
 	</string>
 	<string name="Female - Chuckle">
-		Kadın - Kıkırdama
+		Женщина – смешок
 	</string>
 	<string name="Female - Cry">
-		Kadın - Ağlama
+		Женщина – плач
 	</string>
 	<string name="Female - Embarrassed">
-		Kadın - Utanmış
+		Женщина – смущение
 	</string>
 	<string name="Female - Excuse me">
-		Kadın - Afedersiniz
+		Женщина – извинение
 	</string>
 	<string name="Female - Get lost">
-		Kadın - İşine bak
+		Женщина – скройтесь
 	</string>
 	<string name="Female - Blow kiss">
-		Kadın - Öpücük gönderme
+		Женщина – воздушный поцелуй
 	</string>
 	<string name="Female - Boo">
-		Kadın - Yuh çekme
+		Женщина – фу!
 	</string>
 	<string name="Female - Bored">
-		Kadın - Canı sıkılmış
+		Женщина – скука
 	</string>
 	<string name="Female - Hey">
-		Kadın - Hey
+		Женщина – эй!
 	</string>
 	<string name="Female - Hey baby">
-		Kadın - Hey bebek
+		Женщина – эй, бейби!
 	</string>
 	<string name="Female - Laugh">
-		Kadın - Gülme
+		Женщина – смех
 	</string>
 	<string name="Female - Looking good">
-		Kadın - Yakışıklı
+		Женщина – хорошо выглядишь
 	</string>
 	<string name="Female - Over here">
-		Kadın - Buraya baksana
+		Женщина – сюда!
 	</string>
 	<string name="Female - Please">
-		Kadın - Lütfen
+		Женщина – просьба
 	</string>
 	<string name="Female - Repulsed">
-		Kadın - Tiksinmiş
+		Женщина – неприятие
 	</string>
 	<string name="Female - Shrug">
-		Kadın - Omuz Silkme
+		Женщина – пожимает плечами
 	</string>
 	<string name="Female - Stick tougue out">
-		Kadın - Dil çıkarma
+		Женщина – показывает язык
 	</string>
 	<string name="Female - Wow">
-		Kadın - Vay be
+		Женщина – ух ты!
 	</string>
 	<string name="/bow">
-		/selamlama
+		/поклониться
 	</string>
 	<string name="/clap">
-		/alkış
+		/хлопнуть
 	</string>
 	<string name="/count">
-		/sayım
+		/счет
 	</string>
 	<string name="/extinguish">
-		/söndürme
+		/затушить
 	</string>
 	<string name="/kmb">
-		/hib
+		/поцелуй меня в зад
 	</string>
 	<string name="/muscle">
-		/kas
+		/силач
 	</string>
 	<string name="/no">
-		/hayır
+		/нет
 	</string>
 	<string name="/no!">
-		/hayır!
+		/нет!
 	</string>
 	<string name="/paper">
-		/kağıt
+		/бумага
 	</string>
 	<string name="/pointme">
-		/beni göster
+		/показать на себя
 	</string>
 	<string name="/pointyou">
-		/seni göster
+		/показать на другого
 	</string>
 	<string name="/rock">
-		/kaya
+		/камень
 	</string>
 	<string name="/scissor">
-		/makas
+		/ножницы
 	</string>
 	<string name="/smoke">
-		/duman
+		/курить
 	</string>
 	<string name="/stretch">
-		/uzatma
+		/потянуться
 	</string>
 	<string name="/whistle">
-		/ıslık
+		/свистнуть
 	</string>
 	<string name="/yes">
-		/evet
+		/да
 	</string>
 	<string name="/yes!">
-		/evet!
+		/о да!
 	</string>
 	<string name="afk">
-		kbd
+		отошел
 	</string>
 	<string name="dance1">
-		dans1
+		танец1
 	</string>
 	<string name="dance2">
-		dans2
+		танец2
 	</string>
 	<string name="dance3">
-		dans3
+		танец3
 	</string>
 	<string name="dance4">
-		dans4
+		танец4
 	</string>
 	<string name="dance5">
-		dans5
+		танец5
 	</string>
 	<string name="dance6">
-		dans6
+		танец6
 	</string>
 	<string name="dance7">
-		dans7
+		танец7
 	</string>
 	<string name="dance8">
-		dans8
+		танец8
 	</string>
 	<string name="AvatarBirthDateFormat">
-		[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]
+		[day,datetime,slt].[mthnum,datetime,slt].[year,datetime,slt]
 	</string>
 	<string name="DefaultMimeType">
-		hiçbiri/hiçbiri
+		нет/нет
 	</string>
 	<string name="texture_load_dimensions_error">
-		[WIDTH]*[HEIGHT] çözünürlüğünden büyük görüntüler yüklenemez
+		Нельзя загружать изображения, размер которых превышает [WIDTH]*[HEIGHT]
 	</string>
 	<string name="words_separator" value=","/>
 	<string name="server_is_down">
-		Tüm çabalarımıza rağmen beklenmeyen bir hata meydana geldi.
+		Несмотря на наши усилия, что-то неожиданно пошло не так.
 
-	Hizmetle ilişkili bilinen bir sorun olup olmadığını görmek için lütfen status.secondlifegrid.net adresine bakın.
-        Sorun yaşamaya devam ederseniz lütfen ağınızın ve güvenlik duvarınızın ayarlarına bakın.
+	Ознакомьтесь с описанием известных проблем в работе этой службы на сайте status.secondlifegrid.net.
+        Если проблемы продолжаются, то проверьте подключение к сети и настройки брандмауэра.
 	</string>
 	<string name="dateTimeWeekdaysNames">
-		Pazar:Pazartesi:Salı:Çarşamba:Perşembe:Cuma:Cumartesi
+		Воскресенье:Понедельник:Вторник:Среда:Четверг:Пятница:Суббота
 	</string>
 	<string name="dateTimeWeekdaysShortNames">
-		Paz:Pzt:Sal:Çar:Per:Cum:Cmt
+		Вс:Пн:Вт:Ср:Чт:Пт:Сб
 	</string>
 	<string name="dateTimeMonthNames">
-		Ocak:Şubat:Mart:Nisan:Mayıs:Haziran:Temmuz:Ağustos:Eylül:Ekim:Kasım:Aralık
+		Январь:Февраль:Март:Апрель:Май:Июнь:Июль:Август:Сентябрь:Октябрь:Ноябрь:Декабрь
 	</string>
 	<string name="dateTimeMonthShortNames">
-		Oca:Şub:Mar:Nis:May:Haz:Tem:Ağu:Eyl:Eki:Kas:Ara
+		Янв:Фев:Мар:Апр:Май:Июн:Июл:Авг:Сен:Окт:Ноя:Дек
 	</string>
 	<string name="dateTimeDayFormat">
 		[MDAY]
 	</string>
 	<string name="dateTimeAM">
-		ÖÖ
+		до полудня
 	</string>
 	<string name="dateTimePM">
-		ÖS
+		после полудня
 	</string>
 	<string name="LocalEstimateUSD">
-		US$ [AMOUNT]
+		[AMOUNT] US$
 	</string>
 	<string name="Membership">
-		Üyelik
+		Членство
 	</string>
 	<string name="Roles">
-		Roller
+		Роли
 	</string>
 	<string name="Group Identity">
-		Grup Kimliği
+		Удостоверение группы
 	</string>
 	<string name="Parcel Management">
-		Parsel Yönetimi
+		Управление участком
 	</string>
 	<string name="Parcel Identity">
-		Parsel Kimliği
+		Удостоверение участка
 	</string>
 	<string name="Parcel Settings">
-		Parsel Ayarları
+		Параметры участка
 	</string>
 	<string name="Parcel Powers">
-		Parsel Güçleri
+		Способности для участка
 	</string>
 	<string name="Parcel Access">
-		Parsel Erişimi
+		Доступ к участку
 	</string>
 	<string name="Parcel Content">
-		Parsel İçeriği
+		Содержимое на участке
 	</string>
 	<string name="Object Management">
-		Nesne Yönetimi
+		Управление объектами
 	</string>
 	<string name="Accounting">
-		Muhasebe
+		Бухгалтерия
 	</string>
 	<string name="Notices">
-		Bildirimler
+		Уведомления
 	</string>
 	<string name="Chat">
-		Sohbet
+		Чат
 	</string>
 	<string name="DeleteItems">
-		Seçili öğeler silinsin mi?
+		Удалить выбранные объекты?
 	</string>
 	<string name="DeleteItem">
-		Seçili öğe silinsin mi?
+		Удалить выбранный объект?
 	</string>
 	<string name="EmptyOutfitText">
-		Bu dış görünümde herhangi bir öğe yok
+		Для этого костюма нет вещей
 	</string>
 	<string name="ExternalEditorNotSet">
-		ExternalEditor ayarını kullanarak bir düzenleyici seçin.
+		Выберите редактор, используя параметр ExternalEditor.
 	</string>
 	<string name="ExternalEditorNotFound">
-		Belirttiğiniz harici düzenleyici bulunamadı.
-Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
-(örn. &quot;/yolum/duzenleyici&quot; &quot;%s&quot;)
+		Не удается найти указанный внешний редактор.
+Попробуйте взять путь к редактору в двойные кавычки
+(например &quot;/path to my/editor&quot; &quot;%s&quot;)
 	</string>
 	<string name="ExternalEditorCommandParseError">
-		Harici düzenleyici komutu ayrıştırılırken hata oluştu.
+		Ошибка анализа командной строки для внешнего редактора.
 	</string>
 	<string name="ExternalEditorFailedToRun">
-		Harici düzenleyici çalışmadı.
+		Не удалось запустить внешний редактор.
 	</string>
 	<string name="TranslationFailed">
-		Çeviri başarılamadı: [REASON]
+		Ошибка телепортации: [REASON]
 	</string>
 	<string name="TranslationResponseParseError">
-		Çeviri yanıtı ayrıştırılırken hata meydana geldi.
+		Ошибка при анализе ответа переводчика.
 	</string>
 	<string name="Esc">
-		Esc
+		ESC
 	</string>
 	<string name="Space">
-		Boşluk
+		ПРОБЕЛ
 	</string>
 	<string name="Enter">
-		Enter
+		ВВОД
 	</string>
 	<string name="Tab">
-		Sekme
+		TAB
 	</string>
 	<string name="Ins">
-		Ins
+		INS
 	</string>
 	<string name="Del">
-		Del
+		DEL
 	</string>
 	<string name="Backsp">
-		Geri tuşu
+		BACKSP
 	</string>
 	<string name="Shift">
-		Shift
+		SHIFT
 	</string>
 	<string name="Ctrl">
-		Ctrl
+		CTRL
 	</string>
 	<string name="Alt">
-		Alt
+		ALT
 	</string>
 	<string name="CapsLock">
-		CapsLock
+		CAPSLOCK
 	</string>
 	<string name="Left">
-		Sol
+		Стрелка влево
 	</string>
 	<string name="Right">
-		Sağ
+		Стрелка вправо
 	</string>
 	<string name="Up">
-		Yukarı
+		Стрелка вверх
 	</string>
 	<string name="Down">
-		Aşağı
+		Стрелка вниз
 	</string>
 	<string name="Home">
-		Home
+		HOME
 	</string>
 	<string name="End">
-		End
+		END
 	</string>
 	<string name="PgUp">
 		PgUp
@@ -4582,16 +4575,16 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 		F12
 	</string>
 	<string name="Add">
-		Ekle
+		+
 	</string>
 	<string name="Subtract">
-		Çıkar
+		-
 	</string>
 	<string name="Multiply">
-		Çarp
+		*
 	</string>
 	<string name="Divide">
-		Böl
+		/
 	</string>
 	<string name="PAD_DIVIDE">
 		PAD_DIVIDE
@@ -4810,222 +4803,222 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 		Z
 	</string>
 	<string name="BeaconParticle">
-		Parçacık işaretleri gösteriliyor (mavi)
+		Просмотр меток участков (синие)
 	</string>
 	<string name="BeaconPhysical">
-		Fiziksel nesne işaretleri gösteriliyor (yeşil)
+		Просмотр меток физических объектов (зеленые)
 	</string>
 	<string name="BeaconScripted">
-		Komut dosyalı nesne işaretleri gösteriliyor (kırmızı)
+		Просмотр меток объектов со скриптами (красные)
 	</string>
 	<string name="BeaconScriptedTouch">
-		Dokunma işlevli komut dosyalı nesne işaretleri gösteriliyor (kırmızı)
+		Просмотр меток объектов со скриптами и функцией касания (красные)
 	</string>
 	<string name="BeaconSound">
-		Ses işaretleri gösteriliyor (sarı)
+		Просмотр звуковых меток (желтые)
 	</string>
 	<string name="BeaconMedia">
-		Ortam işaretleri gösteriliyor (beyaz)
+		Просмотр медийных меток (белые)
 	</string>
 	<string name="ParticleHiding">
-		Parçacıklar Gizleniyor
+		Частицы скрыты
 	</string>
 	<string name="Command_AboutLand_Label">
-		Arazi hakkında
+		О земле
 	</string>
 	<string name="Command_Appearance_Label">
-		Görünüm
+		Внешность
 	</string>
 	<string name="Command_Avatar_Label">
-		Avatar
+		Аватар
 	</string>
 	<string name="Command_Build_Label">
-		İnşa Et
+		Строительство
 	</string>
 	<string name="Command_Chat_Label">
-		Sohbet
+		Чат
 	</string>
 	<string name="Command_Compass_Label">
-		Pusula
+		Компас
 	</string>
 	<string name="Command_Destinations_Label">
-		Hedef Konum
+		Пункты
 	</string>
 	<string name="Command_Gestures_Label">
-		Mimikler
+		Жесты
 	</string>
 	<string name="Command_HowTo_Label">
-		Nasıl yapılır
+		Инструкции
 	</string>
 	<string name="Command_Inventory_Label">
-		Envanter
+		Инвентарь
 	</string>
 	<string name="Command_Map_Label">
-		Harita
+		Карта
 	</string>
 	<string name="Command_Marketplace_Label">
-		Pazaryeri
+		Торговый центр
 	</string>
 	<string name="Command_MiniMap_Label">
-		Mini-harita
+		Миникарта
 	</string>
 	<string name="Command_Move_Label">
-		Yürü / koş / uç
+		Ходьба / бег / полет
 	</string>
 	<string name="Command_Outbox_Label">
-		Satıcı giden kutusu
+		Торговые исходящие
 	</string>
 	<string name="Command_People_Label">
-		Kişiler
+		Люди
 	</string>
 	<string name="Command_Picks_Label">
-		Seçmeler
+		Подборка
 	</string>
 	<string name="Command_Places_Label">
-		Yerler
+		Места
 	</string>
 	<string name="Command_Preferences_Label">
-		Tercihler
+		Настройки
 	</string>
 	<string name="Command_Profile_Label">
-		Profil
+		Профиль
 	</string>
 	<string name="Command_Search_Label">
-		Ara
+		Поиск
 	</string>
 	<string name="Command_Snapshot_Label">
-		Anlık görüntü
+		Снимок
 	</string>
 	<string name="Command_Speak_Label">
-		Konuş
+		Говорить
 	</string>
 	<string name="Command_View_Label">
-		Kamera denetimleri
+		Управление камерой
 	</string>
 	<string name="Command_Voice_Label">
-		Ses ayarları
+		Настройки голоса
 	</string>
 	<string name="Command_AboutLand_Tooltip">
-		Ziyaret ettiğiniz araziyle ilgili bilgi
+		Информация о посещаемой вами земле
 	</string>
 	<string name="Command_Appearance_Tooltip">
-		Avatarınızı değiştirin
+		Изменить аватар
 	</string>
 	<string name="Command_Avatar_Tooltip">
-		Eksiksiz bir avatar seçin
+		Выбор аватара
 	</string>
 	<string name="Command_Build_Tooltip">
-		Nesneler oluşturma ve yüzeyi şekillendirme
+		Построение объектов и формирование ландшафта
 	</string>
 	<string name="Command_Chat_Tooltip">
-		Metin kullanarak yakındaki kişilerle sohbet etmek
+		Обменивайтесь текстовыми репликами с людьми вокруг вас
 	</string>
 	<string name="Command_Compass_Tooltip">
-		Pusula
+		Компас
 	</string>
 	<string name="Command_Destinations_Tooltip">
-		İlgilendiğiniz hedef konumlar
+		Интересные места
 	</string>
 	<string name="Command_Gestures_Tooltip">
-		Avatarınız için mimikler
+		Жесты для аватара
 	</string>
 	<string name="Command_HowTo_Tooltip">
-		Genel görevleri nasıl yapacağınız
+		Выполнение типичных задач
 	</string>
 	<string name="Command_Inventory_Tooltip">
-		Eşyalarınızı görüntüleyin ve kullanın
+		Просмотр и использование вашего имущества
 	</string>
 	<string name="Command_Map_Tooltip">
-		Dünya haritası
+		Карта мира
 	</string>
 	<string name="Command_Marketplace_Tooltip">
-		Alışveriş yap
+		Покупки
 	</string>
 	<string name="Command_MiniMap_Tooltip">
-		Yakındaki kişileri göster
+		Показать людей поблизости
 	</string>
 	<string name="Command_Move_Tooltip">
-		Avatarınızı hareket ettirmek
+		Перемещение аватара
 	</string>
 	<string name="Command_Outbox_Tooltip">
-		Satmak amacıyla Pazaryerinize öğeler taşıyın
+		Перенести предметы в торговый центр для продажи
 	</string>
 	<string name="Command_People_Tooltip">
-		Arkadaşlar, gruplar ve yakındaki kişiler
+		Друзья, группы и люди поблизости
 	</string>
 	<string name="Command_Picks_Tooltip">
-		Profilinizde favori olarak gösterilecek yerler
+		Места, которые будут показаны в вашем профиле как избранное
 	</string>
 	<string name="Command_Places_Tooltip">
-		Kaydettiğiniz yerler
+		Сохраненные вами места
 	</string>
 	<string name="Command_Preferences_Tooltip">
-		Tercihler
+		Настройки
 	</string>
 	<string name="Command_Profile_Tooltip">
-		Profilinizi düzenleyin veya görüntüleyin
+		Редактирование или просмотр вашего профиля
 	</string>
 	<string name="Command_Search_Tooltip">
-		Yerler, etkinlikler ve kişiler bulmak
+		Поиск мест, событий, людей
 	</string>
 	<string name="Command_Snapshot_Tooltip">
-		Resim çekin
+		Сделать снимок
 	</string>
 	<string name="Command_Speak_Tooltip">
-		Mikrofonunuzu kullanarak yakındaki kişilerle konuşun
+		Говорите с людьми вокруг вас с помощью микрофона
 	</string>
 	<string name="Command_View_Tooltip">
-		Kamera açısını değiştirmek
+		Изменение угла камеры
 	</string>
 	<string name="Command_Voice_Tooltip">
-		Aramalar ve 	SL dünyası içinde size yakın kişiler için ses denetimleri
+		Регулировка громкости вызовов и разговоров с людьми около вас
 	</string>
 	<string name="Toolbar_Bottom_Tooltip">
-		şu anda alt araç çubuğunuzda
+		сейчас на нижней панели инструментов
 	</string>
 	<string name="Toolbar_Left_Tooltip">
-		şu anda sol araç çubuğunuzda
+		сейчас на левой панели инструментов
 	</string>
 	<string name="Toolbar_Right_Tooltip">
-		şu anda sağ araç çubuğunuzda
+		сейчас на правой панели инструментов
 	</string>
 	<string name="Retain%">
-		Koru %
+		Остаток%
 	</string>
 	<string name="Detail">
-		Ayrıntı
+		Детализация
 	</string>
 	<string name="Better Detail">
-		Daha İyi Ayrıntı
+		Более детально
 	</string>
 	<string name="Surface">
-		Yüzey
+		Поверхность
 	</string>
 	<string name="Solid">
-		Katı
+		Сплошной
 	</string>
 	<string name="Wrap">
-		Sar
+		Оболочка
 	</string>
 	<string name="Preview">
-		Önizleme
+		Предварительный просмотр
 	</string>
 	<string name="Normal">
-		Normal
+		Нормальный
 	</string>
 	<string name="snapshot_quality_very_low">
-		Çok Düşük
+		Очень низкий
 	</string>
 	<string name="snapshot_quality_low">
-		Düşük
+		Низкий
 	</string>
 	<string name="snapshot_quality_medium">
-		Orta
+		Средний
 	</string>
 	<string name="snapshot_quality_high">
-		Yüksek
+		Высокий
 	</string>
 	<string name="snapshot_quality_very_high">
-		Çok Yüksek
+		Очень высокий
 	</string>
 </strings>

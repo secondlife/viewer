@@ -14,1234 +14,1231 @@
 		SECOND LIFE
 	</string>
 	<string name="SECOND_LIFE_GRID">
-		Second Life Ağı
+		Grille de Second Life
 	</string>
 	<string name="SUPPORT_SITE">
-		Second Life Destek Portalı
+		Portail Assistance Second Life
 	</string>
 	<string name="StartupDetectingHardware">
-		Donanım saptanıyor...
+		Détection du matériel...
 	</string>
 	<string name="StartupLoading">
-		[APP_NAME] yükleniyor...
+		Chargement de [APP_NAME]...
 	</string>
 	<string name="StartupClearingCache">
-		Önbellek temizleniyor...
+		Vidage du cache...
 	</string>
 	<string name="StartupInitializingTextureCache">
-		Doku önbelleği başlatılıyor...
+		Initialisation du cache des textures...
 	</string>
 	<string name="StartupInitializingVFS">
-		VFS Başlatılıyor...
+		Initialisation VFS...
 	</string>
 	<string name="StartupRequireDriverUpdate">
-		Grafik başlatma başarılamadı. Lütfen grafik sürücünüzü güncelleştirin!
+		Échec d&apos;initialisation des graphiques. Veuillez mettre votre pilote graphique à jour.
 	</string>
 	<string name="ProgressRestoring">
-		Geri yükleniyor...
+		Restauration...
 	</string>
 	<string name="ProgressChangingResolution">
-		Çözünürlük değiştiriliyor...
+		Changement de la résolution...
 	</string>
 	<string name="Fullbright">
-		Tam parlak (eski)
+		Fullbright (Legacy)
 	</string>
 	<string name="LoginInProgress">
-		Oturum açılıyor. [APP_NAME] kilitlenmiş görünebilir.  Lütfen bekleyin.
+		La connexion à [APP_NAME] apparaît peut-être comme étant gelée. Veuillez patienter.
 	</string>
 	<string name="LoginInProgressNoFrozen">
-		Oturum açılıyor...
+		Connexion...
 	</string>
 	<string name="LoginAuthenticating">
-		Kimlik doğrulaması yapılıyor
+		Authentification en cours
 	</string>
 	<string name="LoginMaintenance">
-		Hesap bakımı yapılıyor...
+		Maintenance du compte en cours…
 	</string>
 	<string name="LoginAttempt">
-		Önceki oturum açma girişimi başarılamadı. Oturum açılıyor, [NUMBER]. girişim.
+		La tentative de connexion précédente a échoué. Connexion, esssai [NUMBER]
 	</string>
 	<string name="LoginPrecaching">
-		Dünya yükleniyor...
+		Monde en cours de chargement…
 	</string>
 	<string name="LoginInitializingBrowser">
-		Katıştırılmış web tarayıcısı başlatılıyor...
+		Navigateur Web incorporé en cours d&apos;initialisation…
 	</string>
 	<string name="LoginInitializingMultimedia">
-		Multimedya başlatılıyor...
+		Multimédia en cours d&apos;initialisation…
 	</string>
 	<string name="LoginInitializingFonts">
-		Fontlar yükleniyor...
+		Chargement des polices en cours...
 	</string>
 	<string name="LoginVerifyingCache">
-		Önbellek dosyaları doğrulanıyor (60-90 saniye zaman alabilir)...
+		Fichiers du cache en cours de vérification (peut prendre 60-90 s)...
 	</string>
 	<string name="LoginProcessingResponse">
-		Yanıt işleniyor...
+		Réponse en cours de traitement…
 	</string>
 	<string name="LoginInitializingWorld">
-		Dünya başlatılıyor...
+		Monde en cours d&apos;initialisation…
 	</string>
 	<string name="LoginDecodingImages">
-		Görüntülerin kodu çözülüyor...
+		Décodage des images en cours...
 	</string>
 	<string name="LoginInitializingQuicktime">
-		QuickTime Başlatılıyor...
+		Quicktime en cours d&apos;initialisation
 	</string>
 	<string name="LoginQuicktimeNotFound">
-		QuickTime bulunamadı - başlatılamadı.
+		Quicktime introuvable, impossible de procéder à l&apos;initialisation.
 	</string>
 	<string name="LoginQuicktimeOK">
-		QuickTime başarıyla başlatıldı.
+		Initialisation de Quicktime réussie.
 	</string>
 	<string name="LoginRequestSeedCapGrant">
-		Bölge özellikleri talep ediliyor...
+		Capacités de la région demandées...
 	</string>
 	<string name="LoginRetrySeedCapGrant">
-		Bölge özellikleri talep ediliyor: [NUMBER]. girişim...
+		Capacités de la région demandées... Tentative n° [NUMBER].
 	</string>
 	<string name="LoginWaitingForRegionHandshake">
-		Bölge el sıkışması bekleniyor...
+		Liaison avec la région en cours de création...
 	</string>
 	<string name="LoginConnectingToRegion">
-		Bölgeye bağlanılıyor...
+		Connexion avec la région en cours...
 	</string>
 	<string name="LoginDownloadingClothing">
-		Giysiler karşıdan yükleniyor...
+		Habits en cours de téléchargement...
 	</string>
 	<string name="InvalidCertificate">
-		Sunucu geçersiz veya bozuk bir sertifika döndürdü. Lütfen Ağ yöneticisine başvurun.
+		Certificat non valide ou corrompu renvoyé par le serveur. Contactez l&apos;administrateur de la grille.
 	</string>
 	<string name="CertInvalidHostname">
-		Sunucuya erişmek için geçersiz bir ana bilgisayar adı kullanıldı, lütfen SLURL veya Ağ ana bilgisayar adınızı kontrol edin.
+		Nom d&apos;hôte non valide utilisé pour accéder au serveur. Vérifiez votre nom d&apos;hôte de grille ou SLURL.
 	</string>
 	<string name="CertExpired">
-		Ağ tarafından döndürülen sertifikanın süresi sona ermiş görünüyor.  Lütfen sistem saatinizi kontrol edin veya Ağ yöneticinize başvurun.
+		Il semble que le certificat renvoyé par la grille ait expiré.  Vérifiez votre horloge système ou contactez l&apos;administrateur de la grille.
 	</string>
 	<string name="CertKeyUsage">
-		Sunucu tarafından döndürülen sertifika SSL için kullanılamadı.  Lütfen Ağ yöneticinize başvurun.
+		Impossible d&apos;utiliser le certificat renvoyé par le serveur pour SSL. Contactez l&apos;administrateur de la grille.
 	</string>
 	<string name="CertBasicConstraints">
-		Sunucunun Sertifika zincirinde çok fazla sertifika vardı.  Lütfen Ağ yöneticinize başvurun.
+		Certificats trop nombreux dans la chaîne des certificats du serveur. Contactez l&apos;administrateur de la grille.
 	</string>
 	<string name="CertInvalidSignature">
-		Ağ sunucusu tarafından döndürülen sertifika imzası doğrulanamadı.  Lütfen Ağ yöneticinize başvurun.
+		Impossible de vérifier la signature de certificat renvoyée par le serveur de la grille.  Contactez l&apos;administrateur de la grille.
 	</string>
 	<string name="LoginFailedNoNetwork">
-		Ağ hatası: Bağlantı kurulamadı, lütfen ağ bağlantınızı kontrol edin.
+		Erreur réseau : impossible d&apos;établir la connexion. Veuillez vérifier votre connexion réseau.
 	</string>
 	<string name="LoginFailed">
-		Oturum açılamadı.
+		Échec de la connexion.
 	</string>
 	<string name="Quit">
-		Çık
+		Quitter
 	</string>
 	<string name="create_account_url">
-		http://join.secondlife.com/index.php?lang=tr-TR
+		http://join.secondlife.com/index.php?sourceid=1206_steam&amp;lang=fr-FR
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
-		Kullandığınız görüntüleyici ile artık Second Life&apos;a erişemezsiniz. Yeni bir görüntüleyiciyi karşıdan yüklemek için lütfen şu sayfayı ziyaret edin:
+		Le client que vous utilisez ne permet plus d&apos;accéder à Second Life. Téléchargez un nouveau client à la page suivante :
 http://secondlife.com/download
 
-Daha fazla bilgi edinmek için asağıdaki SSS sayfamızı ziyaret edin:
+Pour plus d&apos;informations, consultez la page FAQ ci-dessous :
 http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="LoginIntermediateOptionalUpdateAvailable">
-		Opsiyonel görüntüleyici güncelleştirmesi mevcut: [VERSION]
+		Mise à jour facultative du client disponible : [VERSION]
 	</string>
 	<string name="LoginFailedRequiredUpdate">
-		Gerekli görüntüleyici güncelleştirmesi: [VERSION]
+		Mise à jour du client requise : [VERSION]
 	</string>
 	<string name="LoginFailedAlreadyLoggedIn">
-		Bu aracı zaten oturum açmış durumda.
+		L&apos;agent est déjà connecté.
 	</string>
 	<string name="LoginFailedAuthenticationFailed">
-		Üzgünüz! Oturumunuzu açamadık.
-Lütfen şunları doğru girdiğinizi kontrol edin:
-    * Kullanıcı adı (mustafayalcin12 veya faruk.gungoren gibi)
-    * Parola:
-Ayrıca lütfen Caps Lock tuşuna basmadığınıza emin olun.
+		Désolé ! La connexion a échoué.
+Veuillez vérifier que les éléments ci-dessous ont été correctement saisis :
+    * Nom d&apos;utilisateur (par exemple, bobsmith12 ou steller.sunshine)
+    * Mot de passe
+Assurez-vous également que la touche Verr. maj n&apos;est pas activée.
 	</string>
 	<string name="LoginFailedPasswordChanged">
-		Güvenlik önlemi olarak parolanız değiştirildi.
-Lütfen hesap sayfanıza gidin: http://secondlife.com/password
-ve parolanızı sıfırlamak için güvenlik sorusunu yanıtlayın.
-Bu sorun için özür dileriz.
+		Votre mot de passe a été modifié pour des raisons de sécurité.
+Veuillez accéder à votre compte à la page http://secondlife.com/password
+et répondre à la question de sécurité afin de réinitialiser votre mot de passe.
+Nous vous prions de nous excuser pour la gêne occasionnée.
 	</string>
 	<string name="LoginFailedPasswordReset">
-		Sistemimizde bazı değişiklikler yaptık, parolanızı sıfırlamanız gerekecek.
-Lütfen hesap sayfanıza gidin: http://secondlife.com/password
-ve parolanızı sıfırlamak için güvenlik sorusunu yanıtlayın.
-Bu sorun için özür dileriz.
+		Vous allez devoir réinitialiser votre mot de passe suite à quelques changements effectués sur notre système.
+Pour cela, accédez à votre compte à la page http://secondlife.com/password
+et répondez à la question de sécurité. Votre mot de passe sera réinitialisé.
+Nous vous prions de nous excuser pour la gêne occasionnée.
 	</string>
 	<string name="LoginFailedEmployeesOnly">
-		Second Life bakım amacıyla geçici olarak kapatıldı.
-Şu anda sadece çalışanlar oturum açabilir.
-Güncelleştirmeler için www.secondlife.com/status adresini kontrol edin.
+		Second Life est temporairement fermé pour des raisons de maintenance.
+Seuls les employés peuvent actuellement y accéder.
+Consultez la page www.secondlife.com/status pour plus d&apos;informations.
 	</string>
 	<string name="LoginFailedPremiumOnly">
-		Second Life üzerindeki aktif kullanıcıların olası en iyi deneyimi yaşamasını sağlamak için, oturum açılması geçici olarak kısıtlanmıştır.
+		Les connexions à Second Life sont temporairement limitées afin de s&apos;assurer que l&apos;expérience des utilisateurs présents dans le monde virtuel soit optimale.
 
-Second Life için ödeme yapmış olan kişilere öncelik tanımak amacıyla, ücretsiz hesaplara sahip kişiler bu süre içerisinde Second Life&apos;a erişemeyecekler.
+Les personnes disposant de comptes gratuits ne pourront pas accéder à Second Life pendant ce temps afin de permettre à celles qui ont payé pour pouvoir utiliser Second Life de le faire.
 	</string>
 	<string name="LoginFailedComputerProhibited">
-		Second Life&apos;a bu bilgisayardan erişemezsiniz.
-Bunun bir hata olduğunu düşünüyorsanız, lütfen şu adrese başvurun:
-support@secondlife.com.
+		Impossible d&apos;accéder à Second Life depuis cet ordinateur.
+Si vous pensez qu&apos;il s&apos;agit d&apos;une erreur, contactez
+l&apos;Assistance à l&apos;adresse suivante : support@secondlife.com.
 	</string>
 	<string name="LoginFailedAcountSuspended">
-		Hesabınıza şu zamana kadar erişemeyeceksiniz:
-Pasifik Saati ile [TIME].
+		Votre compte est inaccessible jusqu&apos;à
+[TIME], heure du Pacifique.
 	</string>
 	<string name="LoginFailedAccountDisabled">
-		Talebinizi şu anda tamamlayamıyoruz.
-Lütfen yardım almak için Second Life destek bölümüne başvurun: http://secondlife.com/support
-Eğer parolanızı değiştiremiyorsanız, lütfen şu numarayı arayın: (866) 476-9763.
+		Nous n&apos;avons pas réussi à traiter votre demande.
+Pour obtenir de l&apos;aide, veuillez contacter l&apos;Assistance Second Life à la page suivante : http://secondlife.com/support.
+Si vous ne parvenez pas à changer de mot de passe, veuillez appeler le (866) 476-9763.
 	</string>
 	<string name="LoginFailedTransformError">
-		Oturum açılması sırasında veri tutarsızlığı saptandı.
-Lütfen şu adrese başvurun: support@secondlife.com
+		Incohérence des données lors de la connexion.
+Veuillez contacter support@secondlife.com.
 	</string>
 	<string name="LoginFailedAccountMaintenance">
-		Hesabınızda küçük çaplı bir bakım işlemi sürüyor.
-Hesabınıza şu zamana kadar erişemeyeceksiniz:
-Pasifik Saati ile [TIME].
-Bunun bir hata olduğunu düşünüyorsanız, lütfen şu adrese başvurun: support@secondlife.com
+		Des opérations de maintenance mineures sont actuellement effectuées sur votre compte.
+Votre compte est inaccessible jusqu&apos;à
+[TIME], heure du Pacifique.
+Si vous pensez qu&apos;il s&apos;agit d&apos;une erreur, contactez l&apos;Assistance à l&apos;adresse suivante : support@secondlife.com
 	</string>
 	<string name="LoginFailedPendingLogoutFault">
-		Oturum kapatma talebi simülatörden bir hata yanıtı gelmesine neden oldu.
+		Le simulateur a renvoyé une erreur en réponse à la demande de déconnexion.
 	</string>
 	<string name="LoginFailedPendingLogout">
-		Sistem şu anda oturumunuzu sonlandırıyor.
-Hesabınıza şu zamana kadar erişemeyeceksiniz:
-Pasifik Saati ile [TIME].
+		Le système est en train de vous déconnecter.
+Votre compte sera indisponible jusqu&apos;à
+[TIME], heure du Pacifique.
 	</string>
 	<string name="LoginFailedUnableToCreateSession">
-		Geçerli bir oturum oluşturulamadı.
+		Impossible de créer de session valide.
 	</string>
 	<string name="LoginFailedUnableToConnectToSimulator">
-		Bir simülatöre bağlanılamadı.
+		Impossible de se connecter à un simulateur.
 	</string>
 	<string name="LoginFailedRestrictedHours">
-		Hesabınız Second Life&apos;a sadece
-Pasifik Saati ile [START] ve [END] arasında erişebilir.
-Lütfen bu saatler arasında tekrar uğrayın.
-Bunun bir hata olduğunu düşünüyorsanız, lütfen şu adrese başvurun: support@secondlife.com
+		Votre compte permet uniquement d&apos;accéder à Second Life
+entre [START] et [END], heure du Pacifique.
+Veuillez réessayer au cours de la période indiquée.
+Si vous pensez qu&apos;il s&apos;agit d&apos;une erreur, contactez l&apos;Assistance à l&apos;adresse suivante : support@secondlife.com
 	</string>
 	<string name="LoginFailedIncorrectParameters">
-		Yanlış parametreler.
-Bunun bir hata olduğunu düşünüyorsanız, lütfen şu adrese başvurun: support@secondlife.com
+		Paramètres incorrects.
+Si vous pensez qu&apos;il s&apos;agit d&apos;une erreur, contactez l&apos;Assistance à l&apos;adresse suivante : support@secondlife.com
 	</string>
 	<string name="LoginFailedFirstNameNotAlphanumeric">
-		Ad parametresi alfasayısal olmalıdır.
-Bunun bir hata olduğunu düşünüyorsanız, lütfen şu adrese başvurun: support@secondlife.com
+		Le paramètre Prénom doit être alphanumérique.
+Si vous pensez qu&apos;il s&apos;agit d&apos;une erreur, contactez l&apos;Assistance à l&apos;adresse suivante : support@secondlife.com
 	</string>
 	<string name="LoginFailedLastNameNotAlphanumeric">
-		Soyadı parametresi alfasayısal olmalıdır.
-Bunun bir hata olduğunu düşünüyorsanız, lütfen şu adrese başvurun: support@secondlife.com
+		Le paramètre Nom doit être alphanumérique.
+Si vous pensez qu&apos;il s&apos;agit d&apos;une erreur, contactez l&apos;Assistance à l&apos;adresse suivante : support@secondlife.com
 	</string>
 	<string name="LogoutFailedRegionGoingOffline">
-		Bölge şu anda çevrimdışı oluyor.
-Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
+		La région est en train d&apos;être mise hors ligne.
+Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="LogoutFailedAgentNotInRegion">
-		Aracı bölgede değil.
-Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
+		Agent absent de la région.
+Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="LogoutFailedPendingLogin">
-		Bu bölge başka bir oturum açmaktaydı.
-Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
+		Une autre session était en cours d&apos;ouverture au sein de la région.
+Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="LogoutFailedLoggingOut">
-		Bu bölge önceki oturumu sonlandırmaktaydı.
-Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
+		La session précédente était en cours de fermeture au sein de la région.
+Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="LogoutFailedStillLoggingOut">
-		Bu bölge hala bir önceki oturumu sonlandırma işlemini sürdürüyor.
-Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
+		Fermeture de la session précédente toujours en cours pour la région.
+Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="LogoutSucceeded">
-		Bu bölge son oturumu sonlandırdı.
-Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
+		Dernière session fermée au sein de la région.
+Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="LogoutFailedLogoutBegun">
-		Bölge oturumu sonlandırma işlemini başlattı.
-Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
+		Processus de déconnexion commencé pour la région.
+Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="LoginFailedLoggingOutSession">
-		Sistem son oturumunuzu sonlandırma işlemini başlattı.
-Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
+		Le système a commencé à fermer votre dernière session.
+Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="AgentLostConnection">
-		Bu bölgede sorun yaşanıyor olabilir.  Lütfen İnternet bağlantınızı kontrol edin.
+		Il y a peut-être des problèmes techniques dans cette région.  Veuillez vérifier votre connexion Internet.
 	</string>
 	<string name="SavingSettings">
-		Ayarlarınız kaydediliyor...
+		Enregistrement des paramètres...
 	</string>
 	<string name="LoggingOut">
-		Oturum kapatılıyor...
+		Déconnexion...
 	</string>
 	<string name="ShuttingDown">
-		Kapatılıyor...
+		Arrêt en cours...
 	</string>
 	<string name="YouHaveBeenDisconnected">
-		Bulunduğunuz bölgeyle bağlantınız kesildi.
+		Vous avez été déconnecté de la région où vous étiez.
 	</string>
 	<string name="SentToInvalidRegion">
-		Geçersiz bir bölgeye gönderildiniz.
+		Vous avez été transféré vers une région non valide.
 	</string>
 	<string name="TestingDisconnect">
-		Görüntüleyici bağlantısının kesilmesi test ediliyor
+		Test de déconnexion du client
 	</string>
 	<string name="TooltipPerson">
-		Kişi
+		Personne
 	</string>
 	<string name="TooltipNoName">
-		(adsız)
+		(pas de nom)
 	</string>
 	<string name="TooltipOwner">
-		Sahip:
+		Propriétaire :
 	</string>
 	<string name="TooltipPublic">
-		Kamuya Açık
+		Public
 	</string>
 	<string name="TooltipIsGroup">
-		(Grup)
+		(Groupe)
 	</string>
 	<string name="TooltipForSaleL$">
-		Satılık: L$[AMOUNT]
+		À vendre : [AMOUNT] L$
 	</string>
 	<string name="TooltipFlagGroupBuild">
-		Grup İnşası
+		Contruction de groupe
 	</string>
 	<string name="TooltipFlagNoBuild">
-		İnşa Edilemez
+		Pas de construction
 	</string>
 	<string name="TooltipFlagNoEdit">
-		Grup İnşası
+		Contruction de groupe
 	</string>
 	<string name="TooltipFlagNotSafe">
-		Güvenli Değil
+		Non sécurisé
 	</string>
 	<string name="TooltipFlagNoFly">
-		Uçamaz
+		Interdiction de voler
 	</string>
 	<string name="TooltipFlagGroupScripts">
-		Grup Komut Dosyaları
+		Scripts de groupe
 	</string>
 	<string name="TooltipFlagNoScripts">
-		Komut Dosyası Yok
+		Pas de scripts
 	</string>
 	<string name="TooltipLand">
-		Arazi:
+		Terrain :
 	</string>
 	<string name="TooltipMustSingleDrop">
-		Buraya sadece bir öğe sürüklenebilir.
+		Impossible de faire glisser plus d&apos;un objet ici
 	</string>
-	<string name="TooltipPrice" value="L$[AMOUNT]:"/>
+	<string name="TooltipPrice" value="[AMOUNT] L$ :"/>
 	<string name="TooltipOutboxDragToWorld">
-		Satıcı giden kutunuzda öğeler oluşturamazsınız
+		Impossible de rezzer des articles dans la boîte d&apos;envoi vendeur
 	</string>
 	<string name="TooltipOutboxNoTransfer">
-		Bu nesnelerden bir veya daha fazlası satılamaz veya aktarılamaz.
+		Impossible de vendre ou de transférer un ou plusieurs de ces objets.
 	</string>
 	<string name="TooltipOutboxNotInInventory">
-		Satıcı giden kutunuza sadece doğrudan kendi envanterinizden öğeler koyabilirsiniz
+		La boîte d&apos;envoi vendeur n&apos;accepte que les articles directement issus de votre inventaire.
 	</string>
 	<string name="TooltipOutboxWorn">
-		Giymekte olduğunuz öğeleri Satıcı giden kutunuza koyamazsınız.
+		Impossible de placer des articles que vous portez dans votre boîte d&apos;envoi vendeur
 	</string>
 	<string name="TooltipOutboxCallingCard">
-		Satıcı giden kutunuza arama kartları koyamazsınız
+		Impossible de placer des cartes de visite dans votre boîte d&apos;envoi vendeur
 	</string>
 	<string name="TooltipOutboxFolderLevels">
-		İç içe geçmiş klasörlerin derinliği üçü geçiyor
+		Il existe plus de 3 niveaux de dossiers imbriqués.
 	</string>
 	<string name="TooltipOutboxTooManyFolders">
-		Üst seviyedeki klasördeki alt klasör sayısı 20&apos;yi geçiyor
+		Le dossier de niveau supérieur contient plus de 20 sous-dossiers.
 	</string>
 	<string name="TooltipOutboxTooManyObjects">
-		Üst seviyedeki klasördeki öğe sayısı 200&apos;ü geçiyor
+		Le dossier de niveau supérieur contient plus de 200 articles.
 	</string>
 	<string name="TooltipDragOntoOwnChild">
-		Bir klasörü alt klasörüne taşıyamazsınız
+		Impossible de déplacer un dossier vers son enfant
 	</string>
 	<string name="TooltipDragOntoSelf">
-		Bir klasörü kendi içine taşıyamazsınız
+		Impossible de déplacer un dossier vers lui-même
 	</string>
 	<string name="TooltipHttpUrl">
-		Bu web sayfasını görmek için tıklayın
+		Cliquez pour afficher cette page web
 	</string>
 	<string name="TooltipSLURL">
-		Bu konumun bilgisini görmek için tıklayın
+		Cliquez pour en savoir plus sur cet endroit
 	</string>
 	<string name="TooltipAgentUrl">
-		Bu Sakinin profilini görmek için tıklayın
+		Cliquez pour afficher le profil de ce résident
 	</string>
 	<string name="TooltipAgentInspect">
-		Bu Sakin hakkında daha fazla bilgi öğrenin
+		En savoir plus sur ce résident
 	</string>
 	<string name="TooltipAgentMute">
-		Bu Sakini engellemek için tıklayın
+		Cliquer pour ignorer ce résident
 	</string>
 	<string name="TooltipAgentUnmute">
-		Bu Sakinin engellemesini kaldırmak için tıklayın
+		Cliquer pour ne plus ignorer ce résident
 	</string>
 	<string name="TooltipAgentIM">
-		Bu Sakine Aİ göndermek için tıklayın
+		Cliquer pour envoyer un IM à ce résident
 	</string>
 	<string name="TooltipAgentPay">
-		Bu Sakine ödeme yapmak için tıklayın
+		Cliquer pour payer ce résident
 	</string>
 	<string name="TooltipAgentOfferTeleport">
-		Bu Sakine bir ışınlama talebi teklif etmek için tıklayın
+		Cliquer pour proposer une téléportation à ce résident
 	</string>
 	<string name="TooltipAgentRequestFriend">
-		Bu Sakine bir arkadaşlık talebi teklif etmek için tıklayın
+		Cliquer pour demander à ce résident d&apos;être votre ami
 	</string>
 	<string name="TooltipGroupUrl">
-		Bu grubun açıklamasını görmek için tıklayın
+		Cliquez pour afficher la description de ce groupe
 	</string>
 	<string name="TooltipEventUrl">
-		Bu etkinliğin açıklamasını görmek için tıklayın
+		Cliquez pour afficher la description de cet événement
 	</string>
 	<string name="TooltipClassifiedUrl">
-		Bu ilanı görmek için tıklayın
+		Cliquez pour afficher cette petite annonce
 	</string>
 	<string name="TooltipParcelUrl">
-		Bu parselin açıklamasını görmek için tıklayın
+		Cliquez pour afficher la description de cette parcelle
 	</string>
 	<string name="TooltipTeleportUrl">
-		Bu konuma ışınlama yapmak için tıklayın
+		Cliquez pour vous téléporter à cet endroit
 	</string>
 	<string name="TooltipObjectIMUrl">
-		Bu nesnenin açıklamasını görmek için tıklayın
+		Cliquez pour afficher la description de cet objet
 	</string>
 	<string name="TooltipMapUrl">
-		Bu konumu bir haritada görmek için tıklayın
+		Cliquez pour voir cet emplacement sur la carte
 	</string>
 	<string name="TooltipSLAPP">
-		secondlife:// komutunu çalıştırmak için tıklayın
+		Cliquez pour exécuter la commande secondlife://
 	</string>
-	<string name="CurrentURL" value="Geçerli URL: [CurrentURL]"/>
+	<string name="CurrentURL" value=" URL actuelle : [CurrentURL]"/>
 	<string name="SLurlLabelTeleport">
-		Şuraya ışınla:
+		Me téléporter vers
 	</string>
 	<string name="SLurlLabelShowOnMap">
-		Şunun için Harita göster:
+		Afficher la carte pour
 	</string>
 	<string name="SLappAgentMute">
-		Engelle
+		Ignorer
 	</string>
 	<string name="SLappAgentUnmute">
-		Engellemeyi kaldır
+		Ne plus ignorer
 	</string>
 	<string name="SLappAgentIM">
-		Aİ
+		IM
 	</string>
 	<string name="SLappAgentPay">
-		Öde
+		Payer
 	</string>
 	<string name="SLappAgentOfferTeleport">
-		Şuraya Işınlama Teklif Et:
+		Proposer une téléportation à
 	</string>
 	<string name="SLappAgentRequestFriend">
-		Arkadaşlık Talebi
+		Demande d&apos;amitié
 	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
-		Kapat (⌘W)
+		Fermer (⌘W)
 	</string>
 	<string name="BUTTON_CLOSE_WIN">
-		Kapat (Ctrl+W)
+		Fermer (Ctrl+W)
 	</string>
 	<string name="BUTTON_CLOSE_CHROME">
-		Kapat
+		Fermer
 	</string>
 	<string name="BUTTON_RESTORE">
-		Geri Yükle
+		Restaurer
 	</string>
 	<string name="BUTTON_MINIMIZE">
-		Simge Durumuna Küçült
+		Minimiser
 	</string>
 	<string name="BUTTON_TEAR_OFF">
-		Böl
+		Réduire
 	</string>
 	<string name="BUTTON_DOCK">
-		Yerleştir
+		Attacher
 	</string>
 	<string name="BUTTON_HELP">
-		Yardımı Göster
+		Afficher l&apos;aide
 	</string>
 	<string name="Searching">
-		Arıyor...
+		Recherche...
 	</string>
 	<string name="NoneFound">
-		Hiçbiri bulunamadı.
+		Aucun résultat.
 	</string>
 	<string name="RetrievingData">
-		Alınıyor...
+		En cours d&apos;extraction...
 	</string>
 	<string name="ReleaseNotes">
-		Sürüm Notları
+		Notes de version
+	</string>
+	<string name="RELEASE_NOTES_BASE_URL">
+		http://wiki.secondlife.com/wiki/Release_Notes/
 	</string>
 	<string name="LoadingData">
-		Yükleniyor...
+		Chargement...
 	</string>
 	<string name="AvatarNameNobody">
-		(hiçbiri)
+		(personne)
 	</string>
 	<string name="AvatarNameWaiting">
-		(bekliyor)
+		(en attente)
 	</string>
 	<string name="AvatarNameMultiple">
-		(birden çok)
+		(multiple)
 	</string>
 	<string name="GroupNameNone">
-		(hiçbiri)
+		(aucun)
 	</string>
 	<string name="AvalineCaller">
-		Avaline Arayanı [ORDER]
+		Appelant Avaline [ORDER]
 	</string>
 	<string name="AssetErrorNone">
-		Hata yok
+		Aucune erreur
 	</string>
 	<string name="AssetErrorRequestFailed">
-		Varlık talebi: başarısız oldu
+		Requête de l&apos;actif : échec
 	</string>
 	<string name="AssetErrorNonexistentFile">
-		Varlık talebi: var olmayan dosya
+		Requête de l&apos;actif : fichier inexistant
 	</string>
 	<string name="AssetErrorNotInDatabase">
-		Varlık talebi: veri tabanında varlık bulunamadı
+		Requête de l&apos;actif : actif introuvable dans la base de données
 	</string>
 	<string name="AssetErrorEOF">
-		Dosya sonu
+		Fin du ficher
 	</string>
 	<string name="AssetErrorCannotOpenFile">
-		Dosya açılamadı
+		Impossible d&apos;ouvrir le fichier
 	</string>
 	<string name="AssetErrorFileNotFound">
-		Dosya bulunamadı
+		Fichier introuvable
 	</string>
 	<string name="AssetErrorTCPTimeout">
-		Dosya aktarımı zaman aşımı
+		Délai d&apos;attente du transfert du fichier dépassé
 	</string>
 	<string name="AssetErrorCircuitGone">
-		Devre yok
+		Disparition du circuit
 	</string>
 	<string name="AssetErrorPriceMismatch">
-		Görüntüleyici ile sunucu fiyatta anlaşmadı
+		Il y a une différence de prix entre le client et le serveur
 	</string>
 	<string name="AssetErrorUnknownStatus">
-		Bilinmeyen durum
+		Statut inconnu
 	</string>
 	<string name="texture">
-		doku
+		texture
 	</string>
 	<string name="sound">
-		ses
+		son
 	</string>
 	<string name="calling card">
-		arama kartı
+		carte de visite
 	</string>
 	<string name="landmark">
-		yer imi
+		repère
 	</string>
 	<string name="legacy script">
-		eski komut dosyası
+		script (ancienne version)
 	</string>
 	<string name="clothing">
-		giysi
+		habits
 	</string>
 	<string name="object">
-		nesne
+		objet
 	</string>
 	<string name="note card">
-		not kartı
+		note
 	</string>
 	<string name="folder">
-		klasör
+		dossier
 	</string>
 	<string name="root">
-		kök
+		racine
 	</string>
 	<string name="lsl2 script">
-		LSL2 komut dosyası
+		script LSL2
 	</string>
 	<string name="lsl bytecode">
-		LSL bayt kodu
+		bytecode LSL
 	</string>
 	<string name="tga texture">
-		tga dokusu
+		texture tga
 	</string>
 	<string name="body part">
-		vücut bölümü
+		partie du corps
 	</string>
 	<string name="snapshot">
-		anlık görüntü
+		photo
 	</string>
 	<string name="lost and found">
-		Kaybedip Bulduklarım
+		Objets trouvés
 	</string>
 	<string name="targa image">
-		targa görüntüsü
+		image targa
 	</string>
 	<string name="trash">
-		Çöp
+		Corbeille
 	</string>
 	<string name="jpeg image">
-		jpeg görüntüsü
+		image jpeg
 	</string>
 	<string name="animation">
-		animasyon
+		animation
 	</string>
 	<string name="gesture">
-		mimik
+		geste
 	</string>
 	<string name="simstate">
-		sim durumu
+		simstate
 	</string>
 	<string name="favorite">
 		favori
 	</string>
 	<string name="symbolic link">
-		bağlantı
+		lien
 	</string>
 	<string name="symbolic folder link">
-		klasör bağlantısı
+		lien du dossier
 	</string>
 	<string name="mesh">
-		örgü
+		maillage
 	</string>
 	<string name="AvatarEditingAppearance">
-		(Görünümü Düzenliyor)
+		(Apparence en cours de modification)
 	</string>
 	<string name="AvatarAway">
-		Uzakta
+		Absent
 	</string>
 	<string name="AvatarBusy">
-		Meşgul
+		Occupé
 	</string>
 	<string name="AvatarMuted">
-		Engellenmiş
+		Bloqué(e)
 	</string>
 	<string name="anim_express_afraid">
-		Korkmuş
+		Effrayé
 	</string>
 	<string name="anim_express_anger">
-		Kızgın
+		En colère
 	</string>
 	<string name="anim_away">
-		Uzakta
+		Absent
 	</string>
 	<string name="anim_backflip">
-		Geriye salto
+		Salto arrière
 	</string>
 	<string name="anim_express_laugh">
-		İçten Kahkaha
+		Rire en se tenant le ventre
 	</string>
 	<string name="anim_express_toothsmile">
-		Büyük Gülümseme
+		Grand sourire
 	</string>
 	<string name="anim_blowkiss">
-		Öpücük Atma
+		Envoyer un baiser
 	</string>
 	<string name="anim_express_bored">
-		Canı Sıkılmış
+		Bailler d&apos;ennui
 	</string>
 	<string name="anim_bow">
-		Selamlama
+		S&apos;incliner
 	</string>
 	<string name="anim_clap">
-		Alkış
+		Applaudir
 	</string>
 	<string name="anim_courtbow">
-		Reverans
+		Révérence de cour
 	</string>
 	<string name="anim_express_cry">
-		Ağlama
+		Pleurer
 	</string>
 	<string name="anim_dance1">
-		Dans 1
+		Danse 1
 	</string>
 	<string name="anim_dance2">
-		Dans 2
+		Danse 2
 	</string>
 	<string name="anim_dance3">
-		Dans 3
+		Danse 3
 	</string>
 	<string name="anim_dance4">
-		Dans 4
+		Danse 4
 	</string>
 	<string name="anim_dance5">
-		Dans 5
+		Danse 5
 	</string>
 	<string name="anim_dance6">
-		Dans 6
+		Danse 6
 	</string>
 	<string name="anim_dance7">
-		Dans 7
+		Danse 7
 	</string>
 	<string name="anim_dance8">
-		Dans 8
+		Danse 8
 	</string>
 	<string name="anim_express_disdain">
-		Dudak Bükme
+		Mépris
 	</string>
 	<string name="anim_drink">
-		İçme
+		Boire
 	</string>
 	<string name="anim_express_embarrased">
-		Utanmış
+		Gêne
 	</string>
 	<string name="anim_angry_fingerwag">
-		İşaret Etme
+		Désapprobation
 	</string>
 	<string name="anim_fist_pump">
-		Yumruk Sallama
+		Victoire
 	</string>
 	<string name="anim_yoga_float">
-		Uçan Yoga
+		Yoga
 	</string>
 	<string name="anim_express_frown">
-		Kaş Çatma
+		Froncer les sourcils
 	</string>
 	<string name="anim_impatient">
-		Sabırsız
+		Impatient
 	</string>
 	<string name="anim_jumpforjoy">
-		Sevinçten Zıplama
+		Sauter de joie
 	</string>
 	<string name="anim_kissmybutt">
-		Kıçımı Öp
+		Va te faire voir !
 	</string>
 	<string name="anim_express_kiss">
-		Öpücük
+		Envoyer un baiser
 	</string>
 	<string name="anim_laugh_short">
-		Gülme
+		Rire
 	</string>
 	<string name="anim_musclebeach">
-		Muscle Beach
+		Montrer ses muscles
 	</string>
 	<string name="anim_no_unhappy">
-		Hayır (Mutsuz)
+		Non (mécontent)
 	</string>
 	<string name="anim_no_head">
-		Hayır
+		Non
 	</string>
 	<string name="anim_nyanya">
-		Ha-ha-ha
+		Na na na na nère
 	</string>
 	<string name="anim_punch_onetwo">
-		Peşpeşe İki Yumruk
+		Gauche-droite
 	</string>
 	<string name="anim_express_open_mouth">
-		Ağız Açık
+		Bouche ouverte
 	</string>
 	<string name="anim_peace">
-		Barış
+		Paix
 	</string>
 	<string name="anim_point_you">
-		Diğerini Göster
+		Montrer quelqu&apos;un du doigt
 	</string>
 	<string name="anim_point_me">
-		Kendini Göster
+		Se montrer du doigt
 	</string>
 	<string name="anim_punch_l">
-		Sola Yumruk At
+		Gauche
 	</string>
 	<string name="anim_punch_r">
-		Sağa Yumruk At
+		Droite
 	</string>
 	<string name="anim_rps_countdown">
-		RPS sayımı
+		Compter (pierre-papier-ciseaux)
 	</string>
 	<string name="anim_rps_paper">
-		RPS kağıdı
+		Papier (pierre-papier-ciseaux)
 	</string>
 	<string name="anim_rps_rock">
-		RPS kayası
+		Pierre (pierre-papier-ciseaux)
 	</string>
 	<string name="anim_rps_scissors">
-		RPS makası
+		Ciseaux (pierre-papier-ciseaux)
 	</string>
 	<string name="anim_express_repulsed">
-		Tiksinmiş
+		Dégoût
 	</string>
 	<string name="anim_kick_roundhouse_r">
-		Döner Tekme
+		Coup de pied circulaire
 	</string>
 	<string name="anim_express_sad">
-		Üzgün
+		Triste
 	</string>
 	<string name="anim_salute">
-		Selam
+		Salut
 	</string>
 	<string name="anim_shout">
-		Bağırma
+		Crier
 	</string>
 	<string name="anim_express_shrug">
-		Omuz Silkme
+		Hausser les épaules
 	</string>
 	<string name="anim_express_smile">
-		Gülümseme
+		Sourire
 	</string>
 	<string name="anim_smoke_idle">
-		Duman Tüttürme
+		Fumer, immobile
 	</string>
 	<string name="anim_smoke_inhale">
-		Duman Çekme
+		Fumer, prendre une bouffée
 	</string>
 	<string name="anim_smoke_throw_down">
-		Yere İzmarit Atma
+		Fumer, jeter son mégot
 	</string>
 	<string name="anim_express_surprise">
-		Sürpriz
+		Surprise
 	</string>
 	<string name="anim_sword_strike_r">
-		Kılıç Darbesi
+		Coup d&apos;épée
 	</string>
 	<string name="anim_angry_tantrum">
-		Öfke Nöbeti
+		Caprice
 	</string>
 	<string name="anim_express_tongue_out">
-		Dil Çıkarma
+		Tirer la langue
 	</string>
 	<string name="anim_hello">
-		El Sallama
+		Faire signe
 	</string>
 	<string name="anim_whisper">
-		Fısıldama
+		Chuchoter
 	</string>
 	<string name="anim_whistle">
-		Islık Çalma
+		Siffler
 	</string>
 	<string name="anim_express_wink">
-		Göz Kırpma
+		Clin d&apos;œil
 	</string>
 	<string name="anim_wink_hollywood">
-		Göz Kırpma (Hollywood)
+		Clin d&apos;œil (Hollywood)
 	</string>
 	<string name="anim_express_worry">
-		Endişelenme
+		Soucis
 	</string>
 	<string name="anim_yes_happy">
-		Evet (Mutlu)
+		Oui (Joie)
 	</string>
 	<string name="anim_yes_head">
-		Evet
+		Oui
 	</string>
 	<string name="multiple_textures">
-		Birden Çok
+		Multiples
 	</string>
 	<string name="texture_loading">
-		Yükleniyor...
+		Chargement...
 	</string>
 	<string name="worldmap_offline">
-		Çevrimdışı
+		Hors ligne
 	</string>
 	<string name="worldmap_item_tooltip_format">
-		[AREA] m² L$[PRICE]
+		[AREA] m² [PRICE] L$
 	</string>
 	<string name="worldmap_results_none_found">
-		Hiçbiri bulunamadı.
+		Aucun résultat.
 	</string>
 	<string name="Ok">
-		Tamam
+		OK
 	</string>
 	<string name="Premature end of file">
-		Dosyanın zamanından önce sonu
+		Fichier incomplet
 	</string>
 	<string name="ST_NO_JOINT">
-		KÖK veya EKLEM bulunamıyor.
+		Impossible de trouver ROOT ou JOINT.
 	</string>
 	<string name="whisper">
-		fısıldar:
+		chuchote :
 	</string>
 	<string name="shout">
-		bağırır:
+		crie :
 	</string>
 	<string name="ringing">
-		SL dünyası içindeki Sesli Sohbete bağlanılıyor...
+		Connexion au chat vocal du Monde en cours…
 	</string>
 	<string name="connected">
-		Bağlı
+		Connecté(e)
 	</string>
 	<string name="unavailable">
-		Geçerli konumunuzda ses mevcut değil
+		Voix non disponible à l&apos;endroit où vous êtes
 	</string>
 	<string name="hang_up">
-		SL dünyası içindeki Sesli Sohbet ile bağlantı kesildi
+		Déconnecté du chat vocal
 	</string>
 	<string name="reconnect_nearby">
-		Şimdi Yakındaki bir Sesli Sohbete yeniden bağlanılacaksınız.
+		Vous allez maintenant être reconnecté(e) au chat vocal près de vous.
 	</string>
 	<string name="ScriptQuestionCautionChatGranted">
-		&apos;[OWNERNAME]&apos; adlı kişiye ait, [REGIONPOS] üzerinde [REGIONNAME] içerisinde bulunan &apos;[OBJECTNAME]&apos; nesnesine şunu yapma izni verildi: [PERMISSIONS].
+		&apos;[OBJECTNAME]&apos;, un objet appartenant à [OWNERNAME], situé dans [REGIONNAME] à [REGIONPOS], a reçu le droit de : [PERMISSIONS].
 	</string>
 	<string name="ScriptQuestionCautionChatDenied">
-		&apos;[OWNERNAME]&apos; adlı kişiye ait, [REGIONPOS] üzerinde [REGIONNAME] içerisinde bulunan &apos;[OBJECTNAME]&apos; nesnesine şunu yapma izni verilmedi: [PERMISSIONS].
-	</string>
-	<string name="AdditionalPermissionsRequestHeader">
-		Eğer hesabınıza erişime izin verirseniz, bu nesneye aynı zamanda şunun için izin vermiş olacaksınız:
+		&apos;[OBJECTNAME]&apos;, un objet appartenant à [OWNERNAME], situé dans [REGIONNAME] à [REGIONPOS], n&apos;a pas reçu le droit de : [PERMISSIONS].
 	</string>
 	<string name="ScriptTakeMoney">
-		Sizden Linden dolar (L$) almak
+		Débiter vos Linden dollars (L$)
 	</string>
 	<string name="ActOnControlInputs">
-		Denetim girişlerinizle ilgili eylem gerçekleştirmek
+		Utiliser vos touches de commandes
 	</string>
 	<string name="RemapControlInputs">
-		Denetim girişleriniz için yeniden eşleme yapmak
+		Reconfigurer vos touches de commandes
 	</string>
 	<string name="AnimateYourAvatar">
-		Avatarınızı canlandırmak
+		Animer votre avatar
 	</string>
 	<string name="AttachToYourAvatar">
-		Avatarınıza eklemek
+		Attacher à votre avatar
 	</string>
 	<string name="ReleaseOwnership">
-		Mülkiyeti bırakmak ve kamuya açık hale gelmek
+		Passer l&apos;objet dans le domaine public (sans propriétaire)
 	</string>
 	<string name="LinkAndDelink">
-		Başka nesnelerle bağlantı kurmak veya koparmak
+		Lier et délier d&apos;autres objets
 	</string>
 	<string name="AddAndRemoveJoints">
-		Başka nesnelerle eklem eklemek ve kaldırmak
+		Créer et supprimer des liens avec d&apos;autres objets
 	</string>
 	<string name="ChangePermissions">
-		İzinlerini değiştirmek
+		Modifier ses droits
 	</string>
 	<string name="TrackYourCamera">
-		Kameranızı takip etmek
+		Suivre votre caméra
 	</string>
 	<string name="ControlYourCamera">
-		Kameranızı kontrol etmek
-	</string>
-	<string name="TeleportYourAgent">
-		Sizi ışınlama
+		Contrôler votre caméra
 	</string>
 	<string name="NotConnected">
-		Bağlı Değil
+		Pas connecté(e)
 	</string>
 	<string name="SIM_ACCESS_PG">
-		Genel
+		Général
 	</string>
 	<string name="SIM_ACCESS_MATURE">
-		Orta
+		Modéré
 	</string>
 	<string name="SIM_ACCESS_ADULT">
-		Yetişkin
+		Adulte
 	</string>
 	<string name="SIM_ACCESS_DOWN">
-		Çevrimdışı
+		Hors ligne
 	</string>
 	<string name="SIM_ACCESS_MIN">
-		Bilinmiyor
+		Inconnu
 	</string>
 	<string name="land_type_unknown">
-		(bilinmiyor)
+		(inconnu)
 	</string>
 	<string name="Estate / Full Region">
-		Gayrimenkul / Tam Bölge
+		Domaine / Région entière
 	</string>
 	<string name="Estate / Homestead">
-		Gayrimenkul / Banliyö
+		Domaine / Homestead
 	</string>
 	<string name="Mainland / Homestead">
-		Anakara / Banliyö
+		Continent / Homestead
 	</string>
 	<string name="Mainland / Full Region">
-		Anakara / Tam Bölge
+		Continent / Région entière
 	</string>
 	<string name="all_files">
-		Tüm Dosyalar
+		Tous fichiers
 	</string>
 	<string name="sound_files">
-		Sesler
+		Sons
 	</string>
 	<string name="animation_files">
-		Animasyonlar
+		Animations
 	</string>
 	<string name="image_files">
-		Görüntüler
+		Images
 	</string>
 	<string name="save_file_verb">
-		Kaydet
+		Enregistrer
 	</string>
 	<string name="load_file_verb">
-		Yükle
+		Charger
 	</string>
 	<string name="targa_image_files">
-		Targa Görüntüleri
+		Images Targa
 	</string>
 	<string name="bitmap_image_files">
-		Bitmap Görüntüler
+		Images Bitmap
 	</string>
 	<string name="avi_movie_file">
-		AVI Film Dosyası
+		Fichier de film AVI
 	</string>
 	<string name="xaf_animation_file">
-		XAF Animasyon Dosyası
+		Fichier d&apos;animation XAF
 	</string>
 	<string name="xml_file">
-		XML Dosyası
+		Fichier XML
 	</string>
 	<string name="raw_file">
-		Ham Dosya
+		Fichier RAW
 	</string>
 	<string name="compressed_image_files">
-		Sıkıştırılmış Görüntüler
+		Images compressées
 	</string>
 	<string name="load_files">
-		Dosyalar Yükle
+		Charger des fichiers
 	</string>
 	<string name="choose_the_directory">
-		Dizin Seç
+		Choisir le répertoire
 	</string>
 	<string name="script_files">
-		Komut Dosyaları
+		Scripts
 	</string>
 	<string name="AvatarSetNotAway">
-		Uzakta Değil
+		Présent
 	</string>
 	<string name="AvatarSetAway">
-		Uzakta
+		Absent
 	</string>
 	<string name="AvatarSetNotBusy">
-		Meşgul Değil
+		Pas occupé
 	</string>
 	<string name="AvatarSetBusy">
-		Meşgul
+		Occupé
 	</string>
 	<string name="shape">
-		Şekil
+		Silhouette
 	</string>
 	<string name="skin">
-		Dış Katman
+		Peau
 	</string>
 	<string name="hair">
-		Saç
+		Cheveux
 	</string>
 	<string name="eyes">
-		Gözler
+		Yeux
 	</string>
 	<string name="shirt">
-		Gömlek
+		Chemise
 	</string>
 	<string name="pants">
-		Pantolon
+		Pantalon
 	</string>
 	<string name="shoes">
-		Ayakkabılar
+		Chaussures
 	</string>
 	<string name="socks">
-		Çoraplar
+		Chaussettes
 	</string>
 	<string name="jacket">
-		Ceket
+		Veste
 	</string>
 	<string name="gloves">
-		Eldivenler
+		Gants
 	</string>
 	<string name="undershirt">
-		Fanila
+		Débardeur
 	</string>
 	<string name="underpants">
-		Külot
+		Caleçon
 	</string>
 	<string name="skirt">
-		Etek
+		Jupe
 	</string>
 	<string name="alpha">
-		Alfa
+		Alpha
 	</string>
 	<string name="tattoo">
-		Dövme
+		Tatouage
 	</string>
 	<string name="physics">
-		Fizik
+		Propriétés physiques
 	</string>
 	<string name="invalid">
-		geçersiz
+		non valide
 	</string>
 	<string name="none">
-		hiçbiri
+		aucun
 	</string>
 	<string name="shirt_not_worn">
-		Giyilmemiş gömlek
+		Chemise non portée
 	</string>
 	<string name="pants_not_worn">
-		Giyilmemiş pantolon
+		Pantalon non porté
 	</string>
 	<string name="shoes_not_worn">
-		Giyilmemiş ayakkabılar
+		Chaussures non portées
 	</string>
 	<string name="socks_not_worn">
-		Giyilmemiş çoraplar
+		Chaussettes non portées
 	</string>
 	<string name="jacket_not_worn">
-		Giyilmemiş ceket
+		Veste non portée
 	</string>
 	<string name="gloves_not_worn">
-		Giyilmemiş eldivenler
+		Gants non portés
 	</string>
 	<string name="undershirt_not_worn">
-		Giyilmemiş fanila
+		Débardeur non porté
 	</string>
 	<string name="underpants_not_worn">
-		Giyilmemiş külot
+		Caleçon non porté
 	</string>
 	<string name="skirt_not_worn">
-		Giyilmemiş etek
+		Jupe non portée
 	</string>
 	<string name="alpha_not_worn">
-		Giyilmemiş alfa
+		Alpha non porté
 	</string>
 	<string name="tattoo_not_worn">
-		Giyilmemiş dövme
+		Tatouage non porté
 	</string>
 	<string name="physics_not_worn">
-		Giyilmemiş fizik
+		Propriétés physiques non portées
 	</string>
 	<string name="invalid_not_worn">
-		geçersiz
+		non valide
 	</string>
 	<string name="create_new_shape">
-		Yeni şekil oluştur
+		Créer une nouvelle silhouette
 	</string>
 	<string name="create_new_skin">
-		Yeni dış katman oluştur
+		Créer une nouvelle peau
 	</string>
 	<string name="create_new_hair">
-		Yeni saç oluştur
+		Créer de nouveaux cheveux
 	</string>
 	<string name="create_new_eyes">
-		Yeni gözler oluştur
+		Créer de nouveaux yeux
 	</string>
 	<string name="create_new_shirt">
-		Yeni gömlek oluştur
+		Créer une nouvelle chemise
 	</string>
 	<string name="create_new_pants">
-		Yeni pantolon oluştur
+		Créer un nouveau pantalon
 	</string>
 	<string name="create_new_shoes">
-		Yeni ayakkabılar oluştur
+		Créer de nouvelles chaussures
 	</string>
 	<string name="create_new_socks">
-		Yeni çoraplar oluştur
+		Créer de nouvelles chaussettes
 	</string>
 	<string name="create_new_jacket">
-		Yeni ceket oluştur
+		Créer une nouvelle veste
 	</string>
 	<string name="create_new_gloves">
-		Yeni eldivenler oluştur
+		Créer de nouveaux gants
 	</string>
 	<string name="create_new_undershirt">
-		Yeni fanila oluştur
+		Créer un nouveau débardeur
 	</string>
 	<string name="create_new_underpants">
-		Yeni külot oluştur
+		Créer un nouveau caleçon
 	</string>
 	<string name="create_new_skirt">
-		Yeni etek oluştur
+		Créer une nouvelle jupe
 	</string>
 	<string name="create_new_alpha">
-		Yeni alfa oluştur
+		Créer un nouvel alpha
 	</string>
 	<string name="create_new_tattoo">
-		Yeni dövme oluştur
+		Créer un nouveau tatouage
 	</string>
 	<string name="create_new_physics">
-		Yeni fizik oluştur
+		Créer de nouvelles propriétés physiques
 	</string>
 	<string name="create_new_invalid">
-		geçersiz
+		non valide
 	</string>
 	<string name="NewWearable">
-		Yeni [WEARABLE_ITEM]
+		Nouv. [WEARABLE_ITEM]
 	</string>
 	<string name="next">
-		Sonraki
+		Suivant
 	</string>
 	<string name="ok">
-		Tamam
+		OK
 	</string>
 	<string name="GroupNotifyGroupNotice">
-		Grup Bildirimi
+		Note au groupe
 	</string>
 	<string name="GroupNotifyGroupNotices">
-		Grup Bildirimleri
+		Notices au groupe
 	</string>
 	<string name="GroupNotifySentBy">
-		Gönderen:
+		Envoyée par
 	</string>
 	<string name="GroupNotifyAttached">
-		Eklenmiş:
+		Pièce(s) jointe(s) :
 	</string>
 	<string name="GroupNotifyViewPastNotices">
-		Burada eski bildirimleri görüntüleyin veya bu iletilerin alınmasını iptal edin.
+		Consultez les notices précédentes ou choisissez de ne plus recevoir ces messages ici.
 	</string>
 	<string name="GroupNotifyOpenAttachment">
-		Aksesuarı Aç
+		Ouvrir pièce jointe
 	</string>
 	<string name="GroupNotifySaveAttachment">
-		Aksesuarı Kaydet
+		Enregistrer la pièce jointe
 	</string>
 	<string name="TeleportOffer">
-		Işınlama teklifi
+		Offre de téléportation
 	</string>
 	<string name="StartUpNotifications">
-		Siz yokken yeni bildirimler geldi.
+		De nouvelles notifications sont arrivées en votre absence.
 	</string>
 	<string name="OverflowInfoChannelString">
-		%d ilave bildiriminiz var
+		Vous avez %d notification(s) supplémentaire(s)
 	</string>
 	<string name="BodyPartsRightArm">
-		Sağ Kol
+		Bras droit
 	</string>
 	<string name="BodyPartsHead">
-		Baş
+		Tête
 	</string>
 	<string name="BodyPartsLeftArm">
-		Sol Kol
+		Bras gauche
 	</string>
 	<string name="BodyPartsLeftLeg">
-		Sol Bacak
+		Jambe gauche
 	</string>
 	<string name="BodyPartsTorso">
-		Gövde
+		Torse
 	</string>
 	<string name="BodyPartsRightLeg">
-		Sağ Bacak
+		Jambe droite
 	</string>
 	<string name="GraphicsQualityLow">
-		Düşük
+		Faible
 	</string>
 	<string name="GraphicsQualityMid">
-		Orta
+		Moyen
 	</string>
 	<string name="GraphicsQualityHigh">
-		Yüksek
+		Élevé
 	</string>
 	<string name="LeaveMouselook">
-		Dünya Görünümüne dönmek için ESC&apos;e basın
+		Appuyez sur ESC pour quitter la vue subjective
 	</string>
 	<string name="InventoryNoMatchingItems">
-		Aradığınızı bulamadınız mı? [secondlife:///app/search/all/[SEARCH_TERM] Arama] ile bulmayı deneyin.
+		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/all/[SEARCH_TERM] Rechercher].
 	</string>
 	<string name="PlacesNoMatchingItems">
-		Aradığınızı bulamadınız mı? [secondlife:///app/search/places/[SEARCH_TERM] Arama] ile bulmayı deneyin.
+		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/places/[SEARCH_TERM] Rechercher].
 	</string>
 	<string name="FavoritesNoMatchingItems">
-		Bir yer imini favorilerinize eklemek için buraya sürükleyin.
+		Faites glisser un repère ici pour l&apos;ajouter à vos Favoris.
 	</string>
 	<string name="InventoryNoTexture">
-		Envanterinizde bu dokunun kopyası yok
+		Vous n&apos;avez pas de copie de cette texture dans votre inventaire
 	</string>
 	<string name="InventoryInboxNoItems">
-		Pazaryerinda satın aldıklarınız burada görünecektir. Bunları kullanmak için envanterinize sürükleyebilirsiniz.
+		Les achats que vous avez effectués sur la Place du marché s&apos;affichent ici. Vous pouvez alors les faire glisser vers votre inventaire afin de les utiliser.
 	</string>
 	<string name="MarketplaceURL">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
@@ -1259,868 +1256,868 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more
 	</string>
 	<string name="InventoryOutboxNotMerchantTitle">
-		Pazaryerinde herkes öğe satabilir.
+		Tout le monde peut vendre des articles sur la Place du marché.
 	</string>
 	<string name="InventoryOutboxNotMerchantTooltip"/>
 	<string name="InventoryOutboxNotMerchant">
-		Eğer bir satıcı olmak istiyorsanız, [Pazaryerinde [MARKETPLACE_CREATE_STORE_URL] bir mağaza açmanız gerekir].
+		Pour devenir vendeur, vous devez [[MARKETPLACE_CREATE_STORE_URL] créer une boutique sur la Place du marché].
 	</string>
 	<string name="InventoryOutboxNoItemsTitle">
-		Giden kutunuz boş.
+		Votre boîte d&apos;envoi est vide.
 	</string>
 	<string name="InventoryOutboxNoItemsTooltip"/>
 	<string name="InventoryOutboxNoItems">
-		Bu alana klasörleri sürükleyin ve bunları [[MARKETPLACE_DASHBOARD_URL] Pazaryerinde] satılık olarak duyurmak için &quot;Pazaryerine Gönder&quot; üzerine tıklayın.
+		Pour mettre des dossiers en vente sur la [[MARKETPLACE_DASHBOARD_URL] Place du marché], faites-les glisser vers cette zone et cliquez sur &quot;Envoyer vers la Place du marché&quot;.
 	</string>
 	<string name="Marketplace Error None">
-		Hata yok
+		Aucune erreur
 	</string>
 	<string name="Marketplace Error Not Merchant">
-		Hata: Öğeleri Pazaryerine göndermeden önce kendinizi bir satıcı olarak belirlemelisiniz (ücretsizdir).
+		Erreur : avant d&apos;envoyer des articles vers la Place du marché, vous devez vous configurer comme vendeur (gratuit).
 	</string>
 	<string name="Marketplace Error Empty Folder">
-		Hata: Bu klasörün içeriği boş.
+		Erreur : ce dossier est vide.
 	</string>
 	<string name="Marketplace Error Unassociated Products">
-		Hata: Bu öğe karşıya yüklenemedi çünkü satıcı hesabınızda ürünlerle ilişkisiz çok fazla öğe mevcut.  Bu hatayı düzeltmek için Pazaryeri web sitesine oturum açın ve ilişkisiz öğe sayınızı azaltın.
+		Erreur : le chargement de cet article a échoué en raison d&apos;un nombre trop important d&apos;articles non associés à des produits au niveau de votre compte de vendeur. Pour résoudre ce problème, connectez-vous au site Web de la Place du marché et réduisez le nombre d&apos;articles non associés.
 	</string>
 	<string name="Marketplace Error Object Limit">
-		Hata: Bu öğe çok fazla nesne içeriyor.  Bu hatayı düzeltmek için nesneleri birlikte kutulara yerleştirerek, toplam nesne sayısını 200&apos;ün altına düşürün.
+		Erreur : cet article contient trop d&apos;objets. Pour résoudre le problème, regroupez des objets dans des paquets afin de réduire le nombre total à moins de 200.
 	</string>
 	<string name="Marketplace Error Folder Depth">
-		Hata: Bu öğede çok fazla iç içe geçmiş klasör seviyesi var.  Bunu tekrar düzenleyerek maksimum 3 iç içe geçmiş klasör seviyesine indirin.
+		Erreur : trop de niveaux de dossiers imbriqués concernant cet article. Réorganisez le tout afin qu&apos;un maximum de 3 niveaux soit utilisé.
 	</string>
 	<string name="Marketplace Error Unsellable Item">
-		Hata: Bu öğe Pazaryerinde satılamaz.
+		Erreur : cet article ne peut pas être vendu sur la Place du marché.
 	</string>
 	<string name="Marketplace Error Internal Import">
-		Hata: Bu öğede bir sorun var.  Daha sonra tekrar deneyin.
+		Erreur : un problème est survenu concernant cet article. Veuillez réessayer ultérieurement.
 	</string>
 	<string name="Open landmarks">
-		Açık yer imleri
+		Ouvrir les repères
 	</string>
-	<string name="no_transfer" value="(aktarım yok)"/>
-	<string name="no_modify" value="(değiştirme yok)"/>
-	<string name="no_copy" value="(kopya yok)"/>
-	<string name="worn" value="(giyilmiş)"/>
-	<string name="link" value="(bağlantı)"/>
-	<string name="broken_link" value="(broken_link)"/>
+	<string name="no_transfer" value=" (pas de transfert)"/>
+	<string name="no_modify" value=" (pas de modification)"/>
+	<string name="no_copy" value=" (pas de copie)"/>
+	<string name="worn" value=" (porté)"/>
+	<string name="link" value=" (lien)"/>
+	<string name="broken_link" value=" (broken_link)"/>
 	<string name="LoadingContents">
-		İçerik yükleniyor...
+		chargement des contenus en cours...
 	</string>
 	<string name="NoContents">
-		İçerik yok
+		Aucun contenu
 	</string>
-	<string name="WornOnAttachmentPoint" value="([ATTACHMENT_POINT] üzerinde giyilmiş)"/>
-	<string name="ActiveGesture" value="[GESLABEL] (etkin)"/>
+	<string name="WornOnAttachmentPoint" value=" (porté sur [ATTACHMENT_POINT])"/>
+	<string name="ActiveGesture" value="[GESLABEL] (actif)"/>
 	<string name="PermYes">
-		Evet
+		Oui
 	</string>
 	<string name="PermNo">
-		Hayır
+		Non
 	</string>
-	<string name="Chat Message" value="Sohbet:"/>
-	<string name="Sound" value="Ses:"/>
-	<string name="Wait" value="--- Bekleyin:"/>
-	<string name="AnimFlagStop" value="Animasyonu Durdur:"/>
-	<string name="AnimFlagStart" value="Animasyonu Başlat:"/>
-	<string name="Wave" value="El Sallama"/>
-	<string name="GestureActionNone" value="Hiçbiri"/>
-	<string name="HelloAvatar" value="Merhaba avatar!"/>
-	<string name="ViewAllGestures" value="Tümünü Göster &gt;&gt;"/>
-	<string name="GetMoreGestures" value="İlave Al &gt;&gt;"/>
-	<string name="Animations" value="Animasyonlar,"/>
-	<string name="Calling Cards" value="Arama Kartları,"/>
-	<string name="Clothing" value="Giysiler,"/>
-	<string name="Gestures" value="Mimikler,"/>
-	<string name="Landmarks" value="Yer İmleri,"/>
-	<string name="Notecards" value="Not Kartları,"/>
-	<string name="Objects" value="Nesneler,"/>
-	<string name="Scripts" value="Komut Dosyaları,"/>
-	<string name="Sounds" value="Sesler,"/>
-	<string name="Textures" value="Dokular,"/>
-	<string name="Snapshots" value="Anlık Görüntüler,"/>
-	<string name="No Filters" value="Hayır"/>
-	<string name="Since Logoff" value="- Oturum Kapandıktan Beri"/>
+	<string name="Chat Message" value="Chat :"/>
+	<string name="Sound" value=" Son :"/>
+	<string name="Wait" value=" --- Attendre :"/>
+	<string name="AnimFlagStop" value=" Arrêter l&apos;animation :"/>
+	<string name="AnimFlagStart" value=" Lancer l&apos;animation :"/>
+	<string name="Wave" value=" Faire signe"/>
+	<string name="GestureActionNone" value="À choisir"/>
+	<string name="HelloAvatar" value=" Bonjour, avatar !"/>
+	<string name="ViewAllGestures" value="  Tout afficher &gt;&gt;"/>
+	<string name="GetMoreGestures" value="Plus &gt;&gt;"/>
+	<string name="Animations" value=" Animations,"/>
+	<string name="Calling Cards" value=" Cartes de visite,"/>
+	<string name="Clothing" value=" Habits,"/>
+	<string name="Gestures" value=" Gestes,"/>
+	<string name="Landmarks" value=" Repères,"/>
+	<string name="Notecards" value=" Notes,"/>
+	<string name="Objects" value=" Objets,"/>
+	<string name="Scripts" value=" Scripts,"/>
+	<string name="Sounds" value=" Sons,"/>
+	<string name="Textures" value=" Textures,"/>
+	<string name="Snapshots" value=" Photos,"/>
+	<string name="No Filters" value="Non "/>
+	<string name="Since Logoff" value="depuis la déconnexion"/>
 	<string name="InvFolder My Inventory">
-		Envanterim
+		Mon inventaire
 	</string>
 	<string name="InvFolder Library">
-		Kütüphane
+		Bibliothèque
 	</string>
 	<string name="InvFolder Textures">
-		Dokular
+		Textures
 	</string>
 	<string name="InvFolder Sounds">
-		Sesler
+		Sons
 	</string>
 	<string name="InvFolder Calling Cards">
-		Arama Kartları
+		Cartes de visite
 	</string>
 	<string name="InvFolder Landmarks">
-		Yer İmleri
+		Repères
 	</string>
 	<string name="InvFolder Scripts">
-		Komut Dosyaları
+		Scripts
 	</string>
 	<string name="InvFolder Clothing">
-		Giysiler
+		Habits
 	</string>
 	<string name="InvFolder Objects">
-		Nesneler
+		Objets
 	</string>
 	<string name="InvFolder Notecards">
-		Not Kartları
+		Notes
 	</string>
 	<string name="InvFolder New Folder">
-		Yeni Klasör
+		Nouveau dossier
 	</string>
 	<string name="InvFolder Inventory">
-		Envanter
+		Inventaire
 	</string>
 	<string name="InvFolder Uncompressed Images">
-		Sıkıştırılmamış Görüntüler
+		Images non compressées
 	</string>
 	<string name="InvFolder Body Parts">
-		Vücut Bölümleri
+		Parties du corps
 	</string>
 	<string name="InvFolder Trash">
-		Çöp
+		Corbeille
 	</string>
 	<string name="InvFolder Photo Album">
-		Fotoğraf Albümü
+		Albums photo
 	</string>
 	<string name="InvFolder Lost And Found">
-		Kaybedip Bulduklarım
+		Objets trouvés
 	</string>
 	<string name="InvFolder Uncompressed Sounds">
-		Sıkıştırılmamış Sesler
+		Sons non compressés
 	</string>
 	<string name="InvFolder Animations">
-		Animasyonlar
+		Animations
 	</string>
 	<string name="InvFolder Gestures">
-		Mimikler
+		Gestes
 	</string>
 	<string name="InvFolder Favorite">
-		Favorilerim
+		Mes Favoris
 	</string>
 	<string name="InvFolder favorite">
-		Favorilerim
+		Mes Favoris
 	</string>
 	<string name="InvFolder Current Outfit">
-		Mevcut Dış Görünüm
+		Tenue actuelle
 	</string>
 	<string name="InvFolder Initial Outfits">
-		Başlangıçtakı Dış Görünümler
+		Tenues initiales
 	</string>
 	<string name="InvFolder My Outfits">
-		Benim Dış Görünümlerim
+		Mes tenues
 	</string>
 	<string name="InvFolder Accessories">
-		Aksesuarlar
+		Accessoires
 	</string>
 	<string name="InvFolder Meshes">
-		Örgüler
+		Maillages
 	</string>
 	<string name="InvFolder Friends">
-		Arkadaşlar
+		Amis
 	</string>
 	<string name="InvFolder All">
-		Tümü
+		Tout
 	</string>
 	<string name="no_attachments">
-		Giyilen aksesuar yok
+		Aucun élément attaché porté
 	</string>
 	<string name="Attachments remain">
-		Aksesuarlar ([COUNT] yuva mevcut)
+		Éléments attachés ([COUNT] emplacements restants)
 	</string>
 	<string name="Buy">
-		Satın Al
+		Acheter
 	</string>
 	<string name="BuyforL$">
-		L$&apos;a Satın Al
+		Acheter des L$
 	</string>
 	<string name="Stone">
-		Taş
+		Pierre
 	</string>
 	<string name="Metal">
-		Metal
+		Métal
 	</string>
 	<string name="Glass">
-		Cam
+		Verre
 	</string>
 	<string name="Wood">
-		Ahşap
+		Bois
 	</string>
 	<string name="Flesh">
-		Et
+		Chair
 	</string>
 	<string name="Plastic">
-		Plastik
+		Plastique
 	</string>
 	<string name="Rubber">
-		Lastik
+		Caoutchouc
 	</string>
 	<string name="Light">
-		Işık
+		Léger
 	</string>
 	<string name="KBShift">
-		Shift
+		Maj-
 	</string>
 	<string name="KBCtrl">
 		Ctrl
 	</string>
 	<string name="Chest">
-		Göğüs
+		Poitrine
 	</string>
 	<string name="Skull">
-		Kafatası
+		Crâne
 	</string>
 	<string name="Left Shoulder">
-		Sol Omuz
+		Épaule gauche
 	</string>
 	<string name="Right Shoulder">
-		Sağ Omuz
+		Épaule droite
 	</string>
 	<string name="Left Hand">
-		Sol El
+		Main gauche
 	</string>
 	<string name="Right Hand">
-		Sağ El
+		Main droite
 	</string>
 	<string name="Left Foot">
-		Sol Ayak
+		Pied gauche
 	</string>
 	<string name="Right Foot">
-		Sağ Ayak
+		Pied droit
 	</string>
 	<string name="Spine">
-		Omurga
+		Colonne
 	</string>
 	<string name="Pelvis">
-		Leğen Kemiği
+		Bassin
 	</string>
 	<string name="Mouth">
-		Ağız
+		Bouche
 	</string>
 	<string name="Chin">
-		Çene
+		Menton
 	</string>
 	<string name="Left Ear">
-		Sol Kulak
+		Oreille gauche
 	</string>
 	<string name="Right Ear">
-		Sağ Kulak
+		Oreille droite
 	</string>
 	<string name="Left Eyeball">
-		Sol Göz Küresi
+		Globe oculaire gauche
 	</string>
 	<string name="Right Eyeball">
-		Sağ Göz Küresi
+		Globe oculaire droit
 	</string>
 	<string name="Nose">
-		Burun
+		Nez
 	</string>
 	<string name="R Upper Arm">
-		Sağ Üst Kol
+		Bras D
 	</string>
 	<string name="R Forearm">
-		Sağ Ön Kol
+		Avant-bras D
 	</string>
 	<string name="L Upper Arm">
-		Sol Üst Kol
+		Bras G
 	</string>
 	<string name="L Forearm">
-		Sol Ön Kol
+		Avant-bras G
 	</string>
 	<string name="Right Hip">
-		Sağ Kalça
+		Hanche droite
 	</string>
 	<string name="R Upper Leg">
-		Sağ Üst Bacak
+		Cuisse D
 	</string>
 	<string name="R Lower Leg">
-		Sağ Alt Bacak
+		Jambe D
 	</string>
 	<string name="Left Hip">
-		Sol Kalça
+		Hanche gauche
 	</string>
 	<string name="L Upper Leg">
-		Sol Üst Bacak
+		Cuisse G
 	</string>
 	<string name="L Lower Leg">
-		Sol Alt Bacak
+		Jambe G
 	</string>
 	<string name="Stomach">
-		Karın
+		Estomac
 	</string>
 	<string name="Left Pec">
-		Sol Göğüs
+		Pectoral gauche
 	</string>
 	<string name="Right Pec">
-		Sağ Göğüs
+		Pectoral droit
 	</string>
 	<string name="Neck">
-		Boyun
+		Cou
 	</string>
 	<string name="Avatar Center">
-		Avatar Merkezi
+		Centre de l&apos;avatar
 	</string>
 	<string name="Invalid Attachment">
-		Geçersiz Aksesuar Noktası
+		Point d&apos;attache non valide
 	</string>
 	<string name="YearsMonthsOld">
-		[AGEYEARS] [AGEMONTHS]&apos;lık
+		[AGEYEARS] [AGEMONTHS]
 	</string>
 	<string name="YearsOld">
-		[AGEYEARS] yaşında
+		[AGEYEARS]
 	</string>
 	<string name="MonthsOld">
-		[AGEMONTHS]&apos;lık
+		[AGEMONTHS]
 	</string>
 	<string name="WeeksOld">
-		[AGEWEEKS]&apos;lık
+		[AGEWEEKS]
 	</string>
 	<string name="DaysOld">
-		[AGEDAYS]&apos;lük
+		[AGEDAYS]
 	</string>
 	<string name="TodayOld">
-		Bugün katıldı
+		Inscrit aujourd&apos;hui
 	</string>
 	<string name="AgeYearsA">
-		[COUNT] yıl
+		[COUNT] an
 	</string>
 	<string name="AgeYearsB">
-		[COUNT] yıl
+		[COUNT] ans
 	</string>
 	<string name="AgeYearsC">
-		[COUNT] yıl
+		[COUNT] ans
 	</string>
 	<string name="AgeMonthsA">
-		[COUNT] ay
+		[COUNT] mois
 	</string>
 	<string name="AgeMonthsB">
-		[COUNT] ay
+		[COUNT] mois
 	</string>
 	<string name="AgeMonthsC">
-		[COUNT] ay
+		[COUNT] mois
 	</string>
 	<string name="AgeWeeksA">
-		[COUNT] hafta
+		[COUNT] semaine
 	</string>
 	<string name="AgeWeeksB">
-		[COUNT] hafta
+		[COUNT] semaines
 	</string>
 	<string name="AgeWeeksC">
-		[COUNT] hafta
+		[COUNT] semaines
 	</string>
 	<string name="AgeDaysA">
-		[COUNT] gün
+		[COUNT] jour
 	</string>
 	<string name="AgeDaysB">
-		[COUNT] gün
+		[COUNT] jours
 	</string>
 	<string name="AgeDaysC">
-		[COUNT] gün
+		[COUNT] jours
 	</string>
 	<string name="GroupMembersA">
-		[COUNT] üye
+		[COUNT] membre
 	</string>
 	<string name="GroupMembersB">
-		[COUNT] üye
+		[COUNT] membres
 	</string>
 	<string name="GroupMembersC">
-		[COUNT] üye
+		[COUNT] membres
 	</string>
 	<string name="AcctTypeResident">
-		Sakin
+		Résident
 	</string>
 	<string name="AcctTypeTrial">
-		Deneme
+		Essai
 	</string>
 	<string name="AcctTypeCharterMember">
-		Ayrıcalıklı Üye
+		Membre originaire
 	</string>
 	<string name="AcctTypeEmployee">
-		Linden Lab Çalışanı
+		Employé(e) de Linden Lab
 	</string>
 	<string name="PaymentInfoUsed">
-		Kullanılan Ödeme Bilgisi
+		Infos de paiement utilisées
 	</string>
 	<string name="PaymentInfoOnFile">
-		Dosyadaki Ödeme Bilgisi
+		Infos de paiement enregistrées
 	</string>
 	<string name="NoPaymentInfoOnFile">
-		Dosyada Ödeme Bilgisi Yok
+		Aucune info de paiement enregistrée
 	</string>
 	<string name="AgeVerified">
-		Yaşı Doğrulanmış
+		Personne dont l&apos;âge a été vérifié
 	</string>
 	<string name="NotAgeVerified">
-		Yaşı Doğrulanmamış
+		Personne dont l&apos;âge n&apos;a pas été vérifié
 	</string>
 	<string name="Center 2">
-		2. Merkez
+		Centre 2
 	</string>
 	<string name="Top Right">
-		Sağ Üst
+		En haut à droite
 	</string>
 	<string name="Top">
-		Üst
+		En haut
 	</string>
 	<string name="Top Left">
-		Sol Üst
+		En haut à gauche
 	</string>
 	<string name="Center">
-		Merkez
+		Centre
 	</string>
 	<string name="Bottom Left">
-		Sol Alt
+		En bas à gauche
 	</string>
 	<string name="Bottom">
-		Alt
+		Bas
 	</string>
 	<string name="Bottom Right">
-		Sağ Alt
+		En bas à droite
 	</string>
 	<string name="CompileQueueDownloadedCompiling">
-		Karşıdan yüklendi, şimdi derleniyor
+		Téléchargé, compilation en cours
 	</string>
 	<string name="CompileQueueScriptNotFound">
-		Komut dosyası sunucuda bulunamadı.
+		Script introuvable sur le serveur.
 	</string>
 	<string name="CompileQueueProblemDownloading">
-		Karşıdan yüklenirken sorun oluştu
+		Problème lors du téléchargement
 	</string>
 	<string name="CompileQueueInsufficientPermDownload">
-		Komut dosyasını karşıdan yüklemek için yeterli izin yok.
+		Droits insuffisants pour télécharger un script.
 	</string>
 	<string name="CompileQueueInsufficientPermFor">
-		Şunun için yeterli izin yok:
+		Droits insuffisants pour
 	</string>
 	<string name="CompileQueueUnknownFailure">
-		Karşıdan yüklerken bilinmeyen hata
+		Échec du téléchargement, erreur inconnue
 	</string>
 	<string name="CompileQueueTitle">
-		Tekrar Derleme İlerlemesi
+		Recompilation - progrès
 	</string>
 	<string name="CompileQueueStart">
-		tekrar derle
+		recompiler
 	</string>
 	<string name="ResetQueueTitle">
-		Sıfırlama İlerlemesi
+		Réinitialiser les progrès
 	</string>
 	<string name="ResetQueueStart">
-		sıfırla
+		réinitialiser
 	</string>
 	<string name="RunQueueTitle">
-		Çalışan Süreçlerin İlerlemesini Ayarla
+		Lancer
 	</string>
 	<string name="RunQueueStart">
-		çalıştırmayı ayarla
+		lancer
 	</string>
 	<string name="NotRunQueueTitle">
-		Çalışmayan Süreçlerin İlerlemesini Ayarla
+		Arrêter
 	</string>
 	<string name="NotRunQueueStart">
-		çalıştırmamayı ayarla
+		arrêter
 	</string>
 	<string name="CompileSuccessful">
-		Derleme başarılı oldu!
+		Compilation réussie !
 	</string>
 	<string name="CompileSuccessfulSaving">
-		Derleme başarılı, kaydediliyor...
+		Compilation réussie, enregistrement en cours...
 	</string>
 	<string name="SaveComplete">
-		Kaydetme tamamlandı.
+		Enregistrement terminé.
 	</string>
 	<string name="ObjectOutOfRange">
-		Komut dosyası (nesne kapsam dışı)
+		Script (objet hors de portée)
 	</string>
 	<string name="GodToolsObjectOwnedBy">
-		[OWNER] mülkiyetindeki [OBJECT] nesnesi
+		Objet [OBJECT] appartenant à [OWNER]
 	</string>
 	<string name="GroupsNone">
-		hiçbiri
+		aucun
 	</string>
-	<string name="Group" value="(grup)"/>
+	<string name="Group" value=" (groupe)"/>
 	<string name="Unknown">
-		(Bilinmiyor)
+		(Inconnu)
 	</string>
-	<string name="SummaryForTheWeek" value="Bu haftanın özeti, şu tarihten itibaren:"/>
-	<string name="NextStipendDay" value="Sonraki ödeme günü şudur:"/>
+	<string name="SummaryForTheWeek" value="Récapitulatif de la semaine, début le "/>
+	<string name="NextStipendDay" value=". Prochaine prime le "/>
 	<string name="GroupPlanningDate">
-		[mthnum,datetime,utc]/[day,datetime,utc]/[year,datetime,utc]
+		[day,datetime,utc]/[mthnum,datetime,utc]/[year,datetime,utc]
 	</string>
-	<string name="GroupIndividualShare" value="Grup       Bireysel Pay"/>
-	<string name="GroupColumn" value="Grup"/>
+	<string name="GroupIndividualShare" value="                      Groupe    Part individuelle"/>
+	<string name="GroupColumn" value="Groupe"/>
 	<string name="Balance">
-		Bakiye
+		Solde
 	</string>
 	<string name="Credits">
-		Katkıda Bulunanlar
+		Crédits
 	</string>
 	<string name="Debits">
-		Borçlar
+		Débits
 	</string>
 	<string name="Total">
-		Toplam
+		Total
 	</string>
 	<string name="NoGroupDataFound">
-		Bu grup için grup verisi bulunamadı
+		Aucune donnée trouvée pour le groupe
 	</string>
 	<string name="IMParentEstate">
-		ana gayrimenkul
+		domaine parent
 	</string>
 	<string name="IMMainland">
-		anakara
+		continent
 	</string>
 	<string name="IMTeen">
-		on sekiz yaş altı
+		teen
 	</string>
 	<string name="Anyone">
-		herkes
+		n&apos;importe qui
 	</string>
 	<string name="RegionInfoError">
-		hata
+		erreur
 	</string>
 	<string name="RegionInfoAllEstatesOwnedBy">
-		[OWNER] mülkiyetindeki tüm gayrimenkuller
+		tous les domaines appartenant à [OWNER]
 	</string>
 	<string name="RegionInfoAllEstatesYouOwn">
-		sahip olduğunuz tüm gayrimenkuller
+		tous les domaines vous appartenant
 	</string>
 	<string name="RegionInfoAllEstatesYouManage">
-		[OWNER] adına yönettiğiniz tüm gayrimenkuller
+		tous les domaines que vous gérez pour [OWNER]
 	</string>
 	<string name="RegionInfoAllowedResidents">
-		İzin verilen Sakinler: ([ALLOWEDAGENTS], maks [MAXACCESS])
+		Résidents autorisés : ([ALLOWEDAGENTS], max. [MAXACCESS])
 	</string>
 	<string name="RegionInfoAllowedGroups">
-		İzin verilen gruplar: ([ALLOWEDGROUPS], maks [MAXACCESS])
+		Groupes autorisés : ([ALLOWEDGROUPS], max. [MAXACCESS])
 	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
-		Parsel Komut Dosyası Belleği
+		Mémoire des scripts de parcelles
 	</string>
 	<string name="ScriptLimitsParcelsOwned">
-		Listelenen Parseller: [PARCELS]
+		Parcelles répertoriées : [PARCELS]
 	</string>
 	<string name="ScriptLimitsMemoryUsed">
-		Kullanılan bellek: [COUNT] kb / [MAX] kb içerisinden; [AVAILABLE] kb serbest
+		Mémoire utilisée : [COUNT] Ko sur [MAX] ; [AVAILABLE] Ko disponibles
 	</string>
 	<string name="ScriptLimitsMemoryUsedSimple">
-		Kullanılan bellek: [COUNT] kb
+		Mémoire utilisée : [COUNT] Ko
 	</string>
 	<string name="ScriptLimitsParcelScriptURLs">
-		Parsel Komut Dosyası URL&apos;leri
+		URL des scripts de parcelles
 	</string>
 	<string name="ScriptLimitsURLsUsed">
-		Kullanılan URL&apos;ler: [COUNT] / [MAX] içerisinden; [AVAILABLE] serbest
+		URL utilisées : [COUNT] sur [MAX] ; [AVAILABLE] disponible(s)
 	</string>
 	<string name="ScriptLimitsURLsUsedSimple">
-		Kullanılan URL&apos;ler: [COUNT]
+		URL utilisées : [COUNT]
 	</string>
 	<string name="ScriptLimitsRequestError">
-		Bilgi talep edilirken hata oluştu
+		Une erreur est survenue pendant la requête d&apos;informations.
 	</string>
 	<string name="ScriptLimitsRequestNoParcelSelected">
-		Seçili Parsel Yok
+		Aucune parcelle sélectionnée
 	</string>
 	<string name="ScriptLimitsRequestWrongRegion">
-		Hata: Komut dosyası bilgisi sadece mevcut bölgenizde geçerli
+		Erreur : les informations de script ne sont disponibles que dans votre région actuelle.
 	</string>
 	<string name="ScriptLimitsRequestWaiting">
-		Bilgiler alınıyor...
+		Extraction des informations en cours...
 	</string>
 	<string name="ScriptLimitsRequestDontOwnParcel">
-		Bu parseli inceleme izniniz yok
+		Vous n&apos;avez pas le droit d&apos;examiner cette parcelle.
 	</string>
 	<string name="SITTING_ON">
-		Üzerinde Oturuyor
+		Assis(e) dessus
 	</string>
 	<string name="ATTACH_CHEST">
-		Göğüs
+		Poitrine
 	</string>
 	<string name="ATTACH_HEAD">
-		Baş
+		Tête
 	</string>
 	<string name="ATTACH_LSHOULDER">
-		Sol Omuz
+		Épaule gauche
 	</string>
 	<string name="ATTACH_RSHOULDER">
-		Sağ Omuz
+		Épaule droite
 	</string>
 	<string name="ATTACH_LHAND">
-		Sol El
+		Main gauche
 	</string>
 	<string name="ATTACH_RHAND">
-		Sağ El
+		Main droite
 	</string>
 	<string name="ATTACH_LFOOT">
-		Sol Ayak
+		Pied gauche
 	</string>
 	<string name="ATTACH_RFOOT">
-		Sağ Ayak
+		Pied droit
 	</string>
 	<string name="ATTACH_BACK">
-		Geri
+		Précédent
 	</string>
 	<string name="ATTACH_PELVIS">
-		Leğen Kemiği
+		Bassin
 	</string>
 	<string name="ATTACH_MOUTH">
-		Ağız
+		Bouche
 	</string>
 	<string name="ATTACH_CHIN">
-		Çene
+		Menton
 	</string>
 	<string name="ATTACH_LEAR">
-		Sol Kulak
+		Oreille gauche
 	</string>
 	<string name="ATTACH_REAR">
-		Sağ Kulak
+		Oreille droite
 	</string>
 	<string name="ATTACH_LEYE">
-		Sol Göz
+		Œil gauche
 	</string>
 	<string name="ATTACH_REYE">
-		Sağ Göz
+		Œil droit
 	</string>
 	<string name="ATTACH_NOSE">
-		Burun
+		Nez
 	</string>
 	<string name="ATTACH_RUARM">
-		Sol Üst Kol
+		Bras droit
 	</string>
 	<string name="ATTACH_RLARM">
-		Sağ Alt Kol
+		Avant-bras droit
 	</string>
 	<string name="ATTACH_LUARM">
-		Sol Üst Kol
+		Bras gauche
 	</string>
 	<string name="ATTACH_LLARM">
-		Sol Alt Kol
+		Avant-bras gauche
 	</string>
 	<string name="ATTACH_RHIP">
-		Sağ Kalça
+		Hanche droite
 	</string>
 	<string name="ATTACH_RULEG">
-		Sağ Üst Bacak
+		Cuisse droite
 	</string>
 	<string name="ATTACH_RLLEG">
-		Sağ Alt Bacak
+		Jambe droite
 	</string>
 	<string name="ATTACH_LHIP">
-		Sol Kalça
+		Hanche gauche
 	</string>
 	<string name="ATTACH_LULEG">
-		Sol Üst Bacak
+		Cuisse gauche
 	</string>
 	<string name="ATTACH_LLLEG">
-		Sol Alt Bacak
+		Jambe gauche
 	</string>
 	<string name="ATTACH_BELLY">
-		Göbek
+		Ventre
 	</string>
 	<string name="ATTACH_RPEC">
-		Sağ Göğüs
+		Pectoral droit
 	</string>
 	<string name="ATTACH_LPEC">
-		Sol Göğüs
+		Pectoral gauche
 	</string>
 	<string name="ATTACH_HUD_CENTER_2">
-		BÜG 2. Merkez
+		HUD centre 2
 	</string>
 	<string name="ATTACH_HUD_TOP_RIGHT">
-		BÜG Sağ Üst
+		HUD en haut à droite
 	</string>
 	<string name="ATTACH_HUD_TOP_CENTER">
-		BÜG Merkez Üst
+		HUD en haut au centre
 	</string>
 	<string name="ATTACH_HUD_TOP_LEFT">
-		BÜG Sol Üst
+		HUD en haut à gauche
 	</string>
 	<string name="ATTACH_HUD_CENTER_1">
-		BÜG 1. Merkez
+		HUD centre 1
 	</string>
 	<string name="ATTACH_HUD_BOTTOM_LEFT">
-		BÜG Sol Alt
+		HUD en bas à gauche
 	</string>
 	<string name="ATTACH_HUD_BOTTOM">
-		BÜG Alt
+		HUD en bas
 	</string>
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
-		BÜG Sağ Alt
+		HUD en bas à droite
 	</string>
 	<string name="CursorPos">
-		Satır [LINE], Sütun [COLUMN]
+		Ligne [LINE], colonne [COLUMN]
 	</string>
 	<string name="PanelDirCountFound">
-		[COUNT] bulundu
+		[COUNT] trouvé(s)
 	</string>
 	<string name="PanelDirTimeStr">
-		[hour,datetime,slt]:[min,datetime,slt]
+		[hour12,datetime,slt]:[min,datetime,slt] [ampm,datetime,slt]
 	</string>
 	<string name="PanelDirEventsDateText">
 		[mthnum,datetime,slt]/[day,datetime,slt]
 	</string>
 	<string name="PanelContentsTooltip">
-		Nesnenin içeriği
+		Contenu de l&apos;objet
 	</string>
 	<string name="PanelContentsNewScript">
-		Yeni Komut Dosyası
+		Nouveau script
 	</string>
 	<string name="BusyModeResponseDefault">
-		İleti gönderdiğiniz Sakin &apos;meşgul modu&apos;nda, bu da rahatsız edilmek istemediği anlamına geliyor.  İletiniz daha sonra incelenmesi için kendisine ait Aİ panelinde gösterilecektir.
+		Le résident auquel vous avez envoyé un message est en mode Occupé, ce qui signifie qu&apos;il a demandé à ne pas être dérangé.  Votre message restera affiché dans son panneau IM afin qu&apos;il puisse le lire ultérieurement.
 	</string>
 	<string name="MuteByName">
-		(Adına göre)
+		(par nom)
 	</string>
 	<string name="MuteAgent">
-		(Sakin)
+		(résident)
 	</string>
 	<string name="MuteObject">
-		(Nesne)
+		(objet)
 	</string>
 	<string name="MuteGroup">
-		(Grup)
+		(groupe)
 	</string>
 	<string name="MuteExternal">
-		(Harici)
+		(externe)
 	</string>
 	<string name="RegionNoCovenant">
-		Bu Gayrimenkul için Sözleşmesi yok.
+		Il n&apos;y a aucun règlement pour ce domaine.
 	</string>
 	<string name="RegionNoCovenantOtherOwner">
-		Bu Gayrimenkul için Sözleşmesi yok. Bu gayrimenkul üzerindeki arazi Linden Lab. değil, Gayrimenkul sahibi tarafından satılmaktadır.  Satış ayrıntılarını öğrenmek için lütfen Gayrimenkul Sahibiyle bağlantıya geçin.
+		Il n&apos;y a aucun règlement pour ce domaine. Le terrain sur ce domaine est vendu par le propriétaire, non par Linden Lab.  Pour en savoir plus, veuillez contacter le propriétaire.
 	</string>
-	<string name="covenant_last_modified" value="Son Değiştirildiği Tarih:"/>
-	<string name="none_text" value="(hiçbiri)"/>
-	<string name="never_text" value="(asla)"/>
+	<string name="covenant_last_modified" value="Dernière modification :"/>
+	<string name="none_text" value=" (aucun)"/>
+	<string name="never_text" value=" (jamais)"/>
 	<string name="GroupOwned">
-		Sahibi Olunan Grup
+		Propriété du groupe
 	</string>
 	<string name="Public">
-		Kamuya Açık
+		Public
 	</string>
 	<string name="LocalSettings">
-		Yerel Ayarlar
+		Réglages locaux
 	</string>
 	<string name="RegionSettings">
-		Bölge Ayarları
+		Réglages de la région
 	</string>
 	<string name="ClassifiedClicksTxt">
-		Tıklamalar: [TELEPORT] ışınlama, [MAP] harita, [PROFILE] profil
+		Clics : [TELEPORT] téléportation, [MAP] carte, [PROFILE] profil
 	</string>
 	<string name="ClassifiedUpdateAfterPublish">
-		(yayınlandıktan sonra güncelleştirilir)
+		(mise à jour après la publication)
 	</string>
 	<string name="NoPicksClassifiedsText">
-		Herhangi bir Seçme veya İlan oluşturmadınız. Bir Seçme veya İlan oluşturmak için aşağıdaki Artı düğmesine tıklayın.
+		Vous n&apos;avez pas créé de favoris ni de petites annonces Cliquez sur le bouton Plus pour créer un favori ou une petite annonce.
 	</string>
 	<string name="NoAvatarPicksClassifiedsText">
-		Kullanıcının herhangi bir seçmesi veya ilanı yok
+		L&apos;utilisateur n&apos;a ni favoris ni petites annonces.
 	</string>
 	<string name="PicksClassifiedsLoadingText">
-		Yükleniyor...
+		Chargement...
 	</string>
 	<string name="MultiPreviewTitle">
-		Önizleme
+		Prévisualiser
 	</string>
 	<string name="MultiPropertiesTitle">
-		Özellikler
+		Propriétés
 	</string>
 	<string name="InvOfferAnObjectNamed">
-		Şu ada sahip bir nesne:
+		Un objet appelé
 	</string>
 	<string name="InvOfferOwnedByGroup">
-		grubun sahip olduğu:
+		possédé par le groupe
 	</string>
 	<string name="InvOfferOwnedByUnknownGroup">
-		bilinmeyen grubun sahip olduğu:
+		possédé par un groupe inconnu
 	</string>
 	<string name="InvOfferOwnedBy">
-		sahibi:
+		possédé par
 	</string>
 	<string name="InvOfferOwnedByUnknownUser">
-		bilinmeyen bir kullanıcının sahip olduğu:
+		possédé par un résident inconnu
 	</string>
 	<string name="InvOfferGaveYou">
-		size verdi:
+		vous a donné
 	</string>
 	<string name="InvOfferDecline">
-		&lt;nolink&gt;[NAME]&lt;/nolink&gt; tarafından gönderilen [DESC]&apos;i reddettiniz.
+		Vous refusez l&apos;offre [DESC] de &lt;nolink&gt;[NAME]&lt;/nolink&gt;.
 	</string>
 	<string name="GroupMoneyTotal">
-		Toplam
+		Total
 	</string>
 	<string name="GroupMoneyBought">
-		alınan:
+		acheté
 	</string>
 	<string name="GroupMoneyPaidYou">
-		size ödenen:
+		vous a payé
 	</string>
 	<string name="GroupMoneyPaidInto">
-		şuraya ödenen:
+		payé
 	</string>
 	<string name="GroupMoneyBoughtPassTo">
-		şuraya geçiş hakkı alınan:
+		a acheté un pass à
 	</string>
 	<string name="GroupMoneyPaidFeeForEvent">
-		etkinlik için ödenen ücret:
+		a payé des frais pour un événement
 	</string>
 	<string name="GroupMoneyPaidPrizeForEvent">
-		etkinlik için verilen ödül:
+		a payé un prix pour un événement
 	</string>
 	<string name="GroupMoneyBalance">
-		Bakiye
+		Solde
 	</string>
 	<string name="GroupMoneyCredits">
-		Katkıda Bulunanlar
+		Crédits
 	</string>
 	<string name="GroupMoneyDebits">
-		Borçlar
+		Débits
 	</string>
 	<string name="GroupMoneyDate">
-		[weekday,datetime,utc] [mth,datetime,utc] [day,datetime,utc], [year,datetime,utc]
+		[weekday,datetime,utc] [day,datetime,utc] [mth,datetime,utc] [year,datetime,utc]
 	</string>
 	<string name="ViewerObjectContents">
-		İçerik
+		Contenus
 	</string>
 	<string name="AcquiredItems">
-		Alınan Öğeler
+		Objets acquis
 	</string>
 	<string name="Cancel">
-		İptal
+		Annuler
 	</string>
 	<string name="UploadingCosts">
-		[NAME] için karşıya yükleme maliyeti: L$ [AMOUNT]
+		Le chargement de [NAME] coûte [AMOUNT] L$
 	</string>
 	<string name="BuyingCosts">
-		Bunu satın almanın maliyeti: L$ [AMOUNT]
+		Cet achat coûte [AMOUNT] L$
 	</string>
 	<string name="UnknownFileExtension">
-		Bilinmeyen dosya uzantısı .%s
-.wav, .tga, .bmp, .jpg, .jpeg veya .bvh bekleniyordu
+		Extension de fichier inconnue .%s
+.wav, .tga, .bmp, .jpg, .jpeg, ou .bvh acceptés
 	</string>
 	<string name="MuteObject2">
-		Engelle
+		Ignorer
 	</string>
 	<string name="MuteAvatar">
-		Engelle
+		Ignorer
 	</string>
 	<string name="UnmuteObject">
-		Engellemeyi Kaldır
+		Ne plus ignorer
 	</string>
 	<string name="UnmuteAvatar">
-		Engellemeyi Kaldır
+		Ne plus ignorer
 	</string>
 	<string name="AddLandmarkNavBarMenu">
-		Yer İmlerime Ekle...
+		Ajouter à mes repères...
 	</string>
 	<string name="EditLandmarkNavBarMenu">
-		Yer İmimi Düzenle...
+		Modifier mon repère...
 	</string>
 	<string name="accel-mac-control">
 		⌃
@@ -2141,19 +2138,19 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		Alt+
 	</string>
 	<string name="accel-win-shift">
-		Shift+
+		Maj+
 	</string>
 	<string name="FileSaved">
-		Dosya Kaydedildi
+		Fichier enregistré
 	</string>
 	<string name="Receiving">
-		Alınıyor
+		Réception
 	</string>
 	<string name="AM">
-		ÖÖ
+		Matin
 	</string>
 	<string name="PM">
-		ÖS
+		Après-midi
 	</string>
 	<string name="PST">
 		PST
@@ -2162,112 +2159,112 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		PDT
 	</string>
 	<string name="Direction_Forward">
-		İleri
+		Avant
 	</string>
 	<string name="Direction_Left">
-		Sol
+		Gauche
 	</string>
 	<string name="Direction_Right">
-		Sağ
+		Droite
 	</string>
 	<string name="Direction_Back">
-		Geri
+		Arrière
 	</string>
 	<string name="Direction_North">
-		Kuzey
+		Nord
 	</string>
 	<string name="Direction_South">
-		Güney
+		Sud
 	</string>
 	<string name="Direction_West">
-		Batı
+		Ouest
 	</string>
 	<string name="Direction_East">
-		Doğu
+		Est
 	</string>
 	<string name="Direction_Up">
-		Yukarı
+		Haut
 	</string>
 	<string name="Direction_Down">
-		Aşağı
+		Bas
 	</string>
 	<string name="Any Category">
-		Herh. Bir Kategori
+		Toutes catégories
 	</string>
 	<string name="Shopping">
-		Alışveriş
+		Shopping
 	</string>
 	<string name="Land Rental">
-		Arazi Kiralama
+		Terrains à louer
 	</string>
 	<string name="Property Rental">
-		Mülk Kiralama
+		Propriétés à louer
 	</string>
 	<string name="Special Attraction">
-		Özel Atraksiyon
+		Divertissements
 	</string>
 	<string name="New Products">
-		Yeni Ürünler
+		Nouveaux produits
 	</string>
 	<string name="Employment">
-		İstihdam
+		Emplois
 	</string>
 	<string name="Wanted">
-		Arananlar
+		Offres
 	</string>
 	<string name="Service">
-		Hizmet
+		Services
 	</string>
 	<string name="Personal">
-		Kişisel
+		Divers
 	</string>
 	<string name="None">
-		Renksiz
+		Aucun
 	</string>
 	<string name="Linden Location">
-		Linden Konumu
+		Appartenant aux Lindens
 	</string>
 	<string name="Adult">
-		Yetişkin
+		Adulte
 	</string>
 	<string name="Arts&amp;Culture">
-		Sanat ve Kültür
+		Arts et culture
 	</string>
 	<string name="Business">
-		İş
+		Business
 	</string>
 	<string name="Educational">
-		Eğitim
+		Éducation
 	</string>
 	<string name="Gaming">
-		Oyun
+		Jeux
 	</string>
 	<string name="Hangout">
-		Uğrak Mekan
+		Favoris
 	</string>
 	<string name="Newcomer Friendly">
-		Yeni Gelenlere Yardım Sunan
+		Accueil pour les nouveaux
 	</string>
 	<string name="Parks&amp;Nature">
-		Park ve Doğa
+		Parcs et nature
 	</string>
 	<string name="Residential">
-		Yerleşim
+		Résidentiel
 	</string>
 	<string name="Stage">
-		Sahne
+		Phase
 	</string>
 	<string name="Other">
-		Diğer
+		Autre
 	</string>
 	<string name="Rental">
-		Kiralık
+		Location
 	</string>
 	<string name="Any">
-		Herhangi
+		Aucun
 	</string>
 	<string name="You">
-		Siz
+		Vous
 	</string>
 	<string name=":">
 		:
@@ -2297,2208 +2294,2210 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		---
 	</string>
 	<string name="Multiple Media">
-		Birden Çok Ortam
+		Médias multiples
 	</string>
 	<string name="Play Media">
-		Ortamı Oynat/Durdur
+		Lire/pauser le média
 	</string>
 	<string name="MBCmdLineError">
-		Komut satırı ayrıştırılırken bir hata oluştu.
-Lütfen bakınız: http://wiki.secondlife.com/wiki/Client_parameters
-Hata:
+		Une erreur est survenue lors de la lecture de la ligne de commande.
+Merci de consulter : http://wiki.secondlife.com/wiki/Client_parameters
+Erreur :
 	</string>
 	<string name="MBCmdLineUsg">
-		[APP_NAME] Komut satırı kullanımı:
+		[APP_NAME] - Utilisation de la ligne de commande :
 	</string>
 	<string name="MBUnableToAccessFile">
-		[APP_NAME] ihtiyaç duyduğu bir dosyaya erişemiyor.
+		[APP_NAME] ne peut accéder à un fichier requis.
 
-Bunun nedeni bir şekilde birden fazla kopyanın çalışıyor olması veya sisteminizin, bir dosyanın açık olduğunu sanması olabilir.
-Bu iletiyi görmeye devam ederseniz, bilgisayarınızı yeniden başlatın ve tekrar deneyin.
-Sorun devam ederse [APP_NAME] uygulamasını tümüyle kaldırmanız ve tekrar yüklemeniz gerekebilir.
+Cela vient du fait que quelqu&apos;un a ouvert plusieurs copies ou que votre système pense qu&apos;un fichier est ouvert.
+Si ce message persiste, veuillez redémarrer votre ordinateur.
+Si le problème persiste, vous devrez peut-être complètement désinstaller puis réinstaller [APP_NAME].
 	</string>
 	<string name="MBFatalError">
-		Önemli Hata
+		Erreur fatale
 	</string>
 	<string name="MBRequiresAltiVec">
-		[APP_NAME], AltiVec (G4 veya üzeri) bir işlemciye ihtiyaç duyuyor.
+		[APP_NAME] nécessite un microprocesseur AltiVec (version G4 ou antérieure).
 	</string>
 	<string name="MBAlreadyRunning">
-		[APP_NAME] zaten çalışıyor.
-Programın simge durumuna küçültülmüş bir kopyası için görev çubuğunuza bakın.
-Bu iletiyi görmeye devam ederseniz, bilgisayarınızı tekrar başlatın.
+		[APP_NAME] est déjà en cours d&apos;exécution.
+Vérifiez si une version minimisée du programme apparaît dans votre barre de tâches.
+Si ce message persiste, redémarrez votre ordinateur.
 	</string>
 	<string name="MBFrozenCrashed">
-		[APP_NAME] uygulaması bir önceki çalıştırmada kilitlenmiş görünüyor.
-Bir kilitlenme raporu göndermek ister misiniz?
+		[APP_NAME] semble avoir crashé lors de l&apos;utilisation précédente.
+Voulez-vous envoyer un rapport de crash ?
 	</string>
 	<string name="MBAlert">
-		Bildirim
+		Notification
 	</string>
 	<string name="MBNoDirectX">
-		[APP_NAME], DirectX 9.0b veya üzerini saptayamıyor.
-[APP_NAME], kararlılık problemleri, kötü performans ve çökmelere neden olabilecek donanım ve/veya süresi geçmiş sürücüleri saptamak için DirectX kullanır.  [APP_NAME] uygulamasını bu olmadan da çalıştırmanız mümkündür, ancak DirectX 9.0b ile çalıştırmanızı kuvvetle tavsiye ederiz.
+		[APP_NAME] ne peut détecter DirectX 9.0b ou une version supérieure.
+[APP_NAME] utilise DirectX pour détecter les matériels et/ou les pilotes qui ne sont pas à jour et peuvent causer des problèmes de stabilité, de performance ou des plantages.  Bien que vous puissiez utiliser [APP_NAME] sans DirectX, nous vous recommandons de l&apos;utiliser avec DirectX 9.0b.
 
-Devam etmek istiyor musunuz?
+Voulez-vous continuer ?
 	</string>
 	<string name="MBWarning">
-		Uyarı
+		Avertissement
 	</string>
 	<string name="MBNoAutoUpdate">
-		Linux için henüz otomatik güncelleştirme uygulanmamıştır.
-Lütfen www.secondlife.com adresinden son sürümü karşıdan yükleyin.
+		Les mises à jour automatiques n&apos;existent pas encore pour Linux.
+Veuillez télécharger la dernière version sur www.secondlife.com.
 	</string>
 	<string name="MBRegClassFailed">
-		RegisterClass başarısız oldu
+		RegisterClass a échoué
 	</string>
 	<string name="MBError">
-		Hata
+		Erreur
 	</string>
 	<string name="MBFullScreenErr">
-		[WIDTH] x [HEIGHT] çözünürlüğünde tam ekran çalıştırma yapılamıyor.
-Pencerede çalışıyor.
+		Impossible d&apos;ouvrir le mode plein écran à [WIDTH] x [HEIGHT].
+Utilisation du mode fenêtré.
 	</string>
 	<string name="MBDestroyWinFailed">
-		Pencere yok edilirken Kapatma Hatası oluştu (DestroyWindow() başarısız oldu)
+		Erreur de fermeture lors de la destruction de la fenêtre (DestroyWindow() a échoué)
 	</string>
 	<string name="MBShutdownErr">
-		Kapatma Hatası
+		Erreur de fermeture
 	</string>
 	<string name="MBDevContextErr">
-		GL cihazı içeriği oluşturulamıyor
+		Impossible de créer le contexte GL
 	</string>
 	<string name="MBPixelFmtErr">
-		Uygun piksel formatı bulunamadı
+		Impossible de trouver le format pixel approprié
 	</string>
 	<string name="MBPixelFmtDescErr">
-		Piksel formatı açıklaması alınamıyor
+		Impossible de trouver la description du format pixel
 	</string>
 	<string name="MBTrueColorWindow">
-		[APP_NAME] uygulamasının çalışması için Gerçek Renk (32 bit) gerekiyor.
-Lütfen bilgisayarınızın ekran ayarlarına gidin ve renk modunu 32 bit olarak ayarlayın.
+		[APP_NAME] nécessite True Color (32 bits) pour s&apos;exécuter.
+Accédez aux paramètres d&apos;affichage de votre ordinateur et réglez le mode couleur sur 32 bits.
 	</string>
 	<string name="MBAlpha">
-		[APP_NAME] çalışamıyor çünkü 8 bit bir alfa kanalı alamıyor.  Bunun nedeni genellikle video kartı sürücü sorunlarıdır.
-Lütfen en yeni video sürücülerinin yüklü olduğuna emin olun.
-Ayrıca Denetim Masaları &gt; Ekran &gt; Ayarlar içerisinde ekranınız için Gerçek Renk (32 bit) ayarı yapıldığına emin olun.
-Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
+		[APP_NAME] ne peut pas s&apos;exécuter, car il n&apos;y pas de canal alpha 8 bits accessible.  En général, ceci vient de problèmes avec le pilote de la carte vidéo.
+Assurez-vous d&apos;avoir installé le pilote de carte vidéo le plus récent possible.
+Assurez-vous aussi que votre écran est réglé sur True Color (32 bits) sous Panneau de configuration &gt; Affichage &gt; Paramètres.
+Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	</string>
 	<string name="MBPixelFmtSetErr">
-		Piksel formatı ayarlanamıyor
+		Impossible de trouver le format pixel approprié
 	</string>
 	<string name="MBGLContextErr">
-		GL işlemi bağlamı oluşturulamıyor
+		Impossible de créer le contexte de rendu GL
 	</string>
 	<string name="MBGLContextActErr">
-		GL işlemi bağlamı etkinleştirilemiyor
+		Impossible d&apos;activer le contexte de rendu GL
 	</string>
 	<string name="MBVideoDrvErr">
-		[APP_NAME] çalışamıyor çünkü video kartı sürücüleriniz düzgün yüklenemedi, süresi geçmiş durumda veya desteklenmeyen donanımlar için geliştirilmiş. Lütfen en yeni video kartı sürücülerine sahip olduğunuza emin olun; en yeni sürücüler mevcutsa da bunları tekrar yüklemeyi deneyin.
+		[APP_NAME] ne peut pas s&apos;exécuter car les pilotes de votre carte vidéo n&apos;ont pas été installés correctement, ne sont pas à jour, ou sont pour du matériel non pris en charge. Assurez-vous d&apos;avoir des pilotes de cartes vidéos récents, et même si vous avez les plus récents, réinstallez-les.
 
-Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
+Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	</string>
 	<string name="5 O&apos;Clock Shadow">
-		Bir Günlük Sakal
+		Peu
 	</string>
 	<string name="All White">
-		Tümü Beyaz
+		Tout blancs
 	</string>
 	<string name="Anime Eyes">
-		Anime Gözler
+		Grand yeux
 	</string>
 	<string name="Arced">
-		Yay Şeklinde
+		Arqués
 	</string>
 	<string name="Arm Length">
-		Kol Uzunluğu
+		Longueur des bras
 	</string>
 	<string name="Attached">
-		Bitişik
+		Attachés
 	</string>
 	<string name="Attached Earlobes">
-		Kafaya Bitişik Kulak Memeleri
+		Lobes
 	</string>
 	<string name="Back Fringe">
-		Arka Perçem
+		Mèches de derrière
 	</string>
 	<string name="Baggy">
-		Torbalı
+		Plus
 	</string>
 	<string name="Bangs">
-		Kahküller
+		Frange
 	</string>
 	<string name="Beady Eyes">
-		Boncuk Gözler
+		Yeux perçants
 	</string>
 	<string name="Belly Size">
-		Göbek Büyüklüğü
+		Taille du ventre
 	</string>
 	<string name="Big">
-		Büyük
+		Plus
 	</string>
 	<string name="Big Butt">
-		Büyük Kıç
+		Grosses fesses
 	</string>
 	<string name="Big Hair Back">
-		Kabarık Saç: Arkada
+		Volume : Derrière
 	</string>
 	<string name="Big Hair Front">
-		Kabarık Saç: Önde
+		Volume : Devant
 	</string>
 	<string name="Big Hair Top">
-		Kabarık Saç: Tepede
+		Volume : Haut
 	</string>
 	<string name="Big Head">
-		Büyük Kafa
+		Plus
 	</string>
 	<string name="Big Pectorals">
-		Büyük Göğüs Kasları
+		Gros pectoraux
 	</string>
 	<string name="Big Spikes">
-		Büyük Dik Kısımlar
+		Spikes
 	</string>
 	<string name="Black">
-		Siyah
+		Noir
 	</string>
 	<string name="Blonde">
-		Sarışın
+		Blond
 	</string>
 	<string name="Blonde Hair">
-		Sarı Saç
+		Cheveux blonds
 	</string>
 	<string name="Blush">
-		Allık
+		Blush
 	</string>
 	<string name="Blush Color">
-		Allık Rengi
+		Couleur du blush
 	</string>
 	<string name="Blush Opacity">
-		Allık Geçirgenliği
+		Opacité du blush
 	</string>
 	<string name="Body Definition">
-		Vücut Tanımı
+		Contour du corps
 	</string>
 	<string name="Body Fat">
-		Vücut Yağı
+		Graisse
 	</string>
 	<string name="Body Freckles">
-		Vücut Çilleri
+		Grains de beauté
 	</string>
 	<string name="Body Thick">
-		Kalın Vücut
+		Plus
 	</string>
 	<string name="Body Thickness">
-		Vücut Kalınlığı
+		Épaisseur du corps
 	</string>
 	<string name="Body Thin">
-		İnce Vücut
+		Moins
 	</string>
 	<string name="Bow Legged">
-		Çarpık Bacaklı
+		Jambes arquées
 	</string>
 	<string name="Breast Buoyancy">
-		Göğüs Kalkıklığı
+		Hauteur des seins
 	</string>
 	<string name="Breast Cleavage">
-		Göğüs Çatalı
+		Clivage
 	</string>
 	<string name="Breast Size">
-		Göğüs Büyüklüğü
+		Taille des seins
 	</string>
 	<string name="Bridge Width">
-		Burun Kemiği Genişliği
+		Arête du nez
 	</string>
 	<string name="Broad">
-		Geniş
+		Large
 	</string>
 	<string name="Brow Size">
-		Alın Genişliği
+		Taille du front
 	</string>
 	<string name="Bug Eyes">
-		Patlak Gözlü
+		Yeux globuleux
 	</string>
 	<string name="Bugged Eyes">
-		Patlak Gözlü
+		Yeux globuleux
 	</string>
 	<string name="Bulbous">
-		Patates Burunlu
+		En bulbe
 	</string>
 	<string name="Bulbous Nose">
-		Patates Burunlu
+		Nez en bulbe
 	</string>
 	<string name="Breast Physics Mass">
-		Göğüs Kütlesi
+		Masse des seins
 	</string>
 	<string name="Breast Physics Smoothing">
-		Göğüs Düzleştirme
+		Lissage des seins
 	</string>
 	<string name="Breast Physics Gravity">
-		Göğüs Yerçekimi
+		Gravité des seins
 	</string>
 	<string name="Breast Physics Drag">
-		Göğüs Direnci
+		Résistance de l&apos;air sur les seins
 	</string>
 	<string name="Breast Physics InOut Max Effect">
-		Maks Etki
+		Effet max.
 	</string>
 	<string name="Breast Physics InOut Spring">
-		Yaylanma
+		Élasticité
 	</string>
 	<string name="Breast Physics InOut Gain">
-		Kazanç
+		Amplification
 	</string>
 	<string name="Breast Physics InOut Damping">
-		Sönüm
+		Amortissement
 	</string>
 	<string name="Breast Physics UpDown Max Effect">
-		Maks Etki
+		Effet max.
 	</string>
 	<string name="Breast Physics UpDown Spring">
-		Yaylanma
+		Élasticité
 	</string>
 	<string name="Breast Physics UpDown Gain">
-		Kazanç
+		Amplification
 	</string>
 	<string name="Breast Physics UpDown Damping">
-		Sönüm
+		Amortissement
 	</string>
 	<string name="Breast Physics LeftRight Max Effect">
-		Maks Etki
+		Effet max.
 	</string>
 	<string name="Breast Physics LeftRight Spring">
-		Yaylanma
+		Élasticité
 	</string>
 	<string name="Breast Physics LeftRight Gain">
-		Kazanç
+		Amplification
 	</string>
 	<string name="Breast Physics LeftRight Damping">
-		Sönüm
+		Amortissement
 	</string>
 	<string name="Belly Physics Mass">
-		Göbek Kütlesi
+		Masse du ventre
 	</string>
 	<string name="Belly Physics Smoothing">
-		Göbek Düzleştirme
+		Lissage du ventre
 	</string>
 	<string name="Belly Physics Gravity">
-		Göbek Yerçekimi
+		Gravité du ventre
 	</string>
 	<string name="Belly Physics Drag">
-		Göbek Direnci
+		Résistance de l&apos;air sur le ventre
 	</string>
 	<string name="Belly Physics UpDown Max Effect">
-		Maks Etki
+		Effet max.
 	</string>
 	<string name="Belly Physics UpDown Spring">
-		Yaylanma
+		Élasticité
 	</string>
 	<string name="Belly Physics UpDown Gain">
-		Kazanç
+		Amplification
 	</string>
 	<string name="Belly Physics UpDown Damping">
-		Sönüm
+		Amortissement
 	</string>
 	<string name="Butt Physics Mass">
-		Kıç Kütlesi
+		Masse des fesses
 	</string>
 	<string name="Butt Physics Smoothing">
-		Kıç Düzleştirme
+		Lissage des fesses
 	</string>
 	<string name="Butt Physics Gravity">
-		Kıç Yerçekimi
+		Gravité des fesses
 	</string>
 	<string name="Butt Physics Drag">
-		Kıç Direnci
+		Résistance de l&apos;air sur les fesses
 	</string>
 	<string name="Butt Physics UpDown Max Effect">
-		Maks Etki
+		Effet max.
 	</string>
 	<string name="Butt Physics UpDown Spring">
-		Yaylanma
+		Élasticité
 	</string>
 	<string name="Butt Physics UpDown Gain">
-		Kazanç
+		Amplification
 	</string>
 	<string name="Butt Physics UpDown Damping">
-		Sönüm
+		Amortissement
 	</string>
 	<string name="Butt Physics LeftRight Max Effect">
-		Maks Etki
+		Effet max.
 	</string>
 	<string name="Butt Physics LeftRight Spring">
-		Yaylanma
+		Élasticité
 	</string>
 	<string name="Butt Physics LeftRight Gain">
-		Kazanç
+		Amplification
 	</string>
 	<string name="Butt Physics LeftRight Damping">
-		Sönüm
+		Amortissement
 	</string>
 	<string name="Bushy Eyebrows">
-		Gür Kaşlar
+		Sourcils touffus
 	</string>
 	<string name="Bushy Hair">
-		Gür Saç
+		Beaucoup
 	</string>
 	<string name="Butt Size">
-		Kıç Büyüklüğü
+		Taille des fesses
 	</string>
 	<string name="Butt Gravity">
-		Kıç Yerçekimi
+		Gravité des fesses
 	</string>
 	<string name="bustle skirt">
-		Tarlatanlı Etek
+		Jupe gonflante
 	</string>
 	<string name="no bustle">
-		Tarlatansız
+		Pas gonflante
 	</string>
 	<string name="more bustle">
-		Çok Tarlatanlı
+		Plus gonflante
 	</string>
 	<string name="Chaplin">
-		Chaplin pantalon
+		Moins
 	</string>
 	<string name="Cheek Bones">
-		Elmacık Kemikleri
+		Pommettes
 	</string>
 	<string name="Chest Size">
-		Göğüs Büyüklüğü
+		Taille de la poitrine
 	</string>
 	<string name="Chin Angle">
-		Çene Açısı
+		Angle du menton
 	</string>
 	<string name="Chin Cleft">
-		Çene Çukuru
+		Fente du menton
 	</string>
 	<string name="Chin Curtains">
-		Lincoln Sakal
+		Favoris
 	</string>
 	<string name="Chin Depth">
-		Çene Derinliği
+		Profondeur
 	</string>
 	<string name="Chin Heavy">
-		Geniş Çene
+		Menton lourd
 	</string>
 	<string name="Chin In">
-		Çene İçeri
+		Menton rentré
 	</string>
 	<string name="Chin Out">
-		Çene Dışarı
+		Menton sorti
 	</string>
 	<string name="Chin-Neck">
-		Çene-Boyun
+		Menton-cou
 	</string>
 	<string name="Clear">
-		Temizle
+		Clair
 	</string>
 	<string name="Cleft">
-		Çukur
+		Fendu
 	</string>
 	<string name="Close Set Eyes">
-		Yakın Gözler
+		Yeux rapprochés
 	</string>
 	<string name="Closed">
-		Kapalı
+		Fermé(s)
 	</string>
 	<string name="Closed Back">
-		Arkası Kapalı
+		Fermé à l&apos;arrière
 	</string>
 	<string name="Closed Front">
-		Önü Kapalı
+		Fermé devant
 	</string>
 	<string name="Closed Left">
-		Solu Kapalı
+		Fermé à gauche
 	</string>
 	<string name="Closed Right">
-		Sağı Kapalı
+		Fermé à droite
 	</string>
 	<string name="Coin Purse">
-		Para Cüzdanı
+		Mini
 	</string>
 	<string name="Collar Back">
-		Yaka Arkası
+		Col arrière
 	</string>
 	<string name="Collar Front">
-		Yaka Önü
+		Col devant
 	</string>
 	<string name="Corner Down">
-		Köşesi Aşağıda
+		Coin vers le bas
 	</string>
 	<string name="Corner Up">
-		Köşesi Yukarıda
+		Coin vers le haut
 	</string>
 	<string name="Creased">
-		Kırışık
+		Fripée
 	</string>
 	<string name="Crooked Nose">
-		Yamuk Burun
+		Déviation du nez
 	</string>
 	<string name="Cuff Flare">
-		Geniş Paça
+		Jambes
 	</string>
 	<string name="Dark">
-		Karanlık
+		Sombre
 	</string>
 	<string name="Dark Green">
-		Koyu Yeşil
+		Vert foncé
 	</string>
 	<string name="Darker">
-		Daha Koyu
+		Plus foncé
 	</string>
 	<string name="Deep">
-		Derin
+		Profonde
 	</string>
 	<string name="Default Heels">
-		Varsayılan Topuklar
+		Talons par défaut
 	</string>
 	<string name="Dense">
-		Yoğun
+		Dense
 	</string>
 	<string name="Double Chin">
-		Çift Çene
+		Double menton
 	</string>
 	<string name="Downturned">
-		Aşağı Dönük
+		Pointant vers le bas
 	</string>
 	<string name="Duffle Bag">
-		Spor Çanta
+		Maxi
 	</string>
 	<string name="Ear Angle">
-		Kulak Açısı
+		Angle de l&apos;oreille
 	</string>
 	<string name="Ear Size">
-		Kulak Büyüklüğü
+		Taille
 	</string>
 	<string name="Ear Tips">
-		Kulak Uçları
+		Extrémités
 	</string>
 	<string name="Egg Head">
-		Yumurta Kafa
+		Proéminence
 	</string>
 	<string name="Eye Bags">
-		Göz Altı Torbaları
+		Cernes
 	</string>
 	<string name="Eye Color">
-		Göz Rengi
+		Couleur des yeux
 	</string>
 	<string name="Eye Depth">
-		Gözün İçeri Çöküklüğü
+		Profondeur
 	</string>
 	<string name="Eye Lightness">
-		Göz Parlaklığı
+		Clarté
 	</string>
 	<string name="Eye Opening">
-		Göz Açıklığı
+		Ouverture
 	</string>
 	<string name="Eye Pop">
-		Gözlerin Dışarı Çıkıklığı
+		Œil proéminent
 	</string>
 	<string name="Eye Size">
-		Göz Büyüklüğü
+		Taille de l&apos;œil
 	</string>
 	<string name="Eye Spacing">
-		Gözlerin Aralığı
+		Espacement
 	</string>
 	<string name="Eyebrow Arc">
-		Kaş Kavisi
+		Arc
 	</string>
 	<string name="Eyebrow Density">
-		Kaş Kalınlığı
+		Épaisseur sourcils
 	</string>
 	<string name="Eyebrow Height">
-		Kaş Yüksekliği
+		Hauteur
 	</string>
 	<string name="Eyebrow Points">
-		Kaş Yapısı
+		Direction
 	</string>
 	<string name="Eyebrow Size">
-		Kaş Büyüklüğü
+		Taille
 	</string>
 	<string name="Eyelash Length">
-		Kirpik Uzunluğu
+		Longueur des cils
 	</string>
 	<string name="Eyeliner">
-		Göz Kalemi
+		Eyeliner
 	</string>
 	<string name="Eyeliner Color">
-		Göz Kalemi Rengi
+		Couleur de l&apos;eyeliner
 	</string>
 	<string name="Eyes Bugged">
-		Patlak Gözler
+		Yeux globuleux
 	</string>
 	<string name="Face Shear">
-		Dikey Yüz Kaydırma
+		Visage
 	</string>
 	<string name="Facial Definition">
-		Yüz İfadesi
+		Définition
 	</string>
 	<string name="Far Set Eyes">
-		Ayrık Gözler
+		Yeux écartés
 	</string>
 	<string name="Fat Lips">
-		Kalın Dudaklar
+		Lèvres épaisses
 	</string>
 	<string name="Female">
-		Kadın
+		Femme
 	</string>
 	<string name="Fingerless">
-		Parmaksız
+		Sans doigts
 	</string>
 	<string name="Fingers">
-		Parmaklar
+		Doigts
 	</string>
 	<string name="Flared Cuffs">
-		Geniş Paçalar
+		Jambes larges
 	</string>
 	<string name="Flat">
-		Düz
+		Moins
 	</string>
 	<string name="Flat Butt">
-		Düz Kıç
+		Fesses plates
 	</string>
 	<string name="Flat Head">
-		Düz Kafa
+		Tête plate
 	</string>
 	<string name="Flat Toe">
-		Düz Ayak Ucu
+		Orteil plat
 	</string>
 	<string name="Foot Size">
-		Ayak Büyüklüğü
+		Pointure
 	</string>
 	<string name="Forehead Angle">
-		Alın Açısı
+		Angle du front
 	</string>
 	<string name="Forehead Heavy">
-		Belirgin Alın
+		Front lourd
 	</string>
 	<string name="Freckles">
-		Çiller
+		Tâches de rousseur
 	</string>
 	<string name="Front Fringe">
-		Ön Perçem
+		Mèches de devant
 	</string>
 	<string name="Full Back">
-		Arkası Düz
+		Arrière touffu
 	</string>
 	<string name="Full Eyeliner">
-		Çift Taraflı Göz Kalemi
+		Eyeliner marqué
 	</string>
 	<string name="Full Front">
-		Önü Düz
+		Devant touffu
 	</string>
 	<string name="Full Hair Sides">
-		Saçlar Yanda
+		Côtés touffus
 	</string>
 	<string name="Full Sides">
-		Saçlar Yanda
+		Côtés touffus
 	</string>
 	<string name="Glossy">
-		Parlak
+		Brillant
 	</string>
 	<string name="Glove Fingers">
-		Eldiven Parmakları
+		Gants avec doigts
 	</string>
 	<string name="Glove Length">
-		Eldiven Uzunluğu
+		Longueur
 	</string>
 	<string name="Hair">
-		Saç
+		Cheveux
 	</string>
 	<string name="Hair Back">
-		Saç: Arka
+		Cheveux : Derrière
 	</string>
 	<string name="Hair Front">
-		Saç: Ön
+		Cheveux : Devant
 	</string>
 	<string name="Hair Sides">
-		Saç: Yanlar
+		Cheveux : Côtés
 	</string>
 	<string name="Hair Sweep">
-		Saçı Yana Tarama
+		Sens de la coiffure
 	</string>
 	<string name="Hair Thickess">
-		Saç Kalınlığı
+		Épaisseur cheveux
 	</string>
 	<string name="Hair Thickness">
-		Saç Kalınlığı
+		Épaisseur cheveux
 	</string>
 	<string name="Hair Tilt">
-		Saç Eğimi
+		Inclinaison
 	</string>
 	<string name="Hair Tilted Left">
-		Sola Eğimli Saç
+		Vers la gauche
 	</string>
 	<string name="Hair Tilted Right">
-		Sağa Eğimli Saç
+		Vers la droite
 	</string>
 	<string name="Hair Volume">
-		Saç: Hacim
+		Cheveux : Volume
 	</string>
 	<string name="Hand Size">
-		El Büyüklüğü
+		Taille de la main
 	</string>
 	<string name="Handlebars">
-		Gidon tipi
+		Plus
 	</string>
 	<string name="Head Length">
-		Kafa Uzunluğu
+		Longueur
 	</string>
 	<string name="Head Shape">
-		Kafa Şekli
+		Forme
 	</string>
 	<string name="Head Size">
-		Kafa Büyüklüğü
+		Taille
 	</string>
 	<string name="Head Stretch">
-		Kafayı Uzatma
+		Allongement
 	</string>
 	<string name="Heel Height">
-		Topuk Yüksekliği
+		Talons
 	</string>
 	<string name="Heel Shape">
-		Topuk Şekli
+		Forme des talons
 	</string>
 	<string name="Height">
-		Yükseklik
+		Taille
 	</string>
 	<string name="High">
-		Yüksek
+		Haut
 	</string>
 	<string name="High Heels">
-		Yüksek Topuklar
+		Talons hauts
 	</string>
 	<string name="High Jaw">
-		Ayrık
+		Haut
 	</string>
 	<string name="High Platforms">
-		Yüksek Topuklu
+		Haute
 	</string>
 	<string name="High and Tight">
-		Düşük
+		Haut et serré
 	</string>
 	<string name="Higher">
-		Daha Yüksek
+		Plus élevé
 	</string>
 	<string name="Hip Length">
-		Kalça Uzunluğu
+		Longueur hanche
 	</string>
 	<string name="Hip Width">
-		Kalça Genişliği
+		Largeur hanche
 	</string>
 	<string name="In">
-		İçeri
+		Rentré
 	</string>
 	<string name="In Shdw Color">
-		İç Gölge Rengi
+		Couleur ombre interne
 	</string>
 	<string name="In Shdw Opacity">
-		İç Gölge Opaklığı
+		Opacité ombre interne
 	</string>
 	<string name="Inner Eye Corner">
-		Gözün İç Köşesi
+		Coin interne
 	</string>
 	<string name="Inner Eye Shadow">
-		İç Göz Gölgesi
+		Ombre de l&apos;œil interne
 	</string>
 	<string name="Inner Shadow">
-		İç Gölge
+		Ombre interne
 	</string>
 	<string name="Jacket Length">
-		Ceket Uzunluğu
+		Longueur de la veste
 	</string>
 	<string name="Jacket Wrinkles">
-		Ceket Kırışıklıkları
+		Plis de la veste
 	</string>
 	<string name="Jaw Angle">
-		Çenenin Boyuna Uzaklığı
+		Angle mâchoire
 	</string>
 	<string name="Jaw Jut">
-		Alt Çene Uzunluğu
+		Saillie mâchoire
 	</string>
 	<string name="Jaw Shape">
-		Çene Kemiği Genişliği
+		Mâchoire
 	</string>
 	<string name="Join">
-		Birleşik
+		Rapprochés
 	</string>
 	<string name="Jowls">
-		Avurtlar
+		Bajoues
 	</string>
 	<string name="Knee Angle">
-		Diz Açısı
+		Angle du genou
 	</string>
 	<string name="Knock Kneed">
-		Çarpık Bacaklı
+		Genoux rapprochés
 	</string>
 	<string name="Large">
-		Büyük
+		Plus
 	</string>
 	<string name="Large Hands">
-		Büyük Eller
+		Grandes mains
 	</string>
 	<string name="Left Part">
-		Sola Ayırma
+		Raie à gauche
 	</string>
 	<string name="Leg Length">
-		Bacak Uzunluğu
+		Longueur
 	</string>
 	<string name="Leg Muscles">
-		Bacak Kasları
+		Muscles
 	</string>
 	<string name="Less">
-		Daha Az
+		Moins
 	</string>
 	<string name="Less Body Fat">
-		Daha Az Vücut Yağı
+		Moins
 	</string>
 	<string name="Less Curtains">
-		Daha Az Lincoln Sakal
+		Moins
 	</string>
 	<string name="Less Freckles">
-		Daha Az Çil
+		Moins
 	</string>
 	<string name="Less Full">
-		Daha Az Dolgun
+		Moins
 	</string>
 	<string name="Less Gravity">
-		Dik Göğüs
+		Moins
 	</string>
 	<string name="Less Love">
-		Daha İnce Bel
+		Moins
 	</string>
 	<string name="Less Muscles">
-		Daha Az Kas
+		Moins
 	</string>
 	<string name="Less Muscular">
-		Daha Az Kaslı
+		Moins
 	</string>
 	<string name="Less Rosy">
-		Daha Az Pembe
+		Moins
 	</string>
 	<string name="Less Round">
-		Daha Az Yuvarlak
+		Moins ronde
 	</string>
 	<string name="Less Saddle">
-		Basensiz
+		Moins
 	</string>
 	<string name="Less Square">
-		Daha Az Küt
+		Moins carrée
 	</string>
 	<string name="Less Volume">
-		Daha Az Hacim
+		Moins
 	</string>
 	<string name="Less soul">
-		Daha az ruh
+		Moins
 	</string>
 	<string name="Lighter">
-		Daha Hafif
+		Plus léger
 	</string>
 	<string name="Lip Cleft">
-		Dudak Çukuru
+		Fente labiale
 	</string>
 	<string name="Lip Cleft Depth">
-		Dudak Çukuru Derinliği
+		Prof. fente labiale
 	</string>
 	<string name="Lip Fullness">
-		Dudak Dolgunluğu
+		Volume des lèvres
 	</string>
 	<string name="Lip Pinkness">
-		Dudak Pembeliği
+		Rougeur des lèvres
 	</string>
 	<string name="Lip Ratio">
-		Dudak Oranı
+		Proportion des lèvres
 	</string>
 	<string name="Lip Thickness">
-		Dudak Kalınlığı
+		Épaisseur
 	</string>
 	<string name="Lip Width">
-		Dudak Genişliği
+		Largeur
 	</string>
 	<string name="Lipgloss">
-		Dudak Parlatıcısı
+		Brillant à lèvres
 	</string>
 	<string name="Lipstick">
-		Ruj
+		Rouge à lèvres
 	</string>
 	<string name="Lipstick Color">
-		Ruj Rengi
+		Couleur du rouge à lèvres
 	</string>
 	<string name="Long">
-		Uzun
+		Plus
 	</string>
 	<string name="Long Head">
-		Uzun Kafa
+		Tête longue
 	</string>
 	<string name="Long Hips">
-		Yüksek kalça
+		Hanches longues
 	</string>
 	<string name="Long Legs">
-		Uzun Bacaklar
+		Jambes longues
 	</string>
 	<string name="Long Neck">
-		Uzun Boyun
+		Long cou
 	</string>
 	<string name="Long Pigtails">
-		Yandan Uzun Kuyruk
+		Longues couettes
 	</string>
 	<string name="Long Ponytail">
-		Uzun Atkuyruğu
+		Longue queue de cheval
 	</string>
 	<string name="Long Torso">
-		Uzun Gövde
+		Torse long
 	</string>
 	<string name="Long arms">
-		Uzun kollar
+		Bras longs
 	</string>
 	<string name="Loose Pants">
-		Bol Pantolon
+		Pantalons amples
 	</string>
 	<string name="Loose Shirt">
-		Bol Gömlek
+		Chemise ample
 	</string>
 	<string name="Loose Sleeves">
-		Bol Kollu
+		Manches amples
 	</string>
 	<string name="Love Handles">
-		Bel Kalınlığı
+		Poignées d&apos;amour
 	</string>
 	<string name="Low">
-		Düşük
+		Bas
 	</string>
 	<string name="Low Heels">
-		Alçak Topuklar
+		Talons bas
 	</string>
 	<string name="Low Jaw">
-		Bitişik
+		Bas
 	</string>
 	<string name="Low Platforms">
-		Alçak Topuklu
+		Basse
 	</string>
 	<string name="Low and Loose">
-		Yüksek
+		Bas et ample
 	</string>
 	<string name="Lower">
-		Daha Alçak
+		Abaisser
 	</string>
 	<string name="Lower Bridge">
-		Alt Burun Kemiği
+		Arête inférieure
 	</string>
 	<string name="Lower Cheeks">
-		Daha Alçak Yanaklar
+		Joue inférieure
 	</string>
 	<string name="Male">
-		Erkek
+		Homme
 	</string>
 	<string name="Middle Part">
-		Ortadan Ayırma
+		Raie au milieu
 	</string>
 	<string name="More">
-		Daha Fazla
+		Plus
 	</string>
 	<string name="More Blush">
-		Daha Fazla Allık
+		Plus
 	</string>
 	<string name="More Body Fat">
-		Daha Fazla Vücut Yağı
+		Plus
 	</string>
 	<string name="More Curtains">
-		Daha Çok Lincoln Sakal
+		Plus
 	</string>
 	<string name="More Eyeshadow">
-		Daha Fazla Göz Farı
+		Plus
 	</string>
 	<string name="More Freckles">
-		Daha Çok Çil
+		Plus
 	</string>
 	<string name="More Full">
-		Daha Dolgun
+		Plus
 	</string>
 	<string name="More Gravity">
-		Sarkık Göğüs
+		Plus
 	</string>
 	<string name="More Lipstick">
-		Daha Çok Ruj
+		Plus
 	</string>
 	<string name="More Love">
-		Daha Kalın Bel
+		Plus
 	</string>
 	<string name="More Lower Lip">
-		Daha Dolgun Alt Dudak
+		Inférieure plus grosse
 	</string>
 	<string name="More Muscles">
-		Daha Çok Kas
+		Plus
 	</string>
 	<string name="More Muscular">
-		Daha Kaslı
+		Plus
 	</string>
 	<string name="More Rosy">
-		Daha Pembe
+		Plus
 	</string>
 	<string name="More Round">
-		Daha Yuvarlak
+		Plus
 	</string>
 	<string name="More Saddle">
-		Basenli
+		Plus
 	</string>
 	<string name="More Sloped">
-		Daha Eğimli
+		Plus
 	</string>
 	<string name="More Square">
-		Daha Küt
+		Plus
 	</string>
 	<string name="More Upper Lip">
-		Daha Dolgun Üst Dudak
+		Supérieure plus grosse
 	</string>
 	<string name="More Vertical">
-		Daha Dikey
+		Plus
 	</string>
 	<string name="More Volume">
-		Daha Hacimli
+		Plus
 	</string>
 	<string name="More soul">
-		Daha çok ruh
+		Plus
 	</string>
 	<string name="Moustache">
-		Bıyık
+		Moustache
 	</string>
 	<string name="Mouth Corner">
-		Ağız Köşesi
+		Coin de la bouche
 	</string>
 	<string name="Mouth Position">
-		Ağzın Konumu
+		Position
 	</string>
 	<string name="Mowhawk">
-		Mowhawk Saçı
+		Mowhawk
 	</string>
 	<string name="Muscular">
-		Kaslı
+		Musclé
 	</string>
 	<string name="Mutton Chops">
-		Geniş Favori
+		Longs
 	</string>
 	<string name="Nail Polish">
-		Tırnak Cilası
+		Vernis à ongles
 	</string>
 	<string name="Nail Polish Color">
-		Tırnak Cilası Rengi
+		Couleur du vernis
 	</string>
 	<string name="Narrow">
-		Dar
+		Moins
 	</string>
 	<string name="Narrow Back">
-		Arkası Dar
+		Arrière étroit
 	</string>
 	<string name="Narrow Front">
-		Önü Dar
+		Devant étroit
 	</string>
 	<string name="Narrow Lips">
-		Küçük Dudaklar
+		Lèvres étroites
 	</string>
 	<string name="Natural">
-		Doğal
+		Naturel
 	</string>
 	<string name="Neck Length">
-		Boyun Uzunluğu
+		Longueur du cou
 	</string>
 	<string name="Neck Thickness">
-		Boyun Kalınlığı
+		Épaisseur du cou
 	</string>
 	<string name="No Blush">
-		Allık Yok
+		Pas de blush
 	</string>
 	<string name="No Eyeliner">
-		Göz Kalemi Yok
+		Pas d&apos;eyeliner
 	</string>
 	<string name="No Eyeshadow">
-		Göz Farı Yok
+		Pas d&apos;ombre à paupières
 	</string>
 	<string name="No Lipgloss">
-		Dudak Parlatıcısı Yok
+		Pas de brillant à lèvres
 	</string>
 	<string name="No Lipstick">
-		Ruj Yok
+		Pas de rouge à lèvres
 	</string>
 	<string name="No Part">
-		Ayırma Yok
+		Pas de raie
 	</string>
 	<string name="No Polish">
-		Cila Yok
+		Pas de vernis
 	</string>
 	<string name="No Red">
-		Kırmızı Yok
+		Pas de rouge
 	</string>
 	<string name="No Spikes">
-		Dikleştirme Yok
+		Pas de spikes
 	</string>
 	<string name="No White">
-		Beyaz Yok
+		Pas de blanc
 	</string>
 	<string name="No Wrinkles">
-		Kırışıklık Yok
+		Pas de rides
 	</string>
 	<string name="Normal Lower">
-		Normal Alt
+		Normal plus bas
 	</string>
 	<string name="Normal Upper">
-		Normal Üst
+		Normal plus haut
 	</string>
 	<string name="Nose Left">
-		Sola Eğimli Burun
+		Nez à gauche
 	</string>
 	<string name="Nose Right">
-		Sağa Eğimli Burun
+		Nez à droite
 	</string>
 	<string name="Nose Size">
-		Burun Büyüklüğü
+		Taille du nez
 	</string>
 	<string name="Nose Thickness">
-		Burun Kalınlığı
+		Épaisseur du nez
 	</string>
 	<string name="Nose Tip Angle">
-		Burun Ucu Açısı
+		Angle bout du nez
 	</string>
 	<string name="Nose Tip Shape">
-		Burun Ucu Şekli
+		Forme bout du nez
 	</string>
 	<string name="Nose Width">
-		Burun Genişliği
+		Largeur du nez
 	</string>
 	<string name="Nostril Division">
-		Burun Deliği Ayrımı
+		Division narines
 	</string>
 	<string name="Nostril Width">
-		Burun Deliği Genişliği
+		Largeur narines
 	</string>
 	<string name="Opaque">
-		Opak
+		Opaque
 	</string>
 	<string name="Open">
-		Aç
+		Ouvert
 	</string>
 	<string name="Open Back">
-		Arkayı Aç
+		Derrière ouvert
 	</string>
 	<string name="Open Front">
-		Önü Aç
+		Devant ouvert
 	</string>
 	<string name="Open Left">
-		Solu Aç
+		Ouvert à gauche
 	</string>
 	<string name="Open Right">
-		Sağı Aç
+		Ouvert à droite
 	</string>
 	<string name="Orange">
-		Turuncu
+		Orange
 	</string>
 	<string name="Out">
-		Dışarı
+		Sorti
 	</string>
 	<string name="Out Shdw Color">
-		Dış Gölge Rengi
+		Couleur de l&apos;ombre externe
 	</string>
 	<string name="Out Shdw Opacity">
-		Dış Gölge Opaklığı
+		Opacité de l&apos;ombre externe
 	</string>
 	<string name="Outer Eye Corner">
-		Gözün Dış Köşesi
+		Coin externe
 	</string>
 	<string name="Outer Eye Shadow">
-		Dış Göz Gölgesi
+		Ombre de l&apos;œil externe
 	</string>
 	<string name="Outer Shadow">
-		Dış Gölge
+		Ombre externe
 	</string>
 	<string name="Overbite">
-		Öne Doğru
+		Rentrée
 	</string>
 	<string name="Package">
-		Apış Arası Şişkinliği
+		Parties
 	</string>
 	<string name="Painted Nails">
-		Ojeli Tırnaklar
+		Ongles vernis
 	</string>
 	<string name="Pale">
-		Soluk
+		Pâle
 	</string>
 	<string name="Pants Crotch">
-		Pantolon Ağı
+		Entrejambe
 	</string>
 	<string name="Pants Fit">
-		Pantolon Oturması
+		Taille
 	</string>
 	<string name="Pants Length">
-		Pantolon Uzunluğu
+		Longueur
 	</string>
 	<string name="Pants Waist">
-		Pantolon Bel Ölçüsü
+		Taille
 	</string>
 	<string name="Pants Wrinkles">
-		Pantolon Kırışıklıkları
+		Plis
 	</string>
 	<string name="Part">
-		Ayırma
+		Raie
 	</string>
 	<string name="Part Bangs">
-		Ayrılmış Kahküller
+		Séparation frange
 	</string>
 	<string name="Pectorals">
-		Göğüs Kasları
+		Pectoraux
 	</string>
 	<string name="Pigment">
-		Pigment
+		Pigmentation
 	</string>
 	<string name="Pigtails">
-		Yan Kuyruklar
+		Couettes
 	</string>
 	<string name="Pink">
-		Pembe
+		Rose
 	</string>
 	<string name="Pinker">
-		Daha Pembe
+		Plus rose
 	</string>
 	<string name="Platform Height">
-		Topuk Yüksekliği
+		Platef. (hauteur)
 	</string>
 	<string name="Platform Width">
-		Topuk Genişliği
+		Platef. (largeur)
 	</string>
 	<string name="Pointy">
-		Dar
+		Pointue
 	</string>
 	<string name="Pointy Heels">
-		Sivri Topuklar
+		Talons pointus
 	</string>
 	<string name="Ponytail">
-		Atkuyruğu
+		Queue de cheval
 	</string>
 	<string name="Poofy Skirt">
-		Kabarık Etek
+		Jupe bouffante
 	</string>
 	<string name="Pop Left Eye">
-		Sol Gözü Dışarı Çıkar
+		Œil gauche saillant
 	</string>
 	<string name="Pop Right Eye">
-		Sağ Gözü Dışarı Çıkar
+		Œil droit saillant
 	</string>
 	<string name="Puffy">
-		Şişkin
+		Plus
 	</string>
 	<string name="Puffy Eyelids">
-		Şişkin Göz Kapakları
+		Paup. gonflées
 	</string>
 	<string name="Rainbow Color">
-		Gökkuşağı Rengi
+		Couleur arc en ciel
 	</string>
 	<string name="Red Hair">
-		Kırmızı Saç
+		Cheveux roux
 	</string>
 	<string name="Regular">
-		Normal
+		Standard
 	</string>
 	<string name="Right Part">
-		Sağa Ayırma
+		Raie à droite
 	</string>
 	<string name="Rosy Complexion">
-		Kırmızı Yanaklı
+		Teint rosé
 	</string>
 	<string name="Round">
-		Yuvarlak
+		Rond
 	</string>
 	<string name="Ruddiness">
-		Kırmızılık
+		Rougeur
 	</string>
 	<string name="Ruddy">
-		Kırmızı
+		Rouge
 	</string>
 	<string name="Rumpled Hair">
-		Dağınık Saç
+		Texture
 	</string>
 	<string name="Saddle Bags">
-		Basen Genişliği
+		Culotte de cheval
 	</string>
 	<string name="Scrawny Leg">
-		Sıska Bacak
+		Jambes maigres
 	</string>
 	<string name="Separate">
-		Ayrık
+		Séparés
 	</string>
 	<string name="Shallow">
-		Sığ
+		Creux
 	</string>
 	<string name="Shear Back">
-		Arka Dolgunluğu
+		Coupe derrière
 	</string>
 	<string name="Shear Face">
-		Yüzü Dikey Kaydır
+		Visage
 	</string>
 	<string name="Shear Front">
-		Ön Dolgunluğu
+		Front
 	</string>
 	<string name="Shear Left Up">
-		Solu Yukarı Kaydır
+		Haut gauche décalé
 	</string>
 	<string name="Shear Right Up">
-		Sağı Yukarı Kaydır
+		Haut droit décalé
 	</string>
 	<string name="Sheared Back">
-		Arkası Dolgun
+		Dégagé derrière
 	</string>
 	<string name="Sheared Front">
-		Önü Dolgun
+		Dégagé devant
 	</string>
 	<string name="Shift Left">
-		Sola Kaydır
+		Vers la gauche
 	</string>
 	<string name="Shift Mouth">
-		Ağzı Kaydırma
+		Déplacement
 	</string>
 	<string name="Shift Right">
-		Sağa Kaydır
+		Vers la droite
 	</string>
 	<string name="Shirt Bottom">
-		Gömlek Eteği
+		Chemise
 	</string>
 	<string name="Shirt Fit">
-		Gömlek Boyu
+		Taille
 	</string>
 	<string name="Shirt Wrinkles">
-		Gömlek Kırışıklıkları
+		Plis
 	</string>
 	<string name="Shoe Height">
-		Ayakkabı Yüksekliği
+		Hauteur
 	</string>
 	<string name="Short">
-		Kısa
+		Moins
 	</string>
 	<string name="Short Arms">
-		Kısa Kollar
+		Bras courts
 	</string>
 	<string name="Short Legs">
-		Kısa Bacaklar
+		Jambes courtes
 	</string>
 	<string name="Short Neck">
-		Kısa Boyun
+		Petit cou
 	</string>
 	<string name="Short Pigtails">
-		Yandan Kısa Kuyruk
+		Couettes courtes
 	</string>
 	<string name="Short Ponytail">
-		Kısa Atkuyruğu
+		Queue de cheval courte
 	</string>
 	<string name="Short Sideburns">
-		Kısa Favoriler
+		Court
 	</string>
 	<string name="Short Torso">
-		Kısa Gövde
+		Torse court
 	</string>
 	<string name="Short hips">
-		Düşük kalça
+		Hanches courtes
 	</string>
 	<string name="Shoulders">
-		Omuzlar
+		Épaules
 	</string>
 	<string name="Side Fringe">
-		Yan Perçem
+		Mèches sur le côté
 	</string>
 	<string name="Sideburns">
-		Favoriler
+		Favoris
 	</string>
 	<string name="Sides Hair">
-		Yan Saçlar
+		Cheveux sur le côté
 	</string>
 	<string name="Sides Hair Down">
-		Aşağı Doğru Yan Saç
+		Cheveux sur le côté en bas
 	</string>
 	<string name="Sides Hair Up">
-		Yukarı Doğru Yan Saç
+		Cheveux sur le côté en haut
 	</string>
 	<string name="Skinny Neck">
-		İnce Boyun
+		Cou maigre
 	</string>
 	<string name="Skirt Fit">
-		Etek Boyu
+		Taille jupe
 	</string>
 	<string name="Skirt Length">
-		Etek Uzunluğu
+		Longueur jupe
 	</string>
 	<string name="Slanted Forehead">
-		Eğimli Alın
+		Front incliné
 	</string>
 	<string name="Sleeve Length">
-		Kol Uzunluğu
+		Longueur manche
 	</string>
 	<string name="Sleeve Looseness">
-		Kol Bolluğu
+		Ampleur manche
 	</string>
 	<string name="Slit Back">
-		Yırtmaç: Geri
+		Fente : Derrière
 	</string>
 	<string name="Slit Front">
-		Yırtmaç: Ön
+		Fente : Devant
 	</string>
 	<string name="Slit Left">
-		Yırtmaç: Sol
+		Fente : Gauche
 	</string>
 	<string name="Slit Right">
-		Yırtmaç: Sağ
+		Fente : Droite
 	</string>
 	<string name="Small">
-		Küçük
+		Moins
 	</string>
 	<string name="Small Hands">
-		Küçük Eller
+		Petites mains
 	</string>
 	<string name="Small Head">
-		Küçük Kafa
+		Moins
 	</string>
 	<string name="Smooth">
-		Düz
+		Moins
 	</string>
 	<string name="Smooth Hair">
-		Düz Saç
+		Cheveux lisses
 	</string>
 	<string name="Socks Length">
-		Çorap Uzunluğu
+		Longueur
 	</string>
 	<string name="Soulpatch">
-		Dudak Altı Sakal
+		Barbichette
 	</string>
 	<string name="Sparse">
-		Seyrek
+		Rares
 	</string>
 	<string name="Spiked Hair">
-		Dikleştirilmiş Saç
+		Mèches en pointe
 	</string>
 	<string name="Square">
-		Geniş
+		Carrée
 	</string>
 	<string name="Square Toe">
-		Küt Burunlu
+		Orteil carré
 	</string>
 	<string name="Squash Head">
-		Kafayı Bastır
+		Écraser la tête
 	</string>
 	<string name="Stretch Head">
-		Kafayı Uzat
+		Allonger la tête
 	</string>
 	<string name="Sunken">
-		Çökük
+		Saillante
 	</string>
 	<string name="Sunken Chest">
-		Çökük Göğüs
+		Poitrine enfoncée
 	</string>
 	<string name="Sunken Eyes">
-		Çökük Gözler
+		Yeux enfoncés
 	</string>
 	<string name="Sweep Back">
-		Arkaya Tarama
+		En arrière
 	</string>
 	<string name="Sweep Forward">
-		Öne Tarama
+		Vers l&apos;avant
 	</string>
 	<string name="Tall">
-		Uzun
+		Plus
 	</string>
 	<string name="Taper Back">
-		Arkası Kısa
+		Arrière
 	</string>
 	<string name="Taper Front">
-		Önü Kısa
+		Avant
 	</string>
 	<string name="Thick Heels">
-		Kalın Topuklar
+		Talons épais
 	</string>
 	<string name="Thick Neck">
-		Kalın Boyun
+		Cou épais
 	</string>
 	<string name="Thick Toe">
-		Kalın Ayak Ucu
+		Orteil épais
 	</string>
 	<string name="Thin">
-		İnce
+		Mince
 	</string>
 	<string name="Thin Eyebrows">
-		İnce Kaşlar
+		Sourcils fins
 	</string>
 	<string name="Thin Lips">
-		İnce Dudaklar
+		Lèvres fines
 	</string>
 	<string name="Thin Nose">
-		İnce Burun
+		Nez fin
 	</string>
 	<string name="Tight Chin">
-		Çift Çene
+		Menton fin
 	</string>
 	<string name="Tight Cuffs">
-		Dar Paçalar
+		Jambes serrées
 	</string>
 	<string name="Tight Pants">
-		Dar Pantolon
+		Pantalons serrés
 	</string>
 	<string name="Tight Shirt">
-		Dar Gömlek
+		Chemise serrée
 	</string>
 	<string name="Tight Skirt">
-		Dar Etek
+		Jupe serrée
 	</string>
 	<string name="Tight Sleeves">
-		Dar Kollu
+		Manches serrées
 	</string>
 	<string name="Toe Shape">
-		Ayakkabu Burnu Şekli
+		Forme de l&apos;orteil
 	</string>
 	<string name="Toe Thickness">
-		Ayakkabu Burnu Kalınlığı
+		Épaisseur orteil
 	</string>
 	<string name="Torso Length">
-		Gövde Uzunluğu
+		Longueur du torse
 	</string>
 	<string name="Torso Muscles">
-		Gövde Kasları
+		Muscles du torse
 	</string>
 	<string name="Torso Scrawny">
-		Sıska Gövde
+		Torse maigre
 	</string>
 	<string name="Unattached">
-		Ayrık
+		Séparés
 	</string>
 	<string name="Uncreased">
-		Buruşuk olmayan
+		Lisse
 	</string>
 	<string name="Underbite">
-		Geriye Doğru
+		Sortie
 	</string>
 	<string name="Unnatural">
-		Doğal Olmayan
+		Artificiel
 	</string>
 	<string name="Upper Bridge">
-		Üst Burun Kemiği
+		Arête supérieure
 	</string>
 	<string name="Upper Cheeks">
-		Üst Yanaklar
+		Joue supérieure
 	</string>
 	<string name="Upper Chin Cleft">
-		Üst Çene Çukuru
+		Menton supérieur
 	</string>
 	<string name="Upper Eyelid Fold">
-		Üst Göz Kapağı Kıvrımı
+		Paupière sup.
 	</string>
 	<string name="Upturned">
-		Yukarı dönük
+		En trompette
 	</string>
 	<string name="Very Red">
-		Çok Kırmızı
+		Très rouge
 	</string>
 	<string name="Waist Height">
-		Bel Yüksekliği
+		Hauteur taille
 	</string>
 	<string name="Well-Fed">
-		Dolgun
+		Ronde
 	</string>
 	<string name="White Hair">
-		Beyaz Saç
+		Cheveux blancs
 	</string>
 	<string name="Wide">
-		Geniş
+		Plus
 	</string>
 	<string name="Wide Back">
-		Geniş Arka
+		Derrière large
 	</string>
 	<string name="Wide Front">
-		Geniş Ön
+		Devant large
 	</string>
 	<string name="Wide Lips">
-		Geniş Dudaklar
+		Lèvres larges
 	</string>
 	<string name="Wild">
-		Çılgın
+		Artificiel
 	</string>
 	<string name="Wrinkles">
-		Kırışıklıklar
+		Rides
 	</string>
 	<string name="LocationCtrlAddLandmarkTooltip">
-		Yer İmlerime Ekle
+		Ajouter à mes repères
 	</string>
 	<string name="LocationCtrlEditLandmarkTooltip">
-		Yer İmimi Düzenle
+		Modifier mon repère
 	</string>
 	<string name="LocationCtrlInfoBtnTooltip">
-		Geçerli konum hakkında daha fazla bilgi gör
+		En savoir plus sur l&apos;emplacement actuel
 	</string>
 	<string name="LocationCtrlComboBtnTooltip">
-		Konum geçmişim
+		Historique de mes emplacements
 	</string>
 	<string name="LocationCtrlForSaleTooltip">
-		Bu araziyi satın al
+		Acheter ce terrain
 	</string>
 	<string name="LocationCtrlVoiceTooltip">
-		Ses burada kullanılamaz
+		Chat vocal indisponible ici
 	</string>
 	<string name="LocationCtrlFlyTooltip">
-		Uçmaya izin verilmiyor
+		Vol interdit
 	</string>
 	<string name="LocationCtrlPushTooltip">
-		İtme yok
+		Pas de bousculades
 	</string>
 	<string name="LocationCtrlBuildTooltip">
-		Nesne inşa etmeye/düşürmeye izin verilmiyor
+		Construction/placement d&apos;objets interdit
 	</string>
 	<string name="LocationCtrlScriptsTooltip">
-		Komut dosyalarına izin verilmiyor
+		Scripts interdits
 	</string>
 	<string name="LocationCtrlDamageTooltip">
-		Sağlık
+		Santé
 	</string>
 	<string name="LocationCtrlAdultIconTooltip">
-		Yetişkin Bölgesi
+		Région de type Adulte
 	</string>
 	<string name="LocationCtrlModerateIconTooltip">
-		Orta Bölge
+		Région de type Modéré
 	</string>
 	<string name="LocationCtrlGeneralIconTooltip">
-		Genel Bölge
+		Région de type Général
 	</string>
 	<string name="LocationCtrlSeeAVsTooltip">
-		Bu parselin dışında avatarlar görünür durumda ve sohbete izin veriliyor
+		Avatars visibles et chat autorisé en dehors de cette parcelle
 	</string>
 	<string name="UpdaterWindowTitle">
-		[APP_NAME] Güncelleştirme
+		[APP_NAME] - Mise à jour
 	</string>
 	<string name="UpdaterNowUpdating">
-		[APP_NAME] güncelleştiriliyor...
+		Mise à jour de [APP_NAME]...
 	</string>
 	<string name="UpdaterNowInstalling">
-		[APP_NAME] yükleniyor...
+		Installation de [APP_NAME]...
 	</string>
 	<string name="UpdaterUpdatingDescriptive">
-		[APP_NAME] Görüntüleyiciniz en son sürüme güncelleştiriliyor.  Bu biraz zaman alabilir, bu nedenle sabırlı olun.
+		Le client [APP_NAME] est en train d&apos;être mis à jour.  Cela peut prendre un certain temps, merci de votre patience.
 	</string>
 	<string name="UpdaterProgressBarTextWithEllipses">
-		Güncelleştirme karşıdan yükleniyor...
+		Mise à jour en cours...
 	</string>
 	<string name="UpdaterProgressBarText">
-		Güncelleştirme karşıdan yükleniyor
+		Mise à jour en cours
 	</string>
 	<string name="UpdaterFailDownloadTitle">
-		Güncelleştirmenin karşıdan yüklenmesi başarılamadı
+		Le téléchargement de la mise à jour a échoué
 	</string>
 	<string name="UpdaterFailUpdateDescriptive">
-		[APP_NAME] güncellenirken bir hata oluştu. Lütfen www.secondlife.com adresinden son sürümü karşıdan yükleyin.
+		Une erreur est survenue lors de la mise à jour de [APP_NAME]. Veuillez télécharger la dernière version sur www.secondlife.com.
 	</string>
 	<string name="UpdaterFailInstallTitle">
-		Güncelleştirmenin yüklenmesi başarılamadı
+		L&apos;installation de la mise à jour a échoué
 	</string>
 	<string name="UpdaterFailStartTitle">
-		Görüntüleyici başlatılamadı
+		Impossible de lancer le client
 	</string>
 	<string name="ItemsComingInTooFastFrom">
-		[APP_NAME]: [FROM_NAME]&apos;den öğeler çok hızlı geliyor, [TIME] saniye boyunca otomatik ön izleme devre dışı bırakıldı
+		[APP_NAME] : transfert trop rapide des articles de [FROM_NAME] ; aperçu automatique désactivé pendant [TIME] secondes
 	</string>
 	<string name="ItemsComingInTooFast">
-		[APP_NAME]: Öğeler çok hızlı geliyor, [TIME] saniye boyunca otomatik ön izleme devre dışı bırakıldı
+		[APP_NAME] : transfert trop rapide des articles ; aperçu automatique désactivé pendant [TIME] secondes
 	</string>
 	<string name="IM_logging_string">
-		-- Anlık ileti günlük tutulması etkin --
+		-- Archivage des IM activé --
 	</string>
 	<string name="IM_typing_start_string">
-		[NAME] yazıyor...
+		[NAME] est en train d&apos;écrire...
 	</string>
 	<string name="Unnamed">
-		(İsimsiz)
+		(sans nom)
 	</string>
 	<string name="IM_moderated_chat_label">
-		(Yönetilen: Varsayılan durumda sesler kapalı)
+		(Modéré : Voix désactivées par défaut)
 	</string>
 	<string name="IM_unavailable_text_label">
-		Bu aramada metin sohbeti kullanılamaz.
+		Le chat écrit n&apos;est pas disponible pour cet appel.
 	</string>
 	<string name="IM_muted_text_label">
-		Bir Grup Moderatörü tarafından metin sohbetiniz devre dışı bırakıldı.
+		Votre chat écrit a été désactivé par un modérateur de groupe.
 	</string>
 	<string name="IM_default_text_label">
-		Anlık ileti göndermek için buraya tıklayın.
+		Cliquez ici pour envoyer un message instantané.
 	</string>
 	<string name="IM_to_label">
-		Kime
+		À
 	</string>
 	<string name="IM_moderator_label">
-		(Moderatör)
+		(Modérateur)
 	</string>
 	<string name="Saved_message">
-		(Kaydedildi [LONG_TIMESTAMP])
+		(Enregistrement : [LONG_TIMESTAMP])
 	</string>
 	<string name="IM_unblock_only_groups_friends">
-		Bu mesajı görmek için Tercihler/Gizlilik&apos;de &apos;Sadece arkadaşlar ve gruplar beni arasın veya Aİ göndersin&apos; seçeneğinin işaretini kaldırmalısınız.
+		Pour afficher ce message, vous devez désactiver la case Seuls mes amis et groupes peuvent m&apos;appeler ou m&apos;envoyer un IM, sous Préférences/Confidentialité.
 	</string>
 	<string name="answered_call">
-		Aramanız yanıtlandı
+		Votre appel a fait l&apos;objet d&apos;une réponse
 	</string>
 	<string name="you_started_call">
-		Bir sesli arama başlattınız
+		Vous appelez.
 	</string>
 	<string name="you_joined_call">
-		Sesli aramaya katıldınız
+		Vous avez rejoint l&apos;appel
 	</string>
 	<string name="name_started_call">
-		[NAME] bir sesli arama başlattı
+		[NAME] appelle.
 	</string>
 	<string name="ringing-im">
-		Sesli aramaya katılınılıyor...
+		En train de rejoindre l&apos;appel...
 	</string>
 	<string name="connected-im">
-		Bağlandı, kapatmak için Aramadan Çık üzerine tıklayın
+		Connecté(e), cliquez sur Quitter l&apos;appel pour raccrocher
 	</string>
 	<string name="hang_up-im">
-		Sesli aramadan çıkıldı
+		A quitté l&apos;appel
 	</string>
 	<string name="answering-im">
-		Bağlanıyor...
+		Connexion en cours...
 	</string>
 	<string name="conference-title">
-		Özel Konferans
+		Conférence ad-hoc
 	</string>
 	<string name="conference-title-incoming">
-		[AGENT_NAME] ile konferans
+		Conférence avec [AGENT_NAME]
 	</string>
 	<string name="inventory_item_offered-im">
-		Teklif edilen envanter öğesi:
+		Objet de l&apos;inventaire offert
 	</string>
 	<string name="share_alert">
-		Envanterinizden buraya öğeler sürükleyin
+		Faire glisser les objets de l&apos;inventaire ici
 	</string>
 	<string name="no_session_message">
-		(Aİ Oturumu Mevcut Değil)
+		(Session IM inexistante)
 	</string>
 	<string name="only_user_message">
-		Bu oturumdaki tek kullanıcısınız.
+		Vous êtes le seul participant à cette session.
 	</string>
 	<string name="offline_message">
-		[NAME] çevrim dışı.
+		[NAME] est hors ligne.
 	</string>
 	<string name="invite_message">
-		Bu sesli sohbeti kabul etmek/bağlanmak için [BUTTON NAME] düğmesine tıklayın.
+		Pour accepter ce chat vocal/vous connecter, cliquez sur le bouton [BUTTON NAME].
 	</string>
 	<string name="muted_message">
-		Bu Sakini engellediniz. Bir ileti gönderdiğinizde engelleme otomatik olarak kaldırılır.
+		Vous ignorez ce résident. Si vous lui envoyez un message, il ne sera plus ignoré.
 	</string>
 	<string name="generic">
-		Talep gönderilirken hata oluştu, lütfen daha sonra tekrar deneyin.
+		Erreur lors de la requête, veuillez réessayer ultérieurement.
 	</string>
 	<string name="generic_request_error">
-		Talep gönderilirken hata oluştu, lütfen daha sonra tekrar deneyin.
+		Erreur lors de la requête, veuillez réessayer ultérieurement.
 	</string>
 	<string name="insufficient_perms_error">
-		Yeterli izne sahip değilsiniz.
+		Vous n&apos;avez pas les droits requis.
 	</string>
 	<string name="session_does_not_exist_error">
-		Bu oturum artık mevcut değil.
+		La session a expiré
 	</string>
 	<string name="no_ability_error">
-		Bu yeteneğe sahip değilsiniz.
+		Vous n&apos;avez pas ce pouvoir.
 	</string>
 	<string name="no_ability">
-		Bu yeteneğe sahip değilsiniz.
+		Vous n&apos;avez pas ce pouvoir.
 	</string>
 	<string name="not_a_mod_error">
-		Bir oturum moderatörü değilsiniz.
+		Vous n&apos;êtes pas modérateur de session.
 	</string>
 	<string name="muted">
-		Bir grup moderatörü metin sohbetinizi devre dışı bıraktı.
+		Un modérateur de groupe a désactivé votre chat écrit.
 	</string>
 	<string name="muted_error">
-		Bir grup moderatörü metin sohbetinizi devre dışı bıraktı.
+		Un modérateur de groupe a désactivé votre chat écrit.
 	</string>
 	<string name="add_session_event">
-		[RECIPIENT] ile sohbet oturumuna kullanıcı eklenemiyor.
+		Impossible d&apos;ajouter des participants à la session de chat avec [RECIPIENT].
 	</string>
 	<string name="message">
-		İletiniz [RECIPIENT] ile sohbet oturumuna gönderilemedi.
+		Impossible d&apos;envoyer votre message à la session de chat avec [RECIPIENT].
 	</string>
 	<string name="message_session_event">
-		İletiniz [RECIPIENT] ile sohbet oturumuna gönderilemedi.
+		Impossible d&apos;envoyer votre message à la session de chat avec [RECIPIENT].
 	</string>
 	<string name="mute">
-		Yönetme sırasında hata oluştu.
+		Erreur lors de la modération.
 	</string>
 	<string name="removed">
-		Gruptan çıkarıldınız.
+		Vous avez été supprimé du groupe.
 	</string>
 	<string name="removed_from_group">
-		Gruptan çıkarıldınız.
+		Vous avez été supprimé du groupe.
 	</string>
 	<string name="close_on_no_ability">
-		Sohbet oturumunda bulunma yeteneğine artık sahip değilsiniz.
+		Vous ne pouvez plus participer à la session de chat.
 	</string>
 	<string name="unread_chat_single">
-		[SOURCES] yeni bir şey söyledi
+		[SOURCES] a dit quelque chose de nouveau
 	</string>
 	<string name="unread_chat_multiple">
-		[SOURCES] yeni bir şey söyledi
+		[SOURCES] ont dit quelque chose de nouveau
 	</string>
 	<string name="session_initialization_timed_out_error">
-		Oturum başlatılması zaman aşımına uğradı.
+		Expiration du délai d&apos;initialisation de la session
 	</string>
 	<string name="Home position set.">
-		Ana konum ayarlandı.
+		Emplacement du domicile défini.
 	</string>
 	<string name="voice_morphing_url">
 		http://secondlife.com/landing/voicemorphing
 	</string>
 	<string name="paid_you_ldollars">
-		[NAME] size [REASON] L$[AMOUNT] ödedi.
+		[NAME] vous a payé [AMOUNT] L$ [REASON].
 	</string>
 	<string name="paid_you_ldollars_no_reason">
-		[NAME] size L$[AMOUNT] ödedi.
+		[NAME] vous a payé [AMOUNT] L$.
 	</string>
 	<string name="you_paid_ldollars">
-		[NAME]&apos;e [REASON] L$[AMOUNT]  ödediniz.
+		Vous avez payé à [AMOUNT] L$ [REASON].
 	</string>
 	<string name="you_paid_ldollars_no_info">
-		L$[AMOUNT] ödediniz.
+		Vous avez payé [AMOUNT] L$.
 	</string>
 	<string name="you_paid_ldollars_no_reason">
-		[NAME]&apos;e L$[AMOUNT] ödediniz.
+		Vous avez payé à [NAME] [AMOUNT] L$.
 	</string>
 	<string name="you_paid_ldollars_no_name">
-		[REASON] L$[AMOUNT] ödediniz.
+		Vous avez payé à [AMOUNT] L$ [REASON].
 	</string>
 	<string name="you_paid_failure_ldollars">
-		[REASON] [NAME]&apos;e L$[AMOUNT] ödeyemediniz.
+		Votre paiement de [AMOUNT] L$ à [NAME] [REASON] a échoué.
 	</string>
 	<string name="you_paid_failure_ldollars_no_info">
-		L$[AMOUNT] ödeyemediniz.
+		Votre paiement de [AMOUNT] L$ a échoué.
 	</string>
 	<string name="you_paid_failure_ldollars_no_reason">
-		[NAME]&apos;e L$[AMOUNT] ödeyemediniz.
+		Votre paiement de [AMOUNT] L$ à [NAME] a échoué.
 	</string>
 	<string name="you_paid_failure_ldollars_no_name">
-		[REASON] L$[AMOUNT] ödeyemediniz.
+		Votre paiement de [AMOUNT] L$ [REASON] a échoué.
 	</string>
 	<string name="for item">
-		[ITEM] için.
+		pour l&apos;article suivant : [ITEM]
 	</string>
 	<string name="for a parcel of land">
-		bir arazi parseli için.
+		pour une parcelle de terrain
 	</string>
 	<string name="for a land access pass">
-		bir arazi erişim hakkı için
+		pour un pass d&apos;accès au terrain
 	</string>
 	<string name="for deeding land">
-		arazi devretmek için
+		pour une cession de terrain
 	</string>
 	<string name="to create a group">
-		bir grup oluşturmak için
+		pour créer un groupe
 	</string>
 	<string name="to join a group">
-		bir grupa katılmak için
+		pour rejoindre un groupe
 	</string>
 	<string name="to upload">
-		karşıya yüklemek için
+		pour charger
 	</string>
 	<string name="to publish a classified ad">
-		bir ilan yayınlamak için
+		pour publier une petite annonce
 	</string>
 	<string name="giving">
-		L$ [AMOUNT] veriliyor
+		Donner [AMOUNT] L$
 	</string>
 	<string name="uploading_costs">
-		Karşıya yüklemenin maliyeti: L$ [AMOUNT]
+		Le chargement coûte [AMOUNT] L$
 	</string>
 	<string name="this_costs">
-		Bunun maliyeti: L$ [AMOUNT]
+		Cela coûte [AMOUNT] L$
 	</string>
 	<string name="buying_selected_land">
-		L$ [AMOUNT] karşılığında seçilen arazi satın alınıyor
+		Achat du terrain sélectionné pour [AMOUNT] L$
 	</string>
 	<string name="this_object_costs">
-		Bu nesnenin maliyeti: L$ [AMOUNT]
+		Cet objet coûte [AMOUNT] L$
 	</string>
 	<string name="group_role_everyone">
-		Herkes
+		Tous
 	</string>
 	<string name="group_role_officers">
-		Yetkililer
+		Officiers
 	</string>
 	<string name="group_role_owners">
-		Sahipler
+		Propriétaires
 	</string>
 	<string name="group_member_status_online">
-		Çevrimiçi
+		En ligne
 	</string>
 	<string name="uploading_abuse_report">
-		Kötüye Kullanım Bildirimi Karşıya Yükleniyor...
+		Chargement...
+
+du rapport d&apos;infraction
 	</string>
 	<string name="New Shape">
-		Yeni Şekil
+		Nouvelle silhouette
 	</string>
 	<string name="New Skin">
-		Yeni Dış Katman
+		Nouvelle peau
 	</string>
 	<string name="New Hair">
-		Yeni Saç
+		Nouveaux cheveux
 	</string>
 	<string name="New Eyes">
-		Yeni Gözler
+		Nouveaux yeux
 	</string>
 	<string name="New Shirt">
-		Yeni Gömlek
+		Nouvelle chemise
 	</string>
 	<string name="New Pants">
-		Yeni Pantolon
+		Nouveau pantalon
 	</string>
 	<string name="New Shoes">
-		Yeni Ayakkabılar
+		Nouvelles chaussures
 	</string>
 	<string name="New Socks">
-		Yeni Çoraplar
+		Nouvelles chaussettes
 	</string>
 	<string name="New Jacket">
-		Yeni Ceket
+		Nouvelle veste
 	</string>
 	<string name="New Gloves">
-		Yeni Eldivenler
+		Nouveaux gants
 	</string>
 	<string name="New Undershirt">
-		Yeni Fanila
+		Nouveau débardeur
 	</string>
 	<string name="New Underpants">
-		Yeni Külot
+		Nouveau caleçon
 	</string>
 	<string name="New Skirt">
-		Yeni Etek
+		Nouvelle jupe
 	</string>
 	<string name="New Alpha">
-		Yeni Alfa
+		Nouvel alpha
 	</string>
 	<string name="New Tattoo">
-		Yeni Dövme
+		Nouveau tatouage
 	</string>
 	<string name="New Physics">
-		Yeni Fizik
+		Nouvelles propriétés physiques
 	</string>
 	<string name="Invalid Wearable">
-		Geçersiz Giyilebilir
+		Objet à porter non valide
 	</string>
 	<string name="New Gesture">
-		Yeni Mimik
+		Nouveau geste
 	</string>
 	<string name="New Script">
-		Yeni Komut Dosyası
+		Nouveau script
 	</string>
 	<string name="New Note">
-		Yeni Not
+		Nouvelle note
 	</string>
 	<string name="New Folder">
-		Yeni Klasör
+		Nouveau dossier
 	</string>
 	<string name="Contents">
-		İçerik
+		Contenus
 	</string>
 	<string name="Gesture">
-		Mimik
+		Geste
 	</string>
 	<string name="Male Gestures">
-		Erkek Mimikleri
+		Gestes masculins
 	</string>
 	<string name="Female Gestures">
-		Kadın Mimikleri
+		Gestes féminins
 	</string>
 	<string name="Other Gestures">
-		Diğer Mimikler
+		Autres gestes
 	</string>
 	<string name="Speech Gestures">
-		Konuşma Mimikleri
+		Gestes liés à la parole
 	</string>
 	<string name="Common Gestures">
-		Favori Mimikler
+		Gestes communs
 	</string>
 	<string name="Male - Excuse me">
-		Erkek - Afedersiniz
+		Homme - Demander pardon
 	</string>
 	<string name="Male - Get lost">
-		Erkek - İşine bak
+		Homme - Get lost
 	</string>
 	<string name="Male - Blow kiss">
-		Erkek - Öpücük gönderme
+		Homme - Envoyer un baiser
 	</string>
 	<string name="Male - Boo">
-		Erkek - Yuh çekme
+		Homme - Hou !
 	</string>
 	<string name="Male - Bored">
-		Erkek - Canı sıkılmış
+		Homme - Ennui
 	</string>
 	<string name="Male - Hey">
-		Erkek - Hey
+		Homme - Hé !
 	</string>
 	<string name="Male - Laugh">
-		Erkek - Gülme
+		Homme - Rire
 	</string>
 	<string name="Male - Repulsed">
-		Erkek - Tiksinmiş
+		Homme - Dégoût
 	</string>
 	<string name="Male - Shrug">
-		Erkek - Omuz Silkme
+		Homme - Hausser les épaules
 	</string>
 	<string name="Male - Stick tougue out">
-		Erkek - Dil çıkarma
+		Homme - Tirer la langue
 	</string>
 	<string name="Male - Wow">
-		Erkek - Vay be
+		Homme - Ouah !
 	</string>
 	<string name="Female - Chuckle">
-		Kadın - Kıkırdama
+		Femme - Glousser
 	</string>
 	<string name="Female - Cry">
-		Kadın - Ağlama
+		Femme - Pleurer
 	</string>
 	<string name="Female - Embarrassed">
-		Kadın - Utanmış
+		Femme - Gêne
 	</string>
 	<string name="Female - Excuse me">
-		Kadın - Afedersiniz
+		Femme - Demander pardon
 	</string>
 	<string name="Female - Get lost">
-		Kadın - İşine bak
+		Femme - Get lost
 	</string>
 	<string name="Female - Blow kiss">
-		Kadın - Öpücük gönderme
+		Femme - Envoyer un baiser
 	</string>
 	<string name="Female - Boo">
-		Kadın - Yuh çekme
+		Femme - Hou !
 	</string>
 	<string name="Female - Bored">
-		Kadın - Canı sıkılmış
+		Femme - Ennui
 	</string>
 	<string name="Female - Hey">
-		Kadın - Hey
+		Femme - Hé !
 	</string>
 	<string name="Female - Hey baby">
-		Kadın - Hey bebek
+		Femme - Hey baby
 	</string>
 	<string name="Female - Laugh">
-		Kadın - Gülme
+		Femme - Rire
 	</string>
 	<string name="Female - Looking good">
-		Kadın - Yakışıklı
+		Femme - Looking good
 	</string>
 	<string name="Female - Over here">
-		Kadın - Buraya baksana
+		Femme - Over here
 	</string>
 	<string name="Female - Please">
-		Kadın - Lütfen
+		Femme - Please
 	</string>
 	<string name="Female - Repulsed">
-		Kadın - Tiksinmiş
+		Femme - Dégoût
 	</string>
 	<string name="Female - Shrug">
-		Kadın - Omuz Silkme
+		Femme - Hausser les épaules
 	</string>
 	<string name="Female - Stick tougue out">
-		Kadın - Dil çıkarma
+		Femme - Tirer la langue
 	</string>
 	<string name="Female - Wow">
-		Kadın - Vay be
+		Femme - Ouah !
 	</string>
 	<string name="/bow">
-		/selamlama
+		/s&apos;incliner
 	</string>
 	<string name="/clap">
-		/alkış
+		/applaudir
 	</string>
 	<string name="/count">
-		/sayım
+		/compter
 	</string>
 	<string name="/extinguish">
-		/söndürme
+		/éteindre
 	</string>
 	<string name="/kmb">
-		/hib
+		/vatefairevoir
 	</string>
 	<string name="/muscle">
-		/kas
+		/montrersesmuscles
 	</string>
 	<string name="/no">
-		/hayır
+		/non
 	</string>
 	<string name="/no!">
-		/hayır!
+		/non !
 	</string>
 	<string name="/paper">
-		/kağıt
+		/papier
 	</string>
 	<string name="/pointme">
-		/beni göster
+		/memontrerdudoigt
 	</string>
 	<string name="/pointyou">
-		/seni göster
+		/montrerl&apos;autredudoigt
 	</string>
 	<string name="/rock">
-		/kaya
+		/pierre
 	</string>
 	<string name="/scissor">
-		/makas
+		/ciseaux
 	</string>
 	<string name="/smoke">
-		/duman
+		/fumer
 	</string>
 	<string name="/stretch">
-		/uzatma
+		/bailler
 	</string>
 	<string name="/whistle">
-		/ıslık
+		/siffler
 	</string>
 	<string name="/yes">
-		/evet
+		/oui
 	</string>
 	<string name="/yes!">
-		/evet!
+		/oui !
 	</string>
 	<string name="afk">
-		kbd
+		absent
 	</string>
 	<string name="dance1">
-		dans1
+		danse1
 	</string>
 	<string name="dance2">
-		dans2
+		danse2
 	</string>
 	<string name="dance3">
-		dans3
+		danse3
 	</string>
 	<string name="dance4">
-		dans4
+		danse4
 	</string>
 	<string name="dance5">
-		dans5
+		danse5
 	</string>
 	<string name="dance6">
-		dans6
+		danse6
 	</string>
 	<string name="dance7">
-		dans7
+		danse7
 	</string>
 	<string name="dance8">
-		dans8
+		danse8
 	</string>
 	<string name="AvatarBirthDateFormat">
-		[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]
+		[day,datetime,slt]/[mthnum,datetime,slt]/[year,datetime,slt]
 	</string>
 	<string name="DefaultMimeType">
-		hiçbiri/hiçbiri
+		aucun/aucun
 	</string>
 	<string name="texture_load_dimensions_error">
-		[WIDTH]*[HEIGHT] çözünürlüğünden büyük görüntüler yüklenemez
+		Impossible de charger des images de taille supérieure à [WIDTH]*[HEIGHT]
 	</string>
 	<string name="words_separator" value=","/>
 	<string name="server_is_down">
-		Tüm çabalarımıza rağmen beklenmeyen bir hata meydana geldi.
+		Malgré nos efforts, une erreur inattendue s&apos;est produite.
 
-	Hizmetle ilişkili bilinen bir sorun olup olmadığını görmek için lütfen status.secondlifegrid.net adresine bakın.
-        Sorun yaşamaya devam ederseniz lütfen ağınızın ve güvenlik duvarınızın ayarlarına bakın.
+	Veuillez vous reporter à status.secondlifegrid.net afin de déterminer si un problème connu existe avec ce service.
+        Si le problème persiste, vérifiez la configuration de votre réseau et de votre pare-feu.
 	</string>
 	<string name="dateTimeWeekdaysNames">
-		Pazar:Pazartesi:Salı:Çarşamba:Perşembe:Cuma:Cumartesi
+		Sunday:Monday:Tuesday:Wednesday:Thursday:Friday:Saturday
 	</string>
 	<string name="dateTimeWeekdaysShortNames">
-		Paz:Pzt:Sal:Çar:Per:Cum:Cmt
+		Sun:Mon:Tue:Wed:Thu:Fri:Sat
 	</string>
 	<string name="dateTimeMonthNames">
-		Ocak:Şubat:Mart:Nisan:Mayıs:Haziran:Temmuz:Ağustos:Eylül:Ekim:Kasım:Aralık
+		January:February:March:April:May:June:July:August:September:October:November:December
 	</string>
 	<string name="dateTimeMonthShortNames">
-		Oca:Şub:Mar:Nis:May:Haz:Tem:Ağu:Eyl:Eki:Kas:Ara
+		Jan:Feb:Mar:Apr:May:Jun:Jul:Aug:Sep:Oct:Nov:Dec
 	</string>
 	<string name="dateTimeDayFormat">
 		[MDAY]
 	</string>
 	<string name="dateTimeAM">
-		ÖÖ
+		AM
 	</string>
 	<string name="dateTimePM">
-		ÖS
+		PM
 	</string>
 	<string name="LocalEstimateUSD">
-		US$ [AMOUNT]
+		[AMOUNT] US$
 	</string>
 	<string name="Membership">
-		Üyelik
+		Inscription
 	</string>
 	<string name="Roles">
-		Roller
+		Rôles
 	</string>
 	<string name="Group Identity">
-		Grup Kimliği
+		Identité du groupe
 	</string>
 	<string name="Parcel Management">
-		Parsel Yönetimi
+		Gestion des parcelles
 	</string>
 	<string name="Parcel Identity">
-		Parsel Kimliği
+		Identité des parcelles
 	</string>
 	<string name="Parcel Settings">
-		Parsel Ayarları
+		Paramètres des parcelles
 	</string>
 	<string name="Parcel Powers">
-		Parsel Güçleri
+		Pouvoirs sur les parcelles
 	</string>
 	<string name="Parcel Access">
-		Parsel Erişimi
+		Accès aux parcelles
 	</string>
 	<string name="Parcel Content">
-		Parsel İçeriği
+		Contenu des parcelles
 	</string>
 	<string name="Object Management">
-		Nesne Yönetimi
+		Gestion des objets
 	</string>
 	<string name="Accounting">
-		Muhasebe
+		Comptabilité
 	</string>
 	<string name="Notices">
-		Bildirimler
+		Notices
 	</string>
-	<string name="Chat">
-		Sohbet
+	<string name="Chat" value=" Chat :">
+		Chat
 	</string>
 	<string name="DeleteItems">
-		Seçili öğeler silinsin mi?
+		Supprimer les articles sélectionnés ?
 	</string>
 	<string name="DeleteItem">
-		Seçili öğe silinsin mi?
+		Supprimer l&apos;article sélectionné ?
 	</string>
 	<string name="EmptyOutfitText">
-		Bu dış görünümde herhangi bir öğe yok
+		Cette tenue ne contient aucun article.
 	</string>
 	<string name="ExternalEditorNotSet">
-		ExternalEditor ayarını kullanarak bir düzenleyici seçin.
+		Sélectionnez un éditeur à l&apos;aide du paramètre ExternalEditor.
 	</string>
 	<string name="ExternalEditorNotFound">
-		Belirttiğiniz harici düzenleyici bulunamadı.
-Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
-(örn. &quot;/yolum/duzenleyici&quot; &quot;%s&quot;)
+		Éditeur externe spécifié introuvable.
+Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
+(par ex. : &quot;/chemin_accès/editor&quot; &quot;%s&quot;).
 	</string>
 	<string name="ExternalEditorCommandParseError">
-		Harici düzenleyici komutu ayrıştırılırken hata oluştu.
+		Erreur lors de l&apos;analyse de la commande d&apos;éditeur externe.
 	</string>
 	<string name="ExternalEditorFailedToRun">
-		Harici düzenleyici çalışmadı.
+		Échec d&apos;exécution de l&apos;éditeur externe.
 	</string>
 	<string name="TranslationFailed">
-		Çeviri başarılamadı: [REASON]
+		Échec de traduction : [REASON]
 	</string>
 	<string name="TranslationResponseParseError">
-		Çeviri yanıtı ayrıştırılırken hata meydana geldi.
+		Erreur lors de l&apos;analyse de la réponse relative à la traduction.
 	</string>
 	<string name="Esc">
-		Esc
+		Échap
 	</string>
 	<string name="Space">
-		Boşluk
+		Space
 	</string>
 	<string name="Enter">
 		Enter
 	</string>
 	<string name="Tab">
-		Sekme
+		Tab
 	</string>
 	<string name="Ins">
 		Ins
@@ -4507,10 +4506,10 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 		Del
 	</string>
 	<string name="Backsp">
-		Geri tuşu
+		Backsp
 	</string>
 	<string name="Shift">
-		Shift
+		Maj
 	</string>
 	<string name="Ctrl">
 		Ctrl
@@ -4521,20 +4520,8 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	<string name="CapsLock">
 		CapsLock
 	</string>
-	<string name="Left">
-		Sol
-	</string>
-	<string name="Right">
-		Sağ
-	</string>
-	<string name="Up">
-		Yukarı
-	</string>
-	<string name="Down">
-		Aşağı
-	</string>
 	<string name="Home">
-		Home
+		Début
 	</string>
 	<string name="End">
 		End
@@ -4582,16 +4569,16 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 		F12
 	</string>
 	<string name="Add">
-		Ekle
+		Ajouter
 	</string>
 	<string name="Subtract">
-		Çıkar
+		Soustraire
 	</string>
 	<string name="Multiply">
-		Çarp
+		Multiplier
 	</string>
 	<string name="Divide">
-		Böl
+		Diviser
 	</string>
 	<string name="PAD_DIVIDE">
 		PAD_DIVIDE
@@ -4810,222 +4797,222 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 		Z
 	</string>
 	<string name="BeaconParticle">
-		Parçacık işaretleri gösteriliyor (mavi)
+		Affichage des balises de particule (bleu)
 	</string>
 	<string name="BeaconPhysical">
-		Fiziksel nesne işaretleri gösteriliyor (yeşil)
+		Affichage des balises d&apos;objet physique (vert)
 	</string>
 	<string name="BeaconScripted">
-		Komut dosyalı nesne işaretleri gösteriliyor (kırmızı)
+		Affichage des balises d&apos;objet scripté (rouge)
 	</string>
 	<string name="BeaconScriptedTouch">
-		Dokunma işlevli komut dosyalı nesne işaretleri gösteriliyor (kırmızı)
+		Affichage des balises d&apos;objet scripté avec fonction de toucher (rouge)
 	</string>
 	<string name="BeaconSound">
-		Ses işaretleri gösteriliyor (sarı)
+		Affichage des balises de son (jaune)
 	</string>
 	<string name="BeaconMedia">
-		Ortam işaretleri gösteriliyor (beyaz)
+		Affichage des balises de média (blanc)
 	</string>
 	<string name="ParticleHiding">
-		Parçacıklar Gizleniyor
+		Masquage des particules
 	</string>
 	<string name="Command_AboutLand_Label">
-		Arazi hakkında
+		À propos du terrain
 	</string>
 	<string name="Command_Appearance_Label">
-		Görünüm
+		Apparence
 	</string>
 	<string name="Command_Avatar_Label">
 		Avatar
 	</string>
 	<string name="Command_Build_Label">
-		İnşa Et
+		Construire
 	</string>
 	<string name="Command_Chat_Label">
-		Sohbet
+		Chat
 	</string>
 	<string name="Command_Compass_Label">
-		Pusula
+		Boussole
 	</string>
 	<string name="Command_Destinations_Label">
-		Hedef Konum
+		Destinations
 	</string>
 	<string name="Command_Gestures_Label">
-		Mimikler
+		Gestes
 	</string>
 	<string name="Command_HowTo_Label">
-		Nasıl yapılır
+		Aide rapide
 	</string>
 	<string name="Command_Inventory_Label">
-		Envanter
+		Inventaire
 	</string>
 	<string name="Command_Map_Label">
-		Harita
+		Carte
 	</string>
 	<string name="Command_Marketplace_Label">
-		Pazaryeri
+		Place du marché
 	</string>
 	<string name="Command_MiniMap_Label">
-		Mini-harita
+		Mini-carte
 	</string>
 	<string name="Command_Move_Label">
-		Yürü / koş / uç
+		Marcher / Courir / Voler
 	</string>
 	<string name="Command_Outbox_Label">
-		Satıcı giden kutusu
+		Boîte d&apos;envoi vendeur
 	</string>
 	<string name="Command_People_Label">
-		Kişiler
+		Personnes
 	</string>
 	<string name="Command_Picks_Label">
-		Seçmeler
+		Favoris
 	</string>
 	<string name="Command_Places_Label">
-		Yerler
+		Lieux
 	</string>
 	<string name="Command_Preferences_Label">
-		Tercihler
+		Préférences
 	</string>
 	<string name="Command_Profile_Label">
 		Profil
 	</string>
 	<string name="Command_Search_Label">
-		Ara
+		Recherche
 	</string>
 	<string name="Command_Snapshot_Label">
-		Anlık görüntü
+		Photo
 	</string>
 	<string name="Command_Speak_Label">
-		Konuş
+		Parler
 	</string>
 	<string name="Command_View_Label">
-		Kamera denetimleri
+		Paramètres de la caméra
 	</string>
 	<string name="Command_Voice_Label">
-		Ses ayarları
+		Paramètres vocaux
 	</string>
 	<string name="Command_AboutLand_Tooltip">
-		Ziyaret ettiğiniz araziyle ilgili bilgi
+		Information sur le terrain que vous visitez
 	</string>
 	<string name="Command_Appearance_Tooltip">
-		Avatarınızı değiştirin
+		Modifier votre avatar
 	</string>
 	<string name="Command_Avatar_Tooltip">
-		Eksiksiz bir avatar seçin
+		Choisir un avatar complet
 	</string>
 	<string name="Command_Build_Tooltip">
-		Nesneler oluşturma ve yüzeyi şekillendirme
+		Construction d&apos;objets et remodelage du terrain
 	</string>
 	<string name="Command_Chat_Tooltip">
-		Metin kullanarak yakındaki kişilerle sohbet etmek
+		Parler aux personnes près de vous par chat écrit
 	</string>
 	<string name="Command_Compass_Tooltip">
-		Pusula
+		Boussole
 	</string>
 	<string name="Command_Destinations_Tooltip">
-		İlgilendiğiniz hedef konumlar
+		Destinations intéressantes
 	</string>
 	<string name="Command_Gestures_Tooltip">
-		Avatarınız için mimikler
+		Gestes de votre avatar
 	</string>
 	<string name="Command_HowTo_Tooltip">
-		Genel görevleri nasıl yapacağınız
+		Comment effectuer les opérations courantes
 	</string>
 	<string name="Command_Inventory_Tooltip">
-		Eşyalarınızı görüntüleyin ve kullanın
+		Afficher et utiliser vos possessions
 	</string>
 	<string name="Command_Map_Tooltip">
-		Dünya haritası
+		Carte du monde
 	</string>
 	<string name="Command_Marketplace_Tooltip">
-		Alışveriş yap
+		Faire du shopping
 	</string>
 	<string name="Command_MiniMap_Tooltip">
-		Yakındaki kişileri göster
+		Afficher les personnes près de vous
 	</string>
 	<string name="Command_Move_Tooltip">
-		Avatarınızı hareket ettirmek
+		Faire bouger votre avatar
 	</string>
 	<string name="Command_Outbox_Tooltip">
-		Satmak amacıyla Pazaryerinize öğeler taşıyın
+		Transférer des articles vers votre place de marché afin de les vendre.
 	</string>
 	<string name="Command_People_Tooltip">
-		Arkadaşlar, gruplar ve yakındaki kişiler
+		Amis, groupes et personnes près de vous
 	</string>
 	<string name="Command_Picks_Tooltip">
-		Profilinizde favori olarak gösterilecek yerler
+		Lieux à afficher comme favoris dans votre profil
 	</string>
 	<string name="Command_Places_Tooltip">
-		Kaydettiğiniz yerler
+		Lieux enregistrés
 	</string>
 	<string name="Command_Preferences_Tooltip">
-		Tercihler
+		Préférences
 	</string>
 	<string name="Command_Profile_Tooltip">
-		Profilinizi düzenleyin veya görüntüleyin
+		Modifier ou afficher votre profil
 	</string>
 	<string name="Command_Search_Tooltip">
-		Yerler, etkinlikler ve kişiler bulmak
+		Trouver des lieux, personnes, événements
 	</string>
 	<string name="Command_Snapshot_Tooltip">
-		Resim çekin
+		Prendre une photo
 	</string>
 	<string name="Command_Speak_Tooltip">
-		Mikrofonunuzu kullanarak yakındaki kişilerle konuşun
+		Parler aux personnes près de vous en utilisant votre micro
 	</string>
 	<string name="Command_View_Tooltip">
-		Kamera açısını değiştirmek
+		Changer l&apos;angle de la caméra
 	</string>
 	<string name="Command_Voice_Tooltip">
-		Aramalar ve 	SL dünyası içinde size yakın kişiler için ses denetimleri
+		Commandes de réglage du volume des appels et des personnes près de vous dans Second Life.
 	</string>
 	<string name="Toolbar_Bottom_Tooltip">
-		şu anda alt araç çubuğunuzda
+		actuellement dans la barre d&apos;outils du bas
 	</string>
 	<string name="Toolbar_Left_Tooltip">
-		şu anda sol araç çubuğunuzda
+		actuellement dans la barre d&apos;outils de gauche
 	</string>
 	<string name="Toolbar_Right_Tooltip">
-		şu anda sağ araç çubuğunuzda
+		actuellement dans la barre d&apos;outils de droite
 	</string>
 	<string name="Retain%">
-		Koru %
+		Garder%
 	</string>
 	<string name="Detail">
-		Ayrıntı
+		Détail
 	</string>
 	<string name="Better Detail">
-		Daha İyi Ayrıntı
+		Meilleur détail
 	</string>
 	<string name="Surface">
-		Yüzey
+		Surface
 	</string>
 	<string name="Solid">
-		Katı
+		Solide
 	</string>
 	<string name="Wrap">
-		Sar
+		Wrap
 	</string>
 	<string name="Preview">
-		Önizleme
+		Aperçu
 	</string>
 	<string name="Normal">
 		Normal
 	</string>
 	<string name="snapshot_quality_very_low">
-		Çok Düşük
+		Très faible
 	</string>
 	<string name="snapshot_quality_low">
-		Düşük
+		Faible
 	</string>
 	<string name="snapshot_quality_medium">
-		Orta
+		Moyenne
 	</string>
 	<string name="snapshot_quality_high">
-		Yüksek
+		Élevée
 	</string>
 	<string name="snapshot_quality_very_high">
-		Çok Yüksek
+		Très élevée
 	</string>
 </strings>
