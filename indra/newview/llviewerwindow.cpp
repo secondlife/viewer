@@ -1713,6 +1713,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 
 void LLViewerWindow::initGLDefaults()
 {
+	if (gHeadlessClient) return;
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
 	if (!LLGLSLShader::sNoFixedFunction)

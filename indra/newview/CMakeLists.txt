@@ -437,6 +437,7 @@ set(viewer_SOURCE_FILES
     llpathfindingpathtool.cpp
     llphysicsmotion.cpp
     llphysicsshapebuilderutil.cpp
+    llpipelinelistener.cpp
     llplacesinventorybridge.cpp
     llplacesinventorypanel.cpp
     llpopupview.cpp
@@ -1002,6 +1003,7 @@ set(viewer_HEADER_FILES
     llpathfindingpathtool.h
     llphysicsmotion.h
     llphysicsshapebuilderutil.h
+    llpipelinelistener.h
     llplacesinventorybridge.h
     llplacesinventorypanel.h
     llpolymesh.h
