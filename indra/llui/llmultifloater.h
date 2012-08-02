@@ -79,10 +79,11 @@ public:
 protected:
 	struct LLFloaterData
 	{
-		S32		mWidth;
-		S32		mHeight;
-		BOOL	mCanMinimize;
-		BOOL	mCanResize;
+		S32		    mWidth;
+		S32		    mHeight;
+		BOOL	    mCanMinimize;
+		BOOL	    mCanResize;
+		BOOL        mSaveRect;
 	};
 
 	LLTabContainer*		mTabContainer;

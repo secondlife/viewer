@@ -15,7 +15,8 @@
  can_resize="true"
  can_tear_off="false"
  min_width="250"
- min_height="190">
+ min_height="190"
+ positioning="relative">
     <floater.string 
      name="NearbyChatTitle"
      value="Nearby Chat"/>

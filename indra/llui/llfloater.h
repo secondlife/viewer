@@ -358,6 +358,7 @@ protected:
 
 	void			stackWith(LLFloater& other);
 
+	virtual void    initRectControl();
 	virtual bool	applyRectControl();
 	bool			applyDockState();
 	void			applyPositioning(LLFloater* other, bool on_open);

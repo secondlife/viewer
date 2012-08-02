@@ -1175,7 +1175,6 @@ void LLFloater::setMinimized(BOOL minimize)
 	{
 		// minimized flag should be turned on before release focus
 		mMinimized = TRUE;
-
 		mExpandedRect = getRect();
 
 		// If the floater has been dragged while minimized in the
@@ -1248,7 +1247,6 @@ void LLFloater::setMinimized(BOOL minimize)
 		}
 
 		setOrigin( mExpandedRect.mLeft, mExpandedRect.mBottom );
-
 		if (mButtonsEnabled[BUTTON_RESTORE])
 		{
 			mButtonsEnabled[BUTTON_MINIMIZE] = TRUE;
@@ -1284,7 +1282,6 @@ void LLFloater::setMinimized(BOOL minimize)
 
 		// Reshape *after* setting mMinimized
 		reshape( mExpandedRect.getWidth(), mExpandedRect.getHeight(), TRUE );
-		applyPositioning(NULL, false);
 	}
 
 	make_ui_sound("UISndWindowClose");
@@ -1658,10 +1655,12 @@ void LLFloater::onClickTearOff(LLFloater* self)
 		gFloaterView->addChild(self);
 
 		self->openFloater(self->getKey());
-		
-		// only force position for floaters that don't have that data saved
-		if (self->mRectControl.empty())
+		if (self->mSaveRect && !self->mRectControl.empty())
 		{
+			self->applyRectControl();
+		}
+		else
+		{   // only force position for floaters that don't have that data saved
 			new_rect.setLeftTopAndSize(host_floater->getRect().mLeft + 5, host_floater->getRect().mTop - floater_header_size - 5, self->getRect().getWidth(), self->getRect().getHeight());
 			self->setRect(new_rect);
 		}
@@ -1675,6 +1674,10 @@ void LLFloater::onClickTearOff(LLFloater* self)
 		LLMultiFloater* new_host = (LLMultiFloater*)self->mLastHostHandle.get();
 		if (new_host)
 		{
+			if (self->mSaveRect)
+			{
+				self->storeRectControl();
+			}
 			self->setMinimized(FALSE); // to reenable minimize button if it was minimized
 			new_host->showFloater(self);
 			// make sure host is visible
@@ -1706,6 +1709,18 @@ void LLFloater::onClickHelp( LLFloater* self )
 		{
 			LLUI::sHelpImpl->showTopic(help_topic);
 		}
+	}
+}
+
+void LLFloater::initRectControl()
+{
+	// save_rect and save_visibility only apply to registered floaters
+	if (mSaveRect)
+	{
+		std::string ctrl_name = getControlName(mInstanceName, mKey);
+		mRectControl = LLFloaterReg::declareRectControl(ctrl_name);
+		mPosXControl = LLFloaterReg::declarePosXControl(ctrl_name);
+		mPosYControl = LLFloaterReg::declarePosYControl(ctrl_name);
 	}
 }
 
@@ -2940,28 +2955,22 @@ void LLFloaterView::popVisibleAll(const skip_list_t& skip_list)
 
 void LLFloater::setInstanceName(const std::string& name)
 {
-	if (name == mInstanceName)
-		return;
-	llassert_always(mInstanceName.empty());
-	mInstanceName = name;
-	if (!mInstanceName.empty())
+	if (name != mInstanceName)
 	{
-		std::string ctrl_name = getControlName(mInstanceName, mKey);
-
-		// save_rect and save_visibility only apply to registered floaters
-		if (mSaveRect)
+		llassert_always(mInstanceName.empty());
+		mInstanceName = name;
+		if (!mInstanceName.empty())
 		{
-			mRectControl = LLFloaterReg::declareRectControl(ctrl_name);
-			mPosXControl = LLFloaterReg::declarePosXControl(ctrl_name);
-			mPosYControl = LLFloaterReg::declarePosYControl(ctrl_name);
-		}
-		if (!mVisibilityControl.empty())
-		{
-			mVisibilityControl = LLFloaterReg::declareVisibilityControl(ctrl_name);
-		}
-		if(!mDocStateControl.empty())
-		{
-			mDocStateControl = LLFloaterReg::declareDockStateControl(ctrl_name);
+			std::string ctrl_name = getControlName(mInstanceName, mKey);
+			initRectControl();
+			if (!mVisibilityControl.empty())
+			{
+				mVisibilityControl = LLFloaterReg::declareVisibilityControl(ctrl_name);
+			}
+			if(!mDocStateControl.empty())
+			{
+				mDocStateControl = LLFloaterReg::declareDockStateControl(ctrl_name);
+			}
 		}
 	}
 }
