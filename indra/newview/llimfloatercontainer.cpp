@@ -174,6 +174,11 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 		mSessions[session_id] = floaterp;
 		floaterp->mCloseSignal.connect(boost::bind(&LLIMFloaterContainer::onCloseFloater, this, session_id));
 	}
+
+	// forced resize of the floater
+	LLRect wrapper_rect = this->mTabContainer->getLocalRect();
+	floaterp->setRect(wrapper_rect);
+
 	mTabContainer->setTabImage(floaterp, icon);
 }
 

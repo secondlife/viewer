@@ -188,11 +188,13 @@ void LLMultiFloater::addFloater(LLFloater* floaterp, BOOL select_added_floater, 
 	floater_data.mHeight = floaterp->getRect().getHeight();
 	floater_data.mCanMinimize = floaterp->isMinimizeable();
 	floater_data.mCanResize = floaterp->isResizable();
+    floater_data.mSaveRect = floaterp->mSaveRect;
 
 	// remove minimize and close buttons
 	floaterp->setCanMinimize(FALSE);
 	floaterp->setCanResize(FALSE);
 	floaterp->setCanDrag(FALSE);
+	floaterp->mSaveRect = FALSE;
 	floaterp->storeRectControl();
 	// avoid double rendering of floater background (makes it more opaque)
 	floaterp->setBackgroundVisible(FALSE);
@@ -291,6 +293,7 @@ void LLMultiFloater::removeFloater(LLFloater* floaterp)
 	{
 		LLFloaterData& floater_data = found_data_it->second;
 		floaterp->setCanMinimize(floater_data.mCanMinimize);
+		floaterp->mSaveRect = floater_data.mSaveRect;
 		if (!floater_data.mCanResize)
 		{
 			// restore original size

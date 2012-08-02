@@ -150,8 +150,6 @@ BOOL LLNearbyChat::postBuild()
 	// Register for font change notifications
 	LLViewerChat::setFontChangedCallback(boost::bind(&LLNearbyChat::onChatFontChange, this, _1));
 
-	enableResizeCtrls(true, true, false);
-
 	// title must be defined BEFORE call addConversationListItem() because
 	// it is used for show the item's name in the conversations list
 	setTitle(getString("NearbyChatTitle"));

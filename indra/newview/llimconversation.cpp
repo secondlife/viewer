@@ -103,14 +103,14 @@ BOOL LLIMConversation::postBuild()
 
 	mInputEditorTopPad = mChatHistory->getRect().mBottom - mInputEditor->getRect().mTop;
 
-	if (!isTornOff())
-	{
-		setOpenPositioning(LLFloaterEnums::POSITIONING_RELATIVE);
-	}
+	setOpenPositioning(LLFloaterEnums::POSITIONING_RELATIVE);
 
 	buildParticipantList();
 
 	updateHeaderAndToolbar();
+
+	mSaveRect = isTornOff();
+	initRectControl();
 
 	if (isChatMultiTab())
 	{
@@ -364,12 +364,14 @@ void LLIMConversation::onSlide(LLIMConversation* self)
 void LLIMConversation::onOpen(const LLSD& key)
 {
 	LLIMFloaterContainer* host_floater = dynamic_cast<LLIMFloaterContainer*>(getHost());
-	if (host_floater)
+    bool is_hosted = !!host_floater;
+	if (is_hosted)
 	{
 		// Show the messages pane when opening a floater hosted in the Conversations
 		host_floater->collapseMessagesPane(false);
 	}
 
+	setTornOff(!is_hosted);
 	updateHeaderAndToolbar();
 }
 
@@ -389,6 +391,9 @@ void LLIMConversation::onClose(bool app_quitting)
 
 void LLIMConversation::onTearOffClicked()
 {
+    setFollows(isTornOff()? FOLLOWS_ALL : FOLLOWS_NONE);
+    mSaveRect = isTornOff();
+    initRectControl();
 	LLFloater::onClickTearOff(this);
 	updateHeaderAndToolbar();
 }
