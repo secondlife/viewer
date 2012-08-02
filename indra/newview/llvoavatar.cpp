@@ -192,8 +192,6 @@ const S32 MAX_BUBBLE_CHAT_UTTERANCES = 12;
 const F32 CHAT_FADE_TIME = 8.0;
 const F32 BUBBLE_CHAT_TIME = CHAT_FADE_TIME * 3.f;
 
-const S32 SERVER_GENERATED_APPEARANCE = 359949045;
-
 const LLColor4 DUMMY_COLOR = LLColor4(0.5,0.5,0.5,1.0);
 
 enum ERenderName
@@ -7355,12 +7353,21 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	parseTEMessage(mesgsys, _PREHASH_ObjectData, -1, tec);
 //	dumpAvatarTEs( "POST processAvatarAppearance()" );
 
-	// Extract COF Version field hacked into local texture id.
-	LLUUID flags_id = ((LLUUID*)tec.image_data)[0];
-	S32 this_update_cof_version = (flags_id.mData[0] << 24) + (flags_id.mData[1] << 16) +(flags_id.mData[2] << 8) +flags_id.mData[3];
-	S32 message_type = (flags_id.mData[4] << 24) + (flags_id.mData[5] << 16) +(flags_id.mData[6] << 8) +flags_id.mData[7];
+	U8 appearance_version = 0;
+	S32 this_update_cof_version = LLViewerInventoryCategory::VERSION_UNKNOWN;
+	S32 last_update_request_cof_version = LLAppearanceMgr::instance().mLastUpdateRequestCOFVersion;
+	// For future use:
+	//U32 appearance_flags = 0;
 
-	if (message_type == SERVER_GENERATED_APPEARANCE)
+	if (mesgsys->has(_PREHASH_AppearanceData))
+	{
+		mesgsys->getU8Fast(_PREHASH_AppearanceData, _PREHASH_AppearanceVersion, appearance_version, 0);
+		mesgsys->getS32Fast(_PREHASH_AppearanceData, _PREHASH_CofVersion, this_update_cof_version, 0);
+		// For future use:
+		//mesgsys->getU32Fast(_PREHASH_AppearanceData, _PREHASH_Flags, appearance_flags, 0);
+	}
+
+	if (appearance_version > 0)
 	{
 		mUseServerBakes = true;
 	}
@@ -7369,19 +7376,14 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		mUseServerBakes = false;
 	}
 
-	S32 last_update_request_cof_version = LLAppearanceMgr::instance().mLastUpdateRequestCOFVersion;
-
 	// Check for stale update.
-	if (isSelf() && mUseServerBakes)
+	if (mUseServerBakes && isSelf()
+		&& this_update_cof_version >= LLViewerInventoryCategory::VERSION_INITIAL
+		&& this_update_cof_version < last_update_request_cof_version)
 	{
-		if ((this_update_cof_version > 0) && 
-			(this_update_cof_version < last_update_request_cof_version))
-		{
-			llwarns << "Stale appearance update, wanted version " << last_update_request_cof_version
-					<< ", got " << this_update_cof_version << llendl;
-			return;
-		}
-		((LLUUID*)tec.image_data)[0].setNull();
+		llwarns << "Stale appearance update, wanted version " << last_update_request_cof_version
+				<< ", got " << this_update_cof_version << llendl;
+		return;
 	}
 	applyParsedTEMessage(tec);
 
