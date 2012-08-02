@@ -40,7 +40,6 @@
 S32	            LLPerfBlock::sStatsFlags = LLPerfBlock::LLSTATS_NO_OPTIONAL_STATS;       // Control what is being recorded
 LLPerfBlock::stat_map_t    LLPerfBlock::sStatMap;    // Map full path string to LLStatTime objects, tracks all active objects
 std::string        LLPerfBlock::sCurrentStatPath = "";    // Something like "/total_time/physics/physics step"
-LLStat::stat_map_t LLStat::sStatList;
 
 //------------------------------------------------------------------------
 // Live config file to trigger stats logging
@@ -771,11 +770,17 @@ void LLStat::init()
 
 	if (!mName.empty())
 	{
-		stat_map_t::iterator iter = sStatList.find(mName);
-		if (iter != sStatList.end())
+		stat_map_t::iterator iter = getStatList().find(mName);
+		if (iter != getStatList().end())
 			llwarns << "LLStat with duplicate name: " << mName << llendl;
-		sStatList.insert(std::make_pair(mName, this));
+		getStatList().insert(std::make_pair(mName, this));
 	}
+}
+
+LLStat::stat_map_t& LLStat::getStatList()
+{
+	static LLStat::stat_map_t stat_list;
+	return stat_list;
 }
 
 LLStat::LLStat(const U32 num_bins, const BOOL use_frame_timer)
@@ -803,10 +808,10 @@ LLStat::~LLStat()
 	if (!mName.empty())
 	{
 		// handle multiple entries with the same name
-		stat_map_t::iterator iter = sStatList.find(mName);
-		while (iter != sStatList.end() && iter->second != this)
+		stat_map_t::iterator iter = getStatList().find(mName);
+		while (iter != getStatList().end() && iter->second != this)
 			++iter;
-		sStatList.erase(iter);
+		getStatList().erase(iter);
 	}
 }
 
