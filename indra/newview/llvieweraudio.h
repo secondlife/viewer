@@ -66,6 +66,7 @@ public:
 	bool getForcedTeleportFade() { return mForcedTeleportFade; };
 	void setForcedTeleportFade(bool fade) { mForcedTeleportFade = fade;} ;
 	void setNextStreamURI(std::string stream) { mNextStreamURI = stream; } ;
+	void setWasPlaying(bool playing) { mWasPlaying = playing;} ;
 
 private:
 
@@ -76,13 +77,17 @@ private:
 	LLFrameTimer stream_fade_timer;
 	bool mIdleListnerActive;
 	bool mForcedTeleportFade;
+	bool mWasPlaying;
 	boost::signals2::connection	mTeleportFailedConnection;
+	boost::signals2::connection	mTeleportFinishedConnection;
+	boost::signals2::connection mTeleportStartedConnection;
 
 	void registerIdleListener();
 	void deregisterIdleListener() { mIdleListnerActive = false; };
 	void startFading();
 	void onTeleportFailed();
-
+	void onTeleportFinished(const LLVector3d& pos, const bool& local);
+	void onTeleportStarted();
 };
 
 #endif //LL_VIEWER_H

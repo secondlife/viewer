@@ -686,7 +686,7 @@ void LLPanelStandStopFlying::onStopFlyingButtonClick()
 	gAgent.setFlying(FALSE);
 
 	setFocus(FALSE); // EXT-482
-	setVisible(FALSE);
+	mStopFlyingButton->setVisible(FALSE);
 }
 
 /**
@@ -710,7 +710,7 @@ void LLPanelStandStopFlying::updatePosition()
 		left_tb_width = toolbar_left->getRect().getWidth();
 	}
 
-	if(LLPanel* panel_ssf_container = getRootView()->getChild<LLPanel>("stand_stop_flying_container"))
+	if(LLPanel* panel_ssf_container = getRootView()->getChild<LLPanel>("state_management_buttons_container"))
 	{
 		panel_ssf_container->setOrigin(0, y_pos);
 	}

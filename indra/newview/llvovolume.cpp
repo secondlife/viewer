@@ -659,7 +659,8 @@ void LLVOVolume::updateTextures()
 			}
 		}
 
-	}
+
+    }
 }
 
 BOOL LLVOVolume::isVisible() const 
@@ -1839,9 +1840,13 @@ S32 LLVOVolume::setTEColor(const U8 te, const LLColor4& color)
 	}
 	else if (color != tep->getColor())
 	{
-		if (color.mV[3] != tep->getColor().mV[3])
+		F32 old_alpha = tep->getColor().mV[3];
+		if (color.mV[3] != old_alpha)
 		{
 			gPipeline.markTextured(mDrawable);
+			//treat this alpha change as an LoD update since render batches may need to get rebuilt
+			mLODChanged = TRUE;
+			gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, FALSE);
 		}
 		retval = LLPrimitive::setTEColor(te, color);
 		if (mDrawable.notNull() && retval)
@@ -3802,82 +3807,85 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 		
 		LLVector4a* weight = vol_face.mWeights;
 
-		LLMatrix4a bind_shape_matrix;
-		bind_shape_matrix.loadu(skin->mBindShapeMatrix);
-
-		LLVector4a* pos = dst_face.mPositions;
-
+		if ( weight )
 		{
-			LLFastTimer t(FTM_SKIN_RIGGED);
+			LLMatrix4a bind_shape_matrix;
+			bind_shape_matrix.loadu(skin->mBindShapeMatrix);
 
-			for (U32 j = 0; j < dst_face.mNumVertices; ++j)
+			LLVector4a* pos = dst_face.mPositions;
+
 			{
-				LLMatrix4a final_mat;
-				final_mat.clear();
+				LLFastTimer t(FTM_SKIN_RIGGED);
 
-				S32 idx[4];
-
-				LLVector4 wght;
-
-				F32 scale = 0.f;
-				for (U32 k = 0; k < 4; k++)
+				for (U32 j = 0; j < dst_face.mNumVertices; ++j)
 				{
-					F32 w = weight[j][k];
+					LLMatrix4a final_mat;
+					final_mat.clear();
 
-					idx[k] = (S32) floorf(w);
-					wght[k] = w - floorf(w);
-					scale += wght[k];
-				}
+					S32 idx[4];
 
-				wght *= 1.f/scale;
+					LLVector4 wght;
 
-				for (U32 k = 0; k < 4; k++)
-				{
-					F32 w = wght[k];
+					F32 scale = 0.f;
+					for (U32 k = 0; k < 4; k++)
+					{
+						F32 w = weight[j][k];
 
-					LLMatrix4a src;
-					src.setMul(mp[idx[k]], w);
+						idx[k] = (S32) floorf(w);
+						wght[k] = w - floorf(w);
+						scale += wght[k];
+					}
 
-					final_mat.add(src);
-				}
+					wght *= 1.f/scale;
+
+					for (U32 k = 0; k < 4; k++)
+					{
+						F32 w = wght[k];
+
+						LLMatrix4a src;
+						src.setMul(mp[idx[k]], w);
+
+						final_mat.add(src);
+					}
 
 				
-				LLVector4a& v = vol_face.mPositions[j];
-				LLVector4a t;
-				LLVector4a dst;
-				bind_shape_matrix.affineTransform(v, t);
-				final_mat.affineTransform(t, dst);
-				pos[j] = dst;
+					LLVector4a& v = vol_face.mPositions[j];
+					LLVector4a t;
+					LLVector4a dst;
+					bind_shape_matrix.affineTransform(v, t);
+					final_mat.affineTransform(t, dst);
+					pos[j] = dst;
+				}
+
+				//update bounding box
+				LLVector4a& min = dst_face.mExtents[0];
+				LLVector4a& max = dst_face.mExtents[1];
+
+				min = pos[0];
+				max = pos[1];
+
+				for (U32 j = 1; j < dst_face.mNumVertices; ++j)
+				{
+					min.setMin(min, pos[j]);
+					max.setMax(max, pos[j]);
+				}
+
+				dst_face.mCenter->setAdd(dst_face.mExtents[0], dst_face.mExtents[1]);
+				dst_face.mCenter->mul(0.5f);
+
 			}
 
-			//update bounding box
-			LLVector4a& min = dst_face.mExtents[0];
-			LLVector4a& max = dst_face.mExtents[1];
-
-			min = pos[0];
-			max = pos[1];
-
-			for (U32 j = 1; j < dst_face.mNumVertices; ++j)
 			{
-				min.setMin(min, pos[j]);
-				max.setMax(max, pos[j]);
-			}
+				LLFastTimer t(FTM_RIGGED_OCTREE);
+				delete dst_face.mOctree;
+				dst_face.mOctree = NULL;
 
-			dst_face.mCenter->setAdd(dst_face.mExtents[0], dst_face.mExtents[1]);
-			dst_face.mCenter->mul(0.5f);
-
-		}
-
-		{
-			LLFastTimer t(FTM_RIGGED_OCTREE);
-			delete dst_face.mOctree;
-			dst_face.mOctree = NULL;
-
-			LLVector4a size;
-			size.setSub(dst_face.mExtents[1], dst_face.mExtents[0]);
-			size.splat(size.getLength3().getF32()*0.5f);
+				LLVector4a size;
+				size.setSub(dst_face.mExtents[1], dst_face.mExtents[0]);
+				size.splat(size.getLength3().getF32()*0.5f);
 			
-			dst_face.createOctree(1.f);
+				dst_face.createOctree(1.f);
+			}
 		}
 	}
 }

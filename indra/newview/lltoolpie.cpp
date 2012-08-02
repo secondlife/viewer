@@ -312,7 +312,7 @@ BOOL LLToolPie::handleLeftClickPick()
 	// Switch to grab tool if physical or triggerable
 	if (object && 
 		!object->isAvatar() && 
-		((object->usePhysics() || (parent && !parent->isAvatar() && parent->usePhysics())) || touchable) 
+		((object->flagUsePhysics() || (parent && !parent->isAvatar() && parent->flagUsePhysics())) || touchable) 
 		)
 	{
 		gGrabTransientTool = this;
@@ -596,8 +596,8 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 			lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
 		}
 		
-		else if ((object && !object->isAvatar() && object->usePhysics()) 
-				 || (parent && !parent->isAvatar() && parent->usePhysics()))
+		else if ((object && !object->isAvatar() && object->flagUsePhysics()) 
+				 || (parent && !parent->isAvatar() && parent->flagUsePhysics()))
 		{
 			show_highlight = true;
 			gViewerWindow->setCursor(UI_CURSOR_TOOLGRAB);

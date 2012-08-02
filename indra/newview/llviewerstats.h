@@ -71,6 +71,10 @@ public:
 	LLStat mSimSimPhysicsShapeUpdateMsec;
 	LLStat mSimSimPhysicsOtherMsec;
 
+	LLStat mSimSimAIStepMsec;
+	LLStat mSimSimSkippedSilhouetteSteps;
+	LLStat mSimSimPctSteppedCharacters;
+
 	LLStat mSimAgentMsec;
 	LLStat mSimImagesMsec;
 	LLStat mSimScriptMsec;
@@ -83,6 +87,7 @@ public:
 	LLStat mSimObjects;
 	LLStat mSimActiveObjects;
 	LLStat mSimActiveScripts;
+	LLStat mSimPctScriptsRun;
 
 	LLStat mSimInPPS;
 	LLStat mSimOutPPS;

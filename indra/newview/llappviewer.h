@@ -247,6 +247,7 @@ private:
     bool mPurgeOnExit;
 
 	bool mSavedFinalSnapshot;
+	bool mSavePerAccountSettings;		// only save per account settings if login succeeded
 
 	bool mForceGraphicsDetail;
 

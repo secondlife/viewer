@@ -492,6 +492,15 @@ Visitare [_URL] per ulteriori informazioni?
 		</url>
 		<usetemplate ignoretext="L&apos;hardware di questo computer non è compatibile" name="okcancelignore" notext="No" yestext="Si"/>
 	</notification>
+	<notification name="IntelOldDriver">
+		È probabile che ci sia un driver aggiornato per il processore grafico.  L&apos;aggiornamento dei driver della grafica può migliorare le prestazioni in maniera significativa.
+
+    Visitare [_URL] per cercare un aggiornamento del driver?
+		<url name="url">
+			http://www.intel.com/p/it_IT/support/detect/graphics
+		</url>
+		<usetemplate ignoretext="Driver grafica obsoleto" name="okcancelignore" notext="No" yestext="Sì"/>
+	</notification>
 	<notification name="UnknownGPU">
 		Il tuo sistema utilizza una scheda grafica che [APP_NAME] non riconosce.
 Questo succede spesso con un nuovo hardware che non è stato ancora testato con [APP_NAME].  Probabilmente tutto andrà bene, ma devi riconfigurare le tue impostazioni grafiche.
@@ -2616,16 +2625,12 @@ OK?
 		</form>
 	</notification>
 	<notification name="ScriptQuestionCaution">
-		Un oggetto di nome &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, posseduto da  &apos;[NAME]&apos; vorrebbe:
-
-[QUESTIONS]
-Se non ti fidi di questo oggetto e del suo ideatore, dovresti rifiutare la richiesta.
-
-Concedi questa richiesta?
+		Attenzione: L&apos;oggetto &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; ha richiesto accesso completo al tuo account in Dollari Linden. Se consenti l&apos;accesso, potrà rimuovere fondi dal tuo account in qalunque momento e anche svuotare completamente l&apos;account, per un periodo illimitato e senza ulteriori avvisi.
+  
+Raramente questo tipo di richiesta è legittima. Non consentire l&apos;accesso se non comprendi perfettamente il motivo per cui desidera accedere al tuo account.
 		<form name="form">
-			<button name="Grant" text="Accetta"/>
+			<button name="Grant" text="Consenti accesso totale"/>
 			<button name="Deny" text="Nega"/>
-			<button name="Details" text="Dettagli..."/>
 		</form>
 	</notification>
 	<notification name="ScriptDialog">
@@ -3124,4 +3129,16 @@ In alternativa, puoi guardare sulla mappa e trovare luoghi segnalati come &quot;
 	<global name="You died and have been teleported to your home location">
 		Sei deceduto e sei stato teleportato a casa tua.
 	</global>
+	<notification name="LocalBitmapsUpdateFileNotFound">
+		[FNAME] non è stato aggiornato perché il file non è stato più trovato.
+Gli aggiornamenti futuri per questo file sono disattivati.
+	</notification>
+	<notification name="LocalBitmapsUpdateFailedFinal">
+		[FNAME] non è stato aperto o decodificato dopo [NRETRIES] tentativi, viene considerato danneggiato.
+Gli aggiornamenti futuri per questo file sono disattivati.
+	</notification>
+	<notification name="LocalBitmapsVerifyFail">
+		Tentativo di aggiungere un file immagine [FNAME] non valido o non leggibile che non è stato possibile aprire o decodificare.
+Tentativo annullato.
+	</notification>
 </notifications>

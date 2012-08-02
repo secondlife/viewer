@@ -517,6 +517,15 @@ L$ が不足しているのでこのグループに参加することができ�
 		</url>
 		<usetemplate ignoretext="使用中のコンピューターのハードウェアがサポートされていないとき" name="okcancelignore" notext="いいえ" yestext="はい"/>
 	</notification>
+	<notification name="IntelOldDriver">
+		おそらくお使いのグラフィックチップ用の新しいドライバが入手可能です。グラフィックドライバを更新することにより、パフォーマンスが大幅に向上する場合があります。
+
+[_URL] にアクセスして更新版のドライバがあるかどうかを確認しますか？
+		<url name="url">
+			http://www.intel.com/p/ja_JP/support/detect/graphics
+		</url>
+		<usetemplate ignoretext="使用しているグラフィックドライバが古い場合" name="okcancelignore" notext="いいえ" yestext="はい"/>
+	</notification>
 	<notification name="UnknownGPU">
 		お使いのシステムには、[APP_NAME] が認識できないグラフィックカードが搭載されています。
 [APP_NAME] でまだテストされていない最新ハードウェアのためだと考えられます。  問題ないとは思いますが、グラフィックの設定を調整する必要があるかもしれません。
@@ -2663,16 +2672,12 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		</form>
 	</notification>
 	<notification name="ScriptQuestionCaution">
-		[NAME] が所有する「&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;」 というオブジェクトが、次のことをしようとしています：
-
-[QUESTIONS]
-このオブジェクトや制作者を信用できない場合は、このリクエストを拒否してください。
-
-リクエストを受けますか？
+		警告：オブジェクト &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; はあなたのリンデンドルアカウントへのトータルアクセスを希望しています。アクセスを許可すると、このオブジェクトはいつでもあなたのアカウントから資金を削除したり、今後警告を表示することなく継続的にアカウントを完全に空にできるようになります。
+  
+このようなリクエストが正当であることは稀です。このオブジェクトがあなたのアカウントにアクセスしたい理由を完全に理解している場合を除き、アクセスの許可は避けてください。
 		<form name="form">
-			<button name="Grant" text="許可"/>
+			<button name="Grant" text="トータルアクセスを許可"/>
 			<button name="Deny" text="拒否"/>
-			<button name="Details" text="詳細..."/>
 		</form>
 	</notification>
 	<notification name="ScriptDialog">
@@ -3180,4 +3185,16 @@ M キーを押して変更します。
 	<global name="You died and have been teleported to your home location">
 		死んでしまったので、ホームにテレポートされました。
 	</global>
+	<notification name="LocalBitmapsUpdateFileNotFound">
+		[FNAME] は、見つからなかったため、更新できませんでした。
+このファイルに対する今後の更新を無効にします。
+	</notification>
+	<notification name="LocalBitmapsUpdateFailedFinal">
+		[FNAME] を開くまたはデコードする試行に失敗しました（試行回数 [NRETRIES] 回）。そのため、このファイルは壊れているものとして処理されました。
+このファイルに対する今後の更新を無効にします。
+	</notification>
+	<notification name="LocalBitmapsVerifyFail">
+		開くことができない、またはデコードできない無効または読み取り不能な画像ファイル [FNAME] を追加しようとしました。
+この試行はキャンセルされました。
+	</notification>
 </notifications>

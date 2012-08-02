@@ -510,7 +510,6 @@ public:
 	void selectionUpdatePhysics(BOOL use_physics);
 	void selectionUpdateTemporary(BOOL is_temporary);
 	void selectionUpdatePhantom(BOOL is_ghost);
-	void selectionUpdateCastShadows(BOOL cast_shadows);
 	void selectionDump();
 
 	BOOL selectionAllPCode(LLPCode code);		// all objects have this PCode
@@ -548,8 +547,6 @@ public:
 	void selectionTexScaleAutofit(F32 repeats_per_meter);
 	void adjustTexturesByScale(BOOL send_to_sim, BOOL stretch);
 
-	void selectionResetRotation();				// sets rotation quat to identity
-	void selectionRotateAroundZ(F32 degrees);
 	bool selectionMove(const LLVector3& displ, F32 rx, F32 ry, F32 rz,
 					   U32 update_type);
 	void sendSelectionMove();
@@ -571,6 +568,33 @@ public:
 	// returns TRUE if you can modify all selected objects. 
 	BOOL selectGetRootsModify();
 	BOOL selectGetModify();
+
+	// returns TRUE if is all objects are non-permanent-enforced
+	BOOL selectGetRootsNonPermanentEnforced();
+	BOOL selectGetNonPermanentEnforced();
+
+	// returns TRUE if is all objects are permanent
+	BOOL selectGetRootsPermanent();
+	BOOL selectGetPermanent();
+
+	// returns TRUE if is all objects are character
+	BOOL selectGetRootsCharacter();
+	BOOL selectGetCharacter();
+
+	// returns TRUE if is all objects are not permanent
+	BOOL selectGetRootsNonPathfinding();
+	BOOL selectGetNonPathfinding();
+
+	// returns TRUE if is all objects are not permanent
+	BOOL selectGetRootsNonPermanent();
+	BOOL selectGetNonPermanent();
+
+	// returns TRUE if is all objects are not character
+	BOOL selectGetRootsNonCharacter();
+	BOOL selectGetNonCharacter();
+
+	BOOL selectGetEditableLinksets();
+	BOOL selectGetViewableCharacters();
 
 	// returns TRUE if selected objects can be transferred.
 	BOOL selectGetRootsTransfer();

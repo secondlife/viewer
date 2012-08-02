@@ -490,7 +490,7 @@ void LLPanelFace::getState()
 		&& objectp->getPCode() == LL_PCODE_VOLUME
 		&& objectp->permModify())
 	{
-		BOOL editable = objectp->permModify();
+		BOOL editable = objectp->permModify() && !objectp->isPermanentEnforced();
 
 		// only turn on auto-adjust button if there is a media renderer and the media is loaded
 		getChildView("textbox autofix")->setEnabled(editable);

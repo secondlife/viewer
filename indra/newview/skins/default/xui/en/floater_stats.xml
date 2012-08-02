@@ -168,7 +168,7 @@
 			   name="texture"
 			   label="Texture"
 			   show_label="true">
-        <stat_bar
+			  <stat_bar
 				 name="texture_cache_hits"
 				 label="Cache Hit Rate"
 				 stat="texture_cache_hits"
@@ -571,6 +571,20 @@
 			   show_bar="false"
 			   show_mean="false" >
 			</stat_bar>
+        <stat_bar
+            name="simpctscriptsrun"
+            label="Scripts Run"
+            unit_label=" %"
+            stat="simpctscriptsrun"
+            bar_min="0"
+            bar_max="100"
+            tick_spacing="10"
+            label_spacing="20"
+            precision="3"
+            show_per_sec="false"
+            show_bar="false"
+            show_mean="true">
+        </stat_bar>
 
 			<stat_bar
 			   name="simscripteps"
@@ -586,6 +600,53 @@
 			   show_bar="false"
 			   show_mean="false" >
 			</stat_bar>
+
+        <stat_view
+            name="simpathfinding"
+            label="Pathfinding"
+            show_label="true">
+          <stat_bar
+              name="simsimaistepmsec"
+              label="  AI Step Time"
+              stat="simsimaistepmsec"
+              unit_label="ms"
+              precision="3"
+              bar_min="0.f"
+              bar_max="40.f"
+              tick_spacing="10.f"
+              label_spacing="20.f"
+              show_per_sec="false"
+              show_bar="false"
+              show_mean="false" >
+          </stat_bar>
+          <stat_bar
+              name="simsimskippedsilhouettesteps"
+              label="  Skipped Silhouette Steps"
+              stat="simsimskippedsilhouettesteps"
+              unit_label="/sec"
+              precision="0"
+              bar_min="0"
+              bar_max="45"
+              tick_spacing="4"
+              label_spacing="8"
+              show_per_sec="false"
+              show_bar="false">
+          </stat_bar>
+          <stat_bar
+              name="simsimpctsteppedcharacters"
+              label="  Characters Updated"
+              unit_label=" %"
+              stat="simsimpctsteppedcharacters"
+              bar_min="0"
+              bar_max="100"
+              tick_spacing="10"
+              label_spacing="20"
+              precision="1"
+              show_per_sec="false"
+              show_bar="false"
+              show_mean="true">
+          </stat_bar>
+        </stat_view>
 
 			<stat_bar
 			   name="siminpps"

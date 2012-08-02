@@ -129,22 +129,22 @@ void LLPolyMeshSharedData::freeMeshData()
         {
                 mNumVertices = 0;
 
-                delete [] mBaseCoords;
+                ll_aligned_free_16(mBaseCoords);
                 mBaseCoords = NULL;
 
-                delete [] mBaseNormals;
+                ll_aligned_free_16(mBaseNormals);
                 mBaseNormals = NULL;
 
-                delete [] mBaseBinormals;
+                ll_aligned_free_16(mBaseBinormals);
                 mBaseBinormals = NULL;
 
-                delete [] mTexCoords;
+                ll_aligned_free_16(mTexCoords);
                 mTexCoords = NULL;
 
-                delete [] mDetailTexCoords;
+                ll_aligned_free_16(mDetailTexCoords);
                 mDetailTexCoords = NULL;
 
-                delete [] mWeights;
+                ll_aligned_free_16(mWeights);
                 mWeights = NULL;
         }
 
@@ -229,17 +229,18 @@ U32 LLPolyMeshSharedData::getNumKB()
 BOOL LLPolyMeshSharedData::allocateVertexData( U32 numVertices )
 {
         U32 i;
-        mBaseCoords = new LLVector4a[ numVertices ];
-        mBaseNormals = new LLVector4a[ numVertices ];
-        mBaseBinormals = new LLVector4a[ numVertices ];
-        mTexCoords = new LLVector2[ numVertices ];
-        mDetailTexCoords = new LLVector2[ numVertices ];
-        mWeights = new F32[ numVertices ];
+        mBaseCoords = (LLVector4a*) ll_aligned_malloc_16(numVertices*sizeof(LLVector4a));
+        mBaseNormals = (LLVector4a*) ll_aligned_malloc_16(numVertices*sizeof(LLVector4a));
+        mBaseBinormals = (LLVector4a*) ll_aligned_malloc_16(numVertices*sizeof(LLVector4a));
+        mTexCoords = (LLVector2*) ll_aligned_malloc_16(numVertices*sizeof(LLVector2));
+        mDetailTexCoords = (LLVector2*) ll_aligned_malloc_16(numVertices*sizeof(LLVector2));
+        mWeights = (F32*) ll_aligned_malloc_16(numVertices*sizeof(F32));
         for (i = 0; i < numVertices; i++)
         {
 			mBaseCoords[i].clear();
 			mBaseNormals[i].clear();
 			mBaseBinormals[i].clear();
+			mTexCoords[i].clear();
             mWeights[i] = 0.f;
         }
         mNumVertices = numVertices;

@@ -205,18 +205,18 @@ void LLURLDispatcherImpl::regionHandleCallback(U64 region_handle, const LLSLURL&
 {
 
   // we can't teleport cross grid at this point
-	if((!LLGridManager::getInstance()->isSystemGrid(slurl.getGrid()) || !LLGridManager::getInstance()->isSystemGrid()) &&
-	   (slurl.getGrid() != LLGridManager::getInstance()->getGrid()))
+	if(   LLGridManager::getInstance()->getGrid(slurl.getGrid())
+	   != LLGridManager::getInstance()->getGrid())
 	{
 		LLSD args;
 		args["SLURL"] = slurl.getLocationString();
 		args["CURRENT_GRID"] = LLGridManager::getInstance()->getGridLabel();
-		LLSD grid_info;
-		LLGridManager::getInstance()->getGridInfo(slurl.getGrid(), grid_info);
+		std::string grid_label = 
+			LLGridManager::getInstance()->getGridLabel(slurl.getGrid());
 		
-		if(grid_info.has(GRID_LABEL_VALUE))
+		if(!grid_label.empty())
 		{
-			args["GRID"] = grid_info[GRID_LABEL_VALUE].asString();
+			args["GRID"] = grid_label;
 		}
 		else 
 		{

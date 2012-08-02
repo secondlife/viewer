@@ -47,16 +47,16 @@ static std::string getMarketplaceDomain()
 	
 	if (!LLGridManager::getInstance()->isInProductionGrid())
 	{
-		const std::string& grid_label = LLGridManager::getInstance()->getGridLabel();
-		const std::string& grid_label_lower = utf8str_tolower(grid_label);
+		const std::string& grid_id = LLGridManager::getInstance()->getGridId();
+		const std::string& grid_id_lower = utf8str_tolower(grid_id);
 		
-		if (grid_label_lower == "damballah")
+		if (grid_id_lower == "damballah")
 		{
 			domain = "secondlife-staging.com";
 		}
 		else
 		{
-			domain = llformat("%s.lindenlab.com", grid_label_lower.c_str());
+			domain = llformat("%s.lindenlab.com", grid_id_lower.c_str());
 		}
 	}
 	

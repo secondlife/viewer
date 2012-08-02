@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="TexFetchDebugger" title="Отладчик извлечения текстур">
+	<text name="total_num_fetched_label">
+		1, Общее количество извлеченных текстур: [NUM]
+	</text>
+	<text name="total_num_fetching_requests_label">
+		2, Общее количество запросов на извлечение: [NUM]
+	</text>
+	<text name="total_num_cache_hits_label">
+		3, Общее количество попаданий в кэш: [NUM]
+	</text>
+	<text name="total_num_visible_tex_label">
+		4, Общее количество видимых текстур: [NUM]
+	</text>
+	<text name="total_num_visible_tex_fetch_req_label">
+		5, Общее количество запросов на извлечение видимых текстур: [NUM]
+	</text>
+	<text name="total_fetched_data_label">
+		6, Общий объем извлеченных данных: [SIZE1] КБ, декодированные данные: [SIZE2] КБ, [PIXEL] Мпикселов
+	</text>
+	<text name="total_fetched_vis_data_label">
+		7, Общий объем видимых данных: [SIZE1] КБ, декодированные данные: [SIZE2] КБ
+	</text>
+	<text name="total_fetched_rendered_data_label">
+		8, Общий объем визуализированных данных: [SIZE1] КБ, декодированные данные: [SIZE2] КБ, [PIXEL] Мпикселов
+	</text>
+	<text name="total_time_cache_read_label">
+		9, Общее время чтения из кэша: [TIME] с
+	</text>
+	<text name="total_time_cache_write_label">
+		10, Общее время записи в кэш: [TIME] с
+	</text>
+	<text name="total_time_decode_label">
+		11, Общее время декодирования: [TIME] с
+	</text>
+	<text name="total_time_gl_label">
+		12, Общее время создания текстур: [TIME] с
+	</text>
+	<text name="total_time_http_label">
+		13, Общее время HTTP-извлечения: [TIME] с
+	</text>
+	<text name="total_time_fetch_label">
+		14, Общее время полного извлечения: [TIME] с
+	</text>
+	<text name="total_time_refetch_vis_cache_label">
+		15, Повторное извлечение из кэша, время: [TIME] с, извлечено: [SIZE] КБ, [PIXEL] Мпикселов
+	</text>
+	<text name="total_time_refetch_vis_http_label">
+		16, Повторное извлечение из HTTP, время: [TIME] с, извлечено: [SIZE] КБ, [PIXEL] Мпикселов
+	</text>
+	<spinner label="17, Отношение текселы/пикселы" name="texel_pixel_ratio"/>
+	<button label="Пуск" name="start_btn"/>
+	<button label="Сброс" name="clear_btn"/>
+	<button label="Закрыть" name="close_btn"/>
+	<button label="Чтение кэша" name="cacheread_btn"/>
+	<button label="Запись в кэш" name="cachewrite_btn"/>
+	<button label="HTTP" name="http_btn"/>
+	<button label="Декодировать" name="decode_btn"/>
+	<button label="Текстура GL" name="gl_btn"/>
+	<button label="Повторно извлечь из кэша" name="refetchviscache_btn"/>
+	<button label="Повторно извлечь из HTTP" name="refetchvishttp_btn"/>
+</floater>

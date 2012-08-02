@@ -40,6 +40,7 @@
 #include "llframetimer.h"
 
 #include "lleditmenuhandler.h"
+#include "llspellcheckmenuhandler.h"
 #include "lluictrl.h"
 #include "lluiimage.h"
 #include "lluistring.h"
@@ -54,7 +55,7 @@ class LLButton;
 class LLContextMenu;
 
 class LLLineEditor
-: public LLUICtrl, public LLEditMenuHandler, protected LLPreeditor
+: public LLUICtrl, public LLEditMenuHandler, protected LLPreeditor, public LLSpellCheckMenuHandler
 {
 public:
 
@@ -86,6 +87,7 @@ public:
 
 		Optional<bool>					select_on_focus,
 										revert_on_esc,
+										spellcheck,
 										commit_on_focus_lost,
 										ignore_tab,
 										is_password;
@@ -146,6 +148,24 @@ public:
 	virtual void	deselect();
 	virtual BOOL	canDeselect() const;
 
+	// LLSpellCheckMenuHandler overrides
+	/*virtual*/ bool	getSpellCheck() const;
+
+	/*virtual*/ const std::string& getSuggestion(U32 index) const;
+	/*virtual*/ U32		getSuggestionCount() const;
+	/*virtual*/ void	replaceWithSuggestion(U32 index);
+
+	/*virtual*/ void	addToDictionary();
+	/*virtual*/ bool	canAddToDictionary() const;
+
+	/*virtual*/ void	addToIgnore();
+	/*virtual*/ bool	canAddToIgnore() const;
+
+	// Spell checking helper functions
+	std::string			getMisspelledWord(U32 pos) const;
+	bool				isMisspelledWord(U32 pos) const;
+	void				onSpellCheckSettingsChange();
+
 	// view overrides
 	virtual void	draw();
 	virtual void	reshape(S32 width,S32 height,BOOL called_from_parent=TRUE);
@@ -169,6 +189,9 @@ public:
 	virtual BOOL	setTextArg( const std::string& key, const LLStringExplicit& text );
 	virtual BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text );
 
+	typedef boost::function<void(LLUIString&, S32&)> autoreplace_callback_t;
+	autoreplace_callback_t mAutoreplaceCallback;
+	void			setAutoreplaceCallback(autoreplace_callback_t cb) { mAutoreplaceCallback = cb; }
 	void			setLabel(const LLStringExplicit &new_label) { mLabel = new_label; }
 	const std::string& 	getLabel()	{ return mLabel.getString(); }
 
@@ -223,6 +246,7 @@ public:
 	void			setSelectAllonFocusReceived(BOOL b);
 	void			setSelectAllonCommit(BOOL b) { mSelectAllonCommit = b; }
 	
+	void			onKeystroke();
 	typedef boost::function<void (LLLineEditor* caller, void* user_data)> callback_t;
 	void			setKeystrokeCallback(callback_t callback, void* user_data);
 
@@ -321,6 +345,13 @@ protected:
 	S32			mLastSelectionY;
 	S32			mLastSelectionStart;
 	S32			mLastSelectionEnd;
+
+	bool		mSpellCheck;
+	S32			mSpellCheckStart;
+	S32			mSpellCheckEnd;
+	LLTimer		mSpellCheckTimer;
+	std::list<std::pair<U32, U32> > mMisspellRanges;
+	std::vector<std::string>		mSuggestionList;
 
 	LLTextValidate::validate_func_t mPrevalidateFunc;
 	LLTextValidate::validate_func_t mPrevalidateInputFunc;

@@ -495,6 +495,15 @@
 		</url>
 		<usetemplate ignoretext="Оборудование моего компьютера не поддерживается" name="okcancelignore" notext="Нет" yestext="Да"/>
 	</notification>
+	<notification name="IntelOldDriver">
+		Возможно, для вашей видеокарты имеется более новый драйвер.  Обновление драйвера может существенно повысить быстродействие.
+
+    Проверить наличие обновления для драйвера по адресу [_URL]?
+		<url name="url">
+			http://www.intel.com/p/ru_RU/support/detect/graphics
+		</url>
+		<usetemplate ignoretext="Мой графический драйвер устарел" name="okcancelignore" notext="Нет" yestext="Да"/>
+	</notification>
 	<notification name="UnknownGPU">
 		В вашей системе установлена графическая карта, которую [APP_NAME] не может распознать.
 Так часто бывает, если новое оборудование еще не было проверено на работу с [APP_NAME].  Скорее всего, оно будет работать нормально, но, возможно, придется отрегулировать параметры графики.
@@ -2614,16 +2623,12 @@ http://secondlife.com/download.
 		</form>
 	</notification>
 	<notification name="ScriptQuestionCaution">
-		Объект «&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;», владелец которого – «[NAME]», желает:
-
-[QUESTIONS]
-Если вы не доверяете этому объекту или его создателю, отклоните запрос.
-
-Принять этот запрос?
+		Предупреждение. Объект «&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;» требует полного доступа к вашему аккаунту для Linden-долларов. Если разрешить такой доступ, объект сможет в любое время снимать средства с вашего аккаунта или полностью опустошать его неоднократно и без предупреждения.
+  
+Такое требование чаще всего незаконно. Не разрешайте доступ к своему аккаунту, если только не полностью осознаете, зачем он нужен этому объекту.
 		<form name="form">
-			<button name="Grant" text="Принять"/>
+			<button name="Grant" text="Разрешить полный доступ"/>
 			<button name="Deny" text="Отклонить"/>
-			<button name="Details" text="Подробности..."/>
 		</form>
 	</notification>
 	<notification name="ScriptDialog">
@@ -3122,4 +3127,16 @@ http://secondlife.com/download.
 	<global name="You died and have been teleported to your home location">
 		Вы умерли и были телепортированы в ваше домашнее местоположение.
 	</global>
+	<notification name="LocalBitmapsUpdateFileNotFound">
+		Не удалось обновить [FNAME]: файл не найден.
+Последующее обновление этого файла запрещается.
+	</notification>
+	<notification name="LocalBitmapsUpdateFailedFinal">
+		Не удалось открыть или декодировать [FNAME] с [NRETRIES] попыток. Этот файл считается поврежденным.
+Последующее обновление этого файла запрещается.
+	</notification>
+	<notification name="LocalBitmapsVerifyFail">
+		Попытка добавить недопустимый или нечитаемый файл изображения [FNAME], который не удалось открыть или декодировать.
+Попытка отменена.
+	</notification>
 </notifications>

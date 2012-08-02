@@ -64,7 +64,6 @@ public:
 	static void 	onCommitRotation(		LLUICtrl* ctrl, void* userdata);
 	static void 	onCommitTemporary(		LLUICtrl* ctrl, void* userdata);
 	static void 	onCommitPhantom(		LLUICtrl* ctrl, void* userdata);
-	static void 	onCommitCastShadows(	LLUICtrl* ctrl, void* userdata);
 	static void 	onCommitPhysics(		LLUICtrl* ctrl, void* userdata);
 
 	static void 	onCommitParametric(LLUICtrl* ctrl, void* userdata);
@@ -75,8 +74,7 @@ public:
 	void     		onSelectSculpt(const LLSD& data);
 	BOOL     		onDropSculpt(LLInventoryItem* item);
 	static void     onCommitSculptType(    LLUICtrl *ctrl, void* userdata);
-		
-	
+
 protected:
 	void			getState();
 
@@ -87,7 +85,6 @@ protected:
 	void			sendIsTemporary();
 	void			sendIsPhantom();
 
-	void			sendCastShadows();
 	void            sendSculpt();
 	
 	void 			getVolumeParams(LLVolumeParams& volume_params);
@@ -153,7 +150,6 @@ protected:
 	LLCheckBoxCtrl	*mCheckPhysics;
 	LLCheckBoxCtrl	*mCheckTemporary;
 	LLCheckBoxCtrl	*mCheckPhantom;
-	LLCheckBoxCtrl	*mCheckCastShadows;
 
 	LLTextureCtrl   *mCtrlSculptTexture;
 	LLTextBox       *mLabelSculptType;
@@ -165,7 +161,6 @@ protected:
 	BOOL			mIsPhysical;			// to avoid sending "physical" when not changed
 	BOOL			mIsTemporary;			// to avoid sending "temporary" when not changed
 	BOOL			mIsPhantom;				// to avoid sending "phantom" when not changed
-	BOOL			mCastShadows;			// to avoid sending "cast shadows" when not changed
 	S32				mSelectedType;			// So we know what selected type we last were
 
 	LLUUID          mSculptTextureRevert;   // so we can revert the sculpt texture on cancel

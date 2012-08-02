@@ -201,7 +201,8 @@ void LLControlVariable::setValue(const LLSD& new_value, bool saved_value)
 	}
 	
 	LLSD storable_value = getComparableValue(new_value);
-	bool value_changed = llsd_compare(getValue(), storable_value) == FALSE;
+	LLSD original_value = getValue();
+	bool value_changed = llsd_compare(original_value, storable_value) == FALSE;
 	if(saved_value)
 	{
     	// If we're going to save this value, return to default but don't fire
@@ -237,7 +238,7 @@ void LLControlVariable::setValue(const LLSD& new_value, bool saved_value)
 
     if(value_changed)
     {
-        mCommitSignal(this, storable_value); 
+		firePropertyChanged(original_value);
     }
 }
 
@@ -249,12 +250,13 @@ void LLControlVariable::setDefaultValue(const LLSD& value)
 	// *NOTE: Default values are not saved, only read.
 
 	LLSD comparable_value = getComparableValue(value);
-	bool value_changed = (llsd_compare(getValue(), comparable_value) == FALSE);
+	LLSD original_value = getValue();
+	bool value_changed = (llsd_compare(original_value, comparable_value) == FALSE);
 	resetToDefault(false);
 	mValues[0] = comparable_value;
 	if(value_changed)
 	{
-		firePropertyChanged();
+		firePropertyChanged(original_value);
 	}
 }
 
@@ -277,6 +279,8 @@ void LLControlVariable::resetToDefault(bool fire_signal)
 {
 	//The first setting is always the default
 	//Pop to it and fire off the listener
+	LLSD originalValue = mValues.back();
+
 	while(mValues.size() > 1)
 	{
 		mValues.pop_back();
@@ -284,7 +288,7 @@ void LLControlVariable::resetToDefault(bool fire_signal)
 	
 	if(fire_signal) 
 	{
-		firePropertyChanged();
+		firePropertyChanged(originalValue);
 	}
 }
 

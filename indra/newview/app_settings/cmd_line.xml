@@ -101,7 +101,7 @@
     <key>grid</key>
     <map>
       <key>desc</key>
-      <string>Specify the name of the grid, local, or an IP address to connect to.</string>
+      <string>Specify the name of the grid to connect to.</string>
       <key>count</key>
       <integer>1</integer>
       <key>map-to</key>
@@ -115,16 +115,6 @@
 
       <key>short</key>
       <string>h</string>
-    </map>
-
-    <key>helperuri</key>
-    <map>
-      <key>desc</key>
-      <string>helper web CGI prefix to use</string>
-      <key>count</key>
-      <integer>1</integer>
-      <key>map-to</key>
-      <string>CmdLineHelperURI</string>
     </map>
 
     <key>ignorepixeldepth</key>
@@ -163,7 +153,7 @@
       <key>map-to</key>
       <string>UserLogFile</string>
     </map>
-    
+
     <key>login</key>
     <map>
       <key>desc</key>
@@ -172,28 +162,6 @@
       <integer>3</integer>
       <key>map-to</key>
       <string>UserLoginInfo</string>
-    </map>
-
-    <key>loginpage</key>
-    <map>
-      <key>desc</key>
-      <string>Login authentication page to use.</string>
-      <key>count</key>
-      <integer>1</integer>
-      <key>map-to</key>
-      <string>LoginPage</string>
-    </map>
-
-    <key>loginuri</key>
-    <map>
-      <key>desc</key>
-      <string>login server and CGI script to use</string>
-      <key>count</key>
-      <integer>1</integer>
-      <key>compose</key>
-      <boolean>true</boolean>
-      <key>map-to</key>
-      <string>CmdLineLoginURI</string>
     </map>
 
     <key>logmetrics</key>
@@ -226,7 +194,7 @@
     <map>
       <key>map-to</key>
       <string>NoAudio</string>
-    </map>
+    </map>    
 
     <key>noinvlib</key>
     <map>
@@ -242,7 +210,7 @@
       <string>User will not get any notifications. NOTE: All notifications that occur will get added to ignore file for future runs.</string>
       <key>map-to</key>
       <string>IgnoreAllNotifications</string>      
-    </map>    
+    </map>
 
     <key>nopreload</key>
     <map>
@@ -321,7 +289,7 @@
       <key>map-to</key>
       <string>QuitAfterSeconds</string>
     </map>
-    
+
     <key>replaysession</key>
     <map>
       <key>desc</key>
@@ -335,7 +303,7 @@
       <key>map-to</key>
       <string>RotateRight</string>
     </map>
-
+    
     <key>safe</key>
     <map>
       <key>desc</key>

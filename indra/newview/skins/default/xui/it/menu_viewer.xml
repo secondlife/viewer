@@ -226,11 +226,10 @@
 			<menu_item_check label="Console texture" name="Texture Console"/>
 			<menu_item_check label="Console di Debug" name="Debug Console"/>
 			<menu_item_call label="Console notifiche" name="Notifications"/>
-			<menu_item_check label="Console dimensioni texture" name="Texture Size"/>
-			<menu_item_check label="Console categoria texture" name="Texture Category"/>
 			<menu_item_check label="Timer veloci" name="Fast Timers"/>
 			<menu_item_check label="Memoria" name="Memory"/>
 			<menu_item_check label="Statistiche scena" name="Scene Statistics"/>
+			<menu_item_call label="Console di debug recupero texture" name="Texture Fetch Debug Console"/>
 			<menu_item_call label="Informazioni regione sulla console di debug" name="Region Info to Debug Console"/>
 			<menu_item_check label="Fotocamera" name="Camera"/>
 			<menu_item_check label="Vento" name="Wind"/>
@@ -271,6 +270,12 @@
 			<menu_item_check label="Complessità rendering" name="rendercomplexity"/>
 			<menu_item_check label="Byte collegamento" name="attachment bytes"/>
 			<menu_item_check label="Scolpisci" name="Sculpt"/>
+			<menu label="Densità texture" name="Texture Density">
+				<menu_item_check label="Nessuna" name="None"/>
+				<menu_item_check label="Attuale" name="Current"/>
+				<menu_item_check label="Desiderata" name="Desired"/>
+				<menu_item_check label="Completa" name="Full"/>
+			</menu>
 		</menu>
 		<menu label="Rendering" name="Rendering">
 			<menu_item_check label="Assi" name="Axes"/>
