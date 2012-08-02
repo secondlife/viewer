@@ -3571,6 +3571,12 @@ version 2.0
 		VisualParam			Variable
 		{	ParamValue		U8	}
 	}
+	{
+		AppearanceData		Variable
+		{	AppearanceVersion	U8	}
+		{	CofVersion			S32	}
+		{	Flags				U32	}
+	}
 }
 
 // AvatarSitResponse - response to a request to sit on an object
