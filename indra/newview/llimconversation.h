@@ -99,6 +99,10 @@ protected:
 	LLParticipantList* mParticipantList;
 	LLUUID mSessionID;
 
+	LLChatHistory* mChatHistory;
+	LLChatEntry* mInputEditor;
+	int mInputEditorTopPad; // padding between input field and chat history
+
 	LLButton* mExpandCollapseBtn;
 	LLButton* mTearOffBtn;
 	LLButton* mCloseBtn;
@@ -116,10 +120,6 @@ private:
 	 * Implementation: chat history bottom "follows" top+top_pad of input chat field
 	 */
 	void reshapeChatHistory();
-
-	LLChatHistory* mChatHistory;
-	LLChatEntry* mInputEditor;
-	int mInputEditorTopPad; // padding between input field and chat history
 
 	LLTimer* mRefreshTimer; ///< Defines the rate at which refresh() is called.
 };

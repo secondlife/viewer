@@ -125,30 +125,24 @@ static LLChatTypeTrigger sChatTypeTriggers[] = {
 
 LLNearbyChat::LLNearbyChat(const LLSD& key)
 :	LLIMConversation(key),
-	mChatBox(NULL),
-	mChatHistory(NULL),
 	//mOutputMonitor(NULL),
 	mSpeakerMgr(NULL),
 	mExpandedHeight(COLLAPSED_HEIGHT + EXPANDED_HEIGHT)
 {
+	mIsNearbyChat = true;
 	setIsChrome(TRUE);
 	mKey = LLSD();
-	mIsNearbyChat = true;
 	mSpeakerMgr = LLLocalSpeakerMgr::getInstance();
 }
 
 //virtual
 BOOL LLNearbyChat::postBuild()
 {
-	mChatBox = getChild<LLChatEntry>("chat_editor");
-
-	mChatBox->setCommitCallback(boost::bind(&LLNearbyChat::onChatBoxCommit, this));
-	mChatBox->setKeystrokeCallback(boost::bind(&onChatBoxKeystroke, _1, this));
-	mChatBox->setFocusLostCallback(boost::bind(&onChatBoxFocusLost, _1, this));
-	mChatBox->setFocusReceivedCallback(boost::bind(&LLNearbyChat::onChatBoxFocusReceived, this));
-	mChatBox->setCommitOnFocusLost( FALSE );
-	mChatBox->setPassDelete(TRUE);
-	mChatBox->setFont(LLViewerChat::getChatFont());
+    BOOL result = LLIMConversation::postBuild();
+	mInputEditor->setCommitCallback(boost::bind(&LLNearbyChat::onChatBoxCommit, this));
+	mInputEditor->setKeystrokeCallback(boost::bind(&onChatBoxKeystroke, _1, this));
+	mInputEditor->setFocusLostCallback(boost::bind(&onChatBoxFocusLost, _1, this));
+	mInputEditor->setFocusReceivedCallback(boost::bind(&LLNearbyChat::onChatBoxFocusReceived, this));
 
 //	mOutputMonitor = getChild<LLOutputMonitorCtrl>("chat_zone_indicator");
 //	mOutputMonitor->setVisible(FALSE);
@@ -180,7 +174,6 @@ BOOL LLNearbyChat::postBuild()
 	// obsolete, but may be needed for backward compatibility?
 	gSavedSettings.declareS32("nearbychat_showicons_and_names", 2, "NearByChat header settings", true);
 
-	mChatHistory = getChild<LLChatHistory>("chat_history");
 	if (gSavedPerAccountSettings.getBOOL("LogShowHistory"))
 	{
 		loadHistory();
@@ -190,7 +183,7 @@ BOOL LLNearbyChat::postBuild()
 	LLIMFloaterContainer* im_box = LLIMFloaterContainer::getInstance();
 	im_box->addConversationListItem(getTitle(), LLSD(), this);
 
-	return LLIMConversation::postBuild();
+	return result;
 }
 
 // virtual
@@ -227,10 +220,6 @@ bool	LLNearbyChat::onNearbyChatCheckContextMenuItem(const LLSD& userdata)
 	return false;
 }
 
-void LLNearbyChat::getAllowedRect(LLRect& rect)
-{
-	rect = gViewerWindow->getWorldViewRectScaled();
-}
 ////////////////////////////////////////////////////////////////////////////////
 //
 void LLNearbyChat::onFocusReceived()
@@ -352,10 +341,8 @@ void LLNearbyChat::onTearOffClicked()
 {
 	LLIMConversation::onTearOffClicked();
 
-	LLIMFloaterContainer* im_box = LLIMFloaterContainer::getInstance();
-
 	// see CHUI-170: Save torn-off state of the nearby chat between sessions
-	BOOL in_the_multifloater = (getHost() == im_box);
+	BOOL in_the_multifloater = !isTornOff();
 	gSavedSettings.setBOOL("NearbyChatIsNotTornOff", in_the_multifloater);
 }
 
@@ -389,18 +376,12 @@ void LLNearbyChat::onOpen(const LLSD& key)
 	showTranslationCheckbox(LLTranslate::isTranslationConfigured());
 }
 
-bool LLNearbyChat::applyRectControl()
-{
-	setResizeLimits(getMinWidth(), EXPANDED_MIN_HEIGHT);
-	return LLFloater::applyRectControl();
-}
-
 void LLNearbyChat::onChatFontChange(LLFontGL* fontp)
 {
 	// Update things with the new font whohoo
-	if (mChatBox)
+	if (mInputEditor)
 	{
-		mChatBox->setFont(fontp);
+		mInputEditor->setFont(fontp);
 	}
 }
 
@@ -416,33 +397,20 @@ void LLNearbyChat::show()
 	{
 		openFloater(getKey());
 	}
-	setVisible(TRUE);
 }
 
 bool LLNearbyChat::isChatVisible() const
 {
 	bool isVisible = false;
-
-	if (isChatMultiTab())
+	LLIMFloaterContainer* im_box = LLIMFloaterContainer::getInstance();
+	// Is the IM floater container ever null?
+	llassert(im_box != NULL);
+	if (im_box != NULL)
 	{
-		LLIMFloaterContainer* im_box = LLIMFloaterContainer::getInstance();
-		// Is the IM floater container ever null?
-		llassert(im_box != NULL);
-		if (im_box != NULL)
-		{
-			if (gSavedSettings.getBOOL("NearbyChatIsNotTornOff"))
-			{
-				isVisible = (im_box->getVisible() && !im_box->isMinimized());
-			}
-			else
-			{
-				isVisible = (getVisible() && !isMinimized());
-			}
-		}
-	}
-	else
-	{
-		isVisible = (getVisible() && !isMinimized());
+		isVisible =
+				isChatMultiTab() && gSavedSettings.getBOOL("NearbyChatIsNotTornOff")?
+						im_box->getVisible() && !im_box->isMinimized() :
+						getVisible() && !isMinimized();
 	}
 
 	return isVisible;
@@ -452,22 +420,11 @@ void LLNearbyChat::showHistory()
 {
 	openFloater();
 	setResizeLimits(getMinWidth(), EXPANDED_MIN_HEIGHT);
-
-	bool is_torn_off = getHost() == NULL;
-
-	// Reshape and enable resize controls only if it's a torn off floater.
-	// Otherwise all the size changes should be handled by LLIMFloaterContainer.
-	if (is_torn_off)
-	{
-		reshape(getRect().getWidth(), mExpandedHeight);
-		enableResizeCtrls(true);
-		storeRectControl();
-	}
 }
 
 std::string LLNearbyChat::getCurrentChat()
 {
-	return mChatBox ? mChatBox->getText() : LLStringUtil::null;
+	return mInputEditor ? mInputEditor->getText() : LLStringUtil::null;
 }
 
 // virtual
@@ -516,7 +473,7 @@ void LLNearbyChat::onChatBoxKeystroke(LLTextEditor* caller, void* userdata)
 
 	LLNearbyChat* self = (LLNearbyChat *)userdata;
 
-	LLWString raw_text = self->mChatBox->getWText();
+	LLWString raw_text = self->mInputEditor->getWText();
 
 	// Can't trim the end, because that will cause autocompletion
 	// to eat trailing spaces that might be part of a gesture.
@@ -563,17 +520,17 @@ void LLNearbyChat::onChatBoxKeystroke(LLTextEditor* caller, void* userdata)
 		if (LLGestureMgr::instance().matchPrefix(utf8_trigger, &utf8_out_str))
 		{
 			std::string rest_of_match = utf8_out_str.substr(utf8_trigger.size());
-			self->mChatBox->setText(utf8_trigger + rest_of_match); // keep original capitalization for user-entered part
+			self->mInputEditor->setText(utf8_trigger + rest_of_match); // keep original capitalization for user-entered part
 
 			// Select to end of line, starting from the character
 			// after the last one the user typed.
-			self->mChatBox->selectNext(rest_of_match, false);
+			self->mInputEditor->selectNext(rest_of_match, false);
 		}
 		else if (matchChatTypeTrigger(utf8_trigger, &utf8_out_str))
 		{
 			std::string rest_of_match = utf8_out_str.substr(utf8_trigger.size());
-			self->mChatBox->setText(utf8_trigger + rest_of_match + " "); // keep original capitalization for user-entered part
-			self->mChatBox->endOfDoc();
+			self->mInputEditor->setText(utf8_trigger + rest_of_match + " "); // keep original capitalization for user-entered part
+			self->mInputEditor->endOfDoc();
 		}
 
 		//llinfos << "GESTUREDEBUG " << trigger 
@@ -592,7 +549,7 @@ void LLNearbyChat::onChatBoxFocusLost(LLFocusableElement* caller, void* userdata
 
 void LLNearbyChat::onChatBoxFocusReceived()
 {
-	mChatBox->setEnabled(!gDisconnected);
+	mInputEditor->setEnabled(!gDisconnected);
 }
 
 EChatType LLNearbyChat::processChatTypeTriggers(EChatType type, std::string &str)
@@ -629,9 +586,9 @@ EChatType LLNearbyChat::processChatTypeTriggers(EChatType type, std::string &str
 
 void LLNearbyChat::sendChat( EChatType type )
 {
-	if (mChatBox)
+	if (mInputEditor)
 	{
-		LLWString text = mChatBox->getWText();
+		LLWString text = mInputEditor->getWText();
 		LLWStringUtil::trim(text);
 		LLWStringUtil::replaceChar(text,182,'\n'); // Convert paragraph symbols back into newlines.
 		if (!text.empty())
@@ -664,7 +621,7 @@ void LLNearbyChat::sendChat( EChatType type )
 			}
 		}
 
-		mChatBox->setText(LLStringExplicit(""));
+		mInputEditor->setText(LLStringExplicit(""));
 	}
 
 	gAgent.stopTyping();
@@ -735,7 +692,7 @@ void	LLNearbyChat::addMessage(const LLChat& chat,bool archive,const LLSD &args)
 
 void LLNearbyChat::onChatBoxCommit()
 {
-	if (mChatBox->getText().length() > 0)
+	if (mInputEditor->getText().length() > 0)
 	{
 		sendChat(CHAT_TYPE_NORMAL);
 	}
@@ -837,15 +794,15 @@ void LLNearbyChat::startChat(const char* line)
 		cb->show();
 		cb->setVisible(TRUE);
 		cb->setFocus(TRUE);
-		cb->mChatBox->setFocus(TRUE);
+		cb->mInputEditor->setFocus(TRUE);
 
 		if (line)
 		{
 			std::string line_string(line);
-			cb->mChatBox->setText(line_string);
+			cb->mInputEditor->setText(line_string);
 		}
 
-		cb->mChatBox->endOfDoc();
+		cb->mInputEditor->endOfDoc();
 	}
 }
 
@@ -857,7 +814,7 @@ void LLNearbyChat::stopChat()
 
 	if (cb)
 	{
-		cb->mChatBox->setFocus(FALSE);
+		cb->mInputEditor->setFocus(FALSE);
 
 		// stop typing animation
 		gAgent.stopTyping();

@@ -125,9 +125,9 @@ void LLFolderViewModelItemInventory::requestSort()
 	}
 }
 
-void LLFolderViewModelItemInventory::setPassedFilter(bool passed, bool passed_folder, S32 filter_generation, std::string::size_type string_offset, std::string::size_type string_size)
+void LLFolderViewModelItemInventory::setPassedFilter(bool passed, S32 filter_generation, std::string::size_type string_offset, std::string::size_type string_size)
 {
-	LLFolderViewModelItemCommon::setPassedFilter(passed, passed_folder, filter_generation, string_offset, string_size);
+	LLFolderViewModelItemCommon::setPassedFilter(passed, filter_generation, string_offset, string_size);
 
 	bool passed_filter_before = mPrevPassedAllFilters;
 	mPrevPassedAllFilters = passedFilter(filter_generation);
@@ -143,14 +143,15 @@ void LLFolderViewModelItemInventory::setPassedFilter(bool passed, bool passed_fo
 	}
 }
 
-void LLFolderViewModelItemInventory::filterChildItem( LLFolderViewModelItem* item, LLFolderViewFilter& filter )
+bool LLFolderViewModelItemInventory::filterChildItem( LLFolderViewModelItem* item, LLFolderViewFilter& filter )
 {
 	S32 filter_generation = filter.getCurrentGeneration();
 
+	bool continue_filtering = true;
 	if (item->getLastFilterGeneration() < filter_generation)
 	{
 		// recursive application of the filter for child items
-		item->filter( filter );
+		continue_filtering = item->filter( filter );
 	}
 
 	// track latest generation to pass any child items, for each folder up to root
@@ -164,21 +165,30 @@ void LLFolderViewModelItemInventory::filterChildItem( LLFolderViewModelItem* ite
 			view_model = static_cast<LLFolderViewModelItemInventory*>(view_model->mParent);
 		}
 	}
+
+	return continue_filtering;
 }
 
-void LLFolderViewModelItemInventory::filter( LLFolderViewFilter& filter)
+bool LLFolderViewModelItemInventory::filter( LLFolderViewFilter& filter)
 {
 	const S32 filter_generation = filter.getCurrentGeneration();
 	const S32 must_pass_generation = filter.getFirstRequiredGeneration();
 
 	if (getLastFilterGeneration() >= must_pass_generation 
+		&& getLastFolderFilterGeneration() >= must_pass_generation
 		&& !passedFilter(must_pass_generation))
 	{
 		// failed to pass an earlier filter that was a subset of the current one
 		// go ahead and flag this item as done
-		setPassedFilter(false, false, filter_generation);
-		return;
+		setPassedFilter(false, filter_generation);
+		setPassedFolderFilter(false, filter_generation);
+		return true;
 	}
+
+	const bool passed_filter_folder = (getInventoryType() == LLInventoryType::IT_CATEGORY) 
+		? filter.checkFolder(this)
+		: true;
+	setPassedFolderFilter(passed_filter_folder, filter_generation);
 
 	if(!mChildren.empty()
 		&& (getLastFilterGeneration() < must_pass_generation // haven't checked descendants against minimum required generation to pass
@@ -189,7 +199,10 @@ void LLFolderViewModelItemInventory::filter( LLFolderViewFilter& filter)
 			iter != end_iter && filter.getFilterCount() > 0;
 			++iter)
 		{
-			filterChildItem((*iter), filter);
+			if (!filterChildItem((*iter), filter))
+			{
+				break;
+			}
 		}
 	}
 
@@ -200,12 +213,13 @@ void LLFolderViewModelItemInventory::filter( LLFolderViewFilter& filter)
 	{
 		filter.decrementFilterCount();
 
-		const BOOL passed_filter = filter.check(this);
-		const BOOL passed_filter_folder = (getInventoryType() == LLInventoryType::IT_CATEGORY) 
-								? filter.checkFolder(this)
-								: true;
-
-		setPassedFilter(passed_filter, passed_filter_folder, filter_generation, filter.getStringMatchOffset(this), filter.getFilterStringSize());
+		const bool passed_filter = filter.check(this);
+		setPassedFilter(passed_filter, filter_generation, filter.getStringMatchOffset(this), filter.getFilterStringSize());
+		return true;
+	}
+	else
+	{
+		return false;
 	}
 }
 

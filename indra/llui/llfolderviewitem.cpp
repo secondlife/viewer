@@ -801,14 +801,20 @@ void LLFolderViewItem::draw()
 }
 
 const LLFolderViewModelInterface* LLFolderViewItem::getFolderViewModel( void ) const
-	{
+{
 	return getRoot()->getFolderViewModel();
 }
 
 LLFolderViewModelInterface* LLFolderViewItem::getFolderViewModel( void )
-		{
+{
 	return getRoot()->getFolderViewModel();
-		}
+}
+
+bool LLFolderViewItem::isInSelection() const
+{
+	return mIsSelected || (mParentFolder && mParentFolder->isInSelection());
+}
+
 
 
 ///----------------------------------------------------------------------------

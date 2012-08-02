@@ -184,11 +184,8 @@ private:
 	LLIMModel::LLIMSession* mSession;
 	S32 mLastMessageIndex;
 
-	LLChatHistory* mChatHistory;
-
 	EInstantMessage mDialog;
 	LLUUID mOtherParticipantUUID;
-	LLChatEntry* mInputEditor;
 	bool mPositioned;
 
 	std::string mSavedTitle;

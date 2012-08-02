@@ -66,11 +66,9 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
   : LLIMConversation(session_id),
 	mLastMessageIndex(-1),
 	mDialog(IM_NOTHING_SPECIAL),
-	mInputEditor(NULL),
 	mSavedTitle(),
 	mTypingStart(),
 	mShouldSendTypingState(false),
-	mChatHistory(NULL),
 	mMeTyping(false),
 	mOtherTyping(false),
 	mTypingTimer(),
@@ -80,6 +78,7 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 	mStartConferenceInSameFloater(false)
 {
 	mIsNearbyChat = false;
+
 	initIMSession(session_id);
 		
 	setOverlapsScreenChannel(true);
@@ -313,9 +312,8 @@ void LLIMFloater::initIMFloater()
 //virtual
 BOOL LLIMFloater::postBuild()
 {
-	LLIMConversation::postBuild();
+	BOOL result = LLIMConversation::postBuild();
 
-	mInputEditor = getChild<LLChatEntry>("chat_editor");
 	mInputEditor->setMaxTextLength(1023);
 	// enable line history support for instant message bar
 	// XXX stinson TODO : resolve merge by adding autoreplace to text editors
@@ -323,19 +321,11 @@ BOOL LLIMFloater::postBuild()
 	// *TODO Establish LineEditor with autoreplace callback
 	mInputEditor->setAutoreplaceCallback(boost::bind(&LLAutoReplace::autoreplaceCallback, LLAutoReplace::getInstance(), _1, _2));
 #endif
-
-	LLFontGL* font = LLViewerChat::getChatFont();
-	mInputEditor->setFont(font);	
 	
 	mInputEditor->setFocusReceivedCallback( boost::bind(onInputEditorFocusReceived, _1, this) );
 	mInputEditor->setFocusLostCallback( boost::bind(onInputEditorFocusLost, _1, this) );
 	mInputEditor->setKeystrokeCallback( boost::bind(onInputEditorKeystroke, _1, this) );
-	mInputEditor->setCommitOnFocusLost( FALSE );
-	mInputEditor->setPassDelete( TRUE );
-
 	mInputEditor->setCommitCallback(boost::bind(onSendMsg, _1, this));
-	
-	mChatHistory = getChild<LLChatHistory>("chat_history");
 
 	setDocked(true);
 
@@ -358,7 +348,7 @@ BOOL LLIMFloater::postBuild()
 	LLIMFloaterContainer* im_box = LLIMFloaterContainer::getInstance();
 	im_box->addConversationListItem(getTitle(), getKey(), this);
 
-	return TRUE;
+	return result;
 }
 
 void LLIMFloater::onAddButtonClicked()
@@ -1004,7 +994,7 @@ void LLIMFloater::onInputEditorKeystroke(LLTextEditor* caller, void* userdata)
 
 		// Deleting all text counts as stopping typing.
 	self->setTyping(!text.empty());
-	}
+}
 
 void LLIMFloater::setTyping(bool typing)
 {

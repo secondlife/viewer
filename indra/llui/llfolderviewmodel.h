@@ -172,10 +172,11 @@ public:
 	
 	virtual bool potentiallyVisible() = 0; // is the item definitely visible or we haven't made up our minds yet?
 
-	virtual void filter( LLFolderViewFilter& filter) = 0;
+	virtual bool filter( LLFolderViewFilter& filter) = 0;
 	virtual bool passedFilter(S32 filter_generation = -1) = 0;
 	virtual bool descendantsPassedFilter(S32 filter_generation = -1) = 0;
-	virtual void setPassedFilter(bool passed, bool passed_folder, S32 filter_generation, std::string::size_type string_offset = std::string::npos, std::string::size_type string_size = 0) = 0;
+	virtual void setPassedFilter(bool passed, S32 filter_generation, std::string::size_type string_offset = std::string::npos, std::string::size_type string_size = 0) = 0;
+	virtual void setPassedFolderFilter(bool passed, S32 filter_generation) = 0;
 	virtual void dirtyFilter() = 0;
 	virtual bool hasFilterStringMatch() = 0;
 	virtual std::string::size_type getFilterStringOffset() = 0;
@@ -219,6 +220,7 @@ public:
 		mStringFilterSize(0),
 		mFolderViewItem(NULL),
 		mLastFilterGeneration(-1),
+		mLastFolderFilterGeneration(-1),
 		mMostFilteredDescendantGeneration(-1),
 		mParent(NULL),
 		mRootViewModel(root_view_model)
@@ -231,9 +233,11 @@ public:
 	void setSortVersion(S32 version) { mSortVersion = version;}
 
 	S32	getLastFilterGeneration() const { return mLastFilterGeneration; }
+	S32	getLastFolderFilterGeneration() const { return mLastFolderFilterGeneration; }
 	void dirtyFilter()
 	{
 		mLastFilterGeneration = -1;
+		mLastFolderFilterGeneration = -1;
 
 		// bubble up dirty flag all the way to root
 		if (mParent)
@@ -259,13 +263,18 @@ public:
 		dirtyFilter();
 	}
 
-	void setPassedFilter(bool passed, bool passed_folder, S32 filter_generation, std::string::size_type string_offset = std::string::npos, std::string::size_type string_size = 0)
+	void setPassedFilter(bool passed, S32 filter_generation, std::string::size_type string_offset = std::string::npos, std::string::size_type string_size = 0)
 	{
 		mPassedFilter = passed;
-		mPassedFolderFilter = passed_folder;
 		mLastFilterGeneration = filter_generation;
 		mStringMatchOffsetFilter = string_offset;
 		mStringFilterSize = string_size;
+	}
+
+	void setPassedFolderFilter(bool passed, S32 filter_generation)
+	{
+		mPassedFolderFilter = passed;
+		mLastFolderFilterGeneration = filter_generation;
 	}
 
 	virtual bool potentiallyVisible()
@@ -280,7 +289,7 @@ public:
 		if (filter_generation < 0) 
 			filter_generation = mRootViewModel.getFilter().getFirstSuccessGeneration();
 
-		bool passed_folder_filter = mPassedFolderFilter && mLastFilterGeneration >= filter_generation;
+		bool passed_folder_filter = mPassedFolderFilter && mLastFolderFilterGeneration >= filter_generation;
 		bool passed_filter = mPassedFilter && mLastFilterGeneration >= filter_generation;
 		return passed_folder_filter
 				&& (descendantsPassedFilter(filter_generation)
@@ -304,6 +313,7 @@ protected:
 	std::string::size_type	mStringFilterSize;
 
 	S32						mLastFilterGeneration;
+	S32						mLastFolderFilterGeneration;
 	S32						mMostFilteredDescendantGeneration;
 
 
