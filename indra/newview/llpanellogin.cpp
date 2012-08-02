@@ -619,10 +619,10 @@ void LLPanelLogin::updateLocationSelectorsVisibility()
 	if (sInstance) 
 	{
 		BOOL show_start = gSavedSettings.getBOOL("ShowStartLocation");
-	sInstance->getChild<LLLayoutPanel>("start_location_panel")->setVisible(show_start);
+		sInstance->getChild<LLLayoutPanel>("start_location_panel")->setVisible(show_start);
 
 		BOOL show_server = gSavedSettings.getBOOL("ForceShowGrid");
-	sInstance->getChild<LLLayoutPanel>("grid_panel")->setVisible(show_server);
+		sInstance->getChild<LLLayoutPanel>("grid_panel")->setVisible(show_server);
 	}	
 }
 
@@ -909,7 +909,7 @@ void LLPanelLogin::updateServer()
 			// update the login panel links 
 			bool system_grid = LLGridManager::getInstance()->isSystemGrid();
 	
-			sInstance->getChildView("create_new_account_text")->setVisible( system_grid);
+			sInstance->getChildView("create_new_account_btn")->setVisible( system_grid);
 			sInstance->getChildView("forgot_password_text")->setVisible( system_grid);
 
 			// grid changed so show new splash screen (possibly)
