@@ -53,9 +53,9 @@ public:
 	virtual EInventorySortGroup getSortGroup() const = 0;
 	virtual LLInventoryObject* getInventoryObject() const = 0;
 	virtual void requestSort();
-	virtual void setPassedFilter(bool filtered, bool filtered_folder, S32 filter_generation, std::string::size_type string_offset = std::string::npos, std::string::size_type string_size = 0);
-	virtual void filter( LLFolderViewFilter& filter);
-	virtual void filterChildItem( LLFolderViewModelItem* item, LLFolderViewFilter& filter);
+	virtual void setPassedFilter(bool filtered, S32 filter_generation, std::string::size_type string_offset = std::string::npos, std::string::size_type string_size = 0);
+	virtual bool filter( LLFolderViewFilter& filter);
+	virtual bool filterChildItem( LLFolderViewModelItem* item, LLFolderViewFilter& filter);
 
 	virtual BOOL startDrag(EDragAndDropType* type, LLUUID* id) const = 0;
 	virtual LLToolDragAndDrop::ESource getDragSource() const = 0;

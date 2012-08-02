@@ -288,7 +288,7 @@ void LLToolTip::initFromParams(const LLToolTip::Params& p)
 		mTextBox->setText(p.message());
 	}
 
-	S32 text_width = llmin(p.max_width(), mTextBox->getTextPixelWidth());
+	S32 text_width = llmin(p.max_width(), mTextBox->getTextPixelWidth() + 1);
 	S32 text_height = mTextBox->getTextPixelHeight();
 	mTextBox->reshape(text_width, text_height);
 	if (mInfoButton)

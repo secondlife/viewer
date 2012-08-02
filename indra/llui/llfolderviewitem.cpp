@@ -801,14 +801,14 @@ void LLFolderViewItem::draw()
 }
 
 const LLFolderViewModelInterface* LLFolderViewItem::getFolderViewModel( void ) const
-	{
+{
 	return getRoot()->getFolderViewModel();
 }
 
 LLFolderViewModelInterface* LLFolderViewItem::getFolderViewModel( void )
-		{
+{
 	return getRoot()->getFolderViewModel();
-		}
+}
 
 
 ///----------------------------------------------------------------------------

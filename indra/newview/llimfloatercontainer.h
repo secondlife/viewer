@@ -89,9 +89,9 @@ public:
 	virtual bool hasChildren() const { return FALSE; }
 
 	virtual bool potentiallyVisible() { return true; }
-	virtual void filter( LLFolderViewFilter& filter) { }
+	virtual bool filter( LLFolderViewFilter& filter) { return false; }
 	virtual bool descendantsPassedFilter(S32 filter_generation = -1) { return true; }
-	virtual void setPassedFilter(bool passed, bool passed_folder, S32 filter_generation, std::string::size_type string_offset = std::string::npos, std::string::size_type string_size = 0) { }
+	virtual void setPassedFilter(bool passed, S32 filter_generation, std::string::size_type string_offset = std::string::npos, std::string::size_type string_size = 0) { }
 	virtual bool passedFilter(S32 filter_generation = -1) { return true; }
 
 	// The action callbacks
