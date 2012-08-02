@@ -1704,9 +1704,6 @@ void LLFolderView::scrollToShowItem(LLFolderViewItem* item, const LLRect& constr
 	if(item)
 	{
 		LLRect local_rect = item->getLocalRect();
-		LLRect item_scrolled_rect; // item position relative to display area of scroller
-		LLRect visible_doc_rect = mScrollContainer->getVisibleContentRect();
-		
 		S32 icon_height = mIcon.isNull() ? 0 : mIcon->getHeight(); 
 		S32 label_height = getLabelFontForStyle(mLabelStyle)->getLineHeight(); 
 		// when navigating with keyboard, only move top of opened folder on screen, otherwise show whole folder
@@ -1815,6 +1812,20 @@ void LLFolderView::update()
 		mNeedsAutoSelect = FALSE;
 	}
 
+  BOOL is_visible = isInVisibleChain();
+
+  //Puts folders/items in proper positions
+  if ( is_visible )
+  {
+    sanitizeSelection();
+    if( needsArrange() )
+    {
+      S32 height = 0;
+      S32 width = 0;
+      S32 total_height = arrange( &width, &height );
+      notifyParent(LLSD().with("action", "size_changes").with("height", total_height));
+    }
+  }
 
 	// during filtering process, try to pin selected item's location on screen
 	// this will happen when searching your inventory and when new items arrive
@@ -1826,18 +1837,26 @@ void LLFolderView::update()
 			// lets pin it!
 			mPinningSelectedItem = TRUE;
 
-			LLRect visible_content_rect = (mScrollContainer ? mScrollContainer->getVisibleContentRect() : LLRect());
+      //Computes visible area 
+			const LLRect visible_content_rect = (mScrollContainer ? mScrollContainer->getVisibleContentRect() : LLRect());
 			LLFolderViewItem* selected_item = mSelectedItems.back();
 
+      //Computes location of selected content, content outside visible area will be scrolled to using below code
 			LLRect item_rect;
 			selected_item->localRectToOtherView(selected_item->getLocalRect(), &item_rect, this);
-			// if item is visible in scrolled region
-			if (visible_content_rect.overlaps(item_rect))
+			
+      //Computes intersected region of the selected content and visible area
+      LLRect overlap_rect(item_rect);
+      overlap_rect.intersectWith(visible_content_rect);
+
+      //Don't scroll when the selected content exists within the visible area
+			if (overlap_rect.getHeight() >= selected_item->getItemHeight())
 			{
 				// then attempt to keep it in same place on screen
 				mScrollConstraintRect = item_rect;
 				mScrollConstraintRect.translate(-visible_content_rect.mLeft, -visible_content_rect.mBottom);
 			}
+      //Scroll because the selected content is outside the visible area
 			else
 			{
 				// otherwise we just want it onscreen somewhere
@@ -1866,20 +1885,6 @@ void LLFolderView::update()
 		// during normal use (page up/page down, etc), just try to fit item on screen
 		LLRect content_rect = (mScrollContainer ? mScrollContainer->getContentWindowRect() : LLRect());
 		constraint_rect.setOriginAndSize(0, 0, content_rect.getWidth(), content_rect.getHeight());
-	}
-
-	BOOL is_visible = isInVisibleChain();
-
-	if ( is_visible )
-	{
-		sanitizeSelection();
-		if( needsArrange() )
-		{
-			S32 height = 0;
-			S32 width = 0;
-			S32 total_height = arrange( &width, &height );
-			notifyParent(LLSD().with("action", "size_changes").with("height", total_height));
-		}
 	}
 
 	if (mSelectedItems.size() && mNeedsScroll)
