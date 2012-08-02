@@ -36,18 +36,18 @@ bool LLFolderViewModelCommon::needsSort(LLFolderViewModelItem* item)
 
 std::string LLFolderViewModelCommon::getStatusText()
 {
-	if (!contentsReady() || mFolderView->getViewModelItem()->getLastFilterGeneration() < getFilter()->getCurrentGeneration())
+	if (!contentsReady() || mFolderView->getViewModelItem()->getLastFilterGeneration() < getFilter().getCurrentGeneration())
 	{
 		return LLTrans::getString("Searching");
 	}
 	else
 	{
-		return getFilter()->getEmptyLookupMessage();
+		return getFilter().getEmptyLookupMessage();
 	}
 }
 
 void LLFolderViewModelCommon::filter()
 {
-	getFilter()->setFilterCount(llclamp(LLUI::sSettingGroups["config"]->getS32("FilterItemsPerFrame"), 1, 5000));
-	mFolderView->getViewModelItem()->filter(*getFilter());
+	getFilter().setFilterCount(llclamp(LLUI::sSettingGroups["config"]->getS32("FilterItemsPerFrame"), 1, 5000));
+	mFolderView->getViewModelItem()->filter(getFilter());
 }

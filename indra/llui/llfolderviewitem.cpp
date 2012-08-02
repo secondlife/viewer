@@ -89,7 +89,8 @@ LLFolderViewItem::Params::Params()
 	selection_image("selection_image"),
 	item_height("item_height"),
 	item_top_pad("item_top_pad"),
-	creation_date()
+	creation_date(),
+	allow_open("allow_open", true)
 {}
 
 // Default constructor
@@ -105,14 +106,13 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 	mHasVisibleChildren(FALSE),
 	mIndentation(0),
 	mItemHeight(p.item_height),
-	//TODO RN: create interface for string highlighting
-	//mStringMatchOffset(std::string::npos),
 	mControlLabelRotation(0.f),
 	mDragAndDropTarget(FALSE),
 	mLabel(p.name),
 	mRoot(p.root),
 	mViewModelItem(p.listener),
-	mIsMouseOverTitle(false)
+	mIsMouseOverTitle(false),
+	mAllowOpen(p.allow_open)
 {
 	if (mViewModelItem)
 	{
@@ -219,11 +219,11 @@ void LLFolderViewItem::refresh()
 	mIconOpen = vmi.getIconOpen();
 	mIconOverlay = vmi.getIconOverlay();
 
-		if (mRoot->useLabelSuffix())
-		{
+	if (mRoot->useLabelSuffix())
+	{
 		mLabelStyle = vmi.getLabelStyle();
 		mLabelSuffix = vmi.getLabelSuffix();
-}
+	}
 
 	//TODO RN: make sure this logic still fires
 	//std::string searchable_label(mLabel);
@@ -253,7 +253,7 @@ void LLFolderViewItem::arrangeAndSet(BOOL set_selection,
 	LLFolderView* root = getRoot();
 	if (getParentFolder())
 	{
-	getParentFolder()->requestArrange();
+		getParentFolder()->requestArrange();
 	}
 	if(set_selection)
 	{
@@ -273,9 +273,9 @@ std::set<LLFolderViewItem*> LLFolderViewItem::getSelectionList() const
 }
 
 // addToFolder() returns TRUE if it succeeds. FALSE otherwise
-BOOL LLFolderViewItem::addToFolder(LLFolderViewFolder* folder)
+void LLFolderViewItem::addToFolder(LLFolderViewFolder* folder)
 {
-	return folder->addItem(this);
+	folder->addItem(this);
 }
 
 
@@ -404,7 +404,10 @@ void LLFolderViewItem::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 void LLFolderViewItem::openItem( void )
 {
+	if (mAllowOpen)
+	{
 	getViewModelItem()->openItem();
+}
 }
 
 void LLFolderViewItem::rename(const std::string& new_name)
@@ -413,12 +416,12 @@ void LLFolderViewItem::rename(const std::string& new_name)
 	{
 		getViewModelItem()->renameItem(new_name);
 
-			if(mParentFolder)
-			{
-				mParentFolder->requestSort();
-			}
-		}
+		//if(mParentFolder)
+		//{
+		//	mParentFolder->requestSort();
+		//}
 	}
+}
 
 const std::string& LLFolderViewItem::getName( void ) const
 {
@@ -517,7 +520,7 @@ BOOL LLFolderViewItem::handleHover( S32 x, S32 y, MASK mask )
 
 BOOL LLFolderViewItem::handleDoubleClick( S32 x, S32 y, MASK mask )
 {
-	getViewModelItem()->openItem();
+	openItem();
 	return TRUE;
 }
 
@@ -744,15 +747,29 @@ void LLFolderViewItem::draw()
 		return;
 	}
 
+	std::string::size_type filter_string_length = mViewModelItem->hasFilterStringMatch() ? mViewModelItem->getFilterStringSize() : 0;
+	F32 right_x  = 0;
+	F32 y = (F32)getRect().getHeight() - font->getLineHeight() - (F32)TEXT_PAD - (F32)TOP_PAD;
+	F32 text_left = (F32)(ARROW_SIZE + TEXT_PAD + ICON_WIDTH + ICON_PAD + mIndentation);
+	std::string combined_string = mLabel + mLabelSuffix;
+
+	if (filter_string_length > 0)
+	{
+		S32 left = llround(text_left) + font->getWidth(combined_string, 0, mViewModelItem->getFilterStringOffset()) - 2;
+		S32 right = left + font->getWidth(combined_string, mViewModelItem->getFilterStringOffset(), filter_string_length) + 2;
+		S32 bottom = llfloor(getRect().getHeight() - font->getLineHeight() - 3 - TOP_PAD);
+		S32 top = getRect().getHeight() - TOP_PAD;
+
+		LLUIImage* box_image = default_params.selection_image;
+		LLRect box_rect(left, top, right, bottom);
+		box_image->draw(box_rect, sFilterBGColor);
+	}
+
 	LLColor4 color = (mIsSelected && filled) ? sHighlightFgColor : sFgColor;
 	//TODO RN: implement this in terms of getColor()
 	//if (highlight_link) color = sLinkColor;
 	//if (gInventory.isObjectDescendentOf(getViewModelItem()->getUUID(), gInventory.getLibraryRootFolderID())) color = sLibraryColor;
 	
-	F32 right_x  = 0;
-	F32 y = (F32)getRect().getHeight() - font->getLineHeight() - (F32)TEXT_PAD - (F32)TOP_PAD;
-	F32 text_left = (F32)(ARROW_SIZE + TEXT_PAD + ICON_WIDTH + ICON_PAD + mIndentation);
-
 	//--------------------------------------------------------------------------------//
 	// Draw the actual label text
 	//
@@ -773,29 +790,14 @@ void LLFolderViewItem::draw()
 	//--------------------------------------------------------------------------------//
 	// Highlight string match
 	//
-	//TODO RN: expose interface for highlighting
-	//if (mStringMatchOffset != std::string::npos)
-	//{
-	//	// don't draw backgrounds for zero-length strings
-	//	S32 filter_string_length = getRoot()->getFilterSubString().size();
-	//	if (filter_string_length > 0)
-	//	{
-	//		std::string combined_string = mLabel + mLabelSuffix;
-	//		S32 left = llround(text_left) + font->getWidth(combined_string, 0, mStringMatchOffset) - 1;
-	//		S32 right = left + font->getWidth(combined_string, mStringMatchOffset, filter_string_length) + 2;
-	//		S32 bottom = llfloor(getRect().getHeight() - font->getLineHeight() - 3 - TOP_PAD);
-	//		S32 top = getRect().getHeight() - TOP_PAD;
-	//	
-	//		LLUIImage* box_image = default_params.selection_image;
-	//		LLRect box_rect(left, top, right, bottom);
-	//		box_image->draw(box_rect, sFilterBGColor);
-	//		F32 match_string_left = text_left + font->getWidthF32(combined_string, 0, mStringMatchOffset);
-	//		F32 yy = (F32)getRect().getHeight() - font->getLineHeight() - (F32)TEXT_PAD - (F32)TOP_PAD;
-	//		font->renderUTF8( combined_string, mStringMatchOffset, match_string_left, yy,
-	//						  sFilterTextColor, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
-	//						  filter_string_length, S32_MAX, &right_x, FALSE );
-	//	}
-	//}
+	if (filter_string_length > 0)
+	{
+		F32 match_string_left = text_left + font->getWidthF32(combined_string, 0, mViewModelItem->getFilterStringOffset());
+		F32 yy = (F32)getRect().getHeight() - font->getLineHeight() - (F32)TEXT_PAD - (F32)TOP_PAD;
+		font->renderUTF8( combined_string, mViewModelItem->getFilterStringOffset(), match_string_left, yy,
+							sFilterTextColor, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
+							filter_string_length, S32_MAX, &right_x, FALSE );
+	}
 }
 
 const LLFolderViewModelInterface* LLFolderViewItem::getFolderViewModel( void ) const
@@ -834,9 +836,9 @@ LLFolderViewFolder::~LLFolderViewFolder( void )
 }
 
 // addToFolder() returns TRUE if it succeeds. FALSE otherwise
-BOOL LLFolderViewFolder::addToFolder(LLFolderViewFolder* folder)
+void LLFolderViewFolder::addToFolder(LLFolderViewFolder* folder)
 {
-	return folder->addFolder(this);
+	folder->addFolder(this);
 }
 
 static LLFastTimer::DeclareTimer FTM_ARRANGE("Arrange");
@@ -1001,11 +1003,6 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 BOOL LLFolderViewFolder::needsArrange()
 {
 	return mLastArrangeGeneration < getRoot()->getArrangeGeneration(); 
-}
-
-void LLFolderViewFolder::requestSort()
-{
-	getViewModelItem()->requestSort();
 }
 
 //TODO RN: get height resetting working
@@ -1412,7 +1409,6 @@ void LLFolderViewFolder::extractItem( LLFolderViewItem* item )
 	}
 	//item has been removed, need to update filter
 	getViewModelItem()->removeChild(item->getViewModelItem());
-	getViewModelItem()->dirtyFilter();
 	//because an item is going away regardless of filter status, force rearrange
 	requestArrange();
 	removeChild(item);
@@ -1478,7 +1474,7 @@ BOOL LLFolderViewFolder::isRemovable()
 }
 
 // this is an internal method used for adding items to folders. 
-BOOL LLFolderViewFolder::addItem(LLFolderViewItem* item)
+void LLFolderViewFolder::addItem(LLFolderViewItem* item)
 {
 	if (item->getParentFolder())
 	{
@@ -1491,7 +1487,6 @@ BOOL LLFolderViewFolder::addItem(LLFolderViewItem* item)
 	item->setRect(LLRect(0, 0, getRect().getWidth(), 0));
 	item->setVisible(FALSE);
 	
-	addChild(item);
 
 	// TODO RN - port creation date management to new code location
 #if 0
@@ -1499,10 +1494,7 @@ BOOL LLFolderViewFolder::addItem(LLFolderViewItem* item)
 	setCreationDate(llmax<time_t>(mCreationDate, item->getCreationDate()));
 #endif
 
-	// Handle sorting
-	requestArrange();
-	requestSort();
-
+	addChild(item);
 	getViewModelItem()->addChild(item->getViewModelItem());
 	// TODO RN - port creation date management to new code location
 #if 0
@@ -1528,14 +1520,10 @@ BOOL LLFolderViewFolder::addItem(LLFolderViewItem* item)
 
 	//	parentp = parentp->getParentFolder();
 	//}
-
-	item->getViewModelItem()->dirtyFilter();
-
-	return TRUE;
 }
 
 // this is an internal method used for adding items to folders. 
-BOOL LLFolderViewFolder::addFolder(LLFolderViewFolder* folder)
+void LLFolderViewFolder::addFolder(LLFolderViewFolder* folder)
 {
 	if (folder->mParentFolder)
 	{
@@ -1546,30 +1534,26 @@ BOOL LLFolderViewFolder::addFolder(LLFolderViewFolder* folder)
 	folder->setOrigin(0, 0);
 	folder->reshape(getRect().getWidth(), 0);
 	folder->setVisible(FALSE);
-	addChild( folder );
 	// rearrange all descendants too, as our indentation level might have changed
-	folder->requestArrange();
-	requestSort();
+	//folder->requestArrange();
+	//requestSort();
 
+	addChild( folder );
 	getViewModelItem()->addChild(folder->getViewModelItem());
-  //After addChild since addChild assigns parent to bubble up to when calling dirtyFilter
-  folder->getViewModelItem()->dirtyFilter();
-
-	return TRUE;
 }
 
 void LLFolderViewFolder::requestArrange()
 { 
 	//if ( mLastArrangeGeneration != -1)
 	{
-	mLastArrangeGeneration = -1; 
-	// flag all items up to root
-	if (mParentFolder)
-	{
-		mParentFolder->requestArrange();
-	}
+		mLastArrangeGeneration = -1; 
+		// flag all items up to root
+		if (mParentFolder)
+		{
+			mParentFolder->requestArrange();
 		}
 	}
+}
 
 void LLFolderViewFolder::toggleOpen()
 {

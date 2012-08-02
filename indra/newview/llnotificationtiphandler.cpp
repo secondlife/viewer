@@ -86,7 +86,7 @@ bool LLTipHandler::processNotification(const LLNotificationPtr& notification)
 
 		// don't show toast if Nearby Chat is opened
 		LLNearbyChat* nearby_chat = LLNearbyChat::getInstance();
-		if (!nearby_chat->isMinimized() && nearby_chat->getVisible())
+		if (nearby_chat->isChatVisible())
 		{
 			return false;
 		}

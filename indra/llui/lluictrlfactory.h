@@ -105,7 +105,7 @@ private:
 		ParamDefaults()
 		{
 			// look up template file for this param block...
-			const std::string* param_block_tag = getWidgetName(&typeid(PARAM_BLOCK));
+			const std::string* param_block_tag = LLWidgetNameRegistry::instance().getValue(&typeid(PARAM_BLOCK));
 			if (param_block_tag)
 			{	// ...and if it exists, back fill values using the most specific template first
 				PARAM_BLOCK params;
@@ -139,7 +139,6 @@ public:
 	template<typename T>
 	static const typename T::Params& getDefaultParams()
 	{
-		//#pragma message("Generating ParamDefaults")
 		return ParamDefaults<typename T::Params, 0>::instance().get();
 	}
 
@@ -302,8 +301,6 @@ private:
 		return widget;
 	}
 
-
-	static const std::string* getWidgetName(const std::type_info* widget_type);
 
 	// this exists to get around dependency on llview
 	static void setCtrlParent(LLView* view, LLView* parent, S32 tab_group);

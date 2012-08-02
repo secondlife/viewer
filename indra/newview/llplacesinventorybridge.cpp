@@ -170,7 +170,7 @@ LLInvFVBridge* LLPlacesInventoryBridgeBuilder::createBridge(
 		if (actual_asset_type == LLAssetType::AT_LINK_FOLDER)
 		{
 			// *TODO: Create a link folder handler instead if it is necessary
-			new_listener = LLInventoryFVBridgeBuilder::createBridge(
+			new_listener = LLInventoryFolderViewModelBuilder::createBridge(
 				asset_type,
 				actual_asset_type,
 				inv_type,
@@ -184,7 +184,7 @@ LLInvFVBridge* LLPlacesInventoryBridgeBuilder::createBridge(
 		new_listener = new LLPlacesFolderBridge(inv_type, inventory, root, uuid);
 		break;
 	default:
-		new_listener = LLInventoryFVBridgeBuilder::createBridge(
+		new_listener = LLInventoryFolderViewModelBuilder::createBridge(
 			asset_type,
 			actual_asset_type,
 			inv_type,

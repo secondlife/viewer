@@ -4204,6 +4204,8 @@ Are you sure you want to change the Estate Covenant?
   <notification
    icon="notifytip.tga"
    name="RegionEntryAccessBlocked_Notify"
+   log_to_im="false"
+   log_to_chat="true"
    type="notifytip">
    <tag>fail</tag>
 The region you're trying to visit contains [REGIONMATURITY] content, but your current preferences are set to exclude [REGIONMATURITY] content.
@@ -4212,6 +4214,8 @@ The region you're trying to visit contains [REGIONMATURITY] content, but your cu
   <notification
    icon="notifytip.tga"
    name="RegionEntryAccessBlocked_NotifyAdultsOnly"
+   log_to_im="false"
+   log_to_chat="true"
    type="notifytip">
     <tag>fail</tag>
     The region you're trying to visit contains [REGIONMATURITY] content, which is accessible to adults only.
@@ -4283,6 +4287,8 @@ The region you're trying to visit contains [REGIONMATURITY] content, but your cu
   <notification
    icon="notifytip.tga"
    name="TeleportEntryAccessBlocked_Notify"
+   log_to_im="false"
+   log_to_chat="true"
    type="notifytip">
     <unique>
       <context>REGIONMATURITY</context>
@@ -4294,6 +4300,8 @@ The region you're trying to visit contains [REGIONMATURITY] content, but your cu
   <notification
    icon="notifytip.tga"
    name="TeleportEntryAccessBlocked_NotifyAdultsOnly"
+   log_to_im="false"
+   log_to_chat="true"
    type="notifytip">
     <unique>
       <context>REGIONMATURITY</context>
@@ -4414,6 +4422,8 @@ You won't receive any more notifications that you're about to visit a region wit
   <notification
    icon="notifytip.tga"
    name="LandClaimAccessBlocked_Notify"
+   log_to_im="false"
+   log_to_chat="true"
    type="notifytip">
     The land you're trying to claim contains [REGIONMATURITY] content, but your current preferences are set to exclude [REGIONMATURITY] content.
     <tag>fail</tag>
@@ -4422,6 +4432,8 @@ You won't receive any more notifications that you're about to visit a region wit
   <notification
    icon="notifytip.tga"
    name="LandClaimAccessBlocked_NotifyAdultsOnly"
+   log_to_im="false"
+   log_to_chat="true"
    type="notifytip">
     <tag>fail</tag>
     The land you're trying to claim contains [REGIONMATURITY] content, which is accessible to adults only.
@@ -4479,6 +4491,8 @@ You won't receive any more notifications that you're about to visit a region wit
   <notification
    icon="notifytip.tga"
    name="LandBuyAccessBlocked_Notify"
+   log_to_im="false"
+   log_to_chat="true"
    type="notifytip">
     The land you're trying to buy contains [REGIONMATURITY] content, but your current preferences are set to exclude [REGIONMATURITY] content.
     <tag>fail</tag>
@@ -4487,6 +4501,8 @@ You won't receive any more notifications that you're about to visit a region wit
   <notification
    icon="notifytip.tga"
    name="LandBuyAccessBlocked_NotifyAdultsOnly"
+   log_to_im="false"
+   log_to_chat="true"
    type="notifytip">
     <tag>fail</tag>
     The land you're trying to buy contains [REGIONMATURITY] content, which is accessible to adults only.
@@ -6397,6 +6413,7 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
    icon="notify.tga"
    name="TeleportOffered"
    log_to_im="true"
+   log_to_chat="false"
    type="offer">
 [NAME_SLURL] has offered to teleport you to their location:
 
@@ -6418,6 +6435,8 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
   <notification
    icon="notify.tga"
    name="TeleportOffered_MaturityExceeded"
+   log_to_im="true"
+   log_to_chat="false"
    type="offer">
 [NAME_SLURL] has offered to teleport you to their location:
 
@@ -6441,6 +6460,8 @@ This region contains [REGION_CONTENT_MATURITY] content, but your current prefere
   <notification
    icon="notify.tga"
    name="TeleportOffered_MaturityBlocked"
+   log_to_im="true"
+   log_to_chat="false"
    type="notifytip">
 [NAME_SLURL] has offered to teleport you to their location:
 
@@ -6455,6 +6476,7 @@ However, this region contains content accessible to adults only.
    icon="notify.tga"
    name="TeleportOfferSent"
    log_to_im="true"
+   log_to_chat="false"
    show_toast="false"
    type="offer">
 	Teleport offer sent to [TO_NAME]

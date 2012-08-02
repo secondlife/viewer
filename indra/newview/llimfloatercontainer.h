@@ -57,7 +57,7 @@ class LLConversationItem : public LLFolderViewModelItemCommon
 {
 public:
 	LLConversationItem(std::string name, const LLUUID& uuid, LLFloater* floaterp, LLIMFloaterContainer* containerp);
-	LLConversationItem();
+	LLConversationItem(LLIMFloaterContainer* containerp);
 	virtual ~LLConversationItem() {}
 
 	// Stub those things we won't really be using in this conversation context
@@ -91,7 +91,7 @@ public:
 	virtual bool potentiallyVisible() { return true; }
 	virtual void filter( LLFolderViewFilter& filter) { }
 	virtual bool descendantsPassedFilter(S32 filter_generation = -1) { return true; }
-	virtual void setPassedFilter(bool passed, bool passed_folder, S32 filter_generation) { }
+	virtual void setPassedFilter(bool passed, bool passed_folder, S32 filter_generation, std::string::size_type string_offset = std::string::npos, std::string::size_type string_size = 0) { }
 	virtual bool passedFilter(S32 filter_generation = -1) { return true; }
 
 	// The action callbacks
@@ -142,6 +142,8 @@ public:
 	void 				setEmptyLookupMessage(const std::string& message) { }
 	std::string			getEmptyLookupMessage() const { return mEmpty; }
 	bool				showAllResults() const { return true; }
+	std::string::size_type getStringMatchOffset(LLFolderViewModelItem* item) const { return std::string::npos; }
+	std::string::size_type getFilterStringSize() const { return 0; }
 		
 	bool 				isActive() const { return false; }
 	bool 				isModified() const { return false; }
@@ -239,6 +241,7 @@ public:
 	/*virtual*/ void sessionVoiceOrIMStarted(const LLUUID& session_id);
 	/*virtual*/ void sessionRemoved(const LLUUID& session_id);
 	/*virtual*/ void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id) {};
+	LLConversationViewModel& getRootViewModel() { return mConversationViewModel; }
 
 private:
 	typedef std::map<LLUUID,LLFloater*> avatarID_panel_map_t;

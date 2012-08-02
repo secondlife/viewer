@@ -900,7 +900,7 @@ LLInventoryModel* LLInvFVBridge::getInventoryModel() const
 LLInventoryFilter* LLInvFVBridge::getInventoryFilter() const
 {
 	LLInventoryPanel* panel = mInventoryPanel.get();
-	return panel ? panel->getFilter() : NULL;
+	return panel ? &(panel->getFilter()) : NULL;
 }
 
 BOOL LLInvFVBridge::isItemInTrash() const
@@ -955,7 +955,7 @@ BOOL LLInvFVBridge::isCOFFolder() const
 
 BOOL LLInvFVBridge::isInboxFolder() const
 {
-	const LLUUID inbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX, false, false);
+	const LLUUID inbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX, false);
 	
 	if (inbox_id.isNull())
 	{
@@ -995,7 +995,7 @@ BOOL LLInvFVBridge::isOutboxFolderDirectParent() const
 
 const LLUUID LLInvFVBridge::getOutboxFolder() const
 {
-	const LLUUID outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false, false);
+	const LLUUID outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
 
 	return outbox_id;
 }
@@ -1330,7 +1330,7 @@ LLToolDragAndDrop::ESource LLInvFVBridge::getDragSource() const
 // +=================================================+
 // |        InventoryFVBridgeBuilder                 |
 // +=================================================+
-LLInvFVBridge* LLInventoryFVBridgeBuilder::createBridge(LLAssetType::EType asset_type,
+LLInvFVBridge* LLInventoryFolderViewModelBuilder::createBridge(LLAssetType::EType asset_type,
 														LLAssetType::EType actual_asset_type,
 														LLInventoryType::EType inv_type,
 														LLInventoryPanel* inventory,
@@ -1438,7 +1438,7 @@ void LLItemBridge::performAction(LLInventoryModel* model, std::string action)
 		LLInventoryItem* itemp = model->getItem(mUUID);
 		if (!itemp) return;
 
-		const LLUUID outbox_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false, false);
+		const LLUUID outbox_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
 		copy_item_to_outbox(itemp, outbox_id, LLUUID::null, LLToolDragAndDrop::getOperationId());
 	}
 }
@@ -2469,7 +2469,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 			}
 			else
 			{
-				if (model->isObjectDescendentOf(cat_id, model->findCategoryUUIDForType(LLFolderType::FT_INBOX, false, false)))
+				if (model->isObjectDescendentOf(cat_id, model->findCategoryUUIDForType(LLFolderType::FT_INBOX, false)))
 				{
 					set_dad_inbox_object(cat_id);
 				}
@@ -2909,7 +2909,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 		LLInventoryCategory * cat = gInventory.getCategory(mUUID);
 		if (!cat) return;
 
-		const LLUUID outbox_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false, false);
+		const LLUUID outbox_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
 		copy_folder_to_outbox(cat, outbox_id, cat->getUUID(), LLToolDragAndDrop::getOperationId());
 	}
 #if ENABLE_MERCHANT_SEND_TO_MARKETPLACE_CONTEXT_MENU
@@ -4068,7 +4068,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			else
 			{
 				// set up observer to select item once drag and drop from inbox is complete 
-				if (gInventory.isObjectDescendentOf(inv_item->getUUID(), gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX, false, false)))
+				if (gInventory.isObjectDescendentOf(inv_item->getUUID(), gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX, false)))
 				{
 					set_dad_inbox_object(inv_item->getUUID());
 				}
@@ -6487,7 +6487,7 @@ LLInvFVBridge* LLRecentInventoryBridgeBuilder::createBridge(
 	}
 	else
 	{
-		new_listener = LLInventoryFVBridgeBuilder::createBridge(asset_type,
+		new_listener = LLInventoryFolderViewModelBuilder::createBridge(asset_type,
 																actual_asset_type,
 																inv_type,
 																inventory,

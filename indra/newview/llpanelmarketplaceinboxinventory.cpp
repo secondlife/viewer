@@ -54,69 +54,11 @@ static LLDefaultChildRegistry::Register<LLInboxFolderViewItem> r3("inbox_folder_
 //
 
 LLInboxInventoryPanel::LLInboxInventoryPanel(const LLInboxInventoryPanel::Params& p)
-	: LLInventoryPanel(p)
-{
-}
+:	LLInventoryPanel(p)
+{}
 
 LLInboxInventoryPanel::~LLInboxInventoryPanel()
-{
-}
-
-// virtual
-void LLInboxInventoryPanel::buildFolderView(const LLInventoryPanel::Params& params)
-{
-	// Determine the root folder in case specified, and
-	// build the views starting with that folder.
-	
-	LLUUID root_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX, false, false);
-	
-	// leslie -- temporary HACK to work around sim not creating inbox with proper system folder type
-	if (root_id.isNull())
-	{
-		std::string start_folder_name(params.start_folder());
-		
-		LLInventoryModel::cat_array_t* cats;
-		LLInventoryModel::item_array_t* items;
-		
-		gInventory.getDirectDescendentsOf(gInventory.getRootFolderID(), cats, items);
-		
-		if (cats)
-		{
-			for (LLInventoryModel::cat_array_t::const_iterator cat_it = cats->begin(); cat_it != cats->end(); ++cat_it)
-			{
-				LLInventoryCategory* cat = *cat_it;
-				
-				if (cat->getName() == start_folder_name)
-				{
-					root_id = cat->getUUID();
-					break;
-				}
-			}
-		}
-		
-		if (root_id == LLUUID::null)
-		{
-			llwarns << "No category found that matches inbox inventory panel start_folder: " << start_folder_name << llendl;
-		}
-	}
-	// leslie -- end temporary HACK
-	
-	if (root_id == LLUUID::null)
-	{
-		llwarns << "Inbox inventory panel has no root folder!" << llendl;
-		root_id = LLUUID::generateNewID();
-	}
-	
-	LLInvFVBridge* new_listener = mInvFVBridgeBuilder->createBridge(LLAssetType::AT_CATEGORY,
-																	LLAssetType::AT_CATEGORY,
-																	LLInventoryType::IT_CATEGORY,
-																	this,
-																	&mInventoryViewModel,
-																	NULL,
-																	root_id);
-	
-	mFolderRoot = createFolderView(new_listener, params.use_label_suffix());
-}
+{}
 
 LLFolderViewFolder * LLInboxInventoryPanel::createFolderViewFolder(LLInvFVBridge * bridge)
 {
@@ -149,9 +91,9 @@ LLFolderViewItem * LLInboxInventoryPanel::createFolderViewItem(LLInvFVBridge * b
 //
 
 LLInboxFolderViewFolder::LLInboxFolderViewFolder(const Params& p)
-	: LLFolderViewFolder(p)
-	, LLBadgeOwner(getHandle())
-	, mFresh(false)
+:	LLFolderViewFolder(p),
+	LLBadgeOwner(getHandle()),
+	mFresh(false)
 {
 #if SUPPORTING_FRESH_ITEM_COUNT
 	initBadgeParams(p.new_badge());
@@ -240,9 +182,9 @@ LLInboxFolderViewItem::LLInboxFolderViewItem(const Params& p)
 #endif
 }
 
-BOOL LLInboxFolderViewItem::addToFolder(LLFolderViewFolder* folder)
+void LLInboxFolderViewItem::addToFolder(LLFolderViewFolder* folder)
 {
-	BOOL retval = LLFolderViewItem::addToFolder(folder);
+	LLFolderViewItem::addToFolder(folder);
 
 #if SUPPORTING_FRESH_ITEM_COUNT
 	// Compute freshness if our parent is the root folder for the inbox
@@ -251,8 +193,6 @@ BOOL LLInboxFolderViewItem::addToFolder(LLFolderViewFolder* folder)
 		computeFreshness();
 	}
 #endif
-	
-	return retval;
 }
 
 BOOL LLInboxFolderViewItem::handleDoubleClick(S32 x, S32 y, MASK mask)

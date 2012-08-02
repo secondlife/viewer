@@ -74,8 +74,8 @@ public:
 	{
 		struct DateRange : public LLInitParam::Block<DateRange>
 		{
-			Optional<time_t> min_date;
-			Optional<time_t> max_date;
+			Optional<time_t>	min_date,
+								max_date;
 
 			DateRange()
 			:	min_date("min_date", time_min()),
@@ -115,18 +115,18 @@ public:
 		FilterOps(const Params& = Params());
 
 		U32 			mFilterTypes;
-
-		U64				mFilterObjectTypes;   // For _OBJECT
-		U64				mFilterWearableTypes;
-		U64				mFilterCategoryTypes; // For _CATEGORY
+		U64				mFilterObjectTypes,   // For _OBJECT
+						mFilterWearableTypes,
+						mFilterLinks,
+						mFilterCategoryTypes; // For _CATEGORY
 		LLUUID      	mFilterUUID; 		  // for UUID
 
-		time_t			mMinDate;
-		time_t			mMaxDate;
+		time_t			mMinDate,
+						mMaxDate;
 		U32				mHoursAgo;
+
 		EFolderShow		mShowFolderState;
 		PermissionMask	mPermissions;
-		U64				mFilterLinks;
 	};
 							
 	struct Params : public LLInitParam::Block<Params>
@@ -134,14 +134,12 @@ public:
 		Optional<std::string>		name;
 		Optional<FilterOps::Params>	filter_ops;
 		Optional<std::string>		substring;
-		Optional<U32>				sort_order;
 		Optional<bool>				since_logoff;
 
 		Params()
 		:	name("name"),
 			filter_ops(""),
 			substring("substring"),
-			sort_order("sort_order"),
 			since_logoff("since_logoff")
 		{}
 	};
@@ -193,18 +191,13 @@ public:
 
 	bool				showAllResults() const;
 
-
-	std::string::size_type getStringMatchOffset() const;
-
-	std::string::size_type getStringMatchOffset(LLFolderViewItem* item)   const;
+	std::string::size_type getStringMatchOffset(LLFolderViewModelItem* item) const;
+	std::string::size_type getFilterStringSize() const;
 	// +-------------------------------------------------------------------+
 	// + Presentation
 	// +-------------------------------------------------------------------+
 	void 				setShowFolderState( EFolderShow state);
 	EFolderShow 		getShowFolderState() const;
-
-	void 				setSortOrder(U32 order);
-	U32 				getSortOrder() const;
 
 	void 				setEmptyLookupMessage(const std::string& message);
 	std::string			getEmptyLookupMessage() const;
@@ -260,8 +253,6 @@ private:
 	bool 				checkAgainstPermissions(const LLInventoryItem* item) const;
 	bool 				checkAgainstFilterLinks(const class LLFolderViewModelItemInventory* listener) const;
 	bool				checkAgainstClipboard(const LLUUID& object_id) const;
-
-	U32						mOrder;
 
 	FilterOps				mFilterOps;
 	FilterOps				mDefaultFilterOps;

@@ -100,7 +100,7 @@ BOOL LLIMFloaterContainer::postBuild()
 	mConversationsListPanel = getChild<LLPanel>("conversations_list_panel");
 
 	// CHUI-98 : View Model for conversations
-	LLConversationItem* base_item = new LLConversationItem();
+	LLConversationItem* base_item = new LLConversationItem(this);
 	LLFolderView::Params p;
 	p.view_model = &mConversationViewModel;
 	p.parent_panel = mConversationsListPanel;
@@ -418,6 +418,7 @@ void LLIMFloaterContainer::repositioningWidgets()
 		 widget_it++, ++index)
 	{
 		LLFolderViewItem* widget = widget_it->second;
+		widget->setVisible(TRUE);
 		widget->setRect(LLRect(0,
 							   panel_rect.getHeight() - item_height*index,
 							   panel_rect.getWidth(),
@@ -455,13 +456,13 @@ void LLIMFloaterContainer::addConversationListItem(std::string name, const LLUUI
 	mConversationsWidgets[floaterp] = widget;
 
 	// Add a new conversation widget to the root folder of a folder view.
-	mConversationsRoot->addItem(widget);
+	widget->addToFolder(mConversationsRoot);
 
 	// Add it to the UI
 	widget->setVisible(TRUE);
 
 	repositioningWidgets();
-
+	
 	mConversationsListPanel->addChild(widget);
 
 	return;
@@ -532,6 +533,7 @@ LLFolderViewItem* LLIMFloaterContainer::createConversationItemWidget(LLConversat
 
 // Conversation items
 LLConversationItem::LLConversationItem(std::string name, const LLUUID& uuid, LLFloater* floaterp, LLIMFloaterContainer* containerp) :
+	LLFolderViewModelItemCommon(containerp->getRootViewModel()),
 	mName(name),
 	mUUID(uuid),
     mFloater(floaterp),
@@ -539,7 +541,8 @@ LLConversationItem::LLConversationItem(std::string name, const LLUUID& uuid, LLF
 {
 }
 
-LLConversationItem::LLConversationItem() :
+LLConversationItem::LLConversationItem(LLIMFloaterContainer* containerp) :
+	LLFolderViewModelItemCommon(containerp->getRootViewModel()),
 	mName(""),
 	mUUID(),
 	mFloater(NULL),

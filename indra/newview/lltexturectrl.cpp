@@ -455,7 +455,7 @@ BOOL LLFloaterTexturePicker::postBuild()
 
 		// Commented out to scroll to currently selected texture. See EXT-5403.
 		// // store this filter as the default one
-		// mInventoryPanel->getRootFolder()->getFilter()->markDefault();
+		// mInventoryPanel->getRootFolder()->getFilter().markDefault();
 
 		// Commented out to stop opening all folders with textures
 		// mInventoryPanel->openDefaultFolderForType(LLFolderType::FT_TEXTURE);
@@ -638,10 +638,10 @@ void LLFloaterTexturePicker::draw()
 		LLFolderView* folder_view = mInventoryPanel->getRootFolder();
 		if (!folder_view) return;
 
-		LLFolderViewFilter* filter = static_cast<LLFolderViewModelInventory*>(folder_view->getFolderViewModel())->getFilter();
+		LLFolderViewFilter& filter = static_cast<LLFolderViewModelInventory*>(folder_view->getFolderViewModel())->getFilter();
 
-		bool is_filter_active = folder_view->getViewModelItem()->getLastFilterGeneration() < filter->getCurrentGeneration() &&
-				filter->isNotDefault();
+		bool is_filter_active = folder_view->getViewModelItem()->getLastFilterGeneration() < filter.getCurrentGeneration() &&
+				filter.isNotDefault();
 
 		// After inventory panel filter is applied we have to update
 		// constraint rect for the selected item because of folder view
@@ -1012,7 +1012,7 @@ void LLFloaterTexturePicker::onFilterEdit(const std::string& search_string )
 	else if (mInventoryPanel->getFilterSubString().empty())
 	{
 		// first letter in search term, save existing folder open state
-		if (!mInventoryPanel->getFilter()->isNotDefault())
+		if (!mInventoryPanel->getFilter().isNotDefault())
 		{
 			mSavedFolderState.setApply(FALSE);
 			mInventoryPanel->getRootFolder()->applyFunctorRecursively(mSavedFolderState);

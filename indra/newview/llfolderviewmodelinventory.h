@@ -37,9 +37,7 @@ class LLFolderViewModelItemInventory
 	:	public LLFolderViewModelItemCommon
 {
 public:
-	LLFolderViewModelItemInventory(class LLFolderViewModelInventory& root_view_model)
-	:	mRootViewModel(root_view_model)
-	{}
+	LLFolderViewModelItemInventory(class LLFolderViewModelInventory& root_view_model);
 	virtual const LLUUID& getUUID() const = 0;
 	virtual time_t getCreationDate() const = 0;	// UTC seconds
 	virtual void setCreationDate(time_t creation_date_utc) = 0;
@@ -55,10 +53,7 @@ public:
 	virtual EInventorySortGroup getSortGroup() const = 0;
 	virtual LLInventoryObject* getInventoryObject() const = 0;
 	virtual void requestSort();
-	virtual bool potentiallyVisible();
-	virtual bool passedFilter(S32 filter_generation = -1);
-	virtual bool descendantsPassedFilter(S32 filter_generation = -1);
-	virtual void setPassedFilter(bool filtered, bool filtered_folder, S32 filter_generation);
+	virtual void setPassedFilter(bool filtered, bool filtered_folder, S32 filter_generation, std::string::size_type string_offset = std::string::npos, std::string::size_type string_size = 0);
 	virtual void filter( LLFolderViewFilter& filter);
 	virtual void filterChildItem( LLFolderViewModelItem* item, LLFolderViewFilter& filter);
 
@@ -66,25 +61,36 @@ public:
 	virtual LLToolDragAndDrop::ESource getDragSource() const = 0;
 
 protected:
-	class LLFolderViewModelInventory& mRootViewModel;
+	bool								mPrevPassedAllFilters;
 };
 
 class LLInventorySort
 {
 public:
-	LLInventorySort(U32 order = 0)
-		:	mSortOrder(order),
-		mByDate(false),
-		mSystemToTop(false),
-		mFoldersByName(false)
+	struct Params : public LLInitParam::Block<Params>
 	{
-		mByDate = (order & LLInventoryFilter::SO_DATE);
-		mSystemToTop = (order & LLInventoryFilter::SO_SYSTEM_FOLDERS_TO_TOP);
-		mFoldersByName = (order & LLInventoryFilter::SO_FOLDERS_BY_NAME);
+		Optional<S32> order;
+
+		Params()
+		:	order("order", 0)
+		{}
+	};
+
+	LLInventorySort(S32 order = 0)
+	{
+		fromParams(Params().order(order));
 	}
 
 	bool isByDate() const { return mByDate; }
 	U32 getSortOrder() const { return mSortOrder; }
+	void toParams(Params& p) { p.order(mSortOrder);}
+	void fromParams(Params& p) 
+	{ 
+		mSortOrder = p.order; 
+		mByDate = (mSortOrder & LLInventoryFilter::SO_DATE);
+		mSystemToTop = (mSortOrder & LLInventoryFilter::SO_SYSTEM_FOLDERS_TO_TOP);
+		mFoldersByName = (mSortOrder & LLInventoryFilter::SO_FOLDERS_BY_NAME);
+	}
 
 	bool operator()(const LLFolderViewModelItemInventory* const& a, const LLFolderViewModelItemInventory* const& b) const;
 private:

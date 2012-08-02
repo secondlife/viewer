@@ -304,9 +304,4 @@ void LLUICtrlFactory::registerWidget(const std::type_info* widget_type, const st
 	//LLDefaultParamBlockRegistry::instance().defaultRegistrar().add(widget_type, &get_empty_param_block<T>);
 }
 
-//static 
-const std::string* LLUICtrlFactory::getWidgetName(const std::type_info* widget_type)
-{
-	return LLWidgetNameRegistry::instance().getValue(widget_type);
-}
 

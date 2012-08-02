@@ -69,7 +69,6 @@ LLInventoryFilter::LLInventoryFilter(const Params& p)
 	mFilterModified(FILTER_NONE),
 	mEmptyLookupMessage("InventoryNoMatchingItems"),
     mFilterOps(p.filter_ops),
-	mOrder(p.sort_order),
 	mFilterSubString(p.substring),
 	mCurrentGeneration(0),
 	mFirstRequiredGeneration(0),
@@ -95,9 +94,9 @@ bool LLInventoryFilter::check(const LLFolderViewModelItem* item)
 		return passed_clipboard;
 	}
 
-	std::string::size_type string_offset = mFilterSubString.size() ? listener->getSearchableName().find(mFilterSubString) : 0;
+	std::string::size_type string_offset = mFilterSubString.size() ? listener->getSearchableName().find(mFilterSubString) : std::string::npos;
 
-	BOOL passed = string_offset !=  std::string::npos;
+	BOOL passed = (mFilterSubString.size() == 0 || string_offset != std::string::npos);
 	passed = passed && checkAgainstFilterType(listener);
 	passed = passed && checkAgainstPermissions(listener);
 	passed = passed && checkAgainstFilterLinks(listener);
@@ -108,7 +107,7 @@ bool LLInventoryFilter::check(const LLFolderViewModelItem* item)
 
 bool LLInventoryFilter::check(const LLInventoryItem* item)
 {
-	std::string::size_type string_offset = mFilterSubString.size() ?   item->getName().find(mFilterSubString) : std::string::npos;
+	std::string::size_type string_offset = mFilterSubString.size() ? item->getName().find(mFilterSubString) : std::string::npos;
 
 	const bool passed_filtertype = checkAgainstFilterType(item);
 	const bool passed_permissions = checkAgainstPermissions(item);
@@ -116,7 +115,7 @@ bool LLInventoryFilter::check(const LLInventoryItem* item)
 	const bool passed = (passed_filtertype 
 		&& passed_permissions
 		&& passed_clipboard 
-		&&	(mFilterSubString.size() == 0 || string_offset !=  std::string::npos));
+		&&	(mFilterSubString.size() == 0 || string_offset != std::string::npos));
 
 	return passed;
 }
@@ -383,9 +382,10 @@ const std::string& LLInventoryFilter::getFilterSubString(BOOL trim) const
 	return mFilterSubString;
 }
 
-std::string::size_type   LLInventoryFilter::getStringMatchOffset(LLFolderViewItem* item) const
+std::string::size_type LLInventoryFilter::getStringMatchOffset(LLFolderViewModelItem* item) const
 {
-	return mFilterSubString.size() ? item->getName().find(mFilterSubString)   : std::string::npos;
+	const LLFolderViewModelItemInventory* listener = static_cast<const LLFolderViewModelItemInventory*>(item);
+	return mFilterSubString.size() ? listener->getSearchableName().find(mFilterSubString) : std::string::npos;
 }
 
 bool LLInventoryFilter::isDefault() const
@@ -703,15 +703,6 @@ void LLInventoryFilter::setShowFolderState(EFolderShow state)
 	}
 }
 
-void LLInventoryFilter::setSortOrder(U32 order)
-{
-	if (mOrder != order)
-	{
-		mOrder = order;
-		setModified();
-	}
-}
-
 void LLInventoryFilter::markDefault()
 {
 	mDefaultFilterOps = mFilterOps;
@@ -944,7 +935,6 @@ LLInventoryFilter& LLInventoryFilter::operator=( const  LLInventoryFilter&  othe
 	setShowFolderState(other.getShowFolderState());
 	setFilterPermissions(other.getFilterPermissions());
 	setFilterSubString(other.getFilterSubString());
-	setSortOrder(other.getSortOrder());
 	setDateRangeLastLogoff(other.isSinceLogoff());
 	return *this;
 }
@@ -961,7 +951,6 @@ void LLInventoryFilter::toParams(Params& params) const
 	params.filter_ops.show_folder_state = getShowFolderState();
 	params.filter_ops.permissions = getFilterPermissions();
 	params.substring = getFilterSubString();
-	params.sort_order = getSortOrder();
 	params.since_logoff = isSinceLogoff();
 }
 
@@ -980,7 +969,6 @@ void LLInventoryFilter::fromParams(const Params& params)
 	setShowFolderState(params.filter_ops.show_folder_state);
 	setFilterPermissions(params.filter_ops.permissions);
 	setFilterSubString(params.substring);
-	setSortOrder(params.sort_order);
 	setDateRangeLastLogoff(params.since_logoff);
 }
 
@@ -1002,6 +990,11 @@ U64 LLInventoryFilter::getFilterWearableTypes() const
 bool LLInventoryFilter::hasFilterString() const
 {
 	return mFilterSubString.size() > 0;
+}
+
+std::string::size_type LLInventoryFilter::getFilterStringSize() const
+{
+	return mFilterSubString.size();
 }
 
 PermissionMask LLInventoryFilter::getFilterPermissions() const
@@ -1029,10 +1022,6 @@ U64 LLInventoryFilter::getFilterLinks() const
 LLInventoryFilter::EFolderShow LLInventoryFilter::getShowFolderState() const
 { 
 	return mFilterOps.mShowFolderState; 
-}
-U32 LLInventoryFilter::getSortOrder() const 
-{ 
-	return mOrder; 
 }
 
 void LLInventoryFilter::setFilterCount(S32 count) 

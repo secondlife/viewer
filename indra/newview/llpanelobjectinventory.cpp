@@ -1567,11 +1567,8 @@ void LLPanelObjectInventory::reset()
 	mFolders = LLUICtrlFactory::create<LLFolderView>(p);
 	// this ensures that we never say "searching..." or "no items found"
 	//TODO RN: make this happen by manipulating filter object directly
-  	LLInventoryFilter* inventoryFilter = dynamic_cast<LLInventoryFilter*>(mFolders->getFolderViewModel()->getFilter());
-  	if(inventoryFilter)
-	{
-    	inventoryFilter->setShowFolderState(LLInventoryFilter::SHOW_ALL_FOLDERS);
-  	}
+  	LLInventoryFilter& inventoryFilter = dynamic_cast<LLInventoryFilter&>(mFolders->getFolderViewModel()->getFilter());
+   	inventoryFilter.setShowFolderState(LLInventoryFilter::SHOW_ALL_FOLDERS);
   
 	mFolders->setCallbackRegistrar(&mCommitCallbackRegistrar);
 
