@@ -12,8 +12,48 @@
 #if ! defined(LL_LLTYPEINFOLOOKUP_H)
 #define LL_LLTYPEINFOLOOKUP_H
 
-#include "llsortedvector.h"
+#include <boost/unordered_map.hpp>
+#include <boost/functional/hash.hpp>
+#include <boost/optional.hpp>
+#include <functional>               // std::binary_function
 #include <typeinfo>
+
+/**
+ * The following helper classes are based on the Boost.Unordered documentation:
+ * http://www.boost.org/doc/libs/1_45_0/doc/html/unordered/hash_equality.html
+ */
+
+/**
+ * Compute hash for a string passed as const char*
+ */
+struct const_char_star_hash: public std::unary_function<const char*, std::size_t>
+{
+    std::size_t operator()(const char* str) const
+    {
+        std::size_t seed = 0;
+        for ( ; *str; ++str)
+        {
+            boost::hash_combine(seed, *str);
+        }
+        return seed;
+    }
+};
+
+/**
+ * Compute equality for strings passed as const char*
+ *
+ * I (nat) suspect that this is where the default behavior breaks for the
+ * const char* values returned from std::type_info::name(). If you compare the
+ * two const char* pointer values, as a naive, unspecialized implementation
+ * will surely do, they'll compare unequal.
+ */
+struct const_char_star_equal: public std::binary_function<const char*, const char*, bool>
+{
+    bool operator()(const char* lhs, const char* rhs) const
+    {
+        return strcmp(lhs, rhs) == 0;
+    }
+};
 
 /**
  * LLTypeInfoLookup is specifically designed for use cases for which you might
@@ -23,88 +63,55 @@
  * different load modules will produce different std::type_info*.
  * LLTypeInfoLookup contains a workaround to address this issue.
  *
- * Specifically, when we don't find the passed std::type_info*,
- * LLTypeInfoLookup performs a linear search over registered entries to
- * compare name() strings. Presuming that this succeeds, we cache the new
- * (previously unrecognized) std::type_info* to speed future lookups.
- *
- * This worst-case fallback search (linear search with string comparison)
- * should only happen the first time we look up a given type from a particular
- * load module other than the one from which we initially registered types.
- * (However, a lookup which wouldn't succeed anyway will always have
- * worst-case performance.) This class is probably best used with less than a
- * few dozen different types.
+ * The API deliberately diverges from std::map in several respects:
+ * * It avoids iterators, not only begin()/end() but also as return values
+ *   from insert() and find(). This bypasses transform_iterator overhead.
+ * * Since we literally use compile-time types as keys, the essential insert()
+ *   and find() methods accept the key type as a @em template parameter,
+ *   accepting and returning value_type as a normal runtime value. This is to
+ *   permit future optimization (e.g. compile-time type hashing) without
+ *   changing the API.
  */
 template <typename VALUE>
 class LLTypeInfoLookup
 {
+    // Use this for our underlying implementation: lookup by
+    // std::type_info::name() string. This is one of the rare cases in which I
+    // dare use const char* directly, rather than std::string, because I'm
+    // sure that every value returned by std::type_info::name() is static.
+    // HOWEVER, specify our own hash + equality functors: naively comparing
+    // distinct const char* values won't work.
+    typedef boost::unordered_map<const char*, VALUE,
+                                 const_char_star_hash, const_char_star_equal> impl_map_type;
+
 public:
-    typedef LLTypeInfoLookup<VALUE> self;
-    typedef LLSortedVector<const std::type_info*, VALUE> vector_type;
-    typedef typename vector_type::key_type key_type;
-    typedef typename vector_type::mapped_type mapped_type;
-    typedef typename vector_type::value_type value_type;
-    typedef typename vector_type::iterator iterator;
-    typedef typename vector_type::const_iterator const_iterator;
+    typedef VALUE value_type;
 
     LLTypeInfoLookup() {}
 
-    iterator begin() { return mVector.begin(); }
-    iterator end()   { return mVector.end(); }
-    const_iterator begin() const { return mVector.begin(); }
-    const_iterator end()   const { return mVector.end(); }
-    bool empty() const { return mVector.empty(); }
-    std::size_t size() const { return mVector.size(); }
+    bool empty() const { return mMap.empty(); }
+    std::size_t size() const { return mMap.size(); }
 
-    std::pair<iterator, bool> insert(const std::type_info* key, const VALUE& value)
+    template <typename KEY>
+    bool insert(const value_type& value)
     {
-        return insert(value_type(key, value));
+        // Obtain and store the std::type_info::name() string as the key.
+        // Return just the bool from std::map::insert()'s return pair.
+        return mMap.insert(typename impl_map_type::value_type(typeid(KEY).name(), value)).second;
     }
 
-    std::pair<iterator, bool> insert(const value_type& pair)
+    template <typename KEY>
+    boost::optional<value_type> find() const
     {
-        return mVector.insert(pair);
-    }
-
-    // const find() forwards to non-const find(): this can alter mVector!
-    const_iterator find(const std::type_info* key) const
-    {
-        return const_cast<self*>(this)->find(key);
-    }
-
-    // non-const find() caches previously-unknown type_info* to speed future
-    // lookups.
-    iterator find(const std::type_info* key)
-    {
-        iterator found = mVector.find(key);
-        if (found != mVector.end())
-        {
-            // If LLSortedVector::find() found, great, we're done.
-            return found;
-        }
-        // Here we didn't find the passed type_info*. On Linux, though, even
-        // for the same type, typeid(sametype) produces a different type_info*
-        // when used in different load modules. So the fact that we didn't
-        // find the type_info* we seek doesn't mean this type isn't
-        // registered. Scan for matching name() string.
-        for (typename vector_type::iterator ti(mVector.begin()), tend(mVector.end());
-             ti != tend; ++ti)
-        {
-            if (std::string(ti->first->name()) == key->name())
-            {
-                // This unrecognized 'key' is for the same type as ti->first.
-                // To speed future lookups, insert a new entry that lets us
-                // look up ti->second using this same 'key'.
-                return insert(key, ti->second).first;
-            }
-        }
-        // We simply have never seen a type with this type_info* from any load
-        // module.
-        return mVector.end();
+        // Use the std::type_info::name() string as the key.
+        typename impl_map_type::const_iterator found = mMap.find(typeid(KEY).name());
+        if (found == mMap.end())
+            return boost::optional<value_type>();
+        return found->second;
     }
 
 private:
-    vector_type mVector;
+    impl_map_type mMap;
 };
 
 #endif /* ! defined(LL_LLTYPEINFOLOOKUP_H) */
