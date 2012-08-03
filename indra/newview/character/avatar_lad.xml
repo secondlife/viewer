@@ -12291,6 +12291,17 @@ render_pass="bump">
 	 <param_driver />
     </param>
 
+    <param
+     id="11000"
+     group="0"
+     name="AppearanceMessage_Version"
+     label="AppearanceMessage Version"
+     value_default="0"
+     value_min="0"
+     value_max="255">
+	 <param_driver />
+    </param>
+
   </driver_parameters>
 
   <morph_masks>
