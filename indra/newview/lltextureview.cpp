@@ -524,8 +524,8 @@ void LLGLTexMemBar::draw()
 
 	// Gray background using completely magic numbers
 	gGL.color4f(0.f, 0.f, 0.f, 0.25f);
-	const LLRect & rect(getRect());
-	gl_rect_2d(-4, v_offset, rect.mRight - rect.mLeft + 2, v_offset + line_height*4);
+	// const LLRect & rect(getRect());
+	// gl_rect_2d(-4, v_offset, rect.mRight - rect.mLeft + 2, v_offset + line_height*4);
 
 	std::string text = "";
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*6,
