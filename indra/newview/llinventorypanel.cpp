@@ -514,10 +514,13 @@ void LLInventoryPanel::modelChanged(U32 mask)
 						}
 						else 
 						{
+							// Remove the item ID before destroying the view because the view-model-item gets
+							// destroyed when the view is destroyed
+                            removeItemID(viewmodel_item->getUUID());
+
 							// Item is to be moved outside the panel's directory (e.g. moved to trash for a panel that 
 							// doesn't include trash).  Just remove the item's UI.
 							view_item->destroyView();
-                            removeItemID(viewmodel_item->getUUID());
 						}
 					}
 				}
