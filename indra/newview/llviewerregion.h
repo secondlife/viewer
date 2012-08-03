@@ -202,6 +202,7 @@ public:
 
 	// Returns "M", "PG", "A" etc.
 	static std::string accessToShortString(U8 sim_access);
+	static U8          shortStringToAccess(const std::string &sim_access);
 
 	// Return access icon name
 	static std::string getAccessIcon(U8 sim_access);
@@ -285,6 +286,9 @@ public:
 	void getSimulatorFeatures(LLSD& info);	
 	void setSimulatorFeatures(const LLSD& info);
 
+	
+	bool dynamicPathfindingEnabled() const;
+
 	typedef enum
 	{
 		CACHE_MISS_TYPE_FULL = 0,
@@ -325,6 +329,7 @@ public:
 	bool objectsCrossParcel(const std::vector<LLBBox>& boxes) const;
 
 	void getNeighboringRegions( std::vector<LLViewerRegion*>& uniqueRegions );
+	void getNeighboringRegionsStatus( std::vector<S32>& regions );
 	
 public:
 	struct CompareDistance

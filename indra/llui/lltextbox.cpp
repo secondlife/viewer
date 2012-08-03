@@ -150,7 +150,7 @@ S32 LLTextBox::getTextPixelHeight()
 
 LLSD LLTextBox::getValue() const
 {
-	return LLSD(getText());
+	return getViewModel()->getValue();
 }
 
 BOOL LLTextBox::setTextArg( const std::string& key, const LLStringExplicit& text )

@@ -60,7 +60,7 @@ static const F32 MAX_FIELD_OF_VIEW = 175.f * DEG_TO_RAD;
 // roll(), pitch(), yaw()
 // etc...
 
-
+LL_ALIGN_PREFIX(16)
 class LLCamera
 : 	public LLCoordFrame
 {
@@ -108,7 +108,7 @@ public:
 	};
 
 private:
-	LLPlane mAgentPlanes[7];  //frustum planes in agent space a la gluUnproject (I'm a bastard, I know) - DaveP
+	LL_ALIGN_16(LLPlane mAgentPlanes[7]);  //frustum planes in agent space a la gluUnproject (I'm a bastard, I know) - DaveP
 	U8 mPlaneMask[8];         // 8 for alignment	
 	
 	F32 mView;					// angle between top and bottom frustum planes in radians.
@@ -116,13 +116,13 @@ private:
 	S32 mViewHeightInPixels;	// for ViewHeightInPixels() only
 	F32 mNearPlane;
 	F32 mFarPlane;
-	LLPlane mLocalPlanes[4];
+	LL_ALIGN_16(LLPlane mLocalPlanes[4]);
 	F32 mFixedDistance;			// Always return this distance, unless < 0
 	LLVector3 mFrustCenter;		// center of frustum and radius squared for ultra-quick exclusion test
 	F32 mFrustRadiusSquared;
 	
-	LLPlane mWorldPlanes[PLANE_NUM];
-	LLPlane mHorizPlanes[HORIZ_PLANE_NUM];
+	LL_ALIGN_16(LLPlane mWorldPlanes[PLANE_NUM]);
+	LL_ALIGN_16(LLPlane mHorizPlanes[HORIZ_PLANE_NUM]);
 
 	U32 mPlaneCount;  //defaults to 6, if setUserClipPlane is called, uses user supplied clip plane in
 
@@ -208,7 +208,7 @@ protected:
 	void calculateFrustumPlanes(F32 left, F32 right, F32 top, F32 bottom);
 	void calculateFrustumPlanesFromWindow(F32 x1, F32 y1, F32 x2, F32 y2);
 	void calculateWorldFrustumPlanes();
-};
+} LL_ALIGN_POSTFIX(16);
 
 
 #endif

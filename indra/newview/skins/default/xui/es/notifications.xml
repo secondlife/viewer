@@ -490,6 +490,15 @@ El objeto debe de haber sido borrado o estar fuera de rango (&apos;out of range&
 		</url>
 		<usetemplate ignoretext="El hardware de mi ordenador no está admitido" name="okcancelignore" notext="No" yestext="Sí"/>
 	</notification>
+	<notification name="IntelOldDriver">
+		Probablemente ya existe un controlador más reciente para tu procesador de gráficos. La actualización del controlador de gráficos puede mejorar sustancialmente el rendimiento.
+
+    ¿Deseas visitar [_URL] para comprobar si hay controladores actualizados?
+		<url name="url">
+			http://www.intel.com/p/es_XL/support/detect/graphics
+		</url>
+		<usetemplate ignoretext="Mi controlador de gráficos no está actualizado" name="okcancelignore" notext="No" yestext="Sí"/>
+	</notification>
 	<notification name="UnknownGPU">
 		Tu sistema usa una tarjeta gráfica que [APP_NAME] no reconoce.
 Suele suceder con hardware nuevo que todavía no ha sido probado con [APP_NAME].  Probablemente todo irá bien, pero deberás ajustar tus configuraciones gráficas.
@@ -2622,33 +2631,23 @@ Del objeto: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, propietario: [NAME]?
 		</form>
 	</notification>
 	<notification name="ScriptQuestionCaution">
-		Un objeto de nombre &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, propiedad de &apos;[NAME]&apos;, quiere:
-
-[QUESTIONS]
-Si no confias en este objeto y en su creador, deberías rehusar esta petición.
-
-¿Autorizar esta petición?
+		Atención: El objeto &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; solicita un acceso total a tu cuenta de dólares Linden. Si le autorizas el acceso, podrá retirar fondos de tu cuenta en cualquier momento o vaciarla por completo, de manera permanente y sin más advertencias.
+  
+Estas solicitudes pocas veces son legítimas. No autorices el acceso si no conoces la razón exacta por la que desea el acceso a tu cuenta.
 		<form name="form">
-			<button name="Grant" text="Autorizar"/>
+			<button name="Grant" text="Permitir acceso total"/>
 			<button name="Deny" text="Denegar"/>
-			<button name="Details" text="Detalles..."/>
 		</form>
 	</notification>
 	<notification name="ScriptDialog">
 		&apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos; de [NAME]
 [MESSAGE]
-		<form name="form">
-			<button name="Mute" text="Ignorar"/>
-			<button name="Ignore" text="Ignorar"/>
-		</form>
+		<form name="form"/>
 	</notification>
 	<notification name="ScriptDialogGroup">
 		&apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos; de [GROUPNAME]
 [MESSAGE]
-		<form name="form">
-			<button name="Mute" text="Ignorar"/>
-			<button name="Ignore" text="Ignorar"/>
-		</form>
+		<form name="form"/>
 	</notification>
 	<notification name="BuyLindenDollarSuccess">
 		¡Gracias por tu pago!
@@ -3126,4 +3125,16 @@ También puedes buscar en el Mapa lugares marcados como &quot;Puntos de Informac
 	<global name="You died and have been teleported to your home location">
 		Has muerto y te has teleportado a tu Base.
 	</global>
+	<notification name="LocalBitmapsUpdateFileNotFound">
+		[FNAME] no se ha podido actualizar porque el archivo ya no se encuentra.
+Desactivando futuras actualizaciones de este archivo.
+	</notification>
+	<notification name="LocalBitmapsUpdateFailedFinal">
+		[FNAME] se ha intentado abrir o descodificar durante [NRETRIES] intentos sin éxito, y ahora se considera roto.
+Desactivando futuras actualizaciones de este archivo.
+	</notification>
+	<notification name="LocalBitmapsVerifyFail">
+		Se ha intentado añadir un archivo de imagen [FNAME] no válido o ilegible, que no se puede abrir ni descodificar.
+Intento cancelado.
+	</notification>
 </notifications>

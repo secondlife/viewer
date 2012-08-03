@@ -55,8 +55,6 @@ uniform float far_clip;
 
 uniform vec3 proj_origin; //origin of projection to be used for angular attenuation
 uniform float sun_wash;
-uniform int proj_shadow_idx;
-uniform float shadow_fade;
 
 uniform vec3 center;
 uniform vec3 color;
@@ -143,7 +141,8 @@ void main()
 		discard;
 	}
 		
-	vec3 norm = texture2DRect(normalMap, frag.xy).xyz*2.0-1.0;
+	vec3 norm = texture2DRect(normalMap, frag.xy).xyz;
+	norm = vec3((norm.xy-0.5)*2.0, norm.z);
 	
 	norm = normalize(norm);
 	float l_dist = -dot(lv, proj_n);

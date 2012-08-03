@@ -233,6 +233,9 @@ LLViewerStats::LLViewerStats() :
 	mSimSimPhysicsStepMsec("simsimphysicsstepmsec"),
 	mSimSimPhysicsShapeUpdateMsec("simsimphysicsshapeupdatemsec"),
 	mSimSimPhysicsOtherMsec("simsimphysicsothermsec"),
+	mSimSimAIStepMsec("simsimaistepmsec"),
+	mSimSimSkippedSilhouetteSteps("simsimskippedsilhouettesteps"),
+	mSimSimPctSteppedCharacters("simsimpctsteppedcharacters"),
 	mSimAgentMsec("simagentmsec"),
 	mSimImagesMsec("simimagesmsec"),
 	mSimScriptMsec("simscriptmsec"),
@@ -244,6 +247,7 @@ LLViewerStats::LLViewerStats() :
 	mSimObjects("simobjects"),
 	mSimActiveObjects("simactiveobjects"),
 	mSimActiveScripts("simactivescripts"),
+	mSimPctScriptsRun("simpctscriptsrun"),
 	mSimInPPS("siminpps"),
 	mSimOutPPS("simoutpps"),
 	mSimPendingDownloads("simpendingdownloads"),
@@ -789,6 +793,24 @@ void send_stats()
 	system["gpu_class"] = (S32)LLFeatureManager::getInstance()->getGPUClass();
 	system["gpu_vendor"] = gGLManager.mGLVendorShort;
 	system["gpu_version"] = gGLManager.mDriverVersionVendorString;
+	system["opengl_version"] = gGLManager.mGLVersionString;
+
+	S32 shader_level = 0;
+	if (LLPipeline::sRenderDeferred)
+	{
+		shader_level = 3;
+	}
+	else if (gPipeline.canUseWindLightShadersOnObjects())
+	{
+		shader_level = 2;
+	}
+	else if (gPipeline.canUseVertexShaders())
+	{
+		shader_level = 1;
+	}
+
+
+	system["shader_level"] = shader_level;
 
 	LLSD &download = body["downloads"];
 

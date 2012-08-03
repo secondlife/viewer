@@ -1865,23 +1865,8 @@ BOOL LLPanelLandOptions::postBuild()
 	childSetCommitCallback("ShowDirectoryCheck", onCommitAny, this);
 
 	
-	if (gAgent.getAgentAccess().isInTransition())
-	{
-		// during the AO transition, this combo has an Adult item.
-		// Post-transition, it goes away. We can remove this conditional
-		// after the transition and just use the "else" clause.
-		mCategoryCombo = getChild<LLComboBox>( "land category with adult");
-		childSetCommitCallback("land category with adult", onCommitAny, this);
-	}
-	else
-	{
-		// this is the code that should be preserved post-transition
-		// you could also change the XML to set visibility and enabled true.
-		mCategoryCombo = getChild<LLComboBox>( "land category");
-		childSetCommitCallback("land category", onCommitAny, this);
-	}
-	mCategoryCombo->setVisible(true);
-	mCategoryCombo->setEnabled(true);
+	mCategoryCombo = getChild<LLComboBox>( "land category");
+	childSetCommitCallback("land category", onCommitAny, this);
 	
 
 	mMatureCtrl = getChild<LLCheckBoxCtrl>( "MatureCheck");
@@ -1901,6 +1886,7 @@ BOOL LLPanelLandOptions::postBuild()
 		mSnapshotCtrl->setCommitCallback( onCommitAny, this );
 		mSnapshotCtrl->setAllowNoTexture ( TRUE );
 		mSnapshotCtrl->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
+		mSnapshotCtrl->setDnDFilterPermMask(PERM_COPY | PERM_TRANSFER);
 		mSnapshotCtrl->setNonImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
 	}
 	else
@@ -2226,8 +2212,8 @@ void LLPanelLandOptions::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	BOOL allow_damage		= !self->mCheckSafe->get();
 	BOOL allow_fly			= self->mCheckFly->get();
 	BOOL allow_landmark		= TRUE; // cannot restrict landmark creation
-	BOOL allow_group_scripts	= self->mCheckGroupScripts->get() || self->mCheckOtherScripts->get();
 	BOOL allow_other_scripts	= self->mCheckOtherScripts->get();
+	BOOL allow_group_scripts	= self->mCheckGroupScripts->get() || allow_other_scripts;
 	BOOL allow_publish		= FALSE;
 	BOOL mature_publish		= self->mMatureCtrl->get();
 	BOOL push_restriction	= self->mPushRestrictionCtrl->get();
@@ -2240,11 +2226,16 @@ void LLPanelLandOptions::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	LLViewerRegion* region;
 	region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
 
-	if (!allow_other_scripts && region && region->getAllowDamage())
-	{
-
-		LLNotificationsUtil::add("UnableToDisableOutsideScripts");
-		return;
+	if (region && region->getAllowDamage())
+	{	// Damage is allowed on the region - server will always allow scripts
+		if ( (!allow_other_scripts && parcel->getParcelFlag(PF_ALLOW_OTHER_SCRIPTS)) ||
+			 (!allow_group_scripts && parcel->getParcelFlag(PF_ALLOW_GROUP_SCRIPTS)) )
+		{	// Don't allow turning off "Run Scripts" if damage is allowed in the region
+			self->mCheckOtherScripts->set(parcel->getParcelFlag(PF_ALLOW_OTHER_SCRIPTS));	// Restore UI to actual settings
+			self->mCheckGroupScripts->set(parcel->getParcelFlag(PF_ALLOW_GROUP_SCRIPTS));
+			LLNotificationsUtil::add("UnableToDisableOutsideScripts");
+			return;
+		}
 	}
 
 	// Push data into current parcel

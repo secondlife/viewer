@@ -36,6 +36,7 @@ set(llrender_SOURCE_FILES
     llglslshader.cpp
     llimagegl.cpp
     llpostprocess.cpp
+    llrendernavprim.cpp
     llrendersphere.cpp
     llshadermgr.cpp
     lltexture.cpp
@@ -59,6 +60,7 @@ set(llrender_HEADER_FILES
     llimagegl.h
     llpostprocess.h
     llrender.h
+    llrendernavprim.h
     llrendersphere.h
     llshadermgr.h
     lltexture.h

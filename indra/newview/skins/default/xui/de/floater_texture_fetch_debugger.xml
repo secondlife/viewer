@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="TexFetchDebugger" title="Debugger für Texturabruffehler">
+	<text name="total_num_fetched_label">
+		1, Gesamtzahl abgerufener Texturen: [NUM]
+	</text>
+	<text name="total_num_fetching_requests_label">
+		2, Gesamtzahl von Abrufanforderungen: [NUM]
+	</text>
+	<text name="total_num_cache_hits_label">
+		3, Gesamtzahl von Cachetreffern: [NUM]
+	</text>
+	<text name="total_num_visible_tex_label">
+		4, Gesamtzahl sichtbarer Texturen: [NUM]
+	</text>
+	<text name="total_num_visible_tex_fetch_req_label">
+		5, Gesamtzahl von Abrufanforderungen für sichtbare Texturen: [NUM]
+	</text>
+	<text name="total_fetched_data_label">
+		6, Gesamtmenge abgerufener Daten: [SIZE1] KB, decodierte Daten: [SIZE2] KB, [PIXEL] MPixel
+	</text>
+	<text name="total_fetched_vis_data_label">
+		7, Gesamtmenge sichtbarer Daten: [SIZE1] KB, decodierte Daten: [SIZE2] KB
+	</text>
+	<text name="total_fetched_rendered_data_label">
+		8, Gesamtmenge dargestellter Daten: [SIZE1] KB, decodierte Daten: [SIZE2] KB, [PIXEL] MPixel
+	</text>
+	<text name="total_time_cache_read_label">
+		9, Gesamtzeit Cache-Lesezugriffe: [TIME] s
+	</text>
+	<text name="total_time_cache_write_label">
+		10, Gesamtzeit Cache-Schreibzugriffe: [TIME] s
+	</text>
+	<text name="total_time_decode_label">
+		11, Gesamtzeit Decodierung: [TIME] s
+	</text>
+	<text name="total_time_gl_label">
+		12, Gesamtzeit GL-Texturerstellung: [TIME] s
+	</text>
+	<text name="total_time_http_label">
+		13, Gesamtzeit HTTP-Abrufe: [TIME] s
+	</text>
+	<text name="total_time_fetch_label">
+		14, Gesamtzeit für alle Abrufe: [TIME] s
+	</text>
+	<text name="total_time_refetch_vis_cache_label">
+		15, Neuabruf sichtbarer Texturen aus Cache, Zeit: [TIME] s, Abrufmenge: [SIZE2] KB, [PIXEL] MPixel
+	</text>
+	<text name="total_time_refetch_vis_http_label">
+		16, Neuabruf sichtbarer Texturen von HTTP, Zeit: [TIME] s, Abrufmenge: [SIZE2] KB, [PIXEL] MPixel
+	</text>
+	<spinner label="17, Verhältnis Texel/Pixel:" name="texel_pixel_ratio"/>
+	<button label="Starten" name="start_btn"/>
+	<button label="Zurücksetzen" name="clear_btn"/>
+	<button label="Schließen" name="close_btn"/>
+	<button label="Cache-Lesezugriff" name="cacheread_btn"/>
+	<button label="Cache-Schreibzugriff" name="cachewrite_btn"/>
+	<button label="HTTP" name="http_btn"/>
+	<button label="Decodieren" name="decode_btn"/>
+	<button label="GL-Textur" name="gl_btn"/>
+	<button label="Neuabruf sichtbarer Texturen (Cache)" name="refetchviscache_btn"/>
+	<button label="Neuabruf sichtbarer Texturen (HTTP)" name="refetchvishttp_btn"/>
+</floater>

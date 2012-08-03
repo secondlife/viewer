@@ -886,6 +886,9 @@ support@secondlife.com にお問い合わせください。
 	<string name="ScriptQuestionCautionChatDenied">
 		[REGIONNAME] の [REGIONPOS] という場所にある、「 [OWNERNAME] 」が所有する「 [OBJECTNAME] 」というオブジェクトは、次の権限を拒否しました： [PERMISSIONS]
 	</string>
+	<string name="AdditionalPermissionsRequestHeader">
+		あなたのアカウントへのアクセスを許可すると、このオブジェクトには次の操作も許可されます：
+	</string>
 	<string name="ScriptTakeMoney">
 		リンデンドル（L$）を支払う
 	</string>
@@ -918,6 +921,9 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="ControlYourCamera">
 		カメラのコントロール
+	</string>
+	<string name="TeleportYourAgent">
+		あなたをテレポート
 	</string>
 	<string name="NotConnected">
 		接続されていません
