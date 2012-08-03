@@ -213,8 +213,8 @@
             </layout_panel>
             <layout_panel
              height="248"
-             width="234"
-          layout="topleft"
+             width="230"
+             layout="topleft"
              follows="all"
              left_delta="0"
              top_delta="0"
@@ -231,28 +231,29 @@
          name="chat_history"
          parse_highlights="true"
          parse_urls="true"
-        left="1"
-             		width="229">
+       	 width="230"
+       	 left="0">
         </chat_history>
             </layout_panel>
            </layout_stack>
            </panel>
             <chat_editor
-         bottom="0"
-              expand_lines_count="5"
-         follows="left|right|bottom"
-	 font="SansSerifSmall"
-              visible="true"
-         height="20"
-              is_expandable="true"
-         label="To"
-         layout="bottomleft"
-         name="chat_editor"
-              max_length="1023"
-         spellcheck="true"
-         tab_group="3"
-              width="240"
-              wrap="true">
+             bottom="0"
+             expand_lines_count="5"
+             follows="left|right|bottom"
+	         font="SansSerifSmall"
+             visible="true"
+             height="20"
+             is_expandable="true"
+             label="To"
+             layout="bottomleft"
+             name="chat_editor"
+             max_length="1023"
+             spellcheck="true"
+             tab_group="3"
+             width="220"
+             left="10"
+             wrap="true">
             </chat_editor>
     </layout_panel>
   </layout_stack>
