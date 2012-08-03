@@ -100,6 +100,7 @@ F32	 LLVoiceVisualizer::sAahPowerTransfersf = 0.0f;
 //-----------------------------------------------
 #ifdef XXX_STINSON_CHUI_REWORK
 LLVoiceVisualizer::LLVoiceVisualizer( const U8 type )
+	: LLHUDEffect(type)
 #else // XXX_STINSON_CHUI_REWORK
 LLVoiceVisualizer::LLVoiceVisualizer()
 	: LLRefCount(),

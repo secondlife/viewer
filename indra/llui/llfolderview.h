@@ -172,17 +172,19 @@ public:
 	BOOL isOpen() const { return TRUE; } // root folder always open
 
 	// Copy & paste
-	virtual void	copy();
 	virtual BOOL	canCopy() const;
+	virtual void	copy();
 
-	virtual void	cut();
 	virtual BOOL	canCut() const;
+	virtual void	cut();
 
-	virtual void	paste();
 	virtual BOOL	canPaste() const;
+	virtual void	paste();
 
-	virtual void	doDelete();
 	virtual BOOL	canDoDelete() const;
+	virtual void	doDelete();
+
+	LLFolderViewItem* getNextUnselectedItem();
 
 	// Public rename functionality - can only start the process
 	void startRenamingSelectedItem( void );

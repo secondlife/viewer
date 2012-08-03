@@ -42,6 +42,7 @@
 #ifndef LL_VOICE_VISUALIZER_H
 #define LL_VOICE_VISUALIZER_H
 
+#define XXX_STINSON_CHUI_REWORK // temporarily re-enabling the in-world voice-dot
 #ifdef XXX_STINSON_CHUI_REWORK
 #include "llhudeffect.h"
 #else // XXX_STINSON_CHUI_REWORK
