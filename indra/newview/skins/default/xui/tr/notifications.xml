@@ -1176,8 +1176,6 @@ Yeni bir ana konum ayarlamak isteyebilirsiniz.
 		[APP_NAME] kurulumu tamamlandı.
 
 [SECOND_LIFE]&apos;ı ilk kez kullanıyorsanız, oturum açmadan önce bir hesap oluşturmalısınız.
-
-Yeni bir hesap oluşturmak için [[create_account_url] [SECOND_LIFE] web site] adresine dönülsün mü?
 		<usetemplate name="okcancelbuttons" notext="Devam" yestext="Yeni Hesap..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">

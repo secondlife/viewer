@@ -2928,13 +2928,11 @@ You can use [SECOND_LIFE] normally and other people will see you correctly.
 [APP_NAME] installation is complete.
 
 If this is your first time using [SECOND_LIFE], you will need to create an account before you can log in.
-
-Visit [[create_account_url] [SECOND_LIFE] web site] to create a new account?
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Continue"
-     yestext="New Account..."/>
+     yestext="Create Account..."/>
   </notification>
 
   <notification

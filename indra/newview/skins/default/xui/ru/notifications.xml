@@ -1176,8 +1176,6 @@
 		Установка [APP_NAME] завершена.
 
 Если вы используете [SECOND_LIFE] впервые, для входа в программу вам потребуется создать аккаунт.
-
-Вернуться на [[create_account_url] [SECOND_LIFE] web site] для создания аккаунта?
 		<usetemplate name="okcancelbuttons" notext="Продолжить" yestext="Создать аккаунт..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">

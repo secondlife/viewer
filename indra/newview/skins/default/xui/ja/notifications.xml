@@ -1210,8 +1210,6 @@ L$ は返金されません。
 		[APP_NAME] のインストールが完了しました。
 
 [SECOND_LIFE] を使ったことがない場合は、ログインする前にアカウントの作成を行ってください。
-
-[[create_account_url] [SECOND_LIFE] web site] で新しいアカウントを作成しますか？
 		<usetemplate name="okcancelbuttons" notext="続行" yestext="新規アカウント..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">
