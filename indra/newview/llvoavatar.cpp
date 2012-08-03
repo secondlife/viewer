@@ -34,6 +34,8 @@
 
 #include "llvoavatar.h"
 
+#define XXX_STINSON_CHUI_REWORK // temporarily re-enabling the in-world voice-dot
+
 #include <stdio.h>
 #include <ctype.h>
 

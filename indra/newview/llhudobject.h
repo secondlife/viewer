@@ -39,6 +39,8 @@
 #include "lldrawpool.h"		// TODO: eliminate, unused below
 #include <list>
 
+#define XXX_STINSON_CHUI_REWORK // temporarily re-enabling the in-world voice-dot
+
 class LLViewerCamera;
 class LLFontGL;
 class LLFace;
