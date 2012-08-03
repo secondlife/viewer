@@ -99,7 +99,7 @@ private:
  * To distinguish two conversations with the same sessionID it's also needed to compare their creation date.
  */
 
-class LLConversationLog : public LLSingleton<LLConversationLog>, LLIMSessionObserver, LLFriendObserver
+class LLConversationLog : public LLSingleton<LLConversationLog>, LLIMSessionObserver
 {
 	friend class LLSingleton<LLConversationLog>;
 public:
@@ -126,8 +126,8 @@ public:
 	virtual void sessionRemoved(const LLUUID& session_id){}										// Stub
 	virtual void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id){}	// Stub
 
-	// LLFriendObserver trigger
-	virtual void changed(U32 mask);
+	// Triggered by LLFriendObserver change
+	void notifyObservers();
 
 	/**
 	 * public method which is called on viewer exit to save conversation log
@@ -137,7 +137,6 @@ public:
 private:
 
 	LLConversationLog();
-	void notifyObservers();
 
 	/**
 	 * constructs file name in which conversations log will be saved
@@ -152,6 +151,8 @@ private:
 	typedef std::vector<LLConversation> conversations_vec_t;
 	std::vector<LLConversation>				mConversations;
 	std::set<LLConversationLogObserver*>	mObservers;
+
+	LLFriendObserver* mFriendObserver;		// Observer of the LLAvatarTracker instance
 };
 
 class LLConversationLogObserver

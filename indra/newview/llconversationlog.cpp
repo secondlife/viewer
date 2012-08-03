@@ -140,6 +140,31 @@ void LLConversation::setListenIMFloaterOpened()
 	}
 }
 /************************************************************************/
+/*             LLConversationLogFriendObserver implementation           */
+/************************************************************************/
+
+// Note : An LLSingleton like LLConversationLog cannot be an LLFriendObserver 
+// at the same time.
+// This is because avatar observers are deleted by the observed object which 
+// conflicts with the way LLSingleton are deleted.
+
+class LLConversationLogFriendObserver : public LLFriendObserver
+{
+public:
+	LLConversationLogFriendObserver() {}
+	virtual ~LLConversationLogFriendObserver() {}
+	virtual void changed(U32 mask);
+};
+
+void LLConversationLogFriendObserver::changed(U32 mask)
+{
+	if (mask & (LLFriendObserver::ADD | LLFriendObserver::REMOVE))
+	{
+		LLConversationLog::instance().notifyObservers();
+	}
+}
+
+/************************************************************************/
 /*             LLConversationLog implementation                         */
 /************************************************************************/
 
@@ -148,7 +173,9 @@ LLConversationLog::LLConversationLog()
 	loadFromFile(getFileName());
 
 	LLIMMgr::instance().addSessionObserver(this);
-	LLAvatarTracker::instance().addObserver(this);
+	
+	mFriendObserver = new LLConversationLogFriendObserver;
+	LLAvatarTracker::instance().addObserver(mFriendObserver);
 }
 void LLConversationLog::logConversation(const LLConversation& conversation)
 {
@@ -201,15 +228,6 @@ void LLConversationLog::sessionAdded(const LLUUID& session_id, const std::string
 	{
 		LLConversation conversation(*session);
 		LLConversationLog::instance().logConversation(conversation);
-	}
-}
-
-// LLFriendObserver
-void LLConversationLog::changed(U32 mask)
-{
-	if (mask & (LLFriendObserver::ADD | LLFriendObserver::REMOVE))
-	{
-		notifyObservers();
 	}
 }
 
