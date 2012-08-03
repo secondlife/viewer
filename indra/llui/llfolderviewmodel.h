@@ -245,9 +245,9 @@ public:
 			mParent->dirtyFilter();
 		}	
 	}
-	bool hasFilterStringMatch() { return mStringMatchOffsetFilter != std::string::npos; }
-	std::string::size_type getFilterStringOffset() { return mStringMatchOffsetFilter; }
-	std::string::size_type getFilterStringSize() { return mStringFilterSize; }
+	bool hasFilterStringMatch();
+	std::string::size_type getFilterStringOffset();
+	std::string::size_type getFilterStringSize();
 	
 	virtual void addChild(LLFolderViewModelItem* child) 
 	{ 

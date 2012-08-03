@@ -51,3 +51,18 @@ void LLFolderViewModelCommon::filter()
 	getFilter().setFilterCount(llclamp(LLUI::sSettingGroups["config"]->getS32("FilterItemsPerFrame"), 1, 5000));
 	mFolderView->getViewModelItem()->filter(getFilter());
 }
+
+bool LLFolderViewModelItemCommon::hasFilterStringMatch()
+{
+	return mStringMatchOffsetFilter != std::string::npos;
+}
+
+std::string::size_type LLFolderViewModelItemCommon::getFilterStringOffset()
+{
+	return mStringMatchOffsetFilter;
+}
+
+std::string::size_type LLFolderViewModelItemCommon::getFilterStringSize()
+{
+	return mRootViewModel.getFilter().getFilterStringSize();
+}

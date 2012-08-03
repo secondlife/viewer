@@ -46,9 +46,6 @@ class LLFolderViewModelInterface;
 class LLFolderViewItem : public LLView
 {
 public:
-	static void initClass();
-	static void cleanupClass();
-
 	struct Params : public LLInitParam::Block<Params, LLView::Params>
 	{
 		Optional<LLUIImage*>						folder_arrow_image,
@@ -67,20 +64,17 @@ public:
 	};
 
 	// layout constants
-	static const S32 LEFT_PAD = 5;
-	// LEFT_INDENTATION is set via folder_indentation above
-	static const S32 ICON_PAD = 2;
-	static const S32 ICON_WIDTH = 16;
-	static const S32 TEXT_PAD = 1;
-	static const S32 TEXT_PAD_RIGHT = 4;
-	static const S32 ARROW_SIZE = 12;
-	static const S32 MAX_FOLDER_ITEM_OVERLAP = 2;
+	static const S32	LEFT_PAD = 5,
+						ICON_PAD = 2,
+						ICON_WIDTH = 16,
+						TEXT_PAD = 1,
+						TEXT_PAD_RIGHT = 4,
+						ARROW_SIZE = 12,
+						MAX_FOLDER_ITEM_OVERLAP = 2;
+	
 	// animation parameters
-	static const F32 FOLDER_CLOSE_TIME_CONSTANT;
-	static const F32 FOLDER_OPEN_TIME_CONSTANT;
-
-private:
-	BOOL						mIsSelected;
+	static const F32	FOLDER_CLOSE_TIME_CONSTANT,
+						FOLDER_OPEN_TIME_CONSTANT;
 
 protected:
 	friend class LLUICtrlFactory;
@@ -95,9 +89,9 @@ protected:
 	LLFolderViewModelItem*		mViewModelItem;
 	LLFontGL::StyleFlags		mLabelStyle;
 	std::string					mLabelSuffix;
-	LLUIImagePtr				mIcon;
-	LLUIImagePtr				mIconOpen;
-	LLUIImagePtr				mIconOverlay;
+	LLUIImagePtr				mIcon,
+								mIconOpen,
+								mIconOverlay;
 	S32							mIndentation;
 	S32							mItemHeight;
 	S32							mDragStartX,
@@ -105,12 +99,12 @@ protected:
 
 	F32							mControlLabelRotation;
 	LLFolderView*				mRoot;
-	bool						mHasVisibleChildren;
-	bool						mIsCurSelection;
-	bool						mDragAndDropTarget;
-	bool						mIsMouseOverTitle;
-	bool						mAllowOpen;
-	bool						mSelectPending;
+	bool						mHasVisibleChildren,
+								mIsCurSelection,
+								mDragAndDropTarget,
+								mIsMouseOverTitle,
+								mAllowOpen,
+								mSelectPending;
 
 	// this is an internal method used for adding items to folders. A
 	// no-op at this level, but reimplemented in derived classes.
@@ -119,7 +113,13 @@ protected:
 
 	static LLFontGL* getLabelFontForStyle(U8 style);
 
+private:
+	BOOL						mIsSelected;
+
 public:
+	static void initClass();
+	static void cleanupClass();
+
 	BOOL postBuild();
 
 	virtual void openItem( void );
@@ -191,7 +191,6 @@ public:
 	// contents possible before the entire view has been constructed.
 	const std::string& getLabel() const { return mLabel; }
 
-
 	LLFolderViewFolder* getParentFolder( void ) { return mParentFolder; }
 	const LLFolderViewFolder* getParentFolder( void ) const { return mParentFolder; }
 
@@ -209,8 +208,7 @@ public:
 	// just rename the object.
 	void rename(const std::string& new_name);
 
-
-	// Show children (unfortunate that this is called "open")
+	// Show children
 	virtual void setOpen(BOOL open = TRUE) {};
 	virtual BOOL isOpen() const { return FALSE; }
 
@@ -238,10 +236,10 @@ public:
 	//	virtual void handleDropped();
 	virtual void draw();
 	virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
-		EDragAndDropType cargo_type,
-		void* cargo_data,
-		EAcceptance* accept,
-		std::string& tooltip_msg);
+									EDragAndDropType cargo_type,
+									void* cargo_data,
+									EAcceptance* accept,
+									std::string& tooltip_msg);
 
 private:
 	static std::map<U8, LLFontGL*> sFonts; // map of styles to fonts
@@ -262,7 +260,6 @@ protected:
 	friend class LLUICtrlFactory;
 
 public:
-
 	typedef std::list<LLFolderViewItem*> items_t;
 	typedef std::list<LLFolderViewFolder*> folders_t;
 
@@ -330,12 +327,6 @@ public:
 	// destroys this folder, and all children
 	virtual void destroyView();
 
-	// If this folder can be removed, remove all children that can be
-	// removed, return TRUE if this is empty after the operation and
-	// it's viewed folder object can be removed.
-	//virtual BOOL removeRecursively(BOOL single_item);
-	//virtual BOOL remove();
-
 	// extractItem() removes the specified item from the folder, but
 	// doesn't delete it.
 	virtual void extractItem( LLFolderViewItem* item );
@@ -366,16 +357,17 @@ public:
 
 	// special case if an object is dropped on the child.
 	BOOL handleDragAndDropFromChild(MASK mask,
-		BOOL drop,
-		EDragAndDropType cargo_type,
-		void* cargo_data,
-		EAcceptance* accept,
-		std::string& tooltip_msg);
+									BOOL drop,
+									EDragAndDropType cargo_type,
+									void* cargo_data,
+									EAcceptance* accept,
+									std::string& tooltip_msg);
 
-	void applyFunctorRecursively(LLFolderViewFunctor& functor);
 
 	// Just apply this functor to the folder's immediate children.
 	void applyFunctorToChildren(LLFolderViewFunctor& functor);
+	// apply this functor to the folder's descendants.
+	void applyFunctorRecursively(LLFolderViewFunctor& functor);
 
 	virtual void openItem( void );
 
@@ -384,12 +376,14 @@ public:
 	virtual BOOL handleRightMouseDown( S32 x, S32 y, MASK mask );
 	virtual BOOL handleMouseDown( S32 x, S32 y, MASK mask );
 	virtual BOOL handleDoubleClick( S32 x, S32 y, MASK mask );
-	virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
-		EDragAndDropType cargo_type,
-		void* cargo_data,
-		EAcceptance* accept,
-		std::string& tooltip_msg);
-	BOOL handleDragAndDropToThisFolder(MASK mask, BOOL drop,
+	virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, 
+									BOOL drop,
+									EDragAndDropType cargo_type,
+									void* cargo_data,
+									EAcceptance* accept,
+									std::string& tooltip_msg);
+	BOOL handleDragAndDropToThisFolder(MASK mask, 
+										BOOL drop,
 									   EDragAndDropType cargo_type,
 									   void* cargo_data,
 									   EAcceptance* accept,
