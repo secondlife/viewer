@@ -908,9 +908,11 @@ void LLPanelLogin::updateServer()
 
 			// update the login panel links 
 			bool system_grid = LLGridManager::getInstance()->isSystemGrid();
-	
-			sInstance->getChildView("create_new_account_btn")->setVisible( system_grid);
-			sInstance->getChildView("forgot_password_text")->setVisible( system_grid);
+
+			// Want to vanish not only create_new_account_btn, but also the
+			// title text over it, so turn on/off the whole layout_panel element.
+			sInstance->getChild<LLLayoutPanel>("links")->setVisible(system_grid);
+			sInstance->getChildView("forgot_password_text")->setVisible(system_grid);
 
 			// grid changed so show new splash screen (possibly)
 			loadLoginPage();
