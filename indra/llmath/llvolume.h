@@ -54,6 +54,7 @@ class LLVolumeTriangle;
 #include "llstrider.h"
 #include "v4coloru.h"
 #include "llrefcount.h"
+#include "llpointer.h"
 #include "llfile.h"
 
 //============================================================================
@@ -918,6 +919,10 @@ public:
 	LLVector4a* mBinormals;
 	LLVector2*  mTexCoords;
 	U16* mIndices;
+
+	//vertex buffer filled in by LLFace to cache this volume face geometry in vram 
+	// (declared as a LLPointer to LLRefCount to avoid dependency on LLVertexBuffer)
+	mutable LLPointer<LLRefCount> mVertexBuffer; 
 
 	std::vector<S32>	mEdge;
 

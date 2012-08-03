@@ -110,9 +110,6 @@ void click_show_more(void*);
 void click_popup_info(void*);
 void click_popup_done(void*);
 void click_popup_minimize(void*);
-void click_popup_rotate_left(void*);
-void click_popup_rotate_reset(void*);
-void click_popup_rotate_right(void*);
 void commit_slider_dozer_force(LLUICtrl *);
 void click_apply_to_selection(void*);
 void commit_radio_group_focus(LLUICtrl* ctrl);
@@ -136,6 +133,7 @@ public:
 		if(tools_floater)
 		{
 			tools_floater->updateLandImpacts();
+			tools_floater->dirty();
 		}
 	}
 };
@@ -954,24 +952,6 @@ void commit_slider_zoom(LLUICtrl *ctrl)
 	gAgentCamera.setCameraZoomFraction(zoom_level);
 }
 
-void click_popup_rotate_left(void*)
-{
-	LLSelectMgr::getInstance()->selectionRotateAroundZ( 45.f );
-	dialog_refresh_all();
-}
-
-void click_popup_rotate_reset(void*)
-{
-	LLSelectMgr::getInstance()->selectionResetRotation();
-	dialog_refresh_all();
-}
-
-void click_popup_rotate_right(void*)
-{
-	LLSelectMgr::getInstance()->selectionRotateAroundZ( -45.f );
-	dialog_refresh_all();
-}
-
 void commit_slider_dozer_force(LLUICtrl *ctrl)
 {
 	// the slider is logarithmic, so we exponentiate to get the actual force multiplier
@@ -1218,7 +1198,10 @@ void LLFloaterTools::getMediaState()
 		return;
 	}
 	
-	bool editable = (first_object->permModify() || selectedMediaEditable());
+	BOOL is_nonpermanent_enforced = (LLSelectMgr::getInstance()->getSelection()->getFirstRootNode() 
+		&& LLSelectMgr::getInstance()->selectGetRootsNonPermanentEnforced())
+		|| LLSelectMgr::getInstance()->selectGetNonPermanentEnforced();
+	bool editable = is_nonpermanent_enforced && (first_object->permModify() || selectedMediaEditable());
 
 	// Check modify permissions and whether any selected objects are in
 	// the process of being fetched.  If they are, then we're not editable

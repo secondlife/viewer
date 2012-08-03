@@ -116,7 +116,6 @@ LLGLuint LLTextureAtlas::insertSubTexture(LLImageGL* source_gl_tex, S32 discard_
 		return 0 ;
 	}
 
-	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, TRUE);
 	glTexSubImage2D(GL_TEXTURE_2D, 0, xoffset, yoffset, w, h,
 						mGLTexturep->getPrimaryFormat(), mGLTexturep->getFormatType(), raw_image->getData());
 	

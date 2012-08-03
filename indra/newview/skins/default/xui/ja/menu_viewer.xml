@@ -227,11 +227,10 @@
 			<menu_item_check label="テクスチャのコンソール" name="Texture Console"/>
 			<menu_item_check label="デバッグコンソール" name="Debug Console"/>
 			<menu_item_call label="通知コンソール" name="Notifications"/>
-			<menu_item_check label="テクスチャサイズのコンソール" name="Texture Size"/>
-			<menu_item_check label="テクスチャカテゴリのコンソール" name="Texture Category"/>
 			<menu_item_check label="ファーストタイマー" name="Fast Timers"/>
 			<menu_item_check label="メモリ" name="Memory"/>
 			<menu_item_check label="風景の統計" name="Scene Statistics"/>
+			<menu_item_call label="テクスチャ取得デバッグコンソール" name="Texture Fetch Debug Console"/>
 			<menu_item_call label="リージョン情報をデバッグコンソールへ" name="Region Info to Debug Console"/>
 			<menu_item_call label="グループ情報をデバッグコンソールへ" name="Group Info to Debug Console"/>
 			<menu_item_call label="性能情報をデバッグコンソールへ" name="Capabilities Info to Debug Console"/>
@@ -289,6 +288,12 @@
 			<menu_item_check label="描画の詳細度" name="rendercomplexity"/>
 			<menu_item_check label="添付アイテムのバイト数" name="attachment bytes"/>
 			<menu_item_check label="スカルプト" name="Sculpt"/>
+			<menu label="テクスチャの密度" name="Texture Density">
+				<menu_item_check label="なし" name="None"/>
+				<menu_item_check label="現在" name="Current"/>
+				<menu_item_check label="望ましい" name="Desired"/>
+				<menu_item_check label="フル" name="Full"/>
+			</menu>
 		</menu>
 		<menu label="レンダリング" name="Rendering">
 			<menu_item_check label="軸" name="Axes"/>
@@ -306,7 +311,6 @@
 			<menu_item_check label="アニメーションテクスチャ" name="Animation Textures"/>
 			<menu_item_check label="テクスチャを無効にする" name="Disable Textures"/>
 			<menu_item_check label="フル解像度テクスチャ" name="Rull Res Textures"/>
-			<menu_item_check label="テクスチャの検査" name="Audit Textures"/>
 			<menu_item_check label="テクスチャアトラス（試験段階）" name="Texture Atlas"/>
 			<menu_item_check label="装着された光源を描画する" name="Render Attached Lights"/>
 			<menu_item_check label="取り付けられたパーティクルを描画する" name="Render Attached Particles"/>

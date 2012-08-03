@@ -476,7 +476,7 @@ void LLViewerPartSim::checkParticleCount(U32 size)
 LLViewerPartSim::LLViewerPartSim()
 {
 	LLMemType mt(LLMemType::MTYPE_PARTICLES);
-	sMaxParticleCount = gSavedSettings.getS32("RenderMaxPartCount");
+	sMaxParticleCount = llmin(gSavedSettings.getS32("RenderMaxPartCount"), LL_MAX_PARTICLE_COUNT);
 	static U32 id_seed = 0;
 	mID = ++id_seed;
 }

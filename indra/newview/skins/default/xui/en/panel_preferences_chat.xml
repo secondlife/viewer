@@ -207,13 +207,36 @@
   <button
    follows="left|top"
    height="23"
-   label="Chat Translation Settings"
+   label="Translation..."
    layout="topleft"
    left="30"
    name="ok_btn"
-   top="-40"
+   top="-50"
    width="170">
    <button.commit_callback
     function="Pref.TranslationSettings" />
   </button>
+  <button
+   follows="top|left"
+   height="23"
+   layout="topleft"
+   top_pad="-23"
+   left_pad="5"
+   name="autoreplace_showgui"
+   commit_callback.function="Pref.AutoReplace"
+   label="Auto-Replace..."
+   width="150">
+  </button>
+  <button
+   follows="top|left"
+   height="23"
+   layout="topleft"
+   top_pad="-23"
+   left_pad="5"
+   name="spellcheck_showgui"
+   commit_callback.function="Pref.SpellChecker"
+   label="Spell Checking..."
+   width="150">
+  </button>
+
 </panel>

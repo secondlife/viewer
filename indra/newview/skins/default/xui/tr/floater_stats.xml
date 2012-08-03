@@ -14,8 +14,11 @@
 					<stat_bar label="Saniyede Bir Çizilen Üçgenler" name="ktrissec"/>
 					<stat_bar label="Toplam Nesne" name="objs"/>
 					<stat_bar label="Yeni Nesne" name="newobjs"/>
+					<stat_bar label="Nesne Önbellek İsabet Oranı" name="object_cache_hits"/>
 				</stat_view>
 				<stat_view label="Doku" name="texture">
+					<stat_bar label="Önbellek İsabet Oranı" name="texture_cache_hits"/>
+					<stat_bar label="Önbellek Okuma Gecikme Süresi" name="texture_cache_read_latency"/>
 					<stat_bar label="Sayım" name="numimagesstat"/>
 					<stat_bar label="Ham Sayım" name="numrawimagesstat"/>
 					<stat_bar label="GL Belleği" name="gltexmemstat"/>
