@@ -340,6 +340,7 @@ void LLInventoryPanel::setSortOrder(U32 order)
 	if (order != getFolderViewModel()->getSorter().getSortOrder())
 	{
 		getFolderViewModel()->setSorter(sorter);
+		mFolderRoot->arrangeAll();
 		// try to keep selection onscreen, even if it wasn't to start with
 		mFolderRoot->scrollToShowSelection();
 	}
