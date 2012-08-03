@@ -75,13 +75,15 @@ LLInventoryObject::LLInventoryObject(const LLUUID& uuid,
 	mUUID(uuid),
 	mParentUUID(parent_uuid),
 	mType(type),
-	mName(name)
+	mName(name),
+	mCreationDate(0)
 {
 	correctInventoryName(mName);
 }
 
 LLInventoryObject::LLInventoryObject() :
-	mType(LLAssetType::AT_NONE)
+	mType(LLAssetType::AT_NONE),
+	mCreationDate(0)
 {
 }
 
