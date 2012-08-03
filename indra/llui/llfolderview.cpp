@@ -749,28 +749,18 @@ void LLFolderView::removeSelectedItems()
 		// iterate through the new container.
 		count = items.size();
 		LLUUID new_selection_id;
+		LLFolderViewItem* item_to_select = getNextUnselectedItem();
+
 		if(count == 1)
 		{
 			LLFolderViewItem* item_to_delete = items[0];
 			LLFolderViewFolder* parent = item_to_delete->getParentFolder();
-			LLFolderViewItem* new_selection = item_to_delete->getNextOpenNode(FALSE);
-			if (!new_selection)
-			{
-				new_selection = item_to_delete->getPreviousOpenNode(FALSE);
-			}
 			if(parent)
 			{
 				if (item_to_delete->remove())
 				{
 					// change selection on successful delete
-					if (new_selection)
-					{
-						getRoot()->setSelection(new_selection, new_selection->isOpen(), mParentPanel->hasFocus());
-					}
-					else
-					{
-						getRoot()->setSelection(NULL, mParentPanel->hasFocus());
-					}
+					setSelection(item_to_select, item_to_select ? item_to_select->isOpen() : false, mParentPanel->hasFocus());
 				}
 			}
 			arrangeAll();
@@ -779,28 +769,8 @@ void LLFolderView::removeSelectedItems()
 		{
 			LLDynamicArray<LLFolderViewModelItem*> listeners;
 			LLFolderViewModelItem* listener;
-			LLFolderViewItem* last_item = items[count - 1];
-			LLFolderViewItem* new_selection = last_item->getNextOpenNode(FALSE);
-			while(new_selection && new_selection->isSelected())
-			{
-				new_selection = new_selection->getNextOpenNode(FALSE);
-			}
-			if (!new_selection)
-			{
-				new_selection = last_item->getPreviousOpenNode(FALSE);
-				while (new_selection && (new_selection->isInSelection()))
-				{
-					new_selection = new_selection->getPreviousOpenNode(FALSE);
-				}
-			}
-			if (new_selection)
-			{
-				getRoot()->setSelection(new_selection, new_selection->isOpen(), mParentPanel->hasFocus());
-			}
-			else
-			{
-				getRoot()->setSelection(NULL, mParentPanel->hasFocus());
-			}
+
+			setSelection(item_to_select, item_to_select ? item_to_select->isOpen() : false, mParentPanel->hasFocus());
 
 			for(S32 i = 0; i < count; ++i)
 			{
@@ -1032,28 +1002,13 @@ void LLFolderView::cut()
 	S32 count = mSelectedItems.size();
 	if(getVisible() && getEnabled() && (count > 0))
 	{
-		LLFolderViewModelItem* listener = NULL;
-
-		LLFolderViewItem* last_item = *mSelectedItems.rbegin();;
-		LLFolderViewItem* new_selection = last_item->getNextOpenNode(FALSE);
-		while(new_selection && new_selection->isSelected())
-		{
-			new_selection = new_selection->getNextOpenNode(FALSE);
-		}
-		if (!new_selection)
-		{
-			new_selection = last_item->getPreviousOpenNode(FALSE);
-			while (new_selection && (new_selection->isInSelection()))
-			{
-				new_selection = new_selection->getPreviousOpenNode(FALSE);
-			}
-		}
+		LLFolderViewItem* item_to_select = getNextUnselectedItem();
 
 		selected_items_t::iterator item_it;
 		for (item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
 		{
 			LLFolderViewItem* item_to_cut = *item_it;
-			listener = item_to_cut->getViewModelItem();
+			LLFolderViewModelItem* listener = item_to_cut->getViewModelItem();
 			if(listener)
 			{
 				listener->cutToClipboard();
@@ -1061,14 +1016,7 @@ void LLFolderView::cut()
 			}
 		}
 
-		if (new_selection)
-		{
-			setSelection(new_selection, new_selection->isOpen(), mParentPanel->hasFocus());
-		}
-		else
-		{
-			setSelection(NULL, mParentPanel->hasFocus());
-		}
+		setSelection(item_to_select, item_to_select ? item_to_select->isOpen() : false, mParentPanel->hasFocus());
 	}
 	mSearchString.clear();
 }
@@ -1274,12 +1222,12 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 					if (next->isSelected())
 					{
 						// shrink selection
-						getRoot()->changeSelection(last_selected, FALSE);
+						changeSelection(last_selected, FALSE);
 					}
 					else if (last_selected->getParentFolder() == next->getParentFolder())
 					{
 						// grow selection
-						getRoot()->changeSelection(next, TRUE);
+						changeSelection(next, TRUE);
 					}
 				}
 			}
@@ -1338,12 +1286,12 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 					if (prev->isSelected())
 					{
 						// shrink selection
-						getRoot()->changeSelection(last_selected, FALSE);
+						changeSelection(last_selected, FALSE);
 					}
 					else if (last_selected->getParentFolder() == prev->getParentFolder())
 					{
 						// grow selection
-						getRoot()->changeSelection(prev, TRUE);
+						changeSelection(prev, TRUE);
 					}
 				}
 			}
@@ -2087,4 +2035,23 @@ S32 LLFolderView::getItemHeight()
 		return llmax(0, mStatusTextBox->getTextPixelHeight());
 	}
 	return 0;
+}
+
+LLFolderViewItem* LLFolderView::getNextUnselectedItem()
+{
+	LLFolderViewItem* last_item = *mSelectedItems.rbegin();
+	LLFolderViewItem* new_selection = last_item->getNextOpenNode(FALSE);
+	while(new_selection && new_selection->isSelected())
+	{
+		new_selection = new_selection->getNextOpenNode(FALSE);
+	}
+	if (!new_selection)
+	{
+		new_selection = last_item->getPreviousOpenNode(FALSE);
+		while (new_selection && (new_selection->isInSelection()))
+		{
+			new_selection = new_selection->getPreviousOpenNode(FALSE);
+		}
+	}
+	return new_selection;
 }

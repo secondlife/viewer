@@ -607,9 +607,25 @@ void LLInventoryPanel::idle(void* user_data)
 	if (panel->mClipboardState != LLClipboard::instance().getGeneration())
 	{
 		panel->mClipboardState = LLClipboard::instance().getGeneration();
-		panel->getFilter().setModified(LLClipboard::instance().isCutMode() 
-										? LLInventoryFilter::FILTER_MORE_RESTRICTIVE 
-										: LLInventoryFilter::FILTER_LESS_RESTRICTIVE);
+		if (LLClipboard::instance().isCutMode())
+		{
+			LLDynamicArray<LLUUID> objects;
+			LLClipboard::instance().pasteFromClipboard(objects);
+
+			for (LLDynamicArray<LLUUID>::iterator it = objects.begin(), end_it = objects.end();
+				it != end_it;
+				++it)
+			{
+				LLFolderViewItem* item = panel->getItemByID(*it);
+				if (item)
+				{
+					item->getViewModelItem()->dirtyFilter();
+				}
+			}
+			/*panel->getFilter().setModified(LLClipboard::instance().isCutMode() 
+			? LLInventoryFilter::FILTER_MORE_RESTRICTIVE 
+			: LLInventoryFilter::FILTER_LESS_RESTRICTIVE);*/
+		}
 	}
 
 	panel->mFolderRoot->update();
