@@ -2194,7 +2194,7 @@ namespace LLInitParam
 				resetToDefault();
 			}
 			return mValue.deserializeBlock(p, name_stack_range, new_name);
-			}
+		}
 
 		void serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const self_t* diff_block = NULL) const
 		{
@@ -2211,12 +2211,16 @@ namespace LLInitParam
 
 		bool mergeBlockParam(bool source_provided, bool dst_provided, BlockDescriptor& block_data, const self_t& source, bool overwrite)
 		{
-			if (overwrite)
+			if ((overwrite && source_provided) // new values coming in on top or...
+				|| (!overwrite && !dst_provided)) // values being pushed under with nothing already there
 			{
+				// clear away what is there and take the new stuff as a whole
 				resetToDefault();
 				return mValue.mergeBlock(block_data, source.getValue(), overwrite);
 			}
-			return false;
+			
+
+			return mValue.mergeBlock(block_data, source.getValue(), overwrite);
 		}
 
 		bool validateBlock(bool emit_errors = true) const

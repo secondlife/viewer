@@ -335,15 +335,12 @@ namespace LLInitParam
 		{
 			const std::string& top_name = name_stack_range.first->first;
 
-			ParamDescriptor::deserialize_func_t deserialize_func = NULL;
-			Param* paramp = NULL;
-
 			BlockDescriptor::param_map_t::iterator found_it = block_data.mNamedParams.find(top_name);
 			if (found_it != block_data.mNamedParams.end())
 			{
 				// find pointer to member parameter from offset table
-				paramp = getParamFromHandle(found_it->second->mParamHandle);
-				deserialize_func = found_it->second->mDeserializeFunc;
+				Param* paramp = getParamFromHandle(found_it->second->mParamHandle);
+				ParamDescriptor::deserialize_func_t deserialize_func = found_it->second->mDeserializeFunc;
 					
 				Parser::name_stack_range_t new_name_stack(name_stack_range.first, name_stack_range.second);
 				++new_name_stack.first;
