@@ -624,7 +624,8 @@ void LLInventoryPanel::idle(void* user_data)
 		LLFolderViewFolder* trash_folder = panel->getFolderByID(trash_id);
 		if (trash_folder)
 		{
-			trash_folder->applyFunctorToChildren(DirtyFilterFunctor());
+            DirtyFilterFunctor dirtyFilterFunctor;
+			trash_folder->applyFunctorToChildren(dirtyFilterFunctor);
 		}
 
 	}
