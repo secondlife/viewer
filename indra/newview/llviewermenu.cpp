@@ -3940,6 +3940,7 @@ class LLViewToggleUI : public view_listener_t
 		if (option == 0) // OK
 		{
 			gViewerWindow->setUIVisibility(!gViewerWindow->getUIVisibility());
+			LLPanelStandStopFlying::getInstance()->setVisible(gViewerWindow->getUIVisibility());
 		}
 	}
 };
