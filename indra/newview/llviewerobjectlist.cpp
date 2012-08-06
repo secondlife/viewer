@@ -1854,13 +1854,10 @@ LLViewerObject *LLViewerObjectList::createObjectViewer(const LLPCode pcode, LLVi
 }
 
 
-static LLFastTimer::DeclareTimer FTM_CREATE_OBJECT("Create Object");
-
 LLViewerObject *LLViewerObjectList::createObject(const LLPCode pcode, LLViewerRegion *regionp,
 												 const LLUUID &uuid, const U32 local_id, const LLHost &sender)
 {
 	LLMemType mt(LLMemType::MTYPE_OBJECT);
-	LLFastTimer t(FTM_CREATE_OBJECT);
 	
 	LLUUID fullid;
 	if (uuid == LLUUID::null)
