@@ -821,11 +821,24 @@ class DarwinManifest(ViewerManifest):
             identity = self.args['signature']
             if identity == '':
                 identity = 'Developer ID Application'
-            self.run_command('codesign --force --sign %(identity)r %(bundle)r' % {
-							'identity': identity,
-							'bundle': self.get_dst_prefix()
-			})
-		
+
+            # Look for an environment variable set via build.sh when running in Team City.
+            try:
+                build_secrets_checkout = os.environ['build_secrets_checkout']
+            except KeyError:
+                pass
+            else:
+                # variable found so use it to unlock keyvchain followed by codesign
+                home_path = os.environ['HOME']
+                keychain_pwd_path = os.path.join(build_secrets_checkout,'code-signing-osx'.'password.txt')
+                keychain_pwd = open(keychain_pwd_path).read().rstrip()
+
+                self.run_command('security unlock-keychain -p "%s" "%s/Library/Keychains/developer.keychain"' % ( keychain_pwd, home_path ) )
+                self.run_command('codesign --force --sign --verboose %(identity)r %(bundle)r' % {
+                                 'identity': identity,
+                                  'bundle': self.get_dst_prefix()
+                })
+
         channel_standin = 'Second Life Viewer'  # hah, our default channel is not usable on its own
         if not self.default_channel():
             channel_standin = self.channel()
