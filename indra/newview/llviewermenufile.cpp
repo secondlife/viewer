@@ -494,7 +494,7 @@ class LLFileEnableCloseAllWindows : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool open_children = gFloaterView->allChildrenClosed();
+		bool open_children = gFloaterView->allChildrenClosed() && !LLFloaterSnapshot::getInstance()->isInVisibleChain();
 		return !open_children;
 	}
 };
@@ -505,7 +505,7 @@ class LLFileCloseAllWindows : public view_listener_t
 	{
 		bool app_quitting = false;
 		gFloaterView->closeAllChildren(app_quitting);
-
+		LLFloaterSnapshot::getInstance()->closeFloater(app_quitting);
 		return true;
 	}
 };
