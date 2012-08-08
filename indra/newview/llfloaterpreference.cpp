@@ -77,7 +77,7 @@
 #include "llviewerthrottle.h"
 #include "llvotree.h"
 #include "llvosky.h"
-
+#include "llfloaterpathfindingconsole.h"
 // linden library includes
 #include "llavatarnamecache.h"
 #include "llerror.h"
@@ -632,6 +632,13 @@ void LLFloaterPreference::cancel()
 	{
 		advanced_proxy_settings->cancel();
 	}
+	//Need to reload the navmesh if the pathing console is up
+	LLHandle<LLFloaterPathfindingConsole> pathfindingConsoleHandle = LLFloaterPathfindingConsole::getInstanceHandle();
+	if ( !pathfindingConsoleHandle.isDead() )
+	{
+		LLFloaterPathfindingConsole* pPathfindingConsole = pathfindingConsoleHandle.get();
+		pPathfindingConsole->onRegionBoundaryCross();
+	}
 }
 
 void LLFloaterPreference::onOpen(const LLSD& key)
@@ -779,7 +786,15 @@ void LLFloaterPreference::onBtnOK()
 		llinfos << "Can't close preferences!" << llendl;
 	}
 
-	LLPanelLogin::updateLocationSelectorsVisibility();
+	LLPanelLogin::updateLocationSelectorsVisibility();	
+	//Need to reload the navmesh if the pathing console is up
+	LLHandle<LLFloaterPathfindingConsole> pathfindingConsoleHandle = LLFloaterPathfindingConsole::getInstanceHandle();
+	if ( !pathfindingConsoleHandle.isDead() )
+	{
+		LLFloaterPathfindingConsole* pPathfindingConsole = pathfindingConsoleHandle.get();
+		pPathfindingConsole->onRegionBoundaryCross();
+	}
+	
 }
 
 // static 
