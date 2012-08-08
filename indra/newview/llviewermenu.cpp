@@ -3464,6 +3464,20 @@ bool enable_sitdown_self()
     return isAgentAvatarValid() && !gAgentAvatarp->isSitting() && !gAgent.getFlying();
 }
 
+class LLCheckPanelPeopleTab : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+		{
+			std::string panel_name = userdata.asString();
+
+			LLPanel *panel = LLFloaterSidePanelContainer::getPanel("people", panel_name);
+			if(panel && panel->isInVisibleChain())
+			{
+				return true;
+			}
+			return false;
+		}
+};
 // Toggle one of "People" panel tabs in side tray.
 class LLTogglePanelPeopleTab : public view_listener_t
 {
@@ -8553,6 +8567,7 @@ void initialize_menus()
 
 	// we don't use boost::bind directly to delay side tray construction
 	view_listener_t::addMenu( new LLTogglePanelPeopleTab(), "SideTray.PanelPeopleTab");
+	view_listener_t::addMenu( new LLCheckPanelPeopleTab(), "SideTray.CheckPanelPeopleTab");
 
 	 // Avatar pie menu
 	view_listener_t::addMenu(new LLObjectMute(), "Avatar.Mute");
