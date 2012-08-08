@@ -5598,7 +5598,8 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 		items.push_back(std::string("Wearable Edit"));
 
-		if ((flags & FIRST_SELECTED_ITEM) == 0)
+		bool modifiable = !gAgentWearables.isWearableModifiable(item->getUUID());
+		if (((flags & FIRST_SELECTED_ITEM) == 0) || modifiable)
 		{
 			disabled_items.push_back(std::string("Wearable Edit"));
 		}
