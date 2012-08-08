@@ -29,7 +29,6 @@
 
 #include "lldarray.h"
 #include "message.h" // TODO: babbage: Remove...
-#include "llstat.h"
 #include "llstl.h"
 
 class LLMsgVarData

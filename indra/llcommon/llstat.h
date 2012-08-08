@@ -27,12 +27,10 @@
 #ifndef LL_LLSTAT_H
 #define LL_LLSTAT_H
 
-#include <deque>
 #include <map>
 
 #include "lltimer.h"
 #include "llframetimer.h"
-#include "llfile.h"
 
 class	LLSD;
 
@@ -43,56 +41,31 @@ private:
 	typedef std::multimap<std::string, LLStat*> stat_map_t;
 	static stat_map_t sStatList;
 
-	void init();
-
 public:
-	LLStat(U32 num_bins = 32, BOOL use_frame_timer = FALSE);
-	LLStat(std::string name, U32 num_bins = 32, BOOL use_frame_timer = FALSE);
+	LLStat(std::string name = std::string(), S32 num_bins = 32, BOOL use_frame_timer = FALSE);
 	~LLStat();
-
-	void reset();
 
 	void start();	// Start the timer for the current "frame", otherwise uses the time tracked from
 					// the last addValue
+	void reset();
 	void addValue(const F32 value = 1.f); // Adds the current value being tracked, and tracks the DT.
 	void addValue(const S32 value) { addValue((F32)value); }
 	void addValue(const U32 value) { addValue((F32)value); }
 
-	void setBeginTime(const F64 time);
-	void addValueTime(const F64 time, const F32 value = 1.f);
-	
-	S32 getCurBin() const;
 	S32 getNextBin() const;
-	
-	F32 getCurrent() const;
-	F32 getCurrentPerSec() const;
-	F64 getCurrentBeginTime() const;
-	F64 getCurrentTime() const;
-	F32 getCurrentDuration() const;
 	
 	F32 getPrev(S32 age) const;				// Age is how many "addValues" previously - zero is current
 	F32 getPrevPerSec(S32 age) const;		// Age is how many "addValues" previously - zero is current
-	F64 getPrevBeginTime(S32 age) const;
-	F64 getPrevTime(S32 age) const;
+	F32 getCurrent() const;
+	F32 getCurrentPerSec() const;
 	
-	F32 getBin(S32 bin) const;
-	F32 getBinPerSec(S32 bin) const;
-	F64 getBinBeginTime(S32 bin) const;
-	F64 getBinTime(S32 bin) const;
-
-	F32 getMax() const;
-	F32 getMaxPerSec() const;
-	
+	F32 getMin() const;
+	F32 getMinPerSec() const;
 	F32 getMean() const;
 	F32 getMeanPerSec() const;
 	F32 getMeanDuration() const;
-
-	F32 getMin() const;
-	F32 getMinPerSec() const;
-	F32 getMinDuration() const;
-
-	F32 getSum() const;
-	F32 getSumDuration() const;
+	F32 getMax() const;
+	F32 getMaxPerSec() const;
 
 	U32 getNumValues() const;
 	S32 getNumBins() const;
@@ -104,10 +77,21 @@ private:
 	U32 mNumBins;
 	F32 mLastValue;
 	F64 mLastTime;
-	F32 *mBins;
-	F64 *mBeginTime;
-	F64 *mTime;
-	F32 *mDT;
+
+	struct ValueEntry
+	{
+		ValueEntry()
+		:	mValue(0.f),
+			mBeginTime(0.0),
+			mTime(0.0),
+			mDT(0.f)
+		{}
+		F32 mValue;
+		F64 mBeginTime;
+		F64 mTime;
+		F32 mDT;
+	};
+	ValueEntry* mBins;
 	S32 mCurBin;
 	S32 mNextBin;
 	
