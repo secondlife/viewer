@@ -206,6 +206,8 @@ if (DARWIN)
   # NOTE: it's critical to have both CXX_FLAGS and C_FLAGS covered.
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O0 ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
   set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O0 ${CMAKE_C_FLAGS_RELWITHDEBINFO}")
+  set(ENABLE_SIGNING TRUE)
+  set(SIGNING_IDENTITY "Developer ID Application: Linden Research, Inc.")
 endif (DARWIN)
 
 
