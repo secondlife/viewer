@@ -357,7 +357,7 @@
       <key>count</key>
       <integer>1</integer>
       <key>map-to</key>
-      <string>SkinFolder</string>
+      <string>SkinCurrent</string>
     </map>
 
     <key>slurl</key>

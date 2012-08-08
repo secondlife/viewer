@@ -31,6 +31,10 @@
 #include <boost/type_traits/is_convertible.hpp>
 #include <boost/utility/enable_if.hpp>
 
+/**
+ * Helper object for LLHandle. Don't instantiate these directly, used
+ * exclusively by LLHandle.
+ */
 class LLTombStone : public LLRefCount
 {
 public:
@@ -42,15 +46,37 @@ private:
 	mutable void* mTarget;
 };
 
-//	LLHandles are used to refer to objects whose lifetime you do not control or influence.  
-//	Calling get() on a handle will return a pointer to the referenced object or NULL, 
-//	if the object no longer exists.  Note that during the lifetime of the returned pointer, 
-//	you are assuming that the object will not be deleted by any action you perform, 
-//	or any other thread, as normal when using pointers, so avoid using that pointer outside of
-//	the local code block.
-// 
-//  https://wiki.lindenlab.com/mediawiki/index.php?title=LLHandle&oldid=79669
-
+/**
+ *	LLHandles are used to refer to objects whose lifetime you do not control or influence.  
+ *	Calling get() on a handle will return a pointer to the referenced object or NULL, 
+ *	if the object no longer exists.  Note that during the lifetime of the returned pointer, 
+ *	you are assuming that the object will not be deleted by any action you perform, 
+ *	or any other thread, as normal when using pointers, so avoid using that pointer outside of
+ *	the local code block.
+ * 
+ *  https://wiki.lindenlab.com/mediawiki/index.php?title=LLHandle&oldid=79669
+ *
+ * The implementation is like some "weak pointer" implementations. When we
+ * can't control the lifespan of the referenced object of interest, we can
+ * still instantiate a proxy object whose lifespan we DO control, and store in
+ * the proxy object a dumb pointer to the actual target. Then we just have to
+ * ensure that on destruction of the target object, the proxy's dumb pointer
+ * is set NULL.
+ *
+ * LLTombStone is our proxy object. LLHandle contains an LLPointer to the
+ * LLTombStone, so every copy of an LLHandle increments the LLTombStone's ref
+ * count as usual.
+ *
+ * One copy of the LLHandle, specifically the LLRootHandle, must be stored in
+ * the referenced object. Destroying the LLRootHandle is what NULLs the
+ * proxy's target pointer.
+ *
+ * Minor optimization: we want LLHandle's mTombStone to always be a valid
+ * LLPointer, saving some conditionals in dereferencing. That's the
+ * getDefaultTombStone() mechanism. The default LLTombStone object's target
+ * pointer is always NULL, so it's semantically identical to allowing
+ * mTombStone to be invalid.
+ */
 template <typename T>
 class LLHandle
 {
@@ -108,6 +134,14 @@ private:
 	}
 };
 
+/**
+ * LLRootHandle isa LLHandle which must be stored in the referenced object.
+ * You can either store it directly and explicitly bind(this), or derive from
+ * LLHandleProvider (q.v.) which automates that for you. The essential point
+ * is that destroying the LLRootHandle (as a consequence of destroying the
+ * referenced object) calls unbind(), setting the LLTombStone's target pointer
+ * NULL.
+ */
 template <typename T>
 class LLRootHandle : public LLHandle<T>
 {
@@ -144,8 +178,10 @@ private:
 	LLRootHandle(const LLRootHandle& other) {};
 };
 
-// Use this as a mixin for simple classes that need handles and when you don't
-// want handles at multiple points of the inheritance hierarchy
+/**
+ * Use this as a mixin for simple classes that need handles and when you don't
+ * want handles at multiple points of the inheritance hierarchy
+ */
 template <typename T>
 class LLHandleProvider
 {
