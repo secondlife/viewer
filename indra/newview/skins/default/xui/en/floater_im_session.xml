@@ -34,6 +34,12 @@
     <floater.string
      name="return_icon"
      value="Conv_toolbar_arrow_sw"/>
+    <floater.string
+     name="participants_added"
+     value="New participant(s) were invited to the conversation: [NAMES]."/>
+    <floater.string
+     name="participants_added_new_window"
+     value="New participant(s) were invited to the conversation: [NAMES]. The conversation will be started in a new window."/>
     <view
         follows="all"
         layout="topleft"

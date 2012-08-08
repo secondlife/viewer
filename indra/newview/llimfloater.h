@@ -160,7 +160,8 @@ private:
 	static void onInputEditorKeystroke(LLTextEditor* caller, void* userdata);
 	void setTyping(bool typing);
 	void onAddButtonClicked();
-	void addSessionParticipants(const uuid_vec_t& uuids);
+	void onAddSessionParticipants(const uuid_vec_t& uuids);
+	void addSessionParticipants(const LLSD& notification, const LLSD& response);
 	bool canAddSelectedToChat(const uuid_vec_t& uuids);
 
 	void onCallButtonClicked();

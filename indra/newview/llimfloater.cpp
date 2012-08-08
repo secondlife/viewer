@@ -352,19 +352,19 @@ BOOL LLIMFloater::postBuild()
 }
 
 void LLIMFloater::onAddButtonClicked()
+{
+	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLIMFloater::onAddSessionParticipants, this, _1), TRUE, TRUE);
+	if (!picker)
 	{
-       LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLIMFloater::addSessionParticipants, this, _1), TRUE, TRUE);
-       if (!picker)
-       {
-               return;
+		return;
 	}
 
-       // Need to disable 'ok' button when selected users are already in conversation.
-       picker->setOkBtnEnableCb(boost::bind(&LLIMFloater::canAddSelectedToChat, this, _1));
-       LLFloater* root_floater = gFloaterView->getParentFloater(this);
-       if (root_floater)
+	// Need to disable 'ok' button when selected users are already in conversation.
+	picker->setOkBtnEnableCb(boost::bind(&LLIMFloater::canAddSelectedToChat, this, _1));
+	LLFloater* root_floater = gFloaterView->getParentFloater(this);
+	if (root_floater)
 	{
-               root_floater->addDependentFloater(picker);
+		root_floater->addDependentFloater(picker);
 	}
 }
 
@@ -420,8 +420,54 @@ bool LLIMFloater::canAddSelectedToChat(const uuid_vec_t& uuids)
 	return true;
 }
 
-void LLIMFloater::addSessionParticipants(const uuid_vec_t& uuids)
+void LLIMFloater::onAddSessionParticipants(const uuid_vec_t& uuids)
+{
+	LLSD payload;
+	LLSD args;
+	for (uuid_vec_t::const_iterator iter = uuids.begin(); iter != uuids.end(); ++iter)
 	{
+		payload["participant_ids"].append(*iter);
+	}
+
+	LLNotificationsUtil::add("ConfirmAddingChatParticipants", args, payload,
+							 boost::bind(&LLIMFloater::addSessionParticipants, this, _1, _2));
+}
+
+void LLIMFloater::addSessionParticipants(const LLSD& notification, const LLSD& response)
+{
+	uuid_vec_t uuids;
+	LLSD::array_const_iterator list_it = notification["payload"]["participant_ids"].beginArray();
+	LLSD::array_const_iterator list_end = notification["payload"]["participant_ids"].endArray();
+	for (; list_it != list_end;	++list_it)
+	{
+		uuids.push_back(list_it->asUUID());
+	}
+
+	std::vector<LLAvatarName> avatar_names;
+	uuid_vec_t::const_iterator it = uuids.begin();
+	for (; it != uuids.end(); ++it)
+	{
+		const LLUUID& id = *it;
+		LLAvatarName av_name;
+		if (LLAvatarNameCache::get(id, &av_name))
+		{
+			avatar_names.push_back(av_name);
+		}
+	}
+
+	std::string added_participants;
+
+	// We should check whether the vector is not empty to pass the assertion
+	// that avatar_names.size() > 0 in LLAvatarActions::buildResidentsString.
+	if (!avatar_names.empty())
+	{
+		LLAvatarActions::buildResidentsString(avatar_names, added_participants);
+	}
+
+	LLStringUtil::format_map_t args;
+	args["[NAMES]"] = added_participants;
+	std::string participants_added_notification;
+
 	if (mIsP2PChat)
 	{
 		mStartConferenceInSameFloater = true;
@@ -440,19 +486,45 @@ void LLIMFloater::addSessionParticipants(const uuid_vec_t& uuids)
 		// then we can close the current session
 		onClose(false);
 
+		participants_added_notification = getString("participants_added_new_window", args);
+		participants_added_notification = utf8str_truncate(participants_added_notification, MAX_MSG_BUF_SIZE - 1);
+
+		if (mSessionInitialized)
+		{
+				LLIMModel::sendMessage(participants_added_notification, mSessionID, mOtherParticipantUUID, mDialog);
+		}
+		else
+		{
+			//queue up the message to send once the session is initialized
+			mQueuedMsgsForInit.append(participants_added_notification);
+		}
+
 		// Start a new ad hoc voice call if we invite new participants to a P2P call,
 		// or start a text chat otherwise.
 		if (is_voice_call)
 		{
 			LLAvatarActions::startAdhocCall(temp_ids, mSessionID);
-	}
-	else
-	{
+		}
+		else
+		{
 			LLAvatarActions::startConference(temp_ids, mSessionID);
+		}
 	}
-}
 	else
 	{
+		participants_added_notification = getString("participants_added", args);
+		participants_added_notification = utf8str_truncate(participants_added_notification, MAX_MSG_BUF_SIZE - 1);
+
+		if (mSessionInitialized)
+		{
+				LLIMModel::sendMessage(participants_added_notification, mSessionID, mOtherParticipantUUID, mDialog);
+		}
+		else
+		{
+			//queue up the message to send once the session is initialized
+			mQueuedMsgsForInit.append(participants_added_notification);
+		}
+
 		inviteToSession(uuids);
 	}
 }
@@ -1115,19 +1187,19 @@ BOOL LLIMFloater::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	if (cargo_type == DAD_PERSON)
 	{
 		if (dropPerson(static_cast<LLUUID*>(cargo_data), drop))
-	{
-			*accept = ACCEPT_YES_MULTI;
-	}
-		else
-	{
-		*accept = ACCEPT_NO;
-			}
-		}
-	else if (mDialog == IM_NOTHING_SPECIAL)
 		{
+			*accept = ACCEPT_YES_MULTI;
+		}
+		else
+		{
+			*accept = ACCEPT_NO;
+		}
+	}
+	else if (mDialog == IM_NOTHING_SPECIAL)
+	{
 		LLToolDragAndDrop::handleGiveDragAndDrop(mOtherParticipantUUID, mSessionID, drop,
 				cargo_type, cargo_data, accept);
-			}
+	}
 
 	return TRUE;
 }
@@ -1137,18 +1209,18 @@ bool LLIMFloater::dropPerson(LLUUID* person_id, bool drop)
 	bool res = person_id && person_id->notNull();
 	if(res)
 	{
-			uuid_vec_t ids;
+		uuid_vec_t ids;
 		ids.push_back(*person_id);
 
 		res = canAddSelectedToChat(ids);
 		if(res && drop)
-	{
-			addSessionParticipants(ids);
+		{
+			onAddSessionParticipants(ids);
+		}
 	}
-}
 
 	return res;
-		}
+}
 
 BOOL LLIMFloater::isInviteAllowed() const
 {
