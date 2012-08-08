@@ -77,6 +77,7 @@
 #include "llmediaentry.h"
 #include "llurldispatcher.h"
 #include "raytrace.h"
+#include "llstat.h"
 
 // newview includes
 #include "llagent.h"
@@ -1537,7 +1538,8 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	mResDirty(false),
 	mStatesDirty(false),
 	mCurrResolutionIndex(0),
-	mProgressView(NULL)
+	mProgressView(NULL),
+	mMouseVelocityStat(new LLStat("Mouse Velocity"))
 {
 	// gKeyboard is still NULL, so it doesn't do LLWindowListener any good to
 	// pass its value right now. Instead, pass it a nullary function that
@@ -2061,6 +2063,8 @@ LLViewerWindow::~LLViewerWindow()
 
 	delete mDebugText;
 	mDebugText = NULL;
+
+	delete mMouseVelocityStat;
 }
 
 
@@ -3235,7 +3239,7 @@ void LLViewerWindow::updateMouseDelta()
 		mouse_vel.setVec((F32) dx, (F32) dy);
 	}
     
-	mMouseVelocityStat.addValue(mouse_vel.magVec());
+	mMouseVelocityStat->addValue(mouse_vel.magVec());
 }
 
 void LLViewerWindow::updateKeyboardFocus()

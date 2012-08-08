@@ -120,11 +120,11 @@ public:
 protected:
 	void calcProjection(const F32 far_distance) const;
 
-	LLStat mVelocityStat;
-	LLStat mAngularVelocityStat;
-	LLVector3 mVelocityDir ;
-	F32       mAverageSpeed ;
-	F32       mAverageAngularSpeed ;
+	LLStat		mVelocityStat;
+	LLStat		mAngularVelocityStat;
+	LLVector3	mVelocityDir ;
+	F32			mAverageSpeed ;
+	F32			mAverageAngularSpeed ;
 
 	mutable LLMatrix4	mProjectionMatrix;	// Cache of perspective matrix
 	mutable LLMatrix4	mModelviewMatrix;

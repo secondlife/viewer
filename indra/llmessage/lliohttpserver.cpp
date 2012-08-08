@@ -42,7 +42,6 @@
 #include "llpumpio.h"
 #include "llsd.h"
 #include "llsdserialize_xml.h"
-#include "llstat.h"
 #include "llstl.h"
 #include "lltimer.h"
 

@@ -40,7 +40,6 @@
 #include "llpacketack.h"
 #include "lluuid.h"
 #include "llthrottle.h"
-#include "llstat.h"
 
 //
 // Constants

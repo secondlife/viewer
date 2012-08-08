@@ -35,6 +35,7 @@
 #include "lltextureinfo.h"
 #include "llapr.h"
 #include "llimageworker.h"
+#include "llstat.h"
 //#include "lltexturecache.h"
 
 class LLViewerTexture;
