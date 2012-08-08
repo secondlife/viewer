@@ -429,3 +429,8 @@ void LLNameListCtrl::updateColumns()
 		}
 	}
 }
+
+void LLNameListCtrl::sortByName(BOOL ascending)
+{
+	sortByColumnIndex(mNameColumnIndex,ascending);
+}

@@ -134,7 +134,7 @@
 			<text name="DwellText">
 				Chargement...
 			</text>
-			<button label="Acheter du terrain" label_selected="Acheter le terrain..." left_delta="60" name="Buy Land..." width="125"/>
+			<button label="Acheter le terrain" label_selected="Acheter le terrain..." left_delta="60" name="Buy Land..." width="125"/>
 			<button label="Vente Linden" label_selected="Vente Linden..." name="Linden Sale..." tool_tip="Le terrain doit être la propriété d&apos;un résident, avoir un contenu défini et ne pas être aux enchères."/>
 			<button label="Infos sur les scripts" name="Scripts..." width="110"/>
 			<button label="Acheter pour le groupe" label_selected="Acheter pour le groupe..." name="Buy For Group..."/>
@@ -377,7 +377,7 @@ Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Cliquez pour sélectionner une image"/>
 			<text name="allow_label5">
-				Les avatars présents sur d&apos;autres parcelles peuvent voir et chatter avec les avatars présents sur cette parcelle.
+				Les avatars sur d&apos;autres parcelles peuvent voir et chatter avec les avatars sur cette parcelle.
 			</text>
 			<check_box label="Voir les avatars" name="SeeAvatarsCheck" tool_tip="Permettre aux avatars présents sur d&apos;autres parcelles de voir et chatter avec les avatars présents sur cette parcelle et à vous de les voir et de chatter avec eux."/>
 			<text name="landing_point">
