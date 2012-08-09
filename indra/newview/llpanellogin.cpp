@@ -145,12 +145,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	// change z sort of clickable text to be behind buttons
 	sendChildToBack(getChildView("forgot_password_text"));
-
-	if(LLStartUp::getStartSLURL().getType() != LLSLURL::LOCATION)
-	{
-		LLSLURL slurl(gSavedSettings.getString("LoginLocation"));
-		LLStartUp::setStartSLURL(slurl);
-	}
 	
 	LLComboBox* location_combo = getChild<LLComboBox>("start_location_combo");
 	updateLocationSelectorsVisibility(); // separate so that it can be called from preferences
@@ -182,6 +176,29 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 							 ADD_TOP);	
 	server_choice_combo->selectFirstItem();		
 
+	LLSLURL start_slurl(LLStartUp::getStartSLURL());
+	if ( !start_slurl.isSpatial() ) // has a start been established by the command line or NextLoginLocation ? 
+	{
+		// no, so get the preference setting
+		std::string defaultStartLocation = gSavedSettings.getString("LoginLocation");
+		LL_INFOS("AppInit")<<"default LoginLocation '"<<defaultStartLocation<<"'"<<LL_ENDL;
+		LLSLURL defaultStart(defaultStartLocation);
+		if ( defaultStart.isSpatial() )
+		{
+			LLStartUp::setStartSLURL(defaultStart);
+		}
+		else
+		{
+			LL_INFOS("AppInit")<<"no valid LoginLocation, using home"<<LL_ENDL;
+			LLSLURL homeStart(LLSLURL::SIM_LOCATION_HOME);
+			LLStartUp::setStartSLURL(homeStart);
+		}
+	}
+	else
+	{
+		LLPanelLogin::onUpdateStartSLURL(start_slurl); // updates grid if needed
+	}
+	
 	childSetAction("connect_btn", onClickConnect, this);
 
 	getChild<LLPanel>("login")->setDefaultBtn("connect_btn");
@@ -645,8 +662,11 @@ void LLPanelLogin::onUpdateStartSLURL(const LLSLURL& new_start_slurl)
 	 * specify a particular grid; in those cases we want to change the grid
 	 * and the grid selector to match the new value.
 	 */
-	if ( LLSLURL::LOCATION == new_start_slurl.getType() )
+	enum LLSLURL::SLURL_TYPE new_slurl_type = new_start_slurl.getType();
+	switch ( new_slurl_type )
 	{
+	case LLSLURL::LOCATION:
+	  {
 		std::string slurl_grid = LLGridManager::getInstance()->getGrid(new_start_slurl.getGrid());
 		if ( ! slurl_grid.empty() ) // is that a valid grid?
 		{
@@ -668,8 +688,24 @@ void LLPanelLogin::onUpdateStartSLURL(const LLSLURL& new_start_slurl)
 		{
 			// the grid specified by the slurl is not known
 			LLNotificationsUtil::add("InvalidLocationSLURL");
+			LL_WARNS("AppInit")<<"invalid LoginLocation:"<<new_start_slurl.asString()<<LL_ENDL;
 			location_combo->setTextEntry(LLStringUtil::null);
 		}
+	  }
+ 	break;
+
+	case LLSLURL::HOME_LOCATION:
+		location_combo->setCurrentByIndex(1); // home location
+		break;
+		
+	case LLSLURL::LAST_LOCATION:
+		location_combo->setCurrentByIndex(0); // last location
+		break;
+
+	default:
+		LL_WARNS("AppInit")<<"invalid login slurl, using home"<<LL_ENDL;
+		location_combo->setCurrentByIndex(1); // home location
+		break;
 	}
 }
 

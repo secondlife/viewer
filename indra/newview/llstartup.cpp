@@ -2823,21 +2823,32 @@ bool LLStartUp::dispatchURL()
 
 void LLStartUp::setStartSLURL(const LLSLURL& slurl) 
 {
-  sStartSLURL = slurl;
-  LL_DEBUGS("AppInit")<<slurl.asString()<<LL_ENDL;
+	LL_DEBUGS("AppInit")<<slurl.asString()<<LL_ENDL;
 
-  switch(slurl.getType())
-    {
-    case LLSLURL::HOME_LOCATION:
-    case LLSLURL::LAST_LOCATION:
-    case LLSLURL::LOCATION:
-		gSavedSettings.setString("LoginLocation", LLSLURL::SIM_LOCATION_HOME);
+	if ( slurl.isSpatial() )
+	{
+		std::string new_start = slurl.getSLURLString();
+		LL_DEBUGS("AppInit")<<new_start<<LL_ENDL;
+		sStartSLURL = slurl;
 		LLPanelLogin::onUpdateStartSLURL(slurl); // updates grid if needed
-		break;
-    default:
-		break;
-    }
+
+		// remember that this is where we wanted to log in...if the login fails,
+		// the next attempt will default to the same place.
+		gSavedSettings.setString("NextLoginLocation", new_start);
+		// following a successful login, this is cleared
+		// and the default reverts to LoginLocation
+	}
+	else
+	{
+		LL_WARNS("AppInit")<<"Invalid start SLURL (ignored): "<<slurl.asString()<<LL_ENDL;
+	}
 }
+
+// static
+LLSLURL& LLStartUp::getStartSLURL()
+{
+	return sStartSLURL;
+} 
 
 /**
  * Read all proxy configuration settings and set up both the HTTP proxy and

@@ -2894,7 +2894,7 @@ You have been moved into a nearby region.
    name="AvatarMovedLast"
    type="alertmodal">
    <tag>fail</tag>
-Your last location is not currently available.
+Your requested location is not currently available.
 You have been moved into a nearby region.
   </notification>
 
