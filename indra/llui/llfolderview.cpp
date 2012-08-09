@@ -1715,10 +1715,16 @@ void LLFolderView::update()
 	{
 		mNeedsAutoSelect = TRUE;
 	}
-	getFolderViewModel()->getFilter().clearModified();
 
 	// filter to determine visibility before arranging
 	filter(getFolderViewModel()->getFilter());
+
+	// Clear the modified setting on the filter only if the filter count is non-zero after running the filter process
+	// Note: if the filter count is zero, then the filter most likely halted before completing the entire set of items
+	if (getFolderViewModel()->getFilter().isModified() && (getFolderViewModel()->getFilter().getFilterCount() > 0))
+	{
+		getFolderViewModel()->getFilter().clearModified();
+	}
 
 	// automatically show matching items, and select first one if we had a selection
 	if (mNeedsAutoSelect)
