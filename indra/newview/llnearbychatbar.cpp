@@ -395,12 +395,6 @@ void LLNearbyChatBar::sendChat( EChatType type )
 
 	gAgent.stopTyping();
 
-	// If the user wants to stop chatting on hitting return, lose focus
-	// and go out of chat mode.
-	if (gSavedSettings.getBOOL("CloseChatOnReturn"))
-	{
-		stopChat();
-	}
 }
 
 void LLNearbyChatBar::showNearbyChatPanel(bool show)
@@ -451,7 +445,12 @@ void LLNearbyChatBar::onChatBoxCommit()
 	{
 		sendChat(CHAT_TYPE_NORMAL);
 	}
-
+	// If the user wants to stop chatting on hitting return, lose focus
+	// and go out of chat mode.
+	if (gSavedSettings.getBOOL("CloseChatOnReturn"))
+	{
+		stopChat();
+	}
 	gAgent.stopTyping();
 }
 
