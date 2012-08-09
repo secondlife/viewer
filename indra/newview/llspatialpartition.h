@@ -68,6 +68,16 @@ protected:
 	~LLDrawInfo();	
 	
 public:
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free_16(ptr);
+	}
+
 
 	LLDrawInfo(const LLDrawInfo& rhs)
 	{
@@ -106,7 +116,7 @@ public:
 	F32 mPartSize;
 	F32 mVSize;
 	LLSpatialGroup* mGroup;
-	LLFace* mFace; //associated face
+	LL_ALIGN_16(LLFace* mFace); //associated face
 	F32 mDistance;
 	U32 mDrawMode;
 
@@ -181,7 +191,7 @@ public:
 	};
 };
 
-LL_ALIGN_PREFIX(64)
+LL_ALIGN_PREFIX(16)
 class LLSpatialGroup : public LLOctreeListener<LLDrawable>
 {
 	friend class LLSpatialPartition;
@@ -191,6 +201,16 @@ public:
 	LLSpatialGroup(const LLSpatialGroup& rhs)
 	{
 		*this = rhs;
+	}
+
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free_16(ptr);
 	}
 
 	const LLSpatialGroup& operator=(const LLSpatialGroup& rhs)
@@ -325,8 +345,13 @@ public:
 
 	void dirtyGeom() { setState(GEOM_DIRTY); }
 	void dirtyMesh() { setState(MESH_DIRTY); }
+
+	//octree wrappers to make code more readable
 	element_list& getData() { return mOctreeNode->getData(); }
+	element_iter getDataBegin() { return mOctreeNode->getDataBegin(); }
+	element_iter getDataEnd() { return mOctreeNode->getDataEnd(); }
 	U32 getElementCount() const { return mOctreeNode->getElementCount(); }
+	bool isEmpty() const { return mOctreeNode->isEmpty(); }
 
 	void drawObjectBox(LLColor4 col);
 
@@ -370,12 +395,12 @@ public:
 		V4_COUNT = 10
 	} eV4Index;
 
-	LLVector4a mBounds[2]; // bounding box (center, size) of this node and all its children (tight fit to objects)
-	LLVector4a mExtents[2]; // extents (min, max) of this node and all its children
-	LLVector4a mObjectExtents[2]; // extents (min, max) of objects in this node
-	LLVector4a mObjectBounds[2]; // bounding box (center, size) of objects in this node
-	LLVector4a mViewAngle;
-	LLVector4a mLastUpdateViewAngle;
+	LL_ALIGN_16(LLVector4a mBounds[2]); // bounding box (center, size) of this node and all its children (tight fit to objects)
+	LL_ALIGN_16(LLVector4a mExtents[2]); // extents (min, max) of this node and all its children
+	LL_ALIGN_16(LLVector4a mObjectExtents[2]); // extents (min, max) of objects in this node
+	LL_ALIGN_16(LLVector4a mObjectBounds[2]); // bounding box (center, size) of objects in this node
+	LL_ALIGN_16(LLVector4a mViewAngle);
+	LL_ALIGN_16(LLVector4a mLastUpdateViewAngle);
 
 	F32 mObjectBoxSize; //cached mObjectBounds[1].getLength3()
 		
@@ -542,34 +567,39 @@ class LLCullResult
 public:
 	LLCullResult();
 
-	typedef std::vector<LLSpatialGroup*> sg_list_t;
-	typedef std::vector<LLDrawable*> drawable_list_t;
-	typedef std::vector<LLSpatialBridge*> bridge_list_t;
-	typedef std::vector<LLDrawInfo*> drawinfo_list_t;
+	typedef LLSpatialGroup** sg_list_t;
+	typedef LLDrawable** drawable_list_t;
+	typedef LLSpatialBridge** bridge_list_t;
+	typedef LLDrawInfo** drawinfo_list_t;
+
+	typedef LLSpatialGroup** sg_iterator;
+	typedef LLSpatialBridge** bridge_iterator;
+	typedef LLDrawInfo** drawinfo_iterator;
+	typedef LLDrawable** drawable_iterator;
 
 	void clear();
 	
-	sg_list_t::iterator beginVisibleGroups();
-	sg_list_t::iterator endVisibleGroups();
+	sg_iterator beginVisibleGroups();
+	sg_iterator endVisibleGroups();
 
-	sg_list_t::iterator beginAlphaGroups();
-	sg_list_t::iterator endAlphaGroups();
+	sg_iterator beginAlphaGroups();
+	sg_iterator endAlphaGroups();
 
 	bool hasOcclusionGroups() { return mOcclusionGroupsSize > 0; }
-	sg_list_t::iterator beginOcclusionGroups();
-	sg_list_t::iterator endOcclusionGroups();
+	sg_iterator beginOcclusionGroups();
+	sg_iterator endOcclusionGroups();
 
-	sg_list_t::iterator beginDrawableGroups();
-	sg_list_t::iterator endDrawableGroups();
+	sg_iterator beginDrawableGroups();
+	sg_iterator endDrawableGroups();
 
-	drawable_list_t::iterator beginVisibleList();
-	drawable_list_t::iterator endVisibleList();
+	drawable_iterator beginVisibleList();
+	drawable_iterator endVisibleList();
 
-	bridge_list_t::iterator beginVisibleBridge();
-	bridge_list_t::iterator endVisibleBridge();
+	bridge_iterator beginVisibleBridge();
+	bridge_iterator endVisibleBridge();
 
-	drawinfo_list_t::iterator beginRenderMap(U32 type);
-	drawinfo_list_t::iterator endRenderMap(U32 type);
+	drawinfo_iterator beginRenderMap(U32 type);
+	drawinfo_iterator endRenderMap(U32 type);
 
 	void pushVisibleGroup(LLSpatialGroup* group);
 	void pushAlphaGroup(LLSpatialGroup* group);
@@ -589,28 +619,41 @@ public:
 	void assertDrawMapsEmpty();
 
 private:
+
+	void pushBack(void** &head, U32& count, void* val);
+
 	U32					mVisibleGroupsSize;
 	U32					mAlphaGroupsSize;
 	U32					mOcclusionGroupsSize;
 	U32					mDrawableGroupsSize;
 	U32					mVisibleListSize;
 	U32					mVisibleBridgeSize;
+
+	U32					mVisibleGroupsAllocated;
+	U32					mAlphaGroupsAllocated;
+	U32					mOcclusionGroupsAllocated;
+	U32					mDrawableGroupsAllocated;
+	U32					mVisibleListAllocated;
+	U32					mVisibleBridgeAllocated;
+
 	U32					mRenderMapSize[LLRenderPass::NUM_RENDER_TYPES];
 
 	sg_list_t			mVisibleGroups;
-	sg_list_t::iterator mVisibleGroupsEnd;
+	sg_iterator			mVisibleGroupsEnd;
 	sg_list_t			mAlphaGroups;
-	sg_list_t::iterator mAlphaGroupsEnd;
+	sg_iterator			mAlphaGroupsEnd;
 	sg_list_t			mOcclusionGroups;
-	sg_list_t::iterator	mOcclusionGroupsEnd;
+	sg_iterator			mOcclusionGroupsEnd;
 	sg_list_t			mDrawableGroups;
-	sg_list_t::iterator mDrawableGroupsEnd;
+	sg_iterator			mDrawableGroupsEnd;
 	drawable_list_t		mVisibleList;
-	drawable_list_t::iterator mVisibleListEnd;
+	drawable_iterator	mVisibleListEnd;
 	bridge_list_t		mVisibleBridge;
-	bridge_list_t::iterator mVisibleBridgeEnd;
+	bridge_iterator		mVisibleBridgeEnd;
 	drawinfo_list_t		mRenderMap[LLRenderPass::NUM_RENDER_TYPES];
-	drawinfo_list_t::iterator mRenderMapEnd[LLRenderPass::NUM_RENDER_TYPES];
+	U32					mRenderMapAllocated[LLRenderPass::NUM_RENDER_TYPES];
+	drawinfo_iterator mRenderMapEnd[LLRenderPass::NUM_RENDER_TYPES];
+
 };
 
 

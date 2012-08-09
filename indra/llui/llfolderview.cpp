@@ -277,7 +277,7 @@ BOOL LLFolderView::canFocusChildren() const
 void LLFolderView::addFolder( LLFolderViewFolder* folder)
 {
 	LLFolderViewFolder::addFolder(folder);
-
+		
 	// TODO RN: enforce sort order of My Inventory followed by Library
 	//mFolders.remove(folder);
 	//if (((LLFolderViewModelItemInventory*)folder->getViewModelItem())->getUUID() == gInventory.getLibraryRootFolderID())
@@ -311,7 +311,7 @@ void LLFolderView::openTopLevelFolders()
 // *width should be 0
 // conform show folder state works
 S32 LLFolderView::arrange( S32* unused_width, S32* unused_height )
-{
+	{
 	mMinWidth = 0;
 	S32 target_height;
 
@@ -340,7 +340,7 @@ void LLFolderView::filter( LLFolderViewFilter& filter )
 	filter.setFilterCount(llclamp(LLUI::sSettingGroups["config"]->getS32("FilterItemsPerFrame"), 1, 5000));
 
 	getViewModelItem()->filter(filter);
-}
+	}
 
 void LLFolderView::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
@@ -350,7 +350,7 @@ void LLFolderView::reshape(S32 width, S32 height, BOOL called_from_parent)
 		LLView::reshape(width, height, called_from_parent);
 		scroll_rect = mScrollContainer->getContentWindowRect();
 	}
-	width = llmax(mMinWidth, scroll_rect.getWidth());
+	width  = llmax(mMinWidth, scroll_rect.getWidth());
 	height = llmax(llround(mCurHeight), scroll_rect.getHeight());
 
 	// Restrict width within scroll container's width
@@ -510,11 +510,11 @@ void LLFolderView::sanitizeSelection()
 		// modify with parent open and filters states
 		LLFolderViewFolder* parent_folder = item->getParentFolder();
 		// Move up through parent folders and see what's visible
-		while(parent_folder)
-		{
+				while(parent_folder)
+				{
 			visible = visible && parent_folder->isOpen() && parent_folder->getViewModelItem()->potentiallyVisible();
-			parent_folder = parent_folder->getParentFolder();
-		}
+					parent_folder = parent_folder->getParentFolder();
+				}
 
 		//  deselect item if any ancestor is closed or didn't pass filter requirements.
 		if (!visible)
@@ -829,7 +829,7 @@ void LLFolderView::openSelectedItems( void )
 	//		multi_propertiesp->openFloater(LLSD());
 	//	}
 	//}
-}
+	}
 
 void LLFolderView::propertiesSelectedItems( void )
 {
@@ -858,7 +858,7 @@ void LLFolderView::propertiesSelectedItems( void )
 	//		multi_propertiesp->openFloater(LLSD());
 	//	}
 	//}
-}
+		}
 
 
 void LLFolderView::autoOpenItem( LLFolderViewFolder* item )
@@ -1170,7 +1170,7 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 		mSearchString.clear();
 		if (mScrollContainer)
 		{
-			mScrollContainer->pageUp(30);
+		mScrollContainer->pageUp(30);
 		}
 		handled = TRUE;
 		break;
@@ -1179,7 +1179,7 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 		mSearchString.clear();
 		if (mScrollContainer)
 		{
-			mScrollContainer->pageDown(30);
+		mScrollContainer->pageDown(30);
 		}
 		handled = TRUE;
 		break;
@@ -1188,7 +1188,7 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 		mSearchString.clear();
 		if (mScrollContainer)
 		{
-			mScrollContainer->goToTop();
+		mScrollContainer->goToTop();
 		}
 		handled = TRUE;
 		break;
@@ -1197,7 +1197,7 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 		mSearchString.clear();
 		if (mScrollContainer)
 		{
-			mScrollContainer->goToBottom();
+		mScrollContainer->goToBottom();
 		}
 		break;
 
@@ -1604,8 +1604,8 @@ BOOL LLFolderView::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	// by the folder which is the hierarchy root.
 	if (!handled)
 	{
-		handled = LLFolderViewFolder::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
-	}
+			handled = LLFolderViewFolder::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+		}
 
 	return handled;
 }
@@ -2036,10 +2036,10 @@ void LLFolderView::onRenamerLost()
 S32 LLFolderView::getItemHeight()
 {
 	if(!hasVisibleChildren())
-	{
+{
 		//We need to display status textbox, let's reserve some place for it
 		return llmax(0, mStatusTextBox->getTextPixelHeight());
-	}
+}
 	return 0;
 }
 
@@ -2048,16 +2048,16 @@ LLFolderViewItem* LLFolderView::getNextUnselectedItem()
 	LLFolderViewItem* last_item = *mSelectedItems.rbegin();
 	LLFolderViewItem* new_selection = last_item->getNextOpenNode(FALSE);
 	while(new_selection && new_selection->isSelected())
-	{
+{
 		new_selection = new_selection->getNextOpenNode(FALSE);
-	}
+}
 	if (!new_selection)
-	{
+{
 		new_selection = last_item->getPreviousOpenNode(FALSE);
 		while (new_selection && (new_selection->isInSelection()))
-		{
+	{
 			new_selection = new_selection->getPreviousOpenNode(FALSE);
-		}
 	}
+}
 	return new_selection;
 }

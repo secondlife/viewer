@@ -28,8 +28,8 @@
 #define LL_LLVERSIONVIEWER_H
 
 const S32 LL_VERSION_MAJOR = 3;
-const S32 LL_VERSION_MINOR = 3;
-const S32 LL_VERSION_PATCH = 4;
+const S32 LL_VERSION_MINOR = 4;
+const S32 LL_VERSION_PATCH = 0;
 const S32 LL_VERSION_BUILD = 0;
 
 const char * const LL_CHANNEL = "Second Life Developer";

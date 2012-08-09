@@ -1,23 +1,34 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="texture picker" title="PREFERITO: TEXTURE">
-	<string name="choose_picture">
+	<floater.string name="choose_picture">
 		Clicca per scegliere l&apos;immagine
-	</string>
+	</floater.string>
+	<floater.string name="pick title">
+		Scegli:
+	</floater.string>
 	<text name="Multiple">
 		Texture multiple
 	</text>
+	<radio_group name="mode_selection">
+		<radio_item label="Inventario" name="inventory" value="0"/>
+		<radio_item label="Locale" name="local" value="1"/>
+	</radio_group>
 	<text name="unknown">
 		Dimensioni: [DIMENSIONS]
 	</text>
 	<button label="Default" label_selected="Default" name="Default"/>
-	<button label="Niente" label_selected="Niente" name="None"/>
 	<button label="Vuoto" label_selected="Vuoto" name="Blank"/>
-	<check_box label="Mostra cartelle" name="show_folders_check"/>
-	<search_editor label="Filtro texture" name="inventory search editor"/>
-	<check_box label="Applica adesso" name="apply_immediate_check"/>
-	<button label="Annulla" label_selected="Annulla" name="Cancel"/>
+	<button label="Niente" label_selected="Niente" name="None"/>
+	<filter_editor label="Filtro texture" name="inventory search editor"/>
+	<check_box initial_value="false" label="Mostra cartelle" name="show_folders_check"/>
+	<button label="Aggiungi" label_selected="Aggiungi" name="l_add_btn"/>
+	<button label="Rimuovi" label_selected="Rimuovi" name="l_rem_btn"/>
+	<button label="Carica" label_selected="Carica" name="l_upl_btn"/>
+	<scroll_list name="l_name_list">
+		<column label="Nome" name="unit_name"/>
+		<column label="ID" name="unit_id_HIDDEN"/>
+	</scroll_list>
 	<button label="OK" label_selected="OK" name="Select"/>
-	<string name="pick title">
-		Scegli:
-	</string>
+	<button label="Annulla" label_selected="Annulla" name="Cancel"/>
+	<check_box initial_value="true" label="Applica adesso" name="apply_immediate_check"/>
 </floater>

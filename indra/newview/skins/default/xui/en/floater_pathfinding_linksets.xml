@@ -1,0 +1,589 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+    positioning="cascading"
+    can_resize="true"
+    can_tear_off="false"
+    height="395"
+    width="1015"
+    min_height="395"
+    min_width="1015"
+    layout="topleft"
+    name="floater_pathfinding_linksets"
+    help_topic="floater_pathfinding_linksets"
+    reuse_instance="true"
+    save_rect="false"
+    single_instance="true"
+    title="Pathfinding linksets">
+  <floater.string name="messaging_initial"></floater.string>
+  <floater.string name="messaging_get_inprogress">Querying for pathfinding linksets ...</floater.string>
+  <floater.string name="messaging_get_error">Error detected while querying for pathfinding linksets.</floater.string>
+  <floater.string name="messaging_set_inprogress">Modifying selected pathfinding linksets ...</floater.string>
+  <floater.string name="messaging_set_error">Error detected while modifying selected pathfinding linksets.</floater.string>
+  <floater.string name="messaging_complete_none_found">No pathfinding linksets.</floater.string>
+  <floater.string name="messaging_complete_available">[NUM_SELECTED] linksets selected out of [NUM_TOTAL].</floater.string>
+  <floater.string name="messaging_not_enabled">This region is not enabled for pathfinding.</floater.string>
+  <floater.string name="linkset_terrain_name">[Terrain]</floater.string>
+  <floater.string name="linkset_terrain_description">--</floater.string>
+  <floater.string name="linkset_terrain_owner">--</floater.string>
+  <floater.string name="linkset_terrain_land_impact">--</floater.string>
+  <floater.string name="linkset_terrain_dist_from_you">--</floater.string>
+  <floater.string name="linkset_owner_loading">[Loading]</floater.string>
+  <floater.string name="linkset_owner_unknown">[Unknown]</floater.string>
+  <floater.string name="linkset_owner_group">[group]</floater.string>
+  <floater.string name="linkset_use_walkable">Walkable</floater.string>
+  <floater.string name="linkset_use_static_obstacle">Static obstacle</floater.string>
+  <floater.string name="linkset_use_dynamic_obstacle">Movable obstacle</floater.string>
+  <floater.string name="linkset_use_material_volume">Material volume</floater.string>
+  <floater.string name="linkset_use_exclusion_volume">Exclusion volume</floater.string>
+  <floater.string name="linkset_use_dynamic_phantom">Movable phantom</floater.string>
+  <floater.string name="linkset_is_terrain">[unmodifiable]</floater.string>
+  <floater.string name="linkset_is_restricted_state">[restricted]</floater.string>
+  <floater.string name="linkset_is_non_volume_state">[concave]</floater.string>
+  <floater.string name="linkset_is_restricted_non_volume_state">[restricted,concave]</floater.string>
+  <floater.string name="linkset_choose_use">Choose linkset use...</floater.string>
+  <panel
+      border="false"
+      bevel_style="none"
+      follows="left|top|right|bottom"
+      layout="topleft"
+      height="226"
+      width="999">
+    <text
+        height="13"
+        word_wrap="false"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        length="1"
+        follows="left|top"
+        layout="topleft"
+        left="20"
+        top_pad="14"
+        width="67">
+      Filter by:
+    </text>
+    <text
+        height="13"
+        word_wrap="false"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        length="1"
+        follows="left|top"
+        layout="topleft"
+        left_pad="0"
+        width="62">
+      Name
+    </text>
+    <line_editor
+        border_style="line"
+        border_thickness="1"
+        follows="left|top"
+        height="20"
+        layout="topleft"
+        left_pad="0"
+        top_pad="-18"
+        max_length_chars="255"
+        name="filter_by_name"
+        width="161" />
+    <text
+        height="13"
+        word_wrap="false"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        length="1"
+        follows="left|top"
+        layout="topleft"
+        left_pad="22"
+        top_pad="-15"
+        width="88">
+      Description
+    </text>
+    <line_editor
+        border_style="line"
+        border_thickness="1"
+        follows="left|top"
+        height="20"
+        layout="topleft"
+        left_pad="0"
+        top_pad="-17"
+        max_length_chars="255"
+        name="filter_by_description"
+        width="162" />
+    <combo_box
+        height="20"
+        layout="topleft"
+        follows="left|top"
+        name="filter_by_linkset_use"
+        left_pad="32"
+        top_pad="-20"
+        width="199">
+      <combo_box.item
+          label="Filter by linkset use..."
+          name="filter_by_linkset_use_none"
+          value="0" />
+      <combo_box.item
+          label="Walkable"
+          name="filter_by_linkset_use_walkable"
+          value="1" />
+      <combo_box.item
+          label="Static obstacle"
+          name="filter_by_linkset_use_static_obstacle"
+          value="2" />
+      <combo_box.item
+          label="Movable obstacle"
+          name="filter_by_linkset_use_dynamic_obstacle"
+          value="3" />
+      <combo_box.item
+          label="Material volume"
+          name="filter_by_linkset_use_material_volume"
+          value="4" />
+      <combo_box.item
+          label="Exclusion volume"
+          name="filter_by_linkset_use_exclusion_volume"
+          value="5" />
+      <combo_box.item
+          label="Movable phantom"
+          name="filter_by_linkset_use_dynamic_phantom"
+          value="6" />
+    </combo_box>
+    <button
+        follows="right|top"
+        height="21"
+        label="Apply"
+        layout="topleft"
+        name="apply_filters"
+        top_pad="-21"
+        left_pad="31"
+        width="73"/>
+    <button
+        follows="right|top"
+        height="21"
+        label="Clear"
+        layout="topleft"
+        name="clear_filters"
+        top_pad="-21"
+        left_pad="8"
+        width="73"/>
+    <scroll_list
+        column_padding="0"
+        draw_heading="true"
+        follows="all"
+        height="135"
+        layout="topleft"
+        left="18"
+        top_pad="15"
+        tab_stop="false"
+        multi_select="true"
+        name="objects_scroll_list"
+        width="980">
+      <scroll_list.columns
+          label="Name (root prim)"
+          name="name"
+          dynamic_width="true" />
+      <scroll_list.columns
+          label="Description (root prim)"
+          name="description"
+          width="158" />
+      <scroll_list.columns
+          label="Owner"
+          name="owner"
+          width="141" />
+      <scroll_list.columns
+          label="Impact"
+          name="land_impact"
+          width="55" />
+      <scroll_list.columns
+          label="Distance"
+          name="dist_from_you"
+          width="65" />
+      <scroll_list.columns
+          label="Linkset use"
+          name="linkset_use"
+          width="236" />
+      <scroll_list.columns
+          label="A %"
+          name="a_percent"
+          width="41" />
+      <scroll_list.columns
+          label="B %"
+          name="b_percent"
+          width="41" />
+      <scroll_list.columns
+          label="C %"
+          name="c_percent"
+          width="41" />
+      <scroll_list.columns
+          label="D %"
+          name="d_percent"
+          width="41" />
+    </scroll_list>
+    <text
+        height="13"
+        word_wrap="false"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        length="1"
+        follows="left|bottom|right"
+        layout="topleft"
+        name="messaging_status"
+        top_pad="17"
+        width="619">
+      Linksets:
+    </text>
+    <button
+        follows="right|bottom"
+        height="21"
+        label="Refresh list"
+        layout="topleft"
+        name="refresh_objects_list"
+        top_pad="-16"
+        left_pad="0"
+        width="115"/>
+    <button
+        follows="right|bottom"
+        height="21"
+        label="Select all"
+        layout="topleft"
+        name="select_all_objects"
+        top_pad="-21"
+        left_pad="8"
+        width="115"/>
+    <button
+        follows="right|bottom"
+        height="21"
+        label="Select none"
+        layout="topleft"
+        name="select_none_objects"
+        top_pad="-21"
+        left_pad="8"
+        width="115"/>
+  </panel>
+  <view_border
+      bevel_style="none"
+      follows="left|bottom|right"
+      height="0"
+      layout="topleft"
+      name="horiz_separator"
+      top_pad="0"
+      left="18"
+      width="979"/>
+  <panel
+      border="false"
+      bevel_style="none"
+      follows="left|right|bottom"
+      layout="topleft"
+      left="0"
+      height="67"
+      width="950">
+    <text
+        height="13"
+        word_wrap="false"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        text_readonly_color="LabelDisabledColor"
+        length="1"
+        left="18"
+        follows="left|bottom|right"
+        layout="topleft"
+        top_pad="8"
+        width="580">
+      Actions on selected linksets (If a linkset is removed from the world, its attributes may be lost):
+    </text>
+    <check_box
+        height="19"
+        follows="left|bottom"
+        label="Show beacon"
+        layout="topleft"
+        name="show_beacon"
+        left_pad="0"
+        top_pad="-16"
+        width="90" />
+    <button
+        follows="left|bottom"
+        height="21"
+        label="Take"
+        layout="topleft"
+        name="take_objects"
+        top_pad="9"
+        left="18"
+        width="95"/>
+    <button
+        follows="left|bottom"
+        height="21"
+        label="Take copy"
+        layout="topleft"
+        name="take_copy_objects"
+        top_pad="-21"
+        left_pad="6"
+        width="95"/>
+    <button
+        follows="left|bottom"
+        height="21"
+        label="Teleport me to it"
+        layout="topleft"
+        name="teleport_me_to_object"
+        top_pad="-21"
+        left_pad="206"
+        width="160"/>
+    <button
+        follows="right|bottom"
+        height="21"
+        label="Return"
+        layout="topleft"
+        name="return_objects"
+        top_pad="-21"
+        left_pad="220"
+        width="95"/>
+    <button
+        follows="right|bottom"
+        height="21"
+        label="Delete"
+        layout="topleft"
+        name="delete_objects"
+        top_pad="-21"
+        left_pad="6"
+        width="95"/>
+  </panel>
+  <view_border
+      bevel_style="none"
+      follows="left|bottom|right"
+      height="0"
+      layout="topleft"
+      name="horiz_separator"
+      top_pad="0"
+      left="18"
+      width="979"/>
+  <panel
+      border="false"
+      bevel_style="none"
+      follows="left|right|bottom"
+      layout="topleft"
+      left="0"
+      height="75"
+      width="950">
+    <text
+        height="13"
+        word_wrap="false"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        length="1"
+        follows="left|bottom"
+        layout="topleft"
+        left="18"
+        top_pad="8"
+        width="912">
+      Edit attributes of selected linksets and press the button to apply changes
+    </text>
+    <combo_box
+        height="20"
+        layout="topleft"
+        follows="left|top"
+        name="edit_linkset_use"
+        left="18"
+        top_pad="17"
+        width="199">
+    </combo_box>
+    <text
+        height="13"
+        word_wrap="false"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        text_readonly_color="LabelDisabledColor"
+        name="walkability_coefficients_label"
+        length="1"
+        follows="left|bottom"
+        layout="topleft"
+        left_pad="36"
+        top_pad="-17"
+        width="110">
+      Walkability:
+    </text>
+    <text
+        height="13"
+        word_wrap="false"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        text_readonly_color="LabelDisabledColor"
+        name="edit_a_label"
+        length="1"
+        follows="left|bottom"
+        layout="topleft"
+        left_pad="0"
+        width="18">
+      A
+    </text>
+    <line_editor
+        border_style="line"
+        border_thickness="1"
+        follows="left|bottom"
+        height="21"
+        layout="topleft"
+        left_pad="0"
+        top_pad="-19"
+        max_length_chars="3"
+        name="edit_a_value"
+        tool_tip="Walkability for characters of type A.  Example character type is humanoid."
+        width="45" />
+    <text
+        height="13"
+        word_wrap="false"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        text_readonly_color="LabelDisabledColor"
+        name="edit_b_label"
+        length="1"
+        follows="left|bottom"
+        layout="topleft"
+        left_pad="44"
+        top_pad="-15"
+        width="18">
+      B
+    </text>
+    <line_editor
+        border_style="line"
+        border_thickness="1"
+        follows="left|bottom"
+        height="21"
+        layout="topleft"
+        left_pad="0"
+        top_pad="-19"
+        max_length_chars="3"
+        name="edit_b_value"
+        tool_tip="Walkability for characters of type B.  Example character type is creature."
+        width="45" />
+    <text
+        height="13"
+        word_wrap="false"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        text_readonly_color="LabelDisabledColor"
+        name="edit_c_label"
+        length="1"
+        follows="left|bottom"
+        layout="topleft"
+        left_pad="44"
+        top_pad="-15"
+        width="18">
+      C
+    </text>
+    <line_editor
+        border_style="line"
+        border_thickness="1"
+        follows="left|bottom"
+        height="21"
+        layout="topleft"
+        left_pad="0"
+        top_pad="-19"
+        max_length_chars="3"
+        name="edit_c_value"
+        tool_tip="Walkability for characters of type C.  Example character type is mechanical."
+        width="45" />
+    <text
+        height="13"
+        word_wrap="false"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        text_readonly_color="LabelDisabledColor"
+        name="edit_d_label"
+        length="1"
+        follows="left|bottom"
+        layout="topleft"
+        left_pad="44"
+        top_pad="-15"
+        width="18">
+      D
+    </text>
+    <line_editor
+        border_style="line"
+        border_thickness="1"
+        follows="left|bottom"
+        height="21"
+        layout="topleft"
+        left_pad="0"
+        top_pad="-19"
+        max_length_chars="3"
+        name="edit_d_value"
+        tool_tip="Walkability for characters of type D.  Example character type is other."
+        width="45" />
+    <button
+        follows="right|bottom"
+        height="21"
+        label="Apply changes"
+        layout="topleft"
+        name="apply_edit_values"
+        top_pad="-21"
+        left_pad="40"
+        width="140"/>
+    <text
+        height="13"
+        word_wrap="false"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        text_readonly_color="LabelDisabledColor"
+        name="suggested_use_a_label"
+        length="1"
+        follows="left|bottom"
+        layout="topleft"
+        left="363"
+        top_pad="5"
+        width="107">
+      (Humanoid)
+    </text>
+    <text
+        height="13"
+        word_wrap="false"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        text_readonly_color="LabelDisabledColor"
+        name="suggested_use_b_label"
+        length="1"
+        follows="left|bottom"
+        layout="topleft"
+        left_pad="0"
+        width="107">
+      (Creature)
+    </text>
+    <text
+        height="13"
+        word_wrap="false"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        text_readonly_color="LabelDisabledColor"
+        name="suggested_use_c_label"
+        length="1"
+        follows="left|bottom"
+        layout="topleft"
+        left_pad="0"
+        width="107">
+      (Mechanical)
+    </text>
+    <text
+        height="13"
+        word_wrap="false"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        text_readonly_color="LabelDisabledColor"
+        name="suggested_use_d_label"
+        length="1"
+        follows="left|bottom"
+        layout="topleft"
+        left_pad="0"
+        width="107">
+      (Other)
+    </text>
+  </panel>
+</floater>
