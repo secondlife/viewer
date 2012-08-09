@@ -60,6 +60,10 @@
 #include "llnotificationmanager.h"
 #include "llautoreplace.h"
 
+/// Helper function to resolve resident names from given uuids
+/// and form a string of names separated by "words_separator".
+static void build_names_string(const uuid_vec_t& uuids, std::string& names_string);
+
 floater_showed_signal_t LLIMFloater::sIMFloaterShowedSignal;
 
 LLIMFloater::LLIMFloater(const LLUUID& session_id)
@@ -186,47 +190,53 @@ void LLIMFloater::onVisibilityChange(const LLSD& new_visibility)
 void LLIMFloater::onSendMsg( LLUICtrl* ctrl, void* userdata )
 {
 	LLIMFloater* self = (LLIMFloater*) userdata;
-	self->sendMsg();
+	self->sendMsgFromInputEditor();
 	self->setTyping(false);
 }
 
-void LLIMFloater::sendMsg()
+void LLIMFloater::sendMsgFromInputEditor()
 {
 	if (gAgent.isGodlike()
 		|| (mDialog != IM_NOTHING_SPECIAL)
 		|| !mOtherParticipantUUID.isNull())
 	{
-	if (mInputEditor)
-	{
+		if (mInputEditor)
+		{
 			LLWString text = mInputEditor->getWText();
 			LLWStringUtil::trim(text);
 			LLWStringUtil::replaceChar(text,182,'\n'); // Convert paragraph symbols back into newlines.
-		if(!text.empty())
-		{
-			// Truncate and convert to UTF8 for transport
-			std::string utf8_text = wstring_to_utf8str(text);
-			utf8_text = utf8str_truncate(utf8_text, MAX_MSG_BUF_SIZE - 1);
-			
-			if (mSessionInitialized)
+			if(!text.empty())
 			{
-					LLIMModel::sendMessage(utf8_text, mSessionID, mOtherParticipantUUID, mDialog);
-			}
-			else
-			{
-				//queue up the message to send once the session is initialized
-				mQueuedMsgsForInit.append(utf8_text);
-			}
+				// Truncate and convert to UTF8 for transport
+				std::string utf8_text = wstring_to_utf8str(text);
 
-			mInputEditor->setText(LLStringUtil::null);
+				sendMsg(utf8_text);
 
-			updateMessages();
+				mInputEditor->setText(LLStringUtil::null);
+			}
 		}
 	}
-}
 	else
 	{
 		llinfos << "Cannot send IM to everyone unless you're a god." << llendl;
 	}
+}
+
+void LLIMFloater::sendMsg(const std::string& msg)
+{
+	const std::string utf8_text = utf8str_truncate(msg, MAX_MSG_BUF_SIZE - 1);
+
+	if (mSessionInitialized)
+	{
+			LLIMModel::sendMessage(utf8_text, mSessionID, mOtherParticipantUUID, mDialog);
+	}
+	else
+	{
+		//queue up the message to send once the session is initialized
+		mQueuedMsgsForInit.append(utf8_text);
+	}
+
+	updateMessages();
 }
 
 LLIMFloater::~LLIMFloater()
@@ -240,6 +250,7 @@ LLIMFloater::~LLIMFloater()
 
 	LLTransientFloaterMgr::getInstance()->removeControlView(LLTransientFloaterMgr::IM, this);
 }
+
 
 void LLIMFloater::initIMSession(const LLUUID& session_id)
 {
@@ -353,7 +364,7 @@ BOOL LLIMFloater::postBuild()
 
 void LLIMFloater::onAddButtonClicked()
 {
-	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLIMFloater::onAddSessionParticipants, this, _1), TRUE, TRUE);
+	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLIMFloater::addSessionParticipants, this, _1), TRUE, TRUE);
 	if (!picker)
 	{
 		return;
@@ -420,113 +431,65 @@ bool LLIMFloater::canAddSelectedToChat(const uuid_vec_t& uuids)
 	return true;
 }
 
-void LLIMFloater::onAddSessionParticipants(const uuid_vec_t& uuids)
+void LLIMFloater::addSessionParticipants(const uuid_vec_t& uuids)
 {
-	LLSD payload;
-	LLSD args;
-	for (uuid_vec_t::const_iterator iter = uuids.begin(); iter != uuids.end(); ++iter)
-	{
-		payload["participant_ids"].append(*iter);
-	}
-
-	LLNotificationsUtil::add("ConfirmAddingChatParticipants", args, payload,
-							 boost::bind(&LLIMFloater::addSessionParticipants, this, _1, _2));
-}
-
-void LLIMFloater::addSessionParticipants(const LLSD& notification, const LLSD& response)
-{
-	uuid_vec_t uuids;
-	LLSD::array_const_iterator list_it = notification["payload"]["participant_ids"].beginArray();
-	LLSD::array_const_iterator list_end = notification["payload"]["participant_ids"].endArray();
-	for (; list_it != list_end;	++list_it)
-	{
-		uuids.push_back(list_it->asUUID());
-	}
-
-	std::vector<LLAvatarName> avatar_names;
-	uuid_vec_t::const_iterator it = uuids.begin();
-	for (; it != uuids.end(); ++it)
-	{
-		const LLUUID& id = *it;
-		LLAvatarName av_name;
-		if (LLAvatarNameCache::get(id, &av_name))
-		{
-			avatar_names.push_back(av_name);
-		}
-	}
-
-	std::string added_participants;
-
-	// We should check whether the vector is not empty to pass the assertion
-	// that avatar_names.size() > 0 in LLAvatarActions::buildResidentsString.
-	if (!avatar_names.empty())
-	{
-		LLAvatarActions::buildResidentsString(avatar_names, added_participants);
-	}
-
-	LLStringUtil::format_map_t args;
-	args["[NAMES]"] = added_participants;
-	std::string participants_added_notification;
-
 	if (mIsP2PChat)
 	{
-		mStartConferenceInSameFloater = true;
+		LLSD payload;
+		LLSD args;
 
-		uuid_vec_t temp_ids;
-
-		// Add the initial participant of a P2P session
-		temp_ids.push_back(mOtherParticipantUUID);
-		temp_ids.insert(temp_ids.end(), uuids.begin(), uuids.end());
-
-		LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(mSessionID);
-
-		// first check whether this is a voice session
-		bool is_voice_call = voice_channel != NULL && voice_channel->isActive();
-
-		// then we can close the current session
-		onClose(false);
-
-		participants_added_notification = getString("participants_added_new_window", args);
-		participants_added_notification = utf8str_truncate(participants_added_notification, MAX_MSG_BUF_SIZE - 1);
-
-		if (mSessionInitialized)
-		{
-				LLIMModel::sendMessage(participants_added_notification, mSessionID, mOtherParticipantUUID, mDialog);
-		}
-		else
-		{
-			//queue up the message to send once the session is initialized
-			mQueuedMsgsForInit.append(participants_added_notification);
-		}
-
-		// Start a new ad hoc voice call if we invite new participants to a P2P call,
-		// or start a text chat otherwise.
-		if (is_voice_call)
-		{
-			LLAvatarActions::startAdhocCall(temp_ids, mSessionID);
-		}
-		else
-		{
-			LLAvatarActions::startConference(temp_ids, mSessionID);
-		}
+		LLNotificationsUtil::add("ConfirmAddingChatParticipants", args, payload,
+				boost::bind(&LLIMFloater::addP2PSessionParticipants, this, uuids));
 	}
 	else
 	{
-		participants_added_notification = getString("participants_added", args);
-		participants_added_notification = utf8str_truncate(participants_added_notification, MAX_MSG_BUF_SIZE - 1);
-
-		if (mSessionInitialized)
-		{
-				LLIMModel::sendMessage(participants_added_notification, mSessionID, mOtherParticipantUUID, mDialog);
-		}
-		else
-		{
-			//queue up the message to send once the session is initialized
-			mQueuedMsgsForInit.append(participants_added_notification);
-		}
+		sendParticipantsAddedNotification(uuids);
 
 		inviteToSession(uuids);
 	}
+}
+
+void LLIMFloater::addP2PSessionParticipants(const uuid_vec_t& uuids)
+{
+	sendParticipantsAddedNotification(uuids);
+
+	mStartConferenceInSameFloater = true;
+
+	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(mSessionID);
+
+	// first check whether this is a voice session
+	bool is_voice_call = voice_channel != NULL && voice_channel->isActive();
+
+	uuid_vec_t temp_ids;
+
+	// Add the initial participant of a P2P session
+	temp_ids.push_back(mOtherParticipantUUID);
+	temp_ids.insert(temp_ids.end(), uuids.begin(), uuids.end());
+
+	// then we can close the current session
+	onClose(false);
+
+	// Start a new ad hoc voice call if we invite new participants to a P2P call,
+	// or start a text chat otherwise.
+	if (is_voice_call)
+	{
+		LLAvatarActions::startAdhocCall(temp_ids, mSessionID);
+	}
+	else
+	{
+		LLAvatarActions::startConference(temp_ids, mSessionID);
+	}
+}
+
+void LLIMFloater::sendParticipantsAddedNotification(const uuid_vec_t& uuids)
+{
+	std::string names_string;
+	build_names_string(uuids, names_string);
+	LLStringUtil::format_map_t args;
+	args["[NAME]"] = names_string;
+	args["[NEW_WINDOW]"] = mIsP2PChat ? getString("new_window") : LLStringUtil::null;
+
+	sendMsg(getString(uuids.size() > 1 ? "multiple_participants_added" : "participant_added", args));
 }
 
 void LLIMFloater::boundVoiceChannel()
@@ -619,17 +582,19 @@ void LLIMFloater::onParticipantsListChanged(LLUICtrl* ctrl)
 	if (!avatar_list)
 	{
 		return;
-		}
+	}
 
 	bool all_names_resolved = true;
 	std::vector<LLSD> participants_uuids;
+	uuid_vec_t temp_uuids; // uuids vector for building the added participants' names string
 
 	avatar_list->getValues(participants_uuids);
 
 	// Check whether we have all participants names in LLAvatarNameCache
 	for (std::vector<LLSD>::const_iterator it = participants_uuids.begin(); it != participants_uuids.end(); ++it)
-{
+	{
 		const LLUUID& id = it->asUUID();
+		temp_uuids.push_back(id);
 		LLAvatarName av_name;
 		if (!LLAvatarNameCache::get(id, &av_name))
 		{
@@ -641,31 +606,14 @@ void LLIMFloater::onParticipantsListChanged(LLUICtrl* ctrl)
 					boost::bind(&LLIMFloater::onParticipantsListChanged, this, avatar_list));
 			break;
 		}
-}
+	}
 
 	if (all_names_resolved)
 	{
-		std::vector<LLAvatarName> avatar_names;
-		std::vector<LLSD>::const_iterator it = participants_uuids.begin();
-		for (; it != participants_uuids.end(); ++it)
-		{
-			const LLUUID& id = it->asUUID();
-			LLAvatarName av_name;
-			if (LLAvatarNameCache::get(id, &av_name))
-{
-				avatar_names.push_back(av_name);
-			}
-}
-
-		// We should check whether the vector is not empty to pass the assertion
-		// that avatar_names.size() > 0 in LLAvatarActions::buildResidentsString.
-		if (!avatar_names.empty())
-{
-			std::string ui_title;
-			LLAvatarActions::buildResidentsString(avatar_names, ui_title);
-			updateSessionName(ui_title, ui_title);
-		}
-}
+		std::string ui_title;
+		build_names_string(temp_uuids, ui_title);
+		updateSessionName(ui_title, ui_title);
+	}
 }
 
 //static
@@ -1215,7 +1163,7 @@ bool LLIMFloater::dropPerson(LLUUID* person_id, bool drop)
 		res = canAddSelectedToChat(ids);
 		if(res && drop)
 		{
-			onAddSessionParticipants(ids);
+			addSessionParticipants(ids);
 		}
 	}
 
@@ -1254,37 +1202,32 @@ BOOL LLIMFloater::inviteToSession(const uuid_vec_t& ids)
 
 	if (is_region_exist)
 	{
-	S32 count = ids.size();
+		S32 count = ids.size();
 
-	if( isInviteAllowed() && (count > 0) )
-	{
-		llinfos << "LLIMFloater::inviteToSession() - inviting participants" << llendl;
-
-		std::string url = region->getCapability("ChatSessionRequest");
-
-		LLSD data;
-
-		data["params"] = LLSD::emptyArray();
-		for (int i = 0; i < count; i++)
+		if( isInviteAllowed() && (count > 0) )
 		{
-			data["params"].append(ids[i]);
-		}
+			llinfos << "LLIMFloater::inviteToSession() - inviting participants" << llendl;
 
-		data["method"] = "invite";
-		data["session-id"] = mSessionID;
-		LLHTTPClient::post(
-			url,
-			data,
-					new LLSessionInviteResponder(mSessionID));
-	}
-	else
-	{
-		llinfos << "LLIMFloater::inviteToSession -"
-				<< " no need to invite agents for "
-				<< mDialog << llendl;
-		// successful add, because everyone that needed to get added
-		// was added.
-	}
+			std::string url = region->getCapability("ChatSessionRequest");
+
+			LLSD data;
+			data["params"] = LLSD::emptyArray();
+			for (int i = 0; i < count; i++)
+			{
+				data["params"].append(ids[i]);
+			}
+			data["method"] = "invite";
+			data["session-id"] = mSessionID;
+			LLHTTPClient::post(url,	data,new LLSessionInviteResponder(mSessionID));
+		}
+		else
+		{
+			llinfos << "LLIMFloater::inviteToSession -"
+					<< " no need to invite agents for "
+					<< mDialog << llendl;
+			// successful add, because everyone that needed to get added
+			// was added.
+		}
 	}
 
 	return is_region_exist;
@@ -1413,4 +1356,26 @@ void LLIMFloater::addToHost(const LLUUID& session_id)
 boost::signals2::connection LLIMFloater::setIMFloaterShowedCallback(const floater_showed_signal_t::slot_type& cb)
 {
 	return LLIMFloater::sIMFloaterShowedSignal.connect(cb);
+}
+
+// static
+void build_names_string(const uuid_vec_t& uuids, std::string& names_string)
+{
+	std::vector<LLAvatarName> avatar_names;
+	uuid_vec_t::const_iterator it = uuids.begin();
+	for (; it != uuids.end(); ++it)
+	{
+		LLAvatarName av_name;
+		if (LLAvatarNameCache::get(*it, &av_name))
+		{
+			avatar_names.push_back(av_name);
+		}
+	}
+
+	// We should check whether the vector is not empty to pass the assertion
+	// that avatar_names.size() > 0 in LLAvatarActions::buildResidentsString.
+	if (!avatar_names.empty())
+	{
+		LLAvatarActions::buildResidentsString(avatar_names, names_string);
+	}
 }

@@ -89,7 +89,8 @@ public:
 	void updateMessages();
 	void reloadMessages();
 	static void onSendMsg(LLUICtrl*, void*);
-	void sendMsg();
+	void sendMsgFromInputEditor();
+	void sendMsg(const std::string& msg);
 
 	// callback for LLIMModel on new messages
 	// route to specific floater if it is visible
@@ -160,8 +161,9 @@ private:
 	static void onInputEditorKeystroke(LLTextEditor* caller, void* userdata);
 	void setTyping(bool typing);
 	void onAddButtonClicked();
-	void onAddSessionParticipants(const uuid_vec_t& uuids);
-	void addSessionParticipants(const LLSD& notification, const LLSD& response);
+	void addSessionParticipants(const uuid_vec_t& uuids);
+	void addP2PSessionParticipants(const uuid_vec_t& uuids);
+	void sendParticipantsAddedNotification(const uuid_vec_t& uuids);
 	bool canAddSelectedToChat(const uuid_vec_t& uuids);
 
 	void onCallButtonClicked();
