@@ -203,7 +203,12 @@ BOOL LLNearbyChatBar::handleKeyHere( KEY key, MASK mask )
 		sendChat(CHAT_TYPE_SHOUT);
 		handled = TRUE;
 	}
-
+	else if (KEY_RETURN == key && mask == MASK_SHIFT)
+	{
+		// whisper
+		sendChat(CHAT_TYPE_WHISPER);
+		handled = TRUE;
+	}
 	return handled;
 }
 
