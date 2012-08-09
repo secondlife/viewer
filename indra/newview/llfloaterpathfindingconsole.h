@@ -93,7 +93,7 @@ public:
 
 	LLPathingLib::LLPLCharacterType getRenderHeatmapType() const;
 	void                            setRenderHeatmapType(LLPathingLib::LLPLCharacterType pRenderHeatmapType);
-
+	void onRegionBoundaryCross();
 protected:
 
 private:
@@ -124,7 +124,7 @@ private:
 	void onClearPathClicked();
 
 	void handleNavMeshZoneStatus(LLPathfindingNavMeshZone::ENavMeshZoneRequestStatus pNavMeshZoneRequestStatus);
-	void onRegionBoundaryCross();
+	
 	void onPathEvent();
 
 	void setDefaultInputs();
