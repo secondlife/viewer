@@ -134,6 +134,7 @@ set(viewer_SOURCE_FILES
     llconversationlog.cpp
     llconversationloglist.cpp
     llconversationloglistitem.cpp
+    llconversationmodel.cpp
     llcurrencyuimanager.cpp
     llcylinder.cpp
     lldateutil.cpp
@@ -699,6 +700,7 @@ set(viewer_HEADER_FILES
     llconversationlog.h
     llconversationloglist.h
     llconversationloglistitem.h
+    llconversationmodel.h
     llcurrencyuimanager.h
     llcylinder.h
     lldateutil.h
