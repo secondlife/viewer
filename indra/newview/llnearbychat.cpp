@@ -152,7 +152,7 @@ BOOL LLNearbyChat::postBuild()
 
 	// title must be defined BEFORE call addConversationListItem() because
 	// it is used for show the item's name in the conversations list
-	setTitle(getString("NearbyChatTitle"));
+	setTitle(LLTrans::getString("NearbyChatTitle"));
 
 	addToHost();
 
@@ -177,16 +177,13 @@ BOOL LLNearbyChat::postBuild()
 		loadHistory();
 	}
 
-	// added row in the conversations list when nearby chat is tear-off
-	LLIMFloaterContainer* im_box = LLIMFloaterContainer::getInstance();
-	im_box->addConversationListItem(getTitle(), LLSD(), this);
-
 	return result;
 }
 
 // virtual
 void LLNearbyChat::refresh()
 {
+	updateHeaderAndToolbar();
 	displaySpeakingIndicator();
 	updateCallBtnState(LLVoiceClient::getInstance()->getUserPTTState());
 
@@ -386,7 +383,7 @@ void LLNearbyChat::onChatFontChange(LLFontGL* fontp)
 //static
 LLNearbyChat* LLNearbyChat::getInstance()
 {
-	return LLFloaterReg::getTypedInstance<LLNearbyChat>("chat_bar");
+	return LLFloaterReg::getTypedInstance<LLNearbyChat>("chat_bar", LLSD(LLUUID::null));
 }
 
 void LLNearbyChat::show()

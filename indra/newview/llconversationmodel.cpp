@@ -28,14 +28,14 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llconversationmodel.h"
+#include "llimconversation.h"
 #include "llimfloatercontainer.h"
 
 // Conversation items
-LLConversationItem::LLConversationItem(std::string name, const LLUUID& uuid, LLFloater* floaterp, LLIMFloaterContainer* containerp) :
+LLConversationItem::LLConversationItem(std::string display_name, const LLUUID& uuid, LLIMFloaterContainer* containerp) :
 	LLFolderViewModelItemCommon(containerp->getRootViewModel()),
-	mName(name),
+	mName(display_name),
 	mUUID(uuid),
-    mFloater(floaterp),
     mContainer(containerp)
 {
 }
@@ -44,7 +44,6 @@ LLConversationItem::LLConversationItem(LLIMFloaterContainer* containerp) :
 	LLFolderViewModelItemCommon(containerp->getRootViewModel()),
 	mName(""),
 	mUUID(),
-	mFloater(NULL),
 	mContainer(NULL)
 {
 }
@@ -53,25 +52,30 @@ LLConversationItem::LLConversationItem(LLIMFloaterContainer* containerp) :
 // Virtual action callbacks
 void LLConversationItem::selectItem(void)
 {
-	LLMultiFloater* host_floater = mFloater->getHost();
+	LLFloater* session_floater = LLIMConversation::getConversation(mUUID);
+	LLMultiFloater* host_floater = session_floater->getHost();
+
+//	LLIMFloater::show(mUUID);
 	if (host_floater == mContainer)
 	{
 		// Always expand the message pane if the panel is hosted by the container
 		mContainer->collapseMessagesPane(false);
 		// Switch to the conversation floater that is being selected
-		mContainer->selectFloater(mFloater);
+		mContainer->selectFloater(session_floater);
 	}
 	// Set the focus on the selected floater
-	mFloater->setFocus(TRUE);    
+	session_floater->setFocus(TRUE);
 }
 
 void LLConversationItem::setVisibleIfDetached(BOOL visible)
 {
 	// Do this only if the conversation floater has been torn off (i.e. no multi floater host) and is not minimized
 	// Note: minimized dockable floaters are brought to front hence unminimized when made visible and we don't want that here
-	if (!mFloater->getHost() && !mFloater->isMinimized())
+	LLFloater* session_floater = LLIMConversation::getConversation(mUUID);
+
+	if (session_floater && !session_floater->getHost() && !session_floater->isMinimized())
 	{
-		mFloater->setVisible(visible);    
+		session_floater->setVisible(visible);
 	}
 }
 

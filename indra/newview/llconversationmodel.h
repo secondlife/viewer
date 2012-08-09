@@ -44,15 +44,15 @@ class LLIMFloaterContainer;
 
 class LLConversationItem;
 
-typedef std::map<LLFloater*, LLConversationItem*> conversations_items_map;
-typedef std::map<LLFloater*, LLFolderViewItem*> conversations_widgets_map;
+typedef std::map<LLUUID, LLConversationItem*> conversations_items_map;
+typedef std::map<LLUUID, LLFolderViewItem*> conversations_widgets_map;
 
 // Conversation items: we hold a list of those and create an LLFolderViewItem widget for each  
 // that we tuck into the mConversationsListPanel. 
 class LLConversationItem : public LLFolderViewModelItemCommon
 {
 public:
-	LLConversationItem(std::string name, const LLUUID& uuid, LLFloater* floaterp, LLIMFloaterContainer* containerp);
+	LLConversationItem(std::string display_name, const LLUUID& uuid, LLIMFloaterContainer* containerp);
 	LLConversationItem(LLIMFloaterContainer* containerp);
 	virtual ~LLConversationItem() {}
 
@@ -109,12 +109,11 @@ public:
 							void* cargo_data,
 							std::string& tooltip_msg) { return FALSE; }
 	
-	bool hasSameValues(std::string name, const LLUUID& uuid) { return ((name == mName) && (uuid == mUUID)); }
+//	bool hasSameValues(std::string name, const LLUUID& uuid) { return ((name == mName) && (uuid == mUUID)); }
 	bool hasSameValue(const LLUUID& uuid) { return (uuid == mUUID); }
 private:
 	std::string mName;
 	const LLUUID mUUID;
-    LLFloater* mFloater;
     LLIMFloaterContainer* mContainer;
 };
 

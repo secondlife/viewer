@@ -344,10 +344,6 @@ BOOL LLIMFloater::postBuild()
 
 	initIMFloater();
 
-	// Add a conversation list item in the left pane
-	LLIMFloaterContainer* im_box = LLIMFloaterContainer::getInstance();
-	im_box->addConversationListItem(getTitle(), getKey(), this);
-
 	return result;
 }
 
@@ -547,7 +543,7 @@ void LLIMFloater::onParticipantsListChanged(LLUICtrl* ctrl)
 	if (!avatar_list)
 	{
 		return;
-		}
+	}
 
 	bool all_names_resolved = true;
 	std::vector<LLSD> participants_uuids;
@@ -555,12 +551,12 @@ void LLIMFloater::onParticipantsListChanged(LLUICtrl* ctrl)
 	avatar_list->getValues(participants_uuids);
 
 	// Check whether we have all participants names in LLAvatarNameCache
-	for (std::vector<LLSD>::const_iterator it = participants_uuids.begin(); it != participants_uuids.end(); ++it)
-{
+    for (std::vector<LLSD>::const_iterator it = participants_uuids.begin(); it != participants_uuids.end(); ++it)
+    {
 		const LLUUID& id = it->asUUID();
 		LLAvatarName av_name;
-		if (!LLAvatarNameCache::get(id, &av_name))
-		{
+        if (!LLAvatarNameCache::get(id, &av_name))
+        {
 			all_names_resolved = false;
 
 			// If a name is not found in cache, request it and continue the process recursively
@@ -568,8 +564,8 @@ void LLIMFloater::onParticipantsListChanged(LLUICtrl* ctrl)
 			LLAvatarNameCache::get(id,
 					boost::bind(&LLIMFloater::onParticipantsListChanged, this, avatar_list));
 			break;
-		}
-}
+        }
+    }
 
 	if (all_names_resolved)
 	{
@@ -580,20 +576,20 @@ void LLIMFloater::onParticipantsListChanged(LLUICtrl* ctrl)
 			const LLUUID& id = it->asUUID();
 			LLAvatarName av_name;
 			if (LLAvatarNameCache::get(id, &av_name))
-{
+            {
 				avatar_names.push_back(av_name);
-			}
-}
+            }
+        }
 
 		// We should check whether the vector is not empty to pass the assertion
 		// that avatar_names.size() > 0 in LLAvatarActions::buildResidentsString.
 		if (!avatar_names.empty())
-{
+        {
 			std::string ui_title;
 			LLAvatarActions::buildResidentsString(avatar_names, ui_title);
 			updateSessionName(ui_title, ui_title);
 		}
-}
+    }
 }
 
 //static

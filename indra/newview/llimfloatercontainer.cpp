@@ -76,13 +76,20 @@ LLIMFloaterContainer::~LLIMFloaterContainer()
 void LLIMFloaterContainer::sessionVoiceOrIMStarted(const LLUUID& session_id)
 {
 	LLIMFloater::show(session_id);
+	addConversationListItem(session_id);
+}
+
+void LLIMFloaterContainer::sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id)
+{
+	removeConversationListItem(old_session_id);
+	addConversationListItem(new_session_id);
 }
 
 void LLIMFloaterContainer::sessionRemoved(const LLUUID& session_id)
 {
 	LLIMFloater* floaterp = LLIMFloater::findInstance(session_id);
 	LLFloater::onClickClose(floaterp);
-	removeConversationListItem(floaterp);
+	removeConversationListItem(session_id);
 }
 
 BOOL LLIMFloaterContainer::postBuild()
@@ -111,6 +118,10 @@ BOOL LLIMFloaterContainer::postBuild()
 
 	mConversationsRoot = LLUICtrlFactory::create<LLFolderView>(p);
 	mConversationsListPanel->addChild(mConversationsRoot);
+
+	addConversationListItem(LLUUID()); // manually add nearby chat
+
+	addConversationListItem(LLUUID()); // manually add nearby chat
 
 	mExpandCollapseBtn = getChild<LLButton>("expand_collapse_btn");
 	mExpandCollapseBtn->setClickedCallback(boost::bind(&LLIMFloaterContainer::onExpandCollapseButtonClicked, this));
@@ -301,13 +312,13 @@ void LLIMFloaterContainer::setVisible(BOOL visible)
 	if (visible)
 	{
 		// Make sure we have the Nearby Chat present when showing the conversation container
-		LLFloater* nearby_chat = LLFloaterReg::findInstance("chat_bar");
+		LLIMConversation* nearby_chat = LLIMConversation::getConversation(LLUUID::null);
 		if (nearby_chat == NULL)
 		{
 			// If not found, force the creation of the nearby chat conversation panel
 			// *TODO: find a way to move this to XML as a default panel or something like that
 			LLSD name("chat_bar");
-			LLFloaterReg::toggleInstanceOrBringToFront(name);
+			LLFloaterReg::toggleInstanceOrBringToFront(name, LLSD(LLUUID::null));
 		}
 	}
 
@@ -432,33 +443,29 @@ void LLIMFloaterContainer::repositioningWidgets()
 }
 
 // CHUI-137 : Temporary implementation of conversations list
-void LLIMFloaterContainer::addConversationListItem(std::string name, const LLUUID& uuid, LLFloater* floaterp)
+void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 {
+	std::string display_name = uuid.isNull()? LLTrans::getString("NearbyChatTitle") : LLIMModel::instance().getName(uuid);
+
 	// Check if the item is not already in the list, exit if it is and has the same name and uuid (nothing to do)
 	// Note: this happens often, when reattaching a torn off conversation for instance
-	conversations_items_map::iterator item_it = mConversationsItems.find(floaterp);
+	conversations_items_map::iterator item_it = mConversationsItems.find(uuid);
 	if (item_it != mConversationsItems.end())
 	{
-		LLConversationItem* item = item_it->second;
-		// Check if the item has changed
-		if (item->hasSameValues(name,uuid))
-		{
-			// If it hasn't changed, nothing to do -> exit
-			return;
-		}
+		return;
 	}
-	
+
 	// Remove the conversation item that might exist already: it'll be recreated anew further down anyway
 	// and nothing wrong will happen removing it if it doesn't exist
-	removeConversationListItem(floaterp,false);
+	removeConversationListItem(uuid,false);
 
 	// Create a conversation item
-	LLConversationItem* item = new LLConversationItem(name, uuid, floaterp, this);
-	mConversationsItems[floaterp] = item;
+	LLConversationItem* item = new LLConversationItem(display_name, uuid, this);
+	mConversationsItems[uuid] = item;
 
 	// Create a widget from it
 	LLFolderViewItem* widget = createConversationItemWidget(item);
-	mConversationsWidgets[floaterp] = widget;
+	mConversationsWidgets[uuid] = widget;
 
 	// Add a new conversation widget to the root folder of a folder view.
 	widget->addToFolder(mConversationsRoot);
@@ -473,12 +480,12 @@ void LLIMFloaterContainer::addConversationListItem(std::string name, const LLUUI
 	return;
 }
 
-void LLIMFloaterContainer::removeConversationListItem(LLFloater* floaterp, bool change_focus)
+void LLIMFloaterContainer::removeConversationListItem(const LLUUID& uuid, bool change_focus)
 {
 	// Delete the widget and the associated conversation item
 	// Note : since the mConversationsItems is also the listener to the widget, deleting 
 	// the widget will also delete its listener
-	conversations_widgets_map::iterator widget_it = mConversationsWidgets.find(floaterp);
+	conversations_widgets_map::iterator widget_it = mConversationsWidgets.find(uuid);
 	if (widget_it != mConversationsWidgets.end())
 	{
 		LLFolderViewItem* widget = widget_it->second;
@@ -486,8 +493,8 @@ void LLIMFloaterContainer::removeConversationListItem(LLFloater* floaterp, bool 
 	}
 	
 	// Suppress the conversation items and widgets from their respective maps
-	mConversationsItems.erase(floaterp);
-	mConversationsWidgets.erase(floaterp);
+	mConversationsItems.erase(uuid);
+	mConversationsWidgets.erase(uuid);
 
 	repositioningWidgets();
 	
@@ -503,21 +510,6 @@ void LLIMFloaterContainer::removeConversationListItem(LLFloater* floaterp, bool 
 		}
 	}
 	return;
-}
-
-LLFloater* LLIMFloaterContainer::findConversationItem(LLUUID& uuid)
-{
-	LLFloater* floaterp = NULL;
-	for (conversations_items_map::iterator item_it = mConversationsItems.begin(); item_it != mConversationsItems.end(); ++item_it)
-	{
-		LLConversationItem* item = item_it->second;
-		if (item->hasSameValue(uuid))
-		{
-			floaterp = item_it->first;
-			break;
-		}
-	}
-	return floaterp;
 }
 
 LLFolderViewItem* LLIMFloaterContainer::createConversationItemWidget(LLConversationItem* item)

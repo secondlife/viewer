@@ -57,6 +57,9 @@ public:
 	 */
 	static bool isChatMultiTab();
 
+    static LLIMConversation* findConversation(const LLUUID& uuid);
+    static LLIMConversation* getConversation(const LLUUID& uuid);
+
 	// show/hide the translation check box
 	void showTranslationCheckbox(const BOOL visible = FALSE);
 

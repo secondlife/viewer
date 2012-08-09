@@ -49,6 +49,8 @@ class LLSysWellChiclet;
 class LLSysWellWindow : public LLTransientDockableFloater
 {
 public:
+	LOG_CLASS(LLSysWellWindow);
+
     LLSysWellWindow(const LLSD& key);
     ~LLSysWellWindow();
 	BOOL postBuild();

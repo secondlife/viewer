@@ -35,6 +35,7 @@
 #include "llmultifloater.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llgroupmgr.h"
+#include "lltrans.h"
 #include "llconversationmodel.h"
 
 class LLButton;
@@ -75,10 +76,11 @@ public:
 	
 
 	// LLIMSessionObserver observe triggers
-	/*virtual*/ void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id) {};
+	/*virtual*/ void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id);
 	/*virtual*/ void sessionVoiceOrIMStarted(const LLUUID& session_id);
 	/*virtual*/ void sessionRemoved(const LLUUID& session_id);
-	/*virtual*/ void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id) {};
+	/*virtual*/ void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id);
+
 	LLConversationViewModel& getRootViewModel() { return mConversationViewModel; }
 
 private:
@@ -107,9 +109,9 @@ private:
 	
 	// Conversation list implementation
 public:
-	void removeConversationListItem(LLFloater* floaterp, bool change_focus = true);
-	void addConversationListItem(std::string name, const LLUUID& uuid, LLFloater* floaterp);
-	LLFloater* findConversationItem(LLUUID& uuid);
+	void removeConversationListItem(const LLUUID& uuid, bool change_focus = true);
+	void addConversationListItem(const LLUUID& uuid);
+
 private:
 	LLFolderViewItem* createConversationItemWidget(LLConversationItem* item);
 

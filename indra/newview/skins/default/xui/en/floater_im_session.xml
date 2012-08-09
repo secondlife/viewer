@@ -17,9 +17,6 @@
  min_width="250"
  min_height="190"
  positioning="relative">
-    <floater.string 
-     name="NearbyChatTitle"
-     value="Nearby Chat"/>
     <floater.string name="call_btn_start">Conv_toolbar_open_call</floater.string>
     <floater.string name="call_btn_stop">Conv_toolbar_hang_up</floater.string>
     <floater.string

@@ -78,6 +78,19 @@ LLIMConversation::~LLIMConversation()
 	delete mRefreshTimer;
 }
 
+//static
+LLIMConversation* LLIMConversation::findConversation(const LLUUID& uuid)
+{
+    return LLFloaterReg::findTypedInstance<LLIMConversation>(uuid.isNull()? "chat_bar" : "impanel", LLSD(uuid));
+};
+
+//static
+LLIMConversation* LLIMConversation::getConversation(const LLUUID& uuid)
+{
+	return LLFloaterReg::getTypedInstance<LLIMConversation>(uuid.isNull()? "chat_bar" : "impanel", LLSD(uuid));
+};
+
+
 BOOL LLIMConversation::postBuild()
 {
 	BOOL result;
@@ -384,7 +397,7 @@ void LLIMConversation::onClose(bool app_quitting)
 		LLIMFloaterContainer* im_box = LLIMFloaterContainer::findInstance();
 		if (im_box)
 		{
-            im_box->removeConversationListItem(this);
+            im_box->removeConversationListItem(mKey);
         }
     }
 }
