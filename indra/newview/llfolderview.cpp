@@ -2254,7 +2254,7 @@ void LLFolderView::doIdle()
 		LLFastTimer t3(FTM_AUTO_SELECT);
 		// select new item only if a filtered item not currently selected
 		LLFolderViewItem* selected_itemp = mSelectedItems.empty() ? NULL : mSelectedItems.back();
-		if (!mAutoSelectOverride && (!selected_itemp || !selected_itemp->potentiallyFiltered()))
+		if (!mAutoSelectOverride && (!selected_itemp || !selected_itemp->potentiallyVisible()))
 		{
 			// these are named variables to get around gcc not binding non-const references to rvalues
 			// and functor application is inherently non-const to allow for stateful functors
@@ -2264,7 +2264,7 @@ void LLFolderView::doIdle()
 
 		// Open filtered folders for folder views with mAutoSelectOverride=TRUE.
 		// Used by LLPlacesFolderView.
-		if (mAutoSelectOverride && !mFilter->getFilterSubString().empty())
+		if (!mFilter->getFilterSubString().empty())
 		{
 			// these are named variables to get around gcc not binding non-const references to rvalues
 			// and functor application is inherently non-const to allow for stateful functors
@@ -2554,6 +2554,25 @@ void LLFolderView::onRenamerLost()
 		setSelectionFromRoot( mRenameItem, TRUE );
 		mRenameItem = NULL;
 	}
+}
+
+LLFolderViewItem* LLFolderView::getNextUnselectedItem()
+{
+	LLFolderViewItem* last_item = *mSelectedItems.rbegin();
+	LLFolderViewItem* new_selection = last_item->getNextOpenNode(FALSE);
+	while(new_selection && new_selection->isSelected())
+	{
+		new_selection = new_selection->getNextOpenNode(FALSE);
+	}
+	if (!new_selection)
+	{
+		new_selection = last_item->getPreviousOpenNode(FALSE);
+		while (new_selection && (new_selection->isInSelection()))
+		{
+			new_selection = new_selection->getPreviousOpenNode(FALSE);
+		}
+	}
+	return new_selection;
 }
 
 LLInventoryFilter* LLFolderView::getFilter()
