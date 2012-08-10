@@ -368,10 +368,11 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 	LLPath *path = &volume->getPath();
 	if ((mSimulateRes == 0 || !mInitialized) && mVO->mDrawable->isVisible()) 
 	{
-		//mVO->markForUpdate(TRUE);
+		BOOL force_update = mSimulateRes == 0 ? TRUE : FALSE;
+
 		doIdleUpdate(gAgent, *LLWorld::getInstance(), 0.0);
 
-		if (mSimulateRes == 0)
+		if (!force_update || !gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_FLEXIBLE))
 		{
 			return;	// we did not get updated or initialized, proceeding without can be dangerous
 		}
