@@ -317,7 +317,7 @@ void LLIMFloaterContainer::setVisible(BOOL visible)
 	if (visible)
 	{
 		// Make sure we have the Nearby Chat present when showing the conversation container
-		LLIMConversation* nearby_chat = LLIMConversation::getConversation(LLUUID::null);
+		LLIMConversation* nearby_chat = LLIMConversation::findConversation(LLUUID::null);
 		if (nearby_chat == NULL)
 		{
 			// If not found, force the creation of the nearby chat conversation panel
