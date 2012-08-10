@@ -95,6 +95,9 @@ protected:
 	void hideOrShowTitle(); // toggle the floater's drag handle
 	void hideAllStandardButtons();
 
+	/// Update floater header and toolbar buttons when hosted/torn off state is toggled.
+	void updateHeaderAndToolbar();
+
 	bool mIsNearbyChat;
 	bool mIsP2PChat;
 
@@ -114,8 +117,6 @@ private:
 	/// Refreshes the floater at a constant rate.
 	virtual void refresh() = 0;
 
-	/// Update floater header and toolbar buttons when hosted/torn off state is toggled.
-	void updateHeaderAndToolbar();
 
 	/**
 	 * Adjusts chat history height to fit vertically with input chat field
