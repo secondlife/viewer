@@ -339,11 +339,11 @@ U32 LLVOTree::processUpdateMessage(LLMessageSystem *mesgsys,
 	return retval;
 }
 
-BOOL LLVOTree::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
+void LLVOTree::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
  	if (mDead || !(gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_TREE)))
 	{
-		return TRUE;
+		return;
 	}
 	
 	S32 trunk_LOD = sMAX_NUM_TREE_LOD_LEVELS ;
@@ -393,8 +393,6 @@ BOOL LLVOTree::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 	}
 
 	mTrunkLOD = trunk_LOD;
-
-	return TRUE;
 }
 
 const F32 TREE_BLEND_MIN = 1.f;

@@ -33,6 +33,26 @@
 
 class LLAvatarName;
 
+/**
+ * LLNameListCtrl item
+ *
+ * We don't use LLScrollListItem to be able to override getUUID(), which is needed
+ * because the name list item value is not simply an UUID but a map (uuid, is_group).
+ */
+class LLNameListItem : public LLScrollListItem, public LLHandleProvider<LLNameListItem>
+{
+public:
+	LLUUID	getUUID() const		{ return getValue()["uuid"].asUUID(); }
+protected:
+	friend class LLNameListCtrl;
+
+	LLNameListItem( const LLScrollListItem::Params& p )
+	:	LLScrollListItem(p)
+	{
+	}
+};
+
+
 class LLNameListCtrl
 :	public LLScrollListCtrl, public LLInstanceTracker<LLNameListCtrl>
 {
@@ -110,12 +130,14 @@ public:
 
 	void setAllowCallingCardDrop(BOOL b) { mAllowCallingCardDrop = b; }
 
+	void sortByName(BOOL ascending);
+
 	/*virtual*/ void updateColumns();
 
 	/*virtual*/ void	mouseOverHighlightNthItem( S32 index );
 private:
 	void showInspector(const LLUUID& avatar_id, bool is_group);
-	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
+	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name, LLHandle<LLNameListItem> item);
 
 private:
 	S32    			mNameColumnIndex;
@@ -124,24 +146,5 @@ private:
 	bool			mShortNames;  // display name only, no SLID
 };
 
-/**
- * LLNameListCtrl item
- *
- * We don't use LLScrollListItem to be able to override getUUID(), which is needed
- * because the name list item value is not simply an UUID but a map (uuid, is_group).
- */
-class LLNameListItem : public LLScrollListItem
-{
-public:
-	LLUUID	getUUID() const		{ return getValue()["uuid"].asUUID(); }
-
-protected:
-	friend class LLNameListCtrl;
-
-	LLNameListItem( const LLScrollListItem::Params& p )
-	:	LLScrollListItem(p)
-	{
-	}
-};
 
 #endif

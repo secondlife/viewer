@@ -2720,6 +2720,11 @@ BOOL LLScrollListCtrl::hasSortOrder() const
 	return !mSortColumns.empty();
 }
 
+void LLScrollListCtrl::clearSortOrder()
+{
+	mSortColumns.clear();
+}
+
 void LLScrollListCtrl::clearColumns()
 {
 	column_map_t::iterator itor;

@@ -89,9 +89,9 @@ public:
 	static void selectNoTypes(void* user_data);
 private:
 	LLPanelMainInventory*	mPanelMainInventory;
-	LLSpinCtrl*				mSpinSinceDays;
-	LLSpinCtrl*				mSpinSinceHours;
-	LLInventoryFilter*		mFilter;
+	LLSpinCtrl*			mSpinSinceDays;
+	LLSpinCtrl*			mSpinSinceHours;
+	LLInventoryFilter*	mFilter;
 };
 
 ///----------------------------------------------------------------------------
@@ -315,6 +315,7 @@ void LLPanelMainInventory::newWindow()
 
 void LLPanelMainInventory::doCreate(const LLSD& userdata)
 {
+	reset_inventory_filter();
 	menu_create_inventory_item(getPanel(), NULL, userdata);
 }
 

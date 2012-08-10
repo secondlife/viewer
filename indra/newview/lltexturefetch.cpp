@@ -1249,6 +1249,12 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				S32 max_attempts;
 				if (mGetStatus == HTTP_NOT_FOUND)
 				{
+					if(mWriteToCacheState == NOT_WRITE) //map tiles
+					{
+						mState = DONE;
+						return true; // failed, means no map tile on the empty region.
+					}
+
 					mHTTPFailCount = max_attempts = 1; // Don't retry
 					llwarns << "Texture missing from server (404): " << mUrl << llendl;
 
