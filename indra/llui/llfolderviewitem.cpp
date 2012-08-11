@@ -415,11 +415,6 @@ void LLFolderViewItem::rename(const std::string& new_name)
 	if( !new_name.empty() )
 	{
 		getViewModelItem()->renameItem(new_name);
-
-		//if(mParentFolder)
-		//{
-		//	mParentFolder->requestSort();
-		//}
 	}
 }
 

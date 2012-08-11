@@ -1553,6 +1553,12 @@ void LLItemBridge::buildDisplayName() const
 	mSearchableName.assign(mDisplayName);
 	mSearchableName.append(getLabelSuffix());
 	LLStringUtil::toUpper(mSearchableName);
+
+    //Name set, so trigger a sort
+    if(mParent)
+    {
+        mParent->requestSort();
+    }
 }
 
 LLFontGL::StyleFlags LLItemBridge::getLabelStyle() const
@@ -1859,6 +1865,12 @@ void LLFolderBridge::buildDisplayName() const
 	mSearchableName.assign(mDisplayName);
 	mSearchableName.append(getLabelSuffix());
 	LLStringUtil::toUpper(mSearchableName);
+
+    //Name set, so trigger a sort
+    if(mParent)
+    {
+        mParent->requestSort();
+    }
 }
 
 
