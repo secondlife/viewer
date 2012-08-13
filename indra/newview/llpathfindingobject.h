@@ -32,6 +32,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "llavatarname.h"
+#include "llavatarnamecache.h"
 #include "lluuid.h"
 #include "v3math.h"
 
@@ -66,15 +67,17 @@ private:
 
 	void fetchOwnerName();
 	void handleAvatarNameFetch(const LLUUID &pOwnerUUID, const LLAvatarName &pAvatarName);
+	void disconnectAvatarNameCacheConnection();
 
-	LLUUID       mUUID;
-	std::string  mName;
-	std::string  mDescription;
-	LLUUID       mOwnerUUID;
-	bool         mHasOwnerName;
-	LLAvatarName mOwnerName;
-	BOOL         mIsGroupOwned;
-	LLVector3    mLocation;
+	LLUUID                                   mUUID;
+	std::string                              mName;
+	std::string                              mDescription;
+	LLUUID                                   mOwnerUUID;
+	bool                                     mHasOwnerName;
+	LLAvatarName                             mOwnerName;
+	LLAvatarNameCache::callback_connection_t mAvatarNameCacheConnection;
+	BOOL                                     mIsGroupOwned;
+	LLVector3                                mLocation;
 };
 
 #endif // LL_LLPATHFINDINGOBJECT_H
