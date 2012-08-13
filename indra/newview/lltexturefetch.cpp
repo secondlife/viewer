@@ -1471,6 +1471,12 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			{
 				if (http_not_found == mGetStatus)
 				{
+					if(mWriteToCacheState == NOT_WRITE) //map tiles
+					{
+						mState = DONE;
+						return true; // failed, means no map tile on the empty region.
+					}
+
 					llwarns << "Texture missing from server (404): " << mUrl << llendl;
 
 					// roll back to try UDP
