@@ -207,6 +207,8 @@ public:
 	virtual void	doDelete();
 	virtual BOOL	canDoDelete() const;
 
+	LLFolderViewItem* getNextUnselectedItem();
+	
 	// Public rename functionality - can only start the process
 	void startRenamingSelectedItem( void );
 
