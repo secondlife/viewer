@@ -887,7 +887,7 @@ void LLVOAvatarSelf::removeMissingBakedTextures()
 			invalidateComposite(mBakedTextureDatas[i].mTexLayerSet, FALSE);
 		}
 		updateMeshTextures();
-		if (!LLAppearanceMgr::instance().useServerTextureBaking())
+		if (getRegion() && !getRegion()->getCentralBakeVersion())
 		{
 			requestLayerSetUploads();
 		}
@@ -1633,7 +1633,7 @@ void LLVOAvatarSelf::invalidateComposite( LLTexLayerSet* layerset, BOOL upload_r
 	layerset->requestUpdate();
 	layerset->invalidateMorphMasks();
 
-	if( upload_result  && !LLAppearanceMgr::instance().useServerTextureBaking())
+	if( upload_result  && (getRegion() && !getRegion()->getCentralBakeVersion()))
 	{
 		llassert(isSelf());
 
@@ -2616,15 +2616,6 @@ void LLVOAvatarSelf::processRebakeAvatarTextures(LLMessageSystem* msg, void**)
 	}
 }
 
-BOOL LLVOAvatarSelf::isUsingBakedTextures() const
-{
-	// Composite textures are used during appearance mode.
-	if (gAgentCamera.cameraCustomizeAvatar())
-		return FALSE;
-
-	return TRUE;
-}
-
 
 void LLVOAvatarSelf::forceBakeAllTextures(bool slam_for_debug)
 {
@@ -2725,14 +2716,15 @@ void LLVOAvatarSelf::onCustomizeStart(bool disable_camera_switch)
 // static
 void LLVOAvatarSelf::onCustomizeEnd(bool disable_camera_switch)
 {
-	gAgentAvatarp->mIsEditingAppearance = false;
-	if (!LLAppearanceMgr::instance().useServerTextureBaking())
-	{
-		gAgentAvatarp->mUseLocalAppearance = false;
-	}
 
 	if (isAgentAvatarValid())
 	{
+		gAgentAvatarp->mIsEditingAppearance = false;
+		if (gAgentAvatarp->getRegion() && !gAgentAvatarp->getRegion()->getCentralBakeVersion())
+		{
+			gAgentAvatarp->mUseLocalAppearance = false;
+		}
+
 		gAgentAvatarp->invalidateAll();
 
 		if (gSavedSettings.getBOOL("AppearanceCameraMovement") && !disable_camera_switch)

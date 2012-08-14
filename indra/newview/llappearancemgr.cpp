@@ -1743,7 +1743,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering)
 	updateIsDirty();
 
 	// Send server request for appearance update
-	if (useServerTextureBaking())
+	if (gAgent.getRegion() && gAgent.getRegion()->getCentralBakeVersion())
 	{
 		requestServerAppearanceUpdate();
 	}
@@ -2597,14 +2597,6 @@ void LLAppearanceMgr::updateClothingOrderingInfo(LLUUID cat_id, bool update_base
 
 	//*TODO do we really need to notify observers?
 	if (inventory_changed) gInventory.notifyObservers();
-}
-
-// Should be true iff both the appropriate debug setting is enabled
-// and the corresponding cap has been found.
-bool LLAppearanceMgr::useServerTextureBaking()
-{
-	// TODO: add cap check.
-	return gSavedSettings.getBOOL("UseServerTextureBaking");
 }
 
 class RequestAgentUpdateAppearanceResponder: public LLHTTPClient::Responder

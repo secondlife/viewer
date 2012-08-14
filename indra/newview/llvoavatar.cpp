@@ -4727,7 +4727,7 @@ void LLVOAvatar::setTexEntry(const U8 index, const LLTextureEntry &te)
 const std::string LLVOAvatar::getImageURL(const U8 te, const LLUUID &uuid)
 {
 	std::string url = "";
-	if (LLAppearanceMgr::instance().useServerTextureBaking() && !gSavedSettings.getString("AgentAppearanceServiceURL").empty())
+	if (mUseServerBakes && !gSavedSettings.getString("AgentAppearanceServiceURL").empty())
 	{
 		const LLVOAvatarDictionary::TextureEntry* texture_entry = LLVOAvatarDictionary::getInstance()->getTexture((ETextureIndex)te);
 		if (texture_entry != NULL)
@@ -7312,7 +7312,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	if( isSelf() )
 	{
 		llwarns << avString() << "Received AvatarAppearance for self" << llendl;
-		if( mFirstTEMessageReceived && !LLAppearanceMgr::instance().useServerTextureBaking())
+		if( mFirstTEMessageReceived && !mUseServerBakes)
 		{
 //			llinfos << "processAvatarAppearance end  " << mID << llendl;
 			return;

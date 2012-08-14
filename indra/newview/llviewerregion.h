@@ -277,6 +277,8 @@ public:
 
 	F32 getLandHeightRegion(const LLVector3& region_pos);
 
+	U8 getCentralBakeVersion() { return mCentralBakeVersion; }
+
 	void getInfo(LLSD& info);
 	
 	bool meshRezEnabled() const;
@@ -390,6 +392,7 @@ private:
 	F32 	mBillableFactor;
 	U32		mMaxTasks;				// max prim count
 	F32		mCameraDistanceSquared;	// updated once per frame
+	U8		mCentralBakeVersion;
 	
 	// Information for Homestead / CR-53
 	S32 mClassID;
