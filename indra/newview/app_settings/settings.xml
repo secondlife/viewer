@@ -5023,7 +5023,7 @@
     <key>LoginLocation</key>
     <map>
       <key>Comment</key>
-      <string>Login location ('last', 'home')</string>
+      <string>Default Login location ('last', 'home') preference</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -6123,7 +6123,7 @@
     <key>NextLoginLocation</key>
     <map>
       <key>Comment</key>
-      <string>Location to log into by default.</string>
+      <string>Location to log into for this session - set from command line or the login panel, cleared following a successfull login.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
