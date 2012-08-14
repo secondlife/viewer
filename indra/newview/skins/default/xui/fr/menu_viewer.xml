@@ -8,7 +8,7 @@
 		<menu_item_call label="Nouvelle fenêtre d&apos;inventaire" name="NewInventoryWindow"/>
 		<menu_item_call label="Endroits..." name="Places"/>
 		<menu_item_call label="Favoris..." name="Picks"/>
-		<menu_item_call label="Paramètres de la caméra..." name="Camera Controls"/>
+		<menu_item_call label="Caméra..." name="Camera Controls"/>
 		<menu label="Déplacement" name="Movement">
 			<menu_item_call label="M&apos;asseoir" name="Sit Down Here"/>
 			<menu_item_check label="Voler" name="Fly"/>
@@ -171,7 +171,7 @@
 		</menu>
 		<menu label="Surbrillance et visibilité" name="Highlighting and Visibility">
 			<menu_item_check label="Balise animée" name="Cheesy Beacon"/>
-			<menu_item_check label="Cacher les particules" name="Hide Particles"/>
+			<menu_item_check label="Masquer les particules" name="Hide Particles"/>
 			<menu_item_check label="Masquer la sélection" name="Hide Selected"/>
 			<menu_item_check label="Mettre la transparence en surbrillance" name="Highlight Transparent"/>
 			<menu_item_check label="Afficher les éléments HUD" name="Show HUD Attachments"/>

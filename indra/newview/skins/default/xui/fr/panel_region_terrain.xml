@@ -55,8 +55,8 @@ du terrain" name="terrain_lower_spin"/>
 	<spinner label="Bas" name="height_start_spin_2"/>
 	<spinner label="Haut" name="height_range_spin_0"/>
 	<spinner label="Haut" name="height_range_spin_2"/>
-	<button label="Télécharger le terrain au format RAW..." name="download_raw_btn" tool_tip="Réservé aux propriétaires de domaine, pas aux gérants" width="230"/>
-	<button label="Charger le terrain au format RAW..." name="upload_raw_btn" tool_tip="Réservé aux propriétaires de domaine, pas aux gérants" width="230"/>
+	<button label="Télécharger le terrain en RAW..." name="download_raw_btn" tool_tip="Réservé aux propriétaires de domaine, pas aux gérants" width="230"/>
+	<button label="Charger un terrain en RAW..." name="upload_raw_btn" tool_tip="Réservé aux propriétaires de domaine, pas aux gérants" width="230"/>
 	<button label="Figer le terrain" name="bake_terrain_btn" tool_tip="Définir le terrain actuel comme point central pour les limites d&apos;élévation/abaissement"/>
 	<button label="Appliquer" name="apply_btn"/>
 </panel>

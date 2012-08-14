@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="top_objects" title="Objets les plus utilisés">
 	<floater.string name="top_scripts_title">
-		Scripts principaux
+		Scripts les plus consommateurs
 	</floater.string>
 	<floater.string name="top_scripts_text">
 		[COUNT] scripts prenant un total de [TIME] ms
 	</floater.string>
 	<floater.string name="scripts_score_label">
-		Heure
+		Temps
 	</floater.string>
 	<floater.string name="scripts_mono_time_label">
-		Heure Mono
+		Temps Mono
 	</floater.string>
 	<floater.string name="top_colliders_title">
 		Collisions les plus consommatrices
@@ -32,8 +32,8 @@
 		<scroll_list.columns label="Nom" name="name"/>
 		<scroll_list.columns label="Propriétaire" name="owner"/>
 		<scroll_list.columns label="Lieu" name="location"/>
-		<scroll_list.columns label="Heure" name="time"/>
-		<scroll_list.columns label="Heure Mono" name="mono_time"/>
+		<scroll_list.columns label="Temps" name="time"/>
+		<scroll_list.columns label="Temps Mono" name="mono_time"/>
 		<scroll_list.columns label="URL" name="URLs"/>
 	</scroll_list>
 	<text name="id_text">
@@ -43,7 +43,7 @@
 	<text name="obj_name_text">
 		Nom :
 	</text>
-	<button label="Filtre" name="filter_object_btn"/>
+	<button label="Filtrer" name="filter_object_btn"/>
 	<text name="owner_name_text">
 		Propriétaire :
 	</text>

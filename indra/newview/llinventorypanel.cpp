@@ -966,6 +966,7 @@ void LLInventoryPanel::doToSelected(const LLSD& userdata)
 
 void LLInventoryPanel::doCreate(const LLSD& userdata)
 {
+	reset_inventory_filter();
 	menu_create_inventory_item(mFolderRoot, LLFolderBridge::sSelf.get(), userdata);
 }
 

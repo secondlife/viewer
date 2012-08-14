@@ -27,21 +27,37 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llviewertextureanim.h"
+#include "llvovolume.h"
 
 #include "llmath.h"
 #include "llerror.h"
 
-LLViewerTextureAnim::LLViewerTextureAnim() : LLTextureAnim()
+std::vector<LLViewerTextureAnim*> LLViewerTextureAnim::sInstanceList;
+
+LLViewerTextureAnim::LLViewerTextureAnim(LLVOVolume* vobj) : LLTextureAnim()
 {
+	mVObj = vobj;
 	mLastFrame = -1.f;	// Force an update initially
 	mLastTime = 0.f;
 	mOffS = mOffT = 0;
 	mScaleS = mScaleT = 1;
 	mRot = 0;
+
+	mInstanceIndex = sInstanceList.size();
+	sInstanceList.push_back(this);
 }
 
 LLViewerTextureAnim::~LLViewerTextureAnim()
 {
+	S32 end_idx = sInstanceList.size()-1;
+	
+	if (end_idx != mInstanceIndex)
+	{
+		sInstanceList[mInstanceIndex] = sInstanceList[end_idx];
+		sInstanceList[mInstanceIndex]->mInstanceIndex = mInstanceIndex;
+	}
+
+	sInstanceList.pop_back();
 }
 
 void LLViewerTextureAnim::reset()
@@ -50,6 +66,14 @@ void LLViewerTextureAnim::reset()
 	mTimer.reset();
 }
 
+//static 
+void LLViewerTextureAnim::updateClass()
+{
+	for (std::vector<LLViewerTextureAnim*>::iterator iter = sInstanceList.begin(); iter != sInstanceList.end(); ++iter)
+	{
+		(*iter)->mVObj->animateTextures();
+	}
+}
 
 S32 LLViewerTextureAnim::animateTextures(F32 &off_s, F32 &off_t,
 										F32 &scale_s, F32 &scale_t,
