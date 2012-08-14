@@ -418,7 +418,7 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 	{
 		BOOL force_update = mSimulateRes == 0 ? TRUE : FALSE;
 
-		doIdleUpdate(gAgent, *LLWorld::getInstance(), 0.0);
+		doIdleUpdate();
 
 		if (!force_update || !gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_FLEXIBLE))
 		{
