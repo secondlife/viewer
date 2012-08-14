@@ -1450,6 +1450,18 @@ void LLViewerRegion::unpackRegionHandshake()
 		mProductName = productName;
 	}
 
+
+	mCentralBakeVersion = (S32)gSavedSettings.getBOOL("UseServerTextureBaking");
+	/*
+	if (msg->getSize("RegionInfo4", "CentralBakesVersion") > 0)
+	{
+		msg->getS32("RegionInfo4", "CentralBakesVersion", mCentralBakeVersion);
+	}
+	else
+	{
+		mCentralBakeVersion = 0;
+	}
+	*/
 	LLVLComposition *compp = getComposition();
 	if (compp)
 	{

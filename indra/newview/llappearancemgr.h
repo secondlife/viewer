@@ -185,8 +185,6 @@ public:
 
 	bool isInUpdateAppearanceFromCOF() { return mIsInUpdateAppearanceFromCOF; }
 
-	bool useServerTextureBaking();
-
 	void requestServerAppearanceUpdate();
 
 protected:

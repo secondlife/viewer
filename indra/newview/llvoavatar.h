@@ -710,13 +710,14 @@ public:
 	//--------------------------------------------------------------------
 public:
 	BOOL			getIsAppearanceAnimating() const { return mAppearanceAnimating; }
+	BOOL			isUsingBakedTextures() const { return mUseServerBakes; } // e.g. false if in appearance edit mode		
 private:
 	BOOL			mAppearanceAnimating;
 	LLFrameTimer	mAppearanceMorphTimer;
 	F32				mLastAppearanceBlendTime;
-	BOOL			mIsEditingAppearance;
-	BOOL			mUseLocalAppearance;
-	BOOL			mUseServerBakes;
+	BOOL			mIsEditingAppearance; // flag for if we're actively in appearance editing mode
+	BOOL			mUseLocalAppearance; // flag for if we're using a local composite
+	BOOL			mUseServerBakes; // flag for if baked textures should be fetched from baking service (false if they're temporary uploads)
 
 	//--------------------------------------------------------------------
 	// Clothing colors (convenience functions to access visual parameters)
