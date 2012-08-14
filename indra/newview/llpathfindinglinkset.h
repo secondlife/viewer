@@ -63,6 +63,9 @@ public:
 
 	inline ELinksetUse getLinksetUse() const               {return mLinksetUse;};
 
+	inline BOOL        isScripted() const                  {return mIsScripted;};
+	inline BOOL        hasIsScripted() const               {return mHasIsScripted;};
+
 	inline S32         getWalkabilityCoefficientA() const  {return mWalkabilityCoefficientA;};
 	inline S32         getWalkabilityCoefficientB() const  {return mWalkabilityCoefficientB;};
 	inline S32         getWalkabilityCoefficientC() const  {return mWalkabilityCoefficientC;};
@@ -98,6 +101,8 @@ private:
 	U32          mLandImpact;
 	BOOL         mIsModifiable;
 	BOOL         mCanBeVolume;
+	BOOL         mIsScripted;
+	BOOL         mHasIsScripted;
 	ELinksetUse  mLinksetUse;
 	S32          mWalkabilityCoefficientA;
 	S32          mWalkabilityCoefficientB;

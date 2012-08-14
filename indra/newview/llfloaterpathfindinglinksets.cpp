@@ -399,11 +399,14 @@ LLSD LLFloaterPathfindingLinksets::buildLinksetScrollListItemData(const LLPathfi
 		columns[2]["column"] = "owner";
 		columns[2]["value"] = getString("linkset_terrain_owner");
 
-		columns[3]["column"] = "land_impact";
-		columns[3]["value"] = getString("linkset_terrain_land_impact");
+		columns[3]["column"] = "scripted";
+		columns[3]["value"] = getString("linkset_terrain_scripted");
 
-		columns[4]["column"] = "dist_from_you";
-		columns[4]["value"] = getString("linkset_terrain_dist_from_you");
+		columns[4]["column"] = "land_impact";
+		columns[4]["value"] = getString("linkset_terrain_land_impact");
+
+		columns[5]["column"] = "dist_from_you";
+		columns[5]["value"] = getString("linkset_terrain_dist_from_you");
 	}
 	else
 	{
@@ -416,14 +419,21 @@ LLSD LLFloaterPathfindingLinksets::buildLinksetScrollListItemData(const LLPathfi
 		columns[2]["column"] = "owner";
 		columns[2]["value"] = getOwnerName(pLinksetPtr);
 
-		columns[3]["column"] = "land_impact";
-		columns[3]["value"] = llformat("%1d", pLinksetPtr->getLandImpact());
+		columns[3]["column"] = "scripted";
+		columns[3]["value"] = (pLinksetPtr->hasIsScripted()
+			? (pLinksetPtr->isScripted()
+			? getString("linkset_is_scripted")
+			: getString("linkset_is_not_scripted"))
+			: getString("linkset_is_unknown_scripted"));
 
-		columns[4]["column"] = "dist_from_you";
-		columns[4]["value"] = llformat("%1.0f m", dist_vec(pAvatarPosition, pLinksetPtr->getLocation()));
+		columns[4]["column"] = "land_impact";
+		columns[4]["value"] = llformat("%1d", pLinksetPtr->getLandImpact());
+
+		columns[5]["column"] = "dist_from_you";
+		columns[5]["value"] = llformat("%1.0f m", dist_vec(pAvatarPosition, pLinksetPtr->getLocation()));
 	}
 
-	columns[5]["column"] = "linkset_use";
+	columns[6]["column"] = "linkset_use";
 	std::string linksetUse = getLinksetUseString(pLinksetPtr->getLinksetUse());
 	if (pLinksetPtr->isTerrain())
 	{
@@ -441,19 +451,19 @@ LLSD LLFloaterPathfindingLinksets::buildLinksetScrollListItemData(const LLPathfi
 	{
 		linksetUse += (" " + getString("linkset_is_restricted_non_volume_state"));
 	}
-	columns[5]["value"] = linksetUse;
+	columns[6]["value"] = linksetUse;
 
-	columns[6]["column"] = "a_percent";
-	columns[6]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientA());
+	columns[7]["column"] = "a_percent";
+	columns[7]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientA());
 
-	columns[7]["column"] = "b_percent";
-	columns[7]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientB());
+	columns[8]["column"] = "b_percent";
+	columns[8]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientB());
 
-	columns[8]["column"] = "c_percent";
-	columns[8]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientC());
+	columns[9]["column"] = "c_percent";
+	columns[9]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientC());
 
-	columns[9]["column"] = "d_percent";
-	columns[9]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientD());
+	columns[10]["column"] = "d_percent";
+	columns[10]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientD());
 
 	return columns;
 }

@@ -39,6 +39,7 @@
 #define LINKSET_MODIFIABLE_FIELD    "modifiable"
 #define LINKSET_CATEGORY_FIELD      "navmesh_category"
 #define LINKSET_CAN_BE_VOLUME       "can_be_volume"
+#define LINKSET_IS_SCRIPTED_FIELD   "is_scripted"
 #define LINKSET_PHANTOM_FIELD       "phantom"
 #define LINKSET_WALKABILITY_A_FIELD "A"
 #define LINKSET_WALKABILITY_B_FIELD "B"
@@ -62,6 +63,8 @@ LLPathfindingLinkset::LLPathfindingLinkset(const LLSD& pTerrainData)
 	mLandImpact(0U),
 	mIsModifiable(FALSE),
 	mCanBeVolume(FALSE),
+	mIsScripted(FALSE),
+	mHasIsScripted(TRUE),
 	mLinksetUse(kUnknown),
 	mWalkabilityCoefficientA(MIN_WALKABILITY_VALUE),
 	mWalkabilityCoefficientB(MIN_WALKABILITY_VALUE),
@@ -77,6 +80,8 @@ LLPathfindingLinkset::LLPathfindingLinkset(const std::string &pUUID, const LLSD&
 	mLandImpact(0U),
 	mIsModifiable(TRUE),
 	mCanBeVolume(TRUE),
+	mIsScripted(FALSE),
+	mHasIsScripted(FALSE),
 	mLinksetUse(kUnknown),
 	mWalkabilityCoefficientA(MIN_WALKABILITY_VALUE),
 	mWalkabilityCoefficientB(MIN_WALKABILITY_VALUE),
@@ -93,6 +98,8 @@ LLPathfindingLinkset::LLPathfindingLinkset(const LLPathfindingLinkset& pOther)
 	mLandImpact(pOther.mLandImpact),
 	mIsModifiable(pOther.mIsModifiable),
 	mCanBeVolume(pOther.mCanBeVolume),
+	mIsScripted(pOther.mIsScripted),
+	mHasIsScripted(pOther.mHasIsScripted),
 	mLinksetUse(pOther.mLinksetUse),
 	mWalkabilityCoefficientA(pOther.mWalkabilityCoefficientA),
 	mWalkabilityCoefficientB(pOther.mWalkabilityCoefficientB),
@@ -113,6 +120,8 @@ LLPathfindingLinkset& LLPathfindingLinkset::operator =(const LLPathfindingLinkse
 	mLandImpact = pOther.mLandImpact;
 	mIsModifiable = pOther.mIsModifiable;
 	mCanBeVolume = pOther.mCanBeVolume;
+	mIsScripted = pOther.mIsScripted;
+	mHasIsScripted = pOther.mHasIsScripted;
 	mLinksetUse = pOther.mLinksetUse;
 	mWalkabilityCoefficientA = pOther.mWalkabilityCoefficientA;
 	mWalkabilityCoefficientB = pOther.mWalkabilityCoefficientB;
@@ -193,6 +202,13 @@ void LLPathfindingLinkset::parseLinksetData(const LLSD &pLinksetData)
 	llassert(pLinksetData.has(LINKSET_MODIFIABLE_FIELD));
 	llassert(pLinksetData.get(LINKSET_MODIFIABLE_FIELD).isBoolean());
 	mIsModifiable = pLinksetData.get(LINKSET_MODIFIABLE_FIELD).asBoolean();
+
+	mHasIsScripted = pLinksetData.has(LINKSET_IS_SCRIPTED_FIELD);
+	if (mHasIsScripted)
+	{
+		llassert(pLinksetData.get(LINKSET_IS_SCRIPTED_FIELD).isBoolean());
+		mIsScripted = pLinksetData.get(LINKSET_IS_SCRIPTED_FIELD).asBoolean();
+	}
 }
 
 void LLPathfindingLinkset::parsePathfindingData(const LLSD &pLinksetData)
