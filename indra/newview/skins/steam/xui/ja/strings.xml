@@ -14,1234 +14,1231 @@
 		SECOND LIFE
 	</string>
 	<string name="SECOND_LIFE_GRID">
-		Second Life Ağı
+		Second Life Grid
 	</string>
 	<string name="SUPPORT_SITE">
-		Second Life Destek Portalı
+		Second Life サポートポータル
 	</string>
 	<string name="StartupDetectingHardware">
-		Donanım saptanıyor...
+		ハードウェアの検出中です...
 	</string>
 	<string name="StartupLoading">
-		[APP_NAME] yükleniyor...
+		[APP_NAME] をインストール中です...
 	</string>
 	<string name="StartupClearingCache">
-		Önbellek temizleniyor...
+		キャッシュをクリア中です...
 	</string>
 	<string name="StartupInitializingTextureCache">
-		Doku önbelleği başlatılıyor...
+		テクスチャキャッシュを初期化中です...
 	</string>
 	<string name="StartupInitializingVFS">
-		VFS Başlatılıyor...
+		VFS を初期化中です...
 	</string>
 	<string name="StartupRequireDriverUpdate">
-		Grafik başlatma başarılamadı. Lütfen grafik sürücünüzü güncelleştirin!
+		グラフィックを初期化できませんでした。グラフィックドライバを更新してください。
 	</string>
 	<string name="ProgressRestoring">
-		Geri yükleniyor...
+		復元中です...
 	</string>
 	<string name="ProgressChangingResolution">
-		Çözünürlük değiştiriliyor...
+		解像度を変更中です...
 	</string>
 	<string name="Fullbright">
-		Tam parlak (eski)
+		明るさ全開（レガシー）
 	</string>
 	<string name="LoginInProgress">
-		Oturum açılıyor. [APP_NAME] kilitlenmiş görünebilir.  Lütfen bekleyin.
+		ログイン中です。[APP_NAME]の表示がフリーズする場合があります。  しばらくお待ちください。
 	</string>
 	<string name="LoginInProgressNoFrozen">
-		Oturum açılıyor...
+		ログイン中です...
 	</string>
 	<string name="LoginAuthenticating">
-		Kimlik doğrulaması yapılıyor
+		認証しています...
 	</string>
 	<string name="LoginMaintenance">
-		Hesap bakımı yapılıyor...
+		アカウントのメンテナンスを実行しています...
 	</string>
 	<string name="LoginAttempt">
-		Önceki oturum açma girişimi başarılamadı. Oturum açılıyor, [NUMBER]. girişim.
+		前回のログインに失敗しました。 ログイン中です（[NUMBER] 回目）
 	</string>
 	<string name="LoginPrecaching">
-		Dünya yükleniyor...
+		ワールドを読み込んでいます...
 	</string>
 	<string name="LoginInitializingBrowser">
-		Katıştırılmış web tarayıcısı başlatılıyor...
+		内蔵 Web ブラウザを初期化しています...
 	</string>
 	<string name="LoginInitializingMultimedia">
-		Multimedya başlatılıyor...
+		マルチメディアを初期化しています...
 	</string>
 	<string name="LoginInitializingFonts">
-		Fontlar yükleniyor...
+		フォントをローディング中...
 	</string>
 	<string name="LoginVerifyingCache">
-		Önbellek dosyaları doğrulanıyor (60-90 saniye zaman alabilir)...
+		キャッシュファイルを検証しています（所要時間は 60 ～ 90 秒）...
 	</string>
 	<string name="LoginProcessingResponse">
-		Yanıt işleniyor...
+		対応を処理中です...
 	</string>
 	<string name="LoginInitializingWorld">
-		Dünya başlatılıyor...
+		ワールドを初期化中です...
 	</string>
 	<string name="LoginDecodingImages">
-		Görüntülerin kodu çözülüyor...
+		画像をデコードしています...
 	</string>
 	<string name="LoginInitializingQuicktime">
-		QuickTime Başlatılıyor...
+		QuickTime を初期化しています...
 	</string>
 	<string name="LoginQuicktimeNotFound">
-		QuickTime bulunamadı - başlatılamadı.
+		QuickTime が見つかりません。初期化に失敗しました。
 	</string>
 	<string name="LoginQuicktimeOK">
-		QuickTime başarıyla başlatıldı.
+		QuickTime が正常に初期化されました。
 	</string>
 	<string name="LoginRequestSeedCapGrant">
-		Bölge özellikleri talep ediliyor...
+		リージョンの機能をリクエストしています...
 	</string>
 	<string name="LoginRetrySeedCapGrant">
-		Bölge özellikleri talep ediliyor: [NUMBER]. girişim...
+		リージョンの機能をリクエスト、試行 [NUMBER] 回....
 	</string>
 	<string name="LoginWaitingForRegionHandshake">
-		Bölge el sıkışması bekleniyor...
+		リージョンのハンドシェイクを待っています...
 	</string>
 	<string name="LoginConnectingToRegion">
-		Bölgeye bağlanılıyor...
+		リージョンに接続しています...
 	</string>
 	<string name="LoginDownloadingClothing">
-		Giysiler karşıdan yükleniyor...
+		衣類をダウンロードしています...
 	</string>
 	<string name="InvalidCertificate">
-		Sunucu geçersiz veya bozuk bir sertifika döndürdü. Lütfen Ağ yöneticisine başvurun.
+		証明書が無効または壊れています。 グリッド管理者にご連絡ください。
 	</string>
 	<string name="CertInvalidHostname">
-		Sunucuya erişmek için geçersiz bir ana bilgisayar adı kullanıldı, lütfen SLURL veya Ağ ana bilgisayar adınızı kontrol edin.
+		無効なホストネームがサーバーにアクセスしていました。SLURL かグリッドのホストネームをご確認ください。
 	</string>
 	<string name="CertExpired">
-		Ağ tarafından döndürülen sertifikanın süresi sona ermiş görünüyor.  Lütfen sistem saatinizi kontrol edin veya Ağ yöneticinize başvurun.
+		グリッドが返した証明書は有効期限が終了していると考えられます。お使いのシステムクロックを確認するか、グリッドの管理者にお問い合わせください。
 	</string>
 	<string name="CertKeyUsage">
-		Sunucu tarafından döndürülen sertifika SSL için kullanılamadı.  Lütfen Ağ yöneticinize başvurun.
+		SSL 証明書のエラーが発生しました。  グリッド管理者にご連絡ください。
 	</string>
 	<string name="CertBasicConstraints">
-		Sunucunun Sertifika zincirinde çok fazla sertifika vardı.  Lütfen Ağ yöneticinize başvurun.
+		サーバーの証明書チェーンに証明書が多すぎます。  グリッド管理者にご連絡ください。
 	</string>
 	<string name="CertInvalidSignature">
-		Ağ sunucusu tarafından döndürülen sertifika imzası doğrulanamadı.  Lütfen Ağ yöneticinize başvurun.
+		グリッドサーバーが返した証明書の署名を認証できませんでした。グリッドの管理者にお問い合わせください。
 	</string>
 	<string name="LoginFailedNoNetwork">
-		Ağ hatası: Bağlantı kurulamadı, lütfen ağ bağlantınızı kontrol edin.
+		ネットワークエラー：接続を確立できませんでした。お使いのネットワーク接続をご確認ください。
 	</string>
 	<string name="LoginFailed">
-		Oturum açılamadı.
+		ログインに失敗しました。
 	</string>
 	<string name="Quit">
-		Çık
+		終了
 	</string>
 	<string name="create_account_url">
-		http://join.secondlife.com/index.php?lang=tr-TR
+		http://join.secondlife.com/index.php?sourceid=1206_steam&amp;lang=ja-JP
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
-		Kullandığınız görüntüleyici ile artık Second Life&apos;a erişemezsiniz. Yeni bir görüntüleyiciyi karşıdan yüklemek için lütfen şu sayfayı ziyaret edin:
+		お使いの古いビューワでは Second Life にアクセスできません。以下のページから新しいビューワをダウンロードしてください：
 http://secondlife.com/download
 
-Daha fazla bilgi edinmek için asağıdaki SSS sayfamızı ziyaret edin:
+詳細については、FAQ を参照してください：
 http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="LoginIntermediateOptionalUpdateAvailable">
-		Opsiyonel görüntüleyici güncelleştirmesi mevcut: [VERSION]
+		ビューワアップデート（オプション）があります： [VERSION]
 	</string>
 	<string name="LoginFailedRequiredUpdate">
-		Gerekli görüntüleyici güncelleştirmesi: [VERSION]
+		ビューワアップデート（必須）： [VERSION]
 	</string>
 	<string name="LoginFailedAlreadyLoggedIn">
-		Bu aracı zaten oturum açmış durumda.
+		このエージェントは既にログインされています。
 	</string>
 	<string name="LoginFailedAuthenticationFailed">
-		Üzgünüz! Oturumunuzu açamadık.
-Lütfen şunları doğru girdiğinizi kontrol edin:
-    * Kullanıcı adı (mustafayalcin12 veya faruk.gungoren gibi)
-    * Parola:
-Ayrıca lütfen Caps Lock tuşuna basmadığınıza emin olun.
+		申し訳ありませんが、ログインできませんでした。
+以下の情報が正しく入力されたことを確認してください：
+* ユーザー名（bobsmith12 または steller.sunshine など）
+* パスワード
+また、Caps Lock キーが有効になっていないこともお確かめください。
 	</string>
 	<string name="LoginFailedPasswordChanged">
-		Güvenlik önlemi olarak parolanız değiştirildi.
-Lütfen hesap sayfanıza gidin: http://secondlife.com/password
-ve parolanızı sıfırlamak için güvenlik sorusunu yanıtlayın.
-Bu sorun için özür dileriz.
+		セキュリティ上の理由により、あなたのパスワードは変更されました。
+アカウントページ（http://secondlife.com/password）に移動し、
+秘密の質問に答えて、パスワードをリセットしてください。
+ご迷惑をおかけして申し訳ございません。
 	</string>
 	<string name="LoginFailedPasswordReset">
-		Sistemimizde bazı değişiklikler yaptık, parolanızı sıfırlamanız gerekecek.
-Lütfen hesap sayfanıza gidin: http://secondlife.com/password
-ve parolanızı sıfırlamak için güvenlik sorusunu yanıtlayın.
-Bu sorun için özür dileriz.
+		弊社はシステムを若干変更しました。お手数ですが、パスワードのリセットをお願いします。
+アカウントページ（http://secondlife.com/password）に移動し、
+秘密の質問に答えて、パスワードをリセットしてください。
+ご迷惑をおかけして申し訳ございません。
 	</string>
 	<string name="LoginFailedEmployeesOnly">
-		Second Life bakım amacıyla geçici olarak kapatıldı.
-Şu anda sadece çalışanlar oturum açabilir.
-Güncelleştirmeler için www.secondlife.com/status adresini kontrol edin.
+		Second Life はメンテナンスのため、一時的にご利用いただけません。
+従業員以外にはログインをご遠慮いただいています。
+最新の状況については www.secondlife.com/status でお確かめください。
 	</string>
 	<string name="LoginFailedPremiumOnly">
-		Second Life üzerindeki aktif kullanıcıların olası en iyi deneyimi yaşamasını sağlamak için, oturum açılması geçici olarak kısıtlanmıştır.
+		既にログインしているユーザーに最上のインワールド体験を提供するため、Second Life へのログインは一時的に制限されています。
 
-Second Life için ödeme yapmış olan kişilere öncelik tanımak amacıyla, ücretsiz hesaplara sahip kişiler bu süre içerisinde Second Life&apos;a erişemeyecekler.
+申し訳ございませんが、有料アカウントのユーザーを優先するため、現在のところ無料アカウントのユーザーには Second Life へのアクセスをご遠慮いただいています。
 	</string>
 	<string name="LoginFailedComputerProhibited">
-		Second Life&apos;a bu bilgisayardan erişemezsiniz.
-Bunun bir hata olduğunu düşünüyorsanız, lütfen şu adrese başvurun:
-support@secondlife.com.
+		このパソコンからは Second Life にアクセスできません。
+システムのエラーだと思われる場合は、
+support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="LoginFailedAcountSuspended">
-		Hesabınıza şu zamana kadar erişemeyeceksiniz:
-Pasifik Saati ile [TIME].
+		あなたのアカウントは
+太平洋時間の [TIME] までご利用いただけません。
 	</string>
 	<string name="LoginFailedAccountDisabled">
-		Talebinizi şu anda tamamlayamıyoruz.
-Lütfen yardım almak için Second Life destek bölümüne başvurun: http://secondlife.com/support
-Eğer parolanızı değiştiremiyorsanız, lütfen şu numarayı arayın: (866) 476-9763.
+		現在リクエストを完了することができません。
+Second Life のサポート（http://secondlife.com/support）にお問い合わせください。
+パスワードを変更できない場合には、(866) 476-9763 に電話でお問い合わせください。
 	</string>
 	<string name="LoginFailedTransformError">
-		Oturum açılması sırasında veri tutarsızlığı saptandı.
-Lütfen şu adrese başvurun: support@secondlife.com
+		ログイン時にデータの不一致が見つかりました。
+support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="LoginFailedAccountMaintenance">
-		Hesabınızda küçük çaplı bir bakım işlemi sürüyor.
-Hesabınıza şu zamana kadar erişemeyeceksiniz:
-Pasifik Saati ile [TIME].
-Bunun bir hata olduğunu düşünüyorsanız, lütfen şu adrese başvurun: support@secondlife.com
+		現在アカウントのメインテナンスが行われています。
+あなたのアカウントは
+太平洋時間の [TIME] までご利用いただけません。
+システムのエラーだと思われる場合は、support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="LoginFailedPendingLogoutFault">
-		Oturum kapatma talebi simülatörden bir hata yanıtı gelmesine neden oldu.
+		ログアウトをリスクエストしたら、シミュレーターから「fault」が返されました。
 	</string>
 	<string name="LoginFailedPendingLogout">
-		Sistem şu anda oturumunuzu sonlandırıyor.
-Hesabınıza şu zamana kadar erişemeyeceksiniz:
-Pasifik Saati ile [TIME].
+		システムによるログアウトが実行されました。
+あなたのアカウントは
+太平洋時間の [TIME] までご利用いただけません。
 	</string>
 	<string name="LoginFailedUnableToCreateSession">
-		Geçerli bir oturum oluşturulamadı.
+		有効なセッションを生成できません。
 	</string>
 	<string name="LoginFailedUnableToConnectToSimulator">
-		Bir simülatöre bağlanılamadı.
+		シミュレーターに接続できませんでした。
 	</string>
 	<string name="LoginFailedRestrictedHours">
-		Hesabınız Second Life&apos;a sadece
-Pasifik Saati ile [START] ve [END] arasında erişebilir.
-Lütfen bu saatler arasında tekrar uğrayın.
-Bunun bir hata olduğunu düşünüyorsanız, lütfen şu adrese başvurun: support@secondlife.com
+		あなたの Second Life アカウントにアクセスできるのは、
+太平洋時間の [START] ～ [END] の間に限られます。
+有効な時間帯に再度お試しください。
+システムのエラーだと思われる場合は、support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="LoginFailedIncorrectParameters">
-		Yanlış parametreler.
-Bunun bir hata olduğunu düşünüyorsanız, lütfen şu adrese başvurun: support@secondlife.com
+		パラメーターが正しくありません。
+システムのエラーだと思われる場合は、support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="LoginFailedFirstNameNotAlphanumeric">
-		Ad parametresi alfasayısal olmalıdır.
-Bunun bir hata olduğunu düşünüyorsanız, lütfen şu adrese başvurun: support@secondlife.com
+		ファーストネームのパラメーターは英数字です。
+システムのエラーだと思われる場合は、support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="LoginFailedLastNameNotAlphanumeric">
-		Soyadı parametresi alfasayısal olmalıdır.
-Bunun bir hata olduğunu düşünüyorsanız, lütfen şu adrese başvurun: support@secondlife.com
+		ラストネームのパラメーターは英数字です。
+システムのエラーだと思われる場合は、support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="LogoutFailedRegionGoingOffline">
-		Bölge şu anda çevrimdışı oluyor.
-Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
+		リージョンはオフライン中です。
+しばらくしてから再度お試しください。
 	</string>
 	<string name="LogoutFailedAgentNotInRegion">
-		Aracı bölgede değil.
-Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
+		エージェントがリージョンに不在です。
+しばらくしてから再度お試しください。
 	</string>
 	<string name="LogoutFailedPendingLogin">
-		Bu bölge başka bir oturum açmaktaydı.
-Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
+		このリージョンでは別のセッションがログインされていました。
+しばらくしてから再度お試しください。
 	</string>
 	<string name="LogoutFailedLoggingOut">
-		Bu bölge önceki oturumu sonlandırmaktaydı.
-Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
+		このリージョンでは前のセッションがログアウトされました。
+しばらくしてから再度お試しください。
 	</string>
 	<string name="LogoutFailedStillLoggingOut">
-		Bu bölge hala bir önceki oturumu sonlandırma işlemini sürdürüyor.
-Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
+		このリージョンでは現在も前のセッションのログアウトが処理されています。
+しばらくしてから再度お試しください。
 	</string>
 	<string name="LogoutSucceeded">
-		Bu bölge son oturumu sonlandırdı.
-Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
+		リージョンでは前のセッションがログアウトされました。
+しばらくしてから再度お試しください。
 	</string>
 	<string name="LogoutFailedLogoutBegun">
-		Bölge oturumu sonlandırma işlemini başlattı.
-Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
+		リージョンではログアウトプロセスが開始されました。
+しばらくしてから再度お試しください。
 	</string>
 	<string name="LoginFailedLoggingOutSession">
-		Sistem son oturumunuzu sonlandırma işlemini başlattı.
-Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
+		あなたの前のセッションはシステムによってログアウトされています。
+しばらくしてから再度お試しください。
 	</string>
 	<string name="AgentLostConnection">
-		Bu bölgede sorun yaşanıyor olabilir.  Lütfen İnternet bağlantınızı kontrol edin.
+		このリージョンに不都合が発生している可能性があります。  ご使用のインターネット接続をご確認ください。
 	</string>
 	<string name="SavingSettings">
-		Ayarlarınız kaydediliyor...
+		設定を保存中です...
 	</string>
 	<string name="LoggingOut">
-		Oturum kapatılıyor...
+		ログアウト中です...
 	</string>
 	<string name="ShuttingDown">
-		Kapatılıyor...
+		シャットダウン中です...
 	</string>
 	<string name="YouHaveBeenDisconnected">
-		Bulunduğunuz bölgeyle bağlantınız kesildi.
+		あなたがいたリージョンへの接続が切れました。
 	</string>
 	<string name="SentToInvalidRegion">
-		Geçersiz bir bölgeye gönderildiniz.
+		無効なリージョンにテレポートされました。
 	</string>
 	<string name="TestingDisconnect">
-		Görüntüleyici bağlantısının kesilmesi test ediliyor
+		ビューワの接続を切るテスト中
 	</string>
 	<string name="TooltipPerson">
-		Kişi
+		人
 	</string>
 	<string name="TooltipNoName">
-		(adsız)
+		（名前なし）
 	</string>
 	<string name="TooltipOwner">
-		Sahip:
+		所有者:
 	</string>
 	<string name="TooltipPublic">
-		Kamuya Açık
+		公共
 	</string>
 	<string name="TooltipIsGroup">
-		(Grup)
+		（グループ）
 	</string>
 	<string name="TooltipForSaleL$">
-		Satılık: L$[AMOUNT]
+		売り出し中:L$ [AMOUNT]
 	</string>
 	<string name="TooltipFlagGroupBuild">
-		Grup İnşası
+		グループ作成
 	</string>
 	<string name="TooltipFlagNoBuild">
-		İnşa Edilemez
+		作成禁止
 	</string>
 	<string name="TooltipFlagNoEdit">
-		Grup İnşası
+		グループ作成
 	</string>
 	<string name="TooltipFlagNotSafe">
-		Güvenli Değil
+		危険
 	</string>
 	<string name="TooltipFlagNoFly">
-		Uçamaz
+		飛行禁止
 	</string>
 	<string name="TooltipFlagGroupScripts">
-		Grup Komut Dosyaları
+		グループスクリプト
 	</string>
 	<string name="TooltipFlagNoScripts">
-		Komut Dosyası Yok
+		スクリプトなし
 	</string>
 	<string name="TooltipLand">
-		Arazi:
+		土地:
 	</string>
 	<string name="TooltipMustSingleDrop">
-		Buraya sadece bir öğe sürüklenebilir.
+		アイテムは 1 つだけここにドラッグできます
 	</string>
-	<string name="TooltipPrice" value="L$[AMOUNT]:"/>
+	<string name="TooltipPrice" value="L$[AMOUNT]："/>
 	<string name="TooltipOutboxDragToWorld">
-		Satıcı giden kutunuzda öğeler oluşturamazsınız
+		マーチャントボックス内のアイテムを Rez することはできません
 	</string>
 	<string name="TooltipOutboxNoTransfer">
-		Bu nesnelerden bir veya daha fazlası satılamaz veya aktarılamaz.
+		これらオブジェクトの 1 つまたは複数は売り渡したり譲渡したりできないものです。
 	</string>
 	<string name="TooltipOutboxNotInInventory">
-		Satıcı giden kutunuza sadece doğrudan kendi envanterinizden öğeler koyabilirsiniz
+		マーチャントアウトボックスでは、ご自分のインベントリからのアイテムしか受け入れることができません
 	</string>
 	<string name="TooltipOutboxWorn">
-		Giymekte olduğunuz öğeleri Satıcı giden kutunuza koyamazsınız.
+		着用しているアイテムをマーチャントアウトボックスに入れることはできません
 	</string>
 	<string name="TooltipOutboxCallingCard">
-		Satıcı giden kutunuza arama kartları koyamazsınız
+		コーリングカードをマーチャントアウトボックスに入れることはできません
 	</string>
 	<string name="TooltipOutboxFolderLevels">
-		İç içe geçmiş klasörlerin derinliği üçü geçiyor
+		ネスト入りフォルダの深さが 3 を超えています
 	</string>
 	<string name="TooltipOutboxTooManyFolders">
-		Üst seviyedeki klasördeki alt klasör sayısı 20&apos;yi geçiyor
+		最上位フォルダ内のサブフォルダ数が 20 を超えています
 	</string>
 	<string name="TooltipOutboxTooManyObjects">
-		Üst seviyedeki klasördeki öğe sayısı 200&apos;ü geçiyor
+		最上位フォルダ内のアイテム数が 200 を超えています
 	</string>
 	<string name="TooltipDragOntoOwnChild">
-		Bir klasörü alt klasörüne taşıyamazsınız
+		フォルダをその子フォルダに移動することはできません
 	</string>
 	<string name="TooltipDragOntoSelf">
-		Bir klasörü kendi içine taşıyamazsınız
+		フォルダをそのフォルダ自身に移動することはできません
 	</string>
 	<string name="TooltipHttpUrl">
-		Bu web sayfasını görmek için tıklayın
+		クリックしてこの Web ページを見ます
 	</string>
 	<string name="TooltipSLURL">
-		Bu konumun bilgisini görmek için tıklayın
+		クリックしてこの場所の情報を見ます
 	</string>
 	<string name="TooltipAgentUrl">
-		Bu Sakinin profilini görmek için tıklayın
+		クリックしてこの住人のプロフィールを見ます
 	</string>
 	<string name="TooltipAgentInspect">
-		Bu Sakin hakkında daha fazla bilgi öğrenin
+		この住人の詳細を参照
 	</string>
 	<string name="TooltipAgentMute">
-		Bu Sakini engellemek için tıklayın
+		クリックしてこの住人に対して無視設定をします
 	</string>
 	<string name="TooltipAgentUnmute">
-		Bu Sakinin engellemesini kaldırmak için tıklayın
+		クリックしてこの住人に対する無視設定を解除します
 	</string>
 	<string name="TooltipAgentIM">
-		Bu Sakine Aİ göndermek için tıklayın
+		クリックしてこの住人に IM を送ります
 	</string>
 	<string name="TooltipAgentPay">
-		Bu Sakine ödeme yapmak için tıklayın
+		クリックしてこの住人に支払います
 	</string>
 	<string name="TooltipAgentOfferTeleport">
-		Bu Sakine bir ışınlama talebi teklif etmek için tıklayın
+		クリックしてこの住人にテレポートのリクエストを送ります
 	</string>
 	<string name="TooltipAgentRequestFriend">
-		Bu Sakine bir arkadaşlık talebi teklif etmek için tıklayın
+		クリックしてこの住人にフレンド登録リクエストを送ります
 	</string>
 	<string name="TooltipGroupUrl">
-		Bu grubun açıklamasını görmek için tıklayın
+		クリックしてこのグループの説明文を見ます
 	</string>
 	<string name="TooltipEventUrl">
-		Bu etkinliğin açıklamasını görmek için tıklayın
+		クリックしてこのグループの説明文を見ます
 	</string>
 	<string name="TooltipClassifiedUrl">
-		Bu ilanı görmek için tıklayın
+		クリックしてこのクラシファイド広告を見ます
 	</string>
 	<string name="TooltipParcelUrl">
-		Bu parselin açıklamasını görmek için tıklayın
+		クリックしてこの区画の説明文を見ます
 	</string>
 	<string name="TooltipTeleportUrl">
-		Bu konuma ışınlama yapmak için tıklayın
+		クリックしてこの場所にテレポートします
 	</string>
 	<string name="TooltipObjectIMUrl">
-		Bu nesnenin açıklamasını görmek için tıklayın
+		クリックしてこのオブジェクトの説明文を見ます
 	</string>
 	<string name="TooltipMapUrl">
-		Bu konumu bir haritada görmek için tıklayın
+		クリックしてこの場所を地図に表示します
 	</string>
 	<string name="TooltipSLAPP">
-		secondlife:// komutunu çalıştırmak için tıklayın
+		クリックして secondlife:// コマンドを出します
 	</string>
-	<string name="CurrentURL" value="Geçerli URL: [CurrentURL]"/>
+	<string name="CurrentURL" value=" 現在の URL： [CurrentURL]"/>
 	<string name="SLurlLabelTeleport">
-		Şuraya ışınla:
+		テレポート
 	</string>
 	<string name="SLurlLabelShowOnMap">
-		Şunun için Harita göster:
+		地図に表示
 	</string>
 	<string name="SLappAgentMute">
-		Engelle
+		無視
 	</string>
 	<string name="SLappAgentUnmute">
-		Engellemeyi kaldır
+		ミュート解除
 	</string>
 	<string name="SLappAgentIM">
-		Aİ
+		IM
 	</string>
 	<string name="SLappAgentPay">
-		Öde
+		支払う
 	</string>
 	<string name="SLappAgentOfferTeleport">
-		Şuraya Işınlama Teklif Et:
+		次の場所にテレポートを送ります：
 	</string>
 	<string name="SLappAgentRequestFriend">
-		Arkadaşlık Talebi
+		フレンド登録リクエスト
 	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
-		Kapat (⌘W)
+		閉じる （⌘W）
 	</string>
 	<string name="BUTTON_CLOSE_WIN">
-		Kapat (Ctrl+W)
+		閉じる （Ctrl+W）
 	</string>
 	<string name="BUTTON_CLOSE_CHROME">
-		Kapat
+		閉じる
 	</string>
 	<string name="BUTTON_RESTORE">
-		Geri Yükle
+		復元
 	</string>
 	<string name="BUTTON_MINIMIZE">
-		Simge Durumuna Küçült
+		元に戻す（縮小）
 	</string>
 	<string name="BUTTON_TEAR_OFF">
-		Böl
+		別ウィンドウで開く
 	</string>
 	<string name="BUTTON_DOCK">
-		Yerleştir
+		ドッキング
 	</string>
 	<string name="BUTTON_HELP">
-		Yardımı Göster
+		ヘルプを表示
 	</string>
 	<string name="Searching">
-		Arıyor...
+		検索中...
 	</string>
 	<string name="NoneFound">
-		Hiçbiri bulunamadı.
+		見つかりませんでした。
 	</string>
 	<string name="RetrievingData">
-		Alınıyor...
+		取得中...
 	</string>
 	<string name="ReleaseNotes">
-		Sürüm Notları
+		リリースノート
+	</string>
+	<string name="RELEASE_NOTES_BASE_URL">
+		http://wiki.secondlife.com/wiki/Release_Notes/
 	</string>
 	<string name="LoadingData">
-		Yükleniyor...
+		ローディング...
 	</string>
 	<string name="AvatarNameNobody">
-		(hiçbiri)
+		（なし）
 	</string>
 	<string name="AvatarNameWaiting">
-		(bekliyor)
+		（待機中）
 	</string>
 	<string name="AvatarNameMultiple">
-		(birden çok)
+		（複数）
 	</string>
 	<string name="GroupNameNone">
-		(hiçbiri)
+		（なし）
 	</string>
 	<string name="AvalineCaller">
-		Avaline Arayanı [ORDER]
+		Avaline コール [ORDER]
 	</string>
 	<string name="AssetErrorNone">
-		Hata yok
+		エラーなし
 	</string>
 	<string name="AssetErrorRequestFailed">
-		Varlık talebi: başarısız oldu
+		アセットリクエスト： 失敗
 	</string>
 	<string name="AssetErrorNonexistentFile">
-		Varlık talebi: var olmayan dosya
+		アセットリクエスト： 存在しないファイル
 	</string>
 	<string name="AssetErrorNotInDatabase">
-		Varlık talebi: veri tabanında varlık bulunamadı
+		アセットリクエスト： データベースに見つかりませんでした
 	</string>
 	<string name="AssetErrorEOF">
-		Dosya sonu
+		終了
 	</string>
 	<string name="AssetErrorCannotOpenFile">
-		Dosya açılamadı
+		ファイルを開けません
 	</string>
 	<string name="AssetErrorFileNotFound">
-		Dosya bulunamadı
+		ファイルが見つかりません
 	</string>
 	<string name="AssetErrorTCPTimeout">
-		Dosya aktarımı zaman aşımı
+		ファイルの転送タイムアウト
 	</string>
 	<string name="AssetErrorCircuitGone">
-		Devre yok
+		サーキットエラー
 	</string>
 	<string name="AssetErrorPriceMismatch">
-		Görüntüleyici ile sunucu fiyatta anlaşmadı
+		ビューワとサーバーの価格が一致していません
 	</string>
 	<string name="AssetErrorUnknownStatus">
-		Bilinmeyen durum
+		不明のステータス
 	</string>
 	<string name="texture">
-		doku
+		テクスチャ
 	</string>
 	<string name="sound">
-		ses
+		サウンド
 	</string>
 	<string name="calling card">
-		arama kartı
+		コーリングカード
 	</string>
 	<string name="landmark">
-		yer imi
+		ランドマーク
 	</string>
 	<string name="legacy script">
-		eski komut dosyası
+		レガシースクリプト
 	</string>
 	<string name="clothing">
-		giysi
+		衣類
 	</string>
 	<string name="object">
-		nesne
+		オブジェクト
 	</string>
 	<string name="note card">
-		not kartı
+		ノートカード
 	</string>
 	<string name="folder">
-		klasör
+		フォルダ
 	</string>
 	<string name="root">
-		kök
+		ルート
 	</string>
 	<string name="lsl2 script">
-		LSL2 komut dosyası
+		LSL2 スクリプト
 	</string>
 	<string name="lsl bytecode">
-		LSL bayt kodu
+		LSL バイトコード
 	</string>
 	<string name="tga texture">
-		tga dokusu
+		tga テクスチャ
 	</string>
 	<string name="body part">
-		vücut bölümü
+		身体部位
 	</string>
 	<string name="snapshot">
-		anlık görüntü
+		スナップショット
 	</string>
 	<string name="lost and found">
-		Kaybedip Bulduklarım
+		紛失物
 	</string>
 	<string name="targa image">
-		targa görüntüsü
+		targa 画像
 	</string>
 	<string name="trash">
-		Çöp
+		ごみ箱
 	</string>
 	<string name="jpeg image">
-		jpeg görüntüsü
+		jpeg 画像
 	</string>
 	<string name="animation">
-		animasyon
+		アニメーション
 	</string>
 	<string name="gesture">
-		mimik
+		ジェスチャー
 	</string>
 	<string name="simstate">
-		sim durumu
+		統計
 	</string>
 	<string name="favorite">
-		favori
+		お気に入り
 	</string>
 	<string name="symbolic link">
-		bağlantı
+		リンク
 	</string>
 	<string name="symbolic folder link">
-		klasör bağlantısı
+		フォルダのリンク
 	</string>
 	<string name="mesh">
-		örgü
+		メッシュ
 	</string>
 	<string name="AvatarEditingAppearance">
-		(Görünümü Düzenliyor)
+		（容姿の編集中）
 	</string>
 	<string name="AvatarAway">
-		Uzakta
+		一時退席中
 	</string>
 	<string name="AvatarBusy">
-		Meşgul
+		取り込み中
 	</string>
 	<string name="AvatarMuted">
-		Engellenmiş
+		ブロック中
 	</string>
 	<string name="anim_express_afraid">
-		Korkmuş
+		怖れ
 	</string>
 	<string name="anim_express_anger">
-		Kızgın
+		怒り
 	</string>
 	<string name="anim_away">
-		Uzakta
+		退席中
 	</string>
 	<string name="anim_backflip">
-		Geriye salto
+		後ろ宙返り
 	</string>
 	<string name="anim_express_laugh">
-		İçten Kahkaha
+		大笑い
 	</string>
 	<string name="anim_express_toothsmile">
-		Büyük Gülümseme
+		満面の笑顔
 	</string>
 	<string name="anim_blowkiss">
-		Öpücük Atma
+		投げキッス
 	</string>
 	<string name="anim_express_bored">
-		Canı Sıkılmış
+		退屈
 	</string>
 	<string name="anim_bow">
-		Selamlama
+		おじぎ
 	</string>
 	<string name="anim_clap">
-		Alkış
+		拍手
 	</string>
 	<string name="anim_courtbow">
-		Reverans
+		深いおじぎ
 	</string>
 	<string name="anim_express_cry">
-		Ağlama
+		泣く
 	</string>
 	<string name="anim_dance1">
-		Dans 1
+		ダンス 1
 	</string>
 	<string name="anim_dance2">
-		Dans 2
+		ダンス 2
 	</string>
 	<string name="anim_dance3">
-		Dans 3
+		ダンス 3
 	</string>
 	<string name="anim_dance4">
-		Dans 4
+		ダンス 4
 	</string>
 	<string name="anim_dance5">
-		Dans 5
+		ダンス 5
 	</string>
 	<string name="anim_dance6">
-		Dans 6
+		ダンス 6
 	</string>
 	<string name="anim_dance7">
-		Dans 7
+		ダンス 7
 	</string>
 	<string name="anim_dance8">
-		Dans 8
+		ダンス 8
 	</string>
 	<string name="anim_express_disdain">
-		Dudak Bükme
+		侮蔑
 	</string>
 	<string name="anim_drink">
-		İçme
+		酔っぱらう
 	</string>
 	<string name="anim_express_embarrased">
-		Utanmış
+		困惑
 	</string>
 	<string name="anim_angry_fingerwag">
-		İşaret Etme
+		指を振る
 	</string>
 	<string name="anim_fist_pump">
-		Yumruk Sallama
+		ガッツポーズ
 	</string>
 	<string name="anim_yoga_float">
-		Uçan Yoga
+		ヨガ浮遊
 	</string>
 	<string name="anim_express_frown">
-		Kaş Çatma
+		しかめっ面
 	</string>
 	<string name="anim_impatient">
-		Sabırsız
+		いらいらする
 	</string>
 	<string name="anim_jumpforjoy">
-		Sevinçten Zıplama
+		飛び上がって喜ぶ
 	</string>
 	<string name="anim_kissmybutt">
-		Kıçımı Öp
+		挑発ポーズ
 	</string>
 	<string name="anim_express_kiss">
-		Öpücük
+		キス
 	</string>
 	<string name="anim_laugh_short">
-		Gülme
+		笑う
 	</string>
 	<string name="anim_musclebeach">
-		Muscle Beach
+		力こぶを見せる
 	</string>
 	<string name="anim_no_unhappy">
-		Hayır (Mutsuz)
+		不満げに否定する
 	</string>
 	<string name="anim_no_head">
-		Hayır
+		否定する
 	</string>
 	<string name="anim_nyanya">
-		Ha-ha-ha
+		冷やかす
 	</string>
 	<string name="anim_punch_onetwo">
-		Peşpeşe İki Yumruk
+		ワンツー・パンチ
 	</string>
 	<string name="anim_express_open_mouth">
-		Ağız Açık
+		口を開けて驚く
 	</string>
 	<string name="anim_peace">
-		Barış
+		ピース・サイン
 	</string>
 	<string name="anim_point_you">
-		Diğerini Göster
+		他人を指差す
 	</string>
 	<string name="anim_point_me">
-		Kendini Göster
+		自分を指差す
 	</string>
 	<string name="anim_punch_l">
-		Sola Yumruk At
+		左パンチ
 	</string>
 	<string name="anim_punch_r">
-		Sağa Yumruk At
+		右パンチ
 	</string>
 	<string name="anim_rps_countdown">
-		RPS sayımı
+		じゃんけんポーズ
 	</string>
 	<string name="anim_rps_paper">
-		RPS kağıdı
+		パー
 	</string>
 	<string name="anim_rps_rock">
-		RPS kayası
+		グー
 	</string>
 	<string name="anim_rps_scissors">
-		RPS makası
+		チョキ
 	</string>
 	<string name="anim_express_repulsed">
-		Tiksinmiş
+		嫌悪感
 	</string>
 	<string name="anim_kick_roundhouse_r">
-		Döner Tekme
+		まわし蹴り
 	</string>
 	<string name="anim_express_sad">
-		Üzgün
+		悲しむ
 	</string>
 	<string name="anim_salute">
-		Selam
+		敬礼する
 	</string>
 	<string name="anim_shout">
-		Bağırma
+		叫ぶ
 	</string>
 	<string name="anim_express_shrug">
-		Omuz Silkme
+		肩をすくめる
 	</string>
 	<string name="anim_express_smile">
-		Gülümseme
+		微笑む
 	</string>
 	<string name="anim_smoke_idle">
-		Duman Tüttürme
+		たばこをくゆらす
 	</string>
 	<string name="anim_smoke_inhale">
-		Duman Çekme
+		たばこを吸う
 	</string>
 	<string name="anim_smoke_throw_down">
-		Yere İzmarit Atma
+		たばこを捨てる
 	</string>
 	<string name="anim_express_surprise">
-		Sürpriz
+		驚く
 	</string>
 	<string name="anim_sword_strike_r">
-		Kılıç Darbesi
+		剣で斬りつける
 	</string>
 	<string name="anim_angry_tantrum">
-		Öfke Nöbeti
+		じだんだを踏む
 	</string>
 	<string name="anim_express_tongue_out">
-		Dil Çıkarma
+		舌を出す
 	</string>
 	<string name="anim_hello">
-		El Sallama
+		手を振る
 	</string>
 	<string name="anim_whisper">
-		Fısıldama
+		小声で話す
 	</string>
 	<string name="anim_whistle">
-		Islık Çalma
+		口笛を吹く
 	</string>
 	<string name="anim_express_wink">
-		Göz Kırpma
+		ウィンク
 	</string>
 	<string name="anim_wink_hollywood">
-		Göz Kırpma (Hollywood)
+		ウィンク(ハリウッド)
 	</string>
 	<string name="anim_express_worry">
-		Endişelenme
+		心配する
 	</string>
 	<string name="anim_yes_happy">
-		Evet (Mutlu)
+		笑顔で頷く
 	</string>
 	<string name="anim_yes_head">
-		Evet
+		頷く
 	</string>
 	<string name="multiple_textures">
-		Birden Çok
+		複数
 	</string>
 	<string name="texture_loading">
-		Yükleniyor...
+		ローディング...
 	</string>
 	<string name="worldmap_offline">
-		Çevrimdışı
+		オフライン
 	</string>
 	<string name="worldmap_item_tooltip_format">
-		[AREA] m² L$[PRICE]
+		[AREA] 平方メートル L$[PRICE]
 	</string>
 	<string name="worldmap_results_none_found">
-		Hiçbiri bulunamadı.
+		見つかりませんでした。
 	</string>
 	<string name="Ok">
-		Tamam
+		OK
 	</string>
 	<string name="Premature end of file">
-		Dosyanın zamanından önce sonu
+		不完全なファイル
 	</string>
 	<string name="ST_NO_JOINT">
-		KÖK veya EKLEM bulunamıyor.
+		ROOT または JOINT が見つかりません
 	</string>
 	<string name="whisper">
-		fısıldar:
+		のささやき:
 	</string>
 	<string name="shout">
-		bağırır:
+		の叫び:
 	</string>
 	<string name="ringing">
-		SL dünyası içindeki Sesli Sohbete bağlanılıyor...
+		インワールドボイスチャットに接続中...
 	</string>
 	<string name="connected">
-		Bağlı
+		接続しました
 	</string>
 	<string name="unavailable">
-		Geçerli konumunuzda ses mevcut değil
+		現在地では、ボイスを利用できません。
 	</string>
 	<string name="hang_up">
-		SL dünyası içindeki Sesli Sohbet ile bağlantı kesildi
+		インワールドボイスチャットの通話が切断されました
 	</string>
 	<string name="reconnect_nearby">
-		Şimdi Yakındaki bir Sesli Sohbete yeniden bağlanılacaksınız.
+		「近くのボイスチャット」に再接続されます
 	</string>
 	<string name="ScriptQuestionCautionChatGranted">
-		&apos;[OWNERNAME]&apos; adlı kişiye ait, [REGIONPOS] üzerinde [REGIONNAME] içerisinde bulunan &apos;[OBJECTNAME]&apos; nesnesine şunu yapma izni verildi: [PERMISSIONS].
+		[REGIONNAME] の [REGIONPOS] という場所にある、「 [OWNERNAME] 」が所有する「 [OBJECTNAME] 」というオブジェクトは、次の権限を許可しました： [PERMISSIONS]
 	</string>
 	<string name="ScriptQuestionCautionChatDenied">
-		&apos;[OWNERNAME]&apos; adlı kişiye ait, [REGIONPOS] üzerinde [REGIONNAME] içerisinde bulunan &apos;[OBJECTNAME]&apos; nesnesine şunu yapma izni verilmedi: [PERMISSIONS].
-	</string>
-	<string name="AdditionalPermissionsRequestHeader">
-		Eğer hesabınıza erişime izin verirseniz, bu nesneye aynı zamanda şunun için izin vermiş olacaksınız:
+		[REGIONNAME] の [REGIONPOS] という場所にある、「 [OWNERNAME] 」が所有する「 [OBJECTNAME] 」というオブジェクトは、次の権限を拒否しました： [PERMISSIONS]
 	</string>
 	<string name="ScriptTakeMoney">
-		Sizden Linden dolar (L$) almak
+		リンデンドル（L$）を支払う
 	</string>
 	<string name="ActOnControlInputs">
-		Denetim girişlerinizle ilgili eylem gerçekleştirmek
+		制御入力に基づいて行動
 	</string>
 	<string name="RemapControlInputs">
-		Denetim girişleriniz için yeniden eşleme yapmak
+		制御入力のリマップ
 	</string>
 	<string name="AnimateYourAvatar">
-		Avatarınızı canlandırmak
+		アバターへのアニメーション動作
 	</string>
 	<string name="AttachToYourAvatar">
-		Avatarınıza eklemek
+		アバターに装着
 	</string>
 	<string name="ReleaseOwnership">
-		Mülkiyeti bırakmak ve kamuya açık hale gelmek
+		所有権を解放し公のものとする
 	</string>
 	<string name="LinkAndDelink">
-		Başka nesnelerle bağlantı kurmak veya koparmak
+		他のオブジェクトのリンクとリンク解除
 	</string>
 	<string name="AddAndRemoveJoints">
-		Başka nesnelerle eklem eklemek ve kaldırmak
+		他のオブジェクトとのジョイントの追加と削除
 	</string>
 	<string name="ChangePermissions">
-		İzinlerini değiştirmek
+		権限の変更
 	</string>
 	<string name="TrackYourCamera">
-		Kameranızı takip etmek
+		カメラ追従
 	</string>
 	<string name="ControlYourCamera">
-		Kameranızı kontrol etmek
-	</string>
-	<string name="TeleportYourAgent">
-		Sizi ışınlama
+		カメラのコントロール
 	</string>
 	<string name="NotConnected">
-		Bağlı Değil
+		接続されていません
 	</string>
 	<string name="SIM_ACCESS_PG">
-		Genel
+		General
 	</string>
 	<string name="SIM_ACCESS_MATURE">
-		Orta
+		Moderate
 	</string>
 	<string name="SIM_ACCESS_ADULT">
-		Yetişkin
+		Adult
 	</string>
 	<string name="SIM_ACCESS_DOWN">
-		Çevrimdışı
+		オフライン
 	</string>
 	<string name="SIM_ACCESS_MIN">
-		Bilinmiyor
+		不明
 	</string>
 	<string name="land_type_unknown">
-		(bilinmiyor)
+		（不明）
 	</string>
 	<string name="Estate / Full Region">
-		Gayrimenkul / Tam Bölge
+		不動産 / フルリージョン
 	</string>
 	<string name="Estate / Homestead">
-		Gayrimenkul / Banliyö
+		エステート/ホームステッド
 	</string>
 	<string name="Mainland / Homestead">
-		Anakara / Banliyö
+		メインランド/ホームステッド
 	</string>
 	<string name="Mainland / Full Region">
-		Anakara / Tam Bölge
+		メインランド / フルリージョン
 	</string>
 	<string name="all_files">
-		Tüm Dosyalar
+		全てのファイル
 	</string>
 	<string name="sound_files">
-		Sesler
+		サウンド
 	</string>
 	<string name="animation_files">
-		Animasyonlar
+		アニメーション
 	</string>
 	<string name="image_files">
-		Görüntüler
+		画像
 	</string>
 	<string name="save_file_verb">
-		Kaydet
+		保存
 	</string>
 	<string name="load_file_verb">
-		Yükle
+		ロード
 	</string>
 	<string name="targa_image_files">
-		Targa Görüntüleri
+		Targa 画像
 	</string>
 	<string name="bitmap_image_files">
-		Bitmap Görüntüler
+		ビットマップ画像
 	</string>
 	<string name="avi_movie_file">
-		AVI Film Dosyası
+		AVI ムービーファイル
 	</string>
 	<string name="xaf_animation_file">
-		XAF Animasyon Dosyası
+		XAF アニメーションファイル
 	</string>
 	<string name="xml_file">
-		XML Dosyası
+		XML ファイル
 	</string>
 	<string name="raw_file">
-		Ham Dosya
+		RAW ファイル
 	</string>
 	<string name="compressed_image_files">
-		Sıkıştırılmış Görüntüler
+		圧縮画像
 	</string>
 	<string name="load_files">
-		Dosyalar Yükle
+		ファイルのロード
 	</string>
 	<string name="choose_the_directory">
-		Dizin Seç
+		参照
 	</string>
 	<string name="script_files">
-		Komut Dosyaları
+		スクリプト
 	</string>
 	<string name="AvatarSetNotAway">
-		Uzakta Değil
+		一時退席中解除
 	</string>
 	<string name="AvatarSetAway">
-		Uzakta
+		一時退席中
 	</string>
 	<string name="AvatarSetNotBusy">
-		Meşgul Değil
+		取り込み中解除
 	</string>
 	<string name="AvatarSetBusy">
-		Meşgul
+		取り込み中
 	</string>
 	<string name="shape">
-		Şekil
+		シェイプ
 	</string>
 	<string name="skin">
-		Dış Katman
+		スキン
 	</string>
 	<string name="hair">
-		Saç
+		髪
 	</string>
 	<string name="eyes">
-		Gözler
+		目
 	</string>
 	<string name="shirt">
-		Gömlek
+		シャツ
 	</string>
 	<string name="pants">
-		Pantolon
+		パンツ
 	</string>
 	<string name="shoes">
-		Ayakkabılar
+		靴
 	</string>
 	<string name="socks">
-		Çoraplar
+		靴下
 	</string>
 	<string name="jacket">
-		Ceket
+		ジャケット
 	</string>
 	<string name="gloves">
-		Eldivenler
+		手袋
 	</string>
 	<string name="undershirt">
-		Fanila
+		下着シャツ
 	</string>
 	<string name="underpants">
-		Külot
+		下着パンツ
 	</string>
 	<string name="skirt">
-		Etek
+		スカート
 	</string>
 	<string name="alpha">
-		Alfa
+		アルファ
 	</string>
 	<string name="tattoo">
-		Dövme
+		タトゥ
 	</string>
 	<string name="physics">
-		Fizik
+		物理作用
 	</string>
 	<string name="invalid">
-		geçersiz
+		無効
 	</string>
 	<string name="none">
-		hiçbiri
+		なし
 	</string>
 	<string name="shirt_not_worn">
-		Giyilmemiş gömlek
+		シャツ未着用
 	</string>
 	<string name="pants_not_worn">
-		Giyilmemiş pantolon
+		パンツ未着用
 	</string>
 	<string name="shoes_not_worn">
-		Giyilmemiş ayakkabılar
+		靴未着用
 	</string>
 	<string name="socks_not_worn">
-		Giyilmemiş çoraplar
+		靴下未着用
 	</string>
 	<string name="jacket_not_worn">
-		Giyilmemiş ceket
+		ジャケット未着用
 	</string>
 	<string name="gloves_not_worn">
-		Giyilmemiş eldivenler
+		手袋未着用
 	</string>
 	<string name="undershirt_not_worn">
-		Giyilmemiş fanila
+		下着（上）未着用
 	</string>
 	<string name="underpants_not_worn">
-		Giyilmemiş külot
+		下着（下）未着用
 	</string>
 	<string name="skirt_not_worn">
-		Giyilmemiş etek
+		スカート未着用
 	</string>
 	<string name="alpha_not_worn">
-		Giyilmemiş alfa
+		アルファ未着用
 	</string>
 	<string name="tattoo_not_worn">
-		Giyilmemiş dövme
+		タトゥー未着用
 	</string>
 	<string name="physics_not_worn">
-		Giyilmemiş fizik
+		物理作用なし
 	</string>
 	<string name="invalid_not_worn">
-		geçersiz
+		無効
 	</string>
 	<string name="create_new_shape">
-		Yeni şekil oluştur
+		新しいシェイプを作成
 	</string>
 	<string name="create_new_skin">
-		Yeni dış katman oluştur
+		新しいスキンを作成
 	</string>
 	<string name="create_new_hair">
-		Yeni saç oluştur
+		新しい髪を作成
 	</string>
 	<string name="create_new_eyes">
-		Yeni gözler oluştur
+		新しい目を作成
 	</string>
 	<string name="create_new_shirt">
-		Yeni gömlek oluştur
+		新しいシャツを作成
 	</string>
 	<string name="create_new_pants">
-		Yeni pantolon oluştur
+		新しいパンツを作成
 	</string>
 	<string name="create_new_shoes">
-		Yeni ayakkabılar oluştur
+		新しい靴を作成
 	</string>
 	<string name="create_new_socks">
-		Yeni çoraplar oluştur
+		新しい靴下を作成
 	</string>
 	<string name="create_new_jacket">
-		Yeni ceket oluştur
+		新しい上着を作成
 	</string>
 	<string name="create_new_gloves">
-		Yeni eldivenler oluştur
+		新しい手袋を作成
 	</string>
 	<string name="create_new_undershirt">
-		Yeni fanila oluştur
+		新しい下着シャツを作成
 	</string>
 	<string name="create_new_underpants">
-		Yeni külot oluştur
+		新しい下着パンツを作成
 	</string>
 	<string name="create_new_skirt">
-		Yeni etek oluştur
+		新しいスカートを作成
 	</string>
 	<string name="create_new_alpha">
-		Yeni alfa oluştur
+		新しいアルファを作成
 	</string>
 	<string name="create_new_tattoo">
-		Yeni dövme oluştur
+		新しいタトゥを作成
 	</string>
 	<string name="create_new_physics">
-		Yeni fizik oluştur
+		新しい物理作用を作成
 	</string>
 	<string name="create_new_invalid">
-		geçersiz
+		無効
 	</string>
 	<string name="NewWearable">
-		Yeni [WEARABLE_ITEM]
+		新しい [WEARABLE_ITEM]
 	</string>
 	<string name="next">
-		Sonraki
+		次へ
 	</string>
 	<string name="ok">
-		Tamam
+		OK
 	</string>
 	<string name="GroupNotifyGroupNotice">
-		Grup Bildirimi
+		グループ通知
 	</string>
 	<string name="GroupNotifyGroupNotices">
-		Grup Bildirimleri
+		グループ通知
 	</string>
 	<string name="GroupNotifySentBy">
-		Gönderen:
+		送信者
 	</string>
 	<string name="GroupNotifyAttached">
-		Eklenmiş:
+		添付：
 	</string>
 	<string name="GroupNotifyViewPastNotices">
-		Burada eski bildirimleri görüntüleyin veya bu iletilerin alınmasını iptal edin.
+		ここで過去の通知を表示するか、メッセージを受け取らない設定をします。
 	</string>
 	<string name="GroupNotifyOpenAttachment">
-		Aksesuarı Aç
+		添付アイテムを開く
 	</string>
 	<string name="GroupNotifySaveAttachment">
-		Aksesuarı Kaydet
+		添付アイテムを保存
 	</string>
 	<string name="TeleportOffer">
-		Işınlama teklifi
+		テレポートを送る
 	</string>
 	<string name="StartUpNotifications">
-		Siz yokken yeni bildirimler geldi.
+		不在中に新しい通知が届きました。
 	</string>
 	<string name="OverflowInfoChannelString">
-		%d ilave bildiriminiz var
+		あなたにはさらに %d 通の通知があります
 	</string>
 	<string name="BodyPartsRightArm">
-		Sağ Kol
+		右腕
 	</string>
 	<string name="BodyPartsHead">
-		Baş
+		頭
 	</string>
 	<string name="BodyPartsLeftArm">
-		Sol Kol
+		左腕
 	</string>
 	<string name="BodyPartsLeftLeg">
-		Sol Bacak
+		左脚
 	</string>
 	<string name="BodyPartsTorso">
-		Gövde
+		上半身
 	</string>
 	<string name="BodyPartsRightLeg">
-		Sağ Bacak
+		右脚
 	</string>
 	<string name="GraphicsQualityLow">
-		Düşük
+		低
 	</string>
 	<string name="GraphicsQualityMid">
-		Orta
+		中
 	</string>
 	<string name="GraphicsQualityHigh">
-		Yüksek
+		高
 	</string>
 	<string name="LeaveMouselook">
-		Dünya Görünümüne dönmek için ESC&apos;e basın
+		ESC キーを押してワールドビューに戻ります
 	</string>
 	<string name="InventoryNoMatchingItems">
-		Aradığınızı bulamadınız mı? [secondlife:///app/search/all/[SEARCH_TERM] Arama] ile bulmayı deneyin.
+		お探しのものは見つかりましたか？ [secondlife:///app/search/all/[SEARCH_TERM] 検索] をお試しください。
 	</string>
 	<string name="PlacesNoMatchingItems">
-		Aradığınızı bulamadınız mı? [secondlife:///app/search/places/[SEARCH_TERM] Arama] ile bulmayı deneyin.
+		お探しのものは見つかりましたか？ [secondlife:///app/search/places/[SEARCH_TERM] 検索] をお試しください。
 	</string>
 	<string name="FavoritesNoMatchingItems">
-		Bir yer imini favorilerinize eklemek için buraya sürükleyin.
+		ここにランドマークをドラッグしてお気に入りに追加します。
 	</string>
 	<string name="InventoryNoTexture">
-		Envanterinizde bu dokunun kopyası yok
+		インベントリ内にこのテクスチャのコピーがありません
 	</string>
 	<string name="InventoryInboxNoItems">
-		Pazaryerinda satın aldıklarınız burada görünecektir. Bunları kullanmak için envanterinize sürükleyebilirsiniz.
+		マーケットプレイスで購入した商品はここに表示されます。その後、アイテムをインベントリにドラッグすれば、それらのアイテムを使用できます。
 	</string>
 	<string name="MarketplaceURL">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
@@ -1259,211 +1256,211 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more
 	</string>
 	<string name="InventoryOutboxNotMerchantTitle">
-		Pazaryerinde herkes öğe satabilir.
+		マーケットプレイスでは誰でもアイテムを売ることができます。
 	</string>
 	<string name="InventoryOutboxNotMerchantTooltip"/>
 	<string name="InventoryOutboxNotMerchant">
-		Eğer bir satıcı olmak istiyorsanız, [Pazaryerinde [MARKETPLACE_CREATE_STORE_URL] bir mağaza açmanız gerekir].
+		マーチャントになりたい方は、[[MARKETPLACE_CREATE_STORE_URL] マーケットプレイスストアを作成]する必要があります。
 	</string>
 	<string name="InventoryOutboxNoItemsTitle">
-		Giden kutunuz boş.
+		アウトボックスは空です。
 	</string>
 	<string name="InventoryOutboxNoItemsTooltip"/>
 	<string name="InventoryOutboxNoItems">
-		Bu alana klasörleri sürükleyin ve bunları [[MARKETPLACE_DASHBOARD_URL] Pazaryerinde] satılık olarak duyurmak için &quot;Pazaryerine Gönder&quot; üzerine tıklayın.
+		[[MARKETPLACE_DASHBOARD_URL] マーケットプレイス]に販売するアイテムを一覧するには、フォルダをこのエリアにドラッグし、「マーケットプレイスに送信」をクリックします。
 	</string>
 	<string name="Marketplace Error None">
-		Hata yok
+		エラーなし
 	</string>
 	<string name="Marketplace Error Not Merchant">
-		Hata: Öğeleri Pazaryerine göndermeden önce kendinizi bir satıcı olarak belirlemelisiniz (ücretsizdir).
+		エラー：マーケットプレイスにアイテムを送る前に、あなた自身をマーチャント登録する必要があります（登録は無料です）。
 	</string>
 	<string name="Marketplace Error Empty Folder">
-		Hata: Bu klasörün içeriği boş.
+		エラー：このフォルダは空です。
 	</string>
 	<string name="Marketplace Error Unassociated Products">
-		Hata: Bu öğe karşıya yüklenemedi çünkü satıcı hesabınızda ürünlerle ilişkisiz çok fazla öğe mevcut.  Bu hatayı düzeltmek için Pazaryeri web sitesine oturum açın ve ilişkisiz öğe sayınızı azaltın.
+		エラー：あなたのマーチャントアカウントには、商品に関連付けられていないアイテムが多すぎるため、このアイテムをアップロードできませんでした。このエラーを解消するには、マーケットプレイスの Web サイトにログインし、関連付けられていないアイテムの数を減らしてください。
 	</string>
 	<string name="Marketplace Error Object Limit">
-		Hata: Bu öğe çok fazla nesne içeriyor.  Bu hatayı düzeltmek için nesneleri birlikte kutulara yerleştirerek, toplam nesne sayısını 200&apos;ün altına düşürün.
+		エラー：このアイテムに含まれるオブジェクトが多すぎます。オブジェクトをいくつかボックスにまとめ、オブジェクト数を200以下に減らしてください。
 	</string>
 	<string name="Marketplace Error Folder Depth">
-		Hata: Bu öğede çok fazla iç içe geçmiş klasör seviyesi var.  Bunu tekrar düzenleyerek maksimum 3 iç içe geçmiş klasör seviyesine indirin.
+		エラー：このアイテムはネスト入りフォルダの階層が多すぎます。ネスト入りフォルダを 3 階層以内にまとめ直してください。
 	</string>
 	<string name="Marketplace Error Unsellable Item">
-		Hata: Bu öğe Pazaryerinde satılamaz.
+		エラー：このアイテムをマーケットプレイスで販売することはできません。
 	</string>
 	<string name="Marketplace Error Internal Import">
-		Hata: Bu öğede bir sorun var.  Daha sonra tekrar deneyin.
+		エラー：このアイテムに関して問題が発生しました。しばらくしてからお試しください。
 	</string>
 	<string name="Open landmarks">
-		Açık yer imleri
+		ランドマークを開く
 	</string>
-	<string name="no_transfer" value="(aktarım yok)"/>
-	<string name="no_modify" value="(değiştirme yok)"/>
-	<string name="no_copy" value="(kopya yok)"/>
-	<string name="worn" value="(giyilmiş)"/>
-	<string name="link" value="(bağlantı)"/>
-	<string name="broken_link" value="(broken_link)"/>
+	<string name="no_transfer" value=" （再販・プレゼント不可）"/>
+	<string name="no_modify" value=" （編集不可）"/>
+	<string name="no_copy" value=" （コピー不可）"/>
+	<string name="worn" value=" （着用中）"/>
+	<string name="link" value=" （リンク）"/>
+	<string name="broken_link" value=" （壊れたリンク）"/>
 	<string name="LoadingContents">
-		İçerik yükleniyor...
+		コンテンツをロード中です...
 	</string>
 	<string name="NoContents">
-		İçerik yok
+		コンテンツなし
 	</string>
-	<string name="WornOnAttachmentPoint" value="([ATTACHMENT_POINT] üzerinde giyilmiş)"/>
-	<string name="ActiveGesture" value="[GESLABEL] (etkin)"/>
+	<string name="WornOnAttachmentPoint" value=" （[ATTACHMENT_POINT] に装着中）"/>
+	<string name="ActiveGesture" value="[GESLABEL] （アクティブ）"/>
 	<string name="PermYes">
-		Evet
+		はい
 	</string>
 	<string name="PermNo">
-		Hayır
+		いいえ
 	</string>
-	<string name="Chat Message" value="Sohbet:"/>
-	<string name="Sound" value="Ses:"/>
-	<string name="Wait" value="--- Bekleyin:"/>
-	<string name="AnimFlagStop" value="Animasyonu Durdur:"/>
-	<string name="AnimFlagStart" value="Animasyonu Başlat:"/>
-	<string name="Wave" value="El Sallama"/>
-	<string name="GestureActionNone" value="Hiçbiri"/>
-	<string name="HelloAvatar" value="Merhaba avatar!"/>
-	<string name="ViewAllGestures" value="Tümünü Göster &gt;&gt;"/>
-	<string name="GetMoreGestures" value="İlave Al &gt;&gt;"/>
-	<string name="Animations" value="Animasyonlar,"/>
-	<string name="Calling Cards" value="Arama Kartları,"/>
-	<string name="Clothing" value="Giysiler,"/>
-	<string name="Gestures" value="Mimikler,"/>
-	<string name="Landmarks" value="Yer İmleri,"/>
-	<string name="Notecards" value="Not Kartları,"/>
-	<string name="Objects" value="Nesneler,"/>
-	<string name="Scripts" value="Komut Dosyaları,"/>
-	<string name="Sounds" value="Sesler,"/>
-	<string name="Textures" value="Dokular,"/>
-	<string name="Snapshots" value="Anlık Görüntüler,"/>
-	<string name="No Filters" value="Hayır"/>
-	<string name="Since Logoff" value="- Oturum Kapandıktan Beri"/>
+	<string name="Chat Message" value="チャット："/>
+	<string name="Sound" value=" サウンド："/>
+	<string name="Wait" value=" --- 待機：:"/>
+	<string name="AnimFlagStop" value=" アニメーションを停止："/>
+	<string name="AnimFlagStart" value=" アニメーションを開始："/>
+	<string name="Wave" value=" 手を振る"/>
+	<string name="GestureActionNone" value="なし"/>
+	<string name="HelloAvatar" value=" やあ、アバター！"/>
+	<string name="ViewAllGestures" value="  すべて表示 &gt;&gt;"/>
+	<string name="GetMoreGestures" value="ショッピング &gt;&gt;"/>
+	<string name="Animations" value="アニメーション、"/>
+	<string name="Calling Cards" value="コーリングカード、"/>
+	<string name="Clothing" value="衣類、"/>
+	<string name="Gestures" value="ジェスチャー、"/>
+	<string name="Landmarks" value="ランドマーク、"/>
+	<string name="Notecards" value="ノートカード、"/>
+	<string name="Objects" value="オブジェクト、"/>
+	<string name="Scripts" value="スクリプト、"/>
+	<string name="Sounds" value="サウンド、"/>
+	<string name="Textures" value="テクスチャ、"/>
+	<string name="Snapshots" value="スナップショット、"/>
+	<string name="No Filters" value="いいえ "/>
+	<string name="Since Logoff" value=" - ログオフ以来"/>
 	<string name="InvFolder My Inventory">
-		Envanterim
+		インベントリ
 	</string>
 	<string name="InvFolder Library">
-		Kütüphane
+		ライブラリ
 	</string>
 	<string name="InvFolder Textures">
-		Dokular
+		テクスチャ
 	</string>
 	<string name="InvFolder Sounds">
-		Sesler
+		サウンド
 	</string>
 	<string name="InvFolder Calling Cards">
-		Arama Kartları
+		コーリングカード
 	</string>
 	<string name="InvFolder Landmarks">
-		Yer İmleri
+		ランドマーク
 	</string>
 	<string name="InvFolder Scripts">
-		Komut Dosyaları
+		スクリプト
 	</string>
 	<string name="InvFolder Clothing">
-		Giysiler
+		衣類
 	</string>
 	<string name="InvFolder Objects">
-		Nesneler
+		オブジェクト
 	</string>
 	<string name="InvFolder Notecards">
-		Not Kartları
+		ノートカード
 	</string>
 	<string name="InvFolder New Folder">
-		Yeni Klasör
+		新規フォルダ
 	</string>
 	<string name="InvFolder Inventory">
-		Envanter
+		インベントリ
 	</string>
 	<string name="InvFolder Uncompressed Images">
-		Sıkıştırılmamış Görüntüler
+		圧縮されていない画像
 	</string>
 	<string name="InvFolder Body Parts">
-		Vücut Bölümleri
+		身体部位
 	</string>
 	<string name="InvFolder Trash">
-		Çöp
+		ごみ箱
 	</string>
 	<string name="InvFolder Photo Album">
-		Fotoğraf Albümü
+		フォトアルバム
 	</string>
 	<string name="InvFolder Lost And Found">
-		Kaybedip Bulduklarım
+		紛失物
 	</string>
 	<string name="InvFolder Uncompressed Sounds">
-		Sıkıştırılmamış Sesler
+		圧縮されていないサウンド
 	</string>
 	<string name="InvFolder Animations">
-		Animasyonlar
+		アニメーション
 	</string>
 	<string name="InvFolder Gestures">
-		Mimikler
+		ジェスチャー
 	</string>
 	<string name="InvFolder Favorite">
-		Favorilerim
+		お気に入り
 	</string>
 	<string name="InvFolder favorite">
-		Favorilerim
+		お気に入り
 	</string>
 	<string name="InvFolder Current Outfit">
-		Mevcut Dış Görünüm
+		着用中のアウトフィット
 	</string>
 	<string name="InvFolder Initial Outfits">
-		Başlangıçtakı Dış Görünümler
+		最初のアウトフィット
 	</string>
 	<string name="InvFolder My Outfits">
-		Benim Dış Görünümlerim
+		マイ アウトフィット
 	</string>
 	<string name="InvFolder Accessories">
-		Aksesuarlar
+		アクセサリ
 	</string>
 	<string name="InvFolder Meshes">
-		Örgüler
+		メッシュ
 	</string>
 	<string name="InvFolder Friends">
-		Arkadaşlar
+		フレンド
 	</string>
 	<string name="InvFolder All">
-		Tümü
+		全員
 	</string>
 	<string name="no_attachments">
-		Giyilen aksesuar yok
+		着用しているアタッチメントはありません
 	</string>
 	<string name="Attachments remain">
-		Aksesuarlar ([COUNT] yuva mevcut)
+		アタッチメント（残りのスロット数：[COUNT]）
 	</string>
 	<string name="Buy">
-		Satın Al
+		買う
 	</string>
 	<string name="BuyforL$">
-		L$&apos;a Satın Al
+		L$ で購入
 	</string>
 	<string name="Stone">
-		Taş
+		石
 	</string>
 	<string name="Metal">
-		Metal
+		金属
 	</string>
 	<string name="Glass">
-		Cam
+		ガラス
 	</string>
 	<string name="Wood">
-		Ahşap
+		木
 	</string>
 	<string name="Flesh">
-		Et
+		肌
 	</string>
 	<string name="Plastic">
-		Plastik
+		プラスチック
 	</string>
 	<string name="Rubber">
-		Lastik
+		ゴム
 	</string>
 	<string name="Light">
-		Işık
+		ライト
 	</string>
 	<string name="KBShift">
 		Shift
@@ -1472,655 +1469,655 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		Ctrl
 	</string>
 	<string name="Chest">
-		Göğüs
+		胸部
 	</string>
 	<string name="Skull">
-		Kafatası
+		頭蓋
 	</string>
 	<string name="Left Shoulder">
-		Sol Omuz
+		左肩
 	</string>
 	<string name="Right Shoulder">
-		Sağ Omuz
+		右肩
 	</string>
 	<string name="Left Hand">
-		Sol El
+		左手
 	</string>
 	<string name="Right Hand">
-		Sağ El
+		右手
 	</string>
 	<string name="Left Foot">
-		Sol Ayak
+		左足
 	</string>
 	<string name="Right Foot">
-		Sağ Ayak
+		右足
 	</string>
 	<string name="Spine">
-		Omurga
+		背骨
 	</string>
 	<string name="Pelvis">
-		Leğen Kemiği
+		骨盤
 	</string>
 	<string name="Mouth">
-		Ağız
+		口
 	</string>
 	<string name="Chin">
-		Çene
+		あご
 	</string>
 	<string name="Left Ear">
-		Sol Kulak
+		左耳
 	</string>
 	<string name="Right Ear">
-		Sağ Kulak
+		右耳
 	</string>
 	<string name="Left Eyeball">
-		Sol Göz Küresi
+		左目眼球
 	</string>
 	<string name="Right Eyeball">
-		Sağ Göz Küresi
+		右目眼球
 	</string>
 	<string name="Nose">
-		Burun
+		鼻
 	</string>
 	<string name="R Upper Arm">
-		Sağ Üst Kol
+		右上腕
 	</string>
 	<string name="R Forearm">
-		Sağ Ön Kol
+		右前腕
 	</string>
 	<string name="L Upper Arm">
-		Sol Üst Kol
+		左上腕
 	</string>
 	<string name="L Forearm">
-		Sol Ön Kol
+		左前腕
 	</string>
 	<string name="Right Hip">
-		Sağ Kalça
+		右腰
 	</string>
 	<string name="R Upper Leg">
-		Sağ Üst Bacak
+		右上脚
 	</string>
 	<string name="R Lower Leg">
-		Sağ Alt Bacak
+		右下脚
 	</string>
 	<string name="Left Hip">
-		Sol Kalça
+		左腰
 	</string>
 	<string name="L Upper Leg">
-		Sol Üst Bacak
+		左上脚
 	</string>
 	<string name="L Lower Leg">
-		Sol Alt Bacak
+		左下脚
 	</string>
 	<string name="Stomach">
-		Karın
+		腹
 	</string>
 	<string name="Left Pec">
-		Sol Göğüs
+		左胸筋
 	</string>
 	<string name="Right Pec">
-		Sağ Göğüs
+		右胸筋
 	</string>
 	<string name="Neck">
-		Boyun
+		首
 	</string>
 	<string name="Avatar Center">
-		Avatar Merkezi
+		アバターの中央
 	</string>
 	<string name="Invalid Attachment">
-		Geçersiz Aksesuar Noktası
+		装着先が正しくありません
 	</string>
 	<string name="YearsMonthsOld">
-		[AGEYEARS] [AGEMONTHS]&apos;lık
+		[AGEYEARS] [AGEMONTHS]
 	</string>
 	<string name="YearsOld">
-		[AGEYEARS] yaşında
+		[AGEYEARS]
 	</string>
 	<string name="MonthsOld">
-		[AGEMONTHS]&apos;lık
+		[AGEMONTHS]
 	</string>
 	<string name="WeeksOld">
-		[AGEWEEKS]&apos;lık
+		[AGEWEEKS]
 	</string>
 	<string name="DaysOld">
-		[AGEDAYS]&apos;lük
+		[AGEDAYS]
 	</string>
 	<string name="TodayOld">
-		Bugün katıldı
+		今日参加
 	</string>
 	<string name="AgeYearsA">
-		[COUNT] yıl
+		[COUNT] 年
 	</string>
 	<string name="AgeYearsB">
-		[COUNT] yıl
+		[COUNT] 年
 	</string>
 	<string name="AgeYearsC">
-		[COUNT] yıl
+		[COUNT] 年
 	</string>
 	<string name="AgeMonthsA">
-		[COUNT] ay
+		[COUNT] ヶ月
 	</string>
 	<string name="AgeMonthsB">
-		[COUNT] ay
+		[COUNT] ヶ月
 	</string>
 	<string name="AgeMonthsC">
-		[COUNT] ay
+		[COUNT] ヶ月
 	</string>
 	<string name="AgeWeeksA">
-		[COUNT] hafta
+		[COUNT] 週間
 	</string>
 	<string name="AgeWeeksB">
-		[COUNT] hafta
+		[COUNT] 週間
 	</string>
 	<string name="AgeWeeksC">
-		[COUNT] hafta
+		[COUNT] 週間
 	</string>
 	<string name="AgeDaysA">
-		[COUNT] gün
+		[COUNT] 日間
 	</string>
 	<string name="AgeDaysB">
-		[COUNT] gün
+		[COUNT] 日間
 	</string>
 	<string name="AgeDaysC">
-		[COUNT] gün
+		[COUNT] 日間
 	</string>
 	<string name="GroupMembersA">
-		[COUNT] üye
+		[COUNT] 人
 	</string>
 	<string name="GroupMembersB">
-		[COUNT] üye
+		[COUNT] 人
 	</string>
 	<string name="GroupMembersC">
-		[COUNT] üye
+		[COUNT] 人
 	</string>
 	<string name="AcctTypeResident">
-		Sakin
+		住人
 	</string>
 	<string name="AcctTypeTrial">
-		Deneme
+		トライアル
 	</string>
 	<string name="AcctTypeCharterMember">
-		Ayrıcalıklı Üye
+		創立メンバー
 	</string>
 	<string name="AcctTypeEmployee">
-		Linden Lab Çalışanı
+		Linden Lab 従業員
 	</string>
 	<string name="PaymentInfoUsed">
-		Kullanılan Ödeme Bilgisi
+		支払情報使用履歴あり
 	</string>
 	<string name="PaymentInfoOnFile">
-		Dosyadaki Ödeme Bilgisi
+		支払情報登録済
 	</string>
 	<string name="NoPaymentInfoOnFile">
-		Dosyada Ödeme Bilgisi Yok
+		支払情報未登録
 	</string>
 	<string name="AgeVerified">
-		Yaşı Doğrulanmış
+		年齢確認済
 	</string>
 	<string name="NotAgeVerified">
-		Yaşı Doğrulanmamış
+		年齢未確認
 	</string>
 	<string name="Center 2">
-		2. Merkez
+		中心 2
 	</string>
 	<string name="Top Right">
-		Sağ Üst
+		右上
 	</string>
 	<string name="Top">
-		Üst
+		上部
 	</string>
 	<string name="Top Left">
-		Sol Üst
+		左上
 	</string>
 	<string name="Center">
-		Merkez
+		中心
 	</string>
 	<string name="Bottom Left">
-		Sol Alt
+		左下
 	</string>
 	<string name="Bottom">
-		Alt
+		下部
 	</string>
 	<string name="Bottom Right">
-		Sağ Alt
+		右下
 	</string>
 	<string name="CompileQueueDownloadedCompiling">
-		Karşıdan yüklendi, şimdi derleniyor
+		ダウンロード完了、コンパイル中
 	</string>
 	<string name="CompileQueueScriptNotFound">
-		Komut dosyası sunucuda bulunamadı.
+		サーバー上にスクリプトが見つかりません。
 	</string>
 	<string name="CompileQueueProblemDownloading">
-		Karşıdan yüklenirken sorun oluştu
+		ダウンロードに問題があります
 	</string>
 	<string name="CompileQueueInsufficientPermDownload">
-		Komut dosyasını karşıdan yüklemek için yeterli izin yok.
+		権限不足のためスクリプトをダウンロードできません。
 	</string>
 	<string name="CompileQueueInsufficientPermFor">
-		Şunun için yeterli izin yok:
+		権限不足：
 	</string>
 	<string name="CompileQueueUnknownFailure">
-		Karşıdan yüklerken bilinmeyen hata
+		原因不明の失敗によりダウンロードができません
 	</string>
 	<string name="CompileQueueTitle">
-		Tekrar Derleme İlerlemesi
+		リコンパイル進行
 	</string>
 	<string name="CompileQueueStart">
-		tekrar derle
+		リコンパイル
 	</string>
 	<string name="ResetQueueTitle">
-		Sıfırlama İlerlemesi
+		進行をリセット
 	</string>
 	<string name="ResetQueueStart">
-		sıfırla
+		リセット
 	</string>
 	<string name="RunQueueTitle">
-		Çalışan Süreçlerin İlerlemesini Ayarla
+		実行を続けるよう設定
 	</string>
 	<string name="RunQueueStart">
-		çalıştırmayı ayarla
+		実行中に設定
 	</string>
 	<string name="NotRunQueueTitle">
-		Çalışmayan Süreçlerin İlerlemesini Ayarla
+		実行を停止するよう設定
 	</string>
 	<string name="NotRunQueueStart">
-		çalıştırmamayı ayarla
+		実行停止に設定
 	</string>
 	<string name="CompileSuccessful">
-		Derleme başarılı oldu!
+		コンパイルが完了しました！
 	</string>
 	<string name="CompileSuccessfulSaving">
-		Derleme başarılı, kaydediliyor...
+		コンパイル完了、保存中です...
 	</string>
 	<string name="SaveComplete">
-		Kaydetme tamamlandı.
+		保存完了。
 	</string>
 	<string name="ObjectOutOfRange">
-		Komut dosyası (nesne kapsam dışı)
+		スクリプト（オブジェクトが範囲外にあります）
 	</string>
 	<string name="GodToolsObjectOwnedBy">
-		[OWNER] mülkiyetindeki [OBJECT] nesnesi
+		[OWNER] 所有のオブジェクト「[OBJECT]」
 	</string>
 	<string name="GroupsNone">
-		hiçbiri
+		なし
 	</string>
-	<string name="Group" value="(grup)"/>
+	<string name="Group" value=" （グループ）"/>
 	<string name="Unknown">
-		(Bilinmiyor)
+		（不明）
 	</string>
-	<string name="SummaryForTheWeek" value="Bu haftanın özeti, şu tarihten itibaren:"/>
-	<string name="NextStipendDay" value="Sonraki ödeme günü şudur:"/>
+	<string name="SummaryForTheWeek" value="今週のまとめ。開始日は"/>
+	<string name="NextStipendDay" value="です。次回のお小遣い支給日："/>
 	<string name="GroupPlanningDate">
-		[mthnum,datetime,utc]/[day,datetime,utc]/[year,datetime,utc]
+		[year,datetime,utc]/[mthnum,datetime,utc]/[day,datetime,utc]
 	</string>
-	<string name="GroupIndividualShare" value="Grup       Bireysel Pay"/>
-	<string name="GroupColumn" value="Grup"/>
+	<string name="GroupIndividualShare" value="                      グループ       個人の割り当て"/>
+	<string name="GroupColumn" value="グループの設定"/>
 	<string name="Balance">
-		Bakiye
+		残高
 	</string>
 	<string name="Credits">
-		Katkıda Bulunanlar
+		収入
 	</string>
 	<string name="Debits">
-		Borçlar
+		支出
 	</string>
 	<string name="Total">
-		Toplam
+		合計
 	</string>
 	<string name="NoGroupDataFound">
-		Bu grup için grup verisi bulunamadı
+		グループのデータが見つかりませんでした
 	</string>
 	<string name="IMParentEstate">
-		ana gayrimenkul
+		parent estate
 	</string>
 	<string name="IMMainland">
-		anakara
+		メインランド
 	</string>
 	<string name="IMTeen">
-		on sekiz yaş altı
+		ティーン
 	</string>
 	<string name="Anyone">
-		herkes
+		全員
 	</string>
 	<string name="RegionInfoError">
-		hata
+		エラー
 	</string>
 	<string name="RegionInfoAllEstatesOwnedBy">
-		[OWNER] mülkiyetindeki tüm gayrimenkuller
+		[OWNER] が所有するすべての不動産
 	</string>
 	<string name="RegionInfoAllEstatesYouOwn">
-		sahip olduğunuz tüm gayrimenkuller
+		あなたが所有するすべての不動産
 	</string>
 	<string name="RegionInfoAllEstatesYouManage">
-		[OWNER] adına yönettiğiniz tüm gayrimenkuller
+		あなたが [OWNER] のために管理するすべての不動産
 	</string>
 	<string name="RegionInfoAllowedResidents">
-		İzin verilen Sakinler: ([ALLOWEDAGENTS], maks [MAXACCESS])
+		許可された住人： （[ALLOWEDAGENTS] 人、最大 [MAXACCESS] 人）
 	</string>
 	<string name="RegionInfoAllowedGroups">
-		İzin verilen gruplar: ([ALLOWEDGROUPS], maks [MAXACCESS])
+		許可されたグループ： （[ALLOWEDGROUPS]、最大 [MAXACCESS] ）
 	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
-		Parsel Komut Dosyası Belleği
+		区画スクリプトメモリ
 	</string>
 	<string name="ScriptLimitsParcelsOwned">
-		Listelenen Parseller: [PARCELS]
+		区画一覧： [PARCELS]
 	</string>
 	<string name="ScriptLimitsMemoryUsed">
-		Kullanılan bellek: [COUNT] kb / [MAX] kb içerisinden; [AVAILABLE] kb serbest
+		使用されたメモリ： [MAX] kb 中 [COUNT] kb：[AVAILABLE] kb 利用可
 	</string>
 	<string name="ScriptLimitsMemoryUsedSimple">
-		Kullanılan bellek: [COUNT] kb
+		使用されたメモリ： [COUNT] kb
 	</string>
 	<string name="ScriptLimitsParcelScriptURLs">
-		Parsel Komut Dosyası URL&apos;leri
+		区画のスクリプトURL
 	</string>
 	<string name="ScriptLimitsURLsUsed">
-		Kullanılan URL&apos;ler: [COUNT] / [MAX] içerisinden; [AVAILABLE] serbest
+		使用された URL： [MAX] 中 [COUNT] ：[AVAILABLE] 利用可
 	</string>
 	<string name="ScriptLimitsURLsUsedSimple">
-		Kullanılan URL&apos;ler: [COUNT]
+		使用された URL： [COUNT]
 	</string>
 	<string name="ScriptLimitsRequestError">
-		Bilgi talep edilirken hata oluştu
+		情報のリクエスト中にエラーが発生しました
 	</string>
 	<string name="ScriptLimitsRequestNoParcelSelected">
-		Seçili Parsel Yok
+		区画が選択されていません。
 	</string>
 	<string name="ScriptLimitsRequestWrongRegion">
-		Hata: Komut dosyası bilgisi sadece mevcut bölgenizde geçerli
+		エラー： スクリプト情報は現在地のみ取得できます
 	</string>
 	<string name="ScriptLimitsRequestWaiting">
-		Bilgiler alınıyor...
+		情報を取得中...
 	</string>
 	<string name="ScriptLimitsRequestDontOwnParcel">
-		Bu parseli inceleme izniniz yok
+		この区画を調査する権限がありません。
 	</string>
 	<string name="SITTING_ON">
-		Üzerinde Oturuyor
+		着席中
 	</string>
 	<string name="ATTACH_CHEST">
-		Göğüs
+		胸部
 	</string>
 	<string name="ATTACH_HEAD">
-		Baş
+		頭
 	</string>
 	<string name="ATTACH_LSHOULDER">
-		Sol Omuz
+		左肩
 	</string>
 	<string name="ATTACH_RSHOULDER">
-		Sağ Omuz
+		右肩
 	</string>
 	<string name="ATTACH_LHAND">
-		Sol El
+		左手
 	</string>
 	<string name="ATTACH_RHAND">
-		Sağ El
+		右手
 	</string>
 	<string name="ATTACH_LFOOT">
-		Sol Ayak
+		左足
 	</string>
 	<string name="ATTACH_RFOOT">
-		Sağ Ayak
+		右足
 	</string>
 	<string name="ATTACH_BACK">
-		Geri
+		背中
 	</string>
 	<string name="ATTACH_PELVIS">
-		Leğen Kemiği
+		骨盤
 	</string>
 	<string name="ATTACH_MOUTH">
-		Ağız
+		口
 	</string>
 	<string name="ATTACH_CHIN">
-		Çene
+		あご
 	</string>
 	<string name="ATTACH_LEAR">
-		Sol Kulak
+		左耳
 	</string>
 	<string name="ATTACH_REAR">
-		Sağ Kulak
+		右耳
 	</string>
 	<string name="ATTACH_LEYE">
-		Sol Göz
+		左目
 	</string>
 	<string name="ATTACH_REYE">
-		Sağ Göz
+		右目
 	</string>
 	<string name="ATTACH_NOSE">
-		Burun
+		鼻
 	</string>
 	<string name="ATTACH_RUARM">
-		Sol Üst Kol
+		右腕（上）
 	</string>
 	<string name="ATTACH_RLARM">
-		Sağ Alt Kol
+		右腕（下）
 	</string>
 	<string name="ATTACH_LUARM">
-		Sol Üst Kol
+		左腕（上）
 	</string>
 	<string name="ATTACH_LLARM">
-		Sol Alt Kol
+		左腕（下）
 	</string>
 	<string name="ATTACH_RHIP">
-		Sağ Kalça
+		右腰
 	</string>
 	<string name="ATTACH_RULEG">
-		Sağ Üst Bacak
+		右脚（上）
 	</string>
 	<string name="ATTACH_RLLEG">
-		Sağ Alt Bacak
+		右脚（下）
 	</string>
 	<string name="ATTACH_LHIP">
-		Sol Kalça
+		左腰
 	</string>
 	<string name="ATTACH_LULEG">
-		Sol Üst Bacak
+		左脚（上）
 	</string>
 	<string name="ATTACH_LLLEG">
-		Sol Alt Bacak
+		左脚（下）
 	</string>
 	<string name="ATTACH_BELLY">
-		Göbek
+		お腹
 	</string>
 	<string name="ATTACH_RPEC">
-		Sağ Göğüs
+		右胸筋
 	</string>
 	<string name="ATTACH_LPEC">
-		Sol Göğüs
+		左胸筋
 	</string>
 	<string name="ATTACH_HUD_CENTER_2">
-		BÜG 2. Merkez
+		HUD（中央 2）
 	</string>
 	<string name="ATTACH_HUD_TOP_RIGHT">
-		BÜG Sağ Üst
+		HUD（右上）
 	</string>
 	<string name="ATTACH_HUD_TOP_CENTER">
-		BÜG Merkez Üst
+		HUD（上・中央）
 	</string>
 	<string name="ATTACH_HUD_TOP_LEFT">
-		BÜG Sol Üst
+		HUD（左上）
 	</string>
 	<string name="ATTACH_HUD_CENTER_1">
-		BÜG 1. Merkez
+		HUD（中央 1）
 	</string>
 	<string name="ATTACH_HUD_BOTTOM_LEFT">
-		BÜG Sol Alt
+		HUD（左下）
 	</string>
 	<string name="ATTACH_HUD_BOTTOM">
-		BÜG Alt
+		HUD（下）
 	</string>
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
-		BÜG Sağ Alt
+		HUD（右下）
 	</string>
 	<string name="CursorPos">
-		Satır [LINE], Sütun [COLUMN]
+		[LINE] 行目、[COLUMN] 列目
 	</string>
 	<string name="PanelDirCountFound">
-		[COUNT] bulundu
+		[COUNT] 件見つかりました
 	</string>
 	<string name="PanelDirTimeStr">
-		[hour,datetime,slt]:[min,datetime,slt]
+		[hour12,datetime,utc]:[min,datetime,utc] [ampm,datetime,utc]
 	</string>
 	<string name="PanelDirEventsDateText">
 		[mthnum,datetime,slt]/[day,datetime,slt]
 	</string>
 	<string name="PanelContentsTooltip">
-		Nesnenin içeriği
+		オブジェクトの中身
 	</string>
 	<string name="PanelContentsNewScript">
-		Yeni Komut Dosyası
+		新規スクリプト
 	</string>
 	<string name="BusyModeResponseDefault">
-		İleti gönderdiğiniz Sakin &apos;meşgul modu&apos;nda, bu da rahatsız edilmek istemediği anlamına geliyor.  İletiniz daha sonra incelenmesi için kendisine ait Aİ panelinde gösterilecektir.
+		メッセージを送った住人は、誰にも邪魔をされたくないため現在「取り込み中」モードです。  あなたのメッセージは、あとで確認できるように IM パネルに表示されます。
 	</string>
 	<string name="MuteByName">
-		(Adına göre)
+		（名称別）
 	</string>
 	<string name="MuteAgent">
-		(Sakin)
+		（住人）
 	</string>
 	<string name="MuteObject">
-		(Nesne)
+		（オブジェクト）
 	</string>
 	<string name="MuteGroup">
-		(Grup)
+		（グループ）
 	</string>
 	<string name="MuteExternal">
-		(Harici)
+		（外部）
 	</string>
 	<string name="RegionNoCovenant">
-		Bu Gayrimenkul için Sözleşmesi yok.
+		この不動産には約款がありません。
 	</string>
 	<string name="RegionNoCovenantOtherOwner">
-		Bu Gayrimenkul için Sözleşmesi yok. Bu gayrimenkul üzerindeki arazi Linden Lab. değil, Gayrimenkul sahibi tarafından satılmaktadır.  Satış ayrıntılarını öğrenmek için lütfen Gayrimenkul Sahibiyle bağlantıya geçin.
+		この不動産には約款がありません。 この不動産上の土地は不動産所有者により販売され、Linden Lab は販売しません。  販売に関するお問い合わせは、不動産所有者までお願い致します。
 	</string>
-	<string name="covenant_last_modified" value="Son Değiştirildiği Tarih:"/>
-	<string name="none_text" value="(hiçbiri)"/>
-	<string name="never_text" value="(asla)"/>
+	<string name="covenant_last_modified" value="最終修正日："/>
+	<string name="none_text" value=" （なし） "/>
+	<string name="never_text" value=" （無） "/>
 	<string name="GroupOwned">
-		Sahibi Olunan Grup
+		グループ所有
 	</string>
 	<string name="Public">
-		Kamuya Açık
+		パブリック
 	</string>
 	<string name="LocalSettings">
-		Yerel Ayarlar
+		ローカル設定
 	</string>
 	<string name="RegionSettings">
-		Bölge Ayarları
+		リージョン（地域）の設定
 	</string>
 	<string name="ClassifiedClicksTxt">
-		Tıklamalar: [TELEPORT] ışınlama, [MAP] harita, [PROFILE] profil
+		クリック数： [TELEPORT] テレポート、 [MAP] 地図、 [PROFILE] プロフィール
 	</string>
 	<string name="ClassifiedUpdateAfterPublish">
-		(yayınlandıktan sonra güncelleştirilir)
+		（掲載後更新）
 	</string>
 	<string name="NoPicksClassifiedsText">
-		Herhangi bir Seçme veya İlan oluşturmadınız. Bir Seçme veya İlan oluşturmak için aşağıdaki Artı düğmesine tıklayın.
+		ピックやクラシファイド広告を作成していません。 作成するには、下にある「プラス」ボタンをクリックします。
 	</string>
 	<string name="NoAvatarPicksClassifiedsText">
-		Kullanıcının herhangi bir seçmesi veya ilanı yok
+		ピック、またはクラシファイド広告がありません
 	</string>
 	<string name="PicksClassifiedsLoadingText">
-		Yükleniyor...
+		ローディング...
 	</string>
 	<string name="MultiPreviewTitle">
-		Önizleme
+		プレビュー
 	</string>
 	<string name="MultiPropertiesTitle">
-		Özellikler
+		プロパティ
 	</string>
 	<string name="InvOfferAnObjectNamed">
-		Şu ada sahip bir nesne:
+		オブジェクト名
 	</string>
 	<string name="InvOfferOwnedByGroup">
-		grubun sahip olduğu:
+		所有グループ
 	</string>
 	<string name="InvOfferOwnedByUnknownGroup">
-		bilinmeyen grubun sahip olduğu:
+		不明なグループ所有
 	</string>
 	<string name="InvOfferOwnedBy">
-		sahibi:
+		所有者
 	</string>
 	<string name="InvOfferOwnedByUnknownUser">
-		bilinmeyen bir kullanıcının sahip olduğu:
+		不明なユーザー所有
 	</string>
 	<string name="InvOfferGaveYou">
-		size verdi:
+		が渡しました
 	</string>
 	<string name="InvOfferDecline">
-		&lt;nolink&gt;[NAME]&lt;/nolink&gt; tarafından gönderilen [DESC]&apos;i reddettiniz.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; からの [DESC] を拒否しました。
 	</string>
 	<string name="GroupMoneyTotal">
-		Toplam
+		合計
 	</string>
 	<string name="GroupMoneyBought">
-		alınan:
+		購入：
 	</string>
 	<string name="GroupMoneyPaidYou">
-		size ödenen:
+		あなたに支払い：
 	</string>
 	<string name="GroupMoneyPaidInto">
-		şuraya ödenen:
+		paid into
 	</string>
 	<string name="GroupMoneyBoughtPassTo">
-		şuraya geçiş hakkı alınan:
+		入場許可を購入：
 	</string>
 	<string name="GroupMoneyPaidFeeForEvent">
-		etkinlik için ödenen ücret:
+		がイベント用の費用を支払いました
 	</string>
 	<string name="GroupMoneyPaidPrizeForEvent">
-		etkinlik için verilen ödül:
+		がイベント用の賞金を支払いました
 	</string>
 	<string name="GroupMoneyBalance">
-		Bakiye
+		残高
 	</string>
 	<string name="GroupMoneyCredits">
-		Katkıda Bulunanlar
+		収入
 	</string>
 	<string name="GroupMoneyDebits">
-		Borçlar
+		支出
 	</string>
 	<string name="GroupMoneyDate">
-		[weekday,datetime,utc] [mth,datetime,utc] [day,datetime,utc], [year,datetime,utc]
+		[year,datetime,utc]年[mth,datetime,utc]月[day,datetime,utc]日[weekday,datetime,utc]
 	</string>
 	<string name="ViewerObjectContents">
-		İçerik
+		内容
 	</string>
 	<string name="AcquiredItems">
-		Alınan Öğeler
+		取得アイテム
 	</string>
 	<string name="Cancel">
-		İptal
+		キャンセル
 	</string>
 	<string name="UploadingCosts">
-		[NAME] için karşıya yükleme maliyeti: L$ [AMOUNT]
+		[NAME] のアップロード料金は L$[AMOUNT] です
 	</string>
 	<string name="BuyingCosts">
-		Bunu satın almanın maliyeti: L$ [AMOUNT]
+		これを L$[AMOUNT] で購入します
 	</string>
 	<string name="UnknownFileExtension">
-		Bilinmeyen dosya uzantısı .%s
-.wav, .tga, .bmp, .jpg, .jpeg veya .bvh bekleniyordu
+		不明の拡張子： %s
+使用可能な拡張子： .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	</string>
 	<string name="MuteObject2">
-		Engelle
+		ブロック
 	</string>
 	<string name="MuteAvatar">
-		Engelle
+		ブロック
 	</string>
 	<string name="UnmuteObject">
-		Engellemeyi Kaldır
+		ブロック解除
 	</string>
 	<string name="UnmuteAvatar">
-		Engellemeyi Kaldır
+		ブロック解除
 	</string>
 	<string name="AddLandmarkNavBarMenu">
-		Yer İmlerime Ekle...
+		マイ ランドマークに追加...
 	</string>
 	<string name="EditLandmarkNavBarMenu">
-		Yer İmimi Düzenle...
+		マイ ランドマークを編集...
 	</string>
 	<string name="accel-mac-control">
 		⌃
@@ -2144,130 +2141,130 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		Shift+
 	</string>
 	<string name="FileSaved">
-		Dosya Kaydedildi
+		ファイルが保存されました
 	</string>
 	<string name="Receiving">
-		Alınıyor
+		取得中
 	</string>
 	<string name="AM">
-		ÖÖ
+		AM
 	</string>
 	<string name="PM">
-		ÖS
+		PM
 	</string>
 	<string name="PST">
-		PST
+		太平洋標準時
 	</string>
 	<string name="PDT">
-		PDT
+		太平洋夏時間
 	</string>
 	<string name="Direction_Forward">
-		İleri
+		前
 	</string>
 	<string name="Direction_Left">
-		Sol
+		左
 	</string>
 	<string name="Direction_Right">
-		Sağ
+		右
 	</string>
 	<string name="Direction_Back">
-		Geri
+		戻る
 	</string>
 	<string name="Direction_North">
-		Kuzey
+		北
 	</string>
 	<string name="Direction_South">
-		Güney
+		南
 	</string>
 	<string name="Direction_West">
-		Batı
+		西
 	</string>
 	<string name="Direction_East">
-		Doğu
+		東
 	</string>
 	<string name="Direction_Up">
-		Yukarı
+		上
 	</string>
 	<string name="Direction_Down">
-		Aşağı
+		下
 	</string>
 	<string name="Any Category">
-		Herh. Bir Kategori
+		全カテゴリ
 	</string>
 	<string name="Shopping">
-		Alışveriş
+		ショッピング
 	</string>
 	<string name="Land Rental">
-		Arazi Kiralama
+		土地のレンタル
 	</string>
 	<string name="Property Rental">
-		Mülk Kiralama
+		プロパティのレンタル
 	</string>
 	<string name="Special Attraction">
-		Özel Atraksiyon
+		特別アトラクション
 	</string>
 	<string name="New Products">
-		Yeni Ürünler
+		新製品
 	</string>
 	<string name="Employment">
-		İstihdam
+		雇用
 	</string>
 	<string name="Wanted">
-		Arananlar
+		求む
 	</string>
 	<string name="Service">
-		Hizmet
+		サービス
 	</string>
 	<string name="Personal">
-		Kişisel
+		パーソナル
 	</string>
 	<string name="None">
-		Renksiz
+		なし
 	</string>
 	<string name="Linden Location">
-		Linden Konumu
+		Linden 所在地
 	</string>
 	<string name="Adult">
-		Yetişkin
+		Adult
 	</string>
 	<string name="Arts&amp;Culture">
-		Sanat ve Kültür
+		アートとカルチャー
 	</string>
 	<string name="Business">
-		İş
+		ビジネス
 	</string>
 	<string name="Educational">
-		Eğitim
+		教育的
 	</string>
 	<string name="Gaming">
-		Oyun
+		ゲーム
 	</string>
 	<string name="Hangout">
-		Uğrak Mekan
+		たまり場
 	</string>
 	<string name="Newcomer Friendly">
-		Yeni Gelenlere Yardım Sunan
+		新住人に優しい
 	</string>
 	<string name="Parks&amp;Nature">
-		Park ve Doğa
+		公園と自然
 	</string>
 	<string name="Residential">
-		Yerleşim
+		住宅用
 	</string>
 	<string name="Stage">
-		Sahne
+		ステージ
 	</string>
 	<string name="Other">
-		Diğer
+		その他
 	</string>
 	<string name="Rental">
-		Kiralık
+		レンタル
 	</string>
 	<string name="Any">
-		Herhangi
+		全員
 	</string>
 	<string name="You">
-		Siz
+		あなた
 	</string>
 	<string name=":">
 		:
@@ -2297,2208 +2294,2210 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		---
 	</string>
 	<string name="Multiple Media">
-		Birden Çok Ortam
+		複数のメディア
 	</string>
 	<string name="Play Media">
-		Ortamı Oynat/Durdur
+		メディアを再生/一時停止
 	</string>
 	<string name="MBCmdLineError">
-		Komut satırı ayrıştırılırken bir hata oluştu.
-Lütfen bakınız: http://wiki.secondlife.com/wiki/Client_parameters
-Hata:
+		コマンドラインにエラーが見つかりました。
+リンク先を参照してください： http://wiki.secondlife.com/wiki/Client_parameters
+エラー：
 	</string>
 	<string name="MBCmdLineUsg">
-		[APP_NAME] Komut satırı kullanımı:
+		[APP_NAME] コマンドライン使用：
 	</string>
 	<string name="MBUnableToAccessFile">
-		[APP_NAME] ihtiyaç duyduğu bir dosyaya erişemiyor.
+		[APP_NAME] は必要なファイルにアクセスできません。
 
-Bunun nedeni bir şekilde birden fazla kopyanın çalışıyor olması veya sisteminizin, bir dosyanın açık olduğunu sanması olabilir.
-Bu iletiyi görmeye devam ederseniz, bilgisayarınızı yeniden başlatın ve tekrar deneyin.
-Sorun devam ederse [APP_NAME] uygulamasını tümüyle kaldırmanız ve tekrar yüklemeniz gerekebilir.
+複数のコピーを実行中か、ファイルが既に開いているとあなたのシステムが誤認識している可能性があります。
+このメッセージが何度も出る場合は、コンピューターを再起動してもう一度お試しください。
+それでも問題が続く場合、[APP_NAME] を完全にアンインストールして、再インストールをしてください。
 	</string>
 	<string name="MBFatalError">
-		Önemli Hata
+		致命的なエラー
 	</string>
 	<string name="MBRequiresAltiVec">
-		[APP_NAME], AltiVec (G4 veya üzeri) bir işlemciye ihtiyaç duyuyor.
+		[APP_NAME] は、AltiVec搭載のプロセッサが必要です。（G4 以降）
 	</string>
 	<string name="MBAlreadyRunning">
-		[APP_NAME] zaten çalışıyor.
-Programın simge durumuna küçültülmüş bir kopyası için görev çubuğunuza bakın.
-Bu iletiyi görmeye devam ederseniz, bilgisayarınızı tekrar başlatın.
+		[APP_NAME] はすでに実行中です。
+最小化されたプログラムのコピーをタスクバーで確認してください。
+このメッセージが何度も出る場合はコンピューターを再起動してください。
 	</string>
 	<string name="MBFrozenCrashed">
-		[APP_NAME] uygulaması bir önceki çalıştırmada kilitlenmiş görünüyor.
-Bir kilitlenme raporu göndermek ister misiniz?
+		[APP_NAME] は前回の実行時にフリーズしています。
+クラッシュ報告を送信しますか？
 	</string>
 	<string name="MBAlert">
-		Bildirim
+		通知
 	</string>
 	<string name="MBNoDirectX">
-		[APP_NAME], DirectX 9.0b veya üzerini saptayamıyor.
-[APP_NAME], kararlılık problemleri, kötü performans ve çökmelere neden olabilecek donanım ve/veya süresi geçmiş sürücüleri saptamak için DirectX kullanır.  [APP_NAME] uygulamasını bu olmadan da çalıştırmanız mümkündür, ancak DirectX 9.0b ile çalıştırmanızı kuvvetle tavsiye ederiz.
+		[APP_NAME] は DirectX 9.0b 及びそれ以降のバージョンを検出することができませんでした。
+[APP_NAME] は DirectX を使用して安定性の問題、低パフォーマンス、クラッシュ等悪影響を与えるハードウェアや古いドライバを検出します。  DirectX 9.0b がなくても [APP_NAME] を実行できますが、DirectX 9.0bとのご使用を強く推奨します。
 
-Devam etmek istiyor musunuz?
+続けますか？
 	</string>
 	<string name="MBWarning">
-		Uyarı
+		警告
 	</string>
 	<string name="MBNoAutoUpdate">
-		Linux için henüz otomatik güncelleştirme uygulanmamıştır.
-Lütfen www.secondlife.com adresinden son sürümü karşıdan yükleyin.
+		自動更新は現在 Linux には対応していません。
+www.secondlife.com から最新バージョンをダウンロードしてください。
 	</string>
 	<string name="MBRegClassFailed">
-		RegisterClass başarısız oldu
+		RegisterClass 失敗
 	</string>
 	<string name="MBError">
-		Hata
+		エラー
 	</string>
 	<string name="MBFullScreenErr">
-		[WIDTH] x [HEIGHT] çözünürlüğünde tam ekran çalıştırma yapılamıyor.
-Pencerede çalışıyor.
+		[WIDTH] x [HEIGHT] では全画面で実行することができません。
+ウィンドウモードで実行中です。
 	</string>
 	<string name="MBDestroyWinFailed">
-		Pencere yok edilirken Kapatma Hatası oluştu (DestroyWindow() başarısız oldu)
+		シャットダウンエラー（DestroyWindow() 失敗）
 	</string>
 	<string name="MBShutdownErr">
-		Kapatma Hatası
+		シャットダウンエラー
 	</string>
 	<string name="MBDevContextErr">
-		GL cihazı içeriği oluşturulamıyor
+		GL ディバイスコンテキストが作れません
 	</string>
 	<string name="MBPixelFmtErr">
-		Uygun piksel formatı bulunamadı
+		適切なピクセル形式が見つかりません
 	</string>
 	<string name="MBPixelFmtDescErr">
-		Piksel formatı açıklaması alınamıyor
+		ピクセル形式情報が見つかりません
 	</string>
 	<string name="MBTrueColorWindow">
-		[APP_NAME] uygulamasının çalışması için Gerçek Renk (32 bit) gerekiyor.
-Lütfen bilgisayarınızın ekran ayarlarına gidin ve renk modunu 32 bit olarak ayarlayın.
+		[APP_NAME] を実行するには、True Color （32ビット）が必要です。
+お使いのコンピューターの「コントロールパネル」＞「画面」＞「設定」に行き、「最高 （32 ビット)」に設定してください。
 	</string>
 	<string name="MBAlpha">
-		[APP_NAME] çalışamıyor çünkü 8 bit bir alfa kanalı alamıyor.  Bunun nedeni genellikle video kartı sürücü sorunlarıdır.
-Lütfen en yeni video sürücülerinin yüklü olduğuna emin olun.
-Ayrıca Denetim Masaları &gt; Ekran &gt; Ayarlar içerisinde ekranınız için Gerçek Renk (32 bit) ayarı yapıldığına emin olun.
-Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
+		[APP_NAME] は 8 ビットのアルファチャンネルを取得できないため実行できません。  通常ビデオカードのドライバの問題で起こります。
+お使いのコンピューターに最新のビデオカードドライバがインストールされているかご確認ください。
+また、「コントロールパネル」＞「画面」＞「設定」内で、モニターが「最高 （32 ビット）」に設定されていることもご確認ください。
+このメッセージが何度も出る場合は、[SUPPORT_SITE] へご連絡ください。
 	</string>
 	<string name="MBPixelFmtSetErr">
-		Piksel formatı ayarlanamıyor
+		ピクセル形式が設定できません
 	</string>
 	<string name="MBGLContextErr">
-		GL işlemi bağlamı oluşturulamıyor
+		GL レンダーコンテキストが作れません
 	</string>
 	<string name="MBGLContextActErr">
-		GL işlemi bağlamı etkinleştirilemiyor
+		GL レンダーコンテキストをアクティベートできません
 	</string>
 	<string name="MBVideoDrvErr">
-		[APP_NAME] çalışamıyor çünkü video kartı sürücüleriniz düzgün yüklenemedi, süresi geçmiş durumda veya desteklenmeyen donanımlar için geliştirilmiş. Lütfen en yeni video kartı sürücülerine sahip olduğunuza emin olun; en yeni sürücüler mevcutsa da bunları tekrar yüklemeyi deneyin.
+		お使いのコンピューターのビデオカードドライバが正常にインストールできなかった、または古いかサポート対象外のため、[APP_NAME]  は実行できません。 最新のビデオカードドライバがインストールされているのを確認し、されている場合は再インストールをお試しください。
 
-Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
+このメッセージが何度も出る場合は、[SUPPORT_SITE] へご連絡ください。
 	</string>
 	<string name="5 O&apos;Clock Shadow">
-		Bir Günlük Sakal
+		うっすらとしたヒゲ
 	</string>
 	<string name="All White">
-		Tümü Beyaz
+		真っ白
 	</string>
 	<string name="Anime Eyes">
-		Anime Gözler
+		アニメ風の目
 	</string>
 	<string name="Arced">
-		Yay Şeklinde
+		アーチ
 	</string>
 	<string name="Arm Length">
-		Kol Uzunluğu
+		腕の長さ
 	</string>
 	<string name="Attached">
-		Bitişik
+		小
 	</string>
 	<string name="Attached Earlobes">
-		Kafaya Bitişik Kulak Memeleri
+		耳たぶ
 	</string>
 	<string name="Back Fringe">
-		Arka Perçem
+		後ろ髪の毛先
 	</string>
 	<string name="Baggy">
-		Torbalı
+		たるんだ下まぶた
 	</string>
 	<string name="Bangs">
-		Kahküller
+		前髪
 	</string>
 	<string name="Beady Eyes">
-		Boncuk Gözler
+		ビーズのような目
 	</string>
 	<string name="Belly Size">
-		Göbek Büyüklüğü
+		お腹の大きさ
 	</string>
 	<string name="Big">
-		Büyük
+		大
 	</string>
 	<string name="Big Butt">
-		Büyük Kıç
+		大
 	</string>
 	<string name="Big Hair Back">
-		Kabarık Saç: Arkada
+		髪の大部分： 後ろ
 	</string>
 	<string name="Big Hair Front">
-		Kabarık Saç: Önde
+		髪の大部分： 前
 	</string>
 	<string name="Big Hair Top">
-		Kabarık Saç: Tepede
+		髪の大部分： 上部
 	</string>
 	<string name="Big Head">
-		Büyük Kafa
+		大
 	</string>
 	<string name="Big Pectorals">
-		Büyük Göğüs Kasları
+		大
 	</string>
 	<string name="Big Spikes">
-		Büyük Dik Kısımlar
+		とげあり
 	</string>
 	<string name="Black">
-		Siyah
+		黒
 	</string>
 	<string name="Blonde">
-		Sarışın
+		ブロンド
 	</string>
 	<string name="Blonde Hair">
-		Sarı Saç
+		ブロンドの髪
 	</string>
 	<string name="Blush">
-		Allık
+		チーク
 	</string>
 	<string name="Blush Color">
-		Allık Rengi
+		チークカラー
 	</string>
 	<string name="Blush Opacity">
-		Allık Geçirgenliği
+		チークの濃さ
 	</string>
 	<string name="Body Definition">
-		Vücut Tanımı
+		体の精細度
 	</string>
 	<string name="Body Fat">
-		Vücut Yağı
+		体脂肪
 	</string>
 	<string name="Body Freckles">
-		Vücut Çilleri
+		体のしみ・そばかす
 	</string>
 	<string name="Body Thick">
-		Kalın Vücut
+		骨太
 	</string>
 	<string name="Body Thickness">
-		Vücut Kalınlığı
+		体の厚み
 	</string>
 	<string name="Body Thin">
-		İnce Vücut
+		細め
 	</string>
 	<string name="Bow Legged">
-		Çarpık Bacaklı
+		外股
 	</string>
 	<string name="Breast Buoyancy">
-		Göğüs Kalkıklığı
+		胸の重力
 	</string>
 	<string name="Breast Cleavage">
-		Göğüs Çatalı
+		胸の谷間
 	</string>
 	<string name="Breast Size">
-		Göğüs Büyüklüğü
+		胸の大きさ
 	</string>
 	<string name="Bridge Width">
-		Burun Kemiği Genişliği
+		両目の間の幅
 	</string>
 	<string name="Broad">
-		Geniş
+		広
 	</string>
 	<string name="Brow Size">
-		Alın Genişliği
+		眉毛上の隆起
 	</string>
 	<string name="Bug Eyes">
-		Patlak Gözlü
+		Bug Eyes
 	</string>
 	<string name="Bugged Eyes">
-		Patlak Gözlü
+		突き出た目
 	</string>
 	<string name="Bulbous">
-		Patates Burunlu
+		だんご
 	</string>
 	<string name="Bulbous Nose">
-		Patates Burunlu
+		だんご鼻
 	</string>
 	<string name="Breast Physics Mass">
-		Göğüs Kütlesi
+		胸の豊かさ
 	</string>
 	<string name="Breast Physics Smoothing">
-		Göğüs Düzleştirme
+		胸の平滑化
 	</string>
 	<string name="Breast Physics Gravity">
-		Göğüs Yerçekimi
+		胸の垂れ具合
 	</string>
 	<string name="Breast Physics Drag">
-		Göğüs Direnci
+		胸の空気抵抗
 	</string>
 	<string name="Breast Physics InOut Max Effect">
-		Maks Etki
+		最大エフェクト数
 	</string>
 	<string name="Breast Physics InOut Spring">
-		Yaylanma
+		振動速度
 	</string>
 	<string name="Breast Physics InOut Gain">
-		Kazanç
+		増加率
 	</string>
 	<string name="Breast Physics InOut Damping">
-		Sönüm
+		減衰
 	</string>
 	<string name="Breast Physics UpDown Max Effect">
-		Maks Etki
+		最大エフェクト数
 	</string>
 	<string name="Breast Physics UpDown Spring">
-		Yaylanma
+		振動速度
 	</string>
 	<string name="Breast Physics UpDown Gain">
-		Kazanç
+		増加率
 	</string>
 	<string name="Breast Physics UpDown Damping">
-		Sönüm
+		減衰
 	</string>
 	<string name="Breast Physics LeftRight Max Effect">
-		Maks Etki
+		最大エフェクト数
 	</string>
 	<string name="Breast Physics LeftRight Spring">
-		Yaylanma
+		振動速度
 	</string>
 	<string name="Breast Physics LeftRight Gain">
-		Kazanç
+		増加率
 	</string>
 	<string name="Breast Physics LeftRight Damping">
-		Sönüm
+		減衰
 	</string>
 	<string name="Belly Physics Mass">
-		Göbek Kütlesi
+		お腹の豊かさ
 	</string>
 	<string name="Belly Physics Smoothing">
-		Göbek Düzleştirme
+		お腹の平滑化
 	</string>
 	<string name="Belly Physics Gravity">
-		Göbek Yerçekimi
+		お腹の垂れ具合
 	</string>
 	<string name="Belly Physics Drag">
-		Göbek Direnci
+		お腹の空気抵抗
 	</string>
 	<string name="Belly Physics UpDown Max Effect">
-		Maks Etki
+		最大エフェクト数
 	</string>
 	<string name="Belly Physics UpDown Spring">
-		Yaylanma
+		振動速度
 	</string>
 	<string name="Belly Physics UpDown Gain">
-		Kazanç
+		増加率
 	</string>
 	<string name="Belly Physics UpDown Damping">
-		Sönüm
+		減衰
 	</string>
 	<string name="Butt Physics Mass">
-		Kıç Kütlesi
+		お尻の豊かさ
 	</string>
 	<string name="Butt Physics Smoothing">
-		Kıç Düzleştirme
+		お尻の平滑化
 	</string>
 	<string name="Butt Physics Gravity">
-		Kıç Yerçekimi
+		お尻の垂れ具合
 	</string>
 	<string name="Butt Physics Drag">
-		Kıç Direnci
+		お尻の空気抵抗
 	</string>
 	<string name="Butt Physics UpDown Max Effect">
-		Maks Etki
+		最大エフェクト数
 	</string>
 	<string name="Butt Physics UpDown Spring">
-		Yaylanma
+		振動速度
 	</string>
 	<string name="Butt Physics UpDown Gain">
-		Kazanç
+		増加率
 	</string>
 	<string name="Butt Physics UpDown Damping">
-		Sönüm
+		減衰
 	</string>
 	<string name="Butt Physics LeftRight Max Effect">
-		Maks Etki
+		最大エフェクト数
 	</string>
 	<string name="Butt Physics LeftRight Spring">
-		Yaylanma
+		振動速度
 	</string>
 	<string name="Butt Physics LeftRight Gain">
-		Kazanç
+		増加率
 	</string>
 	<string name="Butt Physics LeftRight Damping">
-		Sönüm
+		減衰
 	</string>
 	<string name="Bushy Eyebrows">
-		Gür Kaşlar
+		太
 	</string>
 	<string name="Bushy Hair">
-		Gür Saç
+		ぼさぼさヘア
 	</string>
 	<string name="Butt Size">
-		Kıç Büyüklüğü
+		お尻の大きさ
 	</string>
 	<string name="Butt Gravity">
-		Kıç Yerçekimi
+		お尻の垂れ具合
 	</string>
 	<string name="bustle skirt">
-		Tarlatanlı Etek
+		後ろの膨らみ
 	</string>
 	<string name="no bustle">
-		Tarlatansız
+		膨らみなし
 	</string>
 	<string name="more bustle">
-		Çok Tarlatanlı
+		膨らみ大
 	</string>
 	<string name="Chaplin">
-		Chaplin pantalon
+		チャップリン
 	</string>
 	<string name="Cheek Bones">
-		Elmacık Kemikleri
+		ほお骨
 	</string>
 	<string name="Chest Size">
-		Göğüs Büyüklüğü
+		胸部の大きさ
 	</string>
 	<string name="Chin Angle">
-		Çene Açısı
+		あごの角度
 	</string>
 	<string name="Chin Cleft">
-		Çene Çukuru
+		あごの先の割れ
 	</string>
 	<string name="Chin Curtains">
-		Lincoln Sakal
+		あごに沿ったひげ
 	</string>
 	<string name="Chin Depth">
-		Çene Derinliği
+		あごの長さ
 	</string>
 	<string name="Chin Heavy">
-		Geniş Çene
+		あごを強調
 	</string>
 	<string name="Chin In">
-		Çene İçeri
+		ひいたあご
 	</string>
 	<string name="Chin Out">
-		Çene Dışarı
+		突き出たあご
 	</string>
 	<string name="Chin-Neck">
-		Çene-Boyun
+		あごと首
 	</string>
 	<string name="Clear">
-		Temizle
+		クリア
 	</string>
 	<string name="Cleft">
-		Çukur
+		割れた
 	</string>
 	<string name="Close Set Eyes">
-		Yakın Gözler
+		顔の中心寄りの目
 	</string>
 	<string name="Closed">
-		Kapalı
+		クローズ
 	</string>
 	<string name="Closed Back">
-		Arkası Kapalı
+		後ろとじ
 	</string>
 	<string name="Closed Front">
-		Önü Kapalı
+		前とじ
 	</string>
 	<string name="Closed Left">
-		Solu Kapalı
+		左とじ
 	</string>
 	<string name="Closed Right">
-		Sağı Kapalı
+		右とじ
 	</string>
 	<string name="Coin Purse">
-		Para Cüzdanı
+		コイン入れ
 	</string>
 	<string name="Collar Back">
-		Yaka Arkası
+		後ろえり
 	</string>
 	<string name="Collar Front">
-		Yaka Önü
+		前えり
 	</string>
 	<string name="Corner Down">
-		Köşesi Aşağıda
+		ダウン
 	</string>
 	<string name="Corner Up">
-		Köşesi Yukarıda
+		アップ
 	</string>
 	<string name="Creased">
-		Kırışık
+		重いまぶた
 	</string>
 	<string name="Crooked Nose">
-		Yamuk Burun
+		曲がった鼻
 	</string>
 	<string name="Cuff Flare">
-		Geniş Paça
+		袖口のフレア
 	</string>
 	<string name="Dark">
-		Karanlık
+		ダーク
 	</string>
 	<string name="Dark Green">
-		Koyu Yeşil
+		ダークグリーン
 	</string>
 	<string name="Darker">
-		Daha Koyu
+		ダーク
 	</string>
 	<string name="Deep">
-		Derin
+		尖った
 	</string>
 	<string name="Default Heels">
-		Varsayılan Topuklar
+		デフォルトのかかと
 	</string>
 	<string name="Dense">
-		Yoğun
+		濃
 	</string>
 	<string name="Double Chin">
-		Çift Çene
+		二重あご
 	</string>
 	<string name="Downturned">
-		Aşağı Dönük
+		下向き
 	</string>
 	<string name="Duffle Bag">
-		Spor Çanta
+		ダッフルバッグ
 	</string>
 	<string name="Ear Angle">
-		Kulak Açısı
+		耳の角度
 	</string>
 	<string name="Ear Size">
-		Kulak Büyüklüğü
+		耳の大きさ
 	</string>
 	<string name="Ear Tips">
-		Kulak Uçları
+		耳の先
 	</string>
 	<string name="Egg Head">
-		Yumurta Kafa
+		たまご頭
 	</string>
 	<string name="Eye Bags">
-		Göz Altı Torbaları
+		下まぶた
 	</string>
 	<string name="Eye Color">
-		Göz Rengi
+		瞳の色
 	</string>
 	<string name="Eye Depth">
-		Gözün İçeri Çöküklüğü
+		目のくぼみ
 	</string>
 	<string name="Eye Lightness">
-		Göz Parlaklığı
+		瞳の明るさ
 	</string>
 	<string name="Eye Opening">
-		Göz Açıklığı
+		見開き具合
 	</string>
 	<string name="Eye Pop">
-		Gözlerin Dışarı Çıkıklığı
+		両目の大きさの対称
 	</string>
 	<string name="Eye Size">
-		Göz Büyüklüğü
+		目の大きさ
 	</string>
 	<string name="Eye Spacing">
-		Gözlerin Aralığı
+		目と目のあいだの幅
 	</string>
 	<string name="Eyebrow Arc">
-		Kaş Kavisi
+		眉毛のアーチ
 	</string>
 	<string name="Eyebrow Density">
-		Kaş Kalınlığı
+		眉毛の密集度
 	</string>
 	<string name="Eyebrow Height">
-		Kaş Yüksekliği
+		眉毛の高さ
 	</string>
 	<string name="Eyebrow Points">
-		Kaş Yapısı
+		眉毛の角
 	</string>
 	<string name="Eyebrow Size">
-		Kaş Büyüklüğü
+		眉毛の大きさ
 	</string>
 	<string name="Eyelash Length">
-		Kirpik Uzunluğu
+		まつげの長さ
 	</string>
 	<string name="Eyeliner">
-		Göz Kalemi
+		アイライナー
 	</string>
 	<string name="Eyeliner Color">
-		Göz Kalemi Rengi
+		アイライナーの色
 	</string>
 	<string name="Eyes Bugged">
-		Patlak Gözler
+		下まぶたがたるんだ目
 	</string>
 	<string name="Face Shear">
-		Dikey Yüz Kaydırma
+		顔のゆがみ
 	</string>
 	<string name="Facial Definition">
-		Yüz İfadesi
+		顔の精細度
 	</string>
 	<string name="Far Set Eyes">
-		Ayrık Gözler
+		離れた目
 	</string>
 	<string name="Fat Lips">
-		Kalın Dudaklar
+		大
 	</string>
 	<string name="Female">
-		Kadın
+		女性
 	</string>
 	<string name="Fingerless">
-		Parmaksız
+		指なし
 	</string>
 	<string name="Fingers">
-		Parmaklar
+		指あり
 	</string>
 	<string name="Flared Cuffs">
-		Geniş Paçalar
+		広がった袖口
 	</string>
 	<string name="Flat">
-		Düz
+		平ら
 	</string>
 	<string name="Flat Butt">
-		Düz Kıç
+		小
 	</string>
 	<string name="Flat Head">
-		Düz Kafa
+		絶壁頭
 	</string>
 	<string name="Flat Toe">
-		Düz Ayak Ucu
+		フラット
 	</string>
 	<string name="Foot Size">
-		Ayak Büyüklüğü
+		足の大きさ
 	</string>
 	<string name="Forehead Angle">
-		Alın Açısı
+		ひたいの角度
 	</string>
 	<string name="Forehead Heavy">
-		Belirgin Alın
+		ひたいを強調
 	</string>
 	<string name="Freckles">
-		Çiller
+		しみ・そばかす
 	</string>
 	<string name="Front Fringe">
-		Ön Perçem
+		前髪の毛先
 	</string>
 	<string name="Full Back">
-		Arkası Düz
+		刈られていない髪
 	</string>
 	<string name="Full Eyeliner">
-		Çift Taraflı Göz Kalemi
+		あり
 	</string>
 	<string name="Full Front">
-		Önü Düz
+		刈られていない髪
 	</string>
 	<string name="Full Hair Sides">
-		Saçlar Yanda
+		サイドの髪
 	</string>
 	<string name="Full Sides">
-		Saçlar Yanda
+		生え揃ったサイド
 	</string>
 	<string name="Glossy">
-		Parlak
+		あり
 	</string>
 	<string name="Glove Fingers">
-		Eldiven Parmakları
+		手袋の指
 	</string>
 	<string name="Glove Length">
-		Eldiven Uzunluğu
+		手袋の長さ
 	</string>
 	<string name="Hair">
-		Saç
+		髪
 	</string>
 	<string name="Hair Back">
-		Saç: Arka
+		髪： 後ろ
 	</string>
 	<string name="Hair Front">
-		Saç: Ön
+		髪： 前
 	</string>
 	<string name="Hair Sides">
-		Saç: Yanlar
+		髪： サイド
 	</string>
 	<string name="Hair Sweep">
-		Saçı Yana Tarama
+		流す
 	</string>
 	<string name="Hair Thickess">
-		Saç Kalınlığı
+		髪の量
 	</string>
 	<string name="Hair Thickness">
-		Saç Kalınlığı
+		髪の量
 	</string>
 	<string name="Hair Tilt">
-		Saç Eğimi
+		髪の向き
 	</string>
 	<string name="Hair Tilted Left">
-		Sola Eğimli Saç
+		左向き
 	</string>
 	<string name="Hair Tilted Right">
-		Sağa Eğimli Saç
+		右向き
 	</string>
 	<string name="Hair Volume">
-		Saç: Hacim
+		髪： ボリューム
 	</string>
 	<string name="Hand Size">
-		El Büyüklüğü
+		手の大きさ
 	</string>
 	<string name="Handlebars">
-		Gidon tipi
+		ハンドルバー
 	</string>
 	<string name="Head Length">
-		Kafa Uzunluğu
+		頭の長さ
 	</string>
 	<string name="Head Shape">
-		Kafa Şekli
+		頭の形
 	</string>
 	<string name="Head Size">
-		Kafa Büyüklüğü
+		頭の大きさ
 	</string>
 	<string name="Head Stretch">
-		Kafayı Uzatma
+		縦横の長さ
 	</string>
 	<string name="Heel Height">
-		Topuk Yüksekliği
+		ヒールの高さ
 	</string>
 	<string name="Heel Shape">
-		Topuk Şekli
+		ヒールの形
 	</string>
 	<string name="Height">
-		Yükseklik
+		身長
 	</string>
 	<string name="High">
-		Yüksek
+		高
 	</string>
 	<string name="High Heels">
-		Yüksek Topuklar
+		ハイヒール
 	</string>
 	<string name="High Jaw">
-		Ayrık
+		高
 	</string>
 	<string name="High Platforms">
-		Yüksek Topuklu
+		厚底
 	</string>
 	<string name="High and Tight">
-		Düşük
+		高めでタイト
 	</string>
 	<string name="Higher">
-		Daha Yüksek
+		高
 	</string>
 	<string name="Hip Length">
-		Kalça Uzunluğu
+		腰の長さ
 	</string>
 	<string name="Hip Width">
-		Kalça Genişliği
+		腰の幅
 	</string>
 	<string name="In">
-		İçeri
+		内向き
 	</string>
 	<string name="In Shdw Color">
-		İç Gölge Rengi
+		内側のシャドウカラー
 	</string>
 	<string name="In Shdw Opacity">
-		İç Gölge Opaklığı
+		内側のシャドウの濃さ
 	</string>
 	<string name="Inner Eye Corner">
-		Gözün İç Köşesi
+		目頭
 	</string>
 	<string name="Inner Eye Shadow">
-		İç Göz Gölgesi
+		内側のアイシャドウ
 	</string>
 	<string name="Inner Shadow">
-		İç Gölge
+		内側のシャドウ
 	</string>
 	<string name="Jacket Length">
-		Ceket Uzunluğu
+		ジャケット丈
 	</string>
 	<string name="Jacket Wrinkles">
-		Ceket Kırışıklıkları
+		ジャケットのしわ
 	</string>
 	<string name="Jaw Angle">
-		Çenenin Boyuna Uzaklığı
+		あごの角度
 	</string>
 	<string name="Jaw Jut">
-		Alt Çene Uzunluğu
+		あごの突出
 	</string>
 	<string name="Jaw Shape">
-		Çene Kemiği Genişliği
+		あごの形
 	</string>
 	<string name="Join">
-		Birleşik
+		寄せた胸
 	</string>
 	<string name="Jowls">
-		Avurtlar
+		えら
 	</string>
 	<string name="Knee Angle">
-		Diz Açısı
+		膝の角度
 	</string>
 	<string name="Knock Kneed">
-		Çarpık Bacaklı
+		内股
 	</string>
 	<string name="Large">
-		Büyük
+		大
 	</string>
 	<string name="Large Hands">
-		Büyük Eller
+		大
 	</string>
 	<string name="Left Part">
-		Sola Ayırma
+		左分け
 	</string>
 	<string name="Leg Length">
-		Bacak Uzunluğu
+		脚の長さ
 	</string>
 	<string name="Leg Muscles">
-		Bacak Kasları
+		脚の筋肉
 	</string>
 	<string name="Less">
-		Daha Az
+		小
 	</string>
 	<string name="Less Body Fat">
-		Daha Az Vücut Yağı
+		少なめ
 	</string>
 	<string name="Less Curtains">
-		Daha Az Lincoln Sakal
+		少なめ
 	</string>
 	<string name="Less Freckles">
-		Daha Az Çil
+		少なめ
 	</string>
 	<string name="Less Full">
-		Daha Az Dolgun
+		薄い
 	</string>
 	<string name="Less Gravity">
-		Dik Göğüs
+		少
 	</string>
 	<string name="Less Love">
-		Daha İnce Bel
+		少
 	</string>
 	<string name="Less Muscles">
-		Daha Az Kas
+		少なめ
 	</string>
 	<string name="Less Muscular">
-		Daha Az Kaslı
+		少なめ
 	</string>
 	<string name="Less Rosy">
-		Daha Az Pembe
+		少な目
 	</string>
 	<string name="Less Round">
-		Daha Az Yuvarlak
+		丸み少な目
 	</string>
 	<string name="Less Saddle">
-		Basensiz
+		小
 	</string>
 	<string name="Less Square">
-		Daha Az Küt
+		小
 	</string>
 	<string name="Less Volume">
-		Daha Az Hacim
+		ボリューム少な目
 	</string>
 	<string name="Less soul">
-		Daha az ruh
+		小
 	</string>
 	<string name="Lighter">
-		Daha Hafif
+		ライト
 	</string>
 	<string name="Lip Cleft">
-		Dudak Çukuru
+		唇の山
 	</string>
 	<string name="Lip Cleft Depth">
-		Dudak Çukuru Derinliği
+		唇の山の高さ
 	</string>
 	<string name="Lip Fullness">
-		Dudak Dolgunluğu
+		唇の厚み
 	</string>
 	<string name="Lip Pinkness">
-		Dudak Pembeliği
+		唇の赤み
 	</string>
 	<string name="Lip Ratio">
-		Dudak Oranı
+		上下唇の大きさ
 	</string>
 	<string name="Lip Thickness">
-		Dudak Kalınlığı
+		唇の前後幅
 	</string>
 	<string name="Lip Width">
-		Dudak Genişliği
+		口の大きさ
 	</string>
 	<string name="Lipgloss">
-		Dudak Parlatıcısı
+		リップグロス
 	</string>
 	<string name="Lipstick">
-		Ruj
+		口紅
 	</string>
 	<string name="Lipstick Color">
-		Ruj Rengi
+		口紅の色
 	</string>
 	<string name="Long">
-		Uzun
+		ロング
 	</string>
 	<string name="Long Head">
-		Uzun Kafa
+		前後幅が広い頭
 	</string>
 	<string name="Long Hips">
-		Yüksek kalça
+		長
 	</string>
 	<string name="Long Legs">
-		Uzun Bacaklar
+		長
 	</string>
 	<string name="Long Neck">
-		Uzun Boyun
+		長
 	</string>
 	<string name="Long Pigtails">
-		Yandan Uzun Kuyruk
+		長
 	</string>
 	<string name="Long Ponytail">
-		Uzun Atkuyruğu
+		長
 	</string>
 	<string name="Long Torso">
-		Uzun Gövde
+		長
 	</string>
 	<string name="Long arms">
-		Uzun kollar
+		長
 	</string>
 	<string name="Loose Pants">
-		Bol Pantolon
+		ゆったり
 	</string>
 	<string name="Loose Shirt">
-		Bol Gömlek
+		ゆるめ
 	</string>
 	<string name="Loose Sleeves">
-		Bol Kollu
+		ゆるめ
 	</string>
 	<string name="Love Handles">
-		Bel Kalınlığı
+		ウエスト周り
 	</string>
 	<string name="Low">
-		Düşük
+		低
 	</string>
 	<string name="Low Heels">
-		Alçak Topuklar
+		ローヒール
 	</string>
 	<string name="Low Jaw">
-		Bitişik
+		低
 	</string>
 	<string name="Low Platforms">
-		Alçak Topuklu
+		低め
 	</string>
 	<string name="Low and Loose">
-		Yüksek
+		低めでゆったり
 	</string>
 	<string name="Lower">
-		Daha Alçak
+		低
 	</string>
 	<string name="Lower Bridge">
-		Alt Burun Kemiği
+		鼻筋
 	</string>
 	<string name="Lower Cheeks">
-		Daha Alçak Yanaklar
+		ほおの下部
 	</string>
 	<string name="Male">
-		Erkek
+		男性
 	</string>
 	<string name="Middle Part">
-		Ortadan Ayırma
+		真ん中分け
 	</string>
 	<string name="More">
-		Daha Fazla
+		大
 	</string>
 	<string name="More Blush">
-		Daha Fazla Allık
+		きつめ
 	</string>
 	<string name="More Body Fat">
-		Daha Fazla Vücut Yağı
+		多め
 	</string>
 	<string name="More Curtains">
-		Daha Çok Lincoln Sakal
+		多め
 	</string>
 	<string name="More Eyeshadow">
-		Daha Fazla Göz Farı
+		あり
 	</string>
 	<string name="More Freckles">
-		Daha Çok Çil
+		多め
 	</string>
 	<string name="More Full">
-		Daha Dolgun
+		厚い
 	</string>
 	<string name="More Gravity">
-		Sarkık Göğüs
+		大
 	</string>
 	<string name="More Lipstick">
-		Daha Çok Ruj
+		あり
 	</string>
 	<string name="More Love">
-		Daha Kalın Bel
+		大
 	</string>
 	<string name="More Lower Lip">
-		Daha Dolgun Alt Dudak
+		大
 	</string>
 	<string name="More Muscles">
-		Daha Çok Kas
+		多め
 	</string>
 	<string name="More Muscular">
-		Daha Kaslı
+		筋骨隆々
 	</string>
 	<string name="More Rosy">
-		Daha Pembe
+		多め
 	</string>
 	<string name="More Round">
-		Daha Yuvarlak
+		まる
 	</string>
 	<string name="More Saddle">
-		Basenli
+		大
 	</string>
 	<string name="More Sloped">
-		Daha Eğimli
+		なだらか
 	</string>
 	<string name="More Square">
-		Daha Küt
+		四角
 	</string>
 	<string name="More Upper Lip">
-		Daha Dolgun Üst Dudak
+		大
 	</string>
 	<string name="More Vertical">
-		Daha Dikey
+		垂直
 	</string>
 	<string name="More Volume">
-		Daha Hacimli
+		大
 	</string>
 	<string name="More soul">
-		Daha çok ruh
+		大
 	</string>
 	<string name="Moustache">
-		Bıyık
+		口ひげ
 	</string>
 	<string name="Mouth Corner">
-		Ağız Köşesi
+		口角
 	</string>
 	<string name="Mouth Position">
-		Ağzın Konumu
+		口の位置
 	</string>
 	<string name="Mowhawk">
-		Mowhawk Saçı
+		モヒカン
 	</string>
 	<string name="Muscular">
-		Kaslı
+		筋骨たくましい
 	</string>
 	<string name="Mutton Chops">
-		Geniş Favori
+		マトンチョップス
 	</string>
 	<string name="Nail Polish">
-		Tırnak Cilası
+		マニキュア
 	</string>
 	<string name="Nail Polish Color">
-		Tırnak Cilası Rengi
+		マニキュアの色
 	</string>
 	<string name="Narrow">
-		Dar
+		狭
 	</string>
 	<string name="Narrow Back">
-		Arkası Dar
+		狭
 	</string>
 	<string name="Narrow Front">
-		Önü Dar
+		狭
 	</string>
 	<string name="Narrow Lips">
-		Küçük Dudaklar
+		おちょぼ口
 	</string>
 	<string name="Natural">
-		Doğal
+		ナチュラル
 	</string>
 	<string name="Neck Length">
-		Boyun Uzunluğu
+		首の長さ
 	</string>
 	<string name="Neck Thickness">
-		Boyun Kalınlığı
+		首の太さ
 	</string>
 	<string name="No Blush">
-		Allık Yok
+		なし
 	</string>
 	<string name="No Eyeliner">
-		Göz Kalemi Yok
+		なし
 	</string>
 	<string name="No Eyeshadow">
-		Göz Farı Yok
+		なし
 	</string>
 	<string name="No Lipgloss">
-		Dudak Parlatıcısı Yok
+		なし
 	</string>
 	<string name="No Lipstick">
-		Ruj Yok
+		なし
 	</string>
 	<string name="No Part">
-		Ayırma Yok
+		なし
 	</string>
 	<string name="No Polish">
-		Cila Yok
+		なし
 	</string>
 	<string name="No Red">
-		Kırmızı Yok
+		なし
 	</string>
 	<string name="No Spikes">
-		Dikleştirme Yok
+		なし
 	</string>
 	<string name="No White">
-		Beyaz Yok
+		なし
 	</string>
 	<string name="No Wrinkles">
-		Kırışıklık Yok
+		なし
 	</string>
 	<string name="Normal Lower">
-		Normal Alt
+		下
 	</string>
 	<string name="Normal Upper">
-		Normal Üst
+		上
 	</string>
 	<string name="Nose Left">
-		Sola Eğimli Burun
+		左曲がり
 	</string>
 	<string name="Nose Right">
-		Sağa Eğimli Burun
+		右曲がり
 	</string>
 	<string name="Nose Size">
-		Burun Büyüklüğü
+		鼻の大きさ
 	</string>
 	<string name="Nose Thickness">
-		Burun Kalınlığı
+		鼻の厚み
 	</string>
 	<string name="Nose Tip Angle">
-		Burun Ucu Açısı
+		鼻先の角度
 	</string>
 	<string name="Nose Tip Shape">
-		Burun Ucu Şekli
+		鼻先の形
 	</string>
 	<string name="Nose Width">
-		Burun Genişliği
+		鼻の幅
 	</string>
 	<string name="Nostril Division">
-		Burun Deliği Ayrımı
+		鼻の穴の高さ
 	</string>
 	<string name="Nostril Width">
-		Burun Deliği Genişliği
+		鼻の穴の幅
 	</string>
 	<string name="Opaque">
-		Opak
+		濃いめ
 	</string>
 	<string name="Open">
-		Aç
+		オープン
 	</string>
 	<string name="Open Back">
-		Arkayı Aç
+		後ろあき
 	</string>
 	<string name="Open Front">
-		Önü Aç
+		前あき
 	</string>
 	<string name="Open Left">
-		Solu Aç
+		左あき
 	</string>
 	<string name="Open Right">
-		Sağı Aç
+		右あき
 	</string>
 	<string name="Orange">
-		Turuncu
+		オレンジ
 	</string>
 	<string name="Out">
-		Dışarı
+		外向き
 	</string>
 	<string name="Out Shdw Color">
-		Dış Gölge Rengi
+		外側のシャドウカラー
 	</string>
 	<string name="Out Shdw Opacity">
-		Dış Gölge Opaklığı
+		外側のシャドウの濃さ
 	</string>
 	<string name="Outer Eye Corner">
-		Gözün Dış Köşesi
+		目尻
 	</string>
 	<string name="Outer Eye Shadow">
-		Dış Göz Gölgesi
+		外側のアイシャドウ
 	</string>
 	<string name="Outer Shadow">
-		Dış Gölge
+		外側のシャドウ
 	</string>
 	<string name="Overbite">
-		Öne Doğru
+		出っ歯
 	</string>
 	<string name="Package">
-		Apış Arası Şişkinliği
+		パッケージ
 	</string>
 	<string name="Painted Nails">
-		Ojeli Tırnaklar
+		あり
 	</string>
 	<string name="Pale">
-		Soluk
+		悪い
 	</string>
 	<string name="Pants Crotch">
-		Pantolon Ağı
+		パンツの股
 	</string>
 	<string name="Pants Fit">
-		Pantolon Oturması
+		パンツのフィット感
 	</string>
 	<string name="Pants Length">
-		Pantolon Uzunluğu
+		パンツ丈
 	</string>
 	<string name="Pants Waist">
-		Pantolon Bel Ölçüsü
+		ウエスト
 	</string>
 	<string name="Pants Wrinkles">
-		Pantolon Kırışıklıkları
+		パンツのしわ
 	</string>
 	<string name="Part">
-		Ayırma
+		あり
 	</string>
 	<string name="Part Bangs">
-		Ayrılmış Kahküller
+		分けた前髪
 	</string>
 	<string name="Pectorals">
-		Göğüs Kasları
+		胸筋
 	</string>
 	<string name="Pigment">
-		Pigment
+		色素
 	</string>
 	<string name="Pigtails">
-		Yan Kuyruklar
+		下げ髪
 	</string>
 	<string name="Pink">
-		Pembe
+		ピンク
 	</string>
 	<string name="Pinker">
-		Daha Pembe
+		ピンク
 	</string>
 	<string name="Platform Height">
-		Topuk Yüksekliği
+		靴底の高さ
 	</string>
 	<string name="Platform Width">
-		Topuk Genişliği
+		靴底の幅
 	</string>
 	<string name="Pointy">
-		Dar
+		尖った
 	</string>
 	<string name="Pointy Heels">
-		Sivri Topuklar
+		幅狭
 	</string>
 	<string name="Ponytail">
-		Atkuyruğu
+		ポニーテール
 	</string>
 	<string name="Poofy Skirt">
-		Kabarık Etek
+		ふんわり
 	</string>
 	<string name="Pop Left Eye">
-		Sol Gözü Dışarı Çıkar
+		左目を大きく
 	</string>
 	<string name="Pop Right Eye">
-		Sağ Gözü Dışarı Çıkar
+		右目を大きく
 	</string>
 	<string name="Puffy">
-		Şişkin
+		ふっくら
 	</string>
 	<string name="Puffy Eyelids">
-		Şişkin Göz Kapakları
+		目の周りの膨らみ
 	</string>
 	<string name="Rainbow Color">
-		Gökkuşağı Rengi
+		虹色
 	</string>
 	<string name="Red Hair">
-		Kırmızı Saç
+		赤毛
 	</string>
 	<string name="Regular">
-		Normal
+		均整のとれた
 	</string>
 	<string name="Right Part">
-		Sağa Ayırma
+		右分け
 	</string>
 	<string name="Rosy Complexion">
-		Kırmızı Yanaklı
+		ほおの赤らみ
 	</string>
 	<string name="Round">
-		Yuvarlak
+		まるっこい
 	</string>
 	<string name="Ruddiness">
-		Kırmızılık
+		血色
 	</string>
 	<string name="Ruddy">
-		Kırmızı
+		良い
 	</string>
 	<string name="Rumpled Hair">
-		Dağınık Saç
+		くしゃくしゃヘア
 	</string>
 	<string name="Saddle Bags">
-		Basen Genişliği
+		腰回りの肉付き
 	</string>
 	<string name="Scrawny Leg">
-		Sıska Bacak
+		骨張った脚
 	</string>
 	<string name="Separate">
-		Ayrık
+		離れた胸
 	</string>
 	<string name="Shallow">
-		Sığ
+		なだらか
 	</string>
 	<string name="Shear Back">
-		Arka Dolgunluğu
+		後方を刈る
 	</string>
 	<string name="Shear Face">
-		Yüzü Dikey Kaydır
+		顔のゆがみ
 	</string>
 	<string name="Shear Front">
-		Ön Dolgunluğu
+		前方を刈る
 	</string>
 	<string name="Shear Left Up">
-		Solu Yukarı Kaydır
+		左半分を上に
 	</string>
 	<string name="Shear Right Up">
-		Sağı Yukarı Kaydır
+		右半分を上に
 	</string>
 	<string name="Sheared Back">
-		Arkası Dolgun
+		後ろを刈られた髪
 	</string>
 	<string name="Sheared Front">
-		Önü Dolgun
+		前を刈られた髪
 	</string>
 	<string name="Shift Left">
-		Sola Kaydır
+		左向き
 	</string>
 	<string name="Shift Mouth">
-		Ağzı Kaydırma
+		口の向き
 	</string>
 	<string name="Shift Right">
-		Sağa Kaydır
+		右向き
 	</string>
 	<string name="Shirt Bottom">
-		Gömlek Eteği
+		シャツの裾
 	</string>
 	<string name="Shirt Fit">
-		Gömlek Boyu
+		シャツのフィット感
 	</string>
 	<string name="Shirt Wrinkles">
-		Gömlek Kırışıklıkları
+		シャツのしわ
 	</string>
 	<string name="Shoe Height">
-		Ayakkabı Yüksekliği
+		靴の長さ
 	</string>
 	<string name="Short">
-		Kısa
+		ショート
 	</string>
 	<string name="Short Arms">
-		Kısa Kollar
+		短
 	</string>
 	<string name="Short Legs">
-		Kısa Bacaklar
+		短
 	</string>
 	<string name="Short Neck">
-		Kısa Boyun
+		短
 	</string>
 	<string name="Short Pigtails">
-		Yandan Kısa Kuyruk
+		短
 	</string>
 	<string name="Short Ponytail">
-		Kısa Atkuyruğu
+		短
 	</string>
 	<string name="Short Sideburns">
-		Kısa Favoriler
+		短め
 	</string>
 	<string name="Short Torso">
-		Kısa Gövde
+		短
 	</string>
 	<string name="Short hips">
-		Düşük kalça
+		短
 	</string>
 	<string name="Shoulders">
-		Omuzlar
+		肩
 	</string>
 	<string name="Side Fringe">
-		Yan Perçem
+		サイドの毛先
 	</string>
 	<string name="Sideburns">
-		Favoriler
+		もみあげ
 	</string>
 	<string name="Sides Hair">
-		Yan Saçlar
+		サイドの髪
 	</string>
 	<string name="Sides Hair Down">
-		Aşağı Doğru Yan Saç
+		ダウン
 	</string>
 	<string name="Sides Hair Up">
-		Yukarı Doğru Yan Saç
+		アップ
 	</string>
 	<string name="Skinny Neck">
-		İnce Boyun
+		細
 	</string>
 	<string name="Skirt Fit">
-		Etek Boyu
+		スカートのフィット感
 	</string>
 	<string name="Skirt Length">
-		Etek Uzunluğu
+		スカート丈
 	</string>
 	<string name="Slanted Forehead">
-		Eğimli Alın
+		傾斜した額
 	</string>
 	<string name="Sleeve Length">
-		Kol Uzunluğu
+		袖丈
 	</string>
 	<string name="Sleeve Looseness">
-		Kol Bolluğu
+		袖のフィット感
 	</string>
 	<string name="Slit Back">
-		Yırtmaç: Geri
+		スリット： 後ろ
 	</string>
 	<string name="Slit Front">
-		Yırtmaç: Ön
+		スリット： 前
 	</string>
 	<string name="Slit Left">
-		Yırtmaç: Sol
+		スリット： 左
 	</string>
 	<string name="Slit Right">
-		Yırtmaç: Sağ
+		スリット： 右
 	</string>
 	<string name="Small">
-		Küçük
+		小
 	</string>
 	<string name="Small Hands">
-		Küçük Eller
+		小
 	</string>
 	<string name="Small Head">
-		Küçük Kafa
+		小
 	</string>
 	<string name="Smooth">
-		Düz
+		滑らか
 	</string>
 	<string name="Smooth Hair">
-		Düz Saç
+		スムーズ
 	</string>
 	<string name="Socks Length">
-		Çorap Uzunluğu
+		靴下丈
 	</string>
 	<string name="Soulpatch">
-		Dudak Altı Sakal
+		ソウルパッチ
 	</string>
 	<string name="Sparse">
-		Seyrek
+		薄
 	</string>
 	<string name="Spiked Hair">
-		Dikleştirilmiş Saç
+		とげとげヘア
 	</string>
 	<string name="Square">
-		Geniş
+		角張った
 	</string>
 	<string name="Square Toe">
-		Küt Burunlu
+		スクエアトゥ
 	</string>
 	<string name="Squash Head">
-		Kafayı Bastır
+		カボチャ型
 	</string>
 	<string name="Stretch Head">
-		Kafayı Uzat
+		縦長
 	</string>
 	<string name="Sunken">
-		Çökük
+		こけたほお
 	</string>
 	<string name="Sunken Chest">
-		Çökük Göğüs
+		小
 	</string>
 	<string name="Sunken Eyes">
-		Çökük Gözler
+		くぼんだ目
 	</string>
 	<string name="Sweep Back">
-		Arkaya Tarama
+		後ろへ
 	</string>
 	<string name="Sweep Forward">
-		Öne Tarama
+		前へ
 	</string>
 	<string name="Tall">
-		Uzun
+		トール
 	</string>
 	<string name="Taper Back">
-		Arkası Kısa
+		後ろに先細
 	</string>
 	<string name="Taper Front">
-		Önü Kısa
+		前に先細
 	</string>
 	<string name="Thick Heels">
-		Kalın Topuklar
+		幅広
 	</string>
 	<string name="Thick Neck">
-		Kalın Boyun
+		太
 	</string>
 	<string name="Thick Toe">
-		Kalın Ayak Ucu
+		厚め
 	</string>
 	<string name="Thin">
-		İnce
+		薄い
 	</string>
 	<string name="Thin Eyebrows">
-		İnce Kaşlar
+		細
 	</string>
 	<string name="Thin Lips">
-		İnce Dudaklar
+		小
 	</string>
 	<string name="Thin Nose">
-		İnce Burun
+		細い鼻
 	</string>
 	<string name="Tight Chin">
-		Çift Çene
+		ひきしまったあご
 	</string>
 	<string name="Tight Cuffs">
-		Dar Paçalar
+		タイト
 	</string>
 	<string name="Tight Pants">
-		Dar Pantolon
+		タイト
 	</string>
 	<string name="Tight Shirt">
-		Dar Gömlek
+		タイト
 	</string>
 	<string name="Tight Skirt">
-		Dar Etek
+		タイト
 	</string>
 	<string name="Tight Sleeves">
-		Dar Kollu
+		タイト
 	</string>
 	<string name="Toe Shape">
-		Ayakkabu Burnu Şekli
+		つま先の形
 	</string>
 	<string name="Toe Thickness">
-		Ayakkabu Burnu Kalınlığı
+		つま先の厚み
 	</string>
 	<string name="Torso Length">
-		Gövde Uzunluğu
+		上半身の長さ
 	</string>
 	<string name="Torso Muscles">
-		Gövde Kasları
+		上半身の筋肉
 	</string>
 	<string name="Torso Scrawny">
-		Sıska Gövde
+		上半身の骨張り
 	</string>
 	<string name="Unattached">
-		Ayrık
+		大
 	</string>
 	<string name="Uncreased">
-		Buruşuk olmayan
+		軽いまぶた
 	</string>
 	<string name="Underbite">
-		Geriye Doğru
+		受け口
 	</string>
 	<string name="Unnatural">
-		Doğal Olmayan
+		ユニーク
 	</string>
 	<string name="Upper Bridge">
-		Üst Burun Kemiği
+		両目のあいだ
 	</string>
 	<string name="Upper Cheeks">
-		Üst Yanaklar
+		ほおの上部
 	</string>
 	<string name="Upper Chin Cleft">
-		Üst Çene Çukuru
+		あご上部の割れ
 	</string>
 	<string name="Upper Eyelid Fold">
-		Üst Göz Kapağı Kıvrımı
+		二重の幅
 	</string>
 	<string name="Upturned">
-		Yukarı dönük
+		上向き
 	</string>
 	<string name="Very Red">
-		Çok Kırmızı
+		真っ赤
 	</string>
 	<string name="Waist Height">
-		Bel Yüksekliği
+		ウエストの高さ
 	</string>
 	<string name="Well-Fed">
-		Dolgun
+		つまったほお
 	</string>
 	<string name="White Hair">
-		Beyaz Saç
+		白髪
 	</string>
 	<string name="Wide">
-		Geniş
+		広
 	</string>
 	<string name="Wide Back">
-		Geniş Arka
+		広
 	</string>
 	<string name="Wide Front">
-		Geniş Ön
+		広
 	</string>
 	<string name="Wide Lips">
-		Geniş Dudaklar
+		大きい口
 	</string>
 	<string name="Wild">
-		Çılgın
+		ワイルド
 	</string>
 	<string name="Wrinkles">
-		Kırışıklıklar
+		しわ
 	</string>
 	<string name="LocationCtrlAddLandmarkTooltip">
-		Yer İmlerime Ekle
+		マイ ランドマークに追加
 	</string>
 	<string name="LocationCtrlEditLandmarkTooltip">
-		Yer İmimi Düzenle
+		マイ ランドマークを編集
 	</string>
 	<string name="LocationCtrlInfoBtnTooltip">
-		Geçerli konum hakkında daha fazla bilgi gör
+		現在地の詳細を見る
 	</string>
 	<string name="LocationCtrlComboBtnTooltip">
-		Konum geçmişim
+		マイ ロケーション履歴
 	</string>
 	<string name="LocationCtrlForSaleTooltip">
-		Bu araziyi satın al
+		この土地を購入
 	</string>
 	<string name="LocationCtrlVoiceTooltip">
-		Ses burada kullanılamaz
+		ここではボイスの利用ができません
 	</string>
 	<string name="LocationCtrlFlyTooltip">
-		Uçmaya izin verilmiyor
+		飛行は禁止されています
 	</string>
 	<string name="LocationCtrlPushTooltip">
-		İtme yok
+		プッシュ禁止
 	</string>
 	<string name="LocationCtrlBuildTooltip">
-		Nesne inşa etmeye/düşürmeye izin verilmiyor
+		オブジェクトの制作・ドロップは禁止されています
 	</string>
 	<string name="LocationCtrlScriptsTooltip">
-		Komut dosyalarına izin verilmiyor
+		スクリプト不可
 	</string>
 	<string name="LocationCtrlDamageTooltip">
-		Sağlık
+		体力
 	</string>
 	<string name="LocationCtrlAdultIconTooltip">
-		Yetişkin Bölgesi
+		Adult リージョン
 	</string>
 	<string name="LocationCtrlModerateIconTooltip">
-		Orta Bölge
+		Moderate リージョン
 	</string>
 	<string name="LocationCtrlGeneralIconTooltip">
-		Genel Bölge
+		General リージョン
 	</string>
 	<string name="LocationCtrlSeeAVsTooltip">
-		Bu parselin dışında avatarlar görünür durumda ve sohbete izin veriliyor
+		この区画外にアバターを見えるようにして、チャットも許可
 	</string>
 	<string name="UpdaterWindowTitle">
-		[APP_NAME] Güncelleştirme
+		[APP_NAME] アップデート
 	</string>
 	<string name="UpdaterNowUpdating">
-		[APP_NAME] güncelleştiriliyor...
+		只今 [APP_NAME] をアップデート中です...
 	</string>
 	<string name="UpdaterNowInstalling">
-		[APP_NAME] yükleniyor...
+		[APP_NAME] をインストール中です...
 	</string>
 	<string name="UpdaterUpdatingDescriptive">
-		[APP_NAME] Görüntüleyiciniz en son sürüme güncelleştiriliyor.  Bu biraz zaman alabilir, bu nedenle sabırlı olun.
+		お使いの [APP_NAME] ビューワが最新バージョンにアップデートされています。  数分かかることがありますのでしばらくお待ちください。
 	</string>
 	<string name="UpdaterProgressBarTextWithEllipses">
-		Güncelleştirme karşıdan yükleniyor...
+		アップデートをダウンロード中です...
 	</string>
 	<string name="UpdaterProgressBarText">
-		Güncelleştirme karşıdan yükleniyor
+		アップデートをダウンロード中
 	</string>
 	<string name="UpdaterFailDownloadTitle">
-		Güncelleştirmenin karşıdan yüklenmesi başarılamadı
+		アップデートのダウンロードに失敗しました
 	</string>
 	<string name="UpdaterFailUpdateDescriptive">
-		[APP_NAME] güncellenirken bir hata oluştu. Lütfen www.secondlife.com adresinden son sürümü karşıdan yükleyin.
+		[APP_NAME] をアップデート中にエラーが発生しました。 www.secondlife.com から最新バージョンをダウンロードしてください。
 	</string>
 	<string name="UpdaterFailInstallTitle">
-		Güncelleştirmenin yüklenmesi başarılamadı
+		アップデートのインストールに失敗しました
 	</string>
 	<string name="UpdaterFailStartTitle">
-		Görüntüleyici başlatılamadı
+		ビューワの起動に失敗しました
 	</string>
 	<string name="ItemsComingInTooFastFrom">
-		[APP_NAME]: [FROM_NAME]&apos;den öğeler çok hızlı geliyor, [TIME] saniye boyunca otomatik ön izleme devre dışı bırakıldı
+		[APP_NAME] ： アイテムが [FROM_NAME] から同時にたくさん読み込まれているため、自動プレビューが [TIME] 秒間無効となります。
 	</string>
 	<string name="ItemsComingInTooFast">
-		[APP_NAME]: Öğeler çok hızlı geliyor, [TIME] saniye boyunca otomatik ön izleme devre dışı bırakıldı
+		[APP_NAME] ： アイテムが同時にたくさん読み込まれているため、自動プレビューが [TIME] 秒間無効となります。
 	</string>
 	<string name="IM_logging_string">
-		-- Anlık ileti günlük tutulması etkin --
+		-- インスタントメッセージの保存開始 --
 	</string>
 	<string name="IM_typing_start_string">
-		[NAME] yazıyor...
+		[NAME] は入力中です...
 	</string>
 	<string name="Unnamed">
-		(İsimsiz)
+		（名前なし）
 	</string>
 	<string name="IM_moderated_chat_label">
-		(Yönetilen: Varsayılan durumda sesler kapalı)
+		（モデレート： デフォルトでボイスはオフ）
 	</string>
 	<string name="IM_unavailable_text_label">
-		Bu aramada metin sohbeti kullanılamaz.
+		このコールでは文字チャットが利用できません。
 	</string>
 	<string name="IM_muted_text_label">
-		Bir Grup Moderatörü tarafından metin sohbetiniz devre dışı bırakıldı.
+		グループのモデレータが、あなたの文字チャットを使用禁止にしました。
 	</string>
 	<string name="IM_default_text_label">
-		Anlık ileti göndermek için buraya tıklayın.
+		ここをクリックしてインスタントメッセージを開始。
 	</string>
 	<string name="IM_to_label">
-		Kime
+		宛先
 	</string>
 	<string name="IM_moderator_label">
-		(Moderatör)
+		（モデレータ）
 	</string>
 	<string name="Saved_message">
-		(Kaydedildi [LONG_TIMESTAMP])
+		（保存日時：[LONG_TIMESTAMP]）
 	</string>
 	<string name="IM_unblock_only_groups_friends">
-		Bu mesajı görmek için Tercihler/Gizlilik&apos;de &apos;Sadece arkadaşlar ve gruplar beni arasın veya Aİ göndersin&apos; seçeneğinin işaretini kaldırmalısınız.
+		このメッセージを表示するには、「環境設定」の「プライバシー」で「フレンドとグループ以外からはコールと IM を受信しない」チェックボックスをオフにします。
 	</string>
 	<string name="answered_call">
-		Aramanız yanıtlandı
+		相手がコールを受けました
 	</string>
 	<string name="you_started_call">
-		Bir sesli arama başlattınız
+		ボイスコールを開始します
 	</string>
 	<string name="you_joined_call">
-		Sesli aramaya katıldınız
+		ボイスコールに参加しました
 	</string>
 	<string name="name_started_call">
-		[NAME] bir sesli arama başlattı
+		[NAME] はボイスコールを開始します
 	</string>
 	<string name="ringing-im">
-		Sesli aramaya katılınılıyor...
+		ボイスコールに参加...
 	</string>
 	<string name="connected-im">
-		Bağlandı, kapatmak için Aramadan Çık üzerine tıklayın
+		接続しました。コール終了をクリックして切ります
 	</string>
 	<string name="hang_up-im">
-		Sesli aramadan çıkıldı
+		ボイスコールから退席しました
 	</string>
 	<string name="answering-im">
-		Bağlanıyor...
+		接続中...
 	</string>
 	<string name="conference-title">
-		Özel Konferans
+		アドホックコンファレンス
 	</string>
 	<string name="conference-title-incoming">
-		[AGENT_NAME] ile konferans
+		[AGENT_NAME] とコンファレンスする
 	</string>
 	<string name="inventory_item_offered-im">
-		Teklif edilen envanter öğesi:
+		インベントリアイテムを送りました
 	</string>
 	<string name="share_alert">
-		Envanterinizden buraya öğeler sürükleyin
+		インベントリからここにアイテムをドラッグします
 	</string>
 	<string name="no_session_message">
-		(Aİ Oturumu Mevcut Değil)
+		（IM セッションが存在しません）
 	</string>
 	<string name="only_user_message">
-		Bu oturumdaki tek kullanıcısınız.
+		このセッションにいるユーザーはあなただけです。
 	</string>
 	<string name="offline_message">
-		[NAME] çevrim dışı.
+		[NAME] はオフライン中です。
 	</string>
 	<string name="invite_message">
-		Bu sesli sohbeti kabul etmek/bağlanmak için [BUTTON NAME] düğmesine tıklayın.
+		このボイスチャットに応答・接続する場合は、[BUTTON NAME] をクリックしてください。
 	</string>
 	<string name="muted_message">
-		Bu Sakini engellediniz. Bir ileti gönderdiğinizde engelleme otomatik olarak kaldırılır.
+		この住人をブロックしています。 メッセージを送ると、ブロックが自動的に解除されます。
 	</string>
 	<string name="generic">
-		Talep gönderilirken hata oluştu, lütfen daha sonra tekrar deneyin.
+		リクエスト中にエラーが発生しました。あとでもう一度お試しください。
 	</string>
 	<string name="generic_request_error">
-		Talep gönderilirken hata oluştu, lütfen daha sonra tekrar deneyin.
+		要求中にエラーが発生しました。後でもう一度試してください。
 	</string>
 	<string name="insufficient_perms_error">
-		Yeterli izne sahip değilsiniz.
+		あなたには充分な権限がありません。
 	</string>
 	<string name="session_does_not_exist_error">
-		Bu oturum artık mevcut değil.
+		このセッションは既に切断されています。
 	</string>
 	<string name="no_ability_error">
-		Bu yeteneğe sahip değilsiniz.
+		あなたにはその能力がありません。
 	</string>
 	<string name="no_ability">
-		Bu yeteneğe sahip değilsiniz.
+		あなたにはその能力がありません。
 	</string>
 	<string name="not_a_mod_error">
-		Bir oturum moderatörü değilsiniz.
+		あなたはセッションモデレータではありません。
 	</string>
 	<string name="muted">
-		Bir grup moderatörü metin sohbetinizi devre dışı bıraktı.
+		グループのモデレーターが、あなたのテキストチャットを禁止しました。
 	</string>
 	<string name="muted_error">
-		Bir grup moderatörü metin sohbetinizi devre dışı bıraktı.
+		グループモデレータがあなたのテキストチャットを無効化しました
 	</string>
 	<string name="add_session_event">
-		[RECIPIENT] ile sohbet oturumuna kullanıcı eklenemiyor.
+		[RECIPIENT] とのチャットセッションにユーザーを追加することができません
 	</string>
 	<string name="message">
-		İletiniz [RECIPIENT] ile sohbet oturumuna gönderilemedi.
+		[RECIPIENT] とのチャットセッションに、メッセージを送信することができません。
 	</string>
 	<string name="message_session_event">
-		İletiniz [RECIPIENT] ile sohbet oturumuna gönderilemedi.
+		[RECIPIENT] とのチャットセッションにメッセージを送ることができません
 	</string>
 	<string name="mute">
-		Yönetme sırasında hata oluştu.
+		モデレート中にエラーが発生しました。
 	</string>
 	<string name="removed">
-		Gruptan çıkarıldınız.
+		グループから脱退しました。
 	</string>
 	<string name="removed_from_group">
-		Gruptan çıkarıldınız.
+		あなたはグループから削除されました。
 	</string>
 	<string name="close_on_no_ability">
-		Sohbet oturumunda bulunma yeteneğine artık sahip değilsiniz.
+		このチャットセッションを継続することはできません
 	</string>
 	<string name="unread_chat_single">
-		[SOURCES] yeni bir şey söyledi
+		[SOURCES] は何か新しいことを言いました。
 	</string>
 	<string name="unread_chat_multiple">
-		[SOURCES] yeni bir şey söyledi
+		[SOURCES] は何か新しいことを言いました。
 	</string>
 	<string name="session_initialization_timed_out_error">
-		Oturum başlatılması zaman aşımına uğradı.
+		セッションの初期化がタイムアウトしました
 	</string>
 	<string name="Home position set.">
-		Ana konum ayarlandı.
+		家の配置の設定。
 	</string>
 	<string name="voice_morphing_url">
 		http://secondlife.com/landing/voicemorphing
 	</string>
 	<string name="paid_you_ldollars">
-		[NAME] size [REASON] L$[AMOUNT] ödedi.
+		[NAME] は [REASON] のために L$[AMOUNT] を支払いました。
 	</string>
 	<string name="paid_you_ldollars_no_reason">
-		[NAME] size L$[AMOUNT] ödedi.
+		[NAME] は L$[AMOUNT] を支払いました。
 	</string>
 	<string name="you_paid_ldollars">
-		[NAME]&apos;e [REASON] L$[AMOUNT]  ödediniz.
+		[NAME] に L$ [AMOUNT] を支払いました：[REASON]
 	</string>
 	<string name="you_paid_ldollars_no_info">
-		L$[AMOUNT] ödediniz.
+		L$ [AMOUNT] を支払いました。
 	</string>
 	<string name="you_paid_ldollars_no_reason">
-		[NAME]&apos;e L$[AMOUNT] ödediniz.
+		[NAME] に L$ [AMOUNT] を支払いました。
 	</string>
 	<string name="you_paid_ldollars_no_name">
-		[REASON] L$[AMOUNT] ödediniz.
+		L$ [AMOUNT] を支払いました：[REASON]
 	</string>
 	<string name="you_paid_failure_ldollars">
-		[REASON] [NAME]&apos;e L$[AMOUNT] ödeyemediniz.
+		[NAME] に [REASON] の代金 L$ [AMOUNT] を支払えませんでした。
 	</string>
 	<string name="you_paid_failure_ldollars_no_info">
-		L$[AMOUNT] ödeyemediniz.
+		L$ [AMOUNT] を支払えませんでした。
 	</string>
 	<string name="you_paid_failure_ldollars_no_reason">
-		[NAME]&apos;e L$[AMOUNT] ödeyemediniz.
+		[NAME] に L$ [AMOUNT] を支払えませんでした。
 	</string>
 	<string name="you_paid_failure_ldollars_no_name">
-		[REASON] L$[AMOUNT] ödeyemediniz.
+		[REASON] の 代金 L$ [AMOUNT] を支払えませんでした。
 	</string>
 	<string name="for item">
-		[ITEM] için.
+		[ITEM] 向け
 	</string>
 	<string name="for a parcel of land">
-		bir arazi parseli için.
+		土地区画のため
 	</string>
 	<string name="for a land access pass">
-		bir arazi erişim hakkı için
+		土地の入場許可を得るため
 	</string>
 	<string name="for deeding land">
-		arazi devretmek için
+		土地を譲渡するため
 	</string>
 	<string name="to create a group">
-		bir grup oluşturmak için
+		グループを作成するため
 	</string>
 	<string name="to join a group">
-		bir grupa katılmak için
+		グループに参加するため
 	</string>
 	<string name="to upload">
-		karşıya yüklemek için
+		アップロードするため
 	</string>
 	<string name="to publish a classified ad">
-		bir ilan yayınlamak için
+		クラシファイド広告を掲載する
 	</string>
 	<string name="giving">
-		L$ [AMOUNT] veriliyor
+		L$[AMOUNT] を渡します
 	</string>
 	<string name="uploading_costs">
-		Karşıya yüklemenin maliyeti: L$ [AMOUNT]
+		アップロード料金は L$[AMOUNT] です
 	</string>
 	<string name="this_costs">
-		Bunun maliyeti: L$ [AMOUNT]
+		料金は L$[AMOUNT] です
 	</string>
 	<string name="buying_selected_land">
-		L$ [AMOUNT] karşılığında seçilen arazi satın alınıyor
+		選択した土地を L$ [AMOUNT] で購入します
 	</string>
 	<string name="this_object_costs">
-		Bu nesnenin maliyeti: L$ [AMOUNT]
+		このオブジェクトは L$[AMOUNT] です
 	</string>
 	<string name="group_role_everyone">
-		Herkes
+		全員
 	</string>
 	<string name="group_role_officers">
-		Yetkililer
+		オフィサー
 	</string>
 	<string name="group_role_owners">
-		Sahipler
+		オーナー
 	</string>
 	<string name="group_member_status_online">
-		Çevrimiçi
+		オンライン
 	</string>
 	<string name="uploading_abuse_report">
-		Kötüye Kullanım Bildirimi Karşıya Yükleniyor...
+		アップロード中...
+
+嫌がらせの報告
 	</string>
 	<string name="New Shape">
-		Yeni Şekil
+		新しいシェイプ
 	</string>
 	<string name="New Skin">
-		Yeni Dış Katman
+		新しいスキン
 	</string>
 	<string name="New Hair">
-		Yeni Saç
+		新しい髪
 	</string>
 	<string name="New Eyes">
-		Yeni Gözler
+		新しい目
 	</string>
 	<string name="New Shirt">
-		Yeni Gömlek
+		新しいシャツ
 	</string>
 	<string name="New Pants">
-		Yeni Pantolon
+		新しいパンツ
 	</string>
 	<string name="New Shoes">
-		Yeni Ayakkabılar
+		新しい靴
 	</string>
 	<string name="New Socks">
-		Yeni Çoraplar
+		新しい靴下
 	</string>
 	<string name="New Jacket">
-		Yeni Ceket
+		新しいジャケット
 	</string>
 	<string name="New Gloves">
-		Yeni Eldivenler
+		新しい手袋
 	</string>
 	<string name="New Undershirt">
-		Yeni Fanila
+		新しい下着（上）
 	</string>
 	<string name="New Underpants">
-		Yeni Külot
+		新しい下着（下）
 	</string>
 	<string name="New Skirt">
-		Yeni Etek
+		新しいスカート
 	</string>
 	<string name="New Alpha">
-		Yeni Alfa
+		新しいアルファ
 	</string>
 	<string name="New Tattoo">
-		Yeni Dövme
+		新しいタトゥ
 	</string>
 	<string name="New Physics">
-		Yeni Fizik
+		新規の物理作用
 	</string>
 	<string name="Invalid Wearable">
-		Geçersiz Giyilebilir
+		無効な着用物
 	</string>
 	<string name="New Gesture">
-		Yeni Mimik
+		ジェスチャー
 	</string>
 	<string name="New Script">
-		Yeni Komut Dosyası
+		新規スクリプト
 	</string>
 	<string name="New Note">
-		Yeni Not
+		ノート
 	</string>
 	<string name="New Folder">
-		Yeni Klasör
+		新規フォルダ
 	</string>
 	<string name="Contents">
-		İçerik
+		コンテンツ
 	</string>
 	<string name="Gesture">
-		Mimik
+		ジェスチャー
 	</string>
 	<string name="Male Gestures">
-		Erkek Mimikleri
+		男性用ジェスチャー
 	</string>
 	<string name="Female Gestures">
-		Kadın Mimikleri
+		女性用ジェスチャー
 	</string>
 	<string name="Other Gestures">
-		Diğer Mimikler
+		その他のジェスチャー
 	</string>
 	<string name="Speech Gestures">
-		Konuşma Mimikleri
+		会話ジェスチャー
 	</string>
 	<string name="Common Gestures">
-		Favori Mimikler
+		一般的ジェスチャー
 	</string>
 	<string name="Male - Excuse me">
-		Erkek - Afedersiniz
+		男性 - すみません
 	</string>
 	<string name="Male - Get lost">
-		Erkek - İşine bak
+		男性 - Get lost
 	</string>
 	<string name="Male - Blow kiss">
-		Erkek - Öpücük gönderme
+		男性 - 投げキッス
 	</string>
 	<string name="Male - Boo">
-		Erkek - Yuh çekme
+		男性 - Boo
 	</string>
 	<string name="Male - Bored">
-		Erkek - Canı sıkılmış
+		男性 - 退屈
 	</string>
 	<string name="Male - Hey">
-		Erkek - Hey
+		男性 - Hey
 	</string>
 	<string name="Male - Laugh">
-		Erkek - Gülme
+		男性 - 笑う
 	</string>
 	<string name="Male - Repulsed">
-		Erkek - Tiksinmiş
+		男性 - 拒絶
 	</string>
 	<string name="Male - Shrug">
-		Erkek - Omuz Silkme
+		男性 - 肩をすくめる
 	</string>
 	<string name="Male - Stick tougue out">
-		Erkek - Dil çıkarma
+		男性 - 舌を出す
 	</string>
 	<string name="Male - Wow">
-		Erkek - Vay be
+		男性 - Wow
 	</string>
 	<string name="Female - Chuckle">
-		Kadın - Kıkırdama
+		女性 – クスクス
 	</string>
 	<string name="Female - Cry">
-		Kadın - Ağlama
+		女性 – 泣く
 	</string>
 	<string name="Female - Embarrassed">
-		Kadın - Utanmış
+		女性 – 恥ずかしい
 	</string>
 	<string name="Female - Excuse me">
-		Kadın - Afedersiniz
+		女性 – すみません
 	</string>
 	<string name="Female - Get lost">
-		Kadın - İşine bak
+		女性 – あっち行ってよ
 	</string>
 	<string name="Female - Blow kiss">
-		Kadın - Öpücük gönderme
+		女性 - 投げキッス
 	</string>
 	<string name="Female - Boo">
-		Kadın - Yuh çekme
+		女性 – ワッ！
 	</string>
 	<string name="Female - Bored">
-		Kadın - Canı sıkılmış
+		女性 - 退屈
 	</string>
 	<string name="Female - Hey">
-		Kadın - Hey
+		女性 - Hey
 	</string>
 	<string name="Female - Hey baby">
-		Kadın - Hey bebek
+		女性 – ヘイ、ベィビー！
 	</string>
 	<string name="Female - Laugh">
-		Kadın - Gülme
+		女性 - 笑う
 	</string>
 	<string name="Female - Looking good">
-		Kadın - Yakışıklı
+		女性 – いい感じ
 	</string>
 	<string name="Female - Over here">
-		Kadın - Buraya baksana
+		女性 – こっちよ
 	</string>
 	<string name="Female - Please">
-		Kadın - Lütfen
+		女性 – プリーズ
 	</string>
 	<string name="Female - Repulsed">
-		Kadın - Tiksinmiş
+		女性 - 拒絶
 	</string>
 	<string name="Female - Shrug">
-		Kadın - Omuz Silkme
+		女性 - 肩をすくめる
 	</string>
 	<string name="Female - Stick tougue out">
-		Kadın - Dil çıkarma
+		女性 - 舌を出す
 	</string>
 	<string name="Female - Wow">
-		Kadın - Vay be
+		女性 - Wow
 	</string>
 	<string name="/bow">
-		/selamlama
+		/おじぎする
 	</string>
 	<string name="/clap">
-		/alkış
+		/拍手
 	</string>
 	<string name="/count">
-		/sayım
+		/数える
 	</string>
 	<string name="/extinguish">
-		/söndürme
+		/消す
 	</string>
 	<string name="/kmb">
-		/hib
+		/くそくらえ
 	</string>
 	<string name="/muscle">
-		/kas
+		/筋肉もりもり
 	</string>
 	<string name="/no">
-		/hayır
+		/いいえ
 	</string>
 	<string name="/no!">
-		/hayır!
+		/だめ！
 	</string>
 	<string name="/paper">
-		/kağıt
+		/パー
 	</string>
 	<string name="/pointme">
-		/beni göster
+		/自分を指差す
 	</string>
 	<string name="/pointyou">
-		/seni göster
+		/相手を指差す
 	</string>
 	<string name="/rock">
-		/kaya
+		/グー
 	</string>
 	<string name="/scissor">
-		/makas
+		/チョキ
 	</string>
 	<string name="/smoke">
-		/duman
+		/タバコを吸う
 	</string>
 	<string name="/stretch">
-		/uzatma
+		/伸びをする
 	</string>
 	<string name="/whistle">
-		/ıslık
+		/口笛を吹く
 	</string>
 	<string name="/yes">
-		/evet
+		/はい
 	</string>
 	<string name="/yes!">
-		/evet!
+		/イエス！
 	</string>
 	<string name="afk">
-		kbd
+		一時退席中
 	</string>
 	<string name="dance1">
-		dans1
+		ダンス1
 	</string>
 	<string name="dance2">
-		dans2
+		ダンス2
 	</string>
 	<string name="dance3">
-		dans3
+		ダンス3
 	</string>
 	<string name="dance4">
-		dans4
+		ダンス4
 	</string>
 	<string name="dance5">
-		dans5
+		ダンス5
 	</string>
 	<string name="dance6">
-		dans6
+		ダンス6
 	</string>
 	<string name="dance7">
-		dans7
+		ダンス7
 	</string>
 	<string name="dance8">
-		dans8
+		ダンス8
 	</string>
 	<string name="AvatarBirthDateFormat">
-		[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]
+		[year,datetime,slt]/[mthnum,datetime,slt]/[day,datetime,slt]
 	</string>
 	<string name="DefaultMimeType">
-		hiçbiri/hiçbiri
+		なし/なし
 	</string>
 	<string name="texture_load_dimensions_error">
-		[WIDTH]*[HEIGHT] çözünürlüğünden büyük görüntüler yüklenemez
+		[WIDTH]*[HEIGHT] 以上の画像は読み込めません
 	</string>
 	<string name="words_separator" value=","/>
 	<string name="server_is_down">
-		Tüm çabalarımıza rağmen beklenmeyen bir hata meydana geldi.
+		大変申し訳ございませんが、予期しない問題が発生しました。
 
-	Hizmetle ilişkili bilinen bir sorun olup olmadığını görmek için lütfen status.secondlifegrid.net adresine bakın.
-        Sorun yaşamaya devam ederseniz lütfen ağınızın ve güvenlik duvarınızın ayarlarına bakın.
+	サービスに関する既知の問題については、status.secondlifegrid.net をご覧ください。
+問題が引き続き発生する場合は、お使いのネットワークやファイアウォールの設定を調べてください。
 	</string>
 	<string name="dateTimeWeekdaysNames">
-		Pazar:Pazartesi:Salı:Çarşamba:Perşembe:Cuma:Cumartesi
+		日曜日:月曜日:火曜日:水曜日:木曜日:金曜日:土曜日
 	</string>
 	<string name="dateTimeWeekdaysShortNames">
-		Paz:Pzt:Sal:Çar:Per:Cum:Cmt
+		日:月:火:水:木:金:土
 	</string>
 	<string name="dateTimeMonthNames">
-		Ocak:Şubat:Mart:Nisan:Mayıs:Haziran:Temmuz:Ağustos:Eylül:Ekim:Kasım:Aralık
+		1月:2月:3月:4月:5月:6月:7月:8月:9月:10月:11月:12月
 	</string>
 	<string name="dateTimeMonthShortNames">
-		Oca:Şub:Mar:Nis:May:Haz:Tem:Ağu:Eyl:Eki:Kas:Ara
+		1月:2月:3月:4月:5月:6月:7月:8月:9月:10月:11月:12月
 	</string>
 	<string name="dateTimeDayFormat">
 		[MDAY]
 	</string>
 	<string name="dateTimeAM">
-		ÖÖ
+		AM
 	</string>
 	<string name="dateTimePM">
-		ÖS
+		PM
 	</string>
 	<string name="LocalEstimateUSD">
 		US$ [AMOUNT]
 	</string>
 	<string name="Membership">
-		Üyelik
+		会員
 	</string>
 	<string name="Roles">
-		Roller
+		役割
 	</string>
 	<string name="Group Identity">
-		Grup Kimliği
+		グループの識別情報
 	</string>
 	<string name="Parcel Management">
-		Parsel Yönetimi
+		区画の管理
 	</string>
 	<string name="Parcel Identity">
-		Parsel Kimliği
+		区画の識別情報
 	</string>
 	<string name="Parcel Settings">
-		Parsel Ayarları
+		区画の設定
 	</string>
 	<string name="Parcel Powers">
-		Parsel Güçleri
+		区画の権限
 	</string>
 	<string name="Parcel Access">
-		Parsel Erişimi
+		区画へのアクセス
 	</string>
 	<string name="Parcel Content">
-		Parsel İçeriği
+		区画のコンテンツ
 	</string>
 	<string name="Object Management">
-		Nesne Yönetimi
+		オブジェクトの管理
 	</string>
 	<string name="Accounting">
-		Muhasebe
+		会計
 	</string>
 	<string name="Notices">
-		Bildirimler
+		通知
 	</string>
-	<string name="Chat">
-		Sohbet
+	<string name="Chat" value=" チャット：">
+		チャット
 	</string>
 	<string name="DeleteItems">
-		Seçili öğeler silinsin mi?
+		選択したアイテムを削除しますか
 	</string>
 	<string name="DeleteItem">
-		Seçili öğe silinsin mi?
+		選択したアイテムを削除しますか
 	</string>
 	<string name="EmptyOutfitText">
-		Bu dış görünümde herhangi bir öğe yok
+		このアウトフィットにはアイテムがありません
 	</string>
 	<string name="ExternalEditorNotSet">
-		ExternalEditor ayarını kullanarak bir düzenleyici seçin.
+		ExternalEditor 設定を使ってエディターを選択します。
 	</string>
 	<string name="ExternalEditorNotFound">
-		Belirttiğiniz harici düzenleyici bulunamadı.
-Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
-(örn. &quot;/yolum/duzenleyici&quot; &quot;%s&quot;)
+		指定された外部エディターが見つかりません。
+エディターへのパスを二重引用符で囲んでみてください。
+（例：&quot;/path to my/editor&quot; &quot;%s&quot;）
 	</string>
 	<string name="ExternalEditorCommandParseError">
-		Harici düzenleyici komutu ayrıştırılırken hata oluştu.
+		外部エディターのコマンドの解析中にエラーが見つかりました。
 	</string>
 	<string name="ExternalEditorFailedToRun">
-		Harici düzenleyici çalışmadı.
+		外部エディターを実行できませんでした。
 	</string>
 	<string name="TranslationFailed">
-		Çeviri başarılamadı: [REASON]
+		翻訳できませんでした：[REASON]
 	</string>
 	<string name="TranslationResponseParseError">
-		Çeviri yanıtı ayrıştırılırken hata meydana geldi.
+		翻訳の応答にエラーが発生しました。
 	</string>
 	<string name="Esc">
 		Esc
 	</string>
 	<string name="Space">
-		Boşluk
+		Space
 	</string>
 	<string name="Enter">
 		Enter
 	</string>
 	<string name="Tab">
-		Sekme
+		Tab
 	</string>
 	<string name="Ins">
 		Ins
@@ -4507,7 +4506,7 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 		Del
 	</string>
 	<string name="Backsp">
-		Geri tuşu
+		Backsp
 	</string>
 	<string name="Shift">
 		Shift
@@ -4521,20 +4520,8 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	<string name="CapsLock">
 		CapsLock
 	</string>
-	<string name="Left">
-		Sol
-	</string>
-	<string name="Right">
-		Sağ
-	</string>
-	<string name="Up">
-		Yukarı
-	</string>
-	<string name="Down">
-		Aşağı
-	</string>
 	<string name="Home">
-		Home
+		ホーム
 	</string>
 	<string name="End">
 		End
@@ -4582,16 +4569,16 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 		F12
 	</string>
 	<string name="Add">
-		Ekle
+		追加
 	</string>
 	<string name="Subtract">
-		Çıkar
+		減算
 	</string>
 	<string name="Multiply">
-		Çarp
+		乗算
 	</string>
 	<string name="Divide">
-		Böl
+		除算
 	</string>
 	<string name="PAD_DIVIDE">
 		PAD_DIVIDE
@@ -4810,222 +4797,222 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 		Z
 	</string>
 	<string name="BeaconParticle">
-		Parçacık işaretleri gösteriliyor (mavi)
+		パーティクル源ビーコン（青）を表示中
 	</string>
 	<string name="BeaconPhysical">
-		Fiziksel nesne işaretleri gösteriliyor (yeşil)
+		物理的オブジェクトのビーコン（緑）を表示中
 	</string>
 	<string name="BeaconScripted">
-		Komut dosyalı nesne işaretleri gösteriliyor (kırmızı)
+		スクリプトのオブジェクトのビーコン（赤）を表示中
 	</string>
 	<string name="BeaconScriptedTouch">
-		Dokunma işlevli komut dosyalı nesne işaretleri gösteriliyor (kırmızı)
+		タッチ機能のビーコンが付いたスクリプトのオブジェクト（赤）を表示中
 	</string>
 	<string name="BeaconSound">
-		Ses işaretleri gösteriliyor (sarı)
+		サウンドビーコン（黄）を表示中
 	</string>
 	<string name="BeaconMedia">
-		Ortam işaretleri gösteriliyor (beyaz)
+		メディアビーコン（白）を表示中
 	</string>
 	<string name="ParticleHiding">
-		Parçacıklar Gizleniyor
+		パーティクルを非表示
 	</string>
 	<string name="Command_AboutLand_Label">
-		Arazi hakkında
+		土地情報
 	</string>
 	<string name="Command_Appearance_Label">
-		Görünüm
+		容姿
 	</string>
 	<string name="Command_Avatar_Label">
-		Avatar
+		アバター
 	</string>
 	<string name="Command_Build_Label">
-		İnşa Et
+		制作
 	</string>
 	<string name="Command_Chat_Label">
-		Sohbet
+		チャット
 	</string>
 	<string name="Command_Compass_Label">
-		Pusula
+		コンパス
 	</string>
 	<string name="Command_Destinations_Label">
-		Hedef Konum
+		行き先
 	</string>
 	<string name="Command_Gestures_Label">
-		Mimikler
+		ジェスチャー
 	</string>
 	<string name="Command_HowTo_Label">
-		Nasıl yapılır
+		ハウツー
 	</string>
 	<string name="Command_Inventory_Label">
-		Envanter
+		インベントリ
 	</string>
 	<string name="Command_Map_Label">
-		Harita
+		地図
 	</string>
 	<string name="Command_Marketplace_Label">
-		Pazaryeri
+		マーケットプレイス
 	</string>
 	<string name="Command_MiniMap_Label">
-		Mini-harita
+		ミニマップ
 	</string>
 	<string name="Command_Move_Label">
-		Yürü / koş / uç
+		歩行 / 走行 / 飛行
 	</string>
 	<string name="Command_Outbox_Label">
-		Satıcı giden kutusu
+		マーチャントアウトボックス
 	</string>
 	<string name="Command_People_Label">
-		Kişiler
+		人
 	</string>
 	<string name="Command_Picks_Label">
-		Seçmeler
+		ピック
 	</string>
 	<string name="Command_Places_Label">
-		Yerler
+		場所
 	</string>
 	<string name="Command_Preferences_Label">
-		Tercihler
+		環境設定
 	</string>
 	<string name="Command_Profile_Label">
-		Profil
+		プロフィール
 	</string>
 	<string name="Command_Search_Label">
-		Ara
+		検索
 	</string>
 	<string name="Command_Snapshot_Label">
-		Anlık görüntü
+		スナップショット
 	</string>
 	<string name="Command_Speak_Label">
-		Konuş
+		話す
 	</string>
 	<string name="Command_View_Label">
-		Kamera denetimleri
+		カメラコントロール
 	</string>
 	<string name="Command_Voice_Label">
-		Ses ayarları
+		ボイス設定
 	</string>
 	<string name="Command_AboutLand_Tooltip">
-		Ziyaret ettiğiniz araziyle ilgili bilgi
+		訪問先に関する情報
 	</string>
 	<string name="Command_Appearance_Tooltip">
-		Avatarınızı değiştirin
+		アバターを変更
 	</string>
 	<string name="Command_Avatar_Tooltip">
-		Eksiksiz bir avatar seçin
+		アバター一式を選択
 	</string>
 	<string name="Command_Build_Tooltip">
-		Nesneler oluşturma ve yüzeyi şekillendirme
+		オブジェクトの制作と地形の変形
 	</string>
 	<string name="Command_Chat_Tooltip">
-		Metin kullanarak yakındaki kişilerle sohbet etmek
+		近くの人と文字チャットする
 	</string>
 	<string name="Command_Compass_Tooltip">
-		Pusula
+		コンパス
 	</string>
 	<string name="Command_Destinations_Tooltip">
-		İlgilendiğiniz hedef konumlar
+		行ってみたい場所
 	</string>
 	<string name="Command_Gestures_Tooltip">
-		Avatarınız için mimikler
+		アバターのジェスチャー
 	</string>
 	<string name="Command_HowTo_Tooltip">
-		Genel görevleri nasıl yapacağınız
+		一般的タスクの実行方法
 	</string>
 	<string name="Command_Inventory_Tooltip">
-		Eşyalarınızı görüntüleyin ve kullanın
+		インベントリを表示・使用
 	</string>
 	<string name="Command_Map_Tooltip">
-		Dünya haritası
+		世界地図
 	</string>
 	<string name="Command_Marketplace_Tooltip">
-		Alışveriş yap
+		ショッピングに出掛ける
 	</string>
 	<string name="Command_MiniMap_Tooltip">
-		Yakındaki kişileri göster
+		近くの人を表示する
 	</string>
 	<string name="Command_Move_Tooltip">
-		Avatarınızı hareket ettirmek
+		アバターの移動
 	</string>
 	<string name="Command_Outbox_Tooltip">
-		Satmak amacıyla Pazaryerinize öğeler taşıyın
+		販売用にアイテムをマーケットプレイスに転送
 	</string>
 	<string name="Command_People_Tooltip">
-		Arkadaşlar, gruplar ve yakındaki kişiler
+		フレンド、グループ、近くの人
 	</string>
 	<string name="Command_Picks_Tooltip">
-		Profilinizde favori olarak gösterilecek yerler
+		プロフィールで紹介するお気に入りの場所
 	</string>
 	<string name="Command_Places_Tooltip">
-		Kaydettiğiniz yerler
+		保存済みの場所
 	</string>
 	<string name="Command_Preferences_Tooltip">
-		Tercihler
+		環境設定
 	</string>
 	<string name="Command_Profile_Tooltip">
-		Profilinizi düzenleyin veya görüntüleyin
+		プロフィールを編集・表示
 	</string>
 	<string name="Command_Search_Tooltip">
-		Yerler, etkinlikler ve kişiler bulmak
+		場所、イベント、人を検索
 	</string>
 	<string name="Command_Snapshot_Tooltip">
-		Resim çekin
+		ピクチャを撮る
 	</string>
 	<string name="Command_Speak_Tooltip">
-		Mikrofonunuzu kullanarak yakındaki kişilerle konuşun
+		マイクを使って近くの人と話す
 	</string>
 	<string name="Command_View_Tooltip">
-		Kamera açısını değiştirmek
+		カメラの角度を変更
 	</string>
 	<string name="Command_Voice_Tooltip">
-		Aramalar ve 	SL dünyası içinde size yakın kişiler için ses denetimleri
+		インワールドでのコールや近くにいる人の音量調整
 	</string>
 	<string name="Toolbar_Bottom_Tooltip">
-		şu anda alt araç çubuğunuzda
+		現在、下のツールバーにあります
 	</string>
 	<string name="Toolbar_Left_Tooltip">
-		şu anda sol araç çubuğunuzda
+		現在、左のツールバーにあります
 	</string>
 	<string name="Toolbar_Right_Tooltip">
-		şu anda sağ araç çubuğunuzda
+		現在、右のツールバーにあります
 	</string>
 	<string name="Retain%">
-		Koru %
+		維持率
 	</string>
 	<string name="Detail">
-		Ayrıntı
+		詳細
 	</string>
 	<string name="Better Detail">
-		Daha İyi Ayrıntı
+		もっと詳しく
 	</string>
 	<string name="Surface">
-		Yüzey
+		表面
 	</string>
 	<string name="Solid">
-		Katı
+		ソリッド
 	</string>
 	<string name="Wrap">
-		Sar
+		ラップ
 	</string>
 	<string name="Preview">
-		Önizleme
+		プレビュー
 	</string>
 	<string name="Normal">
-		Normal
+		普通
 	</string>
 	<string name="snapshot_quality_very_low">
-		Çok Düşük
+		非常に低い
 	</string>
 	<string name="snapshot_quality_low">
-		Düşük
+		低
 	</string>
 	<string name="snapshot_quality_medium">
-		Orta
+		中
 	</string>
 	<string name="snapshot_quality_high">
-		Yüksek
+		高
 	</string>
 	<string name="snapshot_quality_very_high">
-		Çok Yüksek
+		非常に高い
 	</string>
 </strings>

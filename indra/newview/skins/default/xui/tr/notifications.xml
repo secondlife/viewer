@@ -360,7 +360,7 @@ Avatarınızın Kullanıcı adını girmeniz gerekmektedir.
 
 [SECOND_LIFE]&apos;a giriş yapmak için bir hesabınız olması gerekir. Şimdi bir hesap oluşturmak ister misiniz?
 		<url name="url">
-			http://join.secondlife.com/
+			[create_account_url]
 		</url>
 		<usetemplate name="okcancelbuttons" notext="Tekrar dene" yestext="Yeni bir hesap oluştur"/>
 	</notification>
@@ -1176,7 +1176,6 @@ Yeni bir ana konum ayarlamak isteyebilirsiniz.
 		[APP_NAME] kurulumu tamamlandı.
 
 [SECOND_LIFE]&apos;ı ilk kez kullanıyorsanız, oturum açmadan önce bir hesap oluşturmalısınız.
-Yeni bir hesap oluşturmak için [http://join.secondlife.com secondlife.com] adresine dönülsün mü?
 		<usetemplate name="okcancelbuttons" notext="Devam" yestext="Yeni Hesap..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">
