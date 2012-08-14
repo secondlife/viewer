@@ -57,7 +57,8 @@ LLPathfindingObject::LLPathfindingObject()
 	mOwnerName(),
 	mAvatarNameCacheConnection(),
 	mIsGroupOwned(false),
-	mLocation()
+	mLocation(),
+	mOwnerNameSignal()
 {
 }
 
@@ -70,7 +71,8 @@ LLPathfindingObject::LLPathfindingObject(const std::string &pUUID, const LLSD &p
 	mOwnerName(),
 	mAvatarNameCacheConnection(),
 	mIsGroupOwned(false),
-	mLocation()
+	mLocation(),
+	mOwnerNameSignal()
 {
 	parseObjectData(pObjectData);
 }
@@ -84,7 +86,8 @@ LLPathfindingObject::LLPathfindingObject(const LLPathfindingObject& pOther)
 	mOwnerName(),
 	mAvatarNameCacheConnection(),
 	mIsGroupOwned(pOther.mIsGroupOwned),
-	mLocation(pOther.mLocation)
+	mLocation(pOther.mLocation),
+	mOwnerNameSignal()
 {
 	fetchOwnerName();
 }
@@ -117,6 +120,23 @@ std::string LLPathfindingObject::getOwnerName() const
 	}
 
 	return ownerName;
+}
+
+LLPathfindingObject::name_connection_t LLPathfindingObject::registerOwnerNameListener(name_callback_t pOwnerNameCallback)
+{
+	llassert(hasOwner());
+
+	name_connection_t connection;
+	if (hasOwnerName())
+	{
+		pOwnerNameCallback(getUUID(), getOwnerName());
+	}
+	else
+	{
+		connection = mOwnerNameSignal.connect(pOwnerNameCallback);
+	}
+
+	return connection;
 }
 
 void LLPathfindingObject::parseObjectData(const LLSD &pObjectData)
@@ -161,9 +181,13 @@ void LLPathfindingObject::fetchOwnerName()
 void LLPathfindingObject::handleAvatarNameFetch(const LLUUID &pOwnerUUID, const LLAvatarName &pAvatarName)
 {
 	llassert(mOwnerUUID == pOwnerUUID);
+
 	mOwnerName = pAvatarName;
 	mHasOwnerName = true;
+
 	disconnectAvatarNameCacheConnection();
+
+	mOwnerNameSignal(getUUID(), getOwnerName());
 }
 
 void LLPathfindingObject::disconnectAvatarNameCacheConnection()

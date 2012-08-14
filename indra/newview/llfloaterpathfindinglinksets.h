@@ -58,7 +58,7 @@ protected:
 
 	virtual void                       requestGetObjects();
 
-	virtual LLSD                       convertObjectsIntoScrollListData(const LLPathfindingObjectListPtr pObjectListPtr);
+	virtual void                       buildObjectsScrollList(const LLPathfindingObjectListPtr pObjectListPtr);
 
 	virtual void                       updateControlsOnScrollListChange();
 
@@ -78,7 +78,7 @@ private:
 	void clearFilters();
 
 	void updateEditFieldValues();
-	LLSD buildLinksetScrollListData(const LLPathfindingLinkset *pLinksetPtr, const LLVector3 &pAvatarPosition) const;
+	LLSD buildLinksetScrollListItemData(const LLPathfindingLinkset *pLinksetPtr, const LLVector3 &pAvatarPosition) const;
 	LLSD buildLinksetUseScrollListData(const std::string &pLabel, S32 pValue) const;
 
 	bool isShowUnmodifiablePhantomWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const;

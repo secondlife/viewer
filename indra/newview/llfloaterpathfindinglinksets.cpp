@@ -215,7 +215,7 @@ void LLFloaterPathfindingLinksets::requestGetObjects()
 	LLPathfindingManager::getInstance()->requestGetLinksets(getNewRequestId(), boost::bind(&LLFloaterPathfindingLinksets::handleNewObjectList, this, _1, _2, _3));
 }
 
-LLSD LLFloaterPathfindingLinksets::convertObjectsIntoScrollListData(const LLPathfindingObjectListPtr pObjectListPtr)
+void LLFloaterPathfindingLinksets::buildObjectsScrollList(const LLPathfindingObjectListPtr pObjectListPtr)
 {
 	llassert(pObjectListPtr != NULL);
 	llassert(!pObjectListPtr->isEmpty());
@@ -227,7 +227,6 @@ LLSD LLFloaterPathfindingLinksets::convertObjectsIntoScrollListData(const LLPath
 	bool isFilteringDescription = !descriptionFilter.empty();
 	bool isFilteringLinksetUse = (linksetUseFilter != LLPathfindingLinkset::kUnknown);
 
-	LLSD scrollListData = LLSD::emptyArray();
 	const LLVector3& avatarPosition = gAgent.getPositionAgent();
 
 	if (isFilteringName || isFilteringDescription || isFilteringLinksetUse)
@@ -236,22 +235,21 @@ LLSD LLFloaterPathfindingLinksets::convertObjectsIntoScrollListData(const LLPath
 		LLStringUtil::toUpper(descriptionFilter);
 		for (LLPathfindingObjectList::const_iterator objectIter = pObjectListPtr->begin();	objectIter != pObjectListPtr->end(); ++objectIter)
 		{
-			const LLPathfindingLinkset *linksetPtr = dynamic_cast<const LLPathfindingLinkset *>(objectIter->second.get());
+			const LLPathfindingObjectPtr objectPtr = objectIter->second;
+			const LLPathfindingLinkset *linksetPtr = dynamic_cast<const LLPathfindingLinkset *>(objectPtr.get());
+			llassert(linksetPtr != NULL);
+
 			std::string linksetName = (linksetPtr->isTerrain() ? getString("linkset_terrain_name") : linksetPtr->getName());
 			std::string linksetDescription = linksetPtr->getDescription();
 			LLStringUtil::toUpper(linksetName);
 			LLStringUtil::toUpper(linksetDescription);
+
 			if ((!isFilteringName || (linksetName.find(nameFilter) != std::string::npos)) &&
 				(!isFilteringDescription || (linksetDescription.find(descriptionFilter) != std::string::npos)) &&
 				(!isFilteringLinksetUse || (linksetPtr->getLinksetUse() == linksetUseFilter)))
 			{
-				LLSD element = buildLinksetScrollListData(linksetPtr, avatarPosition);
-				scrollListData.append(element);
-
-				if (linksetPtr->hasOwner() && !linksetPtr->hasOwnerName())
-				{
-					rebuildScrollListAfterAvatarNameLoads(linksetPtr->getUUID());
-				}
+				LLSD scrollListItemData = buildLinksetScrollListItemData(linksetPtr, avatarPosition);
+				addObjectToScrollList(objectPtr, scrollListItemData);
 			}
 		}
 	}
@@ -259,18 +257,14 @@ LLSD LLFloaterPathfindingLinksets::convertObjectsIntoScrollListData(const LLPath
 	{
 		for (LLPathfindingObjectList::const_iterator objectIter = pObjectListPtr->begin();	objectIter != pObjectListPtr->end(); ++objectIter)
 		{
-			const LLPathfindingLinkset *linksetPtr = dynamic_cast<const LLPathfindingLinkset *>(objectIter->second.get());
-			LLSD element = buildLinksetScrollListData(linksetPtr, avatarPosition);
-			scrollListData.append(element);
+			const LLPathfindingObjectPtr objectPtr = objectIter->second;
+			const LLPathfindingLinkset *linksetPtr = dynamic_cast<const LLPathfindingLinkset *>(objectPtr.get());
+			llassert(linksetPtr != NULL);
 
-			if (linksetPtr->hasOwner() && !linksetPtr->hasOwnerName())
-			{
-				rebuildScrollListAfterAvatarNameLoads(linksetPtr->getUUID());
-			}
+			LLSD scrollListItemData = buildLinksetScrollListItemData(linksetPtr, avatarPosition);
+			addObjectToScrollList(objectPtr, scrollListItemData);
 		}
 	}
-
-	return scrollListData;
 }
 
 void LLFloaterPathfindingLinksets::updateControlsOnScrollListChange()
@@ -373,10 +367,10 @@ void LLFloaterPathfindingLinksets::updateEditFieldValues()
 	}
 }
 
-LLSD LLFloaterPathfindingLinksets::buildLinksetScrollListData(const LLPathfindingLinkset *pLinksetPtr, const LLVector3 &pAvatarPosition) const
+LLSD LLFloaterPathfindingLinksets::buildLinksetScrollListItemData(const LLPathfindingLinkset *pLinksetPtr, const LLVector3 &pAvatarPosition) const
 {
 	llassert(pLinksetPtr != NULL);
-	LLSD columns;
+	LLSD columns = LLSD::emptyArray();
 
 	if (pLinksetPtr->isTerrain())
 	{
@@ -451,11 +445,7 @@ LLSD LLFloaterPathfindingLinksets::buildLinksetScrollListData(const LLPathfindin
 	columns[9]["column"] = "d_percent";
 	columns[9]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientD());
 
-	LLSD element;
-	element["id"] = pLinksetPtr->getUUID().asString();
-	element["column"] = columns;
-
-	return element;
+	return columns;
 }
 
 LLSD LLFloaterPathfindingLinksets::buildLinksetUseScrollListData(const std::string &pLabel, S32 pValue) const

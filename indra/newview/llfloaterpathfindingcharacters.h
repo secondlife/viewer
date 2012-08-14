@@ -62,7 +62,7 @@ protected:
 
 	virtual void                       requestGetObjects();
 
-	virtual LLSD                       convertObjectsIntoScrollListData(const LLPathfindingObjectListPtr pObjectListPtr);
+	virtual void                       buildObjectsScrollList(const LLPathfindingObjectListPtr pObjectListPtr);
 
 	virtual void                       updateControlsOnScrollListChange();
 
@@ -74,7 +74,7 @@ protected:
 private:
 	void onShowPhysicsCapsuleClicked();
 
-	LLSD buildCharacterScrollListData(const LLPathfindingCharacter *pCharacterPtr) const;
+	LLSD buildCharacterScrollListItemData(const LLPathfindingCharacter *pCharacterPtr) const;
 
 	void updateStateOnDisplayControls();
 	void showSelectedCharacterCapsules();

@@ -30,6 +30,8 @@
 #include <string>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/function.hpp>
+#include <boost/signals2.hpp>
 
 #include "llavatarname.h"
 #include "llavatarnamecache.h"
@@ -60,6 +62,12 @@ public:
 	inline BOOL               isGroupOwned() const   {return mIsGroupOwned;};
 	inline const LLVector3&   getLocation() const    {return mLocation;};
 
+	typedef boost::function<void (const LLUUID &, const std::string &)>         name_callback_t;
+	typedef boost::signals2::signal<void (const LLUUID &, const std::string &)> name_signal_t;
+	typedef boost::signals2::connection                                         name_connection_t;
+
+	name_connection_t registerOwnerNameListener(name_callback_t pOwnerNameCallback);
+
 protected:
 
 private:
@@ -78,6 +86,7 @@ private:
 	LLAvatarNameCache::callback_connection_t mAvatarNameCacheConnection;
 	BOOL                                     mIsGroupOwned;
 	LLVector3                                mLocation;
+	name_signal_t                            mOwnerNameSignal;
 };
 
 #endif // LL_LLPATHFINDINGOBJECT_H
