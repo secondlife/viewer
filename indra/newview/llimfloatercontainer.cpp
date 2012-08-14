@@ -75,6 +75,7 @@ LLIMFloaterContainer::~LLIMFloaterContainer()
 
 void LLIMFloaterContainer::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
 {
+	LLIMFloater::show(session_id);
 	addConversationListItem(session_id);
 }
 
