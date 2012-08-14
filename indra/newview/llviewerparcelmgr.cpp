@@ -545,9 +545,6 @@ LLParcelSelectionHandle LLViewerParcelMgr::selectLand(const LLVector3d &corner1,
 
 	mRequestResult = PARCEL_RESULT_NO_DATA;
 
-	// clear the list of segments to prevent flashing
-	resetSegments(mHighlightSegments);
-
 	mFloatingParcelSelection->setParcel(mCurrentParcel);
 	mCurrentParcelSelection->setParcel(NULL);
 	mCurrentParcelSelection = new LLParcelSelection(mCurrentParcel);
