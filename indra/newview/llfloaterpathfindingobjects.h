@@ -89,6 +89,7 @@ protected:
 
 	virtual S32                        getNameColumnIndex() const;
 	virtual S32                        getOwnerNameColumnIndex() const;
+	virtual std::string                getOwnerName(const LLPathfindingObject *pObject) const;
 	virtual const LLColor4             &getBeaconColor() const;
 	virtual const LLColor4             &getBeaconTextColor() const;
 	virtual S32                        getBeaconWidth() const;
@@ -127,7 +128,7 @@ private:
 	void                   onRegionBoundaryCrossed();
 	void                   onGodLevelChange(U8 pGodLevel);
 
-	void                   handleObjectNameResponse(const LLUUID &pObjectUUID, const std::string &pOwnerName);
+	void                   handleObjectNameResponse(const LLPathfindingObject *pObject);
 
 	void                   updateMessagingStatus();
 	void                   updateStateOnListControls();

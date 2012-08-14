@@ -408,7 +408,7 @@ void LLFloaterPathfindingObjects::addObjectToScrollList(const LLPathfindingObjec
 	if (pObjectPtr->hasOwner() && !pObjectPtr->hasOwnerName())
 	{
 		mMissingNameObjectsScrollListItems.insert(std::make_pair<std::string, LLScrollListItem *>(pObjectPtr->getUUID().asString(), scrollListItem));
-		pObjectPtr->registerOwnerNameListener(boost::bind(&LLFloaterPathfindingObjects::handleObjectNameResponse, this, _1, _2));
+		pObjectPtr->registerOwnerNameListener(boost::bind(&LLFloaterPathfindingObjects::handleObjectNameResponse, this, _1));
 	}
 }
 
@@ -433,6 +433,13 @@ S32 LLFloaterPathfindingObjects::getNameColumnIndex() const
 S32 LLFloaterPathfindingObjects::getOwnerNameColumnIndex() const
 {
 	return 2;
+}
+
+std::string LLFloaterPathfindingObjects::getOwnerName(const LLPathfindingObject *pObject) const
+{
+	llassert(0);
+	std::string returnVal;
+	return returnVal;
 }
 
 const LLColor4 &LLFloaterPathfindingObjects::getBeaconColor() const
@@ -685,9 +692,10 @@ void LLFloaterPathfindingObjects::onGodLevelChange(U8 pGodLevel)
 	requestGetObjects();
 }
 
-void LLFloaterPathfindingObjects::handleObjectNameResponse(const LLUUID &pObjectUUID, const std::string &pOwnerName)
+void LLFloaterPathfindingObjects::handleObjectNameResponse(const LLPathfindingObject *pObject)
 {
-	const std::string uuid = pObjectUUID.asString();
+	llassert(pObject != NULL);
+	const std::string uuid = pObject->getUUID().asString();
 	scroll_list_item_map::iterator scrollListItemIter = mMissingNameObjectsScrollListItems.find(uuid);
 	if (scrollListItemIter != mMissingNameObjectsScrollListItems.end())
 	{
@@ -695,7 +703,7 @@ void LLFloaterPathfindingObjects::handleObjectNameResponse(const LLUUID &pObject
 		llassert(scrollListItem != NULL);
 
 		LLScrollListCell *scrollListCell = scrollListItem->getColumn(getOwnerNameColumnIndex());
-		LLSD ownerName = pOwnerName;
+		LLSD ownerName = getOwnerName(pObject);
 
 		scrollListCell->setValue(ownerName);
 

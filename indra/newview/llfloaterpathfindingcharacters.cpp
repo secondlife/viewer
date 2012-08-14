@@ -162,6 +162,22 @@ S32 LLFloaterPathfindingCharacters::getNameColumnIndex() const
 	return 0;
 }
 
+S32 LLFloaterPathfindingCharacters::getOwnerNameColumnIndex() const
+{
+	return 2;
+}
+
+std::string LLFloaterPathfindingCharacters::getOwnerName(const LLPathfindingObject *pObject) const
+{
+	return (pObject->hasOwner()
+		? (pObject->hasOwnerName()
+		? (pObject->isGroupOwned()
+		? (pObject->getOwnerName() + " " + getString("character_owner_group"))
+		: pObject->getOwnerName())
+		: getString("character_owner_loading"))
+		: getString("character_owner_unknown"));
+}
+
 const LLColor4 &LLFloaterPathfindingCharacters::getBeaconColor() const
 {
 	return mBeaconColor;
@@ -206,13 +222,7 @@ LLSD LLFloaterPathfindingCharacters::buildCharacterScrollListItemData(const LLPa
 	columns[1]["value"] = pCharacterPtr->getDescription();
 
 	columns[2]["column"] = "owner";
-	columns[2]["value"] = (pCharacterPtr->hasOwner()
-			? (pCharacterPtr->hasOwnerName()
-			? (pCharacterPtr->isGroupOwned()
-			? (pCharacterPtr->getOwnerName() + " " + getString("character_owner_group"))
-			: pCharacterPtr->getOwnerName())
-			: getString("character_owner_loading"))
-			: getString("character_owner_unknown"));
+	columns[2]["value"] = getOwnerName(pCharacterPtr);
 
 	S32 cpuTime = llround(pCharacterPtr->getCPUTime());
 	std::string cpuTimeString = llformat("%d", cpuTime);

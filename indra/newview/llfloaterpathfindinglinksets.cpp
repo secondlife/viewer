@@ -280,6 +280,22 @@ S32 LLFloaterPathfindingLinksets::getNameColumnIndex() const
 	return 0;
 }
 
+S32 LLFloaterPathfindingLinksets::getOwnerNameColumnIndex() const
+{
+	return 2;
+}
+
+std::string LLFloaterPathfindingLinksets::getOwnerName(const LLPathfindingObject *pObject) const
+{
+	return (pObject->hasOwner()
+		? (pObject->hasOwnerName()
+		? (pObject->isGroupOwned()
+		? (pObject->getOwnerName() + " " + getString("linkset_owner_group"))
+		: pObject->getOwnerName())
+		: getString("linkset_owner_loading"))
+		: getString("linkset_owner_unknown"));
+}
+
 const LLColor4 &LLFloaterPathfindingLinksets::getBeaconColor() const
 {
 	return mBeaconColor;
@@ -398,13 +414,7 @@ LLSD LLFloaterPathfindingLinksets::buildLinksetScrollListItemData(const LLPathfi
 		columns[1]["value"] = pLinksetPtr->getDescription();
 
 		columns[2]["column"] = "owner";
-		columns[2]["value"] = (pLinksetPtr->hasOwner()
-			? (pLinksetPtr->hasOwnerName()
-			? (pLinksetPtr->isGroupOwned()
-			? (pLinksetPtr->getOwnerName() + " " + getString("linkset_owner_group"))
-			: pLinksetPtr->getOwnerName())
-			: getString("linkset_owner_loading"))
-			: getString("linkset_owner_unknown"));
+		columns[2]["value"] = getOwnerName(pLinksetPtr);
 
 		columns[3]["column"] = "land_impact";
 		columns[3]["value"] = llformat("%1d", pLinksetPtr->getLandImpact());

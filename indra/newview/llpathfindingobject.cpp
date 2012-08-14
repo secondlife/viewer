@@ -129,7 +129,7 @@ LLPathfindingObject::name_connection_t LLPathfindingObject::registerOwnerNameLis
 	name_connection_t connection;
 	if (hasOwnerName())
 	{
-		pOwnerNameCallback(getUUID(), getOwnerName());
+		pOwnerNameCallback(this);
 	}
 	else
 	{
@@ -187,7 +187,7 @@ void LLPathfindingObject::handleAvatarNameFetch(const LLUUID &pOwnerUUID, const 
 
 	disconnectAvatarNameCacheConnection();
 
-	mOwnerNameSignal(getUUID(), getOwnerName());
+	mOwnerNameSignal(this);
 }
 
 void LLPathfindingObject::disconnectAvatarNameCacheConnection()

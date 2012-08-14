@@ -67,6 +67,8 @@ protected:
 	virtual void                       updateControlsOnScrollListChange();
 
 	virtual S32                        getNameColumnIndex() const;
+	virtual S32                        getOwnerNameColumnIndex() const;
+	virtual std::string                getOwnerName(const LLPathfindingObject *pObject) const;
 	virtual const LLColor4             &getBeaconColor() const;
 
 	virtual LLPathfindingObjectListPtr getEmptyObjectList() const;
