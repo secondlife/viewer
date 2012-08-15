@@ -500,6 +500,23 @@ bool LLFloaterPathfindingLinksets::isShowUnmodifiablePhantomWarning(LLPathfindin
 	return isShowWarning;
 }
 
+bool LLFloaterPathfindingLinksets::isShowPhantomToggleWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const
+{
+	bool isShowWarning = false;
+
+	if (pLinksetUse != LLPathfindingLinkset::kUnknown)
+	{
+		LLPathfindingObjectListPtr selectedObjects = getSelectedObjects();
+		if ((selectedObjects != NULL) && !selectedObjects->isEmpty())
+		{
+			const LLPathfindingLinksetList *linksetList = dynamic_cast<const LLPathfindingLinksetList *>(selectedObjects.get());
+			isShowWarning = linksetList->isShowPhantomToggleWarning(pLinksetUse);
+		}
+	}
+
+	return isShowWarning;
+}
+
 bool LLFloaterPathfindingLinksets::isShowCannotBeVolumeWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const
 {
 	bool isShowWarning = false;
@@ -569,29 +586,41 @@ void LLFloaterPathfindingLinksets::applyEdit()
 {
 	LLPathfindingLinkset::ELinksetUse linksetUse = getEditLinksetUse();
 
+	bool showPhantomToggleWarning = isShowPhantomToggleWarning(linksetUse);
 	bool showUnmodifiablePhantomWarning = isShowUnmodifiablePhantomWarning(linksetUse);
 	bool showCannotBeVolumeWarning = isShowCannotBeVolumeWarning(linksetUse);
 
-	if (showUnmodifiablePhantomWarning || showCannotBeVolumeWarning)
+	if (showPhantomToggleWarning || showUnmodifiablePhantomWarning || showCannotBeVolumeWarning)
 	{
 		LLPathfindingLinkset::ELinksetUse restrictedLinksetUse = LLPathfindingLinkset::getLinksetUseWithToggledPhantom(linksetUse);
 		LLSD substitutions;
 		substitutions["REQUESTED_TYPE"] = getLinksetUseString(linksetUse);
 		substitutions["RESTRICTED_TYPE"] = getLinksetUseString(restrictedLinksetUse);
 
-		std::string notificationName;
-		if (showUnmodifiablePhantomWarning && showCannotBeVolumeWarning)
+		// Build one of the following notifications names
+		//   - PathfindingLinksets_WarnOnPhantom
+		//   - PathfindingLinksets_WarnOnPhantom_MismatchOnRestricted
+		//   - PathfindingLinksets_WarnOnPhantom_MismatchOnVolume
+		//   - PathfindingLinksets_WarnOnPhantom_MismatchOnRestricted_MismatchOnVolume
+		//   - PathfindingLinksets_MismatchOnRestricted
+		//   - PathfindingLinksets_MismatchOnVolume
+		//   - PathfindingLinksets_MismatchOnRestricted_MismatchOnVolume
+
+		std::string notificationName = "PathfindingLinksets";
+
+		if (showPhantomToggleWarning)
 		{
-			notificationName = "PathfindingLinksets_SetLinksetUseMismatchOnRestrictedAndVolume";
+			notificationName += "_WarnOnPhantom";
 		}
-		else if (showUnmodifiablePhantomWarning)
+		if (showUnmodifiablePhantomWarning)
 		{
-			notificationName = "PathfindingLinksets_SetLinksetUseMismatchOnRestricted";
+			notificationName += "_MismatchOnRestricted";
 		}
-		else
+		if (showCannotBeVolumeWarning)
 		{
-			notificationName = "PathfindingLinksets_SetLinksetUseMismatchOnVolume";
+			notificationName += "_MismatchOnVolume";
 		}
+
 		LLNotificationsUtil::add(notificationName, substitutions, LLSD(), boost::bind(&LLFloaterPathfindingLinksets::handleApplyEdit, this, _1, _2));
 	}
 	else

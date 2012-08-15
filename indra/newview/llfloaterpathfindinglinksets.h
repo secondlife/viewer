@@ -84,6 +84,7 @@ private:
 	LLSD buildLinksetUseScrollListData(const std::string &pLabel, S32 pValue) const;
 
 	bool isShowUnmodifiablePhantomWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const;
+	bool isShowPhantomToggleWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const;
 	bool isShowCannotBeVolumeWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const;
 
 	void updateStateOnEditFields();

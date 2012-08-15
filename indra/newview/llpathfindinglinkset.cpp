@@ -149,6 +149,11 @@ bool LLPathfindingLinkset::isShowUnmodifiablePhantomWarning(ELinksetUse pLinkset
 	return (!isModifiable() && (isPhantom() != isPhantom(pLinksetUse)));
 }
 
+bool LLPathfindingLinkset::isShowPhantomToggleWarning(ELinksetUse pLinksetUse) const
+{
+	return (isModifiable() && (isPhantom() != isPhantom(pLinksetUse)));
+}
+
 bool LLPathfindingLinkset::isShowCannotBeVolumeWarning(ELinksetUse pLinksetUse) const
 {
 	return (!canBeVolume() && ((pLinksetUse == kMaterialVolume) || (pLinksetUse == kExclusionVolume)));

@@ -72,6 +72,7 @@ public:
 	inline S32         getWalkabilityCoefficientD() const  {return mWalkabilityCoefficientD;};
 
 	bool               isShowUnmodifiablePhantomWarning(ELinksetUse pLinksetUse) const;
+	bool               isShowPhantomToggleWarning(ELinksetUse pLinksetUse) const;
 	bool               isShowCannotBeVolumeWarning(ELinksetUse pLinksetUse) const;
 	LLSD               encodeAlteredFields(ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const;
 
