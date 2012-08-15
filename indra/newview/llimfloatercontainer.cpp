@@ -75,13 +75,13 @@ LLIMFloaterContainer::~LLIMFloaterContainer()
 
 void LLIMFloaterContainer::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
 {
-	LLIMFloater::show(session_id);
+	LLIMFloater::addToIMContainer(session_id);
 	addConversationListItem(session_id);
 }
 
 void LLIMFloaterContainer::sessionVoiceOrIMStarted(const LLUUID& session_id)
 {
-	LLIMFloater::show(session_id);
+	LLIMFloater::addToIMContainer(session_id);
 	addConversationListItem(session_id);
 }
 
@@ -93,8 +93,6 @@ void LLIMFloaterContainer::sessionIDUpdated(const LLUUID& old_session_id, const 
 
 void LLIMFloaterContainer::sessionRemoved(const LLUUID& session_id)
 {
-	LLIMFloater* floaterp = LLIMFloater::findInstance(session_id);
-	LLFloater::onClickClose(floaterp);
 	removeConversationListItem(session_id);
 }
 

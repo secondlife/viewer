@@ -153,6 +153,7 @@ void LLIMConversation::draw()
 		}
 
 		refresh();
+		updateHeaderAndToolbar();
 
 		// Restart the refresh timer
 		mRefreshTimer->setTimerExpirySec(REFRESH_INTERVAL);
@@ -265,7 +266,7 @@ void LLIMConversation::hideAllStandardButtons()
 
 void LLIMConversation::updateHeaderAndToolbar()
 {
-	bool is_torn_off = isTornOff();
+	bool is_torn_off = !getHost();
 	if (!is_torn_off)
 	{
 		hideAllStandardButtons();

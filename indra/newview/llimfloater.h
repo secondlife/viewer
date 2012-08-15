@@ -78,6 +78,7 @@ public:
 	/*virtual*/ void setDocked(bool docked, bool pop_on_undock = true);
 	// Make IM conversion visible and update the message history
 	static LLIMFloater* show(const LLUUID& session_id);
+	static LLIMFloater* addToIMContainer(const LLUUID& session_id);
 
 	// Toggle panel specified by session_id
 	// Returns true iff panel became visible

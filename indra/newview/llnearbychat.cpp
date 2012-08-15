@@ -183,7 +183,6 @@ BOOL LLNearbyChat::postBuild()
 // virtual
 void LLNearbyChat::refresh()
 {
-	updateHeaderAndToolbar();
 	displaySpeakingIndicator();
 	updateCallBtnState(LLVoiceClient::getInstance()->getUserPTTState());
 

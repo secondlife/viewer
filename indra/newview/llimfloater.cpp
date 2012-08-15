@@ -128,7 +128,7 @@ void LLIMFloater::onClickCloseBtn()
 
 	if (session == NULL)
 	{
-		llwarns << "Empty session." << llendl;
+		llwarns << "Empty session with id: " << (mSessionID.asString()) << llendl;
 		return;
 }
 
@@ -250,7 +250,7 @@ void LLIMFloater::initIMSession(const LLUUID& session_id)
 	mSession = LLIMModel::getInstance()->findIMSession(mSessionID);
 
 	if (mSession)
-{
+    {
 		mIsP2PChat = mSession->isP2PSessionType();
 		mSessionInitialized = mSession->mSessionInitialized;
 
@@ -593,38 +593,19 @@ void LLIMFloater::onParticipantsListChanged(LLUICtrl* ctrl)
 }
 
 //static
-LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
+LLIMFloater* LLIMFloater::addToIMContainer(const LLUUID& session_id)
 {
-	closeHiddenIMToasts();
-
 	if (!gIMMgr->hasSession(session_id))
 		return NULL;
-
-	if(!isChatMultiTab())
-	{
-		//hide all
-		LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("impanel");
-		for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin();
-			 iter != inst_list.end(); ++iter)
-		{
-			LLIMFloater* floater = dynamic_cast<LLIMFloater*>(*iter);
-			if (floater && floater->isDocked())
-			{
-				floater->setVisible(false);
-			}
-		}
-	}
 
 	// Test the existence of the floater before we try to create it
 	bool exist = findInstance(session_id);
 
 	// Get the floater: this will create the instance if it didn't exist
 	LLIMFloater* floater = getInstance(session_id);
-	if (!floater)
-		return NULL;
-
-	if(isChatMultiTab())
+	if (floater)
 	{
+
 		LLIMFloaterContainer* floater_container = LLIMFloaterContainer::getInstance();
 
 		// Do not add again existing floaters
@@ -639,33 +620,51 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 			}
 		}
 
-		floater->openFloater(floater->getKey());
-	}
-	else
-	{
-		// Docking may move chat window, hide it before moving, or user will see how window "jumps"
-		floater->setVisible(false);
-
-		if (floater->getDockControl() == NULL)
+		if (floater_container && floater_container->getVisible())
 		{
-			LLChiclet* chiclet =
-					LLChicletBar::getInstance()->getChicletPanel()->findChiclet<LLChiclet>(
-							session_id);
-			if (chiclet == NULL)
-			{
-				llerror("Dock chiclet for LLIMFloater doesn't exists", 0);
-			}
-			else
-			{
-				LLChicletBar::getInstance()->getChicletPanel()->scrollToChiclet(chiclet);
-			}
-
-			floater->setDockControl(new LLDockControl(chiclet, floater, floater->getDockTongue(),
-					LLDockControl::BOTTOM));
+			floater->openFloater(floater->getKey());
+			floater->setVisible(TRUE);
 		}
-
-		// window is positioned, now we can show it.
+		else
+		{
+			floater->setVisible(FALSE);
+		}
 	}
+	return floater;
+}
+
+//static
+LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
+{
+	closeHiddenIMToasts();
+
+	if (!gIMMgr->hasSession(session_id))
+		return NULL;
+
+	// Test the existence of the floater before we try to create it
+	bool exist = findInstance(session_id);
+
+	// Get the floater: this will create the instance if it didn't exist
+	LLIMFloater* floater = getInstance(session_id);
+	if (!floater)
+		return NULL;
+
+	LLIMFloaterContainer* floater_container = LLIMFloaterContainer::getInstance();
+
+	// Do not add again existing floaters
+	if (!exist)
+	{
+		//		LLTabContainer::eInsertionPoint i_pt = user_initiated ? LLTabContainer::RIGHT_OF_CURRENT : LLTabContainer::END;
+		// TODO: mantipov: use LLTabContainer::RIGHT_OF_CURRENT if it exists
+		LLTabContainer::eInsertionPoint i_pt = LLTabContainer::END;
+		if (floater_container)
+		{
+			floater_container->addFloater(floater, TRUE, i_pt);
+		}
+	}
+
+	floater->openFloater(floater->getKey());
+
 	floater->setVisible(TRUE);
 
 	return floater;
