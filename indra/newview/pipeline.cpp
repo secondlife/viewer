@@ -2563,6 +2563,31 @@ void LLPipeline::updateGL()
 
 static LLFastTimer::DeclareTimer FTM_REBUILD_PRIORITY_GROUPS("Rebuild Priority Groups");
 
+void LLPipeline::clearRebuildGroups()
+{
+	mGroupQ1Locked = true;
+	// Iterate through all drawables on the priority build queue,
+	for (LLSpatialGroup::sg_vector_t::iterator iter = mGroupQ1.begin();
+		 iter != mGroupQ1.end(); ++iter)
+	{
+		LLSpatialGroup* group = *iter;
+		group->clearState(LLSpatialGroup::IN_BUILD_Q1);
+	}
+	mGroupQ1.clear();
+	mGroupQ1Locked = false;
+
+	mGroupQ2Locked = true;
+	for (LLSpatialGroup::sg_vector_t::iterator iter = mGroupQ2.begin();
+		 iter != mGroupQ2.end(); ++iter)
+	{
+		LLSpatialGroup* group = *iter;
+		group->clearState(LLSpatialGroup::IN_BUILD_Q2);
+	}	
+
+	mGroupQ2.clear();
+	mGroupQ2Locked = false;
+}
+
 void LLPipeline::rebuildPriorityGroups()
 {
 	LLFastTimer t(FTM_REBUILD_PRIORITY_GROUPS);
