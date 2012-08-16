@@ -45,7 +45,8 @@ public:
 	// Call this to select an avatar.	
 	static LLFloaterAvatarPicker* show(select_callback_t callback, 
 									   BOOL allow_multiple = FALSE,
-									   BOOL closeOnSelect = FALSE);
+									   BOOL closeOnSelect = FALSE,
+									   BOOL skip_agent = FALSE);
 
 	LLFloaterAvatarPicker(const LLSD& key);
 	virtual ~LLFloaterAvatarPicker();
@@ -63,6 +64,7 @@ public:
 						   std::string& tooltip_msg);
 
 	void openFriendsTab();
+	BOOL isExcludeAgentFromSearchResults() {return mExcludeAgentFromSearchResults;}
 
 private:
 	void editKeystroke(class LLLineEditor* caller, void* user_data);
@@ -88,9 +90,10 @@ private:
 	virtual BOOL handleKeyHere(KEY key, MASK mask);
 
 	LLUUID				mQueryID;
-	int				mNumResultsReturned;
+	int				    mNumResultsReturned;
 	BOOL				mNearMeListComplete;
 	BOOL				mCloseOnSelect;
+	BOOL                mExcludeAgentFromSearchResults;
 
 	validate_signal_t mOkButtonValidateSignal;
 	select_callback_t mSelectionCallback;

@@ -414,7 +414,7 @@ void LLIMFloaterContainer::updateState(bool collapse, S32 delta_width)
 
 void LLIMFloaterContainer::onAddButtonClicked()
 {
-    LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLIMFloaterContainer::onAvatarPicked, this, _1), TRUE, TRUE);
+    LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLIMFloaterContainer::onAvatarPicked, this, _1), TRUE, TRUE, TRUE);
     LLFloater* root_floater = gFloaterView->getParentFloater(this);
     if (picker && root_floater)
     {

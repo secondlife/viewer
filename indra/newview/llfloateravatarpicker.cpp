@@ -58,7 +58,8 @@ static std::map<LLUUID, LLAvatarName> sAvatarNameMap;
 
 LLFloaterAvatarPicker* LLFloaterAvatarPicker::show(select_callback_t callback,
 												   BOOL allow_multiple,
-												   BOOL closeOnSelect)
+												   BOOL closeOnSelect,
+												   BOOL skip_agent)
 {
 	// *TODO: Use a key to allow this not to be an effective singleton
 	LLFloaterAvatarPicker* floater = 
@@ -73,6 +74,7 @@ LLFloaterAvatarPicker* LLFloaterAvatarPicker::show(select_callback_t callback,
 	floater->setAllowMultiple(allow_multiple);
 	floater->mNearMeListComplete = FALSE;
 	floater->mCloseOnSelect = closeOnSelect;
+	floater->mExcludeAgentFromSearchResults = skip_agent;
 	
 	if (!closeOnSelect)
 	{
@@ -581,35 +583,38 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 		msg->getUUIDFast(  _PREHASH_Data,_PREHASH_AvatarID,	avatar_id, i);
 		msg->getStringFast(_PREHASH_Data,_PREHASH_FirstName, first_name, i);
 		msg->getStringFast(_PREHASH_Data,_PREHASH_LastName,	last_name, i);
-	
-		std::string avatar_name;
-		if (avatar_id.isNull())
-		{
-			LLStringUtil::format_map_t map;
-			map["[TEXT]"] = floater->getChild<LLUICtrl>("Edit")->getValue().asString();
-			avatar_name = floater->getString("not_found", map);
-			search_results->setEnabled(FALSE);
-			floater->getChildView("ok_btn")->setEnabled(FALSE);
-		}
-		else
-		{
-			avatar_name = LLCacheName::buildFullName(first_name, last_name);
-			search_results->setEnabled(TRUE);
-			found_one = TRUE;
 
-			LLAvatarName av_name;
-			av_name.mLegacyFirstName = first_name;
-			av_name.mLegacyLastName = last_name;
-			av_name.mDisplayName = avatar_name;
-			const LLUUID& agent_id = avatar_id;
-			sAvatarNameMap[agent_id] = av_name;
+		if (avatar_id != agent_id || !floater->isExcludeAgentFromSearchResults()) // exclude agent from search results?
+		{
+			std::string avatar_name;
+			if (avatar_id.isNull())
+			{
+				LLStringUtil::format_map_t map;
+				map["[TEXT]"] = floater->getChild<LLUICtrl>("Edit")->getValue().asString();
+				avatar_name = floater->getString("not_found", map);
+				search_results->setEnabled(FALSE);
+				floater->getChildView("ok_btn")->setEnabled(FALSE);
+			}
+			else
+			{
+				avatar_name = LLCacheName::buildFullName(first_name, last_name);
+				search_results->setEnabled(TRUE);
+				found_one = TRUE;
 
+				LLAvatarName av_name;
+				av_name.mLegacyFirstName = first_name;
+				av_name.mLegacyLastName = last_name;
+				av_name.mDisplayName = avatar_name;
+				const LLUUID& agent_id = avatar_id;
+				sAvatarNameMap[agent_id] = av_name;
+
+			}
+			LLSD element;
+			element["id"] = avatar_id; // value
+			element["columns"][0]["column"] = "name";
+			element["columns"][0]["value"] = avatar_name;
+			search_results->addElement(element);
 		}
-		LLSD element;
-		element["id"] = avatar_id; // value
-		element["columns"][0]["column"] = "name";
-		element["columns"][0]["value"] = avatar_name;
-		search_results->addElement(element);
 	}
 
 	if (found_one)
@@ -624,52 +629,58 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 void LLFloaterAvatarPicker::processResponse(const LLUUID& query_id, const LLSD& content)
 {
 	// Check for out-of-date query
-	if (query_id != mQueryID) return;
-
-	LLScrollListCtrl* search_results = getChild<LLScrollListCtrl>("SearchResults");
-
-	LLSD agents = content["agents"];
-	if (agents.size() == 0)
+	if (query_id == mQueryID)
 	{
-		LLStringUtil::format_map_t map;
-		map["[TEXT]"] = childGetText("Edit");
+		LLScrollListCtrl* search_results = getChild<LLScrollListCtrl>("SearchResults");
+
+		LLSD agents = content["agents"];
+
+		// clear "Searching" label on first results
+		search_results->deleteAllItems();
+
 		LLSD item;
-		item["id"] = LLUUID::null;
-		item["columns"][0]["column"] = "name";
-		item["columns"][0]["value"] = getString("not_found", map);
-		search_results->addElement(item);
-		search_results->setEnabled(false);
-		getChildView("ok_btn")->setEnabled(false);
-		return;
+		LLSD::array_const_iterator it = agents.beginArray();
+		for ( ; it != agents.endArray(); ++it)
+		{
+			const LLSD& row = *it;
+			if (row["id"].asUUID() != gAgent.getID() || !mExcludeAgentFromSearchResults)
+			{
+				item["id"] = row["id"];
+				LLSD& columns = item["columns"];
+				columns[0]["column"] = "name";
+				columns[0]["value"] = row["display_name"];
+				columns[1]["column"] = "username";
+				columns[1]["value"] = row["username"];
+				search_results->addElement(item);
+
+				// add the avatar name to our list
+				LLAvatarName avatar_name;
+				avatar_name.fromLLSD(row);
+				sAvatarNameMap[row["id"].asUUID()] = avatar_name;
+			}
+		}
+
+		if (search_results->isEmpty())
+		{
+			LLStringUtil::format_map_t map;
+			map["[TEXT]"] = childGetText("Edit");
+			LLSD item;
+			item["id"] = LLUUID::null;
+			item["columns"][0]["column"] = "name";
+			item["columns"][0]["value"] = getString("not_found", map);
+			search_results->addElement(item);
+			search_results->setEnabled(false);
+			getChildView("ok_btn")->setEnabled(false);
+		}
+		else
+		{
+			getChildView("ok_btn")->setEnabled(true);
+			search_results->setEnabled(true);
+			search_results->selectFirstItem();
+			onList();
+			search_results->setFocus(TRUE);
+		}
 	}
-
-	// clear "Searching" label on first results
-	search_results->deleteAllItems();
-
-	LLSD item;
-	LLSD::array_const_iterator it = agents.beginArray();
-	for ( ; it != agents.endArray(); ++it)
-	{
-		const LLSD& row = *it;
-		item["id"] = row["id"];
-		LLSD& columns = item["columns"];
-		columns[0]["column"] = "name";
-		columns[0]["value"] = row["display_name"];
-		columns[1]["column"] = "username";
-		columns[1]["value"] = row["username"];
-		search_results->addElement(item);
-
-		// add the avatar name to our list
-		LLAvatarName avatar_name;
-		avatar_name.fromLLSD(row);
-		sAvatarNameMap[row["id"].asUUID()] = avatar_name;
-	}
-
-	getChildView("ok_btn")->setEnabled(true);
-	search_results->setEnabled(true);
-	search_results->selectFirstItem();
-	onList();
-	search_results->setFocus(TRUE);
 }
 
 //static
