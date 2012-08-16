@@ -95,22 +95,36 @@ LLInboxFolderViewFolder::LLInboxFolderViewFolder(const Params& p)
 	LLBadgeOwner(getHandle()),
 	mFresh(false)
 {
-#if SUPPORTING_FRESH_ITEM_COUNT
 	initBadgeParams(p.new_badge());
-#endif
+}
+
+void LLInboxFolderViewFolder::addItem(LLFolderViewItem* item)
+{
+    LLFolderViewFolder::addItem(item);
+
+    if(item)
+    {
+        LLInvFVBridge* itemBridge = static_cast<LLInvFVBridge*>(item->getViewModelItem());
+        LLFolderBridge * bridge = static_cast<LLFolderBridge *>(getViewModelItem());
+        bridge->updateHierarchyCreationDate(itemBridge->getCreationDate());
+    }
+
+    // Compute freshness if our parent is the root folder for the inbox
+    if (mParentFolder == mRoot)
+    {
+        computeFreshness();
+    }
 }
 
 // virtual
 void LLInboxFolderViewFolder::draw()
 {
-#if SUPPORTING_FRESH_ITEM_COUNT
 	if (!badgeHasParent())
 	{
 		addBadgeToParentPanel();
 	}
 	
 	setBadgeVisibility(mFresh);
-#endif
 
 	LLFolderViewFolder::draw();
 }
@@ -157,17 +171,6 @@ void LLInboxFolderViewFolder::deFreshify()
 	gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
 }
 
-// TODO RN: move this behavior to modelview?
-//void LLInboxFolderViewFolder::setCreationDate(time_t creation_date_utc)
-//{ 
-//	mCreationDate = creation_date_utc; 
-//
-//	if (LLFolderViewItem::mParentFolder == mRoot)
-//	{
-//		computeFreshness();
-//	}
-//}
-
 //
 // LLInboxFolderViewItem Implementation
 //
@@ -177,22 +180,18 @@ LLInboxFolderViewItem::LLInboxFolderViewItem(const Params& p)
 	, LLBadgeOwner(getHandle())
 	, mFresh(false)
 {
-#if SUPPORTING_FRESH_ITEM_COUNT
 	initBadgeParams(p.new_badge());
-#endif
 }
 
 void LLInboxFolderViewItem::addToFolder(LLFolderViewFolder* folder)
 {
 	LLFolderViewItem::addToFolder(folder);
 
-#if SUPPORTING_FRESH_ITEM_COUNT
 	// Compute freshness if our parent is the root folder for the inbox
 	if (mParentFolder == mRoot)
 	{
 		computeFreshness();
 	}
-#endif
 }
 
 BOOL LLInboxFolderViewItem::handleDoubleClick(S32 x, S32 y, MASK mask)
@@ -205,14 +204,12 @@ BOOL LLInboxFolderViewItem::handleDoubleClick(S32 x, S32 y, MASK mask)
 // virtual
 void LLInboxFolderViewItem::draw()
 {
-#if SUPPORTING_FRESH_ITEM_COUNT
 	if (!badgeHasParent())
 	{
 		addBadgeToParentPanel();
 	}
 
 	setBadgeVisibility(mFresh);
-#endif
 
 	LLFolderViewItem::draw();
 }

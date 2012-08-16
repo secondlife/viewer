@@ -274,6 +274,7 @@ public:
 	virtual BOOL removeItem();
 	BOOL removeSystemFolder();
 	bool removeItemResponse(const LLSD& notification, const LLSD& response);
+    void updateHierarchyCreationDate(time_t date);
 
 	virtual void pasteFromClipboard();
 	virtual void pasteLinkFromClipboard();

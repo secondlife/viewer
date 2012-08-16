@@ -128,7 +128,6 @@ BOOL LLPanelMarketplaceInbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL dr
 
 U32 LLPanelMarketplaceInbox::getFreshItemCount() const
 {
-#if SUPPORTING_FRESH_ITEM_COUNT
 	
 	//
 	// NOTE: When turning this on, be sure to test the no inbox/outbox case because this code probably
@@ -174,9 +173,6 @@ U32 LLPanelMarketplaceInbox::getFreshItemCount() const
 	}
 
 	return fresh_item_count;
-#else
-	return getTotalItemCount();
-#endif
 }
 
 U32 LLPanelMarketplaceInbox::getTotalItemCount() const
@@ -231,7 +227,6 @@ void LLPanelMarketplaceInbox::draw()
 		args["[NUM]"] = item_count_str;
 		mInboxButton->setLabel(getString("InboxLabelWithArg", args));
 
-#if SUPPORTING_FRESH_ITEM_COUNT
 		// set green text to fresh item count
 		U32 fresh_item_count = getFreshItemCount();
 		mFreshCountCtrl->setVisible((fresh_item_count > 0));
@@ -240,9 +235,6 @@ void LLPanelMarketplaceInbox::draw()
 		{
 			mFreshCountCtrl->setTextArg("[NUM]", llformat("%d", fresh_item_count));
 		}
-#else
-		mFreshCountCtrl->setVisible(FALSE);
-#endif
 	}
 	else
 	{

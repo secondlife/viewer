@@ -1487,26 +1487,9 @@ void LLFolderViewFolder::addItem(LLFolderViewItem* item)
 	
 	item->setRect(LLRect(0, 0, getRect().getWidth(), 0));
 	item->setVisible(FALSE);
-	
-
-	// TODO RN - port creation date management to new code location
-#if 0
-	// Update the folder creation date if the child is newer than our current date
-	setCreationDate(llmax<time_t>(mCreationDate, item->getCreationDate()));
-#endif
 
 	addChild(item);
 	getViewModelItem()->addChild(item->getViewModelItem());
-	// TODO RN - port creation date management to new code location
-#if 0
-	// Traverse parent folders and update creation date and resort, if necessary
-	LLFolderViewFolder* parentp = getParentFolder();
-	while (parentp)
-	{
-		// Update the folder creation date if the child is newer than our current date
-		parentp->setCreationDate(llmax<time_t>(parentp->mCreationDate, item->getCreationDate()));
-	}
-#endif
 
 	//TODO RN - make sort bubble up as long as parent Folder doesn't have anything matching sort criteria
 	//// Traverse parent folders and update creation date and resort, if necessary

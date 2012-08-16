@@ -33,7 +33,6 @@
 #include "llfolderviewitem.h"
 
 
-#define SUPPORTING_FRESH_ITEM_COUNT	1
 
 
 
@@ -66,6 +65,7 @@ public:
 	
 	LLInboxFolderViewFolder(const Params& p);
 	
+    void addItem(LLFolderViewItem* item);
 	void draw();
 	
 	void selectItem();

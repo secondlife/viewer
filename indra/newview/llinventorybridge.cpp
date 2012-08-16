@@ -3098,6 +3098,19 @@ bool LLFolderBridge::removeItemResponse(const LLSD& notification, const LLSD& re
 	return FALSE;
 }
 
+//Recursively update the folder's creation date
+void LLFolderBridge::updateHierarchyCreationDate(time_t date)
+{
+    if(getCreationDate() < date)
+    {
+        setCreationDate(date);
+        if(mParent)
+        {
+            static_cast<LLFolderBridge *>(mParent)->updateHierarchyCreationDate(date);
+        }
+    }
+}
+
 void LLFolderBridge::pasteFromClipboard()
 {
 	LLInventoryModel* model = getInventoryModel();

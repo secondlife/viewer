@@ -774,12 +774,13 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
   				}
   			}
  
-  		if (folder_view_item)
-  			{
-  			folder_view_item->addToFolder(parent_folder);
+  	    if (folder_view_item)
+  		{
+            llassert(parent_folder != NULL);
+            folder_view_item->addToFolder(parent_folder);
 			addItemID(id, folder_view_item);
-   			}
-		}
+   		}
+	}
 
 	// If this is a folder, add the children of the folder and recursively add any 
 	// child folders.
