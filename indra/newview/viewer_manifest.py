@@ -834,10 +834,10 @@ class DarwinManifest(ViewerManifest):
                 keychain_pwd = open(keychain_pwd_path).read().rstrip()
 
                 self.run_command('security unlock-keychain -p "%s" "%s/Library/Keychains/viewer.keychain"' % ( keychain_pwd, home_path ) )
-                self.run_command('codesign --force --keychain '"%(home_path)/Library/Keychains/viewer.keychain"' --sign --verbose %(identity)r %(bundle)r' % {i
+                self.run_command('codesign --force --keychain '"%(home_path)/Library/Keychains/viewer.keychain"' --sign --verbose %(identity)r %(bundle)r' % {
                                  'home_path' : home_path,
                                  'identity': identity,
-                                  'bundle': self.get_dst_prefix()
+                                 'bundle': self.get_dst_prefix()
                 })
 
         channel_standin = 'Second Life Viewer'  # hah, our default channel is not usable on its own
