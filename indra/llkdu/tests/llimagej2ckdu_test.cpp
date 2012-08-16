@@ -127,7 +127,6 @@ kdu_subband kdu_resolution::access_subband(int ) { kdu_subband a; return a; }
 void kdu_resolution::get_dims(kdu_dims& ) { }
 int kdu_resolution::which() { return 0; }
 int kdu_resolution::get_valid_band_indices(int &) { return 1; }
-kdu_decoder::kdu_decoder(kdu_subband , kdu_sample_allocator*, bool , float, int, kdu_thread_env*, kdu_thread_queue*) { }
 kdu_synthesis::kdu_synthesis(kdu_resolution, kdu_sample_allocator*, bool, float, kdu_thread_env*, kdu_thread_queue*) { }
 kdu_params::kdu_params(const char*, bool, bool, bool, bool, bool) { }
 kdu_params::~kdu_params() { }
@@ -153,7 +152,6 @@ void kdu_codestream::destroy() { }
 void kdu_codestream::collect_timing_stats(int ) { }
 void kdu_codestream::set_max_bytes(kdu_long, bool, bool ) { }
 void kdu_codestream::get_valid_tiles(kdu_dims& ) { }
-void kdu_codestream::create(siz_params*, kdu_compressed_target*, kdu_dims*, int, kdu_long ) { }
 void kdu_codestream::create(kdu_compressed_source*, kdu_thread_env*) { }
 void kdu_codestream::apply_input_restrictions( int, int, int, int, kdu_dims*, kdu_component_access_mode ) { }
 void kdu_codestream::get_subsampling(int , kdu_coords&, bool ) { }
@@ -175,7 +173,7 @@ kdu_block* kdu_subband::open_block(kdu_coords, int*, kdu_thread_env*) { return N
 bool kdu_codestream_comment::put_text(const char*) { return false; }
 void kdu_customize_warnings(kdu_message*) { }
 void kdu_customize_errors(kdu_message*) { }
-void kdu_convert_ycc_to_rgb(kdu_line_buf&, kdu_line_buf&, kdu_line_buf&, int) { }
+
 kdu_long kdu_multi_analysis::create(kdu_codestream, kdu_tile, bool, kdu_roi_image*, bool, int, kdu_thread_env*, kdu_thread_queue*, bool ) { kdu_long a = 0; return a; }
 siz_params::siz_params() : kdu_params(NULL, false, false, false, false, false) { }
 void siz_params::finalize(bool ) { }
@@ -183,6 +181,21 @@ void siz_params::copy_with_xforms(kdu_params*, int, int, bool, bool, bool) { }
 int siz_params::write_marker_segment(kdu_output*, kdu_params*, int) { return 0; }
 bool siz_params::check_marker_segment(kdu_uint16, int, kdu_byte a[], int&) { return false; }
 bool siz_params::read_marker_segment(kdu_uint16, int, kdu_byte a[], int) { return false; }
+
+#ifdef LL_LINUX
+// Linux use the old pre KDU v7.0.0
+// *TODO: Supress this legacy stubbs once Linux migrates to v7.0.0
+kdu_decoder::kdu_decoder(kdu_subband , kdu_sample_allocator*, bool , float, int, kdu_thread_env*, kdu_thread_queue*) { }
+void kdu_codestream::create(siz_params*, kdu_compressed_target*, kdu_dims*, int, kdu_long ) { }
+void kdu_convert_ycc_to_rgb(kdu_line_buf&, kdu_line_buf&, kdu_line_buf&, int) { }
+#else
+kdu_decoder::kdu_decoder(kdu_subband , kdu_sample_allocator*, bool , float, int, kdu_thread_env*, kdu_thread_queue*, int) { }
+void kdu_codestream::create(siz_params*, kdu_compressed_target*, kdu_dims*, int, kdu_long, kdu_thread_env* ) { }
+void (*kdu_convert_ycc_to_rgb_rev16)(kdu_int16*,kdu_int16*,kdu_int16*,int);
+void (*kdu_convert_ycc_to_rgb_irrev16)(kdu_int16*,kdu_int16*,kdu_int16*,int);
+void (*kdu_convert_ycc_to_rgb_rev32)(kdu_int32*,kdu_int32*,kdu_int32*,int);
+void (*kdu_convert_ycc_to_rgb_irrev32)(float*,float*,float*,int);
+#endif
 
 // -------------------------------------------------------------------------------------------
 // TUT

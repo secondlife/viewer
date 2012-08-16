@@ -30,10 +30,18 @@
 #include "lltextureanim.h"
 #include "llframetimer.h"
 
+class LLVOVolume;
+
 class LLViewerTextureAnim : public LLTextureAnim
 {
+private:
+	static std::vector<LLViewerTextureAnim*> sInstanceList;
+	S32 mInstanceIndex;
+
 public:
-	LLViewerTextureAnim();
+	static void updateClass();
+
+	LLViewerTextureAnim(LLVOVolume* vobj);
 	virtual ~LLViewerTextureAnim();
 
 	/*virtual*/ void reset();
@@ -51,6 +59,7 @@ public:
 	F32 mRot;
 
 protected:
+	LLVOVolume* mVObj;
 	LLFrameTimer mTimer;
 	F64 mLastTime;
 	F32 mLastFrame;

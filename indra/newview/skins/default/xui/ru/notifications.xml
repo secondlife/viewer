@@ -360,7 +360,7 @@
 
 Для входа в [SECOND_LIFE] нужен аккаунт. Создать его?
 		<url name="url">
-			http://join.secondlife.com/
+			[create_account_url]
 		</url>
 		<usetemplate name="okcancelbuttons" notext="Повторить попытку" yestext="Создать новый аккаунт"/>
 	</notification>
@@ -1176,7 +1176,6 @@
 		Установка [APP_NAME] завершена.
 
 Если вы используете [SECOND_LIFE] впервые, для входа в программу вам потребуется создать аккаунт.
-Вернуться на [http://join.secondlife.com secondlife.com] для создания аккаунта?
 		<usetemplate name="okcancelbuttons" notext="Продолжить" yestext="Создать аккаунт..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">

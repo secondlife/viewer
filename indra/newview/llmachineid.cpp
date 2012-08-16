@@ -252,12 +252,20 @@ S32 LLMachineID::getUniqueID(unsigned char *unique_id, size_t len)
     if (has_static_unique_id)
     {
         memcpy ( unique_id, &static_unique_id, len);
-        LL_DEBUGS("AppInit") << "UniqueID: " << unique_id[0] << unique_id[1]<< unique_id[2] << unique_id[3] << unique_id[4] << unique_id [5] << LL_ENDL;
+        LL_DEBUGS("AppInit") << "UniqueID: 0x";
+        // Code between here and LL_ENDL is not executed unless the LL_DEBUGS
+        // actually produces output
+        for (size_t i = 0; i < len; ++i)
+        {
+            // Copy each char to unsigned int to hexify. Sending an unsigned
+            // char to a std::ostream tries to represent it as a char, not
+            // what we want here.
+            unsigned byte = unique_id[i];
+            LL_CONT << std::hex << std::setw(2) << std::setfill('0') << byte;
+        }
+        // Reset default output formatting to avoid nasty surprises!
+        LL_CONT << std::dec << std::setw(0) << std::setfill(' ') << LL_ENDL;
         return 1;
     }
     return 0;
 }
-
-
-
-

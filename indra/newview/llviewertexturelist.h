@@ -111,6 +111,7 @@ public:
 	void doPrefetchImages();
 
 	void clearFetchingRequests();
+	void setDebugFetching(LLViewerFetchedTexture* tex, S32 debug_level);
 
 	static S32 getMinVideoRamSetting();
 	static S32 getMaxVideoRamSetting(bool get_recommended = false);
@@ -120,6 +121,7 @@ private:
 	F32  updateImagesCreateTextures(F32 max_time);
 	F32  updateImagesFetchTextures(F32 max_time);
 	void updateImagesUpdateStats();
+	F32  updateImagesLoadingFastCache(F32 max_time);
 
 	void addImage(LLViewerFetchedTexture *image);
 	void deleteImage(LLViewerFetchedTexture *image);
@@ -173,6 +175,7 @@ public:
 	image_list_t mLoadingStreamList;
 	image_list_t mCreateTextureList;
 	image_list_t mCallbackList;
+	image_list_t mFastCacheList;
 
 	// Note: just raw pointers because they are never referenced, just compared against
 	std::set<LLViewerFetchedTexture*> mDirtyTextureList;

@@ -1355,7 +1355,10 @@ void LLItemBridge::performAction(LLInventoryModel* model, std::string action)
 	else if ("cut" == action)
 	{
 		cutToClipboard();
+		// MAINT-1197: This is temp code to work around a deselection/reselection bug. Please discard when merging CHUI.
+		LLFolderViewItem* item_to_select = mRoot->getNextUnselectedItem();
 		LLFolderView::removeCutItems();
+		mRoot->setSelection(item_to_select, item_to_select ? item_to_select->isOpen() : false, false);
 		return;
 	}
 	else if ("copy" == action)
@@ -2743,7 +2746,10 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 	else if ("cut" == action)
 	{
 		cutToClipboard();
+		// MAINT-1197: This is temp code to work around a deselection/reselection bug. Please discard when merging CHUI.
+		LLFolderViewItem* item_to_select = mRoot->getNextUnselectedItem();
 		LLFolderView::removeCutItems();
+		mRoot->setSelection(item_to_select, item_to_select ? item_to_select->isOpen() : false, false);
 		return;
 	}
 	else if ("copy" == action)

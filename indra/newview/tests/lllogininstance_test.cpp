@@ -60,6 +60,7 @@ static LLEventStream gTestPump("test_pump");
 #include "../llslurl.h"
 #include "../llstartup.h"
 LLSLURL LLStartUp::sStartSLURL;
+LLSLURL& LLStartUp::getStartSLURL() { return sStartSLURL; }
 
 #include "lllogin.h"
 
