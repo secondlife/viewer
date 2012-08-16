@@ -34,9 +34,9 @@
          user_resize="true"        
          height="430"
          name="conversations_layout_panel"
-         min_dim="51"
+         min_dim="38"
          width="268"
-         min_width="120">
+         expanded_min_dim="120">
             <layout_stack
              animate="false" 
              follows="left|top|right"
@@ -113,7 +113,7 @@
          height="430"
          name="messages_layout_panel"
          width="412"
-         min_width="205">
+         expanded_min_dim="205">
             <panel_container
              follows="all"
              height="430"
