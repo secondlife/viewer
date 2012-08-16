@@ -263,9 +263,9 @@ class LL_COMMON_API LLStat
 {
 private:
 	typedef std::multimap<std::string, LLStat*> stat_map_t;
-	static stat_map_t sStatList;
 
 	void init();
+	static stat_map_t& getStatList();
 
 public:
 	LLStat(U32 num_bins = 32, BOOL use_frame_timer = FALSE);
@@ -342,8 +342,8 @@ public:
 	static LLStat* getStat(const std::string& name)
 	{
 		// return the first stat that matches 'name'
-		stat_map_t::iterator iter = sStatList.find(name);
-		if (iter != sStatList.end())
+		stat_map_t::iterator iter = getStatList().find(name);
+		if (iter != getStatList().end())
 			return iter->second;
 		else
 			return NULL;
