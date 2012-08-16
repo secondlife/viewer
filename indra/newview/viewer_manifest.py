@@ -834,7 +834,7 @@ class DarwinManifest(ViewerManifest):
                 keychain_pwd = open(keychain_pwd_path).read().rstrip()
 
                 self.run_command('security unlock-keychain -p "%s" "%s/Library/Keychains/viewer.keychain"' % ( keychain_pwd, home_path ) )
-                self.run_command('codesign --force --keychain "%(home_path)s/Library/Keychains/viewer.keychain" --sign --verbose %(identity)r %(bundle)r' % {
+                self.run_command('codesign --verbose --force --keychain "%(home_path)s/Library/Keychains/viewer.keychain" --sign %(identity)r %(bundle)r' % {
                                  'home_path' : home_path,
                                  'identity': identity,
                                  'bundle': self.get_dst_prefix()
