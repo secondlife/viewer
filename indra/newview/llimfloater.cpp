@@ -127,14 +127,13 @@ void LLIMFloater::refresh()
 // virtual
 void LLIMFloater::onClickCloseBtn()
 {
-	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(
-				mSessionID);
+	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(mSessionID);
 
 	if (session == NULL)
 	{
 		llwarns << "Empty session." << llendl;
 		return;
-}
+	}
 
 	bool is_call_with_chat = session->isGroupSessionType()
 			|| session->isAdHocSessionType() || session->isP2PSessionType();
@@ -228,7 +227,7 @@ void LLIMFloater::sendMsg(const std::string& msg)
 
 	if (mSessionInitialized)
 	{
-			LLIMModel::sendMessage(utf8_text, mSessionID, mOtherParticipantUUID, mDialog);
+		LLIMModel::sendMessage(utf8_text, mSessionID, mOtherParticipantUUID, mDialog);
 	}
 	else
 	{
@@ -261,7 +260,7 @@ void LLIMFloater::initIMSession(const LLUUID& session_id)
 	mSession = LLIMModel::getInstance()->findIMSession(mSessionID);
 
 	if (mSession)
-{
+	{
 		mIsP2PChat = mSession->isP2PSessionType();
 		mSessionInitialized = mSession->mSessionInitialized;
 
@@ -411,7 +410,7 @@ bool LLIMFloater::canAddSelectedToChat(const uuid_vec_t& uuids)
 		if (speaker_mgr)
 		{
 			speaker_mgr->getSpeakerList(&speaker_list, true);
-	}
+		}
 	
 		for (uuid_vec_t::const_iterator id = uuids.begin();
 				id != uuids.end(); ++id)
@@ -439,19 +438,24 @@ void LLIMFloater::addSessionParticipants(const uuid_vec_t& uuids)
 		LLSD args;
 
 		LLNotificationsUtil::add("ConfirmAddingChatParticipants", args, payload,
-				boost::bind(&LLIMFloater::addP2PSessionParticipants, this, uuids));
+				boost::bind(&LLIMFloater::addP2PSessionParticipants, this, _1, _2, uuids));
 	}
 	else
 	{
-		sendParticipantsAddedNotification(uuids);
-
+		// remember whom we have invited, to notify others later, when the invited ones actually join
+		mInvitedParticipants.insert(mInvitedParticipants.end(), uuids.begin(), uuids.end());
+		
 		inviteToSession(uuids);
 	}
 }
 
-void LLIMFloater::addP2PSessionParticipants(const uuid_vec_t& uuids)
+void LLIMFloater::addP2PSessionParticipants(const LLSD& notification, const LLSD& response, const uuid_vec_t& uuids)
 {
-	sendParticipantsAddedNotification(uuids);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option != 0)
+	{
+		return;
+	}
 
 	mStartConferenceInSameFloater = true;
 
@@ -468,6 +472,12 @@ void LLIMFloater::addP2PSessionParticipants(const uuid_vec_t& uuids)
 
 	// then we can close the current session
 	onClose(false);
+
+	// we start a new session so reset the initialization flag
+	mSessionInitialized = false;
+
+	// remember whom we have invited, to notify others later, when the invited ones actually join
+	mInvitedParticipants.insert(mInvitedParticipants.end(), uuids.begin(), uuids.end());
 
 	// Start a new ad hoc voice call if we invite new participants to a P2P call,
 	// or start a text chat otherwise.
@@ -487,7 +497,6 @@ void LLIMFloater::sendParticipantsAddedNotification(const uuid_vec_t& uuids)
 	build_names_string(uuids, names_string);
 	LLStringUtil::format_map_t args;
 	args["[NAME]"] = names_string;
-	args["[NEW_WINDOW]"] = mIsP2PChat ? getString("new_window") : LLStringUtil::null;
 
 	sendMsg(getString(uuids.size() > 1 ? "multiple_participants_added" : "participant_added", args));
 }
@@ -865,17 +874,19 @@ void LLIMFloater::sessionInitReplyReceived(const LLUUID& im_session_id)
 	
 	//*TODO here we should remove "starting session..." warning message if we added it in postBuild() (IB)
 
-	//need to send delayed messaged collected while waiting for session initialization
+	//need to send delayed messages collected while waiting for session initialization
 	if (mQueuedMsgsForInit.size())
 	{
-	LLSD::array_iterator iter;
-	for ( iter = mQueuedMsgsForInit.beginArray();
-				iter != mQueuedMsgsForInit.endArray(); ++iter)
-	{
-		LLIMModel::sendMessage(iter->asString(), mSessionID,
-			mOtherParticipantUUID, mDialog);
+		LLSD::array_iterator iter;
+		for ( iter = mQueuedMsgsForInit.beginArray();
+					iter != mQueuedMsgsForInit.endArray(); ++iter)
+		{
+			LLIMModel::sendMessage(iter->asString(), mSessionID,
+				mOtherParticipantUUID, mDialog);
+		}
+
+		mQueuedMsgsForInit.clear();
 	}
-}
 }
 
 void LLIMFloater::appendMessage(const LLChat& chat, const LLSD &args)
@@ -1044,19 +1055,18 @@ void LLIMFloater::setTyping(bool typing)
 		{
 			LLIMModel::instance().sendTypingState(mSessionID,
 					mOtherParticipantUUID, mMeTyping);
-				mShouldSendTypingState = false;
-
-			}
+					mShouldSendTypingState = false;
 		}
+	}
 
 	if (!mIsNearbyChat)
+	{
+		LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
+		if (speaker_mgr)
 		{
-	LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
-	if (speaker_mgr)
-		{
-		speaker_mgr->setSpeakerTyping(gAgent.getID(), FALSE);
+			speaker_mgr->setSpeakerTyping(gAgent.getID(), FALSE);
 		}
-}
+	}
 }
 
 void LLIMFloater::processIMTyping(const LLIMInfo* im_info, BOOL typing)
@@ -1075,29 +1085,66 @@ void LLIMFloater::processIMTyping(const LLIMInfo* im_info, BOOL typing)
 
 void LLIMFloater::processAgentListUpdates(const LLSD& body)
 {
+	uuid_vec_t joined_uuids;
+
 	if (body.isMap() && body.has("agent_updates") && body["agent_updates"].isMap())
 	{
-		LLSD agent_data = body["agent_updates"].get(gAgentID.asString());
-		if (agent_data.isMap() && agent_data.has("info"))
+		LLSD::map_const_iterator update_it;
+		for(update_it = body["agent_updates"].beginMap();
+			update_it != body["agent_updates"].endMap();
+			++update_it)
 		{
-			LLSD agent_info = agent_data["info"];
+			LLUUID agent_id(update_it->first);
+			LLSD agent_data = update_it->second;
 
-			if (agent_info.has("mutes"))
+			if (agent_data.isMap())
 			{
-				BOOL moderator_muted_text = agent_info["mutes"]["text"].asBoolean(); 
-				mInputEditor->setEnabled(!moderator_muted_text);
-				std::string label;
-				if (moderator_muted_text)
-					label = LLTrans::getString("IM_muted_text_label");
-				else
-					label = LLTrans::getString("IM_to_label") + " " + LLIMModel::instance().getName(mSessionID);
-				mInputEditor->setLabel(label);
+				// store the new participants in joined_uuids
+				if (agent_data.has("transition") && agent_data["transition"].asString() == "ENTER")
+				{
+					joined_uuids.push_back(agent_id);
+				}
 
-				if (moderator_muted_text)
-					LLNotificationsUtil::add("TextChatIsMutedByModerator");
+				// process the moderator mutes
+				if (agent_id == gAgentID && agent_data.has("info") && agent_data["info"].has("mutes"))
+				{
+					BOOL moderator_muted_text = agent_data["info"]["mutes"]["text"].asBoolean();
+					mInputEditor->setEnabled(!moderator_muted_text);
+					std::string label;
+					if (moderator_muted_text)
+						label = LLTrans::getString("IM_muted_text_label");
+					else
+						label = LLTrans::getString("IM_to_label") + " " + LLIMModel::instance().getName(mSessionID);
+					mInputEditor->setLabel(label);
+
+					if (moderator_muted_text)
+						LLNotificationsUtil::add("TextChatIsMutedByModerator");
+				}
 			}
 		}
 	}
+
+	// the vectors need to be sorted for computing the intersection and difference
+	std::sort(mInvitedParticipants.begin(), mInvitedParticipants.end());
+    std::sort(joined_uuids.begin(), joined_uuids.end());
+
+    uuid_vec_t intersection; // uuids of invited residents who have joined the conversation
+	std::set_intersection(mInvitedParticipants.begin(), mInvitedParticipants.end(),
+						  joined_uuids.begin(), joined_uuids.end(),
+						  std::back_inserter(intersection));
+
+	if (intersection.size() > 0)
+	{
+		sendParticipantsAddedNotification(intersection);
+	}
+
+	// Remove all joined participants from invited array.
+	// The difference between the two vectors (the elements in mInvitedParticipants which are not in joined_uuids)
+	// is placed at the beginning of mInvitedParticipants, then all other elements are erased.
+	mInvitedParticipants.erase(std::set_difference(mInvitedParticipants.begin(), mInvitedParticipants.end(),
+												   joined_uuids.begin(), joined_uuids.end(),
+												   mInvitedParticipants.begin()),
+							   mInvitedParticipants.end());
 }
 
 void LLIMFloater::processSessionUpdate(const LLSD& session_update)

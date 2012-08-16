@@ -162,7 +162,7 @@ private:
 	void setTyping(bool typing);
 	void onAddButtonClicked();
 	void addSessionParticipants(const uuid_vec_t& uuids);
-	void addP2PSessionParticipants(const uuid_vec_t& uuids);
+	void addP2PSessionParticipants(const LLSD& notification, const LLSD& response, const uuid_vec_t& uuids);
 	void sendParticipantsAddedNotification(const uuid_vec_t& uuids);
 	bool canAddSelectedToChat(const uuid_vec_t& uuids);
 
@@ -203,6 +203,8 @@ private:
 	LLSD mQueuedMsgsForInit;
 
 	bool mStartConferenceInSameFloater;
+
+	uuid_vec_t mInvitedParticipants;
 
 	// connection to voice channel state change signal
 	boost::signals2::connection mVoiceChannelStateChangeConnection;
