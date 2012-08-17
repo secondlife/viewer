@@ -81,16 +81,43 @@ pre_build()
   end_section "Pre$variant"
 }
 
+package_llphysicsextensions_tpv()
+{
+  begin_section "PhysicsExtensions_TPV"
+  tpv_status=0
+  if [ "$variant" = "Release" ]
+  then 
+      llpetpvcfg=$build_dir/packages/llphysicsextensions/autobuild-tpv.xml
+      "$AUTOBUILD" build --verbose --config-file $llpetpvcfg -c Tpv
+      
+      # capture the package file name for use in upload later...
+      PKGTMP=`mktemp -t pgktpv.XXXXXX`
+      trap "rm $PKGTMP* 2>/dev/null" 0
+      "$AUTOBUILD" package --verbose --config-file $llpetpvcfg > $PKGTMP
+      tpv_status=$?
+      sed -n -e 's/^wrote *//p' $PKGTMP > $build_dir/llphysicsextensions_package
+  else
+      echo "Do not provide llphysicsextensions_tpv for $variant"
+      llphysicsextensions_package=""
+  fi
+  end_section "PhysicsExtensions_TPV"
+  return $tpv_status
+}
+
 build()
 {
   local variant="$1"
   if $build_viewer
   then
     begin_section "Viewer$variant"
-
     check_for "Before 'autobuild build'" ${build_dir}/packages/dictionaries
 
-    if "$AUTOBUILD" build --no-configure -c $variant
+    "$AUTOBUILD" build --no-configure -c $variant
+    viewer_build_ok=$?
+    end_section "Viewer$variant"
+    package_llphysicsextensions_tpv
+    tpvlib_build_ok=$?
+    if [ $viewer_build_ok -eq 0 -a $tpvlib_build_ok -eq 0 ]
     then
       echo true >"$build_dir"/build_ok
     else
@@ -98,7 +125,6 @@ build()
     fi
     check_for "After 'autobuild configure'" ${build_dir}/packages/dictionaries
 
-    end_section "Viewer$variant"
   fi
 }
 
@@ -215,11 +241,6 @@ do
   mkdir -p "$build_dir"
   mkdir -p "$build_dir/tmp"
 
-  # Install packages.
-  begin_section "AutobuildInstall" 
-  "$AUTOBUILD" install --verbose --skip-license-check
-  end_section "AutobuildInstall" 
-
   if pre_build "$variant" "$build_dir" >> "$build_log" 2>&1
   then
     if $build_link_parallel
@@ -289,13 +310,25 @@ then
       upload_item quicklink "$package" binary/octet-stream
       [ -f summary.json ] && upload_item installer summary.json text/plain
 
-      # Upload crash reporter files.
       case "$last_built_variant" in
       Release)
+        # Upload crash reporter files
         for symbolfile in $symbolfiles
         do
           upload_item symbolfile "$build_dir/$symbolfile" binary/octet-stream
         done
+        
+        # Upload the llphysicsextensions_tpv package, if one was produced
+        if [ -r "$build_dir/llphysicsextensions_package" ]
+        then
+            llphysicsextensions_package=$(cat $build_dir/llphysicsextensions_package)
+            upload_item private_artifact "$llphysicsextensions_package" binary/octet-stream
+        else
+            echo "No llphysicsextensions_package"
+        fi
+        ;;
+      *)
+        echo "Skipping mapfile for $last_built_variant"
         ;;
       esac
 

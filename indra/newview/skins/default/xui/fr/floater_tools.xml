@@ -99,7 +99,7 @@
 	<button label="" label_selected="" name="ToolRing" tool_tip="Anneau"/>
 	<button label="" label_selected="" name="ToolTree" tool_tip="Arbre"/>
 	<button label="" label_selected="" name="ToolGrass" tool_tip="Herbe"/>
-	<check_box label="Maintenir l&apos;outil sélectionné" name="checkbox sticky"/>
+	<check_box label="Maintenir l&apos;outil sélect." name="checkbox sticky"/>
 	<check_box label="Copier la sélection" name="checkbox copy selection"/>
 	<check_box initial_value="true" label="Centrer" name="checkbox copy centers"/>
 	<check_box label="Pivoter" name="checkbox copy rotates"/>

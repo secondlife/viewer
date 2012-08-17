@@ -116,6 +116,7 @@ void LLDrawPoolTree::render(S32 pass)
 				gGL.loadMatrix(gGLModelView);
 				if (model_matrix)
 				{
+					llassert(gGL.getMatrixMode() == LLRender::MM_MODELVIEW);
 					gGL.multMatrix((GLfloat*) model_matrix->mMatrix);
 				}
 				gPipeline.mMatrixOpCount++;

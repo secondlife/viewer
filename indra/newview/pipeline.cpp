@@ -108,7 +108,10 @@
 #include "lltoolpie.h"
 #include "llcurl.h"
 #include "llnotifications.h"
-
+#include "llpathinglib.h"
+#include "llfloaterpathfindingconsole.h"
+#include "llfloaterpathfindingcharacters.h"
+#include "llpathfindingpathtool.h"
 
 #ifdef _DEBUG
 // Debug indices is disabled for now for debug performance - djs 4/24/02
@@ -446,6 +449,19 @@ LLPipeline::LLPipeline() :
 	mLightFunc = 0;
 }
 
+void LLPipeline::connectRefreshCachedSettingsSafe(const std::string name)
+{
+	LLPointer<LLControlVariable> cntrl_ptr = gSavedSettings.getControl(name);
+	if ( cntrl_ptr.isNull() )
+	{
+		llwarns << "Global setting name not found:" << name << llendl;
+	}
+	else
+	{
+		cntrl_ptr->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
+	}
+}
+
 void LLPipeline::init()
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE_INIT);
@@ -530,88 +546,86 @@ void LLPipeline::init()
 	//
 	// Update all settings to trigger a cached settings refresh
 	//
-
-	gSavedSettings.getControl("RenderAutoMaskAlphaDeferred")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderAutoMaskAlphaNonDeferred")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderUseFarClip")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderAvatarMaxVisible")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderDelayVBUpdate")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	
-	gSavedSettings.getControl("UseOcclusion")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	
-	gSavedSettings.getControl("VertexShaderEnable")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderAvatarVP")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("WindLightUseAtmosShaders")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderDeferred")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderDeferredSunWash")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderFSAASamples")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderResolutionDivisor")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderUIBuffer")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderShadowDetail")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderDeferredSSAO")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderShadowResolutionScale")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderLocalLights")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderDelayCreation")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderAnimateRes")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("FreezeTime")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("DebugBeaconLineWidth")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderHighlightBrightness")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderHighlightColor")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderHighlightThickness")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderSpotLightsInNondeferred")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("PreviewAmbientColor")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("PreviewDiffuse0")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("PreviewSpecular0")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("PreviewDiffuse1")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("PreviewSpecular1")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("PreviewDiffuse2")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("PreviewSpecular2")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("PreviewDirection0")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("PreviewDirection1")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("PreviewDirection2")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderGlowMinLuminance")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderGlowMaxExtractAlpha")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderGlowWarmthAmount")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderGlowLumWeights")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderGlowWarmthWeights")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderGlowResolutionPow")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderGlowIterations")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderGlowWidth")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderGlowStrength")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderDepthOfField")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("CameraFocusTransitionTime")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("CameraFNumber")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("CameraFocalLength")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("CameraFieldOfView")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderShadowNoise")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderShadowBlurSize")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderSSAOScale")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderSSAOMaxScale")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderSSAOFactor")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderSSAOEffect")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderShadowOffsetError")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderShadowBiasError")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderShadowOffset")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderShadowBias")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderSpotShadowOffset")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderSpotShadowBias")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderEdgeDepthCutoff")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderEdgeNormCutoff")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderShadowGaussian")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderShadowBlurDistFactor")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderDeferredAtmospheric")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderReflectionDetail")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderHighlightFadeTime")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderShadowClipPlanes")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderShadowOrthoClipPlanes")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderShadowNearDist")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderFarClip")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderShadowSplitExponent")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderShadowErrorCutoff")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderShadowFOVCutoff")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("CameraOffset")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("CameraMaxCoF")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("CameraDoFResScale")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
+	connectRefreshCachedSettingsSafe("RenderAutoMaskAlphaDeferred");
+	connectRefreshCachedSettingsSafe("RenderAutoMaskAlphaNonDeferred");
+	connectRefreshCachedSettingsSafe("RenderUseFarClip");
+	connectRefreshCachedSettingsSafe("RenderAvatarMaxVisible");
+	connectRefreshCachedSettingsSafe("RenderDelayVBUpdate");
+	connectRefreshCachedSettingsSafe("UseOcclusion");
+	connectRefreshCachedSettingsSafe("VertexShaderEnable");
+	connectRefreshCachedSettingsSafe("RenderAvatarVP");
+	connectRefreshCachedSettingsSafe("WindLightUseAtmosShaders");
+	connectRefreshCachedSettingsSafe("RenderDeferred");
+	connectRefreshCachedSettingsSafe("RenderDeferredSunWash");
+	connectRefreshCachedSettingsSafe("RenderFSAASamples");
+	connectRefreshCachedSettingsSafe("RenderResolutionDivisor");
+	connectRefreshCachedSettingsSafe("RenderUIBuffer");
+	connectRefreshCachedSettingsSafe("RenderShadowDetail");
+	connectRefreshCachedSettingsSafe("RenderDeferredSSAO");
+	connectRefreshCachedSettingsSafe("RenderShadowResolutionScale");
+	connectRefreshCachedSettingsSafe("RenderLocalLights");
+	connectRefreshCachedSettingsSafe("RenderDelayCreation");
+	connectRefreshCachedSettingsSafe("RenderAnimateRes");
+	connectRefreshCachedSettingsSafe("FreezeTime");
+	connectRefreshCachedSettingsSafe("DebugBeaconLineWidth");
+	connectRefreshCachedSettingsSafe("RenderHighlightBrightness");
+	connectRefreshCachedSettingsSafe("RenderHighlightColor");
+	connectRefreshCachedSettingsSafe("RenderHighlightThickness");
+	connectRefreshCachedSettingsSafe("RenderSpotLightsInNondeferred");
+	connectRefreshCachedSettingsSafe("PreviewAmbientColor");
+	connectRefreshCachedSettingsSafe("PreviewDiffuse0");
+	connectRefreshCachedSettingsSafe("PreviewSpecular0");
+	connectRefreshCachedSettingsSafe("PreviewDiffuse1");
+	connectRefreshCachedSettingsSafe("PreviewSpecular1");
+	connectRefreshCachedSettingsSafe("PreviewDiffuse2");
+	connectRefreshCachedSettingsSafe("PreviewSpecular2");
+	connectRefreshCachedSettingsSafe("PreviewDirection0");
+	connectRefreshCachedSettingsSafe("PreviewDirection1");
+	connectRefreshCachedSettingsSafe("PreviewDirection2");
+	connectRefreshCachedSettingsSafe("RenderGlowMinLuminance");
+	connectRefreshCachedSettingsSafe("RenderGlowMaxExtractAlpha");
+	connectRefreshCachedSettingsSafe("RenderGlowWarmthAmount");
+	connectRefreshCachedSettingsSafe("RenderGlowLumWeights");
+	connectRefreshCachedSettingsSafe("RenderGlowWarmthWeights");
+	connectRefreshCachedSettingsSafe("RenderGlowResolutionPow");
+	connectRefreshCachedSettingsSafe("RenderGlowIterations");
+	connectRefreshCachedSettingsSafe("RenderGlowWidth");
+	connectRefreshCachedSettingsSafe("RenderGlowStrength");
+	connectRefreshCachedSettingsSafe("RenderDepthOfField");
+	connectRefreshCachedSettingsSafe("CameraFocusTransitionTime");
+	connectRefreshCachedSettingsSafe("CameraFNumber");
+	connectRefreshCachedSettingsSafe("CameraFocalLength");
+	connectRefreshCachedSettingsSafe("CameraFieldOfView");
+	connectRefreshCachedSettingsSafe("RenderShadowNoise");
+	connectRefreshCachedSettingsSafe("RenderShadowBlurSize");
+	connectRefreshCachedSettingsSafe("RenderSSAOScale");
+	connectRefreshCachedSettingsSafe("RenderSSAOMaxScale");
+	connectRefreshCachedSettingsSafe("RenderSSAOFactor");
+	connectRefreshCachedSettingsSafe("RenderSSAOEffect");
+	connectRefreshCachedSettingsSafe("RenderShadowOffsetError");
+	connectRefreshCachedSettingsSafe("RenderShadowBiasError");
+	connectRefreshCachedSettingsSafe("RenderShadowOffset");
+	connectRefreshCachedSettingsSafe("RenderShadowBias");
+	connectRefreshCachedSettingsSafe("RenderSpotShadowOffset");
+	connectRefreshCachedSettingsSafe("RenderSpotShadowBias");
+	connectRefreshCachedSettingsSafe("RenderEdgeDepthCutoff");
+	connectRefreshCachedSettingsSafe("RenderEdgeNormCutoff");
+	connectRefreshCachedSettingsSafe("RenderShadowGaussian");
+	connectRefreshCachedSettingsSafe("RenderShadowBlurDistFactor");
+	connectRefreshCachedSettingsSafe("RenderDeferredAtmospheric");
+	connectRefreshCachedSettingsSafe("RenderReflectionDetail");
+	connectRefreshCachedSettingsSafe("RenderHighlightFadeTime");
+	connectRefreshCachedSettingsSafe("RenderShadowClipPlanes");
+	connectRefreshCachedSettingsSafe("RenderShadowOrthoClipPlanes");
+	connectRefreshCachedSettingsSafe("RenderShadowNearDist");
+	connectRefreshCachedSettingsSafe("RenderFarClip");
+	connectRefreshCachedSettingsSafe("RenderShadowSplitExponent");
+	connectRefreshCachedSettingsSafe("RenderShadowErrorCutoff");
+	connectRefreshCachedSettingsSafe("RenderShadowFOVCutoff");
+	connectRefreshCachedSettingsSafe("CameraOffset");
+	connectRefreshCachedSettingsSafe("CameraMaxCoF");
+	connectRefreshCachedSettingsSafe("CameraDoFResScale");
+	connectRefreshCachedSettingsSafe("RenderAutoHideSurfaceAreaLimit");
 	gSavedSettings.getControl("RenderAutoHideSurfaceAreaLimit")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
 }
 
@@ -876,7 +890,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 			U32 sun_shadow_map_width = ((U32(resX*scale)+1)&~1); // must be even to avoid a stripe in the horizontal shadow blur
 			for (U32 i = 0; i < 4; i++)
 			{
-				if (!mShadow[i].allocate(sun_shadow_map_width,U32(resY*scale), 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE)) return false;
+				if (!mShadow[i].allocate(sun_shadow_map_width,U32(resY*scale), 0, TRUE, FALSE, LLTexUnit::TT_TEXTURE)) return false;
 			}
 		}
 		else
@@ -1845,6 +1859,10 @@ void LLPipeline::updateMovedList(LLDrawable::drawable_vector_t& moved_list)
 		drawablep->clearState(LLDrawable::EARLY_MOVE | LLDrawable::MOVE_UNDAMPED);
 		if (done)
 		{
+			if (drawablep->isRoot())
+			{
+				drawablep->makeStatic();
+			}
 			drawablep->clearState(LLDrawable::ON_MOVE_LIST);
 			if (drawablep->isState(LLDrawable::ANIMATED_CHILD))
 			{ //will likely not receive any future world matrix updates
@@ -2473,7 +2491,7 @@ void LLPipeline::doOcclusion(LLCamera& camera)
 			{
 				gOcclusionCubeProgram.bind();
 			}
-		}
+			}
 
 		if (mCubeVB.isNull())
 		{ //cube VB will be used for issuing occlusion queries
@@ -2544,6 +2562,31 @@ void LLPipeline::updateGL()
 }
 
 static LLFastTimer::DeclareTimer FTM_REBUILD_PRIORITY_GROUPS("Rebuild Priority Groups");
+
+void LLPipeline::clearRebuildGroups()
+{
+	mGroupQ1Locked = true;
+	// Iterate through all drawables on the priority build queue,
+	for (LLSpatialGroup::sg_vector_t::iterator iter = mGroupQ1.begin();
+		 iter != mGroupQ1.end(); ++iter)
+	{
+		LLSpatialGroup* group = *iter;
+		group->clearState(LLSpatialGroup::IN_BUILD_Q1);
+	}
+	mGroupQ1.clear();
+	mGroupQ1Locked = false;
+
+	mGroupQ2Locked = true;
+	for (LLSpatialGroup::sg_vector_t::iterator iter = mGroupQ2.begin();
+		 iter != mGroupQ2.end(); ++iter)
+	{
+		LLSpatialGroup* group = *iter;
+		group->clearState(LLSpatialGroup::IN_BUILD_Q2);
+	}	
+
+	mGroupQ2.clear();
+	mGroupQ2Locked = false;
+}
 
 void LLPipeline::rebuildPriorityGroups()
 {
@@ -2722,6 +2765,7 @@ void LLPipeline::markVisible(LLDrawable *drawablep, LLCamera& camera)
 		{
 			const LLDrawable* root = ((LLSpatialBridge*) drawablep)->mDrawable;
 			llassert(root); // trying to catch a bad assumption
+					
 			if (root && //  // this test may not be needed, see above
 					root->getVObj()->isAttachment())
 			{
@@ -2744,6 +2788,7 @@ void LLPipeline::markVisible(LLDrawable *drawablep, LLCamera& camera)
 		}
 		else
 		{
+		
 			sCull->pushDrawable(drawablep);
 		}
 
@@ -3328,7 +3373,7 @@ void renderPhysicalBeacons(LLDrawable* drawablep)
 	if (vobj 
 		&& !vobj->isAvatar() 
 		//&& !vobj->getParent()
-		&& vobj->usePhysics())
+		&& vobj->flagUsePhysics())
 	{
 		if (gPipeline.sRenderBeacons)
 		{
@@ -3984,6 +4029,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 	gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sDefaultImagep);
 	LLViewerFetchedTexture::sDefaultImagep->setAddressMode(LLTexUnit::TAM_WRAP);
 	
+
 	//////////////////////////////////////////////
 	//
 	// Actually render all of the geometry
@@ -4056,7 +4102,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 							break;
 						}
 						
-						p->render(i);
+						if ( !p->getSkipRenderFlag() ) { p->render(i); }
 					}
 					poolp->endRenderPass(i);
 					LLVertexBuffer::unbind();
@@ -4230,7 +4276,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 						break;
 					}
 										
-					p->renderDeferred(i);
+					if ( !p->getSkipRenderFlag() ) { p->renderDeferred(i); }
 				}
 				poolp->endDeferredPass(i);
 				LLVertexBuffer::unbind();
@@ -4519,13 +4565,340 @@ void LLPipeline::renderDebug()
 
 	assertInitialized();
 
+	bool hud_only = hasRenderType(LLPipeline::RENDER_TYPE_HUD);
+
+	if (!hud_only )
+	{
+		//Render any navmesh geometry	
+		LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
+		if ( llPathingLibInstance != NULL ) 
+		{
+			//character floater renderables
+			
+			LLHandle<LLFloaterPathfindingCharacters> pathfindingCharacterHandle = LLFloaterPathfindingCharacters::getInstanceHandle();
+			if ( !pathfindingCharacterHandle.isDead() )
+			{
+				LLFloaterPathfindingCharacters *pathfindingCharacter = pathfindingCharacterHandle.get();
+
+				if ( pathfindingCharacter->getVisible() || gAgentCamera.cameraMouselook() )			
+				{	
+					if (LLGLSLShader::sNoFixedFunction)
+					{					
+						gPathfindingProgram.bind();			
+						gPathfindingProgram.uniform1f("tint", 1.f);
+						gPathfindingProgram.uniform1f("ambiance", 1.f);
+						gPathfindingProgram.uniform1f("alpha_scale", 1.f);
+					}
+
+					//Requried character physics capsule render parameters
+					LLUUID id;					
+					LLVector3 pos;
+					LLQuaternion rot;
+				
+					if ( pathfindingCharacter->isPhysicsCapsuleEnabled( id, pos, rot ) )
+					{
+						if (LLGLSLShader::sNoFixedFunction)
+						{					
+							//remove blending artifacts
+							gGL.setColorMask(false, false);
+							llPathingLibInstance->renderSimpleShapeCapsuleID( gGL, id, pos, rot );				
+							gGL.setColorMask(true, false);
+							LLGLEnable blend(GL_BLEND);
+							gPathfindingProgram.uniform1f("alpha_scale", 0.90f);
+							llPathingLibInstance->renderSimpleShapeCapsuleID( gGL, id, pos, rot );
+							gPathfindingProgram.bind();
+						}
+						else
+						{
+							llPathingLibInstance->renderSimpleShapeCapsuleID( gGL, id, pos, rot );
+						}
+					}
+				}
+			}
+			
+
+			//pathing console renderables
+			LLHandle<LLFloaterPathfindingConsole> pathfindingConsoleHandle = LLFloaterPathfindingConsole::getInstanceHandle();
+			if (!pathfindingConsoleHandle.isDead())
+			{
+				LLFloaterPathfindingConsole *pathfindingConsole = pathfindingConsoleHandle.get();
+
+				if ( pathfindingConsole->getVisible() || gAgentCamera.cameraMouselook() )
+				{				
+					F32 ambiance = gSavedSettings.getF32("PathfindingAmbiance");
+
+					if (LLGLSLShader::sNoFixedFunction)
+					{					
+						gPathfindingProgram.bind();
+			
+						gPathfindingProgram.uniform1f("tint", 1.f);
+						gPathfindingProgram.uniform1f("ambiance", ambiance);
+						gPathfindingProgram.uniform1f("alpha_scale", 1.f);
+					}
+
+					if ( !pathfindingConsole->isRenderWorld() )
+					{
+						const LLColor4 clearColor = gSavedSettings.getColor4("PathfindingNavMeshClear");
+						gGL.setColorMask(true, true);
+						glClearColor(clearColor.mV[0],clearColor.mV[1],clearColor.mV[2],0);
+						glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);					
+						gGL.setColorMask(true, false);
+						glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
+					}
+
+					//NavMesh
+					if ( pathfindingConsole->isRenderNavMesh() )
+					{	
+						gGL.flush();
+						glLineWidth(2.0f);	
+						LLGLEnable cull(GL_CULL_FACE);
+						LLGLDisable blend(GL_BLEND);
+						
+						if ( pathfindingConsole->isRenderWorld() )
+						{					
+							LLGLEnable blend(GL_BLEND);
+							gPathfindingProgram.uniform1f("alpha_scale", 0.66f);
+							llPathingLibInstance->renderNavMesh();
+						}
+						else
+						{
+							llPathingLibInstance->renderNavMesh();
+						}
+						
+						//render edges
+						if (LLGLSLShader::sNoFixedFunction)
+						{
+							gPathfindingNoNormalsProgram.bind();
+							gPathfindingNoNormalsProgram.uniform1f("tint", 1.f);
+							gPathfindingNoNormalsProgram.uniform1f("alpha_scale", 1.f);
+							llPathingLibInstance->renderNavMeshEdges();
+							gPathfindingProgram.bind();
+						}
+						else
+						{
+							llPathingLibInstance->renderNavMeshEdges();
+						}
+
+						gGL.flush();
+						glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
+						glLineWidth(1.0f);	
+						gGL.flush();
+					}
+					//User designated path
+					if ( LLPathfindingPathTool::getInstance()->isRenderPath() )
+					{
+						//The path
+						if (LLGLSLShader::sNoFixedFunction)
+						{
+							gUIProgram.bind();
+							gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sWhiteImagep);
+							llPathingLibInstance->renderPath();
+							gPathfindingProgram.bind();
+						}
+						else
+						{
+							llPathingLibInstance->renderPath();
+						}
+						//The bookends
+						if (LLGLSLShader::sNoFixedFunction)
+						{
+							//remove blending artifacts
+							gGL.setColorMask(false, false);
+							llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_START );
+							llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_END );
+						
+							gGL.setColorMask(true, false);
+							//render the bookends
+							LLGLEnable blend(GL_BLEND);
+							gPathfindingProgram.uniform1f("alpha_scale", 0.90f);
+							llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_START );
+							llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_END );
+							gPathfindingProgram.bind();
+						}
+						else
+						{
+							llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_START );
+							llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_END );
+						}
+					
+					}
+				
+					if ( pathfindingConsole->isRenderWaterPlane() )
+					{	
+						if (LLGLSLShader::sNoFixedFunction)
+						{
+							LLGLEnable blend(GL_BLEND);
+							gPathfindingProgram.uniform1f("alpha_scale", 0.90f);
+							llPathingLibInstance->renderSimpleShapes( gGL, gAgent.getRegion()->getWaterHeight() );
+						}
+						else
+						{
+							llPathingLibInstance->renderSimpleShapes( gGL, gAgent.getRegion()->getWaterHeight() );					
+						}
+					}
+				//physics/exclusion shapes
+				if ( pathfindingConsole->isRenderAnyShapes() )
+				{					
+						U32 render_order[] = {
+							1 << LLPathingLib::LLST_ObstacleObjects,
+							1 << LLPathingLib::LLST_WalkableObjects,
+							1 << LLPathingLib::LLST_ExclusionPhantoms,	
+							1 << LLPathingLib::LLST_MaterialPhantoms,
+						};
+
+						U32 flags = pathfindingConsole->getRenderShapeFlags();
+
+						for (U32 i = 0; i < 4; i++)
+						{
+							if (!(flags & render_order[i]))
+							{
+								continue;
+							}
+
+							//turn off backface culling for volumes so they are visible when camera is inside volume
+							LLGLDisable cull(i >= 2 ? GL_CULL_FACE : 0);
+						
+							gGL.flush();
+							glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
+				
+							//get rid of some z-fighting
+							LLGLEnable polyOffset(GL_POLYGON_OFFSET_FILL);
+							glPolygonOffset(1.0f, 1.0f);
+
+							//render to depth first to avoid blending artifacts
+							gGL.setColorMask(false, false);
+							llPathingLibInstance->renderNavMeshShapesVBO( render_order[i] );		
+							gGL.setColorMask(true, false);
+
+							//get rid of some z-fighting
+							glPolygonOffset(0.f, 0.f);
+
+							LLGLEnable blend(GL_BLEND);
+				
+							{
+								gPathfindingProgram.uniform1f("ambiance", ambiance);
+
+								{ //draw solid overlay
+									LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_LEQUAL);
+									llPathingLibInstance->renderNavMeshShapesVBO( render_order[i] );				
+									gGL.flush();				
+								}
+				
+								LLGLEnable lineOffset(GL_POLYGON_OFFSET_LINE);
+								glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );	
+						
+								F32 offset = gSavedSettings.getF32("PathfindingLineOffset");
+
+								if (pathfindingConsole->isRenderXRay())
+								{
+									gPathfindingProgram.uniform1f("tint", gSavedSettings.getF32("PathfindingXRayTint"));
+									gPathfindingProgram.uniform1f("alpha_scale", gSavedSettings.getF32("PathfindingXRayOpacity"));
+									LLGLEnable blend(GL_BLEND);
+									LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_GREATER);
+								
+									glPolygonOffset(offset, -offset);
+								
+									if (gSavedSettings.getBOOL("PathfindingXRayWireframe"))
+									{ //draw hidden wireframe as darker and less opaque
+										gPathfindingProgram.uniform1f("ambiance", 1.f);
+										llPathingLibInstance->renderNavMeshShapesVBO( render_order[i] );				
+									}
+									else
+									{
+										glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
+										gPathfindingProgram.uniform1f("ambiance", ambiance);
+										llPathingLibInstance->renderNavMeshShapesVBO( render_order[i] );				
+										glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+									}
+								}
+
+								{ //draw visible wireframe as brighter, thicker and more opaque
+									glPolygonOffset(offset, offset);
+									gPathfindingProgram.uniform1f("ambiance", 1.f);
+									gPathfindingProgram.uniform1f("tint", 1.f);
+									gPathfindingProgram.uniform1f("alpha_scale", 1.f);
+
+									glLineWidth(gSavedSettings.getF32("PathfindingLineWidth"));
+									LLGLDisable blendOut(GL_BLEND);
+									llPathingLibInstance->renderNavMeshShapesVBO( render_order[i] );				
+									gGL.flush();
+									glLineWidth(1.f);
+								}
+				
+								glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+							}
+						}
+					}
+
+					glPolygonOffset(0.f, 0.f);
+
+					if ( pathfindingConsole->isRenderNavMesh() && pathfindingConsole->isRenderXRay() )
+					{	//render navmesh xray
+						F32 ambiance = gSavedSettings.getF32("PathfindingAmbiance");
+
+						LLGLEnable lineOffset(GL_POLYGON_OFFSET_LINE);
+						LLGLEnable polyOffset(GL_POLYGON_OFFSET_FILL);
+											
+						F32 offset = gSavedSettings.getF32("PathfindingLineOffset");
+						glPolygonOffset(offset, -offset);
+
+						LLGLEnable blend(GL_BLEND);
+						LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_GREATER);
+						gGL.flush();				
+						glLineWidth(2.0f);	
+						LLGLEnable cull(GL_CULL_FACE);
+																		
+						gPathfindingProgram.uniform1f("tint", gSavedSettings.getF32("PathfindingXRayTint"));
+						gPathfindingProgram.uniform1f("alpha_scale", gSavedSettings.getF32("PathfindingXRayOpacity"));
+								
+						if (gSavedSettings.getBOOL("PathfindingXRayWireframe"))
+						{ //draw hidden wireframe as darker and less opaque
+							glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );	
+							gPathfindingProgram.uniform1f("ambiance", 1.f);
+							llPathingLibInstance->renderNavMesh();
+							glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
+						}	
+						else
+						{
+							gPathfindingProgram.uniform1f("ambiance", ambiance);
+							llPathingLibInstance->renderNavMesh();
+						}
+
+						//render edges
+						if (LLGLSLShader::sNoFixedFunction)
+						{
+							gPathfindingNoNormalsProgram.bind();
+							gPathfindingNoNormalsProgram.uniform1f("tint", gSavedSettings.getF32("PathfindingXRayTint"));
+							gPathfindingNoNormalsProgram.uniform1f("alpha_scale", gSavedSettings.getF32("PathfindingXRayOpacity"));
+							llPathingLibInstance->renderNavMeshEdges();
+							gPathfindingProgram.bind();
+						}
+						else
+						{
+							llPathingLibInstance->renderNavMeshEdges();
+						}
+					
+						gGL.flush();
+						glLineWidth(1.0f);	
+					}
+			
+					glPolygonOffset(0.f, 0.f);
+
+					gGL.flush();
+					if (LLGLSLShader::sNoFixedFunction)
+					{
+						gPathfindingProgram.unbind();
+					}
+				}
+			}
+		}
+	}
+
 	gGL.color4f(1,1,1,1);
 
 	gGLLastMatrix = NULL;
 	gGL.loadMatrix(gGLModelView);
 	gGL.setColorMask(true, false);
-
-	bool hud_only = hasRenderType(LLPipeline::RENDER_TYPE_HUD);
 
 	
 	if (!hud_only && !mDebugBlips.empty())
@@ -6434,6 +6807,12 @@ void LLPipeline::doResetVertexBuffers()
 
 	LLVOPartGroup::destroyGL();
 
+	if ( LLPathingLib::getInstance() )
+	{
+		LLPathingLib::getInstance()->cleanupVBOManager();
+	}
+	LLVOPartGroup::destroyGL();
+
 	LLVertexBuffer::cleanupClass();
 	
 	//delete all name pool caches
@@ -6762,15 +7141,8 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 				}
 				else
 				{
-					LLViewerObject* obj = gAgentCamera.getFocusObject();
-					if (obj)
-					{ //focus on alt-zoom target
-						focus_point = LLVector3(gAgentCamera.getFocusGlobal()-gAgent.getRegion()->getOriginGlobal());
-					}
-					else
-					{ //focus on your avatar
-						focus_point = gAgent.getPositionAgent();
-					}
+					//focus on alt-zoom target
+					focus_point = LLVector3(gAgentCamera.getFocusGlobal()-gAgent.getRegion()->getOriginGlobal());
 				}
 			}
 
@@ -7271,7 +7643,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 
 	for (U32 i = 0; i < 4; i++)
 	{
-		channel = shader.enableTexture(LLShaderMgr::DEFERRED_SHADOW0+i, LLTexUnit::TT_RECT_TEXTURE);
+		channel = shader.enableTexture(LLShaderMgr::DEFERRED_SHADOW0+i, LLTexUnit::TT_TEXTURE);
 		stop_glerror();
 		if (channel > -1)
 		{
@@ -7281,8 +7653,8 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 			gGL.getTexUnit(channel)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 			stop_glerror();
 			
-			glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
-			glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
 			stop_glerror();
 		}
 	}
@@ -7362,13 +7734,13 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 								matrix_nondiag, matrix_nondiag, matrix_diag};
 	shader.uniformMatrix3fv(LLShaderMgr::DEFERRED_SSAO_EFFECT_MAT, 1, GL_FALSE, ssao_effect_mat);
 
-	F32 shadow_offset_error = 1.f + RenderShadowOffsetError * fabsf(LLViewerCamera::getInstance()->getOrigin().mV[2]);
-	F32 shadow_bias_error = 1.f + RenderShadowBiasError * fabsf(LLViewerCamera::getInstance()->getOrigin().mV[2]);
+	//F32 shadow_offset_error = 1.f + RenderShadowOffsetError * fabsf(LLViewerCamera::getInstance()->getOrigin().mV[2]);
+	F32 shadow_bias_error = RenderShadowBiasError * fabsf(LLViewerCamera::getInstance()->getOrigin().mV[2])/3000.f;
 
 	shader.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, mDeferredScreen.getWidth(), mDeferredScreen.getHeight());
 	shader.uniform1f(LLShaderMgr::DEFERRED_NEAR_CLIP, LLViewerCamera::getInstance()->getNear()*2.f);
-	shader.uniform1f (LLShaderMgr::DEFERRED_SHADOW_OFFSET, RenderShadowOffset*shadow_offset_error);
-	shader.uniform1f(LLShaderMgr::DEFERRED_SHADOW_BIAS, RenderShadowBias*shadow_bias_error);
+	shader.uniform1f (LLShaderMgr::DEFERRED_SHADOW_OFFSET, RenderShadowOffset); //*shadow_offset_error);
+	shader.uniform1f(LLShaderMgr::DEFERRED_SHADOW_BIAS, RenderShadowBias+shadow_bias_error);
 	shader.uniform1f(LLShaderMgr::DEFERRED_SPOT_SHADOW_OFFSET, RenderSpotShadowOffset);
 	shader.uniform1f(LLShaderMgr::DEFERRED_SPOT_SHADOW_BIAS, RenderSpotShadowBias);	
 
@@ -8092,9 +8464,9 @@ void LLPipeline::unbindDeferredShader(LLGLSLShader &shader)
 
 	for (U32 i = 0; i < 4; i++)
 	{
-		if (shader.disableTexture(LLShaderMgr::DEFERRED_SHADOW0+i, LLTexUnit::TT_RECT_TEXTURE) > -1)
+		if (shader.disableTexture(LLShaderMgr::DEFERRED_SHADOW0+i) > -1)
 		{
-			glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_COMPARE_MODE_ARB, GL_NONE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_NONE);
 		}
 	}
 
@@ -8345,6 +8717,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 				gGL.setColorMask(true, false);
 
 				renderGeom(camera);
+
 			}
 
 			LLPipeline::sUnderWaterRender = FALSE;
@@ -8510,6 +8883,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 		gGL.setColorMask(false, false);
 	
 		LLFastTimer ftm(FTM_SHADOW_SIMPLE);
+		
 		gGL.getTexUnit(0)->disable();
 		for (U32 i = 0; i < sizeof(types)/sizeof(U32); ++i)
 		{
@@ -10018,4 +10392,144 @@ void LLPipeline::addDebugBlip(const LLVector3& position, const LLColor4& color)
 	DebugBlip blip(position, color);
 	mDebugBlips.push_back(blip);
 }
+
+void LLPipeline::hidePermanentObjects( std::vector<U32>& restoreList )
+{
+	//This method is used to hide any vo's from the object list that may have
+	//the permanent flag set.
+	
+	U32 objCnt = gObjectList.getNumObjects();
+	for (U32 i = 0; i < objCnt; ++i)
+	{
+		LLViewerObject* pObject = gObjectList.getObject(i);
+		if ( pObject && pObject->flagObjectPermanent() )
+		{
+			LLDrawable *pDrawable = pObject->mDrawable;
+		
+			if ( pDrawable )
+			{
+				restoreList.push_back( i );
+				hideDrawable( pDrawable );			
+			}
+		}
+	}
+
+	skipRenderingOfTerrain( true );
+}
+
+void LLPipeline::restorePermanentObjects( const std::vector<U32>& restoreList )
+{
+	//This method is used to restore(unhide) any vo's from the object list that may have
+	//been hidden because their permanency flag was set.
+
+	std::vector<U32>::const_iterator itCurrent	= restoreList.begin();
+	std::vector<U32>::const_iterator itEnd		= restoreList.end();
+	
+	U32 objCnt = gObjectList.getNumObjects();
+
+	while ( itCurrent != itEnd )
+	{
+		U32 index = *itCurrent;
+		LLViewerObject* pObject = NULL;
+		if ( index < objCnt ) 
+		{
+			pObject = gObjectList.getObject( index );
+		}
+		if ( pObject )
+		{
+			LLDrawable *pDrawable = pObject->mDrawable;
+			if ( pDrawable )
+			{
+				pDrawable->clearState( LLDrawable::FORCE_INVISIBLE );
+				unhideDrawable( pDrawable );				
+			}
+		}
+		++itCurrent;
+	}
+	
+	skipRenderingOfTerrain( false );
+}
+
+void LLPipeline::skipRenderingOfTerrain( BOOL flag )
+{
+	pool_set_t::iterator iter = mPools.begin();
+	while ( iter != mPools.end() )
+	{
+		LLDrawPool* pPool = *iter;		
+		U32 poolType = pPool->getType();					
+		if ( hasRenderType( pPool->getType() ) && poolType == LLDrawPool::POOL_TERRAIN )
+		{
+			pPool->setSkipRenderFlag( flag );			
+		}
+		++iter;
+	}
+}
+
+void LLPipeline::hideObject( const LLUUID& id )
+{
+	LLViewerObject *pVO = gObjectList.findObject( id );
+	
+	if ( pVO )
+	{
+		LLDrawable *pDrawable = pVO->mDrawable;
+		
+		if ( pDrawable )
+		{
+			hideDrawable( pDrawable );		
+		}		
+	}
+}
+
+void LLPipeline::hideDrawable( LLDrawable *pDrawable )
+{
+	pDrawable->setState( LLDrawable::FORCE_INVISIBLE );
+	markRebuild( pDrawable, LLDrawable::REBUILD_ALL, TRUE );
+	//hide the children
+	LLViewerObject::const_child_list_t& child_list = pDrawable->getVObj()->getChildren();
+	for ( LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+		  iter != child_list.end(); iter++ )
+	{
+		LLViewerObject* child = *iter;
+		LLDrawable* drawable = child->mDrawable;					
+		if ( drawable )
+		{
+			drawable->setState( LLDrawable::FORCE_INVISIBLE );
+			markRebuild( drawable, LLDrawable::REBUILD_ALL, TRUE );
+		}
+	}
+}
+void LLPipeline::unhideDrawable( LLDrawable *pDrawable )
+{
+	pDrawable->clearState( LLDrawable::FORCE_INVISIBLE );
+	markRebuild( pDrawable, LLDrawable::REBUILD_ALL, TRUE );
+	//restore children
+	LLViewerObject::const_child_list_t& child_list = pDrawable->getVObj()->getChildren();
+	for ( LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+		  iter != child_list.end(); iter++)
+	{
+		LLViewerObject* child = *iter;
+		LLDrawable* drawable = child->mDrawable;					
+		if ( drawable )
+		{
+			drawable->clearState( LLDrawable::FORCE_INVISIBLE );
+			markRebuild( drawable, LLDrawable::REBUILD_ALL, TRUE );
+		}
+	}
+}
+void LLPipeline::restoreHiddenObject( const LLUUID& id )
+{
+	LLViewerObject *pVO = gObjectList.findObject( id );
+	
+	if ( pVO )
+	{
+		LLDrawable *pDrawable = pVO->mDrawable;
+		if ( pDrawable )
+		{
+			unhideDrawable( pDrawable );			
+		}
+	}
+}
+
+
+
 

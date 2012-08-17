@@ -497,7 +497,7 @@ BOOL LLFloaterModelPreview::postBuild()
 			text->setMouseDownCallback(boost::bind(&LLModelPreview::setPreviewLOD, mModelPreview, i));
 		}
 	}
-	std::string current_grid = LLGridManager::getInstance()->getGridLabel();
+	std::string current_grid = LLGridManager::getInstance()->getGridId();
 	std::transform(current_grid.begin(),current_grid.end(),current_grid.begin(),::tolower);
 	std::string validate_url;
 	if (current_grid == "agni")
@@ -5518,6 +5518,15 @@ BOOL LLModelPreview::render()
 							buffer->setBuffer(type_mask & buffer->getTypeMask());
 							gGL.diffuseColor4fv(material.mDiffuseColor.mV);
 							gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+							if (material.mDiffuseMap.notNull())
+							{
+								if (material.mDiffuseMap->getDiscardLevel() > -1)
+								{
+									gGL.getTexUnit(0)->bind(material.mDiffuseMap, true);
+									mTextureSet.insert(material.mDiffuseMap.get());
+								}
+							}
+						
 							buffer->draw(LLRender::TRIANGLES, buffer->getNumIndices(), 0);
 							gGL.diffuseColor3f(0.4f, 0.4f, 0.4f);
 

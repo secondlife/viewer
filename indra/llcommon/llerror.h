@@ -35,7 +35,7 @@
 #include "stdtypes.h"
 
 
-/* Error Logging Facility
+/** Error Logging Facility
 
 	Information for most users:
 	
@@ -100,7 +100,6 @@
 	even release.  Which means you can use them to help debug even when deployed
 	to a real grid.
 */
-
 namespace LLError
 {
 	enum ELevel
@@ -143,9 +142,13 @@ namespace LLError
 		CallSite(ELevel, const char* file, int line,
 				const std::type_info& class_info, const char* function, const char* broadTag, const char* narrowTag, bool printOnce);
 						
+#ifdef LL_LIBRARY_INCLUDE
+		bool shouldLog();
+#else // LL_LIBRARY_INCLUDE
 		bool shouldLog()
 			{ return mCached ? mShouldLog : Log::shouldLog(*this); }
 			// this member function needs to be in-line for efficiency
+#endif // LL_LIBRARY_INCLUDE
 		
 		void invalidate();
 		

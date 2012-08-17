@@ -116,6 +116,7 @@ LLDrawPool::LLDrawPool(const U32 type)
 	sNumDrawPools++;
 	mId = sNumDrawPools;
 	mVertexShaderLevel = 0;
+	mSkipRender = false;
 }
 
 LLDrawPool::~LLDrawPool()
@@ -418,6 +419,7 @@ void LLRenderPass::applyModelMatrix(LLDrawInfo& params)
 		gGL.loadMatrix(gGLModelView);
 		if (params.mModelMatrix)
 		{
+			llassert(gGL.getMatrixMode() == LLRender::MM_MODELVIEW);
 			gGL.multMatrix((GLfloat*) params.mModelMatrix->mMatrix);
 		}
 		gPipeline.mMatrixOpCount++;

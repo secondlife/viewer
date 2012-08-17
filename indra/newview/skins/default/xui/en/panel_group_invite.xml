@@ -19,6 +19,10 @@
      name="already_in_group">
         Some Residents you chose are already in the group, and so were not sent an invitation.
     </panel.string>
+	<panel.string
+     name="invite_selection_too_large">
+		Group Invitations not sent: too many Residents selected. Group Invitations are limited to 100 per request.
+	</panel.string>
     <text
      type="string"
      length="1"
