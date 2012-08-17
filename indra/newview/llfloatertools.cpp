@@ -133,7 +133,6 @@ public:
 		if(tools_floater)
 		{
 			tools_floater->updateLandImpacts();
-			tools_floater->dirty();
 		}
 	}
 };

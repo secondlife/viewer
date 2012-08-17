@@ -29,6 +29,8 @@
 
 #include "llfloaterpathfindingobjects.h"
 
+#include <string>
+#include <map>
 #include <vector>
 
 #include <boost/bind.hpp>
@@ -96,7 +98,6 @@ void LLFloaterPathfindingObjects::onOpen(const LLSD &pKey)
 
 void LLFloaterPathfindingObjects::onClose(bool pIsAppQuitting)
 {
-	
 	if (mGodLevelChangeSlot.connected())
 	{
 		mGodLevelChangeSlot.disconnect();
@@ -118,6 +119,11 @@ void LLFloaterPathfindingObjects::onClose(bool pIsAppQuitting)
 	if (mObjectsSelection.notNull())
 	{
 		mObjectsSelection.clear();
+	}
+
+	if (pIsAppQuitting)
+	{
+		clearAllObjects();
 	}
 }
 
@@ -168,13 +174,13 @@ LLFloaterPathfindingObjects::LLFloaterPathfindingObjects(const LLSD &pSeed)
 	mReturnButton(NULL),
 	mDeleteButton(NULL),
 	mTeleportButton(NULL),
-	mLoadingAvatarNames(),
 	mDefaultBeaconColor(),
 	mDefaultBeaconTextColor(),
 	mErrorTextColor(),
 	mWarningTextColor(),
 	mMessagingState(kMessagingUnknown),
 	mMessagingRequestId(0U),
+	mMissingNameObjectsScrollListItems(),
 	mObjectList(),
 	mObjectsSelection(),
 	mHasObjectsToBeSelected(false),
@@ -186,6 +192,7 @@ LLFloaterPathfindingObjects::LLFloaterPathfindingObjects(const LLSD &pSeed)
 
 LLFloaterPathfindingObjects::~LLFloaterPathfindingObjects()
 {
+	clearAllObjects();
 }
 
 BOOL LLFloaterPathfindingObjects::postBuild()
@@ -343,54 +350,21 @@ void LLFloaterPathfindingObjects::rebuildObjectsScrollList()
 
 	S32 origScrollPosition = mObjectsScrollList->getScrollPos();
 	mObjectsScrollList->deleteAllItems();
+	mMissingNameObjectsScrollListItems.clear();
 
 	if ((mObjectList != NULL) && !mObjectList->isEmpty())
 	{
-		LLSD scrollListData = convertObjectsIntoScrollListData(mObjectList);
-		llassert(scrollListData.isArray());
+		buildObjectsScrollList(mObjectList);
 
-		LLScrollListCell::Params cellParams;
-		cellParams.font = LLFontGL::getFontSansSerif();
-
-		for (LLSD::array_const_iterator rowElementIter = scrollListData.beginArray(); rowElementIter != scrollListData.endArray(); ++rowElementIter)
+		mObjectsScrollList->selectMultiple(mObjectsToBeSelected);
+		if (mHasObjectsToBeSelected)
 		{
-			const LLSD &rowElement = *rowElementIter;
-
-			LLScrollListItem::Params rowParams;
-			llassert(rowElement.has("id"));
-			llassert(rowElement.get("id").isString());
-			rowParams.value = rowElement.get("id");
-
-			llassert(rowElement.has("column"));
-			llassert(rowElement.get("column").isArray());
-			const LLSD &columnElement = rowElement.get("column");
-			for (LLSD::array_const_iterator cellIter = columnElement.beginArray(); cellIter != columnElement.endArray(); ++cellIter)
-			{
-				const LLSD &cellElement = *cellIter;
-
-				llassert(cellElement.has("column"));
-				llassert(cellElement.get("column").isString());
-				cellParams.column = cellElement.get("column").asString();
-
-				llassert(cellElement.has("value"));
-				llassert(cellElement.get("value").isString());
-				cellParams.value = cellElement.get("value").asString();
-
-				rowParams.columns.add(cellParams);
-			}
-
-			mObjectsScrollList->addRow(rowParams);
+			mObjectsScrollList->scrollToShowSelected();
 		}
-	}
-
-	mObjectsScrollList->selectMultiple(mObjectsToBeSelected);
-	if (mHasObjectsToBeSelected)
-	{
-		mObjectsScrollList->scrollToShowSelected();
-	}
-	else
-	{
-		mObjectsScrollList->setScrollPos(origScrollPosition);
+		else
+		{
+			mObjectsScrollList->setScrollPos(origScrollPosition);
+		}
 	}
 
 	mObjectsToBeSelected.clear();
@@ -399,20 +373,42 @@ void LLFloaterPathfindingObjects::rebuildObjectsScrollList()
 	updateControlsOnScrollListChange();
 }
 
-LLSD LLFloaterPathfindingObjects::convertObjectsIntoScrollListData(const LLPathfindingObjectListPtr pObjectListPtr)
+void LLFloaterPathfindingObjects::buildObjectsScrollList(const LLPathfindingObjectListPtr pObjectListPtr)
 {
 	llassert(0);
-	LLSD nullObjs = LLSD::emptyArray();
-	return nullObjs;
 }
 
-void LLFloaterPathfindingObjects::rebuildScrollListAfterAvatarNameLoads(const LLUUID &pAvatarId)
+void LLFloaterPathfindingObjects::addObjectToScrollList(const LLPathfindingObjectPtr pObjectPtr, const LLSD &pScrollListItemData)
 {
-	std::set<LLUUID>::const_iterator iter = mLoadingAvatarNames.find(pAvatarId);
-	if (iter == mLoadingAvatarNames.end())
+	LLScrollListCell::Params cellParams;
+	cellParams.font = LLFontGL::getFontSansSerif();
+
+	LLScrollListItem::Params rowParams;
+	rowParams.value = pObjectPtr->getUUID().asString();
+
+	llassert(pScrollListItemData.isArray());
+	for (LLSD::array_const_iterator cellIter = pScrollListItemData.beginArray();
+		cellIter != pScrollListItemData.endArray(); ++cellIter)
 	{
-		mLoadingAvatarNames.insert(pAvatarId);
-		LLAvatarNameCache::get(pAvatarId, boost::bind(&LLFloaterPathfindingObjects::handleAvatarNameLoads, this, _1, _2));
+		const LLSD &cellElement = *cellIter;
+
+		llassert(cellElement.has("column"));
+		llassert(cellElement.get("column").isString());
+		cellParams.column = cellElement.get("column").asString();
+
+		llassert(cellElement.has("value"));
+		llassert(cellElement.get("value").isString());
+		cellParams.value = cellElement.get("value").asString();
+
+		rowParams.columns.add(cellParams);
+	}
+
+	LLScrollListItem *scrollListItem = mObjectsScrollList->addRow(rowParams);
+
+	if (pObjectPtr->hasOwner() && !pObjectPtr->hasOwnerName())
+	{
+		mMissingNameObjectsScrollListItems.insert(std::make_pair<std::string, LLScrollListItem *>(pObjectPtr->getUUID().asString(), scrollListItem));
+		pObjectPtr->registerOwnerNameListener(boost::bind(&LLFloaterPathfindingObjects::handleObjectNameResponse, this, _1));
 	}
 }
 
@@ -432,6 +428,18 @@ void LLFloaterPathfindingObjects::updateControlsOnInWorldSelectionChange()
 S32 LLFloaterPathfindingObjects::getNameColumnIndex() const
 {
 	return 0;
+}
+
+S32 LLFloaterPathfindingObjects::getOwnerNameColumnIndex() const
+{
+	return 2;
+}
+
+std::string LLFloaterPathfindingObjects::getOwnerName(const LLPathfindingObject *pObject) const
+{
+	llassert(0);
+	std::string returnVal;
+	return returnVal;
 }
 
 const LLColor4 &LLFloaterPathfindingObjects::getBeaconColor() const
@@ -496,6 +504,7 @@ void LLFloaterPathfindingObjects::clearAllObjects()
 {
 	selectNoneObjects();
 	mObjectsScrollList->deleteAllItems();
+	mMissingNameObjectsScrollListItems.clear();
 	mObjectList.reset();
 }
 
@@ -683,13 +692,22 @@ void LLFloaterPathfindingObjects::onGodLevelChange(U8 pGodLevel)
 	requestGetObjects();
 }
 
-void LLFloaterPathfindingObjects::handleAvatarNameLoads(const LLUUID &pAvatarId, const LLAvatarName &pAvatarName)
+void LLFloaterPathfindingObjects::handleObjectNameResponse(const LLPathfindingObject *pObject)
 {
-	llassert(mLoadingAvatarNames.find(pAvatarId) != mLoadingAvatarNames.end());
-	mLoadingAvatarNames.erase(pAvatarId);
-	if (mLoadingAvatarNames.empty())
+	llassert(pObject != NULL);
+	const std::string uuid = pObject->getUUID().asString();
+	scroll_list_item_map::iterator scrollListItemIter = mMissingNameObjectsScrollListItems.find(uuid);
+	if (scrollListItemIter != mMissingNameObjectsScrollListItems.end())
 	{
-		rebuildObjectsScrollList();
+		LLScrollListItem *scrollListItem = scrollListItemIter->second;
+		llassert(scrollListItem != NULL);
+
+		LLScrollListCell *scrollListCell = scrollListItem->getColumn(getOwnerNameColumnIndex());
+		LLSD ownerName = getOwnerName(pObject);
+
+		scrollListCell->setValue(ownerName);
+
+		mMissingNameObjectsScrollListItems.erase(scrollListItemIter);
 	}
 }
 

@@ -58,11 +58,13 @@ protected:
 
 	virtual void                       requestGetObjects();
 
-	virtual LLSD                       convertObjectsIntoScrollListData(const LLPathfindingObjectListPtr pObjectListPtr);
+	virtual void                       buildObjectsScrollList(const LLPathfindingObjectListPtr pObjectListPtr);
 
 	virtual void                       updateControlsOnScrollListChange();
 
 	virtual S32                        getNameColumnIndex() const;
+	virtual S32                        getOwnerNameColumnIndex() const;
+	virtual std::string                getOwnerName(const LLPathfindingObject *pObject) const;
 	virtual const LLColor4             &getBeaconColor() const;
 
 	virtual LLPathfindingObjectListPtr getEmptyObjectList() const;
@@ -78,10 +80,11 @@ private:
 	void clearFilters();
 
 	void updateEditFieldValues();
-	LLSD buildLinksetScrollListData(const LLPathfindingLinkset *pLinksetPtr, const LLVector3 &pAvatarPosition) const;
+	LLSD buildLinksetScrollListItemData(const LLPathfindingLinkset *pLinksetPtr, const LLVector3 &pAvatarPosition) const;
 	LLSD buildLinksetUseScrollListData(const std::string &pLabel, S32 pValue) const;
 
 	bool isShowUnmodifiablePhantomWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const;
+	bool isShowPhantomToggleWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const;
 	bool isShowCannotBeVolumeWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const;
 
 	void updateStateOnEditFields();

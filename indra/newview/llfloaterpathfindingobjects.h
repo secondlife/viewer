@@ -27,7 +27,8 @@
 #ifndef LL_LLFLOATERPATHFINDINGOBJECTS_H
 #define LL_LLFLOATERPATHFINDINGOBJECTS_H
 
-#include <set>
+#include <string>
+#include <map>
 
 #include <boost/signals2.hpp>
 
@@ -80,14 +81,15 @@ protected:
 	void                               handleUpdateObjectList(LLPathfindingManager::request_id_t pRequestId, LLPathfindingManager::ERequestStatus pRequestStatus, LLPathfindingObjectListPtr pObjectList);
 
 	void                               rebuildObjectsScrollList();
-	virtual LLSD                       convertObjectsIntoScrollListData(const LLPathfindingObjectListPtr pObjectListPtr);
-
-	void                               rebuildScrollListAfterAvatarNameLoads(const LLUUID &pAvatarId);
+	virtual void                       buildObjectsScrollList(const LLPathfindingObjectListPtr pObjectListPtr);
+	void                               addObjectToScrollList(const LLPathfindingObjectPtr pObjectPr, const LLSD &pScrollListItemData);
 
 	virtual void                       updateControlsOnScrollListChange();
 	virtual void                       updateControlsOnInWorldSelectionChange();
 
 	virtual S32                        getNameColumnIndex() const;
+	virtual S32                        getOwnerNameColumnIndex() const;
+	virtual std::string                getOwnerName(const LLPathfindingObject *pObject) const;
 	virtual const LLColor4             &getBeaconColor() const;
 	virtual const LLColor4             &getBeaconTextColor() const;
 	virtual S32                        getBeaconWidth() const;
@@ -126,7 +128,7 @@ private:
 	void                   onRegionBoundaryCrossed();
 	void                   onGodLevelChange(U8 pGodLevel);
 
-	void                   handleAvatarNameLoads(const LLUUID &pAvatarId, const LLAvatarName &pAvatarName);
+	void                   handleObjectNameResponse(const LLPathfindingObject *pObject);
 
 	void                   updateMessagingStatus();
 	void                   updateStateOnListControls();
@@ -151,8 +153,6 @@ private:
 	LLButton                           *mDeleteButton;
 	LLButton                           *mTeleportButton;
 
-	std::set<LLUUID>                   mLoadingAvatarNames;
-
 	LLColor4                           mDefaultBeaconColor;
 	LLColor4                           mDefaultBeaconTextColor;
 	LLColor4                           mErrorTextColor;
@@ -160,6 +160,9 @@ private:
 
 	EMessagingState                    mMessagingState;
 	LLPathfindingManager::request_id_t mMessagingRequestId;
+
+	typedef std::map<std::string, LLScrollListItem *> scroll_list_item_map;
+	scroll_list_item_map               mMissingNameObjectsScrollListItems;
 
 	LLPathfindingObjectListPtr         mObjectList;
 
