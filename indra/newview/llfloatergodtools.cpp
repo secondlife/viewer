@@ -239,7 +239,7 @@ void LLFloaterGodTools::processRegionInfo(LLMessageSystem* msg)
 
 	if (msg->has(_PREHASH_RegionInfo3))
 	{
-		msg->getU64Fast(_PREHASH_RegionInfo3, _PREHASH_RegionFlags, region_flags);
+		msg->getU64Fast(_PREHASH_RegionInfo3, _PREHASH_RegionFlagsExtended, region_flags);
 	}
 	else
 	{

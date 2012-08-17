@@ -348,7 +348,7 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 
 	if (msg->has(_PREHASH_RegionInfo3))
 	{
-		msg->getU64("RegionInfo", "RegionFlags", region_flags);
+		msg->getU64("RegionInfo", "RegionFlagsExtended", region_flags);
 	}
 	else
 	{
