@@ -65,12 +65,12 @@ void LLEstateInfoModel::sendEstateInfo()
 	}
 }
 
-bool LLEstateInfoModel::getUseFixedSun()			const {	return mFlags & REGION_FLAGS_SUN_FIXED;				}
-bool LLEstateInfoModel::getIsExternallyVisible()	const {	return mFlags & REGION_FLAGS_EXTERNALLY_VISIBLE;	}
-bool LLEstateInfoModel::getAllowDirectTeleport()	const {	return mFlags & REGION_FLAGS_ALLOW_DIRECT_TELEPORT;	}
-bool LLEstateInfoModel::getDenyAnonymous()			const {	return mFlags & REGION_FLAGS_DENY_ANONYMOUS; 		}
-bool LLEstateInfoModel::getDenyAgeUnverified()		const {	return mFlags & REGION_FLAGS_DENY_AGEUNVERIFIED;	}
-bool LLEstateInfoModel::getAllowVoiceChat()			const {	return mFlags & REGION_FLAGS_ALLOW_VOICE;			}
+bool LLEstateInfoModel::getUseFixedSun()			const {	return getFlag(REGION_FLAGS_SUN_FIXED);				}
+bool LLEstateInfoModel::getIsExternallyVisible()	const {	return getFlag(REGION_FLAGS_EXTERNALLY_VISIBLE);	}
+bool LLEstateInfoModel::getAllowDirectTeleport()	const {	return getFlag(REGION_FLAGS_ALLOW_DIRECT_TELEPORT);	}
+bool LLEstateInfoModel::getDenyAnonymous()			const {	return getFlag(REGION_FLAGS_DENY_ANONYMOUS); 		}
+bool LLEstateInfoModel::getDenyAgeUnverified()		const {	return getFlag(REGION_FLAGS_DENY_AGEUNVERIFIED);	}
+bool LLEstateInfoModel::getAllowVoiceChat()			const {	return getFlag(REGION_FLAGS_ALLOW_VOICE);			}
 
 void LLEstateInfoModel::setUseFixedSun(bool val)			{ setFlag(REGION_FLAGS_SUN_FIXED, 				val);	}
 void LLEstateInfoModel::setIsExternallyVisible(bool val)	{ setFlag(REGION_FLAGS_EXTERNALLY_VISIBLE,		val);	}
@@ -197,18 +197,6 @@ void LLEstateInfoModel::commitEstateInfoDataserver()
 	msg->addString("Parameter", llformat("%d", (S32) (getSunHour() * 1024.0f)));
 
 	gAgent.sendMessage();
-}
-
-void LLEstateInfoModel::setFlag(U32 flag, bool val)
-{
-	if (val)
-	{
-		mFlags |= flag;
-	}
-	else
-	{
-		mFlags &= ~flag;
-	}
 }
 
 std::string LLEstateInfoModel::getInfoDump()

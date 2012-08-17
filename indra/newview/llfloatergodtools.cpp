@@ -164,9 +164,9 @@ LLFloaterGodTools::~LLFloaterGodTools()
 }
 
 
-U32 LLFloaterGodTools::computeRegionFlags() const
+U64 LLFloaterGodTools::computeRegionFlags() const
 {
-	U32 flags = gAgent.getRegion()->getRegionFlags();
+	U64 flags = gAgent.getRegion()->getRegionFlags();
 	if (mPanelRegionTools) flags = mPanelRegionTools->computeRegionFlags(flags);
 	if (mPanelObjectTools) flags = mPanelObjectTools->computeRegionFlags(flags);
 	return flags;
@@ -210,7 +210,7 @@ void LLFloaterGodTools::processRegionInfo(LLMessageSystem* msg)
 	if (!msg) return;
 
 	//const S32 SIM_NAME_BUF = 256;
-	U32 region_flags;
+	U64 region_flags;
 	U8 sim_access;
 	U8 agent_limit;
 	std::string sim_name;
@@ -231,12 +231,22 @@ void LLFloaterGodTools::processRegionInfo(LLMessageSystem* msg)
 	msg->getStringFast(_PREHASH_RegionInfo, _PREHASH_SimName, sim_name);
 	msg->getU32Fast(_PREHASH_RegionInfo, _PREHASH_EstateID, estate_id);
 	msg->getU32Fast(_PREHASH_RegionInfo, _PREHASH_ParentEstateID, parent_estate_id);
-	msg->getU32Fast(_PREHASH_RegionInfo, _PREHASH_RegionFlags, region_flags);
 	msg->getU8Fast(_PREHASH_RegionInfo, _PREHASH_SimAccess, sim_access);
 	msg->getU8Fast(_PREHASH_RegionInfo, _PREHASH_MaxAgents, agent_limit);
 	msg->getF32Fast(_PREHASH_RegionInfo, _PREHASH_ObjectBonusFactor, object_bonus_factor);
 	msg->getF32Fast(_PREHASH_RegionInfo, _PREHASH_BillableFactor, billable_factor);
 	msg->getF32Fast(_PREHASH_RegionInfo, _PREHASH_WaterHeight, water_height);
+
+	if (msg->has(_PREHASH_RegionInfo3))
+	{
+		msg->getU64Fast(_PREHASH_RegionInfo3, _PREHASH_RegionFlags, region_flags);
+	}
+	else
+	{
+		U32 flags = 0;
+		msg->getU32Fast(_PREHASH_RegionInfo, _PREHASH_RegionFlags, flags);
+		region_flags = flags;
+	}
 
 	if (host != gAgent.getRegionHost())
 	{
@@ -434,7 +444,7 @@ LLPanelRegionTools::~LLPanelRegionTools()
 	// base class will take care of everything
 }
 
-U32 LLPanelRegionTools::computeRegionFlags(U32 flags) const
+U64 LLPanelRegionTools::computeRegionFlags(U64 flags) const
 {
 	flags &= getRegionFlagsMask();
 	flags |= getRegionFlags();
@@ -562,9 +572,9 @@ S32 LLPanelRegionTools::getGridPosY() const
 	return getChild<LLUICtrl>("gridposy")->getValue().asInteger();
 }
 
-U32 LLPanelRegionTools::getRegionFlags() const
+U64 LLPanelRegionTools::getRegionFlags() const
 {
-	U32 flags = 0x0;
+	U64 flags = 0x0;
 	flags = getChild<LLUICtrl>("check prelude")->getValue().asBoolean()  
 					? set_prelude_flags(flags)
 					: unset_prelude_flags(flags);
@@ -601,9 +611,9 @@ U32 LLPanelRegionTools::getRegionFlags() const
 	return flags;
 }
 
-U32 LLPanelRegionTools::getRegionFlagsMask() const
+U64 LLPanelRegionTools::getRegionFlagsMask() const
 {
-	U32 flags = 0xffffffff;
+	U64 flags = 0xFFFFFFFFFFFFFFFFULL;
 	flags = getChild<LLUICtrl>("check prelude")->getValue().asBoolean()
 				? set_prelude_flags(flags)
 				: unset_prelude_flags(flags);
@@ -684,7 +694,7 @@ void LLPanelRegionTools::setParentEstateID(U32 id)
 	getChild<LLUICtrl>("parentestate")->setValue((S32)id);
 }
 
-void LLPanelRegionTools::setCheckFlags(U32 flags)
+void LLPanelRegionTools::setCheckFlags(U64 flags)
 {
 	getChild<LLUICtrl>("check prelude")->setValue(is_prelude(flags) ? TRUE : FALSE);
 	getChild<LLUICtrl>("check fixed sun")->setValue(flags & REGION_FLAGS_SUN_FIXED ? TRUE : FALSE);
@@ -943,7 +953,7 @@ void LLPanelObjectTools::refresh()
 }
 
 
-U32 LLPanelObjectTools::computeRegionFlags(U32 flags) const
+U64 LLPanelObjectTools::computeRegionFlags(U64 flags) const
 {
 	if (getChild<LLUICtrl>("disable scripts")->getValue().asBoolean())
 	{
@@ -973,7 +983,7 @@ U32 LLPanelObjectTools::computeRegionFlags(U32 flags) const
 }
 
 
-void LLPanelObjectTools::setCheckFlags(U32 flags)
+void LLPanelObjectTools::setCheckFlags(U64 flags)
 {
 	getChild<LLUICtrl>("disable scripts")->setValue(flags & REGION_FLAGS_SKIP_SCRIPTS ? TRUE : FALSE);
 	getChild<LLUICtrl>("disable collisions")->setValue(flags & REGION_FLAGS_SKIP_COLLISIONS ? TRUE : FALSE);
