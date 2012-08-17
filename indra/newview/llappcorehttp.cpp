@@ -85,7 +85,9 @@ void LLAppCoreHttp::init()
 	// 1 - Basic start, stop simple transitions
 	// 2 - libcurl CURLOPT_VERBOSE mode with brief lines
 	// 3 - with partial data content
-	status = LLCore::HttpRequest::setPolicyGlobalOption(LLCore::HttpRequest::GP_TRACE, 0);
+	long trace_level(0L);
+	trace_level = long(gSavedSettings.getU32("QAModeHttpTrace"));
+	status = LLCore::HttpRequest::setPolicyGlobalOption(LLCore::HttpRequest::GP_TRACE, trace_level);
 
 	// Setup default policy and constrain if directed to
 	mPolicyDefault = LLCore::HttpRequest::DEFAULT_POLICY_ID;
