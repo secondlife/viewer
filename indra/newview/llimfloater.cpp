@@ -97,12 +97,12 @@ void LLIMFloater::onFocusLost()
 
 void LLIMFloater::onFocusReceived()
 {
-	LLIMModel::getInstance()->setActiveSessionID(mSessionID);
-
 	LLChicletBar::getInstance()->getChicletPanel()->setChicletToggleState(mSessionID, true);
 
 	if (getVisible())
 	{
+		// suppress corresponding toast only if this floater is visible and have focus
+		LLIMModel::getInstance()->setActiveSessionID(mSessionID);
 		LLIMModel::instance().sendNoUnreadMessages(mSessionID);
 	}
 }
@@ -726,6 +726,7 @@ void LLIMFloater::setVisible(BOOL visible)
 	LLNotificationsUI::LLScreenChannel* channel = static_cast<LLNotificationsUI::LLScreenChannel*>
 		(LLNotificationsUI::LLChannelManager::getInstance()->
 											findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
+
 	LLTransientDockableFloater::setVisible(visible);
 
 	// update notification channel state
