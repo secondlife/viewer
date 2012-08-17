@@ -924,7 +924,7 @@ LLTextureFetchWorker::~LLTextureFetchWorker()
 		mHttpBufferArray = NULL;
 	}
 	unlockWorkMutex();													// -Mw
-	mFetcher->removeFromHTTPQueue(mID);
+	mFetcher->removeFromHTTPQueue(mID, 0);
 	mFetcher->removeHttpWaiter(mID);
 	mFetcher->updateStateStats(mCacheReadCount, mCacheWriteCount, mResourceWaitCount);
 }
@@ -1875,7 +1875,7 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 		}
 	}
 
-	mFetcher->removeFromHTTPQueue(mID);
+	mFetcher->removeFromHTTPQueue(mID, data_size);
 	
 	recordTextureDone(true);
 }																		// -Mw

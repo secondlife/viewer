@@ -226,7 +226,7 @@ protected:
 	void addToHTTPQueue(const LLUUID& id);
 
     // Threads:  T*
-	void removeFromHTTPQueue(const LLUUID& id, S32 received_size = 0);
+	void removeFromHTTPQueue(const LLUUID& id, S32 received_size);
 
 	// Identical to @deleteRequest but with different arguments
 	// (caller already has the worker pointer).
