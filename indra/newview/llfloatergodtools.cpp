@@ -351,6 +351,7 @@ void LLFloaterGodTools::sendGodUpdateRegionInfo()
 		LLMessageSystem *msg = gMessageSystem;
 		LLPanelRegionTools *rtool = god_tools->mPanelRegionTools;
 
+		U64 region_flags = computeRegionFlags();
 		msg->newMessage("GodUpdateRegionInfo");
 		msg->nextBlockFast(_PREHASH_AgentData);
 		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
@@ -359,11 +360,14 @@ void LLFloaterGodTools::sendGodUpdateRegionInfo()
 		msg->addStringFast(_PREHASH_SimName, rtool->getSimName());
 		msg->addU32Fast(_PREHASH_EstateID, rtool->getEstateID());
 		msg->addU32Fast(_PREHASH_ParentEstateID, rtool->getParentEstateID());
-		msg->addU32Fast(_PREHASH_RegionFlags, computeRegionFlags());
+		// Legacy flags
+		msg->addU32Fast(_PREHASH_RegionFlags, U32(region_flags));
 		msg->addF32Fast(_PREHASH_BillableFactor, rtool->getBillableFactor());
 		msg->addS32Fast(_PREHASH_PricePerMeter, rtool->getPricePerMeter());
 		msg->addS32Fast(_PREHASH_RedirectGridX, rtool->getRedirectGridX());
 		msg->addS32Fast(_PREHASH_RedirectGridY, rtool->getRedirectGridY());
+		msg->nextBlockFast(_PREHASH_RegionInfo2);
+		msg->addU64Fast(_PREHASH_RegionFlagsExtended, region_flags);
 
 		gAgent.sendReliableMessage();
 	}

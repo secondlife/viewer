@@ -160,7 +160,7 @@ void LLRegionInfoModel::update(LLMessageSystem* msg)
 
 	if (msg->has(_PREHASH_RegionInfo3))
 	{
-		msg->getU64Fast(_PREHASH_RegionInfo, _PREHASH_RegionFlagsExtended, mRegionFlags);
+		msg->getU64Fast(_PREHASH_RegionInfo3, _PREHASH_RegionFlagsExtended, mRegionFlags);
 	}
 	else
 	{
