@@ -355,10 +355,10 @@ private:
 	// where it's more expensive to get at them.  Requests in either
 	// SEND_HTTP_REQ or WAIT_HTTP_REQ charge against the semaphore
 	// and tracking state transitions is critical to liveness.
-	int							mHttpSemaphore;							// Ttf
+	LLAtomicS32							mHttpSemaphore;					// Ttf + Tmain
 	
 	typedef std::set<LLUUID> wait_http_res_queue_t;
-	wait_http_res_queue_t		mHttpWaitResource;						// Mfnq
+	wait_http_res_queue_t				mHttpWaitResource;				// Mfnq
 
 	// Cumulative stats on the states/requests issued by
 	// textures running through here.
