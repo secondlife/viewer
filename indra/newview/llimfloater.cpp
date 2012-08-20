@@ -60,6 +60,10 @@
 #include "llnotificationmanager.h"
 #include "llautoreplace.h"
 
+/// Helper function to resolve resident names from given uuids
+/// and form a string of names separated by "words_separator".
+static void build_names_string(const uuid_vec_t& uuids, std::string& names_string);
+
 floater_showed_signal_t LLIMFloater::sIMFloaterShowedSignal;
 
 LLIMFloater::LLIMFloater(const LLUUID& session_id)
@@ -123,14 +127,13 @@ void LLIMFloater::refresh()
 // virtual
 void LLIMFloater::onClickCloseBtn()
 {
-	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(
-				mSessionID);
+	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(mSessionID);
 
 	if (session == NULL)
 	{
 		llwarns << "Empty session with id: " << (mSessionID.asString()) << llendl;
 		return;
-}
+	}
 
 	bool is_call_with_chat = session->isGroupSessionType()
 			|| session->isAdHocSessionType() || session->isP2PSessionType();
@@ -186,47 +189,53 @@ void LLIMFloater::onVisibilityChange(const LLSD& new_visibility)
 void LLIMFloater::onSendMsg( LLUICtrl* ctrl, void* userdata )
 {
 	LLIMFloater* self = (LLIMFloater*) userdata;
-	self->sendMsg();
+	self->sendMsgFromInputEditor();
 	self->setTyping(false);
 }
 
-void LLIMFloater::sendMsg()
+void LLIMFloater::sendMsgFromInputEditor()
 {
 	if (gAgent.isGodlike()
 		|| (mDialog != IM_NOTHING_SPECIAL)
 		|| !mOtherParticipantUUID.isNull())
 	{
-	if (mInputEditor)
-	{
+		if (mInputEditor)
+		{
 			LLWString text = mInputEditor->getWText();
 			LLWStringUtil::trim(text);
 			LLWStringUtil::replaceChar(text,182,'\n'); // Convert paragraph symbols back into newlines.
-		if(!text.empty())
-		{
-			// Truncate and convert to UTF8 for transport
-			std::string utf8_text = wstring_to_utf8str(text);
-			utf8_text = utf8str_truncate(utf8_text, MAX_MSG_BUF_SIZE - 1);
-			
-			if (mSessionInitialized)
+			if(!text.empty())
 			{
-					LLIMModel::sendMessage(utf8_text, mSessionID, mOtherParticipantUUID, mDialog);
-			}
-			else
-			{
-				//queue up the message to send once the session is initialized
-				mQueuedMsgsForInit.append(utf8_text);
-			}
+				// Truncate and convert to UTF8 for transport
+				std::string utf8_text = wstring_to_utf8str(text);
 
-			mInputEditor->setText(LLStringUtil::null);
+				sendMsg(utf8_text);
 
-			updateMessages();
+				mInputEditor->setText(LLStringUtil::null);
+			}
 		}
 	}
-}
 	else
 	{
 		llinfos << "Cannot send IM to everyone unless you're a god." << llendl;
 	}
+}
+
+void LLIMFloater::sendMsg(const std::string& msg)
+{
+	const std::string utf8_text = utf8str_truncate(msg, MAX_MSG_BUF_SIZE - 1);
+
+	if (mSessionInitialized)
+	{
+		LLIMModel::sendMessage(utf8_text, mSessionID, mOtherParticipantUUID, mDialog);
+	}
+	else
+	{
+		//queue up the message to send once the session is initialized
+		mQueuedMsgsForInit.append(utf8_text);
+	}
+
+	updateMessages();
 }
 
 LLIMFloater::~LLIMFloater()
@@ -241,6 +250,7 @@ LLIMFloater::~LLIMFloater()
 	LLTransientFloaterMgr::getInstance()->removeControlView(LLTransientFloaterMgr::IM, this);
 }
 
+
 void LLIMFloater::initIMSession(const LLUUID& session_id)
 {
 	// Change the floater key to bind it to a new session.
@@ -250,7 +260,7 @@ void LLIMFloater::initIMSession(const LLUUID& session_id)
 	mSession = LLIMModel::getInstance()->findIMSession(mSessionID);
 
 	if (mSession)
-    {
+	{
 		mIsP2PChat = mSession->isP2PSessionType();
 		mSessionInitialized = mSession->mSessionInitialized;
 
@@ -348,19 +358,19 @@ BOOL LLIMFloater::postBuild()
 }
 
 void LLIMFloater::onAddButtonClicked()
+{
+	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLIMFloater::addSessionParticipants, this, _1), TRUE, TRUE);
+	if (!picker)
 	{
-       LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLIMFloater::addSessionParticipants, this, _1), TRUE, TRUE);
-       if (!picker)
-       {
-               return;
+		return;
 	}
 
-       // Need to disable 'ok' button when selected users are already in conversation.
-       picker->setOkBtnEnableCb(boost::bind(&LLIMFloater::canAddSelectedToChat, this, _1));
-       LLFloater* root_floater = gFloaterView->getParentFloater(this);
-       if (root_floater)
+	// Need to disable 'ok' button when selected users are already in conversation.
+	picker->setOkBtnEnableCb(boost::bind(&LLIMFloater::canAddSelectedToChat, this, _1));
+	LLFloater* root_floater = gFloaterView->getParentFloater(this);
+	if (root_floater)
 	{
-               root_floater->addDependentFloater(picker);
+		root_floater->addDependentFloater(picker);
 	}
 }
 
@@ -396,7 +406,7 @@ bool LLIMFloater::canAddSelectedToChat(const uuid_vec_t& uuids)
 		if (speaker_mgr)
 		{
 			speaker_mgr->getSpeakerList(&speaker_list, true);
-	}
+		}
 	
 		for (uuid_vec_t::const_iterator id = uuids.begin();
 				id != uuids.end(); ++id)
@@ -417,40 +427,74 @@ bool LLIMFloater::canAddSelectedToChat(const uuid_vec_t& uuids)
 }
 
 void LLIMFloater::addSessionParticipants(const uuid_vec_t& uuids)
-	{
+{
 	if (mIsP2PChat)
 	{
-		mStartConferenceInSameFloater = true;
+		LLSD payload;
+		LLSD args;
 
-		uuid_vec_t temp_ids;
-
-		// Add the initial participant of a P2P session
-		temp_ids.push_back(mOtherParticipantUUID);
-		temp_ids.insert(temp_ids.end(), uuids.begin(), uuids.end());
-
-		LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(mSessionID);
-
-		// first check whether this is a voice session
-		bool is_voice_call = voice_channel != NULL && voice_channel->isActive();
-
-		// then we can close the current session
-		onClose(false);
-
-		// Start a new ad hoc voice call if we invite new participants to a P2P call,
-		// or start a text chat otherwise.
-		if (is_voice_call)
-		{
-			LLAvatarActions::startAdhocCall(temp_ids, mSessionID);
+		LLNotificationsUtil::add("ConfirmAddingChatParticipants", args, payload,
+				boost::bind(&LLIMFloater::addP2PSessionParticipants, this, _1, _2, uuids));
 	}
 	else
 	{
-			LLAvatarActions::startConference(temp_ids, mSessionID);
-	}
-}
-	else
-	{
+		// remember whom we have invited, to notify others later, when the invited ones actually join
+		mInvitedParticipants.insert(mInvitedParticipants.end(), uuids.begin(), uuids.end());
+		
 		inviteToSession(uuids);
 	}
+}
+
+void LLIMFloater::addP2PSessionParticipants(const LLSD& notification, const LLSD& response, const uuid_vec_t& uuids)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option != 0)
+	{
+		return;
+	}
+
+	mStartConferenceInSameFloater = true;
+
+	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(mSessionID);
+
+	// first check whether this is a voice session
+	bool is_voice_call = voice_channel != NULL && voice_channel->isActive();
+
+	uuid_vec_t temp_ids;
+
+	// Add the initial participant of a P2P session
+	temp_ids.push_back(mOtherParticipantUUID);
+	temp_ids.insert(temp_ids.end(), uuids.begin(), uuids.end());
+
+	// then we can close the current session
+	onClose(false);
+
+	// we start a new session so reset the initialization flag
+	mSessionInitialized = false;
+
+	// remember whom we have invited, to notify others later, when the invited ones actually join
+	mInvitedParticipants.insert(mInvitedParticipants.end(), uuids.begin(), uuids.end());
+
+	// Start a new ad hoc voice call if we invite new participants to a P2P call,
+	// or start a text chat otherwise.
+	if (is_voice_call)
+	{
+		LLAvatarActions::startAdhocCall(temp_ids, mSessionID);
+	}
+	else
+	{
+		LLAvatarActions::startConference(temp_ids, mSessionID);
+	}
+}
+
+void LLIMFloater::sendParticipantsAddedNotification(const uuid_vec_t& uuids)
+{
+	std::string names_string;
+	build_names_string(uuids, names_string);
+	LLStringUtil::format_map_t args;
+	args["[NAME]"] = names_string;
+
+	sendMsg(getString(uuids.size() > 1 ? "multiple_participants_added" : "participant_added", args));
 }
 
 void LLIMFloater::boundVoiceChannel()
@@ -547,13 +591,15 @@ void LLIMFloater::onParticipantsListChanged(LLUICtrl* ctrl)
 
 	bool all_names_resolved = true;
 	std::vector<LLSD> participants_uuids;
+	uuid_vec_t temp_uuids; // uuids vector for building the added participants' names string
 
 	avatar_list->getValues(participants_uuids);
 
 	// Check whether we have all participants names in LLAvatarNameCache
     for (std::vector<LLSD>::const_iterator it = participants_uuids.begin(); it != participants_uuids.end(); ++it)
-    {
+	{
 		const LLUUID& id = it->asUUID();
+		temp_uuids.push_back(id);
 		LLAvatarName av_name;
         if (!LLAvatarNameCache::get(id, &av_name))
         {
@@ -565,32 +611,15 @@ void LLIMFloater::onParticipantsListChanged(LLUICtrl* ctrl)
 					boost::bind(&LLIMFloater::onParticipantsListChanged, this, avatar_list));
 			break;
         }
-    }
+	}
 
 	if (all_names_resolved)
 	{
-		std::vector<LLAvatarName> avatar_names;
-		std::vector<LLSD>::const_iterator it = participants_uuids.begin();
-		for (; it != participants_uuids.end(); ++it)
-		{
-			const LLUUID& id = it->asUUID();
-			LLAvatarName av_name;
-			if (LLAvatarNameCache::get(id, &av_name))
-            {
-				avatar_names.push_back(av_name);
-            }
-        }
-
-		// We should check whether the vector is not empty to pass the assertion
-		// that avatar_names.size() > 0 in LLAvatarActions::buildResidentsString.
-		if (!avatar_names.empty())
-        {
-			std::string ui_title;
-			LLAvatarActions::buildResidentsString(avatar_names, ui_title);
-			updateSessionName(ui_title, ui_title);
-		}
+		std::string ui_title;
+		build_names_string(temp_uuids, ui_title);
+		updateSessionName(ui_title, ui_title);
+	}
     }
-}
 
 //static
 LLIMFloater* LLIMFloater::addToIMContainer(const LLUUID& session_id)
@@ -840,17 +869,19 @@ void LLIMFloater::sessionInitReplyReceived(const LLUUID& im_session_id)
 	
 	//*TODO here we should remove "starting session..." warning message if we added it in postBuild() (IB)
 
-	//need to send delayed messaged collected while waiting for session initialization
+	//need to send delayed messages collected while waiting for session initialization
 	if (mQueuedMsgsForInit.size())
 	{
-	LLSD::array_iterator iter;
-	for ( iter = mQueuedMsgsForInit.beginArray();
-				iter != mQueuedMsgsForInit.endArray(); ++iter)
-	{
-		LLIMModel::sendMessage(iter->asString(), mSessionID,
-			mOtherParticipantUUID, mDialog);
+		LLSD::array_iterator iter;
+		for ( iter = mQueuedMsgsForInit.beginArray();
+					iter != mQueuedMsgsForInit.endArray(); ++iter)
+		{
+			LLIMModel::sendMessage(iter->asString(), mSessionID,
+				mOtherParticipantUUID, mDialog);
+		}
+
+		mQueuedMsgsForInit.clear();
 	}
-}
 }
 
 void LLIMFloater::appendMessage(const LLChat& chat, const LLSD &args)
@@ -1019,19 +1050,18 @@ void LLIMFloater::setTyping(bool typing)
 		{
 			LLIMModel::instance().sendTypingState(mSessionID,
 					mOtherParticipantUUID, mMeTyping);
-				mShouldSendTypingState = false;
-
-			}
+					mShouldSendTypingState = false;
 		}
+	}
 
 	if (!mIsNearbyChat)
+	{
+		LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
+		if (speaker_mgr)
 		{
-	LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
-	if (speaker_mgr)
-		{
-		speaker_mgr->setSpeakerTyping(gAgent.getID(), FALSE);
+			speaker_mgr->setSpeakerTyping(gAgent.getID(), FALSE);
 		}
-}
+	}
 }
 
 void LLIMFloater::processIMTyping(const LLIMInfo* im_info, BOOL typing)
@@ -1050,29 +1080,66 @@ void LLIMFloater::processIMTyping(const LLIMInfo* im_info, BOOL typing)
 
 void LLIMFloater::processAgentListUpdates(const LLSD& body)
 {
+	uuid_vec_t joined_uuids;
+
 	if (body.isMap() && body.has("agent_updates") && body["agent_updates"].isMap())
 	{
-		LLSD agent_data = body["agent_updates"].get(gAgentID.asString());
-		if (agent_data.isMap() && agent_data.has("info"))
+		LLSD::map_const_iterator update_it;
+		for(update_it = body["agent_updates"].beginMap();
+			update_it != body["agent_updates"].endMap();
+			++update_it)
 		{
-			LLSD agent_info = agent_data["info"];
+			LLUUID agent_id(update_it->first);
+			LLSD agent_data = update_it->second;
 
-			if (agent_info.has("mutes"))
+			if (agent_data.isMap())
 			{
-				BOOL moderator_muted_text = agent_info["mutes"]["text"].asBoolean(); 
-				mInputEditor->setEnabled(!moderator_muted_text);
-				std::string label;
-				if (moderator_muted_text)
-					label = LLTrans::getString("IM_muted_text_label");
-				else
-					label = LLTrans::getString("IM_to_label") + " " + LLIMModel::instance().getName(mSessionID);
-				mInputEditor->setLabel(label);
+				// store the new participants in joined_uuids
+				if (agent_data.has("transition") && agent_data["transition"].asString() == "ENTER")
+				{
+					joined_uuids.push_back(agent_id);
+				}
 
-				if (moderator_muted_text)
-					LLNotificationsUtil::add("TextChatIsMutedByModerator");
+				// process the moderator mutes
+				if (agent_id == gAgentID && agent_data.has("info") && agent_data["info"].has("mutes"))
+				{
+					BOOL moderator_muted_text = agent_data["info"]["mutes"]["text"].asBoolean();
+					mInputEditor->setEnabled(!moderator_muted_text);
+					std::string label;
+					if (moderator_muted_text)
+						label = LLTrans::getString("IM_muted_text_label");
+					else
+						label = LLTrans::getString("IM_to_label") + " " + LLIMModel::instance().getName(mSessionID);
+					mInputEditor->setLabel(label);
+
+					if (moderator_muted_text)
+						LLNotificationsUtil::add("TextChatIsMutedByModerator");
+				}
 			}
 		}
 	}
+
+	// the vectors need to be sorted for computing the intersection and difference
+	std::sort(mInvitedParticipants.begin(), mInvitedParticipants.end());
+    std::sort(joined_uuids.begin(), joined_uuids.end());
+
+    uuid_vec_t intersection; // uuids of invited residents who have joined the conversation
+	std::set_intersection(mInvitedParticipants.begin(), mInvitedParticipants.end(),
+						  joined_uuids.begin(), joined_uuids.end(),
+						  std::back_inserter(intersection));
+
+	if (intersection.size() > 0)
+	{
+		sendParticipantsAddedNotification(intersection);
+	}
+
+	// Remove all joined participants from invited array.
+	// The difference between the two vectors (the elements in mInvitedParticipants which are not in joined_uuids)
+	// is placed at the beginning of mInvitedParticipants, then all other elements are erased.
+	mInvitedParticipants.erase(std::set_difference(mInvitedParticipants.begin(), mInvitedParticipants.end(),
+												   joined_uuids.begin(), joined_uuids.end(),
+												   mInvitedParticipants.begin()),
+							   mInvitedParticipants.end());
 }
 
 void LLIMFloater::processSessionUpdate(const LLSD& session_update)
@@ -1110,19 +1177,19 @@ BOOL LLIMFloater::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	if (cargo_type == DAD_PERSON)
 	{
 		if (dropPerson(static_cast<LLUUID*>(cargo_data), drop))
-	{
-			*accept = ACCEPT_YES_MULTI;
-	}
-		else
-	{
-		*accept = ACCEPT_NO;
-			}
-		}
-	else if (mDialog == IM_NOTHING_SPECIAL)
 		{
+			*accept = ACCEPT_YES_MULTI;
+		}
+		else
+		{
+			*accept = ACCEPT_NO;
+		}
+	}
+	else if (mDialog == IM_NOTHING_SPECIAL)
+	{
 		LLToolDragAndDrop::handleGiveDragAndDrop(mOtherParticipantUUID, mSessionID, drop,
 				cargo_type, cargo_data, accept);
-			}
+	}
 
 	return TRUE;
 }
@@ -1132,18 +1199,18 @@ bool LLIMFloater::dropPerson(LLUUID* person_id, bool drop)
 	bool res = person_id && person_id->notNull();
 	if(res)
 	{
-			uuid_vec_t ids;
+		uuid_vec_t ids;
 		ids.push_back(*person_id);
 
 		res = canAddSelectedToChat(ids);
 		if(res && drop)
-	{
+		{
 			addSessionParticipants(ids);
+		}
 	}
-}
 
 	return res;
-		}
+}
 
 BOOL LLIMFloater::isInviteAllowed() const
 {
@@ -1177,37 +1244,32 @@ BOOL LLIMFloater::inviteToSession(const uuid_vec_t& ids)
 
 	if (is_region_exist)
 	{
-	S32 count = ids.size();
+		S32 count = ids.size();
 
-	if( isInviteAllowed() && (count > 0) )
-	{
-		llinfos << "LLIMFloater::inviteToSession() - inviting participants" << llendl;
-
-		std::string url = region->getCapability("ChatSessionRequest");
-
-		LLSD data;
-
-		data["params"] = LLSD::emptyArray();
-		for (int i = 0; i < count; i++)
+		if( isInviteAllowed() && (count > 0) )
 		{
-			data["params"].append(ids[i]);
-		}
+			llinfos << "LLIMFloater::inviteToSession() - inviting participants" << llendl;
 
-		data["method"] = "invite";
-		data["session-id"] = mSessionID;
-		LLHTTPClient::post(
-			url,
-			data,
-					new LLSessionInviteResponder(mSessionID));
-	}
-	else
-	{
-		llinfos << "LLIMFloater::inviteToSession -"
-				<< " no need to invite agents for "
-				<< mDialog << llendl;
-		// successful add, because everyone that needed to get added
-		// was added.
-	}
+			std::string url = region->getCapability("ChatSessionRequest");
+
+			LLSD data;
+			data["params"] = LLSD::emptyArray();
+			for (int i = 0; i < count; i++)
+			{
+				data["params"].append(ids[i]);
+			}
+			data["method"] = "invite";
+			data["session-id"] = mSessionID;
+			LLHTTPClient::post(url,	data,new LLSessionInviteResponder(mSessionID));
+		}
+		else
+		{
+			llinfos << "LLIMFloater::inviteToSession -"
+					<< " no need to invite agents for "
+					<< mDialog << llendl;
+			// successful add, because everyone that needed to get added
+			// was added.
+		}
 	}
 
 	return is_region_exist;
@@ -1336,4 +1398,26 @@ void LLIMFloater::addToHost(const LLUUID& session_id)
 boost::signals2::connection LLIMFloater::setIMFloaterShowedCallback(const floater_showed_signal_t::slot_type& cb)
 {
 	return LLIMFloater::sIMFloaterShowedSignal.connect(cb);
+}
+
+// static
+void build_names_string(const uuid_vec_t& uuids, std::string& names_string)
+{
+	std::vector<LLAvatarName> avatar_names;
+	uuid_vec_t::const_iterator it = uuids.begin();
+	for (; it != uuids.end(); ++it)
+	{
+		LLAvatarName av_name;
+		if (LLAvatarNameCache::get(*it, &av_name))
+		{
+			avatar_names.push_back(av_name);
+		}
+	}
+
+	// We should check whether the vector is not empty to pass the assertion
+	// that avatar_names.size() > 0 in LLAvatarActions::buildResidentsString.
+	if (!avatar_names.empty())
+	{
+		LLAvatarActions::buildResidentsString(avatar_names, names_string);
+	}
 }

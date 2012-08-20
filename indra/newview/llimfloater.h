@@ -90,7 +90,8 @@ public:
 	void updateMessages();
 	void reloadMessages();
 	static void onSendMsg(LLUICtrl*, void*);
-	void sendMsg();
+	void sendMsgFromInputEditor();
+	void sendMsg(const std::string& msg);
 
 	// callback for LLIMModel on new messages
 	// route to specific floater if it is visible
@@ -162,6 +163,8 @@ private:
 	void setTyping(bool typing);
 	void onAddButtonClicked();
 	void addSessionParticipants(const uuid_vec_t& uuids);
+	void addP2PSessionParticipants(const LLSD& notification, const LLSD& response, const uuid_vec_t& uuids);
+	void sendParticipantsAddedNotification(const uuid_vec_t& uuids);
 	bool canAddSelectedToChat(const uuid_vec_t& uuids);
 
 	void onCallButtonClicked();
@@ -201,6 +204,8 @@ private:
 	LLSD mQueuedMsgsForInit;
 
 	bool mStartConferenceInSameFloater;
+
+	uuid_vec_t mInvitedParticipants;
 
 	// connection to voice channel state change signal
 	boost::signals2::connection mVoiceChannelStateChangeConnection;
