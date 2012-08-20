@@ -125,8 +125,6 @@ BOOL LLIMFloaterContainer::postBuild()
 
 	addConversationListItem(LLUUID()); // manually add nearby chat
 
-	addConversationListItem(LLUUID()); // manually add nearby chat
-
 	mExpandCollapseBtn = getChild<LLButton>("expand_collapse_btn");
 	mExpandCollapseBtn->setClickedCallback(boost::bind(&LLIMFloaterContainer::onExpandCollapseButtonClicked, this));
 
