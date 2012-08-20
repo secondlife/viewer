@@ -2043,7 +2043,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 	{
 		if (new_angv != old_angv)
 		{
-			resetRot();
+			resetRotTime();
 		}
 
 		// Set the rotation of the object followed by adjusting for the accumulated angular velocity (llSetTargetOmega)
@@ -5439,9 +5439,14 @@ void LLViewerObject::applyAngularVelocity(F32 dt)
 	}
 }
 
-void LLViewerObject::resetRot()
+void LLViewerObject::resetRotTime()
 {
 	mRotTime = 0.0f;
+}
+
+void LLViewerObject::resetRot()
+{
+	resetRotTime();
 
 	// Reset the accumulated angular velocity rotation
 	mAngularVelocityRot.loadIdentity(); 
