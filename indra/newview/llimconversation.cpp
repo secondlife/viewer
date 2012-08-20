@@ -177,6 +177,7 @@ void LLIMConversation::buildParticipantList()
 			mParticipantList = new LLParticipantList(speaker_manager, getChild<LLAvatarList>("speakers_list"), true, false);
 		}
 	}
+	updateHeaderAndToolbar();
 }
 
 void LLIMConversation::onSortMenuItemClicked(const LLSD& userdata)
