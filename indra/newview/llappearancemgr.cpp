@@ -1160,11 +1160,13 @@ void LLAppearanceMgr::takeOffOutfit(const LLUUID& cat_id)
 
 	LLInventoryModel::item_array_t::const_iterator it = items.begin();
 	const LLInventoryModel::item_array_t::const_iterator it_end = items.end();
+	uuid_vec_t uuids_to_remove;
 	for( ; it_end != it; ++it)
 	{
 		LLViewerInventoryItem* item = *it;
-		removeItemFromAvatar(item->getUUID());
+		uuids_to_remove.push_back(item->getUUID());
 	}
+	removeItemsFromAvatar(uuids_to_remove);
 }
 
 // Create a copy of src_id + contents as a subfolder of dst_id.
@@ -2706,8 +2708,24 @@ void LLAppearanceMgr::wearBaseOutfit()
 	updateCOF(base_outfit_id);
 }
 
+void LLAppearanceMgr::removeItemsFromAvatar(const uuid_vec_t& ids_to_remove)
+{
+	for (uuid_vec_t::const_iterator it = ids_to_remove.begin(); it != ids_to_remove.end(); ++it)
+	{
+		const LLUUID& id_to_remove = *it;
+		const LLUUID& linked_item_id = gInventory.getLinkedItemID(id_to_remove);
+		removeCOFItemLinks(linked_item_id,false);
+	}
+	updateAppearanceFromCOF();
+}
+
 void LLAppearanceMgr::removeItemFromAvatar(const LLUUID& id_to_remove)
 {
+#if 1
+	LLUUID linked_item_id = gInventory.getLinkedItemID(id_to_remove);
+	removeCOFItemLinks(linked_item_id,false);
+	updateAppearanceFromCOF();
+#else
 	LLViewerInventoryItem * item_to_remove = gInventory.getItem(id_to_remove);
 	if (!item_to_remove) return;
 
@@ -2733,6 +2751,7 @@ void LLAppearanceMgr::removeItemFromAvatar(const LLUUID& id_to_remove)
 	// Also we can't check is link was successfully removed from COF since in case
 	// deleting attachment link removing performs asynchronously in process_kill_object callback.
 	removeCOFItemLinks(id_to_remove,false);
+#endif
 }
 
 bool LLAppearanceMgr::moveWearable(LLViewerInventoryItem* item, bool closer_to_body)
