@@ -15,7 +15,6 @@
 # * The basic convention is that the build name can be mapped onto a mercurial URL,
 #   which is also used as the "branch" name.
 
-
 check_for()
 {
     if [ -e "$2" ]; then found_dict='FOUND'; else found_dict='MISSING'; fi
