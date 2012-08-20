@@ -31,7 +31,7 @@
 #include "llplacesinventorypanel.h"
 
 #include "llfolderviewmodel.h"
-#include "llfolderview.h"
+#include "llplacesfolderview.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llpanellandmarks.h"
@@ -56,6 +56,34 @@ LLPlacesInventoryPanel::LLPlacesInventoryPanel(const Params& p) :
 LLPlacesInventoryPanel::~LLPlacesInventoryPanel()
 {
 	delete mSavedFolderState;
+}
+
+
+LLFolderView * LLPlacesInventoryPanel::createFolderRoot(LLUUID root_id )
+{
+    LLPlacesFolderView::Params p;
+    
+    p.name = getName();
+    p.title = getLabel();
+    p.rect = LLRect(0, 0, getRect().getWidth(), 0);
+    p.parent_panel = this;
+    p.tool_tip = p.name;
+    p.listener = mInvFVBridgeBuilder->createBridge(	LLAssetType::AT_CATEGORY,
+        LLAssetType::AT_CATEGORY,
+        LLInventoryType::IT_CATEGORY,
+        this,
+        &mInventoryViewModel,
+        NULL,
+        root_id);
+    p.view_model = &mInventoryViewModel;
+    p.use_label_suffix = mParams.use_label_suffix;
+    p.allow_multiselect = mAllowMultiSelect;
+    p.show_empty_message = mShowEmptyMessage;
+    p.show_item_link_overlays = mShowItemLinkOverlays;
+    p.root = NULL;
+    p.use_ellipses = mParams.folder_view.use_ellipses;
+
+    return LLUICtrlFactory::create<LLPlacesFolderView>(p);
 }
 
 // save current folder open state
@@ -91,59 +119,3 @@ S32	LLPlacesInventoryPanel::notify(const LLSD& info)
 	}
 	return 0;
 }
-
-/************************************************************************/
-/* PROTECTED METHODS                                                    */
-/************************************************************************/
-
-
-
-/************************************************************************/
-/*              LLPlacesFolderView implementation                       */
-/************************************************************************/
-
-//////////////////////////////////////////////////////////////////////////
-//  PUBLIC METHODS
-//////////////////////////////////////////////////////////////////////////
-
-LLPlacesFolderView::LLPlacesFolderView(const LLFolderView::Params& p)
-: LLFolderView(p)
-{
-	// we do not need auto select functionality in places landmarks, so override default behavior.
-	// this disables applying of the LLSelectFirstFilteredItem in LLFolderView::doIdle.
-	// Fixed issues: EXT-1631, EXT-4994.
-	mAutoSelectOverride = TRUE;
-}
-
-BOOL LLPlacesFolderView::handleRightMouseDown(S32 x, S32 y, MASK mask)
-{
-	// let children to change selection first
-	childrenHandleRightMouseDown(x, y, mask);
-	mParentLandmarksPanel->setCurrentSelectedList((LLPlacesInventoryPanel*)getParentPanel());
-
-	// then determine its type and set necessary menu handle
-	if (getCurSelectedItem())
-	{
-		LLInventoryType::EType inventory_type = static_cast<LLFolderViewModelItemInventory*>(getCurSelectedItem()->getViewModelItem())->getInventoryType();
-		inventory_type_menu_handle_t::iterator it_handle = mMenuHandlesByInventoryType.find(inventory_type);
-
-		if (it_handle != mMenuHandlesByInventoryType.end())
-		{
-			mPopupMenuHandle = (*it_handle).second;
-		}
-		else
-		{
-			llwarns << "Requested menu handle for non-setup inventory type: " << inventory_type << llendl;
-		}
-
-	}
-
-	return LLFolderView::handleRightMouseDown(x, y, mask);
-}
-
-void LLPlacesFolderView::setupMenuHandle(LLInventoryType::EType asset_type, LLHandle<LLView> menu_handle)
-{
-	mMenuHandlesByInventoryType[asset_type] = menu_handle;
-}
-
-// EOF

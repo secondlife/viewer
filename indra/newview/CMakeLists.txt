@@ -445,6 +445,7 @@ set(viewer_SOURCE_FILES
     llphysicsshapebuilderutil.cpp
     llplacesinventorybridge.cpp
     llplacesinventorypanel.cpp
+    llplacesfolderview.cpp
     llpopupview.cpp
     llpolymesh.cpp
     llpolymorph.cpp
@@ -1015,6 +1016,7 @@ set(viewer_HEADER_FILES
     llphysicsshapebuilderutil.h
     llplacesinventorybridge.h
     llplacesinventorypanel.h
+    llplacesfolderview.h
     llpolymesh.h
     llpolymorph.h
     llpopupview.h

@@ -151,6 +151,30 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
 
 }
 
+LLFolderView * LLInventoryPanel::createFolderRoot(LLUUID root_id )
+{
+    LLFolderView::Params p(mParams.folder_view);
+    p.name = getName();
+    p.title = getLabel();
+    p.rect = LLRect(0, 0, getRect().getWidth(), 0);
+    p.parent_panel = this;
+    p.tool_tip = p.name;
+    p.listener = mInvFVBridgeBuilder->createBridge(	LLAssetType::AT_CATEGORY,
+        LLAssetType::AT_CATEGORY,
+        LLInventoryType::IT_CATEGORY,
+        this,
+        &mInventoryViewModel,
+        NULL,
+        root_id);
+    p.view_model = &mInventoryViewModel;
+    p.use_label_suffix = mParams.use_label_suffix;
+    p.allow_multiselect = mAllowMultiSelect;
+    p.show_empty_message = mShowEmptyMessage;
+    p.show_item_link_overlays = mShowItemLinkOverlays;
+    p.root = NULL;
+
+    return LLUICtrlFactory::create<LLFolderView>(p);
+}
 	
 void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 	{
@@ -172,29 +196,7 @@ void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 	{
 		// Determine the root folder in case specified, and
 		// build the views starting with that folder.
-	
-
-		LLFolderView::Params p(mParams.folder_view);
-		p.name = getName();
-		p.title = getLabel();
-		p.rect = LLRect(0, 0, getRect().getWidth(), 0);
-		p.parent_panel = this;
-		p.tool_tip = p.name;
-		p.listener = mInvFVBridgeBuilder->createBridge(	LLAssetType::AT_CATEGORY,
-																	LLAssetType::AT_CATEGORY,
-																	LLInventoryType::IT_CATEGORY,
-																	this,
-														&mInventoryViewModel,
-																	NULL,
-																	root_id);
-		p.view_model = &mInventoryViewModel;
-		p.use_label_suffix = mParams.use_label_suffix;
-		p.allow_multiselect = mAllowMultiSelect;
-		p.show_empty_message = mShowEmptyMessage;
-		p.show_item_link_overlays = mShowItemLinkOverlays;
-		p.root = NULL;
-
-		mFolderRoot = LLUICtrlFactory::create<LLFolderView>(p);
+		mFolderRoot = createFolderRoot(root_id);
 	
 		addItemID(root_id, mFolderRoot);
 }
