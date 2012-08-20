@@ -402,6 +402,14 @@ void LLIMFloaterContainer::updateState(bool collapse, S32 delta_width)
 
 	setCanResize(is_left_pane_expanded || is_right_pane_expanded);
 	setCanMinimize(is_left_pane_expanded || is_right_pane_expanded);
+
+    // restore floater's resize limits (prevent collapse when left panel is expanded)
+	if (is_left_pane_expanded && !is_right_pane_expanded)
+	{
+		S32 expanded_min_size = mConversationsPane->getExpandedMinDim();
+        setResizeLimits(expanded_min_size, expanded_min_size);
+	}
+
 }
 
 void LLIMFloaterContainer::onAddButtonClicked()
