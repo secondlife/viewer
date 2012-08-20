@@ -1215,7 +1215,7 @@ void LLToolDragAndDrop::dropObject(LLViewerObject* raycast_target,
 	if (!item || !item->isFinished()) return;
 	
 	//if (regionp
-	//	&& (regionp->getRegionFlags() & REGION_FLAGS_SANDBOX))
+	//	&& (regionp->getRegionFlag(REGION_FLAGS_SANDBOX)))
 	//{
 	//	LLFirstUse::useSandbox();
 	//}

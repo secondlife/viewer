@@ -545,9 +545,6 @@ LLParcelSelectionHandle LLViewerParcelMgr::selectLand(const LLVector3d &corner1,
 
 	mRequestResult = PARCEL_RESULT_NO_DATA;
 
-	// clear the list of segments to prevent flashing
-	resetSegments(mHighlightSegments);
-
 	mFloatingParcelSelection->setParcel(mCurrentParcel);
 	mCurrentParcelSelection->setParcel(NULL);
 	mCurrentParcelSelection = new LLParcelSelection(mCurrentParcel);
@@ -699,8 +696,8 @@ bool LLViewerParcelMgr::allowAgentScripts(const LLViewerRegion* region, const LL
 	// This mirrors the traditional menu bar parcel icon code, but is not
 	// technically correct.
 	return region
-		&& !(region->getRegionFlags() & REGION_FLAGS_SKIP_SCRIPTS)
-		&& !(region->getRegionFlags() & REGION_FLAGS_ESTATE_SKIP_SCRIPTS)
+		&& !region->getRegionFlag(REGION_FLAGS_SKIP_SCRIPTS)
+		&& !region->getRegionFlag(REGION_FLAGS_ESTATE_SKIP_SCRIPTS)
 		&& parcel
 		&& parcel->getAllowOtherScripts();
 }
@@ -2124,7 +2121,7 @@ void LLViewerParcelMgr::startReleaseLand()
 		return;
 	}
 /*
-	if ((region->getRegionFlags() & REGION_FLAGS_BLOCK_LAND_RESELL)
+	if (region->getRegionFlag(REGION_FLAGS_BLOCK_LAND_RESELL)
 		&& !gAgent.isGodlike())
 	{
 		LLSD args;
@@ -2369,7 +2366,7 @@ void LLViewerParcelMgr::startDeedLandToGroup()
 	/*
 	if(!gAgent.isGodlike())
 	{
-		if((region->getRegionFlags() & REGION_FLAGS_BLOCK_LAND_RESELL)
+		if(region->getRegionFlag(REGION_FLAGS_BLOCK_LAND_RESELL)
 			&& (mCurrentParcel->getOwnerID() != region->getOwner()))
 		{
 			LLSD args;

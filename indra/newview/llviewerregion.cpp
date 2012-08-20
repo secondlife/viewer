@@ -279,6 +279,7 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
 	mZoning(""),
 	mIsEstateManager(FALSE),
 	mRegionFlags( REGION_FLAGS_DEFAULT ),
+	mRegionProtocols( 0 ),
 	mSimAccess( SIM_ACCESS_MIN ),
 	mBillableFactor(1.0),
 	mMaxTasks(DEFAULT_MAX_REGION_WIDE_PRIM_COUNT),
@@ -454,18 +455,6 @@ void LLViewerRegion::sendReliableMessage()
 	gMessageSystem->sendReliable(mImpl->mHost);
 }
 
-void LLViewerRegion::setFlags(BOOL b, U32 flags)
-{
-	if (b)
-	{
-		mRegionFlags |=  flags;
-	}
-	else
-	{
-		mRegionFlags &= ~flags;
-	}
-}
-
 void LLViewerRegion::setWaterHeight(F32 water_level)
 {
 	mImpl->mLandp->setWaterHeight(water_level);
@@ -478,10 +467,10 @@ F32 LLViewerRegion::getWaterHeight() const
 
 BOOL LLViewerRegion::isVoiceEnabled() const
 {
-	return (getRegionFlags() & REGION_FLAGS_ALLOW_VOICE);
+	return getRegionFlag(REGION_FLAGS_ALLOW_VOICE);
 }
 
-void LLViewerRegion::setRegionFlags(U32 flags)
+void LLViewerRegion::setRegionFlags(U64 flags)
 {
 	mRegionFlags = flags;
 }
@@ -574,7 +563,7 @@ std::string LLViewerRegion::getLocalizedSimProductName() const
 }
 
 // static
-std::string LLViewerRegion::regionFlagsToString(U32 flags)
+std::string LLViewerRegion::regionFlagsToString(U64 flags)
 {
 	std::string result;
 
@@ -1393,7 +1382,8 @@ void LLViewerRegion::unpackRegionHandshake()
 {
 	LLMessageSystem *msg = gMessageSystem;
 
-	U32 region_flags;
+	U64 region_flags = 0;
+	U64 region_protocols = 0;
 	U8 sim_access;
 	std::string sim_name;
 	LLUUID sim_owner;
@@ -1402,7 +1392,6 @@ void LLViewerRegion::unpackRegionHandshake()
 	F32 billable_factor;
 	LLUUID cache_id;
 
-	msg->getU32		("RegionInfo", "RegionFlags", region_flags);
 	msg->getU8		("RegionInfo", "SimAccess", sim_access);
 	msg->getString	("RegionInfo", "SimName", sim_name);
 	msg->getUUID	("RegionInfo", "SimOwner", sim_owner);
@@ -1411,7 +1400,20 @@ void LLViewerRegion::unpackRegionHandshake()
 	msg->getF32		("RegionInfo", "BillableFactor", billable_factor);
 	msg->getUUID	("RegionInfo", "CacheID", cache_id );
 
+	if (msg->has(_PREHASH_RegionInfo4))
+	{
+		msg->getU64Fast(_PREHASH_RegionInfo4, _PREHASH_RegionFlagsExtended, region_flags);
+		msg->getU64Fast(_PREHASH_RegionInfo4, _PREHASH_RegionProtocols, region_protocols);
+	}
+	else
+	{
+		U32 flags = 0;
+		msg->getU32Fast(_PREHASH_RegionInfo, _PREHASH_RegionFlags, flags);
+		region_flags = flags;
+	}
+
 	setRegionFlags(region_flags);
+	setRegionProtocols(region_protocols);
 	setSimAccess(sim_access);
 	setRegionNameAndZone(sim_name);
 	setOwner(sim_owner);
@@ -1812,7 +1814,7 @@ LLSpatialPartition* LLViewerRegion::getSpatialPartition(U32 type)
 
 // the viewer can not yet distinquish between normal- and estate-owned objects
 // so we collapse these two bits and enable the UI if either are set
-const U32 ALLOW_RETURN_ENCROACHING_OBJECT = REGION_FLAGS_ALLOW_RETURN_ENCROACHING_OBJECT
+const U64 ALLOW_RETURN_ENCROACHING_OBJECT = REGION_FLAGS_ALLOW_RETURN_ENCROACHING_OBJECT
 											| REGION_FLAGS_ALLOW_RETURN_ENCROACHING_ESTATE_OBJECT;
 
 bool LLViewerRegion::objectIsReturnable(const LLVector3& pos, const std::vector<LLBBox>& boxes) const
@@ -1820,7 +1822,7 @@ bool LLViewerRegion::objectIsReturnable(const LLVector3& pos, const std::vector<
 	return (mParcelOverlay != NULL)
 		&& (mParcelOverlay->isOwnedSelf(pos)
 			|| mParcelOverlay->isOwnedGroup(pos)
-			|| ((mRegionFlags & ALLOW_RETURN_ENCROACHING_OBJECT)
+			|| (getRegionFlag(ALLOW_RETURN_ENCROACHING_OBJECT)
 				&& mParcelOverlay->encroachesOwned(boxes)) );
 }
 

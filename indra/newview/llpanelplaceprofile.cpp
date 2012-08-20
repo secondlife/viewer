@@ -572,7 +572,7 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 
 		mTerraformLimitsText->setText(parcel->getAllowTerraform() ? on : off);
 
-		if (region->getRegionFlags() & REGION_FLAGS_ALLOW_PARCEL_CHANGES)
+		if (region->getRegionFlag(REGION_FLAGS_ALLOW_PARCEL_CHANGES))
 		{
 			mSubdivideText->setText(getString("can_change"));
 		}
@@ -580,7 +580,7 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 		{
 			mSubdivideText->setText(getString("can_not_change"));
 		}
-		if (region->getRegionFlags() & REGION_FLAGS_BLOCK_LAND_RESELL)
+		if (region->getRegionFlag(REGION_FLAGS_BLOCK_LAND_RESELL))
 		{
 			mResaleText->setText(getString("can_not_resell"));
 		}

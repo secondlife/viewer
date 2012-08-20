@@ -110,9 +110,6 @@ LLFloaterReporter::LLFloaterReporter(const LLSD& key)
 // static
 void LLFloaterReporter::processRegionInfo(LLMessageSystem* msg)
 {
-	U32 region_flags;
-	msg->getU32("RegionInfo", "RegionFlags", region_flags);
-	
 	if ( LLFloaterReg::instanceVisible("reporter") )
 	{
 		LLNotificationsUtil::add("HelpReportAbuseEmailLL");
