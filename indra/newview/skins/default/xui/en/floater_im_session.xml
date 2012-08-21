@@ -31,6 +31,12 @@
     <floater.string
      name="return_icon"
      value="Conv_toolbar_arrow_sw"/>
+    <floater.string
+     name="participant_added"
+     value="[NAME] was invited to the conversation."/>
+    <floater.string
+     name="multiple_participants_added"
+     value="[NAME] were invited to the conversation."/>
     <view
         follows="all"
         layout="topleft"
