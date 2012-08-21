@@ -232,6 +232,7 @@ LLStat LLTextureFetch::sCacheReadLatency("texture_cache_read_latency", 128);
 // experiencial benefits promised.
 //
 
+
 //////////////////////////////////////////////////////////////////////////////
 
 // Tuning/Parameterization Constants
