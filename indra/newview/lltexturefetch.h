@@ -185,6 +185,9 @@ public:
     // Threads:  T*
 	void removeHttpWaiter(const LLUUID & tid);
 
+    // Threads:  T*
+	bool isHttpWaiter(const LLUUID & tid);
+
 	// If there are slots, release one or more LLTextureFetchWorker
 	// requests from resource wait state (WAIT_HTTP_RESOURCE) to
 	// active (SEND_HTTP_REQ).

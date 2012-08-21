@@ -1945,10 +1945,14 @@ bool LLTextureFetchWorker::deleteOK()
 
 	if (WAIT_HTTP_RESOURCE2 == mState)
 	{
-		// Don't delete the worker out from under the
-		// releaseHttpWaiters() method.  Keep the pointers
-		// valid, clean up after transition.
-		delete_ok = false;
+		if (mFetcher->isHttpWaiter(mID))
+		{
+			// Don't delete the worker out from under the releaseHttpWaiters()
+			// method.  Keep the pointers valid, clean up after that method
+			// has recognized the cancelation and removed the UUID from the
+			// waiter list.
+			delete_ok = false;
+		}
 	}
 	
 	// Allow any pending reads or writes to complete
@@ -2551,7 +2555,6 @@ void LLTextureFetch::deleteRequest(const LLUUID& id, bool cancel)
 		unlockQueue();													// -Mfq
 
 		llassert_always(erased_1 > 0) ;
-
 		removeFromNetworkQueue(worker, cancel);
 		llassert_always(!(worker->getFlags(LLWorkerClass::WCF_DELETE_REQUESTED))) ;
 
@@ -3370,6 +3373,16 @@ void LLTextureFetch::removeHttpWaiter(const LLUUID & tid)
 	mNetworkQueueMutex.unlock();										// -Mfnq
 }
 
+// Threads:  T*
+bool LLTextureFetch::isHttpWaiter(const LLUUID & tid)
+{
+	mNetworkQueueMutex.lock();											// +Mfnq
+	wait_http_res_queue_t::iterator iter(mHttpWaitResource.find(tid));
+	const bool ret(mHttpWaitResource.end() != iter);
+	mNetworkQueueMutex.unlock();										// -Mfnq
+	return ret;
+}
+
 // Release as many requests as permitted from the WAIT_HTTP_RESOURCE2
 // state to the SEND_HTTP_REQ state based on their current priority.
 //
@@ -3424,6 +3437,15 @@ void LLTextureFetch::releaseHttpWaiters()
 		{
 			tids2.push_back(worker);
 		}
+		else
+		{
+			// If worker isn't found, this should be due to a request
+			// for deletion.  We signal our recognition that this
+			// uuid shouldn't be used for resource waiting anymore by
+			// erasing it from the resource waiter list.  That allows
+			// deleteOK to do final deletion on the worker.
+			removeHttpWaiter(* iter);
+		}
 	}
 	tids.clear();
 
@@ -3446,8 +3468,13 @@ void LLTextureFetch::releaseHttpWaiters()
 		worker->lockWorkMutex();										// +Mw
 		if (LLTextureFetchWorker::WAIT_HTTP_RESOURCE2 != worker->mState)
 		{
-			// Not in expected state, try the next one
+			// Not in expected state, remove it, try the next one
 			worker->unlockWorkMutex();									// -Mw
+			LL_WARNS("Texture") << "Resource-waited texture " << worker->mID
+								<< " in unexpected state:  " << worker->mState
+								<< ".  Removing from wait list."
+								<< LL_ENDL;
+			removeHttpWaiter(worker->mID);
 			continue;
 		}
 
