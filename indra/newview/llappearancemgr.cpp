@@ -2238,6 +2238,38 @@ void LLAppearanceMgr::removeAllClothesFromAvatar()
 	removeItemsFromAvatar(item_ids);
 }
 
+void LLAppearanceMgr::removeAllAttachmentsFromAvatar()
+{
+	if (!isAgentAvatarValid()) return;
+
+	LLAgentWearables::llvo_vec_t objects_to_remove;
+	
+	for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatarp->mAttachmentPoints.begin(); 
+		 iter != gAgentAvatarp->mAttachmentPoints.end();)
+	{
+		LLVOAvatar::attachment_map_t::iterator curiter = iter++;
+		LLViewerJointAttachment* attachment = curiter->second;
+		for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+			 attachment_iter != attachment->mAttachedObjects.end();
+			 ++attachment_iter)
+		{
+			LLViewerObject *attached_object = (*attachment_iter);
+			if (attached_object)
+			{
+				objects_to_remove.push_back(attached_object);
+			}
+		}
+	}
+	uuid_vec_t ids_to_remove;
+	for (LLAgentWearables::llvo_vec_t::iterator it = objects_to_remove.begin();
+		 it != objects_to_remove.end();
+		 ++it)
+	{
+		ids_to_remove.push_back((*it)->getAttachmentItemID());
+	}
+	removeItemsFromAvatar(ids_to_remove);
+}
+
 void LLAppearanceMgr::removeCOFItemLinks(const LLUUID& item_id, bool do_update)
 {
 	gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);

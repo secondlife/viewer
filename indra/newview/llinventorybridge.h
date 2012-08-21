@@ -497,9 +497,6 @@ public:
 	void			editOnAvatar();
 
 	static BOOL		canRemoveFromAvatar( void* userdata );
-	static void		onRemoveFromAvatar( void* userdata );
-	static void		onRemoveFromAvatarArrived( LLWearable* wearable, 	void* userdata );
-	static void 	removeItemFromAvatar(LLViewerInventoryItem *item);
 	static void 	removeAllClothesFromAvatar();
 	void			removeFromAvatar();
 protected:

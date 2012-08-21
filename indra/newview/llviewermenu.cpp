@@ -2798,7 +2798,7 @@ class LLSelfRemoveAllAttachments : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLAgentWearables::userRemoveAllAttachments();
+		LLAppearanceMgr::instance().removeAllAttachmentsFromAvatar();
 		return true;
 	}
 };

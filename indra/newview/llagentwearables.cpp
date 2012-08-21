@@ -1715,7 +1715,7 @@ void LLAgentWearables::userRemoveWearablesOfType(const LLWearableType::EType &ty
 	}
 }
 
-// Combines userRemoveAllAttachments() and userAttachMultipleAttachments() logic to
+// Combines userRemoveMulipleAttachments() and userAttachMultipleAttachments() logic to
 // get attachments into desired state with minimal number of adds/removes.
 void LLAgentWearables::userUpdateAttachments(LLInventoryModel::item_array_t& obj_item_array)
 {
@@ -1809,31 +1809,6 @@ void LLAgentWearables::userRemoveMultipleAttachments(llvo_vec_t& objects_to_remo
 		gMessageSystem->addU32Fast(_PREHASH_ObjectLocalID, objectp->getLocalID());
 	}
 	gMessageSystem->sendReliable(gAgent.getRegionHost());
-}
-
-void LLAgentWearables::userRemoveAllAttachments()
-{
-	if (!isAgentAvatarValid()) return;
-
-	llvo_vec_t objects_to_remove;
-	
-	for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatarp->mAttachmentPoints.begin(); 
-		 iter != gAgentAvatarp->mAttachmentPoints.end();)
-	{
-		LLVOAvatar::attachment_map_t::iterator curiter = iter++;
-		LLViewerJointAttachment* attachment = curiter->second;
-		for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
-			 attachment_iter != attachment->mAttachedObjects.end();
-			 ++attachment_iter)
-		{
-			LLViewerObject *attached_object = (*attachment_iter);
-			if (attached_object)
-			{
-				objects_to_remove.push_back(attached_object);
-			}
-		}
-	}
-	userRemoveMultipleAttachments(objects_to_remove);
 }
 
 void LLAgentWearables::userAttachMultipleAttachments(LLInventoryModel::item_array_t& obj_item_array)

@@ -107,8 +107,6 @@ void dec_busy_count()
 }
 
 // Function declarations
-void remove_inventory_category_from_avatar(LLInventoryCategory* category);
-void remove_inventory_category_from_avatar_step2( BOOL proceed, LLUUID category_id);
 bool move_task_inventory_callback(const LLSD& notification, const LLSD& response, LLMoveInv*);
 bool confirm_attachment_rez(const LLSD& notification, const LLSD& response);
 void teleport_via_landmark(const LLUUID& asset_id);
@@ -5365,120 +5363,6 @@ LLWearableBridge::LLWearableBridge(LLInventoryPanel* inventory,
 	mInvType = inv_type;
 }
 
-void remove_inventory_category_from_avatar( LLInventoryCategory* category )
-{
-	if(!category) return;
-	lldebugs << "remove_inventory_category_from_avatar( " << category->getName()
-			 << " )" << llendl;
-
-
-	if (gAgentCamera.cameraCustomizeAvatar())
-	{
-		// switching to outfit editor should automagically save any currently edited wearable
-		LLFloaterSidePanelContainer::showPanel("appearance", LLSD().with("type", "edit_outfit"));
-	}
-
-	remove_inventory_category_from_avatar_step2(TRUE, category->getUUID() );
-}
-
-struct OnRemoveStruct
-{
-	LLUUID mUUID;
-	OnRemoveStruct(const LLUUID& uuid):
-		mUUID(uuid)
-	{
-	}
-};
-
-void remove_inventory_category_from_avatar_step2( BOOL proceed, LLUUID category_id)
-{
-
-	// Find all the wearables that are in the category's subtree.
-	lldebugs << "remove_inventory_category_from_avatar_step2()" << llendl;
-	if(proceed)
-	{
-		LLInventoryModel::cat_array_t cat_array;
-		LLInventoryModel::item_array_t item_array;
-		LLFindWearables is_wearable;
-		gInventory.collectDescendentsIf(category_id,
-										cat_array,
-										item_array,
-										LLInventoryModel::EXCLUDE_TRASH,
-										is_wearable);
-		S32 i;
-		S32 wearable_count = item_array.count();
-
-		LLInventoryModel::cat_array_t	obj_cat_array;
-		LLInventoryModel::item_array_t	obj_item_array;
-		LLIsType is_object( LLAssetType::AT_OBJECT );
-		gInventory.collectDescendentsIf(category_id,
-										obj_cat_array,
-										obj_item_array,
-										LLInventoryModel::EXCLUDE_TRASH,
-										is_object);
-		S32 obj_count = obj_item_array.count();
-
-		// Find all gestures in this folder
-		LLInventoryModel::cat_array_t	gest_cat_array;
-		LLInventoryModel::item_array_t	gest_item_array;
-		LLIsType is_gesture( LLAssetType::AT_GESTURE );
-		gInventory.collectDescendentsIf(category_id,
-										gest_cat_array,
-										gest_item_array,
-										LLInventoryModel::EXCLUDE_TRASH,
-										is_gesture);
-		S32 gest_count = gest_item_array.count();
-
-		if (wearable_count > 0)	//Loop through wearables.  If worn, remove.
-		{
-			for(i = 0; i  < wearable_count; ++i)
-			{
-				LLViewerInventoryItem *item = item_array.get(i);
-				if (item->getType() == LLAssetType::AT_BODYPART)
-					continue;
-				if (gAgent.isTeen() && item->isWearableType() &&
-					(item->getWearableType() == LLWearableType::WT_UNDERPANTS || item->getWearableType() == LLWearableType::WT_UNDERSHIRT))
-					continue;
-				if (get_is_item_worn(item->getUUID()))
-				{
-					LLWearableList::instance().getAsset(item->getAssetUUID(),
-														item->getName(),
-														item->getType(),
-														LLWearableBridge::onRemoveFromAvatarArrived,
-														new OnRemoveStruct(item->getLinkedUUID()));
-				}
-			}
-		}
-
-		if (obj_count > 0)
-		{
-			for(i = 0; i  < obj_count; ++i)
-			{
-				LLViewerInventoryItem *obj_item = obj_item_array.get(i);
-				if (get_is_item_worn(obj_item->getUUID()))
-				{
-					LLVOAvatarSelf::detachAttachmentIntoInventory(obj_item->getLinkedUUID());
-				}
-			}
-		}
-
-		if (gest_count > 0)
-		{
-			for(i = 0; i  < gest_count; ++i)
-			{
-				LLViewerInventoryItem *gest_item = gest_item_array.get(i);
-				if (get_is_item_worn(gest_item->getUUID()))
-				{
-					LLGestureMgr::instance().deactivateGesture( gest_item->getLinkedUUID() );
-					gInventory.updateItem( gest_item );
-					gInventory.notifyObservers();
-				}
-
-			}
-		}
-	}
-}
-
 BOOL LLWearableBridge::renameItem(const std::string& new_name)
 {
 	if (get_is_item_worn(mUUID))
@@ -5772,69 +5656,6 @@ BOOL LLWearableBridge::canRemoveFromAvatar(void* user_data)
 		return get_is_item_worn( self->mUUID );
 	}
 	return FALSE;
-}
-
-// static
-void LLWearableBridge::onRemoveFromAvatar(void* user_data)
-{
-	LLWearableBridge* self = (LLWearableBridge*)user_data;
-	if(!self) return;
-	if(get_is_item_worn(self->mUUID))
-	{
-		LLViewerInventoryItem* item = self->getItem();
-		if (item)
-		{
-			LLUUID parent_id = item->getParentUUID();
-			LLWearableList::instance().getAsset(item->getAssetUUID(),
-												item->getName(),
-												item->getType(),
-												onRemoveFromAvatarArrived,
-												new OnRemoveStruct(LLUUID(self->mUUID)));
-		}
-	}
-}
-
-// static
-void LLWearableBridge::onRemoveFromAvatarArrived(LLWearable* wearable,
-												 void* userdata)
-{
-	OnRemoveStruct *on_remove_struct = (OnRemoveStruct*) userdata;
-	const LLUUID &item_id = gInventory.getLinkedItemID(on_remove_struct->mUUID);
-	if(wearable)
-	{
-		if( get_is_item_worn( item_id ) )
-		{
-			LLWearableType::EType type = wearable->getType();
-
-			if( !(type==LLWearableType::WT_SHAPE || type==LLWearableType::WT_SKIN || type==LLWearableType::WT_HAIR || type==LLWearableType::WT_EYES ) ) //&&
-				//!((!gAgent.isTeen()) && ( type==LLWearableType::WT_UNDERPANTS || type==LLWearableType::WT_UNDERSHIRT )) )
-			{
-				bool do_remove_all = false;
-				U32 index = gAgentWearables.getWearableIndex(wearable);
-				gAgentWearables.removeWearable( type, do_remove_all, index );
-			}
-		}
-	}
-
-	// Find and remove this item from the COF.
-	LLAppearanceMgr::instance().removeCOFItemLinks(item_id,false);
-	gInventory.notifyObservers();
-
-	delete on_remove_struct;
-}
-
-// static
-void LLWearableBridge::removeItemFromAvatar(LLViewerInventoryItem *item)
-{
-	llwarns << "safe to remove?" << llendl;
-	if (item)
-	{
-		LLWearableList::instance().getAsset(item->getAssetUUID(),
-											item->getName(),
-											item->getType(),
-											LLWearableBridge::onRemoveFromAvatarArrived,
-											new OnRemoveStruct(item->getUUID()));
-	}
 }
 
 void LLWearableBridge::removeFromAvatar()
