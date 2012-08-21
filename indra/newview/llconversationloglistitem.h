@@ -62,6 +62,8 @@ public:
 
 	void highlightNameDate(const std::string& highlited_text);
 
+	void onDoubleClick();
+
 private:
 
 	void initIcons();

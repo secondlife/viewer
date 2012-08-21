@@ -31,9 +31,11 @@
 #include "lltextutil.h"
 
 // newview
+#include "llavataractions.h"
 #include "llavatariconctrl.h"
 #include "llconversationlog.h"
 #include "llconversationloglistitem.h"
+#include "llgroupactions.h"
 #include "llgroupiconctrl.h"
 #include "llinventoryicon.h"
 
@@ -74,6 +76,7 @@ BOOL LLConversationLogListItem::postBuild()
 	mConversationDate->setValue(mConversation->getTimestamp());
 
 	getChild<LLButton>("delete_btn")->setClickedCallback(boost::bind(&LLConversationLogListItem::onRemoveBtnClicked, this));
+	setDoubleClickCallback(boost::bind(&LLConversationLogListItem::onDoubleClick, this));
 
 	return TRUE;
 }
@@ -154,4 +157,21 @@ void LLConversationLogListItem::highlightNameDate(const std::string& highlited_t
 	LLStyle::Params params;
 	LLTextUtil::textboxSetHighlightedVal(mConversationName, params, mConversation->getConversationName(), highlited_text);
 	LLTextUtil::textboxSetHighlightedVal(mConversationDate, params, mConversation->getTimestamp(), highlited_text);
+}
+
+void LLConversationLogListItem::onDoubleClick()
+{
+	switch (mConversation->getConversationType())
+	{
+	case LLIMModel::LLIMSession::P2P_SESSION:
+		LLAvatarActions::startIM(mConversation->getParticipantID());
+		break;
+
+	case LLIMModel::LLIMSession::GROUP_SESSION:
+		LLGroupActions::startIM(mConversation->getParticipantID());
+		break;
+
+	default:
+		break;
+	}
 }
