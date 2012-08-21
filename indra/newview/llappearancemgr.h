@@ -135,6 +135,7 @@ public:
 	// Remove COF entries
 	void removeCOFItemLinks(const LLUUID& item_id, bool do_update = true);
 	void removeCOFLinksOfType(LLWearableType::EType type, bool do_update = true);
+	void removeAllClothesFromAvatar();
 
 	// Add COF link to ensemble folder.
 	void addEnsembleLink(LLInventoryCategory* item, bool do_update = true);

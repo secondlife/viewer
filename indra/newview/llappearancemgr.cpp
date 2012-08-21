@@ -2215,6 +2215,29 @@ void LLAppearanceMgr::addEnsembleLink( LLInventoryCategory* cat, bool do_update 
 #endif
 }
 
+void LLAppearanceMgr::removeAllClothesFromAvatar()
+{
+	// Fetch worn clothes (i.e. the ones in COF).
+	LLInventoryModel::item_array_t clothing_items;
+	LLInventoryModel::cat_array_t dummy;
+	LLIsType is_clothing(LLAssetType::AT_CLOTHING);
+	gInventory.collectDescendentsIf(getCOF(),
+									dummy,
+									clothing_items,
+									LLInventoryModel::EXCLUDE_TRASH,
+									is_clothing,
+									false);
+	uuid_vec_t item_ids;
+	for (LLInventoryModel::item_array_t::iterator it = clothing_items.begin();
+		it != clothing_items.end(); ++it)
+	{
+		item_ids.push_back((*it).get()->getLinkedUUID());
+	}
+
+	// Take them off by removing from COF.
+	removeItemsFromAvatar(item_ids);
+}
+
 void LLAppearanceMgr::removeCOFItemLinks(const LLUUID& item_id, bool do_update)
 {
 	gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
@@ -2721,37 +2744,9 @@ void LLAppearanceMgr::removeItemsFromAvatar(const uuid_vec_t& ids_to_remove)
 
 void LLAppearanceMgr::removeItemFromAvatar(const LLUUID& id_to_remove)
 {
-#if 1
 	LLUUID linked_item_id = gInventory.getLinkedItemID(id_to_remove);
 	removeCOFItemLinks(linked_item_id,false);
 	updateAppearanceFromCOF();
-#else
-	LLViewerInventoryItem * item_to_remove = gInventory.getItem(id_to_remove);
-	if (!item_to_remove) return;
-
-	switch (item_to_remove->getType())
-	{
-		case LLAssetType::AT_CLOTHING:
-			if (get_is_item_worn(id_to_remove))
-			{
-				//*TODO move here the exact removing code from LLWearableBridge::removeItemFromAvatar in the future
-				LLWearableBridge::removeItemFromAvatar(item_to_remove);
-			}
-			break;
-		case LLAssetType::AT_OBJECT:
-			LLVOAvatarSelf::detachAttachmentIntoInventory(item_to_remove->getLinkedUUID());
-		default:
-			break;
-	}
-
-	// *HACK: Force to remove garbage from COF.
-	// Unworn links or objects can't be processed by existed removing functionality
-	// since it is not designed for such cases. As example attachment object can't be removed
-	// since sever don't sends message _PREHASH_KillObject in that case.
-	// Also we can't check is link was successfully removed from COF since in case
-	// deleting attachment link removing performs asynchronously in process_kill_object callback.
-	removeCOFItemLinks(id_to_remove,false);
-#endif
 }
 
 bool LLAppearanceMgr::moveWearable(LLViewerInventoryItem* item, bool closer_to_body)

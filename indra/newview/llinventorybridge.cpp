@@ -2764,7 +2764,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 		LLViewerInventoryCategory* cat = getCategory();
 		if(!cat) return;
 
-		remove_inventory_category_from_avatar ( cat );
+		LLAppearanceMgr::instance().takeOffOutfit( cat->getLinkedUUID() );
 		return;
 	}
 	else if ("purge" == action)
@@ -5073,11 +5073,7 @@ void LLObjectBridge::performAction(LLInventoryModel* model, std::string action)
 	}
 	else if (isRemoveAction(action))
 	{
-		LLInventoryItem* item = gInventory.getItem(mUUID);
-		if(item)
-		{
-			LLVOAvatarSelf::detachAttachmentIntoInventory(item->getLinkedUUID());
-		}
+		LLAppearanceMgr::instance().removeItemFromAvatar(mUUID);
 	}
 	else LLItemBridge::performAction(model, action);
 }
@@ -5828,29 +5824,9 @@ void LLWearableBridge::onRemoveFromAvatarArrived(LLWearable* wearable,
 }
 
 // static
-void LLWearableBridge::removeAllClothesFromAvatar()
-{
-	// Fetch worn clothes (i.e. the ones in COF).
-	LLInventoryModel::item_array_t clothing_items;
-	LLInventoryModel::cat_array_t dummy;
-	LLIsType is_clothing(LLAssetType::AT_CLOTHING);
-	gInventory.collectDescendentsIf(LLAppearanceMgr::instance().getCOF(),
-									dummy,
-									clothing_items,
-									LLInventoryModel::EXCLUDE_TRASH,
-									is_clothing,
-									false);
-
-	// Take them off by removing from COF.
-	for (LLInventoryModel::item_array_t::const_iterator it = clothing_items.begin(); it != clothing_items.end(); ++it)
-	{
-		LLAppearanceMgr::instance().removeItemFromAvatar((*it)->getUUID());
-	}
-}
-
-// static
 void LLWearableBridge::removeItemFromAvatar(LLViewerInventoryItem *item)
 {
+	llwarns << "safe to remove?" << llendl;
 	if (item)
 	{
 		LLWearableList::instance().getAsset(item->getAssetUUID(),
@@ -5863,10 +5839,10 @@ void LLWearableBridge::removeItemFromAvatar(LLViewerInventoryItem *item)
 
 void LLWearableBridge::removeFromAvatar()
 {
+	llwarns << "safe to remove?" << llendl;
 	if (get_is_item_worn(mUUID))
 	{
-		LLViewerInventoryItem* item = getItem();
-		removeItemFromAvatar(item);
+		LLAppearanceMgr::instance().removeItemFromAvatar(mUUID);
 	}
 }
 
