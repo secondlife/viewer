@@ -246,3 +246,8 @@ void LLFloaterMap::handleZoom(const LLSD& userdata)
 		mMap->setScale(scale);
 	}
 }
+
+LLFloaterMap* LLFloaterMap::getInstance()
+{
+	return LLFloaterReg::getTypedInstance<LLFloaterMap>("mini_map");
+}

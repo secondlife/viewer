@@ -34,6 +34,7 @@
 #include "llfilepicker.h"
 #include "llfloaterreg.h"
 #include "llbuycurrencyhtml.h"
+#include "llfloatermap.h"
 #include "llfloatermodelpreview.h"
 #include "llfloatersnapshot.h"
 #include "llimage.h"
@@ -476,7 +477,7 @@ class LLFileEnableCloseWindow : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		bool new_value = NULL != LLFloater::getClosableFloaterFromFocus();
-		return new_value;
+		return new_value || LLFloaterMap::getInstance()->isInVisibleChain();
 	}
 };
 
@@ -484,8 +485,12 @@ class LLFileCloseWindow : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
+		bool new_value = (NULL == LLFloater::getClosableFloaterFromFocus());
+		if(new_value && LLFloaterMap::getInstance()->isInVisibleChain())
+		{
+			LLFloaterMap::getInstance()->closeFloater(false);
+		}
 		LLFloater::closeFocusedFloater();
-
 		return true;
 	}
 };
