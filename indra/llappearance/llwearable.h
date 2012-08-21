@@ -27,14 +27,14 @@
 #ifndef LL_LLWEARABLE_H
 #define LL_LLWEARABLE_H
 
-#include "lluuid.h"
-#include "llstring.h"
-#include "llpermissions.h"
-#include "llsaleinfo.h"
-#include "llassetstorage.h"
-#include "llwearabletype.h"
-#include "llfile.h"
-#include "lllocaltextureobject.h"
+//#include "lluuid.h"
+//#include "llstring.h"
+//#include "llpermissions.h"
+//#include "llsaleinfo.h"
+//#include "llassetstorage.h"
+//#include "llwearabletype.h"
+//#include "llfile.h"
+//#include "lllocaltextureobject.h"
 
 class LLViewerInventoryItem;
 class LLVisualParam;

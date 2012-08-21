@@ -44,6 +44,7 @@ include(LLLogin)
 include(VisualLeakDetector)
 include(GLOD)
 include(CMakeCopyIfDifferent)
+include(LLAppearance)
 
 add_subdirectory(${LLPHYSICSEXTENSIONS_SRC_DIR} llphysicsextensions)
 
@@ -77,6 +78,7 @@ include_directories(
     ${LIBS_PREBUILD_DIR}/include/hunspell
     ${OPENAL_LIB_INCLUDE_DIRS}
     ${LIBS_PREBUILT_DIR}/include/collada/1.4
+    ${LLAPPEARANCE_INCLUDE_DIRS}
     )
 
 set(viewer_SOURCE_FILES
@@ -625,7 +627,6 @@ set(viewer_SOURCE_FILES
     llwatchdog.cpp
     llwaterparammanager.cpp
     llwaterparamset.cpp
-    llwearable.cpp
     llwearableitemslist.cpp
     llwearablelist.cpp
     llwearabletype.cpp
@@ -1194,7 +1195,6 @@ set(viewer_HEADER_FILES
     llwatchdog.h
     llwaterparammanager.h
     llwaterparamset.h
-    llwearable.h
     llwearableitemslist.h
     llwearablelist.h
     llwearabletype.h
