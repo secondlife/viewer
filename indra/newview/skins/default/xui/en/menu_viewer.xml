@@ -225,10 +225,10 @@
          use_mac_ctrl="true">
             <menu_item_check.on_check
              function="Floater.Visible"
-             parameter="chat_bar" />
+             parameter="nearby_chat" />
             <menu_item_check.on_click
              function="Floater.Toggle"
-             parameter="chat_bar" />
+             parameter="nearby_chat" />
         </menu_item_check>
         <menu_item_check
          label="Speak"

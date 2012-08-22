@@ -64,6 +64,7 @@
 #include "llmessageconfig.h"
 #include "llmoveview.h"
 #include "llimfloatercontainer.h"
+#include "llnearbychat.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llteleporthistory.h"
