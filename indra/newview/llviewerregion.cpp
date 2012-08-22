@@ -1553,7 +1553,6 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("NewFileAgentInventory");
 	capabilityNames.append("ObjectNavMeshProperties");
 	capabilityNames.append("ParcelPropertiesUpdate");
-	capabilityNames.append("ParcelMediaURLFilterList");
 	capabilityNames.append("ParcelNavigateMedia");
 	capabilityNames.append("ParcelVoiceInfoRequest");
 	capabilityNames.append("ProductInfoRequest");

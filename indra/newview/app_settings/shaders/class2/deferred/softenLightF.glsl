@@ -279,7 +279,7 @@ void main()
 	float depth = texture2DRect(depthMap, tc.xy).r;
 	vec3 pos = getPosition_d(tc, depth).xyz;
 	vec3 norm = texture2DRect(normalMap, tc).xyz;
-	norm = vec3((norm.xy-0.5)*2.0,norm.z); // unpack norm
+	norm = (norm.xyz-0.5)*2.0; // unpack norm
 		
 	float da = max(dot(norm.xyz, sun_dir.xyz), 0.0);
 	
