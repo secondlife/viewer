@@ -519,7 +519,6 @@ void LLIMFloaterContainer::removeConversationListItem(const LLUUID& uuid, bool c
 			item->selectItem();
 		}
 	}
-	return;
 }
 
 LLFolderViewItem* LLIMFloaterContainer::createConversationItemWidget(LLConversationItem* item)
