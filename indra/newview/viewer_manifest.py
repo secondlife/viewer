@@ -816,7 +816,7 @@ class DarwinManifest(ViewerManifest):
             self.run_command("chmod +x %r" % os.path.join(self.get_dst_prefix(), script))
 
     def package_finish(self):
-		# Sign the app if requested.
+        # Sign the app if requested.
         if 'signature' in self.args:
             identity = self.args['signature']
             if identity == '':
