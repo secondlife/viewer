@@ -2765,6 +2765,10 @@ void LLAppearanceMgr::wearBaseOutfit()
 
 void LLAppearanceMgr::removeItemsFromAvatar(const uuid_vec_t& ids_to_remove)
 {
+	if (ids_to_remove.empty())
+	{
+		llwarns << "called with empty list, nothing to do" << llendl;
+	}
 	for (uuid_vec_t::const_iterator it = ids_to_remove.begin(); it != ids_to_remove.end(); ++it)
 	{
 		const LLUUID& id_to_remove = *it;
