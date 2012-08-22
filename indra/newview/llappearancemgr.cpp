@@ -698,7 +698,7 @@ void LLWearableHoldingPattern::clearCOFLinksForMissingWearables()
 		{
 			// Wearable link that was never resolved; remove links to it from COF
 			LL_INFOS("Avatar") << self_av_string() << "removing link for unresolved item " << data.mItemID.asString() << LL_ENDL;
-			LLAppearanceMgr::instance().removeCOFItemLinks(data.mItemID,false);
+			LLAppearanceMgr::instance().removeCOFItemLinks(data.mItemID);
 		}
 	}
 }
@@ -812,7 +812,7 @@ void LLWearableHoldingPattern::handleLateArrivals()
 		if (data.mWearable && data.mIsReplacement &&
 			replaced_types.find(data.mWearableType) != replaced_types.end())
 		{
-			LLAppearanceMgr::instance().removeCOFItemLinks(data.mItemID,false);
+			LLAppearanceMgr::instance().removeCOFItemLinks(data.mItemID);
 			std::list<LLFoundData>::iterator clobber_ator = iter;
 			++iter;
 			getFoundList().erase(clobber_ator);
@@ -1052,7 +1052,7 @@ bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear, bool do_up
 			if ((replace && wearable_count != 0) ||
 				(wearable_count >= LLAgentWearables::MAX_CLOTHING_PER_TYPE) )
 			{
-				removeCOFItemLinks(gAgentWearables.getWearableItemID(item_to_wear->getWearableType(), wearable_count-1), false);
+				removeCOFItemLinks(gAgentWearables.getWearableItemID(item_to_wear->getWearableType(), wearable_count-1));
 			}
 			addCOFItemLink(item_to_wear, do_update, cb);
 		} 
@@ -1062,7 +1062,7 @@ bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear, bool do_up
 		
 		// Remove the existing wearables of the same type.
 		// Remove existing body parts anyway because we must not be able to wear e.g. two skins.
-		removeCOFLinksOfType(item_to_wear->getWearableType(), false);
+		removeCOFLinksOfType(item_to_wear->getWearableType());
 
 		addCOFItemLink(item_to_wear, do_update, cb);
 		break;
@@ -2270,7 +2270,7 @@ void LLAppearanceMgr::removeAllAttachmentsFromAvatar()
 	removeItemsFromAvatar(ids_to_remove);
 }
 
-void LLAppearanceMgr::removeCOFItemLinks(const LLUUID& item_id, bool do_update)
+void LLAppearanceMgr::removeCOFItemLinks(const LLUUID& item_id)
 {
 	gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 
@@ -2288,13 +2288,9 @@ void LLAppearanceMgr::removeCOFItemLinks(const LLUUID& item_id, bool do_update)
 			gInventory.purgeObject(item->getUUID());
 		}
 	}
-	if (do_update)
-	{
-		LLAppearanceMgr::updateAppearanceFromCOF();
-	}
 }
 
-void LLAppearanceMgr::removeCOFLinksOfType(LLWearableType::EType type, bool do_update)
+void LLAppearanceMgr::removeCOFLinksOfType(LLWearableType::EType type)
 {
 	LLFindWearablesOfType filter_wearables_of_type(type);
 	LLInventoryModel::cat_array_t cats;
@@ -2309,11 +2305,6 @@ void LLAppearanceMgr::removeCOFLinksOfType(LLWearableType::EType type, bool do_u
 		{
 			gInventory.purgeObject(item->getUUID());
 		}
-	}
-
-	if (do_update)
-	{
-		updateAppearanceFromCOF();
 	}
 }
 
@@ -2773,7 +2764,7 @@ void LLAppearanceMgr::removeItemsFromAvatar(const uuid_vec_t& ids_to_remove)
 	{
 		const LLUUID& id_to_remove = *it;
 		const LLUUID& linked_item_id = gInventory.getLinkedItemID(id_to_remove);
-		removeCOFItemLinks(linked_item_id,false);
+		removeCOFItemLinks(linked_item_id);
 	}
 	updateAppearanceFromCOF();
 }
@@ -2781,7 +2772,7 @@ void LLAppearanceMgr::removeItemsFromAvatar(const uuid_vec_t& ids_to_remove)
 void LLAppearanceMgr::removeItemFromAvatar(const LLUUID& id_to_remove)
 {
 	LLUUID linked_item_id = gInventory.getLinkedItemID(id_to_remove);
-	removeCOFItemLinks(linked_item_id,false);
+	removeCOFItemLinks(linked_item_id);
 	updateAppearanceFromCOF();
 }
 
@@ -2956,7 +2947,7 @@ void LLAppearanceMgr::unregisterAttachment(const LLUUID& item_id)
 
 	   if (mAttachmentInvLinkEnabled)
 	   {
-		   LLAppearanceMgr::removeCOFItemLinks(item_id, false);
+		   LLAppearanceMgr::removeCOFItemLinks(item_id);
 	   }
 	   else
 	   {

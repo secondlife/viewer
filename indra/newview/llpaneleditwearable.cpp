@@ -1044,7 +1044,7 @@ void LLPanelEditWearable::saveChanges(bool force_save_as)
         if (force_save_as)
         {
                 // the name of the wearable has changed, re-save wearable with new name
-                LLAppearanceMgr::instance().removeCOFItemLinks(mWearablePtr->getItemID(),false);
+                LLAppearanceMgr::instance().removeCOFItemLinks(mWearablePtr->getItemID());
                 gAgentWearables.saveWearableAs(mWearablePtr->getType(), index, new_name, FALSE);
                 mNameEditor->setText(mWearableItem->getName());
         }

@@ -133,8 +133,8 @@ public:
 	void addCOFItemLink(const LLInventoryItem *item, bool do_update = true, LLPointer<LLInventoryCallback> cb = NULL);
 
 	// Remove COF entries
-	void removeCOFItemLinks(const LLUUID& item_id, bool do_update = true);
-	void removeCOFLinksOfType(LLWearableType::EType type, bool do_update = true);
+	void removeCOFItemLinks(const LLUUID& item_id);
+	void removeCOFLinksOfType(LLWearableType::EType type);
 	void removeAllClothesFromAvatar();
 	void removeAllAttachmentsFromAvatar();
 

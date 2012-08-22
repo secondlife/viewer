@@ -1296,7 +1296,7 @@ BOOL LLVOAvatarSelf::detachAttachmentIntoInventory(const LLUUID &item_id)
 			const LLViewerObject *attached_obj = gAgentAvatarp->getWornAttachment(item_id);
 			if (!attached_obj)
 			{
-				LLAppearanceMgr::instance().removeCOFItemLinks(item_id, false);
+				LLAppearanceMgr::instance().removeCOFItemLinks(item_id);
 			}
 		}
 		return TRUE;
