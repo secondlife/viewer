@@ -139,6 +139,9 @@ private:
 	void reshapeChatHistory();
 
 	LLTimer* mRefreshTimer; ///< Defines the rate at which refresh() is called.
+
+	bool mHasFocus;
+	bool mHaveFocus;
 };
 
 

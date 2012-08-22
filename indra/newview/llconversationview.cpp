@@ -239,7 +239,6 @@ S32 LLConversationViewSession::arrange(S32* width, S32* height)
 
 void LLConversationViewSession::selectItem()
 {
-	LLFolderViewItem::selectItem();
 	
 	LLConversationItem* item = dynamic_cast<LLConversationItem*>(mViewModelItem);
 	LLFloater* session_floater = LLIMConversation::getConversation(item->getUUID());
@@ -255,6 +254,8 @@ void LLConversationViewSession::selectItem()
 	
 	// Set the focus on the selected floater
 	session_floater->setFocus(TRUE);
+
+	LLFolderViewItem::selectItem();
 }
 
 void LLConversationViewSession::setVisibleIfDetached(BOOL visible)

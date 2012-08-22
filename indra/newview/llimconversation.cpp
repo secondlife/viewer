@@ -215,11 +215,21 @@ void LLIMConversation::onFocusReceived()
 	}
 
 	LLTransientDockableFloater::onFocusReceived();
+
+    mHasFocus = mHaveFocus;
+    mHaveFocus = true;
+
+	if (! mHasFocus)
+	{
+	    LLIMFloaterContainer* container = LLIMFloaterContainer::getInstance();
+	    container->setConvItemSelect(mSessionID);
+	}
 }
 
 void LLIMConversation::onFocusLost()
 {
 	setBackgroundOpaque(false);
+	mHaveFocus = false;
 	LLTransientDockableFloater::onFocusLost();
 }
 
