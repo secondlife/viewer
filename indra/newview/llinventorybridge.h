@@ -197,6 +197,8 @@ public:
 				 const LLUUID& uuid) :
 		LLInvFVBridge(inventory, root, uuid) {}
 
+	typedef boost::function<void(std::string& slurl)> slurl_callback_t;
+
 	virtual void performAction(LLInventoryModel* model, std::string action);
 	virtual void selectItem();
 	virtual void restoreItem();
@@ -214,7 +216,6 @@ public:
 	virtual BOOL isItemCopyable() const;
 	virtual BOOL hasChildren() const { return FALSE; }
 	virtual BOOL isUpToDate() const { return TRUE; }
-
 	/*virtual*/ void clearDisplayName() { mDisplayName.clear(); }
 
 	LLViewerInventoryItem* getItem() const;

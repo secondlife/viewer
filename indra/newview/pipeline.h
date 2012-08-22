@@ -151,6 +151,8 @@ public:
 
 	void		 unlinkDrawable(LLDrawable*);
 
+	static void removeMutedAVsLights(LLVOAvatar*);
+
 	// Object related methods
 	void        markVisible(LLDrawable *drawablep, LLCamera& camera);
 	void		markOccluder(LLSpatialGroup* group);
