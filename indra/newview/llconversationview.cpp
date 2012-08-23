@@ -62,4 +62,17 @@ void LLConversationViewSession::selectItem()
 	session_floater->setFocus(TRUE);
 }
 
+void LLConversationViewSession::setVisibleIfDetached(BOOL visible)
+{
+	// Do this only if the conversation floater has been torn off (i.e. no multi floater host) and is not minimized
+	// Note: minimized dockable floaters are brought to front hence unminimized when made visible and we don't want that here
+	LLConversationItem* item = dynamic_cast<LLConversationItem*>(mViewModelItem);
+	LLFloater* session_floater = LLIMConversation::getConversation(item->getUUID());
+	
+	if (session_floater && !session_floater->getHost() && !session_floater->isMinimized())
+	{
+		session_floater->setVisible(visible);
+	}
+}
+
 // EOF

@@ -328,10 +328,10 @@ void LLIMFloaterContainer::setVisible(BOOL visible)
 	// We need to show/hide all the associated conversations that have been torn off
 	// (and therefore, are not longer managed by the multifloater),
 	// so that they show/hide with the conversations manager.
-	conversations_items_map::iterator item_it = mConversationsItems.begin();
-	for (;item_it != mConversationsItems.end(); ++item_it)
+	conversations_widgets_map::iterator item_it = mConversationsWidgets.begin();
+	for (;item_it != mConversationsWidgets.end(); ++item_it)
 	{
-		LLConversationItem* item = item_it->second;
+		LLConversationViewSession* item = dynamic_cast<LLConversationViewSession*>(item_it->second);
 		item->setVisibleIfDetached(visible);
 	}
 	

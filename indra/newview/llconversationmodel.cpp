@@ -28,7 +28,6 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llconversationmodel.h"
-#include "llimconversation.h"
 
 // Conversation items
 LLConversationItem::LLConversationItem(std::string display_name, const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
@@ -45,20 +44,7 @@ LLConversationItem::LLConversationItem(LLFolderViewModelInterface& root_view_mod
 {
 }
 
-
 // Virtual action callbacks
-void LLConversationItem::setVisibleIfDetached(BOOL visible)
-{
-	// Do this only if the conversation floater has been torn off (i.e. no multi floater host) and is not minimized
-	// Note: minimized dockable floaters are brought to front hence unminimized when made visible and we don't want that here
-	LLFloater* session_floater = LLIMConversation::getConversation(mUUID);
-
-	if (session_floater && !session_floater->getHost() && !session_floater->isMinimized())
-	{
-		session_floater->setVisible(visible);
-	}
-}
-
 void LLConversationItem::performAction(LLInventoryModel* model, std::string action)
 {
 }

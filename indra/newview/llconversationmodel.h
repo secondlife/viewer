@@ -88,8 +88,6 @@ public:
 	virtual void selectItem(void) { } 
 	virtual void showProperties(void);
 
-	void setVisibleIfDetached(BOOL visible);
-	
 	// This method will be called to determine if a drop can be
 	// performed, and will set drop to TRUE if a drop is
 	// requested. 

@@ -52,6 +52,7 @@ protected:
 public:
 	virtual ~LLConversationViewSession( void ) { }
 	virtual void selectItem();	
+	void setVisibleIfDetached(BOOL visible);
 };
 
 #endif // LL_LLCONVERSATIONVIEW_H
