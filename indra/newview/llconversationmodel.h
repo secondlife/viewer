@@ -27,18 +27,8 @@
 #ifndef LL_LLCONVERSATIONMODEL_H
 #define LL_LLCONVERSATIONMODEL_H
 
-//#include <map>
-//#include <vector>
-
 #include "llfolderviewitem.h"
 #include "llfolderviewmodel.h"
-
-class LLButton;
-class LLFloater;
-class LLLayoutPanel;
-class LLLayoutStack;
-class LLTabContainer;
-class LLIMFloaterContainer;
 
 // Implementation of conversations list
 
@@ -52,8 +42,8 @@ typedef std::map<LLUUID, LLFolderViewItem*> conversations_widgets_map;
 class LLConversationItem : public LLFolderViewModelItemCommon
 {
 public:
-	LLConversationItem(std::string display_name, const LLUUID& uuid, LLIMFloaterContainer* containerp);
-	LLConversationItem(LLIMFloaterContainer* containerp);
+	LLConversationItem(std::string display_name, const LLUUID& uuid, LLFolderViewModelInterface& root_view_model);
+	LLConversationItem(LLFolderViewModelInterface& root_view_model);
 	virtual ~LLConversationItem() {}
 
 	// Stub those things we won't really be using in this conversation context
@@ -95,11 +85,9 @@ public:
 	virtual void openItem( void );
 	virtual void closeItem( void );
 	virtual void previewItem( void );
-	virtual void selectItem(void);
+	virtual void selectItem(void) { } 
 	virtual void showProperties(void);
 
-	void setVisibleIfDetached(BOOL visible);
-	
 	// This method will be called to determine if a drop can be
 	// performed, and will set drop to TRUE if a drop is
 	// requested. 
@@ -114,7 +102,6 @@ public:
 private:
 	std::string mName;
 	const LLUUID mUUID;
-    LLIMFloaterContainer* mContainer;
 };
 
 // We don't want to ever filter conversations but we need to declare that class to create a conversation view model.

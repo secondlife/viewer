@@ -28,57 +28,23 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llconversationmodel.h"
-#include "llimconversation.h"
-#include "llimfloatercontainer.h"
 
 // Conversation items
-LLConversationItem::LLConversationItem(std::string display_name, const LLUUID& uuid, LLIMFloaterContainer* containerp) :
-	LLFolderViewModelItemCommon(containerp->getRootViewModel()),
+LLConversationItem::LLConversationItem(std::string display_name, const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
+	LLFolderViewModelItemCommon(root_view_model),
 	mName(display_name),
-	mUUID(uuid),
-    mContainer(containerp)
+	mUUID(uuid)
 {
 }
 
-LLConversationItem::LLConversationItem(LLIMFloaterContainer* containerp) :
-	LLFolderViewModelItemCommon(containerp->getRootViewModel()),
+LLConversationItem::LLConversationItem(LLFolderViewModelInterface& root_view_model) :
+	LLFolderViewModelItemCommon(root_view_model),
 	mName(""),
-	mUUID(),
-	mContainer(NULL)
+	mUUID()
 {
 }
-
 
 // Virtual action callbacks
-void LLConversationItem::selectItem(void)
-{
-	LLFloater* session_floater = LLIMConversation::getConversation(mUUID);
-	LLMultiFloater* host_floater = session_floater->getHost();
-
-//	LLIMFloater::show(mUUID);
-	if (host_floater == mContainer)
-	{
-		// Always expand the message pane if the panel is hosted by the container
-		mContainer->collapseMessagesPane(false);
-		// Switch to the conversation floater that is being selected
-		mContainer->selectFloater(session_floater);
-	}
-	// Set the focus on the selected floater
-	session_floater->setFocus(TRUE);
-}
-
-void LLConversationItem::setVisibleIfDetached(BOOL visible)
-{
-	// Do this only if the conversation floater has been torn off (i.e. no multi floater host) and is not minimized
-	// Note: minimized dockable floaters are brought to front hence unminimized when made visible and we don't want that here
-	LLFloater* session_floater = LLIMConversation::getConversation(mUUID);
-
-	if (session_floater && !session_floater->getHost() && !session_floater->isMinimized())
-	{
-		session_floater->setVisible(visible);
-	}
-}
-
 void LLConversationItem::performAction(LLInventoryModel* model, std::string action)
 {
 }

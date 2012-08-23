@@ -43,6 +43,7 @@
 #include "llimview.h"
 #include "lltransientfloatermgr.h"
 #include "llviewercontrol.h"
+#include "llconversationview.h"
 
 //
 // LLIMFloaterContainer
@@ -111,7 +112,7 @@ BOOL LLIMFloaterContainer::postBuild()
 	mConversationsListPanel = getChild<LLPanel>("conversations_list_panel");
 
 	// CHUI-98 : View Model for conversations
-	LLConversationItem* base_item = new LLConversationItem(this);
+	LLConversationItem* base_item = new LLConversationItem(getRootViewModel());
 	LLFolderView::Params p;
 	p.view_model = &mConversationViewModel;
 	p.parent_panel = mConversationsListPanel;
@@ -327,10 +328,10 @@ void LLIMFloaterContainer::setVisible(BOOL visible)
 	// We need to show/hide all the associated conversations that have been torn off
 	// (and therefore, are not longer managed by the multifloater),
 	// so that they show/hide with the conversations manager.
-	conversations_items_map::iterator item_it = mConversationsItems.begin();
-	for (;item_it != mConversationsItems.end(); ++item_it)
+	conversations_widgets_map::iterator item_it = mConversationsWidgets.begin();
+	for (;item_it != mConversationsWidgets.end(); ++item_it)
 	{
-		LLConversationItem* item = item_it->second;
+		LLConversationViewSession* item = dynamic_cast<LLConversationViewSession*>(item_it->second);
 		item->setVisibleIfDetached(visible);
 	}
 	
@@ -470,7 +471,7 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 	removeConversationListItem(uuid,false);
 
 	// Create a conversation item
-	LLConversationItem* item = new LLConversationItem(display_name, uuid, this);
+	LLConversationItem* item = new LLConversationItem(display_name, uuid, getRootViewModel());
 	mConversationsItems[uuid] = item;
 
 	// Create a widget from it
@@ -519,12 +520,11 @@ void LLIMFloaterContainer::removeConversationListItem(const LLUUID& uuid, bool c
 			item->selectItem();
 		}
 	}
-	return;
 }
 
 LLFolderViewItem* LLIMFloaterContainer::createConversationItemWidget(LLConversationItem* item)
 {
-	LLFolderViewItem::Params params;
+	LLConversationViewSession::Params params;
 	
 	params.name = item->getDisplayName();
 	//params.icon = bridge->getIcon();
@@ -534,8 +534,9 @@ LLFolderViewItem* LLIMFloaterContainer::createConversationItemWidget(LLConversat
 	params.listener = item;
 	params.rect = LLRect (0, 0, 0, 0);
 	params.tool_tip = params.name;
+	params.container = this;
 	
-	return LLUICtrlFactory::create<LLFolderViewItem>(params);
+	return LLUICtrlFactory::create<LLConversationViewSession>(params);
 }
 
 // EOF

@@ -238,10 +238,8 @@ void LLConversationLog::cache()
 
 std::string LLConversationLog::getFileName()
 {
-	std::string agent_id_string;
-	gAgent.getID().toString(agent_id_string);
-
-	return gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, agent_id_string) + ".call_log";
+	std::string filename = "conversation";
+	return gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, filename) + ".log";
 }
 
 bool LLConversationLog::saveToFile(const std::string& filename)

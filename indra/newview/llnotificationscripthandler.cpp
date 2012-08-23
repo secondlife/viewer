@@ -78,33 +78,33 @@ bool LLScriptHandler::processNotification(const LLNotificationPtr& notification)
 	}
 	
 	if (notification->canLogToIM())
+	{
+		LLHandlerUtil::logToIMP2P(notification);
+	}
+
+	if(notification->hasFormElements() && !notification->canShowToast())
+	{
+		LLScriptFloaterManager::getInstance()->onAddNotification(notification->getID());
+	}
+	else
+	{
+		LLToastPanel* notify_box = LLToastPanel::buidPanelFromNotification(notification);
+
+		LLToast::Params p;
+		p.notif_id = notification->getID();
+		p.notification = notification;
+		p.panel = notify_box;
+		p.on_delete_toast = boost::bind(&LLScriptHandler::onDeleteToast, this, _1);
+
+		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
+		if(channel)
 		{
-			LLHandlerUtil::logToIMP2P(notification);
+			channel->addToast(p);
 		}
-
-	if(notification->hasFormElements())
-		{
-			LLScriptFloaterManager::getInstance()->onAddNotification(notification->getID());
-		}
-		else
-		{
-			LLToastPanel* notify_box = LLToastPanel::buidPanelFromNotification(notification);
-
-			LLToast::Params p;
-			p.notif_id = notification->getID();
-			p.notification = notification;
-			p.panel = notify_box;	
-			p.on_delete_toast = boost::bind(&LLScriptHandler::onDeleteToast, this, _1);
-
-			LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
-			if(channel)
-			{
-				channel->addToast(p);
-			}
 	}
 
 	return false;
-		}
+}
 
 
 void LLScriptHandler::onDelete( LLNotificationPtr notification )
