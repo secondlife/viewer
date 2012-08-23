@@ -29,7 +29,6 @@
 
 #include "llconversationmodel.h"
 #include "llimconversation.h"
-#include "llimfloatercontainer.h"
 
 // Conversation items
 LLConversationItem::LLConversationItem(std::string display_name, const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :

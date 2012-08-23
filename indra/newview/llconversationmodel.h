@@ -27,18 +27,8 @@
 #ifndef LL_LLCONVERSATIONMODEL_H
 #define LL_LLCONVERSATIONMODEL_H
 
-//#include <map>
-//#include <vector>
-
 #include "llfolderviewitem.h"
 #include "llfolderviewmodel.h"
-
-class LLButton;
-class LLFloater;
-class LLLayoutPanel;
-class LLLayoutStack;
-class LLTabContainer;
-class LLIMFloaterContainer;
 
 // Implementation of conversations list
 

@@ -28,6 +28,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llconversationview.h"
+#include "llconversationmodel.h"
 #include "llimconversation.h"
 #include "llimfloatercontainer.h"
 

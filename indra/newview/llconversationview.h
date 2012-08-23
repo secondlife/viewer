@@ -28,13 +28,7 @@
 #define LL_LLCONVERSATIONVIEW_H
 
 #include "llfolderviewitem.h"
-#include "llfolderviewmodel.h"
 
-class LLButton;
-class LLFloater;
-class LLLayoutPanel;
-class LLLayoutStack;
-class LLTabContainer;
 class LLIMFloaterContainer;
 
 // Implementation of conversations list widgets
