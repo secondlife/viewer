@@ -193,7 +193,7 @@ void LLConversationLogList::onCustomAction(const LLSD& userdata)
 			break;
 
 		case LLIMModel::LLIMSession::GROUP_SESSION:
-			LLGroupActions::startIM(selected_id);
+			LLGroupActions::startIM(getSelectedConversation()->getSessionID());
 			break;
 
 		default:
@@ -209,7 +209,7 @@ void LLConversationLogList::onCustomAction(const LLSD& userdata)
 			break;
 
 		case LLIMModel::LLIMSession::GROUP_SESSION:
-			LLGroupActions::startCall(selected_id);
+			LLGroupActions::startCall(getSelectedConversation()->getSessionID());
 			break;
 
 		default:
@@ -225,7 +225,7 @@ void LLConversationLogList::onCustomAction(const LLSD& userdata)
 			break;
 
 		case LLIMModel::LLIMSession::GROUP_SESSION:
-			LLGroupActions::show(selected_id);
+			LLGroupActions::show(getSelectedConversation()->getSessionID());
 			break;
 
 		default:

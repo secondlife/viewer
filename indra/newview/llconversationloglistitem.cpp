@@ -168,7 +168,7 @@ void LLConversationLogListItem::onDoubleClick()
 		break;
 
 	case LLIMModel::LLIMSession::GROUP_SESSION:
-		LLGroupActions::startIM(mConversation->getParticipantID());
+		LLGroupActions::startIM(mConversation->getSessionID());
 		break;
 
 	default:
