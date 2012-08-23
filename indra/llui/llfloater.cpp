@@ -1101,21 +1101,26 @@ void LLFloater::handleReshape(const LLRect& new_rect, bool by_user)
 	const LLRect old_rect = getRect();
 	LLView::handleReshape(new_rect, by_user);
 
-	if (by_user && !isMinimized())
+	if (by_user && !getHost())
 	{
-		if (isDocked())
-		{
-			setDocked( false, false);
-		}
-		storeRectControl();
-		mPositioning = LLFloaterEnums::POSITIONING_RELATIVE;
-		LLRect screen_rect = calcScreenRect();
-		mPosition = LLCoordGL(screen_rect.getCenterX(), screen_rect.getCenterY()).convert();
+		static_cast<LLFloaterView*>(getParent())->adjustToFitScreen(this, !isMinimized());
 	}
 
 	// if not minimized, adjust all snapped dependents to new shape
 	if (!isMinimized())
 	{
+		if (by_user)
+		{
+			if (isDocked())
+			{
+				setDocked( false, false);
+			}
+			storeRectControl();
+			mPositioning = LLFloaterEnums::POSITIONING_RELATIVE;
+			LLRect screen_rect = calcScreenRect();
+			mPosition = LLCoordGL(screen_rect.getCenterX(), screen_rect.getCenterY()).convert();
+		}
+
 		// gather all snapped dependents
 		for(handle_set_iter_t dependent_it = mDependents.begin();
 			dependent_it != mDependents.end(); ++dependent_it)
