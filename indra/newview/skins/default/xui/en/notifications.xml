@@ -6742,6 +6742,7 @@ If you stay in this region you will be logged out.
   <notification
    icon="notify.tga"
    name="LoadWebPage"
+   show_toast="false"
    type="notify">
 Load web page [URL]?
 
@@ -6844,6 +6845,7 @@ It is rare that such a request is legitimate. Do not allow access if you do not 
   <notification
    icon="notify.tga"
    name="ScriptDialog"
+   show_toast="false"
    type="notify">
 [NAME]&apos;s &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
 [MESSAGE]
@@ -6862,6 +6864,7 @@ It is rare that such a request is legitimate. Do not allow access if you do not 
   <notification
    icon="notify.tga"
    name="ScriptDialogGroup"
+   show_toast="false"
    type="notify">
     <tag>group</tag>
 [GROUPNAME]&apos;s &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;

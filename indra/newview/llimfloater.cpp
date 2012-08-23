@@ -789,7 +789,7 @@ void LLIMFloater::setVisible(BOOL visible)
 		}
 	}
 
-	if (visible)
+	if (visible && isInVisibleChain())
 	{
 		sIMFloaterShowedSignal(mSessionID);
 	}
