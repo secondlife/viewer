@@ -1103,6 +1103,10 @@ void LLFloater::handleReshape(const LLRect& new_rect, bool by_user)
 
 	if (by_user && !isMinimized())
 	{
+		if (isDocked())
+		{
+			setDocked( false, false);
+		}
 		storeRectControl();
 		mPositioning = LLFloaterEnums::POSITIONING_RELATIVE;
 		LLRect screen_rect = calcScreenRect();
@@ -1707,56 +1711,10 @@ void LLFloater::onClickHelp( LLFloater* self )
 	}
 }
 
-// static 
-LLFloater* LLFloater::getClosableFloaterFromFocus()
-{
-	LLFloater* focused_floater = NULL;
-	LLInstanceTracker<LLFloater>::instance_iter it = beginInstances();
-	LLInstanceTracker<LLFloater>::instance_iter end_it = endInstances();
-	for (; it != end_it; ++it)
-	{
-		if (it->hasFocus())
-		{
-			LLFloater& floater = *it;
-			focused_floater = &floater;
-			break;
-		}
-	}
-
-	if (it == endInstances())
-	{
-		// nothing found, return
-		return NULL;
-	}
-
-	// The focused floater may not be closable,
-	// Find and close a parental floater that is closeable, if any.
-	LLFloater* prev_floater = NULL;
-	for(LLFloater* floater_to_close = focused_floater;
-		NULL != floater_to_close; 
-		floater_to_close = gFloaterView->getParentFloater(floater_to_close))
-	{
-		if(floater_to_close->isCloseable())
-		{
-			return floater_to_close;
-		}
-
-		// If floater has as parent root view
-		// gFloaterView->getParentFloater(floater_to_close) returns
-		// the same floater_to_close, so we need to check this.
-		if (prev_floater == floater_to_close) {
-			break;
-		}
-		prev_floater = floater_to_close;
-	}
-
-	return NULL;
-}
-
 // static
-void LLFloater::closeFocusedFloater()
+void LLFloater::closeFrontmostFloater()
 {
-	LLFloater* floater_to_close = LLFloater::getClosableFloaterFromFocus();
+	LLFloater* floater_to_close = gFloaterView->getFrontmostClosableFloater();
 	if(floater_to_close)
 	{
 		floater_to_close->closeFloater();
@@ -2472,6 +2430,24 @@ void LLFloaterView::highlightFocusedFloater()
 			
 		floater->cleanupHandles();
 	}
+}
+
+LLFloater* LLFloaterView::getFrontmostClosableFloater()
+{
+	child_list_const_iter_t child_it;
+	LLFloater* frontmost_floater = NULL;
+
+	for ( child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
+	{
+		frontmost_floater = (LLFloater *)(*child_it);
+
+		if (frontmost_floater->isInVisibleChain() && frontmost_floater->isCloseable())
+		{
+			return frontmost_floater;
+		}
+	}
+
+	return NULL;
 }
 
 void LLFloaterView::unhighlightFocusedFloater()
