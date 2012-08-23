@@ -1153,7 +1153,7 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 		default:
 			llinfos << "Unhandled asset type (llassetstorage.h): "
 					<< (S32)asset_type << " (" << LLAssetType::lookup(asset_type) << ")" << llendl;
-			break;	
+			break;
 	}
 
 	if (new_listener)
@@ -1548,7 +1548,7 @@ void LLItemBridge::buildDisplayName() const
 	else
 	{
 		mDisplayName.assign(LLStringUtil::null);
-	}
+}
 
 	mSearchableName.assign(mDisplayName);
 	mSearchableName.append(getLabelSuffix());
@@ -1556,10 +1556,10 @@ void LLItemBridge::buildDisplayName() const
 
     //Name set, so trigger a sort
     if(mParent)
-    {
+{
         mParent->requestSort();
-    }
-}
+	}
+	}
 
 LLFontGL::StyleFlags LLItemBridge::getLabelStyle() const
 {
@@ -1692,7 +1692,7 @@ BOOL LLItemBridge::removeItem()
 	{
 		return FALSE;
 	}
-	
+
 	// move it to the trash
 	LLPreview::hide(mUUID, TRUE);
 	LLInventoryModel* model = getInventoryModel();
@@ -3466,8 +3466,8 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 			// it's all on its way - add an observer, and the inventory will call done for us when everything is here.
 			inc_busy_count();
 			gInventory.addObserver(fetch);
-		}
 	}
+}
 }
 
 void LLFolderBridge::buildContextMenuFolderOptions(U32 flags,   menuentry_vec_t& items, menuentry_vec_t& disabled_items)
@@ -6511,16 +6511,16 @@ LLInvFVBridge* LLRecentInventoryBridgeBuilder::createBridge(
 		new_listener = new LLRecentItemsFolderBridge(inv_type, inventory, root, uuid);
 	}
 	else
-	{
+		{
 		new_listener = LLInventoryFolderViewModelBuilder::createBridge(asset_type,
-																actual_asset_type,
-																inv_type,
-																inventory,
+				actual_asset_type,
+				inv_type,
+				inventory,
 																view_model,
-																root,
-																uuid,
-																flags);
-	}
+				root,
+				uuid,
+				flags);
+		}
 	return new_listener;
 }
 

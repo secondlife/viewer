@@ -117,7 +117,7 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 	if (mViewModelItem)
 	{
 		mViewModelItem->setFolderViewItem(this);
-	}
+}
 }
 
 BOOL LLFolderViewItem::postBuild()
@@ -219,11 +219,11 @@ void LLFolderViewItem::refresh()
 	mIconOpen = vmi.getIconOpen();
 	mIconOverlay = vmi.getIconOverlay();
 
-	if (mRoot->useLabelSuffix())
-	{
+		if (mRoot->useLabelSuffix())
+		{
 		mLabelStyle = vmi.getLabelStyle();
 		mLabelSuffix = vmi.getLabelSuffix();
-	}
+}
 
 	//TODO RN: make sure this logic still fires
 	//std::string searchable_label(mLabel);
@@ -253,7 +253,7 @@ void LLFolderViewItem::arrangeAndSet(BOOL set_selection,
 	LLFolderView* root = getRoot();
 	if (getParentFolder())
 	{
-		getParentFolder()->requestArrange();
+	getParentFolder()->requestArrange();
 	}
 	if(set_selection)
 	{
@@ -365,12 +365,12 @@ void LLFolderViewItem::selectItem(void)
 BOOL LLFolderViewItem::isMovable()
 {
 	return getViewModelItem()->isItemMovable();
-}
+	}
 
 BOOL LLFolderViewItem::isRemovable()
 {
 	return getViewModelItem()->isItemRemovable();
-	}
+}
 
 void LLFolderViewItem::destroyView()
 {
@@ -400,14 +400,14 @@ BOOL LLFolderViewItem::remove()
 void LLFolderViewItem::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
 	getViewModelItem()->buildContextMenu(menu, flags);
-}
+	}
 
 void LLFolderViewItem::openItem( void )
 {
 	if (mAllowOpen)
 	{
 	getViewModelItem()->openItem();
-}
+	}
 }
 
 void LLFolderViewItem::rename(const std::string& new_name)
@@ -421,7 +421,7 @@ void LLFolderViewItem::rename(const std::string& new_name)
 const std::string& LLFolderViewItem::getName( void ) const
 {
 	return getViewModelItem()->getName();
-}
+	}
 
 // LLView functionality
 BOOL LLFolderViewItem::handleRightMouseDown( S32 x, S32 y, MASK mask )
@@ -484,7 +484,7 @@ BOOL LLFolderViewItem::handleHover( S32 x, S32 y, MASK mask )
 		if( (x - mDragStartX) * (x - mDragStartX) + (y - mDragStartY) * (y - mDragStartY) > drag_and_drop_threshold() * drag_and_drop_threshold() 
 			&& root->getCurSelectedItem()
 			&& root->startDrag())
-				{
+			{
 					// RN: when starting drag and drop, clear out last auto-open
 					root->autoOpenTest(NULL);
 					root->setShowSelectionContext(TRUE);
@@ -496,7 +496,7 @@ BOOL LLFolderViewItem::handleHover( S32 x, S32 y, MASK mask )
 
 			getWindow()->setCursor(UI_CURSOR_ARROW);
 			return TRUE;
-			}
+				}
 		else
 		{
 			getWindow()->setCursor(UI_CURSOR_NOLOCKED);
@@ -758,7 +758,7 @@ void LLFolderViewItem::draw()
 		LLUIImage* box_image = default_params.selection_image;
 		LLRect box_rect(left, top, right, bottom);
 		box_image->draw(box_rect, sFilterBGColor);
-	}
+		}
 
 	LLColor4 color = (mIsSelected && filled) ? sHighlightFgColor : sFgColor;
 	//TODO RN: implement this in terms of getColor()
@@ -785,15 +785,15 @@ void LLFolderViewItem::draw()
 	//--------------------------------------------------------------------------------//
 	// Highlight string match
 	//
-	if (filter_string_length > 0)
-	{
+		if (filter_string_length > 0)
+		{
 		F32 match_string_left = text_left + font->getWidthF32(combined_string, 0, mViewModelItem->getFilterStringOffset());
-		F32 yy = (F32)getRect().getHeight() - font->getLineHeight() - (F32)TEXT_PAD - (F32)TOP_PAD;
+			F32 yy = (F32)getRect().getHeight() - font->getLineHeight() - (F32)TEXT_PAD - (F32)TOP_PAD;
 		font->renderUTF8( combined_string, mViewModelItem->getFilterStringOffset(), match_string_left, yy,
-							sFilterTextColor, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
-							filter_string_length, S32_MAX, &right_x, FALSE );
+							  sFilterTextColor, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
+							  filter_string_length, S32_MAX, &right_x, FALSE );
+		}
 	}
-}
 
 const LLFolderViewModelInterface* LLFolderViewItem::getFolderViewModel( void ) const
 {
@@ -1384,7 +1384,7 @@ void LLFolderViewFolder::destroyView()
 	}
 
 	LLFolderViewItem::destroyView();
-}
+	}
 
 // extractItem() removes the specified item from the folder, but
 // doesn't delete it.
@@ -1418,7 +1418,7 @@ void LLFolderViewFolder::extractItem( LLFolderViewItem* item )
 BOOL LLFolderViewFolder::isMovable()
 {
 	if( !(getViewModelItem()->isItemMovable()) )
-		{
+	{
 			return FALSE;
 		}
 
@@ -1448,7 +1448,7 @@ BOOL LLFolderViewFolder::isMovable()
 BOOL LLFolderViewFolder::isRemovable()
 {
 	if( !(getViewModelItem()->isItemRemovable()) )
-		{
+	{
 			return FALSE;
 		}
 
@@ -1478,7 +1478,7 @@ BOOL LLFolderViewFolder::isRemovable()
 void LLFolderViewFolder::addItem(LLFolderViewItem* item)
 {
 	if (item->getParentFolder())
-	{
+{
 		item->getParentFolder()->extractItem(item);
 	}
 	item->setParentFolder(this);
@@ -1487,10 +1487,10 @@ void LLFolderViewFolder::addItem(LLFolderViewItem* item)
 	
 	item->setRect(LLRect(0, 0, getRect().getWidth(), 0));
 	item->setVisible(FALSE);
-
+	
 	addChild(item);
 	getViewModelItem()->addChild(item->getViewModelItem());
-
+	
 	//TODO RN - make sort bubble up as long as parent Folder doesn't have anything matching sort criteria
 	//// Traverse parent folders and update creation date and resort, if necessary
 	//LLFolderViewFolder* parentp = this;
@@ -1508,11 +1508,11 @@ void LLFolderViewFolder::addItem(LLFolderViewItem* item)
 
 // this is an internal method used for adding items to folders. 
 void LLFolderViewFolder::addFolder(LLFolderViewFolder* folder)
-{
-	if (folder->mParentFolder)
 	{
+	if (folder->mParentFolder)
+		{
 		folder->mParentFolder->extractItem(folder);
-	}
+		}
 	folder->mParentFolder = this;
 	mFolders.push_back(folder);
 	folder->setOrigin(0, 0);
@@ -1524,20 +1524,20 @@ void LLFolderViewFolder::addFolder(LLFolderViewFolder* folder)
 
 	addChild( folder );
 	getViewModelItem()->addChild(folder->getViewModelItem());
-}
+	}
 
 void LLFolderViewFolder::requestArrange()
 { 
 	//if ( mLastArrangeGeneration != -1)
 	{
-		mLastArrangeGeneration = -1; 
-		// flag all items up to root
-		if (mParentFolder)
-		{
-			mParentFolder->requestArrange();
+	mLastArrangeGeneration = -1; 
+	// flag all items up to root
+	if (mParentFolder)
+	{
+		mParentFolder->requestArrange();
+	}
 		}
 	}
-}
 
 void LLFolderViewFolder::toggleOpen()
 {

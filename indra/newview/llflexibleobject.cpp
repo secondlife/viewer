@@ -342,10 +342,10 @@ void LLVolumeImplFlexible::doIdleUpdate()
 	if (drawablep)
 	{
 		//LLFastTimer ftm(FTM_FLEXIBLE_UPDATE);
-		
+
 		//ensure drawable is active
 		drawablep->makeActive();
-			
+
 		if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_FLEXIBLE))
 		{
 			bool visible = drawablep->isVisible();
@@ -364,35 +364,35 @@ void LLVolumeImplFlexible::doIdleUpdate()
 				if	(visible)
 				{
 					if (!drawablep->isState(LLDrawable::IN_REBUILD_Q1) &&
-					mVO->getPixelArea() > 256.f)
-					{
-						U32 id;
-				
-						if (mVO->isRootEdit())
-						{
-							id = mID;
-						}
-						else
-						{
-							LLVOVolume* parent = (LLVOVolume*) mVO->getParent();
-							id = parent->getVolumeInterfaceID();
-						}
+				mVO->getPixelArea() > 256.f)
+			{
+				U32 id;
 
-						if ((LLDrawable::getCurrentFrame()+id)%update_period == 0)
-						{
-							sUpdateDelay[mInstanceIndex] = (S32) update_period-1;
-
-							updateRenderRes();
-
-							gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_POSITION, FALSE);
-						}
-					}
+				if (mVO->isRootEdit())
+				{
+					id = mID;
 				}
 				else
 				{
-					sUpdateDelay[mInstanceIndex] = (S32) update_period;
+					LLVOVolume* parent = (LLVOVolume*) mVO->getParent();
+					id = parent->getVolumeInterfaceID();
+				}
+
+				if ((LLDrawable::getCurrentFrame()+id)%update_period == 0)
+				{
+							sUpdateDelay[mInstanceIndex] = (S32) update_period-1;
+
+					updateRenderRes();
+
+					gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_POSITION, FALSE);
 				}
 			}
+		}
+				else
+				{
+					sUpdateDelay[mInstanceIndex] = (S32) update_period;
+	}
+}
 
 		}
 	}

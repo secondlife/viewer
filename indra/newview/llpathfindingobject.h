@@ -30,8 +30,11 @@
 #include <string>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/function.hpp>
+#include <boost/signals2.hpp>
 
 #include "llavatarname.h"
+#include "llavatarnamecache.h"
 #include "lluuid.h"
 #include "v3math.h"
 
@@ -59,6 +62,12 @@ public:
 	inline BOOL               isGroupOwned() const   {return mIsGroupOwned;};
 	inline const LLVector3&   getLocation() const    {return mLocation;};
 
+	typedef boost::function<void (const LLPathfindingObject *)>         name_callback_t;
+	typedef boost::signals2::signal<void (const LLPathfindingObject *)> name_signal_t;
+	typedef boost::signals2::connection                                 name_connection_t;
+
+	name_connection_t registerOwnerNameListener(name_callback_t pOwnerNameCallback);
+
 protected:
 
 private:
@@ -66,15 +75,18 @@ private:
 
 	void fetchOwnerName();
 	void handleAvatarNameFetch(const LLUUID &pOwnerUUID, const LLAvatarName &pAvatarName);
+	void disconnectAvatarNameCacheConnection();
 
-	LLUUID       mUUID;
-	std::string  mName;
-	std::string  mDescription;
-	LLUUID       mOwnerUUID;
-	bool         mHasOwnerName;
-	LLAvatarName mOwnerName;
-	BOOL         mIsGroupOwned;
-	LLVector3    mLocation;
+	LLUUID                                   mUUID;
+	std::string                              mName;
+	std::string                              mDescription;
+	LLUUID                                   mOwnerUUID;
+	bool                                     mHasOwnerName;
+	LLAvatarName                             mOwnerName;
+	LLAvatarNameCache::callback_connection_t mAvatarNameCacheConnection;
+	BOOL                                     mIsGroupOwned;
+	LLVector3                                mLocation;
+	name_signal_t                            mOwnerNameSignal;
 };
 
 #endif // LL_LLPATHFINDINGOBJECT_H
