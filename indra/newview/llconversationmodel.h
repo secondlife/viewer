@@ -104,6 +104,22 @@ private:
 	const LLUUID mUUID;
 };
 
+class LLConversationItemSession : public LLConversationItem
+{
+public:
+	LLConversationItemSession(std::string display_name, const LLUUID& uuid, LLFolderViewModelInterface& root_view_model);
+	LLConversationItemSession(LLFolderViewModelInterface& root_view_model);
+	virtual ~LLConversationItemSession() {}
+};
+
+class LLConversationItemParticipant : public LLConversationItem
+{
+public:
+	LLConversationItemParticipant(std::string display_name, const LLUUID& uuid, LLFolderViewModelInterface& root_view_model);
+	LLConversationItemParticipant(LLFolderViewModelInterface& root_view_model);
+	virtual ~LLConversationItemParticipant() {}
+};
+
 // We don't want to ever filter conversations but we need to declare that class to create a conversation view model.
 // We just stubb everything for the moment.
 class LLConversationFilter : public LLFolderViewFilter

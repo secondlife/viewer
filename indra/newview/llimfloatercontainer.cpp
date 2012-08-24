@@ -471,7 +471,7 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 	removeConversationListItem(uuid,false);
 
 	// Create a conversation item
-	LLConversationItem* item = new LLConversationItem(display_name, uuid, getRootViewModel());
+	LLConversationItem* item = new LLConversationItemSession(display_name, uuid, getRootViewModel());
 	mConversationsItems[uuid] = item;
 
 	// Create a widget from it

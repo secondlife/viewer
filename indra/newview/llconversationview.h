@@ -31,7 +31,7 @@
 
 class LLIMFloaterContainer;
 
-// Implementation of conversations list widgets
+// Implementation of conversations list session widgets
 
 class LLConversationViewSession : public LLFolderViewFolder
 {
@@ -53,6 +53,18 @@ public:
 	virtual ~LLConversationViewSession( void ) { }
 	virtual void selectItem();	
 	void setVisibleIfDetached(BOOL visible);
+};
+
+// Implementation of conversations list participant (avatar) widgets
+
+class LLConversationViewParticipant : public LLFolderViewItem
+{
+protected:
+	friend class LLUICtrlFactory;
+	LLConversationViewParticipant( const LLFolderViewItem::Params& p );
+	
+public:
+	virtual ~LLConversationViewParticipant( void ) { }
 };
 
 #endif // LL_LLCONVERSATIONVIEW_H

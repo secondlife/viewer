@@ -29,7 +29,10 @@
 
 #include "llconversationmodel.h"
 
-// Conversation items
+//
+// Conversation items : common behaviors
+//
+
 LLConversationItem::LLConversationItem(std::string display_name, const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
 	LLFolderViewModelItemCommon(root_view_model),
 	mName(display_name),
@@ -71,6 +74,34 @@ bool LLConversationSort::operator()(const LLConversationItem* const& a, const LL
 	// *TODO : Implement the sorting by date
 	S32 compare = LLStringUtil::compareDict(a->getDisplayName(), b->getDisplayName());
 	return (compare < 0);
+}
+
+//
+// LLConversationItemSession
+// 
+
+LLConversationItemSession::LLConversationItemSession(std::string display_name, const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
+	LLConversationItem(display_name,uuid,root_view_model)
+{
+}
+
+LLConversationItemSession::LLConversationItemSession(LLFolderViewModelInterface& root_view_model) :
+	LLConversationItem(root_view_model)
+{
+}
+
+//
+// LLConversationItemParticipant
+// 
+
+LLConversationItemParticipant::LLConversationItemParticipant(std::string display_name, const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
+	LLConversationItem(display_name,uuid,root_view_model)
+{
+}
+
+LLConversationItemParticipant::LLConversationItemParticipant(LLFolderViewModelInterface& root_view_model) :
+	LLConversationItem(root_view_model)
+{
 }
 
 // EOF
