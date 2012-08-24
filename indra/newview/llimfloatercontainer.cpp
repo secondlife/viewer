@@ -328,11 +328,11 @@ void LLIMFloaterContainer::setVisible(BOOL visible)
 	// We need to show/hide all the associated conversations that have been torn off
 	// (and therefore, are not longer managed by the multifloater),
 	// so that they show/hide with the conversations manager.
-	conversations_widgets_map::iterator item_it = mConversationsWidgets.begin();
-	for (;item_it != mConversationsWidgets.end(); ++item_it)
+	conversations_widgets_map::iterator widget_it = mConversationsWidgets.begin();
+	for (;widget_it != mConversationsWidgets.end(); ++widget_it)
 	{
-		LLConversationViewSession* item = dynamic_cast<LLConversationViewSession*>(item_it->second);
-		item->setVisibleIfDetached(visible);
+		LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(widget_it->second);
+		widget->setVisibleIfDetached(visible);
 	}
 	
 	// Now, do the normal multifloater show/hide
@@ -471,7 +471,7 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 	removeConversationListItem(uuid,false);
 
 	// Create a conversation item
-	LLConversationItem* item = new LLConversationItem(display_name, uuid, getRootViewModel());
+	LLConversationItem* item = new LLConversationItemSession(display_name, uuid, getRootViewModel());
 	mConversationsItems[uuid] = item;
 
 	// Create a widget from it
@@ -513,11 +513,11 @@ void LLIMFloaterContainer::removeConversationListItem(const LLUUID& uuid, bool c
 	if (change_focus)
 	{
 		setFocus(TRUE);
-		conversations_items_map::iterator item_it = mConversationsItems.begin();
-		if (item_it != mConversationsItems.end())
+		conversations_widgets_map::iterator widget_it = mConversationsWidgets.begin();
+		if (widget_it != mConversationsWidgets.end())
 		{
-			LLConversationItem* item = item_it->second;
-			item->selectItem();
+			LLFolderViewItem* widget = widget_it->second;
+			widget->selectItem();
 		}
 	}
 }

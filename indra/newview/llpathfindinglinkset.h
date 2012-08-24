@@ -63,12 +63,16 @@ public:
 
 	inline ELinksetUse getLinksetUse() const               {return mLinksetUse;};
 
+	inline BOOL        isScripted() const                  {return mIsScripted;};
+	inline BOOL        hasIsScripted() const               {return mHasIsScripted;};
+
 	inline S32         getWalkabilityCoefficientA() const  {return mWalkabilityCoefficientA;};
 	inline S32         getWalkabilityCoefficientB() const  {return mWalkabilityCoefficientB;};
 	inline S32         getWalkabilityCoefficientC() const  {return mWalkabilityCoefficientC;};
 	inline S32         getWalkabilityCoefficientD() const  {return mWalkabilityCoefficientD;};
 
 	bool               isShowUnmodifiablePhantomWarning(ELinksetUse pLinksetUse) const;
+	bool               isShowPhantomToggleWarning(ELinksetUse pLinksetUse) const;
 	bool               isShowCannotBeVolumeWarning(ELinksetUse pLinksetUse) const;
 	LLSD               encodeAlteredFields(ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const;
 
@@ -98,6 +102,8 @@ private:
 	U32          mLandImpact;
 	BOOL         mIsModifiable;
 	BOOL         mCanBeVolume;
+	BOOL         mIsScripted;
+	BOOL         mHasIsScripted;
 	ELinksetUse  mLinksetUse;
 	S32          mWalkabilityCoefficientA;
 	S32          mWalkabilityCoefficientB;

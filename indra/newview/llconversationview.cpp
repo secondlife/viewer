@@ -32,6 +32,10 @@
 #include "llimconversation.h"
 #include "llimfloatercontainer.h"
 
+//
+// Implementation of conversations list session widgets
+//
+
 LLConversationViewSession::Params::Params() :	
 	container()
 {}
@@ -73,6 +77,15 @@ void LLConversationViewSession::setVisibleIfDetached(BOOL visible)
 	{
 		session_floater->setVisible(visible);
 	}
+}
+
+//
+// Implementation of conversations list participant (avatar) widgets
+//
+
+LLConversationViewParticipant::LLConversationViewParticipant( const LLFolderViewItem::Params& p ):
+	LLFolderViewItem(p)
+{
 }
 
 // EOF

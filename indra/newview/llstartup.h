@@ -111,7 +111,7 @@ public:
 
 	static void postStartupState();
 	static void setStartSLURL(const LLSLURL& slurl); 
-	static LLSLURL& getStartSLURL() { return sStartSLURL; } 
+	static LLSLURL& getStartSLURL();
 
 	static bool startLLProxy(); // Initialize the SOCKS 5 proxy
 
