@@ -1500,6 +1500,10 @@ void LLGroupMgr::sendGroupMembersRequest(const LLUUID& group_id)
 	}
 }
 
+
+
+
+
 void LLGroupMgr::sendGroupRoleDataRequest(const LLUUID& group_id)
 {
 	lldebugs << "LLGroupMgr::sendGroupRoleDataRequest" << llendl;
@@ -1831,6 +1835,93 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 		gAgent.sendReliableMessage();
 	}
 }
+
+
+//////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////// 
+// STUBBED IN FOR code completion
+class GroupMemberDataResponder : public LLHTTPClient::Responder
+{
+public:
+		GroupMemberDataResponder() {}
+		virtual ~GroupMemberDataResponder() {}
+		virtual void result(const LLSD& pContent);
+		virtual void error(U32 pStatus, const std::string& pReason) {}
+private:
+		LLSD mMemberData;
+};
+
+void GroupMemberDataResponder::result(const LLSD& pContent)
+{
+	LL_INFOS("BAKER") << "BAKER TAG ////////////////////////////////////////////////////////////////" << LL_ENDL;
+	// Did we get anything in pContent?
+	if(pContent.size())
+	{
+		LL_INFOS("BAKER") << "Lik dis if u cry evertim" << LL_ENDL;
+
+		// BAKER TODO:
+		// Figure out what to do with all the dataz.
+		// Looks like processGroupMembersReply does the work
+		LLUUID	agent_id	= pContent["agent_id"];
+		LLUUID	group_id	= pContent["group_id"];
+		LLSD	member_list	= pContent["members"];
+		LLSD	titles		= pContent["titles"];
+		LLSD	defaults	= pContent["defaults"];
+
+		int i = 0;
+		++i;
+
+
+
+	}
+	else
+	{
+		LL_INFOS("BAKER") << "WE AIN'T FOUND SHIT!" << LL_ENDL;
+
+		// BAKER TODO:
+		// Handle this case
+
+	}
+	LL_INFOS("BAKER") << "//////////////////////////////////////////////////////////////////////////\n" << LL_ENDL;
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////// 
+// BAKER
+// static
+void LLGroupMgr::sendCapGroupMembersRequest(const LLUUID& group_id)
+{
+	//sendGroupMembersRequest(group_id);
+	//return;
+
+#if 1
+	LLViewerRegion* currentRegion = gAgent.getRegion();
+
+	// Check to make sure we have our capabilities
+	if(!currentRegion->capabilitiesReceived())
+	{
+		LL_INFOS("BAKER") << " Capabilities not received! -- OSHITSON --" << LL_ENDL;
+		// BAKER TODO: Handle this!
+	}
+
+	// Get our capability
+	std::string cap_url =  currentRegion->getCapability("GroupMemberData");
+
+	// Post to our service.  Add a body containing the group_id.
+	LLSD body = LLSD::emptyMap();
+	body["group_id"] = group_id;
+
+	LLHTTPClient::ResponderPtr grp_data_responder = new GroupMemberDataResponder();
+	 // This could take a while to finish, timeout after 10 minutes.
+	LLHTTPClient::post(cap_url, body, grp_data_responder, LLSD(), 600);
+#endif
+}
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
 
 void LLGroupMgr::sendGroupRoleChanges(const LLUUID& group_id)
 {

@@ -570,7 +570,14 @@ void LLPanelGroupInvite::updateLists()
 		if (!mPendingUpdate) 
 		{
 			LLGroupMgr::getInstance()->sendGroupPropertiesRequest(mImplementation->mGroupID);
-			LLGroupMgr::getInstance()->sendGroupMembersRequest(mImplementation->mGroupID);
+			
+			//////////////////////////////////////////////////////////////////////////
+			// BAKER TODO:
+			//	Use cap here!
+			//////////////////////////////////////////////////////////////////////////
+			LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mImplementation->mGroupID);
+			//LLGroupMgr::getInstance()->sendGroupMembersRequest(mImplementation->mGroupID);
+
 			LLGroupMgr::getInstance()->sendGroupRoleDataRequest(mImplementation->mGroupID);
 		}
 		mPendingUpdate = TRUE;

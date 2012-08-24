@@ -317,7 +317,12 @@ void LLPanelGroupGeneral::activate()
 		
 		if (!gdatap || !gdatap->isMemberDataComplete() )
 		{
-			LLGroupMgr::getInstance()->sendGroupMembersRequest(mGroupID);
+			//////////////////////////////////////////////////////////////////////////
+			// BAKER TODO:
+			//	Use cap here!
+			//////////////////////////////////////////////////////////////////////////
+			LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mGroupID);
+			//LLGroupMgr::getInstance()->sendGroupMembersRequest(mGroupID);
 		}
 
 		mFirstUse = FALSE;
@@ -714,7 +719,7 @@ void LLPanelGroupGeneral::updateMembers()
 	for( ; mMemberProgress != gdatap->mMembers.end() && i<UPDATE_MEMBERS_PER_FRAME; 
 			++mMemberProgress, ++i)
 	{
-		//llinfos << "Adding " << iter->first << ", " << iter->second->getTitle() << llendl;
+		llinfos << "Adding " << mMemberProgress->first << ", " << mMemberProgress->second->getTitle() << llendl;
 		LLGroupMemberData* member = mMemberProgress->second;
 		if (!member)
 		{
