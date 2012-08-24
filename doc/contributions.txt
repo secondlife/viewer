@@ -401,6 +401,7 @@ Gaberoonie Zanzibar
 Ganymedes Costagravas
 Geenz Spad
 	STORM-1823
+	STORM-1900
 Gene Frostbite
 GeneJ Composer
 Geneko Nemeth
@@ -657,6 +658,8 @@ Kage Pixel
 	VWR-11
 Kagehi Kohn
 Kaimen Takahe
+Katharine Berry
+	STORM-1900
 Keklily Longfall
 Ken Lavender
 Ken March

@@ -45,7 +45,10 @@ include(VisualLeakDetector)
 include(GLOD)
 include(CMakeCopyIfDifferent)
 
-add_subdirectory(${LLPHYSICSEXTENSIONS_SRC_DIR} llphysicsextensions)
+if (NOT HAVOK_TPV)
+   # When using HAVOK_TPV, the library is precompiled, so no need for this
+   add_subdirectory(${LLPHYSICSEXTENSIONS_SRC_DIR} llphysicsextensions)
+endif (NOT HAVOK_TPV)
 
 include_directories(
     ${DBUSGLIB_INCLUDE_DIRS}
@@ -1954,6 +1957,12 @@ if (DARWIN)
     )
 
   add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_quicktime media_plugin_webkit mac-updater mac-crash-logger)
+  
+  if (ENABLE_SIGNING)
+      set(SIGNING_SETTING "--signature=${SIGNING_IDENTITY}")
+  else (ENABLE_SIGNING)
+      set(SIGNING_SETTING "")
+  endif (ENABLE_SIGNING)
 
   if (PACKAGE)
       add_custom_target(package ALL DEPENDS ${VIEWER_BINARY_NAME})
@@ -1973,6 +1982,7 @@ if (DARWIN)
           --login_channel=${VIEWER_LOGIN_CHANNEL}
           --source=${CMAKE_CURRENT_SOURCE_DIR}
           --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.touched
+          ${SIGNING_SETTING}
         DEPENDS
           ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
       )
