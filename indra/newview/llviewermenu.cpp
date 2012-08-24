@@ -1317,22 +1317,6 @@ class LLAdvancedPrintAgentInfo : public view_listener_t
 	}
 };
 
-
-
-////////////////////////////////
-// PRINT TEXTURE MEMORY STATS //
-////////////////////////////////
-
-
-class LLAdvancedPrintTextureMemoryStats : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		output_statistics(NULL);
-		return true;
-	}
-};
-
 //////////////////
 // DEBUG CLICKS //
 //////////////////
@@ -8448,7 +8432,6 @@ void initialize_menus()
 	commit.add("Advanced.DumpFocusHolder", boost::bind(&handle_dump_focus) );
 	view_listener_t::addMenu(new LLAdvancedPrintSelectedObjectInfo(), "Advanced.PrintSelectedObjectInfo");
 	view_listener_t::addMenu(new LLAdvancedPrintAgentInfo(), "Advanced.PrintAgentInfo");
-	view_listener_t::addMenu(new LLAdvancedPrintTextureMemoryStats(), "Advanced.PrintTextureMemoryStats");
 	view_listener_t::addMenu(new LLAdvancedToggleDebugClicks(), "Advanced.ToggleDebugClicks");
 	view_listener_t::addMenu(new LLAdvancedCheckDebugClicks(), "Advanced.CheckDebugClicks");
 	view_listener_t::addMenu(new LLAdvancedCheckDebugViews(), "Advanced.CheckDebugViews");

@@ -35,7 +35,6 @@
 
 #include "llapr.h"
 #include "llstl.h"
-#include "llstat.h"
 
 // These should not be enabled in production, but they can be
 // intensely useful during development for finding certain kinds of
@@ -432,6 +431,7 @@ void LLPumpIO::pump()
 }
 
 static LLFastTimer::DeclareTimer FTM_PUMP_IO("Pump IO");
+static LLFastTimer::DeclareTimer FTM_PUMP_POLL("Pump Poll");
 
 LLPumpIO::current_chain_t LLPumpIO::removeRunningChain(LLPumpIO::current_chain_t& run_chain) 
 {
@@ -526,7 +526,7 @@ void LLPumpIO::pump(const S32& poll_timeout)
 		S32 count = 0;
 		S32 client_id = 0;
         {
-            LLPerfBlock polltime("pump_poll");
+			LLFastTimer _(FTM_PUMP_POLL);
             apr_pollset_poll(mPollset, poll_timeout, &count, &poll_fd);
         }
 		PUMP_DEBUG;

@@ -53,7 +53,7 @@ set(llcommon_SOURCE_FILES
     lleventfilter.cpp
     llevents.cpp
     lleventtimer.cpp
-    llfasttimer_class.cpp
+    llfasttimer.cpp
     llfile.cpp
     llfindlocale.cpp
     llfixedbuffer.cpp
@@ -166,7 +166,6 @@ set(llcommon_HEADER_FILES
     lleventemitter.h
     llextendedstatus.h
     llfasttimer.h
-    llfasttimer_class.h
     llfile.h
     llfindlocale.h
     llfixedbuffer.h

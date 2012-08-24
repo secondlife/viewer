@@ -1342,11 +1342,8 @@ void LLViewerRegion::requestCacheMisses()
 
 	mCacheDirty = TRUE ;
 	// llinfos << "KILLDEBUG Sent cache miss full " << full_count << " crc " << crc_count << llendl;
-	#if LL_RECORD_VIEWER_STATS
-	LLViewerStatsRecorder::instance()->beginObjectUpdateEvents(this);
-	LLViewerStatsRecorder::instance()->recordRequestCacheMissesEvent(full_count + crc_count);
-	LLViewerStatsRecorder::instance()->endObjectUpdateEvents();
-	#endif
+	LLViewerStatsRecorder::instance().requestCacheMissesEvent(full_count + crc_count);
+	LLViewerStatsRecorder::instance().log(0.2f);
 }
 
 void LLViewerRegion::dumpCache()
@@ -1547,7 +1544,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("LandResources");
 	capabilityNames.append("MapLayer");
 	capabilityNames.append("MapLayerGod");
-	capabilityNames.append("MeshUploadFlag");	
+	capabilityNames.append("MeshUploadFlag");
 	capabilityNames.append("NavMeshGenerationStatus");
 	capabilityNames.append("NewFileAgentInventory");
 	capabilityNames.append("ObjectNavMeshProperties");
@@ -1587,7 +1584,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("ViewerMetrics");
 	capabilityNames.append("ViewerStartAuction");
 	capabilityNames.append("ViewerStats");
-
+	
 	// Please add new capabilities alphabetically to reduce
 	// merge conflicts.
 }

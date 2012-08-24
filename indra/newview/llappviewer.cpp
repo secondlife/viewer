@@ -727,10 +727,6 @@ bool LLAppViewer::init()
 
     mAlloc.setProfilingEnabled(gSavedSettings.getBOOL("MemProfiling"));
 
-#if LL_RECORD_VIEWER_STATS
-	LLViewerStatsRecorder::initClass();
-#endif
-
     // *NOTE:Mani - LLCurl::initClass is not thread safe. 
     // Called before threads are created.
     LLCurl::initClass(gSavedSettings.getF32("CurlRequestTimeOut"), 
@@ -797,9 +793,6 @@ bool LLAppViewer::init()
 	//////////////////////////////////////////////////////////////////////////////
 	// *FIX: The following code isn't grouped into functions yet.
 
-	// Statistics / debug timer initialization
-	init_statistics();
-	
 	//
 	// Various introspection concerning the libs we're using - particularly
 	// the libs involved in getting to a full login screen.
@@ -1185,6 +1178,8 @@ static LLFastTimer::DeclareTimer FTM_SERVICE_CALLBACK("Callback");
 static LLFastTimer::DeclareTimer FTM_AGENT_AUTOPILOT("Autopilot");
 static LLFastTimer::DeclareTimer FTM_AGENT_UPDATE("Update");
 
+LLFastTimer::DeclareTimer FTM_FRAME("Frame");
+
 bool LLAppViewer::mainLoop()
 {
 	mMainloopTimeout = new LLWatchdogTimeout();
@@ -1222,7 +1217,8 @@ bool LLAppViewer::mainLoop()
 	// Handle messages
 	while (!LLApp::isExiting())
 	{
-		LLFastTimer::nextFrame(); // Should be outside of any timer instances
+		LLFastTimer _(FTM_FRAME);
+		LLFastTimer::nextFrame(); 
 
 		//clear call stack records
 		llclearcallstacks;
@@ -1910,10 +1906,6 @@ bool LLAppViewer::cleanup()
 	}	
 
 	LLMetricPerformanceTesterBasic::cleanClass() ;
-
-#if LL_RECORD_VIEWER_STATS
-	LLViewerStatsRecorder::cleanupClass();
-#endif
 
 	llinfos << "Cleaning up Media and Textures" << llendflush;
 
@@ -3147,8 +3139,6 @@ void LLAppViewer::writeSystemInfo()
 	LL_INFOS("SystemInfo") << "OS: " << getOSInfo().getOSStringSimple() << LL_ENDL;
 	LL_INFOS("SystemInfo") << "OS info: " << getOSInfo() << LL_ENDL;
 
-	LL_INFOS("SystemInfo") << "Timers: " << LLFastTimer::sClockType << LL_ENDL;
-
 	writeDebugInfo(); // Save out debug_info.log early, in case of crash.
 }
 
@@ -4245,7 +4235,6 @@ void LLAppViewer::idle()
 		// of SEND_STATS_PERIOD so that the initial stats report will
 		// be sent immediately.
 		static LLFrameStatsTimer viewer_stats_timer(SEND_STATS_PERIOD);
-		reset_statistics();
 
 		// Update session stats every large chunk of time
 		// *FIX: (???) SAMANTHA
@@ -4305,7 +4294,7 @@ void LLAppViewer::idle()
 		idle_afk_check();
 
 		//  Update statistics for this frame
-		update_statistics(gFrameCount);
+		update_statistics();
 	}
 
 	////////////////////////////////////////

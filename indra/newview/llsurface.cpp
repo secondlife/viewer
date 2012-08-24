@@ -62,8 +62,6 @@ LLColor4U MAX_WATER_COLOR(0, 48, 96, 240);
 
 
 S32 LLSurface::sTextureSize = 256;
-S32 LLSurface::sTexelsUpdated = 0;
-F32 LLSurface::sTextureUpdateTime = 0.f;
 
 // ---------------- LLSurface:: Public Members ---------------
 
