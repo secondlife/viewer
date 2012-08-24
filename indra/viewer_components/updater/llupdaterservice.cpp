@@ -509,7 +509,7 @@ bool LLUpdaterServiceImpl::onMainLoop(LLSD const & event)
 		}
 		else
 		{
-			mUpdateChecker.check(mProtocolVersion, mUrl, mPath, mChannel, mVersion);
+			mUpdateChecker.checkVersion(mProtocolVersion, mUrl, mPath, mChannel, mVersion);
 			setState(LLUpdaterService::CHECKING_FOR_UPDATE);
 		}
 	} 

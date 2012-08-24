@@ -288,7 +288,7 @@ void LLFolderView::addFolder( LLFolderViewFolder* folder)
 	//{
 	//	mFolders.insert(mFolders.begin(), folder);
 	//}
-}
+	}
 
 void LLFolderView::closeAllFolders()
 {
@@ -311,7 +311,7 @@ void LLFolderView::openTopLevelFolders()
 // *width should be 0
 // conform show folder state works
 S32 LLFolderView::arrange( S32* unused_width, S32* unused_height )
-	{
+		{
 	mMinWidth = 0;
 	S32 target_height;
 
@@ -340,7 +340,7 @@ void LLFolderView::filter( LLFolderViewFilter& filter )
 	filter.setFilterCount(llclamp(LLUI::sSettingGroups["config"]->getS32("FilterItemsPerFrame"), 1, 5000));
 
 	getViewModelItem()->filter(filter);
-	}
+}
 
 void LLFolderView::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
@@ -761,8 +761,8 @@ void LLFolderView::removeSelectedItems()
 				{
 					// change selection on successful delete
 					setSelection(item_to_select, item_to_select ? item_to_select->isOpen() : false, mParentPanel->hasFocus());
+					}
 				}
-			}
 			arrangeAll();
 		}
 		else if (count > 1)
@@ -858,7 +858,7 @@ void LLFolderView::propertiesSelectedItems( void )
 	//		multi_propertiesp->openFloater(LLSD());
 	//	}
 	//}
-		}
+}
 
 
 void LLFolderView::autoOpenItem( LLFolderViewFolder* item )
@@ -1718,14 +1718,13 @@ void LLFolderView::update()
 
 	// filter to determine visibility before arranging
 	filter(getFolderViewModel()->getFilter());
-
 	// Clear the modified setting on the filter only if the filter count is non-zero after running the filter process
 	// Note: if the filter count is zero, then the filter most likely halted before completing the entire set of items
 	if (getFolderViewModel()->getFilter().isModified() && (getFolderViewModel()->getFilter().getFilterCount() > 0))
 	{
 		getFolderViewModel()->getFilter().clearModified();
 	}
-
+			
 	// automatically show matching items, and select first one if we had a selection
 	if (mNeedsAutoSelect)
 	{
@@ -2033,6 +2032,25 @@ void LLFolderView::onRenamerLost()
 	}
 }
 
+LLFolderViewItem* LLFolderView::getNextUnselectedItem()
+{
+	LLFolderViewItem* last_item = *mSelectedItems.rbegin();
+	LLFolderViewItem* new_selection = last_item->getNextOpenNode(FALSE);
+	while(new_selection && new_selection->isSelected())
+	{
+		new_selection = new_selection->getNextOpenNode(FALSE);
+	}
+	if (!new_selection)
+	{
+		new_selection = last_item->getPreviousOpenNode(FALSE);
+		while (new_selection && (new_selection->isInSelection()))
+		{
+			new_selection = new_selection->getPreviousOpenNode(FALSE);
+		}
+	}
+	return new_selection;
+}
+
 S32 LLFolderView::getItemHeight()
 {
 	if(!hasVisibleChildren())
@@ -2041,23 +2059,4 @@ S32 LLFolderView::getItemHeight()
 		return llmax(0, mStatusTextBox->getTextPixelHeight());
 }
 	return 0;
-}
-
-LLFolderViewItem* LLFolderView::getNextUnselectedItem()
-{
-	LLFolderViewItem* last_item = *mSelectedItems.rbegin();
-	LLFolderViewItem* new_selection = last_item->getNextOpenNode(FALSE);
-	while(new_selection && new_selection->isSelected())
-{
-		new_selection = new_selection->getNextOpenNode(FALSE);
-}
-	if (!new_selection)
-{
-		new_selection = last_item->getPreviousOpenNode(FALSE);
-		while (new_selection && (new_selection->isInSelection()))
-	{
-			new_selection = new_selection->getPreviousOpenNode(FALSE);
-	}
-}
-	return new_selection;
 }
