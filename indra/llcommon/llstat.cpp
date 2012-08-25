@@ -37,7 +37,8 @@
 
 
 // statics
-LLStat::stat_map_t LLStat::sStatList;
+
+
 //------------------------------------------------------------------------
 LLTimer LLStat::sTimer;
 LLFrameTimer LLStat::sFrameTimer;
@@ -55,7 +56,8 @@ void LLStat::reset()
 LLStat::LLStat(std::string name, S32 num_bins, BOOL use_frame_timer)
 :	mUseFrameTimer(use_frame_timer),
 	mNumBins(num_bins),
-	mName(name)
+	mName(name),
+	mBins(NULL)
 {
 	llassert(mNumBins > 0);
 	mLastTime  = 0.f;
@@ -64,12 +66,19 @@ LLStat::LLStat(std::string name, S32 num_bins, BOOL use_frame_timer)
 
 	if (!mName.empty())
 	{
-		stat_map_t::iterator iter = sStatList.find(mName);
-		if (iter != sStatList.end())
+		stat_map_t::iterator iter = getStatList().find(mName);
+		if (iter != getStatList().end())
 			llwarns << "LLStat with duplicate name: " << mName << llendl;
-		sStatList.insert(std::make_pair(mName, this));
+		getStatList().insert(std::make_pair(mName, this));
 	}
 }
+
+LLStat::stat_map_t& LLStat::getStatList()
+{
+	static LLStat::stat_map_t stat_list;
+	return stat_list;
+}
+
 
 LLStat::~LLStat()
 {
@@ -78,10 +87,10 @@ LLStat::~LLStat()
 	if (!mName.empty())
 	{
 		// handle multiple entries with the same name
-		stat_map_t::iterator iter = sStatList.find(mName);
-		while (iter != sStatList.end() && iter->second != this)
+		stat_map_t::iterator iter = getStatList().find(mName);
+		while (iter != getStatList().end() && iter->second != this)
 			++iter;
-		sStatList.erase(iter);
+		getStatList().erase(iter);
 	}
 }
 
