@@ -40,6 +40,13 @@ LLConversationItem::LLConversationItem(std::string display_name, const LLUUID& u
 {
 }
 
+LLConversationItem::LLConversationItem(const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
+	LLFolderViewModelItemCommon(root_view_model),
+	mName(""),
+	mUUID(uuid)
+{
+}
+
 LLConversationItem::LLConversationItem(LLFolderViewModelInterface& root_view_model) :
 	LLFolderViewModelItemCommon(root_view_model),
 	mName(""),
@@ -85,8 +92,8 @@ LLConversationItemSession::LLConversationItemSession(std::string display_name, c
 {
 }
 
-LLConversationItemSession::LLConversationItemSession(LLFolderViewModelInterface& root_view_model) :
-	LLConversationItem(root_view_model)
+LLConversationItemSession::LLConversationItemSession(const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
+	LLConversationItem(uuid,root_view_model)
 {
 }
 
@@ -99,8 +106,8 @@ LLConversationItemParticipant::LLConversationItemParticipant(std::string display
 {
 }
 
-LLConversationItemParticipant::LLConversationItemParticipant(LLFolderViewModelInterface& root_view_model) :
-	LLConversationItem(root_view_model)
+LLConversationItemParticipant::LLConversationItemParticipant(const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
+	LLConversationItem(uuid,root_view_model)
 {
 }
 

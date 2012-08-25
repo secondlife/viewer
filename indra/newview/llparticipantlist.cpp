@@ -200,9 +200,11 @@ private:
 
 LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source,
 									 LLAvatarList* avatar_list,
+									 LLFolderViewModelInterface& root_view_model,
 									 bool use_context_menu/* = true*/,
 									 bool exclude_agent /*= true*/,
 									 bool can_toggle_icons /*= true*/) :
+	LLConversationItemSession(data_source->getSessionID(), root_view_model),
 	mSpeakerMgr(data_source),
 	mAvatarList(avatar_list),
 	mParticipantListMenu(NULL),
