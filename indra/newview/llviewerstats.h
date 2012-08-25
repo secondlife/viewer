@@ -70,7 +70,7 @@ public:
 			mSimSimPhysicsStepMsec,
 			mSimSimPhysicsShapeUpdateMsec,
 			mSimSimPhysicsOtherMsec,
-			mSimSimAIStepMSec,
+			mSimSimAIStepMsec,
 			mSimSimSkippedSilhouetteSteps,
 			mSimSimPctSteppedCharacters,
 
