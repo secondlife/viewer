@@ -54,8 +54,9 @@ void LLStat::reset()
 LLStat::LLStat(std::string name, S32 num_bins, BOOL use_frame_timer)
 :	mUseFrameTimer(use_frame_timer),
 	mNumBins(num_bins),
-	mName(name)
-	{
+	mName(name),
+	mBins(NULL)
+{
 	llassert(mNumBins > 0);
 	mLastTime  = 0.f;
 

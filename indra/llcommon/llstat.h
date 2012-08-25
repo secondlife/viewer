@@ -40,7 +40,6 @@ class LL_COMMON_API LLStat
 private:
 	typedef std::multimap<std::string, LLStat*> stat_map_t;
 
-	void init();
 	static stat_map_t& getStatList();
 
 public:
