@@ -2075,7 +2075,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 	{
 		if (new_angv != old_angv)
 		{
-			if (flagUsePhysics())
+			if (flagUsePhysics() || new_angv.isExactlyZero())
 			{
 				resetRot();
 			}
