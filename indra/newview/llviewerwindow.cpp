@@ -198,7 +198,6 @@
 
 #include "llfloaternotificationsconsole.h"
 
-#include "llnearbychat.h"
 #include "llwindowlistener.h"
 #include "llviewerwindowlistener.h"
 #include "llpaneltopinfobar.h"
@@ -2497,43 +2496,42 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	// Traverses up the hierarchy
 	if( keyboard_focus )
 	{
-		LLNearbyChat* nearby_chat = LLFloaterReg::findTypedInstance<LLNearbyChat>("chat_bar");
+		if (LLNearbyChat::instanceExists())
+		{
+			LLChatEntry* chat_editor = LLNearbyChat::instance().getChatBox();
 
-		if (nearby_chat)
-		{
-			LLChatEntry* chat_editor = nearby_chat->getChatBox();
-		
-		// arrow keys move avatar while chatting hack
-		if (chat_editor && chat_editor->hasFocus())
-		{
-			// If text field is empty, there's no point in trying to move
-			// cursor with arrow keys, so allow movement
-			if (chat_editor->getText().empty() 
-				|| gSavedSettings.getBOOL("ArrowKeysAlwaysMove"))
+			// arrow keys move avatar while chatting hack
+			if (chat_editor && chat_editor->hasFocus())
 			{
-				// let Control-Up and Control-Down through for chat line history,
-				if (!(key == KEY_UP && mask == MASK_CONTROL)
-					&& !(key == KEY_DOWN && mask == MASK_CONTROL))
+				// If text field is empty, there's no point in trying to move
+				// cursor with arrow keys, so allow movement
+				if (chat_editor->getText().empty()
+					|| gSavedSettings.getBOOL("ArrowKeysAlwaysMove"))
 				{
-					switch(key)
+					// let Control-Up and Control-Down through for chat line history,
+					if (!(key == KEY_UP && mask == MASK_CONTROL)
+						&& !(key == KEY_DOWN && mask == MASK_CONTROL))
 					{
-					case KEY_LEFT:
-					case KEY_RIGHT:
-					case KEY_UP:
-					case KEY_DOWN:
-					case KEY_PAGE_UP:
-					case KEY_PAGE_DOWN:
-					case KEY_HOME:
-						// when chatbar is empty or ArrowKeysAlwaysMove set,
-						// pass arrow keys on to avatar...
-						return FALSE;
-					default:
-						break;
+						switch(key)
+						{
+						case KEY_LEFT:
+						case KEY_RIGHT:
+						case KEY_UP:
+						case KEY_DOWN:
+						case KEY_PAGE_UP:
+						case KEY_PAGE_DOWN:
+						case KEY_HOME:
+							// when chatbar is empty or ArrowKeysAlwaysMove set,
+							// pass arrow keys on to avatar...
+							return FALSE;
+						default:
+							break;
+						}
 					}
 				}
 			}
 		}
-		}
+
 		if (keyboard_focus->handleKey(key, mask, FALSE))
 		{
 			return TRUE;
@@ -2564,11 +2562,11 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	if ( gSavedSettings.getS32("LetterKeysFocusChatBar") && !gAgentCamera.cameraMouselook() && 
 		!keyboard_focus && key < 0x80 && (mask == MASK_NONE || mask == MASK_SHIFT) )
 	{
-		LLChatEntry* chat_editor = LLNearbyChat::getInstance()->getChatBox();
+		LLChatEntry* chat_editor = LLNearbyChat::instance().getChatBox();
 		if (chat_editor)
 		{
 			// passing NULL here, character will be added later when it is handled by character handler.
-			LLNearbyChat::getInstance()->startChat(NULL);
+			LLNearbyChat::instance().startChat(NULL);
 			return TRUE;
 		}
 	}

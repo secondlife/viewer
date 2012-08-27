@@ -123,8 +123,8 @@ static LLChatTypeTrigger sChatTypeTriggers[] = {
 };
 
 
-LLNearbyChat::LLNearbyChat(const LLSD& key)
-:	LLIMConversation(key),
+LLNearbyChat::LLNearbyChat(const LLSD& llsd)
+:	LLIMConversation(LLSD()),
 	//mOutputMonitor(NULL),
 	mSpeakerMgr(NULL),
 	mExpandedHeight(COLLAPSED_HEIGHT + EXPANDED_HEIGHT)
@@ -133,6 +133,7 @@ LLNearbyChat::LLNearbyChat(const LLSD& key)
 	setIsChrome(TRUE);
 	mKey = LLSD();
 	mSpeakerMgr = LLLocalSpeakerMgr::getInstance();
+	setName("nearby_chat");
 }
 
 //virtual
@@ -379,11 +380,6 @@ void LLNearbyChat::onChatFontChange(LLFontGL* fontp)
 	}
 }
 
-//static
-LLNearbyChat* LLNearbyChat::getInstance()
-{
-	return LLFloaterReg::getTypedInstance<LLNearbyChat>("chat_bar", LLSD(LLUUID::null));
-}
 
 void LLNearbyChat::show()
 {
@@ -646,7 +642,10 @@ void LLNearbyChat::appendMessage(const LLChat& chat, const LLSD &args)
 		chat_args["show_time"] = gSavedSettings.getBOOL("IMShowTime");
 		chat_args["show_names_for_p2p_conv"] = true;
 
-		mChatHistory->appendMessage(chat, chat_args);
+		if (mChatHistory)
+		{
+			mChatHistory->appendMessage(chat, chat_args);
+		}
 	}
 }
 
@@ -781,22 +780,20 @@ void LLNearbyChat::sendChatFromViewer(const LLWString &wtext, EChatType type, BO
 // static 
 void LLNearbyChat::startChat(const char* line)
 {
-	LLNearbyChat* cb = LLNearbyChat::getInstance();
-
-	if (cb )
+	if (LLNearbyChat::instanceExists())
 	{
-		cb->show();
-		cb->setVisible(TRUE);
-		cb->setFocus(TRUE);
-		cb->mInputEditor->setFocus(TRUE);
+		(LLNearbyChat::instance()).show();
+		(LLNearbyChat::instance()).setVisible(TRUE);
+		(LLNearbyChat::instance()).setFocus(TRUE);
+		(LLNearbyChat::instance().mInputEditor)->setFocus(TRUE);
 
 		if (line)
 		{
 			std::string line_string(line);
-			cb->mInputEditor->setText(line_string);
+			(LLNearbyChat::instance().mInputEditor)->setText(line_string);
 		}
 
-		cb->mInputEditor->endOfDoc();
+		(LLNearbyChat::instance().mInputEditor)->endOfDoc();
 	}
 }
 
@@ -804,14 +801,10 @@ void LLNearbyChat::startChat(const char* line)
 // static
 void LLNearbyChat::stopChat()
 {
-	LLNearbyChat* cb = LLNearbyChat::getInstance();
-
-	if (cb)
+	if (LLNearbyChat::instanceExists())
 	{
-		cb->mInputEditor->setFocus(FALSE);
-
-		// stop typing animation
-		gAgent.stopTyping();
+		(LLNearbyChat::instance().mInputEditor)->setFocus(FALSE);
+	    gAgent.stopTyping();
 	}
 }
 

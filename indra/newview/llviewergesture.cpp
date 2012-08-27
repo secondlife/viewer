@@ -130,7 +130,7 @@ void LLViewerGesture::doTrigger( BOOL send_chat )
 	{
 		// Don't play nodding animation, since that might not blend
 		// with the gesture animation.
-		LLNearbyChat::getInstance()->sendChatFromViewer(mOutputString, CHAT_TYPE_NORMAL, FALSE);
+		LLNearbyChat::instance().sendChatFromViewer(mOutputString, CHAT_TYPE_NORMAL, FALSE);
 	}
 }
 
