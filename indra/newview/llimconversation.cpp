@@ -366,7 +366,6 @@ void LLIMConversation::processChatHistoryStyleUpdate()
 
 void LLIMConversation::updateCallBtnState(bool callIsActive)
 {
-llwarns<<(this->getName())<<llendl;
 	getChild<LLButton>("voice_call_btn")->setImageOverlay(
 			callIsActive? getString("call_btn_stop") : getString("call_btn_start"));
     enableDisableCallBtn();
