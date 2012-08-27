@@ -2940,7 +2940,7 @@ version 2.0
 		{	PID					S32				}
 	}
 	{
-		RegionInfo Single
+		RegionInfo Variable
 		{	RegionFlagsExtended	U64				}
 	}
 }
@@ -2996,7 +2996,7 @@ version 2.0
 		{	HardMaxObjects		U32			}
 	}
 	{
-		RegionInfo3		Single
+		RegionInfo3		Variable
 		{	RegionFlagsExtended	U64			}
 	}
 }
@@ -3025,7 +3025,7 @@ version 2.0
 		{	RedirectGridY 		S32			}
 	}
 	{
-		RegionInfo2	Single
+		RegionInfo2	Variable
 		{	RegionFlagsExtended	U64			}
 	}
 }
@@ -3129,7 +3129,7 @@ version 2.0
 		{	ProductName				Variable	1	}	// string
 	}
 	{
-		RegionInfo4		Single
+		RegionInfo4		Variable
 		{	RegionFlagsExtended	U64			}
 		{	RegionProtocols		U64			}
 	}
