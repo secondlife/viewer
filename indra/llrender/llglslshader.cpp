@@ -150,7 +150,7 @@ BOOL LLGLSLShader::createShader(vector<string> * attributes,
 	vector< pair<string,GLenum> >::iterator fileIter = mShaderFiles.begin();
 	for ( ; fileIter != mShaderFiles.end(); fileIter++ )
 	{
-		GLhandleARB shaderhandle = LLShaderMgr::instance()->loadShaderFile((*fileIter).first, mShaderLevel, (*fileIter).second, mFeatures.mIndexedTextureChannels);
+		GLhandleARB shaderhandle = LLShaderMgr::instance()->loadShaderFile((*fileIter).first, mShaderLevel, (*fileIter).second, mDefines, mFeatures.mIndexedTextureChannels);
 		LL_DEBUGS("ShaderLoading") << "SHADER FILE: " << (*fileIter).first << " mShaderLevel=" << mShaderLevel << LL_ENDL;
 		if (shaderhandle > 0)
 		{
@@ -372,7 +372,12 @@ void LLGLSLShader::mapUniform(GLint index, const vector<string> * uniforms)
 			}
 		}
 	}
- }
+}
+
+void LLGLSLShader::addPermutation(std::string name, std::string value)
+{
+	mDefines[name] = value;
+}
 
 GLint LLGLSLShader::mapUniformTextureChannel(GLint location, GLenum type)
 {

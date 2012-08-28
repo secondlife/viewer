@@ -123,6 +123,8 @@ public:
 	GLint getAttribLocation(U32 attrib);
 	GLint mapUniformTextureChannel(GLint location, GLenum type);
 	
+	void addPermutation(std::string name, std::string value);
+	
 	//enable/disable texture channel for specified uniform
 	//if given texture uniform is active in the shader, 
 	//the corresponding channel will be active upon return
@@ -153,6 +155,7 @@ public:
 	LLShaderFeatures mFeatures;
 	std::vector< std::pair< std::string, GLenum > > mShaderFiles;
 	std::string mName;
+	std::map<std::string, std::string> mDefines;
 };
 
 //UI shader (declared here so llui_libtest will link properly)
