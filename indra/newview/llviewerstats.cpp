@@ -794,7 +794,18 @@ void send_stats()
 	S32 shader_level = 0;
 	if (LLPipeline::sRenderDeferred)
 	{
-		shader_level = 3;
+		if (LLPipeline::RenderShadowDetail > 0)
+		{
+			shader_level = 5;
+		}
+		else if (LLPipeline::RenderDeferredSSAO)
+		{
+			shader_level = 4;
+		}
+		else
+		{
+			shader_level = 3;
+		}
 	}
 	else if (gPipeline.canUseWindLightShadersOnObjects())
 	{
