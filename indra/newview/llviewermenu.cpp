@@ -7620,6 +7620,10 @@ void handle_rebake_textures(void*)
 	// Slam pending upload count to "unstick" things
 	bool slam_for_debug = true;
 	gAgentAvatarp->forceBakeAllTextures(slam_for_debug);
+	if (gAgent.getRegion() && gAgent.getRegion()->getCentralBakeVersion())
+	{
+		LLAppearanceMgr::instance().requestServerAppearanceUpdate();
+	}
 }
 
 void toggle_visibility(void* user_data)
