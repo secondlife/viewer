@@ -476,6 +476,58 @@ void LLGLSLShader::bindNoShader(void)
 	}
 }
 
+S32 LLGLSLShader::bindTexture(const std::string &uniform, LLTexture *texture, LLTexUnit::eTextureType mode)
+{
+	S32 channel = 0;
+	channel = getUniformLocation(uniform);
+	
+	return bindTexture(channel, texture, mode);
+}
+
+S32 LLGLSLShader::bindTexture(S32 uniform, LLTexture *texture, LLTexUnit::eTextureType mode)
+{
+	if (uniform < 0 || uniform >= (S32)mTexture.size())
+	{
+		UNIFORM_ERRS << "Uniform out of range: " << uniform << LL_ENDL;
+		return -1;
+	}
+	
+	uniform = mTexture[uniform];
+	
+	if (uniform > -1)
+	{
+		gGL.getTexUnit(uniform)->bind(texture, mode);
+	}
+	
+	return uniform;
+}
+
+S32 LLGLSLShader::unbindTexture(const std::string &uniform, LLTexUnit::eTextureType mode)
+{
+	S32 channel = 0;
+	channel = getUniformLocation(uniform);
+	
+	return unbindTexture(channel);
+}
+
+S32 LLGLSLShader::unbindTexture(S32 uniform, LLTexUnit::eTextureType mode)
+{
+	if (uniform < 0 || uniform >= (S32)mTexture.size())
+	{
+		UNIFORM_ERRS << "Uniform out of range: " << uniform << LL_ENDL;
+		return -1;
+	}
+	
+	uniform = mTexture[uniform];
+	
+	if (uniform > -1)
+	{
+		gGL.getTexUnit(uniform)->unbind(mode);
+	}
+	
+	return uniform;
+}
+
 S32 LLGLSLShader::enableTexture(S32 uniform, LLTexUnit::eTextureType mode)
 {
 	if (uniform < 0 || uniform >= (S32)mTexture.size())
