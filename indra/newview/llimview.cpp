@@ -263,7 +263,7 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 		std::list<LLSD> chat_history;
 
 		//involves parsing of a chat history
-		LLLogChat::loadAllHistory(mHistoryFileName, chat_history);
+		LLLogChat::loadChatHistory(mHistoryFileName, chat_history);
 		addMessagesFromHistory(chat_history);
 	}
 

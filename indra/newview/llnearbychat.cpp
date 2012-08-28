@@ -262,7 +262,7 @@ void LLNearbyChat::loadHistory()
 	do_not_log["do_not_log"] = true;
 
 	std::list<LLSD> history;
-	LLLogChat::loadAllHistory("chat", history);
+	LLLogChat::loadChatHistory("chat", history);
 
 	std::list<LLSD>::const_iterator it = history.begin();
 	while (it != history.end())

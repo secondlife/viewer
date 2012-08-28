@@ -33,12 +33,15 @@
 LLFloaterConversationPreview::LLFloaterConversationPreview(const LLSD& session_id)
 :	LLFloater(session_id),
 	mChatHistory(NULL),
-	mSessionID(session_id.asUUID())
+	mSessionID(session_id.asUUID()),
+	mCurrentPage(0),
+	mPageSize(gSavedSettings.getS32("ConversationHistoryPageSize"))
 {}
 
 BOOL LLFloaterConversationPreview::postBuild()
 {
 	mChatHistory = getChild<LLChatHistory>("chat_history");
+	getChild<LLUICtrl>("more_history")->setCommitCallback(boost::bind(&LLFloaterConversationPreview::onMoreHistoryBtnClick, this));
 
 	const LLConversation* conv = LLConversationLog::instance().getConversation(mSessionID);
 	if (conv)
@@ -52,6 +55,11 @@ BOOL LLFloaterConversationPreview::postBuild()
 		getChild<LLLineEditor>("description")->setValue(name);
 	}
 
+	std::string file = conv->getHistoryFileName();
+	LLLogChat::loadChatHistory(file, mMessages, true);
+
+	mCurrentPage = mMessages.size() / mPageSize;
+
 	return LLFloater::postBuild();
 }
 
@@ -62,51 +70,59 @@ void LLFloaterConversationPreview::draw()
 
 void LLFloaterConversationPreview::onOpen(const LLSD& session_id)
 {
-	const LLConversation* conv = LLConversationLog::instance().getConversation(session_id);
-	if (!conv)
+	showHistory();
+}
+
+void LLFloaterConversationPreview::showHistory()
+{
+	if (!mMessages.size())
 	{
 		return;
 	}
-	std::list<LLSD> messages;
-	std::string file = conv->getHistoryFileName();
-	LLLogChat::loadAllHistory(file, messages);
 
-	if (messages.size())
+	mChatHistory->clear();
+
+	std::ostringstream message;
+	std::list<LLSD>::const_iterator iter = mMessages.begin();
+
+	int delta = 0;
+	if (mCurrentPage)
 	{
-		std::ostringstream message;
-		std::list<LLSD>::const_iterator iter = messages.begin();
-		for (; iter != messages.end(); ++iter)
-		{
-			LLSD msg = *iter;
-
-			std::string time	= msg["time"].asString();
-			LLUUID from_id		= msg["from_id"].asUUID();
-			std::string from	= msg["from"].asString();
-			std::string message	= msg["message"].asString();
-			bool is_history	= msg["is_history"].asBoolean();
-
-			LLChat chat;
-			chat.mFromID = from_id;
-			chat.mSessionID = session_id;
-			chat.mFromName = from;
-			chat.mTimeStr = time;
-			chat.mChatStyle = is_history ? CHAT_STYLE_HISTORY : chat.mChatStyle;
-			chat.mText = message;
-
-			appendMessage(chat);
-		}
+		double num_of_pages = (double)mMessages.size() / mPageSize;
+		delta = (ceil(num_of_pages) - num_of_pages) * mPageSize;
 	}
-}
 
-void LLFloaterConversationPreview::appendMessage(const LLChat& chat)
-{
-	if (!chat.mMuted)
+	std::advance(iter, (mCurrentPage * mPageSize) - delta);
+
+	for (int msg_num = 0; (iter != mMessages.end() && msg_num < mPageSize); ++iter, ++msg_num)
 	{
-		LLSD args;
-		args["use_plain_text_chat_history"] = true;
-		args["show_time"] = true;
-		args["show_names_for_p2p_conv"] = true;
+		LLSD msg = *iter;
+
+		std::string time	= msg["time"].asString();
+		LLUUID from_id		= msg["from_id"].asUUID();
+		std::string from	= msg["from"].asString();
+		std::string message	= msg["message"].asString();
+		bool is_history		= msg["is_history"].asBoolean();
+
+		LLChat chat;
+		chat.mFromID = from_id;
+		chat.mSessionID = mSessionID;
+		chat.mFromName = from;
+		chat.mTimeStr = time;
+		chat.mChatStyle = is_history ? CHAT_STYLE_HISTORY : chat.mChatStyle;
+		chat.mText = message;
 
 		mChatHistory->appendMessage(chat);
 	}
+
+}
+
+void LLFloaterConversationPreview::onMoreHistoryBtnClick()
+{
+	if (--mCurrentPage < 0)
+	{
+		return;
+	}
+
+	showHistory();
 }
