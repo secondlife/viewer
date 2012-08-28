@@ -88,8 +88,13 @@ void LLFloaterConversationPreview::showHistory()
 	int delta = 0;
 	if (mCurrentPage)
 	{
-		double num_of_pages = (double)mMessages.size() / mPageSize;
-		delta = (ceil(num_of_pages) - num_of_pages) * mPageSize;
+		// stinson 08/28/2012 : This operation could be simplified using integer math with the mod (%) operator.
+		//                      e.g. The following code should give the same output.
+		//                           int remainder = mMessages.size() % mPageSize;
+		//                           delta = (remainder == 0) ? 0 : (mPageSize - remainder);
+		//                      Though without examining further, the remainder might be a more appropriate value.
+		double num_of_pages = static_cast<double>(mMessages.size()) / static_cast<double>(mPageSize);
+		delta = static_cast<int>((ceil(num_of_pages) - num_of_pages) * static_cast<double>(mPageSize));
 	}
 
 	std::advance(iter, (mCurrentPage * mPageSize) - delta);
