@@ -1851,38 +1851,13 @@ private:
 		LLSD mMemberData;
 };
 
-void GroupMemberDataResponder::result(const LLSD& pContent)
+void GroupMemberDataResponder::result(const LLSD& content)
 {
 	LL_INFOS("BAKER") << "BAKER TAG ////////////////////////////////////////////////////////////////" << LL_ENDL;
-	// Did we get anything in pContent?
-	if(pContent.size())
-	{
-		LL_INFOS("BAKER") << "Lik dis if u cry evertim" << LL_ENDL;
-
-		// BAKER TODO:
-		// Figure out what to do with all the dataz.
-		// Looks like processGroupMembersReply does the work
-		LLUUID	agent_id	= pContent["agent_id"];
-		LLUUID	group_id	= pContent["group_id"];
-		LLSD	member_list	= pContent["members"];
-		LLSD	titles		= pContent["titles"];
-		LLSD	defaults	= pContent["defaults"];
-
-		int i = 0;
-		++i;
-
-
-
-	}
-	else
-	{
-		LL_INFOS("BAKER") << "WE AIN'T FOUND SHIT!" << LL_ENDL;
-
-		// BAKER TODO:
-		// Handle this case
-
-	}
+	LL_INFOS("BAKER") << "Got data from responder" << LL_ENDL;
+	LLGroupMgr::processCapGroupMembersRequest(content);
 	LL_INFOS("BAKER") << "//////////////////////////////////////////////////////////////////////////\n" << LL_ENDL;
+
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1898,6 +1873,7 @@ void LLGroupMgr::sendCapGroupMembersRequest(const LLUUID& group_id)
 	//return;
 
 #if 1
+	
 	LLViewerRegion* currentRegion = gAgent.getRegion();
 
 	// Check to make sure we have our capabilities
@@ -1912,13 +1888,119 @@ void LLGroupMgr::sendCapGroupMembersRequest(const LLUUID& group_id)
 
 	// Post to our service.  Add a body containing the group_id.
 	LLSD body = LLSD::emptyMap();
-	body["group_id"] = group_id;
+	body["group_id"]	= group_id;
+	// Session id?
 
 	LLHTTPClient::ResponderPtr grp_data_responder = new GroupMemberDataResponder();
 	 // This could take a while to finish, timeout after 10 minutes.
 	LLHTTPClient::post(cap_url, body, grp_data_responder, LLSD(), 600);
+
 #endif
 }
+
+
+// static
+void LLGroupMgr::processCapGroupMembersRequest(const LLSD& content)
+{
+	LL_INFOS("BAKER") << "BAKER TAG ////////////////////////////////////////////////////////////////" << LL_ENDL;
+	// Did we get anything in content?
+	if(!content.size())
+	{
+		LL_INFOS("BAKER") << "WE AIN'T FOUND SHIT!" << LL_ENDL;
+		// BAKER TODO:
+		// Handle this case
+	}
+
+	LL_INFOS("BAKER") << "Lik dis if u cry evertim" << LL_ENDL;
+
+	// If we have no members, there's no reason to do anything else
+	S32	num_members	= content["member_count"];
+	if(num_members < 1)
+		return;
+	
+	LLUUID	group_id = content["group_id"].asUUID();
+
+	LLGroupMgrGroupData* group_datap = LLGroupMgr::getInstance()->getGroupData(group_id);
+	if(!group_datap)
+	{
+		LL_WARNS("GrpMgr") << "Received incorrect, possibly stale, group or request id" << LL_ENDL;
+		return;
+	}
+
+	group_datap->mMemberCount = num_members;
+
+	LLSD	member_list	= content["members"];
+	LLSD	titles		= content["titles"];
+	LLSD	defaults	= content["defaults"];
+
+	std::string online_status;
+	std::string title;
+	S32			contribution;
+	U64			member_powers;
+	// If this is changed to a bool, make sure to change the LLGroupMemberData constructor
+	BOOL		is_owner;
+
+	// Compute this once, rather than every time.
+	U64	default_powers	= llstrtou64(defaults["default_powers"].asString().c_str(), NULL, 16);
+
+	LLSD::map_const_iterator member_iter_start	= member_list.beginMap();
+	LLSD::map_const_iterator member_iter_end	= member_list.endMap();
+	for( ; member_iter_start != member_iter_end; ++member_iter_start)
+	{
+		// Reset defaults
+		online_status	= "unknown";
+		title			= titles[0];
+		contribution	= 0;
+		member_powers	= default_powers;
+		is_owner		= false;
+
+		const LLUUID member_id(member_iter_start->first);
+		LLSD member_info = member_iter_start->second;
+
+		// Online Status
+		if(member_info.has("last_login"))
+		{
+			online_status = member_info["last_login"];
+			if(online_status == "Online")
+				online_status = LLTrans::getString("group_member_status_online");
+			else
+				formatDateString(online_status);
+		}
+
+		// Title
+		if(member_info.has("title"))
+			title = titles[member_info["title"].asInteger()];
+
+		// Powers
+		if(member_info.has("powers"))
+			member_powers = llstrtou64(member_info["powers"].asString().c_str(), NULL, 16);
+
+		// Land Contribution
+		if(member_info.has("donated_square_meters"))
+			contribution = member_info["donated_square_meters"];
+
+		if(member_info.has("owner"))
+			is_owner = true;
+
+		LLGroupMemberData* data = new LLGroupMemberData(member_id, 
+			contribution, 
+			member_powers, 
+			title,
+			online_status,
+			is_owner);
+
+		group_datap->mMembers[member_id] = data;
+	}
+
+	group_datap->mMemberDataComplete = TRUE;
+	group_datap->mRoleMemberDataComplete = TRUE;
+	group_datap->mMemberRequestID.setNull();
+	group_datap->mChanged = TRUE;
+	LLGroupMgr::getInstance()->notifyObservers(GC_MEMBER_DATA);
+
+	LL_INFOS("BAKER") << "//////////////////////////////////////////////////////////////////////////\n" << LL_ENDL;
+}
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 

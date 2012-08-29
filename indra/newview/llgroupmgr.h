@@ -341,7 +341,9 @@ public:
 									  uuid_vec_t& member_ids);
 
 	// BAKER
+	//static void sendCapGroupMembersRequest(const LLUUID& group_id);
 	void sendCapGroupMembersRequest(const LLUUID& group_id);
+	static void processCapGroupMembersRequest(const LLSD& content);
 
 	void cancelGroupRoleChanges(const LLUUID& group_id);
 
