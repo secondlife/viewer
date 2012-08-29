@@ -3,6 +3,6 @@
 	<menu_item_call label="察看資訊" name="View Info"/>
 	<menu_item_call label="聊天" name="Chat"/>
 	<menu_item_call label="通話" name="Call"/>
-	<menu_item_call label="Activate" name="Activate"/>
-	<menu_item_call label="Leave" name="Leave"/>
+	<menu_item_call label="啟動" name="Activate"/>
+	<menu_item_call label="退出" name="Leave"/>
 </menu>

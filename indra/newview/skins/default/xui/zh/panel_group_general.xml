@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="一般" name="general_tab">
+<panel label="基本資料" name="general_tab">
 	<panel.string name="help_text">
-		The General tab contains general information about this group, a list of members, general Group Preferences and member options.
+		基本資料頁籤包含關於群組的基本資訊、成員名單、群組偏好設定和成員選項。
 
-Hover your mouse over the options for more help.
+將滑鼠停懸到選項上，可獲取更多幫助。
 	</panel.string>
 	<panel.string name="group_info_unchanged">
-		一般群組資訊已經被變更
+		基本群組資訊已經被變更
 	</panel.string>
 	<panel.string name="incomplete_member_data_str">
-		Retrieving member data
+		正在擷取成員資料
 	</panel.string>
 	<panel name="group_info_top">
-		<texture_picker label="" name="insignia" tool_tip="點擊以挑選圖像"/>
+		<texture_picker label="" name="insignia" tool_tip="點按以挑選圖片"/>
 		<text name="prepend_founded_by">
 			創辦人：
 		</text>
@@ -30,22 +30,22 @@ Hover your mouse over the options for more help.
 		<name_list.columns label="狀態" name="status"/>
 	</name_list>
 	<text name="my_group_settngs_label">
-		自己
+		我自己
 	</text>
 	<text name="active_title_label">
 		我的頭銜：
 	</text>
-	<combo_box name="active_title" tool_tip="Sets the title that appears in your avatar&apos;s name tag when this group is active."/>
-	<check_box label="接受群組通知" name="receive_notices" tool_tip="Sets whether you want to receive Notices from this group.  Uncheck this box if this group is spamming you."/>
-	<check_box label="顯示在我的檔案中" name="list_groups_in_profile" tool_tip="Sets whether you want to show this group in your profile"/>
+	<combo_box name="active_title" tool_tip="這將設定當群組有效時，顯示於你化身名稱標籤的頭銜。"/>
+	<check_box label="接受群組通知" name="receive_notices" tool_tip="設定你是否要接收來自這群組的通知。  如果該群組對你送出太多垃圾資訊，你可以不要勾選此項目。"/>
+	<check_box label="顯示在我的檔案中" name="list_groups_in_profile" tool_tip="設定你是否要在你個人檔案上顯示這個群組"/>
 	<panel name="preferences_container">
 		<text name="group_settngs_label">
 			群組
 		</text>
-		<check_box label="任何人都可以加入" name="open_enrollement" tool_tip="Sets whether this group allows new members to join without being invited."/>
-		<check_box label="加入費用" name="check_enrollment_fee" tool_tip="Sets whether to require an enrollment fee to join the group"/>
-		<spinner label="L$" name="spin_enrollment_fee" tool_tip="New members must pay this fee to join the group when Enrollment Fee is checked."/>
-		<combo_box name="group_mature_check" tool_tip="Sets whether your group contains information rated as Moderate">
+		<check_box label="任何人都可以加入" name="open_enrollement" tool_tip="設定這個群組是否允許新成員未受邀請自行加入。"/>
+		<check_box label="加入費用" name="check_enrollment_fee" tool_tip="設定是否要徵收群組加入費"/>
+		<spinner label="L$" name="spin_enrollment_fee" tool_tip="若勾選加入費，新成員必須支付這筆費用才能加入群組。"/>
+		<combo_box name="group_mature_check" tool_tip="設定你的群組是否含有被訂為適度成人分級的資訊">
 			<combo_item name="select_mature">
 				- 選擇內容分級 -
 			</combo_item>
