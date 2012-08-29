@@ -80,7 +80,7 @@ ATI Radeon X1xxx						.*ATI.*(Radeon|Diamond) X1.. ?.*		0	1	1	2.1
 ATI Radeon X2xxx						.*ATI.*(Radeon|Diamond) X2.. ?.*		1	1	1	2.1
 ATI Display Adapter						.*ATI.*display adapter.*				1	1	1	4.1
 ATI FireGL 5200							.*ATI.*FireGL V52.*						1	1	1	2.1
-ATI FireGL 5xxx							.*ATI.*FireGL V5.*						3	1	1	3.3
+ATI FireGL 5xxx							.*ATI.*FireGL V5.*						2	1	1	3.3
 ATI FireGL								.*ATI.*Fire.*GL.*						4	1	1	4.2
 ATI FirePro M3900						.*ATI.*FirePro.*M39.*					2	1	0	0
 ATI FirePro M5800						.*ATI.*FirePro.*M58.*					3	1	0	0
@@ -99,6 +99,15 @@ ATI M76									.*ATI.*M76.*							3	1	0	0
 ATI Radeon HD 64xx						.*ATI.*AMD Radeon.* HD [67]4..[MG]		2	1	1	4.2
 ATI Radeon HD 65xx						.*ATI.*AMD Radeon.* HD [67]5..[MG]		2	1	1	4.2
 ATI Radeon HD 66xx						.*ATI.*AMD Radeon.* HD [67]6..[MG]		3	1	1	4.2
+ATI Radeon HD 7100						.*ATI.*AMD Radeon.* HD 71.*				2	1	0	0
+ATI Radeon HD 7200						.*ATI.*AMD Radeon.* HD 72.*				2	1	0	0
+ATI Radeon HD 7300						.*ATI.*AMD Radeon.* HD 73.*				2	1	0	0
+ATI Radeon HD 7400						.*ATI.*AMD Radeon.* HD 74.*				2	1	0	0
+ATI Radeon HD 7500						.*ATI.*AMD Radeon.* HD 75.*				3	1	1	4.2
+ATI Radeon HD 7600						.*ATI.*AMD Radeon.* HD 76.*				3	1	0	0
+ATI Radeon HD 7700						.*ATI.*AMD Radeon.* HD 77.*				4	1	1	4.2
+ATI Radeon HD 7800						.*ATI.*AMD Radeon.* HD 78.*				5	1	1	4.2
+ATI Radeon HD 7900						.*ATI.*AMD Radeon.* HD 79.*				5	1	1	4.2
 ATI Mobility Radeon 4100				.*ATI.*Mobility.*41..					1	1	1	3.3
 ATI Mobility Radeon 7xxx				.*ATI.*Mobility.*Radeon 7.*				0	1	1	1.3
 ATI Mobility Radeon 8xxx				.*ATI.*Mobility.*Radeon 8.*				0	1	0	0
@@ -113,7 +122,7 @@ ATI Mobility Radeon HD 560v				.*ATI.*Mobility.*HD *560v.*				3	1	1	3.2
 ATI Mobility Radeon HD 565v				.*ATI.*Mobility.*HD *565v.*				3	1	1	3.3
 ATI Mobility Radeon HD 2300				.*ATI.*Mobility.*HD *23.*				0	1	1	2.1
 ATI Mobility Radeon HD 2400				.*ATI.*Mobility.*HD *24.*				1	1	1	3.3
-ATI Mobility Radeon HD 2600				.*ATI.*Mobility.*HD *26.*				0	1	1	3.3
+ATI Mobility Radeon HD 2600				.*ATI.*Mobility.*HD *26.*				1	1	1	3.3
 ATI Mobility Radeon HD 2700				.*ATI.*Mobility.*HD *27.*				3	1	0	0
 ATI Mobility Radeon HD 3100				.*ATI.*Mobility.*HD *31.*				0	1	0	0
 ATI Mobility Radeon HD 3200				.*ATI.*Mobility.*HD *32.*				0	1	0	0
@@ -130,7 +139,7 @@ ATI Mobility Radeon HD 5300				.*ATI.*Mobility.*HD *53.*				3	1	0	0
 ATI Mobility Radeon HD 5400				.*ATI.*Mobility.*HD *54.*				2	1	1	4.2
 ATI Mobility Radeon HD 5500				.*ATI.*Mobility.*HD *55.*				3	1	0	0
 ATI Mobility Radeon HD 5600				.*ATI.*Mobility.*HD *56.*				3	1	1	4.2
-ATI Mobility Radeon HD 5700				.*ATI.*Mobility.*HD *57.*				1	1	1	4.1
+ATI Mobility Radeon HD 5700				.*ATI.*Mobility.*HD *57.*				3	1	1	4.1
 ATI Mobility Radeon HD 6200				.*ATI.*Mobility.*HD *62.*				3	1	0	0
 ATI Mobility Radeon HD 6300				.*ATI.*Mobility.*HD *63.*				3	1	1	4.2
 ATI Mobility Radeon HD 6400M			.*ATI.*Mobility.*HD *64.*				3	1	0	0
@@ -253,7 +262,6 @@ ATI FirePro 4000						.*ATI.*FirePro V4.*						2	1	0	0
 ATI FirePro 5000						.*ATI.*FirePro V5.*						3	1	0	0
 ATI FirePro 7000						.*ATI.*FirePro V7.*						3	1	0	0
 ATI FirePro M							.*ATI.*FirePro M.*						3	1	1	4.2
-ATI Technologies						.*ATI *Technologies.*					4	1	1	4.2
 ATI R300 (9700)							.*R300.*								0	1	1	2.1
 ATI Radeon								.*ATI.*(Diamond|Radeon).*				0	1	0	0
 Intel X3100								.*Intel.*X3100.*						1	1	1	2.1
@@ -290,6 +298,7 @@ Intel HD Graphics 2000					.*Intel.*HD2000.*						1	1	0	0
 Intel HD Graphics 3000					.*Intel.*HD3000.*						2	1	0	0
 Intel Q45/Q43							.*Intel.*Q4.*							1	1	1	2.1
 Intel B45/B43							.*Intel.*B4.*							1	1	1	2.1
+Intel 3D-Analyze						.*Intel.*3D-Analyze.*					2	1	0	0
 Matrox									.*Matrox.*								0	0	0	0
 Mesa									.*Mesa.*								1	0	1	2.1
 Gallium									.*Gallium.*								1	1	1	2.1
@@ -345,6 +354,15 @@ NVIDIA GT 530M							.*NVIDIA .*GT *530(M)?.*				3	1	1	4.2
 NVIDIA GT 540M							.*NVIDIA .*GT *54.(M)?.*				3	1	1	4.2
 NVIDIA GT 550M							.*NVIDIA .*GT *550(M)?.*				3	1	1	4.2
 NVIDIA GT 555M							.*NVIDIA .*GT *555(M)?.*				3	1	1	4.2
+NVIDIA 610M								.*NVIDIA.*61*M.*						3	1	1	4.2
+NVIDIA GT 620M							.*NVIDIA .*GT *62*M.*					3	1	0	0
+NVIDIA GT 630M							.*NVIDIA .*GT *63*M.*					3	1	0	0
+NVIDIA GT 640M							.*NVIDIA .*GT *64*M.*					3	1	0	0
+NVIDIA GT 650M							.*NVIDIA .*GT *65*M.*					3	1	0	0
+NVIDIA GTX 660M							.*NVIDIA .*GTX *66*M.*					5	1	0	0
+NVIDIA GTX 670M							.*NVIDIA .*GTX *67*M.*					5	1	1	4.2
+NVIDIA GTX 680M							.*NVIDIA .*GTX *68*M.*					5	1	0	0
+NVIDIA GTX 690M							.*NVIDIA .*GTX *69*M.*					5	1	0	0
 NVIDIA GT 610							.*NVIDIA .*GT *61.*						3	1	1	4.2
 NVIDIA GT 620							.*NVIDIA .*GT *62.*						3	1	0	0
 NVIDIA GT 630							.*NVIDIA .*GT *63.*						3	1	1	4.2
@@ -355,7 +373,7 @@ NVIDIA GTX 670							.*NVIDIA .*GTX *67.*					5	1	1	4.2
 NVIDIA GTX 680							.*NVIDIA .*GTX *68.*					5	1	1	4.2
 NVIDIA GTX 690							.*NVIDIA .*GTX *69.*					5	1	1	4.2
 NVIDIA GTS 160M							.*NVIDIA .*GT(S)? *160(M)?.*			2	1	0	0
-NVIDIA GTS 240							.*NVIDIA .*GTS *24.*					3	1	1	3.3
+NVIDIA GTS 240							.*NVIDIA .*GTS *24.*					4	1	1	3.3
 NVIDIA GTS 250							.*NVIDIA .*GTS *25.*					4	1	1	3.3
 NVIDIA GTS 350M							.*NVIDIA .*GTS *350M.*					4	1	1	3.3
 NVIDIA GTS 360M							.*NVIDIA .*GTS *360M.*					5	1	1	3.3
@@ -461,11 +479,11 @@ NVIDIA GeForce Go 6100					.*NVIDIA .*GeForce Go 61.*				0	1	1	2.1
 NVIDIA GeForce Go 6200					.*NVIDIA .*GeForce Go 62.*				0	1	0	0
 NVIDIA GeForce Go 6400					.*NVIDIA .*GeForce Go 64.*				1	1	1	2
 NVIDIA GeForce Go 6500					.*NVIDIA .*GeForce Go 65.*				1	1	0	0
-NVIDIA GeForce Go 6600					.*NVIDIA .*GeForce Go 66.*				1	1	1	2.1
+NVIDIA GeForce Go 6600					.*NVIDIA .*GeForce Go 66.*				0	1	1	2.1
 NVIDIA GeForce Go 6700					.*NVIDIA .*GeForce Go 67.*				1	1	0	0
 NVIDIA GeForce Go 6800					.*NVIDIA .*GeForce Go 68.*				0	1	1	2.1
 NVIDIA GeForce Go 7200					.*NVIDIA .*GeForce Go 72.*				1	1	0	0
-NVIDIA GeForce Go 7300 LE				.*NVIDIA .*GeForce Go 73.*LE.*			0	1	0	0
+NVIDIA GeForce Go 7300 LE				.*NVIDIA .*GeForce Go 73.*LE.*			1	1	0	0
 NVIDIA GeForce Go 7300					.*NVIDIA .*GeForce Go 73.*				1	1	1	2.1
 NVIDIA GeForce Go 7400					.*NVIDIA .*GeForce Go 74.*				1	1	1	2.1
 NVIDIA GeForce Go 7600					.*NVIDIA .*GeForce Go 76.*				1	1	1	2.1
@@ -529,7 +547,7 @@ NVIDIA Quadro FX 4500					.*Quadro.*FX *45.*						3	1	0	0
 NVIDIA Quadro FX 880M					.*Quadro.*FX *880M.*					3	1	0	0
 NVIDIA Quadro FX 4800					.*NVIDIA .*Quadro *FX *4800.*			3	1	0	0
 NVIDIA Quadro FX						.*Quadro FX.*							1	1	0	0
-NVIDIA Quadro NVS 1xxM					.*Quadro NVS *1.[05]M.*					2	1	1	2.1
+NVIDIA Quadro NVS 1xxM					.*Quadro NVS *1.[05]M.*					0	1	1	2.1
 NVIDIA Quadro NVS 300M					.*NVIDIA .*NVS *300M.*					2	1	0	0
 NVIDIA Quadro NVS 320M					.*NVIDIA .*NVS *320M.*					2	1	0	0
 NVIDIA Quadro NVS 2100M					.*NVIDIA .*NVS *2100M.*					2	1	0	0
