@@ -827,7 +827,7 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 	}
 	shaders.push_back( make_pair( "objects/nonindexedTextureV.glsl",		1 ) );
 	
-	std::map<std::string, std::string> attribs;
+	boost::unordered_map<std::string, std::string> attribs;
 	
 	// We no longer have to bind the shaders to global glhandles, they are automatically added to a map now.
 	for (U32 i = 0; i < shaders.size(); i++)

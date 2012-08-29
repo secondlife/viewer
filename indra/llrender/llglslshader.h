@@ -163,7 +163,7 @@ public:
 	LLShaderFeatures mFeatures;
 	std::vector< std::pair< std::string, GLenum > > mShaderFiles;
 	std::string mName;
-	std::map<std::string, std::string> mDefines;
+	boost::unordered_map<std::string, std::string> mDefines;
 };
 
 //UI shader (declared here so llui_libtest will link properly)

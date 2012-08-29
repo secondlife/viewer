@@ -521,7 +521,7 @@ void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns)
 	}
  }
 
-GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type, std::map<std::string, std::string> defines, S32 texture_index_channels)
+GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type, boost::unordered_map<std::string, std::string> defines, S32 texture_index_channels)
 {
 	GLenum error = GL_NO_ERROR;
 	if (gDebugGL)
@@ -658,7 +658,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		text[count++] = (GLcharARB *) strdup(define.c_str());
 	}
 	
-	for (std::map<std::string,std::string>::iterator iter = defines.begin(); iter != defines.end(); ++iter)
+	for (boost::unordered_map<std::string,std::string>::iterator iter = defines.begin(); iter != defines.end(); ++iter)
 	{
 		std::string define = "#define " + iter->first + " " + iter->second + "\n";
 		text[count++] = (GLcharARB *) strdup(define.c_str());
