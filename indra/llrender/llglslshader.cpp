@@ -379,6 +379,11 @@ void LLGLSLShader::addPermutation(std::string name, std::string value)
 	mDefines[name] = value;
 }
 
+void LLGLSLShader::removePermutation(std::string name)
+{
+	mDefines[name].erase();
+}
+
 GLint LLGLSLShader::mapUniformTextureChannel(GLint location, GLenum type)
 {
 	if (type >= GL_SAMPLER_1D_ARB && type <= GL_SAMPLER_2D_RECT_SHADOW_ARB ||

@@ -124,6 +124,7 @@ public:
 	GLint mapUniformTextureChannel(GLint location, GLenum type);
 	
 	void addPermutation(std::string name, std::string value);
+	void removePermutation(std::string name);
 	
 	//enable/disable texture channel for specified uniform
 	//if given texture uniform is active in the shader, 
