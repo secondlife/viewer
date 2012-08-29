@@ -127,6 +127,8 @@ public:
 	
 	bool isLoaded() { return mIsLoaded; }
 	
+	void dumpDebugData();
+
 private:
 	bool mIsLoaded;		// true if at least one participant has been added to the session, false otherwise
 };
@@ -143,6 +145,8 @@ public:
 	void setIsMuted(bool is_muted) { mIsMuted = is_muted; }
 	void setIsModerator(bool is_moderator) { mIsModerator = is_moderator; }
 	
+	void dumpDebugData();
+
 private:
 	bool mIsMuted;		// default is false
 	bool mIsModerator;	// default is false

@@ -159,6 +159,18 @@ void LLConversationItemSession::setParticipantIsModerator(const LLUUID& particip
 	}
 }
 
+void LLConversationItemSession::dumpDebugData()
+{
+	llinfos << "Merov debug : session, uuid = " << mUUID << ", name = " << mName << ", is loaded = " << mIsLoaded << llendl;
+	LLConversationItemParticipant* participant = NULL;
+	child_list_t::iterator iter;
+	for (iter = mChildren.begin(); iter != mChildren.end(); iter++)
+	{
+		participant = dynamic_cast<LLConversationItemParticipant*>(*iter);
+		participant->dumpDebugData();
+	}
+}
+
 //
 // LLConversationItemParticipant
 // 
@@ -175,4 +187,8 @@ LLConversationItemParticipant::LLConversationItemParticipant(const LLUUID& uuid,
 {
 }
 
+void LLConversationItemParticipant::dumpDebugData()
+{
+	llinfos << "Merov debug : participant, uuid = " << mUUID << ", name = " << mName << ", muted = " << mIsMuted << ", moderator = " << mIsModerator << llendl;
+}	
 // EOF
