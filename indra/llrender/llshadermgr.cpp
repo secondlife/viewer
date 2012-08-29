@@ -660,11 +660,8 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	
 	for (std::map<std::string,std::string>::iterator iter = defines.begin(); iter != defines.end(); ++iter)
 	{
-		if (iter->first != "NULL")
-		{
-			std::string define = "#define " + iter->first + " " + iter->second + "\n";
-			text[count++] = (GLcharARB *) strdup(define.c_str());
-		}
+		std::string define = "#define " + iter->first + " " + iter->second + "\n";
+		text[count++] = (GLcharARB *) strdup(define.c_str());
 	}
 
 	if (texture_index_channels > 0 && type == GL_FRAGMENT_SHADER_ARB)
