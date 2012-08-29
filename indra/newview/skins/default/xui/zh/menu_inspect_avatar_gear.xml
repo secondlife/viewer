@@ -6,16 +6,16 @@
 	<menu_item_call label="通話" name="call"/>
 	<menu_item_call label="瞬間傳送" name="teleport"/>
 	<menu_item_call label="邀請加入群組" name="invite_to_group"/>
-	<menu_item_call label="Block" name="block"/>
-	<menu_item_call label="Unblock" name="unblock"/>
+	<menu_item_call label="封鎖" name="block"/>
+	<menu_item_call label="解除封鎖" name="unblock"/>
 	<menu_item_call label="回報" name="report"/>
 	<menu_item_call label="凍結" name="freeze"/>
 	<menu_item_call label="踢出" name="eject"/>
 	<menu_item_call label="踢出" name="kick"/>
-	<menu_item_call label="CSR" name="csr"/>
+	<menu_item_call label="客服" name="csr"/>
 	<menu_item_call label="材質除錯" name="debug"/>
 	<menu_item_call label="在地圖上尋找" name="find_on_map"/>
-	<menu_item_call label="Zoom In" name="zoom_in"/>
+	<menu_item_call label="放大" name="zoom_in"/>
 	<menu_item_call label="支付" name="pay"/>
 	<menu_item_call label="分享" name="share"/>
 </toggleable_menu>

@@ -2,17 +2,17 @@
 <toggleable_menu name="Gear Menu">
 	<menu_item_call label="觸碰" name="touch"/>
 	<menu_item_call label="坐下" name="sit"/>
-	<menu_item_call label="Pay" name="pay"/>
+	<menu_item_call label="支付" name="pay"/>
 	<menu_item_call label="購買" name="buy"/>
 	<menu_item_call label="取得" name="take"/>
 	<menu_item_call label="取得副本" name="take_copy"/>
-	<menu_item_call label="開啟" name="open"/>
+	<menu_item_call label="打開" name="open"/>
 	<menu_item_call label="編輯" name="edit"/>
 	<menu_item_call label="穿上" name="wear"/>
 	<menu_item_call label="添加" name="add"/>
 	<menu_item_call label="回報" name="report"/>
-	<menu_item_call label="Block" name="block"/>
-	<menu_item_call label="Zoom In" name="zoom_in"/>
+	<menu_item_call label="封鎖" name="block"/>
+	<menu_item_call label="放大" name="zoom_in"/>
 	<menu_item_call label="移除" name="remove"/>
 	<menu_item_call label="更多資訊" name="more_info"/>
 </toggleable_menu>

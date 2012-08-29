@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="buy currency" title="購買 L$">
 	<floater.string name="buy_currency">
-		Buy L$ [LINDENS] for approx. [LOCALAMOUNT]
+		購買 L$ [LINDENS]，所需花費約為 [LOCALAMOUNT]
 	</floater.string>
 	<text name="info_need_more">
-		你需要更多 L$
+		你的 L$ 不足
 	</text>
 	<text name="contacting">
 		聯接到 LindeX 中...
@@ -31,10 +31,10 @@
 		以此價格
 	</text>
 	<text name="currency_est">
-		approx. [LOCALAMOUNT]
+		約合 [LOCALAMOUNT]
 	</text>
 	<text name="getting_data">
-		Estimating...
+		估算中…
 	</text>
 	<text name="buy_action">
 		[ACTION]
@@ -46,16 +46,16 @@
 		L$ [AMT]
 	</text>
 	<text name="currency_links">
-		[http://www.secondlife.com/my/account/payment_method_management.php payment method] | [http://www.secondlife.com/my/account/currency.php currency]
+		[http://www.secondlife.com/my/account/payment_method_management.php 付費方法] | [http://www.secondlife.com/my/account/currency.php 幣種] | [http://www.secondlife.com/my/account/exchange_rates.php 匯率]
 	</text>
 	<text name="exchange_rate_note">
-		Re-enter amount to see the latest exchange rate.
+		重新輸入金額即可察看最新的匯率。
 	</text>
 	<text name="purchase_warning_repurchase">
-		Confirming this purchase only buys L$, not the object.
+		確認這次購買只是添購 L$，並非購買物件。
 	</text>
 	<text name="purchase_warning_notenough">
-		你並未購買足夠的林登幣，請先添加一些數量。
+		你購買的林登幣不足， 請增加數額。
 	</text>
 	<button label="立即購買" name="buy_btn"/>
 	<button label="取消" name="cancel_btn"/>

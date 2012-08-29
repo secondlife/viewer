@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Display Name" title="變更顯示名稱">
 	<text name="info_text">
-		The name you give your avatar is called your Display Name. You can change it once a week.
+		你為你的化身取的名字叫做「顯示名稱」。 一星期可以修改一次。
 	</text>
 	<text name="lockout_text">
-		You cannot change your Display Name until: [TIME].
+		你下次能再更改顯示名稱的時間為 [TIME]。
 	</text>
 	<text name="set_name_label">
 		新顯示名稱：
 	</text>
 	<text name="name_confirm_label">
-		Type your new name again to confirm:
+		再次輸入你的新名稱以便確認：
 	</text>
-	<button label="儲存" name="save_btn" tool_tip="儲存你的新顯示名稱"/>
-	<button label="重設" name="reset_btn" tool_tip="Make Display Name the same as Username"/>
+	<button label="儲存" name="save_btn" tool_tip="儲存你的新的顯示名稱"/>
+	<button label="重設" name="reset_btn" tool_tip="將顯示名稱設成和使用者名稱相同"/>
 	<button label="取消" name="cancel_btn"/>
 </floater>

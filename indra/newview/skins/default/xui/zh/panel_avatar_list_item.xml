@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="avatar_list_item">
 	<string name="FormatSeconds">
-		[COUNT]s
+		[COUNT] 秒
 	</string>
 	<string name="FormatMinutes">
-		[COUNT]m
+		[COUNT] 分
 	</string>
 	<string name="FormatHours">
-		[COUNT]h
+		[COUNT] 時
 	</string>
 	<string name="FormatDays">
-		[COUNT]d
+		[COUNT] 日
 	</string>
 	<string name="FormatWeeks">
-		[COUNT]w
+		[COUNT] 週
 	</string>
 	<string name="FormatMonths">
-		[COUNT]mon
+		[COUNT] 月
 	</string>
 	<string name="FormatYears">
-		[COUNT]y
+		[COUNT] 年
 	</string>
-	<text name="avatar_name" value="（載入）"/>
-	<text name="last_interaction" value="0s"/>
+	<text name="avatar_name" value="（載入中）"/>
+	<text name="last_interaction" value="0 秒"/>
 	<icon name="permission_edit_theirs_icon" tool_tip="你不能編輯這位朋友的物件"/>
 	<icon name="permission_edit_mine_icon" tool_tip="這位朋友能編輯、刪除或取得你的物件"/>
 	<icon name="permission_map_icon" tool_tip="這位朋友能在地圖上找到你的位置"/>

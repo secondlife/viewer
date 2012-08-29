@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- Side tray panel -->
 <panel label="人群" name="people_panel">
-	<string name="no_recent_people" value="No recent people. Looking for people to hang out with? Try [secondlife:///app/search/people Search] or the [secondlife:///app/worldmap World Map]."/>
-	<string name="no_filtered_recent_people" value="Didn&apos;t find what you&apos;re looking for? Try [secondlife:///app/search/people/[SEARCH_TERM] Search]."/>
-	<string name="no_one_near" value="No one nearby. Looking for people to hang out with? Try [secondlife:///app/search/people Search] or the [secondlife:///app/worldmap World Map]."/>
-	<string name="no_one_filtered_near" value="Didn&apos;t find what you&apos;re looking for? Try [secondlife:///app/search/people/[SEARCH_TERM] Search]."/>
+	<string name="no_recent_people" value="沒有最近的人。 想找人見面聊天？ 請試試[secondlife:///app/search/people 搜尋]或[secondlife:///app/worldmap 世界地圖]。"/>
+	<string name="no_filtered_recent_people" value="找不到你要找的嗎？ 請試試[secondlife:///app/search/people/[SEARCH_TERM] 搜尋]。"/>
+	<string name="no_one_near" value="附近無人。 想找人見面聊天？ 請試試[secondlife:///app/search/people 搜尋]或[secondlife:///app/worldmap 世界地圖]。"/>
+	<string name="no_one_filtered_near" value="找不到你要找的嗎？ 請試試[secondlife:///app/search/people/[SEARCH_TERM] 搜尋]。"/>
 	<string name="no_friends_online" value="無朋友上線"/>
 	<string name="no_friends" value="無朋友"/>
 	<string name="no_friends_msg">
-		Find friends using [secondlife:///app/search/people Search] or right-click on a Resident to add them as a friend.
-Looking for people to hang out with? Try the [secondlife:///app/worldmap World Map].
+		用 [secondlife:///app/search/people 搜尋] 找朋友，或選擇一位居民，再按右鍵將他加為朋友。
+想找人見面聊天？ 請試一試 [secondlife:///app/worldmap 世界地圖]。
 	</string>
 	<string name="no_filtered_friends_msg">
-		Didn&apos;t find what you&apos;re looking for? Try [secondlife:///app/search/people/[SEARCH_TERM] Search].
+		找不到你要找的嗎？ 請試試[secondlife:///app/search/people/[SEARCH_TERM] 搜尋]。
 	</string>
 	<string name="people_filter_label" value="人員過濾器"/>
 	<string name="groups_filter_label" value="群組過濾器"/>
-	<string name="no_filtered_groups_msg" value="沒有發現你要找的嗎？何不試試 [secondlife:///app/search/groups/[SEARCH_TERM] 搜尋]。"/>
-	<string name="no_groups_msg" value="想找尋群組加入嗎？何不試試 [secondlife:///app/search/groups 搜尋]。"/>
+	<string name="no_filtered_groups_msg" value="找不到你要找的嗎？ 請試試[secondlife:///app/search/groups/[SEARCH_TERM] 搜尋]。"/>
+	<string name="no_groups_msg" value="要尋找群組考慮加入嗎？ 請試試[secondlife:///app/search/groups 搜尋]。"/>
 	<string name="MiniMapToolTipMsg" value="[REGION]（雙擊以開啟地圖，按下 shift 鍵拖曳來平移）"/>
 	<string name="AltMiniMapToolTipMsg" value="[REGION]（雙擊以瞬間傳送，按下 shift 鍵拖曳來平移）"/>
 	<filter_editor label="過濾器" name="filter_input"/>
@@ -25,7 +25,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 		<panel label="附近" name="nearby_panel">
 			<panel label="bottom_panel" name="bottom_panel">
 				<menu_button name="nearby_view_sort_btn" tool_tip="選項"/>
-				<button name="add_friend_btn" tool_tip="添加已選擇的居民到Ad你的朋友清單"/>
+				<button name="add_friend_btn" tool_tip="添加所選的居民到你的朋友清單"/>
 			</panel>
 		</panel>
 		<panel label="我的朋友" name="friends_panel">
@@ -39,7 +39,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 						<menu_button name="friends_viewsort_btn" tool_tip="顯示額外選項"/>
 					</layout_panel>
 					<layout_panel name="add_btn_panel">
-						<button name="add_btn" tool_tip="向居民提出加為好友邀請"/>
+						<button name="add_btn" tool_tip="向居民發出交友邀請"/>
 					</layout_panel>
 					<layout_panel name="trash_btn_panel">
 						<dnd_button name="del_btn" tool_tip="由你的朋友清單移除所選擇的人"/>
@@ -70,13 +70,13 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 				<button label="IM" name="im_btn" tool_tip="開啟即時訊息會話"/>
 			</layout_panel>
 			<layout_panel name="chat_btn_lp">
-				<button label="通話" name="call_btn" tool_tip="與此居民進行通話"/>
+				<button label="通話" name="call_btn" tool_tip="和這位居民通話"/>
 			</layout_panel>
 			<layout_panel name="chat_btn_lp">
 				<button label="分享" name="share_btn" tool_tip="分享一個收納區物品"/>
 			</layout_panel>
 			<layout_panel name="chat_btn_lp">
-				<button label="瞬間傳送" name="teleport_btn" tool_tip="發給瞬間傳送請求"/>
+				<button label="瞬間傳送" name="teleport_btn" tool_tip="發出瞬間傳送邀請"/>
 			</layout_panel>
 		</layout_stack>
 		<layout_stack name="bottom_bar_ls1">
