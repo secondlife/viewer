@@ -88,7 +88,8 @@ bool LLConversationSort::operator()(const LLConversationItem* const& a, const LL
 // 
 
 LLConversationItemSession::LLConversationItemSession(std::string display_name, const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
-	LLConversationItem(display_name,uuid,root_view_model)
+	LLConversationItem(display_name,uuid,root_view_model),
+	mIsLoaded(false)
 {
 }
 
@@ -97,12 +98,54 @@ LLConversationItemSession::LLConversationItemSession(const LLUUID& uuid, LLFolde
 {
 }
 
+void LLConversationItemSession::addParticipant(LLConversationItemParticipant* item)
+{
+	addChild(item);
+	mIsLoaded = true;
+}
+
+void LLConversationItemSession::removeParticipant(LLConversationItemParticipant* item)
+{
+	removeChild(item);
+}
+
+void LLConversationItemSession::clearParticipants()
+{
+	clearChildren();
+	mIsLoaded = false;
+}
+
+LLConversationItemParticipant* LLConversationItemSession::findParticipant(const LLUUID& participant_id)
+{
+	// This is *not* a general tree parsing algorithm. It assumes that a session contains only 
+	// items (LLConversationItemParticipant) that have themselve no children.
+	LLConversationItemParticipant* participant = NULL;
+	child_list_t::iterator iter;
+	for (iter = mChildren.begin(); iter != mChildren.end(); iter++)
+	{
+		participant = dynamic_cast<LLConversationItemParticipant*>(*iter);
+		if (participant->hasSameValue(participant_id))
+		{
+			break;
+		}
+	}
+	return (iter == mChildren.end() ? NULL : participant);
+}
+
+void LLConversationItemSession::setParticipantIsMuted(const LLUUID& participant_id, bool is_muted)
+{
+	LLConversationItemParticipant* participant = findParticipant(participant_id);
+	participant->setIsMuted(is_muted);
+}
+
 //
 // LLConversationItemParticipant
 // 
 
 LLConversationItemParticipant::LLConversationItemParticipant(std::string display_name, const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
-	LLConversationItem(display_name,uuid,root_view_model)
+	LLConversationItem(display_name,uuid,root_view_model),
+	mIsMuted(false),
+	mIsModerator(false)
 {
 }
 

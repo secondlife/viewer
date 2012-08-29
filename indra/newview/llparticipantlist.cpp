@@ -29,6 +29,8 @@
 // common includes
 #include "lltrans.h"
 #include "llavataractions.h"
+#include "llavatarnamecache.h"
+#include "llavatarname.h"
 #include "llagent.h"
 
 #include "llimview.h"
@@ -226,29 +228,34 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source,
 	mSpeakerMgr->addListener(mSpeakerClearListener, "clear");
 	mSpeakerMgr->addListener(mSpeakerModeratorListener, "update_moderator");
 
-	mAvatarList->setNoItemsCommentText(LLTrans::getString("LoadingData"));
-	LL_DEBUGS("SpeakingIndicator") << "Set session for speaking indicators: " << mSpeakerMgr->getSessionID() << LL_ENDL;
-	mAvatarList->setSessionID(mSpeakerMgr->getSessionID());
-	mAvatarListDoubleClickConnection = mAvatarList->setItemDoubleClickCallback(boost::bind(&LLParticipantList::onAvatarListDoubleClicked, this, _1));
-	mAvatarListRefreshConnection = mAvatarList->setRefreshCompleteCallback(boost::bind(&LLParticipantList::onAvatarListRefreshed, this, _1, _2));
-    // Set onAvatarListDoubleClicked as default on_return action.
-	mAvatarListReturnConnection = mAvatarList->setReturnCallback(boost::bind(&LLParticipantList::onAvatarListDoubleClicked, this, mAvatarList));
+	setSessionID(mSpeakerMgr->getSessionID());
+	
+	if (mAvatarList)
+	{
+		mAvatarList->setNoItemsCommentText(LLTrans::getString("LoadingData"));
+		LL_DEBUGS("SpeakingIndicator") << "Set session for speaking indicators: " << mSpeakerMgr->getSessionID() << LL_ENDL;
+		mAvatarList->setSessionID(mSpeakerMgr->getSessionID());
+		mAvatarListDoubleClickConnection = mAvatarList->setItemDoubleClickCallback(boost::bind(&LLParticipantList::onAvatarListDoubleClicked, this, _1));
+		mAvatarListRefreshConnection = mAvatarList->setRefreshCompleteCallback(boost::bind(&LLParticipantList::onAvatarListRefreshed, this, _1, _2));
+		// Set onAvatarListDoubleClicked as default on_return action.
+		mAvatarListReturnConnection = mAvatarList->setReturnCallback(boost::bind(&LLParticipantList::onAvatarListDoubleClicked, this, mAvatarList));
 
-	if (use_context_menu)
-	{
-		//mParticipantListMenu = new LLParticipantListMenu(*this);
-		//mAvatarList->setContextMenu(mParticipantListMenu);
-		mAvatarList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
-	}
-	else
-	{
-		mAvatarList->setContextMenu(NULL);
-	}
+		if (use_context_menu)
+		{
+			//mParticipantListMenu = new LLParticipantListMenu(*this);
+			//mAvatarList->setContextMenu(mParticipantListMenu);
+			mAvatarList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
+		}
+		else
+		{
+			mAvatarList->setContextMenu(NULL);
+		}
 
-	if (use_context_menu && can_toggle_icons)
-	{
-		mAvatarList->setShowIcons("ParticipantListShowIcons");
-		mAvatarListToggleIconsConnection = gSavedSettings.getControl("ParticipantListShowIcons")->getSignal()->connect(boost::bind(&LLAvatarList::toggleIcons, mAvatarList));
+		if (use_context_menu && can_toggle_icons)
+		{
+			mAvatarList->setShowIcons("ParticipantListShowIcons");
+			mAvatarListToggleIconsConnection = gSavedSettings.getControl("ParticipantListShowIcons")->getSignal()->connect(boost::bind(&LLAvatarList::toggleIcons, mAvatarList));
+		}
 	}
 
 	//Lets fill avatarList with existing speakers
@@ -396,6 +403,7 @@ void LLParticipantList::onAvatarListRefreshed(LLUICtrl* ctrl, const LLSD& param)
 
 			if (speakerp->mStatus == LLSpeaker::STATUS_TEXT_ONLY)
 			{
+				setParticipantIsMuted(speakerp->mID, speakerp->mModeratorMutedVoice);
 				update_speaker_indicator(list, speakerp->mID, speakerp->mModeratorMutedVoice);
 			}
 		}
@@ -415,30 +423,39 @@ void LLParticipantList::onAvatarListRefreshed(LLUICtrl* ctrl, const LLSD& param)
 */
 void LLParticipantList::onAvalineCallerFound(const LLUUID& participant_id)
 {
-	LLPanel* item = mAvatarList->getItemByValue(participant_id);
-
-	if (NULL == item)
+	if (mAvatarList)
 	{
-		LL_WARNS("Avaline") << "Something wrong. Unable to find item for: " << participant_id << LL_ENDL;
-		return;
-	}
+		LLPanel* item = mAvatarList->getItemByValue(participant_id);
 
-	if (typeid(*item) == typeid(LLAvalineListItem))
+		if (NULL == item)
+		{
+			LL_WARNS("Avaline") << "Something wrong. Unable to find item for: " << participant_id << LL_ENDL;
+			return;
+		}
+
+		if (typeid(*item) == typeid(LLAvalineListItem))
+		{
+			LL_DEBUGS("Avaline") << "Avaline caller has already correct class type for: " << participant_id << LL_ENDL;
+			// item representing an Avaline caller has a correct type already.
+			return;
+		}
+
+		LL_DEBUGS("Avaline") << "remove item from the list and re-add it: " << participant_id << LL_ENDL;
+
+		// remove UUID from LLAvatarList::mIDs to be able add it again.
+		uuid_vec_t& ids = mAvatarList->getIDs();
+		uuid_vec_t::iterator pos = std::find(ids.begin(), ids.end(), participant_id);
+		ids.erase(pos);
+
+		// remove item directly
+		mAvatarList->removeItem(item);
+	}
+	
+	LLConversationItemParticipant* participant = findParticipant(participant_id);
+	if (participant)
 	{
-		LL_DEBUGS("Avaline") << "Avaline caller has already correct class type for: " << participant_id << LL_ENDL;
-		// item representing an Avaline caller has a correct type already.
-		return;
+		removeParticipant(participant);
 	}
-
-	LL_DEBUGS("Avaline") << "remove item from the list and re-add it: " << participant_id << LL_ENDL;
-
-	// remove UUID from LLAvatarList::mIDs to be able add it again.
-	uuid_vec_t& ids = mAvatarList->getIDs();
-	uuid_vec_t::iterator pos = std::find(ids.begin(), ids.end(), participant_id);
-	ids.erase(pos);
-
-	// remove item directly
-	mAvatarList->removeItem(item);
 
 	// re-add avaline caller with a correct class instance.
 	addAvatarIDExceptAgent(participant_id);
@@ -562,6 +579,7 @@ bool LLParticipantList::onSpeakerMuteEvent(LLPointer<LLOldEvents::LLEvent> event
 	// update UI on confirmation of moderator mutes
 	if (event->getValue().asString() == "voice")
 	{
+		setParticipantIsMuted(speakerp->mID, speakerp->mModeratorMutedVoice);
 		update_speaker_indicator(mAvatarList, speakerp->mID, speakerp->mModeratorMutedVoice);
 	}
 	return true;
@@ -601,21 +619,40 @@ void LLParticipantList::sort()
 void LLParticipantList::addAvatarIDExceptAgent(const LLUUID& avatar_id)
 {
 	if (mExcludeAgent && gAgent.getID() == avatar_id) return;
-	if (mAvatarList->contains(avatar_id)) return;
+	if (mAvatarList && mAvatarList->contains(avatar_id)) return;
 
 	bool is_avatar = LLVoiceClient::getInstance()->isParticipantAvatar(avatar_id);
 
+	LLConversationItemParticipant* participant = NULL;
+	
 	if (is_avatar)
 	{
-		mAvatarList->getIDs().push_back(avatar_id);
-		mAvatarList->setDirty();
+		// Create a participant view model instance and add it to the linked list
+		LLAvatarName avatar_name;
+		bool has_name = LLAvatarNameCache::get(avatar_id, &avatar_name);
+		participant = new LLConversationItemParticipant(!has_name ? "Avatar" : avatar_name.mDisplayName , avatar_id, mRootViewModel);
+		if ( mAvatarList)
+		{
+			mAvatarList->getIDs().push_back(avatar_id);
+			mAvatarList->setDirty();
+		}
 	}
 	else
 	{
 		std::string display_name = LLVoiceClient::getInstance()->getDisplayName(avatar_id);
-		mAvatarList->addAvalineItem(avatar_id, mSpeakerMgr->getSessionID(), display_name.empty() ? LLTrans::getString("AvatarNameWaiting") : display_name);
+		// Create a participant view model instance and add it to the linked list
+		participant = new LLConversationItemParticipant(display_name.empty() ? LLTrans::getString("AvatarNameWaiting") : display_name, avatar_id, mRootViewModel);
+		if ( mAvatarList)
+		{
+			mAvatarList->addAvalineItem(avatar_id, mSpeakerMgr->getSessionID(), display_name.empty() ? LLTrans::getString("AvatarNameWaiting") : display_name);
+		}
 		mAvalineUpdater->watchAvalineCaller(avatar_id);
 	}
+
+	// *TODO : Merov : need to declare and bind a name update callback on that "participant" instance. See LLAvatarListItem::updateAvatarName() for pattern.
+	// For the moment, we'll get the correct name only if it's already in the name cache (see call to LLAvatarNameCache::get() here above)
+	addParticipant(participant);
+
 	adjustParticipant(avatar_id);
 }
 

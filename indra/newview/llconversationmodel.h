@@ -33,6 +33,8 @@
 // Implementation of conversations list
 
 class LLConversationItem;
+class LLConversationItemSession;
+class LLConversationItemParticipant;
 
 typedef std::map<LLUUID, LLConversationItem*> conversations_items_map;
 typedef std::map<LLUUID, LLFolderViewItem*> conversations_widgets_map;
@@ -100,9 +102,10 @@ public:
 	
 //	bool hasSameValues(std::string name, const LLUUID& uuid) { return ((name == mName) && (uuid == mUUID)); }
 	bool hasSameValue(const LLUUID& uuid) { return (uuid == mUUID); }
-private:
-	std::string mName;
-	const LLUUID mUUID;
+
+protected:
+	std::string mName;	// Name of the session or the participant
+	LLUUID mUUID;		// UUID of the session or the participant
 };
 
 class LLConversationItemSession : public LLConversationItem
@@ -111,6 +114,19 @@ public:
 	LLConversationItemSession(std::string display_name, const LLUUID& uuid, LLFolderViewModelInterface& root_view_model);
 	LLConversationItemSession(const LLUUID& uuid, LLFolderViewModelInterface& root_view_model);
 	virtual ~LLConversationItemSession() {}
+	
+	void setSessionID(const LLUUID& session_id) { mUUID = session_id; }
+	void addParticipant(LLConversationItemParticipant* item);
+	void removeParticipant(LLConversationItemParticipant* item);
+	void clearParticipants();
+	LLConversationItemParticipant* findParticipant(const LLUUID& participant_id);
+
+	void setParticipantIsMuted(const LLUUID& participant_id, bool is_muted);
+	
+	bool isLoaded() { return mIsLoaded; }
+	
+private:
+	bool mIsLoaded;		// true if at least one participant has been added to the session, false otherwise
 };
 
 class LLConversationItemParticipant : public LLConversationItem
@@ -119,6 +135,15 @@ public:
 	LLConversationItemParticipant(std::string display_name, const LLUUID& uuid, LLFolderViewModelInterface& root_view_model);
 	LLConversationItemParticipant(const LLUUID& uuid, LLFolderViewModelInterface& root_view_model);
 	virtual ~LLConversationItemParticipant() {}
+	
+	bool isMuted() { return mIsMuted; }
+	bool isModerator() {return mIsModerator; }
+	void setIsMuted(bool is_muted) { mIsMuted = is_muted; }
+	void setIsModerator(bool is_moderator) { mIsModerator = is_moderator; }
+	
+private:
+	bool mIsMuted;		// default is false
+	bool mIsModerator;	// default is false
 };
 
 // We don't want to ever filter conversations but we need to declare that class to create a conversation view model.
