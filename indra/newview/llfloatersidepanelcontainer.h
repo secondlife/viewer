@@ -51,6 +51,8 @@ public:
 
 	/*virtual*/ void onOpen(const LLSD& key);
 
+	/*virtual*/ void onClickCloseBtn();
+
 	LLPanel* openChildPanel(const std::string& panel_name, const LLSD& params);
 
 	static void showPanel(const std::string& floater_name, const LLSD& key);
