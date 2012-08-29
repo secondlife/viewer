@@ -116,12 +116,14 @@ public:
 	virtual ~LLConversationItemSession() {}
 	
 	void setSessionID(const LLUUID& session_id) { mUUID = session_id; }
-	void addParticipant(LLConversationItemParticipant* item);
-	void removeParticipant(LLConversationItemParticipant* item);
+	void addParticipant(LLConversationItemParticipant* participant);
+	void removeParticipant(LLConversationItemParticipant* participant);
+	void removeParticipant(const LLUUID& participant_id);
 	void clearParticipants();
 	LLConversationItemParticipant* findParticipant(const LLUUID& participant_id);
 
 	void setParticipantIsMuted(const LLUUID& participant_id, bool is_muted);
+	void setParticipantIsModerator(const LLUUID& participant_id, bool is_moderator);
 	
 	bool isLoaded() { return mIsLoaded; }
 	

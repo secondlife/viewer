@@ -98,15 +98,24 @@ LLConversationItemSession::LLConversationItemSession(const LLUUID& uuid, LLFolde
 {
 }
 
-void LLConversationItemSession::addParticipant(LLConversationItemParticipant* item)
+void LLConversationItemSession::addParticipant(LLConversationItemParticipant* participant)
 {
-	addChild(item);
+	addChild(participant);
 	mIsLoaded = true;
 }
 
-void LLConversationItemSession::removeParticipant(LLConversationItemParticipant* item)
+void LLConversationItemSession::removeParticipant(LLConversationItemParticipant* participant)
 {
-	removeChild(item);
+	removeChild(participant);
+}
+
+void LLConversationItemSession::removeParticipant(const LLUUID& participant_id)
+{
+	LLConversationItemParticipant* participant = findParticipant(participant_id);
+	if (participant)
+	{
+		removeParticipant(participant);
+	}
 }
 
 void LLConversationItemSession::clearParticipants()
@@ -135,7 +144,19 @@ LLConversationItemParticipant* LLConversationItemSession::findParticipant(const 
 void LLConversationItemSession::setParticipantIsMuted(const LLUUID& participant_id, bool is_muted)
 {
 	LLConversationItemParticipant* participant = findParticipant(participant_id);
-	participant->setIsMuted(is_muted);
+	if (participant)
+	{
+		participant->setIsMuted(is_muted);
+	}
+}
+
+void LLConversationItemSession::setParticipantIsModerator(const LLUUID& participant_id, bool is_moderator)
+{
+	LLConversationItemParticipant* participant = findParticipant(participant_id);
+	if (participant)
+	{
+		participant->setIsModerator(is_moderator);
+	}
 }
 
 //
