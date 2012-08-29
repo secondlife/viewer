@@ -65,6 +65,8 @@ inline void* ll_aligned_realloc_16(void* ptr, size_t size) // returned hunk MUST
 #elif defined(LL_DARWIN)
 	return realloc(ptr,size); // default osx malloc is 16 byte aligned.
 #else
+	// The realloc alignment test is skipped on Linux because the ll_aligned_realloc_16()
+	// function is not implemented to ensure alignment (see alignment_test.cpp)
 	return realloc(ptr,size); // FIXME not guaranteed to be aligned.
 #endif
 }

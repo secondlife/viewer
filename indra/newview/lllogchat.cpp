@@ -387,7 +387,7 @@ void append_to_last_message(std::list<LLSD>& messages, const std::string& line)
 }
 
 // static
-void LLLogChat::loadAllHistory(const std::string& file_name, std::list<LLSD>& messages)
+void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& messages, bool load_all_history/*= false*/)
 {
 	if (file_name.empty())
 	{
@@ -412,8 +412,8 @@ void LLLogChat::loadAllHistory(const std::string& file_name, std::list<LLSD>& me
 	S32 len;
 	bool firstline = TRUE;
 
-	if (fseek(fptr, (LOG_RECALL_SIZE - 1) * -1  , SEEK_END))
-	{	//File is smaller than recall size.  Get it all.
+	if (load_all_history || fseek(fptr, (LOG_RECALL_SIZE - 1) * -1  , SEEK_END))
+	{	//We need to load the whole historyFile or it's smaller than recall size, so get it all.
 		firstline = FALSE;
 		if (fseek(fptr, 0, SEEK_SET))
 		{

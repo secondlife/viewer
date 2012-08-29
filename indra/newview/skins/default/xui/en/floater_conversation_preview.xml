@@ -3,7 +3,7 @@
  legacy_header_height="18"
  can_resize="true"
  default_tab_group="1"
- height="361"
+ height="391"
  layout="topleft"
  min_height="243"
  min_width="234"
@@ -50,4 +50,14 @@
      left="5"
      width="390">
     </chat_history>
+    <button
+     follows="bottom|right"
+     height="22"
+     layout="topleft"
+     name="more_history"
+     label="More history..."
+     right="-15"
+     top_pad="5"
+     width="100">
+    </button>
 </floater>
