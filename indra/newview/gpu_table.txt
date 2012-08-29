@@ -286,6 +286,11 @@ Intel Brookdale							.*Intel.*Brookdale.*					0	0	1	1.3
 Intel Cantiga							.*Intel.*Cantiga.*						0	0	1	2
 Intel Eaglelake							.*Intel.*Eaglelake.*					1	1	1	2
 Intel Graphics Media HD					.*Intel.*Graphics Media.*HD.*			1	1	1	2.1
+Intel HD Graphics 2000					.*Intel.*HD Graphics 2.*				2	1	0	0
+Intel HD Graphics 3000					.*Intel.*HD Graphics 3.*				3	1	1	3.1
+Intel HD Graphics 4000					.*Intel.*HD Graphics 4.*				3	1	1	3.3
+Intel HD2000							.*Intel.*HD2000.*						2	1	0	0
+Intel HD3000							.*Intel.*HD3000.*						3	1	1	3.1
 Intel HD Graphics						.*Intel.*HD Graphics.*					2	1	1	4
 Intel Mobile 4 Series					.*Intel.*Mobile.* 4 Series.*			0	1	1	2.1
 Intel 4 Series Internal					.*Intel.* 4 Series Internal.*			1	1	1	2.1
@@ -294,8 +299,6 @@ Intel Montara							.*Intel.*Montara.*						0	0	1	1.3
 Intel Pineview							.*Intel.*Pineview.*						0	1	1	1.4
 Intel Springdale						.*Intel.*Springdale.*					0	0	1	1.3
 Intel Grantsdale						.*Intel.*Grantsdale.*					1	1	0	0
-Intel HD Graphics 2000					.*Intel.*HD2000.*						1	1	0	0
-Intel HD Graphics 3000					.*Intel.*HD3000.*						2	1	0	0
 Intel Q45/Q43							.*Intel.*Q4.*							1	1	1	2.1
 Intel B45/B43							.*Intel.*B4.*							1	1	1	2.1
 Intel 3D-Analyze						.*Intel.*3D-Analyze.*					2	1	0	0
@@ -494,7 +497,7 @@ NVIDIA D9M								.*NVIDIA .*D9M.*						1	1	0	0
 NVIDIA G94								.*NVIDIA .*G94.*						3	1	0	0
 NVIDIA GeForce Go 6						.*GeForce Go 6.*						1	1	0	0
 NVIDIA ION 2							.*NVIDIA .*ION 2.*						2	1	0	0
-NVIDIA ION 								.*NVIDIA Corporation.*ION.*				2	1	1	4.2
+NVIDIA ION 								.*NVIDIA Corporation.*ION.*				2	1	0	0
 NVIDIA NB8M								.*NVIDIA .*NB8M.*						1	1	0	0
 NVIDIA NB8P								.*NVIDIA .*NB8P.*						2	1	0	0
 NVIDIA NB9E								.*NVIDIA .*NB9E.*						3	1	0	0
@@ -568,4 +571,5 @@ Apple Generic							Apple.*Generic.*						0	0	0	0
 Apple Software Renderer					Apple.*Software Renderer.*				0	0	0	0
 Humper									Humper.*								0	1	1	2.1
 PowerVR SGX545							.*PowerVR SGX.*							1	1	1	3
+
 
