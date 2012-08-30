@@ -1639,6 +1639,39 @@
       <key>Value</key>
       <string />
     </map>
+    <key>ContextConeInAlpha</key>
+    <map>
+      <key>Comment</key>
+      <string>Cone In Alpha</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.0</real>
+    </map>
+    <key>ContextConeOutAlpha</key>
+    <map>
+      <key>Comment</key>
+      <string>Cone Out Alpha</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
+    <key>ContextConeFadeTime</key>
+    <map>
+      <key>Comment</key>
+      <string>Cone Fade Time</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>.08</real>
+    </map>
     <key>ConversationHistoryPageSize</key>
     <map>
       <key>Comment</key>

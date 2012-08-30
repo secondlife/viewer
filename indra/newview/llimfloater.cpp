@@ -359,7 +359,7 @@ BOOL LLIMFloater::postBuild()
 
 void LLIMFloater::onAddButtonClicked()
 {
-    LLView * button = getChildView("toolbar_panel")->getChildView("add_btn");
+    LLView * button = findChild<LLView>("toolbar_panel")->findChild<LLButton>("add_btn");
     LLFloater* root_floater = gFloaterView->getParentFloater(this);
 	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLIMFloater::addSessionParticipants, this, _1), TRUE, TRUE, FALSE, root_floater->getName(), button);
 	if (!picker)

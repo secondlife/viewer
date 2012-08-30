@@ -285,7 +285,7 @@ void LLFloaterReporter::getObjectInfo(const LLUUID& object_id)
 
 void LLFloaterReporter::onClickSelectAbuser()
 {
-    LLView * button = getChildView("select_abuser", TRUE);
+    LLView * button = findChild<LLButton>("select_abuser", TRUE);
 
     LLFloater * root_floater = gFloaterView->getParentFloater(this);
 	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLFloaterReporter::callbackAvatarID, this, _1, _2), FALSE, TRUE, FALSE, root_floater->getName(), button);

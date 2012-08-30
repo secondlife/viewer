@@ -1090,7 +1090,7 @@ bool LLPanelPeople::isItemsFreeOfFriends(const uuid_vec_t& uuids)
 void LLPanelPeople::onAddFriendWizButtonClicked()
 {
     LLPanel* cur_panel = mTabContainer->getCurrentPanel();
-    LLView * button = cur_panel->getChildView("friends_add_btn", TRUE);
+    LLView * button = cur_panel->findChild<LLButton>("friends_add_btn", TRUE);
 
 	// Show add friend wizard.
     LLFloater* root_floater = gFloaterView->getParentFloater(this);

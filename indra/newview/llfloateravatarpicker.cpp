@@ -58,10 +58,6 @@
 //put it back as a member once the legacy path is out?
 static std::map<LLUUID, LLAvatarName> sAvatarNameMap;
 
-const F32 CONTEXT_CONE_IN_ALPHA = 0.0f;
-const F32 CONTEXT_CONE_OUT_ALPHA = 1.f;
-const F32 CONTEXT_FADE_TIME = 0.08f;
-
 LLFloaterAvatarPicker* LLFloaterAvatarPicker::show(select_callback_t callback,
 												   BOOL allow_multiple,
 												   BOOL closeOnSelect,
@@ -106,10 +102,17 @@ LLFloaterAvatarPicker::LLFloaterAvatarPicker(const LLSD& key)
   : LLFloater(key),
 	mNumResultsReturned(0),
 	mNearMeListComplete(FALSE),
-	mCloseOnSelect(FALSE),
-    mContextConeOpacity	( 0.f )
+	mCloseOnSelect(FALSE),a
+    mContextConeOpacity	(0.f),
+    mContextConeInAlpha(0.f),
+    mContextConeOutAlpha(0.f),
+    mContextConeFadeTime(0.f)
 {
 	mCommitCallbackRegistrar.add("Refresh.FriendList", boost::bind(&LLFloaterAvatarPicker::populateFriend, this));
+
+    mContextConeInAlpha = gSavedSettings.getF32("ContextConeInAlpha");
+    mContextConeOutAlpha = gSavedSettings.getF32("ContextConeOutAlpha");
+    mContextConeFadeTime = gSavedSettings.getF32("ContextConeFadeTime");
 }
 
 BOOL LLFloaterAvatarPicker::postBuild()
@@ -369,31 +372,31 @@ void LLFloaterAvatarPicker::drawFrustum()
             LLGLEnable(GL_CULL_FACE);
             gGL.begin(LLRender::QUADS);
             {
-                gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
+                gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
                 gGL.vertex2i(origin_rect.mLeft, origin_rect.mTop);
                 gGL.vertex2i(origin_rect.mRight, origin_rect.mTop);
-                gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
+                gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
                 gGL.vertex2i(local_rect.mRight, local_rect.mTop);
                 gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
 
-                gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
+                gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
                 gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
                 gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
-                gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
+                gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
                 gGL.vertex2i(origin_rect.mLeft, origin_rect.mBottom);
                 gGL.vertex2i(origin_rect.mLeft, origin_rect.mTop);
 
-                gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
+                gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
                 gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
                 gGL.vertex2i(local_rect.mRight, local_rect.mTop);
-                gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
+                gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
                 gGL.vertex2i(origin_rect.mRight, origin_rect.mTop);
                 gGL.vertex2i(origin_rect.mRight, origin_rect.mBottom);
 
-                gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
+                gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
                 gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
                 gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
-                gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
+                gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
                 gGL.vertex2i(origin_rect.mRight, origin_rect.mBottom);
                 gGL.vertex2i(origin_rect.mLeft, origin_rect.mBottom);
             }
@@ -402,11 +405,11 @@ void LLFloaterAvatarPicker::drawFrustum()
 
         if (gFocusMgr.childHasMouseCapture(getDragHandle()))
         {
-            mContextConeOpacity = lerp(mContextConeOpacity, gSavedSettings.getF32("PickerContextOpacity"), LLCriticalDamp::getInterpolant(CONTEXT_FADE_TIME));
+            mContextConeOpacity = lerp(mContextConeOpacity, gSavedSettings.getF32("PickerContextOpacity"), LLCriticalDamp::getInterpolant(mContextConeFadeTime));
         }
         else
         {
-            mContextConeOpacity = lerp(mContextConeOpacity, 0.f, LLCriticalDamp::getInterpolant(CONTEXT_FADE_TIME));
+            mContextConeOpacity = lerp(mContextConeOpacity, 0.f, LLCriticalDamp::getInterpolant(mContextConeFadeTime));
         }
     }
 }

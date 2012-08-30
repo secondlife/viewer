@@ -415,7 +415,7 @@ void LLIMFloaterContainer::updateState(bool collapse, S32 delta_width)
 
 void LLIMFloaterContainer::onAddButtonClicked()
 {
-    LLView * button = getChildView("conversations_pane_buttons_expanded")->getChildView("add_btn");
+    LLView * button = findChild<LLView>("conversations_pane_buttons_expanded")->findChild<LLButton>("add_btn");
     LLFloater* root_floater = gFloaterView->getParentFloater(this);
     LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLIMFloaterContainer::onAvatarPicked, this, _1), TRUE, TRUE, TRUE, root_floater->getName(), button);
     

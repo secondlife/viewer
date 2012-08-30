@@ -99,6 +99,9 @@ private:
 	BOOL                mExcludeAgentFromSearchResults;
     LLHandle <LLView>   mFrustumOrigin;
     F32		            mContextConeOpacity;
+    F32                 mContextConeInAlpha;
+    F32                 mContextConeOutAlpha;
+    F32                 mContextConeFadeTime;
 
 	validate_signal_t mOkButtonValidateSignal;
 	select_callback_t mSelectionCallback;

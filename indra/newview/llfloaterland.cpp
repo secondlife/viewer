@@ -2733,7 +2733,7 @@ void LLPanelLandAccess::onCommitAny(LLUICtrl *ctrl, void *userdata)
 
 void LLPanelLandAccess::onClickAddAccess()
 {
-    LLView * button = getChildView("add_allowed");
+    LLView * button = findChild<LLButton>("add_allowed");
     LLFloater * root_floater = gFloaterView->getParentFloater(this);
 	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(
 		boost::bind(&LLPanelLandAccess::callbackAvatarCBAccess, this, _1), FALSE, FALSE, FALSE, root_floater->getName(), button);
@@ -2784,7 +2784,7 @@ void LLPanelLandAccess::onClickRemoveAccess(void* data)
 // static
 void LLPanelLandAccess::onClickAddBanned()
 {
-    LLView * button = getChildView("add_banned");
+    LLView * button = findChild<LLButton>("add_banned");
     LLFloater * root_floater = gFloaterView->getParentFloater(this);
 	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(
 		boost::bind(&LLPanelLandAccess::callbackAvatarCBBanned, this, _1), FALSE, FALSE, FALSE, root_floater->getName(), button);

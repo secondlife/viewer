@@ -744,7 +744,7 @@ std::set<LLUUID> LLAvatarActions::getInventorySelectedUUIDs()
 }
 
 //static
-void LLAvatarActions::shareWithAvatars(LLPanel * panel)
+void LLAvatarActions::shareWithAvatars(LLView * panel)
 {
 	using namespace action_give_inventory;
 

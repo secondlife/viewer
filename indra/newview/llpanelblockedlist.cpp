@@ -195,7 +195,7 @@ void LLPanelBlockedList::blockResidentByName()
 	const BOOL allow_multiple = FALSE;
 	const BOOL close_on_select = TRUE;
     
-    LLView * button = getChildView("plus_btn", TRUE);
+    LLView * button = findChild<LLButton>("plus_btn", TRUE);
     LLFloater* root_floater = gFloaterView->getParentFloater(this);
 	LLFloaterAvatarPicker * picker = LLFloaterAvatarPicker::show(boost::bind(&LLPanelBlockedList::callbackBlockPicked, this, _1, _2), 
                                                                                     allow_multiple, close_on_select, FALSE, root_floater->getName(), button);

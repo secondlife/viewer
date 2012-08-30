@@ -1123,7 +1123,7 @@ bool LLPanelObjectTools::callbackSimWideDeletes( const LLSD& notification, const
 
 void LLPanelObjectTools::onClickSet()
 {
-    LLView * button = getChildView("Set Target");
+    LLView * button = findChild<LLButton>("Set Target");
     LLFloater * root_floater = gFloaterView->getParentFloater(this);
 	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLPanelObjectTools::callbackAvatarID, this, _1,_2), FALSE, FALSE, FALSE, root_floater->getName(), button);
 	// grandparent is a floater, which can have a dependent
