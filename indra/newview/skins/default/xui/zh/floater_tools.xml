@@ -127,6 +127,18 @@
 	<text name="prim_count">
 		幾何元件： [COUNT]
 	</text>
+	<text name="linked_set_count">
+		聯結集合：[COUNT]
+	</text>
+	<text name="linked_set_cost" tool_tip="目前所選聯結幾何 [prims],[physics complexity] 的費用">
+		費用：[COST] / [PHYSICS]
+	</text>
+	<text name="object_count">
+		物件： [COUNT]
+	</text>
+	<text name="object_cost" tool_tip="目前所選物件 [prims] / [physics complexity] 的費用">
+		費用：[COST] / [PHYSICS]
+	</text>
 	<tab_container name="Object Info Tabs">
 		<panel label="一般" name="General">
 			<panel.string name="text deed continued">
@@ -271,15 +283,6 @@
 				<combo_box.item label="圓環" name="Ring"/>
 				<combo_box.item label="雕刻的" name="Sculpted"/>
 			</combo_box>
-			<combo_box name="material">
-				<combo_box.item label="石頭" name="Stone"/>
-				<combo_box.item label="金屬" name="Metal"/>
-				<combo_box.item label="玻璃" name="Glass"/>
-				<combo_box.item label="木頭" name="Wood"/>
-				<combo_box.item label="肌肉" name="Flesh"/>
-				<combo_box.item label="塑膠" name="Plastic"/>
-				<combo_box.item label="橡膠" name="Rubber"/>
-			</combo_box>
 			<text name="text cut">
 				路徑切斷（開始 / 結束）
 			</text>
@@ -352,9 +355,19 @@
 				<combo_box.item label="環面" name="Torus"/>
 				<combo_box.item label="平面" name="Plane"/>
 				<combo_box.item label="圓柱體" name="Cylinder"/>
+				<combo_box.item label="網面" name="Mesh"/>
 			</combo_box>
 		</panel>
 		<panel label="特性" name="Features">
+			<panel.string name="None">
+				無
+			</panel.string>
+			<panel.string name="Prim">
+				幾何元件
+			</panel.string>
+			<panel.string name="Convex Hull">
+				凸包
+			</panel.string>
 			<text name="select_single">
 				只能選擇一個幾何元件去編輯細節。
 			</text>
@@ -379,6 +392,23 @@
 			<spinner label="焦點" name="Light Focus"/>
 			<spinner label="衰減" name="Light Falloff"/>
 			<spinner label="環境" name="Light Ambiance"/>
+			<text name="label physicsshapetype">
+				物理形狀類型：
+			</text>
+			<combo_box name="Physics Shape Type Combo Ctrl" tool_tip="選擇物理形狀類型"/>
+			<combo_box name="material">
+				<combo_box.item label="石頭" name="Stone"/>
+				<combo_box.item label="金屬" name="Metal"/>
+				<combo_box.item label="玻璃" name="Glass"/>
+				<combo_box.item label="木頭" name="Wood"/>
+				<combo_box.item label="肌肉" name="Flesh"/>
+				<combo_box.item label="塑膠" name="Plastic"/>
+				<combo_box.item label="橡膠" name="Rubber"/>
+			</combo_box>
+			<spinner label="重力" name="Physics Gravity"/>
+			<spinner label="摩擦" name="Physics Friction"/>
+			<spinner label="密度" name="Physics Density"/>
+			<spinner label="恢復" name="Physics Restitution"/>
 		</panel>
 		<panel label="材質" name="Texture">
 			<panel.string name="string repeats per meter">
@@ -477,14 +507,7 @@
 			面積： [AREA] m²
 		</text>
 		<button label="土地資料" label_selected="土地資料" name="button about land"/>
-		<check_box label="顯示所有人" name="checkbox show owners" tool_tip="根據所有人將地段分類上色： 
-
-綠色 = 你的土地 
-水藍 = 你群組的土地 
-紅色 = 其他人所有 
-黃色 = 出售 
-紫色 = 拍賣 
-灰色 = 公有地"/>
+		<check_box label="顯示所有人" name="checkbox show owners" tool_tip="根據所有人將地段分類上色：   綠色 = 你的土地  水藍 = 你群組的土地  紅色 = 其他人所有  黃色 = 出售  紫色 = 拍賣  灰色 = 公有地"/>
 		<text name="label_parcel_modify">
 			修改地段
 		</text>

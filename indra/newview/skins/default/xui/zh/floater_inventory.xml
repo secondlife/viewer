@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Inventory" title="我的收納區">
-	<panel label="收納區面板" name="Inventory Panel"/>
-</floater>
