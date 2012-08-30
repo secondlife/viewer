@@ -369,8 +369,8 @@ LLViewerAssetStats::asLLSD(bool compact_output)
 		std::string rez_status_name = LLVOAvatar::rezStatusToString(rez_stat);
 		avatar_info[avatar_nearby_tag][rez_status_name] = mAvatarRezStates[rez_stat];
 	}
-	avatar_info[avatar_phase_stats_tag]["cloud"] = mPhaseStats["cloud"].getData();
-	avatar_info[avatar_phase_stats_tag]["cloud-or-gray"] = mPhaseStats["cloud-or-gray"].getData();
+	avatar_info[avatar_phase_stats_tag]["cloud"] = mPhaseStats["cloud"].asLLSD();
+	avatar_info[avatar_phase_stats_tag]["cloud-or-gray"] = mPhaseStats["cloud-or-gray"].asLLSD();
 	ret[avatar_tag] = avatar_info;
 	
 	return ret;

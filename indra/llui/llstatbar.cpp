@@ -45,7 +45,7 @@ LLStatBar::LLStatBar(const Params& p)
 	  mUnitLabel(p.unit_label),
 	  mMinBar(p.bar_min),
 	  mMaxBar(p.bar_max),
-	  mStatp(LLStat::getStat(p.stat)),
+	  mStatp(LLStat::getInstance(p.stat)),
 	  mTickSpacing(p.tick_spacing),
 	  mLabelSpacing(p.label_spacing),
 	  mPrecision(p.precision),
