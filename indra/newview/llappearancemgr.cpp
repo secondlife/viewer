@@ -2651,7 +2651,18 @@ void LLAppearanceMgr::updateClothingOrderingInfo(LLUUID cat_id, bool update_base
 class RequestAgentUpdateAppearanceResponder: public LLHTTPClient::Responder
 {
 public:
-	RequestAgentUpdateAppearanceResponder() {}
+	RequestAgentUpdateAppearanceResponder()
+	{
+		llinfos << "request created" << llendl;
+	}
+
+	// Successful completion.
+	/* virtual */ void result(const LLSD& content)
+	{
+		llinfos << "request OK" << llendl;
+	}
+
+	// Error
 	/*virtual*/ void error(U32 status, const std::string& reason)
 	{
 		llwarns << "appearance update request failed, reason: " << reason << llendl;
