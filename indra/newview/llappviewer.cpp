@@ -703,14 +703,6 @@ bool LLAppViewer::init()
 
 	LL_INFOS("InitInfo") << "Configuration initialized." << LL_ENDL ;
 
-	std::string duplicates;
-	if(LLFastTimer::checkForDuplicates(duplicates))
-	{
-		LL_WARNS("InitInfo") << "There are duplicates created by LLFastTimer::DeclareTimer with names: '"
-			<< duplicates << "'" << LL_ENDL;
-		return false;
-	}
-
 	//set the max heap size.
 	initMaxHeapSize() ;
 
