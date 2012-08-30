@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+    positioning="cascading"
+    can_tear_off="false"
+    height="160"
+    layout="topleft"
+    name="floater_stinson"
+    help_topic="floater_stinson"
+    reuse_instance="true"
+    save_rect="true"
+    single_instance="true"
+    title="Stinson Test"
+    width="240">
+  <floater.string name="status_no_region">No current region available.</floater.string>
+  <floater.string name="status_capabilities_loading">Region capabilities are loading.</floater.string>
+  <floater.string name="status_ready">Materials are enabled for this region.</floater.string>
+  <floater.string name="status_request_started">Request sent.</floater.string>
+  <floater.string name="status_request_completed">Request received.</floater.string>
+  <floater.string name="status_not_enabled">Materials are not enabled for this region.</floater.string>
+  <floater.string name="status_error">An error occurred during the request.</floater.string>
+  <panel
+      border="false"
+      bevel_style="none"
+      follows="left|top"
+      layout="topleft"
+      left="12"
+      top_pad="10"
+      height="61"
+      width="214">
+    <text
+        height="13"
+        word_wrap="true"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        length="1"
+        layout="topleft"
+        left="0"
+        top_pad="0"
+        width="214">
+      Status
+    </text>
+    <text
+        height="40"
+        word_wrap="true"
+        use_ellipses="false"
+        type="string"
+        text_color="MaterialGoodColor"
+        length="1"
+        follows="left|top"
+        layout="topleft"
+        left="0"
+        name="material_status"
+        top_pad="8"
+        width="214">
+    </text>
+  </panel>
+  <view_border
+      bevel_style="none"
+      follows="left|right|bottom"
+      height="0"
+      layout="topleft"
+      name="horiz_separator"
+      top_pad="0"
+      left="12"
+      width="214"/>
+  <panel
+      border="false"
+      bevel_style="none"
+      follows="left|top"
+      layout="topleft"
+      left="12"
+      top_pad="10"
+      height="61"
+      width="214">
+    <button
+        follows="left|top"
+        height="22"
+        label="Get"
+        layout="topleft"
+        name="get_button"
+        top_pad="0"
+        width="214"/>
+    <button
+        follows="left|top"
+        height="22"
+        label="Put"
+        layout="topleft"
+        name="put_button"
+        top_pad="12"
+        width="214"/>
+  </panel>
+</floater>

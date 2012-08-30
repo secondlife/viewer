@@ -1558,6 +1558,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("ProductInfoRequest");
 	capabilityNames.append("ProvisionVoiceAccountRequest");
 	capabilityNames.append("RemoteParcelRequest");
+	capabilityNames.append("RenderMaterials");
 	capabilityNames.append("RequestTextureDownload");
 	capabilityNames.append("ResourceCostSelected");
 	capabilityNames.append("RetrieveNavMeshSrc");

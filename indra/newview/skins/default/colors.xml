@@ -645,6 +645,15 @@
       name="PathfindingGoodColor"
       reference="LtGreen" />
   <color
+      name="MaterialErrorColor"
+      reference="LtRed" />
+  <color
+      name="MaterialWarningColor"
+      reference="DrYellow" />
+  <color
+      name="MaterialGoodColor"
+      reference="LtGreen" />
+  <color
       name="PathfindingDefaultBeaconColor"
       reference="Red_80" />
   <color
