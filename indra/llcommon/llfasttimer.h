@@ -91,8 +91,8 @@ public:
 		U32 getHistoricalCount(S32 history_index = 0) const;
 		U32 getHistoricalCalls(S32 history_index = 0) const;
 
-		void setFrameState(FrameState* state) { mFrameState = state; state->setNamedTimer(this); }
-		FrameState& getFrameState() const;
+		const FrameState& getFrameState() const;
+		FrameState& getFrameState();
 
 	private:
 		friend class LLFastTimer;
@@ -116,7 +116,7 @@ public:
 		//
 		// members
 		//
-		FrameState*		mFrameState;
+		FrameState		mFrameState;
 
 		std::string	mName;
 
@@ -147,7 +147,7 @@ public:
 		NamedTimer& getNamedTimer() { return mTimer; }
 
 	private:
-		FrameState		mFrameState;
+		FrameState*		mFrameState;
 		NamedTimer&		mTimer;
 	};
 
@@ -155,7 +155,7 @@ public:
 	LLFastTimer(LLFastTimer::FrameState* state);
 
 	LL_FORCE_INLINE LLFastTimer(LLFastTimer::DeclareTimer& timer)
-	:	mFrameState(&timer.mFrameState)
+	:	mFrameState(timer.mFrameState)
 	{
 #if FAST_TIMER_ON
 		LLFastTimer::FrameState* frame_state = mFrameState;
@@ -224,7 +224,6 @@ public:
 
 	static void writeLog(std::ostream& os);
 	static const NamedTimer* getTimerByName(const std::string& name);
-	static bool checkForDuplicates(std::string& duplicates);
 
 	struct CurTimerData
 	{
