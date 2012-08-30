@@ -783,7 +783,7 @@ void send_stats()
 		"%-6s Class %d ",
 		gGLManager.mGLVendorShort.substr(0,6).c_str(),
 		(S32)LLFeatureManager::getInstance()->getGPUClass())
-		+ LLFeatureManager::getInstance()->getGPUString();
+		+ gGLManager.getRawGLString();
 
 	system["gpu"] = gpu_desc;
 	system["gpu_class"] = (S32)LLFeatureManager::getInstance()->getGPUClass();
