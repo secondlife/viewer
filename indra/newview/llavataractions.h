@@ -37,6 +37,7 @@
 class LLAvatarName;
 class LLInventoryPanel;
 class LLFloater;
+class LLPanel;
 
 /**
  * Friend-related actions (add, remove, offer teleport, etc)
@@ -117,7 +118,7 @@ public:
 	/**
 	 * Share items with the picked avatars.
 	 */
-	static void shareWithAvatars();
+	static void shareWithAvatars(LLPanel * panel);
 
 	/**
 	 * Block/unblock the avatar.

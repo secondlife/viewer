@@ -61,6 +61,7 @@ private:
 		E_SORT_BY_TYPE = 1,
 	} ESortOrder;
 
+    void removePicker();
 	void updateButtons();
 
 	// UI callbacks
@@ -78,6 +79,7 @@ private:
 
 private:
 	LLBlockList* mBlockedList;
+    LLHandle<LLFloater> mPicker;
 };
 
 //-----------------------------------------------------------------------------

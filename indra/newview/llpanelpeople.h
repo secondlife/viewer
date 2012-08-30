@@ -68,6 +68,8 @@ private:
 		E_SORT_BY_RECENT_SPEAKERS = 4,
 	} ESortOrder;
 
+    void				    removePicker();
+
 	// methods indirectly called by the updaters
 	void					updateFriendListHelpText();
 	void					updateFriendList();
@@ -139,6 +141,7 @@ private:
 	Updater*				mNearbyListUpdater;
 	Updater*				mRecentListUpdater;
 	Updater*				mButtonsUpdater;
+    LLHandle< LLFloater >	mPicker;
 };
 
 #endif //LL_LLPANELPEOPLE_H

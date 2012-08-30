@@ -448,7 +448,7 @@ void LLSidepanelInventory::onInfoButtonClicked()
 
 void LLSidepanelInventory::onShareButtonClicked()
 {
-	LLAvatarActions::shareWithAvatars();
+	LLAvatarActions::shareWithAvatars(this);
 }
 
 void LLSidepanelInventory::onShopButtonClicked()

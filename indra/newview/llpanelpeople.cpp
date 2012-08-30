@@ -556,6 +556,15 @@ void LLPanelPeople::onFriendsAccordionExpandedCollapsed(LLUICtrl* ctrl, const LL
 	}
 }
 
+
+void LLPanelPeople::removePicker()
+{
+    if(mPicker.get())
+    {
+        mPicker.get()->closeFloater();
+    }
+}
+
 BOOL LLPanelPeople::postBuild()
 {
 	getChild<LLFilterEditor>("nearby_filter_input")->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
@@ -571,6 +580,7 @@ BOOL LLPanelPeople::postBuild()
 	LLPanel* friends_tab = getChild<LLPanel>(FRIENDS_TAB_NAME);
 	// updater is active only if panel is visible to user.
 	friends_tab->setVisibleCallback(boost::bind(&Updater::setActive, mFriendListUpdater, _2));
+    friends_tab->setVisibleCallback(boost::bind(&LLPanelPeople::removePicker, this));
 	mOnlineFriendList = friends_tab->getChild<LLAvatarList>("avatars_online");
 	mAllFriendList = friends_tab->getChild<LLAvatarList>("avatars_all");
 	mOnlineFriendList->setNoItemsCommentText(getString("no_friends_online"));
@@ -1079,8 +1089,12 @@ bool LLPanelPeople::isItemsFreeOfFriends(const uuid_vec_t& uuids)
 
 void LLPanelPeople::onAddFriendWizButtonClicked()
 {
+    LLPanel* cur_panel = mTabContainer->getCurrentPanel();
+    LLView * button = cur_panel->getChildView("friends_add_btn", TRUE);
+
 	// Show add friend wizard.
-	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLPanelPeople::onAvatarPicked, _1, _2), FALSE, TRUE);
+    LLFloater* root_floater = gFloaterView->getParentFloater(this);
+	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLPanelPeople::onAvatarPicked, _1, _2), FALSE, TRUE, FALSE, root_floater->getName(), button);
 	if (!picker)
 	{
 		return;
@@ -1088,11 +1102,13 @@ void LLPanelPeople::onAddFriendWizButtonClicked()
 
 	// Need to disable 'ok' button when friend occurs in selection
 	picker->setOkBtnEnableCb(boost::bind(&LLPanelPeople::isItemsFreeOfFriends, this, _1));
-	LLFloater* root_floater = gFloaterView->getParentFloater(this);
+	
 	if (root_floater)
 	{
 		root_floater->addDependentFloater(picker);
 	}
+
+    mPicker = picker->getHandle();
 }
 
 void LLPanelPeople::onDeleteFriendButtonClicked()

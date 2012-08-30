@@ -486,7 +486,7 @@ void LLFloaterColorPicker::draw()
 	mSwatch->localRectToOtherView(mSwatch->getLocalRect(), &swatch_rect, this);
 	// draw context cone connecting color picker with color swatch in parent floater
 	LLRect local_rect = getLocalRect();
-	if (gFocusMgr.childHasKeyboardFocus(this) && mSwatch->isInVisibleChain() && mContextConeOpacity > 0.001f)
+	if (hasFocus() && mSwatch->isInVisibleChain() && mContextConeOpacity > 0.001f)
 	{
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		LLGLEnable(GL_CULL_FACE);

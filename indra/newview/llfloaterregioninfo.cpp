@@ -648,7 +648,7 @@ void LLPanelRegionGeneralInfo::onClickKick()
 	// this depends on the grandparent view being a floater
 	// in order to set up floater dependency
 	LLFloater* parent_floater = gFloaterView->getParentFloater(this);
-	LLFloater* child_floater = LLFloaterAvatarPicker::show(boost::bind(&LLPanelRegionGeneralInfo::onKickCommit, this, _1), FALSE, TRUE);
+	LLFloater* child_floater = LLFloaterAvatarPicker::show(boost::bind(&LLPanelRegionGeneralInfo::onKickCommit, this, _1), FALSE, TRUE, FALSE, parent_floater->getName());
 	if (child_floater)
 	{
 		parent_floater->addDependentFloater(child_floater);
@@ -924,7 +924,12 @@ BOOL LLPanelRegionDebugInfo::sendUpdate()
 
 void LLPanelRegionDebugInfo::onClickChooseAvatar()
 {
-	LLFloaterAvatarPicker::show(boost::bind(&LLPanelRegionDebugInfo::callbackAvatarID, this, _1, _2), FALSE, TRUE);
+    LLFloater* parent_floater = gFloaterView->getParentFloater(this);
+	LLFloater * child_floater = LLFloaterAvatarPicker::show(boost::bind(&LLPanelRegionDebugInfo::callbackAvatarID, this, _1, _2), FALSE, TRUE, FALSE, parent_floater->getName());
+	if (child_floater)
+	{
+		parent_floater->addDependentFloater(child_floater);
+	}
 }
 
 
@@ -1471,7 +1476,7 @@ void LLPanelEstateInfo::onClickKickUser()
 	// this depends on the grandparent view being a floater
 	// in order to set up floater dependency
 	LLFloater* parent_floater = gFloaterView->getParentFloater(this);
-	LLFloater* child_floater = LLFloaterAvatarPicker::show(boost::bind(&LLPanelEstateInfo::onKickUserCommit, this, _1), FALSE, TRUE);
+	LLFloater* child_floater = LLFloaterAvatarPicker::show(boost::bind(&LLPanelEstateInfo::onKickUserCommit, this, _1), FALSE, TRUE, FALSE, parent_floater->getName());
 	if (child_floater)
 	{
 		parent_floater->addDependentFloater(child_floater);
@@ -1646,8 +1651,21 @@ bool LLPanelEstateInfo::accessAddCore2(const LLSD& notification, const LLSD& res
 	}
 
 	LLEstateAccessChangeInfo* change_info = new LLEstateAccessChangeInfo(notification["payload"]);
+    //Get parent floater name
+    LLPanelEstateInfo* panel = LLFloaterRegionInfo::getPanelEstate();
+    LLFloater* parent_floater = panel ? gFloaterView->getParentFloater(panel) : NULL;
+    const std::string& parent_floater_name = parent_floater ? parent_floater->getName() : "";
+    
 	// avatar picker yes multi-select, yes close-on-select
-	LLFloaterAvatarPicker::show(boost::bind(&LLPanelEstateInfo::accessAddCore3, _1, (void*)change_info), TRUE, TRUE);
+	LLFloater* child_floater = LLFloaterAvatarPicker::show(boost::bind(&LLPanelEstateInfo::accessAddCore3, _1, (void*)change_info), 
+                                                    TRUE, TRUE, FALSE, parent_floater_name);
+
+    //Allows the closed parent floater to close the child floater (avatar picker)
+    if (child_floater)
+    {
+        parent_floater->addDependentFloater(child_floater);
+    }
+
 	return false;
 }
 
