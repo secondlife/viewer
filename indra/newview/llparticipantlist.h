@@ -31,13 +31,14 @@
 #include "llevent.h"
 #include "llavatarlist.h" // for LLAvatarItemRecentSpeakerComparator
 #include "lllistcontextmenu.h"
+#include "llconversationmodel.h"
 
 class LLSpeakerMgr;
 class LLAvatarList;
 class LLUICtrl;
 class LLAvalineUpdater;
 
-class LLParticipantList
+class LLParticipantList : public LLConversationItemSession
 {
 	LOG_CLASS(LLParticipantList);
 public:
@@ -46,6 +47,7 @@ public:
 
 	LLParticipantList(LLSpeakerMgr* data_source, 
 					  LLAvatarList* avatar_list, 
+					  LLFolderViewModelInterface& root_view_model,
 					  bool use_context_menu = true, 
 					  bool exclude_agent = true, 
 					  bool can_toggle_icons = true);

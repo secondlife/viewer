@@ -42,10 +42,15 @@ public:
 	virtual void onOpen(const LLSD& session_id);
 
 private:
-	void appendMessage(const LLChat& chat);
+	void onMoreHistoryBtnClick();
+	void showHistory();
 
 	LLChatHistory*	mChatHistory;
 	LLUUID			mSessionID;
+	int				mCurrentPage;
+	int				mPageSize;
+
+	std::list<LLSD> mMessages;
 };
 
 #endif /* LLFLOATERCONVERSATIONPREVIEW_H_ */

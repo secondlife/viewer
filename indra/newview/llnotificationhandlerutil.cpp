@@ -181,14 +181,13 @@ void LLHandlerUtil::logGroupNoticeToIMGroup(
 // static
 void LLHandlerUtil::logToNearbyChat(const LLNotificationPtr& notification, EChatSourceType type)
 {
-	LLNearbyChat* nearby_chat = LLNearbyChat::getInstance();
-	if(nearby_chat)
+	if (LLNearbyChat::instanceExists())
 	{
 		LLChat chat_msg(notification->getMessage());
 		chat_msg.mSourceType = type;
 		chat_msg.mFromName = SYSTEM_FROM;
 		chat_msg.mFromID = LLUUID::null;
-		nearby_chat->addMessage(chat_msg);
+		LLNearbyChat::instance().addMessage(chat_msg);
 	}
 }
 

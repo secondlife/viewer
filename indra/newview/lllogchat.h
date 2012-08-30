@@ -50,12 +50,12 @@ public:
 				const LLUUID& from_id,
 				const std::string& line);
 
-	/** @deprecated @see loadAllHistory() */
+	/** @deprecated @see loadChatHistory() */
 	static void loadHistory(const std::string& filename, 
 		                    void (*callback)(ELogLineType, const LLSD&, void*), 
 							void* userdata);
 
-	static void loadAllHistory(const std::string& file_name, std::list<LLSD>& messages);
+	static void loadChatHistory(const std::string& file_name, std::list<LLSD>& messages, bool load_all_history = false);
 private:
 	static std::string cleanFileName(std::string filename);
 };

@@ -1639,6 +1639,17 @@
       <key>Value</key>
       <string />
     </map>
+    <key>ConversationHistoryPageSize</key>
+    <map>
+      <key>Comment</key>
+      <string>Chat history of conversation opened from call log is displayed by pages. So this is number of entries per page.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>100</integer>
+    </map>
     <key>NearbyChatIsNotTornOff</key>
     <map>
       <key>Comment</key>

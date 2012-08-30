@@ -81,13 +81,35 @@ LLIMConversation::~LLIMConversation()
 //static
 LLIMConversation* LLIMConversation::findConversation(const LLUUID& uuid)
 {
-    return LLFloaterReg::findTypedInstance<LLIMConversation>(uuid.isNull()? "chat_bar" : "impanel", LLSD(uuid));
+	LLIMConversation* conv;
+
+	if (uuid.isNull())
+	{
+		conv = LLFloaterReg::findTypedInstance<LLIMConversation>("nearby_chat");
+	}
+	else
+	{
+		conv = LLFloaterReg::findTypedInstance<LLIMConversation>("impanel", LLSD(uuid));
+	}
+
+	return conv;
 };
 
 //static
 LLIMConversation* LLIMConversation::getConversation(const LLUUID& uuid)
 {
-	return LLFloaterReg::getTypedInstance<LLIMConversation>(uuid.isNull()? "chat_bar" : "impanel", LLSD(uuid));
+	LLIMConversation* conv;
+
+	if (uuid.isNull())
+	{
+		conv = LLFloaterReg::getTypedInstance<LLIMConversation>("nearby_chat");
+	}
+	else
+	{
+		conv = LLFloaterReg::getTypedInstance<LLIMConversation>("impanel", LLSD(uuid));
+	}
+
+	return conv;
 };
 
 
@@ -165,7 +187,7 @@ void LLIMConversation::buildParticipantList()
 	if (mIsNearbyChat)
 	{
 		LLLocalSpeakerMgr* speaker_manager = LLLocalSpeakerMgr::getInstance();
-		mParticipantList = new LLParticipantList(speaker_manager, getChild<LLAvatarList>("speakers_list"), true, false);
+		mParticipantList = new LLParticipantList(speaker_manager, getChild<LLAvatarList>("speakers_list"), mConversationViewModel, true, false);
 	}
 	else
 	{
@@ -174,7 +196,7 @@ void LLIMConversation::buildParticipantList()
 		if(!mIsP2PChat && mSessionID.notNull() && speaker_manager)
 		{
 			delete mParticipantList; // remove the old list and create a new one if the session id has changed
-			mParticipantList = new LLParticipantList(speaker_manager, getChild<LLAvatarList>("speakers_list"), true, false);
+			mParticipantList = new LLParticipantList(speaker_manager, getChild<LLAvatarList>("speakers_list"), mConversationViewModel, true, false);
 		}
 	}
 	updateHeaderAndToolbar();
@@ -336,10 +358,9 @@ void LLIMConversation::processChatHistoryStyleUpdate()
 		}
 	}
 
-	LLNearbyChat* nearby_chat = LLNearbyChat::getInstance();
-	if (nearby_chat)
+	if (LLNearbyChat::instanceExists())
 	{
-		nearby_chat->reloadMessages();
+		LLNearbyChat::instance().reloadMessages();
 	}
 }
 

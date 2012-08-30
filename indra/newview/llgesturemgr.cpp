@@ -997,7 +997,7 @@ void LLGestureMgr::runStep(LLMultiGesture* gesture, LLGestureStep* step)
 
 			const BOOL animate = FALSE;
 
-			LLNearbyChat::getInstance()->sendChatFromViewer(chat_text, CHAT_TYPE_NORMAL, animate);
+			LLNearbyChat::instance().sendChatFromViewer(chat_text, CHAT_TYPE_NORMAL, animate);
 
 			gesture->mCurrentStep++;
 			break;

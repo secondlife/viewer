@@ -263,7 +263,7 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 		std::list<LLSD> chat_history;
 
 		//involves parsing of a chat history
-		LLLogChat::loadAllHistory(mHistoryFileName, chat_history);
+		LLLogChat::loadChatHistory(mHistoryFileName, chat_history);
 		addMessagesFromHistory(chat_history);
 	}
 
@@ -2486,12 +2486,9 @@ void LLIMMgr::addSystemMessage(const LLUUID& session_id, const std::string& mess
 
 		LLChat chat(message);
 		chat.mSourceType = CHAT_SOURCE_SYSTEM;
-		
-		LLNearbyChat* nearby_chat = LLNearbyChat::getInstance();
-
-		if(nearby_chat)
+		if (LLNearbyChat::instanceExists())
 		{
-			nearby_chat->addMessage(chat);
+			LLNearbyChat::instance().addMessage(chat);
 		}
 	}
 	else // going to IM session

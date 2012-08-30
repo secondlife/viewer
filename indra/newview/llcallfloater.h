@@ -31,6 +31,7 @@
 #include "lltransientdockablefloater.h"
 #include "llvoicechannel.h"
 #include "llvoiceclient.h"
+#include "llconversationmodel.h"
 
 class LLAvatarList;
 class LLAvatarListItem;
@@ -228,6 +229,7 @@ private:
 	LLSpeakerMgr* mSpeakerManager;
 	LLParticipantList* mParticipants;
 	LLAvatarList* mAvatarList;
+	LLConversationViewModel mConversationViewModel;
 	LLNonAvatarCaller* mNonAvatarCaller;
 	EVoiceControls mVoiceType;
 	LLPanel* mAgentPanel;

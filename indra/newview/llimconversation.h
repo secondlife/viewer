@@ -33,6 +33,7 @@
 #include "lltransientdockablefloater.h"
 #include "llviewercontrol.h"
 #include "lleventtimer.h"
+#include "llconversationmodel.h"
 
 class LLPanelChatControlPanel;
 class LLChatEntry;
@@ -104,6 +105,7 @@ protected:
 	LLLayoutPanel* mParticipantListPanel;
 	LLParticipantList* mParticipantList;
 	LLUUID mSessionID;
+	LLConversationViewModel mConversationViewModel;
 
 	LLChatHistory* mChatHistory;
 	LLChatEntry* mInputEditor;

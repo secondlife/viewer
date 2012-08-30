@@ -40,6 +40,13 @@ LLConversationItem::LLConversationItem(std::string display_name, const LLUUID& u
 {
 }
 
+LLConversationItem::LLConversationItem(const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
+	LLFolderViewModelItemCommon(root_view_model),
+	mName(""),
+	mUUID(uuid)
+{
+}
+
 LLConversationItem::LLConversationItem(LLFolderViewModelInterface& root_view_model) :
 	LLFolderViewModelItemCommon(root_view_model),
 	mName(""),
@@ -81,13 +88,87 @@ bool LLConversationSort::operator()(const LLConversationItem* const& a, const LL
 // 
 
 LLConversationItemSession::LLConversationItemSession(std::string display_name, const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
-	LLConversationItem(display_name,uuid,root_view_model)
+	LLConversationItem(display_name,uuid,root_view_model),
+	mIsLoaded(false)
 {
 }
 
-LLConversationItemSession::LLConversationItemSession(LLFolderViewModelInterface& root_view_model) :
-	LLConversationItem(root_view_model)
+LLConversationItemSession::LLConversationItemSession(const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
+	LLConversationItem(uuid,root_view_model)
 {
+}
+
+void LLConversationItemSession::addParticipant(LLConversationItemParticipant* participant)
+{
+	addChild(participant);
+	mIsLoaded = true;
+}
+
+void LLConversationItemSession::removeParticipant(LLConversationItemParticipant* participant)
+{
+	removeChild(participant);
+}
+
+void LLConversationItemSession::removeParticipant(const LLUUID& participant_id)
+{
+	LLConversationItemParticipant* participant = findParticipant(participant_id);
+	if (participant)
+	{
+		removeParticipant(participant);
+	}
+}
+
+void LLConversationItemSession::clearParticipants()
+{
+	clearChildren();
+	mIsLoaded = false;
+}
+
+LLConversationItemParticipant* LLConversationItemSession::findParticipant(const LLUUID& participant_id)
+{
+	// This is *not* a general tree parsing algorithm. It assumes that a session contains only 
+	// items (LLConversationItemParticipant) that have themselve no children.
+	LLConversationItemParticipant* participant = NULL;
+	child_list_t::iterator iter;
+	for (iter = mChildren.begin(); iter != mChildren.end(); iter++)
+	{
+		participant = dynamic_cast<LLConversationItemParticipant*>(*iter);
+		if (participant->hasSameValue(participant_id))
+		{
+			break;
+		}
+	}
+	return (iter == mChildren.end() ? NULL : participant);
+}
+
+void LLConversationItemSession::setParticipantIsMuted(const LLUUID& participant_id, bool is_muted)
+{
+	LLConversationItemParticipant* participant = findParticipant(participant_id);
+	if (participant)
+	{
+		participant->setIsMuted(is_muted);
+	}
+}
+
+void LLConversationItemSession::setParticipantIsModerator(const LLUUID& participant_id, bool is_moderator)
+{
+	LLConversationItemParticipant* participant = findParticipant(participant_id);
+	if (participant)
+	{
+		participant->setIsModerator(is_moderator);
+	}
+}
+
+void LLConversationItemSession::dumpDebugData()
+{
+	llinfos << "Merov debug : session, uuid = " << mUUID << ", name = " << mName << ", is loaded = " << mIsLoaded << llendl;
+	LLConversationItemParticipant* participant = NULL;
+	child_list_t::iterator iter;
+	for (iter = mChildren.begin(); iter != mChildren.end(); iter++)
+	{
+		participant = dynamic_cast<LLConversationItemParticipant*>(*iter);
+		participant->dumpDebugData();
+	}
 }
 
 //
@@ -95,13 +176,19 @@ LLConversationItemSession::LLConversationItemSession(LLFolderViewModelInterface&
 // 
 
 LLConversationItemParticipant::LLConversationItemParticipant(std::string display_name, const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
-	LLConversationItem(display_name,uuid,root_view_model)
+	LLConversationItem(display_name,uuid,root_view_model),
+	mIsMuted(false),
+	mIsModerator(false)
 {
 }
 
-LLConversationItemParticipant::LLConversationItemParticipant(LLFolderViewModelInterface& root_view_model) :
-	LLConversationItem(root_view_model)
+LLConversationItemParticipant::LLConversationItemParticipant(const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
+	LLConversationItem(uuid,root_view_model)
 {
 }
 
+void LLConversationItemParticipant::dumpDebugData()
+{
+	llinfos << "Merov debug : participant, uuid = " << mUUID << ", name = " << mName << ", muted = " << mIsMuted << ", moderator = " << mIsModerator << llendl;
+}	
 // EOF

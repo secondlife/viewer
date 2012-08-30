@@ -262,6 +262,15 @@ public:
 		child->setParent(NULL); 
 		dirtyFilter();
 	}
+	
+	virtual void clearChildren()
+	{
+		// As this is cleaning the whole list of children wholesale, we do need to delete the pointed objects
+		// This is different and not equivalent to calling removeChild() on each child
+		std::for_each(mChildren.begin(), mChildren.end(), DeletePointer());
+		mChildren.clear();
+		dirtyFilter();
+	}
 
 	void setPassedFilter(bool passed, S32 filter_generation, std::string::size_type string_offset = std::string::npos, std::string::size_type string_size = 0)
 	{

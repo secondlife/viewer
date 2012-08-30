@@ -543,7 +543,7 @@ void start_gesture( EKeystate s )
 	if (KEYSTATE_UP == s &&
 		! (focus_ctrlp && focus_ctrlp->acceptsTextInput()))
 	{
- 		if (LLNearbyChat::getInstance()->getCurrentChat().empty())
+ 		if (LLNearbyChat::instance().getCurrentChat().empty())
  		{
  			// No existing chat in chat editor, insert '/'
  			LLNearbyChat::startChat("/");
