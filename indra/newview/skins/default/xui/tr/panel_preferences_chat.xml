@@ -29,5 +29,7 @@
 	<check_box label="Aİ Sohbetleri" name="EnableIMChatPopups" tool_tip="Bir anlık ileti geldiğinde açılır pencereleri görmek için işaretle"/>
 	<spinner label="Yakındaki sohbet iletilerinin vurgulanma süresi:" name="nearby_toasts_lifetime"/>
 	<spinner label="Yakındaki sohbet iletilerinin sönme süresi:" name="nearby_toasts_fadingtime"/>
-	<button label="Sohbet Çevirisi Ayarları" name="ok_btn"/>
+	<button label="Çeviri..." name="ok_btn"/>
+	<button label="Otomatik Yerine Koy..." name="autoreplace_showgui"/>
+	<button label="Yazım Denetimi Yapılıyor..." name="spellcheck_showgui"/>
 </panel>

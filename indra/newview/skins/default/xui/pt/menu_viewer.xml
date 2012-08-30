@@ -28,6 +28,7 @@
 		<menu_item_call label="Preferências..." name="Preferences"/>
 		<menu_item_call label="Botões da barra de ferramentas..." name="Toolbars"/>
 		<menu_item_call label="Ocultar todos os controles" name="Hide UI"/>
+		<menu_item_check label="Exibir anexos de HUD" name="Show HUD Attachments"/>
 		<menu_item_call label="Sair do [APP_NAME]" name="Quit"/>
 	</menu>
 	<menu label="Comunicar" name="Communicate">
@@ -39,6 +40,7 @@
 		<menu_item_call label="Amigos" name="My Friends"/>
 		<menu_item_call label="Grupos" name="My Groups"/>
 		<menu_item_call label="Pessoas próximas" name="Active Speakers"/>
+		<menu_item_call label="Lista de bloqueados" name="Block List"/>
 	</menu>
 	<menu label="Mundo" name="World">
 		<menu_item_call label="Criar marco deste lugar" name="Create Landmark Here"/>
@@ -124,6 +126,11 @@
 			<menu_item_call label="Scripts em modo execução" name="Set Scripts to Running"/>
 			<menu_item_call label="Scripts em modo não execução" name="Set Scripts to Not Running"/>
 		</menu>
+		<menu label="Pathfinding" name="Pathfinding">
+			<menu_item_call label="Linksets..." name="pathfinding_linksets_menu_item"/>
+			<menu_item_call label="Personagens..." name="pathfinding_characters_menu_item"/>
+			<menu_item_call label="Visualização/teste..." name="pathfinding_console_menu_item"/>
+		</menu>
 		<menu label="Opções" name="Options">
 			<menu_item_check label="Mostrar permissões avançadas" name="DebugPermissions"/>
 			<menu_item_check label="Só selecionar meus objetos" name="Select Only My Objects"/>
@@ -174,7 +181,6 @@
 			<menu_item_check label="Esconder partículas" name="Hide Particles"/>
 			<menu_item_check label="Ocultar seleções" name="Hide Selected"/>
 			<menu_item_check label="Realçar transparentes" name="Highlight Transparent"/>
-			<menu_item_check label="Mostrar anexos HUD" name="Show HUD Attachments"/>
 			<menu_item_check label="Mostrar retículo na vista subjetiva" name="ShowCrosshairs"/>
 		</menu>
 		<menu label="Tipos de renderização" name="Rendering Types">

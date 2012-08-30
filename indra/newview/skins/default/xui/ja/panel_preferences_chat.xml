@@ -29,5 +29,7 @@
 	<check_box label="IM チャット" name="EnableIMChatPopups" tool_tip="これを選択すると、インスタントメッセージを受信した際にポップアップが表示されます"/>
 	<spinner label="近くのチャットメッセージが表示される長さ：" name="nearby_toasts_lifetime"/>
 	<spinner label="近くのチャットメッセージが消えるまでの長さ：" name="nearby_toasts_fadingtime"/>
-	<button label="チャットの翻訳設定" name="ok_btn"/>
+	<button label="他の言語..." name="ok_btn"/>
+	<button label="自動置換..." name="autoreplace_showgui"/>
+	<button label="スペルチェック中..." name="spellcheck_showgui"/>
 </panel>
