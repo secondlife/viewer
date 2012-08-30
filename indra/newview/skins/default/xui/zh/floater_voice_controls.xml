@@ -7,7 +7,7 @@
 		與 [GROUP] 進行群組通話
 	</string>
 	<string name="title_adhoc">
-		會議通話
+		多方通話
 	</string>
 	<string name="title_peer_2_peer">
 		與 [NAME] 進行通話
@@ -22,7 +22,7 @@
 		<layout_panel name="leave_call_panel">
 			<layout_stack name="voice_effect_and_leave_call_stack">
 				<layout_panel name="leave_call_btn_panel">
-					<button label="結束通話" name="leave_call_btn"/>
+					<button label="離開通話" name="leave_call_btn"/>
 				</layout_panel>
 			</layout_stack>
 		</layout_panel>

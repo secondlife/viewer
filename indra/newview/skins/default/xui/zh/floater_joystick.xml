@@ -1,79 +1,79 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Joystick" title="JOYSTICK CONFIGURATION">
+<floater name="Joystick" title="搖桿設置">
 	<floater.string name="NoDevice">
 		未偵測到設備
 	</floater.string>
-	<check_box label="Enable Joystick:" name="enable_joystick"/>
-	<spinner label="X Axis Mapping" name="JoystickAxis1"/>
-	<spinner label="Y Axis Mapping" name="JoystickAxis2"/>
-	<spinner label="Z Axis Mapping" name="JoystickAxis0"/>
-	<spinner label="Pitch Mapping" name="JoystickAxis4"/>
-	<spinner label="Yaw Mapping" name="JoystickAxis5"/>
-	<spinner label="Roll Mapping" name="JoystickAxis3"/>
-	<spinner label="Zoom Mapping" name="JoystickAxis6"/>
-	<check_box label="Direct Zoom" name="ZoomDirect"/>
-	<check_box label="3D Cursor" name="Cursor3D"/>
-	<check_box label="Auto Level" name="AutoLeveling"/>
+	<check_box label="啟用搖桿：" name="enable_joystick"/>
+	<spinner label="X 軸映射" name="JoystickAxis1"/>
+	<spinner label="Y 軸映射" name="JoystickAxis2"/>
+	<spinner label="Z 軸映射" name="JoystickAxis0"/>
+	<spinner label="俯仰映射" name="JoystickAxis4"/>
+	<spinner label="偏擺映射" name="JoystickAxis5"/>
+	<spinner label="翻滾映射" name="JoystickAxis3"/>
+	<spinner label="縮放映射" name="JoystickAxis6"/>
+	<check_box label="直接縮放" name="ZoomDirect"/>
+	<check_box label="三維游標" name="Cursor3D"/>
+	<check_box label="自動水平" name="AutoLeveling"/>
 	<text name="Control Modes:">
-		Control Modes:
+		控制模式：
 	</text>
 	<check_box label="化身" name="JoystickAvatarEnabled"/>
 	<check_box label="建造" name="JoystickBuildEnabled"/>
-	<check_box label="Flycam" name="JoystickFlycamEnabled"/>
-	<stat_view label="Joystick Monitor" name="axis_view">
-		<stat_bar label="Axis 0" name="axis0"/>
-		<stat_bar label="Axis 1" name="axis1"/>
-		<stat_bar label="Axis 2" name="axis2"/>
-		<stat_bar label="Axis 3" name="axis3"/>
-		<stat_bar label="Axis 4" name="axis4"/>
-		<stat_bar label="Axis 5" name="axis5"/>
+	<check_box label="移動攝影機" name="JoystickFlycamEnabled"/>
+	<stat_view label="搖桿監控器" name="axis_view">
+		<stat_bar label="軸 0" name="axis0"/>
+		<stat_bar label="軸 1" name="axis1"/>
+		<stat_bar label="軸 2" name="axis2"/>
+		<stat_bar label="軸 3" name="axis3"/>
+		<stat_bar label="軸 4" name="axis4"/>
+		<stat_bar label="軸 5" name="axis5"/>
 	</stat_view>
 	<text name="XScale">
-		X Scale
+		X 比例
 	</text>
 	<text name="YScale">
-		Y Scale
+		Y 比例
 	</text>
 	<text name="ZScale">
-		Z Scale
+		Z 比例
 	</text>
 	<text name="PitchScale">
-		Pitch Scale
+		俯仰比例
 	</text>
 	<text name="YawScale">
-		Yaw Scale
+		偏擺比例
 	</text>
 	<text name="RollScale">
-		Roll Scale
+		翻滾比例
 	</text>
 	<text name="XDeadZone">
-		X Dead Zone
+		X 死區
 	</text>
 	<text name="YDeadZone">
-		Y Dead Zone
+		Y 死區
 	</text>
 	<text name="ZDeadZone">
-		Z Dead Zone
+		Z 死區
 	</text>
 	<text name="PitchDeadZone">
-		Pitch Dead Zone
+		俯仰死區
 	</text>
 	<text name="YawDeadZone">
-		Yaw Dead Zone
+		偏擺死區
 	</text>
 	<text name="RollDeadZone">
-		Roll Dead Zone
+		翻滾死區
 	</text>
 	<text name="Feathering">
-		Feathering
+		重量反應
 	</text>
 	<text name="ZoomScale2">
-		Zoom Scale
+		縮放比例
 	</text>
 	<text name="ZoomDeadZone">
-		Zoom Dead Zone
+		縮放死區
 	</text>
-	<button label="SpaceNavigator Defaults" name="SpaceNavigatorDefaults"/>
+	<button label="SpaceNavigator 預設值" name="SpaceNavigatorDefaults"/>
 	<button label="確定" label_selected="確定" name="ok_btn"/>
 	<button label="取消" label_selected="取消" name="cancel_btn"/>
 </floater>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="成員與角色" name="roles_tab">
 	<panel.string name="default_needs_apply_text">
-		未儲存的設定
+		變更未儲存
 	</panel.string>
 	<panel.string name="want_apply_text">
 		你要儲存你的變更嗎？
@@ -11,10 +11,10 @@
 			<panel.string name="help_text">
 				你可以添加或移除一個角色指派給成員。
 選責多個成員時同時按著 Ctrl 鍵且
-使用滑鼠左鍵點擊他們的名字。
+使用滑鼠左鍵點按他們的名字。
 			</panel.string>
 			<panel.string name="donation_area">
-				[AREA] m²
+				[AREA] 平方公尺
 			</panel.string>
 			<filter_editor label="成員過濾器" name="filter_input"/>
 			<name_list name="member_list">
@@ -27,13 +27,12 @@
 		</panel>
 		<panel label="角色" name="roles_sub_tab">
 			<panel.string name="help_text">
-				Roles have a title and an allowed list of Abilities
-that Members can perform. Members can belong to
-one or more Roles. A group can have up to 10 Roles,
-including the Everyone and Owner Roles.
+				一個角色具備職稱和該角色可使用的能力。 
+一位成員可有一到多個角色。 
+一個群組至多可有 10 個角色，包括「任何人」和「所有人」。
 			</panel.string>
 			<panel.string name="cant_delete_role">
-				The &apos;Everyone&apos; and &apos;Owners&apos; Roles are special and can&apos;t be deleted.
+				「任何人」和「所有人」是特設角色，不得刪除。
 			</panel.string>
 			<filter_editor label="角色過濾器" name="filter_input"/>
 			<scroll_list name="role_list">
@@ -44,13 +43,13 @@ including the Everyone and Owner Roles.
 			<button label="新角色" name="role_create"/>
 			<button label="刪除角色" name="role_delete"/>
 		</panel>
-		<panel label="能力" name="actions_sub_tab" tool_tip="You can view an Ability&apos;s Description and which Roles and Members can execute the Ability.">
+		<panel label="能力" name="actions_sub_tab" tool_tip="你可察看關於某一能力的說明，並得知哪些角色和成員擁有該能力。">
 			<panel.string name="help_text">
-				Abilities allow Members in Roles to do specific
-things in this group. There&apos;s a broad variety of Abilities.
+				「能力」可讓群組的成員透過角色行使一定的職權。 
+能力的種類繁多。
 			</panel.string>
 			<filter_editor label="能力過濾器" name="filter_input"/>
-			<scroll_list name="action_list" tool_tip="Select an Ability to view more details"/>
+			<scroll_list name="action_list" tool_tip="請選取一個能力以察看詳情。"/>
 		</panel>
 	</tab_container>
 	<panel name="members_footer">
@@ -60,7 +59,7 @@ things in this group. There&apos;s a broad variety of Abilities.
 		<text name="static2">
 			允許的能力
 		</text>
-		<scroll_list name="member_allowed_actions" tool_tip="想瞭解有關於允許的能力的細節請查閱能力頁籤"/>
+		<scroll_list name="member_allowed_actions" tool_tip="想瞭解每一項允許的能力的詳情請查閱能力頁籤。"/>
 	</panel>
 	<panel name="roles_footer">
 		<text name="static">
@@ -75,15 +74,15 @@ things in this group. There&apos;s a broad variety of Abilities.
 		<text name="static4">
 			指派角色
 		</text>
-		<check_box label="Reveal members" name="role_visible_in_list" tool_tip="Sets whether members of this role are visible in the General tab to people outside of the group."/>
+		<check_box label="顯示成員" name="role_visible_in_list" tool_tip="設定是否讓群組外的人在「一般」頁籤上察看到此角色的成員。"/>
 		<text name="static5">
 			允許的能力
 		</text>
-		<scroll_list name="role_allowed_actions" tool_tip="想瞭解有關於每一項允許的能力的細節請查閱能力頁籤"/>
+		<scroll_list name="role_allowed_actions" tool_tip="想瞭解每一項允許的能力的詳情請查閱能力頁籤。"/>
 	</panel>
 	<panel name="actions_footer">
 		<text_editor name="action_description">
-			This Ability is &apos;Eject Members from this Group&apos;. Only an Owner can eject another Owner.
+			這個能力可「將會員自本群組踢出」。 必須是所有人才可踢出另一位所有人。
 		</text_editor>
 		<text name="static2">
 			有此能力的角色

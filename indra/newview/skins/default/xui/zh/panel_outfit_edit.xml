@@ -5,7 +5,7 @@
 	<string name="unsaved_changes" value="變更未儲存"/>
 	<string name="now_editing" value="現在編輯中"/>
 	<panel.string name="not_available">
-		(N\A)
+		（不適用）
 	</panel.string>
 	<panel.string name="unknown">
 		（未知）
@@ -15,7 +15,7 @@
 	<string name="Filter.Objects" value="物件"/>
 	<string name="Filter.Clothing" value="服裝"/>
 	<string name="Filter.Bodyparts" value="身體部位"/>
-	<string name="replace_body_part" value="點擊以取代你現存的體形"/>
+	<string name="replace_body_part" value="點按以取代你現存的體形"/>
 	<text name="title" value="編輯裝扮"/>
 	<panel name="header_panel">
 		<panel name="outfit_name_and_status">
@@ -39,10 +39,10 @@
 		</layout_panel>
 	</layout_stack>
 	<panel name="no_add_wearables_button_bar">
-		<button name="shop_btn_1" tool_tip="Visit the SL Marketplace. You can also select something you are wearing, then click here to see more things like it"/>
+		<button name="shop_btn_1" tool_tip="前往第二人生購物市集。 你也可選擇你穿著中的一個物件，再點按這裡察看其他同類物件。"/>
 	</panel>
 	<panel name="add_wearables_button_bar">
-		<button name="shop_btn_2" tool_tip="Visit the SL Marketplace. You can also select something you are wearing, then click here to see more things like it"/>
+		<button name="shop_btn_2" tool_tip="前往第二人生購物市集。 你也可選擇你穿著中的一個物件，再點按這裡察看其他同類物件。"/>
 	</panel>
 	<panel name="save_revert_button_bar">
 		<layout_stack name="button_bar_ls">
@@ -50,7 +50,7 @@
 				<button label="儲存" name="save_btn"/>
 			</layout_panel>
 			<layout_panel name="revert_btn_lp">
-				<button label="復原變更" name="revert_btn" tool_tip="Revert to last saved version"/>
+				<button label="復原變更" name="revert_btn" tool_tip="恢復上一個已儲存版本"/>
 			</layout_panel>
 		</layout_stack>
 	</panel>
