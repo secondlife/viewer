@@ -456,7 +456,9 @@ void LLIMFloaterContainer::repositioningWidgets()
 // CHUI-137 : Temporary implementation of conversations list
 void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 {
-	std::string display_name = uuid.isNull()? LLTrans::getString("NearbyChatTitle") : LLIMModel::instance().getName(uuid);
+	bool is_nearby_chat = uuid.isNull();
+	
+	std::string display_name = is_nearby_chat ? LLTrans::getString("NearbyChatTitle") : LLIMModel::instance().getName(uuid);
 
 	// Check if the item is not already in the list, exit if it is and has the same name and uuid (nothing to do)
 	// Note: this happens often, when reattaching a torn off conversation for instance
@@ -470,8 +472,21 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 	// and nothing wrong will happen removing it if it doesn't exist
 	removeConversationListItem(uuid,false);
 
-	// Create a conversation item
-	LLConversationItem* item = new LLConversationItemSession(display_name, uuid, getRootViewModel());
+	// Create a conversation session model
+	LLConversationItem* item = NULL;
+	LLSpeakerMgr* speaker_manager = (is_nearby_chat ? (LLSpeakerMgr*)(LLLocalSpeakerMgr::getInstance()) : LLIMModel::getInstance()->getSpeakerManager(uuid));
+	if (speaker_manager)
+	{
+		item = new LLParticipantList(speaker_manager, NULL, getRootViewModel(), true, false);
+	}
+	if (!item)
+	{
+		llinfos << "Merov debug : Couldn't create conversation session item : " << display_name << llendl;
+		return;
+	}
+	// *TODO: Should we flag LLConversationItemSession with a mIsNearbyChat?
+	item->renameItem(display_name);
+	
 	mConversationsItems[uuid] = item;
 
 	// Create a widget from it
