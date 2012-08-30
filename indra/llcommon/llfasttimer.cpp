@@ -113,10 +113,9 @@ public:
 	/*virtual */ void initSingleton()
 	{
 		mTimerRoot = new LLFastTimer::NamedTimer("root");
-		mRootFrameState.setNamedTimer(mTimerRoot);
-		mTimerRoot->setFrameState(&mRootFrameState);
+		mRootFrameState = &mTimerRoot->getFrameState();
 		mTimerRoot->mParent = mTimerRoot;
-		mRootFrameState.mParent = &mRootFrameState;
+		mRootFrameState->mParent = mRootFrameState;
 	}
 
 	~NamedTimerFactory()
@@ -126,17 +125,15 @@ public:
 		delete mTimerRoot;
 	}
 
-	LLFastTimer::NamedTimer& createNamedTimer(const std::string& name, LLFastTimer::FrameState* state)
+	LLFastTimer::NamedTimer& createNamedTimer(const std::string& name)
 	{
 		timer_map_t::iterator found_it = mTimers.find(name);
 		if (found_it != mTimers.end())
 		{
-			llerrs << "Duplicate timer declaration for: " << name << llendl;
 			return *found_it->second;
 		}
 
 		LLFastTimer::NamedTimer* timer = new LLFastTimer::NamedTimer(name);
-		timer->setFrameState(state);
 		timer->setParent(mTimerRoot);
 		mTimers.insert(std::make_pair(name, timer));
 
@@ -164,18 +161,20 @@ private:
 	timer_map_t mTimers;
 
 	LLFastTimer::NamedTimer*		mTimerRoot;
-	LLFastTimer::FrameState			mRootFrameState;
+	LLFastTimer::FrameState*	mRootFrameState;
 };
 
 LLFastTimer::DeclareTimer::DeclareTimer(const std::string& name, bool open )
-:	mTimer(NamedTimerFactory::instance().createNamedTimer(name, &mFrameState))
+:	mTimer(NamedTimerFactory::instance().createNamedTimer(name))
 {
+	mFrameState = &mTimer.getFrameState();
 	mTimer.setCollapsed(!open);
 }
 
 LLFastTimer::DeclareTimer::DeclareTimer(const std::string& name)
-:	mTimer(NamedTimerFactory::instance().createNamedTimer(name, &mFrameState))
+:	mTimer(NamedTimerFactory::instance().createNamedTimer(name))
 {
+	mFrameState = &mTimer.getFrameState();
 }
 
 //static
@@ -225,13 +224,13 @@ LLFastTimer::NamedTimer::NamedTimer(const std::string& name)
 	mTotalTimeCounter(0),
 	mCountAverage(0),
 	mCallAverage(0),
-	mNeedsSorting(false),
-	mFrameState(NULL)
+	mNeedsSorting(false)
 {
 	mCountHistory = new U32[HISTORY_NUM];
 	memset(mCountHistory, 0, sizeof(U32) * HISTORY_NUM);
 	mCallHistory = new U32[HISTORY_NUM];
 	memset(mCallHistory, 0, sizeof(U32) * HISTORY_NUM);
+	mFrameState.setNamedTimer(this);
 }
 
 LLFastTimer::NamedTimer::~NamedTimer()
@@ -291,7 +290,7 @@ S32 LLFastTimer::NamedTimer::getDepth()
 {
 	S32 depth = 0;
 	NamedTimer* timerp = mParent;
-	while(timerp)
+	while(timerp && timerp->mParent != timerp)
 	{
 		depth++;
 		timerp = timerp->mParent;
@@ -546,9 +545,14 @@ U32 LLFastTimer::NamedTimer::getHistoricalCalls(S32 history_index ) const
 	return mCallHistory[history_idx];
 }
 
-LLFastTimer::FrameState& LLFastTimer::NamedTimer::getFrameState() const
+const LLFastTimer::FrameState& LLFastTimer::NamedTimer::getFrameState() const
 {
-	return *mFrameState;
+	return mFrameState;
+}
+
+LLFastTimer::FrameState& LLFastTimer::NamedTimer::getFrameState()
+{
+	return mFrameState;
 }
 
 std::vector<LLFastTimer::NamedTimer*>::const_iterator LLFastTimer::NamedTimer::beginChildren()

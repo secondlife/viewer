@@ -511,7 +511,7 @@ void LLFastTimerView::draw()
 			x += dx;
 			BOOL is_child_of_hover_item = (idp == mHoverID);
 			LLFastTimer::NamedTimer* next_parent = idp->getParent();
-			while(!is_child_of_hover_item && next_parent)
+			while(!is_child_of_hover_item && next_parent && next_parent != next_parent->getParent())
 			{
 				is_child_of_hover_item = (mHoverID == next_parent);
 				next_parent = next_parent->getParent();
@@ -778,7 +778,7 @@ void LLFastTimerView::draw()
 
 					BOOL is_child_of_hover_item = (idp == mHoverID);
 					LLFastTimer::NamedTimer* next_parent = idp->getParent();
-					while(!is_child_of_hover_item && next_parent)
+					while(!is_child_of_hover_item && next_parent && next_parent != next_parent->getParent())
 					{
 						is_child_of_hover_item = (mHoverID == next_parent);
 						next_parent = next_parent->getParent();

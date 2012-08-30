@@ -48,7 +48,7 @@ std::vector<LLVolumeImplFlexible*> LLVolumeImplFlexible::sInstanceList;
 std::vector<S32> LLVolumeImplFlexible::sUpdateDelay;
 
 static LLFastTimer::DeclareTimer FTM_FLEXIBLE_REBUILD("Rebuild");
-static LLFastTimer::DeclareTimer FTM_DO_FLEXIBLE_UPDATE("Update");
+static LLFastTimer::DeclareTimer FTM_DO_FLEXIBLE_UPDATE("Flexible Update");
 
 // LLFlexibleObjectData::pack/unpack now in llprimitive.cpp
 

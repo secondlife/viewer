@@ -55,7 +55,7 @@
 #include "llviewershadermgr.h"
 
 static LLFastTimer::DeclareTimer FTM_FRUSTUM_CULL("Frustum Culling");
-static LLFastTimer::DeclareTimer FTM_CULL_REBOUND("Cull Rebound");
+static LLFastTimer::DeclareTimer FTM_CULL_REBOUND("Cull Rebound Partition");
 
 const F32 SG_OCCLUSION_FUDGE = 0.25f;
 #define SG_DISCARD_TOLERANCE 0.01f
