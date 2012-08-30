@@ -224,6 +224,7 @@ public:
 
 	static void writeLog(std::ostream& os);
 	static const NamedTimer* getTimerByName(const std::string& name);
+	static bool checkForDuplicates(std::string& duplicates);
 
 	struct CurTimerData
 	{

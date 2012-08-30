@@ -128,13 +128,6 @@ public:
 
 	LLFastTimer::NamedTimer& createNamedTimer(const std::string& name, LLFastTimer::FrameState* state)
 	{
-		timer_map_t::iterator found_it = mTimers.find(name);
-		if (found_it != mTimers.end())
-		{
-			llerrs << "Duplicate timer declaration for: " << name << llendl;
-			return *found_it->second;
-		}
-
 		LLFastTimer::NamedTimer* timer = new LLFastTimer::NamedTimer(name);
 		timer->setFrameState(state);
 		timer->setParent(mTimerRoot);
@@ -155,7 +148,7 @@ public:
 
 	LLFastTimer::NamedTimer* getRootTimer() { return mTimerRoot; }
 
-	typedef std::map<std::string, LLFastTimer::NamedTimer*> timer_map_t;
+	typedef std::multimap<std::string, LLFastTimer::NamedTimer*> timer_map_t;
 	timer_map_t::iterator beginTimers() { return mTimers.begin(); }
 	timer_map_t::iterator endTimers() { return mTimers.end(); }
 	S32 timerCount() { return mTimers.size(); }
@@ -644,6 +637,36 @@ void LLFastTimer::writeLog(std::ostream& os)
 const LLFastTimer::NamedTimer* LLFastTimer::getTimerByName(const std::string& name)
 {
 	return NamedTimerFactory::instance().getTimerByName(name);
+}
+
+//static
+bool LLFastTimer::checkForDuplicates(std::string& duplicates)
+{
+	typedef NamedTimerFactory::timer_map_t::iterator timer_iterator;
+
+	bool duplicateFound = false;
+	NamedTimerFactory& namedFactory = NamedTimerFactory::instance();
+
+	if (namedFactory.timerCount() > 1)
+	{
+		timer_iterator endPosition = namedFactory.endTimers();
+		timer_iterator ti = namedFactory.beginTimers();
+		std::string prevKey = ti->first;
+
+		for (ti++; ti != endPosition; ti++)
+		{
+			const std::string& curKey = ti->first;
+			if (0 == curKey.compare(prevKey))
+			{
+				if (duplicateFound) duplicates += ", ";
+				duplicates += curKey;
+				duplicateFound = true;
+			}
+			prevKey = curKey;
+		}
+	}
+
+	return duplicateFound;
 }
 
 LLFastTimer::LLFastTimer(LLFastTimer::FrameState* state)
