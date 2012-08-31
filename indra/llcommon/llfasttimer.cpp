@@ -116,6 +116,7 @@ public:
 		mRootFrameState.setNamedTimer(mTimerRoot);
 		mTimerRoot->setFrameState(&mRootFrameState);
 		mTimerRoot->mParent = mTimerRoot;
+		mTimerRoot->setCollapsed(false);
 		mRootFrameState.mParent = &mRootFrameState;
 	}
 

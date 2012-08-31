@@ -1178,7 +1178,7 @@ static LLFastTimer::DeclareTimer FTM_SERVICE_CALLBACK("Callback");
 static LLFastTimer::DeclareTimer FTM_AGENT_AUTOPILOT("Autopilot");
 static LLFastTimer::DeclareTimer FTM_AGENT_UPDATE("Update");
 
-LLFastTimer::DeclareTimer FTM_FRAME("Frame");
+LLFastTimer::DeclareTimer FTM_FRAME("Frame", true);
 
 bool LLAppViewer::mainLoop()
 {
