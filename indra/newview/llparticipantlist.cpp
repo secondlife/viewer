@@ -648,10 +648,10 @@ void LLParticipantList::addAvatarIDExceptAgent(const LLUUID& avatar_id)
 	
 	if (is_avatar)
 	{
-		// Create a participant view model instance and add it to the linked list
+		// Create a participant view model instance
 		LLAvatarName avatar_name;
 		bool has_name = LLAvatarNameCache::get(avatar_id, &avatar_name);
-		participant = new LLConversationItemParticipant(!has_name ? "Avatar" : avatar_name.mDisplayName , avatar_id, mRootViewModel);
+		participant = new LLConversationItemParticipant(!has_name ? LLTrans::getString("AvatarNameWaiting") : avatar_name.mDisplayName , avatar_id, mRootViewModel);
 		if (mAvatarList)
 		{
 			mAvatarList->getIDs().push_back(avatar_id);
@@ -661,7 +661,7 @@ void LLParticipantList::addAvatarIDExceptAgent(const LLUUID& avatar_id)
 	else
 	{
 		std::string display_name = LLVoiceClient::getInstance()->getDisplayName(avatar_id);
-		// Create a participant view model instance and add it to the linked list
+		// Create a participant view model instance
 		participant = new LLConversationItemParticipant(display_name.empty() ? LLTrans::getString("AvatarNameWaiting") : display_name, avatar_id, mRootViewModel);
 		if (mAvatarList)
 		{
@@ -672,6 +672,13 @@ void LLParticipantList::addAvatarIDExceptAgent(const LLUUID& avatar_id)
 
 	// *TODO : Merov : need to declare and bind a name update callback on that "participant" instance. See LLAvatarListItem::updateAvatarName() for pattern.
 	// For the moment, we'll get the correct name only if it's already in the name cache (see call to LLAvatarNameCache::get() here above)
+
+	// *TODO : Merov : need to update the online/offline status of the participant.
+	// Hack for this: LLAvatarTracker::instance().isBuddyOnline(avatar_id))
+
+	llinfos << "Merov debug : added participant, name = " << participant->getName() << llendl;
+	
+	// Add the participant model to the session's children list
 	addParticipant(participant);
 
 	adjustParticipant(avatar_id);
