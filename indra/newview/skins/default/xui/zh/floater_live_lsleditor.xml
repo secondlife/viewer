@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="script ed float" title="腳本：　新腳本">
 	<floater.string name="not_allowed">
-		You can not view or edit this script, since it has been set as &quot;no copy&quot;. You need full permissions to view or edit a script inside an object.
+		你無法察看或編輯這腳本，它被設為「禁止複製」。 你需要完整權限去察看或編輯物件內的腳本。
 	</floater.string>
 	<floater.string name="script_running">
 		執行中

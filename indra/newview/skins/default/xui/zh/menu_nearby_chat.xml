@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="NearBy Chat Menu">
 	<menu_item_call label="顯示附近的人..." name="nearby_people"/>
-	<menu_item_check label="Show Blocked Text" name="muted_text"/>
-	<menu_item_check label="Show Buddy Icons" name="show_buddy_icons"/>
-	<menu_item_check label="Show Names" name="show_names"/>
-	<menu_item_check label="Show Icons and Names" name="show_icons_and_names"/>
+	<menu_item_check label="顯示被封鎖文字" name="muted_text"/>
+	<menu_item_check label="顯示密友圖示" name="show_buddy_icons"/>
+	<menu_item_check label="顯示名字" name="show_names"/>
+	<menu_item_check label="顯示圖示和名字" name="show_icons_and_names"/>
 	<menu_item_call label="字型尺寸" name="font_size"/>
 </menu>

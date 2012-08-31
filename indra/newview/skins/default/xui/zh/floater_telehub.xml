@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- Explicit left edge to avoid overlapping build tools -->
-<floater name="telehub" title="TELEHUB">
+<floater name="telehub" title="瞬間傳送中心">
 	<text name="status_text_connected">
-		Telehub connected to object [OBJECT]
+		瞬間傳送中心已連通物件 [OBJECT]
 	</text>
 	<text name="status_text_not_connected">
-		No telehub connected.
+		無連通的瞬間傳送中心。
 	</text>
 	<text name="help_text_connected">
-		To remove, click Disconnect.
+		點按「中斷」即可移除。
 	</text>
 	<text name="help_text_not_connected">
-		Select object and click Connect Telehub.
+		選擇物件，並點按「連通瞬間傳送中心」。
 	</text>
-	<button label="Connect Telehub" name="connect_btn"/>
-	<button label="Disconnect" name="disconnect_btn"/>
+	<button label="連通瞬間傳送中心" name="connect_btn"/>
+	<button label="中斷" name="disconnect_btn"/>
 	<text name="spawn_points_text">
-		Spawn Points (positions, not objects):
+		產生點（位置而非物件）：
 	</text>
-	<button label="Add Spawn" name="add_spawn_point_btn"/>
-	<button label="Remove Spawn" name="remove_spawn_point_btn"/>
+	<button label="新增產生" name="add_spawn_point_btn"/>
+	<button label="移除產生" name="remove_spawn_point_btn"/>
 	<text name="spawn_point_help">
-		Select object and click &quot;Add Spawn&quot; to specify position.
-You can then move or delete the object.
-Positions are relative to the telehub center.
-Select an item in list to highlight it inworld.
+		選擇物件，並點按「新增產生」來指定位置。
+你可以接著移動或刪除該物件。
+位置是與瞬間傳送中心相對。
+從清單中選取一項，在虛擬世界中以高亮顯示。
 	</text>
 </floater>
