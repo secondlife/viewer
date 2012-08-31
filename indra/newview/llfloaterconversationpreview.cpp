@@ -29,6 +29,7 @@
 #include "llfloaterconversationpreview.h"
 #include "llimview.h"
 #include "lllineeditor.h"
+#include "lltrans.h"
 
 LLFloaterConversationPreview::LLFloaterConversationPreview(const LLSD& session_id)
 :	LLFloater(session_id),
@@ -44,20 +45,28 @@ BOOL LLFloaterConversationPreview::postBuild()
 	getChild<LLUICtrl>("more_history")->setCommitCallback(boost::bind(&LLFloaterConversationPreview::onMoreHistoryBtnClick, this));
 
 	const LLConversation* conv = LLConversationLog::instance().getConversation(mSessionID);
-	if (conv)
-	{
-		std::string name = conv->getConversationName();
-		LLStringUtil::format_map_t args;
-		args["[NAME]"] = name;
-		std::string title = getString("Title", args);
-		setTitle(title);
+	std::string name;
+	std::string file;
 
-		getChild<LLLineEditor>("description")->setValue(name);
+	if (mSessionID != LLUUID::null && conv)
+	{
+		name = conv->getConversationName();
+		file = conv->getHistoryFileName();
+	}
+	else
+	{
+		name = LLTrans::getString("NearbyChatTitle");
+		file = "chat";
 	}
 
-	std::string file = conv->getHistoryFileName();
-	LLLogChat::loadChatHistory(file, mMessages, true);
+	LLStringUtil::format_map_t args;
+	args["[NAME]"] = name;
+	std::string title = getString("Title", args);
+	setTitle(title);
 
+	getChild<LLLineEditor>("description")->setValue(name);
+
+	LLLogChat::loadChatHistory(file, mMessages, true);
 	mCurrentPage = mMessages.size() / mPageSize;
 
 	return LLFloater::postBuild();
@@ -68,7 +77,7 @@ void LLFloaterConversationPreview::draw()
 	LLFloater::draw();
 }
 
-void LLFloaterConversationPreview::onOpen(const LLSD& session_id)
+void LLFloaterConversationPreview::onOpen(const LLSD& key)
 {
 	showHistory();
 }
@@ -88,13 +97,8 @@ void LLFloaterConversationPreview::showHistory()
 	int delta = 0;
 	if (mCurrentPage)
 	{
-		// stinson 08/28/2012 : This operation could be simplified using integer math with the mod (%) operator.
-		//                      e.g. The following code should give the same output.
-		//                           int remainder = mMessages.size() % mPageSize;
-		//                           delta = (remainder == 0) ? 0 : (mPageSize - remainder);
-		//                      Though without examining further, the remainder might be a more appropriate value.
-		double num_of_pages = static_cast<double>(mMessages.size()) / static_cast<double>(mPageSize);
-		delta = static_cast<int>((ceil(num_of_pages) - num_of_pages) * static_cast<double>(mPageSize));
+		int remainder = mMessages.size() % mPageSize;
+		delta = (remainder == 0) ? 0 : (mPageSize - remainder);
 	}
 
 	std::advance(iter, (mCurrentPage * mPageSize) - delta);
