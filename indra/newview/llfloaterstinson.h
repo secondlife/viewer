@@ -27,6 +27,8 @@
 #ifndef LL_LLFLOATERSTINSON_H
 #define LL_LLFLOATERSTINSON_H
 
+#include <string>
+
 #include <boost/signals2.hpp>
 
 #include "llfloater.h"
@@ -84,20 +86,24 @@ private:
 	void          requestPutMaterials(const LLUUID& regionId);
 
 	void          parseGetResponse(const LLSD& pContent);
+	void          parsePutResponse(const LLSD& pContent);
 	void          printResponse(const std::string& pRequestType, const LLSD& pContent) const;
 
 	void          setState(EState pState);
 	inline EState getState() const;
 
-	void          clearMaterialsList();
+	void          clearGetResults();
+	void          clearPutResults();
 
 	void          updateStatusMessage();
 	void          updateControls();
+	std::string   convertToPrintableMaterialID(const LLSD& pBinaryHash) const;
 
 	LLTextBase*                 mStatusText;
 	LLButton*                   mGetButton;
+	LLScrollListCtrl*           mGetScrollList;
 	LLButton*                   mPutButton;
-	LLScrollListCtrl*           mMaterialsScrollList;
+	LLScrollListCtrl*           mPutScrollList;
 
 	EState                      mState;
 	LLColor4                    mWarningColor;

@@ -3,9 +3,9 @@
     positioning="cascading"
     can_tear_off="false"
     can_resize="true"
-    height="315"
+    height="425"
     width="1194"
-    min_height="315"
+    min_height="450"
     min_width="1100"
     layout="topleft"
     name="floater_stinson"
@@ -92,10 +92,10 @@
         top_pad="10"
         tab_stop="false"
         multi_select="true"
-        name="materials_scroll_list"
+        name="get_scroll_list"
         width="1170">
       <scroll_list.columns
-          label="ID"
+          label="Material ID"
           name="id"
           dynamic_width="true" />
       <scroll_list.columns
@@ -140,12 +140,12 @@
   <panel
       border="false"
       bevel_style="none"
-      follows="left|top"
+      follows="left|top|right"
       layout="topleft"
       left="12"
       top_pad="10"
-      height="22"
-      width="214">
+      height="132"
+      width="700">
     <button
         follows="left|top"
         height="22"
@@ -154,5 +154,29 @@
         name="put_button"
         top_pad="0"
         width="214"/>
+    <scroll_list
+        column_padding="0"
+        draw_heading="true"
+        follows="left|top|right"
+        height="100"
+        layout="topleft"
+        top_pad="10"
+        tab_stop="false"
+        multi_select="true"
+        name="put_scroll_list"
+        width="700">
+      <scroll_list.columns
+          label="Object ID"
+          name="object_id"
+          width="80" />
+      <scroll_list.columns
+          label="Face Index"
+          name="face_index"
+          width="70" />
+      <scroll_list.columns
+          label="MaterialID"
+          name="material_id"
+          dynamic_width="true" />
+    </scroll_list>
   </panel>
 </floater>

@@ -62,6 +62,7 @@
 #define MATERIALS_CAP_FACE_FIELD                  "Face"
 #define MATERIALS_CAP_MATERIAL_FIELD              "Material"
 #define MATERIALS_CAP_OBJECT_ID_FIELD             "ID"
+#define MATERIALS_CAP_MATERIAL_ID_FIELD           "MaterialID"
 
 #define MATERIALS_CAP_NORMAL_MAP_FIELD            "NormMap"
 #define MATERIALS_CAP_SPECULAR_MAP_FIELD          "SpecMap"
@@ -116,12 +117,15 @@ BOOL LLFloaterStinson::postBuild()
 	llassert(mGetButton != NULL);
 	mGetButton->setCommitCallback(boost::bind(&LLFloaterStinson::onGetClicked, this));
 
+	mGetScrollList = findChild<LLScrollListCtrl>("get_scroll_list");
+	llassert(mGetScrollList != NULL);
+
 	mPutButton = findChild<LLButton>("put_button");
 	llassert(mPutButton != NULL);
 	mPutButton->setCommitCallback(boost::bind(&LLFloaterStinson::onPutClicked, this));
 
-	mMaterialsScrollList = findChild<LLScrollListCtrl>("materials_scroll_list");
-	llassert(mMaterialsScrollList != NULL);
+	mPutScrollList = findChild<LLScrollListCtrl>("put_scroll_list");
+	llassert(mPutScrollList != NULL);
 
 	mWarningColor = LLUIColorTable::instance().getColor("MaterialWarningColor");
 	mErrorColor = LLUIColorTable::instance().getColor("MaterialErrorColor");
@@ -151,12 +155,14 @@ void LLFloaterStinson::onOpen(const LLSD& pKey)
 	}
 
 	checkRegionMaterialStatus();
-	clearMaterialsList();
+	clearGetResults();
+	clearPutResults();
 }
 
 void LLFloaterStinson::onClose(bool pIsAppQuitting)
 {
-	clearMaterialsList();
+	clearGetResults();
+	clearPutResults();
 
 	if (mSelectionUpdateConnection.connected())
 	{
@@ -247,7 +253,7 @@ void LLFloaterStinson::onPutResponse(bool pRequestStatus, const LLSD& pContent)
 	if (pRequestStatus)
 	{
 		setState(kRequestCompleted);
-		printResponse("PUT", pContent);
+		parsePutResponse(pContent);
 	}
 	else
 	{
@@ -458,7 +464,7 @@ void LLFloaterStinson::requestPutMaterials(const LLUUID& regionId)
 void LLFloaterStinson::parseGetResponse(const LLSD& pContent)
 {
 	printResponse("GET", pContent);
-	clearMaterialsList();
+	clearGetResults();
 
 	LLScrollListCell::Params cellParams;
 	LLScrollListItem::Params rowParams;
@@ -471,16 +477,7 @@ void LLFloaterStinson::parseGetResponse(const LLSD& pContent)
 		llassert(material.isMap());
 		llassert(material.has(MATERIALS_CAP_OBJECT_ID_FIELD));
 		llassert(material.get(MATERIALS_CAP_OBJECT_ID_FIELD).isBinary());
-
-		const LLSD::Binary &materialIDValue = material.get(MATERIALS_CAP_OBJECT_ID_FIELD).asBinary();
-		unsigned int valueSize = materialIDValue.size();
-
-		std::string materialID(reinterpret_cast<const char *>(&materialIDValue[0]), valueSize);
-		std::string materialIDString;
-		for (unsigned int i = 0; i < valueSize; ++i)
-		{
-			materialIDString += llformat("%02x", materialID.c_str()[i]);
-		}
+		std::string materialIDString = convertToPrintableMaterialID(material.get(MATERIALS_CAP_OBJECT_ID_FIELD));
 
 		llassert(material.has(MATERIALS_CAP_MATERIAL_FIELD));
 		const LLSD &materialData = material.get(MATERIALS_CAP_MATERIAL_FIELD);
@@ -553,7 +550,54 @@ void LLFloaterStinson::parseGetResponse(const LLSD& pContent)
 		cellParams.value = (isDiffuseAlphaMask ? "True" : "False");
 		rowParams.columns.add(cellParams);
 
-		mMaterialsScrollList->addRow(rowParams);
+		mGetScrollList->addRow(rowParams);
+	}
+}
+
+void LLFloaterStinson::parsePutResponse(const LLSD& pContent)
+{
+	printResponse("PUT", pContent);
+	clearPutResults();
+
+	LLScrollListCell::Params cellParams;
+	LLScrollListItem::Params rowParams;
+
+	llassert(pContent.isArray());
+	for (LLSD::array_const_iterator faceIter = pContent.beginArray(); faceIter != pContent.endArray();
+		++faceIter)
+	{
+		const LLSD &face = *faceIter;
+		llassert(face.isMap());
+
+		llassert(face.has(MATERIALS_CAP_FACE_FIELD));
+		llassert(face.get(MATERIALS_CAP_FACE_FIELD).isInteger());
+		S32 faceId = face.get(MATERIALS_CAP_FACE_FIELD).asInteger();
+
+		llassert(face.has(MATERIALS_CAP_OBJECT_ID_FIELD));
+		llassert(face.get(MATERIALS_CAP_OBJECT_ID_FIELD).isInteger());
+		S32 objectId = face.get(MATERIALS_CAP_OBJECT_ID_FIELD).asInteger();
+
+		llassert(face.has(MATERIALS_CAP_MATERIAL_ID_FIELD));
+		llassert(face.get(MATERIALS_CAP_MATERIAL_ID_FIELD).isBinary());
+		std::string materialIDString = convertToPrintableMaterialID(face.get(MATERIALS_CAP_MATERIAL_ID_FIELD));
+
+		cellParams.font = LLFontGL::getFontMonospace();
+
+		cellParams.column = "material_id";
+		cellParams.value = materialIDString;
+		rowParams.columns.add(cellParams);
+
+		cellParams.font = LLFontGL::getFontSansSerif();
+
+		cellParams.column = "object_id";
+		cellParams.value = llformat("%d", objectId);
+		rowParams.columns.add(cellParams);
+
+		cellParams.column = "face_index";
+		cellParams.value = llformat("%d", faceId);
+		rowParams.columns.add(cellParams);
+
+		mPutScrollList->addRow(rowParams);
 	}
 }
 
@@ -571,9 +615,14 @@ void LLFloaterStinson::setState(EState pState)
 	updateControls();
 }
 
-void LLFloaterStinson::clearMaterialsList()
+void LLFloaterStinson::clearGetResults()
 {
-	mMaterialsScrollList->deleteAllItems();
+	mGetScrollList->deleteAllItems();
+}
+
+void LLFloaterStinson::clearPutResults()
+{
+	mPutScrollList->deleteAllItems();
 }
 
 void LLFloaterStinson::updateStatusMessage()
@@ -644,6 +693,22 @@ void LLFloaterStinson::updateControls()
 		llassert(0);
 		break;
 	}
+}
+
+std::string LLFloaterStinson::convertToPrintableMaterialID(const LLSD& pBinaryHash) const
+{
+	llassert(pBinaryHash.isBinary());
+	const LLSD::Binary &materialIDValue = pBinaryHash.asBinary();
+	unsigned int valueSize = materialIDValue.size();
+
+	std::string materialID(reinterpret_cast<const char *>(&materialIDValue[0]), valueSize);
+	std::string materialIDString;
+	for (unsigned int i = 0; i < valueSize; ++i)
+	{
+		materialIDString += llformat("%02x", materialID.c_str()[i]);
+	}
+
+	return materialIDString;
 }
 
 MaterialsGetResponder::MaterialsGetResponder(const std::string& pCapabilityURL, CallbackFunction pCallback)
