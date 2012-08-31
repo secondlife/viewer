@@ -141,6 +141,28 @@ void LLConversationLogList::changed()
 	refresh();
 }
 
+void LLConversationLogList::changed(const LLUUID& session_id, U32 mask)
+{
+	if (mask & LLConversationLogObserver::VOICE_STATE)
+	{
+		std::vector<LLPanel*> panels;
+		LLFlatListViewEx::getItems(panels);
+
+		std::vector<LLPanel*>::iterator iter = panels.begin();
+
+		for (; iter != panels.end(); ++iter)
+		{
+			LLConversationLogListItem* item = dynamic_cast<LLConversationLogListItem*>(*iter);
+
+			if (item && session_id == item->getConversation()->getSessionID() && !item->getConversation()->isConversationPast())
+			{
+				item->initIcons();
+				return;
+			}
+		}
+	}
+}
+
 void LLConversationLogList::addNewItem(const LLConversation* conversation)
 {
 	LLConversationLogListItem* item = new LLConversationLogListItem(&*conversation);

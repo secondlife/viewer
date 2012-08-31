@@ -57,7 +57,11 @@ public:
 	const std::string&	getTimestamp()			const	{ return mTimestamp; }
 	const time_t&		getTime()				const	{ return mTime; }
 	bool				isVoice()				const	{ return mIsVoice; }
+	bool				isConversationPast()	const	{ return mIsConversationPast; }
 	bool				hasOfflineMessages()	const	{ return mHasOfflineIMs; }
+
+	void	setIsVoice(bool is_voice);
+	void	setIsPast (bool is_past) { mIsConversationPast = is_past; }
 
 	/*
 	 * Resets flag of unread offline message to false when im floater with this conversation is opened.
@@ -87,6 +91,7 @@ private:
 	LLUUID			mParticipantID;
 	bool			mIsVoice;
 	bool			mHasOfflineIMs;
+	bool			mIsConversationPast; // once session is finished conversation became past forever
 	std::string		mTimestamp; // conversation start time in form of: mm/dd/yyyy hh:mm
 };
 
@@ -122,12 +127,14 @@ public:
 
 	// LLIMSessionObserver triggers
 	virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id);
-	virtual void sessionVoiceOrIMStarted(const LLUUID& session_id){}							// Stub
-	virtual void sessionRemoved(const LLUUID& session_id){}										// Stub
-	virtual void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id){}	// Stub
+	virtual void sessionRemoved(const LLUUID& session_id);
+	virtual void sessionVoiceOrIMStarted(const LLUUID& session_id){};								// Stub
+	virtual void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id){};	// Stub
 
-	// Triggered by LLFriendObserver change
 	void notifyObservers();
+	void notifyPrticularConversationObservers(const LLUUID& session_id, U32 mask);
+
+	void onVoiceChannelConnected(const LLUUID& session_id, const LLVoiceChannel::EState& state);
 
 	/**
 	 * public method which is called on viewer exit to save conversation log
@@ -140,8 +147,7 @@ private:
 
 	/**
 	 * constructs file name in which conversations log will be saved
-	 * file name template: agentID.call_log.
-	 * For example: a086icaa-782d-88d0-ae29-987a55c99sss.call_log
+	 * file name is conversation.log
 	 */
 	std::string getFileName();
 
@@ -158,8 +164,15 @@ private:
 class LLConversationLogObserver
 {
 public:
+
+	enum EConversationChange
+		{
+			VOICE_STATE = 1
+		};
+
 	virtual ~LLConversationLogObserver(){}
 	virtual void changed() = 0;
+	virtual void changed(const LLUUID& session_id, U32 mask){};
 };
 
 #endif /* LLCONVERSATIONLOG_H_ */
