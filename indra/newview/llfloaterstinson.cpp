@@ -138,11 +138,21 @@ void LLFloaterStinson::onOpen(const LLSD& pKey)
 		mTeleportFailedConnection = LLViewerParcelMgr::getInstance()->setTeleportFailedCallback(boost::bind(&LLFloaterStinson::onRegionCross, this));
 	}
 
+	if (!mSelectionUpdateConnection.connected())
+	{
+		mSelectionUpdateConnection = LLSelectMgr::getInstance()->mUpdateSignal.connect(boost::bind(&LLFloaterStinson::onInWorldSelectionChange, this));
+	}
+
 	checkRegionMaterialStatus();
 }
 
 void LLFloaterStinson::onClose(bool pIsAppQuitting)
 {
+	if (mSelectionUpdateConnection.connected())
+	{
+		mSelectionUpdateConnection.disconnect();
+	}
+
 	if (mTeleportFailedConnection.connected())
 	{
 		mTeleportFailedConnection.disconnect();
@@ -165,7 +175,8 @@ LLFloaterStinson::LLFloaterStinson(const LLSD& pParams)
 	mWarningColor(),
 	mErrorColor(),
 	mRegionCrossConnection(),
-	mTeleportFailedConnection()
+	mTeleportFailedConnection(),
+	mSelectionUpdateConnection()
 {
 }
 
@@ -186,6 +197,11 @@ void LLFloaterStinson::onPutClicked()
 void LLFloaterStinson::onRegionCross()
 {
 	checkRegionMaterialStatus();
+}
+
+void LLFloaterStinson::onInWorldSelectionChange()
+{
+	updateControls();
 }
 
 void LLFloaterStinson::onDeferredCheckRegionMaterialStatus(LLUUID regionId)
@@ -487,6 +503,9 @@ void LLFloaterStinson::updateStatusMessage()
 
 void LLFloaterStinson::updateControls()
 {
+	LLObjectSelectionHandle selectionHandle = LLSelectMgr::getInstance()->getEditSelection();
+	bool isPutEnabled = (selectionHandle->valid_begin() != selectionHandle->valid_end());
+
 	switch (getState())
 	{
 	case kNoRegion :
@@ -494,14 +513,17 @@ void LLFloaterStinson::updateControls()
 	case kRequestStarted :
 	case kNotEnabled :
 		mGetButton->setEnabled(FALSE);
+		mPutButton->setEnabled(FALSE);
 		break;
 	case kReady :
 	case kRequestCompleted :
 	case kError :
 		mGetButton->setEnabled(TRUE);
+		mPutButton->setEnabled(isPutEnabled);
 		break;
 	default :
 		mGetButton->setEnabled(TRUE);
+		mPutButton->setEnabled(isPutEnabled);
 		llassert(0);
 		break;
 	}

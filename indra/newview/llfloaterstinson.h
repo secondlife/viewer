@@ -66,6 +66,7 @@ private:
 	void          onGetClicked();
 	void          onPutClicked();
 	void          onRegionCross();
+	void          onInWorldSelectionChange();
 	void          onDeferredCheckRegionMaterialStatus(LLUUID regionId);
 	void          onDeferredRequestGetMaterials(LLUUID regionId);
 	void          onDeferredRequestPutMaterials(LLUUID regionId);
@@ -99,6 +100,7 @@ private:
 
 	boost::signals2::connection mRegionCrossConnection;
 	boost::signals2::connection mTeleportFailedConnection;
+	boost::signals2::connection mSelectionUpdateConnection;
 };
 
 
