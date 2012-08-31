@@ -28,6 +28,7 @@
 #include "llconversationloglist.h"
 #include "llfiltereditor.h"
 #include "llfloaterconversationlog.h"
+#include "llfloaterreg.h"
 #include "llmenubutton.h"
 
 LLFloaterConversationLog::LLFloaterConversationLog(const LLSD& key)
@@ -96,6 +97,10 @@ void LLFloaterConversationLog::onCustomAction (const LLSD& userdata)
 	else if ("sort_friends_on_top" == command_name)
 	{
 		mConversationLogList->toggleSortFriendsOnTop();
+	}
+	else if ("view_nearby_chat_history" == command_name)
+	{
+		LLFloaterReg::showInstance("preview_conversation", LLSD(LLUUID::null), true);
 	}
 }
 

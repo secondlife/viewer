@@ -40,6 +40,7 @@
 #include "llavatarnamecache.h"
 #include "llgroupiconctrl.h"
 #include "llfloateravatarpicker.h"
+#include "llfloaterpreference.h"
 #include "llimview.h"
 #include "lltransientfloatermgr.h"
 #include "llviewercontrol.h"
@@ -53,6 +54,8 @@ LLIMFloaterContainer::LLIMFloaterContainer(const LLSD& seed)
 	mExpandCollapseBtn(NULL),
 	mConversationsRoot(NULL)
 {
+	mCommitCallbackRegistrar.add("IMFloaterContainer.Action", boost::bind(&LLIMFloaterContainer::onCustomAction,  this, _2));
+
 	// Firstly add our self to IMSession observers, so we catch session events
     LLIMMgr::getInstance()->addSessionObserver(this);
 
@@ -437,6 +440,25 @@ void LLIMFloaterContainer::onAvatarPicked(const uuid_vec_t& ids)
     }
 }
 
+void LLIMFloaterContainer::onCustomAction(const LLSD& userdata)
+{
+	std::string command = userdata.asString();
+
+	if ("chat_preferences" == command)
+	{
+		LLFloaterPreference* floater_prefs = LLFloaterReg::showTypedInstance<LLFloaterPreference>("preferences");
+		if (floater_prefs)
+		{
+			LLTabContainer* tab_container = floater_prefs->getChild<LLTabContainer>("pref core");
+			LLPanel* chat_panel = tab_container->getPanelByName("chat");
+			if (tab_container && chat_panel)
+			{
+				tab_container->selectTabPanel(chat_panel);
+			}
+		}
+	}
+}
+
 void LLIMFloaterContainer::repositioningWidgets()
 {
 	LLRect panel_rect = mConversationsListPanel->getRect();
@@ -444,21 +466,45 @@ void LLIMFloaterContainer::repositioningWidgets()
 	int index = 0;
 	for (conversations_widgets_map::iterator widget_it = mConversationsWidgets.begin();
 		 widget_it != mConversationsWidgets.end();
-		 widget_it++, ++index)
+		 widget_it++)
 	{
-		LLFolderViewItem* widget = widget_it->second;
+		LLFolderViewFolder* widget = dynamic_cast<LLFolderViewFolder*>(widget_it->second);
 		widget->setVisible(TRUE);
 		widget->setRect(LLRect(0,
 							   panel_rect.getHeight() - item_height*index,
 							   panel_rect.getWidth(),
 							   panel_rect.getHeight() - item_height*(index+1)));
+		index++;
+		// Reposition the children as well
+		// Merov : This is highly suspiscious but gets the debug hack to work. This needs to be revised though.
+		if (widget->getItemsCount() != 0)
+		{
+			BOOL is_open = widget->isOpen();
+			widget->setOpen(TRUE);
+			LLFolderViewFolder::items_t::const_iterator current = widget->getItemsBegin();
+			LLFolderViewFolder::items_t::const_iterator end = widget->getItemsEnd();
+			while (current != end)
+			{
+				LLFolderViewItem* item = (*current);
+				item->setVisible(TRUE);
+				item->setRect(LLRect(0,
+									   panel_rect.getHeight() - item_height*index,
+									   panel_rect.getWidth(),
+									   panel_rect.getHeight() - item_height*(index+1)));
+				index++;
+				current++;
+			}
+			widget->setOpen(is_open);
+		}
 	}
 }
 
 // CHUI-137 : Temporary implementation of conversations list
 void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 {
-	std::string display_name = uuid.isNull()? LLTrans::getString("NearbyChatTitle") : LLIMModel::instance().getName(uuid);
+	bool is_nearby_chat = uuid.isNull();
+	
+	std::string display_name = is_nearby_chat ? LLTrans::getString("NearbyChatTitle") : LLIMModel::instance().getName(uuid);
 
 	// Check if the item is not already in the list, exit if it is and has the same name and uuid (nothing to do)
 	// Note: this happens often, when reattaching a torn off conversation for instance
@@ -472,24 +518,69 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 	// and nothing wrong will happen removing it if it doesn't exist
 	removeConversationListItem(uuid,false);
 
-	// Create a conversation item
-	LLConversationItem* item = new LLConversationItemSession(display_name, uuid, getRootViewModel());
+	// Create a conversation session model
+	LLConversationItem* item = NULL;
+	LLSpeakerMgr* speaker_manager = (is_nearby_chat ? (LLSpeakerMgr*)(LLLocalSpeakerMgr::getInstance()) : LLIMModel::getInstance()->getSpeakerManager(uuid));
+	if (speaker_manager)
+	{
+		item = new LLParticipantList(speaker_manager, NULL, getRootViewModel(), true, false);
+	}
+	if (!item)
+	{
+		llinfos << "Merov debug : Couldn't create conversation session item : " << display_name << llendl;
+		return;
+	}
+	// *TODO: Should we flag LLConversationItemSession with a mIsNearbyChat?
+	item->renameItem(display_name);
+	
 	mConversationsItems[uuid] = item;
 
 	// Create a widget from it
-	LLFolderViewItem* widget = createConversationItemWidget(item);
+	LLConversationViewSession* widget = createConversationItemWidget(item);
 	mConversationsWidgets[uuid] = widget;
 
-	// Add a new conversation widget to the root folder of a folder view.
+	// Add a new conversation widget to the root folder of the folder view
 	widget->addToFolder(mConversationsRoot);
 
 	// Add it to the UI
+	mConversationsListPanel->addChild(widget);
 	widget->setVisible(TRUE);
+	
+	// Create the participants widgets now
+	// Note: usually, we do not get an updated avatar list at that point
+	LLFolderViewModelItemCommon::child_list_t::const_iterator current_participant_model = item->getChildrenBegin();
+	LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = item->getChildrenEnd();
+	llinfos << "Merov debug : create participant, children size = " << item->getChildrenCount() << llendl;
+	while (current_participant_model != end_participant_model)
+	{
+		LLConversationItem* participant_model = dynamic_cast<LLConversationItem*>(*current_participant_model);
+		LLConversationViewParticipant* participant_view = createConversationViewParticipant(participant_model);
+		participant_view->addToFolder(widget);
+		mConversationsListPanel->addChild(participant_view);
+		participant_view->setVisible(TRUE);
+		current_participant_model++;
+	}
+	// Debugging hack : uncomment to force the creation of a dummy participant 
+	// This hack is to be eventually deleted
+	if (item->getChildrenCount() == 0)
+	{
+		llinfos << "Merov debug : create dummy participant" << llendl;
+		// Create a dummy participant : we let that leak but that's just for debugging...
+		std::string name("Debug Test : ");
+		name += display_name;
+		LLUUID test_id;
+		test_id.generate(name);
+		LLConversationItemParticipant* participant_model = new LLConversationItemParticipant(name, test_id, getRootViewModel());
+		// Create the dummy widget
+		LLConversationViewParticipant* participant_view = createConversationViewParticipant(participant_model);
+		participant_view->addToFolder(widget);
+		mConversationsListPanel->addChild(participant_view);
+		participant_view->setVisible(TRUE);
+	}
+	// End debugging hack
 
 	repositioningWidgets();
 	
-	mConversationsListPanel->addChild(widget);
-
 	return;
 }
 
@@ -524,7 +615,7 @@ void LLIMFloaterContainer::removeConversationListItem(const LLUUID& uuid, bool c
 	}
 }
 
-LLFolderViewItem* LLIMFloaterContainer::createConversationItemWidget(LLConversationItem* item)
+LLConversationViewSession* LLIMFloaterContainer::createConversationItemWidget(LLConversationItem* item)
 {
 	LLConversationViewSession::Params params;
 	
@@ -539,6 +630,23 @@ LLFolderViewItem* LLIMFloaterContainer::createConversationItemWidget(LLConversat
 	params.container = this;
 	
 	return LLUICtrlFactory::create<LLConversationViewSession>(params);
+}
+
+LLConversationViewParticipant* LLIMFloaterContainer::createConversationViewParticipant(LLConversationItem* item)
+{
+	LLConversationViewSession::Params params;
+	
+	params.name = item->getDisplayName();
+	//params.icon = bridge->getIcon();
+	//params.icon_open = bridge->getOpenIcon();
+	//params.creation_date = bridge->getCreationDate();
+	params.root = mConversationsRoot;
+	params.listener = item;
+	params.rect = LLRect (0, 0, 0, 0);
+	params.tool_tip = params.name;
+	params.container = this;
+	
+	return LLUICtrlFactory::create<LLConversationViewParticipant>(params);
 }
 
 // EOF

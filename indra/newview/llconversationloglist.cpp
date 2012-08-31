@@ -241,15 +241,18 @@ void LLConversationLogList::onCustomAction(const LLSD& userdata)
 	{
 		LLAvatarActions::offerTeleport(selected_id);
 	}
-	else if("add_rem_friend" == command_name)
+	else if("add_friend" == command_name)
+	{
+		if (!LLAvatarActions::isFriend(selected_id))
+		{
+			LLAvatarActions::requestFriendshipDialog(selected_id);
+		}
+	}
+	else if("remove_friend" == command_name)
 	{
 		if (LLAvatarActions::isFriend(selected_id))
 		{
 			LLAvatarActions::removeFriendDialog(selected_id);
-		}
-		else
-		{
-			LLAvatarActions::requestFriendshipDialog(selected_id);
 		}
 	}
 	else if ("invite_to_group" == command_name)
@@ -335,6 +338,10 @@ bool LLConversationLogList::isActionChecked(const LLSD& userdata)
 	else if ("is_friend" == command_name)
 	{
 		return is_p2p && LLAvatarActions::isFriend(selected_id);
+	}
+	else if ("is_not_friend" == command_name)
+	{
+		return is_p2p && !LLAvatarActions::isFriend(selected_id);
 	}
 
 	return false;

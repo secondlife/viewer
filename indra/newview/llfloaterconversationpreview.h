@@ -39,7 +39,7 @@ public:
 	virtual BOOL postBuild();
 
 	virtual void draw();
-	virtual void onOpen(const LLSD& session_id);
+	virtual void onOpen(const LLSD& key);
 
 private:
 	void onMoreHistoryBtnClick();
