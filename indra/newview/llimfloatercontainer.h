@@ -103,6 +103,8 @@ private:
 	void onAddButtonClicked();
 	void onAvatarPicked(const uuid_vec_t& ids);
 
+	void onCustomAction (const LLSD& userdata);
+
 	LLButton* mExpandCollapseBtn;
 	LLLayoutPanel* mMessagesPane;
 	LLLayoutPanel* mConversationsPane;
