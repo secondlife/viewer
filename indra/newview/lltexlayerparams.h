@@ -58,12 +58,23 @@ protected:
 // LLTexLayerParamAlpha
 // 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+LL_ALIGN_PREFIX(16)
 class LLTexLayerParamAlpha : public LLTexLayerParam
 {
 public:
 	LLTexLayerParamAlpha( LLTexLayerInterface* layer );
 	LLTexLayerParamAlpha( LLVOAvatar* avatar );
 	/*virtual*/ ~LLTexLayerParamAlpha();
+
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free_16(ptr);
+	}
 
 	/*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable = NULL) const;
 
@@ -94,7 +105,7 @@ private:
 	LLPointer<LLImageRaw>	mStaticImageRaw;
 	BOOL					mNeedsCreateTexture;
 	BOOL					mStaticImageInvalid;
-	LLVector4a				mAvgDistortionVec;
+	LL_ALIGN_16(LLVector4a				mAvgDistortionVec);
 	F32						mCachedEffectiveWeight;
 
 public:
@@ -104,7 +115,7 @@ public:
 
 	typedef std::list< LLTexLayerParamAlpha* > param_alpha_ptr_list_t;
 	static param_alpha_ptr_list_t sInstances;
-};
+} LL_ALIGN_POSTFIX(16);
 class LLTexLayerParamAlphaInfo : public LLViewerVisualParamInfo
 {
 	friend class LLTexLayerParamAlpha;
@@ -128,6 +139,8 @@ private:
 // LLTexLayerParamColor
 //
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+LL_ALIGN_PREFIX(16)
 class LLTexLayerParamColor : public LLTexLayerParam
 {
 public:
@@ -141,6 +154,17 @@ public:
 
 	LLTexLayerParamColor( LLTexLayerInterface* layer );
 	LLTexLayerParamColor( LLVOAvatar* avatar );
+
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free_16(ptr);
+	}
+
 	/* virtual */ ~LLTexLayerParamColor();
 
 	/*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable = NULL) const;
@@ -166,8 +190,8 @@ public:
 protected:
 	virtual void onGlobalColorChanged(bool upload_bake) {}
 private:
-	LLVector4a				mAvgDistortionVec;
-};
+	LL_ALIGN_16(LLVector4a				mAvgDistortionVec);
+} LL_ALIGN_POSTFIX(16);
 
 class LLTexLayerParamColorInfo : public LLViewerVisualParamInfo
 {

@@ -73,9 +73,11 @@ LLPolyMorphData::LLPolyMorphData(const LLPolyMorphData &rhs) :
 {
 	const S32 numVertices = mNumIndices;
 
-	mCoords = new LLVector4a[numVertices];
-	mNormals = new LLVector4a[numVertices];
-	mBinormals = new LLVector4a[numVertices];
+	U32 size = sizeof(LLVector4a)*numVertices;
+
+	mCoords = (LLVector4a*) ll_aligned_malloc_16(size);
+	mNormals = (LLVector4a*) ll_aligned_malloc_16(size);
+	mBinormals = (LLVector4a*) ll_aligned_malloc_16(size);
 	mTexCoords = new LLVector2[numVertices];
 	mVertexIndices = new U32[numVertices];
 	
@@ -95,11 +97,12 @@ LLPolyMorphData::LLPolyMorphData(const LLPolyMorphData &rhs) :
 //-----------------------------------------------------------------------------
 LLPolyMorphData::~LLPolyMorphData()
 {
-	delete [] mVertexIndices;
-	delete [] mCoords;
-	delete [] mNormals;
-	delete [] mBinormals;
+	ll_aligned_free_16(mCoords);
+	ll_aligned_free_16(mNormals);
+	ll_aligned_free_16(mBinormals);
+
 	delete [] mTexCoords;
+	delete [] mVertexIndices;
 }
 
 //-----------------------------------------------------------------------------
@@ -121,9 +124,12 @@ BOOL LLPolyMorphData::loadBinary(LLFILE *fp, LLPolyMeshSharedData *mesh)
 	//-------------------------------------------------------------------------
 	// allocate vertices
 	//-------------------------------------------------------------------------
-	mCoords = new LLVector4a[numVertices];
-	mNormals = new LLVector4a[numVertices];
-	mBinormals = new LLVector4a[numVertices];
+	
+	U32 size = sizeof(LLVector4a)*numVertices;
+	
+	mCoords = (LLVector4a*) ll_aligned_malloc_16(size);
+	mNormals = (LLVector4a*) ll_aligned_malloc_16(size);
+	mBinormals = (LLVector4a*) ll_aligned_malloc_16(size);
 	mTexCoords = new LLVector2[numVertices];
 	// Actually, we are allocating more space than we need for the skiplist
 	mVertexIndices = new U32[numVertices];
