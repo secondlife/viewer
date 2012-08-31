@@ -34,6 +34,7 @@
 #include "v4color.h"
 
 class LLButton;
+class LLScrollListCtrl;
 class LLSD;
 class LLTextBase;
 
@@ -82,10 +83,13 @@ private:
 	void          requestPutMaterials();
 	void          requestPutMaterials(const LLUUID& regionId);
 
-	void          parseResponse(const std::string& pRequestType, const LLSD& pContent) const;
+	void          parseGetResponse(const LLSD& pContent);
+	void          printResponse(const std::string& pRequestType, const LLSD& pContent) const;
 
 	void          setState(EState pState);
 	inline EState getState() const;
+
+	void          clearMaterialsList();
 
 	void          updateStatusMessage();
 	void          updateControls();
@@ -93,6 +97,7 @@ private:
 	LLTextBase*                 mStatusText;
 	LLButton*                   mGetButton;
 	LLButton*                   mPutButton;
+	LLScrollListCtrl*           mMaterialsScrollList;
 
 	EState                      mState;
 	LLColor4                    mWarningColor;

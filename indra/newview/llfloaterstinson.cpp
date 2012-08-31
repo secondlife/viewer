@@ -39,7 +39,11 @@
 #include "llbutton.h"
 #include "llenvmanager.h"
 #include "llfloater.h"
+#include "llfontgl.h"
 #include "llhttpclient.h"
+#include "llscrolllistcell.h"
+#include "llscrolllistctrl.h"
+#include "llscrolllistitem.h"
 #include "llsd.h"
 #include "llselectmgr.h"
 #include "llstring.h"
@@ -116,6 +120,9 @@ BOOL LLFloaterStinson::postBuild()
 	llassert(mPutButton != NULL);
 	mPutButton->setCommitCallback(boost::bind(&LLFloaterStinson::onPutClicked, this));
 
+	mMaterialsScrollList = findChild<LLScrollListCtrl>("materials_scroll_list");
+	llassert(mMaterialsScrollList != NULL);
+
 	mWarningColor = LLUIColorTable::instance().getColor("MaterialWarningColor");
 	mErrorColor = LLUIColorTable::instance().getColor("MaterialErrorColor");
 
@@ -144,10 +151,13 @@ void LLFloaterStinson::onOpen(const LLSD& pKey)
 	}
 
 	checkRegionMaterialStatus();
+	clearMaterialsList();
 }
 
 void LLFloaterStinson::onClose(bool pIsAppQuitting)
 {
+	clearMaterialsList();
+
 	if (mSelectionUpdateConnection.connected())
 	{
 		mSelectionUpdateConnection.disconnect();
@@ -224,7 +234,7 @@ void LLFloaterStinson::onGetResponse(bool pRequestStatus, const LLSD& pContent)
 	if (pRequestStatus)
 	{
 		setState(kRequestCompleted);
-		parseResponse("GET", pContent);
+		parseGetResponse(pContent);
 	}
 	else
 	{
@@ -237,7 +247,7 @@ void LLFloaterStinson::onPutResponse(bool pRequestStatus, const LLSD& pContent)
 	if (pRequestStatus)
 	{
 		setState(kRequestCompleted);
-		parseResponse("PUT", pContent);
+		printResponse("PUT", pContent);
 	}
 	else
 	{
@@ -445,7 +455,109 @@ void LLFloaterStinson::requestPutMaterials(const LLUUID& regionId)
 	}
 }
 
-void LLFloaterStinson::parseResponse(const std::string& pRequestType, const LLSD& pContent) const
+void LLFloaterStinson::parseGetResponse(const LLSD& pContent)
+{
+	printResponse("GET", pContent);
+	clearMaterialsList();
+
+	LLScrollListCell::Params cellParams;
+	LLScrollListItem::Params rowParams;
+
+	llassert(pContent.isArray());
+	for (LLSD::array_const_iterator materialIter = pContent.beginArray(); materialIter != pContent.endArray();
+		++materialIter)
+	{
+		const LLSD &material = *materialIter;
+		llassert(material.isMap());
+		llassert(material.has(MATERIALS_CAP_OBJECT_ID_FIELD));
+		llassert(material.get(MATERIALS_CAP_OBJECT_ID_FIELD).isBinary());
+
+		const LLSD::Binary &materialIDValue = material.get(MATERIALS_CAP_OBJECT_ID_FIELD).asBinary();
+		unsigned int valueSize = materialIDValue.size();
+
+		std::string materialID(reinterpret_cast<const char *>(&materialIDValue[0]), valueSize);
+		std::string materialIDString;
+		for (unsigned int i = 0; i < valueSize; ++i)
+		{
+			materialIDString += llformat("%02x", materialID.c_str()[i]);
+		}
+
+		llassert(material.has(MATERIALS_CAP_MATERIAL_FIELD));
+		const LLSD &materialData = material.get(MATERIALS_CAP_MATERIAL_FIELD);
+		llassert(materialData.isMap());
+
+		llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_FIELD));
+		llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_FIELD).isUUID());
+		const LLUUID &normalMapID = materialData.get(MATERIALS_CAP_NORMAL_MAP_FIELD).asUUID();
+
+		llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_FIELD));
+		llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_FIELD).isUUID());
+		const LLUUID &specularMapID = materialData.get(MATERIALS_CAP_SPECULAR_MAP_FIELD).asUUID();
+
+		llassert(materialData.has(MATERIALS_CAP_SPECULAR_COLOR_FIELD));
+		llassert(materialData.get(MATERIALS_CAP_SPECULAR_COLOR_FIELD).isArray());
+		LLColor4U specularColor;
+		specularColor.setValue(materialData.get(MATERIALS_CAP_SPECULAR_COLOR_FIELD));
+
+		llassert(materialData.has(MATERIALS_CAP_SPECULAR_EXP_FIELD));
+		llassert(materialData.get(MATERIALS_CAP_SPECULAR_EXP_FIELD).isInteger());
+		S32 specularExp = materialData.get(MATERIALS_CAP_SPECULAR_EXP_FIELD).asInteger();
+
+		llassert(materialData.has(MATERIALS_CAP_ENV_INTENSITY_FIELD));
+		llassert(materialData.get(MATERIALS_CAP_ENV_INTENSITY_FIELD).isInteger());
+		S32 envIntensity = materialData.get(MATERIALS_CAP_ENV_INTENSITY_FIELD).asInteger();
+
+		llassert(materialData.has(MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD));
+		llassert(materialData.get(MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD).isInteger());
+		S32 alphaMaskCutoff = materialData.get(MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD).asInteger();
+
+		llassert(materialData.has(MATERIALS_CAP_DIFFUSE_ALPHA_IS_MASK_FIELD));
+		llassert(materialData.get(MATERIALS_CAP_DIFFUSE_ALPHA_IS_MASK_FIELD).isInteger());
+		BOOL isDiffuseAlphaMask = static_cast<BOOL>(materialData.get(MATERIALS_CAP_DIFFUSE_ALPHA_IS_MASK_FIELD).asInteger());
+
+
+		cellParams.font = LLFontGL::getFontMonospace();
+
+		cellParams.column = "id";
+		cellParams.value = materialIDString;
+		rowParams.columns.add(cellParams);
+
+		cellParams.column = "normal_map";
+		cellParams.value = normalMapID.asString();
+		rowParams.columns.add(cellParams);
+
+		cellParams.column = "specular_map";
+		cellParams.value = specularMapID.asString();
+		rowParams.columns.add(cellParams);
+
+		cellParams.font = LLFontGL::getFontSansSerif();
+
+		cellParams.column = "specular_color";
+		cellParams.value = llformat("(%d, %d, %d, %d)", specularColor.mV[0],
+			specularColor.mV[1], specularColor.mV[2], specularColor.mV[3]);
+		rowParams.columns.add(cellParams);
+
+		cellParams.column = "specular_exponent";
+		cellParams.value = llformat("%d", specularExp);
+		rowParams.columns.add(cellParams);
+
+		cellParams.column = "env_intensity";
+		cellParams.value = llformat("%d", envIntensity);
+		rowParams.columns.add(cellParams);
+
+		cellParams.column = "alpha_mask_cutoff";
+		cellParams.value = llformat("%d", alphaMaskCutoff);
+		rowParams.columns.add(cellParams);
+
+		cellParams.column = "is_diffuse_alpha_mask";
+		cellParams.value = (isDiffuseAlphaMask ? "True" : "False");
+		rowParams.columns.add(cellParams);
+
+		mMaterialsScrollList->addRow(rowParams);
+	}
+}
+
+void LLFloaterStinson::printResponse(const std::string& pRequestType, const LLSD& pContent) const
 {
 	llinfos << "--------------------------------------------------------------------------" << llendl;
 	llinfos << pRequestType << " Response: '" << pContent << "'" << llendl;
@@ -457,6 +569,11 @@ void LLFloaterStinson::setState(EState pState)
 	mState = pState;
 	updateStatusMessage();
 	updateControls();
+}
+
+void LLFloaterStinson::clearMaterialsList()
+{
+	mMaterialsScrollList->deleteAllItems();
 }
 
 void LLFloaterStinson::updateStatusMessage()

@@ -2,15 +2,18 @@
 <floater
     positioning="cascading"
     can_tear_off="false"
-    height="160"
+    can_resize="true"
+    height="315"
+    width="1194"
+    min_height="315"
+    min_width="1100"
     layout="topleft"
     name="floater_stinson"
     help_topic="floater_stinson"
     reuse_instance="true"
-    save_rect="true"
+    save_rect="false"
     single_instance="true"
-    title="Stinson Test"
-    width="240">
+    title="Stinson Test">
   <floater.string name="status_no_region">No current region available.</floater.string>
   <floater.string name="status_capabilities_loading">Region capabilities are loading.</floater.string>
   <floater.string name="status_ready">Materials are enabled for this region.</floater.string>
@@ -57,22 +60,21 @@
   </panel>
   <view_border
       bevel_style="none"
-      follows="left|right|bottom"
+      follows="left|right|top"
       height="0"
       layout="topleft"
       name="horiz_separator"
       top_pad="0"
       left="12"
-      width="214"/>
+      width="1170"/>
   <panel
       border="false"
       bevel_style="none"
-      follows="left|top"
+      follows="left|top|right"
       layout="topleft"
-      left="12"
+      height="167"
       top_pad="10"
-      height="61"
-      width="214">
+      width="1170">
     <button
         follows="left|top"
         height="22"
@@ -81,13 +83,76 @@
         name="get_button"
         top_pad="0"
         width="214"/>
+    <scroll_list
+        column_padding="0"
+        draw_heading="true"
+        follows="left|top|right"
+        height="135"
+        layout="topleft"
+        top_pad="10"
+        tab_stop="false"
+        multi_select="true"
+        name="materials_scroll_list"
+        width="1170">
+      <scroll_list.columns
+          label="ID"
+          name="id"
+          dynamic_width="true" />
+      <scroll_list.columns
+          label="Normal Map"
+          name="normal_map"
+          width="230" />
+      <scroll_list.columns
+          label="Specular Map"
+          name="specular_map"
+          width="230" />
+      <scroll_list.columns
+          label="Specular Color"
+          name="specular_color"
+          width="120" />
+      <scroll_list.columns
+          label="Specular Exponent"
+          name="specular_exponent"
+          width="112" />
+      <scroll_list.columns
+          label="Env Intensity"
+          name="env_intensity"
+          width="80" />
+      <scroll_list.columns
+          label="Alpha Mask Cutoff"
+          name="alpha_mask_cutoff"
+          width="110" />
+      <scroll_list.columns
+          label="Is Diffuse Alpha Mask"
+          name="is_diffuse_alpha_mask"
+          width="128" />
+    </scroll_list>
+  </panel>
+  <view_border
+      bevel_style="none"
+      follows="left|right|top"
+      height="0"
+      layout="topleft"
+      name="horiz_separator"
+      top_pad="10"
+      left="12"
+      width="1170"/>
+  <panel
+      border="false"
+      bevel_style="none"
+      follows="left|top"
+      layout="topleft"
+      left="12"
+      top_pad="10"
+      height="22"
+      width="214">
     <button
         follows="left|top"
         height="22"
         label="Put"
         layout="topleft"
         name="put_button"
-        top_pad="12"
+        top_pad="0"
         width="214"/>
   </panel>
 </floater>
