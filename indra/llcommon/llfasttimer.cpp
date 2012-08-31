@@ -128,13 +128,6 @@ public:
 
 	LLFastTimer::NamedTimer& createNamedTimer(const std::string& name, LLFastTimer::FrameState* state)
 	{
-		timer_map_t::iterator found_it = mTimers.find(name);
-		if (found_it != mTimers.end())
-		{
-			llerrs << "Duplicate timer declaration for: " << name << llendl;
-			return *found_it->second;
-		}
-
 		LLFastTimer::NamedTimer* timer = new LLFastTimer::NamedTimer(name);
 		timer->setFrameState(state);
 		timer->setParent(mTimerRoot);
@@ -155,7 +148,7 @@ public:
 
 	LLFastTimer::NamedTimer* getRootTimer() { return mTimerRoot; }
 
-	typedef std::map<std::string, LLFastTimer::NamedTimer*> timer_map_t;
+	typedef std::multimap<std::string, LLFastTimer::NamedTimer*> timer_map_t;
 	timer_map_t::iterator beginTimers() { return mTimers.begin(); }
 	timer_map_t::iterator endTimers() { return mTimers.end(); }
 	S32 timerCount() { return mTimers.size(); }
@@ -294,6 +287,7 @@ S32 LLFastTimer::NamedTimer::getDepth()
 	while(timerp)
 	{
 		depth++;
+		if (timerp->getParent() == timerp) break;
 		timerp = timerp->mParent;
 	}
 	return depth;

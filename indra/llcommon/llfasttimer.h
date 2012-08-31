@@ -145,6 +145,7 @@ public:
 		DeclareTimer(const std::string& name);
 
 		NamedTimer& getNamedTimer() { return mTimer; }
+		const NamedTimer& getNamedTimer() const { return mTimer; }
 
 	private:
 		FrameState		mFrameState;

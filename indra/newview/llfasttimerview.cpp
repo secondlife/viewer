@@ -514,6 +514,7 @@ void LLFastTimerView::draw()
 			while(!is_child_of_hover_item && next_parent)
 			{
 				is_child_of_hover_item = (mHoverID == next_parent);
+				if (next_parent->getParent() == next_parent) break;
 				next_parent = next_parent->getParent();
 			}
 
@@ -781,6 +782,7 @@ void LLFastTimerView::draw()
 					while(!is_child_of_hover_item && next_parent)
 					{
 						is_child_of_hover_item = (mHoverID == next_parent);
+						if (next_parent->getParent() == next_parent) break;
 						next_parent = next_parent->getParent();
 					}
 
