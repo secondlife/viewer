@@ -3,7 +3,7 @@
 	<panel name="navigation_panel">
 		<pull_button name="back_btn" tool_tip="前往上一個位置"/>
 		<pull_button name="forward_btn" tool_tip="前往下一個位置"/>
-		<button name="home_btn" tool_tip="瞬間傳送到我家的位置"/>
+		<button name="home_btn" tool_tip="瞬間返回我的家"/>
 		<location_input label="位置" name="location_combo"/>
 		<search_combo_box label="搜尋" name="search_combo_box" tool_tip="搜尋">
 			<combo_editor label="搜尋 [SECOND_LIFE]" name="search_combo_editor"/>

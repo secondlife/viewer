@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="preview_anim">
 	<floater.string name="Title">
-		動作： [NAME]
+		動作：[NAME]
 	</floater.string>
 	<text name="desc txt">
 		描述：
 	</text>
-	<button label="播放於虛擬世界" label_selected="停止" name="Anim play btn" tool_tip="Play this animation so that others can see it"/>
-	<button label="播放於本地" label_selected="停止" name="Anim audition btn" tool_tip="Play this animation so that only you can see it"/>
+	<button label="在虛擬世界播放" label_selected="停止" name="Anim play btn" tool_tip="播放此動作讓他人看見"/>
+	<button label="在本地播放" label_selected="停止" name="Anim audition btn" tool_tip="播放此動作，只給自己看"/>
 </floater>

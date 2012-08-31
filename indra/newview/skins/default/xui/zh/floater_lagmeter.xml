@@ -7,7 +7,7 @@
 		360
 	</floater.string>
 	<floater.string name="min_title_msg">
-		Lag
+		延遲
 	</floater.string>
 	<floater.string name="min_width_px">
 		90
@@ -22,28 +22,28 @@
 		15
 	</floater.string>
 	<floater.string name="client_frame_time_window_bg_msg">
-		Normal, window in background
+		正常，視窗位於背景
 	</floater.string>
 	<floater.string name="client_frame_time_critical_msg">
-		Client frame rate below [CLIENT_FRAME_RATE_CRITICAL]
+		客戶端幀率低於 [CLIENT_FRAME_RATE_CRITICAL]
 	</floater.string>
 	<floater.string name="client_frame_time_warning_msg">
-		Client frame rate between [CLIENT_FRAME_RATE_CRITICAL] and [CLIENT_FRAME_RATE_WARNING]
+		客戶端幀率介於 [CLIENT_FRAME_RATE_CRITICAL] 和 [CLIENT_FRAME_RATE_WARNING] 之間
 	</floater.string>
 	<floater.string name="client_frame_time_normal_msg">
 		正常
 	</floater.string>
 	<floater.string name="client_draw_distance_cause_msg">
-		Possible cause: Draw distance set too high
+		可能原因：可視距離設得太遠
 	</floater.string>
 	<floater.string name="client_texture_loading_cause_msg">
-		Possible cause: Images loading
+		可能原因：正在載入圖像
 	</floater.string>
 	<floater.string name="client_texture_memory_cause_msg">
-		Possible cause: Too many images in memory
+		可能原因：記憶體裡圖像太多
 	</floater.string>
 	<floater.string name="client_complex_objects_cause_msg">
-		Possible cause: Too many complex objects in scene
+		可能原因：場景內複雜物件太多
 	</floater.string>
 	<floater.string name="network_text_msg">
 		網路
@@ -55,10 +55,10 @@
 		5
 	</floater.string>
 	<floater.string name="network_packet_loss_critical_msg">
-		Connection is dropping over [NETWORK_PACKET_LOSS_CRITICAL]% of packets
+		這次連通丟失了至少 [NETWORK_PACKET_LOSS_CRITICAL]% 的封包
 	</floater.string>
 	<floater.string name="network_packet_loss_warning_msg">
-		Connection is dropping [NETWORK_PACKET_LOSS_WARNING]%-[NETWORK_PACKET_LOSS_CRITICAL]% of packets
+		這次連通丟失了 [NETWORK_PACKET_LOSS_WARNING]%-[NETWORK_PACKET_LOSS_CRITICAL]% 的封包
 	</floater.string>
 	<floater.string name="network_performance_normal_msg">
 		正常
@@ -70,16 +70,16 @@
 		300
 	</floater.string>
 	<floater.string name="network_ping_critical_msg">
-		Connection ping time is over [NETWORK_PING_CRITICAL] ms
+		探測連通回應時間超過 [NETWORK_PING_CRITICAL] 毫秒
 	</floater.string>
 	<floater.string name="network_ping_warning_msg">
-		Connection ping time is [NETWORK_PING_WARNING]-[NETWORK_PING_CRITICAL] ms
+		探測連通回應時間為 [NETWORK_PING_WARNING]-[NETWORK_PING_CRITICAL] 毫秒
 	</floater.string>
 	<floater.string name="network_packet_loss_cause_msg">
-		Possible bad connection or &apos;Bandwidth&apos; pref too high.
+		可能連通不良，或所設的偏好連通頻寬過高。
 	</floater.string>
 	<floater.string name="network_ping_cause_msg">
-		Possible bad connection or file-sharing app.
+		可能連通不良，或使用檔案分享應用程式。
 	</floater.string>
 	<floater.string name="server_text_msg">
 		伺服器
