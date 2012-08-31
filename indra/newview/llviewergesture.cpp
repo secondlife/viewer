@@ -33,6 +33,7 @@
 #include "llviewerinventory.h"
 #include "sound_ids.h"		// for testing
 
+#include "llfloaterreg.h"
 #include "llkeyboard.h"		// for key shortcuts for testing
 #include "llinventorymodel.h"
 #include "llvoavatar.h"
@@ -130,7 +131,8 @@ void LLViewerGesture::doTrigger( BOOL send_chat )
 	{
 		// Don't play nodding animation, since that might not blend
 		// with the gesture animation.
-		LLNearbyChat::instance().sendChatFromViewer(mOutputString, CHAT_TYPE_NORMAL, FALSE);
+		(LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat"))->
+				sendChatFromViewer(mOutputString, CHAT_TYPE_NORMAL, FALSE);
 	}
 }
 

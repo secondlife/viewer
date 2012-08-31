@@ -144,7 +144,7 @@ BOOL LLIMConversation::postBuild()
 
 	updateHeaderAndToolbar();
 
-	mSaveRect = isTornOff();
+	mSaveRect = !getHost();
 	initRectControl();
 
 	if (isChatMultiTab())
@@ -267,11 +267,11 @@ void LLIMConversation::hideOrShowTitle()
 	LLView* floater_contents = getChild<LLView>("contents_view");
 
 	LLRect floater_rect = getLocalRect();
-	S32 top_border_of_contents = floater_rect.mTop - (isTornOff()? floater_header_size : 0);
+	S32 top_border_of_contents = floater_rect.mTop - (getHost()? 0 : floater_header_size);
 	LLRect handle_rect (0, floater_rect.mTop, floater_rect.mRight, top_border_of_contents);
 	LLRect contents_rect (0, top_border_of_contents, floater_rect.mRight, floater_rect.mBottom);
 	mDragHandle->setShape(handle_rect);
-	mDragHandle->setVisible(isTornOff());
+	mDragHandle->setVisible(!getHost());
 	floater_contents->setShape(contents_rect);
 }
 
@@ -289,8 +289,8 @@ void LLIMConversation::hideAllStandardButtons()
 
 void LLIMConversation::updateHeaderAndToolbar()
 {
-	bool is_torn_off = !getHost();
-	if (!is_torn_off)
+	bool is_hosted = !!getHost();
+	if (is_hosted)
 	{
 		hideAllStandardButtons();
 	}
@@ -299,7 +299,7 @@ void LLIMConversation::updateHeaderAndToolbar()
 
 	// Participant list should be visible only in torn off floaters.
 	bool is_participant_list_visible =
-			is_torn_off
+			!is_hosted
 			&& gSavedSettings.getBOOL("IMShowControlPanel")
 			&& !mIsP2PChat;
 
@@ -307,21 +307,21 @@ void LLIMConversation::updateHeaderAndToolbar()
 
 	// Display collapse image (<<) if the floater is hosted
 	// or if it is torn off but has an open control panel.
-	bool is_expanded = !is_torn_off || is_participant_list_visible;
+	bool is_expanded = is_hosted || is_participant_list_visible;
 	mExpandCollapseBtn->setImageOverlay(getString(is_expanded ? "collapse_icon" : "expand_icon"));
 
 	// toggle floater's drag handle and title visibility
 	if (mDragHandle)
 	{
-		mDragHandle->setTitleVisible(is_torn_off);
+		mDragHandle->setTitleVisible(!is_hosted);
 	}
 
 	// The button (>>) should be disabled for torn off P2P conversations.
-	mExpandCollapseBtn->setEnabled(!is_torn_off || !mIsP2PChat);
+	mExpandCollapseBtn->setEnabled(is_hosted || !mIsP2PChat);
 
-	mTearOffBtn->setImageOverlay(getString(is_torn_off? "return_icon" : "tear_off_icon"));
+	mTearOffBtn->setImageOverlay(getString(is_hosted? "tear_off_icon" : "return_icon"));
 
-	mCloseBtn->setVisible(!is_torn_off && !mIsNearbyChat);
+	mCloseBtn->setVisible(is_hosted && !mIsNearbyChat);
 
 	enableDisableCallBtn();
 
@@ -358,9 +358,10 @@ void LLIMConversation::processChatHistoryStyleUpdate()
 		}
 	}
 
-	if (LLNearbyChat::instanceExists())
+	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat");
+	if (nearby_chat)
 	{
-		LLNearbyChat::instance().reloadMessages();
+             nearby_chat->reloadMessages();
 	}
 }
 
@@ -427,8 +428,8 @@ void LLIMConversation::onClose(bool app_quitting)
 
 void LLIMConversation::onTearOffClicked()
 {
-    setFollows(isTornOff()? FOLLOWS_ALL : FOLLOWS_NONE);
-    mSaveRect = isTornOff();
+    setFollows(getHost()? FOLLOWS_NONE : FOLLOWS_ALL);
+    mSaveRect = !getHost();
     initRectControl();
 	LLFloater::onClickTearOff(this);
 	updateHeaderAndToolbar();

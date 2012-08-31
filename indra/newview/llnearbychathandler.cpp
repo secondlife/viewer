@@ -537,7 +537,8 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg,
 		}
 	}
 
-	LLNearbyChat::instance().addMessage(chat_msg, true, args);
+	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat");
+	nearby_chat->addMessage(chat_msg, true, args);
 
 	if(chat_msg.mSourceType == CHAT_SOURCE_AGENT 
 		&& chat_msg.mFromID.notNull() 
@@ -553,7 +554,7 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg,
 	// Send event on to LLEventStream
 	sChatWatcher->post(chat);
 
-	if( LLNearbyChat::instance().isInVisibleChain()
+	if( nearby_chat->isInVisibleChain()
 		|| ( chat_msg.mSourceType == CHAT_SOURCE_AGENT
 			&& gSavedSettings.getBOOL("UseChatBubbles") )
 		|| mChannel.isDead()

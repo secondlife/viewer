@@ -134,6 +134,7 @@ LLNearbyChat::LLNearbyChat(const LLSD& llsd)
 	mKey = LLSD();
 	mSpeakerMgr = LLLocalSpeakerMgr::getInstance();
 	setName("nearby_chat");
+	setIsSingleInstance(TRUE);
 }
 
 //virtual
@@ -780,20 +781,21 @@ void LLNearbyChat::sendChatFromViewer(const LLWString &wtext, EChatType type, BO
 // static 
 void LLNearbyChat::startChat(const char* line)
 {
-	if (LLNearbyChat::instanceExists())
+	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat");
+	if (nearby_chat)
 	{
-		(LLNearbyChat::instance()).show();
-		(LLNearbyChat::instance()).setVisible(TRUE);
-		(LLNearbyChat::instance()).setFocus(TRUE);
-		(LLNearbyChat::instance().mInputEditor)->setFocus(TRUE);
+		nearby_chat->show();
+		nearby_chat->setVisible(TRUE);
+		nearby_chat->setFocus(TRUE);
+		nearby_chat->mInputEditor->setFocus(TRUE);
 
 		if (line)
 		{
 			std::string line_string(line);
-			(LLNearbyChat::instance().mInputEditor)->setText(line_string);
+			nearby_chat->mInputEditor->setText(line_string);
 		}
 
-		(LLNearbyChat::instance().mInputEditor)->endOfDoc();
+		nearby_chat->mInputEditor->endOfDoc();
 	}
 }
 
@@ -801,9 +803,10 @@ void LLNearbyChat::startChat(const char* line)
 // static
 void LLNearbyChat::stopChat()
 {
-	if (LLNearbyChat::instanceExists())
+	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat");
+	if (nearby_chat)
 	{
-		(LLNearbyChat::instance().mInputEditor)->setFocus(FALSE);
+		nearby_chat->mInputEditor->setFocus(FALSE);
 	    gAgent.stopTyping();
 	}
 }

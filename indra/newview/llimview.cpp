@@ -2486,9 +2486,11 @@ void LLIMMgr::addSystemMessage(const LLUUID& session_id, const std::string& mess
 
 		LLChat chat(message);
 		chat.mSourceType = CHAT_SOURCE_SYSTEM;
-		if (LLNearbyChat::instanceExists())
+
+		LLNearbyChat* nearby_chat = LLFloaterReg::findTypedInstance<LLNearbyChat>("nearby_chat");
+		if (nearby_chat)
 		{
-			LLNearbyChat::instance().addMessage(chat);
+			nearby_chat->addMessage(chat);
 		}
 	}
 	else // going to IM session
