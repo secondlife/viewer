@@ -647,8 +647,10 @@ void LLPanelRegionGeneralInfo::onClickKick()
 
 	// this depends on the grandparent view being a floater
 	// in order to set up floater dependency
+    LLView * button = findChild<LLButton>("kick_btn");
 	LLFloater* parent_floater = gFloaterView->getParentFloater(this);
-	LLFloater* child_floater = LLFloaterAvatarPicker::show(boost::bind(&LLPanelRegionGeneralInfo::onKickCommit, this, _1), FALSE, TRUE, FALSE, parent_floater->getName());
+	LLFloater* child_floater = LLFloaterAvatarPicker::show(boost::bind(&LLPanelRegionGeneralInfo::onKickCommit, this, _1), 
+                                                                                FALSE, TRUE, FALSE, parent_floater->getName(), button);
 	if (child_floater)
 	{
 		parent_floater->addDependentFloater(child_floater);
@@ -924,8 +926,10 @@ BOOL LLPanelRegionDebugInfo::sendUpdate()
 
 void LLPanelRegionDebugInfo::onClickChooseAvatar()
 {
+    LLView * button = findChild<LLButton>("choose_avatar_btn");
     LLFloater* parent_floater = gFloaterView->getParentFloater(this);
-	LLFloater * child_floater = LLFloaterAvatarPicker::show(boost::bind(&LLPanelRegionDebugInfo::callbackAvatarID, this, _1, _2), FALSE, TRUE, FALSE, parent_floater->getName());
+	LLFloater * child_floater = LLFloaterAvatarPicker::show(boost::bind(&LLPanelRegionDebugInfo::callbackAvatarID, this, _1, _2), 
+                                                                                    FALSE, TRUE, FALSE, parent_floater->getName(), button);
 	if (child_floater)
 	{
 		parent_floater->addDependentFloater(child_floater);
@@ -1475,8 +1479,10 @@ void LLPanelEstateInfo::onClickKickUser()
 {
 	// this depends on the grandparent view being a floater
 	// in order to set up floater dependency
+    LLView * button = findChild<LLButton>("kick_user_from_estate_btn");
 	LLFloater* parent_floater = gFloaterView->getParentFloater(this);
-	LLFloater* child_floater = LLFloaterAvatarPicker::show(boost::bind(&LLPanelEstateInfo::onKickUserCommit, this, _1), FALSE, TRUE, FALSE, parent_floater->getName());
+	LLFloater* child_floater = LLFloaterAvatarPicker::show(boost::bind(&LLPanelEstateInfo::onKickUserCommit, this, _1), 
+                                                                        FALSE, TRUE, FALSE, parent_floater->getName(), button);
 	if (child_floater)
 	{
 		parent_floater->addDependentFloater(child_floater);
@@ -1656,9 +1662,27 @@ bool LLPanelEstateInfo::accessAddCore2(const LLSD& notification, const LLSD& res
     LLFloater* parent_floater = panel ? gFloaterView->getParentFloater(panel) : NULL;
     const std::string& parent_floater_name = parent_floater ? parent_floater->getName() : "";
     
+    //Determine the button that triggered opening of the avatar picker 
+    //(so that a shadow frustum from the button to the avatar picker can be created)
+    LLView * button = NULL;
+    switch(change_info->mOperationFlag)
+    {
+        case ESTATE_ACCESS_ALLOWED_AGENT_ADD:
+            button = panel->findChild<LLButton>("add_allowed_avatar_btn");
+            break;
+            
+        case ESTATE_ACCESS_BANNED_AGENT_ADD:
+            button = panel->findChild<LLButton>("add_banned_avatar_btn");
+            break;
+            
+        case ESTATE_ACCESS_MANAGER_ADD:
+            button = panel->findChild<LLButton>("add_estate_manager_btn");
+            break;
+    }
+
 	// avatar picker yes multi-select, yes close-on-select
 	LLFloater* child_floater = LLFloaterAvatarPicker::show(boost::bind(&LLPanelEstateInfo::accessAddCore3, _1, (void*)change_info), 
-                                                    TRUE, TRUE, FALSE, parent_floater_name);
+                                                    TRUE, TRUE, FALSE, parent_floater_name, button);
 
     //Allows the closed parent floater to close the child floater (avatar picker)
     if (child_floater)

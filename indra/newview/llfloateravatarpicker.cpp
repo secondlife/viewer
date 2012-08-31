@@ -102,7 +102,7 @@ LLFloaterAvatarPicker::LLFloaterAvatarPicker(const LLSD& key)
   : LLFloater(key),
 	mNumResultsReturned(0),
 	mNearMeListComplete(FALSE),
-	mCloseOnSelect(FALSE),a
+	mCloseOnSelect(FALSE),
     mContextConeOpacity	(0.f),
     mContextConeInAlpha(0.f),
     mContextConeOutAlpha(0.f),
