@@ -1842,6 +1842,18 @@ void LLVOVolume::setNumTEs(const U8 num_tes)
 	return ;
 }
 
+//virtual     
+void LLVOVolume::changeTEImage(S32 index, LLViewerTexture* imagep)
+{
+	BOOL changed = (mTEImages[index] != imagep);
+	LLViewerObject::changeTEImage(index, imagep);
+	if (changed)
+	{
+		gPipeline.markTextured(mDrawable);
+		mFaceMappingChanged = TRUE;
+	}
+}
+
 void LLVOVolume::setTEImage(const U8 te, LLViewerTexture *imagep)
 {
 	BOOL changed = (mTEImages[te] != imagep);
