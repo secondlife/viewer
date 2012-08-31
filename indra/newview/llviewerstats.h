@@ -39,11 +39,6 @@ public:
 			mAssetKBitStat,
 			mTextureKBitStat,
 			mVFSPendingOperations,
-			mObjectsDrawnStat,
-			mObjectsCulledStat,
-			mObjectsTestedStat,
-			mObjectsComparedStat,
-			mObjectsOccludedStat,
 			mFPSStat,
 			mPacketsInStat,
 			mPacketsLostStat,
@@ -55,60 +50,60 @@ public:
 			mTrianglesDrawnStat;
 
 	// Simulator stats
-	LLStat	mSimTimeDilation,
+	LLStat	mSimTimeDilation;
 
-			mSimFPS,
+	LLStat	mSimFPS,
 			mSimPhysicsFPS,
 			mSimAgentUPS,
-			mSimScriptEPS,
+			mSimScriptEPS;
 
-			mSimFrameMsec,
+	LLStat	mSimFrameMsec,
 			mSimNetMsec,
 			mSimSimOtherMsec,
-			mSimSimPhysicsMsec,
+			mSimSimPhysicsMsec;
 
-			mSimSimPhysicsStepMsec,
+	LLStat	mSimSimPhysicsStepMsec,
 			mSimSimPhysicsShapeUpdateMsec,
 			mSimSimPhysicsOtherMsec,
 			mSimSimAIStepMsec,
 			mSimSimSkippedSilhouetteSteps,
-			mSimSimPctSteppedCharacters,
+			mSimSimPctSteppedCharacters;
 
-			mSimAgentMsec,
+	LLStat	mSimAgentMsec,
 			mSimImagesMsec,
 			mSimScriptMsec,
 			mSimSpareMsec,
 			mSimSleepMsec,
-			mSimPumpIOMsec,
+			mSimPumpIOMsec;
 
-			mSimMainAgents,
+	LLStat	mSimMainAgents,
 			mSimChildAgents,
 			mSimObjects,
 			mSimActiveObjects,
 			mSimActiveScripts,
-			mSimPctScriptsRun,
+			mSimPctScriptsRun;
 
-			mSimInPPS,
+	LLStat	mSimInPPS,
 			mSimOutPPS,
 			mSimPendingDownloads,
 			mSimPendingUploads,
 			mSimPendingLocalUploads,
-			mSimTotalUnackedBytes,
+			mSimTotalUnackedBytes;
 
-			mPhysicsPinnedTasks,
+	LLStat	mPhysicsPinnedTasks,
 			mPhysicsLODTasks,
-			mPhysicsMemoryAllocated,
+			mPhysicsMemoryAllocated;
 
-			mSimPingStat,
+	LLStat	mSimPingStat;
 
-			mNumImagesStat,
+	LLStat	mNumImagesStat,
 			mNumRawImagesStat,
 			mGLTexMemStat,
 			mGLBoundMemStat,
 			mRawMemStat,
-			mFormattedMemStat,
+			mFormattedMemStat;
 
-			mNumObjectsStat,
+	LLStat	mNumObjectsStat,
 			mNumActiveObjectsStat,
 			mNumNewObjectsStat,
 			mNumSizeCulledStat,
@@ -182,7 +177,6 @@ public:
 	};
 
 	LLViewerStats();
-	~LLViewerStats();
 
 	// all return latest value of given stat
 	F64 getStat(EStatType type) const;
@@ -203,7 +197,7 @@ public:
 		U32 mCountOfNextUpdatesToIgnore;
 
 		inline StatsAccumulator()
-		{
+		{	
 			reset();
 		}
 
@@ -263,7 +257,7 @@ public:
 			mCountOfNextUpdatesToIgnore = 0;
 		}
 		
-		inline LLSD getData() const
+		inline LLSD asLLSD() const
 		{
 			LLSD data;
 			data["mean"] = getMean();
@@ -293,7 +287,7 @@ public:
 		void			stopPhase(const std::string& phase_name);
 		void			stopAllPhases();
 		void			clearPhases();
-		LLSD			dumpPhases();
+		LLSD			asLLSD();
 		static StatsAccumulator& getPhaseStats(const std::string& phase_name);
 		static void recordPhaseStat(const std::string& phase_name, F32 value);
 	};

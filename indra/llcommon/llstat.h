@@ -31,22 +31,18 @@
 
 #include "lltimer.h"
 #include "llframetimer.h"
+#include "llinstancetracker.h"
 
 class	LLSD;
 
 // ----------------------------------------------------------------------------
-class LL_COMMON_API LLStat
+class LL_COMMON_API LLStat : public LLInstanceTracker<LLStat, std::string>
 {
-private:
-	typedef std::multimap<std::string, LLStat*> stat_map_t;
-
-	static stat_map_t& getStatList();
-
 public:
-	LLStat(std::string name = std::string(), S32 num_bins = 32, BOOL use_frame_timer = FALSE);
+	LLStat(std::string name = std::string(), BOOL use_frame_timer = FALSE);
 	~LLStat();
 
-	void start();	// Start the timer for the current "frame", otherwise uses the time tracked from
+	//void start();	// Start the timer for the current "frame", otherwise uses the time tracked from
 					// the last addValue
 	void reset();
 	void addValue(const F32 value = 1.f); // Adds the current value being tracked, and tracks the DT.
@@ -57,23 +53,24 @@ public:
 	
 	F32 getPrev(S32 age) const;				// Age is how many "addValues" previously - zero is current
 	F32 getPrevPerSec(S32 age) const;		// Age is how many "addValues" previously - zero is current
+
 	F32 getCurrent() const;
 	F32 getCurrentPerSec() const;
 	
 	F32 getMin() const;
 	F32 getMinPerSec() const;
+
 	F32 getMean() const;
 	F32 getMeanPerSec() const;
-	F32 getMeanDuration() const;
+	
 	F32 getMax() const;
 	F32 getMaxPerSec() const;
 
 	U32 getNumValues() const;
 	S32 getNumBins() const;
 
-	F64 getLastTime() const;
 private:
-	BOOL mUseFrameTimer;
+	bool mUseFrameTimer;
 	U32 mNumValues;
 	U32 mNumBins;
 	F32 mLastValue;
@@ -93,6 +90,7 @@ private:
 		F32 mDT;
 	};
 	ValueEntry* mBins;
+
 	S32 mCurBin;
 	S32 mNextBin;
 	
@@ -100,17 +98,6 @@ private:
 
 	static LLTimer sTimer;
 	static LLFrameTimer sFrameTimer;
-	
-public:
-	static LLStat* getStat(const std::string& name)
-	{
-		// return the first stat that matches 'name'
-		stat_map_t::iterator iter = getStatList().find(name);
-		if (iter != getStatList().end())
-			return iter->second;
-		else
-			return NULL;
-	}
 };
 	
 #endif // LL_STAT_

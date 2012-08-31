@@ -51,9 +51,10 @@ void LLStat::reset()
 	mNextBin = 0;
 }
 
-LLStat::LLStat(std::string name, S32 num_bins, BOOL use_frame_timer)
-:	mUseFrameTimer(use_frame_timer),
-	mNumBins(num_bins),
+LLStat::LLStat(std::string name, BOOL use_frame_timer)
+:	LLInstanceTracker<LLStat, std::string>(name),
+	mUseFrameTimer(use_frame_timer),
+	mNumBins(50),
 	mName(name),
 	mBins(NULL)
 {
@@ -61,48 +62,24 @@ LLStat::LLStat(std::string name, S32 num_bins, BOOL use_frame_timer)
 	mLastTime  = 0.f;
 
 	reset();
-
-	if (!mName.empty())
-	{
-		stat_map_t::iterator iter = getStatList().find(mName);
-		if (iter != getStatList().end())
-			llwarns << "LLStat with duplicate name: " << mName << llendl;
-		getStatList().insert(std::make_pair(mName, this));
-	}
 }
-
-LLStat::stat_map_t& LLStat::getStatList()
-{
-	static LLStat::stat_map_t stat_list;
-	return stat_list;
-}
-
 
 LLStat::~LLStat()
 {
 	delete[] mBins;
-
-	if (!mName.empty())
-	{
-		// handle multiple entries with the same name
-		stat_map_t::iterator iter = getStatList().find(mName);
-		while (iter != getStatList().end() && iter->second != this)
-			++iter;
-		getStatList().erase(iter);
-	}
 }
-
-void LLStat::start()
-{
-	if (mUseFrameTimer)
-	{
-		mBins[mNextBin].mBeginTime = sFrameTimer.getElapsedSeconds();
-	}
-	else
-	{
-		mBins[mNextBin].mBeginTime = sTimer.getElapsedTimeF64();
-	}
-}
+//
+//void LLStat::start()
+//{
+//	if (mUseFrameTimer)
+//	{
+//		mBins[mNextBin].mBeginTime = sFrameTimer.getElapsedSeconds();
+//	}
+//	else
+//	{
+//		mBins[mNextBin].mBeginTime = sTimer.getElapsedTimeF64();
+//	}
+//}
 
 void LLStat::addValue(const F32 value)
 {
@@ -299,31 +276,6 @@ F32 LLStat::getMeanPerSec() const
 	}
 }
 
-F32 LLStat::getMeanDuration() const
-{
-	F32 dur = 0.0f;
-	S32 count = 0;
-	for (S32 i=0; (i < mNumBins) && (i < mNumValues); i++)
-	{
-		if (i == mNextBin)
-		{
-			continue;
-		}
-		dur += mBins[i].mDT;
-		count++;
-	}
-
-	if (count > 0)
-	{
-		dur /= F32(count);
-		return dur;
-	}
-	else
-	{
-		return 0.f;
-	}
-}
-
 F32 LLStat::getMaxPerSec() const
 {
 	F32 value;
@@ -398,7 +350,3 @@ S32 LLStat::getNextBin() const
 	return mNextBin;
 }
 
-F64 LLStat::getLastTime() const
-{
-	return mLastTime;
-}

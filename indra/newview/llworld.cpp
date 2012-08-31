@@ -1157,7 +1157,7 @@ void send_agent_resume()
 	}
 
 	// Reset the FPS counter to avoid an invalid fps
-	LLViewerStats::getInstance()->mFPSStat.start();
+	LLViewerStats::getInstance()->mFPSStat.reset();
 
 	LLAppViewer::instance()->resumeMainloopTimeout();
 }
