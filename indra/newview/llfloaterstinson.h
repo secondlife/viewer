@@ -67,7 +67,8 @@ private:
 	virtual ~LLFloaterStinson();
 
 	void          onGetClicked();
-	void          onPutClicked();
+	void          onPutSetClicked();
+	void          onPutClearClicked();
 	void          onGoodPostClicked();
 	void          onBadPostClicked();
 	void          onRegionCross();
@@ -75,7 +76,7 @@ private:
 	void          onInWorldSelectionChange();
 	void          onDeferredCheckRegionMaterialStatus(LLUUID regionId);
 	void          onDeferredRequestGetMaterials(LLUUID regionId);
-	void          onDeferredRequestPutMaterials(LLUUID regionId);
+	void          onDeferredRequestPutMaterials(LLUUID regionId, bool pIsDoSet);
 	void          onDeferredRequestPostMaterials(LLUUID regionId, bool pUseGoodData);
 	void          onGetResponse(bool pRequestStatus, const LLSD& pContent);
 	void          onPutResponse(bool pRequestStatus, const LLSD& pContent);
@@ -87,8 +88,8 @@ private:
 	void          requestGetMaterials();
 	void          requestGetMaterials(const LLUUID& regionId);
 
-	void          requestPutMaterials();
-	void          requestPutMaterials(const LLUUID& regionId);
+	void          requestPutMaterials(bool pIsDoSet);
+	void          requestPutMaterials(const LLUUID& regionId, bool pIsDoSet);
 
 	void          requestPostMaterials(bool pUseGoodData);
 	void          requestPostMaterials(const LLUUID& regionId, bool pUseGoodData);
@@ -112,7 +113,8 @@ private:
 	LLTextBase*                 mStatusText;
 	LLButton*                   mGetButton;
 	LLScrollListCtrl*           mGetScrollList;
-	LLButton*                   mPutButton;
+	LLButton*                   mPutSetButton;
+	LLButton*                   mPutClearButton;
 	LLScrollListCtrl*           mPutScrollList;
 	LLButton*                   mGoodPostButton;
 	LLButton*                   mBadPostButton;

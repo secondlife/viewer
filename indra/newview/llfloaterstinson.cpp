@@ -105,9 +105,13 @@ BOOL LLFloaterStinson::postBuild()
 	llassert(mGetScrollList != NULL);
 	mGetScrollList->setCommitCallback(boost::bind(&LLFloaterStinson::onGetResultsSelectionChange, this));
 
-	mPutButton = findChild<LLButton>("put_button");
-	llassert(mPutButton != NULL);
-	mPutButton->setCommitCallback(boost::bind(&LLFloaterStinson::onPutClicked, this));
+	mPutSetButton = findChild<LLButton>("put_set_button");
+	llassert(mPutSetButton != NULL);
+	mPutSetButton->setCommitCallback(boost::bind(&LLFloaterStinson::onPutSetClicked, this));
+
+	mPutClearButton = findChild<LLButton>("put_clear_button");
+	llassert(mPutClearButton != NULL);
+	mPutClearButton->setCommitCallback(boost::bind(&LLFloaterStinson::onPutClearClicked, this));
 
 	mPutScrollList = findChild<LLScrollListCtrl>("put_scroll_list");
 	llassert(mPutScrollList != NULL);
@@ -187,7 +191,8 @@ LLFloaterStinson::LLFloaterStinson(const LLSD& pParams)
 	mStatusText(NULL),
 	mGetButton(NULL),
 	mGetScrollList(NULL),
-	mPutButton(NULL),
+	mPutSetButton(NULL),
+	mPutClearButton(NULL),
 	mPutScrollList(NULL),
 	mGoodPostButton(NULL),
 	mBadPostButton(NULL),
@@ -210,9 +215,14 @@ void LLFloaterStinson::onGetClicked()
 	requestGetMaterials();
 }
 
-void LLFloaterStinson::onPutClicked()
+void LLFloaterStinson::onPutSetClicked()
 {
-	requestPutMaterials();
+	requestPutMaterials(true);
+}
+
+void LLFloaterStinson::onPutClearClicked()
+{
+	requestPutMaterials(false);
 }
 
 void LLFloaterStinson::onGoodPostClicked()
@@ -253,9 +263,9 @@ void LLFloaterStinson::onDeferredRequestGetMaterials(LLUUID regionId)
 	requestGetMaterials(regionId);
 }
 
-void LLFloaterStinson::onDeferredRequestPutMaterials(LLUUID regionId)
+void LLFloaterStinson::onDeferredRequestPutMaterials(LLUUID regionId, bool pIsDoSet)
 {
-	requestPutMaterials(regionId);
+	requestPutMaterials(regionId, pIsDoSet);
 }
 
 void LLFloaterStinson::onDeferredRequestPostMaterials(LLUUID regionId, bool pUseGoodData)
@@ -388,7 +398,7 @@ void LLFloaterStinson::requestGetMaterials(const LLUUID& regionId)
 	}
 }
 
-void LLFloaterStinson::requestPutMaterials()
+void LLFloaterStinson::requestPutMaterials(bool pIsDoSet)
 {
 	LLViewerRegion *region = gAgent.getRegion();
 
@@ -400,7 +410,7 @@ void LLFloaterStinson::requestPutMaterials()
 	else if (!region->capabilitiesReceived())
 	{
 		setState(kCapabilitiesLoading);
-		region->setCapabilitiesReceivedCallback(boost::bind(&LLFloaterStinson::onDeferredRequestPutMaterials, this, region->getRegionID()));
+		region->setCapabilitiesReceivedCallback(boost::bind(&LLFloaterStinson::onDeferredRequestPutMaterials, this, region->getRegionID(), pIsDoSet));
 	}
 	else
 	{
@@ -475,7 +485,10 @@ void LLFloaterStinson::requestPutMaterials()
 						LLSD faceData = LLSD::emptyMap();
 						faceData[MATERIALS_CAP_FACE_FIELD] = static_cast<LLSD::Integer>(curFaceIndex);
 						faceData[MATERIALS_CAP_OBJECT_ID_FIELD] = static_cast<LLSD::Integer>(viewerObject->getLocalID());
-						faceData[MATERIALS_CAP_MATERIAL_FIELD] = materialData;
+						if (pIsDoSet)
+						{
+							faceData[MATERIALS_CAP_MATERIAL_FIELD] = materialData;
+						}
 						facesData.append(faceData);
 					}
 				}
@@ -492,13 +505,13 @@ void LLFloaterStinson::requestPutMaterials()
 	}
 }
 
-void LLFloaterStinson::requestPutMaterials(const LLUUID& regionId)
+void LLFloaterStinson::requestPutMaterials(const LLUUID& regionId, bool pIsDoSet)
 {
 	const LLViewerRegion *region = gAgent.getRegion();
 
 	if ((region != NULL) && (region->getRegionID() == regionId))
 	{
-		requestPutMaterials();
+		requestPutMaterials(pIsDoSet);
 	}
 }
 
@@ -903,7 +916,8 @@ void LLFloaterStinson::updateControls()
 	case kRequestStarted :
 	case kNotEnabled :
 		mGetButton->setEnabled(FALSE);
-		mPutButton->setEnabled(FALSE);
+		mPutSetButton->setEnabled(FALSE);
+		mPutClearButton->setEnabled(FALSE);
 		mGoodPostButton->setEnabled(FALSE);
 		mBadPostButton->setEnabled(FALSE);
 		break;
@@ -911,13 +925,15 @@ void LLFloaterStinson::updateControls()
 	case kRequestCompleted :
 	case kError :
 		mGetButton->setEnabled(TRUE);
-		mPutButton->setEnabled(isPutEnabled);
+		mPutSetButton->setEnabled(isPutEnabled);
+		mPutClearButton->setEnabled(isPutEnabled);
 		mGoodPostButton->setEnabled(isGoodPostEnabled);
 		mBadPostButton->setEnabled(TRUE);
 		break;
 	default :
 		mGetButton->setEnabled(TRUE);
-		mPutButton->setEnabled(isPutEnabled);
+		mPutSetButton->setEnabled(isPutEnabled);
+		mPutClearButton->setEnabled(isPutEnabled);
 		mGoodPostButton->setEnabled(isGoodPostEnabled);
 		mBadPostButton->setEnabled(TRUE);
 		llassert(0);
