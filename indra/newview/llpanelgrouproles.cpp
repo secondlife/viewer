@@ -356,10 +356,6 @@ void LLPanelGroupRoles::activate()
 		
 		if (!gdatap || !gdatap->isMemberDataComplete() )
 		{
-			//////////////////////////////////////////////////////////////////////////
-			// BAKER TODO:
-			//	Use cap here!
-			//////////////////////////////////////////////////////////////////////////
 			LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mGroupID);
 			//LLGroupMgr::getInstance()->sendGroupMembersRequest(mGroupID);
 		}
@@ -1992,10 +1988,6 @@ void LLPanelGroupRolesSubTab::update(LLGroupChange gc)
 
 	if (!gdatap || !gdatap->isMemberDataComplete())
 	{
-		//////////////////////////////////////////////////////////////////////////
-		// BAKER TODO:
-		//	Use cap here!
-		//////////////////////////////////////////////////////////////////////////
 		LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mGroupID);
 		//LLGroupMgr::getInstance()->sendGroupMembersRequest(mGroupID);
 	}
@@ -2590,10 +2582,6 @@ void LLPanelGroupActionsSubTab::handleActionSelect()
 	}
 	else
 	{
-		//////////////////////////////////////////////////////////////////////////
-		// BAKER TODO:
-		//	Use cap here!
-		//////////////////////////////////////////////////////////////////////////
 		LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mGroupID);
 		//LLGroupMgr::getInstance()->sendGroupMembersRequest(mGroupID);
 	}

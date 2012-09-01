@@ -341,7 +341,6 @@ public:
 									  uuid_vec_t& member_ids);
 
 	// BAKER
-	//static void sendCapGroupMembersRequest(const LLUUID& group_id);
 	void sendCapGroupMembersRequest(const LLUUID& group_id);
 	static void processCapGroupMembersRequest(const LLSD& content);
 
@@ -380,6 +379,8 @@ private:
 	typedef std::set<LLParticularGroupObserver*> observer_set_t;
 	typedef std::map<LLUUID,observer_set_t> observer_map_t;
 	observer_map_t mParticularObservers;
+
+	S32 mLastGroupMembersRequestFrame;
 };
 
 

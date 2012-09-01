@@ -571,10 +571,6 @@ void LLPanelGroupInvite::updateLists()
 		{
 			LLGroupMgr::getInstance()->sendGroupPropertiesRequest(mImplementation->mGroupID);
 			
-			//////////////////////////////////////////////////////////////////////////
-			// BAKER TODO:
-			//	Use cap here!
-			//////////////////////////////////////////////////////////////////////////
 			LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mImplementation->mGroupID);
 			//LLGroupMgr::getInstance()->sendGroupMembersRequest(mImplementation->mGroupID);
 

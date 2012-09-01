@@ -36,6 +36,7 @@
 #include <vector>
 #include <algorithm>
 
+#include "llappviewer.h"
 #include "llagent.h"
 #include "llui.h"
 #include "message.h"
@@ -745,6 +746,7 @@ void LLGroupMgrGroupData::cancelRoleChanges()
 
 LLGroupMgr::LLGroupMgr()
 {
+	mLastGroupMembersRequestFrame = 0;
 }
 
 LLGroupMgr::~LLGroupMgr()
@@ -1501,9 +1503,6 @@ void LLGroupMgr::sendGroupMembersRequest(const LLUUID& group_id)
 }
 
 
-
-
-
 void LLGroupMgr::sendGroupRoleDataRequest(const LLUUID& group_id)
 {
 	lldebugs << "LLGroupMgr::sendGroupRoleDataRequest" << llendl;
@@ -1839,7 +1838,7 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 
 //////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////// 
-// STUBBED IN FOR code completion
+// I DON'T KNOW WHERE TO PUT THIS
 class GroupMemberDataResponder : public LLHTTPClient::Responder
 {
 public:
@@ -1853,26 +1852,18 @@ private:
 
 void GroupMemberDataResponder::result(const LLSD& content)
 {
-	LL_INFOS("BAKER") << "BAKER TAG ////////////////////////////////////////////////////////////////" << LL_ENDL;
-	LL_INFOS("BAKER") << "Got data from responder" << LL_ENDL;
 	LLGroupMgr::processCapGroupMembersRequest(content);
-	LL_INFOS("BAKER") << "//////////////////////////////////////////////////////////////////////////\n" << LL_ENDL;
-
 }
-
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-
 //////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////// 
-// BAKER
+
+
 // static
 void LLGroupMgr::sendCapGroupMembersRequest(const LLUUID& group_id)
 {
-	//sendGroupMembersRequest(group_id);
-	//return;
-
-#if 1
+	// Have we requested the information already this frame?
+	if(mLastGroupMembersRequestFrame == gFrameCount)
+		return;
 	
 	LLViewerRegion* currentRegion = gAgent.getRegion();
 
@@ -1895,23 +1886,19 @@ void LLGroupMgr::sendCapGroupMembersRequest(const LLUUID& group_id)
 	 // This could take a while to finish, timeout after 10 minutes.
 	LLHTTPClient::post(cap_url, body, grp_data_responder, LLSD(), 600);
 
-#endif
+	mLastGroupMembersRequestFrame = gFrameCount;
 }
 
 
 // static
 void LLGroupMgr::processCapGroupMembersRequest(const LLSD& content)
 {
-	LL_INFOS("BAKER") << "BAKER TAG ////////////////////////////////////////////////////////////////" << LL_ENDL;
 	// Did we get anything in content?
 	if(!content.size())
 	{
-		LL_INFOS("BAKER") << "WE AIN'T FOUND SHIT!" << LL_ENDL;
 		// BAKER TODO:
-		// Handle this case
+		// Maybe display a popup saying something went wrong?
 	}
-
-	LL_INFOS("BAKER") << "Lik dis if u cry evertim" << LL_ENDL;
 
 	// If we have no members, there's no reason to do anything else
 	S32	num_members	= content["member_count"];
@@ -1979,6 +1966,7 @@ void LLGroupMgr::processCapGroupMembersRequest(const LLSD& content)
 		if(member_info.has("donated_square_meters"))
 			contribution = member_info["donated_square_meters"];
 
+		// Owner Flag
 		if(member_info.has("owner"))
 			is_owner = true;
 
@@ -1992,17 +1980,27 @@ void LLGroupMgr::processCapGroupMembersRequest(const LLSD& content)
 		group_datap->mMembers[member_id] = data;
 	}
 
+	// Technically, we have this data, but to prevent completely overhauling
+	// this entire system (it would be nice, but I don't have the time), 
+	// I'm going to be dumb and just call services I most likely don't need 
+	// with the thought being that the system might need it to be done.
+	if(group_datap->mTitles.size() < 1)
+		LLGroupMgr::getInstance()->sendGroupTitlesRequest(group_id);
+
+
 	group_datap->mMemberDataComplete = TRUE;
-	group_datap->mRoleMemberDataComplete = TRUE;
 	group_datap->mMemberRequestID.setNull();
+	// Make the role-member data request
+	if (group_datap->mPendingRoleMemberRequest)
+	{
+		group_datap->mPendingRoleMemberRequest = FALSE;
+		LLGroupMgr::getInstance()->sendGroupRoleMembersRequest(group_id);
+	}
+
 	group_datap->mChanged = TRUE;
 	LLGroupMgr::getInstance()->notifyObservers(GC_MEMBER_DATA);
 
-	LL_INFOS("BAKER") << "//////////////////////////////////////////////////////////////////////////\n" << LL_ENDL;
 }
-
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
 
 
 void LLGroupMgr::sendGroupRoleChanges(const LLUUID& group_id)
