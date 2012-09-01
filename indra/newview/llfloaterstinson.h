@@ -68,13 +68,18 @@ private:
 
 	void          onGetClicked();
 	void          onPutClicked();
+	void          onGoodPostClicked();
+	void          onBadPostClicked();
 	void          onRegionCross();
+	void          onGetResultsSelectionChange();
 	void          onInWorldSelectionChange();
 	void          onDeferredCheckRegionMaterialStatus(LLUUID regionId);
 	void          onDeferredRequestGetMaterials(LLUUID regionId);
 	void          onDeferredRequestPutMaterials(LLUUID regionId);
+	void          onDeferredRequestPostMaterials(LLUUID regionId, bool pUseGoodData);
 	void          onGetResponse(bool pRequestStatus, const LLSD& pContent);
 	void          onPutResponse(bool pRequestStatus, const LLSD& pContent);
+	void          onPostResponse(bool pRequestStatus, const LLSD& pContent);
 
 	void          checkRegionMaterialStatus();
 	void          checkRegionMaterialStatus(const LLUUID& regionId);
@@ -85,8 +90,12 @@ private:
 	void          requestPutMaterials();
 	void          requestPutMaterials(const LLUUID& regionId);
 
+	void          requestPostMaterials(bool pUseGoodData);
+	void          requestPostMaterials(const LLUUID& regionId, bool pUseGoodData);
+
 	void          parseGetResponse(const LLSD& pContent);
 	void          parsePutResponse(const LLSD& pContent);
+	void          parsePostResponse(const LLSD& pContent);
 	void          printResponse(const std::string& pRequestType, const LLSD& pContent) const;
 
 	void          setState(EState pState);
@@ -94,6 +103,7 @@ private:
 
 	void          clearGetResults();
 	void          clearPutResults();
+	void          clearPostResults();
 
 	void          updateStatusMessage();
 	void          updateControls();
@@ -104,6 +114,9 @@ private:
 	LLScrollListCtrl*           mGetScrollList;
 	LLButton*                   mPutButton;
 	LLScrollListCtrl*           mPutScrollList;
+	LLButton*                   mGoodPostButton;
+	LLButton*                   mBadPostButton;
+	LLScrollListCtrl*           mPostScrollList;
 
 	EState                      mState;
 	LLColor4                    mWarningColor;

@@ -30,6 +30,7 @@
 #include "llfloaterstinson.h"
 
 #include <string>
+#include <vector>
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
@@ -72,13 +73,13 @@
 #define MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD     "AlphaMaskCutoff"
 #define MATERIALS_CAP_DIFFUSE_ALPHA_IS_MASK_FIELD "DiffAlphaIsMask"
 
-class MaterialsGetResponder : public LLHTTPClient::Responder
+class MaterialsResponder : public LLHTTPClient::Responder
 {
 public:
 	typedef boost::function<void (bool, const LLSD&)> CallbackFunction;
 
-	MaterialsGetResponder(const std::string& pCapabilityURL, CallbackFunction pCallback);
-	virtual ~MaterialsGetResponder();
+	MaterialsResponder(const std::string& pMethod, const std::string& pCapabilityURL, CallbackFunction pCallback);
+	virtual ~MaterialsResponder();
 
 	virtual void result(const LLSD& pContent);
 	virtual void error(U32 pStatus, const std::string& pReason);
@@ -86,24 +87,7 @@ public:
 protected:
 
 private:
-	std::string      mCapabilityURL;
-	CallbackFunction mCallback;
-};
-
-class MaterialsPutResponder : public LLHTTPClient::Responder
-{
-public:
-	typedef boost::function<void (bool, const LLSD&)> CallbackFunction;
-
-	MaterialsPutResponder(const std::string& pCapabilityURL, CallbackFunction pCallback);
-	virtual ~MaterialsPutResponder();
-
-	virtual void result(const LLSD& pContent);
-	virtual void error(U32 pStatus, const std::string& pReason);
-
-protected:
-
-private:
+	std::string      mMethod;
 	std::string      mCapabilityURL;
 	CallbackFunction mCallback;
 };
@@ -119,6 +103,7 @@ BOOL LLFloaterStinson::postBuild()
 
 	mGetScrollList = findChild<LLScrollListCtrl>("get_scroll_list");
 	llassert(mGetScrollList != NULL);
+	mGetScrollList->setCommitCallback(boost::bind(&LLFloaterStinson::onGetResultsSelectionChange, this));
 
 	mPutButton = findChild<LLButton>("put_button");
 	llassert(mPutButton != NULL);
@@ -126,6 +111,17 @@ BOOL LLFloaterStinson::postBuild()
 
 	mPutScrollList = findChild<LLScrollListCtrl>("put_scroll_list");
 	llassert(mPutScrollList != NULL);
+
+	mGoodPostButton = findChild<LLButton>("good_post_button");
+	llassert(mGoodPostButton != NULL);
+	mGoodPostButton->setCommitCallback(boost::bind(&LLFloaterStinson::onGoodPostClicked, this));
+
+	mBadPostButton = findChild<LLButton>("bad_post_button");
+	llassert(mBadPostButton != NULL);
+	mBadPostButton->setCommitCallback(boost::bind(&LLFloaterStinson::onBadPostClicked, this));
+
+	mPostScrollList = findChild<LLScrollListCtrl>("post_scroll_list");
+	llassert(mPostScrollList != NULL);
 
 	mWarningColor = LLUIColorTable::instance().getColor("MaterialWarningColor");
 	mErrorColor = LLUIColorTable::instance().getColor("MaterialErrorColor");
@@ -157,12 +153,16 @@ void LLFloaterStinson::onOpen(const LLSD& pKey)
 	checkRegionMaterialStatus();
 	clearGetResults();
 	clearPutResults();
+	clearPostResults();
+	mGetScrollList->setCommitOnSelectionChange(TRUE);
 }
 
 void LLFloaterStinson::onClose(bool pIsAppQuitting)
 {
+	mGetScrollList->setCommitOnSelectionChange(FALSE);
 	clearGetResults();
 	clearPutResults();
+	clearPostResults();
 
 	if (mSelectionUpdateConnection.connected())
 	{
@@ -186,7 +186,12 @@ LLFloaterStinson::LLFloaterStinson(const LLSD& pParams)
 	: LLFloater(pParams),
 	mStatusText(NULL),
 	mGetButton(NULL),
+	mGetScrollList(NULL),
 	mPutButton(NULL),
+	mPutScrollList(NULL),
+	mGoodPostButton(NULL),
+	mBadPostButton(NULL),
+	mPostScrollList(NULL),
 	mState(kNoRegion),
 	mWarningColor(),
 	mErrorColor(),
@@ -210,9 +215,27 @@ void LLFloaterStinson::onPutClicked()
 	requestPutMaterials();
 }
 
+void LLFloaterStinson::onGoodPostClicked()
+{
+	requestPostMaterials(true);
+}
+
+void LLFloaterStinson::onBadPostClicked()
+{
+	requestPostMaterials(false);
+}
+
 void LLFloaterStinson::onRegionCross()
 {
 	checkRegionMaterialStatus();
+	clearGetResults();
+	clearPutResults();
+	clearPostResults();
+}
+
+void LLFloaterStinson::onGetResultsSelectionChange()
+{
+	updateControls();
 }
 
 void LLFloaterStinson::onInWorldSelectionChange()
@@ -233,6 +256,11 @@ void LLFloaterStinson::onDeferredRequestGetMaterials(LLUUID regionId)
 void LLFloaterStinson::onDeferredRequestPutMaterials(LLUUID regionId)
 {
 	requestPutMaterials(regionId);
+}
+
+void LLFloaterStinson::onDeferredRequestPostMaterials(LLUUID regionId, bool pUseGoodData)
+{
+	requestPostMaterials(regionId, pUseGoodData);
 }
 
 void LLFloaterStinson::onGetResponse(bool pRequestStatus, const LLSD& pContent)
@@ -261,6 +289,19 @@ void LLFloaterStinson::onPutResponse(bool pRequestStatus, const LLSD& pContent)
 	}
 }
 
+void LLFloaterStinson::onPostResponse(bool pRequestStatus, const LLSD& pContent)
+{
+	if (pRequestStatus)
+	{
+		setState(kRequestCompleted);
+		parsePostResponse(pContent);
+	}
+	else
+	{
+		setState(kError);
+	}
+}
+
 void LLFloaterStinson::checkRegionMaterialStatus()
 {
 	LLViewerRegion *region = gAgent.getRegion();
@@ -273,7 +314,7 @@ void LLFloaterStinson::checkRegionMaterialStatus()
 	else if (!region->capabilitiesReceived())
 	{
 		setState(kCapabilitiesLoading);
-		region->setCapabilitiesReceivedCallback(boost::bind(&LLFloaterStinson::onDeferredRequestGetMaterials, this, region->getRegionID()));
+		region->setCapabilitiesReceivedCallback(boost::bind(&LLFloaterStinson::onDeferredCheckRegionMaterialStatus, this, region->getRegionID()));
 	}
 	else
 	{
@@ -329,7 +370,7 @@ void LLFloaterStinson::requestGetMaterials()
 		else
 		{
 			setState(kRequestStarted);
-			LLHTTPClient::ResponderPtr materialsResponder = new MaterialsGetResponder(capURL, boost::bind(&LLFloaterStinson::onGetResponse, this, _1, _2));
+			LLHTTPClient::ResponderPtr materialsResponder = new MaterialsResponder("GET", capURL, boost::bind(&LLFloaterStinson::onGetResponse, this, _1, _2));
 			llinfos << "STINSON DEBUG: sending request GET to capability '" << MATERIALS_CAPABILITY_NAME
 				<< "' with url '" << capURL << "'" << llendl;
 			LLHTTPClient::get(capURL, materialsResponder);
@@ -443,7 +484,7 @@ void LLFloaterStinson::requestPutMaterials()
 			LLSD putData = LLSD::emptyMap();
 			putData[MATERIALS_CAP_FULL_PER_FACE_FIELD] = facesData;
 
-			LLHTTPClient::ResponderPtr materialsResponder = new MaterialsPutResponder(capURL, boost::bind(&LLFloaterStinson::onPutResponse, this, _1, _2));
+			LLHTTPClient::ResponderPtr materialsResponder = new MaterialsResponder("PUT", capURL, boost::bind(&LLFloaterStinson::onPutResponse, this, _1, _2));
 			llinfos << "STINSON DEBUG: sending request PUT to capability '" << MATERIALS_CAPABILITY_NAME
 				<< "' with url '" << capURL << "' and with data " << putData << llendl;
 			LLHTTPClient::put(capURL, putData, materialsResponder);
@@ -458,6 +499,84 @@ void LLFloaterStinson::requestPutMaterials(const LLUUID& regionId)
 	if ((region != NULL) && (region->getRegionID() == regionId))
 	{
 		requestPutMaterials();
+	}
+}
+
+void LLFloaterStinson::requestPostMaterials(bool pUseGoodData)
+{
+	LLViewerRegion *region = gAgent.getRegion();
+
+	if (region == NULL)
+	{
+		llwarns << "Region is NULL" << llendl;
+		setState(kNoRegion);
+	}
+	else if (!region->capabilitiesReceived())
+	{
+		setState(kCapabilitiesLoading);
+		region->setCapabilitiesReceivedCallback(boost::bind(&LLFloaterStinson::onDeferredRequestPostMaterials, this, region->getRegionID(), pUseGoodData));
+	}
+	else
+	{
+		std::string capURL = region->getCapability(MATERIALS_CAPABILITY_NAME);
+
+		if (capURL.empty())
+		{
+			llwarns << "Capability '" << MATERIALS_CAPABILITY_NAME << "' is not defined on the current region '"
+				<< region->getName() << "'" << llendl;
+			setState(kNotEnabled);
+		}
+		else
+		{
+			setState(kRequestStarted);
+			LLSD postData = LLSD::emptyArray();
+
+			if (pUseGoodData)
+			{
+				std::vector<LLScrollListItem*> selectedItems = mGetScrollList->getAllSelected();
+				for (std::vector<LLScrollListItem*>::const_iterator selectedItemIter = selectedItems.begin();
+					selectedItemIter != selectedItems.end(); ++selectedItemIter)
+				{
+					const LLScrollListItem* selectedItem = *selectedItemIter;
+					postData.append(selectedItem->getValue());
+				}
+			}
+			else
+			{
+				S32 crapArray[4];
+				for (int i = 0; i < 4; ++i)
+				{
+					crapArray[i] = ll_rand();
+					if (ll_frand() < 0.5)
+					{
+						crapArray[i] = -crapArray[i];
+					}
+				}
+
+				std::vector<unsigned char> crapMem;
+				crapMem.resize(16);
+				memcpy(&crapMem[0], &crapArray, 16 * sizeof(unsigned char));
+
+				LLSD::Binary crapBinary = crapMem;
+				LLSD crapData = crapBinary;
+				postData.append(crapData);
+			}
+
+			LLHTTPClient::ResponderPtr materialsResponder = new MaterialsResponder("POST", capURL, boost::bind(&LLFloaterStinson::onPostResponse, this, _1, _2));
+			llinfos << "STINSON DEBUG: sending request POST to capability '" << MATERIALS_CAPABILITY_NAME
+				<< "' with url '" << capURL << "' and with data " << postData << llendl;
+			LLHTTPClient::post(capURL, postData, materialsResponder);
+		}
+	}
+}
+
+void LLFloaterStinson::requestPostMaterials(const LLUUID& regionId, bool pUseGoodData)
+{
+	const LLViewerRegion *region = gAgent.getRegion();
+
+	if ((region != NULL) && (region->getRegionID() == regionId))
+	{
+		requestPostMaterials(pUseGoodData);
 	}
 }
 
@@ -477,7 +596,8 @@ void LLFloaterStinson::parseGetResponse(const LLSD& pContent)
 		llassert(material.isMap());
 		llassert(material.has(MATERIALS_CAP_OBJECT_ID_FIELD));
 		llassert(material.get(MATERIALS_CAP_OBJECT_ID_FIELD).isBinary());
-		std::string materialIDString = convertToPrintableMaterialID(material.get(MATERIALS_CAP_OBJECT_ID_FIELD));
+		const LLSD &materialID = material.get(MATERIALS_CAP_OBJECT_ID_FIELD);
+		std::string materialIDString = convertToPrintableMaterialID(materialID);
 
 		llassert(material.has(MATERIALS_CAP_MATERIAL_FIELD));
 		const LLSD &materialData = material.get(MATERIALS_CAP_MATERIAL_FIELD);
@@ -549,6 +669,7 @@ void LLFloaterStinson::parseGetResponse(const LLSD& pContent)
 		cellParams.column = "is_diffuse_alpha_mask";
 		cellParams.value = (isDiffuseAlphaMask ? "True" : "False");
 		rowParams.columns.add(cellParams);
+		rowParams.value = materialID;
 
 		mGetScrollList->addRow(rowParams);
 	}
@@ -601,6 +722,101 @@ void LLFloaterStinson::parsePutResponse(const LLSD& pContent)
 	}
 }
 
+void LLFloaterStinson::parsePostResponse(const LLSD& pContent)
+{
+	printResponse("POST", pContent);
+	clearPostResults();
+
+	LLScrollListCell::Params cellParams;
+	LLScrollListItem::Params rowParams;
+
+	llassert(pContent.isArray());
+	for (LLSD::array_const_iterator materialIter = pContent.beginArray(); materialIter != pContent.endArray();
+		++materialIter)
+	{
+		const LLSD &material = *materialIter;
+		llassert(material.isMap());
+		llassert(material.has(MATERIALS_CAP_OBJECT_ID_FIELD));
+		llassert(material.get(MATERIALS_CAP_OBJECT_ID_FIELD).isBinary());
+		const LLSD &materialID = material.get(MATERIALS_CAP_OBJECT_ID_FIELD);
+		std::string materialIDString = convertToPrintableMaterialID(materialID);
+
+		llassert(material.has(MATERIALS_CAP_MATERIAL_FIELD));
+		const LLSD &materialData = material.get(MATERIALS_CAP_MATERIAL_FIELD);
+		llassert(materialData.isMap());
+
+		llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_FIELD));
+		llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_FIELD).isUUID());
+		const LLUUID &normalMapID = materialData.get(MATERIALS_CAP_NORMAL_MAP_FIELD).asUUID();
+
+		llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_FIELD));
+		llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_FIELD).isUUID());
+		const LLUUID &specularMapID = materialData.get(MATERIALS_CAP_SPECULAR_MAP_FIELD).asUUID();
+
+		llassert(materialData.has(MATERIALS_CAP_SPECULAR_COLOR_FIELD));
+		llassert(materialData.get(MATERIALS_CAP_SPECULAR_COLOR_FIELD).isArray());
+		LLColor4U specularColor;
+		specularColor.setValue(materialData.get(MATERIALS_CAP_SPECULAR_COLOR_FIELD));
+
+		llassert(materialData.has(MATERIALS_CAP_SPECULAR_EXP_FIELD));
+		llassert(materialData.get(MATERIALS_CAP_SPECULAR_EXP_FIELD).isInteger());
+		S32 specularExp = materialData.get(MATERIALS_CAP_SPECULAR_EXP_FIELD).asInteger();
+
+		llassert(materialData.has(MATERIALS_CAP_ENV_INTENSITY_FIELD));
+		llassert(materialData.get(MATERIALS_CAP_ENV_INTENSITY_FIELD).isInteger());
+		S32 envIntensity = materialData.get(MATERIALS_CAP_ENV_INTENSITY_FIELD).asInteger();
+
+		llassert(materialData.has(MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD));
+		llassert(materialData.get(MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD).isInteger());
+		S32 alphaMaskCutoff = materialData.get(MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD).asInteger();
+
+		llassert(materialData.has(MATERIALS_CAP_DIFFUSE_ALPHA_IS_MASK_FIELD));
+		llassert(materialData.get(MATERIALS_CAP_DIFFUSE_ALPHA_IS_MASK_FIELD).isInteger());
+		BOOL isDiffuseAlphaMask = static_cast<BOOL>(materialData.get(MATERIALS_CAP_DIFFUSE_ALPHA_IS_MASK_FIELD).asInteger());
+
+
+		cellParams.font = LLFontGL::getFontMonospace();
+
+		cellParams.column = "id";
+		cellParams.value = materialIDString;
+		rowParams.columns.add(cellParams);
+
+		cellParams.column = "normal_map";
+		cellParams.value = normalMapID.asString();
+		rowParams.columns.add(cellParams);
+
+		cellParams.column = "specular_map";
+		cellParams.value = specularMapID.asString();
+		rowParams.columns.add(cellParams);
+
+		cellParams.font = LLFontGL::getFontSansSerif();
+
+		cellParams.column = "specular_color";
+		cellParams.value = llformat("(%d, %d, %d, %d)", specularColor.mV[0],
+			specularColor.mV[1], specularColor.mV[2], specularColor.mV[3]);
+		rowParams.columns.add(cellParams);
+
+		cellParams.column = "specular_exponent";
+		cellParams.value = llformat("%d", specularExp);
+		rowParams.columns.add(cellParams);
+
+		cellParams.column = "env_intensity";
+		cellParams.value = llformat("%d", envIntensity);
+		rowParams.columns.add(cellParams);
+
+		cellParams.column = "alpha_mask_cutoff";
+		cellParams.value = llformat("%d", alphaMaskCutoff);
+		rowParams.columns.add(cellParams);
+
+		cellParams.column = "is_diffuse_alpha_mask";
+		cellParams.value = (isDiffuseAlphaMask ? "True" : "False");
+		rowParams.columns.add(cellParams);
+		rowParams.value = materialID;
+
+		mPostScrollList->addRow(rowParams);
+	}
+}
+
 void LLFloaterStinson::printResponse(const std::string& pRequestType, const LLSD& pContent) const
 {
 	llinfos << "--------------------------------------------------------------------------" << llendl;
@@ -623,6 +839,11 @@ void LLFloaterStinson::clearGetResults()
 void LLFloaterStinson::clearPutResults()
 {
 	mPutScrollList->deleteAllItems();
+}
+
+void LLFloaterStinson::clearPostResults()
+{
+	mPostScrollList->deleteAllItems();
 }
 
 void LLFloaterStinson::updateStatusMessage()
@@ -672,6 +893,9 @@ void LLFloaterStinson::updateControls()
 	LLObjectSelectionHandle selectionHandle = LLSelectMgr::getInstance()->getEditSelection();
 	bool isPutEnabled = (selectionHandle->valid_begin() != selectionHandle->valid_end());
 
+	S32 numGetResultsSelected = mGetScrollList->getNumSelected();
+	bool isGoodPostEnabled = (numGetResultsSelected > 0);
+
 	switch (getState())
 	{
 	case kNoRegion :
@@ -680,16 +904,22 @@ void LLFloaterStinson::updateControls()
 	case kNotEnabled :
 		mGetButton->setEnabled(FALSE);
 		mPutButton->setEnabled(FALSE);
+		mGoodPostButton->setEnabled(FALSE);
+		mBadPostButton->setEnabled(FALSE);
 		break;
 	case kReady :
 	case kRequestCompleted :
 	case kError :
 		mGetButton->setEnabled(TRUE);
 		mPutButton->setEnabled(isPutEnabled);
+		mGoodPostButton->setEnabled(isGoodPostEnabled);
+		mBadPostButton->setEnabled(TRUE);
 		break;
 	default :
 		mGetButton->setEnabled(TRUE);
 		mPutButton->setEnabled(isPutEnabled);
+		mGoodPostButton->setEnabled(isGoodPostEnabled);
+		mBadPostButton->setEnabled(TRUE);
 		llassert(0);
 		break;
 	}
@@ -701,63 +931,42 @@ std::string LLFloaterStinson::convertToPrintableMaterialID(const LLSD& pBinaryHa
 	const LLSD::Binary &materialIDValue = pBinaryHash.asBinary();
 	unsigned int valueSize = materialIDValue.size();
 
+	llassert(valueSize == 16);
 	std::string materialID(reinterpret_cast<const char *>(&materialIDValue[0]), valueSize);
 	std::string materialIDString;
-	for (unsigned int i = 0; i < valueSize; ++i)
+	for (unsigned int i = 0U; i < (valueSize / 4); ++i)
 	{
-		materialIDString += llformat("%02x", materialID.c_str()[i]);
+		if (i != 0U)
+		{
+			materialIDString += "-";
+		}
+		const U32 *value = reinterpret_cast<const U32*>(&materialID.c_str()[i * 4]);
+		materialIDString += llformat("%08x", *value);
 	}
-
 	return materialIDString;
 }
 
-MaterialsGetResponder::MaterialsGetResponder(const std::string& pCapabilityURL, CallbackFunction pCallback)
+MaterialsResponder::MaterialsResponder(const std::string& pMethod, const std::string& pCapabilityURL, CallbackFunction pCallback)
 	: LLHTTPClient::Responder(),
+	mMethod(pMethod),
 	mCapabilityURL(pCapabilityURL),
 	mCallback(pCallback)
 {
 }
 
-MaterialsGetResponder::~MaterialsGetResponder()
+MaterialsResponder::~MaterialsResponder()
 {
 }
 
-void MaterialsGetResponder::result(const LLSD& pContent)
+void MaterialsResponder::result(const LLSD& pContent)
 {
 	mCallback(true, pContent);
 }
 
-void MaterialsGetResponder::error(U32 pStatus, const std::string& pReason)
+void MaterialsResponder::error(U32 pStatus, const std::string& pReason)
 {
 	llwarns << "--------------------------------------------------------------------------" << llendl;
-	llwarns << "GET Error[" << pStatus << "] cannot access cap '" << MATERIALS_CAPABILITY_NAME
-		<< "' with url '" << mCapabilityURL	<< "' because " << pReason << llendl;
-	llwarns << "--------------------------------------------------------------------------" << llendl;
-
-	LLSD emptyResult;
-	mCallback(false, emptyResult);
-}
-
-MaterialsPutResponder::MaterialsPutResponder(const std::string& pCapabilityURL, CallbackFunction pCallback)
-	: LLHTTPClient::Responder(),
-	mCapabilityURL(pCapabilityURL),
-	mCallback(pCallback)
-{
-}
-
-MaterialsPutResponder::~MaterialsPutResponder()
-{
-}
-
-void MaterialsPutResponder::result(const LLSD& pContent)
-{
-	mCallback(true, pContent);
-}
-
-void MaterialsPutResponder::error(U32 pStatus, const std::string& pReason)
-{
-	llwarns << "--------------------------------------------------------------------------" << llendl;
-	llwarns << "PUT Error[" << pStatus << "] cannot access cap '" << MATERIALS_CAPABILITY_NAME
+	llwarns << mMethod << " Error[" << pStatus << "] cannot access cap '" << MATERIALS_CAPABILITY_NAME
 		<< "' with url '" << mCapabilityURL	<< "' because " << pReason << llendl;
 	llwarns << "--------------------------------------------------------------------------" << llendl;
 
