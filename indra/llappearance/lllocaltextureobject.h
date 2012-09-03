@@ -29,11 +29,11 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "llviewertexture.h"
+#include "llpointer.h"
+#include "lltexture.h"
 
 class LLUUID;
 class LLTexLayer;
-class LLTextureEntry;
 class LLTexLayerTemplate;
 class LLWearable;
 
@@ -44,11 +44,11 @@ class LLLocalTextureObject
 {
 public:
 	LLLocalTextureObject();
-	LLLocalTextureObject(LLViewerFetchedTexture* image, const LLUUID& id);
+	LLLocalTextureObject(LLTexture* image, const LLUUID& id);
 	LLLocalTextureObject(const LLLocalTextureObject& lto);
 	~LLLocalTextureObject();
 
-	LLViewerFetchedTexture* getImage() const;
+	LLTexture* getImage() const;
 	LLTexLayer* getTexLayer(U32 index) const;
 	LLTexLayer* getTexLayer(const std::string &name);
 	U32 		getNumTexLayers() const;
@@ -56,7 +56,7 @@ public:
 	S32			getDiscard() const;
 	BOOL		getBakedReady() const;
 
-	void setImage(LLViewerFetchedTexture* new_image);
+	void setImage(LLTexture* new_image);
 	BOOL setTexLayer(LLTexLayer *new_tex_layer, U32 index);
 	BOOL addTexLayer(LLTexLayer *new_tex_layer, LLWearable *wearable);
 	BOOL addTexLayer(LLTexLayerTemplate *new_tex_layer, LLWearable *wearable);
@@ -70,7 +70,7 @@ protected:
 
 private:
 
-	LLPointer<LLViewerFetchedTexture>  			mImage;
+	LLPointer<LLTexture>			mImage;
 	// NOTE: LLLocalTextureObject should be the exclusive owner of mTexEntry and mTexLayer
 	// using shared pointers here only for smart assignment & cleanup
 	// do NOT create new shared pointers to these objects, or keep pointers to them around

@@ -24,20 +24,22 @@
  * $/LicenseInfo$
  */
 
-#include "llviewerprecompiledheaders.h"
-#include "llagent.h"
+#include "linden_common.h"
+
+#include "llavatarappearance.h"
 #include "lltexlayer.h"
-#include "llvoavatar.h"
-#include "llwearable.h"
+//#include "llwearable.h"
 #include "lltexglobalcolor.h"
+
+class LLWearable;
 
 //-----------------------------------------------------------------------------
 // LLTexGlobalColor
 //-----------------------------------------------------------------------------
 
-LLTexGlobalColor::LLTexGlobalColor(LLVOAvatar* avatar) 
+LLTexGlobalColor::LLTexGlobalColor(LLAvatarAppearance* appearance)
 	:
-	mAvatar(avatar),
+	mAvatarAppearance(appearance),
 	mInfo(NULL)
 {
 }
@@ -91,7 +93,7 @@ const std::string& LLTexGlobalColor::getName() const
 // LLTexParamGlobalColor
 //-----------------------------------------------------------------------------
 LLTexParamGlobalColor::LLTexParamGlobalColor(LLTexGlobalColor* tex_global_color) :
-	LLTexLayerParamColor(tex_global_color->getAvatar()),
+	LLTexLayerParamColor(tex_global_color->getAvatarAppearance()),
 	mTexGlobalColor(tex_global_color)
 {
 }
@@ -105,7 +107,7 @@ LLTexParamGlobalColor::LLTexParamGlobalColor(LLTexGlobalColor* tex_global_color)
 
 void LLTexParamGlobalColor::onGlobalColorChanged(bool upload_bake)
 {
-	mAvatar->onGlobalColorChanged(mTexGlobalColor, upload_bake);
+	mAvatarAppearance->onGlobalColorChanged(mTexGlobalColor, upload_bake);
 }
 
 //-----------------------------------------------------------------------------

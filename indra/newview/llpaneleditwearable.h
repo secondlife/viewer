@@ -35,7 +35,7 @@
 
 class LLAccordionCtrl;
 class LLCheckBoxCtrl;
-class LLWearable;
+class LLViewerWearable;
 class LLTextBox;
 class LLViewerInventoryItem;
 class LLViewerVisualParam;
@@ -58,8 +58,8 @@ public:
 	// changes camera angle to default for selected subpart
 	void				changeCamera(U8 subpart);
 
-	LLWearable* 		getWearable() { return mWearablePtr; }
-	void				setWearable(LLWearable *wearable, BOOL disable_camera_switch = FALSE);
+	LLViewerWearable*	getWearable() { return mWearablePtr; }
+	void				setWearable(LLViewerWearable *wearable, BOOL disable_camera_switch = FALSE);
 
 	void				saveChanges(bool force_save_as = false);
 	void				revertChanges();
@@ -80,7 +80,7 @@ public:
 private:
 	typedef std::map<F32, LLViewerVisualParam*> value_map_t;
 
-	void				showWearable(LLWearable* wearable, BOOL show, BOOL disable_camera_switch = FALSE);
+	void				showWearable(LLViewerWearable* wearable, BOOL show, BOOL disable_camera_switch = FALSE);
 	void				updateScrollingPanelUI();
 	LLPanel*			getPanel(LLWearableType::EType type);
 	void				getSortedParams(value_map_t &sorted_params, const std::string &edit_group);
@@ -115,7 +115,7 @@ private:
 	void setWearablePanelVisibilityChangeCallback(LLPanel* bodypart_panel);
 
 	// the pointer to the wearable we're editing. NULL means we're not editing a wearable.
-	LLWearable *mWearablePtr;
+	LLViewerWearable *mWearablePtr;
 	LLViewerInventoryItem* mWearableItem;
 
 	// these are constant no matter what wearable we're editing

@@ -1,6 +1,6 @@
 /** 
- * @file llvoavatar.cpp
- * @brief Implementation of LLVOAvatar class which is a derivation fo LLViewerObject
+ * @file llvoavatardefines.cpp
+ * @brief Implementation of LLVOAvatarDefines::LLVOAvatarDictionary 
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -24,9 +24,11 @@
  * $/LicenseInfo$
  */
 
-#include "llviewerprecompiledheaders.h"
+//#include "llviewerprecompiledheaders.h"
+#include "linden_common.h"
+
 #include "llvoavatardefines.h"
-#include "llviewercontrol.h" // gSavedSettings
+//#include "llviewercontrol.h" // gSavedSettings
 
 const S32 LLVOAvatarDefines::SCRATCH_TEX_WIDTH = 512;
 const S32 LLVOAvatarDefines::SCRATCH_TEX_HEIGHT = 512;
@@ -113,14 +115,14 @@ LLVOAvatarDictionary::BakedTextures::BakedTextures()
 LLVOAvatarDictionary::Meshes::Meshes()
 {
 	// Meshes
-	addEntry(MESH_ID_HAIR,             new MeshEntry(BAKED_HAIR,  "hairMesh",         6, LLViewerJoint::PN_4));
-	addEntry(MESH_ID_HEAD,             new MeshEntry(BAKED_HEAD,  "headMesh",         5, LLViewerJoint::PN_5));
-	addEntry(MESH_ID_EYELASH,          new MeshEntry(BAKED_HEAD,  "eyelashMesh",      1, LLViewerJoint::PN_0)); // no baked mesh associated currently
-	addEntry(MESH_ID_UPPER_BODY,       new MeshEntry(BAKED_UPPER, "upperBodyMesh",    5, LLViewerJoint::PN_1));
-	addEntry(MESH_ID_LOWER_BODY,       new MeshEntry(BAKED_LOWER, "lowerBodyMesh",    5, LLViewerJoint::PN_2));
-	addEntry(MESH_ID_EYEBALL_LEFT,     new MeshEntry(BAKED_EYES,  "eyeBallLeftMesh",  2, LLViewerJoint::PN_3));
-	addEntry(MESH_ID_EYEBALL_RIGHT,    new MeshEntry(BAKED_EYES,  "eyeBallRightMesh", 2, LLViewerJoint::PN_3));
-	addEntry(MESH_ID_SKIRT,            new MeshEntry(BAKED_SKIRT, "skirtMesh",        5, LLViewerJoint::PN_5));
+	addEntry(MESH_ID_HAIR,             new MeshEntry(BAKED_HAIR,  "hairMesh",         6, PN_4));
+	addEntry(MESH_ID_HEAD,             new MeshEntry(BAKED_HEAD,  "headMesh",         5, PN_5));
+	addEntry(MESH_ID_EYELASH,          new MeshEntry(BAKED_HEAD,  "eyelashMesh",      1, PN_0)); // no baked mesh associated currently
+	addEntry(MESH_ID_UPPER_BODY,       new MeshEntry(BAKED_UPPER, "upperBodyMesh",    5, PN_1));
+	addEntry(MESH_ID_LOWER_BODY,       new MeshEntry(BAKED_LOWER, "lowerBodyMesh",    5, PN_2));
+	addEntry(MESH_ID_EYEBALL_LEFT,     new MeshEntry(BAKED_EYES,  "eyeBallLeftMesh",  2, PN_3));
+	addEntry(MESH_ID_EYEBALL_RIGHT,    new MeshEntry(BAKED_EYES,  "eyeBallRightMesh", 2, PN_3));
+	addEntry(MESH_ID_SKIRT,            new MeshEntry(BAKED_SKIRT, "skirtMesh",        5, PN_5));
 }
 
 /*
@@ -178,7 +180,7 @@ LLVOAvatarDictionary::TextureEntry::TextureEntry(const std::string &name,
 LLVOAvatarDictionary::MeshEntry::MeshEntry(EBakedTextureIndex baked_index, 
 										   const std::string &name, 
 										   U8 level,
-										   LLViewerJoint::PickName pick) :
+										   LLJointPickName pick) :
 	LLDictionaryEntry(name),
 	mBakedID(baked_index),
 	mLOD(level),
@@ -237,21 +239,6 @@ EBakedTextureIndex LLVOAvatarDictionary::findBakedByRegionName(std::string name)
 	}
 	// baked texture could not be found
 	return BAKED_NUM_INDICES;
-}
-
-//static
-const LLUUID LLVOAvatarDictionary::getDefaultTextureImageID(ETextureIndex index)
-{
-	const TextureEntry *texture_dict = getInstance()->getTexture(index);
-	const std::string &default_image_name = texture_dict->mDefaultImageName;
-	if (default_image_name == "")
-	{
-		return IMG_DEFAULT_AVATAR;
-	}
-	else
-	{
-		return LLUUID(gSavedSettings.getString(default_image_name));
-	}
 }
 
 // static

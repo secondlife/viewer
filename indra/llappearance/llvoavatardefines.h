@@ -1,6 +1,6 @@
 /** 
- * @file llvoavatar.h
- * @brief Declaration of LLVOAvatar class which is a derivation fo
+ * @file llvoavatardefines.h
+ * @brief Various LLAvatarAppearance related definitions
  * LLViewerObject
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
@@ -29,8 +29,8 @@
 #define LLVOAVATAR_DEFINES_H
 
 #include <vector>
+#include "lljointpickname.h"
 #include "llwearable.h"
-#include "llviewerjoint.h"
 #include "lldictionary.h"
 
 namespace LLVOAvatarDefines
@@ -166,12 +166,12 @@ public:
 		MeshEntry(EBakedTextureIndex baked_index, 
 				  const std::string &name, // names of mesh types as they are used in avatar_lad.xml
 				  U8 level,
-				  LLViewerJoint::PickName pick);
+				  LLJointPickName pick);
 		// Levels of Detail for each mesh.  Must match levels of detail present in avatar_lad.xml
         // Otherwise meshes will be unable to be found, or levels of detail will be ignored
 		const U8 						mLOD;
 		const EBakedTextureIndex 		mBakedID;
-		const LLViewerJoint::PickName 	mPickName;
+		const LLJointPickName 	mPickName;
 	};
 
 	struct Meshes : public LLDictionary<EMeshIndex, MeshEntry>
@@ -215,8 +215,6 @@ public:
 
 	// find a baked texture index based on its name
 	static EBakedTextureIndex 	findBakedByRegionName(std::string name);
-
-	static const LLUUID			getDefaultTextureImageID(ETextureIndex index);
 
 	// Given a texture entry, determine which wearable type owns it.
 	static LLWearableType::EType 		getTEWearableType(ETextureIndex index);

@@ -1,6 +1,6 @@
 /** 
  * @file lltexglobalcolor.h
- * @brief This is global texture color info used by llvoavatar.
+ * @brief This is global texture color info used by llavatarappearance.
  *
  * $LicenseInfo:firstyear=2008&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -30,31 +30,31 @@
 #include "lltexlayer.h"
 #include "lltexlayerparams.h"
 
-class LLVOAvatar;
+class LLAvatarAppearance;
 class LLWearable;
 class LLTexGlobalColorInfo;
 
 class LLTexGlobalColor
 {
 public:
-	LLTexGlobalColor( LLVOAvatar* avatar );
+	LLTexGlobalColor( LLAvatarAppearance* appearance );
 	~LLTexGlobalColor();
 
 	LLTexGlobalColorInfo*	getInfo() const { return mInfo; }
 	//   This sets mInfo and calls initialization functions
 	BOOL					setInfo(LLTexGlobalColorInfo *info);
 	
-	LLVOAvatar*				getAvatar()	const			   	{ return mAvatar; }
+	LLAvatarAppearance*		getAvatarAppearance()	const	   	{ return mAvatarAppearance; }
 	LLColor4				getColor() const;
 	const std::string&		getName() const;
 
 private:
 	param_color_list_t		mParamGlobalColorList;
-	LLVOAvatar*				mAvatar;  // just backlink, don't LLPointer 
+	LLAvatarAppearance*		mAvatarAppearance;  // just backlink, don't LLPointer 
 	LLTexGlobalColorInfo	*mInfo;
 };
 
-// Used by llvoavatar to determine skin/eye/hair color.
+// Used by llavatarappearance to determine skin/eye/hair color.
 class LLTexGlobalColorInfo
 {
 	friend class LLTexGlobalColor;

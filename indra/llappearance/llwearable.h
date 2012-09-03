@@ -27,31 +27,25 @@
 #ifndef LL_LLWEARABLE_H
 #define LL_LLWEARABLE_H
 
+#include "llextendedstatus.h"
 //#include "lluuid.h"
 //#include "llstring.h"
-//#include "llpermissions.h"
-//#include "llsaleinfo.h"
+#include "llpermissions.h"
+#include "llsaleinfo.h"
 //#include "llassetstorage.h"
-//#include "llwearabletype.h"
+#include "llwearabletype.h"
 //#include "llfile.h"
-//#include "lllocaltextureobject.h"
+#include "lllocaltextureobject.h"
 
-class LLViewerInventoryItem;
 class LLVisualParam;
 class LLTexGlobalColorInfo;
 class LLTexGlobalColor;
 
 class LLWearable
 {
-	friend class LLWearableList;
-
 	//--------------------------------------------------------------------
 	// Constructors and destructors
 	//--------------------------------------------------------------------
-private:
-	// Private constructors used by LLWearableList
-	LLWearable(const LLTransactionID& transactionID);
-	LLWearable(const LLAssetID& assetID);
 public:
 	virtual ~LLWearable();
 
@@ -59,10 +53,7 @@ public:
 	// Accessors
 	//--------------------------------------------------------------------
 public:
-	const LLUUID&				getItemID() const;
-	const LLAssetID&			getAssetID() const { return mAssetID; }
-	const LLTransactionID&		getTransactionID() const { return mTransactionID; }
-	LLWearableType::EType				getType() const	{ return mType; }
+	LLWearableType::EType		getType() const	{ return mType; }
 	void						setType(LLWearableType::EType type);
 	const std::string&			getName() const	{ return mName; }
 	void						setName(const std::string& name) { mName = name; }
@@ -81,36 +72,22 @@ public:
 public:
 	typedef std::vector<LLVisualParam*> visual_param_vec_t;
 
-	BOOL				isDirty() const;
-	BOOL				isOldVersion() const;
+	enum EImportResult
+	{
+		FAILURE = 0,
+		SUCCESS,
+		BAD_HEADER
+	};
+	virtual BOOL				exportFile(LLFILE* file) const;
+	virtual EImportResult		importFile(LLFILE* file);
 
-	void				writeToAvatar();
-	void				removeFromAvatar( BOOL upload_bake )	{ LLWearable::removeFromAvatar( mType, upload_bake ); }
-	static void			removeFromAvatar( LLWearableType::EType type, BOOL upload_bake ); 
+	virtual LLLocalTextureObject* getLocalTextureObject(S32 index) = 0;
+	virtual void	writeToAvatar() = 0;
 
-	BOOL				exportFile(LLFILE* file) const;
-	BOOL				importFile(LLFILE* file);
-	
-	void				setParamsToDefaults();
-	void				setTexturesToDefaults();
-
-	void				saveNewAsset() const;
-	static void			onSaveNewAssetComplete( const LLUUID& asset_uuid, void* user_data, S32 status, LLExtStat ext_status );
-
-	void				copyDataFrom(const LLWearable* src);
 
 	static void			setCurrentDefinitionVersion( S32 version ) { LLWearable::sCurrentDefinitionVersion = version; }
 
-	friend std::ostream& operator<<(std::ostream &s, const LLWearable &w);
-	void				setItemID(const LLUUID& item_id);
-
-	LLLocalTextureObject* getLocalTextureObject(S32 index);
-	const LLLocalTextureObject* getLocalTextureObject(S32 index) const;
-	std::vector<LLLocalTextureObject*> getLocalTextureListSeq();
-
-	void				setLocalTextureObject(S32 index, LLLocalTextureObject &lto);
 	void				addVisualParam(LLVisualParam *param);
-	void				setVisualParams();
 	void 				setVisualParamWeight(S32 index, F32 value, BOOL upload_bake);
 	F32					getVisualParamWeight(S32 index) const;
 	LLVisualParam*		getVisualParam(S32 index) const;
@@ -120,27 +97,11 @@ public:
 	LLColor4			getClothesColor(S32 te) const;
 	void 				setClothesColor( S32 te, const LLColor4& new_color, BOOL upload_bake );
 
-	void				revertValues();
-	void				saveValues();
-	void				pullCrossWearableValues();		
+	typedef std::map<S32, LLUUID> texture_id_map_t;
+	const texture_id_map_t& getTextureIDMap() const { return mTextureIDMap; }
 
-	BOOL				isOnTop() const;
-
-	// Something happened that requires the wearable's label to be updated (e.g. worn/unworn).
-	void				setLabelUpdated() const;
-
-	// the wearable was worn. make sure the name of the wearable object matches the LLViewerInventoryItem,
-	// not the wearable asset itself.
-	void				refreshName();
-
-private:
-	typedef std::map<S32, LLLocalTextureObject*> te_map_t;
-	typedef std::map<S32, LLVisualParam *>    visual_param_index_map_t;
-
-	void 				createLayers(S32 te);
-	void 				createVisualParams();
-	void				syncImages(te_map_t &src, te_map_t &dst);
-	void				destroyTextures();	
+protected:
+	virtual void 	createVisualParams() = 0;
 
 	static S32			sCurrentDefinitionVersion;	// Depends on the current state of the avatar_lad.xml.
 	S32					mDefinitionVersion;			// Depends on the state of the avatar_lad.xml when this asset was created.
@@ -148,18 +109,16 @@ private:
 	std::string			mDescription;
 	LLPermissions		mPermissions;
 	LLSaleInfo			mSaleInfo;
-	LLAssetID mAssetID;
-	LLTransactionID		mTransactionID;
 	LLWearableType::EType		mType;
 
 	typedef std::map<S32, F32> param_map_t;
 	param_map_t mSavedVisualParamMap; // last saved version of visual params
 
+	typedef std::map<S32, LLVisualParam *>    visual_param_index_map_t;
 	visual_param_index_map_t mVisualParamIndexMap;
 
-	te_map_t mTEMap;				// maps TE to LocalTextureObject
-	te_map_t mSavedTEMap;			// last saved version of TEMap
-	LLUUID				mItemID;  // ID of the inventory item in the agent's inventory	
+	// *TODO: Lazy mutable.  Find a better way?
+	mutable texture_id_map_t mTextureIDMap;
 };
 
 #endif  // LL_LLWEARABLE_H

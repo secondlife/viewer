@@ -27,14 +27,16 @@
 #ifndef LL_LLTEXLAYERPARAMS_H
 #define LL_LLTEXLAYERPARAMS_H
 
+#include "llpointer.h"
+#include "v4color.h"
 #include "llviewervisualparam.h"
 
+class LLAvatarAppearance;
 class LLImageRaw;
 class LLImageTGA;
 class LLTexLayer;
 class LLTexLayerInterface;
-class LLViewerTexture;
-class LLVOAvatar;
+class LLTexture;
 class LLWearable;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -45,13 +47,13 @@ class LLTexLayerParam : public LLViewerVisualParam
 {
 public: 
 	LLTexLayerParam(LLTexLayerInterface *layer);
-	LLTexLayerParam(LLVOAvatar *avatar);
-	/*virtual*/ BOOL setInfo(LLViewerVisualParamInfo *info, BOOL add_to_avatar  );
+	LLTexLayerParam(LLAvatarAppearance *appearance);
+	/*virtual*/ BOOL setInfo(LLViewerVisualParamInfo *info, BOOL add_to_appearance);
 	/*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable) const = 0;
 
 protected:
 	LLTexLayerInterface*	mTexLayer;
-	LLVOAvatar*             mAvatar;
+	LLAvatarAppearance*		mAvatarAppearance;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -62,7 +64,7 @@ class LLTexLayerParamAlpha : public LLTexLayerParam
 {
 public:
 	LLTexLayerParamAlpha( LLTexLayerInterface* layer );
-	LLTexLayerParamAlpha( LLVOAvatar* avatar );
+	LLTexLayerParamAlpha( LLAvatarAppearance* appearance );
 	/*virtual*/ ~LLTexLayerParamAlpha();
 
 	/*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable = NULL) const;
@@ -89,7 +91,7 @@ public:
 	BOOL					getMultiplyBlend() const;
 
 private:
-	LLPointer<LLViewerTexture>	mCachedProcessedTexture;
+	LLPointer<LLTexture>	mCachedProcessedTexture;
 	LLPointer<LLImageTGA>	mStaticImageTGA;
 	LLPointer<LLImageRaw>	mStaticImageRaw;
 	BOOL					mNeedsCreateTexture;
@@ -140,7 +142,7 @@ public:
 	};
 
 	LLTexLayerParamColor( LLTexLayerInterface* layer );
-	LLTexLayerParamColor( LLVOAvatar* avatar );
+	LLTexLayerParamColor( LLAvatarAppearance* appearance );
 	/* virtual */ ~LLTexLayerParamColor();
 
 	/*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable = NULL) const;

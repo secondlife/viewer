@@ -47,7 +47,7 @@
 #include "llviewercontrol.h"
 #include "llviewerregion.h"
 #include "llvoavatarself.h"
-#include "llwearable.h"
+#include "llviewerwearable.h"
 
 static LLRegisterPanelClassWrapper<LLSidepanelAppearance> t_appearance("sidepanel_appearance");
 
@@ -198,7 +198,7 @@ void LLSidepanelAppearance::updateToVisibility(const LLSD &new_visibility)
 
 		if (is_outfit_edit_visible || is_wearable_edit_visible)
 		{
-			const LLWearable *wearable_ptr = mEditWearable->getWearable();
+			const LLViewerWearable *wearable_ptr = mEditWearable->getWearable();
 			if (!wearable_ptr)
 			{
 				llwarns << "Visibility change to invalid wearable" << llendl;
@@ -326,7 +326,7 @@ void LLSidepanelAppearance::showOutfitEditPanel()
 	toggleOutfitEditPanel(TRUE);
 }
 
-void LLSidepanelAppearance::showWearableEditPanel(LLWearable *wearable /* = NULL*/, BOOL disable_camera_switch)
+void LLSidepanelAppearance::showWearableEditPanel(LLViewerWearable *wearable /* = NULL*/, BOOL disable_camera_switch)
 {
 	toggleMyOutfitsPanel(FALSE);
 	toggleOutfitEditPanel(FALSE, TRUE); // don't switch out of edit appearance mode
@@ -379,7 +379,7 @@ void LLSidepanelAppearance::toggleOutfitEditPanel(BOOL visible, BOOL disable_cam
 	}
 }
 
-void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLWearable *wearable, BOOL disable_camera_switch)
+void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLViewerWearable *wearable, BOOL disable_camera_switch)
 {
 	if (!mEditWearable || mEditWearable->getVisible() == visible)
 	{
@@ -445,7 +445,7 @@ void LLSidepanelAppearance::refreshCurrentOutfitName(const std::string& name)
 }
 
 //static
-void LLSidepanelAppearance::editWearable(LLWearable *wearable, LLView *data, BOOL disable_camera_switch)
+void LLSidepanelAppearance::editWearable(LLViewerWearable *wearable, LLView *data, BOOL disable_camera_switch)
 {
 	LLFloaterSidePanelContainer::showPanel("appearance", LLSD());
 

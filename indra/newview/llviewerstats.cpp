@@ -41,7 +41,6 @@
 #include "lltexturefetch.h" 
 #include "llviewerobjectlist.h" 
 #include "llviewertexturelist.h" 
-#include "lltexlayer.h"
 #include "lltexlayerparams.h"
 #include "llsurface.h"
 #include "llvlmanager.h"
@@ -55,6 +54,7 @@
 #include "llviewerregion.h"
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
+#include "llviewertexlayer.h"
 #include "llviewerwindow.h"		// *TODO: remove, only used for width/height
 #include "llworld.h"
 #include "llfeaturemanager.h"

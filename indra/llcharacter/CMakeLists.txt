@@ -15,6 +15,7 @@ include_directories(
     ${LLMESSAGE_INCLUDE_DIRS}
     ${LLVFS_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
+    ${LLAPPEARANCE_INCLUDE_DIRS}
     )
 
 set(llcharacter_SOURCE_FILES

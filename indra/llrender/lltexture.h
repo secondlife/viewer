@@ -32,10 +32,12 @@
 #ifndef LL_TEXTURE_H
 #define LL_TEXTURE_H
 
+#include "llgltypes.h"
 #include "llrefcount.h"
-class LLImageGL ;
-class LLTexUnit ;
+#include "llrender.h"
+
 class LLFontGL ;
+class LLImageRaw ;
 
 //
 //this is an abstract class as the parent for the class LLViewerTexture
@@ -52,6 +54,39 @@ protected:
 public:
 	LLTexture(){}
 
+	enum EBoostLevel
+	{
+		BOOST_NONE 			= 0,
+		BOOST_AVATAR_BAKED	,
+		BOOST_AVATAR		,
+		BOOST_CLOUDS		,
+		BOOST_SCULPTED      ,
+		
+		BOOST_HIGH 			= 10,
+		BOOST_BUMP          ,
+		BOOST_TERRAIN		, // has to be high priority for minimap / low detail
+		BOOST_SELECTED		,		
+		BOOST_AVATAR_BAKED_SELF	,
+		BOOST_AVATAR_SELF	, // needed for baking avatar
+		BOOST_SUPER_HIGH    , //textures higher than this need to be downloaded at the required resolution without delay.
+		BOOST_HUD			,
+		BOOST_ICON			,
+		BOOST_UI			,
+		BOOST_PREVIEW		,
+		BOOST_MAP			,
+		BOOST_MAP_VISIBLE	,		
+		BOOST_MAX_LEVEL,
+
+		//other texture Categories
+		LOCAL = BOOST_MAX_LEVEL,
+		AVATAR_SCRATCH_TEX,
+		DYNAMIC_TEX,
+		MEDIA,
+		ATLAS,
+		OTHER,
+		MAX_GL_IMAGE_CATEGORY
+	};
+
 	//
 	//interfaces to access LLViewerTexture
 	//
@@ -62,6 +97,13 @@ public:
 	virtual void       setActive() = 0 ;
 	virtual S32	       getWidth(S32 discard_level = -1) const = 0 ;
 	virtual S32	       getHeight(S32 discard_level = -1) const = 0 ;
+	virtual BOOL       hasGLTexture() const  = 0;
+	virtual BOOL       createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename = 0, BOOL to_create = TRUE, S32 category = LLTexture::OTHER) = 0;
+	virtual void       setExplicitFormat(LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format = 0, BOOL swap_bytes = FALSE) = 0;
+	virtual void       setAddressMode(LLTexUnit::eTextureAddressMode mode) = 0;
+	virtual LLTexUnit::eTextureAddressMode getAddressMode(void) const = 0;
+	virtual S8         getComponents() const = 0;
+	virtual            const LLUUID& getID() const = 0;
 
 private:
 	//note: do not make this function public.

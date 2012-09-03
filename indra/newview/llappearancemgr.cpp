@@ -277,7 +277,7 @@ struct LLFoundData
 	std::string mName;
 	LLAssetType::EType mAssetType;
 	LLWearableType::EType mWearableType;
-	LLWearable* mWearable;
+	LLViewerWearable* mWearable;
 	bool mIsReplacement;
 };
 
@@ -301,7 +301,7 @@ public:
 	void recoverMissingWearable(LLWearableType::EType type);
 	void clearCOFLinksForMissingWearables();
 	
-	void onWearableAssetFetch(LLWearable *wearable);
+	void onWearableAssetFetch(LLViewerWearable *wearable);
 	void onAllComplete();
 
 	typedef std::list<LLFoundData> found_list_t;
@@ -327,7 +327,7 @@ private:
 	typedef std::set<LLWearableHoldingPattern*> type_set_hp;
 	static type_set_hp sActiveHoldingPatterns;
 	bool mIsMostRecent;
-	std::set<LLWearable*> mLateArrivals;
+	std::set<LLViewerWearable*> mLateArrivals;
 	bool mIsAllComplete;
 };
 
@@ -561,7 +561,7 @@ bool LLWearableHoldingPattern::pollFetchCompletion()
 class RecoveredItemLinkCB: public LLInventoryCallback
 {
 public:
-	RecoveredItemLinkCB(LLWearableType::EType type, LLWearable *wearable, LLWearableHoldingPattern* holder):
+	RecoveredItemLinkCB(LLWearableType::EType type, LLViewerWearable *wearable, LLWearableHoldingPattern* holder):
 		mHolder(holder),
 		mWearable(wearable),
 		mType(type)
@@ -609,14 +609,14 @@ public:
 	}
 private:
 	LLWearableHoldingPattern* mHolder;
-	LLWearable *mWearable;
+	LLViewerWearable *mWearable;
 	LLWearableType::EType mType;
 };
 
 class RecoveredItemCB: public LLInventoryCallback
 {
 public:
-	RecoveredItemCB(LLWearableType::EType type, LLWearable *wearable, LLWearableHoldingPattern* holder):
+	RecoveredItemCB(LLWearableType::EType type, LLViewerWearable *wearable, LLWearableHoldingPattern* holder):
 		mHolder(holder),
 		mWearable(wearable),
 		mType(type)
@@ -649,7 +649,7 @@ public:
 	}
 private:
 	LLWearableHoldingPattern* mHolder;
-	LLWearable *mWearable;
+	LLViewerWearable *mWearable;
 	LLWearableType::EType mType;
 };
 
@@ -665,7 +665,7 @@ void LLWearableHoldingPattern::recoverMissingWearable(LLWearableType::EType type
 	LLNotificationsUtil::add("ReplacedMissingWearable");
 	lldebugs << "Wearable " << LLWearableType::getTypeLabel(type)
 			 << " could not be downloaded.  Replaced inventory item with default wearable." << llendl;
-	LLWearable* wearable = LLWearableList::instance().createNewWearable(type);
+	LLViewerWearable* wearable = LLWearableList::instance().createNewWearable(type);
 
 	// Add a new one in the lost and found folder.
 	const LLUUID lost_and_found_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
@@ -772,11 +772,11 @@ void LLWearableHoldingPattern::handleLateArrivals()
 		 iter != getFoundList().end(); ++iter)
 	{
 		LLFoundData& data = *iter;
-		for (std::set<LLWearable*>::iterator wear_it = mLateArrivals.begin();
+		for (std::set<LLViewerWearable*>::iterator wear_it = mLateArrivals.begin();
 			 wear_it != mLateArrivals.end();
 			 ++wear_it)
 		{
-			LLWearable *wearable = *wear_it;
+			LLViewerWearable *wearable = *wear_it;
 
 			if(wearable->getAssetID() == data.mAssetID)
 			{
@@ -836,7 +836,7 @@ void LLWearableHoldingPattern::resetTime(F32 timeout)
 	mWaitTime.setTimerExpirySec(timeout);
 }
 
-void LLWearableHoldingPattern::onWearableAssetFetch(LLWearable *wearable)
+void LLWearableHoldingPattern::onWearableAssetFetch(LLViewerWearable *wearable)
 {
 	if (!isMostRecent())
 	{
@@ -887,7 +887,7 @@ void LLWearableHoldingPattern::onWearableAssetFetch(LLWearable *wearable)
 	}
 }
 
-static void onWearableAssetFetch(LLWearable* wearable, void* data)
+static void onWearableAssetFetch(LLViewerWearable* wearable, void* data)
 {
 	LLWearableHoldingPattern* holder = (LLWearableHoldingPattern*)data;
 	holder->onWearableAssetFetch(wearable);
@@ -1588,7 +1588,7 @@ void LLAppearanceMgr::updateAgentWearables(LLWearableHoldingPattern* holder, boo
 {
 	lldebugs << "updateAgentWearables()" << llendl;
 	LLInventoryItem::item_array_t items;
-	LLDynamicArray< LLWearable* > wearables;
+	LLDynamicArray< LLViewerWearable* > wearables;
 
 	// For each wearable type, find the wearables of that type.
 	for( S32 i = 0; i < LLWearableType::WT_COUNT; i++ )
@@ -1597,7 +1597,7 @@ void LLAppearanceMgr::updateAgentWearables(LLWearableHoldingPattern* holder, boo
 			 iter != holder->getFoundList().end(); ++iter)
 		{
 			LLFoundData& data = *iter;
-			LLWearable* wearable = data.mWearable;
+			LLViewerWearable* wearable = data.mWearable;
 			if( wearable && ((S32)wearable->getType() == i) )
 			{
 				LLViewerInventoryItem* item = (LLViewerInventoryItem*)gInventory.getItem(data.mItemID);

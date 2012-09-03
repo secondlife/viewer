@@ -27,7 +27,8 @@
 //-----------------------------------------------------------------------------
 // Header Files
 //-----------------------------------------------------------------------------
-#include "llviewerprecompiledheaders.h"
+//#include "llviewerprecompiledheaders.h"
+#include "linden_common.h"
 
 #include "llviewervisualparam.h"
 #include "llxmltree.h"

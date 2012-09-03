@@ -25,8 +25,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVOAVATAR_H
-#define LL_LLVOAVATAR_H
+#ifndef LL_VOAVATAR_H
+#define LL_VOAVATAR_H
 
 #include <map>
 #include <deque>
@@ -36,6 +36,7 @@
 #include <boost/signals2.hpp>
 
 #include "imageids.h"			// IMG_INVISIBLE
+#include "llavatarappearance.h"
 #include "llchat.h"
 #include "lldrawpoolalpha.h"
 #include "llviewerobject.h"
@@ -62,7 +63,8 @@ extern const LLUUID ANIM_AGENT_PELVIS_FIX;
 extern const LLUUID ANIM_AGENT_TARGET;
 extern const LLUUID ANIM_AGENT_WALK_ADJUST;
 
-class LLTexLayerSet;
+class LLViewerTexLayerSet;
+class LLViewerWearable;
 class LLVoiceVisualizer;
 class LLHUDNameTag;
 class LLHUDEffectSpiral;
@@ -75,8 +77,8 @@ class LLVOAvatarSkeletonInfo;
 // 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLVOAvatar :
+	public LLAvatarAppearance,
 	public LLViewerObject,
-	public LLCharacter,
 	public boost::signals2::trackable
 {
 	LOG_CLASS(LLVOAvatar);
@@ -222,7 +224,19 @@ public:
 
 public:
 	virtual bool 	isSelf() const { return false; } // True if this avatar is for this viewer's agent
+	/*virtual*/BOOL	isUsingBakedTextures() const { return mUseServerBakes; } // e.g. false if in appearance edit mode		
 	bool isBuilt() const { return mIsBuilt; }
+
+/********************************************************************************
+ **                                                                            **
+ **                    WEARABLES
+ **/
+public:
+	/*virtual*/ U32				getWearableCount(const LLWearableType::EType type) const;
+	/*virtual*/ U32				getWearableCount(const U32 tex_index) const;
+
+	/*virtual*/ LLWearable*			getWearable(const LLWearableType::EType type, U32 index /*= 0*/);
+	/*virtual*/ const LLWearable* 	getWearable(const LLWearableType::EType type, U32 index /*= 0*/) const;
 
 private: //aligned members
 	LL_ALIGN_16(LLVector4a	mImpostorExtents[2]);
@@ -440,7 +454,7 @@ public:
 	static void	deleteCachedImages(bool clearAll=true);
 	static void	destroyGL();
 	static void	restoreGL();
-	BOOL 		mIsDummy; // for special views
+	BOOL		mIsDummy; // for special views
 	S32			mSpecialRenderMode; // special lighting
 	U32			mAttachmentGeometryBytes; //number of bytes in attached geometry
 	F32			mAttachmentSurfaceArea; //estimated surface area of attachments
@@ -460,7 +474,14 @@ private:
 public:
 	BOOL 		morphMaskNeedsUpdate(LLVOAvatarDefines::EBakedTextureIndex index = LLVOAvatarDefines::BAKED_NUM_INDICES);
 	void 		addMaskedMorph(LLVOAvatarDefines::EBakedTextureIndex index, LLPolyMorphTarget* morph_target, BOOL invert, std::string layer);
-	void 		applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_components, LLVOAvatarDefines::EBakedTextureIndex index = LLVOAvatarDefines::BAKED_NUM_INDICES);
+	virtual void	applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_components, LLVOAvatarDefines::EBakedTextureIndex index = LLVOAvatarDefines::BAKED_NUM_INDICES);
+
+	
+	//--------------------------------------------------------------------
+	// Global colors
+	//--------------------------------------------------------------------
+public:
+	virtual void	onGlobalColorChanged(const LLTexGlobalColor* global_color, BOOL upload_bake);
 
 	//--------------------------------------------------------------------
 	// Visibility
@@ -563,7 +584,7 @@ public:
 public:
 	virtual BOOL    isTextureDefined(LLVOAvatarDefines::ETextureIndex type, U32 index = 0) const;
 	virtual BOOL	isTextureVisible(LLVOAvatarDefines::ETextureIndex type, U32 index = 0) const;
-	virtual BOOL	isTextureVisible(LLVOAvatarDefines::ETextureIndex type, LLWearable *wearable) const;
+	virtual BOOL	isTextureVisible(LLVOAvatarDefines::ETextureIndex type, LLViewerWearable *wearable) const;
 
 	BOOL			isFullyBaked();
 	static BOOL		areAllNearbyInstancesBaked(S32& grey_avatars);
@@ -586,7 +607,7 @@ protected:
 	struct BakedTextureData
 	{
 		LLUUID								mLastTextureIndex;
-		LLTexLayerSet* 						mTexLayerSet; // Only exists for self
+		LLViewerTexLayerSet* 				mTexLayerSet; // Only exists for self
 		bool								mIsLoaded;
 		bool								mIsUsed;
 		LLVOAvatarDefines::ETextureIndex 	mTextureIndex;
@@ -668,15 +689,15 @@ private:
  **/
 
 public:
-	void 			updateMeshTextures();
+	virtual void 	updateMeshTextures();
 	void 			updateSexDependentLayerSets(BOOL upload_bake);
-	void 			dirtyMesh(); // Dirty the avatar mesh
+	virtual void	dirtyMesh(); // Dirty the avatar mesh
 	void 			updateMeshData();
 protected:
 	void 			releaseMeshData();
 	virtual void restoreMeshData();
 private:
-	void 			dirtyMesh(S32 priority); // Dirty the avatar mesh, with priority
+	virtual void	dirtyMesh(S32 priority); // Dirty the avatar mesh, with priority
 	S32 			mDirtyMesh; // 0 -- not dirty, 1 -- morphed, 2 -- LOD
 	BOOL			mMeshTexturesDirty;
 
@@ -710,7 +731,6 @@ public:
 	//--------------------------------------------------------------------
 public:
 	BOOL			getIsAppearanceAnimating() const { return mAppearanceAnimating; }
-	BOOL			isUsingBakedTextures() const { return mUseServerBakes; } // e.g. false if in appearance edit mode		
 private:
 	BOOL			mAppearanceAnimating;
 	LLFrameTimer	mAppearanceMorphTimer;
@@ -720,25 +740,6 @@ private:
 	BOOL			mUseServerBakes; // flag for if baked textures should be fetched from baking service (false if they're temporary uploads)
 
 	//--------------------------------------------------------------------
-	// Clothing colors (convenience functions to access visual parameters)
-	//--------------------------------------------------------------------
-public:
-	void			setClothesColor(LLVOAvatarDefines::ETextureIndex te, const LLColor4& new_color, BOOL upload_bake);
-	LLColor4		getClothesColor(LLVOAvatarDefines::ETextureIndex te);
-	static BOOL			teToColorParams(LLVOAvatarDefines::ETextureIndex te, U32 *param_name);
-
-	//--------------------------------------------------------------------
-	// Global colors
-	//--------------------------------------------------------------------
-public:
-	LLColor4		getGlobalColor(const std::string& color_name ) const;
-	void			onGlobalColorChanged(const LLTexGlobalColor* global_color, BOOL upload_bake);
-private:
-	LLTexGlobalColor* mTexSkinColor;
-	LLTexGlobalColor* mTexHairColor;
-	LLTexGlobalColor* mTexEyeColor;
-
-	//--------------------------------------------------------------------
 	// Visibility
 	//--------------------------------------------------------------------
 public:
@@ -746,7 +747,6 @@ public:
 	void			setVisibilityRank(U32 rank);
 	U32				getVisibilityRank()  const { return mVisibilityRank; } // unused
 	static S32 		sNumVisibleAvatars; // Number of instances of this class
-	static LLColor4 getDummyColor();
 /**                    Appearance
  **                                                                            **
  *******************************************************************************/
@@ -1038,11 +1038,9 @@ private:
 	//--------------------------------------------------------------------
 public:
 	void 			debugAvatarRezTime(std::string notification_name, std::string comment = "");
-	F32				debugGetExistenceTimeElapsedF32() const { return mDebugExistenceTimer.getElapsedTimeF32(); }
 
 protected:
 	LLFrameTimer	mRuthDebugTimer; // For tracking how long it takes for av to rez
-	LLFrameTimer	mDebugExistenceTimer; // Debugging for how long the avatar has been in memory.
 
 /**                    Diagnostics
  **                                                                            **
@@ -1163,4 +1161,5 @@ protected: // Shared with LLVOAvatarSelf
 extern const F32 SELF_ADDITIONAL_PRI;
 extern const S32 MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL;
 
-#endif // LL_VO_AVATAR_H
+#endif // LL_VOAVATAR_H
+

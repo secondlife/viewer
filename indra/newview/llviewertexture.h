@@ -107,39 +107,6 @@ public:
 		INVALID_TEXTURE_TYPE
 	};
 
-	enum EBoostLevel
-	{
-		BOOST_NONE 			= 0,
-		BOOST_AVATAR_BAKED	,
-		BOOST_AVATAR		,
-		BOOST_CLOUDS		,
-		BOOST_SCULPTED      ,
-		
-		BOOST_HIGH 			= 10,
-		BOOST_BUMP          ,
-		BOOST_TERRAIN		, // has to be high priority for minimap / low detail
-		BOOST_SELECTED		,		
-		BOOST_AVATAR_BAKED_SELF	,
-		BOOST_AVATAR_SELF	, // needed for baking avatar
-		BOOST_SUPER_HIGH    , //textures higher than this need to be downloaded at the required resolution without delay.
-		BOOST_HUD			,
-		BOOST_ICON			,
-		BOOST_UI			,
-		BOOST_PREVIEW		,
-		BOOST_MAP			,
-		BOOST_MAP_VISIBLE	,		
-		BOOST_MAX_LEVEL,
-
-		//other texture Categories
-		LOCAL = BOOST_MAX_LEVEL,
-		AVATAR_SCRATCH_TEX,
-		DYNAMIC_TEX,
-		MEDIA,
-		ATLAS,
-		OTHER,
-		MAX_GL_IMAGE_CATEGORY
-	};
-
 	static S32 getTotalNumOfCategories() ;
 	static S32 getIndexFromCategory(S32 category) ;
 	static S32 getCategoryFromIndex(S32 index) ;
@@ -168,7 +135,7 @@ public:
 	/*virtual*/ bool bindDefaultImage(const S32 stage = 0) ;
 	/*virtual*/ void forceImmediateUpdate() ;
 	
-	const LLUUID& getID() const { return mID; }
+	/*virtual*/ const LLUUID& getID() const { return mID; }
 	
 	void setBoostLevel(S32 level);
 	S32  getBoostLevel() { return mBoostLevel; }
@@ -205,24 +172,24 @@ public:
 	/*virtual*/S32	       getWidth(S32 discard_level = -1) const;
 	/*virtual*/S32	       getHeight(S32 discard_level = -1) const;
 	
-	BOOL       hasGLTexture() const ;
+	/*virtual*/BOOL       hasGLTexture() const ;
 	LLGLuint   getTexName() const ;		
 	BOOL       createGLTexture() ;
-	BOOL       createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename = 0, BOOL to_create = TRUE, S32 category = LLViewerTexture::OTHER);
+	/*virtual*/ BOOL       createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename = 0, BOOL to_create = TRUE, S32 category = LLTexture::OTHER);
 	virtual void setCachedRawImage(S32 discard_level, LLImageRaw* imageraw) ;
 
 	void       setFilteringOption(LLTexUnit::eTextureFilterOptions option);
-	void       setExplicitFormat(LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format = 0, BOOL swap_bytes = FALSE);
-	void       setAddressMode(LLTexUnit::eTextureAddressMode mode);
+	/*virtual*/ void setExplicitFormat(LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format = 0, BOOL swap_bytes = FALSE);
+	/*virtual*/ void setAddressMode(LLTexUnit::eTextureAddressMode mode);
 	BOOL       setSubImage(const LLImageRaw* imageraw, S32 x_pos, S32 y_pos, S32 width, S32 height);
 	BOOL       setSubImage(const U8* datap, S32 data_width, S32 data_height, S32 x_pos, S32 y_pos, S32 width, S32 height);
 	void       setGLTextureCreated (bool initialized);
 	void       setCategory(S32 category) ;
 
-	LLTexUnit::eTextureAddressMode getAddressMode(void) const ;
+	/*virtual*/ LLTexUnit::eTextureAddressMode getAddressMode(void) const ;
 	S32        getMaxDiscardLevel() const;
 	S32        getDiscardLevel() const;
-	S8		   getComponents() const ;		
+	/*virtual*/ S8 getComponents() const;
 	BOOL       getBoundRecently() const;
 	S32        getTextureMemory() const ;
 	LLGLenum   getPrimaryFormat() const;
@@ -761,6 +728,7 @@ public:
 	static void init() ;
 	static void cleanup() ;
 };
+
 //
 //this class is used for test/debug only
 //it tracks the activities of the texture pipeline

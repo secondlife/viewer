@@ -48,8 +48,8 @@
 #include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
 #include "llviewermenufile.h"
+#include "llviewertexlayer.h"
 #include "llviewerwindow.h"
-#include "lltexlayer.h"
 #include "lltrans.h"
 
 // library includes

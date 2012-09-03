@@ -28,7 +28,7 @@
 
 #include "llpaneleditwearable.h"
 #include "llpanel.h"
-#include "llwearable.h"
+#include "llviewerwearable.h"
 #include "lluictrl.h"
 #include "llscrollingpanellist.h"
 #include "llvisualparam.h"
@@ -865,7 +865,7 @@ void LLPanelEditWearable::setVisible(BOOL visible)
         LLPanel::setVisible(visible);
 }
 
-void LLPanelEditWearable::setWearable(LLWearable *wearable, BOOL disable_camera_switch)
+void LLPanelEditWearable::setWearable(LLViewerWearable *wearable, BOOL disable_camera_switch)
 {
         showWearable(mWearablePtr, FALSE, disable_camera_switch);
         mWearablePtr = wearable;
@@ -922,7 +922,7 @@ void LLPanelEditWearable::onCommitSexChange()
         }
 
         bool is_new_sex_male = (gSavedSettings.getU32("AvatarSex") ? SEX_MALE : SEX_FEMALE) == SEX_MALE;
-        LLWearable*     wearable = gAgentWearables.getWearable(type, index);
+        LLViewerWearable*     wearable = gAgentWearables.getWearable(type, index);
         if (wearable)
         {
                 wearable->setVisualParamWeight(param->getID(), is_new_sex_male, FALSE);
@@ -1069,7 +1069,7 @@ void LLPanelEditWearable::revertChanges()
         gAgentAvatarp->wearableUpdated(mWearablePtr->getType(), FALSE);
 }
 
-void LLPanelEditWearable::showWearable(LLWearable* wearable, BOOL show, BOOL disable_camera_switch)
+void LLPanelEditWearable::showWearable(LLViewerWearable* wearable, BOOL show, BOOL disable_camera_switch)
 {
         if (!wearable)
         {
@@ -1445,7 +1445,7 @@ void LLPanelEditWearable::buildParamList(LLScrollingPanelList *panel_list, value
                 {
                         LLPanel::Params p;
                         p.name("LLScrollingPanelParam");
-                        LLWearable *wearable = this->getWearable();
+                        LLViewerWearable *wearable = this->getWearable();
                         LLScrollingPanelParamBase *panel_param = NULL;
                         if (wearable && wearable->getType() == LLWearableType::WT_PHYSICS) // Hack to show a different panel for physics.  Should generalize this later.
                         {

@@ -77,15 +77,16 @@
 #include "llselectmgr.h"
 #include "llsprite.h"
 #include "lltargetingmotion.h"
-#include "lltexlayer.h"
 #include "lltoolmorph.h"
 #include "llviewercamera.h"
+#include "llviewertexlayer.h"
 #include "llviewertexturelist.h"
 #include "llviewermenu.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
 #include "llviewershadermgr.h"
 #include "llviewerstats.h"
+#include "llviewerwearable.h"
 #include "llvoavatarself.h"
 #include "llvovolume.h"
 #include "llworld.h"
@@ -191,8 +192,6 @@ const S32 MAX_BUBBLE_CHAT_LENGTH = DB_CHAT_MSG_STR_LEN;
 const S32 MAX_BUBBLE_CHAT_UTTERANCES = 12;
 const F32 CHAT_FADE_TIME = 8.0;
 const F32 BUBBLE_CHAT_TIME = CHAT_FADE_TIME * 3.f;
-
-const LLColor4 DUMMY_COLOR = LLColor4(0.5,0.5,0.5,1.0);
 
 enum ERenderName
 {
@@ -645,8 +644,8 @@ static F32 calc_bouncy_animation(F32 x);
 LLVOAvatar::LLVOAvatar(const LLUUID& id,
 					   const LLPCode pcode,
 					   LLViewerRegion* regionp) :
+	LLAvatarAppearance(),
 	LLViewerObject(id, pcode, regionp),
-	mIsDummy(FALSE),
 	mSpecialRenderMode(0),
 	mAttachmentGeometryBytes(0),
 	mAttachmentSurfaceArea(0.f),
@@ -678,9 +677,6 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mFirstAppearanceMessageReceived( FALSE ),
 	mCulled( FALSE ),
 	mVisibilityRank(0),
-	mTexSkinColor( NULL ),
-	mTexHairColor( NULL ),
-	mTexEyeColor( NULL ),
 	mNeedsSkin(FALSE),
 	mLastSkinTime(0.f),
 	mUpdatePeriod(1),
@@ -768,7 +764,6 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 
 	mRuthTimer.reset();
 	mRuthDebugTimer.reset();
-	mDebugExistenceTimer.reset();
 	mPelvisOffset = LLVector3(0.0f,0.0f,0.0f);
 	mLastPelvisToFoot = 0.0f;
 	mPelvisFixup = 0.0f;
@@ -1133,7 +1128,7 @@ void LLVOAvatar::resetImpostors()
 // static
 void LLVOAvatar::deleteCachedImages(bool clearAll)
 {	
-	if (LLTexLayerSet::sHasCaches)
+	if (LLViewerTexLayerSet::sHasCaches)
 	{
 		lldebugs << "Deleting layer set caches" << llendl;
 		for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
@@ -1142,7 +1137,7 @@ void LLVOAvatar::deleteCachedImages(bool clearAll)
 			LLVOAvatar* inst = (LLVOAvatar*) *iter;
 			inst->deleteLayerSetCaches(clearAll);
 		}
-		LLTexLayerSet::sHasCaches = FALSE;
+		LLViewerTexLayerSet::sHasCaches = FALSE;
 	}
 	LLVOAvatarSelf::deleteScratchTextures();
 	LLTexLayerStaticImageList::getInstance()->deleteCachedImages();
@@ -5864,6 +5859,30 @@ void LLVOAvatar::updateVisualParams()
 	updateHeadOffset();
 }
 
+// virtual
+U32 LLVOAvatar::getWearableCount(const LLWearableType::EType type) const
+{
+	return gAgentWearables.getWearableCount(type);
+}
+
+// virtual
+U32 LLVOAvatar::getWearableCount(const U32 tex_index) const
+{
+	return gAgentWearables.getWearableCount(tex_index);
+}
+
+// virtual
+LLWearable* LLVOAvatar::getWearable(const LLWearableType::EType type, U32 index /*= 0*/)
+{
+	return gAgentWearables.getWearable(type, index);
+}
+
+// virtual
+const LLWearable* LLVOAvatar::getWearable(const LLWearableType::EType type, U32 index /*= 0*/) const
+{
+	return gAgentWearables.getWearable(type, index);
+}
+
 //-----------------------------------------------------------------------------
 // isActive()
 //-----------------------------------------------------------------------------
@@ -6453,26 +6472,6 @@ S32 LLVOAvatar::getAttachmentCount()
 	return count;
 }
 
-LLColor4 LLVOAvatar::getGlobalColor( const std::string& color_name ) const
-{
-	if (color_name=="skin_color" && mTexSkinColor)
-	{
-		return mTexSkinColor->getColor();
-	}
-	else if(color_name=="hair_color" && mTexHairColor)
-	{
-		return mTexHairColor->getColor();
-	}
-	if(color_name=="eye_color" && mTexEyeColor)
-	{
-		return mTexEyeColor->getColor();
-	}
-	else
-	{
-//		return LLColor4( .5f, .5f, .5f, .5f );
-		return LLColor4( 0.f, 1.f, 1.f, 1.f ); // good debugging color
-	}
-}
 
 // virtual
 void LLVOAvatar::invalidateComposite( LLTexLayerSet* layerset, BOOL upload_result )
@@ -6483,6 +6482,7 @@ void LLVOAvatar::invalidateAll()
 {
 }
 
+// virtual
 void LLVOAvatar::onGlobalColorChanged(const LLTexGlobalColor* global_color, BOOL upload_bake )
 {
 	if (global_color == mTexSkinColor)
@@ -6682,6 +6682,7 @@ LLMotion* LLVOAvatar::findMotion(const LLUUID& id) const
 // updateMeshTextures()
 // Uses the current TE values to set the meshes' and layersets' textures.
 //-----------------------------------------------------------------------------
+// virtual
 void LLVOAvatar::updateMeshTextures()
 {
     // llinfos << "updateMeshTextures" << llendl;
@@ -6903,7 +6904,7 @@ BOOL LLVOAvatar::morphMaskNeedsUpdate(LLVOAvatarDefines::EBakedTextureIndex inde
 	{
 		if (isSelf())
 		{
-			LLTexLayerSet *layer_set = mBakedTextureDatas[index].mTexLayerSet;
+			LLViewerTexLayerSet *layer_set = mBakedTextureDatas[index].mTexLayerSet;
 			if (layer_set)
 			{
 				return !layer_set->isMorphValid();
@@ -6971,112 +6972,6 @@ void LLVOAvatar::releaseComponentTextures()
 			setTETexture(te, IMG_DEFAULT_AVATAR);
 		}
 	}
-}
-
-//static
-BOOL LLVOAvatar::teToColorParams( ETextureIndex te, U32 *param_name )
-{
-	switch( te )
-	{
-		case TEX_UPPER_SHIRT:
-			param_name[0] = 803; //"shirt_red";
-			param_name[1] = 804; //"shirt_green";
-			param_name[2] = 805; //"shirt_blue";
-			break;
-
-		case TEX_LOWER_PANTS:
-			param_name[0] = 806; //"pants_red";
-			param_name[1] = 807; //"pants_green";
-			param_name[2] = 808; //"pants_blue";
-			break;
-
-		case TEX_LOWER_SHOES:
-			param_name[0] = 812; //"shoes_red";
-			param_name[1] = 813; //"shoes_green";
-			param_name[2] = 817; //"shoes_blue";
-			break;
-
-		case TEX_LOWER_SOCKS:
-			param_name[0] = 818; //"socks_red";
-			param_name[1] = 819; //"socks_green";
-			param_name[2] = 820; //"socks_blue";
-			break;
-
-		case TEX_UPPER_JACKET:
-		case TEX_LOWER_JACKET:
-			param_name[0] = 834; //"jacket_red";
-			param_name[1] = 835; //"jacket_green";
-			param_name[2] = 836; //"jacket_blue";
-			break;
-
-		case TEX_UPPER_GLOVES:
-			param_name[0] = 827; //"gloves_red";
-			param_name[1] = 829; //"gloves_green";
-			param_name[2] = 830; //"gloves_blue";
-			break;
-
-		case TEX_UPPER_UNDERSHIRT:
-			param_name[0] = 821; //"undershirt_red";
-			param_name[1] = 822; //"undershirt_green";
-			param_name[2] = 823; //"undershirt_blue";
-			break;
-	
-		case TEX_LOWER_UNDERPANTS:
-			param_name[0] = 824; //"underpants_red";
-			param_name[1] = 825; //"underpants_green";
-			param_name[2] = 826; //"underpants_blue";
-			break;
-
-		case TEX_SKIRT:
-			param_name[0] = 921; //"skirt_red";
-			param_name[1] = 922; //"skirt_green";
-			param_name[2] = 923; //"skirt_blue";
-			break;
-
-		case TEX_HEAD_TATTOO:
-		case TEX_LOWER_TATTOO:
-		case TEX_UPPER_TATTOO:
-			param_name[0] = 1071; //"tattoo_red";
-			param_name[1] = 1072; //"tattoo_green";
-			param_name[2] = 1073; //"tattoo_blue";
-			break;	
-
-		default:
-			llassert(0);
-			return FALSE;
-	}
-
-	return TRUE;
-}
-
-void LLVOAvatar::setClothesColor( ETextureIndex te, const LLColor4& new_color, BOOL upload_bake )
-{
-	U32 param_name[3];
-	if( teToColorParams( te, param_name ) )
-	{
-		setVisualParamWeight( param_name[0], new_color.mV[VX], upload_bake );
-		setVisualParamWeight( param_name[1], new_color.mV[VY], upload_bake );
-		setVisualParamWeight( param_name[2], new_color.mV[VZ], upload_bake );
-	}
-}
-
-LLColor4 LLVOAvatar::getClothesColor( ETextureIndex te )
-{
-	LLColor4 color;
-	U32 param_name[3];
-	if( teToColorParams( te, param_name ) )
-	{
-		color.mV[VX] = getVisualParamWeight( param_name[0] );
-		color.mV[VY] = getVisualParamWeight( param_name[1] );
-		color.mV[VZ] = getVisualParamWeight( param_name[2] );
-	}
-	return color;
-}
-
-// static
-LLColor4 LLVOAvatar::getDummyColor()
-{
-	return DUMMY_COLOR;
 }
 
 void LLVOAvatar::dumpAvatarTEs( const std::string& context ) const
@@ -8787,7 +8682,7 @@ BOOL LLVOAvatar::isTextureVisible(LLVOAvatarDefines::ETextureIndex type, U32 ind
 }
 
 //virtual
-BOOL LLVOAvatar::isTextureVisible(LLVOAvatarDefines::ETextureIndex type, LLWearable *wearable) const
+BOOL LLVOAvatar::isTextureVisible(LLVOAvatarDefines::ETextureIndex type, LLViewerWearable *wearable) const
 {
 	// non-self avatars don't have wearables
 	return FALSE;

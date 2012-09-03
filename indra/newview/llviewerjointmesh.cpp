@@ -42,7 +42,7 @@
 #include "llface.h"
 #include "llgldbg.h"
 #include "llglheaders.h"
-#include "lltexlayer.h"
+#include "llviewertexlayer.h"
 #include "llviewercamera.h"
 #include "llviewercontrol.h"
 #include "llviewertexturelist.h"
@@ -248,7 +248,7 @@ void LLViewerJointMesh::setTexture( LLViewerTexture *texture )
 // LLViewerJointMesh::setLayerSet()
 // Sets the shape texture (takes precedence over normal texture)
 //--------------------------------------------------------------------
-void LLViewerJointMesh::setLayerSet( LLTexLayerSet* layer_set )
+void LLViewerJointMesh::setLayerSet( LLViewerTexLayerSet* layer_set )
 {
 	mLayerSet = layer_set;
 	

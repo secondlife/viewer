@@ -28,34 +28,48 @@ include(LLLogin)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
-    ${VIEWER_INCLUDE_DIRS}
-    ${LLAUDIO_INCLUDE_DIRS}
     ${LLCHARACTER_INCLUDE_DIRS}
-    ${LLCOMMON_INCLUDE_DIRS}
     ${LLPHYSICS_INCLUDE_DIRS}
     ${LLIMAGE_INCLUDE_DIRS}
     ${LLKDU_INCLUDE_DIRS}
     ${LLINVENTORY_INCLUDE_DIRS}
     ${LLMATH_INCLUDE_DIRS}
-    ${LLMESSAGE_INCLUDE_DIRS}
-    ${LLPHYSICSEXTENSIONS_INCLUDE_DIRS}
-    ${LLPLUGIN_INCLUDE_DIRS}
-    ${LLPRIMITIVE_INCLUDE_DIRS}
     ${LLRENDER_INCLUDE_DIRS}
     ${LLUI_INCLUDE_DIRS}
     ${LLVFS_INCLUDE_DIRS}
     ${LLWINDOW_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
-    ${LLLOGIN_INCLUDE_DIRS}
     )
 
 set(llappearance_SOURCE_FILES
+    llavatarappearance.cpp
+    llinventoryicon.cpp
+    lllocaltextureobject.cpp
+    lltexglobalcolor.cpp
+    lltexlayer.cpp
+    lltexlayerparams.cpp
+    lltexturemanagerbridge.cpp
     llwearable.cpp
+    llwearabletype.cpp
+    llviewervisualparam.cpp
+    llvoavatardefines.cpp
     )
     
 set(llappearance_HEADER_FILES
-    llwearable.h
     CMakeLists.txt
+
+    llavatarappearance.h
+    llinventoryicon.cpp
+    lljointpickname.h
+    lllocaltextureobject.h
+    lltexglobalcolor.h
+    lltexlayer.h
+    lltexlayerparams.h
+    lltexturemanagerbridge.h
+    llwearable.h
+    llwearabletype.h
+    llviewervisualparam.h
+    llvoavatardefines.h
     )
 
 set_source_files_properties(${llappearance_HEADER_FILES}

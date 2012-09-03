@@ -35,7 +35,6 @@
 #include "llinventoryobserver.h"
 #include "llviewerinventory.h"
 
-class LLWearable;
 class LLWearableHoldingPattern;
 class LLInventoryCallback;
 class LLOutfitUnLockTimer;

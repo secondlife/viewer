@@ -31,6 +31,7 @@
 // Header Files
 //-----------------------------------------------------------------------------
 #include "lljoint.h"
+#include "lljointpickname.h"
 
 class LLFace;
 class LLViewerJointMesh;
@@ -103,21 +104,8 @@ public:
 	F32 getLOD() { return mMinPixelArea; }
 	void setLOD( F32 pixelArea ) { mMinPixelArea = pixelArea; }
 	
-	// Sets the OpenGL selection stack name that is pushed and popped
-	// with this joint state.  The default value indicates that no name
-	// should be pushed/popped.
-	enum PickName
-	{
-		PN_DEFAULT = -1,
-		PN_0 = 0,
-		PN_1 = 1,
-		PN_2 = 2,
-		PN_3 = 3,
-		PN_4 = 4,
-		PN_5 = 5
-	};
-	void setPickName(PickName name) { mPickName = name; }
-	PickName getPickName() { return mPickName; }
+	void setPickName(LLJointPickName name) { mPickName = name; }
+	LLJointPickName getPickName() { return mPickName; }
 
 	virtual void updateFaceSizes(U32 &num_vertices, U32& num_indices, F32 pixel_area);
 	virtual void updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind = FALSE, bool terse_update = false);
@@ -141,7 +129,7 @@ protected:
 	BOOL		mValid;
 	U32			mComponents;
 	F32			mMinPixelArea;
-	PickName	mPickName;
+	LLJointPickName	mPickName;
 	BOOL		mVisible;
 	S32			mMeshID;
 };

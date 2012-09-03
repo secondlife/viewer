@@ -32,7 +32,7 @@
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
 #include "llagent.h"
-#include "llwearable.h"
+#include "llviewerwearable.h"
 #include "llagentwearables.h"
 
 //-----------------------------------------------------------------------------
@@ -623,10 +623,19 @@ F32 LLDriverParam::getDrivenWeight(const LLDrivenEntry* driven, F32 input_weight
 
 void LLDriverParam::setDrivenWeight(LLDrivenEntry *driven, F32 driven_weight, bool upload_bake)
 {
+	bool use_self = false;
 	if(isAgentAvatarValid() &&
-	   mWearablep && 
-	   driven->mParam->getCrossWearable() &&
-	   mWearablep->isOnTop())
+		mWearablep && 
+		driven->mParam->getCrossWearable())
+	{
+		LLViewerWearable* wearable = dynamic_cast<LLViewerWearable*> (mWearablep);
+		if (!wearable->isOnTop())
+		{
+			use_self = false;
+		}
+	}
+
+	if (use_self)
 	{
 		// call setWeight through LLVOAvatarSelf so other wearables can be updated with the correct values
 		gAgentAvatarp->setVisualParamWeight( (LLVisualParam*)driven->mParam, driven_weight, upload_bake );

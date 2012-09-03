@@ -59,6 +59,7 @@
 #include "lltextureatlas.h"
 #include "lltextureatlasmanager.h"
 #include "lltextureentry.h"
+#include "lltexturemanagerbridge.h"
 #include "llmediaentry.h"
 #include "llvovolume.h"
 #include "llviewermedia.h"
@@ -305,6 +306,26 @@ LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTextureFromHost(const 
 	return gTextureList.getImageFromHost(image_id, host) ;
 }
 
+// Create a bridge to the viewer texture manager.
+class LLViewerTextureManagerBridge : public LLTextureManagerBridge
+{
+	/*virtual*/ LLPointer<LLTexture> getLocalTexture(BOOL usemipmaps = TRUE, BOOL generate_gl_tex = TRUE)
+	{
+		return LLViewerTextureManager::getLocalTexture(usemipmaps, generate_gl_tex);
+	}
+
+	/*virtual*/ LLPointer<LLTexture> getLocalTexture(const U32 width, const U32 height, const U8 components, BOOL usemipmaps, BOOL generate_gl_tex = TRUE)
+	{
+		return LLViewerTextureManager::getLocalTexture(width, height, components, usemipmaps, generate_gl_tex);
+	}
+
+	/*virtual*/ LLTexture* getFetchedTexture(const LLUUID &image_id)
+	{
+		return LLViewerTextureManager::getFetchedTexture(image_id);
+	}
+};
+
+
 void LLViewerTextureManager::init()
 {
 	{
@@ -374,6 +395,9 @@ void LLViewerTextureManager::init()
 	LLViewerTexture::sCheckerBoardImagep = LLViewerTextureManager::getLocalTexture(image_raw.get(), TRUE);
 
 	LLViewerTexture::initClass() ;
+	
+	// Create a texture manager bridge.
+	gTextureManagerBridgep = new LLViewerTextureManagerBridge();
 
 	if (LLMetricPerformanceTesterBasic::isMetricLogRequested(sTesterName) && !LLMetricPerformanceTesterBasic::getTester(sTesterName))
 	{
@@ -390,6 +414,7 @@ void LLViewerTextureManager::cleanup()
 {
 	stop_glerror();
 
+	delete gTextureManagerBridgep;
 	LLImageGL::sDefaultGLTexture = NULL ;
 	LLViewerTexture::sNullImagep = NULL;
 	LLViewerTexture::sBlackImagep = NULL;

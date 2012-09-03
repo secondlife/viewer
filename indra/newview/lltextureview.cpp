@@ -40,7 +40,7 @@
 #include "lltooltip.h"
 #include "llappviewer.h"
 #include "llselectmgr.h"
-#include "lltexlayer.h"
+#include "llviewertexlayer.h"
 #include "lltexturecache.h"
 #include "lltexturefetch.h"
 #include "llviewercontrol.h"
@@ -423,7 +423,7 @@ void LLAvatarTexBar::draw()
 		 ++baked_iter)
 	{
 		const LLVOAvatarDefines::EBakedTextureIndex baked_index = baked_iter->first;
-		const LLTexLayerSet *layerset = avatarp->debugGetLayerSet(baked_index);
+		const LLViewerTexLayerSet *layerset = avatarp->debugGetLayerSet(baked_index);
 		if (!layerset) continue;
 		const LLTexLayerSetBuffer *layerset_buffer = layerset->getComposite();
 		if (!layerset_buffer) continue;

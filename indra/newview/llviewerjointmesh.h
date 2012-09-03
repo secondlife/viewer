@@ -35,7 +35,7 @@
 class LLDrawable;
 class LLFace;
 class LLCharacter;
-class LLTexLayerSet;
+class LLViewerTexLayerSet;
 
 typedef enum e_avatar_render_pass
 {
@@ -67,7 +67,7 @@ protected:
 // 	LLColor4					mSpecular;		// specular color (always white for now)
 	F32							mShiny;			// shiny value
 	LLPointer<LLViewerTexture>	mTexture;		// ptr to a global texture
-	LLTexLayerSet*				mLayerSet;		// ptr to a layer set owned by the avatar
+	LLViewerTexLayerSet*		mLayerSet;		// ptr to a layer set owned by the avatar
 	U32 						mTestImageName;		// handle to a temporary texture for previewing uploads
 	LLPolyMesh*					mMesh;			// ptr to a global polymesh
 	BOOL						mCullBackFaces;	// true by default
@@ -109,7 +109,7 @@ public:
 	void setTestTexture( U32 name ) { mTestImageName = name; }
 
 	// Sets layer set responsible for a dynamic shape texture (takes precedence over normal texture)
-	void setLayerSet( LLTexLayerSet* layer_set );
+	void setLayerSet( LLViewerTexLayerSet* layer_set );
 
 	// Gets the poly mesh
 	LLPolyMesh *getMesh();

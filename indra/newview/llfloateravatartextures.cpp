@@ -32,6 +32,7 @@
 
 #include "llagent.h"
 #include "llagentwearables.h"
+#include "llviewerwearable.h"
 #include "lltexturectrl.h"
 #include "lluictrlfactory.h"
 #include "llviewerobjectlist.h"
@@ -81,7 +82,7 @@ static void update_texture_ctrl(LLVOAvatar* avatarp,
 		if (avatarp->isSelf())
 		{
 			const LLWearableType::EType wearable_type = tex_entry->mWearableType;
-			LLWearable *wearable = gAgentWearables.getWearable(wearable_type, 0);
+			LLViewerWearable *wearable = gAgentWearables.getWearable(wearable_type, 0);
 			if (wearable)
 			{
 				LLLocalTextureObject *lto = wearable->getLocalTextureObject(te);
@@ -173,7 +174,7 @@ void LLFloaterAvatarTextures::onClickDump(void* data)
 				LLWearableType::EType wearable_type = LLVOAvatarDictionary::getInstance()->getTEWearableType((ETextureIndex)i);
 				if (avatarp->isSelf())
 				{
-					LLWearable *wearable = gAgentWearables.getWearable(wearable_type, 0);
+					LLViewerWearable *wearable = gAgentWearables.getWearable(wearable_type, 0);
 					if (wearable)
 					{
 						LLLocalTextureObject *lto = wearable->getLocalTextureObject(i);

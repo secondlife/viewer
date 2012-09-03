@@ -197,13 +197,13 @@ public:
 	/*virtual*/ bool	hasPendingBakedUploads() const;
 	S32					getLocalDiscardLevel(LLVOAvatarDefines::ETextureIndex type, U32 index) const;
 	bool				areTexturesCurrent() const;
-	BOOL				isLocalTextureDataAvailable(const LLTexLayerSet* layerset) const;
-	BOOL				isLocalTextureDataFinal(const LLTexLayerSet* layerset) const;
+	BOOL				isLocalTextureDataAvailable(const LLViewerTexLayerSet* layerset) const;
+	BOOL				isLocalTextureDataFinal(const LLViewerTexLayerSet* layerset) const;
 	BOOL				isBakedTextureFinal(const LLVOAvatarDefines::EBakedTextureIndex index) const;
 	// If you want to check all textures of a given type, pass gAgentWearables.getWearableCount() for index
 	/*virtual*/ BOOL    isTextureDefined(LLVOAvatarDefines::ETextureIndex type, U32 index) const;
 	/*virtual*/ BOOL	isTextureVisible(LLVOAvatarDefines::ETextureIndex type, U32 index = 0) const;
-	/*virtual*/ BOOL	isTextureVisible(LLVOAvatarDefines::ETextureIndex type, LLWearable *wearable) const;
+	/*virtual*/ BOOL	isTextureVisible(LLVOAvatarDefines::ETextureIndex type, LLViewerWearable *wearable) const;
 
 
 	//--------------------------------------------------------------------
@@ -233,7 +233,7 @@ private:
 	// Baked textures
 	//--------------------------------------------------------------------
 public:
-	LLVOAvatarDefines::ETextureIndex getBakedTE(const LLTexLayerSet* layerset ) const;
+	LLVOAvatarDefines::ETextureIndex getBakedTE(const LLViewerTexLayerSet* layerset ) const;
 	void				setNewBakedTexture(LLVOAvatarDefines::EBakedTextureIndex i, const LLUUID &uuid);
 	void				setNewBakedTexture(LLVOAvatarDefines::ETextureIndex i, const LLUUID& uuid);
 	void				setCachedBakedTexture(LLVOAvatarDefines::ETextureIndex i, const LLUUID& uuid);
@@ -249,14 +249,14 @@ public:
 	void 				requestLayerSetUploads();
 	void				requestLayerSetUpload(LLVOAvatarDefines::EBakedTextureIndex i);
 	void				requestLayerSetUpdate(LLVOAvatarDefines::ETextureIndex i);
-	LLTexLayerSet*		getLayerSet(LLVOAvatarDefines::ETextureIndex index) const;
-	LLTexLayerSet* 		getLayerSet(LLVOAvatarDefines::EBakedTextureIndex baked_index) const;
+	LLViewerTexLayerSet*	getLayerSet(LLVOAvatarDefines::ETextureIndex index) const;
+	LLViewerTexLayerSet*	getLayerSet(LLVOAvatarDefines::EBakedTextureIndex baked_index) const;
 	
 	//--------------------------------------------------------------------
 	// Composites
 	//--------------------------------------------------------------------
 public:
-	/* virtual */ void	invalidateComposite(LLTexLayerSet* layerset, BOOL upload_result);
+	/* virtual */ void	invalidateComposite(LLViewerTexLayerSet* layerset, BOOL upload_result);
 	/* virtual */ void	invalidateAll();
 	/* virtual */ void	setCompositeUpdatesEnabled(bool b); // only works for self
 	/* virtual */ void  setCompositeUpdatesEnabled(U32 index, bool b);
@@ -388,8 +388,8 @@ public:
 
 	BOOL					isAllLocalTextureDataFinal() const;
 
-	const LLTexLayerSet*  	debugGetLayerSet(LLVOAvatarDefines::EBakedTextureIndex index) const { return mBakedTextureDatas[index].mTexLayerSet; }
-	const std::string		debugDumpLocalTextureDataInfo(const LLTexLayerSet* layerset) const; // Lists out state of this particular baked texture layer
+	const LLViewerTexLayerSet*	debugGetLayerSet(LLVOAvatarDefines::EBakedTextureIndex index) const { return mBakedTextureDatas[index].mTexLayerSet; }
+	const std::string		debugDumpLocalTextureDataInfo(const LLViewerTexLayerSet* layerset) const; // Lists out state of this particular baked texture layer
 	const std::string		debugDumpAllLocalTextureDataInfo() const; // Lists out which baked textures are at highest LOD
 	LLSD					metricsData();
 	void					sendAppearanceChangeMetrics(); // send data associated with completing a change.
