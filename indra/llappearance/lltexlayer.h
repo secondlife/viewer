@@ -30,7 +30,7 @@
 #include <deque>
 #include "lltexture.h"
 #include "llframetimer.h"
-#include "llvoavatardefines.h"
+#include "llavatarappearancedefines.h"
 #include "lltexlayerparams.h"
 
 class LLAvatarAppearance;
@@ -195,12 +195,12 @@ public:
 	void						invalidateMorphMasks();
 	void						deleteCaches();
 	LLTexLayerInterface*		findLayerByName(const std::string& name);
-	void						cloneTemplates(LLLocalTextureObject *lto, LLVOAvatarDefines::ETextureIndex tex_index, LLWearable* wearable);
+	void						cloneTemplates(LLLocalTextureObject *lto, LLAvatarAppearanceDefines::ETextureIndex tex_index, LLWearable* wearable);
 	
 	LLAvatarAppearance*			getAvatarAppearance()	const		{ return mAvatarAppearance; }
 	const std::string			getBodyRegionName() const;
-	LLVOAvatarDefines::EBakedTextureIndex getBakedTexIndex() { return mBakedTexIndex; }
-	void						setBakedTexIndex(LLVOAvatarDefines::EBakedTextureIndex index) { mBakedTexIndex = index; }
+	LLAvatarAppearanceDefines::EBakedTextureIndex getBakedTexIndex() { return mBakedTexIndex; }
+	void						setBakedTexIndex(LLAvatarAppearanceDefines::EBakedTextureIndex index) { mBakedTexIndex = index; }
 	BOOL						isVisible() const 			{ return mIsVisible; }
 
 	static BOOL					sHasCaches;
@@ -212,7 +212,7 @@ protected:
 	LLAvatarAppearance*	const	mAvatarAppearance; // note: backlink only; don't make this an LLPointer.
 	BOOL						mIsVisible;
 
-	LLVOAvatarDefines::EBakedTextureIndex mBakedTexIndex;
+	LLAvatarAppearanceDefines::EBakedTextureIndex mBakedTexIndex;
 	const LLTexLayerSetInfo* 	mInfo;
 };
 

@@ -1,5 +1,5 @@
 /** 
- * @file llvoavatardefines.h
+ * @file llavatarappearancedefines.h
  * @brief Various LLAvatarAppearance related definitions
  * LLViewerObject
  *
@@ -25,15 +25,15 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLVOAVATAR_DEFINES_H
-#define LLVOAVATAR_DEFINES_H
+#ifndef LL_AVATARAPPEARANCE_DEFINES_H
+#define LL_AVATARAPPEARANCE_DEFINES_H
 
 #include <vector>
 #include "llwearable.h"
 #include "lljointpickname.h"
 #include "lldictionary.h"
 
-namespace LLVOAvatarDefines
+namespace LLAvatarAppearanceDefines
 {
 
 extern const S32 SCRATCH_TEX_WIDTH;
@@ -111,21 +111,21 @@ typedef std::vector<EMeshIndex> mesh_vec_t;
 typedef std::vector<LLWearableType::EType> wearables_vec_t;
 
 //------------------------------------------------------------------------
-// LLVOAvatarDictionary
+// LLAvatarAppearanceDictionary
 // 
 // Holds dictionary static entries for textures, baked textures, meshes, etc.; i.e.
 // information that is common to all avatars.
 // 
 // This holds const data - it is initialized once and the contents never change after that.
 //------------------------------------------------------------------------
-class LLVOAvatarDictionary : public LLSingleton<LLVOAvatarDictionary>
+class LLAvatarAppearanceDictionary : public LLSingleton<LLAvatarAppearanceDictionary>
 {
 	//--------------------------------------------------------------------
 	// Constructors and Destructors
 	//--------------------------------------------------------------------
 public:
-	LLVOAvatarDictionary();
-	virtual ~LLVOAvatarDictionary();
+	LLAvatarAppearanceDictionary();
+	virtual ~LLAvatarAppearanceDictionary();
 private:
 	void createAssociations();
 	
@@ -219,8 +219,8 @@ public:
 	// Given a texture entry, determine which wearable type owns it.
 	static LLWearableType::EType 		getTEWearableType(ETextureIndex index);
 
-}; // End LLVOAvatarDictionary
+}; // End LLAvatarAppearanceDictionary
 
-} // End namespace LLVOAvatarDefines
+} // End namespace LLAvatarAppearanceDefines
 
-#endif //LL_VO_AVATARDEFINES_H
+#endif //LL_AVATARAPPEARANCE_DEFINES_H

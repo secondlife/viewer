@@ -49,7 +49,7 @@
 #include "llwindow.h"
 #include "llworld.h"
 
-using namespace LLVOAvatarDefines;
+using namespace LLAvatarAppearanceDefines;
 
 extern LLMenuBarGL* gMenuBarView;
 

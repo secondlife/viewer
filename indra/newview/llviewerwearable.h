@@ -28,7 +28,7 @@
 #define LL_VIEWER_WEARABLE_H
 
 #include "llwearable.h"
-#include "llvoavatardefines.h"
+#include "llavatarappearancedefines.h"
 
 class LLViewerWearable : public LLWearable
 {
@@ -68,7 +68,7 @@ public:
 	void				setParamsToDefaults();
 	void				setTexturesToDefaults();
 
-	static const LLUUID			getDefaultTextureImageID(LLVOAvatarDefines::ETextureIndex index);
+	static const LLUUID			getDefaultTextureImageID(LLAvatarAppearanceDefines::ETextureIndex index);
 
 
 	void				saveNewAsset() const;

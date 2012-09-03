@@ -31,10 +31,10 @@
 #include "lltexlayer.h"
 #include "lltexturemanagerbridge.h"
 #include "llvisualparam.h"
-#include "llvoavatardefines.h"
+#include "llavatarappearancedefines.h"
 #include "llwearable.h"
 
-using namespace LLVOAvatarDefines;
+using namespace LLAvatarAppearanceDefines;
 
 // static
 S32 LLWearable::sCurrentDefinitionVersion = 1;
@@ -420,7 +420,7 @@ LLColor4 LLWearable::getClothesColor(S32 te) const
 {
 	LLColor4 color;
 	U32 param_name[3];
-	if( LLAvatarAppearance::teToColorParams( (LLVOAvatarDefines::ETextureIndex)te, param_name ) )
+	if( LLAvatarAppearance::teToColorParams( (LLAvatarAppearanceDefines::ETextureIndex)te, param_name ) )
 	{
 		for( U8 index = 0; index < 3; index++ )
 		{
@@ -433,7 +433,7 @@ LLColor4 LLWearable::getClothesColor(S32 te) const
 void LLWearable::setClothesColor( S32 te, const LLColor4& new_color, BOOL upload_bake )
 {
 	U32 param_name[3];
-	if( LLAvatarAppearance::teToColorParams( (LLVOAvatarDefines::ETextureIndex)te, param_name ) )
+	if( LLAvatarAppearance::teToColorParams( (LLAvatarAppearanceDefines::ETextureIndex)te, param_name ) )
 	{
 		for( U8 index = 0; index < 3; index++ )
 		{

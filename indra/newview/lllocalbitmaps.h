@@ -30,7 +30,7 @@
 
 #include "lleventtimer.h"
 #include "llwearabletype.h"
-#include "llvoavatardefines.h"
+#include "llavatarappearancedefines.h"
 
 class LLScrollListCtrl;
 class LLViewerObject;
@@ -64,7 +64,7 @@ class LLLocalBitmap
 		void updateUserPrims(LLUUID old_id, LLUUID new_id);
 		void updateUserSculpts(LLUUID old_id, LLUUID new_id);
 		void updateUserLayers(LLUUID old_id, LLUUID new_id, LLWearableType::EType type);
-		LLVOAvatarDefines::ETextureIndex getTexIndex(LLWearableType::EType type, LLVOAvatarDefines::EBakedTextureIndex baked_texind);
+		LLAvatarAppearanceDefines::ETextureIndex getTexIndex(LLWearableType::EType type, LLAvatarAppearanceDefines::EBakedTextureIndex baked_texind);
 
 	private: /* private enums */
 		enum ELinkStatus

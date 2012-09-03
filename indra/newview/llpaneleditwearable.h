@@ -30,7 +30,7 @@
 #include "llpanel.h"
 #include "llscrollingpanellist.h"
 #include "llmodaldialog.h"
-#include "llvoavatardefines.h"
+#include "llavatarappearancedefines.h"
 #include "llwearabletype.h"
 
 class LLAccordionCtrl;
@@ -95,11 +95,11 @@ private:
 	void				updateTypeSpecificControls(LLWearableType::EType type);
 
 	//alpha mask checkboxes
-	void configureAlphaCheckbox(LLVOAvatarDefines::ETextureIndex te, const std::string& name);
-	void onInvisibilityCommit(LLCheckBoxCtrl* checkbox_ctrl, LLVOAvatarDefines::ETextureIndex te);
+	void configureAlphaCheckbox(LLAvatarAppearanceDefines::ETextureIndex te, const std::string& name);
+	void onInvisibilityCommit(LLCheckBoxCtrl* checkbox_ctrl, LLAvatarAppearanceDefines::ETextureIndex te);
 	void updateAlphaCheckboxes();
 	void initPreviousAlphaTextures();
-	void initPreviousAlphaTextureEntry(LLVOAvatarDefines::ETextureIndex te);
+	void initPreviousAlphaTextureEntry(LLAvatarAppearanceDefines::ETextureIndex te);
 
 	// callback for HeightUnits parameter.
 	bool changeHeightUnits(const LLSD& new_value);
@@ -165,10 +165,10 @@ private:
 	LLPanel *mPanelTattoo;
 	LLPanel *mPanelPhysics;
 
-	typedef std::map<std::string, LLVOAvatarDefines::ETextureIndex> string_texture_index_map_t;
+	typedef std::map<std::string, LLAvatarAppearanceDefines::ETextureIndex> string_texture_index_map_t;
 	string_texture_index_map_t mAlphaCheckbox2Index;
 
-	typedef std::map<LLVOAvatarDefines::ETextureIndex, LLUUID> s32_uuid_map_t;
+	typedef std::map<LLAvatarAppearanceDefines::ETextureIndex, LLUUID> s32_uuid_map_t;
 	s32_uuid_map_t mPreviousAlphaTexture;
 };
 

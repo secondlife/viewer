@@ -1,6 +1,6 @@
 /** 
- * @file llvoavatardefines.cpp
- * @brief Implementation of LLVOAvatarDefines::LLVOAvatarDictionary 
+ * @file llavatarappearancedefines.cpp
+ * @brief Implementation of LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary 
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -25,19 +25,19 @@
  */
 
 #include "linden_common.h"
-#include "llvoavatardefines.h"
+#include "llavatarappearancedefines.h"
 
-const S32 LLVOAvatarDefines::SCRATCH_TEX_WIDTH = 512;
-const S32 LLVOAvatarDefines::SCRATCH_TEX_HEIGHT = 512;
-const S32 LLVOAvatarDefines::IMPOSTOR_PERIOD = 2;
+const S32 LLAvatarAppearanceDefines::SCRATCH_TEX_WIDTH = 512;
+const S32 LLAvatarAppearanceDefines::SCRATCH_TEX_HEIGHT = 512;
+const S32 LLAvatarAppearanceDefines::IMPOSTOR_PERIOD = 2;
 
-using namespace LLVOAvatarDefines;
+using namespace LLAvatarAppearanceDefines;
 
 /*********************************************************************************
  * Edit this function to add/remove/change textures and mesh definitions for avatars.
  */
 
-LLVOAvatarDictionary::Textures::Textures()
+LLAvatarAppearanceDictionary::Textures::Textures()
 {
 	addEntry(TEX_HEAD_BODYPAINT,              new TextureEntry("head_bodypaint",   TRUE,  BAKED_NUM_INDICES, "",                          LLWearableType::WT_SKIN));
 	addEntry(TEX_UPPER_SHIRT,                 new TextureEntry("upper_shirt",      TRUE,  BAKED_NUM_INDICES, "UIImgDefaultShirtUUID",     LLWearableType::WT_SHIRT));
@@ -73,7 +73,7 @@ LLVOAvatarDictionary::Textures::Textures()
 	addEntry(TEX_SKIRT_BAKED,                 new TextureEntry("skirt-baked",      FALSE, BAKED_SKIRT, "skirt"));
 }
 
-LLVOAvatarDictionary::BakedTextures::BakedTextures()
+LLAvatarAppearanceDictionary::BakedTextures::BakedTextures()
 {
 	// Baked textures
 	addEntry(BAKED_HEAD,       new BakedEntry(TEX_HEAD_BAKED,  
@@ -109,7 +109,7 @@ LLVOAvatarDictionary::BakedTextures::BakedTextures()
 											  2, LLWearableType::WT_HAIR, LLWearableType::WT_ALPHA));
 }
 
-LLVOAvatarDictionary::Meshes::Meshes()
+LLAvatarAppearanceDictionary::Meshes::Meshes()
 {
 	// Meshes
 	addEntry(MESH_ID_HAIR,             new MeshEntry(BAKED_HAIR,  "hairMesh",         6, PN_4));
@@ -126,19 +126,19 @@ LLVOAvatarDictionary::Meshes::Meshes()
  *
  *********************************************************************************/
 
-LLVOAvatarDictionary::LLVOAvatarDictionary()
+LLAvatarAppearanceDictionary::LLAvatarAppearanceDictionary()
 {
 	createAssociations();
 }
 
 //virtual 
-LLVOAvatarDictionary::~LLVOAvatarDictionary()
+LLAvatarAppearanceDictionary::~LLAvatarAppearanceDictionary()
 {
 }
 
 // Baked textures are composites of textures; for each such composited texture,
 // map it to the baked texture.
-void LLVOAvatarDictionary::createAssociations()
+void LLAvatarAppearanceDictionary::createAssociations()
 {
 	for (BakedTextures::const_iterator iter = mBakedTextures.begin(); iter != mBakedTextures.end(); iter++)
 	{
@@ -159,7 +159,7 @@ void LLVOAvatarDictionary::createAssociations()
 		
 }
 
-LLVOAvatarDictionary::TextureEntry::TextureEntry(const std::string &name,
+LLAvatarAppearanceDictionary::TextureEntry::TextureEntry(const std::string &name,
 												 bool is_local_texture, 
 												 EBakedTextureIndex baked_texture_index,
 												 const std::string &default_image_name,
@@ -174,7 +174,7 @@ LLVOAvatarDictionary::TextureEntry::TextureEntry(const std::string &name,
 {
 }
 
-LLVOAvatarDictionary::MeshEntry::MeshEntry(EBakedTextureIndex baked_index, 
+LLAvatarAppearanceDictionary::MeshEntry::MeshEntry(EBakedTextureIndex baked_index, 
 										   const std::string &name, 
 										   U8 level,
 										   LLJointPickName pick) :
@@ -184,7 +184,7 @@ LLVOAvatarDictionary::MeshEntry::MeshEntry(EBakedTextureIndex baked_index,
 	mPickName(pick)
 {
 }
-LLVOAvatarDictionary::BakedEntry::BakedEntry(ETextureIndex tex_index, 
+LLAvatarAppearanceDictionary::BakedEntry::BakedEntry(ETextureIndex tex_index, 
 											 const std::string &name, 
 											 const std::string &hash_name,
 											 U32 num_local_textures,
@@ -215,18 +215,18 @@ LLVOAvatarDictionary::BakedEntry::BakedEntry(ETextureIndex tex_index,
 }
 
 // static
-ETextureIndex LLVOAvatarDictionary::bakedToLocalTextureIndex(EBakedTextureIndex index)
+ETextureIndex LLAvatarAppearanceDictionary::bakedToLocalTextureIndex(EBakedTextureIndex index)
 {
-	return LLVOAvatarDictionary::getInstance()->getBakedTexture(index)->mTextureIndex;
+	return LLAvatarAppearanceDictionary::getInstance()->getBakedTexture(index)->mTextureIndex;
 }
 
 //static 
-EBakedTextureIndex LLVOAvatarDictionary::findBakedByRegionName(std::string name)
+EBakedTextureIndex LLAvatarAppearanceDictionary::findBakedByRegionName(std::string name)
 {
 	U8 index = 0;
 	while (index < BAKED_NUM_INDICES)
 	{
-		const BakedEntry *be = LLVOAvatarDictionary::getInstance()->getBakedTexture((EBakedTextureIndex) index);
+		const BakedEntry *be = LLAvatarAppearanceDictionary::getInstance()->getBakedTexture((EBakedTextureIndex) index);
 		if (be && be->mName.compare(name) == 0)
 		{
 			// baked texture found
@@ -239,7 +239,7 @@ EBakedTextureIndex LLVOAvatarDictionary::findBakedByRegionName(std::string name)
 }
 
 // static
-LLWearableType::EType LLVOAvatarDictionary::getTEWearableType(ETextureIndex index )
+LLWearableType::EType LLAvatarAppearanceDictionary::getTEWearableType(ETextureIndex index )
 {
 	return getInstance()->getTexture(index)->mWearableType;
 }

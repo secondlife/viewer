@@ -40,7 +40,7 @@ LLAvatarAppearance::LLAvatarAppearance() :
 {
 }
 
-using namespace LLVOAvatarDefines;
+using namespace LLAvatarAppearanceDefines;
 
 //static
 BOOL LLAvatarAppearance::teToColorParams( ETextureIndex te, U32 *param_name )

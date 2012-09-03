@@ -45,7 +45,7 @@
 #include "llviewerjointmesh.h"
 #include "llviewerjointattachment.h"
 #include "llrendertarget.h"
-#include "llvoavatardefines.h"
+#include "llavatarappearancedefines.h"
 #include "lltexglobalcolor.h"
 #include "lldriverparam.h"
 #include "material_codes.h"		// LL_MCODE_END
@@ -472,9 +472,9 @@ private:
 	// Morph masks
 	//--------------------------------------------------------------------
 public:
-	BOOL 		morphMaskNeedsUpdate(LLVOAvatarDefines::EBakedTextureIndex index = LLVOAvatarDefines::BAKED_NUM_INDICES);
-	void 		addMaskedMorph(LLVOAvatarDefines::EBakedTextureIndex index, LLPolyMorphTarget* morph_target, BOOL invert, std::string layer);
-	virtual void	applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_components, LLVOAvatarDefines::EBakedTextureIndex index = LLVOAvatarDefines::BAKED_NUM_INDICES);
+	BOOL 		morphMaskNeedsUpdate(LLAvatarAppearanceDefines::EBakedTextureIndex index = LLAvatarAppearanceDefines::BAKED_NUM_INDICES);
+	void 		addMaskedMorph(LLAvatarAppearanceDefines::EBakedTextureIndex index, LLPolyMorphTarget* morph_target, BOOL invert, std::string layer);
+	virtual void	applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_components, LLAvatarAppearanceDefines::EBakedTextureIndex index = LLAvatarAppearanceDefines::BAKED_NUM_INDICES);
 
 	
 	//--------------------------------------------------------------------
@@ -582,9 +582,9 @@ public:
 	// Loading status
 	//--------------------------------------------------------------------
 public:
-	virtual BOOL    isTextureDefined(LLVOAvatarDefines::ETextureIndex type, U32 index = 0) const;
-	virtual BOOL	isTextureVisible(LLVOAvatarDefines::ETextureIndex type, U32 index = 0) const;
-	virtual BOOL	isTextureVisible(LLVOAvatarDefines::ETextureIndex type, LLViewerWearable *wearable) const;
+	virtual BOOL    isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex type, U32 index = 0) const;
+	virtual BOOL	isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex type, U32 index = 0) const;
+	virtual BOOL	isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex type, LLViewerWearable *wearable) const;
 
 	BOOL			isFullyBaked();
 	static BOOL		areAllNearbyInstancesBaked(S32& grey_avatars);
@@ -610,7 +610,7 @@ protected:
 		LLViewerTexLayerSet* 				mTexLayerSet; // Only exists for self
 		bool								mIsLoaded;
 		bool								mIsUsed;
-		LLVOAvatarDefines::ETextureIndex 	mTextureIndex;
+		LLAvatarAppearanceDefines::ETextureIndex 	mTextureIndex;
 		U32									mMaskTexName;
 		// Stores pointers to the joint meshes that this baked texture deals with
 		std::vector< LLViewerJointMesh * > 	mMeshes;  // std::vector<LLViewerJointMesh> mJoints[i]->mMeshParts
@@ -624,10 +624,10 @@ protected:
 	// Local Textures
 	//--------------------------------------------------------------------
 protected:
-	virtual void	setLocalTexture(LLVOAvatarDefines::ETextureIndex type, LLViewerTexture* tex, BOOL baked_version_exits, U32 index = 0);
-	virtual void	addLocalTextureStats(LLVOAvatarDefines::ETextureIndex type, LLViewerFetchedTexture* imagep, F32 texel_area_ratio, BOOL rendered, BOOL covered_by_baked, U32 index = 0);
+	virtual void	setLocalTexture(LLAvatarAppearanceDefines::ETextureIndex type, LLViewerTexture* tex, BOOL baked_version_exits, U32 index = 0);
+	virtual void	addLocalTextureStats(LLAvatarAppearanceDefines::ETextureIndex type, LLViewerFetchedTexture* imagep, F32 texel_area_ratio, BOOL rendered, BOOL covered_by_baked, U32 index = 0);
 	// MULTI-WEARABLE: make self-only?
-	virtual void	setBakedReady(LLVOAvatarDefines::ETextureIndex type, BOOL baked_version_exists, U32 index = 0);
+	virtual void	setBakedReady(LLAvatarAppearanceDefines::ETextureIndex type, BOOL baked_version_exists, U32 index = 0);
 
 	//--------------------------------------------------------------------
 	// Texture accessors
@@ -662,11 +662,11 @@ public:
 	// Static texture/mesh/baked dictionary
 	//--------------------------------------------------------------------
 public:
-	static BOOL 	isIndexLocalTexture(LLVOAvatarDefines::ETextureIndex i);
-	static BOOL 	isIndexBakedTexture(LLVOAvatarDefines::ETextureIndex i);
+	static BOOL 	isIndexLocalTexture(LLAvatarAppearanceDefines::ETextureIndex i);
+	static BOOL 	isIndexBakedTexture(LLAvatarAppearanceDefines::ETextureIndex i);
 private:
-	static const LLVOAvatarDefines::LLVOAvatarDictionary *getDictionary() { return sAvatarDictionary; }
-	static LLVOAvatarDefines::LLVOAvatarDictionary* sAvatarDictionary;
+	static const LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary *getDictionary() { return sAvatarDictionary; }
+	static LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary* sAvatarDictionary;
 	static LLVOAvatarSkeletonInfo* 					sAvatarSkeletonInfo;
 	static LLVOAvatarXmlInfo* 						sAvatarXmlInfo;
 

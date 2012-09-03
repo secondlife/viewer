@@ -35,11 +35,11 @@
 #include "lltextureentry.h"
 #include "llviewertexlayer.h"
 #include "llvoavatarself.h"
-#include "llvoavatardefines.h"
+#include "llavatarappearancedefines.h"
 #include "llviewerwearable.h"
 #include "llviewercontrol.h"
 
-using namespace LLVOAvatarDefines;
+using namespace LLAvatarAppearanceDefines;
 
 // support class - remove for 2.1 (hackity hack hack)
 class LLOverrideBakedTextureUpdate
@@ -47,7 +47,7 @@ class LLOverrideBakedTextureUpdate
 public:
 	LLOverrideBakedTextureUpdate(bool temp_state)
 	{
-		U32 num_bakes = (U32) LLVOAvatarDefines::BAKED_NUM_INDICES;
+		U32 num_bakes = (U32) LLAvatarAppearanceDefines::BAKED_NUM_INDICES;
 		for( U32 index = 0; index < num_bakes; ++index )
 		{
 			composite_enabled[index] = gAgentAvatarp->isCompositeUpdateEnabled(index);
@@ -57,14 +57,14 @@ public:
 
 	~LLOverrideBakedTextureUpdate()
 	{
-		U32 num_bakes = (U32)LLVOAvatarDefines::BAKED_NUM_INDICES;		
+		U32 num_bakes = (U32)LLAvatarAppearanceDefines::BAKED_NUM_INDICES;		
 		for( U32 index = 0; index < num_bakes; ++index )
 		{
 			gAgentAvatarp->setCompositeUpdatesEnabled(index, composite_enabled[index]);
 		}
 	}
 private:
-	bool composite_enabled[LLVOAvatarDefines::BAKED_NUM_INDICES];
+	bool composite_enabled[LLAvatarAppearanceDefines::BAKED_NUM_INDICES];
 };
 
 // Private local functions
@@ -175,7 +175,7 @@ LLWearable::EImportResult LLViewerWearable::importFile( LLFILE* file )
 		LLViewerFetchedTexture* image = LLViewerTextureManager::getFetchedTexture( textureid );
 		if(gSavedSettings.getBOOL("DebugAvatarLocalTexLoadedTime"))
 		{
-			image->setLoadedCallback(LLVOAvatarSelf::debugOnTimingLocalTexLoaded,0,TRUE,FALSE, new LLVOAvatarSelf::LLAvatarTexData(textureid, (LLVOAvatarDefines::ETextureIndex)te), NULL);
+			image->setLoadedCallback(LLVOAvatarSelf::debugOnTimingLocalTexLoaded,0,TRUE,FALSE, new LLVOAvatarSelf::LLAvatarTexData(textureid, (LLAvatarAppearanceDefines::ETextureIndex)te), NULL);
 		}
 		mTEMap[te] = new LLLocalTextureObject(image, textureid);
 		mSavedTEMap[te] = new LLLocalTextureObject(image, textureid);
@@ -230,7 +230,7 @@ BOOL LLViewerWearable::isOldVersion() const
 	S32 te_count = 0;
 	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
 	{
-		if (LLVOAvatarDictionary::getTEWearableType((ETextureIndex) te) == mType)
+		if (LLAvatarAppearanceDictionary::getTEWearableType((ETextureIndex) te) == mType)
 		{
 			te_count++;
 			if( !is_in_map(mTEMap, te ) )
@@ -282,7 +282,7 @@ BOOL LLViewerWearable::isDirty() const
 
 	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
 	{
-		if (LLVOAvatarDictionary::getTEWearableType((ETextureIndex) te) == mType)
+		if (LLAvatarAppearanceDictionary::getTEWearableType((ETextureIndex) te) == mType)
 		{
 			te_map_t::const_iterator current_iter = mTEMap.find(te);
 			if(current_iter != mTEMap.end())
@@ -328,7 +328,7 @@ void LLViewerWearable::setTexturesToDefaults()
 {
 	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
 	{
-		if (LLVOAvatarDictionary::getTEWearableType((ETextureIndex) te) == mType)
+		if (LLAvatarAppearanceDictionary::getTEWearableType((ETextureIndex) te) == mType)
 		{
 			LLUUID id = getDefaultTextureImageID((ETextureIndex) te);
 			LLViewerFetchedTexture * image = LLViewerTextureManager::getFetchedTexture( id );
@@ -352,7 +352,7 @@ void LLViewerWearable::setTexturesToDefaults()
 //static
 const LLUUID LLViewerWearable::getDefaultTextureImageID(ETextureIndex index)
 {
-	const LLVOAvatarDictionary::TextureEntry *texture_dict = LLVOAvatarDictionary::getInstance()->getTexture(index);
+	const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = LLAvatarAppearanceDictionary::getInstance()->getTexture(index);
 	const std::string &default_image_name = texture_dict->mDefaultImageName;
 	if (default_image_name == "")
 	{
@@ -389,7 +389,7 @@ void LLViewerWearable::writeToAvatar()
 	// Pull texture entries
 	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
 	{
-		if (LLVOAvatarDictionary::getTEWearableType((ETextureIndex) te) == mType)
+		if (LLAvatarAppearanceDictionary::getTEWearableType((ETextureIndex) te) == mType)
 		{
 			te_map_t::const_iterator iter = mTEMap.find(te);
 			LLUUID image_id;
@@ -492,7 +492,7 @@ void LLViewerWearable::copyDataFrom(const LLViewerWearable* src)
 	// Deep copy of mTEMap (copies only those tes that are current, filling in defaults where needed)
 	for (S32 te = 0; te < TEX_NUM_INDICES; te++)
 	{
-		if (LLVOAvatarDictionary::getTEWearableType((ETextureIndex) te) == mType)
+		if (LLAvatarAppearanceDictionary::getTEWearableType((ETextureIndex) te) == mType)
 		{
 			te_map_t::const_iterator iter = src->mTEMap.find(te);
 			LLUUID image_id;
@@ -678,7 +678,7 @@ void LLViewerWearable::syncImages(te_map_t &src, te_map_t &dst)
 	// Deep copy of src (copies only those tes that are current, filling in defaults where needed)
 	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
 	{
-		if (LLVOAvatarDictionary::getTEWearableType((ETextureIndex) te) == mType)
+		if (LLAvatarAppearanceDictionary::getTEWearableType((ETextureIndex) te) == mType)
 		{
 			te_map_t::const_iterator iter = src.find(te);
 			LLUUID image_id;

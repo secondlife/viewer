@@ -56,7 +56,7 @@ LLAgentWearables gAgentWearables;
 
 BOOL LLAgentWearables::mInitialWearablesUpdateReceived = FALSE;
 
-using namespace LLVOAvatarDefines;
+using namespace LLAvatarAppearanceDefines;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -903,7 +903,7 @@ U32 LLAgentWearables::getWearableCount(const LLWearableType::EType type) const
 
 U32 LLAgentWearables::getWearableCount(const U32 tex_index) const
 {
-	const LLWearableType::EType wearable_type = LLVOAvatarDictionary::getTEWearableType((LLVOAvatarDefines::ETextureIndex)tex_index);
+	const LLWearableType::EType wearable_type = LLAvatarAppearanceDictionary::getTEWearableType((LLAvatarAppearanceDefines::ETextureIndex)tex_index);
 	return getWearableCount(wearable_type);
 }
 
@@ -1093,7 +1093,7 @@ void LLAgentWearables::recoverMissingWearableDone()
 	}
 }
 
-void LLAgentWearables::addLocalTextureObject(const LLWearableType::EType wearable_type, const LLVOAvatarDefines::ETextureIndex texture_type, U32 wearable_index)
+void LLAgentWearables::addLocalTextureObject(const LLWearableType::EType wearable_type, const LLAvatarAppearanceDefines::ETextureIndex texture_type, U32 wearable_index)
 {
 	LLViewerWearable* wearable = getWearable((LLWearableType::EType)wearable_type, wearable_index);
 	if (!wearable)
@@ -1626,7 +1626,7 @@ void LLAgentWearables::queryWearableCache()
 			num_queries++;
 			// *NOTE: make sure at least one request gets packed
 
-			ETextureIndex te_index = LLVOAvatarDictionary::bakedToLocalTextureIndex((EBakedTextureIndex)baked_index);
+			ETextureIndex te_index = LLAvatarAppearanceDictionary::bakedToLocalTextureIndex((EBakedTextureIndex)baked_index);
 
 			//llinfos << "Requesting texture for hash " << hash << " in baked texture slot " << baked_index << llendl;
 			gMessageSystem->nextBlockFast(_PREHASH_WearableData);
@@ -1652,13 +1652,13 @@ void LLAgentWearables::queryWearableCache()
 	}
 }
 
-LLUUID LLAgentWearables::computeBakedTextureHash(LLVOAvatarDefines::EBakedTextureIndex baked_index,
+LLUUID LLAgentWearables::computeBakedTextureHash(LLAvatarAppearanceDefines::EBakedTextureIndex baked_index,
 												 BOOL generate_valid_hash) // Set to false if you want to upload the baked texture w/o putting it in the cache
 {
 	LLUUID hash_id;
 	bool hash_computed = false;
 	LLMD5 hash;
-	const LLVOAvatarDictionary::BakedEntry *baked_dict = LLVOAvatarDictionary::getInstance()->getBakedTexture(baked_index);
+	const LLAvatarAppearanceDictionary::BakedEntry *baked_dict = LLAvatarAppearanceDictionary::getInstance()->getBakedTexture(baked_index);
 
 	for (U8 i=0; i < baked_dict->mWearables.size(); i++)
 	{

@@ -36,7 +36,7 @@
 // newview
 #include "llinventorymodel.h"
 #include "llviewerinventory.h"
-#include "llvoavatardefines.h"
+#include "llavatarappearancedefines.h"
 
 class LLInventoryItem;
 class LLVOAvatarSelf;
@@ -122,7 +122,7 @@ public:
 	void			setWearableItem(LLInventoryItem* new_item, LLViewerWearable* wearable, bool do_append = false);
 	void			setWearableOutfit(const LLInventoryItem::item_array_t& items, const LLDynamicArray< LLViewerWearable* >& wearables, BOOL remove);
 	void			setWearableName(const LLUUID& item_id, const std::string& new_name);
-	void			addLocalTextureObject(const LLWearableType::EType wearable_type, const LLVOAvatarDefines::ETextureIndex texture_type, U32 wearable_index);
+	void			addLocalTextureObject(const LLWearableType::EType wearable_type, const LLAvatarAppearanceDefines::ETextureIndex texture_type, U32 wearable_index);
 	U32				getWearableIndex(const LLViewerWearable *wearable) const;
 
 protected:
@@ -171,7 +171,7 @@ protected:
 public:
 	// Processes the initial wearables update message (if necessary, since the outfit folder makes it redundant)
 	static void		processAgentInitialWearablesUpdate(LLMessageSystem* mesgsys, void** user_data);
-	LLUUID			computeBakedTextureHash(LLVOAvatarDefines::EBakedTextureIndex baked_index,
+	LLUUID			computeBakedTextureHash(LLAvatarAppearanceDefines::EBakedTextureIndex baked_index,
 											BOOL generate_valid_hash = TRUE);
 
 protected:

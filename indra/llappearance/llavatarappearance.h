@@ -29,7 +29,7 @@
 
 #include "llcharacter.h"
 #include "llframetimer.h"
-#include "llvoavatardefines.h"
+#include "llavatarappearancedefines.h"
 
 class LLTexGlobalColor;
 class LLTexLayerSet;
@@ -50,9 +50,9 @@ public:
 	// Clothing colors (convenience functions to access visual parameters)
 	//--------------------------------------------------------------------
 public:
-	void			setClothesColor(LLVOAvatarDefines::ETextureIndex te, const LLColor4& new_color, BOOL upload_bake);
-	LLColor4		getClothesColor(LLVOAvatarDefines::ETextureIndex te);
-	static BOOL		teToColorParams(LLVOAvatarDefines::ETextureIndex te, U32 *param_name);
+	void			setClothesColor(LLAvatarAppearanceDefines::ETextureIndex te, const LLColor4& new_color, BOOL upload_bake);
+	LLColor4		getClothesColor(LLAvatarAppearanceDefines::ETextureIndex te);
+	static BOOL		teToColorParams(LLAvatarAppearanceDefines::ETextureIndex te, U32 *param_name);
 
 	//--------------------------------------------------------------------
 	// Global colors
@@ -69,7 +69,7 @@ protected:
 	// Morph masks
 	//--------------------------------------------------------------------
 public:
-	virtual void	applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_components, LLVOAvatarDefines::EBakedTextureIndex index = LLVOAvatarDefines::BAKED_NUM_INDICES) = 0;
+	virtual void	applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_components, LLAvatarAppearanceDefines::EBakedTextureIndex index = LLAvatarAppearanceDefines::BAKED_NUM_INDICES) = 0;
 
 	//--------------------------------------------------------------------
 	// Composites

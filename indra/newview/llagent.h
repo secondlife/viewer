@@ -33,7 +33,7 @@
 #include "llagentdata.h" 			// gAgentID, gAgentSessionID
 #include "llcharacter.h"
 #include "llcoordframe.h"			// for mFrameAgent
-#include "llvoavatardefines.h"
+#include "llavatarappearancedefines.h"
 
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
@@ -901,7 +901,7 @@ private:
 	S32				mNumPendingQueries;
 	S32				mWearablesCacheQueryID;
 	U32				mUpdateSerialNum;
-	S32		    	mActiveCacheQueries[LLVOAvatarDefines::BAKED_NUM_INDICES];
+	S32		    	mActiveCacheQueries[LLAvatarAppearanceDefines::BAKED_NUM_INDICES];
 };
 
 extern LLAgentQueryManager gAgentQueryManager;

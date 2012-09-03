@@ -212,7 +212,7 @@ BOOL LLTexLayerSetBuffer::needsRender()
 	}
 
 	// Don't render if we are trying to create a shirt texture but aren't wearing a skirt.
-	if (gAgentAvatarp->getBakedTE(mTexLayerSet) == LLVOAvatarDefines::TEX_SKIRT_BAKED && 
+	if (gAgentAvatarp->getBakedTE(mTexLayerSet) == LLAvatarAppearanceDefines::TEX_SKIRT_BAKED && 
 		!gAgentAvatarp->isWearingWearableType(LLWearableType::WT_SKIRT))
 	{
 		cancelUpload();
@@ -627,7 +627,7 @@ void LLTexLayerSetBuffer::onTextureUploadComplete(const LLUUID& uuid,
 			if (result >= 0)
 			{
 				layerset_buffer->mUploadPending = FALSE; // Allows sending of AgentSetAppearance later
-				LLVOAvatarDefines::ETextureIndex baked_te = gAgentAvatarp->getBakedTE(layerset_buffer->mTexLayerSet);
+				LLAvatarAppearanceDefines::ETextureIndex baked_te = gAgentAvatarp->getBakedTE(layerset_buffer->mTexLayerSet);
 				// Update baked texture info with the new UUID
 				U64 now = LLFrameTimer::getTotalTime();		// Record starting time
 				llinfos << "Baked" << resolution << "texture upload for " << name << " took " << (S32)((now - baked_upload_data->mStartTime) / 1000) << " ms" << llendl;

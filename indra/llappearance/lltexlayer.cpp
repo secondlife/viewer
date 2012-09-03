@@ -44,7 +44,7 @@
 
 //#include "../tools/imdebug/imdebug.h"
 
-using namespace LLVOAvatarDefines;
+using namespace LLAvatarAppearanceDefines;
 
 static const S32 BAKE_UPLOAD_ATTEMPTS = 7;
 static const F32 BAKE_UPLOAD_RETRY_DELAY = 2.f; // actual delay grows by power of 2 each attempt
@@ -183,7 +183,7 @@ BOOL LLTexLayerSet::sHasCaches = FALSE;
 LLTexLayerSet::LLTexLayerSet(LLAvatarAppearance* const appearance) :
 	mAvatarAppearance( appearance ),
 	mIsVisible( TRUE ),
-	mBakedTexIndex(LLVOAvatarDefines::BAKED_HEAD),
+	mBakedTexIndex(LLAvatarAppearanceDefines::BAKED_HEAD),
 	mInfo( NULL )
 {
 }
@@ -567,11 +567,11 @@ BOOL LLTexLayerInfo::parseXml(LLXmlTreeNode* node)
 			/* if ("upper_shirt" == local_texture_name)
 				mLocalTexture = TEX_UPPER_SHIRT; */
 			mLocalTexture = TEX_NUM_INDICES;
-			for (LLVOAvatarDictionary::Textures::const_iterator iter = LLVOAvatarDictionary::getInstance()->getTextures().begin();
-				 iter != LLVOAvatarDictionary::getInstance()->getTextures().end();
+			for (LLAvatarAppearanceDictionary::Textures::const_iterator iter = LLAvatarAppearanceDictionary::getInstance()->getTextures().begin();
+				 iter != LLAvatarAppearanceDictionary::getInstance()->getTextures().end();
 				 iter++)
 			{
-				const LLVOAvatarDictionary::TextureEntry *texture_dict = iter->second;
+				const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = iter->second;
 				if (local_texture_name == texture_dict->mName)
 			{
 					mLocalTexture = iter->first;
@@ -1450,7 +1450,7 @@ U32 LLTexLayerTemplate::updateWearableCache() const
 		//this isn't a cloneable layer 
 		return 0;
 	}
-	LLWearableType::EType wearable_type = LLVOAvatarDictionary::getTEWearableType((ETextureIndex)te);
+	LLWearableType::EType wearable_type = LLAvatarAppearanceDictionary::getTEWearableType((ETextureIndex)te);
 	U32 num_wearables = getAvatarAppearance()->getWearableCount(wearable_type);
 	U32 added = 0;
 	for (U32 i = 0; i < num_wearables; i++)
@@ -1617,7 +1617,7 @@ LLTexLayerInterface*  LLTexLayerSet::findLayerByName(const std::string& name)
 	return NULL;
 }
 
-void LLTexLayerSet::cloneTemplates(LLLocalTextureObject *lto, LLVOAvatarDefines::ETextureIndex tex_index, LLWearable *wearable)
+void LLTexLayerSet::cloneTemplates(LLLocalTextureObject *lto, LLAvatarAppearanceDefines::ETextureIndex tex_index, LLWearable *wearable)
 {
 	// initialize all texlayers with this texture type for this LTO
 	for( LLTexLayerSet::layer_list_t::iterator iter = mLayerList.begin(); iter != mLayerList.end(); iter++ )
