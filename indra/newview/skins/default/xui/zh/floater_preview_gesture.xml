@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="gesture_preview">
 	<floater.string name="step_anim">
-		Animation to play:
+		要播放的動作：
 	</floater.string>
 	<floater.string name="step_sound">
-		Sound to play:
+		要播放的聲音：
 	</floater.string>
 	<floater.string name="step_chat">
-		Chat to say:
+		要說出的聊天文字：
 	</floater.string>
 	<floater.string name="step_wait">
-		Wait:
+		等待：
 	</floater.string>
 	<floater.string name="stop_txt">
 		停止
@@ -22,20 +22,20 @@
 		-- 無 --
 	</floater.string>
 	<floater.string name="Title">
-		Gesture: [NAME]
+		姿勢：[NAME]
 	</floater.string>
 	<text name="desc_label">
 		描述：
 	</text>
 	<text name="trigger_label">
-		Trigger:
+		觸發：
 	</text>
-	<text name="replace_text" tool_tip="Replace the trigger word(s) with these words. For example, trigger &apos;hello&apos; replace with &apos;howdy&apos; will turn the chat &apos;I wanted to say hello&apos; into &apos;I wanted to say howdy&apos; as well as playing the gesture!">
-		Replace with:
+	<text name="replace_text" tool_tip="用這些字眼取代觸發字眼。 例如，觸發 &apos;hello&apos; 取代為 &apos;howdy&apos; 後，將使得聊天文字「我想說 hello」變成「我想說 howdy」，同時還會播放該姿勢！">
+		取代成：
 	</text>
-	<line_editor name="replace_editor" tool_tip="Replace the trigger word(s) with these words. For example, trigger &apos;hello&apos; replace with &apos;howdy&apos; will turn the chat &apos;I wanted to say hello&apos; into &apos;I wanted to say howdy&apos; as well as playing the gesture"/>
+	<line_editor name="replace_editor" tool_tip="用這些字眼取代觸發字眼。 例如，觸發 &apos;hello&apos; 取代為 &apos;howdy&apos; 後，將使得聊天文字「我想說 hello」變成「我想說 howdy」，同時還會播放該姿勢。"/>
 	<text name="key_label">
-		Shortcut Key:
+		快捷鍵：
 	</text>
 	<combo_box label="無" name="modifier_combo"/>
 	<combo_box label="無" name="key_combo"/>
@@ -50,10 +50,10 @@
 	</scroll_list>
 	<button label="添加 &gt;&gt;" name="add_btn"/>
 	<text name="steps_label">
-		Steps:
+		步驟：
 	</text>
-	<button label="Up" name="up_btn"/>
-	<button label="Down" name="down_btn"/>
+	<button label="上移鍵" name="up_btn"/>
+	<button label="下移鍵" name="down_btn"/>
 	<button label="移除" name="delete_btn"/>
 	<text name="options_text">
 		（選項）
@@ -63,11 +63,11 @@
 		<radio_item label="停止" name="stop"/>
 	</radio_group>
 	<check_box label="直到動作結束。" name="wait_anim_check"/>
-	<check_box label="time in seconds:" name="wait_time_check"/>
+	<check_box label="時間（秒）：" name="wait_time_check"/>
 	<text name="help_label">
-		All steps happen simultaneously, unless you add wait steps.
+		所有步驟都會同時進行，除非你加入「等待」步驟。
 	</text>
-	<check_box label="Active" name="active_check" tool_tip="Active gestures can be triggered by chatting their trigger phrases or pressing their hot keys.  Gestures usually become inactive when there is a key binding conflict."/>
+	<check_box label="可用" name="active_check" tool_tip="你可以在聊天中鍵入「觸發字眼」，或按某姿勢的熱鍵來啟動可用的姿勢。  熱鍵的綁定若有衝突，通常會使姿勢變成不可用。"/>
 	<button label="預覽" name="preview_btn"/>
 	<button label="儲存" name="save_btn"/>
 </floater>

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="avatarpicker" title="挑選居民">
 	<floater.string name="not_found">
-		&apos;[TEXT]&apos; not found
+		查無「[TEXT]」
 	</floater.string>
 	<floater.string name="no_one_near">
-		No one near
+		附近無人
 	</floater.string>
 	<floater.string name="no_results">
-		No results
+		沒有結果
 	</floater.string>
 	<floater.string name="searching">
 		搜尋中...
@@ -21,9 +21,9 @@
 	<tab_container name="ResidentChooserTabs">
 		<panel label="搜尋" name="SearchPanel">
 			<text name="InstructSearchResidentName">
-				Type part of a person&apos;s name:
+				鍵入人名的一部分：
 			</text>
-			<button label="Go" label_selected="Go" name="Find"/>
+			<button label="前往" label_selected="前往" name="Find"/>
 			<scroll_list name="SearchResults">
 				<columns label="名稱" name="name"/>
 				<columns label="使用者名稱" name="username"/>

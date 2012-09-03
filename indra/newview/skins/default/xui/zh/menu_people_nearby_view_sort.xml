@@ -4,5 +4,5 @@
 	<menu_item_check label="依名稱排序" name="sort_name"/>
 	<menu_item_check label="依距離排序" name="sort_distance"/>
 	<menu_item_check label="察看人群圖示" name="view_icons"/>
-	<menu_item_call label="顯示笨封鎖的居民與物件" name="show_blocked_list"/>
+	<menu_item_call label="顯示被封鎖的居民與物件" name="show_blocked_list"/>
 </toggleable_menu>

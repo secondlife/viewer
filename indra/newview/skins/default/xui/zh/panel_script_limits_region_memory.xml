@@ -8,13 +8,13 @@
 	</text>
 	<scroll_list name="scripts_list">
 		<scroll_list.columns label="尺寸（kb）" name="size"/>
-		<scroll_list.columns label="URLs" name="urls"/>
+		<scroll_list.columns label="URL" name="urls"/>
 		<scroll_list.columns label="物件名稱" name="name"/>
-		<scroll_list.columns label="物件擁有者" name="owner"/>
+		<scroll_list.columns label="物件所有人" name="owner"/>
 		<scroll_list.columns label="地段" name="parcel"/>
 		<scroll_list.columns label="位置" name="location"/>
 	</scroll_list>
-	<button label="Refresh List" name="refresh_list_btn"/>
-	<button label="Highlight" name="highlight_btn"/>
+	<button label="刷新清單" name="refresh_list_btn"/>
+	<button label="高亮顯示" name="highlight_btn"/>
 	<button label="退回" name="return_btn"/>
 </panel>

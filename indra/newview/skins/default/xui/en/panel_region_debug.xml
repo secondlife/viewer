@@ -198,7 +198,7 @@
      layout="topleft"
      left_pad="155"
      name="cancel_restart_btn"
-     tool_tip="Delay region restart by one hour"
+     tool_tip="Cancel region restart"
      top_delta="0"
      width="150" />
 </panel>

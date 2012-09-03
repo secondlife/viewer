@@ -47,6 +47,8 @@ public:
 
 	bool isEmpty() const;
 
+	void clear();
+
 	void update(LLPathfindingObjectPtr pUpdateObjectPtr);
 	void update(LLPathfindingObjectListPtr pUpdateObjectListPtr);
 
@@ -55,7 +57,6 @@ public:
 	typedef LLPathfindingObjectMap::const_iterator const_iterator;
 	const_iterator begin() const;
 	const_iterator end() const;
-
 
 protected:
 	LLPathfindingObjectMap &getObjectMap();

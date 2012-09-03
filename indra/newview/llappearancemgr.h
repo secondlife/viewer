@@ -132,8 +132,10 @@ public:
 	void addCOFItemLink(const LLInventoryItem *item, bool do_update = true, LLPointer<LLInventoryCallback> cb = NULL);
 
 	// Remove COF entries
-	void removeCOFItemLinks(const LLUUID& item_id, bool do_update = true);
-	void removeCOFLinksOfType(LLWearableType::EType type, bool do_update = true);
+	void removeCOFItemLinks(const LLUUID& item_id);
+	void removeCOFLinksOfType(LLWearableType::EType type);
+	void removeAllClothesFromAvatar();
+	void removeAllAttachmentsFromAvatar();
 
 	// Add COF link to ensemble folder.
 	void addEnsembleLink(LLInventoryCategory* item, bool do_update = true);
@@ -164,6 +166,7 @@ public:
 	bool updateBaseOutfit();
 
 	//Remove clothing or detach an object from the agent (a bodypart cannot be removed)
+	void removeItemsFromAvatar(const uuid_vec_t& item_ids);
 	void removeItemFromAvatar(const LLUUID& item_id);
 
 

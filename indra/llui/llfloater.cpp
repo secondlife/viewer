@@ -748,6 +748,10 @@ void LLFloater::closeFloater(bool app_quitting)
 					dependee->setFocus(TRUE);
 				}
 			}
+
+			// STORM-1879: since this floater has focus, treat the closeFloater- call
+			// like a click on the close-button, and close gear- and contextmenus
+			LLMenuGL::sMenuContainer->hideMenus();
 		}
 
 		dirtyRect();

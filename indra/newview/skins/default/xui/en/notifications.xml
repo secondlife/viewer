@@ -8073,9 +8073,26 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
 
   <notification
    icon="alertmodal.tga"
-   name="PathfindingLinksets_SetLinksetUseMismatchOnRestricted"
+   name="PathfindingLinksets_WarnOnPhantom"
    type="alertmodal">
-    Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because of permission restrictions on the linkset.  These linksets will be set to be '[RESTRICTED_TYPE]' instead.
+Some selected linksets will have the Phantom flag toggled.
+
+Do you wish to continue?
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Some selected linksets phantom flag will be toggled."
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="PathfindingLinksets_MismatchOnRestricted"
+   type="alertmodal">
+Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because of permission restrictions on the linkset.  These linksets will be set to be '[RESTRICTED_TYPE]' instead.
+
+Do you wish to continue?
     <tag>confirm</tag>
     <usetemplate
      ignoretext="Some selected linksets cannot be set because of permission restrictions on the linkset."
@@ -8086,9 +8103,11 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
 
   <notification
    icon="alertmodal.tga"
-   name="PathfindingLinksets_SetLinksetUseMismatchOnVolume"
+   name="PathfindingLinksets_MismatchOnVolume"
    type="alertmodal">
-    Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because the shape is non-convex.
+Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because the shape is non-convex.
+
+Do you wish to continue?
     <tag>confirm</tag>
     <usetemplate
      ignoretext="Some selected linksets cannot be set because the shape is non-convex"
@@ -8099,13 +8118,69 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
 
   <notification
    icon="alertmodal.tga"
-   name="PathfindingLinksets_SetLinksetUseMismatchOnRestrictedAndVolume"
+   name="PathfindingLinksets_WarnOnPhantom_MismatchOnRestricted"
    type="alertmodal">
-    Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because of permission restrictions on the linkset.  These linksets will be set to be '[RESTRICTED_TYPE]' instead.
- Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because the shape is non-convex. These linksets&apos; use types will not change.
+Some selected linksets will have the Phantom flag toggled.
+
+Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because of permission restrictions on the linkset.  These linksets will be set to be '[RESTRICTED_TYPE]' instead.
+
+Do you wish to continue?
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Some selected linksets phantom flag will be toggled and others cannot be set because of permission restrictions on the linkset."
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="PathfindingLinksets_WarnOnPhantom_MismatchOnVolume"
+   type="alertmodal">
+Some selected linksets will have the Phantom flag toggled.
+
+Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because the shape is non-convex.
+
+Do you wish to continue?
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Some selected linksets phantom flag will be toggled and others cannot be set because the shape is non-convex"
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="PathfindingLinksets_MismatchOnRestricted_MismatchOnVolume"
+   type="alertmodal">
+Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because of permission restrictions on the linkset.  These linksets will be set to be '[RESTRICTED_TYPE]' instead.
+
+Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because the shape is non-convex. These linksets&apos; use types will not change.
+
+Do you wish to continue?
     <tag>confirm</tag>
     <usetemplate
      ignoretext="Some selected linksets cannot be set because of permission restrictions on the linkset and because the shape is non-convex."
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="PathfindingLinksets_WarnOnPhantom_MismatchOnRestricted_MismatchOnVolume"
+   type="alertmodal">
+Some selected linksets will have the Phantom flag toggled.
+
+Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because of permission restrictions on the linkset.  These linksets will be set to be '[RESTRICTED_TYPE]' instead.
+
+Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because the shape is non-convex. These linksets&apos; use types will not change.
+
+Do you wish to continue?
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Some selected linksets phantom flag will be toggled and others cannot be set because of permission restrictions on the linkset and because the shape is non-convex."
      name="okcancelignore"
      notext="Cancel"
      yestext="OK"/>

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="MemLeak" title="SIMULATE A MEMORY LEAK">
-	<spinner label="Leaking Speed (bytes per frame):" name="leak_speed"/>
-	<spinner label="Max Leaked Memory (MB):" name="max_leak"/>
+<floater name="MemLeak" title="模擬記憶體漏耗">
+	<spinner label="漏耗速度（位元組/幀）：" name="leak_speed"/>
+	<spinner label="最大記憶體漏耗（MB）：" name="max_leak"/>
 	<text name="total_leaked_label">
-		Current leaked memory: [SIZE] KB
+		目前已漏耗記憶體：[SIZE] KB
 	</text>
 	<text name="note_label_1">
 		[NOTE1]
@@ -11,8 +11,8 @@
 	<text name="note_label_2">
 		[NOTE2]
 	</text>
-	<button label="Start" name="start_btn"/>
+	<button label="開始" name="start_btn"/>
 	<button label="停止" name="stop_btn"/>
-	<button label="Release" name="release_btn"/>
+	<button label="釋放" name="release_btn"/>
 	<button label="關閉" name="close_btn"/>
 </floater>

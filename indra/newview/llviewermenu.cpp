@@ -2798,7 +2798,7 @@ class LLSelfRemoveAllAttachments : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLAgentWearables::userRemoveAllAttachments();
+		LLAppearanceMgr::instance().removeAllAttachmentsFromAvatar();
 		return true;
 	}
 };
@@ -6389,23 +6389,21 @@ class LLAttachmentDetachFromPoint : public view_listener_t
 {
 	bool handleEvent(const LLSD& user_data)
 	{
+		uuid_vec_t ids_to_remove;
 		const LLViewerJointAttachment *attachment = get_if_there(gAgentAvatarp->mAttachmentPoints, user_data.asInteger(), (LLViewerJointAttachment*)NULL);
 		if (attachment->getNumObjects() > 0)
 		{
-			gMessageSystem->newMessage("ObjectDetach");
-			gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-			gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
-			gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-			
 			for (LLViewerJointAttachment::attachedobjs_vec_t::const_iterator iter = attachment->mAttachedObjects.begin();
 				 iter != attachment->mAttachedObjects.end();
 				 iter++)
 			{
 				LLViewerObject *attached_object = (*iter);
-				gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
-				gMessageSystem->addU32Fast(_PREHASH_ObjectLocalID, attached_object->getLocalID());
+				ids_to_remove.push_back(attached_object->getAttachmentItemID());
 			}
-			gMessageSystem->sendReliable( gAgent.getRegionHost() );
+		}
+		if (!ids_to_remove.empty())
+		{
+			LLAppearanceMgr::instance().removeItemsFromAvatar(ids_to_remove);
 		}
 		return true;
 	}
@@ -6478,17 +6476,8 @@ class LLAttachmentDetach : public view_listener_t
 			return true;
 		}
 
-		// The sendDetach() method works on the list of selected
-		// objects.  Thus we need to clear the list, make sure it only
-		// contains the object the user clicked, send the message,
-		// then clear the list.
-		// We use deselectAll to update the simulator's notion of what's
-		// selected, and removeAll just to change things locally.
-		//RN: I thought it was more useful to detach everything that was selected
-		if (LLSelectMgr::getInstance()->getSelection()->isAttachment())
-		{
-			LLSelectMgr::getInstance()->sendDetach();
-		}
+		LLAppearanceMgr::instance().removeItemFromAvatar(object->getAttachmentItemID());
+
 		return true;
 	}
 };
@@ -7631,6 +7620,10 @@ void handle_rebake_textures(void*)
 	// Slam pending upload count to "unstick" things
 	bool slam_for_debug = true;
 	gAgentAvatarp->forceBakeAllTextures(slam_for_debug);
+	if (gAgent.getRegion() && gAgent.getRegion()->getCentralBakeVersion())
+	{
+		LLAppearanceMgr::instance().requestServerAppearanceUpdate();
+	}
 }
 
 void toggle_visibility(void* user_data)
@@ -7897,7 +7890,7 @@ class LLEditTakeOff : public view_listener_t
 	{
 		std::string clothing = userdata.asString();
 		if (clothing == "all")
-			LLWearableBridge::removeAllClothesFromAvatar();
+			LLAppearanceMgr::instance().removeAllClothesFromAvatar();
 		else
 		{
 			LLWearableType::EType type = LLWearableType::typeNameToType(clothing);
@@ -7907,8 +7900,8 @@ class LLEditTakeOff : public view_listener_t
 			{
 				// MULTI-WEARABLES: assuming user wanted to remove top shirt.
 				U32 wearable_index = gAgentWearables.getWearableCount(type) - 1;
-				LLViewerInventoryItem *item = dynamic_cast<LLViewerInventoryItem*>(gAgentWearables.getWearableInventoryItem(type,wearable_index));
-				LLWearableBridge::removeItemFromAvatar(item);
+				LLUUID item_id = gAgentWearables.getWearableItemID(type,wearable_index);
+				LLAppearanceMgr::instance().removeItemFromAvatar(item_id);
 			}
 				
 		}

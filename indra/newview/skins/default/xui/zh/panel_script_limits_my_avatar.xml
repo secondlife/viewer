@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="我的化身" name="script_limits_my_avatar_panel">
 	<text name="script_memory">
-		Avatar Script Usage
+		化身腳本使用量
 	</text>
 	<text name="loading_text">
 		載入中...
 	</text>
 	<scroll_list name="scripts_list">
 		<scroll_list.columns label="尺寸（kb）" name="size"/>
-		<scroll_list.columns label="URLs" name="urls"/>
+		<scroll_list.columns label="URL" name="urls"/>
 		<scroll_list.columns label="物件名稱" name="name"/>
 		<scroll_list.columns label="位置" name="location"/>
 	</scroll_list>
-	<button label="Refresh List" name="refresh_list_btn"/>
+	<button label="刷新清單" name="refresh_list_btn"/>
 </panel>

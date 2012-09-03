@@ -3,11 +3,11 @@
 	<button label="確定" label_selected="確定" name="OK"/>
 	<button label="取消" label_selected="取消" name="Cancel"/>
 	<tab_container name="pref core">
-		<panel label="一般" name="general"/>
-		<panel label="圖形" name="display"/>
+		<panel label="基本設定" name="general"/>
+		<panel label="顯像" name="display"/>
 		<panel label="聲音與媒體" name="audio"/>
 		<panel label="聊天" name="chat"/>
-		<panel label="移動與視角" name="move"/>
+		<panel label="移動/視野" name="move"/>
 		<panel label="通知" name="msgs"/>
 		<panel label="顏色" name="colors"/>
 		<panel label="隱私" name="im"/>

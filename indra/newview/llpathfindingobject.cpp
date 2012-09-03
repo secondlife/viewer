@@ -55,8 +55,10 @@ LLPathfindingObject::LLPathfindingObject()
 	mOwnerUUID(),
 	mHasOwnerName(false),
 	mOwnerName(),
+	mAvatarNameCacheConnection(),
 	mIsGroupOwned(false),
-	mLocation()
+	mLocation(),
+	mOwnerNameSignal()
 {
 }
 
@@ -67,8 +69,10 @@ LLPathfindingObject::LLPathfindingObject(const std::string &pUUID, const LLSD &p
 	mOwnerUUID(),
 	mHasOwnerName(false),
 	mOwnerName(),
+	mAvatarNameCacheConnection(),
 	mIsGroupOwned(false),
-	mLocation()
+	mLocation(),
+	mOwnerNameSignal()
 {
 	parseObjectData(pObjectData);
 }
@@ -80,14 +84,17 @@ LLPathfindingObject::LLPathfindingObject(const LLPathfindingObject& pOther)
 	mOwnerUUID(pOther.mOwnerUUID),
 	mHasOwnerName(false),
 	mOwnerName(),
+	mAvatarNameCacheConnection(),
 	mIsGroupOwned(pOther.mIsGroupOwned),
-	mLocation(pOther.mLocation)
+	mLocation(pOther.mLocation),
+	mOwnerNameSignal()
 {
 	fetchOwnerName();
 }
 
 LLPathfindingObject::~LLPathfindingObject()
 {
+	disconnectAvatarNameCacheConnection();
 }
 
 LLPathfindingObject &LLPathfindingObject::operator =(const LLPathfindingObject& pOther)
@@ -113,6 +120,23 @@ std::string LLPathfindingObject::getOwnerName() const
 	}
 
 	return ownerName;
+}
+
+LLPathfindingObject::name_connection_t LLPathfindingObject::registerOwnerNameListener(name_callback_t pOwnerNameCallback)
+{
+	llassert(hasOwner());
+
+	name_connection_t connection;
+	if (hasOwnerName())
+	{
+		pOwnerNameCallback(this);
+	}
+	else
+	{
+		connection = mOwnerNameSignal.connect(pOwnerNameCallback);
+	}
+
+	return connection;
 }
 
 void LLPathfindingObject::parseObjectData(const LLSD &pObjectData)
@@ -149,7 +173,7 @@ void LLPathfindingObject::fetchOwnerName()
 		mHasOwnerName = LLAvatarNameCache::get(mOwnerUUID, &mOwnerName);
 		if (!mHasOwnerName)
 		{
-			LLAvatarNameCache::get(mOwnerUUID, boost::bind(&LLPathfindingObject::handleAvatarNameFetch, this, _1, _2));
+			mAvatarNameCacheConnection = LLAvatarNameCache::get(mOwnerUUID, boost::bind(&LLPathfindingObject::handleAvatarNameFetch, this, _1, _2));
 		}
 	}
 }
@@ -157,6 +181,19 @@ void LLPathfindingObject::fetchOwnerName()
 void LLPathfindingObject::handleAvatarNameFetch(const LLUUID &pOwnerUUID, const LLAvatarName &pAvatarName)
 {
 	llassert(mOwnerUUID == pOwnerUUID);
+
 	mOwnerName = pAvatarName;
 	mHasOwnerName = true;
+
+	disconnectAvatarNameCacheConnection();
+
+	mOwnerNameSignal(this);
+}
+
+void LLPathfindingObject::disconnectAvatarNameCacheConnection()
+{
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
 }

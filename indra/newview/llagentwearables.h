@@ -214,7 +214,6 @@ public:
 
 	static void 	userUpdateAttachments(LLInventoryModel::item_array_t& obj_item_array);
 	static void		userRemoveMultipleAttachments(llvo_vec_t& llvo_array);
-	static void		userRemoveAllAttachments();
 	static void		userAttachMultipleAttachments(LLInventoryModel::item_array_t& obj_item_array);
 
 	BOOL			itemUpdatePending(const LLUUID& item_id) const;
