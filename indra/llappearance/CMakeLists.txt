@@ -59,7 +59,7 @@ set(llappearance_HEADER_FILES
     CMakeLists.txt
 
     llavatarappearance.h
-    llinventoryicon.cpp
+    llinventoryicon.h
     lljointpickname.h
     lllocaltextureobject.h
     lltexglobalcolor.h
