@@ -185,11 +185,34 @@ LLConversationLog::LLConversationLog()
 {
 	loadFromFile(getFileName());
 
-	LLIMMgr::instance().addSessionObserver(this);
-	
+	LLControlVariable* ctrl = gSavedPerAccountSettings.getControl("LogInstantMessages").get();
+	if (ctrl)
+	{
+		ctrl->getSignal()->connect(boost::bind(&LLConversationLog::observeIMSession, this));
+
+		if (ctrl->getValue().asBoolean())
+		{
+			LLIMMgr::instance().addSessionObserver(this);
+		}
+	}
+
 	mFriendObserver = new LLConversationLogFriendObserver;
 	LLAvatarTracker::instance().addObserver(mFriendObserver);
+
 }
+
+void LLConversationLog::observeIMSession()
+{
+	if (gSavedPerAccountSettings.getBOOL("LogInstantMessages"))
+	{
+		LLIMMgr::instance().addSessionObserver(this);
+	}
+	else
+	{
+		LLIMMgr::instance().removeSessionObserver(this);
+	}
+}
+
 void LLConversationLog::logConversation(const LLConversation& conversation)
 {
 	mConversations.push_back(conversation);

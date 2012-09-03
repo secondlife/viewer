@@ -145,6 +145,8 @@ private:
 
 	LLConversationLog();
 
+	void observeIMSession();
+
 	/**
 	 * constructs file name in which conversations log will be saved
 	 * file name is conversation.log
