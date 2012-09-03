@@ -38,7 +38,6 @@ LLAvatarAppearance::LLAvatarAppearance() :
 	mTexEyeColor( NULL ),
 	mIsDummy(FALSE)
 {
-	mDebugExistenceTimer.reset();
 }
 
 using namespace LLVOAvatarDefines;

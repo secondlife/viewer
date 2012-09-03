@@ -111,15 +111,6 @@ public:
 
 	virtual BOOL			isWearingWearableType(LLWearableType::EType type ) const = 0;
 
-	//--------------------------------------------------------------------
-	// Avatar Rez Metrics
-	//--------------------------------------------------------------------
-public:
-	F32				debugGetExistenceTimeElapsedF32() const { return mDebugExistenceTimer.getElapsedTimeF32(); }
-
-protected:
-	LLFrameTimer	mDebugExistenceTimer; // Debugging for how long the avatar has been in memory.
-
 public:
 	static LLColor4 getDummyColor();
 	virtual void	updateMeshTextures() = 0;

@@ -26,19 +26,19 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llviewertexlayer.h"
+
 #include "llagent.h"
-#include "llassetuploadresponders.h"
-#include "llavatarappearance.h"
-#include "llglslshader.h"
 #include "llimagej2c.h"
 #include "llnotificationsutil.h"
-#include "llviewercontrol.h"
-#include "llviewerregion.h"
-#include "llviewertexlayer.h"
 #include "llvfile.h"
 #include "llvfs.h"
+#include "llviewerregion.h"
+#include "llglslshader.h"
 #include "llvoavatarself.h"
 #include "pipeline.h"
+#include "llassetuploadresponders.h"
+#include "llviewercontrol.h"
 
 static const S32 BAKE_UPLOAD_ATTEMPTS = 7;
 static const F32 BAKE_UPLOAD_RETRY_DELAY = 2.f; // actual delay grows by power of 2 each attempt
@@ -46,126 +46,6 @@ static const F32 BAKE_UPLOAD_RETRY_DELAY = 2.f; // actual delay grows by power o
 // runway consolidate
 extern std::string self_av_string();
 
-LLViewerTexLayerSet::LLViewerTexLayerSet(LLAvatarAppearance* const appearance) :
-	LLTexLayerSet(appearance),
-	mComposite( NULL ),
-	mUpdatesEnabled( FALSE )
-{
-}
-
-// virtual
-LLViewerTexLayerSet::~LLViewerTexLayerSet()
-{
-}
-
-void LLViewerTexLayerSet::gatherMorphMaskAlpha(U8 *data, S32 width, S32 height)
-{
-	memset(data, 255, width * height);
-
-	for( layer_list_t::iterator iter = mLayerList.begin(); iter != mLayerList.end(); iter++ )
-	{
-		LLTexLayerInterface* layer = *iter;
-		layer->gatherAlphaMasks(data, mComposite->getOriginX(),mComposite->getOriginY(), width, height);
-	}
-	
-	// Set alpha back to that of our alpha masks.
-	renderAlphaMaskTextures(mComposite->getOriginX(), mComposite->getOriginY(), width, height, true);
-}
-
-LLTexLayerSetBuffer* LLViewerTexLayerSet::getComposite()
-{
-	if (!mComposite)
-	{
-		createComposite();
-	}
-	return mComposite;
-}
-
-const LLTexLayerSetBuffer* LLViewerTexLayerSet::getComposite() const
-{
-	return mComposite;
-}
-
-// virtual
-void LLViewerTexLayerSet::requestUpdate()
-{
-	if( mUpdatesEnabled )
-	{
-		createComposite();
-		mComposite->requestUpdate(); 
-	}
-}
-
-void LLViewerTexLayerSet::requestUpload()
-{
-	createComposite();
-	mComposite->requestUpload();
-}
-
-void LLViewerTexLayerSet::cancelUpload()
-{
-	if(mComposite)
-	{
-		mComposite->cancelUpload();
-	}
-}
-
-
-void LLViewerTexLayerSet::createComposite()
-{
-	if(!mComposite)
-	{
-		S32 width = mInfo->getWidth();
-		S32 height = mInfo->getHeight();
-		// Composite other avatars at reduced resolution
-		if( !mAvatarAppearance->isSelf() )
-		{
-			llerrs << "composites should not be created for non-self avatars!" << llendl;
-		}
-		mComposite = new LLTexLayerSetBuffer( this, width, height );
-	}
-}
-
-void LLViewerTexLayerSet::updateComposite()
-{
-	createComposite();
-	mComposite->requestUpdateImmediate();
-}
-
-// Returns TRUE if at least one packet of data has been received for each of the textures that this layerset depends on.
-BOOL LLViewerTexLayerSet::isLocalTextureDataAvailable() const
-{
-	if (!mAvatarAppearance->isSelf()) return FALSE;
-	LLVOAvatarSelf* self = dynamic_cast<LLVOAvatarSelf *>(mAvatarAppearance);
-	return self->isLocalTextureDataAvailable(this);
-}
-
-
-// Returns TRUE if all of the data for the textures that this layerset depends on have arrived.
-BOOL LLViewerTexLayerSet::isLocalTextureDataFinal() const
-{
-	if (!mAvatarAppearance->isSelf()) return FALSE;
-	LLVOAvatarSelf* self = dynamic_cast<LLVOAvatarSelf *>(mAvatarAppearance);
-	return self->isLocalTextureDataFinal(this);
-}
-
-void LLViewerTexLayerSet::destroyComposite()
-{
-	if( mComposite )
-	{
-		mComposite = NULL;
-	}
-}
-
-void LLViewerTexLayerSet::setUpdatesEnabled( BOOL b )
-{
-	mUpdatesEnabled = b; 
-}
-
-LLVOAvatarSelf* LLViewerTexLayerSet::getAvatar() const
-{
-	return dynamic_cast<LLVOAvatarSelf*> (mAvatarAppearance);
-}
 
 //-----------------------------------------------------------------------------
 // LLBakedUploadData()
@@ -693,7 +573,7 @@ void LLTexLayerSetBuffer::doUpdate()
 
 	// need to switch to using this layerset if this is the first update
 	// after getting the lowest LOD
-	mTexLayerSet->getAvatarAppearance()->updateMeshTextures();
+	mTexLayerSet->getAvatar()->updateMeshTextures();
 	
 	// Print out notification that we updated this texture.
 	if (gSavedSettings.getBOOL("DebugAvatarRezTime"))
@@ -701,7 +581,7 @@ void LLTexLayerSetBuffer::doUpdate()
 		const BOOL highest_lod = mTexLayerSet->isLocalTextureDataFinal();
 		const std::string lod_str = highest_lod ? "HighRes" : "LowRes";
 		LLSD args;
-		args["EXISTENCE"] = llformat("%d",(U32)mTexLayerSet->getAvatarAppearance()->debugGetExistenceTimeElapsedF32());
+		args["EXISTENCE"] = llformat("%d",(U32)mTexLayerSet->getAvatar()->debugGetExistenceTimeElapsedF32());
 		args["TIME"] = llformat("%d",(U32)mNeedsUpdateTimer.getElapsedTimeF32());
 		args["BODYREGION"] = mTexLayerSet->getBodyRegionName();
 		args["RESOLUTION"] = lod_str;
@@ -786,6 +666,150 @@ void LLTexLayerSetBuffer::onTextureUploadComplete(const LLUUID& uuid,
 	delete baked_upload_data;
 }
 
+//-----------------------------------------------------------------------------
+// LLViewerTexLayerSet
+// An ordered set of texture layers that get composited into a single texture.
+//-----------------------------------------------------------------------------
+
+LLViewerTexLayerSet::LLViewerTexLayerSet(LLAvatarAppearance* const appearance) :
+	LLTexLayerSet(appearance),
+	mComposite( NULL ),
+	mUpdatesEnabled( FALSE )
+{
+}
+
+// virtual
+LLViewerTexLayerSet::~LLViewerTexLayerSet()
+{
+}
+
+// Returns TRUE if at least one packet of data has been received for each of the textures that this layerset depends on.
+BOOL LLViewerTexLayerSet::isLocalTextureDataAvailable() const
+{
+	if (!mAvatarAppearance->isSelf()) return FALSE;
+	return getAvatar()->isLocalTextureDataAvailable(this);
+}
+
+
+// Returns TRUE if all of the data for the textures that this layerset depends on have arrived.
+BOOL LLViewerTexLayerSet::isLocalTextureDataFinal() const
+{
+	if (!mAvatarAppearance->isSelf()) return FALSE;
+	return getAvatar()->isLocalTextureDataFinal(this);
+}
+
+// virtual
+void LLViewerTexLayerSet::requestUpdate()
+{
+	if( mUpdatesEnabled )
+	{
+		createComposite();
+		mComposite->requestUpdate(); 
+	}
+}
+
+void LLViewerTexLayerSet::requestUpload()
+{
+	createComposite();
+	mComposite->requestUpload();
+}
+
+void LLViewerTexLayerSet::cancelUpload()
+{
+	if(mComposite)
+	{
+		mComposite->cancelUpload();
+	}
+}
+
+void LLViewerTexLayerSet::createComposite()
+{
+	if(!mComposite)
+	{
+		S32 width = mInfo->getWidth();
+		S32 height = mInfo->getHeight();
+		// Composite other avatars at reduced resolution
+		if( !mAvatarAppearance->isSelf() )
+		{
+			llerrs << "composites should not be created for non-self avatars!" << llendl;
+		}
+		mComposite = new LLTexLayerSetBuffer( this, width, height );
+	}
+}
+
+void LLViewerTexLayerSet::destroyComposite()
+{
+	if( mComposite )
+	{
+		mComposite = NULL;
+	}
+}
+
+void LLViewerTexLayerSet::setUpdatesEnabled( BOOL b )
+{
+	mUpdatesEnabled = b; 
+}
+
+
+void LLViewerTexLayerSet::updateComposite()
+{
+	createComposite();
+	mComposite->requestUpdateImmediate();
+}
+
+LLTexLayerSetBuffer* LLViewerTexLayerSet::getComposite()
+{
+	if (!mComposite)
+	{
+		createComposite();
+	}
+	return mComposite;
+}
+
+const LLTexLayerSetBuffer* LLViewerTexLayerSet::getComposite() const
+{
+	return mComposite;
+}
+
+void LLViewerTexLayerSet::gatherMorphMaskAlpha(U8 *data, S32 width, S32 height)
+{
+	memset(data, 255, width * height);
+
+	for( layer_list_t::iterator iter = mLayerList.begin(); iter != mLayerList.end(); iter++ )
+	{
+		LLTexLayerInterface* layer = *iter;
+		layer->gatherAlphaMasks(data, mComposite->getOriginX(),mComposite->getOriginY(), width, height);
+	}
+	
+	// Set alpha back to that of our alpha masks.
+	renderAlphaMaskTextures(mComposite->getOriginX(), mComposite->getOriginY(), width, height, true);
+}
+
+
+LLVOAvatarSelf* LLViewerTexLayerSet::getAvatar() const
+{
+	return dynamic_cast<LLVOAvatarSelf*> (mAvatarAppearance);
+}
 
 
 
+const std::string LLTexLayerSetBuffer::dumpTextureInfo() const
+{
+	if (!isAgentAvatarValid()) return "";
+
+	const BOOL is_high_res = !mNeedsUpload;
+	const U32 num_low_res = mNumLowresUploads;
+	const U32 upload_time = (U32)mNeedsUploadTimer.getElapsedTimeF32();
+	const std::string local_texture_info = gAgentAvatarp->debugDumpLocalTextureDataInfo(mTexLayerSet);
+
+	std::string status 				= "CREATING ";
+	if (!uploadNeeded()) status 	= "DONE     ";
+	if (uploadInProgress()) status 	= "UPLOADING";
+
+	std::string text = llformat("[%s] [HiRes:%d LoRes:%d] [Elapsed:%d] %s",
+								status.c_str(),
+								is_high_res, num_low_res,
+								upload_time, 
+								local_texture_info.c_str());
+	return text;
+}

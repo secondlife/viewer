@@ -29,7 +29,6 @@
 #include "lltexlayerparams.h"
 
 #include "llavatarappearance.h"
-//#include "llagentcamera.h"
 #include "llimagetga.h"
 #include "llquantize.h"
 #include "lltexlayer.h"

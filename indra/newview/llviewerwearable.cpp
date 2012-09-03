@@ -33,11 +33,11 @@
 #include "llnotificationsutil.h"
 #include "llsidepanelappearance.h"
 #include "lltextureentry.h"
-#include "llviewercontrol.h"
 #include "llviewertexlayer.h"
-#include "llviewerwearable.h"
 #include "llvoavatarself.h"
 #include "llvoavatardefines.h"
+#include "llviewerwearable.h"
+#include "llviewercontrol.h"
 
 using namespace LLVOAvatarDefines;
 
@@ -89,11 +89,6 @@ LLViewerWearable::~LLViewerWearable()
 {
 }
 
-void LLViewerWearable::setItemID(const LLUUID& item_id)
-{
-	mItemID = item_id;
-}
-
 // virtual
 BOOL LLViewerWearable::exportFile(LLFILE* file) const
 {
@@ -105,6 +100,40 @@ BOOL LLViewerWearable::exportFile(LLFILE* file) const
 		mTextureIDMap[te] = image_id;
 	}
 	return LLWearable::exportFile(file);
+}
+
+
+void LLViewerWearable::createVisualParams()
+{
+	for (LLViewerVisualParam* param = (LLViewerVisualParam*) gAgentAvatarp->getFirstVisualParam(); 
+		 param;
+		 param = (LLViewerVisualParam*) gAgentAvatarp->getNextVisualParam())
+	{
+		if (param->getWearableType() == mType)
+		{
+			addVisualParam(param->cloneParam(this));
+		}
+	}
+
+	// resync driver parameters to point to the newly cloned driven parameters
+	for (visual_param_index_map_t::iterator param_iter = mVisualParamIndexMap.begin(); 
+		 param_iter != mVisualParamIndexMap.end(); 
+		 ++param_iter)
+	{
+		LLVisualParam* param = param_iter->second;
+		LLVisualParam*(LLWearable::*wearable_function)(S32)const = &LLWearable::getVisualParam; 
+		// need this line to disambiguate between versions of LLCharacter::getVisualParam()
+		LLVisualParam*(LLAvatarAppearance::*param_function)(S32)const = &LLAvatarAppearance::getVisualParam; 
+		param->resetDrivenParams();
+		if(!param->linkDrivenParams(boost::bind(wearable_function,(LLWearable*)this, _1), false))
+		{
+			if( !param->linkDrivenParams(boost::bind(param_function,gAgentAvatarp.get(),_1 ), true))
+			{
+				llwarns << "could not link driven params for wearable " << getName() << " id: " << param->getID() << llendl;
+				continue;
+			}
+		}
+	}
 }
 
 // virtual
@@ -158,6 +187,7 @@ LLWearable::EImportResult LLViewerWearable::importFile( LLFILE* file )
 
 	return result;
 }
+
 
 // Avatar parameter and texture definitions can change over time.
 // This function returns true if parameters or textures have been added or removed
@@ -492,6 +522,11 @@ void LLViewerWearable::copyDataFrom(const LLViewerWearable* src)
 	revertValues();
 }
 
+void LLViewerWearable::setItemID(const LLUUID& item_id)
+{
+	mItemID = item_id;
+}
+
 
 LLLocalTextureObject* LLViewerWearable::getLocalTextureObject(S32 index)
 {
@@ -536,6 +571,17 @@ void LLViewerWearable::setLocalTextureObject(S32 index, LLLocalTextureObject &lt
 		mTEMap.erase(index);
 	}
 	mTEMap[index] = new LLLocalTextureObject(lto);
+}
+
+void LLViewerWearable::setVisualParams()
+{
+	for (visual_param_index_map_t::const_iterator iter = mVisualParamIndexMap.begin(); iter != mVisualParamIndexMap.end(); iter++)
+	{
+		S32 id = iter->first;
+		LLVisualParam *wearable_param = iter->second;
+		F32 value = wearable_param->getWeight();
+		gAgentAvatarp->setVisualParamWeight(id, value, FALSE);
+	}
 }
 
 void LLViewerWearable::revertValues()
@@ -589,6 +635,19 @@ void LLViewerWearable::revertValues()
 BOOL LLViewerWearable::isOnTop() const
 { 
 	return (this == gAgentWearables.getTopWearable(mType));
+}
+
+void LLViewerWearable::createLayers(S32 te)
+{
+	LLViewerTexLayerSet *layer_set = gAgentAvatarp->getLayerSet((ETextureIndex)te);
+	if (layer_set)
+	{
+		layer_set->cloneTemplates(mTEMap[te], (ETextureIndex)te, this);
+	}
+	else
+	{
+		llerrs << "could not find layerset for LTO in wearable!" << llendl;
+	}
 }
 
 void LLViewerWearable::saveValues()
@@ -702,7 +761,6 @@ void LLViewerWearable::setLabelUpdated() const
 	gInventory.addChangedMask(LLInventoryObserver::LABEL, getItemID());
 }
 
-
 void LLViewerWearable::refreshName()
 {
 	LLUUID item_id = getItemID();
@@ -802,65 +860,6 @@ void LLViewerWearable::onSaveNewAssetComplete(const LLUUID& new_asset_id, void* 
 
 }
 
-void LLViewerWearable::createLayers(S32 te)
-{
-	LLViewerTexLayerSet *layer_set = gAgentAvatarp->getLayerSet((ETextureIndex)te);
-	if (layer_set)
-	{
-		layer_set->cloneTemplates(mTEMap[te], (ETextureIndex)te, this);
-	}
-	else
-	{
-		llerrs << "could not find layerset for LTO in wearable!" << llendl;
-	}
-}
-
-void LLViewerWearable::createVisualParams()
-{
-	for (LLViewerVisualParam* param = (LLViewerVisualParam*) gAgentAvatarp->getFirstVisualParam(); 
-		 param;
-		 param = (LLViewerVisualParam*) gAgentAvatarp->getNextVisualParam())
-	{
-		if (param->getWearableType() == mType)
-		{
-			addVisualParam(param->cloneParam(this));
-		}
-	}
-
-	// resync driver parameters to point to the newly cloned driven parameters
-	for (visual_param_index_map_t::iterator param_iter = mVisualParamIndexMap.begin(); 
-		 param_iter != mVisualParamIndexMap.end(); 
-		 ++param_iter)
-	{
-		LLVisualParam* param = param_iter->second;
-		LLVisualParam*(LLWearable::*wearable_function)(S32)const = &LLWearable::getVisualParam; 
-		// need this line to disambiguate between versions of LLCharacter::getVisualParam()
-		LLVisualParam*(LLAvatarAppearance::*param_function)(S32)const = &LLAvatarAppearance::getVisualParam; 
-		param->resetDrivenParams();
-		if(!param->linkDrivenParams(boost::bind(wearable_function,(LLWearable*)this, _1), false))
-		{
-			if( !param->linkDrivenParams(boost::bind(param_function,gAgentAvatarp.get(),_1 ), true))
-			{
-				llwarns << "could not link driven params for wearable " << getName() << " id: " << param->getID() << llendl;
-				continue;
-			}
-		}
-	}
-}
-
-void LLViewerWearable::setVisualParams()
-{
-	for (visual_param_index_map_t::const_iterator iter = mVisualParamIndexMap.begin(); iter != mVisualParamIndexMap.end(); iter++)
-	{
-		S32 id = iter->first;
-		LLVisualParam *wearable_param = iter->second;
-		F32 value = wearable_param->getWeight();
-		gAgentAvatarp->setVisualParamWeight(id, value, FALSE);
-	}
-}
-
-
-
 std::ostream& operator<<(std::ostream &s, const LLViewerWearable &w)
 {
 	s << "wearable " << LLWearableType::getTypeName(w.mType) << "\n";
@@ -897,4 +896,3 @@ std::string asset_id_to_filename(const LLUUID &asset_id)
 	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,asset_id_string) + ".wbl";	
 	return filename;
 }
-

@@ -29,8 +29,8 @@
 #define LLVOAVATAR_DEFINES_H
 
 #include <vector>
-#include "lljointpickname.h"
 #include "llwearable.h"
+#include "lljointpickname.h"
 #include "lldictionary.h"
 
 namespace LLVOAvatarDefines

@@ -28,19 +28,16 @@
 #define LL_LLWEARABLE_H
 
 #include "llextendedstatus.h"
-//#include "lluuid.h"
-//#include "llstring.h"
 #include "llpermissions.h"
 #include "llsaleinfo.h"
-//#include "llassetstorage.h"
 #include "llwearabletype.h"
-//#include "llfile.h"
 #include "lllocaltextureobject.h"
 
 class LLVisualParam;
 class LLTexGlobalColorInfo;
 class LLTexGlobalColor;
 
+// Abstract class.
 class LLWearable
 {
 	//--------------------------------------------------------------------
@@ -72,6 +69,8 @@ public:
 public:
 	typedef std::vector<LLVisualParam*> visual_param_vec_t;
 
+	virtual void	writeToAvatar() = 0;
+
 	enum EImportResult
 	{
 		FAILURE = 0,
@@ -81,12 +80,11 @@ public:
 	virtual BOOL				exportFile(LLFILE* file) const;
 	virtual EImportResult		importFile(LLFILE* file);
 
-	virtual LLLocalTextureObject* getLocalTextureObject(S32 index) = 0;
-	virtual void	writeToAvatar() = 0;
 
 
 	static void			setCurrentDefinitionVersion( S32 version ) { LLWearable::sCurrentDefinitionVersion = version; }
 
+	virtual LLLocalTextureObject* getLocalTextureObject(S32 index) = 0;
 	void				addVisualParam(LLVisualParam *param);
 	void 				setVisualParamWeight(S32 index, F32 value, BOOL upload_bake);
 	F32					getVisualParamWeight(S32 index) const;

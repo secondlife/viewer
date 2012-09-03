@@ -27,24 +27,12 @@
 #include "linden_common.h"
 
 #include "llavatarappearance.h"
-//#include "llagentwearables.h"
-//#include "lldictionary.h"
-//#include "llfloatersidepanelcontainer.h"
 #include "lllocaltextureobject.h"
-//#include "llnotificationsutil.h"
-//#include "llviewertexturelist.h"
-//#include "llinventorymodel.h"
-//#include "llinventoryobserver.h"
-//#include "llsidepanelappearance.h"
 #include "lltexlayer.h"
-//#include "lltexglobalcolor.h"
 #include "lltexturemanagerbridge.h"
-//#include "lltrans.h"
-//#include "llviewerregion.h"
 #include "llvisualparam.h"
 #include "llvoavatardefines.h"
 #include "llwearable.h"
-//#include "llviewercontrol.h"
 
 using namespace LLVOAvatarDefines;
 
@@ -169,6 +157,7 @@ LLWearable::EImportResult LLWearable::importFile( LLFILE* file )
 	{
 		return LLWearable::BAD_HEADER;
 	}
+
 
 	// Temporary hack to allow wearables with definition version 24 to still load.
 	// This should only affect lindens and NDA'd testers who have saved wearables in 2.0

@@ -30,8 +30,8 @@
 #include "lldynamictexture.h"
 #include "lltexlayer.h"
 
-class LLTexLayerSetBuffer;
 class LLVOAvatarSelf;
+class LLTexLayerSetBuffer;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // LLViewerTexLayerSet

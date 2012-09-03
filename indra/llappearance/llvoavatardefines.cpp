@@ -24,11 +24,8 @@
  * $/LicenseInfo$
  */
 
-//#include "llviewerprecompiledheaders.h"
 #include "linden_common.h"
-
 #include "llvoavatardefines.h"
-//#include "llviewercontrol.h" // gSavedSettings
 
 const S32 LLVOAvatarDefines::SCRATCH_TEX_WIDTH = 512;
 const S32 LLVOAvatarDefines::SCRATCH_TEX_HEIGHT = 512;
