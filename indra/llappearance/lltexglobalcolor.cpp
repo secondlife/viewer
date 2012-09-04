@@ -25,10 +25,8 @@
  */
 
 #include "linden_common.h"
-
 #include "llavatarappearance.h"
 #include "lltexlayer.h"
-//#include "llwearable.h"
 #include "lltexglobalcolor.h"
 
 class LLWearable;

@@ -454,7 +454,6 @@ public:
 	static void	deleteCachedImages(bool clearAll=true);
 	static void	destroyGL();
 	static void	restoreGL();
-	BOOL		mIsDummy; // for special views
 	S32			mSpecialRenderMode; // special lighting
 	U32			mAttachmentGeometryBytes; //number of bytes in attached geometry
 	F32			mAttachmentSurfaceArea; //estimated surface area of attachments

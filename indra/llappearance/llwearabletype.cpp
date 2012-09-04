@@ -25,7 +25,6 @@
  */
 
 #include "linden_common.h"
- 
 #include "llwearabletype.h"
 #include "llinventoryicon.h"
 #include "lltrans.h"

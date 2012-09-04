@@ -24,7 +24,6 @@
  * $/LicenseInfo$
  */
 
-//#include "llviewerprecompiledheaders.h"
 #include "linden_common.h"
 #include "llinventoryicon.h"
 

@@ -31,8 +31,8 @@
 #include "llframetimer.h"
 #include "llavatarappearancedefines.h"
 
-class LLTexGlobalColor;
 class LLTexLayerSet;
+class LLTexGlobalColor;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // LLAvatarAppearance
@@ -43,8 +43,72 @@ class LLAvatarAppearance : public LLCharacter
 {
 	LOG_CLASS(LLAvatarAppearance);
 
+/********************************************************************************
+ **                                                                            **
+ **                    INITIALIZATION
+ **/
+
 public:
 	LLAvatarAppearance();
+
+/**                    Initialization
+ **                                                                            **
+ *******************************************************************************/
+
+/********************************************************************************
+ **                                                                            **
+ **                    STATE
+ **/
+public:
+	virtual bool 	isSelf() const { return false; } // True if this avatar is for this viewer's agent
+	virtual BOOL	isUsingBakedTextures() const = 0;
+	
+/**                    State
+ **                                                                            **
+ *******************************************************************************/
+
+
+/********************************************************************************
+ **                                                                            **
+ **                    RENDERING
+ **/
+	BOOL		mIsDummy; // for special views
+
+	//--------------------------------------------------------------------
+	// Morph masks
+	//--------------------------------------------------------------------
+public:
+	virtual void	applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_components, LLAvatarAppearanceDefines::EBakedTextureIndex index = LLAvatarAppearanceDefines::BAKED_NUM_INDICES) = 0;
+
+/**                    Rendering
+ **                                                                            **
+ *******************************************************************************/
+
+	//--------------------------------------------------------------------
+	// Composites
+	//--------------------------------------------------------------------
+public:
+	virtual void	invalidateComposite(LLTexLayerSet* layerset, BOOL upload_result) = 0;
+
+/********************************************************************************
+ **                                                                            **
+ **                    MESHES
+ **/
+
+public:
+	virtual void	updateMeshTextures() = 0;
+	virtual void	dirtyMesh() = 0; // Dirty the avatar mesh
+protected:
+	virtual void	dirtyMesh(S32 priority) = 0; // Dirty the avatar mesh, with priority
+
+/**                    Meshes
+ **                                                                            **
+ *******************************************************************************/
+
+/********************************************************************************
+ **                                                                            **
+ **                    APPEARANCE
+ **/
 
 	//--------------------------------------------------------------------
 	// Clothing colors (convenience functions to access visual parameters)
@@ -66,54 +130,29 @@ protected:
 	LLTexGlobalColor* mTexEyeColor;
 
 	//--------------------------------------------------------------------
-	// Morph masks
+	// Visibility
 	//--------------------------------------------------------------------
 public:
-	virtual void	applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_components, LLAvatarAppearanceDefines::EBakedTextureIndex index = LLAvatarAppearanceDefines::BAKED_NUM_INDICES) = 0;
-
-	//--------------------------------------------------------------------
-	// Composites
-	//--------------------------------------------------------------------
-public:
-	virtual void	invalidateComposite(LLTexLayerSet* layerset, BOOL upload_result) = 0;
-
-/********************************************************************************
+	static LLColor4 getDummyColor();
+/**                    Appearance
  **                                                                            **
- **                    MESHES
- **/
-	virtual void	dirtyMesh() = 0; // Dirty the avatar mesh
-	virtual void	dirtyMesh(S32 priority) = 0; // Dirty the avatar mesh, with priority
-
-/********************************************************************************
- **                                                                            **
- **                    RENDERING
- **/
-	BOOL		mIsDummy; // for special views
-
-/********************************************************************************
- **                                                                            **
- **                    STATE
- **/
-public:
-	virtual bool 	isSelf() const { return false; } // True if this avatar is for this viewer's agent
-	virtual BOOL	isUsingBakedTextures() const = 0;
+ *******************************************************************************/
 
 /********************************************************************************
  **                                                                            **
  **                    WEARABLES
  **/
+
 public:
+	virtual BOOL			isWearingWearableType(LLWearableType::EType type ) const = 0;
+
 	virtual U32				getWearableCount(const LLWearableType::EType type) const = 0;
 	virtual U32				getWearableCount(const U32 tex_index) const = 0;
 
 	virtual LLWearable*			getWearable(const LLWearableType::EType type, U32 index /*= 0*/) = 0;
 	virtual const LLWearable* 	getWearable(const LLWearableType::EType type, U32 index /*= 0*/) const = 0;
 
-	virtual BOOL			isWearingWearableType(LLWearableType::EType type ) const = 0;
 
-public:
-	static LLColor4 getDummyColor();
-	virtual void	updateMeshTextures() = 0;
 };
 
 #endif // LL_AVATAR_APPEARANCE_H
