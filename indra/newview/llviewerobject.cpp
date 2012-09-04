@@ -4080,7 +4080,7 @@ S32 LLViewerObject::setTETextureCore(const U8 te, const LLUUID& uuid, LLHost hos
 	return retval;
 }
 
-
+//virtual
 void LLViewerObject::changeTEImage(S32 index, LLViewerTexture* new_image) 
 {
 	if(index < 0 || index >= getNumTEs())
