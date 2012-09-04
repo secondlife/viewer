@@ -21,7 +21,7 @@ domaine.
 		Conditions d&apos;accès des résidents :
 	</text>
 	<check_box label="Informations de paiement enregistrées" name="limit_payment" tool_tip="Pour pouvoir accéder à ce domaine, les résidents doivent avoir enregistré des informations de paiement. Consultez le [SUPPORT_SITE] pour plus d&apos;informations."/>
-	<check_box label="Âge vérifié" name="limit_age_verified" tool_tip="Pour que les résidents puissent accéder à ce domaine, leur âge doit avoir fait l&apos;objet d&apos;une vérification. Consultez le [SUPPORT_SITE] pour plus d&apos;informations."/>
+	<check_box label="Avoir plus de 18 ans" name="limit_age_verified" tool_tip="Pour accéder à ce domaine, les résidents doivent avoir au moins 18 ans. Consultez le [SUPPORT_SITE] pour plus d&apos;informations."/>
 	<check_box label="Autoriser les chats vocaux" name="voice_chat_check"/>
 	<button label="?" name="voice_chat_help"/>
 	<text name="abuse_email_text">

@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="nearby_chat" title="Bate-papo local">
-	<check_box label="Traduzir bate-papo" name="translate_chat_checkbox"/>
-</floater>

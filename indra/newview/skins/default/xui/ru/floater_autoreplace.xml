@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="autoreplace_floater" title="Настройки автозамены">
+	<check_box label="Включить автозамену" name="autoreplace_enable" tool_tip="В чате по мере ввода текста ключевые слова будут заменяться соответствующими заменителями"/>
+	<button label="Импорт списка..." name="autoreplace_import_list" tool_tip="Загрузить ранее экспортированный список из файла."/>
+	<button label="Экспорт списка..." name="autoreplace_export_list" tool_tip="Сохранить выбранный список в файл для последующего распространения."/>
+	<button label="Новый список..." name="autoreplace_new_list" tool_tip="Создать новый список."/>
+	<button label="Удалить список" name="autoreplace_delete_list" tool_tip="Удалить выбранный список."/>
+	<button name="autoreplace_list_up" tool_tip="Повысить приоритет списка."/>
+	<button name="autoreplace_list_down" tool_tip="Понизить приоритет списка."/>
+	<scroll_list name="autoreplace_list_replacements">
+		<scroll_list.columns label="Ключевое слово" name="keyword"/>
+		<scroll_list.columns label="Замена" name="replacement"/>
+	</scroll_list>
+	<button label="Добавить..." name="autoreplace_add_entry"/>
+	<button label="Удалить" name="autoreplace_delete_entry"/>
+	<button label="Сохранить запись" name="autoreplace_save_entry" tool_tip="Сохранить эту запись."/>
+	<button label="Сохранить изменения" name="autoreplace_save_changes" tool_tip="Сохранить все изменения."/>
+	<button label="Отмена" name="autoreplace_cancel" tool_tip="Отменить все изменения."/>
+</floater>
+<!--
+  <text 
+   top_pad="10"
+   left="10"
+   height="16"
+   width="260"
+   follows="left|top"
+   halign="center"
+   mouse_opaque="true"
+   name="autoreplace_text2">
+    Entries
+  </text>
+-->

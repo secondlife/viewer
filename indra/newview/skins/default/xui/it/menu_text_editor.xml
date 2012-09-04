@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Text editor context menu">
+	<menu_item_call label="(sconosciuto)" name="Suggestion 1"/>
+	<menu_item_call label="(sconosciuto)" name="Suggestion 2"/>
+	<menu_item_call label="(sconosciuto)" name="Suggestion 3"/>
+	<menu_item_call label="(sconosciuto)" name="Suggestion 4"/>
+	<menu_item_call label="(sconosciuto)" name="Suggestion 5"/>
+	<menu_item_call label="Aggiungi al dizionario" name="Add to Dictionary"/>
+	<menu_item_call label="Aggiungi per ignorare" name="Add to Ignore"/>
 	<menu_item_call label="Taglia" name="Cut"/>
 	<menu_item_call label="Copia" name="Copy"/>
 	<menu_item_call label="Incolla" name="Paste"/>

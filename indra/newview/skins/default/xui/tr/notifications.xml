@@ -37,6 +37,12 @@
 			<button name="Help" text="$helptext"/>
 		</form>
 	</template>
+	<template name="okhelpignore">
+		<form>
+			<button name="OK_okhelpignore" text="$yestext"/>
+			<button name="Help_okhelpignore" text="$helptext"/>
+		</form>
+	</template>
 	<template name="yesnocancelbuttons">
 		<form>
 			<button name="Yes" text="$yestext"/>
@@ -367,6 +373,12 @@ Avatarınızın Kullanıcı adını girmeniz gerekmektedir.
 	<notification name="InvalidCredentialFormat">
 		Kullanıcı adı alanına Avatarınızın Kullanıcı adını ya da Ad ve Soyadını girmeniz ve yeniden oturum açmanız gerekmektedir.
 	</notification>
+	<notification name="InvalidGrid">
+		&apos;[GRID]&apos; geçerli bir ağ tanımlayıcısı değil.
+	</notification>
+	<notification name="InvalidLocationSLURL">
+		Başlangıç konumunuz için geçerli bir ağ belirtilmedi.
+	</notification>
 	<notification name="DeleteClassified">
 		&apos;[NAME]&apos; ilanı silinsin mi?
 Ödenen ücretler iade edilmeyecektir.
@@ -472,8 +484,8 @@ Nesne aralık dışında ya da silinmiş olabilir.
 		Aşağıdaki nedenden dolayı, derlenen komut dosyası kaydedilirken bir sorun oluştu: [REASON].  Lütfen komut dosyasını kaydetmeyi daha sonra tekrar deneyin.
 	</notification>
 	<notification name="StartRegionEmpty">
-		Hata. Başlangıç Bölgeniz tanımlanmamış.
-Lütfen Başlangıç Konumu kutusuna Bölge adını yazın ya da Son Konumum veya Ana Konumumu Başlangıç Konumu olarak seçin.
+		Başlangıç Bölgeniz tanımlanmamış.
+Lütfen Başlangıç Konumu kutusuna Bölge adını yazın ya da Son Bulunduğum Konum veya Ana Konumumu Başlangıç Konumu olarak seçin.
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
 	<notification name="CouldNotStartStopScript">
@@ -599,6 +611,9 @@ En fazla [MAX] nesneyi birbirine bağlayabilirsiniz.
 		Tüm nesneler üzerinde değişiklik yapma izniniz olmadığı için nesneler birbirine bağlanamıyor.
 
 Lütfen hiçbirinin kilitli olmadığından ve hepsine sahip olduğunuzdan emin olun.
+	</notification>
+	<notification name="CannotLinkPermanent">
+		Nesneler bölge sınırları üzerinden bağlantılandırılamaz.
 	</notification>
 	<notification name="CannotLinkDifferentOwners">
 		Nesnelerin hepsinin sahibi aynı olmadığı için nesneler birbirine bağlanamıyor.
@@ -977,6 +992,41 @@ Etkin grubunuz adına arazi satın almak için gerekli izne sahip değilsiniz.
 			<button name="Offer" text="Tamam"/>
 			<button name="Cancel" text="İptal"/>
 		</form>
+	</notification>
+	<notification label="Otomatik Yerine Koyma Listesine Ekle" name="AddAutoReplaceList">
+		Yeni liste için isim:
+		<form name="form">
+			<button name="SetName" text="Tamam"/>
+		</form>
+	</notification>
+	<notification label="Otomatik Yerine Koyma Listesinin Adını Değiştir" name="RenameAutoReplaceList">
+		&apos;[DUPNAME]&apos; adı kullanılıyor
+    Benzersiz yeni bir ad girin:
+		<form name="form">
+			<button name="ReplaceList" text="Mevcut Listenin Yerine Koy"/>
+			<button name="SetName" text="Yeni Adı Kullan"/>
+		</form>
+	</notification>
+	<notification name="InvalidAutoReplaceEntry">
+		Anahtar kelime tek bir kelime olmalıdır; değiştirme boş olamaz.
+	</notification>
+	<notification name="InvalidAutoReplaceList">
+		Bu değiştirme listesi geçerli değil.
+	</notification>
+	<notification name="SpellingDictImportRequired">
+		Bir dosya, ad ve dil belirtmelisiniz.
+	</notification>
+	<notification name="SpellingDictIsSecondary">
+		[DIC_NAME] sözlüğünde bir &quot;aff&quot; dosyası yok gibi görünüyor; bu da &quot;ikincil&quot; bir sözlük olduğu anlamına gelir.
+İlave bir sözlük olarak kullanılabilir; ancak Ana sözlüğünüz olarak kullanılamaz.
+
+Bkz. https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
+	</notification>
+	<notification name="SpellingDictImportFailed">
+		Şu kopyalama yapılamıyor:
+    [FROM_NAME]
+    kaynağından şuraya:
+    [TO_NAME]
 	</notification>
 	<notification label="Dış Görünümü Kaydet" name="SaveOutfitAs">
 		Üzerimdekileri yeni bir Dış Görünüm olarak kaydet:
@@ -1693,83 +1743,128 @@ Binlerce bölgeyi değiştirecek ve alan sunucusunu kesintiye uğratacaktır.
 		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
 	</notification>
 	<notification name="RegionEntryAccessBlocked">
-		Erişkinlik Seviyesi ayarlarınızdan dolayı bu Bölgeye giremezsiniz. Bu sorun yaşınızı doğrulamak için gerekli bilgilerin eksik olmasından kaynaklanabilir.
-
-Lütfen en son Görüntüleyicinin yüklü olduğunu doğrulayın ve bu erişkinlik seviyesi ile erişilecek alanlar hakkında ayrıntılı bilgi edinmek için Bilgi Bankası&apos;nı ziyaret edin.
+		Ziyaret etmeye çalıştığınız bölge, mevcut tercihlerinizi aşan içeriğe sahip.  Ben &gt; Tercihler &gt; Genel sekmesini kullanarak tercihlerinizi değiştirebilirsiniz.
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
-	<notification name="RegionEntryAccessBlocked_KB">
-		Erişkinlik Seviyesi ayarlarınızdan dolayı bu bölgeye giremezsiniz.
-
-Erişkinlik Seviyeleri hakkında daha fazla bilgi edinmek için Bilgi Bankası&apos;nı ziyaret etmek ister misiniz?
+	<notification name="RegionEntryAccessBlocked_AdultsOnlyContent">
+		Ziyaret etmeye çalıştığınız bölge [REGIONMATURITY] içeriğe sahip, buna sadece yetişkinler erişebilir.
 		<url name="url">
 			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
 		</url>
-		<usetemplate ignoretext="Erişkinlik Seviyesi ile ilgili kısıtlamalardan dolayı bu Bölgeye giremiyorum" name="okcancelignore" notext="Kapat" yestext="Bilgi Bankası&apos;na Git"/>
+		<usetemplate ignoretext="Bölge geçişi: Ziyaret etmeye çalıştığınız bölge, sadece yetişkinlerin erişebileceği içeriğe sahip." name="okcancelignore" notext="Kapat" yestext="Bilgi Bankası&apos;na Git"/>
 	</notification>
 	<notification name="RegionEntryAccessBlocked_Notify">
-		Erişkinlik Seviyesi ayarlarınızdan dolayı bu bölgeye giremezsiniz.
+		Ziyaret etmeye çalıştığınız bölgede [REGIONMATURITY] içeriği mevcut, ama mevcut tercihleriniz [REGIONMATURITY] içeriğini dışlayacak şekilde ayarlanmış.
+	</notification>
+	<notification name="RegionEntryAccessBlocked_NotifyAdultsOnly">
+		Ziyaret etmeye çalıştığınız bölge [REGIONMATURITY] içeriğe sahip, buna sadece yetişkinler erişebilir.
 	</notification>
 	<notification name="RegionEntryAccessBlocked_Change">
-		Erişkinlik Seviyesi tercihlerinizden dolayı bu Bölgeye giremezsiniz.
-
-İstenilen bölgeye girmek için, lütfen erişkinlik Seviyesi tercihinizi değiştirin. Bu tercih [REGIONMATURITY] içerikli alanlar içinde arama yapabilmenizi ve bu alanlara erişebilmenizi sağlayacak. Değişiklikleri geri almak için, Ben &gt; Tercihler &gt; Genel sekmesine gidin.
+		Ziyaret etmeye çalıştığınız bölgede [REGIONMATURITY] içeriği mevcut, ama mevcut tercihleriniz [REGIONMATURITY] içeriğini dışlayacak şekilde ayarlanmış. Tercihlerinizi değiştirebilirsiniz veya iptal edebilirsiniz. Tercihleriniz değiştikten sonra bölgeye tekrar girmeye çalışabilirsiniz.
 		<form name="form">
-			<button name="OK" text="Tercihi Değiştir"/>
-			<button name="Cancel" text="Kapat"/>
-			<ignore name="ignore" text="Seçtiğim Seviye tercihleri bir bölgeye girmemi engelliyor"/>
+			<button name="OK" text="Tercihleri değiştirin"/>
+			<button name="Cancel" text="İptal"/>
+			<ignore name="ignore" text="Bölge geçişi: Ziyaret etmeye çalıştığınız bölge, mevcut tercihleriniz tarafından dışlanan içeriğe sahip."/>
 		</form>
 	</notification>
+	<notification name="RegionEntryAccessBlocked_PreferencesOutOfSync">
+		Tercihleriniz ile sunucu arasında senkronizasyon eksikliği olduğu için ışınlama işleminizde teknik sorunlar yaşanıyoruz.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="TeleportEntryAccessBlocked">
+		Ziyaret etmeye çalıştığınız bölge, mevcut tercihlerinizi aşan içeriğe sahip.  Ben &gt; Tercihler &gt; Genel sekmesini kullanarak tercihlerinizi değiştirebilirsiniz.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="TeleportEntryAccessBlocked_AdultsOnlyContent">
+		Ziyaret etmeye çalıştığınız bölge [REGIONMATURITY] içeriğe sahip, buna sadece yetişkinler erişebilir.
+		<url name="url">
+			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
+		</url>
+		<usetemplate ignoretext="Işınla: Ziyaret etmeye çalıştığınız bölge, sadece yetişkinlerin erişebileceği içeriğe sahip." name="okcancelignore" notext="Kapat" yestext="Bilgi Bankası&apos;na Git"/>
+	</notification>
+	<notification name="TeleportEntryAccessBlocked_Notify">
+		Ziyaret etmeye çalıştığınız bölgede [REGIONMATURITY] içeriği mevcut, ama mevcut tercihleriniz [REGIONMATURITY] içeriğini dışlayacak şekilde ayarlanmış.
+	</notification>
+	<notification name="TeleportEntryAccessBlocked_NotifyAdultsOnly">
+		Ziyaret etmeye çalıştığınız bölge [REGIONMATURITY] içeriğe sahip, buna sadece yetişkinler erişebilir.
+	</notification>
+	<notification name="TeleportEntryAccessBlocked_ChangeAndReTeleport">
+		Ziyaret etmeye çalıştığınız bölgede [REGIONMATURITY] içeriği mevcut, ama mevcut tercihleriniz [REGIONMATURITY] içeriğini dışlayacak şekilde ayarlanmış. Tercihlerinizi değiştirebilirsiniz ve ışınlamaya devam edebilirsiniz veya bu ışınlama işlemini iptal edebilirsiniz.
+		<form name="form">
+			<button name="OK" text="Değiştir ve devam et"/>
+			<button name="Cancel" text="İptal"/>
+			<ignore name="ignore" text="Işınlama (yeniden başlatılabilir): Ziyaret etmeye çalıştığınız bölge, mevcut tercihleriniz tarafından dışlanan içeriğe sahip."/>
+		</form>
+	</notification>
+	<notification name="TeleportEntryAccessBlocked_Change">
+		Ziyaret etmeye çalıştığınız bölgede [REGIONMATURITY] içeriği mevcut, ama mevcut tercihleriniz [REGIONMATURITY] içeriğini dışlayacak şekilde ayarlanmış. Tercihlerinizi değiştirebilirsiniz veya ışınlamayı iptal edebilirsiniz. Tercihleriniz değiştikten sonra ışınlamayı tekrar yapmaya kalkışmanız gerekecek.
+		<form name="form">
+			<button name="OK" text="Tercihleri değiştirin"/>
+			<button name="Cancel" text="İptal"/>
+			<ignore name="ignore" text="Işınlama (yeniden başlatılamaz): Ziyaret etmeye çalıştığınız bölge, mevcut tercihleriniz tarafından dışlanan içeriğe sahip."/>
+		</form>
+	</notification>
+	<notification name="TeleportEntryAccessBlocked_PreferencesOutOfSync">
+		Tercihleriniz ile sunucu arasında senkronizasyon eksikliği olduğu için ışınlama işleminizde teknik sorunlar yaşanıyoruz.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
 	<notification name="PreferredMaturityChanged">
-		Erişkinlik Seviyesi tercihiniz artık [RATING].
+		[RATING] içeriğine sahip bir bölgeyi ziyaret edeceğiniz hakkında başka bildirim almayacaksınız.  Daha sonra menü çubuğunda Ben &gt; Tercihler &gt; Genel sekmesini kullanarak tercihlerinizi değiştirebilirsiniz.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="MaturityChangeError">
+		Şu anda [PREFERRED_MATURITY] içeriğini görüntüleyecek şekilde tercihlerinizi değiştiremedik.  Tercihleriniz, [ACTUAL_MATURITY] içeriğini görüntüleyecek şekilde sıfırlandı.  Menü çubuğunda Ben &gt; Tercihler &gt; Genel sekmesini kullanarak tercihlerinizi tekrar değiştirmeyi deneyebilirsiniz.
+		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
 	<notification name="LandClaimAccessBlocked">
-		Erişkinlik Seviyesi ayarlarınızdan dolayı bu arazi üzerinde hak talebinde bulunamazsınız. Bu sorun yaşınızı doğrulamak için gerekli bilgilerin eksik olmasından kaynaklanabilir.
-
-Lütfen en son Görüntüleyicinin yüklü olduğunu doğrulayın ve bu erişkinlik seviyesi ile erişilecek alanlar hakkında ayrıntılı bilgi edinmek için Bilgi Bankası&apos;nı ziyaret edin.
+		Hak talebinde bulunduğunuz arazinin erişkinlik seviyesi mevcut tercihlerinizi aşıyor.  Ben &gt; Tercihler &gt; Genel sekmesini kullanarak tercihlerinizi değiştirebilirsiniz.
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
-	<notification name="LandClaimAccessBlocked_KB">
-		Erişkinlik Seviyesi ayarlarınızdan dolayı bu arazi üzerinde hak talebinde bulunamazsınız.
-
-Erişkinlik Seviyeleri hakkında daha fazla bilgi edinmek için Bilgi Bankası&apos;nı ziyaret etmek ister misiniz?
+	<notification name="LandClaimAccessBlocked_AdultsOnlyContent">
+		Bu arazi üzerinde sadece yetişkinler hak talebinde bulunabilir.
 		<url name="url">
 			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
 		</url>
-		<usetemplate ignoretext="Erişkinlik Seviyesi ile ilgili kısıtlandırmalardan dolayı bu Arazi üzerinde hak talebinde bulunamıyorum." name="okcancelignore" notext="Kapat" yestext="Bilgi Bankası&apos;na Git"/>
+		<usetemplate ignoretext="Bu arazi üzerinde sadece yetişkinler hak talebinde bulunabilir." name="okcancelignore" notext="Kapat" yestext="Bilgi Bankası&apos;na Git"/>
 	</notification>
 	<notification name="LandClaimAccessBlocked_Notify">
-		Erişkinlik Seviyesi ayarlarınızdan dolayı bu arazi üzerinde hak talebinde bulunamazsınız.
+		Hak talebinde bulunduğunuz arazide [REGIONMATURITY] içeriği mevcut, ama mevcut tercihleriniz [REGIONMATURITY] içeriğini dışlayacak şekilde ayarlanmış.
+	</notification>
+	<notification name="LandClaimAccessBlocked_NotifyAdultsOnly">
+		Hak talebinde bulunduğunuz arazi [REGIONMATURITY] içeriğe sahip, buna sadece yetişkinler erişebilir.
 	</notification>
 	<notification name="LandClaimAccessBlocked_Change">
-		Erişkinlik Seviyesi tercihinizden dolayı bu arazi üzerinde hak talebinde bulunamazsınız.
-
-Erişkinlik Seviyesi tercihinizi şimdi yükseltmek ve araziye girebilmek için &apos;Tercihi Değiştir&apos; seçeneğini tıklatabilirsiniz. Böylece [REGIONMATURITY] içerikli alanlar içinde arama yapabilecek ve bu alanlara erişebileceksiniz. İleride bu ayarı eski haline döndürmek isterseniz, Ben &gt; Tercihler &gt; Genel sekmesine gidin.
-		<usetemplate ignoretext="Seçtiğim Seviye tercihi Arazi üzerinde hak talebinde bulunmamı engelliyor" name="okcancelignore" notext="Kapat" yestext="Tercihi Değiştir"/>
+		Hak talebinde bulunduğunuz arazide [REGIONMATURITY] içeriği mevcut, ama mevcut tercihleriniz [REGIONMATURITY] içeriğini dışlayacak şekilde ayarlanmış. Tercihlerinizi değiştirebilirsiniz, sonra arazi üzerinde tekar hak talebinde bulunabilirsiniz.
+		<form name="form">
+			<button name="OK" text="Tercihleri değiştirin"/>
+			<button name="Cancel" text="İptal"/>
+			<ignore name="ignore" text="Hak talebinde bulunduğunuz arazi, mevcut tercihleriniz tarafından dışlanan içeriğe sahip."/>
+		</form>
 	</notification>
 	<notification name="LandBuyAccessBlocked">
-		Erişkinlik Seviyesi ayarlarınızdan dolayı bu araziyi satın alamazsınız. Bu sorun yaşınızı doğrulamak için gerekli bilgilerin eksik olmasından kaynaklanabilir.
-
-Lütfen en son Görüntüleyicinin yüklü olduğunu doğrulayın ve bu erişkinlik seviyesi ile erişilecek alanlar hakkında ayrıntılı bilgi edinmek için Bilgi Bankası&apos;nı ziyaret edin.
+		Satın almaya çalıştığınız arazinin erişkinlik seviyesi mevcut tercihlerinizi aşıyor.  Ben &gt; Tercihler &gt; Genel sekmesini kullanarak tercihlerinizi değiştirebilirsiniz.
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
-	<notification name="LandBuyAccessBlocked_KB">
-		Erişkinlik Seviyesi ayarlarınızdan dolayı bu araziyi satın alamazsınız.
-
-Erişkinlik Seviyeleri hakkında daha fazla bilgi edinmek için Bilgi Bankası&apos;nı ziyaret etmek ister misiniz?
+	<notification name="LandBuyAccessBlocked_AdultsOnlyContent">
+		Bu araziyi sadece yetişkinler satın alabilir.
 		<url name="url">
 			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
 		</url>
-		<usetemplate ignoretext="Erişkinlik Seviyesi ile ilgili kısıtlandırmalardan dolayı bu Araziyi satın alamıyorum" name="okcancelignore" notext="Kapat" yestext="Bilgi Bankası&apos;na Git"/>
+		<usetemplate ignoretext="Bu araziyi sadece yetişkinler satın alabilir." name="okcancelignore" notext="Kapat" yestext="Bilgi Bankası&apos;na Git"/>
 	</notification>
 	<notification name="LandBuyAccessBlocked_Notify">
-		Erişkinlik Seviyesi ayarlarınızdan dolayı bu araziyi satın alamazsınız.
+		Satın almaya çalıştığınız arazide [REGIONMATURITY] içeriği mevcut, ama mevcut tercihleriniz [REGIONMATURITY] içeriğini dışlayacak şekilde ayarlanmış.
+	</notification>
+	<notification name="LandBuyAccessBlocked_NotifyAdultsOnly">
+		Ziyaret etmeye çalıştığınız arazi [REGIONMATURITY] içeriğe sahip, buna sadece yetişkinler erişebilir.
 	</notification>
 	<notification name="LandBuyAccessBlocked_Change">
-		Erişkinlik Seviyesi tercihinizden dolayı bu araziyi satın alamazsınız.
-
-Erişkinlik Seviyesi tercihinizi şimdi yükseltmek ve araziye girebilmek için &apos;Tercihi Değiştir&apos; seçeneğini tıklatabilirsiniz. Böylece [REGIONMATURITY] içerikli alanlar içinde arama yapabilecek ve bu alanlara erişebileceksiniz. İleride bu ayarı eski haline döndürmek isterseniz, Ben &gt; Tercihler &gt; Genel sekmesine gidin.
-		<usetemplate ignoretext="Seçtiğim Seviye tercihi Araziyi satın almamı engelliyor" name="okcancelignore" notext="Kapat" yestext="Tercihi Değiştir"/>
+		Satın almaya çalıştığınız arazide [REGIONMATURITY] içeriği mevcut, ama mevcut tercihleriniz [REGIONMATURITY] içeriğini dışlayacak şekilde ayarlanmış. Tercihlerinizi değiştirebilirsiniz, sonra araziyi tekrar satın almaya çalışabilirsiniz.
+		<form name="form">
+			<button name="OK" text="Tercihleri değiştirin"/>
+			<button name="Cancel" text="İptal"/>
+			<ignore name="ignore" text="Satın almaya çalıştığınız arazi, mevcut tercihleriniz tarafından dışlanan içeriğe sahip."/>
+		</form>
 	</notification>
 	<notification name="TooManyPrimsSelected">
 		Çok fazla prim seçilmiş. Lütfen [MAX_PRIM_COUNT] ya da daha az prim seçin ve tekrar deneyin
@@ -1823,10 +1918,9 @@ Erişkinlik Seviyesi tercihinizi şimdi yükseltmek ve araziye girebilmek için 
 		</form>
 	</notification>
 	<notification label="Bölgenin Erişkinlik Seviyesi Değişti" name="RegionMaturityChange">
-		Bu bölgenin erişkinlik seviyesi güncellendi.
-Değişikliğin harita üzerine yansıtılması biraz zaman alabilir.
-
-Yetişkin bölgelerine girebilmek için, Sakinlerin yaş doğrulama ya da ödeme doğrulama yoluyla Doğrulanmış bir Hesaba sahip olmaları gerekmektedir.
+		Bu bölgenin yetişkin içerik seviyesi değişti.
+Bu değişikliğin harita üzerine yansıtılması biraz zaman alabilir.
+		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
 	<notification label="Sesli Sohbet Sürüm Uyumsuzluğu" name="VoiceVersionMismatch">
 		[APP_NAME] uygulamasının bu sürümü bu bölgedeki Sesli Sohbet özelliği ile uyumlu değil. Sesli Sohbet özelliğinin düzgün bir şekilde çalışabilmesi için [APP_NAME] uygulamasını güncellemeniz gerekiyor.
@@ -2116,14 +2210,11 @@ Diğer kişilerin bu konuma kolayca erişmesini sağlamak için bu adrese bir we
 		<usetemplate ignoretext="Görünümümü düzenlerken oluşturduğum giysiyi giy" name="okcancelignore" notext="Hayır" yestext="Evet"/>
 	</notification>
 	<notification name="NotAgeVerified">
-		Second Life içinde yetişkinlere yönelik içeriğe ve bölgelere erişmek için en az 18 yaşında olmalısınız. 18 yaşından büyük olduğunuzu onaylamak için lütfen yaş doğrulama sayfamızı ziyaret edin. 
-Bu adımda web tarayıcınızın başlatılacağına dikkat edin.
-
-[_URL]
-		<url name="url">
-			https://secondlife.com/my/account/verification.php
-		</url>
-		<usetemplate ignoretext="Yaşımı doğrulatmadım" name="okcancelignore" notext="İptal" yestext="Yaş Doğrulamasına Git"/>
+		Ziyaret etmeye çalıştığınız konum, yaşı 18 ve üzeri olan sakinlere kısıtlanmıştır.
+		<usetemplate ignoretext="Yaş kısıtı olan alanları ziyaret etmek için yaşım yeterli değil." name="okignore" yestext="Tamam"/>
+	</notification>
+	<notification name="NotAgeVerified_Notify">
+		Konum, 18 veya üzeri bir yaşta olanlara kısıtlanmıştır.
 	</notification>
 	<notification name="Cannot enter parcel: no payment info on file">
 		Bu alanı ziyaret edebilmek için ödeme bilgilerinizin kayıtlı olması gerekir. [SECOND_LIFE] web sitesine gitmek ve bunu ayarlamak istiyor musunuz?
@@ -2184,7 +2275,7 @@ Bu adımda web tarayıcınızın başlatılacağına dikkat edin.
 		Terrain.raw karşıdan yüklendi
 	</notification>
 	<notification name="GestureMissing">
-		Hmm. [NAME] mimiği veri tabanında yok.
+		[NAME] mimiği veri tabanında yok.
 	</notification>
 	<notification name="UnableToLoadGesture">
 		[NAME] mimiği karşıya yüklenemiyor.
@@ -2385,6 +2476,23 @@ Burada uçamazsınız.
 	<notification name="NoBuild">
 		Bu alanda inşa etme özelliği devre dışı. Burada nesne inşa edemez ve oluşturamazsınız.
 	</notification>
+	<notification name="PathfindingDirty">
+		Bu bölgede bekleyen yol bulma değişiklikleri var.  Eğer oluşturma haklarına sahipseniz, “Bölgeyi yeniden kaydet” düğmesine tıklayarak bölgeyi yeniden kaydedebilirsiniz.
+	</notification>
+	<notification name="DynamicPathfindingDisabled">
+		Bu bölgede dinamik yol bulma etkin değil.  Yol bulma LSL çağrılarını kullanan komut dosyalı nesneler, bu bölgede beklendiiği gibi çalışmayabilir.
+	</notification>
+	<notification name="PathfindingRebakeNavmesh">
+		Bu bölgede belirli diğer nesneleri değiştirmek, hareket eden başka nesnelerin yanlış davranmasına neden olabilir.  Hareket eden başka nesnelerin doğru davranmasını sağlamak için “Bölgeyi yeniden kaydet” düğmesine tıklayın.  Daha fazla bilgi edinmek için “Yardım” seçimini yapın.
+		<url name="url">
+			http://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer
+		</url>
+		<usetemplate helptext="Yardım" ignoretext="Bu bölgede belirli diğer nesneleri değiştirmek, hareket eden başka nesnelerin yanlış davranmasına neden olabilir." name="okhelpignore" yestext="Tamam"/>
+	</notification>
+	<notification name="PathfindingCannotRebakeNavmesh">
+		Bir hata meydana geldi.  Bir ağ veya sunucu sorunu olabilir ya da oluşturma haklarına sahip olmayabilirsiniz.  Bazen oturumu kapatıp, tekrar açmak bu sorunu çözer.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
 	<notification name="SeeAvatars">
 		Bu parsel, avatarları ve metin sohbetini başka bir parselden saklar.   Parselin dışındaki diğer sakinleri göremezsiniz, dışardakiler de sizi göremez.  0. kanaldaki normal metin sohbeti de engellenmiştir.
 	</notification>
@@ -2403,9 +2511,7 @@ Arazi sahibine ait olanlar dışında hiçbir komut dosyası çalışmayacak.
 		İçinde bulunduğunuz Bölgede sadece kamuya ait araziler üzerinde hak talebinde bulunabilirsiniz.
 	</notification>
 	<notification name="RegionTPAccessBlocked">
-		Erişkinlik Seviyesi ayarlarınızdan dolayı bu Bölgeye giremezsiniz. Yaşınızı doğrulatmanız ve/veya en son Görüntüleyici&apos;yi yüklemeniz gerekebilir.
-
-Lütfen bu erişkinlik Seviyesi ile erişilecek alanlar hakkında ayrıntılı bilgi edinmek için Bilgi Bankası&apos;na gidin.
+		Ziyaret etmeye çalıştığınız bölge, mevcut tercihlerinizi aşan içeriğe sahip.  Ben &gt; Tercihler &gt; Genel sekmesini kullanarak tercihlerinizi değiştirebilirsiniz.
 	</notification>
 	<notification name="URBannedFromRegion">
 		Bu bölgeye erişiminiz yasaklandı.
@@ -2416,11 +2522,11 @@ Lütfen bu erişkinlik Seviyesi ile erişilecek alanlar hakkında ayrıntılı b
 	<notification name="ImproperPaymentStatus">
 		Bu bölgeye girmek için gerekli ödeme durumuna sahip değilsiniz.
 	</notification>
-	<notification name="MustGetAgeRgion">
-		Bu bölgeye girebilmek için yaş doğrulamanızın yapılmış olması gerekir.
+	<notification name="MustGetAgeRegion">
+		Bu bölgeye girebilmek için 18 veya üzeri bir yaşta olmanız gerekir.
 	</notification>
 	<notification name="MustGetAgeParcel">
-		Bu parsele girebilmek için yaş doğrulamanızın yapılmış olması gerekir.
+		Bu parsele girebilmek için 18 veya üzeri bir yaşta olmanız gerekir.
 	</notification>
 	<notification name="NoDestRegion">
 		Seçili hedef bölge yok.
@@ -2522,11 +2628,32 @@ Lütfen biraz sonra tekrar deneyin.
 	<notification name="TeleportOffered">
 		[NAME_SLURL] size kendi konumuna ışınlanmayı teklif etti:
 
-[MESSAGE] - [MATURITY_STR] &lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt;
+“[MESSAGE]”
+&lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt; - [MATURITY_STR]
 		<form name="form">
 			<button name="Teleport" text="Işınla"/>
 			<button name="Cancel" text="İptal"/>
 		</form>
+	</notification>
+	<notification name="TeleportOffered_MaturityExceeded">
+		[NAME_SLURL] size kendi konumuna ışınlanmayı teklif etti:
+
+“[MESSAGE]”
+&lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt; - [MATURITY_STR]
+
+Bu bölgede [REGION_CONTENT_MATURITY] içeriği mevcut, ama mevcut tercihleriniz [REGION_CONTENT_MATURITY] içeriğini dışlayacak şekilde ayarlanmış durumda.  Tercihlerinizi değiştirebilirsiniz ve ışınlamaya devam edebilirsiniz veya bu ışınlama işlemini iptal edebilirsiniz.
+		<form name="form">
+			<button name="Teleport" text="Değiştir ve Devam Et"/>
+			<button name="Cancel" text="İptal"/>
+		</form>
+	</notification>
+	<notification name="TeleportOffered_MaturityBlocked">
+		[NAME_SLURL] size kendi konumuna ışınlanmayı teklif etti:
+
+“[MESSAGE]”
+&lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt; - [MATURITY_STR]
+
+Ancak bu bölge sadece yetişkinlerin erişebileceği içeriğe sahip.
 	</notification>
 	<notification name="TeleportOfferSent">
 		Işınlanma teklifi [TO_NAME] adlı kişiye gönderildi
@@ -2931,6 +3058,10 @@ Lütfen ağ ve güvenlik duvarı ayarlarınızı kontrol edin.
 		( [EXISTENCE] saniyedir hayatta )
  &apos;[BODYREGION]&apos; için [RESOLUTION] çözünürlükte kaydedilmiş bir dokuyu [TIME] saniye sonra yerel olarak güncellediniz.
 	</notification>
+	<notification name="LivePreviewUnavailable">
+		Kopyalanamaz ve/veya aktarılamaz olduğu için bu dokunun bir önizlemesini görüntüleyemiyoruz.
+		<usetemplate ignoretext="Kopyalanamayan ve/veya aktarılamayan dokular için Canlı Önizleme modu mevcut olmayınca beni uyar" name="okignore" yestext="Tamam"/>
+	</notification>
 	<notification name="ConfirmLeaveCall">
 		Bu aramadan çıkmak istediğinize emin misiniz?
 		<usetemplate ignoretext="Aramadan çıkmadan önce doğrulama iste" name="okcancelignore" notext="Hayır" yestext="Evet"/>
@@ -3102,6 +3233,23 @@ Görünümünüzü döndürmek için dünya üzerindeki herhangi bir yeri tıkla
 		Bu eylem tüm menü öğelerini ve düğmelerini gizler. Bunları geri almak için [SHORTCUT] üzerine tekrar tıklayın.
 		<usetemplate ignoretext="KA&apos;ni gizlemeden önce onayla" name="okcancelignore" notext="İptal" yestext="Tamam"/>
 	</notification>
+	<notification name="PathfindingLinksets_SetLinksetUseMismatchOnRestricted">
+		Seçilen bazı bağlantı kümeleri, bağlantı kümesi için izin kısıtlamaları nedeniyle &apos;[REQUESTED_TYPE]&apos; olarak ayarlanamıyor.  Bunun yerine bu bağlantı kümeleri &apos;[RESTRICTED_TYPE]&apos; olarak ayarlanacak.
+		<usetemplate ignoretext="Seçilen bazı bağlantı kümeleri, bağlantı kümesi için izin kısıtlamaları nedeniyle ayarlanamıyor." name="okcancelignore" notext="İptal" yestext="Tamam"/>
+	</notification>
+	<notification name="PathfindingLinksets_SetLinksetUseMismatchOnVolume">
+		Seçilen bazı bağlantı kümeleri &apos;[REQUESTED_TYPE]&apos; olarak ayarlanamaz, çünkü şekil konveks değil.
+		<usetemplate ignoretext="Seçilen bazı bağlantı kümeleri ayarlanamaz, çünkü şekil konveks değil." name="okcancelignore" notext="İptal" yestext="Tamam"/>
+	</notification>
+	<notification name="PathfindingLinksets_SetLinksetUseMismatchOnRestrictedAndVolume">
+		Seçilen bazı bağlantı kümeleri, bağlantı kümesi için izin kısıtlamaları nedeniyle &apos;[REQUESTED_TYPE]&apos; olarak ayarlanamıyor.  Bunun yerine bu bağlantı kümeleri &apos;[RESTRICTED_TYPE]&apos; olarak ayarlanacak.
+ Seçilen bazı bağlantı kümeleri &apos;[REQUESTED_TYPE]&apos; olarak ayarlanamaz, çünkü şekil konveks değil. Bu bağlantı kümelerinin kullanım tipleri değişmez.
+		<usetemplate ignoretext="Seçilen bazı bağlantı kümeleri, bağlantı kümesi için izin kısıtlamaları nedeniyle ve şekil konveks olmadığı için ayarlanamıyor." name="okcancelignore" notext="İptal" yestext="Tamam"/>
+	</notification>
+	<notification name="PathfindingLinksets_ChangeToFlexiblePath">
+		Seçilen nesne navigasyon örgüsünü etkiliyor.  Bunu bir Esnek Yol olarak değiştirirseniz, navigasyon örgüsünden çıkartmış olursunuz.
+		<usetemplate ignoretext="Seçilen nesne navigasyon örgüsünü etkiliyor.  Bunu bir Esnek Yol olarak değiştirirseniz, navigasyon örgüsünden çıkartmış olursunuz." name="okcancelignore" notext="İptal" yestext="Tamam"/>
+	</notification>
 	<global name="UnsupportedGLRequirements">
 		[APP_NAME] uygulaması için gerekli donanım gereksinimlerine sahip olmadığınız görünüyor. [APP_NAME] çoklu doku desteği sunan bir OpenGL grafik kartı gerektiriyor. Eğer grafik kartınız bu özellikteyse, grafik kartınızın en son sürücülerine ve işletim sisteminiz için gerekli Service Pack ve yamalara sahip olup olmadığınızı kontrol etmeyi deneyebilirsiniz.
 
@@ -3137,5 +3285,13 @@ Bundan sonra bu dosya için güncellemeler devre dışı bırakılacak.
 	<notification name="LocalBitmapsVerifyFail">
 		Geçersiz veya okunamayan bir görüntü dosyası [FNAME] eklenmeye kalkışıldı, ancak dosya açılamadı veya şifresi çözülemedi.
 Girişim iptal edildi.
+	</notification>
+	<notification name="PathfindingReturnMultipleItems">
+		[NUM_ITEMS] öğeyi iade ediyorsunuz.  Devam etmek istediğinize emin misiniz?
+		<usetemplate ignoretext="Birden çok öğeyi iade etmek istediğinize emin misiniz?" name="okcancelignore" notext="Hayır" yestext="Evet"/>
+	</notification>
+	<notification name="PathfindingDeleteMultipleItems">
+		[NUM_ITEMS] öğeyi siliyorsunuz.  Devam etmek istediğinize emin misiniz?
+		<usetemplate ignoretext="Birden çok öğeyi silmek istediğinize emin misiniz?" name="okcancelignore" notext="Hayır" yestext="Evet"/>
 	</notification>
 </notifications>
