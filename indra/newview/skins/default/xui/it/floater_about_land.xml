@@ -470,7 +470,7 @@ Media:
 				Consenti l&apos;accesso solo ai Residenti che:
 			</text>
 			<check_box label="Hanno informazioni di pagamento in archivio [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Per poter visitare questo lotto i Residenti devono aver fornito informazioni di pagamento a Linden Lab.  Vedi [SUPPORT_SITE] per maggiori informazioni."/>
-			<check_box label="Hanno verificato l&apos;età [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Per poter visitare questo lotto i Residenti devono aver verificato la propria età. Vedi [SUPPORT_SITE] per maggiori informazioni."/>
+			<check_box label="Hanno almeno 18 anni [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Per poter visitare questo lotto i Residenti devono avere almeno 18 anni. Vedi [SUPPORT_SITE] per maggiori informazioni."/>
 			<check_box label="Permetti accesso al gruppo: [GROUP]" name="GroupCheck" tool_tip="Imposta il gruppo nel pannello generale."/>
 			<check_box label="Vendi pass a:" name="PassCheck" tool_tip="Permetti in questo terreno l&apos;accesso temporaneo"/>
 			<combo_box name="pass_combo">

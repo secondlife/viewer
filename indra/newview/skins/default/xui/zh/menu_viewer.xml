@@ -118,6 +118,8 @@
 			<menu_item_call label="圖像（L$[COST]）..." name="Upload Image"/>
 			<menu_item_call label="聲音（L$[COST]）..." name="Upload Sound"/>
 			<menu_item_call label="動作（L$[COST]）..." name="Upload Animation"/>
+			<menu_item_call label="模型…" name="Upload Model"/>
+			<menu_item_call label="模型精靈…" name="Upload Model Wizard"/>
 			<menu_item_call label="批量（每檔案 L$[COST] ）..." name="Bulk Upload"/>
 			<menu_item_call label="設定預設上傳權限" name="perm prefs"/>
 		</menu>
@@ -158,7 +160,7 @@
 			<menu_item_check label="半透明" name="Alpha"/>
 			<menu_item_check label="樹木" name="Tree"/>
 			<menu_item_check label="化身" name="Character"/>
-			<menu_item_check label="地表" name="SurfacePath"/>
+			<menu_item_check label="表面修補" name="Surface Patch"/>
 			<menu_item_check label="天空" name="Sky"/>
 			<menu_item_check label="水文" name="Water"/>
 			<menu_item_check label="地面" name="Ground"/>
@@ -217,6 +219,7 @@
 			<menu_item_check label="材質分類控制台" name="Texture Category"/>
 			<menu_item_check label="快速碼錶" name="Fast Timers"/>
 			<menu_item_check label="記憶體" name="Memory"/>
+			<menu_item_check label="場景統計資料" name="Scene Statistics"/>
 			<menu_item_call label="地區資訊傳至除錯控制台" name="Region Info to Debug Console"/>
 			<menu_item_call label="群組資訊至除錯控制台" name="Group Info to Debug Console"/>
 			<menu_item_call label="性能資訊傳至除錯控制台" name="Capabilities Info to Debug Console"/>
@@ -227,6 +230,7 @@
 		</menu>
 		<menu label="顯示資訊" name="Display Info">
 			<menu_item_check label="顯示時間" name="Show Time"/>
+			<menu_item_check label="顯示上傳費用" name="Show Upload Cost"/>
 			<menu_item_check label="顯示呈像資訊" name="Show Render Info"/>
 			<menu_item_check label="顯示材質資訊" name="Show Texture Info"/>
 			<menu_item_check label="顯示矩陣" name="Show Matrices"/>
@@ -252,8 +256,10 @@
 		</menu>
 		<menu label="呈像的元資料" name="Render Metadata">
 			<menu_item_check label="外框箱" name="Bounding Boxes"/>
+			<menu_item_check label="法線" name="Normals"/>
 			<menu_item_check label="八叉樹" name="Octree"/>
 			<menu_item_check label="陰影平截頭體" name="Shadow Frusta"/>
+			<menu_item_check label="物理形狀" name="Physics Shapes"/>
 			<menu_item_check label="遮蔽" name="Occlusion"/>
 			<menu_item_check label="呈像批次" name="Render Batches"/>
 			<menu_item_check label="更新類型" name="Update Type"/>
@@ -261,9 +267,12 @@
 			<menu_item_check label="材質優先序" name="Texture Priority"/>
 			<menu_item_check label="材質區域" name="Texture Area"/>
 			<menu_item_check label="臉區域" name="Face Area"/>
+			<menu_item_check label="細節層次資訊" name="LOD Info"/>
+			<menu_item_check label="建製佇列" name="Build Queue"/>
 			<menu_item_check label="燈光" name="Lights"/>
 			<menu_item_check label="碰撞骨架" name="Collision Skeleton"/>
 			<menu_item_check label="光線投射" name="Raycast"/>
+			<menu_item_check label="雕刻" name="Sculpt"/>
 		</menu>
 		<menu label="呈像" name="Rendering">
 			<menu_item_check label="軸" name="Axes"/>
@@ -271,7 +280,6 @@
 			<menu_item_call label="已選取材質資訊基礎" name="Selected Texture Info Basis"/>
 			<menu_item_check label="線框" name="Wireframe"/>
 			<menu_item_check label="物件導向的遮蔽" name="Object-Object Occlusion"/>
-			<menu_item_check label="幀緩衝區物件" name="Framebuffer Objects"/>
 			<menu_item_check label="光線和陰影" name="Lighting and Shadows"/>
 			<menu_item_check label="來自日/月/投影物的陰影" name="Shadows from Sun/Moon/Projectors"/>
 			<menu_item_check label="屏幕空間環境光遮蔽和陰影平滑技術" name="SSAO and Shadow Smoothing"/>
@@ -370,6 +378,7 @@
 			<menu_item_call label="傾印本地材質" name="Dump Local Textures"/>
 		</menu>
 		<menu_item_check label="HTTP 材質" name="HTTP Textures"/>
+		<menu_item_check label="HTTP 收納區" name="HTTP Inventory"/>
 		<menu_item_call label="壓縮圖像" name="Compress Images"/>
 		<menu_item_check label="輸出除錯小型傾印" name="Output Debug Minidump"/>
 		<menu_item_check label="下次執行時顯示控制台視窗" name="Console Window"/>

@@ -45,6 +45,9 @@ Pour recommencer le didacticiel, accédez à Welcome Island Public.
 		<message name="no_inventory_host">
 			L&apos;inventaire est temporairement indisponible.
 		</message>
+		<message name="MustGetAgeRegion">
+			Pour accéder à cette région, vous devez avoir au moins 18 ans.
+		</message>
 	</message_set>
 	<message_set name="progress">
 		<message name="sending_dest">
@@ -79,6 +82,9 @@ Pour recommencer le didacticiel, accédez à Welcome Island Public.
 		</message>
 		<message name="requesting">
 			Demande de téléportation en cours...
+		</message>
+		<message name="pending">
+			En attente de téléportation...
 		</message>
 	</message_set>
 </teleport_messages>

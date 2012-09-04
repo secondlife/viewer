@@ -150,6 +150,12 @@
 			<panel.string name="text modify info 4">
 				Эти объекты нельзя изменять
 			</panel.string>
+			<panel.string name="text modify info 5">
+				Этот объект нельзя изменять через границу региона
+			</panel.string>
+			<panel.string name="text modify info 6">
+				Эти объекты нельзя изменять через границу региона
+			</panel.string>
 			<panel.string name="text modify warning">
 				Чтобы задать права доступа, нужно выделить объект целиком
 			</panel.string>
@@ -199,12 +205,12 @@
 				<combo_box.item label="Увеличение" name="Zoom"/>
 			</combo_box>
 			<check_box label="Для продажи:" name="checkbox for sale"/>
+			<spinner label="L$" name="Edit Cost"/>
 			<combo_box name="sale type">
 				<combo_box.item label="Копировать" name="Copy"/>
 				<combo_box.item label="Контент" name="Contents"/>
 				<combo_box.item label="Оригинал" name="Original"/>
 			</combo_box>
-			<spinner label="Цена: L$" name="Edit Cost"/>
 			<check_box label="Показать в поиске" name="search_check" tool_tip="Показывать объект в результатах поиска"/>
 			<panel name="perms_build">
 				<text name="perm_modify">
@@ -238,6 +244,11 @@
 				</text>
 				<text name="F:">
 					F:
+				</text>
+			</panel>
+			<panel name="pathfinding_attrs_panel">
+				<text name="pathfinding_attributes_label">
+					Атрибуты поиска пути:
 				</text>
 			</panel>
 		</panel>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="autoreplace_floater" title="Impostazioni sostituzione automatica">
+	<check_box label="Attiva sostituzione automatica" name="autoreplace_enable" tool_tip="Quando inserisci testo nella chat, sostituisci le parole chiave inserite con l&apos;elemento sostitutivo corrispondente."/>
+	<button label="Importa lista..." name="autoreplace_import_list" tool_tip="Carica da file una lista esportata in precedenza."/>
+	<button label="Esporta lista..." name="autoreplace_export_list" tool_tip="Salva la lista selezionata in un file per condividerla."/>
+	<button label="Nuova lista..." name="autoreplace_new_list" tool_tip="Crea una nuova lista"/>
+	<button label="Cancella lista" name="autoreplace_delete_list" tool_tip="Cancella la lista selezionata"/>
+	<button name="autoreplace_list_up" tool_tip="Aumenta la priorità di questa lista."/>
+	<button name="autoreplace_list_down" tool_tip="Diminuisci la priorità di questa lista."/>
+	<scroll_list name="autoreplace_list_replacements">
+		<scroll_list.columns label="Parola chiave" name="keyword"/>
+		<scroll_list.columns label="Sostituzione" name="replacement"/>
+	</scroll_list>
+	<button label="Aggiungi..." name="autoreplace_add_entry"/>
+	<button label="Rimuovi" name="autoreplace_delete_entry"/>
+	<button label="Salva elemento" name="autoreplace_save_entry" tool_tip="Salva questo elemento."/>
+	<button label="Salva modifiche" name="autoreplace_save_changes" tool_tip="Salva tutte le modifiche."/>
+	<button label="Annulla" name="autoreplace_cancel" tool_tip="Annulla tutte le modifiche."/>
+</floater>
+<!--
+  <text 
+   top_pad="10"
+   left="10"
+   height="16"
+   width="260"
+   follows="left|top"
+   halign="center"
+   mouse_opaque="true"
+   name="autoreplace_text2">
+    Entries
+  </text>
+-->
