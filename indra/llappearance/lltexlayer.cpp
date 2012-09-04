@@ -40,6 +40,7 @@
 #include "lltexturemanagerbridge.h"
 #include "llui.h"
 #include "llwearable.h"
+#include "llvertexbuffer.h"
 #include "llviewervisualparam.h"
 
 //#include "../tools/imdebug/imdebug.h"
@@ -89,6 +90,92 @@ private:
 	param_alpha_info_list_t		mParamAlphaInfoList;
 };
 
+//-----------------------------------------------------------------------------
+// LLTexLayerSetBuffer
+// The composite image that a LLViewerTexLayerSet writes to.  Each LLViewerTexLayerSet has one.
+//-----------------------------------------------------------------------------
+
+LLTexLayerSetBuffer::LLTexLayerSetBuffer(LLTexLayerSet* const owner) :
+	mTexLayerSet(owner)
+{
+}
+
+LLTexLayerSetBuffer::~LLTexLayerSetBuffer()
+{
+}
+
+void LLTexLayerSetBuffer::pushProjection() const
+{
+	gGL.matrixMode(LLRender::MM_PROJECTION);
+	gGL.pushMatrix();
+	gGL.loadIdentity();
+	gGL.ortho(0.0f, getCompositeWidth(), 0.0f, getCompositeHeight(), -1.0f, 1.0f);
+
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
+	gGL.pushMatrix();
+	gGL.loadIdentity();
+}
+
+void LLTexLayerSetBuffer::popProjection() const
+{
+	gGL.matrixMode(LLRender::MM_PROJECTION);
+	gGL.popMatrix();
+
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
+	gGL.popMatrix();
+}
+
+// virtual
+void LLTexLayerSetBuffer::preRenderTexLayerSet()
+{
+	// Set up an ortho projection
+	pushProjection();
+}
+
+// virtual
+void LLTexLayerSetBuffer::postRenderTexLayerSet(BOOL success)
+{
+	popProjection();
+}
+
+BOOL LLTexLayerSetBuffer::renderTexLayerSet()
+{
+	// Default color mask for tex layer render
+	gGL.setColorMask(true, true);
+
+	BOOL success = TRUE;
+	
+	bool use_shaders = LLGLSLShader::sNoFixedFunction;
+
+	if (use_shaders)
+	{
+		gAlphaMaskProgram.bind();
+		gAlphaMaskProgram.setMinimumAlpha(0.004f);
+	}
+
+	LLVertexBuffer::unbind();
+
+	// Composite the color data
+	LLGLSUIDefault gls_ui;
+	success &= mTexLayerSet->render( getCompositeOriginX(), getCompositeOriginY(), 
+									 getCompositeWidth(), getCompositeHeight() );
+	gGL.flush();
+
+	midRenderTexLayerSet(success);
+
+	if (use_shaders)
+	{
+		gAlphaMaskProgram.unbind();
+	}
+
+	LLVertexBuffer::unbind();
+	
+	// reset GL state
+	gGL.setColorMask(true, true);
+	gGL.setSceneBlendType(LLRender::BT_ALPHA);
+
+	return success;
+}
 
 //-----------------------------------------------------------------------------
 // LLTexLayerSetInfo
@@ -380,6 +467,28 @@ const std::string LLTexLayerSet::getBodyRegionName() const
 	return mInfo->mBodyRegion; 
 }
 
+
+void LLTexLayerSet::destroyComposite()
+{
+	if( mComposite )
+	{
+		mComposite = NULL;
+	}
+}
+
+LLTexLayerSetBuffer* LLTexLayerSet::getComposite()
+{
+	if (!mComposite)
+	{
+		createComposite();
+	}
+	return mComposite;
+}
+
+const LLTexLayerSetBuffer* LLTexLayerSet::getComposite() const
+{
+	return mComposite;
+}
 
 void LLTexLayerSet::renderAlphaMaskTextures(S32 x, S32 y, S32 width, S32 height, bool forceClear)
 {

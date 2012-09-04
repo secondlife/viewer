@@ -1519,7 +1519,7 @@ BOOL LLVOAvatarSelf::isBakedTextureFinal(const LLAvatarAppearanceDefines::EBaked
 {
 	const LLViewerTexLayerSet *layerset = mBakedTextureDatas[index].mTexLayerSet;
 	if (!layerset) return FALSE;
-	const LLTexLayerSetBuffer *layerset_buffer = layerset->getComposite();
+	const LLViewerTexLayerSetBuffer *layerset_buffer = layerset->getViewerComposite();
 	if (!layerset_buffer) return FALSE;
 	return !layerset_buffer->uploadNeeded();
 }
@@ -1614,7 +1614,7 @@ bool LLVOAvatarSelf::hasPendingBakedUploads() const
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 	{
 		LLViewerTexLayerSet* layerset = mBakedTextureDatas[i].mTexLayerSet;
-		if (layerset && layerset->getComposite() && layerset->getComposite()->uploadPending())
+		if (layerset && layerset->getViewerComposite() && layerset->getViewerComposite()->uploadPending())
 		{
 			return true;
 		}
@@ -2517,7 +2517,7 @@ void LLVOAvatarSelf::outputRezDiagnostics() const
 		const LLAvatarAppearanceDefines::EBakedTextureIndex baked_index = baked_iter->first;
 		const LLViewerTexLayerSet *layerset = debugGetLayerSet(baked_index);
 		if (!layerset) continue;
-		const LLTexLayerSetBuffer *layerset_buffer = layerset->getComposite();
+		const LLViewerTexLayerSetBuffer *layerset_buffer = layerset->getViewerComposite();
 		if (!layerset_buffer) continue;
 		LL_DEBUGS("Avatar") << layerset_buffer->dumpTextureInfo() << llendl;
 	}

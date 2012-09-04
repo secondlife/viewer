@@ -425,7 +425,7 @@ void LLAvatarTexBar::draw()
 		const LLAvatarAppearanceDefines::EBakedTextureIndex baked_index = baked_iter->first;
 		const LLViewerTexLayerSet *layerset = avatarp->debugGetLayerSet(baked_index);
 		if (!layerset) continue;
-		const LLTexLayerSetBuffer *layerset_buffer = layerset->getComposite();
+		const LLViewerTexLayerSetBuffer *layerset_buffer = layerset->getViewerComposite();
 		if (!layerset_buffer) continue;
 
 		LLColor4 text_color = LLColor4::white;

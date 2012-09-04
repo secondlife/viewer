@@ -40,6 +40,7 @@ class LLXmlTreeNode;
 class LLTexLayerSet;
 class LLTexLayerSetInfo;
 class LLTexLayerInfo;
+class LLTexLayerSetBuffer;
 class LLWearable;
 class LLViewerVisualParam;
 
@@ -178,9 +179,15 @@ private:
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLTexLayerSet
 {
+	friend class LLTexLayerSetBuffer;
 public:
 	LLTexLayerSet(LLAvatarAppearance* const appearance);
 	virtual ~LLTexLayerSet();
+
+	LLTexLayerSetBuffer*		getComposite();
+	const LLTexLayerSetBuffer* 	getComposite() const; // Do not create one if it doesn't exist.
+	virtual void				createComposite() = 0;
+	void						destroyComposite();
 
 	const LLTexLayerSetInfo* 	getInfo() const 			{ return mInfo; }
 	BOOL						setInfo(const LLTexLayerSetInfo *info); // This sets mInfo and calls initialization functions
@@ -199,6 +206,7 @@ public:
 	
 	LLAvatarAppearance*			getAvatarAppearance()	const		{ return mAvatarAppearance; }
 	const std::string			getBodyRegionName() const;
+	BOOL						hasComposite() const 		{ return (mComposite.notNull()); }
 	LLAvatarAppearanceDefines::EBakedTextureIndex getBakedTexIndex() { return mBakedTexIndex; }
 	void						setBakedTexIndex(LLAvatarAppearanceDefines::EBakedTextureIndex index) { mBakedTexIndex = index; }
 	BOOL						isVisible() const 			{ return mIsVisible; }
@@ -209,6 +217,7 @@ protected:
 	typedef std::vector<LLTexLayerInterface *> layer_list_t;
 	layer_list_t				mLayerList;
 	layer_list_t				mMaskLayerList;
+	LLPointer<LLTexLayerSetBuffer>	mComposite;
 	LLAvatarAppearance*	const	mAvatarAppearance; // note: backlink only; don't make this an LLPointer.
 	BOOL						mIsVisible;
 
@@ -239,6 +248,34 @@ protected:
 	BOOL					mClearAlpha; // Set alpha to 1 for this layerset (if there is no mStaticAlphaFileName)
 	typedef std::vector<LLTexLayerInfo*> layer_info_list_t;
 	layer_info_list_t		mLayerInfoList;
+};
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// LLTexLayerSetBuffer
+//
+// The composite image that a LLTexLayerSet writes to.  Each LLTexLayerSet has one.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class LLTexLayerSetBuffer : public virtual LLRefCount
+{
+	LOG_CLASS(LLTexLayerSetBuffer);
+
+public:
+	LLTexLayerSetBuffer(LLTexLayerSet* const owner);
+	virtual ~LLTexLayerSetBuffer();
+
+protected:
+	void					pushProjection() const;
+	void					popProjection() const;
+	virtual void			preRenderTexLayerSet();
+	virtual void			midRenderTexLayerSet(BOOL success) {}
+	virtual void			postRenderTexLayerSet(BOOL success);
+	virtual S32				getCompositeOriginX() const = 0;
+	virtual S32				getCompositeOriginY() const = 0;
+	virtual S32				getCompositeWidth() const = 0;
+	virtual S32				getCompositeHeight() const = 0;
+	BOOL					renderTexLayerSet();
+
+	LLTexLayerSet* const	mTexLayerSet;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

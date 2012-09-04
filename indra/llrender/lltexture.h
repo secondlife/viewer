@@ -43,7 +43,7 @@ class LLImageRaw ;
 //this is an abstract class as the parent for the class LLViewerTexture
 //through the following virtual functions, the class LLViewerTexture can be reached from /llrender.
 //
-class LLTexture : public LLRefCount
+class LLTexture : public virtual LLRefCount
 {
 	friend class LLTexUnit ;
 	friend class LLFontGL ;

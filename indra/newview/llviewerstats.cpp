@@ -519,7 +519,7 @@ void output_statistics(void*)
 	llinfos << "Avatar Memory (partly overlaps with above stats):" << llendl;
 	LLTexLayerStaticImageList::getInstance()->dumpByteCount();
 	LLVOAvatarSelf::dumpScratchTextureByteCount();
-	LLTexLayerSetBuffer::dumpTotalByteCount();
+	LLViewerTexLayerSetBuffer::dumpTotalByteCount();
 	LLVOAvatarSelf::dumpTotalLocalTextureByteCount();
 	LLTexLayerParamAlpha::dumpCacheByteCount();
 	LLVOAvatar::dumpBakedStatus();

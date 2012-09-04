@@ -31,7 +31,7 @@
 #include "lltexlayer.h"
 
 class LLVOAvatarSelf;
-class LLTexLayerSetBuffer;
+class LLViewerTexLayerSetBuffer;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // LLViewerTexLayerSet
@@ -41,46 +41,43 @@ class LLTexLayerSetBuffer;
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLViewerTexLayerSet : public LLTexLayerSet
 {
-	friend class LLTexLayerSetBuffer;
 public:
 	LLViewerTexLayerSet(LLAvatarAppearance* const appearance);
 	virtual ~LLViewerTexLayerSet();
 
-	LLTexLayerSetBuffer*		getComposite();
-	const LLTexLayerSetBuffer* 	getComposite() const; // Do not create one if it doesn't exist.
 	virtual void				requestUpdate();
 	void						requestUpload();
 	void						cancelUpload();
-	void						updateComposite();
 	BOOL						isLocalTextureDataAvailable() const;
 	BOOL						isLocalTextureDataFinal() const;
-	void						createComposite();
-	void						destroyComposite();
+	void						updateComposite();
+	/*virtual*/void				createComposite();
 	void						setUpdatesEnabled(BOOL b);
 	BOOL						getUpdatesEnabled()	const 	{ return mUpdatesEnabled; }
 	void						gatherMorphMaskAlpha(U8 *data, S32 width, S32 height);
 
-	LLVOAvatarSelf*				getAvatar()	const;
-	BOOL						hasComposite() const 		{ return (mComposite.notNull()); }
+	LLVOAvatarSelf*				getAvatar();
+	const LLVOAvatarSelf*		getAvatar()	const;
+	LLViewerTexLayerSetBuffer*	getViewerComposite();
+	const LLViewerTexLayerSetBuffer*	getViewerComposite() const;
 
 private:
-	LLPointer<LLTexLayerSetBuffer>	mComposite;
 	BOOL						mUpdatesEnabled;
 
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// LLTexLayerSetBuffer
+// LLViewerTexLayerSetBuffer
 //
-// The composite image that a LLViewerTexLayerSet writes to.  Each LLTexLayerSet has one.
+// The composite image that a LLViewerTexLayerSet writes to.  Each LLViewerTexLayerSet has one.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-class LLTexLayerSetBuffer : public LLViewerDynamicTexture
+class LLViewerTexLayerSetBuffer : public LLTexLayerSetBuffer, public LLViewerDynamicTexture
 {
-	LOG_CLASS(LLTexLayerSetBuffer);
+	LOG_CLASS(LLViewerTexLayerSetBuffer);
 
 public:
-	LLTexLayerSetBuffer(LLViewerTexLayerSet* const owner, S32 width, S32 height);
-	virtual ~LLTexLayerSetBuffer();
+	LLViewerTexLayerSetBuffer(LLTexLayerSet* const owner, S32 width, S32 height);
+	virtual ~LLViewerTexLayerSetBuffer();
 
 public:
 	/*virtual*/ S8          getType() const;
@@ -89,23 +86,34 @@ public:
 	const std::string		dumpTextureInfo() const;
 	virtual void 			restoreGLTexture();
 	virtual void 			destroyGLTexture();
-protected:
-	void					pushProjection() const;
-	void					popProjection() const;
 private:
-	LLViewerTexLayerSet* const	mTexLayerSet;
+	LLViewerTexLayerSet*	getViewerTexLayerSet() 
+		{ return dynamic_cast<LLViewerTexLayerSet*> (mTexLayerSet); }
+	const LLViewerTexLayerSet*	getViewerTexLayerSet() const
+		{ return dynamic_cast<const LLViewerTexLayerSet*> (mTexLayerSet); }
 	static S32				sGLByteCount;
 
 	//--------------------------------------------------------------------
-	// Render
+	// Tex Layer Render
+	//--------------------------------------------------------------------
+	virtual void			preRenderTexLayerSet();
+	virtual void			midRenderTexLayerSet(BOOL success);
+	virtual void			postRenderTexLayerSet(BOOL success);
+	virtual S32				getCompositeOriginX() const { return getOriginX(); }
+	virtual S32				getCompositeOriginY() const { return getOriginY(); }
+	virtual S32				getCompositeWidth() const { return getFullWidth(); }
+	virtual S32				getCompositeHeight() const { return getFullHeight(); }
+
+	//--------------------------------------------------------------------
+	// Dynamic Texture Interface
 	//--------------------------------------------------------------------
 public:
 	/*virtual*/ BOOL		needsRender();
 protected:
-	BOOL					render(S32 x, S32 y, S32 width, S32 height);
-	virtual void			preRender(BOOL clear_depth);
-	virtual void			postRender(BOOL success);
-	virtual BOOL			render();	
+	// Pass these along for tex layer rendering.
+	virtual void			preRender(BOOL clear_depth) { preRenderTexLayerSet(); }
+	virtual void			postRender(BOOL success) { postRenderTexLayerSet(success); }
+	virtual BOOL			render() { return renderTexLayerSet(); }
 	
 	//--------------------------------------------------------------------
 	// Uploads

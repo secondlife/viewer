@@ -562,7 +562,7 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 	{
 		if(	mLayerSet->hasComposite() )
 		{
-			gGL.getTexUnit(diffuse_channel)->bind(mLayerSet->getComposite());
+			gGL.getTexUnit(diffuse_channel)->bind(mLayerSet->getViewerComposite());
 		}
 		else
 		{
