@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="spellcheck_import" title="Imposta dizionario">
+	<button label="Sfoglia" label_selected="Sfoglia" name="dictionary_path_browse"/>
+	<button label="Importa" name="ok_btn"/>
+	<button label="Annulla" name="cancel_btn"/>
+</floater>

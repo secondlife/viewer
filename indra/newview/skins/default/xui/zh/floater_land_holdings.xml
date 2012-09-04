@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="land holdings floater" title="我的土地">
 	<floater.string name="area_string">
-		[AREA] m²
+		[AREA] 平方公尺
 	</floater.string>
 	<scroll_list name="parcel list">
 		<scroll_list.columns label="地段" name="name"/>
@@ -12,28 +12,28 @@
 	<button label="瞬間傳送" label_selected="瞬間傳送" name="Teleport" tool_tip="瞬間傳送到這土地的中央。"/>
 	<button label="地圖" label_selected="地圖" name="Show on Map" tool_tip="將這塊土地顯示在世界地圖上。"/>
 	<text name="contrib_label">
-		Contributions to your groups:
+		對你的群組的貢獻：
 	</text>
 	<scroll_list name="grant list">
 		<scroll_list.columns label="群組" name="group"/>
 		<scroll_list.columns label="區域" name="area"/>
 	</scroll_list>
 	<text name="allowed_label">
-		Allowed land holdings at current payment plan:
+		目前付費計劃所允許擁有的土地：
 	</text>
 	<text name="allowed_text">
-		[AREA] m²
+		[AREA] 平方公尺
 	</text>
 	<text name="current_label">
-		Current land holdings:
+		目前擁有的土地：
 	</text>
 	<text name="current_text">
-		[AREA] m²
+		[AREA] 平方公尺
 	</text>
 	<text name="available_label">
-		Available for land purchases:
+		可購土地：
 	</text>
 	<text name="available_text">
-		[AREA] m²
+		[AREA] 平方公尺
 	</text>
 </floater>

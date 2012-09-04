@@ -18,6 +18,12 @@
 	<panel.string name="text modify info 4">
 		Sie können diese Objekte nicht bearbeiten.
 	</panel.string>
+	<panel.string name="text modify info 5">
+		Dieses Objekt kann nicht über eine Regionsgrenze hinweg geändert werden
+	</panel.string>
+	<panel.string name="text modify info 6">
+		Diese Objekte können nicht über eine Regionsgrenze hinweg geändert werden
+	</panel.string>
 	<panel.string name="text modify warning">
 		Diese Objekt verfügt über verknüpfte Teile
 	</panel.string>
@@ -95,6 +101,9 @@
 		</combo_box>
 		<spinner label="Preis: L$" name="Edit Cost"/>
 		<check_box label="In Suche anzeigen" name="search_check" tool_tip="Dieses Objekt in Suchergebnissen anzeigen"/>
+		<text name="pathfinding_attributes_label">
+			Pathfinding-Attribute:
+		</text>
 		<text name="B:">
 			B:
 		</text>

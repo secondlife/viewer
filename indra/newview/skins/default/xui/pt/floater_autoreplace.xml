@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="autoreplace_floater" title="Configurações da substituição automática">
+	<check_box label="Habilitar substituição automática" name="autoreplace_enable" tool_tip="Ao inserir texto de bate-papo, substitua quaisquer palavras-chave inseridas pela substituição correspondente"/>
+	<button label="Importar lista..." name="autoreplace_import_list" tool_tip="Carrega uma lista exportada anteriormente de um arquivo."/>
+	<button label="Exportar lista..." name="autoreplace_export_list" tool_tip="Salva um arquivo da lista selecionada para compartilhá-la."/>
+	<button label="Nova lista..." name="autoreplace_new_list" tool_tip="Cria uma nova lista."/>
+	<button label="Excluir lista" name="autoreplace_delete_list" tool_tip="Exclui a lista selecionada."/>
+	<button name="autoreplace_list_up" tool_tip="Aumenta a prioridade desta lista."/>
+	<button name="autoreplace_list_down" tool_tip="Diminui a prioridade desta lista."/>
+	<scroll_list name="autoreplace_list_replacements">
+		<scroll_list.columns label="Palavra-chave" name="keyword"/>
+		<scroll_list.columns label="Substituição" name="replacement"/>
+	</scroll_list>
+	<button label="Adicionar..." name="autoreplace_add_entry"/>
+	<button label="Remover" name="autoreplace_delete_entry"/>
+	<button label="Salvar entrada" name="autoreplace_save_entry" tool_tip="Salva esta entrada."/>
+	<button label="Salvar alterações" name="autoreplace_save_changes" tool_tip="Salvar todas as alterações."/>
+	<button label="Cancelar" name="autoreplace_cancel" tool_tip="Descarta todas as alterações."/>
+</floater>
+<!--
+  <text 
+   top_pad="10"
+   left="10"
+   height="16"
+   width="260"
+   follows="left|top"
+   halign="center"
+   mouse_opaque="true"
+   name="autoreplace_text2">
+    Entries
+  </text>
+-->

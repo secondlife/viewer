@@ -43,6 +43,9 @@ Per ripetere l&apos;esercitazione, visita &apos;Welcome Island Public&apos;.
 		<message name="no_inventory_host">
 			L&apos;inventario è temporaneamente inaccessibile.
 		</message>
+		<message name="MustGetAgeRegion">
+			Per poter entrare in questa regione devi avere almeno 18 anni.
+		</message>
 	</message_set>
 	<message_set name="progress">
 		<message name="sending_dest">
@@ -77,6 +80,9 @@ Per ripetere l&apos;esercitazione, visita &apos;Welcome Island Public&apos;.
 		</message>
 		<message name="requesting">
 			Avvio teletrasporto....
+		</message>
+		<message name="pending">
+			Teleport in sospeso...
 		</message>
 	</message_set>
 </teleport_messages>

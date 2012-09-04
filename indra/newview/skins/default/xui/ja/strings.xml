@@ -1006,6 +1006,9 @@ support@secondlife.com にお問い合わせください。
 	<string name="script_files">
 		スクリプト
 	</string>
+	<string name="dictionary_files">
+		辞書
+	</string>
 	<string name="AvatarSetNotAway">
 		一時退席中解除
 	</string>
@@ -3864,6 +3867,12 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="LocationCtrlSeeAVsTooltip">
 		この区画外にアバターを見えるようにして、チャットも許可
 	</string>
+	<string name="LocationCtrlPathfindingDirtyTooltip">
+		地域（リージョン）が再構築されるまで、移動するオブジェクトは正しく動作しない可能性があります。
+	</string>
+	<string name="LocationCtrlPathfindingDisabledTooltip">
+		この地域（リージョン）でダイナミックパスファインディングが有効になっていません。
+	</string>
 	<string name="UpdaterWindowTitle">
 		[APP_NAME] アップデート
 	</string>
@@ -5006,6 +5015,21 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="Normal">
 		普通
 	</string>
+	<string name="Pathfinding_Wiki_URL">
+		http://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer
+	</string>
+	<string name="Pathfinding_Object_Attr_None">
+		なし
+	</string>
+	<string name="Pathfinding_Object_Attr_Permanent">
+		ナビメッシュに影響を与える
+	</string>
+	<string name="Pathfinding_Object_Attr_Character">
+		キャラクター
+	</string>
+	<string name="Pathfinding_Object_Attr_MultiSelect">
+		（複数）
+	</string>
 	<string name="snapshot_quality_very_low">
 		非常に低い
 	</string>
@@ -5020,5 +5044,11 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="snapshot_quality_very_high">
 		非常に高い
+	</string>
+	<string name="TeleportMaturityExceeded">
+		住人はこの地域（リージョン）を訪問できません。
+	</string>
+	<string name="UserDictionary">
+		[User]
 	</string>
 </strings>

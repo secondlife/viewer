@@ -62,27 +62,26 @@
 		</panel>
 		<panel label="Лицензии" name="licenses_panel">
 			<text_editor name="credits_editor">
-				3Dconnexion SDK (C) 1992-2007 3Dconnexion
-        APR (C) 2000-2004 The Apache Software Foundation
-        Collada DOM (C) 2005 Sony Computer Entertainment Inc.
-        cURL (C) 1996-2002, Daniel Stenberg, (daniel@haxx.se)
+				3Dconnexion SDK (C) 1992-2009 3Dconnexion
+        APR (C) 2011 The Apache Software Foundation
+        Collada DOM (C) 2006 Sony Computer Entertainment Inc.
+        cURL (C) 1996-2010, Daniel Stenberg, (daniel@haxx.se)
         DBus/dbus-glib (C) 2002, 2003  CodeFactory AB / (C) 2003, 2004 Red Hat, Inc.
         expat (C) 1998, 1999, 2000 Thai Open Source Software Center Ltd.
-        FreeType (C) 1996-2002, The FreeType Project (www.freetype.org).
+        FreeType (C) 1996-2002, 2006 David Turner, Robert Wilhelm и Werner Lemberg.
         GL (C) 1999-2004 Brian Paul.
         GLOD (C) 2003-04 Jonathan Cohen, Nat Duca, Chris Niski, Университет Джона Гопкинса и David Luebke, Brenden Schubert, Университет Вирджинии.
         google-perftools (c) 2005, Google Inc.
         Havok.com(TM) (C) 1999-2001, Telekinesys Research Limited.
         jpeg2000 (C) 2001, David Taubman, Университет Нового Южного Уэльса (UNSW)
         jpeglib (C) 1991-1998, Thomas G. Lane.
-        ogg/vorbis (C) 2001, Xiphophorus
-        OpenSSL (C) 1998-2002 The OpenSSL Project.
-        PCRE (c) 1997-2008, Кембриджский университет
+        ogg/vorbis (C) 2002, Xiphophorus
+        OpenSSL (C) 1998-2008 The OpenSSL Project.
+        PCRE (c) 1997-2012, Кембриджский университет
         SDL (C) 1997, 1998, 1999, 2000, 2001, 2002 Sam Lantinga
         SSLeay (C) 1995-1998 Eric Young (eay@cryptsoft.com)
         xmlrpc-epi (C) 2000 Epinions, Inc.
-        zlib (C) 1995-2002 Jean-loup Gailly и Mark Adler.
-        google-perftools (c) 2005, Google Inc.
+        zlib (C) 1995-2012 Jean-loup Gailly и Mark Adler.
 
         В клиенте Second Life используется технология Havok (TM) Physics. (C) 1999-2010 Havok.com Inc. (и лицензиары компании). Все права защищены. Подробнее см. веб-сайт www.havok.com.
 

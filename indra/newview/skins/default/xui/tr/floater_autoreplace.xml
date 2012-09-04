@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="autoreplace_floater" title="Otomatik Yerine Koyma Ayarları">
+	<check_box label="Otomatik Yerine Koymayı Etkinleştir" name="autoreplace_enable" tool_tip="Siz sohbet metni girdikçe, girilen herhangi bir anahtar kelimenin yerine karşılık gelen değiştirmeyi koyabilirsiniz"/>
+	<button label="Listeyi İçeri Aktar..." name="autoreplace_import_list" tool_tip="Daha önce aktarılan bir listeyi yükler."/>
+	<button label="Listeyi Aktarın..." name="autoreplace_export_list" tool_tip="Seçilen listeyi bir dosyaya kaydederek paylaşın."/>
+	<button label="Yeni Liste..." name="autoreplace_new_list" tool_tip="Yeni bir liste oluşturun."/>
+	<button label="Listeyi Sil" name="autoreplace_delete_list" tool_tip="Seçilen listeyi silin."/>
+	<button name="autoreplace_list_up" tool_tip="Bu listenin önceliğini yükseltin."/>
+	<button name="autoreplace_list_down" tool_tip="Bu listenin önceliğini azaltın."/>
+	<scroll_list name="autoreplace_list_replacements">
+		<scroll_list.columns label="Anahtar kelime" name="keyword"/>
+		<scroll_list.columns label="Değiştirme" name="replacement"/>
+	</scroll_list>
+	<button label="Ekle..." name="autoreplace_add_entry"/>
+	<button label="Kaldır" name="autoreplace_delete_entry"/>
+	<button label="Girişi Kaydet" name="autoreplace_save_entry" tool_tip="Bu girişi kaydet."/>
+	<button label="Değişiklikleri Kaydet" name="autoreplace_save_changes" tool_tip="Tüm değişiklikleri kaydet."/>
+	<button label="İptal" name="autoreplace_cancel" tool_tip="Tüm değişiklikleri iptal et."/>
+</floater>
+<!--
+  <text 
+   top_pad="10"
+   left="10"
+   height="16"
+   width="260"
+   follows="left|top"
+   halign="center"
+   mouse_opaque="true"
+   name="autoreplace_text2">
+    Entries
+  </text>
+-->

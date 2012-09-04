@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="Object Icon Menu">
 	<menu_item_call label="物件檔案..." name="Object Profile"/>
-	<menu_item_call label="Block..." name="Block"/>
+	<menu_item_call label="封鎖…" name="Block"/>
 </menu>
