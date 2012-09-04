@@ -29,7 +29,7 @@
 
 #include <deque>
 #include "llgltexture.h"
-#include "llframetimer.h"
+//#include "llframetimer.h"
 #include "llavatarappearancedefines.h"
 #include "lltexlayerparams.h"
 

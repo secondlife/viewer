@@ -214,9 +214,6 @@ void LLViewerTexLayerSetBuffer::preRenderTexLayerSet()
 // virtual
 void LLViewerTexLayerSetBuffer::postRenderTexLayerSet(BOOL success)
 {
-	// *TODO: Old logic does not check success before setGLTextureCreated
-	// we have valid texture data now
-	mGLTexturep->setGLTextureCreated(true);
 
 	LLTexLayerSetBuffer::postRenderTexLayerSet(success);
 	LLViewerDynamicTexture::postRender(success);
@@ -259,6 +256,10 @@ void LLViewerTexLayerSetBuffer::midRenderTexLayerSet(BOOL success)
 	{
 		doUpdate();
 	}
+
+	// *TODO: Old logic does not check success before setGLTextureCreated
+	// we have valid texture data now
+	mGLTexturep->setGLTextureCreated(true);
 }
 
 BOOL LLViewerTexLayerSetBuffer::isInitialized(void) const

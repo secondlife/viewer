@@ -45,7 +45,7 @@ public:
 	LLViewerTexLayerSet(LLAvatarAppearance* const appearance);
 	virtual ~LLViewerTexLayerSet();
 
-	virtual void				requestUpdate();
+	/*virtual*/void				requestUpdate();
 	void						requestUpload();
 	void						cancelUpload();
 	BOOL						isLocalTextureDataAvailable() const;

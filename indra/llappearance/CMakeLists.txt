@@ -4,7 +4,6 @@ project(llappearance)
 
 include(00-Common)
 include(LLCommon)
-include(Viewer)
 include(LLAudio)
 include(LLCharacter)
 include(LLCommon)

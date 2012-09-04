@@ -629,9 +629,9 @@ void LLDriverParam::setDrivenWeight(LLDrivenEntry *driven, F32 driven_weight, bo
 		driven->mParam->getCrossWearable())
 	{
 		LLViewerWearable* wearable = dynamic_cast<LLViewerWearable*> (mWearablep);
-		if (!wearable->isOnTop())
+		if (wearable->isOnTop())
 		{
-			use_self = false;
+			use_self = true;
 		}
 	}
 

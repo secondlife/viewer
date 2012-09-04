@@ -27,6 +27,7 @@
 #include "linden_common.h"
 
 #include "llavatarappearance.h"
+#include "lldeleteutils.h"
 #include "lltexglobalcolor.h"
 
 const LLColor4 DUMMY_COLOR = LLColor4(0.5,0.5,0.5,1.0);
@@ -38,6 +39,14 @@ LLAvatarAppearance::LLAvatarAppearance() :
 	mTexEyeColor( NULL ),
 	mIsDummy(FALSE)
 {
+}
+
+// virtual
+LLAvatarAppearance::~LLAvatarAppearance()
+{
+	deleteAndClear(mTexSkinColor);
+	deleteAndClear(mTexHairColor);
+	deleteAndClear(mTexEyeColor);
 }
 
 using namespace LLAvatarAppearanceDefines;

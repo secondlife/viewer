@@ -473,14 +473,14 @@ private:
 public:
 	BOOL 		morphMaskNeedsUpdate(LLAvatarAppearanceDefines::EBakedTextureIndex index = LLAvatarAppearanceDefines::BAKED_NUM_INDICES);
 	void 		addMaskedMorph(LLAvatarAppearanceDefines::EBakedTextureIndex index, LLPolyMorphTarget* morph_target, BOOL invert, std::string layer);
-	virtual void	applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_components, LLAvatarAppearanceDefines::EBakedTextureIndex index = LLAvatarAppearanceDefines::BAKED_NUM_INDICES);
+	/*virtual*/void applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_components, LLAvatarAppearanceDefines::EBakedTextureIndex index = LLAvatarAppearanceDefines::BAKED_NUM_INDICES);
 
 	
 	//--------------------------------------------------------------------
 	// Global colors
 	//--------------------------------------------------------------------
 public:
-	virtual void	onGlobalColorChanged(const LLTexGlobalColor* global_color, BOOL upload_bake);
+	/*virtual*/void onGlobalColorChanged(const LLTexGlobalColor* global_color, BOOL upload_bake);
 
 	//--------------------------------------------------------------------
 	// Visibility
@@ -1038,7 +1038,6 @@ private:
 public:
 	void 			debugAvatarRezTime(std::string notification_name, std::string comment = "");
 	F32				debugGetExistenceTimeElapsedF32() const { return mDebugExistenceTimer.getElapsedTimeF32(); }
-
 
 protected:
 	LLFrameTimer	mRuthDebugTimer; // For tracking how long it takes for av to rez

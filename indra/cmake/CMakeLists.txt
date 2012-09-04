@@ -78,7 +78,6 @@ set(cmake_SOURCE_FILES
     Tut.cmake
     UI.cmake
     UnixInstall.cmake
-    Viewer.cmake
     Variables.cmake
     XmlRpcEpi.cmake
     ZLIB.cmake

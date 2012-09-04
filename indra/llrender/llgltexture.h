@@ -94,6 +94,8 @@ public:
 
 	virtual void dump();	// debug info to llinfos
 
+	virtual const LLUUID& getID() const = 0;
+
 	void setBoostLevel(S32 level);
 	S32  getBoostLevel() { return mBoostLevel; }
 
@@ -102,8 +104,6 @@ public:
 
 	void generateGLTexture() ;
 	void destroyGLTexture() ;
-
-	virtual const LLUUID& getID() const = 0;
 
 	//---------------------------------------------------------------------------------------------
 	//functions to access LLImageGL

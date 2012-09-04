@@ -637,7 +637,6 @@ public:
 	static void init() ;
 	static void cleanup() ;
 };
-
 //
 //this class is used for test/debug only
 //it tracks the activities of the texture pipeline

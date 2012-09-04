@@ -28,7 +28,7 @@
 #define LL_AVATAR_APPEARANCE_H
 
 #include "llcharacter.h"
-#include "llframetimer.h"
+//#include "llframetimer.h"
 #include "llavatarappearancedefines.h"
 
 class LLTexLayerSet;
@@ -50,6 +50,7 @@ class LLAvatarAppearance : public LLCharacter
 
 public:
 	LLAvatarAppearance();
+	virtual ~LLAvatarAppearance();
 
 /**                    Initialization
  **                                                                            **
