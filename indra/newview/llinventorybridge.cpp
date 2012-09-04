@@ -3193,16 +3193,8 @@ void LLFolderBridge::pasteFromClipboard()
 						LLViewerInventoryCategory* vicat = (LLViewerInventoryCategory *) model->getCategory(item_id);
 						llassert(vicat);
 						if (vicat)
-						{
-                            //Set the pasted folder to dirty, could do this in changeCategoryParent() but only need to set dirty
-                            //when pasting from the clipboard. Setting dirty allows updating the filter state, which determines
-                            //visibility in the new pasted location.
-                            LLFolderViewFolder * folderViewItem = mInventoryPanel.get() ? mInventoryPanel.get()->getFolderByID(item_id) : NULL;
-                            if(folderViewItem && folderViewItem->getViewModelItem())
-                            {
-                                folderViewItem->getViewModelItem()->dirtyFilter();
-                            }
-                         
+						{       
+                            //changeCategoryParent() implicity calls dirtyFilter
 							changeCategoryParent(model, vicat, parent_id, FALSE);
 						}
 					}
