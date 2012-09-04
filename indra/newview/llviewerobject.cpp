@@ -2836,21 +2836,6 @@ void LLViewerObject::updateInventory(
 	U8 key,
 	bool is_new)
 {
-	std::list<LLUUID>::iterator begin = mPendingInventoryItemsIDs.begin();
-	std::list<LLUUID>::iterator end = mPendingInventoryItemsIDs.end();
-
-	bool is_fetching = std::find(begin, end, item->getAssetUUID()) != end;
-	bool is_fetched = getInventoryItemByAsset(item->getAssetUUID()) != NULL;
-
-	if (is_fetched || is_fetching)
-	{
-		return;
-	}
-	else
-	{
-		mPendingInventoryItemsIDs.push_back(item->getAssetUUID());
-	}
-
 	// This slices the object into what we're concerned about on the
 	// viewer. The simulator will take the permissions and transfer
 	// ownership.
