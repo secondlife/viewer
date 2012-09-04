@@ -460,8 +460,9 @@ class LLAvatarPickerResponder : public LLHTTPClient::Responder
 {
 public:
 	LLUUID mQueryID;
+    std::string mName;
 
-	LLAvatarPickerResponder(const LLUUID& id) : mQueryID(id) { }
+	LLAvatarPickerResponder(const LLUUID& id, const std::string& name) : mQueryID(id), mName(name) { }
 
 	/*virtual*/ void completed(U32 status, const std::string& reason, const LLSD& content)
 	{
@@ -474,7 +475,7 @@ public:
 		if (isGoodStatus(status) || status == 400)
 		{
 			LLFloaterAvatarPicker* floater =
-				LLFloaterReg::findTypedInstance<LLFloaterAvatarPicker>("avatar_picker");
+				LLFloaterReg::findTypedInstance<LLFloaterAvatarPicker>("avatar_picker", mName);
 			if (floater)
 			{
 				floater->processResponse(mQueryID, content);
@@ -517,7 +518,7 @@ void LLFloaterAvatarPicker::find()
 		url += "?page_size=100&names=";
 		url += LLURI::escape(text);
 		llinfos << "avatar picker " << url << llendl;
-		LLHTTPClient::get(url, new LLAvatarPickerResponder(mQueryID));
+		LLHTTPClient::get(url, new LLAvatarPickerResponder(mQueryID, getKey().asString()));
 	}
 	else
 	{
