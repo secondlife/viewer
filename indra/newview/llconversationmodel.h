@@ -59,8 +59,8 @@ public:
 	virtual LLPointer<LLUIImage> getOpenIcon() const { return getIcon(); }
 	virtual LLFontGL::StyleFlags getLabelStyle() const { return LLFontGL::NORMAL; }
 	virtual std::string getLabelSuffix() const { return LLStringUtil::null; }
-	virtual BOOL isItemRenameable() const { return FALSE; }
-	virtual BOOL renameItem(const std::string& new_name) { return FALSE; }
+	virtual BOOL isItemRenameable() const { return TRUE; }
+	virtual BOOL renameItem(const std::string& new_name) { mName = new_name; return TRUE; }
 	virtual BOOL isItemMovable( void ) const { return FALSE; }
 	virtual BOOL isItemRemovable( void ) const { return FALSE; }
 	virtual BOOL isItemInTrash( void) const { return FALSE; }

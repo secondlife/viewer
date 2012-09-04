@@ -33,7 +33,8 @@ struct Conversation_params
 {
 	Conversation_params(time_t time)
 	:	mTime(time),
-		mTimestamp(LLConversation::createTimestamp(time))
+		mTimestamp(LLConversation::createTimestamp(time)),
+		mIsConversationPast(true)
 	{}
 
 	time_t		mTime;
@@ -44,6 +45,7 @@ struct Conversation_params
 	LLUUID		mSessionID;
 	LLUUID		mParticipantID;
 	bool		mIsVoice;
+	bool		mIsConversationPast;
 	bool		mHasOfflineIMs;
 };
 
@@ -60,6 +62,7 @@ LLConversation::LLConversation(const Conversation_params& params)
 	mSessionID(params.mSessionID),
 	mParticipantID(params.mParticipantID),
 	mIsVoice(params.mIsVoice),
+	mIsConversationPast(params.mIsConversationPast),
 	mHasOfflineIMs(params.mHasOfflineIMs)
 {
 	setListenIMFloaterOpened();
@@ -74,6 +77,7 @@ LLConversation::LLConversation(const LLIMModel::LLIMSession& session)
 	mSessionID(session.mSessionID),
 	mParticipantID(session.mOtherParticipantID),
 	mIsVoice(session.mStartedAsIMCall),
+	mIsConversationPast(false),
 	mHasOfflineIMs(session.mHasOfflineMessage)
 {
 	setListenIMFloaterOpened();
@@ -89,6 +93,7 @@ LLConversation::LLConversation(const LLConversation& conversation)
 	mSessionID			= conversation.getSessionID();
 	mParticipantID		= conversation.getParticipantID();
 	mIsVoice			= conversation.isVoice();
+	mIsConversationPast = conversation.isConversationPast();
 	mHasOfflineIMs		= conversation.hasOfflineMessages();
 
 	setListenIMFloaterOpened();
@@ -97,6 +102,14 @@ LLConversation::LLConversation(const LLConversation& conversation)
 LLConversation::~LLConversation()
 {
 	mIMFloaterShowedConnection.disconnect();
+}
+
+void LLConversation::setIsVoice(bool is_voice)
+{
+	if (mIsConversationPast)
+		return;
+
+	mIsVoice = is_voice;
 }
 
 void LLConversation::onIMFloaterShown(const LLUUID& session_id)
@@ -172,11 +185,34 @@ LLConversationLog::LLConversationLog()
 {
 	loadFromFile(getFileName());
 
-	LLIMMgr::instance().addSessionObserver(this);
-	
+	LLControlVariable* ctrl = gSavedPerAccountSettings.getControl("LogInstantMessages").get();
+	if (ctrl)
+	{
+		ctrl->getSignal()->connect(boost::bind(&LLConversationLog::observeIMSession, this));
+
+		if (ctrl->getValue().asBoolean())
+		{
+			LLIMMgr::instance().addSessionObserver(this);
+		}
+	}
+
 	mFriendObserver = new LLConversationLogFriendObserver;
 	LLAvatarTracker::instance().addObserver(mFriendObserver);
+
 }
+
+void LLConversationLog::observeIMSession()
+{
+	if (gSavedPerAccountSettings.getBOOL("LogInstantMessages"))
+	{
+		LLIMMgr::instance().addSessionObserver(this);
+	}
+	else
+	{
+		LLIMMgr::instance().removeSessionObserver(this);
+	}
+}
+
 void LLConversationLog::logConversation(const LLConversation& conversation)
 {
 	mConversations.push_back(conversation);
@@ -228,6 +264,21 @@ void LLConversationLog::sessionAdded(const LLUUID& session_id, const std::string
 	{
 		LLConversation conversation(*session);
 		LLConversationLog::instance().logConversation(conversation);
+		session->mVoiceChannel->setStateChangedCallback(boost::bind(&LLConversationLog::onVoiceChannelConnected, this, _5, _2));
+	}
+}
+
+void LLConversationLog::sessionRemoved(const LLUUID& session_id)
+{
+	conversations_vec_t::reverse_iterator rev_iter = mConversations.rbegin();
+
+	for (; rev_iter != mConversations.rend(); ++rev_iter)
+	{
+		if (rev_iter->getSessionID() == session_id && !rev_iter->isConversationPast())
+		{
+			rev_iter->setIsPast(true);
+			return; // return here because only one session with session_id may be active
+		}
 	}
 }
 
@@ -348,5 +399,29 @@ void LLConversationLog::notifyObservers()
 	for (; iter != mObservers.end(); ++iter)
 	{
 		(*iter)->changed();
+	}
+}
+
+void LLConversationLog::notifyPrticularConversationObservers(const LLUUID& session_id, U32 mask)
+{
+	std::set<LLConversationLogObserver*>::const_iterator iter = mObservers.begin();
+	for (; iter != mObservers.end(); ++iter)
+	{
+		(*iter)->changed(session_id, mask);
+	}
+}
+
+void LLConversationLog::onVoiceChannelConnected(const LLUUID& session_id, const LLVoiceChannel::EState& state)
+{
+	conversations_vec_t::reverse_iterator rev_iter = mConversations.rbegin();
+
+	for (; rev_iter != mConversations.rend(); ++rev_iter)
+	{
+		if (rev_iter->getSessionID() == session_id && !rev_iter->isConversationPast() && LLVoiceChannel::STATE_CALL_STARTED == state)
+		{
+			rev_iter->setIsVoice(true);
+			notifyPrticularConversationObservers(session_id, LLConversationLogObserver::VOICE_STATE);
+			return; // return here because only one session with session_id may be active
+		}
 	}
 }

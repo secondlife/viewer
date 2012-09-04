@@ -68,6 +68,7 @@ public:
 	 * Changes from LLConversationLogObserver
 	 */
 	virtual void changed();
+	virtual void changed(const LLUUID& session_id, U32 mask);
 
 private:
 

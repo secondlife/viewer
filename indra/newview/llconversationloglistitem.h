@@ -64,9 +64,9 @@ public:
 
 	void onDoubleClick();
 
-private:
-
 	void initIcons();
+
+private:
 
 	const LLConversation* mConversation;
 

@@ -209,6 +209,7 @@ protected:
 
 };
 
+
 class LLFolderViewModelItemCommon : public LLFolderViewModelItem
 {
 public:
@@ -249,6 +250,8 @@ public:
 	std::string::size_type getFilterStringOffset();
 	std::string::size_type getFilterStringSize();
 	
+	typedef std::list<LLFolderViewModelItem*> child_list_t;
+
 	virtual void addChild(LLFolderViewModelItem* child) 
 	{ 
 		mChildren.push_back(child); 
@@ -271,7 +274,11 @@ public:
 		mChildren.clear();
 		dirtyFilter();
 	}
-
+	
+	child_list_t::const_iterator getChildrenBegin() const { return mChildren.begin(); }
+	child_list_t::const_iterator getChildrenEnd() const { return mChildren.end(); }
+	child_list_t::size_type getChildrenCount() const { return mChildren.size(); }
+	
 	void setPassedFilter(bool passed, S32 filter_generation, std::string::size_type string_offset = std::string::npos, std::string::size_type string_size = 0)
 	{
 		mPassedFilter = passed;
@@ -325,8 +332,6 @@ protected:
 	S32						mLastFolderFilterGeneration;
 	S32						mMostFilteredDescendantGeneration;
 
-
-	typedef std::list<LLFolderViewModelItem*> child_list_t;
 	child_list_t			mChildren;
 	LLFolderViewModelItem*	mParent;
 	LLFolderViewModelInterface& mRootViewModel;

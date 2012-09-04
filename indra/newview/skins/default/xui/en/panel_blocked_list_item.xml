@@ -60,7 +60,6 @@
     <text
      follows="left|right"
      font="SansSerifSmall"
-     font.color="DkGray"
      height="15"
      layout="topleft"
      left_pad="5"

@@ -37,6 +37,7 @@
 #include "llgroupmgr.h"
 #include "lltrans.h"
 #include "llconversationmodel.h"
+#include "llconversationview.h"
 
 class LLButton;
 class LLLayoutPanel;
@@ -102,6 +103,8 @@ private:
 	void onAddButtonClicked();
 	void onAvatarPicked(const uuid_vec_t& ids);
 
+	void onCustomAction (const LLSD& userdata);
+
 	LLButton* mExpandCollapseBtn;
 	LLLayoutPanel* mMessagesPane;
 	LLLayoutPanel* mConversationsPane;
@@ -113,7 +116,8 @@ public:
 	void addConversationListItem(const LLUUID& uuid);
 
 private:
-	LLFolderViewItem* createConversationItemWidget(LLConversationItem* item);
+	LLConversationViewSession* createConversationItemWidget(LLConversationItem* item);
+	LLConversationViewParticipant* createConversationViewParticipant(LLConversationItem* item);
 
 	// Conversation list data
 	LLPanel* mConversationsListPanel;	// This is the main widget we add conversation widget to
