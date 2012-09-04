@@ -40,7 +40,7 @@ class LLFontGL ;
 //
 //this is an abstract class as the parent for the class LLGLTexture
 //
-class LLTexture : public LLRefCount
+class LLTexture : public virtual LLRefCount
 {
 	friend class LLTexUnit ;
 	friend class LLFontGL ;
