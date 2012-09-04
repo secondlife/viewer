@@ -440,7 +440,7 @@ void LLLocalBitmap::updateUserPrims(LLUUID old_id, LLUUID new_id)
 					if (face && face->getTexture() && face->getTexture()->getID() == old_id)
 					{
 						object->setTEImage(face_iter, LLViewerTextureManager::getFetchedTexture
-							(new_id, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
+							(new_id, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
 
 						update_obj = true;
 					}

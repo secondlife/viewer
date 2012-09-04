@@ -30,7 +30,7 @@
 #include "llimage.h"
 #include "llrender.h"
 #include "lltexlayer.h"
-#include "lltexture.h"
+#include "llgltexture.h"
 #include "lluuid.h"
 #include "llwearable.h"
 
@@ -42,7 +42,7 @@ LLLocalTextureObject::LLLocalTextureObject() :
 	mImage = NULL;
 }
 
-LLLocalTextureObject::LLLocalTextureObject(LLTexture* image, const LLUUID& id) :
+LLLocalTextureObject::LLLocalTextureObject(LLGLTexture* image, const LLUUID& id) :
 	mIsBakedReady(FALSE),
 	mDiscard(MAX_DISCARD_LEVEL+1)
 {
@@ -78,7 +78,7 @@ LLLocalTextureObject::~LLLocalTextureObject()
 {
 }
 
-LLTexture* LLLocalTextureObject::getImage() const
+LLGLTexture* LLLocalTextureObject::getImage() const
 {
 	return mImage;
 }
@@ -127,7 +127,7 @@ BOOL LLLocalTextureObject::getBakedReady() const
 	return mIsBakedReady;
 }
 
-void LLLocalTextureObject::setImage(LLTexture* new_image)
+void LLLocalTextureObject::setImage(LLGLTexture* new_image)
 {
 	mImage = new_image;
 }

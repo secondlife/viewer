@@ -34,6 +34,7 @@ set(llrender_SOURCE_FILES
     llfontregistry.cpp
     llgldbg.cpp
     llglslshader.cpp
+    llgltexture.cpp
     llimagegl.cpp
     llpostprocess.cpp
     llrendernavprim.cpp
@@ -56,6 +57,7 @@ set(llrender_HEADER_FILES
     llglheaders.h
     llglslshader.h
     llglstates.h
+    llgltexture.h
     llgltypes.h
     llimagegl.h
     llpostprocess.h

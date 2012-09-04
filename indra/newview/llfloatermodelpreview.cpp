@@ -2488,7 +2488,7 @@ void LLModelLoader::loadTextures()
 				if(!material.mDiffuseMapFilename.empty())
 				{
 					material.mDiffuseMap = 
-						LLViewerTextureManager::getFetchedTextureFromUrl("file://" + material.mDiffuseMapFilename, TRUE, LLViewerTexture::BOOST_PREVIEW);
+						LLViewerTextureManager::getFetchedTextureFromUrl("file://" + material.mDiffuseMapFilename, TRUE, LLGLTexture::BOOST_PREVIEW);
 					material.mDiffuseMap->setLoadedCallback(LLModelPreview::textureLoadedCallback, 0, TRUE, FALSE, mPreview, NULL, FALSE);
 					material.mDiffuseMap->forceToSaveRawImage(0, F32_MAX);
 					mNumOfFetchingTextures++ ;

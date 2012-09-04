@@ -28,15 +28,15 @@
 #define LL_TEXTUREMANAGERBRIDGE_H
 
 #include "llpointer.h"
-#include "lltexture.h"
+#include "llgltexture.h"
 
 // Abstract bridge interface
 class LLTextureManagerBridge
 {
 public:
-	virtual LLPointer<LLTexture> getLocalTexture(BOOL usemipmaps = TRUE, BOOL generate_gl_tex = TRUE) = 0;
-	virtual LLPointer<LLTexture> getLocalTexture(const U32 width, const U32 height, const U8 components, BOOL usemipmaps, BOOL generate_gl_tex = TRUE) = 0;
-	virtual LLTexture* getFetchedTexture(const LLUUID &image_id) = 0;
+	virtual LLPointer<LLGLTexture> getLocalTexture(BOOL usemipmaps = TRUE, BOOL generate_gl_tex = TRUE) = 0;
+	virtual LLPointer<LLGLTexture> getLocalTexture(const U32 width, const U32 height, const U8 components, BOOL usemipmaps, BOOL generate_gl_tex = TRUE) = 0;
+	virtual LLGLTexture* getFetchedTexture(const LLUUID &image_id) = 0;
 };
 
 extern LLTextureManagerBridge* gTextureManagerBridgep;
