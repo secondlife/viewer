@@ -1843,10 +1843,15 @@ public:
 		GroupMemberDataResponder() {}
 		virtual ~GroupMemberDataResponder() {}
 		virtual void result(const LLSD& pContent);
-		virtual void error(U32 pStatus, const std::string& pReason) {}
+		virtual void error(U32 pStatus, const std::string& pReason);
 private:
 		LLSD mMemberData;
 };
+
+void GroupMemberDataResponder::error(U32 pStatus, const std::string& pReason)
+{
+	LL_WARNS("GrpMgr") << "Error receiving group member data." << LL_ENDL;
+}
 
 void GroupMemberDataResponder::result(const LLSD& content)
 {
@@ -1866,7 +1871,7 @@ void LLGroupMgr::sendCapGroupMembersRequest(const LLUUID& group_id)
 	// Check to make sure we have our capabilities
 	if(!currentRegion->capabilitiesReceived())
 	{
-		LL_INFOS("BAKER") << " Capabilities not received!" << LL_ENDL;
+		LL_WARNS("GrpMgr") << " Capabilities not received!" << LL_ENDL;
 		return;
 	}
 
@@ -1879,8 +1884,8 @@ void LLGroupMgr::sendCapGroupMembersRequest(const LLUUID& group_id)
 
 	LLHTTPClient::ResponderPtr grp_data_responder = new GroupMemberDataResponder();
 	
-	// This could take a while to finish, timeout after 10 minutes.
-	LLHTTPClient::post(cap_url, body, grp_data_responder, LLSD(), 600);
+	// This could take a while to finish, timeout after 5 minutes.
+	LLHTTPClient::post(cap_url, body, grp_data_responder, LLSD(), 300);
 
 	mLastGroupMembersRequestFrame = gFrameCount;
 }
@@ -1975,6 +1980,9 @@ void LLGroupMgr::processCapGroupMembersRequest(const LLSD& content)
 	// this entire system (it would be nice, but I don't have the time), 
 	// I'm going to be dumb and just call services I most likely don't need 
 	// with the thought being that the system might need it to be done.
+	// 
+	// TODO:
+	// Refactor to reduce multiple calls for data we already have.
 	if(group_datap->mTitles.size() < 1)
 		LLGroupMgr::getInstance()->sendGroupTitlesRequest(group_id);
 

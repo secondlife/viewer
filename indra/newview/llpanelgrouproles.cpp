@@ -357,7 +357,6 @@ void LLPanelGroupRoles::activate()
 		if (!gdatap || !gdatap->isMemberDataComplete() )
 		{
 			LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mGroupID);
-			//LLGroupMgr::getInstance()->sendGroupMembersRequest(mGroupID);
 		}
 
 		// Check role data.
@@ -1989,7 +1988,6 @@ void LLPanelGroupRolesSubTab::update(LLGroupChange gc)
 	if (!gdatap || !gdatap->isMemberDataComplete())
 	{
 		LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mGroupID);
-		//LLGroupMgr::getInstance()->sendGroupMembersRequest(mGroupID);
 	}
 	
 	if (!gdatap || !gdatap->isRoleMemberDataComplete())
@@ -2583,7 +2581,6 @@ void LLPanelGroupActionsSubTab::handleActionSelect()
 	else
 	{
 		LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mGroupID);
-		//LLGroupMgr::getInstance()->sendGroupMembersRequest(mGroupID);
 	}
 
 	if (gdatap->isRoleDataComplete())
