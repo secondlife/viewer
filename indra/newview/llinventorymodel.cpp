@@ -986,6 +986,7 @@ void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat)
 				cat_array->put(old_cat);
 			}
 			mask |= LLInventoryObserver::STRUCTURE;
+            mask |= LLInventoryObserver::INTERNAL;
 		}
 		if(old_cat->getName() != cat->getName())
 		{

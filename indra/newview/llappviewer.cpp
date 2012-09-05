@@ -1834,7 +1834,10 @@ bool LLAppViewer::cleanup()
 	LLMuteList::getInstance()->cache(gAgent.getID());
 
 	//save call log list
-	LLConversationLog::instance().cache();
+	if (gSavedPerAccountSettings.getBOOL("LogInstantMessages"))
+	{
+		LLConversationLog::instance().cache();
+	}
 
 	if (mPurgeOnExit)
 	{

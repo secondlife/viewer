@@ -66,10 +66,19 @@ LLPanelBlockedList::LLPanelBlockedList()
 	mEnableCallbackRegistrar.add("Block.Check",		boost::bind(&LLPanelBlockedList::isActionChecked, this, _2));
 }
 
+void LLPanelBlockedList::removePicker()
+{
+    if(mPicker.get())
+    {
+        mPicker.get()->closeFloater();
+    }
+}
+
 BOOL LLPanelBlockedList::postBuild()
 {
 	mBlockedList = getChild<LLBlockList>("blocked");
 	mBlockedList->setCommitOnSelectionChange(TRUE);
+    this->setVisibleCallback(boost::bind(&LLPanelBlockedList::removePicker, this));
 
 	switch (gSavedSettings.getU32("BlockPeopleSortOrder"))
 	{
@@ -185,11 +194,18 @@ void LLPanelBlockedList::blockResidentByName()
 {
 	const BOOL allow_multiple = FALSE;
 	const BOOL close_on_select = TRUE;
-	/*LLFloaterAvatarPicker* picker = */LLFloaterAvatarPicker::show(boost::bind(&LLPanelBlockedList::callbackBlockPicked, this, _1, _2), allow_multiple, close_on_select);
+    
+    LLView * button = findChild<LLButton>("plus_btn", TRUE);
+    LLFloater* root_floater = gFloaterView->getParentFloater(this);
+	LLFloaterAvatarPicker * picker = LLFloaterAvatarPicker::show(boost::bind(&LLPanelBlockedList::callbackBlockPicked, this, _1, _2), 
+                                                                                    allow_multiple, close_on_select, FALSE, root_floater->getName(), button);
+    
+    if (root_floater)
+    {
+        root_floater->addDependentFloater(picker);
+    }
 
-	// *TODO: mantipov: should LLFloaterAvatarPicker be closed when panel is closed?
-	// old Floater dependency is not enable in panel
-	// addDependentFloater(picker);
+    mPicker = picker->getHandle();
 }
 
 void LLPanelBlockedList::blockObjectByName()

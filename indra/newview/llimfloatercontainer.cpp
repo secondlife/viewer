@@ -40,6 +40,7 @@
 #include "llavatarnamecache.h"
 #include "llgroupiconctrl.h"
 #include "llfloateravatarpicker.h"
+#include "llfloaterpreference.h"
 #include "llimview.h"
 #include "lltransientfloatermgr.h"
 #include "llviewercontrol.h"
@@ -53,6 +54,8 @@ LLIMFloaterContainer::LLIMFloaterContainer(const LLSD& seed)
 	mExpandCollapseBtn(NULL),
 	mConversationsRoot(NULL)
 {
+	mCommitCallbackRegistrar.add("IMFloaterContainer.Action", boost::bind(&LLIMFloaterContainer::onCustomAction,  this, _2));
+
 	// Firstly add our self to IMSession observers, so we catch session events
     LLIMMgr::getInstance()->addSessionObserver(this);
 
@@ -468,8 +471,10 @@ void LLIMFloaterContainer::updateState(bool collapse, S32 delta_width)
 
 void LLIMFloaterContainer::onAddButtonClicked()
 {
-    LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLIMFloaterContainer::onAvatarPicked, this, _1), TRUE, TRUE, TRUE);
+    LLView * button = findChild<LLView>("conversations_pane_buttons_expanded")->findChild<LLButton>("add_btn");
     LLFloater* root_floater = gFloaterView->getParentFloater(this);
+    LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLIMFloaterContainer::onAvatarPicked, this, _1), TRUE, TRUE, TRUE, root_floater->getName(), button);
+    
     if (picker && root_floater)
     {
         root_floater->addDependentFloater(picker);
@@ -486,6 +491,25 @@ void LLIMFloaterContainer::onAvatarPicked(const uuid_vec_t& ids)
     {
         LLAvatarActions::startConference(ids);
     }
+}
+
+void LLIMFloaterContainer::onCustomAction(const LLSD& userdata)
+{
+	std::string command = userdata.asString();
+
+	if ("chat_preferences" == command)
+	{
+		LLFloaterPreference* floater_prefs = LLFloaterReg::showTypedInstance<LLFloaterPreference>("preferences");
+		if (floater_prefs)
+		{
+			LLTabContainer* tab_container = floater_prefs->getChild<LLTabContainer>("pref core");
+			LLPanel* chat_panel = tab_container->getPanelByName("chat");
+			if (tab_container && chat_panel)
+			{
+				tab_container->selectTabPanel(chat_panel);
+			}
+		}
+	}
 }
 
 void LLIMFloaterContainer::repositioningWidgets()

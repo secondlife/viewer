@@ -28,7 +28,6 @@
      visible="false"
      width="380" />
     <icon
-     default_icon_name="voice_session_icon"
      follows="top|left"
      height="20"
      layout="topleft"
@@ -72,7 +71,6 @@
     <text
      follows="left|right"
      font="SansSerifSmall"
-     font.color="DkGray"
      height="15"
      layout="topleft"
      left_pad="5"
@@ -84,7 +82,6 @@
     <text
      follows="right"
      font="SansSerifSmall"
-     font.color="DkGray"
      height="15"
      layout="topleft"
      left_pad="5"

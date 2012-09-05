@@ -744,12 +744,13 @@ std::set<LLUUID> LLAvatarActions::getInventorySelectedUUIDs()
 }
 
 //static
-void LLAvatarActions::shareWithAvatars()
+void LLAvatarActions::shareWithAvatars(LLView * panel)
 {
 	using namespace action_give_inventory;
 
+    LLFloater* root_floater = gFloaterView->getParentFloater(panel);
 	LLFloaterAvatarPicker* picker =
-		LLFloaterAvatarPicker::show(boost::bind(give_inventory, _1, _2), TRUE, FALSE);
+		LLFloaterAvatarPicker::show(boost::bind(give_inventory, _1, _2), TRUE, FALSE, FALSE, root_floater->getName());
 	if (!picker)
 	{
 		return;
@@ -757,6 +758,11 @@ void LLAvatarActions::shareWithAvatars()
 
 	picker->setOkBtnEnableCb(boost::bind(is_give_inventory_acceptable));
 	picker->openFriendsTab();
+    
+    if (root_floater)
+    {
+        root_floater->addDependentFloater(picker);
+    }
 	LLNotificationsUtil::add("ShareNotification");
 }
 

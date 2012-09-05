@@ -141,6 +141,28 @@ void LLConversationLogList::changed()
 	refresh();
 }
 
+void LLConversationLogList::changed(const LLUUID& session_id, U32 mask)
+{
+	if (mask & LLConversationLogObserver::VOICE_STATE)
+	{
+		std::vector<LLPanel*> panels;
+		LLFlatListViewEx::getItems(panels);
+
+		std::vector<LLPanel*>::iterator iter = panels.begin();
+
+		for (; iter != panels.end(); ++iter)
+		{
+			LLConversationLogListItem* item = dynamic_cast<LLConversationLogListItem*>(*iter);
+
+			if (item && session_id == item->getConversation()->getSessionID() && !item->getConversation()->isConversationPast())
+			{
+				item->initIcons();
+				return;
+			}
+		}
+	}
+}
+
 void LLConversationLogList::addNewItem(const LLConversation* conversation)
 {
 	LLConversationLogListItem* item = new LLConversationLogListItem(&*conversation);
@@ -241,15 +263,18 @@ void LLConversationLogList::onCustomAction(const LLSD& userdata)
 	{
 		LLAvatarActions::offerTeleport(selected_id);
 	}
-	else if("add_rem_friend" == command_name)
+	else if("add_friend" == command_name)
+	{
+		if (!LLAvatarActions::isFriend(selected_id))
+		{
+			LLAvatarActions::requestFriendshipDialog(selected_id);
+		}
+	}
+	else if("remove_friend" == command_name)
 	{
 		if (LLAvatarActions::isFriend(selected_id))
 		{
 			LLAvatarActions::removeFriendDialog(selected_id);
-		}
-		else
-		{
-			LLAvatarActions::requestFriendshipDialog(selected_id);
 		}
 	}
 	else if ("invite_to_group" == command_name)
@@ -335,6 +360,10 @@ bool LLConversationLogList::isActionChecked(const LLSD& userdata)
 	else if ("is_friend" == command_name)
 	{
 		return is_p2p && LLAvatarActions::isFriend(selected_id);
+	}
+	else if ("is_not_friend" == command_name)
+	{
+		return is_p2p && !LLAvatarActions::isFriend(selected_id);
 	}
 
 	return false;

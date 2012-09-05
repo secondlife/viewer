@@ -49,6 +49,8 @@
 #include "llscrolllistcell.h"
 #include "lltabcontainer.h"
 #include "lluictrlfactory.h"
+#include "llfocusmgr.h"
+#include "lldraghandle.h"
 #include "message.h"
 
 //#include "llsdserialize.h"
@@ -59,11 +61,13 @@ static std::map<LLUUID, LLAvatarName> sAvatarNameMap;
 LLFloaterAvatarPicker* LLFloaterAvatarPicker::show(select_callback_t callback,
 												   BOOL allow_multiple,
 												   BOOL closeOnSelect,
-												   BOOL skip_agent)
+												   BOOL skip_agent,
+                                                   const std::string& name,
+                                                   LLView * frustumOrigin)
 {
 	// *TODO: Use a key to allow this not to be an effective singleton
 	LLFloaterAvatarPicker* floater = 
-		LLFloaterReg::showTypedInstance<LLFloaterAvatarPicker>("avatar_picker");
+		LLFloaterReg::showTypedInstance<LLFloaterAvatarPicker>("avatar_picker", LLSD(name));
 	if (!floater)
 	{
 		llwarns << "Cannot instantiate avatar picker" << llendl;
@@ -85,6 +89,11 @@ LLFloaterAvatarPicker* LLFloaterAvatarPicker::show(select_callback_t callback,
 		floater->getChild<LLButton>("cancel_btn")->setLabel(close_string);
 	}
 
+    if(frustumOrigin)
+    {
+        floater->mFrustumOrigin = frustumOrigin->getHandle();
+    }
+
 	return floater;
 }
 
@@ -93,9 +102,17 @@ LLFloaterAvatarPicker::LLFloaterAvatarPicker(const LLSD& key)
   : LLFloater(key),
 	mNumResultsReturned(0),
 	mNearMeListComplete(FALSE),
-	mCloseOnSelect(FALSE)
+	mCloseOnSelect(FALSE),
+    mContextConeOpacity	(0.f),
+    mContextConeInAlpha(0.f),
+    mContextConeOutAlpha(0.f),
+    mContextConeFadeTime(0.f)
 {
 	mCommitCallbackRegistrar.add("Refresh.FriendList", boost::bind(&LLFloaterAvatarPicker::populateFriend, this));
+
+    mContextConeInAlpha = gSavedSettings.getF32("ContextConeInAlpha");
+    mContextConeOutAlpha = gSavedSettings.getF32("ContextConeOutAlpha");
+    mContextConeFadeTime = gSavedSettings.getF32("ContextConeFadeTime");
 }
 
 BOOL LLFloaterAvatarPicker::postBuild()
@@ -340,8 +357,67 @@ void LLFloaterAvatarPicker::populateFriend()
 	friends_scroller->sortByColumnIndex(0, TRUE);
 }
 
+void LLFloaterAvatarPicker::drawFrustum()
+{
+    if(mFrustumOrigin.get())
+    {
+        LLView * frustumOrigin = mFrustumOrigin.get();
+        LLRect origin_rect;
+        frustumOrigin->localRectToOtherView(frustumOrigin->getLocalRect(), &origin_rect, this);
+        // draw context cone connecting color picker with color swatch in parent floater
+        LLRect local_rect = getLocalRect();
+        if (hasFocus() && frustumOrigin->isInVisibleChain() && mContextConeOpacity > 0.001f)
+        {
+            gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+            LLGLEnable(GL_CULL_FACE);
+            gGL.begin(LLRender::QUADS);
+            {
+                gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
+                gGL.vertex2i(origin_rect.mLeft, origin_rect.mTop);
+                gGL.vertex2i(origin_rect.mRight, origin_rect.mTop);
+                gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
+                gGL.vertex2i(local_rect.mRight, local_rect.mTop);
+                gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
+
+                gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
+                gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
+                gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
+                gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
+                gGL.vertex2i(origin_rect.mLeft, origin_rect.mBottom);
+                gGL.vertex2i(origin_rect.mLeft, origin_rect.mTop);
+
+                gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
+                gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
+                gGL.vertex2i(local_rect.mRight, local_rect.mTop);
+                gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
+                gGL.vertex2i(origin_rect.mRight, origin_rect.mTop);
+                gGL.vertex2i(origin_rect.mRight, origin_rect.mBottom);
+
+                gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
+                gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
+                gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
+                gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
+                gGL.vertex2i(origin_rect.mRight, origin_rect.mBottom);
+                gGL.vertex2i(origin_rect.mLeft, origin_rect.mBottom);
+            }
+            gGL.end();
+        }
+
+        if (gFocusMgr.childHasMouseCapture(getDragHandle()))
+        {
+            mContextConeOpacity = lerp(mContextConeOpacity, gSavedSettings.getF32("PickerContextOpacity"), LLCriticalDamp::getInterpolant(mContextConeFadeTime));
+        }
+        else
+        {
+            mContextConeOpacity = lerp(mContextConeOpacity, 0.f, LLCriticalDamp::getInterpolant(mContextConeFadeTime));
+        }
+    }
+}
+
 void LLFloaterAvatarPicker::draw()
 {
+    drawFrustum();
+
 	// sometimes it is hard to determine when Select/Ok button should be disabled (see LLAvatarActions::shareWithAvatars).
 	// lets check this via mOkButtonValidateSignal callback periodically.
 	static LLFrameTimer timer;
@@ -384,8 +460,9 @@ class LLAvatarPickerResponder : public LLHTTPClient::Responder
 {
 public:
 	LLUUID mQueryID;
+    std::string mName;
 
-	LLAvatarPickerResponder(const LLUUID& id) : mQueryID(id) { }
+	LLAvatarPickerResponder(const LLUUID& id, const std::string& name) : mQueryID(id), mName(name) { }
 
 	/*virtual*/ void completed(U32 status, const std::string& reason, const LLSD& content)
 	{
@@ -398,7 +475,7 @@ public:
 		if (isGoodStatus(status) || status == 400)
 		{
 			LLFloaterAvatarPicker* floater =
-				LLFloaterReg::findTypedInstance<LLFloaterAvatarPicker>("avatar_picker");
+				LLFloaterReg::findTypedInstance<LLFloaterAvatarPicker>("avatar_picker", mName);
 			if (floater)
 			{
 				floater->processResponse(mQueryID, content);
@@ -441,7 +518,7 @@ void LLFloaterAvatarPicker::find()
 		url += "?page_size=100&names=";
 		url += LLURI::escape(text);
 		llinfos << "avatar picker " << url << llendl;
-		LLHTTPClient::get(url, new LLAvatarPickerResponder(mQueryID));
+		LLHTTPClient::get(url, new LLAvatarPickerResponder(mQueryID, getKey().asString()));
 	}
 	else
 	{

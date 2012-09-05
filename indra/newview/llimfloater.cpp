@@ -359,7 +359,9 @@ BOOL LLIMFloater::postBuild()
 
 void LLIMFloater::onAddButtonClicked()
 {
-	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLIMFloater::addSessionParticipants, this, _1), TRUE, TRUE);
+    LLView * button = findChild<LLView>("toolbar_panel")->findChild<LLButton>("add_btn");
+    LLFloater* root_floater = gFloaterView->getParentFloater(this);
+	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLIMFloater::addSessionParticipants, this, _1), TRUE, TRUE, FALSE, root_floater->getName(), button);
 	if (!picker)
 	{
 		return;
@@ -367,7 +369,7 @@ void LLIMFloater::onAddButtonClicked()
 
 	// Need to disable 'ok' button when selected users are already in conversation.
 	picker->setOkBtnEnableCb(boost::bind(&LLIMFloater::canAddSelectedToChat, this, _1));
-	LLFloater* root_floater = gFloaterView->getParentFloater(this);
+	
 	if (root_floater)
 	{
 		root_floater->addDependentFloater(picker);
