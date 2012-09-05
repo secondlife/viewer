@@ -26,7 +26,10 @@
 
 #include "linden_common.h"
 
+
 #include "llavatarappearance.h"
+#include "llavatarappearancedefines.h"
+#include "imageids.h"
 #include "lldeleteutils.h"
 #include "lltexglobalcolor.h"
 
@@ -39,6 +42,16 @@ LLAvatarAppearance::LLAvatarAppearance() :
 	mTexEyeColor( NULL ),
 	mIsDummy(FALSE)
 {
+	mBakedTextureDatas.resize(LLAvatarAppearanceDefines::BAKED_NUM_INDICES);
+	for (U32 i = 0; i < mBakedTextureDatas.size(); i++ )
+	{
+		mBakedTextureDatas[i].mLastTextureIndex = IMG_DEFAULT_AVATAR;
+		mBakedTextureDatas[i].mTexLayerSet = NULL;
+		mBakedTextureDatas[i].mIsLoaded = false;
+		mBakedTextureDatas[i].mIsUsed = false;
+		mBakedTextureDatas[i].mMaskTexName = 0;
+		mBakedTextureDatas[i].mTextureIndex = LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::bakedToLocalTextureIndex((LLAvatarAppearanceDefines::EBakedTextureIndex)i);
+	}
 }
 
 // virtual
@@ -47,9 +60,34 @@ LLAvatarAppearance::~LLAvatarAppearance()
 	deleteAndClear(mTexSkinColor);
 	deleteAndClear(mTexHairColor);
 	deleteAndClear(mTexEyeColor);
+
+	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
+	{
+		deleteAndClear(mBakedTextureDatas[i].mTexLayerSet);
+		mBakedTextureDatas[i].mMeshes.clear();
+
+		for (morph_list_t::iterator iter2 = mBakedTextureDatas[i].mMaskedMorphs.begin();
+			 iter2 != mBakedTextureDatas[i].mMaskedMorphs.end(); iter2++)
+		{
+			LLMaskedMorph* masked_morph = (*iter2);
+			delete masked_morph;
+		}
+	}
 }
 
 using namespace LLAvatarAppearanceDefines;
+
+
+// adds a morph mask to the appropriate baked texture structure
+void LLAvatarAppearance::addMaskedMorph(EBakedTextureIndex index, LLVisualParam* morph_target, BOOL invert, std::string layer)
+{
+	if (index < BAKED_NUM_INDICES)
+	{
+		LLMaskedMorph *morph = new LLMaskedMorph(morph_target, invert, layer);
+		mBakedTextureDatas[index].mMaskedMorphs.push_front(morph);
+	}
+}
+
 
 //static
 BOOL LLAvatarAppearance::teToColorParams( ETextureIndex te, U32 *param_name )

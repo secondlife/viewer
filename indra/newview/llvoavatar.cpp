@@ -703,17 +703,6 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 
 	mPelvisp = NULL;
 
-	mBakedTextureDatas.resize(BAKED_NUM_INDICES);
-	for (U32 i = 0; i < mBakedTextureDatas.size(); i++ )
-	{
-		mBakedTextureDatas[i].mLastTextureIndex = IMG_DEFAULT_AVATAR;
-		mBakedTextureDatas[i].mTexLayerSet = NULL;
-		mBakedTextureDatas[i].mIsLoaded = false;
-		mBakedTextureDatas[i].mIsUsed = false;
-		mBakedTextureDatas[i].mMaskTexName = 0;
-		mBakedTextureDatas[i].mTextureIndex = LLAvatarAppearanceDictionary::bakedToLocalTextureIndex((EBakedTextureIndex)i);
-	}
-
 	mDirtyMesh = 2;	// Dirty geometry, need to regenerate.
 	mMeshTexturesDirty = FALSE;
 	mHeadp = NULL;
@@ -820,19 +809,6 @@ LLVOAvatar::~LLVOAvatar()
 	deleteAndClearArray(mCollisionVolumes);
 
 	mNumJoints = 0;
-
-	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
-	{
-		deleteAndClear(mBakedTextureDatas[i].mTexLayerSet);
-		mBakedTextureDatas[i].mMeshes.clear();
-
-		for (morph_list_t::iterator iter2 = mBakedTextureDatas[i].mMaskedMorphs.begin();
-			 iter2 != mBakedTextureDatas[i].mMaskedMorphs.end(); iter2++)
-		{
-			LLMaskedMorph* masked_morph = (*iter2);
-			delete masked_morph;
-		}
-	}
 
 	std::for_each(mAttachmentPoints.begin(), mAttachmentPoints.end(), DeletePairedPointer());
 	mAttachmentPoints.clear();
@@ -1102,7 +1078,7 @@ void LLVOAvatar::restoreGL()
 	gAgentAvatarp->setCompositeUpdatesEnabled(TRUE);
 	for (U32 i = 0; i < gAgentAvatarp->mBakedTextureDatas.size(); i++)
 	{
-		gAgentAvatarp->invalidateComposite(gAgentAvatarp->mBakedTextureDatas[i].mTexLayerSet, FALSE);
+		gAgentAvatarp->invalidateComposite(gAgentAvatarp->getTexLayerSet(i), FALSE);
 	}
 	gAgentAvatarp->updateMeshTextures();
 }
@@ -5518,9 +5494,9 @@ BOOL LLVOAvatar::loadAvatar()
 		EBakedTextureIndex baked = LLAvatarAppearanceDictionary::findBakedByRegionName(info->mRegion); 
 		if (baked != BAKED_NUM_INDICES)
 		{
-			LLPolyMorphTarget *morph_param;
+			LLVisualParam* morph_param;
 			const std::string *name = &info->mName;
-			morph_param = (LLPolyMorphTarget *)(getVisualParam(name->c_str()));
+			morph_param = getVisualParam(name->c_str());
 			if (morph_param)
 			{
 				BOOL invert = info->mInvert;
@@ -6504,7 +6480,11 @@ void LLVOAvatar::onGlobalColorChanged(const LLTexGlobalColor* global_color, BOOL
 			LLColor4 color = mTexHairColor->getColor();
 			for (U32 i = 0; i < mBakedTextureDatas[BAKED_HAIR].mMeshes.size(); i++)
 			{
-				mBakedTextureDatas[BAKED_HAIR].mMeshes[i]->setColor( color.mV[VX], color.mV[VY], color.mV[VZ], color.mV[VW] );
+				LLViewerJointMesh* mesh = dynamic_cast<LLViewerJointMesh*>(mBakedTextureDatas[BAKED_HAIR].mMeshes[i]);
+				if (mesh)
+				{
+					mesh->setColor( color.mV[VX], color.mV[VY], color.mV[VZ], color.mV[VW] );
+				}
 			}
 		}
 	} 
@@ -6721,15 +6701,16 @@ void LLVOAvatar::updateMeshTextures()
 			// When an avatar is changing clothes and not in Appearance mode,
 			// use the last-known good baked texture until it finish the first
 			// render of the new layerset.
-			const BOOL layerset_invalid = mBakedTextureDatas[i].mTexLayerSet 
-										  && ( !mBakedTextureDatas[i].mTexLayerSet->getViewerComposite()->isInitialized()
-										  || !mBakedTextureDatas[i].mTexLayerSet->isLocalTextureDataAvailable() );
+			LLViewerTexLayerSet* layerset = getTexLayerSet(i);
+			const BOOL layerset_invalid = layerset
+										  && ( !layerset->getViewerComposite()->isInitialized()
+										  || !layerset->isLocalTextureDataAvailable() );
 			use_lkg_baked_layer[i] = (!is_layer_baked[i] 
 									  && (mBakedTextureDatas[i].mLastTextureIndex != IMG_DEFAULT_AVATAR) 
 									  && layerset_invalid);
 			if (use_lkg_baked_layer[i])
 			{
-				mBakedTextureDatas[i].mTexLayerSet->setUpdatesEnabled(TRUE);
+				layerset->setUpdatesEnabled(TRUE);
 			}
 		}
 		else
@@ -6742,6 +6723,7 @@ void LLVOAvatar::updateMeshTextures()
 	
 	for (U32 i=0; i < mBakedTextureDatas.size(); i++)
 	{
+		LLViewerTexLayerSet* layerset = getTexLayerSet(i);
 		if (use_lkg_baked_layer[i] && !mUseLocalAppearance )
 		{
 			LLViewerFetchedTexture* baked_img;
@@ -6765,7 +6747,11 @@ void LLVOAvatar::updateMeshTextures()
 			mBakedTextureDatas[i].mIsUsed = TRUE;
 			for (U32 k=0; k < mBakedTextureDatas[i].mMeshes.size(); k++)
 			{
-				mBakedTextureDatas[i].mMeshes[k]->setTexture( baked_img );
+				LLViewerJointMesh* mesh = dynamic_cast<LLViewerJointMesh*>(mBakedTextureDatas[i].mMeshes[k]);
+				if (mesh)
+				{
+					mesh->setTexture( baked_img );
+				}
 			}
 		}
 		else if (!mUseLocalAppearance && is_layer_baked[i])
@@ -6788,14 +6774,18 @@ void LLVOAvatar::updateMeshTextures()
 					src_callback_list, paused );
 			}
 		}
-		else if (mBakedTextureDatas[i].mTexLayerSet && mUseLocalAppearance) 
+		else if (layerset && mUseLocalAppearance) 
 		{
-			mBakedTextureDatas[i].mTexLayerSet->createComposite();
-			mBakedTextureDatas[i].mTexLayerSet->setUpdatesEnabled( TRUE );
+			layerset->createComposite();
+			layerset->setUpdatesEnabled( TRUE );
 			mBakedTextureDatas[i].mIsUsed = FALSE;
 			for (U32 k=0; k < mBakedTextureDatas[i].mMeshes.size(); k++)
 			{
-				mBakedTextureDatas[i].mMeshes[k]->setLayerSet( mBakedTextureDatas[i].mTexLayerSet );
+				LLViewerJointMesh* mesh = dynamic_cast<LLViewerJointMesh*>(mBakedTextureDatas[i].mMeshes[k]);
+				if (mesh)
+				{
+					mesh->setLayerSet( layerset );
+				}
 			}
 		}
 	}
@@ -6809,8 +6799,12 @@ void LLVOAvatar::updateMeshTextures()
 		LLViewerTexture* hair_img = getImage( TEX_HAIR, 0 );
 		for (U32 i = 0; i < mBakedTextureDatas[BAKED_HAIR].mMeshes.size(); i++)
 		{
-			mBakedTextureDatas[BAKED_HAIR].mMeshes[i]->setColor( color.mV[VX], color.mV[VY], color.mV[VZ], color.mV[VW] );
-			mBakedTextureDatas[BAKED_HAIR].mMeshes[i]->setTexture( hair_img );
+			LLViewerJointMesh* mesh = dynamic_cast<LLViewerJointMesh*>(mBakedTextureDatas[BAKED_HAIR].mMeshes[i]);
+			if (mesh)
+			{
+				mesh->setColor( color.mV[VX], color.mV[VY], color.mV[VZ], color.mV[VW] );
+				mesh->setTexture( hair_img );
+			}
 		}
 	} 
 	
@@ -6883,42 +6877,6 @@ void LLVOAvatar::clearChat()
 	mChats.clear();
 }
 
-// adds a morph mask to the appropriate baked texture structure
-void LLVOAvatar::addMaskedMorph(EBakedTextureIndex index, LLPolyMorphTarget* morph_target, BOOL invert, std::string layer)
-{
-	if (index < BAKED_NUM_INDICES)
-	{
-		LLMaskedMorph *morph = new LLMaskedMorph(morph_target, invert, layer);
-		mBakedTextureDatas[index].mMaskedMorphs.push_front(morph);
-	}
-}
-
-// returns TRUE if morph masks are present and not valid for a given baked texture, FALSE otherwise
-BOOL LLVOAvatar::morphMaskNeedsUpdate(LLAvatarAppearanceDefines::EBakedTextureIndex index)
-{
-	if (index >= BAKED_NUM_INDICES)
-	{
-		return FALSE;
-	}
-
-	if (!mBakedTextureDatas[index].mMaskedMorphs.empty())
-	{
-		if (isSelf())
-		{
-			LLViewerTexLayerSet *layer_set = mBakedTextureDatas[index].mTexLayerSet;
-			if (layer_set)
-			{
-				return !layer_set->isMorphValid();
-			}
-		}
-		else
-		{
-			return FALSE;
-		}
-	}
-
-	return FALSE;
-}
 
 void LLVOAvatar::applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_components, LLAvatarAppearanceDefines::EBakedTextureIndex index)
 {
@@ -6932,10 +6890,41 @@ void LLVOAvatar::applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_com
 		 iter != mBakedTextureDatas[index].mMaskedMorphs.end(); ++iter)
 	{
 		const LLMaskedMorph* maskedMorph = (*iter);
-		maskedMorph->mMorphTarget->applyMask(tex_data, width, height, num_components, maskedMorph->mInvert);
+		LLPolyMorphTarget* morph_target = dynamic_cast<LLPolyMorphTarget*>(maskedMorph->mMorphTarget);
+		if (morph_target)
+		{
+			morph_target->applyMask(tex_data, width, height, num_components, maskedMorph->mInvert);
+		}
 	}
 }
 
+
+// returns TRUE if morph masks are present and not valid for a given baked texture, FALSE otherwise
+BOOL LLVOAvatar::morphMaskNeedsUpdate(LLAvatarAppearanceDefines::EBakedTextureIndex index)
+{
+	if (index >= BAKED_NUM_INDICES)
+	{
+		return FALSE;
+	}
+
+	if (!mBakedTextureDatas[index].mMaskedMorphs.empty())
+	{
+		if (isSelf())
+		{
+			LLViewerTexLayerSet *layer_set = getTexLayerSet(index);
+			if (layer_set)
+			{
+				return !layer_set->isMorphValid();
+			}
+		}
+		else
+		{
+			return FALSE;
+		}
+	}
+
+	return FALSE;
+}
 
 //-----------------------------------------------------------------------------
 // releaseComponentTextures()
@@ -7616,7 +7605,11 @@ void LLVOAvatar::useBakedTexture( const LLUUID& id )
 			mBakedTextureDatas[i].mIsUsed = true;
 			for (U32 k = 0; k < mBakedTextureDatas[i].mMeshes.size(); k++)
 			{
-				mBakedTextureDatas[i].mMeshes[k]->setTexture( image_baked );
+				LLViewerJointMesh* mesh = dynamic_cast<LLViewerJointMesh*>(mBakedTextureDatas[i].mMeshes[k]);
+				if (mesh)
+				{
+					mesh->setTexture( image_baked );
+				}
 			}
 			if (mBakedTextureDatas[i].mTexLayerSet)
 			{
@@ -7637,7 +7630,11 @@ void LLVOAvatar::useBakedTexture( const LLUUID& id )
 			{
 				for (U32 i = 0; i < mBakedTextureDatas[BAKED_HAIR].mMeshes.size(); i++)
 				{
-					mBakedTextureDatas[BAKED_HAIR].mMeshes[i]->setColor( 1.f, 1.f, 1.f, 1.f );
+					LLViewerJointMesh* mesh = dynamic_cast<LLViewerJointMesh*>(mBakedTextureDatas[BAKED_HAIR].mMeshes[i]);
+					if (mesh)
+					{
+						mesh->setColor( 1.f, 1.f, 1.f, 1.f );
+					}
 				}
 			}
 		}
@@ -8688,4 +8685,18 @@ BOOL LLVOAvatar::isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex type,
 	// non-self avatars don't have wearables
 	return FALSE;
 }
+
+//virtual 
+LLAvatarAppearance::LLMaskedMorph::LLMaskedMorph(LLVisualParam *morph_target, BOOL invert, std::string layer) :
+			mMorphTarget(morph_target), 
+			mInvert(invert),
+			mLayer(layer)
+{
+	LLPolyMorphTarget *target = dynamic_cast<LLPolyMorphTarget*>(morph_target);
+	if (target)
+	{
+		target->addPendingMorphMask();
+	}
+}
+
 
