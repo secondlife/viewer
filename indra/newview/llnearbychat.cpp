@@ -133,6 +133,7 @@ LLNearbyChat::LLNearbyChat(const LLSD& llsd)
 	setIsChrome(TRUE);
 	mKey = LLSD();
 	mSpeakerMgr = LLLocalSpeakerMgr::getInstance();
+	mSessionID = LLUUID();
 	setName("nearby_chat");
 	setIsSingleInstance(TRUE);
 }
@@ -216,21 +217,6 @@ bool	LLNearbyChat::onNearbyChatCheckContextMenuItem(const LLSD& userdata)
 	return false;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//
-void LLNearbyChat::onFocusReceived()
-{
-	setBackgroundOpaque(true);
-	LLIMConversation::onFocusReceived();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-void LLNearbyChat::onFocusLost()
-{
-	setBackgroundOpaque(false);
-	LLIMConversation::onFocusLost();
-}
 
 BOOL	LLNearbyChat::handleMouseDown(S32 x, S32 y, MASK mask)
 {
@@ -325,13 +311,6 @@ void	LLNearbyChat::setVisible(BOOL visible)
 	LLIMConversation::setVisible(visible);
 }
 
-
-void LLNearbyChat::enableDisableCallBtn()
-{
-	// bool btn_enabled = LLAgent::isActionAllowed("speak");
-
-	getChildView("voice_call_btn")->setEnabled(false /*btn_enabled*/);
-}
 
 void LLNearbyChat::onTearOffClicked()
 {
