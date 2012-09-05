@@ -744,63 +744,53 @@ void LLPanelLogin::setAlwaysRefresh(bool refresh)
 void LLPanelLogin::loadLoginPage()
 {
 	if (!sInstance) return;
-	
-	std::ostringstream oStr;
 
-	std::string login_page = LLGridManager::getInstance()->getLoginPage();
+	LLURI login_page = LLURI(LLGridManager::getInstance()->getLoginPage());
+	LLSD params(login_page.queryMap());
 
-	oStr << login_page;
-	
-	// Use the right delimeter depending on how LLURI parses the URL
-	LLURI login_page_uri = LLURI(login_page);
-	
-	std::string first_query_delimiter = "&";
-	if (login_page_uri.queryMap().size() == 0)
-	{
-		first_query_delimiter = "?";
-	}
+	LL_DEBUGS("AppInit") << "login_page: " << login_page << LL_ENDL;
 
 	// Language
-	std::string language = LLUI::getLanguage();
-	oStr << first_query_delimiter<<"lang=" << language;
-	
+	params["lang"] = LLUI::getLanguage();
+
 	// First Login?
 	if (gSavedSettings.getBOOL("FirstLoginThisInstall"))
 	{
-		oStr << "&firstlogin=TRUE";
+		params["firstlogin"] = "TRUE"; // not bool: server expects string TRUE
 	}
 
 	// Channel and Version
-	std::string version = llformat("%s (%d)",
-								   LLVersionInfo::getShortVersion().c_str(),
-								   LLVersionInfo::getBuild());
-
-	char* curl_channel = curl_escape(LLVersionInfo::getChannel().c_str(), 0);
-	char* curl_version = curl_escape(version.c_str(), 0);
-
-	oStr << "&channel=" << curl_channel;
-	oStr << "&version=" << curl_version;
-
-	curl_free(curl_channel);
-	curl_free(curl_version);
+	params["version"] = llformat("%s (%d)",
+								 LLVersionInfo::getShortVersion().c_str(),
+								 LLVersionInfo::getBuild());
+	params["channel"] = LLVersionInfo::getChannel();
 
 	// Grid
-	char* curl_grid = curl_escape(LLGridManager::getInstance()->getGridId().c_str(), 0);
-	oStr << "&grid=" << curl_grid;
-	curl_free(curl_grid);
-	
+	params["grid"] = LLGridManager::getInstance()->getGridId();
+
 	// add OS info
-	char * os_info = curl_escape(LLAppViewer::instance()->getOSInfo().getOSStringSimple().c_str(), 0);
-	oStr << "&os=" << os_info;
-	curl_free(os_info);
-	
-	gViewerWindow->setMenuBackgroundColor(false, !LLGridManager::getInstance()->isInProductionGrid());
-	
-	LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
-	if (web_browser->getCurrentNavUrl() != oStr.str())
+	params["os"] = LLAppViewer::instance()->getOSInfo().getOSStringSimple();
+
+	// sourceid: create_account_url's sourceid= varies by skin
+	LLURI create_account_url(LLTrans::getString("create_account_url"));
+	LLSD create_account_params(create_account_url.queryMap());
+	if (create_account_params.has("sourceid"))
 	{
-		LL_DEBUGS("AppInit")<<oStr.str()<<LL_ENDL;
-		web_browser->navigateTo( oStr.str(), "text/html" );
+		params["sourceid"] = create_account_params["sourceid"];
+	}
+
+	// Make an LLURI with this augmented info
+	LLURI login_uri(LLURI::buildHTTP(login_page.authority(),
+									 login_page.path(),
+									 params));
+
+	gViewerWindow->setMenuBackgroundColor(false, !LLGridManager::getInstance()->isInProductionGrid());
+
+	LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
+	if (web_browser->getCurrentNavUrl() != login_uri.asString())
+	{
+		LL_DEBUGS("AppInit") << "loading:    " << login_uri << LL_ENDL;
+		web_browser->navigateTo( login_uri.asString(), "text/html" );
 	}
 }
 
