@@ -9,9 +9,6 @@
 	<floater.string name="scripts_score_label">
 		Süre
 	</floater.string>
-	<floater.string name="scripts_mono_time_label">
-		Mono Süre
-	</floater.string>
 	<floater.string name="top_colliders_title">
 		En Çok Çarpışanlar
 	</floater.string>
@@ -32,9 +29,10 @@
 		<scroll_list.columns label="Ad" name="name"/>
 		<scroll_list.columns label="Sahip" name="owner"/>
 		<scroll_list.columns label="Konum" name="location"/>
+		<scroll_list.columns label="Parsel" name="parcel"/>
 		<scroll_list.columns label="Süre" name="time"/>
-		<scroll_list.columns label="Mono Süre" name="mono_time"/>
 		<scroll_list.columns label="URL&apos;ler" name="URLs"/>
+		<scroll_list.columns label="Bellek (KB)" name="memory"/>
 	</scroll_list>
 	<text name="id_text">
 		Nesne Kimliği:
@@ -48,6 +46,10 @@
 		Sahip:
 	</text>
 	<button label="Filtrele" name="filter_owner_btn"/>
+	<text name="parcel_name_text">
+		Parsel:
+	</text>
+	<button label="Filtrele" name="filter_parcel_btn"/>
 	<button label="Seçileni İade Et" name="return_selected_btn"/>
 	<button label="Tümünü İade Et" name="return_all_btn"/>
 	<button label="Seçileni Devre Dışı Bırak" name="disable_selected_btn"/>

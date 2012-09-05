@@ -9,9 +9,6 @@
 	<floater.string name="scripts_score_label">
 		時間
 	</floater.string>
-	<floater.string name="scripts_mono_time_label">
-		Monoタイム
-	</floater.string>
 	<floater.string name="top_colliders_title">
 		上部コライダー
 	</floater.string>
@@ -32,9 +29,10 @@
 		<scroll_list.columns label="名前" name="name"/>
 		<scroll_list.columns label="所有者" name="owner"/>
 		<scroll_list.columns label="ロケーション" name="location"/>
+		<scroll_list.columns label="区画" name="parcel"/>
 		<scroll_list.columns label="時間" name="time"/>
-		<scroll_list.columns label="Monoタイム" name="mono_time"/>
 		<scroll_list.columns label="URL" name="URLs"/>
+		<scroll_list.columns label="メモリ（KB）" name="memory"/>
 	</scroll_list>
 	<text name="id_text">
 		物体ID：
@@ -48,6 +46,10 @@
 		所有者：
 	</text>
 	<button label="フィルタ" name="filter_owner_btn"/>
+	<text name="parcel_name_text">
+		区画：
+	</text>
+	<button label="フィルター" name="filter_parcel_btn"/>
 	<button label="更新" name="refresh_btn"/>
 	<button label="選択内容を返却" name="return_selected_btn"/>
 	<button label="すべて返却" name="return_all_btn"/>

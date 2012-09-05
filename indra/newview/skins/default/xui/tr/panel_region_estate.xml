@@ -23,7 +23,7 @@
 		Sadece şu Sakinlere erişim izni verin:
 	</text>
 	<check_box label="Ödeme bilgileri kayıtlı" name="limit_payment" tool_tip="Sakinlerin bu gayrimenkule erişebilmesi için ödeme bilgilerinin kayıtlı olması gerekir.  Daha fazla bilgi için [SUPPORT_SITE] adresini ziyaret edin."/>
-	<check_box label="Yaş doğrulaması yapılmış" name="limit_age_verified" tool_tip="Sakinlerin bu gayrimenkule erişebilmesi için yaş doğrulamalarının yapılmış olması gerekir. Daha fazla bilgi için [SUPPORT_SITE] adresini ziyaret edin."/>
+	<check_box label="18 veya üzeri bir yaşta" name="limit_age_verified" tool_tip="Sakinlerin bu gayrimenkule erişebilmesi için 18 veya üzeri bir yaşta olmaları gerekir. Daha fazla bilgi için [SUPPORT_SITE] adresini ziyaret edin."/>
 	<check_box label="Sesli Sohbete İzin Ver" name="voice_chat_check"/>
 	<check_box label="Doğrudan Işınlamaya İzin Ver" name="allow_direct_teleport"/>
 	<button label="Uygula" name="apply_btn"/>

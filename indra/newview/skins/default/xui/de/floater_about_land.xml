@@ -463,7 +463,7 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 				Zugang nur Einwohnern gestatten, die:
 			</text>
 			<check_box label="Zahlungsinformationen hinterlegt haben [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Um diese Parzelle besuchen zu können, müssen Einwohner Zahlungsinformationen hinterlegt haben. Weitere Informationen finden Sie auf [SUPPORT_SITE]."/>
-			<check_box label="ihr Alter bestätigt haben [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Um diese Parzelle besuchen zu können, müssen Einwohner ihr Alter bestätigt haben. Weitere Informationen finden Sie auf [SUPPORT_SITE]."/>
+			<check_box label="Sind mindestens 18 Jahre alt [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Nur Einwohner, die mindestens 18 Jahre alt sind, können diese Parzelle betreten. Weitere Informationen finden Sie unter [SUPPORT_SITE]."/>
 			<check_box label="Gruppenzugang erlauben: [GROUP]" name="GroupCheck" tool_tip="Gruppe im Register „Allgemein“ festlegen."/>
 			<check_box label="Pässe verkaufen an:" name="PassCheck" tool_tip="Ermöglicht befristeten Zugang zu dieser Parzelle"/>
 			<combo_box name="pass_combo">

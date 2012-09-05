@@ -10,7 +10,7 @@
 		（禁止轉讓）
 	</floater.string>
 	<text name="contains_text">
-		[NAME] 包含：
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; 內含：
 	</text>
 	<text name="buy_text">
 		是否花 L$[AMOUNT] 向 [NAME] 購買？

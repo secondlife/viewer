@@ -470,7 +470,7 @@ musique :
 				Conditions d&apos;accès des résidents :
 			</text>
 			<check_box label="Informations de paiement enregistrées [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Pour pouvoir accéder à cette parcelle, les résidents doivent avoir enregistré des informations de paiement. Consultez le [SUPPORT_SITE] pour plus d&apos;informations."/>
-			<check_box label="Âge vérifié [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Pour que les résidents puissent accéder à cette parcelle, leur âge doit avoir fait l&apos;objet d&apos;une vérification. Consultez le [SUPPORT_SITE] pour plus d&apos;informations."/>
+			<check_box label="Avoir plus de 18 ans [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Pour accéder à cette parcelle, les résidents doivent avoir au moins 18 ans. Consultez le [SUPPORT_SITE] pour plus d&apos;informations."/>
 			<check_box label="Autoriser l&apos;accès au groupe : [GROUP]" name="GroupCheck" tool_tip="Définir le groupe à l&apos;onglet Général."/>
 			<check_box label="Vendre des pass à :" name="PassCheck" tool_tip="Autoriser un accès temporaire à cette parcelle"/>
 			<combo_box name="pass_combo" width="110">
