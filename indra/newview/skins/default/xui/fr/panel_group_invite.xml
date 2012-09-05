@@ -9,6 +9,9 @@
 	<panel.string name="already_in_group">
 		Certains résidents que vous avez choisis font déjà partie du groupe et l&apos;invitation ne leur a donc pas été envoyée.
 	</panel.string>
+	<panel.string name="invite_selection_too_large">
+		Invitations de groupe non envoyées : trop de résidents sélectionnés. Les invitations de groupe sont limitées à 100 par demande.
+	</panel.string>
 	<text name="help_text">
 		Vous pouvez inviter plusieurs résidents à la fois. Cliquez d&apos;abord sur Choisir un résident.
 	</text>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="spellcheck_import" title="辞書をインポート">
+	<button label="参照" label_selected="参照" name="dictionary_path_browse"/>
+	<button label="インポート" name="ok_btn"/>
+	<button label="取り消し" name="cancel_btn"/>
+</floater>

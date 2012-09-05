@@ -27,8 +27,20 @@
 		</text>
 		<check_box initial_value="true" label="清澈透明的水" name="TransparentWater"/>
 		<check_box initial_value="true" label="凹凸映射與光澤效果" name="BumpShiny"/>
+		<check_box initial_value="true" label="本地光線" name="LocalLights"/>
 		<check_box initial_value="true" label="基本著色" name="BasicShaders" tool_tip="關閉此一選項可能避免部分顯示卡驅動程式損毀當機"/>
 		<check_box initial_value="true" label="大氣著色" name="WindLightUseAtmosShaders"/>
+		<check_box initial_value="true" label="光線和陰影" name="UseLightShaders"/>
+		<check_box initial_value="true" label="環境光遮蔽" name="UseSSAO"/>
+		<check_box initial_value="true" label="景深" name="UseDoF"/>
+		<text name="shadows_label">
+			陰影：
+		</text>
+		<combo_box name="ShadowDetail">
+			<combo_box.item label="無" name="0"/>
+			<combo_box.item label="日 / 月" name="1"/>
+			<combo_box.item label="日 / 月 + 投影物" name="2"/>
+		</combo_box>
 		<text name="reflection_label">
 			水文反射：
 		</text>

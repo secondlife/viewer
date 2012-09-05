@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_pathfinding_characters" title="Pathfinding-Figuren">
+	<floater.string name="messaging_get_inprogress">
+		Pathfinding-Figuren werden abgerufen...
+	</floater.string>
+	<floater.string name="messaging_get_error">
+		Fehler beim Abrufen von Pathfinding-Figuren.
+	</floater.string>
+	<floater.string name="messaging_complete_none_found">
+		Keine Pathfinding-Figuren.
+	</floater.string>
+	<floater.string name="messaging_complete_available">
+		[NUM_SELECTED] Figuren von [NUM_TOTAL] ausgewählt.
+	</floater.string>
+	<floater.string name="messaging_not_enabled">
+		Pathfinding ist in dieser Region nicht aktiviert.
+	</floater.string>
+	<floater.string name="character_cpu_time">
+		[CPU_TIME] µs
+	</floater.string>
+	<floater.string name="character_owner_loading">
+		[Laden]
+	</floater.string>
+	<floater.string name="character_owner_unknown">
+		[Unbekannt]
+	</floater.string>
+	<floater.string name="character_owner_group">
+		[Gruppe]
+	</floater.string>
+	<panel>
+		<scroll_list name="objects_scroll_list">
+			<scroll_list.columns label="Name" name="name"/>
+			<scroll_list.columns label="Beschreibung" name="description"/>
+			<scroll_list.columns label="Eigentümer" name="owner"/>
+			<scroll_list.columns label="CPU" name="cpu_time"/>
+			<scroll_list.columns label="Höhe" name="altitude"/>
+		</scroll_list>
+		<text name="messaging_status">
+			Figuren:
+		</text>
+		<button label="Liste aktualisieren" name="refresh_objects_list"/>
+		<button label="Alle auswählen" name="select_all_objects"/>
+		<button label="Keine auswählen" name="select_none_objects"/>
+	</panel>
+	<panel>
+		<text name="actions_label">
+			Aktionen für ausgewählte Figuren:
+		</text>
+		<check_box label="Beacon anzeigen" name="show_beacon"/>
+		<check_box label="Physikkapsel anzeigen" name="show_physics_capsule"/>
+		<button label="Nehmen" name="take_objects"/>
+		<button label="Kopie nehmen" name="take_copy_objects"/>
+		<button label="Dorthin teleportieren" name="teleport_me_to_object" tool_tip="Nur aktiviert, wenn eine Figur ausgewählt ist."/>
+		<button label="Zurückgeben" name="return_objects"/>
+		<button label="Löschen" name="delete_objects"/>
+	</panel>
+</floater>

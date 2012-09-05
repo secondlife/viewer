@@ -92,19 +92,54 @@
 				<text initial_value="三角形" name="triangles" value="三角形"/>
 				<text initial_value="頂点" name="vertices" value="頂点"/>
 				<text initial_value="高" name="high_label" value="高"/>
+				<combo_box name="lod_source_high">
+					<item name="Load from file" value="ファイルからロード"/>
+					<item name="Generate" value="生成"/>
+				</combo_box>
 				<button label="参照" name="lod_browse_high"/>
+				<combo_box name="lod_mode_high">
+					<item name="Triangle Limit" value="三角形の限度数"/>
+					<item name="Error Threshold" value="エラーしきい値"/>
+				</combo_box>
 				<text initial_value="0" name="high_triangles" value="0"/>
 				<text initial_value="0" name="high_vertices" value="0"/>
 				<text initial_value="中" name="medium_label" value="中"/>
+				<combo_box name="lod_source_medium">
+					<item name="Load from file" value="ファイルからロード"/>
+					<item name="Generate" value="生成"/>
+					<item name="Use LoD above" value="上記の LoD を使用"/>
+				</combo_box>
 				<button label="参照" name="lod_browse_medium"/>
+				<combo_box name="lod_mode_medium">
+					<item name="Triangle Limit" value="三角形の限度数"/>
+					<item name="Error Threshold" value="エラーしきい値"/>
+				</combo_box>
 				<text initial_value="0" name="medium_triangles" value="0"/>
 				<text initial_value="0" name="medium_vertices" value="0"/>
 				<text initial_value="低" name="low_label" value="低"/>
+				<combo_box name="lod_source_low">
+					<item name="Load from file" value="ファイルからロード"/>
+					<item name="Generate" value="生成"/>
+					<item name="Use LoD above" value="上記の LoD を使用"/>
+				</combo_box>
 				<button label="参照" name="lod_browse_low"/>
+				<combo_box name="lod_mode_low">
+					<item name="Triangle Limit" value="三角形の限度数"/>
+					<item name="Error Threshold" value="エラーしきい値"/>
+				</combo_box>
 				<text initial_value="0" name="low_triangles" value="0"/>
 				<text initial_value="0" name="low_vertices" value="0"/>
 				<text initial_value="最低" name="lowest_label" value="最低"/>
+				<combo_box name="lod_source_lowest">
+					<item name="Load from file" value="ファイルからロード"/>
+					<item name="Generate" value="生成"/>
+					<item name="Use LoD above" value="上記の LoD を使用"/>
+				</combo_box>
 				<button label="参照" name="lod_browse_lowest"/>
+				<combo_box name="lod_mode_lowest">
+					<item name="Triangle Limit" value="三角形の限度数"/>
+					<item name="Error Threshold" value="エラーしきい値"/>
+				</combo_box>
 				<text initial_value="0" name="lowest_triangles" value="0"/>
 				<text initial_value="0" name="lowest_vertices" value="0"/>
 				<check_box label="ノーマルの作成" name="gen_normals"/>
