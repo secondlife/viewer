@@ -36,21 +36,24 @@
 LLConversationItem::LLConversationItem(std::string display_name, const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
 	LLFolderViewModelItemCommon(root_view_model),
 	mName(display_name),
-	mUUID(uuid)
+	mUUID(uuid),
+	mNeedsRefresh(true)
 {
 }
 
 LLConversationItem::LLConversationItem(const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
 	LLFolderViewModelItemCommon(root_view_model),
 	mName(""),
-	mUUID(uuid)
+	mUUID(uuid),
+	mNeedsRefresh(true)
 {
 }
 
 LLConversationItem::LLConversationItem(LLFolderViewModelInterface& root_view_model) :
 	LLFolderViewModelItemCommon(root_view_model),
 	mName(""),
-	mUUID()
+	mUUID(),
+	mNeedsRefresh(true)
 {
 }
 
@@ -102,11 +105,13 @@ void LLConversationItemSession::addParticipant(LLConversationItemParticipant* pa
 {
 	addChild(participant);
 	mIsLoaded = true;
+	mNeedsRefresh = true;
 }
 
 void LLConversationItemSession::removeParticipant(LLConversationItemParticipant* participant)
 {
 	removeChild(participant);
+	mNeedsRefresh = true;
 }
 
 void LLConversationItemSession::removeParticipant(const LLUUID& participant_id)
@@ -122,6 +127,7 @@ void LLConversationItemSession::clearParticipants()
 {
 	clearChildren();
 	mIsLoaded = false;
+	mNeedsRefresh = true;
 }
 
 LLConversationItemParticipant* LLConversationItemSession::findParticipant(const LLUUID& participant_id)

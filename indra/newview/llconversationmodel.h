@@ -60,7 +60,7 @@ public:
 	virtual LLFontGL::StyleFlags getLabelStyle() const { return LLFontGL::NORMAL; }
 	virtual std::string getLabelSuffix() const { return LLStringUtil::null; }
 	virtual BOOL isItemRenameable() const { return TRUE; }
-	virtual BOOL renameItem(const std::string& new_name) { mName = new_name; return TRUE; }
+	virtual BOOL renameItem(const std::string& new_name) { mName = new_name; mNeedsRefresh = true; return TRUE; }
 	virtual BOOL isItemMovable( void ) const { return FALSE; }
 	virtual BOOL isItemRemovable( void ) const { return FALSE; }
 	virtual BOOL isItemInTrash( void) const { return FALSE; }
@@ -102,10 +102,14 @@ public:
 	
 //	bool hasSameValues(std::string name, const LLUUID& uuid) { return ((name == mName) && (uuid == mUUID)); }
 	bool hasSameValue(const LLUUID& uuid) { return (uuid == mUUID); }
-
+	
+	void resetRefresh() { mNeedsRefresh = false; }
+	bool needsRefresh() { return mNeedsRefresh; }
+	
 protected:
 	std::string mName;	// Name of the session or the participant
 	LLUUID mUUID;		// UUID of the session or the participant
+	bool mNeedsRefresh;	// Flag signaling to the view that something changed for this item
 };
 
 class LLConversationItemSession : public LLConversationItem
@@ -115,7 +119,7 @@ public:
 	LLConversationItemSession(const LLUUID& uuid, LLFolderViewModelInterface& root_view_model);
 	virtual ~LLConversationItemSession() {}
 	
-	void setSessionID(const LLUUID& session_id) { mUUID = session_id; }
+	void setSessionID(const LLUUID& session_id) { mUUID = session_id; mNeedsRefresh = true; }
 	void addParticipant(LLConversationItemParticipant* participant);
 	void removeParticipant(LLConversationItemParticipant* participant);
 	void removeParticipant(const LLUUID& participant_id);
@@ -142,8 +146,8 @@ public:
 	
 	bool isMuted() { return mIsMuted; }
 	bool isModerator() {return mIsModerator; }
-	void setIsMuted(bool is_muted) { mIsMuted = is_muted; }
-	void setIsModerator(bool is_moderator) { mIsModerator = is_moderator; }
+	void setIsMuted(bool is_muted) { mIsMuted = is_muted; mNeedsRefresh = true; }
+	void setIsModerator(bool is_moderator) { mIsModerator = is_moderator; mNeedsRefresh = true; }
 	
 	void dumpDebugData();
 

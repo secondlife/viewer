@@ -30,6 +30,8 @@
 #include "llfolderviewitem.h"
 
 class LLIMFloaterContainer;
+class LLConversationViewSession;
+class LLConversationViewParticipant;
 
 // Implementation of conversations list session widgets
 
@@ -53,18 +55,34 @@ public:
 	virtual ~LLConversationViewSession( void ) { }
 	virtual void selectItem();	
 	void setVisibleIfDetached(BOOL visible);
+	LLConversationViewParticipant* findParticipant(const LLUUID& participant_id);
+
+	virtual void refresh();
 };
 
 // Implementation of conversations list participant (avatar) widgets
 
 class LLConversationViewParticipant : public LLFolderViewItem
 {
+public:
+	struct Params : public LLInitParam::Block<Params, LLFolderViewItem::Params>
+	{
+		Optional<LLUUID>	participant_id;
+		
+		Params();
+	};
+	
 protected:
 	friend class LLUICtrlFactory;
-	LLConversationViewParticipant( const LLFolderViewItem::Params& p );
+	LLConversationViewParticipant( const Params& p );
 	
 public:
 	virtual ~LLConversationViewParticipant( void ) { }
+
+	bool hasSameValue(const LLUUID& uuid) { return (uuid == mUUID); }
+
+private:
+	LLUUID mUUID;		// UUID of the participant
 };
 
 #endif // LL_LLCONVERSATIONVIEW_H

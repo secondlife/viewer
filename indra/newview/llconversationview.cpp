@@ -79,12 +79,46 @@ void LLConversationViewSession::setVisibleIfDetached(BOOL visible)
 	}
 }
 
+LLConversationViewParticipant* LLConversationViewSession::findParticipant(const LLUUID& participant_id)
+{
+	// This is *not* a general tree parsing algorithm. We search only in the mItems list
+	// assuming there is no mFolders which makes sense for sessions (sessions don't contain
+	// sessions).
+	LLConversationViewParticipant* participant = NULL;
+	items_t::const_iterator iter;
+	for (iter = getItemsBegin(); iter != getItemsEnd(); iter++)
+	{
+		participant = dynamic_cast<LLConversationViewParticipant*>(*iter);
+		if (participant->hasSameValue(participant_id))
+		{
+			break;
+		}
+	}
+	return (iter == getItemsEnd() ? NULL : participant);
+}
+
+void LLConversationViewSession::refresh()
+{
+	// Refresh the session view from its model data
+	// LLConversationItemSession* vmi = dynamic_cast<LLConversationItemSession*>(getViewModelItem());
+	
+	// Note: for the moment, all that needs to be done is done by LLFolderViewItem::refresh()
+	
+	// Do the regular upstream refresh
+	LLFolderViewFolder::refresh();
+}
+
 //
 // Implementation of conversations list participant (avatar) widgets
 //
 
-LLConversationViewParticipant::LLConversationViewParticipant( const LLFolderViewItem::Params& p ):
-	LLFolderViewItem(p)
+LLConversationViewParticipant::Params::Params() :	
+	participant_id()
+{}
+
+LLConversationViewParticipant::LLConversationViewParticipant( const LLConversationViewParticipant::Params& p ):
+	LLFolderViewItem(p),
+	mUUID(p.participant_id)
 {
 }
 
