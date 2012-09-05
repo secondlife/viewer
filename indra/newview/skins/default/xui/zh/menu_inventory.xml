@@ -83,5 +83,7 @@
 	<menu_item_call label="編輯" name="Wearable Edit"/>
 	<menu_item_call label="添加" name="Wearable Add"/>
 	<menu_item_call label="脫下" name="Take Off"/>
+	<menu_item_call label="複製到商家發件匣" name="Merchant Copy"/>
+	<menu_item_call label="移到商家發件匣" name="Merchant Move"/>
 	<menu_item_call label="-- 無選項 --" name="--no options--"/>
 </menu>

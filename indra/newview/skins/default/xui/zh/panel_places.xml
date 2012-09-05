@@ -24,7 +24,7 @@
 						<menu_button name="overflow_btn" tool_tip="顯示額外選項"/>
 					</layout_panel>
 				</layout_stack>
-				<layout_stack name="bottom_bar_ls3">
+				<layout_stack name="bottom_bar_profile_ls">
 					<layout_panel name="profile_btn_lp">
 						<button label="檔案" name="profile_btn" tool_tip="顯示地點檔案"/>
 					</layout_panel>
