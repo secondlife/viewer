@@ -5763,7 +5763,7 @@ BOOL LLVOAvatar::loadMeshNodes()
 
 		// If this isn't set to white (1.0), avatars will *ALWAYS* be darker than their surroundings.
 		// Do not touch!!!
-		mesh->setColor( 1.0f, 1.0f, 1.0f, 1.0f );
+		mesh->setColor( LLColor4::white );
 
 		LLPolyMesh *poly_mesh = NULL;
 
@@ -6503,7 +6503,7 @@ void LLVOAvatar::onGlobalColorChanged(const LLTexGlobalColor* global_color, BOOL
 			LLColor4 color = mTexHairColor->getColor();
 			for (U32 i = 0; i < mBakedTextureDatas[BAKED_HAIR].mMeshes.size(); i++)
 			{
-				mBakedTextureDatas[BAKED_HAIR].mMeshes[i]->setColor( color.mV[VX], color.mV[VY], color.mV[VZ], color.mV[VW] );
+				mBakedTextureDatas[BAKED_HAIR].mMeshes[i]->setColor( color );
 			}
 		}
 	} 
@@ -6764,6 +6764,10 @@ void LLVOAvatar::updateMeshTextures()
 			for (U32 k=0; k < mBakedTextureDatas[i].mMeshes.size(); k++)
 			{
 				mBakedTextureDatas[i].mMeshes[k]->setTexture( baked_img );
+				if (gSavedSettings.getBOOL("DebugAvatarCompositeBaked"))
+				{
+					mBakedTextureDatas[i].mMeshes[k]->setColor(LLColor4::red);
+				}
 			}
 		}
 		else if (!mUseLocalAppearance && is_layer_baked[i])
@@ -6794,6 +6798,10 @@ void LLVOAvatar::updateMeshTextures()
 			for (U32 k=0; k < mBakedTextureDatas[i].mMeshes.size(); k++)
 			{
 				mBakedTextureDatas[i].mMeshes[k]->setLayerSet( mBakedTextureDatas[i].mTexLayerSet );
+				if (gSavedSettings.getBOOL("DebugAvatarCompositeBaked"))
+				{
+					mBakedTextureDatas[i].mMeshes[k]->setColor( LLColor4::yellow );
+				}
 			}
 		}
 	}
@@ -6807,7 +6815,7 @@ void LLVOAvatar::updateMeshTextures()
 		LLViewerTexture* hair_img = getImage( TEX_HAIR, 0 );
 		for (U32 i = 0; i < mBakedTextureDatas[BAKED_HAIR].mMeshes.size(); i++)
 		{
-			mBakedTextureDatas[BAKED_HAIR].mMeshes[i]->setColor( color.mV[VX], color.mV[VY], color.mV[VZ], color.mV[VW] );
+			mBakedTextureDatas[BAKED_HAIR].mMeshes[i]->setColor( color );
 			mBakedTextureDatas[BAKED_HAIR].mMeshes[i]->setTexture( hair_img );
 		}
 	} 
@@ -7721,6 +7729,10 @@ void LLVOAvatar::useBakedTexture( const LLUUID& id )
 			for (U32 k = 0; k < mBakedTextureDatas[i].mMeshes.size(); k++)
 			{
 				mBakedTextureDatas[i].mMeshes[k]->setTexture( image_baked );
+				if (gSavedSettings.getBOOL("DebugAvatarCompositeBaked"))
+				{
+					mBakedTextureDatas[i].mMeshes[k]->setColor( LLColor4::green );
+				}
 			}
 			if (mBakedTextureDatas[i].mTexLayerSet)
 			{
@@ -7741,7 +7753,7 @@ void LLVOAvatar::useBakedTexture( const LLUUID& id )
 			{
 				for (U32 i = 0; i < mBakedTextureDatas[BAKED_HAIR].mMeshes.size(); i++)
 				{
-					mBakedTextureDatas[BAKED_HAIR].mMeshes[i]->setColor( 1.f, 1.f, 1.f, 1.f );
+					mBakedTextureDatas[BAKED_HAIR].mMeshes[i]->setColor( LLColor4::white );
 				}
 			}
 		}

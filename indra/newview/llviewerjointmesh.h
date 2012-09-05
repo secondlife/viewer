@@ -99,6 +99,7 @@ public:
 
 	// Sets the shape color
 	void setColor( F32 red, F32 green, F32 blue, F32 alpha );
+	void setColor( const LLColor4& color );
 
 	// Sets the shininess
 	void setSpecular( const LLColor4& color, F32 shiny ) { /*mSpecular = color;*/ mShiny = shiny; };
