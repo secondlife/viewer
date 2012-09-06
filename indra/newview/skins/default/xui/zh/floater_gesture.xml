@@ -7,17 +7,17 @@
 		（播放中）
 	</floater.string>
 	<floater.string name="copy_name">
-		Copy of [COPY_NAME]
+		[COPY_NAME] 複本
 	</floater.string>
 	<scroll_list name="gesture_list">
 		<scroll_list.columns label="名稱" name="name"/>
 		<scroll_list.columns label="聊天" name="trigger"/>
-		<scroll_list.columns label="Key" name="shortcut"/>
+		<scroll_list.columns label="鍵" name="shortcut"/>
 	</scroll_list>
 	<panel label="bottom_panel" name="bottom_panel">
 		<menu_button name="gear_btn" tool_tip="更多選項"/>
 		<button name="new_gesture_btn" tool_tip="製作新姿勢e"/>
-		<button name="activate_btn" tool_tip="Activate/Deactivate selected gesture"/>
+		<button name="activate_btn" tool_tip="啟動/停止所選姿勢"/>
 		<button name="del_btn" tool_tip="刪除這個姿勢"/>
 	</panel>
 	<button label="編輯" name="edit_btn"/>

@@ -294,6 +294,35 @@ void LLDrawPoolTerrain::renderShadow(S32 pass)
 	//glCullFace(GL_BACK);
 }
 
+
+void LLDrawPoolTerrain::drawLoop()
+{
+	if (!mDrawFace.empty())
+	{
+		for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
+			 iter != mDrawFace.end(); iter++)
+		{
+			LLFace *facep = *iter;
+
+			LLMatrix4* model_matrix = &(facep->getDrawable()->getRegion()->mRenderMatrix);
+
+			if (model_matrix != gGLLastMatrix)
+			{
+				llassert(gGL.getMatrixMode() == LLRender::MM_MODELVIEW);
+				gGLLastMatrix = model_matrix;
+				gGL.loadMatrix(gGLModelView);
+				if (model_matrix)
+				{
+					gGL.multMatrix((GLfloat*) model_matrix->mMatrix);
+				}
+				gPipeline.mMatrixOpCount++;
+			}
+
+			facep->renderIndexed();
+		}
+	}
+}
+
 void LLDrawPoolTerrain::renderFullShader()
 {
 	// Hack! Get the region that this draw pool is rendering from!
@@ -566,7 +595,8 @@ void LLDrawPoolTerrain::renderFull4TU()
 	gGL.matrixMode(LLRender::MM_TEXTURE);
 	gGL.loadIdentity();
 	gGL.translatef(-1.f, 0.f, 0.f);
-  
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
+
 	// Set alpha texture and do lighting modulation
 	gGL.getTexUnit(3)->setTextureColorBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_PREV_COLOR, LLTexUnit::TBS_VERT_COLOR);
 	gGL.getTexUnit(3)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_ALPHA);
@@ -714,6 +744,7 @@ void LLDrawPoolTerrain::renderFull2TU()
 	gGL.matrixMode(LLRender::MM_TEXTURE);
 	gGL.loadIdentity();
 	gGL.translatef(-1.f, 0.f, 0.f);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 
 	// Care about alpha only
 	gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_COLOR);
@@ -753,6 +784,7 @@ void LLDrawPoolTerrain::renderFull2TU()
 	gGL.matrixMode(LLRender::MM_TEXTURE);
 	gGL.loadIdentity();
 	gGL.translatef(-2.f, 0.f, 0.f);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 
 	// Care about alpha only
 	gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_COLOR);

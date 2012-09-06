@@ -26,6 +26,7 @@
 		<menu_item_call label="Tercihler..." name="Preferences"/>
 		<menu_item_call label="Araç çubuğu düğmeleri..." name="Toolbars"/>
 		<menu_item_call label="Tüm denetimleri sakla" name="Hide UI"/>
+		<menu_item_check label="BÜG Aksesuarlarını Göster" name="Show HUD Attachments"/>
 		<menu_item_call label="[APP_NAME]&apos;den Çık" name="Quit"/>
 	</menu>
 	<menu label="İletişim Kur" name="Communicate">
@@ -37,6 +38,7 @@
 		<menu_item_call label="Arkadaşlar" name="My Friends"/>
 		<menu_item_call label="Gruplar" name="My Groups"/>
 		<menu_item_call label="Yakındaki kişiler" name="Active Speakers"/>
+		<menu_item_call label="Engelleme Listesi" name="Block List"/>
 	</menu>
 	<menu label="Dünya" name="World">
 		<menu_item_call label="Bu Yeri Yer İmlerine Ekle" name="Create Landmark Here"/>
@@ -122,6 +124,11 @@
 			<menu_item_call label="Komut Dosyalarını Çalışıyor Olarak Ayarla" name="Set Scripts to Running"/>
 			<menu_item_call label="Komut Dosyalarını Çalışmıyor Olarak Ayarla" name="Set Scripts to Not Running"/>
 		</menu>
+		<menu label="Yol bulma" name="Pathfinding">
+			<menu_item_call label="Bağlantı kümeleri..." name="pathfinding_linksets_menu_item"/>
+			<menu_item_call label="Karakterler..." name="pathfinding_characters_menu_item"/>
+			<menu_item_call label="Görüntüleme / test..." name="pathfinding_console_menu_item"/>
+		</menu>
 		<menu label="Seçenklr." name="Options">
 			<menu_item_check label="Gelişmiş İzinleri Göster" name="DebugPermissions"/>
 			<menu_item_check label="Sadece Nesnelerimi Seç" name="Select Only My Objects"/>
@@ -172,7 +179,6 @@
 			<menu_item_check label="Parçacıkları Gizle" name="Hide Particles"/>
 			<menu_item_check label="Seçilenleri Gizle" name="Hide Selected"/>
 			<menu_item_check label="Saydamı Vurgula" name="Highlight Transparent"/>
-			<menu_item_check label="BÜG Aksesuarlarını Göster" name="Show HUD Attachments"/>
 			<menu_item_check label="Fare Üzerinden Görünüm Artı İşaretini Göster" name="ShowCrosshairs"/>
 		</menu>
 		<menu label="İşleme Türleri" name="Rendering Types">
@@ -225,11 +231,10 @@
 			<menu_item_check label="Doku Konsolu" name="Texture Console"/>
 			<menu_item_check label="Hata Ayıklama Konsolu" name="Debug Console"/>
 			<menu_item_call label="Bildirimler Konsolu" name="Notifications"/>
-			<menu_item_check label="Doku Büyüklüğü Konsolu" name="Texture Size"/>
-			<menu_item_check label="Doku Kategorisi Konsolu" name="Texture Category"/>
 			<menu_item_check label="Hızlı Zamanlayıcılar" name="Fast Timers"/>
 			<menu_item_check label="Bellek" name="Memory"/>
 			<menu_item_check label="Sahne İstatistikleri" name="Scene Statistics"/>
+			<menu_item_call label="Doku Alınması Hata Ayıklama Konsolu" name="Texture Fetch Debug Console"/>
 			<menu_item_call label="Hata Ayıklama Konsoluna giden Bölge Bilgisi" name="Region Info to Debug Console"/>
 			<menu_item_call label="Hata Ayıklama Konsoluna giden Grup Bilgisi" name="Group Info to Debug Console"/>
 			<menu_item_call label="Hata Ayıklama Konsoluna giden Özellikler Bilgisi" name="Capabilities Info to Debug Console"/>
@@ -287,6 +292,12 @@
 			<menu_item_check label="İşleme Karmaşıklığı" name="rendercomplexity"/>
 			<menu_item_check label="Aksesuar Bayt Büyüklüğü" name="attachment bytes"/>
 			<menu_item_check label="Şekillendir" name="Sculpt"/>
+			<menu label="Doku Yoğunluğu" name="Texture Density">
+				<menu_item_check label="Yok" name="None"/>
+				<menu_item_check label="Mevcut" name="Current"/>
+				<menu_item_check label="Arzulanan" name="Desired"/>
+				<menu_item_check label="Tam" name="Full"/>
+			</menu>
 		</menu>
 		<menu label="İşleme" name="Rendering">
 			<menu_item_check label="Eksenler" name="Axes"/>
@@ -304,7 +315,6 @@
 			<menu_item_check label="Animasyon Dokuları" name="Animation Textures"/>
 			<menu_item_check label="Dokuları Devre Dışı Bırak" name="Disable Textures"/>
 			<menu_item_check label="Tam Çöz. Dokular" name="Rull Res Textures"/>
-			<menu_item_check label="Dokuları Denetle" name="Audit Textures"/>
 			<menu_item_check label="Doku Atlas (deneysel)" name="Texture Atlas"/>
 			<menu_item_check label="Eklenmiş Işıkları İşle" name="Render Attached Lights"/>
 			<menu_item_check label="Eklenmiş Parçacıkları İşle" name="Render Attached Particles"/>
@@ -371,7 +381,6 @@
 				<menu_item_call label="Karakter Geometrisini Aç/Kapa" name="Toggle Character Geometry"/>
 				<menu_item_call label="Test Erkeği" name="Test Male"/>
 				<menu_item_call label="Test Dişisi" name="Test Female"/>
-				<menu_item_call label="PG&apos;yi Aç/Kapa" name="Toggle PG"/>
 				<menu_item_check label="Avatar Seçimine İzin Ver" name="Allow Select Avatar"/>
 			</menu>
 			<menu_item_call label="Parametreleri Varsayılana Zorla" name="Force Params to Default"/>

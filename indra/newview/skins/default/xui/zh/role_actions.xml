@@ -1,73 +1,73 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <role_actions>
-	<action_set description="These Abilities include powers to add and remove group Members, and allow new Members to join without an invitation." name="Membership">
-		<action description="邀請他人加入這個群組" longdescription="邀請他人加入這個群組，請按下於角色區段中的成員頁籤中的 &apos;邀請&apos; 按鈕。" name="member invite" value="1"/>
-		<action description="將會員由這個群組中踢出" longdescription="Eject Members from this Group using the &apos;Eject&apos; button in the Roles section &gt; Members tab. An Owner can eject anyone except another Owner. If you&apos;re not an Owner, a Member can be ejected from a group if, and only if, they&apos;re only in the Everyone Role, and NO other Roles. To remove Members from Roles, you need to have the &apos;Remove Members from Roles&apos; Ability." name="member eject" value="2"/>
-		<action description="Toggle &apos;Open Enrollment&apos; and change &apos;Enrollment fee&apos;" longdescription="Toggle &apos;Open Enrollment&apos; to let new Members join without an invitation, and change the &apos;Enrollment fee&apos; in the General section." name="member options" value="3"/>
+	<action_set description="這些能力包括新增或移除群組成員和允許新成員不受邀即可加入群組的等權力。" name="Membership">
+		<action description="邀請他人加入這個群組" longdescription="欲邀請他人加入這個群組，請按下角色欄下的成員頁籤中的「邀請」按鈕。" name="member invite" value="1"/>
+		<action description="將會員由這個群組中踢出" longdescription="欲將成員從群組踢出，請按下角色欄下的成員頁籤中的「踢出」按鈕。 所有人可踢出任何不具所有人角色的人。 如果你不是所有人，一位成員只在他僅屬於「任何人」角色且沒有其他角色的情況下被踢出群組。 欲卸除成員的角色，你必須有「卸除成員角色」的能力。" name="member eject" value="2"/>
+		<action description="切換「免費自由加入」設定，更改「加入費」。" longdescription="切換「免費自由加入」設定，讓成員不受邀也可加入，並在基本設定欄更改「加入費」。" name="member options" value="3"/>
 	</action_set>
-	<action_set description="These Abilities include powers to add, remove, and change group Roles, add and remove Members in Roles, and assign Abilities to Roles." name="Roles">
-		<action description="創立一個新角色" longdescription="創立一個新角色於角色區段 &gt; 角色頁籤。" name="role create" value="4"/>
-		<action description="刪除角色" longdescription="Delete Roles in the Roles section &gt; Roles tab." name="role delete" value="5"/>
-		<action description="Change Role names, titles, descriptions, and whether Role members are publicly revealed" longdescription="Change Role names, titles, descriptions, and whether Role members are publicly revealed. This is done at the bottom of the the Roles section &gt; Roles tab after selecting a Role." name="role properties" value="6"/>
-		<action description="Assign Members to Assigner&apos;s Roles" longdescription="Assign Members to Roles in the list of Assigned Roles (Roles section &gt; Members tab). A Member with this Ability can only add Members to a Role that the assigner is already in." name="role assign member limited" value="7"/>
-		<action description="Assign Members to Any Role" longdescription="Assign Members to Any Role in the list of Assigned Roles (Roles section &gt; Members tab). *WARNING* Any Member in a Role with this Ability can assign themselves--and any other non-Owner Member--to Roles that have more powers than they currently have, potentially elevating themselves to near-Owner power. Be sure you know what you&apos;re doing before assigning this Ability." name="role assign member" value="8"/>
-		<action description="由角色中移除成員" longdescription="Remove Members from Roles in the list of Assigned Roles (Roles section &gt; Members tab). Owners can&apos;t be removed." name="role remove member" value="9"/>
-		<action description="Assign and Remove Abilities in Roles" longdescription="Assign and Remove Abilities for each Role in the list of Allowed Abilities (Roles section &gt; Roles tab). *WARNING* Any Member in a Role with this Ability can assign themselves--and any other non-Owner Member--all Abilities, potentially elevating themselves to near-Owner power. Be sure you know what you&apos;re doing before assigning this Ability." name="role change actions" value="10"/>
+	<action_set description="這些能力包括新增、移除、更改群組角色，新增或移除成員的角色，和為角色設定能力等權力。" name="Roles">
+		<action description="創立一個新角色" longdescription="到角色欄的角色頁籤，可以建立新角色。" name="role create" value="4"/>
+		<action description="刪除角色" longdescription="到角色欄的角色頁籤，可以刪除角色。" name="role delete" value="5"/>
+		<action description="變更角色名稱、頭銜、描述，設定角色的成員名單是否公開" longdescription="變更角色名稱、頭銜、描述，設定角色的成員名單是否公開。 選取一個角色後，可到角色欄底下的角色頁籤完成這動作。" name="role properties" value="6"/>
+		<action description="賦予成員「指派者」角色" longdescription="從已知的指派角色中選擇若干，賦予給成員（角色欄 &gt; 成員頁籤）。 有這能力的成員，只能把他自己已身負的角色賦予給別的成員。" name="role assign member limited" value="7"/>
+		<action description="賦予成員「任何人」角色" longdescription="從已知的指派角色中，賦予給成員「任何人」角色（角色欄 &gt; 成員頁籤）。 *警告* 任何身負具這能力的角色的成員，都可以把某些角色賦予自己或任何不是所有人的成員，因此使自己或別人得到比現在更多的權力，最終可能擁有近似「所有人」的權力。 賦予這項能力之前，敬請慎重考慮。" name="role assign member" value="8"/>
+		<action description="由角色中移除成員" longdescription="從已知的指派角色中選擇，將成員卸除該角色（角色欄 &gt; 成員頁籤）。 所有人角色不得被卸除。" name="role remove member" value="9"/>
+		<action description="設定或卸除角色能力" longdescription="從允許的能力清單中選擇，為每一角色設定或卸除該能力（角色欄 &gt; 角色頁籤）。 *警告* 任何身負具有這能力的角色的成員，都可以將所有能力賦予自己和任何其他不是所有人的人，因此讓自己或他人提升為近似「所有人」權力的層級。 賦予這項能力之前，敬請慎重考慮。" name="role change actions" value="10"/>
 	</action_set>
-	<action_set description="These Abilities include powers to modify this group&apos;s identity, such as changing public visibility, charter, and insignia." name="Group Identity">
-		<action description="Change Charter, Insignia, and &apos;Show in search&apos;" longdescription="Change Charter, Insignia, and &apos;Show in search&apos;. This is done in the General section." name="group change identity" value="11"/>
+	<action_set description="這些能力包括有權修改群組身份，例如更改公開程度、規章和徽章。" name="Group Identity">
+		<action description="更改規章、徽章，設定是否「顯示於搜尋結果」。" longdescription="更改規章、徽章，設定是否「顯示於搜尋結果」。 這可在「基本資料」欄設定。" name="group change identity" value="11"/>
 	</action_set>
-	<action_set description="These Abilities include powers to deed, modify, and sell land in this group&apos;s land holdings. To get to the About Land window, right-click the ground and select &apos;About Land&apos;, or click the &apos;i&apos; icon in the Navigation Bar." name="Parcel Management">
-		<action description="讓渡土地或購買土地給群組" longdescription="Deed land and buy land for group. This is done in About Land &gt; General tab." name="land deed" value="12"/>
-		<action description="Abandon land to Governor Linden" longdescription="Abandon land to Governor Linden. *WARNING* Any Member in a Role with this Ability can abandon group-owned land in About Land &gt; General tab, reverting it to Linden ownership without a sale! Be sure you know what you&apos;re doing before assigning this Ability." name="land release" value="13"/>
-		<action description="Set land for sale info" longdescription="Set land for sale info. *WARNING* Any Member in a Role with this Ability can sell group-owned land in About Land &gt; General tab as they wish! Be sure you know what you&apos;re doing before assigning this Ability." name="land set sale info" value="14"/>
-		<action description="Subdivide and join parcels" longdescription="Subdivide and join parcels. This is done by right-clicking the ground, &apos;Edit Terrain&apos;, and dragging your mouse on the land to make a selection. To subdivide, select what you want to split and click &apos;Subdivide&apos;. To join, select two or more contiguous parcels and click &apos;Join&apos;." name="land divide join" value="15"/>
+	<action_set description="這些能力包括有權讓渡、修改或出售本群組擁有的土地。 欲前往「土地資料」視窗，請在地面任一處點按右鍵，選擇「土地資料」，或點按導覽列的「i」圖示。" name="Parcel Management">
+		<action description="讓渡土地或購買土地給群組" longdescription="讓渡土地或為群組購地。 這可在「土地資料」&gt; 基本頁籤完成。" name="land deed" value="12"/>
+		<action description="放棄土地，將所有權轉給 Governor Linden（林登總長）" longdescription="放棄土地，將所有權轉給 Governor Linden（林登總長）。 *警告* 任何身負具有這能力的角色的成員，都可以到「土地資料」&gt; 基本頁籤放棄任何群組所有的土地，不經出售就將所有權轉給 Linden！ 賦予這項能力之前，敬請慎重考慮。" name="land release" value="13"/>
+		<action description="設定待售土地資訊" longdescription="設定待售土地資訊。 *警告* 任何身負具有這能力的角色的成員，都可以到「土地資料」&gt; 基本頁籤任意出售群組所有的土地！ 賦予這項能力之前，敬請慎重考慮。" name="land set sale info" value="14"/>
+		<action description="分割或合併地段" longdescription="分割或合併地段。 欲進行此動作，請在地面任一處點按右鍵，選擇「編輯地形」，並在土地上拖曳滑鼠選取一個範圍。 要進行分割，做好選擇後點按「分割」。 要合併，選取至少兩塊相鄰地段，再點選「合併」。" name="land divide join" value="15"/>
 	</action_set>
-	<action_set description="These Abilities include powers to change the parcel name and publish settings, Find directory visibility, and landing point &amp; TP routing options." name="Parcel Identity">
-		<action description="Toggle &apos;Show Place in Search&apos; and set category" longdescription="Toggle &apos;Show Place in Search&apos; and setting a parcel&apos;s category in About Land &gt; Options tab." name="land find places" value="17"/>
-		<action description="Change parcel name, description, and &apos;Show Place in Search&apos; settings" longdescription="Change parcel name, description, and &apos;Show Place in Search&apos; settings. This is done in About Land &gt; Options tab." name="land change identity" value="18"/>
-		<action description="Set landing point and set teleport routing" longdescription="On a group-owned parcel, Members in a Role with this Ability can set a landing point to specify where incoming teleports arrive, and also set teleport routing for further control. This is done in About Land &gt; Options tab." name="land set landing point" value="19"/>
+	<action_set description="這些能力包括可更改地段名稱和發佈設定、設定是否公開到搜尋結果、設定登陸地點和瞬間傳送繞路選項。" name="Parcel Identity">
+		<action description="切換「將地點顯示在搜尋結果」設定，並選定類別" longdescription="切換「將地點顯示在搜尋結果」設定，並在「土地資料」&gt; 選項頁籤設定地段類別。" name="land find places" value="17"/>
+		<action description="更改地段名稱、描述，和「將地點顯示在搜尋結果」設定。" longdescription="更改地段名稱、描述，和「將地點顯示在搜尋結果」設定。 這可在「土地資料」&gt; 選項頁籤完成。" name="land change identity" value="18"/>
+		<action description="設定登陸地點和瞬間傳送繞路設定。" longdescription="在群組所有的地段上，身負具此能力的成員，可以設定人們瞬間傳送進來時的登陸地點，和瞬間傳送的繞路選項。 這可在「土地資料」&gt; 選項頁籤完成。" name="land set landing point" value="19"/>
 	</action_set>
-	<action_set description="These Abilities include powers which affect parcel options, such as &apos;Create Objects&apos;, &apos;Edit Terrain&apos;, and music &amp; media settings." name="Parcel Settings">
-		<action description="Change music &amp; media settings" longdescription="Change streaming music and movie settings in About Land &gt; Media tab." name="land change media" value="20"/>
-		<action description="Toggle &apos;Edit Terrain&apos;" longdescription="Toggle &apos;Edit Terrain&apos;. *WARNING* About Land &gt; Options tab &gt; Edit Terrain allows anyone to terraform your land&apos;s shape, and place and move Linden plants. Be sure you know what you&apos;re doing before assigning this Ability. Editing terrain is toggled in About Land &gt; Options tab." name="land edit" value="21"/>
-		<action description="Toggle various About Land &gt; Options settings" longdescription="Toggle &apos;Safe (no damage)&apos;, &apos;Fly&apos;, and allow other Residents to: &apos;Edit Terrain&apos;, &apos;Build&apos;, &apos;Create Landmarks&apos;, and &apos;Run Scripts&apos; on group-owned land in About Land &gt; Options tab." name="land options" value="22"/>
+	<action_set description="這些能力包括有權更改地段選項，例如「新建物件」、「編輯地形」，和音樂、媒體設定等。" name="Parcel Settings">
+		<action description="更改音樂和媒體設定" longdescription="在「土地資料」&gt; 媒體頁籤更改串流音樂和影片設定。" name="land change media" value="20"/>
+		<action description="切換「編輯地形」設定" longdescription="切換「編輯地形」設定。 *警告* 「土地資料」&gt; 「選項」頁籤 &gt;「編輯地形」可允許任何人變更你的土地形狀，放置或移動 Linden 植物。 賦予這項能力之前，敬請慎重考慮。 編輯地形可在「土地資料」&gt; 選項頁籤做切換。" name="land edit" value="21"/>
+		<action description="切換各項「土地資料」&gt; 選項設定" longdescription="在「土地資料」&gt; 選項頁籤切換「安全（無傷害）」設定，並允許其他居民在群組所有土地上「編輯地形」、「建製」、「建立地標」、「執行腳本」。" name="land options" value="22"/>
 	</action_set>
-	<action_set description="These Abilities include powers which allow Members to bypass restrictions on group-owned parcels." name="Parcel Powers">
-		<action description="Always allow &apos;Edit Terrain&apos;" longdescription="Members in a Role with this Ability can edit terrain on a group-owned parcel, even if it&apos;s turned off in About Land &gt; Options tab." name="land allow edit land" value="23"/>
-		<action description="Always allow &apos;Fly&apos;" longdescription="Members in a Role with this Ability can fly on a group-owned parcel, even if it&apos;s turned off in About Land &gt; Options tab." name="land allow fly" value="24"/>
-		<action description="Always allow &apos;Create Objects&apos;" longdescription="Members in a Role with this Ability can create objects on a group-owned parcel, even if it&apos;s turned off in About Land &gt; Options tab." name="land allow create" value="25"/>
-		<action description="總是允許 &apos;創造地標&apos;" longdescription="Members in a Role with this Ability can landmark a group-owned parcel, even if it&apos;s turned off in About Land &gt; Options tab." name="land allow landmark" value="26"/>
-		<action description="Allow &apos;Set Home to Here&apos; on group land" longdescription="Members in a Role with this Ability can use World menu &gt; Landmarks &gt; Set Home to Here on a parcel deeded to this group." name="land allow set home" value="28"/>
-		<action description="Allow &apos;Event Hosting&apos; on group land" longdescription="Members in a Role with this Ability can select group owned parcels as venus when hosting an event." name="land allow host event" value="41"/>
+	<action_set description="這些能力包括可允許成員在群組所有地段上規避限制。" name="Parcel Powers">
+		<action description="固定允許「編輯地形」" longdescription="身負具此能力的角色的成員可以在群組所有地段上編輯地形，無論這功能在「土地資料」&gt; 選項頁籤裡是否被禁止。" name="land allow edit land" value="23"/>
+		<action description="固定允許「飛行」" longdescription="身負具此能力的角色的成員可以在群組所有地段上飛行，無論這能力是否在「土地資料」&gt; 選項頁籤裡被禁止。" name="land allow fly" value="24"/>
+		<action description="固定允許「新建物件」" longdescription="身負具此能力的角色的成員可以在群組所有地段上新建物件，無論這能力是否在「土地資料」&gt; 選項頁籤裡被禁止。" name="land allow create" value="25"/>
+		<action description="總是允許「新建地標」" longdescription="身負具此能力的角色的成員可以將群組所有的地段設為地標，無論這能力是否在「土地資料」&gt; 選項頁籤裡被禁止。" name="land allow landmark" value="26"/>
+		<action description="允許在群組所有土地上「將這裡設為我的家」" longdescription="身負具此能力的角色的成員，可以在讓渡給這群組的地段上使用「世界」選單 &gt; 地標 &gt; 「將這裡設為我的家」。" name="land allow set home" value="28"/>
+		<action description="允許在群組所有土地上「開辦活動」" longdescription="身負具這能力的角色的成員，可以選擇群組所有的地段作為開辦活動的場地。" name="land allow host event" value="41"/>
 	</action_set>
-	<action_set description="These Abilities include powers to allow or restrict access to group-owned parcels, including freezing and ejecting Residents." name="Parcel Access">
-		<action description="Manage parcel Access lists" longdescription="Manage parcel Access lists in About Land &gt; Access tab." name="land manage allowed" value="29"/>
-		<action description="Manage parcel Ban lists" longdescription="Manage parcel Ban lists in About Land &gt; Access tab." name="land manage banned" value="30"/>
-		<action description="Change parcel &apos;Sell passes to&apos; settings" longdescription="Change parcel &apos;Sell passes to&apos; settings in About Land &gt; Access tab." name="land manage passes" value="31"/>
-		<action description="將地段內的居民踢出及凍結" longdescription="Members in a Role with this Ability can handle an unwelcome Resident on a group-owned parcel by right-clicking them, then selecting &apos;Eject&apos; or &apos;Freeze&apos;." name="land admin" value="32"/>
+	<action_set description="這些能力包括可允許或限制人們出入群組所有的地段，包括把居民凍結或踢出。" name="Parcel Access">
+		<action description="管理地段出入許可名單" longdescription="在「土地資料」&gt; 出入許可頁籤管理地段的出入許可名單。" name="land manage allowed" value="29"/>
+		<action description="管理地段禁入名單" longdescription="在「土地資料」&gt; 出入許可頁籤管理地段的禁入名單。" name="land manage banned" value="30"/>
+		<action description="變更地段的「通行證出售對象」設定" longdescription="在「土地資料」&gt; 出入許可頁籤變更地段的「通行證出售對象」設定。" name="land manage passes" value="31"/>
+		<action description="將地段內的居民踢出及凍結" longdescription="身負具此能力的角色的成員，可以在群組所有地段上處置不受歡迎的居民，按右鍵加以「踢出」或「凍結」。" name="land admin" value="32"/>
 	</action_set>
-	<action_set description="These Abilities include powers to allow members to return objects and place and move Linden plants. This is useful for Members to clean up litter and do landscaping, but it should also be used with care, because there&apos;s no undo for returning objects." name="Parcel Content">
-		<action description="Return objects owned by group" longdescription="Return objects on group-owned parcels that are owned by the group in About Land &gt; Objects tab." name="land return group owned" value="48"/>
-		<action description="Return objects set to group" longdescription="Return objects on group-owned parcels that are set to the group in About Land &gt; Objects tab." name="land return group set" value="33"/>
-		<action description="退回非群組物件" longdescription="Return objects on group-owned parcels that are non-group in About Land &gt; Objects tab." name="land return non group" value="34"/>
-		<action description="Landscaping using Linden plants" longdescription="Landscaping ability to place and move Linden trees, plants, and grasses. These items can be found in your inventory&apos;s Library &gt; Objects folder, or they can be created via the Build menu." name="land gardening" value="35"/>
+	<action_set description="這些能力包括有權允許成員送返物件，或放置或移動 Linden 植物。 這能力的用處是讓成員清理一下土地，做一做景觀佈置，但必須小心使用，因為物件一旦被送返後即無法復原。" name="Parcel Content">
+		<action description="送返群組所有的物件" longdescription="在「土地資料」&gt; 物件頁籤送返位於群組所擁有地段上的群組所擁有物件。" name="land return group owned" value="48"/>
+		<action description="送返設給群組的物件" longdescription="在「土地資料」&gt; 物件頁籤送返位於群組所擁有地段的設給群組的物件。" name="land return group set" value="33"/>
+		<action description="退回非群組物件" longdescription="在「土地資料」&gt; 物件頁籤送返位於群組所擁有地段的非群組物件。" name="land return non group" value="34"/>
+		<action description="用 Linden 植物佈置景觀。" longdescription="允許放置或移動 Linden 樹種、草地和其他植物的景觀佈置能力。 這些物項在你收納區的資源庫 &gt; 物件資料夾可找到，你也可以透過「建製」選單加以新建。" name="land gardening" value="35"/>
 	</action_set>
-	<action_set description="These Abilities include powers to deed, modify, and sell group-owned objects. These changes are done in the Build Tools &gt; General tab. Right-click an object and Edit to see its settings." name="Object Management">
-		<action description="讓渡物件給群組" longdescription="Deed objects to group in the Build Tools &gt; General tab." name="object deed" value="36"/>
-		<action description="Manipulate (move, copy, modify) group-owned objects" longdescription="Manipulate (move, copy, modify) group-owned objects in the Build Tools &gt; General tab." name="object manipulate" value="38"/>
-		<action description="Set group-owned objects for sale" longdescription="Set group-owned objects for sale in the Build Tools &gt; General tab." name="object set sale" value="39"/>
+	<action_set description="這些能力包括有權讓渡、修改或出售本群組擁有的物件。 這些變更可在「建製工具」&gt; 基本頁籤完成。 對一個物件點按右鍵，選擇「編輯」即可察看其設定。" name="Object Management">
+		<action description="讓渡物件給群組" longdescription="在「建製工具」&gt; 基本頁籤將物件讓渡給群組。" name="object deed" value="36"/>
+		<action description="操縱（移動、複製、修改）群組所擁有物件" longdescription="在「建製工具」&gt; 基本頁籤操縱（移動、複製、修改）群組所擁有物件。" name="object manipulate" value="38"/>
+		<action description="設定出售群組所擁有物件" longdescription="在「建製工具」&gt; 基本頁籤設定出售群組所擁有物件。" name="object set sale" value="39"/>
 	</action_set>
-	<action_set description="These Abilities include powers which require Members to pay group liabilities and receive group dividends, and restrict access to group account history." name="Accounting">
-		<action description="Pay group liabilities and receive group dividends" longdescription="Members in a Role with this Ability will automatically pay group liabilities and receive group dividends. This means they will receive a portion of group-owned land sales which are distributed daily, as well as contribute towards things like parcel listing fees." name="accounting accountable" value="40"/>
+	<action_set description="這些能力包括有權要求成員支付群組開銷、收取群組利息，限制群組帳號歷史開放對象。" name="Accounting">
+		<action description="支付群組開銷，收取群組利息" longdescription="身負具這能力的角色的成員，將自動支付群組開銷並收取群組利息。 這表示他們將獲取群組所擁有土地出售後的部分收入，每日結算，同時並分攤地段刊登費等開銷。" name="accounting accountable" value="40"/>
 	</action_set>
-	<action_set description="These Abilities include powers to allow Members to send, receive, and view group Notices." name="Notices">
-		<action description="送出通知" longdescription="Members in a Role with this Ability can send Notices via the Group &gt; Notices section." name="notices send" value="42"/>
-		<action description="接收通知與察看過去通知" longdescription="Members in a Role with this Ability can receive Notices and view past Notices in Group &gt; Notices section." name="notices receive" value="43"/>
+	<action_set description="這些能力包括可允許成員發送、接收並察看群組通知。" name="Notices">
+		<action description="送出通知" longdescription="身負具這能力的角色的成員，可以到「群組」&gt; 通知欄發送通知。" name="notices send" value="42"/>
+		<action description="接收通知與察看過去通知" longdescription="身負具這能力的角色的成員，可以到「群組」&gt; 通知欄接收通知並察看過去的通知。" name="notices receive" value="43"/>
 	</action_set>
-	<action_set description="These Abilities include powers to allow or restrict access to group chat sessions and group voice chat." name="Chat">
-		<action description="加入群組聊天" longdescription="Members in a Role with this Ability can join group chat sessions, for text and voice." name="join group chat" value="16"/>
-		<action description="加入群組語音聊天" longdescription="Members in a Role with this Ability can join group voice chat sessions.  NOTE: The Join Group Chat ability is required to access the voice chat session." name="join voice chat" value="27"/>
-		<action description="適度成人內容的群組聊天" longdescription="Members in a Role with this Ability can control access and participation in group voice and text chat sessions." name="moderate group chat" value="37"/>
+	<action_set description="這些能力包括可允許或限制人們加入群組聊天會話和群組語音聊天。" name="Chat">
+		<action description="加入群組聊天" longdescription="身負具這能力的角色的成員，可以加入群組的文字或語音聊天會話。" name="join group chat" value="16"/>
+		<action description="加入群組語音聊天" longdescription="身負具這能力的角色的成員，可以加入群組的語音聊天會話。  注意：欲加入語音聊天會話，需有「加入群組聊天」能力。" name="join voice chat" value="27"/>
+		<action description="適度成人內容的群組聊天" longdescription="身負具這能力的角色的成員，可以控制誰可加入群組語音和文字聊天會話。" name="moderate group chat" value="37"/>
 	</action_set>
 </role_actions>

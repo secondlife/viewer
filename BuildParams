@@ -18,7 +18,7 @@ build_CYGWIN_Debug = false
 email_status_this_is_os = true
 
 # Limit extent of codeticket updates to revisions after...
-codeticket_since = 2.2.0-release
+codeticket_since = 3.3.0-release
 
 # ========================================
 # Viewer Development
@@ -43,18 +43,20 @@ integration_viewer-development.viewer_channel = "Second Life Development"
 integration_viewer-development.login_channel = "Second Life Development"
 integration_viewer-development.build_viewer_update_version_manager = false
 integration_viewer-development.email = viewer-development-builds@lists.secondlife.com
-integration_viewer-development.build_enforce_coding_policy = true
-integration_viewer-development.codeticket_add_context = true
+integration_viewer-development.build_enforce_coding_policy = false
+integration_viewer-development.codeticket_add_context = false
 
 viewer-beta.viewer_channel = "Second Life Beta Viewer"
 viewer-beta.login_channel = "Second Life Beta Viewer"
 viewer-beta.build_debug_release_separately = true
 viewer-beta.build_viewer_update_version_manager = true
+viewer-beta.codeticket_add_context = false
 
 viewer-release.viewer_channel = "Second Life Release"
 viewer-release.login_channel = "Second Life Release"
 viewer-release.build_debug_release_separately = true
 viewer-release.build_viewer_update_version_manager = true
+viewer-release.codeticket_add_context = false
 
 # ========================================
 # mesh-development
@@ -123,35 +125,16 @@ viewer-adult-check.build_debug_release_separately = true
 viewer-adult-check.build_CYGWIN_Debug = false
 viewer-adult-check.build_viewer_update_version_manager = false
 
-# ================
-# oz
-# ================
+# ========================================
+# viewer-pathfinding
+# ========================================
 
-Snowstorm_viewer-project-review.build_debug_release_separately = true
-Snowstorm_viewer-project-review.codeticket_add_context = true
-Snowstorm_viewer-project-review.viewer_channel = "Project Viewer - Snowstorm Team"
-Snowstorm_viewer-project-review.login_channel = "Project Viewer - Snowstorm Team"
-Snowstorm_viewer-project-review.codeticket_add_context = true
-
-oz_viewer-devreview.build_debug_release_separately = true
-oz_viewer-devreview.codeticket_add_context = false
-oz_viewer-devreview.build_enforce_coding_policy = true
-oz_viewer-devreview.email = oz@lindenlab.com
-
-oz_viewer-trial.build_debug_release_separately = true
-oz_viewer-trial.codeticket_add_context = false
-oz_viewer-trial.build_enforce_coding_policy = true
-oz_viewer-trial.email = oz@lindenlab.com
-
-oz_viewer-beta-review.build_debug_release_separately = true
-oz_viewer-beta-review.codeticket_add_context = false
-oz_viewer-beta-review.viewer_channel = "Second Life Beta Viewer"
-oz_viewer-beta-review.login_channel = "Second Life Beta Viewer"
-oz_viewer-beta-review.email = oz@lindenlab.com
-
-oz_project-7.build_debug_release_separately = true
-oz_project-7.codeticket_add_context = false
-oz_project-7.email = "sldev@catznip.com oz@lindenlab.com"
+viewer-pathfinding.viewer_channel = "Project Viewer - Pathfinding"
+viewer-pathfinding.login_channel = "Project Viewer - Pathfinding"
+viewer-pathfinding.viewer_grid = agni
+viewer-pathfinding.build_debug_release_separately = true
+viewer-pathfinding.build_CYGWIN_Debug = false
+viewer-pathfinding.build_viewer_update_version_manager = false
 
 # =================================================================
 # asset delivery 2010 projects

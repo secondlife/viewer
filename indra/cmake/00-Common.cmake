@@ -51,6 +51,7 @@ if (WINDOWS)
   set(CMAKE_CXX_FLAGS_RELEASE
       "${CMAKE_CXX_FLAGS_RELEASE} ${LL_CXX_FLAGS} /O2 /Zi /MD /MP /Ob2 -D_SECURE_STL=0 -D_HAS_ITERATOR_DEBUGGING=0"
       CACHE STRING "C++ compiler release options" FORCE)
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE")
 
   set(CMAKE_CXX_STANDARD_LIBRARIES "")
   set(CMAKE_C_STANDARD_LIBRARIES "")
@@ -69,6 +70,7 @@ if (WINDOWS)
       /Oy-
       /Zc:wchar_t-
       /arch:SSE2
+      /fp:fast
       )
      
   # Are we using the crummy Visual Studio KDU build workaround?
@@ -205,6 +207,10 @@ if (DARWIN)
   # NOTE: it's critical to have both CXX_FLAGS and C_FLAGS covered.
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O0 ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
   set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O0 ${CMAKE_C_FLAGS_RELWITHDEBINFO}")
+  if (XCODE_VERSION GREATER 4.2)
+    set(ENABLE_SIGNING TRUE)
+    set(SIGNING_IDENTITY "Developer ID Application: Linden Research, Inc.")
+  endif (XCODE_VERSION GREATER 4.2)
 endif (DARWIN)
 
 

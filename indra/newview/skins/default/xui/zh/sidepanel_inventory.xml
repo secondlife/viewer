@@ -7,10 +7,10 @@
 					<button label="檔案" name="info_btn" tool_tip="顯示物件檔案"/>
 				</layout_panel>
 				<layout_panel name="share_btn_lp">
-					<button label="分享" name="share_btn" tool_tip="Share an inventory item"/>
+					<button label="分享" name="share_btn" tool_tip="分享一個收納區物品"/>
 				</layout_panel>
 				<layout_panel name="shop_btn_lp">
-					<button label="Shop" name="shop_btn" tool_tip="Open Marketplace webpage"/>
+					<button label="購物" name="shop_btn" tool_tip="開啟 Marketplace 購物市集網頁"/>
 					<button label="穿上" name="wear_btn" tool_tip="穿上所選擇的裝扮"/>
 					<button label="播放" name="play_btn"/>
 					<button label="瞬間傳送" name="teleport_btn" tool_tip="瞬間傳送到所選的區域"/>

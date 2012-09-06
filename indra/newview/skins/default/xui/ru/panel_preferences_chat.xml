@@ -29,5 +29,7 @@
 	<check_box label="Текстовые чаты" name="EnableIMChatPopups" tool_tip="Отображать всплывающие уведомления при получении IM-сообщений"/>
 	<spinner label="Время отображения всплывающих реплик:" name="nearby_toasts_lifetime"/>
 	<spinner label="Время затухания всплывающих реплик:" name="nearby_toasts_fadingtime"/>
-	<button label="Настройки перевода чата" name="ok_btn"/>
+	<button label="Перевод..." name="ok_btn"/>
+	<button label="Автозамена..." name="autoreplace_showgui"/>
+	<button label="Проверка правописания..." name="spellcheck_showgui"/>
 </panel>

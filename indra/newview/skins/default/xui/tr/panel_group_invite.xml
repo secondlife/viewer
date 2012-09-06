@@ -9,6 +9,9 @@
 	<panel.string name="already_in_group">
 		Seçtiğiniz bazı Sakinler zaten grupta yer alıyor, bu yüzden bunlara davetiye gönderilmedi.
 	</panel.string>
+	<panel.string name="invite_selection_too_large">
+		Gönderilmeyen Grup Davetiyeleri: Çok fazla Sakin seçilmiş. Grup Davetiyelerinde talep başına 100 sınırı vardır.
+	</panel.string>
 	<text name="help_text">
 		Grubunuza davet etmek için birden fazla Sakin seçebilirsiniz. Başlamak için &quot;Sakin Seçiciyi Aç&quot; üzerine tıklayın.
 	</text>

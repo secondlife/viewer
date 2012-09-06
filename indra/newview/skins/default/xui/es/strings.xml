@@ -871,6 +871,9 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="ScriptQuestionCautionChatDenied">
 		A &apos;[OBJECTNAME]&apos;, un objeto propiedad de &apos;[OWNERNAME]&apos;, localizado en [REGIONNAME] con la posición [REGIONPOS], se le ha denegado el permiso para: [PERMISSIONS].
 	</string>
+	<string name="AdditionalPermissionsRequestHeader">
+		Si autorizas el acceso a tu cuenta, también permitirás al objeto:
+	</string>
 	<string name="ScriptTakeMoney">
 		Cogerle a usted dólares Linden (L$)
 	</string>
@@ -903,6 +906,9 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	</string>
 	<string name="ControlYourCamera">
 		Controlar su cámara
+	</string>
+	<string name="TeleportYourAgent">
+		Teleportarte
 	</string>
 	<string name="SIM_ACCESS_PG">
 		General
@@ -981,6 +987,9 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	</string>
 	<string name="script_files">
 		Scripts
+	</string>
+	<string name="dictionary_files">
+		Diccionarios
 	</string>
 	<string name="AvatarSetNotAway">
 		Salir del estado ausente
@@ -3774,6 +3783,12 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	<string name="LocationCtrlSeeAVsTooltip">
 		Los avatares están visibles y está permitido el chat fuera de esta parcela
 	</string>
+	<string name="LocationCtrlPathfindingDirtyTooltip">
+		Los objetos que se mueven pueden presentar un comportamiento incorrecto en la región hasta que ésta se recargue.
+	</string>
+	<string name="LocationCtrlPathfindingDisabledTooltip">
+		Esta región no tiene activado el pathfinding dinámico.
+	</string>
 	<string name="UpdaterWindowTitle">
 		Actualizar [APP_NAME]
 	</string>
@@ -4907,6 +4922,21 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 	<string name="Normal">
 		Normal
 	</string>
+	<string name="Pathfinding_Wiki_URL">
+		http://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer
+	</string>
+	<string name="Pathfinding_Object_Attr_None">
+		Ninguno
+	</string>
+	<string name="Pathfinding_Object_Attr_Permanent">
+		Afecta al navmesh
+	</string>
+	<string name="Pathfinding_Object_Attr_Character">
+		Personaje
+	</string>
+	<string name="Pathfinding_Object_Attr_MultiSelect">
+		(Múltiple)
+	</string>
 	<string name="snapshot_quality_very_low">
 		Muy bajo
 	</string>
@@ -4921,5 +4951,11 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 	</string>
 	<string name="snapshot_quality_very_high">
 		Muy alto
+	</string>
+	<string name="TeleportMaturityExceeded">
+		El Residente no puede visitar esta región.
+	</string>
+	<string name="UserDictionary">
+		[Usuario]
 	</string>
 </strings>

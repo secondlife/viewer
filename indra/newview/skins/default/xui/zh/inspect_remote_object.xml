@@ -5,10 +5,10 @@
 -->
 <floater name="inspect_remote_object">
 	<text name="object_name">
-		Test Object Name That Is Really Long OMG so long I can&apos;t believe how long the name of this object is, I mean really.
+		測試很長很長、長到不可思議的、落落長的、長得不得了的、很長很長很長、長到我快發瘋、長之又長的物件名稱。
 	</text>
 	<text name="object_owner_label">
-		擁有者：
+		所有人：
 	</text>
 	<text name="object_owner">
 		Longavatarname Johnsonlongstonnammer

@@ -731,6 +731,7 @@ void LLFeatureManager::setGraphicsLevel(S32 level, bool skipFeatures)
 
 	LLViewerShaderMgr::sSkipReload = false;
 	LLViewerShaderMgr::instance()->setShaders();
+	gPipeline.refreshCachedSettings();
 }
 
 void LLFeatureManager::applyBaseMasks()

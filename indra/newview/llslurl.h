@@ -51,13 +51,15 @@ public:
 	static const char* SLURL_APP_PATH;
 	static const char* SLURL_REGION_PATH;	
 	
+	// if you modify this enumeration, update typeName as well
 	enum SLURL_TYPE { 
 		INVALID, 
 		LOCATION,
 		HOME_LOCATION,
 		LAST_LOCATION,
 		APP,
-		HELP 
+		HELP,
+		NUM_SLURL_TYPES // must be last
 	};
 		
 	
@@ -92,6 +94,10 @@ public:
     std::string asString() const ;
 
 protected:
+	static const std::string typeName[NUM_SLURL_TYPES];
+	/// Get a human-readable version of the type for logging
+	static std::string getTypeString(SLURL_TYPE type);	
+	
 	SLURL_TYPE mType;
 	
 	// used for Apps and Help

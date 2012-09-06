@@ -1,825 +1,861 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <colors>
 
-	<!-- Named Colors -->
-	<color
-	 name="EmphasisColor"
-	 value="0.38 0.694 0.573 1" />
-	<color
-	 name="EmphasisColor_13"
-	 value="0.38 0.694 0.573 0.13" />
-	<color
-	 name="EmphasisColor_35"
-	 value="0.38 0.694 0.573 0.35" />
-	<color
-	 name="White"
-	 value="1 1 1 1" />
-	<color
-	 name="White_05"
-	 value="1 1 1 0.05" />
-	<color
-	 name="White_10"
-	 value="1 1 1 0.1" />
-	<color
-	 name="White_25"
-	 value="1 1 1 0.25" />
-	<color
-	 name="White_50"
-	 value="1 1 1 0.5" />
-	<color
-	 name="LtGray"
-	 value="0.75 0.75 0.75 1" />
-	<color
-	 name="LtGray_35"
-	 value="0.75 0.75 0.75 0.35" />
-	<color
-	 name="LtGray_50"
-	 value="0.75 0.75 0.75 0.50" />
-	<color
-	 name="Gray"
-	 value="0.5 0.5 0.5 1" />
-	<color
-	 name="DkGray"
-	 value="0.125 0.125 0.125 1" />
-	<color
-	 name="DkGray_66"
-	 value="0.125 0.125 0.125 .66" />
-	<color
-	 name="DkGray2"
-	 value="0.169 0.169 0.169 1" />
-	<color
-	 name="MouseGray"
-	 value="0.191 0.191 0.191 1" />
-	<color
-	 name="Black"
-	 value="0 0 0 1" />
-	<colork
-	 name="Black_10"
-	 value="0 0 0 0.1" />
-	<color
-	 name="Black_25"
-	 value="0 0 0 0.25" />
-	<color
-	 name="Black_50"
-	 value="0 0 0 0.5" />
-	<color
-	name="FrogGreen"
-	value="0.26 0.345 0.263 1" />
-	<color
-	 name="Red"
-	 value="1 0 0 1" />
-	<color
-	 name="Blue"
-	 value="0 0 1 1" />
-	<color
-	 name="Yellow"
-	 value="1 1 0 1" />
-	<color
-	 name="Green"
-	 value="0 1 0 1" />
-	<color
-	 name="Transparent"
-	 value="0 0 0 0" />
-	<color
-	name="Purple"
-	value="1 0 1 1" />
-	<color
-	name="Lime"
-	value=".8 1 .73 1" />
-	<color
-	name="LtYellow"
-	value="1 1 .79 1" />
-	<color
-	name="DrYellow"
-	value="1 0.86 0 1" />
-	<color
-	name="LtOrange"
-	value="1 .85 .73 1" />
-	<color
-	name="MdBlue"
-	value=".07 .38 .51 1" />
+  <!-- Named Colors -->
+  <color
+      name="EmphasisColor"
+      value="0.38 0.694 0.573 1" />
+  <color
+      name="EmphasisColor_13"
+      value="0.38 0.694 0.573 0.13" />
+  <color
+      name="EmphasisColor_35"
+      value="0.38 0.694 0.573 0.35" />
+  <color
+      name="White"
+      value="1 1 1 1" />
+  <color
+      name="White_05"
+      value="1 1 1 0.05" />
+  <color
+      name="White_10"
+      value="1 1 1 0.1" />
+  <color
+      name="White_25"
+      value="1 1 1 0.25" />
+  <color
+      name="White_50"
+      value="1 1 1 0.5" />
+  <color
+      name="LtGray"
+      value="0.75 0.75 0.75 1" />
+  <color
+      name="LtGray_35"
+      value="0.75 0.75 0.75 0.35" />
+  <color
+      name="LtGray_50"
+      value="0.75 0.75 0.75 0.50" />
+  <color
+      name="Gray"
+      value="0.5 0.5 0.5 1" />
+  <color
+      name="DkGray"
+      value="0.125 0.125 0.125 1" />
+  <color
+      name="DkGray_66"
+      value="0.125 0.125 0.125 .66" />
+  <color
+      name="DkGray2"
+      value="0.169 0.169 0.169 1" />
+  <color
+      name="MouseGray"
+      value="0.191 0.191 0.191 1" />
+  <color
+      name="Black"
+      value="0 0 0 1" />
+  <colork
+      name="Black_10"
+      value="0 0 0 0.1" />
+  <color
+      name="Black_25"
+      value="0 0 0 0.25" />
+  <color
+      name="Black_50"
+      value="0 0 0 0.5" />
+  <color
+      name="FrogGreen"
+      value="0.26 0.345 0.263 1" />
+  <color
+      name="Red"
+      value="1 0 0 1" />
+  <color
+      name="Blue"
+      value="0 0 1 1" />
+  <color
+      name="Yellow"
+      value="1 1 0 1" />
+  <color
+      name="Green"
+      value="0 1 0 1" />
+  <color
+      name="Transparent"
+      value="0 0 0 0" />
+  <color
+      name="Purple"
+      value="1 0 1 1" />
+  <color
+      name="Lime"
+      value=".8 1 .73 1" />
+  <color
+      name="LtYellow"
+      value="1 1 .79 1" />
+  <color
+      name="DrYellow"
+      value="1 0.86 0 1" />
+  <color
+      name="LtOrange"
+      value="1 .85 .73 1" />
+  <color
+      name="MdBlue"
+      value=".07 .38 .51 1" />
+  <color
+      name="LtRed"
+      value="1 0.2 0.2 1" />
+  <color
+      name="LtGreen"
+      value="0.2 1 0.2 1" />
+  <color
+      name="Red_80"
+      value="1 0 0 0.8" />
+  <color
+      name="Green_80"
+      value="0 1 0 0.8" />
+  <color
+      name="Blue_80"
+      value="0 0 1 0.8" />
 
   <!-- This color name makes potentially unused colors show up bright purple.
-  Leave this here until all Unused? are removed below, otherwise
-  the viewer generates many warnings on startup. -->
+       Leave this here until all Unused? are removed below, otherwise
+       the viewer generates many warnings on startup. -->
   <color
-	 name="Unused?"
-	 value=".831 1 0 1" />
+      name="Unused?"
+      value=".831 1 0 1" />
 
   <!-- UI Definitions -->
 
-    <color
-     name="AccordionHeaderTextColor"
-     reference="LtGray" />
-    <color
-     name="AgentChatColor"
-     reference="White" />
-    <color
-     name="AlertBoxColor"
-     value="0.24 0.24 0.24 1" />
-    <color
-     name="AlertCautionBoxColor"
-     value="1 0.82 0.46 1" />
-    <color
-     name="AlertCautionTextColor"
-     reference="LtYellow" />
-    <color
-     name="AvatarListItemIconDefaultColor"
-     reference="White" />
-    <color
-     name="AvatarListItemIconOnlineColor"
-     reference="White" />
-    <color
-     name="AvatarListItemIconOfflineColor"
-     value="0.5 0.5 0.5 0.5" />
-    <color
-     name="AvatarListItemIconVoiceInvitedColor"
-     reference="AvatarListItemIconOfflineColor" />
-    <color
-     name="AvatarListItemIconVoiceJoinedColor"
-     reference="AvatarListItemIconOnlineColor" />
-    <color
-     name="AvatarListItemIconVoiceLeftColor"
-     reference="AvatarListItemIconOfflineColor" />
-    <color
-     name="BadgeImageColor"
-     value="1.0 0.40 0.0 1.0" />
-    <color
-     name="BadgeBorderColor"
-     value="0.9 0.9 0.9 1.0" />
-    <color
-     name="BadgeLabelColor"
-     reference="White" />
-    <color
-     name="ButtonBorderColor"
-     reference="Unused?" />
-    <color
-     name="ButtonCautionImageColor"
-     reference="Unused?" />
-    <color
-     name="ButtonColor"
-     reference="Unused?" />
-    <color
-     name="ButtonFlashBgColor"
-     reference="Unused?" />
-    <color
-     name="ButtonImageColor"
-     reference="White" />
-    <color
-     name="ButtonLabelColor"
-     reference="LtGray" />
-    <color
-     name="ButtonLabelDisabledColor"
-     reference="White_25" />
-    <color
-     name="ButtonLabelSelectedColor"
-     reference="White" />
-    <color
-     name="ButtonLabelSelectedDisabledColor"
-     reference="White_25" />
-    <color
-     name="ButtonSelectedBgColor"
-     reference="Unused?" />
-    <color
-     name="ButtonSelectedColor"
-     reference="Unused?" />
-    <color
-     name="ButtonUnselectedBgColor"
-     reference="Unused?" />
-    <color
-     name="ButtonUnselectedFgColor"
-     reference="Unused?" />
-    <color
-     name="ChatHistoryBgColor"
-     reference="Transparent" />
-    <color
-     name="ChatHistoryTextColor"
-     reference="LtGray" />
-    <color
-     name="ChicletFlashColor"
-     value="0.114 0.65 0.1" />
-    <color
-     name="ColorDropShadow"
-     reference="Black_50" />
-    <color
-     name="ColorPaletteEntry01"
-     reference="Black" />
-    <color
-     name="ColorPaletteEntry02"
-     reference="Gray" />
-    <color
-     name="ColorPaletteEntry03"
-     value="0.5 0 0 1" />
-    <color
-     name="ColorPaletteEntry04"
-     value="0.5 0.5 0 1" />
-    <color
-     name="ColorPaletteEntry05"
-     value="0 0.5 0 1" />
-    <color
-     name="ColorPaletteEntry06"
-     value="0 0.5 0.5 1" />
-    <color
-     name="ColorPaletteEntry07"
-     value="0 0 0.5 1" />
-    <color
-     name="ColorPaletteEntry08"
-     value="0.5 0 0.5 1" />
-    <color
-     name="ColorPaletteEntry09"
-     value="0.5 0.5 0 1" />
-    <color
-     name="ColorPaletteEntry10"
-     value="0 0.25 0.25 1" />
-    <color
-     name="ColorPaletteEntry11"
-     value="0 0.5 1 1" />
-    <color
-     name="ColorPaletteEntry12"
-     value="0 0.25 0.5 1" />
-    <color
-     name="ColorPaletteEntry13"
-     value="0.5 0 1 1" />
-    <color
-     name="ColorPaletteEntry14"
-     value="0.5 0.25 0 1" />
-    <color
-     name="ColorPaletteEntry15"
-     reference="White" />
-    <color
-     name="ColorPaletteEntry16"
-     reference="LtYellow" />
-    <color
-     name="ColorPaletteEntry17"
-     reference="White" />
-    <color
-     name="ColorPaletteEntry18"
-     reference="LtGray" />
-    <color
-     name="ColorPaletteEntry19"
-     reference="Red" />
-    <color
-     name="ColorPaletteEntry20"
-     reference="Yellow" />
-    <color
-     name="ColorPaletteEntry21"
-     reference="Green" />
-    <color
-     name="ColorPaletteEntry22"
-     value="0 1 1 1" />
-    <color
-     name="ColorPaletteEntry23"
-     reference="Blue" />
-    <color
-     name="ColorPaletteEntry24"
-     reference="Purple" />
-    <color
-     name="ColorPaletteEntry25"
-     value="1 1 0.5 1" />
-    <color
-     name="ColorPaletteEntry26"
-     value="0 1 0.5 1" />
-    <color
-     name="ColorPaletteEntry27"
-     value="0.5 1 1 1" />
-    <color
-     name="ColorPaletteEntry28"
-     value="0.5 0.5 1 1" />
-    <color
-     name="ColorPaletteEntry29"
-     value="1 0 0.5 1" />
-    <color
-     name="ColorPaletteEntry30"
-     value="1 0.5 0 1" />
-    <color
-     name="ColorPaletteEntry31"
-     reference="White" />
-    <color
-     name="ColorPaletteEntry32"
-     reference="White" />
-    <color
-     name="ComboListBgColor"
-     reference="DkGray" />
-    <color
-     name="ConsoleBackground"
-     reference="Black" />
-    <color
-     name="ContextSilhouetteColor"
-     reference="EmphasisColor" />
-    <color
-     name="DefaultHighlightDark"
-     reference="White_10" />
-    <color
-     name="DefaultHighlightLight"
-     reference="White_25" />
-    <color
-     name="DefaultShadowDark"
-     reference="Black_50" />
-    <color
-     name="DefaultShadowLight"
-     reference="Black_50" />
-    <color
-     name="EffectColor"
-     reference="White" />
-     <color
-     name="FilterBackgroundColor"
-     reference="Black" />
-    <color
-     name="FilterTextColor"
-     value="0.38 0.69 0.57 1" />
-     <color
-     name="FloaterButtonImageColor"
-     reference="LtGray" />
-    <color
-     name="FloaterDefaultBackgroundColor"
-     reference="DkGray_66" />
-    <color
-     name="FloaterFocusBackgroundColor"
-     reference="DkGray2" />
-    <color
-     name="FloaterFocusBorderColor"
-     reference="Black_50" />
-    <color
-     name="FloaterUnfocusBorderColor"
-     reference="Black_50" />
-    <color
-     name="FocusColor"
-     reference="EmphasisColor" />
-    <color
-     name="FolderViewLoadingMessageTextColor"
-     value="0.3344 0.5456 0.5159 1" />
-    <color
-     name="GridFocusPointColor"
-     reference="White_50" />
-    <color
-     name="GridlineBGColor"
-     value="0.92 0.92 1 0.78" />
-    <color
-     name="GridlineColor"
-     reference="White" />
-    <color
-     name="GridlineShadowColor"
-     value="0 0 0 0.31" />
-    <color
-     name="GroupNotifyBoxColor"
-     value="0.3344 0.5456 0.5159 1" />
-    <color
-     name="GroupNotifyTextColor"
-     reference="White"/>
-    <color
-     name="GroupNotifyDimmedTextColor"
-     reference="LtGray" />
-    <color
-     name="GroupOverTierColor"
-     value="0.43 0.06 0.06 1" />
-    <color
-     name="HTMLLinkColor"
-     reference="EmphasisColor" />
-    <color
-     name="HealthTextColor"
-     reference="White" />
-    <color
-     name="HelpBgColor"
-     reference="Unused?" />
-    <color
-     name="HelpFgColor"
-     reference="Unused?" />
-    <color
-     name="HelpScrollHighlightColor"
-     reference="Unused?" />
-    <color
-     name="HelpScrollShadowColor"
-     reference="Unused?" />
-    <color
-     name="HelpScrollThumbColor"
-     reference="Unused?" />
-    <color
-     name="HelpScrollTrackColor"
-     reference="Unused?" />
-    <color
-     name="HighlightChildColor"
-     reference="Yellow" />
-    <color
-     name="HighlightInspectColor"
-     value="1 0 1 1" />
-    <color
-     name="HighlightParentColor"
-     value="0.67 0.83 0.96 1" />
-    <color
-     name="IMHistoryBgColor"
-     reference="Unused?" />
-    <color
-     name="IMHistoryTextColor"
-     reference="Unused?" />
-    <color
-     name="IconDisabledColor"
-	 reference="White_25" />
-    <color
-     name="IconEnabledColor"
-     reference="White" />
-    <color
-     name="InventoryBackgroundColor"
-     reference="DkGray2" />
-    <color
-     name="InventoryFocusOutlineColor"
-     reference="White_25" />
-    <color
-     name="InventoryItemSuffixColor"
-     reference="White_25" />
-    <color
-     name="InventoryItemLibraryColor"
-     reference="EmphasisColor" />
-    <color
-     name="InventoryItemLinkColor"
-     reference="LtGray_50" />
-    <color
-     name="InventoryMouseOverColor"
-     reference="LtGray_35" />
-    <color
-     name="InventorySearchStatusColor"
-     reference="EmphasisColor" />
-    <color
-     name="LabelDisabledColor"
-     reference="White_25" />
-    <color
-     name="LabelSelectedColor"
-     reference="White" />
-    <color
-     name="LabelSelectedDisabledColor"
-     reference="White_25" />
-    <color
-     name="LabelTextColor"
-     reference="LtGray" />
-    <color
-     name="LoginProgressBarBgColor"
-     reference="Unused?" />
-    <color
-     name="LoginProgressBarFgColor"
-     reference="Unused?" />
-    <color
-     name="LoginProgressBoxBorderColor"
-     value="0 0.12 0.24 0" />
-    <color
-     name="LoginProgressBoxCenterColor"
-     value="0 0 0 0.78" />
-    <color
-     name="LoginProgressBoxShadowColor"
-     value="0 0 0 0.78" />
-    <color
-     name="LoginProgressBoxTextColor"
-     reference="White" />
-    <color
-     name="MapAvatarColor"
-     reference="Green" />
-    <color
-     name="MapAvatarFriendColor"
-     reference="Yellow" />
-    <color
-     name="MapAvatarSelfColor"
-     value="0.53125 0 0.498047 1" />
-    <color
-     name="MapFrustumColor"
-     reference="White_10" />
-    <color
-     name="MapFrustumRotatingColor"
-     value="1 1 1 0.2" />
-    <color
-     name="MapTrackColor"
-     reference="Red" />
-    <color
-     name="MapTrackDisabledColor"
-     value="0.5 0 0 1" />
-    <color
-     name="MenuBarBgColor"
-     reference="DkGray" />
-    <color
-     name="MenuBarGodBgColor"
-     reference="FrogGreen" />
-    <color
-     name="MenuDefaultBgColor"
-     reference="DkGray2" />
-    <color
-     name="MenuItemDisabledColor"
-	 reference="LtGray_50" />
-    <color
-     name="MenuItemEnabledColor"
-     reference="LtGray" />
-    <color
-     name="MenuItemHighlightBgColor"
-     reference="EmphasisColor_35" />
-    <color
-     name="MenuItemHighlightFgColor"
-     reference="White" />
-    <color
-     name="MenuNonProductionBgColor"
-     reference="Black" />
-    <color
-     name="MenuNonProductionGodBgColor"
-     value="0.263 0.325 0.345 1" />
-    <color
-     name="MenuPopupBgColor"
-	  reference="DkGray2" />
-    <color
-     name="ModelUploaderLabels"
-     value="1 0.6 0 1" />	  
-    <color
-     name="MultiSliderDisabledThumbColor"
-     reference="Black" />
-    <color
-     name="MultiSliderThumbCenterColor"
-     reference="White" />
-    <color
-     name="MultiSliderThumbCenterSelectedColor"
-     reference="Green" />
-    <color
-     name="MultiSliderThumbOutlineColor"
-     reference="Unused?" />
-    <color
-     name="MultiSliderTrackColor"
-     reference="LtGray" />
-    <color
-     name="MultiSliderTriangleColor"
-     reference="Yellow" />
+  <color
+      name="AccordionHeaderTextColor"
+      reference="LtGray" />
+  <color
+      name="AgentChatColor"
+      reference="White" />
+  <color
+      name="AlertBoxColor"
+      value="0.24 0.24 0.24 1" />
+  <color
+      name="AlertCautionBoxColor"
+      value="1 0.82 0.46 1" />
+  <color
+      name="AlertCautionTextColor"
+      reference="LtYellow" />
+  <color
+      name="AvatarListItemIconDefaultColor"
+      reference="White" />
+  <color
+      name="AvatarListItemIconOnlineColor"
+      reference="White" />
+  <color
+      name="AvatarListItemIconOfflineColor"
+      value="0.5 0.5 0.5 0.5" />
+  <color
+      name="AvatarListItemIconVoiceInvitedColor"
+      reference="AvatarListItemIconOfflineColor" />
+  <color
+      name="AvatarListItemIconVoiceJoinedColor"
+      reference="AvatarListItemIconOnlineColor" />
+  <color
+      name="AvatarListItemIconVoiceLeftColor"
+      reference="AvatarListItemIconOfflineColor" />
+  <color
+      name="BadgeImageColor"
+      value="1.0 0.40 0.0 1.0" />
+  <color
+      name="BadgeBorderColor"
+      value="0.9 0.9 0.9 1.0" />
+  <color
+      name="BadgeLabelColor"
+      reference="White" />
+  <color
+      name="ButtonBorderColor"
+      reference="Unused?" />
+  <color
+      name="ButtonCautionImageColor"
+      reference="Unused?" />
+  <color
+      name="ButtonColor"
+      reference="Unused?" />
+  <color
+      name="ButtonFlashBgColor"
+      reference="Unused?" />
+  <color
+      name="ButtonImageColor"
+      reference="White" />
+  <color
+      name="ButtonLabelColor"
+      reference="LtGray" />
+  <color
+      name="ButtonLabelDisabledColor"
+      reference="White_25" />
+  <color
+      name="ButtonLabelSelectedColor"
+      reference="White" />
+  <color
+      name="ButtonLabelSelectedDisabledColor"
+      reference="White_25" />
+  <color
+      name="ButtonSelectedBgColor"
+      reference="Unused?" />
+  <color
+      name="ButtonSelectedColor"
+      reference="Unused?" />
+  <color
+      name="ButtonUnselectedBgColor"
+      reference="Unused?" />
+  <color
+      name="ButtonUnselectedFgColor"
+      reference="Unused?" />
+  <color
+      name="ChatHistoryBgColor"
+      reference="Transparent" />
+  <color
+      name="ChatHistoryTextColor"
+      reference="LtGray" />
+  <color
+      name="ChicletFlashColor"
+      value="0.114 0.65 0.1" />
+  <color
+      name="ColorDropShadow"
+      reference="Black_50" />
+  <color
+      name="ColorPaletteEntry01"
+      reference="Black" />
+  <color
+      name="ColorPaletteEntry02"
+      reference="Gray" />
+  <color
+      name="ColorPaletteEntry03"
+      value="0.5 0 0 1" />
+  <color
+      name="ColorPaletteEntry04"
+      value="0.5 0.5 0 1" />
+  <color
+      name="ColorPaletteEntry05"
+      value="0 0.5 0 1" />
+  <color
+      name="ColorPaletteEntry06"
+      value="0 0.5 0.5 1" />
+  <color
+      name="ColorPaletteEntry07"
+      value="0 0 0.5 1" />
+  <color
+      name="ColorPaletteEntry08"
+      value="0.5 0 0.5 1" />
+  <color
+      name="ColorPaletteEntry09"
+      value="0.5 0.5 0 1" />
+  <color
+      name="ColorPaletteEntry10"
+      value="0 0.25 0.25 1" />
+  <color
+      name="ColorPaletteEntry11"
+      value="0 0.5 1 1" />
+  <color
+      name="ColorPaletteEntry12"
+      value="0 0.25 0.5 1" />
+  <color
+      name="ColorPaletteEntry13"
+      value="0.5 0 1 1" />
+  <color
+      name="ColorPaletteEntry14"
+      value="0.5 0.25 0 1" />
+  <color
+      name="ColorPaletteEntry15"
+      reference="White" />
+  <color
+      name="ColorPaletteEntry16"
+      reference="LtYellow" />
+  <color
+      name="ColorPaletteEntry17"
+      reference="White" />
+  <color
+      name="ColorPaletteEntry18"
+      reference="LtGray" />
+  <color
+      name="ColorPaletteEntry19"
+      reference="Red" />
+  <color
+      name="ColorPaletteEntry20"
+      reference="Yellow" />
+  <color
+      name="ColorPaletteEntry21"
+      reference="Green" />
+  <color
+      name="ColorPaletteEntry22"
+      value="0 1 1 1" />
+  <color
+      name="ColorPaletteEntry23"
+      reference="Blue" />
+  <color
+      name="ColorPaletteEntry24"
+      reference="Purple" />
+  <color
+      name="ColorPaletteEntry25"
+      value="1 1 0.5 1" />
+  <color
+      name="ColorPaletteEntry26"
+      value="0 1 0.5 1" />
+  <color
+      name="ColorPaletteEntry27"
+      value="0.5 1 1 1" />
+  <color
+      name="ColorPaletteEntry28"
+      value="0.5 0.5 1 1" />
+  <color
+      name="ColorPaletteEntry29"
+      value="1 0 0.5 1" />
+  <color
+      name="ColorPaletteEntry30"
+      value="1 0.5 0 1" />
+  <color
+      name="ColorPaletteEntry31"
+      reference="White" />
+  <color
+      name="ColorPaletteEntry32"
+      reference="White" />
+  <color
+      name="ComboListBgColor"
+      reference="DkGray" />
+  <color
+      name="ConsoleBackground"
+      reference="Black" />
+  <color
+      name="ContextSilhouetteColor"
+      reference="EmphasisColor" />
+  <color
+      name="DefaultHighlightDark"
+      reference="White_10" />
+  <color
+      name="DefaultHighlightLight"
+      reference="White_25" />
+  <color
+      name="DefaultShadowDark"
+      reference="Black_50" />
+  <color
+      name="DefaultShadowLight"
+      reference="Black_50" />
+  <color
+      name="EffectColor"
+      reference="White" />
+  <color
+      name="FilterBackgroundColor"
+      reference="Black" />
+  <color
+      name="FilterTextColor"
+      value="0.38 0.69 0.57 1" />
+  <color
+      name="FloaterButtonImageColor"
+      reference="LtGray" />
+  <color
+      name="FloaterDefaultBackgroundColor"
+      reference="DkGray_66" />
+  <color
+      name="FloaterFocusBackgroundColor"
+      reference="DkGray2" />
+  <color
+      name="FloaterFocusBorderColor"
+      reference="Black_50" />
+  <color
+      name="FloaterUnfocusBorderColor"
+      reference="Black_50" />
+  <color
+      name="FocusColor"
+      reference="EmphasisColor" />
+  <color
+      name="FolderViewLoadingMessageTextColor"
+      value="0.3344 0.5456 0.5159 1" />
+  <color
+      name="GridFocusPointColor"
+      reference="White_50" />
+  <color
+      name="GridlineBGColor"
+      value="0.92 0.92 1 0.78" />
+  <color
+      name="GridlineColor"
+      reference="White" />
+  <color
+      name="GridlineShadowColor"
+      value="0 0 0 0.31" />
+  <color
+      name="GroupNotifyBoxColor"
+      value="0.3344 0.5456 0.5159 1" />
+  <color
+      name="GroupNotifyTextColor"
+      reference="White"/>
+  <color
+      name="GroupNotifyDimmedTextColor"
+      reference="LtGray" />
+  <color
+      name="GroupOverTierColor"
+      value="0.43 0.06 0.06 1" />
+  <color
+      name="HTMLLinkColor"
+      reference="EmphasisColor" />
+  <color
+      name="HealthTextColor"
+      reference="White" />
+  <color
+      name="HelpBgColor"
+      reference="Unused?" />
+  <color
+      name="HelpFgColor"
+      reference="Unused?" />
+  <color
+      name="HelpScrollHighlightColor"
+      reference="Unused?" />
+  <color
+      name="HelpScrollShadowColor"
+      reference="Unused?" />
+  <color
+      name="HelpScrollThumbColor"
+      reference="Unused?" />
+  <color
+      name="HelpScrollTrackColor"
+      reference="Unused?" />
+  <color
+      name="HighlightChildColor"
+      reference="Yellow" />
+  <color
+      name="HighlightInspectColor"
+      value="1 0 1 1" />
+  <color
+      name="HighlightParentColor"
+      value="0.67 0.83 0.96 1" />
+  <color
+      name="IMHistoryBgColor"
+      reference="Unused?" />
+  <color
+      name="IMHistoryTextColor"
+      reference="Unused?" />
+  <color
+      name="IconDisabledColor"
+      reference="White_25" />
+  <color
+      name="IconEnabledColor"
+      reference="White" />
+  <color
+      name="InventoryBackgroundColor"
+      reference="DkGray2" />
+  <color
+      name="InventoryFocusOutlineColor"
+      reference="White_25" />
+  <color
+      name="InventoryItemSuffixColor"
+      reference="White_25" />
+  <color
+      name="InventoryItemLibraryColor"
+      reference="EmphasisColor" />
+  <color
+      name="InventoryItemLinkColor"
+      reference="LtGray_50" />
+  <color
+      name="InventoryMouseOverColor"
+      reference="LtGray_35" />
+  <color
+      name="InventorySearchStatusColor"
+      reference="EmphasisColor" />
+  <color
+      name="LabelDisabledColor"
+      reference="White_25" />
+  <color
+      name="LabelSelectedColor"
+      reference="White" />
+  <color
+      name="LabelSelectedDisabledColor"
+      reference="White_25" />
+  <color
+      name="LabelTextColor"
+      reference="LtGray" />
+  <color
+      name="LoginProgressBarBgColor"
+      reference="Unused?" />
+  <color
+      name="LoginProgressBarFgColor"
+      reference="Unused?" />
+  <color
+      name="LoginProgressBoxBorderColor"
+      value="0 0.12 0.24 0" />
+  <color
+      name="LoginProgressBoxCenterColor"
+      value="0 0 0 0.78" />
+  <color
+      name="LoginProgressBoxShadowColor"
+      value="0 0 0 0.78" />
+  <color
+      name="LoginProgressBoxTextColor"
+      reference="White" />
+  <color
+      name="MapAvatarColor"
+      reference="Green" />
+  <color
+      name="MapAvatarFriendColor"
+      reference="Yellow" />
+  <color
+      name="MapAvatarSelfColor"
+      value="0.53125 0 0.498047 1" />
+  <color
+      name="MapFrustumColor"
+      reference="White_10" />
+  <color
+      name="MapFrustumRotatingColor"
+      value="1 1 1 0.2" />
+  <color
+      name="MapTrackColor"
+      reference="Red" />
+  <color
+      name="MapTrackDisabledColor"
+      value="0.5 0 0 1" />
+  <color
+      name="MenuBarBgColor"
+      reference="DkGray" />
+  <color
+      name="MenuBarGodBgColor"
+      reference="FrogGreen" />
+  <color
+      name="MenuDefaultBgColor"
+      reference="DkGray2" />
+  <color
+      name="MenuItemDisabledColor"
+      reference="LtGray_50" />
+  <color
+      name="MenuItemEnabledColor"
+      reference="LtGray" />
+  <color
+      name="MenuItemHighlightBgColor"
+      reference="EmphasisColor_35" />
+  <color
+      name="MenuItemHighlightFgColor"
+      reference="White" />
+  <color
+      name="MenuNonProductionBgColor"
+      reference="Black" />
+  <color
+      name="MenuNonProductionGodBgColor"
+      value="0.263 0.325 0.345 1" />
+  <color
+      name="MenuPopupBgColor"
+      reference="DkGray2" />
+  <color
+      name="ModelUploaderLabels"
+      value="1 0.6 0 1" />	  
+  <color
+      name="MultiSliderDisabledThumbColor"
+      reference="Black" />
+  <color
+      name="MultiSliderThumbCenterColor"
+      reference="White" />
+  <color
+      name="MultiSliderThumbCenterSelectedColor"
+      reference="Green" />
+  <color
+      name="MultiSliderThumbOutlineColor"
+      reference="Unused?" />
+  <color
+      name="MultiSliderTrackColor"
+      reference="LtGray" />
+  <color
+      name="MultiSliderTriangleColor"
+      reference="Yellow" />
   <!--
-    <color
+      <color
       name="NameTagBackground"
       value="0.85 0.85 0.85 0.80" />
-      -->
-    <color
+  -->
+  <color
       name="NameTagBackground"
       value="0 0 0 1" />
-    <color
-     name="NameTagChat"
-     reference="White" />
-    <color
-     name="NameTagFriend"
-     value="0.447 0.784 0.663 1" />
-    <color
-     name="NameTagLegacy"
-     reference="White" />
-    <color
-     name="NameTagMatch"
-     reference="White" />
-    <color
-     name="NameTagMismatch"
-     reference="White" />
-    <color
-     name="NetMapBackgroundColor"
-     value="0 0 0 1" />
-    <color
-     name="NetMapGroupOwnAboveWater"
-     reference="Purple" />
-    <color
-     name="NetMapGroupOwnBelowWater"
-     value="0.78 0 0.78 1" />
-    <color
-     name="NetMapOtherOwnAboveWater"
-     value="0.24 0.24 0.24 1" />
-    <color
-     name="NetMapOtherOwnBelowWater"
-     value="0.12 0.12 0.12 1" />
-    <color
-     name="NetMapYouOwnAboveWater"
-     value="0 1 1 1" />
-    <color
-     name="NetMapYouOwnBelowWater"
-     value="0 0.78 0.78 1" />
-    <color
-     name="NotifyBoxColor"
-     value="LtGray" />
-    <color
-     name="NotifyCautionBoxColor"
-     value="1 0.82 0.46 1" />
-    <color
-     name="NotifyCautionWarnColor"
-     reference="White" />
-    <color
-     name="NotifyTextColor"
-     reference="White" />
-    <color
-     name="ObjectBubbleColor"
-     reference="DkGray_66" />
-    <color
-     name="ObjectChatColor"
-     reference="EmphasisColor" />
-    <color
-     name="OverdrivenColor"
-     reference="Red" />
-    <color
-     name="PanelDefaultBackgroundColor"
-     reference="DkGray" />
-    <color
-     name="PanelDefaultHighlightLight"
-     reference="White_50" />
-    <color
-     name="PanelFocusBackgroundColor"
-     reference="DkGray2" />
-    <color
-     name="PanelNotificationBackground"
-     value="1 0.3 0.3 0" />
-    <color
-     name="ParcelHoverColor"
-     reference="White" />
-    <color
-     name="PieMenuBgColor"
-     value="0.24 0.24 0.24 0.59" />
-    <color
-     name="PieMenuLineColor"
-     value="0 0 0 0.5" />
-    <color
-     name="PieMenuSelectedColor"
-     value="0.72 0.72 0.74 0.3" />
-    <color
-     name="PropertyColorAuction"
-     value="0.5 0 1 0.4" />
-    <color
-     name="PropertyColorAvail"
-     reference="Transparent" />
-    <color
-     name="PropertyColorForSale"
-     value="1 0.5 0 0.4" />
-    <color
-     name="PropertyColorGroup"
-     value="0 0.72 0.72 0.4" />
-    <color
-     name="PropertyColorOther"
-     value="1 0 0 0.4" />
-    <color
-     name="PropertyColorSelf"
-     value="0 1 0 0.4" />
-    <color
-     name="ScriptBgReadOnlyColor"
-     value="0.39 0.39 0.39 1" />
-    <color
-     name="ScriptErrorColor"
-     reference="Red" />
-    <color
-     name="ScrollBGStripeColor"
-     reference="Transparent" />
-    <color
-     name="ScrollBgReadOnlyColor"
+  <color
+      name="NameTagChat"
+      reference="White" />
+  <color
+      name="NameTagFriend"
+      value="0.447 0.784 0.663 1" />
+  <color
+      name="NameTagLegacy"
+      reference="White" />
+  <color
+      name="NameTagMatch"
+      reference="White" />
+  <color
+      name="NameTagMismatch"
+      reference="White" />
+  <color
+      name="NetMapBackgroundColor"
+      value="0 0 0 1" />
+  <color
+      name="NetMapGroupOwnAboveWater"
+      reference="Purple" />
+  <color
+      name="NetMapGroupOwnBelowWater"
+      value="0.78 0 0.78 1" />
+  <color
+      name="NetMapOtherOwnAboveWater"
+      value="0.24 0.24 0.24 1" />
+  <color
+      name="NetMapOtherOwnBelowWater"
+      value="0.12 0.12 0.12 1" />
+  <color
+      name="NetMapYouOwnAboveWater"
+      value="0 1 1 1" />
+  <color
+      name="NetMapYouOwnBelowWater"
+      value="0 0.78 0.78 1" />
+  <color
+      name="NotifyBoxColor"
+      value="LtGray" />
+  <color
+      name="NotifyCautionBoxColor"
+      value="1 0.82 0.46 1" />
+  <color
+      name="NotifyCautionWarnColor"
+      reference="White" />
+  <color
+      name="NotifyTextColor"
+      reference="White" />
+  <color
+      name="ObjectBubbleColor"
+      reference="DkGray_66" />
+  <color
+      name="ObjectChatColor"
+      reference="EmphasisColor" />
+  <color
+      name="OverdrivenColor"
+      reference="Red" />
+  <color
+      name="PanelDefaultBackgroundColor"
+      reference="DkGray" />
+  <color
+      name="PanelDefaultHighlightLight"
+      reference="White_50" />
+  <color
+      name="PanelFocusBackgroundColor"
+      reference="DkGray2" />
+  <color
+      name="PanelNotificationBackground"
+      value="1 0.3 0.3 0" />
+  <color
+      name="ParcelHoverColor"
+      reference="White" />
+  <color
+      name="PathfindingErrorColor"
+      reference="LtRed" />
+  <color
+      name="PathfindingWarningColor"
+      reference="DrYellow" />
+  <color
+      name="PathfindingGoodColor"
+      reference="LtGreen" />
+  <color
+      name="PathfindingDefaultBeaconColor"
+      reference="Red_80" />
+  <color
+      name="PathfindingDefaultBeaconTextColor"
+      reference="White" />
+  <color
+      name="PathfindingLinksetBeaconColor"
+      reference="Blue_80" />
+  <color
+      name="PathfindingCharacterBeaconColor"
+      reference="Red_80" />
+  <color
+      name="PieMenuBgColor"
+      value="0.24 0.24 0.24 0.59" />
+  <color
+      name="PieMenuLineColor"
+      value="0 0 0 0.5" />
+  <color
+      name="PieMenuSelectedColor"
+      value="0.72 0.72 0.74 0.3" />
+  <color
+      name="PropertyColorAuction"
+      value="0.5 0 1 0.4" />
+  <color
+      name="PropertyColorAvail"
       reference="Transparent" />
-    <color
-     name="ScrollBgWriteableColor"
-     reference="White_05" />
-    <color
-     name="ScrollDisabledColor"
-     reference="White_25" />
-    <color
-     name="ScrollHighlightedColor"
-     reference="Unused?" />
-    <color
-     name="ScrollHoveredColor"
-     reference="EmphasisColor_13" />
-    <color
-     name="ScrollSelectedBGColor"
-     reference="EmphasisColor_35" />
-    <color
-     name="ScrollSelectedFGColor"
-     reference="White" />
-    <color
-     name="ScrollUnselectedColor"
-     reference="LtGray" />
-    <color
-     name="ScrollbarThumbColor"
-     reference="White" />
-    <color
-     name="ScrollbarTrackColor"
-     reference="Black" />
-    <color
-     name="SelectedOutfitTextColor"
-     reference="EmphasisColor" />
-    <color
-     name="SilhouetteChildColor"
-     value="0.13 0.42 0.77 1" />
-    <color
-     name="SilhouetteParentColor"
-     reference="Yellow" />
-    <color
-     name="SliderDisabledThumbColor"
-     reference="White_25" />
-    <color
-     name="SliderThumbCenterColor"
-     reference="White" />
-    <color
-     name="SliderThumbOutlineColor"
-     reference="White" />
-    <color
-     name="SliderTrackColor"
-     reference="Unused?" />
-    <color
-     name="SpeakingColor"
-     reference="FrogGreen" />
-    <color
-     name="SystemChatColor"
-     reference="LtGray" />
-    <color
-     name="TextBgFocusColor"
-     reference="White" />
-    <color
-     name="TextBgReadOnlyColor"
-	 reference="White_05" />
-    <color
-     name="TextBgWriteableColor"
-     reference="LtGray" />
-    <color
-     name="TextCursorColor"
-     reference="Black" />
-    <color
-     name="TextDefaultColor"
-     reference="Black" />
-    <color
-     name="TextEmbeddedItemColor"
-     value="0 0 0.5 1" />
-    <color
-     name="TextEmbeddedItemReadOnlyColor"
-     reference="Unused?" />
-    <color
-     name="TextFgColor"
-     value="0.102 0.102 0.102 1" />
-    <color
-     name="TextFgReadOnlyColor"
-     reference="LtGray" />
-    <color
-     name="TextFgTentativeColor"
-     value="0.4 0.4 0.4 1" />
-    <color
-     name="TimeTextColor"
-     reference="LtGray" />
-    <color
-     name="TitleBarFocusColor"
-     reference="White_10" />
-    <color
-     name="ToastBackground"
-     value="0.3 0.3 0.3 0" />
-    <color
-     name="ToolTipBgColor"
-     value="0.937 0.89 0.655 1" />
-    <color
-     name="ToolTipBorderColor"
-     value="0.812 0.753 0.451 1" />
-    <color
-     name="ToolTipTextColor"
-     reference="DkGray2" />
-    <color
-     name="InspectorTipTextColor"
-     reference="LtGray" />
-    <color
-     name="UserChatColor"
-     reference="White" />
-    <color
-     name="llOwnerSayChatColor"
-     reference="LtYellow" />
+  <color
+      name="PropertyColorForSale"
+      value="1 0.5 0 0.4" />
+  <color
+      name="PropertyColorGroup"
+      value="0 0.72 0.72 0.4" />
+  <color
+      name="PropertyColorOther"
+      value="1 0 0 0.4" />
+  <color
+      name="PropertyColorSelf"
+      value="0 1 0 0.4" />
+  <color
+      name="ScriptBgReadOnlyColor"
+      value="0.39 0.39 0.39 1" />
+  <color
+      name="ScriptErrorColor"
+      reference="Red" />
+  <color
+      name="ScrollBGStripeColor"
+      reference="Transparent" />
+  <color
+      name="ScrollBgReadOnlyColor"
+      reference="Transparent" />
+  <color
+      name="ScrollBgWriteableColor"
+      reference="White_05" />
+  <color
+      name="ScrollDisabledColor"
+      reference="White_25" />
+  <color
+      name="ScrollHighlightedColor"
+      reference="Unused?" />
+  <color
+      name="ScrollHoveredColor"
+      reference="EmphasisColor_13" />
+  <color
+      name="ScrollSelectedBGColor"
+      reference="EmphasisColor_35" />
+  <color
+      name="ScrollSelectedFGColor"
+      reference="White" />
+  <color
+      name="ScrollUnselectedColor"
+      reference="LtGray" />
+  <color
+      name="ScrollbarThumbColor"
+      reference="White" />
+  <color
+      name="ScrollbarTrackColor"
+      reference="Black" />
+  <color
+      name="SelectedOutfitTextColor"
+      reference="EmphasisColor" />
+  <color
+      name="SilhouetteChildColor"
+      value="0.13 0.42 0.77 1" />
+  <color
+      name="SilhouetteParentColor"
+      reference="Yellow" />
+  <color
+      name="SliderDisabledThumbColor"
+      reference="White_25" />
+  <color
+      name="SliderThumbCenterColor"
+      reference="White" />
+  <color
+      name="SliderThumbOutlineColor"
+      reference="White" />
+  <color
+      name="SliderTrackColor"
+      reference="Unused?" />
+  <color
+      name="SpeakingColor"
+      reference="FrogGreen" />
+  <color
+      name="SystemChatColor"
+      reference="LtGray" />
+  <color
+      name="TextBgFocusColor"
+      reference="White" />
+  <color
+      name="TextBgReadOnlyColor"
+      reference="White_05" />
+  <color
+      name="TextBgWriteableColor"
+      reference="LtGray" />
+  <color
+      name="TextCursorColor"
+      reference="Black" />
+  <color
+      name="TextDefaultColor"
+      reference="Black" />
+  <color
+      name="TextEmbeddedItemColor"
+      value="0 0 0.5 1" />
+  <color
+      name="TextEmbeddedItemReadOnlyColor"
+      reference="Unused?" />
+  <color
+      name="TextFgColor"
+      value="0.102 0.102 0.102 1" />
+  <color
+      name="TextFgReadOnlyColor"
+      reference="LtGray" />
+  <color
+      name="TextFgTentativeColor"
+      value="0.4 0.4 0.4 1" />
+  <color
+      name="TimeTextColor"
+      reference="LtGray" />
+  <color
+      name="TitleBarFocusColor"
+      reference="White_10" />
+  <color
+      name="ToastBackground"
+      value="0.3 0.3 0.3 0" />
+  <color
+      name="ToolTipBgColor"
+      value="0.937 0.89 0.655 1" />
+  <color
+      name="ToolTipBorderColor"
+      value="0.812 0.753 0.451 1" />
+  <color
+      name="ToolTipTextColor"
+      reference="DkGray2" />
+  <color
+      name="InspectorTipTextColor"
+      reference="LtGray" />
+  <color
+      name="UserChatColor"
+      reference="White" />
+  <color
+      name="llOwnerSayChatColor"
+      reference="LtYellow" />
 
-    <!-- New Colors -->
-    <color
-     name="OutputMonitorMutedColor"
-     reference="DkGray2" />
-    <color
-     name="SysWellItemUnselected"
-     value="0 0 0 0" />
-    <color
-     name="SysWellItemSelected"
-     value="0.3 0.3 0.3 1.0" />
-    <color
-    name="ColorSwatchBorderColor"
-    value="0.45098 0.517647 0.607843 1"/>
-    <color
-     name="ChatTimestampColor"
-     reference="White" />
-    <color
-     name="MenuBarProjectBgColor"
-     reference="MdBlue" />
+  <!-- New Colors -->
+  <color
+      name="OutputMonitorMutedColor"
+      reference="DkGray2" />
+  <color
+      name="SysWellItemUnselected"
+      value="0 0 0 0" />
+  <color
+      name="SysWellItemSelected"
+      value="0.3 0.3 0.3 1.0" />
+  <color
+      name="ColorSwatchBorderColor"
+      value="0.45098 0.517647 0.607843 1"/>
+  <color
+      name="ChatTimestampColor"
+      reference="White" />
+  <color
+      name="MenuBarProjectBgColor"
+      reference="MdBlue" />
   
-    <color
+  <color
       name="MeshImportTableNormalColor"
       value="1 1 1 1"/>
-    <color
+  <color
       name="MeshImportTableHighlightColor"
       value="0.2 0.8 1 1"/>
 
-    <color
-     name="DirectChatColor"
-     reference="LtOrange" />
+  <color
+      name="DirectChatColor"
+      reference="LtOrange" />
 
-    <color
+  <color
       name="ToolbarDropZoneColor"
       value=".48 .69 1 .5" />
   
-    <!-- Generic color names (legacy) -->
+  <!-- Generic color names (legacy) -->
   <color
-    name="white"
-    value="1 1 1 1"/>
+      name="white"
+      value="1 1 1 1"/>
   <color
-    name="black"
-    value="0 0 0 1"/>
+      name="black"
+      value="0 0 0 1"/>
   <color
-    name="red"
-    value="1 0 0 1"/>
+      name="red"
+      value="1 0 0 1"/>
   <color
-    name="green"
-    value="0 1 0 1"/>
+      name="green"
+      value="0 1 0 1"/>
   <color
-    name="blue"
-    value="0 0 1 1"/>
+      name="blue"
+      value="0 0 1 1"/>
 </colors>

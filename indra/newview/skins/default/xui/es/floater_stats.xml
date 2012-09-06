@@ -14,8 +14,11 @@
 					<stat_bar label="KTris generados por segundo" name="ktrissec"/>
 					<stat_bar label="Objetos en total" name="objs"/>
 					<stat_bar label="Objetos nuevos" name="newobjs"/>
+					<stat_bar label="Índice de aciertos de caché de objetos" name="object_cache_hits"/>
 				</stat_view>
 				<stat_view label="Textura" name="texture">
+					<stat_bar label="Índice de aciertos de caché" name="texture_cache_hits"/>
+					<stat_bar label="Latencia de lectura de caché" name="texture_cache_read_latency"/>
 					<stat_bar label="Número" name="numimagesstat"/>
 					<stat_bar label="Raw: número" name="numrawimagesstat"/>
 					<stat_bar label="GL Mem" name="gltexmemstat"/>
@@ -43,6 +46,12 @@
 					<stat_bar label="Pin de objetos" name="physicspinnedtasks"/>
 					<stat_bar label="Objetos con bajo nivel de detalle" name="physicslodtasks"/>
 					<stat_bar label="Memoria asignada" name="physicsmemoryallocated"/>
+				</stat_view>
+				<stat_bar label="Scripts ejecutados" name="simpctscriptsrun"/>
+				<stat_view label="Pathfinding" name="simpathfinding">
+					<stat_bar label="Tiempo de paso de IA" name="simsimaistepmsec"/>
+					<stat_bar label="Pasos de silueta omitidos" name="simsimskippedsilhouettesteps"/>
+					<stat_bar label="Personajes actualizados" name="simsimpctsteppedcharacters"/>
 				</stat_view>
 				<stat_view label="Tiempo (ms)" name="simperf">
 					<stat_bar label="Tiempo total de los frames" name="simframemsec"/>

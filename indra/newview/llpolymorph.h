@@ -58,14 +58,14 @@ public:
 	U32					mNumIndices;
 	U32*				mVertexIndices;
 	U32					mCurrentIndex;
-	LLVector3*			mCoords;
-	LLVector3*			mNormals;
-	LLVector3*			mBinormals;
+	LLVector4a*			mCoords;
+	LLVector4a*			mNormals;
+	LLVector4a*			mBinormals;
 	LLVector2*			mTexCoords;
 
 	F32					mTotalDistortion;	// vertex distortion summed over entire morph
 	F32					mMaxDistortion;		// maximum single vertex distortion in a given morph
-	LLVector3			mAvgDistortion;		// average vertex distortion, to infer directionality of the morph
+	LLVector4a			mAvgDistortion;		// average vertex distortion, to infer directionality of the morph
 	LLPolyMeshSharedData*	mMesh;
 };
 
@@ -78,7 +78,7 @@ public:
 	LLPolyVertexMask(LLPolyMorphData* morph_data);
 	~LLPolyVertexMask();
 
-	void generateMask(U8 *maskData, S32 width, S32 height, S32 num_components, BOOL invert, LLVector4 *clothing_weights);
+	void generateMask(U8 *maskData, S32 width, S32 height, S32 num_components, BOOL invert, LLVector4a *clothing_weights);
 	F32* getMorphMaskWeights();
 
 
@@ -157,11 +157,11 @@ public:
 	
 	// LLViewerVisualParam Virtual functions
 	/*virtual*/ F32					getTotalDistortion();
-	/*virtual*/ const LLVector3&	getAvgDistortion();
+	/*virtual*/ const LLVector4a&	getAvgDistortion();
 	/*virtual*/ F32					getMaxDistortion();
-	/*virtual*/ LLVector3			getVertexDistortion(S32 index, LLPolyMesh *poly_mesh);
-	/*virtual*/ const LLVector3*	getFirstDistortion(U32 *index, LLPolyMesh **poly_mesh);
-	/*virtual*/ const LLVector3*	getNextDistortion(U32 *index, LLPolyMesh **poly_mesh);
+	/*virtual*/ LLVector4a			getVertexDistortion(S32 index, LLPolyMesh *poly_mesh);
+	/*virtual*/ const LLVector4a*	getFirstDistortion(U32 *index, LLPolyMesh **poly_mesh);
+	/*virtual*/ const LLVector4a*	getNextDistortion(U32 *index, LLPolyMesh **poly_mesh);
 
 	void	applyMask(U8 *maskData, S32 width, S32 height, S32 num_components, BOOL invert);
 	void	addPendingMorphMask() { mNumMorphMasksPending++; }

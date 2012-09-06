@@ -10,16 +10,16 @@
 	<string name="Details">
 		[SL_PROFILE]
 	</string>
-	<text name="user_subtitle" value="11 Months, 3 days old"/>
+	<text name="user_subtitle" value="年齡 11 個月又 3 天"/>
 	<text name="user_details">
-		This is my second life description and I really think it is great. But for some reason my description is super extra long because I like to talk a whole lot
+		這是我的「第二人生」資訊。這地方太棒了！ 只不過，可是嘛……我的訊息相當相當的冗長，因為……我滿愛七嘴八舌的啦。
 	</text>
-	<slider name="volume_slider" tool_tip="Voice volume" value="0.5"/>
+	<slider name="volume_slider" tool_tip="音量" value="0.5"/>
 	<button label="加為朋友" name="add_friend_btn"/>
 	<button label="IM" name="im_btn"/>
 	<button label="檔案" name="view_profile_btn"/>
 	<panel name="moderator_panel">
-		<button label="Disable Voice" name="disable_voice"/>
-		<button label="Enable Voice" name="enable_voice"/>
+		<button label="停用語音" name="disable_voice"/>
+		<button label="啟用語音" name="enable_voice"/>
 	</panel>
 </floater>
