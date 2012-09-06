@@ -2493,12 +2493,14 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 		return TRUE;
 	}
 
+	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat");
+
 	// Traverses up the hierarchy
 	if( keyboard_focus )
 	{
-		if (LLNearbyChat::instanceExists())
+		if (nearby_chat)
 		{
-			LLChatEntry* chat_editor = LLNearbyChat::instance().getChatBox();
+			LLChatEntry* chat_editor = nearby_chat->getChatBox();
 
 			// arrow keys move avatar while chatting hack
 			if (chat_editor && chat_editor->hasFocus())
@@ -2562,11 +2564,11 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	if ( gSavedSettings.getS32("LetterKeysFocusChatBar") && !gAgentCamera.cameraMouselook() && 
 		!keyboard_focus && key < 0x80 && (mask == MASK_NONE || mask == MASK_SHIFT) )
 	{
-		LLChatEntry* chat_editor = LLNearbyChat::instance().getChatBox();
+		LLChatEntry* chat_editor = nearby_chat->getChatBox();
 		if (chat_editor)
 		{
 			// passing NULL here, character will be added later when it is handled by character handler.
-			LLNearbyChat::instance().startChat(NULL);
+			nearby_chat->startChat(NULL);
 			return TRUE;
 		}
 	}

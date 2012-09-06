@@ -62,6 +62,7 @@ public:
 
 	void	setIsVoice(bool is_voice);
 	void	setIsPast (bool is_past) { mIsConversationPast = is_past; }
+	void	setConverstionName(std::string conv_name) { mConversationName = conv_name; }
 
 	/*
 	 * Resets flag of unread offline message to false when im floater with this conversation is opened.
@@ -155,6 +156,8 @@ private:
 
 	bool saveToFile(const std::string& filename);
 	bool loadFromFile(const std::string& filename);
+
+	void onAvatarNameCache(const LLUUID& participant_id, const LLAvatarName& av_name, LLIMModel::LLIMSession* session);
 
 	typedef std::vector<LLConversation> conversations_vec_t;
 	std::vector<LLConversation>				mConversations;

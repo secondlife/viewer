@@ -35,15 +35,13 @@
 #include "lloutputmonitorctrl.h"
 #include "llspeakers.h"
 #include "llscrollbar.h"
-#include "llsingleton.h"
 #include "llviewerchat.h"
 #include "llpanel.h"
 
 class LLResizeBar;
 
 class LLNearbyChat
-	:	public LLIMConversation,
-	 	public LLSingleton<LLNearbyChat>
+	:	public LLIMConversation
 {
 public:
 	// constructor for inline chat-bars (e.g. hosted in chat history window)

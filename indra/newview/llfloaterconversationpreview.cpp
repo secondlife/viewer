@@ -29,6 +29,7 @@
 #include "llfloaterconversationpreview.h"
 #include "llimview.h"
 #include "lllineeditor.h"
+#include "llspinctrl.h"
 #include "lltrans.h"
 
 LLFloaterConversationPreview::LLFloaterConversationPreview(const LLSD& session_id)
@@ -68,6 +69,15 @@ BOOL LLFloaterConversationPreview::postBuild()
 
 	LLLogChat::loadChatHistory(file, mMessages, true);
 	mCurrentPage = mMessages.size() / mPageSize;
+
+	mPageSpinner = getChild<LLSpinCtrl>("history_page_spin");
+	mPageSpinner->setCommitCallback(boost::bind(&LLFloaterConversationPreview::onMoreHistoryBtnClick, this));
+	mPageSpinner->setMinValue(1);
+	mPageSpinner->setMaxValue(mCurrentPage + 1);
+	mPageSpinner->set(mCurrentPage + 1);
+
+	std::string total_page_num = llformat("/ %d", mCurrentPage + 1);
+	getChild<LLTextBox>("page_num_label")->setValue(total_page_num);
 
 	return LLFloater::postBuild();
 }
@@ -128,6 +138,7 @@ void LLFloaterConversationPreview::showHistory()
 
 void LLFloaterConversationPreview::onMoreHistoryBtnClick()
 {
+	mCurrentPage = mPageSpinner->getValueF32();
 	if (--mCurrentPage < 0)
 	{
 		return;

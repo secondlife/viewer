@@ -26,6 +26,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llagent.h"
+#include "llavatarnamecache.h"
 #include "llconversationlog.h"
 #include "lltrans.h"
 
@@ -152,6 +153,7 @@ void LLConversation::setListenIMFloaterOpened()
 		mIMFloaterShowedConnection = LLIMFloater::setIMFloaterShowedCallback(boost::bind(&LLConversation::onIMFloaterShown, this, _1));
 	}
 }
+
 /************************************************************************/
 /*             LLConversationLogFriendObserver implementation           */
 /************************************************************************/
@@ -262,9 +264,16 @@ void LLConversationLog::sessionAdded(const LLUUID& session_id, const std::string
 	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(session_id);
 	if (session)
 	{
-		LLConversation conversation(*session);
-		LLConversationLog::instance().logConversation(conversation);
-		session->mVoiceChannel->setStateChangedCallback(boost::bind(&LLConversationLog::onVoiceChannelConnected, this, _5, _2));
+		if (LLIMModel::LLIMSession::P2P_SESSION == session->mSessionType)
+		{
+			LLAvatarNameCache::get(session->mOtherParticipantID, boost::bind(&LLConversationLog::onAvatarNameCache, this, _1, _2, session));
+		}
+		else
+		{
+			LLConversation conversation(*session);
+			LLConversationLog::instance().logConversation(conversation);
+			session->mVoiceChannel->setStateChangedCallback(boost::bind(&LLConversationLog::onVoiceChannelConnected, this, _5, _2));
+		}
 	}
 }
 
@@ -424,4 +433,12 @@ void LLConversationLog::onVoiceChannelConnected(const LLUUID& session_id, const 
 			return; // return here because only one session with session_id may be active
 		}
 	}
+}
+
+void LLConversationLog::onAvatarNameCache(const LLUUID& participant_id, const LLAvatarName& av_name, LLIMModel::LLIMSession* session)
+{
+	LLConversation conversation(*session);
+	conversation.setConverstionName(av_name.getCompleteName());
+	LLConversationLog::instance().logConversation(conversation);
+	session->mVoiceChannel->setStateChangedCallback(boost::bind(&LLConversationLog::onVoiceChannelConnected, this, _5, _2));
 }
