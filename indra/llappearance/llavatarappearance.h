@@ -30,6 +30,7 @@
 #include "llcharacter.h"
 //#include "llframetimer.h"
 #include "llavatarappearancedefines.h"
+#include "lljoint.h"
 
 class LLTexLayerSet;
 class LLTexGlobalColor;
@@ -84,6 +85,7 @@ public:
 	// Morph masks
 	//--------------------------------------------------------------------
 public:
+	void 	addMaskedMorph(LLAvatarAppearanceDefines::EBakedTextureIndex index, LLVisualParam* morph_target, BOOL invert, std::string layer);
 	virtual void	applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_components, LLAvatarAppearanceDefines::EBakedTextureIndex index = LLAvatarAppearanceDefines::BAKED_NUM_INDICES) = 0;
 
 /**                    Rendering
@@ -157,6 +159,45 @@ public:
 
 private:
 	LLWearableData* mWearableData;
+
+/********************************************************************************
+ **                                                                            **
+ **                    BAKED TEXTURES
+ **/
+protected:
+	struct LLMaskedMorph;
+	typedef std::deque<LLMaskedMorph *> 	morph_list_t;
+	struct BakedTextureData
+	{
+		LLUUID								mLastTextureIndex;
+		LLTexLayerSet*		 				mTexLayerSet; // Only exists for self
+		bool								mIsLoaded;
+		bool								mIsUsed;
+		LLAvatarAppearanceDefines::ETextureIndex 	mTextureIndex;
+		U32									mMaskTexName;
+		// Stores pointers to the joint meshes that this baked texture deals with
+		std::vector< LLJoint* > 	mMeshes;  // std::vector<LLViewerJointMesh> mJoints[i]->mMeshParts
+		morph_list_t						mMaskedMorphs;
+	};
+	typedef std::vector<BakedTextureData> 	bakedtexturedata_vec_t;
+	bakedtexturedata_vec_t 					mBakedTextureDatas;
+
+
+/********************************************************************************
+ **                                                                            **
+ **                    SUPPORT CLASSES
+ **/
+
+	class LLMaskedMorph
+	{
+	public:
+		LLMaskedMorph(LLVisualParam *morph_target, BOOL invert, std::string layer);
+
+		LLVisualParam	*mMorphTarget;
+		BOOL				mInvert;
+		std::string			mLayer;
+	};
+
 };
 
 #endif // LL_AVATAR_APPEARANCE_H

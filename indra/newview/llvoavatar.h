@@ -48,6 +48,7 @@
 #include "llavatarappearancedefines.h"
 #include "lltexglobalcolor.h"
 #include "lldriverparam.h"
+#include "llviewertexlayer.h"
 #include "material_codes.h"		// LL_MCODE_END
 #include "llviewerstats.h"
 
@@ -63,7 +64,6 @@ extern const LLUUID ANIM_AGENT_PELVIS_FIX;
 extern const LLUUID ANIM_AGENT_TARGET;
 extern const LLUUID ANIM_AGENT_WALK_ADJUST;
 
-class LLViewerTexLayerSet;
 class LLViewerWearable;
 class LLVoiceVisualizer;
 class LLHUDNameTag;
@@ -87,7 +87,6 @@ public:
 	friend class LLVOAvatarSelf;
 protected:
 	struct LLVOAvatarXmlInfo;
-	struct LLMaskedMorph;
 
 /********************************************************************************
  **                                                                            **
@@ -460,9 +459,8 @@ private:
 	// Morph masks
 	//--------------------------------------------------------------------
 public:
+	/*virtual*/ void	applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_components, LLAvatarAppearanceDefines::EBakedTextureIndex index = LLAvatarAppearanceDefines::BAKED_NUM_INDICES);
 	BOOL 		morphMaskNeedsUpdate(LLAvatarAppearanceDefines::EBakedTextureIndex index = LLAvatarAppearanceDefines::BAKED_NUM_INDICES);
-	void 		addMaskedMorph(LLAvatarAppearanceDefines::EBakedTextureIndex index, LLPolyMorphTarget* morph_target, BOOL invert, std::string layer);
-	/*virtual*/void applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_components, LLAvatarAppearanceDefines::EBakedTextureIndex index = LLAvatarAppearanceDefines::BAKED_NUM_INDICES);
 
 	
 	//--------------------------------------------------------------------
@@ -590,22 +588,9 @@ protected:
 	static void		onBakedTextureLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
 	virtual void	removeMissingBakedTextures();
 	void			useBakedTexture(const LLUUID& id);
+	LLViewerTexLayerSet*  getTexLayerSet(const U32 index) const { return dynamic_cast<LLViewerTexLayerSet*>(mBakedTextureDatas[index].mTexLayerSet);	}
 
-	typedef std::deque<LLMaskedMorph *> 	morph_list_t;
-	struct BakedTextureData
-	{
-		LLUUID								mLastTextureIndex;
-		LLViewerTexLayerSet* 				mTexLayerSet; // Only exists for self
-		bool								mIsLoaded;
-		bool								mIsUsed;
-		LLAvatarAppearanceDefines::ETextureIndex 	mTextureIndex;
-		U32									mMaskTexName;
-		// Stores pointers to the joint meshes that this baked texture deals with
-		std::vector< LLViewerJointMesh * > 	mMeshes;  // std::vector<LLViewerJointMesh> mJoints[i]->mMeshParts
-		morph_list_t						mMaskedMorphs;
-	};
-	typedef std::vector<BakedTextureData> 	bakedtexturedata_vec_t;
-	bakedtexturedata_vec_t 					mBakedTextureDatas;
+
 	LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList ; 
 	BOOL mLoadedCallbacksPaused;
 	//--------------------------------------------------------------------
@@ -1123,21 +1108,6 @@ protected: // Shared with LLVOAvatarSelf
 
 		typedef std::vector<LLVOAvatarMorphInfo*> morph_info_list_t;
 		morph_info_list_t	mMorphMaskInfoList;
-	};
-
-	struct LLMaskedMorph
-	{
-		LLMaskedMorph(LLPolyMorphTarget *morph_target, BOOL invert, std::string layer) :
-			mMorphTarget(morph_target), 
-			mInvert(invert),
-			mLayer(layer)
-		{
-			morph_target->addPendingMorphMask();
-		}
-	
-		LLPolyMorphTarget	*mMorphTarget;
-		BOOL				mInvert;
-		std::string			mLayer;
 	};
 
 /**                    Support classes
