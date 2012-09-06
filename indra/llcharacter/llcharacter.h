@@ -197,7 +197,7 @@ public:
 	void addVisualParam(LLVisualParam *param);
 	void addSharedVisualParam(LLVisualParam *param);
 
-	virtual BOOL setVisualParamWeight(LLVisualParam *which_param, F32 weight, BOOL upload_bake = FALSE );
+	virtual BOOL setVisualParamWeight(const LLVisualParam *which_param, F32 weight, BOOL upload_bake = FALSE );
 	virtual BOOL setVisualParamWeight(const char* param_name, F32 weight, BOOL upload_bake = FALSE );
 	virtual BOOL setVisualParamWeight(S32 index, F32 weight, BOOL upload_bake = FALSE );
 

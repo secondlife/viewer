@@ -74,9 +74,7 @@ LLPointer<LLVOAvatarSelf> gAgentAvatarp = NULL;
 
 BOOL isAgentAvatarValid()
 {
-	return (gAgentAvatarp.notNull() &&
-			(gAgentAvatarp->getRegion() != NULL) &&
-			(!gAgentAvatarp->isDead()));
+	return (gAgentAvatarp.notNull() && gAgentAvatarp->isValid());
 }
 
 void selfStartPhase(const std::string& phase_name)
@@ -670,9 +668,15 @@ BOOL LLVOAvatarSelf::updateCharacter(LLAgent &agent)
 }
 
 // virtual
+BOOL LLVOAvatarSelf::isValid() const
+{
+	return ((getRegion() != NULL) && !isDead());
+}
+
+// virtual
 void LLVOAvatarSelf::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
-	if (isAgentAvatarValid())
+	if (isValid())
 	{
 		LLVOAvatar::idleUpdate(agent, world, time);
 		idleUpdateTractorBeam();
@@ -695,7 +699,7 @@ void LLVOAvatarSelf::resetJointPositions( void )
 	return LLVOAvatar::resetJointPositions();
 }
 // virtual
-BOOL LLVOAvatarSelf::setVisualParamWeight(LLVisualParam *which_param, F32 weight, BOOL upload_bake )
+BOOL LLVOAvatarSelf::setVisualParamWeight(const LLVisualParam *which_param, F32 weight, BOOL upload_bake )
 {
 	if (!which_param)
 	{
@@ -723,7 +727,7 @@ BOOL LLVOAvatarSelf::setVisualParamWeight(S32 index, F32 weight, BOOL upload_bak
 	return setParamWeight(param,weight,upload_bake);
 }
 
-BOOL LLVOAvatarSelf::setParamWeight(LLViewerVisualParam *param, F32 weight, BOOL upload_bake )
+BOOL LLVOAvatarSelf::setParamWeight(const LLViewerVisualParam *param, F32 weight, BOOL upload_bake )
 {
 	if (!param)
 	{
@@ -736,7 +740,7 @@ BOOL LLVOAvatarSelf::setParamWeight(LLViewerVisualParam *param, F32 weight, BOOL
 		U32 size = gAgentWearables.getWearableCount(type);
 		for (U32 count = 0; count < size; ++count)
 		{
-			LLViewerWearable *wearable = gAgentWearables.getWearable(type,count);
+			LLViewerWearable *wearable = gAgentWearables.getViewerWearable(type,count);
 			if (wearable)
 			{
 				wearable->setVisualParamWeight(param->getID(), weight, upload_bake);
@@ -762,7 +766,7 @@ void LLVOAvatarSelf::idleUpdateAppearanceAnimation()
 	// apply wearable visual params to avatar
 	for (U32 type = 0; type < LLWearableType::WT_COUNT; type++)
 	{
-		LLViewerWearable *wearable = gAgentWearables.getTopWearable((LLWearableType::EType)type);
+		LLWearable *wearable = gAgentWearables.getTopWearable((LLWearableType::EType)type);
 		if (wearable)
 		{
 			wearable->writeToAvatar();
@@ -1257,7 +1261,7 @@ BOOL LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
 		// Make sure the inventory is in sync with the avatar.
 
 		// Update COF contents, don't trigger appearance update.
-		if (!isAgentAvatarValid())
+		if (!isValid())
 		{
 			llinfos << "removeItemLinks skipped, avatar is under destruction" << llendl;
 		}
@@ -1780,7 +1784,7 @@ void LLVOAvatarSelf::setLocalTexture(ETextureIndex type, LLViewerTexture* src_te
 			return;
 		}
 		LLWearableType::EType wearable_type = LLAvatarAppearanceDictionary::getInstance()->getTEWearableType(type);
-		if (!gAgentWearables.getWearable(wearable_type,index))
+		if (!gAgentWearables.getViewerWearable(wearable_type,index))
 		{
 			// no wearable is loaded, cannot set the texture.
 			return;
@@ -1796,7 +1800,7 @@ void LLVOAvatarSelf::setLocalTexture(ETextureIndex type, LLViewerTexture* src_te
 		LLViewerTexLayerSet *layer_set = getLayerSet(type);
 		if (layer_set)
 		{
-			layer_set->cloneTemplates(local_tex_obj, type, gAgentWearables.getWearable(wearable_type,index));
+			layer_set->cloneTemplates(local_tex_obj, type, gAgentWearables.getViewerWearable(wearable_type,index));
 		}
 
 	}
@@ -2286,7 +2290,7 @@ BOOL LLVOAvatarSelf::canGrabBakedTexture(EBakedTextureIndex baked_index) const
 		
 		for (U32 wearable_index = 0; wearable_index < count; ++wearable_index)
 		{
-			LLViewerWearable *wearable = gAgentWearables.getWearable(wearable_type, wearable_index);
+			LLViewerWearable *wearable = gAgentWearables.getViewerWearable(wearable_type, wearable_index);
 			if (wearable)
 			{
 				const LLLocalTextureObject *texture = wearable->getLocalTextureObject((S32)t_index);
@@ -2361,7 +2365,7 @@ void LLVOAvatarSelf::addLocalTextureStats( ETextureIndex type, LLViewerFetchedTe
 LLLocalTextureObject* LLVOAvatarSelf::getLocalTextureObject(LLAvatarAppearanceDefines::ETextureIndex i, U32 wearable_index) const
 {
 	LLWearableType::EType type = LLAvatarAppearanceDictionary::getInstance()->getTEWearableType(i);
-	LLViewerWearable* wearable = gAgentWearables.getWearable(type, wearable_index);
+	LLViewerWearable* wearable = gAgentWearables.getViewerWearable(type, wearable_index);
 	if (wearable)
 	{
 		return wearable->getLocalTextureObject(i);

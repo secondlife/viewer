@@ -82,7 +82,7 @@ static void update_texture_ctrl(LLVOAvatar* avatarp,
 		if (avatarp->isSelf())
 		{
 			const LLWearableType::EType wearable_type = tex_entry->mWearableType;
-			LLViewerWearable *wearable = gAgentWearables.getWearable(wearable_type, 0);
+			LLViewerWearable *wearable = gAgentWearables.getViewerWearable(wearable_type, 0);
 			if (wearable)
 			{
 				LLLocalTextureObject *lto = wearable->getLocalTextureObject(te);
@@ -174,7 +174,7 @@ void LLFloaterAvatarTextures::onClickDump(void* data)
 				LLWearableType::EType wearable_type = LLAvatarAppearanceDictionary::getInstance()->getTEWearableType((ETextureIndex)i);
 				if (avatarp->isSelf())
 				{
-					LLViewerWearable *wearable = gAgentWearables.getWearable(wearable_type, 0);
+					LLViewerWearable *wearable = gAgentWearables.getViewerWearable(wearable_type, 0);
 					if (wearable)
 					{
 						LLLocalTextureObject *lto = wearable->getLocalTextureObject(i);

@@ -24,22 +24,20 @@
  * $/LicenseInfo$
  */
 
-#include "llviewerprecompiledheaders.h"
+#include "linden_common.h"
 
 #include "lldriverparam.h"
 
-#include "llfasttimer.h"
-#include "llvoavatar.h"
-#include "llvoavatarself.h"
-#include "llagent.h"
-#include "llviewerwearable.h"
-#include "llagentwearables.h"
+#include "llavatarappearance.h"
+#include "llwearable.h"
+#include "llwearabledata.h"
 
 //-----------------------------------------------------------------------------
 // LLDriverParamInfo
 //-----------------------------------------------------------------------------
 
-LLDriverParamInfo::LLDriverParamInfo()
+LLDriverParamInfo::LLDriverParamInfo() :
+	mDriverParam(NULL)
 {
 }
 
@@ -112,12 +110,14 @@ void LLDriverParamInfo::toStream(std::ostream &out)
 
 	out << std::endl;
 
-	if(isAgentAvatarValid())
+	if(mDriverParam && mDriverParam->getAvatarAppearance()->isSelf() &&
+		mDriverParam->getAvatarAppearance()->isValid())
 	{
 		for (entry_info_list_t::iterator iter = mDrivenInfoList.begin(); iter != mDrivenInfoList.end(); iter++)
 		{
 			LLDrivenEntryInfo driven = *iter;
-			LLViewerVisualParam *param = (LLViewerVisualParam*)gAgentAvatarp->getVisualParam(driven.mDrivenID);
+			LLViewerVisualParam *param = 
+				(LLViewerVisualParam*)mDriverParam->getAvatarAppearance()->getVisualParam(driven.mDrivenID);
 			if (param)
 			{
 				param->getInfo()->toStream(out);
@@ -139,7 +139,9 @@ void LLDriverParamInfo::toStream(std::ostream &out)
 			}
 			else
 			{
-				llwarns << "could not get parameter " << driven.mDrivenID << " from avatar " << gAgentAvatarp.get() << " for driver parameter " << getID() << llendl;
+				llwarns << "could not get parameter " << driven.mDrivenID << " from avatar " 
+						<< mDriverParam->getAvatarAppearance() 
+						<< " for driver parameter " << getID() << llendl;
 			}
 			out << std::endl;
 		}
@@ -150,19 +152,16 @@ void LLDriverParamInfo::toStream(std::ostream &out)
 // LLDriverParam
 //-----------------------------------------------------------------------------
 
-LLDriverParam::LLDriverParam(LLVOAvatar *avatarp) : 
+LLDriverParam::LLDriverParam(LLAvatarAppearance *appearance, LLWearable* wearable /* = NULL */) :
 	mCurrentDistortionParam( NULL ), 
-	mAvatarp(avatarp), 
-	mWearablep(NULL)
+	mAvatarAppearance(appearance), 
+	mWearablep(wearable)
 {
-	mDefaultVec.clear();
-}
-
-LLDriverParam::LLDriverParam(LLWearable *wearablep) : 
-	mCurrentDistortionParam( NULL ), 
-	mAvatarp(NULL), 
-	mWearablep(wearablep)
-{
+	llassert(mAvatarAppearance);
+	if (mWearablep)
+	{
+		llassert(mAvatarAppearance->isSelf());
+	}
 	mDefaultVec.clear();
 }
 
@@ -177,66 +176,20 @@ BOOL LLDriverParam::setInfo(LLDriverParamInfo *info)
 		return FALSE;
 	mInfo = info;
 	mID = info->mID;
+	info->mDriverParam = this;
 
 	setWeight(getDefaultWeight(), FALSE );
 
 	return TRUE;
 }
 
-void LLDriverParam::setWearable(LLWearable *wearablep)
-{
-	if (wearablep)
-	{
-		mWearablep = wearablep;
-		mAvatarp = NULL;
-	}
-}
-
-void LLDriverParam::setAvatar(LLVOAvatar *avatarp)
-{
-	if (avatarp)
-	{
-		mWearablep = NULL;
-		mAvatarp = avatarp;
-	}
-}
-
 /*virtual*/ LLViewerVisualParam* LLDriverParam::cloneParam(LLWearable* wearable) const
 {
-	LLDriverParam *new_param;
-	if (wearable)
-	{
-		new_param = new LLDriverParam(wearable);
-	}
-	else
-	{
-		if (mWearablep)
-		{
-			new_param = new LLDriverParam(mWearablep);
-		}
-		else
-		{
-			new_param = new LLDriverParam(mAvatarp);
-		}
-	}
+	llassert(wearable);
+	LLDriverParam *new_param = new LLDriverParam(mAvatarAppearance, wearable);
 	*new_param = *this;
 	return new_param;
 }
-
-#if 0 // obsolete
-BOOL LLDriverParam::parseData(LLXmlTreeNode* node)
-{
-	LLDriverParamInfo* info = new LLDriverParamInfo;
-
-	info->parseXml(node);
-	if (!setInfo(info))
-	{
-		delete info;
-		return FALSE;
-	}
-	return TRUE;
-}
-#endif
 
 void LLDriverParam::setWeight(F32 weight, BOOL upload_bake)
 {
@@ -456,6 +409,20 @@ const LLVector4a*	LLDriverParam::getNextDistortion(U32 *index, LLPolyMesh **poly
 	return v;
 };
 
+S32 LLDriverParam::getDrivenParamsCount() const
+{
+	return mDriven.size();
+}
+
+const LLViewerVisualParam* LLDriverParam::getDrivenParam(S32 index) const
+{
+	if (0 > index || index >= mDriven.size())
+	{
+		return NULL;
+	}
+	return mDriven[index].mParam;
+}
+
 //-----------------------------------------------------------------------------
 // setAnimationTarget()
 //-----------------------------------------------------------------------------
@@ -555,7 +522,7 @@ void LLDriverParam::updateCrossDrivenParams(LLWearableType::EType driven_type)
 		// Thus this wearable needs to get updates from the driver wearable.
 		// The call to setVisualParamWeight seems redundant, but is necessary
 		// as the number of driven wearables has changed since the last update. -Nyx
-		LLWearable *wearable = gAgentWearables.getTopWearable(driver_type);
+		LLWearable *wearable = mAvatarAppearance->getWearableData()->getTopWearable(driver_type);
 		if (wearable)
 		{
 			wearable->setVisualParamWeight(mID, wearable->getVisualParamWeight(mID), false);
@@ -624,12 +591,12 @@ F32 LLDriverParam::getDrivenWeight(const LLDrivenEntry* driven, F32 input_weight
 void LLDriverParam::setDrivenWeight(LLDrivenEntry *driven, F32 driven_weight, bool upload_bake)
 {
 	bool use_self = false;
-	if(isAgentAvatarValid() &&
-		mWearablep && 
+	if(mWearablep &&
+		mAvatarAppearance->isValid() &&
 		driven->mParam->getCrossWearable())
 	{
-		LLViewerWearable* wearable = dynamic_cast<LLViewerWearable*> (mWearablep);
-		if (wearable->isOnTop())
+		LLWearable* wearable = dynamic_cast<LLWearable*> (mWearablep);
+		if (mAvatarAppearance->getWearableData()->isOnTop(wearable))
 		{
 			use_self = true;
 		}
@@ -638,7 +605,7 @@ void LLDriverParam::setDrivenWeight(LLDrivenEntry *driven, F32 driven_weight, bo
 	if (use_self)
 	{
 		// call setWeight through LLVOAvatarSelf so other wearables can be updated with the correct values
-		gAgentAvatarp->setVisualParamWeight( (LLVisualParam*)driven->mParam, driven_weight, upload_bake );
+		mAvatarAppearance->setVisualParamWeight( (LLVisualParam*)driven->mParam, driven_weight, upload_bake );
 	}
 	else
 	{

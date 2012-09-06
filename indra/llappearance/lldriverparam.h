@@ -30,8 +30,8 @@
 #include "llviewervisualparam.h"
 #include "llwearabletype.h"
 
-class LLPhysicsMotion;
-class LLVOAvatar;
+class LLAvatarAppearance;
+class LLDriverParam;
 class LLWearable;
 
 //-----------------------------------------------------------------------------
@@ -71,16 +71,18 @@ public:
 protected:
 	typedef std::deque<LLDrivenEntryInfo> entry_info_list_t;
 	entry_info_list_t mDrivenInfoList;
+	LLDriverParam* mDriverParam; // backpointer
 };
 
 //-----------------------------------------------------------------------------
 
 class LLDriverParam : public LLViewerVisualParam
 {
-	friend class LLPhysicsMotion; // physics motion needs to access driven params directly.
+private:
+	// Hide the default constructor.  Force construction with LLAvatarAppearance.
+	LLDriverParam() {}
 public:
-	LLDriverParam(LLVOAvatar *avatarp);
-	LLDriverParam(LLWearable *wearablep);
+	LLDriverParam(LLAvatarAppearance *appearance, LLWearable* wearable = NULL);
 	~LLDriverParam();
 
 	// Special: These functions are overridden by child classes
@@ -88,14 +90,14 @@ public:
 	//   This sets mInfo and calls initialization functions
 	BOOL					setInfo(LLDriverParamInfo *info);
 
-	void					setWearable(LLWearable *wearablep);
-	void					setAvatar(LLVOAvatar *avatarp);
+	LLAvatarAppearance* getAvatarAppearance() { return mAvatarAppearance; }
+	const LLAvatarAppearance* getAvatarAppearance() const { return mAvatarAppearance; }
+
 	void					updateCrossDrivenParams(LLWearableType::EType driven_type);
 
 	/*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable) const;
 
 	// LLVisualParam Virtual functions
-	///*virtual*/ BOOL				parseData(LLXmlTreeNode* node);
 	/*virtual*/ void				apply( ESex sex ) {} // apply is called separately for each driven param.
 	/*virtual*/ void				setWeight(F32 weight, BOOL upload_bake);
 	/*virtual*/ void				setAnimationTarget( F32 target_value, BOOL upload_bake );
@@ -111,6 +113,9 @@ public:
 	/*virtual*/ const LLVector4a*	getFirstDistortion(U32 *index, LLPolyMesh **poly_mesh);
 	/*virtual*/ const LLVector4a*	getNextDistortion(U32 *index, LLPolyMesh **poly_mesh);
 
+	S32								getDrivenParamsCount() const;
+	const LLViewerVisualParam*		getDrivenParam(S32 index) const;
+
 protected:
 	F32 getDrivenWeight(const LLDrivenEntry* driven, F32 input_weight);
 	void setDrivenWeight(LLDrivenEntry *driven, F32 driven_weight, bool upload_bake);
@@ -121,7 +126,7 @@ protected:
 	entry_list_t mDriven;
 	LLViewerVisualParam* mCurrentDistortionParam;
 	// Backlink only; don't make this an LLPointer.
-	LLVOAvatar* mAvatarp;
+	LLAvatarAppearance* mAvatarAppearance;
 	LLWearable* mWearablep;
 };
 

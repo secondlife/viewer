@@ -922,7 +922,7 @@ void LLPanelEditWearable::onCommitSexChange()
         }
 
         bool is_new_sex_male = (gSavedSettings.getU32("AvatarSex") ? SEX_MALE : SEX_FEMALE) == SEX_MALE;
-        LLViewerWearable*     wearable = gAgentWearables.getWearable(type, index);
+        LLViewerWearable*     wearable = gAgentWearables.getViewerWearable(type, index);
         if (wearable)
         {
                 wearable->setVisualParamWeight(param->getID(), is_new_sex_male, FALSE);

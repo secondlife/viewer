@@ -166,7 +166,7 @@ protected:
 		}
 
         
-        void setParamValue(LLViewerVisualParam *param,
+        void setParamValue(const LLViewerVisualParam *param,
                            const F32 new_value_local,
                                                    F32 behavior_maxeffect);
 
@@ -673,12 +673,10 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 								 0,
 								 FALSE);
 			}
-			for (LLDriverParam::entry_list_t::iterator iter = driver_param->mDriven.begin();
-			     iter != driver_param->mDriven.end();
-			     ++iter)
+			S32 num_driven = driver_param->getDrivenParamsCount();
+			for (S32 i = 0; i < num_driven; ++i)
 			{
-				LLDrivenEntry &entry = (*iter);
-				LLViewerVisualParam *driven_param = entry.mParam;
+				const LLViewerVisualParam *driven_param = driver_param->getDrivenParam(i);
 				setParamValue(driven_param,position_new_local_clamped, behavior_maxeffect);
 			}
 		}
@@ -758,7 +756,7 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 }
 
 // Range of new_value_local is assumed to be [0 , 1] normalized.
-void LLPhysicsMotion::setParamValue(LLViewerVisualParam *param,
+void LLPhysicsMotion::setParamValue(const LLViewerVisualParam *param,
                                     F32 new_value_normalized,
 				    F32 behavior_maxeffect)
 {

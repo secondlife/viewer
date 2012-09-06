@@ -227,17 +227,6 @@ public:
 	/*virtual*/BOOL	isUsingBakedTextures() const { return mUseServerBakes; } // e.g. false if in appearance edit mode		
 	bool isBuilt() const { return mIsBuilt; }
 
-/********************************************************************************
- **                                                                            **
- **                    WEARABLES
- **/
-public:
-	/*virtual*/ U32				getWearableCount(const LLWearableType::EType type) const;
-	/*virtual*/ U32				getWearableCount(const U32 tex_index) const;
-
-	/*virtual*/ LLWearable*			getWearable(const LLWearableType::EType type, U32 index /*= 0*/);
-	/*virtual*/ const LLWearable* 	getWearable(const LLWearableType::EType type, U32 index /*= 0*/) const;
-
 private: //aligned members
 	LL_ALIGN_16(LLVector4a	mImpostorExtents[2]);
 
@@ -755,9 +744,6 @@ public:
  **                    WEARABLES
  **/
 
-public:
-	virtual BOOL			isWearingWearableType(LLWearableType::EType type ) const;
-	
 	//--------------------------------------------------------------------
 	// Attachments
 	//--------------------------------------------------------------------

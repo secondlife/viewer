@@ -86,16 +86,16 @@ public:
 
 	void				revertValues();
 	void				saveValues();
-	void				pullCrossWearableValues();		
-
-	BOOL				isOnTop() const;
 
 	// Something happened that requires the wearable's label to be updated (e.g. worn/unworn).
-	void				setLabelUpdated() const;
+	/*virtual*/void		setUpdated() const;
 
 	// the wearable was worn. make sure the name of the wearable object matches the LLViewerInventoryItem,
 	// not the wearable asset itself.
 	void				refreshName();
+
+	// Update the baked texture hash.
+	/*virtual*/void		addToBakedTextureHash(LLMD5& hash) const;
 
 protected:
 	typedef std::map<S32, LLLocalTextureObject*> te_map_t;

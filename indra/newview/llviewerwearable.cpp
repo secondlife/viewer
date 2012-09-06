@@ -632,11 +632,6 @@ void LLViewerWearable::revertValues()
 	}
 }
 
-BOOL LLViewerWearable::isOnTop() const
-{ 
-	return (this == gAgentWearables.getTopWearable(mType));
-}
-
 void LLViewerWearable::createLayers(S32 te)
 {
 	LLViewerTexLayerSet *layer_set = gAgentAvatarp->getLayerSet((ETextureIndex)te);
@@ -736,27 +731,8 @@ void LLViewerWearable::destroyTextures()
 	mSavedTEMap.clear();
 }
 
-void LLViewerWearable::pullCrossWearableValues()
-{
-	// scan through all of the avatar's visual parameters
-	for (LLViewerVisualParam* param = (LLViewerVisualParam*) gAgentAvatarp->getFirstVisualParam(); 
-		 param;
-		 param = (LLViewerVisualParam*) gAgentAvatarp->getNextVisualParam())
-	{
-		if( param )
-		{
-			LLDriverParam *driver_param = dynamic_cast<LLDriverParam*>(param);
-			if(driver_param)
-			{
-				// parameter is a driver parameter, have it update its 
-				driver_param->updateCrossDrivenParams(getType());
-			}
-		}
-	}
-}
-
-
-void LLViewerWearable::setLabelUpdated() const
+// virtual
+void LLViewerWearable::setUpdated() const
 { 
 	gInventory.addChangedMask(LLInventoryObserver::LABEL, getItemID());
 }
@@ -769,6 +745,13 @@ void LLViewerWearable::refreshName()
 	{
 		mName = item->getName();
 	}
+}
+
+// virtual
+void LLViewerWearable::addToBakedTextureHash(LLMD5& hash) const
+{
+	LLUUID asset_id = getAssetID();
+	hash.update((const unsigned char*)asset_id.mData, UUID_BYTES);
 }
 
 struct LLWearableSaveData

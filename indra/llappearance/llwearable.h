@@ -33,6 +33,7 @@
 #include "llwearabletype.h"
 #include "lllocaltextureobject.h"
 
+class LLMD5;
 class LLVisualParam;
 class LLTexGlobalColorInfo;
 class LLTexGlobalColor;
@@ -97,6 +98,12 @@ public:
 
 	typedef std::map<S32, LLUUID> texture_id_map_t;
 	const texture_id_map_t& getTextureIDMap() const { return mTextureIDMap; }
+
+	// Something happened that requires the wearable to be updated (e.g. worn/unworn).
+	virtual void		setUpdated() const = 0;
+
+	// Update the baked texture hash.
+	virtual void		addToBakedTextureHash(LLMD5& hash) const = 0;
 
 protected:
 	virtual void 	createVisualParams() = 0;

@@ -40,6 +40,7 @@
 #include "lltexturemanagerbridge.h"
 #include "llui.h"
 #include "llwearable.h"
+#include "llwearabledata.h"
 #include "llvertexbuffer.h"
 #include "llviewervisualparam.h"
 
@@ -1560,11 +1561,11 @@ U32 LLTexLayerTemplate::updateWearableCache() const
 		return 0;
 	}
 	LLWearableType::EType wearable_type = LLAvatarAppearanceDictionary::getTEWearableType((ETextureIndex)te);
-	U32 num_wearables = getAvatarAppearance()->getWearableCount(wearable_type);
+	U32 num_wearables = getAvatarAppearance()->getWearableData()->getWearableCount(wearable_type);
 	U32 added = 0;
 	for (U32 i = 0; i < num_wearables; i++)
 	{
-		LLWearable*  wearable = getAvatarAppearance()->getWearable(wearable_type, i);
+		LLWearable*  wearable = getAvatarAppearance()->getWearableData()->getWearable(wearable_type, i);
 		if (!wearable)
 		{
 			continue;

@@ -42,6 +42,7 @@ include_directories(
 
 set(llappearance_SOURCE_FILES
     llavatarappearance.cpp
+    lldriverparam.cpp
     llinventoryicon.cpp
     lllocaltextureobject.cpp
     lltexglobalcolor.cpp
@@ -49,6 +50,7 @@ set(llappearance_SOURCE_FILES
     lltexlayerparams.cpp
     lltexturemanagerbridge.cpp
     llwearable.cpp
+    llwearabledata.cpp
     llwearabletype.cpp
     llviewervisualparam.cpp
     llavatarappearancedefines.cpp
@@ -58,6 +60,7 @@ set(llappearance_HEADER_FILES
     CMakeLists.txt
 
     llavatarappearance.h
+    lldriverparam.h
     llinventoryicon.h
     lljointpickname.h
     lllocaltextureobject.h
@@ -66,6 +69,7 @@ set(llappearance_HEADER_FILES
     lltexlayerparams.h
     lltexturemanagerbridge.h
     llwearable.h
+    llwearabledata.h
     llwearabletype.h
     llviewervisualparam.h
     llavatarappearancedefines.h

@@ -29,16 +29,19 @@
 #include "llavatarappearance.h"
 #include "lldeleteutils.h"
 #include "lltexglobalcolor.h"
+#include "llwearabledata.h"
 
 const LLColor4 DUMMY_COLOR = LLColor4(0.5,0.5,0.5,1.0);
 
-LLAvatarAppearance::LLAvatarAppearance() :
+LLAvatarAppearance::LLAvatarAppearance(LLWearableData* wearable_data) :
 	LLCharacter(),
+	mIsDummy(FALSE),
 	mTexSkinColor( NULL ),
 	mTexHairColor( NULL ),
 	mTexEyeColor( NULL ),
-	mIsDummy(FALSE)
+	mWearableData(wearable_data)
 {
+	llassert(mWearableData);
 }
 
 // virtual
@@ -50,6 +53,17 @@ LLAvatarAppearance::~LLAvatarAppearance()
 }
 
 using namespace LLAvatarAppearanceDefines;
+
+// virtual
+BOOL LLAvatarAppearance::isValid() const
+{
+	// This should only be called on ourself.
+	if (!isSelf())
+	{
+		llerrs << "Called LLAvatarAppearance::isValid() on when isSelf() == false" << llendl;
+	}
+	return TRUE;
+}
 
 //static
 BOOL LLAvatarAppearance::teToColorParams( ETextureIndex te, U32 *param_name )
@@ -178,5 +192,47 @@ LLColor4 LLAvatarAppearance::getGlobalColor( const std::string& color_name ) con
 	}
 }
 
+// Unlike most wearable functions, this works for both self and other.
+// virtual
+BOOL LLAvatarAppearance::isWearingWearableType(LLWearableType::EType type) const
+{
+	if (mIsDummy) return TRUE;
+
+	switch(type)
+	{
+		case LLWearableType::WT_SHAPE:
+		case LLWearableType::WT_SKIN:
+		case LLWearableType::WT_HAIR:
+		case LLWearableType::WT_EYES:
+			return TRUE;  // everyone has all bodyparts
+		default:
+			break; // Do nothing
+	}
+
+	/* switch(type)
+		case LLWearableType::WT_SHIRT:
+			indicator_te = TEX_UPPER_SHIRT; */
+	for (LLAvatarAppearanceDictionary::Textures::const_iterator tex_iter = LLAvatarAppearanceDictionary::getInstance()->getTextures().begin();
+		 tex_iter != LLAvatarAppearanceDictionary::getInstance()->getTextures().end();
+		 ++tex_iter)
+	{
+		const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = tex_iter->second;
+		if (texture_dict->mWearableType == type)
+		{
+			// If you're checking another avatar's clothing, you don't have component textures.
+			// Thus, you must check to see if the corresponding baked texture is defined.
+			// NOTE: this is a poor substitute if you actually want to know about individual pieces of clothing
+			// this works for detecting a skirt (most important), but is ineffective at any piece of clothing that
+			// gets baked into a texture that always exists (upper or lower).
+			if (texture_dict->mIsUsedByBakedTexture)
+			{
+				const EBakedTextureIndex baked_index = texture_dict->mBakedTextureIndex;
+				return isTextureDefined(LLAvatarAppearanceDictionary::getInstance()->getBakedTexture(baked_index)->mTextureIndex);
+			}
+			return FALSE;
+		}
+	}
+	return FALSE;
+}
 
 

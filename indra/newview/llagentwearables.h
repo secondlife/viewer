@@ -37,6 +37,7 @@
 #include "llinventorymodel.h"
 #include "llviewerinventory.h"
 #include "llavatarappearancedefines.h"
+#include "llwearabledata.h"
 
 class LLInventoryItem;
 class LLVOAvatarSelf;
@@ -44,7 +45,7 @@ class LLViewerWearable;
 class LLInitialWearablesFetch;
 class LLViewerObject;
 
-class LLAgentWearables : public LLInitClass<LLAgentWearables>
+class LLAgentWearables : public LLInitClass<LLAgentWearables>, public LLWearableData
 {
 	//--------------------------------------------------------------------
 	// Constructors / destructors / Initializers
@@ -78,7 +79,7 @@ public:
 	bool			isCOFChangeInProgress() const { return mCOFChangeInProgress; }
 	void			updateWearablesLoaded();
 	void			checkWearablesLoaded() const;
-	bool			canMoveWearable(const LLUUID& item_id, bool closer_to_body);
+	bool			canMoveWearable(const LLUUID& item_id, bool closer_to_body) const;
 	
 	// Note: False for shape, skin, eyes, and hair, unless you have MORE than 1.
 	bool			canWearableBeRemoved(const LLViewerWearable* wearable) const;
@@ -94,36 +95,22 @@ public:
 	const LLViewerWearable*	getWearableFromItemID(const LLUUID& item_id) const;
 	LLViewerWearable*	getWearableFromItemID(const LLUUID& item_id);
 	LLViewerWearable*	getWearableFromAssetID(const LLUUID& asset_id);
+	LLViewerWearable*		getViewerWearable(const LLWearableType::EType type, U32 index /*= 0*/); 
+	const LLViewerWearable*	getViewerWearable(const LLWearableType::EType type, U32 index /*= 0*/) const;
 	LLInventoryItem*	getWearableInventoryItem(LLWearableType::EType type, U32 index /*= 0*/);
 	static BOOL			selfHasWearable(LLWearableType::EType type);
-	LLViewerWearable*			getWearable(const LLWearableType::EType type, U32 index /*= 0*/); 
-	const LLViewerWearable* 	getWearable(const LLWearableType::EType type, U32 index /*= 0*/) const;
-	LLViewerWearable*		getTopWearable(const LLWearableType::EType type);
-	LLViewerWearable*		getBottomWearable(const LLWearableType::EType type);
-	U32				getWearableCount(const LLWearableType::EType type) const;
-	U32				getWearableCount(const U32 tex_index) const;
-
-	static const U32 MAX_CLOTHING_PER_TYPE = 5; 
-
 
 	//--------------------------------------------------------------------
 	// Setters
 	//--------------------------------------------------------------------
-
 private:
-	// Low-level data structure setter - public access is via setWearableItem, etc.
-	void 			setWearable(const LLWearableType::EType type, U32 index, LLViewerWearable *wearable);
-	U32 			pushWearable(const LLWearableType::EType type, LLViewerWearable *wearable);
-	void			wearableUpdated(LLViewerWearable *wearable);
-	void 			popWearable(LLViewerWearable *wearable);
-	void			popWearable(const LLWearableType::EType type, U32 index);
-	
+	/*virtual*/void	wearableUpdated(LLWearable *wearable, BOOL removed);
 public:
 	void			setWearableItem(LLInventoryItem* new_item, LLViewerWearable* wearable, bool do_append = false);
 	void			setWearableOutfit(const LLInventoryItem::item_array_t& items, const LLDynamicArray< LLViewerWearable* >& wearables, BOOL remove);
 	void			setWearableName(const LLUUID& item_id, const std::string& new_name);
+	// *TODO: Move this into llappearance/LLWearableData ?
 	void			addLocalTextureObject(const LLWearableType::EType wearable_type, const LLAvatarAppearanceDefines::ETextureIndex texture_type, U32 wearable_index);
-	U32				getWearableIndex(const LLViewerWearable *wearable) const;
 
 protected:
 	void			setWearableFinal(LLInventoryItem* new_item, LLViewerWearable* new_wearable, bool do_append = false);
@@ -171,10 +158,9 @@ protected:
 public:
 	// Processes the initial wearables update message (if necessary, since the outfit folder makes it redundant)
 	static void		processAgentInitialWearablesUpdate(LLMessageSystem* mesgsys, void** user_data);
-	LLUUID			computeBakedTextureHash(LLAvatarAppearanceDefines::EBakedTextureIndex baked_index,
-											BOOL generate_valid_hash = TRUE);
 
 protected:
+	/*virtual*/ void	invalidateBakedTextureHash(LLMD5& hash) const;
 	void			sendAgentWearablesUpdate();
 	void			sendAgentWearablesRequest();
 	void			queryWearableCache();
@@ -243,10 +229,6 @@ private:
 	// Member variables
 	//--------------------------------------------------------------------
 private:
-	typedef std::vector<LLViewerWearable*> wearableentry_vec_t; // all wearables of a certain type (EG all shirts)
-	typedef std::map<LLWearableType::EType, wearableentry_vec_t> wearableentry_map_t;	// wearable "categories" arranged by wearable type
-	wearableentry_map_t mWearableDatas;
-
 	static BOOL		mInitialWearablesUpdateReceived;
 	BOOL			mWearablesLoaded;
 	std::set<LLUUID>	mItemsAwaitingWearableUpdate;

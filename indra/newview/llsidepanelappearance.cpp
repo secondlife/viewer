@@ -389,7 +389,7 @@ void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLViewerWearab
 
 	if (!wearable)
 	{
-		wearable = gAgentWearables.getWearable(LLWearableType::WT_SHAPE, 0);
+		wearable = gAgentWearables.getViewerWearable(LLWearableType::WT_SHAPE, 0);
 	}
 	if (!wearable)
 	{

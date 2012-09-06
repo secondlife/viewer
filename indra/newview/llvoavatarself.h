@@ -97,7 +97,7 @@ public:
 	
 				void		resetJointPositions( void );
 	
-	/*virtual*/ BOOL setVisualParamWeight(LLVisualParam *which_param, F32 weight, BOOL upload_bake = FALSE );
+	/*virtual*/ BOOL setVisualParamWeight(const LLVisualParam *which_param, F32 weight, BOOL upload_bake = FALSE );
 	/*virtual*/ BOOL setVisualParamWeight(const char* param_name, F32 weight, BOOL upload_bake = FALSE );
 	/*virtual*/ BOOL setVisualParamWeight(S32 index, F32 weight, BOOL upload_bake = FALSE );
 	/*virtual*/ void updateVisualParams();
@@ -111,7 +111,7 @@ public:
 
 private:
 	// helper function. Passed in param is assumed to be in avatar's parameter list.
-	BOOL setParamWeight(LLViewerVisualParam *param, F32 weight, BOOL upload_bake = FALSE );
+	BOOL setParamWeight(const LLViewerVisualParam *param, F32 weight, BOOL upload_bake = FALSE );
 
 
 
@@ -131,6 +131,7 @@ private:
 
 public:
 	/*virtual*/ bool 	isSelf() const { return true; }
+	/*virtual*/ BOOL	isValid() const;
 
 	//--------------------------------------------------------------------
 	// Updates

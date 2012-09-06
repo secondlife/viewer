@@ -644,7 +644,7 @@ static F32 calc_bouncy_animation(F32 x);
 LLVOAvatar::LLVOAvatar(const LLUUID& id,
 					   const LLPCode pcode,
 					   LLViewerRegion* regionp) :
-	LLAvatarAppearance(),
+	LLAvatarAppearance(&gAgentWearables),
 	LLViewerObject(id, pcode, regionp),
 	mSpecialRenderMode(0),
 	mAttachmentGeometryBytes(0),
@@ -5860,30 +5860,6 @@ void LLVOAvatar::updateVisualParams()
 	updateHeadOffset();
 }
 
-// virtual
-U32 LLVOAvatar::getWearableCount(const LLWearableType::EType type) const
-{
-	return gAgentWearables.getWearableCount(type);
-}
-
-// virtual
-U32 LLVOAvatar::getWearableCount(const U32 tex_index) const
-{
-	return gAgentWearables.getWearableCount(tex_index);
-}
-
-// virtual
-LLWearable* LLVOAvatar::getWearable(const LLWearableType::EType type, U32 index /*= 0*/)
-{
-	return gAgentWearables.getWearable(type, index);
-}
-
-// virtual
-const LLWearable* LLVOAvatar::getWearable(const LLWearableType::EType type, U32 index /*= 0*/) const
-{
-	return gAgentWearables.getWearable(type, index);
-}
-
 //-----------------------------------------------------------------------------
 // isActive()
 //-----------------------------------------------------------------------------
@@ -7006,48 +6982,6 @@ void LLVOAvatar::dumpAvatarTEs( const std::string& context ) const
 			LL_DEBUGS("Avatar") << avString() << "       " << texture_dict->mName << ": " << te_image->getID() << LL_ENDL;
 		}
 	}
-}
-
-// Unlike most wearable functions, this works for both self and other.
-BOOL LLVOAvatar::isWearingWearableType(LLWearableType::EType type) const
-{
-	if (mIsDummy) return TRUE;
-
-	switch(type)
-	{
-		case LLWearableType::WT_SHAPE:
-		case LLWearableType::WT_SKIN:
-		case LLWearableType::WT_HAIR:
-		case LLWearableType::WT_EYES:
-			return TRUE;  // everyone has all bodyparts
-		default:
-			break; // Do nothing
-	}
-
-	/* switch(type)
-		case LLWearableType::WT_SHIRT:
-			indicator_te = TEX_UPPER_SHIRT; */
-	for (LLAvatarAppearanceDictionary::Textures::const_iterator tex_iter = LLAvatarAppearanceDictionary::getInstance()->getTextures().begin();
-		 tex_iter != LLAvatarAppearanceDictionary::getInstance()->getTextures().end();
-		 ++tex_iter)
-	{
-		const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = tex_iter->second;
-		if (texture_dict->mWearableType == type)
-		{
-			// If you're checking another avatar's clothing, you don't have component textures.
-			// Thus, you must check to see if the corresponding baked texture is defined.
-			// NOTE: this is a poor substitute if you actually want to know about individual pieces of clothing
-			// this works for detecting a skirt (most important), but is ineffective at any piece of clothing that
-			// gets baked into a texture that always exists (upper or lower).
-			if (texture_dict->mIsUsedByBakedTexture)
-			{
-				const EBakedTextureIndex baked_index = texture_dict->mBakedTextureIndex;
-				return isTextureDefined(LLAvatarAppearanceDictionary::getInstance()->getBakedTexture(baked_index)->mTextureIndex);
-			}
-			return FALSE;
-		}
-	}
-	return FALSE;
 }
 
 //-----------------------------------------------------------------------------

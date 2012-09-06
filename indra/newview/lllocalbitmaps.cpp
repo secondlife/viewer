@@ -483,7 +483,7 @@ void LLLocalBitmap::updateUserLayers(LLUUID old_id, LLUUID new_id, LLWearableTyp
 	U32 count = gAgentWearables.getWearableCount(type);
 	for(U32 wearable_iter = 0; wearable_iter < count; wearable_iter++)
 	{
-		LLViewerWearable* wearable = gAgentWearables.getWearable(type, wearable_iter);
+		LLViewerWearable* wearable = gAgentWearables.getViewerWearable(type, wearable_iter);
 		if (wearable)
 		{
 			std::vector<LLLocalTextureObject*> texture_list = wearable->getLocalTextureListSeq();

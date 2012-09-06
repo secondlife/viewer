@@ -158,7 +158,6 @@ set(viewer_SOURCE_FILES
     lldrawpooltree.cpp
     lldrawpoolwater.cpp
     lldrawpoolwlsky.cpp
-    lldriverparam.cpp
     lldynamictexture.cpp
     llemote.cpp
     llenvmanager.cpp
@@ -728,7 +727,6 @@ set(viewer_HEADER_FILES
     lldrawpooltree.h
     lldrawpoolwater.h
     lldrawpoolwlsky.h
-    lldriverparam.h
     lldynamictexture.h
     llemote.h
     llenvmanager.h

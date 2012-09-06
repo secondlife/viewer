@@ -33,6 +33,7 @@
 
 class LLTexLayerSet;
 class LLTexGlobalColor;
+class LLWearableData;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // LLAvatarAppearance
@@ -47,9 +48,12 @@ class LLAvatarAppearance : public LLCharacter
  **                                                                            **
  **                    INITIALIZATION
  **/
+private:
+	// Hide default constructor.
+	LLAvatarAppearance() {}
 
 public:
-	LLAvatarAppearance();
+	LLAvatarAppearance(LLWearableData* wearable_data);
 	virtual ~LLAvatarAppearance();
 
 /**                    Initialization
@@ -62,6 +66,7 @@ public:
  **/
 public:
 	virtual bool 	isSelf() const { return false; } // True if this avatar is for this viewer's agent
+	virtual BOOL	isValid() const;
 	virtual BOOL	isUsingBakedTextures() const = 0;
 	
 /**                    State
@@ -145,15 +150,13 @@ public:
  **/
 
 public:
-	virtual BOOL			isWearingWearableType(LLWearableType::EType type ) const = 0;
+	LLWearableData*			getWearableData() { return mWearableData; }
+	const LLWearableData*	getWearableData() const { return mWearableData; }
+	virtual BOOL isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex te, U32 index = 0 ) const = 0;
+	virtual BOOL			isWearingWearableType(LLWearableType::EType type ) const;
 
-	virtual U32				getWearableCount(const LLWearableType::EType type) const = 0;
-	virtual U32				getWearableCount(const U32 tex_index) const = 0;
-
-	virtual LLWearable*			getWearable(const LLWearableType::EType type, U32 index /*= 0*/) = 0;
-	virtual const LLWearable* 	getWearable(const LLWearableType::EType type, U32 index /*= 0*/) const = 0;
-
-
+private:
+	LLWearableData* mWearableData;
 };
 
 #endif // LL_AVATAR_APPEARANCE_H
