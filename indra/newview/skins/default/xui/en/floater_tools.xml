@@ -2994,7 +2994,7 @@ even though the user gets a free copy.
                          use_ellipses="true"
 			 read_only="true"
 			 name="media_info"
-			 width="280" />
+			 width="180" />
       <web_browser
         visible="false"
         enabled="false"

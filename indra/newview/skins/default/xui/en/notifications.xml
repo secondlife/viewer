@@ -7576,18 +7576,6 @@ We cannot display a preview of this texture because it is no-copy and/or no-tran
 
   <notification
    icon="alertmodal.tga"
-   name="LivePreviewUnavailable"
-   type="alert">
-   
-We cannot display a preview of this texture because it is no-copy and/or no-transfer.
-  <usetemplate
-    ignoretext="Warn me that Live Preview mode is not available for no-copy and/or no-transfer textures"
-    name="okignore"
-    yestext="OK"/>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
    name="ConfirmLeaveCall"
    type="alert">
 Are you sure you want to leave this call?
@@ -8090,7 +8078,7 @@ Do you wish to continue?
    icon="alertmodal.tga"
    name="PathfindingLinksets_MismatchOnRestricted"
    type="alertmodal">
-Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because of permission restrictions on the linkset.  These linksets will be set to be '[RESTRICTED_TYPE]' instead.
+    Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because of permission restrictions on the linkset.  These linksets will be set to be '[RESTRICTED_TYPE]' instead.
 
 Do you wish to continue?
     <tag>confirm</tag>
@@ -8105,7 +8093,7 @@ Do you wish to continue?
    icon="alertmodal.tga"
    name="PathfindingLinksets_MismatchOnVolume"
    type="alertmodal">
-Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because the shape is non-convex.
+    Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because the shape is non-convex.
 
 Do you wish to continue?
     <tag>confirm</tag>
@@ -8122,7 +8110,7 @@ Do you wish to continue?
    type="alertmodal">
 Some selected linksets will have the Phantom flag toggled.
 
-Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because of permission restrictions on the linkset.  These linksets will be set to be '[RESTRICTED_TYPE]' instead.
+    Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because of permission restrictions on the linkset.  These linksets will be set to be '[RESTRICTED_TYPE]' instead.
 
 Do you wish to continue?
     <tag>confirm</tag>
@@ -8156,7 +8144,7 @@ Do you wish to continue?
    type="alertmodal">
 Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because of permission restrictions on the linkset.  These linksets will be set to be '[RESTRICTED_TYPE]' instead.
 
-Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because the shape is non-convex. These linksets&apos; use types will not change.
+ Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because the shape is non-convex. These linksets&apos; use types will not change.
 
 Do you wish to continue?
     <tag>confirm</tag>

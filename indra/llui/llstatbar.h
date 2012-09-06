@@ -59,10 +59,10 @@ public:
 			  label_spacing("label_spacing", 10.0f),
 			  precision("precision", 0),
 			  update_rate("update_rate", 5.0f),
-			  show_per_sec("show_per_sec", TRUE),
+			  show_per_sec("show_per_sec", true),
 			  show_bar("show_bar", TRUE),
-			  show_history("show_history", FALSE),
-			  show_mean("show_mean", TRUE),
+			  show_history("show_history", false),
+			  show_mean("show_mean", true),
 			  stat("stat")
 		{
 			changeDefault(follows.flags, FOLLOWS_TOP | FOLLOWS_LEFT);

@@ -39,7 +39,6 @@
 #include "llimagebmp.h"
 #include "llimagej2c.h"
 #include "llimagetga.h"
-#include "llmemtype.h"
 #include "llstl.h"
 #include "llvfile.h"
 #include "llvfs.h"
@@ -413,8 +412,8 @@ void LLViewerTexture::initClass()
 	
 	if(gSavedSettings.getBOOL("TextureFetchDebuggerEnabled"))
 	{
-		sTexelPixelRatio = gSavedSettings.getF32("TexelPixelRatio");
-	}
+	sTexelPixelRatio = gSavedSettings.getF32("TexelPixelRatio");
+}
 }
 
 // static
@@ -2240,7 +2239,7 @@ void LLViewerFetchedTexture::forceToDeleteRequest()
 		mIsFetching = FALSE ;
 	}
 		
-	resetTextureStats();
+		resetTextureStats();
 
 	mDesiredDiscardLevel = getMaxDiscardLevel() + 1;
 }
@@ -2289,9 +2288,9 @@ void LLViewerFetchedTexture::setLoadedCallback( loaded_callback_func loaded_call
 	if(mPauseLoadedCallBacks)
 	{
 		if(!pause)
-		{
-			unpauseLoadedCallbacks(src_callback_list) ;
-		}
+	{
+		unpauseLoadedCallbacks(src_callback_list) ;
+	}
 	}
 	else if(pause)
 	{

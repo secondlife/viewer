@@ -875,7 +875,6 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					 const EObjectUpdateType update_type,
 					 LLDataPacker *dp)
 {
-	LLMemType mt(LLMemType::MTYPE_OBJECT);
 	U32 retval = 0x0;
 	
 	// If region is removed from the list it is also deleted.
@@ -2044,7 +2043,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		if (new_angv != old_angv)
 		{
 			if (flagUsePhysics())
-			{
+		{
 				resetRot();
 			}
 			else
@@ -2052,7 +2051,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				resetRotTime();
 			}
 		}
-
+		
 		// Set the rotation of the object followed by adjusting for the accumulated angular velocity (llSetTargetOmega)
 		setRotation(new_rot * mAngularVelocityRot);
 		setChanged(ROTATED | SILHOUETTE);
@@ -2341,8 +2340,6 @@ void LLViewerObject::interpolateLinearMotion(const F64 & time, const F32 & dt)
 
 BOOL LLViewerObject::setData(const U8 *datap, const U32 data_size)
 {
-	LLMemType mt(LLMemType::MTYPE_OBJECT);
-	
 	delete [] mData;
 
 	if (datap)
@@ -2384,8 +2381,6 @@ void LLViewerObject::doUpdateInventory(
 	U8 key,
 	bool is_new)
 {
-	LLMemType mt(LLMemType::MTYPE_OBJECT);
-
 	LLViewerInventoryItem* old_item = NULL;
 	if(TASK_INVENTORY_ITEM_KEY == key)
 	{
@@ -2469,8 +2464,6 @@ void LLViewerObject::saveScript(
 	BOOL active,
 	bool is_new)
 {
-	LLMemType mt(LLMemType::MTYPE_OBJECT);
-
 	/*
 	 * XXXPAM Investigate not making this copy.  Seems unecessary, but I'm unsure about the
 	 * interaction with doUpdateInventory() called below.
@@ -2546,8 +2539,6 @@ void LLViewerObject::dirtyInventory()
 
 void LLViewerObject::registerInventoryListener(LLVOInventoryListener* listener, void* user_data)
 {
-	LLMemType mt(LLMemType::MTYPE_OBJECT);
-	
 	LLInventoryCallbackInfo* info = new LLInventoryCallbackInfo;
 	info->mListener = listener;
 	info->mInventoryData = user_data;
@@ -2645,8 +2636,6 @@ S32 LLFilenameAndTask::sCount = 0;
 // static
 void LLViewerObject::processTaskInv(LLMessageSystem* msg, void** user_data)
 {
-	LLMemType mt(LLMemType::MTYPE_OBJECT);
-	
 	LLUUID task_id;
 	msg->getUUIDFast(_PREHASH_InventoryData, _PREHASH_TaskID, task_id);
 	LLViewerObject* object = gObjectList.findObject(task_id);
@@ -2733,8 +2722,6 @@ void LLViewerObject::processTaskInvFile(void** user_data, S32 error_code, LLExtS
 
 void LLViewerObject::loadTaskInvFile(const std::string& filename)
 {
-	LLMemType mt(LLMemType::MTYPE_OBJECT);
-	
 	std::string filename_and_local_path = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, filename);
 	llifstream ifs(filename_and_local_path);
 	if(ifs.good())
@@ -2858,8 +2845,6 @@ void LLViewerObject::updateInventory(
 	U8 key,
 	bool is_new)
 {
-	LLMemType mt(LLMemType::MTYPE_OBJECT);
-
 	std::list<LLUUID>::iterator begin = mPendingInventoryItemsIDs.begin();
 	std::list<LLUUID>::iterator end = mPendingInventoryItemsIDs.end();
 
@@ -3883,8 +3868,6 @@ std::string LLViewerObject::getMediaURL() const
 
 void LLViewerObject::setMediaURL(const std::string& media_url)
 {
-	LLMemType mt(LLMemType::MTYPE_OBJECT);
-	
 	if (!mMedia)
 	{
 		mMedia = new LLViewerObjectMedia;
@@ -3934,8 +3917,6 @@ BOOL LLViewerObject::setMaterial(const U8 material)
 
 void LLViewerObject::setNumTEs(const U8 num_tes)
 {
-	LLMemType mt(LLMemType::MTYPE_OBJECT);
-	
 	U32 i;
 	if (num_tes != getNumTEs())
 	{
@@ -5436,7 +5417,7 @@ void LLViewerObject::applyAngularVelocity(F32 dt)
 		
 		// calculate the delta increment based on the object's angular velocity
 		dQ.setQuat(angle, ang_vel);
-
+		
 		// accumulate the angular velocity rotations to re-apply in the case of an object update
 		mAngularVelocityRot *= dQ;
 		

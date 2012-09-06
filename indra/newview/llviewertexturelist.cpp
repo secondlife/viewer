@@ -67,12 +67,12 @@ void (*LLViewerTextureList::sUUIDCallback)(void **, const LLUUID&) = NULL;
 U32 LLViewerTextureList::sTextureBits = 0;
 U32 LLViewerTextureList::sTexturePackets = 0;
 S32 LLViewerTextureList::sNumImages = 0;
-LLStat LLViewerTextureList::sNumImagesStat(32, TRUE);
-LLStat LLViewerTextureList::sNumRawImagesStat(32, TRUE);
-LLStat LLViewerTextureList::sGLTexMemStat(32, TRUE);
-LLStat LLViewerTextureList::sGLBoundMemStat(32, TRUE);
-LLStat LLViewerTextureList::sRawMemStat(32, TRUE);
-LLStat LLViewerTextureList::sFormattedMemStat(32, TRUE);
+LLStat LLViewerTextureList::sNumImagesStat("Num Images", TRUE);
+LLStat LLViewerTextureList::sNumRawImagesStat("Num Raw Images", TRUE);
+LLStat LLViewerTextureList::sGLTexMemStat("GL Texture Mem", TRUE);
+LLStat LLViewerTextureList::sGLBoundMemStat("GL Bound Mem", TRUE);
+LLStat LLViewerTextureList::sRawMemStat("Raw Image Mem", TRUE);
+LLStat LLViewerTextureList::sFormattedMemStat("Formatted Image Mem", TRUE);
 
 LLViewerTextureList gTextureList;
 static LLFastTimer::DeclareTimer FTM_PROCESS_IMAGES("Process Images");
@@ -613,8 +613,8 @@ void LLViewerTextureList::updateImages(F32 max_time)
 	if(gTeleportDisplay)
 	{
 		if(!cleared)
-		{
-			clearFetchingRequests();
+	{
+		clearFetchingRequests();
 			gPipeline.clearRebuildGroups();
 			cleared = TRUE;
 		}
@@ -783,7 +783,7 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 					imagep->setInactive() ;										
 				}
 			}
-
+			
 			if (!imagep->isInImageList())
 			{
 				continue;
@@ -806,9 +806,9 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 				imagep->setDecodePriority(decode_priority);
 				mImageList.insert(imagep);
 			}
+			}
 		}
 	}
-}
 
 void LLViewerTextureList::setDebugFetching(LLViewerFetchedTexture* tex, S32 debug_level)
 {
@@ -981,8 +981,8 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
             if (!SKIP_LOW_PRIO || (SKIP_LOW_PRIO && ((imagep->getDecodePriority() > MIN_PRIORITY_THRESHOLD) || imagep->hasFetcher())))
             {
                 entries.push_back(imagep);
-                update_counter--;
-            }
+			update_counter--;
+		}
 
 			iter2++;
 			total_update_count--;
@@ -1006,14 +1006,6 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
 			break;
 		}
 	}
-	//if (fetch_count == 0)
-	//{
-	//	gDebugTimers[0].pause();
-	//}
-	//else
-	//{
-	//	gDebugTimers[0].unpause();
-	//}
 	return image_op_timer.getElapsedTimeF32();
 }
 
@@ -1385,7 +1377,6 @@ void LLViewerTextureList::receiveImagePacket(LLMessageSystem *msg, void **user_d
 {
 	static LLCachedControl<bool> log_texture_traffic(gSavedSettings,"LogTextureNetworkTraffic") ;
 
-	LLMemType mt1(LLMemType::MTYPE_APPFMTIMAGE);
 	LLFastTimer t(FTM_PROCESS_IMAGES);
 	
 	// Receives image packet, copy into image object,

@@ -26,7 +26,10 @@
 #ifndef LLMEMORY_H
 #define LLMEMORY_H
 
-#include "llmemtype.h"
+#include "linden_common.h"
+
+class LLMutex ;
+
 inline void* ll_aligned_malloc( size_t size, int align )
 {
 	void* mem = malloc( size + (align - 1) + sizeof(void*) );

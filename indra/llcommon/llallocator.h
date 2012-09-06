@@ -29,16 +29,10 @@
 
 #include <string>
 
-#include "llmemtype.h"
 #include "llallocator_heap_profile.h"
 
 class LL_COMMON_API LLAllocator {
     friend class LLMemoryView;
-    friend class LLMemType;
-
-private:
-	static void pushMemType(S32 type);
-	static S32 popMemType();
 
 public:
     void setProfilingEnabled(bool should_enable);

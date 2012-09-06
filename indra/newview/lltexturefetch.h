@@ -35,6 +35,7 @@
 #include "lltextureinfo.h"
 #include "llapr.h"
 #include "llimageworker.h"
+#include "llstat.h"
 //#include "lltexturecache.h"
 
 class LLViewerTexture;
@@ -171,7 +172,7 @@ private:
 	LLTextureCache* mTextureCache;
 	LLImageDecodeThread* mImageDecodeThread;
 	LLCurlTextureRequest* mCurlGetRequest;
-
+	
 	// Map of all requests by UUID
 	typedef std::map<LLUUID,LLTextureFetchWorker*> map_t;
 	map_t mRequestMap;
@@ -221,7 +222,7 @@ private:
 	//debug use
 	LLTextureFetchDebugger* mFetchDebugger;
 	bool mFetcherLocked;
-	
+
 	e_tex_source mFetchSource;
 	e_tex_source mOriginFetchSource;
 
@@ -361,11 +362,11 @@ public:
 	
 	void setCurlGetRequest(LLCurlTextureRequest* request) { mCurlGetRequest = request;}
 	LLCurlTextureRequest* getCurlGetRequest() { return mCurlGetRequest;}
-
+	
 	void startWork(e_debug_state state);
 	void setStopDebug() {mStopDebug = TRUE;}
 	void tryToStopDebug(); //stop everything
-	
+
 	void callbackCacheRead(S32 id, bool success, LLImageFormatted* image,
 						   S32 imagesize, BOOL islocal);
 	void callbackCacheWrite(S32 id, bool success);
