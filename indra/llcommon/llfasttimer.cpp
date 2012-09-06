@@ -388,8 +388,8 @@ void LLFastTimer::NamedTimer::accumulateTimings()
 		U32 cumulative_time_delta = cur_time - cur_timer->mStartTime;
 		U32 self_time_delta = cumulative_time_delta - cur_data->mChildTime;
 		cur_data->mChildTime = 0;
-		cur_timer->mFrameState->mSelfTimeCounter += self_time_delta;
-		cur_timer->mFrameState->mTotalTimeCounter += cumulative_time_delta;
+		cur_data->mFrameState->mSelfTimeCounter += self_time_delta;
+		cur_data->mFrameState->mTotalTimeCounter += cumulative_time_delta;
 
 		cur_timer->mStartTime = cur_time;
 
@@ -643,16 +643,16 @@ const LLFastTimer::NamedTimer* LLFastTimer::getTimerByName(const std::string& na
 	return NamedTimerFactory::instance().getTimerByName(name);
 }
 
-LLFastTimer::LLFastTimer(LLFastTimer::FrameState* state)
-:	mFrameState(state)
-{
-	U32 start_time = getCPUClockCount32();
-	mStartTime = start_time;
-	mFrameState->mActiveCount++;
-	LLFastTimer::sCurTimerData.mCurTimer = this;
-	LLFastTimer::sCurTimerData.mFrameState = mFrameState;
-	LLFastTimer::sCurTimerData.mChildTime = 0;
-	mLastTimerData = LLFastTimer::sCurTimerData;
-}
+//LLFastTimer::LLFastTimer(LLFastTimer::FrameState* state)
+//:	mFrameState(state)
+//{
+//	U32 start_time = getCPUClockCount32();
+//	mStartTime = start_time;
+//	mFrameState->mActiveCount++;
+//	LLFastTimer::sCurTimerData.mCurTimer = this;
+//	LLFastTimer::sCurTimerData.mFrameState = mFrameState;
+//	LLFastTimer::sCurTimerData.mChildTime = 0;
+//	mLastTimerData = LLFastTimer::sCurTimerData;
+//}
 
 

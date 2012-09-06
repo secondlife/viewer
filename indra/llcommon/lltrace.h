@@ -81,16 +81,16 @@ namespace LLTrace
 				accumulator->mMoveUpTree |= (accumulator->mParent->mActiveCount == 0);
 
 				// push new timer on stack
-				sRecorderHead->mRecorder = this;
-				sRecorderHead->mAccumulator = accumulator;
-				sRecorderHead->mChildTime = 0;
+				sRecorderHead.mRecorder = this;
+				sRecorderHead.mAccumulator = accumulator;
+				sRecorderHead.mChildTime = 0;
 			}
 
 			LL_FORCE_INLINE ~Recorder()
 			{
 				U32 total_time = getCPUClockCount32() - mStartTime;
 
-				Accumulator* accumulator = sRecorderHead->mAccumulator;
+				Accumulator* accumulator = sRecorderHead.mAccumulator;
 				accumulator->mSelfTimeCounter += total_time- sRecorderHead.mChildTime;
 				accumulator->mTotalTimeCounter += total_time;
 				accumulator->mActiveCount--;

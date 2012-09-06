@@ -45,10 +45,12 @@ LL_COMMON_API void assert_main_thread();
 class LL_COMMON_API LLFastTimer
 {
 public:
+	class NamedTimer;
+
 	struct LL_COMMON_API FrameState
 	{
 		FrameState();
-		void setNamedTimer(NamedTimer* timerp) { mTimer = timerp; }
+		void setNamedTimer(class NamedTimer* timerp) { mTimer = timerp; }
 
 		U32 				mSelfTimeCounter;
 		U32 				mTotalTimeCounter;
@@ -152,13 +154,12 @@ public:
 	};
 
 public:
-	LLFastTimer(LLFastTimer::FrameState* state);
+	//LLFastTimer(LLFastTimer::FrameState* state);
 
 	LL_FORCE_INLINE LLFastTimer(LLFastTimer::DeclareTimer& timer)
-	:	mFrameState(&timer.mFrameState)
 	{
 #if FAST_TIMER_ON
-		LLFastTimer::FrameState* frame_state = mFrameState;
+		LLFastTimer::FrameState* frame_state = &timer.mFrameState;
 		mStartTime = getCPUClockCount32();
 
 		frame_state->mActiveCount++;
@@ -182,7 +183,7 @@ public:
 	LL_FORCE_INLINE ~LLFastTimer()
 	{
 #if FAST_TIMER_ON
-		LLFastTimer::FrameState* frame_state = mFrameState;
+		LLFastTimer::FrameState* frame_state = LLFastTimer::sCurTimerData.mFrameState;
 		U32 total_time = getCPUClockCount32() - mStartTime;
 
 		frame_state->mSelfTimeCounter += total_time - LLFastTimer::sCurTimerData.mChildTime;
@@ -380,7 +381,6 @@ private:
 	static U64				sLastFrameTime;
 
 	U32							mStartTime;
-	LLFastTimer::FrameState*	mFrameState;
 	LLFastTimer::CurTimerData	mLastTimerData;
 
 };
