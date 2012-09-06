@@ -51,14 +51,36 @@
      left="5"
      width="390">
     </chat_history>
-    <button
+    <text
      follows="bottom|right"
+     font="SansSerif"
      height="22"
      layout="topleft"
-     name="more_history"
-     label="More history..."
-     right="-15"
-     top_pad="5"
-     width="100">
-    </button>
+     name="page_label"
+     right="-110"
+     top_pad="7"
+     value="Page"
+     width="35">
+    </text>
+    <spinner
+     decimal_digits="0"
+     follows="bottom|right"
+     height="23"
+     increment="1"
+     label_width="40"
+     layout="topleft"
+     left_pad="0"
+     name="history_page_spin"
+     top_delta="-3"
+     width="50"/>
+    <text
+     follows="bottom|right"
+     font="SandSerif"
+     height="22"
+     layout="topleft"
+     name="page_num_label"
+     left_pad="5"
+     top_delta="4"
+     width="40">
+    </text>
 </floater>
