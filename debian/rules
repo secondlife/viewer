@@ -9,11 +9,19 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-SRCDIR=build-linux-i686/newview/packaged
-DESTDIR=$(CURDIR)/debian/secondlife-viewer
-BASEDIR=opt/linden/viewer
+BASEDIR=opt/linden
+
+VIEWER_PKG=secondlife-viewer
+VIEWER_PACKAGEDIR=build-linux-i686/newview/packaged
+VIEWER_DESTDIR=$(CURDIR)/debian/$(VIEWER_PKG)
 VIEWER_VERSION:=$(shell dpkg-parsechangelog | grep ^Version | sed 's/^Version: //')
-INSTALLDIR:=$(BASEDIR)/SecondLife-i686-$(VIEWER_VERSION)
+VIEWER_INSTALLDIR:=$(BASEDIR)/viewer/SecondLife-i686-$(VIEWER_VERSION)
+
+UTILITY_PKG=secondlife-appearance-utility
+UTILITY_SRCDIR=indra/appearance_utility
+UTILITY_PACKAGEDIR=build-linux-i686/appearance_utility
+UTILITY_DESTDIR=$(CURDIR)/debian/$(UTILITY_PKG)
+UTILITY_INSTALLDIR:=$(BASEDIR)/utilities
 
 configure: configure-stamp
 configure-stamp:
@@ -50,24 +58,61 @@ install: build
 	dh_installdirs
 
 	# Add here commands to install the package into debian/secondlife-viewer.
-	for file in $$(find $(SRCDIR) -type f -o -type l | sed 's~$(SRCDIR)/~~'); do \
+	for file in $$(find $(VIEWER_PACKAGEDIR) -type f -o -type l | sed 's~$(VIEWER_PACKAGEDIR)/~~'); do \
 		# create containing directory \
-		install -v -m 755 -o root -g root -d "$$(dirname "$(DESTDIR)/$(INSTALLDIR)/$$file")"; \
+		install -v -m 755 -o root -g root -d "$$(dirname "$(VIEWER_DESTDIR)/$(VIEWER_INSTALLDIR)/$$file")"; \
 		PERM=644; \
-		if [ -x "$(SRCDIR)/$$file" ]; then \
+		if [ -x "$(VIEWER_PACKAGEDIR)/$$file" ]; then \
 			PERM=755; \
 		fi; \
-		if [ -L "$(SRCDIR)/$$file" ]; then \
-			REAL="$$( readlink -f $(SRCDIR)/$$file )"; \
-			RELATIVE="$$( echo $$REAL | sed 's~$(CURDIR)/$(SRCDIR)/~~' )"; \
-			echo dh_link "$(INSTALLDIR)/$$RELATIVE" "$(INSTALLDIR)/$$file" ; \
-			dh_link "$(INSTALLDIR)/$$RELATIVE" "$(INSTALLDIR)/$$file" ; \
+		if [ -L "$(VIEWER_PACKAGEDIR)/$$file" ]; then \
+			REAL="$$( readlink -f $(VIEWER_PACKAGEDIR)/$$file )"; \
+			RELATIVE="$$( echo $$REAL | sed 's~$(CURDIR)/$(VIEWER_PACKAGEDIR)/~~' )"; \
+			echo dh_link -p $(VIEWER_PKG) "$(VIEWER_INSTALLDIR)/$$RELATIVE" "$(VIEWER_INSTALLDIR)/$$file" ; \
+			dh_link -p $(VIEWER_PKG) "$(VIEWER_INSTALLDIR)/$$RELATIVE" "$(VIEWER_INSTALLDIR)/$$file" ; \
 		else \
-			install -v -m $$PERM -o root -g root "$(SRCDIR)/$$file" "$(DESTDIR)/$(INSTALLDIR)/$$file"; \
+			install -v -m $$PERM -o root -g root "$(VIEWER_PACKAGEDIR)/$$file" "$(VIEWER_DESTDIR)/$(VIEWER_INSTALLDIR)/$$file"; \
 		fi; \
 	done
-	dh_link /$(INSTALLDIR)/secondlife /usr/bin/secondlife
-	dh_link $(BASEDIR)/SecondLife-i686-$(VIEWER_VERSION) $(BASEDIR)/SecondLife
+	dh_link -p $(VIEWER_PKG) /$(VIEWER_INSTALLDIR)/secondlife /usr/bin/secondlife
+	dh_link -p $(VIEWER_PKG) $(BASEDIR)/viewer/SecondLife-i686-$(VIEWER_VERSION) $(BASEDIR)/viewer/SecondLife
+
+	# Add here commands to install the package into debian/secondlife-appearance-utility
+	# create containing directory
+	install -v -m 755 -o root -g root -d "$(UTILITY_DESTDIR)/$(UTILITY_INSTALLDIR)"
+	# install utility wrapper
+	install -v -m 755 -o root -g root "$(UTILITY_SRCDIR)/wrapper.sh" "$(UTILITY_DESTDIR)/$(UTILITY_INSTALLDIR)/wrapper.sh"
+	# install appearance-utility
+	install -v -m 755 -o root -g root "$(UTILITY_PACKAGEDIR)/appearance-utility-bin" "$(UTILITY_DESTDIR)/$(UTILITY_INSTALLDIR)/appearance-utility-bin"
+	dh_link -p $(UTILITY_PKG) $(UTILITY_INSTALLDIR)/wrapper.sh $(UTILITY_INSTALLDIR)/appearance-utility
+	# install xml/image resources from viewer package
+	for file in $$(find $(VIEWER_PACKAGEDIR)/character -name "avatar_*.xml" -o -name "*.tga" | sed 's~$(VIEWER_PACKAGEDIR)/~~'); do \
+		# create containing directory \
+		install -v -m 755 -o root -g root -d "$$(dirname "$(UTILITY_DESTDIR)/$(UTILITY_INSTALLDIR)/$$file")"; \
+		PERM=644; \
+		if [ -x "$(VIEWER_PACKAGEDIR)/$$file" ]; then \
+			PERM=755; \
+		fi; \
+		install -v -m $$PERM -o root -g root "$(VIEWER_PACKAGEDIR)/$$file" "$(UTILITY_DESTDIR)/$(UTILITY_INSTALLDIR)/$$file"; \
+	done
+	# install viewer libraries
+	for file in $$(find $(VIEWER_PACKAGEDIR)/lib -type f -o -type l | sed 's~$(VIEWER_PACKAGEDIR)/~~'); do \
+		# create containing directory \
+		install -v -m 755 -o root -g root -d "$$(dirname "$(UTILITY_DESTDIR)/$(UTILITY_INSTALLDIR)/$$file")"; \
+		PERM=644; \
+		if [ -x "$(VIEWER_PACKAGEDIR)/$$file" ]; then \
+			PERM=755; \
+		fi; \
+		if [ -L "$(VIEWER_PACKAGEDIR)/$$file" ]; then \
+			REAL="$$( readlink -f $(VIEWER_PACKAGEDIR)/$$file )"; \
+			RELATIVE="$$( echo $$REAL | sed 's~$(CURDIR)/$(VIEWER_PACKAGEDIR)/~~' )"; \
+			echo dh_link -p $(UTILITY_PKG) "$(UTILITY_INSTALLDIR)/$$RELATIVE" "$(UTILITY_INSTALLDIR)/$$file" ; \
+			dh_link -p $(UTILITY_PKG) "$(UTILITY_INSTALLDIR)/$$RELATIVE" "$(UTILITY_INSTALLDIR)/$$file" ; \
+		else \
+			install -v -m $$PERM -o root -g root "$(VIEWER_PACKAGEDIR)/$$file" "$(UTILITY_DESTDIR)/$(UTILITY_INSTALLDIR)/$$file"; \
+		fi; \
+	done
+	dh_link -p $(UTILITY_PKG) /$(UTILITY_INSTALLDIR)/appearance-utility /usr/bin/appearance-utility
 
 
 # Build architecture-independent files here.

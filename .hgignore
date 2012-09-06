@@ -50,6 +50,11 @@ indra/web/doc/asset-upload/plugins/verify-texture
 installed.xml
 libraries
 tarfile_tmp
+debian/secondlife-viewer*
+debian/secondlife-appearance-utility*
+debian/files
+build-stamp
+configure-stamp
 ^indra/lib/python/mulib.*
 ^web/locale.*
 ^web/secondlife.com.*
