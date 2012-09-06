@@ -45,6 +45,7 @@
      visible="true"
      height="310"
      name="chat_history"
+     notify_unread_msg="false"
      parse_highlights="true"
      parse_urls="true"
      left="5"
