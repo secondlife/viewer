@@ -3427,18 +3427,20 @@ void LLTextureFetchDebugger::tryToStopDebug()
 	}
 
 	if(update(0.005f))
-		{
-	//unlock the fetcher
-	mFetcher->lockFetcher(false);
+	{
+		//unlock the fetcher
+		mFetcher->lockFetcher(false);
 		mFetcher->resetLoadSource();
-	mFreezeHistory = FALSE;
+		mFreezeHistory = FALSE;
 		mStopDebug = FALSE;
 
 		if(mClearHistory)
 		{
 			mFetchingHistory.clear();
 			init();	
-	mTotalFetchingTime = gTextureTimer.getElapsedTimeF32(); //reset
+			mTotalFetchingTime = gTextureTimer.getElapsedTimeF32(); //reset
+		}
+	}
 }
 
 //called in the main thread and when the fetching queue is empty
