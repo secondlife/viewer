@@ -57,21 +57,21 @@
 #include "v4color.h"
 #include "v4coloru.h"
 
-#define MATERIALS_CAPABILITY_NAME                 "RenderMaterials"
+#define MATERIALS_CAPABILITY_NAME              "RenderMaterials"
 
-#define MATERIALS_CAP_FULL_PER_FACE_FIELD         "FullMaterialsPerFace"
-#define MATERIALS_CAP_FACE_FIELD                  "Face"
-#define MATERIALS_CAP_MATERIAL_FIELD              "Material"
-#define MATERIALS_CAP_OBJECT_ID_FIELD             "ID"
-#define MATERIALS_CAP_MATERIAL_ID_FIELD           "MaterialID"
+#define MATERIALS_CAP_FULL_PER_FACE_FIELD      "FullMaterialsPerFace"
+#define MATERIALS_CAP_FACE_FIELD               "Face"
+#define MATERIALS_CAP_MATERIAL_FIELD           "Material"
+#define MATERIALS_CAP_OBJECT_ID_FIELD          "ID"
+#define MATERIALS_CAP_MATERIAL_ID_FIELD        "MaterialID"
 
-#define MATERIALS_CAP_NORMAL_MAP_FIELD            "NormMap"
-#define MATERIALS_CAP_SPECULAR_MAP_FIELD          "SpecMap"
-#define MATERIALS_CAP_SPECULAR_COLOR_FIELD        "SpecColor"
-#define MATERIALS_CAP_SPECULAR_EXP_FIELD          "SpecExp"
-#define MATERIALS_CAP_ENV_INTENSITY_FIELD         "EnvIntensity"
-#define MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD     "AlphaMaskCutoff"
-#define MATERIALS_CAP_DIFFUSE_ALPHA_IS_MASK_FIELD "DiffAlphaIsMask"
+#define MATERIALS_CAP_NORMAL_MAP_FIELD         "NormMap"
+#define MATERIALS_CAP_SPECULAR_MAP_FIELD       "SpecMap"
+#define MATERIALS_CAP_SPECULAR_COLOR_FIELD     "SpecColor"
+#define MATERIALS_CAP_SPECULAR_EXP_FIELD       "SpecExp"
+#define MATERIALS_CAP_ENV_INTENSITY_FIELD      "EnvIntensity"
+#define MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD  "AlphaMaskCutoff"
+#define MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD "DiffuseAlphaMode"
 
 class MaterialsResponder : public LLHTTPClient::Responder
 {
@@ -451,7 +451,7 @@ void LLFloaterStinson::requestPutMaterials(bool pIsDoSet)
 						materialData[MATERIALS_CAP_SPECULAR_EXP_FIELD] = static_cast<LLSD::Integer>(100);
 						materialData[MATERIALS_CAP_ENV_INTENSITY_FIELD] = static_cast<LLSD::Integer>(25);
 						materialData[MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD] = static_cast<LLSD::Integer>(37);
-						materialData[MATERIALS_CAP_DIFFUSE_ALPHA_IS_MASK_FIELD] = static_cast<LLSD::Boolean>(false);
+						materialData[MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD] = static_cast<LLSD::Integer>(0);
 					}
 					else if ((curFaceIndex % FACE_MODULATOR) == 1)
 					{
@@ -462,7 +462,7 @@ void LLFloaterStinson::requestPutMaterials(bool pIsDoSet)
 						materialData[MATERIALS_CAP_SPECULAR_EXP_FIELD] = static_cast<LLSD::Integer>(255);
 						materialData[MATERIALS_CAP_ENV_INTENSITY_FIELD] = static_cast<LLSD::Integer>(0);
 						materialData[MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD] = static_cast<LLSD::Integer>(5);
-						materialData[MATERIALS_CAP_DIFFUSE_ALPHA_IS_MASK_FIELD] = static_cast<LLSD::Boolean>(true);
+						materialData[MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD] = static_cast<LLSD::Integer>(1);
 					}
 					else if ((curFaceIndex % FACE_MODULATOR) == 2)
 					{
@@ -473,7 +473,7 @@ void LLFloaterStinson::requestPutMaterials(bool pIsDoSet)
 						materialData[MATERIALS_CAP_SPECULAR_EXP_FIELD] = static_cast<LLSD::Integer>(1);
 						materialData[MATERIALS_CAP_ENV_INTENSITY_FIELD] = static_cast<LLSD::Integer>(255);
 						materialData[MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD] = static_cast<LLSD::Integer>(75);
-						materialData[MATERIALS_CAP_DIFFUSE_ALPHA_IS_MASK_FIELD] = static_cast<LLSD::Boolean>(false);
+						materialData[MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD] = static_cast<LLSD::Integer>(3);
 					}
 					else if ((curFaceIndex % FACE_MODULATOR) == 3)
 					{
@@ -641,9 +641,9 @@ void LLFloaterStinson::parseGetResponse(const LLSD& pContent)
 		llassert(materialData.get(MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD).isInteger());
 		S32 alphaMaskCutoff = materialData.get(MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD).asInteger();
 
-		llassert(materialData.has(MATERIALS_CAP_DIFFUSE_ALPHA_IS_MASK_FIELD));
-		llassert(materialData.get(MATERIALS_CAP_DIFFUSE_ALPHA_IS_MASK_FIELD).isInteger());
-		BOOL isDiffuseAlphaMask = static_cast<BOOL>(materialData.get(MATERIALS_CAP_DIFFUSE_ALPHA_IS_MASK_FIELD).asInteger());
+		llassert(materialData.has(MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD));
+		llassert(materialData.get(MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD).isInteger());
+		S32 diffuseAlphaMode = static_cast<BOOL>(materialData.get(MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD).asInteger());
 
 
 		cellParams.font = LLFontGL::getFontMonospace();
@@ -679,8 +679,8 @@ void LLFloaterStinson::parseGetResponse(const LLSD& pContent)
 		cellParams.value = llformat("%d", alphaMaskCutoff);
 		rowParams.columns.add(cellParams);
 
-		cellParams.column = "is_diffuse_alpha_mask";
-		cellParams.value = (isDiffuseAlphaMask ? "True" : "False");
+		cellParams.column = "diffuse_alpha_mode";
+		cellParams.value = llformat("%d", diffuseAlphaMode);
 		rowParams.columns.add(cellParams);
 		rowParams.value = materialID;
 
@@ -783,9 +783,9 @@ void LLFloaterStinson::parsePostResponse(const LLSD& pContent)
 		llassert(materialData.get(MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD).isInteger());
 		S32 alphaMaskCutoff = materialData.get(MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD).asInteger();
 
-		llassert(materialData.has(MATERIALS_CAP_DIFFUSE_ALPHA_IS_MASK_FIELD));
-		llassert(materialData.get(MATERIALS_CAP_DIFFUSE_ALPHA_IS_MASK_FIELD).isInteger());
-		BOOL isDiffuseAlphaMask = static_cast<BOOL>(materialData.get(MATERIALS_CAP_DIFFUSE_ALPHA_IS_MASK_FIELD).asInteger());
+		llassert(materialData.has(MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD));
+		llassert(materialData.get(MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD).isInteger());
+		S32 diffuseAlphaMode = materialData.get(MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD).asInteger();
 
 
 		cellParams.font = LLFontGL::getFontMonospace();
@@ -821,8 +821,8 @@ void LLFloaterStinson::parsePostResponse(const LLSD& pContent)
 		cellParams.value = llformat("%d", alphaMaskCutoff);
 		rowParams.columns.add(cellParams);
 
-		cellParams.column = "is_diffuse_alpha_mask";
-		cellParams.value = (isDiffuseAlphaMask ? "True" : "False");
+		cellParams.column = "diffuse_alpha_mode";
+		cellParams.value = llformat("%d", diffuseAlphaMode);
 		rowParams.columns.add(cellParams);
 		rowParams.value = materialID;
 

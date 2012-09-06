@@ -4,7 +4,7 @@
     can_tear_off="false"
     can_resize="true"
     height="575"
-    width="1254"
+    width="1244"
     min_height="600"
     min_width="1100"
     layout="topleft"
@@ -66,7 +66,7 @@
       name="horiz_separator"
       top_pad="0"
       left="12"
-      width="1230"/>
+      width="1220"/>
   <panel
       border="false"
       bevel_style="none"
@@ -74,7 +74,7 @@
       layout="topleft"
       height="167"
       top_pad="10"
-      width="1230">
+      width="1220">
     <button
         follows="left|top"
         height="22"
@@ -93,7 +93,7 @@
         tab_stop="false"
         multi_select="true"
         name="get_scroll_list"
-        width="1230">
+        width="1220">
       <scroll_list.columns
           label="Material ID"
           name="id"
@@ -123,9 +123,9 @@
           name="alpha_mask_cutoff"
           width="110" />
       <scroll_list.columns
-          label="Is Diffuse Alpha Mask"
-          name="is_diffuse_alpha_mask"
-          width="128" />
+          label="Diffuse Alpha Mode"
+          name="diffuse_alpha_mode"
+          width="118" />
     </scroll_list>
   </panel>
   <view_border
@@ -136,7 +136,7 @@
       name="horiz_separator"
       top_pad="10"
       left="12"
-      width="1230"/>
+      width="1220"/>
   <panel
       border="false"
       bevel_style="none"
@@ -145,7 +145,7 @@
       left="12"
       top_pad="10"
       height="132"
-      width="400">
+      width="450">
     <button
         follows="left|top"
         height="22"
@@ -196,7 +196,7 @@
       name="horiz_separator"
       top_pad="10"
       left="12"
-      width="1230"/>
+      width="1220"/>
   <panel
       border="false"
       bevel_style="none"
@@ -205,7 +205,7 @@
       left="12"
       top_pad="10"
       height="132"
-      width="1230">
+      width="1220">
     <button
         follows="left|top"
         height="22"
@@ -233,7 +233,7 @@
         tab_stop="false"
         multi_select="true"
         name="post_scroll_list"
-        width="1230">
+        width="1220">
       <scroll_list.columns
           label="Material ID"
           name="id"
@@ -263,9 +263,9 @@
           name="alpha_mask_cutoff"
           width="110" />
       <scroll_list.columns
-          label="Is Diffuse Alpha Mask"
-          name="is_diffuse_alpha_mask"
-          width="128" />
+          label="Diffuse Alpha Mode"
+          name="diffuse_alpha_mode"
+          width="118" />
     </scroll_list>
   </panel>
   </floater>
