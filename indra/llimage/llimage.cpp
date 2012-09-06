@@ -285,10 +285,15 @@ LLImageRaw::LLImageRaw(U16 width, U16 height, S8 components)
 	++sRawImageCount;
 }
 
-LLImageRaw::LLImageRaw(U8 *data, U16 width, U16 height, S8 components)
+LLImageRaw::LLImageRaw(U8 *data, U16 width, U16 height, S8 components, bool no_copy)
 	: LLImageBase()
 {
-	if(allocateDataSize(width, height, components))
+
+	if(no_copy)
+	{
+		setDataAndSize(data, width, height, components);
+	}
+	else if(allocateDataSize(width, height, components))
 	{
 		memcpy(getData(), data, width*height*components);
 	}

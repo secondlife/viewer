@@ -99,10 +99,20 @@ endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(DARWIN 1)
   
+  execute_process(
+    COMMAND sh -c "xcodebuild -version | grep Xcode  | cut -d ' ' -f2 | cut -d'.' -f1-2"
+    OUTPUT_VARIABLE XCODE_VERSION )
+
   # To support a different SDK update these Xcode settings:
-  set(CMAKE_OSX_DEPLOYMENT_TARGET 10.5)
+  if (XCODE_VERSION GREATER 4.2)
+    set(CMAKE_OSX_DEPLOYMENT_TARGET 10.6)
+  else (XCODE_VERSION GREATER 4.2)
+    set(CMAKE_OSX_DEPLOYMENT_TARGET 10.5)
+  endif (XCODE_VERSION GREATER 4.2)
+
   set(CMAKE_OSX_SYSROOT macosx10.6)
   set(CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "com.apple.compilers.llvmgcc42")
+      
   set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT dwarf-with-dsym)
 
   # NOTE: To attempt an i386/PPC Universal build, add this on the configure line:
@@ -133,6 +143,11 @@ set(GRID agni CACHE STRING "Target Grid")
 set(VIEWER ON CACHE BOOL "Build Second Life viewer.")
 set(VIEWER_CHANNEL "LindenDeveloper" CACHE STRING "Viewer Channel Name")
 set(VIEWER_LOGIN_CHANNEL ${VIEWER_CHANNEL} CACHE STRING "Fake login channel for A/B Testing")
+
+if (XCODE_VERSION GREATER 4.2)
+  set(ENABLE_SIGNING OFF CACHE BOOL "Enable signing the viewer")
+  set(SIGNING_IDENTITY "" CACHE STRING "Specifies the signing identity to use, if necessary.")
+endif (XCODE_VERSION GREATER 4.2)
 
 set(VERSION_BUILD "0" CACHE STRING "Revision number passed in from the outside")
 set(STANDALONE OFF CACHE BOOL "Do not use Linden-supplied prebuilt libraries.")

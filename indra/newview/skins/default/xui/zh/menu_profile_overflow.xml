@@ -3,10 +3,10 @@
 	<menu_item_call label="地圖" name="show_on_map"/>
 	<menu_item_call label="支付" name="pay"/>
 	<menu_item_call label="分享" name="share"/>
-	<menu_item_call label="Block" name="block"/>
-	<menu_item_call label="Unblock" name="unblock"/>
+	<menu_item_call label="封鎖" name="block"/>
+	<menu_item_call label="解除封鎖" name="unblock"/>
 	<menu_item_call label="踢出" name="kick"/>
 	<menu_item_call label="凍結" name="freeze"/>
 	<menu_item_call label="解凍" name="unfreeze"/>
-	<menu_item_call label="CSR" name="csr"/>
+	<menu_item_call label="客服" name="csr"/>
 </toggleable_menu>

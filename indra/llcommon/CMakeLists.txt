@@ -172,6 +172,7 @@ set(llcommon_HEADER_FILES
     llfoldertype.h
     llformat.h
     llframetimer.h
+    llhandle.h
     llhash.h
     llheartbeat.h
     llhttpstatuscodes.h

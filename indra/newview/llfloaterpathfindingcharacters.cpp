@@ -134,26 +134,20 @@ void LLFloaterPathfindingCharacters::requestGetObjects()
 	LLPathfindingManager::getInstance()->requestGetCharacters(getNewRequestId(), boost::bind(&LLFloaterPathfindingCharacters::handleNewObjectList, this, _1, _2, _3));
 }
 
-LLSD LLFloaterPathfindingCharacters::convertObjectsIntoScrollListData(const LLPathfindingObjectListPtr pObjectListPtr)
+void LLFloaterPathfindingCharacters::buildObjectsScrollList(const LLPathfindingObjectListPtr pObjectListPtr)
 {
 	llassert(pObjectListPtr != NULL);
 	llassert(!pObjectListPtr->isEmpty());
 
-	LLSD scrollListData = LLSD::emptyArray();
-
 	for (LLPathfindingObjectList::const_iterator objectIter = pObjectListPtr->begin();	objectIter != pObjectListPtr->end(); ++objectIter)
 	{
-		const LLPathfindingCharacter *characterPtr = dynamic_cast<const LLPathfindingCharacter *>(objectIter->second.get());
-		LLSD element = buildCharacterScrollListData(characterPtr);
-		scrollListData.append(element);
+		const LLPathfindingObjectPtr objectPtr = objectIter->second;
+		const LLPathfindingCharacter *characterPtr = dynamic_cast<const LLPathfindingCharacter *>(objectPtr.get());
+		llassert(characterPtr != NULL);
 
-		if (characterPtr->hasOwner() && !characterPtr->hasOwnerName())
-		{
-			rebuildScrollListAfterAvatarNameLoads(characterPtr->getUUID());
-		}
+		LLSD scrollListItemData = buildCharacterScrollListItemData(characterPtr);
+		addObjectToScrollList(objectPtr, scrollListItemData);
 	}
-
-	return scrollListData;
 }
 
 void LLFloaterPathfindingCharacters::updateControlsOnScrollListChange()
@@ -166,6 +160,22 @@ void LLFloaterPathfindingCharacters::updateControlsOnScrollListChange()
 S32 LLFloaterPathfindingCharacters::getNameColumnIndex() const
 {
 	return 0;
+}
+
+S32 LLFloaterPathfindingCharacters::getOwnerNameColumnIndex() const
+{
+	return 2;
+}
+
+std::string LLFloaterPathfindingCharacters::getOwnerName(const LLPathfindingObject *pObject) const
+{
+	return (pObject->hasOwner()
+		? (pObject->hasOwnerName()
+		? (pObject->isGroupOwned()
+		? (pObject->getOwnerName() + " " + getString("character_owner_group"))
+		: pObject->getOwnerName())
+		: getString("character_owner_loading"))
+		: getString("character_owner_unknown"));
 }
 
 const LLColor4 &LLFloaterPathfindingCharacters::getBeaconColor() const
@@ -201,9 +211,9 @@ void LLFloaterPathfindingCharacters::onShowPhysicsCapsuleClicked()
 	}
 }
 
-LLSD LLFloaterPathfindingCharacters::buildCharacterScrollListData(const LLPathfindingCharacter *pCharacterPtr) const
+LLSD LLFloaterPathfindingCharacters::buildCharacterScrollListItemData(const LLPathfindingCharacter *pCharacterPtr) const
 {
-	LLSD columns;
+	LLSD columns = LLSD::emptyArray();
 
 	columns[0]["column"] = "name";
 	columns[0]["value"] = pCharacterPtr->getName();
@@ -212,13 +222,7 @@ LLSD LLFloaterPathfindingCharacters::buildCharacterScrollListData(const LLPathfi
 	columns[1]["value"] = pCharacterPtr->getDescription();
 
 	columns[2]["column"] = "owner";
-	columns[2]["value"] = (pCharacterPtr->hasOwner()
-			? (pCharacterPtr->hasOwnerName()
-			? (pCharacterPtr->isGroupOwned()
-			? (pCharacterPtr->getOwnerName() + " " + getString("character_owner_group"))
-			: pCharacterPtr->getOwnerName())
-			: getString("character_owner_loading"))
-			: getString("character_owner_unknown"));
+	columns[2]["value"] = getOwnerName(pCharacterPtr);
 
 	S32 cpuTime = llround(pCharacterPtr->getCPUTime());
 	std::string cpuTimeString = llformat("%d", cpuTime);
@@ -231,11 +235,7 @@ LLSD LLFloaterPathfindingCharacters::buildCharacterScrollListData(const LLPathfi
 	columns[4]["column"] = "altitude";
 	columns[4]["value"] = llformat("%1.0f m", pCharacterPtr->getLocation()[2]);
 
-	LLSD element;
-	element["id"] = pCharacterPtr->getUUID().asString();
-	element["column"] = columns;
-
-	return element;
+	return columns;
 }
 
 void LLFloaterPathfindingCharacters::updateStateOnDisplayControls()

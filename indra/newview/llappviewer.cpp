@@ -379,6 +379,9 @@ void init_default_trans_args()
 	default_trans_args.insert("CAPITALIZED_APP_NAME");
 	default_trans_args.insert("SECOND_LIFE_GRID");
 	default_trans_args.insert("SUPPORT_SITE");
+	// This URL shows up in a surprising number of places in various skin
+	// files. We really only want to have to maintain a single copy of it.
+	default_trans_args.insert("create_account_url");
 }
 
 //----------------------------------------------------------------------------
@@ -2653,14 +2656,6 @@ bool LLAppViewer::initConfiguration()
 		}
 	}
 
-	// If automatic login from command line with --login switch
-	// init StartSLURL location. In interactive login, LLPanelLogin
-	// will take care of it.
-	if ((clp.hasOption("login") || clp.hasOption("autologin")) && !clp.hasOption("url") && !clp.hasOption("slurl"))
-	{
-		LLStartUp::setStartSLURL(LLSLURL(gSavedSettings.getString("LoginLocation")));
-	}
-
 	if (!gSavedSettings.getBOOL("AllowMultipleViewers"))
 	{
 	    //
@@ -2708,12 +2703,27 @@ bool LLAppViewer::initConfiguration()
         }
 	}
 
-   	// need to do this here - need to have initialized global settings first
+   	// NextLoginLocation is set from the command line option
 	std::string nextLoginLocation = gSavedSettings.getString( "NextLoginLocation" );
 	if ( !nextLoginLocation.empty() )
 	{
+		LL_DEBUGS("AppInit")<<"set start from NextLoginLocation: "<<nextLoginLocation<<LL_ENDL;
 		LLStartUp::setStartSLURL(LLSLURL(nextLoginLocation));
-	};
+	}
+	else if (   (   clp.hasOption("login") || clp.hasOption("autologin"))
+			 && !clp.hasOption("url")
+			 && !clp.hasOption("slurl"))
+	{
+		// If automatic login from command line with --login switch
+		// init StartSLURL location.
+		std::string start_slurl_setting = gSavedSettings.getString("LoginLocation");
+		LL_DEBUGS("AppInit") << "start slurl setting '" << start_slurl_setting << "'" << LL_ENDL;
+		LLStartUp::setStartSLURL(LLSLURL(start_slurl_setting));
+	}
+	else
+	{
+		// the login location will be set by the login panel (see LLPanelLogin)
+	}
 
 	gLastRunVersion = gSavedSettings.getString("LastRunVersion");
 
@@ -4327,6 +4337,10 @@ void LLAppViewer::idle()
 	}
 
 	if (gDisconnected)
+    {
+		return;
+    }
+	if (gTeleportDisplay)
     {
 		return;
     }

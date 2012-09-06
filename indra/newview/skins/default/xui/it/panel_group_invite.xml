@@ -9,6 +9,9 @@
 	<panel.string name="already_in_group">
 		Alcuni dei residenti selezionati sono già nel gruppo, pertanto l&apos;invito non verrà loro spedito.
 	</panel.string>
+	<panel.string name="invite_selection_too_large">
+		Invito di gruppo non inviato: troppi residenti selezionati Gli inviti di gruppo possono essere inviati a un massimo di 100 persone per ciascuna richiesta.
+	</panel.string>
 	<text name="help_text">
 		Puoi selezionare più residenti da invitare nel tuo gruppo. Per iniziare, clicca su Apri il selettore di residenti.
 	</text>

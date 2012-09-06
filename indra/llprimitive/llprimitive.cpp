@@ -148,7 +148,8 @@ bool LLPrimitive::cleanupVolumeManager()
 LLPrimitive::LLPrimitive()
 :	mTextureList(),
 	mNumTEs(0),
-	mMiscFlags(0)
+	mMiscFlags(0),
+	mNumBumpmapTEs(0)
 {
 	mPrimitiveCode = 0;
 
@@ -234,7 +235,10 @@ void  LLPrimitive::setAllTETextures(const LLUUID &tex_id)
 //===============================================================
 void LLPrimitive::setTE(const U8 index, const LLTextureEntry& te)
 {
-	mTextureList.copyTexture(index, te);
+	if(mTextureList.copyTexture(index, te) != TEM_CHANGE_NONE && te.getBumpmap() > 0)
+	{
+		mNumBumpmapTEs++;
+	}
 }
 
 S32  LLPrimitive::setTETexture(const U8 index, const LLUUID &id)
@@ -313,6 +317,7 @@ S32  LLPrimitive::setTERotation(const U8 index, const F32 r)
 //===============================================================
 S32  LLPrimitive::setTEBumpShinyFullbright(const U8 index, const U8 bump)
 {
+	updateNumBumpmap(index, bump);
 	return mTextureList.setBumpShinyFullbright(index, bump);
 }
 
@@ -323,11 +328,13 @@ S32  LLPrimitive::setTEMediaTexGen(const U8 index, const U8 media)
 
 S32  LLPrimitive::setTEBumpmap(const U8 index, const U8 bump)
 {
+	updateNumBumpmap(index, bump);
 	return mTextureList.setBumpMap(index, bump);
 }
 
 S32  LLPrimitive::setTEBumpShiny(const U8 index, const U8 bump_shiny)
 {
+	updateNumBumpmap(index, bump_shiny);
 	return mTextureList.setBumpShiny(index, bump_shiny);
 }
 
@@ -1441,6 +1448,26 @@ void LLPrimitive::takeTextureList(LLPrimTextureList& other_list)
 	mTextureList.take(other_list);
 }
 
+void LLPrimitive::updateNumBumpmap(const U8 index, const U8 bump)
+{
+	LLTextureEntry* te = getTE(index);
+	if(!te)
+	{
+		return;
+	}
+
+	U8 old_bump = te->getBumpmap();	
+	if(old_bump > 0)
+	{
+		mNumBumpmapTEs--;
+	}
+	if((bump & TEM_BUMP_MASK) > 0)
+	{
+		mNumBumpmapTEs++;
+	}
+
+	return;
+}
 //============================================================================
 
 // Moved from llselectmgr.cpp

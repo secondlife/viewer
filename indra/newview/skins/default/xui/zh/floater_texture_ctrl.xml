@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="texture picker" title="PICK: TEXTURE">
+<floater name="texture picker" title="精選：材質">
 	<floater.string name="choose_picture">
-		點擊以挑選圖像
+		點按以挑選圖片
 	</floater.string>
 	<floater.string name="pick title">
-		Pick:
+		精選地點：
 	</floater.string>
 	<text name="Multiple">
-		Multiple textures
+		多重材質
 	</text>
 	<text name="unknown">
 		尺寸：[DIMENSIONS]
 	</text>
 	<button label="預設" label_selected="預設" name="Default"/>
 	<button label="無" label_selected="無" name="None"/>
-	<button label="Blank" label_selected="Blank" name="Blank"/>
+	<button label="空白" label_selected="空白" name="Blank"/>
 	<check_box initial_value="true" label="立即套用" name="apply_immediate_check"/>
 	<filter_editor label="材質過濾器" name="inventory search editor"/>
 	<check_box initial_value="false" label="顯示資料夾" name="show_folders_check"/>

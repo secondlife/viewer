@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_pathfinding_console" title="Просмотр/тестирование поиска пути">
+	<floater.string name="navmesh_viewer_status_library_not_implemented">
+		Не удалось найти реализацию библиотеки поиска пути
+	</floater.string>
+	<floater.string name="navmesh_viewer_status_region_not_enabled">
+		В этом регионе не разрешен поиск пути.
+	</floater.string>
+	<floater.string name="navmesh_viewer_status_region_loading">
+		Ожидание окончания загрузки региона.
+	</floater.string>
+	<floater.string name="navmesh_viewer_status_checking_version">
+		Проверка состояния навигационной сетки.
+	</floater.string>
+	<floater.string name="navmesh_viewer_status_downloading">
+		Загрузка навигационной сетки.
+	</floater.string>
+	<floater.string name="navmesh_viewer_status_updating">
+		На сервере изменилась навигационная сетка. Загрузка новой навигационной сетки.
+	</floater.string>
+	<floater.string name="navmesh_viewer_status_has_navmesh">
+		Загружена последняя навигационная сетка.
+	</floater.string>
+	<floater.string name="navmesh_viewer_status_error">
+		Не удалось загрузить навигационную сетку.
+	</floater.string>
+	<floater.string name="navmesh_simulator_status_pending">
+		В навигационной сетке есть незавершенные изменения.
+	</floater.string>
+	<floater.string name="navmesh_simulator_status_building">
+		Идет построение навигационной сетки.
+	</floater.string>
+	<floater.string name="navmesh_simulator_status_some_pending">
+		В некоторых регионах навигационной сетки есть незавершенные изменения.
+	</floater.string>
+	<floater.string name="navmesh_simulator_status_some_building">
+		Идет построение регионов навигационной сетки.
+	</floater.string>
+	<floater.string name="navmesh_simulator_status_pending_and_building">
+		В некоторых регионах навигационной сетки есть незавершенные изменения, идет построение других регионов.
+	</floater.string>
+	<floater.string name="navmesh_simulator_status_complete">
+		Навигационная сетка уже обновлена.
+	</floater.string>
+	<floater.string name="pathing_library_not_implemented">
+		Не удалось найти реализацию библиотеки поиска пути
+	</floater.string>
+	<floater.string name="pathing_region_not_enabled">
+		В этом регионе не разрешен поиск пути.
+	</floater.string>
+	<floater.string name="pathing_choose_start_and_end_points">
+		Выберите начальную и конечную точки.
+	</floater.string>
+	<floater.string name="pathing_choose_start_point">
+		Выберите начальную точку.
+	</floater.string>
+	<floater.string name="pathing_choose_end_point">
+		Выберите конечную точку.
+	</floater.string>
+	<floater.string name="pathing_path_valid">
+		Путь показан оранжевым цветом.
+	</floater.string>
+	<floater.string name="pathing_path_invalid">
+		Не удалось найти путь между выбранными точками.
+	</floater.string>
+	<floater.string name="pathing_error">
+		Ошибка при создании пути.
+	</floater.string>
+	<tab_container name="view_test_tab_container">
+		<panel label="Вид" name="view_panel">
+			<text name="show_label">
+				Показать:
+			</text>
+			<check_box label="Мир" name="show_world"/>
+			<check_box label="Только перемещаемые предметы" name="show_world_movables_only"/>
+			<check_box label="Навигационная сетка" name="show_navmesh"/>
+			<text name="show_walkability_label">
+				Показать карту проходимости:
+			</text>
+			<combo_box name="show_heatmap_mode">
+				<combo_box.item label="Не показывать" name="show_heatmap_mode_none"/>
+				<combo_box.item label="Тип персонажа A" name="show_heatmap_mode_a"/>
+				<combo_box.item label="Тип персонажа B" name="show_heatmap_mode_b"/>
+				<combo_box.item label="Тип персонажа C" name="show_heatmap_mode_c"/>
+				<combo_box.item label="Тип персонажа D" name="show_heatmap_mode_d"/>
+			</combo_box>
+			<check_box label="Проходимые места" name="show_walkables"/>
+			<check_box label="Материальные объемы" name="show_material_volumes"/>
+			<check_box label="Статичные препятствия" name="show_static_obstacles"/>
+			<check_box label="Исключающие объемы" name="show_exclusion_volumes"/>
+			<check_box label="Водное зеркало" name="show_water_plane"/>
+			<check_box label="Рентгеновское зрение" name="show_xray"/>
+		</panel>
+		<panel label="Проверить путь" name="test_panel">
+			<text name="ctrl_click_label">
+				Ctrl-щелчок для выбора начальной точки.
+			</text>
+			<text name="shift_click_label">
+				Shift-щелчок для выбора конечной точки.
+			</text>
+			<text name="character_width_label">
+				Ширина персонажа
+			</text>
+			<slider name="character_width" value="1"/>
+			<text name="character_width_unit_label">
+				м
+			</text>
+			<text name="character_type_label">
+				Тип персонажа
+			</text>
+			<combo_box name="path_character_type">
+				<combo_box.item label="Нет" name="path_character_type_none"/>
+				<combo_box.item label="A" name="path_character_type_a"/>
+				<combo_box.item label="B" name="path_character_type_b"/>
+				<combo_box.item label="C" name="path_character_type_c"/>
+				<combo_box.item label="D" name="path_character_type_d"/>
+			</combo_box>
+			<button label="Удалить путь" name="clear_path"/>
+		</panel>
+	</tab_container>
+</floater>
