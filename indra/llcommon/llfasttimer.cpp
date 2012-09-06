@@ -216,7 +216,7 @@ LLFastTimer::NamedTimer::NamedTimer(const std::string& name)
 :	mName(name),
 	mCollapsed(true),
 	mParent(NULL),
-	mTotalTimeCounter(0),
+	mTreeTimeCounter(0),
 	mCountAverage(0),
 	mCallAverage(0),
 	mNeedsSorting(false),
@@ -389,6 +389,8 @@ void LLFastTimer::NamedTimer::accumulateTimings()
 		U32 self_time_delta = cumulative_time_delta - cur_data->mChildTime;
 		cur_data->mChildTime = 0;
 		cur_timer->mFrameState->mSelfTimeCounter += self_time_delta;
+		cur_timer->mFrameState->mTotalTimeCounter += cumulative_time_delta;
+
 		cur_timer->mStartTime = cur_time;
 
 		cur_data = &cur_timer->mLastTimerData;
@@ -403,10 +405,10 @@ void LLFastTimer::NamedTimer::accumulateTimings()
 		++it)
 	{
 		NamedTimer* timerp = (*it);
-		timerp->mTotalTimeCounter = timerp->getFrameState().mSelfTimeCounter;
+		timerp->mTreeTimeCounter = timerp->getFrameState().mSelfTimeCounter;
 		for (child_const_iter child_it = timerp->beginChildren(); child_it != timerp->endChildren(); ++child_it)
 		{
-			timerp->mTotalTimeCounter += (*child_it)->mTotalTimeCounter;
+			timerp->mTreeTimeCounter += (*child_it)->mTreeTimeCounter;
 		}
 
 		S32 cur_frame = sCurFrameIndex;
@@ -415,8 +417,8 @@ void LLFastTimer::NamedTimer::accumulateTimings()
 			// update timer history
 			int hidx = cur_frame % HISTORY_NUM;
 
-			timerp->mCountHistory[hidx] = timerp->mTotalTimeCounter;
-			timerp->mCountAverage = ((U64)timerp->mCountAverage * cur_frame + timerp->mTotalTimeCounter) / (cur_frame+1);
+			timerp->mCountHistory[hidx] = timerp->mTreeTimeCounter;
+			timerp->mCountAverage = ((U64)timerp->mCountAverage * cur_frame + timerp->mTreeTimeCounter) / (cur_frame+1);
 			timerp->mCallHistory[hidx] = timerp->getFrameState().mCalls;
 			timerp->mCallAverage = ((U64)timerp->mCallAverage * cur_frame + timerp->getFrameState().mCalls) / (cur_frame+1);
 		}

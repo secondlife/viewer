@@ -45,18 +45,17 @@ LL_COMMON_API void assert_main_thread();
 class LL_COMMON_API LLFastTimer
 {
 public:
-	class NamedTimer;
-
 	struct LL_COMMON_API FrameState
 	{
 		FrameState();
 		void setNamedTimer(NamedTimer* timerp) { mTimer = timerp; }
 
 		U32 				mSelfTimeCounter;
+		U32 				mTotalTimeCounter;
 		U32 				mCalls;
 		FrameState*			mParent;		// info for caller timer
 		FrameState*			mLastCaller;	// used to bootstrap tree construction
-		NamedTimer*			mTimer;
+		class NamedTimer*	mTimer;
 		U16					mActiveCount;	// number of timers with this ID active on stack
 		bool				mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame
 	};
@@ -120,7 +119,8 @@ public:
 
 		std::string	mName;
 
-		U32 		mTotalTimeCounter;
+		// sum of recorded self time and tree time of all children timers (might not match actual recorded time of children if topology is incomplete
+		U32 		mTreeTimeCounter; 
 
 		U32 		mCountAverage;
 		U32			mCallAverage;
@@ -186,6 +186,7 @@ public:
 		U32 total_time = getCPUClockCount32() - mStartTime;
 
 		frame_state->mSelfTimeCounter += total_time - LLFastTimer::sCurTimerData.mChildTime;
+		frame_state->mTotalTimeCounter += total_time;
 		frame_state->mActiveCount--;
 
 		// store last caller to bootstrap tree creation

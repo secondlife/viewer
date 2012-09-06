@@ -238,6 +238,7 @@ set(llcommon_HEADER_FILES
     llthread.h
     llthreadsafequeue.h
     lltimer.h
+    lltrace.h
     lltreeiterators.h
     lltypeinfolookup.h
     lluri.h
