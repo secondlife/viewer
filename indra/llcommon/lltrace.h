@@ -51,18 +51,18 @@ namespace LLTrace
 
 		struct Accumulator
 		{
-			U32 						mSelfTimeCounter;
 			U32 						mTotalTimeCounter;
+			U32 						mChildTimeCounter;
 			U32 						mCalls;
 			Accumulator*				mParent;		// info for caller timer
 			Accumulator*				mLastCaller;	// used to bootstrap tree construction
 			const BlockTimer*			mTimer;			// points to block timer associated with this storage
-			U16							mActiveCount;	// number of timers with this ID active on stack
+			U8							mActiveCount;	// number of timers with this ID active on stack
 			bool						mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame
 			std::vector<Accumulator*>	mChildren;		// currently assumed child timers
 		};
 
-		struct RecorderHead
+		struct RecorderStackEntry
 		{
 			struct Recorder*	mRecorder;
 			Accumulator*		mAccumulator;
@@ -72,7 +72,7 @@ namespace LLTrace
 		struct Recorder
 		{
 			LL_FORCE_INLINE Recorder(BlockTimer& block_timer)
-			:	mLastHead(sRecorderHead)
+			:	mLastRecorder(sCurRecorder)
 			{
 				mStartTime = getCPUClockCount32();
 				Accumulator* accumulator = ???; // get per-thread accumulator
@@ -81,28 +81,28 @@ namespace LLTrace
 				accumulator->mMoveUpTree |= (accumulator->mParent->mActiveCount == 0);
 
 				// push new timer on stack
-				sRecorderHead.mRecorder = this;
-				sRecorderHead.mAccumulator = accumulator;
-				sRecorderHead.mChildTime = 0;
+				sCurRecorder.mRecorder = this;
+				sCurRecorder.mAccumulator = accumulator;
+				sCurRecorder.mChildTime = 0;
 			}
 
 			LL_FORCE_INLINE ~Recorder()
 			{
 				U32 total_time = getCPUClockCount32() - mStartTime;
 
-				Accumulator* accumulator = sRecorderHead.mAccumulator;
-				accumulator->mSelfTimeCounter += total_time- sRecorderHead.mChildTime;
+				Accumulator* accumulator = sCurRecorder.mAccumulator;
 				accumulator->mTotalTimeCounter += total_time;
+				accumulator->mChildTimeCounter += sCurRecorder.mChildTime;
 				accumulator->mActiveCount--;
 
-				accumulator->mLastCaller = mLastHead->mAccumulator;
-				mLastHead->mChildTime += total_time;
+				accumulator->mLastCaller = mLastRecorder->mAccumulator;
+				mLastRecorder->mChildTime += total_time;
 
 				// pop stack
-				sRecorderHead = mLastHead;
+				sCurRecorder = mLastRecorder;
 			}
 
-			AccumulatorHead mLastHead;
+			RecorderStackEntry mLastRecorder;
 			U32 mStartTime;
 		};
 
@@ -139,10 +139,10 @@ namespace LLTrace
 		}
 
 		const std::string mName;
-		static RecorderHead* sRecorderHead;
+		static RecorderStackEntry* sCurRecorder;
 	};
 
-	BlockTimer::RecorderHead BlockTimer::sRecorderHead;
+	BlockTimer::RecorderStackEntry BlockTimer::sCurRecorder;
 
 	class TimeInterval 
 	{
