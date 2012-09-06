@@ -193,6 +193,14 @@ LLConversationItemParticipant::LLConversationItemParticipant(const LLUUID& uuid,
 {
 }
 
+void LLConversationItemParticipant::onAvatarNameCache(const LLAvatarName& av_name)
+{
+	mName = av_name.mDisplayName;
+	// *TODO : we should also store that one, to be used in the tooltip : av_name.mUsername
+	// *TODO : we need to request or initiate a list resort
+	mNeedsRefresh = true;
+}
+
 void LLConversationItemParticipant::dumpDebugData()
 {
 	llinfos << "Merov debug : participant, uuid = " << mUUID << ", name = " << mName << ", muted = " << mIsMuted << ", moderator = " << mIsModerator << llendl;

@@ -29,6 +29,7 @@
 
 #include "llfolderviewitem.h"
 #include "llfolderviewmodel.h"
+#include "llavatarname.h"
 
 // Implementation of conversations list
 
@@ -149,6 +150,8 @@ public:
 	void setIsMuted(bool is_muted) { mIsMuted = is_muted; mNeedsRefresh = true; }
 	void setIsModerator(bool is_moderator) { mIsModerator = is_moderator; mNeedsRefresh = true; }
 	
+	void onAvatarNameCache(const LLAvatarName& av_name);
+
 	void dumpDebugData();
 
 private:
