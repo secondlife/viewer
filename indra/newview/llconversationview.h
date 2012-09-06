@@ -81,6 +81,7 @@ public:
 
 	bool hasSameValue(const LLUUID& uuid) { return (uuid == mUUID); }
 
+	virtual void refresh();
 private:
 	LLUUID mUUID;		// UUID of the participant
 };

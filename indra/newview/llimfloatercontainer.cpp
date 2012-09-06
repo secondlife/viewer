@@ -552,7 +552,6 @@ void LLIMFloaterContainer::repositioningWidgets()
 	}
 }
 
-// CHUI-137 : Temporary implementation of conversations list
 void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 {
 	bool is_nearby_chat = uuid.isNull();

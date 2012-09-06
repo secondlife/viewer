@@ -100,7 +100,8 @@ LLConversationViewParticipant* LLConversationViewSession::findParticipant(const 
 void LLConversationViewSession::refresh()
 {
 	// Refresh the session view from its model data
-	// LLConversationItemSession* vmi = dynamic_cast<LLConversationItemSession*>(getViewModelItem());
+	LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(getViewModelItem());
+	vmi->resetRefresh();
 	
 	// Note: for the moment, all that needs to be done is done by LLFolderViewItem::refresh()
 	
@@ -120,6 +121,18 @@ LLConversationViewParticipant::LLConversationViewParticipant( const LLConversati
 	LLFolderViewItem(p),
 	mUUID(p.participant_id)
 {
+}
+
+void LLConversationViewParticipant::refresh()
+{
+	// Refresh the participant view from its model data
+	LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(getViewModelItem());
+	vmi->resetRefresh();
+	
+	// Note: for the moment, all that needs to be done is done by LLFolderViewItem::refresh()
+	
+	// Do the regular upstream refresh
+	LLFolderViewItem::refresh();
 }
 
 // EOF
