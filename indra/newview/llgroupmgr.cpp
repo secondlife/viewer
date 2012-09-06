@@ -1937,7 +1937,7 @@ void LLGroupMgr::processCapGroupMembersRequest(const LLSD& content)
 	{
 		// Reset defaults
 		online_status	= "unknown";
-		title			= titles[0];
+		title			= (std::string)titles[0];
 		contribution	= 0;
 		member_powers	= default_powers;
 		is_owner		= false;
@@ -1947,7 +1947,7 @@ void LLGroupMgr::processCapGroupMembersRequest(const LLSD& content)
 		
 		if(member_info.has("last_login"))
 		{
-			online_status = member_info["last_login"];
+			online_status = (std::string)member_info["last_login"];
 			if(online_status == "Online")
 				online_status = LLTrans::getString("group_member_status_online");
 			else
@@ -1955,7 +1955,7 @@ void LLGroupMgr::processCapGroupMembersRequest(const LLSD& content)
 		}
 
 		if(member_info.has("title"))
-			title = titles[member_info["title"].asInteger()];
+			title = (std::string)titles[member_info["title"].asInteger()];
 
 		if(member_info.has("powers"))
 			member_powers = llstrtou64(member_info["powers"].asString().c_str(), NULL, 16);
