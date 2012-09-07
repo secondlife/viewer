@@ -487,6 +487,8 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg,
 	if(chat_msg.mText.empty())
 		return;//don't process empty messages
 
+	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat");
+
 	// Build notification data 
 	LLSD chat;
 	chat["message"] = chat_msg.mText;
@@ -537,7 +539,6 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg,
 		}
 	}
 
-	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat");
 	nearby_chat->addMessage(chat_msg, true, args);
 
 	if(chat_msg.mSourceType == CHAT_SOURCE_AGENT 

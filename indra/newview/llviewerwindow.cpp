@@ -2493,7 +2493,7 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 		return TRUE;
 	}
 
-	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat");
+	LLNearbyChat* nearby_chat = LLFloaterReg::findTypedInstance<LLNearbyChat>("nearby_chat");
 
 	// Traverses up the hierarchy
 	if( keyboard_focus )
@@ -2561,10 +2561,10 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	// If "Pressing letter keys starts local chat" option is selected, we are not in mouselook, 
 	// no view has keyboard focus, this is a printable character key (and no modifier key is 
 	// pressed except shift), then give focus to nearby chat (STORM-560)
-	if ( gSavedSettings.getS32("LetterKeysFocusChatBar") && !gAgentCamera.cameraMouselook() && 
+	if ( nearby_chat && gSavedSettings.getS32("LetterKeysFocusChatBar") && !gAgentCamera.cameraMouselook() &&
 		!keyboard_focus && key < 0x80 && (mask == MASK_NONE || mask == MASK_SHIFT) )
 	{
-		LLChatEntry* chat_editor = nearby_chat->getChatBox();
+		LLChatEntry* chat_editor = LLFloaterReg::findTypedInstance<LLNearbyChat>("nearby_chat")->getChatBox();
 		if (chat_editor)
 		{
 			// passing NULL here, character will be added later when it is handled by character handler.
