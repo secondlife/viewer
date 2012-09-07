@@ -164,7 +164,19 @@ if (LL_TESTS)
                  ${llcorehttp_EXAMPLE_SOURCE_FILES}
                  )
   set_target_properties(http_texture_load
-                        PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${EXE_STAGING_DIR}")
+                        PROPERTIES
+                        RUNTIME_OUTPUT_DIRECTORY "${EXE_STAGING_DIR}"
+                        )
+
+  if (WINDOWS)
+    # The following come from LLAddBuildTest.cmake's INTEGRATION_TEST_xxxx target.
+    set_target_properties(http_texture_load
+                          PROPERTIES
+                          LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS /INCLUDE:__tcmalloc"
+                          LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\" /INCREMENTAL:NO"
+                          LINK_FLAGS_RELEASE ""
+                          )
+  endif (WINDOWS)
 
   target_link_libraries(http_texture_load ${example_libs})
 
