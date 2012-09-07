@@ -27,6 +27,8 @@
 #ifndef LL_LLTRACE_H
 #define LL_LLTRACE_H
 
+#include <vector>
+
 namespace LLTrace
 {
 	class Stat
@@ -51,11 +53,11 @@ namespace LLTrace
 
 		struct Accumulator
 		{
-			U32 						mTotalTimeCounter;
-			U32 						mChildTimeCounter;
-			U32 						mCalls;
-			Accumulator*				mParent;		// info for caller timer
-			Accumulator*				mLastCaller;	// used to bootstrap tree construction
+			U32 						mTotalTimeCounter,
+										mChildTimeCounter,
+										mCalls;
+			Accumulator*				mParent,		// info for caller timer
+										mLastCaller;	// used to bootstrap tree construction
 			const BlockTimer*			mTimer;			// points to block timer associated with this storage
 			U8							mActiveCount;	// number of timers with this ID active on stack
 			bool						mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame
