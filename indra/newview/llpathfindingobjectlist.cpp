@@ -45,11 +45,21 @@ LLPathfindingObjectList::LLPathfindingObjectList()
 
 LLPathfindingObjectList::~LLPathfindingObjectList()
 {
+	clear();
 }
 
 bool LLPathfindingObjectList::isEmpty() const
 {
 	return mObjectMap.empty();
+}
+
+void LLPathfindingObjectList::clear()
+{
+	for (LLPathfindingObjectMap::iterator objectIter = mObjectMap.begin(); objectIter != mObjectMap.end(); ++objectIter)
+	{
+		objectIter->second.reset();
+	}
+	mObjectMap.clear();
 }
 
 void LLPathfindingObjectList::update(LLPathfindingObjectPtr pUpdateObjectPtr)

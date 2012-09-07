@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="nearby_chat" title="附近的聊天">
-	<check_box label="Translate chat" name="translate_chat_checkbox"/>
-</floater>

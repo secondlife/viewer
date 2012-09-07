@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_navmesh_rebake">
+	<button label="Refiger la région" name="navmesh_btn" tool_tip="Cliquer pour refiger le maillage de navigation de la région."/>
+	<button label="Demande consistant à refiger la région en cours..." name="navmesh_btn_sending" tool_tip="Envoi de la demande consistant à refiger la région au serveur..."/>
+	<button label="La région se refige..." name="navmesh_btn_baking" tool_tip="La région se refige. Ce bouton disparaîtra lorsque le processus sera terminé."/>
+</panel>

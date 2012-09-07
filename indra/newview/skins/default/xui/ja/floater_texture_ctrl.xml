@@ -20,6 +20,8 @@
 	<button label="ブランク" label_selected="ブランク" name="Blank"/>
 	<button label="なし" label_selected="なし" name="None"/>
 	<button label="" label_selected="" name="Pipette"/>
+	<check_box initial_value="true" label="ライブプレビュー" name="apply_immediate_check"/>
+	<text name="preview_disabled" value="プレビュー無効"/>
 	<filter_editor label="テクスチャをフィルター" name="inventory search editor"/>
 	<check_box initial_value="false" label="フォルダを表示" name="show_folders_check"/>
 	<button label="追加" label_selected="追加" name="l_add_btn"/>
@@ -31,5 +33,4 @@
 	</scroll_list>
 	<button label="OK" label_selected="OK" name="Select"/>
 	<button label="取り消し" label_selected="取り消し" name="Cancel"/>
-	<check_box initial_value="true" label="すぐ適用" name="apply_immediate_check"/>
 </floater>

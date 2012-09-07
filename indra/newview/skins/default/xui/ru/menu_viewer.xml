@@ -26,6 +26,7 @@
 		<menu_item_call label="Настройки..." name="Preferences"/>
 		<menu_item_call label="Кнопки панели инструментов..." name="Toolbars"/>
 		<menu_item_call label="Скрыть все элементы управления" name="Hide UI"/>
+		<menu_item_check label="Показывать присоединения HUD" name="Show HUD Attachments"/>
 		<menu_item_call label="Выход из [APP_NAME]" name="Quit"/>
 	</menu>
 	<menu label="Общение" name="Communicate">
@@ -37,6 +38,7 @@
 		<menu_item_call label="Друзья" name="My Friends"/>
 		<menu_item_call label="Группы" name="My Groups"/>
 		<menu_item_call label="Люди неподалеку" name="Active Speakers"/>
+		<menu_item_call label="Черный список" name="Block List"/>
 	</menu>
 	<menu label="Мир" name="World">
 		<menu_item_call label="Добавить закладку на это место" name="Create Landmark Here"/>
@@ -122,6 +124,11 @@
 			<menu_item_call label="Запустить скрипты" name="Set Scripts to Running"/>
 			<menu_item_call label="Остановить скрипты" name="Set Scripts to Not Running"/>
 		</menu>
+		<menu label="Поиск пути" name="Pathfinding">
+			<menu_item_call label="Наборы связей..." name="pathfinding_linksets_menu_item"/>
+			<menu_item_call label="Персонажи..." name="pathfinding_characters_menu_item"/>
+			<menu_item_call label="Просмотр/тестирование..." name="pathfinding_console_menu_item"/>
+		</menu>
 		<menu label="Параметры" name="Options">
 			<menu_item_check label="Показать расширенные разрешения" name="DebugPermissions"/>
 			<menu_item_check label="Выбирать только мои объекты" name="Select Only My Objects"/>
@@ -172,7 +179,6 @@
 			<menu_item_check label="Скрыть частицы" name="Hide Particles"/>
 			<menu_item_check label="Скрыть выбранное" name="Hide Selected"/>
 			<menu_item_check label="Подсветка прозрачного" name="Highlight Transparent"/>
-			<menu_item_check label="Показывать присоединения HUD" name="Show HUD Attachments"/>
 			<menu_item_check label="Показывать прицел при обзоре мышью" name="ShowCrosshairs"/>
 		</menu>
 		<menu label="Типы визуализации" name="Rendering Types">
@@ -375,7 +381,6 @@
 				<menu_item_call label="Активировать геометрию персонажа" name="Toggle Character Geometry"/>
 				<menu_item_call label="Проверка мужчины" name="Test Male"/>
 				<menu_item_call label="Проверка женщины" name="Test Female"/>
-				<menu_item_call label="Активировать PG-контент" name="Toggle PG"/>
 				<menu_item_check label="Разрешить выбор аватара" name="Allow Select Avatar"/>
 			</menu>
 			<menu_item_call label="Скинуть параметры" name="Force Params to Default"/>

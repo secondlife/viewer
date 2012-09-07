@@ -167,7 +167,12 @@ ARGUMENTS=[
     dict(name='version',
          description="""This specifies the version of Second Life that is
         being packaged up.""",
-         default=get_default_version)
+         default=get_default_version),
+    dict(name='signature',
+         description="""This specifies an identity to sign the viewer with, if any.
+        If no value is supplied, the default signature will be used, if any. Currently
+        only used on Mac OS X.""",
+         default=None)
     ]
 
 def usage(srctree=""):

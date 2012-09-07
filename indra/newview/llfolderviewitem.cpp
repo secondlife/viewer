@@ -1098,6 +1098,10 @@ void LLFolderViewItem::draw()
 	}
 }
 
+bool LLFolderViewItem::isInSelection() const
+{
+	return mIsSelected || (mParentFolder && mParentFolder->isInSelection());
+}
 
 ///----------------------------------------------------------------------------
 /// Class LLFolderViewFolder

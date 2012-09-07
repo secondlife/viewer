@@ -7,7 +7,7 @@
 		未知
 	</text>
 	<check_box label="關閉腳本" name="disable_scripts_check" tool_tip="關閉這個地區現在的全部腳本"/>
-	<check_box label="關閉碰撞" name="disable_collisions_check" tool_tip="關閉這個地區現在的非化身碰撞"/>
+	<check_box label="禁止碰撞" name="disable_collisions_check" tool_tip="關閉這個地區現在的非化身碰撞"/>
 	<check_box label="關閉物理" name="disable_physics_check" tool_tip="關閉這個地區現在的全部物理"/>
 	<button label="套用" name="apply_btn"/>
 	<text name="objret_text_lbl">
@@ -28,7 +28,7 @@
 	<check_box label="於這個領地內的每一個地區" name="return_estate_wide" tool_tip="退回這個領地內全部地區中標記為他的物件"/>
 	<button label="退回" name="return_btn"/>
 	<button label="取得最常碰撞的物件..." name="top_colliders_btn" tool_tip="條列出目前運作中最常碰撞的物件清單"/>
-	<button label="取得最耗能腳本..." name="top_scripts_btn" tool_tip="條列出目前運作中最耗能的腳本清單"/>
+	<button label="取得最耗能腳本..." name="top_scripts_btn" tool_tip="條列���目前運作中最耗能的腳本清單"/>
 	<button label="地區重新啟動" name="restart_btn" tool_tip="給予兩分鐘倒數計時並重新啟動"/>
 	<button label="延遲重新啟動" name="cancel_restart_btn" tool_tip="延遲地區重新啟動一小時"/>
 </panel>

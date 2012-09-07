@@ -113,6 +113,20 @@ bool LLPathfindingLinksetList::isShowUnmodifiablePhantomWarning(LLPathfindingLin
 	return isShowWarning;
 }
 
+bool LLPathfindingLinksetList::isShowPhantomToggleWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const
+{
+	bool isShowWarning = false;
+
+	for (const_iterator objectIter = begin(); !isShowWarning && (objectIter != end()); ++objectIter)
+	{
+		const LLPathfindingObjectPtr objectPtr = objectIter->second;
+		const LLPathfindingLinkset *linkset = dynamic_cast<const LLPathfindingLinkset *>(objectPtr.get());
+		isShowWarning = linkset->isShowPhantomToggleWarning(pLinksetUse);
+	}
+
+	return isShowWarning;
+}
+
 bool LLPathfindingLinksetList::isShowCannotBeVolumeWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const
 {
 	bool isShowWarning = false;
