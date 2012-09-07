@@ -1068,8 +1068,6 @@ void LLTextureFetchWorker::startWork(S32 param)
 // Threads:  Ttf
 bool LLTextureFetchWorker::doWork(S32 param)
 {
-	static const F32 FETCHING_TIMEOUT = 120.f;//seconds
-	
 	static const LLCore::HttpStatus http_not_found(HTTP_NOT_FOUND);						// 404
 	static const LLCore::HttpStatus http_service_unavail(HTTP_SERVICE_UNAVAILABLE);		// 503
 	static const LLCore::HttpStatus http_not_sat(HTTP_REQUESTED_RANGE_NOT_SATISFIABLE);	// 416;
@@ -1637,32 +1635,12 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		}
 		else
 		{
-			// *FIXME:  This auxiliary timeout logic appeared recently and then
-			// quickly disappeared.  While I haven't seen it invoked, I'm leaving
-			// it active for now.  
-			if(FETCHING_TIMEOUT < mRequestedTimer.getElapsedTimeF32())
-			{
-				//timeout, abort.
-				LL_WARNS("Texture") << "Fetch of texture " << mID << " timed out after "
-									<< mRequestedTimer.getElapsedTimeF32()
-									<< " seconds.  Canceling request." << LL_ENDL;
-
-				if (LLCORE_HTTP_HANDLE_INVALID != mHttpHandle)
-				{
-					// Issue cancel on any outstanding request.  Asynchronous
-					// so cancel may not actually take effect if operation is
-					// complete & queued.  Either way, notification will
-					// complete and the request can be transitioned.
-					mFetcher->mHttpRequest->requestCancel(mHttpHandle, NULL);
-				}
-				else
-				{
-					// Shouldn't happen but if it does, cancel quickly.
-					mState = DONE;
-					releaseHttpSemaphore();
-					return true;
-				}
-			}
+			// *HISTORY:  There was a texture timeout test here originally that
+			// would cancel a request that was over 120 seconds old.  That's
+			// probably not a good idea.  Particularly rich regions can take
+			// an enormous amount of time to load textures.  We'll revisit the
+			// various possible timeout components (total request time, connection
+			// time, I/O time, with and without retries, etc.) in the future.
 
 			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
 			return false;
@@ -2571,19 +2549,36 @@ void LLTextureFetch::removeFromHTTPQueue(const LLUUID& id, S32 received_size)
 	mHTTPTextureBits += received_size * 8; // Approximate - does not include header bits	
 }																		// -Mfnq
 
+// NB:  If you change deleteRequest() you should probably make
+// parallel changes in removeRequest().  They're functionally
+// identical with only argument variations.
+//
 // Threads:  T*
 void LLTextureFetch::deleteRequest(const LLUUID& id, bool cancel)
 {
 	lockQueue();														// +Mfq
 	LLTextureFetchWorker* worker = getWorkerAfterLock(id);
-	unlockQueue();														// -Mfq
+	if (worker)
+	{		
+		size_t erased_1 = mRequestMap.erase(worker->mID);
+		unlockQueue();													// -Mfq
 
-	// *TODO:  Refactoring this code may have introduced a thread race
-	// here where other code can run between the lookup above and the
-	// removeRequest() below.
-	removeRequest(worker, cancel);
+		llassert_always(erased_1 > 0) ;
+		removeFromNetworkQueue(worker, cancel);
+		llassert_always(!(worker->getFlags(LLWorkerClass::WCF_DELETE_REQUESTED))) ;
+
+		worker->scheduleDelete();	
+	}
+	else
+	{
+		unlockQueue();													// -Mfq
+	}
 }
 
+// NB:  If you change removeRequest() you should probably make
+// parallel changes in deleteRequest().  They're functionally
+// identical with only argument variations.
+//
 // Threads:  T*
 void LLTextureFetch::removeRequest(LLTextureFetchWorker* worker, bool cancel)
 {
