@@ -64,6 +64,8 @@ public:
 	void	setIsPast (bool is_past) { mIsConversationPast = is_past; }
 	void	setConverstionName(std::string conv_name) { mConversationName = conv_name; }
 
+	bool isOlderThan(U32 days) const;
+
 	/*
 	 * Resets flag of unread offline message to false when im floater with this conversation is opened.
 	 */

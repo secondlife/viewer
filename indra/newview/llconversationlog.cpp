@@ -30,6 +30,8 @@
 #include "llconversationlog.h"
 #include "lltrans.h"
 
+const int CONVERSATION_LIFETIME = 30; // lifetime of LLConversation is 30 days by spec
+
 struct Conversation_params
 {
 	Conversation_params(time_t time)
@@ -137,6 +139,14 @@ const std::string LLConversation::createTimestamp(const time_t& utc_time)
 
 	LLStringUtil::format (timeStr, substitution);
 	return timeStr;
+}
+
+bool LLConversation::isOlderThan(U32 days) const
+{
+	time_t now = time_corrected();
+	U32 age = (U32)((now - mTime) / SEC_PER_DAY); // age of conversation in days
+
+	return age > days;
 }
 
 void LLConversation::setListenIMFloaterOpened()
@@ -394,9 +404,21 @@ bool LLConversationLog::loadFromFile(const std::string& filename)
 		params.mHistoryFileName = std::string(history_file_name);
 
 		LLConversation conversation(params);
+
+		// CHUI-325
+		// The conversation log should be capped to the last 30 days. Conversations with the last utterance
+		// being over 30 days old should be purged from the conversation log text file on login.
+		if (conversation.isOlderThan(CONVERSATION_LIFETIME))
+		{
+			continue;
+		}
+
 		mConversations.push_back(conversation);
 	}
 	fclose(fp);
+
+	LLFile::remove(filename);
+	cache();
 
 	notifyObservers();
 	return true;
