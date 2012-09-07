@@ -29,5 +29,7 @@
 	<check_box label="Chat IM" name="EnableIMChatPopups" tool_tip="Seleziona per vedere una finestra popup quando arriva un messaggio IM"/>
 	<spinner label="Durata chat vicine:" name="nearby_toasts_lifetime"/>
 	<spinner label="Durata dissolvenza chat vicine:" name="nearby_toasts_fadingtime"/>
-	<button label="Impostazioni traduzione chat" name="ok_btn"/>
+	<button label="Traduzione..." name="ok_btn"/>
+	<button label="Sostituzione automatica..." name="autoreplace_showgui"/>
+	<button label="Correzione ortografica..." name="spellcheck_showgui"/>
 </panel>

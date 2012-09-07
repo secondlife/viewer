@@ -155,7 +155,6 @@ set(llui_HEADER_FILES
     llflyoutbutton.h 
     llfocusmgr.h
     llfunctorregistry.h
-    llhandle.h
     llhelp.h
     lliconctrl.h
     llkeywords.h

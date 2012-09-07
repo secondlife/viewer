@@ -151,6 +151,8 @@ public:
 
 	void		 unlinkDrawable(LLDrawable*);
 
+	static void removeMutedAVsLights(LLVOAvatar*);
+
 	// Object related methods
 	void        markVisible(LLDrawable *drawablep, LLCamera& camera);
 	void		markOccluder(LLSpatialGroup* group);
@@ -223,6 +225,7 @@ public:
 	void updateGL();
 	void rebuildPriorityGroups();
 	void rebuildGroups();
+	void clearRebuildGroups();
 
 	//calculate pixel area of given box from vantage point of given camera
 	static F32 calcPixelArea(LLVector3 center, LLVector3 size, LLCamera& camera);
@@ -294,10 +297,10 @@ public:
 	void setLight(LLDrawable *drawablep, BOOL is_light);
 	
 	BOOL hasRenderBatches(const U32 type) const;
-	LLCullResult::drawinfo_list_t::iterator beginRenderMap(U32 type);
-	LLCullResult::drawinfo_list_t::iterator endRenderMap(U32 type);
-	LLCullResult::sg_list_t::iterator beginAlphaGroups();
-	LLCullResult::sg_list_t::iterator endAlphaGroups();
+	LLCullResult::drawinfo_iterator beginRenderMap(U32 type);
+	LLCullResult::drawinfo_iterator endRenderMap(U32 type);
+	LLCullResult::sg_iterator beginAlphaGroups();
+	LLCullResult::sg_iterator endAlphaGroups();
 	
 
 	void addTrianglesDrawn(S32 index_count, U32 render_type = LLRender::TRIANGLES);
@@ -369,6 +372,12 @@ public:
 
 	void addDebugBlip(const LLVector3& position, const LLColor4& color);
 
+	void hidePermanentObjects( std::vector<U32>& restoreList );
+	void restorePermanentObjects( const std::vector<U32>& restoreList );
+	void skipRenderingOfTerrain( BOOL flag );
+	void hideObject( const LLUUID& id );
+	void restoreHiddenObject( const LLUUID& id );
+
 private:
 	void unloadShaders();
 	void addToQuickLookup( LLDrawPool* new_poolp );
@@ -376,7 +385,9 @@ private:
 	BOOL updateDrawableGeom(LLDrawable* drawable, BOOL priority);
 	void assertInitializedDoError();
 	bool assertInitialized() { const bool is_init = isInit(); if (!is_init) assertInitializedDoError(); return is_init; };
-	
+	void connectRefreshCachedSettingsSafe(const std::string name);
+	void hideDrawable( LLDrawable *pDrawable );
+	void unhideDrawable( LLDrawable *pDrawable );
 public:
 	enum {GPU_CLASS_MAX = 3 };
 

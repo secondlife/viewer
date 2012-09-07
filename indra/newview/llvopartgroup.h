@@ -45,6 +45,7 @@ public:
 	static S32 sVBSlotFree[LL_MAX_PARTICLE_COUNT];
 	static S32* sVBSlotCursor;
 
+	static void initClass();
 	static void restoreGL();
 	static void destroyGL();
 	static S32 findAvailableVBSlot();
@@ -62,7 +63,7 @@ public:
 	LLVOPartGroup(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
 
 	/*virtual*/ BOOL    isActive() const; // Whether this object needs to do an idleUpdate.
-	BOOL idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
+	void idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
 
 	virtual F32 getBinRadius();
 	virtual void updateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax);

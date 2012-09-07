@@ -9,9 +9,6 @@
 	<floater.string name="scripts_score_label">
 		Ora
 	</floater.string>
-	<floater.string name="scripts_mono_time_label">
-		Ora &apos;Mono&apos;
-	</floater.string>
 	<floater.string name="top_colliders_title">
 		Oggetti con maggiori collisioni
 	</floater.string>
@@ -32,9 +29,10 @@
 		<scroll_list.columns label="Nome" name="name" width="84"/>
 		<scroll_list.columns label="Proprietario" name="owner" width="84"/>
 		<scroll_list.columns label="Ubicazione" name="location" width="84"/>
+		<scroll_list.columns label="Lotto" name="parcel"/>
 		<scroll_list.columns label="Ora" name="time" width="84"/>
-		<scroll_list.columns label="Ora (Mono)" name="mono_time" width="84"/>
 		<scroll_list.columns label="URL" name="URLs"/>
+		<scroll_list.columns label="Memoria (KB)" name="memory"/>
 	</scroll_list>
 	<text name="id_text">
 		ID oggetto:
@@ -51,6 +49,10 @@
 	</text>
 	<line_editor font="SansSerifSmall" left="90" name="owner_name_editor" width="280"/>
 	<button label="Filtro" name="filter_owner_btn" width="150"/>
+	<text name="parcel_name_text">
+		Lotto:
+	</text>
+	<button label="Filtra" name="filter_parcel_btn"/>
 	<button label="Aggiorna" name="refresh_btn" width="150"/>
 	<button label="Restituisci selezionato" name="return_selected_btn" width="150"/>
 	<button label="Restituisci tutti" left="170" name="return_all_btn"/>

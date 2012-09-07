@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_navmesh_rebake">
+	<button label="Bölgeyi yeniden kaydet" name="navmesh_btn" tool_tip="Bölgenin navigasyon örgüsünü tekrar kaydetmek için tıkla."/>
+	<button label="Yeniden kaydetme talep ediliyor" name="navmesh_btn_sending" tool_tip="Yeniden kaydetme talebi sunucuya gönderiliyor."/>
+	<button label="Bölge yeniden kaydediliyor" name="navmesh_btn_baking" tool_tip="Bölge yeniden kaydediliyor.  Tamamlandığında bu düğme kaybolacak."/>
+</panel>

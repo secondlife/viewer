@@ -389,6 +389,22 @@ std::vector<LLScrollListItem*> LLScrollListCtrl::getAllSelected() const
 	return ret;
 }
 
+S32 LLScrollListCtrl::getNumSelected() const
+{
+	S32 numSelected = 0;
+
+	for(item_list::const_iterator iter = mItemList.begin(); iter != mItemList.end(); ++iter)
+	{
+		LLScrollListItem* item  = *iter;
+		if (item->getSelected())
+		{
+			++numSelected;
+		}
+	}
+
+	return numSelected;
+}
+
 S32 LLScrollListCtrl::getFirstSelectedIndex() const
 {
 	S32 CurSelectedIndex = 0;
@@ -2702,6 +2718,11 @@ std::string LLScrollListCtrl::getSortColumnName()
 BOOL LLScrollListCtrl::hasSortOrder() const
 {
 	return !mSortColumns.empty();
+}
+
+void LLScrollListCtrl::clearSortOrder()
+{
+	mSortColumns.clear();
 }
 
 void LLScrollListCtrl::clearColumns()

@@ -18,6 +18,12 @@
 	<panel.string name="text modify info 4">
 		Bu nesneleri değiştiremezsiniz
 	</panel.string>
+	<panel.string name="text modify info 5">
+		Bir bölge sınırı üzerinden bu nesneyi değiştiremezsiniz
+	</panel.string>
+	<panel.string name="text modify info 6">
+		Bir bölge sınırı üzerinden bu nesneleri değiştiremezsiniz
+	</panel.string>
 	<panel.string name="text modify warning">
 		Bu nesne bağlantılı parçalara sahip
 	</panel.string>
@@ -95,6 +101,9 @@
 		</combo_box>
 		<spinner label="Fiyat: L$" name="Edit Cost"/>
 		<check_box label="Aramada göster" name="search_check" tool_tip="Kişiler arama sonuçlarında bu nesneyi görebilsin"/>
+		<text name="pathfinding_attributes_label">
+			Yol bulma özellikleri:
+		</text>
 		<text name="B:">
 			B:
 		</text>

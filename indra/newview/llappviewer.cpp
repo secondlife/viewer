@@ -89,6 +89,7 @@
 #include "lllogininstance.h"
 #include "llprogressview.h"
 #include "llvocache.h"
+#include "llvopartgroup.h"
 #include "llweb.h"
 #include "llsecondlifeurls.h"
 #include "llupdaterservice.h"
@@ -108,6 +109,7 @@
 #include "llvfsthread.h"
 #include "llvolumemgr.h"
 #include "llxfermanager.h"
+#include "llphysicsextensions.h"
 
 #include "llnotificationmanager.h"
 #include "llnotifications.h"
@@ -377,6 +379,9 @@ void init_default_trans_args()
 	default_trans_args.insert("CAPITALIZED_APP_NAME");
 	default_trans_args.insert("SECOND_LIFE_GRID");
 	default_trans_args.insert("SUPPORT_SITE");
+	// This URL shows up in a surprising number of places in various skin
+	// files. We really only want to have to maintain a single copy of it.
+	default_trans_args.insert("create_account_url");
 }
 
 //----------------------------------------------------------------------------
@@ -677,6 +682,9 @@ bool LLAppViewer::init()
 
 	// initialize SSE options
 	LLVector4a::initClass();
+
+	//initialize particle index pool
+	LLVOPartGroup::initClass();
 
 	// Need to do this initialization before we do anything else, since anything
 	// that touches files should really go through the lldir API
@@ -1607,6 +1615,9 @@ bool LLAppViewer::cleanup()
 
 	// shut down mesh streamer
 	gMeshRepo.shutdown();
+
+	// shut down Havok
+	LLPhysicsExtensions::quitSystem();
 
 	// Must clean up texture references before viewer window is destroyed.
 	if(LLHUDManager::instanceExists())
@@ -2657,14 +2668,6 @@ bool LLAppViewer::initConfiguration()
 		}
 	}
 
-	// If automatic login from command line with --login switch
-	// init StartSLURL location. In interactive login, LLPanelLogin
-	// will take care of it.
-	if ((clp.hasOption("login") || clp.hasOption("autologin")) && !clp.hasOption("url") && !clp.hasOption("slurl"))
-	{
-		LLStartUp::setStartSLURL(LLSLURL(gSavedSettings.getString("LoginLocation")));
-	}
-
 	if (!gSavedSettings.getBOOL("AllowMultipleViewers"))
 	{
 	    //
@@ -2712,12 +2715,27 @@ bool LLAppViewer::initConfiguration()
         }
 	}
 
-   	// need to do this here - need to have initialized global settings first
+   	// NextLoginLocation is set from the command line option
 	std::string nextLoginLocation = gSavedSettings.getString( "NextLoginLocation" );
 	if ( !nextLoginLocation.empty() )
 	{
+		LL_DEBUGS("AppInit")<<"set start from NextLoginLocation: "<<nextLoginLocation<<LL_ENDL;
 		LLStartUp::setStartSLURL(LLSLURL(nextLoginLocation));
-	};
+	}
+	else if (   (   clp.hasOption("login") || clp.hasOption("autologin"))
+			 && !clp.hasOption("url")
+			 && !clp.hasOption("slurl"))
+	{
+		// If automatic login from command line with --login switch
+		// init StartSLURL location.
+		std::string start_slurl_setting = gSavedSettings.getString("LoginLocation");
+		LL_DEBUGS("AppInit") << "start slurl setting '" << start_slurl_setting << "'" << LL_ENDL;
+		LLStartUp::setStartSLURL(LLSLURL(start_slurl_setting));
+	}
+	else
+	{
+		// the login location will be set by the login panel (see LLPanelLogin)
+	}
 
 	gLastRunVersion = gSavedSettings.getString("LastRunVersion");
 
@@ -3101,8 +3119,8 @@ void LLAppViewer::writeSystemInfo()
 	gDebugInfo["OSInfo"] = getOSInfo().getOSStringSimple();
 
 	// The user is not logged on yet, but record the current grid choice login url
-	// which may have been the intended grid. This can b
-	gDebugInfo["GridName"] = LLGridManager::getInstance()->getGridLabel();
+	// which may have been the intended grid. 
+	gDebugInfo["GridName"] = LLGridManager::getInstance()->getGridId();
 
 	// *FIX:Mani - move this down in llappviewerwin32
 #ifdef LL_WINDOWS
@@ -4338,6 +4356,10 @@ void LLAppViewer::idle()
     {
 		return;
     }
+	if (gTeleportDisplay)
+    {
+		return;
+    }
 
 	gViewerWindow->updateUI();
 
@@ -5056,7 +5078,7 @@ void LLAppViewer::launchUpdater()
 #endif
 	// *TODO change userserver to be grid on both viewer and sim, since
 	// userserver no longer exists.
-	query_map["userserver"] = LLGridManager::getInstance()->getGridLabel();
+	query_map["userserver"] = LLGridManager::getInstance()->getGridId();
 	query_map["channel"] = LLVersionInfo::getChannel();
 	// *TODO constantize this guy
 	// *NOTE: This URL is also used in win_setup/lldownloader.cpp

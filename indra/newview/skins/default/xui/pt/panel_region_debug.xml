@@ -36,5 +36,5 @@
 	<button label="?" left="297" name="top_scripts_help"/>
 	<button label="Reiniciar a região" name="restart_btn" tool_tip="Após 2 minutos de contagem regressiva, reiniciar a região"/>
 	<button label="?" name="restart_help"/>
-	<button label="Adiar reinício" name="cancel_restart_btn" tool_tip="Adiar o reinício da região por uma hora"/>
+	<button label="Cancelar reinício" name="cancel_restart_btn" tool_tip="Adiar o reinício da região por uma hora"/>
 </panel>

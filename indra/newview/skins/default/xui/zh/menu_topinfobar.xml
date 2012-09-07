@@ -3,5 +3,5 @@
 	<menu_item_check label="顯示座標" name="Show Coordinates"/>
 	<menu_item_check label="顯示地段屬性" name="Show Parcel Properties"/>
 	<menu_item_call label="地標" name="Landmark"/>
-	<menu_item_call label="覆製" name="Copy"/>
+	<menu_item_call label="恚庨" name="Copy"/>
 </menu>

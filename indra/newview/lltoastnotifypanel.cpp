@@ -334,32 +334,24 @@ void LLToastNotifyPanel::updateButtonsLayout(const std::vector<index_button_pair
 	}
 
 	U32 ignore_btn_width = 0;
+	U32 mute_btn_pad = 0;
 	if (mIsScriptDialog && ignore_btn != NULL)
 	{
 		LLRect ignore_btn_rect(ignore_btn->getRect());
-		S32 buttons_per_row = max_width / BUTTON_WIDTH; //assume that h_pad far less than BUTTON_WIDTH
-		S32 ignore_btn_left = buttons_per_row * BUTTON_WIDTH + (buttons_per_row	- 1) * h_pad - ignore_btn_rect.getWidth();
-		if (ignore_btn_left + ignore_btn_rect.getWidth() > max_width)// make sure that the ignore button is in panel
-		{
-			ignore_btn_left = max_width - ignore_btn_rect.getWidth() - 2 * HPAD;
-		}
+		S32 ignore_btn_left = max_width - ignore_btn_rect.getWidth();
 		ignore_btn_rect.setOriginAndSize(ignore_btn_left, BOTTOM_PAD,// always move ignore button at the bottom
 				ignore_btn_rect.getWidth(), ignore_btn_rect.getHeight());
 		ignore_btn->setRect(ignore_btn_rect);
 		ignore_btn_width = ignore_btn_rect.getWidth();
 		mControlPanel->addChild(ignore_btn, -1);
+		mute_btn_pad = 4 * HPAD; //only use a 4 * HPAD padding if an ignore button exists
 	}
 
 	if (mIsScriptDialog && mute_btn != NULL)
 	{
 		LLRect mute_btn_rect(mute_btn->getRect());
-		S32 buttons_per_row = max_width / BUTTON_WIDTH; //assume that h_pad far less than BUTTON_WIDTH
 		// Place mute (Block) button to the left of the ignore button.
-		S32 mute_btn_left = buttons_per_row * BUTTON_WIDTH + (buttons_per_row	- 1) * h_pad - mute_btn_rect.getWidth() - ignore_btn_width - (h_pad / 2);
-		if (mute_btn_left + mute_btn_rect.getWidth() > max_width) // make sure that the mute button is in panel
-		{
-			mute_btn_left = max_width - mute_btn_rect.getWidth() - 2 * HPAD;
-		}
+		S32 mute_btn_left = max_width - mute_btn_rect.getWidth() - ignore_btn_width - mute_btn_pad;
 		mute_btn_rect.setOriginAndSize(mute_btn_left, BOTTOM_PAD,// always move mute button at the bottom
 				mute_btn_rect.getWidth(), mute_btn_rect.getHeight());
 		mute_btn->setRect(mute_btn_rect);

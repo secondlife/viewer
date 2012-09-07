@@ -2,15 +2,15 @@
 <teleport_messages>
 	<message_set name="errors">
 		<message name="invalid_tport">
-			Problem encountered processing your teleport request. You may need to log back in before you can teleport.
+			處理你瞬間傳送要求時發生問題。 如果想要瞬間傳送，你可能需要重新登入。
 如果你持續得到此訊息，請查閱 [SUPPORT_SITE]。
 		</message>
 		<message name="invalid_region_handoff">
-			Problem encountered processing your region crossing. You may need to log back in before you can cross regions.
+			處理你跨越地區動作時發生問題。 如果想要跨越地區，你可能需要重新登入。
 如果你持續得到此訊息，請查閱 [SUPPORT_SITE]。
 		</message>
 		<message name="blocked_tport">
-			抱歉，目前瞬間傳送已被阻擋。請稍後再試。
+			抱歉，目前禁止瞬間傳送。 請稍後再試。
 如果你仍無法進行瞬間傳送，請登出後重新入來解決此一問題。
 		</message>
 		<message name="nolandmark_tport">
@@ -21,26 +21,26 @@
 請稍後再試。
 		</message>
 		<message name="NoHelpIslandTP">
-		您不能瞬间转移回“援助岛”。
+			您不能瞬间转移回“援助岛”。
 去“公共援助岛”重复您的教程。
 		</message>
 		<message name="noaccess_tport">
 			抱歉，你並沒有權限進入要瞬間傳送的目的地。
 		</message>
 		<message name="missing_attach_tport">
-			Your attachments have not arrived yet. Try waiting for a few more seconds or log out and back in again before attempting to teleport.
+			你的附件尚未抵達。 請稍候一會兒，或請登出後重新登入，再嘗試瞬間傳送。
 		</message>
 		<message name="too_many_uploads_tport">
-			The asset queue in this region is currently clogged so your teleport request will not be able to succeed in a timely manner. Please try again in a few minutes or go to a less busy area.
+			該地區的資產查詢目前太過擁塞，因此你的瞬間傳送動作可能無法即時發生。 請稍候再試，或請前往較不擁塞的地區。
 		</message>
 		<message name="expired_tport">
-			Sorry, but the system was unable to complete your teleport request in a timely fashion. Please try again in a few minutes.
+			抱歉，系統無法即時完成為你瞬間傳送。 請稍待幾分鐘再試。
 		</message>
 		<message name="expired_region_handoff">
-			Sorry, but the system was unable to complete your region crossing in a timely fashion. Please try again in a few minutes.
+			抱歉，系統無法即時讓你跨越地區。 請稍待幾分鐘再試。
 		</message>
 		<message name="no_host">
-			Unable to find teleport destination. The destination may be temporarily unavailable or no longer exists. Please try again in a few minutes.
+			找不到瞬間傳送的目的地。 目的地可能暫時不可用，或已不存在。 請稍待幾分鐘再試。
 		</message>
 		<message name="no_inventory_host">
 			收納區功能目前無法使用。
@@ -48,13 +48,13 @@
 	</message_set>
 	<message_set name="progress">
 		<message name="sending_dest">
-			Sending to destination.
+			送往目的地。
 		</message>
 		<message name="redirecting">
 			重新導向至不同位置。
 		</message>
 		<message name="relaying">
-			Relaying to destination.
+			接繼送往目的地。
 		</message>
 		<message name="sending_home">
 			送出家位置的要求。

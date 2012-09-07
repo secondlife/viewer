@@ -43,7 +43,6 @@ set(cmake_SOURCE_FILES
     LLAudio.cmake
     LLCharacter.cmake
     LLCommon.cmake
-    LLConvexDecomposition.cmake
     LLCrashLogger.cmake
     LLDatabase.cmake
     LLImage.cmake
@@ -54,6 +53,7 @@ set(cmake_SOURCE_FILES
     LLMessage.cmake
     LLPlugin.cmake
     LLPrimitive.cmake
+    LLPhysicsExtensions.cmake
     LLRender.cmake
     LLScene.cmake
     LLTestCommand.cmake

@@ -670,6 +670,16 @@ public:
 	void			requestEnterGodMode();
 	void			requestLeaveGodMode();
 
+	typedef boost::function<void (U8)>         god_level_change_callback_t;
+	typedef boost::signals2::signal<void (U8)> god_level_change_signal_t;
+	typedef boost::signals2::connection        god_level_change_slot_t;
+
+	god_level_change_slot_t registerGodLevelChanageListener(god_level_change_callback_t pGodLevelChangeCallback);
+
+private:
+	god_level_change_signal_t mGodLevelChangeSignal;
+	
+
 	//--------------------------------------------------------------------
 	// Maturity
 	//--------------------------------------------------------------------

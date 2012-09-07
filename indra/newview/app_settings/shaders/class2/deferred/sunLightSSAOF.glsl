@@ -34,10 +34,10 @@ out vec4 frag_color;
 
 uniform sampler2DRect depthMap;
 uniform sampler2DRect normalMap;
-uniform sampler2DRectShadow shadowMap0;
-uniform sampler2DRectShadow shadowMap1;
-uniform sampler2DRectShadow shadowMap2;
-uniform sampler2DRectShadow shadowMap3;
+uniform sampler2DShadow shadowMap0;
+uniform sampler2DShadow shadowMap1;
+uniform sampler2DShadow shadowMap2;
+uniform sampler2DShadow shadowMap3;
 uniform sampler2DShadow shadowMap4;
 uniform sampler2DShadow shadowMap5;
 uniform sampler2D noiseMap;
@@ -55,9 +55,10 @@ VARYING vec2 vary_fragcoord;
 
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
-uniform vec2 shadow_res;
 uniform vec2 proj_shadow_res;
 uniform vec3 sun_dir;
+
+uniform vec2 shadow_res;
 
 uniform float shadow_bias;
 uniform float shadow_offset;
@@ -139,30 +140,30 @@ float calcAmbientOcclusion(vec4 pos, vec3 norm)
 	return min(ret, 1.0);
 }
 
-float pcfShadow(sampler2DRectShadow shadowMap, vec4 stc, float scl, vec2 pos_screen)
+float pcfShadow(sampler2DShadow shadowMap, vec4 stc, float scl, vec2 pos_screen)
 {
 	stc.xyz /= stc.w;
-	stc.z += shadow_bias*scl;
+	stc.z += shadow_bias;
 
-	stc.x = floor(stc.x + fract(pos_screen.y*0.666666666));
+	stc.x = floor(stc.x*shadow_res.x + fract(pos_screen.y*0.666666666))/shadow_res.x;
+	float cs = shadow2D(shadowMap, stc.xyz).x;
 	
-	float cs = shadow2DRect(shadowMap, stc.xyz).x;
 	float shadow = cs;
 	
-	shadow += shadow2DRect(shadowMap, stc.xyz+vec3(2.0, 1.5, 0.0)).x;
-        shadow += shadow2DRect(shadowMap, stc.xyz+vec3(1.0, -1.5, 0.0)).x;
-        shadow += shadow2DRect(shadowMap, stc.xyz+vec3(-1.0, 1.5, 0.0)).x;
-        shadow += shadow2DRect(shadowMap, stc.xyz+vec3(-2.0, -1.5, 0.0)).x;
-                        
+	shadow += shadow2D(shadowMap, stc.xyz+vec3(2.0/shadow_res.x, 1.5/shadow_res.y, 0.0)).x;
+    shadow += shadow2D(shadowMap, stc.xyz+vec3(1.0/shadow_res.x, -1.5/shadow_res.y, 0.0)).x;
+    shadow += shadow2D(shadowMap, stc.xyz+vec3(-1.0/shadow_res.x, 1.5/shadow_res.y, 0.0)).x;
+    shadow += shadow2D(shadowMap, stc.xyz+vec3(-2.0/shadow_res.x, -1.5/shadow_res.y, 0.0)).x;
+	         
         return shadow*0.2;
 }
 
-float pcfShadow(sampler2DShadow shadowMap, vec4 stc, float scl, vec2 pos_screen)
+float pcfSpotShadow(sampler2DShadow shadowMap, vec4 stc, float scl, vec2 pos_screen)
 {
 	stc.xyz /= stc.w;
 	stc.z += spot_shadow_bias*scl;
 	stc.x = floor(proj_shadow_res.x * stc.x + fract(pos_screen.y*0.666666666)) / proj_shadow_res.x; // snap
-	
+		
 	float cs = shadow2D(shadowMap, stc.xyz).x;
 	float shadow = cs;
 
@@ -186,7 +187,7 @@ void main()
 	vec4 pos = getPosition(pos_screen);
 	
 	vec4 nmap4 = texture2DRect(normalMap, pos_screen);
-	nmap4 = vec4((nmap4.xy-0.5)*2.0,nmap4.z,nmap4.w); // unpack norm
+	nmap4 = vec4((nmap4.xyz-0.5)*2.0,nmap4.w); // unpack norm
 	float displace = nmap4.w;
 	vec3 norm = nmap4.xyz;
 	
@@ -223,8 +224,7 @@ void main()
 			if (spos.z < near_split.z)
 			{
 				lpos = shadow_matrix[3]*spos;
-				lpos.xy *= shadow_res;
-
+				
 				float w = 1.0;
 				w -= max(spos.z-far_split.z, 0.0)/transition_domain.z;
 				shadow += pcfShadow(shadowMap3, lpos, 0.25, pos_screen)*w;
@@ -235,8 +235,7 @@ void main()
 			if (spos.z < near_split.y && spos.z > far_split.z)
 			{
 				lpos = shadow_matrix[2]*spos;
-				lpos.xy *= shadow_res;
-
+				
 				float w = 1.0;
 				w -= max(spos.z-far_split.y, 0.0)/transition_domain.y;
 				w -= max(near_split.z-spos.z, 0.0)/transition_domain.z;
@@ -247,8 +246,7 @@ void main()
 			if (spos.z < near_split.x && spos.z > far_split.y)
 			{
 				lpos = shadow_matrix[1]*spos;
-				lpos.xy *= shadow_res;
-
+				
 				float w = 1.0;
 				w -= max(spos.z-far_split.x, 0.0)/transition_domain.x;
 				w -= max(near_split.y-spos.z, 0.0)/transition_domain.y;
@@ -259,8 +257,7 @@ void main()
 			if (spos.z > far_split.x)
 			{
 				lpos = shadow_matrix[0]*spos;
-				lpos.xy *= shadow_res;
-				
+								
 				float w = 1.0;
 				w -= max(near_split.x-spos.z, 0.0)/transition_domain.x;
 				
@@ -298,11 +295,11 @@ void main()
 	
 	//spotlight shadow 1
 	vec4 lpos = shadow_matrix[4]*spos;
-	frag_color[2] = pcfShadow(shadowMap4, lpos, 0.8, pos_screen);
+	frag_color[2] = pcfSpotShadow(shadowMap4, lpos, 0.8, pos_screen);
 	
 	//spotlight shadow 2
 	lpos = shadow_matrix[5]*spos;
-	frag_color[3] = pcfShadow(shadowMap5, lpos, 0.8, pos_screen);
+	frag_color[3] = pcfSpotShadow(shadowMap5, lpos, 0.8, pos_screen);
 
 	//frag_color.rgb = pos.xyz;
 	//frag_color.b = shadow;

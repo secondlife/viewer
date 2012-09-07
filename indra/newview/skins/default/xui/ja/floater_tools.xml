@@ -148,6 +148,12 @@
 			<panel.string name="text modify info 4">
 				これらのオブジェクトを修正できません
 			</panel.string>
+			<panel.string name="text modify info 5">
+				地域（リージョン）の境界を越えてこのオブジェクトを修正できません
+			</panel.string>
+			<panel.string name="text modify info 6">
+				地域（リージョン）の境界を越えてこれらのオブジェクトを修正できません
+			</panel.string>
 			<panel.string name="text modify warning">
 				オブジェクト全体を選択して権限の設定を行ってください。
 			</panel.string>
@@ -203,12 +209,12 @@
 				<combo_box.item label="ズームする" name="Zoom"/>
 			</combo_box>
 			<check_box label="販売対象：" name="checkbox for sale"/>
+			<spinner label="L$" name="Edit Cost"/>
 			<combo_box name="sale type">
 				<combo_box.item label="コピー" name="Copy"/>
 				<combo_box.item label="中身" name="Contents"/>
 				<combo_box.item label="オリジナル" name="Original"/>
 			</combo_box>
-			<spinner label="価格： L$" name="Edit Cost"/>
 			<check_box label="検索に表示" name="search_check" tool_tip="検索結果にこのオブジェクトを表示します"/>
 			<panel name="perms_build">
 				<text name="perm_modify">
@@ -242,6 +248,11 @@
 				</text>
 				<text name="F:">
 					F：
+				</text>
+			</panel>
+			<panel name="pathfinding_attrs_panel">
+				<text name="pathfinding_attributes_label">
+					パスファインディング属性:
 				</text>
 			</panel>
 		</panel>

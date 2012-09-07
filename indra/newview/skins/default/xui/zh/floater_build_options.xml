@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="build options floater" title="格線選項">
 	<spinner label="格線單位（公尺）" name="GridResolution"/>
-	<spinner label="Grid Extents (meters)" name="GridDrawSize"/>
+	<spinner label="格線延伸範圍（公尺）" name="GridDrawSize"/>
 	<check_box label="貼齊至子單位" name="GridSubUnit"/>
-	<check_box label="View cross-sections" name="GridCrossSection"/>
+	<check_box label="檢視橫剖面" name="GridCrossSection"/>
 	<text name="grid_opacity_label" tool_tip="格線不透明度">
 		不透明度：
 	</text>

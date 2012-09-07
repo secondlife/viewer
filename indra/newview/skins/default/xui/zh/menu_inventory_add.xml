@@ -4,7 +4,9 @@
 		<menu_item_call label="圖像（L$[COST]）..." name="Upload Image"/>
 		<menu_item_call label="聲音（L$[COST]）..." name="Upload Sound"/>
 		<menu_item_call label="動作（L$[COST]）..." name="Upload Animation"/>
-		<menu_item_call label="大批（L$[COST] 每檔案）..." name="Bulk Upload"/>
+		<menu_item_call label="模型…" name="Upload Model"/>
+		<menu_item_call label="模型精靈…" name="Upload Model Wizard"/>
+		<menu_item_call label="批量（每檔案 L$[COST] ）..." name="Bulk Upload"/>
 		<menu_item_call label="設定預設上傳權限" name="perm prefs"/>
 	</menu>
 	<menu_item_call label="新資料夾" name="New Folder"/>
@@ -16,7 +18,7 @@
 		<menu_item_call label="新褲子" name="New Pants"/>
 		<menu_item_call label="新鞋子" name="New Shoes"/>
 		<menu_item_call label="新襪子" name="New Socks"/>
-		<menu_item_call label="新夾克" name="New Jacket"/>
+		<menu_item_call label="新外套" name="New Jacket"/>
 		<menu_item_call label="新裙子" name="New Skirt"/>
 		<menu_item_call label="新手套" name="New Gloves"/>
 		<menu_item_call label="新內衣" name="New Undershirt"/>

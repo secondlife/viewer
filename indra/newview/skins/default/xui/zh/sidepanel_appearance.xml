@@ -11,7 +11,7 @@
 			（狀態）
 		</text>
 		<text name="currentlook_name">
-			MyOutfit With a really Long Name like MOOSE
+			名稱很長、很長、很長、很長、很長的 MyOutfit
 		</text>
 		<button label="" name="edit_outfit_btn" tool_tip="編輯這裝扮"/>
 	</panel>

@@ -25,6 +25,10 @@
 		Habilitar VBO:
 	</text>
 	<check_box initial_value="true" label="Habilitar Objetos com Armazenamento de Vértices" name="vbo" tool_tip="Habilitando-o em máquinas novas, ele oferece um ganho de performance. Contudo, as máquinas antigas tem freqüentemente implementações pobres de VBOs e você pode ter travamentos quando esta opção é habilitada."/>
+	<text name="tc label">
+		Habilitar S3TC:
+	</text>
+	<check_box initial_value="true" label="Habilitar compressão de texturas (requer reinício)" name="texture compression" tool_tip="Comprime as texturas na memória de vídeo, permitindo o carregamento de texturas de maior resolução em detrimento da qualidade da cor."/>
 	<slider label="Memória de texturas (MB):" name="GraphicsCardTextureMemory" tool_tip="Quanto da memória deve ser alocado para texturas.  O padrão é definido pela memória da placa de vídeo.  Reduzir este valor pode melhorar o desempenho, mas as texturas podem fica fora de foco."/>
 	<spinner label="Relação de Distância de  Nevoeiro:" name="fog"/>
 	<button label="OK" label_selected="OK" name="OK"/>

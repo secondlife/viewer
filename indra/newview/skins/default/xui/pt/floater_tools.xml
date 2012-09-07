@@ -148,6 +148,12 @@
 			<panel.string name="text modify info 4">
 				Você não pode modificar estes objetos
 			</panel.string>
+			<panel.string name="text modify info 5">
+				Não é possível modificar este objeto através de uma demarcação da região
+			</panel.string>
+			<panel.string name="text modify info 6">
+				Não é possível modificar estes objetos através de uma demarcação da região
+			</panel.string>
 			<panel.string name="text modify warning">
 				Selecione o objeto inteiro para configurar as autorizações
 			</panel.string>
@@ -197,12 +203,12 @@
 				<combo_box.item label="Zoom" name="Zoom"/>
 			</combo_box>
 			<check_box label="À venda" name="checkbox for sale"/>
+			<spinner label="L$" name="Edit Cost"/>
 			<combo_box name="sale type">
 				<combo_box.item label="Cópia" name="Copy"/>
 				<combo_box.item label="Conteúdo" name="Contents"/>
 				<combo_box.item label="Original" name="Original"/>
 			</combo_box>
-			<spinner label="Preço: L$" name="Edit Cost"/>
 			<check_box label="Mostrar na busca" name="search_check" tool_tip="Permitir que as pessoas vejam este objeto nos resultados de busca"/>
 			<panel name="perms_build">
 				<text name="perm_modify">
@@ -236,6 +242,11 @@
 				</text>
 				<text name="F:">
 					F:
+				</text>
+			</panel>
+			<panel name="pathfinding_attrs_panel">
+				<text name="pathfinding_attributes_label">
+					Atributos do pathfinding:
 				</text>
 			</panel>
 		</panel>
