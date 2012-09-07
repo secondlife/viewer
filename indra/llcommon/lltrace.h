@@ -28,6 +28,7 @@
 #define LL_LLTRACE_H
 
 #include "stdtypes.h"
+#include "llpreprocessor.h"
 
 #include <vector>
 #include <boost/type_traits/alignment_of.hpp>
@@ -176,8 +177,8 @@ namespace LLTrace
 				accumulator->mChildTimeCounter += sCurRecorder.mChildTime;
 				accumulator->mActiveCount--;
 
-				accumulator->mLastCaller = mLastRecorder->mAccumulator;
-				mLastRecorder->mChildTime += total_time;
+				accumulator->mLastCaller = mLastRecorder.mAccumulator;
+				mLastRecorder.mChildTime += total_time;
 
 				// pop stack
 				sCurRecorder = mLastRecorder;
@@ -188,7 +189,7 @@ namespace LLTrace
 		};
 
 	private:
-		U32 getCPUClockCount32()
+		static U32 getCPUClockCount32()
 		{
 			U32 ret_val;
 			__asm
@@ -219,7 +220,7 @@ namespace LLTrace
 			return ret_val;
 		}
 
-		static RecorderStackEntry* sCurRecorder;
+		static RecorderStackEntry sCurRecorder;
 	};
 
 	BlockTimer::RecorderStackEntry BlockTimer::sCurRecorder;
