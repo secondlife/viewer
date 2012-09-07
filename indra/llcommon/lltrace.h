@@ -27,28 +27,107 @@
 #ifndef LL_LLTRACE_H
 #define LL_LLTRACE_H
 
+#include "stdtypes.h"
+
 #include <vector>
+#include <boost/type_traits/alignment_of.hpp>
 
 namespace LLTrace
 {
-	class Stat
+	//TODO figure out best way to do this and proper naming convention
+	
+	static 
+	void init()
+	{
+
+	}
+
+	template<typename T>
+	class Accumulator
+	{
+	public:
+		Accumulator()
+		:	mSum(),
+			mMin(),
+			mMax(),
+			mNumSamples(0)
+		{}
+
+		void sample(T value)
+		{
+			mNumSamples++;
+			mSum += value;
+			if (value < mMin)
+			{
+				mMin = value;
+			}
+			else if (value > mMax)
+			{
+				mMax = value;
+			}
+		}
+
+	private:
+		T	mSum,
+			mMin,
+			mMax;
+
+		U32	mNumSamples;
+	};
+
+	class TraceStorage
+	{
+	protected:
+		TraceStorage(const size_t size, const size_t alignment)
+		{
+			mRecordOffset = sNextOffset + (alignment - 1);
+			mRecordOffset -= mRecordOffset % alignment;
+			sNextOffset = mRecordOffset + size;
+			sStorage.reserve((size_t)sNextOffset);
+		}
+
+		// this needs to be thread local
+		static std::vector<U8>	sStorage;
+		static ptrdiff_t		sNextOffset;
+
+		ptrdiff_t				mRecordOffset;
+	};
+
+	std::vector<U8> TraceStorage::sStorage;
+	ptrdiff_t TraceStorage::sNextOffset = 0;
+
+	template<typename T>
+	class Trace : public TraceStorage
+	{
+	public:
+		Trace(const std::string& name)
+		:	TraceStorage(sizeof(Accumulator<T>), boost::alignment_of<Accumulator<T> >::value),
+			mName(name)
+		{}
+
+		void record(T value)
+		{
+			(reinterpret_cast<Accumulator<T>* >(sStorage + mRecordOffset))->sample(value);
+		}
+
+	private:
+		std::string		mName;
+	};
+
+	template<typename T>
+	class Stat : public Trace<T>
 	{
 	public:
 		Stat(const char* name)
-		:	mName(name)
+		:	Trace(name)
 		{}
-		void record() {}
-		void record(int value) {}
-		void record(float value) {}
-	private:
-		const std::string mName;
 	};
 
-	class BlockTimer
+	class BlockTimer : public Trace<U32>
 	{
 	public:
 		BlockTimer(const char* name)
-		:	mName(name)
+		:	Trace(name)
 		{}
 
 		struct Accumulator
@@ -56,8 +135,8 @@ namespace LLTrace
 			U32 						mTotalTimeCounter,
 										mChildTimeCounter,
 										mCalls;
-			Accumulator*				mParent,		// info for caller timer
-										mLastCaller;	// used to bootstrap tree construction
+			Accumulator*				mParent;		// info for caller timer
+			Accumulator*				mLastCaller;	// used to bootstrap tree construction
 			const BlockTimer*			mTimer;			// points to block timer associated with this storage
 			U8							mActiveCount;	// number of timers with this ID active on stack
 			bool						mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame
@@ -140,7 +219,6 @@ namespace LLTrace
 			return ret_val;
 		}
 
-		const std::string mName;
 		static RecorderStackEntry* sCurRecorder;
 	};
 
