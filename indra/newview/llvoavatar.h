@@ -710,7 +710,9 @@ public:
 	//--------------------------------------------------------------------
 public:
 	BOOL			getIsAppearanceAnimating() const { return mAppearanceAnimating; }
-	BOOL			isUsingBakedTextures() const { return mUseServerBakes; } // e.g. false if in appearance edit mode		
+	BOOL			isUsingBakedTextures() const { return mUseServerBakes; } // e.g. false if in appearance edit mode	
+	BOOL			isUsingLocalAppearance() const { return mUseLocalAppearance; }
+
 private:
 	BOOL			mAppearanceAnimating;
 	LLFrameTimer	mAppearanceMorphTimer;
@@ -1014,7 +1016,7 @@ private:
 	// General
 	//--------------------------------------------------------------------
 public:
-	static void			dumpArchetypeXML(void*);
+	void				dumpArchetypeXML(const std::string& filename);
 	static void			dumpBakedStatus();
 	const std::string 	getBakedStatusForPrintout() const;
 	void				dumpAvatarTEs(const std::string& context) const;
