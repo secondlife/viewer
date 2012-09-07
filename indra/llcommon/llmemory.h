@@ -61,6 +61,17 @@ inline void* ll_aligned_malloc_16(size_t size) // returned hunk MUST be freed wi
 #endif
 }
 
+inline void ll_aligned_free_16(void *p)
+{
+#if defined(LL_WINDOWS)
+	_aligned_free(p);
+#elif defined(LL_DARWIN)
+	return free(p);
+#else
+	free(p); // posix_memalign() is compatible with heap deallocator
+#endif
+}
+
 inline void* ll_aligned_realloc_16(void* ptr, size_t size, size_t old_size) // returned hunk MUST be freed with ll_aligned_free_16().
 {
 #if defined(LL_WINDOWS)
@@ -73,17 +84,6 @@ inline void* ll_aligned_realloc_16(void* ptr, size_t size, size_t old_size) // r
 	memcpy(ret, ptr, old_size);
 	ll_aligned_free_16(ptr);
 	return ret;
-#endif
-}
-
-inline void ll_aligned_free_16(void *p)
-{
-#if defined(LL_WINDOWS)
-	_aligned_free(p);
-#elif defined(LL_DARWIN)
-	return free(p);
-#else
-	free(p); // posix_memalign() is compatible with heap deallocator
 #endif
 }
 #else // USE_TCMALLOC
