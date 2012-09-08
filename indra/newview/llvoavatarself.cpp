@@ -255,7 +255,7 @@ BOOL LLVOAvatarSelf::loadAvatarSelf()
 	return success;
 }
 
-BOOL LLVOAvatarSelf::buildSkeletonSelf(const LLVOAvatarSkeletonInfo *info)
+BOOL LLVOAvatarSelf::buildSkeletonSelf(const LLAvatarSkeletonInfo *info)
 {
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 
@@ -589,7 +589,7 @@ LLVOAvatarSelf::~LLVOAvatarSelf()
 BOOL LLVOAvatarSelf::loadLayersets()
 {
 	BOOL success = TRUE;
-	for (LLVOAvatarXmlInfo::layer_info_list_t::const_iterator iter = sAvatarXmlInfo->mLayerInfoList.begin();
+	for (LLAvatarXmlInfo::layer_info_list_t::const_iterator iter = sAvatarXmlInfo->mLayerInfoList.begin();
 		 iter != sAvatarXmlInfo->mLayerInfoList.end(); 
 		 ++iter)
 	{
@@ -952,7 +952,7 @@ void LLVOAvatarSelf::updateRegion(LLViewerRegion *regionp)
 void LLVOAvatarSelf::idleUpdateTractorBeam()
 {
 	// This is only done for yourself (maybe it should be in the agent?)
-	if (!needsRenderBeam() || !mIsBuilt)
+	if (!needsRenderBeam() || !isBuilt())
 	{
 		mBeam = NULL;
 	}

@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPOLYMESH_H
-#define LL_LLPOLYMESH_H
+#ifndef LL_LLPOLYMESHINTERFACE_H
+#define LL_LLPOLYMESHINTERFACE_H
 
 #include <string>
 #include <map>
@@ -39,7 +39,7 @@
 //#include "lldarray.h"
 
 class LLSkinJoint;
-class LLVOAvatar;
+class LLAvatarAppearance;
 class LLWearable;
 
 //#define USE_STRIPS	// Use tri-strips for rendering.
@@ -319,8 +319,8 @@ public:
 
 	BOOL	isLOD() { return mSharedData && mSharedData->isLOD(); }
 
-	void setAvatar(LLVOAvatar* avatarp) { mAvatarp = avatarp; }
-	LLVOAvatar* getAvatar() { return mAvatarp; }
+	void setAvatar(LLAvatarAppearance* avatarp) { mAvatarp = avatarp; }
+	LLAvatarAppearance* getAvatar() { return mAvatarp; }
 
 	LLDynamicArray<LLJointRenderData*>	mJointRenderData;
 
@@ -362,77 +362,8 @@ protected:
 	static LLPolyMeshSharedDataTable sGlobalSharedMeshList;
 
 	// Backlink only; don't make this an LLPointer.
-	LLVOAvatar* mAvatarp;
+	LLAvatarAppearance* mAvatarp;
 };
 
-//-----------------------------------------------------------------------------
-// LLPolySkeletalDeformationInfo
-// Shared information for LLPolySkeletalDeformations
-//-----------------------------------------------------------------------------
-struct LLPolySkeletalBoneInfo
-{
-	LLPolySkeletalBoneInfo(std::string &name, LLVector3 &scale, LLVector3 &pos, BOOL haspos)
-		: mBoneName(name),
-		  mScaleDeformation(scale),
-		  mPositionDeformation(pos),
-		  mHasPositionDeformation(haspos) {}
-	std::string mBoneName;
-	LLVector3 mScaleDeformation;
-	LLVector3 mPositionDeformation;
-	BOOL mHasPositionDeformation;
-};
-
-class LLPolySkeletalDistortionInfo : public LLViewerVisualParamInfo
-{
-	friend class LLPolySkeletalDistortion;
-public:
-	LLPolySkeletalDistortionInfo();
-	/*virtual*/ ~LLPolySkeletalDistortionInfo() {};
-	
-	/*virtual*/ BOOL parseXml(LLXmlTreeNode* node);
-
-protected:
-	typedef std::vector<LLPolySkeletalBoneInfo> bone_info_list_t;
-	bone_info_list_t mBoneInfoList;
-};
-
-//-----------------------------------------------------------------------------
-// LLPolySkeletalDeformation
-// A set of joint scale data for deforming the avatar mesh
-//-----------------------------------------------------------------------------
-class LLPolySkeletalDistortion : public LLViewerVisualParam
-{
-public:
-	LLPolySkeletalDistortion(LLVOAvatar *avatarp);
-	~LLPolySkeletalDistortion();
-
-	// Special: These functions are overridden by child classes
-	LLPolySkeletalDistortionInfo*	getInfo() const { return (LLPolySkeletalDistortionInfo*)mInfo; }
-	//   This sets mInfo and calls initialization functions
-	BOOL							setInfo(LLPolySkeletalDistortionInfo *info);
-
-	/*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable) const;
-
-	// LLVisualParam Virtual functions
-	///*virtual*/ BOOL				parseData(LLXmlTreeNode* node);
-	/*virtual*/ void				apply( ESex sex );
-	
-	// LLViewerVisualParam Virtual functions
-	/*virtual*/ F32					getTotalDistortion() { return 0.1f; }
-	/*virtual*/ const LLVector4a&	getAvgDistortion()	{ return mDefaultVec; }
-	/*virtual*/ F32					getMaxDistortion() { return 0.1f; }
-	/*virtual*/ LLVector4a			getVertexDistortion(S32 index, LLPolyMesh *poly_mesh){return LLVector4a(0.001f, 0.001f, 0.001f);}
-	/*virtual*/ const LLVector4a*	getFirstDistortion(U32 *index, LLPolyMesh **poly_mesh){index = 0; poly_mesh = NULL; return &mDefaultVec;};
-	/*virtual*/ const LLVector4a*	getNextDistortion(U32 *index, LLPolyMesh **poly_mesh){index = 0; poly_mesh = NULL; return NULL;};
-
-protected:
-	typedef std::map<LLJoint*, LLVector3> joint_vec_map_t;
-	joint_vec_map_t mJointScales;
-	joint_vec_map_t mJointOffsets;
-	LLVector4a	mDefaultVec;
-	// Backlink only; don't make this an LLPointer.
-	LLVOAvatar *mAvatar;
-};
-
-#endif // LL_LLPOLYMESH_H
+#endif // LL_LLPOLYMESHINTERFACE_H
 
