@@ -75,6 +75,8 @@ public:
 
 	void collapseMessagesPane(bool collapse);
 	
+	// Callbacks
+	static void idle(void* user_data);
 
 	// LLIMSessionObserver observe triggers
 	/*virtual*/ void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id);

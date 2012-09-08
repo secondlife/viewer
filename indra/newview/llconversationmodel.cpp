@@ -78,14 +78,6 @@ void LLConversationItem::showProperties(void)
 {
 }
 
-bool LLConversationSort::operator()(const LLConversationItem* const& a, const LLConversationItem* const& b) const
-{
-	// We compare only by name for the moment
-	// *TODO : Implement the sorting by date
-	S32 compare = LLStringUtil::compareDict(a->getDisplayName(), b->getDisplayName());
-	return (compare < 0);
-}
-
 //
 // LLConversationItemSession
 // 
@@ -197,12 +189,38 @@ void LLConversationItemParticipant::onAvatarNameCache(const LLAvatarName& av_nam
 {
 	mName = av_name.mDisplayName;
 	// *TODO : we should also store that one, to be used in the tooltip : av_name.mUsername
-	// *TODO : we need to request or initiate a list resort
 	mNeedsRefresh = true;
+	if (mParent)
+	{
+		mParent->requestSort();
+	}
 }
 
 void LLConversationItemParticipant::dumpDebugData()
 {
 	llinfos << "Merov debug : participant, uuid = " << mUUID << ", name = " << mName << ", muted = " << mIsMuted << ", moderator = " << mIsModerator << llendl;
-}	
+}
+
+//
+// LLConversationSort
+// 
+
+bool LLConversationSort::operator()(const LLConversationItem* const& a, const LLConversationItem* const& b) const
+{
+	// For the moment, we sort only by name
+	// *TODO : Implement the sorting by date as well (most recent first)
+	// *TODO : Check the type of item (session/participants) as order should be different for both (eventually)
+	S32 compare = LLStringUtil::compareDict(a->getDisplayName(), b->getDisplayName());
+	return (compare < 0);	
+}
+
+//
+// LLConversationViewModel
+//
+
+void LLConversationViewModel::sort(LLFolderViewFolder* folder) 
+{
+	base_t::sort(folder);
+}
+
 // EOF

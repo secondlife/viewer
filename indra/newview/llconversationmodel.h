@@ -208,23 +208,14 @@ private:
 class LLConversationSort
 {
 public:
-	LLConversationSort(U32 order = 0)
-	:	mSortOrder(order),
-	mByDate(false),
-	mByName(false)
-	{
-		mByDate = (order & LLConversationFilter::SO_DATE);
-		mByName = (order & LLConversationFilter::SO_NAME);
-	}
+	LLConversationSort(U32 order = 0) : mSortOrder(order) { }
 	
-	bool isByDate() const { return mByDate; }
+	bool isByDate() const { return (mSortOrder & LLConversationFilter::SO_DATE); }
 	U32 getSortOrder() const { return mSortOrder; }
 	
 	bool operator()(const LLConversationItem* const& a, const LLConversationItem* const& b) const;
 private:
 	U32  mSortOrder;
-	bool mByDate;
-	bool mByName;
 };
 
 class LLConversationViewModel
@@ -233,7 +224,7 @@ class LLConversationViewModel
 public:
 	typedef LLFolderViewModel<LLConversationSort, LLConversationItem, LLConversationItem, LLConversationFilter> base_t;
 	
-	void sort(LLFolderViewFolder* folder) { } // *TODO : implement conversation sort
+	void sort(LLFolderViewFolder* folder);
 	bool contentsReady() { return true; }	// *TODO : we need to check that participants names are available somewhat
 	bool startDrag(std::vector<LLFolderViewModelItem*>& items) { return false; } // We do not allow drag of conversation items
 	

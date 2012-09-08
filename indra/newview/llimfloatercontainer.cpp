@@ -45,6 +45,7 @@
 #include "lltransientfloatermgr.h"
 #include "llviewercontrol.h"
 #include "llconversationview.h"
+#include "llcallbacklist.h"
 
 //
 // LLIMFloaterContainer
@@ -65,6 +66,8 @@ LLIMFloaterContainer::LLIMFloaterContainer(const LLSD& seed)
 
 LLIMFloaterContainer::~LLIMFloaterContainer()
 {
+	gIdleCallbacks.deleteFunction(idle, this);
+
 	mNewMessageConnection.disconnect();
 	LLTransientFloaterMgr::getInstance()->removeControlView(LLTransientFloaterMgr::IM, this);
 
@@ -138,6 +141,9 @@ BOOL LLIMFloaterContainer::postBuild()
 	collapseConversationsPane(gSavedPerAccountSettings.getBOOL("ConversationsListPaneCollapsed"));
 	LLAvatarNameCache::addUseDisplayNamesCallback(
 			boost::bind(&LLIMConversation::processChatHistoryStyleUpdate));
+
+	// Add callback: we'll take care of view updates on idle
+	gIdleCallbacks.addFunction(idle, this);
 
 	return TRUE;
 }
@@ -288,6 +294,13 @@ void LLIMFloaterContainer::setMinimized(BOOL b)
 	{
 		getActiveFloater()->setVisible(TRUE);
 	}
+}
+
+//static
+void LLIMFloaterContainer::idle(void* user_data)
+{
+	LLIMFloaterContainer* panel = (LLIMFloaterContainer*)user_data;
+	panel->mConversationsRoot->update();
 }
 
 void LLIMFloaterContainer::draw()
@@ -579,7 +592,7 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 	}
 	if (!item)
 	{
-		llinfos << "Merov debug : Couldn't create conversation session item : " << display_name << llendl;
+		llwarns << "Couldn't create conversation session item : " << display_name << llendl;
 		return;
 	}
 	// *TODO: Should we flag LLConversationItemSession with a mIsNearbyChat?
@@ -602,7 +615,6 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 	// Note: usually, we do not get an updated avatar list at that point
 	LLFolderViewModelItemCommon::child_list_t::const_iterator current_participant_model = item->getChildrenBegin();
 	LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = item->getChildrenEnd();
-	llinfos << "Merov debug : create participant, children size = " << item->getChildrenCount() << llendl;
 	while (current_participant_model != end_participant_model)
 	{
 		LLConversationItem* participant_model = dynamic_cast<LLConversationItem*>(*current_participant_model);

@@ -675,8 +675,6 @@ void LLParticipantList::addAvatarIDExceptAgent(const LLUUID& avatar_id)
 	// *TODO : Merov : need to update the online/offline status of the participant.
 	// Hack for this: LLAvatarTracker::instance().isBuddyOnline(avatar_id))
 
-	llinfos << "Merov debug : added participant, name = " << participant->getName() << llendl;
-	
 	// Add the participant model to the session's children list
 	addParticipant(participant);
 
