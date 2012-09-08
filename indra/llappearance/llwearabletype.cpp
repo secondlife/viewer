@@ -27,7 +27,7 @@
 #include "linden_common.h"
 #include "llwearabletype.h"
 #include "llinventorytype.h"
-#include "llui/lltrans.h"
+#include "lltrans.h"
 
 struct WearableEntry : public LLDictionaryEntry
 {
