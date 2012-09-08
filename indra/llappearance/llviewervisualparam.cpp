@@ -31,7 +31,6 @@
 
 #include "llviewervisualparam.h"
 #include "llxmltree.h"
-#include "llui.h"
 #include "llwearable.h"
 
 //-----------------------------------------------------------------------------

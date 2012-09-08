@@ -38,7 +38,7 @@
 #include "llvfs.h"
 #include "lltexlayerparams.h"
 #include "lltexturemanagerbridge.h"
-#include "llui.h"
+#include "llrender2dutils.h"
 #include "llwearable.h"
 #include "llwearabledata.h"
 #include "llvertexbuffer.h"

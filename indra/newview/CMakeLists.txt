@@ -304,6 +304,7 @@ set(viewer_SOURCE_FILES
     llinventorybridge.cpp
     llinventoryfilter.cpp
     llinventoryfunctions.cpp
+    llinventoryicon.cpp
     llinventoryitemslist.cpp
     llinventorylistitem.cpp
     llinventorymodel.cpp
@@ -872,6 +873,7 @@ set(viewer_HEADER_FILES
     llinventorybridge.h
     llinventoryfilter.h
     llinventoryfunctions.h
+    llinventoryicon.h
     llinventoryitemslist.h
     llinventorylistitem.h
     llinventorymodel.h

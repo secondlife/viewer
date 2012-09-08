@@ -31,7 +31,7 @@
 
 // Project includes
 #include "lluiimage.h"
-#include "llui.h"
+#include "llrender2dutils.h"
 
 LLUIImage::LLUIImage(const std::string& name, LLPointer<LLTexture> image)
 :	mName(name),
@@ -165,7 +165,7 @@ namespace LLInitParam
 			return;
 		}
 
-		LLUIImage* imagep =  LLUI::getUIImage(name());
+		LLUIImage* imagep =  LLRender2D::getUIImage(name());
 		if (imagep)
 		{
 			updateValue(imagep);

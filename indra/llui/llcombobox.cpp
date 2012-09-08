@@ -551,7 +551,7 @@ void LLComboBox::showList()
 	LLCoordWindow window_size;
 	getWindow()->getSize(&window_size);
 	//HACK: shouldn't have to know about scale here
-	mList->fitContents( 192, llfloor((F32)window_size.mY / LLUI::sGLScaleFactor.mV[VY]) - 50 );
+	mList->fitContents( 192, llfloor((F32)window_size.mY / LLUI::getScaleFactor().mV[VY]) - 50 );
 
 	// Make sure that we can see the whole list
 	LLRect root_view_local;

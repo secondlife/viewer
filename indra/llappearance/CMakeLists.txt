@@ -43,7 +43,6 @@ include_directories(
 set(llappearance_SOURCE_FILES
     llavatarappearance.cpp
     lldriverparam.cpp
-    llinventoryicon.cpp
     lllocaltextureobject.cpp
     lltexglobalcolor.cpp
     lltexlayer.cpp
@@ -61,7 +60,6 @@ set(llappearance_HEADER_FILES
 
     llavatarappearance.h
     lldriverparam.h
-    llinventoryicon.h
     lljointpickname.h
     lllocaltextureobject.h
     lltexglobalcolor.h

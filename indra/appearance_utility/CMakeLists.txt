@@ -9,6 +9,7 @@ include(OpenSSL)
 include(UI)
 include(LLAppearance)
 include(LLCommon)
+include(LLInventory)
 include(LLVFS)
 include(LLXML)
 include(LLUI)
@@ -19,6 +20,7 @@ include_directories(
     ${LLVFS_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
     ${LLUI_INCLUDE_DIRS}
+    ${LLINVENTORY_INCLUDE_DIRS}
     ${CURL_INCLUDE_DIRS}
     ${CARES_INCLUDE_DIRS}
     ${OPENSSL_INCLUDE_DIRS}
@@ -44,6 +46,7 @@ target_link_libraries(appearance-utility-bin
     ${CRYPTO_LIBRARIES}
     ${UI_LIBRARIES}
     ${LLAPPEARANCE_LIBRARIES}
+    ${LLINVENTORY_LIBRARIES}
     ${LLXML_LIBRARIES}
     ${LLUI_LIBRARIES}
     ${LLVFS_LIBRARIES}
