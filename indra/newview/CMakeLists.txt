@@ -444,8 +444,6 @@ set(viewer_SOURCE_FILES
     llplacesinventorybridge.cpp
     llplacesinventorypanel.cpp
     llpopupview.cpp
-    llpolymesh.cpp
-    llpolymorph.cpp
     llpostcard.cpp
     llpreview.cpp
     llpreviewanim.cpp
@@ -1002,8 +1000,6 @@ set(viewer_HEADER_FILES
     llpipelinelistener.h
     llplacesinventorybridge.h
     llplacesinventorypanel.h
-    llpolymesh.h
-    llpolymorph.h
     llpopupview.h
     llpostcard.h
     llpreview.h

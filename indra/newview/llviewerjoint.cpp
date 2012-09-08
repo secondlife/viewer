@@ -53,7 +53,7 @@ BOOL					LLViewerJoint::sDisableLOD = FALSE;
 // Class Constructor
 //-----------------------------------------------------------------------------
 LLViewerJoint::LLViewerJoint()
-	:       LLJoint()
+	:       LLAvatarJoint()
 {
 	init();
 }
@@ -64,7 +64,7 @@ LLViewerJoint::LLViewerJoint()
 // Class Constructor
 //-----------------------------------------------------------------------------
 LLViewerJoint::LLViewerJoint(const std::string &name, LLJoint *parent)
-	:	LLJoint(name, parent)
+	:	LLAvatarJoint(name, parent)
 {
 	init();
 }
@@ -89,31 +89,6 @@ LLViewerJoint::~LLViewerJoint()
 {
 }
 
-
-//--------------------------------------------------------------------
-// setValid()
-//--------------------------------------------------------------------
-void LLViewerJoint::setValid( BOOL valid, BOOL recursive )
-{
-	//----------------------------------------------------------------
-	// set visibility for this joint
-	//----------------------------------------------------------------
-	mValid = valid;
-	
-	//----------------------------------------------------------------
-	// set visibility for children
-	//----------------------------------------------------------------
-	if (recursive)
-	{
-		for (child_list_t::iterator iter = mChildren.begin();
-			 iter != mChildren.end(); ++iter)
-		{
-			LLViewerJoint* joint = (LLViewerJoint*)(*iter);
-			joint->setValid(valid, TRUE);
-		}
-	}
-
-}
 
 //--------------------------------------------------------------------
 // renderSkeleton()
@@ -522,98 +497,6 @@ void LLViewerJoint::setMeshesToChildren()
 		addChild((LLViewerJointMesh *) *iter);
 	}
 }
-//-----------------------------------------------------------------------------
-// LLViewerJointCollisionVolume()
-//-----------------------------------------------------------------------------
 
-LLViewerJointCollisionVolume::LLViewerJointCollisionVolume()
-{
-	mUpdateXform = FALSE;
-}
-
-LLViewerJointCollisionVolume::LLViewerJointCollisionVolume(const std::string &name, LLJoint *parent) : LLViewerJoint(name, parent)
-{
-	
-}
-
-void LLViewerJointCollisionVolume::renderCollision()
-{
-	updateWorldMatrix();
-	
-	gGL.pushMatrix();
-	gGL.multMatrix( &mXform.getWorldMatrix().mMatrix[0][0] );
-
-	gGL.diffuseColor3f( 0.f, 0.f, 1.f );
-	
-	gGL.begin(LLRender::LINES);
-	
-	LLVector3 v[] = 
-	{
-		LLVector3(1,0,0),
-		LLVector3(-1,0,0),
-		LLVector3(0,1,0),
-		LLVector3(0,-1,0),
-
-		LLVector3(0,0,-1),
-		LLVector3(0,0,1),
-	};
-
-	//sides
-	gGL.vertex3fv(v[0].mV); 
-	gGL.vertex3fv(v[2].mV);
-
-	gGL.vertex3fv(v[0].mV); 
-	gGL.vertex3fv(v[3].mV);
-
-	gGL.vertex3fv(v[1].mV); 
-	gGL.vertex3fv(v[2].mV);
-
-	gGL.vertex3fv(v[1].mV); 
-	gGL.vertex3fv(v[3].mV);
-
-
-	//top
-	gGL.vertex3fv(v[0].mV); 
-	gGL.vertex3fv(v[4].mV);
-
-	gGL.vertex3fv(v[1].mV); 
-	gGL.vertex3fv(v[4].mV);
-
-	gGL.vertex3fv(v[2].mV); 
-	gGL.vertex3fv(v[4].mV);
-
-	gGL.vertex3fv(v[3].mV); 
-	gGL.vertex3fv(v[4].mV);
-
-
-	//bottom
-	gGL.vertex3fv(v[0].mV); 
-	gGL.vertex3fv(v[5].mV);
-
-	gGL.vertex3fv(v[1].mV); 
-	gGL.vertex3fv(v[5].mV);
-
-	gGL.vertex3fv(v[2].mV); 
-	gGL.vertex3fv(v[5].mV);
-
-	gGL.vertex3fv(v[3].mV); 
-	gGL.vertex3fv(v[5].mV);
-
-	gGL.end();
-
-	gGL.popMatrix();
-}
-
-LLVector3 LLViewerJointCollisionVolume::getVolumePos(LLVector3 &offset)
-{
-	mUpdateXform = TRUE;
-	
-	LLVector3 result = offset;
-	result.scaleVec(getScale());
-	result.rotVec(getWorldRotation());
-	result += getWorldPosition();
-
-	return result;
-}
 
 // End

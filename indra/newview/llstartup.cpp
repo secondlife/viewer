@@ -1247,6 +1247,9 @@ bool idle_startup()
 		LLPostProcess::initClass();
 		display_startup();
 
+		LLAvatarAppearance::initClass();
+		display_startup();
+
 		LLViewerObject::initVOClasses();
 		display_startup();
 

@@ -67,7 +67,7 @@ public:
 protected:
 	/*virtual*/ BOOL		loadAvatar();
 	BOOL					loadAvatarSelf();
-	BOOL					buildSkeletonSelf(const LLVOAvatarSkeletonInfo *info);
+	BOOL					buildSkeletonSelf(const LLAvatarSkeletonInfo *info);
 	BOOL					buildMenus();
 	/*virtual*/ BOOL		loadLayersets();
 
