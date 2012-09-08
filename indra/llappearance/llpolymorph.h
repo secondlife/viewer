@@ -32,8 +32,8 @@
 
 #include "llviewervisualparam.h"
 
+class LLAvatarJointCollisionVolume;
 class LLPolyMeshSharedData;
-class LLVOAvatar;
 class LLVector2;
 class LLAvatarJointCollisionVolume;
 class LLWearable;

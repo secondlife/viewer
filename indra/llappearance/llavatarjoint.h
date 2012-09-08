@@ -1,6 +1,6 @@
 /** 
- * @file llviewerjoint.h
- * @brief Implementation of LLViewerJoint class
+ * @file llavatarjoint.h
+ * @brief Implementation of LLAvatarJoint class
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -24,47 +24,34 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERJOINT_H
-#define LL_LLVIEWERJOINT_H
+#ifndef LL_LLAVATARJOINT_H
+#define LL_LLAVATARJOINT_H
 
 //-----------------------------------------------------------------------------
 // Header Files
 //-----------------------------------------------------------------------------
-#include "llavatarjoint.h"
+#include "lljoint.h"
 #include "lljointpickname.h"
 
 class LLFace;
-class LLViewerJointMesh;
+class LLAvatarJointMesh;
 
 //-----------------------------------------------------------------------------
 // class LLViewerJoint
 //-----------------------------------------------------------------------------
-class LLViewerJoint :
-	public LLAvatarJoint
+class LLAvatarJoint :
+	public LLJoint
 {
 public:
-	LLViewerJoint();
-	LLViewerJoint(const std::string &name, LLJoint *parent = NULL);
-	virtual ~LLViewerJoint();
+	LLAvatarJoint();
+	LLAvatarJoint(const std::string &name, LLJoint *parent = NULL);
+	virtual ~LLAvatarJoint();
 
 	// Gets the validity of this joint
 	BOOL getValid() { return mValid; }
 
-	// Primarily for debugging and character setup
-	// Derived classes may add text/graphic output.
-	// Draw skeleton graphic for debugging and character setup
- 	void renderSkeleton(BOOL recursive=TRUE); // debug only (unused)
-
-	// Draws a bone graphic to the parent joint.
-	// Derived classes may add text/graphic output.
-	// Called by renderSkeleton().
- 	void drawBone(); // debug only (unused)
-
-	// Render character hierarchy.
-	// Traverses the entire joint hierarchy, setting up
-	// transforms and calling the drawShape().
-	// Derived classes may add text/graphic output.
-	virtual U32 render( F32 pixelArea, BOOL first_pass = TRUE, BOOL is_dummy = FALSE );	// Returns triangle count
+	// Sets the validity of this joint
+	virtual void setValid( BOOL valid, BOOL recursive=FALSE );
 
 	// Returns true if this object is transparent.
 	// This is used to determine in which order to draw objects.
@@ -73,10 +60,6 @@ public:
 	// Returns true if this object should inherit scale modifiers from its immediate parent
 	virtual BOOL inheritScale() { return FALSE; }
 
-	// Draws the shape attached to a joint.
-	// Called by render().
-	virtual U32 drawShape( F32 pixelArea, BOOL first_pass = TRUE, BOOL is_dummy = FALSE );
-	virtual void drawNormals() {}
 
 	enum Components
 	{
@@ -104,12 +87,6 @@ public:
 	void setPickName(LLJointPickName name) { mPickName = name; }
 	LLJointPickName getPickName() { return mPickName; }
 
-	virtual void updateFaceSizes(U32 &num_vertices, U32& num_indices, F32 pixel_area);
-	virtual void updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind = FALSE, bool terse_update = false);
-	virtual BOOL updateLOD(F32 pixel_area, BOOL activate);
-	virtual void updateJointGeometry();
-	virtual void dump();
-
 	void setVisible( BOOL visible, BOOL recursive );
 
 	// Takes meshes in mMeshParts and sets each one as a child joint
@@ -117,7 +94,7 @@ public:
 
 public:
 	static BOOL	sDisableLOD;
-	std::vector<LLViewerJointMesh*> mMeshParts;
+	std::vector<LLAvatarJointMesh*> mMeshParts; //LLViewerJointMesh*
 	void setMeshID( S32 id ) {mMeshID = id;}
 
 protected:
@@ -131,6 +108,20 @@ protected:
 	S32			mMeshID;
 };
 
-#endif // LL_LLVIEWERJOINT_H
+class LLAvatarJointCollisionVolume : public LLAvatarJoint
+{
+public:
+	LLAvatarJointCollisionVolume();
+	LLAvatarJointCollisionVolume(const std::string &name, LLJoint *parent = NULL);
+	virtual ~LLAvatarJointCollisionVolume() {};
+
+	virtual BOOL inheritScale() { return TRUE; }
+
+	void renderCollision();
+
+	LLVector3 getVolumePos(LLVector3 &offset);
+};
+
+#endif // LL_LLAVATARJOINT_H
 
 

@@ -30,11 +30,17 @@
 #include "llcharacter.h"
 //#include "llframetimer.h"
 #include "llavatarappearancedefines.h"
-#include "lljoint.h"
+#include "llavatarjoint.h"
+#include "lldriverparam.h"
+#include "lltexlayer.h"
+#include "llviewervisualparam.h"
+#include "llxmltree.h"
 
 class LLTexLayerSet;
 class LLTexGlobalColor;
 class LLWearableData;
+class LLAvatarBoneInfo;
+class LLAvatarSkeletonInfo;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // LLAvatarAppearance
@@ -44,6 +50,9 @@ class LLWearableData;
 class LLAvatarAppearance : public LLCharacter
 {
 	LOG_CLASS(LLAvatarAppearance);
+
+protected:
+	struct LLAvatarXmlInfo;
 
 /********************************************************************************
  **                                                                            **
@@ -57,6 +66,12 @@ public:
 	LLAvatarAppearance(LLWearableData* wearable_data);
 	virtual ~LLAvatarAppearance();
 
+	static void initClass(); // initializes static members
+	virtual BOOL		loadSkeletonNode();
+	virtual BOOL		loadMeshNodes();
+	virtual BOOL		loadLayersets();
+
+
 /**                    Initialization
  **                                                                            **
  *******************************************************************************/
@@ -69,8 +84,85 @@ public:
 	virtual bool 	isSelf() const { return false; } // True if this avatar is for this viewer's agent
 	virtual BOOL	isValid() const;
 	virtual BOOL	isUsingBakedTextures() const = 0;
+
+	bool isBuilt() const { return mIsBuilt; }
+
 	
 /**                    State
+ **                                                                            **
+ *******************************************************************************/
+
+/********************************************************************************
+ **                                                                            **
+ **                    SKELETON
+ **/
+
+public:
+	F32					getPelvisToFoot() const { return mPelvisToFoot; }
+
+	LLVector3			mHeadOffset; // current head position
+	LLAvatarJoint		*mRoot;
+
+	typedef std::map<std::string, LLJoint*> joint_map_t;
+	joint_map_t			mJointMap;
+
+protected:
+	static BOOL			parseSkeletonFile(const std::string& filename);
+	virtual void		buildCharacter();
+	virtual BOOL		loadAvatar();
+	virtual void		bodySizeChanged() = 0;
+	void 				computeBodySize();
+
+	BOOL				setupBone(const LLAvatarBoneInfo* info, LLJoint* parent, S32 &current_volume_num, S32 &current_joint_num);
+	BOOL				buildSkeleton(const LLAvatarSkeletonInfo *info);
+protected:
+	BOOL				mIsBuilt; // state of deferred character building
+	S32					mNumJoints;
+	LLJoint*			mSkeleton;
+	
+	//--------------------------------------------------------------------
+	// Pelvis height adjustment members.
+	//--------------------------------------------------------------------
+public:
+	LLVector3			mBodySize;
+protected:
+	F32					mPelvisToFoot;
+
+	//--------------------------------------------------------------------
+	// Cached pointers to well known joints
+	//--------------------------------------------------------------------
+public:
+	LLJoint* 		mPelvisp;
+	LLJoint* 		mTorsop;
+	LLJoint* 		mChestp;
+	LLJoint* 		mNeckp;
+	LLJoint* 		mHeadp;
+	LLJoint* 		mSkullp;
+	LLJoint* 		mEyeLeftp;
+	LLJoint* 		mEyeRightp;
+	LLJoint* 		mHipLeftp;
+	LLJoint* 		mHipRightp;
+	LLJoint* 		mKneeLeftp;
+	LLJoint* 		mKneeRightp;
+	LLJoint* 		mAnkleLeftp;
+	LLJoint* 		mAnkleRightp;
+	LLJoint* 		mFootLeftp;
+	LLJoint* 		mFootRightp;
+	LLJoint* 		mWristLeftp;
+	LLJoint* 		mWristRightp;
+
+	//--------------------------------------------------------------------
+	// XML parse tree
+	//--------------------------------------------------------------------
+protected:
+	static LLXmlTree 	sXMLTree; // avatar config file
+	static LLXmlTree 	sSkeletonXMLTree; // avatar skeleton file
+
+	static LLAvatarSkeletonInfo* 					sAvatarSkeletonInfo;
+	static LLAvatarXmlInfo* 						sAvatarXmlInfo;
+
+
+/**                    Skeleton
  **                                                                            **
  *******************************************************************************/
 
@@ -79,6 +171,7 @@ public:
  **                                                                            **
  **                    RENDERING
  **/
+public:
 	BOOL		mIsDummy; // for special views
 
 	//--------------------------------------------------------------------
@@ -108,6 +201,11 @@ public:
 	virtual void	dirtyMesh() = 0; // Dirty the avatar mesh
 protected:
 	virtual void	dirtyMesh(S32 priority) = 0; // Dirty the avatar mesh, with priority
+
+protected:
+	typedef std::multimap<std::string, LLPolyMesh*> polymesh_map_t;
+	polymesh_map_t 									mMeshes;
+	std::vector<LLAvatarJoint *> 					mMeshLOD;
 
 /**                    Meshes
  **                                                                            **
@@ -182,11 +280,114 @@ protected:
 	typedef std::vector<BakedTextureData> 	bakedtexturedata_vec_t;
 	bakedtexturedata_vec_t 					mBakedTextureDatas;
 
+/********************************************************************************
+ **                                                                            **
+ **                    PHYSICS
+ **/
+
+	//--------------------------------------------------------------------
+	// Collision volumes
+	//--------------------------------------------------------------------
+public:
+  	S32			mNumCollisionVolumes;
+	LLAvatarJointCollisionVolume* mCollisionVolumes;
+protected:
+	BOOL		allocateCollisionVolumes(U32 num);
+
+/**                    Physics
+ **                                                                            **
+ *******************************************************************************/
 
 /********************************************************************************
  **                                                                            **
  **                    SUPPORT CLASSES
  **/
+
+	struct LLAvatarXmlInfo
+	{
+		LLAvatarXmlInfo();
+		~LLAvatarXmlInfo();
+
+		BOOL 	parseXmlSkeletonNode(LLXmlTreeNode* root);
+		BOOL 	parseXmlMeshNodes(LLXmlTreeNode* root);
+		BOOL 	parseXmlColorNodes(LLXmlTreeNode* root);
+		BOOL 	parseXmlLayerNodes(LLXmlTreeNode* root);
+		BOOL 	parseXmlDriverNodes(LLXmlTreeNode* root);
+		BOOL	parseXmlMorphNodes(LLXmlTreeNode* root);
+
+		struct LLAvatarMeshInfo
+		{
+			typedef std::pair<LLViewerVisualParamInfo*,BOOL> morph_info_pair_t; // LLPolyMorphTargetInfo stored here
+			typedef std::vector<morph_info_pair_t> morph_info_list_t;
+
+			LLAvatarMeshInfo() : mLOD(0), mMinPixelArea(.1f) {}
+			~LLAvatarMeshInfo()
+			{
+				morph_info_list_t::iterator iter;
+				for (iter = mPolyMorphTargetInfoList.begin(); iter != mPolyMorphTargetInfoList.end(); iter++)
+				{
+					delete iter->first;
+				}
+				mPolyMorphTargetInfoList.clear();
+			}
+
+			std::string mType;
+			S32			mLOD;
+			std::string	mMeshFileName;
+			std::string	mReferenceMeshName;
+			F32			mMinPixelArea;
+			morph_info_list_t mPolyMorphTargetInfoList;
+		};
+		typedef std::vector<LLAvatarMeshInfo*> mesh_info_list_t;
+		mesh_info_list_t mMeshInfoList;
+
+		typedef std::vector<LLViewerVisualParamInfo*> skeletal_distortion_info_list_t; // LLPolySkeletalDistortionInfo stored here
+		skeletal_distortion_info_list_t mSkeletalDistortionInfoList;
+
+		struct LLAvatarAttachmentInfo
+		{
+			LLAvatarAttachmentInfo()
+				: mGroup(-1), mAttachmentID(-1), mPieMenuSlice(-1), mVisibleFirstPerson(FALSE),
+				  mIsHUDAttachment(FALSE), mHasPosition(FALSE), mHasRotation(FALSE) {}
+			std::string mName;
+			std::string mJointName;
+			LLVector3 mPosition;
+			LLVector3 mRotationEuler;
+			S32 mGroup;
+			S32 mAttachmentID;
+			S32 mPieMenuSlice;
+			BOOL mVisibleFirstPerson;
+			BOOL mIsHUDAttachment;
+			BOOL mHasPosition;
+			BOOL mHasRotation;
+		};
+		typedef std::vector<LLAvatarAttachmentInfo*> attachment_info_list_t;
+		attachment_info_list_t mAttachmentInfoList;
+
+		LLTexGlobalColorInfo *mTexSkinColorInfo;
+		LLTexGlobalColorInfo *mTexHairColorInfo;
+		LLTexGlobalColorInfo *mTexEyeColorInfo;
+
+		typedef std::vector<LLTexLayerSetInfo*> layer_info_list_t;
+		layer_info_list_t mLayerInfoList;
+
+		typedef std::vector<LLDriverParamInfo*> driver_info_list_t;
+		driver_info_list_t mDriverInfoList;
+
+		struct LLAvatarMorphInfo
+		{
+			LLAvatarMorphInfo()
+				: mInvert(FALSE) {}
+			std::string mName;
+			std::string mRegion;
+			std::string mLayer;
+			BOOL mInvert;
+		};
+
+		typedef std::vector<LLAvatarMorphInfo*> morph_info_list_t;
+		morph_info_list_t	mMorphMaskInfoList;
+	};
+
 
 	class LLMaskedMorph
 	{
@@ -197,7 +398,9 @@ protected:
 		BOOL				mInvert;
 		std::string			mLayer;
 	};
-
+/**                    Support Classes
+ **                                                                            **
+ *******************************************************************************/
 };
 
 #endif // LL_AVATAR_APPEARANCE_H
