@@ -37,24 +37,57 @@ namespace LLTrace
 {
 	//TODO figure out best way to do this and proper naming convention
 	
-	static 
-	void init()
+	static void init()
 	{
 
 	}
+
+	template<typename ACCUMULATOR>
+	class Trace
+	{
+	public:
+		Trace(const std::string& name)
+		:	mName(name)
+		{
+			mStorageIndex = sNextIndex++;
+			sStorage.reserve(sNextIndex);
+		}
+
+		LL_FORCE_INLINE ACCUMULATOR& getAccumulator()
+		{
+			return sStorage[mStorageIndex];
+		}
+
+		void mergeFrom(const Trace<ACCUMULATOR>& other)
+		{
+			getAccumulator().mergeFrom(other.getAccumulator());
+		}
+
+
+	private:
+		std::string				mName;
+		ptrdiff_t				mStorageIndex;
+
+		// this needs to be thread local
+		static std::vector<ACCUMULATOR>	sStorage;
+		static size_t					sNextIndex;
+	};
+
+	template<typename ACCUMULATOR> std::vector<ACCUMULATOR> Trace<ACCUMULATOR>::sStorage;
+	template<typename ACCUMULATOR> size_t Trace<ACCUMULATOR>::sNextIndex = 0;
 
 	template<typename T>
 	class Accumulator
 	{
 	public:
 		Accumulator()
-		:	mSum(),
+			:	mSum(),
 			mMin(),
 			mMax(),
 			mNumSamples(0)
 		{}
 
-		void sample(T value)
+		LL_FORCE_INLINE void sample(T value)
 		{
 			mNumSamples++;
 			mSum += value;
@@ -68,6 +101,20 @@ namespace LLTrace
 			}
 		}
 
+		void mergeFrom(const Accumulator<T>& other)
+		{
+			mSum += other.mSum;
+			if (other.mMin < mMin)
+			{
+				mMin = other.mMin;
+			}
+			if (other.mMax > mMax)
+			{
+				mMax = other.mMax;
+			}
+			mNumSamples += other.mNumSamples;
+		}
+
 	private:
 		T	mSum,
 			mMin,
@@ -76,78 +123,55 @@ namespace LLTrace
 		U32	mNumSamples;
 	};
 
-	class TraceStorage
-	{
-	protected:
-		TraceStorage(const size_t size, const size_t alignment)
-		{
-			mRecordOffset = sNextOffset + (alignment - 1);
-			mRecordOffset -= mRecordOffset % alignment;
-			sNextOffset = mRecordOffset + size;
-			sStorage.reserve((size_t)sNextOffset);
-		}
-
-		// this needs to be thread local
-		static std::vector<U8>	sStorage;
-		static ptrdiff_t		sNextOffset;
-
-		ptrdiff_t				mRecordOffset;
-	};
-
-	std::vector<U8> TraceStorage::sStorage;
-	ptrdiff_t TraceStorage::sNextOffset = 0;
 
 	template<typename T>
-	class Trace : public TraceStorage
-	{
-	public:
-		Trace(const std::string& name)
-		:	TraceStorage(sizeof(Accumulator<T>), boost::alignment_of<Accumulator<T> >::value),
-			mName(name)
-		{}
-
-		void record(T value)
-		{
-			(reinterpret_cast<Accumulator<T>* >(sStorage + mRecordOffset))->sample(value);
-		}
-
-	private:
-		std::string		mName;
-	};
-
-	template<typename T>
-	class Stat : public Trace<T>
+	class Stat : public Trace<Accumulator<T> >
 	{
 	public:
 		Stat(const char* name)
 		:	Trace(name)
 		{}
+
+		void sample(T value)
+		{
+			getAccumulator().sample(value);
+		}
+
 	};
 
-	class BlockTimer : public Trace<U32>
+	struct TimerAccumulator
+	{
+		U32 							mTotalTimeCounter,
+										mChildTimeCounter,
+										mCalls;
+		TimerAccumulator*				mParent;		// info for caller timer
+		TimerAccumulator*				mLastCaller;	// used to bootstrap tree construction
+		const BlockTimer*				mTimer;			// points to block timer associated with this storage
+		U8								mActiveCount;	// number of timers with this ID active on stack
+		bool							mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame
+		std::vector<TimerAccumulator*>	mChildren;		// currently assumed child timers
+
+		void mergeFrom(const TimerAccumulator& other)
+		{
+			mTotalTimeCounter += other.mTotalTimeCounter;
+			mChildTimeCounter += other.mChildTimeCounter;
+			mCalls += other.mCalls;
+		}
+	};
+
+	class BlockTimer : public Trace<TimerAccumulator>
 	{
 	public:
 		BlockTimer(const char* name)
 		:	Trace(name)
 		{}
 
-		struct Accumulator
-		{
-			U32 						mTotalTimeCounter,
-										mChildTimeCounter,
-										mCalls;
-			Accumulator*				mParent;		// info for caller timer
-			Accumulator*				mLastCaller;	// used to bootstrap tree construction
-			const BlockTimer*			mTimer;			// points to block timer associated with this storage
-			U8							mActiveCount;	// number of timers with this ID active on stack
-			bool						mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame
-			std::vector<Accumulator*>	mChildren;		// currently assumed child timers
-		};
+		struct Recorder;
 
 		struct RecorderStackEntry
 		{
-			struct Recorder*	mRecorder;
-			Accumulator*		mAccumulator;
+			Recorder*	mRecorder;
+			TimerAccumulator*	mAccumulator;
 			U32					mChildTime;
 		};
 
@@ -157,7 +181,7 @@ namespace LLTrace
 			:	mLastRecorder(sCurRecorder)
 			{
 				mStartTime = getCPUClockCount32();
-				Accumulator* accumulator = ???; // get per-thread accumulator
+				TimerAccumulator* accumulator = &block_timer.getAccumulator(); // get per-thread accumulator
 				accumulator->mActiveCount++;
 				accumulator->mCalls++;
 				accumulator->mMoveUpTree |= (accumulator->mParent->mActiveCount == 0);
@@ -172,7 +196,7 @@ namespace LLTrace
 			{
 				U32 total_time = getCPUClockCount32() - mStartTime;
 
-				Accumulator* accumulator = sCurRecorder.mAccumulator;
+				TimerAccumulator* accumulator = sCurRecorder.mAccumulator;
 				accumulator->mTotalTimeCounter += total_time;
 				accumulator->mChildTimeCounter += sCurRecorder.mChildTime;
 				accumulator->mActiveCount--;
@@ -195,11 +219,11 @@ namespace LLTrace
 			__asm
 			{
 				_emit   0x0f
-					_emit   0x31
-					shr eax,8
-					shl edx,24
-					or eax, edx
-					mov dword ptr [ret_val], eax
+				_emit   0x31
+				shr eax,8
+				shl edx,24
+				or eax, edx
+				mov dword ptr [ret_val], eax
 			}
 			return ret_val;
 		}
@@ -211,11 +235,11 @@ namespace LLTrace
 			__asm
 			{
 				_emit   0x0f
-					_emit   0x31
-					mov eax,eax
-					mov edx,edx
-					mov dword ptr [ret_val+4], edx
-					mov dword ptr [ret_val], eax
+				_emit   0x31
+				mov eax,eax
+				mov edx,edx
+				mov dword ptr [ret_val+4], edx
+				mov dword ptr [ret_val], eax
 			}
 			return ret_val;
 		}
@@ -233,7 +257,7 @@ namespace LLTrace
 		void resume() {}
 	};
 
-	class SamplingTimeInterval
+	class Sampler
 	{
 	public:
 		void start() {}
