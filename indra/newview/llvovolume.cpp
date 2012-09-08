@@ -822,7 +822,7 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 				}
 			}
 	
-			S32 texture_discard = mSculptTexture->getDiscardLevel(); //try to match the texture
+			S32 texture_discard = mSculptTexture->getCachedRawImageLevel(); //try to match the texture
 			S32 current_discard = getVolume() ? getVolume()->getSculptLevel() : -2 ;
 
 			if (texture_discard >= 0 && //texture has some data available
@@ -1128,7 +1128,7 @@ void LLVOVolume::sculpt()
 		S8 sculpt_components = 0;
 		const U8* sculpt_data = NULL;
 	
-		S32 discard_level = mSculptTexture->getDiscardLevel() ;
+		S32 discard_level = mSculptTexture->getCachedRawImageLevel() ;
 		LLImageRaw* raw_image = mSculptTexture->getCachedRawImage() ;
 		
 		S32 max_discard = mSculptTexture->getMaxDiscardLevel();
@@ -1801,6 +1801,18 @@ void LLVOVolume::setNumTEs(const U8 num_tes)
 	}
 
 	return ;
+}
+
+//virtual     
+void LLVOVolume::changeTEImage(S32 index, LLViewerTexture* imagep)
+{
+	BOOL changed = (mTEImages[index] != imagep);
+	LLViewerObject::changeTEImage(index, imagep);
+	if (changed)
+	{
+		gPipeline.markTextured(mDrawable);
+		mFaceMappingChanged = TRUE;
+	}
 }
 
 void LLVOVolume::setTEImage(const U8 te, LLViewerTexture *imagep)

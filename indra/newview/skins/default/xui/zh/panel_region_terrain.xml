@@ -11,9 +11,9 @@
 	<spinner label="地形降低限制" name="terrain_lower_spin"/>
 	<check_box label="使用領地的太陽設定" name="use_estate_sun_check"/>
 	<check_box label="固定太陽" name="fixed_sun_check"/>
-	<slider label="Phase" name="sun_hour_slider"/>
+	<slider label="相位" name="sun_hour_slider"/>
 	<button label="套用" name="apply_btn"/>
-	<button label="下載 RAW 地形..." name="download_raw_btn" tool_tip="只允許領地擁有者而非管理者進行操作"/>
-	<button label="上傳 RAW 地形檔..." name="upload_raw_btn" tool_tip="只允許領地擁有者而非管理者進行操作"/>
-	<button label="Bake Terrain" name="bake_terrain_btn" tool_tip="Set current terrain as mid-point for raise/lower limits"/>
+	<button label="下載 RAW 地形..." name="download_raw_btn" tool_tip="只允許領地所有人而非管理者進行操作"/>
+	<button label="上傳 RAW 地形檔..." name="upload_raw_btn" tool_tip="只允許領地所有人而非管理者進行操作"/>
+	<button label="確定地形" name="bake_terrain_btn" tool_tip="將目前地形設為「升高 / 降低」極限的中心值"/>
 </panel>

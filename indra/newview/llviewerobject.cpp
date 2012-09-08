@@ -2043,7 +2043,14 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 	{
 		if (new_angv != old_angv)
 		{
-			resetRot();
+			if (flagUsePhysics())
+			{
+				resetRot();
+			}
+			else
+			{
+				resetRotTime();
+			}
 		}
 
 		// Set the rotation of the object followed by adjusting for the accumulated angular velocity (llSetTargetOmega)
@@ -4073,7 +4080,7 @@ S32 LLViewerObject::setTETextureCore(const U8 te, const LLUUID& uuid, LLHost hos
 	return retval;
 }
 
-
+//virtual
 void LLViewerObject::changeTEImage(S32 index, LLViewerTexture* new_image) 
 {
 	if(index < 0 || index >= getNumTEs())
@@ -5439,9 +5446,14 @@ void LLViewerObject::applyAngularVelocity(F32 dt)
 	}
 }
 
-void LLViewerObject::resetRot()
+void LLViewerObject::resetRotTime()
 {
 	mRotTime = 0.0f;
+}
+
+void LLViewerObject::resetRot()
+{
+	resetRotTime();
 
 	// Reset the accumulated angular velocity rotation
 	mAngularVelocityRot.loadIdentity(); 

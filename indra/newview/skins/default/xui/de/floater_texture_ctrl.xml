@@ -20,6 +20,8 @@
 	<button label="Leer" label_selected="Leer" name="Blank"/>
 	<button label="Keine" label_selected="Keine" name="None"/>
 	<button label="" label_selected="" name="Pipette"/>
+	<check_box initial_value="true" label="Live-Vorschau" name="apply_immediate_check"/>
+	<text name="preview_disabled" value="Vorschau deaktiviert"/>
 	<filter_editor label="Texturen filtern" name="inventory search editor"/>
 	<check_box initial_value="false" label="Ordner anzeigen" name="show_folders_check"/>
 	<button label="Hinzufügen" label_selected="Hinzufügen" name="l_add_btn"/>
@@ -31,5 +33,4 @@
 	</scroll_list>
 	<button label="OK" label_selected="OK" name="Select"/>
 	<button label="Abbrechen" label_selected="Abbrechen" name="Cancel"/>
-	<check_box initial_value="true" label="Jetzt übernehmen" name="apply_immediate_check"/>
 </floater>

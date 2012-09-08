@@ -215,7 +215,7 @@ void LLFloaterPathfindingLinksets::requestGetObjects()
 	LLPathfindingManager::getInstance()->requestGetLinksets(getNewRequestId(), boost::bind(&LLFloaterPathfindingLinksets::handleNewObjectList, this, _1, _2, _3));
 }
 
-LLSD LLFloaterPathfindingLinksets::convertObjectsIntoScrollListData(const LLPathfindingObjectListPtr pObjectListPtr)
+void LLFloaterPathfindingLinksets::buildObjectsScrollList(const LLPathfindingObjectListPtr pObjectListPtr)
 {
 	llassert(pObjectListPtr != NULL);
 	llassert(!pObjectListPtr->isEmpty());
@@ -227,7 +227,6 @@ LLSD LLFloaterPathfindingLinksets::convertObjectsIntoScrollListData(const LLPath
 	bool isFilteringDescription = !descriptionFilter.empty();
 	bool isFilteringLinksetUse = (linksetUseFilter != LLPathfindingLinkset::kUnknown);
 
-	LLSD scrollListData = LLSD::emptyArray();
 	const LLVector3& avatarPosition = gAgent.getPositionAgent();
 
 	if (isFilteringName || isFilteringDescription || isFilteringLinksetUse)
@@ -236,22 +235,21 @@ LLSD LLFloaterPathfindingLinksets::convertObjectsIntoScrollListData(const LLPath
 		LLStringUtil::toUpper(descriptionFilter);
 		for (LLPathfindingObjectList::const_iterator objectIter = pObjectListPtr->begin();	objectIter != pObjectListPtr->end(); ++objectIter)
 		{
-			const LLPathfindingLinkset *linksetPtr = dynamic_cast<const LLPathfindingLinkset *>(objectIter->second.get());
+			const LLPathfindingObjectPtr objectPtr = objectIter->second;
+			const LLPathfindingLinkset *linksetPtr = dynamic_cast<const LLPathfindingLinkset *>(objectPtr.get());
+			llassert(linksetPtr != NULL);
+
 			std::string linksetName = (linksetPtr->isTerrain() ? getString("linkset_terrain_name") : linksetPtr->getName());
 			std::string linksetDescription = linksetPtr->getDescription();
 			LLStringUtil::toUpper(linksetName);
 			LLStringUtil::toUpper(linksetDescription);
+
 			if ((!isFilteringName || (linksetName.find(nameFilter) != std::string::npos)) &&
 				(!isFilteringDescription || (linksetDescription.find(descriptionFilter) != std::string::npos)) &&
 				(!isFilteringLinksetUse || (linksetPtr->getLinksetUse() == linksetUseFilter)))
 			{
-				LLSD element = buildLinksetScrollListData(linksetPtr, avatarPosition);
-				scrollListData.append(element);
-
-				if (linksetPtr->hasOwner() && !linksetPtr->hasOwnerName())
-				{
-					rebuildScrollListAfterAvatarNameLoads(linksetPtr->getUUID());
-				}
+				LLSD scrollListItemData = buildLinksetScrollListItemData(linksetPtr, avatarPosition);
+				addObjectToScrollList(objectPtr, scrollListItemData);
 			}
 		}
 	}
@@ -259,18 +257,14 @@ LLSD LLFloaterPathfindingLinksets::convertObjectsIntoScrollListData(const LLPath
 	{
 		for (LLPathfindingObjectList::const_iterator objectIter = pObjectListPtr->begin();	objectIter != pObjectListPtr->end(); ++objectIter)
 		{
-			const LLPathfindingLinkset *linksetPtr = dynamic_cast<const LLPathfindingLinkset *>(objectIter->second.get());
-			LLSD element = buildLinksetScrollListData(linksetPtr, avatarPosition);
-			scrollListData.append(element);
+			const LLPathfindingObjectPtr objectPtr = objectIter->second;
+			const LLPathfindingLinkset *linksetPtr = dynamic_cast<const LLPathfindingLinkset *>(objectPtr.get());
+			llassert(linksetPtr != NULL);
 
-			if (linksetPtr->hasOwner() && !linksetPtr->hasOwnerName())
-			{
-				rebuildScrollListAfterAvatarNameLoads(linksetPtr->getUUID());
-			}
+			LLSD scrollListItemData = buildLinksetScrollListItemData(linksetPtr, avatarPosition);
+			addObjectToScrollList(objectPtr, scrollListItemData);
 		}
 	}
-
-	return scrollListData;
 }
 
 void LLFloaterPathfindingLinksets::updateControlsOnScrollListChange()
@@ -284,6 +278,22 @@ void LLFloaterPathfindingLinksets::updateControlsOnScrollListChange()
 S32 LLFloaterPathfindingLinksets::getNameColumnIndex() const
 {
 	return 0;
+}
+
+S32 LLFloaterPathfindingLinksets::getOwnerNameColumnIndex() const
+{
+	return 2;
+}
+
+std::string LLFloaterPathfindingLinksets::getOwnerName(const LLPathfindingObject *pObject) const
+{
+	return (pObject->hasOwner()
+		? (pObject->hasOwnerName()
+		? (pObject->isGroupOwned()
+		? (pObject->getOwnerName() + " " + getString("linkset_owner_group"))
+		: pObject->getOwnerName())
+		: getString("linkset_owner_loading"))
+		: getString("linkset_owner_unknown"));
 }
 
 const LLColor4 &LLFloaterPathfindingLinksets::getBeaconColor() const
@@ -373,10 +383,10 @@ void LLFloaterPathfindingLinksets::updateEditFieldValues()
 	}
 }
 
-LLSD LLFloaterPathfindingLinksets::buildLinksetScrollListData(const LLPathfindingLinkset *pLinksetPtr, const LLVector3 &pAvatarPosition) const
+LLSD LLFloaterPathfindingLinksets::buildLinksetScrollListItemData(const LLPathfindingLinkset *pLinksetPtr, const LLVector3 &pAvatarPosition) const
 {
 	llassert(pLinksetPtr != NULL);
-	LLSD columns;
+	LLSD columns = LLSD::emptyArray();
 
 	if (pLinksetPtr->isTerrain())
 	{
@@ -389,11 +399,14 @@ LLSD LLFloaterPathfindingLinksets::buildLinksetScrollListData(const LLPathfindin
 		columns[2]["column"] = "owner";
 		columns[2]["value"] = getString("linkset_terrain_owner");
 
-		columns[3]["column"] = "land_impact";
-		columns[3]["value"] = getString("linkset_terrain_land_impact");
+		columns[3]["column"] = "scripted";
+		columns[3]["value"] = getString("linkset_terrain_scripted");
 
-		columns[4]["column"] = "dist_from_you";
-		columns[4]["value"] = getString("linkset_terrain_dist_from_you");
+		columns[4]["column"] = "land_impact";
+		columns[4]["value"] = getString("linkset_terrain_land_impact");
+
+		columns[5]["column"] = "dist_from_you";
+		columns[5]["value"] = getString("linkset_terrain_dist_from_you");
 	}
 	else
 	{
@@ -404,22 +417,23 @@ LLSD LLFloaterPathfindingLinksets::buildLinksetScrollListData(const LLPathfindin
 		columns[1]["value"] = pLinksetPtr->getDescription();
 
 		columns[2]["column"] = "owner";
-		columns[2]["value"] = (pLinksetPtr->hasOwner()
-			? (pLinksetPtr->hasOwnerName()
-			? (pLinksetPtr->isGroupOwned()
-			? (pLinksetPtr->getOwnerName() + " " + getString("linkset_owner_group"))
-			: pLinksetPtr->getOwnerName())
-			: getString("linkset_owner_loading"))
-			: getString("linkset_owner_unknown"));
+		columns[2]["value"] = getOwnerName(pLinksetPtr);
 
-		columns[3]["column"] = "land_impact";
-		columns[3]["value"] = llformat("%1d", pLinksetPtr->getLandImpact());
+		columns[3]["column"] = "scripted";
+		columns[3]["value"] = (pLinksetPtr->hasIsScripted()
+			? (pLinksetPtr->isScripted()
+			? getString("linkset_is_scripted")
+			: getString("linkset_is_not_scripted"))
+			: getString("linkset_is_unknown_scripted"));
 
-		columns[4]["column"] = "dist_from_you";
-		columns[4]["value"] = llformat("%1.0f m", dist_vec(pAvatarPosition, pLinksetPtr->getLocation()));
+		columns[4]["column"] = "land_impact";
+		columns[4]["value"] = llformat("%1d", pLinksetPtr->getLandImpact());
+
+		columns[5]["column"] = "dist_from_you";
+		columns[5]["value"] = llformat("%1.0f m", dist_vec(pAvatarPosition, pLinksetPtr->getLocation()));
 	}
 
-	columns[5]["column"] = "linkset_use";
+	columns[6]["column"] = "linkset_use";
 	std::string linksetUse = getLinksetUseString(pLinksetPtr->getLinksetUse());
 	if (pLinksetPtr->isTerrain())
 	{
@@ -437,25 +451,21 @@ LLSD LLFloaterPathfindingLinksets::buildLinksetScrollListData(const LLPathfindin
 	{
 		linksetUse += (" " + getString("linkset_is_restricted_non_volume_state"));
 	}
-	columns[5]["value"] = linksetUse;
+	columns[6]["value"] = linksetUse;
 
-	columns[6]["column"] = "a_percent";
-	columns[6]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientA());
+	columns[7]["column"] = "a_percent";
+	columns[7]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientA());
 
-	columns[7]["column"] = "b_percent";
-	columns[7]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientB());
+	columns[8]["column"] = "b_percent";
+	columns[8]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientB());
 
-	columns[8]["column"] = "c_percent";
-	columns[8]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientC());
+	columns[9]["column"] = "c_percent";
+	columns[9]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientC());
 
-	columns[9]["column"] = "d_percent";
-	columns[9]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientD());
+	columns[10]["column"] = "d_percent";
+	columns[10]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientD());
 
-	LLSD element;
-	element["id"] = pLinksetPtr->getUUID().asString();
-	element["column"] = columns;
-
-	return element;
+	return columns;
 }
 
 LLSD LLFloaterPathfindingLinksets::buildLinksetUseScrollListData(const std::string &pLabel, S32 pValue) const
@@ -484,6 +494,23 @@ bool LLFloaterPathfindingLinksets::isShowUnmodifiablePhantomWarning(LLPathfindin
 		{
 			const LLPathfindingLinksetList *linksetList = dynamic_cast<const LLPathfindingLinksetList *>(selectedObjects.get());
 			isShowWarning = linksetList->isShowUnmodifiablePhantomWarning(pLinksetUse);
+		}
+	}
+
+	return isShowWarning;
+}
+
+bool LLFloaterPathfindingLinksets::isShowPhantomToggleWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const
+{
+	bool isShowWarning = false;
+
+	if (pLinksetUse != LLPathfindingLinkset::kUnknown)
+	{
+		LLPathfindingObjectListPtr selectedObjects = getSelectedObjects();
+		if ((selectedObjects != NULL) && !selectedObjects->isEmpty())
+		{
+			const LLPathfindingLinksetList *linksetList = dynamic_cast<const LLPathfindingLinksetList *>(selectedObjects.get());
+			isShowWarning = linksetList->isShowPhantomToggleWarning(pLinksetUse);
 		}
 	}
 
@@ -559,29 +586,41 @@ void LLFloaterPathfindingLinksets::applyEdit()
 {
 	LLPathfindingLinkset::ELinksetUse linksetUse = getEditLinksetUse();
 
+	bool showPhantomToggleWarning = isShowPhantomToggleWarning(linksetUse);
 	bool showUnmodifiablePhantomWarning = isShowUnmodifiablePhantomWarning(linksetUse);
 	bool showCannotBeVolumeWarning = isShowCannotBeVolumeWarning(linksetUse);
 
-	if (showUnmodifiablePhantomWarning || showCannotBeVolumeWarning)
+	if (showPhantomToggleWarning || showUnmodifiablePhantomWarning || showCannotBeVolumeWarning)
 	{
 		LLPathfindingLinkset::ELinksetUse restrictedLinksetUse = LLPathfindingLinkset::getLinksetUseWithToggledPhantom(linksetUse);
 		LLSD substitutions;
 		substitutions["REQUESTED_TYPE"] = getLinksetUseString(linksetUse);
 		substitutions["RESTRICTED_TYPE"] = getLinksetUseString(restrictedLinksetUse);
 
-		std::string notificationName;
-		if (showUnmodifiablePhantomWarning && showCannotBeVolumeWarning)
+		// Build one of the following notifications names
+		//   - PathfindingLinksets_WarnOnPhantom
+		//   - PathfindingLinksets_WarnOnPhantom_MismatchOnRestricted
+		//   - PathfindingLinksets_WarnOnPhantom_MismatchOnVolume
+		//   - PathfindingLinksets_WarnOnPhantom_MismatchOnRestricted_MismatchOnVolume
+		//   - PathfindingLinksets_MismatchOnRestricted
+		//   - PathfindingLinksets_MismatchOnVolume
+		//   - PathfindingLinksets_MismatchOnRestricted_MismatchOnVolume
+
+		std::string notificationName = "PathfindingLinksets";
+
+		if (showPhantomToggleWarning)
 		{
-			notificationName = "PathfindingLinksets_SetLinksetUseMismatchOnRestrictedAndVolume";
+			notificationName += "_WarnOnPhantom";
 		}
-		else if (showUnmodifiablePhantomWarning)
+		if (showUnmodifiablePhantomWarning)
 		{
-			notificationName = "PathfindingLinksets_SetLinksetUseMismatchOnRestricted";
+			notificationName += "_MismatchOnRestricted";
 		}
-		else
+		if (showCannotBeVolumeWarning)
 		{
-			notificationName = "PathfindingLinksets_SetLinksetUseMismatchOnVolume";
+			notificationName += "_MismatchOnVolume";
 		}
+
 		LLNotificationsUtil::add(notificationName, substitutions, LLSD(), boost::bind(&LLFloaterPathfindingLinksets::handleApplyEdit, this, _1, _2));
 	}
 	else

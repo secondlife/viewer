@@ -30,7 +30,9 @@
 #include "llsd.h"
 #include "llupdatechecker.h"
 #include "lluri.h"
-
+#if LL_DARWIN
+#include <CoreServices/CoreServices.h>
+#endif
 
 #if LL_WINDOWS
 #pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
@@ -55,7 +57,7 @@ class LLUpdateChecker::Implementation:
 public:
 	Implementation(Client & client);
 	~Implementation();
-	void check(std::string const & protocolVersion, std::string const & hostUrl, 
+	void checkVersion(std::string const & protocolVersion, std::string const & hostUrl, 
 			   std::string const & servicePath, std::string channel, std::string version);
 	
 	// Responder:
@@ -91,10 +93,10 @@ LLUpdateChecker::LLUpdateChecker(LLUpdateChecker::Client & client):
 }
 
 
-void LLUpdateChecker::check(std::string const & protocolVersion, std::string const & hostUrl, 
+void LLUpdateChecker::checkVersion(std::string const & protocolVersion, std::string const & hostUrl, 
 							std::string const & servicePath, std::string channel, std::string version)
 {
-	mImplementation->check(protocolVersion, hostUrl, servicePath, channel, version);
+	mImplementation->checkVersion(protocolVersion, hostUrl, servicePath, channel, version);
 }
 
 
@@ -120,7 +122,7 @@ LLUpdateChecker::Implementation::~Implementation()
 }
 
 
-void LLUpdateChecker::Implementation::check(std::string const & protocolVersion, std::string const & hostUrl, 
+void LLUpdateChecker::Implementation::checkVersion(std::string const & protocolVersion, std::string const & hostUrl, 
 											std::string const & servicePath, std::string channel, std::string version)
 {
 	llassert(!mInProgress);
@@ -179,7 +181,18 @@ std::string LLUpdateChecker::Implementation::buildUrl(std::string const & protoc
 #ifdef LL_WINDOWS
 	static const char * platform = "win";
 #elif LL_DARWIN
-	static const char * platform = "mac";
+    long versMin;
+    Gestalt(gestaltSystemVersionMinor, &versMin);
+    
+    static const char *platform;
+    if (versMin == 5) //OS 10.5
+    {
+        platform = "mac_legacy";
+    }
+    else 
+    {
+        platform = "mac";
+    }
 #else
 	static const char * platform = "lnx";
 #endif

@@ -1,43 +1,43 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Wearable" name="panel_edit_wearable">
+<panel label="可穿裝扮" name="panel_edit_wearable">
 	<string name="edit_shape_title">
-		Editing Shape
+		體形編輯中
 	</string>
 	<string name="edit_skin_title">
-		Editing Skin
+		編輯皮膚
 	</string>
 	<string name="edit_hair_title">
-		Editing Hair
+		編輯頭髮
 	</string>
 	<string name="edit_eyes_title">
-		Editing Eyes
+		編輯眼睛
 	</string>
 	<string name="edit_shirt_title">
-		Editing Shirt
+		編輯襯衫
 	</string>
 	<string name="edit_pants_title">
-		Editing Pants
+		編輯褲子
 	</string>
 	<string name="edit_shoes_title">
-		Editing Shoes
+		編輯鞋子
 	</string>
 	<string name="edit_socks_title">
-		Editing Socks
+		編輯襪子
 	</string>
 	<string name="edit_jacket_title">
-		Editing Jacket
+		編輯外套
 	</string>
 	<string name="edit_skirt_title">
-		Editing Skirt
+		編輯裙子
 	</string>
 	<string name="edit_gloves_title">
-		Editing Gloves
+		編輯手套
 	</string>
 	<string name="edit_undershirt_title">
-		Editing Undershirt
+		編輯內衣
 	</string>
 	<string name="edit_underpants_title">
-		Editing Underpants
+		編輯內褲
 	</string>
 	<string name="edit_alpha_title">
 		半透明遮罩編輯中
@@ -110,7 +110,7 @@
 	<panel name="button_panel">
 		<layout_stack name="button_panel_ls">
 			<layout_panel name="save_as_btn_lp">
-				<button label="另存" name="save_as_button"/>
+				<button label="另存為" name="save_as_button"/>
 			</layout_panel>
 			<layout_panel name="revert_btn_lp">
 				<button label="復原變更" name="revert_button"/>

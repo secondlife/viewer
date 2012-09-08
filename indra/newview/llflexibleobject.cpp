@@ -417,6 +417,7 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 	if ((mSimulateRes == 0 || !mInitialized) && mVO->mDrawable->isVisible()) 
 	{
 		BOOL force_update = mSimulateRes == 0 ? TRUE : FALSE;
+
 		doIdleUpdate();
 
 		if (!force_update || !gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_FLEXIBLE))

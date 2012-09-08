@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_navmesh_rebake">
+	<button label="Recargar la región" name="navmesh_btn" tool_tip="Pulsa para recargar el navmesh de la región."/>
+	<button label="Solicitando recarga" name="navmesh_btn_sending" tool_tip="Enviando la solicitud de recarga al servidor."/>
+	<button label="La región se está recargando" name="navmesh_btn_baking" tool_tip="La región se está recargando.  Este botón desaparecerá cuando finalice la recarga."/>
+</panel>

@@ -5,6 +5,8 @@
 	</menu_item_call>
 	<menu_item_call label="Modifica" name="Edit..."/>
 	<menu_item_call label="Costruisci" name="Build"/>
+	<menu_item_call label="Mostra nei set collegati" name="show_in_linksets"/>
+	<menu_item_call label="Mostra nei personaggi" name="show_in_characters"/>
 	<menu_item_call label="Apri" name="Open"/>
 	<menu_item_call label="Siediti qui" name="Object Sit"/>
 	<menu_item_call label="Alzati" name="Object Stand Up"/>

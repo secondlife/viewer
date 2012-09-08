@@ -20,6 +20,8 @@
 	<button label="Blanca" label_selected="Blanca" name="Blank"/>
 	<button label="Ninguna" label_selected="Ninguna" left="90" name="None"/>
 	<button label="" label_selected="" name="Pipette"/>
+	<check_box initial_value="true" label="Vista previa inmediata" name="apply_immediate_check"/>
+	<text name="preview_disabled" value="Vista previa inhabilitada"/>
 	<filter_editor label="Filtrar las texturas" name="inventory search editor"/>
 	<check_box initial_value="false" label="Ver las carpetas" name="show_folders_check"/>
 	<button label="Añadir" label_selected="Añadir" name="l_add_btn"/>
@@ -31,5 +33,4 @@
 	</scroll_list>
 	<button label="OK" label_selected="OK" name="Select"/>
 	<button label="Cancelar" label_selected="Cancelar" name="Cancel"/>
-	<check_box initial_value="true" label="Aplicarlo ahora" name="apply_immediate_check"/>
 </floater>

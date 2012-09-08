@@ -3,6 +3,8 @@
 	<menu_item_call label="Dokun" name="Object Touch"/>
 	<menu_item_call label="Düzenle" name="Edit..."/>
 	<menu_item_call label="İnşa Et" name="Build"/>
+	<menu_item_call label="Bağlantı kümelerinde göster" name="show_in_linksets"/>
+	<menu_item_call label="Karakterlerde göster" name="show_in_characters"/>
 	<menu_item_call label="Aç" name="Open"/>
 	<menu_item_call label="Buraya Otur" name="Object Sit"/>
 	<menu_item_call label="Kalk" name="Object Stand Up"/>

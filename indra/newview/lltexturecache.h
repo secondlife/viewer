@@ -36,6 +36,7 @@
 
 class LLImageFormatted;
 class LLTextureCacheWorker;
+class LLImageRaw;
 
 class LLTextureCache : public LLWorkerThread
 {
@@ -113,8 +114,9 @@ public:
 	handle_t readFromCache(const LLUUID& id, U32 priority, S32 offset, S32 size,
 						   ReadResponder* responder);
 	bool readComplete(handle_t handle, bool abort);
-	handle_t writeToCache(const LLUUID& id, U32 priority, U8* data, S32 datasize, S32 imagesize,
+	handle_t writeToCache(const LLUUID& id, U32 priority, U8* data, S32 datasize, S32 imagesize, LLPointer<LLImageRaw> rawimage, S32 discardlevel,
 						  WriteResponder* responder);
+	LLPointer<LLImageRaw> readFromFastCache(const LLUUID& id, S32& discardlevel);
 	bool writeComplete(handle_t handle, bool abort = false);
 	void prioritizeWrite(handle_t handle);
 
@@ -171,12 +173,18 @@ private:
 	void lockHeaders() { mHeaderMutex.lock(); }
 	void unlockHeaders() { mHeaderMutex.unlock(); }
 	
+	void openFastCache(bool first_time = false);
+	void closeFastCache(bool forced = false);
+	bool writeToFastCache(S32 id, LLPointer<LLImageRaw> raw, S32 discardlevel);	
+
 private:
 	// Internal
 	LLMutex mWorkersMutex;
 	LLMutex mHeaderMutex;
 	LLMutex mListMutex;
+	LLMutex mFastCacheMutex;
 	LLAPRFile* mHeaderAPRFile;
+	LLVolatileAPRPool* mFastCachePoolp;
 	
 	typedef std::map<handle_t, LLTextureCacheWorker*> handle_map_t;
 	handle_map_t mReaders;
@@ -193,11 +201,16 @@ private:
 	// HEADERS (Include first mip)
 	std::string mHeaderEntriesFileName;
 	std::string mHeaderDataFileName;
+	std::string mFastCacheFileName;
 	EntriesInfo mHeaderEntriesInfo;
 	std::set<S32> mFreeList; // deleted entries
 	std::set<LLUUID> mLRU;
-	typedef std::map<LLUUID,S32> id_map_t;
+	typedef std::map<LLUUID, S32> id_map_t;
 	id_map_t mHeaderIDMap;
+
+	LLAPRFile*   mFastCachep;
+	LLFrameTimer mFastCacheTimer;
+	U8*          mFastCachePadBuffer;
 
 	// BODIES (TEXTURES minus headers)
 	std::string mTexturesDirName;

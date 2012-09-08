@@ -41,5 +41,5 @@ void main()
 	frag_data[1] = vertex_color.aaaa; // spec
 	//frag_data[1] = vec4(vec3(vertex_color.a), vertex_color.a+(1.0-vertex_color.a)*vertex_color.a); // spec - from former class3 - maybe better, but not so well tested
 	vec3 nvn = normalize(vary_normal);
-	frag_data[2] = vec4(nvn.xy * 0.5 + 0.5, nvn.z, 0.0);
+	frag_data[2] = vec4(nvn.xyz * 0.5 + 0.5, 0.0);
 }

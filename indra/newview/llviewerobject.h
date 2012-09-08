@@ -198,6 +198,9 @@ public:
 	virtual BOOL		updateLOD();
 	virtual BOOL		setDrawableParent(LLDrawable* parentp);
 	F32					getRotTime() { return mRotTime; }
+private:
+	void				resetRotTime();
+public:
 	void				resetRot();
 	void				applyAngularVelocity(F32 dt);
 
@@ -210,7 +213,7 @@ public:
 	LLViewerRegion* getRegion() const				{ return mRegionp; }
 
 	BOOL isSelected() const							{ return mUserSelected; }
-	virtual void setSelected(BOOL sel)				{ mUserSelected = sel; mRotTime = 0.f;}
+	virtual void setSelected(BOOL sel)				{ mUserSelected = sel; resetRot();}
 
 	const LLUUID &getID() const						{ return mID; }
 	U32 getLocalID() const							{ return mLocalID; }
@@ -319,7 +322,7 @@ public:
 	/*virtual*/ S32     setTEGlow(const U8 te, const F32 glow);
 	/*virtual*/	BOOL	setMaterial(const U8 material);
 	virtual		void	setTEImage(const U8 te, LLViewerTexture *imagep); // Not derived from LLPrimitive
-	void                changeTEImage(S32 index, LLViewerTexture* new_image)  ;
+	virtual     void    changeTEImage(S32 index, LLViewerTexture* new_image)  ;
 	LLViewerTexture		*getTEImage(const U8 te) const;
 	
 	void fitFaceTexture(const U8 face);
