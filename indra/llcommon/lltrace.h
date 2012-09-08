@@ -31,7 +31,6 @@
 #include "llpreprocessor.h"
 
 #include <vector>
-#include <boost/type_traits/alignment_of.hpp>
 
 namespace LLTrace
 {
@@ -43,6 +42,35 @@ namespace LLTrace
 	}
 
 	template<typename ACCUMULATOR>
+	struct AccumulatorStorage
+	{
+		std::vector<ACCUMULATOR> mStorage;
+		
+		ACCUMULATOR& operator[](size_t index) { return mStorage[index]; }
+
+		void mergeFrom(const AccumulatorStorage<ACCUMULATOR>& other)
+		{
+			llassert(mStorage.size() == other.mStorage.size());
+
+			for (size_t i = 0; i < mStorage.size(); i++)
+			{
+				mStorage[i].mergeFrom(other.mStorage[i]);
+			}
+		}
+
+		void copyFrom(const AccumulatorStorage<Accumulator>& other)
+		{
+			mStorage = other.mStorage;
+		}
+
+		void resize(size_t size)
+		{
+			//TODO: get this grow more rapidly (as if with push back)
+			mStorage.reserve(size);
+		}
+	};
+
+	template<typename ACCUMULATOR>
 	class Trace
 	{
 	public:
@@ -50,7 +78,7 @@ namespace LLTrace
 		:	mName(name)
 		{
 			mStorageIndex = sNextIndex++;
-			sStorage.reserve(sNextIndex);
+			sStorage.resize(sNextIndex);
 		}
 
 		LL_FORCE_INLINE ACCUMULATOR& getAccumulator()
@@ -69,8 +97,8 @@ namespace LLTrace
 		ptrdiff_t				mStorageIndex;
 
 		// this needs to be thread local
-		static std::vector<ACCUMULATOR>	sStorage;
-		static size_t					sNextIndex;
+		static AccumulatorStorage<ACCUMULATOR>	sStorage;
+		static size_t							sNextIndex;
 	};
 
 	template<typename ACCUMULATOR> std::vector<ACCUMULATOR> Trace<ACCUMULATOR>::sStorage;
@@ -81,7 +109,7 @@ namespace LLTrace
 	{
 	public:
 		Accumulator()
-			:	mSum(),
+		:	mSum(),
 			mMin(),
 			mMax(),
 			mNumSamples(0)
