@@ -358,6 +358,8 @@ void LLIMFloaterContainer::draw()
 		}
 	}
 	
+	repositioningWidgets();
+
 	if (mTabContainer->getTabCount() == 0)
 	{
 		// Do not close the container when every conversation is torn off because the user
@@ -365,8 +367,6 @@ void LLIMFloaterContainer::draw()
 		collapseMessagesPane(true);
 	}
 	LLFloater::draw();
-
-	repositioningWidgets();
 }
 
 void LLIMFloaterContainer::tabClose()
