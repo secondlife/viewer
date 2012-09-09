@@ -59,9 +59,8 @@ public:
 //-----------------------------------------------------------------------------
 // class LLViewerJointMesh
 //-----------------------------------------------------------------------------
-class LLAvatarJointMesh : public LLAvatarJoint
+class LLAvatarJointMesh : public virtual LLAvatarJoint
 {
-	friend class LLAvatarAppearance;
 protected:
 	LLColor4					mColor;			// color value
 // 	LLColor4					mSpecular;		// specular color (always white for now)
@@ -94,6 +93,9 @@ public:
 	// Destructor
 	virtual ~LLAvatarJointMesh();
 
+	// overloaded from base class
+	/*virtual*/ BOOL isTransparent() { return mIsTransparent; }
+
 	// Gets the shape color
 	void getColor( F32 *red, F32 *green, F32 *blue, F32 *alpha );
 
@@ -106,10 +108,14 @@ public:
 	// Sets the shape texture
 	void setTexture( LLGLTexture *texture );
 
+	BOOL hasGLTexture() const;
+
 	void setTestTexture( U32 name ) { mTestImageName = name; }
 
 	// Sets layer set responsible for a dynamic shape texture (takes precedence over normal texture)
 	void setLayerSet( LLTexLayerSet* layer_set );
+
+	BOOL hasComposite() const;
 
 	// Gets the poly mesh
 	LLPolyMesh *getMesh();
@@ -128,6 +134,8 @@ public:
 
 	// Gets ID for picking
 	S32 getMeshID() { return mMeshID; }	
+
+	void setIsTransparent(BOOL is_transparent) { mIsTransparent = is_transparent; }
 
 private:
 	// Allocate skin data

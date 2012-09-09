@@ -36,6 +36,8 @@
 class LLFace;
 class LLAvatarJointMesh;
 
+extern const F32 DEFAULT_AVATAR_JOINT_LOD;
+
 //-----------------------------------------------------------------------------
 // class LLViewerJoint
 //-----------------------------------------------------------------------------
@@ -44,6 +46,8 @@ class LLAvatarJoint :
 {
 public:
 	LLAvatarJoint();
+	LLAvatarJoint(S32 joint_num);
+	// *TODO: Only used for LLVOAvatarSelf::mScreenp.  *DOES NOT INITIALIZE mResetAfterRestoreOldXform*
 	LLAvatarJoint(const std::string &name, LLJoint *parent = NULL);
 	virtual ~LLAvatarJoint();
 
@@ -55,11 +59,10 @@ public:
 
 	// Returns true if this object is transparent.
 	// This is used to determine in which order to draw objects.
-	virtual BOOL isTransparent();
+	virtual BOOL isTransparent() { return FALSE; }
 
 	// Returns true if this object should inherit scale modifiers from its immediate parent
 	virtual BOOL inheritScale() { return FALSE; }
-
 
 	enum Components
 	{
@@ -83,7 +86,7 @@ public:
 	// of this node under the same parent will be.
 	F32 getLOD() { return mMinPixelArea; }
 	void setLOD( F32 pixelArea ) { mMinPixelArea = pixelArea; }
-	
+
 	void setPickName(LLJointPickName name) { mPickName = name; }
 	LLJointPickName getPickName() { return mPickName; }
 
@@ -92,9 +95,18 @@ public:
 	// Takes meshes in mMeshParts and sets each one as a child joint
 	void setMeshesToChildren();
 
+	// LLViewerJoint interface
+	virtual U32 render( F32 pixelArea, BOOL first_pass = TRUE, BOOL is_dummy = FALSE ) = 0;
+	virtual void updateFaceSizes(U32 &num_vertices, U32& num_indices, F32 pixel_area);
+	virtual void updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind = FALSE, bool terse_update = false);
+	virtual BOOL updateLOD(F32 pixel_area, BOOL activate);
+	virtual void updateJointGeometry();
+	virtual void dump();
+	
+
 public:
 	static BOOL	sDisableLOD;
-	std::vector<LLAvatarJointMesh*> mMeshParts; //LLViewerJointMesh*
+	avatar_joint_mesh_list_t mMeshParts; //LLViewerJointMesh*
 	void setMeshID( S32 id ) {mMeshID = id;}
 
 protected:
@@ -112,10 +124,10 @@ class LLAvatarJointCollisionVolume : public LLAvatarJoint
 {
 public:
 	LLAvatarJointCollisionVolume();
-	LLAvatarJointCollisionVolume(const std::string &name, LLJoint *parent = NULL);
 	virtual ~LLAvatarJointCollisionVolume() {};
 
-	virtual BOOL inheritScale() { return TRUE; }
+	/*virtual*/ BOOL inheritScale() { return TRUE; }
+	/*virtual*/ U32 render( F32 pixelArea, BOOL first_pass = TRUE, BOOL is_dummy = FALSE );
 
 	void renderCollision();
 

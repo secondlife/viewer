@@ -172,7 +172,6 @@ public:
 	virtual LLVector3    	getCharacterVelocity();
 	virtual LLVector3    	getCharacterAngularVelocity();
 	virtual LLJoint*		getCharacterJoint(U32 num);
-	virtual BOOL			allocateCharacterJoints(U32 num);
 
 	virtual LLUUID			remapMotionID(const LLUUID& id);
 	virtual BOOL			startMotion(const LLUUID& id, F32 time_offset = 0.f);
@@ -184,7 +183,6 @@ public:
 	void					dumpAnimationState();
 
 	virtual LLJoint*		getJoint(const std::string &name);
-	virtual LLJoint*     	getRootJoint() { return mRoot; }
 	
 	void					resetJointPositions( void );
 	void					resetJointPositionsToDefault( void );
@@ -341,6 +339,10 @@ protected:
  **                    SKELETON
  **/
 
+protected:
+	/*virtual*/ LLAvatarJoint*	createAvatarJoint(); // Returns LLViewerJoint
+	/*virtual*/ LLAvatarJoint*	createAvatarJoint(S32 joint_num); // Returns LLViewerJoint
+	/*virtual*/ LLAvatarJointMesh*	createAvatarJointMesh(); // Returns LLViewerJointMesh
 public:
 	void				updateHeadOffset();
 	void				setPelvisOffset( bool hasOffset, const LLVector3& translation, F32 offset ) ;
@@ -521,6 +523,7 @@ public:
 	// Baked textures
 	//--------------------------------------------------------------------
 public:
+	/*virtual*/ LLTexLayerSet*	createTexLayerSet(); // Return LLViewerTexLayerSet
 	void			releaseComponentTextures(); // ! BACKWARDS COMPATIBILITY !
 protected:
 	static void		onBakedTextureMasksLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);

@@ -24,12 +24,6 @@
  * $/LicenseInfo$
  */
 
-#if LL_MSVC
-// disable warning about boost::lexical_cast returning uninitialized data
-// when it fails to parse the string
-#pragma warning (disable:4701)
-#endif
-
 #include "llviewerprecompiledheaders.h"
 
 #include "llvoavatar.h"
@@ -109,12 +103,6 @@ extern F32 SPEED_ADJUST_MAX_SEC;
 extern F32 ANIM_SPEED_MAX;
 extern F32 ANIM_SPEED_MIN;
 
-#if LL_MSVC
-// disable boost::lexical_cast warning
-#pragma warning (disable:4702)
-#endif
-
-#include <boost/lexical_cast.hpp>
 
 // #define OUTPUT_BREAST_DATA
 
@@ -783,7 +771,7 @@ BOOL LLVOAvatar::isFullyTextured() const
 {
 	for (S32 i = 0; i < mMeshLOD.size(); i++)
 	{
-		LLViewerJoint* joint = (LLViewerJoint*) mMeshLOD[i];
+		LLAvatarJoint* joint = mMeshLOD[i];
 		if (i==MESH_ID_SKIRT && !isWearingWearableType(LLWearableType::WT_SKIRT))
 		{
 			continue; // don't care about skirt textures if we're not wearing one.
@@ -792,19 +780,19 @@ BOOL LLVOAvatar::isFullyTextured() const
 		{
 			continue; // nonexistent LOD OK.
 		}
-		std::vector<LLViewerJointMesh*>::iterator meshIter = joint->mMeshParts.begin();
+		avatar_joint_mesh_list_t::iterator meshIter = joint->mMeshParts.begin();
 		if (meshIter != joint->mMeshParts.end())
 		{
-			LLViewerJointMesh *mesh = (LLViewerJointMesh *) *meshIter;
+			LLAvatarJointMesh *mesh = (*meshIter);
 			if (!mesh)
 			{
 				continue; // nonexistent mesh OK
 			}
-			if (mesh->mTexture.notNull() && mesh->mTexture->hasGLTexture())
+			if (mesh->hasGLTexture())
 			{
 				continue; // Mesh exists and has a baked texture.
 			}
-			if (mesh->mLayerSet && mesh->mLayerSet->hasComposite())
+			if (mesh->hasComposite())
 			{
 				continue; // Mesh exists and has a composite texture.
 			}
@@ -1056,84 +1044,9 @@ void LLVOAvatar::cleanupClass()
 	sXMLTree.cleanup();
 }
 
+// virtual
 void LLVOAvatar::initInstance(void)
 {
-	//-------------------------------------------------------------------------
-	// initialize joint, mesh and shape members
-	//-------------------------------------------------------------------------
-	if (mRoot)
-	{
-		delete mRoot;
-	}
-	mRoot = new LLViewerJoint();
-	mRoot->setName( "mRoot" );
-	
-	for (LLAvatarAppearanceDictionary::Meshes::const_iterator iter = LLAvatarAppearanceDictionary::getInstance()->getMeshes().begin();
-		 iter != LLAvatarAppearanceDictionary::getInstance()->getMeshes().end();
-		 ++iter)
-	{
-		const EMeshIndex mesh_index = iter->first;
-		const LLAvatarAppearanceDictionary::MeshEntry *mesh_dict = iter->second;
-		LLViewerJoint* joint = new LLViewerJoint();
-		joint->setName(mesh_dict->mName);
-		joint->setMeshID(mesh_index);
-		mMeshLOD.push_back(joint);
-		
-		/* mHairLOD.setName("mHairLOD");
-		   mHairMesh0.setName("mHairMesh0");
-		   mHairMesh0.setMeshID(MESH_ID_HAIR);
-		   mHairMesh1.setName("mHairMesh1"); */
-		for (U32 lod = 0; lod < mesh_dict->mLOD; lod++)
-		{
-			LLViewerJointMesh* mesh = new LLViewerJointMesh();
-			std::string mesh_name = "m" + mesh_dict->mName + boost::lexical_cast<std::string>(lod);
-			// We pre-pended an m - need to capitalize first character for camelCase
-			mesh_name[1] = toupper(mesh_name[1]);
-			mesh->setName(mesh_name);
-			mesh->setMeshID(mesh_index);
-			mesh->setPickName(mesh_dict->mPickName);
-			mesh->setIsTransparent(FALSE);
-			switch((int)mesh_index)
-			{
-				case MESH_ID_HAIR:
-					mesh->setIsTransparent(TRUE);
-					break;
-				case MESH_ID_SKIRT:
-					mesh->setIsTransparent(TRUE);
-					break;
-				case MESH_ID_EYEBALL_LEFT:
-				case MESH_ID_EYEBALL_RIGHT:
-					mesh->setSpecular( LLColor4( 1.0f, 1.0f, 1.0f, 1.0f ), 1.f );
-					break;
-			}
-			
-			joint->mMeshParts.push_back(mesh);
-		}
-	}
-	
-	//-------------------------------------------------------------------------
-	// associate baked textures with meshes
-	//-------------------------------------------------------------------------
-	for (LLAvatarAppearanceDictionary::Meshes::const_iterator iter = LLAvatarAppearanceDictionary::getInstance()->getMeshes().begin();
-		 iter != LLAvatarAppearanceDictionary::getInstance()->getMeshes().end();
-		 ++iter)
-	{
-		const EMeshIndex mesh_index = iter->first;
-		const LLAvatarAppearanceDictionary::MeshEntry *mesh_dict = iter->second;
-		const EBakedTextureIndex baked_texture_index = mesh_dict->mBakedID;
-		// Skip it if there's no associated baked texture.
-		if (baked_texture_index == BAKED_NUM_INDICES) continue;
-		
-		for (std::vector<LLAvatarJointMesh* >::iterator iter = mMeshLOD[mesh_index]->mMeshParts.begin();
-			 iter != mMeshLOD[mesh_index]->mMeshParts.end(); 
-			 ++iter)
-		{
-			LLViewerJointMesh* mesh = (LLViewerJointMesh*) *iter;
-			mBakedTextureDatas[(int)baked_texture_index].mMeshes.push_back(mesh);
-		}
-	}
-	
-	
 	//-------------------------------------------------------------------------
 	// register motions
 	//-------------------------------------------------------------------------
@@ -1192,10 +1105,9 @@ void LLVOAvatar::initInstance(void)
 		registerMotion( ANIM_AGENT_SIT_FEMALE,				LLKeyframeMotion::create );
 		registerMotion( ANIM_AGENT_TARGET,					LLTargetingMotion::create );
 		registerMotion( ANIM_AGENT_WALK_ADJUST,				LLWalkAdjustMotion::create );
-		
 	}
-	
-	buildCharacter();
+
+	LLAvatarAppearance::initInstance();
 	
 	// preload specific motions here
 	createMotion( ANIM_AGENT_CUSTOMIZE);
@@ -1204,7 +1116,30 @@ void LLVOAvatar::initInstance(void)
 	//VTPause();  // VTune
 	
 	mVoiceVisualizer->setVoiceEnabled( LLVoiceClient::getInstance()->getVoiceEnabled( mID ) );
+}
 
+// virtual
+LLAvatarJoint* LLVOAvatar::createAvatarJoint()
+{
+	return new LLViewerJoint();
+}
+
+// virtual
+LLAvatarJoint* LLVOAvatar::createAvatarJoint(S32 joint_num)
+{
+	return new LLViewerJoint(joint_num);
+}
+
+// virtual
+LLAvatarJointMesh* LLVOAvatar::createAvatarJointMesh()
+{
+	return new LLViewerJointMesh();
+}
+
+// virtual
+LLTexLayerSet* LLVOAvatar::createTexLayerSet()
+{
+	return new LLViewerTexLayerSet(this);
 }
 
 const LLVector3 LLVOAvatar::getRenderPosition() const
@@ -1279,7 +1214,7 @@ void LLVOAvatar::getSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 	float max_attachment_span = get_default_max_prim_scale() * 5.0f;
 	
 	//stretch bounding box by joint positions
-	for (polymesh_map_t::iterator i = mMeshes.begin(); i != mMeshes.end(); ++i)
+	for (polymesh_map_t::iterator i = mPolyMeshes.begin(); i != mPolyMeshes.end(); ++i)
 	{
 		LLPolyMesh* mesh = i->second;
 		for (S32 joint_num = 0; joint_num < mesh->mJointRenderData.count(); joint_num++)
@@ -1551,22 +1486,10 @@ void LLVOAvatar::startDefaultMotions()
 // virtual
 void LLVOAvatar::buildCharacter()
 {
-	//-------------------------------------------------------------------------
-	// clear mesh data
-	//-------------------------------------------------------------------------
-	for (std::vector<LLAvatarJoint*>::iterator jointIter = mMeshLOD.begin();
-		 jointIter != mMeshLOD.end(); ++jointIter)
-	{
-		LLViewerJoint* joint = (LLViewerJoint*) *jointIter;
-		for (std::vector<LLViewerJointMesh*>::iterator meshIter = joint->mMeshParts.begin();
-			 meshIter != joint->mMeshParts.end(); ++meshIter)
-		{
-			LLViewerJointMesh * mesh = (LLViewerJointMesh *) *meshIter;
-			mesh->setMesh(NULL);
-		}
-	}
-
 	LLAvatarAppearance::buildCharacter();
+
+	// Not done building yet; more to do.
+	mIsBuilt = FALSE;
 
 	//-------------------------------------------------------------------------
 	// set head offset from pelvis
@@ -1600,6 +1523,9 @@ void LLVOAvatar::buildCharacter()
 	//-------------------------------------------------------------------------
 	processAnimationStateChanges();
 
+	mIsBuilt = TRUE;
+	stop_glerror();
+
 	mMeshValid = TRUE;
 }
 
@@ -1619,11 +1545,11 @@ void LLVOAvatar::releaseMeshData()
 	//llinfos << "Releasing" << llendl;
 
 	// cleanup mesh data
-	for (std::vector<LLAvatarJoint*>::iterator iter = mMeshLOD.begin();
+	for (avatar_joint_list_t::iterator iter = mMeshLOD.begin();
 		 iter != mMeshLOD.end(); 
 		 ++iter)
 	{
-		LLViewerJoint* joint = (LLViewerJoint*) *iter;
+		LLAvatarJoint* joint = (*iter);
 		joint->setValid(FALSE, TRUE);
 	}
 
@@ -4718,10 +4644,12 @@ LLJoint *LLVOAvatar::getJoint( const std::string &name )
 //-----------------------------------------------------------------------------
 void LLVOAvatar::resetJointPositions( void )
 {
-	for(S32 i = 0; i < (S32)mNumJoints; ++i)
+	avatar_joint_list_t::iterator iter = mSkeleton.begin();
+	avatar_joint_list_t::iterator end  = mSkeleton.end();
+	for (; iter != end; ++iter)
 	{
-		mSkeleton[i].restoreOldXform();
-		mSkeleton[i].setId( LLUUID::null );
+		(*iter)->restoreOldXform();
+		(*iter)->setId( LLUUID::null );
 	}
 	mHasPelvisOffset = false;
 	mPelvisFixup	 = mLastPelvisFixup;
@@ -4753,16 +4681,17 @@ void LLVOAvatar::resetSpecificJointPosition( const std::string& name )
 //-----------------------------------------------------------------------------
 void LLVOAvatar::resetJointPositionsToDefault( void )
 {
-
 	//Subsequent joints are relative to pelvis
-	for( S32 i = 0; i < (S32)mNumJoints; ++i )
+	avatar_joint_list_t::iterator iter = mSkeleton.begin();
+	avatar_joint_list_t::iterator end  = mSkeleton.end();
+	for (; iter != end; ++iter)
 	{
-		LLJoint* pJoint = (LLJoint*)&mSkeleton[i];
+		LLJoint* pJoint = (*iter);
 		if ( pJoint->doesJointNeedToBeReset() )
 		{
-
 			pJoint->setId( LLUUID::null );
 			//restore joints to default positions, however skip over the pelvis
+			// *TODO: How does this pointer check skip over pelvis?
 			if ( pJoint )
 			{
 				pJoint->restoreOldXform();
@@ -4895,43 +4824,18 @@ LLVector3	LLVOAvatar::getPosAgentFromGlobal(const LLVector3d &position)
 	return gAgent.getPosAgentFromGlobal(position);
 }
 
-//-----------------------------------------------------------------------------
-// allocateCharacterJoints()
-//-----------------------------------------------------------------------------
-BOOL LLVOAvatar::allocateCharacterJoints( U32 num )
-{
-	deleteAndClearArray(mSkeleton);
-	mNumJoints = 0;
-
-	mSkeleton = new LLViewerJoint[num];
-	
-	for(S32 joint_num = 0; joint_num < (S32)num; joint_num++)
-	{
-		mSkeleton[joint_num].setJointNum(joint_num);
-	}
-
-	if (!mSkeleton)
-	{
-		return FALSE;
-	}
-
-	mNumJoints = num;
-	return TRUE;
-}
-
-
 
 //-----------------------------------------------------------------------------
 // getCharacterJoint()
 //-----------------------------------------------------------------------------
 LLJoint *LLVOAvatar::getCharacterJoint( U32 num )
 {
-	if ((S32)num >= mNumJoints 
+	if ((S32)num >= mSkeleton.size()
 	    || (S32)num < 0)
 	{
 		return NULL;
 	}
-	return (LLJoint*)&mSkeleton[num];
+	return mSkeleton[num];
 }
 
 //-----------------------------------------------------------------------------
@@ -4949,16 +4853,6 @@ void LLVOAvatar::requestStopMotion( LLMotion* motion )
 //virtual
 BOOL LLVOAvatar::loadSkeletonNode ()
 {
-	// make meshes children before calling parent version of the function
-	for (std::vector<LLAvatarJoint *>::iterator iter = mMeshLOD.begin();
-		 iter != mMeshLOD.end(); 
-		 ++iter)
-	{
-		LLViewerJoint *joint = (LLViewerJoint *) *iter;
-		joint->mUpdateXform = FALSE;
-		joint->setMeshesToChildren();
-	}
-
 	if (!LLAvatarAppearance::loadSkeletonNode())
 	{
 		return FALSE;
@@ -5695,9 +5589,11 @@ void LLVOAvatar::onGlobalColorChanged(const LLTexGlobalColor* global_color, BOOL
 		if (!isTextureDefined(mBakedTextureDatas[BAKED_HAIR].mTextureIndex))
 		{
 			LLColor4 color = mTexHairColor->getColor();
-			for (U32 i = 0; i < mBakedTextureDatas[BAKED_HAIR].mMeshes.size(); i++)
+			avatar_joint_mesh_list_t::iterator iter = mBakedTextureDatas[BAKED_HAIR].mJointMeshes.begin();
+			avatar_joint_mesh_list_t::iterator end  = mBakedTextureDatas[BAKED_HAIR].mJointMeshes.end();
+			for (; iter != end; ++iter)
 			{
-				LLViewerJointMesh* mesh = dynamic_cast<LLViewerJointMesh*>(mBakedTextureDatas[BAKED_HAIR].mMeshes[i]);
+				LLAvatarJointMesh* mesh = (*iter);
 				if (mesh)
 				{
 					mesh->setColor( color.mV[VX], color.mV[VY], color.mV[VZ], color.mV[VW] );
@@ -5962,9 +5858,11 @@ void LLVOAvatar::updateMeshTextures()
 			}
 
 			mBakedTextureDatas[i].mIsUsed = TRUE;
-			for (U32 k=0; k < mBakedTextureDatas[i].mMeshes.size(); k++)
+			avatar_joint_mesh_list_t::iterator iter = mBakedTextureDatas[i].mJointMeshes.begin();
+			avatar_joint_mesh_list_t::iterator end  = mBakedTextureDatas[i].mJointMeshes.end();
+			for (; iter != end; ++iter)
 			{
-				LLViewerJointMesh* mesh = dynamic_cast<LLViewerJointMesh*>(mBakedTextureDatas[i].mMeshes[k]);
+				LLAvatarJointMesh* mesh = (*iter);
 				if (mesh)
 				{
 					mesh->setTexture( baked_img );
@@ -5996,9 +5894,11 @@ void LLVOAvatar::updateMeshTextures()
 			layerset->createComposite();
 			layerset->setUpdatesEnabled( TRUE );
 			mBakedTextureDatas[i].mIsUsed = FALSE;
-			for (U32 k=0; k < mBakedTextureDatas[i].mMeshes.size(); k++)
+			avatar_joint_mesh_list_t::iterator iter = mBakedTextureDatas[i].mJointMeshes.begin();
+			avatar_joint_mesh_list_t::iterator end  = mBakedTextureDatas[i].mJointMeshes.end();
+			for (; iter != end; ++iter)
 			{
-				LLViewerJointMesh* mesh = dynamic_cast<LLViewerJointMesh*>(mBakedTextureDatas[i].mMeshes[k]);
+				LLAvatarJointMesh* mesh = (*iter);
 				if (mesh)
 				{
 					mesh->setLayerSet( layerset );
@@ -6014,9 +5914,11 @@ void LLVOAvatar::updateMeshTextures()
 	{
 		const LLColor4 color = mTexHairColor ? mTexHairColor->getColor() : LLColor4(1,1,1,1);
 		LLViewerTexture* hair_img = getImage( TEX_HAIR, 0 );
-		for (U32 i = 0; i < mBakedTextureDatas[BAKED_HAIR].mMeshes.size(); i++)
+		avatar_joint_mesh_list_t::iterator iter = mBakedTextureDatas[BAKED_HAIR].mJointMeshes.begin();
+		avatar_joint_mesh_list_t::iterator end  = mBakedTextureDatas[BAKED_HAIR].mJointMeshes.end();
+		for (; iter != end; ++iter)
 		{
-			LLViewerJointMesh* mesh = dynamic_cast<LLViewerJointMesh*>(mBakedTextureDatas[BAKED_HAIR].mMeshes[i]);
+			LLAvatarJointMesh* mesh = (*iter);
 			if (mesh)
 			{
 				mesh->setColor( color.mV[VX], color.mV[VY], color.mV[VZ], color.mV[VW] );
@@ -6778,9 +6680,11 @@ void LLVOAvatar::useBakedTexture( const LLUUID& id )
 			mBakedTextureDatas[i].mIsLoaded = true;
 			mBakedTextureDatas[i].mLastTextureIndex = id;
 			mBakedTextureDatas[i].mIsUsed = true;
-			for (U32 k = 0; k < mBakedTextureDatas[i].mMeshes.size(); k++)
+			avatar_joint_mesh_list_t::iterator iter = mBakedTextureDatas[i].mJointMeshes.begin();
+			avatar_joint_mesh_list_t::iterator end  = mBakedTextureDatas[i].mJointMeshes.end();
+			for (; iter != end; ++iter)
 			{
-				LLViewerJointMesh* mesh = dynamic_cast<LLViewerJointMesh*>(mBakedTextureDatas[i].mMeshes[k]);
+				LLAvatarJointMesh* mesh = (*iter);
 				if (mesh)
 				{
 					mesh->setTexture( image_baked );
@@ -6803,9 +6707,11 @@ void LLVOAvatar::useBakedTexture( const LLUUID& id )
 			// This is paired with similar code in updateMeshTextures that sets hair mesh color.
 			if (i == BAKED_HAIR)
 			{
-				for (U32 i = 0; i < mBakedTextureDatas[BAKED_HAIR].mMeshes.size(); i++)
+				avatar_joint_mesh_list_t::iterator iter = mBakedTextureDatas[i].mJointMeshes.begin();
+				avatar_joint_mesh_list_t::iterator end  = mBakedTextureDatas[i].mJointMeshes.end();
+				for (; iter != end; ++iter)
 				{
-					LLViewerJointMesh* mesh = dynamic_cast<LLViewerJointMesh*>(mBakedTextureDatas[BAKED_HAIR].mMeshes[i]);
+					LLAvatarJointMesh* mesh = (*iter);
 					if (mesh)
 					{
 						mesh->setColor( 1.f, 1.f, 1.f, 1.f );

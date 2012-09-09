@@ -41,9 +41,8 @@ class LLViewerTexLayerSet;
 //-----------------------------------------------------------------------------
 // class LLViewerJointMesh
 //-----------------------------------------------------------------------------
-class LLViewerJointMesh : public LLAvatarJointMesh
+class LLViewerJointMesh : public LLAvatarJointMesh, public LLViewerJoint
 {
-	friend class LLVOAvatar;
 public:
 	// Constructor
 	LLViewerJointMesh();
@@ -55,8 +54,6 @@ public:
 	void uploadJointMatrices();
 
 	// overloaded from base class
-	/*virtual*/ void drawBone();
-	/*virtual*/ BOOL isTransparent();
 	/*virtual*/ U32 drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy );
 
 	/*virtual*/ void updateFaceSizes(U32 &num_vertices, U32& num_indices, F32 pixel_area);
@@ -64,8 +61,6 @@ public:
 	/*virtual*/ BOOL updateLOD(F32 pixel_area, BOOL activate);
 	/*virtual*/ void updateJointGeometry();
 	/*virtual*/ void dump();
-
-	void setIsTransparent(BOOL is_transparent) { mIsTransparent = is_transparent; }
 
 	/*virtual*/ BOOL isAnimatable() const { return FALSE; }
 	

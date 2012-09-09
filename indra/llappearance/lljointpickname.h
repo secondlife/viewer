@@ -28,6 +28,7 @@
 #ifndef LL_LLJOINTPICKNAME_H
 #define LL_LLJOINTPICKNAME_H
 
+class LLAvatarJointMesh;
 
 // Sets the OpenGL selection stack name that is pushed and popped
 // with this joint state.  The default value indicates that no name
@@ -42,5 +43,7 @@ enum LLJointPickName
 	PN_4 = 4,
 	PN_5 = 5
 };
+
+typedef std::vector<LLAvatarJointMesh*> avatar_joint_mesh_list_t;
 
 #endif // LL_LLJOINTPICKNAME_H

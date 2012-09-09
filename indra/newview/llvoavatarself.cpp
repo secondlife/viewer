@@ -249,8 +249,6 @@ BOOL LLVOAvatarSelf::loadAvatarSelf()
 		llwarns << "avatar file: buildSkeleton() failed" << llendl;
 		return FALSE;
 	}
-	// TODO: make loadLayersets() called only by self.
-	//success &= loadLayersets();
 
 	return success;
 }
@@ -585,70 +583,6 @@ LLVOAvatarSelf::~LLVOAvatarSelf()
  **                                                                             **
  *********************************************************************************/
 
-//virtual
-BOOL LLVOAvatarSelf::loadLayersets()
-{
-	BOOL success = TRUE;
-	for (LLAvatarXmlInfo::layer_info_list_t::const_iterator iter = sAvatarXmlInfo->mLayerInfoList.begin();
-		 iter != sAvatarXmlInfo->mLayerInfoList.end(); 
-		 ++iter)
-	{
-		// Construct a layerset for each one specified in avatar_lad.xml and initialize it as such.
-		const LLTexLayerSetInfo *info = *iter;
-		LLViewerTexLayerSet* layer_set = new LLViewerTexLayerSet( this );
-		
-		if (!layer_set->setInfo(info))
-		{
-			stop_glerror();
-			delete layer_set;
-			llwarns << "avatar file: layer_set->parseData() failed" << llendl;
-			return FALSE;
-		}
-
-		// scan baked textures and associate the layerset with the appropriate one
-		EBakedTextureIndex baked_index = BAKED_NUM_INDICES;
-		for (LLAvatarAppearanceDictionary::BakedTextures::const_iterator baked_iter = LLAvatarAppearanceDictionary::getInstance()->getBakedTextures().begin();
-			 baked_iter != LLAvatarAppearanceDictionary::getInstance()->getBakedTextures().end();
-			 ++baked_iter)
-		{
-			const LLAvatarAppearanceDictionary::BakedEntry *baked_dict = baked_iter->second;
-			if (layer_set->isBodyRegion(baked_dict->mName))
-			{
-				baked_index = baked_iter->first;
-				// ensure both structures are aware of each other
-				mBakedTextureDatas[baked_index].mTexLayerSet = layer_set;
-				layer_set->setBakedTexIndex(baked_index);
-				break;
-			}
-		}
-		// if no baked texture was found, warn and cleanup
-		if (baked_index == BAKED_NUM_INDICES)
-		{
-			llwarns << "<layer_set> has invalid body_region attribute" << llendl;
-			delete layer_set;
-			return FALSE;
-		}
-
-		// scan morph masks and let any affected layers know they have an associated morph
-		for (LLVOAvatar::morph_list_t::const_iterator morph_iter = mBakedTextureDatas[baked_index].mMaskedMorphs.begin();
-			morph_iter != mBakedTextureDatas[baked_index].mMaskedMorphs.end();
-			 ++morph_iter)
-		{
-			LLMaskedMorph *morph = *morph_iter;
-			LLTexLayerInterface* layer = layer_set->findLayerByName(morph->mLayer);
-			if (layer)
-			{
-				layer->setHasMorph(TRUE);
-			}
-			else
-			{
-				llwarns << "Could not find layer named " << morph->mLayer << " to set morph flag" << llendl;
-				success = FALSE;
-			}
-		}
-	}
-	return success;
-}
 // virtual
 BOOL LLVOAvatarSelf::updateCharacter(LLAgent &agent)
 {

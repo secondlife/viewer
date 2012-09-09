@@ -35,50 +35,26 @@
 #include "llrender.h"
 #include "llmath.h"
 #include "llglheaders.h"
-#include "llrendersphere.h"
 #include "llvoavatar.h"
 #include "pipeline.h"
 
-#define DEFAULT_LOD 0.0f
-
-const S32 MIN_PIXEL_AREA_3PASS_HAIR = 64*64;
-
-//-----------------------------------------------------------------------------
-// Static Data
-//-----------------------------------------------------------------------------
-BOOL					LLViewerJoint::sDisableLOD = FALSE;
+static const S32 MIN_PIXEL_AREA_3PASS_HAIR = 64*64;
 
 //-----------------------------------------------------------------------------
 // LLViewerJoint()
-// Class Constructor
+// Class Constructors
 //-----------------------------------------------------------------------------
-LLViewerJoint::LLViewerJoint()
-	:       LLAvatarJoint()
-{
-	init();
-}
+LLViewerJoint::LLViewerJoint() :
+	LLAvatarJoint()
+{ }
 
+LLViewerJoint::LLViewerJoint(const std::string &name, LLJoint *parent) :
+	LLAvatarJoint(name, parent)
+{ }
 
-//-----------------------------------------------------------------------------
-// LLViewerJoint()
-// Class Constructor
-//-----------------------------------------------------------------------------
-LLViewerJoint::LLViewerJoint(const std::string &name, LLJoint *parent)
-	:	LLAvatarJoint(name, parent)
-{
-	init();
-}
-
-
-void LLViewerJoint::init()
-{
-	mValid = FALSE;
-	mComponents = SC_JOINT | SC_BONE | SC_AXES;
-	mMinPixelArea = DEFAULT_LOD;
-	mPickName = PN_DEFAULT;
-	mVisible = TRUE;
-	mMeshID = 0;
-}
+LLViewerJoint::LLViewerJoint(S32 joint_num) :
+	LLAvatarJoint(joint_num)
+{ }
 
 
 //-----------------------------------------------------------------------------
@@ -88,129 +64,6 @@ void LLViewerJoint::init()
 LLViewerJoint::~LLViewerJoint()
 {
 }
-
-
-//--------------------------------------------------------------------
-// renderSkeleton()
-// DEBUG (UNUSED)
-//--------------------------------------------------------------------
-// void LLViewerJoint::renderSkeleton(BOOL recursive)
-// {
-// 	F32 nc = 0.57735f;
-
-// 	//----------------------------------------------------------------
-// 	// push matrix stack
-// 	//----------------------------------------------------------------
-// 	gGL.pushMatrix();
-
-// 	//----------------------------------------------------------------
-// 	// render the bone to my parent
-// 	//----------------------------------------------------------------
-// 	if (mComponents & SC_BONE)
-// 	{
-// 		drawBone();
-// 	}
-
-// 	//----------------------------------------------------------------
-// 	// offset to joint position and 
-// 	// rotate to our orientation
-// 	//----------------------------------------------------------------
-// 	gGL.loadIdentity();
-// 	gGL.multMatrix( &getWorldMatrix().mMatrix[0][0] );
-
-// 	//----------------------------------------------------------------
-// 	// render joint axes
-// 	//----------------------------------------------------------------
-// 	if (mComponents & SC_AXES)
-// 	{
-// 		gGL.begin(LLRender::LINES);
-// 		gGL.color3f( 1.0f, 0.0f, 0.0f );
-// 		gGL.vertex3f( 0.0f,            0.0f, 0.0f );
-// 		gGL.vertex3f( 0.1f, 0.0f, 0.0f );
-
-// 		gGL.color3f( 0.0f, 1.0f, 0.0f );
-// 		gGL.vertex3f( 0.0f, 0.0f,            0.0f );
-// 		gGL.vertex3f( 0.0f, 0.1f, 0.0f );
-
-// 		gGL.color3f( 0.0f, 0.0f, 1.0f );
-// 		gGL.vertex3f( 0.0f, 0.0f, 0.0f );
-// 		gGL.vertex3f( 0.0f, 0.0f, 0.1f );
-// 		gGL.end();
-// 	}
-
-// 	//----------------------------------------------------------------
-// 	// render the joint graphic
-// 	//----------------------------------------------------------------
-// 	if (mComponents & SC_JOINT)
-// 	{
-// 		gGL.color3f( 1.0f, 1.0f, 0.0f );
-
-// 		gGL.begin(LLRender::TRIANGLES);
-
-// 		// joint top half
-// 		glNormal3f(nc, nc, nc);
-// 		gGL.vertex3f(0.0f,             0.0f, 0.05f);
-// 		gGL.vertex3f(0.05f,       0.0f,       0.0f);
-// 		gGL.vertex3f(0.0f,       0.05f,       0.0f);
-
-// 		glNormal3f(-nc, nc, nc);
-// 		gGL.vertex3f(0.0f,             0.0f, 0.05f);
-// 		gGL.vertex3f(0.0f,       0.05f,       0.0f);
-// 		gGL.vertex3f(-0.05f,      0.0f,       0.0f);
-		
-// 		glNormal3f(-nc, -nc, nc);
-// 		gGL.vertex3f(0.0f,             0.0f, 0.05f);
-// 		gGL.vertex3f(-0.05f,      0.0f,      0.0f);
-// 		gGL.vertex3f(0.0f,      -0.05f,      0.0f);
-
-// 		glNormal3f(nc, -nc, nc);
-// 		gGL.vertex3f(0.0f,              0.0f, 0.05f);
-// 		gGL.vertex3f(0.0f,       -0.05f,       0.0f);
-// 		gGL.vertex3f(0.05f,        0.0f,       0.0f);
-		
-// 		// joint bottom half
-// 		glNormal3f(nc, nc, -nc);
-// 		gGL.vertex3f(0.0f,             0.0f, -0.05f);
-// 		gGL.vertex3f(0.0f,       0.05f,        0.0f);
-// 		gGL.vertex3f(0.05f,       0.0f,        0.0f);
-
-// 		glNormal3f(-nc, nc, -nc);
-// 		gGL.vertex3f(0.0f,             0.0f, -0.05f);
-// 		gGL.vertex3f(-0.05f,      0.0f,        0.0f);
-// 		gGL.vertex3f(0.0f,       0.05f,        0.0f);
-		
-// 		glNormal3f(-nc, -nc, -nc);
-// 		gGL.vertex3f(0.0f,              0.0f, -0.05f);
-// 		gGL.vertex3f(0.0f,       -0.05f,        0.0f);
-// 		gGL.vertex3f(-0.05f,       0.0f,        0.0f);
-
-// 		glNormal3f(nc, -nc, -nc);
-// 		gGL.vertex3f(0.0f,             0.0f,  -0.05f);
-// 		gGL.vertex3f(0.05f,       0.0f,         0.0f);
-// 		gGL.vertex3f(0.0f,      -0.05f,         0.0f);
-		
-// 		gGL.end();
-// 	}
-
-// 	//----------------------------------------------------------------
-// 	// render children
-// 	//----------------------------------------------------------------
-// 	if (recursive)
-// 	{
-// 		for (child_list_t::iterator iter = mChildren.begin();
-// 			 iter != mChildren.end(); ++iter)
-// 		{
-// 			LLViewerJoint* joint = (LLViewerJoint*)(*iter);
-// 			joint->renderSkeleton();
-// 		}
-// 	}
-
-// 	//----------------------------------------------------------------
-// 	// pop matrix stack
-// 	//----------------------------------------------------------------
-// 	gGL.popMatrix();
-// }
-
 
 //--------------------------------------------------------------------
 // render()
@@ -292,13 +145,13 @@ U32 LLViewerJoint::render( F32 pixelArea, BOOL first_pass, BOOL is_dummy )
 	for (child_list_t::iterator iter = mChildren.begin();
 		 iter != mChildren.end(); ++iter)
 	{
-		LLViewerJoint* joint = (LLViewerJoint*)(*iter);
+		LLAvatarJoint* joint = dynamic_cast<LLAvatarJoint*>(*iter);
 		F32 jointLOD = joint->getLOD();
 		if (pixelArea >= jointLOD || sDisableLOD)
 		{
 			triangle_count += joint->render( pixelArea, TRUE, is_dummy );
 
-			if (jointLOD != DEFAULT_LOD)
+			if (jointLOD != DEFAULT_AVATAR_JOINT_LOD)
 			{
 				break;
 			}
@@ -308,72 +161,6 @@ U32 LLViewerJoint::render( F32 pixelArea, BOOL first_pass, BOOL is_dummy )
 	return triangle_count;
 }
 
-
-//--------------------------------------------------------------------
-// drawBone()
-// DEBUG (UNUSED)
-//--------------------------------------------------------------------
-// void LLViewerJoint::drawBone()
-// {
-// 	if ( mParent == NULL )
-// 		return;
-
-// 	F32 boneSize = 0.02f;
-
-// 	// rotate to point to child (bone direction)
-// 	gGL.pushMatrix();
-
-// 	LLVector3 boneX = getPosition();
-// 	F32 length = boneX.normVec();
-
-// 	LLVector3 boneZ(1.0f, 0.0f, 1.0f);
-	
-// 	LLVector3 boneY = boneZ % boneX;
-// 	boneY.normVec();
-
-// 	boneZ = boneX % boneY;
-
-// 	LLMatrix4 rotateMat;
-// 	rotateMat.setFwdRow( boneX );
-// 	rotateMat.setLeftRow( boneY );
-// 	rotateMat.setUpRow( boneZ );
-// 	gGL.multMatrix( &rotateMat.mMatrix[0][0] );
-
-// 	// render the bone
-// 	gGL.color3f( 0.5f, 0.5f, 0.0f );
-
-// 	gGL.begin(LLRender::TRIANGLES);
-
-// 	gGL.vertex3f( length,     0.0f,       0.0f);
-// 	gGL.vertex3f( 0.0f,       boneSize,  0.0f);
-// 	gGL.vertex3f( 0.0f,       0.0f,       boneSize);
-
-// 	gGL.vertex3f( length,     0.0f,        0.0f);
-// 	gGL.vertex3f( 0.0f,       0.0f,        -boneSize);
-// 	gGL.vertex3f( 0.0f,       boneSize,   0.0f);
-
-// 	gGL.vertex3f( length,     0.0f,        0.0f);
-// 	gGL.vertex3f( 0.0f,       -boneSize,  0.0f);
-// 	gGL.vertex3f( 0.0f,       0.0f,        -boneSize);
-
-// 	gGL.vertex3f( length,     0.0f,        0.0f);
-// 	gGL.vertex3f( 0.0f,       0.0f,        boneSize);
-// 	gGL.vertex3f( 0.0f,       -boneSize,  0.0f);
-
-// 	gGL.end();
-
-// 	// restore matrix
-// 	gGL.popMatrix();
-// }
-
-//--------------------------------------------------------------------
-// isTransparent()
-//--------------------------------------------------------------------
-BOOL LLViewerJoint::isTransparent()
-{
-	return FALSE;
-}
-
 //--------------------------------------------------------------------
 // drawShape()
 //--------------------------------------------------------------------
@@ -381,122 +168,5 @@ U32 LLViewerJoint::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy )
 {
 	return 0;
 }
-
-//--------------------------------------------------------------------
-// setSkeletonComponents()
-//--------------------------------------------------------------------
-void LLViewerJoint::setSkeletonComponents( U32 comp, BOOL recursive )
-{
-	mComponents = comp;
-	if (recursive)
-	{
-		for (child_list_t::iterator iter = mChildren.begin();
-			 iter != mChildren.end(); ++iter)
-		{
-			LLViewerJoint* joint = (LLViewerJoint*)(*iter);
-			joint->setSkeletonComponents(comp, recursive);
-		}
-	}
-}
-
-void LLViewerJoint::updateFaceSizes(U32 &num_vertices, U32& num_indices, F32 pixel_area)
-{
-	for (child_list_t::iterator iter = mChildren.begin();
-		 iter != mChildren.end(); ++iter)
-	{
-		LLViewerJoint* joint = (LLViewerJoint*)(*iter);
-		joint->updateFaceSizes(num_vertices, num_indices, pixel_area);
-	}
-}
-
-void LLViewerJoint::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind, bool terse_update)
-{
-	for (child_list_t::iterator iter = mChildren.begin();
-		 iter != mChildren.end(); ++iter)
-	{
-		LLViewerJoint* joint = (LLViewerJoint*)(*iter);
-		joint->updateFaceData(face, pixel_area, damp_wind, terse_update);
-	}
-}
-
-void LLViewerJoint::updateJointGeometry()
-{
-	for (child_list_t::iterator iter = mChildren.begin();
-		 iter != mChildren.end(); ++iter)
-	{
-		LLViewerJoint* joint = (LLViewerJoint*)(*iter);
-		joint->updateJointGeometry();
-	}
-}
-
-
-BOOL LLViewerJoint::updateLOD(F32 pixel_area, BOOL activate)
-{
-	BOOL lod_changed = FALSE;
-	BOOL found_lod = FALSE;
-
-	for (child_list_t::iterator iter = mChildren.begin();
-		 iter != mChildren.end(); ++iter)
-	{
-		LLViewerJoint* joint = (LLViewerJoint*)(*iter);
-		F32 jointLOD = joint->getLOD();
-		
-		if (found_lod || jointLOD == DEFAULT_LOD)
-		{
-			// we've already found a joint to enable, so enable the rest as alternatives
-			lod_changed |= joint->updateLOD(pixel_area, TRUE);
-		}
-		else
-		{
-			if (pixel_area >= jointLOD || sDisableLOD)
-			{
-				lod_changed |= joint->updateLOD(pixel_area, TRUE);
-				found_lod = TRUE;
-			}
-			else
-			{
-				lod_changed |= joint->updateLOD(pixel_area, FALSE);
-			}
-		}
-	}
-	return lod_changed;
-}
-
-void LLViewerJoint::dump()
-{
-	for (child_list_t::iterator iter = mChildren.begin();
-		 iter != mChildren.end(); ++iter)
-	{
-		LLViewerJoint* joint = (LLViewerJoint*)(*iter);
-		joint->dump();
-	}
-}
-
-void LLViewerJoint::setVisible(BOOL visible, BOOL recursive)
-{
-	mVisible = visible;
-
-	if (recursive)
-	{
-		for (child_list_t::iterator iter = mChildren.begin();
-			 iter != mChildren.end(); ++iter)
-		{
-			LLViewerJoint* joint = (LLViewerJoint*)(*iter);
-			joint->setVisible(visible, recursive);
-		}
-	}
-}
-
-
-void LLViewerJoint::setMeshesToChildren()
-{
-	removeAllChildren();
-	for (std::vector<LLViewerJointMesh*>::iterator iter = mMeshParts.begin();
-		iter != mMeshParts.end(); iter++)
-	{
-		addChild((LLViewerJointMesh *) *iter);
-	}
-}
-
 
 // End

@@ -233,6 +233,12 @@ void LLAvatarJointMesh::setTexture( LLGLTexture *texture )
 	}
 }
 
+
+BOOL LLAvatarJointMesh::hasGLTexture() const
+{
+	return mTexture.notNull() && mTexture->hasGLTexture();
+}
+
 //--------------------------------------------------------------------
 // LLAvatarJointMesh::setLayerSet()
 // Sets the shape texture (takes precedence over normal texture)
@@ -248,6 +254,10 @@ void LLAvatarJointMesh::setLayerSet( LLTexLayerSet* layer_set )
 	}
 }
 
+BOOL LLAvatarJointMesh::hasComposite() const
+{
+	return (mLayerSet && mLayerSet->hasComposite());
+}
 
 
 //--------------------------------------------------------------------

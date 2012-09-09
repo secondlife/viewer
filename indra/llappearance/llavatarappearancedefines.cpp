@@ -109,9 +109,9 @@ LLAvatarAppearanceDictionary::BakedTextures::BakedTextures()
 											  2, LLWearableType::WT_HAIR, LLWearableType::WT_ALPHA));
 }
 
-LLAvatarAppearanceDictionary::Meshes::Meshes()
+LLAvatarAppearanceDictionary::MeshEntries::MeshEntries()
 {
-	// Meshes
+	// MeshEntries
 	addEntry(MESH_ID_HAIR,             new MeshEntry(BAKED_HAIR,  "hairMesh",         6, PN_4));
 	addEntry(MESH_ID_HEAD,             new MeshEntry(BAKED_HEAD,  "headMesh",         5, PN_5));
 	addEntry(MESH_ID_EYELASH,          new MeshEntry(BAKED_HEAD,  "eyelashMesh",      1, PN_0)); // no baked mesh associated currently

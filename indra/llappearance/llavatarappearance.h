@@ -28,9 +28,8 @@
 #define LL_AVATAR_APPEARANCE_H
 
 #include "llcharacter.h"
-//#include "llframetimer.h"
 #include "llavatarappearancedefines.h"
-#include "llavatarjoint.h"
+#include "llavatarjointmesh.h"
 #include "lldriverparam.h"
 #include "lltexlayer.h"
 #include "llviewervisualparam.h"
@@ -67,9 +66,10 @@ public:
 	virtual ~LLAvatarAppearance();
 
 	static void initClass(); // initializes static members
+	virtual void 		initInstance(); // Called after construction to initialize the instance.
 	virtual BOOL		loadSkeletonNode();
-	virtual BOOL		loadMeshNodes();
-	virtual BOOL		loadLayersets();
+	BOOL				loadMeshNodes();
+	BOOL				loadLayersets();
 
 
 /**                    Initialization
@@ -97,8 +97,13 @@ public:
  **                    SKELETON
  **/
 
+protected:
+	virtual LLAvatarJoint*	createAvatarJoint() = 0;
+	virtual LLAvatarJoint*	createAvatarJoint(S32 joint_num) = 0;
+	virtual LLAvatarJointMesh*	createAvatarJointMesh() = 0;
 public:
 	F32					getPelvisToFoot() const { return mPelvisToFoot; }
+	/*virtual*/ LLJoint*	getRootJoint() { return mRoot; }
 
 	LLVector3			mHeadOffset; // current head position
 	LLAvatarJoint		*mRoot;
@@ -114,11 +119,13 @@ protected:
 	void 				computeBodySize();
 
 	BOOL				setupBone(const LLAvatarBoneInfo* info, LLJoint* parent, S32 &current_volume_num, S32 &current_joint_num);
+	BOOL				allocateCharacterJoints(U32 num);
 	BOOL				buildSkeleton(const LLAvatarSkeletonInfo *info);
 protected:
+	void				clearSkeleton();
 	BOOL				mIsBuilt; // state of deferred character building
-	S32					mNumJoints;
-	LLJoint*			mSkeleton;
+	typedef std::vector<LLAvatarJoint*> avatar_joint_list_t;
+	avatar_joint_list_t	mSkeleton;
 	
 	//--------------------------------------------------------------------
 	// Pelvis height adjustment members.
@@ -204,8 +211,8 @@ protected:
 
 protected:
 	typedef std::multimap<std::string, LLPolyMesh*> polymesh_map_t;
-	polymesh_map_t 									mMeshes;
-	std::vector<LLAvatarJoint *> 					mMeshLOD;
+	polymesh_map_t 									mPolyMeshes;
+	avatar_joint_list_t								mMeshLOD;
 
 /**                    Meshes
  **                                                                            **
@@ -263,6 +270,8 @@ private:
  **                    BAKED TEXTURES
  **/
 protected:
+	virtual LLTexLayerSet*	createTexLayerSet() = 0;
+protected:
 	struct LLMaskedMorph;
 	typedef std::deque<LLMaskedMorph *> 	morph_list_t;
 	struct BakedTextureData
@@ -274,7 +283,7 @@ protected:
 		LLAvatarAppearanceDefines::ETextureIndex 	mTextureIndex;
 		U32									mMaskTexName;
 		// Stores pointers to the joint meshes that this baked texture deals with
-		std::vector< LLJoint* > 	mMeshes;  // std::vector<LLViewerJointMesh> mJoints[i]->mMeshParts
+		avatar_joint_mesh_list_t			mJointMeshes;
 		morph_list_t						mMaskedMorphs;
 	};
 	typedef std::vector<BakedTextureData> 	bakedtexturedata_vec_t;

@@ -174,12 +174,12 @@ public:
 		const LLJointPickName 	mPickName;
 	};
 
-	struct Meshes : public LLDictionary<EMeshIndex, MeshEntry>
+	struct MeshEntries : public LLDictionary<EMeshIndex, MeshEntry>
 	{
-		Meshes();
-	} mMeshes;
-	const MeshEntry*		getMesh(EMeshIndex index) const { return mMeshes.lookup(index); }
-	const Meshes&			getMeshes() const { return mMeshes; }
+		MeshEntries();
+	} mMeshEntries;
+	const MeshEntry*		getMeshEntry(EMeshIndex index) const { return mMeshEntries.lookup(index); }
+	const MeshEntries&		getMeshEntries() const { return mMeshEntries; }
 
 	//--------------------------------------------------------------------
 	// Baked Textures

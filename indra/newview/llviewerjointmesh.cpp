@@ -201,21 +201,6 @@ void LLViewerJointMesh::uploadJointMatrices()
 }
 
 //--------------------------------------------------------------------
-// LLViewerJointMesh::drawBone()
-//--------------------------------------------------------------------
-void LLViewerJointMesh::drawBone()
-{
-}
-
-//--------------------------------------------------------------------
-// LLViewerJointMesh::isTransparent()
-//--------------------------------------------------------------------
-BOOL LLViewerJointMesh::isTransparent()
-{
-	return mIsTransparent;
-}
-
-//--------------------------------------------------------------------
 // DrawElementsBLEND and utility code
 //--------------------------------------------------------------------
 
