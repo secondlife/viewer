@@ -112,6 +112,8 @@ private:
 	LLLayoutPanel* mConversationsPane;
 	LLLayoutStack* mConversationsStack;
 	
+	bool mInitialized;
+
 	// Conversation list implementation
 public:
 	void removeConversationListItem(const LLUUID& uuid, bool change_focus = true);

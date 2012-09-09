@@ -134,10 +134,6 @@ public:
 
 private:
 
-	// process focus events to set a currently active session
-	/* virtual */ void onFocusLost();
-	/* virtual */ void onFocusReceived();
-
 	/*virtual*/ void refresh();
 
 	/*virtual*/ void onClickCloseBtn();
@@ -169,9 +165,6 @@ private:
 
 	void onCallButtonClicked();
 
-	// set the enable/disable state for the Call button
-	virtual void enableDisableCallBtn();
-
 	void boundVoiceChannel();
 
 	// Add the "User is typing..." indicator.
@@ -184,8 +177,6 @@ private:
 
 	static void confirmLeaveCallCallback(const LLSD& notification, const LLSD& response);
 
-
-	LLIMModel::LLIMSession* mSession;
 	S32 mLastMessageIndex;
 
 	EInstantMessage mDialog;

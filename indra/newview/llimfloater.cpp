@@ -92,24 +92,6 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 	setDocked(true);
 }
 
-void LLIMFloater::onFocusLost()
-{
-	LLIMModel::getInstance()->resetActiveSessionID();
-	
-	LLChicletBar::getInstance()->getChicletPanel()->setChicletToggleState(mSessionID, false);
-}
-
-void LLIMFloater::onFocusReceived()
-{
-	LLChicletBar::getInstance()->getChicletPanel()->setChicletToggleState(mSessionID, true);
-
-	if (getVisible())
-	{
-		// suppress corresponding toast only if this floater is visible and have focus
-		LLIMModel::getInstance()->setActiveSessionID(mSessionID);
-		LLIMModel::instance().sendNoUnreadMessages(mSessionID);
-	}
-}
 
 // virtual
 void LLIMFloater::refresh()
@@ -512,27 +494,6 @@ void LLIMFloater::boundVoiceChannel()
 		updateCallBtnState(callIsActive);
 	}
 }
-
-void LLIMFloater::enableDisableCallBtn()
-{
-	bool voice_enabled = LLVoiceClient::getInstance()->voiceEnabled()
-			&& LLVoiceClient::getInstance()->isVoiceWorking();
-
-	if (mSession)
-	{
-		bool session_initialized = mSession->mSessionInitialized;
-		bool callback_enabled = mSession->mCallBackEnabled;
-
-		BOOL enable_connect =
-				session_initialized && voice_enabled && callback_enabled;
-		getChildView("voice_call_btn")->setEnabled(enable_connect);
-	}
-	else
-	{
-		getChildView("voice_call_btn")->setEnabled(false);
-	}
-}
-
 
 void LLIMFloater::onCallButtonClicked()
 {

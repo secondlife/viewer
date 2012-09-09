@@ -53,7 +53,8 @@
 LLIMFloaterContainer::LLIMFloaterContainer(const LLSD& seed)
 :	LLMultiFloater(seed),
 	mExpandCollapseBtn(NULL),
-	mConversationsRoot(NULL)
+	mConversationsRoot(NULL),
+	mInitialized(false)
 {
 	mCommitCallbackRegistrar.add("IMFloaterContainer.Action", boost::bind(&LLIMFloaterContainer::onCustomAction,  this, _2));
 
@@ -141,6 +142,17 @@ BOOL LLIMFloaterContainer::postBuild()
 	collapseConversationsPane(gSavedPerAccountSettings.getBOOL("ConversationsListPaneCollapsed"));
 	LLAvatarNameCache::addUseDisplayNamesCallback(
 			boost::bind(&LLIMConversation::processChatHistoryStyleUpdate));
+
+	if (! mMessagesPane->isCollapsed())
+	{
+		S32 list_width = gSavedPerAccountSettings.getS32("ConversationsListPaneWidth");
+		LLRect list_size = mConversationsPane->getRect();
+        S32 left_pad = mConversationsListPanel->getRect().mLeft;
+		list_size.mRight = list_size.mLeft + list_width - left_pad;
+
+        mConversationsPane->handleReshape(list_size, TRUE);
+	}
+	mInitialized = true;
 
 	// Add callback: we'll take care of view updates on idle
 	gIdleCallbacks.addFunction(idle, this);
@@ -527,6 +539,16 @@ void LLIMFloaterContainer::onCustomAction(const LLSD& userdata)
 
 void LLIMFloaterContainer::repositioningWidgets()
 {
+	if (!mInitialized)
+	{
+		return;
+	}
+
+	if (!mConversationsPane->isCollapsed())
+	{
+		S32 list_width = (mConversationsPane->getRect()).getWidth();
+		gSavedPerAccountSettings.setS32("ConversationsListPaneWidth", list_width);
+	}
 	LLRect panel_rect = mConversationsListPanel->getRect();
 	S32 item_height = 16;
 	int index = 0;

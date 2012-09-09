@@ -51,10 +51,6 @@ public:
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 
-	// focus overrides
-	/*virtual*/ void	onFocusLost();
-	/*virtual*/ void	onFocusReceived();
-
 	/*virtual*/ void	setVisible(BOOL visible);
 
 	void loadHistory();
@@ -101,9 +97,6 @@ protected:
 	EChatType processChatTypeTriggers(EChatType type, std::string &str);
 
 	void displaySpeakingIndicator();
-
-	// set the enable/disable state for the Call button
-	virtual void enableDisableCallBtn();
 
 	// Which non-zero channel did we last chat on?
 	static S32 sLastSpecialChatChannel;
