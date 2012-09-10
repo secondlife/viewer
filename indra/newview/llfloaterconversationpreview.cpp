@@ -138,7 +138,7 @@ void LLFloaterConversationPreview::showHistory()
 
 void LLFloaterConversationPreview::onMoreHistoryBtnClick()
 {
-	mCurrentPage = mPageSpinner->getValueF32();
+	mCurrentPage = (int)(mPageSpinner->getValueF32());
 	if (--mCurrentPage < 0)
 	{
 		return;
