@@ -272,7 +272,7 @@ private:
 protected:
 	virtual LLTexLayerSet*	createTexLayerSet() = 0;
 protected:
-	struct LLMaskedMorph;
+	class LLMaskedMorph;
 	typedef std::deque<LLMaskedMorph *> 	morph_list_t;
 	struct BakedTextureData
 	{
