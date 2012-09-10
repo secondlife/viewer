@@ -32,9 +32,15 @@
 #include "llimconversation.h"
 #include "llimfloatercontainer.h"
 
+
+#include "lluictrlfactory.h"
+#include "llavatariconctrl.h"
+
 //
 // Implementation of conversations list session widgets
 //
+ 
+
 
 LLConversationViewSession::Params::Params() :	
 	container()
@@ -83,9 +89,111 @@ void LLConversationViewSession::setVisibleIfDetached(BOOL visible)
 // Implementation of conversations list participant (avatar) widgets
 //
 
-LLConversationViewParticipant::LLConversationViewParticipant( const LLFolderViewItem::Params& p ):
+static LLDefaultChildRegistry::Register<LLConversationViewParticipant> r("conversation_view_participant");
+
+LLConversationViewParticipant::Params::Params() :	
+container(),
+view_profile_button("view_profile_button"),
+info_button("info_button")
+{}
+
+LLConversationViewParticipant::LLConversationViewParticipant( const LLConversationViewParticipant::Params& p ):
 	LLFolderViewItem(p)
+{	
+
+}
+
+void LLConversationViewParticipant::initFromParams(const LLConversationViewParticipant::Params& params)
 {
+	LLButton::Params view_profile_button_params(params.view_profile_button());
+	LLButton * button = LLUICtrlFactory::create<LLButton>(view_profile_button_params);
+	addChild(button);
+	
+	LLButton::Params info_button_params(params.info_button());
+	button = LLUICtrlFactory::create<LLButton>(info_button_params);
+	addChild(button);	
+}
+
+BOOL LLConversationViewParticipant::postBuild()
+{
+	mInfoBtn = getChild<LLButton>("info_btn");
+	mProfileBtn = getChild<LLButton>("profile_btn");
+	
+	mInfoBtn->setClickedCallback(boost::bind(&LLConversationViewParticipant::onInfoBtnClick, this));
+	mProfileBtn->setClickedCallback(boost::bind(&LLConversationViewParticipant::onProfileBtnClick, this));
+	
+	
+	LLFolderViewItem::postBuild();
+	return TRUE;
+}
+
+void LLConversationViewParticipant::onInfoBtnClick()
+{
+	
+	
+}
+
+void LLConversationViewParticipant::onProfileBtnClick()
+{
+	
+}
+
+LLButton* LLConversationViewParticipant::createProfileButton()
+{
+	
+	LLButton::Params params;
+	
+	
+	//<button
+	params.follows.flags(FOLLOWS_RIGHT);
+	//params.height="20";
+	LLUIImage * someImage = LLUI::getUIImage("Web_Profile_Off");
+	params.image_overlay = someImage;
+	params.layout="topleft";
+	params.left_pad=5;
+	//params.right="-28";
+	params.name="profile_btn";
+	params.tab_stop="false";
+	params.tool_tip="View profile";
+	params.top_delta=-2;
+	//params.width="20";
+	///>	
+	
+	
+	/*
+	LLConversationViewParticipant::Params params;
+	
+	params.name = item->getDisplayName();
+	//params.icon = bridge->getIcon();
+	//params.icon_open = bridge->getOpenIcon();
+	//params.creation_date = bridge->getCreationDate();
+	params.root = mConversationsRoot;
+	params.listener = item;
+	params.rect = LLRect (0, 0, 0, 0);
+	params.tool_tip = params.name;
+	params.container = this;
+	*/
+	
+	LLButton * button = LLUICtrlFactory::create<LLButton>(params);
+	LLRect someRect;
+	someRect.setOriginAndSize(30, 0, 20, 20);
+	button->setShape(someRect);
+	
+	//button->follows= "right";
+	//button->height = 20;
+	//button->image_overlay="Web_Profile_Off";
+	//button->right = -28;
+	//button->width = 20;
+
+	
+	
+	return button;
+}
+
+
+void LLConversationViewParticipant::draw()
+{
+    LLFolderViewItem::draw();
 }
 
 // EOF

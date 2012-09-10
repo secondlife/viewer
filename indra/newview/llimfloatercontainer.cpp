@@ -634,7 +634,7 @@ LLConversationViewSession* LLIMFloaterContainer::createConversationItemWidget(LL
 
 LLConversationViewParticipant* LLIMFloaterContainer::createConversationViewParticipant(LLConversationItem* item)
 {
-	LLConversationViewSession::Params params;
+	LLConversationViewParticipant::Params params;
 	
 	params.name = item->getDisplayName();
 	//params.icon = bridge->getIcon();

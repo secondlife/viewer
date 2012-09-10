@@ -231,7 +231,7 @@ public:
 
 	virtual void onMouseLeave(S32 x, S32 y, MASK mask);
 
-	virtual LLView* findChildView(const std::string& name, BOOL recurse) const { return NULL; }
+	//virtual LLView* findChildView(const std::string& name, BOOL recurse) const { return LLView::findChildView(name, recurse); }
 
 	//	virtual void handleDropped();
 	virtual void draw();

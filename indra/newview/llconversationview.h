@@ -29,6 +29,14 @@
 
 #include "llfolderviewitem.h"
 
+
+
+
+#include "llstyle.h"
+#include "llcallbackmap.h"
+#include "lltextbox.h"
+#include "llbutton.h";
+
 class LLIMFloaterContainer;
 
 // Implementation of conversations list session widgets
@@ -57,14 +65,40 @@ public:
 
 // Implementation of conversations list participant (avatar) widgets
 
+class LLAvatarIconCtrl;
+
 class LLConversationViewParticipant : public LLFolderViewItem
 {
-protected:
-	friend class LLUICtrlFactory;
-	LLConversationViewParticipant( const LLFolderViewItem::Params& p );
-	
+
 public:
-	virtual ~LLConversationViewParticipant( void ) { }
+
+    struct Params : public LLInitParam::Block<Params, LLFolderViewItem::Params>
+    {
+        Optional<LLIMFloaterContainer*>			container;
+		Optional<LLButton::Params>				view_profile_button,
+												info_button;
+
+        Params();
+    };
+
+    virtual ~LLConversationViewParticipant( void ) { }
+    virtual void draw();
+    
+protected:
+    friend class LLUICtrlFactory;
+    LLConversationViewParticipant( const Params& p );
+	void initFromParams(const Params& params);
+	BOOL postBuild();
+
+	void onInfoBtnClick();
+	void onProfileBtnClick();	
+	
+private:
+	LLButton* createProfileButton();
+	LLButton * mInfoBtn;
+	LLButton * mProfileBtn;
+	
+
 };
 
 #endif // LL_LLCONVERSATIONVIEW_H

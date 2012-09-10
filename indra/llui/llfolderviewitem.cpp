@@ -609,12 +609,13 @@ void LLFolderViewItem::draw()
 	static LLUIColor sSearchStatusColor = LLUIColorTable::instance().getColor("InventorySearchStatusColor", DEFAULT_WHITE);
 	static LLUIColor sMouseOverColor = LLUIColorTable::instance().getColor("InventoryMouseOverColor", DEFAULT_WHITE);
 
+
+    getViewModelItem()->update();
+
 	const Params& default_params = LLUICtrlFactory::getDefaultParams<LLFolderViewItem>();
 	const S32 TOP_PAD = default_params.item_top_pad;
 	const S32 FOCUS_LEFT = 1;
 	const LLFontGL* font = getLabelFontForStyle(mLabelStyle);
-
-	getViewModelItem()->update();
 
 	//--------------------------------------------------------------------------------//
 	// Draw open folder arrow
@@ -793,6 +794,9 @@ void LLFolderViewItem::draw()
 							  sFilterTextColor, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
 							  filter_string_length, S32_MAX, &right_x, FALSE );
 		}
+
+        
+        LLView::draw(); 
 	}
 
 const LLFolderViewModelInterface* LLFolderViewItem::getFolderViewModel( void ) const

@@ -29,6 +29,7 @@
 
 #include "llfolderviewitem.h"
 #include "llfolderviewmodel.h"
+#include "llviewerfoldertype.h"
 
 // Implementation of conversations list
 
@@ -55,7 +56,7 @@ public:
 	virtual const std::string& getSearchableName() const { return mName; }
 	virtual const LLUUID& getUUID() const { return mUUID; }
 	virtual time_t getCreationDate() const { return 0; }
-	virtual LLPointer<LLUIImage> getIcon() const { return NULL; }
+	virtual LLPointer<LLUIImage> getIcon() const { return LLUI::getUIImage(LLViewerFolderType::lookupIconName(LLFolderType::FT_PROFILE, FALSE)); }
 	virtual LLPointer<LLUIImage> getOpenIcon() const { return getIcon(); }
 	virtual LLFontGL::StyleFlags getLabelStyle() const { return LLFontGL::NORMAL; }
 	virtual std::string getLabelSuffix() const { return LLStringUtil::null; }
@@ -115,6 +116,7 @@ public:
 	LLConversationItemSession(const LLUUID& uuid, LLFolderViewModelInterface& root_view_model);
 	virtual ~LLConversationItemSession() {}
 	
+    LLPointer<LLUIImage> getIcon() const { return NULL; }
 	void setSessionID(const LLUUID& session_id) { mUUID = session_id; }
 	void addParticipant(LLConversationItemParticipant* participant);
 	void removeParticipant(LLConversationItemParticipant* participant);
