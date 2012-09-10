@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_pathfinding_characters" title="パスファインディングキャラクター">
+	<floater.string name="messaging_get_inprogress">
+		パスファインディングキャラクターを照会中...
+	</floater.string>
+	<floater.string name="messaging_get_error">
+		パスファインディングキャラクターの照会中にエラーが発生しました。
+	</floater.string>
+	<floater.string name="messaging_complete_none_found">
+		パスファインディングキャラクターがありません。
+	</floater.string>
+	<floater.string name="messaging_complete_available">
+		[NUM_TOTAL] キャラクター中 [NUM_SELECTED] キャラクターが選択されました。
+	</floater.string>
+	<floater.string name="messaging_not_enabled">
+		この地域（リージョン）はパスファインディングに対応していません。
+	</floater.string>
+	<floater.string name="character_cpu_time">
+		[CPU_TIME] µs
+	</floater.string>
+	<floater.string name="character_owner_loading">
+		[Loading]
+	</floater.string>
+	<floater.string name="character_owner_unknown">
+		[Unknown]
+	</floater.string>
+	<floater.string name="character_owner_group">
+		[group]
+	</floater.string>
+	<panel>
+		<scroll_list name="objects_scroll_list">
+			<scroll_list.columns label="名前" name="name"/>
+			<scroll_list.columns label="説明" name="description"/>
+			<scroll_list.columns label="所有者" name="owner"/>
+			<scroll_list.columns label="CPU" name="cpu_time"/>
+			<scroll_list.columns label="高度" name="altitude"/>
+		</scroll_list>
+		<text name="messaging_status">
+			キャラクター:
+		</text>
+		<button label="リストを更新" name="refresh_objects_list"/>
+		<button label="すべて選択" name="select_all_objects"/>
+		<button label="何も選択しない" name="select_none_objects"/>
+	</panel>
+	<panel>
+		<text name="actions_label">
+			選択したキャラクターに対するアクション:
+		</text>
+		<check_box label="ビーコンを表示" name="show_beacon"/>
+		<check_box label="物理効果カプセルを表示" name="show_physics_capsule"/>
+		<button label="取る" name="take_objects"/>
+		<button label="コピーを取る" name="take_copy_objects"/>
+		<button label="私をそこにテレポートする" name="teleport_me_to_object" tool_tip="1 つのキャラクターが選択された場合にのみ有効です。"/>
+		<button label="返却" name="return_objects"/>
+		<button label="削除" name="delete_objects"/>
+	</panel>
+</floater>

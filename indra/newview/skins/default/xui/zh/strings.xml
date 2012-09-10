@@ -130,6 +130,134 @@
 	<string name="create_account_url">
 		http://join.secondlife.com/
 	</string>
+	<string name="LoginFailedViewerNotPermitted">
+		你目前所用的 Viewer 已經無法再進入第二人生。 請到這個頁面下載最新 Viewer：
+http://secondlife.com/download
+
+欲知詳情，請參閱下面的常見問題集：
+http://secondlife.com/viewer-access-faq
+	</string>
+	<string name="LoginIntermediateOptionalUpdateAvailable">
+		有可以選擇性安裝的更新版：[VERSION]
+	</string>
+	<string name="LoginFailedRequiredUpdate">
+		你必須更新為這個版本：[VERSION]
+	</string>
+	<string name="LoginFailedAlreadyLoggedIn">
+		此用戶已經登入。
+	</string>
+	<string name="LoginFailedAuthenticationFailed">
+		抱歉！ 我們無法讓你登入。
+請檢查確定你輸入了正確的
+    * 使用者名稱（例：bobsmith123 或 steller.sunshine）
+    * 密碼
+並請確定鍵盤沒有鎖定大寫鍵。
+	</string>
+	<string name="LoginFailedPasswordChanged">
+		為了安全起見，已經變更你的密碼。
+請到位於 http://secondlife.com/password 的帳號頁面
+回答安全驗證問題後，重設密碼。
+如有造成不便請多包涵。
+	</string>
+	<string name="LoginFailedPasswordReset">
+		我們系統有所變更，你必須重設密碼。
+請到位於 http://secondlife.com/password 的帳號頁面
+回答安全驗證問題後，重設密碼。
+如有造成不便請多包涵。
+	</string>
+	<string name="LoginFailedEmployeesOnly">
+		第二人生目前暫時關閉進行維護。
+目前僅允許林登員工登入。
+請到 www.secondlife.com/status 察看最新公告。
+	</string>
+	<string name="LoginFailedPremiumOnly">
+		第二人生此時暫時限制登入，以確保不影響效能，讓目前虛擬世界裡的用戶享受最佳的體驗。
+	 	
+免費帳戶的用戶此時暫時無法進入第二人生，因為我們必須優先容納付費用戶。
+	</string>
+	<string name="LoginFailedComputerProhibited">
+		無法從這部電腦進入第二人生。
+如你認為這是我們弄錯，請聯絡 support@secondlife.com。
+	</string>
+	<string name="LoginFailedAcountSuspended">
+		你的帳號要等到 [TIME] （太平洋時間）才可使用。
+	</string>
+	<string name="LoginFailedAccountDisabled">
+		此時無法完成你的請求。
+請到 http://secondlife.com/support 聯絡支援人員獲得幫助。
+如果你無法變更密碼，請致電 (866) 476-9763 （美國）。
+	</string>
+	<string name="LoginFailedTransformError">
+		登入時的資料不一致。
+請聯絡 support@secondlife.com。
+	</string>
+	<string name="LoginFailedAccountMaintenance">
+		你的帳號目前正在進行小規模的維護。
+你的帳號要等到 [TIME] （太平洋時間）才可使用。
+如你認為這是我們弄錯，請聯絡 support@secondlife.com。
+	</string>
+	<string name="LoginFailedPendingLogoutFault">
+		模擬器回應：登出請求出錯。
+	</string>
+	<string name="LoginFailedPendingLogout">
+		系統正在處理你的登出。
+你的帳號要等到 [TIME] （太平洋時間）才可使用。
+	</string>
+	<string name="LoginFailedUnableToCreateSession">
+		無法建立有效的時域。
+	</string>
+	<string name="LoginFailedUnableToConnectToSimulator">
+		無法連接到模擬器。
+	</string>
+	<string name="LoginFailedRestrictedHours">
+		你的帳號僅能在 [START] 到 [END] （太平洋時間）時段進入第二人生。
+請耐心等到該時段再回來。
+如你認為這是我們弄錯，請聯絡 support@secondlife.com。
+	</string>
+	<string name="LoginFailedIncorrectParameters">
+		錯誤的參數。
+如你認為這是我們弄錯，請聯絡 support@secondlife.com。
+	</string>
+	<string name="LoginFailedFirstNameNotAlphanumeric">
+		全名的第一個字(first name)須為英文字母或數字。
+如你認為這是我們弄錯，請聯絡 support@secondlife.com。
+	</string>
+	<string name="LoginFailedLastNameNotAlphanumeric">
+		全名的第二個字(last name)須為英文字母或數字。
+如你認為這是我們弄錯，請聯絡 support@secondlife.com。
+	</string>
+	<string name="LogoutFailedRegionGoingOffline">
+		地區即將離線。
+請稍待一分鐘再試。
+	</string>
+	<string name="LogoutFailedAgentNotInRegion">
+		用戶不在地區裡。
+請稍待一分鐘再試。
+	</string>
+	<string name="LogoutFailedPendingLogin">
+		地區正在登入另一個時域。
+請稍待一分鐘再試。
+	</string>
+	<string name="LogoutFailedLoggingOut">
+		地區正在登入上一個時域。
+請稍待一分鐘再試。
+	</string>
+	<string name="LogoutFailedStillLoggingOut">
+		地區正在登出上一個時域。
+請稍待一分鐘再試。
+	</string>
+	<string name="LogoutSucceeded">
+		地區剛剛登出上一個時域。
+請稍待一分鐘再試。
+	</string>
+	<string name="LogoutFailedLogoutBegun">
+		地區已經開始登出程序。
+請稍待一分鐘再試。
+	</string>
+	<string name="LoginFailedLoggingOutSession">
+		系統已經開始登出你的上一個時域。
+請稍待一分鐘再試。
+	</string>
 	<string name="AgentLostConnection">
 		本區域可能正發生問題。  請檢查你的網際網路連線是否正常。
 	</string>
@@ -437,6 +565,9 @@
 	</string>
 	<string name="symbolic folder link">
 		資料夾聯結
+	</string>
+	<string name="mesh">
+		網面
 	</string>
 	<string name="AvatarEditingAppearance">
 		（外觀編輯中）
@@ -1176,6 +1307,9 @@
 	</string>
 	<string name="InvFolder Accessories">
 		配件
+	</string>
+	<string name="InvFolder Meshes">
+		網面
 	</string>
 	<string name="InvFolder Friends">
 		朋友
@@ -3758,6 +3892,9 @@
 	</string>
 	<string name="session_initialization_timed_out_error">
 		會話初始化逾時，無法完成
+	</string>
+	<string name="Home position set.">
+		我的家位置已定。
 	</string>
 	<string name="voice_morphing_url">
 		http://secondlife.com/landing/voicemorphing

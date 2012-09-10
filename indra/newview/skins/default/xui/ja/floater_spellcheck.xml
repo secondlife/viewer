@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="spellcheck_floater" title="スペルチェッカーの設定">
+	<check_box label="スペルチェッカーを有効にする" name="spellcheck_enable"/>
+	<text name="spellcheck_main">
+		メイン辞書:
+	</text>
+	<text label="ログ：" name="spellcheck_additional">
+		その他の辞書：
+	</text>
+	<text name="spellcheck_available">
+		入手可
+	</text>
+	<text name="spellcheck_active">
+		有効
+	</text>
+	<button label="削除" name="spellcheck_remove_btn"/>
+	<button label="インポート..." name="spellcheck_import_btn"/>
+</floater>

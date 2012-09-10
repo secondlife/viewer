@@ -53,7 +53,13 @@
 				<stat_bar label="Objekte" name="simobjects"/>
 				<stat_bar label="Aktive Objekte" name="simactiveobjects"/>
 				<stat_bar label="Aktive Skripts" name="simactivescripts"/>
+				<stat_bar label="Skripts ausgeführt" name="simpctscriptsrun"/>
 				<stat_bar label="Skript-Events" name="simscripteps"/>
+				<stat_view label="Pathfinding" name="simpathfinding">
+					<stat_bar label="AI-Schrittzeit" name="simsimaistepmsec"/>
+					<stat_bar label="Übersprungene Silhouettenschritte" name="simsimskippedsilhouettesteps"/>
+					<stat_bar label="Figuren aktualisiert" name="simsimpctsteppedcharacters"/>
+				</stat_view>
 				<stat_bar label="Paketeingang" name="siminpps"/>
 				<stat_bar label="Paketausgang" name="simoutpps"/>
 				<stat_bar label="Ausstehende Downloads" name="simpendingdownloads"/>

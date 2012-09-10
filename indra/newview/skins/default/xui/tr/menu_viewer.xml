@@ -26,6 +26,7 @@
 		<menu_item_call label="Tercihler..." name="Preferences"/>
 		<menu_item_call label="Araç çubuğu düğmeleri..." name="Toolbars"/>
 		<menu_item_call label="Tüm denetimleri sakla" name="Hide UI"/>
+		<menu_item_check label="BÜG Aksesuarlarını Göster" name="Show HUD Attachments"/>
 		<menu_item_call label="[APP_NAME]&apos;den Çık" name="Quit"/>
 	</menu>
 	<menu label="İletişim Kur" name="Communicate">
@@ -37,6 +38,7 @@
 		<menu_item_call label="Arkadaşlar" name="My Friends"/>
 		<menu_item_call label="Gruplar" name="My Groups"/>
 		<menu_item_call label="Yakındaki kişiler" name="Active Speakers"/>
+		<menu_item_call label="Engelleme Listesi" name="Block List"/>
 	</menu>
 	<menu label="Dünya" name="World">
 		<menu_item_call label="Bu Yeri Yer İmlerine Ekle" name="Create Landmark Here"/>
@@ -122,6 +124,11 @@
 			<menu_item_call label="Komut Dosyalarını Çalışıyor Olarak Ayarla" name="Set Scripts to Running"/>
 			<menu_item_call label="Komut Dosyalarını Çalışmıyor Olarak Ayarla" name="Set Scripts to Not Running"/>
 		</menu>
+		<menu label="Yol bulma" name="Pathfinding">
+			<menu_item_call label="Bağlantı kümeleri..." name="pathfinding_linksets_menu_item"/>
+			<menu_item_call label="Karakterler..." name="pathfinding_characters_menu_item"/>
+			<menu_item_call label="Görüntüleme / test..." name="pathfinding_console_menu_item"/>
+		</menu>
 		<menu label="Seçenklr." name="Options">
 			<menu_item_check label="Gelişmiş İzinleri Göster" name="DebugPermissions"/>
 			<menu_item_check label="Sadece Nesnelerimi Seç" name="Select Only My Objects"/>
@@ -172,7 +179,6 @@
 			<menu_item_check label="Parçacıkları Gizle" name="Hide Particles"/>
 			<menu_item_check label="Seçilenleri Gizle" name="Hide Selected"/>
 			<menu_item_check label="Saydamı Vurgula" name="Highlight Transparent"/>
-			<menu_item_check label="BÜG Aksesuarlarını Göster" name="Show HUD Attachments"/>
 			<menu_item_check label="Fare Üzerinden Görünüm Artı İşaretini Göster" name="ShowCrosshairs"/>
 		</menu>
 		<menu label="İşleme Türleri" name="Rendering Types">
@@ -375,7 +381,6 @@
 				<menu_item_call label="Karakter Geometrisini Aç/Kapa" name="Toggle Character Geometry"/>
 				<menu_item_call label="Test Erkeği" name="Test Male"/>
 				<menu_item_call label="Test Dişisi" name="Test Female"/>
-				<menu_item_call label="PG&apos;yi Aç/Kapa" name="Toggle PG"/>
 				<menu_item_check label="Avatar Seçimine İzin Ver" name="Allow Select Avatar"/>
 			</menu>
 			<menu_item_call label="Parametreleri Varsayılana Zorla" name="Force Params to Default"/>

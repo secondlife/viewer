@@ -997,6 +997,9 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="script_files">
 		Script
 	</string>
+	<string name="dictionary_files">
+		Dizionari
+	</string>
 	<string name="AvatarSetNotAway">
 		Imposta come non assente
 	</string>
@@ -3786,6 +3789,12 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="LocationCtrlSeeAVsTooltip">
 		Avatar visibili e chat consentita fuori di questo lotto
 	</string>
+	<string name="LocationCtrlPathfindingDirtyTooltip">
+		Gli oggetti che si muovono potrebbero non comportarsi correttamente in questa regione fino a quando non viene eseguito il rebake della regione.
+	</string>
+	<string name="LocationCtrlPathfindingDisabledTooltip">
+		Il pathfinding dinamico non è attivato in questa regione.
+	</string>
 	<string name="UpdaterWindowTitle">
 		Aggiornamento [APP_NAME]
 	</string>
@@ -4916,6 +4925,21 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	<string name="Normal">
 		Normale
 	</string>
+	<string name="Pathfinding_Wiki_URL">
+		http://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer
+	</string>
+	<string name="Pathfinding_Object_Attr_None">
+		Nessuno
+	</string>
+	<string name="Pathfinding_Object_Attr_Permanent">
+		Influenza il navmesh
+	</string>
+	<string name="Pathfinding_Object_Attr_Character">
+		Personaggio
+	</string>
+	<string name="Pathfinding_Object_Attr_MultiSelect">
+		(Multiple)
+	</string>
 	<string name="snapshot_quality_very_low">
 		Molto basso
 	</string>
@@ -4930,5 +4954,11 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	</string>
 	<string name="snapshot_quality_very_high">
 		Molto alto
+	</string>
+	<string name="TeleportMaturityExceeded">
+		Il Residente non può visitare questa regione.
+	</string>
+	<string name="UserDictionary">
+		[User]
 	</string>
 </strings>

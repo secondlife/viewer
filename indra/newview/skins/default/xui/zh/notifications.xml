@@ -2149,6 +2149,12 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="RezItemNoPermissions">
 		產生物件時發生權限衝突。
 	</notification>
+	<notification name="IMAcrossParentEstates">
+		無法對不同的母領地發出即時訊息。
+	</notification>
+	<notification name="TransferInventoryAcrossParentEstates">
+		收納區無法轉移到不同的母領地。
+	</notification>
 	<notification name="UnableToLoadNotecard">
 		無法載入記事卡。
 請再試一次。
@@ -2726,6 +2732,10 @@ SHA1 指紋：[MD5_DIGEST]
 		主持人已將你的語音消音。
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
+	<notification name="UploadCostConfirmation">
+		上傳將花費 L$[PRICE]，是否繼續？
+		<usetemplate name="okcancelbuttons" notext="取消" yestext="上傳"/>
+	</notification>
 	<notification name="ConfirmClearTeleportHistory">
 		確定清除你的瞬間傳送歷史記錄？
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
@@ -2736,6 +2746,9 @@ SHA1 指紋：[MD5_DIGEST]
 	</notification>
 	<notification name="ShareNotification">
 		選取要分享的居民。
+	</notification>
+	<notification name="MeshUploadError">
+		[LABEL] 上傳失敗：[MESSAGE] [IDENTIFIER] [INVALIDITY_IDENTIFIER]
 	</notification>
 	<notification name="ShareItemsConfirmation">
 		請確定你要和居民分享這些物項：
@@ -2752,6 +2765,19 @@ SHA1 指紋：[MD5_DIGEST]
 	</notification>
 	<notification name="DeedToGroupFail">
 		讓渡給群組失敗。
+	</notification>
+	<notification name="ReleaseLandThrottled">
+		目前無法遺棄 [PARCEL_NAME] 地段。
+	</notification>
+	<notification name="ReleasedLandWithReclaim">
+		[AREA] 平方公尺的地段「[PARCEL_NAME]」已釋出。
+
+你須在 [RECLAIM_PERIOD] 小時內領回（花費 L$0），否則將開放出售給任何人。
+	</notification>
+	<notification name="ReleasedLandNoReclaim">
+		[AREA] 平方公尺的地段「[PARCEL_NAME]」已釋出。
+
+現已開放出售給任何人。
 	</notification>
 	<notification name="AvatarRezNotification">
 		（存續 [EXISTENCE] 秒鐘）
@@ -2893,6 +2919,10 @@ SHA1 指紋：[MD5_DIGEST]
 		只有進階模式才能新建或編輯群組。 你是否想要結束離開，以便變更模式？ 你可在登入畫面選擇想要的模式。
 		<usetemplate name="okcancelbuttons" notext="不要結束退出" yestext="結束退出"/>
 	</notification>
+	<notification label="" name="NoPlaceInfo">
+		只有進階模式才能察看地點檔案。 你是否想要結束離開，以便變更模式？ 你可在登入畫面選擇想要的模式。
+		<usetemplate name="okcancelbuttons" notext="不要結束退出" yestext="結束退出"/>
+	</notification>
 	<notification label="" name="NoPicks">
 		只有進階模式才能新建或編輯精選地點。 你是否想要結束離開，以便變更模式？ 你可在登入畫面選擇想要的模式。
 		<usetemplate name="okcancelbuttons" notext="不要結束退出" yestext="結束退出"/>
@@ -2913,9 +2943,18 @@ SHA1 指紋：[MD5_DIGEST]
 		只有進階模式才能付費給其他居民。 你是否要登出並且變更模式？
 		<usetemplate name="okcancelbuttons" notext="不要結束退出" yestext="結束退出"/>
 	</notification>
-	<global name="UnsupportedCPU">
-		- 你的 CPU 運算速度未達到系統最低配備要求。
-	</global>
+	<notification label="" name="NoInventory">
+		只有進階模式才能察看收納區。 你是否要登出並且變更模式？
+		<usetemplate name="okcancelbuttons" notext="不要結束退出" yestext="結束退出"/>
+	</notification>
+	<notification label="" name="NoAppearance">
+		只有進階模式才能使用外觀編輯器。 你是否要登出並且變更模式？
+		<usetemplate name="okcancelbuttons" notext="不要結束退出" yestext="結束退出"/>
+	</notification>
+	<notification label="" name="NoSearch">
+		只有進階模式才能搜尋。 你是否要登出並且變更模式？
+		<usetemplate name="okcancelbuttons" notext="不要結束退出" yestext="結束退出"/>
+	</notification>
 	<global name="UnsupportedGLRequirements">
 		你的硬體設備似乎不符 [APP_NAME] 的要求。 [APP_NAME] 需要可以支援多材質的 OpenGL 顯像卡。 在這狀況下，請確定你的顯像卡安裝了最新的驅動程式，作業系統也安裝了最新的服務包和嵌補程式。
 
