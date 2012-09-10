@@ -38,6 +38,7 @@
 #include "llavataractions.h"
 #include "llavatariconctrl.h"
 #include "llavatarnamecache.h"
+#include "llcallbacklist.h"
 #include "llgroupiconctrl.h"
 #include "llfloateravatarpicker.h"
 #include "llfloaterpreference.h"
@@ -76,6 +77,8 @@ LLIMFloaterContainer::~LLIMFloaterContainer()
 	{
 		LLIMMgr::getInstance()->removeSessionObserver(this);
 	}
+
+	gIdleCallbacks.deleteFunction(idle, (void*)this);
 }
 
 void LLIMFloaterContainer::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
@@ -117,16 +120,31 @@ BOOL LLIMFloaterContainer::postBuild()
 
 	// CHUI-98 : View Model for conversations
 	LLConversationItem* base_item = new LLConversationItem(getRootViewModel());
-	LLFolderView::Params p;
-	p.view_model = &mConversationViewModel;
-	p.parent_panel = mConversationsListPanel;
-	p.rect = mConversationsListPanel->getLocalRect();
-	p.follows.flags = FOLLOWS_ALL;
-	p.listener = base_item;
-	p.root = NULL;
 
+    LLFolderView::Params p(LLUICtrlFactory::getDefaultParams<LLFolderView>());
+    p.name = getName();
+    p.title = getLabel();
+    p.rect = LLRect(0, 0, getRect().getWidth(), 0);
+    p.parent_panel = mConversationsListPanel;
+    p.tool_tip = p.name;
+    p.listener = base_item;
+    p.view_model = &mConversationViewModel;
+    p.root = NULL;
 	mConversationsRoot = LLUICtrlFactory::create<LLFolderView>(p);
-	mConversationsListPanel->addChild(mConversationsRoot);
+
+	// Scroller
+	LLRect scroller_view_rect = mConversationsListPanel->getRect();
+	scroller_view_rect.translate(-scroller_view_rect.mLeft, -scroller_view_rect.mBottom);
+	LLScrollContainer::Params scroller_params(LLUICtrlFactory::getDefaultParams<LLFolderViewScrollContainer>());
+	scroller_params.rect(scroller_view_rect);
+
+	LLScrollContainer* scroller = LLUICtrlFactory::create<LLFolderViewScrollContainer>(scroller_params);
+	scroller->setFollowsAll();
+	mConversationsListPanel->addChild(scroller);
+	scroller->addChild(mConversationsRoot);
+	mConversationsRoot->setScrollContainer(scroller);
+	mConversationsRoot->setFollowsAll();
+	mConversationsRoot->addChild(mConversationsRoot->mStatusTextBox);
 
 	addConversationListItem(LLUUID()); // manually add nearby chat
 
@@ -149,6 +167,9 @@ BOOL LLIMFloaterContainer::postBuild()
 
         mConversationsPane->handleReshape(list_size, TRUE);
 	}
+
+	gIdleCallbacks.addFunction(idle, (void*)this);
+
 	mInitialized = true;
 	return TRUE;
 }
@@ -301,6 +322,13 @@ void LLIMFloaterContainer::setMinimized(BOOL b)
 	}
 }
 
+// static
+void LLIMFloaterContainer::idle(void* user_data)
+{
+	LLIMFloaterContainer* self = static_cast<LLIMFloaterContainer*>(user_data);
+	self->mConversationsRoot->update();
+}
+
 void LLIMFloaterContainer::draw()
 {
 	// CHUI Notes
@@ -338,7 +366,6 @@ void LLIMFloaterContainer::draw()
 			{
 				participant_view = createConversationViewParticipant(participant_model);
 				participant_view->addToFolder(session_view);
-				mConversationsListPanel->addChild(participant_view);
 				participant_view->setVisible(TRUE);
 			}
 			else
@@ -363,8 +390,6 @@ void LLIMFloaterContainer::draw()
 		collapseMessagesPane(true);
 	}
 	LLFloater::draw();
-
-	repositioningWidgets();
 }
 
 void LLIMFloaterContainer::tabClose()
@@ -616,7 +641,7 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 	widget->addToFolder(mConversationsRoot);
 
 	// Add it to the UI
-	mConversationsListPanel->addChild(widget);
+//	mConversationsListPanel->addChild(widget);
 	widget->setVisible(TRUE);
 	
 	// Create the participants widgets now
@@ -629,12 +654,16 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 		LLConversationItem* participant_model = dynamic_cast<LLConversationItem*>(*current_participant_model);
 		LLConversationViewParticipant* participant_view = createConversationViewParticipant(participant_model);
 		participant_view->addToFolder(widget);
-		mConversationsListPanel->addChild(participant_view);
-		participant_view->setVisible(TRUE);
+//		mConversationsListPanel->addChild(participant_view);
+//		participant_view->setVisible(TRUE);
 		current_participant_model++;
 	}
 
-	repositioningWidgets();
+	S32 width = 0;
+	S32 height = 0;
+	mConversationsRoot->arrange(&width, &height);
+
+//	repositioningWidgets();
 	
 	return;
 }
@@ -678,6 +707,7 @@ LLConversationViewSession* LLIMFloaterContainer::createConversationItemWidget(LL
 	//params.icon = bridge->getIcon();
 	//params.icon_open = bridge->getOpenIcon();
 	//params.creation_date = bridge->getCreationDate();
+	params.item_height = 24;
 	params.root = mConversationsRoot;
 	params.listener = item;
 	params.rect = LLRect (0, 0, 0, 0);

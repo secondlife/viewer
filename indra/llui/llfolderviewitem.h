@@ -113,7 +113,6 @@ protected:
 
 	static LLFontGL* getLabelFontForStyle(U8 style);
 
-private:
 	BOOL						mIsSelected;
 
 public:

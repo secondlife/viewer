@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ follows="left|top|right"
+ height="24"
+ layout="topleft"
+ mouse_opaque="flase"
+ name="conversation_list_item"
+ width="120">
+    <avatar_icon
+     follows="top|left"
+     height="20"
+     default_icon_name="Generic_Person"
+     layout="topleft"
+     left="5"
+     mouse_opaque="true"
+     top="2"
+     width="20" />
+    <layout_stack
+     animate="false"
+     follows="all"
+     height="24"
+     layout="topleft"
+     left_pad="5"
+     name="caonversation_item_stack"
+     orientation="horizontal"
+     top="0"
+     width="90">
+        <layout_panel
+         auto_resize="false"
+         user_resize="false"        
+         height="24"
+         name="call_icon_panel"
+         visible="false"
+         width="20">
+            <icon
+             height="20"
+             follows="top|right|left"
+             image_name="Conv_toolbar_hang_up"
+             layout="topleft"
+             left="0"
+             name="selected_icon"
+             top="2"
+             width="20" />
+        </layout_panel>
+        <layout_panel
+         auto_resize="true"
+         user_resize="false"
+         left_pad="0"        
+         height="24"
+         name="conversation_title_panel"
+         min_dim="50"
+         width="70"
+         expanded_min_dim="50">
+		    <text
+		     follows="left|top|right"
+		     font="SansSerifSmall"
+		     height="15"
+		     layout="topleft"
+		     left="5"
+		     name="conversation_title"
+		     parse_urls="false"
+		     top="6"
+		     use_ellipses="true"
+		     value="(loading)"
+		     width="35" />
+		    <output_monitor
+		     auto_update="true"
+		     follows="top|right"
+		     draw_border="false"
+		     height="16"
+		     layout="topleft"
+		     left_pad="5"
+		     mouse_opaque="true"
+		     name="speaking_indicator"
+		     width="20" />
+        </layout_panel>
+    </layout_stack>
+</panel>

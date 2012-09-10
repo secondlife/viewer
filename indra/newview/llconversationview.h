@@ -29,6 +29,7 @@
 
 #include "llfolderviewitem.h"
 
+class LLTextBox;
 class LLIMFloaterContainer;
 class LLConversationViewSession;
 class LLConversationViewParticipant;
@@ -53,11 +54,21 @@ protected:
 	
 public:
 	virtual ~LLConversationViewSession( void ) { }
-	virtual void selectItem();	
+	virtual void selectItem();
+
+	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void draw();
+
+	/*virtual*/ S32 arrange(S32* width, S32* height);
+
 	void setVisibleIfDetached(BOOL visible);
 	LLConversationViewParticipant* findParticipant(const LLUUID& participant_id);
 
 	virtual void refresh();
+
+private:
+	LLPanel*	mItemPanel;
+	LLTextBox*	mSessionTitle;
 };
 
 // Implementation of conversations list participant (avatar) widgets
