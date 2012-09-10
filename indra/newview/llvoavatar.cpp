@@ -6804,6 +6804,16 @@ void LLVOAvatar::updateMeshTextures()
 				}
 			}
 		}
+		else
+		{
+			for (U32 k=0; k < mBakedTextureDatas[i].mMeshes.size(); k++)
+			{
+				if (gSavedSettings.getBOOL("DebugAvatarCompositeBaked"))
+				{
+					mBakedTextureDatas[i].mMeshes[k]->setColor( LLColor4::blue );
+				}
+			}
+		}
 	}
 
 	// set texture and color of hair manually if we are not using a baked image.
