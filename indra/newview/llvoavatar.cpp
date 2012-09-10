@@ -36,6 +36,7 @@
 
 #include <stdio.h>
 #include <ctype.h>
+#include <sstream>
 
 #include "llaudioengine.h"
 #include "noise.h"
@@ -7772,11 +7773,35 @@ void LLVOAvatar::useBakedTexture( const LLUUID& id )
 	dirtyMesh();
 }
 
-// static
-void LLVOAvatar::dumpArchetypeXML( void* )
+void LLVOAvatar::dumpArchetypeXML(const std::string& filename )
 {
+	std::string outfilename(filename);
+	if (outfilename.empty())
+	{
+		std::string fullname = getFullname();
+		if (!fullname.empty())
+		{
+			typedef std::map<std::string,S32> file_num_type;
+			static  file_num_type file_nums;
+			file_num_type::iterator it = file_nums.find(fullname);
+			S32 num = 0;
+			if (it != file_nums.end())
+			{
+				num = it->second;
+			}
+			std::ostringstream temp;
+			temp << std::setw(4) << std::setfill('0') << num;
+			file_nums[fullname] = num+1;
+			outfilename = fullname + " " + temp.str() + ".xml";
+		}
+	}
+	if (outfilename.empty())
+	{
+		outfilename = std::string("new archetype.xml");
+	}
+	
 	LLAPRFile outfile;
-	outfile.open(gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,"new archetype.xml"), LL_APR_WB );
+	outfile.open(gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,outfilename), LL_APR_WB );
 	apr_file_t* file = outfile.getFileHandle();
 	if (!file)
 	{
@@ -7792,12 +7817,12 @@ void LLVOAvatar::dumpArchetypeXML( void* )
 	apr_file_printf( file, "\n\t<archetype name=\"???\">\n" );
 
 	// only body parts, not clothing.
-	for (S32 type = LLWearableType::WT_SHAPE; type <= LLWearableType::WT_EYES; type++)
+	for (S32 type = LLWearableType::WT_SHAPE; type <= LLWearableType::WT_COUNT; type++)
 	{
 		const std::string& wearable_name = LLWearableType::getTypeName((LLWearableType::EType)type);
 		apr_file_printf( file, "\n\t\t<!-- wearable: %s -->\n", wearable_name.c_str() );
 
-		for (LLVisualParam* param = gAgentAvatarp->getFirstVisualParam(); param; param = gAgentAvatarp->getNextVisualParam())
+		for (LLVisualParam* param = getFirstVisualParam(); param; param = getNextVisualParam())
 		{
 			LLViewerVisualParam* viewer_param = (LLViewerVisualParam*)param;
 			if( (viewer_param->getWearableType() == type) && 
@@ -7813,7 +7838,7 @@ void LLVOAvatar::dumpArchetypeXML( void* )
 			if (LLVOAvatarDictionary::getTEWearableType((ETextureIndex)te) == type)
 			{
 				// MULTIPLE_WEARABLES: extend to multiple wearables?
-				LLViewerTexture* te_image = ((LLVOAvatar *)(gAgentAvatarp))->getImage((ETextureIndex)te, 0);
+				LLViewerTexture* te_image = getImage((ETextureIndex)te, 0);
 				if( te_image )
 				{
 					std::string uuid_str;

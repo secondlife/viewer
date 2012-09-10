@@ -1600,7 +1600,14 @@ class LLAdvancedAppearanceToXML : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLVOAvatar::dumpArchetypeXML(NULL);
+		std::string emptyname;
+		LLVOAvatar* avatar =
+			find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
+		if (!avatar)
+		{
+			avatar = gAgentAvatarp;
+		}
+		avatar->dumpArchetypeXML(emptyname);
 		return true;
 	}
 };
