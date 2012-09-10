@@ -7337,6 +7337,7 @@ bool LLVOAvatar::visualParamWeightsAreDefault()
 //-----------------------------------------------------------------------------
 void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 {
+	dumpArchetypeXML("process_start");
 	if (gSavedSettings.getBOOL("BlockAvatarAppearanceMessages"))
 	{
 		llwarns << "Blocking AvatarAppearance message" << llendl;
@@ -7773,32 +7774,30 @@ void LLVOAvatar::useBakedTexture( const LLUUID& id )
 	dirtyMesh();
 }
 
-void LLVOAvatar::dumpArchetypeXML(const std::string& filename )
+void LLVOAvatar::dumpArchetypeXML(const std::string& prefix )
 {
-	std::string outfilename(filename);
-	if (outfilename.empty())
+	std::string outprefix(prefix);
+	if (outprefix.empty())
 	{
-		std::string fullname = getFullname();
-		if (!fullname.empty())
-		{
-			typedef std::map<std::string,S32> file_num_type;
-			static  file_num_type file_nums;
-			file_num_type::iterator it = file_nums.find(fullname);
-			S32 num = 0;
-			if (it != file_nums.end())
-			{
-				num = it->second;
-			}
-			std::ostringstream temp;
-			temp << std::setw(4) << std::setfill('0') << num;
-			file_nums[fullname] = num+1;
-			outfilename = fullname + " " + temp.str() + ".xml";
-		}
+		outprefix = getFullname();
 	}
-	if (outfilename.empty())
+	if (outprefix.empty())
 	{
-		outfilename = std::string("new archetype.xml");
+		outprefix = std::string("new_archetype");
 	}
+	typedef std::map<std::string,S32> file_num_type;
+	static  file_num_type file_nums;
+	file_num_type::iterator it = file_nums.find(outprefix);
+	S32 num = 0;
+	if (it != file_nums.end())
+	{
+		num = it->second;
+	}
+	std::ostringstream temp;
+	temp << std::setw(4) << std::setfill('0') << num;
+	file_nums[outprefix] = num+1;
+	std::string outfilename = outprefix + " " + temp.str() + ".xml";
+	std::replace(outfilename.begin(),outfilename.end(),' ','_');
 	
 	LLAPRFile outfile;
 	outfile.open(gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,outfilename), LL_APR_WB );

@@ -619,6 +619,12 @@ void LLWearable::setTexturesToDefaults()
 void LLWearable::writeToAvatar()
 {
 	if (!isAgentAvatarValid()) return;
+#if 0
+	if (!gAgentAvatarp->isUsingLocalAppearance())
+	{
+		return;
+	}
+#endif
 
 	ESex old_sex = gAgentAvatarp->getSex();
 

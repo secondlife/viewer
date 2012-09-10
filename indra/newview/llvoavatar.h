@@ -1016,7 +1016,7 @@ private:
 	// General
 	//--------------------------------------------------------------------
 public:
-	void				dumpArchetypeXML(const std::string& filename);
+	void				dumpArchetypeXML(const std::string& prefix);
 	static void			dumpBakedStatus();
 	const std::string 	getBakedStatusForPrintout() const;
 	void				dumpAvatarTEs(const std::string& context) const;
