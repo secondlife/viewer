@@ -848,25 +848,6 @@ void LLIMFloater::sessionInitReplyReceived(const LLUUID& im_session_id)
 	}
 }
 
-void LLIMFloater::appendMessage(const LLChat& chat, const LLSD &args)
-{
-	LLChat& tmp_chat = const_cast<LLChat&>(chat);
-
-	if (!chat.mMuted)
-	{
-		tmp_chat.mFromName = chat.mFromName;
-		LLSD chat_args;
-		if (args) chat_args = args;
-		chat_args["use_plain_text_chat_history"] =
-				gSavedSettings.getBOOL("PlainTextChatHistory");
-		chat_args["show_time"] = gSavedSettings.getBOOL("IMShowTime");
-		chat_args["show_names_for_p2p_conv"] = !mIsP2PChat
-				|| gSavedSettings.getBOOL("IMShowNamesForP2PConv");
-
-		mChatHistory->appendMessage(chat, chat_args);
-	}
-}
-
 void LLIMFloater::updateMessages()
 {
 	std::list<LLSD> messages;
