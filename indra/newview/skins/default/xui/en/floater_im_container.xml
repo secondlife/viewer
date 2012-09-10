@@ -113,7 +113,7 @@
          height="430"
          name="messages_layout_panel"
          width="412"
-         expanded_min_dim="205">
+         expanded_min_dim="225">
             <panel_container
              follows="all"
              height="430"
