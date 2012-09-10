@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<conversation_view_participant
+  folder_arrow_image="ForSale_Badge"
+  folder_indentation="8"
+  item_height="20" 
+  item_top_pad="4"
+  selection_image="Rounded_Square"
+  mouse_opaque="true"
+  follows="left|top|right"
+>
+<view_profile_button
+     height="20"
+     image_overlay="Web_Profile_Off"
+     layout="topleft"
+     left_pad="5"
+     right="200"
+     name="profile_btn"
+     tab_stop="false"
+     tool_tip="View profile"
+     top_delta="-2"
+     width="20" />
+ <info_button
+     height="16"
+     image_pressed="Info_Press"
+     image_unselected="Info_Over"
+     layout="topleft"
+     left_pad="3"
+     right="225"
+     name="info_btn"
+     tab_stop="false"
+     top_delta="0"
+     width="16" />
+</conversation_view_participant>

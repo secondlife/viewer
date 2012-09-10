@@ -35,7 +35,7 @@
 #include "llstyle.h"
 #include "llcallbackmap.h"
 #include "lltextbox.h"
-#include "llbutton.h";
+#include "llbutton.h"
 
 class LLIMFloaterContainer;
 
