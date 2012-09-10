@@ -289,8 +289,6 @@ LLIOPipe::EStatus LLURLRequest::handleError(
 }
 
 static LLFastTimer::DeclareTimer FTM_PROCESS_URL_REQUEST("URL Request");
-static LLFastTimer::DeclareTimer FTM_PROCESS_URL_REQUEST_GET_RESULT("Get Result");
-static LLFastTimer::DeclareTimer FTM_URL_PERFORM("Perform");
 
 // virtual
 LLIOPipe::EStatus LLURLRequest::process_impl(
@@ -360,6 +358,7 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 	{
 		PUMP_DEBUG;
 		LLIOPipe::EStatus status = STATUS_BREAK;
+		static LLFastTimer::DeclareTimer FTM_URL_PERFORM("Perform");
 		{
 			LLFastTimer t(FTM_URL_PERFORM);
 			if(!mDetail->mCurlRequest->wait())
@@ -371,6 +370,8 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 		while(1)
 		{
 			CURLcode result;
+
+			static LLFastTimer::DeclareTimer FTM_PROCESS_URL_REQUEST_GET_RESULT("Get Result");
 
 			bool newmsg = false;
 			{

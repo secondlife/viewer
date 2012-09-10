@@ -68,7 +68,7 @@ class LLVolumeInterface
 public:
 	virtual ~LLVolumeInterface() { }
 	virtual LLVolumeInterfaceType getInterfaceType() const = 0;
-	virtual void doIdleUpdate(LLAgent &agent, LLWorld &world, const F64 &time) = 0;
+	virtual BOOL doIdleUpdate(LLAgent &agent, LLWorld &world, const F64 &time) = 0;
 	virtual BOOL doUpdateGeometry(LLDrawable *drawable) = 0;
 	virtual LLVector3 getPivotPosition() const = 0;
 	virtual void onSetVolume(const LLVolumeParams &volume_params, const S32 detail) = 0;
@@ -174,6 +174,7 @@ public:
 
 	/*virtual*/ void	setScale(const LLVector3 &scale, BOOL damped);
 
+	/*virtual*/ void    changeTEImage(S32 index, LLViewerTexture* new_image)  ;
 	/*virtual*/ void	setNumTEs(const U8 num_tes);
 	/*virtual*/ void	setTEImage(const U8 te, LLViewerTexture *imagep);
 	/*virtual*/ S32		setTETexture(const U8 te, const LLUUID &uuid);

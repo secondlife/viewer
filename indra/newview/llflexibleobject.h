@@ -78,8 +78,7 @@ class LLVolumeImplFlexible : public LLVolumeInterface
 		LLVector3 getFramePosition() const;
 		LLQuaternion getFrameRotation() const;
 		LLVolumeInterfaceType getInterfaceType() const		{ return INTERFACE_FLEXIBLE; }
-		void updateRenderRes();
-		void doIdleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
+		BOOL doIdleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
 		BOOL doUpdateGeometry(LLDrawable *drawable);
 		LLVector3 getPivotPosition() const;
 		void onSetVolume(const LLVolumeParams &volume_params, const S32 detail);
@@ -129,7 +128,7 @@ class LLVolumeImplFlexible : public LLVolumeInterface
 		LLVector3					mCollisionSpherePosition;
 		F32							mCollisionSphereRadius;
 		U32							mID;
-		
+
 		//--------------------------------------
 		// private methods
 		//--------------------------------------

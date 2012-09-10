@@ -155,7 +155,6 @@ LLDriverParam::LLDriverParam(LLVOAvatar *avatarp) :
 	mAvatarp(avatarp), 
 	mWearablep(NULL)
 {
-	mDefaultVec.clear();
 }
 
 LLDriverParam::LLDriverParam(LLWearable *wearablep) : 
@@ -163,7 +162,6 @@ LLDriverParam::LLDriverParam(LLWearable *wearablep) :
 	mAvatarp(NULL), 
 	mWearablep(wearablep)
 {
-	mDefaultVec.clear();
 }
 
 LLDriverParam::~LLDriverParam()
@@ -343,19 +341,18 @@ F32	LLDriverParam::getTotalDistortion()
 	return sum; 
 }
 
-const LLVector4a	&LLDriverParam::getAvgDistortion()	
+const LLVector3	&LLDriverParam::getAvgDistortion()	
 {
 	// It's not actually correct to take the average of averages, but it good enough here.
-	LLVector4a sum;
-	sum.clear();
+	LLVector3 sum;
 	S32 count = 0;
 	for( entry_list_t::iterator iter = mDriven.begin(); iter != mDriven.end(); iter++ )
 	{
 		LLDrivenEntry* driven = &(*iter);
-		sum.add(driven->mParam->getAvgDistortion());
+		sum += driven->mParam->getAvgDistortion();
 		count++;
 	}
-	sum.mul( 1.f/(F32)count);
+	sum /= (F32)count;
 
 	mDefaultVec = sum;
 	return mDefaultVec; 
@@ -378,22 +375,21 @@ F32	LLDriverParam::getMaxDistortion()
 }
 
 
-LLVector4a	LLDriverParam::getVertexDistortion(S32 index, LLPolyMesh *poly_mesh)
+LLVector3	LLDriverParam::getVertexDistortion(S32 index, LLPolyMesh *poly_mesh)
 {
-	LLVector4a sum;
-	sum.clear();
+	LLVector3 sum;
 	for( entry_list_t::iterator iter = mDriven.begin(); iter != mDriven.end(); iter++ )
 	{
 		LLDrivenEntry* driven = &(*iter);
-		sum.add(driven->mParam->getVertexDistortion( index, poly_mesh ));
+		sum += driven->mParam->getVertexDistortion( index, poly_mesh );
 	}
 	return sum;
 }
 
-const LLVector4a*	LLDriverParam::getFirstDistortion(U32 *index, LLPolyMesh **poly_mesh)
+const LLVector3*	LLDriverParam::getFirstDistortion(U32 *index, LLPolyMesh **poly_mesh)
 {
 	mCurrentDistortionParam = NULL;
-	const LLVector4a* v = NULL;
+	const LLVector3* v = NULL;
 	for( entry_list_t::iterator iter = mDriven.begin(); iter != mDriven.end(); iter++ )
 	{
 		LLDrivenEntry* driven = &(*iter);
@@ -408,7 +404,7 @@ const LLVector4a*	LLDriverParam::getFirstDistortion(U32 *index, LLPolyMesh **pol
 	return v;
 };
 
-const LLVector4a*	LLDriverParam::getNextDistortion(U32 *index, LLPolyMesh **poly_mesh)
+const LLVector3*	LLDriverParam::getNextDistortion(U32 *index, LLPolyMesh **poly_mesh)
 {
 	llassert( mCurrentDistortionParam );
 	if( !mCurrentDistortionParam )
@@ -436,7 +432,7 @@ const LLVector4a*	LLDriverParam::getNextDistortion(U32 *index, LLPolyMesh **poly
 	}
 
 	// We're already in the middle of a param's distortions, so get the next one.
-	const LLVector4a* v = driven->mParam->getNextDistortion( index, poly_mesh );
+	const LLVector3* v = driven->mParam->getNextDistortion( index, poly_mesh );
 	if( (!v) && (iter != mDriven.end()) )
 	{
 		// This param is finished, so start the next param.  It might not have any

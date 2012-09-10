@@ -95,6 +95,17 @@ const S32 SCULPT_MIN_AREA_DETAIL = 1;
 
 extern BOOL gDebugGL;
 
+void assert_aligned(void* ptr, uintptr_t alignment)
+{
+#if 0
+	uintptr_t t = (uintptr_t) ptr;
+	if (t%alignment != 0)
+	{
+		llerrs << "Alignment check failed." << llendl;
+	}
+#endif
+}
+
 BOOL check_same_clock_dir( const LLVector3& pt1, const LLVector3& pt2, const LLVector3& pt3, const LLVector3& norm)
 {    
 	LLVector3 test = (pt2-pt1)%(pt3-pt2);
@@ -317,16 +328,16 @@ public:
 		LLVector4a& min = node->mExtents[0];
 		LLVector4a& max = node->mExtents[1];
 
-		if (!branch->isEmpty())
+		if (!branch->getData().empty())
 		{ //node has data, find AABB that binds data set
-			const LLVolumeTriangle* tri = *(branch->getDataBegin());
+			const LLVolumeTriangle* tri = *(branch->getData().begin());
 			
 			//initialize min/max to first available vertex
 			min = *(tri->mV[0]);
 			max = *(tri->mV[0]);
 			
 			for (LLOctreeNode<LLVolumeTriangle>::const_element_iter iter = 
-				branch->getDataBegin(); iter != branch->getDataEnd(); ++iter)
+				branch->getData().begin(); iter != branch->getData().end(); ++iter)
 			{ //for each triangle in node
 
 				//stretch by triangles in node
@@ -341,7 +352,7 @@ public:
 				max.setMax(max, *tri->mV[2]);
 			}
 		}
-		else if (!branch->isLeaf())
+		else if (!branch->getChildren().empty())
 		{ //no data, but child nodes exist
 			LLVolumeOctreeListener* child = (LLVolumeOctreeListener*) branch->getChild(0)->getListener(0);
 
@@ -6951,14 +6962,14 @@ void LLVolumeFace::resizeVertices(S32 num_verts)
 	if (num_verts)
 	{
 		mPositions = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
-		ll_assert_aligned(mPositions, 16);
+		assert_aligned(mPositions, 16);
 		mNormals = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
-		ll_assert_aligned(mNormals, 16);
+		assert_aligned(mNormals, 16);
 
 		//pad texture coordinate block end to allow for QWORD reads
 		S32 size = ((num_verts*sizeof(LLVector2)) + 0xF) & ~0xF;
 		mTexCoords = (LLVector2*) ll_aligned_malloc_16(size);
-		ll_assert_aligned(mTexCoords, 16);
+		assert_aligned(mTexCoords, 16);
 	}
 	else
 	{
@@ -6982,17 +6993,14 @@ void LLVolumeFace::pushVertex(const LLVector4a& pos, const LLVector4a& norm, con
 //	S32 old_size = mNumVertices*16;
 
 	//positions
-	mPositions = (LLVector4a*) ll_aligned_realloc_16(mPositions, new_size);
-	ll_assert_aligned(mPositions,16);
+	mPositions = (LLVector4a*) realloc(mPositions, new_size);
 	
 	//normals
-	mNormals = (LLVector4a*) ll_aligned_realloc_16(mNormals, new_size);
-	ll_assert_aligned(mNormals,16);
-
+	mNormals = (LLVector4a*) realloc(mNormals, new_size);
+	
 	//tex coords
 	new_size = ((new_verts*8)+0xF) & ~0xF;
-	mTexCoords = (LLVector2*) ll_aligned_realloc_16(mTexCoords, new_size);
-	ll_assert_aligned(mTexCoords,16);
+	mTexCoords = (LLVector2*) realloc(mTexCoords, new_size);
 	
 
 	//just clear binormals
@@ -7045,8 +7053,7 @@ void LLVolumeFace::pushIndex(const U16& idx)
 	S32 old_size = ((mNumIndices*2)+0xF) & ~0xF;
 	if (new_size != old_size)
 	{
-		mIndices = (U16*) ll_aligned_realloc_16(mIndices, new_size);
-		ll_assert_aligned(mIndices,16);
+		mIndices = (U16*) realloc(mIndices, new_size);
 	}
 	
 	mIndices[mNumIndices++] = idx;
@@ -7087,12 +7094,12 @@ void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat_in, LLMat
 	}
 
 	//allocate new buffer space
-	mPositions = (LLVector4a*) ll_aligned_realloc_16(mPositions, new_count*sizeof(LLVector4a));
-	ll_assert_aligned(mPositions, 16);
-	mNormals = (LLVector4a*) ll_aligned_realloc_16(mNormals, new_count*sizeof(LLVector4a));
-	ll_assert_aligned(mNormals, 16);
-	mTexCoords = (LLVector2*) ll_aligned_realloc_16(mTexCoords, (new_count*sizeof(LLVector2)+0xF) & ~0xF);
-	ll_assert_aligned(mTexCoords, 16);
+	mPositions = (LLVector4a*) realloc(mPositions, new_count*sizeof(LLVector4a));
+	assert_aligned(mPositions, 16);
+	mNormals = (LLVector4a*) realloc(mNormals, new_count*sizeof(LLVector4a));
+	assert_aligned(mNormals, 16);
+	mTexCoords = (LLVector2*) realloc(mTexCoords, (new_count*sizeof(LLVector2)+0xF) & ~0xF);
+	assert_aligned(mTexCoords, 16);
 	
 	mNumVertices = new_count;
 
@@ -7138,7 +7145,7 @@ void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat_in, LLMat
 	new_count = mNumIndices + face.mNumIndices;
 
 	//allocate new index buffer
-	mIndices = (U16*) ll_aligned_realloc_16(mIndices, (new_count*sizeof(U16)+0xF) & ~0xF);
+	mIndices = (U16*) realloc(mIndices, (new_count*sizeof(U16)+0xF) & ~0xF);
 	
 	//get destination address into new index buffer
 	U16* dst_idx = mIndices+mNumIndices;

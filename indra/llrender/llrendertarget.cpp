@@ -69,42 +69,6 @@ LLRenderTarget::~LLRenderTarget()
 	release();
 }
 
-void LLRenderTarget::resize(U32 resx, U32 resy, U32 color_fmt)
-{ 
-	//for accounting, get the number of pixels added/subtracted
-	S32 pix_diff = (resx*resy)-(mResX*mResY);
-		
-	mResX = resx;
-	mResY = resy;
-
-	for (U32 i = 0; i < mTex.size(); ++i)
-	{ //resize color attachments
-		gGL.getTexUnit(0)->bindManual(mUsage, mTex[i]);
-		LLImageGL::setManualImage(LLTexUnit::getInternalType(mUsage), 0, color_fmt, mResX, mResY, GL_RGBA, GL_UNSIGNED_BYTE, NULL, false);
-		sBytesAllocated += pix_diff*4;
-	}
-
-	if (mDepth)
-	{ //resize depth attachment
-		if (mStencil)
-		{
-			//use render buffers where stencil buffers are in play
-			glBindRenderbuffer(GL_RENDERBUFFER, mDepth);
-			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, mResX, mResY);
-			glBindRenderbuffer(GL_RENDERBUFFER, 0);
-		}
-		else
-		{
-			gGL.getTexUnit(0)->bindManual(mUsage, mDepth);
-			U32 internal_type = LLTexUnit::getInternalType(mUsage);
-			LLImageGL::setManualImage(internal_type, 0, GL_DEPTH_COMPONENT24, mResX, mResY, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL, false);
-		}
-
-		sBytesAllocated += pix_diff*4;
-	}
-}
-	
-
 bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, bool stencil, LLTexUnit::eTextureType usage, bool use_fbo, S32 samples)
 {
 	stop_glerror();

@@ -111,7 +111,7 @@ public:
 
 protected:
 
-	LL_ALIGN_16(LLVector4a mColumns[3]);
+	LLVector4a mColumns[3];
 
 };
 

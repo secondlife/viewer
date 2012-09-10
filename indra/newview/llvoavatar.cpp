@@ -817,7 +817,6 @@ LLVOAvatar::~LLVOAvatar()
 	lldebugs << "LLVOAvatar Destructor (0x" << this << ") id:" << mID << llendl;
 
 	mRoot.removeAllChildren();
-	mJointMap.clear();
 
 	deleteAndClearArray(mSkeleton);
 	deleteAndClearArray(mCollisionVolumes);
@@ -1460,6 +1459,8 @@ void LLVOAvatar::onShift(const LLVector4a& shift_vector)
 	const LLVector3& shift = reinterpret_cast<const LLVector3&>(shift_vector);
 	mLastAnimExtents[0] += shift;
 	mLastAnimExtents[1] += shift;
+	mNeedsImpostorUpdate = TRUE;
+	mNeedsAnimUpdate = TRUE;
 }
 
 void LLVOAvatar::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax)
@@ -1933,7 +1934,6 @@ void LLVOAvatar::buildCharacter()
 	// remove all of mRoot's children
 	//-------------------------------------------------------------------------
 	mRoot.removeAllChildren();
-	mJointMap.clear();
 	mIsBuilt = FALSE;
 
 	//-------------------------------------------------------------------------
@@ -2390,7 +2390,7 @@ S32 LLVOAvatar::setTETexture(const U8 te, const LLUUID& uuid)
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_AVATAR_UPDATE("Avatar Update");
+static LLFastTimer::DeclareTimer FTM_AVATAR_UPDATE("Update Avatar");
 static LLFastTimer::DeclareTimer FTM_JOINT_UPDATE("Update Joints");
 
 //------------------------------------------------------------------------
@@ -2692,7 +2692,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 
 	if (isImpostor() && !mNeedsImpostorUpdate)
 	{
-		LL_ALIGN_16(LLVector4a ext[2]);
+		LLVector4a ext[2];
 		F32 distance;
 		LLVector3 angle;
 
@@ -5137,20 +5137,7 @@ const LLUUID& LLVOAvatar::getID() const
 // RN: avatar joints are multi-rooted to include screen-based attachments
 LLJoint *LLVOAvatar::getJoint( const std::string &name )
 {
-	joint_map_t::iterator iter = mJointMap.find(name);
-
-	LLJoint* jointp = NULL;
-
-	if (iter == mJointMap.end() || iter->second == NULL)
-	{ //search for joint and cache found joint in lookup table
-		jointp = mRoot.findJoint(name);
-		mJointMap[name] = jointp;
-	}
-	else
-	{ //return cached pointer
-		jointp = iter->second;
-	}
-
+	LLJoint* jointp = mRoot.findJoint(name);
 	return jointp;
 }
 

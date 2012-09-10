@@ -38,6 +38,10 @@
 #include "llglslshader.h"
 #include "llmemory.h"
 
+#if LL_DARWIN
+#define LL_VBO_POOLING 1
+#else
+#endif
 //Next Highest Power Of Two
 //helper function, returns first number > v that is a power of 2, or v if v is already a power of 2
 U32 nhpo2(U32 v)
@@ -288,7 +292,6 @@ void LLVBOPool::seedPool()
 		}
 	}
 }
-
 
 
 void LLVBOPool::cleanup()

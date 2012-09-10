@@ -27,7 +27,7 @@
 #include "linden_common.h"
 #include "llallocator.h"
 
-#if (LL_USE_TCMALLOC && LL_USE_HEAP_PROFILER)
+#if LL_USE_TCMALLOC
 
 #include "google/heap-profiler.h"
 #include "google/commandlineflags_public.h"

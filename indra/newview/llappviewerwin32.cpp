@@ -130,8 +130,6 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 	// This results in a 2-3x improvement in opening a new Inventory window (which uses a large numebr of allocations)
 	// Note: This won't work when running from the debugger unless the _NO_DEBUG_HEAP environment variable is set to 1
 
-	// Enable to get mem debugging within visual studio.
-	//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	_CrtSetDbgFlag(0); // default, just making explicit
 	
 	ULONG ulEnableLFH = 2;

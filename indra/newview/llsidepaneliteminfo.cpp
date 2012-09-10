@@ -352,7 +352,7 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 		getChildView("BtnCreator")->setEnabled(FALSE);
 		getChildView("LabelCreatorTitle")->setEnabled(FALSE);
 		getChildView("LabelCreatorName")->setEnabled(FALSE);
-		getChild<LLUICtrl>("LabelCreatorName")->setValue(getString("unknown_multiple"));
+		getChild<LLUICtrl>("LabelCreatorName")->setValue(getString("unknown"));
 	}
 
 	////////////////

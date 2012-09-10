@@ -57,8 +57,6 @@ const F32 MIN_SHADOW_CASTER_RADIUS = 2.0f;
 
 static LLFastTimer::DeclareTimer FTM_CULL_REBOUND("Cull Rebound");
 
-extern bool gShiftFrame;
-
 
 ////////////////////////
 //
@@ -110,8 +108,6 @@ void LLDrawable::init()
 	
 	mGeneration = -1;
 	mBinRadius = 1.f;
-	mBinIndex = -1;
-
 	mSpatialBridge = NULL;
 }
 
@@ -718,11 +714,6 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 		return;
 	}
 
-	if (gShiftFrame)
-	{
-		return;
-	}
-
 	//switch LOD with the spatial group to avoid artifacts
 	//LLSpatialGroup* sg = getSpatialGroup();
 
@@ -820,19 +811,14 @@ void LLDrawable::shiftPos(const LLVector4a &shift_vector)
 		mXform.setPosition(mVObjp->getPositionAgent());
 	}
 
+	mXform.setRotation(mVObjp->getRotation());
+	mXform.setScale(1,1,1);
 	mXform.updateMatrix();
 
 	if (isStatic())
 	{
 		LLVOVolume* volume = getVOVolume();
-
-		bool rebuild = (!volume && 
-						getRenderType() != LLPipeline::RENDER_TYPE_TREE &&
-						getRenderType() != LLPipeline::RENDER_TYPE_TERRAIN &&
-						getRenderType() != LLPipeline::RENDER_TYPE_SKY &&
-						getRenderType() != LLPipeline::RENDER_TYPE_GROUND);
-
-		if (rebuild)
+		if (!volume)
 		{
 			gPipeline.markRebuild(this, LLDrawable::REBUILD_ALL, TRUE);
 		}
@@ -846,7 +832,7 @@ void LLDrawable::shiftPos(const LLVector4a &shift_vector)
 				facep->mExtents[0].add(shift_vector);
 				facep->mExtents[1].add(shift_vector);
 			
-				if (rebuild && facep->hasGeometry())
+				if (!volume && facep->hasGeometry())
 				{
 					facep->clearVertexBuffer();
 				}
@@ -957,12 +943,6 @@ void LLDrawable::updateUVMinMax()
 {
 }
 
-LLSpatialGroup* LLDrawable::getSpatialGroup() const
-{ 
-	llassert((mSpatialGroupp == NULL) ? getBinIndex() == -1 : getBinIndex() != -1);
-	return mSpatialGroupp; 
-}
-
 void LLDrawable::setSpatialGroup(LLSpatialGroup *groupp)
 {
 /*if (mSpatialGroupp && (groupp != mSpatialGroupp))
@@ -985,8 +965,6 @@ void LLDrawable::setSpatialGroup(LLSpatialGroup *groupp)
 	}
 
 	mSpatialGroupp = groupp;
-
-	llassert((mSpatialGroupp == NULL) ? getBinIndex() == -1 : getBinIndex() != -1);
 }
 
 LLSpatialPartition* LLDrawable::getSpatialPartition()
@@ -1109,8 +1087,6 @@ LLSpatialBridge::LLSpatialBridge(LLDrawable* root, BOOL render_by_group, U32 dat
 	mDrawable = root;
 	root->setSpatialBridge(this);
 	
-	mBinIndex = -1;
-
 	mRenderType = mDrawable->mRenderType;
 	mDrawableType = mDrawable->mRenderType;
 	
@@ -1414,11 +1390,6 @@ void LLSpatialBridge::updateDistance(LLCamera& camera_in, bool force_update)
 		markDead();
 		return;
 	}
-	
-	if (gShiftFrame)
-	{
-		return;
-	}
 
 	if (mDrawable->getVObj())
 	{
@@ -1497,13 +1468,7 @@ void LLSpatialBridge::cleanupReferences()
 	LLDrawable::cleanupReferences();
 	if (mDrawable)
 	{
-		LLSpatialGroup* group = mDrawable->getSpatialGroup();
-		if (group)
-		{
-			group->mOctreeNode->remove(mDrawable);
-			mDrawable->setSpatialGroup(NULL);
-		}
-		
+		mDrawable->setSpatialGroup(NULL);
 		if (mDrawable->getVObj())
 		{
 			LLViewerObject::const_child_list_t& child_list = mDrawable->getVObj()->getChildren();
@@ -1514,12 +1479,7 @@ void LLSpatialBridge::cleanupReferences()
 				LLDrawable* drawable = child->mDrawable;					
 				if (drawable)
 				{
-					LLSpatialGroup* group = drawable->getSpatialGroup();
-					if (group)
-					{
-						group->mOctreeNode->remove(drawable);
-						drawable->setSpatialGroup(NULL);
-					}
+					drawable->setSpatialGroup(NULL);
 				}
 			}
 		}

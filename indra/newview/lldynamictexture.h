@@ -36,16 +36,6 @@
 class LLViewerDynamicTexture : public LLViewerTexture
 {
 public:
-	void* operator new(size_t size)
-	{
-		return ll_aligned_malloc_16(size);
-	}
-
-	void operator delete(void* ptr)
-	{
-		ll_aligned_free_16(ptr);
-	}
-
 	enum
 	{
 		LL_VIEWER_DYNAMIC_TEXTURE = LLViewerTexture::DYNAMIC_TEXTURE,
@@ -95,7 +85,7 @@ protected:
 protected:
 	BOOL mClamp;
 	LLCoordGL mOrigin;
-	LL_ALIGN_16(LLCamera mCamera);
+	LLCamera mCamera;
 	
 	typedef std::set<LLViewerDynamicTexture*> instance_list_t;
 	static instance_list_t sInstances[ LLViewerDynamicTexture::ORDER_COUNT ];

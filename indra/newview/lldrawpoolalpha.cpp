@@ -348,7 +348,7 @@ void LLDrawPoolAlpha::render(S32 pass)
 
 void LLDrawPoolAlpha::renderAlphaHighlight(U32 mask)
 {
-	for (LLCullResult::sg_iterator i = gPipeline.beginAlphaGroups(); i != gPipeline.endAlphaGroups(); ++i)
+	for (LLCullResult::sg_list_t::iterator i = gPipeline.beginAlphaGroups(); i != gPipeline.endAlphaGroups(); ++i)
 	{
 		LLSpatialGroup* group = *i;
 		if (group->mSpatialPartition->mRenderByGroup &&
@@ -385,7 +385,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 	
 	BOOL use_shaders = gPipeline.canUseVertexShaders();
 		
-	for (LLCullResult::sg_iterator i = gPipeline.beginAlphaGroups(); i != gPipeline.endAlphaGroups(); ++i)
+	for (LLCullResult::sg_list_t::iterator i = gPipeline.beginAlphaGroups(); i != gPipeline.endAlphaGroups(); ++i)
 	{
 		LLSpatialGroup* group = *i;
 		llassert(group);
@@ -404,12 +404,6 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 			for (LLSpatialGroup::drawmap_elem_t::iterator k = draw_info.begin(); k != draw_info.end(); ++k)	
 			{
 				LLDrawInfo& params = **k;
-
-				if ((params.mVertexBuffer->getTypeMask() & mask) != mask)
-				{ //FIXME!
-					llwarns << "Missing required components, skipping render batch." << llendl;
-					continue;
-				}
 
 				if ((params.mVertexBuffer->getTypeMask() & mask) != mask)
 				{ //FIXME!
