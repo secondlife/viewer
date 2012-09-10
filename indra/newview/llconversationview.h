@@ -36,6 +36,7 @@
 #include "llcallbackmap.h"
 #include "lltextbox.h"
 #include "llbutton.h"
+#include "lloutputmonitorctrl.h"
 
 class LLIMFloaterContainer;
 
@@ -75,9 +76,9 @@ public:
     struct Params : public LLInitParam::Block<Params, LLFolderViewItem::Params>
     {
         Optional<LLIMFloaterContainer*>			container;
-		Optional<LLButton::Params>				view_profile_button,
-												info_button;
-
+		Optional<LLButton::Params>				info_button;
+        Optional<LLOutputMonitorCtrl::Params>   output_monitor;
+        
         Params();
     };
 
@@ -91,12 +92,10 @@ protected:
 	BOOL postBuild();
 
 	void onInfoBtnClick();
-	void onProfileBtnClick();	
 	
 private:
 	LLButton* createProfileButton();
 	LLButton * mInfoBtn;
-	LLButton * mProfileBtn;
 	
 
 };

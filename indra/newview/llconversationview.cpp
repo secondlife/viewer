@@ -93,8 +93,8 @@ static LLDefaultChildRegistry::Register<LLConversationViewParticipant> r("conver
 
 LLConversationViewParticipant::Params::Params() :	
 container(),
-view_profile_button("view_profile_button"),
-info_button("info_button")
+info_button("info_button"),
+output_monitor("output_monitor")
 {}
 
 LLConversationViewParticipant::LLConversationViewParticipant( const LLConversationViewParticipant::Params& p ):
@@ -104,23 +104,20 @@ LLConversationViewParticipant::LLConversationViewParticipant( const LLConversati
 }
 
 void LLConversationViewParticipant::initFromParams(const LLConversationViewParticipant::Params& params)
-{
-	LLButton::Params view_profile_button_params(params.view_profile_button());
-	LLButton * button = LLUICtrlFactory::create<LLButton>(view_profile_button_params);
-	addChild(button);
-	
+{	
 	LLButton::Params info_button_params(params.info_button());
-	button = LLUICtrlFactory::create<LLButton>(info_button_params);
+	LLButton * button = LLUICtrlFactory::create<LLButton>(info_button_params);
 	addChild(button);	
+
+    LLOutputMonitorCtrl::Params output_monitor_params(params.output_monitor());
+    LLOutputMonitorCtrl * outputMonitor = LLUICtrlFactory::create<LLOutputMonitorCtrl>(output_monitor_params);
+    addChild(outputMonitor);
 }
 
 BOOL LLConversationViewParticipant::postBuild()
 {
 	mInfoBtn = getChild<LLButton>("info_btn");
-	mProfileBtn = getChild<LLButton>("profile_btn");
-	
 	mInfoBtn->setClickedCallback(boost::bind(&LLConversationViewParticipant::onInfoBtnClick, this));
-	mProfileBtn->setClickedCallback(boost::bind(&LLConversationViewParticipant::onProfileBtnClick, this));
 	
 	
 	LLFolderViewItem::postBuild();
@@ -130,11 +127,6 @@ BOOL LLConversationViewParticipant::postBuild()
 void LLConversationViewParticipant::onInfoBtnClick()
 {
 	
-	
-}
-
-void LLConversationViewParticipant::onProfileBtnClick()
-{
 	
 }
 
