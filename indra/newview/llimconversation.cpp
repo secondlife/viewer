@@ -148,7 +148,7 @@ BOOL LLIMConversation::postBuild()
 
 	updateHeaderAndToolbar();
 
-	mSaveRect = !getHost();
+	mSaveRect = isTornOff();
 	initRectControl();
 
 	if (isChatMultiTab())
@@ -221,6 +221,46 @@ void LLIMConversation::onFocusLost()
 {
 	setBackgroundOpaque(false);
 	LLTransientDockableFloater::onFocusLost();
+}
+
+std::string LLIMConversation::appendTime()
+{
+	time_t utc_time;
+	utc_time = time_corrected();
+	std::string timeStr ="["+ LLTrans::getString("TimeHour")+"]:["
+		+LLTrans::getString("TimeMin")+"]";
+
+	LLSD substitution;
+
+	substitution["datetime"] = (S32) utc_time;
+	LLStringUtil::format (timeStr, substitution);
+
+	return timeStr;
+}
+
+void LLIMConversation::appendMessage(const LLChat& chat, const LLSD &args)
+{
+	LLChat& tmp_chat = const_cast<LLChat&>(chat);
+
+	if(tmp_chat.mTimeStr.empty())
+		tmp_chat.mTimeStr = appendTime();
+
+	if (!chat.mMuted)
+	{
+		tmp_chat.mFromName = chat.mFromName;
+		LLSD chat_args;
+		if (args) chat_args = args;
+		chat_args["use_plain_text_chat_history"] =
+				gSavedSettings.getBOOL("PlainTextChatHistory");
+		chat_args["show_time"] = gSavedSettings.getBOOL("IMShowTime");
+		chat_args["show_names_for_p2p_conv"] =
+				!mIsP2PChat || gSavedSettings.getBOOL("IMShowNamesForP2PConv");
+
+		if (mChatHistory)
+		{
+			mChatHistory->appendMessage(chat, chat_args);
+		}
+	}
 }
 
 
@@ -309,11 +349,11 @@ void LLIMConversation::hideOrShowTitle()
 	LLView* floater_contents = getChild<LLView>("contents_view");
 
 	LLRect floater_rect = getLocalRect();
-	S32 top_border_of_contents = floater_rect.mTop - (getHost()? 0 : floater_header_size);
+	S32 top_border_of_contents = floater_rect.mTop - (isTornOff()? floater_header_size : 0);
 	LLRect handle_rect (0, floater_rect.mTop, floater_rect.mRight, top_border_of_contents);
 	LLRect contents_rect (0, top_border_of_contents, floater_rect.mRight, floater_rect.mBottom);
 	mDragHandle->setShape(handle_rect);
-	mDragHandle->setVisible(!getHost());
+	mDragHandle->setVisible(isTornOff());
 	floater_contents->setShape(contents_rect);
 }
 
@@ -331,8 +371,8 @@ void LLIMConversation::hideAllStandardButtons()
 
 void LLIMConversation::updateHeaderAndToolbar()
 {
-	bool is_hosted = !!getHost();
-	if (is_hosted)
+	bool is_torn_off = !getHost();
+	if (!is_torn_off)
 	{
 		hideAllStandardButtons();
 	}
@@ -341,7 +381,7 @@ void LLIMConversation::updateHeaderAndToolbar()
 
 	// Participant list should be visible only in torn off floaters.
 	bool is_participant_list_visible =
-			!is_hosted
+			is_torn_off
 			&& gSavedSettings.getBOOL("IMShowControlPanel")
 			&& !mIsP2PChat;
 
@@ -349,21 +389,21 @@ void LLIMConversation::updateHeaderAndToolbar()
 
 	// Display collapse image (<<) if the floater is hosted
 	// or if it is torn off but has an open control panel.
-	bool is_expanded = is_hosted || is_participant_list_visible;
+	bool is_expanded = !is_torn_off || is_participant_list_visible;
 	mExpandCollapseBtn->setImageOverlay(getString(is_expanded ? "collapse_icon" : "expand_icon"));
 
 	// toggle floater's drag handle and title visibility
 	if (mDragHandle)
 	{
-		mDragHandle->setTitleVisible(!is_hosted);
+		mDragHandle->setTitleVisible(is_torn_off);
 	}
 
 	// The button (>>) should be disabled for torn off P2P conversations.
-	mExpandCollapseBtn->setEnabled(is_hosted || !mIsP2PChat);
+	mExpandCollapseBtn->setEnabled(!is_torn_off || !mIsP2PChat);
 
-	mTearOffBtn->setImageOverlay(getString(is_hosted? "tear_off_icon" : "return_icon"));
+	mTearOffBtn->setImageOverlay(getString(is_torn_off? "return_icon" : "tear_off_icon"));
 
-	mCloseBtn->setVisible(is_hosted && !mIsNearbyChat);
+	mCloseBtn->setVisible(!is_torn_off && !mIsNearbyChat);
 
 	enableDisableCallBtn();
 
@@ -400,7 +440,7 @@ void LLIMConversation::processChatHistoryStyleUpdate()
 		}
 	}
 
-	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat");
+	LLNearbyChat* nearby_chat = LLFloaterReg::findTypedInstance<LLNearbyChat>("nearby_chat");
 	if (nearby_chat)
 	{
              nearby_chat->reloadMessages();
@@ -470,8 +510,8 @@ void LLIMConversation::onClose(bool app_quitting)
 
 void LLIMConversation::onTearOffClicked()
 {
-    setFollows(getHost()? FOLLOWS_NONE : FOLLOWS_ALL);
-    mSaveRect = !getHost();
+    setFollows(isTornOff()? FOLLOWS_ALL : FOLLOWS_NONE);
+    mSaveRect = isTornOff();
     initRectControl();
 	LLFloater::onClickTearOff(this);
 	updateHeaderAndToolbar();

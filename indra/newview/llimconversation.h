@@ -104,6 +104,11 @@ protected:
 	/* virtual */ void onFocusLost();
 	/* virtual */ void onFocusReceived();
 
+	// prepare chat's params and out one message to chatHistory
+	void appendMessage(const LLChat& chat, const LLSD &args = 0);
+
+	std::string appendTime();
+
 	bool mIsNearbyChat;
 	bool mIsP2PChat;
 

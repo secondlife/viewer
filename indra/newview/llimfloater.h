@@ -152,7 +152,6 @@ private:
 
 	BOOL isInviteAllowed() const;
 	BOOL inviteToSession(const uuid_vec_t& agent_ids);
-	void appendMessage(const LLChat& chat, const LLSD &args = 0);
 	static void onInputEditorFocusReceived( LLFocusableElement* caller,void* userdata );
 	static void onInputEditorFocusLost(LLFocusableElement* caller, void* userdata);
 	static void onInputEditorKeystroke(LLTextEditor* caller, void* userdata);

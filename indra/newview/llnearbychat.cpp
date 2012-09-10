@@ -69,7 +69,7 @@
 
 S32 LLNearbyChat::sLastSpecialChatChannel = 0;
 
-// --- 2 functions in the global namespace :( ---
+// --- function in the global namespace :( ---
 bool isWordsName(const std::string& name)
 {
 	// checking to see if it's display name plus username in parentheses
@@ -88,22 +88,6 @@ bool isWordsName(const std::string& name)
 		return std::string::npos != pos && name.rfind(' ', name.length()) == pos && 0 != pos && name.length()-1 != pos;
 	}
 }
-
-std::string appendTime()
-{
-	time_t utc_time;
-	utc_time = time_corrected();
-	std::string timeStr ="["+ LLTrans::getString("TimeHour")+"]:["
-		+LLTrans::getString("TimeMin")+"]";
-
-	LLSD substitution;
-
-	substitution["datetime"] = (S32) utc_time;
-	LLStringUtil::format (timeStr, substitution);
-
-	return timeStr;
-}
-
 
 const S32 EXPANDED_HEIGHT = 266;
 const S32 COLLAPSED_HEIGHT = 60;
@@ -129,6 +113,7 @@ LLNearbyChat::LLNearbyChat(const LLSD& llsd)
 	mSpeakerMgr(NULL),
 	mExpandedHeight(COLLAPSED_HEIGHT + EXPANDED_HEIGHT)
 {
+    mIsP2PChat = false;
 	mIsNearbyChat = true;
 	setIsChrome(TRUE);
 	mKey = LLSD();
@@ -601,31 +586,6 @@ void LLNearbyChat::sendChat( EChatType type )
 	if (gSavedSettings.getBOOL("CloseChatOnReturn"))
 	{
 		stopChat();
-	}
-}
-
-
-void LLNearbyChat::appendMessage(const LLChat& chat, const LLSD &args)
-{
-	LLChat& tmp_chat = const_cast<LLChat&>(chat);
-
-	if(tmp_chat.mTimeStr.empty())
-		tmp_chat.mTimeStr = appendTime();
-
-	if (!chat.mMuted)
-	{
-		tmp_chat.mFromName = chat.mFromName;
-		LLSD chat_args;
-		if (args) chat_args = args;
-		chat_args["use_plain_text_chat_history"] =
-				gSavedSettings.getBOOL("PlainTextChatHistory");
-		chat_args["show_time"] = gSavedSettings.getBOOL("IMShowTime");
-		chat_args["show_names_for_p2p_conv"] = true;
-
-		if (mChatHistory)
-		{
-			mChatHistory->appendMessage(chat, chat_args);
-		}
 	}
 }
 

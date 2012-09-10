@@ -108,8 +108,6 @@ protected:
 
 private:
 
-	// prepare chat's params and out one message to chatHistory
-	void appendMessage(const LLChat& chat, const LLSD &args = 0);
 	void	onNearbySpeakers	();
 
 	/*virtual*/ void refresh();
