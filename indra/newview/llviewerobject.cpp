@@ -1433,9 +1433,10 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 #else
 					val = (U16 *) &data[count];
 #endif
-					setAngularVelocity(	U16_to_F32(val[VX], -size, size),
-										U16_to_F32(val[VY], -size, size),
-										U16_to_F32(val[VZ], -size, size));
+					new_angv.set(U16_to_F32(val[VX], -size, size),
+						U16_to_F32(val[VY], -size, size),
+						U16_to_F32(val[VZ], -size, size));
+					setAngularVelocity(new_angv);
 					break;
 
 				case 16:
@@ -1459,9 +1460,10 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					new_rot.mQ[VZ] = U8_to_F32(data[11], -1.f, 1.f);
 					new_rot.mQ[VW] = U8_to_F32(data[12], -1.f, 1.f);
 
-					setAngularVelocity(	U8_to_F32(data[13], -size, size),
-										U8_to_F32(data[14], -size, size),
-										U8_to_F32(data[15], -size, size) );
+					new_angv.set(U8_to_F32(data[13], -size, size),
+						U8_to_F32(data[14], -size, size),
+						U8_to_F32(data[15], -size, size));
+					setAngularVelocity(new_angv);
 					break;
 				}
 
@@ -1533,9 +1535,10 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				dp->unpackU16(val[VX], "AccX");
 				dp->unpackU16(val[VY], "AccY");
 				dp->unpackU16(val[VZ], "AccZ");
-				setAngularVelocity(	U16_to_F32(val[VX], -64.f, 64.f),
-									U16_to_F32(val[VY], -64.f, 64.f),
-									U16_to_F32(val[VZ], -64.f, 64.f));
+				new_angv.set(U16_to_F32(val[VX], -64.f, 64.f),
+				             U16_to_F32(val[VY], -64.f, 64.f),
+				             U16_to_F32(val[VZ], -64.f, 64.f));
+				setAngularVelocity(new_angv);
 			}
 			break;
 			case OUT_FULL_COMPRESSED:
@@ -1579,8 +1582,8 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 				if (value & 0x80)
 				{
-					dp->unpackVector3(vec, "Omega");
-					setAngularVelocity(vec);
+					dp->unpackVector3(new_angv, "Omega");
+					setAngularVelocity(new_angv);
 				}
 
 				if (value & 0x20)
@@ -2074,7 +2077,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 	{
 		if (new_angv != old_angv)
 		{
-			if (flagUsePhysics())
+			if (flagUsePhysics() || new_angv.isExactlyZero())
 			{
 				resetRot();
 			}
