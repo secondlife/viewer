@@ -163,10 +163,16 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 	mGeomCount		= 0;
 	mGeomIndex		= 0;
 	mIndicesCount	= 0;
-
-	//special value to indicate uninitialized position
-	mIndicesIndex	= 0xFFFFFFFF;
-
+	if (drawablep->getRenderType() == LLPipeline::RENDER_TYPE_PARTICLES ||
+		drawablep->getRenderType() == LLPipeline::RENDER_TYPE_HUD_PARTICLES)
+	{ //indicate to LLParticlePartition that this particle is uninitialized
+		mIndicesIndex = 0xFFFFFFFF;
+	}
+	else
+	{
+		mIndicesIndex	= 0;
+	}
+	mIndexInTex = 0;
 	mTexture		= NULL;
 	mTEOffset		= -1;
 	mTextureIndex = 255;
@@ -201,10 +207,13 @@ void LLFace::destroy()
 		mTexture->removeFace(this) ;
 	}
 	
-	if (isState(LLFace::PARTICLE))
+	if (mDrawablep.notNull() &&
+		(mDrawablep->getRenderType() == LLPipeline::RENDER_TYPE_PARTICLES ||
+		mDrawablep->getRenderType() == LLPipeline::RENDER_TYPE_HUD_PARTICLES) &&
+		mIndicesIndex != 0xFFFFFFFF)
 	{
 		LLVOPartGroup::freeVBSlot(getGeomIndex()/4);
-		clearState(LLFace::PARTICLE);
+		mIndicesIndex = 0xFFFFFFFF;
 	}
 
 	if (mDrawPoolp)
@@ -1198,25 +1207,19 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	{
 		if (num_indices + (S32) mIndicesIndex > mVertexBuffer->getNumIndices())
 		{
-			if (gDebugGL)
-			{
-				llwarns	<< "Index buffer overflow!" << llendl;
-				llwarns << "Indices Count: " << mIndicesCount
-						<< " VF Num Indices: " << num_indices
-						<< " Indices Index: " << mIndicesIndex
-						<< " VB Num Indices: " << mVertexBuffer->getNumIndices() << llendl;
-				llwarns	<< " Face Index: " << f
-						<< " Pool Type: " << mPoolType << llendl;
-			}
+			llwarns	<< "Index buffer overflow!" << llendl;
+			llwarns << "Indices Count: " << mIndicesCount
+					<< " VF Num Indices: " << num_indices
+					<< " Indices Index: " << mIndicesIndex
+					<< " VB Num Indices: " << mVertexBuffer->getNumIndices() << llendl;
+			llwarns	<< " Face Index: " << f
+					<< " Pool Type: " << mPoolType << llendl;
 			return FALSE;
 		}
 
 		if (num_vertices + mGeomIndex > mVertexBuffer->getNumVerts())
 		{
-			if (gDebugGL)
-			{
-				llwarns << "Vertex buffer overflow!" << llendl;
-			}
+			llwarns << "Vertex buffer overflow!" << llendl;
 			return FALSE;
 		}
 	}
@@ -1648,8 +1651,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 						if (!do_xform)
 						{
 							LLFastTimer t(FTM_FACE_TEX_QUICK_NO_XFORM);
-							S32 tc_size = (num_vertices*2*sizeof(F32)+0xF) & ~0xF;
-							LLVector4a::memcpyNonAliased16((F32*) tex_coords.get(), (F32*) vf.mTexCoords, tc_size);
+							LLVector4a::memcpyNonAliased16((F32*) tex_coords.get(), (F32*) vf.mTexCoords, num_vertices*2*sizeof(F32));
 						}
 						else
 						{

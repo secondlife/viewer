@@ -37,19 +37,9 @@
 class LLVolumeTriangle : public LLRefCount
 {
 public:
-	void* operator new(size_t size)
-	{
-		return ll_aligned_malloc_16(size);
-	}
-
-	void operator delete(void* ptr)
-	{
-		ll_aligned_free_16(ptr);
-	}
-
 	LLVolumeTriangle()
 	{
-		mBinIndex = -1;	
+		
 	}
 
 	LLVolumeTriangle(const LLVolumeTriangle& rhs)
@@ -68,38 +58,21 @@ public:
 	
 	}
 
-	LL_ALIGN_16(LLVector4a mPositionGroup);
+	LLVector4a mPositionGroup;
 
 	const LLVector4a* mV[3];
 	U16 mIndex[3];
 
 	F32 mRadius;
-	mutable S32 mBinIndex;
-
 
 	virtual const LLVector4a& getPositionGroup() const;
 	virtual const F32& getBinRadius() const;
-	
-	S32 getBinIndex() const { return mBinIndex; }
-	void setBinIndex(S32 idx) const { mBinIndex = idx; }
-
-
 };
 
 class LLVolumeOctreeListener : public LLOctreeListener<LLVolumeTriangle>
 {
 public:
 	
-	void* operator new(size_t size)
-	{
-		return ll_aligned_malloc_16(size);
-	}
-
-	void operator delete(void* ptr)
-	{
-		ll_aligned_free_16(ptr);
-	}
-
 	LLVolumeOctreeListener(LLOctreeNode<LLVolumeTriangle>* node);
 	~LLVolumeOctreeListener();
 	
@@ -126,8 +99,8 @@ public:
 	
 
 public:
-	LL_ALIGN_16(LLVector4a mBounds[2]); // bounding box (center, size) of this node and all its children (tight fit to objects)
-	LL_ALIGN_16(LLVector4a mExtents[2]); // extents (min, max) of this node and all its children
+	LLVector4a mBounds[2]; // bounding box (center, size) of this node and all its children (tight fit to objects)
+	LLVector4a mExtents[2]; // extents (min, max) of this node and all its children
 };
 
 class LLOctreeTriangleRayIntersect : public LLOctreeTraveler<LLVolumeTriangle>

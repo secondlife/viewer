@@ -43,7 +43,6 @@
 #include "lldrawpool.h"
 #include "noise.h"
 
-extern bool gShiftFrame;
 extern U64 gFrameTime;
 extern LLPipeline gPipeline;
 
@@ -219,7 +218,7 @@ void LLSurfacePatch::eval(const U32 x, const U32 y, const U32 stride, LLVector3 
 	pos_agent.mV[VX] += x * mSurfacep->getMetersPerGrid();
 	pos_agent.mV[VY] += y * mSurfacep->getMetersPerGrid();
 	pos_agent.mV[VZ]  = *(mDataZ + point_offset);
-	*vertex     = pos_agent-mVObjp->getRegion()->getOriginAgent();
+	*vertex     = pos_agent;
 
 	LLVector3 rel_pos = pos_agent - mSurfacep->getOriginAgent();
 	LLVector3 tex_pos = rel_pos * (1.f/surface_stride);
@@ -367,13 +366,10 @@ void LLSurfacePatch::updateCameraDistanceRegion(const LLVector3 &pos_region)
 {
 	if (LLPipeline::sDynamicLOD)
 	{
-		if (!gShiftFrame)
-		{
-			LLVector3 dv = pos_region;
-			dv -= mCenterRegion;
-			mVisInfo.mDistance = llmax(0.f, (F32)(dv.magVec() - mRadius))/
-				llmax(LLVOSurfacePatch::sLODFactor, 0.1f);
-		}
+		LLVector3 dv = pos_region;
+		dv -= mCenterRegion;
+		mVisInfo.mDistance = llmax(0.f, (F32)(dv.magVec() - mRadius))/
+			llmax(LLVOSurfacePatch::sLODFactor, 0.1f);
 	}
 	else
 	{

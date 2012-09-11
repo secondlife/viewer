@@ -294,34 +294,6 @@ void LLDrawPoolTerrain::renderShadow(S32 pass)
 	//glCullFace(GL_BACK);
 }
 
-
-void LLDrawPoolTerrain::drawLoop()
-{
-	if (!mDrawFace.empty())
-	{
-		for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
-			 iter != mDrawFace.end(); iter++)
-		{
-			LLFace *facep = *iter;
-
-			LLMatrix4* model_matrix = &(facep->getDrawable()->getRegion()->mRenderMatrix);
-
-			if (model_matrix != gGLLastMatrix)
-			{
-				gGLLastMatrix = model_matrix;
-				gGL.loadMatrix(gGLModelView);
-				if (model_matrix)
-				{
-					gGL.multMatrix((GLfloat*) model_matrix->mMatrix);
-				}
-				gPipeline.mMatrixOpCount++;
-			}
-
-			facep->renderIndexed();
-		}
-	}
-}
-
 void LLDrawPoolTerrain::renderFullShader()
 {
 	// Hack! Get the region that this draw pool is rendering from!

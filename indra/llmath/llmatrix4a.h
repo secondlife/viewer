@@ -34,7 +34,7 @@
 class LLMatrix4a
 {
 public:
-	LL_ALIGN_16(LLVector4a mMatrix[4]);
+	LLVector4a mMatrix[4];
 
 	inline void clear()
 	{

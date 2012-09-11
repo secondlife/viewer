@@ -48,7 +48,7 @@ LLPolyMorphData::LLPolyMorphData(const std::string& morph_name)
 	mNumIndices = 0;
 	mCurrentIndex = 0;
 	mTotalDistortion = 0.f;
-	mAvgDistortion.clear();
+	mAvgDistortion.zeroVec();
 	mMaxDistortion = 0.f;
 	mVertexIndices = NULL;
 	mCoords = NULL;
@@ -73,9 +73,9 @@ LLPolyMorphData::LLPolyMorphData(const LLPolyMorphData &rhs) :
 {
 	const S32 numVertices = mNumIndices;
 
-	mCoords = new LLVector4a[numVertices];
-	mNormals = new LLVector4a[numVertices];
-	mBinormals = new LLVector4a[numVertices];
+	mCoords = new LLVector3[numVertices];
+	mNormals = new LLVector3[numVertices];
+	mBinormals = new LLVector3[numVertices];
 	mTexCoords = new LLVector2[numVertices];
 	mVertexIndices = new U32[numVertices];
 	
@@ -121,16 +121,16 @@ BOOL LLPolyMorphData::loadBinary(LLFILE *fp, LLPolyMeshSharedData *mesh)
 	//-------------------------------------------------------------------------
 	// allocate vertices
 	//-------------------------------------------------------------------------
-	mCoords = new LLVector4a[numVertices];
-	mNormals = new LLVector4a[numVertices];
-	mBinormals = new LLVector4a[numVertices];
+	mCoords = new LLVector3[numVertices];
+	mNormals = new LLVector3[numVertices];
+	mBinormals = new LLVector3[numVertices];
 	mTexCoords = new LLVector2[numVertices];
 	// Actually, we are allocating more space than we need for the skiplist
 	mVertexIndices = new U32[numVertices];
 	mNumIndices = 0;
 	mTotalDistortion = 0.f;
 	mMaxDistortion = 0.f;
-	mAvgDistortion.clear();
+	mAvgDistortion.zeroVec();
 	mMesh = mesh;
 
 	//-------------------------------------------------------------------------
@@ -152,36 +152,36 @@ BOOL LLPolyMorphData::loadBinary(LLFILE *fp, LLPolyMeshSharedData *mesh)
 		}
 
 
-		numRead = fread(&mCoords[v], sizeof(F32), 3, fp);
-		llendianswizzle(&mCoords[v], sizeof(F32), 3);
+		numRead = fread(&mCoords[v].mV, sizeof(F32), 3, fp);
+		llendianswizzle(&mCoords[v].mV, sizeof(F32), 3);
 		if (numRead != 3)
 		{
 			llwarns << "Can't read morph target vertex coordinates" << llendl;
 			return FALSE;
 		}
 
-		F32 magnitude = mCoords[v].getLength3().getF32();
+		F32 magnitude = mCoords[v].magVec();
 		
 		mTotalDistortion += magnitude;
-		LLVector4a t;
-		t.setAbs(mCoords[v]);
-		mAvgDistortion.add(t);
+		mAvgDistortion.mV[VX] += fabs(mCoords[v].mV[VX]);
+		mAvgDistortion.mV[VY] += fabs(mCoords[v].mV[VY]);
+		mAvgDistortion.mV[VZ] += fabs(mCoords[v].mV[VZ]);
 		
 		if (magnitude > mMaxDistortion)
 		{
 			mMaxDistortion = magnitude;
 		}
 
-		numRead = fread(&mNormals[v], sizeof(F32), 3, fp);
-		llendianswizzle(&mNormals[v], sizeof(F32), 3);
+		numRead = fread(&mNormals[v].mV, sizeof(F32), 3, fp);
+		llendianswizzle(&mNormals[v].mV, sizeof(F32), 3);
 		if (numRead != 3)
 		{
 			llwarns << "Can't read morph target normal" << llendl;
 			return FALSE;
 		}
 
-		numRead = fread(&mBinormals[v], sizeof(F32), 3, fp);
-		llendianswizzle(&mBinormals[v], sizeof(F32), 3);
+		numRead = fread(&mBinormals[v].mV, sizeof(F32), 3, fp);
+		llendianswizzle(&mBinormals[v].mV, sizeof(F32), 3);
 		if (numRead != 3)
 		{
 			llwarns << "Can't read morph target binormal" << llendl;
@@ -200,8 +200,8 @@ BOOL LLPolyMorphData::loadBinary(LLFILE *fp, LLPolyMeshSharedData *mesh)
 		mNumIndices++;
 	}
 
-	mAvgDistortion.mul(1.f/(F32)mNumIndices);
-	mAvgDistortion.normalize3fast();
+	mAvgDistortion = mAvgDistortion * (1.f/(F32)mNumIndices);
+	mAvgDistortion.normVec();
 
 	return TRUE;
 }
@@ -367,9 +367,9 @@ BOOL LLPolyMorphTarget::parseData(LLXmlTreeNode* node)
 //-----------------------------------------------------------------------------
 // getVertexDistortion()
 //-----------------------------------------------------------------------------
-LLVector4a LLPolyMorphTarget::getVertexDistortion(S32 requested_index, LLPolyMesh *mesh)
+LLVector3 LLPolyMorphTarget::getVertexDistortion(S32 requested_index, LLPolyMesh *mesh)
 {
-	if (!mMorphData || mMesh != mesh) return LLVector4a::getZero();
+	if (!mMorphData || mMesh != mesh) return LLVector3::zero;
 
 	for(U32 index = 0; index < mMorphData->mNumIndices; index++)
 	{
@@ -379,17 +379,17 @@ LLVector4a LLPolyMorphTarget::getVertexDistortion(S32 requested_index, LLPolyMes
 		}
 	}
 
-	return LLVector4a::getZero();
+	return LLVector3::zero;
 }
 
 //-----------------------------------------------------------------------------
 // getFirstDistortion()
 //-----------------------------------------------------------------------------
-const LLVector4a *LLPolyMorphTarget::getFirstDistortion(U32 *index, LLPolyMesh **poly_mesh)
+const LLVector3 *LLPolyMorphTarget::getFirstDistortion(U32 *index, LLPolyMesh **poly_mesh)
 {
-	if (!mMorphData) return &LLVector4a::getZero();
+	if (!mMorphData) return &LLVector3::zero;
 
-	LLVector4a* resultVec;
+	LLVector3* resultVec;
 	mMorphData->mCurrentIndex = 0;
 	if (mMorphData->mNumIndices)
 	{
@@ -411,11 +411,11 @@ const LLVector4a *LLPolyMorphTarget::getFirstDistortion(U32 *index, LLPolyMesh *
 //-----------------------------------------------------------------------------
 // getNextDistortion()
 //-----------------------------------------------------------------------------
-const LLVector4a *LLPolyMorphTarget::getNextDistortion(U32 *index, LLPolyMesh **poly_mesh)
+const LLVector3 *LLPolyMorphTarget::getNextDistortion(U32 *index, LLPolyMesh **poly_mesh)
 {
-	if (!mMorphData) return &LLVector4a::getZero();
+	if (!mMorphData) return &LLVector3::zero;
 
-	LLVector4a* resultVec;
+	LLVector3* resultVec;
 	mMorphData->mCurrentIndex++;
 	if (mMorphData->mCurrentIndex < mMorphData->mNumIndices)
 	{
@@ -451,7 +451,7 @@ F32	LLPolyMorphTarget::getTotalDistortion()
 //-----------------------------------------------------------------------------
 // getAvgDistortion()
 //-----------------------------------------------------------------------------
-const LLVector4a& LLPolyMorphTarget::getAvgDistortion()	
+const LLVector3& LLPolyMorphTarget::getAvgDistortion()	
 {
 	if (mMorphData) 
 	{
@@ -459,7 +459,7 @@ const LLVector4a& LLPolyMorphTarget::getAvgDistortion()
 	}
 	else 
 	{
-		return LLVector4a::getZero();
+		return LLVector3::zero;
 	}
 }
 
@@ -481,16 +481,12 @@ F32	LLPolyMorphTarget::getMaxDistortion()
 //-----------------------------------------------------------------------------
 // apply()
 //-----------------------------------------------------------------------------
-static LLFastTimer::DeclareTimer FTM_APPLY_MORPH_TARGET("Apply Morph");
-
 void LLPolyMorphTarget::apply( ESex avatar_sex )
 {
 	if (!mMorphData || mNumMorphMasksPending > 0)
 	{
 		return;
 	}
-
-	LLFastTimer t(FTM_APPLY_MORPH_TARGET);
 
 	mLastSex = avatar_sex;
 
@@ -512,15 +508,15 @@ void LLPolyMorphTarget::apply( ESex avatar_sex )
 	if (delta_weight != 0.f)
 	{
 		llassert(!mMesh->isLOD());
-		LLVector4a *coords = mMesh->getWritableCoords();
+		LLVector4 *coords = mMesh->getWritableCoords();
 
-		LLVector4a *scaled_normals = mMesh->getScaledNormals();
-		LLVector4a *normals = mMesh->getWritableNormals();
+		LLVector3 *scaled_normals = mMesh->getScaledNormals();
+		LLVector4 *normals = mMesh->getWritableNormals();
 
-		LLVector4a *scaled_binormals = mMesh->getScaledBinormals();
-		LLVector4a *binormals = mMesh->getWritableBinormals();
+		LLVector3 *scaled_binormals = mMesh->getScaledBinormals();
+		LLVector3 *binormals = mMesh->getWritableBinormals();
 
-		LLVector4a *clothing_weights = mMesh->getWritableClothingWeights();
+		LLVector4 *clothing_weights = mMesh->getWritableClothingWeights();
 		LLVector2 *tex_coords = mMesh->getWritableTexCoords();
 
 		F32 *maskWeightArray = (mVertMask) ? mVertMask->getMorphMaskWeights() : NULL;
@@ -535,38 +531,31 @@ void LLPolyMorphTarget::apply( ESex avatar_sex )
 				maskWeight = maskWeightArray[vert_index_morph];
 			}
 
-
-			LLVector4a pos = mMorphData->mCoords[vert_index_morph];
-			pos.mul(delta_weight*maskWeight);
-			coords[vert_index_mesh].add(pos);
+			coords[vert_index_mesh] += LLVector4(mMorphData->mCoords[vert_index_morph] * delta_weight * maskWeight);
 
 			if (getInfo()->mIsClothingMorph && clothing_weights)
 			{
-				LLVector4a clothing_offset = mMorphData->mCoords[vert_index_morph];
-				clothing_offset.mul(delta_weight * maskWeight);
-				LLVector4a* clothing_weight = &clothing_weights[vert_index_mesh];
-				clothing_weight->add(clothing_offset);
-				clothing_weight->getF32ptr()[VW] = maskWeight;
+				LLVector3 clothing_offset = mMorphData->mCoords[vert_index_morph] * delta_weight * maskWeight;
+				LLVector4* clothing_weight = &clothing_weights[vert_index_mesh];
+				clothing_weight->mV[VX] += clothing_offset.mV[VX];
+				clothing_weight->mV[VY] += clothing_offset.mV[VY];
+				clothing_weight->mV[VZ] += clothing_offset.mV[VZ];
+				clothing_weight->mV[VW] = maskWeight;
 			}
 
 			// calculate new normals based on half angles
-			LLVector4a norm = mMorphData->mNormals[vert_index_morph];
-			norm.mul(delta_weight*maskWeight*NORMAL_SOFTEN_FACTOR);
-			scaled_normals[vert_index_mesh].add(norm);
-			norm = scaled_normals[vert_index_mesh];
-			norm.normalize3fast();
-			normals[vert_index_mesh] = norm;
+			scaled_normals[vert_index_mesh] += mMorphData->mNormals[vert_index_morph] * delta_weight * maskWeight * NORMAL_SOFTEN_FACTOR;
+			LLVector3 normalized_normal = scaled_normals[vert_index_mesh];
+			normalized_normal.normVec();
+			normals[vert_index_mesh] = LLVector4(normalized_normal);
 
 			// calculate new binormals
-			LLVector4a binorm = mMorphData->mBinormals[vert_index_morph];
-			binorm.mul(delta_weight*maskWeight*NORMAL_SOFTEN_FACTOR);
-			scaled_binormals[vert_index_mesh].add(binorm);
-			LLVector4a tangent;
-			tangent.setCross3(scaled_binormals[vert_index_mesh], norm);
-			LLVector4a& normalized_binormal = binormals[vert_index_mesh];
-			normalized_binormal.setCross3(norm, tangent); 
-			normalized_binormal.normalize3fast();
-			
+			scaled_binormals[vert_index_mesh] += mMorphData->mBinormals[vert_index_morph] * delta_weight * maskWeight * NORMAL_SOFTEN_FACTOR;
+			LLVector3 tangent = scaled_binormals[vert_index_mesh] % normalized_normal;
+			LLVector3 normalized_binormal = normalized_normal % tangent; 
+			normalized_binormal.normVec();
+			binormals[vert_index_mesh] = normalized_binormal;
+
 			tex_coords[vert_index_mesh] += mMorphData->mTexCoords[vert_index_morph] * delta_weight * maskWeight;
 		}
 
@@ -593,7 +582,7 @@ void LLPolyMorphTarget::apply( ESex avatar_sex )
 //-----------------------------------------------------------------------------
 void	LLPolyMorphTarget::applyMask(U8 *maskTextureData, S32 width, S32 height, S32 num_components, BOOL invert)
 {
-	LLVector4a *clothing_weights = getInfo()->mIsClothingMorph ? mMesh->getWritableClothingWeights() : NULL;
+	LLVector4 *clothing_weights = getInfo()->mIsClothingMorph ? mMesh->getWritableClothingWeights() : NULL;
 
 	if (!mVertMask)
 	{
@@ -607,17 +596,10 @@ void	LLPolyMorphTarget::applyMask(U8 *maskTextureData, S32 width, S32 height, S3
 
 		if (maskWeights)
 		{
-			LLVector4a *coords = mMesh->getWritableCoords();
-			LLVector4a *scaled_normals = mMesh->getScaledNormals();
-			LLVector4a *scaled_binormals = mMesh->getScaledBinormals();
+			LLVector4 *coords = mMesh->getWritableCoords();
+			LLVector3 *scaled_normals = mMesh->getScaledNormals();
+			LLVector3 *scaled_binormals = mMesh->getScaledBinormals();
 			LLVector2 *tex_coords = mMesh->getWritableTexCoords();
-
-			LLVector4Logical clothing_mask;
-			clothing_mask.clear();
-			clothing_mask.setElement<0>();
-			clothing_mask.setElement<1>();
-			clothing_mask.setElement<2>();
-
 
 			for(U32 vert = 0; vert < mMorphData->mNumIndices; vert++)
 			{
@@ -625,29 +607,18 @@ void	LLPolyMorphTarget::applyMask(U8 *maskTextureData, S32 width, S32 height, S3
 				S32 out_vert = mMorphData->mVertexIndices[vert];
 
 				// remove effect of existing masked morph
-				LLVector4a t;
-				t = mMorphData->mCoords[vert];
-				t.mul(lastMaskWeight);
-				coords[out_vert].sub(t);
-
-				t = mMorphData->mNormals[vert];
-				t.mul(lastMaskWeight*NORMAL_SOFTEN_FACTOR);
-				scaled_normals[out_vert].sub(t);
-
-				t = mMorphData->mBinormals[vert];
-				t.mul(lastMaskWeight*NORMAL_SOFTEN_FACTOR);
-				scaled_binormals[out_vert].sub(t);
-
+				coords[out_vert] -= LLVector4(mMorphData->mCoords[vert]) * lastMaskWeight;
+				scaled_normals[out_vert] -= mMorphData->mNormals[vert] * lastMaskWeight * NORMAL_SOFTEN_FACTOR;
+				scaled_binormals[out_vert] -= mMorphData->mBinormals[vert] * lastMaskWeight * NORMAL_SOFTEN_FACTOR;
 				tex_coords[out_vert] -= mMorphData->mTexCoords[vert] * lastMaskWeight;
 
 				if (clothing_weights)
 				{
-					LLVector4a clothing_offset = mMorphData->mCoords[vert];
-					clothing_offset.mul(lastMaskWeight);
-					LLVector4a* clothing_weight = &clothing_weights[out_vert];
-					LLVector4a t;
-					t.setSub(*clothing_weight, clothing_offset);
-					clothing_weight->setSelectWithMask(clothing_mask, t, *clothing_weight);
+					LLVector3 clothing_offset = mMorphData->mCoords[vert] * lastMaskWeight;
+					LLVector4* clothing_weight = &clothing_weights[out_vert];
+					clothing_weight->mV[VX] -= clothing_offset.mV[VX];
+					clothing_weight->mV[VY] -= clothing_offset.mV[VY];
+					clothing_weight->mV[VZ] -= clothing_offset.mV[VZ];
 				}
 			}
 		}
@@ -683,7 +654,7 @@ LLPolyVertexMask::~LLPolyVertexMask()
 //-----------------------------------------------------------------------------
 // generateMask()
 //-----------------------------------------------------------------------------
-void LLPolyVertexMask::generateMask(U8 *maskTextureData, S32 width, S32 height, S32 num_components, BOOL invert, LLVector4a *clothing_weights)
+void LLPolyVertexMask::generateMask(U8 *maskTextureData, S32 width, S32 height, S32 num_components, BOOL invert, LLVector4 *clothing_weights)
 {
 // RN debug output that uses Image Debugger (http://www.cs.unc.edu/~baxter/projects/imdebug/)
 //	BOOL debugImg = FALSE; 
@@ -727,7 +698,7 @@ void LLPolyVertexMask::generateMask(U8 *maskTextureData, S32 width, S32 height, 
 
 		if (clothing_weights)
 		{
-			clothing_weights[vertIndex].getF32ptr()[VW] = mWeights[index];
+			clothing_weights[vertIndex].mV[VW] = mWeights[index];
 		}
 	}
 	mWeightsGenerated = TRUE;

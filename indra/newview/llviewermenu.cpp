@@ -5134,12 +5134,6 @@ class LLEditDelete : public view_listener_t
 	}
 };
 
-bool enable_object_return()
-{
-	return (!LLSelectMgr::getInstance()->getSelection()->isEmpty() &&
-		(gAgent.isGodlike() || can_derez(DRD_RETURN_TO_OWNER)));
-}
-
 void handle_spellcheck_replace_with_suggestion(const LLUICtrl* ctrl, const LLSD& param)
 {
 	const LLContextMenu* menu = dynamic_cast<const LLContextMenu*>(ctrl->getParent());
@@ -5210,6 +5204,12 @@ bool enable_spellcheck_add_to_ignore(const LLUICtrl* ctrl)
 	const LLContextMenu* menu = dynamic_cast<const LLContextMenu*>(ctrl->getParent());
 	const LLSpellCheckMenuHandler* spellcheck_handler = (menu) ? dynamic_cast<const LLSpellCheckMenuHandler*>(menu->getSpawningView()) : NULL;
 	return (spellcheck_handler) && (spellcheck_handler->canAddToIgnore());
+}
+
+bool enable_object_return()
+{
+	return (!LLSelectMgr::getInstance()->getSelection()->isEmpty() &&
+		(gAgent.isGodlike() || can_derez(DRD_RETURN_TO_OWNER)));
 }
 
 bool enable_object_delete()

@@ -190,6 +190,10 @@ public:
 
 	void buildEdges();
 
+	static S32 drawLoop(face_array_t& face_list);
+	static S32 drawLoopSetTex(face_array_t& face_list, S32 stage);
+	void drawLoop();
+
 	void addFaceReference(LLFace *facep);
 	void removeFaceReference(LLFace *facep);
 

@@ -67,10 +67,11 @@ template <typename T> T* LL_NEXT_ALIGNED_ADDRESS_64(T* address)
 
 #define LL_ALIGN_16(var) LL_ALIGN_PREFIX(16) var LL_ALIGN_POSTFIX(16)
 
+
+
 #include <xmmintrin.h>
 #include <emmintrin.h>
 
-#include "llmemory.h"
 #include "llsimdtypes.h"
 #include "llsimdtypes.inl"
 

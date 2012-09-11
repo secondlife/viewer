@@ -59,17 +59,6 @@ class LLFace
 {
 public:
 
-	void* operator new(size_t size)
-	{
-		return ll_aligned_malloc_16(size);
-	}
-
-	void operator delete(void* ptr)
-	{
-		ll_aligned_free_16(ptr);
-	}
-
-
 	LLFace(const LLFace& rhs)
 	{
 		*this = rhs;
@@ -90,7 +79,6 @@ public:
 		USE_FACE_COLOR	= 0x0010,
 		TEXTURE_ANIM	= 0x0020, 
 		RIGGED			= 0x0040,
-		PARTICLE		= 0x0080,
 	};
 
 	static void initClass();

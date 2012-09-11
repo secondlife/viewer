@@ -27,7 +27,6 @@
 #ifndef	LL_VECTOR4LOGICAL_H
 #define	LL_VECTOR4LOGICAL_H
 
-#include "llmemory.h"
 
 ////////////////////////////
 // LLVector4Logical
@@ -78,7 +77,6 @@ public:
 	inline LLVector4Logical& invert()
 	{
 		static const LL_ALIGN_16(U32 allOnes[4]) = { 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF };
-		ll_assert_aligned(allOnes,16);
 		mQ = _mm_andnot_ps( mQ, *(LLQuad*)(allOnes) );
 		return *this;
 	}
