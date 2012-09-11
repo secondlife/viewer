@@ -34,16 +34,6 @@
 #include "../llsimdmath.h"
 #include "../llvector4a.h"
 
-void* operator new(size_t size)
-{
-	return ll_aligned_malloc_16(size);
-}
-
-void operator delete(void *p)
-{
-	ll_aligned_free_16(p);
-}
-
 namespace tut
 {
 
@@ -59,6 +49,17 @@ tut::alignment_test_t tut_alignment_test("LLAlignment");
 LL_ALIGN_PREFIX(16)
 class MyVector4a
 {
+public:
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete(void *p)
+	{
+		ll_aligned_free_16(p);
+	}
+
 	LLQuad mQ;
 } LL_ALIGN_POSTFIX(16);
 
@@ -68,7 +69,7 @@ template<> template<>
 void alignment_test_object_t::test<1>()
 {
 #   ifdef LL_DEBUG
-	skip("This test fails on Windows when compiled in debug mode.");
+//	skip("This test fails on Windows when compiled in debug mode.");
 #   endif
 	
 	const int num_tests = 7;
@@ -105,7 +106,7 @@ template<> template<>
 void alignment_test_object_t::test<3>()
 {
 #   ifdef LL_DEBUG
-	skip("This test fails on Windows when compiled in debug mode.");
+//	skip("This test fails on Windows when compiled in debug mode.");
 #   endif
 	
 	const int ARR_SIZE = 7;
