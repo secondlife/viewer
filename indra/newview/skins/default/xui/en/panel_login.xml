@@ -31,6 +31,7 @@
       width="996"/>
   <layout_stack
       animate="false"
+      clip="false"
       follows="left|bottom|right"
       name="login_widgets"
       layout="topleft"
@@ -223,7 +224,7 @@
         follows="right|bottom"
         name="links" 
         width="210"
-        min_width="210"
+        min_width="100"
         height="80">
       <text
           follows="right|bottom"
