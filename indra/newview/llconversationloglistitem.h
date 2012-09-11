@@ -64,9 +64,15 @@ public:
 
 	void onDoubleClick();
 
-	void initIcons();
+	/**
+	 * updates string value of last interaction time from conversation
+	 */
+	void updateTimestamp();
+	void updateName();
 
 private:
+
+	void initIcons();
 
 	const LLConversation* mConversation;
 

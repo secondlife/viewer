@@ -43,6 +43,12 @@ class LLConversationLogList: public LLFlatListViewEx, public LLConversationLogOb
 {
 	LOG_CLASS(LLConversationLogList);
 public:
+
+	typedef enum e_sort_oder{
+		E_SORT_BY_NAME = 0,
+		E_SORT_BY_DATE = 1,
+	} ESortOrder;
+
 	struct Params : public LLInitParam::Block<Params, LLFlatListViewEx::Params>
 	{
 		Params(){};
@@ -90,6 +96,9 @@ private:
 	LLIMModel::LLIMSession::SType getSelectedSessionType();
 	const LLConversationLogListItem* getSelectedConversationPanel();
 	const LLConversation* getSelectedConversation();
+	LLConversationLogListItem* getConversationLogListItem(const LLUUID& session_id);
+
+	ESortOrder getSortOrder();
 
 	LLHandle<LLToggleableMenu>	mContextMenu;
 	bool mIsDirty;
