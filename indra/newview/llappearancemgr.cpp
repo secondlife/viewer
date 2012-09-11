@@ -665,7 +665,7 @@ void LLWearableHoldingPattern::recoverMissingWearable(LLWearableType::EType type
 	LLNotificationsUtil::add("ReplacedMissingWearable");
 	lldebugs << "Wearable " << LLWearableType::getTypeLabel(type)
 			 << " could not be downloaded.  Replaced inventory item with default wearable." << llendl;
-	LLViewerWearable* wearable = LLWearableList::instance().createNewWearable(type);
+	LLViewerWearable* wearable = LLWearableList::instance().createNewWearable(type, gAgentAvatarp);
 
 	// Add a new one in the lost and found folder.
 	const LLUUID lost_and_found_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
@@ -1841,6 +1841,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering)
 		// Fetch the wearables about to be worn.
 		LLWearableList::instance().getAsset(found.mAssetID,
 											found.mName,
+											gAgentAvatarp,
 											found.mAssetType,
 											onWearableAssetFetch,
 											(void*)holder);

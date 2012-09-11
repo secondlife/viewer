@@ -703,7 +703,7 @@ void LLVOAvatarSelf::idleUpdateAppearanceAnimation()
 		LLWearable *wearable = gAgentWearables.getTopWearable((LLWearableType::EType)type);
 		if (wearable)
 		{
-			wearable->writeToAvatar();
+			wearable->writeToAvatar(this);
 		}
 	}
 
@@ -999,11 +999,6 @@ void LLVOAvatarSelf::updateAttachmentVisibility(U32 camera_mode)
 			}
 		}
 	}
-}
-
-/*virtual*/ BOOL LLVOAvatarSelf::isWearingWearableType(LLWearableType::EType type ) const
-{
-	return gAgentWearables.getWearableCount(type) > 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -2616,17 +2611,17 @@ void LLVOAvatarSelf::requestLayerSetUpdate(ETextureIndex index )
 
 LLViewerTexLayerSet* LLVOAvatarSelf::getLayerSet(ETextureIndex index) const
 {
-	/* switch(index)
-		case TEX_HEAD_BAKED:
-		case TEX_HEAD_BODYPAINT:
-			return mHeadLayerSet; */
-	const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = LLAvatarAppearanceDictionary::getInstance()->getTexture(index);
-	if (texture_dict->mIsUsedByBakedTexture)
-	{
-		const EBakedTextureIndex baked_index = texture_dict->mBakedTextureIndex;
-		return getLayerSet(baked_index);
-	}
-	return NULL;
+       /* switch(index)
+               case TEX_HEAD_BAKED:
+               case TEX_HEAD_BODYPAINT:
+                       return mHeadLayerSet; */
+       const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = LLAvatarAppearanceDictionary::getInstance()->getTexture(index);
+       if (texture_dict->mIsUsedByBakedTexture)
+       {
+               const EBakedTextureIndex baked_index = texture_dict->mBakedTextureIndex;
+               return getLayerSet(baked_index);
+       }
+       return NULL;
 }
 
 LLViewerTexLayerSet* LLVOAvatarSelf::getLayerSet(EBakedTextureIndex baked_index) const
@@ -2637,10 +2632,12 @@ LLViewerTexLayerSet* LLVOAvatarSelf::getLayerSet(EBakedTextureIndex baked_index)
                        return mHeadLayerSet; */
        if (baked_index >= 0 && baked_index < BAKED_NUM_INDICES)
        {
-                       return  getTexLayerSet(baked_index);
+		   return  getTexLayerSet(baked_index);
        }
        return NULL;
 }
+
+
 
 
 // static

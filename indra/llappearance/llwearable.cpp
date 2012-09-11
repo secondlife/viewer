@@ -123,27 +123,80 @@ BOOL LLWearable::exportFile(LLFILE* file) const
 	}
 
 	// texture entries
-	S32 num_textures = mTextureIDMap.size();
+	S32 num_textures = mTEMap.size();
 	if( fprintf( file, "textures %d\n", num_textures ) < 0 )
 	{
-		return FALSE;
-	}
-	
-	for (texture_id_map_t::const_iterator iter = mTextureIDMap.begin(); iter != mTextureIDMap.end(); ++iter)
-	{
-		S32 te = iter->first;
-		const LLUUID& image_id = iter->second;
-		if( fprintf( file, "%d %s\n", te, image_id.asString().c_str()) < 0 )
-		{
 			return FALSE;
-		}
+	}
+
+	for (te_map_t::const_iterator iter = mTEMap.begin(); iter != mTEMap.end(); ++iter)
+	{
+			S32 te = iter->first;
+			const LLUUID& image_id = iter->second->getID();
+			if( fprintf( file, "%d %s\n", te, image_id.asString().c_str()) < 0 )
+			{
+					return FALSE;
+			}
 	}
 	return TRUE;
 }
 
+void LLWearable::createVisualParams(LLAvatarAppearance *avatarp)
+{
+	for (LLViewerVisualParam* param = (LLViewerVisualParam*) avatarp->getFirstVisualParam(); 
+		 param;
+		 param = (LLViewerVisualParam*) avatarp->getNextVisualParam())
+	{
+		if (param->getWearableType() == mType)
+		{
+			addVisualParam(param->cloneParam(this));
+		}
+	}
+
+	// resync driver parameters to point to the newly cloned driven parameters
+	for (visual_param_index_map_t::iterator param_iter = mVisualParamIndexMap.begin(); 
+		 param_iter != mVisualParamIndexMap.end(); 
+		 ++param_iter)
+	{
+		LLVisualParam* param = param_iter->second;
+		LLVisualParam*(LLWearable::*wearable_function)(S32)const = &LLWearable::getVisualParam; 
+		// need this line to disambiguate between versions of LLCharacter::getVisualParam()
+		LLVisualParam*(LLAvatarAppearance::*param_function)(S32)const = &LLAvatarAppearance::getVisualParam; 
+		param->resetDrivenParams();
+		if(!param->linkDrivenParams(boost::bind(wearable_function,(LLWearable*)this, _1), false))
+		{
+			if( !param->linkDrivenParams(boost::bind(param_function,avatarp,_1 ), true))
+			{
+				llwarns << "could not link driven params for wearable " << getName() << " id: " << param->getID() << llendl;
+				continue;
+			}
+		}
+	}
+}
+
+void LLWearable::createLayers(S32 te, LLAvatarAppearance *avatarp)
+{
+	LLTexLayerSet *layer_set = NULL;
+	const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = LLAvatarAppearanceDictionary::getInstance()->getTexture((ETextureIndex)te);
+	if (texture_dict->mIsUsedByBakedTexture)
+	{
+		const EBakedTextureIndex baked_index = texture_dict->mBakedTextureIndex;
+		
+		 layer_set = avatarp->getAvatarLayerSet(baked_index);
+	}
+
+	if (layer_set)
+	{
+		   layer_set->cloneTemplates(mTEMap[te], (ETextureIndex)te, this);
+	}
+	else
+	{
+		   llerrs << "could not find layerset for LTO in wearable!" << llendl;
+	}
+}
 
 // virtual
-LLWearable::EImportResult LLWearable::importFile( LLFILE* file )
+LLWearable::EImportResult LLWearable::importFile( LLFILE* file, LLAvatarAppearance* avatarp )
 {
 	// *NOTE: changing the type or size of this buffer will require
 	// changes in the fscanf() code below. You would be better off
@@ -156,6 +209,11 @@ LLWearable::EImportResult LLWearable::importFile( LLFILE* file )
 	if( fields_read != 1 )
 	{
 		return LLWearable::BAD_HEADER;
+	}
+
+	if(!avatarp)
+	{
+		return LLWearable::FAILURE;
 	}
 
 
@@ -265,7 +323,7 @@ LLWearable::EImportResult LLWearable::importFile( LLFILE* file )
 	}
 	if( 0 <= type && type < LLWearableType::WT_COUNT )
 	{
-		setType((LLWearableType::EType)type);
+		setType((LLWearableType::EType)type, avatarp);
 	}
 	else
 	{
@@ -313,37 +371,49 @@ LLWearable::EImportResult LLWearable::importFile( LLFILE* file )
 	}
 
 	// textures
-	mTextureIDMap.clear();
 	for( i = 0; i < num_textures; i++ )
 	{
 		S32 te = 0;
-		fields_read = fscanf(	/* Flawfinder: ignore */
-			file,
-			"%d %2047s\n",
-			&te, text_buffer);
+		fields_read = fscanf(   /* Flawfinder: ignore */
+				file,
+				"%d %2047s\n",
+				&te, text_buffer);
 		if( fields_read != 2 )
 		{
-			llwarns << "Bad Wearable asset: bad texture, #" << i << llendl;
-			return LLWearable::FAILURE;
+				llwarns << "Bad Wearable asset: bad texture, #" << i << llendl;
+				return LLWearable::FAILURE;
 		}
-
+	
 		if( !LLUUID::validate( text_buffer ) )
 		{
-			llwarns << "Bad Wearable asset: bad texture uuid: " << text_buffer << llendl;
-			return LLWearable::FAILURE;
+				llwarns << "Bad Wearable asset: bad texture uuid: " << text_buffer << llendl;
+				return LLWearable::FAILURE;
 		}
 		LLUUID id = LLUUID(text_buffer);
-		mTextureIDMap[te] = id;
+		LLGLTexture* image = gTextureManagerBridgep->getFetchedTexture( id );
+		if( mTEMap.find(te) != mTEMap.end() )
+		{
+				delete mTEMap[te];
+		}
+		if( mSavedTEMap.find(te) != mSavedTEMap.end() )
+		{
+				delete mSavedTEMap[te];
+		}
+	
+		LLUUID textureid(text_buffer);
+		mTEMap[te] = new LLLocalTextureObject(image, textureid);
+		mSavedTEMap[te] = new LLLocalTextureObject(image, textureid);
+		createLayers(te, avatarp);
 	}
 
 	return LLWearable::SUCCESS;
 }
 
 
-void LLWearable::setType(LLWearableType::EType type) 
+void LLWearable::setType(LLWearableType::EType type, LLAvatarAppearance *avatarp) 
 { 
 	mType = type; 
-	createVisualParams();
+	createVisualParams(avatarp);
 }
 
 
@@ -441,6 +511,26 @@ void LLWearable::setClothesColor( S32 te, const LLColor4& new_color, BOOL upload
 		}
 	}
 }
+
+void LLWearable::writeToAvatar(LLAvatarAppearance* avatarp)
+{
+	if (!avatarp) return;
+
+	// Pull params
+	for( LLVisualParam* param = avatarp->getFirstVisualParam(); param; param = avatarp->getNextVisualParam() )
+	{
+		// cross-wearable parameters are not authoritative, as they are driven by a different wearable. So don't copy the values to the
+		// avatar object if cross wearable. Cross wearable params get their values from the avatar, they shouldn't write the other way.
+		if( (((LLViewerVisualParam*)param)->getWearableType() == mType) && (!((LLViewerVisualParam*)param)->getCrossWearable()) )
+		{
+			S32 param_id = param->getID();
+			F32 weight = getVisualParamWeight(param_id);
+
+			avatarp->setVisualParamWeight( param_id, weight, FALSE );
+		}
+	}
+}
+
 
 std::string terse_F32_to_string(F32 f)
 {

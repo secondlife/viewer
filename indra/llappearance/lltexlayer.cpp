@@ -1620,7 +1620,7 @@ LLTexLayer* LLTexLayerTemplate::getLayer(U32 i) const
 		}
 		if (layer)
 		{
-			wearable->writeToAvatar();
+			wearable->writeToAvatar(mAvatarAppearance);
 			layer->setLTO(lto);
 			success &= layer->render(x,y,width,height);
 		}

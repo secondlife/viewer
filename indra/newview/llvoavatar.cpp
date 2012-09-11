@@ -5560,6 +5560,53 @@ S32 LLVOAvatar::getAttachmentCount()
 	return count;
 }
 
+BOOL LLVOAvatar::isWearingWearableType(LLWearableType::EType type) const
+{
+	if (mIsDummy) return TRUE;
+
+	if (isSelf())
+	{
+		return LLAvatarAppearance::isWearingWearableType(type);
+	}
+
+	switch(type)
+	{
+		case LLWearableType::WT_SHAPE:
+		case LLWearableType::WT_SKIN:
+		case LLWearableType::WT_HAIR:
+		case LLWearableType::WT_EYES:
+			return TRUE;  // everyone has all bodyparts
+		default:
+			break; // Do nothing
+	}
+
+	/* switch(type)
+		case LLWearableType::WT_SHIRT:
+			indicator_te = TEX_UPPER_SHIRT; */
+	for (LLAvatarAppearanceDictionary::Textures::const_iterator tex_iter = LLAvatarAppearanceDictionary::getInstance()->getTextures().begin();
+		 tex_iter != LLAvatarAppearanceDictionary::getInstance()->getTextures().end();
+		 ++tex_iter)
+	{
+		const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = tex_iter->second;
+		if (texture_dict->mWearableType == type)
+		{
+			// If you're checking another avatar's clothing, you don't have component textures.
+			// Thus, you must check to see if the corresponding baked texture is defined.
+			// NOTE: this is a poor substitute if you actually want to know about individual pieces of clothing
+			// this works for detecting a skirt (most important), but is ineffective at any piece of clothing that
+			// gets baked into a texture that always exists (upper or lower).
+			if (texture_dict->mIsUsedByBakedTexture)
+			{
+				const EBakedTextureIndex baked_index = texture_dict->mBakedTextureIndex;
+				return isTextureDefined(LLAvatarAppearanceDictionary::getInstance()->getBakedTexture(baked_index)->mTextureIndex);
+			}
+			return FALSE;
+		}
+	}
+	return FALSE;
+}
+
+
 
 // virtual
 void LLVOAvatar::invalidateComposite( LLTexLayerSet* layerset, BOOL upload_result )

@@ -898,7 +898,7 @@ void LLAgentWearables::recoverMissingWearable(const LLWearableType::EType type, 
 	// Try to recover by replacing missing wearable with a new one.
 	LLNotificationsUtil::add("ReplacedMissingWearable");
 	lldebugs << "Wearable " << LLWearableType::getTypeLabel(type) << " could not be downloaded.  Replaced inventory item with default wearable." << llendl;
-	LLViewerWearable* new_wearable = LLWearableList::instance().createNewWearable(type);
+	LLViewerWearable* new_wearable = LLWearableList::instance().createNewWearable(type, gAgentAvatarp);
 
 	setWearable(type,index,new_wearable);
 	//new_wearable->writeToAvatar(TRUE);
@@ -1048,7 +1048,7 @@ void LLAgentWearables::createStandardWearables()
 		if (create[i])
 		{
 			llassert(getWearableCount((LLWearableType::EType)i) == 0);
-			LLViewerWearable* wearable = LLWearableList::instance().createNewWearable((LLWearableType::EType)i);
+			LLViewerWearable* wearable = LLWearableList::instance().createNewWearable((LLWearableType::EType)i, gAgentAvatarp);
 			((OnWearableItemCreatedCB*)(&(*cb)))->addPendingWearable(wearable);
 			// no need to update here...
 			LLUUID category_id = LLUUID::null;
@@ -1786,7 +1786,7 @@ void LLAgentWearables::createWearable(LLWearableType::EType type, bool wear, con
 {
 	if (type == LLWearableType::WT_INVALID || type == LLWearableType::WT_NONE) return;
 
-	LLViewerWearable* wearable = LLWearableList::instance().createNewWearable(type);
+	LLViewerWearable* wearable = LLWearableList::instance().createNewWearable(type, gAgentAvatarp);
 	LLAssetType::EType asset_type = wearable->getAssetType();
 	LLInventoryType::EType inv_type = LLInventoryType::IT_WEARABLE;
 	LLPointer<LLInventoryCallback> cb = wear ? new LLWearAndEditCallback : NULL;

@@ -677,6 +677,7 @@ public:
 	virtual BOOL 		detachObject(LLViewerObject *viewer_object);
 	void				cleanupAttachedMesh( LLViewerObject* pVO );
 	static LLVOAvatar*  findAvatarFromAttachment(LLViewerObject* obj);
+	/*virtual*/ BOOL	isWearingWearableType(LLWearableType::EType type ) const;
 protected:
 	LLViewerJointAttachment* getTargetAttachmentPoint(LLViewerObject* viewer_object);
 	void 				lazyAttach();

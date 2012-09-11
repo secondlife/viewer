@@ -249,8 +249,9 @@ public:
 	void 				requestLayerSetUploads();
 	void				requestLayerSetUpload(LLAvatarAppearanceDefines::EBakedTextureIndex i);
 	void				requestLayerSetUpdate(LLAvatarAppearanceDefines::ETextureIndex i);
-	LLViewerTexLayerSet*	getLayerSet(LLAvatarAppearanceDefines::ETextureIndex index) const;
-	LLViewerTexLayerSet*	getLayerSet(LLAvatarAppearanceDefines::EBakedTextureIndex baked_index) const;
+	LLViewerTexLayerSet* getLayerSet(LLAvatarAppearanceDefines::EBakedTextureIndex baked_index) const;
+	LLViewerTexLayerSet* getLayerSet(LLAvatarAppearanceDefines::ETextureIndex index) const;
+
 	
 	//--------------------------------------------------------------------
 	// Composites
@@ -299,7 +300,6 @@ protected:
  **/
 
 public:
-	/*virtual*/ BOOL	isWearingWearableType(LLWearableType::EType type) const;
 	void				wearableUpdated(LLWearableType::EType type, BOOL upload_result);
 protected:
 	U32 getNumWearables(LLAvatarAppearanceDefines::ETextureIndex i) const;

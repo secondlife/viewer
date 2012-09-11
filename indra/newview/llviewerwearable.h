@@ -30,6 +30,8 @@
 #include "llwearable.h"
 #include "llavatarappearancedefines.h"
 
+class LLVOAvatar;
+
 class LLViewerWearable : public LLWearable
 {
 	friend class LLWearableList;
@@ -58,12 +60,11 @@ public:
 	BOOL				isDirty() const;
 	BOOL				isOldVersion() const;
 
-	/*virtual*/ void	writeToAvatar();
+	/*virtual*/ void	writeToAvatar(LLAvatarAppearance *avatarp);
 	void				removeFromAvatar( BOOL upload_bake )	{ LLViewerWearable::removeFromAvatar( mType, upload_bake ); }
 	static void			removeFromAvatar( LLWearableType::EType type, BOOL upload_bake ); 
 
-	/*virtual*/ BOOL	exportFile(LLFILE* file) const;
-	/*virtual*/ EImportResult	importFile(LLFILE* file);
+	/*virtual*/ EImportResult	importFile(LLFILE* file, LLAvatarAppearance* avatarp);
 	
 	void				setParamsToDefaults();
 	void				setTexturesToDefaults();
@@ -98,18 +99,11 @@ public:
 	/*virtual*/void		addToBakedTextureHash(LLMD5& hash) const;
 
 protected:
-	typedef std::map<S32, LLLocalTextureObject*> te_map_t;
-
-	void 				createLayers(S32 te);
-	/*virtual*/void 	createVisualParams();
-
 	void				syncImages(te_map_t &src, te_map_t &dst);
 	void				destroyTextures();	
 	LLAssetID			mAssetID;
 	LLTransactionID		mTransactionID;
 
-	te_map_t mTEMap;				// maps TE to LocalTextureObject
-	te_map_t mSavedTEMap;			// last saved version of TEMap
 	LLUUID				mItemID;  // ID of the inventory item in the agent's inventory	
 };
 

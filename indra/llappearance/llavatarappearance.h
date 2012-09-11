@@ -269,8 +269,12 @@ private:
  **                                                                            **
  **                    BAKED TEXTURES
  **/
+public:
+	LLTexLayerSet*		getAvatarLayerSet(LLAvatarAppearanceDefines::EBakedTextureIndex baked_index) const;
+
 protected:
 	virtual LLTexLayerSet*	createTexLayerSet() = 0;
+
 protected:
 	class LLMaskedMorph;
 	typedef std::deque<LLMaskedMorph *> 	morph_list_t;

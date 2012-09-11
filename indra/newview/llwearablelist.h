@@ -50,12 +50,13 @@ public:
 
 	void				getAsset(const LLAssetID& assetID,
 								 const std::string& wearable_name,
+								 LLAvatarAppearance *avatarp,
 								 LLAssetType::EType asset_type,
 								 void(*asset_arrived_callback)(LLViewerWearable*, void* userdata),
 								 void* userdata);
 
 	LLViewerWearable*			createCopy(const LLViewerWearable* old_wearable, const std::string& new_name = std::string());
-	LLViewerWearable*			createNewWearable(LLWearableType::EType type);
+	LLViewerWearable*			createNewWearable(LLWearableType::EType type, LLAvatarAppearance *avatarp);
 	
 	// Callback
 	static void	 	    processGetAssetReply(const char* filename, const LLAssetID& assetID, void* user_data, S32 status, LLExtStat ext_status);

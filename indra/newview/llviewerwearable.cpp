@@ -90,60 +90,13 @@ LLViewerWearable::~LLViewerWearable()
 }
 
 // virtual
-BOOL LLViewerWearable::exportFile(LLFILE* file) const
-{
-	mTextureIDMap.clear();
-	for (te_map_t::const_iterator iter = mTEMap.begin(); iter != mTEMap.end(); ++iter)
-	{
-		S32 te = iter->first;
-		const LLUUID& image_id = iter->second->getID();
-		mTextureIDMap[te] = image_id;
-	}
-	return LLWearable::exportFile(file);
-}
-
-
-void LLViewerWearable::createVisualParams()
-{
-	for (LLViewerVisualParam* param = (LLViewerVisualParam*) gAgentAvatarp->getFirstVisualParam(); 
-		 param;
-		 param = (LLViewerVisualParam*) gAgentAvatarp->getNextVisualParam())
-	{
-		if (param->getWearableType() == mType)
-		{
-			addVisualParam(param->cloneParam(this));
-		}
-	}
-
-	// resync driver parameters to point to the newly cloned driven parameters
-	for (visual_param_index_map_t::iterator param_iter = mVisualParamIndexMap.begin(); 
-		 param_iter != mVisualParamIndexMap.end(); 
-		 ++param_iter)
-	{
-		LLVisualParam* param = param_iter->second;
-		LLVisualParam*(LLWearable::*wearable_function)(S32)const = &LLWearable::getVisualParam; 
-		// need this line to disambiguate between versions of LLCharacter::getVisualParam()
-		LLVisualParam*(LLAvatarAppearance::*param_function)(S32)const = &LLAvatarAppearance::getVisualParam; 
-		param->resetDrivenParams();
-		if(!param->linkDrivenParams(boost::bind(wearable_function,(LLWearable*)this, _1), false))
-		{
-			if( !param->linkDrivenParams(boost::bind(param_function,gAgentAvatarp.get(),_1 ), true))
-			{
-				llwarns << "could not link driven params for wearable " << getName() << " id: " << param->getID() << llendl;
-				continue;
-			}
-		}
-	}
-}
-
-// virtual
-LLWearable::EImportResult LLViewerWearable::importFile( LLFILE* file )
+LLWearable::EImportResult LLViewerWearable::importFile( LLFILE* file, LLAvatarAppearance* avatarp )
 {
 	// suppress texlayerset updates while wearables are being imported. Layersets will be updated
 	// when the wearables are "worn", not loaded. Note state will be restored when this object is destroyed.
 	LLOverrideBakedTextureUpdate stop_bakes(false);
 
-	LLWearable::EImportResult result = LLWearable::importFile(file);
+	LLWearable::EImportResult result = LLWearable::importFile(file, avatarp);
 	if (LLWearable::FAILURE == result) return result;
 	if (LLWearable::BAD_HEADER == result)
 	{
@@ -157,19 +110,16 @@ LLWearable::EImportResult LLViewerWearable::importFile( LLFILE* file )
 	LLStringUtil::truncate(mName, DB_INV_ITEM_NAME_STR_LEN );
 	LLStringUtil::truncate(mDescription, DB_INV_ITEM_DESC_STR_LEN );
 
-	texture_id_map_t::const_iterator iter = mTextureIDMap.begin();
-	texture_id_map_t::const_iterator end = mTextureIDMap.end();
+	te_map_t::const_iterator iter = mTEMap.begin();
+	te_map_t::const_iterator end = mTEMap.end();
 	for (; iter != end; ++iter)
 	{
 		S32 te = iter->first;
-		const LLUUID& textureid = iter->second;
-		if( mTEMap.find(te) != mTEMap.end() )
+		LLLocalTextureObject* lto = iter->second;
+		LLUUID textureid = LLUUID::null;
+		if (lto)
 		{
-			delete mTEMap[te];
-		}
-		if( mSavedTEMap.find(te) != mSavedTEMap.end() )
-		{
-			delete mSavedTEMap[te];
+			textureid = lto->getID();
 		}
 
 		LLViewerFetchedTexture* image = LLViewerTextureManager::getFetchedTexture( textureid );
@@ -177,9 +127,6 @@ LLWearable::EImportResult LLViewerWearable::importFile( LLFILE* file )
 		{
 			image->setLoadedCallback(LLVOAvatarSelf::debugOnTimingLocalTexLoaded,0,TRUE,FALSE, new LLVOAvatarSelf::LLAvatarTexData(textureid, (LLAvatarAppearanceDefines::ETextureIndex)te), NULL);
 		}
-		mTEMap[te] = new LLLocalTextureObject(image, textureid);
-		mSavedTEMap[te] = new LLLocalTextureObject(image, textureid);
-		createLayers(te);
 	}
 
 	// copy all saved param values to working params
@@ -335,7 +282,7 @@ void LLViewerWearable::setTexturesToDefaults()
 			if( mTEMap.find(te) == mTEMap.end() )
 			{
 				mTEMap[te] = new LLLocalTextureObject(image, id);
-				createLayers(te);
+				createLayers(te, gAgentAvatarp);
 			}
 			else
 			{
@@ -366,25 +313,17 @@ const LLUUID LLViewerWearable::getDefaultTextureImageID(ETextureIndex index)
 
 
 // Updates the user's avatar's appearance
-void LLViewerWearable::writeToAvatar()
+//virtual
+void LLViewerWearable::writeToAvatar(LLAvatarAppearance *avatarp)
 {
-	if (!isAgentAvatarValid()) return;
+	LLVOAvatarSelf* viewer_avatar = dynamic_cast<LLVOAvatarSelf*>(avatarp);
 
-	ESex old_sex = gAgentAvatarp->getSex();
+	if (!avatarp || !viewer_avatar) return;
 
-	// Pull params
-	for( LLVisualParam* param = gAgentAvatarp->getFirstVisualParam(); param; param = gAgentAvatarp->getNextVisualParam() )
-	{
-		// cross-wearable parameters are not authoritative, as they are driven by a different wearable. So don't copy the values to the
-		// avatar object if cross wearable. Cross wearable params get their values from the avatar, they shouldn't write the other way.
-		if( (((LLViewerVisualParam*)param)->getWearableType() == mType) && (!((LLViewerVisualParam*)param)->getCrossWearable()) )
-		{
-			S32 param_id = param->getID();
-			F32 weight = getVisualParamWeight(param_id);
+	ESex old_sex = avatarp->getSex();
 
-			gAgentAvatarp->setVisualParamWeight( param_id, weight, FALSE );
-		}
-	}
+	LLWearable::writeToAvatar(avatarp);
+
 
 	// Pull texture entries
 	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
@@ -403,14 +342,14 @@ void LLViewerWearable::writeToAvatar()
 			}
 			LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture( image_id, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE );
 			// MULTI-WEARABLE: assume index 0 will be used when writing to avatar. TODO: eliminate the need for this.
-			gAgentAvatarp->setLocalTextureTE(te, image, 0);
+			viewer_avatar->setLocalTextureTE(te, image, 0);
 		}
 	}
 
-	ESex new_sex = gAgentAvatarp->getSex();
+	ESex new_sex = avatarp->getSex();
 	if( old_sex != new_sex )
 	{
-		gAgentAvatarp->updateSexDependentLayerSets( FALSE );
+		viewer_avatar->updateSexDependentLayerSets( FALSE );
 	}	
 	
 //	if( upload_bake )
@@ -472,7 +411,7 @@ void LLViewerWearable::copyDataFrom(const LLViewerWearable* src)
 	mPermissions = src->mPermissions;
 	mSaleInfo = src->mSaleInfo;
 
-	setType(src->mType);
+	setType(src->mType, gAgentAvatarp);
 
 	mSavedVisualParamMap.clear();
 	// Deep copy of mVisualParamMap (copies only those params that are current, filling in defaults where needed)
@@ -513,7 +452,7 @@ void LLViewerWearable::copyDataFrom(const LLViewerWearable* src)
 				mTEMap[te] = new LLLocalTextureObject(image, image_id);
 				mSavedTEMap[te] = new LLLocalTextureObject(image, image_id);
 			}
-			createLayers(te);
+			createLayers(te, gAgentAvatarp);
 		}
 	}
 
@@ -629,19 +568,6 @@ void LLViewerWearable::revertValues()
 	if( panel )
 	{
 		panel->updateScrollingPanelList();
-	}
-}
-
-void LLViewerWearable::createLayers(S32 te)
-{
-	LLViewerTexLayerSet *layer_set = gAgentAvatarp->getLayerSet((ETextureIndex)te);
-	if (layer_set)
-	{
-		layer_set->cloneTemplates(mTEMap[te], (ETextureIndex)te, this);
-	}
-	else
-	{
-		llerrs << "could not find layerset for LTO in wearable!" << llendl;
 	}
 }
 

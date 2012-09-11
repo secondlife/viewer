@@ -37,6 +37,7 @@ class LLMD5;
 class LLVisualParam;
 class LLTexGlobalColorInfo;
 class LLTexGlobalColor;
+class LLAvatarAppearance;
 
 // Abstract class.
 class LLWearable
@@ -52,7 +53,7 @@ public:
 	//--------------------------------------------------------------------
 public:
 	LLWearableType::EType		getType() const	{ return mType; }
-	void						setType(LLWearableType::EType type);
+	void						setType(LLWearableType::EType type, LLAvatarAppearance *avatarp);
 	const std::string&			getName() const	{ return mName; }
 	void						setName(const std::string& name) { mName = name; }
 	const std::string&			getDescription() const { return mDescription; }
@@ -70,7 +71,7 @@ public:
 public:
 	typedef std::vector<LLVisualParam*> visual_param_vec_t;
 
-	virtual void	writeToAvatar() = 0;
+	virtual void	writeToAvatar(LLAvatarAppearance* avatarp);
 
 	enum EImportResult
 	{
@@ -79,7 +80,7 @@ public:
 		BAD_HEADER
 	};
 	virtual BOOL				exportFile(LLFILE* file) const;
-	virtual EImportResult		importFile(LLFILE* file);
+	virtual EImportResult		importFile(LLFILE* file, LLAvatarAppearance* avatarp);
 
 
 
@@ -96,9 +97,6 @@ public:
 	LLColor4			getClothesColor(S32 te) const;
 	void 				setClothesColor( S32 te, const LLColor4& new_color, BOOL upload_bake );
 
-	typedef std::map<S32, LLUUID> texture_id_map_t;
-	const texture_id_map_t& getTextureIDMap() const { return mTextureIDMap; }
-
 	// Something happened that requires the wearable to be updated (e.g. worn/unworn).
 	virtual void		setUpdated() const = 0;
 
@@ -106,7 +104,8 @@ public:
 	virtual void		addToBakedTextureHash(LLMD5& hash) const = 0;
 
 protected:
-	virtual void 	createVisualParams() = 0;
+	void			 	createVisualParams(LLAvatarAppearance *avatarp);
+	void 				createLayers(S32 te, LLAvatarAppearance *avatarp);
 
 	static S32			sCurrentDefinitionVersion;	// Depends on the current state of the avatar_lad.xml.
 	S32					mDefinitionVersion;			// Depends on the state of the avatar_lad.xml when this asset was created.
@@ -122,8 +121,9 @@ protected:
 	typedef std::map<S32, LLVisualParam *>    visual_param_index_map_t;
 	visual_param_index_map_t mVisualParamIndexMap;
 
-	// *TODO: Lazy mutable.  Find a better way?
-	mutable texture_id_map_t mTextureIDMap;
+	typedef std::map<S32, LLLocalTextureObject*> te_map_t;
+	te_map_t mTEMap;				// maps TE to LocalTextureObject
+	te_map_t mSavedTEMap;			// last saved version of TEMap
 };
 
 #endif  // LL_LLWEARABLE_H
