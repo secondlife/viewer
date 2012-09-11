@@ -883,6 +883,9 @@ support@secondlife.com.
 	<string name="ScriptQuestionCautionChatDenied">
 		Объекту «[OBJECTNAME]», который принадлежит пользователю «[OWNERNAME]» и находится в [REGIONPOS] в регионе «[REGIONNAME]», отказано в разрешении: [PERMISSIONS].
 	</string>
+	<string name="AdditionalPermissionsRequestHeader">
+		Разрешив доступ к своему аккаунту, вы также разрешите объекту:
+	</string>
 	<string name="ScriptTakeMoney">
 		У вас берут Linden-деньги
 	</string>
@@ -915,6 +918,9 @@ support@secondlife.com.
 	</string>
 	<string name="ControlYourCamera">
 		Управлять камерой
+	</string>
+	<string name="TeleportYourAgent">
+		Телепортировать вас
 	</string>
 	<string name="NotConnected">
 		Нет подключения
@@ -996,6 +1002,9 @@ support@secondlife.com.
 	</string>
 	<string name="script_files">
 		Скрипты
+	</string>
+	<string name="dictionary_files">
+		Словари
 	</string>
 	<string name="AvatarSetNotAway">
 		На месте
@@ -3852,6 +3861,12 @@ support@secondlife.com.
 	<string name="LocationCtrlSeeAVsTooltip">
 		Все жители с других участков могут видеть аватары и общаться в чате
 	</string>
+	<string name="LocationCtrlPathfindingDirtyTooltip">
+		Возможны неполадки подвижных объектов в этом регионе, пока регион не будет восстановлен.
+	</string>
+	<string name="LocationCtrlPathfindingDisabledTooltip">
+		В этом регионе не разрешен динамический поиск пути.
+	</string>
 	<string name="UpdaterWindowTitle">
 		Обновление [APP_NAME]
 	</string>
@@ -5006,6 +5021,21 @@ support@secondlife.com.
 	<string name="Normal">
 		Нормальный
 	</string>
+	<string name="Pathfinding_Wiki_URL">
+		http://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer
+	</string>
+	<string name="Pathfinding_Object_Attr_None">
+		Нет
+	</string>
+	<string name="Pathfinding_Object_Attr_Permanent">
+		Влияет на навигационную сетку
+	</string>
+	<string name="Pathfinding_Object_Attr_Character">
+		Персонаж
+	</string>
+	<string name="Pathfinding_Object_Attr_MultiSelect">
+		(несколько)
+	</string>
 	<string name="snapshot_quality_very_low">
 		Очень низкий
 	</string>
@@ -5020,5 +5050,11 @@ support@secondlife.com.
 	</string>
 	<string name="snapshot_quality_very_high">
 		Очень высокий
+	</string>
+	<string name="TeleportMaturityExceeded">
+		Житель не может посетить этот регион.
+	</string>
+	<string name="UserDictionary">
+		[Пользователь]
 	</string>
 </strings>
