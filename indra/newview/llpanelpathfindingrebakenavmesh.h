@@ -87,6 +87,7 @@ private:
 	LLButton*                                mNavMeshRebakeButton;
 	LLButton*                                mNavMeshSendingButton;
 	LLButton*                                mNavMeshBakingButton;
+	LLHandle<LLPanel>						 mStateManagementButtons;
 
 	LLPathfindingNavMesh::navmesh_slot_t     mNavMeshSlot;
 	boost::signals2::connection              mRegionCrossingSlot;
