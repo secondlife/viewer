@@ -52,6 +52,7 @@ LLSpinCtrl::Params::Params()
 :	label_width("label_width"),
 	decimal_digits("decimal_digits"),
 	allow_text_entry("allow_text_entry", true),
+	allow_digits_only("allow_digits_only", false),
 	label_wrap("label_wrap", false),
 	text_enabled_color("text_enabled_color"),
 	text_disabled_color("text_disabled_color"),
@@ -129,6 +130,10 @@ LLSpinCtrl::LLSpinCtrl(const LLSpinCtrl::Params& p)
 	params.follows.flags(FOLLOWS_LEFT | FOLLOWS_BOTTOM);
 	mEditor = LLUICtrlFactory::create<LLLineEditor> (params);
 	mEditor->setFocusReceivedCallback( boost::bind(&LLSpinCtrl::onEditorGainFocus, _1, this ));
+	if (p.allow_digits_only)
+	{
+		mEditor->setPrevalidateInput(LLTextValidate::validateNonNegativeS32NoSpace);
+	}
 	//RN: this seems to be a BAD IDEA, as it makes the editor behavior different when it has focus
 	// than when it doesn't.  Instead, if you always have to double click to select all the text, 
 	// it's easier to understand
