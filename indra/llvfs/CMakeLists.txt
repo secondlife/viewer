@@ -69,6 +69,7 @@ set(vfs_BOOST_LIBRARIES
 
 target_link_libraries(llvfs
     ${vfs_BOOST_LIBRARIES}
+    ${LLCOMMON_LIBRARIES}
     )
 
 if (DARWIN)

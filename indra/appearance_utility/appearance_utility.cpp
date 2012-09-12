@@ -38,7 +38,7 @@
 #include "llsdserialize.h"
 #include "llsdutil.h"
 
-//#include "llwearabledata.h"
+#include "llwearabledata.h"
 
 enum EResult
 {
@@ -152,7 +152,7 @@ EResult process_tbd(LLSD& input, std::ostream& output, LLSD& error_llsd)
 {
 	EResult rv = RV_SUCCESS;
 
-	//LLWearableData wearable_data;
+	LLWearableData wearable_data;
 
 	LLSD result;
 	result["success"] = true;

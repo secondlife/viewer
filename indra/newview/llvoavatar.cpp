@@ -7333,17 +7333,5 @@ BOOL LLVOAvatar::isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex type,
 	return FALSE;
 }
 
-//virtual 
-LLAvatarAppearance::LLMaskedMorph::LLMaskedMorph(LLVisualParam *morph_target, BOOL invert, std::string layer) :
-			mMorphTarget(morph_target), 
-			mInvert(invert),
-			mLayer(layer)
-{
-	LLPolyMorphTarget *target = dynamic_cast<LLPolyMorphTarget*>(morph_target);
-	if (target)
-	{
-		target->addPendingMorphMask();
-	}
-}
 
 

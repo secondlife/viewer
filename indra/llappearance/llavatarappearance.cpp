@@ -1833,5 +1833,18 @@ BOOL LLAvatarAppearance::LLAvatarXmlInfo::parseXmlMorphNodes(LLXmlTreeNode* root
 	return TRUE;
 }
 
+//virtual 
+LLAvatarAppearance::LLMaskedMorph::LLMaskedMorph(LLVisualParam *morph_target, BOOL invert, std::string layer) :
+			mMorphTarget(morph_target), 
+			mInvert(invert),
+			mLayer(layer)
+{
+	LLPolyMorphTarget *target = dynamic_cast<LLPolyMorphTarget*>(morph_target);
+	if (target)
+	{
+		target->addPendingMorphMask();
+	}
+}
+
 
 
