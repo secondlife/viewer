@@ -75,6 +75,8 @@ public:
 
 	void collapseMessagesPane(bool collapse);
 	
+	// Callbacks
+	static void idle(void* user_data);
 
 	// LLIMSessionObserver observe triggers
 	/*virtual*/ void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id);
@@ -110,6 +112,8 @@ private:
 	LLLayoutPanel* mConversationsPane;
 	LLLayoutStack* mConversationsStack;
 	
+	bool mInitialized;
+
 	// Conversation list implementation
 public:
 	void removeConversationListItem(const LLUUID& uuid, bool change_focus = true);

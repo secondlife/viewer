@@ -45,11 +45,11 @@ BOOL LLFloaterConversationLog::postBuild()
 
 	switch (gSavedSettings.getU32("CallLogSortOrder"))
 	{
-	case E_SORT_BY_NAME:
+	case LLConversationLogList::E_SORT_BY_NAME:
 		mConversationLogList->sortByName();
 		break;
 
-	case E_SORT_BY_DATE:
+	case LLConversationLogList::E_SORT_BY_DATE:
 		mConversationLogList->sortByDate();
 		break;
 	}
@@ -87,12 +87,12 @@ void LLFloaterConversationLog::onCustomAction (const LLSD& userdata)
 	if ("sort_by_name" == command_name)
 	{
 		mConversationLogList->sortByName();
-		gSavedSettings.setU32("CallLogSortOrder", E_SORT_BY_NAME);
+		gSavedSettings.setU32("CallLogSortOrder", LLConversationLogList::E_SORT_BY_NAME);
 	}
 	else if ("sort_by_date" == command_name)
 	{
 		mConversationLogList->sortByDate();
-		gSavedSettings.setU32("CallLogSortOrder", E_SORT_BY_DATE);
+		gSavedSettings.setU32("CallLogSortOrder", LLConversationLogList::E_SORT_BY_DATE);
 	}
 	else if ("sort_friends_on_top" == command_name)
 	{
@@ -117,11 +117,11 @@ bool LLFloaterConversationLog::isActionChecked(const LLSD& userdata)
 
 	if ("sort_by_name" == command_name)
 	{
-		return sort_order == E_SORT_BY_NAME;
+		return sort_order == LLConversationLogList::E_SORT_BY_NAME;
 	}
 	else if ("sort_by_date" == command_name)
 	{
-		return sort_order == E_SORT_BY_DATE;
+		return sort_order == LLConversationLogList::E_SORT_BY_DATE;
 	}
 	else if ("sort_friends_on_top" == command_name)
 	{

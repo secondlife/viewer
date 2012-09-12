@@ -585,7 +585,8 @@ LLChatHistory::LLChatHistory(const LLChatHistory::Params& p)
 	mBottomSeparatorPad(p.bottom_separator_pad),
 	mTopHeaderPad(p.top_header_pad),
 	mBottomHeaderPad(p.bottom_header_pad),
-	mIsLastMessageFromLog(false)
+	mIsLastMessageFromLog(false),
+	mNotifyAboutUnreadMsg(p.notify_unread_msg)
 {
 	LLTextEditor::Params editor_params(p);
 	editor_params.rect = getLocalRect();
@@ -707,7 +708,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	bool from_me = chat.mFromID == gAgent.getID();
 	mEditor->setPlainText(use_plain_text_chat_history);
 
-	if (!mEditor->scrolledToEnd() && !from_me && !chat.mFromName.empty())
+	if (mNotifyAboutUnreadMsg && !mEditor->scrolledToEnd() && !from_me && !chat.mFromName.empty())
 	{
 		mUnreadChatSources.insert(chat.mFromName);
 		mMoreChatPanel->setVisible(TRUE);

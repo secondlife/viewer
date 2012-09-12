@@ -57,11 +57,17 @@ public:
 	const std::string&	getTimestamp()			const	{ return mTimestamp; }
 	const time_t&		getTime()				const	{ return mTime; }
 	bool				isVoice()				const	{ return mIsVoice; }
-	bool				isConversationPast()	const	{ return mIsConversationPast; }
 	bool				hasOfflineMessages()	const	{ return mHasOfflineIMs; }
 
 	void	setIsVoice(bool is_voice);
-	void	setIsPast (bool is_past) { mIsConversationPast = is_past; }
+	void	setConverstionName(std::string conv_name) { mConversationName = conv_name; }
+
+	bool isOlderThan(U32 days) const;
+
+	/*
+	 * updates last interaction time
+	 */
+	void updateTimestamp();
 
 	/*
 	 * Resets flag of unread offline message to false when im floater with this conversation is opened.
@@ -83,7 +89,7 @@ private:
 
 	boost::signals2::connection mIMFloaterShowedConnection;
 
-	time_t			mTime; // start time of conversation
+	time_t			mTime; // last interaction time
 	SessionType		mConversationType;
 	std::string		mConversationName;
 	std::string		mHistoryFileName;
@@ -91,8 +97,7 @@ private:
 	LLUUID			mParticipantID;
 	bool			mIsVoice;
 	bool			mHasOfflineIMs;
-	bool			mIsConversationPast; // once session is finished conversation became past forever
-	std::string		mTimestamp; // conversation start time in form of: mm/dd/yyyy hh:mm
+	std::string		mTimestamp; // last interaction time in form of: mm/dd/yyyy hh:mm
 };
 
 /**
@@ -109,32 +114,26 @@ class LLConversationLog : public LLSingleton<LLConversationLog>, LLIMSessionObse
 	friend class LLSingleton<LLConversationLog>;
 public:
 
-	/**
-	 * adds conversation to the conversation list and notifies observers
-	 */
-	void logConversation(const LLConversation& conversation);
 	void removeConversation(const LLConversation& conversation);
 
 	/**
 	 * Returns first conversation with matched session_id
 	 */
-	const LLConversation* getConversation(const LLUUID& session_id);
+	const LLConversation*				getConversation(const LLUUID& session_id);
+	const std::vector<LLConversation>&	getConversations() { return mConversations; }
 
 	void addObserver(LLConversationLogObserver* observer);
 	void removeObserver(LLConversationLogObserver* observer);
 
-	const std::vector<LLConversation>& getConversations() { return mConversations; }
-
 	// LLIMSessionObserver triggers
 	virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id);
-	virtual void sessionRemoved(const LLUUID& session_id);
+	virtual void sessionRemoved(const LLUUID& session_id){}											// Stub
 	virtual void sessionVoiceOrIMStarted(const LLUUID& session_id){};								// Stub
 	virtual void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id){};	// Stub
 
 	void notifyObservers();
-	void notifyPrticularConversationObservers(const LLUUID& session_id, U32 mask);
 
-	void onVoiceChannelConnected(const LLUUID& session_id, const LLVoiceChannel::EState& state);
+	void onNewMessageReceived(const LLSD& data);
 
 	/**
 	 * public method which is called on viewer exit to save conversation log
@@ -144,6 +143,13 @@ public:
 private:
 
 	LLConversationLog();
+
+	/**
+	 * adds conversation to the conversation list and notifies observers
+	 */
+	void logConversation(const LLUUID& session_id);
+
+	void notifyPrticularConversationObservers(const LLUUID& session_id, U32 mask);
 
 	void observeIMSession();
 
@@ -156,11 +162,21 @@ private:
 	bool saveToFile(const std::string& filename);
 	bool loadFromFile(const std::string& filename);
 
+	void onAvatarNameCache(const LLUUID& participant_id, const LLAvatarName& av_name, LLIMModel::LLIMSession* session);
+
+	void createConversation(const LLUUID& session_id);
+	void updateConversationTimestamp(LLConversation* conversation);
+	void updateConversationName(const LLUUID& session_id, const std::string& name);
+
+	LLConversation* findConversation(const LLUUID& session_id);
+
 	typedef std::vector<LLConversation> conversations_vec_t;
 	std::vector<LLConversation>				mConversations;
 	std::set<LLConversationLogObserver*>	mObservers;
 
 	LLFriendObserver* mFriendObserver;		// Observer of the LLAvatarTracker instance
+
+	boost::signals2::connection newMessageSignalConnection;
 };
 
 class LLConversationLogObserver
@@ -169,7 +185,8 @@ public:
 
 	enum EConversationChange
 		{
-			VOICE_STATE = 1
+			CHANGED_TIME = 1, // last interaction time changed
+			CHANGED_NAME = 2  // conversation name changed
 		};
 
 	virtual ~LLConversationLogObserver(){}

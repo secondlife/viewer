@@ -134,10 +134,6 @@ public:
 
 private:
 
-	// process focus events to set a currently active session
-	/* virtual */ void onFocusLost();
-	/* virtual */ void onFocusReceived();
-
 	/*virtual*/ void refresh();
 
 	/*virtual*/ void onClickCloseBtn();
@@ -156,7 +152,6 @@ private:
 
 	BOOL isInviteAllowed() const;
 	BOOL inviteToSession(const uuid_vec_t& agent_ids);
-	void appendMessage(const LLChat& chat, const LLSD &args = 0);
 	static void onInputEditorFocusReceived( LLFocusableElement* caller,void* userdata );
 	static void onInputEditorFocusLost(LLFocusableElement* caller, void* userdata);
 	static void onInputEditorKeystroke(LLTextEditor* caller, void* userdata);
@@ -168,9 +163,6 @@ private:
 	bool canAddSelectedToChat(const uuid_vec_t& uuids);
 
 	void onCallButtonClicked();
-
-	// set the enable/disable state for the Call button
-	virtual void enableDisableCallBtn();
 
 	void boundVoiceChannel();
 
@@ -184,8 +176,6 @@ private:
 
 	static void confirmLeaveCallCallback(const LLSD& notification, const LLSD& response);
 
-
-	LLIMModel::LLIMSession* mSession;
 	S32 mLastMessageIndex;
 
 	EInstantMessage mDialog;

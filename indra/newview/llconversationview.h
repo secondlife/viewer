@@ -39,6 +39,8 @@
 #include "lloutputmonitorctrl.h"
 
 class LLIMFloaterContainer;
+class LLConversationViewSession;
+class LLConversationViewParticipant;
 
 // Implementation of conversations list session widgets
 
@@ -62,6 +64,9 @@ public:
 	virtual ~LLConversationViewSession( void ) { }
 	virtual void selectItem();	
 	void setVisibleIfDetached(BOOL visible);
+	LLConversationViewParticipant* findParticipant(const LLUUID& participant_id);
+
+	virtual void refresh();
 };
 
 // Implementation of conversations list participant (avatar) widgets
@@ -76,6 +81,7 @@ public:
     struct Params : public LLInitParam::Block<Params, LLFolderViewItem::Params>
     {
         Optional<LLIMFloaterContainer*>			container;
+        Optional<LLUUID>	participant_id;
 		Optional<LLButton::Params>				info_button;
         Optional<LLOutputMonitorCtrl::Params>   output_monitor;
         
@@ -84,9 +90,11 @@ public:
 
     virtual ~LLConversationViewParticipant( void ) { }
     virtual void draw();
+    bool hasSameValue(const LLUUID& uuid) { return (uuid == mUUID); }
+    virtual void refresh();
     
 protected:
-    friend class LLUICtrlFactory;
+	friend class LLUICtrlFactory;
     LLConversationViewParticipant( const Params& p );
 	void initFromParams(const Params& params);
 	BOOL postBuild();
@@ -96,8 +104,7 @@ protected:
 private:
 	LLButton* createProfileButton();
 	LLButton * mInfoBtn;
-	
-
+    LLUUID mUUID;		// UUID of the participant	
 };
 
 #endif // LL_LLCONVERSATIONVIEW_H

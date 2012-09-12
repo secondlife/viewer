@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llappviewer.h"
+#include "llfloaterreg.h"
 #include "llviewerkeyboard.h"
 #include "llmath.h"
 #include "llagent.h"
@@ -543,7 +544,7 @@ void start_gesture( EKeystate s )
 	if (KEYSTATE_UP == s &&
 		! (focus_ctrlp && focus_ctrlp->acceptsTextInput()))
 	{
- 		if (LLNearbyChat::instance().getCurrentChat().empty())
+ 		if ((LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat"))->getCurrentChat().empty())
  		{
  			// No existing chat in chat editor, insert '/'
  			LLNearbyChat::startChat("/");

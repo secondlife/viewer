@@ -45,6 +45,7 @@
 #include "lltransientfloatermgr.h"
 #include "llviewercontrol.h"
 #include "llconversationview.h"
+#include "llcallbacklist.h"
 
 //
 // LLIMFloaterContainer
@@ -52,7 +53,8 @@
 LLIMFloaterContainer::LLIMFloaterContainer(const LLSD& seed)
 :	LLMultiFloater(seed),
 	mExpandCollapseBtn(NULL),
-	mConversationsRoot(NULL)
+	mConversationsRoot(NULL),
+	mInitialized(false)
 {
 	mCommitCallbackRegistrar.add("IMFloaterContainer.Action", boost::bind(&LLIMFloaterContainer::onCustomAction,  this, _2));
 
@@ -65,6 +67,8 @@ LLIMFloaterContainer::LLIMFloaterContainer(const LLSD& seed)
 
 LLIMFloaterContainer::~LLIMFloaterContainer()
 {
+	gIdleCallbacks.deleteFunction(idle, this);
+
 	mNewMessageConnection.disconnect();
 	LLTransientFloaterMgr::getInstance()->removeControlView(LLTransientFloaterMgr::IM, this);
 
@@ -138,6 +142,20 @@ BOOL LLIMFloaterContainer::postBuild()
 	collapseConversationsPane(gSavedPerAccountSettings.getBOOL("ConversationsListPaneCollapsed"));
 	LLAvatarNameCache::addUseDisplayNamesCallback(
 			boost::bind(&LLIMConversation::processChatHistoryStyleUpdate));
+
+	if (! mMessagesPane->isCollapsed())
+	{
+		S32 list_width = gSavedPerAccountSettings.getS32("ConversationsListPaneWidth");
+		LLRect list_size = mConversationsPane->getRect();
+        S32 left_pad = mConversationsListPanel->getRect().mLeft;
+		list_size.mRight = list_size.mLeft + list_width - left_pad;
+
+        mConversationsPane->handleReshape(list_size, TRUE);
+	}
+	mInitialized = true;
+
+	// Add callback: we'll take care of view updates on idle
+	gIdleCallbacks.addFunction(idle, this);
 
 	return TRUE;
 }
@@ -290,8 +308,70 @@ void LLIMFloaterContainer::setMinimized(BOOL b)
 	}
 }
 
+//static
+void LLIMFloaterContainer::idle(void* user_data)
+{
+	LLIMFloaterContainer* panel = (LLIMFloaterContainer*)user_data;
+	panel->mConversationsRoot->update();
+}
+
 void LLIMFloaterContainer::draw()
 {
+	// CHUI Notes
+	// Currently, the model is not responsible for creating the view which is a good thing. This means that
+	// the model could change substantially and the view could decide to echo only a portion of this model.
+	// Consequently, the participant views need to be created either by the session view or by the container panel.
+	// For the moment, we create them here (which makes for complicated code...) to conform to the pattern
+	// implemented in llinventorypanel.cpp (see LLInventoryPanel::buildNewViews()).
+	// The best however would be to have an observer on the model so that we would not pool on each draw to know
+	// if the view needs refresh. The current implementation (testing for change on draw) is less
+	// efficient perf wise than a listener/observer scheme. We will implement that shortly.
+	
+	// On each session in mConversationsItems
+	for (conversations_items_map::iterator it_session = mConversationsItems.begin(); it_session != mConversationsItems.end(); it_session++)
+	{
+		// Get the current session descriptors
+		LLConversationItem* session_model = it_session->second;
+		LLUUID session_id = it_session->first;
+		LLConversationViewSession* session_view = dynamic_cast<LLConversationViewSession*>(mConversationsWidgets[session_id]);
+		// If the session model has been changed, refresh the corresponding view
+		if (session_model->needsRefresh())
+		{
+			session_view->refresh();
+		}
+		// Iterate through each model participant child
+		LLFolderViewModelItemCommon::child_list_t::const_iterator current_participant_model = session_model->getChildrenBegin();
+		LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = session_model->getChildrenEnd();
+		while (current_participant_model != end_participant_model)
+		{
+			LLConversationItem* participant_model = dynamic_cast<LLConversationItem*>(*current_participant_model);
+			LLUUID participant_id = participant_model->getUUID();
+			LLConversationViewParticipant* participant_view = session_view->findParticipant(participant_id);
+			// Is there a corresponding view? If not create it
+			if (!participant_view)
+			{
+				participant_view = createConversationViewParticipant(participant_model);
+				participant_view->addToFolder(session_view);
+				mConversationsListPanel->addChild(participant_view);
+				participant_view->setVisible(TRUE);
+			}
+			else
+			// Else, see if it needs refresh
+			{
+				if (participant_model->needsRefresh())
+				{
+					participant_view->refresh();
+				}
+			}
+			// Reset the need for refresh
+			session_model->resetRefresh();
+			// Next participant
+			current_participant_model++;
+		}
+	}
+	
+	repositioningWidgets();
+
 	if (mTabContainer->getTabCount() == 0)
 	{
 		// Do not close the container when every conversation is torn off because the user
@@ -299,8 +379,6 @@ void LLIMFloaterContainer::draw()
 		collapseMessagesPane(true);
 	}
 	LLFloater::draw();
-
-	repositioningWidgets();
 }
 
 void LLIMFloaterContainer::tabClose()
@@ -461,6 +539,16 @@ void LLIMFloaterContainer::onCustomAction(const LLSD& userdata)
 
 void LLIMFloaterContainer::repositioningWidgets()
 {
+	if (!mInitialized)
+	{
+		return;
+	}
+
+	if (!mConversationsPane->isCollapsed())
+	{
+		S32 list_width = (mConversationsPane->getRect()).getWidth();
+		gSavedPerAccountSettings.setS32("ConversationsListPaneWidth", list_width);
+	}
 	LLRect panel_rect = mConversationsListPanel->getRect();
 	S32 item_height = 16;
 	int index = 0;
@@ -499,7 +587,6 @@ void LLIMFloaterContainer::repositioningWidgets()
 	}
 }
 
-// CHUI-137 : Temporary implementation of conversations list
 void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 {
 	bool is_nearby_chat = uuid.isNull();
@@ -527,7 +614,7 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 	}
 	if (!item)
 	{
-		llinfos << "Merov debug : Couldn't create conversation session item : " << display_name << llendl;
+		llwarns << "Couldn't create conversation session item : " << display_name << llendl;
 		return;
 	}
 	// *TODO: Should we flag LLConversationItemSession with a mIsNearbyChat?
@@ -550,7 +637,6 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 	// Note: usually, we do not get an updated avatar list at that point
 	LLFolderViewModelItemCommon::child_list_t::const_iterator current_participant_model = item->getChildrenBegin();
 	LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = item->getChildrenEnd();
-	llinfos << "Merov debug : create participant, children size = " << item->getChildrenCount() << llendl;
 	while (current_participant_model != end_participant_model)
 	{
 		LLConversationItem* participant_model = dynamic_cast<LLConversationItem*>(*current_participant_model);
@@ -560,24 +646,6 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 		participant_view->setVisible(TRUE);
 		current_participant_model++;
 	}
-	// Debugging hack : uncomment to force the creation of a dummy participant 
-	// This hack is to be eventually deleted
-	if (item->getChildrenCount() == 0)
-	{
-		llinfos << "Merov debug : create dummy participant" << llendl;
-		// Create a dummy participant : we let that leak but that's just for debugging...
-		std::string name("Debug Test : ");
-		name += display_name;
-		LLUUID test_id;
-		test_id.generate(name);
-		LLConversationItemParticipant* participant_model = new LLConversationItemParticipant(name, test_id, getRootViewModel());
-		// Create the dummy widget
-		LLConversationViewParticipant* participant_view = createConversationViewParticipant(participant_model);
-		participant_view->addToFolder(widget);
-		mConversationsListPanel->addChild(participant_view);
-		participant_view->setVisible(TRUE);
-	}
-	// End debugging hack
 
 	repositioningWidgets();
 	
@@ -644,7 +712,7 @@ LLConversationViewParticipant* LLIMFloaterContainer::createConversationViewParti
 	params.listener = item;
 	params.rect = LLRect (0, 0, 0, 0);
 	params.tool_tip = params.name;
-	params.container = this;
+	params.participant_id = item->getUUID();
 	
 	return LLUICtrlFactory::create<LLConversationViewParticipant>(params);
 }

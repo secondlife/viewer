@@ -31,6 +31,8 @@
 
 #include "llchatentry.h"
 #include "llchathistory.h"
+#include "llchiclet.h"
+#include "llchicletbar.h"
 #include "lldraghandle.h"
 #include "llfloaterreg.h"
 #include "llimfloater.h"
@@ -53,6 +55,8 @@ LLIMConversation::LLIMConversation(const LLUUID& session_id)
   , mInputEditorTopPad(0)
   , mRefreshTimer(new LLTimer())
 {
+	mSession = LLIMModel::getInstance()->findIMSession(mSessionID);
+
 	mCommitCallbackRegistrar.add("IMSession.Menu.Action",
 			boost::bind(&LLIMConversation::onIMSessionMenuItemClicked,  this, _2));
 	mEnableCallbackRegistrar.add("IMSession.Menu.CompactExpandedModes.CheckItem",
@@ -181,6 +185,84 @@ void LLIMConversation::draw()
 		mRefreshTimer->setTimerExpirySec(REFRESH_INTERVAL);
 	}
 }
+
+void LLIMConversation::enableDisableCallBtn()
+{
+    getChildView("voice_call_btn")->setEnabled(
+    		mSessionID.notNull()
+    		&& mSession
+    		&& mSession->mSessionInitialized
+    		&& LLVoiceClient::getInstance()->voiceEnabled()
+    		&& LLVoiceClient::getInstance()->isVoiceWorking()
+    		&& mSession->mCallBackEnabled);
+}
+
+
+void LLIMConversation::onFocusReceived()
+{
+	setBackgroundOpaque(true);
+
+	if (mSessionID.notNull())
+	{
+		LLChicletBar::getInstance()->getChicletPanel()->setChicletToggleState(mSessionID, true);
+
+		if (getVisible())
+		{
+			// suppress corresponding toast only if this floater is visible and have focus
+			LLIMModel::getInstance()->setActiveSessionID(mSessionID);
+			LLIMModel::instance().sendNoUnreadMessages(mSessionID);
+		}
+	}
+
+	LLTransientDockableFloater::onFocusReceived();
+}
+
+void LLIMConversation::onFocusLost()
+{
+	setBackgroundOpaque(false);
+	LLTransientDockableFloater::onFocusLost();
+}
+
+std::string LLIMConversation::appendTime()
+{
+	time_t utc_time;
+	utc_time = time_corrected();
+	std::string timeStr ="["+ LLTrans::getString("TimeHour")+"]:["
+		+LLTrans::getString("TimeMin")+"]";
+
+	LLSD substitution;
+
+	substitution["datetime"] = (S32) utc_time;
+	LLStringUtil::format (timeStr, substitution);
+
+	return timeStr;
+}
+
+void LLIMConversation::appendMessage(const LLChat& chat, const LLSD &args)
+{
+	LLChat& tmp_chat = const_cast<LLChat&>(chat);
+
+	if(tmp_chat.mTimeStr.empty())
+		tmp_chat.mTimeStr = appendTime();
+
+	if (!chat.mMuted)
+	{
+		tmp_chat.mFromName = chat.mFromName;
+		LLSD chat_args;
+		if (args) chat_args = args;
+		chat_args["use_plain_text_chat_history"] =
+				gSavedSettings.getBOOL("PlainTextChatHistory");
+		chat_args["show_time"] = gSavedSettings.getBOOL("IMShowTime");
+		chat_args["show_names_for_p2p_conv"] =
+				!mIsP2PChat || gSavedSettings.getBOOL("IMShowNamesForP2PConv");
+
+		if (mChatHistory)
+		{
+			mChatHistory->appendMessage(chat, chat_args);
+		}
+	}
+}
+
 
 void LLIMConversation::buildParticipantList()
 {
@@ -358,9 +440,10 @@ void LLIMConversation::processChatHistoryStyleUpdate()
 		}
 	}
 
-	if (LLNearbyChat::instanceExists())
+	LLNearbyChat* nearby_chat = LLFloaterReg::findTypedInstance<LLNearbyChat>("nearby_chat");
+	if (nearby_chat)
 	{
-		LLNearbyChat::instance().reloadMessages();
+             nearby_chat->reloadMessages();
 	}
 }
 

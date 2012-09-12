@@ -627,6 +627,13 @@ void LLFloater::setVisible( BOOL visible )
 	storeVisibilityControl();
 }
 
+
+void LLFloater::setIsSingleInstance(BOOL is_single_instance)
+{
+	mSingleInstance = is_single_instance;
+}
+
+
 // virtual
 void LLFloater::handleVisibilityChange ( BOOL new_visibility )
 {

@@ -35,15 +35,13 @@
 #include "lloutputmonitorctrl.h"
 #include "llspeakers.h"
 #include "llscrollbar.h"
-#include "llsingleton.h"
 #include "llviewerchat.h"
 #include "llpanel.h"
 
 class LLResizeBar;
 
 class LLNearbyChat
-	:	public LLIMConversation,
-	 	public LLSingleton<LLNearbyChat>
+	:	public LLIMConversation
 {
 public:
 	// constructor for inline chat-bars (e.g. hosted in chat history window)
@@ -52,10 +50,6 @@ public:
 
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
-
-	// focus overrides
-	/*virtual*/ void	onFocusLost();
-	/*virtual*/ void	onFocusReceived();
 
 	/*virtual*/ void	setVisible(BOOL visible);
 
@@ -104,9 +98,6 @@ protected:
 
 	void displaySpeakingIndicator();
 
-	// set the enable/disable state for the Call button
-	virtual void enableDisableCallBtn();
-
 	// Which non-zero channel did we last chat on?
 	static S32 sLastSpecialChatChannel;
 
@@ -117,8 +108,6 @@ protected:
 
 private:
 
-	// prepare chat's params and out one message to chatHistory
-	void appendMessage(const LLChat& chat, const LLSD &args = 0);
 	void	onNearbySpeakers	();
 
 	/*virtual*/ void refresh();

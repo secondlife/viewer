@@ -29,6 +29,8 @@
 #include "llchathistory.h"
 #include "llfloater.h"
 
+class LLSpinCtrl;
+
 class LLFloaterConversationPreview : public LLFloater
 {
 public:
@@ -45,6 +47,7 @@ private:
 	void onMoreHistoryBtnClick();
 	void showHistory();
 
+	LLSpinCtrl*		mPageSpinner;
 	LLChatHistory*	mChatHistory;
 	LLUUID			mSessionID;
 	int				mCurrentPage;

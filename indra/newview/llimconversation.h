@@ -33,6 +33,7 @@
 #include "lltransientdockablefloater.h"
 #include "llviewercontrol.h"
 #include "lleventtimer.h"
+#include "llimview.h"
 #include "llconversationmodel.h"
 
 class LLPanelChatControlPanel;
@@ -87,9 +88,6 @@ protected:
 	// refresh a visual state of the Call button
 	void updateCallBtnState(bool callIsActive);
 
-	// set the enable/disable state for the Call button
-	virtual void enableDisableCallBtn() = 0;
-
 	void buildParticipantList();
 	void onSortMenuItemClicked(const LLSD& userdata);
 
@@ -99,8 +97,22 @@ protected:
 	/// Update floater header and toolbar buttons when hosted/torn off state is toggled.
 	void updateHeaderAndToolbar();
 
+	// set the enable/disable state for the Call button
+	virtual void enableDisableCallBtn();
+
+	// process focus events to set a currently active session
+	/* virtual */ void onFocusLost();
+	/* virtual */ void onFocusReceived();
+
+	// prepare chat's params and out one message to chatHistory
+	void appendMessage(const LLChat& chat, const LLSD &args = 0);
+
+	std::string appendTime();
+
 	bool mIsNearbyChat;
 	bool mIsP2PChat;
+
+	LLIMModel::LLIMSession* mSession;
 
 	LLLayoutPanel* mParticipantListPanel;
 	LLParticipantList* mParticipantList;
@@ -118,7 +130,6 @@ protected:
 private:
 	/// Refreshes the floater at a constant rate.
 	virtual void refresh() = 0;
-
 
 	/**
 	 * Adjusts chat history height to fit vertically with input chat field

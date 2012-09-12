@@ -143,22 +143,32 @@ void LLConversationLogList::changed()
 
 void LLConversationLogList::changed(const LLUUID& session_id, U32 mask)
 {
-	if (mask & LLConversationLogObserver::VOICE_STATE)
+	LLConversationLogListItem* item = getConversationLogListItem(session_id);
+
+	if (!item)
 	{
-		std::vector<LLPanel*> panels;
-		LLFlatListViewEx::getItems(panels);
+		return;
+	}
 
-		std::vector<LLPanel*>::iterator iter = panels.begin();
+	if (mask & LLConversationLogObserver::CHANGED_TIME)
+	{
+		item->updateTimestamp();
 
-		for (; iter != panels.end(); ++iter)
+		// if list is sorted by date and a date of some item has changed,
+		// than the whole list should be rebuilt
+		if (E_SORT_BY_DATE == getSortOrder())
 		{
-			LLConversationLogListItem* item = dynamic_cast<LLConversationLogListItem*>(*iter);
-
-			if (item && session_id == item->getConversation()->getSessionID() && !item->getConversation()->isConversationPast())
-			{
-				item->initIcons();
-				return;
-			}
+			mIsDirty = true;
+		}
+	}
+	else if (mask & LLConversationLogObserver::CHANGED_NAME)
+	{
+		item->updateName();
+		// if list is sorted by name and a name of some item has changed,
+		// than the whole list should be rebuilt
+		if (E_SORT_BY_DATE == getSortOrder())
+		{
+			mIsDirty = true;
 		}
 	}
 }
@@ -399,6 +409,29 @@ const LLConversation* LLConversationLogList::getSelectedConversation()
 	}
 
 	return NULL;
+}
+
+LLConversationLogListItem* LLConversationLogList::getConversationLogListItem(const LLUUID& session_id)
+{
+	std::vector<LLPanel*> panels;
+	LLFlatListViewEx::getItems(panels);
+	std::vector<LLPanel*>::iterator iter = panels.begin();
+
+	for (; iter != panels.end(); ++iter)
+	{
+		LLConversationLogListItem* item = dynamic_cast<LLConversationLogListItem*>(*iter);
+		if (item && session_id == item->getConversation()->getSessionID())
+		{
+			return item;
+		}
+	}
+
+	return NULL;
+}
+
+LLConversationLogList::ESortOrder LLConversationLogList::getSortOrder()
+{
+	return static_cast<ESortOrder>(gSavedSettings.getU32("CallLogSortOrder"));
 }
 
 bool LLConversationLogListItemComparator::compare(const LLPanel* item1, const LLPanel* item2) const

@@ -29,6 +29,7 @@
 
 #include "llfolderviewitem.h"
 #include "llfolderviewmodel.h"
+#include "llavatarname.h"
 #include "llviewerfoldertype.h"
 
 // Implementation of conversations list
@@ -61,7 +62,7 @@ public:
 	virtual LLFontGL::StyleFlags getLabelStyle() const { return LLFontGL::NORMAL; }
 	virtual std::string getLabelSuffix() const { return LLStringUtil::null; }
 	virtual BOOL isItemRenameable() const { return TRUE; }
-	virtual BOOL renameItem(const std::string& new_name) { mName = new_name; return TRUE; }
+	virtual BOOL renameItem(const std::string& new_name) { mName = new_name; mNeedsRefresh = true; return TRUE; }
 	virtual BOOL isItemMovable( void ) const { return FALSE; }
 	virtual BOOL isItemRemovable( void ) const { return FALSE; }
 	virtual BOOL isItemInTrash( void) const { return FALSE; }
@@ -104,9 +105,13 @@ public:
 //	bool hasSameValues(std::string name, const LLUUID& uuid) { return ((name == mName) && (uuid == mUUID)); }
 	bool hasSameValue(const LLUUID& uuid) { return (uuid == mUUID); }
 
+	void resetRefresh() { mNeedsRefresh = false; }
+	bool needsRefresh() { return mNeedsRefresh; }
+	
 protected:
 	std::string mName;	// Name of the session or the participant
 	LLUUID mUUID;		// UUID of the session or the participant
+	bool mNeedsRefresh;	// Flag signaling to the view that something changed for this item
 };
 
 class LLConversationItemSession : public LLConversationItem
@@ -117,7 +122,7 @@ public:
 	virtual ~LLConversationItemSession() {}
 	
     LLPointer<LLUIImage> getIcon() const { return NULL; }
-	void setSessionID(const LLUUID& session_id) { mUUID = session_id; }
+	void setSessionID(const LLUUID& session_id) { mUUID = session_id; mNeedsRefresh = true; }
 	void addParticipant(LLConversationItemParticipant* participant);
 	void removeParticipant(LLConversationItemParticipant* participant);
 	void removeParticipant(const LLUUID& participant_id);
@@ -144,8 +149,10 @@ public:
 	
 	bool isMuted() { return mIsMuted; }
 	bool isModerator() {return mIsModerator; }
-	void setIsMuted(bool is_muted) { mIsMuted = is_muted; }
-	void setIsModerator(bool is_moderator) { mIsModerator = is_moderator; }
+	void setIsMuted(bool is_muted) { mIsMuted = is_muted; mNeedsRefresh = true; }
+	void setIsModerator(bool is_moderator) { mIsModerator = is_moderator; mNeedsRefresh = true; }
+	
+	void onAvatarNameCache(const LLAvatarName& av_name);
 	
 	void dumpDebugData();
 
@@ -203,23 +210,14 @@ private:
 class LLConversationSort
 {
 public:
-	LLConversationSort(U32 order = 0)
-	:	mSortOrder(order),
-	mByDate(false),
-	mByName(false)
-	{
-		mByDate = (order & LLConversationFilter::SO_DATE);
-		mByName = (order & LLConversationFilter::SO_NAME);
-	}
+	LLConversationSort(U32 order = 0) : mSortOrder(order) { }
 	
-	bool isByDate() const { return mByDate; }
+	bool isByDate() const { return (mSortOrder & LLConversationFilter::SO_DATE); }
 	U32 getSortOrder() const { return mSortOrder; }
 	
 	bool operator()(const LLConversationItem* const& a, const LLConversationItem* const& b) const;
 private:
 	U32  mSortOrder;
-	bool mByDate;
-	bool mByName;
 };
 
 class LLConversationViewModel
@@ -228,7 +226,7 @@ class LLConversationViewModel
 public:
 	typedef LLFolderViewModel<LLConversationSort, LLConversationItem, LLConversationItem, LLConversationFilter> base_t;
 	
-	void sort(LLFolderViewFolder* folder) { } // *TODO : implement conversation sort
+	void sort(LLFolderViewFolder* folder);
 	bool contentsReady() { return true; }	// *TODO : we need to check that participants names are available somewhat
 	bool startDrag(std::vector<LLFolderViewModelItem*>& items) { return false; } // We do not allow drag of conversation items
 	

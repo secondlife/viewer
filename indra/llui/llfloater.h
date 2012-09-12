@@ -217,6 +217,7 @@ public:
 	/*virtual*/ void setFocus( BOOL b );
 	/*virtual*/ void setIsChrome(BOOL is_chrome);
 	/*virtual*/ void setRect(const LLRect &rect);
+                void setIsSingleInstance(BOOL is_single_instance);
 
 	void 			initFloater(const Params& p);
 

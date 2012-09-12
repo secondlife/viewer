@@ -35,6 +35,7 @@
 // library
 #include "llaudioengine.h"
 #include "lldatapacker.h"
+#include "llfloaterreg.h"
 #include "llinventory.h"
 #include "llkeyframemotion.h"
 #include "llmultigesture.h"
@@ -997,7 +998,8 @@ void LLGestureMgr::runStep(LLMultiGesture* gesture, LLGestureStep* step)
 
 			const BOOL animate = FALSE;
 
-			LLNearbyChat::instance().sendChatFromViewer(chat_text, CHAT_TYPE_NORMAL, animate);
+			(LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat"))->
+					sendChatFromViewer(chat_text, CHAT_TYPE_NORMAL, animate);
 
 			gesture->mCurrentStep++;
 			break;

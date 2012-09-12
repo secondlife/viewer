@@ -69,7 +69,7 @@
 
 S32 LLNearbyChat::sLastSpecialChatChannel = 0;
 
-// --- 2 functions in the global namespace :( ---
+// --- function in the global namespace :( ---
 bool isWordsName(const std::string& name)
 {
 	// checking to see if it's display name plus username in parentheses
@@ -88,22 +88,6 @@ bool isWordsName(const std::string& name)
 		return std::string::npos != pos && name.rfind(' ', name.length()) == pos && 0 != pos && name.length()-1 != pos;
 	}
 }
-
-std::string appendTime()
-{
-	time_t utc_time;
-	utc_time = time_corrected();
-	std::string timeStr ="["+ LLTrans::getString("TimeHour")+"]:["
-		+LLTrans::getString("TimeMin")+"]";
-
-	LLSD substitution;
-
-	substitution["datetime"] = (S32) utc_time;
-	LLStringUtil::format (timeStr, substitution);
-
-	return timeStr;
-}
-
 
 const S32 EXPANDED_HEIGHT = 266;
 const S32 COLLAPSED_HEIGHT = 60;
@@ -129,11 +113,14 @@ LLNearbyChat::LLNearbyChat(const LLSD& llsd)
 	mSpeakerMgr(NULL),
 	mExpandedHeight(COLLAPSED_HEIGHT + EXPANDED_HEIGHT)
 {
+    mIsP2PChat = false;
 	mIsNearbyChat = true;
 	setIsChrome(TRUE);
 	mKey = LLSD();
 	mSpeakerMgr = LLLocalSpeakerMgr::getInstance();
+	mSessionID = LLUUID();
 	setName("nearby_chat");
+	setIsSingleInstance(TRUE);
 }
 
 //virtual
@@ -215,21 +202,6 @@ bool	LLNearbyChat::onNearbyChatCheckContextMenuItem(const LLSD& userdata)
 	return false;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//
-void LLNearbyChat::onFocusReceived()
-{
-	setBackgroundOpaque(true);
-	LLIMConversation::onFocusReceived();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-void LLNearbyChat::onFocusLost()
-{
-	setBackgroundOpaque(false);
-	LLIMConversation::onFocusLost();
-}
 
 BOOL	LLNearbyChat::handleMouseDown(S32 x, S32 y, MASK mask)
 {
@@ -324,13 +296,6 @@ void	LLNearbyChat::setVisible(BOOL visible)
 	LLIMConversation::setVisible(visible);
 }
 
-
-void LLNearbyChat::enableDisableCallBtn()
-{
-	// bool btn_enabled = LLAgent::isActionAllowed("speak");
-
-	getChildView("voice_call_btn")->setEnabled(false /*btn_enabled*/);
-}
 
 void LLNearbyChat::onTearOffClicked()
 {
@@ -624,31 +589,6 @@ void LLNearbyChat::sendChat( EChatType type )
 	}
 }
 
-
-void LLNearbyChat::appendMessage(const LLChat& chat, const LLSD &args)
-{
-	LLChat& tmp_chat = const_cast<LLChat&>(chat);
-
-	if(tmp_chat.mTimeStr.empty())
-		tmp_chat.mTimeStr = appendTime();
-
-	if (!chat.mMuted)
-	{
-		tmp_chat.mFromName = chat.mFromName;
-		LLSD chat_args;
-		if (args) chat_args = args;
-		chat_args["use_plain_text_chat_history"] =
-				gSavedSettings.getBOOL("PlainTextChatHistory");
-		chat_args["show_time"] = gSavedSettings.getBOOL("IMShowTime");
-		chat_args["show_names_for_p2p_conv"] = true;
-
-		if (mChatHistory)
-		{
-			mChatHistory->appendMessage(chat, chat_args);
-		}
-	}
-}
-
 void	LLNearbyChat::addMessage(const LLChat& chat,bool archive,const LLSD &args)
 {
 	appendMessage(chat, args);
@@ -780,20 +720,21 @@ void LLNearbyChat::sendChatFromViewer(const LLWString &wtext, EChatType type, BO
 // static 
 void LLNearbyChat::startChat(const char* line)
 {
-	if (LLNearbyChat::instanceExists())
+	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat");
+	if (nearby_chat)
 	{
-		(LLNearbyChat::instance()).show();
-		(LLNearbyChat::instance()).setVisible(TRUE);
-		(LLNearbyChat::instance()).setFocus(TRUE);
-		(LLNearbyChat::instance().mInputEditor)->setFocus(TRUE);
+		nearby_chat->show();
+		nearby_chat->setVisible(TRUE);
+		nearby_chat->setFocus(TRUE);
+		nearby_chat->mInputEditor->setFocus(TRUE);
 
 		if (line)
 		{
 			std::string line_string(line);
-			(LLNearbyChat::instance().mInputEditor)->setText(line_string);
+			nearby_chat->mInputEditor->setText(line_string);
 		}
 
-		(LLNearbyChat::instance().mInputEditor)->endOfDoc();
+		nearby_chat->mInputEditor->endOfDoc();
 	}
 }
 
@@ -801,9 +742,10 @@ void LLNearbyChat::startChat(const char* line)
 // static
 void LLNearbyChat::stopChat()
 {
-	if (LLNearbyChat::instanceExists())
+	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat");
+	if (nearby_chat)
 	{
-		(LLNearbyChat::instance().mInputEditor)->setFocus(FALSE);
+		nearby_chat->mInputEditor->setFocus(FALSE);
 	    gAgent.stopTyping();
 	}
 }

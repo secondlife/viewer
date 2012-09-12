@@ -92,24 +92,6 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 	setDocked(true);
 }
 
-void LLIMFloater::onFocusLost()
-{
-	LLIMModel::getInstance()->resetActiveSessionID();
-	
-	LLChicletBar::getInstance()->getChicletPanel()->setChicletToggleState(mSessionID, false);
-}
-
-void LLIMFloater::onFocusReceived()
-{
-	LLChicletBar::getInstance()->getChicletPanel()->setChicletToggleState(mSessionID, true);
-
-	if (getVisible())
-	{
-		// suppress corresponding toast only if this floater is visible and have focus
-		LLIMModel::getInstance()->setActiveSessionID(mSessionID);
-		LLIMModel::instance().sendNoUnreadMessages(mSessionID);
-	}
-}
 
 // virtual
 void LLIMFloater::refresh()
@@ -513,27 +495,6 @@ void LLIMFloater::boundVoiceChannel()
 	}
 }
 
-void LLIMFloater::enableDisableCallBtn()
-{
-	bool voice_enabled = LLVoiceClient::getInstance()->voiceEnabled()
-			&& LLVoiceClient::getInstance()->isVoiceWorking();
-
-	if (mSession)
-	{
-		bool session_initialized = mSession->mSessionInitialized;
-		bool callback_enabled = mSession->mCallBackEnabled;
-
-		BOOL enable_connect =
-				session_initialized && voice_enabled && callback_enabled;
-		getChildView("voice_call_btn")->setEnabled(enable_connect);
-	}
-	else
-	{
-		getChildView("voice_call_btn")->setEnabled(false);
-	}
-}
-
-
 void LLIMFloater::onCallButtonClicked()
 {
 	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(mSessionID);
@@ -884,25 +845,6 @@ void LLIMFloater::sessionInitReplyReceived(const LLUUID& im_session_id)
 		}
 
 		mQueuedMsgsForInit.clear();
-	}
-}
-
-void LLIMFloater::appendMessage(const LLChat& chat, const LLSD &args)
-{
-	LLChat& tmp_chat = const_cast<LLChat&>(chat);
-
-	if (!chat.mMuted)
-	{
-		tmp_chat.mFromName = chat.mFromName;
-		LLSD chat_args;
-		if (args) chat_args = args;
-		chat_args["use_plain_text_chat_history"] =
-				gSavedSettings.getBOOL("PlainTextChatHistory");
-		chat_args["show_time"] = gSavedSettings.getBOOL("IMShowTime");
-		chat_args["show_names_for_p2p_conv"] = !mIsP2PChat
-				|| gSavedSettings.getBOOL("IMShowNamesForP2PConv");
-
-		mChatHistory->appendMessage(chat, chat_args);
 	}
 }
 

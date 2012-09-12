@@ -36,21 +36,24 @@
 LLConversationItem::LLConversationItem(std::string display_name, const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
 	LLFolderViewModelItemCommon(root_view_model),
 	mName(display_name),
-	mUUID(uuid)
+	mUUID(uuid),
+	mNeedsRefresh(true)
 {
 }
 
 LLConversationItem::LLConversationItem(const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
 	LLFolderViewModelItemCommon(root_view_model),
 	mName(""),
-	mUUID(uuid)
+	mUUID(uuid),
+	mNeedsRefresh(true)
 {
 }
 
 LLConversationItem::LLConversationItem(LLFolderViewModelInterface& root_view_model) :
 	LLFolderViewModelItemCommon(root_view_model),
 	mName(""),
-	mUUID()
+	mUUID(),
+	mNeedsRefresh(true)
 {
 }
 
@@ -75,14 +78,6 @@ void LLConversationItem::showProperties(void)
 {
 }
 
-bool LLConversationSort::operator()(const LLConversationItem* const& a, const LLConversationItem* const& b) const
-{
-	// We compare only by name for the moment
-	// *TODO : Implement the sorting by date
-	S32 compare = LLStringUtil::compareDict(a->getDisplayName(), b->getDisplayName());
-	return (compare < 0);
-}
-
 //
 // LLConversationItemSession
 // 
@@ -102,11 +97,13 @@ void LLConversationItemSession::addParticipant(LLConversationItemParticipant* pa
 {
 	addChild(participant);
 	mIsLoaded = true;
+	mNeedsRefresh = true;
 }
 
 void LLConversationItemSession::removeParticipant(LLConversationItemParticipant* participant)
 {
 	removeChild(participant);
+	mNeedsRefresh = true;
 }
 
 void LLConversationItemSession::removeParticipant(const LLUUID& participant_id)
@@ -122,6 +119,7 @@ void LLConversationItemSession::clearParticipants()
 {
 	clearChildren();
 	mIsLoaded = false;
+	mNeedsRefresh = true;
 }
 
 LLConversationItemParticipant* LLConversationItemSession::findParticipant(const LLUUID& participant_id)
@@ -187,8 +185,42 @@ LLConversationItemParticipant::LLConversationItemParticipant(const LLUUID& uuid,
 {
 }
 
+void LLConversationItemParticipant::onAvatarNameCache(const LLAvatarName& av_name)
+{
+	mName = av_name.mDisplayName;
+	// *TODO : we should also store that one, to be used in the tooltip : av_name.mUsername
+	mNeedsRefresh = true;
+	if (mParent)
+	{
+		mParent->requestSort();
+	}
+}
+
 void LLConversationItemParticipant::dumpDebugData()
 {
 	llinfos << "Merov debug : participant, uuid = " << mUUID << ", name = " << mName << ", muted = " << mIsMuted << ", moderator = " << mIsModerator << llendl;
-}	
+}
+
+//
+// LLConversationSort
+// 
+
+bool LLConversationSort::operator()(const LLConversationItem* const& a, const LLConversationItem* const& b) const
+{
+	// For the moment, we sort only by name
+	// *TODO : Implement the sorting by date as well (most recent first)
+	// *TODO : Check the type of item (session/participants) as order should be different for both (eventually)
+	S32 compare = LLStringUtil::compareDict(a->getDisplayName(), b->getDisplayName());
+	return (compare < 0);	
+}
+
+//
+// LLConversationViewModel
+//
+
+void LLConversationViewModel::sort(LLFolderViewFolder* folder) 
+{
+	base_t::sort(folder);
+}
+
 // EOF
