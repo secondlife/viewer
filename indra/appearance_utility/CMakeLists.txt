@@ -56,7 +56,6 @@ target_link_libraries(appearance-utility-bin
     ${LLUI_LIBRARIES}
     ${UI_LIBRARIES}
     ${LLIMAGE_LIBRARIES}
-    ${LLCOMMON_LIBRARIES}
     ${LLKDU_LIBRARIES}
     ${KDU_LIBRARY}
     )
