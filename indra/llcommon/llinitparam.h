@@ -224,7 +224,7 @@ namespace LLInitParam
 		typedef std::map<const std::type_info*, parser_inspect_func_t>	parser_inspect_func_map_t;
 
 	private:
-		template<typename T, bool is_enum = BOOST_IS_ENUM(T)>
+		template<typename T, bool is_enum = boost::is_enum<T>::value>
 		struct ReaderWriter
 		{
 			static bool read(T& param, Parser* parser)
