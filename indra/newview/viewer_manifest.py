@@ -1080,7 +1080,15 @@ class Linux_i686Manifest(LinuxManifest):
             # previous call did, without having to explicitly state the
             # version number.
             self.path("libfontconfig.so.*.*")
-            self.path("libtcmalloc.so*") #formerly called google perf tools
+            try:
+                self.path("libtcmalloc.so", "libtcmalloc.so") #formerly called google perf tools
+                self.path("libtcmalloc.so.0", "libtcmalloc.so.0") #formerly called google perf tools
+                self.path("libtcmalloc.so.0.1.0", "libtcmalloc.so.0.1.0") #formerly called google perf tools
+                pass
+            except:
+                print "tcmalloc files not found, skipping"
+                pass
+
             try:
                     self.path("libfmod-3.75.so")
                     pass

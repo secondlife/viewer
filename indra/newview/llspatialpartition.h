@@ -68,6 +68,16 @@ protected:
 	~LLDrawInfo();	
 	
 public:
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free_16(ptr);
+	}
+
 
 	LLDrawInfo(const LLDrawInfo& rhs)
 	{
@@ -106,7 +116,7 @@ public:
 	F32 mPartSize;
 	F32 mVSize;
 	LLSpatialGroup* mGroup;
-	LLFace* mFace; //associated face
+	LL_ALIGN_16(LLFace* mFace); //associated face
 	F32 mDistance;
 	U32 mDrawMode;
 
@@ -181,7 +191,7 @@ public:
 	};
 };
 
-LL_ALIGN_PREFIX(64)
+LL_ALIGN_PREFIX(16)
 class LLSpatialGroup : public LLOctreeListener<LLDrawable>
 {
 	friend class LLSpatialPartition;
@@ -191,6 +201,16 @@ public:
 	LLSpatialGroup(const LLSpatialGroup& rhs)
 	{
 		*this = rhs;
+	}
+
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free_16(ptr);
 	}
 
 	const LLSpatialGroup& operator=(const LLSpatialGroup& rhs)
@@ -370,12 +390,12 @@ public:
 		V4_COUNT = 10
 	} eV4Index;
 
-	LLVector4a mBounds[2]; // bounding box (center, size) of this node and all its children (tight fit to objects)
-	LLVector4a mExtents[2]; // extents (min, max) of this node and all its children
-	LLVector4a mObjectExtents[2]; // extents (min, max) of objects in this node
-	LLVector4a mObjectBounds[2]; // bounding box (center, size) of objects in this node
-	LLVector4a mViewAngle;
-	LLVector4a mLastUpdateViewAngle;
+	LL_ALIGN_16(LLVector4a mBounds[2]); // bounding box (center, size) of this node and all its children (tight fit to objects)
+	LL_ALIGN_16(LLVector4a mExtents[2]); // extents (min, max) of this node and all its children
+	LL_ALIGN_16(LLVector4a mObjectExtents[2]); // extents (min, max) of objects in this node
+	LL_ALIGN_16(LLVector4a mObjectBounds[2]); // bounding box (center, size) of objects in this node
+	LL_ALIGN_16(LLVector4a mViewAngle);
+	LL_ALIGN_16(LLVector4a mLastUpdateViewAngle);
 
 	F32 mObjectBoxSize; //cached mObjectBounds[1].getLength3()
 		

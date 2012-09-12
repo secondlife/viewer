@@ -88,7 +88,7 @@ public:
 	typedef LLOctreeNode<T>		oct_node;
 	typedef LLOctreeListener<T>	oct_listener;
 
-	/*void* operator new(size_t size)
+	void* operator new(size_t size)
 	{
 		return ll_aligned_malloc_16(size);
 	}
@@ -96,7 +96,7 @@ public:
 	void operator delete(void* ptr)
 	{
 		ll_aligned_free_16(ptr);
-	}*/
+	}
 
 	LLOctreeNode(	const LLVector4a& center, 
 					const LLVector4a& size, 
