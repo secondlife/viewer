@@ -60,6 +60,16 @@ public:
 		ll_aligned_free_16(p);
 	}
 
+	void* operator new[](size_t count)
+	{	// try to allocate count bytes for an array
+		return ll_aligned_malloc_16(count);
+	}
+
+	void operator delete[](void *p)
+	{
+		ll_aligned_free_16(p);
+	}
+
 	LLQuad mQ;
 } LL_ALIGN_POSTFIX(16);
 
@@ -112,7 +122,7 @@ void alignment_test_object_t::test<3>()
 //	skip("This test fails on Windows when compiled in debug mode.");
 #   endif
 	
-	/*const int ARR_SIZE = 7;
+	const int ARR_SIZE = 7;
 	for(int i=0; i<ARR_SIZE; i++)
 	{
 		MyVector4a *vecp = new MyVector4a;
@@ -121,12 +131,14 @@ void alignment_test_object_t::test<3>()
 	}
 
 	MyVector4a *veca = new MyVector4a[ARR_SIZE];
+	//std::cout << "veca base is " << (S32) veca << std::endl;
 	ensure("LLAligment veca base", is_aligned(veca,16));
 	for(int i=0; i<ARR_SIZE; i++)
 	{
 		std::cout << "veca[" << i << "]" << std::endl;
 		ensure("LLAlignment veca member unaligned", is_aligned(&veca[i],16));
-	}*/
+	}
+	delete [] veca; 
 }
 
 }
