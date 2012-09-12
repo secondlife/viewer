@@ -619,7 +619,7 @@ void LLWearable::setTexturesToDefaults()
 void LLWearable::writeToAvatar()
 {
 	if (!isAgentAvatarValid()) return;
-#if 0
+#if 1
 	if (!gAgentAvatarp->isUsingLocalAppearance())
 	{
 		return;

@@ -7361,7 +7361,9 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 //			llinfos << "processAvatarAppearance end  " << mID << llendl;
 			return;
 		}
+		clearVisualParamWeights();
 	}
+	dumpArchetypeXML("process_post_clear");
 
 	ESex old_sex = getSex();
 
@@ -7481,6 +7483,8 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 			}
 		}
 
+		dumpArchetypeXML("process_post_set_weights");
+
 		const S32 expected_tweakable_count = getVisualParamCountInGroup(VISUAL_PARAM_GROUP_TWEAKABLE); // don't worry about VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
 		if (num_blocks != expected_tweakable_count)
 		{
@@ -7545,6 +7549,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 
 	updateMeshTextures();
 
+	dumpArchetypeXML("process_end");
 //	llinfos << "processAvatarAppearance end " << mID << llendl;
 }
 
