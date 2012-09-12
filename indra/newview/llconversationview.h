@@ -89,9 +89,9 @@ public:
     };
 
     virtual ~LLConversationViewParticipant( void ) { }
-    virtual void draw();
     bool hasSameValue(const LLUUID& uuid) { return (uuid == mUUID); }
     virtual void refresh();
+    void addToFolder(LLFolderViewFolder* folder);
     
 protected:
 	friend class LLUICtrlFactory;
@@ -102,9 +102,9 @@ protected:
 	void onInfoBtnClick();
 	
 private:
-	LLButton* createProfileButton();
 	LLButton * mInfoBtn;
-    LLUUID mUUID;		// UUID of the participant	
+    LLOutputMonitorCtrl* mSpeakingIndicator;
+    LLUUID mUUID;		// UUID of the participant
 };
 
 #endif // LL_LLCONVERSATIONVIEW_H

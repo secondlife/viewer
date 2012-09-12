@@ -31,7 +31,7 @@
 #include "llconversationmodel.h"
 #include "llimconversation.h"
 #include "llimfloatercontainer.h"
-
+#include "llfloaterreg.h"
 
 #include "lluictrlfactory.h"
 #include "llavatariconctrl.h"
@@ -151,6 +151,7 @@ BOOL LLConversationViewParticipant::postBuild()
 	mInfoBtn = getChild<LLButton>("info_btn");
 	mInfoBtn->setClickedCallback(boost::bind(&LLConversationViewParticipant::onInfoBtnClick, this));
 	
+	mSpeakingIndicator = getChild<LLOutputMonitorCtrl>("speaking_indicator");
 	
 	LLFolderViewItem::postBuild();
 	return TRUE;
@@ -168,68 +169,23 @@ void LLConversationViewParticipant::refresh()
 	LLFolderViewItem::refresh();
 }
 
+void LLConversationViewParticipant::addToFolder(LLFolderViewFolder* folder)
+{
+    //Add the item to the folder (conversation)
+    LLFolderViewItem::addToFolder(folder);
+	
+    //Now retrieve the folder (conversation) UUID, which is the speaker session
+    LLConversationItem* vmi = this->getParentFolder() ? dynamic_cast<LLConversationItem*>(this->getParentFolder()->getViewModelItem()) : NULL;
+    if(vmi)
+    {
+        mSpeakingIndicator->setSpeakerId(mUUID, 
+            vmi->getUUID()); //set the session id
+}
+}
+
 void LLConversationViewParticipant::onInfoBtnClick()
 {
-	
-	
-}
-
-LLButton* LLConversationViewParticipant::createProfileButton()
-{
-	
-	LLButton::Params params;
-	
-	
-	//<button
-	params.follows.flags(FOLLOWS_RIGHT);
-	//params.height="20";
-	LLUIImage * someImage = LLUI::getUIImage("Web_Profile_Off");
-	params.image_overlay = someImage;
-	params.layout="topleft";
-	params.left_pad=5;
-	//params.right="-28";
-	params.name="profile_btn";
-	params.tab_stop="false";
-	params.tool_tip="View profile";
-	params.top_delta=-2;
-	//params.width="20";
-	///>	
-	
-	
-	/*
-	LLConversationViewParticipant::Params params;
-	
-	params.name = item->getDisplayName();
-	//params.icon = bridge->getIcon();
-	//params.icon_open = bridge->getOpenIcon();
-	//params.creation_date = bridge->getCreationDate();
-	params.root = mConversationsRoot;
-	params.listener = item;
-	params.rect = LLRect (0, 0, 0, 0);
-	params.tool_tip = params.name;
-	params.container = this;
-	*/
-	
-	LLButton * button = LLUICtrlFactory::create<LLButton>(params);
-	LLRect someRect;
-	someRect.setOriginAndSize(30, 0, 20, 20);
-	button->setShape(someRect);
-	
-	//button->follows= "right";
-	//button->height = 20;
-	//button->image_overlay="Web_Profile_Off";
-	//button->right = -28;
-	//button->width = 20;
-
-	
-	
-	return button;
-}
-
-
-void LLConversationViewParticipant::draw()
-{
-    LLFolderViewItem::draw();
+	LLFloaterReg::showInstance("inspect_avatar", LLSD().with("avatar_id", mUUID));
 }
 
 // EOF
