@@ -39,6 +39,7 @@
      width="35">
     </text>
     <spinner
+     allow_digits_only="true"
      decimal_digits="0"
      follows="bottom|right"
      height="23"
