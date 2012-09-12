@@ -81,8 +81,11 @@ inline void* ll_aligned_realloc_16(void* ptr, size_t size, size_t old_size) // r
 #else
 	//FIXME: memcpy is SLOW
 	void* ret = ll_aligned_malloc_16(size);
-	memcpy(ret, ptr, old_size);
-	ll_aligned_free_16(ptr);
+	if (ptr)
+	{
+		memcpy(ret, ptr, old_size);
+		ll_aligned_free_16(ptr);
+	}
 	return ret;
 #endif
 }
