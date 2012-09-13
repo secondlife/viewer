@@ -6853,7 +6853,7 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 
 			for (U8 te = 0; te < TEX_NUM_INDICES; te++)
 			{
-				if (LLVOAvatarDictionary::getTEWearableType((ETextureIndex)te) == type)
+				if (LLAvatarAppearanceDictionary::getTEWearableType((ETextureIndex)te) == type)
 				{
 					// MULTIPLE_WEARABLES: extend to multiple wearables?
 					LLViewerTexture* te_image = getImage((ETextureIndex)te, 0);

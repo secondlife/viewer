@@ -105,13 +105,13 @@ add_library (llrender ${llrender_SOURCE_FILES})
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
 target_link_libraries(llrender 
-    ${LLCOMMON_INCLUDE_DIRS}
-    ${LLIMAGE_INCLUDE_DIRS}
-    ${LLMATH_INCLUDE_DIRS}
-    ${LLRENDER_INCLUDE_DIRS}
-    ${LLVFS_INCLUDE_DIRS}
-    ${LLXML_INCLUDE_DIRS}
-    ${LLVFS_INCLUDE_DIRS}
+    ${LLCOMMON_LIBRARIES}
+    ${LLIMAGE_LIBRARIES}
+    ${LLMATH_LIBRARIES}
+    ${LLRENDER_LIBRARIES}
+    ${LLVFS_LIBRARIES}
+    ${LLXML_LIBRARIES}
+    ${LLVFS_LIBRARIES}
     ${LLWINDOW_LIBRARIES}
     ${FREETYPE_LIBRARIES}
     ${OPENGL_LIBRARIES})
