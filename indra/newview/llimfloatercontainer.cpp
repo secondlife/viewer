@@ -492,6 +492,13 @@ void LLIMFloaterContainer::updateState(bool collapse, S32 delta_width)
 	setCanResize(is_left_pane_expanded || is_right_pane_expanded);
 	setCanMinimize(is_left_pane_expanded || is_right_pane_expanded);
 
+    // force set correct size for the title after show/hide minimize button
+	LLRect cur_rect = getRect();
+	LLRect force_rect = cur_rect;
+	force_rect.mRight = cur_rect.mRight + 1;
+    setRect(force_rect);
+    setRect(cur_rect);
+
     // restore floater's resize limits (prevent collapse when left panel is expanded)
 	if (is_left_pane_expanded && !is_right_pane_expanded)
 	{
