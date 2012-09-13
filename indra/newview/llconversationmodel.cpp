@@ -93,6 +93,11 @@ LLConversationItemSession::LLConversationItemSession(const LLUUID& uuid, LLFolde
 {
 }
 
+bool LLConversationItemSession::hasChildren() const
+{
+	return getChildrenCount() > 0;
+}
+
 void LLConversationItemSession::addParticipant(LLConversationItemParticipant* participant)
 {
 	addChild(participant);
