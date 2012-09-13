@@ -188,6 +188,12 @@ enum ERenderName
 	RENDER_NAME_FADE
 };
 
+
+// Utility func - FIXME move out of avatar.
+std::string get_sequential_numbered_file_name(const std::string& prefix,
+											  const std::string& suffix,
+											  const S32 width = 4);
+
 //-----------------------------------------------------------------------------
 // Callback data
 //-----------------------------------------------------------------------------
@@ -6271,13 +6277,54 @@ bool LLVOAvatar::visualParamWeightsAreDefault()
 	return rtn;
 }
 
+void LLVOAvatar::dumpAppearanceMsgParams( const std::string& dump_prefix,
+										  const std::vector<F32>& params_for_dump,
+										  const LLTEContents& tec)
+{
+	std::string outfilename = get_sequential_numbered_file_name(dump_prefix,".xml");
+
+	LLAPRFile outfile;
+	std::string fullpath = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,outfilename);
+	outfile.open(fullpath, LL_APR_WB );
+	apr_file_t* file = outfile.getFileHandle();
+	if (!file)
+	{
+		return;
+	}
+	else
+	{
+		llinfos << "xmlfile write handle obtained : " << fullpath << llendl;
+	}
+
+
+	LLVisualParam* param = getFirstVisualParam();
+	for (S32 i = 0; i < params_for_dump.size(); i++)
+	{
+		while( param && (param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE) ) // should not be any of group VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
+		{
+			param = getNextVisualParam();
+		}
+		LLViewerVisualParam* viewer_param = (LLViewerVisualParam*)param;
+		F32 value = params_for_dump[i];
+		apr_file_printf(file, "\t\t<param id=\"%d\" name=\"%s\" value=\"%.3f\"/>\n",
+						viewer_param->getID(), viewer_param->getName().c_str(), value);
+		param = getNextVisualParam();
+	}
+	for (U32 i = 0; i < tec.face_count; i++)
+	{
+		std::string uuid_str;
+		((LLUUID*)tec.image_data)[i].toString(uuid_str);
+		apr_file_printf( file, "\t\t<texture te=\"%i\" uuid=\"%s\"/>\n", i, uuid_str.c_str());
+	}
+}
 
 //-----------------------------------------------------------------------------
 // processAvatarAppearance()
 //-----------------------------------------------------------------------------
 void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 {
-	dumpArchetypeXML("process_start");
+	//std::string dump_prefix = getFullname() + " ";
+	//dumpArchetypeXML(dump_prefix + "process_start");
 	if (gSavedSettings.getBOOL("BlockAvatarAppearanceMessages"))
 	{
 		llwarns << "Blocking AvatarAppearance message" << llendl;
@@ -6301,9 +6348,9 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 //			llinfos << "processAvatarAppearance end  " << mID << llendl;
 			return;
 		}
-		clearVisualParamWeights();
 	}
-	dumpArchetypeXML("process_post_clear");
+	clearVisualParamWeights();
+	//dumpArchetypeXML(dump_prefix + "process_post_clear");
 
 	ESex old_sex = getSex();
 
@@ -6388,6 +6435,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		}
 		else
 		{
+			std::vector<F32> params_for_dump;
 			for( S32 i = 0; i < num_blocks; i++ )
 			{
 				while( param && (param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE) ) // should not be any of group VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
@@ -6404,6 +6452,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 				U8 value;
 				mesgsys->getU8Fast(_PREHASH_VisualParam, _PREHASH_ParamValue, value, i);
 				F32 newWeight = U8_to_F32(value, param->getMinWeight(), param->getMaxWeight());
+				params_for_dump.push_back(newWeight);
 
 				if (is_first_appearance_message || (param->getWeight() != newWeight))
 				{
@@ -6421,9 +6470,12 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 				}
 				param = getNextVisualParam();
 			}
+			//dumpAppearanceMsgParams(dump_prefix + "appearance_msg",
+			//						params_for_dump,
+			//						tec);
 		}
 
-		dumpArchetypeXML("process_post_set_weights");
+		//dumpArchetypeXML(dump_prefix + "process_post_set_weights");
 
 		const S32 expected_tweakable_count = getVisualParamCountInGroup(VISUAL_PARAM_GROUP_TWEAKABLE); // don't worry about VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
 		if (num_blocks != expected_tweakable_count)
@@ -6489,7 +6541,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 
 	updateMeshTextures();
 
-	dumpArchetypeXML("process_end");
+	//dumpArchetypeXML(dump_prefix + "process_end");
 //	llinfos << "processAvatarAppearance end " << mID << llendl;
 }
 
@@ -6731,7 +6783,27 @@ void LLVOAvatar::useBakedTexture( const LLUUID& id )
 	dirtyMesh();
 }
 
-void LLVOAvatar::dumpArchetypeXML(const std::string& prefix )
+std::string get_sequential_numbered_file_name(const std::string& prefix,
+											  const std::string& suffix,
+											  const S32 width)
+{
+	typedef std::map<std::string,S32> file_num_type;
+	static  file_num_type file_nums;
+	file_num_type::iterator it = file_nums.find(prefix);
+	S32 num = 0;
+	if (it != file_nums.end())
+	{
+		num = it->second;
+	}
+	std::ostringstream temp;
+	temp << std::setw(width) << std::setfill('0') << num;
+	file_nums[prefix] = num+1;
+	std::string outfilename = prefix + " " + temp.str() + ".xml";
+	std::replace(outfilename.begin(),outfilename.end(),' ','_');
+	return outfilename;
+}
+
+void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_wearables )
 {
 	std::string outprefix(prefix);
 	if (outprefix.empty())
@@ -6742,22 +6814,11 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix )
 	{
 		outprefix = std::string("new_archetype");
 	}
-	typedef std::map<std::string,S32> file_num_type;
-	static  file_num_type file_nums;
-	file_num_type::iterator it = file_nums.find(outprefix);
-	S32 num = 0;
-	if (it != file_nums.end())
-	{
-		num = it->second;
-	}
-	std::ostringstream temp;
-	temp << std::setw(4) << std::setfill('0') << num;
-	file_nums[outprefix] = num+1;
-	std::string outfilename = outprefix + " " + temp.str() + ".xml";
-	std::replace(outfilename.begin(),outfilename.end(),' ','_');
+	std::string outfilename = get_sequential_numbered_file_name(outprefix,".xml");
 	
 	LLAPRFile outfile;
-	outfile.open(gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,outfilename), LL_APR_WB );
+	std::string fullpath = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,outfilename);
+	outfile.open(fullpath, LL_APR_WB );
 	apr_file_t* file = outfile.getFileHandle();
 	if (!file)
 	{
@@ -6765,24 +6826,53 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix )
 	}
 	else
 	{
-		llinfos << "xmlfile write handle obtained : " << gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,"new archetype.xml") << llendl;
+		llinfos << "xmlfile write handle obtained : " << fullpath << llendl;
 	}
 
 	apr_file_printf( file, "<?xml version=\"1.0\" encoding=\"US-ASCII\" standalone=\"yes\"?>\n" );
 	apr_file_printf( file, "<linden_genepool version=\"1.0\">\n" );
 	apr_file_printf( file, "\n\t<archetype name=\"???\">\n" );
 
-	// only body parts, not clothing.
-	for (S32 type = LLWearableType::WT_SHAPE; type <= LLWearableType::WT_COUNT; type++)
+	if (group_by_wearables)
 	{
-		const std::string& wearable_name = LLWearableType::getTypeName((LLWearableType::EType)type);
-		apr_file_printf( file, "\n\t\t<!-- wearable: %s -->\n", wearable_name.c_str() );
+		for (S32 type = LLWearableType::WT_SHAPE; type < LLWearableType::WT_COUNT; type++)
+		{
+			const std::string& wearable_name = LLWearableType::getTypeName((LLWearableType::EType)type);
+			apr_file_printf( file, "\n\t\t<!-- wearable: %s -->\n", wearable_name.c_str() );
 
+			for (LLVisualParam* param = getFirstVisualParam(); param; param = getNextVisualParam())
+			{
+				LLViewerVisualParam* viewer_param = (LLViewerVisualParam*)param;
+				if( (viewer_param->getWearableType() == type) && 
+					(viewer_param->isTweakable() ) )
+				{
+					apr_file_printf(file, "\t\t<param id=\"%d\" name=\"%s\" value=\"%.3f\"/>\n",
+									viewer_param->getID(), viewer_param->getName().c_str(), viewer_param->getWeight());
+				}
+			}
+
+			for (U8 te = 0; te < TEX_NUM_INDICES; te++)
+			{
+				if (LLVOAvatarDictionary::getTEWearableType((ETextureIndex)te) == type)
+				{
+					// MULTIPLE_WEARABLES: extend to multiple wearables?
+					LLViewerTexture* te_image = getImage((ETextureIndex)te, 0);
+					if( te_image )
+					{
+						std::string uuid_str;
+						te_image->getID().toString( uuid_str );
+						apr_file_printf( file, "\t\t<texture te=\"%i\" uuid=\"%s\"/>\n", te, uuid_str.c_str());
+					}
+				}
+			}
+		}
+	}
+	else 
+	{
+		// Just dump all params sequentially.
 		for (LLVisualParam* param = getFirstVisualParam(); param; param = getNextVisualParam())
 		{
 			LLViewerVisualParam* viewer_param = (LLViewerVisualParam*)param;
-			if( (viewer_param->getWearableType() == type) && 
-				(viewer_param->isTweakable() ) )
 			{
 				apr_file_printf(file, "\t\t<param id=\"%d\" name=\"%s\" value=\"%.3f\"/>\n",
 								viewer_param->getID(), viewer_param->getName().c_str(), viewer_param->getWeight());
@@ -6791,7 +6881,6 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix )
 
 		for (U8 te = 0; te < TEX_NUM_INDICES; te++)
 		{
-			if (LLAvatarAppearanceDictionary::getTEWearableType((ETextureIndex)te) == type)
 			{
 				// MULTIPLE_WEARABLES: extend to multiple wearables?
 				LLViewerTexture* te_image = getImage((ETextureIndex)te, 0);
@@ -6803,14 +6892,12 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix )
 				}
 			}
 		}
+
 	}
 	apr_file_printf( file, "\t</archetype>\n" );
 	apr_file_printf( file, "\n</linden_genepool>\n" );
-	//explictly close the file if it is still open which it should be
-	if (file)
-	{
-		outfile.close();
-	}
+
+	// File will close when handle goes out of scope
 }
 
 
