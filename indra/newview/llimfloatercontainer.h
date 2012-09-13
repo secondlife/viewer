@@ -71,8 +71,6 @@ public:
 
 	static LLIMFloaterContainer* getInstance();
 
-	static void idle(void* user_data);
-
 	virtual void setMinimized(BOOL b);
 
 	void collapseMessagesPane(bool collapse);

@@ -80,8 +80,6 @@ LLIMFloaterContainer::~LLIMFloaterContainer()
 	{
 		LLIMMgr::getInstance()->removeSessionObserver(this);
 	}
-
-	gIdleCallbacks.deleteFunction(idle, (void*)this);
 }
 
 void LLIMFloaterContainer::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
@@ -170,8 +168,6 @@ BOOL LLIMFloaterContainer::postBuild()
 
         mConversationsPane->handleReshape(list_size, TRUE);
 	}
-
-	gIdleCallbacks.addFunction(idle, (void*)this);
 
 	mInitialized = true;
 
@@ -389,13 +385,6 @@ void LLIMFloaterContainer::draw()
 			current_participant_model++;
 		}
 	}
-	
-	// CHUI-308 : Hack! We shouldn't have to do that but we have too as long as
-	// we don't have a scroll container.
-	// *TODO: Take those 3 lines out once we implement the scroll container.
-	repositioningWidgets();	
-	mConversationsRoot->setRect(mConversationsListPanel->getLocalRect());
-	mConversationsRoot->setFollowsAll();
 	
 	if (mTabContainer->getTabCount() == 0)
 	{
