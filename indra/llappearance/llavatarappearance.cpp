@@ -166,7 +166,7 @@ LLAvatarAppearance::LLAvatarAppearance(LLWearableData* wearable_data) :
 	mTexEyeColor( NULL ),
 	mPelvisToFoot(0.f),
 	mHeadOffset(),
-
+	mRoot(NULL),
 	mWearableData(wearable_data)
 {
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
@@ -287,7 +287,7 @@ LLAvatarAppearance::~LLAvatarAppearance()
 		}
 	}
 
-	mRoot->removeAllChildren();
+	if (mRoot) mRoot->removeAllChildren();
 	mJointMap.clear();
 
 	clearSkeleton();
@@ -1177,6 +1177,81 @@ BOOL LLAvatarAppearance::loadLayersets()
 	}
 	return success;
 }
+
+//-----------------------------------------------------------------------------
+// getCharacterJoint()
+//-----------------------------------------------------------------------------
+LLJoint *LLAvatarAppearance::getCharacterJoint( U32 num )
+{
+	if ((S32)num >= mSkeleton.size()
+	    || (S32)num < 0)
+	{
+		return NULL;
+	}
+	return mSkeleton[num];
+}
+
+
+//-----------------------------------------------------------------------------
+// getVolumePos()
+//-----------------------------------------------------------------------------
+LLVector3 LLAvatarAppearance::getVolumePos(S32 joint_index, LLVector3& volume_offset)
+{
+	if (joint_index > mNumCollisionVolumes)
+	{
+		return LLVector3::zero;
+	}
+
+	return mCollisionVolumes[joint_index].getVolumePos(volume_offset);
+}
+
+//-----------------------------------------------------------------------------
+// findCollisionVolume()
+//-----------------------------------------------------------------------------
+LLJoint* LLAvatarAppearance::findCollisionVolume(U32 volume_id)
+{
+	if ((S32)volume_id > mNumCollisionVolumes)
+	{
+		return NULL;
+	}
+	
+	return &mCollisionVolumes[volume_id];
+}
+
+//-----------------------------------------------------------------------------
+// findCollisionVolume()
+//-----------------------------------------------------------------------------
+S32 LLAvatarAppearance::getCollisionVolumeID(std::string &name)
+{
+	for (S32 i = 0; i < mNumCollisionVolumes; i++)
+	{
+		if (mCollisionVolumes[i].getName() == name)
+		{
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+//-----------------------------------------------------------------------------
+// LLAvatarAppearance::getHeadMesh()
+//-----------------------------------------------------------------------------
+LLPolyMesh*	LLAvatarAppearance::getHeadMesh()
+{
+	return mMeshLOD[MESH_ID_HEAD]->mMeshParts[0]->getMesh();
+}
+
+
+//-----------------------------------------------------------------------------
+// LLAvatarAppearance::getUpperBodyMesh()
+//-----------------------------------------------------------------------------
+LLPolyMesh*	LLAvatarAppearance::getUpperBodyMesh()
+{
+	return mMeshLOD[MESH_ID_UPPER_BODY]->mMeshParts[0]->getMesh();
+}
+
+
 
 // virtual
 BOOL LLAvatarAppearance::isValid() const

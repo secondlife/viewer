@@ -122,31 +122,31 @@ protected:
 	// LLViewerObject interface and related
 	//--------------------------------------------------------------------
 public:
-	virtual void			updateGL();
-	virtual	LLVOAvatar*		asAvatar();
+	/*virtual*/ void			updateGL();
+	/*virtual*/ LLVOAvatar*		asAvatar();
 	virtual U32    	 	 	processUpdateMessage(LLMessageSystem *mesgsys,
 													 void **user_data,
 													 U32 block_num,
 													 const EObjectUpdateType update_type,
 													 LLDataPacker *dp);
 	virtual void   	 	 	idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
-	virtual BOOL   	 	 	updateLOD();
+	/*virtual*/ BOOL   	 	 	updateLOD();
 	BOOL  	 	 	 	 	updateJointLODs();
 	void					updateLODRiggedAttachments( void );
-	virtual BOOL   	 	 	isActive() const; // Whether this object needs to do an idleUpdate.
-	virtual void   	 	 	updateTextures();
-	virtual S32    	 	 	setTETexture(const U8 te, const LLUUID& uuid); // If setting a baked texture, need to request it from a non-local sim.
-	virtual void   	 	 	onShift(const LLVector4a& shift_vector);
-	virtual U32    	 	 	getPartitionType() const;
-	virtual const  	 	 	LLVector3 getRenderPosition() const;
-	virtual void   	 	 	updateDrawable(BOOL force_damped);
-	virtual LLDrawable* 	createDrawable(LLPipeline *pipeline);
-	virtual BOOL   	 	 	updateGeometry(LLDrawable *drawable);
-	virtual void   	 	 	setPixelAreaAndAngle(LLAgent &agent);
-	virtual void   	 	 	updateRegion(LLViewerRegion *regionp);
-	virtual void   	 	 	updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax);
-	virtual void   	 	 	getSpatialExtents(LLVector4a& newMin, LLVector4a& newMax);
-	virtual BOOL   	 	 	lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
+	/*virtual*/ BOOL   	 	 	isActive() const; // Whether this object needs to do an idleUpdate.
+	/*virtual*/ void   	 	 	updateTextures();
+	/*virtual*/ S32    	 	 	setTETexture(const U8 te, const LLUUID& uuid); // If setting a baked texture, need to request it from a non-local sim.
+	/*virtual*/ void   	 	 	onShift(const LLVector4a& shift_vector);
+	/*virtual*/ U32    	 	 	getPartitionType() const;
+	/*virtual*/ const  	 	 	LLVector3 getRenderPosition() const;
+	/*virtual*/ void   	 	 	updateDrawable(BOOL force_damped);
+	/*virtual*/ LLDrawable* 	createDrawable(LLPipeline *pipeline);
+	/*virtual*/ BOOL   	 	 	updateGeometry(LLDrawable *drawable);
+	/*virtual*/ void   	 	 	setPixelAreaAndAngle(LLAgent &agent);
+	/*virtual*/ void   	 	 	updateRegion(LLViewerRegion *regionp);
+	/*virtual*/ void   	 	 	updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax);
+	/*virtual*/ void   	 	 	getSpatialExtents(LLVector4a& newMin, LLVector4a& newMax);
+	/*virtual*/ BOOL   	 	 	lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
 												 S32 face = -1,                    // which face to check, -1 = ALL_SIDES
 												 BOOL pick_transparent = FALSE,
 												 S32* face_hit = NULL,             // which face was hit
@@ -167,15 +167,14 @@ public:
 	// LLCharacter interface and related
 	//--------------------------------------------------------------------
 public:
-	virtual LLVector3    	getCharacterPosition();
-	virtual LLQuaternion 	getCharacterRotation();
-	virtual LLVector3    	getCharacterVelocity();
-	virtual LLVector3    	getCharacterAngularVelocity();
-	virtual LLJoint*		getCharacterJoint(U32 num);
+	/*virtual*/ LLVector3    	getCharacterPosition();
+	/*virtual*/ LLQuaternion 	getCharacterRotation();
+	/*virtual*/ LLVector3    	getCharacterVelocity();
+	/*virtual*/ LLVector3    	getCharacterAngularVelocity();
 
-	virtual LLUUID			remapMotionID(const LLUUID& id);
-	virtual BOOL			startMotion(const LLUUID& id, F32 time_offset = 0.f);
-	virtual BOOL			stopMotion(const LLUUID& id, BOOL stop_immediate = FALSE);
+	/*virtual*/ LLUUID			remapMotionID(const LLUUID& id);
+	/*virtual*/ BOOL			startMotion(const LLUUID& id, F32 time_offset = 0.f);
+	/*virtual*/ BOOL			stopMotion(const LLUUID& id, BOOL stop_immediate = FALSE);
 	virtual void			stopMotionFromSource(const LLUUID& source_id);
 	virtual void			requestStopMotion(LLMotion* motion);
 	LLMotion*				findMotion(const LLUUID& id) const;
@@ -188,19 +187,13 @@ public:
 	void					resetJointPositionsToDefault( void );
 	void					resetSpecificJointPosition( const std::string& name );
 	
-	virtual const char*		getAnimationPrefix() { return "avatar"; }
-	virtual const LLUUID&   getID() const;
-	virtual LLVector3		getVolumePos(S32 joint_index, LLVector3& volume_offset);
-	virtual LLJoint*		findCollisionVolume(U32 volume_id);
-	virtual S32				getCollisionVolumeID(std::string &name);
-	virtual void			addDebugText(const std::string& text);
-	virtual F32          	getTimeDilation();
-	virtual void			getGround(const LLVector3 &inPos, LLVector3 &outPos, LLVector3 &outNorm);
-	virtual F32				getPixelArea() const;
-	virtual LLPolyMesh*		getHeadMesh();
-	virtual LLPolyMesh*		getUpperBodyMesh();
-	virtual LLVector3d		getPosGlobalFromAgent(const LLVector3 &position);
-	virtual LLVector3		getPosAgentFromGlobal(const LLVector3d &position);
+	/*virtual*/ const LLUUID&	getID() const;
+	/*virtual*/ void			addDebugText(const std::string& text);
+	/*virtual*/ F32				getTimeDilation();
+	/*virtual*/ void			getGround(const LLVector3 &inPos, LLVector3 &outPos, LLVector3 &outNorm);
+	/*virtual*/ F32				getPixelArea() const;
+	/*virtual*/ LLVector3d		getPosGlobalFromAgent(const LLVector3 &position);
+	/*virtual*/ LLVector3		getPosAgentFromGlobal(const LLVector3d &position);
 	virtual void			updateVisualParams();
 
 
@@ -495,7 +488,7 @@ public:
 	virtual LLViewerTexture::EBoostLevel 	getAvatarBoostLevel() const { return LLGLTexture::BOOST_AVATAR; }
 	virtual LLViewerTexture::EBoostLevel 	getAvatarBakedBoostLevel() const { return LLGLTexture::BOOST_AVATAR_BAKED; }
 	virtual S32 						getTexImageSize() const;
-	virtual S32 						getTexImageArea() const { return getTexImageSize()*getTexImageSize(); }
+	/*virtual*/ S32						getTexImageArea() const { return getTexImageSize()*getTexImageSize(); }
 
 /**                    Rendering
  **                                                                            **
@@ -808,9 +801,9 @@ private:
  **/
 
 public:
-	virtual BOOL 	setParent(LLViewerObject* parent);
-	virtual void 	addChild(LLViewerObject *childp);
-	virtual void 	removeChild(LLViewerObject *childp);
+	/*virtual*/ BOOL 	setParent(LLViewerObject* parent);
+	/*virtual*/ void 	addChild(LLViewerObject *childp);
+	/*virtual*/ void 	removeChild(LLViewerObject *childp);
 
 	//--------------------------------------------------------------------
 	// Sitting

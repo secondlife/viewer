@@ -1,6 +1,6 @@
 /** 
- * @file llprocessparams.cpp
- * @brief Implementation of LLProcessParams class.
+ * @file llbakingtexlayer.h
+ * @brief Declaration of LLBakingTexLayerSet.
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -24,29 +24,20 @@
  * $/LicenseInfo$
  */
 
-// linden includes
-#include "linden_common.h"
+#ifndef LL_LLBAKINGTEXLAYER_H
+#define LL_LLBAKINGTEXLAYER_H
 
-#include "llsd.h"
-#include "llsdserialize.h"
-#include "llsdutil.h"
+#include "lltexlayer.h"
 
-// appearance includes
-#include "llwearabledata.h"
-
-// project includes
-#include "llappappearanceutility.h"
-#include "llbakingavatar.h"
-#include "llprocessparams.h"
-
-void LLProcessParams::process(LLSD& input, std::ostream& output)
+class LLBakingTexLayerSet : public LLTexLayerSet
 {
-	LLWearableData wearable_data;
-	LLBakingAvatar avatar(&wearable_data);
+public:
+	LLBakingTexLayerSet(LLAvatarAppearance* const appearance);
+	virtual ~LLBakingTexLayerSet();
 
-	LLSD result;
-	result["success"] = true;
-	result["input"] = input;
-	output << LLSDOStreamer<LLSDXMLFormatter>(result);
-}
+	/*virtual*/void				requestUpdate();
+	/*virtual*/void				createComposite();
+};
+
+#endif /* LL_LLBAKINGTEXLAYER_H */
 

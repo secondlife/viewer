@@ -49,26 +49,65 @@ public:
 
 /********************************************************************************
  **                                                                            **
- **                    STATE
+ **                    INHERITED
  **/
-public:
-	virtual bool 	isSelf() const { return true; }
-	virtual BOOL	isValid() const { return TRUE; }
-	virtual BOOL	isUsingBakedTextures() const { return TRUE; }
 
-/**                    State
+	//--------------------------------------------------------------------
+	// LLCharacter interface
+	//--------------------------------------------------------------------
+public:
+	/*virtual*/ LLVector3    	getCharacterPosition();
+	/*virtual*/ LLQuaternion 	getCharacterRotation();
+	/*virtual*/ LLVector3    	getCharacterVelocity();
+	/*virtual*/ LLVector3    	getCharacterAngularVelocity();
+
+	/*virtual*/ const LLUUID&	getID() const;
+	/*virtual*/ void			addDebugText(const std::string& text);
+	/*virtual*/ F32				getTimeDilation();
+	/*virtual*/ void			getGround(const LLVector3 &inPos, LLVector3 &outPos, LLVector3 &outNorm);
+	/*virtual*/ F32				getPixelArea() const;
+	/*virtual*/ LLVector3d		getPosGlobalFromAgent(const LLVector3 &position);
+	/*virtual*/ LLVector3		getPosAgentFromGlobal(const LLVector3d &position);
+
+	//--------------------------------------------------------------------
+	// LLAvatarAppearance interface
+	//--------------------------------------------------------------------
+public:
+	/*virtual*/ void	bodySizeChanged();
+	/*virtual*/ void	applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_components,
+							LLAvatarAppearanceDefines::EBakedTextureIndex index);
+	/*virtual*/ void	invalidateComposite(LLTexLayerSet* layerset, BOOL upload_result);
+	/*virtual*/ void 	updateMeshTextures();
+	/*virtual*/ void	dirtyMesh(); // Dirty the avatar mesh
+	/*virtual*/ void	onGlobalColorChanged(const LLTexGlobalColor* global_color, BOOL upload_bake);
+	/*virtual*/ BOOL	isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex type, U32 index = 0) const;
+private:
+	/*virtual*/ void	dirtyMesh(S32 priority); // Dirty the avatar mesh, with priority
+
+	// LLAvatarAppearance instance factories:
+protected:
+	/*virtual*/ LLAvatarJoint*	createAvatarJoint();
+	/*virtual*/ LLAvatarJoint*	createAvatarJoint(S32 joint_num);
+	/*virtual*/ LLAvatarJointMesh*	createAvatarJointMesh();
+	/*virtual*/ LLTexLayerSet*	createTexLayerSet();
+
+
+/**                    Inherited
  **                                                                            **
  *******************************************************************************/
 
 /********************************************************************************
  **                                                                            **
- **                    SKELETON
+ **                    STATE
  **/
+public:
+	/*virtual*/ bool 	isSelf() const { return true; }
+	/*virtual*/ BOOL	isValid() const { return TRUE; }
+	/*virtual*/ BOOL	isUsingBakedTextures() const { return TRUE; }
 
-protected:
-	virtual LLAvatarJoint*	createAvatarJoint();
-	virtual LLAvatarJoint*	createAvatarJoint(S32 joint_num);
-	virtual LLAvatarJointMesh*	createAvatarJointMesh();
+/**                    State
+ **                                                                            **
+ *******************************************************************************/
 
 };
 

@@ -45,6 +45,7 @@ set(appearance_utility_SOURCE_FILES
     llbakingjoint.cpp
     llbakingjointmesh.cpp
     llbakingshadermgr.cpp
+    llbakingtexlayer.cpp
     llprocessparams.cpp
     )
 
@@ -56,6 +57,7 @@ set(appearance_utility_HEADER_FILES
     llbakingjointmesh.h
     llbakingprocess.h
     llbakingshadermgr.h
+    llbakingtexlayer.h
     llprocessparams.h
     )
 

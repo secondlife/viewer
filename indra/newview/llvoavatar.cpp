@@ -4558,48 +4558,6 @@ void LLVOAvatar::stopMotionFromSource(const LLUUID& source_id)
 }
 
 //-----------------------------------------------------------------------------
-// getVolumePos()
-//-----------------------------------------------------------------------------
-LLVector3 LLVOAvatar::getVolumePos(S32 joint_index, LLVector3& volume_offset)
-{
-	if (joint_index > mNumCollisionVolumes)
-	{
-		return LLVector3::zero;
-	}
-
-	return mCollisionVolumes[joint_index].getVolumePos(volume_offset);
-}
-
-//-----------------------------------------------------------------------------
-// findCollisionVolume()
-//-----------------------------------------------------------------------------
-LLJoint* LLVOAvatar::findCollisionVolume(U32 volume_id)
-{
-	if ((S32)volume_id > mNumCollisionVolumes)
-	{
-		return NULL;
-	}
-	
-	return &mCollisionVolumes[volume_id];
-}
-
-//-----------------------------------------------------------------------------
-// findCollisionVolume()
-//-----------------------------------------------------------------------------
-S32 LLVOAvatar::getCollisionVolumeID(std::string &name)
-{
-	for (S32 i = 0; i < mNumCollisionVolumes; i++)
-	{
-		if (mCollisionVolumes[i].getName() == name)
-		{
-			return i;
-		}
-	}
-
-	return -1;
-}
-
-//-----------------------------------------------------------------------------
 // addDebugText()
 //-----------------------------------------------------------------------------
 void LLVOAvatar::addDebugText(const std::string& text)
@@ -4790,23 +4748,6 @@ F32 LLVOAvatar::getPixelArea() const
 }
 
 
-//-----------------------------------------------------------------------------
-// LLVOAvatar::getHeadMesh()
-//-----------------------------------------------------------------------------
-LLPolyMesh*	LLVOAvatar::getHeadMesh()
-{
-	return mMeshLOD[MESH_ID_HEAD]->mMeshParts[0]->getMesh();
-}
-
-
-//-----------------------------------------------------------------------------
-// LLVOAvatar::getUpperBodyMesh()
-//-----------------------------------------------------------------------------
-LLPolyMesh*	LLVOAvatar::getUpperBodyMesh()
-{
-	return mMeshLOD[MESH_ID_UPPER_BODY]->mMeshParts[0]->getMesh();
-}
-
 
 //-----------------------------------------------------------------------------
 // LLVOAvatar::getPosGlobalFromAgent()
@@ -4824,19 +4765,6 @@ LLVector3	LLVOAvatar::getPosAgentFromGlobal(const LLVector3d &position)
 	return gAgent.getPosAgentFromGlobal(position);
 }
 
-
-//-----------------------------------------------------------------------------
-// getCharacterJoint()
-//-----------------------------------------------------------------------------
-LLJoint *LLVOAvatar::getCharacterJoint( U32 num )
-{
-	if ((S32)num >= mSkeleton.size()
-	    || (S32)num < 0)
-	{
-		return NULL;
-	}
-	return mSkeleton[num];
-}
 
 //-----------------------------------------------------------------------------
 // requestStopMotion()
