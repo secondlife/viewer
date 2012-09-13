@@ -1596,11 +1596,26 @@ class LLAdvancedEnableGrabBakedTexture : public view_listener_t
 ///////////////////////
 
 
+class LLAdvancedEnableAppearanceToXML : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		return gSavedSettings.getBOOL("DebugAvatarCompositeBaked");
+	}
+};
+
 class LLAdvancedAppearanceToXML : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLVOAvatar::dumpArchetypeXML(NULL);
+		std::string emptyname;
+		LLVOAvatar* avatar =
+			find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
+		if (!avatar)
+		{
+			avatar = gAgentAvatarp;
+		}
+		avatar->dumpArchetypeXML(emptyname);
 		return true;
 	}
 };
@@ -8452,6 +8467,7 @@ void initialize_menus()
 
 	// Advanced > Character > Character Tests
 	view_listener_t::addMenu(new LLAdvancedAppearanceToXML(), "Advanced.AppearanceToXML");
+	view_listener_t::addMenu(new LLAdvancedEnableAppearanceToXML(), "Advanced.EnableAppearanceToXML");
 	view_listener_t::addMenu(new LLAdvancedToggleCharacterGeometry(), "Advanced.ToggleCharacterGeometry");
 
 	view_listener_t::addMenu(new LLAdvancedTestMale(), "Advanced.TestMale");

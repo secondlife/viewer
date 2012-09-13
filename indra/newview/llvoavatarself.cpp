@@ -2653,6 +2653,7 @@ void LLVOAvatarSelf::onCustomizeStart(bool disable_camera_switch)
 			gAgentCamera.changeCameraToCustomizeAvatar();
 		}
 
+		gAgentAvatarp->clearVisualParamWeights();
 		gAgentAvatarp->invalidateAll();
 		gAgentAvatarp->updateMeshTextures();
 	}

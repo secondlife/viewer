@@ -636,6 +636,8 @@ public:
 	//--------------------------------------------------------------------
 public:
 	BOOL			getIsAppearanceAnimating() const { return mAppearanceAnimating; }
+	BOOL			isUsingLocalAppearance() const { return mUseLocalAppearance; }
+
 private:
 	BOOL			mAppearanceAnimating;
 	LLFrameTimer	mAppearanceMorphTimer;
@@ -907,7 +909,7 @@ private:
 	// General
 	//--------------------------------------------------------------------
 public:
-	static void			dumpArchetypeXML(void*);
+	void				dumpArchetypeXML(const std::string& prefix);
 	static void			dumpBakedStatus();
 	const std::string 	getBakedStatusForPrintout() const;
 	void				dumpAvatarTEs(const std::string& context) const;

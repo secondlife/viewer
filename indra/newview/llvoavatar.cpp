@@ -30,6 +30,7 @@
 
 #include <stdio.h>
 #include <ctype.h>
+#include <sstream>
 
 #include "llaudioengine.h"
 #include "noise.h"
@@ -5568,7 +5569,7 @@ void LLVOAvatar::onGlobalColorChanged(const LLTexGlobalColor* global_color, BOOL
 				LLAvatarJointMesh* mesh = (*iter);
 				if (mesh)
 				{
-					mesh->setColor( color.mV[VX], color.mV[VY], color.mV[VZ], color.mV[VW] );
+					mesh->setColor( color );
 				}
 			}
 		}
@@ -5838,6 +5839,10 @@ void LLVOAvatar::updateMeshTextures()
 				if (mesh)
 				{
 					mesh->setTexture( baked_img );
+					if (gSavedSettings.getBOOL("DebugAvatarCompositeBaked"))
+					{
+						mesh->setColor(LLColor4::red);
+					}
 				}
 			}
 		}
@@ -5874,6 +5879,26 @@ void LLVOAvatar::updateMeshTextures()
 				if (mesh)
 				{
 					mesh->setLayerSet( layerset );
+					if (gSavedSettings.getBOOL("DebugAvatarCompositeBaked"))
+					{
+						mesh->setColor( LLColor4::yellow );
+					}
+				}
+			}
+		}
+		else
+		{
+			if (gSavedSettings.getBOOL("DebugAvatarCompositeBaked"))
+			{
+				avatar_joint_mesh_list_t::iterator iter = mBakedTextureDatas[i].mJointMeshes.begin();
+				avatar_joint_mesh_list_t::iterator end  = mBakedTextureDatas[i].mJointMeshes.end();
+				for (; iter != end; ++iter)
+				{
+					LLAvatarJointMesh* mesh = (*iter);
+					if (mesh)
+					{
+						mesh->setColor( LLColor4::blue );
+					}
 				}
 			}
 		}
@@ -5893,7 +5918,7 @@ void LLVOAvatar::updateMeshTextures()
 			LLAvatarJointMesh* mesh = (*iter);
 			if (mesh)
 			{
-				mesh->setColor( color.mV[VX], color.mV[VY], color.mV[VZ], color.mV[VW] );
+				mesh->setColor( color );
 				mesh->setTexture( hair_img );
 			}
 		}
@@ -6252,6 +6277,7 @@ bool LLVOAvatar::visualParamWeightsAreDefault()
 //-----------------------------------------------------------------------------
 void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 {
+	dumpArchetypeXML("process_start");
 	if (gSavedSettings.getBOOL("BlockAvatarAppearanceMessages"))
 	{
 		llwarns << "Blocking AvatarAppearance message" << llendl;
@@ -6275,7 +6301,9 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 //			llinfos << "processAvatarAppearance end  " << mID << llendl;
 			return;
 		}
+		clearVisualParamWeights();
 	}
+	dumpArchetypeXML("process_post_clear");
 
 	ESex old_sex = getSex();
 
@@ -6395,6 +6423,8 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 			}
 		}
 
+		dumpArchetypeXML("process_post_set_weights");
+
 		const S32 expected_tweakable_count = getVisualParamCountInGroup(VISUAL_PARAM_GROUP_TWEAKABLE); // don't worry about VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
 		if (num_blocks != expected_tweakable_count)
 		{
@@ -6459,6 +6489,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 
 	updateMeshTextures();
 
+	dumpArchetypeXML("process_end");
 //	llinfos << "processAvatarAppearance end " << mID << llendl;
 }
 
@@ -6660,6 +6691,10 @@ void LLVOAvatar::useBakedTexture( const LLUUID& id )
 				if (mesh)
 				{
 					mesh->setTexture( image_baked );
+					if (gSavedSettings.getBOOL("DebugAvatarCompositeBaked"))
+					{
+						mesh->setColor( LLColor4::green );
+					}
 				}
 			}
 			if (mBakedTextureDatas[i].mTexLayerSet)
@@ -6686,7 +6721,7 @@ void LLVOAvatar::useBakedTexture( const LLUUID& id )
 					LLAvatarJointMesh* mesh = (*iter);
 					if (mesh)
 					{
-						mesh->setColor( 1.f, 1.f, 1.f, 1.f );
+						mesh->setColor( LLColor4::white );
 					}
 				}
 			}
@@ -6696,11 +6731,33 @@ void LLVOAvatar::useBakedTexture( const LLUUID& id )
 	dirtyMesh();
 }
 
-// static
-void LLVOAvatar::dumpArchetypeXML( void* )
+void LLVOAvatar::dumpArchetypeXML(const std::string& prefix )
 {
+	std::string outprefix(prefix);
+	if (outprefix.empty())
+	{
+		outprefix = getFullname();
+	}
+	if (outprefix.empty())
+	{
+		outprefix = std::string("new_archetype");
+	}
+	typedef std::map<std::string,S32> file_num_type;
+	static  file_num_type file_nums;
+	file_num_type::iterator it = file_nums.find(outprefix);
+	S32 num = 0;
+	if (it != file_nums.end())
+	{
+		num = it->second;
+	}
+	std::ostringstream temp;
+	temp << std::setw(4) << std::setfill('0') << num;
+	file_nums[outprefix] = num+1;
+	std::string outfilename = outprefix + " " + temp.str() + ".xml";
+	std::replace(outfilename.begin(),outfilename.end(),' ','_');
+	
 	LLAPRFile outfile;
-	outfile.open(gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,"new archetype.xml"), LL_APR_WB );
+	outfile.open(gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,outfilename), LL_APR_WB );
 	apr_file_t* file = outfile.getFileHandle();
 	if (!file)
 	{
@@ -6716,12 +6773,12 @@ void LLVOAvatar::dumpArchetypeXML( void* )
 	apr_file_printf( file, "\n\t<archetype name=\"???\">\n" );
 
 	// only body parts, not clothing.
-	for (S32 type = LLWearableType::WT_SHAPE; type <= LLWearableType::WT_EYES; type++)
+	for (S32 type = LLWearableType::WT_SHAPE; type <= LLWearableType::WT_COUNT; type++)
 	{
 		const std::string& wearable_name = LLWearableType::getTypeName((LLWearableType::EType)type);
 		apr_file_printf( file, "\n\t\t<!-- wearable: %s -->\n", wearable_name.c_str() );
 
-		for (LLVisualParam* param = gAgentAvatarp->getFirstVisualParam(); param; param = gAgentAvatarp->getNextVisualParam())
+		for (LLVisualParam* param = getFirstVisualParam(); param; param = getNextVisualParam())
 		{
 			LLViewerVisualParam* viewer_param = (LLViewerVisualParam*)param;
 			if( (viewer_param->getWearableType() == type) && 
@@ -6737,7 +6794,7 @@ void LLVOAvatar::dumpArchetypeXML( void* )
 			if (LLAvatarAppearanceDictionary::getTEWearableType((ETextureIndex)te) == type)
 			{
 				// MULTIPLE_WEARABLES: extend to multiple wearables?
-				LLViewerTexture* te_image = ((LLVOAvatar *)(gAgentAvatarp))->getImage((ETextureIndex)te, 0);
+				LLViewerTexture* te_image = getImage((ETextureIndex)te, 0);
 				if( te_image )
 				{
 					std::string uuid_str;
