@@ -193,37 +193,40 @@ void LLConversationLogFriendObserver::changed(U32 mask)
 
 LLConversationLog::LLConversationLog()
 {
-	loadFromFile(getFileName());
-
 	LLControlVariable* ctrl = gSavedPerAccountSettings.getControl("LogInstantMessages").get();
 	if (ctrl)
 	{
-		ctrl->getSignal()->connect(boost::bind(&LLConversationLog::observeIMSession, this));
-
+		ctrl->getSignal()->connect(boost::bind(&LLConversationLog::enableLogging, this, _2));
 		if (ctrl->getValue().asBoolean())
 		{
-			LLIMMgr::instance().addSessionObserver(this);
-			newMessageSignalConnection = LLIMModel::instance().addNewMsgCallback(boost::bind(&LLConversationLog::onNewMessageReceived, this, _1));
+			enableLogging(true);
 		}
 	}
-
-	mFriendObserver = new LLConversationLogFriendObserver;
-	LLAvatarTracker::instance().addObserver(mFriendObserver);
-
 }
 
-void LLConversationLog::observeIMSession()
+void LLConversationLog::enableLogging(bool enable)
 {
-	if (gSavedPerAccountSettings.getBOOL("LogInstantMessages"))
+	if (enable)
 	{
+		loadFromFile(getFileName());
+
 		LLIMMgr::instance().addSessionObserver(this);
-		LLIMModel::instance().addNewMsgCallback(boost::bind(&LLConversationLog::onNewMessageReceived, this, _1));
+		newMessageSignalConnection = LLIMModel::instance().addNewMsgCallback(boost::bind(&LLConversationLog::onNewMessageReceived, this, _1));
+
+		mFriendObserver = new LLConversationLogFriendObserver;
+		LLAvatarTracker::instance().addObserver(mFriendObserver);
 	}
 	else
 	{
+		saveToFile(getFileName());
+
 		LLIMMgr::instance().removeSessionObserver(this);
 		newMessageSignalConnection.disconnect();
+		LLAvatarTracker::instance().removeObserver(mFriendObserver);
+		mConversations.clear();
 	}
+
+	notifyObservers();
 }
 
 void LLConversationLog::logConversation(const LLUUID& session_id)
@@ -338,7 +341,10 @@ void LLConversationLog::sessionAdded(const LLUUID& session_id, const std::string
 
 void LLConversationLog::cache()
 {
-	saveToFile(getFileName());
+	if (gSavedPerAccountSettings.getBOOL("LogInstantMessages"))
+	{
+		saveToFile(getFileName());
+	}
 }
 
 std::string LLConversationLog::getFileName()
@@ -349,7 +355,7 @@ std::string LLConversationLog::getFileName()
 
 bool LLConversationLog::saveToFile(const std::string& filename)
 {
-	if(!filename.size())
+	if (!filename.size())
 	{
 		llwarns << "Call log list filename is empty!" << llendl;
 		return false;

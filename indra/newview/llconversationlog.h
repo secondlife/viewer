@@ -144,14 +144,14 @@ private:
 
 	LLConversationLog();
 
+	void enableLogging(bool enable);
+
 	/**
 	 * adds conversation to the conversation list and notifies observers
 	 */
 	void logConversation(const LLUUID& session_id);
 
 	void notifyPrticularConversationObservers(const LLUUID& session_id, U32 mask);
-
-	void observeIMSession();
 
 	/**
 	 * constructs file name in which conversations log will be saved
