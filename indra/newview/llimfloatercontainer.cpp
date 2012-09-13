@@ -132,7 +132,7 @@ BOOL LLIMFloaterContainer::postBuild()
     p.root = NULL;
 	mConversationsRoot = LLUICtrlFactory::create<LLFolderView>(p);
 
-	// Scroller
+	// a scroller for folder view
 	LLRect scroller_view_rect = mConversationsListPanel->getRect();
 	scroller_view_rect.translate(-scroller_view_rect.mLeft, -scroller_view_rect.mBottom);
 	LLScrollContainer::Params scroller_params(LLUICtrlFactory::getDefaultParams<LLFolderViewScrollContainer>());
@@ -639,10 +639,7 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 
 	// Add a new conversation widget to the root folder of the folder view
 	widget->addToFolder(mConversationsRoot);
-
-	// Add it to the UI
-//	mConversationsListPanel->addChild(widget);
-	widget->setVisible(TRUE);
+	widget->requestArrange();
 	
 	// Create the participants widgets now
 	// Note: usually, we do not get an updated avatar list at that point
@@ -654,16 +651,8 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 		LLConversationItem* participant_model = dynamic_cast<LLConversationItem*>(*current_participant_model);
 		LLConversationViewParticipant* participant_view = createConversationViewParticipant(participant_model);
 		participant_view->addToFolder(widget);
-//		mConversationsListPanel->addChild(participant_view);
-//		participant_view->setVisible(TRUE);
 		current_participant_model++;
 	}
-
-	S32 width = 0;
-	S32 height = 0;
-	mConversationsRoot->arrange(&width, &height);
-
-//	repositioningWidgets();
 	
 	return;
 }
@@ -683,8 +672,6 @@ void LLIMFloaterContainer::removeConversationListItem(const LLUUID& uuid, bool c
 	// Suppress the conversation items and widgets from their respective maps
 	mConversationsItems.erase(uuid);
 	mConversationsWidgets.erase(uuid);
-
-	repositioningWidgets();
 	
 	// Don't let the focus fall IW, select and refocus on the first conversation in the list
 	if (change_focus)
@@ -704,13 +691,8 @@ LLConversationViewSession* LLIMFloaterContainer::createConversationItemWidget(LL
 	LLConversationViewSession::Params params;
 	
 	params.name = item->getDisplayName();
-	//params.icon = bridge->getIcon();
-	//params.icon_open = bridge->getOpenIcon();
-	//params.creation_date = bridge->getCreationDate();
-	params.item_height = 24;
 	params.root = mConversationsRoot;
 	params.listener = item;
-	params.rect = LLRect (0, 0, 0, 0);
 	params.tool_tip = params.name;
 	params.container = this;
 	

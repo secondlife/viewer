@@ -35,12 +35,13 @@
 //
 // Implementation of conversations list session widgets
 //
+static LLDefaultChildRegistry::Register<LLConversationViewSession> r_conversation_view_session("conversation_view_session");
 
 LLConversationViewSession::Params::Params() :	
 	container()
 {}
 
-LLConversationViewSession::LLConversationViewSession( const LLConversationViewSession::Params& p ):
+LLConversationViewSession::LLConversationViewSession(const LLConversationViewSession::Params& p):
 	LLFolderViewFolder(p),
 	mContainer(p.container),
 	mItemPanel(NULL),
@@ -65,6 +66,8 @@ BOOL LLConversationViewSession::postBuild()
 
 void LLConversationViewSession::draw()
 {
+// *TODO Seth PE: remove the code duplicated from LLFolderViewFolder::draw()
+// ***** LLFolderViewFolder::draw() code begin *****
 	if (mAutoOpenCountdown != 0.f)
 	{
 		mControlLabelRotation = mAutoOpenCountdown * -90.f;
@@ -77,7 +80,10 @@ void LLConversationViewSession::draw()
 	{
 		mControlLabelRotation = lerp(mControlLabelRotation, 0.f, LLCriticalDamp::getInterpolant(0.025f));
 	}
+// ***** LLFolderViewFolder::draw() code end *****
 
+// *TODO Seth PE: remove the code duplicated from LLFolderViewItem::draw()
+// ***** LLFolderViewItem::draw() code begin *****
 	const LLColor4U DEFAULT_WHITE(255, 255, 255);
 
 	static LLUIColor sFgColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
@@ -190,10 +196,27 @@ void LLConversationViewSession::draw()
 		}
 		mDragAndDropTarget = FALSE;
 	}
+// ***** LLFolderViewItem::draw() code end *****
+
+	// draw children if root folder, or any other folder that is open or animating to closed state
+	bool draw_children = getRoot() == static_cast<LLFolderViewFolder*>(this)
+						 || isOpen()
+						 || mCurHeight != mTargetHeight;
+
+	for (folders_t::iterator iter = mFolders.begin();
+		iter != mFolders.end();)
+	{
+		folders_t::iterator fit = iter++;
+		(*fit)->setVisible(draw_children);
+	}
+	for (items_t::iterator iter = mItems.begin();
+		iter != mItems.end();)
+	{
+		items_t::iterator iit = iter++;
+		(*iit)->setVisible(draw_children);
+	}
 
 	LLView::draw();
-
-	mExpanderHighlighted = FALSE;
 }
 
 // virtual
@@ -203,8 +226,7 @@ S32 LLConversationViewSession::arrange(S32* width, S32* height)
 				getLocalRect().mTop,
 				getLocalRect().mRight,
 				getLocalRect().mTop - getItemHeight());
-	mItemPanel->setRect(rect);
-	mItemPanel->reshape(rect.getWidth(), rect.getHeight());
+	mItemPanel->setShape(rect);
 
 	return LLFolderViewFolder::arrange(width, height);
 }

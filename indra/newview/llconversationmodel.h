@@ -120,6 +120,8 @@ public:
 	LLConversationItemSession(const LLUUID& uuid, LLFolderViewModelInterface& root_view_model);
 	virtual ~LLConversationItemSession() {}
 	
+	/*virtual*/ bool hasChildren() const;
+
 	void setSessionID(const LLUUID& session_id) { mUUID = session_id; mNeedsRefresh = true; }
 	void addParticipant(LLConversationItemParticipant* participant);
 	void removeParticipant(LLConversationItemParticipant* participant);
