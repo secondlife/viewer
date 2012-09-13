@@ -1039,9 +1039,6 @@ void LLVOAvatar::initClass()
 
 void LLVOAvatar::cleanupClass()
 {
-	deleteAndClear(sAvatarXmlInfo);
-	sSkeletonXMLTree.cleanup();
-	sXMLTree.cleanup();
 }
 
 // virtual

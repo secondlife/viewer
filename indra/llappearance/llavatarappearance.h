@@ -65,7 +65,8 @@ public:
 	LLAvatarAppearance(LLWearableData* wearable_data);
 	virtual ~LLAvatarAppearance();
 
-	static void initClass(); // initializes static members
+	static void			initClass(); // initializes static members
+	static void			cleanupClass();	// Cleanup data that's only init'd once per class.
 	virtual void 		initInstance(); // Called after construction to initialize the instance.
 	virtual BOOL		loadSkeletonNode();
 	BOOL				loadMeshNodes();

@@ -668,6 +668,15 @@ LLAppViewer::~LLAppViewer()
 	removeMarkerFile();
 }
 
+class LLUITranslationBridge : public LLTranslationBridge
+{
+public:
+	virtual std::string getString(const std::string &xml_desc)
+	{
+		return LLTrans::getString(xml_desc);
+	}
+};
+
 bool LLAppViewer::init()
 {	
 	//
@@ -678,6 +687,10 @@ bool LLAppViewer::init()
 	// we run the "program crashed last time" error handler below.
 	//
 	LLFastTimer::reset();
+
+	// initialize LLWearableType translation bridge.
+	// Memory will be cleaned up in ::cleanupClass()
+	LLWearableType::initClass(new LLUITranslationBridge());
 
 	// initialize SSE options
 	LLVector4a::initClass();
@@ -1797,6 +1810,8 @@ bool LLAppViewer::cleanup()
 	llinfos << "Cleaning up Objects" << llendflush;
 	
 	LLViewerObject::cleanupVOClasses();
+
+	LLAvatarAppearance::cleanupClass();
 	
 	LLPostProcess::cleanupClass();
 
@@ -2029,6 +2044,8 @@ bool LLAppViewer::cleanup()
 	}
 	llinfos << "Cleaning up LLProxy." << llendl;
 	LLProxy::cleanupClass();
+
+	LLWearableType::cleanupClass();
 
 	LLMainLoopRepeater::instance().stop();
 

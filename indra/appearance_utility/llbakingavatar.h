@@ -38,6 +38,16 @@ class LLBakingAvatar : public LLAvatarAppearance
  **                    INITIALIZATION
  **/
 public:
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free_16(ptr);
+	}
+
 	LLBakingAvatar(LLWearableData* wearable_data);
 	virtual ~LLBakingAvatar();
 

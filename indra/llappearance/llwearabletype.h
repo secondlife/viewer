@@ -32,6 +32,13 @@
 #include "llinventorytype.h"
 #include "llsingleton.h"
 
+class LLTranslationBridge
+{
+public:
+	virtual std::string getString(const std::string &xml_desc) = 0;
+};
+
+
 class LLWearableType
 {
 public: 
@@ -58,6 +65,9 @@ public:
 		WT_INVALID	  = 255,
 		WT_NONE		  = -1,
 	};
+
+	static void			initClass(LLTranslationBridge* trans); // initializes static members
+	static void			cleanupClass(); // initializes static members
 
 	static const std::string& 			getTypeName(EType type);
 	static const std::string& 			getTypeDefaultNewName(EType type);

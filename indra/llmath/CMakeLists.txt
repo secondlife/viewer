@@ -99,6 +99,10 @@ list(APPEND llmath_SOURCE_FILES ${llmath_HEADER_FILES})
 
 add_library (llmath ${llmath_SOURCE_FILES})
 
+target_link_libraries(llmath
+    ${LLCOMMON_LIBRARIES}
+    )
+
 # Add tests
 if (LL_TESTS)
   include(LLAddBuildTest)

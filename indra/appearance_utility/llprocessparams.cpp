@@ -43,6 +43,7 @@ void LLProcessParams::process(LLSD& input, std::ostream& output)
 {
 	LLWearableData wearable_data;
 	LLBakingAvatar avatar(&wearable_data);
+	avatar.initInstance();
 
 	LLSD result;
 	result["success"] = true;

@@ -419,6 +419,14 @@ void LLAvatarAppearance::initClass()
 	}
 }
 
+void LLAvatarAppearance::cleanupClass()
+{
+	deleteAndClear(sAvatarXmlInfo);
+	// *TODO: What about sAvatarSkeletonInfo ???
+	sSkeletonXMLTree.cleanup();
+	sXMLTree.cleanup();
+}
+
 using namespace LLAvatarAppearanceDefines;
 
 //------------------------------------------------------------------------

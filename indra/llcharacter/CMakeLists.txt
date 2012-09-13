@@ -76,6 +76,15 @@ list(APPEND llcharacter_SOURCE_FILES ${llcharacter_HEADER_FILES})
 
 add_library (llcharacter ${llcharacter_SOURCE_FILES})
 
+target_link_libraries(
+    llcharacter
+    ${LLCOMMON_LIBRARIES}
+    ${LLMATH_LIBRARIES}
+    ${LLMESSAGE_LIBRARIES}
+    ${LLVFS_LIBRARIES}
+    ${LLXML_LIBRARIES}
+    )
+
 
 # Add tests
 if (LL_TESTS)

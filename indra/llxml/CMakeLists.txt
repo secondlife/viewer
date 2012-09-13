@@ -39,9 +39,10 @@ list(APPEND llxml_SOURCE_FILES ${llxml_HEADER_FILES})
 add_library (llxml ${llxml_SOURCE_FILES})
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
-target_link_libraries( llxml
-    llvfs
-    llmath
+target_link_libraries(llxml
+    ${LLVFS_LIBRARIES}
+    ${LLMATH_LIBRARIES}
+    ${LLCOMMON_LIBRARIES}
     ${EXPAT_LIBRARIES}
     )
 

@@ -64,6 +64,13 @@ set(viewer_HEADER_FILES
 # Sort by high-level to low-level
 if (LINUX AND VIEWER)
   set(llwindow_LINK_LIBRARIES
+      ${LLCOMMON_LIBRARIES}
+      ${LLIMAGE_LIBRARIES}
+      ${LLMATH_LIBRARIES}
+      ${LLRENDER_LIBRARIES}
+      ${LLVFS_LIBRARIES}
+      ${LLWINDOW_LIBRARIES}
+      ${LLXML_LIBRARIES}
       ${UI_LIBRARIES}     # for GTK
       ${SDL_LIBRARY}
       fontconfig          # For FCInit and other FC* functions.
@@ -160,7 +167,8 @@ endif (SERVER AND NOT WINDOWS AND NOT DARWIN)
 if (llwindow_HEADER_FILES)
   list(APPEND llwindow_SOURCE_FILES ${llwindow_HEADER_FILES})
 endif (llwindow_HEADER_FILES)
-  list(APPEND viewer_SOURCE_FILES ${viewer_HEADER_FILES})
+
+list(APPEND viewer_SOURCE_FILES ${viewer_HEADER_FILES})
 
 if (VIEWER)
   add_library (llwindow

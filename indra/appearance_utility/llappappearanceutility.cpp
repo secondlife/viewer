@@ -37,6 +37,10 @@
 #include "llsdserialize.h"
 #include "llsdutil.h"
 
+// appearance includes
+#include "llavatarappearance.h"
+#include "llwearabletype.h"
+
 // project includes
 #include "llappappearanceutility.h"
 #include "llbakingprocess.h"
@@ -375,20 +379,43 @@ void LLAppAppearanceUtility::initializeIO()
 	/////  END INPUT PARSING ////
 }
 
+class LLPassthroughTranslationBridge : public LLTranslationBridge
+{
+public:
+	virtual std::string getString(const std::string &xml_desc)
+	{
+		// Just pass back the input string.
+		return xml_desc;
+	}
+};
+
+
 bool LLAppAppearanceUtility::init()
 {
 	parseArguments();
 
+	bool log_to_stderr = true;
+	LLError::initForApplication("", log_to_stderr);
 	// *TODO: Add debug mode(s).  Skip this in debug mode.
 	LLError::setDefaultLevel(LLError::LEVEL_WARN);
 
 	validateArguments();
 	initializeIO();
+
+	// Initialize classes.
+	LLWearableType::initClass(new LLPassthroughTranslationBridge());
+
+	// *TODO: Create a texture bridge?
+	LLAvatarAppearance::initClass();
+
 	return true;
 }
 
 bool LLAppAppearanceUtility::cleanup()
 {
+	LLAvatarAppearance::cleanupClass();
+	LLWearableType::cleanupClass();
+
 	if (mProcess)
 	{
 		delete mProcess;

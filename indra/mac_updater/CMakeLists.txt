@@ -7,6 +7,7 @@ include(OpenSSL)
 include(CURL)
 include(CARes)
 include(LLCommon)
+include(LLMessage)
 include(LLVFS)
 include(Linking)
 
@@ -52,6 +53,7 @@ set_target_properties(mac-updater
   )
 
 target_link_libraries(mac-updater
+    ${LLMESSAGE_LIBRARIES}
     ${LLVFS_LIBRARIES}
     ${OPENSSL_LIBRARIES}
     ${CRYPTO_LIBRARIES}
