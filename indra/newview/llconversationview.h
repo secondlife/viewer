@@ -92,7 +92,10 @@ public:
     bool hasSameValue(const LLUUID& uuid) { return (uuid == mUUID); }
     virtual void refresh();
     void addToFolder(LLFolderViewFolder* folder);
-    
+
+    void onMouseEnter(S32 x, S32 y, MASK mask);
+    void onMouseLeave(S32 x, S32 y, MASK mask);
+
 protected:
 	friend class LLUICtrlFactory;
     LLConversationViewParticipant( const Params& p );

@@ -9,23 +9,22 @@
   follows="left|top|right"
 >
 <info_button
+	 follows="right"
+	 auto_update="true"
      height="16"
      image_pressed="Info_Press"
      image_unselected="Info_Over"
      layout="topleft"
-     left_pad="3"
-     right="200"
+     right="-28"
      name="info_btn"
-     tab_stop="false"
-     top_delta="0"
      width="16" />
 <output_monitor
+	follows="right"
 	auto_update="true"
 	draw_border="false"
 	height="16"
 	layout="topleft"
-	left_pad="5"
-	right="225"
+	right="-3"
 	mouse_opaque="true"
 	name="speaking_indicator"
 	visible="true"

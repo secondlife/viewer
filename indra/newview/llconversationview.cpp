@@ -138,10 +138,12 @@ LLConversationViewParticipant::LLConversationViewParticipant( const LLConversati
 void LLConversationViewParticipant::initFromParams(const LLConversationViewParticipant::Params& params)
 {	
 	LLButton::Params info_button_params(params.info_button());
+    applyXUILayout(info_button_params, this);
 	LLButton * button = LLUICtrlFactory::create<LLButton>(info_button_params);
 	addChild(button);	
 
     LLOutputMonitorCtrl::Params output_monitor_params(params.output_monitor());
+    applyXUILayout(output_monitor_params, this);
     LLOutputMonitorCtrl * outputMonitor = LLUICtrlFactory::create<LLOutputMonitorCtrl>(output_monitor_params);
     addChild(outputMonitor);
 }
@@ -150,9 +152,10 @@ BOOL LLConversationViewParticipant::postBuild()
 {
 	mInfoBtn = getChild<LLButton>("info_btn");
 	mInfoBtn->setClickedCallback(boost::bind(&LLConversationViewParticipant::onInfoBtnClick, this));
-	
+	mInfoBtn->setVisible(false);
+
 	mSpeakingIndicator = getChild<LLOutputMonitorCtrl>("speaking_indicator");
-	
+
 	LLFolderViewItem::postBuild();
 	return TRUE;
 }
@@ -179,13 +182,25 @@ void LLConversationViewParticipant::addToFolder(LLFolderViewFolder* folder)
     if(vmi)
     {
         mSpeakingIndicator->setSpeakerId(mUUID, 
-            vmi->getUUID()); //set the session id
-}
+        vmi->getUUID()); //set the session id
+    }
 }
 
 void LLConversationViewParticipant::onInfoBtnClick()
 {
 	LLFloaterReg::showInstance("inspect_avatar", LLSD().with("avatar_id", mUUID));
+}
+
+void LLConversationViewParticipant::onMouseEnter(S32 x, S32 y, MASK mask)
+{
+    mInfoBtn->setVisible(true);
+    LLFolderViewItem::onMouseEnter(x, y, mask);
+}
+
+void LLConversationViewParticipant::onMouseLeave(S32 x, S32 y, MASK mask)
+{
+    mInfoBtn->setVisible(false);
+    LLFolderViewItem::onMouseEnter(x, y, mask);
 }
 
 // EOF

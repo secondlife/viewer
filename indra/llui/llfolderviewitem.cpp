@@ -771,7 +771,7 @@ void LLFolderViewItem::draw()
 	//
 	font->renderUTF8(mLabel, 0, text_left, y, color,
 					 LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
-					 S32_MAX, getRect().getWidth() - (S32) text_left, &right_x, TRUE);
+					 S32_MAX, getRect().getWidth() - (S32) text_left - TEXT_PAD_RIGHT, &right_x, TRUE);
 
 	//--------------------------------------------------------------------------------//
 	// Draw label suffix

@@ -703,6 +703,7 @@ LLConversationViewSession* LLIMFloaterContainer::createConversationItemWidget(LL
 LLConversationViewParticipant* LLIMFloaterContainer::createConversationViewParticipant(LLConversationItem* item)
 {
 	LLConversationViewParticipant::Params params;
+    LLRect panel_rect = mConversationsListPanel->getRect();
 	
 	params.name = item->getDisplayName();
 	//params.icon = bridge->getIcon();
@@ -710,7 +711,7 @@ LLConversationViewParticipant* LLIMFloaterContainer::createConversationViewParti
 	//params.creation_date = bridge->getCreationDate();
 	params.root = mConversationsRoot;
 	params.listener = item;
-	params.rect = LLRect (0, 0, 0, 0);
+	params.rect = LLRect (0, 16, panel_rect.getWidth(), 0);
 	params.tool_tip = params.name;
 	params.participant_id = item->getUUID();
 	
