@@ -49,6 +49,8 @@ private:
 	bool isActionEnabled(const LLSD& userdata);
 	bool isActionChecked(const LLSD& userdata);
 
+	void onCallLoggingEnabledDisabled(bool enabled);
+
 	LLConversationLogList* mConversationLogList;
 };
 

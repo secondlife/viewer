@@ -65,7 +65,11 @@ BOOL LLFloaterConversationPreview::postBuild()
 	std::string title = getString("Title", args);
 	setTitle(title);
 
-	LLLogChat::loadChatHistory(file, mMessages, true);
+	LLSD load_params;
+	load_params["load_all_history"] = true;
+	load_params["cut_off_todays_date"] = false;
+
+	LLLogChat::loadChatHistory(file, mMessages, load_params);
 	mCurrentPage = mMessages.size() / mPageSize;
 
 	mPageSpinner = getChild<LLSpinCtrl>("history_page_spin");

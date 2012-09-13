@@ -387,13 +387,16 @@ void append_to_last_message(std::list<LLSD>& messages, const std::string& line)
 }
 
 // static
-void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& messages, bool load_all_history/*= false*/)
+void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& messages, const LLSD& load_params)
 {
 	if (file_name.empty())
 	{
 		llwarns << "Session name is Empty!" << llendl;
 		return ;
 	}
+
+	bool load_all_history = load_params.has("load_all_history") ? load_params["load_all_history"].asBoolean() : false;
+
 	//LL_INFOS("") << "Loading:" << file_name << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
 	//LL_INFOS("") << "Current:" << makeLogFileName(file_name) << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
 	LLFILE* fptr = LLFile::fopen(makeLogFileName(file_name), "r");/*Flawfinder: ignore*/
@@ -449,7 +452,7 @@ void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& m
 		else
 		{
 			LLSD item;
-			if (!LLChatLogParser::parse(line, item))
+			if (!LLChatLogParser::parse(line, item, load_params))
 			{
 				item[IM_TEXT] = line;
 			}
@@ -500,10 +503,11 @@ void LLChatLogFormatter::format(const LLSD& im, std::ostream& ostr) const
 	}
 	}
 
-bool LLChatLogParser::parse(std::string& raw, LLSD& im)
+bool LLChatLogParser::parse(std::string& raw, LLSD& im, const LLSD& parse_params)
 {
 	if (!raw.length()) return false;
 	
+	bool cut_off_todays_date = parse_params.has("cut_off_todays_date")  ? parse_params["cut_off_todays_date"].asBoolean()  : true;
 	im = LLSD::emptyMap();
 
 	//matching a timestamp
@@ -518,7 +522,12 @@ bool LLChatLogParser::parse(std::string& raw, LLSD& im)
 		boost::trim(timestamp);
 		timestamp.erase(0, 1);
 		timestamp.erase(timestamp.length()-1, 1);
-		LLLogChatTimeScanner::instance().checkAndCutOffDate(timestamp);
+
+		if (cut_off_todays_date)
+		{
+			LLLogChatTimeScanner::instance().checkAndCutOffDate(timestamp);
+		}
+
 		im[IM_TIME] = timestamp;
 	}
 	else

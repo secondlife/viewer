@@ -36,7 +36,7 @@
          name="conversations_layout_panel"
          min_dim="38"
          width="268"
-         expanded_min_dim="165">
+         expanded_min_dim="120">
             <layout_stack
              animate="false" 
              follows="left|top|right"

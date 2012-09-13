@@ -63,6 +63,13 @@ BOOL LLFloaterConversationLog::postBuild()
 
 	getChild<LLFilterEditor>("people_filter_input")->setCommitCallback(boost::bind(&LLFloaterConversationLog::onFilterEdit, this, _2));
 
+	LLControlVariable* ctrl = gSavedPerAccountSettings.getControl("LogInstantMessages").get();
+	if (ctrl)
+	{
+		ctrl->getSignal()->connect(boost::bind(&LLFloaterConversationLog::onCallLoggingEnabledDisabled, this, _2));
+		onCallLoggingEnabledDisabled(ctrl->getValue().asBoolean());
+	}
+
 	return LLFloater::postBuild();
 }
 
@@ -129,4 +136,10 @@ bool LLFloaterConversationLog::isActionChecked(const LLSD& userdata)
 	}
 
 	return false;
+}
+
+void LLFloaterConversationLog::onCallLoggingEnabledDisabled(bool enabled)
+{
+	std::string no_items_msg = enabled ? "" : getString("logging_calls_disabled");
+	mConversationLogList->setNoItemsCommentText(no_items_msg);
 }

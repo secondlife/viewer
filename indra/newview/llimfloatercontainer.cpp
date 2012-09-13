@@ -118,7 +118,7 @@ BOOL LLIMFloaterContainer::postBuild()
 	
 	mConversationsListPanel = getChild<LLPanel>("conversations_list_panel");
 
-	// CHUI-98 : View Model for conversations
+	// Create the root model and view for all conversation sessions
 	LLConversationItem* base_item = new LLConversationItem(getRootViewModel());
 	LLFolderView::Params p;
 	p.view_model = &mConversationViewModel;
@@ -129,6 +129,8 @@ BOOL LLIMFloaterContainer::postBuild()
 	p.root = NULL;
 
 	mConversationsRoot = LLUICtrlFactory::create<LLFolderView>(p);
+	mConversationsRoot->setVisible(TRUE);
+	
 	mConversationsListPanel->addChild(mConversationsRoot);
 
 	addConversationListItem(LLUUID()); // manually add nearby chat
@@ -370,8 +372,13 @@ void LLIMFloaterContainer::draw()
 		}
 	}
 	
-	repositioningWidgets();
-
+	// CHUI-308 : Hack! We shouldn't have to do that but we have too as long as
+	// we don't have a scroll container.
+	// *TODO: Take those 3 lines out once we implement the scroll container.
+	repositioningWidgets();	
+	mConversationsRoot->setRect(mConversationsListPanel->getLocalRect());
+	mConversationsRoot->setFollowsAll();
+	
 	if (mTabContainer->getTabCount() == 0)
 	{
 		// Do not close the container when every conversation is torn off because the user
@@ -484,6 +491,13 @@ void LLIMFloaterContainer::updateState(bool collapse, S32 delta_width)
 
 	setCanResize(is_left_pane_expanded || is_right_pane_expanded);
 	setCanMinimize(is_left_pane_expanded || is_right_pane_expanded);
+
+    // force set correct size for the title after show/hide minimize button
+	LLRect cur_rect = getRect();
+	LLRect force_rect = cur_rect;
+	force_rect.mRight = cur_rect.mRight + 1;
+    setRect(force_rect);
+    setRect(cur_rect);
 
     // restore floater's resize limits (prevent collapse when left panel is expanded)
 	if (is_left_pane_expanded && !is_right_pane_expanded)
@@ -630,7 +644,6 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 	widget->addToFolder(mConversationsRoot);
 
 	// Add it to the UI
-	mConversationsListPanel->addChild(widget);
 	widget->setVisible(TRUE);
 	
 	// Create the participants widgets now
