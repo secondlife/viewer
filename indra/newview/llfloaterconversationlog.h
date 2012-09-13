@@ -34,11 +34,6 @@ class LLFloaterConversationLog : public LLFloater
 {
 public:
 
-	typedef enum e_sort_oder{
-		E_SORT_BY_NAME = 0,
-		E_SORT_BY_DATE = 1,
-	} ESortOrder;
-
 	LLFloaterConversationLog(const LLSD& key);
 	virtual ~LLFloaterConversationLog(){};
 

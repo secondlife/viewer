@@ -117,6 +117,16 @@ void LLConversationLogListItem::initIcons()
 	}
 }
 
+void LLConversationLogListItem::updateTimestamp()
+{
+	mConversationDate->setValue(mConversation->getTimestamp());
+}
+
+void LLConversationLogListItem::updateName()
+{
+	mConversationName->setValue(mConversation->getConversationName());
+}
+
 void LLConversationLogListItem::onMouseEnter(S32 x, S32 y, MASK mask)
 {
 	getChildView("hovered_icon")->setVisible(true);

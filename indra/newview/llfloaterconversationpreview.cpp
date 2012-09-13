@@ -65,8 +65,6 @@ BOOL LLFloaterConversationPreview::postBuild()
 	std::string title = getString("Title", args);
 	setTitle(title);
 
-	getChild<LLLineEditor>("description")->setValue(name);
-
 	LLLogChat::loadChatHistory(file, mMessages, true);
 	mCurrentPage = mMessages.size() / mPageSize;
 
