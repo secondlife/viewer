@@ -38,9 +38,26 @@ include_directories(
     ${LLAPPEARANCE_INCLUDE_DIRS}
     )
 
-set(appearance_utility_SOURCE_FILES appearance_utility.cpp llbakingshadermgr.cpp)
+set(appearance_utility_SOURCE_FILES
+    appearance_utility.cpp
+    llappappearanceutility.cpp
+    llbakingavatar.cpp
+    llbakingjoint.cpp
+    llbakingjointmesh.cpp
+    llbakingshadermgr.cpp
+    llprocessparams.cpp
+    )
 
-set(appearance_utility_HEADER_FILES CMakeLists.txt llbakingshadermgr.h)
+set(appearance_utility_HEADER_FILES
+    CMakeLists.txt
+    llappappearanceutility.h
+    llbakingavatar.h
+    llbakingjoint.h
+    llbakingjointmesh.h
+    llbakingprocess.h
+    llbakingshadermgr.h
+    llprocessparams.h
+    )
 
 set_source_files_properties(${appearance_utility_HEADER_FILES}
                             PROPERTIES HEADER_FILES_ONLY TRUE)

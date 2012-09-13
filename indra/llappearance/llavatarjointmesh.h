@@ -1,6 +1,6 @@
 /** 
  * @file llavatarjointmesh.h
- * @brief Implementation of LLAvatarJointMesh class
+ * @brief Declaration of LLAvatarJointMesh class
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
