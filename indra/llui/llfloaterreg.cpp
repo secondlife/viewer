@@ -318,7 +318,7 @@ void LLFloaterReg::showInitialVisibleInstances()
 			BOOL isvis = LLFloater::getControlGroup()->getBOOL(controlname);
 			if (isvis)
 			{
-				showInstance(name, LLSD()); // keyed floaters shouldn't set save_vis to true
+				showInstance(name, LLSD(LLUUID())); // keyed floaters shouldn't set save_vis to true
 			}
 		}
 	}
