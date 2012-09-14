@@ -73,7 +73,6 @@ protected:
 	LLFace*						mFace;			// ptr to a face w/ AGP copy of mesh
 
 	U32							mFaceIndexCount;
-	BOOL						mIsTransparent;
 
 	U32							mNumSkinJoints;
 	LLSkinJoint*				mSkinJoints;
@@ -92,9 +91,6 @@ public:
 
 	// Destructor
 	virtual ~LLAvatarJointMesh();
-
-	// overloaded from base class
-	/*virtual*/ BOOL isTransparent() { return mIsTransparent; }
 
 	// Gets the shape color
 	void getColor( F32 *red, F32 *green, F32 *blue, F32 *alpha );

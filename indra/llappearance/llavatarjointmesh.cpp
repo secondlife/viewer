@@ -129,8 +129,7 @@ LLAvatarJointMesh::LLAvatarJointMesh()
 	mTexture( NULL ),
 	mLayerSet( NULL ),
 	mTestImageName( 0 ),
-	mFaceIndexCount(0),
-	mIsTransparent(FALSE)
+	mFaceIndexCount(0)
 {
 
 	mColor[0] = 1.0f;
@@ -151,6 +150,8 @@ LLAvatarJointMesh::LLAvatarJointMesh()
 	mUpdateXform = FALSE;
 
 	mValid = FALSE;
+
+	mIsTransparent = FALSE;
 }
 
 

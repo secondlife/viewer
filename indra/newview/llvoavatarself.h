@@ -257,7 +257,7 @@ public:
 	// Composites
 	//--------------------------------------------------------------------
 public:
-	/* virtual */ void	invalidateComposite(LLViewerTexLayerSet* layerset, BOOL upload_result);
+	/* virtual */ void	invalidateComposite(LLTexLayerSet* layerset, BOOL upload_result);
 	/* virtual */ void	invalidateAll();
 	/* virtual */ void	setCompositeUpdatesEnabled(bool b); // only works for self
 	/* virtual */ void  setCompositeUpdatesEnabled(U32 index, bool b);

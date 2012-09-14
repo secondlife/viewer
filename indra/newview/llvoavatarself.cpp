@@ -1558,24 +1558,25 @@ bool LLVOAvatarSelf::hasPendingBakedUploads() const
 	return false;
 }
 
-void LLVOAvatarSelf::invalidateComposite( LLViewerTexLayerSet* layerset, BOOL upload_result )
+void LLVOAvatarSelf::invalidateComposite( LLTexLayerSet* layerset, BOOL upload_result )
 {
-	if( !layerset || !layerset->getUpdatesEnabled() )
+	LLViewerTexLayerSet *layer_set = dynamic_cast<LLViewerTexLayerSet*>(layerset);
+	if( !layer_set || !layer_set->getUpdatesEnabled() )
 	{
 		return;
 	}
 	// llinfos << "LLVOAvatar::invalidComposite() " << layerset->getBodyRegionName() << llendl;
 
-	layerset->requestUpdate();
-	layerset->invalidateMorphMasks();
+	layer_set->requestUpdate();
+	layer_set->invalidateMorphMasks();
 
 	if( upload_result  && (getRegion() && !getRegion()->getCentralBakeVersion()))
 	{
 		llassert(isSelf());
 
-		ETextureIndex baked_te = getBakedTE( layerset );
+		ETextureIndex baked_te = getBakedTE( layer_set );
 		setTEImage( baked_te, LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT_AVATAR) );
-		layerset->requestUpload();
+		layer_set->requestUpload();
 		updateMeshTextures();
 	}
 }

@@ -59,7 +59,7 @@ public:
 
 	// Returns true if this object is transparent.
 	// This is used to determine in which order to draw objects.
-	virtual BOOL isTransparent() { return FALSE; }
+	virtual BOOL isTransparent() { return mIsTransparent; }
 
 	// Returns true if this object should inherit scale modifiers from its immediate parent
 	virtual BOOL inheritScale() { return FALSE; }
@@ -113,6 +113,7 @@ protected:
 	void init();
 
 	BOOL		mValid;
+	BOOL		mIsTransparent;
 	U32			mComponents;
 	F32			mMinPixelArea;
 	LLJointPickName	mPickName;
