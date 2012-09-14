@@ -32,6 +32,7 @@
 #include "llbutton.h"
 #include "lloutputmonitorctrl.h"
 
+class LLTextBox;
 class LLIMFloaterContainer;
 class LLConversationViewSession;
 class LLConversationViewParticipant;
@@ -57,10 +58,20 @@ protected:
 public:
 	virtual ~LLConversationViewSession( void ) { }
 	virtual void selectItem();	
+
+	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void draw();
+
+	/*virtual*/ S32 arrange(S32* width, S32* height);
+
 	void setVisibleIfDetached(BOOL visible);
 	LLConversationViewParticipant* findParticipant(const LLUUID& participant_id);
 
 	virtual void refresh();
+
+private:
+	LLPanel*	mItemPanel;
+	LLTextBox*	mSessionTitle;
 };
 
 // Implementation of conversations list participant (avatar) widgets
@@ -70,16 +81,16 @@ class LLConversationViewParticipant : public LLFolderViewItem
 
 public:
 
-    struct Params : public LLInitParam::Block<Params, LLFolderViewItem::Params>
-    {
+	struct Params : public LLInitParam::Block<Params, LLFolderViewItem::Params>
+	{
         Optional<LLIMFloaterContainer*>			container;
-        Optional<LLUUID>	participant_id;
+		Optional<LLUUID>	participant_id;
 		Optional<LLButton::Params>				info_button;
         Optional<LLOutputMonitorCtrl::Params>   output_monitor;
-        
-        Params();
-    };
-
+		
+		Params();
+	};
+	
     virtual ~LLConversationViewParticipant( void ) { }
     bool hasSameValue(const LLUUID& uuid) { return (uuid == mUUID); }
     virtual void refresh();
@@ -90,16 +101,16 @@ public:
 
 protected:
 	friend class LLUICtrlFactory;
-    LLConversationViewParticipant( const Params& p );
+	LLConversationViewParticipant( const Params& p );
 	void initFromParams(const Params& params);
 	BOOL postBuild();
-
-	void onInfoBtnClick();
 	
+	void onInfoBtnClick();
+
 private:
 	LLButton * mInfoBtn;
     LLOutputMonitorCtrl* mSpeakingIndicator;
-    LLUUID mUUID;		// UUID of the participant
+	LLUUID mUUID;		// UUID of the participant
 
     typedef enum e_avatar_item_child {
         ALIC_SPEAKER_INDICATOR,

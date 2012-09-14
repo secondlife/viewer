@@ -104,7 +104,7 @@ public:
 	
 //	bool hasSameValues(std::string name, const LLUUID& uuid) { return ((name == mName) && (uuid == mUUID)); }
 	bool hasSameValue(const LLUUID& uuid) { return (uuid == mUUID); }
-
+	
 	void resetRefresh() { mNeedsRefresh = false; }
 	bool needsRefresh() { return mNeedsRefresh; }
 	
@@ -121,6 +121,7 @@ public:
 	LLConversationItemSession(const LLUUID& uuid, LLFolderViewModelInterface& root_view_model);
 	virtual ~LLConversationItemSession() {}
 	
+	/*virtual*/ bool hasChildren() const;
     LLPointer<LLUIImage> getIcon() const { return NULL; }
 	void setSessionID(const LLUUID& session_id) { mUUID = session_id; mNeedsRefresh = true; }
 	void addParticipant(LLConversationItemParticipant* participant);
@@ -153,7 +154,7 @@ public:
 	void setIsModerator(bool is_moderator) { mIsModerator = is_moderator; mNeedsRefresh = true; }
 	
 	void onAvatarNameCache(const LLAvatarName& av_name);
-	
+
 	void dumpDebugData();
 
 private:

@@ -38,6 +38,7 @@
 #include "llavataractions.h"
 #include "llavatariconctrl.h"
 #include "llavatarnamecache.h"
+#include "llcallbacklist.h"
 #include "llgroupiconctrl.h"
 #include "llfloateravatarpicker.h"
 #include "llfloaterpreference.h"
@@ -120,18 +121,31 @@ BOOL LLIMFloaterContainer::postBuild()
 
 	// Create the root model and view for all conversation sessions
 	LLConversationItem* base_item = new LLConversationItem(getRootViewModel());
-	LLFolderView::Params p;
-	p.view_model = &mConversationViewModel;
-	p.parent_panel = mConversationsListPanel;
-	p.rect = mConversationsListPanel->getLocalRect();
-	p.follows.flags = FOLLOWS_ALL;
-	p.listener = base_item;
-	p.root = NULL;
 
+    LLFolderView::Params p(LLUICtrlFactory::getDefaultParams<LLFolderView>());
+    p.name = getName();
+    p.title = getLabel();
+    p.rect = LLRect(0, 0, getRect().getWidth(), 0);
+    p.parent_panel = mConversationsListPanel;
+    p.tool_tip = p.name;
+    p.listener = base_item;
+    p.view_model = &mConversationViewModel;
+    p.root = NULL;
 	mConversationsRoot = LLUICtrlFactory::create<LLFolderView>(p);
-	mConversationsRoot->setVisible(TRUE);
-	
-	mConversationsListPanel->addChild(mConversationsRoot);
+
+	// a scroller for folder view
+	LLRect scroller_view_rect = mConversationsListPanel->getRect();
+	scroller_view_rect.translate(-scroller_view_rect.mLeft, -scroller_view_rect.mBottom);
+	LLScrollContainer::Params scroller_params(LLUICtrlFactory::getDefaultParams<LLFolderViewScrollContainer>());
+	scroller_params.rect(scroller_view_rect);
+
+	LLScrollContainer* scroller = LLUICtrlFactory::create<LLFolderViewScrollContainer>(scroller_params);
+	scroller->setFollowsAll();
+	mConversationsListPanel->addChild(scroller);
+	scroller->addChild(mConversationsRoot);
+	mConversationsRoot->setScrollContainer(scroller);
+	mConversationsRoot->setFollowsAll();
+	mConversationsRoot->addChild(mConversationsRoot->mStatusTextBox);
 
 	addConversationListItem(LLUUID()); // manually add nearby chat
 
@@ -154,6 +168,7 @@ BOOL LLIMFloaterContainer::postBuild()
 
         mConversationsPane->handleReshape(list_size, TRUE);
 	}
+
 	mInitialized = true;
 
 	// Add callback: we'll take care of view updates on idle
@@ -310,11 +325,11 @@ void LLIMFloaterContainer::setMinimized(BOOL b)
 	}
 }
 
-//static
+// static
 void LLIMFloaterContainer::idle(void* user_data)
 {
-	LLIMFloaterContainer* panel = (LLIMFloaterContainer*)user_data;
-	panel->mConversationsRoot->update();
+	LLIMFloaterContainer* self = static_cast<LLIMFloaterContainer*>(user_data);
+	self->mConversationsRoot->update();
 }
 
 void LLIMFloaterContainer::draw()
@@ -354,7 +369,6 @@ void LLIMFloaterContainer::draw()
 			{
 				participant_view = createConversationViewParticipant(participant_model);
 				participant_view->addToFolder(session_view);
-				mConversationsListPanel->addChild(participant_view);
 				participant_view->setVisible(TRUE);
 			}
 			else
@@ -371,13 +385,6 @@ void LLIMFloaterContainer::draw()
 			current_participant_model++;
 		}
 	}
-	
-	// CHUI-308 : Hack! We shouldn't have to do that but we have too as long as
-	// we don't have a scroll container.
-	// *TODO: Take those 3 lines out once we implement the scroll container.
-	repositioningWidgets();	
-	mConversationsRoot->setRect(mConversationsListPanel->getLocalRect());
-	mConversationsRoot->setFollowsAll();
 	
 	if (mTabContainer->getTabCount() == 0)
 	{
@@ -642,9 +649,7 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 
 	// Add a new conversation widget to the root folder of the folder view
 	widget->addToFolder(mConversationsRoot);
-
-	// Add it to the UI
-	widget->setVisible(TRUE);
+	widget->requestArrange();
 	
 	// Create the participants widgets now
 	// Note: usually, we do not get an updated avatar list at that point
@@ -655,12 +660,8 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 		LLConversationItem* participant_model = dynamic_cast<LLConversationItem*>(*current_participant_model);
 		LLConversationViewParticipant* participant_view = createConversationViewParticipant(participant_model);
 		participant_view->addToFolder(widget);
-		mConversationsListPanel->addChild(participant_view);
-		participant_view->setVisible(TRUE);
 		current_participant_model++;
 	}
-
-	repositioningWidgets();
 	
 	return;
 }
@@ -680,8 +681,6 @@ void LLIMFloaterContainer::removeConversationListItem(const LLUUID& uuid, bool c
 	// Suppress the conversation items and widgets from their respective maps
 	mConversationsItems.erase(uuid);
 	mConversationsWidgets.erase(uuid);
-
-	repositioningWidgets();
 	
 	// Don't let the focus fall IW, select and refocus on the first conversation in the list
 	if (change_focus)
@@ -701,12 +700,8 @@ LLConversationViewSession* LLIMFloaterContainer::createConversationItemWidget(LL
 	LLConversationViewSession::Params params;
 	
 	params.name = item->getDisplayName();
-	//params.icon = bridge->getIcon();
-	//params.icon_open = bridge->getOpenIcon();
-	//params.creation_date = bridge->getCreationDate();
 	params.root = mConversationsRoot;
 	params.listener = item;
-	params.rect = LLRect (0, 0, 0, 0);
 	params.tool_tip = params.name;
 	params.container = this;
 	
