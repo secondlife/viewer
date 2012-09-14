@@ -724,6 +724,8 @@ LLConversationViewParticipant* LLIMFloaterContainer::createConversationViewParti
 	//params.creation_date = bridge->getCreationDate();
 	params.root = mConversationsRoot;
 	params.listener = item;
+
+    //16 and panel_rect.getWidth() are used since that is currently the values used in repositioningWidgets()
 	params.rect = LLRect (0, 16, panel_rect.getWidth(), 0);
 	params.tool_tip = params.name;
 	params.participant_id = item->getUUID();

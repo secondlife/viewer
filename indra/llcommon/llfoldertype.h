@@ -91,7 +91,7 @@ public:
 
 		FT_NONE = -1,
 
-        FT_PROFILE = 58
+        FT_PROFILEXXXGGG = 58
 	};
 
 	static EType 				lookup(const std::string& type_name);

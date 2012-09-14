@@ -28,13 +28,13 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llconversationview.h"
+
+#include <boost/bind.hpp>
 #include "llconversationmodel.h"
 #include "llimconversation.h"
 #include "llimfloatercontainer.h"
 #include "llfloaterreg.h"
-
 #include "lluictrlfactory.h"
-#include "llavatariconctrl.h"
 
 //
 // Implementation of conversations list session widgets
@@ -120,6 +120,8 @@ void LLConversationViewSession::refresh()
 //
 
 static LLDefaultChildRegistry::Register<LLConversationViewParticipant> r("conversation_view_participant");
+bool LLConversationViewParticipant::sStaticInitialized = false;
+S32 LLConversationViewParticipant::sChildrenWidths[LLConversationViewParticipant::ALIC_COUNT];
 
 LLConversationViewParticipant::Params::Params() :	
 container(),
@@ -130,6 +132,8 @@ output_monitor("output_monitor")
 
 LLConversationViewParticipant::LLConversationViewParticipant( const LLConversationViewParticipant::Params& p ):
 	LLFolderViewItem(p),
+    mInfoBtn(NULL),
+    mSpeakingIndicator(NULL),
     mUUID(p.participant_id)
 {
 
@@ -156,8 +160,16 @@ BOOL LLConversationViewParticipant::postBuild()
 
 	mSpeakingIndicator = getChild<LLOutputMonitorCtrl>("speaking_indicator");
 
-	LLFolderViewItem::postBuild();
-	return TRUE;
+    if (!sStaticInitialized)
+    {
+        // Remember children widths including their padding from the next sibling,
+        // so that we can hide and show them again later.
+        initChildrenWidths(this);
+        sStaticInitialized = true;
+    }
+
+    computeLabelRightPadding();
+	return LLFolderViewItem::postBuild();
 }
 
 void LLConversationViewParticipant::refresh()
@@ -194,13 +206,71 @@ void LLConversationViewParticipant::onInfoBtnClick()
 void LLConversationViewParticipant::onMouseEnter(S32 x, S32 y, MASK mask)
 {
     mInfoBtn->setVisible(true);
+    computeLabelRightPadding();
     LLFolderViewItem::onMouseEnter(x, y, mask);
 }
 
 void LLConversationViewParticipant::onMouseLeave(S32 x, S32 y, MASK mask)
 {
     mInfoBtn->setVisible(false);
+    computeLabelRightPadding();
     LLFolderViewItem::onMouseEnter(x, y, mask);
+}
+
+// static
+void LLConversationViewParticipant::initChildrenWidths(LLConversationViewParticipant* self)
+{
+    //speaking indicator width + padding
+    S32 speaking_indicator_width = self->getRect().getWidth() - self->mSpeakingIndicator->getRect().mLeft;
+
+    //info btn width + padding
+    S32 info_btn_width = self->mSpeakingIndicator->getRect().mLeft - self->mInfoBtn->getRect().mLeft;
+
+    S32 index = ALIC_COUNT;
+    sChildrenWidths[--index] = info_btn_width;
+    sChildrenWidths[--index] = speaking_indicator_width;
+    llassert(index == 0);
+}
+
+void LLConversationViewParticipant::computeLabelRightPadding()
+{
+    mLabelPaddingRight = DEFAULT_TEXT_PADDING_RIGHT;
+    LLView* control;
+    S32 ctrl_width;
+
+    for (S32 i = 0; i < ALIC_COUNT; ++i)
+    {
+        control = getItemChildView((EAvatarListItemChildIndex)i);
+
+        // skip invisible views
+        if (!control->getVisible()) continue;
+
+        ctrl_width = sChildrenWidths[i]; // including space between current & left controls
+        // accumulate the amount of space taken by the controls
+        mLabelPaddingRight += ctrl_width;
+    }
+}
+
+LLView* LLConversationViewParticipant::getItemChildView(EAvatarListItemChildIndex child_view_index)
+{
+    LLView* child_view = NULL;
+
+    switch (child_view_index)
+    {
+        case ALIC_SPEAKER_INDICATOR:
+            child_view = mSpeakingIndicator;
+            break;
+        case ALIC_INFO_BUTTON:
+            child_view = mInfoBtn;
+            break;
+        default:
+            LL_WARNS("AvatarItemReshape") << "Unexpected child view index is passed: " << child_view_index << LL_ENDL;
+            llassert(0);
+            break;
+            // leave child_view untouched
+    }
+
+    return child_view;
 }
 
 // EOF

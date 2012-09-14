@@ -29,12 +29,6 @@
 
 #include "llfolderviewitem.h"
 
-
-
-
-#include "llstyle.h"
-#include "llcallbackmap.h"
-#include "lltextbox.h"
 #include "llbutton.h"
 #include "lloutputmonitorctrl.h"
 
@@ -71,8 +65,6 @@ public:
 
 // Implementation of conversations list participant (avatar) widgets
 
-class LLAvatarIconCtrl;
-
 class LLConversationViewParticipant : public LLFolderViewItem
 {
 
@@ -108,6 +100,18 @@ private:
 	LLButton * mInfoBtn;
     LLOutputMonitorCtrl* mSpeakingIndicator;
     LLUUID mUUID;		// UUID of the participant
+
+    typedef enum e_avatar_item_child {
+        ALIC_SPEAKER_INDICATOR,
+        ALIC_INFO_BUTTON,
+        ALIC_COUNT,
+    } EAvatarListItemChildIndex;
+
+    static bool	sStaticInitialized; // this variable is introduced to improve code readability
+    static S32 sChildrenWidths[ALIC_COUNT];
+    static void initChildrenWidths(LLConversationViewParticipant* self);
+    void computeLabelRightPadding();
+    LLView* getItemChildView(EAvatarListItemChildIndex child_view_index);
 };
 
 #endif // LL_LLCONVERSATIONVIEW_H

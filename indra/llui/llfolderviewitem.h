@@ -68,7 +68,7 @@ public:
 						ICON_PAD = 2,
 						ICON_WIDTH = 16,
 						TEXT_PAD = 1,
-						TEXT_PAD_RIGHT = 4,
+                        DEFAULT_TEXT_PADDING_RIGHT = 4,
 						ARROW_SIZE = 12,
 						MAX_FOLDER_ITEM_OVERLAP = 2;
 	
@@ -85,6 +85,7 @@ protected:
 	std::string					mLabel;
 	S32							mLabelWidth;
 	bool						mLabelWidthDirty;
+    S32                         mLabelPaddingRight;
 	LLFolderViewFolder*			mParentFolder;
 	LLFolderViewModelItem*		mViewModelItem;
 	LLFontGL::StyleFlags		mLabelStyle;
@@ -243,6 +244,7 @@ public:
 
 private:
 	static std::map<U8, LLFontGL*> sFonts; // map of styles to fonts
+
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

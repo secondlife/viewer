@@ -98,6 +98,7 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 :	LLView(p),
 	mLabelWidth(0),
 	mLabelWidthDirty(false),
+    mLabelPaddingRight(DEFAULT_TEXT_PADDING_RIGHT),
 	mParentFolder( NULL ),
 	mIsSelected( FALSE ),
 	mIsCurSelection( FALSE ),
@@ -291,7 +292,7 @@ S32 LLFolderViewItem::arrange( S32* width, S32* height )
 		: 0;
 	if (mLabelWidthDirty)
 	{
-		mLabelWidth = ARROW_SIZE + TEXT_PAD + ICON_WIDTH + ICON_PAD + getLabelFontForStyle(mLabelStyle)->getWidth(mLabel) + getLabelFontForStyle(mLabelStyle)->getWidth(mLabelSuffix) + TEXT_PAD_RIGHT; 
+		mLabelWidth = ARROW_SIZE + TEXT_PAD + ICON_WIDTH + ICON_PAD + getLabelFontForStyle(mLabelStyle)->getWidth(mLabel) + getLabelFontForStyle(mLabelStyle)->getWidth(mLabelSuffix) + mLabelPaddingRight; 
 		mLabelWidthDirty = false;
 	}
 
@@ -610,12 +611,12 @@ void LLFolderViewItem::draw()
 	static LLUIColor sMouseOverColor = LLUIColorTable::instance().getColor("InventoryMouseOverColor", DEFAULT_WHITE);
 
 
-    getViewModelItem()->update();
-
 	const Params& default_params = LLUICtrlFactory::getDefaultParams<LLFolderViewItem>();
 	const S32 TOP_PAD = default_params.item_top_pad;
 	const S32 FOCUS_LEFT = 1;
 	const LLFontGL* font = getLabelFontForStyle(mLabelStyle);
+
+    getViewModelItem()->update();
 
 	//--------------------------------------------------------------------------------//
 	// Draw open folder arrow
@@ -771,7 +772,7 @@ void LLFolderViewItem::draw()
 	//
 	font->renderUTF8(mLabel, 0, text_left, y, color,
 					 LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
-					 S32_MAX, getRect().getWidth() - (S32) text_left - TEXT_PAD_RIGHT, &right_x, TRUE);
+					 S32_MAX, getRect().getWidth() - (S32) text_left - mLabelPaddingRight, &right_x, TRUE);
 
 	//--------------------------------------------------------------------------------//
 	// Draw label suffix
@@ -786,18 +787,18 @@ void LLFolderViewItem::draw()
 	//--------------------------------------------------------------------------------//
 	// Highlight string match
 	//
-		if (filter_string_length > 0)
-		{
-		F32 match_string_left = text_left + font->getWidthF32(combined_string, 0, mViewModelItem->getFilterStringOffset());
-			F32 yy = (F32)getRect().getHeight() - font->getLineHeight() - (F32)TEXT_PAD - (F32)TOP_PAD;
-		font->renderUTF8( combined_string, mViewModelItem->getFilterStringOffset(), match_string_left, yy,
-							  sFilterTextColor, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
-							  filter_string_length, S32_MAX, &right_x, FALSE );
-		}
+    if (filter_string_length > 0)
+    {
+        F32 match_string_left = text_left + font->getWidthF32(combined_string, 0, mViewModelItem->getFilterStringOffset());
+        F32 yy = (F32)getRect().getHeight() - font->getLineHeight() - (F32)TEXT_PAD - (F32)TOP_PAD;
+        font->renderUTF8( combined_string, mViewModelItem->getFilterStringOffset(), match_string_left, yy,
+            sFilterTextColor, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
+            filter_string_length, S32_MAX, &right_x, FALSE );
+    }
 
-        
-        LLView::draw(); 
-	}
+
+    LLView::draw(); 
+}
 
 const LLFolderViewModelInterface* LLFolderViewItem::getFolderViewModel( void ) const
 {

@@ -57,7 +57,7 @@ public:
 	virtual const std::string& getSearchableName() const { return mName; }
 	virtual const LLUUID& getUUID() const { return mUUID; }
 	virtual time_t getCreationDate() const { return 0; }
-	virtual LLPointer<LLUIImage> getIcon() const { return LLUI::getUIImage(LLViewerFolderType::lookupIconName(LLFolderType::FT_PROFILE, FALSE)); }
+	virtual LLPointer<LLUIImage> getIcon() const { return LLUI::getUIImage(LLViewerFolderType::lookupIconName(LLFolderType::FT_PROFILEXXXGGG, FALSE)); }
 	virtual LLPointer<LLUIImage> getOpenIcon() const { return getIcon(); }
 	virtual LLFontGL::StyleFlags getLabelStyle() const { return LLFontGL::NORMAL; }
 	virtual std::string getLabelSuffix() const { return LLStringUtil::null; }
