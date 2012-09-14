@@ -36,11 +36,6 @@
 
 namespace LLTrace
 {
-	//TODO figure out best way to do this and proper naming convention
-	static void init()
-	{
-
-	}
 
 	// one per thread per type
 	template<typename ACCUMULATOR>
@@ -354,13 +349,13 @@ namespace LLTrace
 
 		void stop()
 		{
-			getThreadData()->deactivate(this);
+			getThreadTracer()->deactivate(this);
 		}
 
 		void resume()
 		{
-			ThreadData* thread_data = getThreadData();
-			thread_data->flushPrimarySampler();
+			ThreadTracer* thread_data = getThreadTracer();
+			thread_data->flushData();
 			thread_data->activate(this);
 		}
 
@@ -380,7 +375,7 @@ namespace LLTrace
 
 	private:
 		// returns data for current thread
-		struct ThreadData* getThreadData() { return NULL; } 
+		struct ThreadTracer* getThreadTracer() { return NULL; } 
 
 		AccumulatorBuffer<StatAccumulator<F32> >	mF32Stats;
 		AccumulatorBuffer<StatAccumulator<S32> >	mS32Stats;
@@ -388,9 +383,9 @@ namespace LLTrace
 		AccumulatorBuffer<TimerAccumulator>			mTimers;
 	};
 
-	struct ThreadData
+	struct ThreadTracer
 	{
-		ThreadData(LLThread& this_thread, ThreadData& parent_data)
+		ThreadTracer(LLThread& this_thread, ThreadTracer& parent_data)
 		:	mPrimarySampler(parent_data.mPrimarySampler),
 			mSharedSampler(parent_data.mSharedSampler),
 			mSharedSamplerMutex(this_thread.getAPRPool()),
@@ -400,27 +395,27 @@ namespace LLTrace
 			parent_data.addChildThread(this);
 		}
 
-		~ThreadData()
+		~ThreadTracer()
 		{
 			mParent.removeChildThread(this);
 		}
 
-		void addChildThread(ThreadData* child)
+		void addChildThread(ThreadTracer* child)
 		{
-			mChildThreadData.push_back(child);
+			mChildThreadTracers.push_back(child);
 		}
 
-		void removeChildThread(ThreadData* child)
+		void removeChildThread(ThreadTracer* child)
 		{
 			// TODO: replace with intrusive list
-			std::list<ThreadData*>::iterator found_it = std::find(mChildThreadData.begin(), mChildThreadData.end(), child);
-			if (found_it != mChildThreadData.end())
+			std::list<ThreadTracer*>::iterator found_it = std::find(mChildThreadTracers.begin(), mChildThreadTracers.end(), child);
+			if (found_it != mChildThreadTracers.end())
 			{
-				mChildThreadData.erase(found_it);
+				mChildThreadTracers.erase(found_it);
 			}
 		}
 
-		void flushPrimarySampler()
+		void flushData()
 		{
 			for (std::list<Sampler*>::iterator it = mActiveSamplers.begin(), end_it = mActiveSamplers.end();
 				it != end_it;
@@ -459,7 +454,7 @@ namespace LLTrace
 		// call this periodically to gather stats data from children
 		void gatherChildData()
 		{
-			for (std::list<ThreadData*>::iterator child_it = mChildThreadData.begin(), end_it = mChildThreadData.end();
+			for (std::list<ThreadTracer*>::iterator child_it = mChildThreadTracers.begin(), end_it = mChildThreadTracers.end();
 				child_it != end_it;
 				++child_it)
 			{
@@ -474,9 +469,9 @@ namespace LLTrace
 
 		Sampler	mPrimarySampler;
 
-		ThreadData&				mParent;
-		std::list<Sampler*>		mActiveSamplers;
-		std::list<ThreadData*>	mChildThreadData;
+		ThreadTracer&				mParent;
+		std::list<Sampler*>			mActiveSamplers;
+		std::list<ThreadTracer*>	mChildThreadTracers;
 
 		// TODO:  add unused space here to avoid false sharing?
 		LLMutex	mSharedSamplerMutex;
