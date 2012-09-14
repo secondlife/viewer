@@ -8,12 +8,8 @@ Darwin.symbolfiles = "newview/Release/secondlife-symbols-darwin.tar.bz2"
 CYGWIN.symbolfiles = "newview/Release/secondlife-symbols-windows.tar.bz2"
 Linux.symbolfiles = "newview/secondlife-symbols-linux.tar.bz2"
 
-variants=Release
-
 # Use Public Upload Locations
 public_build = true
-
-clean_on_success = false
 
 # skip windows debug build until we can get a fix in.
 build_CYGWIN_Debug = false
