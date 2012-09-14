@@ -381,6 +381,9 @@ void LLIMConversation::hideAllStandardButtons()
 
 void LLIMConversation::updateHeaderAndToolbar()
 {
+	// prevent start conversation before its container
+    LLIMFloaterContainer::getInstance();
+
 	bool is_torn_off = !getHost();
 	if (!is_torn_off)
 	{
