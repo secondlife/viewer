@@ -14,11 +14,3 @@ Depends: ${shlibs:Depends}, ${misc:Depends},
 Description: Second Life Viewer
  Second Life is an online virtual world developed by Linden Lab.
  
-Package: secondlife-appearance-utility
-Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends},
- ia32-libs,
- ia32-libs-gtk
-Description: Second Life Appearance Utility
- Utility for manipulating Second Life avatar appearance.
-

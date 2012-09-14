@@ -113,11 +113,23 @@ build()
     check_for "Before 'autobuild build'" ${build_dir}/packages/dictionaries
 
     "$AUTOBUILD" build --no-configure -c $variant
-    viewer_build_ok=$?
+    build_ok=$?
     end_section "Viewer$variant"
+
+    # Run build extensions
+    if [ $build_ok -eq 0 -a -d ${build_dir}/packages/build-extensions ]; then
+        for extension in ${build_dir}/packages/build-extensions/*.sh; do
+            . $extension
+            if [ $build_ok -ne 0 ]; then
+                break
+            fi
+        done
+    fi
+
+    # *TODO: Make this a build extension.
     package_llphysicsextensions_tpv
     tpvlib_build_ok=$?
-    if [ $viewer_build_ok -eq 0 -a $tpvlib_build_ok -eq 0 ]
+    if [ $build_ok -eq 0 -a $tpvlib_build_ok -eq 0 ]
     then
       echo true >"$build_dir"/build_ok
     else
@@ -299,7 +311,7 @@ then
   then
     if $build_viewer_deb && [ "$last_built_variant" == "Release" ]
     then
-      begin_section "Build Debian Package"
+      begin_section "Build Viewer Debian Package"
       # mangle the changelog
       dch --force-bad-version \
           --distribution unstable \
@@ -313,7 +325,16 @@ then
       # Unmangle the changelog file
       hg revert debian/changelog
 
-      end_section "Build Debian Package"
+      end_section "Build Viewer Debian Package"
+
+      # Run debian extensions
+      if [ -d ${build_dir}/packages/debian-extensions ]; then
+          for extension in ${build_dir}/packages/debian-extensions/*.sh; do
+              . $extension
+          done
+      fi
+      # Move any .deb results.
+      mv ${build_dir}/packages/*.deb ../ 2>/dev/null || true
 
       # upload debian package and create repository
       begin_section "Upload Debian Repository"
@@ -394,8 +415,9 @@ then
         do
           upload_item symbolfile "$build_dir/$symbolfile" binary/octet-stream
         done
-        
+
         # Upload the llphysicsextensions_tpv package, if one was produced
+        # *TODO: Make this an upload-extension
         if [ -r "$build_dir/llphysicsextensions_package" ]
         then
             llphysicsextensions_package=$(cat $build_dir/llphysicsextensions_package)
@@ -408,6 +430,13 @@ then
         echo "Skipping mapfile for $last_built_variant"
         ;;
       esac
+
+      # Run upload extensions
+      if [ -d ${build_dir}/packages/upload-extensions ]; then
+          for extension in ${build_dir}/packages/upload-extensions/*.sh; do
+              . $extension
+          done
+      fi
 
       # Upload stub installers
       upload_stub_installers "$build_dir_stubs"

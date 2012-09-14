@@ -1239,6 +1239,32 @@
           </map>
         </map>
       </map>
+      <key>llappearanceutility-source</key>
+      <map>
+        <key>license</key>
+        <string>TEMPORARY</string>
+        <key>license_file</key>
+        <string>LICENSES/llappearanceutility.txt</string>
+        <key>name</key>
+        <string>llappearanceutility-source</string>
+        <key>platforms</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>a1197a789ccedb6cdd9d8aeb30e52b1b</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llappearanceutility-source/rev/264759/arch/Linux/installer/llappearanceutility_source-0.1-linux-20120914.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>0.1</string>
+      </map>
       <key>llphysicsextensions_source</key>
       <map>
         <key>license</key>
