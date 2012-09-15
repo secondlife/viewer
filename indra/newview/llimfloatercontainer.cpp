@@ -58,6 +58,7 @@ LLIMFloaterContainer::LLIMFloaterContainer(const LLSD& seed)
 	mInitialized(false)
 {
 	mCommitCallbackRegistrar.add("IMFloaterContainer.Action", boost::bind(&LLIMFloaterContainer::onCustomAction,  this, _2));
+	mEnableCallbackRegistrar.add("IMFloaterContainer.Check", boost::bind(&LLIMFloaterContainer::isActionChecked, this, _2));
 
 	// Firstly add our self to IMSession observers, so we catch session events
     LLIMMgr::getInstance()->addSessionObserver(this);
@@ -169,6 +170,9 @@ BOOL LLIMFloaterContainer::postBuild()
         mConversationsPane->handleReshape(list_size, TRUE);
 	}
 
+	// Init the sort order now that the root had been created
+	setSortOrder(LLConversationSort(gSavedSettings.getU32("ConversationSortOrder")));
+	
 	mInitialized = true;
 
 	// Add callback: we'll take care of view updates on idle
@@ -546,6 +550,30 @@ void LLIMFloaterContainer::onCustomAction(const LLSD& userdata)
 {
 	std::string command = userdata.asString();
 
+	if ("sort_sessions_by_type" == command)
+	{
+		setSortOrderSessions(LLConversationFilter::SO_SESSION_TYPE);
+	}
+	if ("sort_sessions_by_name" == command)
+	{
+		setSortOrderSessions(LLConversationFilter::SO_NAME);
+	}
+	if ("sort_sessions_by_recent" == command)
+	{
+		setSortOrderSessions(LLConversationFilter::SO_DATE);
+	}
+	if ("sort_participants_by_name" == command)
+	{
+		setSortOrderParticipants(LLConversationFilter::SO_NAME);
+	}
+	if ("sort_participants_by_recent" == command)
+	{
+		setSortOrderParticipants(LLConversationFilter::SO_DATE);
+	}
+	if ("sort_participants_by_distance" == command)
+	{
+		setSortOrderParticipants(LLConversationFilter::SO_DISTANCE);
+	}
 	if ("chat_preferences" == command)
 	{
 		LLFloaterPreference* floater_prefs = LLFloaterReg::showTypedInstance<LLFloaterPreference>("preferences");
@@ -559,6 +587,67 @@ void LLIMFloaterContainer::onCustomAction(const LLSD& userdata)
 			}
 		}
 	}
+}
+
+BOOL LLIMFloaterContainer::isActionChecked(const LLSD& userdata)
+{
+	LLConversationSort order = mConversationViewModel.getSorter();
+	std::string command = userdata.asString();
+	if ("sort_sessions_by_type" == command)
+	{
+		return (order.getSortOrderSessions() == LLConversationFilter::SO_SESSION_TYPE);
+	}
+	if ("sort_sessions_by_name" == command)
+	{
+		return (order.getSortOrderSessions() == LLConversationFilter::SO_NAME);
+	}
+	if ("sort_sessions_by_recent" == command)
+	{
+		return (order.getSortOrderSessions() == LLConversationFilter::SO_DATE);
+	}
+	if ("sort_participants_by_name" == command)
+	{
+		return (order.getSortOrderParticipants() == LLConversationFilter::SO_NAME);
+	}
+	if ("sort_participants_by_recent" == command)
+	{
+		return (order.getSortOrderParticipants() == LLConversationFilter::SO_DATE);
+	}
+	if ("sort_participants_by_distance" == command)
+	{
+		return (order.getSortOrderParticipants() == LLConversationFilter::SO_DISTANCE);
+	}
+	
+	return FALSE;
+}
+
+void LLIMFloaterContainer::setSortOrderSessions(const LLConversationFilter::ESortOrderType order)
+{
+	LLConversationSort old_order = mConversationViewModel.getSorter();
+	if (order != old_order.getSortOrderSessions())
+	{
+		old_order.setSortOrderSessions(order);
+		setSortOrder(old_order);
+	}
+}
+
+void LLIMFloaterContainer::setSortOrderParticipants(const LLConversationFilter::ESortOrderType order)
+{
+	LLConversationSort old_order = mConversationViewModel.getSorter();
+	if (order != old_order.getSortOrderParticipants())
+	{
+		old_order.setSortOrderParticipants(order);
+		setSortOrder(old_order);
+	}
+}
+
+void LLIMFloaterContainer::setSortOrder(const LLConversationSort& order)
+{
+	mConversationViewModel.setSorter(order);
+	mConversationsRoot->arrangeAll();
+	// try to keep selection onscreen, even if it wasn't to start with
+	mConversationsRoot->scrollToShowSelection();
+	gSavedSettings.setU32("ConversationSortOrder", (U32)order);
 }
 
 void LLIMFloaterContainer::repositioningWidgets()

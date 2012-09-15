@@ -1683,6 +1683,17 @@
       <key>Value</key>
       <integer>100</integer>
     </map>
+    <key>ConversationSortOrder</key>
+    <map>
+      <key>Comment</key>
+      <string>Specifies sort key for conversations</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>131073</integer>
+    </map>
     <key>NearbyChatIsNotTornOff</key>
     <map>
       <key>Comment</key>

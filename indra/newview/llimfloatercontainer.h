@@ -105,7 +105,11 @@ private:
 	void onAddButtonClicked();
 	void onAvatarPicked(const uuid_vec_t& ids);
 
+	BOOL isActionChecked(const LLSD& userdata);
 	void onCustomAction (const LLSD& userdata);
+	void setSortOrderSessions(const LLConversationFilter::ESortOrderType order);
+	void setSortOrderParticipants(const LLConversationFilter::ESortOrderType order);
+	void setSortOrder(const LLConversationSort& order);
 
 	LLButton* mExpandCollapseBtn;
 	LLLayoutPanel* mMessagesPane;

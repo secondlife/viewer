@@ -2,6 +2,76 @@
 <toggleable_menu
  layout="topleft"
  name="participant_manu_view">
+    <menu_item_check
+     label="Sort conversations by type"
+     layout="topleft"
+     name="sort_sessions_by_type">
+        <on_click
+         function="IMFloaterContainer.Action"
+         parameter="sort_sessions_by_type" />
+        <on_check
+         function="IMFloaterContainer.Check"
+         parameter="sort_sessions_by_type" />
+    </menu_item_check>
+    <menu_item_check
+     label="Sort conversations by name"
+     layout="topleft"
+     name="sort_sessions_by_name">
+        <on_click
+         function="IMFloaterContainer.Action"
+         parameter="sort_sessions_by_name" />
+        <on_check
+         function="IMFloaterContainer.Check"
+         parameter="sort_sessions_by_name" />
+    </menu_item_check>
+    <menu_item_check
+     label="Sort conversations by recent activity"
+     layout="topleft"
+     name="sort_sessions_by_recent">
+        <on_click
+         function="IMFloaterContainer.Action"
+         parameter="sort_sessions_by_recent" />
+        <on_check
+         function="IMFloaterContainer.Check"
+         parameter="sort_sessions_by_recent" />
+    </menu_item_check>
+    <menu_item_separator
+     layout="topleft" />
+    <menu_item_check
+     label="Sort participants by name"
+     layout="topleft"
+     name="sort_participants_by_name">
+        <on_click
+         function="IMFloaterContainer.Action"
+         parameter="sort_participants_by_name" />
+        <on_check
+         function="IMFloaterContainer.Check"
+         parameter="sort_participants_by_name" />
+    </menu_item_check>
+    <menu_item_check
+     label="Sort participants by recent activity"
+     layout="topleft"
+     name="sort_participants_by_recent">
+        <on_click
+         function="IMFloaterContainer.Action"
+         parameter="sort_participants_by_recent" />
+        <on_check
+         function="IMFloaterContainer.Check"
+         parameter="sort_participants_by_recent" />
+    </menu_item_check>
+    <menu_item_check
+     label="Sort participants by distance from you"
+     layout="topleft"
+     name="sort_participants_by_distance">
+        <on_click
+         function="IMFloaterContainer.Action"
+         parameter="sort_participants_by_distance" />
+        <on_check
+         function="IMFloaterContainer.Check"
+         parameter="sort_participants_by_distance" />
+    </menu_item_check>
+    <menu_item_separator
+     layout="topleft" />
     <menu_item_call
          label="Chat preferences..."
          name="chat_preferences">
