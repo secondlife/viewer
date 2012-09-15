@@ -108,7 +108,7 @@ static LLChatTypeTrigger sChatTypeTriggers[] = {
 
 
 LLNearbyChat::LLNearbyChat(const LLSD& llsd)
-:	LLIMConversation(LLSD()),
+:	LLIMConversation(llsd.asUUID()),
 	//mOutputMonitor(NULL),
 	mSpeakerMgr(NULL),
 	mExpandedHeight(COLLAPSED_HEIGHT + EXPANDED_HEIGHT)
@@ -116,7 +116,7 @@ LLNearbyChat::LLNearbyChat(const LLSD& llsd)
     mIsP2PChat = false;
 	mIsNearbyChat = true;
 	setIsChrome(TRUE);
-	mKey = LLSD();
+	mKey = LLSD(LLUUID());
 	mSpeakerMgr = LLLocalSpeakerMgr::getInstance();
 	mSessionID = LLUUID();
 	setName("nearby_chat");

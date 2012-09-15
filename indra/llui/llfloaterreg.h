@@ -90,23 +90,23 @@ public:
 	static LLFloater* getLastFloaterCascading();
 	
 	// Find / get (create) / remove / destroy
-	static LLFloater* findInstance(const std::string& name, const LLSD& key = LLSD());
-	static LLFloater* getInstance(const std::string& name, const LLSD& key = LLSD());
-	static LLFloater* removeInstance(const std::string& name, const LLSD& key = LLSD());
-	static bool destroyInstance(const std::string& name, const LLSD& key = LLSD());
+	static LLFloater* findInstance(const std::string& name, const LLSD& key = LLSD(LLUUID()));
+	static LLFloater* getInstance(const std::string& name, const LLSD& key = LLSD(LLUUID()));
+	static LLFloater* removeInstance(const std::string& name, const LLSD& key = LLSD(LLUUID()));
+	static bool destroyInstance(const std::string& name, const LLSD& key = LLSD(LLUUID()));
 	
 	// Iterators
 	static const_instance_list_t& getFloaterList(const std::string& name);
 
 	// Visibility Management
 	// return NULL if instance not found or can't create instance (no builder)
-	static LLFloater* showInstance(const std::string& name, const LLSD& key = LLSD(), BOOL focus = FALSE);
+	static LLFloater* showInstance(const std::string& name, const LLSD& key = LLSD(LLUUID()), BOOL focus = FALSE);
 	// Close a floater (may destroy or set invisible)
 	// return false if can't find instance
-	static bool hideInstance(const std::string& name, const LLSD& key = LLSD());
+	static bool hideInstance(const std::string& name, const LLSD& key = LLSD(LLUUID()));
 	// return true if instance is visible:
-	static bool toggleInstance(const std::string& name, const LLSD& key = LLSD());
-	static bool instanceVisible(const std::string& name, const LLSD& key = LLSD());
+	static bool toggleInstance(const std::string& name, const LLSD& key = LLSD(LLUUID()));
+	static bool instanceVisible(const std::string& name, const LLSD& key = LLSD(LLUUID()));
 
 	static void showInitialVisibleInstances();
 	static void hideVisibleInstances(const std::set<std::string>& exceptions = std::set<std::string>());
@@ -126,23 +126,23 @@ public:
 	static void registerControlVariables();
 
 	// Callback wrappers
-	static void toggleInstanceOrBringToFront(const LLSD& sdname, const LLSD& key = LLSD());
+	static void toggleInstanceOrBringToFront(const LLSD& sdname, const LLSD& key = LLSD(LLUUID()));
 	
 	// Typed find / get / show
 	template <class T>
-	static T* findTypedInstance(const std::string& name, const LLSD& key = LLSD())
+	static T* findTypedInstance(const std::string& name, const LLSD& key = LLSD(LLUUID()))
 	{
 		return dynamic_cast<T*>(findInstance(name, key));
 	}
 
 	template <class T>
-	static T* getTypedInstance(const std::string& name, const LLSD& key = LLSD())
+	static T* getTypedInstance(const std::string& name, const LLSD& key = LLSD(LLUUID()))
 	{
 		return dynamic_cast<T*>(getInstance(name, key));
 	}
 
 	template <class T>
-	static T* showTypedInstance(const std::string& name, const LLSD& key = LLSD(), BOOL focus = FALSE)
+	static T* showTypedInstance(const std::string& name, const LLSD& key = LLSD(LLUUID()), BOOL focus = FALSE)
 	{
 		return dynamic_cast<T*>(showInstance(name, key, focus));
 	}

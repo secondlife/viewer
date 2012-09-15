@@ -215,11 +215,21 @@ void LLIMConversation::onFocusReceived()
 	}
 
 	LLTransientDockableFloater::onFocusReceived();
+
+    mHasFocus = mHaveFocus;
+    mHaveFocus = true;
+
+	if (! mHasFocus)
+	{
+	    LLIMFloaterContainer* container = LLIMFloaterContainer::getInstance();
+	    container->setConvItemSelect(mSessionID);
+	}
 }
 
 void LLIMConversation::onFocusLost()
 {
 	setBackgroundOpaque(false);
+	mHaveFocus = false;
 	LLTransientDockableFloater::onFocusLost();
 }
 
@@ -371,6 +381,9 @@ void LLIMConversation::hideAllStandardButtons()
 
 void LLIMConversation::updateHeaderAndToolbar()
 {
+	// prevent start conversation before its container
+    LLIMFloaterContainer::getInstance();
+
 	bool is_torn_off = !getHost();
 	if (!is_torn_off)
 	{

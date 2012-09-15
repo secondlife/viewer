@@ -183,9 +183,9 @@ void LLIMFloaterContainer::onOpen(const LLSD& key)
 }
 
 // virtual
-void LLIMFloaterContainer::addFloater(LLFloater* floaterp, 
-									BOOL select_added_floater, 
-									LLTabContainer::eInsertionPoint insertion_point)
+void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
+									  BOOL select_added_floater,
+									  LLTabContainer::eInsertionPoint insertion_point)
 {
 	if(!floaterp) return;
 
@@ -427,7 +427,10 @@ void LLIMFloaterContainer::setVisible(BOOL visible)
 	for (;widget_it != mConversationsWidgets.end(); ++widget_it)
 	{
 		LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(widget_it->second);
-		widget->setVisibleIfDetached(visible);
+		if (widget)
+		{
+		    widget->setVisibleIfDetached(visible);
+		}
 	}
 	
 	// Now, do the normal multifloater show/hide
@@ -608,6 +611,16 @@ void LLIMFloaterContainer::repositioningWidgets()
 	}
 }
 
+void LLIMFloaterContainer::setConvItemSelect(LLUUID& session_id)
+{
+	LLFolderViewItem* widget = mConversationsWidgets[session_id];
+	if (widget && mSelectedSession != session_id)
+	{
+		mSelectedSession = session_id;
+		(widget->getRoot())->setSelection(widget, FALSE, FALSE);
+	}
+}
+
 void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 {
 	bool is_nearby_chat = uuid.isNull();
@@ -675,7 +688,10 @@ void LLIMFloaterContainer::removeConversationListItem(const LLUUID& uuid, bool c
 	if (widget_it != mConversationsWidgets.end())
 	{
 		LLFolderViewItem* widget = widget_it->second;
-		widget->destroyView();
+		if (widget)
+		{
+			widget->destroyView();
+		}
 	}
 	
 	// Suppress the conversation items and widgets from their respective maps
