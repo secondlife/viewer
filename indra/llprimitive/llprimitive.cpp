@@ -1357,6 +1357,7 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 	U8	   bump[MAX_TES];
 	U8	   media_flags[MAX_TES];
     U8     glow[MAX_TES];
+	unsigned char material_id[MAX_TES*16];
 
 	const U32 MAX_TE_BUFFER = 4096;
 	U8 packed_buffer[MAX_TE_BUFFER];
@@ -1399,6 +1400,25 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)media_flags, 1, face_count, MVT_U8);
 	cur_ptr++;
 	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)glow, 1, face_count, MVT_U8);
+	cur_ptr++;
+	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)material_id, 16, face_count, MVT_LLUUID);
+
+	for (U32 curFace = 0U; curFace < face_count; ++curFace)
+	{
+		std::string materialID(reinterpret_cast<char *>(&material_id[curFace * 16]), 16);
+		std::string materialIDString;
+		for (unsigned int i = 0U; i < 4U; ++i)
+		{
+			if (i != 0U)
+			{
+				materialIDString += "-";
+			}
+			const U32 *value = reinterpret_cast<const U32*>(&materialID.c_str()[i * 4]);
+			materialIDString += llformat("%08x", *value);
+		}
+
+		llinfos << "STINSON DEBUG: found material ID for face #" << curFace << " => " << materialIDString << llendl;
+	}
 
 	for (i = 0; i < face_count; i++)
 	{
