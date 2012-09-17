@@ -170,10 +170,14 @@ public:
 		
 	enum ESortOrderType
 	{
-		SO_NAME = 0,						// Sort inventory by name
-		SO_DATE = 0x1,						// Sort inventory by date
+		SO_NAME = 0,						// Sort by name
+		SO_DATE = 0x1,						// Sort by date (most recent)
+		SO_SESSION_TYPE = 0x2,				// Sort by type (valid only for sessions)
+		SO_DISTANCE = 0x3,					// Sort by distance (valid only for participants in nearby chat)
 	};
-
+	// Default sort order is by type for sessions and by date for participants
+	static const U32 SO_DEFAULT = (SO_SESSION_TYPE << 16) | (SO_DATE);
+	
 	LLConversationFilter() { mEmpty = ""; }
 	~LLConversationFilter() {}
 		
@@ -211,13 +215,18 @@ private:
 class LLConversationSort
 {
 public:
-	LLConversationSort(U32 order = 0) : mSortOrder(order) { }
+	LLConversationSort(U32 order = LLConversationFilter::SO_DEFAULT) : mSortOrder(order) { }
 	
-	bool isByDate() const { return (mSortOrder & LLConversationFilter::SO_DATE); }
-	U32 getSortOrder() const { return mSortOrder; }
-	
+	// 16 LSB bits used for participants, 16 MSB bits for sessions
+	U32 getSortOrderSessions() const { return ((mSortOrder >> 16) & 0xFFFF); }
+	U32 getSortOrderParticipants() const { return (mSortOrder & 0xFFFF); }
+	void setSortOrderSessions(LLConversationFilter::ESortOrderType session) { mSortOrder = ((session & 0xFFFF) << 16) | (mSortOrder & 0xFFFF); }
+	void setSortOrderParticipants(LLConversationFilter::ESortOrderType participant) { mSortOrder = (mSortOrder & 0xFFFF0000) | (participant & 0xFFFF); }
+
 	bool operator()(const LLConversationItem* const& a, const LLConversationItem* const& b) const;
+	operator U32() const { return mSortOrder; }
 private:
+	// Note: we're treating this value as a sort order bitmask as done in other places in the code (e.g. inventory)
 	U32  mSortOrder;
 };
 
