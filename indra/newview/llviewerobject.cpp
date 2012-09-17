@@ -236,6 +236,7 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mTimeDilation(1.f),
 	mRotTime(0.f),
 	mAngularVelocityRot(),
+	mPreviousRotation(),
 	mJointInfo(NULL),
 	mState(0),
 	mMedia(NULL),
@@ -2072,10 +2073,14 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		}
 	}
 
-	if (new_rot != getRotation()
-		|| new_angv != old_angv)
+	if ((new_rot != getRotation())
+		|| (new_angv != old_angv))
 	{
-		if (new_angv != old_angv)
+		if (new_rot != mPreviousRotation)
+		{
+			resetRot();
+		}
+		else if (new_angv != old_angv)
 		{
 			if (flagUsePhysics() || new_angv.isExactlyZero())
 			{
@@ -2086,6 +2091,9 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				resetRotTime();
 			}
 		}
+
+		// Remember the last rotation value
+		mPreviousRotation = new_rot;
 
 		// Set the rotation of the object followed by adjusting for the accumulated angular velocity (llSetTargetOmega)
 		setRotation(new_rot * mAngularVelocityRot);

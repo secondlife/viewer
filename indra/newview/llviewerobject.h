@@ -734,6 +734,7 @@ protected:
 	F32				mTimeDilation;				// Time dilation sent with the object.
 	F32				mRotTime;					// Amount (in seconds) that object has rotated according to angular velocity (llSetTargetOmega)
 	LLQuaternion	mAngularVelocityRot;		// accumulated rotation from the angular velocity computations
+	LLQuaternion	mPreviousRotation;
 
 	LLVOJointInfo*  mJointInfo;
 	U8				mState;	// legacy
