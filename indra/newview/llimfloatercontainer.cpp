@@ -824,8 +824,8 @@ LLConversationViewParticipant* LLIMFloaterContainer::createConversationViewParti
 	params.root = mConversationsRoot;
 	params.listener = item;
 
-    //16 and panel_rect.getWidth() are used since that is currently the values used in repositioningWidgets()
-	params.rect = LLRect (0, 16, panel_rect.getWidth(), 0);
+    //24 is the the current hight of an item (itemHeight) loaded from conversation_view_participant.xml.
+	params.rect = LLRect (0, 24, panel_rect.getWidth(), 0);
 	params.tool_tip = params.name;
 	params.participant_id = item->getUUID();
 	

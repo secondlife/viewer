@@ -2,7 +2,7 @@
 <conversation_view_participant
   folder_arrow_image="ForSale_Badge"
   folder_indentation="8"
-  item_height="20" 
+  item_height="24" 
   item_top_pad="4"
   selection_image="Rounded_Square"
   mouse_opaque="true"
@@ -10,11 +10,9 @@
 >
 <info_button
 	 follows="right"
-	 auto_update="true"
      height="16"
      image_pressed="Info_Press"
      image_unselected="Info_Over"
-     layout="topleft"
      right="-28"
      name="info_btn"
      width="16" />
@@ -23,7 +21,6 @@
 	auto_update="true"
 	draw_border="false"
 	height="16"
-	layout="topleft"
 	right="-3"
 	mouse_opaque="true"
 	name="speaking_indicator"
