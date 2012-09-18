@@ -56,11 +56,9 @@ public:
 	const LLUUID&		getParticipantID()		const	{ return mParticipantID; }
 	const std::string&	getTimestamp()			const	{ return mTimestamp; }
 	const time_t&		getTime()				const	{ return mTime; }
-	bool				isVoice()				const	{ return mIsVoice; }
 	bool				hasOfflineMessages()	const	{ return mHasOfflineIMs; }
 
-	void	setIsVoice(bool is_voice);
-	void	setConverstionName(std::string conv_name) { mConversationName = conv_name; }
+	void setConverstionName(std::string conv_name) { mConversationName = conv_name; }
 
 	bool isOlderThan(U32 days) const;
 
@@ -95,7 +93,6 @@ private:
 	std::string		mHistoryFileName;
 	LLUUID			mSessionID;
 	LLUUID			mParticipantID;
-	bool			mIsVoice;
 	bool			mHasOfflineIMs;
 	std::string		mTimestamp; // last interaction time in form of: mm/dd/yyyy hh:mm
 };

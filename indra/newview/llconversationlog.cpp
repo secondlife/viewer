@@ -36,8 +36,7 @@ struct Conversation_params
 {
 	Conversation_params(time_t time)
 	:	mTime(time),
-		mTimestamp(LLConversation::createTimestamp(time)),
-		mIsVoice(false)
+		mTimestamp(LLConversation::createTimestamp(time))
 	{}
 
 	time_t		mTime;
@@ -47,7 +46,6 @@ struct Conversation_params
 	std::string	mHistoryFileName;
 	LLUUID		mSessionID;
 	LLUUID		mParticipantID;
-	bool		mIsVoice;
 	bool		mHasOfflineIMs;
 };
 
@@ -63,7 +61,6 @@ LLConversation::LLConversation(const Conversation_params& params)
 	mHistoryFileName(params.mHistoryFileName),
 	mSessionID(params.mSessionID),
 	mParticipantID(params.mParticipantID),
-	mIsVoice(params.mIsVoice),
 	mHasOfflineIMs(params.mHasOfflineIMs)
 {
 	setListenIMFloaterOpened();
@@ -77,7 +74,6 @@ LLConversation::LLConversation(const LLIMModel::LLIMSession& session)
 	mHistoryFileName(session.mHistoryFileName),
 	mSessionID(session.isOutgoingAdHoc() ? session.generateOutgouigAdHocHash() : session.mSessionID),
 	mParticipantID(session.mOtherParticipantID),
-	mIsVoice(session.mStartedAsIMCall),
 	mHasOfflineIMs(session.mHasOfflineMessage)
 {
 	setListenIMFloaterOpened();
@@ -92,7 +88,6 @@ LLConversation::LLConversation(const LLConversation& conversation)
 	mHistoryFileName	= conversation.getHistoryFileName();
 	mSessionID			= conversation.getSessionID();
 	mParticipantID		= conversation.getParticipantID();
-	mIsVoice			= conversation.isVoice();
 	mHasOfflineIMs		= conversation.hasOfflineMessages();
 
 	setListenIMFloaterOpened();
@@ -147,12 +142,11 @@ void LLConversation::setListenIMFloaterOpened()
 {
 	LLIMFloater* floater = LLIMFloater::findInstance(mSessionID);
 
-	bool has_offline_ims = !mIsVoice && mHasOfflineIMs;
 	bool offline_ims_visible = LLIMFloater::isVisible(floater) && floater->hasFocus();
 
 	// we don't need to listen for im floater with this conversation is opened
 	// if floater is already opened or this conversation doesn't have unread offline messages
-	if (has_offline_ims && !offline_ims_visible)
+	if (mHasOfflineIMs && !offline_ims_visible)
 	{
 		mIMFloaterShowedConnection = LLIMFloater::setIMFloaterShowedCallback(boost::bind(&LLConversation::onIMFloaterShown, this, _1));
 	}
@@ -393,7 +387,7 @@ bool LLConversationLog::saveToFile(const std::string& filename)
 		fprintf(fp, "[%d] %d %d %d %s| %s %s %s|\n",
 				(S32)conv_it->getTime(),
 				(S32)conv_it->getConversationType(),
-				(S32)conv_it->isVoice(),
+				(S32)0,
 				(S32)conv_it->hasOfflineMessages(),
 				     conv_it->getConversationName().c_str(),
 				participant_id.c_str(),
@@ -423,10 +417,11 @@ bool LLConversationLog::loadFromFile(const std::string& filename)
 	char part_id_buffer[MAX_STRING];
 	char conv_id_buffer[MAX_STRING];
 	char history_file_name[MAX_STRING];
-	int is_voice;
 	int has_offline_ims;
 	int stype;
 	S32 time;
+	// before CHUI-348 it was a flag of conversation voice state
+	int prereserved_unused;
 
 	while (!feof(fp) && fgets(buffer, MAX_STRING, fp))
 	{
@@ -437,7 +432,7 @@ bool LLConversationLog::loadFromFile(const std::string& filename)
 		sscanf(buffer, "[%d] %d %d %d %[^|]| %s %s %[^|]|",
 				&time,
 				&stype,
-				&is_voice,
+				&prereserved_unused,
 				&has_offline_ims,
 				conv_name_buffer,
 				part_id_buffer,
@@ -446,7 +441,6 @@ bool LLConversationLog::loadFromFile(const std::string& filename)
 
 		Conversation_params params(time);
 		params.mConversationType = (SessionType)stype;
-		params.mIsVoice = is_voice;
 		params.mHasOfflineIMs = has_offline_ims;
 		params.mConversationName = std::string(conv_name_buffer);
 		params.mParticipantID = LLUUID(part_id_buffer);
