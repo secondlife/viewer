@@ -536,7 +536,7 @@ LLIMModel::LLIMSession* LLIMModel::findAdHocIMSession(const uuid_vec_t& ids)
 	return NULL;
 }
 
-bool LLIMModel::LLIMSession::isOutgoingAdHoc()
+bool LLIMModel::LLIMSession::isOutgoingAdHoc() const
 {
 	return IM_SESSION_CONFERENCE_START == mType;
 }
@@ -556,6 +556,19 @@ bool LLIMModel::LLIMSession::isOtherParticipantAvaline()
 	return !mOtherParticipantIsAvatar;
 }
 
+LLUUID LLIMModel::LLIMSession::generateOutgouigAdHocHash() const
+{
+	LLUUID hash = LLUUID::null;
+
+	if (mInitialTargetIDs.size())
+	{
+		std::set<LLUUID> sorted_uuids(mInitialTargetIDs.begin(), mInitialTargetIDs.end());
+		hash = generateHash(sorted_uuids);
+	}
+
+	return hash;
+}
+
 void LLIMModel::LLIMSession::buildHistoryFileName()
 {
 	mHistoryFileName = mName;
@@ -572,7 +585,7 @@ void LLIMModel::LLIMSession::buildHistoryFileName()
 		if (mInitialTargetIDs.size())
 		{
 			std::set<LLUUID> sorted_uuids(mInitialTargetIDs.begin(), mInitialTargetIDs.end());
-			mHistoryFileName = mName + " hash" + generateHash(sorted_uuids);
+			mHistoryFileName = mName + " hash" + generateHash(sorted_uuids).asString();
 		}
 		else
 		{
@@ -606,7 +619,7 @@ void LLIMModel::LLIMSession::buildHistoryFileName()
 }
 
 //static
-std::string LLIMModel::LLIMSession::generateHash(const std::set<LLUUID>& sorted_uuids)
+LLUUID LLIMModel::LLIMSession::generateHash(const std::set<LLUUID>& sorted_uuids)
 {
 	LLMD5 md5_uuid;
 	
@@ -620,7 +633,7 @@ std::string LLIMModel::LLIMSession::generateHash(const std::set<LLUUID>& sorted_
 
 	LLUUID participants_md5_hash;
 	md5_uuid.raw_digest((unsigned char*) participants_md5_hash.mData);
-	return participants_md5_hash.asString();
+	return participants_md5_hash;
 }
 
 void LLIMModel::processSessionInitializedReply(const LLUUID& old_session_id, const LLUUID& new_session_id)

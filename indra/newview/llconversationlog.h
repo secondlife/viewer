@@ -162,13 +162,13 @@ private:
 	bool saveToFile(const std::string& filename);
 	bool loadFromFile(const std::string& filename);
 
-	void onAvatarNameCache(const LLUUID& participant_id, const LLAvatarName& av_name, LLIMModel::LLIMSession* session);
+	void onAvatarNameCache(const LLUUID& participant_id, const LLAvatarName& av_name, const LLIMModel::LLIMSession* session);
 
-	void createConversation(const LLUUID& session_id);
+	void createConversation(const LLIMModel::LLIMSession* session);
 	void updateConversationTimestamp(LLConversation* conversation);
-	void updateConversationName(const LLUUID& session_id, const std::string& name);
+	void updateConversationName(const LLIMModel::LLIMSession* session, const std::string& name);
 
-	LLConversation* findConversation(const LLUUID& session_id);
+	LLConversation* findConversation(const LLIMModel::LLIMSession* session);
 
 	typedef std::vector<LLConversation> conversations_vec_t;
 	std::vector<LLConversation>				mConversations;

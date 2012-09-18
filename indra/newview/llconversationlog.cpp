@@ -75,7 +75,7 @@ LLConversation::LLConversation(const LLIMModel::LLIMSession& session)
 	mConversationType(session.mSessionType),
 	mConversationName(session.mName),
 	mHistoryFileName(session.mHistoryFileName),
-	mSessionID(session.mSessionID),
+	mSessionID(session.isOutgoingAdHoc() ? session.generateOutgouigAdHocHash() : session.mSessionID),
 	mParticipantID(session.mOtherParticipantID),
 	mIsVoice(session.mStartedAsIMCall),
 	mHasOfflineIMs(session.mHasOfflineMessage)
@@ -231,8 +231,8 @@ void LLConversationLog::enableLogging(bool enable)
 
 void LLConversationLog::logConversation(const LLUUID& session_id)
 {
-	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(session_id);
-	LLConversation* conversation = findConversation(session_id);
+	const LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(session_id);
+	LLConversation* conversation = findConversation(session);
 
 	if (session && conversation)
 	{
@@ -240,14 +240,12 @@ void LLConversationLog::logConversation(const LLUUID& session_id)
 	}
 	else if (session && !conversation)
 	{
-		createConversation(session_id);
+		createConversation(session);
 	}
 }
 
-void LLConversationLog::createConversation(const LLUUID& session_id)
+void LLConversationLog::createConversation(const LLIMModel::LLIMSession* session)
 {
-	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(session_id);
-
 	if (session)
 	{
 		LLConversation conversation(*session);
@@ -262,14 +260,18 @@ void LLConversationLog::createConversation(const LLUUID& session_id)
 	}
 }
 
-void LLConversationLog::updateConversationName(const LLUUID& session_id, const std::string& name)
+void LLConversationLog::updateConversationName(const LLIMModel::LLIMSession* session, const std::string& name)
 {
-	LLConversation* conversation = findConversation(session_id);
+	if (!session)
+	{
+		return;
+	}
 
+	LLConversation* conversation = findConversation(session);
 	if (conversation)
 	{
 		conversation->setConverstionName(name);
-		notifyPrticularConversationObservers(session_id, LLConversationLogObserver::CHANGED_NAME);
+		notifyPrticularConversationObservers(conversation->getSessionID(), LLConversationLogObserver::CHANGED_NAME);
 	}
 }
 
@@ -282,8 +284,15 @@ void LLConversationLog::updateConversationTimestamp(LLConversation* conversation
 	}
 }
 
-LLConversation* LLConversationLog::findConversation(const LLUUID& session_id)
+LLConversation* LLConversationLog::findConversation(const LLIMModel::LLIMSession* session)
 {
+	if (!session)
+	{
+		return NULL;
+	}
+
+	const LLUUID session_id = session->isOutgoingAdHoc() ? session->generateOutgouigAdHocHash() : session->mSessionID;
+
 	conversations_vec_t::iterator conv_it = mConversations.begin();
 	for(; conv_it != mConversations.end(); ++conv_it)
 	{
@@ -489,7 +498,7 @@ void LLConversationLog::onNewMessageReceived(const LLSD& data)
 	logConversation(session_id);
 }
 
-void LLConversationLog::onAvatarNameCache(const LLUUID& participant_id, const LLAvatarName& av_name, LLIMModel::LLIMSession* session)
+void LLConversationLog::onAvatarNameCache(const LLUUID& participant_id, const LLAvatarName& av_name, const LLIMModel::LLIMSession* session)
 {
-	updateConversationName(session->mSessionID, av_name.getCompleteName());
+	updateConversationName(session, av_name.getCompleteName());
 }
