@@ -280,6 +280,27 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source,
 	}
 	// we need to exclude agent id for non group chat
 	sort();
+	
+	// Identify and store what kind of session we are
+	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(data_source->getSessionID());
+	if (im_session)
+	{
+		// By default, sessions that can't be identified as group or ad-hoc will be considered P2P (i.e. 1 on 1)
+		mConvType = CONV_SESSION_1_ON_1;
+		if (im_session->isAdHocSessionType())
+		{
+			mConvType = CONV_SESSION_AD_HOC;
+		}
+		else if (im_session->isGroupSessionType())
+		{
+			mConvType = CONV_SESSION_GROUP;
+		}
+	}
+	else 
+	{
+		// That's the only session that doesn't get listed in the LLIMModel as a session...
+		mConvType = CONV_SESSION_NEARBY;
+	}
 }
 
 LLParticipantList::~LLParticipantList()

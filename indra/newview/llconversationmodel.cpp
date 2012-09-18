@@ -37,7 +37,8 @@ LLConversationItem::LLConversationItem(std::string display_name, const LLUUID& u
 	LLFolderViewModelItemCommon(root_view_model),
 	mName(display_name),
 	mUUID(uuid),
-	mNeedsRefresh(true)
+	mNeedsRefresh(true),
+	mConvType(CONV_UNKNOWN)
 {
 }
 
@@ -45,7 +46,8 @@ LLConversationItem::LLConversationItem(const LLUUID& uuid, LLFolderViewModelInte
 	LLFolderViewModelItemCommon(root_view_model),
 	mName(""),
 	mUUID(uuid),
-	mNeedsRefresh(true)
+	mNeedsRefresh(true),
+	mConvType(CONV_UNKNOWN)
 {
 }
 
@@ -53,7 +55,8 @@ LLConversationItem::LLConversationItem(LLFolderViewModelInterface& root_view_mod
 	LLFolderViewModelItemCommon(root_view_model),
 	mName(""),
 	mUUID(),
-	mNeedsRefresh(true)
+	mNeedsRefresh(true),
+	mConvType(CONV_UNKNOWN)
 {
 }
 
@@ -86,11 +89,13 @@ LLConversationItemSession::LLConversationItemSession(std::string display_name, c
 	LLConversationItem(display_name,uuid,root_view_model),
 	mIsLoaded(false)
 {
+	mConvType = CONV_SESSION_UNKNOWN;
 }
 
 LLConversationItemSession::LLConversationItemSession(const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
 	LLConversationItem(uuid,root_view_model)
 {
+	mConvType = CONV_SESSION_UNKNOWN;
 }
 
 bool LLConversationItemSession::hasChildren() const
@@ -183,11 +188,13 @@ LLConversationItemParticipant::LLConversationItemParticipant(std::string display
 	mIsMuted(false),
 	mIsModerator(false)
 {
+	mConvType = CONV_PARTICIPANT;
 }
 
 LLConversationItemParticipant::LLConversationItemParticipant(const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
 	LLConversationItem(uuid,root_view_model)
 {
+	mConvType = CONV_PARTICIPANT;
 }
 
 void LLConversationItemParticipant::onAvatarNameCache(const LLAvatarName& av_name)
@@ -212,11 +219,60 @@ void LLConversationItemParticipant::dumpDebugData()
 
 bool LLConversationSort::operator()(const LLConversationItem* const& a, const LLConversationItem* const& b) const
 {
-	// For the moment, we sort only by name
-	// *TODO : Implement the sorting by date as well (most recent first)
-	// *TODO : Check the type of item (session/participants) as order should be different for both (eventually)
+	LLConversationItem::EConversationType type_a = a->getType();
+	LLConversationItem::EConversationType type_b = b->getType();
+
+	if ((type_a == LLConversationItem::CONV_PARTICIPANT) && (type_b == LLConversationItem::CONV_PARTICIPANT))
+	{
+		// If both are participants
+		U32 sort_order = getSortOrderParticipants();
+		if (sort_order == LLConversationFilter::SO_DATE)
+		{
+			F32 time_a = 0.0;
+			F32 time_b = 0.0;
+			if (a->getTime(time_a) && b->getTime(time_b))
+			{
+				return (time_a > time_b);
+			}
+		}
+		else if (sort_order == LLConversationFilter::SO_DISTANCE)
+		{
+			F32 dist_a = 0.0;
+			F32 dist_b = 0.0;
+			if (a->getDistanceToAgent(dist_a) && b->getDistanceToAgent(dist_b))
+			{
+				return (dist_a > dist_b);
+			}
+		}
+	}
+	else if ((type_a > LLConversationItem::CONV_PARTICIPANT) && (type_b > LLConversationItem::CONV_PARTICIPANT))
+	{
+		// If both are sessions
+		U32 sort_order = getSortOrderSessions();
+		if (sort_order == LLConversationFilter::SO_DATE)
+		{
+			F32 time_a = 0.0;
+			F32 time_b = 0.0;
+			if (a->getTime(time_a) && b->getTime(time_b))
+			{
+				return (time_a > time_b);
+			}
+		}
+		else if (sort_order == LLConversationFilter::SO_SESSION_TYPE)
+		{
+			return (type_a < type_b);
+		}
+	}
+	else
+	{
+		// If one is a participant and the other a session, the session is always "less" than the participant
+		// so we simply compare the type
+		// Notes: as a consequence, CONV_UNKNOWN (which should never get created...) always come first
+		return (type_a < type_b);
+	}
+	// By default, in all other possible cases (including sort order of type LLConversationFilter::SO_NAME of course), sort by name
 	S32 compare = LLStringUtil::compareDict(a->getDisplayName(), b->getDisplayName());
-	return (compare < 0);	
+	return (compare < 0);
 }
 
 //

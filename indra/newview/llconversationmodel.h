@@ -46,6 +46,17 @@ typedef std::map<LLUUID, LLFolderViewItem*> conversations_widgets_map;
 class LLConversationItem : public LLFolderViewModelItemCommon
 {
 public:
+	enum EConversationType
+	{
+		CONV_UNKNOWN         = 0,
+		CONV_PARTICIPANT     = 1,
+		CONV_SESSION_NEARBY  = 2,	// The order counts here as it is used to sort sessions by type
+		CONV_SESSION_1_ON_1  = 3,
+		CONV_SESSION_AD_HOC  = 4,
+		CONV_SESSION_GROUP   = 5,
+		CONV_SESSION_UNKNOWN = 6
+	};
+	
 	LLConversationItem(std::string display_name, const LLUUID& uuid, LLFolderViewModelInterface& root_view_model);
 	LLConversationItem(const LLUUID& uuid, LLFolderViewModelInterface& root_view_model);
 	LLConversationItem(LLFolderViewModelInterface& root_view_model);
@@ -93,6 +104,11 @@ public:
 	virtual void selectItem(void) { } 
 	virtual void showProperties(void);
 
+	// Methods used in sorting (see LLConversationSort::operator()
+	EConversationType const getType() const { return mConvType; }
+	virtual const bool getTime(F32& time) const { return false; }
+	virtual const bool getDistanceToAgent(F32& distance) const { return false; }
+	
 	// This method will be called to determine if a drop can be
 	// performed, and will set drop to TRUE if a drop is
 	// requested. 
@@ -111,6 +127,7 @@ public:
 protected:
 	std::string mName;	// Name of the session or the participant
 	LLUUID mUUID;		// UUID of the session or the participant
+	EConversationType mConvType;	// Type of conversation item
 	bool mNeedsRefresh;	// Flag signaling to the view that something changed for this item
 };
 
