@@ -689,7 +689,7 @@ void LLFolderViewItem::drawHighlight(const BOOL showContent, const BOOL hasKeybo
     }
 }
 
-void LLFolderViewItem::drawLabel(const LLFontGL * font, const F32 x, const F32 y, const LLColor4& color, F32 right_x)
+void LLFolderViewItem::drawLabel(const LLFontGL * font, const F32 x, const F32 y, const LLColor4& color, F32 &right_x)
 {
     //TODO RN: implement this in terms of getColor()
     //if (highlight_link) color = sLinkColor;
@@ -797,7 +797,7 @@ void LLFolderViewItem::draw()
 						  LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
 						  S32_MAX, S32_MAX, &right_x, FALSE );
 	}
-
+    
 	//--------------------------------------------------------------------------------//
 	// Highlight string match
 	//
