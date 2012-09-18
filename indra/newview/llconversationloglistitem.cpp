@@ -49,10 +49,9 @@ LLConversationLogListItem::LLConversationLogListItem(const LLConversation* conve
 
 	LLIMFloater* floater = LLIMFloater::findInstance(mConversation->getSessionID());
 
-	bool has_offline_ims = !mConversation->isVoice() && mConversation->hasOfflineMessages();
 	bool ims_are_read = LLIMFloater::isVisible(floater) && floater->hasFocus();
 
-	if (has_offline_ims && !ims_are_read)
+	if (mConversation->hasOfflineMessages() && !ims_are_read)
 	{
 		mIMFloaterShowedConnection = LLIMFloater::setIMFloaterShowedCallback(boost::bind(&LLConversationLogListItem::onIMFloaterShown, this, _1));
 	}
@@ -104,16 +103,9 @@ void LLConversationLogListItem::initIcons()
 			break;
 	}
 
-	if (mConversation->isVoice())
+	if (mConversation->hasOfflineMessages())
 	{
-		getChild<LLIconCtrl>("voice_session_icon")->setVisible(TRUE);
-	}
-	else
-	{
-		if (mConversation->hasOfflineMessages())
-		{
 			getChild<LLIconCtrl>("unread_ims_icon")->setVisible(TRUE);
-		}
 	}
 }
 

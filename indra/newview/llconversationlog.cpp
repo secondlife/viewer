@@ -36,8 +36,7 @@ struct Conversation_params
 {
 	Conversation_params(time_t time)
 	:	mTime(time),
-		mTimestamp(LLConversation::createTimestamp(time)),
-		mIsVoice(false)
+		mTimestamp(LLConversation::createTimestamp(time))
 	{}
 
 	time_t		mTime;
@@ -47,7 +46,6 @@ struct Conversation_params
 	std::string	mHistoryFileName;
 	LLUUID		mSessionID;
 	LLUUID		mParticipantID;
-	bool		mIsVoice;
 	bool		mHasOfflineIMs;
 };
 
@@ -63,7 +61,6 @@ LLConversation::LLConversation(const Conversation_params& params)
 	mHistoryFileName(params.mHistoryFileName),
 	mSessionID(params.mSessionID),
 	mParticipantID(params.mParticipantID),
-	mIsVoice(params.mIsVoice),
 	mHasOfflineIMs(params.mHasOfflineIMs)
 {
 	setListenIMFloaterOpened();
@@ -75,9 +72,8 @@ LLConversation::LLConversation(const LLIMModel::LLIMSession& session)
 	mConversationType(session.mSessionType),
 	mConversationName(session.mName),
 	mHistoryFileName(session.mHistoryFileName),
-	mSessionID(session.mSessionID),
+	mSessionID(session.isOutgoingAdHoc() ? session.generateOutgouigAdHocHash() : session.mSessionID),
 	mParticipantID(session.mOtherParticipantID),
-	mIsVoice(session.mStartedAsIMCall),
 	mHasOfflineIMs(session.mHasOfflineMessage)
 {
 	setListenIMFloaterOpened();
@@ -92,7 +88,6 @@ LLConversation::LLConversation(const LLConversation& conversation)
 	mHistoryFileName	= conversation.getHistoryFileName();
 	mSessionID			= conversation.getSessionID();
 	mParticipantID		= conversation.getParticipantID();
-	mIsVoice			= conversation.isVoice();
 	mHasOfflineIMs		= conversation.hasOfflineMessages();
 
 	setListenIMFloaterOpened();
@@ -147,12 +142,11 @@ void LLConversation::setListenIMFloaterOpened()
 {
 	LLIMFloater* floater = LLIMFloater::findInstance(mSessionID);
 
-	bool has_offline_ims = !mIsVoice && mHasOfflineIMs;
 	bool offline_ims_visible = LLIMFloater::isVisible(floater) && floater->hasFocus();
 
 	// we don't need to listen for im floater with this conversation is opened
 	// if floater is already opened or this conversation doesn't have unread offline messages
-	if (has_offline_ims && !offline_ims_visible)
+	if (mHasOfflineIMs && !offline_ims_visible)
 	{
 		mIMFloaterShowedConnection = LLIMFloater::setIMFloaterShowedCallback(boost::bind(&LLConversation::onIMFloaterShown, this, _1));
 	}
@@ -231,8 +225,8 @@ void LLConversationLog::enableLogging(bool enable)
 
 void LLConversationLog::logConversation(const LLUUID& session_id)
 {
-	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(session_id);
-	LLConversation* conversation = findConversation(session_id);
+	const LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(session_id);
+	LLConversation* conversation = findConversation(session);
 
 	if (session && conversation)
 	{
@@ -240,14 +234,12 @@ void LLConversationLog::logConversation(const LLUUID& session_id)
 	}
 	else if (session && !conversation)
 	{
-		createConversation(session_id);
+		createConversation(session);
 	}
 }
 
-void LLConversationLog::createConversation(const LLUUID& session_id)
+void LLConversationLog::createConversation(const LLIMModel::LLIMSession* session)
 {
-	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(session_id);
-
 	if (session)
 	{
 		LLConversation conversation(*session);
@@ -262,14 +254,18 @@ void LLConversationLog::createConversation(const LLUUID& session_id)
 	}
 }
 
-void LLConversationLog::updateConversationName(const LLUUID& session_id, const std::string& name)
+void LLConversationLog::updateConversationName(const LLIMModel::LLIMSession* session, const std::string& name)
 {
-	LLConversation* conversation = findConversation(session_id);
+	if (!session)
+	{
+		return;
+	}
 
+	LLConversation* conversation = findConversation(session);
 	if (conversation)
 	{
 		conversation->setConverstionName(name);
-		notifyPrticularConversationObservers(session_id, LLConversationLogObserver::CHANGED_NAME);
+		notifyPrticularConversationObservers(conversation->getSessionID(), LLConversationLogObserver::CHANGED_NAME);
 	}
 }
 
@@ -282,8 +278,15 @@ void LLConversationLog::updateConversationTimestamp(LLConversation* conversation
 	}
 }
 
-LLConversation* LLConversationLog::findConversation(const LLUUID& session_id)
+LLConversation* LLConversationLog::findConversation(const LLIMModel::LLIMSession* session)
 {
+	if (!session)
+	{
+		return NULL;
+	}
+
+	const LLUUID session_id = session->isOutgoingAdHoc() ? session->generateOutgouigAdHocHash() : session->mSessionID;
+
 	conversations_vec_t::iterator conv_it = mConversations.begin();
 	for(; conv_it != mConversations.end(); ++conv_it)
 	{
@@ -384,7 +387,7 @@ bool LLConversationLog::saveToFile(const std::string& filename)
 		fprintf(fp, "[%d] %d %d %d %s| %s %s %s|\n",
 				(S32)conv_it->getTime(),
 				(S32)conv_it->getConversationType(),
-				(S32)conv_it->isVoice(),
+				(S32)0,
 				(S32)conv_it->hasOfflineMessages(),
 				     conv_it->getConversationName().c_str(),
 				participant_id.c_str(),
@@ -414,10 +417,11 @@ bool LLConversationLog::loadFromFile(const std::string& filename)
 	char part_id_buffer[MAX_STRING];
 	char conv_id_buffer[MAX_STRING];
 	char history_file_name[MAX_STRING];
-	int is_voice;
 	int has_offline_ims;
 	int stype;
 	S32 time;
+	// before CHUI-348 it was a flag of conversation voice state
+	int prereserved_unused;
 
 	while (!feof(fp) && fgets(buffer, MAX_STRING, fp))
 	{
@@ -428,7 +432,7 @@ bool LLConversationLog::loadFromFile(const std::string& filename)
 		sscanf(buffer, "[%d] %d %d %d %[^|]| %s %s %[^|]|",
 				&time,
 				&stype,
-				&is_voice,
+				&prereserved_unused,
 				&has_offline_ims,
 				conv_name_buffer,
 				part_id_buffer,
@@ -437,7 +441,6 @@ bool LLConversationLog::loadFromFile(const std::string& filename)
 
 		Conversation_params params(time);
 		params.mConversationType = (SessionType)stype;
-		params.mIsVoice = is_voice;
 		params.mHasOfflineIMs = has_offline_ims;
 		params.mConversationName = std::string(conv_name_buffer);
 		params.mParticipantID = LLUUID(part_id_buffer);
@@ -489,7 +492,7 @@ void LLConversationLog::onNewMessageReceived(const LLSD& data)
 	logConversation(session_id);
 }
 
-void LLConversationLog::onAvatarNameCache(const LLUUID& participant_id, const LLAvatarName& av_name, LLIMModel::LLIMSession* session)
+void LLConversationLog::onAvatarNameCache(const LLUUID& participant_id, const LLAvatarName& av_name, const LLIMModel::LLIMSession* session)
 {
-	updateConversationName(session->mSessionID, av_name.getCompleteName());
+	updateConversationName(session, av_name.getCompleteName());
 }

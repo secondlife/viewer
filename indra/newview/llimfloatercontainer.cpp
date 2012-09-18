@@ -740,7 +740,6 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 		llwarns << "Couldn't create conversation session item : " << display_name << llendl;
 		return;
 	}
-	// *TODO: Should we flag LLConversationItemSession with a mIsNearbyChat?
 	item->renameItem(display_name);
 	
 	mConversationsItems[uuid] = item;

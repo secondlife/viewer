@@ -85,7 +85,7 @@ public:
 		/** @deprecated */
 		static void chatFromLogFile(LLLogChat::ELogLineType type, const LLSD& msg, void* userdata);
 
-		bool isOutgoingAdHoc();
+		bool isOutgoingAdHoc() const;
 		bool isAdHoc();
 		bool isP2P();
 		bool isOtherParticipantAvaline();
@@ -94,6 +94,8 @@ public:
 		bool isAdHocSessionType() const { return mSessionType == ADHOC_SESSION;}
 		bool isGroupSessionType() const { return mSessionType == GROUP_SESSION;}
 		bool isAvalineSessionType() const { return mSessionType == AVALINE_SESSION;}
+
+		LLUUID generateOutgouigAdHocHash() const;
 
 		//*TODO make private
 		/** ad-hoc sessions involve sophisticated chat history file naming schemes */
@@ -139,7 +141,7 @@ public:
 	private:
 		void onAdHocNameCache(const LLAvatarName& av_name);
 
-		static std::string generateHash(const std::set<LLUUID>& sorted_uuids);
+		static LLUUID generateHash(const std::set<LLUUID>& sorted_uuids);
 	};
 	
 

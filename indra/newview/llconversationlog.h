@@ -56,11 +56,9 @@ public:
 	const LLUUID&		getParticipantID()		const	{ return mParticipantID; }
 	const std::string&	getTimestamp()			const	{ return mTimestamp; }
 	const time_t&		getTime()				const	{ return mTime; }
-	bool				isVoice()				const	{ return mIsVoice; }
 	bool				hasOfflineMessages()	const	{ return mHasOfflineIMs; }
 
-	void	setIsVoice(bool is_voice);
-	void	setConverstionName(std::string conv_name) { mConversationName = conv_name; }
+	void setConverstionName(std::string conv_name) { mConversationName = conv_name; }
 
 	bool isOlderThan(U32 days) const;
 
@@ -95,7 +93,6 @@ private:
 	std::string		mHistoryFileName;
 	LLUUID			mSessionID;
 	LLUUID			mParticipantID;
-	bool			mIsVoice;
 	bool			mHasOfflineIMs;
 	std::string		mTimestamp; // last interaction time in form of: mm/dd/yyyy hh:mm
 };
@@ -162,13 +159,13 @@ private:
 	bool saveToFile(const std::string& filename);
 	bool loadFromFile(const std::string& filename);
 
-	void onAvatarNameCache(const LLUUID& participant_id, const LLAvatarName& av_name, LLIMModel::LLIMSession* session);
+	void onAvatarNameCache(const LLUUID& participant_id, const LLAvatarName& av_name, const LLIMModel::LLIMSession* session);
 
-	void createConversation(const LLUUID& session_id);
+	void createConversation(const LLIMModel::LLIMSession* session);
 	void updateConversationTimestamp(LLConversation* conversation);
-	void updateConversationName(const LLUUID& session_id, const std::string& name);
+	void updateConversationName(const LLIMModel::LLIMSession* session, const std::string& name);
 
-	LLConversation* findConversation(const LLUUID& session_id);
+	LLConversation* findConversation(const LLIMModel::LLIMSession* session);
 
 	typedef std::vector<LLConversation> conversations_vec_t;
 	std::vector<LLConversation>				mConversations;
