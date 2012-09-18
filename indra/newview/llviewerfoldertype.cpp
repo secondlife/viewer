@@ -147,8 +147,6 @@ LLViewerFolderDictionary::LLViewerFolderDictionary()
 		addEntry((LLFolderType::EType)type, 		new ViewerFolderEntry("New Folder",				"Inv_FolderOpen",		"Inv_FolderClosed",		FALSE,     false));
 	}	
 #endif
-
-    addEntry(LLFolderType::FT_PROFILEXXXGGG, 				new ViewerFolderEntry("Profile",				"Generic_Person",		"Generic_Person",		FALSE,     false, "default"));
 }
 
 bool LLViewerFolderDictionary::initEnsemblesFromFile()

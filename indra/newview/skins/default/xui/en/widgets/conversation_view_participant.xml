@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <conversation_view_participant
   folder_arrow_image="ForSale_Badge"
-  folder_indentation="8"
+  folder_indentation="0"
   item_height="24" 
   item_top_pad="4"
   selection_image="Rounded_Square"
   mouse_opaque="true"
   follows="left|top|right"
 >
+<avatar_icon
+	 follows="left"
+     height="20"
+     default_icon_name="Generic_Person"
+     left="50"
+     width="20" />
 <info_button
 	 follows="right"
      height="16"

@@ -29,6 +29,7 @@
 
 #include "llfolderviewitem.h"
 
+#include "llavatariconctrl.h"
 #include "llbutton.h"
 #include "lloutputmonitorctrl.h"
 
@@ -84,7 +85,8 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLFolderViewItem::Params>
 	{
         Optional<LLIMFloaterContainer*>			container;
-		Optional<LLUUID>	participant_id;
+		Optional<LLUUID>	                    participant_id;
+        Optional<LLAvatarIconCtrl::Params>	    avatar_icon;
 		Optional<LLButton::Params>				info_button;
         Optional<LLOutputMonitorCtrl::Params>   output_monitor;
 		
@@ -104,10 +106,12 @@ protected:
 	LLConversationViewParticipant( const Params& p );
 	void initFromParams(const Params& params);
 	BOOL postBuild();
+    /*virtual*/ void draw();
 	
 	void onInfoBtnClick();
 
 private:
+    LLAvatarIconCtrl* mAvatarIcon;
 	LLButton * mInfoBtn;
     LLOutputMonitorCtrl* mSpeakingIndicator;
 	LLUUID mUUID;		// UUID of the participant

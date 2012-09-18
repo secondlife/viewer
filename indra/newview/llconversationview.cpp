@@ -41,7 +41,7 @@
 //
 static LLDefaultChildRegistry::Register<LLConversationViewSession> r_conversation_view_session("conversation_view_session");
 
-
+const LLColor4U DEFAULT_WHITE(255, 255, 255);
 
 LLConversationViewSession::Params::Params() :	
 	container()
@@ -90,7 +90,6 @@ void LLConversationViewSession::draw()
 
 // *TODO Seth PE: remove the code duplicated from LLFolderViewItem::draw()
 // ***** LLFolderViewItem::draw() code begin *****
-	const LLColor4U DEFAULT_WHITE(255, 255, 255);
 
 	static LLUIColor sFgColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
 	static LLUIColor sHighlightBgColor = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", DEFAULT_WHITE);
@@ -317,21 +316,27 @@ S32 LLConversationViewParticipant::sChildrenWidths[LLConversationViewParticipant
 LLConversationViewParticipant::Params::Params() :	
 container(),
 participant_id(),
+avatar_icon("avatar_icon"),
 info_button("info_button"),
 output_monitor("output_monitor")
 {}
 
 LLConversationViewParticipant::LLConversationViewParticipant( const LLConversationViewParticipant::Params& p ):
 	LLFolderViewItem(p),
+    mAvatarIcon(NULL),
     mInfoBtn(NULL),
     mSpeakingIndicator(NULL),
     mUUID(p.participant_id)
 {
-
 }
 
 void LLConversationViewParticipant::initFromParams(const LLConversationViewParticipant::Params& params)
 {	
+    LLAvatarIconCtrl::Params avatar_icon_params(params.avatar_icon());
+    applyXUILayout(avatar_icon_params, this);
+    LLAvatarIconCtrl * avatarIcon = LLUICtrlFactory::create<LLAvatarIconCtrl>(avatar_icon_params);
+    addChild(avatarIcon);	
+
 	LLButton::Params info_button_params(params.info_button());
     applyXUILayout(info_button_params, this);
 	LLButton * button = LLUICtrlFactory::create<LLButton>(info_button_params);
@@ -345,6 +350,8 @@ void LLConversationViewParticipant::initFromParams(const LLConversationViewParti
 
 BOOL LLConversationViewParticipant::postBuild()
 {
+    mAvatarIcon = getChild<LLAvatarIconCtrl>("avatar_icon");
+
 	mInfoBtn = getChild<LLButton>("info_btn");
 	mInfoBtn->setClickedCallback(boost::bind(&LLConversationViewParticipant::onInfoBtnClick, this));
 	mInfoBtn->setVisible(false);
@@ -362,6 +369,36 @@ BOOL LLConversationViewParticipant::postBuild()
     computeLabelRightPadding();
 	return LLFolderViewItem::postBuild();
 }
+
+void LLConversationViewParticipant::draw()
+{
+    static LLUIColor sFgColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
+    static LLUIColor sHighlightFgColor = LLUIColorTable::instance().getColor("MenuItemHighlightFgColor", DEFAULT_WHITE);
+    static LLUIColor sHighlightBgColor = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", DEFAULT_WHITE);
+    static LLUIColor sFocusOutlineColor = LLUIColorTable::instance().getColor("InventoryFocusOutlineColor", DEFAULT_WHITE);
+    static LLUIColor sMouseOverColor = LLUIColorTable::instance().getColor("InventoryMouseOverColor", DEFAULT_WHITE);
+
+    const BOOL show_context = (getRoot() ? getRoot()->getShowSelectionContext() : FALSE);
+    const BOOL filled = show_context || (getRoot() ? getRoot()->getParentPanel()->hasFocus() : FALSE); // If we have keyboard focus, draw selection filled
+
+    const LLFolderViewItem::Params& default_params = LLUICtrlFactory::getDefaultParams<LLFolderViewItem>();
+    const S32 TOP_PAD = default_params.item_top_pad;
+
+    const LLFontGL* font = getLabelFontForStyle(mLabelStyle);
+    F32 right_x  = 0;
+
+    //TEXT_PAD, TOP_PAD, ICON_PAD and mIndentation are temporary values and will non-const eventually since they don't
+    //apply to every single layout
+    F32 y = (F32)getRect().getHeight() - font->getLineHeight() - (F32)TEXT_PAD - (F32)TOP_PAD;
+    F32 text_left = (F32)(mAvatarIcon->getRect().mRight + ICON_PAD + mIndentation);
+    LLColor4 color = (mIsSelected && filled) ? sHighlightFgColor : sFgColor;
+
+    drawHighlight(show_context, filled, sHighlightBgColor, sFocusOutlineColor, sMouseOverColor);
+    drawLabel(font, text_left, y, color, right_x);
+
+    LLView::draw();
+}
+
 
 void LLConversationViewParticipant::refresh()
 {
@@ -384,8 +421,11 @@ void LLConversationViewParticipant::addToFolder(LLFolderViewFolder* folder)
     LLConversationItem* vmi = this->getParentFolder() ? dynamic_cast<LLConversationItem*>(this->getParentFolder()->getViewModelItem()) : NULL;
     if(vmi)
     {
-        mSpeakingIndicator->setSpeakerId(mUUID, 
-        vmi->getUUID()); //set the session id
+        //Allows speaking icon image to be loaded based on mUUID
+        mAvatarIcon->setValue(mUUID);
+
+        //Allows the speaker indicator to be activated based on the user and conversation
+        mSpeakingIndicator->setSpeakerId(mUUID, vmi->getUUID()); 
     }
 }
 

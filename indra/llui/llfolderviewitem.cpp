@@ -105,6 +105,7 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 	mSelectPending(FALSE),
 	mLabelStyle( LLFontGL::NORMAL ),
 	mHasVisibleChildren(FALSE),
+    mLocalIndentation(p.folder_indentation),
 	mIndentation(0),
 	mItemHeight(p.item_height),
 	mControlLabelRotation(0.f),
@@ -284,11 +285,9 @@ void LLFolderViewItem::addToFolder(LLFolderViewFolder* folder)
 // makes sure that this view and its children are the right size.
 S32 LLFolderViewItem::arrange( S32* width, S32* height )
 {
-	const Params& p = LLUICtrlFactory::getDefaultParams<LLFolderViewItem>();
-	S32 indentation = p.folder_indentation();
 	// Only indent deeper items in hierarchy
 	mIndentation = (getParentFolder())
-		? getParentFolder()->getIndentation() + indentation
+		? getParentFolder()->getIndentation() + mLocalIndentation
 		: 0;
 	if (mLabelWidthDirty)
 	{
@@ -596,24 +595,134 @@ BOOL LLFolderViewItem::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	return handled;
 }
 
+void LLFolderViewItem::drawHighlight(const BOOL showContent, const BOOL hasKeyboardFocus, const LLUIColor &bgColor, 
+                                                        const LLUIColor &focusOutlineColor, const LLUIColor &mouseOverColor)
+{
+
+    //--------------------------------------------------------------------------------//
+    // Draw highlight for selected items
+    //
+
+    const S32 focus_top = getRect().getHeight();
+    const S32 focus_bottom = getRect().getHeight() - mItemHeight;
+    const bool folder_open = (getRect().getHeight() > mItemHeight + 4);
+    const S32 FOCUS_LEFT = 1;
+
+    if (mIsSelected) // always render "current" item.  Only render other selected items if mShowSingleSelection is FALSE
+    {
+        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        LLColor4 bg_color = bgColor;
+        if (!mIsCurSelection)
+        {
+            // do time-based fade of extra objects
+            F32 fade_time = (getRoot() ? getRoot()->getSelectionFadeElapsedTime() : 0.0f);
+            if (getRoot() && getRoot()->getShowSingleSelection())
+            {
+                // fading out
+                bg_color.mV[VALPHA] = clamp_rescale(fade_time, 0.f, 0.4f, bg_color.mV[VALPHA], 0.f);
+            }
+            else
+            {
+                // fading in
+                bg_color.mV[VALPHA] = clamp_rescale(fade_time, 0.f, 0.4f, 0.f, bg_color.mV[VALPHA]);
+            }
+        }
+        gl_rect_2d(FOCUS_LEFT,
+            focus_top, 
+            getRect().getWidth() - 2,
+            focus_bottom,
+            bg_color, hasKeyboardFocus);
+        if (mIsCurSelection)
+        {
+            gl_rect_2d(FOCUS_LEFT, 
+                focus_top, 
+                getRect().getWidth() - 2,
+                focus_bottom,
+                focusOutlineColor, FALSE);
+        }
+        if (folder_open)
+        {
+            gl_rect_2d(FOCUS_LEFT,
+                focus_bottom + 1, // overlap with bottom edge of above rect
+                getRect().getWidth() - 2,
+                0,
+                focusOutlineColor, FALSE);
+            if (showContent)
+            {
+                gl_rect_2d(FOCUS_LEFT,
+                    focus_bottom + 1,
+                    getRect().getWidth() - 2,
+                    0,
+                    bgColor, TRUE);
+            }
+        }
+    }
+    else if (mIsMouseOverTitle)
+    {
+        gl_rect_2d(FOCUS_LEFT,
+            focus_top, 
+            getRect().getWidth() - 2,
+            focus_bottom,
+            mouseOverColor, FALSE);
+    }
+
+    //--------------------------------------------------------------------------------//
+    // Draw DragNDrop highlight
+    //
+    if (mDragAndDropTarget)
+    {
+        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gl_rect_2d(FOCUS_LEFT, 
+            focus_top, 
+            getRect().getWidth() - 2,
+            focus_bottom,
+            bgColor, FALSE);
+        if (folder_open)
+        {
+            gl_rect_2d(FOCUS_LEFT,
+                focus_bottom + 1, // overlap with bottom edge of above rect
+                getRect().getWidth() - 2,
+                0,
+                bgColor, FALSE);
+        }
+        mDragAndDropTarget = FALSE;
+    }
+}
+
+void LLFolderViewItem::drawLabel(const LLFontGL * font, const F32 x, const F32 y, const LLColor4& color, F32 right_x)
+{
+    //TODO RN: implement this in terms of getColor()
+    //if (highlight_link) color = sLinkColor;
+    //if (gInventory.isObjectDescendentOf(getViewModelItem()->getUUID(), gInventory.getLibraryRootFolderID())) color = sLibraryColor;
+
+    //--------------------------------------------------------------------------------//
+    // Draw the actual label text
+    //
+    font->renderUTF8(mLabel, 0, x, y, color,
+        LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
+        S32_MAX, getRect().getWidth() - (S32) x - mLabelPaddingRight, &right_x, TRUE);
+}
+
 void LLFolderViewItem::draw()
 {
 	static LLUIColor sFgColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
-	static LLUIColor sHighlightBgColor = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", DEFAULT_WHITE);
-	static LLUIColor sHighlightFgColor = LLUIColorTable::instance().getColor("MenuItemHighlightFgColor", DEFAULT_WHITE);
-	static LLUIColor sFocusOutlineColor = LLUIColorTable::instance().getColor("InventoryFocusOutlineColor", DEFAULT_WHITE);
+    static LLUIColor sHighlightBgColor = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", DEFAULT_WHITE);
+    static LLUIColor sHighlightFgColor = LLUIColorTable::instance().getColor("MenuItemHighlightFgColor", DEFAULT_WHITE);
+    static LLUIColor sFocusOutlineColor = LLUIColorTable::instance().getColor("InventoryFocusOutlineColor", DEFAULT_WHITE);
+    static LLUIColor sMouseOverColor = LLUIColorTable::instance().getColor("InventoryMouseOverColor", DEFAULT_WHITE);	
 	static LLUIColor sFilterBGColor = LLUIColorTable::instance().getColor("FilterBackgroundColor", DEFAULT_WHITE);
 	static LLUIColor sFilterTextColor = LLUIColorTable::instance().getColor("FilterTextColor", DEFAULT_WHITE);
 	static LLUIColor sSuffixColor = LLUIColorTable::instance().getColor("InventoryItemColor", DEFAULT_WHITE);
 	static LLUIColor sLibraryColor = LLUIColorTable::instance().getColor("InventoryItemLibraryColor", DEFAULT_WHITE);
 	static LLUIColor sLinkColor = LLUIColorTable::instance().getColor("InventoryItemLinkColor", DEFAULT_WHITE);
 	static LLUIColor sSearchStatusColor = LLUIColorTable::instance().getColor("InventorySearchStatusColor", DEFAULT_WHITE);
-	static LLUIColor sMouseOverColor = LLUIColorTable::instance().getColor("InventoryMouseOverColor", DEFAULT_WHITE);
-
+	
+    const BOOL show_context = (getRoot() ? getRoot()->getShowSelectionContext() : FALSE);
+    const BOOL filled = show_context || (getRoot() ? getRoot()->getParentPanel()->hasFocus() : FALSE); // If we have keyboard focus, draw selection filled
 
 	const Params& default_params = LLUICtrlFactory::getDefaultParams<LLFolderViewItem>();
 	const S32 TOP_PAD = default_params.item_top_pad;
-	const S32 FOCUS_LEFT = 1;
+	
 	const LLFontGL* font = getLabelFontForStyle(mLabelStyle);
 
     getViewModelItem()->update();
@@ -630,93 +739,7 @@ void LLFolderViewItem::draw()
 	}
 
 
-	//--------------------------------------------------------------------------------//
-	// Draw highlight for selected items
-	//
-	const BOOL show_context = (getRoot() ? getRoot()->getShowSelectionContext() : FALSE);
-	const BOOL filled = show_context || (getRoot() ? getRoot()->getParentPanel()->hasFocus() : FALSE); // If we have keyboard focus, draw selection filled
-	const S32 focus_top = getRect().getHeight();
-	const S32 focus_bottom = getRect().getHeight() - mItemHeight;
-	const bool folder_open = (getRect().getHeight() > mItemHeight + 4);
-	if (mIsSelected) // always render "current" item.  Only render other selected items if mShowSingleSelection is FALSE
-	{
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-		LLColor4 bg_color = sHighlightBgColor;
-		if (!mIsCurSelection)
-		{
-			// do time-based fade of extra objects
-			F32 fade_time = (getRoot() ? getRoot()->getSelectionFadeElapsedTime() : 0.0f);
-			if (getRoot() && getRoot()->getShowSingleSelection())
-			{
-				// fading out
-				bg_color.mV[VALPHA] = clamp_rescale(fade_time, 0.f, 0.4f, bg_color.mV[VALPHA], 0.f);
-			}
-			else
-			{
-				// fading in
-				bg_color.mV[VALPHA] = clamp_rescale(fade_time, 0.f, 0.4f, 0.f, bg_color.mV[VALPHA]);
-			}
-		}
-		gl_rect_2d(FOCUS_LEFT,
-				   focus_top, 
-				   getRect().getWidth() - 2,
-				   focus_bottom,
-				   bg_color, filled);
-		if (mIsCurSelection)
-		{
-			gl_rect_2d(FOCUS_LEFT, 
-					   focus_top, 
-					   getRect().getWidth() - 2,
-					   focus_bottom,
-					   sFocusOutlineColor, FALSE);
-		}
-		if (folder_open)
-		{
-			gl_rect_2d(FOCUS_LEFT,
-					   focus_bottom + 1, // overlap with bottom edge of above rect
-					   getRect().getWidth() - 2,
-					   0,
-					   sFocusOutlineColor, FALSE);
-			if (show_context)
-			{
-				gl_rect_2d(FOCUS_LEFT,
-						   focus_bottom + 1,
-						   getRect().getWidth() - 2,
-						   0,
-						   sHighlightBgColor, TRUE);
-			}
-		}
-	}
-	else if (mIsMouseOverTitle)
-	{
-		gl_rect_2d(FOCUS_LEFT,
-			focus_top, 
-			getRect().getWidth() - 2,
-			focus_bottom,
-			sMouseOverColor, FALSE);
-	}
-
-	//--------------------------------------------------------------------------------//
-	// Draw DragNDrop highlight
-	//
-	if (mDragAndDropTarget)
-	{
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-		gl_rect_2d(FOCUS_LEFT, 
-				   focus_top, 
-				   getRect().getWidth() - 2,
-				   focus_bottom,
-				   sHighlightBgColor, FALSE);
-		if (folder_open)
-		{
-			gl_rect_2d(FOCUS_LEFT,
-					   focus_bottom + 1, // overlap with bottom edge of above rect
-					   getRect().getWidth() - 2,
-					   0,
-					   sHighlightBgColor, FALSE);
-		}
-		mDragAndDropTarget = FALSE;
-	}
+    drawHighlight(show_context, filled, sHighlightBgColor, sFocusOutlineColor, sMouseOverColor);
 
 	//--------------------------------------------------------------------------------//
 	// Draw open icon
@@ -760,19 +783,10 @@ void LLFolderViewItem::draw()
 		LLUIImage* box_image = default_params.selection_image;
 		LLRect box_rect(left, top, right, bottom);
 		box_image->draw(box_rect, sFilterBGColor);
-		}
+    }
 
-	LLColor4 color = (mIsSelected && filled) ? sHighlightFgColor : sFgColor;
-	//TODO RN: implement this in terms of getColor()
-	//if (highlight_link) color = sLinkColor;
-	//if (gInventory.isObjectDescendentOf(getViewModelItem()->getUUID(), gInventory.getLibraryRootFolderID())) color = sLibraryColor;
-	
-	//--------------------------------------------------------------------------------//
-	// Draw the actual label text
-	//
-	font->renderUTF8(mLabel, 0, text_left, y, color,
-					 LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
-					 S32_MAX, getRect().getWidth() - (S32) text_left - mLabelPaddingRight, &right_x, TRUE);
+    LLColor4 color = (mIsSelected && filled) ? sHighlightFgColor : sFgColor;
+    drawLabel(font, text_left, y, color, right_x);
 
 	//--------------------------------------------------------------------------------//
 	// Draw label suffix
