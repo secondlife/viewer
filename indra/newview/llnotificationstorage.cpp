@@ -164,21 +164,29 @@ void LLPersistentNotificationStorage::loadNotifications()
 		++notification_it)
 	{
 		LLSD notification_params = *notification_it;
-		LLNotificationPtr notification(new LLNotification(notification_params));
 
-		LLNotificationResponderPtr responder(LLResponderRegistry::
-			createResponder(notification_params["name"], notification_params["responder"]));
-		notification->setResponseFunctor(responder);
-
-		instance.add(notification);
-
-		// hide script floaters so they don't confuse the user and don't overlap startup toast
-		LLScriptFloaterManager::getInstance()->setFloaterVisible(notification->getID(), false);
-
-		if(notification_channel)
+		if (instance.templateExists(notification_params["name"].asString()))
 		{
-			// hide saved toasts so they don't confuse the user
-			notification_channel->hideToast(notification->getID());
+			LLNotificationPtr notification(new LLNotification(notification_params));
+
+			LLNotificationResponderPtr responder(LLResponderRegistry::
+				createResponder(notification_params["name"], notification_params["responder"]));
+			notification->setResponseFunctor(responder);
+
+			instance.add(notification);
+
+			// hide script floaters so they don't confuse the user and don't overlap startup toast
+			LLScriptFloaterManager::getInstance()->setFloaterVisible(notification->getID(), false);
+
+			if(notification_channel)
+			{
+				// hide saved toasts so they don't confuse the user
+				notification_channel->hideToast(notification->getID());
+			}
+		}
+		else
+		{
+			llwarns << "Failed to find template for persistent notification " << notification_params["name"].asString() << llendl;
 		}
 	}
 }
