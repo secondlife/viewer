@@ -322,12 +322,11 @@ void LLViewerWearable::writeToAvatar(LLAvatarAppearance *avatarp)
 
 	if (!viewer_avatar->isValid()) return;
 
-#if 0 // FIXME restrict to server-bake regions.
+    // FIXME restrict this check to server bake regions?
 	if (!viewer_avatar->isUsingLocalAppearance())
 	{
 		return;
 	}
-#endif
 
 	ESex old_sex = avatarp->getSex();
 
@@ -523,7 +522,8 @@ void LLViewerWearable::setLocalTextureObject(S32 index, LLLocalTextureObject &lt
 
 void LLViewerWearable::setVisualParams()
 {
-	for (visual_param_index_map_t::const_iterator iter = mVisualParamIndexMap.begin(); iter != mVisualParamIndexMap.end(); iter++)
+	for (visual_param_index_map_t::const_iterator iter = mVisualParamIndexMap.begin();
+		 iter != mVisualParamIndexMap.end(); iter++)
 	{
 		S32 id = iter->first;
 		LLVisualParam *wearable_param = iter->second;

@@ -1600,7 +1600,7 @@ class LLAdvancedEnableAppearanceToXML : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		return gSavedSettings.getBOOL("DebugAvatarCompositeBaked");
+		return gSavedSettings.getBOOL("DebugAvatarAppearanceMessage");
 	}
 };
 
