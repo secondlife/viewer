@@ -176,7 +176,7 @@ public:
 	void dumpObjectLog(GLhandleARB ret, BOOL warns = TRUE);
 	BOOL	linkProgramObject(GLhandleARB obj, BOOL suppress_errors = FALSE);
 	BOOL	validateProgramObject(GLhandleARB obj);
-	GLhandleARB loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type, S32 texture_index_channels = -1);
+	GLhandleARB loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type, boost::unordered_map<std::string, std::string> defines, S32 texture_index_channels = -1);
 
 	// Implemented in the application to actually point to the shader directory.
 	virtual std::string getShaderDirPrefix(void) = 0; // Pure Virtual

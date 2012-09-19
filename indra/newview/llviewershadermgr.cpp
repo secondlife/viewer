@@ -826,12 +826,14 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 		shaders.push_back( make_pair( "objects/indexedTextureV.glsl",			1 ) );
 	}
 	shaders.push_back( make_pair( "objects/nonindexedTextureV.glsl",		1 ) );
-
+	
+	boost::unordered_map<std::string, std::string> attribs;
+	
 	// We no longer have to bind the shaders to global glhandles, they are automatically added to a map now.
 	for (U32 i = 0; i < shaders.size(); i++)
 	{
 		// Note usage of GL_VERTEX_SHADER_ARB
-		if (loadShaderFile(shaders[i].first, shaders[i].second, GL_VERTEX_SHADER_ARB) == 0)
+		if (loadShaderFile(shaders[i].first, shaders[i].second, GL_VERTEX_SHADER_ARB, attribs) == 0)
 		{
 			return FALSE;
 		}
@@ -879,11 +881,11 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 	index_channels.push_back(ch);	 shaders.push_back( make_pair( "lighting/lightFullbrightShinyF.glsl",	mVertexShaderLevel[SHADER_LIGHTING] ) );
 	index_channels.push_back(ch);	 shaders.push_back( make_pair( "lighting/lightShinyWaterF.glsl",			mVertexShaderLevel[SHADER_LIGHTING] ) );
 	index_channels.push_back(ch);	 shaders.push_back( make_pair( "lighting/lightFullbrightShinyWaterF.glsl", mVertexShaderLevel[SHADER_LIGHTING] ) );
-	
+
 	for (U32 i = 0; i < shaders.size(); i++)
 	{
 		// Note usage of GL_FRAGMENT_SHADER_ARB
-		if (loadShaderFile(shaders[i].first, shaders[i].second, GL_FRAGMENT_SHADER_ARB, index_channels[i]) == 0)
+		if (loadShaderFile(shaders[i].first, shaders[i].second, GL_FRAGMENT_SHADER_ARB, attribs, index_channels[i]) == 0)
 		{
 			return FALSE;
 		}
