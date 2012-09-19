@@ -322,7 +322,7 @@ void LLViewerWearable::writeToAvatar(LLAvatarAppearance *avatarp)
 
 	if (!viewer_avatar->isValid()) return;
 
-#if 1
+#if 0 // FIXME restrict to server-bake regions.
 	if (!viewer_avatar->isUsingLocalAppearance())
 	{
 		return;
@@ -528,7 +528,10 @@ void LLViewerWearable::setVisualParams()
 		S32 id = iter->first;
 		LLVisualParam *wearable_param = iter->second;
 		F32 value = wearable_param->getWeight();
-		gAgentAvatarp->setVisualParamWeight(id, value, FALSE);
+		if (gAgentAvatarp->isUsingLocalAppearance())
+		{
+			gAgentAvatarp->setVisualParamWeight(id, value, FALSE);
+		}
 	}
 }
 
