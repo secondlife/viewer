@@ -140,17 +140,18 @@ endif (SOLARIS)
 set_source_files_properties(${llwindow_HEADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
 
-if (SERVER AND NOT WINDOWS AND NOT DARWIN)
+if ((SERVER OR BAKING) AND NOT WINDOWS AND NOT DARWIN)
   set(server_SOURCE_FILES
        llwindowmesaheadless.cpp
+       llmousehandler.cpp
        )
   set(server_HEADER_FILES
        llwindowmesaheadless.h
+       llmousehandler.h
        )
   copy_server_sources(
       llwindow
       )
-
 
   set_source_files_properties(
     ${server_SOURCE_FILES}
@@ -161,8 +162,8 @@ if (SERVER AND NOT WINDOWS AND NOT DARWIN)
     ${llwindow_SOURCE_FILES}
     ${server_SOURCE_FILES}
     )
-  target_link_libraries (llwindowheadless ${llwindow_LINK_LIBRARIES})
-endif (SERVER AND NOT WINDOWS AND NOT DARWIN)
+  target_link_libraries (llwindowheadless ${llwindow_LINK_LIBRARIES} OSMesa16 dl)
+endif ((SERVER OR BAKING) AND NOT WINDOWS AND NOT DARWIN)
 
 if (llwindow_HEADER_FILES)
   list(APPEND llwindow_SOURCE_FILES ${llwindow_HEADER_FILES})

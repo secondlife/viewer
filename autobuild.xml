@@ -1432,9 +1432,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1f600840463c7327ea17486821425750</string>
+              <string>9da287964003f9042e84417d2e3a6c36</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/mesa-7.0-linux-20100930.tar.bz2</string>
+              <string>file:///ngi-persist/var/tmp/nyx/3p-mesa/mesa-7.11.1-linux-20120918.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>

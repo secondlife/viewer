@@ -78,7 +78,12 @@ set_source_files_properties(${llrender_HEADER_FILES}
 
 list(APPEND llrender_SOURCE_FILES ${llrender_HEADER_FILES})
 
-if (SERVER AND NOT WINDOWS AND NOT DARWIN)
+list(APPEND llrender_SOURCE_FILES
+     llgl.cpp
+     llrender.cpp
+     llrendertarget.cpp
+     )
+if ((SERVER OR BAKING) AND NOT WINDOWS AND NOT DARWIN)
   copy_server_sources(
       llgl
       llrender
@@ -94,13 +99,8 @@ if (SERVER AND NOT WINDOWS AND NOT DARWIN)
     ${llrender_SOURCE_FILES}
     ${server_SOURCE_FILES}
     )
-else (SERVER AND NOT WINDOWS AND NOT DARWIN)
-  list(APPEND llrender_SOURCE_FILES
-      llgl.cpp
-      llrender.cpp
-      llrendertarget.cpp
-      )
-endif (SERVER AND NOT WINDOWS AND NOT DARWIN)
+endif ((SERVER OR BAKING) AND NOT WINDOWS AND NOT DARWIN)
+
 add_library (llrender ${llrender_SOURCE_FILES})
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
@@ -115,3 +115,15 @@ target_link_libraries(llrender
     ${LLWINDOW_LIBRARIES}
     ${FREETYPE_LIBRARIES}
     ${OPENGL_LIBRARIES})
+
+target_link_libraries(llrenderheadless
+    ${LLCOMMON_LIBRARIES}
+    ${LLIMAGE_LIBRARIES}
+    ${LLMATH_LIBRARIES}
+    ${LLRENDER_LIBRARIES}
+    ${LLVFS_LIBRARIES}
+    ${LLXML_LIBRARIES}
+    ${LLVFS_LIBRARIES}
+    ${LLWINDOW_LIBRARIES}
+    ${OPENGL_LIBRARIES})
+

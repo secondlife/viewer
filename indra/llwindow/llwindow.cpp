@@ -256,6 +256,8 @@ std::vector<std::string> LLWindow::getDynamicFallbackFontList()
 	return LLWindowWin32::getDynamicFallbackFontList();
 #elif LL_DARWIN
 	return LLWindowMacOSX::getDynamicFallbackFontList();
+#elif LL_MESA_HEADLESS
+	return std::vector<std::string>();
 #elif LL_SDL
 	return LLWindowSDL::getDynamicFallbackFontList();
 #else
