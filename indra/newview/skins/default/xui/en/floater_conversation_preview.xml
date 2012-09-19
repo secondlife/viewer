@@ -52,7 +52,7 @@
      width="50"/>
     <text
      follows="bottom|right"
-     font="SandSerif"
+     font="SansSerif"
      height="22"
      layout="topleft"
      name="page_num_label"

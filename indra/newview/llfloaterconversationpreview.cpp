@@ -29,6 +29,7 @@
 #include "llfloaterconversationpreview.h"
 #include "llimview.h"
 #include "lllineeditor.h"
+#include "llnearbychat.h"
 #include "llspinctrl.h"
 #include "lltrans.h"
 
@@ -43,7 +44,6 @@ LLFloaterConversationPreview::LLFloaterConversationPreview(const LLSD& session_i
 BOOL LLFloaterConversationPreview::postBuild()
 {
 	mChatHistory = getChild<LLChatHistory>("chat_history");
-	getChild<LLUICtrl>("more_history")->setCommitCallback(boost::bind(&LLFloaterConversationPreview::onMoreHistoryBtnClick, this));
 
 	const LLConversation* conv = LLConversationLog::instance().getConversation(mSessionID);
 	std::string name;
@@ -119,19 +119,38 @@ void LLFloaterConversationPreview::showHistory()
 	{
 		LLSD msg = *iter;
 
+		LLUUID from_id 		= LLUUID::null;
 		std::string time	= msg["time"].asString();
-		LLUUID from_id		= msg["from_id"].asUUID();
 		std::string from	= msg["from"].asString();
 		std::string message	= msg["message"].asString();
-		bool is_history		= msg["is_history"].asBoolean();
+
+		if (msg["from_id"].isDefined())
+		{
+			from_id = msg["from_id"].asUUID();
+		}
+		else
+ 		{
+			std::string legacy_name = gCacheName->buildLegacyName(from);
+ 			gCacheName->getUUID(legacy_name, from_id);
+ 		}
 
 		LLChat chat;
 		chat.mFromID = from_id;
 		chat.mSessionID = mSessionID;
 		chat.mFromName = from;
 		chat.mTimeStr = time;
-		chat.mChatStyle = is_history ? CHAT_STYLE_HISTORY : chat.mChatStyle;
+		chat.mChatStyle = CHAT_STYLE_HISTORY;
 		chat.mText = message;
+
+		if (from_id.isNull() && SYSTEM_FROM == from)
+		{
+			chat.mSourceType = CHAT_SOURCE_SYSTEM;
+
+		}
+		else if (from_id.isNull())
+		{
+			chat.mSourceType = LLNearbyChat::isWordsName(from) ? CHAT_SOURCE_UNKNOWN : CHAT_SOURCE_OBJECT;
+		}
 
 		mChatHistory->appendMessage(chat);
 	}
