@@ -196,15 +196,11 @@ BOOL LLWalkAdjustMotion::onActivate()
 	return TRUE;
 }
 
-static LLFastTimer::DeclareTimer FTM_WALK_ADJUST_MOTION("Walk Adjust");
-
 //-----------------------------------------------------------------------------
 // LLWalkAdjustMotion::onUpdate()
 //-----------------------------------------------------------------------------
 BOOL LLWalkAdjustMotion::onUpdate(F32 time, U8* joint_mask)
 {
-	LLFastTimer t(FTM_WALK_ADJUST_MOTION);
-
 	// delta_time is guaranteed to be non zero
 	F32 delta_time = llclamp(time - mLastTime, TIME_EPSILON, MAX_TIME_DELTA);
 	mLastTime = time;

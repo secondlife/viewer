@@ -542,7 +542,7 @@ void LLSpatialGroup::validate()
 
 	validateDrawMap();
 
-	for (element_iter i = getData().begin(); i != getData().end(); ++i)
+	for (element_iter i = getDataBegin(); i != getDataEnd(); ++i)
 	{
 		LLDrawable* drawable = *i;
 		sg_assert(drawable->getSpatialGroup() == this);
@@ -759,7 +759,7 @@ BOOL LLSpatialGroup::boundObjects(BOOL empty, LLVector4a& minOut, LLVector4a& ma
 {	
 	const OctreeNode* node = mOctreeNode;
 
-	if (node->getData().empty())
+	if (node->isEmpty())
 	{	//don't do anything if there are no objects
 		if (empty && mOctreeNode->getParent())
 		{	//only root is allowed to be empty
@@ -776,14 +776,14 @@ BOOL LLSpatialGroup::boundObjects(BOOL empty, LLVector4a& minOut, LLVector4a& ma
 		clearState(OBJECT_DIRTY);
 
 		//initialize bounding box to first element
-		OctreeNode::const_element_iter i = node->getData().begin();
+		OctreeNode::const_element_iter i = node->getDataBegin();
 		LLDrawable* drawablep = *i;
 		const LLVector4a* minMax = drawablep->getSpatialExtents();
 
 		newMin = minMax[0];
 		newMax = minMax[1];
 
-		for (++i; i != node->getData().end(); ++i)
+		for (++i; i != node->getDataEnd(); ++i)
 		{
 			drawablep = *i;
 			minMax = drawablep->getSpatialExtents();
@@ -1247,7 +1247,7 @@ void LLSpatialGroup::updateDistance(LLCamera &camera)
 		llerrs << "Spatial group dirty on distance update." << llendl;
 	}
 #endif
-	if (!getData().empty())
+	if (!isEmpty())
 	{
 		mRadius = mSpatialPartition->mRenderByGroup ? mObjectBounds[1].getLength3().getF32() :
 						(F32) mOctreeNode->getSize().getLength3().getF32();
@@ -1398,7 +1398,7 @@ void LLSpatialGroup::handleDestruction(const TreeNode* node)
 	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	setState(DEAD);
 	
-	for (element_iter i = getData().begin(); i != getData().end(); ++i)
+	for (element_iter i = getDataBegin(); i != getDataEnd(); ++i)
 	{
 		LLDrawable* drawable = *i;
 		if (drawable->getSpatialGroup() == this)
@@ -1485,7 +1485,7 @@ void LLSpatialGroup::destroyGL(bool keep_occlusion)
 	}
 
 
-	for (LLSpatialGroup::element_iter i = getData().begin(); i != getData().end(); ++i)
+	for (LLSpatialGroup::element_iter i = getDataBegin(); i != getDataEnd(); ++i)
 	{
 		LLDrawable* drawable = *i;
 		for (S32 j = 0; j < drawable->getNumFaces(); j++)
@@ -2117,7 +2117,7 @@ public:
 
 	virtual void processGroup(LLSpatialGroup* group)
 	{
-		llassert(!group->isState(LLSpatialGroup::DIRTY) && !group->getData().empty())
+		llassert(!group->isState(LLSpatialGroup::DIRTY) && !group->isEmpty())
 		
 		if (mRes < 2)
 		{
@@ -2184,7 +2184,7 @@ public:
 	{
 		LLSpatialGroup::OctreeNode* branch = group->mOctreeNode;
 
-		for (LLSpatialGroup::OctreeNode::const_element_iter i = branch->getData().begin(); i != branch->getData().end(); ++i)
+		for (LLSpatialGroup::OctreeNode::const_element_iter i = branch->getDataBegin(); i != branch->getDataEnd(); ++i)
 		{
 			LLDrawable* drawable = *i;
 			
@@ -2308,7 +2308,7 @@ public:
 		LLSpatialGroup* group = (LLSpatialGroup*) state->getListener(0);
 		group->destroyGL();
 
-		for (LLSpatialGroup::element_iter i = group->getData().begin(); i != group->getData().end(); ++i)
+		for (LLSpatialGroup::element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
 		{
 			LLDrawable* drawable = *i;
 			if (drawable->getVObj().notNull() && !group->mSpatialPartition->mRenderByGroup)
@@ -2618,7 +2618,7 @@ void renderOctree(LLSpatialGroup* group)
 			gGL.flush();
 			glLineWidth(1.f);
 			gGL.flush();
-			for (LLSpatialGroup::element_iter i = group->getData().begin(); i != group->getData().end(); ++i)
+			for (LLSpatialGroup::element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
 			{
 				LLDrawable* drawable = *i;
 				if (!group->mSpatialPartition->isBridge())
@@ -2664,7 +2664,7 @@ void renderOctree(LLSpatialGroup* group)
 	}
 	else
 	{
-		if (group->mBufferUsage == GL_STATIC_DRAW_ARB && !group->getData().empty() 
+		if (group->mBufferUsage == GL_STATIC_DRAW_ARB && !group->isEmpty() 
 			&& group->mSpatialPartition->mRenderByGroup)
 		{
 			col.setVec(0.8f, 0.4f, 0.1f, 0.1f);
@@ -2732,7 +2732,7 @@ void renderVisibility(LLSpatialGroup* group, LLCamera* camera)
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	BOOL render_objects = (!LLPipeline::sUseOcclusion || !group->isOcclusionState(LLSpatialGroup::OCCLUDED)) && group->isVisible() &&
-							!group->getData().empty();
+							!group->isEmpty();
 
 	if (render_objects)
 	{
@@ -3463,7 +3463,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 
 void renderPhysicsShapes(LLSpatialGroup* group)
 {
-	for (LLSpatialGroup::OctreeNode::const_element_iter i = group->getData().begin(); i != group->getData().end(); ++i)
+	for (LLSpatialGroup::OctreeNode::const_element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
 	{
 		LLDrawable* drawable = *i;
 		LLVOVolume* volume = drawable->getVOVolume();
@@ -3812,7 +3812,7 @@ public:
 
 		LLVector3 center, size;
 		
-		if (branch->getData().empty())
+		if (branch->isEmpty())
 		{
 			gGL.diffuseColor3f(1.f,0.2f,0.f);
 			center.set(branch->getCenter().getF32ptr());
@@ -3848,8 +3848,8 @@ public:
 			}
 
 			gGL.begin(LLRender::TRIANGLES);
-			for (LLOctreeNode<LLVolumeTriangle>::const_element_iter iter = branch->getData().begin();
-					iter != branch->getData().end();
+			for (LLOctreeNode<LLVolumeTriangle>::const_element_iter iter = branch->getDataBegin();
+					iter != branch->getDataEnd();
 					++iter)
 			{
 				const LLVolumeTriangle* tri = *iter;
@@ -4086,7 +4086,7 @@ public:
 
 		if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_BBOXES))
 		{
-			if (!group->getData().empty())
+			if (!group->isEmpty())
 			{
 				gGL.diffuseColor3f(0,0,1);
 				drawBoxOutline(group->mObjectBounds[0],
@@ -4094,7 +4094,7 @@ public:
 			}
 		}
 
-		for (LLSpatialGroup::OctreeNode::const_element_iter i = branch->getData().begin(); i != branch->getData().end(); ++i)
+		for (LLSpatialGroup::OctreeNode::const_element_iter i = branch->getDataBegin(); i != branch->getDataEnd(); ++i)
 		{
 			LLDrawable* drawable = *i;
 					
@@ -4283,7 +4283,7 @@ public:
 			return;
 		}
 
-		for (LLSpatialGroup::OctreeNode::const_element_iter i = branch->getData().begin(); i != branch->getData().end(); ++i)
+		for (LLSpatialGroup::OctreeNode::const_element_iter i = branch->getDataBegin(); i != branch->getDataEnd(); ++i)
 		{
 			LLDrawable* drawable = *i;
 						
@@ -4507,7 +4507,7 @@ public:
 	
 	virtual void visit(const LLSpatialGroup::OctreeNode* branch) 
 	{	
-		for (LLSpatialGroup::OctreeNode::const_element_iter i = branch->getData().begin(); i != branch->getData().end(); ++i)
+		for (LLSpatialGroup::OctreeNode::const_element_iter i = branch->getDataBegin(); i != branch->getDataEnd(); ++i)
 		{
 			check(*i);
 		}

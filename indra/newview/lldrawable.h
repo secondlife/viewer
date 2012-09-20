@@ -120,6 +120,9 @@ public:
 	F32			          getIntensity() const			{ return llmin(mXform.getScale().mV[0], 4.f); }
 	S32					  getLOD() const				{ return mVObjp ? mVObjp->getLOD() : 1; }
 	F32					  getBinRadius() const			{ return mBinRadius; }
+	S32					  getBinIndex() const			{ return mBinIndex; }
+	void				  setBinIndex(S32 index) const	{ mBinIndex = index; }
+
 	void  getMinMax(LLVector3& min,LLVector3& max) const { mXform.getMinMax(min,max); }
 	LLXformMatrix*		getXform() { return &mXform; }
 
@@ -326,6 +329,7 @@ private:
 	mutable U32		mVisible;
 	F32				mRadius;
 	F32				mBinRadius;
+	mutable S32		mBinIndex;
 	S32				mGeneration;
 	
 	LLVector3		mCurrentScale;

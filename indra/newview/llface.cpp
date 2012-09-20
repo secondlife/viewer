@@ -163,15 +163,10 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 	mGeomCount		= 0;
 	mGeomIndex		= 0;
 	mIndicesCount	= 0;
-	if (drawablep->getRenderType() == LLPipeline::RENDER_TYPE_PARTICLES ||
-		drawablep->getRenderType() == LLPipeline::RENDER_TYPE_HUD_PARTICLES)
-	{ //indicate to LLParticlePartition that this particle is uninitialized
-		mIndicesIndex = 0xFFFFFFFF;
-	}
-	else
-	{
-		mIndicesIndex	= 0;
-	}
+
+	//special value to indicate uninitialized position
+	mIndicesIndex	= 0xFFFFFFFF;
+	
 	mIndexInTex = 0;
 	mTexture		= NULL;
 	mTEOffset		= -1;
