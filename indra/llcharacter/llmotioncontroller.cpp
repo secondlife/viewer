@@ -539,11 +539,14 @@ void LLMotionController::updateIdleActiveMotions()
 	}
 }
 
+static LLFastTimer::DeclareTimer FTM_UPDATE_MOTIONS_BY_TYPE("Update Motions By Type");
+
 //-----------------------------------------------------------------------------
 // updateMotionsByType()
 //-----------------------------------------------------------------------------
 void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_type)
 {
+	LLFastTimer t(FTM_UPDATE_MOTIONS_BY_TYPE);
 	BOOL update_result = TRUE;
 	U8 last_joint_signature[LL_CHARACTER_MAX_JOINTS];
 
@@ -795,6 +798,9 @@ void LLMotionController::updateLoadingMotions()
 // call updateMotion() or updateMotionsMinimal() every frame
 //-----------------------------------------------------------------------------
 
+static LLFastTimer::DeclareTimer FTM_UPDATE_MOTION_PURGE_EXCESS("Purge Excess Motions");
+static LLFastTimer::DeclareTimer FTM_UPDATE_LOADING_MOTIONS("Update Loading Motions");
+
 //-----------------------------------------------------------------------------
 // updateMotion()
 //-----------------------------------------------------------------------------
@@ -808,8 +814,11 @@ void LLMotionController::updateMotions(bool force_update)
 	mPrevTimerElapsed = cur_time;
 	mLastTime = mAnimTime;
 
-	// Always cap the number of loaded motions
-	purgeExcessMotions();
+	{
+		LLFastTimer t(FTM_UPDATE_MOTION_PURGE_EXCESS);
+		// Always cap the number of loaded motions
+		purgeExcessMotions();
+	}
 	
 	// Update timing info for this time step.
 	if (!mPaused)
@@ -831,7 +840,11 @@ void LLMotionController::updateMotions(bool force_update)
 					mLastInterp = interp;
 				}
 
-				updateLoadingMotions();
+				{
+					LLFastTimer t(FTM_UPDATE_LOADING_MOTIONS);
+					updateLoadingMotions();
+				}
+
 				return;
 			}
 			
@@ -849,7 +862,10 @@ void LLMotionController::updateMotions(bool force_update)
 		}
 	}
 
-	updateLoadingMotions();
+	{
+		LLFastTimer t(FTM_UPDATE_LOADING_MOTIONS);
+		updateLoadingMotions();
+	}
 
 	resetJointSignatures();
 
