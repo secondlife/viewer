@@ -1654,8 +1654,8 @@ void LLFolderView::scrollToShowItem(LLFolderViewItem* item, const LLRect& constr
 		// get portion of item that we want to see...
 		LLRect item_local_rect = LLRect(item->getIndentation(), 
 										local_rect.getHeight(), 
-                                        //+32 is supposed to include few first characters
-										llmin(item->getLabelXPos() + 32, local_rect.getWidth()), 
+                                        //+40 is supposed to include few first characters
+										llmin(item->getLabelXPos() - item->getIndentation() + 40, local_rect.getWidth()), 
 										llmax(0, local_rect.getHeight() - max_height_to_show));
 
 		LLRect item_doc_rect;
