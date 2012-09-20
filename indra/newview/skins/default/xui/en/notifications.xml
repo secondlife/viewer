@@ -8350,7 +8350,7 @@ You are now the owner of object [OBJECT_NAME]
    name="CantRezOnLand"
    type="notify">
    <tag>fail</tag>
-Xan't rez object at [OBJECT_POS] because the owner of this land does not allow it.  Use the land tool to see land ownership.
+Can't rez object at [OBJECT_POS] because the owner of this land does not allow it.  Use the land tool to see land ownership.
   </notification>
 
   <notification
@@ -8382,7 +8382,7 @@ You cannot sit because you are not allowed on that land.
    name="SitFailNotSameRegion"
    type="notify">
    <tag>fail</tag>
-Try moving closer.  Xan't sit on object because
+Try moving closer.  Can't sit on object because
 it is not in the same region as you.
   </notification>
   
@@ -8407,7 +8407,7 @@ Failed to place object at specified location.  Please try again.
    name="NoOwnNoGardening"
    type="notify">
    <tag>fail</tag>
-You Xan't create trees and grass on land you don't own.
+You Can't create trees and grass on land you don't own.
   </notification>
 
   <notification
@@ -8447,7 +8447,7 @@ Duplicate with no root objects selected.
    name="CantDupeCuzRegionIsFull"
    type="notify">
    <tag>fail</tag>
-Xan't duplicate objects because the region is full.
+Can't duplicate objects because the region is full.
   </notification>
 
   <notification
@@ -8455,7 +8455,7 @@ Xan't duplicate objects because the region is full.
    name="CantDupeCuzParcelNotFound"
    type="notify">
    <tag>fail</tag>
-Xan't duplicate objects - Xan't find the parcel they are on.
+Can't duplicate objects - Can't find the parcel they are on.
   </notification>
 
   <notification
@@ -8463,7 +8463,7 @@ Xan't duplicate objects - Xan't find the parcel they are on.
    name="CantCreateCuzParcelFull"
    type="notify">
    <tag>fail</tag>
-Xan't create object because 
+Can't create object because 
 the parcel is full.
   </notification>
 
@@ -8538,7 +8538,7 @@ You are no longer allowed here and have [EJECT_TIME] seconds to leave.
    name="NoEnterServerFull"
    type="notify">
    <tag>fail</tag>
-You Xan't enter this region because 
+You can't enter this region because 
 the server is full.
   </notification>
 
@@ -8651,7 +8651,7 @@ Delete failed because object not found
    name="SorryCantEjectUser"
    type="notify">
    <tag>fail</tag>
-Sorry, Xan't eject that user.
+Sorry, can't eject that user.
   </notification>
 
   <notification
