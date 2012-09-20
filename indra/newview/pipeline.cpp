@@ -2010,25 +2010,25 @@ void LLPipeline::checkReferences(LLFace* face)
 #if 0
 	if (sCull)
 	{
-		for (LLCullResult::sg_list_t::iterator iter = sCull->beginVisibleGroups(); iter != sCull->endVisibleGroups(); ++iter)
+		for (LLCullResult::sg_iterator iter = sCull->beginVisibleGroups(); iter != sCull->endVisibleGroups(); ++iter)
 		{
 			LLSpatialGroup* group = *iter;
 			check_references(group, face);
 		}
 
-		for (LLCullResult::sg_list_t::iterator iter = sCull->beginAlphaGroups(); iter != sCull->endAlphaGroups(); ++iter)
+		for (LLCullResult::sg_iterator iter = sCull->beginAlphaGroups(); iter != sCull->endAlphaGroups(); ++iter)
 		{
 			LLSpatialGroup* group = *iter;
 			check_references(group, face);
 		}
 
-		for (LLCullResult::sg_list_t::iterator iter = sCull->beginDrawableGroups(); iter != sCull->endDrawableGroups(); ++iter)
+		for (LLCullResult::sg_iterator iter = sCull->beginDrawableGroups(); iter != sCull->endDrawableGroups(); ++iter)
 		{
 			LLSpatialGroup* group = *iter;
 			check_references(group, face);
 		}
 
-		for (LLCullResult::drawable_list_t::iterator iter = sCull->beginVisibleList(); iter != sCull->endVisibleList(); ++iter)
+		for (LLCullResult::drawable_iterator iter = sCull->beginVisibleList(); iter != sCull->endVisibleList(); ++iter)
 		{
 			LLDrawable* drawable = *iter;
 			check_references(drawable, face);	
@@ -2042,25 +2042,25 @@ void LLPipeline::checkReferences(LLDrawable* drawable)
 #if 0
 	if (sCull)
 	{
-		for (LLCullResult::sg_list_t::iterator iter = sCull->beginVisibleGroups(); iter != sCull->endVisibleGroups(); ++iter)
+		for (LLCullResult::sg_iterator iter = sCull->beginVisibleGroups(); iter != sCull->endVisibleGroups(); ++iter)
 		{
 			LLSpatialGroup* group = *iter;
 			check_references(group, drawable);
 		}
 
-		for (LLCullResult::sg_list_t::iterator iter = sCull->beginAlphaGroups(); iter != sCull->endAlphaGroups(); ++iter)
+		for (LLCullResult::sg_iterator iter = sCull->beginAlphaGroups(); iter != sCull->endAlphaGroups(); ++iter)
 		{
 			LLSpatialGroup* group = *iter;
 			check_references(group, drawable);
 		}
 
-		for (LLCullResult::sg_list_t::iterator iter = sCull->beginDrawableGroups(); iter != sCull->endDrawableGroups(); ++iter)
+		for (LLCullResult::sg_iterator iter = sCull->beginDrawableGroups(); iter != sCull->endDrawableGroups(); ++iter)
 		{
 			LLSpatialGroup* group = *iter;
 			check_references(group, drawable);
 		}
 
-		for (LLCullResult::drawable_list_t::iterator iter = sCull->beginVisibleList(); iter != sCull->endVisibleList(); ++iter)
+		for (LLCullResult::drawable_iterator iter = sCull->beginVisibleList(); iter != sCull->endVisibleList(); ++iter)
 		{
 			if (drawable == *iter)
 			{
@@ -2093,19 +2093,19 @@ void LLPipeline::checkReferences(LLDrawInfo* draw_info)
 #if 0
 	if (sCull)
 	{
-		for (LLCullResult::sg_list_t::iterator iter = sCull->beginVisibleGroups(); iter != sCull->endVisibleGroups(); ++iter)
+		for (LLCullResult::sg_iterator iter = sCull->beginVisibleGroups(); iter != sCull->endVisibleGroups(); ++iter)
 		{
 			LLSpatialGroup* group = *iter;
 			check_references(group, draw_info);
 		}
 
-		for (LLCullResult::sg_list_t::iterator iter = sCull->beginAlphaGroups(); iter != sCull->endAlphaGroups(); ++iter)
+		for (LLCullResult::sg_iterator iter = sCull->beginAlphaGroups(); iter != sCull->endAlphaGroups(); ++iter)
 		{
 			LLSpatialGroup* group = *iter;
 			check_references(group, draw_info);
 		}
 
-		for (LLCullResult::sg_list_t::iterator iter = sCull->beginDrawableGroups(); iter != sCull->endDrawableGroups(); ++iter)
+		for (LLCullResult::sg_iterator iter = sCull->beginDrawableGroups(); iter != sCull->endDrawableGroups(); ++iter)
 		{
 			LLSpatialGroup* group = *iter;
 			check_references(group, draw_info);
@@ -2119,7 +2119,7 @@ void LLPipeline::checkReferences(LLSpatialGroup* group)
 #if 0
 	if (sCull)
 	{
-		for (LLCullResult::sg_list_t::iterator iter = sCull->beginVisibleGroups(); iter != sCull->endVisibleGroups(); ++iter)
+		for (LLCullResult::sg_iterator iter = sCull->beginVisibleGroups(); iter != sCull->endVisibleGroups(); ++iter)
 		{
 			if (group == *iter)
 			{
@@ -2127,7 +2127,7 @@ void LLPipeline::checkReferences(LLSpatialGroup* group)
 			}
 		}
 
-		for (LLCullResult::sg_list_t::iterator iter = sCull->beginAlphaGroups(); iter != sCull->endAlphaGroups(); ++iter)
+		for (LLCullResult::sg_iterator iter = sCull->beginAlphaGroups(); iter != sCull->endAlphaGroups(); ++iter)
 		{
 			if (group == *iter)
 			{
@@ -2135,7 +2135,7 @@ void LLPipeline::checkReferences(LLSpatialGroup* group)
 			}
 		}
 
-		for (LLCullResult::sg_list_t::iterator iter = sCull->beginDrawableGroups(); iter != sCull->endDrawableGroups(); ++iter)
+		for (LLCullResult::sg_iterator iter = sCull->beginDrawableGroups(); iter != sCull->endDrawableGroups(); ++iter)
 		{
 			if (group == *iter)
 			{
@@ -2477,7 +2477,7 @@ void LLPipeline::doOcclusion(LLCamera& camera)
 		}
 		mCubeVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
 
-		for (LLCullResult::sg_list_t::iterator iter = sCull->beginOcclusionGroups(); iter != sCull->endOcclusionGroups(); ++iter)
+		for (LLCullResult::sg_iterator iter = sCull->beginOcclusionGroups(); iter != sCull->endOcclusionGroups(); ++iter)
 		{
 			LLSpatialGroup* group = *iter;
 			group->doOcclusion(&camera);
@@ -2993,7 +2993,7 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 	//LLVertexBuffer::unbind();
 
 	grabReferences(result);
-	for (LLCullResult::sg_list_t::iterator iter = sCull->beginDrawableGroups(); iter != sCull->endDrawableGroups(); ++iter)
+	for (LLCullResult::sg_iterator iter = sCull->beginDrawableGroups(); iter != sCull->endDrawableGroups(); ++iter)
 	{
 		LLSpatialGroup* group = *iter;
 		group->checkOcclusion();
@@ -3019,9 +3019,9 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 	if (LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD)
 	{
 		LLSpatialGroup* last_group = NULL;
-		for (LLCullResult::bridge_list_t::iterator i = sCull->beginVisibleBridge(); i != sCull->endVisibleBridge(); ++i)
+		for (LLCullResult::bridge_iterator i = sCull->beginVisibleBridge(); i != sCull->endVisibleBridge(); ++i)
 		{
-			LLCullResult::bridge_list_t::iterator cur_iter = i;
+			LLCullResult::bridge_iterator cur_iter = i;
 			LLSpatialBridge* bridge = *cur_iter;
 			LLSpatialGroup* group = bridge->getSpatialGroup();
 
@@ -3051,7 +3051,7 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 		}
 	}
 
-	for (LLCullResult::sg_list_t::iterator iter = sCull->beginVisibleGroups(); iter != sCull->endVisibleGroups(); ++iter)
+	for (LLCullResult::sg_iterator iter = sCull->beginVisibleGroups(); iter != sCull->endVisibleGroups(); ++iter)
 	{
 		LLSpatialGroup* group = *iter;
 		group->checkOcclusion();
@@ -3073,7 +3073,7 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 	
 	{
 		LLFastTimer ftm(FTM_STATESORT_DRAWABLE);
-		for (LLCullResult::drawable_list_t::iterator iter = sCull->beginVisibleList();
+		for (LLCullResult::drawable_iterator iter = sCull->beginVisibleList();
 			 iter != sCull->endVisibleList(); ++iter)
 		{
 			LLDrawable *drawablep = *iter;
@@ -3209,11 +3209,11 @@ void LLPipeline::stateSort(LLDrawable* drawablep, LLCamera& camera)
 }
 
 
-void forAllDrawables(LLCullResult::sg_list_t::iterator begin, 
-					 LLCullResult::sg_list_t::iterator end,
+void forAllDrawables(LLCullResult::sg_iterator begin, 
+					 LLCullResult::sg_iterator end,
 					 void (*func)(LLDrawable*))
 {
-	for (LLCullResult::sg_list_t::iterator i = begin; i != end; ++i)
+	for (LLCullResult::sg_iterator i = begin; i != end; ++i)
 	{
 		for (LLSpatialGroup::element_iter j = (*i)->getData().begin(); j != (*i)->getData().end(); ++j)
 		{
@@ -3417,7 +3417,7 @@ void LLPipeline::postSort(LLCamera& camera)
 
 	llpushcallstacks ;
 	//rebuild drawable geometry
-	for (LLCullResult::sg_list_t::iterator i = sCull->beginDrawableGroups(); i != sCull->endDrawableGroups(); ++i)
+	for (LLCullResult::sg_iterator i = sCull->beginDrawableGroups(); i != sCull->endDrawableGroups(); ++i)
 	{
 		LLSpatialGroup* group = *i;
 		if (!sUseOcclusion || 
@@ -3435,7 +3435,7 @@ void LLPipeline::postSort(LLCamera& camera)
 
 
 	//build render map
-	for (LLCullResult::sg_list_t::iterator i = sCull->beginVisibleGroups(); i != sCull->endVisibleGroups(); ++i)
+	for (LLCullResult::sg_iterator i = sCull->beginVisibleGroups(); i != sCull->endVisibleGroups(); ++i)
 	{
 		LLSpatialGroup* group = *i;
 		if (sUseOcclusion && 
@@ -4457,7 +4457,7 @@ void LLPipeline::renderPhysicsDisplay()
 		}
 	}
 
-	for (LLCullResult::bridge_list_t::const_iterator i = sCull->beginVisibleBridge(); i != sCull->endVisibleBridge(); ++i)
+	for (LLCullResult::bridge_iterator i = sCull->beginVisibleBridge(); i != sCull->endVisibleBridge(); ++i)
 	{
 		LLSpatialBridge* bridge = *i;
 		if (!bridge->isDead() && hasRenderType(bridge->mDrawableType))
@@ -4879,7 +4879,7 @@ void LLPipeline::renderDebug()
 		}
 	}
 
-	for (LLCullResult::bridge_list_t::const_iterator i = sCull->beginVisibleBridge(); i != sCull->endVisibleBridge(); ++i)
+	for (LLCullResult::bridge_iterator i = sCull->beginVisibleBridge(); i != sCull->endVisibleBridge(); ++i)
 	{
 		LLSpatialBridge* bridge = *i;
 		if (!bridge->isDead() && hasRenderType(bridge->mDrawableType))
@@ -9878,7 +9878,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 void LLPipeline::renderGroups(LLRenderPass* pass, U32 type, U32 mask, BOOL texture)
 {
-	for (LLCullResult::sg_list_t::iterator i = sCull->beginVisibleGroups(); i != sCull->endVisibleGroups(); ++i)
+	for (LLCullResult::sg_iterator i = sCull->beginVisibleGroups(); i != sCull->endVisibleGroups(); ++i)
 	{
 		LLSpatialGroup* group = *i;
 		if (!group->isDead() &&
@@ -10142,22 +10142,22 @@ BOOL LLPipeline::hasRenderBatches(const U32 type) const
 	return sCull->getRenderMapSize(type) > 0;
 }
 
-LLCullResult::drawinfo_list_t::iterator LLPipeline::beginRenderMap(U32 type)
+LLCullResult::drawinfo_iterator LLPipeline::beginRenderMap(U32 type)
 {
 	return sCull->beginRenderMap(type);
 }
 
-LLCullResult::drawinfo_list_t::iterator LLPipeline::endRenderMap(U32 type)
+LLCullResult::drawinfo_iterator LLPipeline::endRenderMap(U32 type)
 {
 	return sCull->endRenderMap(type);
 }
 
-LLCullResult::sg_list_t::iterator LLPipeline::beginAlphaGroups()
+LLCullResult::sg_iterator LLPipeline::beginAlphaGroups()
 {
 	return sCull->beginAlphaGroups();
 }
 
-LLCullResult::sg_list_t::iterator LLPipeline::endAlphaGroups()
+LLCullResult::sg_iterator LLPipeline::endAlphaGroups()
 {
 	return sCull->endAlphaGroups();
 }
