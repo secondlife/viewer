@@ -1432,9 +1432,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1f600840463c7327ea17486821425750</string>
+              <string>19c6ce37e8ce4143d5bb2808ccb8e6ff</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/mesa-7.0-linux-20100930.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-mesa/rev/264880/arch/Linux/installer/mesa-7.11.1-linux-20120918.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>

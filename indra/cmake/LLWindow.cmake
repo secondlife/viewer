@@ -22,22 +22,28 @@ else (STANDALONE)
   endif (LINUX AND VIEWER)
 endif (STANDALONE)
 
-if (SDL_FOUND)
+if (SDL_FOUND AND NOT BAKING)
   add_definitions(-DLL_SDL=1)
   include_directories(${SDL_INCLUDE_DIR})
-endif (SDL_FOUND)
+endif (SDL_FOUND AND NOT BAKING)
+
+if (BAKING)
+  use_prebuilt_binary(mesa)
+  add_definitions(-DLL_MESA_HEADLESS=1)
+endif (BAKING)
 
 set(LLWINDOW_INCLUDE_DIRS
     ${GLEXT_INCLUDE_DIR}
     ${LIBS_OPEN_DIR}/llwindow
     )
 
-if (SERVER AND LINUX)
+if ((SERVER AND LINUX) OR (BAKING AND LINUX))
   set(LLWINDOW_LIBRARIES
       llwindowheadless
       )
+  MESSAGE( STATUS "using headless libraries")
 else (SERVER AND LINUX)
   set(LLWINDOW_LIBRARIES
       llwindow
       )
-endif (SERVER AND LINUX)
+endif ((SERVER AND LINUX) OR (BAKING AND LINUX))
