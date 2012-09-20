@@ -86,7 +86,7 @@ bool LLSpeaker::isInVoiceChannel()
 
 LLSpeakerUpdateSpeakerEvent::LLSpeakerUpdateSpeakerEvent(LLSpeaker* source)
 : LLEvent(source, "Speaker update speaker event"),
-mSpeakerID (source->mID)
+  mSpeakerID (source->mID)
 {
 }
 
@@ -387,8 +387,7 @@ void LLSpeakerMgr::update(BOOL resort_ok)
 				{
 					speakerp->mLastSpokeTime = mSpeechTimer.getElapsedTimeF32();
 					speakerp->mHasSpoken = TRUE;
-					llinfos << "Merov debug : LLSpeakerMgr::update, session = " << getSessionID() << ", uuid = " << speaker_id << ", date = " << LLFrameTimer::getElapsedSeconds() << llendl;
-					speakerp->fireEvent(new LLSpeakerUpdateSpeakerEvent(speakerp), "update_speaker");
+					fireEvent(new LLSpeakerUpdateSpeakerEvent(speakerp), "update_speaker");
 				}
 				speakerp->mStatus = LLSpeaker::STATUS_SPEAKING;
 				// interpolate between active color and full speaking color based on power of speech output
@@ -563,8 +562,7 @@ void LLSpeakerMgr::speakerChatted(const LLUUID& speaker_id)
 	{
 		speakerp->mLastSpokeTime = mSpeechTimer.getElapsedTimeF32();
 		speakerp->mHasSpoken = TRUE;
-		llinfos << "Merov debug : LLSpeakerMgr::speakerChatted, session = " << getSessionID() << ", uuid = " << speaker_id << ", date = " << LLFrameTimer::getElapsedSeconds() << llendl;
-		speakerp->fireEvent(new LLSpeakerUpdateSpeakerEvent(speakerp), "update_speaker");
+		fireEvent(new LLSpeakerUpdateSpeakerEvent(speakerp), "update_speaker");
 	}
 }
 
