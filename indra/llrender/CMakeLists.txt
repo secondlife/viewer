@@ -89,7 +89,6 @@ if ((SERVER OR BAKING) AND NOT WINDOWS AND NOT DARWIN)
       llrender
       )
 
-
   set_source_files_properties(
     ${server_SOURCE_FILES}
     PROPERTIES
@@ -99,6 +98,18 @@ if ((SERVER OR BAKING) AND NOT WINDOWS AND NOT DARWIN)
     ${llrender_SOURCE_FILES}
     ${server_SOURCE_FILES}
     )
+
+target_link_libraries(llrenderheadless
+    ${LLCOMMON_LIBRARIES}
+    ${LLIMAGE_LIBRARIES}
+    ${LLMATH_LIBRARIES}
+    ${LLRENDER_LIBRARIES}
+    ${LLVFS_LIBRARIES}
+    ${LLXML_LIBRARIES}
+    ${LLVFS_LIBRARIES}
+    ${LLWINDOW_LIBRARIES}
+    ${OPENGL_LIBRARIES})
+
 endif ((SERVER OR BAKING) AND NOT WINDOWS AND NOT DARWIN)
 
 add_library (llrender ${llrender_SOURCE_FILES})
@@ -114,16 +125,5 @@ target_link_libraries(llrender
     ${LLVFS_LIBRARIES}
     ${LLWINDOW_LIBRARIES}
     ${FREETYPE_LIBRARIES}
-    ${OPENGL_LIBRARIES})
-
-target_link_libraries(llrenderheadless
-    ${LLCOMMON_LIBRARIES}
-    ${LLIMAGE_LIBRARIES}
-    ${LLMATH_LIBRARIES}
-    ${LLRENDER_LIBRARIES}
-    ${LLVFS_LIBRARIES}
-    ${LLXML_LIBRARIES}
-    ${LLVFS_LIBRARIES}
-    ${LLWINDOW_LIBRARIES}
     ${OPENGL_LIBRARIES})
 
