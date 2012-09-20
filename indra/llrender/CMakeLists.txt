@@ -83,23 +83,23 @@ list(APPEND llrender_SOURCE_FILES
      llrender.cpp
      llrendertarget.cpp
      )
-if ((SERVER OR BAKING) AND NOT WINDOWS AND NOT DARWIN)
-  copy_server_sources(
-      llgl
-      llrender
-      )
-
-
-  set_source_files_properties(
-    ${server_SOURCE_FILES}
-    PROPERTIES
-    COMPILE_FLAGS "-DLL_MESA=1 -DLL_MESA_HEADLESS=1"
-    )
-  add_library (llrenderheadless
-    ${llrender_SOURCE_FILES}
-    ${server_SOURCE_FILES}
-    )
-endif ((SERVER OR BAKING) AND NOT WINDOWS AND NOT DARWIN)
+ #if ((SERVER OR BAKING) AND NOT WINDOWS AND NOT DARWIN)
+ #  copy_server_sources(
+ #      llgl
+ #      llrender
+ #      )
+ #
+ #
+ #  set_source_files_properties(
+ #    ${server_SOURCE_FILES}
+ #    PROPERTIES
+ #    COMPILE_FLAGS "-DLL_MESA=1 -DLL_MESA_HEADLESS=1"
+ #    )
+#  add_library (llrenderheadless
+#    ${llrender_SOURCE_FILES}
+#    ${server_SOURCE_FILES}
+#    )
+#endif ((SERVER OR BAKING) AND NOT WINDOWS AND NOT DARWIN)
 
 add_library (llrender ${llrender_SOURCE_FILES})
 # Libraries on which this library depends, needed for Linux builds
@@ -116,14 +116,14 @@ target_link_libraries(llrender
     ${FREETYPE_LIBRARIES}
     ${OPENGL_LIBRARIES})
 
-target_link_libraries(llrenderheadless
-    ${LLCOMMON_LIBRARIES}
-    ${LLIMAGE_LIBRARIES}
-    ${LLMATH_LIBRARIES}
-    ${LLRENDER_LIBRARIES}
-    ${LLVFS_LIBRARIES}
-    ${LLXML_LIBRARIES}
-    ${LLVFS_LIBRARIES}
-    ${LLWINDOW_LIBRARIES}
-    ${OPENGL_LIBRARIES})
+#target_link_libraries(llrenderheadless
+#    ${LLCOMMON_LIBRARIES}
+#    ${LLIMAGE_LIBRARIES}
+#    ${LLMATH_LIBRARIES}
+#    ${LLRENDER_LIBRARIES}
+#    ${LLVFS_LIBRARIES}
+#    ${LLXML_LIBRARIES}
+#    ${LLVFS_LIBRARIES}
+#    ${LLWINDOW_LIBRARIES}
+#    ${OPENGL_LIBRARIES})
 
