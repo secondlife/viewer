@@ -294,7 +294,7 @@ void LLSurface::initTextures()
 		mWaterObjp = (LLVOWater *)gObjectList.createObjectViewer(LLViewerObject::LL_VO_WATER, mRegionp);
 		gPipeline.createObject(mWaterObjp);
 		LLVector3d water_pos_global = from_region_handle(mRegionp->getHandle());
-		water_pos_global += LLVector3d(128.0, 128.0, DEFAULT_WATER_HEIGHT);
+		water_pos_global += LLVector3d(128.0, 128.0, DEFAULT_WATER_HEIGHT);		// region doesn't have a valid water height yet
 		mWaterObjp->setPositionGlobal(water_pos_global);
 	}
 }
