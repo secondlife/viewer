@@ -233,6 +233,9 @@ void LLNearbyChat::loadHistory()
  			gCacheName->getUUID(legacy_name, from_id);
  		}
 
+		// Merov debug
+		llinfos << "Merov debug : LLNearbyChat::loadHistory, session = " << mSessionID << ", from = " << msg[IM_FROM].asString() << ", uuid = " << msg[IM_FROM_ID].asString() << ", date = " << LLFrameTimer::getElapsedSeconds() << llendl;
+
 		LLChat chat;
 		chat.mFromName = from;
 		chat.mFromID = from_id;

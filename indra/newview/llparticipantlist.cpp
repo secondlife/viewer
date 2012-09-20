@@ -224,12 +224,14 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source,
 	mSpeakerRemoveListener = new SpeakerRemoveListener(*this);
 	mSpeakerClearListener = new SpeakerClearListener(*this);
 	mSpeakerModeratorListener = new SpeakerModeratorUpdateListener(*this);
+	mSpeakerUpdateListener = new SpeakerUpdateListener(*this);
 	mSpeakerMuteListener = new SpeakerMuteListener(*this);
 
 	mSpeakerMgr->addListener(mSpeakerAddListener, "add");
 	mSpeakerMgr->addListener(mSpeakerRemoveListener, "remove");
 	mSpeakerMgr->addListener(mSpeakerClearListener, "clear");
 	mSpeakerMgr->addListener(mSpeakerModeratorListener, "update_moderator");
+	mSpeakerMgr->addListener(mSpeakerUpdateListener, "update_speaker");
 
 	setSessionID(mSpeakerMgr->getSessionID());
 	
@@ -584,6 +586,17 @@ bool LLParticipantList::onClearListEvent(LLPointer<LLOldEvents::LLEvent> event, 
 	return true;
 }
 
+bool LLParticipantList::onSpeakerUpdateEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
+{
+	const LLSD& evt_data = event->getValue();
+	if ( evt_data.has("id") )
+	{
+		LLUUID id = evt_data["id"];
+		llinfos << "Merov debug : onSpeakerUpdateEvent, session = " << mUUID << ", uuid = " << id << ", date = " << LLFrameTimer::getElapsedSeconds() << llendl;
+	}
+	return true;
+}
+
 bool LLParticipantList::onModeratorUpdateEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
 {
 	const LLSD& evt_data = event->getValue();
@@ -743,6 +756,14 @@ bool LLParticipantList::SpeakerRemoveListener::handleEvent(LLPointer<LLOldEvents
 bool LLParticipantList::SpeakerClearListener::handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
 {
 	return mParent.onClearListEvent(event, userdata);
+}
+
+//
+// LLParticipantList::SpeakerUpdateListener
+//
+bool LLParticipantList::SpeakerUpdateListener::handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
+{
+	return mParent.onSpeakerUpdateEvent(event, userdata);
 }
 
 //

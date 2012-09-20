@@ -907,6 +907,9 @@ void LLIMFloater::updateMessages()
 				chat.mText = message;
 			}
 			
+			// Merov debug
+			llinfos << "Merov debug : LLIMFloater::updateMessages, session = " << mSessionID << ", from = " << msg["from"].asString() << ", uuid = " << msg["from_id"].asString() << ", date = " << LLFrameTimer::getElapsedSeconds() << llendl;
+
 			appendMessage(chat);
 			mLastMessageIndex = msg["index"].asInteger();
 
