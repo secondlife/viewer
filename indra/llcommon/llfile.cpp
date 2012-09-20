@@ -411,6 +411,9 @@ LLFILE *	LLFile::_Fiopen(const std::string& filename,
 //#endif
 //}
 
+
+// *TODO: Seek the underlying c stream for better cross-platform compatibility?
+#if !LL_WINDOWS
 llstdio_filebuf::int_type llstdio_filebuf::overflow(llstdio_filebuf::int_type __c)
 {
 	int_type __ret = traits_type::eof();
@@ -829,6 +832,7 @@ int llstdio_filebuf::sync()
 {
 	return (_M_file.sync() == 0 ? 0 : -1);
 }
+#endif
 
 /************** input file stream ********************************/
 
