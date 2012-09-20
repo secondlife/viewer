@@ -4717,7 +4717,7 @@ LLCullResult::LLCullResult()
 	{
 		mRenderMap[i] = NULL;
 		mRenderMapEnd[i] = NULL;
-		mRenderMapAllocated[i] = NULL;
+		mRenderMapAllocated[i] = 0;
 	}
 
 	clear();
