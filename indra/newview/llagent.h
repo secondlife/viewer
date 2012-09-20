@@ -34,6 +34,7 @@
 #include "llcharacter.h"
 #include "llcoordframe.h"			// for mFrameAgent
 #include "llavatarappearancedefines.h"
+#include "llpermissionsflags.h"
 
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>

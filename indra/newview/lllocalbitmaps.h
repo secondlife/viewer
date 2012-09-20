@@ -28,9 +28,11 @@
 #ifndef LL_LOCALBITMAPS_H
 #define LL_LOCALBITMAPS_H
 
-#include "lleventtimer.h"
-#include "llwearabletype.h"
 #include "llavatarappearancedefines.h"
+#include "lleventtimer.h"
+#include "llimage.h"
+#include "llpointer.h"
+#include "llwearabletype.h"
 
 class LLScrollListCtrl;
 class LLViewerObject;

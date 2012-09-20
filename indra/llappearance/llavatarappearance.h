@@ -37,6 +37,7 @@
 
 class LLTexLayerSet;
 class LLTexGlobalColor;
+class LLTexGlobalColorInfo;
 class LLWearableData;
 class LLAvatarBoneInfo;
 class LLAvatarSkeletonInfo;

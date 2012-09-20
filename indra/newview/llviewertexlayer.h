@@ -28,6 +28,7 @@
 #define LL_VIEWER_TEXLAYER_H
 
 #include "lldynamictexture.h"
+#include "llextendedstatus.h"
 #include "lltexlayer.h"
 
 class LLVOAvatarSelf;
