@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <conversation_view_participant
-  folder_arrow_image="ForSale_Badge"
+  folder_arrow_image="Folder_Arrow"
   folder_indentation="0"
   item_height="24" 
-  item_top_pad="4"
+  item_top_pad="0"
   selection_image="Rounded_Square"
   mouse_opaque="true"
   follows="left|top|right"
+  left_pad="0"
+  icon_pad="10"
+  icon_width="20"
+  text_pad="7"
+  text_pad_right="4"
+  arrow_size="12"
+  max_folder_item_overlap="2"
 >
 <avatar_icon
 	 follows="left"

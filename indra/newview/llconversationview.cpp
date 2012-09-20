@@ -109,8 +109,8 @@ void LLConversationViewSession::draw()
 	{
 		LLUIImage* arrow_image = default_params.folder_arrow_image;
 		gl_draw_scaled_rotated_image(
-			mIndentation, getRect().getHeight() - ARROW_SIZE - TEXT_PAD - TOP_PAD,
-			ARROW_SIZE, ARROW_SIZE, mControlLabelRotation, arrow_image->getImage(), sFgColor);
+			mIndentation, getRect().getHeight() - mArrowSize - mTextPad - TOP_PAD,
+			mArrowSize, mArrowSize, mControlLabelRotation, arrow_image->getImage(), sFgColor);
 	}
 
 
@@ -227,7 +227,7 @@ void LLConversationViewSession::draw()
 // virtual
 S32 LLConversationViewSession::arrange(S32* width, S32* height)
 {
-	LLRect rect(getIndentation() + ARROW_SIZE,
+	LLRect rect(getIndentation() + mArrowSize,
 				getLocalRect().mTop,
 				getLocalRect().mRight,
 				getLocalRect().mTop - getItemHeight());
@@ -336,7 +336,7 @@ void LLConversationViewParticipant::initFromParams(const LLConversationViewParti
     applyXUILayout(avatar_icon_params, this);
     LLAvatarIconCtrl * avatarIcon = LLUICtrlFactory::create<LLAvatarIconCtrl>(avatar_icon_params);
     addChild(avatarIcon);	
-
+    
 	LLButton::Params info_button_params(params.info_button());
     applyXUILayout(info_button_params, this);
 	LLButton * button = LLUICtrlFactory::create<LLButton>(info_button_params);
@@ -381,16 +381,11 @@ void LLConversationViewParticipant::draw()
     const BOOL show_context = (getRoot() ? getRoot()->getShowSelectionContext() : FALSE);
     const BOOL filled = show_context || (getRoot() ? getRoot()->getParentPanel()->hasFocus() : FALSE); // If we have keyboard focus, draw selection filled
 
-    const LLFolderViewItem::Params& default_params = LLUICtrlFactory::getDefaultParams<LLFolderViewItem>();
-    const S32 TOP_PAD = default_params.item_top_pad;
-
     const LLFontGL* font = getLabelFontForStyle(mLabelStyle);
     F32 right_x  = 0;
 
-    //TEXT_PAD, TOP_PAD, ICON_PAD and mIndentation are temporary values and will non-const eventually since they don't
-    //apply to every single layout
-    F32 y = (F32)getRect().getHeight() - font->getLineHeight() - (F32)TEXT_PAD - (F32)TOP_PAD;
-    F32 text_left = (F32)(mAvatarIcon->getRect().mRight + ICON_PAD + mIndentation);
+    F32 y = (F32)getRect().getHeight() - font->getLineHeight() - (F32)mTextPad;
+    F32 text_left = (F32)getLabelXPos();
     LLColor4 color = (mIsSelected && filled) ? sHighlightFgColor : sFgColor;
 
     drawHighlight(show_context, filled, sHighlightBgColor, sFocusOutlineColor, sMouseOverColor);
@@ -448,6 +443,11 @@ void LLConversationViewParticipant::onMouseLeave(S32 x, S32 y, MASK mask)
     LLFolderViewItem::onMouseEnter(x, y, mask);
 }
 
+S32 LLConversationViewParticipant::getLabelXPos()
+{
+    return mAvatarIcon->getRect().mRight + mIconPad;
+}
+
 // static
 void LLConversationViewParticipant::initChildrenWidths(LLConversationViewParticipant* self)
 {
@@ -465,7 +465,7 @@ void LLConversationViewParticipant::initChildrenWidths(LLConversationViewPartici
 
 void LLConversationViewParticipant::computeLabelRightPadding()
 {
-    mLabelPaddingRight = DEFAULT_TEXT_PADDING_RIGHT;
+    mLabelPaddingRight = DEFAULT_LABEL_PADDING_RIGHT;
     LLView* control;
     S32 ctrl_width;
 

@@ -101,6 +101,8 @@ public:
     void onMouseEnter(S32 x, S32 y, MASK mask);
     void onMouseLeave(S32 x, S32 y, MASK mask);
 
+    /*virtual*/ S32 getLabelXPos();
+
 protected:
 	friend class LLUICtrlFactory;
 	LLConversationViewParticipant( const Params& p );

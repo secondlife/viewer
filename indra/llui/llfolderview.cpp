@@ -56,11 +56,7 @@
 const S32 RENAME_WIDTH_PAD = 4;
 const S32 RENAME_HEIGHT_PAD = 1;
 const S32 AUTO_OPEN_STACK_DEPTH = 16;
-const S32 MIN_ITEM_WIDTH_VISIBLE = LLFolderViewItem::ICON_WIDTH
-			+ LLFolderViewItem::ICON_PAD 
-			+ LLFolderViewItem::ARROW_SIZE 
-			+ LLFolderViewItem::TEXT_PAD 
-			+ /*first few characters*/ 40;
+
 const S32 MINIMUM_RENAMER_WIDTH = 80;
 
 // *TODO: move in params in xml if necessary. Requires modification of LLFolderView & LLInventoryPanel Params.
@@ -211,10 +207,11 @@ LLFolderView::LLFolderView(const Params& p)
 	// Textbox
 	LLTextBox::Params text_p;
 	LLFontGL* font = getLabelFontForStyle(mLabelStyle);
-	LLRect new_r = LLRect(rect.mLeft + ICON_PAD,
-			      rect.mTop - TEXT_PAD,
+    //mIconPad, mTextPad are set in folder_view_item.xml
+	LLRect new_r = LLRect(rect.mLeft + mIconPad,
+			      rect.mTop - mTextPad,
 			      rect.mRight,
-			      rect.mTop - TEXT_PAD - font->getLineHeight());
+			      rect.mTop - mTextPad - font->getLineHeight());
 	text_p.rect(new_r);
 	text_p.name(std::string(p.name));
 	text_p.font(font);
@@ -1652,12 +1649,13 @@ void LLFolderView::scrollToShowItem(LLFolderViewItem* item, const LLRect& constr
 		S32 icon_height = mIcon.isNull() ? 0 : mIcon->getHeight(); 
 		S32 label_height = getLabelFontForStyle(mLabelStyle)->getLineHeight(); 
 		// when navigating with keyboard, only move top of opened folder on screen, otherwise show whole folder
-		S32 max_height_to_show = item->isOpen() && mScrollContainer->hasFocus() ? (llmax( icon_height, label_height ) + ICON_PAD) : local_rect.getHeight(); 
+		S32 max_height_to_show = item->isOpen() && mScrollContainer->hasFocus() ? (llmax( icon_height, label_height ) + item->getIconPad()) : local_rect.getHeight();
 		
 		// get portion of item that we want to see...
 		LLRect item_local_rect = LLRect(item->getIndentation(), 
 										local_rect.getHeight(), 
-										llmin(MIN_ITEM_WIDTH_VISIBLE, local_rect.getWidth()), 
+                                        //+32 is supposed to include few first characters
+										llmin(item->getLabelXPos() + 32, local_rect.getWidth()), 
 										llmax(0, local_rect.getHeight() - max_height_to_show));
 
 		LLRect item_doc_rect;
@@ -1874,7 +1872,7 @@ void LLFolderView::updateRenamerPosition()
 	if(mRenameItem)
 	{
 		// See also LLFolderViewItem::draw()
-		S32 x = ARROW_SIZE + TEXT_PAD + ICON_WIDTH + ICON_PAD + mRenameItem->getIndentation();
+		S32 x = mRenameItem->getLabelXPos();
 		S32 y = mRenameItem->getRect().getHeight() - mRenameItem->getItemHeight() - RENAME_HEIGHT_PAD;
 		mRenameItem->localPointToScreen( x, y, &x, &y );
 		screenPointToLocal( x, y, &x, &y );

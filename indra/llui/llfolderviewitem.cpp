@@ -90,7 +90,14 @@ LLFolderViewItem::Params::Params()
 	item_height("item_height"),
 	item_top_pad("item_top_pad"),
 	creation_date(),
-	allow_open("allow_open", true)
+	allow_open("allow_open", true),
+    left_pad("left_pad", 0),
+    icon_pad("icon_pad", 0),
+    icon_width("icon_width", 0),
+    text_pad("text_pad", 0),
+    text_pad_right("text_pad_right", 0),
+    arrow_size("arrow_size", 0),
+    max_folder_item_overlap("max_folder_item_overlap", 0)
 {}
 
 // Default constructor
@@ -98,7 +105,7 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 :	LLView(p),
 	mLabelWidth(0),
 	mLabelWidthDirty(false),
-    mLabelPaddingRight(DEFAULT_TEXT_PADDING_RIGHT),
+    mLabelPaddingRight(DEFAULT_LABEL_PADDING_RIGHT),
 	mParentFolder( NULL ),
 	mIsSelected( FALSE ),
 	mIsCurSelection( FALSE ),
@@ -114,7 +121,14 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 	mRoot(p.root),
 	mViewModelItem(p.listener),
 	mIsMouseOverTitle(false),
-	mAllowOpen(p.allow_open)
+	mAllowOpen(p.allow_open),
+    mLeftPad(p.left_pad),
+    mIconPad(p.icon_pad),
+    mIconWidth(p.icon_width),
+    mTextPad(p.text_pad),
+    mTextPadRight(p.text_pad_right),
+    mArrowSize(p.arrow_size),
+    mMaxFolderItemOverlap(p.max_folder_item_overlap)
 {
 	if (mViewModelItem)
 	{
@@ -291,11 +305,11 @@ S32 LLFolderViewItem::arrange( S32* width, S32* height )
 		: 0;
 	if (mLabelWidthDirty)
 	{
-		mLabelWidth = ARROW_SIZE + TEXT_PAD + ICON_WIDTH + ICON_PAD + getLabelFontForStyle(mLabelStyle)->getWidth(mLabel) + getLabelFontForStyle(mLabelStyle)->getWidth(mLabelSuffix) + mLabelPaddingRight; 
+		mLabelWidth = getLabelXPos() + getLabelFontForStyle(mLabelStyle)->getWidth(mLabel) + getLabelFontForStyle(mLabelStyle)->getWidth(mLabelSuffix) + mLabelPaddingRight; 
 		mLabelWidthDirty = false;
 	}
 
-	*width = llmax(*width, mLabelWidth + mIndentation); 
+	*width = llmax(*width, mLabelWidth); 
 
 	// determine if we need to use ellipses to avoid horizontal scroll. EXT-719
 	bool use_ellipses = getRoot()->getUseEllipses();
@@ -311,6 +325,21 @@ S32 LLFolderViewItem::arrange( S32* width, S32* height )
 S32 LLFolderViewItem::getItemHeight()
 {
 	return mItemHeight;
+}
+
+S32 LLFolderViewItem::getLabelXPos()
+{
+    return getIndentation() + mArrowSize + mTextPad + mIconWidth + mIconPad;
+}
+
+S32 LLFolderViewItem::getIconPad()
+{
+    return mIconPad;
+}
+
+S32 LLFolderViewItem::getTextPad()
+{
+    return mTextPad;
 }
 
 // *TODO: This can be optimized a lot by simply recording that it is
@@ -734,8 +763,8 @@ void LLFolderViewItem::draw()
 	{
 		LLUIImage* arrow_image = default_params.folder_arrow_image;
 		gl_draw_scaled_rotated_image(
-			mIndentation, getRect().getHeight() - ARROW_SIZE - TEXT_PAD - TOP_PAD,
-			ARROW_SIZE, ARROW_SIZE, mControlLabelRotation, arrow_image->getImage(), sFgColor);
+			mIndentation, getRect().getHeight() - mArrowSize - mTextPad - TOP_PAD,
+			mArrowSize, mArrowSize, mControlLabelRotation, arrow_image->getImage(), sFgColor);
 	}
 
 
@@ -744,7 +773,7 @@ void LLFolderViewItem::draw()
 	//--------------------------------------------------------------------------------//
 	// Draw open icon
 	//
-	const S32 icon_x = mIndentation + ARROW_SIZE + TEXT_PAD;
+	const S32 icon_x = mIndentation + mArrowSize + mTextPad;
 	if (!mIconOpen.isNull() && (llabs(mControlLabelRotation) > 80)) // For open folders
  	{
 		mIconOpen->draw(icon_x, getRect().getHeight() - mIconOpen->getHeight() - TOP_PAD + 1);
@@ -769,8 +798,8 @@ void LLFolderViewItem::draw()
 
 	std::string::size_type filter_string_length = mViewModelItem->hasFilterStringMatch() ? mViewModelItem->getFilterStringSize() : 0;
 	F32 right_x  = 0;
-	F32 y = (F32)getRect().getHeight() - font->getLineHeight() - (F32)TEXT_PAD - (F32)TOP_PAD;
-	F32 text_left = (F32)(ARROW_SIZE + TEXT_PAD + ICON_WIDTH + ICON_PAD + mIndentation);
+	F32 y = (F32)getRect().getHeight() - font->getLineHeight() - (F32)mTextPad - (F32)TOP_PAD;
+	F32 text_left = (F32)getLabelXPos();
 	std::string combined_string = mLabel + mLabelSuffix;
 
 	if (filter_string_length > 0)
@@ -804,11 +833,15 @@ void LLFolderViewItem::draw()
     if (filter_string_length > 0)
     {
         F32 match_string_left = text_left + font->getWidthF32(combined_string, 0, mViewModelItem->getFilterStringOffset());
-        F32 yy = (F32)getRect().getHeight() - font->getLineHeight() - (F32)TEXT_PAD - (F32)TOP_PAD;
+        F32 yy = (F32)getRect().getHeight() - font->getLineHeight() - (F32)mTextPad - (F32)TOP_PAD;
         font->renderUTF8( combined_string, mViewModelItem->getFilterStringOffset(), match_string_left, yy,
             sFilterTextColor, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
             filter_string_length, S32_MAX, &right_x, FALSE );
     }
+
+    //Gilbert Linden 9-20-2012: Although this should be legal, removing it because it causes the mLabelSuffix rendering to
+    //be distorted...oddly. I initially added this in but didn't need it after all. So removing to prevent unnecessary bug.
+    //LLView::draw();
 }
 
 const LLFolderViewModelInterface* LLFolderViewItem::getFolderViewModel( void ) const
@@ -984,7 +1017,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 			folders_t::iterator fit = iter++;
 			// number of pixels that bottom of folder label is from top of parent folder
 			if (getRect().getHeight() - (*fit)->getRect().mTop + (*fit)->getItemHeight() 
-				> llround(mCurHeight) + MAX_FOLDER_ITEM_OVERLAP)
+				> llround(mCurHeight) + mMaxFolderItemOverlap)
 			{
 				// hide if beyond current folder height
 				(*fit)->setVisible(FALSE);
@@ -997,7 +1030,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 			items_t::iterator iit = iter++;
 			// number of pixels that bottom of item label is from top of parent folder
 			if (getRect().getHeight() - (*iit)->getRect().mBottom
-				> llround(mCurHeight) + MAX_FOLDER_ITEM_OVERLAP)
+				> llround(mCurHeight) + mMaxFolderItemOverlap)
 			{
 				(*iit)->setVisible(FALSE);
 			}
@@ -1757,7 +1790,7 @@ BOOL LLFolderViewFolder::handleMouseDown( S32 x, S32 y, MASK mask )
 	}
 	if( !handled )
 	{
-		if(mIndentation < x && x < mIndentation + ARROW_SIZE + TEXT_PAD)
+		if(mIndentation < x && x < mIndentation + mArrowSize + mTextPad)
 		{
 			toggleOpen();
 			handled = TRUE;
@@ -1781,7 +1814,7 @@ BOOL LLFolderViewFolder::handleDoubleClick( S32 x, S32 y, MASK mask )
 	}
 	if( !handled )
 	{
-		if(mIndentation < x && x < mIndentation + ARROW_SIZE + TEXT_PAD)
+		if(mIndentation < x && x < mIndentation + mArrowSize + mTextPad)
 		{
 			// don't select when user double-clicks plus sign
 			// so as not to contradict single-click behavior
