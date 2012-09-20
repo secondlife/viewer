@@ -6764,7 +6764,7 @@ Is this OK?
    type="notify">
 Warning: The object &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; wants total access to your Linden Dollars account. If you allow access, it can remove funds from your account at any time, or empty your account completely, on an ongoing basis with no additional warnings.
   
-It is rare that such a request is legitimate. Do not allow access if you do not fully understand why it wants access to your account.
+Do not allow access if you do not fully understand why it wants access to your account.
 
   <tag>confirm</tag>
     <form name="form">
@@ -8276,7 +8276,6 @@ Attempt cancelled.
   <notification
    icon="alertmodal.tga"
    name="AvatarFrozen"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 [AV_FREEZER] has frozen you. You cannot move or interact with the world.
@@ -8285,7 +8284,6 @@ Attempt cancelled.
   <notification
    icon="alertmodal.tga"
    name="AvatarFrozenDuration"
-   persist="true"   
    type="notify">
    <tag>fail</tag>
 [AV_FREEZER] has frozen you for [AV_FREEZE_TIME] seconds. You cannot move or interact with the world.
@@ -8294,7 +8292,6 @@ Attempt cancelled.
   <notification
    icon="alertmodal.tga"
    name="YouFrozeAvatar"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Avatar frozen.
@@ -8303,7 +8300,6 @@ Avatar frozen.
   <notification
    icon="alertmodal.tga"
    name="AvatarHasUnFrozenYou"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 [AV_FREEZER] has unfrozen you.
@@ -8312,7 +8308,6 @@ Avatar frozen.
   <notification
    icon="alertmodal.tga"
    name="AvatarUnFrozen"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Avatar unfrozen.
@@ -8321,7 +8316,6 @@ Avatar unfrozen.
   <notification
    icon="alertmodal.tga"
    name="AvatarFreezeFailure"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Freeze failed because you don't have admin permission for that parcel.
@@ -8330,7 +8324,6 @@ Freeze failed because you don't have admin permission for that parcel.
   <notification
    icon="alertmodal.tga"
    name="AvatarFreezeThaw"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Your freeze expired, go about your business.
@@ -8339,7 +8332,6 @@ Your freeze expired, go about your business.
   <notification
    icon="alertmodal.tga"
    name="AvatarCantFreeze"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Sorry, can't freeze that user.
@@ -8348,7 +8340,6 @@ Sorry, can't freeze that user.
   <notification
    icon="alertmodal.tga"
    name="NowOwnObject"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 You are now the owner of object [OBJECT_NAME]
@@ -8357,7 +8348,6 @@ You are now the owner of object [OBJECT_NAME]
   <notification
    icon="alertmodal.tga"
    name="CantRezOnLand"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Xan't rez object at [OBJECT_POS] because the owner of this land does not allow it.  Use the land tool to see land ownership.
@@ -8366,7 +8356,6 @@ Xan't rez object at [OBJECT_POS] because the owner of this land does not allow i
   <notification
    icon="alertmodal.tga"
    name="RezFailTooManyRequests"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Object can not be rezzed because there are too many requests.
@@ -8375,7 +8364,6 @@ Object can not be rezzed because there are too many requests.
   <notification
    icon="alertmodal.tga"
    name="SitFailCantMove"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 You cannot sit because you cannot move at this time.
@@ -8384,7 +8372,6 @@ You cannot sit because you cannot move at this time.
   <notification
    icon="alertmodal.tga"
    name="SitFailNotAllowedOnLand"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 You cannot sit because you are not allowed on that land.
@@ -8393,7 +8380,6 @@ You cannot sit because you are not allowed on that land.
   <notification
    icon="alertmodal.tga"
    name="SitFailNotSameRegion"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Try moving closer.  Xan't sit on object because
@@ -8403,7 +8389,6 @@ it is not in the same region as you.
   <notification
    icon="alertmodal.tga"
    name="NoNewObjectRegionFull"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Unable to create new object. The region is full.
@@ -8412,7 +8397,6 @@ Unable to create new object. The region is full.
   <notification
    icon="alertmodal.tga"
    name="FailedToPlaceObject"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Failed to place object at specified location.  Please try again.
@@ -8421,7 +8405,6 @@ Failed to place object at specified location.  Please try again.
   <notification
    icon="alertmodal.tga"
    name="NoOwnNoGardening"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 You Xan't create trees and grass on land you don't own.
@@ -8430,7 +8413,6 @@ You Xan't create trees and grass on land you don't own.
   <notification
    icon="alertmodal.tga"
    name="NoCopyPermsNoObject"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Copy failed because you lack permission to copy the object '[OBJ_NAME]'.
@@ -8439,7 +8421,6 @@ Copy failed because you lack permission to copy the object '[OBJ_NAME]'.
   <notification
    icon="alertmodal.tga"
    name="NoTransPermsNoObject"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Copy failed because the object '[OBJ_NAME]' cannot be transferred to you.
@@ -8448,7 +8429,6 @@ Copy failed because the object '[OBJ_NAME]' cannot be transferred to you.
   <notification
    icon="alertmodal.tga"
    name="AddToNavMeshNoCopy"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Copy failed because the object '[OBJ_NAME]' contributes to navmesh.
@@ -8457,7 +8437,6 @@ Copy failed because the object '[OBJ_NAME]' contributes to navmesh.
   <notification
    icon="alertmodal.tga"
    name="DupeWithNoRootsSelected"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Duplicate with no root objects selected.
@@ -8466,7 +8445,6 @@ Duplicate with no root objects selected.
   <notification
    icon="alertmodal.tga"
    name="CantDupeCuzRegionIsFull"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Xan't duplicate objects because the region is full.
@@ -8475,7 +8453,6 @@ Xan't duplicate objects because the region is full.
   <notification
    icon="alertmodal.tga"
    name="CantDupeCuzParcelNotFound"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Xan't duplicate objects - Xan't find the parcel they are on.
@@ -8484,7 +8461,6 @@ Xan't duplicate objects - Xan't find the parcel they are on.
   <notification
    icon="alertmodal.tga"
    name="CantCreateCuzParcelFull"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Xan't create object because 
@@ -8494,7 +8470,6 @@ the parcel is full.
   <notification
    icon="alertmodal.tga"
    name="RezAttemptFailed"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Attempt to rez an object failed.
@@ -8503,7 +8478,6 @@ Attempt to rez an object failed.
   <notification
    icon="alertmodal.tga"
    name="ToxicInvRezAttemptFailed"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Unable to create item that has caused problems on this region.
@@ -8512,7 +8486,6 @@ Unable to create item that has caused problems on this region.
   <notification
    icon="alertmodal.tga"
    name="InvItemIsBlacklisted"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 That inventory item has been blacklisted.
@@ -8521,7 +8494,6 @@ That inventory item has been blacklisted.
   <notification
    icon="alertmodal.tga"
    name="NoCanRezObjects"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 You are not currently allowed to create objects.
@@ -8530,7 +8502,6 @@ You are not currently allowed to create objects.
   <notification
    icon="alertmodal.tga"
    name="LandSearchBlocked"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Land Search Blocked.
@@ -8541,7 +8512,6 @@ Please try again in a minute.
   <notification
    icon="alertmodal.tga"
    name="NotEnoughResourcesToAttach"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Not enough script resources available to attach object!
@@ -8550,7 +8520,6 @@ Not enough script resources available to attach object!
   <notification
    icon="alertmodal.tga"
    name="YouDiedAndGotTPHome"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 You died and have been teleported to your home location
@@ -8559,7 +8528,6 @@ You died and have been teleported to your home location
   <notification
    icon="alertmodal.tga"
    name="EjectComingSoon"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 You are no longer allowed here and have [EJECT_TIME] seconds to leave.
@@ -8568,7 +8536,6 @@ You are no longer allowed here and have [EJECT_TIME] seconds to leave.
   <notification
    icon="alertmodal.tga"
    name="NoEnterServerFull"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 You Xan't enter this region because 
@@ -8578,7 +8545,6 @@ the server is full.
   <notification
    icon="alertmodal.tga"
    name="SaveBackToInvDisabled"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Save Back To Inventory has been disabled.
@@ -8587,7 +8553,6 @@ Save Back To Inventory has been disabled.
   <notification
    icon="alertmodal.tga"
    name="NoExistNoSaveToContents"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Cannot save '[OBJ_NAME]' to object contents because the object it was rezzed from no longer exists.
@@ -8596,7 +8561,6 @@ Cannot save '[OBJ_NAME]' to object contents because the object it was rezzed fro
   <notification
    icon="alertmodal.tga"
    name="NoModNoSaveToContents"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Cannot save '[OBJ_NAME]' to object contents because you do not have permission to modify the object '[DEST_NAME]'.
@@ -8605,7 +8569,6 @@ Cannot save '[OBJ_NAME]' to object contents because you do not have permission t
   <notification
    icon="alertmodal.tga"
    name="NoSaveBackToInvDisabled"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Cannot save '[OBJ_NAME]' back to inventory -- this operation has been disabled.
@@ -8614,7 +8577,6 @@ Cannot save '[OBJ_NAME]' back to inventory -- this operation has been disabled.
   <notification
    icon="alertmodal.tga"
    name="NoCopyNoSelCopy"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 You cannot copy your selection because you do not have permission to copy the object '[OBJ_NAME]'.
@@ -8623,7 +8585,6 @@ You cannot copy your selection because you do not have permission to copy the ob
   <notification
    icon="alertmodal.tga"
    name="NoTransNoSelCopy"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 You cannot copy your selection because the object '[OBJ_NAME]' is not transferrable.
@@ -8632,7 +8593,6 @@ You cannot copy your selection because the object '[OBJ_NAME]' is not transferra
   <notification
    icon="alertmodal.tga"
    name="NoTransNoCopy"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 You cannot copy your selection because the object '[OBJ_NAME]' is not transferrable.
@@ -8641,7 +8601,6 @@ You cannot copy your selection because the object '[OBJ_NAME]' is not transferra
   <notification
    icon="alertmodal.tga"
    name="NoPermsNoRemoval"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Removal of the object '[OBJ_NAME]' from the simulator is disallowed by the permissions system.
@@ -8650,7 +8609,6 @@ Removal of the object '[OBJ_NAME]' from the simulator is disallowed by the permi
   <notification
    icon="alertmodal.tga"
    name="NoModNoSaveSelection"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Cannot save your selection because you do not have permission to modify the object '[OBJ_NAME]'.
@@ -8659,7 +8617,6 @@ Cannot save your selection because you do not have permission to modify the obje
   <notification
    icon="alertmodal.tga"
    name="NoCopyNoSaveSelection"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Cannot save your selection because the object '[OBJ_NAME]' is not copyable.
@@ -8668,7 +8625,6 @@ Cannot save your selection because the object '[OBJ_NAME]' is not copyable.
   <notification
    icon="alertmodal.tga"
    name="NoModNoTaking"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 You cannot take your selection because you do not have permission to modify the object '[OBJ_NAME]'.
@@ -8677,7 +8633,6 @@ You cannot take your selection because you do not have permission to modify the 
   <notification
    icon="alertmodal.tga"
    name="RezDestInternalError"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Internal Error: Unknown destination type.
@@ -8686,7 +8641,6 @@ Internal Error: Unknown destination type.
   <notification
    icon="alertmodal.tga"
    name="DeleteFailObjNotFound"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Delete failed because object not found
@@ -8695,7 +8649,6 @@ Delete failed because object not found
   <notification
    icon="alertmodal.tga"
    name="SorryCantEjectUser"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Sorry, Xan't eject that user.
@@ -8704,7 +8657,6 @@ Sorry, Xan't eject that user.
   <notification
    icon="alertmodal.tga"
    name="RegionSezNotAHome"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 This region does not allow you to set your home location here.
@@ -8713,7 +8665,6 @@ This region does not allow you to set your home location here.
   <notification
    icon="alertmodal.tga"
    name="HomeLocationLimits"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 You can only set your 'Home Location' on your land or at a mainland Infohub.
@@ -8722,7 +8673,6 @@ You can only set your 'Home Location' on your land or at a mainland Infohub.
   <notification
    icon="alertmodal.tga"
    name="HomePositionSet"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Home position set.
@@ -8731,7 +8681,6 @@ Home position set.
   <notification
    icon="alertmodal.tga"
    name="AvatarEjected"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Avatar ejected.
@@ -8740,7 +8689,6 @@ Avatar ejected.
   <notification
    icon="alertmodal.tga"
    name="AvatarEjectFailed"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Eject failed because you don't have admin permission for that parcel.
@@ -8749,7 +8697,6 @@ Eject failed because you don't have admin permission for that parcel.
   <notification
    icon="alertmodal.tga"
    name="CantMoveObjectParcelFull"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Xan't move object '[OBJECT_NAME]' to
@@ -8759,7 +8706,6 @@ Xan't move object '[OBJECT_NAME]' to
   <notification
    icon="alertmodal.tga"
    name="CantMoveObjectParcelPerms"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Xan't move object '[OBJECT_NAME]' to
@@ -8769,7 +8715,6 @@ Xan't move object '[OBJECT_NAME]' to
   <notification
    icon="alertmodal.tga"
    name="CantMoveObjectParcelResources"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Xan't move object '[OBJECT_NAME]' to
@@ -8779,7 +8724,6 @@ Xan't move object '[OBJECT_NAME]' to
   <notification
    icon="alertmodal.tga"
    name="CantMoveObjectRegionVersion"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Xan't move object '[OBJECT_NAME]' to
@@ -8789,7 +8733,6 @@ Xan't move object '[OBJECT_NAME]' to
   <notification
    icon="alertmodal.tga"
    name="CantMoveObjectNavMesh"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Xan't move object '[OBJECT_NAME]' to
@@ -8799,7 +8742,6 @@ Xan't move object '[OBJECT_NAME]' to
   <notification
    icon="alertmodal.tga"
    name="CantMoveObjectWTF"
-   persist="true"
    type="notify">
    <tag>fail</tag>
 Xan't move object '[OBJECT_NAME]' to
