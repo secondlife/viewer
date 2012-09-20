@@ -957,6 +957,12 @@ void LLDrawable::updateUVMinMax()
 {
 }
 
+LLSpatialGroup* LLDrawable::getSpatialGroup() const
+{ 
+	llassert((mSpatialGroupp == NULL) ? getBinIndex() == -1 : getBinIndex() != -1);
+	return mSpatialGroupp; 
+}
+
 void LLDrawable::setSpatialGroup(LLSpatialGroup *groupp)
 {
 /*if (mSpatialGroupp && (groupp != mSpatialGroupp))
@@ -979,6 +985,8 @@ void LLDrawable::setSpatialGroup(LLSpatialGroup *groupp)
 	}
 
 	mSpatialGroupp = groupp;
+
+	llassert((mSpatialGroupp == NULL) ? getBinIndex() == -1 : getBinIndex() != -1);
 }
 
 LLSpatialPartition* LLDrawable::getSpatialPartition()
@@ -1489,7 +1497,13 @@ void LLSpatialBridge::cleanupReferences()
 	LLDrawable::cleanupReferences();
 	if (mDrawable)
 	{
-		mDrawable->setSpatialGroup(NULL);
+		LLSpatialGroup* group = mDrawable->getSpatialGroup();
+		if (group)
+		{
+			group->mOctreeNode->remove(mDrawable);
+			mDrawable->setSpatialGroup(NULL);
+		}
+		
 		if (mDrawable->getVObj())
 		{
 			LLViewerObject::const_child_list_t& child_list = mDrawable->getVObj()->getChildren();
@@ -1500,7 +1514,12 @@ void LLSpatialBridge::cleanupReferences()
 				LLDrawable* drawable = child->mDrawable;					
 				if (drawable)
 				{
-					drawable->setSpatialGroup(NULL);
+					LLSpatialGroup* group = drawable->getSpatialGroup();
+					if (group)
+					{
+						group->mOctreeNode->remove(drawable);
+						drawable->setSpatialGroup(NULL);
+					}
 				}
 			}
 		}
