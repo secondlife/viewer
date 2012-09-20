@@ -639,8 +639,8 @@ BOOL LLVOVolume::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
 	LLViewerObject::idleUpdate(agent, world, time);
 
-	static LLFastTimer::DeclareTimer ftm("Volume Idle");
-	LLFastTimer t(ftm);
+	//static LLFastTimer::DeclareTimer ftm("Volume Idle");
+	//LLFastTimer t(ftm);
 
 	if (mDead || mDrawable.isNull())
 	{
