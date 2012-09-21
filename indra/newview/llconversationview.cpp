@@ -440,7 +440,7 @@ void LLConversationViewParticipant::onMouseLeave(S32 x, S32 y, MASK mask)
 {
     mInfoBtn->setVisible(false);
     updateChildren();
-    LLFolderViewItem::onMouseEnter(x, y, mask);
+    LLFolderViewItem::onMouseLeave(x, y, mask);
 }
 
 S32 LLConversationViewParticipant::getLabelXPos()
