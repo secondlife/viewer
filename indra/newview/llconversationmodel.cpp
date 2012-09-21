@@ -167,6 +167,31 @@ void LLConversationItemSession::setParticipantIsModerator(const LLUUID& particip
 	}
 }
 
+// The time of activity of a session is the time of the most recent participation
+const bool LLConversationItemSession::getTime(F64& time) const
+{
+	bool has_time = false;
+	F64 most_recent_time = 0.0;
+	LLConversationItemParticipant* participant = NULL;
+	child_list_t::const_iterator iter;
+	for (iter = mChildren.begin(); iter != mChildren.end(); iter++)
+	{
+		participant = dynamic_cast<LLConversationItemParticipant*>(*iter);
+		F64 participant_time;
+		if (participant->getTime(participant_time))
+		{
+			has_time = true;
+			most_recent_time = llmax(most_recent_time,participant_time);
+		}
+	}
+	if (has_time)
+	{
+		time = most_recent_time;
+	}
+	llinfos << "Merov debug : get time session, uuid = " << mUUID << ", has_time = " << has_time << ", time = " << time << llendl;
+	return has_time;
+}
+
 void LLConversationItemSession::dumpDebugData()
 {
 	llinfos << "Merov debug : session, uuid = " << mUUID << ", name = " << mName << ", is loaded = " << mIsLoaded << llendl;
@@ -186,7 +211,8 @@ void LLConversationItemSession::dumpDebugData()
 LLConversationItemParticipant::LLConversationItemParticipant(std::string display_name, const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
 	LLConversationItem(display_name,uuid,root_view_model),
 	mIsMuted(false),
-	mIsModerator(false)
+	mIsModerator(false),
+	mLastActiveTime(0.0)
 {
 	mConvType = CONV_PARTICIPANT;
 }
@@ -228,8 +254,8 @@ bool LLConversationSort::operator()(const LLConversationItem* const& a, const LL
 		U32 sort_order = getSortOrderParticipants();
 		if (sort_order == LLConversationFilter::SO_DATE)
 		{
-			F32 time_a = 0.0;
-			F32 time_b = 0.0;
+			F64 time_a = 0.0;
+			F64 time_b = 0.0;
 			if (a->getTime(time_a) && b->getTime(time_b))
 			{
 				return (time_a > time_b);
@@ -251,8 +277,8 @@ bool LLConversationSort::operator()(const LLConversationItem* const& a, const LL
 		U32 sort_order = getSortOrderSessions();
 		if (sort_order == LLConversationFilter::SO_DATE)
 		{
-			F32 time_a = 0.0;
-			F32 time_b = 0.0;
+			F64 time_a = 0.0;
+			F64 time_b = 0.0;
 			if (a->getTime(time_a) && b->getTime(time_b))
 			{
 				return (time_a > time_b);
@@ -260,7 +286,10 @@ bool LLConversationSort::operator()(const LLConversationItem* const& a, const LL
 		}
 		else if (sort_order == LLConversationFilter::SO_SESSION_TYPE)
 		{
-			return (type_a < type_b);
+			if (type_a != type_b)
+			{
+				return (type_a < type_b);
+			}
 		}
 	}
 	else
@@ -270,7 +299,8 @@ bool LLConversationSort::operator()(const LLConversationItem* const& a, const LL
 		// Notes: as a consequence, CONV_UNKNOWN (which should never get created...) always come first
 		return (type_a < type_b);
 	}
-	// By default, in all other possible cases (including sort order of type LLConversationFilter::SO_NAME of course), sort by name
+	// By default, in all other possible cases (including sort order of type LLConversationFilter::SO_NAME of course), 
+	// we sort by name
 	S32 compare = LLStringUtil::compareDict(a->getDisplayName(), b->getDisplayName());
 	return (compare < 0);
 }

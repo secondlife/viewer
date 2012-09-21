@@ -104,9 +104,9 @@ public:
 	virtual void selectItem(void) { } 
 	virtual void showProperties(void);
 
-	// Methods used in sorting (see LLConversationSort::operator()
+	// Methods used in sorting (see LLConversationSort::operator())
 	EConversationType const getType() const { return mConvType; }
-	virtual const bool getTime(F32& time) const { return false; }
+	virtual const bool getTime(F64& time) const { return false; }
 	virtual const bool getDistanceToAgent(F32& distance) const { return false; }
 	
 	// This method will be called to determine if a drop can be
@@ -152,6 +152,8 @@ public:
 	
 	bool isLoaded() { return mIsLoaded; }
 	
+	virtual const bool getTime(F64& time) const;
+
 	void dumpDebugData();
 
 private:
@@ -169,14 +171,18 @@ public:
 	bool isModerator() {return mIsModerator; }
 	void setIsMuted(bool is_muted) { mIsMuted = is_muted; mNeedsRefresh = true; }
 	void setIsModerator(bool is_moderator) { mIsModerator = is_moderator; mNeedsRefresh = true; }
+	void setTimeNow() { mLastActiveTime = LLFrameTimer::getElapsedSeconds(); }
 	
 	void onAvatarNameCache(const LLAvatarName& av_name);
+
+	virtual const bool getTime(F64& time) const { time = mLastActiveTime; return (time > 0.1 ? true : false); }
 
 	void dumpDebugData();
 
 private:
 	bool mIsMuted;		// default is false
 	bool mIsModerator;	// default is false
+	F64  mLastActiveTime;
 };
 
 // We don't want to ever filter conversations but we need to declare that class to create a conversation view model.
