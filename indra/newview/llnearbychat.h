@@ -79,6 +79,8 @@ public:
 	static void sendChatFromViewer(const std::string &utf8text, EChatType type, BOOL animate);
 	static void sendChatFromViewer(const LLWString &wtext, EChatType type, BOOL animate);
 
+	static bool isWordsName(const std::string& name);
+
 	void showHistory();
 
 protected:

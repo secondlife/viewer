@@ -62,7 +62,7 @@ public:
 	/*virtual*/ void addFloater(LLFloater* floaterp, 
 								BOOL select_added_floater, 
 								LLTabContainer::eInsertionPoint insertion_point = LLTabContainer::END);
-    void setConvItemSelect(LLUUID& session_id);
+    void setConvItemSelect(const LLUUID& session_id);
 	/*virtual*/ void tabClose();
 
 	static LLFloater* getCurrentVoiceFloater();

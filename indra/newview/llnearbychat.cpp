@@ -69,26 +69,6 @@
 
 S32 LLNearbyChat::sLastSpecialChatChannel = 0;
 
-// --- function in the global namespace :( ---
-bool isWordsName(const std::string& name)
-{
-	// checking to see if it's display name plus username in parentheses
-	S32 open_paren = name.find(" (", 0);
-	S32 close_paren = name.find(')', 0);
-
-	if (open_paren != std::string::npos &&
-		close_paren == name.length()-1)
-	{
-		return true;
-	}
-	else
-	{
-		//checking for a single space
-		S32 pos = name.find(' ', 0);
-		return std::string::npos != pos && name.rfind(' ', name.length()) == pos && 0 != pos && name.length()-1 != pos;
-	}
-}
-
 const S32 EXPANDED_HEIGHT = 266;
 const S32 COLLAPSED_HEIGHT = 60;
 const S32 EXPANDED_MIN_HEIGHT = 150;
@@ -715,6 +695,26 @@ void LLNearbyChat::sendChatFromViewer(const LLWString &wtext, EChatType type, BO
 	}
 
 	send_chat_from_viewer(utf8_out_text, type, channel);
+}
+
+// static
+bool LLNearbyChat::isWordsName(const std::string& name)
+{
+	// checking to see if it's display name plus username in parentheses
+	S32 open_paren = name.find(" (", 0);
+	S32 close_paren = name.find(')', 0);
+
+	if (open_paren != std::string::npos &&
+		close_paren == name.length()-1)
+	{
+		return true;
+	}
+	else
+	{
+		//checking for a single space
+		S32 pos = name.find(' ', 0);
+		return std::string::npos != pos && name.rfind(' ', name.length()) == pos && 0 != pos && name.length()-1 != pos;
+	}
 }
 
 // static 
