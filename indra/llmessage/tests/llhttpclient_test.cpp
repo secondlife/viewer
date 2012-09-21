@@ -258,7 +258,6 @@ namespace tut
 	void HTTPClientTestObject::test<1>()
 	{
 		LLHTTPClient::get(local_server, newResult());
-
 		runThePump();
 		ensureStatusOK();
 		ensure("result object wasn't destroyed", mResultDeleted);
