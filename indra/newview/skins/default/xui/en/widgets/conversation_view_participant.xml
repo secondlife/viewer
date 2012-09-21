@@ -19,7 +19,9 @@
 	 follows="left"
      height="20"
      default_icon_name="Generic_Person"
+	 layout="topleft"
      left="50"
+	 top="2"
      width="20" />
 <info_button
 	 follows="right"

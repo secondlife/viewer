@@ -366,7 +366,7 @@ BOOL LLConversationViewParticipant::postBuild()
         sStaticInitialized = true;
     }
 
-    computeLabelRightPadding();
+    updateChildren();
 	return LLFolderViewItem::postBuild();
 }
 
@@ -432,14 +432,14 @@ void LLConversationViewParticipant::onInfoBtnClick()
 void LLConversationViewParticipant::onMouseEnter(S32 x, S32 y, MASK mask)
 {
     mInfoBtn->setVisible(true);
-    computeLabelRightPadding();
+    updateChildren();
     LLFolderViewItem::onMouseEnter(x, y, mask);
 }
 
 void LLConversationViewParticipant::onMouseLeave(S32 x, S32 y, MASK mask)
 {
     mInfoBtn->setVisible(false);
-    computeLabelRightPadding();
+    updateChildren();
     LLFolderViewItem::onMouseEnter(x, y, mask);
 }
 
@@ -463,12 +463,14 @@ void LLConversationViewParticipant::initChildrenWidths(LLConversationViewPartici
     llassert(index == 0);
 }
 
-void LLConversationViewParticipant::computeLabelRightPadding()
+void LLConversationViewParticipant::updateChildren()
 {
     mLabelPaddingRight = DEFAULT_LABEL_PADDING_RIGHT;
     LLView* control;
     S32 ctrl_width;
+    LLRect controlRect;
 
+    //Cycles through controls starting from right to left
     for (S32 i = 0; i < ALIC_COUNT; ++i)
     {
         control = getItemChildView((EAvatarListItemChildIndex)i);
@@ -476,9 +478,22 @@ void LLConversationViewParticipant::computeLabelRightPadding()
         // skip invisible views
         if (!control->getVisible()) continue;
 
+        //Get current pos/dimensions
+        controlRect = control->getRect();
+
         ctrl_width = sChildrenWidths[i]; // including space between current & left controls
         // accumulate the amount of space taken by the controls
         mLabelPaddingRight += ctrl_width;
+
+        //Reposition visible controls in case adjacent controls to the right are hidden.
+        controlRect.setLeftTopAndSize(
+            getLocalRect().getWidth() - mLabelPaddingRight,
+            controlRect.mTop,
+            controlRect.getWidth(),
+            controlRect.getHeight());
+
+        //Sets the new position
+        control->setShape(controlRect);
     }
 }
 

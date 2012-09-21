@@ -127,7 +127,7 @@ private:
     static bool	sStaticInitialized; // this variable is introduced to improve code readability
     static S32 sChildrenWidths[ALIC_COUNT];
     static void initChildrenWidths(LLConversationViewParticipant* self);
-    void computeLabelRightPadding();
+    void updateChildren();
     LLView* getItemChildView(EAvatarListItemChildIndex child_view_index);
 };
 
