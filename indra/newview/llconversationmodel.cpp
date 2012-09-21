@@ -167,6 +167,15 @@ void LLConversationItemSession::setParticipantIsModerator(const LLUUID& particip
 	}
 }
 
+void LLConversationItemSession::setParticipantTimeNow(const LLUUID& participant_id)
+{
+	LLConversationItemParticipant* participant = findParticipant(participant_id);
+	if (participant)
+	{
+		participant->setTimeNow();
+	}
+}
+
 // The time of activity of a session is the time of the most recent participation
 const bool LLConversationItemSession::getTime(F64& time) const
 {

@@ -592,12 +592,7 @@ bool LLParticipantList::onSpeakerUpdateEvent(LLPointer<LLOldEvents::LLEvent> eve
 	if ( evt_data.has("id") )
 	{
 		LLUUID participant_id = evt_data["id"];
-		LLConversationItemParticipant* participant = findParticipant(participant_id);
-		if (participant)
-		{
-			participant->setTimeNow();
-		}
-		llinfos << "Merov debug : onSpeakerUpdateEvent, session = " << mUUID << ", uuid = " << participant_id << ", date = " << LLFrameTimer::getElapsedSeconds() << llendl;
+		setParticipantTimeNow(participant_id);
 	}
 	return true;
 }

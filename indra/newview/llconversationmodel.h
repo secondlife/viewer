@@ -149,6 +149,7 @@ public:
 
 	void setParticipantIsMuted(const LLUUID& participant_id, bool is_muted);
 	void setParticipantIsModerator(const LLUUID& participant_id, bool is_moderator);
+	void setParticipantTimeNow(const LLUUID& participant_id);
 	
 	bool isLoaded() { return mIsLoaded; }
 	
