@@ -107,7 +107,7 @@ public:
 	// Methods used in sorting (see LLConversationSort::operator())
 	EConversationType const getType() const { return mConvType; }
 	virtual const bool getTime(F64& time) const { time = mLastActiveTime; return (time > 0.1); }
-	virtual const bool getDistanceToAgent(F32& distance) const { return false; }
+	virtual const bool getDistanceToAgent(F64& distance) const { return false; }
 	
 	// This method will be called to determine if a drop can be
 	// performed, and will set drop to TRUE if a drop is
@@ -151,6 +151,7 @@ public:
 	void setParticipantIsMuted(const LLUUID& participant_id, bool is_muted);
 	void setParticipantIsModerator(const LLUUID& participant_id, bool is_moderator);
 	void setTimeNow(const LLUUID& participant_id);
+	void setDistance(const LLUUID& participant_id, F64 dist);
 	
 	bool isLoaded() { return mIsLoaded; }
 	
@@ -174,14 +175,18 @@ public:
 	void setIsMuted(bool is_muted) { mIsMuted = is_muted; mNeedsRefresh = true; }
 	void setIsModerator(bool is_moderator) { mIsModerator = is_moderator; mNeedsRefresh = true; }
 	void setTimeNow() { mLastActiveTime = LLFrameTimer::getElapsedSeconds(); mNeedsRefresh = true; }
+	void setDistance(F64 dist) { mDistToAgent = dist; mNeedsRefresh = true; }
 	
 	void onAvatarNameCache(const LLAvatarName& av_name);
+
+	virtual const bool getDistanceToAgent(F64& dist) const { dist = mDistToAgent; return (dist >= 0.0); }
 
 	void dumpDebugData();
 
 private:
 	bool mIsMuted;		// default is false
 	bool mIsModerator;	// default is false
+	F64  mDistToAgent;  // Distance to the agent. A negative (meaningless) value means the distance has not been set.
 };
 
 // We don't want to ever filter conversations but we need to declare that class to create a conversation view model.

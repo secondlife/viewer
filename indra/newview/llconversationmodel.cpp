@@ -181,6 +181,16 @@ void LLConversationItemSession::setTimeNow(const LLUUID& participant_id)
 	}
 }
 
+void LLConversationItemSession::setDistance(const LLUUID& participant_id, F64 dist)
+{
+	LLConversationItemParticipant* participant = findParticipant(participant_id);
+	if (participant)
+	{
+		participant->setDistance(dist);
+		mNeedsRefresh = true;
+	}
+}
+
 // The time of activity of a session is the time of the most recent activity, session and participants included
 const bool LLConversationItemSession::getTime(F64& time) const
 {
@@ -224,13 +234,17 @@ void LLConversationItemSession::dumpDebugData()
 LLConversationItemParticipant::LLConversationItemParticipant(std::string display_name, const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
 	LLConversationItem(display_name,uuid,root_view_model),
 	mIsMuted(false),
-	mIsModerator(false)
+	mIsModerator(false),
+	mDistToAgent(-1.0)
 {
 	mConvType = CONV_PARTICIPANT;
 }
 
 LLConversationItemParticipant::LLConversationItemParticipant(const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
-	LLConversationItem(uuid,root_view_model)
+	LLConversationItem(uuid,root_view_model),
+	mIsMuted(false),
+	mIsModerator(false),
+	mDistToAgent(-1.0)
 {
 	mConvType = CONV_PARTICIPANT;
 }
@@ -284,13 +298,13 @@ bool LLConversationSort::operator()(const LLConversationItem* const& a, const LL
 		}
 		else if (sort_order == LLConversationFilter::SO_DISTANCE)
 		{
-			F32 dist_a = 0.0;
-			F32 dist_b = 0.0;
+			F64 dist_a = 0.0;
+			F64 dist_b = 0.0;
 			bool has_dist_a = a->getDistanceToAgent(dist_a);
 			bool has_dist_b = b->getDistanceToAgent(dist_b);
 			if (has_dist_a && has_dist_b)
 			{
-				return (dist_a > dist_b);
+				return (dist_a < dist_b);
 			}
 			else if (has_dist_a || has_dist_b)
 			{

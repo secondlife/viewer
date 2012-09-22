@@ -47,6 +47,7 @@
 #include "llviewercontrol.h"
 #include "llconversationview.h"
 #include "llcallbacklist.h"
+#include "llworld.h"
 
 //
 // LLIMFloaterContainer
@@ -333,6 +334,14 @@ void LLIMFloaterContainer::setMinimized(BOOL b)
 void LLIMFloaterContainer::idle(void* user_data)
 {
 	LLIMFloaterContainer* self = static_cast<LLIMFloaterContainer*>(user_data);
+	
+	// Update the distance to agent in the nearby chat session if required
+	// Note: it makes no sense of course to update the distance in other session
+	if (self->mConversationViewModel.getSorter().getSortOrderParticipants() == LLConversationFilter::SO_DISTANCE)
+	{
+		self->setNearbyDistances();
+	}
+	
 	self->mConversationsRoot->update();
 }
 
@@ -719,6 +728,37 @@ void LLIMFloaterContainer::setTimeNow(const LLUUID& session_id, const LLUUID& pa
 		if (item)
 		{
 			item->setTimeNow(participant_id);
+			mConversationViewModel.requestSortAll();
+			mConversationsRoot->arrangeAll();
+		}
+	}
+}
+
+void LLIMFloaterContainer::setNearbyDistances()
+{
+	// Get the nearby chat session: that's the one with uuid nul in mConversationsItems
+	conversations_items_map::iterator item_it = mConversationsItems.find(LLUUID());
+	if (item_it != mConversationsItems.end())
+	{
+		LLConversationItemSession* item = dynamic_cast<LLConversationItemSession*>(item_it->second);
+		if (item)
+		{
+			// Get the positions of the nearby avatars and their ids
+			std::vector<LLVector3d> positions;
+			uuid_vec_t avatar_ids;
+			LLWorld::getInstance()->getAvatars(&avatar_ids, &positions, gAgent.getPositionGlobal(), gSavedSettings.getF32("NearMeRange"));
+			// Get the position of the agent
+			const LLVector3d& me_pos = gAgent.getPositionGlobal();
+			// For each nearby avatar, compute and update the distance
+			int avatar_count = positions.size();
+			for (int i = 0; i < avatar_count; i++)
+			{
+				F64 dist = dist_vec_squared(positions[i], me_pos);
+				item->setDistance(avatar_ids[i],dist);
+			}
+			// Also does it for the agent itself
+			item->setDistance(gAgent.getID(),0.0f);
+			// Request resort
 			mConversationViewModel.requestSortAll();
 			mConversationsRoot->arrangeAll();
 		}
