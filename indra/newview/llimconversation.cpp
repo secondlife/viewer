@@ -54,6 +54,7 @@ LLIMConversation::LLIMConversation(const LLUUID& session_id)
   , mInputEditor(NULL)
   , mInputEditorTopPad(0)
   , mRefreshTimer(new LLTimer())
+  , mHasFocus(false)
 {
 	mSession = LLIMModel::getInstance()->findIMSession(mSessionID);
 
@@ -216,10 +217,10 @@ void LLIMConversation::onFocusReceived()
 
 	LLTransientDockableFloater::onFocusReceived();
 
-    mHasFocus = mHaveFocus;
-    mHaveFocus = true;
+    mHadFocus = mHasFocus;
+    mHasFocus = true;
 
-	if (! mHasFocus)
+	if (! mHadFocus)
 	{
 	    LLIMFloaterContainer* container = LLIMFloaterContainer::getInstance();
 	    container->setConvItemSelect(mSessionID);
@@ -229,7 +230,7 @@ void LLIMConversation::onFocusReceived()
 void LLIMConversation::onFocusLost()
 {
 	setBackgroundOpaque(false);
-	mHaveFocus = false;
+	mHasFocus = false;
 	LLTransientDockableFloater::onFocusLost();
 }
 

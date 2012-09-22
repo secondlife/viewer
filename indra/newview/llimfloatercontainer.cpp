@@ -700,7 +700,7 @@ void LLIMFloaterContainer::repositioningWidgets()
 	}
 }
 
-void LLIMFloaterContainer::setConvItemSelect(LLUUID& session_id)
+void LLIMFloaterContainer::setConvItemSelect(const LLUUID& session_id)
 {
 	LLFolderViewItem* widget = mConversationsWidgets[session_id];
 	if (widget && mSelectedSession != session_id)
@@ -778,6 +778,8 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 		participant_view->addToFolder(widget);
 		current_participant_model++;
 	}
+
+	setConvItemSelect(uuid);
 	
 	return;
 }
