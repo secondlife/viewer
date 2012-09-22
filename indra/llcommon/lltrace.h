@@ -30,25 +30,27 @@
 #include "stdtypes.h"
 #include "llpreprocessor.h"
 
-#include "llthread.h"
+#include "llmutex.h"
+#include "llmemory.h"
+#include "llthreadlocalptr.h"
 
 #include <list>
 
+#define TOKEN_PASTE_ACTUAL(x, y) x##y
+#define TOKEN_PASTE(x, y) TOKEN_PASTE_ACTUAL(x, y)
+#define RECORD_BLOCK_TIME(block_timer) LLTrace::BlockTimer::Recorder TOKEN_PASTE(block_time_recorder, __COUNTER__)(block_timer);
+
 namespace LLTrace
 {
-
 	// one per thread per type
 	template<typename ACCUMULATOR>
-	struct AccumulatorBuffer : public AccumulatorBufferBase
+	class AccumulatorBuffer
 	{
-		ACCUMULATOR*				mStorage;
-		size_t						mStorageSize;
-		size_t						mNextStorageSlot;
-		static S32					sStorageKey; // key used to access thread local storage pointer to accumulator values
-		
+		static const U32 DEFAULT_ACCUMULATOR_BUFFER_SIZE = 64;
+	public:
 		AccumulatorBuffer()
 		:	mStorageSize(64),
-			mStorage(new ACCUMULATOR[64]),
+			mStorage(new ACCUMULATOR[DEFAULT_ACCUMULATOR_BUFFER_SIZE]),
 			mNextStorageSlot(0)
 		{}
 
@@ -56,11 +58,12 @@ namespace LLTrace
 		:	mStorageSize(other.mStorageSize),
 			mStorage(new ACCUMULATOR[other.mStorageSize]),
 			mNextStorageSlot(other.mNextStorageSlot)
-		{
+		{}
 
+		LL_FORCE_INLINE ACCUMULATOR& operator[](size_t index) 
+		{ 
+			return mStorage[index]; 
 		}
-
-		LL_FORCE_INLINE ACCUMULATOR& operator[](size_t index) { return (*mStorage)[index]; }
 
 		void mergeFrom(const AccumulatorBuffer<ACCUMULATOR>& other)
 		{
@@ -72,7 +75,7 @@ namespace LLTrace
 			}
 		}
 
-		void copyFrom(const AccumulatorBuffer<Accumulator>& other)
+		void copyFrom(const AccumulatorBuffer<ACCUMULATOR>& other)
 		{
 			for (size_t i = 0; i < mNextStorageSlot; i++)
 			{
@@ -90,7 +93,12 @@ namespace LLTrace
 
 		void makePrimary()
 		{
-			//TODO: use sStorageKey to set mStorage as active buffer
+			sPrimaryStorage = mStorage;
+		}
+
+		LL_FORCE_INLINE static ACCUMULATOR* getPrimaryStorage() 
+		{ 
+			return sPrimaryStorage.get(); 
 		}
 
 		// NOTE: this is not thread-safe.  We assume that slots are reserved in the main thread before any child threads are spawned
@@ -101,14 +109,29 @@ namespace LLTrace
 			{
 				size_t new_size = mStorageSize + (mStorageSize >> 2);
 				delete [] mStorage;
-				mStorage = new mStorage(new_size);
+				mStorage = new ACCUMULATOR[new_size];
 				mStorageSize = new_size;
 			}
 			llassert(next_slot < mStorageSize);
 			return next_slot;
 		}
+
+	private:
+		ACCUMULATOR*							mStorage;
+		size_t									mStorageSize;
+		size_t									mNextStorageSlot;
+		static LLThreadLocalPtr<ACCUMULATOR>	sPrimaryStorage;
 	};
-	template<typename ACCUMULATOR> S32 AccumulatorBuffer<ACCUMULATOR>::sStorageKey;
+	template<typename ACCUMULATOR> LLThreadLocalPtr<ACCUMULATOR> AccumulatorBuffer<ACCUMULATOR>::sPrimaryStorage;
+
+	template<typename ACCUMULATOR>
+	class PrimaryAccumulatorBuffer : public AccumulatorBuffer<ACCUMULATOR
+	{
+		PrimaryAccumulatorBuffer()
+		{
+			makePrimary();
+		}
+	};
 
 	template<typename ACCUMULATOR>
 	class Trace
@@ -117,32 +140,34 @@ namespace LLTrace
 		Trace(const std::string& name)
 		:	mName(name)
 		{
-			mAccumulatorIndex = sAccumulatorBuffer.reserveSlot();
+			mAccumulatorIndex = getPrimaryBuffer().reserveSlot();
 		}
 
 		LL_FORCE_INLINE ACCUMULATOR& getAccumulator()
 		{
-			return sAccumulatorBuffer[mAccumulatorIndex];
+			return AccumulatorBuffer<ACCUMULATOR>::getPrimaryStorage()[mAccumulatorIndex];
+		}
+
+		static PrimaryAccumulatorBuffer& getPrimaryBuffer()
+		{
+			static PrimaryAccumulatorBuffer sBuffer;
+			return sBuffer;
 		}
 
 	private:
 		std::string	mName;
 		size_t		mAccumulatorIndex;
-
-		// this needs to be thread local
-		static AccumulatorBuffer<ACCUMULATOR>	sAccumulatorBuffer;
 	};
 
-	template<typename ACCUMULATOR> std::vector<ACCUMULATOR> Trace<ACCUMULATOR>::sAccumulatorBuffer;
 
 	template<typename T>
 	class StatAccumulator
 	{
 	public:
 		StatAccumulator()
-		:	mSum(),
-			mMin(),
-			mMax(),
+		:	mSum(0),
+			mMin(0),
+			mMax(0),
 			mNumSamples(0)
 		{}
 
@@ -160,7 +185,7 @@ namespace LLTrace
 			}
 		}
 
-		void mergeFrom(const Stat<T>& other)
+		void mergeFrom(const StatAccumulator<T>& other)
 		{
 			mSum += other.mSum;
 			if (other.mMin < mMin)
@@ -318,21 +343,13 @@ namespace LLTrace
 		static Recorder::StackEntry sCurRecorder;
 	};
 
-	BlockTimer::Recorder::StackEntry BlockTimer::sCurRecorder;
-
 	class Sampler
 	{
 	public:
-		Sampler(const Sampler& other)
-		:	mF32Stats(other.mF32Stats),
-			mS32Stats(other.mS32Stats),
-			mTimers(other.mTimers)
-		{}
+		Sampler() {}
+		Sampler(const Sampler& other);
 
-		~Sampler()
-		{
-			stop();
-		}
+		~Sampler();
 
 		void makePrimary()
 		{
@@ -347,17 +364,8 @@ namespace LLTrace
 			resume();
 		}
 
-		void stop()
-		{
-			getThreadTracer()->deactivate(this);
-		}
-
-		void resume()
-		{
-			ThreadTracer* thread_data = getThreadTracer();
-			thread_data->flushData();
-			thread_data->activate(this);
-		}
+		void stop();
+		void resume();
 
 		void mergeFrom(const Sampler& other)
 		{
@@ -375,7 +383,7 @@ namespace LLTrace
 
 	private:
 		// returns data for current thread
-		struct ThreadTracer* getThreadTracer() { return NULL; } 
+		class ThreadTraceData* getThreadTrace(); 
 
 		AccumulatorBuffer<StatAccumulator<F32> >	mF32Stats;
 		AccumulatorBuffer<StatAccumulator<S32> >	mS32Stats;
@@ -383,39 +391,39 @@ namespace LLTrace
 		AccumulatorBuffer<TimerAccumulator>			mTimers;
 	};
 
-	struct ThreadTracer
+	class ThreadTraceData
 	{
-		ThreadTracer(LLThread& this_thread, ThreadTracer& parent_data)
-		:	mPrimarySampler(parent_data.mPrimarySampler),
-			mSharedSampler(parent_data.mSharedSampler),
-			mSharedSamplerMutex(this_thread.getAPRPool()),
-			mParent(parent_data)
+	public:
+		ThreadTraceData()
 		{
 			mPrimarySampler.makePrimary();
-			parent_data.addChildThread(this);
 		}
 
-		~ThreadTracer()
+		ThreadTraceData(const ThreadTraceData& other)
+		:	mPrimarySampler(other.mPrimarySampler)
 		{
-			mParent.removeChildThread(this);
+			mPrimarySampler.makePrimary();
 		}
 
-		void addChildThread(ThreadTracer* child)
+		void activate(Sampler* sampler)
 		{
-			mChildThreadTracers.push_back(child);
+			flushPrimary();
+			mActiveSamplers.push_back(sampler);
 		}
 
-		void removeChildThread(ThreadTracer* child)
+		void deactivate(Sampler* sampler)
 		{
+			sampler->mergeFrom(mPrimarySampler);
+
 			// TODO: replace with intrusive list
-			std::list<ThreadTracer*>::iterator found_it = std::find(mChildThreadTracers.begin(), mChildThreadTracers.end(), child);
-			if (found_it != mChildThreadTracers.end())
+			std::list<Sampler*>::iterator found_it = std::find(mActiveSamplers.begin(), mActiveSamplers.end(), sampler);
+			if (found_it != mActiveSamplers.end())
 			{
-				mChildThreadTracers.erase(found_it);
+				mActiveSamplers.erase(found_it);
 			}
 		}
 
-		void flushData()
+		void flushPrimary()
 		{
 			for (std::list<Sampler*>::iterator it = mActiveSamplers.begin(), end_it = mActiveSamplers.end();
 				it != end_it;
@@ -426,56 +434,96 @@ namespace LLTrace
 			mPrimarySampler.reset();
 		}
 
-		void activate(Sampler* sampler)
+		Sampler* getPrimarySampler() { return &mPrimarySampler; }
+	protected:
+		Sampler					mPrimarySampler;
+		std::list<Sampler*>		mActiveSamplers;
+		static LLThreadLocalPtr<ThreadTraceData> sCurThreadTrace;
+	};
+
+	class MasterThreadTrace : public ThreadTraceData
+	{
+	public:
+		MasterThreadTrace()
+		{}
+
+		void addSlaveThread(class SlaveThreadTrace* child);
+		void removeSlaveThread(class SlaveThreadTrace* child);
+
+		// call this periodically to gather stats data from worker threads
+		void pullFromWorkerThreads();
+
+	private:
+		struct WorkerThreadTraceProxy
 		{
-			mActiveSamplers.push_back(sampler);
+			WorkerThreadTraceProxy(class SlaveThreadTrace* trace)
+				:	mWorkerTrace(trace)
+			{}
+			class SlaveThreadTrace*	mWorkerTrace;
+			Sampler				mSamplerStorage;
+		};
+		typedef std::list<WorkerThreadTraceProxy> worker_thread_trace_list_t;
+
+		worker_thread_trace_list_t		mSlaveThreadTraces;
+		LLMutex							mSlaveListMutex;
+	};
+
+	class SlaveThreadTrace : public ThreadTraceData
+	{
+	public:
+		explicit 
+		SlaveThreadTrace(MasterThreadTrace& master_trace)
+		:	mMaster(master_trace),
+			ThreadTraceData(master_trace),
+			mSharedData(mPrimarySampler)
+		{
+			master_trace.addSlaveThread(this);
 		}
 
-		void deactivate(Sampler* sampler)
+		~SlaveThreadTrace()
 		{
-			// TODO: replace with intrusive list
-			std::list<Sampler*>::iterator found_it = std::find(mActiveSamplers.begin(), mActiveSamplers.end(), sampler);
-			if (found_it != mActiveSamplers.end())
-			{
-				mActiveSamplers.erase(found_it);
-			}
-		}
-		
-		// call this periodically to gather stats data in parent thread
-		void publishToParent()
-		{
-			mSharedSamplerMutex.lock();
-			{	
-				mSharedSampler.mergeFrom(mPrimarySampler);
-			}
-			mSharedSamplerMutex.unlock();
+			mMaster.removeSlaveThread(this);
 		}
 
-		// call this periodically to gather stats data from children
-		void gatherChildData()
+		// call this periodically to gather stats data for master thread to consume
+		void pushToParent()
 		{
-			for (std::list<ThreadTracer*>::iterator child_it = mChildThreadTracers.begin(), end_it = mChildThreadTracers.end();
-				child_it != end_it;
-				++child_it)
+			mSharedData.copyFrom(mPrimarySampler);
+		}
+
+		MasterThreadTrace& 	mMaster;
+
+		// this data is accessed by other threads, so give it a 64 byte alignment
+		// to avoid false sharing on most x86 processors
+		LL_ALIGNED(64) class SharedData
+		{
+		public:
+			explicit 
+			SharedData(const Sampler& other_sampler) 
+			:	mSampler(other_sampler)
+			{}
+
+			void copyFrom(Sampler& source)
 			{
-				(*child_it)->mSharedSamplerMutex.lock();
-				{
-					//TODO for now, just aggregate, later keep track of thread data independently
-					mPrimarySampler.mergeFrom((*child_it)->mSharedSampler);
+				LLMutexLock lock(&mSamplerMutex);
+				{	
+					mSampler.mergeFrom(source);
 				}
-				(*child_it)->mSharedSamplerMutex.unlock();
 			}
-		}
 
-		Sampler	mPrimarySampler;
-
-		ThreadTracer&				mParent;
-		std::list<Sampler*>			mActiveSamplers;
-		std::list<ThreadTracer*>	mChildThreadTracers;
-
-		// TODO:  add unused space here to avoid false sharing?
-		LLMutex	mSharedSamplerMutex;
-		Sampler mSharedSampler;
+			void copyTo(Sampler& sink)
+			{
+				LLMutexLock lock(&mSamplerMutex);
+				{
+					sink.mergeFrom(mSampler);
+				}
+			}
+		private:
+			// add a cache line's worth of unused space to avoid any potential of false sharing
+			LLMutex					mSamplerMutex;
+			Sampler					mSampler;
+		};
+		SharedData					mSharedData;
 	};
 
 
@@ -486,19 +534,6 @@ namespace LLTrace
 		void stop() {}
 		void resume() {}
 	};
-
-	class Sampler
-	{
-	public:
-		void start() {}
-		void stop() {}
-		void resume() {}
-	};
-
 }
-
-#define TOKEN_PASTE_ACTUAL(x, y) x##y
-#define TOKEN_PASTE(x, y) TOKEN_PASTE_ACTUAL(x, y)
-#define RECORD_BLOCK_TIME(block_timer) LLTrace::BlockTimer::Recorder TOKEN_PASTE(block_time_recorder, __COUNTER__)(block_timer);
 
 #endif // LL_LLTRACE_H

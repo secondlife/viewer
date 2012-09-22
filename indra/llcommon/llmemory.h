@@ -30,6 +30,11 @@
 
 class LLMutex ;
 
+#ifdef LL_WINDOWS
+#define LL_ALIGNED(x) __declspec(align(x))
+#else
+#define LL_ALIGNED(x) __attribute__ ((aligned (16)))
+#endif
 inline void* ll_aligned_malloc( size_t size, int align )
 {
 	void* mem = malloc( size + (align - 1) + sizeof(void*) );

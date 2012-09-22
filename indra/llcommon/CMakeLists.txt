@@ -74,6 +74,7 @@ set(llcommon_SOURCE_FILES
     llmetrics.cpp
     llmetricperformancetester.cpp
     llmortician.cpp
+    llmutex.cpp
     lloptioninterface.cpp
     llptrto.cpp 
     llprocess.cpp
@@ -99,6 +100,7 @@ set(llcommon_SOURCE_FILES
     llthread.cpp
     llthreadsafequeue.cpp
     lltimer.cpp
+    lltrace.cpp
     lluri.cpp
     lluuid.cpp
     llworkerthread.cpp
@@ -197,6 +199,7 @@ set(llcommon_HEADER_FILES
     llmetrics.h
     llmetricperformancetester.h
     llmortician.h
+    llmutex.h
     llnametable.h
     lloptioninterface.h
     llpointer.h
@@ -237,6 +240,7 @@ set(llcommon_HEADER_FILES
     llstringtable.h
     llsys.h
     llthread.h
+    llthreadlocalptr.h
     llthreadsafequeue.h
     lltimer.h
     lltrace.h
