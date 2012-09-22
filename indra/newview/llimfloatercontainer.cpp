@@ -710,6 +710,21 @@ void LLIMFloaterContainer::setConvItemSelect(LLUUID& session_id)
 	}
 }
 
+void LLIMFloaterContainer::setTimeNow(const LLUUID& session_id, const LLUUID& participant_id)
+{
+	conversations_items_map::iterator item_it = mConversationsItems.find(session_id);
+	if (item_it != mConversationsItems.end())
+	{
+		LLConversationItemSession* item = dynamic_cast<LLConversationItemSession*>(item_it->second);
+		if (item)
+		{
+			item->setTimeNow(participant_id);
+			mConversationViewModel.requestSortAll();
+			mConversationsRoot->arrangeAll();
+		}
+	}
+}
+
 void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 {
 	bool is_nearby_chat = uuid.isNull();

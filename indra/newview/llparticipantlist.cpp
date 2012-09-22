@@ -34,6 +34,7 @@
 #include "llagent.h"
 
 #include "llimview.h"
+#include "llimfloatercontainer.h"
 #include "llpanelpeoplemenus.h"
 #include "llnotificationsutil.h"
 #include "llparticipantlist.h"
@@ -592,7 +593,11 @@ bool LLParticipantList::onSpeakerUpdateEvent(LLPointer<LLOldEvents::LLEvent> eve
 	if ( evt_data.has("id") )
 	{
 		LLUUID participant_id = evt_data["id"];
-		setParticipantTimeNow(participant_id);
+		LLIMFloaterContainer* im_box = LLIMFloaterContainer::findInstance();
+		if (im_box)
+		{
+			im_box->setTimeNow(mUUID,participant_id);
+		}
 	}
 	return true;
 }

@@ -226,7 +226,7 @@ public:
 		mParent(NULL),
 		mRootViewModel(root_view_model)
 	{
-		std::for_each(mChildren.begin(), mChildren.end(), DeletePointer());
+		mChildren.clear();
 	}
 
 	void requestSort() { mSortVersion = -1; }

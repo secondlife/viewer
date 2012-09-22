@@ -106,7 +106,7 @@ public:
 
 	// Methods used in sorting (see LLConversationSort::operator())
 	EConversationType const getType() const { return mConvType; }
-	virtual const bool getTime(F64& time) const { return false; }
+	virtual const bool getTime(F64& time) const { time = mLastActiveTime; return (time > 0.1); }
 	virtual const bool getDistanceToAgent(F32& distance) const { return false; }
 	
 	// This method will be called to determine if a drop can be
@@ -129,6 +129,7 @@ protected:
 	LLUUID mUUID;		// UUID of the session or the participant
 	EConversationType mConvType;	// Type of conversation item
 	bool mNeedsRefresh;	// Flag signaling to the view that something changed for this item
+	F64  mLastActiveTime;
 };
 
 class LLConversationItemSession : public LLConversationItem
@@ -149,7 +150,7 @@ public:
 
 	void setParticipantIsMuted(const LLUUID& participant_id, bool is_muted);
 	void setParticipantIsModerator(const LLUUID& participant_id, bool is_moderator);
-	void setParticipantTimeNow(const LLUUID& participant_id);
+	void setTimeNow(const LLUUID& participant_id);
 	
 	bool isLoaded() { return mIsLoaded; }
 	
@@ -172,18 +173,15 @@ public:
 	bool isModerator() {return mIsModerator; }
 	void setIsMuted(bool is_muted) { mIsMuted = is_muted; mNeedsRefresh = true; }
 	void setIsModerator(bool is_moderator) { mIsModerator = is_moderator; mNeedsRefresh = true; }
-	void setTimeNow() { mLastActiveTime = LLFrameTimer::getElapsedSeconds(); }
+	void setTimeNow() { mLastActiveTime = LLFrameTimer::getElapsedSeconds(); mNeedsRefresh = true; }
 	
 	void onAvatarNameCache(const LLAvatarName& av_name);
-
-	virtual const bool getTime(F64& time) const { time = mLastActiveTime; return (time > 0.1 ? true : false); }
 
 	void dumpDebugData();
 
 private:
 	bool mIsMuted;		// default is false
 	bool mIsModerator;	// default is false
-	F64  mLastActiveTime;
 };
 
 // We don't want to ever filter conversations but we need to declare that class to create a conversation view model.

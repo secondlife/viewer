@@ -907,10 +907,6 @@ void LLIMFloater::updateMessages()
 				chat.mText = message;
 			}
 			
-			// Update the participant activity time
-			mParticipantList->setParticipantTimeNow(from_id);
-			llinfos << "Merov debug : LLIMFloater::updateMessages, session = " << mSessionID << ", from = " << msg["from"].asString() << ", uuid = " << msg["from_id"].asString() << ", date = " << LLFrameTimer::getElapsedSeconds() << llendl;
-
 			// Add the message to the chat log
 			appendMessage(chat);
 			mLastMessageIndex = msg["index"].asInteger();

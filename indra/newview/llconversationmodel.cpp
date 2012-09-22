@@ -38,7 +38,8 @@ LLConversationItem::LLConversationItem(std::string display_name, const LLUUID& u
 	mName(display_name),
 	mUUID(uuid),
 	mNeedsRefresh(true),
-	mConvType(CONV_UNKNOWN)
+	mConvType(CONV_UNKNOWN),
+	mLastActiveTime(0.0)
 {
 }
 
@@ -47,7 +48,8 @@ LLConversationItem::LLConversationItem(const LLUUID& uuid, LLFolderViewModelInte
 	mName(""),
 	mUUID(uuid),
 	mNeedsRefresh(true),
-	mConvType(CONV_UNKNOWN)
+	mConvType(CONV_UNKNOWN),
+	mLastActiveTime(0.0)
 {
 }
 
@@ -56,7 +58,8 @@ LLConversationItem::LLConversationItem(LLFolderViewModelInterface& root_view_mod
 	mName(""),
 	mUUID(),
 	mNeedsRefresh(true),
-	mConvType(CONV_UNKNOWN)
+	mConvType(CONV_UNKNOWN),
+	mLastActiveTime(0.0)
 {
 }
 
@@ -167,8 +170,10 @@ void LLConversationItemSession::setParticipantIsModerator(const LLUUID& particip
 	}
 }
 
-void LLConversationItemSession::setParticipantTimeNow(const LLUUID& participant_id)
+void LLConversationItemSession::setTimeNow(const LLUUID& participant_id)
 {
+	mLastActiveTime = LLFrameTimer::getElapsedSeconds();
+	mNeedsRefresh = true;
 	LLConversationItemParticipant* participant = findParticipant(participant_id);
 	if (participant)
 	{
@@ -176,11 +181,11 @@ void LLConversationItemSession::setParticipantTimeNow(const LLUUID& participant_
 	}
 }
 
-// The time of activity of a session is the time of the most recent participation
+// The time of activity of a session is the time of the most recent activity, session and participants included
 const bool LLConversationItemSession::getTime(F64& time) const
 {
-	bool has_time = false;
-	F64 most_recent_time = 0.0;
+	F64 most_recent_time = mLastActiveTime;
+	bool has_time = (most_recent_time > 0.1);
 	LLConversationItemParticipant* participant = NULL;
 	child_list_t::const_iterator iter;
 	for (iter = mChildren.begin(); iter != mChildren.end(); iter++)
@@ -197,7 +202,6 @@ const bool LLConversationItemSession::getTime(F64& time) const
 	{
 		time = most_recent_time;
 	}
-	llinfos << "Merov debug : get time session, uuid = " << mUUID << ", has_time = " << has_time << ", time = " << time << llendl;
 	return has_time;
 }
 
@@ -220,8 +224,7 @@ void LLConversationItemSession::dumpDebugData()
 LLConversationItemParticipant::LLConversationItemParticipant(std::string display_name, const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
 	LLConversationItem(display_name,uuid,root_view_model),
 	mIsMuted(false),
-	mIsModerator(false),
-	mLastActiveTime(0.0)
+	mIsModerator(false)
 {
 	mConvType = CONV_PARTICIPANT;
 }
@@ -265,18 +268,33 @@ bool LLConversationSort::operator()(const LLConversationItem* const& a, const LL
 		{
 			F64 time_a = 0.0;
 			F64 time_b = 0.0;
-			if (a->getTime(time_a) && b->getTime(time_b))
+			bool has_time_a = a->getTime(time_a);
+			bool has_time_b = b->getTime(time_b);
+			if (has_time_a && has_time_b)
 			{
 				return (time_a > time_b);
 			}
+			else if (has_time_a || has_time_b)
+			{
+				// If we have only one time updated, we consider the element with time as the "highest".
+				// That boils down to "has_time_a" if you think about it.
+				return has_time_a;
+			}
+			// If not time available, we'll default to sort by name at the end of this method
 		}
 		else if (sort_order == LLConversationFilter::SO_DISTANCE)
 		{
 			F32 dist_a = 0.0;
 			F32 dist_b = 0.0;
-			if (a->getDistanceToAgent(dist_a) && b->getDistanceToAgent(dist_b))
+			bool has_dist_a = a->getDistanceToAgent(dist_a);
+			bool has_dist_b = b->getDistanceToAgent(dist_b);
+			if (has_dist_a && has_dist_b)
 			{
 				return (dist_a > dist_b);
+			}
+			else if (has_dist_a || has_dist_b)
+			{
+				return has_dist_a;
 			}
 		}
 	}
@@ -288,10 +306,19 @@ bool LLConversationSort::operator()(const LLConversationItem* const& a, const LL
 		{
 			F64 time_a = 0.0;
 			F64 time_b = 0.0;
-			if (a->getTime(time_a) && b->getTime(time_b))
+			bool has_time_a = a->getTime(time_a);
+			bool has_time_b = b->getTime(time_b);
+			if (has_time_a && has_time_b)
 			{
 				return (time_a > time_b);
 			}
+			else if (has_time_a || has_time_b)
+			{
+				// If we have only one time updated, we consider the element with time as the "highest".
+				// That boils down to "has_time_a" if you think about it.
+				return has_time_a;
+			}
+			// If not time available, we'll default to sort by name at the end of this method
 		}
 		else if (sort_order == LLConversationFilter::SO_SESSION_TYPE)
 		{

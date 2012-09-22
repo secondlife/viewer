@@ -250,6 +250,14 @@ std::string LLIMConversation::appendTime()
 
 void LLIMConversation::appendMessage(const LLChat& chat, const LLSD &args)
 {
+	// Update the participant activity time
+	LLIMFloaterContainer* im_box = LLIMFloaterContainer::findInstance();
+	if (im_box)
+	{
+		im_box->setTimeNow(mSessionID,chat.mFromID);
+	}
+	
+
 	LLChat& tmp_chat = const_cast<LLChat&>(chat);
 
 	if(tmp_chat.mTimeStr.empty())

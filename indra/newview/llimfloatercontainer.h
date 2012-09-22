@@ -124,6 +124,7 @@ private:
 public:
 	void removeConversationListItem(const LLUUID& uuid, bool change_focus = true);
 	void addConversationListItem(const LLUUID& uuid);
+	void setTimeNow(const LLUUID& session_id, const LLUUID& participant_id);
 
 private:
 	LLConversationViewSession* createConversationItemWidget(LLConversationItem* item);
