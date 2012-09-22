@@ -38,7 +38,6 @@
 typedef FILE LLFILE;
 
 #include <fstream>
-#include <bits/postypes.h>
 #include <sys/stat.h>
 
 #if LL_WINDOWS
@@ -47,6 +46,7 @@ typedef struct _stat	llstat;
 #else
 typedef struct stat		llstat;
 #include <ext/stdio_filebuf.h>
+#include <bits/postypes.h>
 #endif
 
 #ifndef S_ISREG
