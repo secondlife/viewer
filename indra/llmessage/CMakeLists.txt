@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-project(llmessage)
+project(llmessage CXX)
 
 include(00-Common)
 include(GoogleMock)

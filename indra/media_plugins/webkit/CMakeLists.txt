@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-project(media_plugin_webkit)
+project(media_plugin_webkit CXX)
 
 include(00-Common)
 include(LLCommon)

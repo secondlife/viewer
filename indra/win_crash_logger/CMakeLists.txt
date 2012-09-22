@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-project(win_crash_logger)
+project(win_crash_logger CXX)
 
 include(00-Common)
 include(LLCommon)

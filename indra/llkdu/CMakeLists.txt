@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-project(llkdu)
+project(llkdu CXX)
 
 # Visual Studio 2005 has a dumb bug that causes it to fail compilation
 # of KDU if building with both optimisation and /WS (treat warnings as

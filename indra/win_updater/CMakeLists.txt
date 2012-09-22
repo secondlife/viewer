@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-project(win_updater)
+project(win_updater CXX)
 
 include(00-Common)
 include(LLCommon)

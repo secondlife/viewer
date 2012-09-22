@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-project(llaudio)
+project(llaudio CXX)
 
 include(00-Common)
 include(Audio)

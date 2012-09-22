@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-project(media_plugin_gstreamer010)
+project(media_plugin_gstreamer010 CXX)
 
 include(00-Common)
 include(LLCommon)

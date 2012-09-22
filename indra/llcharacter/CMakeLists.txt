@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-project(llcharacter)
+project(llcharacter CXX)
 
 include(00-Common)
 include(LLCommon)

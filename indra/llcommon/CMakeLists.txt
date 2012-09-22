@@ -1,7 +1,7 @@
 
 # -*- cmake -*-
 
-project(llcommon)
+project(llcommon CXX)
 
 include(00-Common)
 include(LLCommon)

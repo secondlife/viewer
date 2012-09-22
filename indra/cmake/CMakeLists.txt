@@ -2,7 +2,7 @@
 
 include(00-Common)
 
-project(cmake)
+project(cmake CXX)
 
 set(cmake_SOURCE_FILES
     CMakeLists.txt

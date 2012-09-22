@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-project(mac_updater)
+project(mac_updater CXX)
 
 include(00-Common)
 include(OpenSSL)

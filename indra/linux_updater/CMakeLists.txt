@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-project(linux_updater)
+project(linux_updater CXX)
 
 include(00-Common)
 include(CURL)

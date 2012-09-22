@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-project(llxml)
+project(llxml CXX)
 
 include(00-Common)
 include(LLCommon)
