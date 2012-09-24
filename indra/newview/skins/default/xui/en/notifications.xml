@@ -9133,7 +9133,7 @@ You have been teleported by the object '[OBJECT_NAME]' owned by [OWNER_ID]
    name="TeleportedByObjectUnknownUser"
    type="notify">
    <tag>fail</tag>
-You have been teleported by the object '[OBJECT_NAME]'
+You have been teleported by the object '[OBJECT_NAME]' owned by an unknown user.
   </notification>
 
   <notification
