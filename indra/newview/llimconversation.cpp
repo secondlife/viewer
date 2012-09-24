@@ -424,6 +424,7 @@ void LLIMConversation::updateHeaderAndToolbar()
 	mExpandCollapseBtn->setEnabled(!is_torn_off || !mIsP2PChat);
 
 	mTearOffBtn->setImageOverlay(getString(is_torn_off? "return_icon" : "tear_off_icon"));
+	mTearOffBtn->setToolTip(getString(!is_torn_off? "tooltip_to_separate_window" : "tooltip_to_main_window"));
 
 	mCloseBtn->setVisible(!is_torn_off && !mIsNearbyChat);
 
