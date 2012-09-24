@@ -136,6 +136,8 @@ viewer-pathfinding.build_debug_release_separately = true
 viewer-pathfinding.build_CYGWIN_Debug = false
 viewer-pathfinding.build_viewer_update_version_manager = false
 
+oz_project-1_Linux.build_docs = true
+
 # =================================================================
 # asset delivery 2010 projects
 # =================================================================
