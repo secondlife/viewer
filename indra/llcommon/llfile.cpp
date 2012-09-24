@@ -329,7 +329,7 @@ const char *LLFile::tmpdir()
 #if LL_WINDOWS
 
 LLFILE *	LLFile::_Fiopen(const std::string& filename, 
-		std::ios::openmode mode,int)	// protection currently unused
+		std::ios::openmode mode)
 {	// open a file
 	static const char *mods[] =
 	{	// fopen mode strings corresponding to valid[i]
@@ -899,7 +899,7 @@ llifstream::llifstream(_Filet *_File,
 }
 #endif
 
-#if LL_WINDOWS
+#if !LL_WINDOWS
 // explicit
 llifstream::llifstream(int __fd,
 		ios_base::openmode _Mode, size_t _Size) :
@@ -1014,7 +1014,7 @@ llofstream::llofstream(_Filet *_File,
 }
 #endif
 
-#if LL_WINDOWS
+#if !LL_WINDOWS
 // explicit
 llofstream::llofstream(int __fd,
 			ios_base::openmode _Mode, size_t _Size) :

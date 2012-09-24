@@ -96,7 +96,7 @@ public:
 		S32 x, S32 y, 
 		S32 width, S32 height,
 		U32 flags,  BOOL fullscreen, BOOL clear_background,
-		BOOL disable_vsync, BOOL use_gl, BOOL ignore_pixel_depth);
+		BOOL disable_vsync, BOOL ignore_pixel_depth);
 	virtual ~LLWindowHeadless();
 
 private:
