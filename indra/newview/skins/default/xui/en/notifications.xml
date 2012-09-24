@@ -8750,10 +8750,43 @@ Can't move object '[OBJECT_NAME]' to
 
   <notification
    icon="alertmodal.tga"
-   name="PermModifyObject"
+   name="NoPermModifyObject"
    type="notify">
    <tag>fail</tag>
 You don't have permission to modify that object
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantEnablePhysObjContributesToNav"
+   type="notify">
+   <tag>fail</tag>
+Can't enable physics for an object that contributes to the navmesh.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantEnablePhysKeyframedObj"
+   type="notify">
+   <tag>fail</tag>
+Can't enable physics for keyframed objects.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantEnablePhysNotEnoughLandResources"
+   type="notify">
+   <tag>fail</tag>
+Can't enable physics for object -- insufficient land resources.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantEnablePhysCostTooGreat"
+   persist="true"
+   type="notify">
+   <tag>fail</tag>
+Can't enable physics for object with physics resource cost greater than [MAX_OBJECTS]
   </notification>
 
   <notification
@@ -8874,6 +8907,39 @@ You cannot modify the navmesh across region boundaries.
    type="notify">
    <tag>fail</tag>
 You don't have permission to modify that object.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantEnablePhysObjContributesToNav"
+   type="notify">
+   <tag>fail</tag>
+Can't enable physics for an object that contributes to the navmesh.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantEnablePhysKeyframedObj"
+   type="notify">
+   <tag>fail</tag>
+Can't enable physics for keyframed objects.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantEnablePhysNotEnoughLandResources"
+   type="notify">
+   <tag>fail</tag>
+Can't enable physics for object -- insufficient land resources.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantEnablePhysCostTooGreat"
+   persist="true"
+   type="notify">
+   <tag>fail</tag>
+Can't enable physics for object with physics resource cost greater than [MAX_OBJECTS]
   </notification>
 
   <notification
@@ -9022,18 +9088,52 @@ Object uses too many physics resources -- its dynamics have been disabled.
 
   <notification
    icon="alertmodal.tga"
-   name="TeleportAgentByObjectWithParcelInfo"
+   name="TeleportedHomeByObjectOnParcel"
+   persist="true"
    type="notify">
    <tag>fail</tag>
-You have been teleported home by the object ... on the parcel ...
+You have been teleported home by the object '[OBJECT_NAME]' on the parcel '[PARCEL_NAME]'
   </notification>
 
   <notification
    icon="alertmodal.tga"
-   name="TeleportAgentByObject"
+   name="TeleportedHomeByObject"
+   persist="true"
    type="notify">
    <tag>fail</tag>
-You have been teleported home by the object ... on the parcel ...
+You have been teleported home by the object '[OBJECT_NAME]'
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="TeleportedByAttachment"
+   type="notify">
+   <tag>fail</tag>
+You have been teleported by an attachment on [ITEM_ID]
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="TeleportedByObjectOnParcel"
+   type="notify">
+   <tag>fail</tag>
+You have been teleported by the object '[OBJECT_NAME]' on the parcel '[PARCEL_NAME]'
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="TeleportedByObjectOwnedBy"
+   type="notify">
+   <tag>fail</tag>
+You have been teleported by the object '[OBJECT_NAME]' owned by [OWNER_ID]
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="TeleportedByObjectUnknownUser"
+   type="notify">
+   <tag>fail</tag>
+You have been teleported by the object '[OBJECT_NAME]'
   </notification>
 
   <notification
@@ -9850,6 +9950,14 @@ You cannot give L$ to public objects.
    type="notify">
    <tag>fail</tag>
 Inventory creation on in-world object failed.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="UserBalanceOrLandUsageError"
+   type="notify">
+   <tag>fail</tag>
+An internal error prevented us from properly updating your viewer.  The L$ balance or parcel holdings displayed in your viewer may not reflect your actual balance on the servers.
   </notification>
 
 
