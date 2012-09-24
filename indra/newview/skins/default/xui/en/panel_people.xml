@@ -116,6 +116,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  layout="topleft"
                  left_pad="7"
                  name="gear_btn"
+                 tool_tip="Actions on selected person"
                  top="3"
                  width="31" />
                 <menu_button
@@ -130,6 +131,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  menu_filename="menu_people_nearby_view.xml"
                  menu_position="bottomleft"
                  name="nearby_view_btn"
+                 tool_tip="View/sort options"
                  top_delta="0"
                  width="31" />
                 <button
@@ -142,6 +144,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  layout="topleft"
                  left_pad="2"
                  name="add_friend_btn"
+                 tool_tip="Offer friendship to a resident"
                  top_delta="0"
                  width="31">
                     <commit_callback
@@ -158,6 +161,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  left_pad="2"
                  layout="topleft"
                  name="nearby_del_btn"
+                 tool_tip="Remove selected person as a friend"
                  top_delta="0"
                  width="31">
                     <commit_callback
@@ -264,6 +268,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  layout="topleft"
                  left_pad="8"
                  name="gear_btn"
+                 tool_tip="Actions on selected person"
                  top="3"
                  width="31" />
                 <menu_button
@@ -278,6 +283,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  menu_filename="menu_people_friends_view.xml"
                  menu_position="bottomleft"
                  name="friends_view_btn"
+                 tool_tip="View/sort options"
                  top_delta="0"
                  width="31" />
                 <button
@@ -290,6 +296,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  layout="topleft"
                  left_pad="2"
                  name="friends_add_btn"
+                 tool_tip="Offer friendship to a resident"
                  top_delta="0"
                  width="31">
                     <commit_callback
@@ -305,6 +312,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  left_pad="2"
                  layout="topleft"
                  name="friends_del_btn"
+                 tool_tip="Remove selected person as a friend"
                  top_delta="0"
                  width="31">
                     <commit_callback
@@ -419,6 +427,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  layout="topleft"
                  left_pad="8"
                  name="groups_gear_btn"
+                 tool_tip="Actions on selected group"
                  top="3"
                  width="31" />
                 <menu_button
@@ -433,6 +442,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  menu_filename="menu_people_groups_view.xml"
                  menu_position="bottomleft"
                  name="groups_view_btn"
+                 tool_tip="View/sort options"
                  top_delta="0"
                  width="31" />
                 <menu_button
@@ -447,6 +457,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  menu_filename="menu_group_plus.xml"
                  menu_position="bottomleft"
                  name="plus_btn"
+                 tool_tip="Join group/Create new group"
                  top_delta="0"
                  width="31">
                     <validate_callback
@@ -462,6 +473,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  left_pad="2"
                  layout="topleft"
                  name="minus_btn"
+                 tool_tip="Leave selected group"
                  top_delta="0"
                  width="31">
                     <commit_callback
@@ -527,6 +539,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  layout="topleft"
                  left_pad="8"
                  name="gear_btn"
+                 tool_tip="Actions on selected person"
                  top="3"
                  width="31" />
                 <menu_button
@@ -541,6 +554,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  menu_filename="menu_people_recent_view.xml"
                  menu_position="bottomleft"
                  name="recent_view_btn"
+                 tool_tip="View/sort options"
                  top_delta="0"
                  width="31" />
                 <button
@@ -553,6 +567,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  layout="topleft"
                  left_pad="2"
                  name="add_friend_btn"
+                 tool_tip="Offer friendship to a resident"
                  top_delta="0"
                  width="31">
                     <commit_callback
@@ -569,6 +584,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  left_pad="2"
                  layout="topleft"
                  name="recent_del_btn"
+                 tool_tip="Remove selected person as a friend"
                  top_delta="0"
                  width="31">
                     <commit_callback
