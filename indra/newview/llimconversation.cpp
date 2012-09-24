@@ -42,13 +42,13 @@
 
 const F32 REFRESH_INTERVAL = 0.2f;
 
-LLIMConversation::LLIMConversation(const LLUUID& session_id)
+LLIMConversation::LLIMConversation(const LLSD& session_id)
   : LLTransientDockableFloater(NULL, true, session_id)
   ,  mIsP2PChat(false)
   ,  mExpandCollapseBtn(NULL)
   ,  mTearOffBtn(NULL)
   ,  mCloseBtn(NULL)
-  ,  mSessionID(session_id)
+  ,  mSessionID(session_id.asUUID())
   , mParticipantList(NULL)
   , mChatHistory(NULL)
   , mInputEditor(NULL)
