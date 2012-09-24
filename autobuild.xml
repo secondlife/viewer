@@ -1432,9 +1432,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7c908e4fc031e13e65484d8cfd9a0be5</string>
+              <string>bdfb275b9bfa071397fb5633a0f5d360</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-mesa/rev/264880/arch/Linux/installer/mesa-7.11.1-linux-20120920.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-mesa/rev/265010/arch/Linux/installer/mesa-7.11.1-linux-20120920.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
