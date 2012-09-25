@@ -136,6 +136,18 @@ protected:
 	// mRunCondition->unlock();
 };
 
+
+void LLThread::lockData()
+{
+	mRunCondition->lock();
+}
+
+void LLThread::unlockData()
+{
+	mRunCondition->unlock();
+}
+
+
 //============================================================================
 
 #endif // LL_LLTHREAD_H

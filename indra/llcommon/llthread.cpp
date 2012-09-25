@@ -308,13 +308,3 @@ void LLThread::wakeLocked()
 		mRunCondition->signal();
 	}
 }
-
-void LLThread::lockData()
-{
-	mRunCondition->lock();
-}
-
-void LLThread::unlockData()
-{
-	mRunCondition->unlock();
-}
