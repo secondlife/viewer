@@ -678,8 +678,10 @@ void LLParticipantList::sort()
 
 void LLParticipantList::addAvatarIDExceptAgent(const LLUUID& avatar_id)
 {
+	// Do not add if already in there or excluded for some reason
 	if (mExcludeAgent && gAgent.getID() == avatar_id) return;
 	if (mAvatarList && mAvatarList->contains(avatar_id)) return;
+	if (findParticipant(avatar_id)) return;
 
 	bool is_avatar = LLVoiceClient::getInstance()->isParticipantAvatar(avatar_id);
 

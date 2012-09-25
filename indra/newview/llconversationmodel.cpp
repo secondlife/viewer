@@ -217,7 +217,7 @@ const bool LLConversationItemSession::getTime(F64& time) const
 
 void LLConversationItemSession::dumpDebugData()
 {
-	llinfos << "Merov debug : session, uuid = " << mUUID << ", name = " << mName << ", is loaded = " << mIsLoaded << llendl;
+	llinfos << "Merov debug : session " << this << ", uuid = " << mUUID << ", name = " << mName << ", is loaded = " << mIsLoaded << llendl;
 	LLConversationItemParticipant* participant = NULL;
 	child_list_t::iterator iter;
 	for (iter = mChildren.begin(); iter != mChildren.end(); iter++)
@@ -262,7 +262,7 @@ void LLConversationItemParticipant::onAvatarNameCache(const LLAvatarName& av_nam
 
 void LLConversationItemParticipant::dumpDebugData()
 {
-	llinfos << "Merov debug : participant, uuid = " << mUUID << ", name = " << mName << ", muted = " << mIsMuted << ", moderator = " << mIsModerator << llendl;
+	llinfos << "Merov debug : participant " << this << ", uuid = " << mUUID << ", name = " << mName << ", muted = " << mIsMuted << ", moderator = " << mIsModerator << llendl;
 }
 
 //

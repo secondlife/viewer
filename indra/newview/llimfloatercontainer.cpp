@@ -394,6 +394,8 @@ void LLIMFloaterContainer::draw()
 			}
 			// Reset the need for refresh
 			session_model->resetRefresh();
+			mConversationViewModel.requestSortAll();
+			mConversationsRoot->arrangeAll();
 			// Next participant
 			current_participant_model++;
 		}
