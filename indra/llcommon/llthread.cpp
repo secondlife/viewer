@@ -66,9 +66,7 @@ U32 __thread LLThread::sThreadID = 0;
 #endif
 
 U32 LLThread::sIDIter = 0;
-
-LLTrace::MasterThreadTrace gMasterThreadTrace;
-LLThreadLocalPtr<LLTrace::ThreadTraceData> LLThread::sTraceData(&gMasterThreadTrace);
+LLThreadLocalPtr<LLTrace::ThreadTraceData> LLThread::sTraceData;
 
 
 LL_COMMON_API void assert_main_thread()
@@ -87,7 +85,7 @@ void *APR_THREAD_FUNC LLThread::staticRun(apr_thread_t *apr_threadp, void *datap
 {
 	LLThread *threadp = (LLThread *)datap;
 
-	sTraceData = new LLTrace::SlaveThreadTrace(gMasterThreadTrace);
+	sTraceData = new LLTrace::SlaveThreadTrace();
 
 #if !LL_DARWIN
 	sThreadIndex = threadp->mID;
@@ -155,7 +153,7 @@ void LLThread::shutdown()
 			//llinfos << "LLThread::~LLThread() Killing thread " << mName << " Status: " << mStatus << llendl;
 			// Now wait a bit for the thread to exit
 			// It's unclear whether I should even bother doing this - this destructor
-			// should netver get called unless we're already stopped, really...
+			// should never get called unless we're already stopped, really...
 			S32 counter = 0;
 			const S32 MAX_WAIT = 600;
 			while (counter < MAX_WAIT)

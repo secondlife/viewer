@@ -32,7 +32,21 @@ namespace LLTrace
 {
 
 BlockTimer::Recorder::StackEntry BlockTimer::sCurRecorder;
-LLThreadLocalPtr<ThreadTraceData> ThreadTraceData::sCurThreadTrace;
+
+MasterThreadTrace *gMasterThreadTrace = NULL;
+LLThreadLocalPtr<ThreadTraceData> gCurThreadTrace;
+
+void init()
+{
+	gMasterThreadTrace = new MasterThreadTrace();
+	gCurThreadTrace = gMasterThreadTrace;
+}
+
+void cleanup()
+{
+	delete gMasterThreadTrace;
+}
+
 
 ///////////////////////////////////////////////////////////////////////
 // Sampler

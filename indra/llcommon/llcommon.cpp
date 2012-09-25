@@ -44,6 +44,7 @@ void LLCommon::initClass()
 	}
 	LLTimer::initClass();
 	LLThreadSafeRefCount::initThreadSafeRefCount();
+	LLTrace::init();
 // 	LLWorkerThread::initClass();
 // 	LLFrameCallbackManager::initClass();
 }
@@ -61,4 +62,5 @@ void LLCommon::cleanupClass()
 		sAprInitialized = FALSE;
 	}
 	LLMemory::cleanupClass();
+	LLTrace::cleanup();
 }

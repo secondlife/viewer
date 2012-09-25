@@ -49,6 +49,7 @@
 #include "apr_signal.h"
 #include "apr_atomic.h"
 #include "llstring.h"
+#include "llinstancetracker.h"
 
 extern LL_COMMON_API apr_thread_mutex_t* gLogMutexp;
 extern apr_thread_mutex_t* gCallStacksLogMutexp;
@@ -253,6 +254,122 @@ public:
 	static S32 readEx(const std::string& filename, void *buf, S32 offset, S32 nbytes, LLVolatileAPRPool* pool = NULL);	
 	static S32 writeEx(const std::string& filename, void *buf, S32 offset, S32 nbytes, LLVolatileAPRPool* pool = NULL); // offset<0 means append
 //*******************************************************************************************************************************
+};
+
+class LLThreadLocalPtrBase : LLInstanceTracker<LLThreadLocalPtrBase>
+{
+public:
+	LLThreadLocalPtrBase(void (*cleanup_func)(void*) );
+	LLThreadLocalPtrBase(const LLThreadLocalPtrBase& other);
+	~LLThreadLocalPtrBase();
+
+protected:
+	friend void LL_COMMON_API ll_init_apr();
+	void set(void* value);
+
+	LL_FORCE_INLINE void* get()
+	{
+		void* ptr;
+		//apr_status_t result =
+		apr_threadkey_private_get(&ptr, mThreadKey);
+		//if (result != APR_SUCCESS)
+		//{
+		//	ll_apr_warn_status(s);
+		//	llerrs << "Failed to get thread local data" << llendl;
+		//}
+		return ptr;
+	}
+
+	LL_FORCE_INLINE const void* get() const
+	{
+		void* ptr;
+		//apr_status_t result =
+		apr_threadkey_private_get(&ptr, mThreadKey);
+		//if (result != APR_SUCCESS)
+		//{
+		//	ll_apr_warn_status(s);
+		//	llerrs << "Failed to get thread local data" << llendl;
+		//}
+		return ptr;
+	}
+
+	void initStorage();
+
+	void destroyStorage();
+
+	static void initAllThreadLocalStorage();
+
+private:
+	void (*mCleanupFunc)(void*);
+	apr_threadkey_t* mThreadKey;
+	static bool		sInitialized;
+};
+
+template <typename T>
+class LLThreadLocalPtr : public LLThreadLocalPtrBase
+{
+public:
+
+	LLThreadLocalPtr()
+	:	LLThreadLocalPtrBase(&cleanup)
+	{}
+
+	LLThreadLocalPtr(T* value)
+		:	LLThreadLocalPtrBase(&cleanup)
+	{
+		set(value);
+	}
+
+
+	LLThreadLocalPtr(const LLThreadLocalPtr<T>& other)
+	:	LLThreadLocalPtrBase(other, &cleanup)
+	{
+		set(other.get());		
+	}
+
+	T* get()
+	{
+		return (T*)LLThreadLocalPtrBase::get();
+	}
+
+	const T* get() const
+	{
+		return (const T*)LLThreadLocalPtrBase::get();
+	}
+
+	T* operator -> ()
+	{
+		return (T*)get();
+	}
+
+	const T* operator -> () const
+	{
+		return (T*)get();
+	}
+
+	T& operator*()
+	{
+		return *(T*)get();
+	}
+
+	const T& operator*() const
+	{
+		return *(T*)get();
+	}
+
+	LLThreadLocalPtr<T>& operator = (T* value)
+	{
+		set((void*)value);
+		return *this;
+	}
+
+private:
+
+	static void cleanup(void* ptr)
+	{
+		delete reinterpret_cast<T*>(ptr);
+	}
+
 };
 
 /**

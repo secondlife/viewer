@@ -32,7 +32,6 @@
 
 #include "llmutex.h"
 #include "llmemory.h"
-#include "llthreadlocalptr.h"
 
 #include <list>
 
@@ -42,19 +41,29 @@
 
 namespace LLTrace
 {
+	void init();
+	void cleanup();
+
+	extern class MasterThreadTrace *gMasterThreadTrace;
+	extern LLThreadLocalPtr<class ThreadTraceData> gCurThreadTrace;
+
 	// one per thread per type
 	template<typename ACCUMULATOR>
 	class AccumulatorBuffer
 	{
 		static const U32 DEFAULT_ACCUMULATOR_BUFFER_SIZE = 64;
-	public:
-		AccumulatorBuffer()
-		:	mStorageSize(64),
-			mStorage(new ACCUMULATOR[DEFAULT_ACCUMULATOR_BUFFER_SIZE]),
-			mNextStorageSlot(0)
-		{}
+	private:
+		enum StaticAllocationMarker { STATIC_ALLOC };
 
-		AccumulatorBuffer(const AccumulatorBuffer& other)
+		AccumulatorBuffer(StaticAllocationMarker m)
+		:	mStorageSize(64),
+			mNextStorageSlot(0),
+			mStorage(new ACCUMULATOR[DEFAULT_ACCUMULATOR_BUFFER_SIZE])
+		{
+		}
+	public:
+
+		AccumulatorBuffer(const AccumulatorBuffer& other = getDefaultBuffer())
 		:	mStorageSize(other.mStorageSize),
 			mStorage(new ACCUMULATOR[other.mStorageSize]),
 			mNextStorageSlot(other.mNextStorageSlot)
@@ -116,6 +125,12 @@ namespace LLTrace
 			return next_slot;
 		}
 
+		static AccumulatorBuffer<ACCUMULATOR>& getDefaultBuffer()
+		{
+			static AccumulatorBuffer sBuffer;
+			return sBuffer;
+		}
+
 	private:
 		ACCUMULATOR*							mStorage;
 		size_t									mStorageSize;
@@ -125,33 +140,18 @@ namespace LLTrace
 	template<typename ACCUMULATOR> LLThreadLocalPtr<ACCUMULATOR> AccumulatorBuffer<ACCUMULATOR>::sPrimaryStorage;
 
 	template<typename ACCUMULATOR>
-	class PrimaryAccumulatorBuffer : public AccumulatorBuffer<ACCUMULATOR
-	{
-		PrimaryAccumulatorBuffer()
-		{
-			makePrimary();
-		}
-	};
-
-	template<typename ACCUMULATOR>
 	class Trace
 	{
 	public:
 		Trace(const std::string& name)
 		:	mName(name)
 		{
-			mAccumulatorIndex = getPrimaryBuffer().reserveSlot();
+			mAccumulatorIndex = AccumulatorBuffer<ACCUMULATOR>::getDefaultBuffer().reserveSlot();
 		}
 
 		LL_FORCE_INLINE ACCUMULATOR& getAccumulator()
 		{
 			return AccumulatorBuffer<ACCUMULATOR>::getPrimaryStorage()[mAccumulatorIndex];
-		}
-
-		static PrimaryAccumulatorBuffer& getPrimaryBuffer()
-		{
-			static PrimaryAccumulatorBuffer sBuffer;
-			return sBuffer;
 		}
 
 	private:
@@ -347,9 +347,13 @@ namespace LLTrace
 	{
 	public:
 		Sampler() {}
-		Sampler(const Sampler& other);
+		Sampler(const Sampler& other)
+		:	mF32Stats(other.mF32Stats),
+			mS32Stats(other.mS32Stats),
+			mTimers(other.mTimers)
+		{}
 
-		~Sampler();
+		~Sampler() {}
 
 		void makePrimary()
 		{
@@ -438,7 +442,6 @@ namespace LLTrace
 	protected:
 		Sampler					mPrimarySampler;
 		std::list<Sampler*>		mActiveSamplers;
-		static LLThreadLocalPtr<ThreadTraceData> sCurThreadTrace;
 	};
 
 	class MasterThreadTrace : public ThreadTraceData
@@ -472,7 +475,7 @@ namespace LLTrace
 	{
 	public:
 		explicit 
-		SlaveThreadTrace(MasterThreadTrace& master_trace)
+		SlaveThreadTrace(MasterThreadTrace& master_trace = *gMasterThreadTrace)
 		:	mMaster(master_trace),
 			ThreadTraceData(master_trace),
 			mSharedData(mPrimarySampler)

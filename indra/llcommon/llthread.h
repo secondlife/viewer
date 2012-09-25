@@ -31,7 +31,6 @@
 #include "llapr.h"
 #include "apr_thread_cond.h"
 #include "lltrace.h"
-#include "llthreadlocalptr.h"
 
 class LL_COMMON_API LLThread
 {

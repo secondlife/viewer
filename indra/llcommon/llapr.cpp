@@ -54,6 +54,8 @@ void ll_init_apr()
 	{
 		LLAPRFile::sAPRFilePoolp = new LLVolatileAPRPool(FALSE) ;
 	}
+
+	LLThreadLocalPtrBase::initAllThreadLocalStorage();
 }
 
 
@@ -475,6 +477,86 @@ S32 LLAPRFile::seek(apr_seek_where_t where, S32 offset)
 {
 	return LLAPRFile::seek(mFile, where, offset) ;
 }
+
+//
+//LLThreadLocalPtrBase
+//
+bool LLThreadLocalPtrBase::sInitialized = false;
+
+LLThreadLocalPtrBase::LLThreadLocalPtrBase(void (*cleanup_func)(void*))
+:	mCleanupFunc(cleanup_func),
+	mThreadKey(NULL)
+{
+	if (sInitialized)
+	{
+		initStorage();
+	}
+}
+
+LLThreadLocalPtrBase::LLThreadLocalPtrBase( const LLThreadLocalPtrBase& other)
+:	mCleanupFunc(other.mCleanupFunc),
+	mThreadKey(NULL)
+{
+	if (sInitialized)
+	{
+		initStorage();
+	}
+}
+
+LLThreadLocalPtrBase::~LLThreadLocalPtrBase()
+{
+	destroyStorage();
+}
+
+void LLThreadLocalPtrBase::set( void* value )
+{
+	llassert(sInitialized && mThreadKey);
+
+	apr_status_t result = apr_threadkey_private_set((void*)value, mThreadKey);
+	if (result != APR_SUCCESS)
+	{
+		ll_apr_warn_status(result);
+		llerrs << "Failed to set thread local data" << llendl;
+	}
+}
+
+void LLThreadLocalPtrBase::initStorage( )
+{
+	apr_status_t result = apr_threadkey_private_create(&mThreadKey, mCleanupFunc, gAPRPoolp);
+	if (result != APR_SUCCESS)
+	{
+		ll_apr_warn_status(result);
+		llerrs << "Failed to allocate thread local data" << llendl;
+	}
+}
+
+void LLThreadLocalPtrBase::destroyStorage()
+{
+	if (mThreadKey)
+	{
+		apr_status_t result = apr_threadkey_private_delete(mThreadKey);
+		if (result != APR_SUCCESS)
+		{
+			ll_apr_warn_status(result);
+			llerrs << "Failed to delete thread local data" << llendl;
+		}
+	}
+}
+
+void LLThreadLocalPtrBase::initAllThreadLocalStorage()
+{
+	if (!sInitialized)
+	{
+		sInitialized = true;
+		for (LLInstanceTracker<LLThreadLocalPtrBase>::instance_iter it = beginInstances(), end_it = endInstances();
+			it != end_it;
+			++it)
+		{
+			(*it).initStorage();
+		}
+	}
+}
+
 
 //
 //*******************************************************************************************************************************

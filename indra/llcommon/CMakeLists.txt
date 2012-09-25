@@ -240,7 +240,6 @@ set(llcommon_HEADER_FILES
     llstringtable.h
     llsys.h
     llthread.h
-    llthreadlocalptr.h
     llthreadsafequeue.h
     lltimer.h
     lltrace.h
