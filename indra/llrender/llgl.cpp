@@ -1951,7 +1951,10 @@ LLGLState::LLGLState(LLGLenum state, S32 enabled) :
 	if (mState)
 	{
 		mWasEnabled = sStateMap[state];
-		llassert(mWasEnabled == glIsEnabled(state));
+		if (gDebugGL)
+		{
+			llassert(mWasEnabled == glIsEnabled(state));
+		}
 		setEnabled(enabled);
 		stop_glerror();
 	}
