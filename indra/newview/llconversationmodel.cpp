@@ -269,6 +269,7 @@ void LLConversationItemParticipant::dumpDebugData()
 // LLConversationSort
 // 
 
+// Comparison operator: returns "true" is a comes before b, "false" otherwise
 bool LLConversationSort::operator()(const LLConversationItem* const& a, const LLConversationItem* const& b) const
 {
 	LLConversationItem::EConversationType type_a = a->getType();
@@ -276,7 +277,7 @@ bool LLConversationSort::operator()(const LLConversationItem* const& a, const LL
 
 	if ((type_a == LLConversationItem::CONV_PARTICIPANT) && (type_b == LLConversationItem::CONV_PARTICIPANT))
 	{
-		// If both are participants
+		// If both items are participants
 		U32 sort_order = getSortOrderParticipants();
 		if (sort_order == LLConversationFilter::SO_DATE)
 		{
@@ -286,15 +287,15 @@ bool LLConversationSort::operator()(const LLConversationItem* const& a, const LL
 			bool has_time_b = b->getTime(time_b);
 			if (has_time_a && has_time_b)
 			{
+				// Most recent comes first
 				return (time_a > time_b);
 			}
 			else if (has_time_a || has_time_b)
 			{
-				// If we have only one time updated, we consider the element with time as the "highest".
-				// That boils down to "has_time_a" if you think about it.
+				// If we have only one time available, the element with time must come first
 				return has_time_a;
 			}
-			// If not time available, we'll default to sort by name at the end of this method
+			// If no time available, we'll default to sort by name at the end of this method
 		}
 		else if (sort_order == LLConversationFilter::SO_DISTANCE)
 		{
@@ -304,52 +305,63 @@ bool LLConversationSort::operator()(const LLConversationItem* const& a, const LL
 			bool has_dist_b = b->getDistanceToAgent(dist_b);
 			if (has_dist_a && has_dist_b)
 			{
+				// Closest comes first
 				return (dist_a < dist_b);
 			}
 			else if (has_dist_a || has_dist_b)
 			{
+				// If we have only one distance available, the element with it must come first
 				return has_dist_a;
 			}
+			// If no distance available, we'll default to sort by name at the end of this method
 		}
 	}
 	else if ((type_a > LLConversationItem::CONV_PARTICIPANT) && (type_b > LLConversationItem::CONV_PARTICIPANT))
 	{
 		// If both are sessions
 		U32 sort_order = getSortOrderSessions();
-		if (sort_order == LLConversationFilter::SO_DATE)
+		if ((type_a == LLConversationItem::CONV_SESSION_NEARBY) || (type_b == LLConversationItem::CONV_SESSION_NEARBY))
 		{
+			// If one is the nearby session, put nearby session *always* first
+			return (type_a == LLConversationItem::CONV_SESSION_NEARBY);
+		}
+		else if (sort_order == LLConversationFilter::SO_DATE)
+		{
+			// Sort by time
 			F64 time_a = 0.0;
 			F64 time_b = 0.0;
 			bool has_time_a = a->getTime(time_a);
 			bool has_time_b = b->getTime(time_b);
 			if (has_time_a && has_time_b)
 			{
+				// Most recent comes first
 				return (time_a > time_b);
 			}
 			else if (has_time_a || has_time_b)
 			{
-				// If we have only one time updated, we consider the element with time as the "highest".
-				// That boils down to "has_time_a" if you think about it.
+				// If we have only one time available, the element with time must come first
 				return has_time_a;
 			}
-			// If not time available, we'll default to sort by name at the end of this method
+			// If no time available, we'll default to sort by name at the end of this method
 		}
 		else if (sort_order == LLConversationFilter::SO_SESSION_TYPE)
 		{
 			if (type_a != type_b)
 			{
+				// Lowest types come first. See LLConversationItem definition of types
 				return (type_a < type_b);
 			}
+			// If types are identical, we'll default to sort by name at the end of this method
 		}
 	}
 	else
 	{
-		// If one is a participant and the other a session, the session is always "less" than the participant
+		// If one item is a participant and the other a session, the session comes before the participant
 		// so we simply compare the type
 		// Notes: as a consequence, CONV_UNKNOWN (which should never get created...) always come first
-		return (type_a < type_b);
+		return (type_a > type_b);
 	}
-	// By default, in all other possible cases (including sort order of type LLConversationFilter::SO_NAME of course), 
+	// By default, in all other possible cases (including sort order type LLConversationFilter::SO_NAME of course), 
 	// we sort by name
 	S32 compare = LLStringUtil::compareDict(a->getDisplayName(), b->getDisplayName());
 	return (compare < 0);
