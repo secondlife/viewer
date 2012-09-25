@@ -88,7 +88,7 @@ static LLChatTypeTrigger sChatTypeTriggers[] = {
 
 
 LLNearbyChat::LLNearbyChat(const LLSD& llsd)
-:	LLIMConversation(llsd.asUUID()),
+:	LLIMConversation(llsd),
 	//mOutputMonitor(NULL),
 	mSpeakerMgr(NULL),
 	mExpandedHeight(COLLAPSED_HEIGHT + EXPANDED_HEIGHT)
@@ -96,16 +96,15 @@ LLNearbyChat::LLNearbyChat(const LLSD& llsd)
     mIsP2PChat = false;
 	mIsNearbyChat = true;
 	setIsChrome(TRUE);
-	mKey = LLSD(LLUUID());
 	mSpeakerMgr = LLLocalSpeakerMgr::getInstance();
 	mSessionID = LLUUID();
-	setName("nearby_chat");
-	setIsSingleInstance(TRUE);
 }
+
 
 //virtual
 BOOL LLNearbyChat::postBuild()
 {
+    setIsSingleInstance(TRUE);
     BOOL result = LLIMConversation::postBuild();
 	mInputEditor->setCommitCallback(boost::bind(&LLNearbyChat::onChatBoxCommit, this));
 	mInputEditor->setKeystrokeCallback(boost::bind(&onChatBoxKeystroke, _1, this));

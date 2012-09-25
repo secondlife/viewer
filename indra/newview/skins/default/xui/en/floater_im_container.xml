@@ -62,6 +62,7 @@
                      layout="topleft"
                      left="10"
                      name="sort_btn"
+                     tool_tip="View/sort options"
                      top="5"
                      width="31" />
                     <button
@@ -75,7 +76,7 @@
                      top="5"
                      left_pad="4"
                      name="add_btn"
-                     tool_tip="Add button on the left panel"
+                     tool_tip="Start a new conversation"
                      width="31"/>
                 </layout_panel>
                 <layout_panel
@@ -94,6 +95,7 @@
                      top="5"
                      left="5"
                      name="expand_collapse_btn"
+                     tool_tip="Collapse/Expand this list"
                      width="31" />
                 </layout_panel>
             </layout_stack>

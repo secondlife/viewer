@@ -45,7 +45,7 @@ class LLNearbyChat
 {
 public:
 	// constructor for inline chat-bars (e.g. hosted in chat history window)
-	LLNearbyChat(const LLSD& key = LLSD());
+	LLNearbyChat(const LLSD& key = LLSD(LLUUID()));
 	~LLNearbyChat() {}
 
 	/*virtual*/ BOOL postBuild();

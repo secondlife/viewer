@@ -109,7 +109,7 @@ bool LLScriptHandler::processNotification(const LLNotificationPtr& notification)
 
 void LLScriptHandler::onDelete( LLNotificationPtr notification )
 	{
-	if(notification->hasFormElements())
+	if(notification->hasFormElements() && !notification->canShowToast())
 		{
 			LLScriptFloaterManager::getInstance()->onRemoveNotification(notification->getID());
 		}
@@ -128,10 +128,11 @@ void LLScriptHandler::onDeleteToast(LLToast* toast)
 	// in this case listener is a SysWellWindow and it will remove a corresponding item from its list
 	LLNotificationPtr notification = LLNotifications::getInstance()->find(toast->getNotificationID());
 	
-	if( notification && notification->hasFormElements())
+	if( notification && notification->hasFormElements() && !notification->canShowToast())
 	{
 		LLScriptFloaterManager::getInstance()->onRemoveNotification(notification->getID());
 	}
+
 }
 
 

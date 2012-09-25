@@ -47,7 +47,7 @@ class LLIMConversation
 public:
 	LOG_CLASS(LLIMConversation);
 
-	LLIMConversation(const LLUUID& session_id);
+	LLIMConversation(const LLSD& session_id);
 	~LLIMConversation();
 
 	// reload all message with new settings of visual modes

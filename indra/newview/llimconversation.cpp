@@ -42,13 +42,13 @@
 
 const F32 REFRESH_INTERVAL = 0.2f;
 
-LLIMConversation::LLIMConversation(const LLUUID& session_id)
+LLIMConversation::LLIMConversation(const LLSD& session_id)
   : LLTransientDockableFloater(NULL, true, session_id)
   ,  mIsP2PChat(false)
   ,  mExpandCollapseBtn(NULL)
   ,  mTearOffBtn(NULL)
   ,  mCloseBtn(NULL)
-  ,  mSessionID(session_id)
+  ,  mSessionID(session_id.asUUID())
   , mParticipantList(NULL)
   , mChatHistory(NULL)
   , mInputEditor(NULL)
@@ -424,6 +424,7 @@ void LLIMConversation::updateHeaderAndToolbar()
 	mExpandCollapseBtn->setEnabled(!is_torn_off || !mIsP2PChat);
 
 	mTearOffBtn->setImageOverlay(getString(is_torn_off? "return_icon" : "tear_off_icon"));
+	mTearOffBtn->setToolTip(getString(!is_torn_off? "tooltip_to_separate_window" : "tooltip_to_main_window"));
 
 	mCloseBtn->setVisible(!is_torn_off && !mIsNearbyChat);
 
