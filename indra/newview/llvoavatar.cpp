@@ -2882,6 +2882,20 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 	// clear debug text
 	mDebugText.clear();
+
+	if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
+	{
+		S32 central_bake_version = -1;
+		if (getRegion())
+		{
+			central_bake_version = getRegion()->getCentralBakeVersion();
+		}
+		addDebugText(llformat("mUseLocalAppearance: %d,\nmIsEditingAppearance: %d\n"
+							  "mUseServerBakes %d,\ncentralBakeVersion %d",
+							  mUseLocalAppearance, mIsEditingAppearance,
+							  mUseServerBakes, central_bake_version));
+	}
+				 
 	if (LLVOAvatar::sShowAnimationDebug)
 	{
 		for (LLMotionController::motion_list_t::iterator iter = mMotionController.getActiveMotions().begin();
