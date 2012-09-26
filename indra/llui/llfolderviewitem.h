@@ -116,6 +116,19 @@ protected:
 								mAllowOpen,
 								mSelectPending;
 
+	// For now assuming all colors are the same in derived classes.
+	static LLUIColor			sFgColor;
+	static LLUIColor			sHighlightBgColor;
+	static LLUIColor			sHighlightFgColor;
+	static LLUIColor			sFocusOutlineColor;
+	static LLUIColor			sMouseOverColor;
+	static LLUIColor			sFilterBGColor;
+	static LLUIColor			sFilterTextColor;
+	static LLUIColor			sSuffixColor;
+	static LLUIColor			sLibraryColor;
+	static LLUIColor			sLinkColor;
+	static LLUIColor			sSearchStatusColor;
+
 	// this is an internal method used for adding items to folders. A
 	// no-op at this level, but reimplemented in derived classes.
 	virtual void addItem(LLFolderViewItem*) { }
@@ -247,6 +260,7 @@ public:
 
 	//	virtual void handleDropped();
 	virtual void draw();
+	void drawOpenFolderArrow(const Params& default_params, const LLUIColor& fg_color);
     void drawHighlight(const BOOL showContent, const BOOL hasKeyboardFocus, const LLUIColor &bgColor, const LLUIColor &outlineColor, const LLUIColor &mouseOverColor);
     void drawLabel(const LLFontGL * font, const F32 x, const F32 y, const LLColor4& color, F32 &right_x);
 	virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
@@ -273,6 +287,8 @@ class LLFolderViewFolder : public LLFolderViewItem
 protected:
 	LLFolderViewFolder( const LLFolderViewItem::Params& );
 	friend class LLUICtrlFactory;
+
+	void updateLabelRotation();
 
 public:
 	typedef std::list<LLFolderViewItem*> items_t;
