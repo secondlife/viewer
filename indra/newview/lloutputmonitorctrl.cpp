@@ -74,7 +74,8 @@ LLOutputMonitorCtrl::LLOutputMonitorCtrl(const LLOutputMonitorCtrl::Params& p)
 	mSpeakerId(p.speaker_id),
 	mIsAgentControl(false),
 	mIsSwitchDirty(false),
-	mShouldSwitchOn(false)
+	mShouldSwitchOn(false),
+	mShowParticipantsTalking(false)
 {
 	//static LLUIColor output_monitor_muted_color = LLUIColorTable::instance().getColor("OutputMonitorMutedColor", LLColor4::orange);
 	//static LLUIColor output_monitor_overdriven_color = LLUIColorTable::instance().getColor("OutputMonitorOverdrivenColor", LLColor4::red);
@@ -154,6 +155,23 @@ void LLOutputMonitorCtrl::draw()
 		else
 		{
 			setIsTalking(LLVoiceClient::getInstance()->getIsSpeaking(mSpeakerId));
+		}
+	}
+
+	if ((mPower == 0.f && !mIsTalking) && mShowParticipantsTalking)
+	{
+		std::set<LLUUID> participant_uuids;
+		LLVoiceClient::instance().getParticipantList(participant_uuids);
+		std::set<LLUUID>::const_iterator part_it = participant_uuids.begin();
+
+		F32 power = 0;
+		for (; part_it != participant_uuids.end(); ++part_it)
+		{
+			if (power = LLVoiceClient::instance().getCurrentPower(*part_it))
+			{
+				mPower = power;
+				break;
+			}
 		}
 	}
 

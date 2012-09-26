@@ -30,10 +30,12 @@
 #include "llconversationview.h"
 
 #include <boost/bind.hpp>
+#include "llagentdata.h"
 #include "llconversationmodel.h"
 #include "llimconversation.h"
 #include "llimfloatercontainer.h"
 #include "llfloaterreg.h"
+#include "llgroupiconctrl.h"
 #include "lluictrlfactory.h"
 
 //
@@ -51,8 +53,15 @@ LLConversationViewSession::LLConversationViewSession(const LLConversationViewSes
 	LLFolderViewFolder(p),
 	mContainer(p.container),
 	mItemPanel(NULL),
-	mSessionTitle(NULL)
+	mCallIconLayoutPanel(NULL),
+	mSessionTitle(NULL),
+	mSpeakingIndicator(NULL)
 {
+}
+
+LLConversationViewSession::~LLConversationViewSession()
+{
+	mActiveVoiceChannelConnection.disconnect();
 }
 
 BOOL LLConversationViewSession::postBuild()
@@ -60,10 +69,62 @@ BOOL LLConversationViewSession::postBuild()
 	LLFolderViewItem::postBuild();
 
 	mItemPanel = LLUICtrlFactory::getInstance()->createFromFile<LLPanel>("panel_conversation_list_item.xml", NULL, LLPanel::child_registry_t::instance());
-
 	addChild(mItemPanel);
 
+	mCallIconLayoutPanel = mItemPanel->getChild<LLPanel>("call_icon_panel");
 	mSessionTitle = mItemPanel->getChild<LLTextBox>("conversation_title");
+
+	mActiveVoiceChannelConnection = LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLConversationViewSession::onCurrentVoiceSessionChanged, this, _1));
+	mSpeakingIndicator = getChild<LLOutputMonitorCtrl>("speaking_indicatorn");
+
+	LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(getViewModelItem());
+	if (vmi)
+	{
+		switch(vmi->getType())
+		{
+		case LLConversationItem::CONV_PARTICIPANT:
+		case LLConversationItem::CONV_SESSION_1_ON_1:
+		{
+			LLIMModel::LLIMSession* session=  LLIMModel::instance().findIMSession(vmi->getUUID());
+			if (session)
+			{
+				LLAvatarIconCtrl* icon = mItemPanel->getChild<LLAvatarIconCtrl>("avatar_icon");
+				icon->setVisible(true);
+				icon->setValue(session->mOtherParticipantID);
+				mSpeakingIndicator->setSpeakerId(gAgentID, session->mSessionID);
+				mSpeakingIndicator->setShowParticipantsTalking(true);
+			}
+			break;
+		}
+		case LLConversationItem::CONV_SESSION_AD_HOC:
+		{
+			LLGroupIconCtrl* icon = mItemPanel->getChild<LLGroupIconCtrl>("group_icon");
+			icon->setVisible(true);
+			mSpeakingIndicator->setSpeakerId(gAgentID, vmi->getUUID());
+			mSpeakingIndicator->setShowParticipantsTalking(true);
+		}
+		case LLConversationItem::CONV_SESSION_GROUP:
+		{
+			LLGroupIconCtrl* icon = mItemPanel->getChild<LLGroupIconCtrl>("group_icon");
+			icon->setVisible(true);
+			icon->setValue(vmi->getUUID());
+			mSpeakingIndicator->setSpeakerId(gAgentID, vmi->getUUID());
+			mSpeakingIndicator->setShowParticipantsTalking(true);
+			break;
+		}
+		case LLConversationItem::CONV_SESSION_NEARBY:
+		{
+			LLIconCtrl* icon = mItemPanel->getChild<LLIconCtrl>("nearby_chat_icon");
+			icon->setVisible(true);
+			mSpeakingIndicator->setSpeakerId(gAgentID);
+			mSpeakingIndicator->setShowParticipantsTalking(true);
+			break;
+		}
+
+		default:
+			break;
+		}
+	}
 
 	refresh();
 
@@ -186,6 +247,25 @@ void LLConversationViewSession::refresh()
 	
 	// Do the regular upstream refresh
 	LLFolderViewFolder::refresh();
+}
+
+void LLConversationViewSession::onCurrentVoiceSessionChanged(const LLUUID& session_id)
+{
+	LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(getViewModelItem());
+
+	if (vmi)
+	{
+		bool is_active = vmi->getUUID() == session_id;
+		bool is_nearby = vmi->getType() == LLConversationItem::CONV_SESSION_NEARBY;
+
+		if (is_nearby)
+		{
+			mSpeakingIndicator->setSpeakerId(is_active ? gAgentID : LLUUID::null);
+		}
+
+		mSpeakingIndicator->switchIndicator(is_active);
+		mCallIconLayoutPanel->setVisible(is_active);
+	}
 }
 
 //

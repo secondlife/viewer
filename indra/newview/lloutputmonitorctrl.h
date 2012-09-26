@@ -82,6 +82,8 @@ public:
 
 	void			setIsTalking(bool val) { mIsTalking = val; }
 
+	void			setShowParticipantsTalking(bool show) { mShowParticipantsTalking = show; }
+
 	/**
 	 * Sets avatar UUID to interact with voice channel.
 	 *
@@ -132,6 +134,7 @@ private:
 	bool			mIsAgentControl;
 	bool			mIsMuted;
 	bool			mIsTalking;
+	bool			mShowParticipantsTalking;
 	LLPointer<LLUIImage> mImageMute;
 	LLPointer<LLUIImage> mImageOff;
 	LLPointer<LLUIImage> mImageOn;
