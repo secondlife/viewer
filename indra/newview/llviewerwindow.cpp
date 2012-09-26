@@ -4731,7 +4731,8 @@ void LLViewerWindow::restoreGL(const std::string& progress_message)
 		gResizeScreenTexture = TRUE;
 		gWindowResized = TRUE;
 
-		if (isAgentAvatarValid() && !gAgentAvatarp->isUsingBakedTextures())
+		// FIXME DRANO
+		if (isAgentAvatarValid() && !gAgentAvatarp->isUsingServerBakes())
 		{
 			LLVisualParamHint::requestHintUpdates();
 		}

@@ -1274,7 +1274,8 @@ void LLVOAvatarSelf::localTextureLoaded(BOOL success, LLViewerFetchedTexture *sr
 			discard_level < local_tex_obj->getDiscard())
 		{
 			local_tex_obj->setDiscard(discard_level);
-			if (isUsingBakedTextures())
+			// FIXME DRANO
+			if (isUsingServerBakes())
 			{
 				requestLayerSetUpdate(index);
 			}
@@ -1758,7 +1759,8 @@ void LLVOAvatarSelf::setLocalTexture(ETextureIndex type, LLViewerTexture* src_te
 					local_tex_obj->setDiscard(tex_discard);
 					if (isSelf())
 					{
-						if (gAgentAvatarp->isUsingBakedTextures())
+						// FIXME DRANO
+						if (gAgentAvatarp->isUsingServerBakes())
 						{
 							requestLayerSetUpdate(type);
 						}

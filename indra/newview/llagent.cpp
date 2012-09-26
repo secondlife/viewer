@@ -3630,7 +3630,8 @@ void LLAgent::processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void *
 		return;
 	}
 
-	if (isAgentAvatarValid() && !gAgentAvatarp->isUsingBakedTextures())
+	// FIXME DRANO wrong check
+	if (isAgentAvatarValid() && !gAgentAvatarp->isUsingServerBakes())
 	{
 		// ignore baked textures when in customize mode
 		return;
@@ -4262,7 +4263,7 @@ void LLAgent::sendAgentSetAppearance()
 {
 	if (!isAgentAvatarValid() || (getRegion() && getRegion()->getCentralBakeVersion())) return;
 
-	if (gAgentQueryManager.mNumPendingQueries > 0 && (isAgentAvatarValid() && gAgentAvatarp->isUsingBakedTextures())) 
+	if (gAgentQueryManager.mNumPendingQueries > 0 && (isAgentAvatarValid() && gAgentAvatarp->isUsingServerBakes())) 
 	{
 		return;
 	}
