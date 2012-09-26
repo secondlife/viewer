@@ -4060,7 +4060,7 @@ void LLVOAvatar::updateTextures()
 			if (isIndexBakedTexture((ETextureIndex)texture_index)
 				&& imagep->getID() != IMG_DEFAULT_AVATAR
 				&& imagep->getID() != IMG_INVISIBLE
-				&& !mUseServerBakes 
+				&& !isUsingServerBakes() 
 				&& !imagep->getTargetHost().isOk())
 			{
 				LL_WARNS_ONCE("Texture") << "LLVOAvatar::updateTextures No host for texture "
@@ -4203,7 +4203,7 @@ void LLVOAvatar::setTexEntry(const U8 index, const LLTextureEntry &te)
 const std::string LLVOAvatar::getImageURL(const U8 te, const LLUUID &uuid)
 {
 	std::string url = "";
-	if (mUseServerBakes && !gSavedSettings.getString("AgentAppearanceServiceURL").empty())
+	if (isUsingServerBakes() && !gSavedSettings.getString("AgentAppearanceServiceURL").empty())
 	{
 		const LLAvatarAppearanceDictionary::TextureEntry* texture_entry = LLAvatarAppearanceDictionary::getInstance()->getTexture((ETextureIndex)te);
 		if (texture_entry != NULL)
@@ -5816,7 +5816,7 @@ void LLVOAvatar::updateMeshTextures()
 	for (U32 i=0; i < mBakedTextureDatas.size(); i++)
 	{
 		LLViewerTexLayerSet* layerset = getTexLayerSet(i);
-		if (use_lkg_baked_layer[i] && !mUseLocalAppearance )
+		if (use_lkg_baked_layer[i] && !isUsingLocalAppearance() )
 		{
 			LLViewerFetchedTexture* baked_img;
 			const std::string url = getImageURL(i, mBakedTextureDatas[i].mLastTextureIndex);
@@ -5852,7 +5852,7 @@ void LLVOAvatar::updateMeshTextures()
 				}
 			}
 		}
-		else if (!mUseLocalAppearance && is_layer_baked[i])
+		else if (!isUsingLocalAppearance() && is_layer_baked[i])
 		{
 			LLViewerFetchedTexture* baked_img = LLViewerTextureManager::staticCastToFetchedTexture(getImage( mBakedTextureDatas[i].mTextureIndex, 0 ), TRUE) ;
 			if( baked_img->getID() == mBakedTextureDatas[i].mLastTextureIndex )
@@ -5872,7 +5872,7 @@ void LLVOAvatar::updateMeshTextures()
 					src_callback_list, paused );
 			}
 		}
-		else if (layerset && mUseLocalAppearance) 
+		else if (layerset && isUsingLocalAppearance())
 		{
 			layerset->createComposite();
 			layerset->setUpdatesEnabled( TRUE );
@@ -5913,7 +5913,7 @@ void LLVOAvatar::updateMeshTextures()
 	// set texture and color of hair manually if we are not using a baked image.
 	// This can happen while loading hair for yourself, or for clients that did not
 	// bake a hair texture. Still needed for yourself after 1.22 is depricated.
-	if (!is_layer_baked[BAKED_HAIR] || mIsEditingAppearance)
+	if (!is_layer_baked[BAKED_HAIR] || isEditingAppearance())
 	{
 		const LLColor4 color = mTexHairColor ? mTexHairColor->getColor() : LLColor4(1,1,1,1);
 		LLViewerTexture* hair_img = getImage( TEX_HAIR, 0 );
@@ -6360,7 +6360,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	if( isSelf() )
 	{
 		llwarns << avString() << "Received AvatarAppearance for self" << llendl;
-		if( mFirstTEMessageReceived && !mUseServerBakes)
+		if( mFirstTEMessageReceived && !isUsingServerBakes())
 		{
 //			llinfos << "processAvatarAppearance end  " << mID << llendl;
 			return;
@@ -6399,7 +6399,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	}
 
 	// Check for stale update.
-	if (mUseServerBakes && isSelf()
+	if (isUsingServerBakes() && isSelf()
 		&& this_update_cof_version >= LLViewerInventoryCategory::VERSION_INITIAL
 		&& this_update_cof_version < last_update_request_cof_version)
 	{

@@ -2671,6 +2671,7 @@ void LLVOAvatarSelf::onCustomizeEnd(bool disable_camera_switch)
 		gAgentAvatarp->mIsEditingAppearance = false;
 		if (gAgentAvatarp->getRegion() && !gAgentAvatarp->getRegion()->getCentralBakeVersion())
 		{
+			// FIXME DRANO - move to sendAgentSetAppearance, make conditional on upload complete.
 			gAgentAvatarp->mUseLocalAppearance = false;
 		}
 
