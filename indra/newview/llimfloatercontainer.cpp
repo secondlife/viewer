@@ -661,56 +661,6 @@ void LLIMFloaterContainer::setSortOrder(const LLConversationSort& order)
 	gSavedSettings.setU32("ConversationSortOrder", (U32)order);
 }
 
-void LLIMFloaterContainer::repositioningWidgets()
-{
-	if (!mInitialized)
-	{
-		return;
-	}
-
-	if (!mConversationsPane->isCollapsed())
-	{
-		S32 list_width = (mConversationsPane->getRect()).getWidth();
-		gSavedPerAccountSettings.setS32("ConversationsListPaneWidth", list_width);
-	}
-	LLRect panel_rect = mConversationsListPanel->getRect();
-	S32 item_height = 16;
-	int index = 0;
-	for (conversations_widgets_map::iterator widget_it = mConversationsWidgets.begin();
-		 widget_it != mConversationsWidgets.end();
-		 widget_it++)
-	{
-		LLFolderViewFolder* widget = dynamic_cast<LLFolderViewFolder*>(widget_it->second);
-		widget->setVisible(TRUE);
-		widget->setRect(LLRect(0,
-							   panel_rect.getHeight() - item_height*index,
-							   panel_rect.getWidth(),
-							   panel_rect.getHeight() - item_height*(index+1)));
-		index++;
-		// Reposition the children as well
-		// Merov : This is highly suspiscious but gets the debug hack to work. This needs to be revised though.
-		if (widget->getItemsCount() != 0)
-		{
-			BOOL is_open = widget->isOpen();
-			widget->setOpen(TRUE);
-			LLFolderViewFolder::items_t::const_iterator current = widget->getItemsBegin();
-			LLFolderViewFolder::items_t::const_iterator end = widget->getItemsEnd();
-			while (current != end)
-			{
-				LLFolderViewItem* item = (*current);
-				item->setVisible(TRUE);
-				item->setRect(LLRect(0,
-									   panel_rect.getHeight() - item_height*index,
-									   panel_rect.getWidth(),
-									   panel_rect.getHeight() - item_height*(index+1)));
-				index++;
-				current++;
-			}
-			widget->setOpen(is_open);
-		}
-	}
-}
-
 void LLIMFloaterContainer::setConvItemSelect(const LLUUID& session_id)
 {
 	LLFolderViewItem* widget = mConversationsWidgets[session_id];
