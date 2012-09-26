@@ -6364,23 +6364,10 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 			<< " first? " << is_first_appearance_message << " self? " << isSelf() << LL_ENDL;
 
 
-	if( isSelf() )
-	{
-		llwarns << avString() << "Received AvatarAppearance for self" << llendl;
-		if( mFirstTEMessageReceived && !isUsingServerBakes())
-		{
-//			llinfos << "processAvatarAppearance end  " << mID << llendl;
-			return;
-		}
-	}
-
 	ESex old_sex = getSex();
 
-//	llinfos << "LLVOAvatar::processAvatarAppearance()" << llendl;
-//	dumpAvatarTEs( "PRE  processAvatarAppearance()" );
 	LLTEContents tec;
 	parseTEMessage(mesgsys, _PREHASH_ObjectData, -1, tec);
-//	dumpAvatarTEs( "POST processAvatarAppearance()" );
 
 	U8 appearance_version = 0;
 	S32 this_update_cof_version = LLViewerInventoryCategory::VERSION_UNKNOWN;
@@ -6404,6 +6391,18 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	{
 		mUseServerBakes = false;
 	}
+
+	// Only now that we have result of appearance_version can we decide whether to bail out.
+	// Don't expect this case to occur.
+	if( isSelf() )
+	{
+		llwarns << avString() << "Received AvatarAppearance for self" << llendl;
+		if( mFirstTEMessageReceived && !isUsingServerBakes())
+		{
+			return;
+		}
+	}
+
 
 	// Check for stale update.
 	if (isUsingServerBakes() && isSelf()

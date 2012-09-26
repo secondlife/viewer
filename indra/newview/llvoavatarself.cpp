@@ -746,7 +746,10 @@ U32  LLVOAvatarSelf::processUpdateMessage(LLMessageSystem *mesgsys,
 {
 	U32 retval = LLVOAvatar::processUpdateMessage(mesgsys,user_data,block_num,update_type,dp);
 
-	if (mInitialBakesLoaded == false && retval == 0x0)
+	// FIXME DRANO - skipping in the case of !mFirstAppearanceMessageReceived prevents us from trying to
+	// load textures before we know where they come from (ie, from baking service or not);
+	// unknown impact on performance.
+	if (mInitialBakesLoaded == false && retval == 0x0 && mFirstAppearanceMessageReceived)
 	{
 		// call update textures to force the images to be created
 		updateMeshTextures();
