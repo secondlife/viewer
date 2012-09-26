@@ -95,6 +95,7 @@ add_custom_command(
       ${CMAKE_CURRENT_BINARY_DIR}/indra.l.cpp
     COMMAND ${FLEX}
     ARGS
+      -P indra_
       -o${CMAKE_CURRENT_BINARY_DIR}/indra.l.cpp
       ${CMAKE_CURRENT_SOURCE_DIR}/indra.l
     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/indra.l
@@ -112,8 +113,10 @@ if (WINDOWS)
         ${CMAKE_CURRENT_BINARY_DIR}/indra.y.cpp
         ${CMAKE_CURRENT_BINARY_DIR}/indra.y.hpp
       COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bison.bat
+      ARGS
         ${BISON} ${M4_PATH}
-        ${CMAKE_CURRENT_BINARY_DIR}/indra.y.cpp
+        -p indra_
+        -d -o ${CMAKE_CURRENT_BINARY_DIR}/indra.y.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/indra.y
       DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/bison.bat
@@ -128,6 +131,7 @@ else (WINDOWS)
       COMMAND
         ${BISON}
       ARGS
+        -p indra_
         -d -o ${CMAKE_CURRENT_BINARY_DIR}/indra.y.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/indra.y
       DEPENDS
