@@ -44,6 +44,18 @@ static LLDefaultChildRegistry::Register<LLFolderViewItem> r("folder_view_item");
 // statics 
 std::map<U8, LLFontGL*> LLFolderViewItem::sFonts; // map of styles to fonts
 
+LLUIColor LLFolderViewItem::sFgColor;
+LLUIColor LLFolderViewItem::sHighlightBgColor;
+LLUIColor LLFolderViewItem::sHighlightFgColor;
+LLUIColor LLFolderViewItem::sFocusOutlineColor;
+LLUIColor LLFolderViewItem::sMouseOverColor;
+LLUIColor LLFolderViewItem::sFilterBGColor;
+LLUIColor LLFolderViewItem::sFilterTextColor;
+LLUIColor LLFolderViewItem::sSuffixColor;
+LLUIColor LLFolderViewItem::sLibraryColor;
+LLUIColor LLFolderViewItem::sLinkColor;
+LLUIColor LLFolderViewItem::sSearchStatusColor;
+
 // only integers can be initialized in header
 const F32 LLFolderViewItem::FOLDER_CLOSE_TIME_CONSTANT = 0.02f;
 const F32 LLFolderViewItem::FOLDER_OPEN_TIME_CONSTANT = 0.03f;
@@ -130,10 +142,22 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
     mArrowSize(p.arrow_size),
     mMaxFolderItemOverlap(p.max_folder_item_overlap)
 {
+	sFgColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
+	sHighlightBgColor = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", DEFAULT_WHITE);
+	sHighlightFgColor = LLUIColorTable::instance().getColor("MenuItemHighlightFgColor", DEFAULT_WHITE);
+	sFocusOutlineColor = LLUIColorTable::instance().getColor("InventoryFocusOutlineColor", DEFAULT_WHITE);
+	sMouseOverColor = LLUIColorTable::instance().getColor("InventoryMouseOverColor", DEFAULT_WHITE);
+	sFilterBGColor = LLUIColorTable::instance().getColor("FilterBackgroundColor", DEFAULT_WHITE);
+	sFilterTextColor = LLUIColorTable::instance().getColor("FilterTextColor", DEFAULT_WHITE);
+	sSuffixColor = LLUIColorTable::instance().getColor("InventoryItemColor", DEFAULT_WHITE);
+	sLibraryColor = LLUIColorTable::instance().getColor("InventoryItemLibraryColor", DEFAULT_WHITE);
+	sLinkColor = LLUIColorTable::instance().getColor("InventoryItemLinkColor", DEFAULT_WHITE);
+	sSearchStatusColor = LLUIColorTable::instance().getColor("InventorySearchStatusColor", DEFAULT_WHITE);
+
 	if (mViewModelItem)
 	{
 		mViewModelItem->setFolderViewItem(this);
-}
+	}
 }
 
 BOOL LLFolderViewItem::postBuild()
@@ -624,6 +648,22 @@ BOOL LLFolderViewItem::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	return handled;
 }
 
+void LLFolderViewItem::drawOpenFolderArrow(const Params& default_params, const LLUIColor& fg_color)
+{
+	//--------------------------------------------------------------------------------//
+	// Draw open folder arrow
+	//
+	const S32 TOP_PAD = default_params.item_top_pad;
+
+	if (hasVisibleChildren() || getViewModelItem()->hasChildren())
+	{
+		LLUIImage* arrow_image = default_params.folder_arrow_image;
+		gl_draw_scaled_rotated_image(
+			mIndentation, getRect().getHeight() - mArrowSize - mTextPad - TOP_PAD,
+			mArrowSize, mArrowSize, mControlLabelRotation, arrow_image->getImage(), fg_color);
+	}
+}
+
 void LLFolderViewItem::drawHighlight(const BOOL showContent, const BOOL hasKeyboardFocus, const LLUIColor &bgColor, 
                                                         const LLUIColor &focusOutlineColor, const LLUIColor &mouseOverColor)
 {
@@ -734,18 +774,6 @@ void LLFolderViewItem::drawLabel(const LLFontGL * font, const F32 x, const F32 y
 
 void LLFolderViewItem::draw()
 {
-	static LLUIColor sFgColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
-    static LLUIColor sHighlightBgColor = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", DEFAULT_WHITE);
-    static LLUIColor sHighlightFgColor = LLUIColorTable::instance().getColor("MenuItemHighlightFgColor", DEFAULT_WHITE);
-    static LLUIColor sFocusOutlineColor = LLUIColorTable::instance().getColor("InventoryFocusOutlineColor", DEFAULT_WHITE);
-    static LLUIColor sMouseOverColor = LLUIColorTable::instance().getColor("InventoryMouseOverColor", DEFAULT_WHITE);	
-	static LLUIColor sFilterBGColor = LLUIColorTable::instance().getColor("FilterBackgroundColor", DEFAULT_WHITE);
-	static LLUIColor sFilterTextColor = LLUIColorTable::instance().getColor("FilterTextColor", DEFAULT_WHITE);
-	static LLUIColor sSuffixColor = LLUIColorTable::instance().getColor("InventoryItemColor", DEFAULT_WHITE);
-	static LLUIColor sLibraryColor = LLUIColorTable::instance().getColor("InventoryItemLibraryColor", DEFAULT_WHITE);
-	static LLUIColor sLinkColor = LLUIColorTable::instance().getColor("InventoryItemLinkColor", DEFAULT_WHITE);
-	static LLUIColor sSearchStatusColor = LLUIColorTable::instance().getColor("InventorySearchStatusColor", DEFAULT_WHITE);
-	
     const BOOL show_context = (getRoot() ? getRoot()->getShowSelectionContext() : FALSE);
     const BOOL filled = show_context || (getRoot() ? getRoot()->getParentPanel()->hasFocus() : FALSE); // If we have keyboard focus, draw selection filled
 
@@ -756,17 +784,7 @@ void LLFolderViewItem::draw()
 
     getViewModelItem()->update();
 
-	//--------------------------------------------------------------------------------//
-	// Draw open folder arrow
-	//
-	if (hasVisibleChildren() || getViewModelItem()->hasChildren())
-	{
-		LLUIImage* arrow_image = default_params.folder_arrow_image;
-		gl_draw_scaled_rotated_image(
-			mIndentation, getRect().getHeight() - mArrowSize - mTextPad - TOP_PAD,
-			mArrowSize, mArrowSize, mControlLabelRotation, arrow_image->getImage(), sFgColor);
-	}
-
+    drawOpenFolderArrow(default_params, sFgColor);
 
     drawHighlight(show_context, filled, sHighlightBgColor, sFocusOutlineColor, sMouseOverColor);
 
@@ -875,6 +893,22 @@ LLFolderViewFolder::LLFolderViewFolder( const LLFolderViewItem::Params& p ):
 	mLastArrangeGeneration( -1 ),
 	mLastCalculatedWidth(0)
 {
+}
+
+void LLFolderViewFolder::updateLabelRotation()
+{
+	if (mAutoOpenCountdown != 0.f)
+	{
+		mControlLabelRotation = mAutoOpenCountdown * -90.f;
+	}
+	else if (isOpen())
+	{
+		mControlLabelRotation = lerp(mControlLabelRotation, -90.f, LLCriticalDamp::getInterpolant(0.04f));
+	}
+	else
+	{
+		mControlLabelRotation = lerp(mControlLabelRotation, 0.f, LLCriticalDamp::getInterpolant(0.025f));
+	}
 }
 
 // Destroys the object
@@ -1832,18 +1866,7 @@ BOOL LLFolderViewFolder::handleDoubleClick( S32 x, S32 y, MASK mask )
 
 void LLFolderViewFolder::draw()
 {
-	if (mAutoOpenCountdown != 0.f)
-	{
-		mControlLabelRotation = mAutoOpenCountdown * -90.f;
-	}
-	else if (isOpen())
-	{
-		mControlLabelRotation = lerp(mControlLabelRotation, -90.f, LLCriticalDamp::getInterpolant(0.04f));
-	}
-	else
-	{
-		mControlLabelRotation = lerp(mControlLabelRotation, 0.f, LLCriticalDamp::getInterpolant(0.025f));
-	}
+	updateLabelRotation();
 
 	LLFolderViewItem::draw();
 
