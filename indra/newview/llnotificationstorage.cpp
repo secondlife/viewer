@@ -84,6 +84,11 @@ bool LLPersistentNotificationStorage::onPersistentChannelChanged(const LLSD& pay
 	return false;
 }
 
+// Storing or loading too many persistent notifications will severely hurt 
+// viewer load times, possibly to the point of failing to log in. Example case
+// from MAINT-994 is 821 notifications. 
+static const S32 MAX_PERSISTENT_NOTIFICATIONS = 250;
+
 void LLPersistentNotificationStorage::saveNotifications()
 {
 	// TODO - think about save optimization.
@@ -114,6 +119,13 @@ void LLPersistentNotificationStorage::saveNotifications()
 		}
 
 		data.append(notification->asLLSD());
+
+		if (data.size() >= MAX_PERSISTENT_NOTIFICATIONS)
+		{
+			llwarns << "Too many persistent notifications."
+					<< " Saved " << MAX_PERSISTENT_NOTIFICATIONS << " of " << history_channel->size() << " persistent notifications." << llendl;
+			break;
+		}
 	}
 
 	LLPointer<LLSDFormatter> formatter = new LLSDXMLFormatter();
@@ -123,9 +135,6 @@ void LLPersistentNotificationStorage::saveNotifications()
 void LLPersistentNotificationStorage::loadNotifications()
 {
 	LLResponderRegistry::registerResponders();
-
-	LLNotifications::instance().getChannel("Persistent")->
-		connectChanged(boost::bind(&LLPersistentNotificationStorage::onPersistentChannelChanged, this, _1));
 
 	llifstream notify_file(mFileName.c_str());
 	if (!notify_file.is_open())
@@ -158,7 +167,7 @@ void LLPersistentNotificationStorage::loadNotifications()
 		findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
 
 	LLNotifications& instance = LLNotifications::instance();
-
+	S32 processed_notifications = 0;
 	for (LLSD::array_const_iterator notification_it = data.beginArray();
 		notification_it != data.endArray();
 		++notification_it)
@@ -188,7 +197,18 @@ void LLPersistentNotificationStorage::loadNotifications()
 		{
 			llwarns << "Failed to find template for persistent notification " << notification_params["name"].asString() << llendl;
 		}
+
+		++processed_notifications;
+		if (processed_notifications >= MAX_PERSISTENT_NOTIFICATIONS)
+		{
+			llwarns << "Too many persistent notifications."
+					<< " Processed " << MAX_PERSISTENT_NOTIFICATIONS << " of " << data.size() << " persistent notifications." << llendl;
+			break;
+		}
 	}
+
+	LLNotifications::instance().getChannel("Persistent")->
+		connectChanged(boost::bind(&LLPersistentNotificationStorage::onPersistentChannelChanged, this, _1));
 }
 
 //////////////////////////////////////////////////////////////////////////
