@@ -1274,7 +1274,7 @@ void LLVOAvatarSelf::localTextureLoaded(BOOL success, LLViewerFetchedTexture *sr
 			discard_level < local_tex_obj->getDiscard())
 		{
 			local_tex_obj->setDiscard(discard_level);
-			// FIXME DRANO
+			// FIXME DRANO - should this be a local appearance check?
 			if (isUsingServerBakes())
 			{
 				requestLayerSetUpdate(index);

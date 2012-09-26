@@ -4263,6 +4263,8 @@ void LLAgent::sendAgentSetAppearance()
 {
 	if (!isAgentAvatarValid() || (getRegion() && getRegion()->getCentralBakeVersion())) return;
 
+
+	// FIXME DRANO - remove server bake check, covered by central bake check above?
 	if (gAgentQueryManager.mNumPendingQueries > 0 && (isAgentAvatarValid() && gAgentAvatarp->isUsingServerBakes())) 
 	{
 		return;
@@ -4321,6 +4323,9 @@ void LLAgent::sendAgentSetAppearance()
 	}
 
 	// only update cache entries if we have all our baked textures
+	// FIXME DRANO additional if check for not in appearance editing
+	// mode, if still using local composites need to set using local
+	// composites to false, update mesh textures.
 	if (textures_current)
 	{
 		LL_INFOS("Avatar") << gAgentAvatarp->avString() << "TAT: Sending cached texture data" << LL_ENDL;

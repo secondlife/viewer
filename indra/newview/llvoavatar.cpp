@@ -4203,8 +4203,15 @@ void LLVOAvatar::setTexEntry(const U8 index, const LLTextureEntry &te)
 const std::string LLVOAvatar::getImageURL(const U8 te, const LLUUID &uuid)
 {
 	std::string url = "";
-	if (isUsingServerBakes() && !gSavedSettings.getString("AgentAppearanceServiceURL").empty())
+	if (isUsingServerBakes())
 	{
+		if (gSavedSettings.getString("AgentAppearanceServiceURL").empty())
+		{
+			// Probably a server-side issue if we get here:
+			llwarns << "AgentAppearanceServiceURL not set - Baked texture requests will fail" << llendl;
+			return url;
+		}
+	
 		const LLAvatarAppearanceDictionary::TextureEntry* texture_entry = LLAvatarAppearanceDictionary::getInstance()->getTexture((ETextureIndex)te);
 		if (texture_entry != NULL)
 		{

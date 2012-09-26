@@ -176,6 +176,7 @@ void LLTexLayerParamAlpha::setWeight(F32 weight, BOOL upload_bake)
 
 		if ((mAvatarAppearance->getSex() & getSex()) && (mAvatarAppearance->isSelf() && !mIsDummy)) // only trigger a baked texture update if we're changing a wearable's visual param.
 		{
+			// FIXME DRANO - is this check right?
 			if (!mAvatarAppearance->isUsingServerBakes())
 			{
 				upload_bake = FALSE;
