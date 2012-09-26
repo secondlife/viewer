@@ -251,8 +251,8 @@ LLConversationItemParticipant::LLConversationItemParticipant(const LLUUID& uuid,
 
 void LLConversationItemParticipant::onAvatarNameCache(const LLAvatarName& av_name)
 {
-	mName = av_name.mDisplayName;
-	// *TODO : we should also store that one, to be used in the tooltip : av_name.mUsername
+	mName = av_name.mUsername;
+	mDisplayName = av_name.mDisplayName;
 	mNeedsRefresh = true;
 	if (mParent)
 	{
@@ -262,7 +262,7 @@ void LLConversationItemParticipant::onAvatarNameCache(const LLAvatarName& av_nam
 
 void LLConversationItemParticipant::dumpDebugData()
 {
-	llinfos << "Merov debug : participant " << this << ", uuid = " << mUUID << ", name = " << mName << ", muted = " << mIsMuted << ", moderator = " << mIsModerator << llendl;
+	llinfos << "Merov debug : participant, uuid = " << mUUID << ", name = " << mName << ", display name = " << mDisplayName << ", muted = " << mIsMuted << ", moderator = " << mIsModerator << llendl;
 }
 
 //
@@ -363,7 +363,7 @@ bool LLConversationSort::operator()(const LLConversationItem* const& a, const LL
 	}
 	// By default, in all other possible cases (including sort order type LLConversationFilter::SO_NAME of course), 
 	// we sort by name
-	S32 compare = LLStringUtil::compareDict(a->getDisplayName(), b->getDisplayName());
+	S32 compare = LLStringUtil::compareDict(a->getName(), b->getName());
 	return (compare < 0);
 }
 

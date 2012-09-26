@@ -230,7 +230,7 @@ void LLFolderViewItem::refresh()
 
 	mLabel = vmi.getDisplayName();
 
-	setToolTip(mLabel);
+	setToolTip(vmi.getName());
 	mIcon = vmi.getIcon();
 	mIconOpen = vmi.getIconOpen();
 	mIconOverlay = vmi.getIconOverlay();

@@ -170,6 +170,8 @@ public:
 	LLConversationItemParticipant(const LLUUID& uuid, LLFolderViewModelInterface& root_view_model);
 	virtual ~LLConversationItemParticipant() {}
 	
+	virtual const std::string& getDisplayName() const { return mDisplayName; }
+
 	bool isMuted() { return mIsMuted; }
 	bool isModerator() {return mIsModerator; }
 	void setIsMuted(bool is_muted) { mIsMuted = is_muted; mNeedsRefresh = true; }
@@ -186,6 +188,7 @@ public:
 private:
 	bool mIsMuted;		// default is false
 	bool mIsModerator;	// default is false
+	std::string mDisplayName;
 	F64  mDistToAgent;  // Distance to the agent. A negative (meaningless) value means the distance has not been set.
 };
 
