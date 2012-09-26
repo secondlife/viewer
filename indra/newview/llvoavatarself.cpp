@@ -1274,12 +1274,8 @@ void LLVOAvatarSelf::localTextureLoaded(BOOL success, LLViewerFetchedTexture *sr
 			discard_level < local_tex_obj->getDiscard())
 		{
 			local_tex_obj->setDiscard(discard_level);
-			// FIXME DRANO - should this be a local appearance check?
-			if (isUsingServerBakes())
-			{
-				requestLayerSetUpdate(index);
-			}
-			else
+			requestLayerSetUpdate(index);
+			if (isEditingAppearance())
 			{
 				LLVisualParamHint::requestHintUpdates();
 			}
@@ -1759,12 +1755,8 @@ void LLVOAvatarSelf::setLocalTexture(ETextureIndex type, LLViewerTexture* src_te
 					local_tex_obj->setDiscard(tex_discard);
 					if (isSelf())
 					{
-						// FIXME DRANO
-						if (gAgentAvatarp->isUsingServerBakes())
-						{
-							requestLayerSetUpdate(type);
-						}
-						else
+						requestLayerSetUpdate(type);
+						if (isEditingAppearance())
 						{
 							LLVisualParamHint::requestHintUpdates();
 						}

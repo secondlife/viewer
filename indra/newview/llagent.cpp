@@ -3630,8 +3630,7 @@ void LLAgent::processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void *
 		return;
 	}
 
-	// FIXME DRANO wrong check
-	if (isAgentAvatarValid() && !gAgentAvatarp->isUsingServerBakes())
+	if (isAgentAvatarValid() && gAgentAvatarp->isEditingAppearance())
 	{
 		// ignore baked textures when in customize mode
 		return;
@@ -4261,11 +4260,16 @@ void LLAgent::requestLeaveGodMode()
 //-----------------------------------------------------------------------------
 void LLAgent::sendAgentSetAppearance()
 {
+	// FIXME DRANO - this return short-circuits a bunch of phase stat tracking below.
 	if (!isAgentAvatarValid() || (getRegion() && getRegion()->getCentralBakeVersion())) return;
 
+	// FIXME DRANO - problems around new-style appearance in an old-style region.
+	// - does this get called?
+	// - need to change mUseServerBakes->FALSE in that case
+	// - need to call processAvatarAppearance as if server had returned this result?
+	// gAgentAvatarp->mUseServerBakes = FALSE;
 
-	// FIXME DRANO - remove server bake check, covered by central bake check above?
-	if (gAgentQueryManager.mNumPendingQueries > 0 && (isAgentAvatarValid() && gAgentAvatarp->isUsingServerBakes())) 
+	if (gAgentQueryManager.mNumPendingQueries > 0) 
 	{
 		return;
 	}

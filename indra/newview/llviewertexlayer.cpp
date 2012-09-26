@@ -285,8 +285,7 @@ BOOL LLViewerTexLayerSetBuffer::uploadInProgress() const
 BOOL LLViewerTexLayerSetBuffer::isReadyToUpload() const
 {
 	if (!gAgentQueryManager.hasNoPendingQueries()) return FALSE; // Can't upload if there are pending queries.
-	// FIXME DRANO - should be checking local appearance?
-	if (isAgentAvatarValid() && !gAgentAvatarp->isUsingServerBakes()) return FALSE; // Don't upload if avatar is using composites.
+	if (isAgentAvatarValid() && gAgentAvatarp->isEditingAppearance()) return FALSE; // Don't upload if avatar is being edited.
 
 	BOOL ready = FALSE;
 	if (getViewerTexLayerSet()->isLocalTextureDataFinal())
