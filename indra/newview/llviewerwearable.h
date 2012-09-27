@@ -64,12 +64,12 @@ public:
 	void				removeFromAvatar( BOOL upload_bake )	{ LLViewerWearable::removeFromAvatar( mType, upload_bake ); }
 	static void			removeFromAvatar( LLWearableType::EType type, BOOL upload_bake ); 
 
-	/*virtual*/ EImportResult	importFile(LLFILE* file, LLAvatarAppearance* avatarp);
+	/*virtual*/ EImportResult	importStream( std::istream& input_stream, LLAvatarAppearance* avatarp );
 	
 	void				setParamsToDefaults();
 	void				setTexturesToDefaults();
 
-	static const LLUUID			getDefaultTextureImageID(LLAvatarAppearanceDefines::ETextureIndex index);
+	/*virtual*/ LLUUID	getDefaultTextureImageID(LLAvatarAppearanceDefines::ETextureIndex index) const;
 
 
 	void				saveNewAsset() const;
@@ -79,14 +79,8 @@ public:
 
 	friend std::ostream& operator<<(std::ostream &s, const LLViewerWearable &w);
 
-	/*virtual*/ LLLocalTextureObject* getLocalTextureObject(S32 index);
-	const LLLocalTextureObject* getLocalTextureObject(S32 index) const;
-	std::vector<LLLocalTextureObject*> getLocalTextureListSeq();
-	void				setLocalTextureObject(S32 index, LLLocalTextureObject &lto);
-	void				setVisualParams();
-
-	void				revertValues();
-	void				saveValues();
+	/*virtual*/ void	revertValues();
+	/*virtual*/ void	saveValues();
 
 	// Something happened that requires the wearable's label to be updated (e.g. worn/unworn).
 	/*virtual*/void		setUpdated() const;
@@ -99,8 +93,6 @@ public:
 	/*virtual*/void		addToBakedTextureHash(LLMD5& hash) const;
 
 protected:
-	void				syncImages(te_map_t &src, te_map_t &dst);
-	void				destroyTextures();	
 	LLAssetID			mAssetID;
 	LLTransactionID		mTransactionID;
 

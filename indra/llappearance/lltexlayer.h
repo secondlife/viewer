@@ -36,6 +36,7 @@
 class LLAvatarAppearance;
 class LLImageTGA;
 class LLImageRaw;
+class LLLocalTextureObject;
 class LLXmlTreeNode;
 class LLTexLayerSet;
 class LLTexLayerSetInfo;

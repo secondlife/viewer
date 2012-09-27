@@ -27,6 +27,7 @@
 #ifndef LL_LLWEARABLE_H
 #define LL_LLWEARABLE_H
 
+#include "llavatarappearancedefines.h"
 #include "llextendedstatus.h"
 #include "llpermissions.h"
 #include "llsaleinfo.h"
@@ -79,14 +80,19 @@ public:
 		SUCCESS,
 		BAD_HEADER
 	};
-	virtual BOOL				exportFile(LLFILE* file) const;
-	virtual EImportResult		importFile(LLFILE* file, LLAvatarAppearance* avatarp);
-
-
+	BOOL				exportFile(LLFILE* file) const;
+	EImportResult		importFile(LLFILE* file, LLAvatarAppearance* avatarp );
+	virtual BOOL				exportStream( std::ostream& output_stream ) const;
+	virtual EImportResult		importStream( std::istream& input_stream, LLAvatarAppearance* avatarp );
 
 	static void			setCurrentDefinitionVersion( S32 version ) { LLWearable::sCurrentDefinitionVersion = version; }
+	virtual LLUUID		getDefaultTextureImageID(LLAvatarAppearanceDefines::ETextureIndex index) const = 0;
 
-	virtual LLLocalTextureObject* getLocalTextureObject(S32 index) = 0;
+	LLLocalTextureObject* getLocalTextureObject(S32 index);
+	const LLLocalTextureObject* getLocalTextureObject(S32 index) const;
+	std::vector<LLLocalTextureObject*> getLocalTextureListSeq();
+
+	void				setLocalTextureObject(S32 index, LLLocalTextureObject &lto);
 	void				addVisualParam(LLVisualParam *param);
 	void 				setVisualParamWeight(S32 index, F32 value, BOOL upload_bake);
 	F32					getVisualParamWeight(S32 index) const;
@@ -97,6 +103,9 @@ public:
 	LLColor4			getClothesColor(S32 te) const;
 	void 				setClothesColor( S32 te, const LLColor4& new_color, BOOL upload_bake );
 
+	virtual void		revertValues();
+	virtual void		saveValues();
+
 	// Something happened that requires the wearable to be updated (e.g. worn/unworn).
 	virtual void		setUpdated() const = 0;
 
@@ -104,6 +113,9 @@ public:
 	virtual void		addToBakedTextureHash(LLMD5& hash) const = 0;
 
 protected:
+	typedef std::map<S32, LLLocalTextureObject*> te_map_t;
+	void				syncImages(te_map_t &src, te_map_t &dst);
+	void				destroyTextures();
 	void			 	createVisualParams(LLAvatarAppearance *avatarp);
 	void 				createLayers(S32 te, LLAvatarAppearance *avatarp);
 
@@ -121,7 +133,6 @@ protected:
 	typedef std::map<S32, LLVisualParam *>    visual_param_index_map_t;
 	visual_param_index_map_t mVisualParamIndexMap;
 
-	typedef std::map<S32, LLLocalTextureObject*> te_map_t;
 	te_map_t mTEMap;				// maps TE to LocalTextureObject
 	te_map_t mSavedTEMap;			// last saved version of TEMap
 };

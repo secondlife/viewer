@@ -1385,43 +1385,6 @@ void LLViewerWindow::handleMenuSelect(LLWindow *window,  S32 menu_item)
 
 BOOL LLViewerWindow::handlePaint(LLWindow *window,  S32 x,  S32 y, S32 width,  S32 height)
 {
-	// *TODO: Enable similar information output for other platforms?  DK 2011-02-18
-#if LL_WINDOWS
-	if (gHeadlessClient)
-	{
-		HWND window_handle = (HWND)window->getPlatformWindow();
-		PAINTSTRUCT ps; 
-		HDC hdc; 
- 
-		RECT wnd_rect;
-		wnd_rect.left = 0;
-		wnd_rect.top = 0;
-		wnd_rect.bottom = 200;
-		wnd_rect.right = 500;
-
-		hdc = BeginPaint(window_handle, &ps); 
-		//SetBKColor(hdc, RGB(255, 255, 255));
-		FillRect(hdc, &wnd_rect, CreateSolidBrush(RGB(255, 255, 255)));
-
-		std::string temp_str;
-		temp_str = llformat( "FPS %3.1f Phy FPS %2.1f Time Dil %1.3f",		/* Flawfinder: ignore */
-				LLViewerStats::getInstance()->mFPSStat.getMeanPerSec(),
-				LLViewerStats::getInstance()->mSimPhysicsFPS.getPrev(0),
-				LLViewerStats::getInstance()->mSimTimeDilation.getPrev(0));
-		S32 len = temp_str.length();
-		TextOutA(hdc, 0, 0, temp_str.c_str(), len); 
-
-
-		LLVector3d pos_global = gAgent.getPositionGlobal();
-		temp_str = llformat( "Avatar pos %6.1lf %6.1lf %6.1lf", pos_global.mdV[0], pos_global.mdV[1], pos_global.mdV[2]);
-		len = temp_str.length();
-		TextOutA(hdc, 0, 25, temp_str.c_str(), len); 
-
-		TextOutA(hdc, 0, 50, "Set \"HeadlessClient FALSE\" in settings.ini file to reenable", 61);
-		EndPaint(window_handle, &ps); 
-		return TRUE;
-	}
-#endif
 	return FALSE;
 }
 
@@ -1568,12 +1531,12 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	resetSnapshotLoc();
 
 	// create window
+	const BOOL clear_bg = FALSE;
 	mWindow = LLWindowManager::createWindow(this,
 		p.title, p.name, p.x, p.y, p.width, p.height, 0,
 		p.fullscreen, 
-		gHeadlessClient,
+		clear_bg,
 		gSavedSettings.getBOOL("DisableVerticalSync"),
-		!gHeadlessClient,
 		p.ignore_pixel_depth,
 		gSavedSettings.getBOOL("RenderDeferred") ? 0 : gSavedSettings.getU32("RenderFSAASamples")); //don't use window level anti-aliasing if FBOs are enabled
 
@@ -1717,7 +1680,6 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 
 void LLViewerWindow::initGLDefaults()
 {
-	if (gHeadlessClient) return;
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
 	if (!LLGLSLShader::sNoFixedFunction)
@@ -4996,11 +4958,6 @@ LLRect LLViewerWindow::getChatConsoleRect()
 bool LLViewerWindow::onAlert(const LLSD& notify)
 {
 	LLNotificationPtr notification = LLNotifications::instance().find(notify["id"].asUUID());
-
-	if (gHeadlessClient)
-	{
-		llinfos << "Alert: " << notification->getName() << llendl;
-	}
 
 	// If we're in mouselook, the mouse is hidden and so the user can't click 
 	// the dialog buttons.  In that case, change to First Person instead.

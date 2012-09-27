@@ -824,7 +824,7 @@ BOOL LLInventoryItem::importLegacyStream(std::istream& input_stream)
 		}
 		else if(0 == strcmp("permissions", keyword))
 		{
-			success = mPermissions.importLegacyStream(input_stream);
+			success = mPermissions.importStream(input_stream);
 		}
 		else if(0 == strcmp("sale_info", keyword))
 		{
@@ -834,7 +834,7 @@ BOOL LLInventoryItem::importLegacyStream(std::istream& input_stream)
 			// should pick up the vast majority of the tasks.
 			BOOL has_perm_mask = FALSE;
 			U32 perm_mask = 0;
-			success = mSaleInfo.importLegacyStream(input_stream, has_perm_mask, perm_mask);
+			success = mSaleInfo.importStream(input_stream, has_perm_mask, perm_mask);
 			if(has_perm_mask)
 			{
 				if(perm_mask == PERM_NONE)
@@ -950,7 +950,7 @@ BOOL LLInventoryItem::exportLegacyStream(std::ostream& output_stream, BOOL inclu
 	output_stream << "\t\titem_id\t" << uuid_str << "\n";
 	mParentUUID.toString(uuid_str);
 	output_stream << "\t\tparent_id\t" << uuid_str << "\n";
-	mPermissions.exportLegacyStream(output_stream);
+	mPermissions.exportStream(output_stream);
 
 	// Check for permissions to see the asset id, and if so write it
 	// out as an asset id. Otherwise, apply our cheesy encryption.
@@ -984,7 +984,7 @@ BOOL LLInventoryItem::exportLegacyStream(std::ostream& output_stream, BOOL inclu
 	std::string buffer;
 	buffer = llformat( "\t\tflags\t%08x\n", mFlags);
 	output_stream << buffer;
-	mSaleInfo.exportLegacyStream(output_stream);
+	mSaleInfo.exportStream(output_stream);
 	output_stream << "\t\tname\t" << mName.c_str() << "|\n";
 	output_stream << "\t\tdesc\t" << mDescription.c_str() << "|\n";
 	output_stream << "\t\tcreation_date\t" << mCreationDate << "\n";

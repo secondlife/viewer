@@ -29,9 +29,10 @@
 #define LL_AVATARAPPEARANCE_DEFINES_H
 
 #include <vector>
-#include "llwearable.h"
 #include "lljointpickname.h"
 #include "lldictionary.h"
+#include "llwearabletype.h"
+#include "lluuid.h"
 
 namespace LLAvatarAppearanceDefines
 {

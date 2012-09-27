@@ -62,52 +62,41 @@ LLAssetType::EType LLWearable::getAssetType() const
 	return LLWearableType::getAssetType(mType);
 }
 
-// virtual
-BOOL LLWearable::exportFile(LLFILE* file) const
+BOOL LLWearable::exportFile(LLFILE* fp) const
 {
+	llofstream ofs(fp);
+	return exportStream(ofs);
+}
+
+// virtual
+BOOL LLWearable::exportStream( std::ostream& output_stream ) const
+{
+	if (!output_stream.good()) return FALSE;
+
 	// header and version
-	if( fprintf( file, "LLWearable version %d\n", mDefinitionVersion ) < 0 )
-	{
-		return FALSE;
-	}
-
+	output_stream << "LLWearable version " << mDefinitionVersion  << "\n";
 	// name
-	if( fprintf( file, "%s\n", mName.c_str() ) < 0 )
-	{
-		return FALSE;
-	}
-
+	output_stream << mName << "\n";
 	// description
-	if( fprintf( file, "%s\n", mDescription.c_str() ) < 0 )
-	{
-		return FALSE;
-	}
-	
+	output_stream << mDescription << "\n";
+
 	// permissions
-	if( !mPermissions.exportFile( file ) )
+	if( !mPermissions.exportStream( output_stream ) )
 	{
 		return FALSE;
 	}
 
 	// sale info
-	if( !mSaleInfo.exportFile( file ) )
+	if( !mSaleInfo.exportStream( output_stream ) )
 	{
 		return FALSE;
 	}
 
 	// wearable type
-	S32 type = (S32)mType;
-	if( fprintf( file, "type %d\n", type ) < 0 )
-	{
-		return FALSE;
-	}
+	output_stream << "type " << (S32) getType() << "\n";
 
 	// parameters
-	S32 num_parameters = mVisualParamIndexMap.size();
-	if( fprintf( file, "parameters %d\n", num_parameters ) < 0 )
-	{
-		return FALSE;
-	}
+	output_stream << "parameters " << mVisualParamIndexMap.size() << "\n";
 
 	for (visual_param_index_map_t::const_iterator iter = mVisualParamIndexMap.begin();
 		 iter != mVisualParamIndexMap.end(); 
@@ -116,27 +105,17 @@ BOOL LLWearable::exportFile(LLFILE* file) const
 		S32 param_id = iter->first;
 		const LLVisualParam* param = iter->second;
 		F32 param_weight = param->getWeight();
-		if( fprintf( file, "%d %s\n", param_id, terse_F32_to_string( param_weight ).c_str() ) < 0 )
-		{
-			return FALSE;
-		}
+		output_stream << param_id << " " << terse_F32_to_string( param_weight ) << "\n";
 	}
 
 	// texture entries
-	S32 num_textures = mTEMap.size();
-	if( fprintf( file, "textures %d\n", num_textures ) < 0 )
-	{
-			return FALSE;
-	}
+	output_stream << "textures " << mTEMap.size() << "\n";
 
 	for (te_map_t::const_iterator iter = mTEMap.begin(); iter != mTEMap.end(); ++iter)
 	{
 			S32 te = iter->first;
 			const LLUUID& image_id = iter->second->getID();
-			if( fprintf( file, "%d %s\n", te, image_id.asString().c_str()) < 0 )
-			{
-					return FALSE;
-			}
+			output_stream << te << " " << image_id << "\n";
 	}
 	return TRUE;
 }
@@ -195,29 +174,49 @@ void LLWearable::createLayers(S32 te, LLAvatarAppearance *avatarp)
 	}
 }
 
+LLWearable::EImportResult LLWearable::importFile(LLFILE* fp, LLAvatarAppearance* avatarp )
+{
+	llifstream ifs(fp);
+	return importStream(ifs, avatarp);
+}
+
 // virtual
-LLWearable::EImportResult LLWearable::importFile( LLFILE* file, LLAvatarAppearance* avatarp )
+LLWearable::EImportResult LLWearable::importStream( std::istream& input_stream, LLAvatarAppearance* avatarp )
 {
 	// *NOTE: changing the type or size of this buffer will require
-	// changes in the fscanf() code below. You would be better off
-	// rewriting this to use streams and not require an open FILE.
-	char text_buffer[2048];		/* Flawfinder: ignore */
-	S32 fields_read = 0;
+	// changes in the fscanf() code below.
+	// We are using a local max buffer size here to avoid issues
+	// if MAX_STRING size changes.
+	const U32 PARSE_BUFFER_SIZE = 2048;
+	char buffer[2048];		/* Flawfinder: ignore */
+	char uuid_buffer[37];	/* Flawfinder: ignore */
 
-	// read header and version 
-	fields_read = fscanf( file, "LLWearable version %d\n", &mDefinitionVersion );
-	if( fields_read != 1 )
-	{
-		return LLWearable::BAD_HEADER;
-	}
+	// This data is being generated on the viewer.
+	// Impose some sane limits on parameter and texture counts.
+	const S32 MAX_WEARABLE_ASSET_TEXTURES = 100;
+	const S32 MAX_WEARABLE_ASSET_PARAMETERS = 1000;
 
 	if(!avatarp)
 	{
 		return LLWearable::FAILURE;
 	}
 
+	// read header and version 
+	if (!input_stream.good())
+	{
+		llwarns << "Failed to read wearable asset input stream." << llendl;
+		return LLWearable::FAILURE;
+	}
+	input_stream.getline(buffer, PARSE_BUFFER_SIZE);
+	if ( 1 != sscanf( /* Flawfinder: ignore */
+				buffer,
+				"LLWearable version %d\n",
+				&mDefinitionVersion ) )
+	{
+		return LLWearable::BAD_HEADER;
+	}
 
-	// Temporary hack to allow wearables with definition version 24 to still load.
+	// Hack to allow wearables with definition version 24 to still load.
 	// This should only affect lindens and NDA'd testers who have saved wearables in 2.0
 	// the extra check for version == 24 can be removed before release, once internal testers
 	// have loaded these wearables again. See hack pt 2 at bottom of function to ensure that
@@ -229,68 +228,58 @@ LLWearable::EImportResult LLWearable::importFile( LLFILE* file, LLAvatarAppearan
 	}
 
 	// name
-	int next_char = fgetc( file );		/* Flawfinder: ignore */
-	if( '\n' == next_char )
+	if (!input_stream.good())
 	{
-		// no name
-		mName = "";
-	}
-	else
-	{
-		ungetc( next_char, file );
-		fields_read = fscanf(	/* Flawfinder: ignore */
-			file,
-			"%2047[^\n]",
-			text_buffer);
-		if( (1 != fields_read) || (fgetc( file ) != '\n') )		/* Flawfinder: ignore */
-		{
-			llwarns << "Bad Wearable asset: early end of file" << llendl;
-			return LLWearable::FAILURE;
-		}
-		mName = text_buffer;
-	}
-
-	// description
-	next_char = fgetc( file );		/* Flawfinder: ignore */
-	if( '\n' == next_char )
-	{
-		// no description
-		mDescription = "";
-	}
-	else
-	{
-		ungetc( next_char, file );
-		fields_read = fscanf(	/* Flawfinder: ignore */
-			file,
-			"%2047[^\n]",
-			text_buffer );
-		if( (1 != fields_read) || (fgetc( file ) != '\n') )		/* Flawfinder: ignore */
-		{
-			llwarns << "Bad Wearable asset: early end of file" << llendl;
-			return LLWearable::FAILURE;
-		}
-		mDescription = text_buffer;
-	}
-
-	// permissions
-	S32 perm_version;
-	fields_read = fscanf( file, " permissions %d\n", &perm_version );
-	if( (fields_read != 1) || (perm_version != 0) )
-	{
-		llwarns << "Bad Wearable asset: missing permissions" << llendl;
+		llwarns << "Bad Wearable asset: early end of input stream " 
+				<< "while reading name" << llendl;
 		return LLWearable::FAILURE;
 	}
-	if( !mPermissions.importFile( file ) )
+	input_stream.getline(buffer, PARSE_BUFFER_SIZE);
+	mName = buffer;
+
+	// description
+	if (!input_stream.good())
+	{
+		llwarns << "Bad Wearable asset: early end of input stream " 
+				<< "while reading description" << llendl;
+		return LLWearable::FAILURE;
+	}
+	input_stream.getline(buffer, PARSE_BUFFER_SIZE);
+	mDescription = buffer;
+
+	// permissions
+	if (!input_stream.good())
+	{
+		llwarns << "Bad Wearable asset: early end of input stream " 
+				<< "while reading permissions" << llendl;
+		return LLWearable::FAILURE;
+	}
+	input_stream.getline(buffer, PARSE_BUFFER_SIZE);
+	S32 perm_version = -1;
+	if ( 1 != sscanf( buffer, " permissions %d\n", &perm_version ) ||
+		 perm_version != 0 )
+	{
+		llwarns << "Bad Wearable asset: missing valid permissions" << llendl;
+		return LLWearable::FAILURE;
+	}
+	if( !mPermissions.importStream( input_stream ) )
 	{
 		return LLWearable::FAILURE;
 	}
 
 	// sale info
-	S32 sale_info_version;
-	fields_read = fscanf( file, " sale_info %d\n", &sale_info_version );
-	if( (fields_read != 1) || (sale_info_version != 0) )
+	if (!input_stream.good())
 	{
-		llwarns << "Bad Wearable asset: missing sale_info" << llendl;
+		llwarns << "Bad Wearable asset: early end of input stream " 
+				<< "while reading sale info" << llendl;
+		return LLWearable::FAILURE;
+	}
+	input_stream.getline(buffer, PARSE_BUFFER_SIZE);
+	S32 sale_info_version = -1;
+	if ( 1 != sscanf( buffer, " sale_info %d\n", &sale_info_version ) ||
+		sale_info_version != 0 )
+	{
+		llwarns << "Bad Wearable asset: missing valid sale_info" << llendl;
 		return LLWearable::FAILURE;
 	}
 	// Sale info used to contain next owner perm. It is now in the
@@ -299,7 +288,7 @@ LLWearable::EImportResult LLWearable::importFile( LLFILE* file, LLAvatarAppearan
 	// up the vast majority of the tasks.
 	BOOL has_perm_mask = FALSE;
 	U32 perm_mask = 0;
-	if( !mSaleInfo.importFile(file, has_perm_mask, perm_mask) )
+	if( !mSaleInfo.importStream(input_stream, has_perm_mask, perm_mask) )
 	{
 		return LLWearable::FAILURE;
 	}
@@ -314,9 +303,15 @@ LLWearable::EImportResult LLWearable::importFile( LLFILE* file, LLAvatarAppearan
 	}
 
 	// wearable type
+	if (!input_stream.good())
+	{
+		llwarns << "Bad Wearable asset: early end of input stream " 
+				<< "while reading type" << llendl;
+		return LLWearable::FAILURE;
+	}
+	input_stream.getline(buffer, PARSE_BUFFER_SIZE);
 	S32 type = -1;
-	fields_read = fscanf( file, "type %d\n", &type );
-	if( fields_read != 1 )
+	if ( 1 != sscanf( buffer, "type %d\n", &type ) )
 	{
 		llwarns << "Bad Wearable asset: bad type" << llendl;
 		return LLWearable::FAILURE;
@@ -333,27 +328,48 @@ LLWearable::EImportResult LLWearable::importFile( LLFILE* file, LLAvatarAppearan
 	}
 
 	// parameters header
-	S32 num_parameters = 0;
-	fields_read = fscanf( file, "parameters %d\n", &num_parameters );
-	if( fields_read != 1 )
+	if (!input_stream.good())
+	{
+		llwarns << "Bad Wearable asset: early end of input stream " 
+				<< "while reading parameters header" << llendl;
+		return LLWearable::FAILURE;
+	}
+	input_stream.getline(buffer, PARSE_BUFFER_SIZE);
+	S32 num_parameters = -1;
+	if ( 1 != sscanf( buffer, "parameters %d\n", &num_parameters ) )
 	{
 		llwarns << "Bad Wearable asset: missing parameters block" << llendl;
 		return LLWearable::FAILURE;
 	}
-
+	if ( num_parameters > MAX_WEARABLE_ASSET_PARAMETERS )
+	{
+		llwarns << "Bad Wearable asset: too many parameters, "
+				<< num_parameters << llendl;
+		return LLWearable::FAILURE;
+	}
 	if( num_parameters != mVisualParamIndexMap.size() )
 	{
-		llwarns << "Wearable parameter mismatch. Reading in " << num_parameters << " from file, but created " << mVisualParamIndexMap.size() << " from avatar parameters. type: " <<  mType << llendl;
+		llwarns << "Wearable parameter mismatch. Reading in " 
+				<< num_parameters << " from file, but created " 
+				<< mVisualParamIndexMap.size() 
+				<< " from avatar parameters. type: " 
+				<<  getType() << llendl;
 	}
 
 	// parameters
 	S32 i;
 	for( i = 0; i < num_parameters; i++ )
 	{
+		if (!input_stream.good())
+		{
+			llwarns << "Bad Wearable asset: early end of input stream " 
+					<< "while reading parameter #" << i << llendl;
+			return LLWearable::FAILURE;
+		}
+		input_stream.getline(buffer, PARSE_BUFFER_SIZE);
 		S32 param_id = 0;
 		F32 param_weight = 0.f;
-		fields_read = fscanf( file, "%d %f\n", &param_id, &param_weight );
-		if( fields_read != 2 )
+		if ( 2 != sscanf( buffer, "%d %f\n", &param_id, &param_weight ) )
 		{
 			llwarns << "Bad Wearable asset: bad parameter, #" << i << llendl;
 			return LLWearable::FAILURE;
@@ -362,34 +378,53 @@ LLWearable::EImportResult LLWearable::importFile( LLFILE* file, LLAvatarAppearan
 	}
 
 	// textures header
-	S32 num_textures = 0;
-	fields_read = fscanf( file, "textures %d\n", &num_textures);
-	if( fields_read != 1 )
+	if (!input_stream.good())
+	{
+		llwarns << "Bad Wearable asset: early end of input stream " 
+				<< "while reading textures header" << i << llendl;
+		return LLWearable::FAILURE;
+	}
+	input_stream.getline(buffer, PARSE_BUFFER_SIZE);
+	S32 num_textures = -1;
+	if ( 1 != sscanf( buffer, "textures %d\n", &num_textures) )
 	{
 		llwarns << "Bad Wearable asset: missing textures block" << llendl;
+		return LLWearable::FAILURE;
+	}
+	if ( num_textures > MAX_WEARABLE_ASSET_TEXTURES )
+	{
+		llwarns << "Bad Wearable asset: too many textures, "
+				<< num_textures << llendl;
 		return LLWearable::FAILURE;
 	}
 
 	// textures
 	for( i = 0; i < num_textures; i++ )
 	{
+		if (!input_stream.good())
+		{
+			llwarns << "Bad Wearable asset: early end of input stream " 
+					<< "while reading textures #" << i << llendl;
+			return LLWearable::FAILURE;
+		}
+		input_stream.getline(buffer, PARSE_BUFFER_SIZE);
 		S32 te = 0;
-		fields_read = fscanf(   /* Flawfinder: ignore */
-				file,
-				"%d %2047s\n",
-				&te, text_buffer);
-		if( fields_read != 2 )
+		if ( 2 != sscanf(   /* Flawfinder: ignore */
+				buffer,
+				"%d %36s\n",
+				&te, uuid_buffer) )
 		{
 				llwarns << "Bad Wearable asset: bad texture, #" << i << llendl;
 				return LLWearable::FAILURE;
 		}
 	
-		if( !LLUUID::validate( text_buffer ) )
+		if( !LLUUID::validate( uuid_buffer ) )
 		{
-				llwarns << "Bad Wearable asset: bad texture uuid: " << text_buffer << llendl;
+				llwarns << "Bad Wearable asset: bad texture uuid: " 
+						<< uuid_buffer << llendl;
 				return LLWearable::FAILURE;
 		}
-		LLUUID id = LLUUID(text_buffer);
+		LLUUID id = LLUUID(uuid_buffer);
 		LLGLTexture* image = gTextureManagerBridgep->getFetchedTexture( id );
 		if( mTEMap.find(te) != mTEMap.end() )
 		{
@@ -400,11 +435,14 @@ LLWearable::EImportResult LLWearable::importFile( LLFILE* file, LLAvatarAppearan
 				delete mSavedTEMap[te];
 		}
 	
-		LLUUID textureid(text_buffer);
+		LLUUID textureid(uuid_buffer);
 		mTEMap[te] = new LLLocalTextureObject(image, textureid);
 		mSavedTEMap[te] = new LLLocalTextureObject(image, textureid);
 		createLayers(te, avatarp);
 	}
+
+	// copy all saved param values to working params
+	revertValues();
 
 	return LLWearable::SUCCESS;
 }
@@ -416,6 +454,171 @@ void LLWearable::setType(LLWearableType::EType type, LLAvatarAppearance *avatarp
 	createVisualParams(avatarp);
 }
 
+
+LLLocalTextureObject* LLWearable::getLocalTextureObject(S32 index)
+{
+	te_map_t::iterator iter = mTEMap.find(index);
+	if( iter != mTEMap.end() )
+	{
+		LLLocalTextureObject* lto = iter->second;
+		return lto;
+	}
+	return NULL;
+}
+
+const LLLocalTextureObject* LLWearable::getLocalTextureObject(S32 index) const
+{
+	te_map_t::const_iterator iter = mTEMap.find(index);
+	if( iter != mTEMap.end() )
+	{
+		const LLLocalTextureObject* lto = iter->second;
+		return lto;
+	}
+	return NULL;
+}
+
+std::vector<LLLocalTextureObject*> LLWearable::getLocalTextureListSeq()
+{
+	std::vector<LLLocalTextureObject*> result;
+
+	for(te_map_t::const_iterator iter = mTEMap.begin();
+		iter != mTEMap.end(); iter++)
+	{
+		LLLocalTextureObject* lto = iter->second;
+		result.push_back(lto);
+	}
+
+	return result;
+}
+
+void LLWearable::setLocalTextureObject(S32 index, LLLocalTextureObject &lto)
+{
+	if( mTEMap.find(index) != mTEMap.end() )
+	{
+		mTEMap.erase(index);
+	}
+	mTEMap[index] = new LLLocalTextureObject(lto);
+}
+
+void LLWearable::revertValues()
+{
+	//update saved settings so wearable is no longer dirty
+	// non-driver params first
+	for (param_map_t::const_iterator iter = mSavedVisualParamMap.begin(); iter != mSavedVisualParamMap.end(); iter++)
+	{
+		S32 id = iter->first;
+		F32 value = iter->second;
+		LLVisualParam *param = getVisualParam(id);
+		if(param &&  !dynamic_cast<LLDriverParam*>(param) )
+		{
+			setVisualParamWeight(id, value, TRUE);
+		}
+	}
+
+	//then driver params
+	for (param_map_t::const_iterator iter = mSavedVisualParamMap.begin(); iter != mSavedVisualParamMap.end(); iter++)
+	{
+		S32 id = iter->first;
+		F32 value = iter->second;
+		LLVisualParam *param = getVisualParam(id);
+		if(param &&  dynamic_cast<LLDriverParam*>(param) )
+		{
+			setVisualParamWeight(id, value, TRUE);
+		}
+	}
+
+	// make sure that saved values are sane
+	for (param_map_t::const_iterator iter = mSavedVisualParamMap.begin(); iter != mSavedVisualParamMap.end(); iter++)
+	{
+		S32 id = iter->first;
+		LLVisualParam *param = getVisualParam(id);
+		if( param )
+		{
+			mSavedVisualParamMap[id] = param->getWeight();
+		}
+	}
+
+	syncImages(mSavedTEMap, mTEMap);
+}
+
+void LLWearable::saveValues()
+{
+	//update saved settings so wearable is no longer dirty
+	mSavedVisualParamMap.clear();
+	for (visual_param_index_map_t::const_iterator iter = mVisualParamIndexMap.begin(); iter != mVisualParamIndexMap.end(); ++iter)
+	{
+		S32 id = iter->first;
+		LLVisualParam *wearable_param = iter->second;
+		F32 value = wearable_param->getWeight();
+		mSavedVisualParamMap[id] = value;
+	}
+
+	// Deep copy of mTEMap (copies only those tes that are current, filling in defaults where needed)
+	syncImages(mTEMap, mSavedTEMap);
+}
+
+void LLWearable::syncImages(te_map_t &src, te_map_t &dst)
+{
+	// Deep copy of src (copies only those tes that are current, filling in defaults where needed)
+	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
+	{
+		if (LLAvatarAppearanceDictionary::getTEWearableType((ETextureIndex) te) == mType)
+		{
+			te_map_t::const_iterator iter = src.find(te);
+			LLUUID image_id;
+			LLGLTexture *image = NULL;
+			LLLocalTextureObject *lto = NULL;
+			if(iter != src.end())
+			{
+				// there's a Local Texture Object in the source image map. Use this to populate the values to store in the destination image map.
+				lto = iter->second;
+				image = lto->getImage();
+				image_id = lto->getID();
+			}
+			else
+			{
+				// there is no Local Texture Object in the source image map. Get defaults values for populating the destination image map.
+				image_id = getDefaultTextureImageID((ETextureIndex) te);
+				image = gTextureManagerBridgep->getFetchedTexture( image_id );
+			}
+
+			if( dst.find(te) != dst.end() )
+			{
+				// there's already an entry in the destination map for the texture. Just update its values.
+				dst[te]->setImage(image);
+				dst[te]->setID(image_id);
+			}
+			else
+			{
+				// no entry found in the destination map, we need to create a new Local Texture Object
+				dst[te] = new LLLocalTextureObject(image, image_id);
+			}
+
+			if( lto )
+			{
+				// If we pulled values from a Local Texture Object in the source map, make sure the proper flags are set in the new (or updated) entry in the destination map.
+				dst[te]->setBakedReady(lto->getBakedReady());
+				dst[te]->setDiscard(lto->getDiscard());
+			}
+		}
+	}
+}
+
+void LLWearable::destroyTextures()
+{
+	for( te_map_t::iterator iter = mTEMap.begin(); iter != mTEMap.end(); ++iter )
+	{
+		LLLocalTextureObject *lto = iter->second;
+		delete lto;
+	}
+	mTEMap.clear();
+	for( te_map_t::iterator iter = mSavedTEMap.begin(); iter != mSavedTEMap.end(); ++iter )
+	{
+		LLLocalTextureObject *lto = iter->second;
+		delete lto;
+	}
+	mSavedTEMap.clear();
+}
 
 void LLWearable::addVisualParam(LLVisualParam *param)
 {

@@ -115,7 +115,7 @@ if (WINDOWS)
       COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bison.bat
       ARGS
         ${BISON} ${M4_PATH}
-        -p indra_
+      -p indra_
         -d -o ${CMAKE_CURRENT_BINARY_DIR}/indra.y.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/indra.y
       DEPENDS

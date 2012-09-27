@@ -407,7 +407,7 @@ namespace tut
 		LLFILE* fp = LLFile::fopen("linden_file.dat","w+");
 		if(!fp)
 		{
-			llerrs << "file coudnt be opened\n" << llendl;
+			llerrs << "file couldn't be opened\n" << llendl;
 			return;
 		}
 		LLPermissions perm,perm1;
@@ -425,15 +425,15 @@ namespace tut
 
 		perm.initMasks(base, ownerp, everyone, groupp, next);
 
-		perm.exportFile(fp);
+		ensure("Permissions export failed", perm.exportFile(fp));
 		fclose(fp);	
 		fp = LLFile::fopen("linden_file.dat","r+");
 		if(!fp)
 		{
-			llerrs << "file coudnt be opened\n" << llendl;
+			llerrs << "file couldn't be opened\n" << llendl;
 			return;
 		}
-		perm1.importFile(fp);
+		ensure("Permissions import failed", perm1.importFile(fp));
 		fclose(fp);
 		ensure_equals("exportFile()/importFile():failed to export and import the data ", perm1, perm);	
 }
@@ -457,11 +457,11 @@ namespace tut
 		perm.initMasks(base, ownerp, everyone, groupp, next);
 
 		std::ostringstream ostream;
-		perm.exportLegacyStream(ostream);
+		perm.exportStream(ostream);
 		std::istringstream istream(ostream.str());
-		perm1.importLegacyStream(istream);
+		perm1.importStream(istream);
 
-		ensure_equals("exportLegacyStream()/importLegacyStream():failed to export and import the data ", perm1, perm);
+		ensure_equals("exportStream()/importStream():failed to export and import the data ", perm1, perm);
 	}
 
 	template<> template<>
