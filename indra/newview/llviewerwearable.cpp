@@ -319,7 +319,8 @@ void LLViewerWearable::writeToAvatar(LLAvatarAppearance *avatarp)
 
 	if (!viewer_avatar->isValid()) return;
 
-#if 1
+	// *TODO: Check with Vir on this:
+#if 0
 	if (!viewer_avatar->isUsingLocalAppearance())
 	{
 		return;
