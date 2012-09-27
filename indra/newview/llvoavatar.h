@@ -208,7 +208,6 @@ public:
 
 public:
 	virtual bool 	isSelf() const { return false; } // True if this avatar is for this viewer's agent
-	/*virtual*/BOOL	isUsingBakedTextures() const { return mUseServerBakes; } // e.g. false if in appearance edit mode		
 
 private: //aligned members
 	LL_ALIGN_16(LLVector4a	mImpostorExtents[2]);
@@ -636,7 +635,21 @@ public:
 	//--------------------------------------------------------------------
 public:
 	BOOL			getIsAppearanceAnimating() const { return mAppearanceAnimating; }
-	BOOL			isUsingLocalAppearance() const { return mUseLocalAppearance; }
+
+	// True if we are computing our appearance via local compositing
+	// instead of baked textures, as for example during wearable
+	// editing or when waiting for a subsequent server rebake.
+	/*virtual*/ BOOL	isUsingLocalAppearance() const { return mUseLocalAppearance; }
+
+	// True if this avatar should fetch its baked textures via the new
+	// appearance mechanism.
+	/*virtual*/ BOOL	isUsingServerBakes() const { return mUseServerBakes; }
+
+	// True if we are currently in appearance editing mode. Often but
+	// not always the same as isUsingLocalAppearance().
+	/*virtual*/ BOOL	isEditingAppearance() const { return mIsEditingAppearance; }
+
+	// FIXME review isUsingLocalAppearance uses, some should be isEditing instead.
 
 private:
 	BOOL			mAppearanceAnimating;

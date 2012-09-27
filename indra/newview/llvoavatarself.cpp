@@ -746,7 +746,10 @@ U32  LLVOAvatarSelf::processUpdateMessage(LLMessageSystem *mesgsys,
 {
 	U32 retval = LLVOAvatar::processUpdateMessage(mesgsys,user_data,block_num,update_type,dp);
 
-	if (mInitialBakesLoaded == false && retval == 0x0)
+	// FIXME DRANO - skipping in the case of !mFirstAppearanceMessageReceived prevents us from trying to
+	// load textures before we know where they come from (ie, from baking service or not);
+	// unknown impact on performance.
+	if (mInitialBakesLoaded == false && retval == 0x0 && mFirstAppearanceMessageReceived)
 	{
 		// call update textures to force the images to be created
 		updateMeshTextures();
@@ -1274,11 +1277,8 @@ void LLVOAvatarSelf::localTextureLoaded(BOOL success, LLViewerFetchedTexture *sr
 			discard_level < local_tex_obj->getDiscard())
 		{
 			local_tex_obj->setDiscard(discard_level);
-			if (isUsingBakedTextures())
-			{
-				requestLayerSetUpdate(index);
-			}
-			else
+			requestLayerSetUpdate(index);
+			if (isEditingAppearance())
 			{
 				LLVisualParamHint::requestHintUpdates();
 			}
@@ -1758,11 +1758,8 @@ void LLVOAvatarSelf::setLocalTexture(ETextureIndex type, LLViewerTexture* src_te
 					local_tex_obj->setDiscard(tex_discard);
 					if (isSelf())
 					{
-						if (gAgentAvatarp->isUsingBakedTextures())
-						{
-							requestLayerSetUpdate(type);
-						}
-						else
+						requestLayerSetUpdate(type);
+						if (isEditingAppearance())
 						{
 							LLVisualParamHint::requestHintUpdates();
 						}
@@ -2669,6 +2666,7 @@ void LLVOAvatarSelf::onCustomizeEnd(bool disable_camera_switch)
 		gAgentAvatarp->mIsEditingAppearance = false;
 		if (gAgentAvatarp->getRegion() && !gAgentAvatarp->getRegion()->getCentralBakeVersion())
 		{
+			// FIXME DRANO - move to sendAgentSetAppearance, make conditional on upload complete.
 			gAgentAvatarp->mUseLocalAppearance = false;
 		}
 

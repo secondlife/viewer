@@ -38,6 +38,7 @@
 #include "llavatarappearancedefines.h"
 #include "llviewerwearable.h"
 #include "llviewercontrol.h"
+#include "llviewerregion.h"
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -319,13 +320,12 @@ void LLViewerWearable::writeToAvatar(LLAvatarAppearance *avatarp)
 
 	if (!viewer_avatar->isValid()) return;
 
-	// *TODO: Check with Vir on this:
-#if 0
-	if (!viewer_avatar->isUsingLocalAppearance())
+	if (viewer_avatar->getRegion() &&
+		(viewer_avatar->getRegion()->getCentralBakeVersion()>0) &&
+		!viewer_avatar->isUsingLocalAppearance())
 	{
 		return;
 	}
-#endif
 
 	ESex old_sex = avatarp->getSex();
 

@@ -48,6 +48,7 @@
 #include "llcallingcard.h"		// IDEVO for LLAvatarTracker
 #include "lldrawpoolavatar.h"
 #include "lldriverparam.h"
+#include "llpolyskeletaldistortion.h"
 #include "lleditingmotion.h"
 #include "llemote.h"
 //#include "llfirstuse.h"
@@ -191,8 +192,7 @@ enum ERenderName
 
 // Utility func - FIXME move out of avatar.
 std::string get_sequential_numbered_file_name(const std::string& prefix,
-											  const std::string& suffix,
-											  const S32 width = 4);
+											  const std::string& suffix);
 
 //-----------------------------------------------------------------------------
 // Callback data
@@ -626,7 +626,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mLastRezzedStatus(-1),
 	mIsEditingAppearance(FALSE),
 	mUseLocalAppearance(FALSE),
-	mUseServerBakes(TRUE)
+	mUseServerBakes(FALSE)
 {
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 	//VTResume();  // VTune
@@ -2882,6 +2882,20 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 	// clear debug text
 	mDebugText.clear();
+
+	if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
+	{
+		S32 central_bake_version = -1;
+		if (getRegion())
+		{
+			central_bake_version = getRegion()->getCentralBakeVersion();
+		}
+		addDebugText(llformat("mUseLocalAppearance: %d,\nmIsEditingAppearance: %d\n"
+							  "mUseServerBakes %d,\ncentralBakeVersion %d",
+							  mUseLocalAppearance, mIsEditingAppearance,
+							  mUseServerBakes, central_bake_version));
+	}
+				 
 	if (LLVOAvatar::sShowAnimationDebug)
 	{
 		for (LLMotionController::motion_list_t::iterator iter = mMotionController.getActiveMotions().begin();
@@ -4060,7 +4074,7 @@ void LLVOAvatar::updateTextures()
 			if (isIndexBakedTexture((ETextureIndex)texture_index)
 				&& imagep->getID() != IMG_DEFAULT_AVATAR
 				&& imagep->getID() != IMG_INVISIBLE
-				&& !mUseServerBakes 
+				&& !isUsingServerBakes() 
 				&& !imagep->getTargetHost().isOk())
 			{
 				LL_WARNS_ONCE("Texture") << "LLVOAvatar::updateTextures No host for texture "
@@ -4203,8 +4217,15 @@ void LLVOAvatar::setTexEntry(const U8 index, const LLTextureEntry &te)
 const std::string LLVOAvatar::getImageURL(const U8 te, const LLUUID &uuid)
 {
 	std::string url = "";
-	if (mUseServerBakes && !gSavedSettings.getString("AgentAppearanceServiceURL").empty())
+	if (isUsingServerBakes())
 	{
+		if (gSavedSettings.getString("AgentAppearanceServiceURL").empty())
+		{
+			// Probably a server-side issue if we get here:
+			llwarns << "AgentAppearanceServiceURL not set - Baked texture requests will fail" << llendl;
+			return url;
+		}
+	
 		const LLAvatarAppearanceDictionary::TextureEntry* texture_entry = LLAvatarAppearanceDictionary::getInstance()->getTexture((ETextureIndex)te);
 		if (texture_entry != NULL)
 		{
@@ -5816,7 +5837,7 @@ void LLVOAvatar::updateMeshTextures()
 	for (U32 i=0; i < mBakedTextureDatas.size(); i++)
 	{
 		LLViewerTexLayerSet* layerset = getTexLayerSet(i);
-		if (use_lkg_baked_layer[i] && !mUseLocalAppearance )
+		if (use_lkg_baked_layer[i] && !isUsingLocalAppearance() )
 		{
 			LLViewerFetchedTexture* baked_img;
 			const std::string url = getImageURL(i, mBakedTextureDatas[i].mLastTextureIndex);
@@ -5852,7 +5873,7 @@ void LLVOAvatar::updateMeshTextures()
 				}
 			}
 		}
-		else if (!mUseLocalAppearance && is_layer_baked[i])
+		else if (!isUsingLocalAppearance() && is_layer_baked[i])
 		{
 			LLViewerFetchedTexture* baked_img = LLViewerTextureManager::staticCastToFetchedTexture(getImage( mBakedTextureDatas[i].mTextureIndex, 0 ), TRUE) ;
 			if( baked_img->getID() == mBakedTextureDatas[i].mLastTextureIndex )
@@ -5872,7 +5893,7 @@ void LLVOAvatar::updateMeshTextures()
 					src_callback_list, paused );
 			}
 		}
-		else if (layerset && mUseLocalAppearance) 
+		else if (layerset && isUsingLocalAppearance())
 		{
 			layerset->createComposite();
 			layerset->setUpdatesEnabled( TRUE );
@@ -5913,7 +5934,7 @@ void LLVOAvatar::updateMeshTextures()
 	// set texture and color of hair manually if we are not using a baked image.
 	// This can happen while loading hair for yourself, or for clients that did not
 	// bake a hair texture. Still needed for yourself after 1.22 is depricated.
-	if (!is_layer_baked[BAKED_HAIR] || mIsEditingAppearance)
+	if (!is_layer_baked[BAKED_HAIR] || isEditingAppearance())
 	{
 		const LLColor4 color = mTexHairColor ? mTexHairColor->getColor() : LLColor4(1,1,1,1);
 		LLViewerTexture* hair_img = getImage( TEX_HAIR, 0 );
@@ -6277,6 +6298,24 @@ bool LLVOAvatar::visualParamWeightsAreDefault()
 	return rtn;
 }
 
+void dump_visual_param(apr_file_t* file, LLVisualParam* viewer_param, F32 value)
+{
+	std::string type_string = "unknown";
+	if (dynamic_cast<LLTexLayerParamAlpha*>(viewer_param))
+		type_string = "param_alpha";
+	if (dynamic_cast<LLTexLayerParamColor*>(viewer_param))
+		type_string = "param_color";
+	if (dynamic_cast<LLDriverParam*>(viewer_param))
+		type_string = "param_driver";
+	if (dynamic_cast<LLPolyMorphTarget*>(viewer_param))
+		type_string = "param_morph";
+	if (dynamic_cast<LLPolySkeletalDistortion*>(viewer_param))
+		type_string = "param_skeleton";
+	apr_file_printf(file, "\t\t<param id=\"%d\" name=\"%s\" value=\"%.3f\"/ type=\"%s\">\n",
+					viewer_param->getID(), viewer_param->getName().c_str(), value, type_string.c_str());
+}
+
+
 void LLVOAvatar::dumpAppearanceMsgParams( const std::string& dump_prefix,
 										  const std::vector<F32>& params_for_dump,
 										  const LLTEContents& tec)
@@ -6306,8 +6345,7 @@ void LLVOAvatar::dumpAppearanceMsgParams( const std::string& dump_prefix,
 		}
 		LLViewerVisualParam* viewer_param = (LLViewerVisualParam*)param;
 		F32 value = params_for_dump[i];
-		apr_file_printf(file, "\t\t<param id=\"%d\" name=\"%s\" value=\"%.3f\"/>\n",
-						viewer_param->getID(), viewer_param->getName().c_str(), value);
+		dump_visual_param(file, viewer_param, value);
 		param = getNextVisualParam();
 	}
 	for (U32 i = 0; i < tec.face_count; i++)
@@ -6323,14 +6361,14 @@ void LLVOAvatar::dumpAppearanceMsgParams( const std::string& dump_prefix,
 //-----------------------------------------------------------------------------
 void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 {
-	//std::string dump_prefix = getFullname() + " ";
-	//dumpArchetypeXML(dump_prefix + "process_start");
+	bool enable_verbose_dumps = gSavedSettings.getBOOL("DebugAvatarAppearanceMessage");
+	std::string dump_prefix = getFullname() + "_" + (isSelf()?"s":"o") + "_";
+	if (enable_verbose_dumps) { dumpArchetypeXML(dump_prefix + "process_start"); }
 	if (gSavedSettings.getBOOL("BlockAvatarAppearanceMessages"))
 	{
 		llwarns << "Blocking AvatarAppearance message" << llendl;
 		return;
 	}
-	
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 
 	BOOL is_first_appearance_message = !mFirstAppearanceMessageReceived;
@@ -6340,25 +6378,10 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 			<< " first? " << is_first_appearance_message << " self? " << isSelf() << LL_ENDL;
 
 
-	if( isSelf() )
-	{
-		llwarns << avString() << "Received AvatarAppearance for self" << llendl;
-		if( mFirstTEMessageReceived && !mUseServerBakes)
-		{
-//			llinfos << "processAvatarAppearance end  " << mID << llendl;
-			return;
-		}
-	}
-	clearVisualParamWeights();
-	//dumpArchetypeXML(dump_prefix + "process_post_clear");
-
 	ESex old_sex = getSex();
 
-//	llinfos << "LLVOAvatar::processAvatarAppearance()" << llendl;
-//	dumpAvatarTEs( "PRE  processAvatarAppearance()" );
 	LLTEContents tec;
 	parseTEMessage(mesgsys, _PREHASH_ObjectData, -1, tec);
-//	dumpAvatarTEs( "POST processAvatarAppearance()" );
 
 	U8 appearance_version = 0;
 	S32 this_update_cof_version = LLViewerInventoryCategory::VERSION_UNKNOWN;
@@ -6383,8 +6406,20 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		mUseServerBakes = false;
 	}
 
+	// Only now that we have result of appearance_version can we decide whether to bail out.
+	// Don't expect this case to occur.
+	if( isSelf() )
+	{
+		llwarns << avString() << "Received AvatarAppearance for self" << llendl;
+		if( mFirstTEMessageReceived && !isUsingServerBakes())
+		{
+			return;
+		}
+	}
+
+
 	// Check for stale update.
-	if (mUseServerBakes && isSelf()
+	if (isUsingServerBakes() && isSelf()
 		&& this_update_cof_version >= LLViewerInventoryCategory::VERSION_INITIAL
 		&& this_update_cof_version < last_update_request_cof_version)
 	{
@@ -6470,12 +6505,11 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 				}
 				param = getNextVisualParam();
 			}
-			//dumpAppearanceMsgParams(dump_prefix + "appearance_msg",
-			//						params_for_dump,
-			//						tec);
+			if (enable_verbose_dumps)
+				dumpAppearanceMsgParams(dump_prefix + "appearance_msg", params_for_dump, tec);
 		}
 
-		//dumpArchetypeXML(dump_prefix + "process_post_set_weights");
+		if (enable_verbose_dumps) { dumpArchetypeXML(dump_prefix + "process_post_set_weights"); }
 
 		const S32 expected_tweakable_count = getVisualParamCountInGroup(VISUAL_PARAM_GROUP_TWEAKABLE); // don't worry about VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
 		if (num_blocks != expected_tweakable_count)
@@ -6541,7 +6575,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 
 	updateMeshTextures();
 
-	//dumpArchetypeXML(dump_prefix + "process_end");
+	if (enable_verbose_dumps) dumpArchetypeXML(dump_prefix + "process_end");
 //	llinfos << "processAvatarAppearance end " << mID << llendl;
 }
 
@@ -6784,8 +6818,7 @@ void LLVOAvatar::useBakedTexture( const LLUUID& id )
 }
 
 std::string get_sequential_numbered_file_name(const std::string& prefix,
-											  const std::string& suffix,
-											  const S32 width)
+											  const std::string& suffix)
 {
 	typedef std::map<std::string,S32> file_num_type;
 	static  file_num_type file_nums;
@@ -6795,10 +6828,8 @@ std::string get_sequential_numbered_file_name(const std::string& prefix,
 	{
 		num = it->second;
 	}
-	std::ostringstream temp;
-	temp << std::setw(width) << std::setfill('0') << num;
 	file_nums[prefix] = num+1;
-	std::string outfilename = prefix + " " + temp.str() + ".xml";
+	std::string outfilename = prefix + " " + llformat("%04d",num) + ".xml";
 	std::replace(outfilename.begin(),outfilename.end(),' ','_');
 	return outfilename;
 }
@@ -6808,7 +6839,7 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 	std::string outprefix(prefix);
 	if (outprefix.empty())
 	{
-		outprefix = getFullname();
+		outprefix = getFullname() + (isSelf()?"_s":"_o");
 	}
 	if (outprefix.empty())
 	{
@@ -6846,8 +6877,7 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 				if( (viewer_param->getWearableType() == type) && 
 					(viewer_param->isTweakable() ) )
 				{
-					apr_file_printf(file, "\t\t<param id=\"%d\" name=\"%s\" value=\"%.3f\"/>\n",
-									viewer_param->getID(), viewer_param->getName().c_str(), viewer_param->getWeight());
+					dump_visual_param(file, viewer_param, viewer_param->getWeight());
 				}
 			}
 
@@ -6873,10 +6903,7 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 		for (LLVisualParam* param = getFirstVisualParam(); param; param = getNextVisualParam())
 		{
 			LLViewerVisualParam* viewer_param = (LLViewerVisualParam*)param;
-			{
-				apr_file_printf(file, "\t\t<param id=\"%d\" name=\"%s\" value=\"%.3f\"/>\n",
-								viewer_param->getID(), viewer_param->getName().c_str(), viewer_param->getWeight());
-			}
+			dump_visual_param(file, viewer_param, viewer_param->getWeight());
 		}
 
 		for (U8 te = 0; te < TEX_NUM_INDICES; te++)
