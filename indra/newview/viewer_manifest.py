@@ -404,11 +404,9 @@ class WindowsManifest(ViewerManifest):
             self.path("libhunspell.dll")
 
             # For google-perftools tcmalloc allocator.
+            # no longer used, make sure old .dll is removed
             try:
-                if self.args['configuration'].lower() == 'debug':
-                    self.path('libtcmalloc_minimal-debug.dll')
-                else:
-                    self.path('libtcmalloc_minimal.dll')
+                self.remove('libtcmalloc_minimal.dll')
             except:
                 print "Skipping libtcmalloc_minimal.dll"
 
