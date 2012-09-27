@@ -91,13 +91,13 @@ LLViewerWearable::~LLViewerWearable()
 }
 
 // virtual
-LLWearable::EImportResult LLViewerWearable::importFile( LLFILE* file, LLAvatarAppearance* avatarp )
+LLWearable::EImportResult LLViewerWearable::importStream( std::istream& input_stream, LLAvatarAppearance* avatarp )
 {
 	// suppress texlayerset updates while wearables are being imported. Layersets will be updated
 	// when the wearables are "worn", not loaded. Note state will be restored when this object is destroyed.
 	LLOverrideBakedTextureUpdate stop_bakes(false);
 
-	LLWearable::EImportResult result = LLWearable::importFile(file, avatarp);
+	LLWearable::EImportResult result = LLWearable::importStream(input_stream, avatarp);
 	if (LLWearable::FAILURE == result) return result;
 	if (LLWearable::BAD_HEADER == result)
 	{
@@ -129,9 +129,6 @@ LLWearable::EImportResult LLViewerWearable::importFile( LLFILE* file, LLAvatarAp
 			image->setLoadedCallback(LLVOAvatarSelf::debugOnTimingLocalTexLoaded,0,TRUE,FALSE, new LLVOAvatarSelf::LLAvatarTexData(textureid, (LLAvatarAppearanceDefines::ETextureIndex)te), NULL);
 		}
 	}
-
-	// copy all saved param values to working params
-	revertValues();
 
 	return result;
 }
@@ -297,8 +294,8 @@ void LLViewerWearable::setTexturesToDefaults()
 }
 
 
-//static
-const LLUUID LLViewerWearable::getDefaultTextureImageID(ETextureIndex index)
+// virtual
+LLUUID LLViewerWearable::getDefaultTextureImageID(ETextureIndex index) const
 {
 	const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = LLAvatarAppearanceDictionary::getInstance()->getTexture(index);
 	const std::string &default_image_name = texture_dict->mDefaultImageName;
@@ -477,108 +474,9 @@ void LLViewerWearable::setItemID(const LLUUID& item_id)
 	mItemID = item_id;
 }
 
-
-LLLocalTextureObject* LLViewerWearable::getLocalTextureObject(S32 index)
-{
-	te_map_t::iterator iter = mTEMap.find(index);
-	if( iter != mTEMap.end() )
-	{
-		LLLocalTextureObject* lto = iter->second;
-		return lto;
-	}
-	return NULL;
-}
-
-const LLLocalTextureObject* LLViewerWearable::getLocalTextureObject(S32 index) const
-{
-	te_map_t::const_iterator iter = mTEMap.find(index);
-	if( iter != mTEMap.end() )
-	{
-		const LLLocalTextureObject* lto = iter->second;
-		return lto;
-	}
-	return NULL;
-}
-
-std::vector<LLLocalTextureObject*> LLViewerWearable::getLocalTextureListSeq()
-{
-	std::vector<LLLocalTextureObject*> result;
-
-	for(te_map_t::const_iterator iter = mTEMap.begin();
-		iter != mTEMap.end(); iter++)
-	{
-		LLLocalTextureObject* lto = iter->second;
-		result.push_back(lto);
-	}
-
-	return result;
-}
-
-void LLViewerWearable::setLocalTextureObject(S32 index, LLLocalTextureObject &lto)
-{
-	if( mTEMap.find(index) != mTEMap.end() )
-	{
-		mTEMap.erase(index);
-	}
-	mTEMap[index] = new LLLocalTextureObject(lto);
-}
-
-void LLViewerWearable::setVisualParams()
-{
-	for (visual_param_index_map_t::const_iterator iter = mVisualParamIndexMap.begin();
-		 iter != mVisualParamIndexMap.end(); iter++)
-	{
-		S32 id = iter->first;
-		LLVisualParam *wearable_param = iter->second;
-		F32 value = wearable_param->getWeight();
-		if (gAgentAvatarp->isUsingLocalAppearance())
-		{
-			gAgentAvatarp->setVisualParamWeight(id, value, FALSE);
-		}
-	}
-}
-
 void LLViewerWearable::revertValues()
 {
-	// FIXME DRANO - this triggers changes to driven params on avatar, potentially clobbering baked appearance.
-
-	//update saved settings so wearable is no longer dirty
-	// non-driver params first
-	for (param_map_t::const_iterator iter = mSavedVisualParamMap.begin(); iter != mSavedVisualParamMap.end(); iter++)
-	{
-		S32 id = iter->first;
-		F32 value = iter->second;
-		LLVisualParam *param = getVisualParam(id);
-		if(param &&  !dynamic_cast<LLDriverParam*>(param) )
-		{
-			setVisualParamWeight(id, value, TRUE);
-		}
-	}
-
-	//then driver params
-	for (param_map_t::const_iterator iter = mSavedVisualParamMap.begin(); iter != mSavedVisualParamMap.end(); iter++)
-	{
-		S32 id = iter->first;
-		F32 value = iter->second;
-		LLVisualParam *param = getVisualParam(id);
-		if(param &&  dynamic_cast<LLDriverParam*>(param) )
-		{
-			setVisualParamWeight(id, value, TRUE);
-		}
-	}
-
-	// make sure that saved values are sane
-	for (param_map_t::const_iterator iter = mSavedVisualParamMap.begin(); iter != mSavedVisualParamMap.end(); iter++)
-	{
-		S32 id = iter->first;
-		LLVisualParam *param = getVisualParam(id);
-		if( param )
-		{
-			mSavedVisualParamMap[id] = param->getWeight();
-		}
-	}
-
-	syncImages(mSavedTEMap, mTEMap);
+	LLWearable::revertValues();
 
 
 	LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLFloaterSidePanelContainer::getPanel("appearance"));
@@ -590,88 +488,13 @@ void LLViewerWearable::revertValues()
 
 void LLViewerWearable::saveValues()
 {
-	//update saved settings so wearable is no longer dirty
-	mSavedVisualParamMap.clear();
-	for (visual_param_index_map_t::const_iterator iter = mVisualParamIndexMap.begin(); iter != mVisualParamIndexMap.end(); ++iter)
-	{
-		S32 id = iter->first;
-		LLVisualParam *wearable_param = iter->second;
-		F32 value = wearable_param->getWeight();
-		mSavedVisualParamMap[id] = value;
-	}
-
-	// Deep copy of mTEMap (copies only those tes that are current, filling in defaults where needed)
-	syncImages(mTEMap, mSavedTEMap);
-
+	LLWearable::saveValues();
 
 	LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLFloaterSidePanelContainer::getPanel("appearance"));
 	if( panel )
 	{
 		panel->updateScrollingPanelList();
 	}
-}
-
-void LLViewerWearable::syncImages(te_map_t &src, te_map_t &dst)
-{
-	// Deep copy of src (copies only those tes that are current, filling in defaults where needed)
-	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
-	{
-		if (LLAvatarAppearanceDictionary::getTEWearableType((ETextureIndex) te) == mType)
-		{
-			te_map_t::const_iterator iter = src.find(te);
-			LLUUID image_id;
-			LLViewerFetchedTexture *image = NULL;
-			LLLocalTextureObject *lto = NULL;
-			if(iter != src.end())
-			{
-				// there's a Local Texture Object in the source image map. Use this to populate the values to store in the destination image map.
-				lto = iter->second;
-				image = dynamic_cast<LLViewerFetchedTexture*> (lto->getImage());
-				image_id = lto->getID();
-			}
-			else
-			{
-				// there is no Local Texture Object in the source image map. Get defaults values for populating the destination image map.
-				image_id = getDefaultTextureImageID((ETextureIndex) te);
-				image = LLViewerTextureManager::getFetchedTexture( image_id );
-			}
-
-			if( dst.find(te) != dst.end() )
-			{
-				// there's already an entry in the destination map for the texture. Just update its values.
-				dst[te]->setImage(image);
-				dst[te]->setID(image_id);
-			}
-			else
-			{
-				// no entry found in the destination map, we need to create a new Local Texture Object
-				dst[te] = new LLLocalTextureObject(image, image_id);
-			}
-
-			if( lto )
-			{
-				// If we pulled values from a Local Texture Object in the source map, make sure the proper flags are set in the new (or updated) entry in the destination map.
-				dst[te]->setBakedReady(lto->getBakedReady());
-				dst[te]->setDiscard(lto->getDiscard());
-			}
-		}
-	}
-}
-
-void LLViewerWearable::destroyTextures()
-{
-	for( te_map_t::iterator iter = mTEMap.begin(); iter != mTEMap.end(); ++iter )
-	{
-		LLLocalTextureObject *lto = iter->second;
-		delete lto;
-	}
-	mTEMap.clear();
-	for( te_map_t::iterator iter = mSavedTEMap.begin(); iter != mSavedTEMap.end(); ++iter )
-	{
-		LLLocalTextureObject *lto = iter->second;
-		delete lto;
-	}
-	mSavedTEMap.clear();
 }
 
 // virtual

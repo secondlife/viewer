@@ -32,7 +32,6 @@
 #include "llpointer.h"
 #include "llgltexture.h"
 
-class LLUUID;
 class LLTexLayer;
 class LLTexLayerTemplate;
 class LLWearable;

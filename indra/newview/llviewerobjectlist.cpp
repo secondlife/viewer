@@ -1524,7 +1524,6 @@ static LLFastTimer::DeclareTimer FTM_REGION_SHIFT("Region Shift");
 
 void LLViewerObjectList::shiftObjects(const LLVector3 &offset)
 {
-	if (gHeadlessClient) return;
 	// This is called when we shift our origin when we cross region boundaries...
 	// We need to update many object caches, I'll document this more as I dig through the code
 	// cleaning things out...

@@ -27,6 +27,7 @@
 #ifndef LL_TEXTUREMANAGERBRIDGE_H
 #define LL_TEXTUREMANAGERBRIDGE_H
 
+#include "llavatarappearancedefines.h"
 #include "llpointer.h"
 #include "llgltexture.h"
 

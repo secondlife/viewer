@@ -186,7 +186,7 @@ LLWindowSDL::LLWindowSDL(LLWindowCallbacks* callbacks,
 			 const std::string& title, S32 x, S32 y, S32 width,
 			 S32 height, U32 flags,
 			 BOOL fullscreen, BOOL clearBg,
-			 BOOL disable_vsync, BOOL use_gl,
+			 BOOL disable_vsync,
 			 BOOL ignore_pixel_depth, U32 fsaa_samples)
 	: LLWindow(callbacks, fullscreen, flags),
 	  Lock_Display(NULL),
@@ -197,7 +197,6 @@ LLWindowSDL::LLWindowSDL(LLWindowCallbacks* callbacks,
 	gKeyboard->setCallbacks(callbacks);
 	// Note that we can't set up key-repeat until after SDL has init'd video
 
-	// Ignore use_gl for now, only used for drones on PC
 	mWindow = NULL;
 	mNeedsResize = FALSE;
 	mOverrideAspectRatio = 0.f;

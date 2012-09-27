@@ -772,10 +772,6 @@ bool idle_startup()
 				gUserCredential = gLoginHandler.initializeLoginInfo();                 
 				display_startup();
 			}     
-			if (gHeadlessClient)
-			{
-				LL_WARNS("AppInit") << "Waiting at connection box in headless client.  Did you mean to add autologin params?" << LL_ENDL;
-			}
 			// Make sure the process dialog doesn't hide things
 			display_startup();
 			gViewerWindow->setShowProgress(FALSE);
@@ -3507,13 +3503,6 @@ bool process_login_success_response()
 
 void transition_back_to_login_panel(const std::string& emsg)
 {
-	if (gHeadlessClient && gSavedSettings.getBOOL("AutoLogin"))
-	{
-		LL_WARNS("AppInit") << "Failed to login!" << LL_ENDL;
-		LL_WARNS("AppInit") << emsg << LL_ENDL;
-		exit(0);
-	}
-
 	// Bounce back to the login screen.
 	reset_login(); // calls LLStartUp::setStartupState( STATE_LOGIN_SHOW );
 	gSavedSettings.setBOOL("AutoLogin", FALSE);
