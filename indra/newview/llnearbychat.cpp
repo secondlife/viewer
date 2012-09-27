@@ -110,6 +110,7 @@ BOOL LLNearbyChat::postBuild()
 	mInputEditor->setKeystrokeCallback(boost::bind(&onChatBoxKeystroke, _1, this));
 	mInputEditor->setFocusLostCallback(boost::bind(&onChatBoxFocusLost, _1, this));
 	mInputEditor->setFocusReceivedCallback(boost::bind(&LLNearbyChat::onChatBoxFocusReceived, this));
+	mInputEditor->setLabel(LLTrans::getString("NearbyChatTitle"));
 
 //	mOutputMonitor = getChild<LLOutputMonitorCtrl>("chat_zone_indicator");
 //	mOutputMonitor->setVisible(FALSE);
