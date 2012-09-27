@@ -45,6 +45,30 @@ static LLDefaultChildRegistry::Register<LLConversationViewSession> r_conversatio
 
 const LLColor4U DEFAULT_WHITE(255, 255, 255);
 
+class LLNearbyVoiceClientStatusObserver : public LLVoiceClientStatusObserver
+{
+public:
+
+	LLNearbyVoiceClientStatusObserver(LLConversationViewSession* conv)
+	:	conversation(conv)
+	{}
+
+	virtual void onChange(EStatusType status, const std::string &channelURI, bool proximal)
+	{
+		if (conversation
+		   && status != STATUS_JOINING
+		   && status != STATUS_LEFT_CHANNEL
+		   && LLVoiceClient::getInstance()->voiceEnabled()
+		   && LLVoiceClient::getInstance()->isVoiceWorking())
+		{
+			conversation->showVoiceIndicator();
+		}
+	}
+
+private:
+	LLConversationViewSession* conversation;
+};
+
 LLConversationViewSession::Params::Params() :	
 	container()
 {}
@@ -55,13 +79,19 @@ LLConversationViewSession::LLConversationViewSession(const LLConversationViewSes
 	mItemPanel(NULL),
 	mCallIconLayoutPanel(NULL),
 	mSessionTitle(NULL),
-	mSpeakingIndicator(NULL)
+	mSpeakingIndicator(NULL),
+	mVoiceClientObserver(NULL)
 {
 }
 
 LLConversationViewSession::~LLConversationViewSession()
 {
 	mActiveVoiceChannelConnection.disconnect();
+
+	if(LLVoiceClient::instanceExists() && mVoiceClientObserver)
+	{
+		LLVoiceClient::getInstance()->removeObserver(mVoiceClientObserver);
+	}
 }
 
 BOOL LLConversationViewSession::postBuild()
@@ -91,8 +121,7 @@ BOOL LLConversationViewSession::postBuild()
 				LLAvatarIconCtrl* icon = mItemPanel->getChild<LLAvatarIconCtrl>("avatar_icon");
 				icon->setVisible(true);
 				icon->setValue(session->mOtherParticipantID);
-				mSpeakingIndicator->setSpeakerId(gAgentID, session->mSessionID);
-				mSpeakingIndicator->setShowParticipantsTalking(true);
+				mSpeakingIndicator->setSpeakerId(gAgentID, session->mSessionID, true);
 			}
 			break;
 		}
@@ -100,27 +129,28 @@ BOOL LLConversationViewSession::postBuild()
 		{
 			LLGroupIconCtrl* icon = mItemPanel->getChild<LLGroupIconCtrl>("group_icon");
 			icon->setVisible(true);
-			mSpeakingIndicator->setSpeakerId(gAgentID, vmi->getUUID());
-			mSpeakingIndicator->setShowParticipantsTalking(true);
+			mSpeakingIndicator->setSpeakerId(gAgentID, vmi->getUUID(), true);
 		}
 		case LLConversationItem::CONV_SESSION_GROUP:
 		{
 			LLGroupIconCtrl* icon = mItemPanel->getChild<LLGroupIconCtrl>("group_icon");
 			icon->setVisible(true);
 			icon->setValue(vmi->getUUID());
-			mSpeakingIndicator->setSpeakerId(gAgentID, vmi->getUUID());
-			mSpeakingIndicator->setShowParticipantsTalking(true);
+			mSpeakingIndicator->setSpeakerId(gAgentID, vmi->getUUID(), true);
 			break;
 		}
 		case LLConversationItem::CONV_SESSION_NEARBY:
 		{
 			LLIconCtrl* icon = mItemPanel->getChild<LLIconCtrl>("nearby_chat_icon");
 			icon->setVisible(true);
-			mSpeakingIndicator->setSpeakerId(gAgentID);
-			mSpeakingIndicator->setShowParticipantsTalking(true);
+			mSpeakingIndicator->setSpeakerId(gAgentID, LLUUID::null, true);
+			if(LLVoiceClient::instanceExists())
+			{
+				LLNearbyVoiceClientStatusObserver* mVoiceClientObserver = new LLNearbyVoiceClientStatusObserver(this);
+				LLVoiceClient::getInstance()->addObserver(mVoiceClientObserver);
+			}
 			break;
 		}
-
 		default:
 			break;
 		}
@@ -230,6 +260,14 @@ LLConversationViewParticipant* LLConversationViewSession::findParticipant(const 
 		}
 	}
 	return (iter == getItemsEnd() ? NULL : participant);
+}
+
+void LLConversationViewSession::showVoiceIndicator()
+{
+	if (LLVoiceChannel::getCurrentVoiceChannel()->getSessionID().isNull())
+	{
+		mCallIconLayoutPanel->setVisible(true);
+	}
 }
 
 void LLConversationViewSession::refresh()

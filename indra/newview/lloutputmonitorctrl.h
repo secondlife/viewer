@@ -82,7 +82,7 @@ public:
 
 	void			setIsTalking(bool val) { mIsTalking = val; }
 
-	void			setShowParticipantsTalking(bool show) { mShowParticipantsTalking = show; }
+	void			setShowParticipantsSpeaking(bool show) { mShowParticipantsSpeaking = show; }
 
 	/**
 	 * Sets avatar UUID to interact with voice channel.
@@ -92,7 +92,7 @@ public:
 	 *		If this parameter is set registered indicator will be shown only in voice channel
 	 *		which has the same session id (EXT-5562).
 	 */
-	void			setSpeakerId(const LLUUID& speaker_id, const LLUUID& session_id = LLUUID::null);
+	void			setSpeakerId(const LLUUID& speaker_id, const LLUUID& session_id = LLUUID::null, bool show_other_participants_speaking = false);
 
 	//called by mute list
 	virtual void onChange();
@@ -134,7 +134,7 @@ private:
 	bool			mIsAgentControl;
 	bool			mIsMuted;
 	bool			mIsTalking;
-	bool			mShowParticipantsTalking;
+	bool			mShowParticipantsSpeaking;
 	LLPointer<LLUIImage> mImageMute;
 	LLPointer<LLUIImage> mImageOff;
 	LLPointer<LLUIImage> mImageOn;
