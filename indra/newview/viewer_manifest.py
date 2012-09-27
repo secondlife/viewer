@@ -406,7 +406,7 @@ class WindowsManifest(ViewerManifest):
             # For google-perftools tcmalloc allocator.
             # no longer used, make sure old .dll is removed
             try:
-                self.remove('libtcmalloc_minimal.dll')
+                self.remove(self.dst_path_of('libtcmalloc_minimal.dll'))
             except:
                 print "Skipping libtcmalloc_minimal.dll"
 
