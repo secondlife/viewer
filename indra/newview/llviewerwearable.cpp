@@ -477,6 +477,7 @@ void LLViewerWearable::revertValues()
 {
 	LLWearable::revertValues();
 
+
 	LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLFloaterSidePanelContainer::getPanel("appearance"));
 	if( panel )
 	{
