@@ -66,7 +66,7 @@ U32 __thread LLThread::sThreadID = 0;
 #endif
 
 U32 LLThread::sIDIter = 0;
-LLThreadLocalPtr<LLTrace::ThreadTraceData> LLThread::sTraceData;
+LLThreadLocalPtr<LLTrace::SlaveThreadTrace> LLThread::sTraceData;
 
 
 LL_COMMON_API void assert_main_thread()
@@ -99,6 +99,8 @@ void *APR_THREAD_FUNC LLThread::staticRun(apr_thread_t *apr_threadp, void *datap
 	// We're done with the run function, this thread is done executing now.
 	threadp->mStatus = STOPPED;
 
+	delete sTraceData.get();
+
 	return NULL;
 }
 
@@ -108,6 +110,7 @@ LLThread::LLThread(const std::string& name, apr_pool_t *poolp) :
 	mAPRThreadp(NULL),
 	mStatus(STOPPED)
 {
+
 	mID = ++sIDIter;
 
 	// Thread creation probably CAN be paranoid about APR being initialized, if necessary

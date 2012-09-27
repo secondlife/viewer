@@ -31,26 +31,36 @@
 namespace LLTrace
 {
 
-BlockTimer::Recorder::StackEntry BlockTimer::sCurRecorder;
-
-MasterThreadTrace *gMasterThreadTrace = NULL;
-LLThreadLocalPtr<ThreadTraceData> gCurThreadTrace;
+static MasterThreadTrace* gMasterThreadTrace = NULL;
 
 void init()
 {
 	gMasterThreadTrace = new MasterThreadTrace();
-	gCurThreadTrace = gMasterThreadTrace;
 }
 
 void cleanup()
 {
 	delete gMasterThreadTrace;
+	gMasterThreadTrace = NULL;
 }
+
+
+BlockTimer::Recorder::StackEntry BlockTimer::sCurRecorder;
+
+
+
+MasterThreadTrace& getMasterThreadTrace()
+{
+	llassert(gMasterThreadTrace != NULL);
+	return *gMasterThreadTrace;
+}
+
 
 
 ///////////////////////////////////////////////////////////////////////
 // Sampler
 ///////////////////////////////////////////////////////////////////////
+
 
 void Sampler::stop()
 {
@@ -71,15 +81,15 @@ class ThreadTraceData* Sampler::getThreadTrace()
 // MasterThreadTrace
 ///////////////////////////////////////////////////////////////////////
 
-void MasterThreadTrace::pullFromWorkerThreads()
+void MasterThreadTrace::pullFromSlaveThreads()
 {
 	LLMutexLock lock(&mSlaveListMutex);
 
-	for (worker_thread_trace_list_t::iterator it = mSlaveThreadTraces.begin(), end_it = mSlaveThreadTraces.end();
+	for (slave_thread_trace_list_t::iterator it = mSlaveThreadTraces.begin(), end_it = mSlaveThreadTraces.end();
 		it != end_it;
 		++it)
 	{
-		it->mWorkerTrace->mSharedData.copyTo(it->mSamplerStorage);
+		it->mSlaveTrace->mSharedData.copyTo(it->mSamplerStorage);
 	}
 }
 
@@ -87,18 +97,18 @@ void MasterThreadTrace::addSlaveThread( class SlaveThreadTrace* child )
 {
 	LLMutexLock lock(&mSlaveListMutex);
 
-	mSlaveThreadTraces.push_back(WorkerThreadTraceProxy(child));
+	mSlaveThreadTraces.push_back(SlaveThreadTraceProxy(child));
 }
 
 void MasterThreadTrace::removeSlaveThread( class SlaveThreadTrace* child )
 {
 	LLMutexLock lock(&mSlaveListMutex);
 
-	for (worker_thread_trace_list_t::iterator it = mSlaveThreadTraces.begin(), end_it = mSlaveThreadTraces.end();
+	for (slave_thread_trace_list_t::iterator it = mSlaveThreadTraces.begin(), end_it = mSlaveThreadTraces.end();
 		it != end_it;
 		++it)
 	{
-		if (it->mWorkerTrace == child)
+		if (it->mSlaveTrace == child)
 		{
 			mSlaveThreadTraces.erase(it);
 			break;
@@ -107,3 +117,4 @@ void MasterThreadTrace::removeSlaveThread( class SlaveThreadTrace* child )
 }
 
 }
+

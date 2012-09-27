@@ -44,8 +44,7 @@ namespace LLTrace
 	void init();
 	void cleanup();
 
-	extern class MasterThreadTrace *gMasterThreadTrace;
-	extern LLThreadLocalPtr<class ThreadTraceData> gCurThreadTrace;
+	class MasterThreadTrace& getMasterThreadTrace();
 
 	// one per thread per type
 	template<typename ACCUMULATOR>
@@ -59,8 +58,8 @@ namespace LLTrace
 		:	mStorageSize(64),
 			mNextStorageSlot(0),
 			mStorage(new ACCUMULATOR[DEFAULT_ACCUMULATOR_BUFFER_SIZE])
-		{
-		}
+		{}
+
 	public:
 
 		AccumulatorBuffer(const AccumulatorBuffer& other = getDefaultBuffer())
@@ -68,6 +67,15 @@ namespace LLTrace
 			mStorage(new ACCUMULATOR[other.mStorageSize]),
 			mNextStorageSlot(other.mNextStorageSlot)
 		{}
+
+		~AccumulatorBuffer()
+		{
+			if (sPrimaryStorage == mStorage)
+			{
+				//TODO pick another primary?
+				sPrimaryStorage = NULL;
+			}
+		}
 
 		LL_FORCE_INLINE ACCUMULATOR& operator[](size_t index) 
 		{ 
@@ -353,7 +361,8 @@ namespace LLTrace
 			mTimers(other.mTimers)
 		{}
 
-		~Sampler() {}
+		~Sampler()
+		{}
 
 		void makePrimary()
 		{
@@ -453,21 +462,21 @@ namespace LLTrace
 		void addSlaveThread(class SlaveThreadTrace* child);
 		void removeSlaveThread(class SlaveThreadTrace* child);
 
-		// call this periodically to gather stats data from worker threads
-		void pullFromWorkerThreads();
+		// call this periodically to gather stats data from slave threads
+		void pullFromSlaveThreads();
 
 	private:
-		struct WorkerThreadTraceProxy
+		struct SlaveThreadTraceProxy
 		{
-			WorkerThreadTraceProxy(class SlaveThreadTrace* trace)
-				:	mWorkerTrace(trace)
+			SlaveThreadTraceProxy(class SlaveThreadTrace* trace)
+				:	mSlaveTrace(trace)
 			{}
-			class SlaveThreadTrace*	mWorkerTrace;
+			class SlaveThreadTrace*	mSlaveTrace;
 			Sampler				mSamplerStorage;
 		};
-		typedef std::list<WorkerThreadTraceProxy> worker_thread_trace_list_t;
+		typedef std::list<SlaveThreadTraceProxy> slave_thread_trace_list_t;
 
-		worker_thread_trace_list_t		mSlaveThreadTraces;
+		slave_thread_trace_list_t		mSlaveThreadTraces;
 		LLMutex							mSlaveListMutex;
 	};
 
@@ -475,17 +484,16 @@ namespace LLTrace
 	{
 	public:
 		explicit 
-		SlaveThreadTrace(MasterThreadTrace& master_trace = *gMasterThreadTrace)
-		:	mMaster(master_trace),
-			ThreadTraceData(master_trace),
+		SlaveThreadTrace()
+		:	ThreadTraceData(getMasterThreadTrace()),
 			mSharedData(mPrimarySampler)
 		{
-			master_trace.addSlaveThread(this);
+			getMasterThreadTrace().addSlaveThread(this);
 		}
 
 		~SlaveThreadTrace()
 		{
-			mMaster.removeSlaveThread(this);
+			getMasterThreadTrace().removeSlaveThread(this);
 		}
 
 		// call this periodically to gather stats data for master thread to consume
@@ -494,7 +502,7 @@ namespace LLTrace
 			mSharedData.copyFrom(mPrimarySampler);
 		}
 
-		MasterThreadTrace& 	mMaster;
+		MasterThreadTrace* 	mMaster;
 
 		// this data is accessed by other threads, so give it a 64 byte alignment
 		// to avoid false sharing on most x86 processors
@@ -528,7 +536,6 @@ namespace LLTrace
 		};
 		SharedData					mSharedData;
 	};
-
 
 	class TimeInterval 
 	{

@@ -259,16 +259,19 @@ public:
 class LLThreadLocalPtrBase : LLInstanceTracker<LLThreadLocalPtrBase>
 {
 public:
-	LLThreadLocalPtrBase(void (*cleanup_func)(void*) );
+	LLThreadLocalPtrBase();
 	LLThreadLocalPtrBase(const LLThreadLocalPtrBase& other);
 	~LLThreadLocalPtrBase();
 
+	static void initAllThreadLocalStorage();
+	static void destroyAllThreadLocalStorage();
+
 protected:
-	friend void LL_COMMON_API ll_init_apr();
 	void set(void* value);
 
 	LL_FORCE_INLINE void* get()
 	{
+		llassert(sInitialized);
 		void* ptr;
 		//apr_status_t result =
 		apr_threadkey_private_get(&ptr, mThreadKey);
@@ -294,13 +297,9 @@ protected:
 	}
 
 	void initStorage();
-
 	void destroyStorage();
 
-	static void initAllThreadLocalStorage();
-
-private:
-	void (*mCleanupFunc)(void*);
+protected:
 	apr_threadkey_t* mThreadKey;
 	static bool		sInitialized;
 };
@@ -311,10 +310,10 @@ class LLThreadLocalPtr : public LLThreadLocalPtrBase
 public:
 
 	LLThreadLocalPtr()
-	:	LLThreadLocalPtrBase(&cleanup)
+	:	LLThreadLocalPtrBase()
 	{}
 
-	LLThreadLocalPtr(T* value)
+	explicit LLThreadLocalPtr(T* value)
 		:	LLThreadLocalPtrBase(&cleanup)
 	{
 		set(value);
@@ -327,7 +326,7 @@ public:
 		set(other.get());		
 	}
 
-	T* get()
+	LL_FORCE_INLINE T* get()
 	{
 		return (T*)LLThreadLocalPtrBase::get();
 	}
@@ -363,13 +362,11 @@ public:
 		return *this;
 	}
 
-private:
-
-	static void cleanup(void* ptr)
+	bool operator ==(T* other)
 	{
-		delete reinterpret_cast<T*>(ptr);
+		if (!sInitialized) return false;
+		return get() == other;
 	}
-
 };
 
 /**

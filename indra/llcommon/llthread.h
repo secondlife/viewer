@@ -105,7 +105,7 @@ protected:
 	EThreadStatus		mStatus;
 	U32					mID;
 
-	static LLThreadLocalPtr<LLTrace::ThreadTraceData> sTraceData;
+	static LLThreadLocalPtr<LLTrace::SlaveThreadTrace> sTraceData;
 
 	//a local apr_pool for APRFile operations in this thread. If it exists, LLAPRFile::sAPRFilePoolp should not be used.
 	//Note: this pool is used by APRFile ONLY, do NOT use it for any other purposes.
