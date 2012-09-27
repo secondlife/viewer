@@ -66,7 +66,7 @@ U32 __thread LLThread::sThreadID = 0;
 #endif
 
 U32 LLThread::sIDIter = 0;
-LLThreadLocalPtr<LLTrace::SlaveThreadTrace> LLThread::sTraceData;
+LLThreadLocalPtr<LLTrace::ThreadTrace> LLThread::sTraceData;
 
 
 LL_COMMON_API void assert_main_thread()

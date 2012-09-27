@@ -72,10 +72,68 @@ void Sampler::resume()
 	getThreadTrace()->activate(this);
 }
 
-class ThreadTraceData* Sampler::getThreadTrace()
+class ThreadTrace* Sampler::getThreadTrace()
 {
 	return LLThread::getTraceData();
 }
+
+///////////////////////////////////////////////////////////////////////
+// MasterThreadTrace
+///////////////////////////////////////////////////////////////////////
+
+ThreadTrace::ThreadTrace()
+{
+	mPrimarySampler.makePrimary();
+}
+
+ThreadTrace::ThreadTrace( const ThreadTrace& other ) :	mPrimarySampler(other.mPrimarySampler)
+{
+	mPrimarySampler.makePrimary();
+}
+
+void ThreadTrace::activate( Sampler* sampler )
+{
+	flushPrimary();
+	mActiveSamplers.push_back(sampler);
+}
+
+void ThreadTrace::deactivate( Sampler* sampler )
+{
+	sampler->mergeFrom(mPrimarySampler);
+
+	// TODO: replace with intrusive list
+	std::list<Sampler*>::iterator found_it = std::find(mActiveSamplers.begin(), mActiveSamplers.end(), sampler);
+	if (found_it != mActiveSamplers.end())
+	{
+		mActiveSamplers.erase(found_it);
+	}
+}
+
+void ThreadTrace::flushPrimary()
+{
+	for (std::list<Sampler*>::iterator it = mActiveSamplers.begin(), end_it = mActiveSamplers.end();
+		it != end_it;
+		++it)
+	{
+		(*it)->mergeFrom(mPrimarySampler);
+	}
+	mPrimarySampler.reset();
+}
+
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////
+// SlaveThreadTrace
+///////////////////////////////////////////////////////////////////////
+
+void SlaveThreadTrace::pushToMaster()
+{
+	mSharedData.copyFrom(mPrimarySampler);
+}
+
 
 ///////////////////////////////////////////////////////////////////////
 // MasterThreadTrace
@@ -115,6 +173,17 @@ void MasterThreadTrace::removeSlaveThread( class SlaveThreadTrace* child )
 		}
 	}
 }
+
+void MasterThreadTrace::pushToMaster()
+{
+
+}
+
+MasterThreadTrace::MasterThreadTrace()
+{
+	LLThread::setTraceData(this);
+}
+
 
 }
 

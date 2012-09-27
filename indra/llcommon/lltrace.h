@@ -396,7 +396,7 @@ namespace LLTrace
 
 	private:
 		// returns data for current thread
-		class ThreadTraceData* getThreadTrace(); 
+		class ThreadTrace* getThreadTrace(); 
 
 		AccumulatorBuffer<StatAccumulator<F32> >	mF32Stats;
 		AccumulatorBuffer<StatAccumulator<S32> >	mS32Stats;
@@ -404,48 +404,19 @@ namespace LLTrace
 		AccumulatorBuffer<TimerAccumulator>			mTimers;
 	};
 
-	class ThreadTraceData
+	class ThreadTrace
 	{
 	public:
-		ThreadTraceData()
-		{
-			mPrimarySampler.makePrimary();
-		}
+		ThreadTrace();
+		ThreadTrace(const ThreadTrace& other);
 
-		ThreadTraceData(const ThreadTraceData& other)
-		:	mPrimarySampler(other.mPrimarySampler)
-		{
-			mPrimarySampler.makePrimary();
-		}
+		virtual ~ThreadTrace() {}
 
-		void activate(Sampler* sampler)
-		{
-			flushPrimary();
-			mActiveSamplers.push_back(sampler);
-		}
+		void activate(Sampler* sampler);
+		void deactivate(Sampler* sampler);
+		void flushPrimary();
 
-		void deactivate(Sampler* sampler)
-		{
-			sampler->mergeFrom(mPrimarySampler);
-
-			// TODO: replace with intrusive list
-			std::list<Sampler*>::iterator found_it = std::find(mActiveSamplers.begin(), mActiveSamplers.end(), sampler);
-			if (found_it != mActiveSamplers.end())
-			{
-				mActiveSamplers.erase(found_it);
-			}
-		}
-
-		void flushPrimary()
-		{
-			for (std::list<Sampler*>::iterator it = mActiveSamplers.begin(), end_it = mActiveSamplers.end();
-				it != end_it;
-				++it)
-			{
-				(*it)->mergeFrom(mPrimarySampler);
-			}
-			mPrimarySampler.reset();
-		}
+		virtual void pushToMaster() = 0;
 
 		Sampler* getPrimarySampler() { return &mPrimarySampler; }
 	protected:
@@ -453,14 +424,15 @@ namespace LLTrace
 		std::list<Sampler*>		mActiveSamplers;
 	};
 
-	class MasterThreadTrace : public ThreadTraceData
+	class MasterThreadTrace : public ThreadTrace
 	{
 	public:
-		MasterThreadTrace()
-		{}
+		MasterThreadTrace();
 
 		void addSlaveThread(class SlaveThreadTrace* child);
 		void removeSlaveThread(class SlaveThreadTrace* child);
+
+		/*virtual */ void pushToMaster();
 
 		// call this periodically to gather stats data from slave threads
 		void pullFromSlaveThreads();
@@ -480,12 +452,12 @@ namespace LLTrace
 		LLMutex							mSlaveListMutex;
 	};
 
-	class SlaveThreadTrace : public ThreadTraceData
+	class SlaveThreadTrace : public ThreadTrace
 	{
 	public:
 		explicit 
 		SlaveThreadTrace()
-		:	ThreadTraceData(getMasterThreadTrace()),
+		:	ThreadTrace(getMasterThreadTrace()),
 			mSharedData(mPrimarySampler)
 		{
 			getMasterThreadTrace().addSlaveThread(this);
@@ -497,10 +469,7 @@ namespace LLTrace
 		}
 
 		// call this periodically to gather stats data for master thread to consume
-		void pushToParent()
-		{
-			mSharedData.copyFrom(mPrimarySampler);
-		}
+		/*virtual*/ void pushToMaster();
 
 		MasterThreadTrace* 	mMaster;
 

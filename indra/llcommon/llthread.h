@@ -87,7 +87,8 @@ public:
 
 	U32 getID() const { return mID; }
 
-	static LLTrace::ThreadTraceData* getTraceData() { return sTraceData.get(); }
+	static LLTrace::ThreadTrace* getTraceData() { return sTraceData.get(); }
+	static void setTraceData(LLTrace::ThreadTrace* data) { sTraceData = data;}
 
 private:
 	BOOL				mPaused;
@@ -105,7 +106,7 @@ protected:
 	EThreadStatus		mStatus;
 	U32					mID;
 
-	static LLThreadLocalPtr<LLTrace::SlaveThreadTrace> sTraceData;
+	static LLThreadLocalPtr<LLTrace::ThreadTrace> sTraceData;
 
 	//a local apr_pool for APRFile operations in this thread. If it exists, LLAPRFile::sAPRFilePoolp should not be used.
 	//Note: this pool is used by APRFile ONLY, do NOT use it for any other purposes.
