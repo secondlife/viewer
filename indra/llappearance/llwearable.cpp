@@ -502,6 +502,8 @@ void LLWearable::setLocalTextureObject(S32 index, LLLocalTextureObject &lto)
 
 void LLWearable::revertValues()
 {
+	// FIXME DRANO - this triggers changes to driven params on avatar, potentially clobbering baked appearance.
+
 	//update saved settings so wearable is no longer dirty
 	// non-driver params first
 	for (param_map_t::const_iterator iter = mSavedVisualParamMap.begin(); iter != mSavedVisualParamMap.end(); iter++)
