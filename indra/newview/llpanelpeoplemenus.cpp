@@ -69,6 +69,7 @@ LLContextMenu* NearbyMenu::createMenu()
 		registrar.add("Avatar.Pay",				boost::bind(&LLAvatarActions::pay,						id));
 		registrar.add("Avatar.BlockUnblock",	boost::bind(&LLAvatarActions::toggleBlock,				id));
 		registrar.add("Avatar.InviteToGroup",	boost::bind(&LLAvatarActions::inviteToGroup,			id));
+		registrar.add("Avatar.Calllog",			boost::bind(&LLAvatarActions::viewChatHistory,			id));
 
 		enable_registrar.add("Avatar.EnableItem", boost::bind(&NearbyMenu::enableContextMenuItem,	this, _2));
 		enable_registrar.add("Avatar.CheckItem",  boost::bind(&NearbyMenu::checkContextMenuItem,	this, _2));

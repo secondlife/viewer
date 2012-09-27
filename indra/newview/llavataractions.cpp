@@ -897,6 +897,12 @@ void LLAvatarActions::inviteToGroup(const LLUUID& id)
 	}
 }
 
+// static
+void LLAvatarActions::viewChatHistory(const LLUUID& id)
+{
+	LLFloaterReg::showInstance("preview_conversation", id, true);
+}
+
 //== private methods ========================================================================================
 
 // static
