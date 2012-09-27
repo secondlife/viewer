@@ -1750,6 +1750,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering)
 	{
 		requestServerAppearanceUpdate();
 	}
+	gAgentAvatarp->setIsUsingServerBakes(gAgent.getRegion() && gAgent.getRegion()->getCentralBakeVersion());
 	
 	//dumpCat(getCOF(),"COF, start");
 

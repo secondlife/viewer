@@ -626,7 +626,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mLastRezzedStatus(-1),
 	mIsEditingAppearance(FALSE),
 	mUseLocalAppearance(FALSE),
-	mUseServerBakes(FALSE)
+	mUseServerBakes(FALSE) // FIXME DRANO consider using boost::optional, defaulting to unknown.
 {
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 	//VTResume();  // VTune
@@ -2890,8 +2890,8 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		{
 			central_bake_version = getRegion()->getCentralBakeVersion();
 		}
-		addDebugText(llformat("mUseLocalAppearance: %d,\nmIsEditingAppearance: %d\n"
-							  "mUseServerBakes %d,\ncentralBakeVersion %d",
+		addDebugText(llformat("mUseLocalAppearance: %d\nmIsEditingAppearance: %d\n"
+							  "mUseServerBakes %d\ncentralBakeVersion %d",
 							  mUseLocalAppearance, mIsEditingAppearance,
 							  mUseServerBakes, central_bake_version));
 	}
@@ -6397,20 +6397,15 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		//mesgsys->getU32Fast(_PREHASH_AppearanceData, _PREHASH_Flags, appearance_flags, 0);
 	}
 
-	if (appearance_version > 0)
-	{
-		mUseServerBakes = true;
-	}
-	else
-	{
-		mUseServerBakes = false;
-	}
+	mUseServerBakes = (appearance_version > 0);
 
 	// Only now that we have result of appearance_version can we decide whether to bail out.
-	// Don't expect this case to occur.
 	if( isSelf() )
 	{
-		llwarns << avString() << "Received AvatarAppearance for self" << llendl;
+		if (getRegion() && (getRegion()->getCentralBakeVersion()==0))
+		{
+			llwarns << avString() << "Received AvatarAppearance message for self in non-server-bake region" << llendl;
+		}
 		if( mFirstTEMessageReceived && !isUsingServerBakes())
 		{
 			return;
@@ -7052,6 +7047,10 @@ void LLVOAvatar::bodySizeChanged()
 	}
 }
 
+void LLVOAvatar::setIsUsingServerBakes(BOOL newval)
+{
+	mUseServerBakes = newval;
+}
 
 // virtual
 void LLVOAvatar::removeMissingBakedTextures()

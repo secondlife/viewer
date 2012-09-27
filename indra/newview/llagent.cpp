@@ -4260,9 +4260,6 @@ void LLAgent::requestLeaveGodMode()
 //-----------------------------------------------------------------------------
 void LLAgent::sendAgentSetAppearance()
 {
-	// FIXME DRANO - this return short-circuits a bunch of phase stat tracking below.
-	if (!isAgentAvatarValid() || (getRegion() && getRegion()->getCentralBakeVersion())) return;
-
 	// FIXME DRANO - problems around new-style appearance in an old-style region.
 	// - does this get called?
 	// - need to change mUseServerBakes->FALSE in that case
@@ -4282,6 +4279,9 @@ void LLAgent::sendAgentSetAppearance()
 	}
 	
 	gAgentAvatarp->sendAppearanceChangeMetrics();
+
+	if (!isAgentAvatarValid() || (getRegion() && getRegion()->getCentralBakeVersion())) return;
+
 	LL_INFOS("Avatar") << gAgentAvatarp->avString() << "TAT: Sent AgentSetAppearance: " << gAgentAvatarp->getBakedStatusForPrintout() << LL_ENDL;
 	//dumpAvatarTEs( "sendAgentSetAppearance()" );
 
@@ -4327,9 +4327,10 @@ void LLAgent::sendAgentSetAppearance()
 	}
 
 	// only update cache entries if we have all our baked textures
-	// FIXME DRANO additional if check for not in appearance editing
+
+	// FIXME DRANO need additional check for not in appearance editing
 	// mode, if still using local composites need to set using local
-	// composites to false, update mesh textures.
+	// composites to false, and update mesh textures.
 	if (textures_current)
 	{
 		LL_INFOS("Avatar") << gAgentAvatarp->avString() << "TAT: Sending cached texture data" << LL_ENDL;
