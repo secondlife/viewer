@@ -122,8 +122,6 @@ BOOL LLNearbyChat::postBuild()
 	// it is used for show the item's name in the conversations list
 	setTitle(LLTrans::getString("NearbyChatTitle"));
 
-	addToHost();
-
 	//for menu
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
@@ -312,6 +310,7 @@ void LLNearbyChat::addToHost()
 // virtual
 void LLNearbyChat::onOpen(const LLSD& key)
 {
+	addToHost();
 	LLIMConversation::onOpen(key);
 	showTranslationCheckbox(LLTranslate::isTranslationConfigured());
 }
