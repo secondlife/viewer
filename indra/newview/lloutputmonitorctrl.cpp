@@ -167,7 +167,8 @@ void LLOutputMonitorCtrl::draw()
 		F32 power = 0;
 		for (; part_it != participant_uuids.end(); ++part_it)
 		{
-			if (power = LLVoiceClient::instance().getCurrentPower(*part_it))
+			power = LLVoiceClient::instance().getCurrentPower(*part_it);
+			if (power)
 			{
 				mPower = power;
 				break;
