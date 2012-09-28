@@ -582,13 +582,14 @@ void LLIMFloater::onParticipantsListChanged(LLUICtrl* ctrl)
 		build_names_string(temp_uuids, ui_title);
 		updateSessionName(ui_title, ui_title);
 	}
-    }
+}
 
-//static
-LLIMFloater* LLIMFloater::addToIMContainer(const LLUUID& session_id)
+void LLIMFloater::addToHost(const LLUUID& session_id, const bool force)
 {
-	if (!gIMMgr->hasSession(session_id))
-		return NULL;
+	if (!LLIMConversation::isChatMultiTab() || !gIMMgr->hasSession(session_id))
+	{
+		return;
+	}
 
 	// Test the existence of the floater before we try to create it
 	bool exist = findInstance(session_id);
@@ -612,18 +613,21 @@ LLIMFloater* LLIMFloater::addToIMContainer(const LLUUID& session_id)
 			}
 		}
 
-		if (floater_container && floater_container->getVisible())
+		if (force)
 		{
-			floater->openFloater(floater->getKey());
-			floater->setVisible(TRUE);
-		}
-		else
-		{
-			floater->setVisible(FALSE);
+			if (floater_container && floater_container->getVisible())
+			{
+				floater->openFloater(floater->getKey());
+				floater->setVisible(TRUE);
+			}
+			else
+			{
+				floater->setVisible(FALSE);
+			}
 		}
 	}
-	return floater;
 }
+
 
 //static
 LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
@@ -1322,23 +1326,6 @@ void LLIMFloater::sRemoveTypingIndicator(const LLSD& data)
 void LLIMFloater::onIMChicletCreated( const LLUUID& session_id )
 {
 	LLIMFloater::addToHost(session_id);
-}
-void LLIMFloater::addToHost(const LLUUID& session_id)
-	{
-	if (LLIMConversation::isChatMultiTab())
-{
-		LLIMFloaterContainer* im_box = LLIMFloaterContainer::findInstance();
-		if (!im_box)
-	{
-			im_box = LLIMFloaterContainer::getInstance();
-	}
-
-		if (im_box && !LLIMFloater::findInstance(session_id))
-	{
-			LLIMFloater* new_tab = LLIMFloater::getInstance(session_id);
-			im_box->addFloater(new_tab, FALSE, LLTabContainer::END);
-	}
-	}
 }
 
 boost::signals2::connection LLIMFloater::setIMFloaterShowedCallback(const floater_showed_signal_t::slot_type& cb)

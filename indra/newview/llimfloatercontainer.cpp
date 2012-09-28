@@ -86,13 +86,13 @@ LLIMFloaterContainer::~LLIMFloaterContainer()
 
 void LLIMFloaterContainer::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
 {
-	LLIMFloater::addToIMContainer(session_id);
+	LLIMFloater::addToHost(session_id, true);
 	addConversationListItem(session_id);
 }
 
 void LLIMFloaterContainer::sessionVoiceOrIMStarted(const LLUUID& session_id)
 {
-	LLIMFloater::addToIMContainer(session_id);
+	LLIMFloater::addToHost(session_id, true);
 	addConversationListItem(session_id);
 }
 
