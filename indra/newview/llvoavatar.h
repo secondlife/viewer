@@ -644,6 +644,8 @@ public:
 	// True if this avatar should fetch its baked textures via the new
 	// appearance mechanism.
 	/*virtual*/ BOOL	isUsingServerBakes() const { return mUseServerBakes; }
+	void 				setIsUsingServerBakes(BOOL newval);
+
 
 	// True if we are currently in appearance editing mode. Often but
 	// not always the same as isUsingLocalAppearance().

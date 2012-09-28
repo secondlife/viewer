@@ -320,8 +320,9 @@ void LLViewerWearable::writeToAvatar(LLAvatarAppearance *avatarp)
 
 	if (!viewer_avatar->isValid()) return;
 
-	if (viewer_avatar->getRegion() &&
-		(viewer_avatar->getRegion()->getCentralBakeVersion()>0) &&
+	// FIXME DRANO - kludgy way to avoid overwriting avatar state from wearables.
+	// Ideally would avoid calling this func in the first place.
+	if (viewer_avatar->isUsingServerBakes() &&
 		!viewer_avatar->isUsingLocalAppearance())
 	{
 		return;
