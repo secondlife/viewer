@@ -36,6 +36,7 @@
 LLConversationItem::LLConversationItem(std::string display_name, const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
 	LLFolderViewModelItemCommon(root_view_model),
 	mName(display_name),
+	mUseNameForSort(true),
 	mUUID(uuid),
 	mNeedsRefresh(true),
 	mConvType(CONV_UNKNOWN),
@@ -46,6 +47,7 @@ LLConversationItem::LLConversationItem(std::string display_name, const LLUUID& u
 LLConversationItem::LLConversationItem(const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
 	LLFolderViewModelItemCommon(root_view_model),
 	mName(""),
+	mUseNameForSort(true),
 	mUUID(uuid),
 	mNeedsRefresh(true),
 	mConvType(CONV_UNKNOWN),
@@ -56,6 +58,7 @@ LLConversationItem::LLConversationItem(const LLUUID& uuid, LLFolderViewModelInte
 LLConversationItem::LLConversationItem(LLFolderViewModelInterface& root_view_model) :
 	LLFolderViewModelItemCommon(root_view_model),
 	mName(""),
+	mUseNameForSort(true),
 	mUUID(),
 	mNeedsRefresh(true),
 	mConvType(CONV_UNKNOWN),
@@ -251,8 +254,9 @@ LLConversationItemParticipant::LLConversationItemParticipant(const LLUUID& uuid,
 
 void LLConversationItemParticipant::onAvatarNameCache(const LLAvatarName& av_name)
 {
-	mName = av_name.mUsername;
-	mDisplayName = av_name.mDisplayName;
+	mUseNameForSort = !av_name.mUsername.empty();
+	mName = (mUseNameForSort ? av_name.mUsername : NO_TOOLTIP_STRING);
+	mDisplayName = (av_name.mDisplayName.empty() ? mName : av_name.mDisplayName);
 	mNeedsRefresh = true;
 	if (mParent)
 	{
@@ -363,7 +367,7 @@ bool LLConversationSort::operator()(const LLConversationItem* const& a, const LL
 	}
 	// By default, in all other possible cases (including sort order type LLConversationFilter::SO_NAME of course), 
 	// we sort by name
-	S32 compare = LLStringUtil::compareDict(a->getName(), b->getName());
+	S32 compare = LLStringUtil::compareDict((a->useNameForSort() ? a->getName() : a->getDisplayName()), (b->useNameForSort() ? b->getName() : b->getDisplayName()));
 	return (compare < 0);
 }
 

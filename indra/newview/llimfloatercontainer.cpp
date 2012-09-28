@@ -158,8 +158,7 @@ BOOL LLIMFloaterContainer::postBuild()
 
 	collapseMessagesPane(gSavedPerAccountSettings.getBOOL("ConversationsMessagePaneCollapsed"));
 	collapseConversationsPane(gSavedPerAccountSettings.getBOOL("ConversationsListPaneCollapsed"));
-	LLAvatarNameCache::addUseDisplayNamesCallback(
-			boost::bind(&LLIMConversation::processChatHistoryStyleUpdate));
+	LLAvatarNameCache::addUseDisplayNamesCallback(boost::bind(&LLIMConversation::processChatHistoryStyleUpdate));
 
 	if (! mMessagesPane->isCollapsed())
 	{
@@ -176,8 +175,11 @@ BOOL LLIMFloaterContainer::postBuild()
 	
 	mInitialized = true;
 
-	// Add callback: we'll take care of view updates on idle
+	// Add callbacks:
+	// We'll take care of view updates on idle
 	gIdleCallbacks.addFunction(idle, this);
+	// When display name option change, we need to reload all participant names
+	LLAvatarNameCache::addUseDisplayNamesCallback(boost::bind(&LLIMFloaterContainer::processParticipantsStyleUpdate, this));
 
 	return TRUE;
 }
@@ -327,6 +329,31 @@ void LLIMFloaterContainer::setMinimized(BOOL b)
 	if (getActiveFloater())
 	{
 		getActiveFloater()->setVisible(TRUE);
+	}
+}
+
+// Update all participants in the conversation lists
+void LLIMFloaterContainer::processParticipantsStyleUpdate()
+{
+	// On each session in mConversationsItems
+	for (conversations_items_map::iterator it_session = mConversationsItems.begin(); it_session != mConversationsItems.end(); it_session++)
+	{
+		// Get the current session descriptors
+		LLConversationItem* session_model = it_session->second;
+		// Iterate through each model participant child
+		LLFolderViewModelItemCommon::child_list_t::const_iterator current_participant_model = session_model->getChildrenBegin();
+		LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = session_model->getChildrenEnd();
+		while (current_participant_model != end_participant_model)
+		{
+			LLConversationItemParticipant* participant_model = dynamic_cast<LLConversationItemParticipant*>(*current_participant_model);
+			// Get the avatar name for this participant id from the cache and update the model
+			LLUUID participant_id = participant_model->getUUID();
+			LLAvatarName av_name;
+			LLAvatarNameCache::get(participant_id,&av_name);
+			participant_model->onAvatarNameCache(av_name);
+			// Next participant
+			current_participant_model++;
+		}
 	}
 }
 

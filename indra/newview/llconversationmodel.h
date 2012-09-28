@@ -123,9 +123,11 @@ public:
 	
 	void resetRefresh() { mNeedsRefresh = false; }
 	bool needsRefresh() { return mNeedsRefresh; }
+	bool const useNameForSort() const { return mUseNameForSort; }
 	
 protected:
 	std::string mName;	// Name of the session or the participant
+	bool mUseNameForSort;
 	LLUUID mUUID;		// UUID of the session or the participant
 	EConversationType mConvType;	// Type of conversation item
 	bool mNeedsRefresh;	// Flag signaling to the view that something changed for this item

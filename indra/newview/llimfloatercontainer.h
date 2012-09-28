@@ -96,6 +96,7 @@ private:
 	void onNewMessageReceived(const LLSD& data);
 
 	void onExpandCollapseButtonClicked();
+	void processParticipantsStyleUpdate();
 
 	void collapseConversationsPane(bool collapse);
 
