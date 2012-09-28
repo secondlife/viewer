@@ -223,8 +223,8 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 		floaterp->mCloseSignal.connect(boost::bind(&LLIMFloaterContainer::onCloseFloater, this, session_id));
 	}
 	else
-	{
-		LLUUID avatar_id = LLIMModel::getInstance()->getOtherParticipantID(session_id);
+	{   LLUUID avatar_id = session_id.notNull()?
+		    LLIMModel::getInstance()->getOtherParticipantID(session_id) : LLUUID();
 
 		LLAvatarIconCtrl::Params icon_params;
 		icon_params.avatar_id = avatar_id;
