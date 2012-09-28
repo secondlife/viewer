@@ -29,6 +29,7 @@
 
 #include "llmemory.h"
 #include "llthread.h"
+#include "lltrace.h"
 
 //static
 BOOL LLCommon::sAprInitialized = FALSE;

@@ -32,6 +32,7 @@
 #include "llmutex.h"
 
 #include "lltimer.h"
+#include "lltrace.h"
 
 #if LL_LINUX || LL_SOLARIS
 #include <sched.h>
@@ -85,7 +86,7 @@ void *APR_THREAD_FUNC LLThread::staticRun(apr_thread_t *apr_threadp, void *datap
 {
 	LLThread *threadp = (LLThread *)datap;
 
-	sTraceData = new LLTrace::SlaveThreadTrace();
+	setTraceData(new LLTrace::SlaveThreadTrace());
 
 #if !LL_DARWIN
 	sThreadIndex = threadp->mID;
@@ -100,6 +101,7 @@ void *APR_THREAD_FUNC LLThread::staticRun(apr_thread_t *apr_threadp, void *datap
 	threadp->mStatus = STOPPED;
 
 	delete sTraceData.get();
+	sTraceData = NULL;
 
 	return NULL;
 }
@@ -310,4 +312,14 @@ void LLThread::wakeLocked()
 	{
 		mRunCondition->signal();
 	}
+}
+
+LLTrace::ThreadTrace* LLThread::getTraceData()
+{
+	return sTraceData.get();
+}
+
+void LLThread::setTraceData( LLTrace::ThreadTrace* data )
+{
+	sTraceData = data;
 }

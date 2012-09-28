@@ -60,7 +60,7 @@
 #include "llcurl.h"
 #include "llcalc.h"
 #include "lltexturestats.h"
-#include "lltexturestats.h"
+#include "lltrace.h"
 #include "llviewerwindow.h"
 #include "llviewerdisplay.h"
 #include "llviewermedia.h"

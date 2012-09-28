@@ -31,6 +31,8 @@
 #include "../llimageworker.h"
 // For timer class
 #include "../llcommon/lltimer.h"
+// for lltrace class
+#include "../llcommon/lltrace.h"
 // Tut header
 #include "../test/lltut.h"
 

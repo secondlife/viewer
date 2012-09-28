@@ -55,27 +55,76 @@ MasterThreadTrace& getMasterThreadTrace()
 	return *gMasterThreadTrace;
 }
 
-
-
 ///////////////////////////////////////////////////////////////////////
 // Sampler
 ///////////////////////////////////////////////////////////////////////
 
-
-void Sampler::stop()
+Sampler::Sampler(ThreadTrace* thread_trace) 
+:	mElapsedSeconds(0),
+	mIsStarted(false),
+	mThreadTrace(thread_trace)
 {
-	getThreadTrace()->deactivate(this);
+}
+
+Sampler::~Sampler()
+{
+}
+
+void Sampler::start()
+{
+	reset();
+	resume();
+}
+
+void Sampler::reset()
+{
+	mF32Stats.reset();
+	mS32Stats.reset();
+	mStackTimers.reset();
+
+	mElapsedSeconds = 0.0;
+	mSamplingTimer.reset();
 }
 
 void Sampler::resume()
 {
-	getThreadTrace()->activate(this);
+	if (!mIsStarted)
+	{
+		mSamplingTimer.reset();
+		getThreadTrace()->activate(this);
+		mIsStarted = true;
+	}
 }
 
-class ThreadTrace* Sampler::getThreadTrace()
+void Sampler::stop()
 {
-	return LLThread::getTraceData();
+	if (mIsStarted)
+	{
+		mElapsedSeconds += mSamplingTimer.getElapsedTimeF64();
+		getThreadTrace()->deactivate(this);
+		mIsStarted = false;
+	}
 }
+
+ThreadTrace* Sampler::getThreadTrace()
+{
+	return mThreadTrace;
+}
+
+void Sampler::makePrimary()
+{
+	mF32Stats.makePrimary();
+	mS32Stats.makePrimary();
+	mStackTimers.makePrimary();
+}
+
+void Sampler::mergeFrom( const Sampler* other )
+{
+	mF32Stats.mergeFrom(other->mF32Stats);
+	mS32Stats.mergeFrom(other->mS32Stats);
+	mStackTimers.mergeFrom(other->mStackTimers);
+}
+
 
 ///////////////////////////////////////////////////////////////////////
 // MasterThreadTrace
@@ -83,12 +132,20 @@ class ThreadTrace* Sampler::getThreadTrace()
 
 ThreadTrace::ThreadTrace()
 {
-	mPrimarySampler.makePrimary();
+	mPrimarySampler = createSampler();
+	mPrimarySampler->makePrimary();
+	mPrimarySampler->start();
 }
 
-ThreadTrace::ThreadTrace( const ThreadTrace& other ) :	mPrimarySampler(other.mPrimarySampler)
+ThreadTrace::ThreadTrace( const ThreadTrace& other ) 
+:	mPrimarySampler(new Sampler(*(other.mPrimarySampler)))
 {
-	mPrimarySampler.makePrimary();
+	mPrimarySampler->makePrimary();
+}
+
+ThreadTrace::~ThreadTrace()
+{
+	delete mPrimarySampler;
 }
 
 void ThreadTrace::activate( Sampler* sampler )
@@ -117,11 +174,13 @@ void ThreadTrace::flushPrimary()
 	{
 		(*it)->mergeFrom(mPrimarySampler);
 	}
-	mPrimarySampler.reset();
+	mPrimarySampler->reset();
 }
 
-
-
+Sampler* ThreadTrace::createSampler()
+{
+	return new Sampler(this);
+}
 
 
 
@@ -129,11 +188,22 @@ void ThreadTrace::flushPrimary()
 // SlaveThreadTrace
 ///////////////////////////////////////////////////////////////////////
 
+SlaveThreadTrace::SlaveThreadTrace()
+:	ThreadTrace(getMasterThreadTrace()),
+	mSharedData(createSampler())
+{
+	getMasterThreadTrace().addSlaveThread(this);
+}
+
+SlaveThreadTrace::~SlaveThreadTrace()
+{
+	getMasterThreadTrace().removeSlaveThread(this);
+}
+
 void SlaveThreadTrace::pushToMaster()
 {
 	mSharedData.copyFrom(mPrimarySampler);
 }
-
 
 ///////////////////////////////////////////////////////////////////////
 // MasterThreadTrace
@@ -155,7 +225,7 @@ void MasterThreadTrace::addSlaveThread( class SlaveThreadTrace* child )
 {
 	LLMutexLock lock(&mSlaveListMutex);
 
-	mSlaveThreadTraces.push_back(SlaveThreadTraceProxy(child));
+	mSlaveThreadTraces.push_back(SlaveThreadTraceProxy(child, createSampler()));
 }
 
 void MasterThreadTrace::removeSlaveThread( class SlaveThreadTrace* child )
@@ -175,15 +245,26 @@ void MasterThreadTrace::removeSlaveThread( class SlaveThreadTrace* child )
 }
 
 void MasterThreadTrace::pushToMaster()
-{
-
-}
+{}
 
 MasterThreadTrace::MasterThreadTrace()
 {
 	LLThread::setTraceData(this);
 }
 
+///////////////////////////////////////////////////////////////////////
+// MasterThreadTrace::SlaveThreadTraceProxy
+///////////////////////////////////////////////////////////////////////
 
+MasterThreadTrace::SlaveThreadTraceProxy::SlaveThreadTraceProxy( class SlaveThreadTrace* trace, Sampler* storage ) 
+:	mSlaveTrace(trace),
+	mSamplerStorage(storage)
+{}
+
+MasterThreadTrace::SlaveThreadTraceProxy::~SlaveThreadTraceProxy()
+{
+	delete mSamplerStorage;
 }
 
+
+}

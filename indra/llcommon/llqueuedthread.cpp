@@ -28,6 +28,7 @@
 
 #include "llstl.h"
 #include "lltimer.h"	// ms_sleep()
+#include "lltrace.h"
 
 //============================================================================
 

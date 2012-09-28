@@ -30,8 +30,12 @@
 #include "llapp.h"
 #include "llapr.h"
 #include "apr_thread_cond.h"
-#include "lltrace.h"
+#include "llmutex.h"
 
+namespace LLTrace
+{
+	class ThreadTrace;
+}
 class LL_COMMON_API LLThread
 {
 private:
@@ -87,8 +91,8 @@ public:
 
 	U32 getID() const { return mID; }
 
-	static LLTrace::ThreadTrace* getTraceData() { return sTraceData.get(); }
-	static void setTraceData(LLTrace::ThreadTrace* data) { sTraceData = data;}
+	static LLTrace::ThreadTrace* getTraceData();
+	static void setTraceData(LLTrace::ThreadTrace* data);
 
 private:
 	BOOL				mPaused;

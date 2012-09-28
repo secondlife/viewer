@@ -32,12 +32,14 @@
 
 #include "llmutex.h"
 #include "llmemory.h"
+#include "lltimer.h"
 
 #include <list>
 
 #define TOKEN_PASTE_ACTUAL(x, y) x##y
 #define TOKEN_PASTE(x, y) TOKEN_PASTE_ACTUAL(x, y)
 #define RECORD_BLOCK_TIME(block_timer) LLTrace::BlockTimer::Recorder TOKEN_PASTE(block_time_recorder, __COUNTER__)(block_timer);
+
 
 namespace LLTrace
 {
@@ -135,7 +137,7 @@ namespace LLTrace
 
 		static AccumulatorBuffer<ACCUMULATOR>& getDefaultBuffer()
 		{
-			static AccumulatorBuffer sBuffer;
+			static AccumulatorBuffer sBuffer(STATIC_ALLOC);
 			return sBuffer;
 		}
 
@@ -354,54 +356,38 @@ namespace LLTrace
 	class Sampler
 	{
 	public:
-		Sampler() {}
-		Sampler(const Sampler& other)
-		:	mF32Stats(other.mF32Stats),
-			mS32Stats(other.mS32Stats),
-			mTimers(other.mTimers)
-		{}
+		~Sampler();
 
-		~Sampler()
-		{}
+		void makePrimary();
 
-		void makePrimary()
-		{
-			mF32Stats.makePrimary();
-			mS32Stats.makePrimary();
-			mTimers.makePrimary();
-		}
-
-		void start()
-		{
-			reset();
-			resume();
-		}
-
+		void start();
 		void stop();
 		void resume();
 
-		void mergeFrom(const Sampler& other)
-		{
-			mF32Stats.mergeFrom(other.mF32Stats);
-			mS32Stats.mergeFrom(other.mS32Stats);
-			mTimers.mergeFrom(other.mTimers);
-		}
+		void mergeFrom(const Sampler* other);
 
-		void reset()
-		{
-			mF32Stats.reset();
-			mS32Stats.reset();
-			mTimers.reset();
-		}
+		void reset();
+
+		bool isStarted() { return mIsStarted; }
 
 	private:
+		friend class ThreadTrace;
+		Sampler(class ThreadTrace* thread_trace);
+
+		// no copy
+		Sampler(const Sampler& other) {}
 		// returns data for current thread
 		class ThreadTrace* getThreadTrace(); 
 
 		AccumulatorBuffer<StatAccumulator<F32> >	mF32Stats;
 		AccumulatorBuffer<StatAccumulator<S32> >	mS32Stats;
 
-		AccumulatorBuffer<TimerAccumulator>			mTimers;
+		AccumulatorBuffer<TimerAccumulator>			mStackTimers;
+
+		bool										mIsStarted;
+		LLTimer										mSamplingTimer;
+		F64											mElapsedSeconds;
+		ThreadTrace*								mThreadTrace;
 	};
 
 	class ThreadTrace
@@ -410,17 +396,19 @@ namespace LLTrace
 		ThreadTrace();
 		ThreadTrace(const ThreadTrace& other);
 
-		virtual ~ThreadTrace() {}
+		virtual ~ThreadTrace();
 
 		void activate(Sampler* sampler);
 		void deactivate(Sampler* sampler);
 		void flushPrimary();
 
+		Sampler* createSampler();
+
 		virtual void pushToMaster() = 0;
 
-		Sampler* getPrimarySampler() { return &mPrimarySampler; }
+		Sampler* getPrimarySampler() { return mPrimarySampler; }
 	protected:
-		Sampler					mPrimarySampler;
+		Sampler*				mPrimarySampler;
 		std::list<Sampler*>		mActiveSamplers;
 	};
 
@@ -440,11 +428,11 @@ namespace LLTrace
 	private:
 		struct SlaveThreadTraceProxy
 		{
-			SlaveThreadTraceProxy(class SlaveThreadTrace* trace)
-				:	mSlaveTrace(trace)
-			{}
+			SlaveThreadTraceProxy(class SlaveThreadTrace* trace, Sampler* storage);
+
+			~SlaveThreadTraceProxy();
 			class SlaveThreadTrace*	mSlaveTrace;
-			Sampler				mSamplerStorage;
+			Sampler*				mSamplerStorage;
 		};
 		typedef std::list<SlaveThreadTraceProxy> slave_thread_trace_list_t;
 
@@ -455,18 +443,8 @@ namespace LLTrace
 	class SlaveThreadTrace : public ThreadTrace
 	{
 	public:
-		explicit 
-		SlaveThreadTrace()
-		:	ThreadTrace(getMasterThreadTrace()),
-			mSharedData(mPrimarySampler)
-		{
-			getMasterThreadTrace().addSlaveThread(this);
-		}
-
-		~SlaveThreadTrace()
-		{
-			getMasterThreadTrace().removeSlaveThread(this);
-		}
+		SlaveThreadTrace();
+		~SlaveThreadTrace();
 
 		// call this periodically to gather stats data for master thread to consume
 		/*virtual*/ void pushToMaster();
@@ -479,29 +457,35 @@ namespace LLTrace
 		{
 		public:
 			explicit 
-			SharedData(const Sampler& other_sampler) 
-			:	mSampler(other_sampler)
-			{}
+			SharedData(Sampler* sampler) 
+			:	mSampler(sampler)
+			{
+			}
 
-			void copyFrom(Sampler& source)
+			~SharedData()
+			{
+				delete mSampler;
+			}
+
+			void copyFrom(Sampler* source)
 			{
 				LLMutexLock lock(&mSamplerMutex);
 				{	
-					mSampler.mergeFrom(source);
+					mSampler->mergeFrom(source);
 				}
 			}
 
-			void copyTo(Sampler& sink)
+			void copyTo(Sampler* sink)
 			{
 				LLMutexLock lock(&mSamplerMutex);
 				{
-					sink.mergeFrom(mSampler);
+					sink->mergeFrom(mSampler);
 				}
 			}
 		private:
 			// add a cache line's worth of unused space to avoid any potential of false sharing
 			LLMutex					mSamplerMutex;
-			Sampler					mSampler;
+			Sampler*				mSampler;
 		};
 		SharedData					mSharedData;
 	};
