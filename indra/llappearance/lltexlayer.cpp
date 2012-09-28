@@ -469,6 +469,31 @@ const std::string LLTexLayerSet::getBodyRegionName() const
 }
 
 
+// virtual
+void LLTexLayerSet::asLLSD(LLSD& sd) const
+{
+	sd["visible"] = LLSD::Boolean(isVisible());
+	LLSD layer_list_sd;
+	layer_list_t::const_iterator layer_iter = mLayerList.begin();
+	layer_list_t::const_iterator layer_end  = mLayerList.end();
+	for(; layer_iter != layer_end; ++layer_iter);
+	{
+		LLSD layer_sd;
+		//LLTexLayerInterface* layer = (*layer_iter);
+		//if (layer)
+		//{
+		//	layer->asLLSD(layer_sd);
+		//}
+		layer_list_sd.append(layer_sd);
+	}
+	LLSD mask_list_sd;
+	LLSD info_sd;
+	sd["layers"] = layer_list_sd;
+	sd["masks"] = mask_list_sd;
+	sd["info"] = info_sd;
+}
+
+
 void LLTexLayerSet::destroyComposite()
 {
 	if( mComposite )
@@ -964,6 +989,12 @@ LLTexLayer::~LLTexLayer()
 		delete [] alpha_data;
 	}
 
+}
+
+void LLTexLayer::asLLSD(LLSD& sd) const
+{
+	// *TODO: Finish
+	sd["id"] = getUUID();
 }
 
 //-----------------------------------------------------------------------------

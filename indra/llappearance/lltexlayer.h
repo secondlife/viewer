@@ -89,6 +89,8 @@ public:
 	ERenderPass				getRenderPass() const;
 	BOOL					isVisibilityMask() const;
 
+	virtual void			asLLSD(LLSD& sd) const {}
+
 protected:
 	const std::string&		getGlobalColor() const;
 	LLViewerVisualParam*	getVisualParamPtr(S32 index) const;
@@ -163,10 +165,11 @@ public:
 	void					setLTO(LLLocalTextureObject *lto) 	{ mLocalTextureObject = lto; }
 	LLLocalTextureObject* 	getLTO() 							{ return mLocalTextureObject; }
 
+	/*virtual*/ void		asLLSD(LLSD& sd) const;
+
 	static void 			calculateTexLayerColor(const param_color_list_t &param_list, LLColor4 &net_color);
 protected:
 	LLUUID					getUUID() const;
-private:
 	typedef std::map<U32, U8*> alpha_cache_t;
 	alpha_cache_t			mAlphaCache;
 	LLLocalTextureObject* 	mLocalTextureObject;
@@ -213,6 +216,8 @@ public:
 	BOOL						isVisible() const 			{ return mIsVisible; }
 
 	static BOOL					sHasCaches;
+
+	virtual void				asLLSD(LLSD& sd) const;
 
 protected:
 	typedef std::vector<LLTexLayerInterface *> layer_list_t;

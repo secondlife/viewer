@@ -68,6 +68,7 @@ public:
 	LLAssetType::EType			getAssetType() const;
 	S32							getDefinitionVersion() const { return mDefinitionVersion; }
 	void						setDefinitionVersion( S32 new_version ) { mDefinitionVersion = new_version; }
+	static S32					getCurrentDefinitionVersion() { return LLWearable::sCurrentDefinitionVersion; }
 
 public:
 	typedef std::vector<LLVisualParam*> visual_param_vec_t;
