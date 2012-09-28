@@ -903,6 +903,21 @@ const std::string& LLTexLayerInterface::getName() const
 	return mInfo->mName; 
 }
 
+ETextureIndex LLTexLayerInterface::getLocalTextureIndex() const
+{
+	return (ETextureIndex) mInfo->mLocalTexture;
+}
+
+LLWearableType::EType LLTexLayerInterface::getWearableType() const
+{
+	ETextureIndex te = getLocalTextureIndex();
+	if (TEX_INVALID == te)
+	{
+		return LLWearableType::WT_INVALID;
+	}
+	return LLAvatarAppearanceDictionary::getTEWearableType(te);
+}
+
 LLTexLayerInterface::ERenderPass LLTexLayerInterface::getRenderPass() const
 {
 	return mInfo->mRenderPass; 
@@ -1585,13 +1600,12 @@ U32 LLTexLayerTemplate::updateWearableCache() const
 {
 	mWearableCache.clear();
 
-	S32 te = mInfo->mLocalTexture;
-	if (te == -1)
+	LLWearableType::EType wearable_type = getWearableType();
+	if (LLWearableType::WT_INVALID == wearable_type)
 	{
 		//this isn't a cloneable layer 
 		return 0;
 	}
-	LLWearableType::EType wearable_type = LLAvatarAppearanceDictionary::getTEWearableType((ETextureIndex)te);
 	U32 num_wearables = getAvatarAppearance()->getWearableData()->getWearableCount(wearable_type);
 	U32 added = 0;
 	for (U32 i = 0; i < num_wearables; i++)

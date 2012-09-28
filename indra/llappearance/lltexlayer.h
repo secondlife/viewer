@@ -72,6 +72,8 @@ public:
 
 	const LLTexLayerInfo* 	getInfo() const 			{ return mInfo; }
 	virtual BOOL			setInfo(const LLTexLayerInfo *info, LLWearable* wearable); // sets mInfo, calls initialization functions
+	LLWearableType::EType	getWearableType() const;
+	LLAvatarAppearanceDefines::ETextureIndex	getLocalTextureIndex() const;
 
 	const std::string&		getName() const;
 	const LLTexLayerSet* const getTexLayerSet() const 	{ return mTexLayerSet; }
@@ -211,7 +213,7 @@ public:
 	LLAvatarAppearance*			getAvatarAppearance()	const		{ return mAvatarAppearance; }
 	const std::string			getBodyRegionName() const;
 	BOOL						hasComposite() const 		{ return (mComposite.notNull()); }
-	LLAvatarAppearanceDefines::EBakedTextureIndex getBakedTexIndex() { return mBakedTexIndex; }
+	LLAvatarAppearanceDefines::EBakedTextureIndex getBakedTexIndex() const { return mBakedTexIndex; }
 	void						setBakedTexIndex(LLAvatarAppearanceDefines::EBakedTextureIndex index) { mBakedTexIndex = index; }
 	BOOL						isVisible() const 			{ return mIsVisible; }
 

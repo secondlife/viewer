@@ -46,6 +46,7 @@ extern const S32 IMPOSTOR_PERIOD;
 //--------------------------------------------------------------------
 enum ETextureIndex
 {
+	TEX_INVALID = -1,
 	TEX_HEAD_BODYPAINT = 0,
 	TEX_UPPER_SHIRT,
 	TEX_LOWER_PANTS,
