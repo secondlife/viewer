@@ -67,6 +67,10 @@ public:
 
 	/*virtual*/ S32 arrange(S32* width, S32* height);
 
+	/*virtual*/ void toggleOpen();
+
+	void toggleMinimizedMode(bool is_minimized);
+
 	void setVisibleIfDetached(BOOL visible);
 	LLConversationViewParticipant* findParticipant(const LLUUID& participant_id);
 
@@ -82,6 +86,8 @@ private:
 	LLPanel*				mCallIconLayoutPanel;
 	LLTextBox*				mSessionTitle;
 	LLOutputMonitorCtrl*	mSpeakingIndicator;
+
+	bool					mMinimizedMode;
 
 	LLVoiceClientStatusObserver* mVoiceClientObserver;
 

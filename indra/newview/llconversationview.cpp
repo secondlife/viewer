@@ -80,7 +80,8 @@ LLConversationViewSession::LLConversationViewSession(const LLConversationViewSes
 	mCallIconLayoutPanel(NULL),
 	mSessionTitle(NULL),
 	mSpeakingIndicator(NULL),
-	mVoiceClientObserver(NULL)
+	mVoiceClientObserver(NULL),
+	mMinimizedMode(false)
 {
 }
 
@@ -168,14 +169,17 @@ void LLConversationViewSession::draw()
 	const LLFolderViewItem::Params& default_params = LLUICtrlFactory::getDefaultParams<LLFolderViewItem>();
 	const BOOL show_context = (getRoot() ? getRoot()->getShowSelectionContext() : FALSE);
 
-	// update the rotation angle of open folder arrow
-	updateLabelRotation();
+	// we don't draw the open folder arrow in minimized mode
+	if (!mMinimizedMode)
+	{
+		// update the rotation angle of open folder arrow
+		updateLabelRotation();
 
-	drawOpenFolderArrow(default_params, sFgColor);
+		drawOpenFolderArrow(default_params, sFgColor);
+	}
 
 	// draw highlight for selected items
 	drawHighlight(show_context, true, sHighlightBgColor, sFocusOutlineColor, sMouseOverColor);
-
 
 	// draw children if root folder, or any other folder that is open or animating to closed state
 	bool draw_children = getRoot() == static_cast<LLFolderViewFolder*>(this)
@@ -201,13 +205,24 @@ void LLConversationViewSession::draw()
 // virtual
 S32 LLConversationViewSession::arrange(S32* width, S32* height)
 {
-	LLRect rect(getIndentation() + mArrowSize,
+	S32 h_pad = getIndentation() + mArrowSize;
+	LLRect rect(mMinimizedMode ? getLocalRect().mLeft : h_pad,
 				getLocalRect().mTop,
 				getLocalRect().mRight,
 				getLocalRect().mTop - getItemHeight());
 	mItemPanel->setShape(rect);
 
 	return LLFolderViewFolder::arrange(width, height);
+}
+
+// virtual
+void LLConversationViewSession::toggleOpen()
+{
+	// conversations should not be opened while in minimized mode
+	if (!mMinimizedMode)
+	{
+		LLFolderViewFolder::toggleOpen();
+	}
 }
 
 void LLConversationViewSession::selectItem()
@@ -229,6 +244,18 @@ void LLConversationViewSession::selectItem()
 	session_floater->setFocus(TRUE);
 
 	LLFolderViewItem::selectItem();
+}
+
+void LLConversationViewSession::toggleMinimizedMode(bool is_minimized)
+{
+	mMinimizedMode = is_minimized;
+
+	// hide the layout stack which contains all item's child widgets
+	// except for the icon which we display in minimized mode
+	getChild<LLView>("conversation_item_stack")->setVisible(!mMinimizedMode);
+
+	S32 h_pad = getIndentation() + mArrowSize;
+	mItemPanel->translate(mMinimizedMode ? -h_pad : h_pad, 0);
 }
 
 void LLConversationViewSession::setVisibleIfDetached(BOOL visible)

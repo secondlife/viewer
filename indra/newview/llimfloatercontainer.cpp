@@ -133,6 +133,7 @@ BOOL LLIMFloaterContainer::postBuild()
     p.listener = base_item;
     p.view_model = &mConversationViewModel;
     p.root = NULL;
+    p.use_ellipses = true;
 	mConversationsRoot = LLUICtrlFactory::create<LLFolderView>(p);
 
 	// a scroller for folder view
@@ -532,6 +533,22 @@ void LLIMFloaterContainer::collapseConversationsPane(bool collapse)
 
 	S32 collapsed_width = mConversationsPane->getMinDim();
 	updateState(collapse, gSavedPerAccountSettings.getS32("ConversationsListPaneWidth") - collapsed_width);
+
+	for (conversations_widgets_map::iterator widget_it = mConversationsWidgets.begin();
+			widget_it != mConversationsWidgets.end(); ++widget_it)
+	{
+		LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(widget_it->second);
+		if (widget)
+		{
+		    widget->toggleMinimizedMode(collapse);
+
+		    // force closing all open conversations when collapsing to minimized state
+		    if (collapse)
+		    {
+		    	widget->setOpen(false);
+		    }
+		}
+	}
 }
 
 void LLIMFloaterContainer::updateState(bool collapse, S32 delta_width)
@@ -806,6 +823,9 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 
 	setConvItemSelect(uuid);
 	
+	// set the widget to minimized mode if conversations pane is collapsed
+	widget->toggleMinimizedMode(mConversationsPane->isCollapsed());
+
 	return;
 }
 
