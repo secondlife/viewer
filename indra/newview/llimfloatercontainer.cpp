@@ -350,7 +350,13 @@ void LLIMFloaterContainer::processParticipantsStyleUpdate()
 			LLUUID participant_id = participant_model->getUUID();
 			LLAvatarName av_name;
 			LLAvatarNameCache::get(participant_id,&av_name);
-			participant_model->onAvatarNameCache(av_name);
+			// Avoid updating the model though if the cache is still waiting for its first update
+			if (!av_name.mDisplayName.empty())
+			{
+				participant_model->onAvatarNameCache(av_name);
+			}
+			// Bind update to the next cache name signal
+			LLAvatarNameCache::get(participant_id, boost::bind(&LLConversationItemParticipant::onAvatarNameCache, participant_model, _2));
 			// Next participant
 			current_participant_model++;
 		}
@@ -368,7 +374,6 @@ void LLIMFloaterContainer::idle(void* user_data)
 	{
 		self->setNearbyDistances();
 	}
-	
 	self->mConversationsRoot->update();
 }
 
