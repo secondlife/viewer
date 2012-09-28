@@ -310,7 +310,6 @@ void LLNearbyChat::addToHost()
 // virtual
 void LLNearbyChat::onOpen(const LLSD& key)
 {
-	addToHost();
 	LLIMConversation::onOpen(key);
 	showTranslationCheckbox(LLTranslate::isTranslationConfigured());
 }
