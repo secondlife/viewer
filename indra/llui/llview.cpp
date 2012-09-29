@@ -870,18 +870,15 @@ BOOL LLView::handleToolTip(S32 x, S32 y, MASK mask)
 	std::string tooltip = getToolTip();
 	if (!tooltip.empty())
 	{
-		if (tooltip != NO_TOOLTIP_STRING)
-		{
-			// allow "scrubbing" over ui by showing next tooltip immediately
-			// if previous one was still visible
-			F32 timeout = LLToolTipMgr::instance().toolTipVisible() 
-			              ? LLUI::sSettingGroups["config"]->getF32( "ToolTipFastDelay" )
-			              : LLUI::sSettingGroups["config"]->getF32( "ToolTipDelay" );
-			LLToolTipMgr::instance().show(LLToolTip::Params()
-			                              .message(tooltip)
-			                              .sticky_rect(calcScreenRect())
-			                              .delay_time(timeout));
-		}
+		// allow "scrubbing" over ui by showing next tooltip immediately
+		// if previous one was still visible
+		F32 timeout = LLToolTipMgr::instance().toolTipVisible() 
+		              ? LLUI::sSettingGroups["config"]->getF32( "ToolTipFastDelay" )
+		              : LLUI::sSettingGroups["config"]->getF32( "ToolTipDelay" );
+		LLToolTipMgr::instance().show(LLToolTip::Params()
+		                              .message(tooltip)
+		                              .sticky_rect(calcScreenRect())
+		                              .delay_time(timeout));
 		handled = TRUE;
 	}
 
