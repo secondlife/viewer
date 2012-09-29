@@ -58,8 +58,12 @@ LLIMFloaterContainer::LLIMFloaterContainer(const LLSD& seed)
 	mConversationsRoot(NULL),
 	mInitialized(false)
 {
+    mEnableCallbackRegistrar.add("IMFloaterContainer.Check", boost::bind(&LLIMFloaterContainer::isActionChecked, this, _2));
 	mCommitCallbackRegistrar.add("IMFloaterContainer.Action", boost::bind(&LLIMFloaterContainer::onCustomAction,  this, _2));
-	mEnableCallbackRegistrar.add("IMFloaterContainer.Check", boost::bind(&LLIMFloaterContainer::isActionChecked, this, _2));
+	
+    mEnableCallbackRegistrar.add("Avatar.CheckItem",  boost::bind(&LLIMFloaterContainer::checkContextMenuItem,	this, _2));
+    mEnableCallbackRegistrar.add("Avatar.EnableItem", boost::bind(&LLIMFloaterContainer::enableContextMenuItem,	this, _2));
+    mCommitCallbackRegistrar.add("Avatar.DoToSelected", boost::bind(&LLIMFloaterContainer::doToSelected, this, _2));
 
 	// Firstly add our self to IMSession observers, so we catch session events
     LLIMMgr::getInstance()->addSessionObserver(this);
@@ -133,7 +137,9 @@ BOOL LLIMFloaterContainer::postBuild()
     p.listener = base_item;
     p.view_model = &mConversationViewModel;
     p.root = NULL;
+    p.options_menu = "menu_conversation.xml";
 	mConversationsRoot = LLUICtrlFactory::create<LLFolderView>(p);
+    mConversationsRoot->setCallbackRegistrar(&mCommitCallbackRegistrar);
 
 	// a scroller for folder view
 	LLRect scroller_view_rect = mConversationsListPanel->getRect();
@@ -341,7 +347,7 @@ void LLIMFloaterContainer::idle(void* user_data)
 	{
 		self->setNearbyDistances();
 	}
-	
+
 	self->mConversationsRoot->update();
 }
 
@@ -659,6 +665,188 @@ void LLIMFloaterContainer::setSortOrder(const LLConversationSort& order)
 	// try to keep selection onscreen, even if it wasn't to start with
 	mConversationsRoot->scrollToShowSelection();
 	gSavedSettings.setU32("ConversationSortOrder", (U32)order);
+}
+
+void LLIMFloaterContainer::getSelectedUUIDs(uuid_vec_t& selected_uuids)
+{
+    const std::set<LLFolderViewItem*> selectedItems = mConversationsRoot->getSelectionList();
+
+    std::set<LLFolderViewItem*>::const_iterator it = selectedItems.begin();
+    const std::set<LLFolderViewItem*>::const_iterator it_end = selectedItems.end();
+    LLConversationItem * conversationItem;
+
+    for (; it != it_end; ++it)
+    {
+        conversationItem = static_cast<LLConversationItem *>((*it)->getViewModelItem());
+        selected_uuids.push_back(conversationItem->getUUID());
+    }
+}
+void LLIMFloaterContainer::doToSelected(const LLSD& userdata)
+{
+    std::string command = userdata.asString();
+    uuid_vec_t selected_uuids;
+    LLUUID currentSelectedUUID;
+    LLIMFloater * conversation;
+
+    getSelectedUUIDs(selected_uuids);
+    conversation = LLIMFloater::findInstance(selected_uuids.front());
+    
+    if(conversation && 
+        static_cast<LLConversationItem *>(mConversationsRoot->getCurSelectedItem()->getViewModelItem())->getType() == LLConversationItem::CONV_SESSION_1_ON_1)
+    {
+        currentSelectedUUID = conversation->getOtherParticipantUUID();
+    }
+    else
+    {
+        currentSelectedUUID = selected_uuids.front();
+    }
+
+    //Close the selected conversation
+    if(conversation && "close_conversation" == command)
+    {
+        LLFloater::onClickClose(conversation);
+    }
+    else if ("view_profile" == command)
+    {
+        LLAvatarActions::showProfile(currentSelectedUUID);
+    }
+    else if("im" == command)
+    {
+        LLAvatarActions::startIM(currentSelectedUUID);
+    }
+    else if("offer_teleport" == command)
+    {
+        LLAvatarActions::offerTeleport(selected_uuids);
+    }
+    else if("voice_call" == command)
+    {
+        LLAvatarActions::startCall(currentSelectedUUID);
+    }
+    else if("add_friend" == command)
+    {
+        LLAvatarActions::requestFriendshipDialog(currentSelectedUUID);
+    }
+    else if("remove_friend" == command)
+    {
+        LLAvatarActions::removeFriendDialog(currentSelectedUUID);
+    }
+    else if("invite_to_group" == command)
+    {
+        LLAvatarActions::inviteToGroup(currentSelectedUUID);
+    }
+    else if("map" == command)
+    {
+        LLAvatarActions::showOnMap(currentSelectedUUID);
+    }
+    else if("share" == command)
+    {
+        LLAvatarActions::share(currentSelectedUUID);
+    }
+    else if("pay" == command)
+    {
+        LLAvatarActions::pay(currentSelectedUUID);
+    }
+    else if("block_unblock" == command)
+    {
+        LLAvatarActions::toggleBlock(currentSelectedUUID);
+    }
+}
+
+bool LLIMFloaterContainer::enableContextMenuItem(const LLSD& userdata)
+{
+    std::string item = userdata.asString();
+    uuid_vec_t mUUIDs;
+    getSelectedUUIDs(mUUIDs);
+
+    // Note: can_block and can_delete is used only for one person selected menu
+    // so we don't need to go over all uuids.
+
+    if (item == std::string("can_block"))
+    {
+        const LLUUID& id = mUUIDs.front();
+        return LLAvatarActions::canBlock(id);
+    }
+    else if (item == std::string("can_add"))
+    {
+        // We can add friends if:
+        // - there are selected people
+        // - and there are no friends among selection yet.
+
+        //EXT-7389 - disable for more than 1
+        if(mUUIDs.size() > 1)
+        {
+            return false;
+        }
+
+        bool result = (mUUIDs.size() > 0);
+
+        uuid_vec_t::const_iterator
+            id = mUUIDs.begin(),
+            uuids_end = mUUIDs.end();
+
+        for (;id != uuids_end; ++id)
+        {
+            if ( LLAvatarActions::isFriend(*id) )
+            {
+                result = false;
+                break;
+            }
+        }
+
+        return result;
+    }
+    else if (item == std::string("can_delete"))
+    {
+        // We can remove friends if:
+        // - there are selected people
+        // - and there are only friends among selection.
+
+        bool result = (mUUIDs.size() > 0);
+
+        uuid_vec_t::const_iterator
+            id = mUUIDs.begin(),
+            uuids_end = mUUIDs.end();
+
+        for (;id != uuids_end; ++id)
+        {
+            if ( !LLAvatarActions::isFriend(*id) )
+            {
+                result = false;
+                break;
+            }
+        }
+
+        return result;
+    }
+    else if (item == std::string("can_call"))
+    {
+        return LLAvatarActions::canCall();
+    }
+    else if (item == std::string("can_show_on_map"))
+    {
+        const LLUUID& id = mUUIDs.front();
+
+        return (LLAvatarTracker::instance().isBuddyOnline(id) && is_agent_mappable(id))
+            || gAgent.isGodlike();
+    }
+    else if(item == std::string("can_offer_teleport"))
+    {
+        return LLAvatarActions::canOfferTeleport(mUUIDs);
+    }
+    return false;
+}
+
+bool LLIMFloaterContainer::checkContextMenuItem(const LLSD& userdata)
+{
+    std::string item = userdata.asString();
+    const LLUUID& id = static_cast<LLConversationItem *>(mConversationsRoot->getCurSelectedItem()->getViewModelItem())->getUUID();
+
+    if (item == std::string("is_blocked"))
+    {
+        return LLAvatarActions::isBlocked(id);
+    }
+
+    return false;
 }
 
 void LLIMFloaterContainer::repositioningWidgets()

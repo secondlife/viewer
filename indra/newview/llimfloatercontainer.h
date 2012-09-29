@@ -111,6 +111,11 @@ private:
 	void setSortOrderParticipants(const LLConversationFilter::ESortOrderType order);
 	void setSortOrder(const LLConversationSort& order);
 
+    void getSelectedUUIDs(uuid_vec_t& selected_uuids);
+    void doToSelected(const LLSD& userdata);
+    bool checkContextMenuItem(const LLSD& userdata);
+    bool enableContextMenuItem(const LLSD& userdata);
+
 	LLButton* mExpandCollapseBtn;
 	LLLayoutPanel* mMessagesPane;
 	LLLayoutPanel* mConversationsPane;

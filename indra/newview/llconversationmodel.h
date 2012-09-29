@@ -41,6 +41,8 @@ class LLConversationItemParticipant;
 typedef std::map<LLUUID, LLConversationItem*> conversations_items_map;
 typedef std::map<LLUUID, LLFolderViewItem*> conversations_widgets_map;
 
+typedef std::vector<std::string> menuentry_vec_t;
+
 // Conversation items: we hold a list of those and create an LLFolderViewItem widget for each  
 // that we tuck into the mConversationsListPanel. 
 class LLConversationItem : public LLFolderViewModelItemCommon
@@ -124,6 +126,8 @@ public:
 	void resetRefresh() { mNeedsRefresh = false; }
 	bool needsRefresh() { return mNeedsRefresh; }
 	
+    void buildParticipantMenuOptions(menuentry_vec_t&   items);
+
 protected:
 	std::string mName;	// Name of the session or the participant
 	LLUUID mUUID;		// UUID of the session or the participant
@@ -155,6 +159,7 @@ public:
 	
 	bool isLoaded() { return mIsLoaded; }
 	
+    void buildContextMenu(LLMenuGL& menu, U32 flags);
 	virtual const bool getTime(F64& time) const;
 
 	void dumpDebugData();
@@ -178,7 +183,8 @@ public:
 	void setIsModerator(bool is_moderator) { mIsModerator = is_moderator; mNeedsRefresh = true; }
 	void setTimeNow() { mLastActiveTime = LLFrameTimer::getElapsedSeconds(); mNeedsRefresh = true; }
 	void setDistance(F64 dist) { mDistToAgent = dist; mNeedsRefresh = true; }
-	
+
+    void buildContextMenu(LLMenuGL& menu, U32 flags);
 	void onAvatarNameCache(const LLAvatarName& av_name);
 
 	virtual const bool getDistanceToAgent(F64& dist) const { dist = mDistToAgent; return (dist >= 0.0); }
@@ -272,5 +278,15 @@ public:
 	
 private:
 };
+
+// Utility function to hide all entries except those in the list
+// Can be called multiple times on the same menu (e.g. if multiple items
+// are selected).  If "append" is false, then only common enabled items
+// are set as enabled.
+
+//(defined in inventorybridge.cpp)
+void hide_context_entries(LLMenuGL& menu, 
+    const menuentry_vec_t &entries_to_show, 
+    const menuentry_vec_t &disabled_entries);
 
 #endif // LL_LLCONVERSATIONMODEL_H

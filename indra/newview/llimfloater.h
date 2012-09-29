@@ -128,6 +128,7 @@ public:
 	static void onIMChicletCreated(const LLUUID& session_id);
 
 	bool getStartConferenceInSameFloater() const { return mStartConferenceInSameFloater; }
+    LLUUID getOtherParticipantUUID() {return mOtherParticipantUUID;}
 
 	static boost::signals2::connection setIMFloaterShowedCallback(const floater_showed_signal_t::slot_type& cb);
 	static floater_showed_signal_t sIMFloaterShowedSignal;

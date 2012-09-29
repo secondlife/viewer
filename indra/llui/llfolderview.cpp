@@ -138,7 +138,8 @@ LLFolderView::Params::Params()
 	use_label_suffix("use_label_suffix"),
 	allow_multiselect("allow_multiselect", true),
 	show_empty_message("show_empty_message", true),
-	use_ellipses("use_ellipses", false)
+	use_ellipses("use_ellipses", false),
+    options_menu("options_menu", "")
 {
 	folder_indentation = -4;
 }
@@ -228,7 +229,7 @@ LLFolderView::LLFolderView(const Params& p)
 
 
 	// make the popup menu available
-	LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_inventory.xml", LLMenuGL::sMenuContainer, LLMenuHolderGL::child_registry_t::instance());
+	LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(p.options_menu, LLMenuGL::sMenuContainer, LLMenuHolderGL::child_registry_t::instance());
 	if (!menu)
 	{
 		menu = LLUICtrlFactory::getDefaultWidget<LLMenuGL>("inventory_menu");
