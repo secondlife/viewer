@@ -75,7 +75,7 @@ LLOutputMonitorCtrl::LLOutputMonitorCtrl(const LLOutputMonitorCtrl::Params& p)
 	mIsAgentControl(false),
 	mIsSwitchDirty(false),
 	mShouldSwitchOn(false),
-	mShowParticipantsTalking(false)
+	mShowParticipantsSpeaking(false)
 {
 	//static LLUIColor output_monitor_muted_color = LLUIColorTable::instance().getColor("OutputMonitorMutedColor", LLColor4::orange);
 	//static LLUIColor output_monitor_overdriven_color = LLUIColorTable::instance().getColor("OutputMonitorOverdrivenColor", LLColor4::red);
@@ -158,7 +158,7 @@ void LLOutputMonitorCtrl::draw()
 		}
 	}
 
-	if ((mPower == 0.f && !mIsTalking) && mShowParticipantsTalking)
+	if ((mPower == 0.f && !mIsTalking) && mShowParticipantsSpeaking)
 	{
 		std::set<LLUUID> participant_uuids;
 		LLVoiceClient::instance().getParticipantList(participant_uuids);
@@ -264,15 +264,19 @@ void LLOutputMonitorCtrl::draw()
 // virtual
 BOOL LLOutputMonitorCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	if (mSpeakerId != gAgentID)
+	if (mSpeakerId != gAgentID && !mShowParticipantsSpeaking)
 	{
 		LLFloaterReg::showInstance("floater_voice_volume", LLSD().with("avatar_id", mSpeakerId));
+	}
+	else if(mShowParticipantsSpeaking)
+	{
+		LLFloaterReg::showInstance("chat_voice", LLSD());
 	}
 
 	return TRUE;
 }
 
-void LLOutputMonitorCtrl::setSpeakerId(const LLUUID& speaker_id, const LLUUID& session_id/* = LLUUID::null*/)
+void LLOutputMonitorCtrl::setSpeakerId(const LLUUID& speaker_id, const LLUUID& session_id/* = LLUUID::null*/, bool show_other_participants_speaking /* = false */)
 {
 	if (speaker_id.isNull() && mSpeakerId.notNull())
 	{
@@ -287,6 +291,7 @@ void LLOutputMonitorCtrl::setSpeakerId(const LLUUID& speaker_id, const LLUUID& s
 		LLSpeakingIndicatorManager::unregisterSpeakingIndicator(mSpeakerId, this);
 	}
 
+	mShowParticipantsSpeaking = show_other_participants_speaking;
 	mSpeakerId = speaker_id;
 	LLSpeakingIndicatorManager::registerSpeakingIndicator(mSpeakerId, this, session_id);
 

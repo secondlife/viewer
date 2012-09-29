@@ -441,8 +441,9 @@ void LLInventoryPanel::modelChanged(U32 mask)
 			handled = true;
 			if (model_item && view_item && viewmodel_item)
 			{
+				const LLUUID& idp = viewmodel_item->getUUID();
 				view_item->destroyView();
-				removeItemID(viewmodel_item->getUUID());
+				removeItemID(idp);
 			}
 			view_item = buildNewViews(item_id);
 			viewmodel_item = 

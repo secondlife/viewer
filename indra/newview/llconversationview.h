@@ -38,6 +38,8 @@ class LLIMFloaterContainer;
 class LLConversationViewSession;
 class LLConversationViewParticipant;
 
+class LLVoiceClientStatusObserver;
+
 // Implementation of conversations list session widgets
 
 class LLConversationViewSession : public LLFolderViewFolder
@@ -68,6 +70,8 @@ public:
 	void setVisibleIfDetached(BOOL visible);
 	LLConversationViewParticipant* findParticipant(const LLUUID& participant_id);
 
+	void showVoiceIndicator();
+
 	virtual void refresh();
 
 private:
@@ -78,6 +82,8 @@ private:
 	LLPanel*				mCallIconLayoutPanel;
 	LLTextBox*				mSessionTitle;
 	LLOutputMonitorCtrl*	mSpeakingIndicator;
+
+	LLVoiceClientStatusObserver* mVoiceClientObserver;
 
 	boost::signals2::connection mActiveVoiceChannelConnection;
 };

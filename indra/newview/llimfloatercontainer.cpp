@@ -464,6 +464,7 @@ void LLIMFloaterContainer::setVisible(BOOL visible)
 			// *TODO: find a way to move this to XML as a default panel or something like that
 			LLSD name("nearby_chat");
 			LLFloaterReg::toggleInstanceOrBringToFront(name);
+			LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat")->addToHost();
 		}
 	}
 
