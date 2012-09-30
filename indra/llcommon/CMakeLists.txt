@@ -101,6 +101,7 @@ set(llcommon_SOURCE_FILES
     llthreadsafequeue.cpp
     lltimer.cpp
     lltrace.cpp
+    lltracesampler.cpp
     lluri.cpp
     lluuid.cpp
     llworkerthread.cpp
@@ -243,6 +244,7 @@ set(llcommon_HEADER_FILES
     llthreadsafequeue.h
     lltimer.h
     lltrace.h
+    lltracesampler.h
     lltreeiterators.h
     lltypeinfolookup.h
     lluri.h

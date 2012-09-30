@@ -36,6 +36,7 @@
 
 #include "llstat.h"
 #include "lluictrlfactory.h"
+#include "lltracesampler.h"
 
 ///////////////////////////////////////////////////////////////////////////////////
 
@@ -46,6 +47,8 @@ LLStatBar::LLStatBar(const Params& p)
 	  mMinBar(p.bar_min),
 	  mMaxBar(p.bar_max),
 	  mStatp(LLStat::getInstance(p.stat)),
+	  mFloatStatp(LLTrace::Stat<F32>::getInstance(p.stat)),
+	  mIntStatp(LLTrace::Stat<S32>::getInstance(p.stat)),
 	  mTickSpacing(p.tick_spacing),
 	  mLabelSpacing(p.label_spacing),
 	  mPrecision(p.precision),
@@ -84,29 +87,65 @@ BOOL LLStatBar::handleMouseDown(S32 x, S32 y, MASK mask)
 
 void LLStatBar::draw()
 {
-	if (!mStatp)
-	{
-//		llinfos << "No stats for statistics bar!" << llendl;
-		return;
-	}
+	F32 current = 0.f, 
+		min = 0.f, 
+		max = 0.f,
+		mean = 0.f;
 
-	// Get the values.
-	F32 current, min, max, mean;
-	if (mPerSec)
+	if (mStatp)
 	{
-		current = mStatp->getCurrentPerSec();
-		min = mStatp->getMinPerSec();
-		max = mStatp->getMaxPerSec();
-		mean = mStatp->getMeanPerSec();
+		// Get the values.
+		if (mPerSec)
+		{
+			current = mStatp->getCurrentPerSec();
+			min = mStatp->getMinPerSec();
+			max = mStatp->getMaxPerSec();
+			mean = mStatp->getMeanPerSec();
+		}
+		else
+		{
+			current = mStatp->getCurrent();
+			min = mStatp->getMin();
+			max = mStatp->getMax();
+			mean = mStatp->getMean();
+		}
 	}
-	else
+	else if (mFloatStatp)
 	{
-		current = mStatp->getCurrent();
-		min = mStatp->getMin();
-		max = mStatp->getMax();
-		mean = mStatp->getMean();
+		LLTrace::Sampler* sampler = LLThread::getTraceData()->getPrimarySampler();
+		if (mPerSec)
+		{
+			current = sampler->getSum(*mFloatStatp) / sampler->getSampleTime();
+			min = sampler->getMin(*mFloatStatp) / sampler->getSampleTime();
+			max = sampler->getMax(*mFloatStatp) / sampler->getSampleTime();
+			mean = sampler->getMean(*mFloatStatp) / sampler->getSampleTime();
+		}
+		else
+		{
+			current = sampler->getSum(*mFloatStatp);
+			min = sampler->getMin(*mFloatStatp);
+			max = sampler->getMax(*mFloatStatp);
+			mean = sampler->getMean(*mFloatStatp);
+		}
 	}
-
+	else if (mIntStatp)
+	{
+		LLTrace::Sampler* sampler = LLThread::getTraceData()->getPrimarySampler();
+		if (mPerSec)
+		{
+			current = (F32)sampler->getSum(*mIntStatp) / sampler->getSampleTime();
+			min = (F32)sampler->getMin(*mIntStatp) / sampler->getSampleTime();
+			max = (F32)sampler->getMax(*mIntStatp) / sampler->getSampleTime();
+			mean = (F32)sampler->getMean(*mIntStatp) / sampler->getSampleTime();
+		}
+		else
+		{
+			current = (F32)sampler->getSum(*mIntStatp);
+			min = (F32)sampler->getMin(*mIntStatp);
+			max = (F32)sampler->getMax(*mIntStatp);
+			mean = (F32)sampler->getMean(*mIntStatp);
+		}
+	}
 
 	if ((mUpdatesPerSec == 0.f) || (mUpdateTimer.getElapsedTimeF32() > 1.f/mUpdatesPerSec) || (mValue == 0.f))
 	{
@@ -153,7 +192,7 @@ void LLStatBar::draw()
 											 LLFontGL::RIGHT, LLFontGL::TOP);
 
 	value_format = llformat( "%%.%df", mPrecision);
-	if (mDisplayBar)
+	if (mDisplayBar && mStatp)
 	{
 		std::string tick_label;
 
@@ -213,9 +252,9 @@ void LLStatBar::draw()
 		right = (S32) ((max - mMinBar) * value_scale);
 		gl_rect_2d(left, top, right, bottom, LLColor4(1.f, 0.f, 0.f, 0.25f));
 
-		S32 num_values = mStatp->getNumValues() - 1;
 		if (mDisplayHistory)
 		{
+			S32 num_values = mStatp->getNumValues() - 1;
 			S32 i;
 			for (i = 0; i < num_values; i++)
 			{
@@ -270,7 +309,7 @@ LLRect LLStatBar::getRequiredRect()
 
 	if (mDisplayBar)
 	{
-		if (mDisplayHistory)
+		if (mDisplayHistory && mStatp)
 		{
 			rect.mTop = 35 + mStatp->getNumBins();
 		}

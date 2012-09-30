@@ -62,6 +62,13 @@
 #include "llmeshrepository.h" //for LLMeshRepository::sBytesReceived
 
 
+LLTrace::Stat<F32>	STAT_KBIT("kbitstat"),
+					STAT_LAYERS_KBIT("layerskbitstat"),
+					STAT_OBJECT_KBIT("objectkbitstat"),
+					STAT_ASSET_KBIT("assetkbitstat"),
+					STAT_TEXTURE_KBIT("texturekbitstat");
+
+
 class StatAttributes
 {
 public:
@@ -198,11 +205,6 @@ const StatAttributes STAT_INFO[LLViewerStats::ST_COUNT] =
 };
 
 LLViewerStats::LLViewerStats() :
-	mKBitStat("kbitstat"),
-	mLayersKBitStat("layerskbitstat"),
-	mObjectKBitStat("objectkbitstat"),
-	mAssetKBitStat("assetkbitstat"),
-	mTextureKBitStat("texturekbitstat"),
 	mVFSPendingOperations("vfspendingoperations"),
 	mFPSStat("fpsstat"),
 	mPacketsInStat("packetsinstat"),
@@ -261,7 +263,8 @@ LLViewerStats::LLViewerStats() :
 	mNumNewObjectsStat("numnewobjectsstat"),
 	mNumSizeCulledStat("numsizeculledstat"),
 	mNumVisCulledStat("numvisculledstat"),
-	mLastTimeDiff(0.0)
+	mLastTimeDiff(0.0),
+	mSampler(LLThread::getTraceData()->createSampler())
 {
 	for (S32 i = 0; i < ST_COUNT; i++)
 	{
@@ -274,17 +277,18 @@ LLViewerStats::LLViewerStats() :
 	}	
 	
 	mAgentPositionSnaps.reset();
+	mSampler->start();
+}
+
+LLViewerStats::~LLViewerStats()
+{
+	delete mSampler;
 }
 
 void LLViewerStats::resetStats()
 {
 	LLViewerStats& stats = LLViewerStats::instance();
-	stats.mKBitStat.reset();
-	stats.mLayersKBitStat.reset();
-	stats.mObjectKBitStat.reset();
-	stats.mTextureKBitStat.reset();
 	stats.mVFSPendingOperations.reset();
-	stats.mAssetKBitStat.reset();
 	stats.mPacketsInStat.reset();
 	stats.mPacketsLostStat.reset();
 	stats.mPacketsOutStat.reset();
@@ -463,10 +467,13 @@ void update_statistics()
 
 	stats.mFPSStat.addValue(1);
 	F32 layer_bits = (F32)(gVLManager.getLandBits() + gVLManager.getWindBits() + gVLManager.getCloudBits());
-	stats.mLayersKBitStat.addValue(layer_bits/1024.f);
-	stats.mObjectKBitStat.addValue(gObjectBits/1024.f);
+	STAT_LAYERS_KBIT.sample(layer_bits/1024.f);
+	//stats.mLayersKBitStat.addValue(layer_bits/1024.f);
+	STAT_OBJECT_KBIT.sample(gObjectBits/1024.f);
+	//stats.mObjectKBitStat.addValue(gObjectBits/1024.f);
 	stats.mVFSPendingOperations.addValue(LLVFile::getVFSThread()->getPending());
-	stats.mAssetKBitStat.addValue(gTransferManager.getTransferBitsIn(LLTCT_ASSET)/1024.f);
+	STAT_ASSET_KBIT.sample(gTransferManager.getTransferBitsIn(LLTCT_ASSET)/1024.f);
+	//stats.mAssetKBitStat.addValue(gTransferManager.getTransferBitsIn(LLTCT_ASSET)/1024.f);
 	gTransferManager.resetTransferBitsIn(LLTCT_ASSET);
 
 	if (LLAppViewer::getTextureFetch()->getNumRequests() == 0)
@@ -503,7 +510,8 @@ void update_statistics()
 		static LLFrameTimer texture_stats_timer;
 		if (texture_stats_timer.getElapsedTimeF32() >= texture_stats_freq)
 		{
-			stats.mTextureKBitStat.addValue(LLViewerTextureList::sTextureBits/1024.f);
+			STAT_TEXTURE_KBIT.sample(LLViewerTextureList::sTextureBits/1024.f);
+			//stats.mTextureKBitStat.addValue(LLViewerTextureList::sTextureBits/1024.f);
 			stats.mTexturePacketsStat.addValue(LLViewerTextureList::sTexturePackets);
 			gTotalTextureBytes += LLViewerTextureList::sTextureBits / 8;
 			LLViewerTextureList::sTextureBits = 0;

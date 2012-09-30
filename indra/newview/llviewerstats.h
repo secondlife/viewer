@@ -29,16 +29,18 @@
 
 #include "llstat.h"
 #include "lltextureinfo.h"
+#include "lltracesampler.h"
+
+extern LLTrace::Stat<F32>	STAT_KBIT,
+							STAT_LAYERS_KBIT,
+							STAT_OBJECT_KBIT,
+							STAT_ASSET_KBIT,
+							STAT_TEXTURE_KBIT;
 
 class LLViewerStats : public LLSingleton<LLViewerStats>
 {
 public:
-	LLStat	mKBitStat,
-			mLayersKBitStat,
-			mObjectKBitStat,
-			mAssetKBitStat,
-			mTextureKBitStat,
-			mVFSPendingOperations,
+	LLStat	mVFSPendingOperations,
 			mFPSStat,
 			mPacketsInStat,
 			mPacketsLostStat,
@@ -110,7 +112,9 @@ public:
 			mNumVisCulledStat;
 
 	void resetStats();
+
 public:
+
 	// If you change this, please also add a corresponding text label in llviewerstats.cpp
 	enum EStatType
 	{
@@ -177,6 +181,7 @@ public:
 	};
 
 	LLViewerStats();
+	~LLViewerStats();
 
 	// all return latest value of given stat
 	F64 getStat(EStatType type) const;
@@ -292,8 +297,11 @@ public:
 		static void recordPhaseStat(const std::string& phase_name, F32 value);
 	};
 
+	LLTrace::Sampler* getSampler() { return mSampler; }
+
 private:
 	F64	mStats[ST_COUNT];
+	LLTrace::Sampler*	mSampler;
 
 	F64 mLastTimeDiff;  // used for time stat updates
 };

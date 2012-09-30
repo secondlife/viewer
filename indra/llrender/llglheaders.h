@@ -543,6 +543,8 @@ extern PFNGLBINDBUFFERRANGEPROC glBindBufferRange;
 #define WIN32_LEAN_AND_MEAN
 #include <winsock2.h>
 #include <windows.h>
+#undef min
+#undef max
 
 //----------------------------------------------------------------------------
 #include <GL/gl.h>

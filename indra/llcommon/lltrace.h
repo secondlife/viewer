@@ -43,14 +43,16 @@
 
 namespace LLTrace
 {
+	class Sampler;
+
 	void init();
 	void cleanup();
 
-	class MasterThreadTrace& getMasterThreadTrace();
+	class LL_COMMON_API MasterThreadTrace& getMasterThreadTrace();
 
 	// one per thread per type
 	template<typename ACCUMULATOR>
-	class AccumulatorBuffer
+	class LL_COMMON_API AccumulatorBuffer
 	{
 		static const U32 DEFAULT_ACCUMULATOR_BUFFER_SIZE = 64;
 	private:
@@ -64,6 +66,8 @@ namespace LLTrace
 
 	public:
 
+		// copying an accumulator buffer does not copy the actual contents, but simply initializes the buffer size
+		// to be identical to the other buffer
 		AccumulatorBuffer(const AccumulatorBuffer& other = getDefaultBuffer())
 		:	mStorageSize(other.mStorageSize),
 			mStorage(new ACCUMULATOR[other.mStorageSize]),
@@ -150,28 +154,30 @@ namespace LLTrace
 	template<typename ACCUMULATOR> LLThreadLocalPtr<ACCUMULATOR> AccumulatorBuffer<ACCUMULATOR>::sPrimaryStorage;
 
 	template<typename ACCUMULATOR>
-	class Trace
+	class LL_COMMON_API TraceType
 	{
 	public:
-		Trace(const std::string& name)
+		TraceType(const std::string& name)
 		:	mName(name)
 		{
 			mAccumulatorIndex = AccumulatorBuffer<ACCUMULATOR>::getDefaultBuffer().reserveSlot();
 		}
 
-		LL_FORCE_INLINE ACCUMULATOR& getAccumulator()
+		LL_FORCE_INLINE ACCUMULATOR& getPrimaryAccumulator()
 		{
 			return AccumulatorBuffer<ACCUMULATOR>::getPrimaryStorage()[mAccumulatorIndex];
 		}
 
-	private:
+		ACCUMULATOR& getAccumulator(AccumulatorBuffer<ACCUMULATOR>& buffer) { return buffer[mAccumulatorIndex]; }
+
+	protected:
 		std::string	mName;
 		size_t		mAccumulatorIndex;
 	};
 
 
 	template<typename T>
-	class StatAccumulator
+	class LL_COMMON_API StatAccumulator
 	{
 	public:
 		StatAccumulator()
@@ -217,6 +223,11 @@ namespace LLTrace
 			mMax = 0;
 		}
 
+		T	getSum() { return mSum; }
+		T	getMin() { return mMin; }
+		T	getMax() { return mMax; }
+		T	getMean() { return mSum / (T)mNumSamples; }
+
 	private:
 		T	mSum,
 			mMin,
@@ -226,20 +237,23 @@ namespace LLTrace
 	};
 
 	template <typename T>
-	class Stat : public Trace<StatAccumulator<T> >
+	class LL_COMMON_API Stat 
+	:	public TraceType<StatAccumulator<T> >, 
+		public LLInstanceTracker<Stat<T>, std::string>
 	{
 	public:
 		Stat(const std::string& name) 
-		:	Trace(name)
+		:	TraceType(name),
+			LLInstanceTracker(name)
 		{}
 
 		void sample(T value)
 		{
-			getAccumulator().sample(value);
+			getPrimaryAccumulator().sample(value);
 		}
 	};
 
-	struct TimerAccumulator
+	struct LL_COMMON_API TimerAccumulator
 	{
 		U32 							mTotalTimeCounter,
 										mChildTimeCounter,
@@ -267,11 +281,11 @@ namespace LLTrace
 
 	};
 
-	class BlockTimer : public Trace<TimerAccumulator>
+	class LL_COMMON_API BlockTimer : public TraceType<TimerAccumulator>
 	{
 	public:
 		BlockTimer(const char* name)
-		:	Trace(name)
+		:	TraceType(name)
 		{}
 
 		struct Recorder
@@ -287,7 +301,7 @@ namespace LLTrace
 			:	mLastRecorder(sCurRecorder)
 			{
 				mStartTime = getCPUClockCount32();
-				TimerAccumulator* accumulator = &block_timer.getAccumulator(); // get per-thread accumulator
+				TimerAccumulator* accumulator = &block_timer.getPrimaryAccumulator(); // get per-thread accumulator
 				accumulator->mActiveCount++;
 				accumulator->mCalls++;
 				accumulator->mMoveUpTree |= (accumulator->mParent->mActiveCount == 0);
@@ -353,44 +367,7 @@ namespace LLTrace
 		static Recorder::StackEntry sCurRecorder;
 	};
 
-	class Sampler
-	{
-	public:
-		~Sampler();
-
-		void makePrimary();
-
-		void start();
-		void stop();
-		void resume();
-
-		void mergeFrom(const Sampler* other);
-
-		void reset();
-
-		bool isStarted() { return mIsStarted; }
-
-	private:
-		friend class ThreadTrace;
-		Sampler(class ThreadTrace* thread_trace);
-
-		// no copy
-		Sampler(const Sampler& other) {}
-		// returns data for current thread
-		class ThreadTrace* getThreadTrace(); 
-
-		AccumulatorBuffer<StatAccumulator<F32> >	mF32Stats;
-		AccumulatorBuffer<StatAccumulator<S32> >	mS32Stats;
-
-		AccumulatorBuffer<TimerAccumulator>			mStackTimers;
-
-		bool										mIsStarted;
-		LLTimer										mSamplingTimer;
-		F64											mElapsedSeconds;
-		ThreadTrace*								mThreadTrace;
-	};
-
-	class ThreadTrace
+	class LL_COMMON_API ThreadTrace
 	{
 	public:
 		ThreadTrace();
@@ -406,13 +383,13 @@ namespace LLTrace
 
 		virtual void pushToMaster() = 0;
 
-		Sampler* getPrimarySampler() { return mPrimarySampler; }
+		Sampler* getPrimarySampler();
 	protected:
 		Sampler*				mPrimarySampler;
 		std::list<Sampler*>		mActiveSamplers;
 	};
 
-	class MasterThreadTrace : public ThreadTrace
+	class LL_COMMON_API MasterThreadTrace : public ThreadTrace
 	{
 	public:
 		MasterThreadTrace();
@@ -433,14 +410,17 @@ namespace LLTrace
 			~SlaveThreadTraceProxy();
 			class SlaveThreadTrace*	mSlaveTrace;
 			Sampler*				mSamplerStorage;
+		private:
+			//no need to copy these and then have to duplicate the storage
+			SlaveThreadTraceProxy(const SlaveThreadTraceProxy& other) {}
 		};
-		typedef std::list<SlaveThreadTraceProxy> slave_thread_trace_list_t;
+		typedef std::list<SlaveThreadTraceProxy*> slave_thread_trace_list_t;
 
 		slave_thread_trace_list_t		mSlaveThreadTraces;
 		LLMutex							mSlaveListMutex;
 	};
 
-	class SlaveThreadTrace : public ThreadTrace
+	class LL_COMMON_API SlaveThreadTrace : public ThreadTrace
 	{
 	public:
 		SlaveThreadTrace();
@@ -457,45 +437,18 @@ namespace LLTrace
 		{
 		public:
 			explicit 
-			SharedData(Sampler* sampler) 
-			:	mSampler(sampler)
-			{
-			}
+			SharedData(Sampler* sampler);
 
-			~SharedData()
-			{
-				delete mSampler;
-			}
+			~SharedData();
 
-			void copyFrom(Sampler* source)
-			{
-				LLMutexLock lock(&mSamplerMutex);
-				{	
-					mSampler->mergeFrom(source);
-				}
-			}
-
-			void copyTo(Sampler* sink)
-			{
-				LLMutexLock lock(&mSamplerMutex);
-				{
-					sink->mergeFrom(mSampler);
-				}
-			}
+			void copyFrom(Sampler* source);
+			void copyTo(Sampler* sink);
 		private:
 			// add a cache line's worth of unused space to avoid any potential of false sharing
 			LLMutex					mSamplerMutex;
 			Sampler*				mSampler;
 		};
 		SharedData					mSharedData;
-	};
-
-	class TimeInterval 
-	{
-	public:
-		void start() {}
-		void stop() {}
-		void resume() {}
 	};
 }
 

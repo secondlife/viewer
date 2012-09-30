@@ -29,6 +29,7 @@
 
 #include "llview.h"
 #include "llframetimer.h"
+#include "lltrace.h"
 
 class LLStat;
 
@@ -92,6 +93,8 @@ private:
 	BOOL mDisplayMean;			// If true, display mean, if false, display current value
 
 	LLStat* mStatp;
+	LLTrace::Stat<F32>* mFloatStatp;
+	LLTrace::Stat<S32>* mIntStatp;
 
 	LLFrameTimer mUpdateTimer;
 	LLUIString mLabel;
