@@ -218,6 +218,11 @@ public:
 	 */
 	static void buildResidentsString(const std::vector<LLAvatarName> avatar_names, std::string& residents_string);
 
+	/**
+	 * Opens the chat history for avatar
+	 */
+	static void viewChatHistory(const LLUUID& id);
+
 	static std::set<LLUUID> getInventorySelectedUUIDs();
 
 private:

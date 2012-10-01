@@ -38,6 +38,8 @@ class LLIMFloaterContainer;
 class LLConversationViewSession;
 class LLConversationViewParticipant;
 
+class LLVoiceClientStatusObserver;
+
 // Implementation of conversations list session widgets
 
 class LLConversationViewSession : public LLFolderViewFolder
@@ -57,7 +59,7 @@ protected:
 	LLIMFloaterContainer* mContainer;
 	
 public:
-	virtual ~LLConversationViewSession( void ) { }
+	virtual ~LLConversationViewSession();
 	virtual void selectItem();	
 
 	/*virtual*/ BOOL postBuild();
@@ -65,14 +67,31 @@ public:
 
 	/*virtual*/ S32 arrange(S32* width, S32* height);
 
+	/*virtual*/ void toggleOpen();
+
+	void toggleMinimizedMode(bool is_minimized);
+
 	void setVisibleIfDetached(BOOL visible);
 	LLConversationViewParticipant* findParticipant(const LLUUID& participant_id);
+
+	void showVoiceIndicator();
 
 	virtual void refresh();
 
 private:
-	LLPanel*	mItemPanel;
-	LLTextBox*	mSessionTitle;
+
+	void onCurrentVoiceSessionChanged(const LLUUID& session_id);
+
+	LLPanel*				mItemPanel;
+	LLPanel*				mCallIconLayoutPanel;
+	LLTextBox*				mSessionTitle;
+	LLOutputMonitorCtrl*	mSpeakingIndicator;
+
+	bool					mMinimizedMode;
+
+	LLVoiceClientStatusObserver* mVoiceClientObserver;
+
+	boost::signals2::connection mActiveVoiceChannelConnection;
 };
 
 // Implementation of conversations list participant (avatar) widgets

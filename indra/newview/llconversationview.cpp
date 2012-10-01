@@ -30,10 +30,12 @@
 #include "llconversationview.h"
 
 #include <boost/bind.hpp>
+#include "llagentdata.h"
 #include "llconversationmodel.h"
 #include "llimconversation.h"
 #include "llimfloatercontainer.h"
 #include "llfloaterreg.h"
+#include "llgroupiconctrl.h"
 #include "lluictrlfactory.h"
 
 //
@@ -43,6 +45,30 @@ static LLDefaultChildRegistry::Register<LLConversationViewSession> r_conversatio
 
 const LLColor4U DEFAULT_WHITE(255, 255, 255);
 
+class LLNearbyVoiceClientStatusObserver : public LLVoiceClientStatusObserver
+{
+public:
+
+	LLNearbyVoiceClientStatusObserver(LLConversationViewSession* conv)
+	:	conversation(conv)
+	{}
+
+	virtual void onChange(EStatusType status, const std::string &channelURI, bool proximal)
+	{
+		if (conversation
+		   && status != STATUS_JOINING
+		   && status != STATUS_LEFT_CHANNEL
+		   && LLVoiceClient::getInstance()->voiceEnabled()
+		   && LLVoiceClient::getInstance()->isVoiceWorking())
+		{
+			conversation->showVoiceIndicator();
+		}
+	}
+
+private:
+	LLConversationViewSession* conversation;
+};
+
 LLConversationViewSession::Params::Params() :	
 	container()
 {}
@@ -51,8 +77,22 @@ LLConversationViewSession::LLConversationViewSession(const LLConversationViewSes
 	LLFolderViewFolder(p),
 	mContainer(p.container),
 	mItemPanel(NULL),
-	mSessionTitle(NULL)
+	mCallIconLayoutPanel(NULL),
+	mSessionTitle(NULL),
+	mSpeakingIndicator(NULL),
+	mVoiceClientObserver(NULL),
+	mMinimizedMode(false)
 {
+}
+
+LLConversationViewSession::~LLConversationViewSession()
+{
+	mActiveVoiceChannelConnection.disconnect();
+
+	if(LLVoiceClient::instanceExists() && mVoiceClientObserver)
+	{
+		LLVoiceClient::getInstance()->removeObserver(mVoiceClientObserver);
+	}
 }
 
 BOOL LLConversationViewSession::postBuild()
@@ -60,10 +100,62 @@ BOOL LLConversationViewSession::postBuild()
 	LLFolderViewItem::postBuild();
 
 	mItemPanel = LLUICtrlFactory::getInstance()->createFromFile<LLPanel>("panel_conversation_list_item.xml", NULL, LLPanel::child_registry_t::instance());
-
 	addChild(mItemPanel);
 
+	mCallIconLayoutPanel = mItemPanel->getChild<LLPanel>("call_icon_panel");
 	mSessionTitle = mItemPanel->getChild<LLTextBox>("conversation_title");
+
+	mActiveVoiceChannelConnection = LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLConversationViewSession::onCurrentVoiceSessionChanged, this, _1));
+	mSpeakingIndicator = getChild<LLOutputMonitorCtrl>("speaking_indicatorn");
+
+	LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(getViewModelItem());
+	if (vmi)
+	{
+		switch(vmi->getType())
+		{
+		case LLConversationItem::CONV_PARTICIPANT:
+		case LLConversationItem::CONV_SESSION_1_ON_1:
+		{
+			LLIMModel::LLIMSession* session=  LLIMModel::instance().findIMSession(vmi->getUUID());
+			if (session)
+			{
+				LLAvatarIconCtrl* icon = mItemPanel->getChild<LLAvatarIconCtrl>("avatar_icon");
+				icon->setVisible(true);
+				icon->setValue(session->mOtherParticipantID);
+				mSpeakingIndicator->setSpeakerId(gAgentID, session->mSessionID, true);
+			}
+			break;
+		}
+		case LLConversationItem::CONV_SESSION_AD_HOC:
+		{
+			LLGroupIconCtrl* icon = mItemPanel->getChild<LLGroupIconCtrl>("group_icon");
+			icon->setVisible(true);
+			mSpeakingIndicator->setSpeakerId(gAgentID, vmi->getUUID(), true);
+		}
+		case LLConversationItem::CONV_SESSION_GROUP:
+		{
+			LLGroupIconCtrl* icon = mItemPanel->getChild<LLGroupIconCtrl>("group_icon");
+			icon->setVisible(true);
+			icon->setValue(vmi->getUUID());
+			mSpeakingIndicator->setSpeakerId(gAgentID, vmi->getUUID(), true);
+			break;
+		}
+		case LLConversationItem::CONV_SESSION_NEARBY:
+		{
+			LLIconCtrl* icon = mItemPanel->getChild<LLIconCtrl>("nearby_chat_icon");
+			icon->setVisible(true);
+			mSpeakingIndicator->setSpeakerId(gAgentID, LLUUID::null, true);
+			if(LLVoiceClient::instanceExists())
+			{
+				LLNearbyVoiceClientStatusObserver* mVoiceClientObserver = new LLNearbyVoiceClientStatusObserver(this);
+				LLVoiceClient::getInstance()->addObserver(mVoiceClientObserver);
+			}
+			break;
+		}
+		default:
+			break;
+		}
+	}
 
 	refresh();
 
@@ -77,14 +169,17 @@ void LLConversationViewSession::draw()
 	const LLFolderViewItem::Params& default_params = LLUICtrlFactory::getDefaultParams<LLFolderViewItem>();
 	const BOOL show_context = (getRoot() ? getRoot()->getShowSelectionContext() : FALSE);
 
-	// update the rotation angle of open folder arrow
-	updateLabelRotation();
+	// we don't draw the open folder arrow in minimized mode
+	if (!mMinimizedMode)
+	{
+		// update the rotation angle of open folder arrow
+		updateLabelRotation();
 
-	drawOpenFolderArrow(default_params, sFgColor);
+		drawOpenFolderArrow(default_params, sFgColor);
+	}
 
 	// draw highlight for selected items
 	drawHighlight(show_context, true, sHighlightBgColor, sFocusOutlineColor, sMouseOverColor);
-
 
 	// draw children if root folder, or any other folder that is open or animating to closed state
 	bool draw_children = getRoot() == static_cast<LLFolderViewFolder*>(this)
@@ -110,13 +205,24 @@ void LLConversationViewSession::draw()
 // virtual
 S32 LLConversationViewSession::arrange(S32* width, S32* height)
 {
-	LLRect rect(getIndentation() + mArrowSize,
+	S32 h_pad = getIndentation() + mArrowSize;
+	LLRect rect(mMinimizedMode ? getLocalRect().mLeft : h_pad,
 				getLocalRect().mTop,
 				getLocalRect().mRight,
 				getLocalRect().mTop - getItemHeight());
 	mItemPanel->setShape(rect);
 
 	return LLFolderViewFolder::arrange(width, height);
+}
+
+// virtual
+void LLConversationViewSession::toggleOpen()
+{
+	// conversations should not be opened while in minimized mode
+	if (!mMinimizedMode)
+	{
+		LLFolderViewFolder::toggleOpen();
+	}
 }
 
 void LLConversationViewSession::selectItem()
@@ -138,6 +244,18 @@ void LLConversationViewSession::selectItem()
 	session_floater->setFocus(TRUE);
 
 	LLFolderViewItem::selectItem();
+}
+
+void LLConversationViewSession::toggleMinimizedMode(bool is_minimized)
+{
+	mMinimizedMode = is_minimized;
+
+	// hide the layout stack which contains all item's child widgets
+	// except for the icon which we display in minimized mode
+	getChild<LLView>("conversation_item_stack")->setVisible(!mMinimizedMode);
+
+	S32 h_pad = getIndentation() + mArrowSize;
+	mItemPanel->translate(mMinimizedMode ? -h_pad : h_pad, 0);
 }
 
 void LLConversationViewSession::setVisibleIfDetached(BOOL visible)
@@ -171,6 +289,14 @@ LLConversationViewParticipant* LLConversationViewSession::findParticipant(const 
 	return (iter == getItemsEnd() ? NULL : participant);
 }
 
+void LLConversationViewSession::showVoiceIndicator()
+{
+	if (LLVoiceChannel::getCurrentVoiceChannel()->getSessionID().isNull())
+	{
+		mCallIconLayoutPanel->setVisible(true);
+	}
+}
+
 void LLConversationViewSession::refresh()
 {
 	// Refresh the session view from its model data
@@ -186,6 +312,25 @@ void LLConversationViewSession::refresh()
 	
 	// Do the regular upstream refresh
 	LLFolderViewFolder::refresh();
+}
+
+void LLConversationViewSession::onCurrentVoiceSessionChanged(const LLUUID& session_id)
+{
+	LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(getViewModelItem());
+
+	if (vmi)
+	{
+		bool is_active = vmi->getUUID() == session_id;
+		bool is_nearby = vmi->getType() == LLConversationItem::CONV_SESSION_NEARBY;
+
+		if (is_nearby)
+		{
+			mSpeakingIndicator->setSpeakerId(is_active ? gAgentID : LLUUID::null);
+		}
+
+		mSpeakingIndicator->switchIndicator(is_active);
+		mCallIconLayoutPanel->setVisible(is_active);
+	}
 }
 
 //

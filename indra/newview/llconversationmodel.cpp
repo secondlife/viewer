@@ -294,8 +294,8 @@ void LLConversationItemParticipant::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 void LLConversationItemParticipant::onAvatarNameCache(const LLAvatarName& av_name)
 {
-	mName = av_name.mUsername;
-	mDisplayName = av_name.mDisplayName;
+	mName = (av_name.mUsername.empty() ? av_name.mDisplayName : av_name.mUsername);
+	mDisplayName = (av_name.mDisplayName.empty() ? av_name.mUsername : av_name.mDisplayName);
 	mNeedsRefresh = true;
 	if (mParent)
 	{

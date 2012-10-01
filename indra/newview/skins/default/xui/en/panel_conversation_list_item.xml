@@ -13,13 +13,33 @@
      layout="topleft"
      left="5"
      top="2"
+     visible="false"
      width="20" />
+    <group_icon
+     follows="top|left"
+     height="20"
+     default_icon_name="Generic_Group"
+     layout="topleft"
+     left="5"
+     top="2"
+     visible="false"
+     width="20" />
+    <icon
+     follows="top|left"
+     height="20"
+     image_name="Nearby_chat_icon"
+     layout="topleft"
+     left="5"
+     name="nearby_chat_icon"
+     top="2"
+     visible="false"
+     width="20"/>
     <layout_stack
      animate="false"
      follows="all"
      height="24"
      layout="topleft"
-     left_pad="5"
+     left="30"
      mouse_opaque="false"
      name="conversation_item_stack"
      orientation="horizontal"
@@ -36,7 +56,7 @@
             <icon
              height="20"
              follows="top|right|left"
-             image_name="Conv_toolbar_hang_up"
+             image_name="Conv_toolbar_open_call"
              layout="topleft"
              left="0"
              name="selected_icon"
@@ -70,7 +90,7 @@
 		     layout="topleft"
 		     left_pad="5"
  		     mouse_opaque="true"
- 		     name="speaking_indicator"
+ 		     name="speaking_indicatorn"
  		     visible="false"
  		     width="20" />
         </layout_panel>

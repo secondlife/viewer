@@ -90,13 +90,13 @@ LLIMFloaterContainer::~LLIMFloaterContainer()
 
 void LLIMFloaterContainer::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
 {
-	LLIMFloater::addToIMContainer(session_id);
+	LLIMFloater::addToHost(session_id, true);
 	addConversationListItem(session_id);
 }
 
 void LLIMFloaterContainer::sessionVoiceOrIMStarted(const LLUUID& session_id)
 {
-	LLIMFloater::addToIMContainer(session_id);
+	LLIMFloater::addToHost(session_id, true);
 	addConversationListItem(session_id);
 }
 
@@ -137,6 +137,7 @@ BOOL LLIMFloaterContainer::postBuild()
     p.listener = base_item;
     p.view_model = &mConversationViewModel;
     p.root = NULL;
+    p.use_ellipses = true;
     p.options_menu = "menu_conversation.xml";
 	mConversationsRoot = LLUICtrlFactory::create<LLFolderView>(p);
     mConversationsRoot->setCallbackRegistrar(&mCommitCallbackRegistrar);
@@ -164,8 +165,7 @@ BOOL LLIMFloaterContainer::postBuild()
 
 	collapseMessagesPane(gSavedPerAccountSettings.getBOOL("ConversationsMessagePaneCollapsed"));
 	collapseConversationsPane(gSavedPerAccountSettings.getBOOL("ConversationsListPaneCollapsed"));
-	LLAvatarNameCache::addUseDisplayNamesCallback(
-			boost::bind(&LLIMConversation::processChatHistoryStyleUpdate));
+	LLAvatarNameCache::addUseDisplayNamesCallback(boost::bind(&LLIMConversation::processChatHistoryStyleUpdate));
 
 	if (! mMessagesPane->isCollapsed())
 	{
@@ -182,8 +182,11 @@ BOOL LLIMFloaterContainer::postBuild()
 	
 	mInitialized = true;
 
-	// Add callback: we'll take care of view updates on idle
+	// Add callbacks:
+	// We'll take care of view updates on idle
 	gIdleCallbacks.addFunction(idle, this);
+	// When display name option change, we need to reload all participant names
+	LLAvatarNameCache::addUseDisplayNamesCallback(boost::bind(&LLIMFloaterContainer::processParticipantsStyleUpdate, this));
 
 	return TRUE;
 }
@@ -227,8 +230,8 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 		floaterp->mCloseSignal.connect(boost::bind(&LLIMFloaterContainer::onCloseFloater, this, session_id));
 	}
 	else
-	{
-		LLUUID avatar_id = LLIMModel::getInstance()->getOtherParticipantID(session_id);
+	{   LLUUID avatar_id = session_id.notNull()?
+		    LLIMModel::getInstance()->getOtherParticipantID(session_id) : LLUUID();
 
 		LLAvatarIconCtrl::Params icon_params;
 		icon_params.avatar_id = avatar_id;
@@ -336,6 +339,37 @@ void LLIMFloaterContainer::setMinimized(BOOL b)
 	}
 }
 
+// Update all participants in the conversation lists
+void LLIMFloaterContainer::processParticipantsStyleUpdate()
+{
+	// On each session in mConversationsItems
+	for (conversations_items_map::iterator it_session = mConversationsItems.begin(); it_session != mConversationsItems.end(); it_session++)
+	{
+		// Get the current session descriptors
+		LLConversationItem* session_model = it_session->second;
+		// Iterate through each model participant child
+		LLFolderViewModelItemCommon::child_list_t::const_iterator current_participant_model = session_model->getChildrenBegin();
+		LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = session_model->getChildrenEnd();
+		while (current_participant_model != end_participant_model)
+		{
+			LLConversationItemParticipant* participant_model = dynamic_cast<LLConversationItemParticipant*>(*current_participant_model);
+			// Get the avatar name for this participant id from the cache and update the model
+			LLUUID participant_id = participant_model->getUUID();
+			LLAvatarName av_name;
+			LLAvatarNameCache::get(participant_id,&av_name);
+			// Avoid updating the model though if the cache is still waiting for its first update
+			if (!av_name.mDisplayName.empty())
+			{
+				participant_model->onAvatarNameCache(av_name);
+			}
+			// Bind update to the next cache name signal
+			LLAvatarNameCache::get(participant_id, boost::bind(&LLConversationItemParticipant::onAvatarNameCache, participant_model, _2));
+			// Next participant
+			current_participant_model++;
+		}
+	}
+}
+
 // static
 void LLIMFloaterContainer::idle(void* user_data)
 {
@@ -347,7 +381,6 @@ void LLIMFloaterContainer::idle(void* user_data)
 	{
 		self->setNearbyDistances();
 	}
-
 	self->mConversationsRoot->update();
 }
 
@@ -438,6 +471,7 @@ void LLIMFloaterContainer::setVisible(BOOL visible)
 			// *TODO: find a way to move this to XML as a default panel or something like that
 			LLSD name("nearby_chat");
 			LLFloaterReg::toggleInstanceOrBringToFront(name);
+			LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat")->addToHost();
 		}
 	}
 
@@ -505,6 +539,22 @@ void LLIMFloaterContainer::collapseConversationsPane(bool collapse)
 
 	S32 collapsed_width = mConversationsPane->getMinDim();
 	updateState(collapse, gSavedPerAccountSettings.getS32("ConversationsListPaneWidth") - collapsed_width);
+
+	for (conversations_widgets_map::iterator widget_it = mConversationsWidgets.begin();
+			widget_it != mConversationsWidgets.end(); ++widget_it)
+	{
+		LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(widget_it->second);
+		if (widget)
+		{
+		    widget->toggleMinimizedMode(collapse);
+
+		    // force closing all open conversations when collapsing to minimized state
+		    if (collapse)
+		    {
+		    	widget->setOpen(false);
+		    }
+}
+	}
 }
 
 void LLIMFloaterContainer::updateState(bool collapse, S32 delta_width)
@@ -856,56 +906,6 @@ bool LLIMFloaterContainer::checkContextMenuItem(const LLSD& userdata)
     return false;
 }
 
-void LLIMFloaterContainer::repositioningWidgets()
-{
-	if (!mInitialized)
-	{
-		return;
-	}
-
-	if (!mConversationsPane->isCollapsed())
-	{
-		S32 list_width = (mConversationsPane->getRect()).getWidth();
-		gSavedPerAccountSettings.setS32("ConversationsListPaneWidth", list_width);
-	}
-	LLRect panel_rect = mConversationsListPanel->getRect();
-	S32 item_height = 16;
-	int index = 0;
-	for (conversations_widgets_map::iterator widget_it = mConversationsWidgets.begin();
-		 widget_it != mConversationsWidgets.end();
-		 widget_it++)
-	{
-		LLFolderViewFolder* widget = dynamic_cast<LLFolderViewFolder*>(widget_it->second);
-		widget->setVisible(TRUE);
-		widget->setRect(LLRect(0,
-							   panel_rect.getHeight() - item_height*index,
-							   panel_rect.getWidth(),
-							   panel_rect.getHeight() - item_height*(index+1)));
-		index++;
-		// Reposition the children as well
-		// Merov : This is highly suspiscious but gets the debug hack to work. This needs to be revised though.
-		if (widget->getItemsCount() != 0)
-		{
-			BOOL is_open = widget->isOpen();
-			widget->setOpen(TRUE);
-			LLFolderViewFolder::items_t::const_iterator current = widget->getItemsBegin();
-			LLFolderViewFolder::items_t::const_iterator end = widget->getItemsEnd();
-			while (current != end)
-			{
-				LLFolderViewItem* item = (*current);
-				item->setVisible(TRUE);
-				item->setRect(LLRect(0,
-									   panel_rect.getHeight() - item_height*index,
-									   panel_rect.getWidth(),
-									   panel_rect.getHeight() - item_height*(index+1)));
-				index++;
-				current++;
-			}
-			widget->setOpen(is_open);
-		}
-	}
-}
-
 void LLIMFloaterContainer::setConvItemSelect(const LLUUID& session_id)
 {
 	LLFolderViewItem* widget = mConversationsWidgets[session_id];
@@ -1018,6 +1018,9 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 
 	setConvItemSelect(uuid);
 	
+	// set the widget to minimized mode if conversations pane is collapsed
+	widget->toggleMinimizedMode(mConversationsPane->isCollapsed());
+
 	return;
 }
 
