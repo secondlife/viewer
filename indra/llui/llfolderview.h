@@ -94,7 +94,7 @@ public:
 								use_ellipses,
 								show_item_link_overlays;
 		Mandatory<LLFolderViewModelInterface*>	view_model;
-        Optional<std::string>   options_menu;
+        Mandatory<std::string>   options_menu;
 
 
 		Params();

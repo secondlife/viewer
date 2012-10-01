@@ -28,7 +28,6 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llconversationmodel.h"
-#include "llmenugl.h"
 
 //
 // Conversation items : common behaviors

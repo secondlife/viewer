@@ -285,6 +285,7 @@ private:
 // are set as enabled.
 
 //(defined in inventorybridge.cpp)
+//TODO: Gilbert Linden - Refactor to make this function non-global
 void hide_context_entries(LLMenuGL& menu, 
     const menuentry_vec_t &entries_to_show, 
     const menuentry_vec_t &disabled_entries);

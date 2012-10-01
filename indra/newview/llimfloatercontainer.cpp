@@ -689,13 +689,20 @@ void LLIMFloaterContainer::doToSelected(const LLSD& userdata)
     LLIMFloater * conversation;
 
     getSelectedUUIDs(selected_uuids);
+    //Find the conversation floater associated with the selected id
     conversation = LLIMFloater::findInstance(selected_uuids.front());
-    
+
+    //When a one-on-one conversation exists, retrieve the participant id from the conversation floater b/c
+    //selected_uuids.front() does not pertain to the UUID of the person you are having the conversation with.
     if(conversation && 
+           mConversationsRoot && 
+           mConversationsRoot->getCurSelectedItem() && 
+           mConversationsRoot->getCurSelectedItem()->getViewModelItem() &&
         static_cast<LLConversationItem *>(mConversationsRoot->getCurSelectedItem()->getViewModelItem())->getType() == LLConversationItem::CONV_SESSION_1_ON_1)
     {
         currentSelectedUUID = conversation->getOtherParticipantUUID();
     }
+    //Otherwise can get the UUID directly from selected_uuids
     else
     {
         currentSelectedUUID = selected_uuids.front();

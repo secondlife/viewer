@@ -1531,14 +1531,18 @@ BOOL LLFolderView::handleRightMouseDown( S32 x, S32 y, MASK mask )
 		&& menu )
 	{
 		if (mCallbackRegistrar)
+        {
 			mCallbackRegistrar->pushScope();
+        }
 
 		updateMenuOptions(menu);
 	   
 		menu->updateParent(LLMenuGL::sMenuContainer);
 		LLMenuGL::showPopup(this, menu, x, y);
 		if (mCallbackRegistrar)
+        {
 			mCallbackRegistrar->popScope();
+        }
 	}
 	else
 	{
