@@ -538,9 +538,6 @@ class WindowsManifest(ViewerManifest):
             else:
                 result += 'Delete ' + wpath(os.path.join('$INSTDIR', rel_file)) + '\n'
 
-        if install
-            result += 'Delete ' + wpath(os.path.join('$INSTDIR', 'libtcmalloc_minimal.dll')) + '\n'
-
         # at the end of a delete, just rmdir all the directories
         if not install:
             deleted_file_dirs = [os.path.dirname(pair[1].replace(self.get_dst_prefix()+os.path.sep,'')) for pair in self.file_list]
