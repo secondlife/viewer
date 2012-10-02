@@ -885,14 +885,6 @@
                function="Tools.EnableTakeCopy" />
           </menu_item_call>
           <menu_item_call
-			 label="Save Back to My Inventory"
-			 name="Save Object Back to My Inventory">
-			<menu_item_call.on_click
-               function="Tools.SaveToInventory" />
-			<menu_item_call.on_enable
-               function="Tools.EnableSaveToInventory" />
-          </menu_item_call>
-          <menu_item_call
 			 label="Save Back to Object Contents"
 			 name="Save Object Back to Object Contents">
 			<menu_item_call.on_click

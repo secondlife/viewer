@@ -5058,13 +5058,6 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
 
 	dialog_refresh_all();
 
-	// silly hack to allow 'save into inventory' 
-	if(gPopupMenuView->getVisible())
-	{
-		gPopupMenuView->setItemEnabled(SAVE_INTO_INVENTORY,
-									   enable_save_into_inventory(NULL));
-	}
-
 	// hack for left-click buy object
 	LLToolPie::selectionPropertiesReceived();
 }
