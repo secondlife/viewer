@@ -113,7 +113,10 @@ private:
 
     void getSelectedUUIDs(uuid_vec_t& selected_uuids);
     const LLConversationItem * getCurSelectedViewModelItem();
-    void doToSelectedAvatar(const LLSD& userdata);
+    void doToSelected(const LLSD& userdata);
+    void doToSelectedConversation(const std::string& command);
+    void doToSelectedParticipant(const std::string& command);
+    void doToUsers(const std::string& command, uuid_vec_t selectedIDS);
     void doToSelectedGroup(const LLSD& userdata);
     bool checkContextMenuItem(const LLSD& userdata);
     bool enableContextMenuItem(const LLSD& userdata);

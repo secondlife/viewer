@@ -64,7 +64,7 @@ LLIMFloaterContainer::LLIMFloaterContainer(const LLSD& seed)
 	
     mEnableCallbackRegistrar.add("Avatar.CheckItem",  boost::bind(&LLIMFloaterContainer::checkContextMenuItem,	this, _2));
     mEnableCallbackRegistrar.add("Avatar.EnableItem", boost::bind(&LLIMFloaterContainer::enableContextMenuItem,	this, _2));
-    mCommitCallbackRegistrar.add("Avatar.DoToSelected", boost::bind(&LLIMFloaterContainer::doToSelectedAvatar, this, _2));
+    mCommitCallbackRegistrar.add("Avatar.DoToSelected", boost::bind(&LLIMFloaterContainer::doToSelected, this, _2));
     
     mCommitCallbackRegistrar.add("Group.DoToSelected", boost::bind(&LLIMFloaterContainer::doToSelectedGroup, this, _2));
 
@@ -747,78 +747,109 @@ const LLConversationItem * LLIMFloaterContainer::getCurSelectedViewModelItem()
     return NULL;
 }
 
-void LLIMFloaterContainer::doToSelectedAvatar(const LLSD& userdata)
-{
-    std::string command = userdata.asString();
-    uuid_vec_t selected_uuids;
-    LLUUID currentSelectedUUID;
-    LLIMFloater * conversation;
+void LLIMFloaterContainer::doToUsers(const std::string& command, uuid_vec_t selectedIDS)
+{dd
+    LLUUID userID;
+    userID = selectedIDS.front();
 
-    getSelectedUUIDs(selected_uuids);
-    //Find the conversation floater associated with the selected id
-    conversation = LLIMFloater::findInstance(selected_uuids.front());
-    const LLConversationItem * conversationItem = getCurSelectedViewModelItem();
-
-    //When a one-on-one conversation exists, retrieve the participant id from the conversation floater b/c
-    //selected_uuids.front() does not pertain to the UUID of the person you are having the conversation with.
-    if(conversation && conversationItem->getType() == LLConversationItem::CONV_SESSION_1_ON_1)
+    if ("view_profile" == command)
     {
-        currentSelectedUUID = conversation->getOtherParticipantUUID();
-    }
-    //Otherwise can get the UUID directly from selected_uuids
-    else
-    {
-        currentSelectedUUID = selected_uuids.front();
-    }
-
-    //Close the selected conversation
-    if(conversation && "close_conversation" == command)
-    {
-        LLFloater::onClickClose(conversation);
-    }
-    else if ("view_profile" == command)
-    {
-        LLAvatarActions::showProfile(currentSelectedUUID);
+        LLAvatarActions::showProfile(userID);
     }
     else if("im" == command)
     {
-        LLAvatarActions::startIM(currentSelectedUUID);
+        LLAvatarActions::startIM(userID);
     }
     else if("offer_teleport" == command)
     {
-        LLAvatarActions::offerTeleport(selected_uuids);
+        LLAvatarActions::offerTeleport(selectedIDS);
     }
     else if("voice_call" == command)
     {
-        LLAvatarActions::startCall(currentSelectedUUID);
+        LLAvatarActions::startCall(userID);
     }
     else if("add_friend" == command)
     {
-        LLAvatarActions::requestFriendshipDialog(currentSelectedUUID);
+        LLAvatarActions::requestFriendshipDialog(userID);
     }
     else if("remove_friend" == command)
     {
-        LLAvatarActions::removeFriendDialog(currentSelectedUUID);
+        LLAvatarActions::removeFriendDialog(userID);
     }
     else if("invite_to_group" == command)
     {
-        LLAvatarActions::inviteToGroup(currentSelectedUUID);
+        LLAvatarActions::inviteToGroup(userID);
     }
     else if("map" == command)
     {
-        LLAvatarActions::showOnMap(currentSelectedUUID);
+        LLAvatarActions::showOnMap(userID);
     }
     else if("share" == command)
     {
-        LLAvatarActions::share(currentSelectedUUID);
+        LLAvatarActions::share(userID);
     }
     else if("pay" == command)
     {
-        LLAvatarActions::pay(currentSelectedUUID);
+        LLAvatarActions::pay(userID);
     }
     else if("block_unblock" == command)
     {
-        LLAvatarActions::toggleBlock(currentSelectedUUID);
+        LLAvatarActions::toggleBlock(userID);
+    }
+}
+
+void LLIMFloaterContainer::doToSelectedParticipant(const std::string& command)
+{
+    uuid_vec_t selected_uuids;
+    getSelectedUUIDs(selected_uuids);
+   
+    doToUsers(command, selected_uuids);
+}
+
+void LLIMFloaterContainer::doToSelectedConversation(const std::string& command)
+{
+    LLUUID participantID;
+
+    //Find the conversation floater associated with the selected id
+    const LLConversationItem * conversationItem = getCurSelectedViewModelItem();
+    LLIMFloater *conversationFloater = LLIMFloater::findInstance(conversationItem->getUUID());
+
+    if(conversationFloater)
+    {
+        //When a one-on-one conversation exists, retrieve the participant id from the conversation floater b/c
+        //selected_uuids.front() does not pertain to the UUID of the person you are having the conversation with.
+        if(conversationItem->getType() == LLConversationItem::CONV_SESSION_1_ON_1)
+        {
+            participantID = conversationFloater->getOtherParticipantUUID();
+        }
+
+        //Close the selected conversation
+        if("close_conversation" == command)
+        {
+            LLFloater::onClickClose(conversationFloater);
+        }
+        else
+        {
+            uuid_vec_t selected_uuids;
+            selected_uuids.push_back(participantID);
+            doToUsers(command, selected_uuids);
+        }
+    }
+}
+
+void LLIMFloaterContainer::doToSelected(const LLSD& userdata)
+{
+    std::string command = userdata.asString();
+    const LLConversationItem * conversationItem = getCurSelectedViewModelItem();
+
+    if(conversationItem->getType() == LLConversationItem::CONV_SESSION_1_ON_1 ||
+        conversationItem->getType() == LLConversationItem::CONV_SESSION_GROUP)
+    {
+        doToSelectedConversation(command);
+    }
+    else
+    {
+        doToSelectedParticipant(command);
     }
 }
 
