@@ -463,19 +463,24 @@ void LLIMFloaterContainer::tabClose()
 }
 
 void LLIMFloaterContainer::setVisible(BOOL visible)
-{
+{	LLNearbyChat* nearby_chat;
 	if (visible)
 	{
 		// Make sure we have the Nearby Chat present when showing the conversation container
-		LLIMConversation* nearby_chat = LLFloaterReg::findTypedInstance<LLIMConversation>("nearby_chat");
+		nearby_chat = LLFloaterReg::findTypedInstance<LLNearbyChat>("nearby_chat");
 		if (nearby_chat == NULL)
 		{
 			// If not found, force the creation of the nearby chat conversation panel
 			// *TODO: find a way to move this to XML as a default panel or something like that
 			LLSD name("nearby_chat");
 			LLFloaterReg::toggleInstanceOrBringToFront(name);
-			LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat")->addToHost();
 		}
+	}
+
+	nearby_chat = LLFloaterReg::findTypedInstance<LLNearbyChat>("nearby_chat");
+	if (nearby_chat && !nearby_chat->isHostSet())
+	{
+		nearby_chat->addToHost();
 	}
 
 	// We need to show/hide all the associated conversations that have been torn off
