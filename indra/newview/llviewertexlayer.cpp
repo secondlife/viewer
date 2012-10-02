@@ -379,7 +379,9 @@ void LLViewerTexLayerSetBuffer::doUpload()
 	LLGLSUIDefault gls_ui;
 	LLPointer<LLImageRaw> baked_mask_image = new LLImageRaw(mFullWidth, mFullHeight, 1 );
 	U8* baked_mask_data = baked_mask_image->getData(); 
-	layer_set->gatherMorphMaskAlpha(baked_mask_data, mFullWidth, mFullHeight);
+	layer_set->gatherMorphMaskAlpha(baked_mask_data,
+									mOrigin.mX, mOrigin.mY,
+									mFullWidth, mFullHeight);
 
 
 	// Create the baked image from our color and mask information
@@ -698,23 +700,6 @@ void LLViewerTexLayerSet::createComposite()
 void LLViewerTexLayerSet::setUpdatesEnabled( BOOL b )
 {
 	mUpdatesEnabled = b; 
-}
-
-
-void LLViewerTexLayerSet::gatherMorphMaskAlpha(U8 *data, S32 width, S32 height)
-{
-	memset(data, 255, width * height);
-
-	for( layer_list_t::iterator iter = mLayerList.begin(); iter != mLayerList.end(); iter++ )
-	{
-		LLTexLayerInterface* layer = *iter;
-		layer->gatherAlphaMasks(data, getViewerComposite()->getOriginX(),
-								getViewerComposite()->getOriginY(), width, height);
-	}
-	
-	// Set alpha back to that of our alpha masks.
-	renderAlphaMaskTextures(getViewerComposite()->getOriginX(), 
-							getViewerComposite()->getOriginY(), width, height, true);
 }
 
 LLVOAvatarSelf* LLViewerTexLayerSet::getAvatar()

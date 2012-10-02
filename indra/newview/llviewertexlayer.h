@@ -55,7 +55,6 @@ public:
 	/*virtual*/void				createComposite();
 	void						setUpdatesEnabled(BOOL b);
 	BOOL						getUpdatesEnabled()	const 	{ return mUpdatesEnabled; }
-	void						gatherMorphMaskAlpha(U8 *data, S32 width, S32 height);
 
 	LLVOAvatarSelf*				getAvatar();
 	const LLVOAvatarSelf*		getAvatar()	const;

@@ -220,7 +220,7 @@ ETextureIndex LLAvatarAppearanceDictionary::bakedToLocalTextureIndex(EBakedTextu
 	return LLAvatarAppearanceDictionary::getInstance()->getBakedTexture(index)->mTextureIndex;
 }
 
-//static 
+// static
 EBakedTextureIndex LLAvatarAppearanceDictionary::findBakedByRegionName(std::string name)
 {
 	U8 index = 0;
@@ -231,6 +231,28 @@ EBakedTextureIndex LLAvatarAppearanceDictionary::findBakedByRegionName(std::stri
 		{
 			// baked texture found
 			return (EBakedTextureIndex) index;
+		}
+		index++;
+	}
+	// baked texture could not be found
+	return BAKED_NUM_INDICES;
+}
+
+// static 
+EBakedTextureIndex LLAvatarAppearanceDictionary::findBakedByImageName(std::string name)
+{
+	U8 index = 0;
+	while (index < BAKED_NUM_INDICES)
+	{
+		const BakedEntry *be = LLAvatarAppearanceDictionary::getInstance()->getBakedTexture((EBakedTextureIndex) index);
+		if (be)
+		{
+			const TextureEntry *te = LLAvatarAppearanceDictionary::getInstance()->getTexture(be->mTextureIndex);
+			if (te && te->mDefaultImageName.compare(name) == 0)
+			{
+				// baked texture found
+				return (EBakedTextureIndex) index;
+			}
 		}
 		index++;
 	}
