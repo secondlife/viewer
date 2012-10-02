@@ -39,6 +39,7 @@
 #include "llavatariconctrl.h"
 #include "llavatarnamecache.h"
 #include "llcallbacklist.h"
+#include "llgroupactions.h"
 #include "llgroupiconctrl.h"
 #include "llfloateravatarpicker.h"
 #include "llfloaterpreference.h"
@@ -63,7 +64,9 @@ LLIMFloaterContainer::LLIMFloaterContainer(const LLSD& seed)
 	
     mEnableCallbackRegistrar.add("Avatar.CheckItem",  boost::bind(&LLIMFloaterContainer::checkContextMenuItem,	this, _2));
     mEnableCallbackRegistrar.add("Avatar.EnableItem", boost::bind(&LLIMFloaterContainer::enableContextMenuItem,	this, _2));
-    mCommitCallbackRegistrar.add("Avatar.DoToSelected", boost::bind(&LLIMFloaterContainer::doToSelected, this, _2));
+    mCommitCallbackRegistrar.add("Avatar.DoToSelected", boost::bind(&LLIMFloaterContainer::doToSelectedAvatar, this, _2));
+    
+    mCommitCallbackRegistrar.add("Group.DoToSelected", boost::bind(&LLIMFloaterContainer::doToSelectedGroup, this, _2));
 
 	// Firstly add our self to IMSession observers, so we catch session events
     LLIMMgr::getInstance()->addSessionObserver(this);
@@ -731,7 +734,20 @@ void LLIMFloaterContainer::getSelectedUUIDs(uuid_vec_t& selected_uuids)
         selected_uuids.push_back(conversationItem->getUUID());
     }
 }
-void LLIMFloaterContainer::doToSelected(const LLSD& userdata)
+
+const LLConversationItem * LLIMFloaterContainer::getCurSelectedViewModelItem()
+{
+    if(mConversationsRoot && 
+        mConversationsRoot->getCurSelectedItem() && 
+        mConversationsRoot->getCurSelectedItem()->getViewModelItem())
+    {
+        return static_cast<LLConversationItem *>(mConversationsRoot->getCurSelectedItem()->getViewModelItem());
+    }
+
+    return NULL;
+}
+
+void LLIMFloaterContainer::doToSelectedAvatar(const LLSD& userdata)
 {
     std::string command = userdata.asString();
     uuid_vec_t selected_uuids;
@@ -741,14 +757,11 @@ void LLIMFloaterContainer::doToSelected(const LLSD& userdata)
     getSelectedUUIDs(selected_uuids);
     //Find the conversation floater associated with the selected id
     conversation = LLIMFloater::findInstance(selected_uuids.front());
+    const LLConversationItem * conversationItem = getCurSelectedViewModelItem();
 
     //When a one-on-one conversation exists, retrieve the participant id from the conversation floater b/c
     //selected_uuids.front() does not pertain to the UUID of the person you are having the conversation with.
-    if(conversation && 
-           mConversationsRoot && 
-           mConversationsRoot->getCurSelectedItem() && 
-           mConversationsRoot->getCurSelectedItem()->getViewModelItem() &&
-        static_cast<LLConversationItem *>(mConversationsRoot->getCurSelectedItem()->getViewModelItem())->getType() == LLConversationItem::CONV_SESSION_1_ON_1)
+    if(conversation && conversationItem->getType() == LLConversationItem::CONV_SESSION_1_ON_1)
     {
         currentSelectedUUID = conversation->getOtherParticipantUUID();
     }
@@ -806,6 +819,25 @@ void LLIMFloaterContainer::doToSelected(const LLSD& userdata)
     else if("block_unblock" == command)
     {
         LLAvatarActions::toggleBlock(currentSelectedUUID);
+    }
+}
+
+void LLIMFloaterContainer::doToSelectedGroup(const LLSD& userdata)
+{
+    std::string action = userdata.asString();
+    LLUUID selected_group = getCurSelectedViewModelItem()->getUUID();
+
+    if (action == "group_profile")
+    {
+        LLGroupActions::show(selected_group);
+    }
+    else if (action == "activate_group")
+    {
+        LLGroupActions::activate(selected_group);
+    }
+    else if (action == "leave_group")
+    {
+        LLGroupActions::leave(selected_group);
     }
 }
 
@@ -896,7 +928,7 @@ bool LLIMFloaterContainer::enableContextMenuItem(const LLSD& userdata)
 bool LLIMFloaterContainer::checkContextMenuItem(const LLSD& userdata)
 {
     std::string item = userdata.asString();
-    const LLUUID& id = static_cast<LLConversationItem *>(mConversationsRoot->getCurSelectedItem()->getViewModelItem())->getUUID();
+    const LLUUID& id = getCurSelectedViewModelItem()->getUUID();
 
     if (item == std::string("is_blocked"))
     {

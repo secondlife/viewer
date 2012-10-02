@@ -112,7 +112,9 @@ private:
 	void setSortOrder(const LLConversationSort& order);
 
     void getSelectedUUIDs(uuid_vec_t& selected_uuids);
-    void doToSelected(const LLSD& userdata);
+    const LLConversationItem * getCurSelectedViewModelItem();
+    void doToSelectedAvatar(const LLSD& userdata);
+    void doToSelectedGroup(const LLSD& userdata);
     bool checkContextMenuItem(const LLSD& userdata);
     bool enableContextMenuItem(const LLSD& userdata);
 

@@ -26,6 +26,24 @@
     </menu_item_call>	
 	<menu_item_separator layout="topleft" name="separator_disconnect_from_voice"/>	
     <menu_item_call
+     label="Group Profile"
+     layout="topleft"
+     name="group_profile">
+        <on_click function="Group.DoToSelected" parameter="group_profile"/>
+    </menu_item_call>	
+    <menu_item_call
+     label="Activate Group"
+     layout="topleft"
+     name="activate_group">
+        <on_click function="Group.DoToSelected" parameter="activate_group"/>
+    </menu_item_call>		
+    <menu_item_call
+     label="Leave Group"
+     layout="topleft"
+     name="leave_group">
+        <on_click function="Group.DoToSelected" parameter="leave_group"/>
+    </menu_item_call>			
+    <menu_item_call
      label="View Profile"
      layout="topleft"
      name="view_profile">
