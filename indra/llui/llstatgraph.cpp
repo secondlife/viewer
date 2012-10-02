@@ -35,7 +35,7 @@
 #include "llstat.h"
 #include "llgl.h"
 #include "llglheaders.h"
-#include "lltracesampler.h"
+#include "lltracerecording.h"
 //#include "llviewercontrol.h"
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -85,15 +85,15 @@ void LLStatGraph::draw()
 	}
 	else if (mF32Statp)
 	{
-		LLTrace::Sampler* sampler = LLTrace::get_thread_trace()->getPrimarySampler();
+		LLTrace::Recording* recording = LLTrace::get_thread_recorder()->getPrimaryRecording();
 
 		if (mPerSec)
 		{
-			mValue = sampler->getSum(*mF32Statp) / sampler->getSampleTime();
+			mValue = recording->getSum(*mF32Statp) / recording->getSampleTime();
 		}
 		else
 		{
-			mValue = sampler->getSum(*mF32Statp);
+			mValue = recording->getSum(*mF32Statp);
 		}
 
 	}

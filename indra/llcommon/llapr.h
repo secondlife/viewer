@@ -261,9 +261,28 @@ public:
 class LLThreadLocalPointerBase : LLInstanceTracker<LLThreadLocalPointerBase>
 {
 public:
-	LLThreadLocalPointerBase();
-	LLThreadLocalPointerBase(const LLThreadLocalPointerBase& other);
-	~LLThreadLocalPointerBase();
+	LLThreadLocalPointerBase()
+	:	mThreadKey(NULL)
+	{
+		if (sInitialized)
+		{
+			initStorage();
+		}
+	}
+
+	LLThreadLocalPointerBase( const LLThreadLocalPointerBase& other)
+		:	mThreadKey(NULL)
+	{
+		if (sInitialized)
+		{
+			initStorage();
+		}
+	}
+
+	~LLThreadLocalPointerBase()
+	{
+		destroyStorage();
+	}
 
 	static void initAllThreadLocalStorage();
 	static void destroyAllThreadLocalStorage();
@@ -312,7 +331,6 @@ class LLThreadLocalPointer : public LLThreadLocalPointerBase
 public:
 
 	LLThreadLocalPointer()
-	:	LLThreadLocalPointerBase()
 	{}
 
 	explicit LLThreadLocalPointer(T* value)

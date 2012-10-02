@@ -36,7 +36,7 @@
 
 #include "llstat.h"
 #include "lluictrlfactory.h"
-#include "lltracesampler.h"
+#include "lltracerecording.h"
 
 ///////////////////////////////////////////////////////////////////////////////////
 
@@ -111,20 +111,20 @@ void LLStatBar::draw()
 	}
 	else if (mFloatStatp)
 	{
-		LLTrace::Sampler* sampler = LLTrace::get_thread_trace()->getPrimarySampler();
+		LLTrace::Recording* recording = LLTrace::get_thread_recorder()->getPrimaryRecording();
 		if (mPerSec)
 		{
-			current = sampler->getSum(*mFloatStatp) / sampler->getSampleTime();
-			//min = sampler->getMin(*mFloatStatp) / sampler->getSampleTime();
-			//max = sampler->getMax(*mFloatStatp) / sampler->getSampleTime();
-			//mean = sampler->getMean(*mFloatStatp) / sampler->getSampleTime();
+			current = recording->getSum(*mFloatStatp) / recording->getSampleTime();
+			//min = recording->getMin(*mFloatStatp) / recording->getSampleTime();
+			//max = recording->getMax(*mFloatStatp) / recording->getSampleTime();
+			//mean = recording->getMean(*mFloatStatp) / recording->getSampleTime();
 		}
 		else
 		{
-			current = sampler->getSum(*mFloatStatp);
-			//min = sampler->getMin(*mFloatStatp);
-			//max = sampler->getMax(*mFloatStatp);
-			//mean = sampler->getMean(*mFloatStatp);
+			current = recording->getSum(*mFloatStatp);
+			//min = recording->getMin(*mFloatStatp);
+			//max = recording->getMax(*mFloatStatp);
+			//mean = recording->getMean(*mFloatStatp);
 		}
 	}
 	

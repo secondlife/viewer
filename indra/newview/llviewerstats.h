@@ -29,7 +29,8 @@
 
 #include "llstat.h"
 #include "lltextureinfo.h"
-#include "lltracesampler.h"
+#include "lltracerecording.h"
+#include "lltrace.h"
 
 extern LLTrace::Rate<F32>	STAT_KBIT,
 							STAT_LAYERS_KBIT,
@@ -297,11 +298,11 @@ public:
 		static void recordPhaseStat(const std::string& phase_name, F32 value);
 	};
 
-	LLTrace::Sampler* getSampler() { return mSampler; }
+	LLTrace::Recording& getRecording() { return mRecording; }
 
 private:
 	F64	mStats[ST_COUNT];
-	LLTrace::Sampler*	mSampler;
+	LLTrace::Recording	mRecording;
 
 	F64 mLastTimeDiff;  // used for time stat updates
 };

@@ -1222,7 +1222,7 @@ bool LLAppViewer::mainLoop()
 	{
 		LLFastTimer _(FTM_FRAME);
 		LLFastTimer::nextFrame(); 
-		LLTrace::getMasterThreadTrace().pullFromSlaveThreads();
+		LLTrace::getMasterThreadRecorder().pullFromSlaveThreads();
 
 		//clear call stack records
 		llclearcallstacks;

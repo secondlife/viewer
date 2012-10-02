@@ -276,12 +276,11 @@ LLViewerStats::LLViewerStats() :
 	}	
 	
 	mAgentPositionSnaps.reset();
-	mSampler->start();
+	mRecording.start();
 }
 
 LLViewerStats::~LLViewerStats()
 {
-	delete mSampler;
 }
 
 void LLViewerStats::resetStats()

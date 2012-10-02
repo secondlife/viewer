@@ -25,7 +25,7 @@
 
 #include "linden_common.h"
 
-#include "lltracesampler.h"
+#include "lltracerecording.h"
 #include "lltrace.h"
 #include "llthread.h"
 
@@ -33,10 +33,10 @@ namespace LLTrace
 {
 
 ///////////////////////////////////////////////////////////////////////
-// Sampler
+// Recording
 ///////////////////////////////////////////////////////////////////////
 
-Sampler::Sampler() 
+Recording::Recording() 
 :	mElapsedSeconds(0),
 	mIsStarted(false),
 	mRatesStart(new AccumulatorBuffer<RateAccumulator<F32> >()),
@@ -47,17 +47,17 @@ Sampler::Sampler()
 {
 }
 
-Sampler::~Sampler()
+Recording::~Recording()
 {
 }
 
-void Sampler::start()
+void Recording::start()
 {
 	reset();
 	resume();
 }
 
-void Sampler::reset()
+void Recording::reset()
 {
 	mRates.write()->reset();
 	mMeasurements.write()->reset();
@@ -67,54 +67,54 @@ void Sampler::reset()
 	mSamplingTimer.reset();
 }
 
-void Sampler::resume()
+void Recording::resume()
 {
 	if (!mIsStarted)
 	{
 		mSamplingTimer.reset();
-		LLTrace::get_thread_trace()->activate(this);
+		LLTrace::get_thread_recorder()->activate(this);
 		mIsStarted = true;
 	}
 }
 
-void Sampler::stop()
+void Recording::stop()
 {
 	if (mIsStarted)
 	{
 		mElapsedSeconds += mSamplingTimer.getElapsedTimeF64();
-		LLTrace::get_thread_trace()->deactivate(this);
+		LLTrace::get_thread_recorder()->deactivate(this);
 		mIsStarted = false;
 	}
 }
 
 
-void Sampler::makePrimary()
+void Recording::makePrimary()
 {
 	mRates.write()->makePrimary();
 	mMeasurements.write()->makePrimary();
 	mStackTimers.write()->makePrimary();
 }
 
-bool Sampler::isPrimary()
+bool Recording::isPrimary()
 {
 	return mRates->isPrimary();
 }
 
-void Sampler::mergeSamples( const Sampler& other )
+void Recording::mergeSamples( const Recording& other )
 {
 	mRates.write()->mergeSamples(*other.mRates);
 	mMeasurements.write()->mergeSamples(*other.mMeasurements);
 	mStackTimers.write()->mergeSamples(*other.mStackTimers);
 }
 
-void Sampler::initDeltas( const Sampler& other )
+void Recording::initDeltas( const Recording& other )
 {
 	mRatesStart.write()->copyFrom(*other.mRates);
 	mStackTimersStart.write()->copyFrom(*other.mStackTimers);
 }
 
 
-void Sampler::mergeDeltas( const Sampler& other )
+void Recording::mergeDeltas( const Recording& other )
 {
 	mRates.write()->mergeDeltas(*mRatesStart, *other.mRates);
 	mStackTimers.write()->mergeDeltas(*mStackTimersStart, *other.mStackTimers);
@@ -122,38 +122,38 @@ void Sampler::mergeDeltas( const Sampler& other )
 }
 
 
-F32 Sampler::getSum( Rate<F32>& stat )
+F32 Recording::getSum( Rate<F32>& stat )
 {
 	return stat.getAccumulator(mRates).getSum();
 }
 
-F32 Sampler::getSum( Measurement<F32>& stat )
+F32 Recording::getSum( Measurement<F32>& stat )
 {
 	return stat.getAccumulator(mMeasurements).getSum();
 }
 
 
-F32 Sampler::getPerSec( Rate<F32>& stat )
+F32 Recording::getPerSec( Rate<F32>& stat )
 {
 	return stat.getAccumulator(mRates).getSum() / mElapsedSeconds;
 }
 
-F32 Sampler::getMin( Measurement<F32>& stat )
+F32 Recording::getMin( Measurement<F32>& stat )
 {
 	return stat.getAccumulator(mMeasurements).getMin();
 }
 
-F32 Sampler::getMax( Measurement<F32>& stat )
+F32 Recording::getMax( Measurement<F32>& stat )
 {
 	return stat.getAccumulator(mMeasurements).getMax();
 }
 
-F32 Sampler::getMean( Measurement<F32>& stat )
+F32 Recording::getMean( Measurement<F32>& stat )
 {
 	return stat.getAccumulator(mMeasurements).getMean();
 }
 
-F32 Sampler::getStandardDeviation( Measurement<F32>& stat )
+F32 Recording::getStandardDeviation( Measurement<F32>& stat )
 {
 	return stat.getAccumulator(mMeasurements).getStandardDeviation();
 }

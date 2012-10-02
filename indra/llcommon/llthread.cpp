@@ -85,7 +85,7 @@ void *APR_THREAD_FUNC LLThread::staticRun(apr_thread_t *apr_threadp, void *datap
 {
 	LLThread *threadp = (LLThread *)datap;
 
-	LLTrace::ThreadTrace* thread_trace = new LLTrace::SlaveThreadTrace();
+	LLTrace::ThreadRecorder* thread_recorder = new LLTrace::SlaveThreadRecorder();
 
 #if !LL_DARWIN
 	sThreadIndex = threadp->mID;
@@ -99,7 +99,7 @@ void *APR_THREAD_FUNC LLThread::staticRun(apr_thread_t *apr_threadp, void *datap
 	// We're done with the run function, this thread is done executing now.
 	threadp->mStatus = STOPPED;
 
-	delete thread_trace;
+	delete thread_recorder;
 
 	return NULL;
 }

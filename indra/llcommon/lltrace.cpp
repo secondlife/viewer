@@ -26,28 +26,28 @@
 #include "linden_common.h"
 
 #include "lltrace.h"
-#include "lltracesampler.h"
+#include "lltracerecording.h"
 
 namespace LLTrace
 {
 
-static MasterThreadTrace* gMasterThreadTrace = NULL;
+static MasterThreadRecorder* gMasterThreadRecorder = NULL;
 
 void init()
 {
-	gMasterThreadTrace = new MasterThreadTrace();
+	gMasterThreadRecorder = new MasterThreadRecorder();
 }
 
 void cleanup()
 {
-	delete gMasterThreadTrace;
-	gMasterThreadTrace = NULL;
+	delete gMasterThreadRecorder;
+	gMasterThreadRecorder = NULL;
 }
 
-LLThreadLocalPointer<ThreadTrace>& get_thread_trace()
+LLThreadLocalPointer<ThreadRecorder>& get_thread_recorder()
 {
-	static LLThreadLocalPointer<ThreadTrace> s_trace_data;
-	return s_trace_data;
+	static LLThreadLocalPointer<ThreadRecorder> s_thread_recorder;
+	return s_thread_recorder;
 
 }
 
@@ -55,164 +55,161 @@ BlockTimer::Recorder::StackEntry BlockTimer::sCurRecorder;
 
 
 
-MasterThreadTrace& getMasterThreadTrace()
+MasterThreadRecorder& getMasterThreadRecorder()
 {
-	llassert(gMasterThreadTrace != NULL);
-	return *gMasterThreadTrace;
+	llassert(gMasterThreadRecorder != NULL);
+	return *gMasterThreadRecorder;
 }
 
 ///////////////////////////////////////////////////////////////////////
-// MasterThreadTrace
+// ThreadRecorder
 ///////////////////////////////////////////////////////////////////////
 
-ThreadTrace::ThreadTrace()
+ThreadRecorder::ThreadRecorder()
 {
-	get_thread_trace() = this;
-	mPrimarySampler.makePrimary();
-	mTotalSampler.start();
+	get_thread_recorder() = this;
+	mPrimaryRecording.makePrimary();
+	mFullRecording.start();
 }
 
-ThreadTrace::ThreadTrace( const ThreadTrace& other ) 
-:	mPrimarySampler(other.mPrimarySampler),
-	mTotalSampler(other.mTotalSampler)
+ThreadRecorder::ThreadRecorder( const ThreadRecorder& other ) 
+:	mPrimaryRecording(other.mPrimaryRecording),
+	mFullRecording(other.mFullRecording)
 {
-	get_thread_trace() = this;
-	mPrimarySampler.makePrimary();
-	mTotalSampler.start();
+	get_thread_recorder() = this;
+	mPrimaryRecording.makePrimary();
+	mFullRecording.start();
 }
 
-ThreadTrace::~ThreadTrace()
+ThreadRecorder::~ThreadRecorder()
 {
-	get_thread_trace() = NULL;
+	get_thread_recorder() = NULL;
 }
 
-//TODO: remove this and use llviewerstats sampler
-Sampler* ThreadTrace::getPrimarySampler()
+//TODO: remove this and use llviewerstats recording
+Recording* ThreadRecorder::getPrimaryRecording()
 {
-	return &mPrimarySampler;
+	return &mPrimaryRecording;
 }
 
-void ThreadTrace::activate( Sampler* sampler )
+void ThreadRecorder::activate( Recording* recorder )
 {
-	for (std::list<Sampler*>::iterator it = mActiveSamplers.begin(), end_it = mActiveSamplers.end();
+	for (std::list<Recording*>::iterator it = mActiveRecordings.begin(), end_it = mActiveRecordings.end();
 		it != end_it;
 		++it)
 	{
-		(*it)->mMeasurements.write()->mergeSamples(*mPrimarySampler.mMeasurements);
+		(*it)->mMeasurements.write()->mergeSamples(*mPrimaryRecording.mMeasurements);
 	}
-	mPrimarySampler.mMeasurements.write()->reset();
+	mPrimaryRecording.mMeasurements.write()->reset();
 
-	sampler->initDeltas(mPrimarySampler);
+	recorder->initDeltas(mPrimaryRecording);
 
-	mActiveSamplers.push_front(sampler);
+	mActiveRecordings.push_front(recorder);
 }
 
 //TODO: consider merging results down the list to one past the buffered item.
 // this would require 2 buffers per sampler, to separate current total from running total
 
-void ThreadTrace::deactivate( Sampler* sampler )
+void ThreadRecorder::deactivate( Recording* recorder )
 {
-	sampler->mergeDeltas(mPrimarySampler);
+	recorder->mergeDeltas(mPrimaryRecording);
 
 	// TODO: replace with intrusive list
-	std::list<Sampler*>::iterator found_it = std::find(mActiveSamplers.begin(), mActiveSamplers.end(), sampler);
-	if (found_it != mActiveSamplers.end())
+	std::list<Recording*>::iterator found_it = std::find(mActiveRecordings.begin(), mActiveRecordings.end(), recorder);
+	if (found_it != mActiveRecordings.end())
 	{
-		mActiveSamplers.erase(found_it);
+		mActiveRecordings.erase(found_it);
 	}
 }
 
 ///////////////////////////////////////////////////////////////////////
-// SlaveThreadTrace
+// SlaveThreadRecorder
 ///////////////////////////////////////////////////////////////////////
 
-SlaveThreadTrace::SlaveThreadTrace()
-:	ThreadTrace(getMasterThreadTrace())
+SlaveThreadRecorder::SlaveThreadRecorder()
+:	ThreadRecorder(getMasterThreadRecorder())
 {
-	getMasterThreadTrace().addSlaveThread(this);
+	getMasterThreadRecorder().addSlaveThread(this);
 }
 
-SlaveThreadTrace::~SlaveThreadTrace()
+SlaveThreadRecorder::~SlaveThreadRecorder()
 {
-	getMasterThreadTrace().removeSlaveThread(this);
+	getMasterThreadRecorder().removeSlaveThread(this);
 }
 
-void SlaveThreadTrace::pushToMaster()
+void SlaveThreadRecorder::pushToMaster()
 {
-	mTotalSampler.stop();
+	mFullRecording.stop();
 	{
-		LLMutexLock(getMasterThreadTrace().getSlaveListMutex());
-		mSharedData.copyFrom(mTotalSampler);
+		LLMutexLock(getMasterThreadRecorder().getSlaveListMutex());
+		mSharedData.copyFrom(mFullRecording);
 	}
-	mTotalSampler.start();
+	mFullRecording.start();
 }
 
-void SlaveThreadTrace::SharedData::copyFrom( const Sampler& source )
+void SlaveThreadRecorder::SharedData::copyFrom( const Recording& source )
 {
-	LLMutexLock lock(&mSamplerMutex);
-	mSampler.mergeSamples(source);
+	LLMutexLock lock(&mRecorderMutex);
+	mRecorder.mergeSamples(source);
 }
 
-void SlaveThreadTrace::SharedData::copyTo( Sampler& sink )
+void SlaveThreadRecorder::SharedData::copyTo( Recording& sink )
 {
-	LLMutexLock lock(&mSamplerMutex);
-	sink.mergeSamples(mSampler);
+	LLMutexLock lock(&mRecorderMutex);
+	sink.mergeSamples(mRecorder);
 }
-
-
-
 
 ///////////////////////////////////////////////////////////////////////
-// MasterThreadTrace
+// MasterThreadRecorder
 ///////////////////////////////////////////////////////////////////////
 
-void MasterThreadTrace::pullFromSlaveThreads()
+void MasterThreadRecorder::pullFromSlaveThreads()
 {
 	LLMutexLock lock(&mSlaveListMutex);
 
-	for (slave_thread_trace_list_t::iterator it = mSlaveThreadTraces.begin(), end_it = mSlaveThreadTraces.end();
+	for (slave_thread_recorder_list_t::iterator it = mSlaveThreadRecorders.begin(), end_it = mSlaveThreadRecorders.end();
 		it != end_it;
 		++it)
 	{
-		(*it)->mSlaveTrace->mSharedData.copyTo((*it)->mSamplerStorage);
+		(*it)->mRecorder->mSharedData.copyTo((*it)->mSlaveRecording);
 	}
 }
 
-void MasterThreadTrace::addSlaveThread( class SlaveThreadTrace* child )
+void MasterThreadRecorder::addSlaveThread( class SlaveThreadRecorder* child )
 {
 	LLMutexLock lock(&mSlaveListMutex);
 
-	mSlaveThreadTraces.push_back(new SlaveThreadTraceProxy(child));
+	mSlaveThreadRecorders.push_back(new SlaveThreadRecorderProxy(child));
 }
 
-void MasterThreadTrace::removeSlaveThread( class SlaveThreadTrace* child )
+void MasterThreadRecorder::removeSlaveThread( class SlaveThreadRecorder* child )
 {
 	LLMutexLock lock(&mSlaveListMutex);
 
-	for (slave_thread_trace_list_t::iterator it = mSlaveThreadTraces.begin(), end_it = mSlaveThreadTraces.end();
+	for (slave_thread_recorder_list_t::iterator it = mSlaveThreadRecorders.begin(), end_it = mSlaveThreadRecorders.end();
 		it != end_it;
 		++it)
 	{
-		if ((*it)->mSlaveTrace == child)
+		if ((*it)->mRecorder == child)
 		{
-			mSlaveThreadTraces.erase(it);
+			mSlaveThreadRecorders.erase(it);
 			break;
 		}
 	}
 }
 
-void MasterThreadTrace::pushToMaster()
+void MasterThreadRecorder::pushToMaster()
 {}
 
-MasterThreadTrace::MasterThreadTrace()
+MasterThreadRecorder::MasterThreadRecorder()
 {}
 
 ///////////////////////////////////////////////////////////////////////
-// MasterThreadTrace::SlaveThreadTraceProxy
+// MasterThreadRecorder::SlaveThreadTraceProxy
 ///////////////////////////////////////////////////////////////////////
 
-MasterThreadTrace::SlaveThreadTraceProxy::SlaveThreadTraceProxy( class SlaveThreadTrace* trace) 
-:	mSlaveTrace(trace)
+MasterThreadRecorder::SlaveThreadRecorderProxy::SlaveThreadRecorderProxy( class SlaveThreadRecorder* recorder) 
+:	mRecorder(recorder)
 {}
 
 }

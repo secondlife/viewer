@@ -1,5 +1,5 @@
 /** 
- * @file lltracesampler.h
+ * @file lltracerecording.h
  * @brief Sampling object for collecting runtime statistics originating from lltrace.
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTRACESAMPLER_H
-#define LL_LLTRACESAMPLER_H
+#ifndef LL_LLTRACERECORDING_H
+#define LL_LLTRACERECORDING_H
 
 #include "stdtypes.h"
 #include "llpreprocessor.h"
@@ -42,12 +42,12 @@ namespace LLTrace
 	template<typename T> class MeasurementAccumulator;
 	class TimerAccumulator;
 
-	class LL_COMMON_API Sampler
+	class LL_COMMON_API Recording
 	{
 	public:
-		Sampler();
+		Recording();
 
-		~Sampler();
+		~Recording();
 
 		void makePrimary();
 		bool isPrimary();
@@ -56,9 +56,9 @@ namespace LLTrace
 		void stop();
 		void resume();
 
-		void mergeSamples(const Sampler& other);
-		void initDeltas(const Sampler& other);
-		void mergeDeltas(const Sampler& other);
+		void mergeSamples(const Recording& other);
+		void initDeltas(const Recording& other);
+		void mergeDeltas(const Recording& other);
 
 		void reset();
 
@@ -76,9 +76,9 @@ namespace LLTrace
 		F64 getSampleTime() { return mElapsedSeconds; }
 
 	private:
-		friend class ThreadTrace;
+		friend class ThreadRecorder;
 		// returns data for current thread
-		class ThreadTrace* getThreadTrace(); 
+		class ThreadRecorder* getThreadRecorder(); 
 
 		LLCopyOnWritePointer<AccumulatorBuffer<RateAccumulator<F32> > >			mRatesStart;
 		LLCopyOnWritePointer<AccumulatorBuffer<RateAccumulator<F32> > >			mRates;
@@ -91,10 +91,10 @@ namespace LLTrace
 		F64				mElapsedSeconds;
 	};
 
-	class LL_COMMON_API PeriodicSampler
+	class LL_COMMON_API PeriodicRecording
 	{
 
 	};
 }
 
-#endif // LL_LLTRACESAMPLER_H
+#endif // LL_LLTRACERECORDING_H

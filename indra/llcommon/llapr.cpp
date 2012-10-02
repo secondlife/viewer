@@ -486,29 +486,6 @@ S32 LLAPRFile::seek(apr_seek_where_t where, S32 offset)
 //
 bool LLThreadLocalPointerBase::sInitialized = false;
 
-LLThreadLocalPointerBase::LLThreadLocalPointerBase()
-:	mThreadKey(NULL)
-{
-	if (sInitialized)
-	{
-		initStorage();
-	}
-}
-
-LLThreadLocalPointerBase::LLThreadLocalPointerBase( const LLThreadLocalPointerBase& other)
-:	mThreadKey(NULL)
-{
-	if (sInitialized)
-	{
-		initStorage();
-	}
-}
-
-LLThreadLocalPointerBase::~LLThreadLocalPointerBase()
-{
-	destroyStorage();
-}
-
 void LLThreadLocalPointerBase::set( void* value )
 {
 	llassert(sInitialized && mThreadKey);

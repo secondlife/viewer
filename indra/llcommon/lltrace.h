@@ -34,7 +34,7 @@
 #include "llmemory.h"
 #include "lltimer.h"
 #include "llrefcount.h"
-#include "lltracesampler.h"
+#include "lltracerecording.h"
 
 #include <list>
 
@@ -45,14 +45,14 @@
 
 namespace LLTrace
 {
-	class Sampler;
+	class Recording;
 
 	void init();
 	void cleanup();
 
-	LLThreadLocalPointer<class ThreadTrace>& get_thread_trace();
+	LLThreadLocalPointer<class ThreadRecorder>& get_thread_recorder();
 
-	class LL_COMMON_API MasterThreadTrace& getMasterThreadTrace();
+	class LL_COMMON_API MasterThreadRecorder& getMasterThreadRecorder();
 
 	// one per thread per type
 	template<typename ACCUMULATOR>
@@ -482,33 +482,33 @@ namespace LLTrace
 		static Recorder::StackEntry sCurRecorder;
 	};
 
-	class LL_COMMON_API ThreadTrace
+	class LL_COMMON_API ThreadRecorder
 	{
 	public:
-		ThreadTrace();
-		ThreadTrace(const ThreadTrace& other);
+		ThreadRecorder();
+		ThreadRecorder(const ThreadRecorder& other);
 
-		virtual ~ThreadTrace();
+		virtual ~ThreadRecorder();
 
-		void activate(Sampler* sampler);
-		void deactivate(Sampler* sampler);
+		void activate(Recording* recording);
+		void deactivate(Recording* recording);
 
 		virtual void pushToMaster() = 0;
 
-		Sampler* getPrimarySampler();
+		Recording* getPrimaryRecording();
 	protected:
-		Sampler					mPrimarySampler;
-		Sampler					mTotalSampler;
-		std::list<Sampler*>		mActiveSamplers;
+		Recording					mPrimaryRecording;
+		Recording					mFullRecording;
+		std::list<Recording*>		mActiveRecordings;
 	};
 
-	class LL_COMMON_API MasterThreadTrace : public ThreadTrace
+	class LL_COMMON_API MasterThreadRecorder : public ThreadRecorder
 	{
 	public:
-		MasterThreadTrace();
+		MasterThreadRecorder();
 
-		void addSlaveThread(class SlaveThreadTrace* child);
-		void removeSlaveThread(class SlaveThreadTrace* child);
+		void addSlaveThread(class SlaveThreadRecorder* child);
+		void removeSlaveThread(class SlaveThreadRecorder* child);
 
 		/*virtual */ void pushToMaster();
 
@@ -518,41 +518,41 @@ namespace LLTrace
 		LLMutex* getSlaveListMutex() { return &mSlaveListMutex; }
 
 	private:
-		struct SlaveThreadTraceProxy
+		struct SlaveThreadRecorderProxy
 		{
-			SlaveThreadTraceProxy(class SlaveThreadTrace* trace);
+			SlaveThreadRecorderProxy(class SlaveThreadRecorder* recorder);
 
-			class SlaveThreadTrace*	mSlaveTrace;
-			Sampler					mSamplerStorage;
+			class SlaveThreadRecorder*	mRecorder;
+			Recording					mSlaveRecording;
 		private:
 			//no need to copy these and then have to duplicate the storage
-			SlaveThreadTraceProxy(const SlaveThreadTraceProxy& other) {}
+			SlaveThreadRecorderProxy(const SlaveThreadRecorderProxy& other) {}
 		};
-		typedef std::list<SlaveThreadTraceProxy*> slave_thread_trace_list_t;
+		typedef std::list<SlaveThreadRecorderProxy*> slave_thread_recorder_list_t;
 
-		slave_thread_trace_list_t		mSlaveThreadTraces;
+		slave_thread_recorder_list_t	mSlaveThreadRecorders;
 		LLMutex							mSlaveListMutex;
 	};
 
-	class LL_COMMON_API SlaveThreadTrace : public ThreadTrace
+	class LL_COMMON_API SlaveThreadRecorder : public ThreadRecorder
 	{
 	public:
-		SlaveThreadTrace();
-		~SlaveThreadTrace();
+		SlaveThreadRecorder();
+		~SlaveThreadRecorder();
 
 		// call this periodically to gather stats data for master thread to consume
 		/*virtual*/ void pushToMaster();
 
-		MasterThreadTrace* 	mMaster;
+		MasterThreadRecorder* 	mMaster;
 
 		class SharedData
 		{
 		public:
-			void copyFrom(const Sampler& source);
-			void copyTo(Sampler& sink);
+			void copyFrom(const Recording& source);
+			void copyTo(Recording& sink);
 		private:
-			LLMutex		mSamplerMutex;
-			Sampler		mSampler;
+			LLMutex		mRecorderMutex;
+			Recording	mRecorder;
 		};
 		SharedData		mSharedData;
 	};
