@@ -346,6 +346,8 @@ public:
 	void dirtyGeom() { setState(GEOM_DIRTY); }
 	void dirtyMesh() { setState(MESH_DIRTY); }
 	element_list& getData() { return mOctreeNode->getData(); }
+	bool hasElement(LLDrawable* drawablep) { return mOctreeNode->getData().find(drawablep) != mOctreeNode->getData().end(); }
+
 	U32 getElementCount() const { return mOctreeNode->getElementCount(); }
 
 	void drawObjectBox(LLColor4 col);
