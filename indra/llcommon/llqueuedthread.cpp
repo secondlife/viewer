@@ -112,7 +112,7 @@ void LLQueuedThread::shutdown()
 // virtual
 S32 LLQueuedThread::update(F32 max_time_ms)
 {
-	LLThread::getTraceData()->pushToMaster();
+	LLTrace::get_thread_trace()->pushToMaster();
 
 	if (!mStarted)
 	{

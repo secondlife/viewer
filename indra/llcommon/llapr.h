@@ -258,12 +258,12 @@ public:
 //*******************************************************************************************************************************
 };
 
-class LLThreadLocalPtrBase : LLInstanceTracker<LLThreadLocalPtrBase>
+class LLThreadLocalPointerBase : LLInstanceTracker<LLThreadLocalPointerBase>
 {
 public:
-	LLThreadLocalPtrBase();
-	LLThreadLocalPtrBase(const LLThreadLocalPtrBase& other);
-	~LLThreadLocalPtrBase();
+	LLThreadLocalPointerBase();
+	LLThreadLocalPointerBase(const LLThreadLocalPointerBase& other);
+	~LLThreadLocalPointerBase();
 
 	static void initAllThreadLocalStorage();
 	static void destroyAllThreadLocalStorage();
@@ -307,35 +307,35 @@ protected:
 };
 
 template <typename T>
-class LLThreadLocalPtr : public LLThreadLocalPtrBase
+class LLThreadLocalPointer : public LLThreadLocalPointerBase
 {
 public:
 
-	LLThreadLocalPtr()
-	:	LLThreadLocalPtrBase()
+	LLThreadLocalPointer()
+	:	LLThreadLocalPointerBase()
 	{}
 
-	explicit LLThreadLocalPtr(T* value)
-		:	LLThreadLocalPtrBase(&cleanup)
+	explicit LLThreadLocalPointer(T* value)
+		:	LLThreadLocalPointerBase(&cleanup)
 	{
 		set(value);
 	}
 
 
-	LLThreadLocalPtr(const LLThreadLocalPtr<T>& other)
-	:	LLThreadLocalPtrBase(other, &cleanup)
+	LLThreadLocalPointer(const LLThreadLocalPointer<T>& other)
+	:	LLThreadLocalPointerBase(other, &cleanup)
 	{
 		set(other.get());		
 	}
 
 	LL_FORCE_INLINE T* get()
 	{
-		return (T*)LLThreadLocalPtrBase::get();
+		return (T*)LLThreadLocalPointerBase::get();
 	}
 
 	const T* get() const
 	{
-		return (const T*)LLThreadLocalPtrBase::get();
+		return (const T*)LLThreadLocalPointerBase::get();
 	}
 
 	T* operator -> ()
@@ -358,7 +358,7 @@ public:
 		return *(T*)get();
 	}
 
-	LLThreadLocalPtr<T>& operator = (T* value)
+	LLThreadLocalPointer<T>& operator = (T* value)
 	{
 		set((void*)value);
 		return *this;

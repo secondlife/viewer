@@ -47,8 +47,7 @@ LLStatBar::LLStatBar(const Params& p)
 	  mMinBar(p.bar_min),
 	  mMaxBar(p.bar_max),
 	  mStatp(LLStat::getInstance(p.stat)),
-	  mFloatStatp(LLTrace::Stat<F32>::getInstance(p.stat)),
-	  mIntStatp(LLTrace::Stat<S32>::getInstance(p.stat)),
+	  mFloatStatp(LLTrace::Rate<F32>::getInstance(p.stat)),
 	  mTickSpacing(p.tick_spacing),
 	  mLabelSpacing(p.label_spacing),
 	  mPrecision(p.precision),
@@ -112,40 +111,23 @@ void LLStatBar::draw()
 	}
 	else if (mFloatStatp)
 	{
-		LLTrace::Sampler* sampler = LLThread::getTraceData()->getPrimarySampler();
+		LLTrace::Sampler* sampler = LLTrace::get_thread_trace()->getPrimarySampler();
 		if (mPerSec)
 		{
 			current = sampler->getSum(*mFloatStatp) / sampler->getSampleTime();
-			min = sampler->getMin(*mFloatStatp) / sampler->getSampleTime();
-			max = sampler->getMax(*mFloatStatp) / sampler->getSampleTime();
-			mean = sampler->getMean(*mFloatStatp) / sampler->getSampleTime();
+			//min = sampler->getMin(*mFloatStatp) / sampler->getSampleTime();
+			//max = sampler->getMax(*mFloatStatp) / sampler->getSampleTime();
+			//mean = sampler->getMean(*mFloatStatp) / sampler->getSampleTime();
 		}
 		else
 		{
 			current = sampler->getSum(*mFloatStatp);
-			min = sampler->getMin(*mFloatStatp);
-			max = sampler->getMax(*mFloatStatp);
-			mean = sampler->getMean(*mFloatStatp);
+			//min = sampler->getMin(*mFloatStatp);
+			//max = sampler->getMax(*mFloatStatp);
+			//mean = sampler->getMean(*mFloatStatp);
 		}
 	}
-	else if (mIntStatp)
-	{
-		LLTrace::Sampler* sampler = LLThread::getTraceData()->getPrimarySampler();
-		if (mPerSec)
-		{
-			current = (F32)sampler->getSum(*mIntStatp) / sampler->getSampleTime();
-			min = (F32)sampler->getMin(*mIntStatp) / sampler->getSampleTime();
-			max = (F32)sampler->getMax(*mIntStatp) / sampler->getSampleTime();
-			mean = (F32)sampler->getMean(*mIntStatp) / sampler->getSampleTime();
-		}
-		else
-		{
-			current = (F32)sampler->getSum(*mIntStatp);
-			min = (F32)sampler->getMin(*mIntStatp);
-			max = (F32)sampler->getMax(*mIntStatp);
-			mean = (F32)sampler->getMean(*mIntStatp);
-		}
-	}
+	
 
 	if ((mUpdatesPerSec == 0.f) || (mUpdateTimer.getElapsedTimeF32() > 1.f/mUpdatesPerSec) || (mValue == 0.f))
 	{

@@ -62,7 +62,7 @@
 #include "llmeshrepository.h" //for LLMeshRepository::sBytesReceived
 
 
-LLTrace::Stat<F32>	STAT_KBIT("kbitstat"),
+LLTrace::Rate<F32>	STAT_KBIT("kbitstat"),
 					STAT_LAYERS_KBIT("layerskbitstat"),
 					STAT_OBJECT_KBIT("objectkbitstat"),
 					STAT_ASSET_KBIT("assetkbitstat"),
@@ -263,8 +263,7 @@ LLViewerStats::LLViewerStats() :
 	mNumNewObjectsStat("numnewobjectsstat"),
 	mNumSizeCulledStat("numsizeculledstat"),
 	mNumVisCulledStat("numvisculledstat"),
-	mLastTimeDiff(0.0),
-	mSampler(LLThread::getTraceData()->createSampler())
+	mLastTimeDiff(0.0)
 {
 	for (S32 i = 0; i < ST_COUNT; i++)
 	{
@@ -467,12 +466,12 @@ void update_statistics()
 
 	stats.mFPSStat.addValue(1);
 	F32 layer_bits = (F32)(gVLManager.getLandBits() + gVLManager.getWindBits() + gVLManager.getCloudBits());
-	STAT_LAYERS_KBIT.sample(layer_bits/1024.f);
+	STAT_LAYERS_KBIT.add(layer_bits/1024.f);
 	//stats.mLayersKBitStat.addValue(layer_bits/1024.f);
-	STAT_OBJECT_KBIT.sample(gObjectBits/1024.f);
+	STAT_OBJECT_KBIT.add(gObjectBits/1024.f);
 	//stats.mObjectKBitStat.addValue(gObjectBits/1024.f);
 	stats.mVFSPendingOperations.addValue(LLVFile::getVFSThread()->getPending());
-	STAT_ASSET_KBIT.sample(gTransferManager.getTransferBitsIn(LLTCT_ASSET)/1024.f);
+	STAT_ASSET_KBIT.add(gTransferManager.getTransferBitsIn(LLTCT_ASSET)/1024.f);
 	//stats.mAssetKBitStat.addValue(gTransferManager.getTransferBitsIn(LLTCT_ASSET)/1024.f);
 	gTransferManager.resetTransferBitsIn(LLTCT_ASSET);
 
@@ -510,7 +509,7 @@ void update_statistics()
 		static LLFrameTimer texture_stats_timer;
 		if (texture_stats_timer.getElapsedTimeF32() >= texture_stats_freq)
 		{
-			STAT_TEXTURE_KBIT.sample(LLViewerTextureList::sTextureBits/1024.f);
+			STAT_TEXTURE_KBIT.add(LLViewerTextureList::sTextureBits/1024.f);
 			//stats.mTextureKBitStat.addValue(LLViewerTextureList::sTextureBits/1024.f);
 			stats.mTexturePacketsStat.addValue(LLViewerTextureList::sTexturePackets);
 			gTotalTextureBytes += LLViewerTextureList::sTextureBits / 8;

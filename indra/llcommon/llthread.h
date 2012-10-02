@@ -32,10 +32,6 @@
 #include "apr_thread_cond.h"
 #include "llmutex.h"
 
-namespace LLTrace
-{
-	class ThreadTrace;
-}
 class LL_COMMON_API LLThread
 {
 private:
@@ -91,9 +87,6 @@ public:
 
 	U32 getID() const { return mID; }
 
-	static LLTrace::ThreadTrace* getTraceData();
-	static void setTraceData(LLTrace::ThreadTrace* data);
-
 private:
 	BOOL				mPaused;
 	
@@ -109,8 +102,6 @@ protected:
 	BOOL				mIsLocalPool;
 	EThreadStatus		mStatus;
 	U32					mID;
-
-	static LLThreadLocalPtr<LLTrace::ThreadTrace> sTraceData;
 
 	//a local apr_pool for APRFile operations in this thread. If it exists, LLAPRFile::sAPRFilePoolp should not be used.
 	//Note: this pool is used by APRFile ONLY, do NOT use it for any other purposes.

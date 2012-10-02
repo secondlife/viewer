@@ -27,7 +27,6 @@
 
 #include "lltrace.h"
 #include "lltracesampler.h"
-#include "llthread.h"
 
 namespace LLTrace
 {
@@ -45,6 +44,12 @@ void cleanup()
 	gMasterThreadTrace = NULL;
 }
 
+LLThreadLocalPointer<ThreadTrace>& get_thread_trace()
+{
+	static LLThreadLocalPointer<ThreadTrace> s_trace_data;
+	return s_trace_data;
+
+}
 
 BlockTimer::Recorder::StackEntry BlockTimer::sCurRecorder;
 
@@ -62,36 +67,52 @@ MasterThreadTrace& getMasterThreadTrace()
 
 ThreadTrace::ThreadTrace()
 {
-	mPrimarySampler = createSampler();
-	mPrimarySampler->makePrimary();
-	mPrimarySampler->start();
+	get_thread_trace() = this;
+	mPrimarySampler.makePrimary();
+	mTotalSampler.start();
 }
 
 ThreadTrace::ThreadTrace( const ThreadTrace& other ) 
-:	mPrimarySampler(new Sampler(*(other.mPrimarySampler)))
+:	mPrimarySampler(other.mPrimarySampler),
+	mTotalSampler(other.mTotalSampler)
 {
-	mPrimarySampler->makePrimary();
+	get_thread_trace() = this;
+	mPrimarySampler.makePrimary();
+	mTotalSampler.start();
 }
 
 ThreadTrace::~ThreadTrace()
 {
-	delete mPrimarySampler;
+	get_thread_trace() = NULL;
 }
 
+//TODO: remove this and use llviewerstats sampler
 Sampler* ThreadTrace::getPrimarySampler()
 {
-	return mPrimarySampler;
+	return &mPrimarySampler;
 }
 
 void ThreadTrace::activate( Sampler* sampler )
 {
-	flushPrimary();
-	mActiveSamplers.push_back(sampler);
+	for (std::list<Sampler*>::iterator it = mActiveSamplers.begin(), end_it = mActiveSamplers.end();
+		it != end_it;
+		++it)
+	{
+		(*it)->mMeasurements.write()->mergeSamples(*mPrimarySampler.mMeasurements);
+	}
+	mPrimarySampler.mMeasurements.write()->reset();
+
+	sampler->initDeltas(mPrimarySampler);
+
+	mActiveSamplers.push_front(sampler);
 }
+
+//TODO: consider merging results down the list to one past the buffered item.
+// this would require 2 buffers per sampler, to separate current total from running total
 
 void ThreadTrace::deactivate( Sampler* sampler )
 {
-	sampler->mergeFrom(mPrimarySampler);
+	sampler->mergeDeltas(mPrimarySampler);
 
 	// TODO: replace with intrusive list
 	std::list<Sampler*>::iterator found_it = std::find(mActiveSamplers.begin(), mActiveSamplers.end(), sampler);
@@ -101,31 +122,12 @@ void ThreadTrace::deactivate( Sampler* sampler )
 	}
 }
 
-void ThreadTrace::flushPrimary()
-{
-	for (std::list<Sampler*>::iterator it = mActiveSamplers.begin(), end_it = mActiveSamplers.end();
-		it != end_it;
-		++it)
-	{
-		(*it)->mergeFrom(mPrimarySampler);
-	}
-	mPrimarySampler->reset();
-}
-
-Sampler* ThreadTrace::createSampler()
-{
-	return new Sampler(this);
-}
-
-
-
 ///////////////////////////////////////////////////////////////////////
 // SlaveThreadTrace
 ///////////////////////////////////////////////////////////////////////
 
 SlaveThreadTrace::SlaveThreadTrace()
-:	ThreadTrace(getMasterThreadTrace()),
-	mSharedData(createSampler())
+:	ThreadTrace(getMasterThreadTrace())
 {
 	getMasterThreadTrace().addSlaveThread(this);
 }
@@ -137,33 +139,25 @@ SlaveThreadTrace::~SlaveThreadTrace()
 
 void SlaveThreadTrace::pushToMaster()
 {
-	mSharedData.copyFrom(mPrimarySampler);
-}
-
-void SlaveThreadTrace::SharedData::copyFrom( Sampler* source )
-{
-	LLMutexLock lock(&mSamplerMutex);
-	{	
-		mSampler->mergeFrom(source);
-	}
-}
-
-void SlaveThreadTrace::SharedData::copyTo( Sampler* sink )
-{
-	LLMutexLock lock(&mSamplerMutex);
+	mTotalSampler.stop();
 	{
-		sink->mergeFrom(mSampler);
+		LLMutexLock(getMasterThreadTrace().getSlaveListMutex());
+		mSharedData.copyFrom(mTotalSampler);
 	}
+	mTotalSampler.start();
 }
 
-SlaveThreadTrace::SharedData::~SharedData()
+void SlaveThreadTrace::SharedData::copyFrom( const Sampler& source )
 {
-	delete mSampler;
+	LLMutexLock lock(&mSamplerMutex);
+	mSampler.mergeSamples(source);
 }
 
-SlaveThreadTrace::SharedData::SharedData( Sampler* sampler ) :	mSampler(sampler)
-{}
-
+void SlaveThreadTrace::SharedData::copyTo( Sampler& sink )
+{
+	LLMutexLock lock(&mSamplerMutex);
+	sink.mergeSamples(mSampler);
+}
 
 
 
@@ -188,7 +182,7 @@ void MasterThreadTrace::addSlaveThread( class SlaveThreadTrace* child )
 {
 	LLMutexLock lock(&mSlaveListMutex);
 
-	mSlaveThreadTraces.push_back(new SlaveThreadTraceProxy(child, createSampler()));
+	mSlaveThreadTraces.push_back(new SlaveThreadTraceProxy(child));
 }
 
 void MasterThreadTrace::removeSlaveThread( class SlaveThreadTrace* child )
@@ -211,22 +205,14 @@ void MasterThreadTrace::pushToMaster()
 {}
 
 MasterThreadTrace::MasterThreadTrace()
-{
-	LLThread::setTraceData(this);
-}
+{}
 
 ///////////////////////////////////////////////////////////////////////
 // MasterThreadTrace::SlaveThreadTraceProxy
 ///////////////////////////////////////////////////////////////////////
 
-MasterThreadTrace::SlaveThreadTraceProxy::SlaveThreadTraceProxy( class SlaveThreadTrace* trace, Sampler* storage ) 
-:	mSlaveTrace(trace),
-	mSamplerStorage(storage)
+MasterThreadTrace::SlaveThreadTraceProxy::SlaveThreadTraceProxy( class SlaveThreadTrace* trace) 
+:	mSlaveTrace(trace)
 {}
-
-MasterThreadTrace::SlaveThreadTraceProxy::~SlaveThreadTraceProxy()
-{
-	delete mSamplerStorage;
-}
 
 }

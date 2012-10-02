@@ -198,7 +198,7 @@ BOOL LLStatusBar::postBuild()
 	sgp.rect(r);
 	sgp.follows.flags(FOLLOWS_BOTTOM | FOLLOWS_RIGHT);
 	sgp.mouse_opaque(false);
-	sgp.stat.f32_stat(&STAT_KBIT);
+	sgp.stat.rate_stat(&STAT_KBIT);
 	sgp.units("Kbps");
 	sgp.precision(0);
 	mSGBandwidth = LLUICtrlFactory::create<LLStatGraph>(sgp);

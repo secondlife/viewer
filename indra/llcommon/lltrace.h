@@ -33,6 +33,8 @@
 #include "llmutex.h"
 #include "llmemory.h"
 #include "lltimer.h"
+#include "llrefcount.h"
+#include "lltracesampler.h"
 
 #include <list>
 
@@ -48,11 +50,13 @@ namespace LLTrace
 	void init();
 	void cleanup();
 
+	LLThreadLocalPointer<class ThreadTrace>& get_thread_trace();
+
 	class LL_COMMON_API MasterThreadTrace& getMasterThreadTrace();
 
 	// one per thread per type
 	template<typename ACCUMULATOR>
-	class LL_COMMON_API AccumulatorBuffer
+	class LL_COMMON_API AccumulatorBuffer : public LLRefCount
 	{
 		static const U32 DEFAULT_ACCUMULATOR_BUFFER_SIZE = 64;
 	private:
@@ -88,13 +92,23 @@ namespace LLTrace
 			return mStorage[index]; 
 		}
 
-		void mergeFrom(const AccumulatorBuffer<ACCUMULATOR>& other)
+		void mergeSamples(const AccumulatorBuffer<ACCUMULATOR>& other)
 		{
 			llassert(mNextStorageSlot == other.mNextStorageSlot);
 
 			for (size_t i = 0; i < mNextStorageSlot; i++)
 			{
-				mStorage[i].mergeFrom(other.mStorage[i]);
+				mStorage[i].mergeSamples(other.mStorage[i]);
+			}
+		}
+
+		void mergeDeltas(const AccumulatorBuffer<ACCUMULATOR>& start, const AccumulatorBuffer<ACCUMULATOR>& finish)
+		{
+			llassert(mNextStorageSlot == start.mNextStorageSlot && mNextStorageSlot == finish.mNextStorageSlot);
+
+			for (size_t i = 0; i < mNextStorageSlot; i++)
+			{
+				mStorage[i].mergeDeltas(start.mStorage[i], finish.mStorage[i]);
 			}
 		}
 
@@ -117,6 +131,11 @@ namespace LLTrace
 		void makePrimary()
 		{
 			sPrimaryStorage = mStorage;
+		}
+
+		bool isPrimary() const
+		{
+			return sPrimaryStorage == mStorage;
 		}
 
 		LL_FORCE_INLINE static ACCUMULATOR* getPrimaryStorage() 
@@ -149,9 +168,9 @@ namespace LLTrace
 		ACCUMULATOR*							mStorage;
 		size_t									mStorageSize;
 		size_t									mNextStorageSlot;
-		static LLThreadLocalPtr<ACCUMULATOR>	sPrimaryStorage;
+		static LLThreadLocalPointer<ACCUMULATOR>	sPrimaryStorage;
 	};
-	template<typename ACCUMULATOR> LLThreadLocalPtr<ACCUMULATOR> AccumulatorBuffer<ACCUMULATOR>::sPrimaryStorage;
+	template<typename ACCUMULATOR> LLThreadLocalPointer<ACCUMULATOR> AccumulatorBuffer<ACCUMULATOR>::sPrimaryStorage;
 
 	template<typename ACCUMULATOR>
 	class LL_COMMON_API TraceType
@@ -168,7 +187,7 @@ namespace LLTrace
 			return AccumulatorBuffer<ACCUMULATOR>::getPrimaryStorage()[mAccumulatorIndex];
 		}
 
-		ACCUMULATOR& getAccumulator(AccumulatorBuffer<ACCUMULATOR>& buffer) { return buffer[mAccumulatorIndex]; }
+		ACCUMULATOR& getAccumulator(AccumulatorBuffer<ACCUMULATOR>* buffer) { return (*buffer)[mAccumulatorIndex]; }
 
 	protected:
 		std::string	mName;
@@ -177,10 +196,10 @@ namespace LLTrace
 
 
 	template<typename T>
-	class LL_COMMON_API StatAccumulator
+	class LL_COMMON_API MeasurementAccumulator
 	{
 	public:
-		StatAccumulator()
+		MeasurementAccumulator()
 		:	mSum(0),
 			mMin(0),
 			mMax(0),
@@ -199,9 +218,12 @@ namespace LLTrace
 			{
 				mMax = value;
 			}
+			F32 old_mean = mMean;
+			mMean += ((F32)value - old_mean) / (F32)mNumSamples;
+			mStandardDeviation += ((F32)value - old_mean) * ((F32)value - mMean);
 		}
 
-		void mergeFrom(const StatAccumulator<T>& other)
+		void mergeSamples(const MeasurementAccumulator<T>& other)
 		{
 			mSum += other.mSum;
 			if (other.mMin < mMin)
@@ -213,6 +235,28 @@ namespace LLTrace
 				mMax = other.mMax;
 			}
 			mNumSamples += other.mNumSamples;
+			F32 weight = (F32)mNumSamples / (F32)(mNumSamples + other.mNumSamples);
+			mMean = mMean * weight + other.mMean * (1.f - weight);
+
+			F32 n_1 = (F32)mNumSamples,
+				n_2 = (F32)other.mNumSamples;
+			F32 m_1 = mMean,
+				m_2 = other.mMean;
+			F32 sd_1 = mStandardDeviation,
+				sd_2 = other.mStandardDeviation;
+			// combine variance (and hence standard deviation) of 2 different sized sample groups using
+			// the following formula: http://www.mrc-bsu.cam.ac.uk/cochrane/handbook/chapter_7/7_7_3_8_combining_groups.htm
+			F32 variance = ((((n_1 - 1.f) * sd_1 * sd_1)
+								+ ((n_2 - 1.f) * sd_2 * sd_2)
+								+ (((n_1 * n_2) / (n_1 + n_2))
+									* ((m_1 * m_1) + (m_2 * m_2) - (2.f * m_1 * m_2))))
+							/ (n_1 + n_2 - 1.f));
+			mStandardDeviation = sqrtf(variance);
+		}
+
+		void mergeDeltas(const MeasurementAccumulator<T>& start, const MeasurementAccumulator<T>& finish)
+		{
+			llerrs << "Delta merge invalid for measurement accumulators" << llendl;
 		}
 
 		void reset()
@@ -226,23 +270,68 @@ namespace LLTrace
 		T	getSum() { return mSum; }
 		T	getMin() { return mMin; }
 		T	getMax() { return mMax; }
-		T	getMean() { return mSum / (T)mNumSamples; }
+		F32	getMean() { return mMean; }
+		F32 getStandardDeviation() { return mStandardDeviation; }
 
 	private:
 		T	mSum,
 			mMin,
 			mMax;
 
+		F32 mMean,
+			mStandardDeviation;
+
+		U32	mNumSamples;
+	};
+
+	template<typename T>
+	class LL_COMMON_API RateAccumulator
+	{
+	public:
+		RateAccumulator()
+		:	mSum(0),
+			mNumSamples(0)
+		{}
+
+		LL_FORCE_INLINE void add(T value)
+		{
+			mNumSamples++;
+			mSum += value;
+		}
+
+		void mergeSamples(const RateAccumulator<T>& other)
+		{
+			mSum += other.mSum;
+			mNumSamples += other.mNumSamples;
+		}
+
+		void mergeDeltas(const RateAccumulator<T>& start, const RateAccumulator<T>& finish)
+		{
+			mSum += finish.mSum - start.mSum;
+			mNumSamples += finish.mNumSamples - start.mNumSamples;
+		}
+
+		void reset()
+		{
+			mNumSamples = 0;
+			mSum = 0;
+		}
+
+		T	getSum() { return mSum; }
+
+	private:
+		T	mSum;
+
 		U32	mNumSamples;
 	};
 
 	template <typename T>
-	class LL_COMMON_API Stat 
-	:	public TraceType<StatAccumulator<T> >, 
-		public LLInstanceTracker<Stat<T>, std::string>
+	class LL_COMMON_API Measurement
+	:	public TraceType<MeasurementAccumulator<T> >, 
+		public LLInstanceTracker<Measurement<T>, std::string>
 	{
 	public:
-		Stat(const std::string& name) 
+		Measurement(const std::string& name) 
 		:	TraceType(name),
 			LLInstanceTracker(name)
 		{}
@@ -253,11 +342,30 @@ namespace LLTrace
 		}
 	};
 
-	struct LL_COMMON_API TimerAccumulator
+	template <typename T>
+	class LL_COMMON_API Rate 
+		:	public TraceType<RateAccumulator<T> >, 
+		public LLInstanceTracker<Rate<T>, std::string>
 	{
+	public:
+		Rate(const std::string& name) 
+			:	TraceType(name),
+			LLInstanceTracker(name)
+		{}
+
+		void add(T value)
+		{
+			getPrimaryAccumulator().add(value);
+		}
+	};
+
+	class LL_COMMON_API TimerAccumulator
+	{
+	public:
 		U32 							mTotalTimeCounter,
 										mChildTimeCounter,
 										mCalls;
+
 		TimerAccumulator*				mParent;		// info for caller timer
 		TimerAccumulator*				mLastCaller;	// used to bootstrap tree construction
 		const class BlockTimer*			mTimer;			// points to block timer associated with this storage
@@ -265,11 +373,18 @@ namespace LLTrace
 		bool							mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame
 		std::vector<TimerAccumulator*>	mChildren;		// currently assumed child timers
 
-		void mergeFrom(const TimerAccumulator& other)
+		void mergeSamples(const TimerAccumulator& other)
 		{
 			mTotalTimeCounter += other.mTotalTimeCounter;
 			mChildTimeCounter += other.mChildTimeCounter;
 			mCalls += other.mCalls;
+		}
+
+		void mergeDeltas(const TimerAccumulator& start, const TimerAccumulator& finish)
+		{
+			mTotalTimeCounter += finish.mTotalTimeCounter - start.mTotalTimeCounter;
+			mChildTimeCounter += finish.mChildTimeCounter - start.mChildTimeCounter;
+			mCalls += finish.mCalls - start.mCalls;
 		}
 
 		void reset()
@@ -377,15 +492,13 @@ namespace LLTrace
 
 		void activate(Sampler* sampler);
 		void deactivate(Sampler* sampler);
-		void flushPrimary();
-
-		Sampler* createSampler();
 
 		virtual void pushToMaster() = 0;
 
 		Sampler* getPrimarySampler();
 	protected:
-		Sampler*				mPrimarySampler;
+		Sampler					mPrimarySampler;
+		Sampler					mTotalSampler;
 		std::list<Sampler*>		mActiveSamplers;
 	};
 
@@ -402,14 +515,15 @@ namespace LLTrace
 		// call this periodically to gather stats data from slave threads
 		void pullFromSlaveThreads();
 
+		LLMutex* getSlaveListMutex() { return &mSlaveListMutex; }
+
 	private:
 		struct SlaveThreadTraceProxy
 		{
-			SlaveThreadTraceProxy(class SlaveThreadTrace* trace, Sampler* storage);
+			SlaveThreadTraceProxy(class SlaveThreadTrace* trace);
 
-			~SlaveThreadTraceProxy();
 			class SlaveThreadTrace*	mSlaveTrace;
-			Sampler*				mSamplerStorage;
+			Sampler					mSamplerStorage;
 		private:
 			//no need to copy these and then have to duplicate the storage
 			SlaveThreadTraceProxy(const SlaveThreadTraceProxy& other) {}
@@ -431,24 +545,16 @@ namespace LLTrace
 
 		MasterThreadTrace* 	mMaster;
 
-		// this data is accessed by other threads, so give it a 64 byte alignment
-		// to avoid false sharing on most x86 processors
-		LL_ALIGNED(64) class SharedData
+		class SharedData
 		{
 		public:
-			explicit 
-			SharedData(Sampler* sampler);
-
-			~SharedData();
-
-			void copyFrom(Sampler* source);
-			void copyTo(Sampler* sink);
+			void copyFrom(const Sampler& source);
+			void copyTo(Sampler& sink);
 		private:
-			// add a cache line's worth of unused space to avoid any potential of false sharing
-			LLMutex					mSamplerMutex;
-			Sampler*				mSampler;
+			LLMutex		mSamplerMutex;
+			Sampler		mSampler;
 		};
-		SharedData					mSharedData;
+		SharedData		mSharedData;
 	};
 }
 

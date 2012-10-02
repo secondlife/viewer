@@ -622,7 +622,7 @@ void LLViewerTextureList::updateImages(F32 max_time)
 	}
 	cleared = FALSE;
 
-	LLTrace::Sampler* sampler = LLThread::getTraceData()->getPrimarySampler();
+	LLTrace::Sampler* sampler = LLTrace::getThreadTrace()->getPrimarySampler();
 
 	LLAppViewer::getTextureFetch()->setTextureBandwidth(sampler->getMean(STAT_TEXTURE_KBIT) / sampler->getSampleTime());
 

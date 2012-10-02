@@ -30,61 +30,70 @@
 #include "stdtypes.h"
 #include "llpreprocessor.h"
 
-#include "lltrace.h"
+#include "llpointer.h"
+#include "lltimer.h"
 
 namespace LLTrace
 {
+	template<typename T> class Rate;
+	template<typename T> class Measurement;
+	template<typename T> class AccumulatorBuffer;
+	template<typename T> class RateAccumulator;
+	template<typename T> class MeasurementAccumulator;
+	class TimerAccumulator;
+
 	class LL_COMMON_API Sampler
 	{
 	public:
+		Sampler();
+
 		~Sampler();
 
 		void makePrimary();
+		bool isPrimary();
 
 		void start();
 		void stop();
 		void resume();
 
-		void mergeFrom(const Sampler* other);
+		void mergeSamples(const Sampler& other);
+		void initDeltas(const Sampler& other);
+		void mergeDeltas(const Sampler& other);
 
 		void reset();
 
 		bool isStarted() { return mIsStarted; }
 
-		F32 getSum(Stat<F32>& stat) { return stat.getAccumulator(mF32Stats).getSum(); }
-		F32 getMin(Stat<F32>& stat) { return stat.getAccumulator(mF32Stats).getMin(); }
-		F32 getMax(Stat<F32>& stat) { return stat.getAccumulator(mF32Stats).getMax(); }
-		F32 getMean(Stat<F32>& stat) { return stat.getAccumulator(mF32Stats).getMean(); }
+		F32 getSum(Rate<F32>& stat);
+		F32 getPerSec(Rate<F32>& stat);
 
-		S32 getSum(Stat<S32>& stat) { return stat.getAccumulator(mS32Stats).getSum(); }
-		S32 getMin(Stat<S32>& stat) { return stat.getAccumulator(mS32Stats).getMin(); }
-		S32 getMax(Stat<S32>& stat) { return stat.getAccumulator(mS32Stats).getMax(); }
-		S32 getMean(Stat<S32>& stat) { return stat.getAccumulator(mS32Stats).getMean(); }
+		F32 getSum(Measurement<F32>& stat);
+		F32 getMin(Measurement<F32>& stat);
+		F32 getMax(Measurement<F32>& stat);
+		F32 getMean(Measurement<F32>& stat);
+		F32 getStandardDeviation(Measurement<F32>& stat);
 
 		F64 getSampleTime() { return mElapsedSeconds; }
 
 	private:
 		friend class ThreadTrace;
-		Sampler(class ThreadTrace* thread_trace);
-
-		// no copy
-		Sampler(const Sampler& other) {}
 		// returns data for current thread
 		class ThreadTrace* getThreadTrace(); 
 
-		//TODO: take snapshot at sampler start so we can simplify updates
-		//AccumulatorBuffer<StatAccumulator<F32> >	mF32StatsStart;
-		//AccumulatorBuffer<StatAccumulator<S32> >	mS32StatsStart;
-		//AccumulatorBuffer<TimerAccumulator>			mStackTimersStart;
+		LLCopyOnWritePointer<AccumulatorBuffer<RateAccumulator<F32> > >			mRatesStart;
+		LLCopyOnWritePointer<AccumulatorBuffer<RateAccumulator<F32> > >			mRates;
+		LLCopyOnWritePointer<AccumulatorBuffer<MeasurementAccumulator<F32> > >	mMeasurements;
+		LLCopyOnWritePointer<AccumulatorBuffer<TimerAccumulator> >				mStackTimersStart;
+		LLCopyOnWritePointer<AccumulatorBuffer<TimerAccumulator> >				mStackTimers;
 
-		AccumulatorBuffer<StatAccumulator<F32> >	mF32Stats;
-		AccumulatorBuffer<StatAccumulator<S32> >	mS32Stats;
-		AccumulatorBuffer<TimerAccumulator>			mStackTimers;
+		bool			mIsStarted;
+		LLTimer			mSamplingTimer;
+		F64				mElapsedSeconds;
+	};
 
-		bool										mIsStarted;
-		LLTimer										mSamplingTimer;
-		F64											mElapsedSeconds;
-		ThreadTrace*								mThreadTrace;
+	class LL_COMMON_API PeriodicSampler
+	{
+
 	};
 }
 

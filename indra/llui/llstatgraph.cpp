@@ -48,8 +48,7 @@ LLStatGraph::LLStatGraph(const Params& p)
 	mPrecision(p.precision),
 	mValue(p.value),
 	mStatp(p.stat.legacy_stat),
-	mF32Statp(p.stat.f32_stat),
-	mS32Statp(p.stat.s32_stat)
+	mF32Statp(p.stat.rate_stat)
 {
 	setToolTip(p.name());
 
@@ -86,7 +85,7 @@ void LLStatGraph::draw()
 	}
 	else if (mF32Statp)
 	{
-		LLTrace::Sampler* sampler = LLThread::getTraceData()->getPrimarySampler();
+		LLTrace::Sampler* sampler = LLTrace::get_thread_trace()->getPrimarySampler();
 
 		if (mPerSec)
 		{
@@ -98,19 +97,7 @@ void LLStatGraph::draw()
 		}
 
 	}
-	else if (mS32Statp)
-	{
-		LLTrace::Sampler* sampler = LLThread::getTraceData()->getPrimarySampler();
 
-		if (mPerSec)
-		{
-			mValue = sampler->getSum(*mS32Statp) / sampler->getSampleTime();
-		}
-		else
-		{
-			mValue = sampler->getSum(*mS32Statp);
-		}
-	}
 	frac = (mValue - mMin) / range;
 	frac = llmax(0.f, frac);
 	frac = llmin(1.f, frac);

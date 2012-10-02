@@ -36,6 +36,7 @@ class LLStat;
 class LLStatBar : public LLView
 {
 public:
+
 	struct Params : public LLInitParam::Block<Params, LLView::Params>
 	{
 		Optional<std::string> label;
@@ -93,8 +94,7 @@ private:
 	BOOL mDisplayMean;			// If true, display mean, if false, display current value
 
 	LLStat* mStatp;
-	LLTrace::Stat<F32>* mFloatStatp;
-	LLTrace::Stat<S32>* mIntStatp;
+	LLTrace::Rate<F32>* mFloatStatp;
 
 	LLFrameTimer mUpdateTimer;
 	LLUIString mLabel;

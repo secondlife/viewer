@@ -55,7 +55,7 @@ void ll_init_apr()
 		LLAPRFile::sAPRFilePoolp = new LLVolatileAPRPool(FALSE);
 	}
 
-	LLThreadLocalPtrBase::initAllThreadLocalStorage();
+	LLThreadLocalPointerBase::initAllThreadLocalStorage();
 }
 
 
@@ -80,7 +80,7 @@ void ll_cleanup_apr()
 		gCallStacksLogMutexp = NULL;
 	}
 
-	LLThreadLocalPtrBase::destroyAllThreadLocalStorage();
+	LLThreadLocalPointerBase::destroyAllThreadLocalStorage();
 
 	if (gAPRPoolp)
 	{
@@ -482,11 +482,11 @@ S32 LLAPRFile::seek(apr_seek_where_t where, S32 offset)
 }
 
 //
-//LLThreadLocalPtrBase
+//LLThreadLocalPointerBase
 //
-bool LLThreadLocalPtrBase::sInitialized = false;
+bool LLThreadLocalPointerBase::sInitialized = false;
 
-LLThreadLocalPtrBase::LLThreadLocalPtrBase()
+LLThreadLocalPointerBase::LLThreadLocalPointerBase()
 :	mThreadKey(NULL)
 {
 	if (sInitialized)
@@ -495,7 +495,7 @@ LLThreadLocalPtrBase::LLThreadLocalPtrBase()
 	}
 }
 
-LLThreadLocalPtrBase::LLThreadLocalPtrBase( const LLThreadLocalPtrBase& other)
+LLThreadLocalPointerBase::LLThreadLocalPointerBase( const LLThreadLocalPointerBase& other)
 :	mThreadKey(NULL)
 {
 	if (sInitialized)
@@ -504,12 +504,12 @@ LLThreadLocalPtrBase::LLThreadLocalPtrBase( const LLThreadLocalPtrBase& other)
 	}
 }
 
-LLThreadLocalPtrBase::~LLThreadLocalPtrBase()
+LLThreadLocalPointerBase::~LLThreadLocalPointerBase()
 {
 	destroyStorage();
 }
 
-void LLThreadLocalPtrBase::set( void* value )
+void LLThreadLocalPointerBase::set( void* value )
 {
 	llassert(sInitialized && mThreadKey);
 
@@ -521,7 +521,7 @@ void LLThreadLocalPtrBase::set( void* value )
 	}
 }
 
-void LLThreadLocalPtrBase::initStorage( )
+void LLThreadLocalPointerBase::initStorage( )
 {
 	apr_status_t result = apr_threadkey_private_create(&mThreadKey, NULL, gAPRPoolp);
 	if (result != APR_SUCCESS)
@@ -531,7 +531,7 @@ void LLThreadLocalPtrBase::initStorage( )
 	}
 }
 
-void LLThreadLocalPtrBase::destroyStorage()
+void LLThreadLocalPointerBase::destroyStorage()
 {
 	if (sInitialized)
 	{
@@ -547,11 +547,11 @@ void LLThreadLocalPtrBase::destroyStorage()
 	}
 }
 
-void LLThreadLocalPtrBase::initAllThreadLocalStorage()
+void LLThreadLocalPointerBase::initAllThreadLocalStorage()
 {
 	if (!sInitialized)
 	{
-		for (LLInstanceTracker<LLThreadLocalPtrBase>::instance_iter it = beginInstances(), end_it = endInstances();
+		for (LLInstanceTracker<LLThreadLocalPointerBase>::instance_iter it = beginInstances(), end_it = endInstances();
 			it != end_it;
 			++it)
 		{
@@ -561,11 +561,11 @@ void LLThreadLocalPtrBase::initAllThreadLocalStorage()
 	}
 }
 
-void LLThreadLocalPtrBase::destroyAllThreadLocalStorage()
+void LLThreadLocalPointerBase::destroyAllThreadLocalStorage()
 {
 	if (sInitialized)
 	{
-		for (LLInstanceTracker<LLThreadLocalPtrBase>::instance_iter it = beginInstances(), end_it = endInstances();
+		for (LLInstanceTracker<LLThreadLocalPointerBase>::instance_iter it = beginInstances(), end_it = endInstances();
 			it != end_it;
 			++it)
 		{

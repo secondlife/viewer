@@ -67,7 +67,6 @@ U32 __thread LLThread::sThreadID = 0;
 #endif
 
 U32 LLThread::sIDIter = 0;
-LLThreadLocalPtr<LLTrace::ThreadTrace> LLThread::sTraceData;
 
 
 LL_COMMON_API void assert_main_thread()
@@ -86,7 +85,7 @@ void *APR_THREAD_FUNC LLThread::staticRun(apr_thread_t *apr_threadp, void *datap
 {
 	LLThread *threadp = (LLThread *)datap;
 
-	setTraceData(new LLTrace::SlaveThreadTrace());
+	LLTrace::ThreadTrace* thread_trace = new LLTrace::SlaveThreadTrace();
 
 #if !LL_DARWIN
 	sThreadIndex = threadp->mID;
@@ -100,8 +99,7 @@ void *APR_THREAD_FUNC LLThread::staticRun(apr_thread_t *apr_threadp, void *datap
 	// We're done with the run function, this thread is done executing now.
 	threadp->mStatus = STOPPED;
 
-	delete sTraceData.get();
-	sTraceData = NULL;
+	delete thread_trace;
 
 	return NULL;
 }
@@ -314,12 +312,3 @@ void LLThread::wakeLocked()
 	}
 }
 
-LLTrace::ThreadTrace* LLThread::getTraceData()
-{
-	return sTraceData.get();
-}
-
-void LLThread::setTraceData( LLTrace::ThreadTrace* data )
-{
-	sTraceData = data;
-}

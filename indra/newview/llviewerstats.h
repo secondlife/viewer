@@ -31,7 +31,7 @@
 #include "lltextureinfo.h"
 #include "lltracesampler.h"
 
-extern LLTrace::Stat<F32>	STAT_KBIT,
+extern LLTrace::Rate<F32>	STAT_KBIT,
 							STAT_LAYERS_KBIT,
 							STAT_OBJECT_KBIT,
 							STAT_ASSET_KBIT,
