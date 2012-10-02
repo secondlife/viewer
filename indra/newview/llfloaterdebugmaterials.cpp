@@ -27,7 +27,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llfloaterstinson.h"
+#include "llfloaterdebugmaterials.h"
 
 #include <string>
 #include <vector>

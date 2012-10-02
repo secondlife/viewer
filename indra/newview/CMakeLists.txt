@@ -191,6 +191,7 @@ set(viewer_SOURCE_FILES
     llfloaterbuyland.cpp
     llfloatercamera.cpp
     llfloatercolorpicker.cpp
+    llfloaterdebugmaterials.cpp
     llfloaterdeleteenvpreset.cpp
     llfloaterdestinations.cpp
     llfloaterdisplayname.cpp
@@ -246,7 +247,6 @@ set(viewer_SOURCE_FILES
     llfloatersnapshot.cpp
     llfloatersounddevices.cpp
     llfloaterspellchecksettings.cpp
-    llfloaterstinson.cpp
     llfloatertelehub.cpp
     llfloatertestinspectors.cpp
     llfloatertestlistview.cpp
@@ -768,6 +768,7 @@ set(viewer_HEADER_FILES
     llfloaterbuyland.h
     llfloatercamera.h
     llfloatercolorpicker.h
+    llfloaterdebugmaterials.h
     llfloaterdeleteenvpreset.h
     llfloaterdestinations.h
     llfloaterdisplayname.h
@@ -823,7 +824,6 @@ set(viewer_HEADER_FILES
     llfloatersnapshot.h
     llfloatersounddevices.h
     llfloaterspellchecksettings.h
-    llfloaterstinson.h
     llfloatertelehub.h
     llfloatertestinspectors.h
     llfloatertestlistview.h
