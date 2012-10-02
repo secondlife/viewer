@@ -28,6 +28,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llconversationmodel.h"
+#include "llimview.h" //For LLIMModel
 
 //
 // Conversation items : common behaviors
@@ -224,13 +225,33 @@ void LLConversationItemSession::buildContextMenu(LLMenuGL& menu, U32 flags)
     else if(this->getType() == CONV_SESSION_GROUP)
     {
         items.push_back(std::string("close_conversation"));
+        addVoiceOptions(items);
         items.push_back(std::string("separator_disconnect_from_voice"));
         items.push_back(std::string("group_profile"));
         items.push_back(std::string("activate_group"));
         items.push_back(std::string("leave_group"));
     }
+    else if(this->getType() == CONV_SESSION_AD_HOC)
+    {
+        items.push_back(std::string("close_conversation"));
+        addVoiceOptions(items);
+    }
 
     hide_context_entries(menu, items, disabled_items);
+}
+
+void LLConversationItemSession::addVoiceOptions(menuentry_vec_t& items)
+{
+    LLVoiceChannel* voice_channel = LLIMModel::getInstance() ? LLIMModel::getInstance()->getVoiceChannel(this->getUUID()) : NULL;
+
+    if(voice_channel != LLVoiceChannel::getCurrentVoiceChannel())
+    {
+        items.push_back(std::string("open_voice_conversation"));
+    }
+    else
+    {
+        items.push_back(std::string("disconnect_from_voice"));
+    }
 }
 
 // The time of activity of a session is the time of the most recent activity, session and participants included

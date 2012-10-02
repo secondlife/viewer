@@ -748,7 +748,7 @@ const LLConversationItem * LLIMFloaterContainer::getCurSelectedViewModelItem()
 }
 
 void LLIMFloaterContainer::doToUsers(const std::string& command, uuid_vec_t selectedIDS)
-{dd
+{
     LLUUID userID;
     userID = selectedIDS.front();
 
@@ -828,6 +828,14 @@ void LLIMFloaterContainer::doToSelectedConversation(const std::string& command)
         {
             LLFloater::onClickClose(conversationFloater);
         }
+        else if("open_voice_conversation" == command)
+        {
+            gIMMgr->startCall(conversationItem->getUUID());
+        }
+        else if("disconnect_from_voice" == command)
+        {
+            gIMMgr->endCall(conversationItem->getUUID());
+        }
         else
         {
             uuid_vec_t selected_uuids;
@@ -843,7 +851,8 @@ void LLIMFloaterContainer::doToSelected(const LLSD& userdata)
     const LLConversationItem * conversationItem = getCurSelectedViewModelItem();
 
     if(conversationItem->getType() == LLConversationItem::CONV_SESSION_1_ON_1 ||
-        conversationItem->getType() == LLConversationItem::CONV_SESSION_GROUP)
+        conversationItem->getType() == LLConversationItem::CONV_SESSION_GROUP ||
+        conversationItem->getType() == LLConversationItem::CONV_SESSION_AD_HOC)
     {
         doToSelectedConversation(command);
     }

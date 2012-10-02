@@ -160,6 +160,7 @@ public:
 	bool isLoaded() { return mIsLoaded; }
 	
     void buildContextMenu(LLMenuGL& menu, U32 flags);
+    void addVoiceOptions(menuentry_vec_t& items);
 	virtual const bool getTime(F64& time) const;
 
 	void dumpDebugData();
