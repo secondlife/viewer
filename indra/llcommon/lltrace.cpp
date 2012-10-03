@@ -66,18 +66,17 @@ MasterThreadRecorder& getMasterThreadRecorder()
 ///////////////////////////////////////////////////////////////////////
 
 ThreadRecorder::ThreadRecorder()
+:	mPrimaryRecording(NULL)
 {
 	get_thread_recorder() = this;
-	mPrimaryRecording.makePrimary();
 	mFullRecording.start();
 }
 
 ThreadRecorder::ThreadRecorder( const ThreadRecorder& other ) 
-:	mPrimaryRecording(other.mPrimaryRecording),
-	mFullRecording(other.mFullRecording)
+:	mFullRecording(other.mFullRecording),
+	mPrimaryRecording(NULL)
 {
 	get_thread_recorder() = this;
-	mPrimaryRecording.makePrimary();
 	mFullRecording.start();
 }
 
@@ -89,37 +88,72 @@ ThreadRecorder::~ThreadRecorder()
 //TODO: remove this and use llviewerstats recording
 Recording* ThreadRecorder::getPrimaryRecording()
 {
-	return &mPrimaryRecording;
+	return mPrimaryRecording;
 }
 
-void ThreadRecorder::activate( Recording* recorder )
+void ThreadRecorder::activate( Recording* recording )
 {
-	for (std::list<Recording*>::iterator it = mActiveRecordings.begin(), end_it = mActiveRecordings.end();
-		it != end_it;
-		++it)
-	{
-		(*it)->mMeasurements.write()->mergeSamples(*mPrimaryRecording.mMeasurements);
-	}
-	mPrimaryRecording.mMeasurements.write()->reset();
-
-	recorder->initDeltas(mPrimaryRecording);
-
-	mActiveRecordings.push_front(recorder);
+	mActiveRecordings.push_front(ActiveRecording(mPrimaryRecording, recording));
+	mActiveRecordings.front().mBaseline.makePrimary();
+	mPrimaryRecording = &mActiveRecordings.front().mBaseline;
 }
 
 //TODO: consider merging results down the list to one past the buffered item.
 // this would require 2 buffers per sampler, to separate current total from running total
 
-void ThreadRecorder::deactivate( Recording* recorder )
+void ThreadRecorder::deactivate( Recording* recording )
 {
-	recorder->mergeDeltas(mPrimaryRecording);
-
-	// TODO: replace with intrusive list
-	std::list<Recording*>::iterator found_it = std::find(mActiveRecordings.begin(), mActiveRecordings.end(), recorder);
-	if (found_it != mActiveRecordings.end())
+	for (std::list<ActiveRecording>::iterator it = mActiveRecordings.begin(), end_it = mActiveRecordings.end();
+		it != end_it;
+		++it)
 	{
-		mActiveRecordings.erase(found_it);
+		std::list<ActiveRecording>::iterator next_it = it;
+		if (++next_it != mActiveRecordings.end())
+		{
+			next_it->mergeMeasurements((*it));
+		}
+
+		it->flushAccumulators(mPrimaryRecording);
+
+		if (it->mTargetRecording == recording)
+		{
+			if (next_it != mActiveRecordings.end())
+			{
+				next_it->mBaseline.makePrimary();
+				mPrimaryRecording = &next_it->mBaseline;
+			}
+			mActiveRecordings.erase(it);
+			break;
+		}
 	}
+}
+
+ThreadRecorder::ActiveRecording::ActiveRecording( Recording* source, Recording* target ) 
+:	mTargetRecording(target)
+{
+	// take snapshots of current values rates and timers
+	if (source)
+	{
+		mBaseline.mRates.write()->copyFrom(*source->mRates);
+		mBaseline.mStackTimers.write()->copyFrom(*source->mStackTimers);
+	}
+}
+
+void ThreadRecorder::ActiveRecording::mergeMeasurements(ThreadRecorder::ActiveRecording& other)
+{
+	mBaseline.mMeasurements.write()->mergeSamples(*other.mBaseline.mMeasurements);
+}
+
+void ThreadRecorder::ActiveRecording::flushAccumulators(Recording* current)
+{
+	// accumulate statistics-like measurements
+	mTargetRecording->mMeasurements.write()->mergeSamples(*mBaseline.mMeasurements);
+	// for rate-like measurements, merge total change since baseline
+	mTargetRecording->mRates.write()->mergeDeltas(*mBaseline.mRates, *current->mRates);
+	mTargetRecording->mStackTimers.write()->mergeDeltas(*mBaseline.mStackTimers, *current->mStackTimers);
+	// reset baselines
+	mBaseline.mRates.write()->copyFrom(*current->mRates);
+	mBaseline.mStackTimers.write()->copyFrom(*current->mStackTimers);
 }
 
 ///////////////////////////////////////////////////////////////////////

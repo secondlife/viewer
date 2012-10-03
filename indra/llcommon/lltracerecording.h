@@ -57,8 +57,7 @@ namespace LLTrace
 		void resume();
 
 		void mergeSamples(const Recording& other);
-		void initDeltas(const Recording& other);
-		void mergeDeltas(const Recording& other);
+		void mergeDeltas(const Recording& baseline, const Recording& target);
 
 		void reset();
 
@@ -80,10 +79,8 @@ namespace LLTrace
 		// returns data for current thread
 		class ThreadRecorder* getThreadRecorder(); 
 
-		LLCopyOnWritePointer<AccumulatorBuffer<RateAccumulator<F32> > >			mRatesStart;
 		LLCopyOnWritePointer<AccumulatorBuffer<RateAccumulator<F32> > >			mRates;
 		LLCopyOnWritePointer<AccumulatorBuffer<MeasurementAccumulator<F32> > >	mMeasurements;
-		LLCopyOnWritePointer<AccumulatorBuffer<TimerAccumulator> >				mStackTimersStart;
 		LLCopyOnWritePointer<AccumulatorBuffer<TimerAccumulator> >				mStackTimers;
 
 		bool			mIsStarted;

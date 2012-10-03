@@ -497,9 +497,19 @@ namespace LLTrace
 
 		Recording* getPrimaryRecording();
 	protected:
-		Recording					mPrimaryRecording;
+		struct ActiveRecording
+		{
+			ActiveRecording(Recording* source, Recording* target);
+
+			Recording*	mTargetRecording;
+			Recording	mBaseline;
+
+			void mergeMeasurements(ActiveRecording& other);
+			void flushAccumulators(Recording* current);
+		};
+		Recording*					mPrimaryRecording;
 		Recording					mFullRecording;
-		std::list<Recording*>		mActiveRecordings;
+		std::list<ActiveRecording>	mActiveRecordings;
 	};
 
 	class LL_COMMON_API MasterThreadRecorder : public ThreadRecorder

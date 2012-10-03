@@ -39,17 +39,13 @@ namespace LLTrace
 Recording::Recording() 
 :	mElapsedSeconds(0),
 	mIsStarted(false),
-	mRatesStart(new AccumulatorBuffer<RateAccumulator<F32> >()),
 	mRates(new AccumulatorBuffer<RateAccumulator<F32> >()),
 	mMeasurements(new AccumulatorBuffer<MeasurementAccumulator<F32> >()),
-	mStackTimers(new AccumulatorBuffer<TimerAccumulator>()),
-	mStackTimersStart(new AccumulatorBuffer<TimerAccumulator>())
-{
-}
+	mStackTimers(new AccumulatorBuffer<TimerAccumulator>())
+{}
 
 Recording::~Recording()
-{
-}
+{}
 
 void Recording::start()
 {
@@ -107,18 +103,10 @@ void Recording::mergeSamples( const Recording& other )
 	mStackTimers.write()->mergeSamples(*other.mStackTimers);
 }
 
-void Recording::initDeltas( const Recording& other )
+void Recording::mergeDeltas(const Recording& baseline, const Recording& target)
 {
-	mRatesStart.write()->copyFrom(*other.mRates);
-	mStackTimersStart.write()->copyFrom(*other.mStackTimers);
-}
-
-
-void Recording::mergeDeltas( const Recording& other )
-{
-	mRates.write()->mergeDeltas(*mRatesStart, *other.mRates);
-	mStackTimers.write()->mergeDeltas(*mStackTimersStart, *other.mStackTimers);
-	mMeasurements.write()->mergeSamples(*other.mMeasurements);
+	mRates.write()->mergeDeltas(*baseline.mRates, *target.mRates);
+	mStackTimers.write()->mergeDeltas(*baseline.mStackTimers, *target.mStackTimers);
 }
 
 
