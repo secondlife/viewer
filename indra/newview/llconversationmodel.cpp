@@ -29,6 +29,7 @@
 
 #include "llevents.h"
 #include "llconversationmodel.h"
+#include "llimview.h" //For LLIMModel
 
 //
 // Conversation items : common behaviors
@@ -93,6 +94,24 @@ void LLConversationItem::previewItem( void )
 
 void LLConversationItem::showProperties(void)
 {
+}
+
+void LLConversationItem::buildParticipantMenuOptions(menuentry_vec_t&   items)
+{
+    items.push_back(std::string("view_profile"));
+    items.push_back(std::string("im"));
+    items.push_back(std::string("offer_teleport"));
+    items.push_back(std::string("voice_call"));
+    items.push_back(std::string("chat_history"));
+    items.push_back(std::string("separator_chat_history"));
+    items.push_back(std::string("add_friend"));
+    items.push_back(std::string("remove_friend"));
+    items.push_back(std::string("invite_to_group"));
+    items.push_back(std::string("separator_invite_to_group"));
+    items.push_back(std::string("map"));
+    items.push_back(std::string("share"));
+    items.push_back(std::string("pay"));
+    items.push_back(std::string("block_unblock"));
 }
 
 //
@@ -204,6 +223,52 @@ void LLConversationItemSession::setDistance(const LLUUID& participant_id, F64 di
 	}
 }
 
+void LLConversationItemSession::buildContextMenu(LLMenuGL& menu, U32 flags)
+{
+    lldebugs << "LLConversationItemParticipant::buildContextMenu()" << llendl;
+    menuentry_vec_t items;
+    menuentry_vec_t disabled_items;
+
+    if(this->getType() == CONV_SESSION_1_ON_1)
+    {
+        items.push_back(std::string("close_conversation"));
+        items.push_back(std::string("separator_disconnect_from_voice"));
+        buildParticipantMenuOptions(items);
+    }
+    else if(this->getType() == CONV_SESSION_GROUP)
+    {
+        items.push_back(std::string("close_conversation"));
+        addVoiceOptions(items);
+        items.push_back(std::string("chat_history"));
+        items.push_back(std::string("separator_chat_history"));
+        items.push_back(std::string("group_profile"));
+        items.push_back(std::string("activate_group"));
+        items.push_back(std::string("leave_group"));
+    }
+    else if(this->getType() == CONV_SESSION_AD_HOC)
+    {
+        items.push_back(std::string("close_conversation"));
+        addVoiceOptions(items);
+        items.push_back(std::string("chat_history"));
+    }
+
+    hide_context_entries(menu, items, disabled_items);
+}
+
+void LLConversationItemSession::addVoiceOptions(menuentry_vec_t& items)
+{
+    LLVoiceChannel* voice_channel = LLIMModel::getInstance() ? LLIMModel::getInstance()->getVoiceChannel(this->getUUID()) : NULL;
+
+    if(voice_channel != LLVoiceChannel::getCurrentVoiceChannel())
+    {
+        items.push_back(std::string("open_voice_conversation"));
+    }
+    else
+    {
+        items.push_back(std::string("disconnect_from_voice"));
+    }
+}
+
 // The time of activity of a session is the time of the most recent activity, session and participants included
 const bool LLConversationItemSession::getTime(F64& time) const
 {
@@ -260,6 +325,15 @@ LLConversationItemParticipant::LLConversationItemParticipant(const LLUUID& uuid,
 	mDistToAgent(-1.0)
 {
 	mConvType = CONV_PARTICIPANT;
+}
+
+void LLConversationItemParticipant::buildContextMenu(LLMenuGL& menu, U32 flags)
+{
+    menuentry_vec_t items;
+    menuentry_vec_t disabled_items;
+
+    buildParticipantMenuOptions(items);
+    hide_context_entries(menu, items, disabled_items);
 }
 
 void LLConversationItemParticipant::onAvatarNameCache(const LLAvatarName& av_name)

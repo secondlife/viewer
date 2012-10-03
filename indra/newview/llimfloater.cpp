@@ -111,23 +111,25 @@ void LLIMFloater::onClickCloseBtn()
 {
 	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(mSessionID);
 
-	if (session == NULL)
+	if (session != NULL)
+	{
+		bool is_call_with_chat = session->isGroupSessionType()
+				|| session->isAdHocSessionType() || session->isP2PSessionType();
+
+		LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(mSessionID);
+
+		if (is_call_with_chat && voice_channel != NULL
+				&& voice_channel->isActive())
+		{
+			LLSD payload;
+			payload["session_id"] = mSessionID;
+			LLNotificationsUtil::add("ConfirmLeaveCall", LLSD(), payload, confirmLeaveCallCallback);
+			return;
+		}
+	}
+	else
 	{
 		llwarns << "Empty session with id: " << (mSessionID.asString()) << llendl;
-		return;
-	}
-
-	bool is_call_with_chat = session->isGroupSessionType()
-			|| session->isAdHocSessionType() || session->isP2PSessionType();
-
-	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(mSessionID);
-
-	if (is_call_with_chat && voice_channel != NULL
-			&& voice_channel->isActive())
-	{
-		LLSD payload;
-		payload["session_id"] = mSessionID;
-		LLNotificationsUtil::add("ConfirmLeaveCall", LLSD(), payload, confirmLeaveCallCallback);
 		return;
 	}
 

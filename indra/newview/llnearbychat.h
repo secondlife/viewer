@@ -48,6 +48,8 @@ public:
 	LLNearbyChat(const LLSD& key = LLSD(LLUUID()));
 	~LLNearbyChat() {}
 
+	static LLNearbyChat* buildFloater(const LLSD& key);
+
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 
@@ -75,6 +77,8 @@ public:
 
 	static void startChat(const char* line);
 	static void stopChat();
+
+	bool isHostSet();
 
 	static void sendChatFromViewer(const std::string &utf8text, EChatType type, BOOL animate);
 	static void sendChatFromViewer(const LLWString &wtext, EChatType type, BOOL animate);
@@ -117,6 +121,7 @@ private:
 	LLHandle<LLView>	mPopupMenuHandle;
 	std::vector<LLChat> mMessageArchive;
 
+    bool mIsHostSet;
 };
 
 #endif

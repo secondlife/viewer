@@ -67,10 +67,10 @@ public:
 	/*virtual*/ void tabClose();
 
 	static LLFloater* getCurrentVoiceFloater();
-
 	static LLIMFloaterContainer* findInstance();
-
 	static LLIMFloaterContainer* getInstance();
+
+	static void onCurrentChannelChanged(const LLUUID& session_id);
 
 	virtual void setMinimized(BOOL b);
 
@@ -111,6 +111,16 @@ private:
 	void setSortOrderSessions(const LLConversationFilter::ESortOrderType order);
 	void setSortOrderParticipants(const LLConversationFilter::ESortOrderType order);
 	void setSortOrder(const LLConversationSort& order);
+
+    void getSelectedUUIDs(uuid_vec_t& selected_uuids);
+    const LLConversationItem * getCurSelectedViewModelItem();
+    void doToSelected(const LLSD& userdata);
+    void doToSelectedConversation(const std::string& command);
+    void doToSelectedParticipant(const std::string& command);
+    void doToUsers(const std::string& command, uuid_vec_t selectedIDS);
+    void doToSelectedGroup(const LLSD& userdata);
+    bool checkContextMenuItem(const LLSD& userdata);
+    bool enableContextMenuItem(const LLSD& userdata);
 
 	LLButton* mExpandCollapseBtn;
 	LLLayoutPanel* mMessagesPane;

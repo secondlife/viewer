@@ -487,6 +487,7 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg,
 	if(chat_msg.mText.empty())
 		return;//don't process empty messages
 
+    LLFloaterReg::getInstance("im_container");
 	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat");
 
 	// Build notification data 

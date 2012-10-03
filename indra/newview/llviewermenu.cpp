@@ -3466,7 +3466,8 @@ class LLTogglePanelPeopleTab : public view_listener_t
 
 		if (   panel_name == "friends_panel"
 			|| panel_name == "groups_panel"
-			|| panel_name == "nearby_panel")
+			|| panel_name == "nearby_panel"
+			|| panel_name == "blocked_panel")
 		{
 			return togglePeoplePanel(panel_name, param);
 		}
@@ -5490,16 +5491,6 @@ void toggle_debug_menus(void*)
 // 	gExportDialog = LLUploadDialog::modalUploadDialog("Exporting selected objects...");
 // }
 //
-
-class LLCommunicateBlockList : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLFloaterSidePanelContainer::showPanel("people", "panel_block_list_sidetray", LLSD());
-		return true;
-	}
-};
-
 class LLWorldSetHomeLocation : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -8289,9 +8280,6 @@ void initialize_menus()
 
 	// Me > Movement
 	view_listener_t::addMenu(new LLAdvancedAgentFlyingInfo(), "Agent.getFlying");
-	
-	// Communicate
-	view_listener_t::addMenu(new LLCommunicateBlockList(), "Communicate.BlockList");
 	
 	// World menu
 	view_listener_t::addMenu(new LLWorldAlwaysRun(), "World.AlwaysRun");

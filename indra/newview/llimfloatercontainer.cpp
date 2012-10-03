@@ -39,6 +39,7 @@
 #include "llavatariconctrl.h"
 #include "llavatarnamecache.h"
 #include "llcallbacklist.h"
+#include "llgroupactions.h"
 #include "llgroupiconctrl.h"
 #include "llfloateravatarpicker.h"
 #include "llfloaterpreference.h"
@@ -60,8 +61,14 @@ LLIMFloaterContainer::LLIMFloaterContainer(const LLSD& seed)
 	mStream("ConversationsEvents"),
 	mInitialized(false)
 {
+    mEnableCallbackRegistrar.add("IMFloaterContainer.Check", boost::bind(&LLIMFloaterContainer::isActionChecked, this, _2));
 	mCommitCallbackRegistrar.add("IMFloaterContainer.Action", boost::bind(&LLIMFloaterContainer::onCustomAction,  this, _2));
-	mEnableCallbackRegistrar.add("IMFloaterContainer.Check", boost::bind(&LLIMFloaterContainer::isActionChecked, this, _2));
+	
+    mEnableCallbackRegistrar.add("Avatar.CheckItem",  boost::bind(&LLIMFloaterContainer::checkContextMenuItem,	this, _2));
+    mEnableCallbackRegistrar.add("Avatar.EnableItem", boost::bind(&LLIMFloaterContainer::enableContextMenuItem,	this, _2));
+    mCommitCallbackRegistrar.add("Avatar.DoToSelected", boost::bind(&LLIMFloaterContainer::doToSelected, this, _2));
+    
+    mCommitCallbackRegistrar.add("Group.DoToSelected", boost::bind(&LLIMFloaterContainer::doToSelectedGroup, this, _2));
 
 	// Firstly add our self to IMSession observers, so we catch session events
     LLIMMgr::getInstance()->addSessionObserver(this);
@@ -109,6 +116,16 @@ void LLIMFloaterContainer::sessionRemoved(const LLUUID& session_id)
 	removeConversationListItem(session_id);
 }
 
+// static
+void LLIMFloaterContainer::onCurrentChannelChanged(const LLUUID& session_id)
+{
+    if (session_id != LLUUID::null)
+    {
+    	LLIMFloater::show(session_id);
+    }
+}
+
+
 BOOL LLIMFloaterContainer::postBuild()
 {
 	mNewMessageConnection = LLIMModel::instance().mNewMsgSignal.connect(boost::bind(&LLIMFloaterContainer::onNewMessageReceived, this, _1));
@@ -136,7 +153,9 @@ BOOL LLIMFloaterContainer::postBuild()
     p.view_model = &mConversationViewModel;
     p.root = NULL;
     p.use_ellipses = true;
+    p.options_menu = "menu_conversation.xml";
 	mConversationsRoot = LLUICtrlFactory::create<LLFolderView>(p);
+    mConversationsRoot->setCallbackRegistrar(&mCommitCallbackRegistrar);
 
 	// Add listener to conversation model events
 	mStream.listen("ConversationsRefresh", boost::bind(&LLIMFloaterContainer::onConversationModelEvent, this, _1));
@@ -494,19 +513,24 @@ void LLIMFloaterContainer::tabClose()
 }
 
 void LLIMFloaterContainer::setVisible(BOOL visible)
-{
+{	LLNearbyChat* nearby_chat;
 	if (visible)
 	{
 		// Make sure we have the Nearby Chat present when showing the conversation container
-		LLIMConversation* nearby_chat = LLFloaterReg::findTypedInstance<LLIMConversation>("nearby_chat");
+		nearby_chat = LLFloaterReg::findTypedInstance<LLNearbyChat>("nearby_chat");
 		if (nearby_chat == NULL)
 		{
 			// If not found, force the creation of the nearby chat conversation panel
 			// *TODO: find a way to move this to XML as a default panel or something like that
 			LLSD name("nearby_chat");
 			LLFloaterReg::toggleInstanceOrBringToFront(name);
-			LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat")->addToHost();
 		}
+	}
+
+	nearby_chat = LLFloaterReg::findTypedInstance<LLNearbyChat>("nearby_chat");
+	if (nearby_chat && !nearby_chat->isHostSet())
+	{
+		nearby_chat->addToHost();
 	}
 
 	// We need to show/hide all the associated conversations that have been torn off
@@ -587,7 +611,7 @@ void LLIMFloaterContainer::collapseConversationsPane(bool collapse)
 		    {
 		    	widget->setOpen(false);
 		    }
-		}
+}
 	}
 }
 
@@ -749,6 +773,274 @@ void LLIMFloaterContainer::setSortOrder(const LLConversationSort& order)
 	// try to keep selection onscreen, even if it wasn't to start with
 	mConversationsRoot->scrollToShowSelection();
 	gSavedSettings.setU32("ConversationSortOrder", (U32)order);
+}
+
+void LLIMFloaterContainer::getSelectedUUIDs(uuid_vec_t& selected_uuids)
+{
+    const std::set<LLFolderViewItem*> selectedItems = mConversationsRoot->getSelectionList();
+
+    std::set<LLFolderViewItem*>::const_iterator it = selectedItems.begin();
+    const std::set<LLFolderViewItem*>::const_iterator it_end = selectedItems.end();
+    LLConversationItem * conversationItem;
+
+    for (; it != it_end; ++it)
+    {
+        conversationItem = static_cast<LLConversationItem *>((*it)->getViewModelItem());
+        selected_uuids.push_back(conversationItem->getUUID());
+    }
+}
+
+const LLConversationItem * LLIMFloaterContainer::getCurSelectedViewModelItem()
+{
+    LLConversationItem * conversationItem = NULL;
+
+    if(mConversationsRoot && 
+        mConversationsRoot->getCurSelectedItem() && 
+        mConversationsRoot->getCurSelectedItem()->getViewModelItem())
+    {
+        conversationItem = static_cast<LLConversationItem *>(mConversationsRoot->getCurSelectedItem()->getViewModelItem());
+    }
+
+    return conversationItem;
+}
+
+void LLIMFloaterContainer::doToUsers(const std::string& command, uuid_vec_t selectedIDS)
+{
+    LLUUID userID;
+    userID = selectedIDS.front();
+
+    if ("view_profile" == command)
+    {
+        LLAvatarActions::showProfile(userID);
+    }
+    else if("im" == command)
+    {
+        LLAvatarActions::startIM(userID);
+    }
+    else if("offer_teleport" == command)
+    {
+        LLAvatarActions::offerTeleport(selectedIDS);
+    }
+    else if("voice_call" == command)
+    {
+        LLAvatarActions::startCall(userID);
+    }
+    else if("chat_history" == command)
+    {
+        LLAvatarActions::viewChatHistory(userID);
+    }
+    else if("add_friend" == command)
+    {
+        LLAvatarActions::requestFriendshipDialog(userID);
+    }
+    else if("remove_friend" == command)
+    {
+        LLAvatarActions::removeFriendDialog(userID);
+    }
+    else if("invite_to_group" == command)
+    {
+        LLAvatarActions::inviteToGroup(userID);
+    }
+    else if("map" == command)
+    {
+        LLAvatarActions::showOnMap(userID);
+    }
+    else if("share" == command)
+    {
+        LLAvatarActions::share(userID);
+    }
+    else if("pay" == command)
+    {
+        LLAvatarActions::pay(userID);
+    }
+    else if("block_unblock" == command)
+    {
+        LLAvatarActions::toggleBlock(userID);
+    }
+}
+
+void LLIMFloaterContainer::doToSelectedParticipant(const std::string& command)
+{
+    uuid_vec_t selected_uuids;
+    getSelectedUUIDs(selected_uuids);
+   
+    doToUsers(command, selected_uuids);
+}
+
+void LLIMFloaterContainer::doToSelectedConversation(const std::string& command)
+{
+    LLUUID participantID;
+
+    //Find the conversation floater associated with the selected id
+    const LLConversationItem * conversationItem = getCurSelectedViewModelItem();
+    LLIMFloater *conversationFloater = LLIMFloater::findInstance(conversationItem->getUUID());
+
+    if(conversationFloater)
+    {
+        //When a one-on-one conversation exists, retrieve the participant id from the conversation floater b/c
+        //selected_uuids.front() does not pertain to the UUID of the person you are having the conversation with.
+        if(conversationItem->getType() == LLConversationItem::CONV_SESSION_1_ON_1)
+        {
+            participantID = conversationFloater->getOtherParticipantUUID();
+        }
+
+        //Close the selected conversation
+        if("close_conversation" == command)
+        {
+            LLFloater::onClickClose(conversationFloater);
+        }
+        else if("open_voice_conversation" == command)
+        {
+            gIMMgr->startCall(conversationItem->getUUID());
+        }
+        else if("disconnect_from_voice" == command)
+        {
+            gIMMgr->endCall(conversationItem->getUUID());
+        }
+        else if("chat_history" == command)
+        {
+            LLAvatarActions::viewChatHistory(conversationItem->getUUID());
+        }
+        else
+        {
+            uuid_vec_t selected_uuids;
+            selected_uuids.push_back(participantID);
+            doToUsers(command, selected_uuids);
+        }
+    }
+}
+
+void LLIMFloaterContainer::doToSelected(const LLSD& userdata)
+{
+    std::string command = userdata.asString();
+    const LLConversationItem * conversationItem = getCurSelectedViewModelItem();
+
+    if(conversationItem->getType() == LLConversationItem::CONV_SESSION_1_ON_1 ||
+        conversationItem->getType() == LLConversationItem::CONV_SESSION_GROUP ||
+        conversationItem->getType() == LLConversationItem::CONV_SESSION_AD_HOC)
+    {
+        doToSelectedConversation(command);
+    }
+    else
+    {
+        doToSelectedParticipant(command);
+    }
+}
+
+void LLIMFloaterContainer::doToSelectedGroup(const LLSD& userdata)
+{
+    std::string action = userdata.asString();
+    LLUUID selected_group = getCurSelectedViewModelItem()->getUUID();
+
+    if (action == "group_profile")
+    {
+        LLGroupActions::show(selected_group);
+    }
+    else if (action == "activate_group")
+    {
+        LLGroupActions::activate(selected_group);
+    }
+    else if (action == "leave_group")
+    {
+        LLGroupActions::leave(selected_group);
+    }
+}
+
+bool LLIMFloaterContainer::enableContextMenuItem(const LLSD& userdata)
+{
+    std::string item = userdata.asString();
+    uuid_vec_t mUUIDs;
+    getSelectedUUIDs(mUUIDs);
+
+    // Note: can_block and can_delete is used only for one person selected menu
+    // so we don't need to go over all uuids.
+
+    if (item == std::string("can_block"))
+    {
+        const LLUUID& id = mUUIDs.front();
+        return LLAvatarActions::canBlock(id);
+    }
+    else if (item == std::string("can_add"))
+    {
+        // We can add friends if:
+        // - there are selected people
+        // - and there are no friends among selection yet.
+
+        //EXT-7389 - disable for more than 1
+        if(mUUIDs.size() > 1)
+        {
+            return false;
+        }
+
+        bool result = (mUUIDs.size() > 0);
+
+        uuid_vec_t::const_iterator
+            id = mUUIDs.begin(),
+            uuids_end = mUUIDs.end();
+
+        for (;id != uuids_end; ++id)
+        {
+            if ( LLAvatarActions::isFriend(*id) )
+            {
+                result = false;
+                break;
+            }
+        }
+
+        return result;
+    }
+    else if (item == std::string("can_delete"))
+    {
+        // We can remove friends if:
+        // - there are selected people
+        // - and there are only friends among selection.
+
+        bool result = (mUUIDs.size() > 0);
+
+        uuid_vec_t::const_iterator
+            id = mUUIDs.begin(),
+            uuids_end = mUUIDs.end();
+
+        for (;id != uuids_end; ++id)
+        {
+            if ( !LLAvatarActions::isFriend(*id) )
+            {
+                result = false;
+                break;
+            }
+        }
+
+        return result;
+    }
+    else if (item == std::string("can_call"))
+    {
+        return LLAvatarActions::canCall();
+    }
+    else if (item == std::string("can_show_on_map"))
+    {
+        const LLUUID& id = mUUIDs.front();
+
+        return (LLAvatarTracker::instance().isBuddyOnline(id) && is_agent_mappable(id))
+            || gAgent.isGodlike();
+    }
+    else if(item == std::string("can_offer_teleport"))
+    {
+        return LLAvatarActions::canOfferTeleport(mUUIDs);
+    }
+    return false;
+}
+
+bool LLIMFloaterContainer::checkContextMenuItem(const LLSD& userdata)
+{
+    std::string item = userdata.asString();
+    const LLUUID& id = getCurSelectedViewModelItem()->getUUID();
+
+    if (item == std::string("is_blocked"))
+    {
+        return LLAvatarActions::isBlocked(id);
+    }
+
+    return false;
 }
 
 void LLIMFloaterContainer::setConvItemSelect(const LLUUID& session_id)

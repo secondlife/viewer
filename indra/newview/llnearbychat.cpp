@@ -91,7 +91,8 @@ LLNearbyChat::LLNearbyChat(const LLSD& llsd)
 :	LLIMConversation(llsd),
 	//mOutputMonitor(NULL),
 	mSpeakerMgr(NULL),
-	mExpandedHeight(COLLAPSED_HEIGHT + EXPANDED_HEIGHT)
+	mExpandedHeight(COLLAPSED_HEIGHT + EXPANDED_HEIGHT),
+	mIsHostSet(false)
 {
     mIsP2PChat = false;
 	mIsNearbyChat = true;
@@ -100,6 +101,12 @@ LLNearbyChat::LLNearbyChat(const LLSD& llsd)
 	mSessionID = LLUUID();
 }
 
+//static
+LLNearbyChat* LLNearbyChat::buildFloater(const LLSD& key)
+{
+    LLFloaterReg::getInstance("im_container");
+    return new LLNearbyChat(key);
+}
 
 //virtual
 BOOL LLNearbyChat::postBuild()
@@ -304,7 +311,14 @@ void LLNearbyChat::addToHost()
 				setHost(NULL);
 			}
 		}
+
+		mIsHostSet = true;
 	}
+}
+
+bool LLNearbyChat::isHostSet()
+{
+    return mIsHostSet;
 }
 
 // virtual

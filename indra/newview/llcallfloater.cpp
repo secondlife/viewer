@@ -364,7 +364,8 @@ void LLCallFloater::onAvatarListRefreshed()
 }
 
 // static
-void LLCallFloater::sOnCurrentChannelChanged(const LLUUID& /*session_id*/)
+// This entry point now disable, but left for later use.
+void LLCallFloater::onCurrentChannelChanged(const LLUUID& /*session_id*/)
 {
 	LLVoiceChannel* channel = LLVoiceChannel::getCurrentVoiceChannel();
 

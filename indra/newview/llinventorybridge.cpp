@@ -1531,6 +1531,15 @@ LLUIImagePtr LLItemBridge::getIcon() const
 	return LLInventoryIcon::getIcon(LLInventoryIcon::ICONNAME_OBJECT);
 }
 
+LLUIImagePtr LLItemBridge::getIconOverlay() const
+{
+	if (getItem() && getItem()->getIsLinkType())
+	{
+		return LLUI::getUIImage("Inv_Link");
+	}
+	return NULL;
+}
+
 PermissionMask LLItemBridge::getPermissionMask() const
 {
 	LLViewerInventoryItem* item = getItem();

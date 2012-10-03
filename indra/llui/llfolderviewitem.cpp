@@ -537,7 +537,7 @@ BOOL LLFolderViewItem::handleHover( S32 x, S32 y, MASK mask )
 		if( (x - mDragStartX) * (x - mDragStartX) + (y - mDragStartY) * (y - mDragStartY) > drag_and_drop_threshold() * drag_and_drop_threshold() 
 			&& root->getCurSelectedItem()
 			&& root->startDrag())
-			{
+		{
 					// RN: when starting drag and drop, clear out last auto-open
 					root->autoOpenTest(NULL);
 					root->setShowSelectionContext(TRUE);
@@ -548,13 +548,13 @@ BOOL LLFolderViewItem::handleHover( S32 x, S32 y, MASK mask )
 					gFocusMgr.setKeyboardFocus(NULL);
 
 			getWindow()->setCursor(UI_CURSOR_ARROW);
-			return TRUE;
-				}
-		else
+		}
+		else if (x != mDragStartX || y != mDragStartY)
 		{
 			getWindow()->setCursor(UI_CURSOR_NOLOCKED);
-			return TRUE;
 		}
+
+		return TRUE;
 	}
 	else
 	{
