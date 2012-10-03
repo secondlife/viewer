@@ -234,7 +234,7 @@ protected:
 public:
 	LLThreadSafeRefCount();
 	LLThreadSafeRefCount(const LLThreadSafeRefCount&);
-	LLThreadSafeRefCount&operator=(const LLThreadSafeRefCount& ref) 
+	LLThreadSafeRefCount& operator=(const LLThreadSafeRefCount& ref) 
 	{
 		if (sMutex)
 		{
@@ -245,6 +245,7 @@ public:
 		{
 			sMutex->unlock();
 		}
+		return *this;
 	}
 
 
