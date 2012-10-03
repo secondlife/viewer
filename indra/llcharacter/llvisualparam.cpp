@@ -250,6 +250,7 @@ void LLVisualParam::setAnimationTarget(F32 target_value, BOOL upload_bake)
 	if (mIsDummy)
 	{
 		setWeight(target_value, upload_bake);
+		mTargetWeight = mCurWeight;
 		return;
 	}
 
