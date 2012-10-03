@@ -764,10 +764,29 @@ const LLConversationItem * LLIMFloaterContainer::getCurSelectedViewModelItem()
     return conversationItem;
 }
 
-void LLIMFloaterContainer::doToUsers(const std::string& command, uuid_vec_t selectedIDS)
+void LLIMFloaterContainer::getParticipantUUIDs(uuid_vec_t& selected_uuids)
 {
-    LLUUID userID;
-    userID = selectedIDS.front();
+    //Find the conversation floater associated with the selected id
+    const LLConversationItem * conversationItem = getCurSelectedViewModelItem();
+
+    if(conversationItem->getType() == LLConversationItem::CONV_PARTICIPANT)
+    {
+        getSelectedUUIDs(selected_uuids);
+    }
+    //When a one-on-one conversation exists, retrieve the participant id from the conversation floater
+    else if(conversationItem->getType() == LLConversationItem::CONV_SESSION_1_ON_1)
+    {
+        LLIMFloater *conversationFloater = LLIMFloater::findInstance(conversationItem->getUUID());
+        LLUUID participantID = conversationFloater->getOtherParticipantUUID();
+        selected_uuids.push_back(participantID);
+    }    
+}
+
+void LLIMFloaterContainer::doToParticipants(const std::string& command, uuid_vec_t& selectedIDS)
+{
+    if(selectedIDS.size() > 0)
+{
+        const LLUUID userID = selectedIDS.front();
 
     if ("view_profile" == command)
     {
@@ -818,32 +837,16 @@ void LLIMFloaterContainer::doToUsers(const std::string& command, uuid_vec_t sele
         LLAvatarActions::toggleBlock(userID);
     }
 }
-
-void LLIMFloaterContainer::doToSelectedParticipant(const std::string& command)
-{
-    uuid_vec_t selected_uuids;
-    getSelectedUUIDs(selected_uuids);
-   
-    doToUsers(command, selected_uuids);
 }
 
-void LLIMFloaterContainer::doToSelectedConversation(const std::string& command)
+void LLIMFloaterContainer::doToSelectedConversation(const std::string& command, uuid_vec_t& selectedIDS)
 {
-    LLUUID participantID;
-
     //Find the conversation floater associated with the selected id
     const LLConversationItem * conversationItem = getCurSelectedViewModelItem();
     LLIMFloater *conversationFloater = LLIMFloater::findInstance(conversationItem->getUUID());
 
     if(conversationFloater)
     {
-        //When a one-on-one conversation exists, retrieve the participant id from the conversation floater b/c
-        //selected_uuids.front() does not pertain to the UUID of the person you are having the conversation with.
-        if(conversationItem->getType() == LLConversationItem::CONV_SESSION_1_ON_1)
-        {
-            participantID = conversationFloater->getOtherParticipantUUID();
-        }
-
         //Close the selected conversation
         if("close_conversation" == command)
         {
@@ -863,9 +866,7 @@ void LLIMFloaterContainer::doToSelectedConversation(const std::string& command)
         }
         else
         {
-            uuid_vec_t selected_uuids;
-            selected_uuids.push_back(participantID);
-            doToUsers(command, selected_uuids);
+            doToParticipants(command, selectedIDS);
         }
     }
 }
@@ -874,16 +875,17 @@ void LLIMFloaterContainer::doToSelected(const LLSD& userdata)
 {
     std::string command = userdata.asString();
     const LLConversationItem * conversationItem = getCurSelectedViewModelItem();
+    uuid_vec_t selected_uuids;
 
-    if(conversationItem->getType() == LLConversationItem::CONV_SESSION_1_ON_1 ||
-        conversationItem->getType() == LLConversationItem::CONV_SESSION_GROUP ||
-        conversationItem->getType() == LLConversationItem::CONV_SESSION_AD_HOC)
+    getParticipantUUIDs(selected_uuids);
+
+    if(conversationItem->getType() == LLConversationItem::CONV_PARTICIPANT)
     {
-        doToSelectedConversation(command);
+        doToParticipants(command, selected_uuids);
     }
     else
     {
-        doToSelectedParticipant(command);
+        doToSelectedConversation(command, selected_uuids);
     }
 }
 
@@ -910,7 +912,12 @@ bool LLIMFloaterContainer::enableContextMenuItem(const LLSD& userdata)
 {
     std::string item = userdata.asString();
     uuid_vec_t mUUIDs;
-    getSelectedUUIDs(mUUIDs);
+    getParticipantUUIDs(mUUIDs);
+
+    if(mUUIDs.size() <= 0)
+    {
+        return false;
+    }
 
     // Note: can_block and can_delete is used only for one person selected menu
     // so we don't need to go over all uuids.
@@ -932,7 +939,7 @@ bool LLIMFloaterContainer::enableContextMenuItem(const LLSD& userdata)
             return false;
         }
 
-        bool result = (mUUIDs.size() > 0);
+        bool result = true;
 
         uuid_vec_t::const_iterator
             id = mUUIDs.begin(),
@@ -993,11 +1000,15 @@ bool LLIMFloaterContainer::enableContextMenuItem(const LLSD& userdata)
 bool LLIMFloaterContainer::checkContextMenuItem(const LLSD& userdata)
 {
     std::string item = userdata.asString();
-    const LLUUID& id = getCurSelectedViewModelItem()->getUUID();
+    uuid_vec_t mUUIDs;
+    getParticipantUUIDs(mUUIDs);
 
+    if(mUUIDs.size() > 0 )
+    {
     if (item == std::string("is_blocked"))
     {
-        return LLAvatarActions::isBlocked(id);
+            return LLAvatarActions::isBlocked(mUUIDs.front());
+        }
     }
 
     return false;
