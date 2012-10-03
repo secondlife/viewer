@@ -114,6 +114,16 @@ void LLIMFloaterContainer::sessionRemoved(const LLUUID& session_id)
 	removeConversationListItem(session_id);
 }
 
+// static
+void LLIMFloaterContainer::onCurrentChannelChanged(const LLUUID& session_id)
+{
+    if (session_id != LLUUID::null)
+    {
+    	LLIMFloater::show(session_id);
+    }
+}
+
+
 BOOL LLIMFloaterContainer::postBuild()
 {
 	mNewMessageConnection = LLIMModel::instance().mNewMsgSignal.connect(boost::bind(&LLIMFloaterContainer::onNewMessageReceived, this, _1));

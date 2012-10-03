@@ -66,10 +66,10 @@ public:
 	/*virtual*/ void tabClose();
 
 	static LLFloater* getCurrentVoiceFloater();
-
 	static LLIMFloaterContainer* findInstance();
-
 	static LLIMFloaterContainer* getInstance();
+
+	static void onCurrentChannelChanged(const LLUUID& session_id);
 
 	virtual void setMinimized(BOOL b);
 
