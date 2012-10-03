@@ -124,7 +124,7 @@ public:
 	void resetRefresh() { mNeedsRefresh = false; }
 	bool needsRefresh() { return mNeedsRefresh; }
 	
-	void postEvent(const std::string& event_type);
+	void postEvent(const std::string& event_type, LLConversationItemParticipant* participant);
 	
 protected:
 	std::string mName;	// Name of the session or the participant

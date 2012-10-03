@@ -391,21 +391,39 @@ bool LLIMFloaterContainer::onConversationModelEvent(const LLSD& event)
 	//llinfos << "Merov debug : onConversationModelEvent, event = " << llsd_value.str() << llendl;
 	// end debug
 	
-	// Note: In conversations, the model is not responsible for creating the view which is a good thing. This means that
-	// the model could change substantially and the view could decide to echo only a portion of this model.
+	// Note: In conversations, the model is not responsible for creating the view, which is a good thing. This means that
+	// the model could change substantially and the view could echo only a portion of this model (though currently the 
+	// conversation view does echo the conversation model 1 to 1).
 	// Consequently, the participant views need to be created either by the session view or by the container panel.
-	// For the moment, we create them here to conform to the pattern implemented in llinventorypanel.cpp 
+	// For the moment, we create them here, at the container level, to conform to the pattern implemented in llinventorypanel.cpp 
 	// (see LLInventoryPanel::buildNewViews()).
 
-	// Note: For the moment, we're not very smart about the event paramter and we just refresh the whole set of views/widgets
+	// Note: For the moment, we're not very smart about the event parameter and we just refresh the whole set of views/widgets
 	// according to the current state of the whole model.
-	// We should at least analyze the event payload and do things differently for a handful of useful cases:
+	// We should at least analyze the event payload and do things differently for a handful of cases:
 	// - add session or participant
 	// - remove session or participant
 	// - update session or participant (e.g. rename, change sort order, etc...)
-	// see LLConversationItem::postEvent() for the payload formatting.
+	// Please see LLConversationItem::postEvent() for the payload formatting.
 	// *TODO: Add handling for various event signatures (add, remove, update, resort)
 
+	std::string type = event.get("type").asString();
+	if (type == "remove_participant")
+	{
+		LLUUID session_id = event.get("session_uuid").asUUID();
+		LLConversationViewSession* session_view = dynamic_cast<LLConversationViewSession*>(mConversationsWidgets[session_id]);
+		LLUUID participant_id = event.get("participant_uuid").asUUID();
+		LLConversationViewParticipant* participant_view = session_view->findParticipant(participant_id);
+		if (participant_view)
+		{
+			session_view->extractItem(participant_view);
+			delete participant_view;
+			session_view->refresh();
+			mConversationsRoot->arrangeAll();
+		}
+	}
+	else 
+	{
 	// On each session in mConversationsItems
 	for (conversations_items_map::iterator it_session = mConversationsItems.begin(); it_session != mConversationsItems.end(); it_session++)
 	{
@@ -448,6 +466,7 @@ bool LLIMFloaterContainer::onConversationModelEvent(const LLSD& event)
 			// Next participant
 			current_participant_model++;
 		}
+	}
 	}
 	
 	return false;

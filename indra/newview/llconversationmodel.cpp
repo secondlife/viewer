@@ -64,15 +64,13 @@ LLConversationItem::LLConversationItem(LLFolderViewModelInterface& root_view_mod
 {
 }
 
-void LLConversationItem::postEvent(const std::string& event_type)
+void LLConversationItem::postEvent(const std::string& event_type, LLConversationItemParticipant* participant)
 {
 	LLSD event;
-	event["pump"] = "ConversationModelEvent";
-	LLSD payload;
-	payload["type"] = event_type;
-	payload["name"] = getName();
-	payload["uuid"] = getUUID();
-	event["payload"] = payload;
+	event["type"] = event_type;
+	event["session_uuid"] = getUUID();
+	event["participant_name"] = participant->getName();
+	event["participant_uuid"] = participant->getUUID();
 	LLEventPumps::instance().obtain("ConversationsEvents").post(event);
 }
 
@@ -124,14 +122,14 @@ void LLConversationItemSession::addParticipant(LLConversationItemParticipant* pa
 	addChild(participant);
 	mIsLoaded = true;
 	mNeedsRefresh = true;
-	postEvent("add_participant");
+	postEvent("add_participant", participant);
 }
 
 void LLConversationItemSession::removeParticipant(LLConversationItemParticipant* participant)
 {
 	removeChild(participant);
 	mNeedsRefresh = true;
-	postEvent("remove_participant");
+	postEvent("remove_participant", participant);
 }
 
 void LLConversationItemSession::removeParticipant(const LLUUID& participant_id)
@@ -269,7 +267,7 @@ void LLConversationItemParticipant::onAvatarNameCache(const LLAvatarName& av_nam
 	mName = (av_name.mUsername.empty() ? av_name.mDisplayName : av_name.mUsername);
 	mDisplayName = (av_name.mDisplayName.empty() ? av_name.mUsername : av_name.mDisplayName);
 	mNeedsRefresh = true;
-	postEvent("update_participant");
+	postEvent("update_participant", this);
 	if (mParent)
 	{
 		mParent->requestSort();
