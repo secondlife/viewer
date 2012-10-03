@@ -194,6 +194,7 @@ public:
 	const LLTexLayerSetBuffer* 	getComposite() const; // Do not create one if it doesn't exist.
 	virtual void				createComposite() = 0;
 	void						destroyComposite();
+	void						gatherMorphMaskAlpha(U8 *data, S32 origin_x, S32 origin_y, S32 width, S32 height);
 
 	const LLTexLayerSetInfo* 	getInfo() const 			{ return mInfo; }
 	BOOL						setInfo(const LLTexLayerSetInfo *info); // This sets mInfo and calls initialization functions
