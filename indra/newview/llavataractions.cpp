@@ -42,6 +42,7 @@
 #include "llappviewer.h"		// for gLastVersionChannel
 #include "llcachename.h"
 #include "llcallingcard.h"		// for LLAvatarTracker
+#include "llconversationlog.h"
 #include "llfloateravatarpicker.h"	// for LLFloaterAvatarPicker
 #include "llfloatergroupinvite.h"
 #include "llfloatergroups.h"
@@ -900,7 +901,17 @@ void LLAvatarActions::inviteToGroup(const LLUUID& id)
 // static
 void LLAvatarActions::viewChatHistory(const LLUUID& id)
 {
-	LLFloaterReg::showInstance("preview_conversation", id, true);
+	const std::vector<LLConversation>& conversations = LLConversationLog::instance().getConversations();
+	std::vector<LLConversation>::const_iterator iter = conversations.begin();
+
+	for (; iter != conversations.end(); ++iter)
+	{
+		if (iter->getParticipantID() == id)
+		{
+			LLFloaterReg::showInstance("preview_conversation", iter->getSessionID(), true);
+			break;
+		}
+	}
 }
 
 //== private methods ========================================================================================
