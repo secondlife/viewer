@@ -133,12 +133,12 @@ std::string LLCurl::getVersionString()
 //////////////////////////////////////////////////////////////////////////////
 
 LLCurl::Responder::Responder()
-	: mReferenceCount(0)
 {
 }
 
 LLCurl::Responder::~Responder()
 {
+	LL_CHECK_MEMORY
 }
 
 // virtual
@@ -202,23 +202,6 @@ void LLCurl::Responder::completedHeader(U32 status, const std::string& reason, c
 
 }
 
-namespace boost
-{
-	void intrusive_ptr_add_ref(LLCurl::Responder* p)
-	{
-		++p->mReferenceCount;
-	}
-	
-	void intrusive_ptr_release(LLCurl::Responder* p)
-	{
-		if (p && 0 == --p->mReferenceCount)
-		{
-			delete p;
-		}
-	}
-};
-
-
 //////////////////////////////////////////////////////////////////////////////
 
 std::set<CURL*> LLCurl::Easy::sFreeHandles;
@@ -267,15 +250,18 @@ void LLCurl::Easy::releaseEasyHandle(CURL* handle)
 	LLMutexLock lock(sHandleMutexp) ;
 	if (sActiveHandles.find(handle) != sActiveHandles.end())
 	{
+		LL_CHECK_MEMORY
 		sActiveHandles.erase(handle);
-
+		LL_CHECK_MEMORY
 		if(sFreeHandles.size() < MAX_NUM_FREE_HANDLES)
 		{
-		sFreeHandles.insert(handle);
-	}
-	else
-	{
+			sFreeHandles.insert(handle);
+			LL_CHECK_MEMORY
+		}
+		else
+		{
 			LLCurl::deleteEasyHandle(handle) ;
+			LL_CHECK_MEMORY
 		}
 	}
 	else
@@ -315,9 +301,7 @@ LLCurl::Easy* LLCurl::Easy::getEasy()
 
 LLCurl::Easy::~Easy()
 {
-	LL_CHECK_MEMORY
 	releaseEasyHandle(mCurlEasyHandle);
-	LL_CHECK_MEMORY
 	--gCurlEasyCount;
 	curl_slist_free_all(mHeaders);
 	LL_CHECK_MEMORY
@@ -331,7 +315,6 @@ LLCurl::Easy::~Easy()
 		LL_CHECK_MEMORY
 	}
 	mResponder = NULL;
-	LL_CHECK_MEMORY
 }
 
 void LLCurl::Easy::resetState()
@@ -617,6 +600,7 @@ void LLCurl::Multi::cleanup(bool deleted)
 		if(deleted)
 		{
 			easy->mResponder = NULL ; //avoid triggering mResponder.
+			LL_CHECK_MEMORY
 		}
 		delete easy;
 		LL_CHECK_MEMORY
@@ -1623,7 +1607,9 @@ void  LLCurl::deleteEasyHandle(CURL* handle)
 	if(handle)
 	{
 		LLMutexLock lock(sHandleMutexp) ;
+		LL_CHECK_MEMORY
 		curl_easy_cleanup(handle) ;
+		LL_CHECK_MEMORY
 		sTotalHandles-- ;
 	}
 }
