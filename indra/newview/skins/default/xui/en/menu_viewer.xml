@@ -244,16 +244,6 @@
              parameter="speak" />
         </menu_item_check>
         <menu_item_check
-         label="Voice settings..."
-         name="Nearby Voice">
-            <menu_item_check.on_check
-             function="Floater.Visible"
-             parameter="voice_controls" />
-            <menu_item_check.on_click
-             function="Floater.Toggle"
-             parameter="voice_controls" />
-        </menu_item_check>
-        <menu_item_check
          label="Voice morphing..."
          name="ShowVoice"
          visibility_control="VoiceMorphingEnabled">
