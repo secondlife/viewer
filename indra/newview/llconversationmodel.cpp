@@ -27,6 +27,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llevents.h"
 #include "llconversationmodel.h"
 
 //
@@ -61,6 +62,18 @@ LLConversationItem::LLConversationItem(LLFolderViewModelInterface& root_view_mod
 	mConvType(CONV_UNKNOWN),
 	mLastActiveTime(0.0)
 {
+}
+
+void LLConversationItem::postEvent(const std::string& event_type)
+{
+	LLSD event;
+	event["pump"] = "ConversationModelEvent";
+	LLSD payload;
+	payload["type"] = event_type;
+	payload["name"] = getName();
+	payload["uuid"] = getUUID();
+	event["payload"] = payload;
+	LLEventPumps::instance().obtain("ConversationsEvents").post(event);
 }
 
 // Virtual action callbacks
@@ -111,12 +124,14 @@ void LLConversationItemSession::addParticipant(LLConversationItemParticipant* pa
 	addChild(participant);
 	mIsLoaded = true;
 	mNeedsRefresh = true;
+	postEvent("add_participant");
 }
 
 void LLConversationItemSession::removeParticipant(LLConversationItemParticipant* participant)
 {
 	removeChild(participant);
 	mNeedsRefresh = true;
+	postEvent("remove_participant");
 }
 
 void LLConversationItemSession::removeParticipant(const LLUUID& participant_id)
@@ -254,6 +269,7 @@ void LLConversationItemParticipant::onAvatarNameCache(const LLAvatarName& av_nam
 	mName = (av_name.mUsername.empty() ? av_name.mDisplayName : av_name.mUsername);
 	mDisplayName = (av_name.mDisplayName.empty() ? av_name.mUsername : av_name.mDisplayName);
 	mNeedsRefresh = true;
+	postEvent("update_participant");
 	if (mParent)
 	{
 		mParent->requestSort();

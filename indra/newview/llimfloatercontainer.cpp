@@ -49,6 +49,7 @@
 #include "llcallbacklist.h"
 #include "llworld.h"
 
+#include "llsdserialize.h"
 //
 // LLIMFloaterContainer
 //
@@ -56,6 +57,7 @@ LLIMFloaterContainer::LLIMFloaterContainer(const LLSD& seed)
 :	LLMultiFloater(seed),
 	mExpandCollapseBtn(NULL),
 	mConversationsRoot(NULL),
+	mStream("ConversationsEvents"),
 	mInitialized(false)
 {
 	mCommitCallbackRegistrar.add("IMFloaterContainer.Action", boost::bind(&LLIMFloaterContainer::onCustomAction,  this, _2));
@@ -135,6 +137,9 @@ BOOL LLIMFloaterContainer::postBuild()
     p.root = NULL;
     p.use_ellipses = true;
 	mConversationsRoot = LLUICtrlFactory::create<LLFolderView>(p);
+
+	// Add listener to conversation model events
+	mStream.listen("ConversationsRefresh", boost::bind(&LLIMFloaterContainer::onConversationModelEvent, this, _1));
 
 	// a scroller for folder view
 	LLRect scroller_view_rect = mConversationsListPanel->getRect();
@@ -378,18 +383,29 @@ void LLIMFloaterContainer::idle(void* user_data)
 	self->mConversationsRoot->update();
 }
 
-void LLIMFloaterContainer::draw()
+bool LLIMFloaterContainer::onConversationModelEvent(const LLSD& event)
 {
-	// CHUI Notes
-	// Currently, the model is not responsible for creating the view which is a good thing. This means that
+	// For debug only
+	//std::ostringstream llsd_value;
+	//llsd_value << LLSDOStreamer<LLSDNotationFormatter>(event) << std::endl;
+	//llinfos << "Merov debug : onConversationModelEvent, event = " << llsd_value.str() << llendl;
+	// end debug
+	
+	// Note: In conversations, the model is not responsible for creating the view which is a good thing. This means that
 	// the model could change substantially and the view could decide to echo only a portion of this model.
 	// Consequently, the participant views need to be created either by the session view or by the container panel.
-	// For the moment, we create them here (which makes for complicated code...) to conform to the pattern
-	// implemented in llinventorypanel.cpp (see LLInventoryPanel::buildNewViews()).
-	// The best however would be to have an observer on the model so that we would not pool on each draw to know
-	// if the view needs refresh. The current implementation (testing for change on draw) is less
-	// efficient perf wise than a listener/observer scheme. We will implement that shortly.
-	
+	// For the moment, we create them here to conform to the pattern implemented in llinventorypanel.cpp 
+	// (see LLInventoryPanel::buildNewViews()).
+
+	// Note: For the moment, we're not very smart about the event paramter and we just refresh the whole set of views/widgets
+	// according to the current state of the whole model.
+	// We should at least analyze the event payload and do things differently for a handful of useful cases:
+	// - add session or participant
+	// - remove session or participant
+	// - update session or participant (e.g. rename, change sort order, etc...)
+	// see LLConversationItem::postEvent() for the payload formatting.
+	// *TODO: Add handling for various event signatures (add, remove, update, resort)
+
 	// On each session in mConversationsItems
 	for (conversations_items_map::iterator it_session = mConversationsItems.begin(); it_session != mConversationsItems.end(); it_session++)
 	{
@@ -418,7 +434,7 @@ void LLIMFloaterContainer::draw()
 				participant_view->setVisible(TRUE);
 			}
 			else
-			// Else, see if it needs refresh
+				// Else, see if it needs refresh
 			{
 				if (participant_model->needsRefresh())
 				{
@@ -434,6 +450,11 @@ void LLIMFloaterContainer::draw()
 		}
 	}
 	
+	return false;
+}
+
+void LLIMFloaterContainer::draw()
+{
 	if (mTabContainer->getTabCount() == 0)
 	{
 		// Do not close the container when every conversation is torn off because the user

@@ -124,6 +124,8 @@ public:
 	void resetRefresh() { mNeedsRefresh = false; }
 	bool needsRefresh() { return mNeedsRefresh; }
 	
+	void postEvent(const std::string& event_type);
+	
 protected:
 	std::string mName;	// Name of the session or the participant
 	LLUUID mUUID;		// UUID of the session or the participant
