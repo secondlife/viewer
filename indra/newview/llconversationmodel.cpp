@@ -226,7 +226,8 @@ void LLConversationItemSession::buildContextMenu(LLMenuGL& menu, U32 flags)
     {
         items.push_back(std::string("close_conversation"));
         addVoiceOptions(items);
-        items.push_back(std::string("separator_disconnect_from_voice"));
+        items.push_back(std::string("chat_history"));
+        items.push_back(std::string("separator_chat_history"));
         items.push_back(std::string("group_profile"));
         items.push_back(std::string("activate_group"));
         items.push_back(std::string("leave_group"));
@@ -235,6 +236,7 @@ void LLConversationItemSession::buildContextMenu(LLMenuGL& menu, U32 flags)
     {
         items.push_back(std::string("close_conversation"));
         addVoiceOptions(items);
+        items.push_back(std::string("chat_history"));
     }
 
     hide_context_entries(menu, items, disabled_items);

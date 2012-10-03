@@ -768,6 +768,10 @@ void LLIMFloaterContainer::doToUsers(const std::string& command, uuid_vec_t sele
     {
         LLAvatarActions::startCall(userID);
     }
+    else if("chat_history" == command)
+    {
+        LLAvatarActions::viewChatHistory(userID);
+    }
     else if("add_friend" == command)
     {
         LLAvatarActions::requestFriendshipDialog(userID);
@@ -835,6 +839,10 @@ void LLIMFloaterContainer::doToSelectedConversation(const std::string& command)
         else if("disconnect_from_voice" == command)
         {
             gIMMgr->endCall(conversationItem->getUUID());
+        }
+        else if("chat_history" == command)
+        {
+            LLAvatarActions::viewChatHistory(conversationItem->getUUID());
         }
         else
         {
