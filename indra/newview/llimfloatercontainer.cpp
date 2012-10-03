@@ -737,14 +737,16 @@ void LLIMFloaterContainer::getSelectedUUIDs(uuid_vec_t& selected_uuids)
 
 const LLConversationItem * LLIMFloaterContainer::getCurSelectedViewModelItem()
 {
+    LLConversationItem * conversationItem = NULL;
+
     if(mConversationsRoot && 
         mConversationsRoot->getCurSelectedItem() && 
         mConversationsRoot->getCurSelectedItem()->getViewModelItem())
     {
-        return static_cast<LLConversationItem *>(mConversationsRoot->getCurSelectedItem()->getViewModelItem());
+        conversationItem = static_cast<LLConversationItem *>(mConversationsRoot->getCurSelectedItem()->getViewModelItem());
     }
 
-    return NULL;
+    return conversationItem;
 }
 
 void LLIMFloaterContainer::doToUsers(const std::string& command, uuid_vec_t selectedIDS)
