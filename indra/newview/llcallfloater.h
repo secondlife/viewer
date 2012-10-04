@@ -74,7 +74,7 @@ public:
 	 */
 	/*virtual*/ void onParticipantsChanged();
 
-	static void sOnCurrentChannelChanged(const LLUUID& session_id);
+	static void onCurrentChannelChanged(const LLUUID& session_id);
 
 private:
 	typedef enum e_voice_controls_type
@@ -260,7 +260,7 @@ private:
 	 *
 	 * Is used to ignore voice channel changed callback for the same channel.
 	 *
-	 * @see sOnCurrentChannelChanged()
+	 * @see onCurrentChannelChanged()
 	 */
 	static LLVoiceChannel* sCurrentVoiceChannel;
 

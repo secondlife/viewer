@@ -41,6 +41,8 @@ class LLConversationItemParticipant;
 typedef std::map<LLUUID, LLConversationItem*> conversations_items_map;
 typedef std::map<LLUUID, LLFolderViewItem*> conversations_widgets_map;
 
+typedef std::vector<std::string> menuentry_vec_t;
+
 // Conversation items: we hold a list of those and create an LLFolderViewItem widget for each  
 // that we tuck into the mConversationsListPanel. 
 class LLConversationItem : public LLFolderViewModelItemCommon
@@ -104,10 +106,10 @@ public:
 	virtual void selectItem(void) { } 
 	virtual void showProperties(void);
 
-	// Methods used in sorting (see LLConversationSort::operator()
+	// Methods used in sorting (see LLConversationSort::operator())
 	EConversationType const getType() const { return mConvType; }
-	virtual const bool getTime(F32& time) const { return false; }
-	virtual const bool getDistanceToAgent(F32& distance) const { return false; }
+	virtual const bool getTime(F64& time) const { time = mLastActiveTime; return (time > 0.1); }
+	virtual const bool getDistanceToAgent(F64& distance) const { return false; }
 	
 	// This method will be called to determine if a drop can be
 	// performed, and will set drop to TRUE if a drop is
@@ -124,11 +126,14 @@ public:
 	void resetRefresh() { mNeedsRefresh = false; }
 	bool needsRefresh() { return mNeedsRefresh; }
 	
+    void buildParticipantMenuOptions(menuentry_vec_t&   items);
+
 protected:
 	std::string mName;	// Name of the session or the participant
 	LLUUID mUUID;		// UUID of the session or the participant
 	EConversationType mConvType;	// Type of conversation item
 	bool mNeedsRefresh;	// Flag signaling to the view that something changed for this item
+	F64  mLastActiveTime;
 };
 
 class LLConversationItemSession : public LLConversationItem
@@ -149,9 +154,15 @@ public:
 
 	void setParticipantIsMuted(const LLUUID& participant_id, bool is_muted);
 	void setParticipantIsModerator(const LLUUID& participant_id, bool is_moderator);
+	void setTimeNow(const LLUUID& participant_id);
+	void setDistance(const LLUUID& participant_id, F64 dist);
 	
 	bool isLoaded() { return mIsLoaded; }
 	
+    void buildContextMenu(LLMenuGL& menu, U32 flags);
+    void addVoiceOptions(menuentry_vec_t& items);
+	virtual const bool getTime(F64& time) const;
+
 	void dumpDebugData();
 
 private:
@@ -165,18 +176,27 @@ public:
 	LLConversationItemParticipant(const LLUUID& uuid, LLFolderViewModelInterface& root_view_model);
 	virtual ~LLConversationItemParticipant() {}
 	
+	virtual const std::string& getDisplayName() const { return mDisplayName; }
+
 	bool isMuted() { return mIsMuted; }
 	bool isModerator() {return mIsModerator; }
 	void setIsMuted(bool is_muted) { mIsMuted = is_muted; mNeedsRefresh = true; }
 	void setIsModerator(bool is_moderator) { mIsModerator = is_moderator; mNeedsRefresh = true; }
-	
+	void setTimeNow() { mLastActiveTime = LLFrameTimer::getElapsedSeconds(); mNeedsRefresh = true; }
+	void setDistance(F64 dist) { mDistToAgent = dist; mNeedsRefresh = true; }
+
+    void buildContextMenu(LLMenuGL& menu, U32 flags);
 	void onAvatarNameCache(const LLAvatarName& av_name);
+
+	virtual const bool getDistanceToAgent(F64& dist) const { dist = mDistToAgent; return (dist >= 0.0); }
 
 	void dumpDebugData();
 
 private:
 	bool mIsMuted;		// default is false
 	bool mIsModerator;	// default is false
+	std::string mDisplayName;
+	F64  mDistToAgent;  // Distance to the agent. A negative (meaningless) value means the distance has not been set.
 };
 
 // We don't want to ever filter conversations but we need to declare that class to create a conversation view model.
@@ -259,5 +279,16 @@ public:
 	
 private:
 };
+
+// Utility function to hide all entries except those in the list
+// Can be called multiple times on the same menu (e.g. if multiple items
+// are selected).  If "append" is false, then only common enabled items
+// are set as enabled.
+
+//(defined in inventorybridge.cpp)
+//TODO: Gilbert Linden - Refactor to make this function non-global
+void hide_context_entries(LLMenuGL& menu, 
+    const menuentry_vec_t &entries_to_show, 
+    const menuentry_vec_t &disabled_entries);
 
 #endif // LL_LLCONVERSATIONMODEL_H

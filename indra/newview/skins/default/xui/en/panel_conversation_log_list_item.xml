@@ -35,6 +35,7 @@
      image_name="Conv_toolbar_open_call"
      mouse_opaque="true"
      name="voice_session_icon"
+     tool_tip="Included a voice conversation"
      top="2"
      visible="false"
      width="20" />
@@ -46,6 +47,7 @@
      image_name="Conv_log_inbox"
      mouse_opaque="false"
      name="unread_ims_icon"
+     tool_tip="Messages arrived while you were logged out"
      top="2"
      visible="false"
      width="20" />
@@ -92,6 +94,7 @@
      width="110"/>
     <button
      name="delete_btn"
+     tool_tip="Remove this entry"
      layout="topleft"
      follows="top|right"
      image_unselected="Conv_toolbar_close"

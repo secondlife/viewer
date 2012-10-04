@@ -95,6 +95,7 @@ protected:
 	bool onRemoveItemEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 	bool onClearListEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 	bool onModeratorUpdateEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
+	bool onSpeakerUpdateEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 	bool onSpeakerMuteEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 
 	/**
@@ -136,6 +137,13 @@ protected:
 		/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 	};
 
+	class SpeakerUpdateListener : public BaseSpeakerListener
+	{
+	public:
+		SpeakerUpdateListener(LLParticipantList& parent) : BaseSpeakerListener(parent) {}
+		/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
+	};
+	
 	class SpeakerModeratorUpdateListener : public BaseSpeakerListener
 	{
 	public:
@@ -264,6 +272,7 @@ private:
 	LLPointer<SpeakerAddListener>				mSpeakerAddListener;
 	LLPointer<SpeakerRemoveListener>			mSpeakerRemoveListener;
 	LLPointer<SpeakerClearListener>				mSpeakerClearListener;
+	LLPointer<SpeakerUpdateListener>	        mSpeakerUpdateListener;
 	LLPointer<SpeakerModeratorUpdateListener>	mSpeakerModeratorListener;
 	LLPointer<SpeakerMuteListener>				mSpeakerMuteListener;
 

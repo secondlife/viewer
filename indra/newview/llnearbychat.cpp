@@ -88,29 +88,36 @@ static LLChatTypeTrigger sChatTypeTriggers[] = {
 
 
 LLNearbyChat::LLNearbyChat(const LLSD& llsd)
-:	LLIMConversation(llsd.asUUID()),
+:	LLIMConversation(llsd),
 	//mOutputMonitor(NULL),
 	mSpeakerMgr(NULL),
-	mExpandedHeight(COLLAPSED_HEIGHT + EXPANDED_HEIGHT)
+	mExpandedHeight(COLLAPSED_HEIGHT + EXPANDED_HEIGHT),
+	mIsHostSet(false)
 {
     mIsP2PChat = false;
 	mIsNearbyChat = true;
 	setIsChrome(TRUE);
-	mKey = LLSD(LLUUID());
 	mSpeakerMgr = LLLocalSpeakerMgr::getInstance();
 	mSessionID = LLUUID();
-	setName("nearby_chat");
-	setIsSingleInstance(TRUE);
+}
+
+//static
+LLNearbyChat* LLNearbyChat::buildFloater(const LLSD& key)
+{
+    LLFloaterReg::getInstance("im_container");
+    return new LLNearbyChat(key);
 }
 
 //virtual
 BOOL LLNearbyChat::postBuild()
 {
+    setIsSingleInstance(TRUE);
     BOOL result = LLIMConversation::postBuild();
 	mInputEditor->setCommitCallback(boost::bind(&LLNearbyChat::onChatBoxCommit, this));
 	mInputEditor->setKeystrokeCallback(boost::bind(&onChatBoxKeystroke, _1, this));
 	mInputEditor->setFocusLostCallback(boost::bind(&onChatBoxFocusLost, _1, this));
 	mInputEditor->setFocusReceivedCallback(boost::bind(&LLNearbyChat::onChatBoxFocusReceived, this));
+	mInputEditor->setLabel(LLTrans::getString("NearbyChatTitle"));
 
 //	mOutputMonitor = getChild<LLOutputMonitorCtrl>("chat_zone_indicator");
 //	mOutputMonitor->setVisible(FALSE);
@@ -121,8 +128,6 @@ BOOL LLNearbyChat::postBuild()
 	// title must be defined BEFORE call addConversationListItem() because
 	// it is used for show the item's name in the conversations list
 	setTitle(LLTrans::getString("NearbyChatTitle"));
-
-	addToHost();
 
 	//for menu
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
@@ -306,7 +311,14 @@ void LLNearbyChat::addToHost()
 				setHost(NULL);
 			}
 		}
+
+		mIsHostSet = true;
 	}
+}
+
+bool LLNearbyChat::isHostSet()
+{
+    return mIsHostSet;
 }
 
 // virtual

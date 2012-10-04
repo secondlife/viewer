@@ -172,6 +172,7 @@ LLFolderView * LLInventoryPanel::createFolderRoot(LLUUID root_id )
     p.show_empty_message = mShowEmptyMessage;
     p.show_item_link_overlays = mShowItemLinkOverlays;
     p.root = NULL;
+    p.options_menu = "menu_inventory.xml";
 
     return LLUICtrlFactory::create<LLFolderView>(p);
 }
@@ -441,8 +442,9 @@ void LLInventoryPanel::modelChanged(U32 mask)
 			handled = true;
 			if (model_item && view_item && viewmodel_item)
 			{
+				const LLUUID& idp = viewmodel_item->getUUID();
 				view_item->destroyView();
-				removeItemID(viewmodel_item->getUUID());
+				removeItemID(idp);
 			}
 			view_item = buildNewViews(item_id);
 			viewmodel_item = 

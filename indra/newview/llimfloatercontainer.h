@@ -62,14 +62,14 @@ public:
 	/*virtual*/ void addFloater(LLFloater* floaterp, 
 								BOOL select_added_floater, 
 								LLTabContainer::eInsertionPoint insertion_point = LLTabContainer::END);
-    void setConvItemSelect(LLUUID& session_id);
+    void setConvItemSelect(const LLUUID& session_id);
 	/*virtual*/ void tabClose();
 
 	static LLFloater* getCurrentVoiceFloater();
-
 	static LLIMFloaterContainer* findInstance();
-
 	static LLIMFloaterContainer* getInstance();
+
+	static void onCurrentChannelChanged(const LLUUID& session_id);
 
 	virtual void setMinimized(BOOL b);
 
@@ -96,11 +96,11 @@ private:
 	void onNewMessageReceived(const LLSD& data);
 
 	void onExpandCollapseButtonClicked();
+	void processParticipantsStyleUpdate();
 
 	void collapseConversationsPane(bool collapse);
 
 	void updateState(bool collapse, S32 delta_width);
-	void repositioningWidgets();
 
 	void onAddButtonClicked();
 	void onAvatarPicked(const uuid_vec_t& ids);
@@ -110,6 +110,16 @@ private:
 	void setSortOrderSessions(const LLConversationFilter::ESortOrderType order);
 	void setSortOrderParticipants(const LLConversationFilter::ESortOrderType order);
 	void setSortOrder(const LLConversationSort& order);
+
+    void getSelectedUUIDs(uuid_vec_t& selected_uuids);
+    const LLConversationItem * getCurSelectedViewModelItem();
+    void getParticipantUUIDs(uuid_vec_t& selected_uuids);
+    void doToSelected(const LLSD& userdata);
+    void doToSelectedConversation(const std::string& command, uuid_vec_t& selectedIDS);
+    void doToParticipants(const std::string& item, uuid_vec_t& selectedIDS);
+    void doToSelectedGroup(const LLSD& userdata);
+    bool checkContextMenuItem(const LLSD& userdata);
+    bool enableContextMenuItem(const LLSD& userdata);
 
 	LLButton* mExpandCollapseBtn;
 	LLLayoutPanel* mMessagesPane;
@@ -124,6 +134,8 @@ private:
 public:
 	void removeConversationListItem(const LLUUID& uuid, bool change_focus = true);
 	void addConversationListItem(const LLUUID& uuid);
+	void setTimeNow(const LLUUID& session_id, const LLUUID& participant_id);
+	void setNearbyDistances();
 
 private:
 	LLConversationViewSession* createConversationItemWidget(LLConversationItem* item);

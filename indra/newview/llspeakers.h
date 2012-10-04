@@ -79,6 +79,15 @@ public:
 	BOOL			mModeratorMutedText;
 };
 
+class LLSpeakerUpdateSpeakerEvent : public LLOldEvents::LLEvent
+{
+public:
+	LLSpeakerUpdateSpeakerEvent(LLSpeaker* source);
+	/*virtual*/ LLSD getValue();
+private:
+	const LLUUID& mSpeakerID;
+};
+
 class LLSpeakerUpdateModeratorEvent : public LLOldEvents::LLEvent
 {
 public:

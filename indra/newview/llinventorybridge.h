@@ -228,6 +228,7 @@ public:
 	virtual BOOL isItemCopyable() const;
 	virtual bool hasChildren() const { return FALSE; }
 	virtual BOOL isUpToDate() const { return TRUE; }
+	virtual LLUIImagePtr getIconOverlay() const;
 
 	LLViewerInventoryItem* getItem() const;
 

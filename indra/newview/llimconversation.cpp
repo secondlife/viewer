@@ -42,18 +42,19 @@
 
 const F32 REFRESH_INTERVAL = 0.2f;
 
-LLIMConversation::LLIMConversation(const LLUUID& session_id)
+LLIMConversation::LLIMConversation(const LLSD& session_id)
   : LLTransientDockableFloater(NULL, true, session_id)
   ,  mIsP2PChat(false)
   ,  mExpandCollapseBtn(NULL)
   ,  mTearOffBtn(NULL)
   ,  mCloseBtn(NULL)
-  ,  mSessionID(session_id)
+  ,  mSessionID(session_id.asUUID())
   , mParticipantList(NULL)
   , mChatHistory(NULL)
   , mInputEditor(NULL)
   , mInputEditorTopPad(0)
   , mRefreshTimer(new LLTimer())
+  , mHasFocus(false)
 {
 	mSession = LLIMModel::getInstance()->findIMSession(mSessionID);
 
@@ -216,10 +217,10 @@ void LLIMConversation::onFocusReceived()
 
 	LLTransientDockableFloater::onFocusReceived();
 
-    mHasFocus = mHaveFocus;
-    mHaveFocus = true;
+    mHadFocus = mHasFocus;
+    mHasFocus = true;
 
-	if (! mHasFocus)
+	if (! mHadFocus)
 	{
 	    LLIMFloaterContainer* container = LLIMFloaterContainer::getInstance();
 	    container->setConvItemSelect(mSessionID);
@@ -229,7 +230,7 @@ void LLIMConversation::onFocusReceived()
 void LLIMConversation::onFocusLost()
 {
 	setBackgroundOpaque(false);
-	mHaveFocus = false;
+	mHasFocus = false;
 	LLTransientDockableFloater::onFocusLost();
 }
 
@@ -250,6 +251,14 @@ std::string LLIMConversation::appendTime()
 
 void LLIMConversation::appendMessage(const LLChat& chat, const LLSD &args)
 {
+	// Update the participant activity time
+	LLIMFloaterContainer* im_box = LLIMFloaterContainer::findInstance();
+	if (im_box)
+	{
+		im_box->setTimeNow(mSessionID,chat.mFromID);
+	}
+	
+
 	LLChat& tmp_chat = const_cast<LLChat&>(chat);
 
 	if(tmp_chat.mTimeStr.empty())
@@ -415,6 +424,7 @@ void LLIMConversation::updateHeaderAndToolbar()
 	mExpandCollapseBtn->setEnabled(!is_torn_off || !mIsP2PChat);
 
 	mTearOffBtn->setImageOverlay(getString(is_torn_off? "return_icon" : "tear_off_icon"));
+	mTearOffBtn->setToolTip(getString(!is_torn_off? "tooltip_to_separate_window" : "tooltip_to_main_window"));
 
 	mCloseBtn->setVisible(!is_torn_off && !mIsNearbyChat);
 

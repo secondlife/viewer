@@ -43,6 +43,7 @@
           menu_filename="menu_people_blocked_gear.xml"
           menu_position="bottomleft"
           name="blocked_gear_btn"
+          tool_tip="Actions on selected person or object"
           top="3"
           width="31" />
          <menu_button
@@ -57,6 +58,7 @@
           menu_filename="menu_people_blocked_view.xml"
           menu_position="bottomleft"
           name="view_btn"
+          tool_tip="Sort options"
           top_delta="0"
           width="31" />
          <menu_button
@@ -71,6 +73,7 @@
           menu_filename="menu_people_blocked_plus.xml"
           menu_position="bottomleft"
           name="plus_btn"
+          tool_tip="Pick a Resident or an object to block"
           top_delta="0"
           width="31"/>
           <button
@@ -83,6 +86,7 @@
           left_pad="2"
           layout="topleft"
           name="unblock_btn"
+          tool_tip="Remove Resident or object from blocked list"
           top_delta="0"
           width="31"/>
      </panel>

@@ -28,6 +28,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llconversationmodel.h"
+#include "llimview.h" //For LLIMModel
 
 //
 // Conversation items : common behaviors
@@ -38,7 +39,8 @@ LLConversationItem::LLConversationItem(std::string display_name, const LLUUID& u
 	mName(display_name),
 	mUUID(uuid),
 	mNeedsRefresh(true),
-	mConvType(CONV_UNKNOWN)
+	mConvType(CONV_UNKNOWN),
+	mLastActiveTime(0.0)
 {
 }
 
@@ -47,7 +49,8 @@ LLConversationItem::LLConversationItem(const LLUUID& uuid, LLFolderViewModelInte
 	mName(""),
 	mUUID(uuid),
 	mNeedsRefresh(true),
-	mConvType(CONV_UNKNOWN)
+	mConvType(CONV_UNKNOWN),
+	mLastActiveTime(0.0)
 {
 }
 
@@ -56,7 +59,8 @@ LLConversationItem::LLConversationItem(LLFolderViewModelInterface& root_view_mod
 	mName(""),
 	mUUID(),
 	mNeedsRefresh(true),
-	mConvType(CONV_UNKNOWN)
+	mConvType(CONV_UNKNOWN),
+	mLastActiveTime(0.0)
 {
 }
 
@@ -79,6 +83,24 @@ void LLConversationItem::previewItem( void )
 
 void LLConversationItem::showProperties(void)
 {
+}
+
+void LLConversationItem::buildParticipantMenuOptions(menuentry_vec_t&   items)
+{
+    items.push_back(std::string("view_profile"));
+    items.push_back(std::string("im"));
+    items.push_back(std::string("offer_teleport"));
+    items.push_back(std::string("voice_call"));
+    items.push_back(std::string("chat_history"));
+    items.push_back(std::string("separator_chat_history"));
+    items.push_back(std::string("add_friend"));
+    items.push_back(std::string("remove_friend"));
+    items.push_back(std::string("invite_to_group"));
+    items.push_back(std::string("separator_invite_to_group"));
+    items.push_back(std::string("map"));
+    items.push_back(std::string("share"));
+    items.push_back(std::string("pay"));
+    items.push_back(std::string("block_unblock"));
 }
 
 //
@@ -167,9 +189,100 @@ void LLConversationItemSession::setParticipantIsModerator(const LLUUID& particip
 	}
 }
 
+void LLConversationItemSession::setTimeNow(const LLUUID& participant_id)
+{
+	mLastActiveTime = LLFrameTimer::getElapsedSeconds();
+	mNeedsRefresh = true;
+	LLConversationItemParticipant* participant = findParticipant(participant_id);
+	if (participant)
+	{
+		participant->setTimeNow();
+	}
+}
+
+void LLConversationItemSession::setDistance(const LLUUID& participant_id, F64 dist)
+{
+	LLConversationItemParticipant* participant = findParticipant(participant_id);
+	if (participant)
+	{
+		participant->setDistance(dist);
+		mNeedsRefresh = true;
+	}
+}
+
+void LLConversationItemSession::buildContextMenu(LLMenuGL& menu, U32 flags)
+{
+    lldebugs << "LLConversationItemParticipant::buildContextMenu()" << llendl;
+    menuentry_vec_t items;
+    menuentry_vec_t disabled_items;
+
+    if(this->getType() == CONV_SESSION_1_ON_1)
+    {
+        items.push_back(std::string("close_conversation"));
+        items.push_back(std::string("separator_disconnect_from_voice"));
+        buildParticipantMenuOptions(items);
+    }
+    else if(this->getType() == CONV_SESSION_GROUP)
+    {
+        items.push_back(std::string("close_conversation"));
+        addVoiceOptions(items);
+        items.push_back(std::string("chat_history"));
+        items.push_back(std::string("separator_chat_history"));
+        items.push_back(std::string("group_profile"));
+        items.push_back(std::string("activate_group"));
+        items.push_back(std::string("leave_group"));
+    }
+    else if(this->getType() == CONV_SESSION_AD_HOC)
+    {
+        items.push_back(std::string("close_conversation"));
+        addVoiceOptions(items);
+        items.push_back(std::string("chat_history"));
+    }
+
+    hide_context_entries(menu, items, disabled_items);
+}
+
+void LLConversationItemSession::addVoiceOptions(menuentry_vec_t& items)
+{
+    LLVoiceChannel* voice_channel = LLIMModel::getInstance() ? LLIMModel::getInstance()->getVoiceChannel(this->getUUID()) : NULL;
+
+    if(voice_channel != LLVoiceChannel::getCurrentVoiceChannel())
+    {
+        items.push_back(std::string("open_voice_conversation"));
+    }
+    else
+    {
+        items.push_back(std::string("disconnect_from_voice"));
+    }
+}
+
+// The time of activity of a session is the time of the most recent activity, session and participants included
+const bool LLConversationItemSession::getTime(F64& time) const
+{
+	F64 most_recent_time = mLastActiveTime;
+	bool has_time = (most_recent_time > 0.1);
+	LLConversationItemParticipant* participant = NULL;
+	child_list_t::const_iterator iter;
+	for (iter = mChildren.begin(); iter != mChildren.end(); iter++)
+	{
+		participant = dynamic_cast<LLConversationItemParticipant*>(*iter);
+		F64 participant_time;
+		if (participant->getTime(participant_time))
+		{
+			has_time = true;
+			most_recent_time = llmax(most_recent_time,participant_time);
+		}
+	}
+	if (has_time)
+	{
+		time = most_recent_time;
+	}
+	return has_time;
+}
+
 void LLConversationItemSession::dumpDebugData()
 {
-	llinfos << "Merov debug : session, uuid = " << mUUID << ", name = " << mName << ", is loaded = " << mIsLoaded << llendl;
+	llinfos << "Merov debug : session " << this << ", uuid = " << mUUID << ", name = " << mName << ", is loaded = " << mIsLoaded << llendl;
 	LLConversationItemParticipant* participant = NULL;
 	child_list_t::iterator iter;
 	for (iter = mChildren.begin(); iter != mChildren.end(); iter++)
@@ -186,21 +299,34 @@ void LLConversationItemSession::dumpDebugData()
 LLConversationItemParticipant::LLConversationItemParticipant(std::string display_name, const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
 	LLConversationItem(display_name,uuid,root_view_model),
 	mIsMuted(false),
-	mIsModerator(false)
+	mIsModerator(false),
+	mDistToAgent(-1.0)
 {
 	mConvType = CONV_PARTICIPANT;
 }
 
 LLConversationItemParticipant::LLConversationItemParticipant(const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
-	LLConversationItem(uuid,root_view_model)
+	LLConversationItem(uuid,root_view_model),
+	mIsMuted(false),
+	mIsModerator(false),
+	mDistToAgent(-1.0)
 {
 	mConvType = CONV_PARTICIPANT;
 }
 
+void LLConversationItemParticipant::buildContextMenu(LLMenuGL& menu, U32 flags)
+{
+    menuentry_vec_t items;
+    menuentry_vec_t disabled_items;
+
+    buildParticipantMenuOptions(items);
+    hide_context_entries(menu, items, disabled_items);
+}
+
 void LLConversationItemParticipant::onAvatarNameCache(const LLAvatarName& av_name)
 {
-	mName = av_name.mDisplayName;
-	// *TODO : we should also store that one, to be used in the tooltip : av_name.mUsername
+	mName = (av_name.mUsername.empty() ? av_name.mDisplayName : av_name.mUsername);
+	mDisplayName = (av_name.mDisplayName.empty() ? av_name.mUsername : av_name.mDisplayName);
 	mNeedsRefresh = true;
 	if (mParent)
 	{
@@ -210,13 +336,14 @@ void LLConversationItemParticipant::onAvatarNameCache(const LLAvatarName& av_nam
 
 void LLConversationItemParticipant::dumpDebugData()
 {
-	llinfos << "Merov debug : participant, uuid = " << mUUID << ", name = " << mName << ", muted = " << mIsMuted << ", moderator = " << mIsModerator << llendl;
+	llinfos << "Merov debug : participant, uuid = " << mUUID << ", name = " << mName << ", display name = " << mDisplayName << ", muted = " << mIsMuted << ", moderator = " << mIsModerator << llendl;
 }
 
 //
 // LLConversationSort
 // 
 
+// Comparison operator: returns "true" is a comes before b, "false" otherwise
 bool LLConversationSort::operator()(const LLConversationItem* const& a, const LLConversationItem* const& b) const
 {
 	LLConversationItem::EConversationType type_a = a->getType();
@@ -224,54 +351,93 @@ bool LLConversationSort::operator()(const LLConversationItem* const& a, const LL
 
 	if ((type_a == LLConversationItem::CONV_PARTICIPANT) && (type_b == LLConversationItem::CONV_PARTICIPANT))
 	{
-		// If both are participants
+		// If both items are participants
 		U32 sort_order = getSortOrderParticipants();
 		if (sort_order == LLConversationFilter::SO_DATE)
 		{
-			F32 time_a = 0.0;
-			F32 time_b = 0.0;
-			if (a->getTime(time_a) && b->getTime(time_b))
+			F64 time_a = 0.0;
+			F64 time_b = 0.0;
+			bool has_time_a = a->getTime(time_a);
+			bool has_time_b = b->getTime(time_b);
+			if (has_time_a && has_time_b)
 			{
+				// Most recent comes first
 				return (time_a > time_b);
 			}
+			else if (has_time_a || has_time_b)
+			{
+				// If we have only one time available, the element with time must come first
+				return has_time_a;
+			}
+			// If no time available, we'll default to sort by name at the end of this method
 		}
 		else if (sort_order == LLConversationFilter::SO_DISTANCE)
 		{
-			F32 dist_a = 0.0;
-			F32 dist_b = 0.0;
-			if (a->getDistanceToAgent(dist_a) && b->getDistanceToAgent(dist_b))
+			F64 dist_a = 0.0;
+			F64 dist_b = 0.0;
+			bool has_dist_a = a->getDistanceToAgent(dist_a);
+			bool has_dist_b = b->getDistanceToAgent(dist_b);
+			if (has_dist_a && has_dist_b)
 			{
-				return (dist_a > dist_b);
+				// Closest comes first
+				return (dist_a < dist_b);
 			}
+			else if (has_dist_a || has_dist_b)
+			{
+				// If we have only one distance available, the element with it must come first
+				return has_dist_a;
+			}
+			// If no distance available, we'll default to sort by name at the end of this method
 		}
 	}
 	else if ((type_a > LLConversationItem::CONV_PARTICIPANT) && (type_b > LLConversationItem::CONV_PARTICIPANT))
 	{
 		// If both are sessions
 		U32 sort_order = getSortOrderSessions();
-		if (sort_order == LLConversationFilter::SO_DATE)
+		if ((type_a == LLConversationItem::CONV_SESSION_NEARBY) || (type_b == LLConversationItem::CONV_SESSION_NEARBY))
 		{
-			F32 time_a = 0.0;
-			F32 time_b = 0.0;
-			if (a->getTime(time_a) && b->getTime(time_b))
+			// If one is the nearby session, put nearby session *always* first
+			return (type_a == LLConversationItem::CONV_SESSION_NEARBY);
+		}
+		else if (sort_order == LLConversationFilter::SO_DATE)
+		{
+			// Sort by time
+			F64 time_a = 0.0;
+			F64 time_b = 0.0;
+			bool has_time_a = a->getTime(time_a);
+			bool has_time_b = b->getTime(time_b);
+			if (has_time_a && has_time_b)
 			{
+				// Most recent comes first
 				return (time_a > time_b);
 			}
+			else if (has_time_a || has_time_b)
+			{
+				// If we have only one time available, the element with time must come first
+				return has_time_a;
+			}
+			// If no time available, we'll default to sort by name at the end of this method
 		}
 		else if (sort_order == LLConversationFilter::SO_SESSION_TYPE)
 		{
-			return (type_a < type_b);
+			if (type_a != type_b)
+			{
+				// Lowest types come first. See LLConversationItem definition of types
+				return (type_a < type_b);
+			}
+			// If types are identical, we'll default to sort by name at the end of this method
 		}
 	}
 	else
 	{
-		// If one is a participant and the other a session, the session is always "less" than the participant
+		// If one item is a participant and the other a session, the session comes before the participant
 		// so we simply compare the type
 		// Notes: as a consequence, CONV_UNKNOWN (which should never get created...) always come first
-		return (type_a < type_b);
+		return (type_a > type_b);
 	}
-	// By default, in all other possible cases (including sort order of type LLConversationFilter::SO_NAME of course), sort by name
-	S32 compare = LLStringUtil::compareDict(a->getDisplayName(), b->getDisplayName());
+	// By default, in all other possible cases (including sort order type LLConversationFilter::SO_NAME of course), 
+	// we sort by name
+	S32 compare = LLStringUtil::compareDict(a->getName(), b->getName());
 	return (compare < 0);
 }
 

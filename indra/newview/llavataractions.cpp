@@ -42,6 +42,7 @@
 #include "llappviewer.h"		// for gLastVersionChannel
 #include "llcachename.h"
 #include "llcallingcard.h"		// for LLAvatarTracker
+#include "llconversationlog.h"
 #include "llfloateravatarpicker.h"	// for LLFloaterAvatarPicker
 #include "llfloatergroupinvite.h"
 #include "llfloatergroups.h"
@@ -894,6 +895,22 @@ void LLAvatarActions::inviteToGroup(const LLUUID& id)
 		widget->setPowersMask(GP_MEMBER_INVITE);
 		widget->removeNoneOption();
 		widget->setSelectGroupCallback(boost::bind(callback_invite_to_group, _1, id));
+	}
+}
+
+// static
+void LLAvatarActions::viewChatHistory(const LLUUID& id)
+{
+	const std::vector<LLConversation>& conversations = LLConversationLog::instance().getConversations();
+	std::vector<LLConversation>::const_iterator iter = conversations.begin();
+
+	for (; iter != conversations.end(); ++iter)
+	{
+		if (iter->getParticipantID() == id)
+		{
+			LLFloaterReg::showInstance("preview_conversation", iter->getSessionID(), true);
+			break;
+		}
 	}
 }
 

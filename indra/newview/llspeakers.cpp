@@ -84,6 +84,19 @@ bool LLSpeaker::isInVoiceChannel()
 	return mStatus <= LLSpeaker::STATUS_VOICE_ACTIVE || mStatus == LLSpeaker::STATUS_MUTED;
 }
 
+LLSpeakerUpdateSpeakerEvent::LLSpeakerUpdateSpeakerEvent(LLSpeaker* source)
+: LLEvent(source, "Speaker update speaker event"),
+  mSpeakerID (source->mID)
+{
+}
+
+LLSD LLSpeakerUpdateSpeakerEvent::getValue()
+{
+	LLSD ret;
+	ret["id"] = mSpeakerID;
+	return ret;
+}
+
 LLSpeakerUpdateModeratorEvent::LLSpeakerUpdateModeratorEvent(LLSpeaker* source)
 : LLEvent(source, "Speaker add moderator event"),
   mSpeakerID (source->mID),
@@ -374,6 +387,7 @@ void LLSpeakerMgr::update(BOOL resort_ok)
 				{
 					speakerp->mLastSpokeTime = mSpeechTimer.getElapsedTimeF32();
 					speakerp->mHasSpoken = TRUE;
+					fireEvent(new LLSpeakerUpdateSpeakerEvent(speakerp), "update_speaker");
 				}
 				speakerp->mStatus = LLSpeaker::STATUS_SPEAKING;
 				// interpolate between active color and full speaking color based on power of speech output
@@ -548,6 +562,7 @@ void LLSpeakerMgr::speakerChatted(const LLUUID& speaker_id)
 	{
 		speakerp->mLastSpokeTime = mSpeechTimer.getElapsedTimeF32();
 		speakerp->mHasSpoken = TRUE;
+		fireEvent(new LLSpeakerUpdateSpeakerEvent(speakerp), "update_speaker");
 	}
 }
 

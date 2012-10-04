@@ -60,18 +60,18 @@ public:
 		Optional<time_t>							creation_date;
 		Optional<bool>								allow_open;
 
+        Optional<S32>                               left_pad,
+                                                    icon_pad,
+                                                    icon_width,
+                                                    text_pad,
+                                                    text_pad_right,
+                                                    arrow_size,
+                                                    max_folder_item_overlap;
 		Params();
 	};
 
-	// layout constants
-	static const S32	LEFT_PAD = 5,
-						ICON_PAD = 2,
-						ICON_WIDTH = 16,
-						TEXT_PAD = 1,
-                        DEFAULT_TEXT_PADDING_RIGHT = 4,
-						ARROW_SIZE = 12,
-						MAX_FOLDER_ITEM_OVERLAP = 2;
-	
+
+	static const S32    DEFAULT_LABEL_PADDING_RIGHT = 4;
 	// animation parameters
 	static const F32	FOLDER_CLOSE_TIME_CONSTANT,
 						FOLDER_OPEN_TIME_CONSTANT;
@@ -99,6 +99,14 @@ protected:
 	S32							mDragStartX,
 								mDragStartY;
 
+    S32                         mLeftPad,
+                                mIconPad,
+                                mIconWidth,
+                                mTextPad,
+                                mTextPadRight,
+                                mArrowSize,
+                                mMaxFolderItemOverlap;
+
 	F32							mControlLabelRotation;
 	LLFolderView*				mRoot;
 	bool						mHasVisibleChildren,
@@ -107,6 +115,19 @@ protected:
 								mIsMouseOverTitle,
 								mAllowOpen,
 								mSelectPending;
+
+	// For now assuming all colors are the same in derived classes.
+	static LLUIColor			sFgColor;
+	static LLUIColor			sHighlightBgColor;
+	static LLUIColor			sHighlightFgColor;
+	static LLUIColor			sFocusOutlineColor;
+	static LLUIColor			sMouseOverColor;
+	static LLUIColor			sFilterBGColor;
+	static LLUIColor			sFilterTextColor;
+	static LLUIColor			sSuffixColor;
+	static LLUIColor			sLibraryColor;
+	static LLUIColor			sLinkColor;
+	static LLUIColor			sSearchStatusColor;
 
 	// this is an internal method used for adding items to folders. A
 	// no-op at this level, but reimplemented in derived classes.
@@ -136,6 +157,9 @@ public:
 	// makes sure that this view and it's children are the right size.
 	virtual S32 arrange( S32* width, S32* height );
 	virtual S32 getItemHeight();
+    virtual S32 getLabelXPos();
+    S32 getIconPad();
+    S32 getTextPad();
 
 	// If 'selection' is 'this' then note that otherwise ignore.
 	// Returns TRUE if this item ends up being selected.
@@ -236,6 +260,7 @@ public:
 
 	//	virtual void handleDropped();
 	virtual void draw();
+	void drawOpenFolderArrow(const Params& default_params, const LLUIColor& fg_color);
     void drawHighlight(const BOOL showContent, const BOOL hasKeyboardFocus, const LLUIColor &bgColor, const LLUIColor &outlineColor, const LLUIColor &mouseOverColor);
     void drawLabel(const LLFontGL * font, const F32 x, const F32 y, const LLColor4& color, F32 &right_x);
 	virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
@@ -262,6 +287,8 @@ class LLFolderViewFolder : public LLFolderViewItem
 protected:
 	LLFolderViewFolder( const LLFolderViewItem::Params& );
 	friend class LLUICtrlFactory;
+
+	void updateLabelRotation();
 
 public:
 	typedef std::list<LLFolderViewItem*> items_t;

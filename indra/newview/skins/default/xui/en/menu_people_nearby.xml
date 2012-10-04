@@ -37,6 +37,14 @@
     </menu_item_call>
     <menu_item_separator />
     <menu_item_call
+     label="View chat history..."
+     layout="topleft"
+     name="Chat history">
+        <menu_item_call.on_click
+         function="Avatar.Calllog" />
+    </menu_item_call>
+    <menu_item_separator />
+    <menu_item_call
      label="Add Friend"
      layout="topleft"
      name="Add Friend">
@@ -101,5 +109,5 @@
          function="Avatar.EnableItem"
          parameter="can_block" />
     </menu_item_check>
-
+    <menu_item_separator />
 </context_menu>

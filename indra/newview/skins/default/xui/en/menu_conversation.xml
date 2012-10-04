@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu
+ bottom="806"
+ layout="topleft"
+ left="0"
+ mouse_opaque="false"
+ name="menu_conversation_participant"
+ visible="false">
+     <menu_item_call
+     label="Close conversation"
+     layout="topleft"
+     name="close_conversation">
+        <on_click function="Avatar.DoToSelected" parameter="close_conversation"/>
+	 </menu_item_call>
+     <menu_item_call
+     label="Open voice conversation"
+     layout="topleft"
+     name="open_voice_conversation">
+        <on_click function="Avatar.DoToSelected" parameter="open_voice_conversation"/>
+     </menu_item_call>	
+     <menu_item_call
+     label="Disconnect from voice"
+     layout="topleft"
+     name="disconnect_from_voice">
+        <on_click function="Avatar.DoToSelected" parameter="disconnect_from_voice"/>
+    </menu_item_call>	
+	<menu_item_separator layout="topleft" name="separator_disconnect_from_voice"/>	
+    <menu_item_call
+     label="View Profile"
+     layout="topleft"
+     name="view_profile">
+        <on_click function="Avatar.DoToSelected" parameter="view_profile"/>
+    </menu_item_call>
+    <menu_item_call
+     label="IM"
+     layout="topleft"
+     name="im">
+        <on_click function="Avatar.DoToSelected" parameter="im"/>
+    </menu_item_call>
+    <menu_item_call
+     label="Offer teleport"
+     layout="topleft"
+     name="offer_teleport">
+        <on_click function="Avatar.DoToSelected" parameter="offer_teleport"/>
+        <on_enable function="Avatar.EnableItem" parameter="can_offer_teleport"/>
+    </menu_item_call>
+    <menu_item_call
+     label="Voice call"
+     layout="topleft"
+     name="voice_call">
+        <on_click function="Avatar.DoToSelected" parameter="voice_call"/>
+        <on_enable function="Avatar.EnableItem" parameter="can_call" />
+    </menu_item_call>
+    <menu_item_call
+     label="Chat history..."
+     layout="topleft"
+     name="chat_history">
+        <on_click function="Avatar.DoToSelected" parameter="chat_history"/>
+    </menu_item_call>	
+    <menu_item_separator layout="topleft" name="separator_chat_history"/>	
+    <menu_item_call
+     label="Add friend"
+     layout="topleft"
+     name="add_friend">
+        <on_click function="Avatar.DoToSelected" parameter="add_friend"/>
+        <on_enable function="Avatar.EnableItem" parameter="can_add" />
+    </menu_item_call>
+    <menu_item_call
+     label="Remove friend"
+     layout="topleft"
+     name="remove_friend">
+        <on_click function="Avatar.DoToSelected" parameter="remove_friend" />
+        <on_enable function="Avatar.EnableItem" parameter="can_delete" />
+    </menu_item_call>	
+    <menu_item_call
+     label="Invite to group..."
+     layout="topleft"
+     name="invite_to_group">
+        <on_click function="Avatar.DoToSelected" parameter="invite_to_group" />
+    </menu_item_call>
+    <menu_item_separator layout="topleft" name="separator_invite_to_group"/>		
+    <menu_item_call
+     label="Map"
+     layout="topleft"
+     name="map">
+        <on_click function="Avatar.DoToSelected" parameter="map" />
+        <on_enable function="Avatar.EnableItem" parameter="can_show_on_map" />
+    </menu_item_call>
+    <menu_item_call
+     label="Share"
+     layout="topleft"
+     name="share">
+        <on_click function="Avatar.DoToSelected" parameter="share" />
+    </menu_item_call>
+    <menu_item_call
+     label="Pay"
+     layout="topleft"
+     name="pay">
+        <on_click function="Avatar.DoToSelected" parameter="pay" />
+    </menu_item_call>
+    <menu_item_check
+     label="Block / unblock"
+     layout="topleft"
+     name="block_unblock">
+        <on_click function="Avatar.DoToSelected" parameter="block_unblock" />
+		<on_check function="Avatar.CheckItem" parameter="is_blocked" />
+		<on_enable  function="Avatar.EnableItem" parameter="can_block" />
+    </menu_item_check>
+	<menu_item_call
+     label="Group Profile"
+     layout="topleft"
+     name="group_profile">
+        <on_click function="Group.DoToSelected" parameter="group_profile"/>
+    </menu_item_call>	
+    <menu_item_call
+     label="Activate Group"
+     layout="topleft"
+     name="activate_group">
+        <on_click function="Group.DoToSelected" parameter="activate_group"/>
+    </menu_item_call>		
+    <menu_item_call
+     label="Leave Group"
+     layout="topleft"
+     name="leave_group">
+        <on_click function="Group.DoToSelected" parameter="leave_group"/>
+    </menu_item_call>
+</toggleable_menu>

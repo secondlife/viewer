@@ -30,10 +30,12 @@
 #include "llconversationview.h"
 
 #include <boost/bind.hpp>
+#include "llagentdata.h"
 #include "llconversationmodel.h"
 #include "llimconversation.h"
 #include "llimfloatercontainer.h"
 #include "llfloaterreg.h"
+#include "llgroupiconctrl.h"
 #include "lluictrlfactory.h"
 
 //
@@ -43,6 +45,30 @@ static LLDefaultChildRegistry::Register<LLConversationViewSession> r_conversatio
 
 const LLColor4U DEFAULT_WHITE(255, 255, 255);
 
+class LLNearbyVoiceClientStatusObserver : public LLVoiceClientStatusObserver
+{
+public:
+
+	LLNearbyVoiceClientStatusObserver(LLConversationViewSession* conv)
+	:	conversation(conv)
+	{}
+
+	virtual void onChange(EStatusType status, const std::string &channelURI, bool proximal)
+	{
+		if (conversation
+		   && status != STATUS_JOINING
+		   && status != STATUS_LEFT_CHANNEL
+		   && LLVoiceClient::getInstance()->voiceEnabled()
+		   && LLVoiceClient::getInstance()->isVoiceWorking())
+		{
+			conversation->showVoiceIndicator();
+		}
+	}
+
+private:
+	LLConversationViewSession* conversation;
+};
+
 LLConversationViewSession::Params::Params() :	
 	container()
 {}
@@ -51,8 +77,22 @@ LLConversationViewSession::LLConversationViewSession(const LLConversationViewSes
 	LLFolderViewFolder(p),
 	mContainer(p.container),
 	mItemPanel(NULL),
-	mSessionTitle(NULL)
+	mCallIconLayoutPanel(NULL),
+	mSessionTitle(NULL),
+	mSpeakingIndicator(NULL),
+	mVoiceClientObserver(NULL),
+	mMinimizedMode(false)
 {
+}
+
+LLConversationViewSession::~LLConversationViewSession()
+{
+	mActiveVoiceChannelConnection.disconnect();
+
+	if(LLVoiceClient::instanceExists() && mVoiceClientObserver)
+	{
+		LLVoiceClient::getInstance()->removeObserver(mVoiceClientObserver);
+	}
 }
 
 BOOL LLConversationViewSession::postBuild()
@@ -60,10 +100,62 @@ BOOL LLConversationViewSession::postBuild()
 	LLFolderViewItem::postBuild();
 
 	mItemPanel = LLUICtrlFactory::getInstance()->createFromFile<LLPanel>("panel_conversation_list_item.xml", NULL, LLPanel::child_registry_t::instance());
-
 	addChild(mItemPanel);
 
+	mCallIconLayoutPanel = mItemPanel->getChild<LLPanel>("call_icon_panel");
 	mSessionTitle = mItemPanel->getChild<LLTextBox>("conversation_title");
+
+	mActiveVoiceChannelConnection = LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLConversationViewSession::onCurrentVoiceSessionChanged, this, _1));
+	mSpeakingIndicator = getChild<LLOutputMonitorCtrl>("speaking_indicatorn");
+
+	LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(getViewModelItem());
+	if (vmi)
+	{
+		switch(vmi->getType())
+		{
+		case LLConversationItem::CONV_PARTICIPANT:
+		case LLConversationItem::CONV_SESSION_1_ON_1:
+		{
+			LLIMModel::LLIMSession* session=  LLIMModel::instance().findIMSession(vmi->getUUID());
+			if (session)
+			{
+				LLAvatarIconCtrl* icon = mItemPanel->getChild<LLAvatarIconCtrl>("avatar_icon");
+				icon->setVisible(true);
+				icon->setValue(session->mOtherParticipantID);
+				mSpeakingIndicator->setSpeakerId(gAgentID, session->mSessionID, true);
+			}
+			break;
+		}
+		case LLConversationItem::CONV_SESSION_AD_HOC:
+		{
+			LLGroupIconCtrl* icon = mItemPanel->getChild<LLGroupIconCtrl>("group_icon");
+			icon->setVisible(true);
+			mSpeakingIndicator->setSpeakerId(gAgentID, vmi->getUUID(), true);
+		}
+		case LLConversationItem::CONV_SESSION_GROUP:
+		{
+			LLGroupIconCtrl* icon = mItemPanel->getChild<LLGroupIconCtrl>("group_icon");
+			icon->setVisible(true);
+			icon->setValue(vmi->getUUID());
+			mSpeakingIndicator->setSpeakerId(gAgentID, vmi->getUUID(), true);
+			break;
+		}
+		case LLConversationItem::CONV_SESSION_NEARBY:
+		{
+			LLIconCtrl* icon = mItemPanel->getChild<LLIconCtrl>("nearby_chat_icon");
+			icon->setVisible(true);
+			mSpeakingIndicator->setSpeakerId(gAgentID, LLUUID::null, true);
+			if(LLVoiceClient::instanceExists())
+			{
+				LLNearbyVoiceClientStatusObserver* mVoiceClientObserver = new LLNearbyVoiceClientStatusObserver(this);
+				LLVoiceClient::getInstance()->addObserver(mVoiceClientObserver);
+			}
+			break;
+		}
+		default:
+			break;
+		}
+	}
 
 	refresh();
 
@@ -72,136 +164,22 @@ BOOL LLConversationViewSession::postBuild()
 
 void LLConversationViewSession::draw()
 {
-// *TODO Seth PE: remove the code duplicated from LLFolderViewFolder::draw()
-// ***** LLFolderViewFolder::draw() code begin *****
-	if (mAutoOpenCountdown != 0.f)
-	{
-		mControlLabelRotation = mAutoOpenCountdown * -90.f;
-	}
-	else if (isOpen())
-	{
-		mControlLabelRotation = lerp(mControlLabelRotation, -90.f, LLCriticalDamp::getInterpolant(0.04f));
-	}
-	else
-	{
-		mControlLabelRotation = lerp(mControlLabelRotation, 0.f, LLCriticalDamp::getInterpolant(0.025f));
-	}
-// ***** LLFolderViewFolder::draw() code end *****
-
-// *TODO Seth PE: remove the code duplicated from LLFolderViewItem::draw()
-// ***** LLFolderViewItem::draw() code begin *****
-
-	static LLUIColor sFgColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
-	static LLUIColor sHighlightBgColor = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", DEFAULT_WHITE);
-	static LLUIColor sFocusOutlineColor = LLUIColorTable::instance().getColor("InventoryFocusOutlineColor", DEFAULT_WHITE);
-	static LLUIColor sMouseOverColor = LLUIColorTable::instance().getColor("InventoryMouseOverColor", DEFAULT_WHITE);
-
-	const LLFolderViewItem::Params& default_params = LLUICtrlFactory::getDefaultParams<LLFolderViewItem>();
-	const S32 TOP_PAD = default_params.item_top_pad;
-	const S32 FOCUS_LEFT = 1;
-
 	getViewModelItem()->update();
 
-	//--------------------------------------------------------------------------------//
-	// Draw open folder arrow
-	//
-	if (hasVisibleChildren() || getViewModelItem()->hasChildren())
-	{
-		LLUIImage* arrow_image = default_params.folder_arrow_image;
-		gl_draw_scaled_rotated_image(
-			mIndentation, getRect().getHeight() - ARROW_SIZE - TEXT_PAD - TOP_PAD,
-			ARROW_SIZE, ARROW_SIZE, mControlLabelRotation, arrow_image->getImage(), sFgColor);
-	}
-
-
-	//--------------------------------------------------------------------------------//
-	// Draw highlight for selected items
-	//
+	const LLFolderViewItem::Params& default_params = LLUICtrlFactory::getDefaultParams<LLFolderViewItem>();
 	const BOOL show_context = (getRoot() ? getRoot()->getShowSelectionContext() : FALSE);
-	const BOOL filled = show_context || (getRoot() ? getRoot()->getParentPanel()->hasFocus() : FALSE); // If we have keyboard focus, draw selection filled
-	const S32 focus_top = getRect().getHeight();
-	const S32 focus_bottom = getRect().getHeight() - mItemHeight;
-	const bool folder_open = (getRect().getHeight() > mItemHeight + 4);
-	if (mIsSelected) // always render "current" item.  Only render other selected items if mShowSingleSelection is FALSE
+
+	// we don't draw the open folder arrow in minimized mode
+	if (!mMinimizedMode)
 	{
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-		LLColor4 bg_color = sHighlightBgColor;
-		if (!mIsCurSelection)
-		{
-			// do time-based fade of extra objects
-			F32 fade_time = (getRoot() ? getRoot()->getSelectionFadeElapsedTime() : 0.0f);
-			if (getRoot() && getRoot()->getShowSingleSelection())
-			{
-				// fading out
-				bg_color.mV[VALPHA] = clamp_rescale(fade_time, 0.f, 0.4f, bg_color.mV[VALPHA], 0.f);
-			}
-			else
-			{
-				// fading in
-				bg_color.mV[VALPHA] = clamp_rescale(fade_time, 0.f, 0.4f, 0.f, bg_color.mV[VALPHA]);
-			}
-		}
-		gl_rect_2d(FOCUS_LEFT,
-				   focus_top,
-				   getRect().getWidth() - 2,
-				   focus_bottom,
-				   bg_color, filled);
-		if (mIsCurSelection)
-		{
-			gl_rect_2d(FOCUS_LEFT,
-					   focus_top,
-					   getRect().getWidth() - 2,
-					   focus_bottom,
-					   sFocusOutlineColor, FALSE);
-		}
-		if (folder_open)
-		{
-			gl_rect_2d(FOCUS_LEFT,
-					   focus_bottom + 1, // overlap with bottom edge of above rect
-					   getRect().getWidth() - 2,
-					   0,
-					   sFocusOutlineColor, FALSE);
-			if (show_context)
-			{
-				gl_rect_2d(FOCUS_LEFT,
-						   focus_bottom + 1,
-						   getRect().getWidth() - 2,
-						   0,
-						   sHighlightBgColor, TRUE);
-			}
-		}
-	}
-	else if (mIsMouseOverTitle)
-	{
-		gl_rect_2d(FOCUS_LEFT,
-			focus_top,
-			getRect().getWidth() - 2,
-			focus_bottom,
-			sMouseOverColor, FALSE);
+		// update the rotation angle of open folder arrow
+		updateLabelRotation();
+
+		drawOpenFolderArrow(default_params, sFgColor);
 	}
 
-	//--------------------------------------------------------------------------------//
-	// Draw DragNDrop highlight
-	//
-	if (mDragAndDropTarget)
-	{
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-		gl_rect_2d(FOCUS_LEFT,
-				   focus_top,
-				   getRect().getWidth() - 2,
-				   focus_bottom,
-				   sHighlightBgColor, FALSE);
-		if (folder_open)
-		{
-			gl_rect_2d(FOCUS_LEFT,
-					   focus_bottom + 1, // overlap with bottom edge of above rect
-					   getRect().getWidth() - 2,
-					   0,
-					   sHighlightBgColor, FALSE);
-		}
-		mDragAndDropTarget = FALSE;
-	}
-// ***** LLFolderViewItem::draw() code end *****
+	// draw highlight for selected items
+	drawHighlight(show_context, true, sHighlightBgColor, sFocusOutlineColor, sMouseOverColor);
 
 	// draw children if root folder, or any other folder that is open or animating to closed state
 	bool draw_children = getRoot() == static_cast<LLFolderViewFolder*>(this)
@@ -227,13 +205,24 @@ void LLConversationViewSession::draw()
 // virtual
 S32 LLConversationViewSession::arrange(S32* width, S32* height)
 {
-	LLRect rect(getIndentation() + ARROW_SIZE,
+	S32 h_pad = getIndentation() + mArrowSize;
+	LLRect rect(mMinimizedMode ? getLocalRect().mLeft : h_pad,
 				getLocalRect().mTop,
 				getLocalRect().mRight,
 				getLocalRect().mTop - getItemHeight());
 	mItemPanel->setShape(rect);
 
 	return LLFolderViewFolder::arrange(width, height);
+}
+
+// virtual
+void LLConversationViewSession::toggleOpen()
+{
+	// conversations should not be opened while in minimized mode
+	if (!mMinimizedMode)
+	{
+		LLFolderViewFolder::toggleOpen();
+	}
 }
 
 void LLConversationViewSession::selectItem()
@@ -255,6 +244,18 @@ void LLConversationViewSession::selectItem()
 	session_floater->setFocus(TRUE);
 
 	LLFolderViewItem::selectItem();
+}
+
+void LLConversationViewSession::toggleMinimizedMode(bool is_minimized)
+{
+	mMinimizedMode = is_minimized;
+
+	// hide the layout stack which contains all item's child widgets
+	// except for the icon which we display in minimized mode
+	getChild<LLView>("conversation_item_stack")->setVisible(!mMinimizedMode);
+
+	S32 h_pad = getIndentation() + mArrowSize;
+	mItemPanel->translate(mMinimizedMode ? -h_pad : h_pad, 0);
 }
 
 void LLConversationViewSession::setVisibleIfDetached(BOOL visible)
@@ -288,6 +289,14 @@ LLConversationViewParticipant* LLConversationViewSession::findParticipant(const 
 	return (iter == getItemsEnd() ? NULL : participant);
 }
 
+void LLConversationViewSession::showVoiceIndicator()
+{
+	if (LLVoiceChannel::getCurrentVoiceChannel()->getSessionID().isNull())
+	{
+		mCallIconLayoutPanel->setVisible(true);
+	}
+}
+
 void LLConversationViewSession::refresh()
 {
 	// Refresh the session view from its model data
@@ -303,6 +312,25 @@ void LLConversationViewSession::refresh()
 	
 	// Do the regular upstream refresh
 	LLFolderViewFolder::refresh();
+}
+
+void LLConversationViewSession::onCurrentVoiceSessionChanged(const LLUUID& session_id)
+{
+	LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(getViewModelItem());
+
+	if (vmi)
+	{
+		bool is_active = vmi->getUUID() == session_id;
+		bool is_nearby = vmi->getType() == LLConversationItem::CONV_SESSION_NEARBY;
+
+		if (is_nearby)
+		{
+			mSpeakingIndicator->setSpeakerId(is_active ? gAgentID : LLUUID::null);
+		}
+
+		mSpeakingIndicator->switchIndicator(is_active);
+		mCallIconLayoutPanel->setVisible(is_active);
+	}
 }
 
 //
@@ -336,7 +364,7 @@ void LLConversationViewParticipant::initFromParams(const LLConversationViewParti
     applyXUILayout(avatar_icon_params, this);
     LLAvatarIconCtrl * avatarIcon = LLUICtrlFactory::create<LLAvatarIconCtrl>(avatar_icon_params);
     addChild(avatarIcon);	
-
+    
 	LLButton::Params info_button_params(params.info_button());
     applyXUILayout(info_button_params, this);
 	LLButton * button = LLUICtrlFactory::create<LLButton>(info_button_params);
@@ -366,7 +394,7 @@ BOOL LLConversationViewParticipant::postBuild()
         sStaticInitialized = true;
     }
 
-    computeLabelRightPadding();
+    updateChildren();
 	return LLFolderViewItem::postBuild();
 }
 
@@ -381,16 +409,11 @@ void LLConversationViewParticipant::draw()
     const BOOL show_context = (getRoot() ? getRoot()->getShowSelectionContext() : FALSE);
     const BOOL filled = show_context || (getRoot() ? getRoot()->getParentPanel()->hasFocus() : FALSE); // If we have keyboard focus, draw selection filled
 
-    const LLFolderViewItem::Params& default_params = LLUICtrlFactory::getDefaultParams<LLFolderViewItem>();
-    const S32 TOP_PAD = default_params.item_top_pad;
-
     const LLFontGL* font = getLabelFontForStyle(mLabelStyle);
     F32 right_x  = 0;
 
-    //TEXT_PAD, TOP_PAD, ICON_PAD and mIndentation are temporary values and will non-const eventually since they don't
-    //apply to every single layout
-    F32 y = (F32)getRect().getHeight() - font->getLineHeight() - (F32)TEXT_PAD - (F32)TOP_PAD;
-    F32 text_left = (F32)(mAvatarIcon->getRect().mRight + ICON_PAD + mIndentation);
+    F32 y = (F32)getRect().getHeight() - font->getLineHeight() - (F32)mTextPad;
+    F32 text_left = (F32)getLabelXPos();
     LLColor4 color = (mIsSelected && filled) ? sHighlightFgColor : sFgColor;
 
     drawHighlight(show_context, filled, sHighlightBgColor, sFocusOutlineColor, sMouseOverColor);
@@ -437,15 +460,20 @@ void LLConversationViewParticipant::onInfoBtnClick()
 void LLConversationViewParticipant::onMouseEnter(S32 x, S32 y, MASK mask)
 {
     mInfoBtn->setVisible(true);
-    computeLabelRightPadding();
+    updateChildren();
     LLFolderViewItem::onMouseEnter(x, y, mask);
 }
 
 void LLConversationViewParticipant::onMouseLeave(S32 x, S32 y, MASK mask)
 {
     mInfoBtn->setVisible(false);
-    computeLabelRightPadding();
-    LLFolderViewItem::onMouseEnter(x, y, mask);
+    updateChildren();
+    LLFolderViewItem::onMouseLeave(x, y, mask);
+}
+
+S32 LLConversationViewParticipant::getLabelXPos()
+{
+    return mAvatarIcon->getRect().mRight + mIconPad;
 }
 
 // static
@@ -463,12 +491,14 @@ void LLConversationViewParticipant::initChildrenWidths(LLConversationViewPartici
     llassert(index == 0);
 }
 
-void LLConversationViewParticipant::computeLabelRightPadding()
+void LLConversationViewParticipant::updateChildren()
 {
-    mLabelPaddingRight = DEFAULT_TEXT_PADDING_RIGHT;
+    mLabelPaddingRight = DEFAULT_LABEL_PADDING_RIGHT;
     LLView* control;
     S32 ctrl_width;
+    LLRect controlRect;
 
+    //Cycles through controls starting from right to left
     for (S32 i = 0; i < ALIC_COUNT; ++i)
     {
         control = getItemChildView((EAvatarListItemChildIndex)i);
@@ -476,9 +506,22 @@ void LLConversationViewParticipant::computeLabelRightPadding()
         // skip invisible views
         if (!control->getVisible()) continue;
 
+        //Get current pos/dimensions
+        controlRect = control->getRect();
+
         ctrl_width = sChildrenWidths[i]; // including space between current & left controls
         // accumulate the amount of space taken by the controls
         mLabelPaddingRight += ctrl_width;
+
+        //Reposition visible controls in case adjacent controls to the right are hidden.
+        controlRect.setLeftTopAndSize(
+            getLocalRect().getWidth() - mLabelPaddingRight,
+            controlRect.mTop,
+            controlRect.getWidth(),
+            controlRect.getHeight());
+
+        //Sets the new position
+        control->setShape(controlRect);
     }
 }
 

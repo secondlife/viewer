@@ -34,6 +34,7 @@
 #include "llagent.h"
 
 #include "llimview.h"
+#include "llimfloatercontainer.h"
 #include "llpanelpeoplemenus.h"
 #include "llnotificationsutil.h"
 #include "llparticipantlist.h"
@@ -224,12 +225,14 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source,
 	mSpeakerRemoveListener = new SpeakerRemoveListener(*this);
 	mSpeakerClearListener = new SpeakerClearListener(*this);
 	mSpeakerModeratorListener = new SpeakerModeratorUpdateListener(*this);
+	mSpeakerUpdateListener = new SpeakerUpdateListener(*this);
 	mSpeakerMuteListener = new SpeakerMuteListener(*this);
 
 	mSpeakerMgr->addListener(mSpeakerAddListener, "add");
 	mSpeakerMgr->addListener(mSpeakerRemoveListener, "remove");
 	mSpeakerMgr->addListener(mSpeakerClearListener, "clear");
 	mSpeakerMgr->addListener(mSpeakerModeratorListener, "update_moderator");
+	mSpeakerMgr->addListener(mSpeakerUpdateListener, "update_speaker");
 
 	setSessionID(mSpeakerMgr->getSessionID());
 	
@@ -584,6 +587,21 @@ bool LLParticipantList::onClearListEvent(LLPointer<LLOldEvents::LLEvent> event, 
 	return true;
 }
 
+bool LLParticipantList::onSpeakerUpdateEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
+{
+	const LLSD& evt_data = event->getValue();
+	if ( evt_data.has("id") )
+	{
+		LLUUID participant_id = evt_data["id"];
+		LLIMFloaterContainer* im_box = LLIMFloaterContainer::findInstance();
+		if (im_box)
+		{
+			im_box->setTimeNow(mUUID,participant_id);
+		}
+	}
+	return true;
+}
+
 bool LLParticipantList::onModeratorUpdateEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
 {
 	const LLSD& evt_data = event->getValue();
@@ -660,8 +678,10 @@ void LLParticipantList::sort()
 
 void LLParticipantList::addAvatarIDExceptAgent(const LLUUID& avatar_id)
 {
+	// Do not add if already in there or excluded for some reason
 	if (mExcludeAgent && gAgent.getID() == avatar_id) return;
 	if (mAvatarList && mAvatarList->contains(avatar_id)) return;
+	if (findParticipant(avatar_id)) return;
 
 	bool is_avatar = LLVoiceClient::getInstance()->isParticipantAvatar(avatar_id);
 
@@ -743,6 +763,14 @@ bool LLParticipantList::SpeakerRemoveListener::handleEvent(LLPointer<LLOldEvents
 bool LLParticipantList::SpeakerClearListener::handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
 {
 	return mParent.onClearListEvent(event, userdata);
+}
+
+//
+// LLParticipantList::SpeakerUpdateListener
+//
+bool LLParticipantList::SpeakerUpdateListener::handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
+{
+	return mParent.onSpeakerUpdateEvent(event, userdata);
 }
 
 //
