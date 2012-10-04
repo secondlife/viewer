@@ -89,6 +89,22 @@ target_link_libraries(llappearance
     ${LLCOMMON_LIBRARIES}
     )
 
+if (BUILD_HEADLESS)
+  add_library (llappearanceheadless ${llappearance_SOURCE_FILES})
+  
+  target_link_libraries(llappearanceheadless
+      ${LLCHARACTER_LIBRARIES}
+      ${LLINVENTORY_LIBRARIES}
+      ${LLIMAGE_LIBRARIES}
+      ${LLRENDERHEADLESS_LIBRARIES}
+      ${LLVFS_LIBRARIES}
+      ${LLMATH_LIBRARIES}
+      ${LLXML_LIBRARIES}
+      ${LLMATH_LIBRARIES}
+      ${LLCOMMON_LIBRARIES}
+      )
+endif (BUILD_HEADLESS)
+
 #add unit tests
 #if (LL_TESTS)
 #    INCLUDE(LLAddBuildTest)

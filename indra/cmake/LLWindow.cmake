@@ -1,5 +1,6 @@
 # -*- cmake -*-
 
+include(Variables)
 include(GLEXT)
 include(Prebuilt)
 
@@ -22,28 +23,21 @@ else (STANDALONE)
   endif (LINUX)
 endif (STANDALONE)
 
-if (SDL_FOUND AND NOT BAKING)
-  add_definitions(-DLL_SDL=1)
+if (SDL_FOUND)
   include_directories(${SDL_INCLUDE_DIR})
-endif (SDL_FOUND AND NOT BAKING)
-
-if (BAKING)
-  use_prebuilt_binary(mesa)
-  add_definitions(-DLL_MESA_HEADLESS=1)
-endif (BAKING)
+endif (SDL_FOUND)
 
 set(LLWINDOW_INCLUDE_DIRS
     ${GLEXT_INCLUDE_DIR}
     ${LIBS_OPEN_DIR}/llwindow
     )
 
-if (BAKING AND LINUX)
-  set(LLWINDOW_LIBRARIES
-      llwindowheadless
-      )
-  MESSAGE( STATUS "using headless libraries")
-else (BAKING AND LINUX)
-  set(LLWINDOW_LIBRARIES
-      llwindow
-      )
-endif (BAKING AND LINUX)
+if (BUILD_HEADLESS)
+  set(LLWINDOW_HEADLESS_LIBRARIES
+    llwindowheadless
+    )
+endif (BUILD_HEADLESS)
+
+set(LLWINDOW_LIBRARIES
+    llwindow
+    )

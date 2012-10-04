@@ -83,36 +83,36 @@ list(APPEND llrender_SOURCE_FILES
      llrender.cpp
      llrendertarget.cpp
      )
-if ((SERVER OR BAKING) AND NOT WINDOWS AND NOT DARWIN)
-  copy_server_sources(
-      llgl
-      llrender
-      )
-
-  set_source_files_properties(
-    ${server_SOURCE_FILES}
-    PROPERTIES
-    COMPILE_FLAGS "-DLL_MESA=1 -DLL_MESA_HEADLESS=1"
-    )
+if (BUILD_HEADLESS)
   add_library (llrenderheadless
     ${llrender_SOURCE_FILES}
-    ${server_SOURCE_FILES}
     )
 
-target_link_libraries(llrenderheadless
+  set_property(TARGET llrenderheadless
+    PROPERTY COMPILE_DEFINITIONS LL_MESA=1 LL_MESA_HEADLESS=1
+    )
+
+  target_link_libraries(llrenderheadless
     ${LLCOMMON_LIBRARIES}
     ${LLIMAGE_LIBRARIES}
     ${LLMATH_LIBRARIES}
-    ${LLRENDER_LIBRARIES}
+    ${LLRENDER_HEADLESS_LIBRARIES}
     ${LLVFS_LIBRARIES}
     ${LLXML_LIBRARIES}
     ${LLVFS_LIBRARIES}
-    ${LLWINDOW_LIBRARIES}
-    ${OPENGL_LIBRARIES})
+    ${LLWINDOW_HEADLESS_LIBRARIES}
+    ${OPENGL_HEADLESS_LIBRARIES})
 
-endif ((SERVER OR BAKING) AND NOT WINDOWS AND NOT DARWIN)
+endif (BUILD_HEADLESS)
 
 add_library (llrender ${llrender_SOURCE_FILES})
+
+if (SDL_FOUND)
+  set_property(TARGET llrender
+    PROPERTY COMPILE_DEFINITIONS LL_SDL=1
+    )
+endif (SDL_FOUND)
+
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
 target_link_libraries(llrender 

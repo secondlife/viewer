@@ -108,28 +108,8 @@ endif (LINUX)
 add_subdirectory(${VIEWER_PREFIX}newview)
 add_dependencies(viewer secondlife-bin)
 
-# Linux builds the viewer and server in 2 separate projects
-# In order for build server to work on linux, 
-# the viewer project needs a server target.
-# This is not true for mac and windows.
-# *TODO: Do something like this for BAKING?
-#if (LINUX) 
-#  add_custom_target(server)
-#endif (LINUX)
-#if (SERVER)
-#  if (NOT LINUX)
-#    add_custom_target(server)
-#  endif (NOT LINUX)
-#  include(${SERVER_PREFIX}Server.cmake)
-#
-#  # Windows builds include tools like VFS tool
-#  if (WINDOWS)
-#    add_subdirectory(${SERVER_PREFIX}tools)
-#  endif (WINDOWS)
-#endif (SERVER)
-
 if (LL_TESTS)
-  # Define after the custom viewer and server targets are created so
+  # Define after the custom targets are created so
   # individual apps can add themselves as dependencies
   add_subdirectory(${INTEGRATION_TESTS_PREFIX}integration_tests)
 endif (LL_TESTS)

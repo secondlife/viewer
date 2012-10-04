@@ -1,15 +1,13 @@
 # -*- cmake -*-
 
-#if (INSTALL_PROPRIETARY)
-#  set(HEADLESS ON CACHE BOOL "Use headless mesa library.")
-#endif (INSTALL_PROPRIETARY)
-
+include(Variables)
 include(Prebuilt)
 
-if (LINUX AND NOT STANDALONE)
+if (BUILD_HEADLESS)
   use_prebuilt_binary(mesa)
   SET(OPENGL_glu_LIBRARY GLU)
-endif (LINUX AND NOT STANDALONE)
+  SET(OPENGL_HEADLESS_LIBRARIES OSMesa16 GLU)
+endif (BUILD_HEADLESS)
 
 include(FindOpenGL)
 

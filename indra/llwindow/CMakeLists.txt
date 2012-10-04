@@ -38,6 +38,7 @@ set(llwindow_SOURCE_FILES
     llkeyboardheadless.cpp
     llwindowheadless.cpp
     llwindowcallbacks.cpp
+    llwindow.cpp
     )
 
 set(llwindow_HEADER_FILES
@@ -50,7 +51,6 @@ set(llwindow_HEADER_FILES
     )
 
 set(viewer_SOURCE_FILES
-    llwindow.cpp
     llmousehandler.cpp
     )
 
@@ -75,6 +75,20 @@ if (LINUX)
       ${SDL_LIBRARY}
       fontconfig          # For FCInit and other FC* functions.
       )
+
+  if (BUILD_HEADLESS)
+    set(llwindowheadless_LINK_LIBRARIES
+        ${LLCOMMON_LIBRARIES}
+        ${LLIMAGE_LIBRARIES}
+        ${LLMATH_LIBRARIES}
+        ${LLRENDER_HEADLESS_LIBRARIES}
+        ${LLVFS_LIBRARIES}
+        ${LLWINDOW_HEADLESS_LIBRARIES}
+        ${LLXML_LIBRARIES}
+        ${UI_LIBRARIES}     # for GTK
+        fontconfig          # For FCInit and other FC* functions.
+        )
+  endif (BUILD_HEADLESS)
 endif (LINUX)
 
 if (DARWIN)
@@ -140,30 +154,24 @@ endif (SOLARIS)
 set_source_files_properties(${llwindow_HEADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
 
-if ((SERVER OR BAKING) AND NOT WINDOWS AND NOT DARWIN)
-  set(server_SOURCE_FILES
+if (BUILD_HEADLESS)
+  set(llwindowheadless_SOURCE_FILES
        llwindowmesaheadless.cpp
        llmousehandler.cpp
        )
-  set(server_HEADER_FILES
+  set(llwindowheadless_HEADER_FILES
        llwindowmesaheadless.h
        llmousehandler.h
        )
-  copy_server_sources(
-      llwindow
-      )
-
-  set_source_files_properties(
-    ${server_SOURCE_FILES}
-    PROPERTIES
-    COMPILE_FLAGS "-DLL_MESA=1 -DLL_MESA_HEADLESS=1"
-    )
   add_library (llwindowheadless
     ${llwindow_SOURCE_FILES}
-    ${server_SOURCE_FILES}
+    ${llwindowheadless_SOURCE_FILES}
     )
-  target_link_libraries (llwindowheadless ${llwindow_LINK_LIBRARIES} OSMesa16 dl)
-endif ((SERVER OR BAKING) AND NOT WINDOWS AND NOT DARWIN)
+  set_property(TARGET llwindowheadless
+    PROPERTY COMPILE_DEFINITIONS LL_MESA=1 LL_MESA_HEADLESS=1
+    )
+  target_link_libraries (llwindowheadless ${llwindowheadless_LINK_LIBRARIES} dl)
+endif (BUILD_HEADLESS)
 
 if (llwindow_HEADER_FILES)
   list(APPEND llwindow_SOURCE_FILES ${llwindow_HEADER_FILES})
@@ -175,5 +183,12 @@ add_library (llwindow
   ${llwindow_SOURCE_FILES}
   ${viewer_SOURCE_FILES}
   )
+
+if (SDL_FOUND)
+  set_property(TARGET llwindow
+    PROPERTY COMPILE_DEFINITIONS LL_SDL=1
+    )
+endif (SDL_FOUND)
+
 target_link_libraries (llwindow ${llwindow_LINK_LIBRARIES})
 
