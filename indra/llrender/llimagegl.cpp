@@ -74,6 +74,9 @@ S32 LLImageGL::sCurTexSizeBar = -1 ;
 S32 LLImageGL::sCurTexPickSize = -1 ;
 S32 LLImageGL::sMaxCategories = 1 ;
 
+//optimization for when we don't need to calculate mIsMask
+BOOL LLImageGL::sSkipAnalyzeAlpha;
+
 //------------------------
 //****************************************************************************************************
 //End for texture auditing use only
@@ -169,8 +172,9 @@ BOOL is_little_endian()
 	return (*c == 0x78) ;
 }
 //static 
-void LLImageGL::initClass(S32 num_catagories) 
+void LLImageGL::initClass(S32 num_catagories, BOOL skip_analyze_alpha /* = false */)
 {
+	sSkipAnalyzeAlpha = skip_analyze_alpha;
 }
 
 //static 
@@ -1700,6 +1704,12 @@ BOOL LLImageGL::getBoundRecently() const
 	return (BOOL)(sLastFrameTime - mLastBindTime < MIN_TEXTURE_LIFETIME);
 }
 
+BOOL LLImageGL::getIsAlphaMask() const
+{
+	llassert_always(!sSkipAnalyzeAlpha);
+	return mIsMask;
+}
+
 void LLImageGL::setTarget(const LLGLenum target, const LLTexUnit::eTextureType bind_target)
 {
 	mTarget = target;
@@ -1797,7 +1807,7 @@ void LLImageGL::calcAlphaChannelOffsetAndStride()
 
 void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
 {
-	if(!mNeedsAlphaAndPickMask)
+	if(sSkipAnalyzeAlpha || !mNeedsAlphaAndPickMask)
 	{
 		return ;
 	}
