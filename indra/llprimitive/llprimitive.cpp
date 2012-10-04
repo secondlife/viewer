@@ -1403,6 +1403,7 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 	cur_ptr++;
 	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)material_id, 16, face_count, MVT_LLUUID);
 
+#if 0
 	for (U32 curFace = 0U; curFace < face_count; ++curFace)
 	{
 		std::string materialID(reinterpret_cast<char *>(&material_id[curFace * 16]), 16);
@@ -1419,6 +1420,7 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 
 		llinfos << "STINSON DEBUG: found material ID for face #" << curFace << " => " << materialIDString << llendl;
 	}
+#endif
 
 	for (i = 0; i < face_count; i++)
 	{
