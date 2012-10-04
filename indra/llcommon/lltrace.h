@@ -35,6 +35,7 @@
 #include "lltimer.h"
 #include "llrefcount.h"
 #include "lltracerecording.h"
+#include "llunit.h"
 
 #include <list>
 
@@ -42,11 +43,8 @@
 #define TOKEN_PASTE(x, y) TOKEN_PASTE_ACTUAL(x, y)
 #define RECORD_BLOCK_TIME(block_timer) LLTrace::BlockTimer::Recorder TOKEN_PASTE(block_time_recorder, __COUNTER__)(block_timer);
 
-
 namespace LLTrace
 {
-	class Recording;
-
 	void init();
 	void cleanup();
 
@@ -325,10 +323,10 @@ namespace LLTrace
 		U32	mNumSamples;
 	};
 
-	template <typename T>
+	template <typename T, typename IS_UNIT = void>
 	class LL_COMMON_API Measurement
 	:	public TraceType<MeasurementAccumulator<T> >, 
-		public LLInstanceTracker<Measurement<T>, std::string>
+		public LLInstanceTracker<Measurement<T, IS_UNIT>, std::string>
 	{
 	public:
 		Measurement(const std::string& name) 
@@ -343,13 +341,37 @@ namespace LLTrace
 	};
 
 	template <typename T>
+	class LL_COMMON_API Measurement <T, typename T::is_unit_t>
+	:	public Measurement<typename T::value_t>
+	{
+	public:
+		typedef Measurement<typename T::value_t> base_measurement_t;
+		Measurement(const std::string& name) 
+		:	Measurement<typename T::value_t>(name)
+		{}
+
+		template<typename UNIT_T>
+		void sample(UNIT_T value)
+		{
+			base_measurement_t::sample(value.get());
+		}
+
+		template<typename UNIT_T>
+		typename T::value_t get()
+		{
+			UNIT_T value(*this);
+			return value.get();
+		}
+	};
+
+	template <typename T, typename IS_UNIT = void>
 	class LL_COMMON_API Rate 
-		:	public TraceType<RateAccumulator<T> >, 
+	:	public TraceType<RateAccumulator<T> >, 
 		public LLInstanceTracker<Rate<T>, std::string>
 	{
 	public:
 		Rate(const std::string& name) 
-			:	TraceType(name),
+		:	TraceType(name),
 			LLInstanceTracker(name)
 		{}
 
@@ -357,6 +379,30 @@ namespace LLTrace
 		{
 			getPrimaryAccumulator().add(value);
 		}
+	};
+
+	template <typename T>
+	class LL_COMMON_API Rate <T, typename T::is_unit_t>
+	:	public Rate<typename T::value_t>
+	{
+	public:
+		Rate(const std::string& name) 
+		:	Rate<typename T::value_t>(name)
+		{}
+
+		template<typename UNIT_T>
+		void add(UNIT_T value)
+		{
+			getPrimaryAccumulator().add(value.get());
+		}
+
+		template<typename UNIT_T>
+		typename T::value_t get()
+		{
+			UNIT_T value(*this);
+			return value.get();
+		}
+
 	};
 
 	class LL_COMMON_API TimerAccumulator
@@ -481,6 +527,8 @@ namespace LLTrace
 
 		static Recorder::StackEntry sCurRecorder;
 	};
+
+	class Recording;
 
 	class LL_COMMON_API ThreadRecorder
 	{

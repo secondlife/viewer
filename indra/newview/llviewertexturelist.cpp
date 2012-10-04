@@ -624,7 +624,7 @@ void LLViewerTextureList::updateImages(F32 max_time)
 
 	LLTrace::Recording* recording = LLTrace::get_thread_recorder()->getPrimaryRecording();
 
-	LLAppViewer::getTextureFetch()->setTextureBandwidth(recording->getPerSec(STAT_TEXTURE_KBIT));
+	LLAppViewer::getTextureFetch()->setTextureBandwidth(recording->getPerSec(LLStatViewer::TEXTURE_KBIT));
 
 	LLViewerStats::getInstance()->mNumImagesStat.addValue(sNumImages);
 	LLViewerStats::getInstance()->mNumRawImagesStat.addValue(LLImageRaw::sRawImageCount);

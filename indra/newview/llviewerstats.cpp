@@ -61,21 +61,128 @@
 #include "llviewernetwork.h"
 #include "llmeshrepository.h" //for LLMeshRepository::sBytesReceived
 
+namespace LLStatViewer
+{
 
-LLTrace::Rate<F32>	STAT_KBIT("kbitstat"),
-					STAT_LAYERS_KBIT("layerskbitstat"),
-					STAT_OBJECT_KBIT("objectkbitstat"),
-					STAT_ASSET_KBIT("assetkbitstat"),
-					STAT_TEXTURE_KBIT("texturekbitstat");
+LLTrace::Rate<F32>					FPS("fpsstat"),
+									PACKETS_IN("packetsinstat"),
+									PACKETS_LOST("packetsloststat"),
+									PACKETS_OUT("packetsoutstat"),
+									TEXTURE_PACKETS("texturepacketsstat"),
+									TRIANGLES_DRAWN("trianglesdrawnstat"),
+									CHAT_COUNT("chatcount"),
+									IM_COUNT("imcount"),
+									OBJECT_CREATE("objectcreate"),
+									OBJECT_REZ("objectrez"),
+									LOADING_WEARABLES_LONG_DELAY("loadingwearableslongdelay"),
+									LOGIN_TIMEOUTS("logintimeouts"),
+									FAILED_DOWNLOADS("faileddownloads"),
+									LSL_SAVES("lslsaves"),
+									ANIMATION_UPLOADS("animationuploads"),
+									FLY("fly"),
+									TELEPORT("teleport"),
+									DELETE_OBJECT("deleteobject"),
+									SNAPSHOT("snapshot"),
+									UPLOAD_SOUND("uploadsound"),
+									UPLOAD_TEXTURE("uploadtexture"),
+									EDIT_TEXTURE("edittexture"),
+									KILLED("killed"),
+									FRAMETIME_DOUBLED("frametimedoubled"),
+									TEX_BAKES("texbakes"),
+									TEX_REBAKES("texrebakes");
+LLTrace::Rate<LLUnits::Bytes<F32> >	KBIT("kbitstat"),
+									LAYERS_KBIT("layerskbitstat"),
+									OBJECT_KBIT("objectkbitstat"),
+									ASSET_KBIT("assetkbitstat"),
+									TEXTURE_KBIT("texturekbitstat"),
+									ACTUAL_IN_KBIT("actualinkbit"),
+									ACTUAL_OUT_KBIT("actualoutkbit");
 
+LLTrace::Rate<LLUnits::Seconds<F32> > AVATAR_EDIT_TIME("avataredittimr"),
+									 TOOLBOX_TIME("toolboxtime"),
+									 MOUSELOOK_TIME("mouselooktime"),
+									 FPS_10_TIME("fps10time"),
+									 FPS_8_TIME("fps8time"),
+									 FPS_2_TIME("fps2time"),
+									 SIM_20_FPS_TIME("sim20fpstime"),
+									 SIM_PHYSICS_20_FPS_TIME("simphysics20fpstime"),
+									 LOSS_5_PERCENT_TIME("loss5percenttime");
+
+LLTrace::Measurement<F32>			SIM_TIME_DILATION("simtimedilation"),
+									SIM_FPS("simfps"),
+									SIM_PHYSICS_FPS("simphysicsfps"),
+									SIM_AGENT_UPS("simagentups"),
+									SIM_SCRIPT_EPS("simscripteps"),
+									SIM_SKIPPED_SILHOUETTE("simsimskippedsilhouettesteps"),
+									SIM_SKIPPED_CHARACTERS_PERCENTAGE("simsimpctsteppedcharacters"),
+									SIM_MAIN_AGENTS("simmainagents"),
+									SIM_CHILD_AGENTS("simchildagents"),
+									SIM_OBJECTS("simobjects"),
+									SIM_ACTIVE_OBJECTS("simactiveobjects"),
+									SIM_ACTIVE_SCRIPTS("simactivescripts"),
+									SIM_PERCENTAGE_SCRIPTS_RUN("simpctscriptsrun"),
+									SIM_IN_PACKETS_PER_SEC("siminpps"),
+									SIM_OUT_PACKETS_PER_SEC("simoutpps"),
+									SIM_PENDING_DOWNLOADS("simpendingdownloads"),
+									SIM_PENDING_UPLOADS("simpendinguploads"),
+									SIM_PENING_LOCAL_UPLOADS("simpendinglocaluploads"),
+									SIM_PHYSICS_PINNED_TASKS("physicspinnedtasks"),
+									SIM_PHYSICS_LOD_TASKS("physicslodtasks"),
+									NUM_IMAGES("numimagesstat"),
+									NUM_RAW_IMAGES("numrawimagesstat"),
+									NUM_OBJECTS("numobjectsstat"),
+									NUM_ACTIVE_OBJECTS("numactiveobjectsstat"),
+									NUM_NEW_OBJECTS("numnewobjectsstat"),
+									NUM_SIZE_CULLED("numsizeculledstat"),
+									NUM_VIS_CULLED("numvisculledstat"),
+									ENABLE_VBO("enablevbo"),
+									DELTA_BANDWIDTH("deltabandwidth"),
+									MAX_BANDWIDTH("maxbandwidth"),
+									LIGHTING_DETAIL("lightingdetail"),
+									VISIBLE_AVATARS("visibleavatars"),
+									SHADER_OBJECTS("shaderobjects"),
+									DRAW_DISTANCE("drawdistance"),
+									CHAT_BUBBLES("chatbubbles"),
+									WINDOW_WIDTH("windowwidth"),
+									WINDOW_HEIGHT("windowheight");
+
+LLTrace::Measurement<LLUnits::Bytes<F32> >	SIM_UNACKED_BYTES("simtotalunackedbytes"),
+											SIM_PHYSICS_MEM("physicsmemoryallocated"),
+											GL_TEX_MEM("gltexmemstat"),
+											GL_BOUND_MEM("glboundmemstat"),
+											RAW_MEM("rawmemstat"),
+											FORMATTED_MEM("formattedmemstat");
+
+
+LLTrace::Measurement<LLUnits::Seconds<F32> > SIM_PHYSICS_TIME("simsimphysicsmsec"),
+											SIM_PHYSICS_STEP_TIME("simsimphysicsstepmsec"),
+											SIM_PHYSICS_SHAPE_UPDATE_TIME("simsimphysicsshapeupdatemsec"),
+											SIM_PHYSICS_OTHER_TIME("simsimphysicsothermsec"),
+											SIM_AI_TIME("simsimaistepmsec"),
+											SIM_AGENTS_TIME("simagentmsec"),
+											SIM_IMAGES_TIME("simimagesmsec"),
+											SIM_SCRIPTS_TIME("simscriptmsec"),
+											SIM_SPARE_TIME("simsparemsec"),
+											SIM_SLEEP_TIME("simsleepmsec"),
+											SIM_PUMP_IO_TIME("simpumpiomsec"),
+											SIM_PING("simpingstat"),
+											LOGIN_SECONDS("loginseconds"),
+											REGION_CROSSING_TIME("regioncrossingtime"),
+											FRAME_STACKTIME("framestacktime"),
+											UPDATE_STACKTIME("updatestacktime"),
+											NETWORK_STACKTIME("networkstacktime"),
+											IMAGE_STACKTIME("imagestacktime"),
+											REBUILD_STACKTIME("rebuildstacktime"),
+											RENDER_STACKTIME("renderstacktime");
+}
 
 class StatAttributes
 {
 public:
 	StatAttributes(const char* name,
 				   const BOOL enabled)
-		: mName(name),
-		  mEnabled(enabled)
+	:	mName(name),
+		mEnabled(enabled)
 	{
 	}
 	
@@ -465,12 +572,12 @@ void update_statistics()
 
 	stats.mFPSStat.addValue(1);
 	F32 layer_bits = (F32)(gVLManager.getLandBits() + gVLManager.getWindBits() + gVLManager.getCloudBits());
-	STAT_LAYERS_KBIT.add(layer_bits/1024.f);
+	LLStatViewer::LAYERS_KBIT.add<LLUnits::Bits<F32> >(layer_bits);
 	//stats.mLayersKBitStat.addValue(layer_bits/1024.f);
-	STAT_OBJECT_KBIT.add(gObjectBits/1024.f);
+	LLStatViewer::OBJECT_KBIT.add<LLUnits::Bits<F32> >(gObjectBits);
 	//stats.mObjectKBitStat.addValue(gObjectBits/1024.f);
 	stats.mVFSPendingOperations.addValue(LLVFile::getVFSThread()->getPending());
-	STAT_ASSET_KBIT.add(gTransferManager.getTransferBitsIn(LLTCT_ASSET)/1024.f);
+	LLStatViewer::ASSET_KBIT.add<LLUnits::Bits<F32> >(gTransferManager.getTransferBitsIn(LLTCT_ASSET));
 	//stats.mAssetKBitStat.addValue(gTransferManager.getTransferBitsIn(LLTCT_ASSET)/1024.f);
 	gTransferManager.resetTransferBitsIn(LLTCT_ASSET);
 
@@ -508,7 +615,7 @@ void update_statistics()
 		static LLFrameTimer texture_stats_timer;
 		if (texture_stats_timer.getElapsedTimeF32() >= texture_stats_freq)
 		{
-			STAT_TEXTURE_KBIT.add(LLViewerTextureList::sTextureBits/1024.f);
+			LLStatViewer::TEXTURE_KBIT.add<LLUnits::Bits<F32> >(LLViewerTextureList::sTextureBits);
 			//stats.mTextureKBitStat.addValue(LLViewerTextureList::sTextureBits/1024.f);
 			stats.mTexturePacketsStat.addValue(LLViewerTextureList::sTexturePackets);
 			gTotalTextureBytes += LLViewerTextureList::sTextureBits / 8;

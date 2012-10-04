@@ -35,8 +35,8 @@
 
 namespace LLTrace
 {
-	template<typename T> class Rate;
-	template<typename T> class Measurement;
+	template<typename T, typename IS_UNIT> class Rate;
+	template<typename T, typename IS_UNIT> class Measurement;
 	template<typename T> class AccumulatorBuffer;
 	template<typename T> class RateAccumulator;
 	template<typename T> class MeasurementAccumulator;
@@ -63,14 +63,14 @@ namespace LLTrace
 
 		bool isStarted() { return mIsStarted; }
 
-		F32 getSum(Rate<F32>& stat);
-		F32 getPerSec(Rate<F32>& stat);
+		F32 getSum(Rate<F32, void>& stat);
+		F32 getPerSec(Rate<F32, void>& stat);
 
-		F32 getSum(Measurement<F32>& stat);
-		F32 getMin(Measurement<F32>& stat);
-		F32 getMax(Measurement<F32>& stat);
-		F32 getMean(Measurement<F32>& stat);
-		F32 getStandardDeviation(Measurement<F32>& stat);
+		F32 getSum(Measurement<F32, void>& stat);
+		F32 getMin(Measurement<F32, void>& stat);
+		F32 getMax(Measurement<F32, void>& stat);
+		F32 getMean(Measurement<F32, void>& stat);
+		F32 getStandardDeviation(Measurement<F32, void>& stat);
 
 		F64 getSampleTime() { return mElapsedSeconds; }
 

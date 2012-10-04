@@ -247,6 +247,7 @@ set(llcommon_HEADER_FILES
     lltracerecording.h
     lltreeiterators.h
     lltypeinfolookup.h
+    llunit.h
     lluri.h
     lluuid.h
     lluuidhashmap.h
