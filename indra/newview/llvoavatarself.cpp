@@ -668,6 +668,13 @@ BOOL LLVOAvatarSelf::setParamWeight(const LLViewerVisualParam *param, F32 weight
 		return FALSE;
 	}
 
+	// FIXME DRANO - kludgy way to avoid overwriting avatar state from wearables.
+	if (isUsingServerBakes() && !isUsingLocalAppearance())
+	{
+		return FALSE;
+	}
+
+
 	if (param->getCrossWearable())
 	{
 		LLWearableType::EType type = (LLWearableType::EType)param->getWearableType();
