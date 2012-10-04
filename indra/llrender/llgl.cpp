@@ -898,7 +898,7 @@ void LLGLManager::initExtensions()
 	mHasCubeMap = FALSE;
 	mHasOcclusionQuery = FALSE;
 	mHasPointParameters = FALSE;
-	mHasShaderObjects = FALSE;
+	mHasShaderObjects = TRUE;
 	mHasVertexShader = FALSE;
 	mHasFragmentShader = FALSE;
 	mHasTextureRectangle = FALSE;
