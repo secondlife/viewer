@@ -79,6 +79,8 @@ LLIMFloaterContainer::LLIMFloaterContainer(const LLSD& seed)
 
 LLIMFloaterContainer::~LLIMFloaterContainer()
 {
+	mStream.stopListening("ConversationsRefresh");
+
 	gIdleCallbacks.deleteFunction(idle, this);
 
 	mNewMessageConnection.disconnect();

@@ -28,6 +28,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llevents.h"
+#include "llsdutil.h"
 #include "llconversationmodel.h"
 #include "llimview.h" //For LLIMModel
 
@@ -67,11 +68,7 @@ LLConversationItem::LLConversationItem(LLFolderViewModelInterface& root_view_mod
 
 void LLConversationItem::postEvent(const std::string& event_type, LLConversationItemParticipant* participant)
 {
-	LLSD event;
-	event["type"] = event_type;
-	event["session_uuid"] = getUUID();
-	event["participant_name"] = participant->getName();
-	event["participant_uuid"] = participant->getUUID();
+	LLSD event(LLSDMap("type", event_type)("session_uuid", getUUID())("participant_name",participant->getName())("participant_uuid",participant->getUUID()));
 	LLEventPumps::instance().obtain("ConversationsEvents").post(event);
 }
 
