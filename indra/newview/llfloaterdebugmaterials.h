@@ -1,6 +1,6 @@
 /** 
-* @file   llfloaterstinson.h
-* @brief  Header file for llfloaterstinson
+* @file   llfloaterdebugmaterials.h
+* @brief  Header file for llfloaterdebugmaterials
 * @author Stinson@lindenlab.com
 *
 * $LicenseInfo:firstyear=2012&license=viewerlgpl$
@@ -24,8 +24,8 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LL_LLFLOATERSTINSON_H
-#define LL_LLFLOATERSTINSON_H
+#ifndef LL_LLFLOATERDEBUGMATERIALS_H
+#define LL_LLFLOATERDEBUGMATERIALS_H
 
 #include <string>
 
@@ -40,7 +40,7 @@ class LLScrollListCtrl;
 class LLSD;
 class LLTextBase;
 
-class LLFloaterStinson : public LLFloater
+class LLFloaterDebugMaterials : public LLFloater
 {
 public:
 	virtual BOOL postBuild();
@@ -63,8 +63,8 @@ private:
 		kError
 	} EState;
 
-	LLFloaterStinson(const LLSD& pParams);
-	virtual ~LLFloaterStinson();
+	LLFloaterDebugMaterials(const LLSD& pParams);
+	virtual ~LLFloaterDebugMaterials();
 
 	void          onGetClicked();
 	void          onPutSetClicked();
@@ -131,9 +131,9 @@ private:
 
 
 
-LLFloaterStinson::EState LLFloaterStinson::getState() const
+LLFloaterDebugMaterials::EState LLFloaterDebugMaterials::getState() const
 {
 	return mState;
 }
 
-#endif // LL_LLFLOATERSTINSON_H
+#endif // LL_LLFLOATERDEBUGMATERIALS_H

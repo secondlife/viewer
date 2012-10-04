@@ -1,6 +1,6 @@
 /** 
-* @file llfloaterstinson.cpp
-* @brief Implementation of llfloaterstinson
+* @file llfloaterdebugmaterials.cpp
+* @brief Implementation of llfloaterdebugmaterials
 * @author Stinson@lindenlab.com
 *
 * $LicenseInfo:firstyear=2012&license=viewerlgpl$
@@ -92,37 +92,37 @@ private:
 	CallbackFunction mCallback;
 };
 
-BOOL LLFloaterStinson::postBuild()
+BOOL LLFloaterDebugMaterials::postBuild()
 {
 	mStatusText = findChild<LLTextBase>("material_status");
 	llassert(mStatusText != NULL);
 
 	mGetButton = findChild<LLButton>("get_button");
 	llassert(mGetButton != NULL);
-	mGetButton->setCommitCallback(boost::bind(&LLFloaterStinson::onGetClicked, this));
+	mGetButton->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onGetClicked, this));
 
 	mGetScrollList = findChild<LLScrollListCtrl>("get_scroll_list");
 	llassert(mGetScrollList != NULL);
-	mGetScrollList->setCommitCallback(boost::bind(&LLFloaterStinson::onGetResultsSelectionChange, this));
+	mGetScrollList->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onGetResultsSelectionChange, this));
 
 	mPutSetButton = findChild<LLButton>("put_set_button");
 	llassert(mPutSetButton != NULL);
-	mPutSetButton->setCommitCallback(boost::bind(&LLFloaterStinson::onPutSetClicked, this));
+	mPutSetButton->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onPutSetClicked, this));
 
 	mPutClearButton = findChild<LLButton>("put_clear_button");
 	llassert(mPutClearButton != NULL);
-	mPutClearButton->setCommitCallback(boost::bind(&LLFloaterStinson::onPutClearClicked, this));
+	mPutClearButton->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onPutClearClicked, this));
 
 	mPutScrollList = findChild<LLScrollListCtrl>("put_scroll_list");
 	llassert(mPutScrollList != NULL);
 
 	mGoodPostButton = findChild<LLButton>("good_post_button");
 	llassert(mGoodPostButton != NULL);
-	mGoodPostButton->setCommitCallback(boost::bind(&LLFloaterStinson::onGoodPostClicked, this));
+	mGoodPostButton->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onGoodPostClicked, this));
 
 	mBadPostButton = findChild<LLButton>("bad_post_button");
 	llassert(mBadPostButton != NULL);
-	mBadPostButton->setCommitCallback(boost::bind(&LLFloaterStinson::onBadPostClicked, this));
+	mBadPostButton->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onBadPostClicked, this));
 
 	mPostScrollList = findChild<LLScrollListCtrl>("post_scroll_list");
 	llassert(mPostScrollList != NULL);
@@ -135,23 +135,23 @@ BOOL LLFloaterStinson::postBuild()
 	return LLFloater::postBuild();
 }
 
-void LLFloaterStinson::onOpen(const LLSD& pKey)
+void LLFloaterDebugMaterials::onOpen(const LLSD& pKey)
 {
 	LLFloater::onOpen(pKey);
 
 	if (!mRegionCrossConnection.connected())
 	{
-		mRegionCrossConnection = LLEnvManagerNew::instance().setRegionChangeCallback(boost::bind(&LLFloaterStinson::onRegionCross, this));
+		mRegionCrossConnection = LLEnvManagerNew::instance().setRegionChangeCallback(boost::bind(&LLFloaterDebugMaterials::onRegionCross, this));
 	}
 
 	if (!mTeleportFailedConnection.connected())
 	{
-		mTeleportFailedConnection = LLViewerParcelMgr::getInstance()->setTeleportFailedCallback(boost::bind(&LLFloaterStinson::onRegionCross, this));
+		mTeleportFailedConnection = LLViewerParcelMgr::getInstance()->setTeleportFailedCallback(boost::bind(&LLFloaterDebugMaterials::onRegionCross, this));
 	}
 
 	if (!mSelectionUpdateConnection.connected())
 	{
-		mSelectionUpdateConnection = LLSelectMgr::getInstance()->mUpdateSignal.connect(boost::bind(&LLFloaterStinson::onInWorldSelectionChange, this));
+		mSelectionUpdateConnection = LLSelectMgr::getInstance()->mUpdateSignal.connect(boost::bind(&LLFloaterDebugMaterials::onInWorldSelectionChange, this));
 	}
 
 	checkRegionMaterialStatus();
@@ -161,7 +161,7 @@ void LLFloaterStinson::onOpen(const LLSD& pKey)
 	mGetScrollList->setCommitOnSelectionChange(TRUE);
 }
 
-void LLFloaterStinson::onClose(bool pIsAppQuitting)
+void LLFloaterDebugMaterials::onClose(bool pIsAppQuitting)
 {
 	mGetScrollList->setCommitOnSelectionChange(FALSE);
 	clearGetResults();
@@ -186,7 +186,7 @@ void LLFloaterStinson::onClose(bool pIsAppQuitting)
 	LLFloater::onClose(pIsAppQuitting);
 }
 
-LLFloaterStinson::LLFloaterStinson(const LLSD& pParams)
+LLFloaterDebugMaterials::LLFloaterDebugMaterials(const LLSD& pParams)
 	: LLFloater(pParams),
 	mStatusText(NULL),
 	mGetButton(NULL),
@@ -206,36 +206,36 @@ LLFloaterStinson::LLFloaterStinson(const LLSD& pParams)
 {
 }
 
-LLFloaterStinson::~LLFloaterStinson()
+LLFloaterDebugMaterials::~LLFloaterDebugMaterials()
 {
 }
 
-void LLFloaterStinson::onGetClicked()
+void LLFloaterDebugMaterials::onGetClicked()
 {
 	requestGetMaterials();
 }
 
-void LLFloaterStinson::onPutSetClicked()
+void LLFloaterDebugMaterials::onPutSetClicked()
 {
 	requestPutMaterials(true);
 }
 
-void LLFloaterStinson::onPutClearClicked()
+void LLFloaterDebugMaterials::onPutClearClicked()
 {
 	requestPutMaterials(false);
 }
 
-void LLFloaterStinson::onGoodPostClicked()
+void LLFloaterDebugMaterials::onGoodPostClicked()
 {
 	requestPostMaterials(true);
 }
 
-void LLFloaterStinson::onBadPostClicked()
+void LLFloaterDebugMaterials::onBadPostClicked()
 {
 	requestPostMaterials(false);
 }
 
-void LLFloaterStinson::onRegionCross()
+void LLFloaterDebugMaterials::onRegionCross()
 {
 	checkRegionMaterialStatus();
 	clearGetResults();
@@ -243,37 +243,37 @@ void LLFloaterStinson::onRegionCross()
 	clearPostResults();
 }
 
-void LLFloaterStinson::onGetResultsSelectionChange()
+void LLFloaterDebugMaterials::onGetResultsSelectionChange()
 {
 	updateControls();
 }
 
-void LLFloaterStinson::onInWorldSelectionChange()
+void LLFloaterDebugMaterials::onInWorldSelectionChange()
 {
 	updateControls();
 }
 
-void LLFloaterStinson::onDeferredCheckRegionMaterialStatus(LLUUID regionId)
+void LLFloaterDebugMaterials::onDeferredCheckRegionMaterialStatus(LLUUID regionId)
 {
 	checkRegionMaterialStatus(regionId);
 }
 
-void LLFloaterStinson::onDeferredRequestGetMaterials(LLUUID regionId)
+void LLFloaterDebugMaterials::onDeferredRequestGetMaterials(LLUUID regionId)
 {
 	requestGetMaterials(regionId);
 }
 
-void LLFloaterStinson::onDeferredRequestPutMaterials(LLUUID regionId, bool pIsDoSet)
+void LLFloaterDebugMaterials::onDeferredRequestPutMaterials(LLUUID regionId, bool pIsDoSet)
 {
 	requestPutMaterials(regionId, pIsDoSet);
 }
 
-void LLFloaterStinson::onDeferredRequestPostMaterials(LLUUID regionId, bool pUseGoodData)
+void LLFloaterDebugMaterials::onDeferredRequestPostMaterials(LLUUID regionId, bool pUseGoodData)
 {
 	requestPostMaterials(regionId, pUseGoodData);
 }
 
-void LLFloaterStinson::onGetResponse(bool pRequestStatus, const LLSD& pContent)
+void LLFloaterDebugMaterials::onGetResponse(bool pRequestStatus, const LLSD& pContent)
 {
 	if (pRequestStatus)
 	{
@@ -286,7 +286,7 @@ void LLFloaterStinson::onGetResponse(bool pRequestStatus, const LLSD& pContent)
 	}
 }
 
-void LLFloaterStinson::onPutResponse(bool pRequestStatus, const LLSD& pContent)
+void LLFloaterDebugMaterials::onPutResponse(bool pRequestStatus, const LLSD& pContent)
 {
 	if (pRequestStatus)
 	{
@@ -299,7 +299,7 @@ void LLFloaterStinson::onPutResponse(bool pRequestStatus, const LLSD& pContent)
 	}
 }
 
-void LLFloaterStinson::onPostResponse(bool pRequestStatus, const LLSD& pContent)
+void LLFloaterDebugMaterials::onPostResponse(bool pRequestStatus, const LLSD& pContent)
 {
 	if (pRequestStatus)
 	{
@@ -312,7 +312,7 @@ void LLFloaterStinson::onPostResponse(bool pRequestStatus, const LLSD& pContent)
 	}
 }
 
-void LLFloaterStinson::checkRegionMaterialStatus()
+void LLFloaterDebugMaterials::checkRegionMaterialStatus()
 {
 	LLViewerRegion *region = gAgent.getRegion();
 
@@ -324,7 +324,7 @@ void LLFloaterStinson::checkRegionMaterialStatus()
 	else if (!region->capabilitiesReceived())
 	{
 		setState(kCapabilitiesLoading);
-		region->setCapabilitiesReceivedCallback(boost::bind(&LLFloaterStinson::onDeferredCheckRegionMaterialStatus, this, region->getRegionID()));
+		region->setCapabilitiesReceivedCallback(boost::bind(&LLFloaterDebugMaterials::onDeferredCheckRegionMaterialStatus, this, region->getRegionID()));
 	}
 	else
 	{
@@ -343,7 +343,7 @@ void LLFloaterStinson::checkRegionMaterialStatus()
 	}
 }
 
-void LLFloaterStinson::checkRegionMaterialStatus(const LLUUID& regionId)
+void LLFloaterDebugMaterials::checkRegionMaterialStatus(const LLUUID& regionId)
 {
 	const LLViewerRegion *region = gAgent.getRegion();
 
@@ -353,7 +353,7 @@ void LLFloaterStinson::checkRegionMaterialStatus(const LLUUID& regionId)
 	}
 }
 
-void LLFloaterStinson::requestGetMaterials()
+void LLFloaterDebugMaterials::requestGetMaterials()
 {
 	LLViewerRegion *region = gAgent.getRegion();
 
@@ -365,7 +365,7 @@ void LLFloaterStinson::requestGetMaterials()
 	else if (!region->capabilitiesReceived())
 	{
 		setState(kCapabilitiesLoading);
-		region->setCapabilitiesReceivedCallback(boost::bind(&LLFloaterStinson::onDeferredRequestGetMaterials, this, region->getRegionID()));
+		region->setCapabilitiesReceivedCallback(boost::bind(&LLFloaterDebugMaterials::onDeferredRequestGetMaterials, this, region->getRegionID()));
 	}
 	else
 	{
@@ -380,7 +380,7 @@ void LLFloaterStinson::requestGetMaterials()
 		else
 		{
 			setState(kRequestStarted);
-			LLHTTPClient::ResponderPtr materialsResponder = new MaterialsResponder("GET", capURL, boost::bind(&LLFloaterStinson::onGetResponse, this, _1, _2));
+			LLHTTPClient::ResponderPtr materialsResponder = new MaterialsResponder("GET", capURL, boost::bind(&LLFloaterDebugMaterials::onGetResponse, this, _1, _2));
 			llinfos << "STINSON DEBUG: sending request GET to capability '" << MATERIALS_CAPABILITY_NAME
 				<< "' with url '" << capURL << "'" << llendl;
 			LLHTTPClient::get(capURL, materialsResponder);
@@ -388,7 +388,7 @@ void LLFloaterStinson::requestGetMaterials()
 	}
 }
 
-void LLFloaterStinson::requestGetMaterials(const LLUUID& regionId)
+void LLFloaterDebugMaterials::requestGetMaterials(const LLUUID& regionId)
 {
 	const LLViewerRegion *region = gAgent.getRegion();
 
@@ -398,7 +398,7 @@ void LLFloaterStinson::requestGetMaterials(const LLUUID& regionId)
 	}
 }
 
-void LLFloaterStinson::requestPutMaterials(bool pIsDoSet)
+void LLFloaterDebugMaterials::requestPutMaterials(bool pIsDoSet)
 {
 	LLViewerRegion *region = gAgent.getRegion();
 
@@ -410,7 +410,7 @@ void LLFloaterStinson::requestPutMaterials(bool pIsDoSet)
 	else if (!region->capabilitiesReceived())
 	{
 		setState(kCapabilitiesLoading);
-		region->setCapabilitiesReceivedCallback(boost::bind(&LLFloaterStinson::onDeferredRequestPutMaterials, this, region->getRegionID(), pIsDoSet));
+		region->setCapabilitiesReceivedCallback(boost::bind(&LLFloaterDebugMaterials::onDeferredRequestPutMaterials, this, region->getRegionID(), pIsDoSet));
 	}
 	else
 	{
@@ -497,7 +497,7 @@ void LLFloaterStinson::requestPutMaterials(bool pIsDoSet)
 			LLSD putData = LLSD::emptyMap();
 			putData[MATERIALS_CAP_FULL_PER_FACE_FIELD] = facesData;
 
-			LLHTTPClient::ResponderPtr materialsResponder = new MaterialsResponder("PUT", capURL, boost::bind(&LLFloaterStinson::onPutResponse, this, _1, _2));
+			LLHTTPClient::ResponderPtr materialsResponder = new MaterialsResponder("PUT", capURL, boost::bind(&LLFloaterDebugMaterials::onPutResponse, this, _1, _2));
 			llinfos << "STINSON DEBUG: sending request PUT to capability '" << MATERIALS_CAPABILITY_NAME
 				<< "' with url '" << capURL << "' and with data " << putData << llendl;
 			LLHTTPClient::put(capURL, putData, materialsResponder);
@@ -505,7 +505,7 @@ void LLFloaterStinson::requestPutMaterials(bool pIsDoSet)
 	}
 }
 
-void LLFloaterStinson::requestPutMaterials(const LLUUID& regionId, bool pIsDoSet)
+void LLFloaterDebugMaterials::requestPutMaterials(const LLUUID& regionId, bool pIsDoSet)
 {
 	const LLViewerRegion *region = gAgent.getRegion();
 
@@ -515,7 +515,7 @@ void LLFloaterStinson::requestPutMaterials(const LLUUID& regionId, bool pIsDoSet
 	}
 }
 
-void LLFloaterStinson::requestPostMaterials(bool pUseGoodData)
+void LLFloaterDebugMaterials::requestPostMaterials(bool pUseGoodData)
 {
 	LLViewerRegion *region = gAgent.getRegion();
 
@@ -527,7 +527,7 @@ void LLFloaterStinson::requestPostMaterials(bool pUseGoodData)
 	else if (!region->capabilitiesReceived())
 	{
 		setState(kCapabilitiesLoading);
-		region->setCapabilitiesReceivedCallback(boost::bind(&LLFloaterStinson::onDeferredRequestPostMaterials, this, region->getRegionID(), pUseGoodData));
+		region->setCapabilitiesReceivedCallback(boost::bind(&LLFloaterDebugMaterials::onDeferredRequestPostMaterials, this, region->getRegionID(), pUseGoodData));
 	}
 	else
 	{
@@ -575,7 +575,7 @@ void LLFloaterStinson::requestPostMaterials(bool pUseGoodData)
 				postData.append(crapData);
 			}
 
-			LLHTTPClient::ResponderPtr materialsResponder = new MaterialsResponder("POST", capURL, boost::bind(&LLFloaterStinson::onPostResponse, this, _1, _2));
+			LLHTTPClient::ResponderPtr materialsResponder = new MaterialsResponder("POST", capURL, boost::bind(&LLFloaterDebugMaterials::onPostResponse, this, _1, _2));
 			llinfos << "STINSON DEBUG: sending request POST to capability '" << MATERIALS_CAPABILITY_NAME
 				<< "' with url '" << capURL << "' and with data " << postData << llendl;
 			LLHTTPClient::post(capURL, postData, materialsResponder);
@@ -583,7 +583,7 @@ void LLFloaterStinson::requestPostMaterials(bool pUseGoodData)
 	}
 }
 
-void LLFloaterStinson::requestPostMaterials(const LLUUID& regionId, bool pUseGoodData)
+void LLFloaterDebugMaterials::requestPostMaterials(const LLUUID& regionId, bool pUseGoodData)
 {
 	const LLViewerRegion *region = gAgent.getRegion();
 
@@ -593,7 +593,7 @@ void LLFloaterStinson::requestPostMaterials(const LLUUID& regionId, bool pUseGoo
 	}
 }
 
-void LLFloaterStinson::parseGetResponse(const LLSD& pContent)
+void LLFloaterDebugMaterials::parseGetResponse(const LLSD& pContent)
 {
 	printResponse("GET", pContent);
 	clearGetResults();
@@ -688,7 +688,7 @@ void LLFloaterStinson::parseGetResponse(const LLSD& pContent)
 	}
 }
 
-void LLFloaterStinson::parsePutResponse(const LLSD& pContent)
+void LLFloaterDebugMaterials::parsePutResponse(const LLSD& pContent)
 {
 	printResponse("PUT", pContent);
 	clearPutResults();
@@ -735,7 +735,7 @@ void LLFloaterStinson::parsePutResponse(const LLSD& pContent)
 	}
 }
 
-void LLFloaterStinson::parsePostResponse(const LLSD& pContent)
+void LLFloaterDebugMaterials::parsePostResponse(const LLSD& pContent)
 {
 	printResponse("POST", pContent);
 	clearPostResults();
@@ -830,36 +830,36 @@ void LLFloaterStinson::parsePostResponse(const LLSD& pContent)
 	}
 }
 
-void LLFloaterStinson::printResponse(const std::string& pRequestType, const LLSD& pContent) const
+void LLFloaterDebugMaterials::printResponse(const std::string& pRequestType, const LLSD& pContent) const
 {
 	llinfos << "--------------------------------------------------------------------------" << llendl;
 	llinfos << pRequestType << " Response: '" << pContent << "'" << llendl;
 	llinfos << "--------------------------------------------------------------------------" << llendl;
 }
 
-void LLFloaterStinson::setState(EState pState)
+void LLFloaterDebugMaterials::setState(EState pState)
 {
 	mState = pState;
 	updateStatusMessage();
 	updateControls();
 }
 
-void LLFloaterStinson::clearGetResults()
+void LLFloaterDebugMaterials::clearGetResults()
 {
 	mGetScrollList->deleteAllItems();
 }
 
-void LLFloaterStinson::clearPutResults()
+void LLFloaterDebugMaterials::clearPutResults()
 {
 	mPutScrollList->deleteAllItems();
 }
 
-void LLFloaterStinson::clearPostResults()
+void LLFloaterDebugMaterials::clearPostResults()
 {
 	mPostScrollList->deleteAllItems();
 }
 
-void LLFloaterStinson::updateStatusMessage()
+void LLFloaterDebugMaterials::updateStatusMessage()
 {
 	std::string statusText;
 	LLStyle::Params styleParams;
@@ -901,7 +901,7 @@ void LLFloaterStinson::updateStatusMessage()
 	mStatusText->setText((LLStringExplicit)statusText, styleParams);
 }
 
-void LLFloaterStinson::updateControls()
+void LLFloaterDebugMaterials::updateControls()
 {
 	LLObjectSelectionHandle selectionHandle = LLSelectMgr::getInstance()->getEditSelection();
 	bool isPutEnabled = (selectionHandle->valid_begin() != selectionHandle->valid_end());
@@ -941,7 +941,7 @@ void LLFloaterStinson::updateControls()
 	}
 }
 
-std::string LLFloaterStinson::convertToPrintableMaterialID(const LLSD& pBinaryHash) const
+std::string LLFloaterDebugMaterials::convertToPrintableMaterialID(const LLSD& pBinaryHash) const
 {
 	llassert(pBinaryHash.isBinary());
 	const LLSD::Binary &materialIDValue = pBinaryHash.asBinary();
