@@ -12,7 +12,7 @@
     reuse_instance="true"
     save_rect="false"
     single_instance="true"
-    title="Stinson Test">
+    title="Debug materials">
   <floater.string name="status_no_region">No current region available.</floater.string>
   <floater.string name="status_capabilities_loading">Region capabilities are loading.</floater.string>
   <floater.string name="status_ready">Materials are enabled for this region.</floater.string>

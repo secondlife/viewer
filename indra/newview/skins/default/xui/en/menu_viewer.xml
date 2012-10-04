@@ -989,16 +989,6 @@
 
       <menu_item_separator/>
 
-      <menu_item_call
-          label="Stinson"
-          name="StinsonMenu">
-        <menu_item_call.on_click
-            function="Floater.ToggleOrBringToFront"
-            parameter="debug_materials" />
-      </menu_item_call>
-
-      <menu_item_separator/>
-
         <menu
          create_jump_keys="true"
          label="Options"
@@ -2621,6 +2611,17 @@
             <menu_item_check.on_enable
                  function="Advanced.EnableRenderDeferredOptions" />
           </menu_item_check>
+
+          <menu_item_separator/>
+
+          <menu_item_call
+              label="Debug materials ..."
+              name="DebugMaterialsMenu">
+            <menu_item_call.on_click
+                function="Floater.ToggleOrBringToFront"
+                parameter="debug_materials" />
+          </menu_item_call>
+
           <menu_item_separator />
 
           <menu_item_check
