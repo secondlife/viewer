@@ -1,5 +1,5 @@
 # -*- cmake -*-
-project(llplugintest CXX)
+project(llplugintest)
 
 include(00-Common)
 include(FindOpenGL)

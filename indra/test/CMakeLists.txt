@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-project (test CXX)
+project (test)
 
 include(00-Common)
 include(LLCommon)

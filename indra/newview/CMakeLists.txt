@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-project(viewer CXX)
+project(viewer)
 
 include(00-Common)
 include(Boost)

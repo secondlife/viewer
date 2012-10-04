@@ -1,4 +1,4 @@
-project(SLPlugin CXX)
+project(SLPlugin)
 
 include(00-Common)
 include(LLCommon)

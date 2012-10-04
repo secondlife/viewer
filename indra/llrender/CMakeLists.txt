@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-project(llrender CXX)
+project(llrender)
 
 include(00-Common)
 include(FindOpenGL)

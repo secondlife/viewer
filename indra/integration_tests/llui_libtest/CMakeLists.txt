@@ -4,7 +4,7 @@
 # related to the viewer
 if (VIEWER)
 
-project (llui_libtest CXX)
+project (llui_libtest)
 
 include(00-Common)
 include(LLCommon)

@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-project(login CXX)
+project(login)
 
 include(00-Common)
 if(LL_TESTS)

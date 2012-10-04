@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-project(linux_crash_logger CXX)
+project(linux_crash_logger)
 
 include(00-Common)
 include(GLH)

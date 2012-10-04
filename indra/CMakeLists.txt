@@ -14,7 +14,7 @@ endif (COMMAND cmake_policy)
 
 set(ROOT_PROJECT_NAME "SecondLife" CACHE STRING
     "The root project/makefile/solution name. Defaults to SecondLife.")
-project(${ROOT_PROJECT_NAME} CXX)
+project(${ROOT_PROJECT_NAME})
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 

@@ -2,7 +2,7 @@
 
 # Integration tests of the llimage library (JPEG2000, PNG, jpeg, etc... images reading and writing)
 
-project (llimage_libtest CXX)
+project (llimage_libtest)
 
 include(00-Common)
 include(LLCommon)

@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-project(llcrashlogger CXX)
+project(llcrashlogger)
 
 include(00-Common)
 include(LLCommon)

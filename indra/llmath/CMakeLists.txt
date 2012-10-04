@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-project(llmath CXX)
+project(llmath)
 
 include(00-Common)
 include(LLCommon)

@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-project(llplugin CXX)
+project(llplugin)
 
 include(00-Common)
 include(CURL)

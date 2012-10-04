@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-project(mac_crash_logger CXX)
+project(mac_crash_logger)
 
 include(00-Common)
 include(LLCommon)

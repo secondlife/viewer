@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-project(llui CXX)
+project(llui)
 
 include(00-Common)
 include(LLCommon)

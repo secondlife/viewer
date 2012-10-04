@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-project(winmm_shim CXX)
+project(winmm_shim)
 
 ### winmm_shim
 # *HACK - override msvcrt implementation (intialized on 00-Common) to be
