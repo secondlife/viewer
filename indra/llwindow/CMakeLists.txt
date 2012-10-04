@@ -85,7 +85,6 @@ if (LINUX)
         ${LLVFS_LIBRARIES}
         ${LLWINDOW_HEADLESS_LIBRARIES}
         ${LLXML_LIBRARIES}
-        ${UI_LIBRARIES}     # for GTK
         fontconfig          # For FCInit and other FC* functions.
         )
   endif (BUILD_HEADLESS)
