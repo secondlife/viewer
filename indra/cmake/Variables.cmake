@@ -8,11 +8,6 @@
 #   DARWIN  - Mac OS X
 #   LINUX   - Linux
 #   WINDOWS - Windows
-#
-# What to build:
-#
-#   VIEWER - viewer and other viewer-side components
-#   SERVER - simulator and other server-side bits
 
 
 # Relative and absolute paths to subtrees.
@@ -23,9 +18,7 @@ endif(NOT DEFINED COMMON_CMAKE_DIR)
 
 set(LIBS_CLOSED_PREFIX)
 set(LIBS_OPEN_PREFIX)
-set(LIBS_SERVER_PREFIX)
 set(SCRIPTS_PREFIX ../scripts)
-set(SERVER_PREFIX)
 set(VIEWER_PREFIX)
 set(INTEGRATION_TESTS_PREFIX)
 set(LL_TESTS ON CACHE BOOL "Build and run unit and integration tests (disable for build timing runs to reduce variation")
@@ -43,9 +36,7 @@ else(LIBS_COMMON_DIR)
 endif(LIBS_COMMON_DIR)
 set(LIBS_OPEN_DIR ${LIBS_COMMON_DIR})
 
-set(LIBS_SERVER_DIR ${CMAKE_SOURCE_DIR}/${LIBS_SERVER_PREFIX})
 set(SCRIPTS_DIR ${CMAKE_SOURCE_DIR}/${SCRIPTS_PREFIX})
-set(SERVER_DIR ${CMAKE_SOURCE_DIR}/${SERVER_PREFIX})
 set(VIEWER_DIR ${CMAKE_SOURCE_DIR}/${VIEWER_PREFIX})
 
 set(AUTOBUILD_INSTALL_DIR ${CMAKE_BINARY_DIR}/packages)
@@ -140,7 +131,6 @@ endif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 # Default deploy grid
 set(GRID agni CACHE STRING "Target Grid")
 
-set(VIEWER ON CACHE BOOL "Build Second Life viewer.")
 set(VIEWER_CHANNEL "LindenDeveloper" CACHE STRING "Viewer Channel Name")
 set(VIEWER_LOGIN_CHANNEL ${VIEWER_CHANNEL} CACHE STRING "Fake login channel for A/B Testing")
 
@@ -152,20 +142,6 @@ endif (XCODE_VERSION GREATER 4.2)
 set(VERSION_BUILD "0" CACHE STRING "Revision number passed in from the outside")
 set(STANDALONE OFF CACHE BOOL "Do not use Linden-supplied prebuilt libraries.")
 set(UNATTENDED OFF CACHE BOOL "Should be set to ON for building with VC Express editions.")
-
-if (NOT STANDALONE AND EXISTS ${CMAKE_SOURCE_DIR}/llphysics)
-    set(SERVER ON CACHE BOOL "Build Second Life server software.")
-endif (NOT STANDALONE AND EXISTS ${CMAKE_SOURCE_DIR}/llphysics)
-
-if (LINUX AND SERVER AND VIEWER)
-  MESSAGE(FATAL_ERROR "
-The indra source does not currently support building SERVER and VIEWER at the same time.
-Please set one of these values to OFF in your CMake cache file.
-(either by running ccmake or by editing CMakeCache.txt by hand)
-For more information, please see JIRA DEV-14943 - Cmake Linux cannot build both VIEWER and SERVER in one build environment
-  ")
-endif (LINUX AND SERVER AND VIEWER)
-
 
 set(USE_PRECOMPILED_HEADERS ON CACHE BOOL "Enable use of precompiled header directives where supported.")
 

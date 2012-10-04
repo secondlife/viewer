@@ -13,7 +13,7 @@ include(UI)
 include(Linking)
 include(PluginAPI)
 include(MediaPluginBase)
-include(FindOpenGL)
+include(OpenGL)
 include(PulseAudio)
 
 include(WebKitLibPlugin)

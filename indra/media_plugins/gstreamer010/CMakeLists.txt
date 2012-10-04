@@ -12,7 +12,7 @@ include(LLWindow)
 include(Linking)
 include(PluginAPI)
 include(MediaPluginBase)
-include(FindOpenGL)
+include(OpenGL)
 
 include(GStreamer010Plugin)
 

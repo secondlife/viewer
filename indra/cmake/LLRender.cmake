@@ -8,15 +8,15 @@ set(LLRENDER_INCLUDE_DIRS
     ${GLH_INCLUDE_DIR}
     )
 
-if ((SERVER OR BAKING) AND LINUX)
+if ((BAKING) AND LINUX)
   set(LLRENDER_LIBRARIES
       llrenderheadless
       )
-else ((SERVER OR BAKING) AND LINUX)
+else ((BAKING) AND LINUX)
 set(LLRENDER_LIBRARIES
     llrender
     )
-endif ((SERVER OR BAKING) AND LINUX)
+endif ((BAKING) AND LINUX)
 
 # mapserver requires certain files to be copied so LL_MESA_HEADLESS can be set
 # differently for different object files.

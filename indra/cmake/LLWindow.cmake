@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-include(OpenGL)
+include(GLEXT)
 include(Prebuilt)
 
 if (STANDALONE)
@@ -14,12 +14,12 @@ if (STANDALONE)
       )
 else (STANDALONE)
   use_prebuilt_binary(mesa)
-  if (LINUX AND VIEWER)
+  if (LINUX)
     use_prebuilt_binary(SDL)
     set (SDL_FOUND TRUE)
     set (SDL_INCLUDE_DIR ${LIBS_PREBUILT_DIR}/i686-linux)
     set (SDL_LIBRARY SDL directfb fusion direct)
-  endif (LINUX AND VIEWER)
+  endif (LINUX)
 endif (STANDALONE)
 
 if (SDL_FOUND AND NOT BAKING)
@@ -37,13 +37,13 @@ set(LLWINDOW_INCLUDE_DIRS
     ${LIBS_OPEN_DIR}/llwindow
     )
 
-if ((SERVER AND LINUX) OR (BAKING AND LINUX))
+if (BAKING AND LINUX)
   set(LLWINDOW_LIBRARIES
       llwindowheadless
       )
   MESSAGE( STATUS "using headless libraries")
-else (SERVER AND LINUX)
+else (BAKING AND LINUX)
   set(LLWINDOW_LIBRARIES
       llwindow
       )
-endif ((SERVER AND LINUX) OR (BAKING AND LINUX))
+endif (BAKING AND LINUX)

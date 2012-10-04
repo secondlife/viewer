@@ -62,7 +62,7 @@ set(viewer_HEADER_FILES
 
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
-if (LINUX AND VIEWER)
+if (LINUX)
   set(llwindow_LINK_LIBRARIES
       ${LLCOMMON_LIBRARIES}
       ${LLIMAGE_LIBRARIES}
@@ -75,7 +75,7 @@ if (LINUX AND VIEWER)
       ${SDL_LIBRARY}
       fontconfig          # For FCInit and other FC* functions.
       )
-endif (LINUX AND VIEWER)
+endif (LINUX)
 
 if (DARWIN)
   list(APPEND llwindow_SOURCE_FILES
@@ -98,7 +98,7 @@ if (DARWIN)
       )
 endif (DARWIN)
 
-if (LINUX AND VIEWER)
+if (LINUX)
   list(APPEND viewer_SOURCE_FILES 
        llkeyboardsdl.cpp 
        llwindowsdl.cpp
@@ -107,7 +107,7 @@ if (LINUX AND VIEWER)
        llkeyboardsdl.h
        llwindowsdl.h
        )
-endif (LINUX AND VIEWER)
+endif (LINUX)
 
 if (WINDOWS)
   list(APPEND llwindow_SOURCE_FILES
@@ -171,11 +171,9 @@ endif (llwindow_HEADER_FILES)
 
 list(APPEND viewer_SOURCE_FILES ${viewer_HEADER_FILES})
 
-if (VIEWER)
-  add_library (llwindow
-    ${llwindow_SOURCE_FILES}
-    ${viewer_SOURCE_FILES}
-    )
-  target_link_libraries (llwindow ${llwindow_LINK_LIBRARIES})
-endif (VIEWER)
+add_library (llwindow
+  ${llwindow_SOURCE_FILES}
+  ${viewer_SOURCE_FILES}
+  )
+target_link_libraries (llwindow ${llwindow_LINK_LIBRARIES})
 

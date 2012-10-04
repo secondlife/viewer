@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-if (VIEWER AND WINDOWS)
+if (WINDOWS)
   find_path(DIRECTX_INCLUDE_DIR dxdiag.h
             "$ENV{DXSDK_DIR}/Include"
             "$ENV{PROGRAMFILES}/Microsoft DirectX SDK (June 2010)/Include"
@@ -45,4 +45,4 @@ if (VIEWER AND WINDOWS)
     message(FATAL_ERROR "Could not find DirectX SDK Libraries")
   endif (DIRECTX_LIBRARY_DIR)
 
-endif (VIEWER AND WINDOWS)
+endif (WINDOWS)

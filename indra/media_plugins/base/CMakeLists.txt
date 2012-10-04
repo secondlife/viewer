@@ -11,7 +11,7 @@ include(LLRender)
 include(LLWindow)
 include(Linking)
 include(PluginAPI)
-include(FindOpenGL)
+include(OpenGL)
 
 include_directories(
     ${LLPLUGIN_INCLUDE_DIRS}

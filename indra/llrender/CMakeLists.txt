@@ -3,7 +3,7 @@
 project(llrender)
 
 include(00-Common)
-include(FindOpenGL)
+include(OpenGL)
 include(FreeType)
 include(LLCommon)
 include(LLImage)
