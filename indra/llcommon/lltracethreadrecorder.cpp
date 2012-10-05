@@ -68,10 +68,7 @@ void ThreadRecorder::activate( Recording* recording )
 	mPrimaryRecording = &mActiveRecordings.front().mBaseline;
 }
 
-//TODO: consider merging results down the list to one past the buffered item.
-// this would require 2 buffers per sampler, to separate current total from running total
-
-void ThreadRecorder::deactivate( Recording* recording )
+std::list<ThreadRecorder::ActiveRecording>::iterator ThreadRecorder::update( Recording* recording )
 {
 	for (std::list<ActiveRecording>::iterator it = mActiveRecordings.begin(), end_it = mActiveRecordings.end();
 		it != end_it;
@@ -92,9 +89,19 @@ void ThreadRecorder::deactivate( Recording* recording )
 				next_it->mBaseline.makePrimary();
 				mPrimaryRecording = &next_it->mBaseline;
 			}
-			mActiveRecordings.erase(it);
-			break;
+			return it;
 		}
+	}
+
+	return mActiveRecordings.end();
+}
+
+void ThreadRecorder::deactivate( Recording* recording )
+{
+	std::list<ActiveRecording>::iterator it = update(recording);
+	if (it != mActiveRecordings.end())
+	{
+		mActiveRecordings.erase(it);
 	}
 }
 

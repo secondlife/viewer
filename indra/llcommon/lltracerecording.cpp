@@ -63,6 +63,12 @@ void Recording::reset()
 	mSamplingTimer.reset();
 }
 
+void Recording::update()
+{
+	mElapsedSeconds = 0.0;
+	mSamplingTimer.reset();
+}
+
 void Recording::resume()
 {
 	if (!mIsStarted)

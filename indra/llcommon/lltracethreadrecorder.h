@@ -37,6 +37,8 @@ namespace LLTrace
 {
 	class LL_COMMON_API ThreadRecorder
 	{
+	protected:
+		struct ActiveRecording;
 	public:
 		ThreadRecorder();
 		ThreadRecorder(const ThreadRecorder& other);
@@ -44,6 +46,7 @@ namespace LLTrace
 		virtual ~ThreadRecorder();
 
 		void activate(Recording* recording);
+		std::list<struct ActiveRecording>::iterator update(Recording* recording);
 		void deactivate(Recording* recording);
 
 		virtual void pushToMaster() = 0;

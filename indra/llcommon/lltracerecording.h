@@ -61,6 +61,7 @@ namespace LLTrace
 		void mergeDeltas(const Recording& baseline, const Recording& target);
 
 		void reset();
+		void update();
 
 		bool isStarted() { return mIsStarted; }
 
