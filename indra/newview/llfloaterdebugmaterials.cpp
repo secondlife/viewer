@@ -38,10 +38,12 @@
 
 #include "llagent.h"
 #include "llbutton.h"
+#include "llcolorswatch.h"
 #include "llenvmanager.h"
 #include "llfloater.h"
 #include "llfontgl.h"
 #include "llhttpclient.h"
+#include "lllineeditor.h"
 #include "llscrolllistcell.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
@@ -50,28 +52,43 @@
 #include "llstring.h"
 #include "llstyle.h"
 #include "lltextbase.h"
+#include "lltexturectrl.h"
+#include "lltextvalidate.h"
 #include "lluicolortable.h"
+#include "lluictrl.h"
 #include "llviewerobject.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 #include "v4color.h"
 #include "v4coloru.h"
 
-#define MATERIALS_CAPABILITY_NAME              "RenderMaterials"
+#define MATERIALS_CAPABILITY_NAME                 "RenderMaterials"
 
-#define MATERIALS_CAP_FULL_PER_FACE_FIELD      "FullMaterialsPerFace"
-#define MATERIALS_CAP_FACE_FIELD               "Face"
-#define MATERIALS_CAP_MATERIAL_FIELD           "Material"
-#define MATERIALS_CAP_OBJECT_ID_FIELD          "ID"
-#define MATERIALS_CAP_MATERIAL_ID_FIELD        "MaterialID"
+#define MATERIALS_CAP_FULL_PER_FACE_FIELD         "FullMaterialsPerFace"
+#define MATERIALS_CAP_FACE_FIELD                  "Face"
+#define MATERIALS_CAP_MATERIAL_FIELD              "Material"
+#define MATERIALS_CAP_OBJECT_ID_FIELD             "ID"
+#define MATERIALS_CAP_MATERIAL_ID_FIELD           "MaterialID"
 
-#define MATERIALS_CAP_NORMAL_MAP_FIELD         "NormMap"
-#define MATERIALS_CAP_SPECULAR_MAP_FIELD       "SpecMap"
-#define MATERIALS_CAP_SPECULAR_COLOR_FIELD     "SpecColor"
-#define MATERIALS_CAP_SPECULAR_EXP_FIELD       "SpecExp"
-#define MATERIALS_CAP_ENV_INTENSITY_FIELD      "EnvIntensity"
-#define MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD  "AlphaMaskCutoff"
-#define MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD "DiffuseAlphaMode"
+#define MATERIALS_CAP_NORMAL_MAP_FIELD            "NormMap"
+#define MATERIALS_CAP_NORMAL_MAP_OFFSET_X_FIELD   "NormOffsetX"
+#define MATERIALS_CAP_NORMAL_MAP_OFFSET_Y_FIELD   "NormOffsetY"
+#define MATERIALS_CAP_NORMAL_MAP_REPEAT_X_FIELD   "NormRepeatX"
+#define MATERIALS_CAP_NORMAL_MAP_REPEAT_Y_FIELD   "NormRepeatY"
+#define MATERIALS_CAP_NORMAL_MAP_ROTATION_FIELD   "NormRotation"
+
+#define MATERIALS_CAP_SPECULAR_MAP_FIELD          "SpecMap"
+#define MATERIALS_CAP_SPECULAR_MAP_OFFSET_X_FIELD "SpecOffsetX"
+#define MATERIALS_CAP_SPECULAR_MAP_OFFSET_Y_FIELD "SpecOffsetY"
+#define MATERIALS_CAP_SPECULAR_MAP_REPEAT_X_FIELD "SpecRepeatX"
+#define MATERIALS_CAP_SPECULAR_MAP_REPEAT_Y_FIELD "SpecRepeatY"
+#define MATERIALS_CAP_SPECULAR_MAP_ROTATION_FIELD "SpecRotation"
+
+#define MATERIALS_CAP_SPECULAR_COLOR_FIELD        "SpecColor"
+#define MATERIALS_CAP_SPECULAR_EXP_FIELD          "SpecExp"
+#define MATERIALS_CAP_ENV_INTENSITY_FIELD         "EnvIntensity"
+#define MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD     "AlphaMaskCutoff"
+#define MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD    "DiffuseAlphaMode"
 
 class MaterialsResponder : public LLHTTPClient::Responder
 {
@@ -105,6 +122,85 @@ BOOL LLFloaterDebugMaterials::postBuild()
 	llassert(mGetScrollList != NULL);
 	mGetScrollList->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onGetResultsSelectionChange, this));
 
+	mNormalMap = findChild<LLTextureCtrl>("normal_map");
+	llassert(mNormalMap != NULL);
+
+	mNormalMapOffsetX = findChild<LLLineEditor>("normal_map_offset_x");
+	llassert(mNormalMapOffsetX != NULL);
+	mNormalMapOffsetX->setPrevalidate(LLTextValidate::validateInt);
+	mNormalMapOffsetX->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onValueEntered, this, _1));
+
+	mNormalMapOffsetY = findChild<LLLineEditor>("normal_map_offset_y");
+	llassert(mNormalMapOffsetY != NULL);
+	mNormalMapOffsetY->setPrevalidate(LLTextValidate::validateInt);
+	mNormalMapOffsetY->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onValueEntered, this, _1));
+
+	mNormalMapRepeatX = findChild<LLLineEditor>("normal_map_repeat_x");
+	llassert(mNormalMapRepeatX != NULL);
+	mNormalMapRepeatX->setPrevalidate(LLTextValidate::validateInt);
+	mNormalMapRepeatX->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onValueEntered, this, _1));
+
+	mNormalMapRepeatY = findChild<LLLineEditor>("normal_map_repeat_y");
+	llassert(mNormalMapRepeatY != NULL);
+	mNormalMapRepeatY->setPrevalidate(LLTextValidate::validateInt);
+	mNormalMapRepeatY->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onValueEntered, this, _1));
+
+	mNormalMapRotation = findChild<LLLineEditor>("normal_map_rotation");
+	llassert(mNormalMapRotation != NULL);
+	mNormalMapRotation->setPrevalidate(LLTextValidate::validateInt);
+	mNormalMapRotation->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onValueEntered, this, _1));
+
+	mSpecularMap = findChild<LLTextureCtrl>("specular_map");
+	llassert(mSpecularMap != NULL);
+
+	mSpecularMapOffsetX = findChild<LLLineEditor>("specular_map_offset_x");
+	llassert(mSpecularMapOffsetX != NULL);
+	mSpecularMapOffsetX->setPrevalidate(LLTextValidate::validateInt);
+	mSpecularMapOffsetX->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onValueEntered, this, _1));
+
+	mSpecularMapOffsetY = findChild<LLLineEditor>("specular_map_offset_y");
+	llassert(mSpecularMapOffsetY != NULL);
+	mSpecularMapOffsetY->setPrevalidate(LLTextValidate::validateInt);
+	mSpecularMapOffsetY->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onValueEntered, this, _1));
+
+	mSpecularMapRepeatX = findChild<LLLineEditor>("specular_map_repeat_x");
+	llassert(mSpecularMapRepeatX != NULL);
+	mSpecularMapRepeatX->setPrevalidate(LLTextValidate::validateInt);
+	mSpecularMapRepeatX->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onValueEntered, this, _1));
+
+	mSpecularMapRepeatY = findChild<LLLineEditor>("specular_map_repeat_y");
+	llassert(mSpecularMapRepeatY != NULL);
+	mSpecularMapRepeatY->setPrevalidate(LLTextValidate::validateInt);
+	mSpecularMapRepeatY->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onValueEntered, this, _1));
+
+	mSpecularMapRotation = findChild<LLLineEditor>("specular_map_rotation");
+	llassert(mSpecularMapRotation != NULL);
+	mSpecularMapRotation->setPrevalidate(LLTextValidate::validateInt);
+	mSpecularMapRotation->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onValueEntered, this, _1));
+
+	mSpecularColor = findChild<LLColorSwatchCtrl>("specular_color");
+	llassert(mSpecularColor != NULL);
+
+	mSpecularExponent = findChild<LLLineEditor>("specular_exponent");
+	llassert(mSpecularExponent != NULL);
+	mSpecularExponent->setPrevalidate(LLTextValidate::validateInt);
+	mSpecularExponent->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onValueEntered, this, _1));
+
+	mEnvironmentExponent = findChild<LLLineEditor>("environment_exponent");
+	llassert(mEnvironmentExponent != NULL);
+	mEnvironmentExponent->setPrevalidate(LLTextValidate::validateInt);
+	mEnvironmentExponent->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onValueEntered, this, _1));
+
+	mAlphaMaskCutoff = findChild<LLLineEditor>("alpha_mask_cutoff");
+	llassert(mAlphaMaskCutoff != NULL);
+	mAlphaMaskCutoff->setPrevalidate(LLTextValidate::validateInt);
+	mAlphaMaskCutoff->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onValueEntered, this, _1));
+
+	mDiffuseAlphaMode = findChild<LLLineEditor>("diffuse_alpha_mode");
+	llassert(mDiffuseAlphaMode != NULL);
+	mDiffuseAlphaMode->setPrevalidate(LLTextValidate::validateInt);
+	mDiffuseAlphaMode->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onValueEntered, this, _1));
+
 	mPutSetButton = findChild<LLButton>("put_set_button");
 	llassert(mPutSetButton != NULL);
 	mPutSetButton->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onPutSetClicked, this));
@@ -126,6 +222,8 @@ BOOL LLFloaterDebugMaterials::postBuild()
 
 	mPostScrollList = findChild<LLScrollListCtrl>("post_scroll_list");
 	llassert(mPostScrollList != NULL);
+
+	mDefaultSpecularColor = LLUIColorTable::instance().getColor("White");
 
 	mWarningColor = LLUIColorTable::instance().getColor("MaterialWarningColor");
 	mErrorColor = LLUIColorTable::instance().getColor("MaterialErrorColor");
@@ -155,6 +253,7 @@ void LLFloaterDebugMaterials::onOpen(const LLSD& pKey)
 	}
 
 	checkRegionMaterialStatus();
+	resetObjectEditInputs();
 	clearGetResults();
 	clearPutResults();
 	clearPostResults();
@@ -164,6 +263,7 @@ void LLFloaterDebugMaterials::onOpen(const LLSD& pKey)
 void LLFloaterDebugMaterials::onClose(bool pIsAppQuitting)
 {
 	mGetScrollList->setCommitOnSelectionChange(FALSE);
+	resetObjectEditInputs();
 	clearGetResults();
 	clearPutResults();
 	clearPostResults();
@@ -191,6 +291,23 @@ LLFloaterDebugMaterials::LLFloaterDebugMaterials(const LLSD& pParams)
 	mStatusText(NULL),
 	mGetButton(NULL),
 	mGetScrollList(NULL),
+	mNormalMap(NULL),
+	mNormalMapOffsetX(NULL),
+	mNormalMapOffsetY(NULL),
+	mNormalMapRepeatX(NULL),
+	mNormalMapRepeatY(NULL),
+	mNormalMapRotation(NULL),
+	mSpecularMap(NULL),
+	mSpecularMapOffsetX(NULL),
+	mSpecularMapOffsetY(NULL),
+	mSpecularMapRepeatX(NULL),
+	mSpecularMapRepeatY(NULL),
+	mSpecularMapRotation(NULL),
+	mSpecularColor(NULL),
+	mSpecularExponent(NULL),
+	mEnvironmentExponent(NULL),
+	mAlphaMaskCutoff(NULL),
+	mDiffuseAlphaMode(NULL),
 	mPutSetButton(NULL),
 	mPutClearButton(NULL),
 	mPutScrollList(NULL),
@@ -213,6 +330,24 @@ LLFloaterDebugMaterials::~LLFloaterDebugMaterials()
 void LLFloaterDebugMaterials::onGetClicked()
 {
 	requestGetMaterials();
+}
+
+void LLFloaterDebugMaterials::onValueEntered(LLUICtrl* pUICtrl)
+{
+	LLLineEditor *pLineEditor = static_cast<LLLineEditor *>(pUICtrl);
+	llassert(pLineEditor != NULL);
+
+	const std::string &valueString = pLineEditor->getText();
+
+	S32 intValue = 0;
+	bool doResetValue = (!valueString.empty() && !LLStringUtil::convertToS32(valueString, intValue));
+
+	if (doResetValue)
+	{
+		llwarns << "cannot parse string '" << valueString << "' to an S32 value" <<llendl;
+		LLSD value = static_cast<LLSD::Integer>(intValue);
+		pLineEditor->setValue(value);
+	}
 }
 
 void LLFloaterDebugMaterials::onPutSetClicked()
@@ -441,56 +576,37 @@ void LLFloaterDebugMaterials::requestPutMaterials(bool pIsDoSet)
 				{
 					LLSD materialData = LLSD::emptyMap();
 
-#define FACE_MODULATOR 4
-					if ((curFaceIndex % FACE_MODULATOR) == 0)
-					{
-						materialData[MATERIALS_CAP_NORMAL_MAP_FIELD] = LLUUID("dd88438d-895e-4cc4-3557-f8b6870be6e5"); // Library > Textures > Rock > Rock - Rippling
-						materialData[MATERIALS_CAP_SPECULAR_MAP_FIELD] = LLUUID("c7f1beb3-4c5f-f70e-6d96-7668ff8aea0a"); // Library > Textures > Rock > Rock - Granite
-						LLColor4U specularColor(255, 255, 255, 255);
-						materialData[MATERIALS_CAP_SPECULAR_COLOR_FIELD] = specularColor.getValue();
-						materialData[MATERIALS_CAP_SPECULAR_EXP_FIELD] = static_cast<LLSD::Integer>(100);
-						materialData[MATERIALS_CAP_ENV_INTENSITY_FIELD] = static_cast<LLSD::Integer>(25);
-						materialData[MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD] = static_cast<LLSD::Integer>(37);
-						materialData[MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD] = static_cast<LLSD::Integer>(0);
-					}
-					else if ((curFaceIndex % FACE_MODULATOR) == 1)
-					{
-						materialData[MATERIALS_CAP_NORMAL_MAP_FIELD] = LLUUID("cfcd9d0b-f04b-f01a-8b29-519e27078896"); // Library > Textures > Terrain Textures > Terrain Textures - Winter > Primitive Island - Base Ice-rock
-						materialData[MATERIALS_CAP_SPECULAR_MAP_FIELD] = LLUUID("fcad96ba-3495-d426-9713-21cf721332a4"); // Library > Textures > Terrain Textures > Terrain Textures - Winter > Primitive Island - Ice-rock
-						LLColor4U specularColor(100, 50, 200, 128);
-						materialData[MATERIALS_CAP_SPECULAR_COLOR_FIELD] = specularColor.getValue();
-						materialData[MATERIALS_CAP_SPECULAR_EXP_FIELD] = static_cast<LLSD::Integer>(255);
-						materialData[MATERIALS_CAP_ENV_INTENSITY_FIELD] = static_cast<LLSD::Integer>(0);
-						materialData[MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD] = static_cast<LLSD::Integer>(5);
-						materialData[MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD] = static_cast<LLSD::Integer>(1);
-					}
-					else if ((curFaceIndex % FACE_MODULATOR) == 2)
-					{
-						materialData[MATERIALS_CAP_NORMAL_MAP_FIELD] = LLUUID("6ed3abd3-527a-856d-3771-2a04ea4c16e1"); // Library > Textures > Waterfalls > Water - ripple layer 1
-						materialData[MATERIALS_CAP_SPECULAR_MAP_FIELD] = LLUUID("e7c01539-4836-cd47-94ac-55af7502e4db"); // Library > Textures > Waterfalls > Water - ripple layer 2
-						LLColor4U specularColor(128, 128, 128, 255);
-						materialData[MATERIALS_CAP_SPECULAR_COLOR_FIELD] = specularColor.getValue();
-						materialData[MATERIALS_CAP_SPECULAR_EXP_FIELD] = static_cast<LLSD::Integer>(1);
-						materialData[MATERIALS_CAP_ENV_INTENSITY_FIELD] = static_cast<LLSD::Integer>(255);
-						materialData[MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD] = static_cast<LLSD::Integer>(75);
-						materialData[MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD] = static_cast<LLSD::Integer>(3);
-					}
-					else if ((curFaceIndex % FACE_MODULATOR) == 3)
-					{
-						// do nothing
-					}
+					materialData[MATERIALS_CAP_NORMAL_MAP_FIELD] = mNormalMap->getImageAssetID();
+					materialData[MATERIALS_CAP_NORMAL_MAP_OFFSET_X_FIELD] = static_cast<LLSD::Integer>(getNormalMapOffsetX());
+					materialData[MATERIALS_CAP_NORMAL_MAP_OFFSET_Y_FIELD] = static_cast<LLSD::Integer>(getNormalMapOffsetY());
+					materialData[MATERIALS_CAP_NORMAL_MAP_REPEAT_X_FIELD] = static_cast<LLSD::Integer>(getNormalMapRepeatX());
+					materialData[MATERIALS_CAP_NORMAL_MAP_REPEAT_Y_FIELD] = static_cast<LLSD::Integer>(getNormalMapRepeatY());
+					materialData[MATERIALS_CAP_NORMAL_MAP_ROTATION_FIELD] = static_cast<LLSD::Integer>(getNormalMapRotation());
 
-					if ((curFaceIndex % FACE_MODULATOR) != 3)
+					materialData[MATERIALS_CAP_SPECULAR_MAP_FIELD] = mSpecularMap->getImageAssetID();
+					materialData[MATERIALS_CAP_SPECULAR_MAP_OFFSET_X_FIELD] = static_cast<LLSD::Integer>(getSpecularMapOffsetX());
+					materialData[MATERIALS_CAP_SPECULAR_MAP_OFFSET_Y_FIELD] = static_cast<LLSD::Integer>(getSpecularMapOffsetY());
+					materialData[MATERIALS_CAP_SPECULAR_MAP_REPEAT_X_FIELD] = static_cast<LLSD::Integer>(getSpecularMapRepeatX());
+					materialData[MATERIALS_CAP_SPECULAR_MAP_REPEAT_Y_FIELD] = static_cast<LLSD::Integer>(getSpecularMapRepeatY());
+					materialData[MATERIALS_CAP_SPECULAR_MAP_ROTATION_FIELD] = static_cast<LLSD::Integer>(getSpecularMapRotation());
+
+					const LLColor4& specularColor = mSpecularColor->get();
+					LLColor4U specularColor4U = specularColor;
+					materialData[MATERIALS_CAP_SPECULAR_COLOR_FIELD] = specularColor4U.getValue();
+
+					materialData[MATERIALS_CAP_SPECULAR_EXP_FIELD] = static_cast<LLSD::Integer>(getSpecularExponent());
+					materialData[MATERIALS_CAP_ENV_INTENSITY_FIELD] = static_cast<LLSD::Integer>(getEnvironmentExponent());
+					materialData[MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD] = static_cast<LLSD::Integer>(getAlphMaskCutoff());
+					materialData[MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD] = static_cast<LLSD::Integer>(getDiffuseAlphaMode());
+
+					LLSD faceData = LLSD::emptyMap();
+					faceData[MATERIALS_CAP_FACE_FIELD] = static_cast<LLSD::Integer>(curFaceIndex);
+					faceData[MATERIALS_CAP_OBJECT_ID_FIELD] = static_cast<LLSD::Integer>(viewerObject->getLocalID());
+					if (pIsDoSet)
 					{
-						LLSD faceData = LLSD::emptyMap();
-						faceData[MATERIALS_CAP_FACE_FIELD] = static_cast<LLSD::Integer>(curFaceIndex);
-						faceData[MATERIALS_CAP_OBJECT_ID_FIELD] = static_cast<LLSD::Integer>(viewerObject->getLocalID());
-						if (pIsDoSet)
-						{
-							faceData[MATERIALS_CAP_MATERIAL_FIELD] = materialData;
-						}
-						facesData.append(faceData);
+						faceData[MATERIALS_CAP_MATERIAL_FIELD] = materialData;
 					}
+					facesData.append(faceData);
 				}
 			}
 
@@ -844,6 +960,33 @@ void LLFloaterDebugMaterials::setState(EState pState)
 	updateControls();
 }
 
+void LLFloaterDebugMaterials::resetObjectEditInputs()
+{
+	const LLSD zeroValue = static_cast<LLSD::Integer>(0);
+
+	mNormalMap->clear();
+	mNormalMapOffsetX->setValue(zeroValue);
+	mNormalMapOffsetY->setValue(zeroValue);
+	mNormalMapRepeatX->setValue(zeroValue);
+	mNormalMapRepeatY->setValue(zeroValue);
+	mNormalMapRotation->setValue(zeroValue);
+
+	mSpecularMap->clear();
+	mSpecularMapOffsetX->setValue(zeroValue);
+	mSpecularMapOffsetY->setValue(zeroValue);
+	mSpecularMapRepeatX->setValue(zeroValue);
+	mSpecularMapRepeatY->setValue(zeroValue);
+	mSpecularMapRotation->setValue(zeroValue);
+
+	mSpecularColor->clear();
+	mSpecularExponent->setValue(zeroValue);
+	mEnvironmentExponent->setValue(zeroValue);
+	mAlphaMaskCutoff->setValue(zeroValue);
+	mDiffuseAlphaMode->setValue(zeroValue);
+
+	mSpecularColor->set(mDefaultSpecularColor);
+}
+
 void LLFloaterDebugMaterials::clearGetResults()
 {
 	mGetScrollList->deleteAllItems();
@@ -960,6 +1103,85 @@ std::string LLFloaterDebugMaterials::convertToPrintableMaterialID(const LLSD& pB
 		materialIDString += llformat("%08x", *value);
 	}
 	return materialIDString;
+}
+
+S32 LLFloaterDebugMaterials::getNormalMapOffsetX() const
+{
+	return getLineEditorValue(mNormalMapOffsetX);
+}
+
+S32 LLFloaterDebugMaterials::getNormalMapOffsetY() const
+{
+	return getLineEditorValue(mNormalMapOffsetY);
+}
+
+S32 LLFloaterDebugMaterials::getNormalMapRepeatX() const
+{
+	return getLineEditorValue(mNormalMapRepeatX);
+}
+
+S32 LLFloaterDebugMaterials::getNormalMapRepeatY() const
+{
+	return getLineEditorValue(mNormalMapRepeatY);
+}
+
+S32 LLFloaterDebugMaterials::getNormalMapRotation() const
+{
+	return getLineEditorValue(mNormalMapRotation);
+}
+
+S32 LLFloaterDebugMaterials::getSpecularMapOffsetX() const
+{
+	return getLineEditorValue(mSpecularMapOffsetX);
+}
+
+S32 LLFloaterDebugMaterials::getSpecularMapOffsetY() const
+{
+	return getLineEditorValue(mSpecularMapOffsetY);
+}
+
+S32 LLFloaterDebugMaterials::getSpecularMapRepeatX() const
+{
+	return getLineEditorValue(mSpecularMapRepeatX);
+}
+
+S32 LLFloaterDebugMaterials::getSpecularMapRepeatY() const
+{
+	return getLineEditorValue(mSpecularMapRepeatY);
+}
+
+S32 LLFloaterDebugMaterials::getSpecularMapRotation() const
+{
+	return getLineEditorValue(mSpecularMapRotation);
+}
+
+S32 LLFloaterDebugMaterials::getSpecularExponent() const
+{
+	return getLineEditorValue(mSpecularExponent);
+}
+
+S32 LLFloaterDebugMaterials::getEnvironmentExponent() const
+{
+	return getLineEditorValue(mEnvironmentExponent);
+}
+
+S32 LLFloaterDebugMaterials::getAlphMaskCutoff() const
+{
+	return getLineEditorValue(mAlphaMaskCutoff);
+}
+
+S32 LLFloaterDebugMaterials::getDiffuseAlphaMode() const
+{
+	return getLineEditorValue(mDiffuseAlphaMode);
+}
+
+S32 LLFloaterDebugMaterials::getLineEditorValue(const LLLineEditor *pLineEditor) const
+{
+	S32 value = 0;
+
+	LLStringUtil::convertToS32(pLineEditor->getText(), value);
+
+	return value;
 }
 
 MaterialsResponder::MaterialsResponder(const std::string& pMethod, const std::string& pCapabilityURL, CallbackFunction pCallback)

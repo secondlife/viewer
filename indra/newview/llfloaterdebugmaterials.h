@@ -36,9 +36,13 @@
 #include "v4color.h"
 
 class LLButton;
+class LLColorSwatchCtrl;
+class LLLineEditor;
 class LLScrollListCtrl;
 class LLSD;
 class LLTextBase;
+class LLTextureCtrl;
+class LLUICtrl;
 
 class LLFloaterDebugMaterials : public LLFloater
 {
@@ -67,6 +71,7 @@ private:
 	virtual ~LLFloaterDebugMaterials();
 
 	void          onGetClicked();
+	void          onValueEntered(LLUICtrl* pUICtrl);
 	void          onPutSetClicked();
 	void          onPutClearClicked();
 	void          onGoodPostClicked();
@@ -102,6 +107,7 @@ private:
 	void          setState(EState pState);
 	inline EState getState() const;
 
+	void          resetObjectEditInputs();
 	void          clearGetResults();
 	void          clearPutResults();
 	void          clearPostResults();
@@ -110,15 +116,52 @@ private:
 	void          updateControls();
 	std::string   convertToPrintableMaterialID(const LLSD& pBinaryHash) const;
 
+	S32           getNormalMapOffsetX() const;
+	S32           getNormalMapOffsetY() const;
+	S32           getNormalMapRepeatX() const;
+	S32           getNormalMapRepeatY() const;
+	S32           getNormalMapRotation() const;
+
+	S32           getSpecularMapOffsetX() const;
+	S32           getSpecularMapOffsetY() const;
+	S32           getSpecularMapRepeatX() const;
+	S32           getSpecularMapRepeatY() const;
+	S32           getSpecularMapRotation() const;
+
+	S32           getSpecularExponent() const;
+	S32           getEnvironmentExponent() const;
+	S32           getAlphMaskCutoff() const;
+	S32           getDiffuseAlphaMode() const;
+	S32           getLineEditorValue(const LLLineEditor *pLineEditor) const;
+
 	LLTextBase*                 mStatusText;
 	LLButton*                   mGetButton;
 	LLScrollListCtrl*           mGetScrollList;
+	LLTextureCtrl*              mNormalMap;
+	LLLineEditor*               mNormalMapOffsetX;
+	LLLineEditor*               mNormalMapOffsetY;
+	LLLineEditor*               mNormalMapRepeatX;
+	LLLineEditor*               mNormalMapRepeatY;
+	LLLineEditor*               mNormalMapRotation;
+	LLTextureCtrl*              mSpecularMap;
+	LLLineEditor*               mSpecularMapOffsetX;
+	LLLineEditor*               mSpecularMapOffsetY;
+	LLLineEditor*               mSpecularMapRepeatX;
+	LLLineEditor*               mSpecularMapRepeatY;
+	LLLineEditor*               mSpecularMapRotation;
+	LLColorSwatchCtrl*          mSpecularColor;
+	LLLineEditor*               mSpecularExponent;
+	LLLineEditor*               mEnvironmentExponent;
+	LLLineEditor*               mAlphaMaskCutoff;
+	LLLineEditor*               mDiffuseAlphaMode;
 	LLButton*                   mPutSetButton;
 	LLButton*                   mPutClearButton;
 	LLScrollListCtrl*           mPutScrollList;
 	LLButton*                   mGoodPostButton;
 	LLButton*                   mBadPostButton;
 	LLScrollListCtrl*           mPostScrollList;
+
+	LLColor4                    mDefaultSpecularColor;
 
 	EState                      mState;
 	LLColor4                    mWarningColor;
