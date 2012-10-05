@@ -102,6 +102,7 @@ set(llcommon_SOURCE_FILES
     lltimer.cpp
     lltrace.cpp
     lltracerecording.cpp
+    lltracethreadrecorder.cpp
     lluri.cpp
     lluuid.cpp
     llworkerthread.cpp
@@ -245,6 +246,7 @@ set(llcommon_HEADER_FILES
     lltimer.h
     lltrace.h
     lltracerecording.h
+    lltracethreadrecorder.h
     lltreeiterators.h
     lltypeinfolookup.h
     llunit.h

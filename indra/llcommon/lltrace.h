@@ -30,11 +30,10 @@
 #include "stdtypes.h"
 #include "llpreprocessor.h"
 
-#include "llmutex.h"
 #include "llmemory.h"
-#include "lltimer.h"
 #include "llrefcount.h"
 #include "lltracerecording.h"
+#include "lltracethreadrecorder.h"
 #include "llunit.h"
 
 #include <list>
@@ -171,7 +170,7 @@ namespace LLTrace
 	template<typename ACCUMULATOR> LLThreadLocalPointer<ACCUMULATOR> AccumulatorBuffer<ACCUMULATOR>::sPrimaryStorage;
 
 	template<typename ACCUMULATOR>
-	class LL_COMMON_API TraceType
+	class LL_COMMON_API TraceType 
 	{
 	public:
 		TraceType(const std::string& name)
@@ -186,6 +185,7 @@ namespace LLTrace
 		}
 
 		ACCUMULATOR& getAccumulator(AccumulatorBuffer<ACCUMULATOR>* buffer) { return (*buffer)[mAccumulatorIndex]; }
+		const ACCUMULATOR& getAccumulator(AccumulatorBuffer<ACCUMULATOR>* buffer) const { return (*buffer)[mAccumulatorIndex]; }
 
 	protected:
 		std::string	mName;
@@ -265,11 +265,11 @@ namespace LLTrace
 			mMax = 0;
 		}
 
-		T	getSum() { return mSum; }
-		T	getMin() { return mMin; }
-		T	getMax() { return mMax; }
-		F32	getMean() { return mMean; }
-		F32 getStandardDeviation() { return mStandardDeviation; }
+		T	getSum() const { return mSum; }
+		T	getMin() const { return mMin; }
+		T	getMax() const { return mMax; }
+		F32	getMean() const { return mMean; }
+		F32 getStandardDeviation() const { return mStandardDeviation; }
 
 	private:
 		T	mSum,
@@ -315,7 +315,7 @@ namespace LLTrace
 			mSum = 0;
 		}
 
-		T	getSum() { return mSum; }
+		T	getSum() const { return mSum; }
 
 	private:
 		T	mSum;
@@ -355,13 +355,6 @@ namespace LLTrace
 		{
 			base_measurement_t::sample(value.get());
 		}
-
-		template<typename UNIT_T>
-		typename T::value_t get()
-		{
-			UNIT_T value(*this);
-			return value.get();
-		}
 	};
 
 	template <typename T, typename IS_UNIT = void>
@@ -395,14 +388,35 @@ namespace LLTrace
 		{
 			getPrimaryAccumulator().add(value.get());
 		}
+	};
 
-		template<typename UNIT_T>
-		typename T::value_t get()
+	template <typename T>
+	class LL_COMMON_API Count 
+	{
+	public:
+		Count(const std::string& name) 
+		:	mIncrease(name + "_increase"),
+			mDecrease(name + "_decrease"),
+			mTotal(name)
+		{}
+
+		void count(T value)
 		{
-			UNIT_T value(*this);
-			return value.get();
+			if (value < 0)
+			{
+				mDecrease.add(value * -1);
+			}
+			else
+			{
+				mIncrease.add(value);
+			}
+			mTotal.add(value);
 		}
-
+	private:
+		friend class LLTrace::Recording;
+		Rate<T> mIncrease;
+		Rate<T> mDecrease;
+		Rate<T> mTotal;
 	};
 
 	class LL_COMMON_API TimerAccumulator
@@ -526,93 +540,6 @@ namespace LLTrace
 		}
 
 		static Recorder::StackEntry sCurRecorder;
-	};
-
-	class Recording;
-
-	class LL_COMMON_API ThreadRecorder
-	{
-	public:
-		ThreadRecorder();
-		ThreadRecorder(const ThreadRecorder& other);
-
-		virtual ~ThreadRecorder();
-
-		void activate(Recording* recording);
-		void deactivate(Recording* recording);
-
-		virtual void pushToMaster() = 0;
-
-		Recording* getPrimaryRecording();
-	protected:
-		struct ActiveRecording
-		{
-			ActiveRecording(Recording* source, Recording* target);
-
-			Recording*	mTargetRecording;
-			Recording	mBaseline;
-
-			void mergeMeasurements(ActiveRecording& other);
-			void flushAccumulators(Recording* current);
-		};
-		Recording*					mPrimaryRecording;
-		Recording					mFullRecording;
-		std::list<ActiveRecording>	mActiveRecordings;
-	};
-
-	class LL_COMMON_API MasterThreadRecorder : public ThreadRecorder
-	{
-	public:
-		MasterThreadRecorder();
-
-		void addSlaveThread(class SlaveThreadRecorder* child);
-		void removeSlaveThread(class SlaveThreadRecorder* child);
-
-		/*virtual */ void pushToMaster();
-
-		// call this periodically to gather stats data from slave threads
-		void pullFromSlaveThreads();
-
-		LLMutex* getSlaveListMutex() { return &mSlaveListMutex; }
-
-	private:
-		struct SlaveThreadRecorderProxy
-		{
-			SlaveThreadRecorderProxy(class SlaveThreadRecorder* recorder);
-
-			class SlaveThreadRecorder*	mRecorder;
-			Recording					mSlaveRecording;
-		private:
-			//no need to copy these and then have to duplicate the storage
-			SlaveThreadRecorderProxy(const SlaveThreadRecorderProxy& other) {}
-		};
-		typedef std::list<SlaveThreadRecorderProxy*> slave_thread_recorder_list_t;
-
-		slave_thread_recorder_list_t	mSlaveThreadRecorders;
-		LLMutex							mSlaveListMutex;
-	};
-
-	class LL_COMMON_API SlaveThreadRecorder : public ThreadRecorder
-	{
-	public:
-		SlaveThreadRecorder();
-		~SlaveThreadRecorder();
-
-		// call this periodically to gather stats data for master thread to consume
-		/*virtual*/ void pushToMaster();
-
-		MasterThreadRecorder* 	mMaster;
-
-		class SharedData
-		{
-		public:
-			void copyFrom(const Recording& source);
-			void copyTo(Recording& sink);
-		private:
-			LLMutex		mRecorderMutex;
-			Recording	mRecorder;
-		};
-		SharedData		mSharedData;
 	};
 }
 

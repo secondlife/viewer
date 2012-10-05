@@ -37,6 +37,7 @@ namespace LLTrace
 {
 	template<typename T, typename IS_UNIT> class Rate;
 	template<typename T, typename IS_UNIT> class Measurement;
+	template<typename T> class Count;
 	template<typename T> class AccumulatorBuffer;
 	template<typename T> class RateAccumulator;
 	template<typename T> class MeasurementAccumulator;
@@ -63,14 +64,27 @@ namespace LLTrace
 
 		bool isStarted() { return mIsStarted; }
 
-		F32 getSum(Rate<F32, void>& stat);
-		F32 getPerSec(Rate<F32, void>& stat);
+		// Rate accessors
+		F32 getSum(const Rate<F32, void>& stat);
+		F32 getPerSec(const Rate<F32, void>& stat);
 
-		F32 getSum(Measurement<F32, void>& stat);
-		F32 getMin(Measurement<F32, void>& stat);
-		F32 getMax(Measurement<F32, void>& stat);
-		F32 getMean(Measurement<F32, void>& stat);
-		F32 getStandardDeviation(Measurement<F32, void>& stat);
+		// Measurement accessors
+		F32 getSum(const Measurement<F32, void>& stat);
+		F32 getPerSec(const Measurement<F32, void>& stat);
+		F32 getMin(const Measurement<F32, void>& stat);
+		F32 getMax(const Measurement<F32, void>& stat);
+		F32 getMean(const Measurement<F32, void>& stat);
+		F32 getStandardDeviation(const Measurement<F32, void>& stat);
+
+		// Count accessors
+		F32 getSum(const Count<F32>& stat);
+		F32 getPerSec(const Count<F32>& stat);
+		F32 getIncrease(const Count<F32>& stat);
+		F32 getIncreasePerSec(const Count<F32>& stat);
+		F32 getDecrease(const Count<F32>& stat);
+		F32 getDecreasePerSec(const Count<F32>& stat);
+		F32 getChurn(const Count<F32>& stat);
+		F32 getChurnPerSec(const Count<F32>& stat);
 
 		F64 getSampleTime() { return mElapsedSeconds; }
 

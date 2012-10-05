@@ -110,46 +110,80 @@ void Recording::mergeDeltas(const Recording& baseline, const Recording& target)
 }
 
 
-F32 Recording::getSum( Rate<F32>& stat )
+F32 Recording::getSum(const Rate<F32>& stat)
 {
 	return stat.getAccumulator(mRates).getSum();
 }
 
-F32 Recording::getSum( Measurement<F32>& stat )
-{
-	return stat.getAccumulator(mMeasurements).getSum();
-}
-
-
-F32 Recording::getPerSec( Rate<F32>& stat )
+F32 Recording::getPerSec(const Rate<F32>& stat)
 {
 	return stat.getAccumulator(mRates).getSum() / mElapsedSeconds;
 }
 
-F32 Recording::getMin( Measurement<F32>& stat )
+F32 Recording::getSum(const Measurement<F32>& stat)
+{
+	return stat.getAccumulator(mMeasurements).getSum();
+}
+
+F32 Recording::getMin(const Measurement<F32>& stat)
 {
 	return stat.getAccumulator(mMeasurements).getMin();
 }
 
-F32 Recording::getMax( Measurement<F32>& stat )
+F32 Recording::getMax(const Measurement<F32>& stat)
 {
 	return stat.getAccumulator(mMeasurements).getMax();
 }
 
-F32 Recording::getMean( Measurement<F32>& stat )
+F32 Recording::getMean(const Measurement<F32>& stat)
 {
 	return stat.getAccumulator(mMeasurements).getMean();
 }
 
-F32 Recording::getStandardDeviation( Measurement<F32>& stat )
+F32 Recording::getStandardDeviation(const Measurement<F32>& stat)
 {
 	return stat.getAccumulator(mMeasurements).getStandardDeviation();
 }
 
+F32 Recording::getSum(const Count<F32>& stat)
+{
+	return getSum(stat.mTotal);
+}
 
+F32 Recording::getPerSec(const Count<F32>& stat)
+{
+	return getPerSec(stat.mTotal);
+}
 
+F32 Recording::getIncrease(const Count<F32>& stat)
+{
+	return getSum(stat.mIncrease);
+}
 
+F32 Recording::getIncreasePerSec(const Count<F32>& stat)
+{
+	return getPerSec(stat.mIncrease);
+}
 
+F32 Recording::getDecrease(const Count<F32>& stat)
+{
+	return getSum(stat.mDecrease);
+}
+
+F32 Recording::getDecreasePerSec(const Count<F32>& stat)
+{
+	return getPerSec(stat.mDecrease);
+}
+
+F32 Recording::getChurn(const Count<F32>& stat)
+{
+	return getIncrease(stat) + getDecrease(stat);
+}
+
+F32 Recording::getChurnPerSec(const Count<F32>& stat)
+{
+	return getIncreasePerSec(stat) + getDecreasePerSec(stat);
+}
 
 
 }
