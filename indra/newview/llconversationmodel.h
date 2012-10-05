@@ -126,7 +126,7 @@ public:
 	void resetRefresh() { mNeedsRefresh = false; }
 	bool needsRefresh() { return mNeedsRefresh; }
 	
-	void postEvent(const std::string& event_type, LLConversationItemParticipant* participant);
+	void postEvent(const std::string& event_type, LLConversationItemSession* session, LLConversationItemParticipant* participant);
 	
     void buildParticipantMenuOptions(menuentry_vec_t&   items);
 

@@ -149,7 +149,7 @@ private:
 	conversations_widgets_map mConversationsWidgets;
 	LLConversationViewModel mConversationViewModel;
 	LLFolderView* mConversationsRoot;
-	LLEventStream mStream; 
+	LLEventStream mConversationsEventStream; 
 };
 
 #endif // LL_LLIMFLOATERCONTAINER_H

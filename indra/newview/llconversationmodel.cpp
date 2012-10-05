@@ -66,9 +66,11 @@ LLConversationItem::LLConversationItem(LLFolderViewModelInterface& root_view_mod
 {
 }
 
-void LLConversationItem::postEvent(const std::string& event_type, LLConversationItemParticipant* participant)
+void LLConversationItem::postEvent(const std::string& event_type, LLConversationItemSession* session, LLConversationItemParticipant* participant)
 {
-	LLSD event(LLSDMap("type", event_type)("session_uuid", getUUID())("participant_name",participant->getName())("participant_uuid",participant->getUUID()));
+	LLUUID session_id = (session ? session->getUUID() : LLUUID());
+	LLUUID participant_id = (participant ? participant->getUUID() : LLUUID());
+	LLSD event(LLSDMap("type", event_type)("session_uuid", session_id)("participant_uuid", participant_id));
 	LLEventPumps::instance().obtain("ConversationsEvents").post(event);
 }
 
@@ -138,14 +140,14 @@ void LLConversationItemSession::addParticipant(LLConversationItemParticipant* pa
 	addChild(participant);
 	mIsLoaded = true;
 	mNeedsRefresh = true;
-	postEvent("add_participant", participant);
+	postEvent("add_participant", this, participant);
 }
 
 void LLConversationItemSession::removeParticipant(LLConversationItemParticipant* participant)
 {
 	removeChild(participant);
 	mNeedsRefresh = true;
-	postEvent("remove_participant", participant);
+	postEvent("remove_participant", this, participant);
 }
 
 void LLConversationItemSession::removeParticipant(const LLUUID& participant_id)
@@ -338,11 +340,11 @@ void LLConversationItemParticipant::onAvatarNameCache(const LLAvatarName& av_nam
 	mName = (av_name.mUsername.empty() ? av_name.mDisplayName : av_name.mUsername);
 	mDisplayName = (av_name.mDisplayName.empty() ? av_name.mUsername : av_name.mDisplayName);
 	mNeedsRefresh = true;
-	postEvent("update_participant", this);
 	if (mParent)
 	{
 		mParent->requestSort();
 	}
+	postEvent("update_participant", dynamic_cast<LLConversationItemSession*>(mParent), this);
 }
 
 void LLConversationItemParticipant::dumpDebugData()

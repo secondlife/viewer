@@ -58,7 +58,7 @@ LLIMFloaterContainer::LLIMFloaterContainer(const LLSD& seed)
 :	LLMultiFloater(seed),
 	mExpandCollapseBtn(NULL),
 	mConversationsRoot(NULL),
-	mStream("ConversationsEvents"),
+	mConversationsEventStream("ConversationsEvents"),
 	mInitialized(false)
 {
     mEnableCallbackRegistrar.add("IMFloaterContainer.Check", boost::bind(&LLIMFloaterContainer::isActionChecked, this, _2));
@@ -79,7 +79,7 @@ LLIMFloaterContainer::LLIMFloaterContainer(const LLSD& seed)
 
 LLIMFloaterContainer::~LLIMFloaterContainer()
 {
-	mStream.stopListening("ConversationsRefresh");
+	mConversationsEventStream.stopListening("ConversationsRefresh");
 
 	gIdleCallbacks.deleteFunction(idle, this);
 
@@ -160,7 +160,7 @@ BOOL LLIMFloaterContainer::postBuild()
     mConversationsRoot->setCallbackRegistrar(&mCommitCallbackRegistrar);
 
 	// Add listener to conversation model events
-	mStream.listen("ConversationsRefresh", boost::bind(&LLIMFloaterContainer::onConversationModelEvent, this, _1));
+	mConversationsEventStream.listen("ConversationsRefresh", boost::bind(&LLIMFloaterContainer::onConversationModelEvent, this, _1));
 
 	// a scroller for folder view
 	LLRect scroller_view_rect = mConversationsListPanel->getRect();
@@ -419,22 +419,20 @@ bool LLIMFloaterContainer::onConversationModelEvent(const LLSD& event)
 	// For the moment, we create them here, at the container level, to conform to the pattern implemented in llinventorypanel.cpp 
 	// (see LLInventoryPanel::buildNewViews()).
 
-	// Note: For the moment, we're not very smart about the event parameter and we just refresh the whole set of views/widgets
-	// according to the current state of the whole model.
-	// We should at least analyze the event payload and do things differently for a handful of cases:
-	// - add session or participant
-	// - remove session or participant
-	// - update session or participant (e.g. rename, change sort order, etc...)
-	// Please see LLConversationItem::postEvent() for the payload formatting.
-	// *TODO: Add handling for various event signatures (add, remove, update, resort)
-
 	std::string type = event.get("type").asString();
+	LLUUID session_id = event.get("session_uuid").asUUID();
+	LLUUID participant_id = event.get("participant_uuid").asUUID();
+
+	LLConversationViewSession* session_view = dynamic_cast<LLConversationViewSession*>(mConversationsWidgets[session_id]);
+	if (!session_view)
+	{
+		// We skip events that are not associated to a session
+		return false;
+	}
+	LLConversationViewParticipant* participant_view = session_view->findParticipant(participant_id);
+
 	if (type == "remove_participant")
 	{
-		LLUUID session_id = event.get("session_uuid").asUUID();
-		LLConversationViewSession* session_view = dynamic_cast<LLConversationViewSession*>(mConversationsWidgets[session_id]);
-		LLUUID participant_id = event.get("participant_uuid").asUUID();
-		LLConversationViewParticipant* participant_view = session_view->findParticipant(participant_id);
 		if (participant_view)
 		{
 			session_view->extractItem(participant_view);
@@ -443,52 +441,34 @@ bool LLIMFloaterContainer::onConversationModelEvent(const LLSD& event)
 			mConversationsRoot->arrangeAll();
 		}
 	}
-	else 
+	else if (type == "add_participant")
 	{
-	// On each session in mConversationsItems
-	for (conversations_items_map::iterator it_session = mConversationsItems.begin(); it_session != mConversationsItems.end(); it_session++)
-	{
-		// Get the current session descriptors
-		LLConversationItem* session_model = it_session->second;
-		LLUUID session_id = it_session->first;
-		LLConversationViewSession* session_view = dynamic_cast<LLConversationViewSession*>(mConversationsWidgets[session_id]);
-		// If the session model has been changed, refresh the corresponding view
-		if (session_model->needsRefresh())
+		if (!participant_view)
 		{
-			session_view->refresh();
-		}
-		// Iterate through each model participant child
-		LLFolderViewModelItemCommon::child_list_t::const_iterator current_participant_model = session_model->getChildrenBegin();
-		LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = session_model->getChildrenEnd();
-		while (current_participant_model != end_participant_model)
-		{
-			LLConversationItem* participant_model = dynamic_cast<LLConversationItem*>(*current_participant_model);
-			LLUUID participant_id = participant_model->getUUID();
-			LLConversationViewParticipant* participant_view = session_view->findParticipant(participant_id);
-			// Is there a corresponding view? If not create it
-			if (!participant_view)
+			LLConversationItemSession* session_model = dynamic_cast<LLConversationItemSession*>(mConversationsItems[session_id]);
+			if (session_model)
 			{
-				participant_view = createConversationViewParticipant(participant_model);
-				participant_view->addToFolder(session_view);
-				participant_view->setVisible(TRUE);
-			}
-			else
-				// Else, see if it needs refresh
-			{
-				if (participant_model->needsRefresh())
+				LLConversationItemParticipant* participant_model = session_model->findParticipant(participant_id);
+				if (participant_model)
 				{
-					participant_view->refresh();
+					participant_view = createConversationViewParticipant(participant_model);
+					participant_view->addToFolder(session_view);
+					participant_view->setVisible(TRUE);
 				}
 			}
-			// Reset the need for refresh
-			session_model->resetRefresh();
-			mConversationViewModel.requestSortAll();
-			mConversationsRoot->arrangeAll();
-			// Next participant
-			current_participant_model++;
+
 		}
 	}
+	else if (type == "update_participant")
+	{
+		if (participant_view)
+		{
+			participant_view->refresh();
+		}
 	}
+
+	mConversationViewModel.requestSortAll();
+	mConversationsRoot->arrangeAll();
 	
 	return false;
 }
