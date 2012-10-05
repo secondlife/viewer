@@ -133,12 +133,12 @@ std::string LLCurl::getVersionString()
 //////////////////////////////////////////////////////////////////////////////
 
 LLCurl::Responder::Responder()
-	: mReferenceCount(0)
 {
 }
 
 LLCurl::Responder::~Responder()
 {
+	LL_CHECK_MEMORY
 }
 
 // virtual
@@ -202,23 +202,6 @@ void LLCurl::Responder::completedHeader(U32 status, const std::string& reason, c
 
 }
 
-namespace boost
-{
-	void intrusive_ptr_add_ref(LLCurl::Responder* p)
-	{
-		++p->mReferenceCount;
-	}
-	
-	void intrusive_ptr_release(LLCurl::Responder* p)
-	{
-		if (p && 0 == --p->mReferenceCount)
-		{
-			delete p;
-		}
-	}
-};
-
-
 //////////////////////////////////////////////////////////////////////////////
 
 std::set<CURL*> LLCurl::Easy::sFreeHandles;
@@ -267,15 +250,18 @@ void LLCurl::Easy::releaseEasyHandle(CURL* handle)
 	LLMutexLock lock(sHandleMutexp) ;
 	if (sActiveHandles.find(handle) != sActiveHandles.end())
 	{
+		LL_CHECK_MEMORY
 		sActiveHandles.erase(handle);
-
+		LL_CHECK_MEMORY
 		if(sFreeHandles.size() < MAX_NUM_FREE_HANDLES)
 		{
-		sFreeHandles.insert(handle);
-	}
-	else
-	{
+			sFreeHandles.insert(handle);
+			LL_CHECK_MEMORY
+		}
+		else
+		{
 			LLCurl::deleteEasyHandle(handle) ;
+			LL_CHECK_MEMORY
 		}
 	}
 	else
@@ -318,13 +304,15 @@ LLCurl::Easy::~Easy()
 	releaseEasyHandle(mCurlEasyHandle);
 	--gCurlEasyCount;
 	curl_slist_free_all(mHeaders);
+	LL_CHECK_MEMORY
 	for_each(mStrings.begin(), mStrings.end(), DeletePointerArray());
-
+	LL_CHECK_MEMORY
 	if (mResponder && LLCurl::sNotQuitting) //aborted
 	{	
 		std::string reason("Request timeout, aborted.") ;
 		mResponder->completedRaw(408, //HTTP_REQUEST_TIME_OUT, timeout, abort
 			reason, mChannels, mOutput);		
+		LL_CHECK_MEMORY
 	}
 	mResponder = NULL;
 }
@@ -599,34 +587,49 @@ void LLCurl::Multi::cleanup(bool deleted)
 	llassert_always(deleted || !mValid) ;
 
 	LLMutexLock lock(mDeletionMutexp);
-	
+
+
 	// Clean up active
 	for(easy_active_list_t::iterator iter = mEasyActiveList.begin();
 		iter != mEasyActiveList.end(); ++iter)
 	{
 		Easy* easy = *iter;
+		LL_CHECK_MEMORY
 		check_curl_multi_code(curl_multi_remove_handle(mCurlMultiHandle, easy->getCurlHandle()));
-
+		LL_CHECK_MEMORY
 		if(deleted)
 		{
 			easy->mResponder = NULL ; //avoid triggering mResponder.
+			LL_CHECK_MEMORY
 		}
 		delete easy;
+		LL_CHECK_MEMORY
 	}
 	mEasyActiveList.clear();
 	mEasyActiveMap.clear();
 	
-	// Clean up freed
+	LL_CHECK_MEMORY
+	
+		// Clean up freed
 	for_each(mEasyFreeList.begin(), mEasyFreeList.end(), DeletePointer());	
 	mEasyFreeList.clear();
-
+	
+	LL_CHECK_MEMORY
+		
 	check_curl_multi_code(LLCurl::deleteMultiHandle(mCurlMultiHandle));
 	mCurlMultiHandle = NULL ;
+
+	LL_CHECK_MEMORY
 	
 	delete mMutexp ;
 	mMutexp = NULL ;
+
+	LL_CHECK_MEMORY
+
 	delete mEasyMutexp ;
 	mEasyMutexp = NULL ;
+
+	LL_CHECK_MEMORY
 
 	mQueued = 0 ;
 	mState = STATE_COMPLETED;
@@ -1504,28 +1507,41 @@ void LLCurl::cleanupClass()
 			break ;
 		}
 	}
+	LL_CHECK_MEMORY
 	sCurlThread->shutdown() ;
+	LL_CHECK_MEMORY
 	delete sCurlThread ;
 	sCurlThread = NULL ;
+	LL_CHECK_MEMORY
 
 #if SAFE_SSL
 	CRYPTO_set_locking_callback(NULL);
 	for_each(sSSLMutex.begin(), sSSLMutex.end(), DeletePointer());
 #endif
+	
+	LL_CHECK_MEMORY
 
 	for (std::set<CURL*>::iterator iter = Easy::sFreeHandles.begin(); iter != Easy::sFreeHandles.end(); ++iter)
 	{
 		CURL* curl = *iter;
 		LLCurl::deleteEasyHandle(curl);
 	}
+	
+	LL_CHECK_MEMORY
 
 	Easy::sFreeHandles.clear();
+
+	LL_CHECK_MEMORY
 
 	delete Easy::sHandleMutexp ;
 	Easy::sHandleMutexp = NULL ;
 
+	LL_CHECK_MEMORY
+
 	delete sHandleMutexp ;
 	sHandleMutexp = NULL ;
+
+	LL_CHECK_MEMORY
 
 	// removed as per https://jira.secondlife.com/browse/SH-3115
 	//llassert(Easy::sActiveHandles.empty());
@@ -1591,7 +1607,9 @@ void  LLCurl::deleteEasyHandle(CURL* handle)
 	if(handle)
 	{
 		LLMutexLock lock(sHandleMutexp) ;
+		LL_CHECK_MEMORY
 		curl_easy_cleanup(handle) ;
+		LL_CHECK_MEMORY
 		sTotalHandles-- ;
 	}
 }

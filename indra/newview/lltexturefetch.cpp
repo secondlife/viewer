@@ -2944,7 +2944,9 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
         
         ~lcl_responder()
             {
+				LL_CHECK_MEMORY
                 mFetcher->decrCurlPOSTCount();
+				LL_CHECK_MEMORY
             }
 
 		// virtual

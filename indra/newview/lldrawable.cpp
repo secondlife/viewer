@@ -945,6 +945,12 @@ void LLDrawable::updateUVMinMax()
 
 void LLDrawable::setSpatialGroup(LLSpatialGroup *groupp)
 {
+	//precondition: mSpatialGroupp MUST be null or DEAD or mSpatialGroupp MUST NOT contain this
+	llassert(!mSpatialGroupp || mSpatialGroupp->isDead() || !mSpatialGroupp->hasElement(this));
+
+	//precondition: groupp MUST be null or groupp MUST contain this
+	llassert(!groupp || groupp->hasElement(this));
+
 /*if (mSpatialGroupp && (groupp != mSpatialGroupp))
 	{
 		mSpatialGroupp->setState(LLSpatialGroup::GEOM_DIRTY);
@@ -1468,6 +1474,10 @@ void LLSpatialBridge::cleanupReferences()
 	LLDrawable::cleanupReferences();
 	if (mDrawable)
 	{
+		/*
+		
+		DON'T DO THIS -- this should happen through octree destruction
+
 		mDrawable->setSpatialGroup(NULL);
 		if (mDrawable->getVObj())
 		{
@@ -1482,7 +1492,7 @@ void LLSpatialBridge::cleanupReferences()
 					drawable->setSpatialGroup(NULL);
 				}
 			}
-		}
+		}*/
 
 		LLDrawable* drawablep = mDrawable;
 		mDrawable = NULL;

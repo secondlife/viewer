@@ -1888,8 +1888,6 @@ bool LLAppViewer::cleanup()
 
 	delete sTextureCache;
     sTextureCache = NULL;
-	delete sTextureFetch;
-    sTextureFetch = NULL;
 	delete sImageDecodeThread;
     sImageDecodeThread = NULL;
 	delete mFastTimerLogThread;
@@ -1958,8 +1956,14 @@ bool LLAppViewer::cleanup()
 	end_messaging_system();
 
 	// *NOTE:Mani - The following call is not thread safe. 
+	LL_CHECK_MEMORY
 	LLCurl::cleanupClass();
+	LL_CHECK_MEMORY
 
+	//MUST happen AFTER LLCurl::cleanupClass
+	delete sTextureFetch;
+    sTextureFetch = NULL;
+	
 	// If we're exiting to launch an URL, do that here so the screen
 	// is at the right resolution before we launch IE.
 	if (!gLaunchFileOnQuit.empty())

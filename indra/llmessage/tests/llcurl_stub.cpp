@@ -28,7 +28,6 @@
 #include "llcurl.h"
 
 LLCurl::Responder::Responder()
-	: mReferenceCount(0)
 {
 }
 
@@ -76,20 +75,4 @@ void LLCurl::Responder::error(unsigned,
 void LLCurl::Responder::result(LLSD const&)
 {
 }
-
-namespace boost
-{
-	void intrusive_ptr_add_ref(LLCurl::Responder* p)
-	{
-		++p->mReferenceCount;
-	}
-
-	void intrusive_ptr_release(LLCurl::Responder* p)
-	{
-		if(p && 0 == --p->mReferenceCount)
-		{
-			delete p;
-		}
-	}
-};
 

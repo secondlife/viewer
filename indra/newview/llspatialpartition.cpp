@@ -1841,12 +1841,12 @@ BOOL LLSpatialPartition::remove(LLDrawable *drawablep, LLSpatialGroup *curp)
 {
 	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	
-	drawablep->setSpatialGroup(NULL);
-
 	if (!curp->removeObject(drawablep))
 	{
 		OCT_ERRS << "Failed to remove drawable from octree!" << llendl;
 	}
+
+	drawablep->setSpatialGroup(NULL);
 
 	assert_octree_valid(mOctree);
 	
