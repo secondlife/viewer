@@ -237,8 +237,10 @@ BOOL LLTexLayerParamAlpha::getSkip() const
 }
 
 
+static LLFastTimer::DeclareTimer FTM_TEX_LAYER_PARAM_ALPHA("alpha render");
 BOOL LLTexLayerParamAlpha::render(S32 x, S32 y, S32 width, S32 height)
 {
+	LLFastTimer t(FTM_TEX_LAYER_PARAM_ALPHA);
 	BOOL success = TRUE;
 
 	if (!mTexLayer)

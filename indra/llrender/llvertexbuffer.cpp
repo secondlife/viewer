@@ -550,8 +550,10 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 }
 
 //static
+static LLFastTimer::DeclareTimer FTM_VB_DRAW_ARRAYS("drawArrays");
 void LLVertexBuffer::drawArrays(U32 mode, const std::vector<LLVector3>& pos, const std::vector<LLVector3>& norm)
 {
+	LLFastTimer t(FTM_VB_DRAW_ARRAYS);
 	llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShaderPtr != NULL);
 	gGL.syncMatrices();
 
@@ -773,6 +775,7 @@ void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
 	placeFence();
 }
 
+static LLFastTimer::DeclareTimer FTM_GL_DRAW_ARRAYS("GL draw arrays");
 void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
 {
 	llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShaderPtr != NULL);
@@ -807,8 +810,11 @@ void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
 		return;
 	}
 
-	stop_glerror();
-	glDrawArrays(sGLMode[mode], first, count);
+	{
+		LLFastTimer t2(FTM_GL_DRAW_ARRAYS);
+		stop_glerror();
+		glDrawArrays(sGLMode[mode], first, count);
+	}
 	stop_glerror();
 	placeFence();
 }
