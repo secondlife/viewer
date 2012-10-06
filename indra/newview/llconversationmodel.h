@@ -149,6 +149,7 @@ public:
     LLPointer<LLUIImage> getIcon() const { return NULL; }
 	void setSessionID(const LLUUID& session_id) { mUUID = session_id; mNeedsRefresh = true; }
 	void addParticipant(LLConversationItemParticipant* participant);
+	void updateParticipantName(LLConversationItemParticipant* participant);
 	void removeParticipant(LLConversationItemParticipant* participant);
 	void removeParticipant(const LLUUID& participant_id);
 	void clearParticipants();

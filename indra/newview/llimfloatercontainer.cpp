@@ -466,7 +466,11 @@ bool LLIMFloaterContainer::onConversationModelEvent(const LLSD& event)
 			participant_view->refresh();
 		}
 	}
-
+	else if (type == "update_session")
+	{
+		session_view->refresh();
+	}
+	
 	mConversationViewModel.requestSortAll();
 	mConversationsRoot->arrangeAll();
 	
@@ -1111,7 +1115,7 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 	removeConversationListItem(uuid,false);
 
 	// Create a conversation session model
-	LLConversationItem* item = NULL;
+	LLConversationItemSession* item = NULL;
 	LLSpeakerMgr* speaker_manager = (is_nearby_chat ? (LLSpeakerMgr*)(LLLocalSpeakerMgr::getInstance()) : LLIMModel::getInstance()->getSpeakerManager(uuid));
 	if (speaker_manager)
 	{
@@ -1123,6 +1127,7 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 		return;
 	}
 	item->renameItem(display_name);
+	item->updateParticipantName(NULL);
 	
 	mConversationsItems[uuid] = item;
 

@@ -714,6 +714,28 @@ void LLAvatarActions::buildResidentsString(const std::vector<LLAvatarName> avata
 	}
 }
 
+// static
+void LLAvatarActions::buildResidentsString(const uuid_vec_t& avatar_uuids, std::string& residents_string)
+{
+	std::vector<LLAvatarName> avatar_names;
+	uuid_vec_t::const_iterator it = avatar_uuids.begin();
+	for (; it != avatar_uuids.end(); ++it)
+	{
+		LLAvatarName av_name;
+		if (LLAvatarNameCache::get(*it, &av_name))
+		{
+			avatar_names.push_back(av_name);
+		}
+	}
+	
+	// We should check whether the vector is not empty to pass the assertion
+	// that avatar_names.size() > 0 in LLAvatarActions::buildResidentsString.
+	if (!avatar_names.empty())
+	{
+		LLAvatarActions::buildResidentsString(avatar_names, residents_string);
+	}
+}
+
 //static
 std::set<LLUUID> LLAvatarActions::getInventorySelectedUUIDs()
 {
