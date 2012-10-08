@@ -109,19 +109,91 @@
             top_pad="10"
             tab_stop="false"
             multi_select="true"
-            name="get_scroll_list"
-            width="1220">
+            name="normal_map_attrs_scroll_list"
+            width="1010">
           <scroll_list.columns
               label="Material ID"
               name="id"
-              dynamic_width="true" />
+              width="225" />
           <scroll_list.columns
               label="Normal Map"
-              name="normal_map"
+              name="normal_map_list"
+              width="225" />
+          <scroll_list.columns
+              label="Offset X"
+              name="normal_map_list_offset_x"
+              width="112" />
+          <scroll_list.columns
+              label="Offset Y"
+              name="normal_map_list_offset_y"
+              width="112" />
+          <scroll_list.columns
+              label="Repeat X"
+              name="normal_map_list_repeat_x"
+              width="112" />
+          <scroll_list.columns
+              label="Repeat Y"
+              name="normal_map_list_repeat_y"
+              width="112" />
+          <scroll_list.columns
+              label="Rotation"
+              name="normal_map_list_rotation"
+              width="112" />
+        </scroll_list>
+        <scroll_list
+            column_padding="0"
+            draw_heading="true"
+            follows="left|top|right"
+            height="135"
+            layout="topleft"
+            top_pad="10"
+            tab_stop="false"
+            multi_select="true"
+            name="specular_map_attrs_scroll_list"
+            width="1010">
+          <scroll_list.columns
+              label="Material ID"
+              name="id"
               width="225" />
           <scroll_list.columns
               label="Specular Map"
-              name="specular_map"
+              name="specular_map_list"
+              width="225" />
+          <scroll_list.columns
+              label="Offset X"
+              name="specular_map_list_offset_x"
+              width="112" />
+          <scroll_list.columns
+              label="Offset Y"
+              name="specular_map_list_offset_y"
+              width="112" />
+          <scroll_list.columns
+              label="Repeat X"
+              name="specular_map_list_repeat_x"
+              width="112" />
+          <scroll_list.columns
+              label="Repeat Y"
+              name="specular_map_list_repeat_y"
+              width="112" />
+          <scroll_list.columns
+              label="Rotation"
+              name="specular_map_list_rotation"
+              width="112" />
+        </scroll_list>
+        <scroll_list
+            column_padding="0"
+            draw_heading="true"
+            follows="left|top|right"
+            height="135"
+            layout="topleft"
+            top_pad="10"
+            tab_stop="false"
+            multi_select="true"
+            name="other_data_scroll_list"
+            width="765">
+          <scroll_list.columns
+              label="Material ID"
+              name="id"
               width="225" />
           <scroll_list.columns
               label="Specular Color"

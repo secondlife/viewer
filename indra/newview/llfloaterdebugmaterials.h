@@ -77,7 +77,6 @@ private:
 	void          onGoodPostClicked();
 	void          onBadPostClicked();
 	void          onRegionCross();
-	void          onGetResultsSelectionChange();
 	void          onInWorldSelectionChange();
 	void          onDeferredCheckRegionMaterialStatus(LLUUID regionId);
 	void          onDeferredRequestGetMaterials(LLUUID regionId);
@@ -136,7 +135,9 @@ private:
 
 	LLTextBase*                 mStatusText;
 	LLButton*                   mGetButton;
-	LLScrollListCtrl*           mGetScrollList;
+	LLScrollListCtrl*           mGetNormalMapScrollList;
+	LLScrollListCtrl*           mGetSpecularMapScrollList;
+	LLScrollListCtrl*           mGetOtherDataScrollList;
 	LLTextureCtrl*              mNormalMap;
 	LLLineEditor*               mNormalMapOffsetX;
 	LLLineEditor*               mNormalMapOffsetY;

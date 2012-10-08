@@ -118,9 +118,14 @@ BOOL LLFloaterDebugMaterials::postBuild()
 	llassert(mGetButton != NULL);
 	mGetButton->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onGetClicked, this));
 
-	mGetScrollList = findChild<LLScrollListCtrl>("get_scroll_list");
-	llassert(mGetScrollList != NULL);
-	mGetScrollList->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onGetResultsSelectionChange, this));
+	mGetNormalMapScrollList = findChild<LLScrollListCtrl>("normal_map_attrs_scroll_list");
+	llassert(mGetNormalMapScrollList != NULL);
+
+	mGetSpecularMapScrollList = findChild<LLScrollListCtrl>("specular_map_attrs_scroll_list");
+	llassert(mGetSpecularMapScrollList != NULL);
+
+	mGetOtherDataScrollList = findChild<LLScrollListCtrl>("other_data_scroll_list");
+	llassert(mGetOtherDataScrollList != NULL);
 
 	mNormalMap = findChild<LLTextureCtrl>("normal_map");
 	llassert(mNormalMap != NULL);
@@ -257,12 +262,10 @@ void LLFloaterDebugMaterials::onOpen(const LLSD& pKey)
 	clearGetResults();
 	clearPutResults();
 	clearPostResults();
-	mGetScrollList->setCommitOnSelectionChange(TRUE);
 }
 
 void LLFloaterDebugMaterials::onClose(bool pIsAppQuitting)
 {
-	mGetScrollList->setCommitOnSelectionChange(FALSE);
 	resetObjectEditInputs();
 	clearGetResults();
 	clearPutResults();
@@ -290,7 +293,9 @@ LLFloaterDebugMaterials::LLFloaterDebugMaterials(const LLSD& pParams)
 	: LLFloater(pParams),
 	mStatusText(NULL),
 	mGetButton(NULL),
-	mGetScrollList(NULL),
+	mGetNormalMapScrollList(NULL),
+	mGetSpecularMapScrollList(NULL),
+	mGetOtherDataScrollList(NULL),
 	mNormalMap(NULL),
 	mNormalMapOffsetX(NULL),
 	mNormalMapOffsetY(NULL),
@@ -376,11 +381,6 @@ void LLFloaterDebugMaterials::onRegionCross()
 	clearGetResults();
 	clearPutResults();
 	clearPostResults();
-}
-
-void LLFloaterDebugMaterials::onGetResultsSelectionChange()
-{
-	updateControls();
 }
 
 void LLFloaterDebugMaterials::onInWorldSelectionChange()
@@ -633,6 +633,7 @@ void LLFloaterDebugMaterials::requestPutMaterials(const LLUUID& regionId, bool p
 
 void LLFloaterDebugMaterials::requestPostMaterials(bool pUseGoodData)
 {
+#if 0
 	LLViewerRegion *region = gAgent.getRegion();
 
 	if (region == NULL)
@@ -697,6 +698,7 @@ void LLFloaterDebugMaterials::requestPostMaterials(bool pUseGoodData)
 			LLHTTPClient::post(capURL, postData, materialsResponder);
 		}
 	}
+#endif
 }
 
 void LLFloaterDebugMaterials::requestPostMaterials(const LLUUID& regionId, bool pUseGoodData)
@@ -715,7 +717,9 @@ void LLFloaterDebugMaterials::parseGetResponse(const LLSD& pContent)
 	clearGetResults();
 
 	LLScrollListCell::Params cellParams;
-	LLScrollListItem::Params rowParams;
+	LLScrollListItem::Params normalMapRowParams;
+	LLScrollListItem::Params specularMapRowParams;
+	LLScrollListItem::Params otherDataRowParams;
 
 	llassert(pContent.isArray());
 	for (LLSD::array_const_iterator materialIter = pContent.beginArray(); materialIter != pContent.endArray();
@@ -736,9 +740,112 @@ void LLFloaterDebugMaterials::parseGetResponse(const LLSD& pContent)
 		llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_FIELD).isUUID());
 		const LLUUID &normalMapID = materialData.get(MATERIALS_CAP_NORMAL_MAP_FIELD).asUUID();
 
+#ifndef NEW_DATA_FIELDS_DEPLOYED_TO_SERVER
+		bool hasExtraData = materialData.has(MATERIALS_CAP_NORMAL_MAP_OFFSET_X_FIELD);
+		S32 normalMapOffsetX = 0;
+		S32 normalMapOffsetY = 0;
+		S32 normalMapRepeatX = 0;
+		S32 normalMapRepeatY = 0;
+		S32 normalMapRotation = 0;
+
+		if (hasExtraData)
+		{
+			llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_OFFSET_X_FIELD));
+			llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_OFFSET_X_FIELD).isInteger());
+			normalMapOffsetX = materialData.get(MATERIALS_CAP_NORMAL_MAP_OFFSET_X_FIELD).asInteger();
+
+			llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_OFFSET_Y_FIELD));
+			llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_OFFSET_Y_FIELD).isInteger());
+			normalMapOffsetY = materialData.get(MATERIALS_CAP_NORMAL_MAP_OFFSET_Y_FIELD).asInteger();
+
+			llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_REPEAT_X_FIELD));
+			llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_REPEAT_X_FIELD).isInteger());
+			normalMapRepeatX = materialData.get(MATERIALS_CAP_NORMAL_MAP_REPEAT_X_FIELD).asInteger();
+
+			llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_REPEAT_Y_FIELD));
+			llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_REPEAT_Y_FIELD).isInteger());
+			normalMapRepeatY = materialData.get(MATERIALS_CAP_NORMAL_MAP_REPEAT_Y_FIELD).asInteger();
+
+			llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_ROTATION_FIELD));
+			llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_ROTATION_FIELD).isInteger());
+			normalMapRotation = materialData.get(MATERIALS_CAP_NORMAL_MAP_ROTATION_FIELD).asInteger();
+		}
+#else // NEW_DATA_FIELDS_DEPLOYED_TO_SERVER
+		llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_OFFSET_X_FIELD));
+		llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_OFFSET_X_FIELD).isInteger());
+		S32 normalMapOffsetX = materialData.get(MATERIALS_CAP_NORMAL_MAP_OFFSET_X_FIELD).asInteger();
+
+		llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_OFFSET_Y_FIELD));
+		llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_OFFSET_Y_FIELD).isInteger());
+		S32 normalMapOffsetY = materialData.get(MATERIALS_CAP_NORMAL_MAP_OFFSET_Y_FIELD).asInteger();
+
+		llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_REPEAT_X_FIELD));
+		llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_REPEAT_X_FIELD).isInteger());
+		S32 normalMapRepeatX = materialData.get(MATERIALS_CAP_NORMAL_MAP_REPEAT_X_FIELD).asInteger();
+
+		llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_REPEAT_Y_FIELD));
+		llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_REPEAT_Y_FIELD).isInteger());
+		S32 normalMapRepeatY = materialData.get(MATERIALS_CAP_NORMAL_MAP_REPEAT_Y_FIELD).asInteger();
+
+		llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_ROTATION_FIELD));
+		llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_ROTATION_FIELD).isInteger());
+		S32 normalMapRotation = materialData.get(MATERIALS_CAP_NORMAL_MAP_ROTATION_FIELD).asInteger();
+#endif // NEW_DATA_FIELDS_DEPLOYED_TO_SERVER
+
 		llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_FIELD));
 		llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_FIELD).isUUID());
 		const LLUUID &specularMapID = materialData.get(MATERIALS_CAP_SPECULAR_MAP_FIELD).asUUID();
+
+#ifndef NEW_DATA_FIELDS_DEPLOYED_TO_SERVER
+		S32 specularMapOffsetX = 0;
+		S32 specularMapOffsetY = 0;
+		S32 specularMapRepeatX = 0;
+		S32 specularMapRepeatY = 0;
+		S32 specularMapRotation = 0;
+
+		if (hasExtraData)
+		{
+			llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_OFFSET_X_FIELD));
+			llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_OFFSET_X_FIELD).isInteger());
+			specularMapOffsetX = materialData.get(MATERIALS_CAP_SPECULAR_MAP_OFFSET_X_FIELD).asInteger();
+
+			llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_OFFSET_Y_FIELD));
+			llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_OFFSET_Y_FIELD).isInteger());
+			specularMapOffsetY = materialData.get(MATERIALS_CAP_SPECULAR_MAP_OFFSET_Y_FIELD).asInteger();
+
+			llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_REPEAT_X_FIELD));
+			llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_REPEAT_X_FIELD).isInteger());
+			specularMapRepeatX = materialData.get(MATERIALS_CAP_SPECULAR_MAP_REPEAT_X_FIELD).asInteger();
+
+			llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_REPEAT_Y_FIELD));
+			llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_REPEAT_Y_FIELD).isInteger());
+			specularMapRepeatY = materialData.get(MATERIALS_CAP_SPECULAR_MAP_REPEAT_Y_FIELD).asInteger();
+
+			llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_ROTATION_FIELD));
+			llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_ROTATION_FIELD).isInteger());
+			specularMapRotation = materialData.get(MATERIALS_CAP_SPECULAR_MAP_ROTATION_FIELD).asInteger();
+		}
+#else // NEW_DATA_FIELDS_DEPLOYED_TO_SERVER
+		llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_OFFSET_X_FIELD));
+		llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_OFFSET_X_FIELD).isInteger());
+		S32 specularMapOffsetX = materialData.get(MATERIALS_CAP_SPECULAR_MAP_OFFSET_X_FIELD).asInteger();
+
+		llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_OFFSET_Y_FIELD));
+		llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_OFFSET_Y_FIELD).isInteger());
+		S32 specularMapOffsetY = materialData.get(MATERIALS_CAP_SPECULAR_MAP_OFFSET_Y_FIELD).asInteger();
+
+		llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_REPEAT_X_FIELD));
+		llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_REPEAT_X_FIELD).isInteger());
+		S32 specularMapRepeatX = materialData.get(MATERIALS_CAP_SPECULAR_MAP_REPEAT_X_FIELD).asInteger();
+
+		llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_REPEAT_Y_FIELD));
+		llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_REPEAT_Y_FIELD).isInteger());
+		S32 specularMapRepeatY = materialData.get(MATERIALS_CAP_SPECULAR_MAP_REPEAT_Y_FIELD).asInteger();
+
+		llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_ROTATION_FIELD));
+		llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_ROTATION_FIELD).isInteger());
+		S32 specularMapRotation = materialData.get(MATERIALS_CAP_SPECULAR_MAP_ROTATION_FIELD).asInteger();
+#endif // NEW_DATA_FIELDS_DEPLOYED_TO_SERVER
 
 		llassert(materialData.has(MATERIALS_CAP_SPECULAR_COLOR_FIELD));
 		llassert(materialData.get(MATERIALS_CAP_SPECULAR_COLOR_FIELD).isArray());
@@ -759,48 +866,192 @@ void LLFloaterDebugMaterials::parseGetResponse(const LLSD& pContent)
 
 		llassert(materialData.has(MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD));
 		llassert(materialData.get(MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD).isInteger());
-		S32 diffuseAlphaMode = static_cast<BOOL>(materialData.get(MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD).asInteger());
-
+		S32 diffuseAlphaMode = materialData.get(MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD).asInteger();
 
 		cellParams.font = LLFontGL::getFontMonospace();
 
 		cellParams.column = "id";
 		cellParams.value = materialIDString;
-		rowParams.columns.add(cellParams);
+		normalMapRowParams.columns.add(cellParams);
+		specularMapRowParams.columns.add(cellParams);
+		otherDataRowParams.columns.add(cellParams);
 
-		cellParams.column = "normal_map";
+		cellParams.column = "normal_map_list";
 		cellParams.value = normalMapID.asString();
-		rowParams.columns.add(cellParams);
-
-		cellParams.column = "specular_map";
-		cellParams.value = specularMapID.asString();
-		rowParams.columns.add(cellParams);
+		normalMapRowParams.columns.add(cellParams);
 
 		cellParams.font = LLFontGL::getFontSansSerif();
+
+#ifndef NEW_DATA_FIELDS_DEPLOYED_TO_SERVER
+		if (hasExtraData)
+		{
+			cellParams.column = "normal_map_list_offset_x";
+			cellParams.value = llformat("%d", normalMapOffsetX);
+			normalMapRowParams.columns.add(cellParams);
+
+			cellParams.column = "normal_map_list_offset_y";
+			cellParams.value = llformat("%d", normalMapOffsetY);
+			normalMapRowParams.columns.add(cellParams);
+
+			cellParams.column = "normal_map_list_repeat_x";
+			cellParams.value = llformat("%d", normalMapRepeatX);
+			normalMapRowParams.columns.add(cellParams);
+
+			cellParams.column = "normal_map_list_repeat_y";
+			cellParams.value = llformat("%d", normalMapRepeatY);
+			normalMapRowParams.columns.add(cellParams);
+
+			cellParams.column = "normal_map_list_rotation";
+			cellParams.value = llformat("%d", normalMapRotation);
+			normalMapRowParams.columns.add(cellParams);
+		}
+		else
+		{
+			cellParams.column = "normal_map_list_offset_x";
+			cellParams.value = "--";
+			normalMapRowParams.columns.add(cellParams);
+
+			cellParams.column = "normal_map_list_offset_y";
+			cellParams.value = "--";
+			normalMapRowParams.columns.add(cellParams);
+
+			cellParams.column = "normal_map_list_repeat_x";
+			cellParams.value = "--";
+			normalMapRowParams.columns.add(cellParams);
+
+			cellParams.column = "normal_map_list_repeat_y";
+			cellParams.value = "--";
+			normalMapRowParams.columns.add(cellParams);
+
+			cellParams.column = "normal_map_list_rotation";
+			cellParams.value = "--";
+			normalMapRowParams.columns.add(cellParams);
+		}
+#else // NEW_DATA_FIELDS_DEPLOYED_TO_SERVER
+		cellParams.column = "normal_map_list_offset_x";
+		cellParams.value = llformat("%d", normalMapOffsetX);
+		normalMapRowParams.columns.add(cellParams);
+
+		cellParams.column = "normal_map_list_offset_y";
+		cellParams.value = llformat("%d", normalMapOffsetY);
+		normalMapRowParams.columns.add(cellParams);
+
+		cellParams.column = "normal_map_list_repeat_x";
+		cellParams.value = llformat("%d", normalMapRepeatX);
+		normalMapRowParams.columns.add(cellParams);
+
+		cellParams.column = "normal_map_list_repeat_y";
+		cellParams.value = llformat("%d", normalMapRepeatY);
+		normalMapRowParams.columns.add(cellParams);
+
+		cellParams.column = "normal_map_list_rotation";
+		cellParams.value = llformat("%d", normalMapRotation);
+		normalMapRowParams.columns.add(cellParams);
+#endif // NEW_DATA_FIELDS_DEPLOYED_TO_SERVER
+
+		cellParams.font = LLFontGL::getFontMonospace();
+
+		cellParams.column = "specular_map_list";
+		cellParams.value = specularMapID.asString();
+		specularMapRowParams.columns.add(cellParams);
+
+		cellParams.font = LLFontGL::getFontSansSerif();
+
+#ifndef NEW_DATA_FIELDS_DEPLOYED_TO_SERVER
+		if (hasExtraData)
+		{
+			cellParams.column = "specular_map_list_offset_x";
+			cellParams.value = llformat("%d", specularMapOffsetX);
+			specularMapRowParams.columns.add(cellParams);
+
+			cellParams.column = "specular_map_list_offset_y";
+			cellParams.value = llformat("%d", specularMapOffsetY);
+			specularMapRowParams.columns.add(cellParams);
+
+			cellParams.column = "specular_map_list_repeat_x";
+			cellParams.value = llformat("%d", specularMapRepeatX);
+			specularMapRowParams.columns.add(cellParams);
+
+			cellParams.column = "specular_map_list_repeat_y";
+			cellParams.value = llformat("%d", specularMapRepeatY);
+			specularMapRowParams.columns.add(cellParams);
+
+			cellParams.column = "specular_map_list_rotation";
+			cellParams.value = llformat("%d", specularMapRotation);
+			specularMapRowParams.columns.add(cellParams);
+		}
+		else
+		{
+			cellParams.column = "specular_map_list_offset_x";
+			cellParams.value = "--";
+			specularMapRowParams.columns.add(cellParams);
+
+			cellParams.column = "specular_map_list_offset_y";
+			cellParams.value = "--";
+			specularMapRowParams.columns.add(cellParams);
+
+			cellParams.column = "specular_map_list_repeat_x";
+			cellParams.value = "--";
+			specularMapRowParams.columns.add(cellParams);
+
+			cellParams.column = "specular_map_list_repeat_y";
+			cellParams.value = "--";
+			specularMapRowParams.columns.add(cellParams);
+
+			cellParams.column = "specular_map_list_rotation";
+			cellParams.value = "--";
+			specularMapRowParams.columns.add(cellParams);
+		}
+#else // NEW_DATA_FIELDS_DEPLOYED_TO_SERVER
+		cellParams.column = "specular_map_list_offset_x";
+		cellParams.value = llformat("%d", specularMapOffsetX);
+		specularMapRowParams.columns.add(cellParams);
+
+		cellParams.column = "specular_map_list_offset_y";
+		cellParams.value = llformat("%d", specularMapOffsetY);
+		specularMapRowParams.columns.add(cellParams);
+
+		cellParams.column = "specular_map_list_repeat_x";
+		cellParams.value = llformat("%d", specularMapRepeatX);
+		specularMapRowParams.columns.add(cellParams);
+
+		cellParams.column = "specular_map_list_repeat_y";
+		cellParams.value = llformat("%d", specularMapRepeatY);
+		specularMapRowParams.columns.add(cellParams);
+
+		cellParams.column = "specular_map_list_rotation";
+		cellParams.value = llformat("%d", specularMapRotation);
+		specularMapRowParams.columns.add(cellParams);
+#endif // NEW_DATA_FIELDS_DEPLOYED_TO_SERVER
 
 		cellParams.column = "specular_color";
 		cellParams.value = llformat("(%d, %d, %d, %d)", specularColor.mV[0],
 			specularColor.mV[1], specularColor.mV[2], specularColor.mV[3]);
-		rowParams.columns.add(cellParams);
+		otherDataRowParams.columns.add(cellParams);
 
 		cellParams.column = "specular_exponent";
 		cellParams.value = llformat("%d", specularExp);
-		rowParams.columns.add(cellParams);
+		otherDataRowParams.columns.add(cellParams);
 
 		cellParams.column = "env_intensity";
 		cellParams.value = llformat("%d", envIntensity);
-		rowParams.columns.add(cellParams);
+		otherDataRowParams.columns.add(cellParams);
 
 		cellParams.column = "alpha_mask_cutoff";
 		cellParams.value = llformat("%d", alphaMaskCutoff);
-		rowParams.columns.add(cellParams);
+		otherDataRowParams.columns.add(cellParams);
 
 		cellParams.column = "diffuse_alpha_mode";
 		cellParams.value = llformat("%d", diffuseAlphaMode);
-		rowParams.columns.add(cellParams);
-		rowParams.value = materialID;
+		otherDataRowParams.columns.add(cellParams);
 
-		mGetScrollList->addRow(rowParams);
+		normalMapRowParams.value = materialID;
+		specularMapRowParams.value = materialID;
+		otherDataRowParams.value = materialID;
+
+		mGetNormalMapScrollList->addRow(normalMapRowParams);
+		mGetSpecularMapScrollList->addRow(specularMapRowParams);
+		mGetOtherDataScrollList->addRow(otherDataRowParams);
 	}
 }
 
@@ -989,7 +1240,9 @@ void LLFloaterDebugMaterials::resetObjectEditInputs()
 
 void LLFloaterDebugMaterials::clearGetResults()
 {
-	mGetScrollList->deleteAllItems();
+	mGetNormalMapScrollList->deleteAllItems();
+	mGetSpecularMapScrollList->deleteAllItems();
+	mGetOtherDataScrollList->deleteAllItems();
 }
 
 void LLFloaterDebugMaterials::clearPutResults()
@@ -1049,8 +1302,7 @@ void LLFloaterDebugMaterials::updateControls()
 	LLObjectSelectionHandle selectionHandle = LLSelectMgr::getInstance()->getEditSelection();
 	bool isPutEnabled = (selectionHandle->valid_begin() != selectionHandle->valid_end());
 
-	S32 numGetResultsSelected = mGetScrollList->getNumSelected();
-	bool isGoodPostEnabled = (numGetResultsSelected > 0);
+	bool isGoodPostEnabled = false;
 
 	switch (getState())
 	{
