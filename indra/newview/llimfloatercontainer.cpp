@@ -888,7 +888,13 @@ void LLIMFloaterContainer::doToSelectedConversation(const std::string& command, 
         }
         else if("chat_history" == command)
         {
-            LLAvatarActions::viewChatHistory(conversationItem->getUUID());
+			const LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(conversationItem->getUUID());
+
+			if (NULL != session)
+			{
+				const LLUUID session_id = session->isOutgoingAdHoc() ? session->generateOutgouigAdHocHash() : session->mSessionID;
+				LLFloaterReg::showInstance("preview_conversation", session_id, true);
+			}
         }
         else
         {
