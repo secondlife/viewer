@@ -553,12 +553,25 @@ void LLIMFloaterContainer::collapseMessagesPane(bool collapse)
 		gSavedPerAccountSettings.setBOOL("ConversationsExpandMessagePaneFirst", mConversationsPane->isCollapsed());
 	}
 
+	// Save left pane rectangle before collapsing/expanding right pane.
+	LLRect prevRect = mConversationsPane->getRect();
+
 	// Show/hide the messages pane.
 	mConversationsStack->collapsePanel(mMessagesPane, collapse);
 
-	updateState(collapse, gSavedPerAccountSettings.getS32("ConversationsMessagePaneWidth"));
-}
+	if (!collapse)
+	{
+		// Make sure layout is updated before resizing conversation pane.
+		mConversationsStack->updateLayout();
+	}
 
+	updateState(collapse, gSavedPerAccountSettings.getS32("ConversationsMessagePaneWidth"));
+	if (!collapse)
+	{
+		// Restore conversation's pane previous width after expanding messages pane.
+		mConversationsPane->setTargetDim(prevRect.getWidth());
+	}
+}
 void LLIMFloaterContainer::collapseConversationsPane(bool collapse)
 {
 	if (mConversationsPane->isCollapsed() == collapse)
@@ -888,7 +901,13 @@ void LLIMFloaterContainer::doToSelectedConversation(const std::string& command, 
         }
         else if("chat_history" == command)
         {
-            LLAvatarActions::viewChatHistory(conversationItem->getUUID());
+			const LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(conversationItem->getUUID());
+
+			if (NULL != session)
+			{
+				const LLUUID session_id = session->isOutgoingAdHoc() ? session->generateOutgouigAdHocHash() : session->mSessionID;
+				LLFloaterReg::showInstance("preview_conversation", session_id, true);
+			}
         }
         else
         {
