@@ -3,12 +3,12 @@
     positioning="cascading"
     can_tear_off="false"
     can_resize="true"
-    height="680"
-    width="1244"
-    min_height="600"
-    min_width="1100"
+    height="725"
+    width="1030"
+    min_height="750"
+    min_width="1030"
     layout="topleft"
-    name="debug_materials"
+    name="floater_debug_materials"
     reuse_instance="true"
     save_rect="false"
     single_instance="true"
@@ -57,41 +57,31 @@
         width="214">
     </text>
   </panel>
-  <view_border
-      bevel_style="none"
-      follows="left|right|top"
-      height="0"
-      layout="topleft"
-      name="horiz_separator"
-      top_pad="0"
-      left="12"
-      width="1220"/>
   <tab_container
       follows="left|top|right"
       layout="topleft"
       tab_position="top"
-      name="view_test_tab_container"
       left="10"
       top_pad="10"
-      height="500"
-      width="1220">
+      height="620"
+      width="1010">
     <panel
         border="true"
         bevel_style="none"
         follows="left|top|right"
         layout="topleft"
-        label="Region"
-        height="167"
+        label="Current region"
+        height="620"
         top_pad="10"
-        width="1220">
+        width="1010">
       <panel
           border="false"
           bevel_style="none"
           follows="left|top|right"
           layout="topleft"
-          height="167"
+          height="458"
           top_pad="10"
-          width="1220">
+          width="1010">
         <button
             follows="left|top"
             height="22"
@@ -108,37 +98,33 @@
             layout="topleft"
             top_pad="10"
             tab_stop="false"
-            multi_select="true"
-            name="normal_map_attrs_scroll_list"
-            width="1010">
+            multi_select="false"
+            name="get_other_data_scroll_list"
+            width="765">
           <scroll_list.columns
               label="Material ID"
               name="id"
-              width="225" />
+              dynamic_width="true" />
           <scroll_list.columns
-              label="Normal Map"
-              name="normal_map_list"
-              width="225" />
+              label="Specular Color"
+              name="specular_color"
+              width="120" />
           <scroll_list.columns
-              label="Offset X"
-              name="normal_map_list_offset_x"
+              label="Specular Exponent"
+              name="specular_exponent"
               width="112" />
           <scroll_list.columns
-              label="Offset Y"
-              name="normal_map_list_offset_y"
-              width="112" />
+              label="Env Intensity"
+              name="env_intensity"
+              width="80" />
           <scroll_list.columns
-              label="Repeat X"
-              name="normal_map_list_repeat_x"
-              width="112" />
+              label="Alpha Mask Cutoff"
+              name="alpha_mask_cutoff"
+              width="110" />
           <scroll_list.columns
-              label="Repeat Y"
-              name="normal_map_list_repeat_y"
-              width="112" />
-          <scroll_list.columns
-              label="Rotation"
-              name="normal_map_list_rotation"
-              width="112" />
+              label="Diffuse Alpha Mode"
+              name="diffuse_alpha_mode"
+              width="118" />
         </scroll_list>
         <scroll_list
             column_padding="0"
@@ -148,16 +134,16 @@
             layout="topleft"
             top_pad="10"
             tab_stop="false"
-            multi_select="true"
-            name="specular_map_attrs_scroll_list"
+            multi_select="false"
+            name="get_specular_map_scroll_list"
             width="1010">
           <scroll_list.columns
               label="Material ID"
               name="id"
-              width="225" />
+              dynamic_width="true" />
           <scroll_list.columns
               label="Specular Map"
-              name="specular_map_list"
+              name="specular_map_list_map"
               width="225" />
           <scroll_list.columns
               label="Offset X"
@@ -188,33 +174,37 @@
             layout="topleft"
             top_pad="10"
             tab_stop="false"
-            multi_select="true"
-            name="other_data_scroll_list"
-            width="765">
+            multi_select="false"
+            name="get_normal_map_scroll_list"
+            width="1010">
           <scroll_list.columns
               label="Material ID"
               name="id"
+              dynamic_width="true" />
+          <scroll_list.columns
+              label="Normal Map"
+              name="normal_map_list_map"
               width="225" />
           <scroll_list.columns
-              label="Specular Color"
-              name="specular_color"
-              width="120" />
-          <scroll_list.columns
-              label="Specular Exponent"
-              name="specular_exponent"
+              label="Offset X"
+              name="normal_map_list_offset_x"
               width="112" />
           <scroll_list.columns
-              label="Env Intensity"
-              name="env_intensity"
-              width="80" />
+              label="Offset Y"
+              name="normal_map_list_offset_y"
+              width="112" />
           <scroll_list.columns
-              label="Alpha Mask Cutoff"
-              name="alpha_mask_cutoff"
-              width="110" />
+              label="Repeat X"
+              name="normal_map_list_repeat_x"
+              width="112" />
           <scroll_list.columns
-              label="Diffuse Alpha Mode"
-              name="diffuse_alpha_mode"
-              width="118" />
+              label="Repeat Y"
+              name="normal_map_list_repeat_y"
+              width="112" />
+          <scroll_list.columns
+              label="Rotation"
+              name="normal_map_list_rotation"
+              width="112" />
         </scroll_list>
       </panel>
     </panel>
@@ -224,9 +214,9 @@
         follows="left|top|right"
         layout="topleft"
         label="Object editing"
-        height="167"
+        height="620"
         top_pad="10"
-        width="1220">
+        width="1010">
       <panel
           border="false"
           bevel_style="none"
@@ -234,7 +224,7 @@
           layout="topleft"
           left="2"
           top_pad="10"
-          height="410"
+          height="420"
           width="810">
         <panel
             border="false"
@@ -745,11 +735,10 @@
                 left_pad="20"
                 width="214"/>
           </panel>
-
         </panel>
         <view_border
             bevel_style="none"
-            follows="left|right|top"
+            follows="left|top"
             height="0"
             layout="topleft"
             name="horiz_separator"
@@ -812,87 +801,219 @@
         follows="left|top|right"
         layout="topleft"
         label="Viewable objects"
-        height="167"
+        height="620"
         top_pad="10"
-        width="1220">
+        width="1010">
       <panel
           border="false"
           bevel_style="none"
           follows="left|top|right"
           layout="topleft"
-          left="12"
-          top_pad="10"
-          height="132"
-          width="1220">
-        <button
-            follows="left|top"
-            height="22"
-            label="Query Visible Objects"
-            layout="topleft"
-            name="query_visible_object_button"
-            top_pad="0"
-            width="214"/>
-        <button
-            follows="left|top"
-            height="22"
-            label="Post Good Material ID"
-            layout="topleft"
-            name="good_post_button"
-            top_pad="0"
-            width="214"/>
-        <button
-            follows="left|top"
-            height="22"
-            label="Post Bad Material ID"
-            layout="topleft"
-            name="bad_post_button"
-            left_pad="20"
-            width="214"/>
-        <scroll_list
-            column_padding="0"
-            draw_heading="true"
+          height="620"
+          top_pad="0"
+          width="1010">
+        <panel
+            border="false"
+            bevel_style="none"
             follows="left|top|right"
-            height="100"
             layout="topleft"
+            left="0"
+            top_pad="10"
+            height="132"
+            width="835">
+          <button
+              follows="left|top"
+              height="22"
+              label="Query Viewable Objects"
+              layout="topleft"
+              name="query_viewable_objects_button"
+              top_pad="0"
+              width="214"/>
+          <scroll_list
+              column_padding="0"
+              draw_heading="true"
+              follows="left|top|right"
+              height="100"
+              layout="topleft"
+              top_pad="10"
+              left="0"
+              tab_stop="false"
+              multi_select="true"
+              name="viewable_objects_scroll_list"
+              width="835">
+            <scroll_list.columns
+                label="Object ID"
+                name="object_id"
+                width="225" />
+            <scroll_list.columns
+                label="Region"
+                name="region"
+                width="225" />
+            <scroll_list.columns
+                label="Local ID"
+                name="local_id"
+                width="70" />
+            <scroll_list.columns
+                label="Face"
+                name="face_index"
+                width="70" />
+            <scroll_list.columns
+                label="Material ID"
+                name="material_id"
+                dynamic_width="true" />
+          </scroll_list>
+        </panel>
+        <view_border
+            bevel_style="none"
+            follows="left|right|top"
+            height="0"
+            layout="topleft"
+            name="horiz_separator"
             top_pad="10"
             left="0"
-            tab_stop="false"
-            multi_select="true"
-            name="post_scroll_list"
-            width="1220">
-          <scroll_list.columns
-              label="Material ID"
-              name="id"
-              dynamic_width="true" />
-          <scroll_list.columns
-              label="Normal Map"
-              name="normal_map"
-              width="225" />
-          <scroll_list.columns
-              label="Specular Map"
-              name="specular_map"
-              width="225" />
-          <scroll_list.columns
-              label="Specular Color"
-              name="specular_color"
-              width="120" />
-          <scroll_list.columns
-              label="Specular Exponent"
-              name="specular_exponent"
-              width="112" />
-          <scroll_list.columns
-              label="Env Intensity"
-              name="env_intensity"
-              width="80" />
-          <scroll_list.columns
-              label="Alpha Mask Cutoff"
-              name="alpha_mask_cutoff"
-              width="110" />
-          <scroll_list.columns
-              label="Diffuse Alpha Mode"
-              name="diffuse_alpha_mode"
-              width="118" />
-        </scroll_list>
+            width="1010"/>
+        <panel
+            border="false"
+            bevel_style="none"
+            follows="left|top|right"
+            layout="topleft"
+            height="458"
+            top_pad="10"
+            width="1010">
+          <button
+              follows="left|top"
+              height="22"
+              label="Post Good Material ID"
+              layout="topleft"
+              name="good_post_button"
+              top_pad="0"
+              width="214"/>
+          <button
+              follows="left|top"
+              height="22"
+              label="Post Bad Material ID"
+              layout="topleft"
+              name="bad_post_button"
+              left_pad="20"
+              width="214"/>
+          <scroll_list
+              column_padding="0"
+              draw_heading="true"
+              follows="left|top|right"
+              height="135"
+              layout="topleft"
+              top_pad="10"
+              left="0"
+              tab_stop="false"
+              multi_select="false"
+              name="post_other_data_scroll_list"
+              width="765">
+            <scroll_list.columns
+                label="Material ID"
+                name="id"
+                dynamic_width="true" />
+            <scroll_list.columns
+                label="Specular Color"
+                name="specular_color"
+                width="120" />
+            <scroll_list.columns
+                label="Specular Exponent"
+                name="specular_exponent"
+                width="112" />
+            <scroll_list.columns
+                label="Env Intensity"
+                name="env_intensity"
+                width="80" />
+            <scroll_list.columns
+                label="Alpha Mask Cutoff"
+                name="alpha_mask_cutoff"
+                width="110" />
+            <scroll_list.columns
+                label="Diffuse Alpha Mode"
+                name="diffuse_alpha_mode"
+                width="118" />
+          </scroll_list>
+          <scroll_list
+              column_padding="0"
+              draw_heading="true"
+              follows="left|top|right"
+              height="135"
+              layout="topleft"
+              top_pad="10"
+              tab_stop="false"
+              multi_select="false"
+              name="post_specular_map_scroll_list"
+              width="1010">
+            <scroll_list.columns
+                label="Material ID"
+                name="id"
+                dynamic_width="true" />
+            <scroll_list.columns
+                label="Specular Map"
+                name="specular_map_list_map"
+                width="225" />
+            <scroll_list.columns
+                label="Offset X"
+                name="specular_map_list_offset_x"
+                width="112" />
+            <scroll_list.columns
+                label="Offset Y"
+                name="specular_map_list_offset_y"
+                width="112" />
+            <scroll_list.columns
+                label="Repeat X"
+                name="specular_map_list_repeat_x"
+                width="112" />
+            <scroll_list.columns
+                label="Repeat Y"
+                name="specular_map_list_repeat_y"
+                width="112" />
+            <scroll_list.columns
+                label="Rotation"
+                name="specular_map_list_rotation"
+                width="112" />
+          </scroll_list>
+          <scroll_list
+              column_padding="0"
+              draw_heading="true"
+              follows="left|top|right"
+              height="135"
+              layout="topleft"
+              top_pad="10"
+              tab_stop="false"
+              multi_select="false"
+              name="post_normal_map_scroll_list"
+              width="1010">
+            <scroll_list.columns
+                label="Material ID"
+                name="id"
+                dynamic_width="true" />
+            <scroll_list.columns
+                label="Normal Map"
+                name="normal_map_list_map"
+                width="225" />
+            <scroll_list.columns
+                label="Offset X"
+                name="normal_map_list_offset_x"
+                width="112" />
+            <scroll_list.columns
+                label="Offset Y"
+                name="normal_map_list_offset_y"
+                width="112" />
+            <scroll_list.columns
+                label="Repeat X"
+                name="normal_map_list_repeat_x"
+                width="112" />
+            <scroll_list.columns
+                label="Repeat Y"
+                name="normal_map_list_repeat_y"
+                width="112" />
+            <scroll_list.columns
+                label="Rotation"
+                name="normal_map_list_rotation"
+                width="112" />
+          </scroll_list>
+        </panel>
       </panel>
     </panel>
   </tab_container>

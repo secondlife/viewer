@@ -2619,7 +2619,7 @@
               name="DebugMaterialsMenu">
             <menu_item_call.on_click
                 function="Floater.ToggleOrBringToFront"
-                parameter="debug_materials" />
+                parameter="floater_debug_materials" />
           </menu_item_call>
 
           <menu_item_separator />

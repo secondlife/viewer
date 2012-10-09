@@ -121,13 +121,13 @@ BOOL LLFloaterDebugMaterials::postBuild()
 	llassert(mGetButton != NULL);
 	mGetButton->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onGetClicked, this));
 
-	mGetNormalMapScrollList = findChild<LLScrollListCtrl>("normal_map_attrs_scroll_list");
+	mGetNormalMapScrollList = findChild<LLScrollListCtrl>("get_normal_map_scroll_list");
 	llassert(mGetNormalMapScrollList != NULL);
 
-	mGetSpecularMapScrollList = findChild<LLScrollListCtrl>("specular_map_attrs_scroll_list");
+	mGetSpecularMapScrollList = findChild<LLScrollListCtrl>("get_specular_map_scroll_list");
 	llassert(mGetSpecularMapScrollList != NULL);
 
-	mGetOtherDataScrollList = findChild<LLScrollListCtrl>("other_data_scroll_list");
+	mGetOtherDataScrollList = findChild<LLScrollListCtrl>("get_other_data_scroll_list");
 	llassert(mGetOtherDataScrollList != NULL);
 
 	mNormalMap = findChild<LLTextureCtrl>("normal_map");
@@ -220,9 +220,12 @@ BOOL LLFloaterDebugMaterials::postBuild()
 	mPutScrollList = findChild<LLScrollListCtrl>("put_scroll_list");
 	llassert(mPutScrollList != NULL);
 
-	mQueryVisibleObjectsButton = findChild<LLButton>("query_visible_object_button");
-	llassert(mQueryVisibleObjectsButton != NULL);
-	mQueryVisibleObjectsButton->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onQueryVisibleObjectsClicked, this));
+	mQueryViewableObjectsButton = findChild<LLButton>("query_viewable_objects_button");
+	llassert(mQueryViewableObjectsButton != NULL);
+	mQueryViewableObjectsButton->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onQueryVisibleObjectsClicked, this));
+
+	mViewableObjectsScrollList = findChild<LLScrollListCtrl>("viewable_objects_scroll_list");
+	llassert(mViewableObjectsScrollList != NULL);
 
 	mGoodPostButton = findChild<LLButton>("good_post_button");
 	llassert(mGoodPostButton != NULL);
@@ -232,8 +235,14 @@ BOOL LLFloaterDebugMaterials::postBuild()
 	llassert(mBadPostButton != NULL);
 	mBadPostButton->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onBadPostClicked, this));
 
-	mPostScrollList = findChild<LLScrollListCtrl>("post_scroll_list");
-	llassert(mPostScrollList != NULL);
+	mPostNormalMapScrollList = findChild<LLScrollListCtrl>("post_normal_map_scroll_list");
+	llassert(mPostNormalMapScrollList != NULL);
+
+	mPostSpecularMapScrollList = findChild<LLScrollListCtrl>("post_specular_map_scroll_list");
+	llassert(mPostSpecularMapScrollList != NULL);
+
+	mPostOtherDataScrollList = findChild<LLScrollListCtrl>("post_other_data_scroll_list");
+	llassert(mPostOtherDataScrollList != NULL);
 
 	mDefaultSpecularColor = LLUIColorTable::instance().getColor("White");
 
@@ -268,6 +277,7 @@ void LLFloaterDebugMaterials::onOpen(const LLSD& pKey)
 	resetObjectEditInputs();
 	clearGetResults();
 	clearPutResults();
+	clearViewableObjectsResults();
 	clearPostResults();
 }
 
@@ -276,6 +286,7 @@ void LLFloaterDebugMaterials::onClose(bool pIsAppQuitting)
 	resetObjectEditInputs();
 	clearGetResults();
 	clearPutResults();
+	clearViewableObjectsResults();
 	clearPostResults();
 
 	if (mSelectionUpdateConnection.connected())
@@ -323,10 +334,13 @@ LLFloaterDebugMaterials::LLFloaterDebugMaterials(const LLSD& pParams)
 	mPutSetButton(NULL),
 	mPutClearButton(NULL),
 	mPutScrollList(NULL),
-	mQueryVisibleObjectsButton(NULL),
+	mQueryViewableObjectsButton(NULL),
+	mViewableObjectsScrollList(NULL),
 	mGoodPostButton(NULL),
 	mBadPostButton(NULL),
-	mPostScrollList(NULL),
+	mPostNormalMapScrollList(NULL),
+	mPostSpecularMapScrollList(NULL),
+	mPostOtherDataScrollList(NULL),
 	mState(kNoRegion),
 	mWarningColor(),
 	mErrorColor(),
@@ -375,38 +389,7 @@ void LLFloaterDebugMaterials::onPutClearClicked()
 
 void LLFloaterDebugMaterials::onQueryVisibleObjectsClicked()
 {
-	S32 numViewerObjects = gObjectList.getNumObjects();
-	for (S32 viewerObjectIndex = 0; viewerObjectIndex < numViewerObjects; ++viewerObjectIndex)
-	{
-		const LLViewerObject *viewerObject = gObjectList.getObject(viewerObjectIndex);
-		if ((viewerObject != NULL) && !viewerObject->isDead())
-		{
-			U8 objectNumTEs = viewerObject->getNumTEs();
-
-			if (objectNumTEs > 0U)
-			{
-				const LLUUID& objectId = viewerObject->getID();
-				U32 objectLocalId = viewerObject->getLocalID();
-				S32 objectNumFaces = viewerObject->getNumFaces();
-				const LLViewerRegion* objectRegion = viewerObject->getRegion();
-				for (U8 curTEIndex = 0U; curTEIndex < objectNumTEs; ++curTEIndex)
-				{
-					const LLTextureEntry* objectTE = viewerObject->getTE(curTEIndex);
-					llassert(objectTE != NULL);
-					const LLMaterialID& objectMaterialID = objectTE->getMaterialID();
-					if (!objectMaterialID.isNull())
-					{
-						llinfos << "STINSON DEBUG: #" << (viewerObjectIndex + 1) << ": " << objectId.asString()
-							<< " (" << ((objectRegion != NULL) ? objectRegion->getRegionID().asString() : "<null>")
-							<< ") [" << objectLocalId << "]  {" << static_cast<unsigned int>(curTEIndex)
-							<< "} : numFaces(" << objectNumFaces << ")  material("
-							<< convertToPrintableMaterialID(objectMaterialID) << ")" << llendl;
-					}
-				}
-			}
-
-		}
-	}
+	queryViewableObjects();
 }
 
 void LLFloaterDebugMaterials::onGoodPostClicked()
@@ -424,6 +407,7 @@ void LLFloaterDebugMaterials::onRegionCross()
 	checkRegionMaterialStatus();
 	clearGetResults();
 	clearPutResults();
+	clearViewableObjectsResults();
 	clearPostResults();
 }
 
@@ -755,6 +739,71 @@ void LLFloaterDebugMaterials::requestPostMaterials(const LLUUID& regionId, bool 
 	}
 }
 
+void LLFloaterDebugMaterials::queryViewableObjects()
+{
+	clearViewableObjectsResults();
+
+	LLScrollListCell::Params cellParams;
+	LLScrollListItem::Params rowParams;
+
+	S32 numViewerObjects = gObjectList.getNumObjects();
+	for (S32 viewerObjectIndex = 0; viewerObjectIndex < numViewerObjects; ++viewerObjectIndex)
+	{
+		const LLViewerObject *viewerObject = gObjectList.getObject(viewerObjectIndex);
+		if ((viewerObject != NULL) && !viewerObject->isDead())
+		{
+			U8 objectNumTEs = viewerObject->getNumTEs();
+
+			if (objectNumTEs > 0U)
+			{
+				const LLUUID& objectId = viewerObject->getID();
+				U32 objectLocalId = viewerObject->getLocalID();
+				const LLViewerRegion* objectRegion = viewerObject->getRegion();
+
+				for (U8 curTEIndex = 0U; curTEIndex < objectNumTEs; ++curTEIndex)
+				{
+					const LLTextureEntry* objectTE = viewerObject->getTE(curTEIndex);
+					llassert(objectTE != NULL);
+					const LLMaterialID& objectMaterialID = objectTE->getMaterialID();
+					if (!objectMaterialID.isNull())
+					{
+						cellParams.font = LLFontGL::getFontMonospace();
+
+						cellParams.column = "object_id";
+						cellParams.value = objectId.asString();
+						rowParams.columns.add(cellParams);
+
+						cellParams.font = LLFontGL::getFontSansSerif();
+
+						cellParams.column = "region";
+						cellParams.value = ((objectRegion == NULL) ? "<null>" : objectRegion->getName());
+						rowParams.columns.add(cellParams);
+
+						cellParams.column = "local_id";
+						cellParams.value = llformat("%d", objectLocalId);
+						rowParams.columns.add(cellParams);
+
+						cellParams.column = "face_index";
+						cellParams.value = llformat("%u", static_cast<unsigned int>(curTEIndex));
+						rowParams.columns.add(cellParams);
+						cellParams.font = LLFontGL::getFontMonospace();
+
+						std::string materialIDString = convertToPrintableMaterialID(objectMaterialID);
+						cellParams.column = "material_id";
+						cellParams.value = materialIDString;
+						rowParams.columns.add(cellParams);
+
+						rowParams.value = objectId;
+
+						mViewableObjectsScrollList->addRow(rowParams);
+					}
+				}
+			}
+
+		}
+	}
+}
+
 void LLFloaterDebugMaterials::parseGetResponse(const LLSD& pContent)
 {
 	printResponse("GET", pContent);
@@ -920,7 +969,7 @@ void LLFloaterDebugMaterials::parseGetResponse(const LLSD& pContent)
 		specularMapRowParams.columns.add(cellParams);
 		otherDataRowParams.columns.add(cellParams);
 
-		cellParams.column = "normal_map_list";
+		cellParams.column = "normal_map_list_map";
 		cellParams.value = normalMapID.asString();
 		normalMapRowParams.columns.add(cellParams);
 
@@ -995,7 +1044,7 @@ void LLFloaterDebugMaterials::parseGetResponse(const LLSD& pContent)
 
 		cellParams.font = LLFontGL::getFontMonospace();
 
-		cellParams.column = "specular_map_list";
+		cellParams.column = "specular_map_list_map";
 		cellParams.value = specularMapID.asString();
 		specularMapRowParams.columns.add(cellParams);
 
@@ -1149,6 +1198,7 @@ void LLFloaterDebugMaterials::parsePutResponse(const LLSD& pContent)
 void LLFloaterDebugMaterials::parsePostResponse(const LLSD& pContent)
 {
 	printResponse("POST", pContent);
+#if 0
 	clearPostResults();
 
 	LLScrollListCell::Params cellParams;
@@ -1239,6 +1289,7 @@ void LLFloaterDebugMaterials::parsePostResponse(const LLSD& pContent)
 
 		mPostScrollList->addRow(rowParams);
 	}
+#endif
 }
 
 void LLFloaterDebugMaterials::printResponse(const std::string& pRequestType, const LLSD& pContent) const
@@ -1296,7 +1347,14 @@ void LLFloaterDebugMaterials::clearPutResults()
 
 void LLFloaterDebugMaterials::clearPostResults()
 {
-	mPostScrollList->deleteAllItems();
+	mPostNormalMapScrollList->deleteAllItems();
+	mPostSpecularMapScrollList->deleteAllItems();
+	mPostOtherDataScrollList->deleteAllItems();
+}
+
+void LLFloaterDebugMaterials::clearViewableObjectsResults()
+{
+	mViewableObjectsScrollList->deleteAllItems();
 }
 
 void LLFloaterDebugMaterials::updateStatusMessage()

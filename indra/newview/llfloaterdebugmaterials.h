@@ -100,6 +100,8 @@ private:
 	void          requestPostMaterials(bool pUseGoodData);
 	void          requestPostMaterials(const LLUUID& regionId, bool pUseGoodData);
 
+	void          queryViewableObjects();
+
 	void          parseGetResponse(const LLSD& pContent);
 	void          parsePutResponse(const LLSD& pContent);
 	void          parsePostResponse(const LLSD& pContent);
@@ -112,6 +114,7 @@ private:
 	void          clearGetResults();
 	void          clearPutResults();
 	void          clearPostResults();
+	void          clearViewableObjectsResults();
 
 	void          updateStatusMessage();
 	void          updateControls();
@@ -161,10 +164,13 @@ private:
 	LLButton*                   mPutSetButton;
 	LLButton*                   mPutClearButton;
 	LLScrollListCtrl*           mPutScrollList;
-	LLButton*                   mQueryVisibleObjectsButton;
+	LLButton*                   mQueryViewableObjectsButton;
+	LLScrollListCtrl*           mViewableObjectsScrollList;
 	LLButton*                   mGoodPostButton;
 	LLButton*                   mBadPostButton;
-	LLScrollListCtrl*           mPostScrollList;
+	LLScrollListCtrl*           mPostNormalMapScrollList;
+	LLScrollListCtrl*           mPostSpecularMapScrollList;
+	LLScrollListCtrl*           mPostOtherDataScrollList;
 
 	LLColor4                    mDefaultSpecularColor;
 
