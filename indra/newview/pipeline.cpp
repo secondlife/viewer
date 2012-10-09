@@ -397,7 +397,7 @@ void validate_framebuffer_object();
 bool addDeferredAttachments(LLRenderTarget& target)
 {
 	return target.addColorAttachment(GL_RGBA) && //specular
-			target.addColorAttachment(GL_RGBA); //normal+z	
+			target.addColorAttachment(GL_RGB10_A2); //normal+z
 }
 
 LLPipeline::LLPipeline() :
@@ -863,7 +863,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		if (!mDeferredScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		if (!mDeferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		if (!addDeferredAttachments(mDeferredScreen)) return false;
-	
+		
 		if (!mScreen.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		if (samples > 0)
 		{
@@ -1206,6 +1206,11 @@ void LLPipeline::createGLBuffers()
 	gBumpImageList.restoreGL();
 }
 
+F32 lerpf(F32 a, F32 b, F32 w)
+{
+	return a + w * (b - a);
+}
+
 void LLPipeline::createLUTBuffers()
 {
 	if (sRenderDeferred)
@@ -1214,45 +1219,40 @@ void LLPipeline::createLUTBuffers()
 		{
 			U32 lightResX = gSavedSettings.getU32("RenderSpecularResX");
 			U32 lightResY = gSavedSettings.getU32("RenderSpecularResY");
-			U8* ls = new U8[lightResX*lightResY];
-			F32 specExp = gSavedSettings.getF32("RenderSpecularExponent");
-            // Calculate the (normalized) Blinn-Phong specular lookup texture.
+			F32* ls = new F32[lightResX*lightResY];
+			//F32 specExp = gSavedSettings.getF32("RenderSpecularExponent"); // Note: only use this when creating new specular lighting functions.
+            // Calculate the (normalized) Gaussian specular lookup texture. (with a few tweaks)
 			for (U32 y = 0; y < lightResY; ++y)
 			{
 				for (U32 x = 0; x < lightResX; ++x)
 				{
 					ls[y*lightResX+x] = 0;
 					F32 sa = (F32) x/(lightResX-1);
-					F32 spec = (F32) y/(lightResY-1);
-					F32 n = spec * spec * specExp;
+					F32 spec = (F32) y/(lightResY);
+					F32 n = spec;
 					
-					// Nothing special here.  Just your typical blinn-phong term.
-					spec = powf(sa, n);
+					float angleNormalHalf = acosf(sa);
+					float exponent = angleNormalHalf / ((1 - n));
+					exponent = -(exponent * exponent);
+					spec = expf(exponent);
 					
 					// Apply our normalization function.
-					// Note: This is the full equation that applies the full normalization curve, not an approximation.
-					// This is fine, given we only need to create our LUT once per buffer initialization.
-					// The only trade off is we have a really low dynamic range.
-					// This means we have to account for things not being able to exceed 0 to 1 in our shaders.
-					spec *= (((n + 2) * (n + 4)) / (8 * F_PI * (powf(2, -n/2) + n)));
+					// This is based around the phong normalization function, trading n+2 for n+1 instead.
+					// Since we're using a gaussian model here, we actually don't really need as large of an exponent as blinn-phong shading.
+					// Instead, we assume that the correct exponent is 8 here.
+					// This was achieved through much tweaking to find a decent "middleground" with our specular highlights with the gaussian term.
+					// Bigger highlights don't look too soft, smaller highlights don't look too bright, and everything in the middle seems to have a well maintained highlight curvature.
+					// There isn't really much theory behind this one.  This was done purely to produce a nice and mostly customizable BRDF.
 					
-					// Always sample at a 1.0/2.2 curve.
-					// This "Gamma corrects" our specular term, boosting our lower exponent reflections.
-					spec = powf(spec, 1.f/2.2f);
+					spec = lerpf(spec, spec * (n * 8 + 1) / 4.5, n);
 					
-					// Easy fix for our dynamic range problem: divide by 6 here, multiply by 6 in our shaders.
-					// This allows for our specular term to exceed a value of 1 in our shaders.
-					// This is something that can be important for energy conserving specular models where higher exponents can result in highlights that exceed a range of 0 to 1.
-					// Technically, we could just use an R16F texture, but driver support for R16F textures can be somewhat spotty at times.
-					// This works remarkably well for higher specular exponents, though banding can sometimes be seen on lower exponents.
-					// Combined with a bit of noise and trilinear filtering, the banding is hardly noticable.
-					ls[y*lightResX+x] = (U8)(llclamp(spec * (1.f / 6), 0.f, 1.f) * 255);
+					ls[y*lightResX+x] = spec;
 				}
 			}
 			
-			LLImageGL::generateTextures(LLTexUnit::TT_TEXTURE, GL_R8, 1, &mLightFunc);
+			LLImageGL::generateTextures(LLTexUnit::TT_TEXTURE, GL_R16F, 1, &mLightFunc);
 			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mLightFunc);
-			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_R8, lightResX, lightResY, GL_RED, GL_UNSIGNED_BYTE, ls, false);
+			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_R16F, lightResX, lightResY, GL_RED, GL_FLOAT, ls, false);
 			gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_TRILINEAR);
 			
