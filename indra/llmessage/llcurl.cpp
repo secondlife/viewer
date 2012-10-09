@@ -1104,6 +1104,7 @@ bool LLCurlRequest::getByteRange(const std::string& url,
 								 S32 offset, S32 length,
 								 LLCurl::ResponderPtr responder)
 {
+	llassert(LLCurl::sNotQuitting);
 	LLCurl::Easy* easy = allocEasy();
 	if (!easy)
 	{
@@ -1126,6 +1127,7 @@ bool LLCurlRequest::post(const std::string& url,
 						 const LLSD& data,
 						 LLCurl::ResponderPtr responder, S32 time_out)
 {
+	llassert(LLCurl::sNotQuitting);
 	LLCurl::Easy* easy = allocEasy();
 	if (!easy)
 	{
@@ -1153,6 +1155,7 @@ bool LLCurlRequest::post(const std::string& url,
 						 const std::string& data,
 						 LLCurl::ResponderPtr responder, S32 time_out)
 {
+	llassert(LLCurl::sNotQuitting);
 	LLCurl::Easy* easy = allocEasy();
 	if (!easy)
 	{
@@ -1550,6 +1553,8 @@ void LLCurl::cleanupClass()
 //static 
 CURLM* LLCurl::newMultiHandle()
 {
+	llassert(sNotQuitting);
+
 	LLMutexLock lock(sHandleMutexp) ;
 
 	if(sTotalHandles + 1 > sMaxHandles)
@@ -1583,6 +1588,7 @@ CURLMcode  LLCurl::deleteMultiHandle(CURLM* handle)
 //static 
 CURL*  LLCurl::newEasyHandle()
 {
+	llassert(sNotQuitting);
 	LLMutexLock lock(sHandleMutexp) ;
 
 	if(sTotalHandles + 1 > sMaxHandles)
