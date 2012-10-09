@@ -216,7 +216,7 @@ public:
 	 * @param avatar_names - a vector of given avatar names from which resulting string is built
 	 * @param residents_string - the resulting string
 	 */
-	static void buildResidentsString(const std::vector<LLAvatarName> avatar_names, std::string& residents_string);
+	static void buildResidentsString(std::vector<LLAvatarName> avatar_names, std::string& residents_string);
 
 	/**
 	 * Builds a string of residents' display names separated by "words_separator" string.

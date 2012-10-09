@@ -697,15 +697,15 @@ namespace action_give_inventory
 }
 
 // static
-void LLAvatarActions::buildResidentsString(const std::vector<LLAvatarName> avatar_names, std::string& residents_string)
+void LLAvatarActions::buildResidentsString(std::vector<LLAvatarName> avatar_names, std::string& residents_string)
 {
 	llassert(avatar_names.size() > 0);
-
+	
+	std::sort(avatar_names.begin(), avatar_names.end());
 	const std::string& separator = LLTrans::getString("words_separator");
 	for (std::vector<LLAvatarName>::const_iterator it = avatar_names.begin(); ; )
 	{
-		LLAvatarName av_name = *it;
-		residents_string.append(av_name.mDisplayName);
+		residents_string.append((*it).mDisplayName);
 		if	(++it == avatar_names.end())
 		{
 			break;
