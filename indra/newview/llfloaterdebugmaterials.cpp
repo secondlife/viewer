@@ -44,6 +44,7 @@
 #include "llfontgl.h"
 #include "llhttpclient.h"
 #include "lllineeditor.h"
+#include "llmaterialid.h"
 #include "llscrolllistcell.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
@@ -56,7 +57,9 @@
 #include "lltextvalidate.h"
 #include "lluicolortable.h"
 #include "lluictrl.h"
+#include "lluuid.h"
 #include "llviewerobject.h"
+#include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 #include "v4color.h"
@@ -217,6 +220,10 @@ BOOL LLFloaterDebugMaterials::postBuild()
 	mPutScrollList = findChild<LLScrollListCtrl>("put_scroll_list");
 	llassert(mPutScrollList != NULL);
 
+	mQueryVisibleObjectsButton = findChild<LLButton>("query_visible_object_button");
+	llassert(mQueryVisibleObjectsButton != NULL);
+	mQueryVisibleObjectsButton->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onQueryVisibleObjectsClicked, this));
+
 	mGoodPostButton = findChild<LLButton>("good_post_button");
 	llassert(mGoodPostButton != NULL);
 	mGoodPostButton->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onGoodPostClicked, this));
@@ -316,6 +323,7 @@ LLFloaterDebugMaterials::LLFloaterDebugMaterials(const LLSD& pParams)
 	mPutSetButton(NULL),
 	mPutClearButton(NULL),
 	mPutScrollList(NULL),
+	mQueryVisibleObjectsButton(NULL),
 	mGoodPostButton(NULL),
 	mBadPostButton(NULL),
 	mPostScrollList(NULL),
@@ -363,6 +371,42 @@ void LLFloaterDebugMaterials::onPutSetClicked()
 void LLFloaterDebugMaterials::onPutClearClicked()
 {
 	requestPutMaterials(false);
+}
+
+void LLFloaterDebugMaterials::onQueryVisibleObjectsClicked()
+{
+	S32 numViewerObjects = gObjectList.getNumObjects();
+	for (S32 viewerObjectIndex = 0; viewerObjectIndex < numViewerObjects; ++viewerObjectIndex)
+	{
+		const LLViewerObject *viewerObject = gObjectList.getObject(viewerObjectIndex);
+		if ((viewerObject != NULL) && !viewerObject->isDead())
+		{
+			U8 objectNumTEs = viewerObject->getNumTEs();
+
+			if (objectNumTEs > 0U)
+			{
+				const LLUUID& objectId = viewerObject->getID();
+				U32 objectLocalId = viewerObject->getLocalID();
+				S32 objectNumFaces = viewerObject->getNumFaces();
+				const LLViewerRegion* objectRegion = viewerObject->getRegion();
+				for (U8 curTEIndex = 0U; curTEIndex < objectNumTEs; ++curTEIndex)
+				{
+					const LLTextureEntry* objectTE = viewerObject->getTE(curTEIndex);
+					llassert(objectTE != NULL);
+					const LLMaterialID& objectMaterialID = objectTE->getMaterialID();
+					if (!objectMaterialID.isNull())
+					{
+						llinfos << "STINSON DEBUG: #" << (viewerObjectIndex + 1) << ": " << objectId.asString()
+							<< " (" << ((objectRegion != NULL) ? objectRegion->getRegionID().asString() : "<null>")
+							<< ") [" << objectLocalId << "]  {" << static_cast<unsigned int>(curTEIndex)
+							<< "} : numFaces(" << objectNumFaces << ")  material("
+							<< convertToPrintableMaterialID(objectMaterialID) << ")" << llendl;
+					}
+				}
+			}
+
+		}
+	}
 }
 
 void LLFloaterDebugMaterials::onGoodPostClicked()
@@ -1346,6 +1390,22 @@ std::string LLFloaterDebugMaterials::convertToPrintableMaterialID(const LLSD& pB
 	std::string materialID(reinterpret_cast<const char *>(&materialIDValue[0]), valueSize);
 	std::string materialIDString;
 	for (unsigned int i = 0U; i < (valueSize / 4); ++i)
+	{
+		if (i != 0U)
+		{
+			materialIDString += "-";
+		}
+		const U32 *value = reinterpret_cast<const U32*>(&materialID.c_str()[i * 4]);
+		materialIDString += llformat("%08x", *value);
+	}
+	return materialIDString;
+}
+
+std::string LLFloaterDebugMaterials::convertToPrintableMaterialID(const LLMaterialID& pMaterialID) const
+{
+	std::string materialID(reinterpret_cast<const char *>(pMaterialID.get()), 16);
+	std::string materialIDString;
+	for (unsigned int i = 0U; i < 4; ++i)
 	{
 		if (i != 0U)
 		{

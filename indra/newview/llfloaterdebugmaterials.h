@@ -38,6 +38,7 @@
 class LLButton;
 class LLColorSwatchCtrl;
 class LLLineEditor;
+class LLMaterialID;
 class LLScrollListCtrl;
 class LLSD;
 class LLTextBase;
@@ -74,6 +75,7 @@ private:
 	void          onValueEntered(LLUICtrl* pUICtrl);
 	void          onPutSetClicked();
 	void          onPutClearClicked();
+	void          onQueryVisibleObjectsClicked();
 	void          onGoodPostClicked();
 	void          onBadPostClicked();
 	void          onRegionCross();
@@ -114,6 +116,7 @@ private:
 	void          updateStatusMessage();
 	void          updateControls();
 	std::string   convertToPrintableMaterialID(const LLSD& pBinaryHash) const;
+	std::string   convertToPrintableMaterialID(const LLMaterialID& pMaterialID) const;
 
 	S32           getNormalMapOffsetX() const;
 	S32           getNormalMapOffsetY() const;
@@ -158,6 +161,7 @@ private:
 	LLButton*                   mPutSetButton;
 	LLButton*                   mPutClearButton;
 	LLScrollListCtrl*           mPutScrollList;
+	LLButton*                   mQueryVisibleObjectsButton;
 	LLButton*                   mGoodPostButton;
 	LLButton*                   mBadPostButton;
 	LLScrollListCtrl*           mPostScrollList;

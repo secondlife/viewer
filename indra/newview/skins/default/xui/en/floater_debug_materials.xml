@@ -827,6 +827,14 @@
         <button
             follows="left|top"
             height="22"
+            label="Query Visible Objects"
+            layout="topleft"
+            name="query_visible_object_button"
+            top_pad="0"
+            width="214"/>
+        <button
+            follows="left|top"
+            height="22"
             label="Post Good Material ID"
             layout="topleft"
             name="good_post_button"

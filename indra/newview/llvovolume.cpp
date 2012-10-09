@@ -36,6 +36,7 @@
 #include "lldir.h"
 #include "llflexibleobject.h"
 #include "llfloatertools.h"
+#include "llmaterialid.h"
 #include "llmaterialtable.h"
 #include "llprimitive.h"
 #include "llvolume.h"
@@ -1952,6 +1953,17 @@ S32 LLVOVolume::setTEMediaFlags(const U8 te, const U8 media_flags)
 S32 LLVOVolume::setTEGlow(const U8 te, const F32 glow)
 {
 	S32 res = LLViewerObject::setTEGlow(te, glow);
+	if (res)
+	{
+		gPipeline.markTextured(mDrawable);
+		mFaceMappingChanged = TRUE;
+	}
+	return  res;
+}
+
+S32 LLVOVolume::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID)
+{
+	S32 res = LLViewerObject::setTEMaterialID(te, pMaterialID);
 	if (res)
 	{
 		gPipeline.markTextured(mDrawable);

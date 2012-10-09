@@ -39,6 +39,7 @@
 #include "lldatapacker.h"
 #include "llsdutil_math.h"
 #include "llprimtexturelist.h"
+#include "llmaterialid.h"
 
 /**
  * exported constants
@@ -364,6 +365,11 @@ S32  LLPrimitive::setTEMediaFlags(const U8 index, const U8 media_flags)
 S32 LLPrimitive::setTEGlow(const U8 index, const F32 glow)
 {
 	return mTextureList.setGlow(index, glow);
+}
+
+S32 LLPrimitive::setTEMaterialID(const U8 index, const LLMaterialID& pMaterialID)
+{
+	return mTextureList.setMaterialID(index, pMaterialID);
 }
 
 
@@ -1091,6 +1097,7 @@ BOOL LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
 	U8	   bump[MAX_TES];
 	U8	   media_flags[MAX_TES];
     U8     glow[MAX_TES];
+	U8     material_data[MAX_TES*16];
 	
 	const U32 MAX_TE_BUFFER = 4096;
 	U8 packed_buffer[MAX_TE_BUFFER];
@@ -1128,6 +1135,9 @@ BOOL LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
 			bump[face_index] = te->getBumpShinyFullbright();
 			media_flags[face_index] = te->getMediaTexGen();
 			glow[face_index] = (U8) llround((llclamp(te->getGlow(), 0.0f, 1.0f) * (F32)0xFF));
+
+			// Directly sending material_ids is not safe!
+			memcpy(&material_data[face_index*16],getTE(face_index)->getMaterialID().get(),16);	/* Flawfinder: ignore */ 
 		}
 
 		cur_ptr += packTEField(cur_ptr, (U8 *)image_ids, sizeof(LLUUID),last_face_index, MVT_LLUUID);
@@ -1149,6 +1159,8 @@ BOOL LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
 		cur_ptr += packTEField(cur_ptr, (U8 *)media_flags, 1 ,last_face_index, MVT_U8);
 		*cur_ptr++ = 0;
 		cur_ptr += packTEField(cur_ptr, (U8 *)glow, 1 ,last_face_index, MVT_U8);
+		*cur_ptr++ = 0;
+		cur_ptr += packTEField(cur_ptr, (U8 *)material_data, 16, last_face_index, MVT_LLUUID);
 	}
    	mesgsys->addBinaryDataFast(_PREHASH_TextureEntry, packed_buffer, (S32)(cur_ptr - packed_buffer));
 
@@ -1170,6 +1182,7 @@ BOOL LLPrimitive::packTEMessage(LLDataPacker &dp) const
 	U8	   bump[MAX_TES];
 	U8	   media_flags[MAX_TES];
     U8     glow[MAX_TES];
+	U8     material_data[MAX_TES*16];
 	
 	const U32 MAX_TE_BUFFER = 4096;
 	U8 packed_buffer[MAX_TE_BUFFER];
@@ -1207,6 +1220,9 @@ BOOL LLPrimitive::packTEMessage(LLDataPacker &dp) const
 			bump[face_index] = te->getBumpShinyFullbright();
 			media_flags[face_index] = te->getMediaTexGen();
             glow[face_index] = (U8) llround((llclamp(te->getGlow(), 0.0f, 1.0f) * (F32)0xFF));
+
+			// Directly sending material_ids is not safe!
+			memcpy(&material_data[face_index*16],getTE(face_index)->getMaterialID().get(),16);	/* Flawfinder: ignore */ 
 		}
 
 		cur_ptr += packTEField(cur_ptr, (U8 *)image_ids, sizeof(LLUUID),last_face_index, MVT_LLUUID);
@@ -1228,6 +1244,8 @@ BOOL LLPrimitive::packTEMessage(LLDataPacker &dp) const
 		cur_ptr += packTEField(cur_ptr, (U8 *)media_flags, 1 ,last_face_index, MVT_U8);
 		*cur_ptr++ = 0;
 		cur_ptr += packTEField(cur_ptr, (U8 *)glow, 1 ,last_face_index, MVT_U8);
+		*cur_ptr++ = 0;
+		cur_ptr += packTEField(cur_ptr, (U8 *)material_data, 16, last_face_index, MVT_LLUUID);
 	}
 
 	dp.packBinaryData(packed_buffer, (S32)(cur_ptr - packed_buffer), "TextureEntry");
@@ -1246,6 +1264,7 @@ S32 LLPrimitive::unpackTEMessage(LLMessageSystem* mesgsys, char const* block_nam
 	const U32 MAX_TES = 32;
 
 	// Avoid construction of 32 UUIDs per call. JC
+	static LLMaterialID material_ids[MAX_TES];
 
 	U8     image_data[MAX_TES*16];
 	U8	  colors[MAX_TES*4];
@@ -1257,6 +1276,7 @@ S32 LLPrimitive::unpackTEMessage(LLMessageSystem* mesgsys, char const* block_nam
 	U8	   bump[MAX_TES];
 	U8	   media_flags[MAX_TES];
     U8     glow[MAX_TES];
+	U8     material_data[MAX_TES*16];
 	
 	const U32 MAX_TE_BUFFER = 4096;
 	U8 packed_buffer[MAX_TE_BUFFER];
@@ -1309,6 +1329,13 @@ S32 LLPrimitive::unpackTEMessage(LLMessageSystem* mesgsys, char const* block_nam
 	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)media_flags, 1, face_count, MVT_U8);
 	cur_ptr++;
 	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)glow, 1, face_count, MVT_U8);
+	cur_ptr++;
+	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)material_data, 16, face_count, MVT_LLUUID);
+	
+	for (U32 i = 0; i < face_count; i++)
+	{
+		material_ids[i].set(&material_data[i * 16]);
+	}
 	
 	LLColor4 color;
 	LLColor4U coloru;
@@ -1321,6 +1348,7 @@ S32 LLPrimitive::unpackTEMessage(LLMessageSystem* mesgsys, char const* block_nam
 		retval |= setTEBumpShinyFullbright(i, bump[i]);
 		retval |= setTEMediaTexGen(i, media_flags[i]);
 		retval |= setTEGlow(i, (F32)glow[i] / (F32)0xFF);
+		retval |= setTEMaterialID(i, material_ids[i]);
 		coloru = LLColor4U(colors + 4*i);
 
 		// Note:  This is an optimization to send common colors (1.f, 1.f, 1.f, 1.f)
@@ -1346,6 +1374,7 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 
 	// Avoid construction of 32 UUIDs per call
 	static LLUUID image_ids[MAX_TES];
+	static LLMaterialID material_ids[MAX_TES];
 
 	U8     image_data[MAX_TES*16];
 	U8	   colors[MAX_TES*4];
@@ -1357,7 +1386,7 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 	U8	   bump[MAX_TES];
 	U8	   media_flags[MAX_TES];
     U8     glow[MAX_TES];
-	unsigned char material_id[MAX_TES*16];
+	U8     material_data[MAX_TES*16];
 
 	const U32 MAX_TE_BUFFER = 4096;
 	U8 packed_buffer[MAX_TE_BUFFER];
@@ -1401,30 +1430,12 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 	cur_ptr++;
 	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)glow, 1, face_count, MVT_U8);
 	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)material_id, 16, face_count, MVT_LLUUID);
-
-#if 0
-	for (U32 curFace = 0U; curFace < face_count; ++curFace)
-	{
-		std::string materialID(reinterpret_cast<char *>(&material_id[curFace * 16]), 16);
-		std::string materialIDString;
-		for (unsigned int i = 0U; i < 4U; ++i)
-		{
-			if (i != 0U)
-			{
-				materialIDString += "-";
-			}
-			const U32 *value = reinterpret_cast<const U32*>(&materialID.c_str()[i * 4]);
-			materialIDString += llformat("%08x", *value);
-		}
-
-		llinfos << "STINSON DEBUG: found material ID for face #" << curFace << " => " << materialIDString << llendl;
-	}
-#endif
+	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)material_data, 16, face_count, MVT_LLUUID);
 
 	for (i = 0; i < face_count; i++)
 	{
 		memcpy(image_ids[i].mData,&image_data[i*16],16);	/* Flawfinder: ignore */ 	
+		material_ids[i].set(&material_data[i * 16]);
 	}
 	
 	LLColor4 color;
@@ -1438,6 +1449,7 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 		retval |= setTEBumpShinyFullbright(i, bump[i]);
 		retval |= setTEMediaTexGen(i, media_flags[i]);
 		retval |= setTEGlow(i, (F32)glow[i] / (F32)0xFF);
+		retval |= setTEMaterialID(i, material_ids[i]);
 		coloru = LLColor4U(colors + 4*i);
 
 		// Note:  This is an optimization to send common colors (1.f, 1.f, 1.f, 1.f)

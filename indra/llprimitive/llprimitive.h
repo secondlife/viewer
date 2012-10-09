@@ -42,6 +42,7 @@ class LLMessageSystem;
 class LLVolumeParams;
 class LLColor4;
 class LLColor3;
+class LLMaterialID;
 class LLTextureEntry;
 class LLDataPacker;
 class LLVolumeMgr;
@@ -353,6 +354,7 @@ public:
 	virtual S32 setTEFullbright(const U8 te, const U8 fullbright);
 	virtual S32 setTEMediaFlags(const U8 te, const U8 flags);
 	virtual S32 setTEGlow(const U8 te, const F32 glow);
+	virtual S32 setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID);
 	virtual BOOL setMaterial(const U8 material); // returns TRUE if material changed
 
 	void copyTEs(const LLPrimitive *primitive);

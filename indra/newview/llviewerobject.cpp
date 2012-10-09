@@ -41,6 +41,7 @@
 #include "llframetimer.h"
 #include "llinventory.h"
 #include "llinventorydefines.h"
+#include "llmaterialid.h"
 #include "llmaterialtable.h"
 #include "llmutelist.h"
 #include "llnamevalue.h"
@@ -4258,6 +4259,26 @@ S32 LLViewerObject::setTEGlow(const U8 te, const F32 glow)
 	else if (glow != tep->getGlow())
 	{
 		retval = LLPrimitive::setTEGlow(te, glow);
+		setChanged(TEXTURE);
+		if (mDrawable.notNull() && retval)
+		{
+			gPipeline.markTextured(mDrawable);
+		}
+	}
+	return retval;
+}
+
+S32 LLViewerObject::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID)
+{
+	S32 retval = 0;
+	const LLTextureEntry *tep = getTE(te);
+	if (!tep)
+	{
+		llwarns << "No texture entry for te " << (S32)te << ", object " << mID << llendl;
+	}
+	else if (pMaterialID != tep->getMaterialID())
+	{
+		retval = LLPrimitive::setTEMaterialID(te, pMaterialID);
 		setChanged(TEXTURE);
 		if (mDrawable.notNull() && retval)
 		{

@@ -29,6 +29,7 @@
 #include "lluuid.h"
 #include "llmediaentry.h"
 #include "lltextureentry.h"
+#include "llmaterialid.h"
 #include "llsdutil_math.h"
 #include "v4color.h"
 
@@ -83,6 +84,8 @@ LLTextureEntry::LLTextureEntry(const LLTextureEntry &rhs)
 	mBump = rhs.mBump;
 	mMediaFlags = rhs.mMediaFlags;
 	mGlow = rhs.mGlow;
+	mMaterialID = rhs.mMaterialID;
+
 	if (rhs.mMediaEntry != NULL) {
 		// Make a copy
 		mMediaEntry = new LLMediaEntry(*rhs.mMediaEntry);
@@ -103,6 +106,7 @@ LLTextureEntry &LLTextureEntry::operator=(const LLTextureEntry &rhs)
 		mBump = rhs.mBump;
 		mMediaFlags = rhs.mMediaFlags;
 		mGlow = rhs.mGlow;
+		mMaterialID = rhs.mMaterialID;
 		if (mMediaEntry != NULL) {
 			delete mMediaEntry;
 		}
@@ -130,6 +134,7 @@ void LLTextureEntry::init(const LLUUID& tex_id, F32 scale_s, F32 scale_t, F32 of
 	mBump = bump;
 	mMediaFlags = 0x0;
     mGlow = 0;
+	mMaterialID.clear();
 	
 	setColor(LLColor4(1.f, 1.f, 1.f, 1.f));
 	if (mMediaEntry != NULL) {
@@ -159,6 +164,7 @@ bool LLTextureEntry::operator!=(const LLTextureEntry &rhs) const
 	if (mBump != rhs.mBump) return (true);
 	if (mMediaFlags != rhs.mMediaFlags) return (true);
 	if (mGlow != rhs.mGlow) return (true);
+	if (mMaterialID != rhs.mMaterialID) return (true);
 	return(false);
 }
 
@@ -174,6 +180,7 @@ bool LLTextureEntry::operator==(const LLTextureEntry &rhs) const
 	if (mBump != rhs.mBump) return (false);
 	if (mMediaFlags != rhs.mMediaFlags) return false;
 	if (mGlow != rhs.mGlow) return false;
+	if (mMaterialID != rhs.mMaterialID) return (false);
 	return(true);
 }
 
@@ -518,6 +525,16 @@ S32 LLTextureEntry::setGlow(F32 glow)
 	if (mGlow != glow)
 	{
 		mGlow = glow;
+		return TEM_CHANGE_TEXTURE;
+	}
+	return TEM_CHANGE_NONE;
+}
+
+S32 LLTextureEntry::setMaterialID(const LLMaterialID& pMaterialID)
+{
+	if (mMaterialID != pMaterialID)
+	{
+		mMaterialID = pMaterialID;
 		return TEM_CHANGE_TEXTURE;
 	}
 	return TEM_CHANGE_NONE;

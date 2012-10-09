@@ -27,6 +27,7 @@
 #include "linden_common.h"
 
 #include "llprimtexturelist.h"
+#include "llmaterialid.h"
 #include "lltextureentry.h"
 #include "llmemtype.h"
 
@@ -355,6 +356,15 @@ S32 LLPrimTextureList::setGlow(const U8 index, const F32 glow)
 	if (index < mEntryList.size())
 	{
 		return mEntryList[index]->setGlow(glow);
+	}
+	return TEM_CHANGE_NONE;
+}
+
+S32 LLPrimTextureList::setMaterialID(const U8 index, const LLMaterialID& pMaterialID)
+{
+	if (index < mEntryList.size())
+	{
+		return mEntryList[index]->setMaterialID(pMaterialID);
 	}
 	return TEM_CHANGE_NONE;
 }

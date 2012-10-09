@@ -39,6 +39,7 @@
 #include "../llvovolume.h"
 
 #include "../../llprimitive/llmediaentry.cpp"
+#include "../../llprimitive/llmaterialid.cpp"
 #include "../../llprimitive/lltextureentry.cpp"
 #include "../../llmessage/tests/llcurl_stub.cpp"
 

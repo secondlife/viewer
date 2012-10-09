@@ -56,6 +56,7 @@ class LLDrawable;
 class LLHost;
 class LLHUDText;
 class LLWorld;
+class LLMaterialID;
 class LLNameValue;
 class LLNetMap;
 class LLMessageSystem;
@@ -87,18 +88,6 @@ typedef void (*inventory_callback)(LLViewerObject*,
 								   LLInventoryObject::object_list_t*,
 								   S32 serial_num,
 								   void*);
-
-// for exporting textured materials from SL
-struct LLMaterialExportInfo
-{
-public:
-	LLMaterialExportInfo(S32 mat_index, S32 texture_index, LLColor4 color) : 
-	  mMaterialIndex(mat_index), mTextureIndex(texture_index), mColor(color) {};
-
-	S32			mMaterialIndex;
-	S32			mTextureIndex;
-	LLColor4	mColor;
-};
 
 struct PotentialReturnableObject
 {
@@ -320,6 +309,7 @@ public:
 	/*virtual*/	S32		setTEFullbright(const U8 te, const U8 fullbright );
 	/*virtual*/	S32		setTEMediaFlags(const U8 te, const U8 media_flags );
 	/*virtual*/ S32     setTEGlow(const U8 te, const F32 glow);
+	/*virtual*/ S32     setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID);
 	/*virtual*/	BOOL	setMaterial(const U8 material);
 	virtual		void	setTEImage(const U8 te, LLViewerTexture *imagep); // Not derived from LLPrimitive
 	virtual     void    changeTEImage(S32 index, LLViewerTexture* new_image)  ;
