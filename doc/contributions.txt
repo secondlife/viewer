@@ -1057,9 +1057,12 @@ Shawn Kaufmat
 	SNOW-240
 Sheet Spotter
 Shnurui Troughton
+Shyotl Kuhr
+	MAINT-1138
 Siana Gearz
 	STORM-960
 	STORM-1088
+	MAINT-1138
 sicarius Thorne
 Sicarius Toxx
 SignpostMarv Martin
