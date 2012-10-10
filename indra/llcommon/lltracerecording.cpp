@@ -46,6 +46,16 @@ Recording::Recording()
 Recording::~Recording()
 {}
 
+void Recording::update()
+{
+	if (isStarted())
+	{
+		LLTrace::get_thread_recorder()->update(this);
+		mElapsedSeconds = 0.0;
+		mSamplingTimer.reset();
+	}
+}
+
 void Recording::handleReset()
 {
 	mRates.write()->reset();
@@ -56,27 +66,17 @@ void Recording::handleReset()
 	mSamplingTimer.reset();
 }
 
-void Recording::update()
-{
-	if (mIsStarted)
-	{
-		LLTrace::get_thread_recorder()->update(this);
-		mElapsedSeconds = 0.0;
-		mSamplingTimer.reset();
-	}
-}
-
 void Recording::handleStart()
 {
-		mSamplingTimer.reset();
-		LLTrace::get_thread_recorder()->activate(this);
+	mSamplingTimer.reset();
+	LLTrace::get_thread_recorder()->activate(this);
 }
 
 void Recording::handleStop()
-	{
-		mElapsedSeconds += mSamplingTimer.getElapsedTimeF64();
-		LLTrace::get_thread_recorder()->deactivate(this);
-	}
+{
+	mElapsedSeconds += mSamplingTimer.getElapsedTimeF64();
+	LLTrace::get_thread_recorder()->deactivate(this);
+}
 
 void Recording::handleSplitTo(Recording& other)
 {

@@ -254,7 +254,7 @@ namespace LLTrace
 			mCurPeriod(0),
 			mTotalValid(false),
 			mRecordingPeriods(new Recording[num_periods])
-	{
+		{
 			llassert(mNumPeriods > 0);
 		}
 
