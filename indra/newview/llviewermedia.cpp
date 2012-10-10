@@ -1184,12 +1184,9 @@ void LLViewerMedia::clearAllCookies()
 	LLDirIterator dir_iter(base_dir, "*_*");
 	while (dir_iter.next(filename))
 	{
-		target = base_dir;
-		target += filename;
-		target += gDirUtilp->getDirDelimiter();
-		target += "browser_profile";
-		target += gDirUtilp->getDirDelimiter();
-		target += "cookies";
+		target = gDirUtilp->add(base_dir, filename);
+		gDirUtilp->append(target, "browser_profile");
+		gDirUtilp->append(target, "cookies");
 		lldebugs << "target = " << target << llendl;
 		if(LLFile::isfile(target))
 		{	
@@ -1197,10 +1194,8 @@ void LLViewerMedia::clearAllCookies()
 		}
 		
 		// Other accounts may have new-style cookie files too -- delete them as well
-		target = base_dir;
-		target += filename;
-		target += gDirUtilp->getDirDelimiter();
-		target += PLUGIN_COOKIE_FILE_NAME;
+		target = gDirUtilp->add(base_dir, filename);
+		gDirUtilp->append(target, PLUGIN_COOKIE_FILE_NAME);
 		lldebugs << "target = " << target << llendl;
 		if(LLFile::isfile(target))
 		{	

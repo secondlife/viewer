@@ -240,7 +240,7 @@ void store_input_file(std::list<std::string> &input_filenames, const std::string
 		LLDirIterator iter(dir, name);
 		while (iter.next(next_name))
 		{
-			std::string file_name = dir + gDirUtilp->getDirDelimiter() + next_name;
+			std::string file_name = gDirUtilp->add(dir, next_name);
 			input_filenames.push_back(file_name);
 		}
 	}

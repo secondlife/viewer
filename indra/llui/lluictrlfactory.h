@@ -169,7 +169,7 @@ public:
 	LLView* createFromXML(LLXMLNodePtr node, LLView* parent, const std::string& filename, const widget_registry_t&, LLXMLNodePtr output_node );
 
 	template<typename T>
-	static T* createFromFile(const std::string &filename, LLView *parent, const widget_registry_t& registry, LLXMLNodePtr output_node = NULL)
+	static T* createFromFile(const std::string &filename, LLView *parent, const widget_registry_t& registry)
 	{
 		T* widget = NULL;
 		
@@ -178,23 +178,13 @@ public:
 		{
 			LLXMLNodePtr root_node;
 
-			//if exporting, only load the language being exported, 			
-			//instead of layering localized version on top of english			
-			if (output_node)			
-			{					
-				if (!LLUICtrlFactory::getLocalizedXMLNode(filename, root_node))				
-				{							
-					llwarns << "Couldn't parse XUI file: " <<  filename  << llendl;					
-					goto fail;				
-				}
-			}
-			else if (!LLUICtrlFactory::getLayeredXMLNode(filename, root_node))
+			if (!LLUICtrlFactory::getLayeredXMLNode(filename, root_node))
 			{
 				llwarns << "Couldn't parse XUI file: " << skinned_filename << llendl;
 				goto fail;
 			}
 			
-			LLView* view = getInstance()->createFromXML(root_node, parent, filename, registry, output_node);
+			LLView* view = getInstance()->createFromXML(root_node, parent, filename, registry, NULL);
 			if (view)
 			{
 				widget = dynamic_cast<T*>(view);
@@ -223,7 +213,6 @@ fail:
 	static void createChildren(LLView* viewp, LLXMLNodePtr node, const widget_registry_t&, LLXMLNodePtr output_node = NULL);
 
 	static bool getLayeredXMLNode(const std::string &filename, LLXMLNodePtr& root);
-	static bool getLocalizedXMLNode(const std::string &xui_filename, LLXMLNodePtr& root);
 
 private:
 	//NOTE: both friend declarations are necessary to keep both gcc and msvc happy

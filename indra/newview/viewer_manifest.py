@@ -114,7 +114,6 @@ class ViewerManifest(LLManifest):
 
             # skins
             if self.prefix(src="skins"):
-                    self.path("paths.xml")
                     # include the entire textures directory recursively
                     if self.prefix(src="*/textures"):
                             self.path("*/*.tga")
