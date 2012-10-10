@@ -600,6 +600,32 @@ void LLFloaterDebugMaterials::requestPutMaterials(bool pIsDoSet)
 
 			LLSD facesData  = LLSD::emptyArray();
 
+			LLSD materialData = LLSD::emptyMap();
+			if (pIsDoSet)
+			{
+				materialData[MATERIALS_CAP_NORMAL_MAP_FIELD] = mNormalMap->getImageAssetID();
+				materialData[MATERIALS_CAP_NORMAL_MAP_OFFSET_X_FIELD] = static_cast<LLSD::Integer>(getNormalMapOffsetX());
+				materialData[MATERIALS_CAP_NORMAL_MAP_OFFSET_Y_FIELD] = static_cast<LLSD::Integer>(getNormalMapOffsetY());
+				materialData[MATERIALS_CAP_NORMAL_MAP_REPEAT_X_FIELD] = static_cast<LLSD::Integer>(getNormalMapRepeatX());
+				materialData[MATERIALS_CAP_NORMAL_MAP_REPEAT_Y_FIELD] = static_cast<LLSD::Integer>(getNormalMapRepeatY());
+				materialData[MATERIALS_CAP_NORMAL_MAP_ROTATION_FIELD] = static_cast<LLSD::Integer>(getNormalMapRotation());
+
+				materialData[MATERIALS_CAP_SPECULAR_MAP_FIELD] = mSpecularMap->getImageAssetID();
+				materialData[MATERIALS_CAP_SPECULAR_MAP_OFFSET_X_FIELD] = static_cast<LLSD::Integer>(getSpecularMapOffsetX());
+				materialData[MATERIALS_CAP_SPECULAR_MAP_OFFSET_Y_FIELD] = static_cast<LLSD::Integer>(getSpecularMapOffsetY());
+				materialData[MATERIALS_CAP_SPECULAR_MAP_REPEAT_X_FIELD] = static_cast<LLSD::Integer>(getSpecularMapRepeatX());
+				materialData[MATERIALS_CAP_SPECULAR_MAP_REPEAT_Y_FIELD] = static_cast<LLSD::Integer>(getSpecularMapRepeatY());
+				materialData[MATERIALS_CAP_SPECULAR_MAP_ROTATION_FIELD] = static_cast<LLSD::Integer>(getSpecularMapRotation());
+
+				const LLColor4& specularColor = mSpecularColor->get();
+				LLColor4U specularColor4U = specularColor;
+				materialData[MATERIALS_CAP_SPECULAR_COLOR_FIELD] = specularColor4U.getValue();
+
+				materialData[MATERIALS_CAP_SPECULAR_EXP_FIELD] = static_cast<LLSD::Integer>(getSpecularExponent());
+				materialData[MATERIALS_CAP_ENV_INTENSITY_FIELD] = static_cast<LLSD::Integer>(getEnvironmentExponent());
+				materialData[MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD] = static_cast<LLSD::Integer>(getAlphMaskCutoff());
+				materialData[MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD] = static_cast<LLSD::Integer>(getDiffuseAlphaMode());
+			}
 
 			LLObjectSelectionHandle selectionHandle = LLSelectMgr::getInstance()->getEditSelection();
 			for (LLObjectSelection::valid_iterator objectIter = selectionHandle->valid_begin();
@@ -608,42 +634,23 @@ void LLFloaterDebugMaterials::requestPutMaterials(bool pIsDoSet)
 				LLSelectNode* objectNode = *objectIter;
 				LLViewerObject* viewerObject = objectNode->getObject();
 
-				S32 numFaces = viewerObject->getNumFaces();
-				for (S32 curFaceIndex = 0; curFaceIndex < numFaces; ++curFaceIndex)
+				if (viewerObject != NULL)
 				{
-					LLSD materialData = LLSD::emptyMap();
-
-					materialData[MATERIALS_CAP_NORMAL_MAP_FIELD] = mNormalMap->getImageAssetID();
-					materialData[MATERIALS_CAP_NORMAL_MAP_OFFSET_X_FIELD] = static_cast<LLSD::Integer>(getNormalMapOffsetX());
-					materialData[MATERIALS_CAP_NORMAL_MAP_OFFSET_Y_FIELD] = static_cast<LLSD::Integer>(getNormalMapOffsetY());
-					materialData[MATERIALS_CAP_NORMAL_MAP_REPEAT_X_FIELD] = static_cast<LLSD::Integer>(getNormalMapRepeatX());
-					materialData[MATERIALS_CAP_NORMAL_MAP_REPEAT_Y_FIELD] = static_cast<LLSD::Integer>(getNormalMapRepeatY());
-					materialData[MATERIALS_CAP_NORMAL_MAP_ROTATION_FIELD] = static_cast<LLSD::Integer>(getNormalMapRotation());
-
-					materialData[MATERIALS_CAP_SPECULAR_MAP_FIELD] = mSpecularMap->getImageAssetID();
-					materialData[MATERIALS_CAP_SPECULAR_MAP_OFFSET_X_FIELD] = static_cast<LLSD::Integer>(getSpecularMapOffsetX());
-					materialData[MATERIALS_CAP_SPECULAR_MAP_OFFSET_Y_FIELD] = static_cast<LLSD::Integer>(getSpecularMapOffsetY());
-					materialData[MATERIALS_CAP_SPECULAR_MAP_REPEAT_X_FIELD] = static_cast<LLSD::Integer>(getSpecularMapRepeatX());
-					materialData[MATERIALS_CAP_SPECULAR_MAP_REPEAT_Y_FIELD] = static_cast<LLSD::Integer>(getSpecularMapRepeatY());
-					materialData[MATERIALS_CAP_SPECULAR_MAP_ROTATION_FIELD] = static_cast<LLSD::Integer>(getSpecularMapRotation());
-
-					const LLColor4& specularColor = mSpecularColor->get();
-					LLColor4U specularColor4U = specularColor;
-					materialData[MATERIALS_CAP_SPECULAR_COLOR_FIELD] = specularColor4U.getValue();
-
-					materialData[MATERIALS_CAP_SPECULAR_EXP_FIELD] = static_cast<LLSD::Integer>(getSpecularExponent());
-					materialData[MATERIALS_CAP_ENV_INTENSITY_FIELD] = static_cast<LLSD::Integer>(getEnvironmentExponent());
-					materialData[MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD] = static_cast<LLSD::Integer>(getAlphMaskCutoff());
-					materialData[MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD] = static_cast<LLSD::Integer>(getDiffuseAlphaMode());
-
-					LLSD faceData = LLSD::emptyMap();
-					faceData[MATERIALS_CAP_FACE_FIELD] = static_cast<LLSD::Integer>(curFaceIndex);
-					faceData[MATERIALS_CAP_OBJECT_ID_FIELD] = static_cast<LLSD::Integer>(viewerObject->getLocalID());
-					if (pIsDoSet)
+					S32 numTEs = llmin(static_cast<S32>(viewerObject->getNumTEs()), viewerObject->getNumFaces());
+					for (S32 curTEIndex = 0; curTEIndex < numTEs; ++curTEIndex)
 					{
-						faceData[MATERIALS_CAP_MATERIAL_FIELD] = materialData;
+						if (objectNode->isTESelected(curTEIndex))
+						{
+							LLSD faceData = LLSD::emptyMap();
+							faceData[MATERIALS_CAP_FACE_FIELD] = static_cast<LLSD::Integer>(curTEIndex);
+							faceData[MATERIALS_CAP_OBJECT_ID_FIELD] = static_cast<LLSD::Integer>(viewerObject->getLocalID());
+							if (pIsDoSet)
+							{
+								faceData[MATERIALS_CAP_MATERIAL_FIELD] = materialData;
+							}
+							facesData.append(faceData);
+						}
 					}
-					facesData.append(faceData);
 				}
 			}
 
