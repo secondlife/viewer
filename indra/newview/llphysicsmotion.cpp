@@ -67,6 +67,19 @@ inline F64 llsgn(const F64 a)
 class LLPhysicsMotion
 {
 public:
+	typedef enum
+	{
+		SMOOTHING = 0,
+		MASS,
+		GRAVITY,
+		SPRING,
+		GAIN,
+		DAMPING,
+		DRAG,
+		MAX_EFFECT,
+		NUM_PARAMS
+	} eParamName;
+
         /*
           param_driver_name: The param that controls the params that are being affected by the physics.
           joint_name: The joint that the body part is attached to.  The joint is
@@ -98,6 +111,11 @@ public:
                 mPositionLastUpdate_local(0)
         {
                 mJointState = new LLJointState;
+
+				for (U32 i = 0; i < NUM_PARAMS; ++i)
+				{
+					mParamCache[i] = NULL;
+				}
         }
 
         BOOL initialize();
@@ -111,16 +129,43 @@ public:
                 return mJointState;
         }
 protected:
-        F32 getParamValue(const std::string& controller_key)
-        {
-                const controller_map_t::const_iterator& entry = mParamControllers.find(controller_key);
+
+		F32 getParamValue(eParamName param)
+		{
+			static std::string controller_key[] = 
+			{
+				"Smoothing",
+				"Mass",
+				"Gravity",
+				"Spring",
+				"Gain",
+				"Damping",
+				"Drag",
+				"MaxEffect"
+			};
+
+			if (!mParamCache[param])
+			{
+				const controller_map_t::const_iterator& entry = mParamControllers.find(controller_key[param]);
                 if (entry == mParamControllers.end())
                 {
-                        return sDefaultController[controller_key];
+                        return sDefaultController[controller_key[param]];
                 }
                 const std::string& param_name = (*entry).second.c_str();
-                return mCharacter->getVisualParamWeight(param_name.c_str());
-        }
+                mParamCache[param] = mCharacter->getVisualParam(param_name.c_str());
+			}
+				
+			if (mParamCache[param])
+			{
+				return mParamCache[param]->getWeight();
+			}
+			else
+			{
+				return sDefaultController[controller_key[param]];
+			}
+		}
+
+        
         void setParamValue(LLViewerVisualParam *param,
                            const F32 new_value_local,
                                                    F32 behavior_maxeffect);
@@ -150,6 +195,8 @@ private:
 
         F32 mLastTime;
         
+		LLVisualParam* mParamCache[NUM_PARAMS];
+
         static default_controller_map_t sDefaultController;
 };
 
@@ -427,7 +474,6 @@ BOOL LLPhysicsMotionController::onUpdate(F32 time, U8* joint_mask)
         return TRUE;
 }
 
-
 // Return TRUE if character has to update visual params.
 BOOL LLPhysicsMotion::onUpdate(F32 time)
 {
@@ -471,15 +517,16 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 
         LLJoint *joint = mJointState->getJoint();
 
-        const F32 behavior_mass = getParamValue("Mass");
-        const F32 behavior_gravity = getParamValue("Gravity");
-        const F32 behavior_spring = getParamValue("Spring");
-        const F32 behavior_gain = getParamValue("Gain");
-        const F32 behavior_damping = getParamValue("Damping");
-        const F32 behavior_drag = getParamValue("Drag");
-        const BOOL physics_test = FALSE; // Enable this to simulate bouncing on all parts.
+		const F32 behavior_mass = getParamValue(MASS);
+		const F32 behavior_gravity = getParamValue(GRAVITY);
+		const F32 behavior_spring = getParamValue(SPRING);
+		const F32 behavior_gain = getParamValue(GAIN);
+		const F32 behavior_damping = getParamValue(DAMPING);
+		const F32 behavior_drag = getParamValue(DRAG);
+		F32 behavior_maxeffect = getParamValue(MAX_EFFECT);
+		
+		const BOOL physics_test = FALSE; // Enable this to simulate bouncing on all parts.
         
-        F32 behavior_maxeffect = getParamValue("MaxEffect");
         if (physics_test)
                 behavior_maxeffect = 1.0f;
 

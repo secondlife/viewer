@@ -57,6 +57,8 @@ const F32 MIN_SHADOW_CASTER_RADIUS = 2.0f;
 
 static LLFastTimer::DeclareTimer FTM_CULL_REBOUND("Cull Rebound");
 
+extern bool gShiftFrame;
+
 
 ////////////////////////
 //
@@ -108,6 +110,8 @@ void LLDrawable::init()
 	
 	mGeneration = -1;
 	mBinRadius = 1.f;
+	mBinIndex = -1;
+
 	mSpatialBridge = NULL;
 }
 
@@ -714,6 +718,11 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 		return;
 	}
 
+	if (gShiftFrame)
+	{
+		return;
+	}
+
 	//switch LOD with the spatial group to avoid artifacts
 	//LLSpatialGroup* sg = getSpatialGroup();
 
@@ -811,14 +820,19 @@ void LLDrawable::shiftPos(const LLVector4a &shift_vector)
 		mXform.setPosition(mVObjp->getPositionAgent());
 	}
 
-	mXform.setRotation(mVObjp->getRotation());
-	mXform.setScale(1,1,1);
 	mXform.updateMatrix();
 
 	if (isStatic())
 	{
 		LLVOVolume* volume = getVOVolume();
-		if (!volume)
+
+		bool rebuild = (!volume && 
+						getRenderType() != LLPipeline::RENDER_TYPE_TREE &&
+						getRenderType() != LLPipeline::RENDER_TYPE_TERRAIN &&
+						getRenderType() != LLPipeline::RENDER_TYPE_SKY &&
+						getRenderType() != LLPipeline::RENDER_TYPE_GROUND);
+
+		if (rebuild)
 		{
 			gPipeline.markRebuild(this, LLDrawable::REBUILD_ALL, TRUE);
 		}
@@ -832,7 +846,7 @@ void LLDrawable::shiftPos(const LLVector4a &shift_vector)
 				facep->mExtents[0].add(shift_vector);
 				facep->mExtents[1].add(shift_vector);
 			
-				if (!volume && facep->hasGeometry())
+				if (rebuild && facep->hasGeometry())
 				{
 					facep->clearVertexBuffer();
 				}
@@ -943,6 +957,12 @@ void LLDrawable::updateUVMinMax()
 {
 }
 
+LLSpatialGroup* LLDrawable::getSpatialGroup() const
+{ 
+	llassert((mSpatialGroupp == NULL) ? getBinIndex() == -1 : getBinIndex() != -1);
+	return mSpatialGroupp; 
+}
+
 void LLDrawable::setSpatialGroup(LLSpatialGroup *groupp)
 {
 	//precondition: mSpatialGroupp MUST be null or DEAD or mSpatialGroupp MUST NOT contain this
@@ -971,6 +991,8 @@ void LLDrawable::setSpatialGroup(LLSpatialGroup *groupp)
 	}
 
 	mSpatialGroupp = groupp;
+
+	llassert((mSpatialGroupp == NULL) ? getBinIndex() == -1 : getBinIndex() != -1);
 }
 
 LLSpatialPartition* LLDrawable::getSpatialPartition()
@@ -1093,6 +1115,8 @@ LLSpatialBridge::LLSpatialBridge(LLDrawable* root, BOOL render_by_group, U32 dat
 	mDrawable = root;
 	root->setSpatialBridge(this);
 	
+	mBinIndex = -1;
+
 	mRenderType = mDrawable->mRenderType;
 	mDrawableType = mDrawable->mRenderType;
 	
@@ -1394,6 +1418,11 @@ void LLSpatialBridge::updateDistance(LLCamera& camera_in, bool force_update)
 	if (mDrawable == NULL)
 	{
 		markDead();
+		return;
+	}
+
+	if (gShiftFrame)
+	{
 		return;
 	}
 

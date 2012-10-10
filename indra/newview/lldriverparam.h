@@ -83,6 +83,16 @@ public:
 	LLDriverParam(LLWearable *wearablep);
 	~LLDriverParam();
 
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free_16(ptr);
+	}
+
 	// Special: These functions are overridden by child classes
 	LLDriverParamInfo*		getInfo() const { return (LLDriverParamInfo*)mInfo; }
 	//   This sets mInfo and calls initialization functions
@@ -105,18 +115,18 @@ public:
 	
 	// LLViewerVisualParam Virtual functions
 	/*virtual*/ F32					getTotalDistortion();
-	/*virtual*/ const LLVector3&	getAvgDistortion();
+	/*virtual*/ const LLVector4a&	getAvgDistortion();
 	/*virtual*/ F32					getMaxDistortion();
-	/*virtual*/ LLVector3			getVertexDistortion(S32 index, LLPolyMesh *poly_mesh);
-	/*virtual*/ const LLVector3*	getFirstDistortion(U32 *index, LLPolyMesh **poly_mesh);
-	/*virtual*/ const LLVector3*	getNextDistortion(U32 *index, LLPolyMesh **poly_mesh);
+	/*virtual*/ LLVector4a			getVertexDistortion(S32 index, LLPolyMesh *poly_mesh);
+	/*virtual*/ const LLVector4a*	getFirstDistortion(U32 *index, LLPolyMesh **poly_mesh);
+	/*virtual*/ const LLVector4a*	getNextDistortion(U32 *index, LLPolyMesh **poly_mesh);
 
 protected:
 	F32 getDrivenWeight(const LLDrivenEntry* driven, F32 input_weight);
 	void setDrivenWeight(LLDrivenEntry *driven, F32 driven_weight, bool upload_bake);
 
 
-	LLVector3	mDefaultVec; // temp holder
+	LLVector4a	mDefaultVec; // temp holder
 	typedef std::vector<LLDrivenEntry> entry_list_t;
 	entry_list_t mDriven;
 	LLViewerVisualParam* mCurrentDistortionParam;
