@@ -44,11 +44,17 @@ struct LLUnit : public BASE_UNIT
 	:	BASE_UNIT(convertToBase(value))
 	{}
 
-	operator value_t() { return get(); }
+	operator value_t() { return value(); }
 
-	value_t get() const
+	value_t value() const
 	{
 		return convertToDerived(mValue);
+	}
+
+	template<typename CONVERTED_TYPE>
+	value_t value() const
+	{
+		return CONVERTED_TYPE(*this).value();
 	}
 
 	static value_t convertToBase(value_t derived_value)
@@ -84,7 +90,7 @@ struct LLUnit<T, T>
 		return *this;
 	}
 
-	value_t get() { return mValue; }
+	value_t value() { return mValue; }
 
 	static value_t convertToBase(value_t derived_value)
 	{

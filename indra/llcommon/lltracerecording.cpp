@@ -38,7 +38,6 @@ namespace LLTrace
 
 Recording::Recording() 
 :	mElapsedSeconds(0),
-	mIsStarted(false),
 	mRates(new AccumulatorBuffer<RateAccumulator<F32> >()),
 	mMeasurements(new AccumulatorBuffer<MeasurementAccumulator<F32> >()),
 	mStackTimers(new AccumulatorBuffer<TimerAccumulator>())
@@ -47,13 +46,7 @@ Recording::Recording()
 Recording::~Recording()
 {}
 
-void Recording::start()
-{
-	reset();
-	resume();
-}
-
-void Recording::reset()
+void Recording::handleReset()
 {
 	mRates.write()->reset();
 	mMeasurements.write()->reset();
@@ -63,24 +56,22 @@ void Recording::reset()
 	mSamplingTimer.reset();
 }
 
-void Recording::resume()
+void Recording::handleStart()
 {
-	if (!mIsStarted)
-	{
-		mSamplingTimer.reset();
-		LLTrace::get_thread_recorder()->activate(this);
-		mIsStarted = true;
-	}
+	mSamplingTimer.reset();
+	LLTrace::get_thread_recorder()->activate(this);
 }
 
-void Recording::stop()
+void Recording::handleStop()
 {
-	if (mIsStarted)
-	{
-		mElapsedSeconds += mSamplingTimer.getElapsedTimeF64();
-		LLTrace::get_thread_recorder()->deactivate(this);
-		mIsStarted = false;
-	}
+	mElapsedSeconds += mSamplingTimer.getElapsedTimeF64();
+	LLTrace::get_thread_recorder()->deactivate(this);
+}
+
+void Recording::handleSplitTo(Recording& other)
+{
+	stop();
+	other.restart();
 }
 
 

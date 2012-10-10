@@ -353,7 +353,7 @@ namespace LLTrace
 		template<typename UNIT_T>
 		void sample(UNIT_T value)
 		{
-			base_measurement_t::sample(value.get());
+			base_measurement_t::sample(value.value());
 		}
 	};
 
@@ -386,7 +386,7 @@ namespace LLTrace
 		template<typename UNIT_T>
 		void add(UNIT_T value)
 		{
-			getPrimaryAccumulator().add(value.get());
+			getPrimaryAccumulator().add(value.value());
 		}
 	};
 

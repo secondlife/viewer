@@ -33,6 +33,147 @@
 #include "llpointer.h"
 #include "lltimer.h"
 
+template<typename DERIVED>
+class LL_COMMON_API LLVCRControlsMixinInterface
+{
+public:
+	virtual ~LLVCRControlsMixinInterface() {}
+	// trigger data accumulation (without reset)
+	virtual void handleStart() = 0;
+	// stop data accumulation, should put object in queryable state
+	virtual void handleStop() = 0;
+	// clear accumulated values, can be called while started
+	virtual void handleReset() = 0;
+	// atomically stop this object while starting the other
+	// no data can be missed in between stop and start
+	virtual void handleSplitTo(DERIVED& other) = 0;
+};
+
+template<typename DERIVED>
+class LL_COMMON_API LLVCRControlsMixin
+:	private LLVCRControlsMixinInterface<DERIVED>
+{
+public:
+	enum EPlayState
+	{
+		STOPPED,
+		PAUSED,
+		STARTED
+	};
+
+	void start()
+	{
+		switch (mPlayState)
+		{
+		case STOPPED:
+			handleReset();
+			handleStart();
+			break;
+		case PAUSED:
+			handleStart();
+			break;
+		case STARTED:
+			handleReset();
+			break;
+		}
+		mPlayState = STARTED;
+	}
+
+	void stop()
+	{
+		switch (mPlayState)
+		{
+		case STOPPED:
+			break;
+		case PAUSED:
+			handleStop();
+			break;
+		case STARTED:
+			break;
+		}
+		mPlayState = STOPPED;
+	}
+
+	void pause()
+	{
+		switch (mPlayState)
+		{
+		case STOPPED:
+			break;
+		case PAUSED:
+			break;
+		case STARTED:
+			handleStop();
+			break;
+		}
+		mPlayState = PAUSED;
+	}
+
+	void resume()
+	{
+		switch (mPlayState)
+		{
+		case STOPPED:
+			handleStart();
+			break;
+		case PAUSED:
+			handleStart();
+			break;
+		case STARTED:
+			break;
+		}
+		mPlayState = STARTED;
+	}
+
+	void restart()
+	{
+		switch (mPlayState)
+		{
+		case STOPPED:
+			handleReset();
+			handleStart();
+			break;
+		case PAUSED:
+			handleReset();
+			handleStart();
+			break;
+		case STARTED:
+			handleReset();
+			break;
+		}
+		mPlayState = STARTED;
+	}
+
+	void reset()
+	{
+		handleReset();
+	}
+
+	void splitTo(DERIVED& other)
+	{
+		onSplitTo(other);
+	}
+
+	void splitFrom(DERIVED& other)
+	{
+		other.onSplitTo(*this);
+	}
+
+	bool isStarted() { return mPlayState == STARTED; }
+	bool isPaused()  { return mPlayState == PAUSED; }
+	bool isStopped() { return mPlayState == STOPPED; }
+	EPlayState getPlayState() { return mPlayState; }
+
+protected:
+
+	LLVCRControlsMixin()
+	:	mPlayState(STOPPED)
+	{}
+
+private:
+	EPlayState mPlayState;
+};
+
 namespace LLTrace
 {
 	template<typename T, typename IS_UNIT> class Rate;
@@ -43,7 +184,7 @@ namespace LLTrace
 	template<typename T> class MeasurementAccumulator;
 	class TimerAccumulator;
 
-	class LL_COMMON_API Recording
+	class LL_COMMON_API Recording : public LLVCRControlsMixin<Recording>
 	{
 	public:
 		Recording();
@@ -53,16 +194,9 @@ namespace LLTrace
 		void makePrimary();
 		bool isPrimary();
 
-		void start();
-		void stop();
-		void resume();
-
 		void mergeSamples(const Recording& other);
 		void mergeDeltas(const Recording& baseline, const Recording& target);
 
-		void reset();
-
-		bool isStarted() { return mIsStarted; }
 
 		// Rate accessors
 		F32 getSum(const Rate<F32, void>& stat);
@@ -89,6 +223,14 @@ namespace LLTrace
 		F64 getSampleTime() { return mElapsedSeconds; }
 
 	private:
+		friend class PeriodicRecording;
+		// implementation for LLVCRControlsMixin
+		/*virtual*/ void handleStart();
+		/*virtual*/ void handleStop();
+		/*virtual*/ void handleReset();
+		/*virtual*/ void handleSplitTo(Recording& other);
+
+
 		friend class ThreadRecorder;
 		// returns data for current thread
 		class ThreadRecorder* getThreadRecorder(); 
@@ -97,14 +239,99 @@ namespace LLTrace
 		LLCopyOnWritePointer<AccumulatorBuffer<MeasurementAccumulator<F32> > >	mMeasurements;
 		LLCopyOnWritePointer<AccumulatorBuffer<TimerAccumulator> >				mStackTimers;
 
-		bool			mIsStarted;
 		LLTimer			mSamplingTimer;
 		F64				mElapsedSeconds;
 	};
 
-	class LL_COMMON_API PeriodicRecording
+	class LL_COMMON_API PeriodicRecording 
+	:	public LLVCRControlsMixin<PeriodicRecording>
 	{
+	public:
+		PeriodicRecording(S32 num_periods)
+		:	mNumPeriods(num_periods),
+			mCurPeriod(0),
+			mTotalValid(false),
+			mRecordingPeriods(new Recording[num_periods])
+		{
+			llassert(mNumPeriods > 0);
+		}
 
+		~PeriodicRecording()
+		{
+			delete[] mRecordingPeriods;
+		}
+
+		void nextPeriod()
+		{
+			EPlayState play_state = getPlayState();
+			getCurRecordingPeriod().stop();
+			mCurPeriod = (mCurPeriod + 1) % mNumPeriods;
+			switch(play_state)
+			{
+			case STOPPED:
+				break;
+			case PAUSED:
+				getCurRecordingPeriod().pause();
+				break;
+			case STARTED:
+				getCurRecordingPeriod().start();
+				break;
+			}
+			// new period, need to recalculate total
+			mTotalValid = false;
+		}
+
+		Recording& getCurRecordingPeriod()
+		{
+			return mRecordingPeriods[mCurPeriod];
+		}
+
+		const Recording& getCurRecordingPeriod() const
+		{
+			return mRecordingPeriods[mCurPeriod];
+		}
+
+		Recording& getTotalRecording()
+		{
+			if (!mTotalValid)
+			{
+				mTotalRecording.reset();
+				for (S32 i = (mCurPeriod + 1) % mNumPeriods; i < mCurPeriod; i++)
+				{
+					mTotalRecording.mergeSamples(mRecordingPeriods[i]);
+				}
+			}
+			mTotalValid = true;
+			return mTotalRecording;
+		}
+
+	private:
+		// implementation for LLVCRControlsMixin
+		/*virtual*/ void handleStart()
+		{
+			getCurRecordingPeriod().handleStart();
+		}
+
+		/*virtual*/ void handleStop()
+		{
+			getCurRecordingPeriod().handleStop();
+		}
+
+		/*virtual*/ void handleReset()
+		{
+			getCurRecordingPeriod().handleReset();
+		}
+
+		/*virtual*/ void handleSplitTo(PeriodicRecording& other)
+		{
+			getCurRecordingPeriod().handleSplitTo(other.getCurRecordingPeriod());
+		}
+
+		Recording*	mRecordingPeriods;
+		Recording	mTotalRecording;
+		bool		mTotalValid;
+		S32			mNumPeriods,
+					mCurPeriod;
 	};
 }
 
