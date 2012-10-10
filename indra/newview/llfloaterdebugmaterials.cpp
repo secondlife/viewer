@@ -1331,14 +1331,14 @@ void LLFloaterDebugMaterials::updateControls()
 		mPutSetButton->setEnabled(isPutEnabled);
 		mPutClearButton->setEnabled(isPutEnabled);
 		mGoodPostButton->setEnabled(isGoodPostEnabled);
-		mBadPostButton->setEnabled(TRUE);
+		mBadPostButton->setEnabled(FALSE && TRUE);
 		break;
 	default :
 		mGetButton->setEnabled(TRUE);
 		mPutSetButton->setEnabled(isPutEnabled);
 		mPutClearButton->setEnabled(isPutEnabled);
 		mGoodPostButton->setEnabled(isGoodPostEnabled);
-		mBadPostButton->setEnabled(TRUE);
+		mBadPostButton->setEnabled(FALSE && TRUE);
 		llassert(0);
 		break;
 	}
