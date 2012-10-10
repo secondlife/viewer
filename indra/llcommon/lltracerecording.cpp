@@ -97,7 +97,7 @@ bool Recording::isPrimary()
 	return mRates->isPrimary();
 }
 
-void Recording::mergeSamples( const Recording& other )
+void Recording::mergeRecording( const Recording& other )
 {
 	mRates.write()->mergeSamples(*other.mRates);
 	mMeasurements.write()->mergeSamples(*other.mMeasurements);

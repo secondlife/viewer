@@ -161,13 +161,13 @@ void SlaveThreadRecorder::pushToMaster()
 void SlaveThreadRecorder::SharedData::copyFrom( const Recording& source )
 {
 	LLMutexLock lock(&mRecorderMutex);
-	mRecorder.mergeSamples(source);
+	mRecorder.mergeRecording(source);
 }
 
 void SlaveThreadRecorder::SharedData::copyTo( Recording& sink )
 {
 	LLMutexLock lock(&mRecorderMutex);
-	sink.mergeSamples(mRecorder);
+	sink.mergeRecording(mRecorder);
 }
 
 ///////////////////////////////////////////////////////////////////////

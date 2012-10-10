@@ -194,7 +194,7 @@ namespace LLTrace
 		void makePrimary();
 		bool isPrimary();
 
-		void mergeSamples(const Recording& other);
+		void mergeRecording(const Recording& other);
 		void mergeDeltas(const Recording& baseline, const Recording& target);
 
 		void reset();
@@ -300,7 +300,7 @@ namespace LLTrace
 				mTotalRecording.reset();
 				for (S32 i = (mCurPeriod + 1) % mNumPeriods; i < mCurPeriod; i++)
 				{
-					mTotalRecording.mergeSamples(mRecordingPeriods[i]);
+					mTotalRecording.mergeRecording(mRecordingPeriods[i]);
 				}
 			}
 			mTotalValid = true;
