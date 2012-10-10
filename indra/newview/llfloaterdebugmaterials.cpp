@@ -123,12 +123,15 @@ BOOL LLFloaterDebugMaterials::postBuild()
 
 	mGetNormalMapScrollList = findChild<LLScrollListCtrl>("get_normal_map_scroll_list");
 	llassert(mGetNormalMapScrollList != NULL);
+	mGetNormalMapScrollList->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onGetScrollListSelectionChange, this, _1));
 
 	mGetSpecularMapScrollList = findChild<LLScrollListCtrl>("get_specular_map_scroll_list");
 	llassert(mGetSpecularMapScrollList != NULL);
+	mGetSpecularMapScrollList->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onGetScrollListSelectionChange, this, _1));
 
 	mGetOtherDataScrollList = findChild<LLScrollListCtrl>("get_other_data_scroll_list");
 	llassert(mGetOtherDataScrollList != NULL);
+	mGetOtherDataScrollList->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onGetScrollListSelectionChange, this, _1));
 
 	mNormalMap = findChild<LLTextureCtrl>("normal_map");
 	llassert(mNormalMap != NULL);
@@ -423,6 +426,50 @@ void LLFloaterDebugMaterials::onRegionCross()
 void LLFloaterDebugMaterials::onInWorldSelectionChange()
 {
 	updateControls();
+}
+
+void LLFloaterDebugMaterials::onGetScrollListSelectionChange(LLUICtrl* pUICtrl)
+{
+	LLScrollListCtrl* scrollListCtrl = dynamic_cast<LLScrollListCtrl*>(pUICtrl);
+	llassert(scrollListCtrl != NULL);
+
+	if (scrollListCtrl != mGetNormalMapScrollList)
+	{
+		mGetNormalMapScrollList->deselectAllItems(TRUE);
+	}
+	if (scrollListCtrl != mGetSpecularMapScrollList)
+	{
+		mGetSpecularMapScrollList->deselectAllItems(TRUE);
+	}
+	if (scrollListCtrl != mGetOtherDataScrollList)
+	{
+		mGetOtherDataScrollList->deselectAllItems(TRUE);
+	}
+
+	std::vector<LLScrollListItem*> selectedItems = scrollListCtrl->getAllSelected();
+	if (!selectedItems.empty())
+	{
+		llassert(selectedItems.size() == 1);
+		LLScrollListItem* selectedItem = selectedItems.front();
+
+		llassert(selectedItem != NULL);
+		const LLSD& selectedIdValue = selectedItem->getValue();
+
+		llinfos << "attempting to select by value '" << selectedIdValue << "'" << llendl;
+
+		if (scrollListCtrl != mGetNormalMapScrollList)
+		{
+			mGetNormalMapScrollList->selectByValue(selectedIdValue);
+		}
+		if (scrollListCtrl != mGetSpecularMapScrollList)
+		{
+			mGetSpecularMapScrollList->selectByValue(selectedIdValue);
+		}
+		if (scrollListCtrl != mGetOtherDataScrollList)
+		{
+			mGetOtherDataScrollList->selectByValue(selectedIdValue);
+		}
+	}
 }
 
 void LLFloaterDebugMaterials::onDeferredCheckRegionMaterialStatus(LLUUID regionId)
@@ -997,9 +1044,9 @@ void LLFloaterDebugMaterials::parseGetResponse(const LLSD& pContent)
 		cellParams.value = llformat("%d", diffuseAlphaMode);
 		otherDataRowParams.columns.add(cellParams);
 
-		normalMapRowParams.value = materialID;
-		specularMapRowParams.value = materialID;
-		otherDataRowParams.value = materialID;
+		normalMapRowParams.value = materialIDString;
+		specularMapRowParams.value = materialIDString;
+		otherDataRowParams.value = materialIDString;
 
 		mGetNormalMapScrollList->addRow(normalMapRowParams);
 		mGetSpecularMapScrollList->addRow(specularMapRowParams);

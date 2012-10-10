@@ -81,6 +81,7 @@ private:
 	void          onBadPostClicked();
 	void          onRegionCross();
 	void          onInWorldSelectionChange();
+	void          onGetScrollListSelectionChange(LLUICtrl* pUICtrl);
 	void          onDeferredCheckRegionMaterialStatus(LLUUID regionId);
 	void          onDeferredRequestGetMaterials(LLUUID regionId);
 	void          onDeferredRequestPutMaterials(LLUUID regionId, bool pIsDoSet);
