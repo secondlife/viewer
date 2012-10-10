@@ -75,6 +75,7 @@ private:
 	void          onValueEntered(LLUICtrl* pUICtrl);
 	void          onPutSetClicked();
 	void          onPutClearClicked();
+	void          onResetPutValuesClicked();
 	void          onQueryVisibleObjectsClicked();
 	void          onGoodPostClicked();
 	void          onBadPostClicked();

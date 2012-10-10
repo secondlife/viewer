@@ -217,6 +217,10 @@ BOOL LLFloaterDebugMaterials::postBuild()
 	llassert(mPutClearButton != NULL);
 	mPutClearButton->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onPutClearClicked, this));
 
+	LLButton* resetPutValuesButton = findChild<LLButton>("reset_put_values_button");
+	llassert(resetPutValuesButton != NULL);
+	resetPutValuesButton->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onResetPutValuesClicked, this));
+
 	mPutScrollList = findChild<LLScrollListCtrl>("put_scroll_list");
 	llassert(mPutScrollList != NULL);
 
@@ -385,6 +389,11 @@ void LLFloaterDebugMaterials::onPutSetClicked()
 void LLFloaterDebugMaterials::onPutClearClicked()
 {
 	requestPutMaterials(false);
+}
+
+void LLFloaterDebugMaterials::onResetPutValuesClicked()
+{
+	resetObjectEditInputs();
 }
 
 void LLFloaterDebugMaterials::onQueryVisibleObjectsClicked()
