@@ -50,6 +50,7 @@
 #include "llscrolllistitem.h"
 #include "llsd.h"
 #include "llselectmgr.h"
+#include "llspinctrl.h"
 #include "llstring.h"
 #include "llstyle.h"
 #include "lltextbase.h"
@@ -191,6 +192,9 @@ BOOL LLFloaterDebugMaterials::postBuild()
 
 	mSpecularColor = findChild<LLColorSwatchCtrl>("specular_color");
 	llassert(mSpecularColor != NULL);
+
+	mSpecularColorAlpha = findChild<LLSpinCtrl>("specular_color_alpha");
+	llassert(mSpecularColorAlpha != NULL);
 
 	mSpecularExponent = findChild<LLLineEditor>("specular_exponent");
 	llassert(mSpecularExponent != NULL);
@@ -334,6 +338,7 @@ LLFloaterDebugMaterials::LLFloaterDebugMaterials(const LLSD& pParams)
 	mSpecularMapRepeatY(NULL),
 	mSpecularMapRotation(NULL),
 	mSpecularColor(NULL),
+	mSpecularColorAlpha(NULL),
 	mSpecularExponent(NULL),
 	mEnvironmentExponent(NULL),
 	mAlphaMaskCutoff(NULL),
@@ -664,10 +669,8 @@ void LLFloaterDebugMaterials::requestPutMaterials(bool pIsDoSet)
 				materialData[MATERIALS_CAP_SPECULAR_MAP_REPEAT_Y_FIELD] = static_cast<LLSD::Integer>(getSpecularMapRepeatY());
 				materialData[MATERIALS_CAP_SPECULAR_MAP_ROTATION_FIELD] = static_cast<LLSD::Integer>(getSpecularMapRotation());
 
-				const LLColor4& specularColor = mSpecularColor->get();
-				LLColor4U specularColor4U = specularColor;
-				materialData[MATERIALS_CAP_SPECULAR_COLOR_FIELD] = specularColor4U.getValue();
-
+				LLColor4U specularColor = getSpecularColor();
+				materialData[MATERIALS_CAP_SPECULAR_COLOR_FIELD] = specularColor.getValue();
 				materialData[MATERIALS_CAP_SPECULAR_EXP_FIELD] = static_cast<LLSD::Integer>(getSpecularExponent());
 				materialData[MATERIALS_CAP_ENV_INTENSITY_FIELD] = static_cast<LLSD::Integer>(getEnvironmentExponent());
 				materialData[MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD] = static_cast<LLSD::Integer>(getAlphMaskCutoff());
@@ -1215,6 +1218,7 @@ void LLFloaterDebugMaterials::setState(EState pState)
 void LLFloaterDebugMaterials::resetObjectEditInputs()
 {
 	const LLSD zeroValue = static_cast<LLSD::Integer>(0);
+	const LLSD maxAlphaValue = static_cast<LLSD::Integer>(255);
 
 	mNormalMap->clear();
 	mNormalMapOffsetX->setValue(zeroValue);
@@ -1230,13 +1234,12 @@ void LLFloaterDebugMaterials::resetObjectEditInputs()
 	mSpecularMapRepeatY->setValue(zeroValue);
 	mSpecularMapRotation->setValue(zeroValue);
 
-	mSpecularColor->clear();
+	mSpecularColor->set(mDefaultSpecularColor);
+	mSpecularColorAlpha->setValue(maxAlphaValue);
 	mSpecularExponent->setValue(zeroValue);
 	mEnvironmentExponent->setValue(zeroValue);
 	mAlphaMaskCutoff->setValue(zeroValue);
 	mDiffuseAlphaMode->setValue(zeroValue);
-
-	mSpecularColor->set(mDefaultSpecularColor);
 }
 
 void LLFloaterDebugMaterials::clearGetResults()
@@ -1429,6 +1432,16 @@ S32 LLFloaterDebugMaterials::getSpecularMapRepeatY() const
 S32 LLFloaterDebugMaterials::getSpecularMapRotation() const
 {
 	return getLineEditorValue(mSpecularMapRotation);
+}
+
+LLColor4U LLFloaterDebugMaterials::getSpecularColor() const
+{
+	const LLColor4& specularColor = mSpecularColor->get();
+	LLColor4U specularColor4U = specularColor;
+
+	specularColor4U.setAlpha(static_cast<U8>(llclamp(llround(mSpecularColorAlpha->get()), 0, 255)));
+
+	return specularColor4U;
 }
 
 S32 LLFloaterDebugMaterials::getSpecularExponent() const

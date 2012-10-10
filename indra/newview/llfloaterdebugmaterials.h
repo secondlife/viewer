@@ -37,10 +37,12 @@
 
 class LLButton;
 class LLColorSwatchCtrl;
+class LLColor4U;
 class LLLineEditor;
 class LLMaterialID;
 class LLScrollListCtrl;
 class LLSD;
+class LLSpinCtrl;
 class LLTextBase;
 class LLTextureCtrl;
 class LLUICtrl;
@@ -135,6 +137,7 @@ private:
 	S32           getSpecularMapRepeatY() const;
 	S32           getSpecularMapRotation() const;
 
+	LLColor4U     getSpecularColor() const;
 	S32           getSpecularExponent() const;
 	S32           getEnvironmentExponent() const;
 	S32           getAlphMaskCutoff() const;
@@ -159,6 +162,7 @@ private:
 	LLLineEditor*               mSpecularMapRepeatY;
 	LLLineEditor*               mSpecularMapRotation;
 	LLColorSwatchCtrl*          mSpecularColor;
+	LLSpinCtrl*                 mSpecularColorAlpha;
 	LLLineEditor*               mSpecularExponent;
 	LLLineEditor*               mEnvironmentExponent;
 	LLLineEditor*               mAlphaMaskCutoff;

@@ -572,7 +572,7 @@
               bevel_style="none"
               follows="left|top|right"
               layout="topleft"
-              height="132"
+              height="162"
               top_pad="-226"
               left_pad="20"
               width="243">
@@ -603,6 +603,22 @@
                 name="specular_color"
                 tool_tip="Click to open color picker"
                 width="40" />
+            <spinner
+                follows="left|top"
+                height="20"
+                initial_value="255"
+                max_val="255"
+                min_val="0"
+                increment="1"
+                decimal_digits="0"
+                allow_text_entry="true"
+                layout="topleft"
+                label_width="160"
+                left="0"
+                top_pad="10"
+                label="Specular Color Alpha"
+                name="specular_color_alpha"
+                width="240" />
             <text
                 height="13"
                 word_wrap="false"
@@ -612,8 +628,8 @@
                 length="1"
                 follows="left|top"
                 layout="topleft"
-                left_pad="-200"
-                top_pad="10"
+                left_pad="-240"
+                top_pad="13"
                 width="160">
               Specular Exponent
             </text>
@@ -715,7 +731,7 @@
               layout="topleft"
               height="22"
               left="0"
-              top_pad="110"
+              top_pad="80"
               width="810">
             <button
                 follows="left|top"
