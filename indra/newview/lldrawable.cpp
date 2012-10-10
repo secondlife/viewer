@@ -990,9 +990,12 @@ void LLDrawable::setSpatialGroup(LLSpatialGroup *groupp)
 		}
 	}
 
-	mSpatialGroupp = groupp;
+	//postcondition: if next group is NULL, previous group must be dead OR NULL OR binIndex must be -1
+	//postcondition: if next group is NOT NULL, binIndex must not be -1
+	llassert(groupp == NULL ? (mSpatialGroupp == NULL || mSpatialGroupp->isDead()) || getBinIndex() == -1 :
+							getBinIndex() != -1);
 
-	llassert((mSpatialGroupp == NULL) ? getBinIndex() == -1 : getBinIndex() != -1);
+	mSpatialGroupp = groupp;
 }
 
 LLSpatialPartition* LLDrawable::getSpatialPartition()
