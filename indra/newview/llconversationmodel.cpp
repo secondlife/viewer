@@ -159,7 +159,6 @@ void LLConversationItemSession::updateParticipantName(LLConversationItemParticip
 		return;
 	}
 	// Build a string containing the participants names and check if ready for display (we don't want "(waiting)" in there)
-	// *TODO: Further factor out common code with LLIMFloater::onParticipantsListChanged()
 	bool all_names_resolved = true;
 	uuid_vec_t temp_uuids; // uuids vector for building the added participants' names string
 	child_list_t::iterator iter = mChildren.begin();
@@ -170,6 +169,9 @@ void LLConversationItemSession::updateParticipantName(LLConversationItemParticip
 		LLAvatarName av_name;
         if (!LLAvatarNameCache::get(current_participant->getUUID(), &av_name))
         {
+			// If the name is not in the cache yet, bail out
+			// Note: we don't bind ourselves to the LLAvatarNameCache event as we are called by
+			// onAvatarNameCache() which is itself attached to the same event.
 			all_names_resolved = false;
 			break;
 		}

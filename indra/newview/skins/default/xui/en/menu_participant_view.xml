@@ -59,17 +59,6 @@
          function="IMFloaterContainer.Check"
          parameter="sort_participants_by_recent" />
     </menu_item_check>
-    <menu_item_check
-     label="Sort participants by distance from you"
-     layout="topleft"
-     name="sort_participants_by_distance">
-        <on_click
-         function="IMFloaterContainer.Action"
-         parameter="sort_participants_by_distance" />
-        <on_check
-         function="IMFloaterContainer.Check"
-         parameter="sort_participants_by_distance" />
-    </menu_item_check>
     <menu_item_separator
      layout="topleft" />
     <menu_item_call
