@@ -762,9 +762,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>21babc394dbf8572830f2e85adec7b9f</string>
+              <string>3ec313ddf607a5716f47d5b1ec0edf31</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google_breakpad-0.0.0-rev599-darwin-20110202.tar.bz2</string>
+              <string>https://viewer-source-downloads.s3.amazonaws.com/install_pkgs/google_breakpad-0.0.0-rev1099-darwin-20121011.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
