@@ -113,6 +113,7 @@ public:
 	};
 	
     virtual ~LLConversationViewParticipant( void ) { }
+    void selectItem();	
     bool hasSameValue(const LLUUID& uuid) { return (uuid == mUUID); }
     virtual void refresh();
     void addToFolder(LLFolderViewFolder* folder);

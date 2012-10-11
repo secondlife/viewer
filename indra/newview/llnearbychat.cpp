@@ -271,11 +271,31 @@ void LLNearbyChat::removeScreenChat()
 	}
 }
 
+void LLNearbyChat::setFocus(BOOL focusFlag)
+{
+    LLTransientDockableFloater::setFocus(focusFlag);
+
+    BOOL is_minimized = focusFlag && isChatMultiTab()
+        ? LLIMFloaterContainer::getInstance()->isMinimized()
+        : !focusFlag;
+
+    //Redirect focus to input editor
+    if (!is_minimized && mChatHistory && mInputEditor)
+    {
+        //prevent stealing focus when opening a background IM tab (EXT-5387, checking focus for EXT-6781)
+        if (!isChatMultiTab() || hasFocus())
+        {
+            mInputEditor->setFocus(TRUE);
+        }
+    }
+}
+
 void	LLNearbyChat::setVisible(BOOL visible)
 {
 	if(visible)
 	{
 		removeScreenChat();
+        setFocus(TRUE);
 	}
 
 	LLIMConversation::setVisible(visible);

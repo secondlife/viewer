@@ -719,6 +719,27 @@ void LLIMFloater::setDocked(bool docked, bool pop_on_undock)
 	}
 }
 
+void LLIMFloater::setFocus(BOOL focusFlag)
+{
+    LLTransientDockableFloater::setFocus(focusFlag);
+
+    BOOL is_minimized = focusFlag && isChatMultiTab()
+        ? LLIMFloaterContainer::getInstance()->isMinimized()
+        : !focusFlag;
+
+    //Redirect focus to input editor
+    if (!is_minimized && mChatHistory && mInputEditor)
+    {
+        //only if floater was construced and initialized from xml
+        updateMessages();
+        //prevent stealing focus when opening a background IM tab (EXT-5387, checking focus for EXT-6781)
+        if (!isChatMultiTab() || hasFocus())
+        {
+            mInputEditor->setFocus(TRUE);
+        }
+    }
+}
+
 void LLIMFloater::setVisible(BOOL visible)
 {
 	LLNotificationsUI::LLScreenChannel* channel = static_cast<LLNotificationsUI::LLScreenChannel*>
@@ -734,21 +755,6 @@ void LLIMFloater::setVisible(BOOL visible)
 		channel->redrawToasts();
 	}
 
-	BOOL is_minimized = visible && isChatMultiTab()
-		? LLIMFloaterContainer::getInstance()->isMinimized()
-		: !visible;
-
-	if (!is_minimized && mChatHistory && mInputEditor)
-	{
-		//only if floater was construced and initialized from xml
-		updateMessages();
-		//prevent stealing focus when opening a background IM tab (EXT-5387, checking focus for EXT-6781)
-		if (!isChatMultiTab() || hasFocus())
-		{
-			mInputEditor->setFocus(TRUE);
-		}
-	}
-
 	if(!visible)
 	{
 		LLIMChiclet* chiclet = LLChicletBar::getInstance()->getChicletPanel()->findChiclet<LLIMChiclet>(mSessionID);
@@ -761,6 +767,7 @@ void LLIMFloater::setVisible(BOOL visible)
 	if (visible && isInVisibleChain())
 	{
 		sIMFloaterShowedSignal(mSessionID);
+        setFocus(TRUE);
 	}
 }
 
