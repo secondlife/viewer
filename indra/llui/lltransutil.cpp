@@ -31,15 +31,27 @@
 #include "lltrans.h"
 #include "lluictrlfactory.h"
 #include "llxmlnode.h"
-
+#include "lldir.h"
 
 bool LLTransUtil::parseStrings(const std::string& xml_filename, const std::set<std::string>& default_args)
 {
+	// LLUICtrlFactory::getLayeredXMLNode() just calls
+	// gDirUtilp->findSkinnedFilenames(merge=false) and then passes the
+	// resulting paths to LLXMLNode::getLayeredXMLNode(). Bypass that and call
+	// LLXMLNode::getLayeredXMLNode() directly: we want merge=true.
+	std::vector<std::string> paths =
+		gDirUtilp->findSkinnedFilenames(LLDir::XUI, xml_filename, true);
+	if (paths.empty())
+	{
+		// xml_filename not found at all in any skin -- check whether entire
+		// path was passed (but I hope we no longer have callers who do that)
+		paths.push_back(xml_filename);
+	}
 	LLXMLNodePtr root;
-	BOOL success = LLUICtrlFactory::getLayeredXMLNode(xml_filename, root);
+	bool success = LLXMLNode::getLayeredXMLNode(root, paths);
 	if (!success)
 	{
-		llerrs << "Couldn't load string table" << llendl;
+		llerrs << "Couldn't load string table " << xml_filename << llendl;
 		return false;
 	}
 
@@ -54,7 +66,7 @@ bool LLTransUtil::parseLanguageStrings(const std::string& xml_filename)
 	
 	if (!success)
 	{
-		llerrs << "Couldn't load string table " << xml_filename << llendl;
+		llerrs << "Couldn't load localization table " << xml_filename << llendl;
 		return false;
 	}
 	
