@@ -201,9 +201,6 @@ private:
 	LLFrameTimer mForceDecodeTimer;
 	
 public:
-	static U32 sTextureBits;
-	static U32 sTexturePackets;
-
 	static LLStat sNumImagesStat;
 	static LLStat sNumRawImagesStat;
 	static LLStat sGLTexMemStat;

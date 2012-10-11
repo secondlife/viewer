@@ -1402,10 +1402,11 @@ BOOL LLViewerWindow::handlePaint(LLWindow *window,  S32 x,  S32 y, S32 width,  S
 		FillRect(hdc, &wnd_rect, CreateSolidBrush(RGB(255, 255, 255)));
 
 		std::string temp_str;
+		LLTrace::Recording& recording = LLViewerStats::instance().getRecording();
 		temp_str = llformat( "FPS %3.1f Phy FPS %2.1f Time Dil %1.3f",		/* Flawfinder: ignore */
-				LLViewerStats::getInstance()->mFPSStat.getMeanPerSec(),
-				LLViewerStats::getInstance()->mSimPhysicsFPS.getPrev(0),
-				LLViewerStats::getInstance()->mSimTimeDilation.getPrev(0));
+				recording.getPerSec(LLStatViewer::FPS), //mFPSStat.getMeanPerSec(),
+				recording.getMean(LLStatViewer::SIM_PHYSICS_FPS), //LLViewerStats::getInstance()->mSimPhysicsFPS.getPrev(0),
+				recording.getMean(LLStatViewer::SIM_TIME_DILATION)); //LLViewerStats::getInstance()->mSimTimeDilation.getPrev(0));
 		S32 len = temp_str.length();
 		TextOutA(hdc, 0, 0, temp_str.c_str(), len); 
 

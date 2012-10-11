@@ -1,5 +1,5 @@
 /** 
- * @file llviewerstats.h
+ * @file llviewerim_peningtats.h
  * @brief LLViewerStats class header file
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
@@ -97,7 +97,8 @@ extern LLTrace::Measurement<F32>			SIM_TIME_DILATION,
 											SIM_OUT_PACKETS_PER_SEC,
 											SIM_PENDING_DOWNLOADS,
 											SIM_PENDING_UPLOADS,
-											SIM_PENING_LOCAL_UPLOADS,
+											SIM_PENDING_LOCAL_UPLOADS,
+											SIM_PENDING_VFS_OPERATIONS,
 											SIM_PHYSICS_PINNED_TASKS,
 											SIM_PHYSICS_LOD_TASKS,
 											NUM_IMAGES,
@@ -138,6 +139,8 @@ extern LLTrace::Measurement<LLUnits::Seconds<F32> > SIM_PHYSICS_TIME,
 													SIM_SLEEP_TIME,
 													SIM_PUMP_IO_TIME,
 													SIM_PING,
+													FRAMETIME_JITTER,
+													FRAMETIME_SLEW,
 													LOGIN_SECONDS,
 													REGION_CROSSING_TIME,
 													FRAME_STACKTIME,
@@ -409,10 +412,12 @@ public:
 	};
 
 	LLTrace::Recording& getRecording() { return mRecording; }
+	LLTrace::Recording& getFrameRecording() { return mFrameRecording; }
 
 private:
 	F64	mStats[ST_COUNT];
 	LLTrace::Recording	mRecording;
+	LLTrace::Recording	mFrameRecording;
 
 	F64 mLastTimeDiff;  // used for time stat updates
 };

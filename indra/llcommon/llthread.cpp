@@ -33,6 +33,7 @@
 
 #include "lltimer.h"
 #include "lltrace.h"
+#include "lltracethreadrecorder.h"
 
 #if LL_LINUX || LL_SOLARIS
 #include <sched.h>

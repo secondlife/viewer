@@ -488,7 +488,7 @@ void LLPipeline::init()
 	getPool(LLDrawPool::POOL_BUMP);
 	getPool(LLDrawPool::POOL_GLOW);
 
-	LLViewerStats::getInstance()->mTrianglesDrawnStat.reset();
+	//LLViewerStats::getInstance()->mTrianglesDrawnStat.reset();
 	resetFrameStats();
 
 	for (U32 i = 0; i < NUM_RENDER_TYPES; ++i)
@@ -1768,7 +1768,8 @@ void LLPipeline::resetFrameStats()
 {
 	assertInitialized();
 
-	LLViewerStats::getInstance()->mTrianglesDrawnStat.addValue(mTrianglesDrawn/1000.f);
+	LLStatViewer::TRIANGLES_DRAWN.add(mTrianglesDrawn);
+	//LLViewerStats::getInstance()->mTrianglesDrawnStat.addValue(mTrianglesDrawn/1000.f);
 
 	if (mBatchCount > 0)
 	{

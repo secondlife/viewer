@@ -58,14 +58,13 @@
 #include "pipeline.h"
 #include "llappviewer.h"
 #include "llxuiparser.h"
+#include "lltracethreadrecorder.h"
 #include "llviewerdisplay.h"
 
 ////////////////////////////////////////////////////////////////////////////
 
 void (*LLViewerTextureList::sUUIDCallback)(void **, const LLUUID&) = NULL;
 
-U32 LLViewerTextureList::sTextureBits = 0;
-U32 LLViewerTextureList::sTexturePackets = 0;
 S32 LLViewerTextureList::sNumImages = 0;
 LLStat LLViewerTextureList::sNumImagesStat("Num Images", TRUE);
 LLStat LLViewerTextureList::sNumRawImagesStat("Num Raw Images", TRUE);
@@ -624,7 +623,7 @@ void LLViewerTextureList::updateImages(F32 max_time)
 
 	LLTrace::Recording* recording = LLTrace::get_thread_recorder()->getPrimaryRecording();
 
-	LLAppViewer::getTextureFetch()->setTextureBandwidth(recording->getPerSec(LLStatViewer::TEXTURE_KBIT));
+	LLAppViewer::getTextureFetch()->setTextureBandwidth(recording->getPerSec(LLStatViewer::TEXTURE_KBIT).value());
 
 	LLViewerStats::getInstance()->mNumImagesStat.addValue(sNumImages);
 	LLViewerStats::getInstance()->mNumRawImagesStat.addValue(LLImageRaw::sRawImageCount);
@@ -1326,8 +1325,8 @@ void LLViewerTextureList::receiveImageHeader(LLMessageSystem *msg, void **user_d
 	{
 		received_size = msg->getReceiveSize() ;		
 	}
-	gTextureList.sTextureBits += received_size * 8;
-	gTextureList.sTexturePackets++;
+	LLStatViewer::TEXTURE_KBIT.add<LLUnits::Bytes<F32> >(received_size);
+	LLStatViewer::TEXTURE_PACKETS.add(1);
 	
 	U8 codec;
 	U16 packets;
@@ -1399,8 +1398,9 @@ void LLViewerTextureList::receiveImagePacket(LLMessageSystem *msg, void **user_d
 	{
 		received_size = msg->getReceiveSize() ;		
 	}
-	gTextureList.sTextureBits += received_size * 8;
-	gTextureList.sTexturePackets++;
+
+	LLStatViewer::TEXTURE_KBIT.add<LLUnits::Bytes<F32> >(received_size);
+	LLStatViewer::TEXTURE_PACKETS.add(1);
 	
 	//llprintline("Start decode, image header...");
 	msg->getUUIDFast(_PREHASH_ImageID, _PREHASH_ID, id);

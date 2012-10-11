@@ -61,6 +61,7 @@
 #include "llcalc.h"
 #include "lltexturestats.h"
 #include "lltrace.h"
+#include "lltracethreadrecorder.h"
 #include "llviewerwindow.h"
 #include "llviewerdisplay.h"
 #include "llviewermedia.h"

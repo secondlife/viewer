@@ -27,6 +27,7 @@
 
 #include "lltrace.h"
 #include "lltracerecording.h"
+#include "lltracethreadrecorder.h"
 
 namespace LLTrace
 {

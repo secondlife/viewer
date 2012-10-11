@@ -64,32 +64,32 @@
 namespace LLStatViewer
 {
 
-LLTrace::Rate<F32>					FPS("fpsstat"),
-									PACKETS_IN("packetsinstat"),
-									PACKETS_LOST("packetsloststat"),
-									PACKETS_OUT("packetsoutstat"),
-									TEXTURE_PACKETS("texturepacketsstat"),
-									TRIANGLES_DRAWN("trianglesdrawnstat"),
-									CHAT_COUNT("chatcount"),
-									IM_COUNT("imcount"),
-									OBJECT_CREATE("objectcreate"),
-									OBJECT_REZ("objectrez"),
-									LOADING_WEARABLES_LONG_DELAY("loadingwearableslongdelay"),
-									LOGIN_TIMEOUTS("logintimeouts"),
-									FAILED_DOWNLOADS("faileddownloads"),
-									LSL_SAVES("lslsaves"),
-									ANIMATION_UPLOADS("animationuploads"),
-									FLY("fly"),
-									TELEPORT("teleport"),
-									DELETE_OBJECT("deleteobject"),
-									SNAPSHOT("snapshot"),
-									UPLOAD_SOUND("uploadsound"),
-									UPLOAD_TEXTURE("uploadtexture"),
-									EDIT_TEXTURE("edittexture"),
-									KILLED("killed"),
-									FRAMETIME_DOUBLED("frametimedoubled"),
-									TEX_BAKES("texbakes"),
-									TEX_REBAKES("texrebakes");
+LLTrace::Rate<F32>	FPS("fpsstat"),
+					PACKETS_IN("packetsinstat"),
+					PACKETS_LOST("packetsloststat"),
+					PACKETS_OUT("packetsoutstat"),
+					TEXTURE_PACKETS("texturepacketsstat"),
+					TRIANGLES_DRAWN("trianglesdrawnstat"),
+					CHAT_COUNT("chatcount", "Chat messages sent"),
+					IM_COUNT("imcount", "IMs sent"),
+					OBJECT_CREATE("objectcreate"),
+					OBJECT_REZ("objectrez", "Object rez count"),
+					LOADING_WEARABLES_LONG_DELAY("loadingwearableslongdelay", "Wearables took too long to load"),
+					LOGIN_TIMEOUTS("logintimeouts", "Number of login attempts that timed out"),
+					FAILED_DOWNLOADS("faileddownloads", "Number of times LLAssetStorage::getAssetData() has failed"),
+					LSL_SAVES("lslsaves", "Number of times user has saved a script"),
+					ANIMATION_UPLOADS("animationuploads", "Animations uploaded"),
+					FLY("fly", "Fly count"),
+					TELEPORT("teleport", "Teleport count"),
+					DELETE_OBJECT("deleteobject", "Objects deleted"),
+					SNAPSHOT("snapshot", "Snapshots taken"),
+					UPLOAD_SOUND("uploadsound", "Sounds uploaded"),
+					UPLOAD_TEXTURE("uploadtexture", "Textures uploaded"),
+					EDIT_TEXTURE("edittexture", "Changes to textures on objects"),
+					KILLED("killed", "Number of times killed"),
+					FRAMETIME_DOUBLED("frametimedoubled", "Ratio of frames 2x longer than previous"),
+					TEX_BAKES("texbakes"),
+					TEX_REBAKES("texrebakes");
 LLTrace::Rate<LLUnits::Bytes<F32> >	KBIT("kbitstat"),
 									LAYERS_KBIT("layerskbitstat"),
 									OBJECT_KBIT("objectkbitstat"),
@@ -98,53 +98,54 @@ LLTrace::Rate<LLUnits::Bytes<F32> >	KBIT("kbitstat"),
 									ACTUAL_IN_KBIT("actualinkbit"),
 									ACTUAL_OUT_KBIT("actualoutkbit");
 
-LLTrace::Rate<LLUnits::Seconds<F32> > AVATAR_EDIT_TIME("avataredittimr"),
-									 TOOLBOX_TIME("toolboxtime"),
-									 MOUSELOOK_TIME("mouselooktime"),
-									 FPS_10_TIME("fps10time"),
-									 FPS_8_TIME("fps8time"),
-									 FPS_2_TIME("fps2time"),
-									 SIM_20_FPS_TIME("sim20fpstime"),
-									 SIM_PHYSICS_20_FPS_TIME("simphysics20fpstime"),
-									 LOSS_5_PERCENT_TIME("loss5percenttime");
+LLTrace::Rate<LLUnits::Seconds<F32> > AVATAR_EDIT_TIME("avataredittime", "Seconds in Edit Appearence"),
+									 TOOLBOX_TIME("toolboxtime", "Seconds using Toolbox"),
+									 MOUSELOOK_TIME("mouselooktime", "Seconds in Mouselook"),
+									 FPS_10_TIME("fps10time", "Seconds below 10 FPS"),
+									 FPS_8_TIME("fps8time", "Seconds below 8 FPS"),
+									 FPS_2_TIME("fps2time", "Seconds below 2 FPS"),
+									 SIM_20_FPS_TIME("sim20fpstime", "Seconds with sim FPS below 20"),
+									 SIM_PHYSICS_20_FPS_TIME("simphysics20fpstime", "Seconds with physics FPS below 20"),
+									 LOSS_5_PERCENT_TIME("loss5percenttime", "Seconds with packet loss > 5%");
 
-LLTrace::Measurement<F32>			SIM_TIME_DILATION("simtimedilation"),
-									SIM_FPS("simfps"),
-									SIM_PHYSICS_FPS("simphysicsfps"),
-									SIM_AGENT_UPS("simagentups"),
-									SIM_SCRIPT_EPS("simscripteps"),
-									SIM_SKIPPED_SILHOUETTE("simsimskippedsilhouettesteps"),
-									SIM_SKIPPED_CHARACTERS_PERCENTAGE("simsimpctsteppedcharacters"),
-									SIM_MAIN_AGENTS("simmainagents"),
-									SIM_CHILD_AGENTS("simchildagents"),
-									SIM_OBJECTS("simobjects"),
-									SIM_ACTIVE_OBJECTS("simactiveobjects"),
-									SIM_ACTIVE_SCRIPTS("simactivescripts"),
-									SIM_PERCENTAGE_SCRIPTS_RUN("simpctscriptsrun"),
-									SIM_IN_PACKETS_PER_SEC("siminpps"),
-									SIM_OUT_PACKETS_PER_SEC("simoutpps"),
-									SIM_PENDING_DOWNLOADS("simpendingdownloads"),
-									SIM_PENDING_UPLOADS("simpendinguploads"),
-									SIM_PENING_LOCAL_UPLOADS("simpendinglocaluploads"),
-									SIM_PHYSICS_PINNED_TASKS("physicspinnedtasks"),
-									SIM_PHYSICS_LOD_TASKS("physicslodtasks"),
-									NUM_IMAGES("numimagesstat"),
-									NUM_RAW_IMAGES("numrawimagesstat"),
-									NUM_OBJECTS("numobjectsstat"),
-									NUM_ACTIVE_OBJECTS("numactiveobjectsstat"),
-									NUM_NEW_OBJECTS("numnewobjectsstat"),
-									NUM_SIZE_CULLED("numsizeculledstat"),
-									NUM_VIS_CULLED("numvisculledstat"),
-									ENABLE_VBO("enablevbo"),
-									DELTA_BANDWIDTH("deltabandwidth"),
-									MAX_BANDWIDTH("maxbandwidth"),
-									LIGHTING_DETAIL("lightingdetail"),
-									VISIBLE_AVATARS("visibleavatars"),
-									SHADER_OBJECTS("shaderobjects"),
-									DRAW_DISTANCE("drawdistance"),
-									CHAT_BUBBLES("chatbubbles"),
-									WINDOW_WIDTH("windowwidth"),
-									WINDOW_HEIGHT("windowheight");
+LLTrace::Measurement<F32>	SIM_TIME_DILATION("simtimedilation"),
+							SIM_FPS("simfps"),
+							SIM_PHYSICS_FPS("simphysicsfps"),
+							SIM_AGENT_UPS("simagentups"),
+							SIM_SCRIPT_EPS("simscripteps"),
+							SIM_SKIPPED_SILHOUETTE("simsimskippedsilhouettesteps"),
+							SIM_SKIPPED_CHARACTERS_PERCENTAGE("simsimpctsteppedcharacters"),
+							SIM_MAIN_AGENTS("simmainagents"),
+							SIM_CHILD_AGENTS("simchildagents"),
+							SIM_OBJECTS("simobjects"),
+							SIM_ACTIVE_OBJECTS("simactiveobjects"),
+							SIM_ACTIVE_SCRIPTS("simactivescripts"),
+							SIM_PERCENTAGE_SCRIPTS_RUN("simpctscriptsrun"),
+							SIM_IN_PACKETS_PER_SEC("siminpps"),
+							SIM_OUT_PACKETS_PER_SEC("simoutpps"),
+							SIM_PENDING_DOWNLOADS("simpendingdownloads"),
+							SIM_PENDING_UPLOADS("simpendinguploads"),
+							SIM_PENDING_LOCAL_UPLOADS("simpendinglocaluploads"),
+							SIM_PENDING_VFS_OPERATIONS("vfspendingoperations"), 
+							SIM_PHYSICS_PINNED_TASKS("physicspinnedtasks"),
+							SIM_PHYSICS_LOD_TASKS("physicslodtasks"),
+							NUM_IMAGES("numimagesstat"),
+							NUM_RAW_IMAGES("numrawimagesstat"),
+							NUM_OBJECTS("numobjectsstat"),
+							NUM_ACTIVE_OBJECTS("numactiveobjectsstat"),
+							NUM_NEW_OBJECTS("numnewobjectsstat"),
+							NUM_SIZE_CULLED("numsizeculledstat"),
+							NUM_VIS_CULLED("numvisculledstat"),
+							ENABLE_VBO("enablevbo", "Vertex Buffers Enabled"),
+							DELTA_BANDWIDTH("deltabandwidth", "Increase/Decrease in bandwidth based on packet loss"),
+							MAX_BANDWIDTH("maxbandwidth", "Max bandwidth setting"),
+							LIGHTING_DETAIL("lightingdetail", "Lighting Detail"),
+							VISIBLE_AVATARS("visibleavatars", "Visible Avatars"),
+							SHADER_OBJECTS("shaderobjects", "Object Shaders"),
+							DRAW_DISTANCE("drawdistance", "Draw Distance"),
+							CHAT_BUBBLES("chatbubbles", "Chat Bubbles Enabled"),
+							WINDOW_WIDTH("windowwidth", "Window width"),
+							WINDOW_HEIGHT("windowheight", "Window height");
 
 LLTrace::Measurement<LLUnits::Bytes<F32> >	SIM_UNACKED_BYTES("simtotalunackedbytes"),
 											SIM_PHYSICS_MEM("physicsmemoryallocated"),
@@ -166,14 +167,16 @@ LLTrace::Measurement<LLUnits::Seconds<F32> > SIM_PHYSICS_TIME("simsimphysicsmsec
 											SIM_SLEEP_TIME("simsleepmsec"),
 											SIM_PUMP_IO_TIME("simpumpiomsec"),
 											SIM_PING("simpingstat"),
-											LOGIN_SECONDS("loginseconds"),
-											REGION_CROSSING_TIME("regioncrossingtime"),
-											FRAME_STACKTIME("framestacktime"),
-											UPDATE_STACKTIME("updatestacktime"),
-											NETWORK_STACKTIME("networkstacktime"),
-											IMAGE_STACKTIME("imagestacktime"),
-											REBUILD_STACKTIME("rebuildstacktime"),
-											RENDER_STACKTIME("renderstacktime");
+											FRAMETIME_JITTER("frametimejitter", "Average delta between successive frame times"),
+											FRAMETIME_SLEW("frametimeslew", "Average delta between frame time and mean"),
+											LOGIN_SECONDS("loginseconds", "Time between LoginRequest and LoginReply"),
+											REGION_CROSSING_TIME("regioncrossingtime", "CROSSING_AVG"),
+											FRAME_STACKTIME("framestacktime", "FRAME_SECS"),
+											UPDATE_STACKTIME("updatestacktime", "UPDATE_SECS"),
+											NETWORK_STACKTIME("networkstacktime", "NETWORK_SECS"),
+											IMAGE_STACKTIME("imagestacktime", "IMAGE_SECS"),
+											REBUILD_STACKTIME("rebuildstacktime", "REBUILD_SECS"),
+											RENDER_STACKTIME("renderstacktime", "RENDER_SECS");
 }
 
 class StatAttributes
@@ -190,139 +193,18 @@ public:
 	BOOL mEnabled;
 };
 
-const StatAttributes STAT_INFO[LLViewerStats::ST_COUNT] =
-{
-	// ST_VERSION
-	StatAttributes("Version", TRUE),
-	// ST_AVATAR_EDIT_SECONDS
-	StatAttributes("Seconds in Edit Appearence", FALSE),
-	// ST_TOOLBOX_SECONDS
-	StatAttributes("Seconds using Toolbox", FALSE),
-	// ST_CHAT_COUNT
-	StatAttributes("Chat messages sent", FALSE),
-	// ST_IM_COUNT
-	StatAttributes("IMs sent", FALSE),
-	// ST_FULLSCREEN_BOOL
-	StatAttributes("Fullscreen mode", FALSE),
-	// ST_RELEASE_COUNT
-	StatAttributes("Object release count", FALSE),
-	// ST_CREATE_COUNT
-	StatAttributes("Object create count", FALSE),
-	// ST_REZ_COUNT
-	StatAttributes("Object rez count", FALSE),
-	// ST_FPS_10_SECONDS
-	StatAttributes("Seconds below 10 FPS", FALSE),
-	// ST_FPS_2_SECONDS
-	StatAttributes("Seconds below 2 FPS", FALSE),
-	// ST_MOUSELOOK_SECONDS
-	StatAttributes("Seconds in Mouselook", FALSE),
-	// ST_FLY_COUNT
-	StatAttributes("Fly count", FALSE),
-	// ST_TELEPORT_COUNT
-	StatAttributes("Teleport count", FALSE),
-	// ST_OBJECT_DELETE_COUNT
-	StatAttributes("Objects deleted", FALSE),
-	// ST_SNAPSHOT_COUNT
-	StatAttributes("Snapshots taken", FALSE),
-	// ST_UPLOAD_SOUND_COUNT
-	StatAttributes("Sounds uploaded", FALSE),
-	// ST_UPLOAD_TEXTURE_COUNT
-	StatAttributes("Textures uploaded", FALSE),
-	// ST_EDIT_TEXTURE_COUNT
-	StatAttributes("Changes to textures on objects", FALSE),
-	// ST_KILLED_COUNT
-	StatAttributes("Number of times killed", FALSE),
-	// ST_FRAMETIME_JITTER
-	StatAttributes("Average delta between successive frame times", FALSE),
-	// ST_FRAMETIME_SLEW
-	StatAttributes("Average delta between frame time and mean", FALSE),
-	// ST_INVENTORY_TOO_LONG
-	StatAttributes("Inventory took too long to load", FALSE),
-	// ST_WEARABLES_TOO_LONG
-	StatAttributes("Wearables took too long to load", FALSE),
-	// ST_LOGIN_SECONDS
-	StatAttributes("Time between LoginRequest and LoginReply", FALSE),
-	// ST_LOGIN_TIMEOUT_COUNT
-	StatAttributes("Number of login attempts that timed out", FALSE),
-	// ST_HAS_BAD_TIMER
-	StatAttributes("Known bad timer if != 0.0", FALSE),
-	// ST_DOWNLOAD_FAILED
-	StatAttributes("Number of times LLAssetStorage::getAssetData() has failed", FALSE),
-	// ST_LSL_SAVE_COUNT
-	StatAttributes("Number of times user has saved a script", FALSE),
-	// ST_UPLOAD_ANIM_COUNT
-	StatAttributes("Animations uploaded", FALSE),
-	// ST_FPS_8_SECONDS
-	StatAttributes("Seconds below 8 FPS", FALSE),
-	// ST_SIM_FPS_20_SECONDS
-	StatAttributes("Seconds with sim FPS below 20", FALSE),
-	// ST_PHYS_FPS_20_SECONDS
-	StatAttributes("Seconds with physics FPS below 20", FALSE),
-	// ST_LOSS_05_SECONDS
-	StatAttributes("Seconds with packet loss > 5%", FALSE),
-	// ST_FPS_DROP_50_RATIO
-	StatAttributes("Ratio of frames 2x longer than previous", FALSE),
-	// ST_ENABLE_VBO
-	StatAttributes("Vertex Buffers Enabled", TRUE),
-	// ST_DELTA_BANDWIDTH
-	StatAttributes("Increase/Decrease in bandwidth based on packet loss", FALSE),
-	// ST_MAX_BANDWIDTH
-	StatAttributes("Max bandwidth setting", FALSE),
-	// ST_LIGHTING_DETAIL
-	StatAttributes("Lighting Detail", FALSE),
-	// ST_VISIBLE_AVATARS
-	StatAttributes("Visible Avatars", FALSE),
-	// ST_SHADER_OJECTS
-	StatAttributes("Object Shaders", FALSE),
-	// ST_SHADER_ENVIRONMENT
-	StatAttributes("Environment Shaders", FALSE),
-	// ST_VISIBLE_DRAW_DIST
-	StatAttributes("Draw Distance", FALSE),
-	// ST_VISIBLE_CHAT_BUBBLES
-	StatAttributes("Chat Bubbles Enabled", FALSE),
-	// ST_SHADER_AVATAR
-	StatAttributes("Avatar Shaders", FALSE),
-	// ST_FRAME_SECS
-	StatAttributes("FRAME_SECS", FALSE),
-	// ST_UPDATE_SECS
-	StatAttributes("UPDATE_SECS", FALSE),
-	// ST_NETWORK_SECS
-	StatAttributes("NETWORK_SECS", FALSE),
-	// ST_IMAGE_SECS
-	StatAttributes("IMAGE_SECS", FALSE),
-	// ST_REBUILD_SECS
-	StatAttributes("REBUILD_SECS", FALSE),
-	// ST_RENDER_SECS
-	StatAttributes("RENDER_SECS", FALSE),
-	// ST_CROSSING_AVG
-	StatAttributes("CROSSING_AVG", FALSE),
-	// ST_CROSSING_MAX
-	StatAttributes("CROSSING_MAX", FALSE),
-	// ST_LIBXUL_WIDGET_USED
-	StatAttributes("LibXUL Widget used", FALSE), // Unused
-	// ST_WINDOW_WIDTH
-	StatAttributes("Window width", FALSE),
-	// ST_WINDOW_HEIGHT
-	StatAttributes("Window height", FALSE),
-	// ST_TEX_BAKES
-	StatAttributes("Texture Bakes", FALSE),
-	// ST_TEX_REBAKES
-	StatAttributes("Texture Rebakes", FALSE)
-
-};
-
 LLViewerStats::LLViewerStats() :
-	mVFSPendingOperations("vfspendingoperations"),
-	mFPSStat("fpsstat"),
-	mPacketsInStat("packetsinstat"),
-	mPacketsLostStat("packetsloststat"),
-	mPacketsOutStat("packetsoutstat"),
-	mPacketsLostPercentStat("packetslostpercentstat"),
-	mTexturePacketsStat("texturepacketsstat"),
-	mActualInKBitStat("actualinkbitstat"),
-	mActualOutKBitStat("actualoutkbitstat"),
-	mTrianglesDrawnStat("trianglesdrawnstat"),
-	mSimTimeDilation("simtimedilation"),
+	//mVFSPendingOperations("vfspendingoperations"),
+	//mFPSStat("fpsstat"),
+	//mPacketsInStat("packetsinstat"),
+	//mPacketsLostStat("packetsloststat"),
+	//mPacketsOutStat("packetsoutstat"),
+	//mPacketsLostPercentStat("packetslostpercentstat"),
+	//mTexturePacketsStat("texturepacketsstat"),
+	//mActualInKBitStat("actualinkbitstat"),
+	//mActualOutKBitStat("actualoutkbitstat"),
+	//mTrianglesDrawnStat("trianglesdrawnstat"),
+	//mSimTimeDilation("simtimedilation"),
 	mSimFPS("simfps"),
 	mSimPhysicsFPS("simphysicsfps"),
 	mSimAgentUPS("simagentups"),
@@ -393,13 +275,14 @@ LLViewerStats::~LLViewerStats()
 void LLViewerStats::resetStats()
 {
 	LLViewerStats& stats = LLViewerStats::instance();
-	stats.mVFSPendingOperations.reset();
-	stats.mPacketsInStat.reset();
-	stats.mPacketsLostStat.reset();
-	stats.mPacketsOutStat.reset();
-	stats.mFPSStat.reset();
-	stats.mTexturePacketsStat.reset();
-	stats.mAgentPositionSnaps.reset();
+	stats.mRecording.reset();
+	//stats.mVFSPendingOperations.reset();
+	//stats.mPacketsInStat.reset();
+	//stats.mPacketsLostStat.reset();
+	//stats.mPacketsOutStat.reset();
+	//stats.mFPSStat.reset();
+	//stats.mTexturePacketsStat.reset();
+	//stats.mAgentPositionSnaps.reset();
 }
 
 
@@ -484,16 +367,9 @@ void LLViewerStats::addToMessage(LLSD &body) const
 {
 	LLSD &misc = body["misc"];
 	
-	for (S32 i = 0; i < ST_COUNT; i++)
-	{
-		if (STAT_INFO[i].mEnabled)
-		{
-			// TODO: send timer value so dataserver can normalize
-			misc[STAT_INFO[i].mName] = mStats[i];
-			llinfos << "STAT: " << STAT_INFO[i].mName << ": " << mStats[i]
-					<< llendl;
-		}
-	}
+	misc["Version"] = TRUE;
+	//TODO RN: get last value, not mean
+	misc["Vertex Buffers Enabled"] = mRecording.getMean(LLStatViewer::ENABLE_VBO);
 	
 	body["AgentPositionSnaps"] = mAgentPositionSnaps.asLLSD();
 	llinfos << "STAT: AgentPositionSnaps: Mean = " << mAgentPositionSnaps.getMean() << "; StdDev = " << mAgentPositionSnaps.getStdDev() 
@@ -570,13 +446,15 @@ void update_statistics()
 		stats.mSimPingStat.addValue(10000);
 	}
 
-	stats.mFPSStat.addValue(1);
+	//stats.mFPSStat.addValue(1);
+	LLStatViewer::FPS.add(1);
 	F32 layer_bits = (F32)(gVLManager.getLandBits() + gVLManager.getWindBits() + gVLManager.getCloudBits());
 	LLStatViewer::LAYERS_KBIT.add<LLUnits::Bits<F32> >(layer_bits);
 	//stats.mLayersKBitStat.addValue(layer_bits/1024.f);
 	LLStatViewer::OBJECT_KBIT.add<LLUnits::Bits<F32> >(gObjectBits);
 	//stats.mObjectKBitStat.addValue(gObjectBits/1024.f);
-	stats.mVFSPendingOperations.addValue(LLVFile::getVFSThread()->getPending());
+	//stats.mVFSPendingOperations.addValue(LLVFile::getVFSThread()->getPending());
+	LLStatViewer::SIM_PENDING_VFS_OPERATIONS.sample(LLVFile::getVFSThread()->getPending());
 	LLStatViewer::ASSET_KBIT.add<LLUnits::Bits<F32> >(gTransferManager.getTransferBitsIn(LLTCT_ASSET));
 	//stats.mAssetKBitStat.addValue(gTransferManager.getTransferBitsIn(LLTCT_ASSET)/1024.f);
 	gTransferManager.resetTransferBitsIn(LLTCT_ASSET);
@@ -615,12 +493,7 @@ void update_statistics()
 		static LLFrameTimer texture_stats_timer;
 		if (texture_stats_timer.getElapsedTimeF32() >= texture_stats_freq)
 		{
-			LLStatViewer::TEXTURE_KBIT.add<LLUnits::Bits<F32> >(LLViewerTextureList::sTextureBits);
-			//stats.mTextureKBitStat.addValue(LLViewerTextureList::sTextureBits/1024.f);
-			stats.mTexturePacketsStat.addValue(LLViewerTextureList::sTexturePackets);
-			gTotalTextureBytes += LLViewerTextureList::sTextureBits / 8;
-			LLViewerTextureList::sTextureBits = 0;
-			LLViewerTextureList::sTexturePackets = 0;
+			gTotalTextureBytes = LLUnits::Bytes<F32>(LLViewerStats::instance().getRecording().getSum(LLStatViewer::TEXTURE_KBIT)).value();
 			texture_stats_timer.reset();
 		}
 	}

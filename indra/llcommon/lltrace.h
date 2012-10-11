@@ -32,9 +32,9 @@
 
 #include "llmemory.h"
 #include "llrefcount.h"
-#include "lltracerecording.h"
-#include "lltracethreadrecorder.h"
+//#include "lltracethreadrecorder.h"
 #include "llunit.h"
+#include "llapr.h"
 
 #include <list>
 
@@ -44,6 +44,8 @@
 
 namespace LLTrace
 {
+	class Recording;
+
 	void init();
 	void cleanup();
 
@@ -89,23 +91,23 @@ namespace LLTrace
 			return mStorage[index]; 
 		}
 
-		void mergeSamples(const AccumulatorBuffer<ACCUMULATOR>& other)
+		void addSamples(const AccumulatorBuffer<ACCUMULATOR>& other)
 		{
 			llassert(mNextStorageSlot == other.mNextStorageSlot);
 
 			for (size_t i = 0; i < mNextStorageSlot; i++)
 			{
-				mStorage[i].mergeSamples(other.mStorage[i]);
+				mStorage[i].addSamples(other.mStorage[i]);
 			}
 		}
 
-		void mergeDeltas(const AccumulatorBuffer<ACCUMULATOR>& start, const AccumulatorBuffer<ACCUMULATOR>& finish)
+		void addDeltas(const AccumulatorBuffer<ACCUMULATOR>& start, const AccumulatorBuffer<ACCUMULATOR>& finish)
 		{
 			llassert(mNextStorageSlot == start.mNextStorageSlot && mNextStorageSlot == finish.mNextStorageSlot);
 
 			for (size_t i = 0; i < mNextStorageSlot; i++)
 			{
-				mStorage[i].mergeDeltas(start.mStorage[i], finish.mStorage[i]);
+				mStorage[i].addDeltas(start.mStorage[i], finish.mStorage[i]);
 			}
 		}
 
@@ -173,8 +175,9 @@ namespace LLTrace
 	class LL_COMMON_API TraceType 
 	{
 	public:
-		TraceType(const std::string& name)
-		:	mName(name)
+		TraceType(const char* name, const char* description = NULL)
+		:	mName(name),
+			mDescription(description ? description : "")
 		{
 			mAccumulatorIndex = AccumulatorBuffer<ACCUMULATOR>::getDefaultBuffer().reserveSlot();
 		}
@@ -189,6 +192,7 @@ namespace LLTrace
 
 	protected:
 		std::string	mName;
+		std::string mDescription;
 		size_t		mAccumulatorIndex;
 	};
 
@@ -201,6 +205,8 @@ namespace LLTrace
 		:	mSum(0),
 			mMin(0),
 			mMax(0),
+			mMean(0),
+			mVarianceSum(0),
 			mNumSamples(0)
 		{}
 
@@ -218,10 +224,11 @@ namespace LLTrace
 			}
 			F32 old_mean = mMean;
 			mMean += ((F32)value - old_mean) / (F32)mNumSamples;
-			mStandardDeviation += ((F32)value - old_mean) * ((F32)value - mMean);
+			mVarianceSum += ((F32)value - old_mean) * ((F32)value - mMean);
+			mLastValue = value;
 		}
 
-		void mergeSamples(const MeasurementAccumulator<T>& other)
+		void addSamples(const MeasurementAccumulator<T>& other)
 		{
 			mSum += other.mSum;
 			if (other.mMin < mMin)
@@ -240,19 +247,20 @@ namespace LLTrace
 				n_2 = (F32)other.mNumSamples;
 			F32 m_1 = mMean,
 				m_2 = other.mMean;
-			F32 sd_1 = mStandardDeviation,
-				sd_2 = other.mStandardDeviation;
+			F32 sd_1 = getStandardDeviation(),
+				sd_2 = other.getStandardDeviation();
 			// combine variance (and hence standard deviation) of 2 different sized sample groups using
 			// the following formula: http://www.mrc-bsu.cam.ac.uk/cochrane/handbook/chapter_7/7_7_3_8_combining_groups.htm
-			F32 variance = ((((n_1 - 1.f) * sd_1 * sd_1)
+			mVarianceSum =  (F32)mNumSamples
+							* ((((n_1 - 1.f) * sd_1 * sd_1)
 								+ ((n_2 - 1.f) * sd_2 * sd_2)
 								+ (((n_1 * n_2) / (n_1 + n_2))
 									* ((m_1 * m_1) + (m_2 * m_2) - (2.f * m_1 * m_2))))
 							/ (n_1 + n_2 - 1.f));
-			mStandardDeviation = sqrtf(variance);
+			mLastValue = other.mLastValue;
 		}
 
-		void mergeDeltas(const MeasurementAccumulator<T>& start, const MeasurementAccumulator<T>& finish)
+		void addDeltas(const MeasurementAccumulator<T>& start, const MeasurementAccumulator<T>& finish)
 		{
 			llerrs << "Delta merge invalid for measurement accumulators" << llendl;
 		}
@@ -268,16 +276,18 @@ namespace LLTrace
 		T	getSum() const { return mSum; }
 		T	getMin() const { return mMin; }
 		T	getMax() const { return mMax; }
+		T	getLastValue() const { return mLastValue; }
 		F32	getMean() const { return mMean; }
-		F32 getStandardDeviation() const { return mStandardDeviation; }
+		F32 getStandardDeviation() const { return sqrtf(mVarianceSum / mNumSamples); }
 
 	private:
 		T	mSum,
 			mMin,
-			mMax;
+			mMax,
+			mLastValue;
 
 		F32 mMean,
-			mStandardDeviation;
+			mVarianceSum;
 
 		U32	mNumSamples;
 	};
@@ -297,13 +307,13 @@ namespace LLTrace
 			mSum += value;
 		}
 
-		void mergeSamples(const RateAccumulator<T>& other)
+		void addSamples(const RateAccumulator<T>& other)
 		{
 			mSum += other.mSum;
 			mNumSamples += other.mNumSamples;
 		}
 
-		void mergeDeltas(const RateAccumulator<T>& start, const RateAccumulator<T>& finish)
+		void addDeltas(const RateAccumulator<T>& start, const RateAccumulator<T>& finish)
 		{
 			mSum += finish.mSum - start.mSum;
 			mNumSamples += finish.mNumSamples - start.mNumSamples;
@@ -329,7 +339,10 @@ namespace LLTrace
 		public LLInstanceTracker<Measurement<T, IS_UNIT>, std::string>
 	{
 	public:
-		Measurement(const std::string& name) 
+		typedef T storage_t;
+		typedef T base_unit_t;
+
+		Measurement(const char* name, const char* description = NULL) 
 		:	TraceType(name),
 			LLInstanceTracker(name)
 		{}
@@ -345,8 +358,11 @@ namespace LLTrace
 	:	public Measurement<typename T::value_t>
 	{
 	public:
+		typedef typename T::storage_t storage_t;
+		typedef typename T::base_unit_t base_unit_t;
+
 		typedef Measurement<typename T::value_t> base_measurement_t;
-		Measurement(const std::string& name) 
+		Measurement(const char* name, const char* description = NULL) 
 		:	Measurement<typename T::value_t>(name)
 		{}
 
@@ -363,7 +379,10 @@ namespace LLTrace
 		public LLInstanceTracker<Rate<T>, std::string>
 	{
 	public:
-		Rate(const std::string& name) 
+		typedef T storage_t;
+		typedef T base_unit_t;
+
+		Rate(const char* name, const char* description = NULL) 
 		:	TraceType(name),
 			LLInstanceTracker(name)
 		{}
@@ -379,7 +398,10 @@ namespace LLTrace
 	:	public Rate<typename T::value_t>
 	{
 	public:
-		Rate(const std::string& name) 
+		typedef typename T::storage_t storage_t;
+		typedef typename T::base_unit_t base_unit_t;
+
+		Rate(const char* name, const char* description = NULL) 
 		:	Rate<typename T::value_t>(name)
 		{}
 
@@ -394,7 +416,9 @@ namespace LLTrace
 	class LL_COMMON_API Count 
 	{
 	public:
-		Count(const std::string& name) 
+		typedef typename Rate<T>::base_unit_t base_unit_t;
+
+		Count(const char* name) 
 		:	mIncrease(name + "_increase"),
 			mDecrease(name + "_decrease"),
 			mTotal(name)
@@ -413,7 +437,7 @@ namespace LLTrace
 			mTotal.add(value);
 		}
 	private:
-		friend class LLTrace::Recording;
+		friend LLTrace::Recording;
 		Rate<T> mIncrease;
 		Rate<T> mDecrease;
 		Rate<T> mTotal;
@@ -433,14 +457,14 @@ namespace LLTrace
 		bool							mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame
 		std::vector<TimerAccumulator*>	mChildren;		// currently assumed child timers
 
-		void mergeSamples(const TimerAccumulator& other)
+		void addSamples(const TimerAccumulator& other)
 		{
 			mTotalTimeCounter += other.mTotalTimeCounter;
 			mChildTimeCounter += other.mChildTimeCounter;
 			mCalls += other.mCalls;
 		}
 
-		void mergeDeltas(const TimerAccumulator& start, const TimerAccumulator& finish)
+		void addDeltas(const TimerAccumulator& start, const TimerAccumulator& finish)
 		{
 			mTotalTimeCounter += finish.mTotalTimeCounter - start.mTotalTimeCounter;
 			mChildTimeCounter += finish.mChildTimeCounter - start.mChildTimeCounter;

@@ -25,7 +25,7 @@
 
 #include "linden_common.h"
 
-#include "lltrace.h"
+#include "lltracethreadrecorder.h"
 
 namespace LLTrace
 {
@@ -118,16 +118,16 @@ ThreadRecorder::ActiveRecording::ActiveRecording( Recording* source, Recording* 
 
 void ThreadRecorder::ActiveRecording::mergeMeasurements(ThreadRecorder::ActiveRecording& other)
 {
-	mBaseline.mMeasurements.write()->mergeSamples(*other.mBaseline.mMeasurements);
+	mBaseline.mMeasurements.write()->addSamples(*other.mBaseline.mMeasurements);
 }
 
 void ThreadRecorder::ActiveRecording::flushAccumulators(Recording* current)
 {
 	// accumulate statistics-like measurements
-	mTargetRecording->mMeasurements.write()->mergeSamples(*mBaseline.mMeasurements);
+	mTargetRecording->mMeasurements.write()->addSamples(*mBaseline.mMeasurements);
 	// for rate-like measurements, merge total change since baseline
-	mTargetRecording->mRates.write()->mergeDeltas(*mBaseline.mRates, *current->mRates);
-	mTargetRecording->mStackTimers.write()->mergeDeltas(*mBaseline.mStackTimers, *current->mStackTimers);
+	mTargetRecording->mRates.write()->addDeltas(*mBaseline.mRates, *current->mRates);
+	mTargetRecording->mStackTimers.write()->addDeltas(*mBaseline.mStackTimers, *current->mStackTimers);
 	// reset baselines
 	mBaseline.mRates.write()->copyFrom(*current->mRates);
 	mBaseline.mStackTimers.write()->copyFrom(*current->mStackTimers);

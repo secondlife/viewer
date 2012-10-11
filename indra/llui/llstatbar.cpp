@@ -37,6 +37,7 @@
 #include "llstat.h"
 #include "lluictrlfactory.h"
 #include "lltracerecording.h"
+#include "lltracethreadrecorder.h"
 
 ///////////////////////////////////////////////////////////////////////////////////
 
