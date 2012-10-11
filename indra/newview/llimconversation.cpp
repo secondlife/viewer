@@ -505,7 +505,12 @@ void LLIMConversation::onSlide(LLIMConversation* self)
 /*virtual*/
 void LLIMConversation::onOpen(const LLSD& key)
 {
-	checkIfTornOff();
+	if (!checkIfTornOff())
+	{
+		LLIMFloaterContainer* host_floater = dynamic_cast<LLIMFloaterContainer*>(getHost());
+		// Show the messages pane when opening a floater hosted in the Conversations
+		host_floater->collapseMessagesPane(false);
+	}
 }
 
 // virtual
@@ -541,13 +546,6 @@ bool LLIMConversation::isChatMultiTab()
 bool LLIMConversation::checkIfTornOff()
 {
 	bool isTorn = !getHost();
-	if (!isTorn)
-	{
-		LLIMFloaterContainer* host_floater = dynamic_cast<LLIMFloaterContainer*>(getHost());
-
-		// Show the messages pane when opening a floater hosted in the Conversations
-		host_floater->collapseMessagesPane(false);
-	}
 	
 	if (isTorn != isTornOff())
 	{
