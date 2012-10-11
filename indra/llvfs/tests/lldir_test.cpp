@@ -584,7 +584,7 @@ namespace tut
         ensure_equals(lldir.getLanguage(), "en");
 
         // top-level directory of a skin isn't localized
-        ensure_equals(lldir.findSkinnedFilenames(LLDir::SKINBASE, "colors.xml", true),
+        ensure_equals(lldir.findSkinnedFilenames(LLDir::SKINBASE, "colors.xml", LLDir::ALL_SKINS),
                       vec(list_of("install/skins/default/colors.xml")
                                  ("user/skins/default/colors.xml")));
         // We should not have needed to check for skins/default/en. We should
@@ -599,13 +599,13 @@ namespace tut
 
         StringVec expected(vec(list_of("install/skins/default/xui/en/strings.xml")
                                ("user/skins/default/xui/en/strings.xml")));
-        ensure_equals(lldir.findSkinnedFilenames(LLDir::XUI, "strings.xml", true),
+        ensure_equals(lldir.findSkinnedFilenames(LLDir::XUI, "strings.xml", LLDir::ALL_SKINS),
                       expected);
         // The first time, we had to probe to find out whether xui was localized.
         lldir.ensure_checked("install/skins/default/xui/en");
         lldir.clear_checked();
         // Now make the same call again -- should return same result --
-        ensure_equals(lldir.findSkinnedFilenames(LLDir::XUI, "strings.xml", true),
+        ensure_equals(lldir.findSkinnedFilenames(LLDir::XUI, "strings.xml", LLDir::ALL_SKINS),
                       expected);
         // but this time it should remember that xui is localized.
         lldir.ensure_not_checked("install/skins/default/xui/en");
@@ -648,7 +648,7 @@ namespace tut
         ensure_equals(lldir.getLanguage(), "fr");
 
         // pass merge=true to request this filename in all relevant skins
-        ensure_equals(lldir.findSkinnedFilenames(LLDir::XUI, "strings.xml", true),
+        ensure_equals(lldir.findSkinnedFilenames(LLDir::XUI, "strings.xml", LLDir::ALL_SKINS),
                       vec(list_of
                           ("install/skins/default/xui/en/strings.xml")
                           ("install/skins/default/xui/fr/strings.xml")
@@ -691,7 +691,7 @@ namespace tut
         /*------------------------- "steam", "en" --------------------------*/
         lldir.setSkinFolder("steam", "en");
 
-        ensure_equals(lldir.findSkinnedFilenames(LLDir::SKINBASE, "colors.xml", true),
+        ensure_equals(lldir.findSkinnedFilenames(LLDir::SKINBASE, "colors.xml", LLDir::ALL_SKINS),
                       vec(list_of
                           ("install/skins/default/colors.xml")
                           ("install/skins/steam/colors.xml")
@@ -715,7 +715,7 @@ namespace tut
                       vec(list_of("user/skins/steam/xui/en/strings.xml")));
 
         // pass merge=true to request this filename in all relevant skins
-        ensure_equals(lldir.findSkinnedFilenames(LLDir::XUI, "strings.xml", true),
+        ensure_equals(lldir.findSkinnedFilenames(LLDir::XUI, "strings.xml", LLDir::ALL_SKINS),
                       vec(list_of
                           ("install/skins/default/xui/en/strings.xml")
                           ("install/skins/steam/xui/en/strings.xml")
@@ -732,7 +732,7 @@ namespace tut
                           ("user/skins/steam/xui/fr/strings.xml")));
 
         // pass merge=true to request this filename in all relevant skins
-        ensure_equals(lldir.findSkinnedFilenames(LLDir::XUI, "strings.xml", true),
+        ensure_equals(lldir.findSkinnedFilenames(LLDir::XUI, "strings.xml", LLDir::ALL_SKINS),
                       vec(list_of
                           ("install/skins/default/xui/en/strings.xml")
                           ("install/skins/default/xui/fr/strings.xml")

@@ -1583,10 +1583,11 @@ struct UIImageDeclarations : public LLInitParam::Block<UIImageDeclarations>
 
 bool LLUIImageList::initFromFile()
 {
-	// Look for textures.xml in all the right places. Pass merge=true because
-	// we want to overlay textures.xml from all the skins directories.
+	// Look for textures.xml in all the right places. Pass
+	// constraint=LLDir::ALL_SKINS because we want to overlay textures.xml
+	// from all the skins directories.
 	std::vector<std::string> textures_paths =
-		gDirUtilp->findSkinnedFilenames(LLDir::TEXTURES, "textures.xml", true);
+		gDirUtilp->findSkinnedFilenames(LLDir::TEXTURES, "textures.xml", LLDir::ALL_SKINS);
 	std::vector<std::string>::const_iterator pi(textures_paths.begin()), pend(textures_paths.end());
 	if (pi == pend)
 	{

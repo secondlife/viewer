@@ -46,7 +46,6 @@
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <algorithm>
-#include <iomanip>
 
 #if LL_WINDOWS
 #include "lldir_win32.h"
@@ -544,10 +543,10 @@ std::string LLDir::getExtension(const std::string& filepath) const
 
 std::string LLDir::findSkinnedFilenameBaseLang(const std::string &subdir,
 											   const std::string &filename,
-											   bool merge) const
+											   ESkinConstraint constraint) const
 {
 	// This implementation is basically just as described in the declaration comments.
-	std::vector<std::string> found(findSkinnedFilenames(subdir, filename, merge));
+	std::vector<std::string> found(findSkinnedFilenames(subdir, filename, constraint));
 	if (found.empty())
 	{
 		return "";
@@ -557,10 +556,10 @@ std::string LLDir::findSkinnedFilenameBaseLang(const std::string &subdir,
 
 std::string LLDir::findSkinnedFilename(const std::string &subdir,
 									   const std::string &filename,
-									   bool merge) const
+									   ESkinConstraint constraint) const
 {
 	// This implementation is basically just as described in the declaration comments.
-	std::vector<std::string> found(findSkinnedFilenames(subdir, filename, merge));
+	std::vector<std::string> found(findSkinnedFilenames(subdir, filename, constraint));
 	if (found.empty())
 	{
 		return "";
@@ -570,7 +569,7 @@ std::string LLDir::findSkinnedFilename(const std::string &subdir,
 
 std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
 													 const std::string& filename,
-													 bool merge) const
+													 ESkinConstraint constraint) const
 {
 	// Recognize subdirs that have no localization.
 	static const char* sUnlocalizedData[] =
@@ -582,7 +581,9 @@ std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
 													boost::end(sUnlocalizedData));
 
 	LL_DEBUGS("LLDir") << "subdir '" << subdir << "', filename '" << filename
-					   << "', merge " << std::boolalpha << merge << LL_ENDL;
+					   << "', constraint "
+					   << ((constraint == CURRENT_SKIN)? "CURRENT_SKIN" : "ALL_SKINS")
+					   << LL_ENDL;
 
 	// Cache the default language directory for each subdir we've encountered.
 	// A cache entry whose value is the empty string means "not localized,
@@ -672,8 +673,8 @@ std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
 
 		// Here the desired filename exists in the first subsubdir. That means
 		// this is a skindir we want to record in results. But if the caller
-		// passed merge=false, we must discard all previous skindirs.
-		if (! merge)
+		// passed constraint=CURRENT_SKIN, we must discard all previous skindirs.
+		if (constraint == CURRENT_SKIN)
 		{
 			results.clear();
 		}

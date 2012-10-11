@@ -119,6 +119,8 @@ class LLDir
 
 	// these methods search the various skin paths for the specified file in the following order:
 	// getUserSkinDir(), getUserDefaultSkinDir(), getSkinDir(), getDefaultSkinDir()
+	/// param value for findSkinnedFilenames(), explained below
+	enum ESkinConstraint { CURRENT_SKIN, ALL_SKINS };
 	/**
 	 * Given a filename within skin, return an ordered sequence of paths to
 	 * search. Nonexistent files will be filtered out -- which means that the
@@ -130,25 +132,25 @@ class LLDir
 	 * level of skin subdirectory).
 	 * @param filename Desired filename within subdir within skin, e.g.
 	 * "panel_login.xml". DO NOT prepend (e.g.) "xui" or the desired language.
-	 * @param merge Callers perform two different kinds of processing. When
-	 * fetching a XUI file, for instance, the existence of @a filename in the
-	 * specified skin completely supercedes any @a filename in the default
-	 * skin. For that case, leave the default @a merge=false. The returned
-	 * vector will contain only
+	 * @param constraint Callers perform two different kinds of processing.
+	 * When fetching a XUI file, for instance, the existence of @a filename in
+	 * the specified skin completely supercedes any @a filename in the default
+	 * skin. For that case, leave the default @a constraint=CURRENT_SKIN. The
+	 * returned vector will contain only
 	 * ".../<i>current_skin</i>/xui/en/<i>filename</i>",
 	 * ".../<i>current_skin</i>/xui/<i>current_language</i>/<i>filename</i>".
 	 * But for (e.g.) "strings.xml", we want a given skin to be able to
 	 * override only specific entries from the default skin. Any string not
 	 * defined in the specified skin will be sought in the default skin. For
-	 * that case, pass @a merge=true. The returned vector will contain at
-	 * least ".../default/xui/en/strings.xml",
+	 * that case, pass @a constraint=ALL_SKINS. The returned vector will
+	 * contain at least ".../default/xui/en/strings.xml",
 	 * ".../default/xui/<i>current_language</i>/strings.xml",
 	 * ".../<i>current_skin</i>/xui/en/strings.xml",
 	 * ".../<i>current_skin</i>/xui/<i>current_language</i>/strings.xml".
 	 */
 	std::vector<std::string> findSkinnedFilenames(const std::string& subdir,
 												  const std::string& filename,
-												  bool merge=false) const;
+												  ESkinConstraint constraint=CURRENT_SKIN) const;
 	/// Values for findSkinnedFilenames(subdir) parameter
 	static const char *XUI, *TEXTURES, *SKINBASE;
 	/**
@@ -160,7 +162,7 @@ class LLDir
 	 */
 	std::string findSkinnedFilenameBaseLang(const std::string &subdir,
 											const std::string &filename,
-											bool merge=false) const;
+											ESkinConstraint constraint=CURRENT_SKIN) const;
 	/**
 	 * Return the "most localized" pathname from findSkinnedFilenames(), or
 	 * the empty string if no such file exists. Parameters are identical to
@@ -170,7 +172,7 @@ class LLDir
 	 */
 	std::string findSkinnedFilename(const std::string &subdir,
 									const std::string &filename,
-									bool merge=false) const;
+									ESkinConstraint constraint=CURRENT_SKIN) const;
 
 	// random filename in common temporary directory
 	std::string getTempFilename() const;

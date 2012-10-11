@@ -1424,10 +1424,11 @@ void addPathIfExists(const std::string& new_path, std::vector<std::string>& path
 bool LLNotifications::loadTemplates()
 {
 	llinfos << "Reading notifications template" << llendl;
-	// Passing findSkinnedFilenames(merge=true) makes it output all relevant
-	// pathnames instead of just the ones from the most specific skin.
+	// Passing findSkinnedFilenames(constraint=LLDir::ALL_SKINS) makes it
+	// output all relevant pathnames instead of just the ones from the most
+	// specific skin.
 	std::vector<std::string> search_paths =
-		gDirUtilp->findSkinnedFilenames(LLDir::XUI, "notifications.xml", true);
+		gDirUtilp->findSkinnedFilenames(LLDir::XUI, "notifications.xml", LLDir::ALL_SKINS);
 
 	std::string base_filename = search_paths.front();
 	LLXMLNodePtr root;

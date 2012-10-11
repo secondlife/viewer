@@ -36,11 +36,12 @@
 bool LLTransUtil::parseStrings(const std::string& xml_filename, const std::set<std::string>& default_args)
 {
 	// LLUICtrlFactory::getLayeredXMLNode() just calls
-	// gDirUtilp->findSkinnedFilenames(merge=false) and then passes the
-	// resulting paths to LLXMLNode::getLayeredXMLNode(). Bypass that and call
-	// LLXMLNode::getLayeredXMLNode() directly: we want merge=true.
+	// gDirUtilp->findSkinnedFilenames(constraint=LLDir::CURRENT_SKIN) and
+	// then passes the resulting paths to LLXMLNode::getLayeredXMLNode().
+	// Bypass that and call LLXMLNode::getLayeredXMLNode() directly: we want
+	// constraint=LLDir::ALL_SKINS.
 	std::vector<std::string> paths =
-		gDirUtilp->findSkinnedFilenames(LLDir::XUI, xml_filename, true);
+		gDirUtilp->findSkinnedFilenames(LLDir::XUI, xml_filename, LLDir::ALL_SKINS);
 	if (paths.empty())
 	{
 		// xml_filename not found at all in any skin -- check whether entire

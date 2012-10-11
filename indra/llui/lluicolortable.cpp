@@ -207,9 +207,10 @@ bool LLUIColorTable::loadFromSettings()
 {
 	bool result = false;
 
-	// pass merge=true because we want colors.xml from every skin dir
+	// pass constraint=LLDir::ALL_SKINS because we want colors.xml from every
+	// skin dir
 	BOOST_FOREACH(std::string colors_path,
-				  gDirUtilp->findSkinnedFilenames(LLDir::SKINBASE, "colors.xml", true))
+				  gDirUtilp->findSkinnedFilenames(LLDir::SKINBASE, "colors.xml", LLDir::ALL_SKINS))
 	{
 		result |= loadFromFilename(colors_path, mLoadedColors);
 	}
