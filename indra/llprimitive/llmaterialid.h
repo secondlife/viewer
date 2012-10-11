@@ -35,6 +35,7 @@ public:
 	LLMaterialID();
 	LLMaterialID(const LLSD& pMaterialID);
 	LLMaterialID(const LLSD::Binary& pMaterialID);
+	LLMaterialID(const void* pMemory);
 	LLMaterialID(const LLMaterialID& pOtherMaterialID);
 	~LLMaterialID();
 

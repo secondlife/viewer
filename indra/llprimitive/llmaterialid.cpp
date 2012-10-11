@@ -47,6 +47,11 @@ LLMaterialID::LLMaterialID(const LLSD::Binary& pMaterialID)
 	parseFromBinary(pMaterialID);
 }
 
+LLMaterialID::LLMaterialID(const void* pMemory)
+{
+	set(pMemory);
+}
+
 LLMaterialID::LLMaterialID(const LLMaterialID& pOtherMaterialID)
 {
 	copyFromOtherMaterialID(pOtherMaterialID);
