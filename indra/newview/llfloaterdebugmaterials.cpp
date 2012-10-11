@@ -686,6 +686,11 @@ void LLFloaterDebugMaterials::requestPutMaterials(bool pIsDoSet)
 
 				if (viewerObject != NULL)
 				{
+					const LLViewerRegion* viewerRegion = viewerObject->getRegion();
+					if (region != viewerRegion)
+					{
+						llerrs << "cannot currently edit an object on a different region through the debug materials floater" << llendl;
+					}
 					S32 numTEs = llmin(static_cast<S32>(viewerObject->getNumTEs()), viewerObject->getNumFaces());
 					for (S32 curTEIndex = 0; curTEIndex < numTEs; ++curTEIndex)
 					{
