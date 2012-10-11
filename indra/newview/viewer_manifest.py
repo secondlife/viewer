@@ -200,7 +200,7 @@ class ViewerManifest(LLManifest):
         grid_flags = ''
         if not self.default_grid():
             grid_flags = "--grid %(grid)s "\
-                         "--helperuri http://preview-%(grid)s.secondlife.com/helpers/" %\
+                         %\
                            {'grid':self.grid()}
 
         # set command line flags for channel
