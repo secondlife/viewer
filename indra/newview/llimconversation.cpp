@@ -393,7 +393,7 @@ void LLIMConversation::updateHeaderAndToolbar()
 	// prevent start conversation before its container
     LLIMFloaterContainer::getInstance();
 
-	bool is_torn_off = !getHost();
+	bool is_torn_off = checkIfTornOff();
 	if (!is_torn_off)
 	{
 		hideAllStandardButtons();
@@ -505,16 +505,12 @@ void LLIMConversation::onSlide(LLIMConversation* self)
 /*virtual*/
 void LLIMConversation::onOpen(const LLSD& key)
 {
-	LLIMFloaterContainer* host_floater = dynamic_cast<LLIMFloaterContainer*>(getHost());
-    bool is_hosted = !!host_floater;
-	if (is_hosted)
+	if (!checkIfTornOff())
 	{
+		LLIMFloaterContainer* host_floater = dynamic_cast<LLIMFloaterContainer*>(getHost());
 		// Show the messages pane when opening a floater hosted in the Conversations
 		host_floater->collapseMessagesPane(false);
 	}
-
-	setTornOff(!is_hosted);
-	updateHeaderAndToolbar();
 }
 
 // virtual
@@ -545,4 +541,17 @@ bool LLIMConversation::isChatMultiTab()
 {
 	// Restart is required in order to change chat window type.
 	return true;
+}
+
+bool LLIMConversation::checkIfTornOff()
+{
+	bool isTorn = !getHost();
+	
+	if (isTorn != isTornOff())
+	{
+		setTornOff(isTorn);
+		updateHeaderAndToolbar();
+	}
+
+	return isTorn;
 }

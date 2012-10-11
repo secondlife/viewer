@@ -643,18 +643,18 @@ void LLIMModel::processSessionInitializedReply(const LLUUID& old_session_id, con
 	{
 		session->sessionInitReplyReceived(new_session_id);
 
+		LLIMFloater* im_floater = LLIMFloater::findInstance(old_session_id);
+		if (im_floater)
+		{
+			im_floater->sessionInitReplyReceived(new_session_id);
+		}
+
 		if (old_session_id != new_session_id)
 		{
 			mId2SessionMap.erase(old_session_id);
 			mId2SessionMap[new_session_id] = session;
 
 			gIMMgr->notifyObserverSessionIDUpdated(old_session_id, new_session_id);
-		}
-
-		LLIMFloater* im_floater = LLIMFloater::findInstance(old_session_id);
-		if (im_floater)
-		{
-			im_floater->sessionInitReplyReceived(new_session_id);
 		}
 
 		// auto-start the call on session initialization?

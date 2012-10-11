@@ -27,6 +27,10 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llavatarnamecache.h"
+#include "llavataractions.h"
+#include "llevents.h"
+#include "llsdutil.h"
 #include "llconversationmodel.h"
 #include "llimview.h" //For LLIMModel
 
@@ -62,6 +66,14 @@ LLConversationItem::LLConversationItem(LLFolderViewModelInterface& root_view_mod
 	mConvType(CONV_UNKNOWN),
 	mLastActiveTime(0.0)
 {
+}
+
+void LLConversationItem::postEvent(const std::string& event_type, LLConversationItemSession* session, LLConversationItemParticipant* participant)
+{
+	LLUUID session_id = (session ? session->getUUID() : LLUUID());
+	LLUUID participant_id = (participant ? participant->getUUID() : LLUUID());
+	LLSD event(LLSDMap("type", event_type)("session_uuid", session_id)("participant_uuid", participant_id));
+	LLEventPumps::instance().obtain("ConversationsEvents").post(event);
 }
 
 // Virtual action callbacks
@@ -130,12 +142,55 @@ void LLConversationItemSession::addParticipant(LLConversationItemParticipant* pa
 	addChild(participant);
 	mIsLoaded = true;
 	mNeedsRefresh = true;
+	updateParticipantName(participant);
+	postEvent("add_participant", this, participant);
+}
+
+void LLConversationItemSession::updateParticipantName(LLConversationItemParticipant* participant)
+{
+	// We modify the session name only in the case of an ad-hoc session, exit otherwise (nothing to do)
+	if (getType() != CONV_SESSION_AD_HOC)
+	{
+		return;
+	}
+	// Avoid changing the default name if no participant present yet
+	if (mChildren.size() == 0)
+	{
+		return;
+	}
+	// Build a string containing the participants names and check if ready for display (we don't want "(waiting)" in there)
+	bool all_names_resolved = true;
+	uuid_vec_t temp_uuids; // uuids vector for building the added participants' names string
+	child_list_t::iterator iter = mChildren.begin();
+	while (iter != mChildren.end())
+	{
+		LLConversationItemParticipant* current_participant = dynamic_cast<LLConversationItemParticipant*>(*iter);
+		temp_uuids.push_back(current_participant->getUUID());
+		LLAvatarName av_name;
+        if (!LLAvatarNameCache::get(current_participant->getUUID(), &av_name))
+        {
+			// If the name is not in the cache yet, bail out
+			// Note: we don't bind ourselves to the LLAvatarNameCache event as we are called by
+			// onAvatarNameCache() which is itself attached to the same event.
+			all_names_resolved = false;
+			break;
+		}
+		iter++;
+	}
+	if (all_names_resolved)
+	{
+		std::string new_session_name;
+		LLAvatarActions::buildResidentsString(temp_uuids, new_session_name);
+		renameItem(new_session_name);
+		postEvent("update_session", this, NULL);
+	}
 }
 
 void LLConversationItemSession::removeParticipant(LLConversationItemParticipant* participant)
 {
 	removeChild(participant);
 	mNeedsRefresh = true;
+	postEvent("remove_participant", this, participant);
 }
 
 void LLConversationItemSession::removeParticipant(const LLUUID& participant_id)
@@ -328,10 +383,13 @@ void LLConversationItemParticipant::onAvatarNameCache(const LLAvatarName& av_nam
 	mName = (av_name.mUsername.empty() ? av_name.mDisplayName : av_name.mUsername);
 	mDisplayName = (av_name.mDisplayName.empty() ? av_name.mUsername : av_name.mDisplayName);
 	mNeedsRefresh = true;
-	if (mParent)
+	LLConversationItemSession* parent_session = dynamic_cast<LLConversationItemSession*>(mParent);
+	if (parent_session)
 	{
-		mParent->requestSort();
+		parent_session->requestSort();
+		parent_session->updateParticipantName(this);
 	}
+	postEvent("update_participant", parent_session, this);
 }
 
 void LLConversationItemParticipant::dumpDebugData()

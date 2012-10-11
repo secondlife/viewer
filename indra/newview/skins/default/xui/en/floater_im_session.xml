@@ -246,7 +246,7 @@
          parse_highlights="true"
          parse_urls="true"
        	 width="230"
-       	 left="0">
+       	 left="5">
         </chat_history>
             </layout_panel>
            </layout_stack>

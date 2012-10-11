@@ -183,10 +183,8 @@ void LLConversationViewSession::draw()
 	// draw highlight for selected items
 	drawHighlight(show_context, true, sHighlightBgColor, sFocusOutlineColor, sMouseOverColor);
 
-	// draw children if root folder, or any other folder that is open or animating to closed state
-	bool draw_children = getRoot() == static_cast<LLFolderViewFolder*>(this)
-						 || isOpen()
-						 || mCurHeight != mTargetHeight;
+	// Draw children if root folder, or any other folder that is open. Do not draw children when animating to closed state or you get rendering overlap.
+	bool draw_children = getRoot() == static_cast<LLFolderViewFolder*>(this) || isOpen();
 
 	for (folders_t::iterator iter = mFolders.begin();
 		iter != mFolders.end();)

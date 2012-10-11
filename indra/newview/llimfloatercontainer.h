@@ -31,6 +31,7 @@
 #include <vector>
 
 #include "llimview.h"
+#include "llevents.h"
 #include "llfloater.h"
 #include "llmultifloater.h"
 #include "llavatarpropertiesprocessor.h"
@@ -140,6 +141,7 @@ public:
 private:
 	LLConversationViewSession* createConversationItemWidget(LLConversationItem* item);
 	LLConversationViewParticipant* createConversationViewParticipant(LLConversationItem* item);
+	bool onConversationModelEvent(const LLSD& event);
 
 	// Conversation list data
 	LLPanel* mConversationsListPanel;	// This is the main widget we add conversation widget to
@@ -147,6 +149,7 @@ private:
 	conversations_widgets_map mConversationsWidgets;
 	LLConversationViewModel mConversationViewModel;
 	LLFolderView* mConversationsRoot;
+	LLEventStream mConversationsEventStream; 
 };
 
 #endif // LL_LLIMFLOATERCONTAINER_H
