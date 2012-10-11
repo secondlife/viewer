@@ -1755,7 +1755,6 @@ U32 LLVOAvatar::processUpdateMessage(LLMessageSystem *mesgsys,
 {
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 	
-	LLVector3 old_vel = getVelocity();
 	const BOOL has_name = !getNVPair("FirstName");
 
 	// Do base class updates...
@@ -2645,8 +2644,6 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		mNameText->setTextAlignment(LLHUDNameTag::ALIGN_TEXT_LEFT);
 		mNameText->setFadeDistance(CHAT_NORMAL_RADIUS * 2.f, 5.f);
 			
-		char line[MAX_STRING];		/* Flawfinder: ignore */
-		line[0] = '\0';
 		std::deque<LLChat>::iterator chat_iter = mChats.begin();
 		mNameText->clearString();
 
@@ -3035,8 +3032,6 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	xyVel.mV[VZ] = 0.0f;
 	speed = xyVel.length();
 
-	BOOL throttle = TRUE;
-
 	if (!(mIsSitting && getParent()))
 	{
 		//--------------------------------------------------------------------
@@ -3047,7 +3042,6 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		if (mTimeLast == 0.0f)
 		{
 			mTimeLast = animation_time;
-			throttle = FALSE;
 
 			// put the pelvis at slaved position/mRotation
 			mRoot->setWorldPosition( getPositionAgent() ); // first frame

@@ -314,8 +314,6 @@ BOOL LLToolCamera::handleHover(S32 x, S32 y, MASK mask)
 	S32 dx = gViewerWindow->getCurrentMouseDX();
 	S32 dy = gViewerWindow->getCurrentMouseDY();
 	
-	BOOL moved_outside_slop = FALSE;
-	
 	if (hasMouseCapture() && mValidClickPoint)
 	{
 		mAccumX += llabs(dx);
@@ -323,19 +321,11 @@ BOOL LLToolCamera::handleHover(S32 x, S32 y, MASK mask)
 
 		if (mAccumX >= SLOP_RANGE)
 		{
-			if (!mOutsideSlopX)
-			{
-				moved_outside_slop = TRUE;
-			}
 			mOutsideSlopX = TRUE;
 		}
 
 		if (mAccumY >= SLOP_RANGE)
 		{
-			if (!mOutsideSlopY)
-			{
-				moved_outside_slop = TRUE;
-			}
 			mOutsideSlopY = TRUE;
 		}
 	}

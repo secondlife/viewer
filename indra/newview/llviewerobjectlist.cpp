@@ -286,7 +286,6 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 	LLMemType mt(LLMemType::MTYPE_OBJECT_PROCESS_UPDATE);
 	LLFastTimer t(FTM_PROCESS_OBJECTS);	
 	
-	LLVector3d camera_global = gAgentCamera.getCameraPositionGlobal();
 	LLViewerObject *objectp;
 	S32			num_objects;
 	U32			local_id;
@@ -305,6 +304,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 	{
 		//llinfos << "TEST: !cached && !compressed && update_type != OUT_FULL" << llendl;
 		gTerseObjectUpdates += num_objects;
+		/*
 		S32 size;
 		if (mesgsys->getReceiveCompressedSize())
 		{
@@ -314,10 +314,12 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 		{
 			size = mesgsys->getReceiveSize();
 		}
-		//llinfos << "Received terse " << num_objects << " in " << size << " byte (" << size/num_objects << ")" << llendl;
+		llinfos << "Received terse " << num_objects << " in " << size << " byte (" << size/num_objects << ")" << llendl;
+		*/
 	}
 	else
 	{
+		/*
 		S32 size;
 		if (mesgsys->getReceiveCompressedSize())
 		{
@@ -328,7 +330,8 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			size = mesgsys->getReceiveSize();
 		}
 
-		// llinfos << "Received " << num_objects << " in " << size << " byte (" << size/num_objects << ")" << llendl;
+		llinfos << "Received " << num_objects << " in " << size << " byte (" << size/num_objects << ")" << llendl;
+		*/
 		gFullObjectUpdates += num_objects;
 	}
 

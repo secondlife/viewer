@@ -1007,13 +1007,11 @@ void LLPanelEditWearable::updatePanelPickerControls(LLWearableType::EType type)
                 return;
 
         bool is_modifiable = false;
-        bool is_copyable   = false;
 
         if(mWearableItem)
         {
                 const LLPermissions& perm = mWearableItem->getPermissions();
                 is_modifiable = perm.allowModifyBy(gAgent.getID(), gAgent.getGroupID());
-                is_copyable = perm.allowCopyBy(gAgent.getID(), gAgent.getGroupID());
         }
 
         if (is_modifiable)
@@ -1440,7 +1438,6 @@ void LLPanelEditWearable::buildParamList(LLScrollingPanelList *panel_list, value
         {
                 panel_list->clearPanels();
                 value_map_t::iterator end = sorted_params.end();
-                S32 height = 0;
                 for(value_map_t::iterator it = sorted_params.begin(); it != end; ++it)
                 {
                         LLPanel::Params p;
@@ -1455,7 +1452,7 @@ void LLPanelEditWearable::buildParamList(LLScrollingPanelList *panel_list, value
                         {
                                 panel_param = new LLScrollingPanelParam( p, NULL, (*it).second, TRUE, this->getWearable(), jointp);
                         }
-                        height = panel_list->addPanel( panel_param );
+                        panel_list->addPanel( panel_param );
                 }
         }
 }

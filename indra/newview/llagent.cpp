@@ -1709,13 +1709,11 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 
 		*delta_yaw = yaw;
 
-		// Compute when to start slowing down and when to stop
-		F32 stop_distance = mAutoPilotStopDistance;
+		// Compute when to start slowing down
 		F32 slow_distance;
 		if (getFlying())
 		{
 			slow_distance = llmax(6.f, mAutoPilotStopDistance + 5.f);
-			stop_distance = llmax(2.f, mAutoPilotStopDistance);
 		}
 		else
 		{

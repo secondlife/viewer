@@ -376,9 +376,6 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 	LLPointer<LLImageRaw> raw = new LLImageRaw(tex_width, tex_height, tex_comps);
 	U8 *rawp = raw->getData();
 
-	F32 tex_width_inv = 1.f/tex_width;
-	F32 tex_height_inv = 1.f/tex_height;
-
 	F32 st_x_stride, st_y_stride;
 	st_x_stride = ((F32)st_width / (F32)mTexScaleX)*((F32)mWidth / (F32)tex_width);
 	st_y_stride = ((F32)st_height / (F32)mTexScaleY)*((F32)mWidth / (F32)tex_height);
@@ -412,11 +409,6 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 			composition -= tex0;
 			tex1 = tex0 + 1;
 			tex1 = llclamp(tex1, 0, 3);
-
-			F32 xy_int_i, xy_int_j;
-
-			xy_int_i = i * tex_width_inv;
-			xy_int_j = j * tex_height_inv;
 
 			st_offset = (lltrunc(sti) + lltrunc(stj)*st_width) * st_comps;
 			for (U32 k = 0; k < tex_comps; k++)

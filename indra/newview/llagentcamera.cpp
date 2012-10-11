@@ -593,7 +593,6 @@ BOOL LLAgentCamera::calcCameraMinDistance(F32 &obj_min_distance)
 	abs_target_offset.abs();
 
 	LLVector3 target_offset_dir = target_offset_origin;
-	F32 object_radius = mFocusObject->getVObjRadius();
 
 	BOOL target_outside_object_extents = FALSE;
 
@@ -688,17 +687,6 @@ BOOL LLAgentCamera::calcCameraMinDistance(F32 &obj_min_distance)
 
 	LLVector3 camera_offset_object(getCameraPositionAgent() - mFocusObject->getPositionAgent());
 
-	// length projected orthogonal to target offset
-	F32 camera_offset_dist = (camera_offset_object - target_offset_dir * (camera_offset_object * target_offset_dir)).magVec();
-
-	// calculate whether the target point would be "visible" if it were outside the bounding box
-	// on the opposite of the splitting plane defined by object_split_axis;
-	BOOL exterior_target_visible = FALSE;
-	if (camera_offset_dist > object_radius)
-	{
-		// target is visible from camera, so turn off fov zoom
-		exterior_target_visible = TRUE;
-	}
 
 	F32 camera_offset_clip = camera_offset_object * object_split_axis;
 	F32 target_offset_clip = target_offset_dir * object_split_axis;
@@ -1657,7 +1645,6 @@ F32	LLAgentCamera::calcCameraFOVZoomFactor()
 	else if (mFocusObject.notNull() && !mFocusObject->isAvatar() && !mFocusOnAvatar)
 	{
 		// don't FOV zoom on mostly transparent objects
-		LLVector3 focus_offset = mFocusObjectOffset;
 		F32 obj_min_dist = 0.f;
 		calcCameraMinDistance(obj_min_dist);
 		F32 current_distance = llmax(0.001f, camera_offset_dir.magVec());
@@ -1819,7 +1806,6 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 			// set the global camera position
 			LLVector3d camera_offset;
 			
-			LLVector3 av_pos = !isAgentAvatarValid() ? LLVector3::zero : gAgentAvatarp->getRenderPosition();
 			camera_offset.setVec( local_camera_offset );
 			camera_position_global = frame_center_global + head_offset + camera_offset;
 

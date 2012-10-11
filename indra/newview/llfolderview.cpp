@@ -888,7 +888,6 @@ void LLFolderView::commitRename( const LLSD& data )
 
 void LLFolderView::draw()
 {
-	static LLUIColor sSearchStatusColor = LLUIColorTable::instance().getColor("InventorySearchStatusColor", LLColor4::white);
 	if (mDebugFilters)
 	{
 		std::string current_filter_string = llformat("Current Filter: %d, Least Filter: %d, Auto-accept Filter: %d",
@@ -1506,12 +1505,6 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 		LLMenuGL::sMenuContainer->hideMenus();
 	}
 
-	LLView *item = NULL;
-	if (getChildCount() > 0)
-	{
-		item = *(getChildList()->begin());
-	}
-
 	switch( key )
 	{
 	case KEY_F2:
@@ -2034,7 +2027,6 @@ void LLFolderView::scrollToShowItem(LLFolderViewItem* item, const LLRect& constr
 	{
 		LLRect local_rect = item->getLocalRect();
 		LLRect item_scrolled_rect; // item position relative to display area of scroller
-		LLRect visible_doc_rect = mScrollContainer->getVisibleContentRect();
 		
 		S32 icon_height = mIcon.isNull() ? 0 : mIcon->getHeight(); 
 		S32 label_height = getLabelFontForStyle(mLabelStyle)->getLineHeight(); 

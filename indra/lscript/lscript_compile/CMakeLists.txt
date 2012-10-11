@@ -45,6 +45,9 @@ include_directories(
     ${LLPRIMITIVE_INCLUDE_DIRS}
     ${LSCRIPT_INCLUDE_DIRS}
     )
+include_directories(SYSTEM
+    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
+    )
 
 set(lscript_generated_SOURCE_FILES
     indra.l.cpp

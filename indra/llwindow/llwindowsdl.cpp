@@ -1643,24 +1643,24 @@ void check_vm_bloat()
 		const long long significant_vm_difference = 250 * 1024*1024;
 		const long long significant_rss_difference = 50 * 1024*1024;
 
-		ssize_t res;
 		size_t dummy;
 		char *ptr;
-		for (int i=0; i<22; ++i) // parse past the values we don't want
+		size_t delim_result = 0;
+		for (int i=0; i<22 && delim_result > -1; ++i) // parse past the values we don't want
 		{
 			ptr = NULL;
-			res = getdelim(&ptr, &dummy, ' ', fp);
+			delim_result = getdelim(&ptr, &dummy, ' ', fp);
 			free(ptr);
 		}
 		// 23rd space-delimited entry is vsize
 		ptr = NULL;
-		res = getdelim(&ptr, &dummy, ' ', fp);
+		delim_result = getdelim(&ptr, &dummy, ' ', fp);
 		llassert(ptr);
 		long long this_vm_size = atoll(ptr);
 		free(ptr);
 		// 24th space-delimited entry is RSS
 		ptr = NULL;
-		res = getdelim(&ptr, &dummy, ' ', fp);
+		delim_result = getdelim(&ptr, &dummy, ' ', fp);
 		llassert(ptr);
 		long long this_rss_size = getpagesize() * atoll(ptr);
 		free(ptr);

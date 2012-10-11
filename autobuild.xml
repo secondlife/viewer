@@ -690,9 +690,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>26f2df1f0b0fa01e94e0253e322f3583</string>
+              <string>1b1f1e9975e3a671c9faf32fcf4b6d43</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glh_linear-linux-20101001.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glh_linear/rev/263308/arch/Linux/installer/glh_linear-0.0.0-linux-20120810.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1330,9 +1330,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b706fdeed4ce2182d434043dc33d9d1d</string>
+              <string>a6856b4d58a3b71321acad7e1fa9c8d4</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source/rev/263415/arch/Linux/installer/llphysicsextensions_source-0.3-linux-20120814.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source/rev/265749/arch/Linux/installer/llphysicsextensions_source-0.3-linux-20121011.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>

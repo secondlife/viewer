@@ -914,7 +914,6 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 		else
 		{
 			panel->buildFromFile(path);										// build it
-			LLRect new_size = panel->getRect();								// get its rectangle
 			panel->setOrigin(2,2);											// reset its origin point so it's not offset by -left or other XUI attributes
 			(*floaterp)->setTitle(path);									// use the file name as its title, since panels have no guaranteed meaningful name attribute
 			panel->setUseBoundingRect(TRUE);								// enable the use of its outer bounding rect (normally disabled because it's O(n) on the number of sub-elements)

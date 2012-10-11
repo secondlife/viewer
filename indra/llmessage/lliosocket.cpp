@@ -608,6 +608,15 @@ LLIOPipe::EStatus LLIOServerSocket::process_impl(
 	PUMP_DEBUG;
 	apr_pool_t* new_pool = NULL;
 	apr_status_t status = apr_pool_create(&new_pool, mPool);
+	if(ll_apr_warn_status(status))
+	{
+		if(new_pool)
+		{	
+			apr_pool_destroy(new_pool);
+		}
+		return STATUS_ERROR;
+	}
+
 	apr_socket_t* socket = NULL;
 	status = apr_socket_accept(
 		&socket,

@@ -25,6 +25,9 @@ include_directories(
     ${LLRENDER_INCLUDE_DIRS}
     ${LLWINDOW_INCLUDE_DIRS}
 )
+include_directories(SYSTEM
+    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
+    )
 
 if (DARWIN)
     include(CMakeFindFrameworks)

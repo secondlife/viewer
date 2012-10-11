@@ -369,7 +369,7 @@ void LLFastTimerView::draw()
 
 	S32 left, top, right, bottom;
 	S32 x, y, barw, barh, dx, dy;
-	S32 texth, textw;
+	S32 texth;
 	LLPointer<LLUIImage> box_imagep = LLUI::getUIImage("Rounded_Square");
 
 	// Draw the window background
@@ -410,7 +410,6 @@ void LLFastTimerView::draw()
 
 		tdesc = llformat("Full bar = %s [Click to pause/reset] [SHIFT-Click to toggle]",modedesc[mDisplayMode]);
 		LLFontGL::getFontMonospace()->renderUTF8(tdesc, 0, x, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
-		textw = LLFontGL::getFontMonospace()->getWidth(tdesc);
 
 		x = xleft, y -= (texth + 2);
 		tdesc = llformat("Justification = %s [CTRL-Click to toggle]",centerdesc[mDisplayCenter]);
@@ -536,8 +535,6 @@ void LLFastTimerView::draw()
 											is_child_of_hover_item ? LLFontGL::BOLD : LLFontGL::NORMAL);
 
 			y -= (texth + 2);
-
-			textw = dx + LLFontGL::getFontMonospace()->getWidth(idp->getName()) + 40;
 
 			if (idp->getCollapsed()) 
 			{

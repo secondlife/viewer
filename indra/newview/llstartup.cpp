@@ -316,7 +316,6 @@ bool idle_startup()
 	
 	const F32 PRECACHING_DELAY = gSavedSettings.getF32("PrecachingDelay");
 	static LLTimer timeout;
-	static S32 timeout_count = 0;
 
 	static LLTimer login_time;
 
@@ -332,7 +331,6 @@ bool idle_startup()
 
 	// last location by default
 	static S32  agent_location_id = START_LOCATION_ID_LAST;
-	static S32  location_which = START_LOCATION_ID_LAST;
 
 	static bool show_connect_box = true;
 
@@ -744,8 +742,6 @@ bool idle_startup()
 
 		gViewerWindow->getWindow()->setCursor(UI_CURSOR_ARROW);
 
-		timeout_count = 0;
-
 		// Login screen needs menus for preferences, but we can enter
 		// this startup phase more than once.
 		if (gLoginMenuBarView == NULL)
@@ -982,15 +978,12 @@ bool idle_startup()
 		  {
 		  case LLSLURL::LOCATION:
 		    agent_location_id = START_LOCATION_ID_URL;
-		    location_which = START_LOCATION_ID_LAST;
 		    break;
 		  case LLSLURL::LAST_LOCATION:
 		    agent_location_id = START_LOCATION_ID_LAST;
-		    location_which = START_LOCATION_ID_LAST;
 		    break;
 		  default:
 		    agent_location_id = START_LOCATION_ID_HOME;
-		    location_which = START_LOCATION_ID_HOME;
 		    break;
 		  }
 

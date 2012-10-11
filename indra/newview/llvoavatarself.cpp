@@ -341,7 +341,6 @@ BOOL LLVOAvatarSelf::buildMenus()
 		}
 		else
 		{
-			BOOL attachment_found = FALSE;
 			for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
 				 iter != mAttachmentPoints.end();
 				 ++iter)
@@ -369,7 +368,6 @@ BOOL LLVOAvatarSelf::buildMenus()
 
 					gAttachPieMenu->addChild(item);
 
-					attachment_found = TRUE;
 					break;
 
 				}
@@ -382,7 +380,6 @@ BOOL LLVOAvatarSelf::buildMenus()
 		}
 		else
 		{
-			BOOL attachment_found = FALSE;
 			for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
 				 iter != mAttachmentPoints.end();
 				 ++iter)
@@ -409,7 +406,6 @@ BOOL LLVOAvatarSelf::buildMenus()
 
 					gDetachPieMenu->addChild(item);
 						
-					attachment_found = TRUE;
 					break;
 				}
 			}

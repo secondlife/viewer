@@ -813,12 +813,7 @@ void LLFloaterReporter::uploadDoneCallback(const LLUUID &uuid, void *user_data, 
 		return;
 	}
 
-	EReportType report_type = UNKNOWN_REPORT;
-	if (data->mPreferredLocation == LLResourceData::INVALID_LOCATION)
-	{
-		report_type = COMPLAINT_REPORT;
-	}
-	else 
+	if (data->mPreferredLocation != LLResourceData::INVALID_LOCATION)
 	{
 		llwarns << "Unknown report type : " << data->mPreferredLocation << llendl;
 	}

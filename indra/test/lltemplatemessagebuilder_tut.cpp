@@ -937,7 +937,7 @@ namespace tut
 		// build message with single block
 		LLMessageTemplate messageTemplate = defaultTemplate();
 		messageTemplate.addBlock(defaultBlock(MVT_U32, 4, MBT_SINGLE));
-		U32 outValue, outValue2, inValue = 0xbbbbbbbb;
+		U32 outValue, inValue = 0xbbbbbbbb;
 		LLTemplateMessageBuilder* builder = defaultBuilder(messageTemplate);
 		builder->addU32(_PREHASH_Test0, inValue);
 		const U32 bufferSize = 1024;
@@ -962,7 +962,6 @@ namespace tut
 		memset(buffer, 0xcc, bufferSize);
 		reader->getString(_PREHASH_Test1, _PREHASH_Test0, bufferSize, 
 						  outBuffer);
-		outValue2 = reader->getNumberOfBlocks(_PREHASH_Test1);
 		ensure_equals("Ensure present value ", outValue, inValue);
 		ensure_equals("Ensure unchanged buffer ", strlen(outBuffer), 0);
 		delete reader;

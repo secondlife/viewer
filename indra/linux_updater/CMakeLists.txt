@@ -24,6 +24,10 @@ include_directories(
     ${OPENSSL_INCLUDE_DIRS}
     ${UI_INCLUDE_DIRS}
     )
+include_directories(SYSTEM
+    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
+    ${LLXML_SYSTEM_INCLUDE_DIRS}
+    )
 
 set(linux_updater_SOURCE_FILES linux_updater.cpp)
 

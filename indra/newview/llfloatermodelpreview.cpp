@@ -746,7 +746,6 @@ void LLFloaterModelPreview::onLODParamCommit(S32 lod, bool enforce_tri_limit)
 void LLFloaterModelPreview::draw()
 {
 	LLFloater::draw();
-	LLRect r = getRect();
 
 	mModelPreview->update();
 
@@ -1670,7 +1669,6 @@ bool LLModelLoader::doLoadModel()
 						
 						//If no skeleton, do a breadth-first search to get at specific joints
 						bool rootNode = false;
-						bool skeletonWithNoRootNode = false;
 						
 						//Need to test for a skeleton that does not have a root node
 						//This occurs when your instance controller does not have an associated scene 
@@ -1680,10 +1678,6 @@ bool LLModelLoader::doLoadModel()
 							if ( pSkeletonRootNode )
 							{
 								rootNode = true;
-							}
-							else 
-							{
-								skeletonWithNoRootNode = true;
 							}
 
 						}
@@ -4977,16 +4971,9 @@ BOOL LLModelPreview::render()
 	bool upload_skin = mFMP->childGetValue("upload_skin").asBoolean();	
 	bool upload_joints = mFMP->childGetValue("upload_joints").asBoolean();
 
-	bool resetJoints = false;
 	if ( upload_joints != mLastJointUpdate )
 	{
-		if ( mLastJointUpdate )
-		{
-			resetJoints = true;
-		}
-
 		mLastJointUpdate = upload_joints;
-
 	}
 
 	for (LLModelLoader::scene::iterator iter = mScene[mPreviewLOD].begin(); iter != mScene[mPreviewLOD].end(); ++iter)

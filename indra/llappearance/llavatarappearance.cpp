@@ -438,7 +438,7 @@ void LLAvatarAppearance::computeBodySize()
 
 	// some of the joints have not been cached
 	LLVector3 skull = mSkullp->getPosition();
-	LLVector3 skull_scale = mSkullp->getScale();
+	//LLVector3 skull_scale = mSkullp->getScale();
 
 	LLVector3 neck = mNeckp->getPosition();
 	LLVector3 neck_scale = mNeckp->getScale();

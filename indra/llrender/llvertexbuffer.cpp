@@ -404,7 +404,6 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 {
 	if (sLastMask != data_mask)
 	{
-		bool error = false;
 
 		if (gGLManager.mGLSLVersionMajor < 2 && gGLManager.mGLSLVersionMinor < 30)
 		{
@@ -471,7 +470,6 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 						{
 							if (gDebugSession)
 							{
-								error = true;
 								gFailLog << "Bad client state! " << array[i] << " disabled." << std::endl;
 							}
 							else
@@ -491,7 +489,6 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 					{ //needs to be disabled, make sure it was (DEBUG TEMPORARY)
 						if (gDebugSession)
 						{
-							error = true;
 							gFailLog << "Bad client state! " << array[i] << " enabled." << std::endl;
 						}
 						else
@@ -2237,7 +2234,6 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 			setup = setup || bindBuffer || bindIndices;
 		}
 
-		bool error = false;
 		if (gDebugGL && !mGLArray)
 		{
 			GLint buff;
@@ -2246,7 +2242,6 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 			{
 				if (gDebugSession)
 				{
-					error = true;
 					gFailLog << "Invalid GL vertex buffer bound: " << buff << std::endl;
 				}
 				else
@@ -2262,7 +2257,6 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 				{
 					if (gDebugSession)
 					{
-						error = true;
 						gFailLog << "Invalid GL index buffer bound: " << buff <<  std::endl;
 					}
 					else

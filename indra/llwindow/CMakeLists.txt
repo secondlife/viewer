@@ -32,6 +32,10 @@ include_directories(
     ${LLXML_INCLUDE_DIRS}
     ${DIRECTX_INCLUDE_DIR}
     )
+include_directories(SYSTEM
+    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
+    ${LLXML_SYSTEM_INCLUDE_DIRS}
+    )
 
 set(llwindow_SOURCE_FILES
     llkeyboard.cpp
