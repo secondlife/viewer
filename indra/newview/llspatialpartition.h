@@ -567,10 +567,10 @@ class LLCullResult
 public:
 	LLCullResult();
 
-	typedef LLSpatialGroup** sg_list_t;
-	typedef LLDrawable** drawable_list_t;
-	typedef LLSpatialBridge** bridge_list_t;
-	typedef LLDrawInfo** drawinfo_list_t;
+	typedef std::vector<LLSpatialGroup*> sg_list_t;
+	typedef std::vector<LLDrawable*> drawable_list_t;
+	typedef std::vector<LLSpatialBridge*> bridge_list_t;
+	typedef std::vector<LLDrawInfo*> drawinfo_list_t;
 
 	typedef LLSpatialGroup** sg_iterator;
 	typedef LLSpatialBridge** bridge_iterator;
@@ -620,7 +620,7 @@ public:
 
 private:
 
-	void pushBack(void** &head, U32& count, void* val);
+	template <class T, class V> void pushBack(T &head, U32& count, V* val);
 
 	U32					mVisibleGroupsSize;
 	U32					mAlphaGroupsSize;
