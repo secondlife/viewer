@@ -8,6 +8,7 @@ include(UnixInstall)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
+    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
     )
 
 set(llvfs_SOURCE_FILES

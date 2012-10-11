@@ -7,6 +7,7 @@ include(LLCommon)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
+    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
     )
 
 set(llmath_SOURCE_FILES
