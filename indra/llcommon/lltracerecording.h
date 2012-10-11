@@ -32,16 +32,17 @@
 
 #include "llpointer.h"
 #include "lltimer.h"
+#include "lltrace.h"
 
 namespace LLTrace
 {
-	template<typename T, typename IS_UNIT> class Rate;
-	template<typename T, typename IS_UNIT> class Measurement;
-	template<typename T> class Count;
-	template<typename T> class AccumulatorBuffer;
-	template<typename T> class RateAccumulator;
-	template<typename T> class MeasurementAccumulator;
-	class TimerAccumulator;
+	//template<typename T, typename IS_UNIT> class Rate;
+	//template<typename T, typename IS_UNIT> class Measurement;
+	//template<typename T> class Count;
+	//template<typename T> class AccumulatorBuffer;
+	//template<typename T> class RateAccumulator;
+	//template<typename T> class MeasurementAccumulator;
+	//class TimerAccumulator;
 
 	class LL_COMMON_API Recording
 	{
@@ -51,43 +52,125 @@ namespace LLTrace
 		~Recording();
 
 		void makePrimary();
-		bool isPrimary();
+		bool isPrimary() const;
 
 		void start();
 		void stop();
 		void resume();
-
-		void mergeSamples(const Recording& other);
-		void mergeDeltas(const Recording& baseline, const Recording& target);
-
 		void reset();
 		void update();
+		bool isStarted() const { return mIsStarted; }
 
-		bool isStarted() { return mIsStarted; }
+		void addSamples(const Recording& other);
+		void addDeltas(const Recording& baseline, const Recording& target);
 
 		// Rate accessors
-		F32 getSum(const Rate<F32, void>& stat);
-		F32 getPerSec(const Rate<F32, void>& stat);
+		template <typename T, typename IS_UNIT>
+		typename Rate<T, IS_UNIT>::base_unit_t getSum(const Rate<T, IS_UNIT>& stat) const
+		{
+			return (typename Rate<T, IS_UNIT>::base_unit_t)stat.getAccumulator(mRates).getSum();
+		}
+
+		template <typename T, typename IS_UNIT>
+		typename Rate<T, IS_UNIT>::base_unit_t getPerSec(const Rate<T, IS_UNIT>& stat) const
+		{
+			return (typename Rate<T, IS_UNIT>::base_unit_t)stat.getAccumulator(mRates).getSum() / mElapsedSeconds;
+		}
 
 		// Measurement accessors
-		F32 getSum(const Measurement<F32, void>& stat);
-		F32 getPerSec(const Measurement<F32, void>& stat);
-		F32 getMin(const Measurement<F32, void>& stat);
-		F32 getMax(const Measurement<F32, void>& stat);
-		F32 getMean(const Measurement<F32, void>& stat);
-		F32 getStandardDeviation(const Measurement<F32, void>& stat);
+		template <typename T, typename IS_UNIT>
+		typename Measurement<T, IS_UNIT>::base_unit_t getSum(const Measurement<T, IS_UNIT>& stat) const
+		{
+			return (typename Measurement<T, IS_UNIT>::base_unit_t)stat.getAccumulator(mMeasurements).getSum();
+
+		}
+
+		template <typename T, typename IS_UNIT>
+		typename Measurement<T, IS_UNIT>::base_unit_t getPerSec(const Measurement<T, IS_UNIT>& stat) const
+		{
+			return (typename Rate<T, IS_UNIT>::base_unit_t)stat.getAccumulator(mMeasurements).getSum() / mElapsedSeconds;
+		}
+
+		template <typename T, typename IS_UNIT>
+		typename Measurement<T, IS_UNIT>::base_unit_t getMin(const Measurement<T, IS_UNIT>& stat) const
+		{
+			return (typename Measurement<T, IS_UNIT>::base_unit_t)stat.getAccumulator(mMeasurements).getMin();
+		}
+
+		template <typename T, typename IS_UNIT>
+		typename Measurement<T, IS_UNIT>::base_unit_t getMax(const Measurement<T, IS_UNIT>& stat) const
+		{
+			return (typename Measurement<T, IS_UNIT>::base_unit_t)stat.getAccumulator(mMeasurements).getMax();
+		}
+
+		template <typename T, typename IS_UNIT>
+		typename Measurement<T, IS_UNIT>::base_unit_t getMean(const Measurement<T, IS_UNIT>& stat) const
+		{
+			return (typename Measurement<T, IS_UNIT>::base_unit_t)stat.getAccumulator(mMeasurements).getMean();
+		}
+
+		template <typename T, typename IS_UNIT>
+		typename Measurement<T, IS_UNIT>::base_unit_t getStandardDeviation(const Measurement<T, IS_UNIT>& stat) const
+		{
+			return (typename Measurement<T, IS_UNIT>::base_unit_t)stat.getAccumulator(mMeasurements).getStandardDeviation();
+		}
+
+		template <typename T, typename IS_UNIT>
+		typename Measurement<T, IS_UNIT>::base_unit_t getLastValue(const Measurement<T, IS_UNIT>& stat) const
+		{
+			return (typename Measurement<T, IS_UNIT>::base_unit_t)stat.getAccumulator(mMeasurements).getLastValue();
+		}
 
 		// Count accessors
-		F32 getSum(const Count<F32>& stat);
-		F32 getPerSec(const Count<F32>& stat);
-		F32 getIncrease(const Count<F32>& stat);
-		F32 getIncreasePerSec(const Count<F32>& stat);
-		F32 getDecrease(const Count<F32>& stat);
-		F32 getDecreasePerSec(const Count<F32>& stat);
-		F32 getChurn(const Count<F32>& stat);
-		F32 getChurnPerSec(const Count<F32>& stat);
+		template <typename T>
+		typename Count<T>::base_unit_t getSum(const Count<T>& stat) const
+		{
+			return getSum(stat.mTotal);
+		}
 
-		F64 getSampleTime() { return mElapsedSeconds; }
+		template <typename T>
+		typename Count<T>::base_unit_t getPerSec(const Count<T>& stat) const
+		{
+			return getPerSec(stat.mTotal);
+		}
+
+		template <typename T>
+		typename Count<T>::base_unit_t getIncrease(const Count<T>& stat) const
+		{
+			return getPerSec(stat.mTotal);
+		}
+
+		template <typename T>
+		typename Count<T>::base_unit_t getIncreasePerSec(const Count<T>& stat) const
+		{
+			return getPerSec(stat.mIncrease);
+		}
+
+		template <typename T>
+		typename Count<T>::base_unit_t getDecrease(const Count<T>& stat) const
+		{
+			return getPerSec(stat.mDecrease);
+		}
+
+		template <typename T>
+		typename Count<T>::base_unit_t getDecreasePerSec(const Count<T>& stat) const
+		{
+			return getPerSec(stat.mDecrease);
+		}
+
+		template <typename T>
+		typename Count<T>::base_unit_t getChurn(const Count<T>& stat) const
+		{
+			return getIncrease(stat) + getDecrease(stat);
+		}
+
+		template <typename T>
+		typename Count<T>::base_unit_t getChurnPerSec(const Count<T>& stat) const
+		{
+			return getIncreasePerSec(stat) + getDecreasePerSec(stat);
+		}
+
+		F64 getSampleTime() const { return mElapsedSeconds; }
 
 	private:
 		friend class ThreadRecorder;

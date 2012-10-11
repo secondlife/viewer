@@ -703,21 +703,26 @@ void LLWorld::updateNetStats()
 	S32 actual_in_bits = gMessageSystem->mPacketRing.getAndResetActualInBits();
 	S32 actual_out_bits = gMessageSystem->mPacketRing.getAndResetActualOutBits();
 
-	LLViewerStats::getInstance()->mActualInKBitStat.addValue(actual_in_bits/1024.f);
-	LLViewerStats::getInstance()->mActualOutKBitStat.addValue(actual_out_bits/1024.f);
+	LLStatViewer::ACTUAL_IN_KBIT.add<LLUnits::Bits<F32> >(actual_in_bits);
+	LLStatViewer::ACTUAL_OUT_KBIT.add<LLUnits::Bits<F32> >(actual_out_bits);
+	//LLViewerStats::getInstance()->mActualInKBitStat.addValue(actual_in_bits/1024.f);
+	//LLViewerStats::getInstance()->mActualOutKBitStat.addValue(actual_out_bits/1024.f);
 	LLStatViewer::KBIT.add<LLUnits::Bits<F32> >(bits);
 	//LLViewerStats::getInstance()->mKBitStat.addValue(bits/1024.f);
-	LLViewerStats::getInstance()->mPacketsInStat.addValue(packets_in);
-	LLViewerStats::getInstance()->mPacketsOutStat.addValue(packets_out);
-	LLViewerStats::getInstance()->mPacketsLostStat.addValue(gMessageSystem->mDroppedPackets);
-	if (packets_in)
-	{
-		LLViewerStats::getInstance()->mPacketsLostPercentStat.addValue(100.f*((F32)packets_lost/(F32)packets_in));
-	}
-	else
-	{
-		LLViewerStats::getInstance()->mPacketsLostPercentStat.addValue(0.f);
-	}
+	LLStatViewer::PACKETS_IN.add(packets_in);
+	LLStatViewer::PACKETS_OUT.add(packets_out);
+	LLStatViewer::PACKETS_LOST.add(packets_lost);
+	//LLViewerStats::getInstance()->mPacketsInStat.addValue(packets_in);
+	//LLViewerStats::getInstance()->mPacketsOutStat.addValue(packets_out);
+	//LLViewerStats::getInstance()->mPacketsLostStat.addValue(gMessageSystem->mDroppedPackets);
+	//if (packets_in)
+	//{
+	//	LLViewerStats::getInstance()->mPacketsLostPercentStat.addValue(100.f*((F32)packets_lost/(F32)packets_in));
+	//}
+	//else
+	//{
+	//	LLViewerStats::getInstance()->mPacketsLostPercentStat.addValue(0.f);
+	//}
 
 	mLastPacketsIn = gMessageSystem->mPacketsIn;
 	mLastPacketsOut = gMessageSystem->mPacketsOut;
@@ -1129,6 +1134,7 @@ void send_agent_pause()
 	}
 
 	gObjectList.mWasPaused = TRUE;
+	LLViewerStats::instance().getRecording().stop();
 }
 
 
@@ -1158,8 +1164,8 @@ void send_agent_resume()
 		gMessageSystem->sendReliable(regionp->getHost());
 	}
 
-	// Reset the FPS counter to avoid an invalid fps
-	LLViewerStats::getInstance()->mFPSStat.reset();
+	// Resume data collection to ignore invalid rates
+	LLViewerStats::instance().getRecording().resume();//getInstance()->mFPSStat.reset();
 
 	LLAppViewer::instance()->resumeMainloopTimeout();
 }

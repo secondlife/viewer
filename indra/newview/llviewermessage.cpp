@@ -4756,18 +4756,23 @@ void process_sim_stats(LLMessageSystem *msg, void **user_data)
 		switch (stat_id)
 		{
 		case LL_SIM_STAT_TIME_DILATION:
-			LLViewerStats::getInstance()->mSimTimeDilation.addValue(stat_value);
+			LLStatViewer::SIM_TIME_DILATION.sample(stat_value);
+			//LLViewerStats::getInstance()->mSimTimeDilation.addValue(stat_value);
 			break;
 		case LL_SIM_STAT_FPS:
-			LLViewerStats::getInstance()->mSimFPS.addValue(stat_value);
+			LLStatViewer::SIM_FPS.sample(stat_value);
+			//LLViewerStats::getInstance()->mSimFPS.addValue(stat_value);
 			break;
 		case LL_SIM_STAT_PHYSFPS:
-			LLViewerStats::getInstance()->mSimPhysicsFPS.addValue(stat_value);
+			LLStatViewer::SIM_PHYSICS_FPS.sample(stat_value);
+			//LLViewerStats::getInstance()->mSimPhysicsFPS.addValue(stat_value);
 			break;
 		case LL_SIM_STAT_AGENTUPS:
-			LLViewerStats::getInstance()->mSimAgentUPS.addValue(stat_value);
+			LLStatViewer::SIM_AGENT_UPS.sample(stat_value);
+			//LLViewerStats::getInstance()->mSimAgentUPS.addValue(stat_value);
 			break;
 		case LL_SIM_STAT_FRAMEMS:
+			//LLStatViewer::SIM_.sample(stat_value);
 			LLViewerStats::getInstance()->mSimFrameMsec.addValue(stat_value);
 			break;
 		case LL_SIM_STAT_NETMS:

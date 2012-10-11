@@ -25,8 +25,9 @@
 
 #include "linden_common.h"
 
-#include "lltracerecording.h"
 #include "lltrace.h"
+#include "lltracerecording.h"
+#include "lltracethreadrecorder.h"
 #include "llthread.h"
 
 namespace LLTrace
@@ -101,99 +102,22 @@ void Recording::makePrimary()
 	mStackTimers.write()->makePrimary();
 }
 
-bool Recording::isPrimary()
+bool Recording::isPrimary() const
 {
 	return mRates->isPrimary();
 }
 
-void Recording::mergeSamples( const Recording& other )
+void Recording::addSamples( const Recording& other )
 {
-	mRates.write()->mergeSamples(*other.mRates);
-	mMeasurements.write()->mergeSamples(*other.mMeasurements);
-	mStackTimers.write()->mergeSamples(*other.mStackTimers);
+	mRates.write()->addSamples(*other.mRates);
+	mMeasurements.write()->addSamples(*other.mMeasurements);
+	mStackTimers.write()->addSamples(*other.mStackTimers);
 }
 
-void Recording::mergeDeltas(const Recording& baseline, const Recording& target)
+void Recording::addDeltas(const Recording& baseline, const Recording& target)
 {
-	mRates.write()->mergeDeltas(*baseline.mRates, *target.mRates);
-	mStackTimers.write()->mergeDeltas(*baseline.mStackTimers, *target.mStackTimers);
+	mRates.write()->addDeltas(*baseline.mRates, *target.mRates);
+	mStackTimers.write()->addDeltas(*baseline.mStackTimers, *target.mStackTimers);
 }
-
-
-F32 Recording::getSum(const Rate<F32>& stat)
-{
-	return stat.getAccumulator(mRates).getSum();
-}
-
-F32 Recording::getPerSec(const Rate<F32>& stat)
-{
-	return stat.getAccumulator(mRates).getSum() / mElapsedSeconds;
-}
-
-F32 Recording::getSum(const Measurement<F32>& stat)
-{
-	return stat.getAccumulator(mMeasurements).getSum();
-}
-
-F32 Recording::getMin(const Measurement<F32>& stat)
-{
-	return stat.getAccumulator(mMeasurements).getMin();
-}
-
-F32 Recording::getMax(const Measurement<F32>& stat)
-{
-	return stat.getAccumulator(mMeasurements).getMax();
-}
-
-F32 Recording::getMean(const Measurement<F32>& stat)
-{
-	return stat.getAccumulator(mMeasurements).getMean();
-}
-
-F32 Recording::getStandardDeviation(const Measurement<F32>& stat)
-{
-	return stat.getAccumulator(mMeasurements).getStandardDeviation();
-}
-
-F32 Recording::getSum(const Count<F32>& stat)
-{
-	return getSum(stat.mTotal);
-}
-
-F32 Recording::getPerSec(const Count<F32>& stat)
-{
-	return getPerSec(stat.mTotal);
-}
-
-F32 Recording::getIncrease(const Count<F32>& stat)
-{
-	return getSum(stat.mIncrease);
-}
-
-F32 Recording::getIncreasePerSec(const Count<F32>& stat)
-{
-	return getPerSec(stat.mIncrease);
-}
-
-F32 Recording::getDecrease(const Count<F32>& stat)
-{
-	return getSum(stat.mDecrease);
-}
-
-F32 Recording::getDecreasePerSec(const Count<F32>& stat)
-{
-	return getPerSec(stat.mDecrease);
-}
-
-F32 Recording::getChurn(const Count<F32>& stat)
-{
-	return getIncrease(stat) + getDecrease(stat);
-}
-
-F32 Recording::getChurnPerSec(const Count<F32>& stat)
-{
-	return getIncreasePerSec(stat) + getDecreasePerSec(stat);
-}
-
 
 }

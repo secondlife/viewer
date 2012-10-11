@@ -2316,7 +2316,8 @@ S32 LLTextureFetch::update(F32 max_time_ms)
 
 	if(mCurlGetRequest)
 	{
-		gTextureList.sTextureBits += mCurlGetRequest->getTotalReceivedBits();
+		LLStatViewer::TEXTURE_KBIT.add<LLUnits::Bits<F32> >(mCurlGetRequest->getTotalReceivedBits());
+		//gTextureList.sTextureBits += mCurlGetRequest->getTotalReceivedBits();
 	}
 
 	if(mFetchDebugger)
