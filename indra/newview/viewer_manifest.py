@@ -28,10 +28,7 @@ $/LicenseInfo$
 """
 import sys
 import os.path
-import errno
-import glob
 import re
-import shutil
 import tarfile
 import time
 import random
@@ -134,34 +131,17 @@ class ViewerManifest(LLManifest):
                     self.path("*/*.xml")
 
                     # Local HTML files (e.g. loading screen)
-                    if self.prefix(src="*/html"):
+                    # The claim is that we never use local html files any
+                    # longer. But rather than commenting out this block, let's
+                    # rename every html subdirectory as html.old. That way, if
+                    # we're wrong, a user actually does have the relevant
+                    # files; s/he just needs to rename every html.old
+                    # directory back to html to recover them.
+                    if self.prefix(src="*/html", dst="*/html.old"):
                             self.path("*.png")
                             self.path("*/*/*.html")
                             self.path("*/*/*.gif")
                             self.end_prefix("*/html")
-
-                    # The claim is that we never use local html files any
-                    # longer. But rather than commenting out the "*/html"
-                    # block above, let's rename every html subdirectory we
-                    # copied as html.old. That way, if we're wrong, a user
-                    # actually does have the relevant files; s/he just needs
-                    # to rename every html.old directory back to html to
-                    # recover them. (Possibly I could accomplish the rename
-                    # with clever use of self.prefix(), but the leading "*"
-                    # perplexes me.)
-                    for htmldir in glob.glob(os.path.join(self.get_dst_prefix(), "*", "html")):
-                        htmlold = htmldir + ".old"
-                        print "Renaming %r => %r" % (htmldir, os.path.basename(htmlold))
-                        try:
-                            os.rename(htmldir, htmlold)
-                        except OSError, err:
-                            if err.errno != errno.ENOTEMPTY:
-                                raise
-                            # If we already have a directory by that name and
-                            # it's not empty, remove it and retry.
-                            shutil.rmtree(htmlold)
-                            # If it still blows up, let the exception propagate.
-                            os.rename(htmldir, htmlold)
 
                     self.end_prefix("skins")
 
