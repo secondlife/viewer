@@ -350,6 +350,8 @@ public:
 	element_list& getData() { return mOctreeNode->getData(); }
 	element_iter getDataBegin() { return mOctreeNode->getDataBegin(); }
 	element_iter getDataEnd() { return mOctreeNode->getDataEnd(); }
+	bool hasElement(LLDrawable* drawablep) { return std::find(mOctreeNode->getDataBegin(), mOctreeNode->getDataEnd(), drawablep) != mOctreeNode->getDataEnd(); }
+
 	U32 getElementCount() const { return mOctreeNode->getElementCount(); }
 	bool isEmpty() const { return mOctreeNode->isEmpty(); }
 
