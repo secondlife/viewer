@@ -485,9 +485,11 @@ void LLFontFreetype::renderGlyph(U32 glyph_index) const
 	if (mFTFace == NULL)
 		return;
 
-	llassert(! FT_Load_Glyph(mFTFace, glyph_index, FT_LOAD_FORCE_AUTOHINT) );
+	int error = FT_Load_Glyph(mFTFace, glyph_index, FT_LOAD_FORCE_AUTOHINT);
+	llassert(!error);
 
-	llassert(! FT_Render_Glyph(mFTFace->glyph, gFontRenderMode) );
+	error = FT_Render_Glyph(mFTFace->glyph, gFontRenderMode);
+	llassert(!error);
 
 	mRenderGlyphCount++;
 }
