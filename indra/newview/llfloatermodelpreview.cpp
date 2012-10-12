@@ -737,6 +737,20 @@ void LLFloaterModelPreview::onAutoFillCommit(LLUICtrl* ctrl, void* userdata)
 void LLFloaterModelPreview::onLODParamCommit(S32 lod, bool enforce_tri_limit)
 {
 	mModelPreview->onLODParamCommit(lod, enforce_tri_limit);
+
+	//refresh LoDs that reference this one
+	for (S32 i = lod - 1; i >= 0; --i)
+	{
+		LLComboBox* lod_source_combo = getChild<LLComboBox>("lod_source_" + lod_name[i]);
+		if (lod_source_combo->getCurrentIndex() == LLModelPreview::USE_LOD_ABOVE)
+		{
+			onLoDSourceCommit(i);
+		}
+		else
+		{
+			break;
+		}
+	}
 }
 
 
@@ -4588,7 +4602,7 @@ void LLModelPreview::updateLodControls(S32 lod)
 	if (!lod_combo) return;
 
 	S32 lod_mode = lod_combo->getCurrentIndex();
-	if (lod_mode == 0) // LoD from file
+	if (lod_mode == LOD_FROM_FILE) // LoD from file
 	{
 		fmp->mLODMode[lod] = 0;
 		for (U32 i = 0; i < num_file_controls; ++i)
@@ -4601,7 +4615,7 @@ void LLModelPreview::updateLodControls(S32 lod)
 			mFMP->childHide(lod_controls[i] + lod_name[lod]);
 		}
 	}
-	else if (lod_mode == 2) // use LoD above
+	else if (lod_mode == USE_LOD_ABOVE) // use LoD above
 	{
 		fmp->mLODMode[lod] = 2;
 		for (U32 i = 0; i < num_file_controls; ++i)
@@ -5762,6 +5776,12 @@ void LLFloaterModelPreview::onLoDSourceCommit(S32 lod)
 {
 	mModelPreview->updateLodControls(lod);
 	refresh();
+
+	LLComboBox* lod_source_combo = getChild<LLComboBox>("lod_source_" + lod_name[lod]);
+	if (lod_source_combo->getCurrentIndex() == LLModelPreview::GENERATE)
+	{ //rebuild LoD to update triangle counts
+		onLODParamCommit(lod, true);
+	}
 }
 
 void LLFloaterModelPreview::resetDisplayOptions()
