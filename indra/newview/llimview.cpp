@@ -643,6 +643,12 @@ void LLIMModel::processSessionInitializedReply(const LLUUID& old_session_id, con
 	{
 		session->sessionInitReplyReceived(new_session_id);
 
+		if (old_session_id != new_session_id)
+		{
+			mId2SessionMap.erase(old_session_id);
+			mId2SessionMap[new_session_id] = session;
+		}
+
 		LLIMFloater* im_floater = LLIMFloater::findInstance(old_session_id);
 		if (im_floater)
 		{
@@ -651,9 +657,6 @@ void LLIMModel::processSessionInitializedReply(const LLUUID& old_session_id, con
 
 		if (old_session_id != new_session_id)
 		{
-			mId2SessionMap.erase(old_session_id);
-			mId2SessionMap[new_session_id] = session;
-
 			gIMMgr->notifyObserverSessionIDUpdated(old_session_id, new_session_id);
 		}
 

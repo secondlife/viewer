@@ -109,8 +109,7 @@ void LLIMFloaterContainer::sessionVoiceOrIMStarted(const LLUUID& session_id)
 
 void LLIMFloaterContainer::sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id)
 {
-	removeConversationListItem(old_session_id);
-	addConversationListItem(new_session_id);
+	addConversationListItem(new_session_id, removeConversationListItem(old_session_id));
 }
 
 void LLIMFloaterContainer::sessionRemoved(const LLUUID& session_id)
@@ -1118,7 +1117,7 @@ void LLIMFloaterContainer::setNearbyDistances()
 	}
 }
 
-void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
+void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid, bool isWidgetSelected /*= false*/)
 {
 	bool is_nearby_chat = uuid.isNull();
 	
@@ -1173,7 +1172,10 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 		current_participant_model++;
 	}
 
-	setConvItemSelect(uuid);
+	if (isWidgetSelected)
+	{
+		setConvItemSelect(uuid);
+	}
 	
 	// set the widget to minimized mode if conversations pane is collapsed
 	widget->toggleMinimizedMode(mConversationsPane->isCollapsed());
@@ -1181,17 +1183,19 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 	return;
 }
 
-void LLIMFloaterContainer::removeConversationListItem(const LLUUID& uuid, bool change_focus)
+bool LLIMFloaterContainer::removeConversationListItem(const LLUUID& uuid, bool change_focus)
 {
 	// Delete the widget and the associated conversation item
 	// Note : since the mConversationsItems is also the listener to the widget, deleting 
 	// the widget will also delete its listener
+	bool isWidgetSelected = false;
 	conversations_widgets_map::iterator widget_it = mConversationsWidgets.find(uuid);
 	if (widget_it != mConversationsWidgets.end())
 	{
 		LLFolderViewItem* widget = widget_it->second;
 		if (widget)
 		{
+			isWidgetSelected = widget->isSelected();
 			widget->destroyView();
 		}
 	}
@@ -1211,6 +1215,7 @@ void LLIMFloaterContainer::removeConversationListItem(const LLUUID& uuid, bool c
 			widget->selectItem();
 		}
 	}
+	return isWidgetSelected;
 }
 
 LLConversationViewSession* LLIMFloaterContainer::createConversationItemWidget(LLConversationItem* item)
