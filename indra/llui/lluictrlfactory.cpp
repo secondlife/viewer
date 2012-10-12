@@ -151,11 +151,12 @@ static LLFastTimer::DeclareTimer FTM_XML_PARSE("XML Reading/Parsing");
 //-----------------------------------------------------------------------------
 // getLayeredXMLNode()
 //-----------------------------------------------------------------------------
-bool LLUICtrlFactory::getLayeredXMLNode(const std::string &xui_filename, LLXMLNodePtr& root)
+bool LLUICtrlFactory::getLayeredXMLNode(const std::string &xui_filename, LLXMLNodePtr& root,
+                                        LLDir::ESkinConstraint constraint)
 {
 	LLFastTimer timer(FTM_XML_PARSE);
 	std::vector<std::string> paths =
-		gDirUtilp->findSkinnedFilenames(LLDir::XUI, xui_filename);
+		gDirUtilp->findSkinnedFilenames(LLDir::XUI, xui_filename, constraint);
 
 	if (paths.empty())
 	{

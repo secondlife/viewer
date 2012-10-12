@@ -35,21 +35,13 @@
 
 bool LLTransUtil::parseStrings(const std::string& xml_filename, const std::set<std::string>& default_args)
 {
-	// LLUICtrlFactory::getLayeredXMLNode() just calls
-	// gDirUtilp->findSkinnedFilenames(constraint=LLDir::CURRENT_SKIN) and
-	// then passes the resulting paths to LLXMLNode::getLayeredXMLNode().
-	// Bypass that and call LLXMLNode::getLayeredXMLNode() directly: we want
-	// constraint=LLDir::ALL_SKINS.
-	std::vector<std::string> paths =
-		gDirUtilp->findSkinnedFilenames(LLDir::XUI, xml_filename, LLDir::ALL_SKINS);
-	if (paths.empty())
-	{
-		// xml_filename not found at all in any skin -- check whether entire
-		// path was passed (but I hope we no longer have callers who do that)
-		paths.push_back(xml_filename);
-	}
 	LLXMLNodePtr root;
-	bool success = LLXMLNode::getLayeredXMLNode(root, paths);
+	// Pass LLDir::ALL_SKINS to load a composite of all the individual string
+	// definitions in the default skin and the current skin. This means an
+	// individual skin can provide an xml_filename that overrides only a
+	// subset of the available string definitions; any string definition not
+	// overridden by that skin will be sought in the default skin.
+	bool success = LLUICtrlFactory::getLayeredXMLNode(xml_filename, root, LLDir::ALL_SKINS);
 	if (!success)
 	{
 		llerrs << "Couldn't load string table " << xml_filename << llendl;

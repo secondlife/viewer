@@ -31,6 +31,7 @@
 #include "llinitparam.h"
 #include "llregistry.h"
 #include "llxuiparser.h"
+#include "lldir.h"
 
 class LLView;
 
@@ -212,7 +213,8 @@ fail:
 
 	static void createChildren(LLView* viewp, LLXMLNodePtr node, const widget_registry_t&, LLXMLNodePtr output_node = NULL);
 
-	static bool getLayeredXMLNode(const std::string &filename, LLXMLNodePtr& root);
+	static bool getLayeredXMLNode(const std::string &filename, LLXMLNodePtr& root,
+								  LLDir::ESkinConstraint constraint=LLDir::CURRENT_SKIN);
 
 private:
 	//NOTE: both friend declarations are necessary to keep both gcc and msvc happy
