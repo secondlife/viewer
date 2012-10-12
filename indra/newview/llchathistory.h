@@ -103,7 +103,7 @@ class LLChatHistory : public LLUICtrl
 
 	public:
 		~LLChatHistory();
-
+		LLSD getVlue();   
 		void initFromParams(const Params&);
 
 		/**
