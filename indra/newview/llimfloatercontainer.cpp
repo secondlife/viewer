@@ -142,6 +142,9 @@ BOOL LLIMFloaterContainer::postBuild()
 	
 	mConversationsListPanel = getChild<LLPanel>("conversations_list_panel");
 
+	// Open IM session with selected participant on double click event
+	mConversationsListPanel->setDoubleClickCallback(boost::bind(&LLIMFloaterContainer::doToSelected, this, LLSD("im")));
+
 	// Create the root model and view for all conversation sessions
 	LLConversationItem* base_item = new LLConversationItem(getRootViewModel());
 
