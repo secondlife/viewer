@@ -1859,15 +1859,13 @@ std::string LLUI::locateSkin(const std::string& filename)
 	}
 
 	found_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, filename);
-/*==========================================================================*|
-	// Hmm, if we got this far, previous implementation of this method would
-	// return this last found_file value whether or not it actually exists.
 	if (gDirUtilp->fileExists(found_file))
 	{
 		return found_file;
 	}
-|*==========================================================================*/
-	return found_file;
+	LL_WARNS("LLUI") << "Can't find '" << filename
+					 << "' in user settings, any skin directory or app_settings" << LL_ENDL;
+	return "";
 }
 
 //static
