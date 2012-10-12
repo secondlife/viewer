@@ -1426,7 +1426,7 @@ void LLPrivateMemoryPool::freeMem(void* addr)
 	
 	if(!chunk)
 	{
-		ll_aligned_free(addr) ; //release from heap
+		ll_aligned_free_16(addr) ; //release from heap
 	}
 	else
 	{
@@ -1618,7 +1618,7 @@ void LLPrivateMemoryPool::removeChunk(LLMemoryChunk* chunk)
 	mReservedPoolSize -= chunk->getBufferSize() ;
 	
 	//release memory
-	ll_aligned_free(chunk->getBuffer()) ;
+	ll_aligned_free_16(chunk->getBuffer()) ;
 }
 
 U16 LLPrivateMemoryPool::findHashKey(const char* addr)
@@ -2016,7 +2016,7 @@ void  LLPrivateMemoryPoolManager::freeMem(LLPrivateMemoryPool* poolp, void* addr
 	{
 		if(!sPrivatePoolEnabled)
 		{
-			ll_aligned_free(addr) ; //private pool is disabled.
+			ll_aligned_free_16(addr) ; //private pool is disabled.
 		}
 		else if(!sInstance) //the private memory manager is destroyed, try the dangling list
 		{
