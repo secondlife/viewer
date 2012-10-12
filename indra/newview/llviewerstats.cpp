@@ -497,6 +497,8 @@ void update_statistics()
 			texture_stats_timer.reset();
 		}
 	}
+
+	LLTrace::get_frame_recording().nextPeriod();
 }
 
 class ViewerStatsResponder : public LLHTTPClient::Responder

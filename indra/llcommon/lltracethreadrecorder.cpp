@@ -36,15 +36,13 @@ namespace LLTrace
 ///////////////////////////////////////////////////////////////////////
 
 ThreadRecorder::ThreadRecorder()
-:	mPrimaryRecording(NULL)
 {
 	get_thread_recorder() = this;
 	mFullRecording.start();
 }
 
 ThreadRecorder::ThreadRecorder( const ThreadRecorder& other ) 
-:	mFullRecording(other.mFullRecording),
-	mPrimaryRecording(NULL)
+:	mFullRecording(other.mFullRecording)
 {
 	get_thread_recorder() = this;
 	mFullRecording.start();
@@ -55,45 +53,40 @@ ThreadRecorder::~ThreadRecorder()
 	get_thread_recorder() = NULL;
 }
 
-//TODO: remove this and use llviewerstats recording
-Recording* ThreadRecorder::getPrimaryRecording()
-{
-	return mPrimaryRecording;
-}
-
 void ThreadRecorder::activate( Recording* recording )
 {
-	mActiveRecordings.push_front(ActiveRecording(mPrimaryRecording, recording));
+	mActiveRecordings.push_front(ActiveRecording(recording));
 	mActiveRecordings.front().mBaseline.makePrimary();
-	mPrimaryRecording = &mActiveRecordings.front().mBaseline;
 }
 
 std::list<ThreadRecorder::ActiveRecording>::iterator ThreadRecorder::update( Recording* recording )
 {
-	for (std::list<ActiveRecording>::iterator it = mActiveRecordings.begin(), end_it = mActiveRecordings.end();
+	std::list<ActiveRecording>::iterator it, end_it;
+	for (it = mActiveRecordings.begin(), end_it = mActiveRecordings.end();
 		it != end_it;
 		++it)
 	{
 		std::list<ActiveRecording>::iterator next_it = it;
-		if (++next_it != mActiveRecordings.end())
+		++next_it;
+
+		// if we have another recording further down in the stack...
+		if (next_it != mActiveRecordings.end())
 		{
-			next_it->mergeMeasurements((*it));
+			// ...push our gathered data down to it
+			next_it->mBaseline.mergeRecording(it->mBaseline);
 		}
 
-		it->flushAccumulators(mPrimaryRecording);
+		// copy accumulated measurements into result buffer and clear accumulator (mBaseline)
+		it->moveBaselineToTarget();
 
 		if (it->mTargetRecording == recording)
 		{
-			if (next_it != mActiveRecordings.end())
-			{
-				next_it->mBaseline.makePrimary();
-				mPrimaryRecording = &next_it->mBaseline;
-			}
-			return it;
+			// found the recording, so return it
+			break;
 		}
 	}
 
-	return mActiveRecordings.end();
+	return it;
 }
 
 void ThreadRecorder::deactivate( Recording* recording )
@@ -101,37 +94,33 @@ void ThreadRecorder::deactivate( Recording* recording )
 	std::list<ActiveRecording>::iterator it = update(recording);
 	if (it != mActiveRecordings.end())
 	{
+		// and if we've found the recording we wanted to update
+		std::list<ActiveRecording>::iterator next_it = it;
+		++next_it;
+		if (next_it != mActiveRecordings.end())
+		{
+			next_it->mTargetRecording->makePrimary();
+		}
+
 		mActiveRecordings.erase(it);
 	}
 }
 
-ThreadRecorder::ActiveRecording::ActiveRecording( Recording* source, Recording* target ) 
+ThreadRecorder::ActiveRecording::ActiveRecording( Recording* target ) 
 :	mTargetRecording(target)
 {
-	// take snapshots of current values rates and timers
-	if (source)
-	{
-		mBaseline.mRates.write()->copyFrom(*source->mRates);
-		mBaseline.mStackTimers.write()->copyFrom(*source->mStackTimers);
-	}
 }
 
-void ThreadRecorder::ActiveRecording::mergeMeasurements(ThreadRecorder::ActiveRecording& other)
+void ThreadRecorder::ActiveRecording::moveBaselineToTarget()
 {
-	mBaseline.mMeasurements.write()->addSamples(*other.mBaseline.mMeasurements);
-}
-
-void ThreadRecorder::ActiveRecording::flushAccumulators(Recording* current)
-{
-	// accumulate statistics-like measurements
 	mTargetRecording->mMeasurements.write()->addSamples(*mBaseline.mMeasurements);
-	// for rate-like measurements, merge total change since baseline
-	mTargetRecording->mRates.write()->addDeltas(*mBaseline.mRates, *current->mRates);
-	mTargetRecording->mStackTimers.write()->addDeltas(*mBaseline.mStackTimers, *current->mStackTimers);
-	// reset baselines
-	mBaseline.mRates.write()->copyFrom(*current->mRates);
-	mBaseline.mStackTimers.write()->copyFrom(*current->mStackTimers);
+	mTargetRecording->mRates.write()->addSamples(*mBaseline.mRates);
+	mTargetRecording->mStackTimers.write()->addSamples(*mBaseline.mStackTimers);
+	mBaseline.mMeasurements.write()->reset();
+	mBaseline.mRates.write()->reset();
+	mBaseline.mStackTimers.write()->reset();
 }
+
 
 ///////////////////////////////////////////////////////////////////////
 // SlaveThreadRecorder

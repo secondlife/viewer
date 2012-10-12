@@ -86,15 +86,15 @@ void LLStatGraph::draw()
 	}
 	else if (mF32Statp)
 	{
-		LLTrace::Recording* recording = LLTrace::get_thread_recorder()->getPrimaryRecording();
+		LLTrace::Recording& recording = LLTrace::get_frame_recording().getLastRecordingPeriod();
 
 		if (mPerSec)
 		{
-			mValue = recording->getSum(*mF32Statp) / recording->getSampleTime();
+			mValue = recording.getPerSec(*mF32Statp);
 		}
 		else
 		{
-			mValue = recording->getSum(*mF32Statp);
+			mValue = recording.getSum(*mF32Statp);
 		}
 
 	}

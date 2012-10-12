@@ -51,19 +51,16 @@ namespace LLTrace
 
 		virtual void pushToMaster() = 0;
 
-		Recording* getPrimaryRecording();
 	protected:
 		struct ActiveRecording
 		{
-			ActiveRecording(Recording* source, Recording* target);
+			ActiveRecording(Recording* target);
 
 			Recording*	mTargetRecording;
 			Recording	mBaseline;
 
-			void mergeMeasurements(ActiveRecording& other);
-			void flushAccumulators(Recording* current);
+			void moveBaselineToTarget();
 		};
-		Recording*					mPrimaryRecording;
 		Recording					mFullRecording;
 		std::list<ActiveRecording>	mActiveRecordings;
 	};

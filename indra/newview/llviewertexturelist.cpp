@@ -58,7 +58,7 @@
 #include "pipeline.h"
 #include "llappviewer.h"
 #include "llxuiparser.h"
-#include "lltracethreadrecorder.h"
+#include "lltracerecording.h"
 #include "llviewerdisplay.h"
 
 ////////////////////////////////////////////////////////////////////////////
@@ -621,9 +621,9 @@ void LLViewerTextureList::updateImages(F32 max_time)
 	}
 	cleared = FALSE;
 
-	LLTrace::Recording* recording = LLTrace::get_thread_recorder()->getPrimaryRecording();
+	LLTrace::Recording& recording = LLTrace::get_frame_recording().getTotalRecording();
 
-	LLAppViewer::getTextureFetch()->setTextureBandwidth(recording->getPerSec(LLStatViewer::TEXTURE_KBIT).value());
+	LLAppViewer::getTextureFetch()->setTextureBandwidth(recording.getPerSec(LLStatViewer::TEXTURE_KBIT).value());
 
 	LLViewerStats::getInstance()->mNumImagesStat.addValue(sNumImages);
 	LLViewerStats::getInstance()->mNumRawImagesStat.addValue(LLImageRaw::sRawImageCount);

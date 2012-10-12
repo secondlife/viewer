@@ -68,16 +68,16 @@ void Recording::handleReset()
 }
 
 void Recording::handleStart()
-	{
-		mSamplingTimer.reset();
-		LLTrace::get_thread_recorder()->activate(this);
+{
+	mSamplingTimer.reset();
+	LLTrace::get_thread_recorder()->activate(this);
 }
 
 void Recording::handleStop()
-	{
-		mElapsedSeconds += mSamplingTimer.getElapsedTimeF64();
-		LLTrace::get_thread_recorder()->deactivate(this);
-	}
+{
+	mElapsedSeconds += mSamplingTimer.getElapsedTimeF64();
+	LLTrace::get_thread_recorder()->deactivate(this);
+}
 
 void Recording::handleSplitTo(Recording& other)
 {
@@ -105,10 +105,204 @@ void Recording::mergeRecording( const Recording& other )
 	mStackTimers.write()->addSamples(*other.mStackTimers);
 }
 
-void Recording::mergeRecordingDelta(const Recording& baseline, const Recording& target)
+///////////////////////////////////////////////////////////////////////
+// Recording
+///////////////////////////////////////////////////////////////////////
+
+PeriodicRecording::PeriodicRecording( S32 num_periods ) 
+:	mNumPeriods(num_periods),
+	mCurPeriod(0),
+	mTotalValid(false),
+	mRecordingPeriods( new Recording[num_periods])
 {
-	mRates.write()->addDeltas(*baseline.mRates, *target.mRates);
-	mStackTimers.write()->addDeltas(*baseline.mStackTimers, *target.mStackTimers);
+	llassert(mNumPeriods > 0);
 }
 
+PeriodicRecording::~PeriodicRecording()
+{
+	delete[] mRecordingPeriods;
+}
+
+
+void PeriodicRecording::nextPeriod()
+{
+	EPlayState play_state = getPlayState();
+	getCurRecordingPeriod().stop();
+	mCurPeriod = (mCurPeriod + 1) % mNumPeriods;
+	switch(play_state)
+	{
+	case STOPPED:
+		break;
+	case PAUSED:
+		getCurRecordingPeriod().pause();
+		break;
+	case STARTED:
+		getCurRecordingPeriod().start();
+		break;
+	}
+	// new period, need to recalculate total
+	mTotalValid = false;
+}
+
+Recording& PeriodicRecording::getTotalRecording()
+{
+	if (!mTotalValid)
+	{
+		mTotalRecording.reset();
+		for (S32 i = (mCurPeriod + 1) % mNumPeriods; i < mCurPeriod; i++)
+		{
+			mTotalRecording.mergeRecording(mRecordingPeriods[i]);
+		}
+	}
+	mTotalValid = true;
+	return mTotalRecording;
+}
+
+void PeriodicRecording::handleStart()
+{
+	getCurRecordingPeriod().handleStart();
+}
+
+void PeriodicRecording::handleStop()
+{
+	getCurRecordingPeriod().handleStop();
+}
+
+void PeriodicRecording::handleReset()
+{
+	getCurRecordingPeriod().handleReset();
+}
+
+void PeriodicRecording::handleSplitTo( PeriodicRecording& other )
+{
+	getCurRecordingPeriod().handleSplitTo(other.getCurRecordingPeriod());
+}
+
+///////////////////////////////////////////////////////////////////////
+// ExtendableRecording
+///////////////////////////////////////////////////////////////////////
+
+void ExtendableRecording::extend()
+{
+	mAcceptedRecording.mergeRecording(mPotentialRecording);
+	mPotentialRecording.reset();
+}
+
+void ExtendableRecording::handleStart()
+{
+	mPotentialRecording.handleStart();
+}
+
+void ExtendableRecording::handleStop()
+{
+	mPotentialRecording.handleStop();
+}
+
+void ExtendableRecording::handleReset()
+{
+	mAcceptedRecording.handleReset();
+	mPotentialRecording.handleReset();
+}
+
+void ExtendableRecording::handleSplitTo( ExtendableRecording& other )
+{
+	mPotentialRecording.handleSplitTo(other.mPotentialRecording);
+}
+
+PeriodicRecording& get_frame_recording()
+{
+	static PeriodicRecording sRecording(64);
+	sRecording.start();
+	return sRecording;
+}
+
+}
+
+void LLVCRControlsMixinCommon::start()
+{
+	switch (mPlayState)
+	{
+	case STOPPED:
+		handleReset();
+		handleStart();
+		break;
+	case PAUSED:
+		handleStart();
+		break;
+	case STARTED:
+		handleReset();
+		break;
+	}
+	mPlayState = STARTED;
+}
+
+void LLVCRControlsMixinCommon::stop()
+{
+	switch (mPlayState)
+	{
+	case STOPPED:
+		break;
+	case PAUSED:
+		handleStop();
+		break;
+	case STARTED:
+		handleStop();
+		break;
+	}
+	mPlayState = STOPPED;
+}
+
+void LLVCRControlsMixinCommon::pause()
+{
+	switch (mPlayState)
+	{
+	case STOPPED:
+		break;
+	case PAUSED:
+		break;
+	case STARTED:
+		handleStop();
+		break;
+	}
+	mPlayState = PAUSED;
+}
+
+void LLVCRControlsMixinCommon::resume()
+{
+	switch (mPlayState)
+	{
+	case STOPPED:
+		handleStart();
+		break;
+	case PAUSED:
+		handleStart();
+		break;
+	case STARTED:
+		break;
+	}
+	mPlayState = STARTED;
+}
+
+void LLVCRControlsMixinCommon::restart()
+{
+	switch (mPlayState)
+	{
+	case STOPPED:
+		handleReset();
+		handleStart();
+		break;
+	case PAUSED:
+		handleReset();
+		handleStart();
+		break;
+	case STARTED:
+		handleReset();
+		break;
+	}
+	mPlayState = STARTED;
+}
+
+void LLVCRControlsMixinCommon::reset()
+{
+	handleReset();
 }

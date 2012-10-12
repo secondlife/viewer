@@ -37,7 +37,6 @@
 #include "llstat.h"
 #include "lluictrlfactory.h"
 #include "lltracerecording.h"
-#include "lltracethreadrecorder.h"
 
 ///////////////////////////////////////////////////////////////////////////////////
 
@@ -112,17 +111,17 @@ void LLStatBar::draw()
 	}
 	else if (mFloatStatp)
 	{
-		LLTrace::Recording* recording = LLTrace::get_thread_recorder()->getPrimaryRecording();
+		LLTrace::Recording& recording = LLTrace::get_frame_recording().getLastRecordingPeriod();
 		if (mPerSec)
 		{
-			current = recording->getSum(*mFloatStatp) / recording->getSampleTime();
+			current = recording.getPerSec(*mFloatStatp);
 			//min = recording->getMin(*mFloatStatp) / recording->getSampleTime();
 			//max = recording->getMax(*mFloatStatp) / recording->getSampleTime();
 			//mean = recording->getMean(*mFloatStatp) / recording->getSampleTime();
 		}
 		else
 		{
-			current = recording->getSum(*mFloatStatp);
+			current = recording.getSum(*mFloatStatp);
 			//min = recording->getMin(*mFloatStatp);
 			//max = recording->getMax(*mFloatStatp);
 			//mean = recording->getMean(*mFloatStatp);

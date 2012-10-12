@@ -101,16 +101,6 @@ namespace LLTrace
 			}
 		}
 
-		void addDeltas(const AccumulatorBuffer<ACCUMULATOR>& start, const AccumulatorBuffer<ACCUMULATOR>& finish)
-		{
-			llassert(mNextStorageSlot == start.mNextStorageSlot && mNextStorageSlot == finish.mNextStorageSlot);
-
-			for (size_t i = 0; i < mNextStorageSlot; i++)
-			{
-				mStorage[i].addDeltas(start.mStorage[i], finish.mStorage[i]);
-			}
-		}
-
 		void copyFrom(const AccumulatorBuffer<ACCUMULATOR>& other)
 		{
 			for (size_t i = 0; i < mNextStorageSlot; i++)
@@ -203,11 +193,12 @@ namespace LLTrace
 	public:
 		MeasurementAccumulator()
 		:	mSum(0),
-			mMin(0),
-			mMax(0),
+			mMin(std::numeric_limits<T>::max()),
+			mMax(std::numeric_limits<T>::min()),
 			mMean(0),
 			mVarianceSum(0),
-			mNumSamples(0)
+			mNumSamples(0),
+			mLastValue(0)
 		{}
 
 		LL_FORCE_INLINE void sample(T value)
@@ -251,18 +242,25 @@ namespace LLTrace
 				sd_2 = other.getStandardDeviation();
 			// combine variance (and hence standard deviation) of 2 different sized sample groups using
 			// the following formula: http://www.mrc-bsu.cam.ac.uk/cochrane/handbook/chapter_7/7_7_3_8_combining_groups.htm
-			mVarianceSum =  (F32)mNumSamples
+			if (n_1 == 0)
+			{
+				mVarianceSum = other.mVarianceSum;
+			}
+			else if (n_2 == 0)
+			{
+				// don't touch variance
+				// mVarianceSum = mVarianceSum;
+			}
+			else
+			{
+				mVarianceSum =  (F32)mNumSamples
 							* ((((n_1 - 1.f) * sd_1 * sd_1)
 								+ ((n_2 - 1.f) * sd_2 * sd_2)
 								+ (((n_1 * n_2) / (n_1 + n_2))
 									* ((m_1 * m_1) + (m_2 * m_2) - (2.f * m_1 * m_2))))
 							/ (n_1 + n_2 - 1.f));
+			}
 			mLastValue = other.mLastValue;
-		}
-
-		void addDeltas(const MeasurementAccumulator<T>& start, const MeasurementAccumulator<T>& finish)
-		{
-			llerrs << "Delta merge invalid for measurement accumulators" << llendl;
 		}
 
 		void reset()
@@ -311,12 +309,6 @@ namespace LLTrace
 		{
 			mSum += other.mSum;
 			mNumSamples += other.mNumSamples;
-		}
-
-		void addDeltas(const RateAccumulator<T>& start, const RateAccumulator<T>& finish)
-		{
-			mSum += finish.mSum - start.mSum;
-			mNumSamples += finish.mNumSamples - start.mNumSamples;
 		}
 
 		void reset()
@@ -462,13 +454,6 @@ namespace LLTrace
 			mTotalTimeCounter += other.mTotalTimeCounter;
 			mChildTimeCounter += other.mChildTimeCounter;
 			mCalls += other.mCalls;
-		}
-
-		void addDeltas(const TimerAccumulator& start, const TimerAccumulator& finish)
-		{
-			mTotalTimeCounter += finish.mTotalTimeCounter - start.mTotalTimeCounter;
-			mChildTimeCounter += finish.mChildTimeCounter - start.mChildTimeCounter;
-			mCalls += finish.mCalls - start.mCalls;
 		}
 
 		void reset()

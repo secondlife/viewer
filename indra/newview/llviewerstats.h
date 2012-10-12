@@ -412,14 +412,12 @@ public:
 	};
 
 	LLTrace::Recording& getRecording() { return mRecording; }
-	LLTrace::Recording& getFrameRecording() { return mFrameRecording; }
 
 private:
-	F64	mStats[ST_COUNT];
-	LLTrace::Recording	mRecording;
-	LLTrace::Recording	mFrameRecording;
+	F64								mStats[ST_COUNT];
+	LLTrace::Recording				mRecording;
 
-	F64 mLastTimeDiff;  // used for time stat updates
+	F64								mLastTimeDiff;  // used for time stat updates
 };
 
 static const F32 SEND_STATS_PERIOD = 300.0f;

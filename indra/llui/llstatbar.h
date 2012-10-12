@@ -29,8 +29,7 @@
 
 #include "llview.h"
 #include "llframetimer.h"
-#include "lltrace.h"
-
+#include "lltracerecording.h"
 class LLStat;
 
 class LLStatBar : public LLView
@@ -39,19 +38,24 @@ public:
 
 	struct Params : public LLInitParam::Block<Params, LLView::Params>
 	{
-		Optional<std::string> label;
-		Optional<std::string> unit_label;
-		Optional<F32> bar_min;
-		Optional<F32> bar_max;
-		Optional<F32> tick_spacing;
-		Optional<F32> label_spacing;
-		Optional<U32> precision;
-		Optional<F32> update_rate;
-		Optional<bool> show_per_sec;
-		Optional<bool> show_bar;
-		Optional<bool> show_history;
-		Optional<bool> show_mean;
-		Optional<std::string> stat;
+		Optional<std::string>	label,
+								unit_label;
+
+		Optional<F32>			bar_min,
+								bar_max,
+								tick_spacing,
+								label_spacing,
+								update_rate;
+
+		Optional<U32>			precision;
+
+		Optional<bool>			show_per_sec,
+								show_bar,
+								show_history,
+								show_mean;
+
+		Optional<std::string>	stat;
+
 		Params()
 			: label("label"),
 			  unit_label("unit_label"),
@@ -92,6 +96,7 @@ private:
 	BOOL mDisplayBar;			// Display the bar graph.
 	BOOL mDisplayHistory;
 	BOOL mDisplayMean;			// If true, display mean, if false, display current value
+	LLTrace::PeriodicRecording* mFrameRecording;
 
 	LLStat* mStatp;
 	LLTrace::Rate<F32>* mFloatStatp;
