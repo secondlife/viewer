@@ -222,8 +222,8 @@ void LLIMConversation::onFocusReceived()
 
 	if (! mHadFocus)
 	{
-	    LLIMFloaterContainer* container = LLIMFloaterContainer::getInstance();
-	    container->setConvItemSelect(mSessionID);
+	//    LLIMFloaterContainer* container = LLIMFloaterContainer::getInstance();
+	//    container->setConvItemSelect(mSessionID);
 	}
 }
 

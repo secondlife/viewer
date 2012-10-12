@@ -274,23 +274,24 @@ void LLNearbyChat::removeScreenChat()
 void LLNearbyChat::setFocus(BOOL focusFlag)
 {
     LLTransientDockableFloater::setFocus(focusFlag);
-
+    
     //Redirect focus to input editor
     if (focusFlag)
     {
         mInputEditor->setFocus(TRUE);
     }
+    
 }
 
 void	LLNearbyChat::setVisible(BOOL visible)
 {
-	if(visible)
-	{
-		removeScreenChat();
-        setFocus(TRUE);
-	}
-
 	LLIMConversation::setVisible(visible);
+
+    if(visible)
+    {
+        removeScreenChat();
+    }
+    setFocus(visible);
 }
 
 

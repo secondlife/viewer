@@ -415,7 +415,7 @@ void LLConversationViewParticipant::draw()
     F32 text_left = (F32)getLabelXPos();
     LLColor4 color = mIsSelected ? sHighlightFgColor : sFgColor;
 
-    drawHighlight(show_context, true, sHighlightBgColor, sFocusOutlineColor, sMouseOverColor);
+    drawHighlight(show_context, mIsSelected, sHighlightBgColor, sFocusOutlineColor, sMouseOverColor);
     drawLabel(font, text_left, y, color, right_x);
 
     LLView::draw();

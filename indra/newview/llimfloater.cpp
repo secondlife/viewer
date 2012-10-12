@@ -725,6 +725,7 @@ void LLIMFloater::setFocus(BOOL focusFlag)
         updateMessages();
         mInputEditor->setFocus(TRUE);
     }
+    
 }
 
 void LLIMFloater::setVisible(BOOL visible)
@@ -754,8 +755,10 @@ void LLIMFloater::setVisible(BOOL visible)
 	if (visible && isInVisibleChain())
 	{
 		sIMFloaterShowedSignal(mSessionID);
-        setFocus(TRUE);
+        
 	}
+
+    setFocus(visible);
 }
 
 BOOL LLIMFloater::getVisible()
