@@ -111,17 +111,17 @@ namespace LLTrace
 
 		void update();
 
-		// Rate accessors
+		// Count accessors
 		template <typename T, typename IS_UNIT>
-		typename Rate<T, IS_UNIT>::base_unit_t getSum(const Rate<T, IS_UNIT>& stat) const
+		typename Count<T, IS_UNIT>::base_unit_t getSum(const Count<T, IS_UNIT>& stat) const
 		{
-			return (typename Rate<T, IS_UNIT>::base_unit_t)stat.getAccumulator(mRates).getSum();
+			return (typename Count<T, IS_UNIT>::base_unit_t)stat.getAccumulator(mCounts).getSum();
 		}
 
 		template <typename T, typename IS_UNIT>
-		typename Rate<T, IS_UNIT>::base_unit_t getPerSec(const Rate<T, IS_UNIT>& stat) const
+		typename Count<T, IS_UNIT>::base_unit_t getPerSec(const Count<T, IS_UNIT>& stat) const
 		{
-			return (typename Rate<T, IS_UNIT>::base_unit_t)stat.getAccumulator(mRates).getSum() / mElapsedSeconds;
+			return (typename Count<T, IS_UNIT>::base_unit_t)stat.getAccumulator(mCounts).getSum() / mElapsedSeconds;
 		}
 
 		// Measurement accessors
@@ -135,7 +135,7 @@ namespace LLTrace
 		template <typename T, typename IS_UNIT>
 		typename Measurement<T, IS_UNIT>::base_unit_t getPerSec(const Measurement<T, IS_UNIT>& stat) const
 		{
-			return (typename Rate<T, IS_UNIT>::base_unit_t)stat.getAccumulator(mMeasurements).getSum() / mElapsedSeconds;
+			return (typename Count<T, IS_UNIT>::base_unit_t)stat.getAccumulator(mMeasurements).getSum() / mElapsedSeconds;
 		}
 
 		template <typename T, typename IS_UNIT>
@@ -151,7 +151,7 @@ namespace LLTrace
 		}
 
 		template <typename T, typename IS_UNIT>
-		typename Measurement<T, IS_UNIT>::base_unit_t getMean(const Measurement<T, IS_UNIT>& stat) const
+		typename Measurement<T, IS_UNIT>::base_unit_t getMean(Measurement<T, IS_UNIT>& stat) const
 		{
 			return (typename Measurement<T, IS_UNIT>::base_unit_t)stat.getAccumulator(mMeasurements).getMean();
 		}
@@ -168,56 +168,7 @@ namespace LLTrace
 			return (typename Measurement<T, IS_UNIT>::base_unit_t)stat.getAccumulator(mMeasurements).getLastValue();
 		}
 
-		// Count accessors
-		template <typename T>
-		typename Count<T>::base_unit_t getSum(const Count<T>& stat) const
-		{
-			return getSum(stat.mTotal);
-		}
-
-		template <typename T>
-		typename Count<T>::base_unit_t getPerSec(const Count<T>& stat) const
-		{
-			return getPerSec(stat.mTotal);
-		}
-
-		template <typename T>
-		typename Count<T>::base_unit_t getIncrease(const Count<T>& stat) const
-		{
-			return getPerSec(stat.mTotal);
-		}
-
-		template <typename T>
-		typename Count<T>::base_unit_t getIncreasePerSec(const Count<T>& stat) const
-		{
-			return getPerSec(stat.mIncrease);
-		}
-
-		template <typename T>
-		typename Count<T>::base_unit_t getDecrease(const Count<T>& stat) const
-		{
-			return getPerSec(stat.mDecrease);
-		}
-
-		template <typename T>
-		typename Count<T>::base_unit_t getDecreasePerSec(const Count<T>& stat) const
-		{
-			return getPerSec(stat.mDecrease);
-		}
-
-		template <typename T>
-		typename Count<T>::base_unit_t getChurn(const Count<T>& stat) const
-		{
-			return getIncrease(stat) + getDecrease(stat);
-		}
-
-		template <typename T>
-		typename Count<T>::base_unit_t getChurnPerSec(const Count<T>& stat) const
-		{
-			return getIncreasePerSec(stat) + getDecreasePerSec(stat);
-		}
-
-		F64 getSampleTime() const { return mElapsedSeconds; }
+		F64 getDuration() const { return mElapsedSeconds; }
 
 		// implementation for LLVCRControlsMixin
 		/*virtual*/ void handleStart();
@@ -230,8 +181,8 @@ namespace LLTrace
 		// returns data for current thread
 		class ThreadRecorder* getThreadRecorder(); 
 
-		LLCopyOnWritePointer<AccumulatorBuffer<RateAccumulator<F32> > >			mRates;
-		LLCopyOnWritePointer<AccumulatorBuffer<MeasurementAccumulator<F32> > >	mMeasurements;
+		LLCopyOnWritePointer<AccumulatorBuffer<CountAccumulator<F64> > >		mCounts;
+		LLCopyOnWritePointer<AccumulatorBuffer<MeasurementAccumulator<F64> > >	mMeasurements;
 		LLCopyOnWritePointer<AccumulatorBuffer<TimerAccumulator> >				mStackTimers;
 
 		LLTimer			mSamplingTimer;

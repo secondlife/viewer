@@ -49,7 +49,7 @@ LLStatGraph::LLStatGraph(const Params& p)
 	mPrecision(p.precision),
 	mValue(p.value),
 	mStatp(p.stat.legacy_stat),
-	mF32Statp(p.stat.rate_stat)
+	mNewStatp(p.stat.rate_stat)
 {
 	setToolTip(p.name());
 
@@ -84,17 +84,17 @@ void LLStatGraph::draw()
 			mValue = mStatp->getMean();
 		}
 	}
-	else if (mF32Statp)
+	else if (mNewStatp)
 	{
 		LLTrace::Recording& recording = LLTrace::get_frame_recording().getLastRecordingPeriod();
 
 		if (mPerSec)
 		{
-			mValue = recording.getPerSec(*mF32Statp);
+			mValue = recording.getPerSec(*mNewStatp);
 		}
 		else
 		{
-			mValue = recording.getSum(*mF32Statp);
+			mValue = recording.getSum(*mNewStatp);
 		}
 
 	}

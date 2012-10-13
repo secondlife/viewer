@@ -51,7 +51,7 @@ struct LLUnitType : public BASE_UNIT
 
 	value_t value() const
 	{
-		return convertToDerived(mValue);
+		return convertToDerived(mBaseValue);
 	}
 
 	template<typename CONVERTED_TYPE>
@@ -72,22 +72,22 @@ struct LLUnitType : public BASE_UNIT
 
 	unit_t operator + (const unit_t other) const
 	{
-		return unit_t(mValue + other.mValue);
+		return unit_t(mBaseValue + other.mBaseValue);
 	}
 
 	unit_t operator - (const unit_t other) const
 	{
-		return unit_t(mValue - other.mValue);
+		return unit_t(mBaseValue - other.mBaseValue);
 	}
 
 	unit_t operator * (value_t multiplicand) const
 	{
-		return unit_t(mValue * multiplicand);
+		return unit_t(mBaseValue * multiplicand);
 	}
 
 	unit_t operator / (value_t divisor) const
 	{
-		return unit_t(mValue / divisor);
+		return unit_t(mBaseValue / divisor);
 	}
 
 };
@@ -100,11 +100,11 @@ struct LLUnitType<STORAGE_TYPE, T, T>
 	typedef void is_unit_t;
 
 	LLUnitType()
-	:	mValue()
+	:	mBaseValue()
 	{}
 
 	explicit LLUnitType(value_t value)
-	:	mValue(value)
+	:	mBaseValue(value)
 	{}
 
 	unit_t& operator=(value_t value)
@@ -118,7 +118,7 @@ struct LLUnitType<STORAGE_TYPE, T, T>
 		return static_cast<unit_t&>(*this);
 	}
 
-	value_t value() { return mValue; }
+	value_t value() const { return mBaseValue; }
 
 	static value_t convertToBase(value_t derived_value)
 	{
@@ -132,73 +132,73 @@ struct LLUnitType<STORAGE_TYPE, T, T>
 
 	unit_t operator + (const unit_t other) const
 	{
-		return unit_t(mValue + other.mValue);
+		return unit_t(mBaseValue + other.mBaseValue);
 	}
 
 	void operator += (const unit_t other)
 	{
-		mValue += other.mValue;
+		mBaseValue += other.mBaseValue;
 	}
 
 	unit_t operator - (const unit_t other) const
 	{
-		return unit_t(mValue - other.mValue);
+		return unit_t(mBaseValue - other.mBaseValue);
 	}
 
 	void operator -= (const unit_t other)
 	{
-		mValue -= other.mValue;
+		mBaseValue -= other.mBaseValue;
 	}
 
 	unit_t operator * (value_t multiplicand) const
 	{
-		return unit_t(mValue * multiplicand);
+		return unit_t(mBaseValue * multiplicand);
 	}
 
 	void operator *= (value_t multiplicand)
 	{
-		mValue *= multiplicand;
+		mBaseValue *= multiplicand;
 	}
 
 	unit_t operator / (value_t divisor) const
 	{
-		return unit_t(mValue / divisor);
+		return unit_t(mBaseValue / divisor);
 	}
 
 	void operator /= (value_t divisor)
 	{
-		mValue /= divisor;
+		mBaseValue /= divisor;
 	}
 
 protected:
 	void setBaseValue(value_t value)
 	{
-		mValue = value;
+		mBaseValue = value;
 	}
 
-	value_t mValue;
+	value_t mBaseValue;
 };
 
-#define LL_DECLARE_BASE_UNIT(unit_name)                 \
-	template<typename STORAGE_TYPE>                     \
-	struct unit_name : public LLUnitType<STORAGE_TYPE, unit_name<STORAGE_TYPE> >            \
-	{                                                   \
-		typedef unit_name<STORAGE_TYPE> base_unit_t;                                        \
-		typedef STORAGE_TYPE			storage_t;			                                \
+#define LL_DECLARE_BASE_UNIT(unit_name)                                                     \
+	struct unit_name : public LLUnitType<F64, unit_name>									\
+	{                                                                                       \
+		typedef unit_name base_unit_t;                                                      \
+		typedef LLUnitType<F64, unit_name> unit_t;						                    \
+		typedef F64			storage_t;			                                            \
 	                                                                                        \
-		unit_name(STORAGE_TYPE value)                   \
+		unit_name(F64 value)                                                                \
 		:	LLUnitType(value)                                                               \
-		{}                                              \
-		                                                \
-		unit_name()                                     \
-		{}                                              \
-		                                                \
+		{}                                                                                  \
+		                                                                                    \
+		unit_name()                                                                         \
+		{}                                                                                  \
+		                                                                                    \
 		template <typename SOURCE_STORAGE_TYPE, typename SOURCE_TYPE>                       \
 		unit_name(const LLUnitType<SOURCE_STORAGE_TYPE, unit_name, SOURCE_TYPE>& source)    \
-		{                                               \
-			setBaseValue(source.unit_t::value());												\
-		}                                               \
-		                                                \
+		{                                                                                   \
+			setBaseValue((F64)source.unit_name::unit_t::value());				            \
+		}                                                                                   \
+		                                                                                    \
 		using LLUnitType::operator +;	                                                    \
 		using LLUnitType::operator +=;														\
 		using LLUnitType::operator -;														\
@@ -209,36 +209,36 @@ protected:
 		using LLUnitType::operator /=;														\
 	};
 
-#define LL_DECLARE_DERIVED_UNIT(base_unit, derived_unit, conversion_factor)                   \
-	template<typename STORAGE_TYPE>                                                           \
-	struct derived_unit : public LLUnitType<STORAGE_TYPE, base_unit<STORAGE_TYPE>, derived_unit<STORAGE_TYPE> >     \
-	{                                                                                         \
-		typedef base_unit<STORAGE_TYPE> base_unit_t;                                                                \
-		typedef STORAGE_TYPE			storage_t;							                                        \
-		                                                                                                            \
-		derived_unit(value_t value)                                                           \
-		:	LLUnitType(value)                                                                                       \
-		{}                                                                                    \
-		                                                                                      \
-		derived_unit()                                                                        \
-		{}                                                                                    \
-		                                                                                      \
-		template <typename SOURCE_STORAGE_TYPE, typename SOURCE_TYPE>                                               \
-		derived_unit(const LLUnitType<SOURCE_STORAGE_TYPE, base_unit<STORAGE_TYPE>, SOURCE_TYPE>& source)           \
-		{                                                                                     \
-			setBaseValue(source.base_unit_t::value());																\
-		}                                                                                     \
-		                                                                                      \
-		static F32 conversionToBaseFactor() { return (F32)(conversion_factor); }              \
-		                                                                                      \
-		using LLUnitType::operator +;	                                                                            \
-		using LLUnitType::operator +=;                                                                              \
-		using LLUnitType::operator -;                                                                               \
-		using LLUnitType::operator -=;                                                                              \
-		using LLUnitType::operator *;                                                                               \
-		using LLUnitType::operator *=;                                                                              \
-		using LLUnitType::operator /;                                                                               \
-		using LLUnitType::operator /=;                                                                              \
+#define LL_DECLARE_DERIVED_UNIT(base_unit, derived_unit, conversion_factor)                 \
+	struct derived_unit : public LLUnitType<F64, base_unit, derived_unit>                   \
+	{                                                                                       \
+		typedef base_unit base_unit_t;                                                      \
+		typedef LLUnitType<F64, base_unit, derived_unit> unit_t;				            \
+		typedef F64			storage_t;							                            \
+		                                                                                    \
+		derived_unit(value_t value)                                                         \
+		:	LLUnitType(value)                                                               \
+		{}                                                                                  \
+		                                                                                    \
+		derived_unit()                                                                      \
+		{}                                                                                  \
+		                                                                                    \
+		template <typename SOURCE_STORAGE_TYPE, typename SOURCE_TYPE>                       \
+		derived_unit(const LLUnitType<SOURCE_STORAGE_TYPE, base_unit, SOURCE_TYPE>& source) \
+		{                                                                                   \
+			setBaseValue((F64)source.base_unit::unit_t::value());						    \
+		}                                                                                   \
+		                                                                                    \
+		static F32 conversionToBaseFactor() { return (F32)(conversion_factor); }            \
+		                                                                                    \
+		using LLUnitType::operator +;	                                                    \
+		using LLUnitType::operator +=;                                                      \
+		using LLUnitType::operator -;                                                       \
+		using LLUnitType::operator -=;                                                      \
+		using LLUnitType::operator *;                                                       \
+		using LLUnitType::operator *=;                                                      \
+		using LLUnitType::operator /;                                                       \
+		using LLUnitType::operator /=;                                                      \
 	};
 
 namespace LLUnits
@@ -248,7 +248,7 @@ namespace LLUnits
 	LL_DECLARE_DERIVED_UNIT(Bytes, Megabytes, 1024 * 1024);
 	LL_DECLARE_DERIVED_UNIT(Bytes, Gigabytes, 1024 * 1024 * 1024);
 	LL_DECLARE_DERIVED_UNIT(Bytes, Bits,	  (1.f / 8.f));
-	LL_DECLARE_DERIVED_UNIT(Bytes, Kilobit,   (1024 / 8));
+	LL_DECLARE_DERIVED_UNIT(Bytes, Kilobits,  (1024 / 8));
 	LL_DECLARE_DERIVED_UNIT(Bytes, Megabits,  (1024 / 8));
 	LL_DECLARE_DERIVED_UNIT(Bytes, Gigabits,  (1024 * 1024 * 1024 / 8));
 

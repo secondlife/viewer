@@ -60,7 +60,7 @@ public:
 	struct StatParams : public LLInitParam::ChoiceBlock<StatParams>
 	{
 		Alternative<LLStat*>				legacy_stat;
-		Alternative<LLTrace::Rate<F32>* >	rate_stat;
+		Alternative<LLTrace::Count<>* >		rate_stat;
 	};
 
 	struct Params : public LLInitParam::Block<Params, LLView::Params>
@@ -106,8 +106,7 @@ public:
 	
 private:
 	LLStat*				mStatp;
-	LLTrace::Rate<F32>*	mF32Statp;
-	LLTrace::Rate<S32>*	mS32Statp;
+	LLTrace::Count<>*	mNewStatp;
 
 	BOOL mPerSec;
 

@@ -4772,7 +4772,6 @@ void process_sim_stats(LLMessageSystem *msg, void **user_data)
 			//LLViewerStats::getInstance()->mSimAgentUPS.addValue(stat_value);
 			break;
 		case LL_SIM_STAT_FRAMEMS:
-			//LLStatViewer::SIM_.sample(stat_value);
 			LLViewerStats::getInstance()->mSimFrameMsec.addValue(stat_value);
 			break;
 		case LL_SIM_STAT_NETMS:

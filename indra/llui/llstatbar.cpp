@@ -47,7 +47,7 @@ LLStatBar::LLStatBar(const Params& p)
 	  mMinBar(p.bar_min),
 	  mMaxBar(p.bar_max),
 	  mStatp(LLStat::getInstance(p.stat)),
-	  mFloatStatp(LLTrace::Rate<F32>::getInstance(p.stat)),
+	  mNewStatp(LLTrace::Count<>::getInstance(p.stat)),
 	  mTickSpacing(p.tick_spacing),
 	  mLabelSpacing(p.label_spacing),
 	  mPrecision(p.precision),
@@ -109,22 +109,25 @@ void LLStatBar::draw()
 			mean = mStatp->getMean();
 		}
 	}
-	else if (mFloatStatp)
+	else if (mNewStatp)
 	{
-		LLTrace::Recording& recording = LLTrace::get_frame_recording().getLastRecordingPeriod();
+		LLTrace::PeriodicRecording& frame_recording = LLTrace::get_frame_recording();
+		LLTrace::Recording& last_frame_recording = frame_recording.getLastRecordingPeriod(); 
+		LLTrace::Recording& windowed_frame_recording = frame_recording.getTotalRecording(); 
+
 		if (mPerSec)
 		{
-			current = recording.getPerSec(*mFloatStatp);
-			//min = recording->getMin(*mFloatStatp) / recording->getSampleTime();
-			//max = recording->getMax(*mFloatStatp) / recording->getSampleTime();
-			//mean = recording->getMean(*mFloatStatp) / recording->getSampleTime();
+			current = last_frame_recording.getPerSec(*mNewStatp);
+			//min = frame_window_recording.getMin(*mNewStatp) / frame_window_recording.getDuration();
+			//max = frame_window_recording.getMax(*mNewStatp) / frame_window_recording.getDuration();
+			mean = windowed_frame_recording.getPerSec(*mNewStatp);//frame_window_recording.getMean(*mNewStatp) / frame_window_recording.getDuration();
 		}
 		else
 		{
-			current = recording.getSum(*mFloatStatp);
-			//min = recording->getMin(*mFloatStatp);
-			//max = recording->getMax(*mFloatStatp);
-			//mean = recording->getMean(*mFloatStatp);
+			current = last_frame_recording.getSum(*mNewStatp);
+			//min = last_frame_recording.getMin(*mNewStatp);
+			//max = last_frame_recording.getMax(*mNewStatp);
+			mean = windowed_frame_recording.getSum(*mNewStatp);
 		}
 	}
 	

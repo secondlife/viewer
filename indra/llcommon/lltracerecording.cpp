@@ -39,8 +39,8 @@ namespace LLTrace
 
 Recording::Recording() 
 :	mElapsedSeconds(0),
-	mRates(new AccumulatorBuffer<RateAccumulator<F32> >()),
-	mMeasurements(new AccumulatorBuffer<MeasurementAccumulator<F32> >()),
+	mCounts(new AccumulatorBuffer<CountAccumulator<F64> >()),
+	mMeasurements(new AccumulatorBuffer<MeasurementAccumulator<F64> >()),
 	mStackTimers(new AccumulatorBuffer<TimerAccumulator>())
 {}
 
@@ -59,7 +59,7 @@ void Recording::update()
 
 void Recording::handleReset()
 {
-	mRates.write()->reset();
+	mCounts.write()->reset();
 	mMeasurements.write()->reset();
 	mStackTimers.write()->reset();
 
@@ -88,21 +88,22 @@ void Recording::handleSplitTo(Recording& other)
 
 void Recording::makePrimary()
 {
-	mRates.write()->makePrimary();
+	mCounts.write()->makePrimary();
 	mMeasurements.write()->makePrimary();
 	mStackTimers.write()->makePrimary();
 }
 
 bool Recording::isPrimary() const
 {
-	return mRates->isPrimary();
+	return mCounts->isPrimary();
 }
 
 void Recording::mergeRecording( const Recording& other )
 {
-	mRates.write()->addSamples(*other.mRates);
+	mCounts.write()->addSamples(*other.mCounts);
 	mMeasurements.write()->addSamples(*other.mMeasurements);
 	mStackTimers.write()->addSamples(*other.mStackTimers);
+	mElapsedSeconds += other.mElapsedSeconds;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -149,9 +150,9 @@ Recording& PeriodicRecording::getTotalRecording()
 	if (!mTotalValid)
 	{
 		mTotalRecording.reset();
-		for (S32 i = (mCurPeriod + 1) % mNumPeriods; i < mCurPeriod; i++)
+		for (S32 i = mCurPeriod + 1; i < mCurPeriod + mNumPeriods; i++)
 		{
-			mTotalRecording.mergeRecording(mRecordingPeriods[i]);
+			mTotalRecording.mergeRecording(mRecordingPeriods[i % mNumPeriods]);
 		}
 	}
 	mTotalValid = true;
@@ -212,7 +213,6 @@ void ExtendableRecording::handleSplitTo( ExtendableRecording& other )
 PeriodicRecording& get_frame_recording()
 {
 	static PeriodicRecording sRecording(64);
-	sRecording.start();
 	return sRecording;
 }
 

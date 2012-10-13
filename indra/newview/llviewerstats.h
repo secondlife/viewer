@@ -34,7 +34,7 @@
 
 namespace LLStatViewer
 {
-extern LLTrace::Rate<F32>					FPS,
+extern LLTrace::Count<>						FPS,
 											PACKETS_IN,
 											PACKETS_LOST,
 											PACKETS_OUT,
@@ -62,7 +62,7 @@ extern LLTrace::Rate<F32>					FPS,
 											TEX_REBAKES;
 
 
-extern LLTrace::Rate<LLUnits::Bytes<F32> >	KBIT,
+extern LLTrace::Count<LLUnits::Kilobits>	KBIT,
 											LAYERS_KBIT,
 											OBJECT_KBIT,
 											ASSET_KBIT,
@@ -70,17 +70,17 @@ extern LLTrace::Rate<LLUnits::Bytes<F32> >	KBIT,
 											ACTUAL_IN_KBIT,
 											ACTUAL_OUT_KBIT;
 
-extern LLTrace::Rate<LLUnits::Seconds<F32> > AVATAR_EDIT_TIME,
-											 TOOLBOX_TIME,
-											 MOUSELOOK_TIME,
-											 FPS_10_TIME,
-											 FPS_8_TIME,
-											 FPS_2_TIME,
-											 SIM_20_FPS_TIME,
-											 SIM_PHYSICS_20_FPS_TIME,
-											 LOSS_5_PERCENT_TIME;
+extern LLTrace::Count<LLUnits::Seconds>		AVATAR_EDIT_TIME,
+											TOOLBOX_TIME,
+											MOUSELOOK_TIME,
+											FPS_10_TIME,
+											FPS_8_TIME,
+											FPS_2_TIME,
+											SIM_20_FPS_TIME,
+											SIM_PHYSICS_20_FPS_TIME,
+											LOSS_5_PERCENT_TIME;
 
-extern LLTrace::Measurement<F32>			SIM_TIME_DILATION,
+extern LLTrace::Measurement<>				SIM_TIME_DILATION,
 											SIM_FPS,
 											SIM_PHYSICS_FPS,
 											SIM_AGENT_UPS,
@@ -119,36 +119,36 @@ extern LLTrace::Measurement<F32>			SIM_TIME_DILATION,
 											WINDOW_WIDTH,
 											WINDOW_HEIGHT;
 
-extern LLTrace::Measurement<LLUnits::Bytes<F32> >	SIM_UNACKED_BYTES,
-													SIM_PHYSICS_MEM,
-													GL_TEX_MEM,
-													GL_BOUND_MEM,
-													RAW_MEM,
-													FORMATTED_MEM;
+extern LLTrace::Measurement<LLUnits::Bytes>	SIM_UNACKED_BYTES,
+											SIM_PHYSICS_MEM,
+											GL_TEX_MEM,
+											GL_BOUND_MEM,
+											RAW_MEM,
+											FORMATTED_MEM;
 
 
-extern LLTrace::Measurement<LLUnits::Seconds<F32> > SIM_PHYSICS_TIME,
-													SIM_PHYSICS_STEP_TIME,
-													SIM_PHYSICS_SHAPE_UPDATE_TIME,
-													SIM_PHYSICS_OTHER_TIME,
-													SIM_AI_TIME,
-													SIM_AGENTS_TIME,
-													SIM_IMAGES_TIME,
-													SIM_SCRIPTS_TIME,
-													SIM_SPARE_TIME,
-													SIM_SLEEP_TIME,
-													SIM_PUMP_IO_TIME,
-													SIM_PING,
-													FRAMETIME_JITTER,
-													FRAMETIME_SLEW,
-													LOGIN_SECONDS,
-													REGION_CROSSING_TIME,
-													FRAME_STACKTIME,
-													UPDATE_STACKTIME,
-													NETWORK_STACKTIME,
-													IMAGE_STACKTIME,
-													REBUILD_STACKTIME,
-													RENDER_STACKTIME;
+extern LLTrace::Measurement<LLUnits::Seconds>	SIM_PHYSICS_TIME,
+												SIM_PHYSICS_STEP_TIME,
+												SIM_PHYSICS_SHAPE_UPDATE_TIME,
+												SIM_PHYSICS_OTHER_TIME,
+												SIM_AI_TIME,
+												SIM_AGENTS_TIME,
+												SIM_IMAGES_TIME,
+												SIM_SCRIPTS_TIME,
+												SIM_SPARE_TIME,
+												SIM_SLEEP_TIME,
+												SIM_PUMP_IO_TIME,
+												SIM_PING,
+												FRAMETIME_JITTER,
+												FRAMETIME_SLEW,
+												LOGIN_SECONDS,
+												REGION_CROSSING_TIME,
+												FRAME_STACKTIME,
+												UPDATE_STACKTIME,
+												NETWORK_STACKTIME,
+												IMAGE_STACKTIME,
+												REBUILD_STACKTIME,
+												RENDER_STACKTIME;
 }
 
 class LLViewerStats : public LLSingleton<LLViewerStats>

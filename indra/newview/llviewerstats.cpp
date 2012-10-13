@@ -64,7 +64,7 @@
 namespace LLStatViewer
 {
 
-LLTrace::Rate<F32>	FPS("fpsstat"),
+LLTrace::Count<>	FPS("fpsstat"),
 					PACKETS_IN("packetsinstat"),
 					PACKETS_LOST("packetsloststat"),
 					PACKETS_OUT("packetsoutstat"),
@@ -90,7 +90,7 @@ LLTrace::Rate<F32>	FPS("fpsstat"),
 					FRAMETIME_DOUBLED("frametimedoubled", "Ratio of frames 2x longer than previous"),
 					TEX_BAKES("texbakes"),
 					TEX_REBAKES("texrebakes");
-LLTrace::Rate<LLUnits::Bytes<F32> >	KBIT("kbitstat"),
+LLTrace::Count<LLUnits::Kilobits>	KBIT("kbitstat"),
 									LAYERS_KBIT("layerskbitstat"),
 									OBJECT_KBIT("objectkbitstat"),
 									ASSET_KBIT("assetkbitstat"),
@@ -98,17 +98,17 @@ LLTrace::Rate<LLUnits::Bytes<F32> >	KBIT("kbitstat"),
 									ACTUAL_IN_KBIT("actualinkbit"),
 									ACTUAL_OUT_KBIT("actualoutkbit");
 
-LLTrace::Rate<LLUnits::Seconds<F32> > AVATAR_EDIT_TIME("avataredittime", "Seconds in Edit Appearence"),
-									 TOOLBOX_TIME("toolboxtime", "Seconds using Toolbox"),
-									 MOUSELOOK_TIME("mouselooktime", "Seconds in Mouselook"),
-									 FPS_10_TIME("fps10time", "Seconds below 10 FPS"),
-									 FPS_8_TIME("fps8time", "Seconds below 8 FPS"),
-									 FPS_2_TIME("fps2time", "Seconds below 2 FPS"),
-									 SIM_20_FPS_TIME("sim20fpstime", "Seconds with sim FPS below 20"),
-									 SIM_PHYSICS_20_FPS_TIME("simphysics20fpstime", "Seconds with physics FPS below 20"),
-									 LOSS_5_PERCENT_TIME("loss5percenttime", "Seconds with packet loss > 5%");
+LLTrace::Count<LLUnits::Seconds> AVATAR_EDIT_TIME("avataredittime", "Seconds in Edit Appearence"),
+								TOOLBOX_TIME("toolboxtime", "Seconds using Toolbox"),
+								MOUSELOOK_TIME("mouselooktime", "Seconds in Mouselook"),
+								FPS_10_TIME("fps10time", "Seconds below 10 FPS"),
+								FPS_8_TIME("fps8time", "Seconds below 8 FPS"),
+								FPS_2_TIME("fps2time", "Seconds below 2 FPS"),
+								SIM_20_FPS_TIME("sim20fpstime", "Seconds with sim FPS below 20"),
+								SIM_PHYSICS_20_FPS_TIME("simphysics20fpstime", "Seconds with physics FPS below 20"),
+								LOSS_5_PERCENT_TIME("loss5percenttime", "Seconds with packet loss > 5%");
 
-LLTrace::Measurement<F32>	SIM_TIME_DILATION("simtimedilation"),
+LLTrace::Measurement<>		SIM_TIME_DILATION("simtimedilation"),
 							SIM_FPS("simfps"),
 							SIM_PHYSICS_FPS("simphysicsfps"),
 							SIM_AGENT_UPS("simagentups"),
@@ -147,36 +147,36 @@ LLTrace::Measurement<F32>	SIM_TIME_DILATION("simtimedilation"),
 							WINDOW_WIDTH("windowwidth", "Window width"),
 							WINDOW_HEIGHT("windowheight", "Window height");
 
-LLTrace::Measurement<LLUnits::Bytes<F32> >	SIM_UNACKED_BYTES("simtotalunackedbytes"),
-											SIM_PHYSICS_MEM("physicsmemoryallocated"),
-											GL_TEX_MEM("gltexmemstat"),
-											GL_BOUND_MEM("glboundmemstat"),
-											RAW_MEM("rawmemstat"),
-											FORMATTED_MEM("formattedmemstat");
+LLTrace::Measurement<LLUnits::Bytes>	SIM_UNACKED_BYTES("simtotalunackedbytes"),
+										SIM_PHYSICS_MEM("physicsmemoryallocated"),
+										GL_TEX_MEM("gltexmemstat"),
+										GL_BOUND_MEM("glboundmemstat"),
+										RAW_MEM("rawmemstat"),
+										FORMATTED_MEM("formattedmemstat");
 
 
-LLTrace::Measurement<LLUnits::Seconds<F32> > SIM_PHYSICS_TIME("simsimphysicsmsec"),
-											SIM_PHYSICS_STEP_TIME("simsimphysicsstepmsec"),
-											SIM_PHYSICS_SHAPE_UPDATE_TIME("simsimphysicsshapeupdatemsec"),
-											SIM_PHYSICS_OTHER_TIME("simsimphysicsothermsec"),
-											SIM_AI_TIME("simsimaistepmsec"),
-											SIM_AGENTS_TIME("simagentmsec"),
-											SIM_IMAGES_TIME("simimagesmsec"),
-											SIM_SCRIPTS_TIME("simscriptmsec"),
-											SIM_SPARE_TIME("simsparemsec"),
-											SIM_SLEEP_TIME("simsleepmsec"),
-											SIM_PUMP_IO_TIME("simpumpiomsec"),
-											SIM_PING("simpingstat"),
-											FRAMETIME_JITTER("frametimejitter", "Average delta between successive frame times"),
-											FRAMETIME_SLEW("frametimeslew", "Average delta between frame time and mean"),
-											LOGIN_SECONDS("loginseconds", "Time between LoginRequest and LoginReply"),
-											REGION_CROSSING_TIME("regioncrossingtime", "CROSSING_AVG"),
-											FRAME_STACKTIME("framestacktime", "FRAME_SECS"),
-											UPDATE_STACKTIME("updatestacktime", "UPDATE_SECS"),
-											NETWORK_STACKTIME("networkstacktime", "NETWORK_SECS"),
-											IMAGE_STACKTIME("imagestacktime", "IMAGE_SECS"),
-											REBUILD_STACKTIME("rebuildstacktime", "REBUILD_SECS"),
-											RENDER_STACKTIME("renderstacktime", "RENDER_SECS");
+LLTrace::Measurement<LLUnits::Seconds> SIM_PHYSICS_TIME("simsimphysicsmsec"),
+										SIM_PHYSICS_STEP_TIME("simsimphysicsstepmsec"),
+										SIM_PHYSICS_SHAPE_UPDATE_TIME("simsimphysicsshapeupdatemsec"),
+										SIM_PHYSICS_OTHER_TIME("simsimphysicsothermsec"),
+										SIM_AI_TIME("simsimaistepmsec"),
+										SIM_AGENTS_TIME("simagentmsec"),
+										SIM_IMAGES_TIME("simimagesmsec"),
+										SIM_SCRIPTS_TIME("simscriptmsec"),
+										SIM_SPARE_TIME("simsparemsec"),
+										SIM_SLEEP_TIME("simsleepmsec"),
+										SIM_PUMP_IO_TIME("simpumpiomsec"),
+										SIM_PING("simpingstat"),
+										FRAMETIME_JITTER("frametimejitter", "Average delta between successive frame times"),
+										FRAMETIME_SLEW("frametimeslew", "Average delta between frame time and mean"),
+										LOGIN_SECONDS("loginseconds", "Time between LoginRequest and LoginReply"),
+										REGION_CROSSING_TIME("regioncrossingtime", "CROSSING_AVG"),
+										FRAME_STACKTIME("framestacktime", "FRAME_SECS"),
+										UPDATE_STACKTIME("updatestacktime", "UPDATE_SECS"),
+										NETWORK_STACKTIME("networkstacktime", "NETWORK_SECS"),
+										IMAGE_STACKTIME("imagestacktime", "IMAGE_SECS"),
+										REBUILD_STACKTIME("rebuildstacktime", "REBUILD_SECS"),
+										RENDER_STACKTIME("renderstacktime", "RENDER_SECS");
 }
 
 class StatAttributes
@@ -266,6 +266,7 @@ LLViewerStats::LLViewerStats() :
 	
 	mAgentPositionSnaps.reset();
 	mRecording.start();
+	LLTrace::get_frame_recording().start();
 }
 
 LLViewerStats::~LLViewerStats()
@@ -437,25 +438,28 @@ void update_statistics()
 	LLCircuitData *cdp = gMessageSystem->mCircuitInfo.findCircuit(gAgent.getRegion()->getHost());
 	if (cdp)
 	{
+		LLStatViewer::SIM_PING.sample<LLUnits::Seconds>(cdp->getPingDelay());
 		stats.mSimPingStat.addValue(cdp->getPingDelay());
 		gAvgSimPing = ((gAvgSimPing * (F32)gSimPingCount) + (F32)(cdp->getPingDelay())) / ((F32)gSimPingCount + 1);
 		gSimPingCount++;
 	}
 	else
 	{
+		LLUnits::Seconds i(10000);
+		LLStatViewer::SIM_PING.sample(i);//<LLUnits::Seconds<U32> >(10000);
 		stats.mSimPingStat.addValue(10000);
 	}
 
 	//stats.mFPSStat.addValue(1);
 	LLStatViewer::FPS.add(1);
 	F32 layer_bits = (F32)(gVLManager.getLandBits() + gVLManager.getWindBits() + gVLManager.getCloudBits());
-	LLStatViewer::LAYERS_KBIT.add<LLUnits::Bits<F32> >(layer_bits);
+	LLStatViewer::LAYERS_KBIT.add<LLUnits::Bits>(layer_bits);
 	//stats.mLayersKBitStat.addValue(layer_bits/1024.f);
-	LLStatViewer::OBJECT_KBIT.add<LLUnits::Bits<F32> >(gObjectBits);
+	LLStatViewer::OBJECT_KBIT.add<LLUnits::Bits>(gObjectBits);
 	//stats.mObjectKBitStat.addValue(gObjectBits/1024.f);
 	//stats.mVFSPendingOperations.addValue(LLVFile::getVFSThread()->getPending());
 	LLStatViewer::SIM_PENDING_VFS_OPERATIONS.sample(LLVFile::getVFSThread()->getPending());
-	LLStatViewer::ASSET_KBIT.add<LLUnits::Bits<F32> >(gTransferManager.getTransferBitsIn(LLTCT_ASSET));
+	LLStatViewer::ASSET_KBIT.add<LLUnits::Bits>(gTransferManager.getTransferBitsIn(LLTCT_ASSET));
 	//stats.mAssetKBitStat.addValue(gTransferManager.getTransferBitsIn(LLTCT_ASSET)/1024.f);
 	gTransferManager.resetTransferBitsIn(LLTCT_ASSET);
 
@@ -493,7 +497,7 @@ void update_statistics()
 		static LLFrameTimer texture_stats_timer;
 		if (texture_stats_timer.getElapsedTimeF32() >= texture_stats_freq)
 		{
-			gTotalTextureBytes = LLUnits::Bytes<F32>(LLViewerStats::instance().getRecording().getSum(LLStatViewer::TEXTURE_KBIT)).value();
+			gTotalTextureBytes = LLUnits::Bytes(LLViewerStats::instance().getRecording().getSum(LLStatViewer::TEXTURE_KBIT)).value();
 			texture_stats_timer.reset();
 		}
 	}

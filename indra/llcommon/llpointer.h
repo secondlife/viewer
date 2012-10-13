@@ -207,7 +207,9 @@ public:
 	using LLPointer<Type>::operator >;
 
 
+	operator Type*()							{ return mPointer; }
 	operator const Type*()   const				{ return mPointer; }
+	Type*	operator->()						{ return mPointer; }
 	const Type*	operator->() const				{ return mPointer; }
 
 };

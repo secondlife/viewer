@@ -1325,7 +1325,7 @@ void LLViewerTextureList::receiveImageHeader(LLMessageSystem *msg, void **user_d
 	{
 		received_size = msg->getReceiveSize() ;		
 	}
-	LLStatViewer::TEXTURE_KBIT.add<LLUnits::Bytes<F32> >(received_size);
+	LLStatViewer::TEXTURE_KBIT.add<LLUnits::Bytes>(received_size);
 	LLStatViewer::TEXTURE_PACKETS.add(1);
 	
 	U8 codec;
@@ -1399,7 +1399,7 @@ void LLViewerTextureList::receiveImagePacket(LLMessageSystem *msg, void **user_d
 		received_size = msg->getReceiveSize() ;		
 	}
 
-	LLStatViewer::TEXTURE_KBIT.add<LLUnits::Bytes<F32> >(received_size);
+	LLStatViewer::TEXTURE_KBIT.add<LLUnits::Bytes>(received_size);
 	LLStatViewer::TEXTURE_PACKETS.add(1);
 	
 	//llprintline("Start decode, image header...");

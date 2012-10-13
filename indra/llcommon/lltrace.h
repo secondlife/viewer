@@ -91,6 +91,11 @@ namespace LLTrace
 			return mStorage[index]; 
 		}
 
+		LL_FORCE_INLINE const ACCUMULATOR& operator[](size_t index) const
+		{ 
+			return mStorage[index]; 
+		}
+
 		void addSamples(const AccumulatorBuffer<ACCUMULATOR>& other)
 		{
 			llassert(mNextStorageSlot == other.mNextStorageSlot);
@@ -178,7 +183,7 @@ namespace LLTrace
 		}
 
 		ACCUMULATOR& getAccumulator(AccumulatorBuffer<ACCUMULATOR>* buffer) { return (*buffer)[mAccumulatorIndex]; }
-		const ACCUMULATOR& getAccumulator(AccumulatorBuffer<ACCUMULATOR>* buffer) const { return (*buffer)[mAccumulatorIndex]; }
+		const ACCUMULATOR& getAccumulator(const AccumulatorBuffer<ACCUMULATOR>* buffer) const { return (*buffer)[mAccumulatorIndex]; }
 
 	protected:
 		std::string	mName;
@@ -213,9 +218,9 @@ namespace LLTrace
 			{
 				mMax = value;
 			}
-			F32 old_mean = mMean;
-			mMean += ((F32)value - old_mean) / (F32)mNumSamples;
-			mVarianceSum += ((F32)value - old_mean) * ((F32)value - mMean);
+			F64 old_mean = mMean;
+			mMean += ((F64)value - old_mean) / (F64)mNumSamples;
+			mVarianceSum += ((F64)value - old_mean) * ((F64)value - mMean);
 			mLastValue = value;
 		}
 
@@ -231,14 +236,14 @@ namespace LLTrace
 				mMax = other.mMax;
 			}
 			mNumSamples += other.mNumSamples;
-			F32 weight = (F32)mNumSamples / (F32)(mNumSamples + other.mNumSamples);
+			F64 weight = (F64)mNumSamples / (F64)(mNumSamples + other.mNumSamples);
 			mMean = mMean * weight + other.mMean * (1.f - weight);
 
-			F32 n_1 = (F32)mNumSamples,
-				n_2 = (F32)other.mNumSamples;
-			F32 m_1 = mMean,
+			F64 n_1 = (F64)mNumSamples,
+				n_2 = (F64)other.mNumSamples;
+			F64 m_1 = mMean,
 				m_2 = other.mMean;
-			F32 sd_1 = getStandardDeviation(),
+			F64 sd_1 = getStandardDeviation(),
 				sd_2 = other.getStandardDeviation();
 			// combine variance (and hence standard deviation) of 2 different sized sample groups using
 			// the following formula: http://www.mrc-bsu.cam.ac.uk/cochrane/handbook/chapter_7/7_7_3_8_combining_groups.htm
@@ -275,8 +280,8 @@ namespace LLTrace
 		T	getMin() const { return mMin; }
 		T	getMax() const { return mMax; }
 		T	getLastValue() const { return mLastValue; }
-		F32	getMean() const { return mMean; }
-		F32 getStandardDeviation() const { return sqrtf(mVarianceSum / mNumSamples); }
+		F64	getMean() const { return mMean; }
+		F64 getStandardDeviation() const { return sqrtf(mVarianceSum / mNumSamples); }
 
 	private:
 		T	mSum,
@@ -284,17 +289,17 @@ namespace LLTrace
 			mMax,
 			mLastValue;
 
-		F32 mMean,
+		F64 mMean,
 			mVarianceSum;
 
 		U32	mNumSamples;
 	};
 
 	template<typename T>
-	class LL_COMMON_API RateAccumulator
+	class LL_COMMON_API CountAccumulator
 	{
 	public:
-		RateAccumulator()
+		CountAccumulator()
 		:	mSum(0),
 			mNumSamples(0)
 		{}
@@ -305,7 +310,7 @@ namespace LLTrace
 			mSum += value;
 		}
 
-		void addSamples(const RateAccumulator<T>& other)
+		void addSamples(const CountAccumulator<T>& other)
 		{
 			mSum += other.mSum;
 			mNumSamples += other.mNumSamples;
@@ -325,7 +330,7 @@ namespace LLTrace
 		U32	mNumSamples;
 	};
 
-	template <typename T, typename IS_UNIT = void>
+	template <typename T = F64, typename IS_UNIT = void>
 	class LL_COMMON_API Measurement
 	:	public TraceType<MeasurementAccumulator<T> >, 
 		public LLInstanceTracker<Measurement<T, IS_UNIT>, std::string>
@@ -352,8 +357,8 @@ namespace LLTrace
 	public:
 		typedef typename T::storage_t storage_t;
 		typedef typename T::base_unit_t base_unit_t;
-
 		typedef Measurement<typename T::value_t> base_measurement_t;
+
 		Measurement(const char* name, const char* description = NULL) 
 		:	Measurement<typename T::value_t>(name)
 		{}
@@ -361,20 +366,20 @@ namespace LLTrace
 		template<typename UNIT_T>
 		void sample(UNIT_T value)
 		{
-			base_measurement_t::sample(value.value());
+			base_measurement_t::sample(((T)value).value());
 		}
 	};
 
-	template <typename T, typename IS_UNIT = void>
-	class LL_COMMON_API Rate 
-	:	public TraceType<RateAccumulator<T> >, 
-		public LLInstanceTracker<Rate<T>, std::string>
+	template <typename T = F64, typename IS_UNIT = void>
+	class LL_COMMON_API Count 
+	:	public TraceType<CountAccumulator<T> >, 
+		public LLInstanceTracker<Count<T>, std::string>
 	{
 	public:
 		typedef T storage_t;
 		typedef T base_unit_t;
 
-		Rate(const char* name, const char* description = NULL) 
+		Count(const char* name, const char* description = NULL) 
 		:	TraceType(name),
 			LLInstanceTracker(name)
 		{}
@@ -386,53 +391,23 @@ namespace LLTrace
 	};
 
 	template <typename T>
-	class LL_COMMON_API Rate <T, typename T::is_unit_t>
-	:	public Rate<typename T::value_t>
+	class LL_COMMON_API Count <T, typename T::is_unit_t>
+	:	public Count<typename T::value_t>
 	{
 	public:
 		typedef typename T::storage_t storage_t;
 		typedef typename T::base_unit_t base_unit_t;
+		typedef Count<typename T::value_t> base_count_t;
 
-		Rate(const char* name, const char* description = NULL) 
-		:	Rate<typename T::value_t>(name)
+		Count(const char* name, const char* description = NULL) 
+		:	Count<typename T::value_t>(name)
 		{}
 
 		template<typename UNIT_T>
 		void add(UNIT_T value)
 		{
-			getPrimaryAccumulator().add(value.value());
+			base_count_t::add(((T)value).value());
 		}
-	};
-
-	template <typename T>
-	class LL_COMMON_API Count 
-	{
-	public:
-		typedef typename Rate<T>::base_unit_t base_unit_t;
-
-		Count(const char* name) 
-		:	mIncrease(name + "_increase"),
-			mDecrease(name + "_decrease"),
-			mTotal(name)
-		{}
-
-		void count(T value)
-		{
-			if (value < 0)
-			{
-				mDecrease.add(value * -1);
-			}
-			else
-			{
-				mIncrease.add(value);
-			}
-			mTotal.add(value);
-		}
-	private:
-		friend LLTrace::Recording;
-		Rate<T> mIncrease;
-		Rate<T> mDecrease;
-		Rate<T> mTotal;
 	};
 
 	class LL_COMMON_API TimerAccumulator
