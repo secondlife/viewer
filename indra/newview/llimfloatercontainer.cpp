@@ -101,6 +101,11 @@ void LLIMFloaterContainer::sessionAdded(const LLUUID& session_id, const std::str
 	addConversationListItem(session_id);
 }
 
+void LLIMFloaterContainer::sessionAlreadyAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
+{
+    doSomething(session_id);
+}
+
 void LLIMFloaterContainer::sessionVoiceOrIMStarted(const LLUUID& session_id)
 {
 	LLIMFloater::addToHost(session_id, true);
@@ -1069,6 +1074,19 @@ void LLIMFloaterContainer::setConvItemSelect(const LLUUID& session_id)
 	}
 }
 
+void LLIMFloaterContainer::doSomething(const LLUUID& session_id)
+{
+    LLConversationItem* vmi = static_cast<LLConversationItem*>(mConversationsRoot->getCurSelectedItem()->getParentFolder()->getViewModelItem());
+
+    if(session_id != vmi->getUUID())
+    {
+        mSelectedSession = session_id;
+        LLFolderViewItem* widget = mConversationsWidgets[session_id];
+        (widget->getRoot())->setSelection(widget, FALSE, FALSE);
+    }
+}
+
+
 void LLIMFloaterContainer::setTimeNow(const LLUUID& session_id, const LLUUID& participant_id)
 {
 	conversations_items_map::iterator item_it = mConversationsItems.find(session_id);
@@ -1204,6 +1222,7 @@ void LLIMFloaterContainer::removeConversationListItem(const LLUUID& uuid, bool c
 		conversations_widgets_map::iterator widget_it = mConversationsWidgets.begin();
 		if (widget_it != mConversationsWidgets.end())
 		{
+            mSelectedSession = widget_it->first;
 			LLFolderViewItem* widget = widget_it->second;
 			widget->selectItem();
 		}

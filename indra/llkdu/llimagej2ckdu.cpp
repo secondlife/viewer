@@ -166,12 +166,12 @@ void LLKDUMessageWarning::put_text(const kdu_uint16 *s)
 
 void LLKDUMessageError::put_text(const char *s)
 {
-	llinfos << "KDU Error: " << s << llendl;
+	//llinfos << "KDU Error: " << s << llendl;
 }
 
 void LLKDUMessageError::put_text(const kdu_uint16 *s)
 {
-	llinfos << "KDU Error: " << s << llendl;
+	//llinfos << "KDU Error: " << s << llendl;
 }
 
 void LLKDUMessageError::flush(bool end_of_message)

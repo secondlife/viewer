@@ -424,8 +424,10 @@ void LLConversationViewParticipant::draw()
 void LLConversationViewParticipant::selectItem()
 {
     LLConversationItem* vmi = this->getParentFolder() ? static_cast<LLConversationItem*>(this->getParentFolder()->getViewModelItem()) : NULL;
-    
-    if(vmi)
+    LLIMFloaterContainer* container = LLIMFloaterContainer::getInstance();
+
+    //Only execute when switching floaters (conversations)
+    if(vmi && vmi->getUUID() != container->getSelectedSession())
     {
         //When null, show the nearby chat conversation floater
         if(vmi->getUUID().isNull())

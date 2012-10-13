@@ -2654,6 +2654,11 @@ LLUUID LLIMMgr::addSession(
 	{
 		LLIMModel::getInstance()->newSession(session_id, name, dialog, other_participant_id, ids, voice);
 	}
+    else
+    {
+        std::string session_name = LLIMModel::getInstance()->getName(session_id);
+        LLIMMgr::getInstance()->notifyObserverSessionAlreadyAdded(session_id, session_name, other_participant_id);
+    }
 
 	//we don't need to show notes about online/offline, mute/unmute users' statuses for existing sessions
 	if (!new_session) return session_id;
@@ -2954,6 +2959,14 @@ void LLIMMgr::notifyObserverSessionAdded(const LLUUID& session_id, const std::st
 	{
 		(*it)->sessionAdded(session_id, name, other_participant_id);
 	}
+}
+
+void LLIMMgr::notifyObserverSessionAlreadyAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
+{
+    for (session_observers_list_t::iterator it = mSessionObservers.begin(); it != mSessionObservers.end(); it++)
+    {
+        (*it)->sessionAlreadyAdded(session_id, name, other_participant_id);
+    }
 }
 
 void LLIMMgr::notifyObserverSessionVoiceOrIMStarted(const LLUUID& session_id)

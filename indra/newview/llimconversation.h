@@ -141,9 +141,6 @@ private:
 	bool checkIfTornOff();
 
 	LLTimer* mRefreshTimer; ///< Defines the rate at which refresh() is called.
-
-	bool mHadFocus;
-	bool mHasFocus;
 };
 
 

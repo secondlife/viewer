@@ -64,6 +64,7 @@ public:
 								BOOL select_added_floater, 
 								LLTabContainer::eInsertionPoint insertion_point = LLTabContainer::END);
     void setConvItemSelect(const LLUUID& session_id);
+    void doSomething(const LLUUID& session_id);
 	/*virtual*/ void tabClose();
 
 	static LLFloater* getCurrentVoiceFloater();
@@ -81,11 +82,13 @@ public:
 
 	// LLIMSessionObserver observe triggers
 	/*virtual*/ void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id);
+    /*virtual*/ void sessionAlreadyAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id);
 	/*virtual*/ void sessionVoiceOrIMStarted(const LLUUID& session_id);
 	/*virtual*/ void sessionRemoved(const LLUUID& session_id);
 	/*virtual*/ void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id);
 
 	LLConversationViewModel& getRootViewModel() { return mConversationViewModel; }
+    LLUUID getSelectedSession() { return mSelectedSession; }
 
 private:
 	typedef std::map<LLUUID,LLFloater*> avatarID_panel_map_t;
