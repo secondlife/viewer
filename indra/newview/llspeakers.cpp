@@ -36,6 +36,7 @@
 #include "llviewerobjectlist.h"
 #include "llvoavatar.h"
 #include "llworld.h"
+#include "llsdserialize.h"
 
 const LLColor4 INACTIVE_COLOR(0.3f, 0.3f, 0.3f, 0.5f);
 const LLColor4 ACTIVE_COLOR(0.5f, 0.5f, 0.5f, 1.f);
@@ -787,6 +788,7 @@ void LLIMSpeakerMgr::toggleAllowTextChat(const LLUUID& speaker_id)
 	//current value represents ability to type, so invert
 	data["params"]["mute_info"]["text"] = !speakerp->mModeratorMutedText;
 
+	llinfos << "Merov debug : viewer->sim : LLIMSpeakerMgr::toggleAllowTextChat, session id = " << getSessionID() << ", data = " << LLSDOStreamer<LLSDNotationFormatter>(data) << llendl;
 	LLHTTPClient::post(url, data, new ModerationResponder(getSessionID()));
 }
 
@@ -811,6 +813,7 @@ void LLIMSpeakerMgr::moderateVoiceParticipant(const LLUUID& avatar_id, bool unmu
 	data["params"]["mute_info"] = LLSD::emptyMap();
 	data["params"]["mute_info"]["voice"] = !unmute;
 
+	llinfos << "Merov debug : viewer->sim : LLIMSpeakerMgr::moderateVoiceParticipant, session id = " << getSessionID() << ", data = " << LLSDOStreamer<LLSDNotationFormatter>(data) << llendl;
 	LLHTTPClient::post(
 		url,
 		data,
@@ -853,6 +856,7 @@ void LLIMSpeakerMgr::moderateVoiceSession(const LLUUID& session_id, bool disallo
 	data["params"]["update_info"]["moderated_mode"] = LLSD::emptyMap();
 	data["params"]["update_info"]["moderated_mode"]["voice"] = disallow_voice;
 
+	llinfos << "Merov debug : viewer->sim : LLIMSpeakerMgr::moderateVoiceSession, session id = " << session_id << ", data = " << LLSDOStreamer<LLSDNotationFormatter>(data) << llendl;
 	LLHTTPClient::post(url, data, new ModerationResponder(session_id));
 }
 

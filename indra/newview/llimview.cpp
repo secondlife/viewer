@@ -63,6 +63,7 @@
 #include "lltoolbarview.h"
 #include "llviewercontrol.h"
 #include "llviewerparcelmgr.h"
+#include "llsdserialize.h"
 
 
 const static std::string ADHOC_NAME_SUFFIX(" Conference");
@@ -1316,6 +1317,7 @@ bool LLIMModel::sendStartSession(
 
 			data["params"] = agents;
 
+			llinfos << "Merov debug : viewer-> sim : LLIMModel::sendStartSession, session id = " << temp_session_id << ", data = " << LLSDOStreamer<LLSDNotationFormatter>(data) << llendl;
 			LLHTTPClient::post(
 				url,
 				data,
@@ -2253,6 +2255,7 @@ void LLIncomingCallDialog::processCallResponse(S32 response, const LLSD &payload
 				LLSD data;
 				data["method"] = "accept invitation";
 				data["session-id"] = session_id;
+				llinfos << "Merov debug : viewer-> sim : LLIncomingCallDialog::processCallResponse, accept, session id = " << session_id << ", data = " << LLSDOStreamer<LLSDNotationFormatter>(data) << llendl;
 				LLHTTPClient::post(
 					url,
 					data,
@@ -2293,6 +2296,7 @@ void LLIncomingCallDialog::processCallResponse(S32 response, const LLSD &payload
 			LLSD data;
 			data["method"] = "decline invitation";
 			data["session-id"] = session_id;
+			llinfos << "Merov debug : viewer-> sim : LLIncomingCallDialog::processCallResponse, decline, session id = " << session_id << ", data = " << LLSDOStreamer<LLSDNotationFormatter>(data) << llendl;
 			LLHTTPClient::post(
 				url,
 				data,
@@ -2346,6 +2350,7 @@ bool inviteUserResponse(const LLSD& notification, const LLSD& response)
 				LLSD data;
 				data["method"] = "accept invitation";
 				data["session-id"] = session_id;
+				llinfos << "Merov debug : viewer-> sim : inviteUserResponse, accept, session id = " << session_id << ", data = " << LLSDOStreamer<LLSDNotationFormatter>(data) << llendl;
 				LLHTTPClient::post(
 					url,
 					data,
@@ -2381,6 +2386,7 @@ bool inviteUserResponse(const LLSD& notification, const LLSD& response)
 			LLSD data;
 			data["method"] = "decline invitation";
 			data["session-id"] = session_id;
+			llinfos << "Merov debug : viewer-> sim : inviteUserResponse, decline, session id = " << session_id << ", data = " << LLSDOStreamer<LLSDNotationFormatter>(data) << llendl;
 			LLHTTPClient::post(
 				url,
 				data,
@@ -3345,6 +3351,7 @@ public:
 				LLSD data;
 				data["method"] = "accept invitation";
 				data["session-id"] = session_id;
+				llinfos << "Merov debug : viewer-> sim : LLViewerChatterBoxInvitation, session id = " << session_id << ", data = " << LLSDOStreamer<LLSDNotationFormatter>(data) << llendl;
 				LLHTTPClient::post(
 					url,
 					data,

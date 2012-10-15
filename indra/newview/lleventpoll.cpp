@@ -37,6 +37,7 @@
 #include "llviewerregion.h"
 #include "message.h"
 #include "lltrans.h"
+#include "llsdserialize.h"
 
 namespace
 {
@@ -134,7 +135,7 @@ namespace
 		LLViewerRegion *regionp = gAgent.getRegion();
 		if (!regionp)
 		{
-			llerrs << "LLEventPoll initialized before region is added." << llendl;
+			llinfos << "Merov debug : LLEventPoll initialized before region is added." << llendl;
 		}
 		mSender = sender.getIPandPort();
 		llinfos << "Merov debug : LLEventPoll initialized with sender " << mSender << llendl;
@@ -144,7 +145,7 @@ namespace
 	LLEventPollResponder::~LLEventPollResponder()
 	{
 		stop();
-		llinfos << "Merov debug : LLEventPollResponder::~Impl <" <<	mCount << "> "
+		llinfos <<	"Merov debug : LLEventPollResponder::~Impl <" <<	mCount << "> "
 				 <<	mPollURL <<	llendl;
 	}
 
@@ -174,7 +175,12 @@ namespace
 		request["ack"] = mAcknowledge;
 		request["done"]	= mDone;
 		
-		llinfos << "Merov debug : LLEventPollResponder::makeRequest	<" << mCount <<	"> ack = " <<	LLSDXMLStreamer(mAcknowledge) << llendl;
+		llinfos <<	"Merov debug : viewer->sim : LLEventPollResponder::makeRequest	<" << mCount 
+				<<	"> ack = " <<	LLSDXMLStreamer(mAcknowledge) 
+				<< ", error = " << mErrorCount
+				<< ", sender = " << mSender
+				<< ", url = " << mPollURL
+				<< ", done = " << mDone << llendl;
 		LLHTTPClient::post(mPollURL, request, this);
 	}
 
@@ -184,13 +190,14 @@ namespace
 		LLSD message;
 		message["sender"] = mSender;
 		message["body"] = content["body"];
-		llinfos << "Merov debug : LLEventPollResponder::handleMessage, msg_name = " << msg_name << ", message = " << LLSDOStreamer<LLSDNotationFormatter>(message) << llendl;
+		llinfos << "Merov debug : sim->viewer : LLEventPollResponder::handleMessage, msg_name = " << msg_name << ", message = " << LLSDOStreamer<LLSDNotationFormatter>(message) << llendl;
 		LLMessageSystem::dispatch(msg_name, message);
 	}
 
 	//virtual
 	void LLEventPollResponder::error(U32 status, const	std::string& reason)
 	{
+		llinfos << "Merov debug : LLEventPollResponder::error, status = " << status << ", reason = " << reason << llendl;
 		if (mDone) return;
 		llinfos << "Merov debug : LLEventPollResponder::error, status = " << status << ", reason = " << reason << llendl;
 
@@ -214,7 +221,7 @@ namespace
 		}
 		else
 		{
-			llinfos << "Merov debug : LLEventPollResponder::error: <" << mCount << "> got "
+			llinfos <<	"Merov debug : LLEventPollResponder::error: <" << mCount << "> got "
 					<<	status << ": " << reason
 					<<	(mDone ? " -- done"	: "") << llendl;
 			stop();
@@ -239,8 +246,8 @@ namespace
 	//virtual
 	void LLEventPollResponder::result(const LLSD& content)
 	{
-		llinfos << "Merov debug : LLEventPollResponder::result <" << mCount	<< ">"
-				 <<	(mDone ? " -- done"	: "") << llendl;
+		llinfos <<	"Merov debug : LLEventPollResponder::result <" << mCount	<< "> "
+				 <<	(mDone ? " -- done"	: "") << ", content = " << LLSDOStreamer<LLSDNotationFormatter>(content) << llendl;
 		
 		if (mDone) return;
 
@@ -263,7 +270,7 @@ namespace
 		}
 		
 		// was llinfos but now that CoarseRegionUpdate is TCP @ 1/second, it'd be too verbose for viewer logs. -MG
-		llinfos << "Merov debug : LLEventPollResponder::completed <" <<	mCount << "> " << events.size() << "events (id "
+		llinfos  << "Merov debug : LLEventPollResponder::completed <" <<	mCount << "> " << events.size() << "events (id "
 				 <<	LLSDXMLStreamer(mAcknowledge) << ")" << llendl;
 		
 		LLSD::array_const_iterator i = events.beginArray();
