@@ -2,6 +2,9 @@
 #
 # Compilation options shared by all Second Life components.
 
+if(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)
+set(${CMAKE_CURRENT_LIST_FILE}_INCLUDED "YES")
+
 include(Variables)
 
 # Portable compilation flags.
@@ -234,3 +237,4 @@ else (STANDALONE)
       )
 endif (STANDALONE)
 
+endif(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)

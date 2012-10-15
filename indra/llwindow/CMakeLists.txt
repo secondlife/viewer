@@ -80,6 +80,15 @@ if (LINUX)
       fontconfig          # For FCInit and other FC* functions.
       )
 
+  list(APPEND viewer_SOURCE_FILES 
+       llkeyboardsdl.cpp 
+       llwindowsdl.cpp
+       )
+  list(APPEND viewer_HEADER_FILES
+       llkeyboardsdl.h
+       llwindowsdl.h
+       )
+
   if (BUILD_HEADLESS)
     set(llwindowheadless_LINK_LIBRARIES
         ${LLCOMMON_LIBRARIES}
@@ -92,6 +101,7 @@ if (LINUX)
         fontconfig          # For FCInit and other FC* functions.
         )
   endif (BUILD_HEADLESS)
+
 endif (LINUX)
 
 if (DARWIN)
@@ -115,16 +125,6 @@ if (DARWIN)
       )
 endif (DARWIN)
 
-if (LINUX)
-  list(APPEND viewer_SOURCE_FILES 
-       llkeyboardsdl.cpp 
-       llwindowsdl.cpp
-       )
-  list(APPEND viewer_HEADER_FILES
-       llkeyboardsdl.h
-       llwindowsdl.h
-       )
-endif (LINUX)
 
 if (WINDOWS)
   list(APPEND llwindow_SOURCE_FILES

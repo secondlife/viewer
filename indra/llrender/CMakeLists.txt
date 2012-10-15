@@ -32,18 +32,21 @@ include_directories(SYSTEM
 
 set(llrender_SOURCE_FILES
     llcubemap.cpp
+    llfontbitmapcache.cpp
     llfontfreetype.cpp
     llfontgl.cpp
-    llfontbitmapcache.cpp
     llfontregistry.cpp
+    llgl.cpp
     llgldbg.cpp
     llglslshader.cpp
     llgltexture.cpp
     llimagegl.cpp
     llpostprocess.cpp
+    llrender.cpp
     llrender2dutils.cpp
     llrendernavprim.cpp
     llrendersphere.cpp
+    llrendertarget.cpp
     llshadermgr.cpp
     lltexture.cpp
     lluiimage.cpp
@@ -82,11 +85,6 @@ set_source_files_properties(${llrender_HEADER_FILES}
 
 list(APPEND llrender_SOURCE_FILES ${llrender_HEADER_FILES})
 
-list(APPEND llrender_SOURCE_FILES
-     llgl.cpp
-     llrender.cpp
-     llrendertarget.cpp
-     )
 if (BUILD_HEADLESS)
   add_library (llrenderheadless
     ${llrender_SOURCE_FILES}
