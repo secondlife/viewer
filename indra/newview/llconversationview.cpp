@@ -425,6 +425,7 @@ void LLConversationViewParticipant::selectItem()
 {
     LLConversationItem* vmi = this->getParentFolder() ? static_cast<LLConversationItem*>(this->getParentFolder()->getViewModelItem()) : NULL;
     LLIMFloaterContainer* container = LLIMFloaterContainer::getInstance();
+    LLFloater* session_floater;
 
     //Only execute when switching floaters (conversations)
     if(vmi && vmi->getUUID() != container->getSelectedSession())
@@ -440,6 +441,12 @@ void LLConversationViewParticipant::selectItem()
         {
             LLIMFloater::show(vmi->getUUID());
         }
+    }
+    //Focus the current conversation floater (it is already visible so just focus it)
+    else
+    {
+        session_floater = LLIMConversation::getConversation(vmi->getUUID());
+        session_floater->setFocus(TRUE);
     }
 
     LLFolderViewItem::selectItem();
