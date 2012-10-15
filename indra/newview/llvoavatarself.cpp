@@ -2654,7 +2654,14 @@ void LLVOAvatarSelf::onCustomizeStart(bool disable_camera_switch)
 			gAgentCamera.changeCameraToCustomizeAvatar();
 		}
 
+		bool enable_verbose_dumps = gSavedSettings.getBOOL("DebugAvatarAppearanceMessage");
+		std::string dump_prefix = gAgentAvatarp->getFullname() + "_" + (gAgentAvatarp->isSelf()?"s":"o") + "_";
+		if (enable_verbose_dumps) { gAgentAvatarp->dumpArchetypeXML(dump_prefix + "on_customize_start"); }
 		gAgentAvatarp->clearVisualParamWeights();
+		if (enable_verbose_dumps) { gAgentAvatarp->dumpArchetypeXML(dump_prefix + "on_customize_post_clear"); } 
+		gAgentAvatarp->idleUpdateAppearanceAnimation();
+		if (enable_verbose_dumps) { gAgentAvatarp->dumpArchetypeXML(dump_prefix + "on_customize_post_update"); }
+		
 		gAgentAvatarp->invalidateAll();
 		gAgentAvatarp->updateMeshTextures();
 	}

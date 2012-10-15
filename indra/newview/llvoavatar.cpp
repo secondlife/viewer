@@ -1792,6 +1792,7 @@ S32 LLVOAvatar::setTETexture(const U8 te, const LLUUID& uuid)
 		const std::string url = getImageURL(te,uuid);
 		if (!url.empty())
 		{
+			llinfos << "texture URL " << url << llendl;
 			return setTETextureCore(te, uuid, url);
 		}
 
