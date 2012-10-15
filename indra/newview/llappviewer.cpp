@@ -771,6 +771,8 @@ bool LLAppViewer::init()
 	LLUI::setupPaths();
 	LLTransUtil::parseStrings("strings.xml", default_trans_args);
 	LLTransUtil::parseLanguageStrings("language_settings.xml");
+	// parseStrings() sets up the LLTrans substitution table. Add this one item.
+	LLTrans::setDefaultArg("[sourceid]", gSavedSettings.getString("sourceid"));
 
 	// Setup notifications after LLUI::setupPaths() has been called.
 	LLNotifications::instance();
@@ -2242,6 +2244,8 @@ bool LLAppViewer::initConfiguration()
 	LLUI::setupPaths(); // setup paths for LLTrans based on settings files only
 	LLTransUtil::parseStrings("strings.xml", default_trans_args);
 	LLTransUtil::parseLanguageStrings("language_settings.xml");
+	// parseStrings() sets up the LLTrans substitution table. Add this one item.
+	LLTrans::setDefaultArg("[sourceid]", gSavedSettings.getString("sourceid"));
 	// - set procedural settings
 	// Note: can't use LL_PATH_PER_SL_ACCOUNT for any of these since we haven't logged in yet
 	gSavedSettings.setString("ClientSettingsFile", 
