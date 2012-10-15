@@ -98,7 +98,7 @@ LLIMFloaterContainer::~LLIMFloaterContainer()
 void LLIMFloaterContainer::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
 {
 	LLIMFloater::addToHost(session_id, true);
-	addConversationListItem(session_id);
+	addConversationListItem(session_id, true);
 }
 
 void LLIMFloaterContainer::sessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
@@ -109,7 +109,7 @@ void LLIMFloaterContainer::sessionActivated(const LLUUID& session_id, const std:
 void LLIMFloaterContainer::sessionVoiceOrIMStarted(const LLUUID& session_id)
 {
 	LLIMFloater::addToHost(session_id, true);
-	addConversationListItem(session_id);
+	addConversationListItem(session_id, true);
 }
 
 void LLIMFloaterContainer::sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id)
