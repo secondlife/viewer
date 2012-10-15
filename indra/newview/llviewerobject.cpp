@@ -1236,12 +1236,8 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					coloru.mV[3] = 255 - coloru.mV[3];
 					mText->setColor(LLColor4(coloru));
 					mText->setString(temp_string);
-					
-					if (mDrawable.notNull())
-					{
-						setChanged(MOVED | SILHOUETTE);
-						gPipeline.markMoved(mDrawable, FALSE); // undamped
-					}
+
+					setChanged(MOVED | SILHOUETTE);
 				}
 				else if (mText.notNull())
 				{
@@ -2100,7 +2096,6 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		setRotation(new_rot * mAngularVelocityRot);
 		setChanged(ROTATED | SILHOUETTE);
 	}
-
 
 	if ( gShowObjectUpdates )
 	{
