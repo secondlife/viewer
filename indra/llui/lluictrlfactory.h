@@ -173,18 +173,17 @@ public:
 	static T* createFromFile(const std::string &filename, LLView *parent, const widget_registry_t& registry)
 	{
 		T* widget = NULL;
-		
-		std::string skinned_filename = findSkinnedFilename(filename);
+
 		instance().pushFileName(filename);
 		{
 			LLXMLNodePtr root_node;
 
 			if (!LLUICtrlFactory::getLayeredXMLNode(filename, root_node))
 			{
-				llwarns << "Couldn't parse XUI file: " << skinned_filename << llendl;
+				llwarns << "Couldn't parse XUI file: " << instance().getCurFileName() << llendl;
 				goto fail;
 			}
-			
+
 			LLView* view = getInstance()->createFromXML(root_node, parent, filename, registry, NULL);
 			if (view)
 			{
@@ -298,9 +297,6 @@ private:
 
 	// this exists to get around dependency on llview
 	static void setCtrlParent(LLView* view, LLView* parent, S32 tab_group);
-
-	// Avoid directly using LLUI and LLDir in the template code
-	static std::string findSkinnedFilename(const std::string& filename);
 
 	class LLPanel*		mDummyPanel;
 	std::vector<std::string>	mFileNames;

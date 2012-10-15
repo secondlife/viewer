@@ -232,14 +232,6 @@ void LLUICtrlFactory::setCtrlParent(LLView* view, LLView* parent, S32 tab_group)
 	parent->addChild(view, tab_group);
 }
 
-
-// Avoid directly using LLUI and LLDir in the template code
-//static
-std::string LLUICtrlFactory::findSkinnedFilename(const std::string& filename)
-{
-	return gDirUtilp->findSkinnedFilenameBaseLang(LLDir::XUI, filename);
-}
-
 //static 
 void LLUICtrlFactory::copyName(LLXMLNodePtr src, LLXMLNodePtr dest)
 {
