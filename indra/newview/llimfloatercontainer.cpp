@@ -114,8 +114,7 @@ void LLIMFloaterContainer::sessionVoiceOrIMStarted(const LLUUID& session_id)
 
 void LLIMFloaterContainer::sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id)
 {
-	removeConversationListItem(old_session_id);
-	addConversationListItem(new_session_id);
+	addConversationListItem(new_session_id, removeConversationListItem(old_session_id));
 }
 
 void LLIMFloaterContainer::sessionRemoved(const LLUUID& session_id)
@@ -146,6 +145,9 @@ BOOL LLIMFloaterContainer::postBuild()
 	mMessagesPane = getChild<LLLayoutPanel>("messages_layout_panel");
 	
 	mConversationsListPanel = getChild<LLPanel>("conversations_list_panel");
+
+	// Open IM session with selected participant on double click event
+	mConversationsListPanel->setDoubleClickCallback(boost::bind(&LLIMFloaterContainer::doToSelected, this, LLSD("im")));
 
 	// Create the root model and view for all conversation sessions
 	LLConversationItem* base_item = new LLConversationItem(getRootViewModel());
@@ -964,6 +966,12 @@ bool LLIMFloaterContainer::enableContextMenuItem(const LLSD& userdata)
     uuid_vec_t mUUIDs;
     getParticipantUUIDs(mUUIDs);
 
+    if(item == std::string("can_activate_group"))
+    {
+    	LLUUID selected_group_id = getCurSelectedViewModelItem()->getUUID();
+    	return gAgent.getGroupID() != selected_group_id;
+    }
+
     if(mUUIDs.size() <= 0)
     {
         return false;
@@ -1141,7 +1149,7 @@ void LLIMFloaterContainer::setNearbyDistances()
 	}
 }
 
-void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
+void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid, bool isWidgetSelected /*= false*/)
 {
 	bool is_nearby_chat = uuid.isNull();
 	
@@ -1196,7 +1204,10 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 		current_participant_model++;
 	}
 
-	setConvItemSelect(uuid);
+	if (isWidgetSelected)
+	{
+		setConvItemSelect(uuid);
+	}
 	
 	// set the widget to minimized mode if conversations pane is collapsed
 	widget->toggleMinimizedMode(mConversationsPane->isCollapsed());
@@ -1204,17 +1215,19 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 	return;
 }
 
-void LLIMFloaterContainer::removeConversationListItem(const LLUUID& uuid, bool change_focus)
+bool LLIMFloaterContainer::removeConversationListItem(const LLUUID& uuid, bool change_focus)
 {
 	// Delete the widget and the associated conversation item
 	// Note : since the mConversationsItems is also the listener to the widget, deleting 
 	// the widget will also delete its listener
+	bool isWidgetSelected = false;
 	conversations_widgets_map::iterator widget_it = mConversationsWidgets.find(uuid);
 	if (widget_it != mConversationsWidgets.end())
 	{
 		LLFolderViewItem* widget = widget_it->second;
 		if (widget)
 		{
+			isWidgetSelected = widget->isSelected();
 			widget->destroyView();
 		}
 	}
@@ -1235,6 +1248,7 @@ void LLIMFloaterContainer::removeConversationListItem(const LLUUID& uuid, bool c
 			widget->selectItem();
 		}
 	}
+	return isWidgetSelected;
 }
 
 LLConversationViewSession* LLIMFloaterContainer::createConversationItemWidget(LLConversationItem* item)
