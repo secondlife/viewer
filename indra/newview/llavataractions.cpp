@@ -296,10 +296,17 @@ void LLAvatarActions::startConference(const uuid_vec_t& ids, const LLUUID& float
 	}
 	const std::string title = LLTrans::getString("conference-title");
 	LLUUID session_id = gIMMgr->addSession(title, IM_SESSION_CONFERENCE_START, ids[0], id_array, false, floater_id);
-	if (session_id != LLUUID::null)
+
+	if (session_id == LLUUID::null)
 	{
-		LLIMFloater::show(session_id);
+		return;
 	}
+	
+	LLIMFloater::show(session_id);
+//	gIMMgr->processAgentListUpdates(session_id, LLSD());
+	gIMMgr->startCall(session_id,LLVoiceChannel::OUTGOING_CALL);
+	gIMMgr->endCall(session_id);
+	
 	make_ui_sound("UISndStartIM");
 }
 

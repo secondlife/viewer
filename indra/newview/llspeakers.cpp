@@ -286,6 +286,7 @@ LLPointer<LLSpeaker> LLSpeakerMgr::setSpeaker(const LLUUID& id, const std::strin
 		mSpeakers.insert(std::make_pair(speakerp->mID, speakerp));
 		mSpeakersSorted.push_back(speakerp);
 		LL_DEBUGS("Speakers") << "Added speaker " << id << llendl;
+		//llinfos << "Merov debug : setSpeaker, add, id = " << id << ", name = " << name << llendl;
 		fireEvent(new LLSpeakerListChangeEvent(this, speakerp->mID), "add");
 	}
 	else
@@ -306,6 +307,7 @@ LLPointer<LLSpeaker> LLSpeakerMgr::setSpeaker(const LLUUID& id, const std::strin
 		}
 		else
 		{
+			llinfos << "Merov debug : setSpeaker, speaker not found? id = " << id << ", name = " << name << llendl;
 			LL_WARNS("Speakers") << "Speaker " << id << " not found" << llendl;
 		}
 	}

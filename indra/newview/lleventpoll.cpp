@@ -109,14 +109,14 @@ namespace
 		const std::string& pollURL, const LLHost& sender)
 	{
 		LLHTTPClient::ResponderPtr result = new LLEventPollResponder(pollURL, sender);
-		llinfos	<< "LLEventPollResponder::start <" << sCount << "> "
+		llinfos	<< "Merov debug : LLEventPollResponder::start <" << sCount << "> "
 				<< pollURL << llendl;
 		return result;
 	}
 
 	void LLEventPollResponder::stop()
 	{
-		llinfos	<< "LLEventPollResponder::stop	<" << mCount <<	"> "
+		llinfos	<< "Merov debug : LLEventPollResponder::stop	<" << mCount <<	"> "
 				<< mPollURL	<< llendl;
 		// there should	be a way to	stop a LLHTTPClient	request	in progress
 		mDone =	true;
@@ -137,14 +137,14 @@ namespace
 			llerrs << "LLEventPoll initialized before region is added." << llendl;
 		}
 		mSender = sender.getIPandPort();
-		llinfos << "LLEventPoll initialized with sender " << mSender << llendl;
+		llinfos << "Merov debug : LLEventPoll initialized with sender " << mSender << llendl;
 		makeRequest();
 	}
 
 	LLEventPollResponder::~LLEventPollResponder()
 	{
 		stop();
-		lldebugs <<	"LLEventPollResponder::~Impl <" <<	mCount << "> "
+		llinfos << "Merov debug : LLEventPollResponder::~Impl <" <<	mCount << "> "
 				 <<	mPollURL <<	llendl;
 	}
 
@@ -154,11 +154,13 @@ namespace
 									const LLChannelDescriptors& channels,
 									const LLIOPipe::buffer_ptr_t& buffer)
 	{
+		llinfos << "Merov debug : LLEventPollResponder::completedRaw url <" << mPollURL << ">, status = " <<	status << ", reason = " <<	reason <<	llendl;
 		if (status == HTTP_BAD_GATEWAY)
 		{
 			// These errors are not parsable as LLSD, 
 			// which LLHTTPClient::Responder::completedRaw will try to do.
-			completed(status, reason, LLSD());
+			//completed(status, reason, LLSD());
+			error(status, reason);
 		}
 		else
 		{
@@ -172,8 +174,7 @@ namespace
 		request["ack"] = mAcknowledge;
 		request["done"]	= mDone;
 		
-		lldebugs <<	"LLEventPollResponder::makeRequest	<" << mCount <<	"> ack = "
-				 <<	LLSDXMLStreamer(mAcknowledge) << llendl;
+		llinfos << "Merov debug : LLEventPollResponder::makeRequest	<" << mCount <<	"> ack = " <<	LLSDXMLStreamer(mAcknowledge) << llendl;
 		LLHTTPClient::post(mPollURL, request, this);
 	}
 
@@ -183,6 +184,7 @@ namespace
 		LLSD message;
 		message["sender"] = mSender;
 		message["body"] = content["body"];
+		llinfos << "Merov debug : LLEventPollResponder::handleMessage, msg_name = " << msg_name << ", message = " << LLSDOStreamer<LLSDNotationFormatter>(message) << llendl;
 		LLMessageSystem::dispatch(msg_name, message);
 	}
 
@@ -190,6 +192,7 @@ namespace
 	void LLEventPollResponder::error(U32 status, const	std::string& reason)
 	{
 		if (mDone) return;
+		llinfos << "Merov debug : LLEventPollResponder::error, status = " << status << ", reason = " << reason << llendl;
 
 		// A HTTP_BAD_GATEWAY (502) error is our standard timeout response
 		// we get this when there are no events.
@@ -207,11 +210,11 @@ namespace
 										+ mErrorCount * EVENT_POLL_ERROR_RETRY_SECONDS_INC
 									, this);
 
-			llwarns << "Unexpected HTTP error.  status: " << status << ", reason: " << reason << llendl;
+			llinfos << "Merov debug : Unexpected HTTP error.  status: " << status << ", reason: " << reason << llendl;
 		}
 		else
 		{
-			llwarns <<	"LLEventPollResponder::error: <" << mCount << "> got "
+			llinfos << "Merov debug : LLEventPollResponder::error: <" << mCount << "> got "
 					<<	status << ": " << reason
 					<<	(mDone ? " -- done"	: "") << llendl;
 			stop();
@@ -227,7 +230,7 @@ namespace
 			// continue running.
 			if(gAgent.getRegion() && gAgent.getRegion()->getHost().getIPandPort() == mSender)
 			{
-				llwarns << "Forcing disconnect due to stalled main region event poll."  << llendl;
+				llinfos << "Merov debug : Forcing disconnect due to stalled main region event poll."  << llendl;
 				LLAppViewer::instance()->forceDisconnect(LLTrans::getString("AgentLostConnection"));
 			}
 		}
@@ -236,7 +239,7 @@ namespace
 	//virtual
 	void LLEventPollResponder::result(const LLSD& content)
 	{
-		lldebugs <<	"LLEventPollResponder::result <" << mCount	<< ">"
+		llinfos << "Merov debug : LLEventPollResponder::result <" << mCount	<< ">"
 				 <<	(mDone ? " -- done"	: "") << llendl;
 		
 		if (mDone) return;
@@ -246,7 +249,7 @@ namespace
 		if (!content.get("events") ||
 			!content.get("id"))
 		{
-			llwarns << "received event poll with no events or id key" << llendl;
+			llinfos << "Merov debug : received event poll with no events or id key" << llendl;
 			makeRequest();
 			return;
 		}
@@ -256,11 +259,11 @@ namespace
 
 		if(mAcknowledge.isUndefined())
 		{
-			llwarns << "LLEventPollResponder: id undefined" << llendl;
+			llinfos << "Merov debug : LLEventPollResponder: id undefined" << llendl;
 		}
 		
 		// was llinfos but now that CoarseRegionUpdate is TCP @ 1/second, it'd be too verbose for viewer logs. -MG
-		lldebugs  << "LLEventPollResponder::completed <" <<	mCount << "> " << events.size() << "events (id "
+		llinfos << "Merov debug : LLEventPollResponder::completed <" <<	mCount << "> " << events.size() << "events (id "
 				 <<	LLSDXMLStreamer(mAcknowledge) << ")" << llendl;
 		
 		LLSD::array_const_iterator i = events.beginArray();
