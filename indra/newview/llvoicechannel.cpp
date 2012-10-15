@@ -35,6 +35,7 @@
 #include "llrecentpeople.h"
 #include "llviewercontrol.h"
 #include "llvoicechannel.h"
+#include "llsdserialize.h"
 
 
 LLVoiceChannel::voice_channel_map_t LLVoiceChannel::sVoiceChannelMap;
@@ -539,6 +540,7 @@ void LLVoiceChannelGroup::getChannelInfo()
 		LLSD data;
 		data["method"] = "call";
 		data["session-id"] = mSessionID;
+		llinfos << "Merov debug : viewer-> sim : LLVoiceChannelGroup::getChannelInfo, session id = " << mSessionID << ", data = " << LLSDOStreamer<LLSDNotationFormatter>(data) << llendl;
 		LLHTTPClient::post(url,
 						   data,
 						   new LLVoiceCallCapResponder(mSessionID));
