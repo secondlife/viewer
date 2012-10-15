@@ -354,7 +354,7 @@ void LLApp::setupErrorHandling()
 																  &unix_post_minidump_callback,
 																  0,
 																  true,
-																  "port_name");
+																  NULL);
 	}
 #endif
 
