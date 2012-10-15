@@ -117,6 +117,7 @@
      layout="topleft"
      name="activate_group">
         <on_click function="Group.DoToSelected" parameter="activate_group"/>
+        <on_enable function="Avatar.EnableItem" parameter="can_activate_group" />
     </menu_item_call>		
     <menu_item_call
      label="Leave Group"

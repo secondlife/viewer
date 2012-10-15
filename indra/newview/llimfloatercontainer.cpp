@@ -961,6 +961,12 @@ bool LLIMFloaterContainer::enableContextMenuItem(const LLSD& userdata)
     uuid_vec_t mUUIDs;
     getParticipantUUIDs(mUUIDs);
 
+    if(item == std::string("can_activate_group"))
+    {
+    	LLUUID selected_group_id = getCurSelectedViewModelItem()->getUUID();
+    	return gAgent.getGroupID() != selected_group_id;
+    }
+
     if(mUUIDs.size() <= 0)
     {
         return false;
