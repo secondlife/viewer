@@ -101,9 +101,9 @@ void LLIMFloaterContainer::sessionAdded(const LLUUID& session_id, const std::str
 	addConversationListItem(session_id);
 }
 
-void LLIMFloaterContainer::sessionAlreadyAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
+void LLIMFloaterContainer::sessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
 {
-    doSomething(session_id);
+    setItemSelect(session_id);
 }
 
 void LLIMFloaterContainer::sessionVoiceOrIMStarted(const LLUUID& session_id)
@@ -1064,6 +1064,7 @@ bool LLIMFloaterContainer::checkContextMenuItem(const LLSD& userdata)
     return false;
 }
 
+//Will select only the conversation item
 void LLIMFloaterContainer::setConvItemSelect(const LLUUID& session_id)
 {
 	LLFolderViewItem* widget = mConversationsWidgets[session_id];
@@ -1074,15 +1075,22 @@ void LLIMFloaterContainer::setConvItemSelect(const LLUUID& session_id)
 	}
 }
 
-void LLIMFloaterContainer::doSomething(const LLUUID& session_id)
+//Will select the conversation/participant item
+void LLIMFloaterContainer::setItemSelect(const LLUUID& session_id)
 {
-    LLConversationItem* vmi = static_cast<LLConversationItem*>(mConversationsRoot->getCurSelectedItem()->getParentFolder()->getViewModelItem());
 
-    if(session_id != vmi->getUUID())
+    if(mConversationsRoot->getCurSelectedItem() && mConversationsRoot->getCurSelectedItem()->getParentFolder())
     {
-        mSelectedSession = session_id;
-        LLFolderViewItem* widget = mConversationsWidgets[session_id];
-        (widget->getRoot())->setSelection(widget, FALSE, FALSE);
+        //Retreive the conversation id. When a participant is selected, then have to to get the converation id from the parent.
+        LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(mConversationsRoot->getCurSelectedItem()->getParentFolder()->getViewModelItem());
+
+        //Will allow selection/highlighting of the conversation/participant
+        if(session_id != vmi->getUUID())
+        {
+            mSelectedSession = session_id;
+            LLFolderViewItem* widget = mConversationsWidgets[session_id];
+            (widget->getRoot())->setSelection(widget, FALSE, FALSE);
+        }
     }
 }
 
