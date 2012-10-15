@@ -255,10 +255,9 @@ public:
 		}
 	}
 
-    static boost::intrusive_ptr<BaseCapabilitiesComplete> build( U64 region_handle, S32 id )
+    static BaseCapabilitiesComplete* build( U64 region_handle, S32 id )
     {
-		return boost::intrusive_ptr<BaseCapabilitiesComplete>( 
-				new BaseCapabilitiesComplete(region_handle, id) );
+		return new BaseCapabilitiesComplete(region_handle, id);
     }
 
 private:

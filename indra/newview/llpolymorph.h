@@ -78,7 +78,11 @@ public:
 	F32					mMaxDistortion;		// maximum single vertex distortion in a given morph
 	LL_ALIGN_16(LLVector4a			mAvgDistortion);		// average vertex distortion, to infer directionality of the morph
 	LLPolyMeshSharedData*	mMesh;
+
+private:
+	void freeData();
 } LL_ALIGN_POSTFIX(16);
+
 
 //-----------------------------------------------------------------------------
 // LLPolyVertexMask()

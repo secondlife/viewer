@@ -290,7 +290,6 @@ void LLVBOPool::seedPool()
 
 
 
-
 void LLVBOPool::cleanup()
 {
 	U32 size = LL_VBO_BLOCK_SIZE;
