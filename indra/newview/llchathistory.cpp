@@ -596,7 +596,7 @@ LLChatHistory::LLChatHistory(const LLChatHistory::Params& p)
 	mEditor = LLUICtrlFactory::create<LLTextEditor>(editor_params, this);
 }
 
-LLSD LLChatHistory::getValue()
+const LLSD LLChatHistory::getValue()
 {
   LLSD* text=new LLSD(); 
   text->assign(mEditor->getText());
