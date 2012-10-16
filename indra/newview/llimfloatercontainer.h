@@ -89,6 +89,7 @@ public:
 
 	LLConversationViewModel& getRootViewModel() { return mConversationViewModel; }
     LLUUID getSelectedSession() { return mSelectedSession; }
+    void setSelectedSession(LLUUID sessionID) { mSelectedSession = sessionID; }
 
 private:
 	typedef std::map<LLUUID,LLFloater*> avatarID_panel_map_t;
