@@ -952,6 +952,12 @@ LLSpatialGroup* LLDrawable::getSpatialGroup() const
 
 void LLDrawable::setSpatialGroup(LLSpatialGroup *groupp)
 {
+	//precondition: mSpatialGroupp MUST be null or DEAD or mSpatialGroupp MUST NOT contain this
+	llassert(!mSpatialGroupp || mSpatialGroupp->isDead() || !mSpatialGroupp->hasElement(this));
+
+	//precondition: groupp MUST be null or groupp MUST contain this
+	llassert(!groupp || groupp->hasElement(this));
+
 /*if (mSpatialGroupp && (groupp != mSpatialGroupp))
 	{
 		mSpatialGroupp->setState(LLSpatialGroup::GEOM_DIRTY);
@@ -971,9 +977,12 @@ void LLDrawable::setSpatialGroup(LLSpatialGroup *groupp)
 		}
 	}
 
-	mSpatialGroupp = groupp;
+	//postcondition: if next group is NULL, previous group must be dead OR NULL OR binIndex must be -1
+	//postcondition: if next group is NOT NULL, binIndex must not be -1
+	llassert(groupp == NULL ? (mSpatialGroupp == NULL || mSpatialGroupp->isDead()) || getBinIndex() == -1 :
+							getBinIndex() != -1);
 
-	llassert((mSpatialGroupp == NULL) ? getBinIndex() == -1 : getBinIndex() != -1);
+	mSpatialGroupp = groupp;
 }
 
 LLSpatialPartition* LLDrawable::getSpatialPartition()
@@ -1401,7 +1410,7 @@ void LLSpatialBridge::updateDistance(LLCamera& camera_in, bool force_update)
 		markDead();
 		return;
 	}
-	
+
 	if (gShiftFrame)
 	{
 		return;
@@ -1484,13 +1493,11 @@ void LLSpatialBridge::cleanupReferences()
 	LLDrawable::cleanupReferences();
 	if (mDrawable)
 	{
-		LLSpatialGroup* group = mDrawable->getSpatialGroup();
-		if (group)
-		{
-			group->mOctreeNode->remove(mDrawable);
-			mDrawable->setSpatialGroup(NULL);
-		}
+		/*
 		
+		DON'T DO THIS -- this should happen through octree destruction
+
+		mDrawable->setSpatialGroup(NULL);
 		if (mDrawable->getVObj())
 		{
 			LLViewerObject::const_child_list_t& child_list = mDrawable->getVObj()->getChildren();
@@ -1501,15 +1508,10 @@ void LLSpatialBridge::cleanupReferences()
 				LLDrawable* drawable = child->mDrawable;					
 				if (drawable)
 				{
-					LLSpatialGroup* group = drawable->getSpatialGroup();
-					if (group)
-					{
-						group->mOctreeNode->remove(drawable);
-						drawable->setSpatialGroup(NULL);
-					}
+					drawable->setSpatialGroup(NULL);
 				}
 			}
-		}
+		}*/
 
 		LLDrawable* drawablep = mDrawable;
 		mDrawable = NULL;
