@@ -76,7 +76,6 @@ LLTrace::Count<>	FPS("fpsstat"),
 					OBJECT_REZ("objectrez", "Object rez count"),
 					LOADING_WEARABLES_LONG_DELAY("loadingwearableslongdelay", "Wearables took too long to load"),
 					LOGIN_TIMEOUTS("logintimeouts", "Number of login attempts that timed out"),
-					FAILED_DOWNLOADS("faileddownloads", "Number of times LLAssetStorage::getAssetData() has failed"),
 					LSL_SAVES("lslsaves", "Number of times user has saved a script"),
 					ANIMATION_UPLOADS("animationuploads", "Animations uploaded"),
 					FLY("fly", "Fly count"),
@@ -108,28 +107,28 @@ LLTrace::Count<LLUnits::Seconds> AVATAR_EDIT_TIME("avataredittime", "Seconds in 
 								SIM_PHYSICS_20_FPS_TIME("simphysics20fpstime", "Seconds with physics FPS below 20"),
 								LOSS_5_PERCENT_TIME("loss5percenttime", "Seconds with packet loss > 5%");
 
-LLTrace::Measurement<>		SIM_TIME_DILATION("simtimedilation"),
-							SIM_FPS("simfps"),
-							SIM_PHYSICS_FPS("simphysicsfps"),
-							SIM_AGENT_UPS("simagentups"),
-							SIM_SCRIPT_EPS("simscripteps"),
-							SIM_SKIPPED_SILHOUETTE("simsimskippedsilhouettesteps"),
-							SIM_SKIPPED_CHARACTERS_PERCENTAGE("simsimpctsteppedcharacters"),
-							SIM_MAIN_AGENTS("simmainagents"),
-							SIM_CHILD_AGENTS("simchildagents"),
-							SIM_OBJECTS("simobjects"),
-							SIM_ACTIVE_OBJECTS("simactiveobjects"),
-							SIM_ACTIVE_SCRIPTS("simactivescripts"),
-							SIM_PERCENTAGE_SCRIPTS_RUN("simpctscriptsrun"),
-							SIM_IN_PACKETS_PER_SEC("siminpps"),
-							SIM_OUT_PACKETS_PER_SEC("simoutpps"),
-							SIM_PENDING_DOWNLOADS("simpendingdownloads"),
-							SIM_PENDING_UPLOADS("simpendinguploads"),
-							SIM_PENDING_LOCAL_UPLOADS("simpendinglocaluploads"),
-							SIM_PENDING_VFS_OPERATIONS("vfspendingoperations"), 
-							SIM_PHYSICS_PINNED_TASKS("physicspinnedtasks"),
-							SIM_PHYSICS_LOD_TASKS("physicslodtasks"),
-							NUM_IMAGES("numimagesstat"),
+SimMeasurement<>			SIM_TIME_DILATION("simtimedilation", "", LL_SIM_STAT_TIME_DILATION),
+							SIM_FPS("simfps", "", LL_SIM_STAT_FPS),
+							SIM_PHYSICS_FPS("simphysicsfps", "", LL_SIM_STAT_PHYSFPS),
+							SIM_AGENT_UPS("simagentups", "", LL_SIM_STAT_AGENTUPS),
+							SIM_SCRIPT_EPS("simscripteps", "", LL_SIM_STAT_SCRIPT_EPS),
+							SIM_SKIPPED_SILHOUETTE("simsimskippedsilhouettesteps", "", LL_SIM_STAT_SKIPPEDAISILSTEPS_PS),
+							SIM_SKIPPED_CHARACTERS_PERCENTAGE("simsimpctsteppedcharacters", "", LL_SIM_STAT_PCTSTEPPEDCHARACTERS),
+							SIM_MAIN_AGENTS("simmainagents", "", LL_SIM_STAT_NUMAGENTMAIN),
+							SIM_CHILD_AGENTS("simchildagents", "", LL_SIM_STAT_NUMAGENTCHILD),
+							SIM_OBJECTS("simobjects", "", LL_SIM_STAT_NUMTASKS),
+							SIM_ACTIVE_OBJECTS("simactiveobjects", "", LL_SIM_STAT_NUMTASKSACTIVE),
+							SIM_ACTIVE_SCRIPTS("simactivescripts", "", LL_SIM_STAT_NUMSCRIPTSACTIVE),
+							SIM_PERCENTAGE_SCRIPTS_RUN("simpctscriptsrun", "", LL_SIM_STAT_PCTSCRIPTSRUN),
+							SIM_IN_PACKETS_PER_SEC("siminpps", "", LL_SIM_STAT_INPPS),
+							SIM_OUT_PACKETS_PER_SEC("simoutpps", "", LL_SIM_STAT_OUTPPS),
+							SIM_PENDING_DOWNLOADS("simpendingdownloads", "", LL_SIM_STAT_PENDING_DOWNLOADS),
+							SIM_PENDING_UPLOADS("simpendinguploads", "", LL_SIM_STAT_PENDING_UPLOADS),
+							SIM_PENDING_LOCAL_UPLOADS("simpendinglocaluploads", "", LL_SIM_STAT_PENDING_LOCAL_UPLOADS),
+							SIM_PHYSICS_PINNED_TASKS("physicspinnedtasks", "", LL_SIM_STAT_PHYSICS_PINNED_TASKS),
+							SIM_PHYSICS_LOD_TASKS("physicslodtasks", "", LL_SIM_STAT_PHYSICS_LOD_TASKS);
+
+LLTrace::Measurement<>		NUM_IMAGES("numimagesstat"),
 							NUM_RAW_IMAGES("numrawimagesstat"),
 							NUM_OBJECTS("numobjectsstat"),
 							NUM_ACTIVE_OBJECTS("numactiveobjectsstat"),
@@ -137,134 +136,61 @@ LLTrace::Measurement<>		SIM_TIME_DILATION("simtimedilation"),
 							NUM_SIZE_CULLED("numsizeculledstat"),
 							NUM_VIS_CULLED("numvisculledstat"),
 							ENABLE_VBO("enablevbo", "Vertex Buffers Enabled"),
-							DELTA_BANDWIDTH("deltabandwidth", "Increase/Decrease in bandwidth based on packet loss"),
-							MAX_BANDWIDTH("maxbandwidth", "Max bandwidth setting"),
 							LIGHTING_DETAIL("lightingdetail", "Lighting Detail"),
 							VISIBLE_AVATARS("visibleavatars", "Visible Avatars"),
 							SHADER_OBJECTS("shaderobjects", "Object Shaders"),
 							DRAW_DISTANCE("drawdistance", "Draw Distance"),
 							CHAT_BUBBLES("chatbubbles", "Chat Bubbles Enabled"),
+							PENDING_VFS_OPERATIONS("vfspendingoperations"), 
+							PACKETS_LOST_PERCENT("packetslostpercentstat"),
 							WINDOW_WIDTH("windowwidth", "Window width"),
 							WINDOW_HEIGHT("windowheight", "Window height");
+
+LLTrace::Measurement<LLUnits::Meters> AGENT_POSITION_SNAP("agentpositionsnap", "agent position corrections");
+
 
 LLTrace::Measurement<LLUnits::Bytes>	SIM_UNACKED_BYTES("simtotalunackedbytes"),
 										SIM_PHYSICS_MEM("physicsmemoryallocated"),
 										GL_TEX_MEM("gltexmemstat"),
 										GL_BOUND_MEM("glboundmemstat"),
 										RAW_MEM("rawmemstat"),
-										FORMATTED_MEM("formattedmemstat");
+										FORMATTED_MEM("formattedmemstat"),
+										DELTA_BANDWIDTH("deltabandwidth", "Increase/Decrease in bandwidth based on packet loss"),
+										MAX_BANDWIDTH("maxbandwidth", "Max bandwidth setting");
 
 
-LLTrace::Measurement<LLUnits::Seconds> SIM_PHYSICS_TIME("simsimphysicsmsec"),
-										SIM_PHYSICS_STEP_TIME("simsimphysicsstepmsec"),
-										SIM_PHYSICS_SHAPE_UPDATE_TIME("simsimphysicsshapeupdatemsec"),
-										SIM_PHYSICS_OTHER_TIME("simsimphysicsothermsec"),
-										SIM_AI_TIME("simsimaistepmsec"),
-										SIM_AGENTS_TIME("simagentmsec"),
-										SIM_IMAGES_TIME("simimagesmsec"),
-										SIM_SCRIPTS_TIME("simscriptmsec"),
-										SIM_SPARE_TIME("simsparemsec"),
-										SIM_SLEEP_TIME("simsleepmsec"),
-										SIM_PUMP_IO_TIME("simpumpiomsec"),
-										SIM_PING("simpingstat"),
-										FRAMETIME_JITTER("frametimejitter", "Average delta between successive frame times"),
-										FRAMETIME_SLEW("frametimeslew", "Average delta between frame time and mean"),
-										LOGIN_SECONDS("loginseconds", "Time between LoginRequest and LoginReply"),
-										REGION_CROSSING_TIME("regioncrossingtime", "CROSSING_AVG"),
-										FRAME_STACKTIME("framestacktime", "FRAME_SECS"),
-										UPDATE_STACKTIME("updatestacktime", "UPDATE_SECS"),
-										NETWORK_STACKTIME("networkstacktime", "NETWORK_SECS"),
-										IMAGE_STACKTIME("imagestacktime", "IMAGE_SECS"),
-										REBUILD_STACKTIME("rebuildstacktime", "REBUILD_SECS"),
-										RENDER_STACKTIME("renderstacktime", "RENDER_SECS");
+SimMeasurement<LLUnits::Milliseconds> SIM_FRAME_TIME("simframemsec", "", LL_SIM_STAT_FRAMEMS),
+										SIM_NET_TIME("simnetmsec", "", LL_SIM_STAT_NETMS),
+										SIM_OTHER_TIME("simsimothermsec", "", LL_SIM_STAT_SIMOTHERMS),
+										SIM_PHYSICS_TIME("simsimphysicsmsec", "", LL_SIM_STAT_SIMPHYSICSMS),
+										SIM_PHYSICS_STEP_TIME("simsimphysicsstepmsec", "", LL_SIM_STAT_SIMPHYSICSSTEPMS),
+										SIM_PHYSICS_SHAPE_UPDATE_TIME("simsimphysicsshapeupdatemsec", "", LL_SIM_STAT_SIMPHYSICSSHAPEMS),
+										SIM_PHYSICS_OTHER_TIME("simsimphysicsothermsec", "", LL_SIM_STAT_SIMPHYSICSOTHERMS),
+										SIM_AI_TIME("simsimaistepmsec", "", LL_SIM_STAT_SIMAISTEPTIMEMS),
+										SIM_AGENTS_TIME("simagentmsec", "", LL_SIM_STAT_AGENTMS),
+										SIM_IMAGES_TIME("simimagesmsec", "", LL_SIM_STAT_IMAGESMS),
+										SIM_SCRIPTS_TIME("simscriptmsec", "", LL_SIM_STAT_SCRIPTMS),
+										SIM_SPARE_TIME("simsparemsec", "", LL_SIM_STAT_SIMSPARETIME),
+										SIM_SLEEP_TIME("simsleepmsec", "", LL_SIM_STAT_SIMSLEEPTIME),
+										SIM_PUMP_IO_TIME("simpumpiomsec", "", LL_SIM_STAT_IOPUMPTIME);
+
+LLTrace::Measurement<LLUnits::Milliseconds>	FRAMETIME_JITTER("frametimejitter", "Average delta between successive frame times"),
+											FRAMETIME_SLEW("frametimeslew", "Average delta between frame time and mean"),
+											LOGIN_SECONDS("loginseconds", "Time between LoginRequest and LoginReply"),
+											REGION_CROSSING_TIME("regioncrossingtime", "CROSSING_AVG"),
+											FRAME_STACKTIME("framestacktime", "FRAME_SECS"),
+											UPDATE_STACKTIME("updatestacktime", "UPDATE_SECS"),
+											NETWORK_STACKTIME("networkstacktime", "NETWORK_SECS"),
+											IMAGE_STACKTIME("imagestacktime", "IMAGE_SECS"),
+											REBUILD_STACKTIME("rebuildstacktime", "REBUILD_SECS"),
+											RENDER_STACKTIME("renderstacktime", "RENDER_SECS"),
+											SIM_PING("simpingstat");
+
 }
 
-class StatAttributes
+LLViewerStats::LLViewerStats() 
+:	mLastTimeDiff(0.0)
 {
-public:
-	StatAttributes(const char* name,
-				   const BOOL enabled)
-	:	mName(name),
-		mEnabled(enabled)
-	{
-	}
-	
-	std::string mName;
-	BOOL mEnabled;
-};
-
-LLViewerStats::LLViewerStats() :
-	//mVFSPendingOperations("vfspendingoperations"),
-	//mFPSStat("fpsstat"),
-	//mPacketsInStat("packetsinstat"),
-	//mPacketsLostStat("packetsloststat"),
-	//mPacketsOutStat("packetsoutstat"),
-	//mPacketsLostPercentStat("packetslostpercentstat"),
-	//mTexturePacketsStat("texturepacketsstat"),
-	//mActualInKBitStat("actualinkbitstat"),
-	//mActualOutKBitStat("actualoutkbitstat"),
-	//mTrianglesDrawnStat("trianglesdrawnstat"),
-	//mSimTimeDilation("simtimedilation"),
-	mSimFPS("simfps"),
-	mSimPhysicsFPS("simphysicsfps"),
-	mSimAgentUPS("simagentups"),
-	mSimScriptEPS("simscripteps"),
-	mSimFrameMsec("simframemsec"),
-	mSimNetMsec("simnetmsec"),
-	mSimSimOtherMsec("simsimothermsec"),
-	mSimSimPhysicsMsec("simsimphysicsmsec"),
-	mSimSimPhysicsStepMsec("simsimphysicsstepmsec"),
-	mSimSimPhysicsShapeUpdateMsec("simsimphysicsshapeupdatemsec"),
-	mSimSimPhysicsOtherMsec("simsimphysicsothermsec"),
-	mSimSimAIStepMsec("simsimaistepmsec"),
-	mSimSimSkippedSilhouetteSteps("simsimskippedsilhouettesteps"),
-	mSimSimPctSteppedCharacters("simsimpctsteppedcharacters"),
-	mSimAgentMsec("simagentmsec"),
-	mSimImagesMsec("simimagesmsec"),
-	mSimScriptMsec("simscriptmsec"),
-	mSimSpareMsec("simsparemsec"),
-	mSimSleepMsec("simsleepmsec"),
-	mSimPumpIOMsec("simpumpiomsec"),
-	mSimMainAgents("simmainagents"),
-	mSimChildAgents("simchildagents"),
-	mSimObjects("simobjects"),
-	mSimActiveObjects("simactiveobjects"),
-	mSimActiveScripts("simactivescripts"),
-	mSimPctScriptsRun("simpctscriptsrun"),
-	mSimInPPS("siminpps"),
-	mSimOutPPS("simoutpps"),
-	mSimPendingDownloads("simpendingdownloads"),
-	mSimPendingUploads("simpendinguploads"),
-	mSimPendingLocalUploads("simpendinglocaluploads"),
-	mSimTotalUnackedBytes("simtotalunackedbytes"),
-	mPhysicsPinnedTasks("physicspinnedtasks"),
-	mPhysicsLODTasks("physicslodtasks"),
-	mPhysicsMemoryAllocated("physicsmemoryallocated"),
-	mSimPingStat("simpingstat"),
-	mNumImagesStat("numimagesstat", TRUE),
-	mNumRawImagesStat("numrawimagesstat", TRUE),
-	mGLTexMemStat("gltexmemstat", TRUE),
-	mGLBoundMemStat("glboundmemstat", TRUE),
-	mRawMemStat("rawmemstat", TRUE),
-	mFormattedMemStat("formattedmemstat", TRUE),
-	mNumObjectsStat("numobjectsstat"),
-	mNumActiveObjectsStat("numactiveobjectsstat"),
-	mNumNewObjectsStat("numnewobjectsstat"),
-	mNumSizeCulledStat("numsizeculledstat"),
-	mNumVisCulledStat("numvisculledstat"),
-	mLastTimeDiff(0.0)
-{
-	for (S32 i = 0; i < ST_COUNT; i++)
-	{
-		mStats[i] = 0.0;
-	}
-	
-	if (LLTimer::knownBadTimer())
-	{
-		mStats[ST_HAS_BAD_TIMER] = 1.0;
-	}	
-	
-	mAgentPositionSnaps.reset();
 	mRecording.start();
 	LLTrace::get_frame_recording().start();
 }
@@ -275,93 +201,80 @@ LLViewerStats::~LLViewerStats()
 
 void LLViewerStats::resetStats()
 {
-	LLViewerStats& stats = LLViewerStats::instance();
-	stats.mRecording.reset();
-	//stats.mVFSPendingOperations.reset();
-	//stats.mPacketsInStat.reset();
-	//stats.mPacketsLostStat.reset();
-	//stats.mPacketsOutStat.reset();
-	//stats.mFPSStat.reset();
-	//stats.mTexturePacketsStat.reset();
-	//stats.mAgentPositionSnaps.reset();
-}
-
-
-F64 LLViewerStats::getStat(EStatType type) const
-{
-	return mStats[type];
-}
-
-F64 LLViewerStats::setStat(EStatType type, F64 value)
-{
-	mStats[type] = value;
-	return mStats[type];
-}
-
-F64 LLViewerStats::incStat(EStatType type, F64 value)
-{
-	mStats[type] += value;
-	return mStats[type];
+	LLViewerStats::instance().mRecording.reset();
 }
 
 void LLViewerStats::updateFrameStats(const F64 time_diff)
 {
-	if (mPacketsLostPercentStat.getCurrent() > 5.0)
+	if (getRecording().getLastValue(LLStatViewer::PACKETS_LOST_PERCENT) > 5.0)
 	{
-		incStat(ST_LOSS_05_SECONDS, time_diff);
+		LLStatViewer::LOSS_5_PERCENT_TIME.add(time_diff);
+		//incStat(ST_LOSS_05_SECONDS, time_diff);
 	}
 	
-	if (mSimFPS.getCurrent() < 20.f && mSimFPS.getCurrent() > 0.f)
+	F32 sim_fps = getRecording().getLastValue(LLStatViewer::SIM_FPS);
+	if (0.f < sim_fps && sim_fps < 20.f)
 	{
-		incStat(ST_SIM_FPS_20_SECONDS, time_diff);
+		LLStatViewer::SIM_20_FPS_TIME.add(time_diff);
+		//incStat(ST_SIM_FPS_20_SECONDS, time_diff);
 	}
 	
-	if (mSimPhysicsFPS.getCurrent() < 20.f && mSimPhysicsFPS.getCurrent() > 0.f)
+	F32 sim_physics_fps = getRecording().getLastValue(LLStatViewer::SIM_PHYSICS_FPS);
+
+	if (0.f < sim_physics_fps && sim_physics_fps < 20.f)
 	{
-		incStat(ST_PHYS_FPS_20_SECONDS, time_diff);
+		LLStatViewer::SIM_PHYSICS_20_FPS_TIME.add(time_diff);
+		//incStat(ST_PHYS_FPS_20_SECONDS, time_diff);
 	}
 		
 	if (time_diff >= 0.5)
 	{
-		incStat(ST_FPS_2_SECONDS, time_diff);
+		LLStatViewer::FPS_2_TIME.add(time_diff);
+		//incStat(ST_FPS_2_SECONDS, time_diff);
 	}
 	if (time_diff >= 0.125)
 	{
-		incStat(ST_FPS_8_SECONDS, time_diff);
+		LLStatViewer::FPS_8_TIME.add(time_diff);
+		//incStat(ST_FPS_8_SECONDS, time_diff);
 	}
 	if (time_diff >= 0.1)
 	{
-		incStat(ST_FPS_10_SECONDS, time_diff);
+		LLStatViewer::FPS_10_TIME.add(time_diff);
+		//incStat(ST_FPS_10_SECONDS, time_diff);
 	}
 
 	if (gFrameCount && mLastTimeDiff > 0.0)
 	{
 		// new "stutter" meter
-		setStat(ST_FPS_DROP_50_RATIO,
-				(getStat(ST_FPS_DROP_50_RATIO) * (F64)(gFrameCount - 1) + 
-				 (time_diff >= 2.0 * mLastTimeDiff ? 1.0 : 0.0)) / gFrameCount);
+		LLStatViewer::FRAMETIME_DOUBLED.add(time_diff >= 2.0 * mLastTimeDiff ? 1 : 0);
+		//setStat(ST_FPS_DROP_50_RATIO,
+		//		(getStat(ST_FPS_DROP_50_RATIO) * (F64)(gFrameCount - 1) + 
+		//		 (time_diff >= 2.0 * mLastTimeDiff ? 1.0 : 0.0)) / gFrameCount);
 			
 
 		// old stats that were never really used
-		setStat(ST_FRAMETIME_JITTER,
-				(getStat(ST_FRAMETIME_JITTER) * (gFrameCount - 1) + 
-				 fabs(mLastTimeDiff - time_diff) / mLastTimeDiff) / gFrameCount);
+		LLStatViewer::FRAMETIME_JITTER.sample(mLastTimeDiff - time_diff);
+		//setStat(ST_FRAMETIME_JITTER,
+		//		(getStat(ST_FRAMETIME_JITTER) * (gFrameCount - 1) + 
+		//		 fabs(mLastTimeDiff - time_diff) / mLastTimeDiff) / gFrameCount);
 			
 		F32 average_frametime = gRenderStartTime.getElapsedTimeF32() / (F32)gFrameCount;
-		setStat(ST_FRAMETIME_SLEW,
-				(getStat(ST_FRAMETIME_SLEW) * (gFrameCount - 1) + 
-				 fabs(average_frametime - time_diff) / average_frametime) / gFrameCount);
+		LLStatViewer::FRAMETIME_SLEW.sample(average_frametime - time_diff);
+		//setStat(ST_FRAMETIME_SLEW,
+		//		(getStat(ST_FRAMETIME_SLEW) * (gFrameCount - 1) + 
+		//		 fabs(average_frametime - time_diff) / average_frametime) / gFrameCount);
 
 		F32 max_bandwidth = gViewerThrottle.getMaxBandwidth();
 		F32 delta_bandwidth = gViewerThrottle.getCurrentBandwidth() - max_bandwidth;
-		setStat(ST_DELTA_BANDWIDTH, delta_bandwidth / 1024.f);
+		LLStatViewer::DELTA_BANDWIDTH.sample<LLUnits::Bits>(delta_bandwidth);
+		//setStat(ST_DELTA_BANDWIDTH, delta_bandwidth / 1024.f);
 
-		setStat(ST_MAX_BANDWIDTH, max_bandwidth / 1024.f);
+		LLStatViewer::MAX_BANDWIDTH.sample<LLUnits::Bits>(max_bandwidth);
+		//setStat(ST_MAX_BANDWIDTH, max_bandwidth / 1024.f);
 		
 	}
 	
 	mLastTimeDiff = time_diff;
-
 }
 
 void LLViewerStats::addToMessage(LLSD &body) const
@@ -370,11 +283,11 @@ void LLViewerStats::addToMessage(LLSD &body) const
 	
 	misc["Version"] = TRUE;
 	//TODO RN: get last value, not mean
-	misc["Vertex Buffers Enabled"] = mRecording.getMean(LLStatViewer::ENABLE_VBO);
+	misc["Vertex Buffers Enabled"] = getRecording().getMean(LLStatViewer::ENABLE_VBO);
 	
-	body["AgentPositionSnaps"] = mAgentPositionSnaps.asLLSD();
-	llinfos << "STAT: AgentPositionSnaps: Mean = " << mAgentPositionSnaps.getMean() << "; StdDev = " << mAgentPositionSnaps.getStdDev() 
-			<< "; Count = " << mAgentPositionSnaps.getCount() << llendl;
+	body["AgentPositionSnaps"] = getRecording().getSum(LLStatViewer::AGENT_POSITION_SNAP).value(); //mAgentPositionSnaps.asLLSD();
+	llinfos << "STAT: AgentPositionSnaps: Mean = " << getRecording().getMean(LLStatViewer::AGENT_POSITION_SNAP).value() << "; StdDev = " << getRecording().getStandardDeviation(LLStatViewer::AGENT_POSITION_SNAP).value() 
+			<< "; Count = " << getRecording().getSampleCount(LLStatViewer::AGENT_POSITION_SNAP) << llendl;
 }
 
 // *NOTE:Mani The following methods used to exist in viewer.cpp
@@ -385,8 +298,6 @@ U32		gTotalWaterIn = 0, gTotalWaterOut = 0;
 F32		gAveLandCompression = 0.f, gAveWaterCompression = 0.f;
 F32		gBestLandCompression = 1.f, gBestWaterCompression = 1.f;
 F32		gWorstLandCompression = 0.f, gWorstWaterCompression = 0.f;
-
-
 
 U32		gTotalWorldBytes = 0, gTotalObjectBytes = 0, gTotalTextureBytes = 0, gSimPingCount = 0;
 U32		gObjectBits = 0;
@@ -403,51 +314,61 @@ void update_statistics()
 	gTotalWorldBytes += gVLManager.getTotalBytes();
 	gTotalObjectBytes += gObjectBits / 8;
 
-	LLViewerStats& stats = LLViewerStats::instance();
-
 	// make sure we have a valid time delta for this frame
 	if (gFrameIntervalSeconds > 0.f)
 	{
 		if (gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK)
 		{
-			LLViewerStats::getInstance()->incStat(LLViewerStats::ST_MOUSELOOK_SECONDS, gFrameIntervalSeconds);
+			LLStatViewer::MOUSELOOK_TIME.add(gFrameIntervalSeconds);
+			//LLViewerStats::getInstance()->incStat(LLViewerStats::ST_MOUSELOOK_SECONDS, gFrameIntervalSeconds);
 		}
 		else if (gAgentCamera.getCameraMode() == CAMERA_MODE_CUSTOMIZE_AVATAR)
 		{
-			LLViewerStats::getInstance()->incStat(LLViewerStats::ST_AVATAR_EDIT_SECONDS, gFrameIntervalSeconds);
+			LLStatViewer::AVATAR_EDIT_TIME.add(gFrameIntervalSeconds);
+			//LLViewerStats::getInstance()->incStat(LLViewerStats::ST_AVATAR_EDIT_SECONDS, gFrameIntervalSeconds);
 		}
 		else if (LLFloaterReg::instanceVisible("build"))
 		{
-			LLViewerStats::getInstance()->incStat(LLViewerStats::ST_TOOLBOX_SECONDS, gFrameIntervalSeconds);
+			LLStatViewer::TOOLBOX_TIME.add(gFrameIntervalSeconds);
+			//LLViewerStats::getInstance()->incStat(LLViewerStats::ST_TOOLBOX_SECONDS, gFrameIntervalSeconds);
 		}
 	}
-	stats.setStat(LLViewerStats::ST_ENABLE_VBO, (F64)gSavedSettings.getBOOL("RenderVBOEnable"));
-	stats.setStat(LLViewerStats::ST_LIGHTING_DETAIL, (F64)gPipeline.getLightingDetail());
-	stats.setStat(LLViewerStats::ST_DRAW_DIST, (F64)gSavedSettings.getF32("RenderFarClip"));
-	stats.setStat(LLViewerStats::ST_CHAT_BUBBLES, (F64)gSavedSettings.getBOOL("UseChatBubbles"));
+	LLStatViewer::ENABLE_VBO.sample((F64)gSavedSettings.getBOOL("RenderVBOEnable"));
+	//stats.setStat(LLViewerStats::ST_ENABLE_VBO, (F64)gSavedSettings.getBOOL("RenderVBOEnable"));
+	LLStatViewer::LIGHTING_DETAIL.sample((F64)gPipeline.getLightingDetail());
+	//stats.setStat(LLViewerStats::ST_LIGHTING_DETAIL, (F64)gPipeline.getLightingDetail());
+	LLStatViewer::DRAW_DISTANCE.sample((F64)gSavedSettings.getF32("RenderFarClip"));
+	//stats.setStat(LLViewerStats::ST_DRAW_DIST, (F64)gSavedSettings.getF32("RenderFarClip"));
+	LLStatViewer::CHAT_BUBBLES.sample((F64)gSavedSettings.getBOOL("UseChatBubbles"));
+	//stats.setStat(LLViewerStats::ST_CHAT_BUBBLES, (F64)gSavedSettings.getBOOL("UseChatBubbles"));
 
-	stats.setStat(LLViewerStats::ST_FRAME_SECS, gDebugView->mFastTimerView->getTime("Frame"));
+	LLStatViewer::FRAME_STACKTIME.sample(gDebugView->mFastTimerView->getTime("Frame"));
+	//stats.setStat(LLViewerStats::ST_FRAME_SECS, gDebugView->mFastTimerView->getTime("Frame"));
 	F64 idle_secs = gDebugView->mFastTimerView->getTime("Idle");
 	F64 network_secs = gDebugView->mFastTimerView->getTime("Network");
-	stats.setStat(LLViewerStats::ST_UPDATE_SECS, idle_secs - network_secs);
-	stats.setStat(LLViewerStats::ST_NETWORK_SECS, network_secs);
-	stats.setStat(LLViewerStats::ST_IMAGE_SECS, gDebugView->mFastTimerView->getTime("Update Images"));
-	stats.setStat(LLViewerStats::ST_REBUILD_SECS, gDebugView->mFastTimerView->getTime("Sort Draw State"));
-	stats.setStat(LLViewerStats::ST_RENDER_SECS, gDebugView->mFastTimerView->getTime("Geometry"));
+	LLStatViewer::UPDATE_STACKTIME.sample(idle_secs - network_secs);
+	//stats.setStat(LLViewerStats::ST_UPDATE_SECS, idle_secs - network_secs);
+	LLStatViewer::NETWORK_STACKTIME.sample(network_secs);
+	//stats.setStat(LLViewerStats::ST_NETWORK_SECS, network_secs);
+	LLStatViewer::IMAGE_STACKTIME.sample(gDebugView->mFastTimerView->getTime("Update Images"));
+	//stats.setStat(LLViewerStats::ST_IMAGE_SECS, gDebugView->mFastTimerView->getTime("Update Images"));
+	LLStatViewer::REBUILD_STACKTIME.sample(gDebugView->mFastTimerView->getTime("Sort Draw State"));
+	//stats.setStat(LLViewerStats::ST_REBUILD_SECS, gDebugView->mFastTimerView->getTime("Sort Draw State"));
+	LLStatViewer::RENDER_STACKTIME.sample(gDebugView->mFastTimerView->getTime("Geometry"));
+	//stats.setStat(LLViewerStats::ST_RENDER_SECS, gDebugView->mFastTimerView->getTime("Geometry"));
 		
 	LLCircuitData *cdp = gMessageSystem->mCircuitInfo.findCircuit(gAgent.getRegion()->getHost());
 	if (cdp)
 	{
 		LLStatViewer::SIM_PING.sample<LLUnits::Seconds>(cdp->getPingDelay());
-		stats.mSimPingStat.addValue(cdp->getPingDelay());
+		//stats.mSimPingStat.addValue(cdp->getPingDelay());
 		gAvgSimPing = ((gAvgSimPing * (F32)gSimPingCount) + (F32)(cdp->getPingDelay())) / ((F32)gSimPingCount + 1);
 		gSimPingCount++;
 	}
 	else
 	{
-		LLUnits::Seconds i(10000);
-		LLStatViewer::SIM_PING.sample(i);//<LLUnits::Seconds<U32> >(10000);
-		stats.mSimPingStat.addValue(10000);
+		LLStatViewer::SIM_PING.sample<LLUnits::Seconds>(10000);
+		//stats.mSimPingStat.addValue(10000);
 	}
 
 	//stats.mFPSStat.addValue(1);
@@ -458,7 +379,7 @@ void update_statistics()
 	LLStatViewer::OBJECT_KBIT.add<LLUnits::Bits>(gObjectBits);
 	//stats.mObjectKBitStat.addValue(gObjectBits/1024.f);
 	//stats.mVFSPendingOperations.addValue(LLVFile::getVFSThread()->getPending());
-	LLStatViewer::SIM_PENDING_VFS_OPERATIONS.sample(LLVFile::getVFSThread()->getPending());
+	LLStatViewer::PENDING_VFS_OPERATIONS.sample(LLVFile::getVFSThread()->getPending());
 	LLStatViewer::ASSET_KBIT.add<LLUnits::Bits>(gTransferManager.getTransferBitsIn(LLTCT_ASSET));
 	//stats.mAssetKBitStat.addValue(gTransferManager.getTransferBitsIn(LLTCT_ASSET)/1024.f);
 	gTransferManager.resetTransferBitsIn(LLTCT_ASSET);
@@ -481,7 +402,8 @@ void update_statistics()
 			visible_avatar_frames = 1.f;
 			avg_visible_avatars = (avg_visible_avatars * (F32)(visible_avatar_frames - 1.f) + visible_avatars) / visible_avatar_frames;
 		}
-		stats.setStat(LLViewerStats::ST_VISIBLE_AVATARS, (F64)avg_visible_avatars);
+		LLStatViewer::VISIBLE_AVATARS.sample((F64)avg_visible_avatars);
+		//stats.setStat(LLViewerStats::ST_VISIBLE_AVATARS, (F64)avg_visible_avatars);
 	}
 	LLWorld::getInstance()->updateNetStats();
 	LLWorld::getInstance()->requestCacheMisses();

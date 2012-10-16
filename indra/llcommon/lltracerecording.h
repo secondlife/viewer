@@ -168,6 +168,12 @@ namespace LLTrace
 			return (typename Measurement<T, IS_UNIT>::base_unit_t)stat.getAccumulator(mMeasurements).getLastValue();
 		}
 
+		template <typename T, typename IS_UNIT>
+		U32 getSampleCount(const Measurement<T, IS_UNIT>& stat) const
+		{
+			return stat.getAccumulator(mMeasurements).getSampleCount();
+		}
+
 		F64 getDuration() const { return mElapsedSeconds; }
 
 		// implementation for LLVCRControlsMixin
@@ -208,7 +214,7 @@ namespace LLTrace
 			return mRecordingPeriods[(mCurPeriod + mNumPeriods - 1) % mNumPeriods];
 		}
 
-		Recording& getCurRecordingPeriod()
+		Recording getCurRecordingPeriod()
 		{
 			return mRecordingPeriods[mCurPeriod];
 		}
@@ -216,6 +222,13 @@ namespace LLTrace
 		const Recording& getCurRecordingPeriod() const
 		{
 			return mRecordingPeriods[mCurPeriod];
+		}
+
+		Recording snapshotCurRecordingPeriod() const
+		{
+			Recording recording_copy(getCurRecordingPeriod());
+			recording_copy.stop();
+			return recording_copy;
 		}
 
 		Recording& getTotalRecording();

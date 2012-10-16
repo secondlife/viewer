@@ -28,12 +28,39 @@
 #define LL_LLVIEWERSTATS_H
 
 #include "llstat.h"
+#include "llstatenums.h"
 #include "lltextureinfo.h"
 #include "lltracerecording.h"
 #include "lltrace.h"
 
 namespace LLStatViewer
 {
+
+struct SimMeasurementSampler : public LLInstanceTracker<SimMeasurementSampler, ESimStatID>
+{
+	SimMeasurementSampler(ESimStatID id)
+	:	LLInstanceTracker(id)
+	{}
+	virtual ~SimMeasurementSampler() {}
+	virtual void sample(F64 value) = 0;
+};
+
+template<typename T = F64>
+struct SimMeasurement : public LLTrace::Measurement<T>, public SimMeasurementSampler
+{
+	SimMeasurement(const char* name, const char* description, ESimStatID stat_id)
+	:	LLTrace::Measurement<T>(name, description),
+		SimMeasurementSampler(stat_id)	
+	{}
+
+	using SimMeasurementSampler::getInstance;
+
+	/*virtual*/ void sample(F64 value)
+	{
+		LLTrace::Measurement<T>::sample(value);
+	}
+};
+
 extern LLTrace::Count<>						FPS,
 											PACKETS_IN,
 											PACKETS_LOST,
@@ -46,7 +73,6 @@ extern LLTrace::Count<>						FPS,
 											OBJECT_REZ,
 											LOADING_WEARABLES_LONG_DELAY,
 											LOGIN_TIMEOUTS,
-											FAILED_DOWNLOADS,
 											LSL_SAVES,
 											ANIMATION_UPLOADS,
 											FLY,
@@ -80,7 +106,7 @@ extern LLTrace::Count<LLUnits::Seconds>		AVATAR_EDIT_TIME,
 											SIM_PHYSICS_20_FPS_TIME,
 											LOSS_5_PERCENT_TIME;
 
-extern LLTrace::Measurement<>				SIM_TIME_DILATION,
+extern SimMeasurement<>						SIM_TIME_DILATION,
 											SIM_FPS,
 											SIM_PHYSICS_FPS,
 											SIM_AGENT_UPS,
@@ -98,10 +124,10 @@ extern LLTrace::Measurement<>				SIM_TIME_DILATION,
 											SIM_PENDING_DOWNLOADS,
 											SIM_PENDING_UPLOADS,
 											SIM_PENDING_LOCAL_UPLOADS,
-											SIM_PENDING_VFS_OPERATIONS,
 											SIM_PHYSICS_PINNED_TASKS,
-											SIM_PHYSICS_LOD_TASKS,
-											NUM_IMAGES,
+											SIM_PHYSICS_LOD_TASKS;
+
+extern LLTrace::Measurement<>				NUM_IMAGES,
 											NUM_RAW_IMAGES,
 											NUM_OBJECTS,
 											NUM_ACTIVE_OBJECTS,
@@ -109,25 +135,31 @@ extern LLTrace::Measurement<>				SIM_TIME_DILATION,
 											NUM_SIZE_CULLED,
 											NUM_VIS_CULLED,
 											ENABLE_VBO,
-											DELTA_BANDWIDTH,
-											MAX_BANDWIDTH,
 											LIGHTING_DETAIL,
 											VISIBLE_AVATARS,
 											SHADER_OBJECTS,
 											DRAW_DISTANCE,
 											CHAT_BUBBLES,
+											PENDING_VFS_OPERATIONS,
+											PACKETS_LOST_PERCENT,
 											WINDOW_WIDTH,
 											WINDOW_HEIGHT;
 
+extern LLTrace::Measurement<LLUnits::Meters> AGENT_POSITION_SNAP;
+
 extern LLTrace::Measurement<LLUnits::Bytes>	SIM_UNACKED_BYTES,
+											DELTA_BANDWIDTH,
+											MAX_BANDWIDTH,
 											SIM_PHYSICS_MEM,
 											GL_TEX_MEM,
 											GL_BOUND_MEM,
 											RAW_MEM,
 											FORMATTED_MEM;
 
-
-extern LLTrace::Measurement<LLUnits::Seconds>	SIM_PHYSICS_TIME,
+extern SimMeasurement<LLUnits::Milliseconds>	SIM_FRAME_TIME,
+												SIM_NET_TIME,
+												SIM_OTHER_TIME,
+												SIM_PHYSICS_TIME,
 												SIM_PHYSICS_STEP_TIME,
 												SIM_PHYSICS_SHAPE_UPDATE_TIME,
 												SIM_PHYSICS_OTHER_TIME,
@@ -137,170 +169,31 @@ extern LLTrace::Measurement<LLUnits::Seconds>	SIM_PHYSICS_TIME,
 												SIM_SCRIPTS_TIME,
 												SIM_SPARE_TIME,
 												SIM_SLEEP_TIME,
-												SIM_PUMP_IO_TIME,
-												SIM_PING,
-												FRAMETIME_JITTER,
-												FRAMETIME_SLEW,
-												LOGIN_SECONDS,
-												REGION_CROSSING_TIME,
-												FRAME_STACKTIME,
-												UPDATE_STACKTIME,
-												NETWORK_STACKTIME,
-												IMAGE_STACKTIME,
-												REBUILD_STACKTIME,
-												RENDER_STACKTIME;
+												SIM_PUMP_IO_TIME;
+
+
+extern LLTrace::Measurement<LLUnits::Milliseconds>	FRAMETIME_JITTER,
+													FRAMETIME_SLEW,
+													LOGIN_SECONDS,
+													REGION_CROSSING_TIME,
+													FRAME_STACKTIME,
+													UPDATE_STACKTIME,
+													NETWORK_STACKTIME,
+													IMAGE_STACKTIME,
+													REBUILD_STACKTIME,
+													RENDER_STACKTIME,
+													SIM_PING;
 }
 
 class LLViewerStats : public LLSingleton<LLViewerStats>
 {
 public:
-	LLStat	mVFSPendingOperations,
-			mFPSStat,
-			mPacketsInStat,
-			mPacketsLostStat,
-			mPacketsOutStat,
-			mPacketsLostPercentStat,
-			mTexturePacketsStat,
-			mActualInKBitStat,	// From the packet ring (when faking a bad connection)
-			mActualOutKBitStat,	// From the packet ring (when faking a bad connection)
-			mTrianglesDrawnStat;
-
-	// Simulator stats
-	LLStat	mSimTimeDilation;
-
-	LLStat	mSimFPS,
-			mSimPhysicsFPS,
-			mSimAgentUPS,
-			mSimScriptEPS;
-
-	LLStat	mSimFrameMsec,
-			mSimNetMsec,
-			mSimSimOtherMsec,
-			mSimSimPhysicsMsec;
-
-	LLStat	mSimSimPhysicsStepMsec,
-			mSimSimPhysicsShapeUpdateMsec,
-			mSimSimPhysicsOtherMsec,
-			mSimSimAIStepMsec,
-			mSimSimSkippedSilhouetteSteps,
-			mSimSimPctSteppedCharacters;
-
-	LLStat	mSimAgentMsec,
-			mSimImagesMsec,
-			mSimScriptMsec,
-			mSimSpareMsec,
-			mSimSleepMsec,
-			mSimPumpIOMsec;
-
-	LLStat	mSimMainAgents,
-			mSimChildAgents,
-			mSimObjects,
-			mSimActiveObjects,
-			mSimActiveScripts,
-			mSimPctScriptsRun;
-
-	LLStat	mSimInPPS,
-			mSimOutPPS,
-			mSimPendingDownloads,
-			mSimPendingUploads,
-			mSimPendingLocalUploads,
-			mSimTotalUnackedBytes;
-
-	LLStat	mPhysicsPinnedTasks,
-			mPhysicsLODTasks,
-			mPhysicsMemoryAllocated;
-
-	LLStat	mSimPingStat;
-
-	LLStat	mNumImagesStat,
-			mNumRawImagesStat,
-			mGLTexMemStat,
-			mGLBoundMemStat,
-			mRawMemStat,
-			mFormattedMemStat;
-
-	LLStat	mNumObjectsStat,
-			mNumActiveObjectsStat,
-			mNumNewObjectsStat,
-			mNumSizeCulledStat,
-			mNumVisCulledStat;
-
 	void resetStats();
 
 public:
 
-	// If you change this, please also add a corresponding text label in llviewerstats.cpp
-	enum EStatType
-	{
-		ST_VERSION = 0,
-		ST_AVATAR_EDIT_SECONDS = 1,
-		ST_TOOLBOX_SECONDS = 2,
-		ST_CHAT_COUNT = 3,
-		ST_IM_COUNT = 4,
-		ST_FULLSCREEN_BOOL = 5,
-		ST_RELEASE_COUNT= 6,
-		ST_CREATE_COUNT = 7,
-		ST_REZ_COUNT = 8,
-		ST_FPS_10_SECONDS = 9,
-		ST_FPS_2_SECONDS = 10,
-		ST_MOUSELOOK_SECONDS = 11,
-		ST_FLY_COUNT = 12,
-		ST_TELEPORT_COUNT = 13,
-		ST_OBJECT_DELETE_COUNT = 14,
-		ST_SNAPSHOT_COUNT = 15,
-		ST_UPLOAD_SOUND_COUNT = 16,
-		ST_UPLOAD_TEXTURE_COUNT = 17,
-		ST_EDIT_TEXTURE_COUNT = 18,
-		ST_KILLED_COUNT = 19,
-		ST_FRAMETIME_JITTER = 20,
-		ST_FRAMETIME_SLEW = 21,
-		ST_INVENTORY_TOO_LONG = 22,
-		ST_WEARABLES_TOO_LONG = 23,
-		ST_LOGIN_SECONDS = 24,
-		ST_LOGIN_TIMEOUT_COUNT = 25,
-		ST_HAS_BAD_TIMER = 26,
-		ST_DOWNLOAD_FAILED = 27,
-		ST_LSL_SAVE_COUNT = 28,
-		ST_UPLOAD_ANIM_COUNT = 29,
-		ST_FPS_8_SECONDS = 30,
-		ST_SIM_FPS_20_SECONDS = 31,
-		ST_PHYS_FPS_20_SECONDS = 32,
-		ST_LOSS_05_SECONDS = 33,
-		ST_FPS_DROP_50_RATIO = 34,
-		ST_ENABLE_VBO = 35,
-		ST_DELTA_BANDWIDTH = 36,
-		ST_MAX_BANDWIDTH = 37,
-		ST_LIGHTING_DETAIL = 38,
-		ST_VISIBLE_AVATARS = 39,
-		ST_SHADER_OBJECTS = 40,
-		ST_SHADER_ENVIRONMENT = 41,
-		ST_DRAW_DIST = 42,
-		ST_CHAT_BUBBLES = 43,
-		ST_SHADER_AVATAR = 44,
-		ST_FRAME_SECS = 45,
-		ST_UPDATE_SECS = 46,
-		ST_NETWORK_SECS = 47,
-		ST_IMAGE_SECS = 48,
-		ST_REBUILD_SECS = 49,
-		ST_RENDER_SECS = 50,
-		ST_CROSSING_AVG = 51,
-		ST_CROSSING_MAX = 52,
-		ST_LIBXUL_WIDGET_USED = 53, // Unused
-		ST_WINDOW_WIDTH = 54,
-		ST_WINDOW_HEIGHT = 55,
-		ST_TEX_BAKES = 56,
-		ST_TEX_REBAKES = 57,
-		
-		ST_COUNT = 58
-	};
-
 	LLViewerStats();
 	~LLViewerStats();
-
-	// all return latest value of given stat
-	F64 getStat(EStatType type) const;
-	F64 setStat(EStatType type, F64 value);		// set the stat to value
-	F64 incStat(EStatType type, F64 value = 1.f);	// add value to the stat
 
 	void updateFrameStats(const F64 time_diff);
 	
@@ -388,8 +281,6 @@ public:
 		}
 	};
 
-	StatsAccumulator mAgentPositionSnaps;
-
 	// Phase tracking (originally put in for avatar rezzing), tracking
 	// progress of active/completed phases for activities like outfit changing.
 	typedef std::map<std::string,LLFrameTimer>	phase_map_t;
@@ -412,9 +303,9 @@ public:
 	};
 
 	LLTrace::Recording& getRecording() { return mRecording; }
+	const LLTrace::Recording& getRecording() const { return mRecording; }
 
 private:
-	F64								mStats[ST_COUNT];
 	LLTrace::Recording				mRecording;
 
 	F64								mLastTimeDiff;  // used for time stat updates

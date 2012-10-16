@@ -282,6 +282,7 @@ namespace LLTrace
 		T	getLastValue() const { return mLastValue; }
 		F64	getMean() const { return mMean; }
 		F64 getStandardDeviation() const { return sqrtf(mVarianceSum / mNumSamples); }
+		U32 getSampleCount() const { return mNumSamples; }
 
 	private:
 		T	mSum,

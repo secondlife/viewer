@@ -712,13 +712,15 @@ void LLWorld::updateNetStats()
 	LLStatViewer::PACKETS_IN.add(packets_in);
 	LLStatViewer::PACKETS_OUT.add(packets_out);
 	LLStatViewer::PACKETS_LOST.add(packets_lost);
+	LLStatViewer::PACKETS_LOST_PERCENT.sample(100.f*((F32)packets_lost/(F32)packets_in));
 	//LLViewerStats::getInstance()->mPacketsInStat.addValue(packets_in);
 	//LLViewerStats::getInstance()->mPacketsOutStat.addValue(packets_out);
 	//LLViewerStats::getInstance()->mPacketsLostStat.addValue(gMessageSystem->mDroppedPackets);
-	//if (packets_in)
-	//{
+	if (packets_in)
+	{
+		LLStatViewer::PACKETS_LOST_PERCENT.sample(100.f*((F32)packets_lost/(F32)packets_in));
 	//	LLViewerStats::getInstance()->mPacketsLostPercentStat.addValue(100.f*((F32)packets_lost/(F32)packets_in));
-	//}
+	}
 	//else
 	//{
 	//	LLViewerStats::getInstance()->mPacketsLostPercentStat.addValue(0.f);

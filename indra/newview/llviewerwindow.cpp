@@ -2184,8 +2184,10 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 			}
 		}
 
-		LLViewerStats::getInstance()->setStat(LLViewerStats::ST_WINDOW_WIDTH, (F64)width);
-		LLViewerStats::getInstance()->setStat(LLViewerStats::ST_WINDOW_HEIGHT, (F64)height);
+		LLStatViewer::WINDOW_WIDTH.sample((F64)width);
+		//LLViewerStats::getInstance()->setStat(LLViewerStats::ST_WINDOW_WIDTH, (F64)width);
+		LLStatViewer::WINDOW_HEIGHT.sample((F64)height);
+		//LLViewerStats::getInstance()->setStat(LLViewerStats::ST_WINDOW_HEIGHT, (F64)height);
 
 		LLLayoutStack::updateClass();
 	}

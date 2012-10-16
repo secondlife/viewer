@@ -60,7 +60,8 @@ public:
 	struct StatParams : public LLInitParam::ChoiceBlock<StatParams>
 	{
 		Alternative<LLStat*>				legacy_stat;
-		Alternative<LLTrace::Count<>* >		rate_stat;
+		Alternative<LLTrace::Count<>* >		count_stat;
+		Alternative<LLTrace::Measurement<>* >	measurement_stat;
 	};
 
 	struct Params : public LLInitParam::Block<Params, LLView::Params>

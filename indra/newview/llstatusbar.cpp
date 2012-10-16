@@ -198,7 +198,7 @@ BOOL LLStatusBar::postBuild()
 	sgp.rect(r);
 	sgp.follows.flags(FOLLOWS_BOTTOM | FOLLOWS_RIGHT);
 	sgp.mouse_opaque(false);
-	sgp.stat.rate_stat(&LLStatViewer::KBIT);
+	sgp.stat.count_stat(&LLStatViewer::KBIT);
 	sgp.units("Kbps");
 	sgp.precision(0);
 	mSGBandwidth = LLUICtrlFactory::create<LLStatGraph>(sgp);
@@ -212,7 +212,7 @@ BOOL LLStatusBar::postBuild()
 	pgp.rect(r);
 	pgp.follows.flags(FOLLOWS_BOTTOM | FOLLOWS_RIGHT);
 	pgp.mouse_opaque(false);
-	pgp.stat.legacy_stat(&LLViewerStats::getInstance()->mPacketsLostPercentStat);
+	pgp.stat.measurement_stat(&LLStatViewer::PACKETS_LOST_PERCENT);
 	pgp.units("%");
 	pgp.min(0.f);
 	pgp.max(5.f);

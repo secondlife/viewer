@@ -261,6 +261,10 @@ namespace LLUnits
 	LL_DECLARE_DERIVED_UNIT(Seconds, Microseconds,	(1.f / (1000000.f)));
 	LL_DECLARE_DERIVED_UNIT(Seconds, Nanoseconds,	(1.f / (1000000000.f)));
 
+	LL_DECLARE_BASE_UNIT(Meters);
+	LL_DECLARE_DERIVED_UNIT(Meters, Kilometers, 1000);
+	LL_DECLARE_DERIVED_UNIT(Meters, Centimeters, 1 / 100);
+	LL_DECLARE_DERIVED_UNIT(Meters, Millimeters, 1 / 1000);
 }
 
 #endif // LL_LLUNIT_H

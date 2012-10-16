@@ -1,5 +1,5 @@
 /** 
- * @file llviewertexturelist.h
+ * @file llviewertexturelinumimagest.h
  * @brief Object for managing the list of images within a region
  *
  * $LicenseInfo:firstyear=2000&license=viewerlgpl$
@@ -200,14 +200,6 @@ private:
 	S32 mMaxTotalTextureMemInMegaBytes;
 	LLFrameTimer mForceDecodeTimer;
 	
-public:
-	static LLStat sNumImagesStat;
-	static LLStat sNumRawImagesStat;
-	static LLStat sGLTexMemStat;
-	static LLStat sGLBoundMemStat;
-	static LLStat sRawMemStat;
-	static LLStat sFormattedMemStat;
-
 private:
 	static S32 sNumImages;
 	static void (*sUUIDCallback)(void**, const LLUUID &);

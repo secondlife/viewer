@@ -304,7 +304,8 @@ void LLViewerThrottle::updateDynamicThrottle()
 	}
 	mUpdateTimer.reset();
 
-	if (LLViewerStats::getInstance()->mPacketsLostPercentStat.getMean() > TIGHTEN_THROTTLE_THRESHOLD)
+	F32 mean_packets_lost = LLViewerStats::instance().getRecording().getMean(LLStatViewer::PACKETS_LOST_PERCENT);
+	if (mean_packets_lost > TIGHTEN_THROTTLE_THRESHOLD)
 	{
 		if (mThrottleFrac <= MIN_FRACTIONAL || mCurrentBandwidth / 1024.0f <= MIN_BANDWIDTH)
 		{
@@ -317,7 +318,7 @@ void LLViewerThrottle::updateDynamicThrottle()
 		mCurrent.sendToSim();
 		llinfos << "Tightening network throttle to " << mCurrentBandwidth << llendl;
 	}
-	else if (LLViewerStats::getInstance()->mPacketsLostPercentStat.getMean() <= EASE_THROTTLE_THRESHOLD)
+	else if (mean_packets_lost <= EASE_THROTTLE_THRESHOLD)
 	{
 		if (mThrottleFrac >= MAX_FRACTIONAL || mCurrentBandwidth / 1024.0f >= MAX_BANDWIDTH)
 		{

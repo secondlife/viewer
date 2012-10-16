@@ -49,7 +49,7 @@ LLStatGraph::LLStatGraph(const Params& p)
 	mPrecision(p.precision),
 	mValue(p.value),
 	mStatp(p.stat.legacy_stat),
-	mNewStatp(p.stat.rate_stat)
+	mNewStatp(p.stat.count_stat)
 {
 	setToolTip(p.name());
 
