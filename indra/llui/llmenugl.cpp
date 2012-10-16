@@ -3037,7 +3037,17 @@ void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y)
 	const S32 CURSOR_HEIGHT = 22;		// Approximate "normal" cursor size
 	const S32 CURSOR_WIDTH = 12;
 
-	if(menu->getChildList()->empty())
+	//Do not show menu if all menu items are disabled
+	BOOL item_enabled = false;
+	for (LLView::child_list_t::const_iterator itor = menu->getChildList()->begin();
+			 itor != menu->getChildList()->end();
+			 ++itor)
+	{
+		LLView *menu_item = (*itor);
+		item_enabled = item_enabled || menu_item->getEnabled();
+	}
+
+	if(menu->getChildList()->empty() || !item_enabled)
 	{
 		return;
 	}
