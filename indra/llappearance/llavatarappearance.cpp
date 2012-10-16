@@ -903,6 +903,7 @@ BOOL LLAvatarAppearance::loadAvatar()
 		if (driver_param->setInfo(info))
 		{
 			addVisualParam( driver_param );
+			driver_param->setParamLocation(isSelf() ? LOC_AV_SELF : LOC_AV_OTHER);
 			LLVisualParam*(LLAvatarAppearance::*avatar_function)(S32)const = &LLAvatarAppearance::getVisualParam; 
 			if( !driver_param->linkDrivenParams(boost::bind(avatar_function,(LLAvatarAppearance*)this,_1 ), false))
 			{
@@ -981,6 +982,7 @@ BOOL LLAvatarAppearance::loadSkeletonNode ()
 			else
 			{
 				addVisualParam(param);
+				param->setParamLocation(isSelf() ? LOC_AV_SELF : LOC_AV_OTHER);
 			}				
 		}
 	}
@@ -1098,10 +1100,12 @@ BOOL LLAvatarAppearance::loadMeshNodes()
 				if (info_pair->second)
 				{
 					addSharedVisualParam(param);
+					param->setParamLocation(isSelf() ? LOC_AV_SELF : LOC_AV_OTHER);
 				}
 				else
 				{
 					addVisualParam(param);
+					param->setParamLocation(isSelf() ? LOC_AV_SELF : LOC_AV_OTHER);
 				}
 			}				
 		}

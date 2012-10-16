@@ -168,7 +168,8 @@ LLVisualParam::LLVisualParam()
 	mIsAnimating( FALSE ),
 	mID( -1 ),
 	mInfo( 0 ),
-	mIsDummy(FALSE)
+	mIsDummy(FALSE),
+	mParamLocation(LOC_UNKNOWN)
 {
 }
 
@@ -320,3 +321,20 @@ void LLVisualParam::resetDrivenParams()
 	// nothing to do for non-driver parameters
 	return;
 }
+
+void LLVisualParam::setParamLocation(EParamLocation loc)
+{
+	if (mParamLocation == LOC_UNKNOWN)
+	{
+		mParamLocation = loc;
+	}
+	else if (mParamLocation == loc)
+	{
+		// no action
+	}
+	else
+	{
+		llwarns << "param location is already " << mParamLocation << ", not slamming to " << loc << llendl;
+	}
+}
+

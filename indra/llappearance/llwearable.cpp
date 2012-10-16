@@ -629,6 +629,7 @@ void LLWearable::addVisualParam(LLVisualParam *param)
 		delete mVisualParamIndexMap[param->getID()];
 	}
 	param->setIsDummy(FALSE);
+	param->setParamLocation(LOC_WEARABLE);
 	mVisualParamIndexMap[param->getID()] = param;
 	mSavedVisualParamMap[param->getID()] = param->getDefaultWeight();
 }
