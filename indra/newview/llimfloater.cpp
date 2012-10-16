@@ -60,10 +60,6 @@
 #include "llnotificationmanager.h"
 #include "llautoreplace.h"
 
-/// Helper function to resolve resident names from given uuids
-/// and form a string of names separated by "words_separator".
-static void build_names_string(const uuid_vec_t& uuids, std::string& names_string);
-
 floater_showed_signal_t LLIMFloater::sIMFloaterShowedSignal;
 
 LLIMFloater::LLIMFloater(const LLUUID& session_id)
@@ -476,7 +472,7 @@ void LLIMFloater::addP2PSessionParticipants(const LLSD& notification, const LLSD
 void LLIMFloater::sendParticipantsAddedNotification(const uuid_vec_t& uuids)
 {
 	std::string names_string;
-	build_names_string(uuids, names_string);
+	LLAvatarActions::buildResidentsString(uuids, names_string);
 	LLStringUtil::format_map_t args;
 	args["[NAME]"] = names_string;
 
@@ -581,7 +577,7 @@ void LLIMFloater::onParticipantsListChanged(LLUICtrl* ctrl)
 	if (all_names_resolved)
 	{
 		std::string ui_title;
-		build_names_string(temp_uuids, ui_title);
+		LLAvatarActions::buildResidentsString(temp_uuids, ui_title);
 		updateSessionName(ui_title, ui_title);
 	}
 }
@@ -719,6 +715,19 @@ void LLIMFloater::setDocked(bool docked, bool pop_on_undock)
 	}
 }
 
+void LLIMFloater::setFocus(BOOL focusFlag)
+{
+    LLTransientDockableFloater::setFocus(focusFlag);
+
+    //Redirect focus to input editor
+    if (focusFlag)
+    {
+        updateMessages();
+        mInputEditor->setFocus(TRUE);
+    }
+    
+}
+
 void LLIMFloater::setVisible(BOOL visible)
 {
 	LLNotificationsUI::LLScreenChannel* channel = static_cast<LLNotificationsUI::LLScreenChannel*>
@@ -734,21 +743,6 @@ void LLIMFloater::setVisible(BOOL visible)
 		channel->redrawToasts();
 	}
 
-	BOOL is_minimized = visible && isChatMultiTab()
-		? LLIMFloaterContainer::getInstance()->isMinimized()
-		: !visible;
-
-	if (!is_minimized && mChatHistory && mInputEditor)
-	{
-		//only if floater was construced and initialized from xml
-		updateMessages();
-		//prevent stealing focus when opening a background IM tab (EXT-5387, checking focus for EXT-6781)
-		if (!isChatMultiTab() || hasFocus())
-		{
-			mInputEditor->setFocus(TRUE);
-		}
-	}
-
 	if(!visible)
 	{
 		LLIMChiclet* chiclet = LLChicletBar::getInstance()->getChicletPanel()->findChiclet<LLIMChiclet>(mSessionID);
@@ -761,7 +755,10 @@ void LLIMFloater::setVisible(BOOL visible)
 	if (visible && isInVisibleChain())
 	{
 		sIMFloaterShowedSignal(mSessionID);
+        
 	}
+
+    setFocus(visible);
 }
 
 BOOL LLIMFloater::getVisible()
@@ -1333,26 +1330,4 @@ void LLIMFloater::onIMChicletCreated( const LLUUID& session_id )
 boost::signals2::connection LLIMFloater::setIMFloaterShowedCallback(const floater_showed_signal_t::slot_type& cb)
 {
 	return LLIMFloater::sIMFloaterShowedSignal.connect(cb);
-}
-
-// static
-void build_names_string(const uuid_vec_t& uuids, std::string& names_string)
-{
-	std::vector<LLAvatarName> avatar_names;
-	uuid_vec_t::const_iterator it = uuids.begin();
-	for (; it != uuids.end(); ++it)
-	{
-		LLAvatarName av_name;
-		if (LLAvatarNameCache::get(*it, &av_name))
-		{
-			avatar_names.push_back(av_name);
-		}
-	}
-
-	// We should check whether the vector is not empty to pass the assertion
-	// that avatar_names.size() > 0 in LLAvatarActions::buildResidentsString.
-	if (!avatar_names.empty())
-	{
-		LLAvatarActions::buildResidentsString(avatar_names, names_string);
-	}
 }

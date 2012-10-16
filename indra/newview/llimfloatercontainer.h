@@ -31,6 +31,7 @@
 #include <vector>
 
 #include "llimview.h"
+#include "llevents.h"
 #include "llfloater.h"
 #include "llmultifloater.h"
 #include "llavatarpropertiesprocessor.h"
@@ -63,6 +64,7 @@ public:
 								BOOL select_added_floater, 
 								LLTabContainer::eInsertionPoint insertion_point = LLTabContainer::END);
     void setConvItemSelect(const LLUUID& session_id);
+    void setItemSelect(const LLUUID& session_id);
 	/*virtual*/ void tabClose();
 
 	static LLFloater* getCurrentVoiceFloater();
@@ -80,11 +82,13 @@ public:
 
 	// LLIMSessionObserver observe triggers
 	/*virtual*/ void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id);
+    /*virtual*/ void sessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id);
 	/*virtual*/ void sessionVoiceOrIMStarted(const LLUUID& session_id);
 	/*virtual*/ void sessionRemoved(const LLUUID& session_id);
 	/*virtual*/ void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id);
 
 	LLConversationViewModel& getRootViewModel() { return mConversationViewModel; }
+    LLUUID getSelectedSession() { return mSelectedSession; }
 
 private:
 	typedef std::map<LLUUID,LLFloater*> avatarID_panel_map_t;
@@ -132,14 +136,15 @@ private:
 
 	// Conversation list implementation
 public:
-	void removeConversationListItem(const LLUUID& uuid, bool change_focus = true);
-	void addConversationListItem(const LLUUID& uuid);
+	bool removeConversationListItem(const LLUUID& uuid, bool change_focus = true);
+	void addConversationListItem(const LLUUID& uuid, bool isWidgetSelected = false);
 	void setTimeNow(const LLUUID& session_id, const LLUUID& participant_id);
 	void setNearbyDistances();
 
 private:
 	LLConversationViewSession* createConversationItemWidget(LLConversationItem* item);
 	LLConversationViewParticipant* createConversationViewParticipant(LLConversationItem* item);
+	bool onConversationModelEvent(const LLSD& event);
 
 	// Conversation list data
 	LLPanel* mConversationsListPanel;	// This is the main widget we add conversation widget to
@@ -147,6 +152,7 @@ private:
 	conversations_widgets_map mConversationsWidgets;
 	LLConversationViewModel mConversationViewModel;
 	LLFolderView* mConversationsRoot;
+	LLEventStream mConversationsEventStream; 
 };
 
 #endif // LL_LLIMFLOATERCONTAINER_H

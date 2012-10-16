@@ -647,14 +647,17 @@ void LLIMModel::processSessionInitializedReply(const LLUUID& old_session_id, con
 		{
 			mId2SessionMap.erase(old_session_id);
 			mId2SessionMap[new_session_id] = session;
-
-			gIMMgr->notifyObserverSessionIDUpdated(old_session_id, new_session_id);
 		}
 
 		LLIMFloater* im_floater = LLIMFloater::findInstance(old_session_id);
 		if (im_floater)
 		{
 			im_floater->sessionInitReplyReceived(new_session_id);
+		}
+
+		if (old_session_id != new_session_id)
+		{
+			gIMMgr->notifyObserverSessionIDUpdated(old_session_id, new_session_id);
 		}
 
 		// auto-start the call on session initialization?
@@ -2650,10 +2653,17 @@ LLUUID LLIMMgr::addSession(
 		}
 	}
 
+    //Notify observers that a session was added
 	if (new_session)
 	{
 		LLIMModel::getInstance()->newSession(session_id, name, dialog, other_participant_id, ids, voice);
 	}
+    //Notifies observers that the session was already added
+    else
+    {
+        std::string session_name = LLIMModel::getInstance()->getName(session_id);
+        LLIMMgr::getInstance()->notifyObserverSessionActivated(session_id, session_name, other_participant_id);
+    }
 
 	//we don't need to show notes about online/offline, mute/unmute users' statuses for existing sessions
 	if (!new_session) return session_id;
@@ -2954,6 +2964,14 @@ void LLIMMgr::notifyObserverSessionAdded(const LLUUID& session_id, const std::st
 	{
 		(*it)->sessionAdded(session_id, name, other_participant_id);
 	}
+}
+
+void LLIMMgr::notifyObserverSessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
+{
+    for (session_observers_list_t::iterator it = mSessionObservers.begin(); it != mSessionObservers.end(); it++)
+    {
+        (*it)->sessionActivated(session_id, name, other_participant_id);
+    }
 }
 
 void LLIMMgr::notifyObserverSessionVoiceOrIMStarted(const LLUUID& session_id)

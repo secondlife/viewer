@@ -52,7 +52,7 @@ public:
 
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
-
+    /*virtual*/ void setFocus(BOOL focusFlag);
 	/*virtual*/ void	setVisible(BOOL visible);
 
 	void loadHistory();

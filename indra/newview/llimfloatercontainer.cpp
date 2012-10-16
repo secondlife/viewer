@@ -50,6 +50,7 @@
 #include "llcallbacklist.h"
 #include "llworld.h"
 
+#include "llsdserialize.h"
 //
 // LLIMFloaterContainer
 //
@@ -57,6 +58,7 @@ LLIMFloaterContainer::LLIMFloaterContainer(const LLSD& seed)
 :	LLMultiFloater(seed),
 	mExpandCollapseBtn(NULL),
 	mConversationsRoot(NULL),
+	mConversationsEventStream("ConversationsEvents"),
 	mInitialized(false)
 {
     mEnableCallbackRegistrar.add("IMFloaterContainer.Check", boost::bind(&LLIMFloaterContainer::isActionChecked, this, _2));
@@ -77,6 +79,8 @@ LLIMFloaterContainer::LLIMFloaterContainer(const LLSD& seed)
 
 LLIMFloaterContainer::~LLIMFloaterContainer()
 {
+	mConversationsEventStream.stopListening("ConversationsRefresh");
+
 	gIdleCallbacks.deleteFunction(idle, this);
 
 	mNewMessageConnection.disconnect();
@@ -94,19 +98,23 @@ LLIMFloaterContainer::~LLIMFloaterContainer()
 void LLIMFloaterContainer::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
 {
 	LLIMFloater::addToHost(session_id, true);
-	addConversationListItem(session_id);
+	addConversationListItem(session_id, true);
+}
+
+void LLIMFloaterContainer::sessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
+{
+    setItemSelect(session_id);
 }
 
 void LLIMFloaterContainer::sessionVoiceOrIMStarted(const LLUUID& session_id)
 {
 	LLIMFloater::addToHost(session_id, true);
-	addConversationListItem(session_id);
+	addConversationListItem(session_id, true);
 }
 
 void LLIMFloaterContainer::sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id)
 {
-	removeConversationListItem(old_session_id);
-	addConversationListItem(new_session_id);
+	addConversationListItem(new_session_id, removeConversationListItem(old_session_id));
 }
 
 void LLIMFloaterContainer::sessionRemoved(const LLUUID& session_id)
@@ -138,6 +146,9 @@ BOOL LLIMFloaterContainer::postBuild()
 	
 	mConversationsListPanel = getChild<LLPanel>("conversations_list_panel");
 
+	// Open IM session with selected participant on double click event
+	mConversationsListPanel->setDoubleClickCallback(boost::bind(&LLIMFloaterContainer::doToSelected, this, LLSD("im")));
+
 	// Create the root model and view for all conversation sessions
 	LLConversationItem* base_item = new LLConversationItem(getRootViewModel());
 
@@ -154,6 +165,9 @@ BOOL LLIMFloaterContainer::postBuild()
     p.options_menu = "menu_conversation.xml";
 	mConversationsRoot = LLUICtrlFactory::create<LLFolderView>(p);
     mConversationsRoot->setCallbackRegistrar(&mCommitCallbackRegistrar);
+
+	// Add listener to conversation model events
+	mConversationsEventStream.listen("ConversationsRefresh", boost::bind(&LLIMFloaterContainer::onConversationModelEvent, this, _1));
 
 	// a scroller for folder view
 	LLRect scroller_view_rect = mConversationsListPanel->getRect();
@@ -397,62 +411,81 @@ void LLIMFloaterContainer::idle(void* user_data)
 	self->mConversationsRoot->update();
 }
 
-void LLIMFloaterContainer::draw()
+bool LLIMFloaterContainer::onConversationModelEvent(const LLSD& event)
 {
-	// CHUI Notes
-	// Currently, the model is not responsible for creating the view which is a good thing. This means that
-	// the model could change substantially and the view could decide to echo only a portion of this model.
-	// Consequently, the participant views need to be created either by the session view or by the container panel.
-	// For the moment, we create them here (which makes for complicated code...) to conform to the pattern
-	// implemented in llinventorypanel.cpp (see LLInventoryPanel::buildNewViews()).
-	// The best however would be to have an observer on the model so that we would not pool on each draw to know
-	// if the view needs refresh. The current implementation (testing for change on draw) is less
-	// efficient perf wise than a listener/observer scheme. We will implement that shortly.
+	// For debug only
+	//std::ostringstream llsd_value;
+	//llsd_value << LLSDOStreamer<LLSDNotationFormatter>(event) << std::endl;
+	//llinfos << "Merov debug : onConversationModelEvent, event = " << llsd_value.str() << llendl;
+	// end debug
 	
-	// On each session in mConversationsItems
-	for (conversations_items_map::iterator it_session = mConversationsItems.begin(); it_session != mConversationsItems.end(); it_session++)
+	// Note: In conversations, the model is not responsible for creating the view, which is a good thing. This means that
+	// the model could change substantially and the view could echo only a portion of this model (though currently the 
+	// conversation view does echo the conversation model 1 to 1).
+	// Consequently, the participant views need to be created either by the session view or by the container panel.
+	// For the moment, we create them here, at the container level, to conform to the pattern implemented in llinventorypanel.cpp 
+	// (see LLInventoryPanel::buildNewViews()).
+
+	std::string type = event.get("type").asString();
+	LLUUID session_id = event.get("session_uuid").asUUID();
+	LLUUID participant_id = event.get("participant_uuid").asUUID();
+
+	LLConversationViewSession* session_view = dynamic_cast<LLConversationViewSession*>(mConversationsWidgets[session_id]);
+	if (!session_view)
 	{
-		// Get the current session descriptors
-		LLConversationItem* session_model = it_session->second;
-		LLUUID session_id = it_session->first;
-		LLConversationViewSession* session_view = dynamic_cast<LLConversationViewSession*>(mConversationsWidgets[session_id]);
-		// If the session model has been changed, refresh the corresponding view
-		if (session_model->needsRefresh())
+		// We skip events that are not associated to a session
+		return false;
+	}
+	LLConversationViewParticipant* participant_view = session_view->findParticipant(participant_id);
+
+	if (type == "remove_participant")
+	{
+		if (participant_view)
 		{
+			session_view->extractItem(participant_view);
+			delete participant_view;
 			session_view->refresh();
-		}
-		// Iterate through each model participant child
-		LLFolderViewModelItemCommon::child_list_t::const_iterator current_participant_model = session_model->getChildrenBegin();
-		LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = session_model->getChildrenEnd();
-		while (current_participant_model != end_participant_model)
-		{
-			LLConversationItem* participant_model = dynamic_cast<LLConversationItem*>(*current_participant_model);
-			LLUUID participant_id = participant_model->getUUID();
-			LLConversationViewParticipant* participant_view = session_view->findParticipant(participant_id);
-			// Is there a corresponding view? If not create it
-			if (!participant_view)
-			{
-				participant_view = createConversationViewParticipant(participant_model);
-				participant_view->addToFolder(session_view);
-				participant_view->setVisible(TRUE);
-			}
-			else
-			// Else, see if it needs refresh
-			{
-				if (participant_model->needsRefresh())
-				{
-					participant_view->refresh();
-				}
-			}
-			// Reset the need for refresh
-			session_model->resetRefresh();
-			mConversationViewModel.requestSortAll();
 			mConversationsRoot->arrangeAll();
-			// Next participant
-			current_participant_model++;
 		}
 	}
+	else if (type == "add_participant")
+	{
+		if (!participant_view)
+		{
+			LLConversationItemSession* session_model = dynamic_cast<LLConversationItemSession*>(mConversationsItems[session_id]);
+			if (session_model)
+			{
+				LLConversationItemParticipant* participant_model = session_model->findParticipant(participant_id);
+				if (participant_model)
+				{
+					participant_view = createConversationViewParticipant(participant_model);
+					participant_view->addToFolder(session_view);
+					participant_view->setVisible(TRUE);
+				}
+			}
+
+		}
+	}
+	else if (type == "update_participant")
+	{
+		if (participant_view)
+		{
+			participant_view->refresh();
+		}
+	}
+	else if (type == "update_session")
+	{
+		session_view->refresh();
+	}
 	
+	mConversationViewModel.requestSortAll();
+	mConversationsRoot->arrangeAll();
+	
+	return false;
+}
+
+void LLIMFloaterContainer::draw()
+{
 	if (mTabContainer->getTabCount() == 0)
 	{
 		// Do not close the container when every conversation is torn off because the user
@@ -527,12 +560,25 @@ void LLIMFloaterContainer::collapseMessagesPane(bool collapse)
 		gSavedPerAccountSettings.setBOOL("ConversationsExpandMessagePaneFirst", mConversationsPane->isCollapsed());
 	}
 
+	// Save left pane rectangle before collapsing/expanding right pane.
+	LLRect prevRect = mConversationsPane->getRect();
+
 	// Show/hide the messages pane.
 	mConversationsStack->collapsePanel(mMessagesPane, collapse);
 
-	updateState(collapse, gSavedPerAccountSettings.getS32("ConversationsMessagePaneWidth"));
-}
+	if (!collapse)
+	{
+		// Make sure layout is updated before resizing conversation pane.
+		mConversationsStack->updateLayout();
+	}
 
+	updateState(collapse, gSavedPerAccountSettings.getS32("ConversationsMessagePaneWidth"));
+	if (!collapse)
+	{
+		// Restore conversation's pane previous width after expanding messages pane.
+		mConversationsPane->setTargetDim(prevRect.getWidth());
+	}
+}
 void LLIMFloaterContainer::collapseConversationsPane(bool collapse)
 {
 	if (mConversationsPane->isCollapsed() == collapse)
@@ -862,7 +908,13 @@ void LLIMFloaterContainer::doToSelectedConversation(const std::string& command, 
         }
         else if("chat_history" == command)
         {
-            LLAvatarActions::viewChatHistory(conversationItem->getUUID());
+			const LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(conversationItem->getUUID());
+
+			if (NULL != session)
+			{
+				const LLUUID session_id = session->isOutgoingAdHoc() ? session->generateOutgouigAdHocHash() : session->mSessionID;
+				LLFloaterReg::showInstance("preview_conversation", session_id, true);
+			}
         }
         else
         {
@@ -913,6 +965,12 @@ bool LLIMFloaterContainer::enableContextMenuItem(const LLSD& userdata)
     std::string item = userdata.asString();
     uuid_vec_t mUUIDs;
     getParticipantUUIDs(mUUIDs);
+
+    if(item == std::string("can_activate_group"))
+    {
+    	LLUUID selected_group_id = getCurSelectedViewModelItem()->getUUID();
+    	return gAgent.getGroupID() != selected_group_id;
+    }
 
     if(mUUIDs.size() <= 0)
     {
@@ -1014,6 +1072,7 @@ bool LLIMFloaterContainer::checkContextMenuItem(const LLSD& userdata)
     return false;
 }
 
+//Will select only the conversation item
 void LLIMFloaterContainer::setConvItemSelect(const LLUUID& session_id)
 {
 	LLFolderViewItem* widget = mConversationsWidgets[session_id];
@@ -1023,6 +1082,26 @@ void LLIMFloaterContainer::setConvItemSelect(const LLUUID& session_id)
 		(widget->getRoot())->setSelection(widget, FALSE, FALSE);
 	}
 }
+
+//Will select the conversation/participant item
+void LLIMFloaterContainer::setItemSelect(const LLUUID& session_id)
+{
+
+    if(mConversationsRoot->getCurSelectedItem() && mConversationsRoot->getCurSelectedItem()->getParentFolder())
+    {
+        //Retreive the conversation id. When a participant is selected, then have to to get the converation id from the parent.
+        LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(mConversationsRoot->getCurSelectedItem()->getParentFolder()->getViewModelItem());
+
+        //Will allow selection/highlighting of the conversation/participant
+        if(session_id != vmi->getUUID())
+        {
+            mSelectedSession = session_id;
+            LLFolderViewItem* widget = mConversationsWidgets[session_id];
+            (widget->getRoot())->setSelection(widget, FALSE, FALSE);
+        }
+    }
+}
+
 
 void LLIMFloaterContainer::setTimeNow(const LLUUID& session_id, const LLUUID& participant_id)
 {
@@ -1070,7 +1149,7 @@ void LLIMFloaterContainer::setNearbyDistances()
 	}
 }
 
-void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
+void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid, bool isWidgetSelected /*= false*/)
 {
 	bool is_nearby_chat = uuid.isNull();
 	
@@ -1089,7 +1168,7 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 	removeConversationListItem(uuid,false);
 
 	// Create a conversation session model
-	LLConversationItem* item = NULL;
+	LLConversationItemSession* item = NULL;
 	LLSpeakerMgr* speaker_manager = (is_nearby_chat ? (LLSpeakerMgr*)(LLLocalSpeakerMgr::getInstance()) : LLIMModel::getInstance()->getSpeakerManager(uuid));
 	if (speaker_manager)
 	{
@@ -1101,6 +1180,7 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 		return;
 	}
 	item->renameItem(display_name);
+	item->updateParticipantName(NULL);
 	
 	mConversationsItems[uuid] = item;
 
@@ -1124,7 +1204,10 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 		current_participant_model++;
 	}
 
-	setConvItemSelect(uuid);
+	if (isWidgetSelected)
+	{
+		setConvItemSelect(uuid);
+	}
 	
 	// set the widget to minimized mode if conversations pane is collapsed
 	widget->toggleMinimizedMode(mConversationsPane->isCollapsed());
@@ -1132,17 +1215,19 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid)
 	return;
 }
 
-void LLIMFloaterContainer::removeConversationListItem(const LLUUID& uuid, bool change_focus)
+bool LLIMFloaterContainer::removeConversationListItem(const LLUUID& uuid, bool change_focus)
 {
 	// Delete the widget and the associated conversation item
 	// Note : since the mConversationsItems is also the listener to the widget, deleting 
 	// the widget will also delete its listener
+	bool isWidgetSelected = false;
 	conversations_widgets_map::iterator widget_it = mConversationsWidgets.find(uuid);
 	if (widget_it != mConversationsWidgets.end())
 	{
 		LLFolderViewItem* widget = widget_it->second;
 		if (widget)
 		{
+			isWidgetSelected = widget->isSelected();
 			widget->destroyView();
 		}
 	}
@@ -1158,10 +1243,12 @@ void LLIMFloaterContainer::removeConversationListItem(const LLUUID& uuid, bool c
 		conversations_widgets_map::iterator widget_it = mConversationsWidgets.begin();
 		if (widget_it != mConversationsWidgets.end())
 		{
+            mSelectedSession = widget_it->first;
 			LLFolderViewItem* widget = widget_it->second;
 			widget->selectItem();
 		}
 	}
+	return isWidgetSelected;
 }
 
 LLConversationViewSession* LLIMFloaterContainer::createConversationItemWidget(LLConversationItem* item)

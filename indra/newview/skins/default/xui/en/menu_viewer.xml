@@ -218,8 +218,18 @@
      label="Communicate"
      name="Communicate"
      tear_off="true">
-        <menu_item_check
-         label="Chat..."
+       <menu_item_check
+         label="Conversations..."
+         name="Conversations">
+            <menu_item_check.on_check
+             function="Floater.IsOpen"
+             parameter="im_container" />
+            <menu_item_check.on_click
+             function="Floater.ToggleOrBringToFront"
+             parameter="im_container" />
+	</menu_item_check>
+	<menu_item_check
+         label="Nearby Chat..."
          name="Nearby Chat"
          shortcut="control|H"
          use_mac_ctrl="true">
@@ -243,6 +253,17 @@
              function="Agent.ToggleMicrophone"
              parameter="speak" />
         </menu_item_check>
+        <menu_item_check
+         label="Conversations Log..."
+         name="ConversationsLog">
+            <menu_item_check.on_check
+             function="Floater.Visible"
+             parameter="conversation" />
+            <menu_item_check.on_click
+             function="Floater.Toggle"
+             parameter="conversation" />
+        </menu_item_check>
+        <menu_item_separator/>
         <menu_item_check
          label="Voice morphing..."
          name="ShowVoice"
