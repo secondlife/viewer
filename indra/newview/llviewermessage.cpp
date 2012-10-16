@@ -4490,12 +4490,22 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 
 	LLUUID		id;
 	U32			local_id;
-	S32			i;
+	S32			i = 0;
 	S32			num_objects;
 
 	num_objects = mesgsys->getNumberOfBlocksFast(_PREHASH_ObjectData);
 
-	for (i = 0; i < num_objects; i++)
+	mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_ID, local_id, i);
+	LLViewerRegion* regionp = NULL;
+	bool remove_from_cache = !local_id; //if the first local id is 0, physically remove all objects from VO cache.
+	if(remove_from_cache)
+	{
+		i++;
+
+		LLHost host(gMessageSystem->getSenderIP(), gMessageSystem->getSenderPort());
+		regionp = LLWorld::getInstance()->getRegion(host);
+	}
+	for (; i < num_objects; i++)
 	{
 		mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_ID, local_id, i);
 
@@ -4530,10 +4540,15 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 				// Do the kill
 				gObjectList.killObject(objectp);
 			}
-			else
+			//else
+			//{
+			//	LL_WARNS("Messaging") << "Object in UUID lookup, but not on object list in kill!" << LL_ENDL;
+			//	gObjectList.mNumUnknownKills++;
+			//}
+
+			if(remove_from_cache)
 			{
-				LL_WARNS("Messaging") << "Object in UUID lookup, but not on object list in kill!" << LL_ENDL;
-				gObjectList.mNumUnknownKills++;
+				regionp->killCacheEntry(local_id);
 			}
 		}
 

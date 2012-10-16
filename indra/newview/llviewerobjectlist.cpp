@@ -76,6 +76,7 @@
 #include "object_flags.h"
 
 #include "llappviewer.h"
+#include "llvocache.h"
 
 extern F32 gMinObjectDistance;
 extern BOOL gAnimateTextures;
@@ -228,9 +229,15 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 										   U32 i, 
 										   const EObjectUpdateType update_type, 
 										   LLDataPacker* dpp, 
-										   BOOL just_created)
+										   bool just_created,
+										   bool from_cache)
 {
-	LLMessageSystem* msg = gMessageSystem;
+	LLMessageSystem* msg = NULL;
+	
+	if(!from_cache)
+	{
+		msg = gMessageSystem;
+	}
 
 	// ignore returned flags
 	objectp->processUpdateMessage(msg, user_data, i, update_type, dpp);
@@ -254,7 +261,18 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 	// RN: this must be called after we have a drawable 
 	// (from gPipeline.addObject)
 	// so that the drawable parent is set properly
-	findOrphans(objectp, msg->getSenderIP(), msg->getSenderPort());
+	if(msg != NULL)
+	{
+		findOrphans(objectp, msg->getSenderIP(), msg->getSenderPort());
+	}
+	else
+	{
+		LLViewerRegion* regionp = objectp->getRegion();
+		if(regionp != NULL)
+		{
+			findOrphans(objectp, regionp->getHost().getAddress(), regionp->getHost().getPort());
+		}
+	}
 	
 	// If we're just wandering around, don't create new objects selected.
 	if (just_created 
@@ -276,6 +294,82 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 }
 
 static LLFastTimer::DeclareTimer FTM_PROCESS_OBJECTS("Process Objects");
+
+LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry* entry, LLViewerRegion* regionp)
+{
+	LLDataPacker *cached_dpp = entry->getDP();
+
+	if (!cached_dpp)
+	{
+		return NULL; //nothing cached.
+	}
+	
+	LLViewerObject *objectp;
+	U32			    local_id;
+	LLPCode		    pcode = 0;
+	LLUUID		    fullid;
+	LLViewerStatsRecorder& recorder = LLViewerStatsRecorder::instance();
+
+	// Cache Hit.
+	cached_dpp->reset();
+	cached_dpp->unpackUUID(fullid, "ID");
+	cached_dpp->unpackU32(local_id, "LocalID");
+	cached_dpp->unpackU8(pcode, "PCode");
+
+	objectp = findObject(fullid);
+
+	if (objectp)
+	{
+		if(!objectp->isDead() && (objectp->mLocalID != entry->getLocalID() ||
+			objectp->getRegion() != regionp))
+		{
+			removeFromLocalIDTable(objectp);
+			setUUIDAndLocal(fullid, entry->getLocalID(),
+							regionp->getHost().getAddress(),
+							regionp->getHost().getPort());
+				
+			if (objectp->mLocalID != entry->getLocalID())
+			{	// Update local ID in object with the one sent from the region
+				objectp->mLocalID = entry->getLocalID();
+			}
+			
+			if (objectp->getRegion() != regionp)
+			{	// Object changed region, so update it
+				objectp->updateRegion(regionp); // for LLVOAvatar
+			}
+		}
+
+		//return TRUE; //already loaded.
+	}
+
+	bool justCreated = false;
+	if (!objectp)
+	{
+		objectp = createObjectFromCache(pcode, regionp, fullid, entry->getLocalID());
+		
+		if (!objectp)
+		{
+			llinfos << "createObject failure for object: " << fullid << llendl;
+			recorder.objectUpdateFailure(entry->getLocalID(), OUT_FULL_CACHED, 0);
+			return NULL;
+		}
+		justCreated = true;
+		mNumNewObjects++;
+		sCacheHitRate.addValue(100.f);
+	}
+
+	if (objectp->isDead())
+	{
+		llwarns << "Dead object " << objectp->mID << " in UUID map 1!" << llendl;
+	}
+		
+	processUpdateCore(objectp, NULL, 0, OUT_FULL_CACHED, cached_dpp, justCreated, true);
+		
+	recorder.log(0.2f);
+	LLVOAvatar::cullAvatarsByPixelArea();
+
+	return objectp;
+}
 
 void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 											 void **user_data,
@@ -382,14 +476,8 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 		}
 		else if (compressed)
 		{
-			S32							uncompressed_length = 2048;
-			compressed_dp.reset();
-
-			U32 flags = 0;
-			if (update_type != OUT_TERSE_IMPROVED) // OUT_FULL_COMPRESSED only?
-			{
-				mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_UpdateFlags, flags, i);
-			}
+			S32	uncompressed_length = 2048;
+			compressed_dp.reset();			
 			
 			uncompressed_length = mesgsys->getSizeFast(_PREHASH_ObjectData, i, _PREHASH_Data);
 			mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_Data, compressed_dpbuffer, 0, i);
@@ -540,9 +628,15 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			processUpdateCore(objectp, user_data, i, update_type, &compressed_dp, justCreated);
 			if (update_type != OUT_TERSE_IMPROVED) // OUT_FULL_COMPRESSED only?
 			{
-				bCached = true;
-				LLViewerRegion::eCacheUpdateResult result = objectp->mRegionp->cacheFullUpdate(objectp, compressed_dp);
-				recorder.cacheFullUpdate(local_id, update_type, result, objectp, msg_size);
+				U32 flags = 0;
+				mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_UpdateFlags, flags, i);
+			
+				if(!(flags & FLAGS_TEMPORARY_ON_REZ))
+				{
+					bCached = true;
+					LLViewerRegion::eCacheUpdateResult result = objectp->mRegionp->cacheFullUpdate(objectp, compressed_dp);
+					recorder.cacheFullUpdate(local_id, update_type, result, objectp, msg_size);
+				}
 			}
 		}
 		else if (cached) // Cache hit only?
@@ -1887,7 +1981,30 @@ LLViewerObject *LLViewerObjectList::createObjectViewer(const LLPCode pcode, LLVi
 	return objectp;
 }
 
+LLViewerObject *LLViewerObjectList::createObjectFromCache(const LLPCode pcode, LLViewerRegion *regionp, const LLUUID &uuid, const U32 local_id)
+{
+	llassert_always(uuid.notNull());
 
+	LLViewerObject *objectp = LLViewerObject::createObject(uuid, pcode, regionp);
+	if (!objectp)
+	{
+// 		llwarns << "Couldn't create object of type " << LLPrimitive::pCodeToString(pcode) << " id:" << fullid << llendl;
+		return NULL;
+	}
+
+	objectp->mLocalID = local_id;
+	mUUIDObjectMap[uuid] = objectp;
+	setUUIDAndLocal(uuid,
+					local_id,
+					regionp->getHost().getAddress(),
+					regionp->getHost().getPort());
+	mObjects.push_back(objectp);
+	
+	updateActive(objectp);
+
+	return objectp;
+}
+ 
 LLViewerObject *LLViewerObjectList::createObject(const LLPCode pcode, LLViewerRegion *regionp,
 												 const LLUUID &uuid, const U32 local_id, const LLHost &sender)
 {

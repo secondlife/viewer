@@ -29,6 +29,8 @@
 #include "llerror.h"
 #include "llregionhandle.h"
 #include "llviewercontrol.h"
+#include "llviewerobjectlist.h"
+#include "lldrawable.h"
 
 BOOL check_read(LLAPRFile* apr_file, void* src, S32 n_bytes) 
 {
@@ -46,12 +48,13 @@ BOOL check_write(LLAPRFile* apr_file, void* src, S32 n_bytes)
 //---------------------------------------------------------------------------
 
 LLVOCacheEntry::LLVOCacheEntry(U32 local_id, U32 crc, LLDataPackerBinaryBuffer &dp)
-	:
+	: LLViewerOctreeEntryData(LLViewerOctreeEntry::LLVOCACHEENTRY),
 	mLocalID(local_id),
 	mCRC(crc),
 	mHitCount(0),
 	mDupeCount(0),
-	mCRCChangeCount(0)
+	mCRCChangeCount(0),
+	mState(INACTIVE)
 {
 	mBuffer = new U8[dp.getBufferSize()];
 	mDP.assignBuffer(mBuffer, dp.getBufferSize());
@@ -59,19 +62,22 @@ LLVOCacheEntry::LLVOCacheEntry(U32 local_id, U32 crc, LLDataPackerBinaryBuffer &
 }
 
 LLVOCacheEntry::LLVOCacheEntry()
-	:
+	: LLViewerOctreeEntryData(LLViewerOctreeEntry::LLVOCACHEENTRY),
 	mLocalID(0),
 	mCRC(0),
 	mHitCount(0),
 	mDupeCount(0),
 	mCRCChangeCount(0),
-	mBuffer(NULL)
+	mBuffer(NULL),
+	mState(INACTIVE)
 {
 	mDP.assignBuffer(mBuffer, 0);
 }
 
 LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
-	: mBuffer(NULL)
+	: LLViewerOctreeEntryData(LLViewerOctreeEntry::LLVOCACHEENTRY), 
+	mBuffer(NULL),
+	mState(INACTIVE)
 {
 	S32 size = -1;
 	BOOL success;
@@ -138,8 +144,57 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 LLVOCacheEntry::~LLVOCacheEntry()
 {
 	mDP.freeBuffer();
+	//llassert(mState == INACTIVE);
 }
 
+//virtual 
+void LLVOCacheEntry::setOctreeEntry(LLViewerOctreeEntry* entry)
+{
+	if(!entry && mDP.getBufferSize() > 0)
+	{
+		LLUUID fullid;
+		mDP.reset();
+		mDP.unpackUUID(fullid, "ID");
+		mDP.reset();
+
+		LLViewerObject* obj = gObjectList.findObject(fullid);
+		if(obj && obj->mDrawable)
+		{
+			entry = obj->mDrawable->getEntry();
+		}
+	}
+
+	LLViewerOctreeEntryData::setOctreeEntry(entry);
+}
+
+//virtual 
+S32  LLVOCacheEntry::getMinVisFrameRange()const
+{
+	const S32 MIN_RANGE = 128; //frames
+
+	return MIN_RANGE;
+}
+
+void LLVOCacheEntry::addChild(LLVOCacheEntry* entry)
+{
+	llassert(entry != NULL);
+
+	mChildrenList.push_back(entry);
+}
+	
+LLVOCacheEntry* LLVOCacheEntry::getNextChild()
+{
+	S32 size = mChildrenList.size();
+	if(!size)
+	{
+		return NULL;
+	}
+
+	LLVOCacheEntry* entry = mChildrenList[size - 1];
+	mChildrenList.pop_back(); //remove the entry;
+
+	return entry;
+}
 
 // New CRC means the object has changed.
 void LLVOCacheEntry::assignCRC(U32 crc, LLDataPackerBinaryBuffer &dp)
@@ -170,6 +225,16 @@ LLDataPackerBinaryBuffer *LLVOCacheEntry::getDP(U32 crc)
 	return &mDP;
 }
 
+LLDataPackerBinaryBuffer *LLVOCacheEntry::getDP()
+{
+	if (mDP.getBufferSize() == 0)
+	{
+		//llinfos << "Not getting cache entry, invalid!" << llendl;
+		return NULL;
+	}
+	
+	return &mDP;
+}
 
 void LLVOCacheEntry::recordHit()
 {
@@ -625,11 +690,10 @@ void LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::voca
 				{
 					for (S32 i = 0; i < num_entries; i++)
 					{
-						LLVOCacheEntry* entry = new LLVOCacheEntry(&apr_file);
+						LLPointer<LLVOCacheEntry> entry = new LLVOCacheEntry(&apr_file);
 						if (!entry->getLocalID())
 						{
 							llwarns << "Aborting cache file load for " << filename << ", cache file corruption!" << llendl;
-							delete entry ;
 							success = false ;
 							break ;
 						}

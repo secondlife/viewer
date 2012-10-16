@@ -808,8 +808,10 @@ U32  LLVOAvatarSelf::processUpdateMessage(LLMessageSystem *mesgsys,
 		updateMeshTextures();
 
 		// unpack the texture UUIDs to the texture slots
-		retval = unpackTEMessage(mesgsys, _PREHASH_ObjectData, block_num);
-
+		if(mesgsys != NULL)
+		{
+			retval = unpackTEMessage(mesgsys, _PREHASH_ObjectData, block_num);
+		}
 		// need to trigger a few operations to get the avatar to use the new bakes
 		for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 		{

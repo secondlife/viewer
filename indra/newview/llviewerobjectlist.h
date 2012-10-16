@@ -40,6 +40,7 @@
 class LLCamera;
 class LLNetMap;
 class LLDebugBeacon;
+class LLVOCacheEntry;
 
 const U32 CLOSE_BIN_SIZE = 10;
 const U32 NUM_BINS = 128;
@@ -65,6 +66,7 @@ public:
 	
 	inline LLViewerObject *findObject(const LLUUID &id);
 	LLViewerObject *createObjectViewer(const LLPCode pcode, LLViewerRegion *regionp); // Create a viewer-side object
+	LLViewerObject *createObjectFromCache(const LLPCode pcode, LLViewerRegion *regionp, const LLUUID &uuid, const U32 local_id);
 	LLViewerObject *createObject(const LLPCode pcode, LLViewerRegion *regionp,
 								 const LLUUID &uuid, const U32 local_id, const LLHost &sender);
 
@@ -78,7 +80,9 @@ public:
 	void cleanDeadObjects(const BOOL use_timer = TRUE);	// Clean up the dead object list.
 
 	// Simulator and viewer side object updates...
-	void processUpdateCore(LLViewerObject* objectp, void** data, U32 block, const EObjectUpdateType update_type, LLDataPacker* dpp, BOOL justCreated);
+	void processUpdateCore(LLViewerObject* objectp, void** data, U32 block, const EObjectUpdateType update_type, 
+		                   LLDataPacker* dpp, bool justCreated, bool from_cache = false);
+	LLViewerObject* processObjectUpdateFromCache(LLVOCacheEntry* entry, LLViewerRegion* regionp);
 	void processObjectUpdate(LLMessageSystem *mesgsys, void **user_data, EObjectUpdateType update_type, bool cached=false, bool compressed=false);
 	void processCompressedObjectUpdate(LLMessageSystem *mesgsys, void **user_data, EObjectUpdateType update_type);
 	void processCachedObjectUpdate(LLMessageSystem *mesgsys, void **user_data, EObjectUpdateType update_type);

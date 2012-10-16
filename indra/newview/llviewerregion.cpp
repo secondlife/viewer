@@ -70,6 +70,7 @@
 #include "stringize.h"
 #include "llviewercontrol.h"
 #include "llsdserialize.h"
+#include "llvieweroctree.h"
 
 #ifdef LL_WINDOWS
 	#pragma warning(disable:4355)
@@ -133,7 +134,14 @@ public:
 	// Misc
 	LLVLComposition *mCompositionp;		// Composition layer for the surface
 
-	LLVOCacheEntry::vocache_entry_map_t		mCacheMap;
+	LLVOCacheEntry::vocache_entry_map_t	mCacheMap; //all cached entries
+	LLVOCacheEntry::vocache_entry_set_t mActiveSet; //all active entries;
+	LLVOCacheEntry::vocache_entry_set_t mWaitingSet; //entries waiting for LLDrawable to be generated.
+	LLVOCacheEntry::vocache_entry_set_t mVisibleEntries; //visible root entries of a linked set.
+	std::set< LLPointer<LLVOCacheEntry> > mDummyEntries; //dummy vo cache entries, for LLSpatialBridge use.
+	std::set< LLSpatialGroup* >         mVisibleGroups; //visible llspatialgroup
+	LLVOCachePartition*                 mVOCachePartition;
+
 	// time?
 	// LRU info?
 
@@ -291,7 +299,8 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
 	mCacheLoaded(FALSE),
 	mCacheDirty(FALSE),
 	mReleaseNotesRequested(FALSE),
-	mCapabilitiesReceived(false)
+	mCapabilitiesReceived(false),
+	mDead(FALSE)
 {
 	mWidth = region_width_meters;
 	mImpl->mOriginGlobal = from_region_handle(handle); 
@@ -323,17 +332,20 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
 
 	//create object partitions
 	//MUST MATCH declaration of eObjectPartitions
-	mImpl->mObjectPartition.push_back(new LLHUDPartition());		//PARTITION_HUD
-	mImpl->mObjectPartition.push_back(new LLTerrainPartition());	//PARTITION_TERRAIN
-	mImpl->mObjectPartition.push_back(new LLVoidWaterPartition());	//PARTITION_VOIDWATER
-	mImpl->mObjectPartition.push_back(new LLWaterPartition());		//PARTITION_WATER
-	mImpl->mObjectPartition.push_back(new LLTreePartition());		//PARTITION_TREE
-	mImpl->mObjectPartition.push_back(new LLParticlePartition());	//PARTITION_PARTICLE
-	mImpl->mObjectPartition.push_back(new LLGrassPartition());		//PARTITION_GRASS
-	mImpl->mObjectPartition.push_back(new LLVolumePartition());	//PARTITION_VOLUME
-	mImpl->mObjectPartition.push_back(new LLBridgePartition());	//PARTITION_BRIDGE
-	mImpl->mObjectPartition.push_back(new LLHUDParticlePartition());//PARTITION_HUD_PARTICLE
+	mImpl->mObjectPartition.push_back(new LLHUDPartition(this));		//PARTITION_HUD
+	mImpl->mObjectPartition.push_back(new LLTerrainPartition(this));	//PARTITION_TERRAIN
+	mImpl->mObjectPartition.push_back(new LLVoidWaterPartition(this));	//PARTITION_VOIDWATER
+	mImpl->mObjectPartition.push_back(new LLWaterPartition(this));		//PARTITION_WATER
+	mImpl->mObjectPartition.push_back(new LLTreePartition(this));		//PARTITION_TREE
+	mImpl->mObjectPartition.push_back(new LLParticlePartition(this));	//PARTITION_PARTICLE
+	mImpl->mObjectPartition.push_back(new LLGrassPartition(this));		//PARTITION_GRASS
+	mImpl->mObjectPartition.push_back(new LLVolumePartition(this));	//PARTITION_VOLUME
+	mImpl->mObjectPartition.push_back(new LLBridgePartition(this));	//PARTITION_BRIDGE
+	mImpl->mObjectPartition.push_back(new LLHUDParticlePartition(this));//PARTITION_HUD_PARTICLE
+	mImpl->mObjectPartition.push_back(new LLVOCachePartition(this)); //PARTITION_VO_CACHE
 	mImpl->mObjectPartition.push_back(NULL);						//PARTITION_NONE
+
+	mImpl->mVOCachePartition = (LLVOCachePartition*)getSpatialPartition(PARTITION_VO_CACHE);
 }
 
 
@@ -354,6 +366,12 @@ void LLViewerRegion::initStats()
 
 LLViewerRegion::~LLViewerRegion() 
 {
+	mDead = TRUE;
+	mImpl->mActiveSet.clear();
+	mImpl->mVisibleEntries.clear();
+	mImpl->mVisibleGroups.clear();
+	mImpl->mWaitingSet.clear();
+
 	gVLManager.cleanupData(this);
 	// Can't do this on destruction, because the neighbor pointers might be invalid.
 	// This should be reference counted...
@@ -437,10 +455,6 @@ void LLViewerRegion::saveObjectCache()
 		mCacheDirty = FALSE;
 	}
 
-	for(LLVOCacheEntry::vocache_entry_map_t::iterator iter = mImpl->mCacheMap.begin(); iter != mImpl->mCacheMap.end(); ++iter)
-	{
-		delete iter->second;
-	}
 	mImpl->mCacheMap.clear();
 }
 
@@ -718,8 +732,199 @@ void LLViewerRegion::dirtyHeights()
 	}
 }
 
+void LLViewerRegion::replaceCacheEntry(LLVOCacheEntry* old_entry, LLVOCacheEntry* new_entry)
+{
+	LLPointer<LLViewerOctreeEntry> oct_entry;
+	U32 state = LLVOCacheEntry::INACTIVE;
+
+	if(old_entry)
+	{
+		oct_entry = old_entry->getEntry();
+		state = old_entry->getState();		
+
+		while(old_entry->getNumOfChildren() > 0)
+		{
+			new_entry->addChild(old_entry->getNextChild());
+		}
+
+		killCacheEntry(old_entry);
+	}
+
+	mImpl->mCacheMap[new_entry->getLocalID()] = new_entry;
+	if(oct_entry.notNull())
+	{
+		new_entry->setOctreeEntry(oct_entry);
+	}
+
+	if(state == LLVOCacheEntry::ACTIVE)
+	{
+		llassert(new_entry->getEntry()->hasDrawable());
+		mImpl->mActiveSet.insert(new_entry);
+	}
+	else if(state == LLVOCacheEntry::WAITING)
+	{
+		mImpl->mWaitingSet.insert(new_entry);
+	}
+	else if(old_entry && oct_entry)
+	{
+		addToVOCacheTree(new_entry);
+	}
+	new_entry->setState(state);
+}
+
+//physically delete the cache entry
+void LLViewerRegion::killCacheEntry(LLVOCacheEntry* entry)
+{	
+	if(!entry)
+	{
+		return;
+	}
+
+	//1, remove from active list and waiting list
+	if(entry->isState(LLVOCacheEntry::ACTIVE))
+	{
+		mImpl->mActiveSet.erase(entry);
+	}
+	else if(entry->isState(LLVOCacheEntry::WAITING))
+	{
+		mImpl->mWaitingSet.erase(entry);
+	}	
+
+	//2, kill LLViewerObject if exists
+	//this should be done by the rendering pipeline automatically.
+
+	//3, remove from mVOCachePartition
+	if(entry->isState(LLVOCacheEntry::INACTIVE) && entry->getEntry())
+	{
+		removeFromVOCacheTree(entry);
+	}
+
+	entry->setState(LLVOCacheEntry::INACTIVE);
+	//4, remove from mCacheMap, real deletion
+	mImpl->mCacheMap.erase(entry->getLocalID());
+}
+
+//physically delete the cache entry	
+void LLViewerRegion::killCacheEntry(U32 local_id) 
+{
+	killCacheEntry(getCacheEntry(local_id));
+}
+
+U32 LLViewerRegion::getNumOfActiveCachedObjects() const
+{
+	return  mImpl->mActiveSet.size();
+}
+
+void LLViewerRegion::addActiveCacheEntry(LLVOCacheEntry* entry)
+{
+	if(!entry || mDead)
+	{
+		return;
+	}
+
+	if(entry->isState(LLVOCacheEntry::WAITING))
+	{
+		mImpl->mWaitingSet.erase(entry);
+	}
+
+	entry->setState(LLVOCacheEntry::ACTIVE);
+	entry->setVisible();
+
+	llassert(entry->getEntry()->hasDrawable());
+	mImpl->mActiveSet.insert(entry);
+}
+
+void LLViewerRegion::removeActiveCacheEntry(LLVOCacheEntry* entry, LLDrawable* drawablep)
+{
+	if(mDead)
+	{
+		return;
+	}
+	if(entry->isDummy())
+	{
+		mImpl->mDummyEntries.insert(entry); //keep a copy to prevent from being deleted.
+		addToVOCacheTree(entry);
+	}
+	else if(!drawablep->getParent()) //root node
+	{
+		addToVOCacheTree(entry);
+		mImpl->mVisibleEntries.erase(entry);
+	}
+	else //child node
+	{
+		LLViewerOctreeEntry* parent_oct_entry = drawablep->getParent()->getEntry();
+		if(parent_oct_entry && parent_oct_entry->hasVOCacheEntry())
+		{
+			LLVOCacheEntry* parent = (LLVOCacheEntry*)parent_oct_entry->getVOCacheEntry();
+			parent->addChild(entry);
+		}
+	}
+
+	mImpl->mActiveSet.erase(entry);
+	mImpl->mWaitingSet.erase(entry);
+	entry->setState(LLVOCacheEntry::INACTIVE);
+}
+
+void LLViewerRegion::addVisibleGroup(LLSpatialGroup* group)
+{
+	if(mDead || group->isEmpty() || group->isDead())
+	{
+		return;
+	}
+
+	mImpl->mVisibleGroups.insert(group);
+}
+
+void LLViewerRegion::addToVOCacheTree(LLVOCacheEntry* entry)
+{
+	static BOOL vo_cache_culling_enabled = gSavedSettings.getBOOL("ObjectCacheViewCullingEnabled");
+
+	if(mDead || !entry || !entry->getEntry())
+	{
+		return;
+	}
+	llassert(!entry->getGroup());
+
+	mImpl->mVOCachePartition->addEntry(entry->getEntry());
+}
+
+void LLViewerRegion::removeFromVOCacheTree(LLVOCacheEntry* entry)
+{
+	if(mDead || !entry || !entry->getEntry())
+	{
+		return;
+	}
+
+	mImpl->mVOCachePartition->removeEntry(entry->getEntry());
+}
+
+//add the visible root entry of a linked set
+void LLViewerRegion::addVisibleCacheEntry(LLVOCacheEntry* entry)
+{
+	if(mDead || !entry || !entry->getNumOfChildren())
+	{
+		return; //no child entries
+	}
+
+	mImpl->mVisibleEntries.insert(entry);
+}
+
+void LLViewerRegion::clearVisibleGroup(LLSpatialGroup* group)
+{
+	if(mDead)
+	{
+		return;
+	}
+
+	llassert(!group->getOctreeNode() || group->isEmpty());
+
+	mImpl->mVisibleGroups.erase(group);
+}
+
 BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 {
+	LLTimer update_timer;
+
 	// did_update returns TRUE if we did at least one significant update
 	BOOL did_update = mImpl->mLandp->idleUpdate(max_update_time);
 	
@@ -729,9 +934,168 @@ BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 		mParcelOverlay->idleUpdate();
 	}
 
+	if(update_timer.getElapsedTimeF32() > max_update_time)
+	{
+		return did_update;
+	}
+
+	//kill invisible objects
+	std::vector<LLDrawable*> delete_list;
+	for(LLVOCacheEntry::vocache_entry_set_t::iterator iter = mImpl->mActiveSet.begin();
+		iter != mImpl->mActiveSet.end(); ++iter)
+	{
+		if(!(*iter)->isRecentlyVisible())
+		{
+			killObject((*iter), delete_list);
+		}
+	}
+	for(S32 i = 0; i < delete_list.size(); i++)
+	{
+		gObjectList.killObject(delete_list[i]->getVObj());
+	}
+	delete_list.clear();
+
+	bool timeout = false;
+	S32 new_object_count = 64; //minimum number of new objects to be added
+	//add childrens of visible objects to the rendering pipeline
+	for(LLVOCacheEntry::vocache_entry_set_t::iterator iter = mImpl->mVisibleEntries.begin(); iter != mImpl->mVisibleEntries.end();)
+	{
+		LLVOCacheEntry* entry = *iter;				
+		LLVOCacheEntry* child = entry->getNextChild();
+		while(child != NULL)
+		{
+			if(child->isState(LLVOCacheEntry::INACTIVE))
+			{
+				addNewObject(child);
+				
+				if(new_object_count-- < 0 && update_timer.getElapsedTimeF32() > max_update_time)
+				{
+					timeout = true;
+					break;
+				}
+			}
+			child = entry->getNextChild();
+		}
+		if(!child)
+		{
+			if(entry->isDummy())
+			{
+				mImpl->mDummyEntries.erase(entry);
+			}
+
+			iter = mImpl->mVisibleEntries.erase(iter);
+		}
+		else
+		{
+			break; //timeout
+		}
+	}
+	if(timeout)
+	{
+		mImpl->mVisibleGroups.clear();
+		return did_update;
+	}
+
+	//add objects in the visible groups to the rendering pipeline
+	std::set< LLSpatialGroup* >::iterator group_iter = mImpl->mVisibleGroups.begin();
+	while(group_iter != mImpl->mVisibleGroups.end())
+	{
+		LLSpatialGroup* group = *group_iter;
+		if(!group->getOctreeNode() || group->isEmpty())
+		{
+			mImpl->mVisibleGroups.erase(group_iter);
+			group_iter = mImpl->mVisibleGroups.begin();
+			continue;
+		}
+
+		std::vector<LLViewerOctreeEntry*> entry_list;
+		for (LLSpatialGroup::element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
+		{
+			//group data contents could change during creating new objects, so copy all contents first.
+			entry_list.push_back(*i);
+		}
+		
+		for(S32 i = 0; i < entry_list.size(); i++)
+		{
+			LLViewerOctreeEntry* entry = entry_list[i];
+			if(entry && entry->hasVOCacheEntry())
+			{
+				LLVOCacheEntry* vo_entry = (LLVOCacheEntry*)entry->getVOCacheEntry();
+				if(vo_entry->isDummy())
+				{
+					addVisibleCacheEntry(vo_entry); //for LLSpatialBridge.
+				}
+				else if(vo_entry->isState(LLVOCacheEntry::INACTIVE))
+				{
+					addNewObject(vo_entry);
+					if(new_object_count-- < 0 && update_timer.getElapsedTimeF32() > max_update_time)
+					{
+						timeout = true;
+						break;
+					}
+				}
+			}
+		}
+		entry_list.clear();
+
+		if(timeout)
+		{
+			break;
+		}
+		mImpl->mVisibleGroups.erase(group);
+		group_iter = mImpl->mVisibleGroups.begin();
+	}
+	mImpl->mVisibleGroups.clear();
+
 	return did_update;
 }
 
+void LLViewerRegion::killObject(LLVOCacheEntry* entry, std::vector<LLDrawable*>& delete_list)
+{
+	//kill the object.
+	LLDrawable* drawablep = (LLDrawable*)entry->getEntry()->getDrawable();
+	llassert(drawablep);
+
+	if(!drawablep->getParent())
+	{
+		LLViewerObject::const_child_list_t& child_list = drawablep->getVObj()->getChildren();
+		for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+			iter != child_list.end(); iter++)
+		{
+			LLViewerObject* child = *iter;
+			if(child->mDrawable->isRecentlyVisible())
+			{
+				//set the parent group visible if any of its children visible.
+				drawablep->getSpatialGroup()->setVisible();
+				return;
+			}
+		}
+		delete_list.push_back(drawablep);				
+	}				
+}
+
+LLViewerObject* LLViewerRegion::addNewObject(LLVOCacheEntry* entry)
+{
+	LLViewerObject* obj = NULL;
+	if(!entry->getEntry()->hasDrawable()) //not added to the rendering pipeline yet
+	{
+		//add the object
+		obj = gObjectList.processObjectUpdateFromCache(entry, this);
+		if(obj)
+		{
+			if(!entry->isState(LLVOCacheEntry::ACTIVE))
+			{
+				mImpl->mWaitingSet.insert(entry);
+				entry->setState(LLVOCacheEntry::WAITING);
+			}
+		}
+	}
+	else
+	{
+		llerrs << "Object is already created." << llendl;
+	}
+	return obj;
+}
 
 // As above, but forcibly do the update.
 void LLViewerRegion::forceUpdate()
@@ -1191,8 +1555,9 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLViewerObjec
 {
 	U32 local_id = objectp->getLocalID();
 	U32 crc = objectp->getCRC();
+	eCacheUpdateResult result;
 
-	LLVOCacheEntry* entry = get_if_there(mImpl->mCacheMap, local_id, (LLVOCacheEntry*)NULL);
+	LLVOCacheEntry* entry = getCacheEntry(local_id);
 
 	if (entry)
 	{
@@ -1201,32 +1566,70 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLViewerObjec
 		{
 			// Record a hit
 			entry->recordDupe();
-			return CACHE_UPDATE_DUPE;
+			result = CACHE_UPDATE_DUPE;
 		}
+		else
+		{
+			// Update the cache entry
+			LLPointer<LLVOCacheEntry> new_entry = new LLVOCacheEntry(local_id, crc, dp);
+			replaceCacheEntry(entry, new_entry);
+			entry = new_entry;
 
-		// Update the cache entry
-		mImpl->mCacheMap.erase(local_id);
-		delete entry;
-		entry = new LLVOCacheEntry(local_id, crc, dp);
-		mImpl->mCacheMap[local_id] = entry;
-		return CACHE_UPDATE_CHANGED;
+			result = CACHE_UPDATE_CHANGED;
+		}
 	}
-
-	// we haven't seen this object before
-
-	// Create new entry and add to map
-	eCacheUpdateResult result = CACHE_UPDATE_ADDED;
-	if (mImpl->mCacheMap.size() > MAX_OBJECT_CACHE_ENTRIES)
+	else
 	{
-		delete mImpl->mCacheMap.begin()->second ;
-		mImpl->mCacheMap.erase(mImpl->mCacheMap.begin());
-		result = CACHE_UPDATE_REPLACED;
-		
-	}
-	entry = new LLVOCacheEntry(local_id, crc, dp);
+		// we haven't seen this object before
+		// Create new entry and add to map
+		result = CACHE_UPDATE_ADDED;
+		//if (mImpl->mCacheMap.size() > MAX_OBJECT_CACHE_ENTRIES)
+		//{
+		//	delete mImpl->mCacheMap.begin()->second ;
+		//	mImpl->mCacheMap.erase(mImpl->mCacheMap.begin());
+		//	result = CACHE_UPDATE_REPLACED;
+		//
+		//}
+		entry = new LLVOCacheEntry(local_id, crc, dp);
 
-	mImpl->mCacheMap[local_id] = entry;
+		mImpl->mCacheMap[local_id] = entry;
+	}
+
+	if(objectp->mDrawable.notNull() && !entry->getEntry())
+	{
+		entry->setOctreeEntry(objectp->mDrawable->getEntry());
+	}
+	if(entry->getEntry() && entry->getEntry()->hasDrawable() && entry->isState(LLVOCacheEntry::INACTIVE))
+	{
+		addActiveCacheEntry(entry);
+	}
+
 	return result;
+}
+
+LLVOCacheEntry* LLViewerRegion::getCacheEntryForOctree(U32 local_id)
+{
+	static BOOL vo_cache_culling_enabled = gSavedSettings.getBOOL("ObjectCacheViewCullingEnabled");
+
+	if(!vo_cache_culling_enabled)
+	{
+		return NULL;
+	}
+
+	LLVOCacheEntry* entry = getCacheEntry(local_id);
+	removeFromVOCacheTree(entry);
+
+	return entry;
+}
+
+LLVOCacheEntry* LLViewerRegion::getCacheEntry(U32 local_id)
+{
+	LLVOCacheEntry::vocache_entry_map_t::iterator iter = mImpl->mCacheMap.find(local_id);
+	if(iter != mImpl->mCacheMap.end())
+	{
+		return iter->second;
+	}
+	return NULL;
 }
 
 // Get data packer for this object, if we have cached data
@@ -1235,7 +1638,7 @@ LLDataPacker *LLViewerRegion::getDP(U32 local_id, U32 crc, U8 &cache_miss_type)
 {
 	//llassert(mCacheLoaded);  This assert failes often, changing to early-out -- davep, 2010/10/18
 
-	LLVOCacheEntry* entry = get_if_there(mImpl->mCacheMap, local_id, (LLVOCacheEntry*)NULL);
+	LLVOCacheEntry* entry = getCacheEntry(local_id);
 
 	if (entry)
 	{
@@ -1244,20 +1647,21 @@ LLDataPacker *LLViewerRegion::getDP(U32 local_id, U32 crc, U8 &cache_miss_type)
 		{
 			// Record a hit
 			entry->recordHit();
-		cache_miss_type = CACHE_MISS_TYPE_NONE;
+			cache_miss_type = CACHE_MISS_TYPE_NONE;
+
 			return entry->getDP(crc);
 		}
 		else
 		{
 			// llinfos << "CRC miss for " << local_id << llendl;
-		cache_miss_type = CACHE_MISS_TYPE_CRC;
+			cache_miss_type = CACHE_MISS_TYPE_CRC;
 			mCacheMissCRC.put(local_id);
 		}
 	}
 	else
 	{
 		// llinfos << "Cache miss for " << local_id << llendl;
-	cache_miss_type = CACHE_MISS_TYPE_FULL;
+		cache_miss_type = CACHE_MISS_TYPE_FULL;
 		mCacheMissFull.put(local_id);
 	}
 

@@ -583,6 +583,7 @@ set(viewer_SOURCE_FILES
     llviewernetwork.cpp
     llviewerobject.cpp
     llviewerobjectlist.cpp
+	llvieweroctree.cpp
     llviewerparcelmedia.cpp
     llviewerparcelmediaautoplay.cpp
     llviewerparcelmgr.cpp
@@ -1148,6 +1149,7 @@ set(viewer_HEADER_FILES
     llviewernetwork.h
     llviewerobject.h
     llviewerobjectlist.h
+	llvieweroctree.h
     llviewerparcelmedia.h
     llviewerparcelmediaautoplay.h
     llviewerparcelmgr.h

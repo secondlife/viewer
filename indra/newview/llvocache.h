@@ -31,34 +31,57 @@
 #include "lldatapacker.h"
 #include "lldlinked.h"
 #include "lldir.h"
-
+#include "llvieweroctree.h"
 
 //---------------------------------------------------------------------------
 // Cache entries
 class LLVOCacheEntry;
 
-class LLVOCacheEntry
+class LLVOCacheEntry : public LLViewerOctreeEntryData
 {
+public:
+	enum
+	{
+		INACTIVE = 0,
+		WAITING,
+		ACTIVE
+	};
+
+protected:
+	~LLVOCacheEntry();
 public:
 	LLVOCacheEntry(U32 local_id, U32 crc, LLDataPackerBinaryBuffer &dp);
 	LLVOCacheEntry(LLAPRFile* apr_file);
-	LLVOCacheEntry();
-	~LLVOCacheEntry();
+	LLVOCacheEntry();	
+
+	void setState(U32 state) {mState = state;}
+	bool isState(U32 state)  {return mState == state;}
+	U32  getState() const    {return mState;}
 
 	U32 getLocalID() const			{ return mLocalID; }
 	U32 getCRC() const				{ return mCRC; }
 	S32 getHitCount() const			{ return mHitCount; }
 	S32 getCRCChangeCount() const	{ return mCRCChangeCount; }
+	S32 getMinVisFrameRange()const;
 
 	void dump() const;
 	BOOL writeToFile(LLAPRFile* apr_file) const;
 	void assignCRC(U32 crc, LLDataPackerBinaryBuffer &dp);
 	LLDataPackerBinaryBuffer *getDP(U32 crc);
+	LLDataPackerBinaryBuffer *getDP();
 	void recordHit();
 	void recordDupe() { mDupeCount++; }
+	
+	/*virtual*/ void setOctreeEntry(LLViewerOctreeEntry* entry);
+
+	void addChild(LLVOCacheEntry* entry);
+	LLVOCacheEntry* getNextChild();
+	S32 getNumOfChildren() {return mChildrenList.size();}
+	bool isDummy() {return !mBuffer;}
 
 public:
-	typedef std::map<U32, LLVOCacheEntry*>	vocache_entry_map_t;
+	typedef std::map<U32, LLPointer<LLVOCacheEntry> >	vocache_entry_map_t;
+	typedef std::set<LLVOCacheEntry*>                   vocache_entry_set_t;
 
 protected:
 	U32							mLocalID;
@@ -68,6 +91,9 @@ protected:
 	S32							mCRCChangeCount;
 	LLDataPackerBinaryBuffer	mDP;
 	U8							*mBuffer;
+
+	U32                         mState;
+	std::vector<LLVOCacheEntry*> mChildrenList; //children entries in a linked set.
 };
 
 //
