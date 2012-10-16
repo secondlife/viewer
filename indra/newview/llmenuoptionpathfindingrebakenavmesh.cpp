@@ -1,6 +1,6 @@
 /** 
-* @file llpanelpathfindingrebakenavmesh.cpp
-* @brief Implementation of llpanelpathfindingrebakenavmesh
+* @file llmenuoptionpathfindingrebakenavmesh.cpp
+* @brief Implementation of llmenuoptionpathfindingrebakenavmesh
 * @author Prep@lindenlab.com
 *
 * $LicenseInfo:firstyear=2012&license=viewerlgpl$
@@ -28,7 +28,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llpanelpathfindingrebakenavmesh.h"
+#include "llmenuoptionpathfindingrebakenavmesh.h"
 
 #include <boost/bind.hpp>
 #include <boost/signals2.hpp>

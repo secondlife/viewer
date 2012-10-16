@@ -51,12 +51,12 @@
 #include "llhomelocationresponder.h"
 #include "llhudmanager.h"
 #include "lljoystickbutton.h"
+#include "llmenuoptionpathfindingrebakenavmesh.h"
 #include "llmorphview.h"
 #include "llmoveview.h"
 #include "llnavigationbar.h" // to show/hide navigation bar when changing mouse look state
 #include "llnearbychatbar.h"
 #include "llnotificationsutil.h"
-#include "llpanelpathfindingrebakenavmesh.h"
 #include "llpaneltopinfobar.h"
 #include "llparcel.h"
 #include "llrendersphere.h"

@@ -1,6 +1,6 @@
 /** 
-* @file   llpanelpathfindingrebakenavmesh.h
-* @brief  Header file for llpanelpathfindingrebakenavmesh
+* @file   llmenuoptionpathfindingrebakenavmesh.h
+* @brief  Header file for llmenuoptionpathfindingrebakenavmesh
 * @author Prep@lindenlab.com
 *
 * $LicenseInfo:firstyear=2012&license=viewerlgpl$
