@@ -258,6 +258,8 @@ protected:
 	void setSpeakerNotInChannel(LLSpeaker* speackerp);
 	bool removeSpeaker(const LLUUID& speaker_id);
 
+	void updateSession();
+
 	typedef std::map<LLUUID, LLPointer<LLSpeaker> > speaker_map_t;
 	speaker_map_t		mSpeakers;
 

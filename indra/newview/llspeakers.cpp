@@ -257,6 +257,64 @@ bool LLSpeakersDelayActionsStorage::onTimerActionCallback(const LLUUID& speaker_
 
 
 //
+// ModerationResponder
+//
+
+class ModerationResponder : public LLHTTPClient::Responder
+{
+public:
+	ModerationResponder(const LLUUID& session_id)
+	{
+		mSessionID = session_id;
+	}
+	
+	virtual void error(U32 status, const std::string& reason)
+	{
+		llwarns << status << ": " << reason << llendl;
+		
+		if ( gIMMgr )
+		{
+			//403 == you're not a mod
+			//should be disabled if you're not a moderator
+			if ( 403 == status )
+			{
+				gIMMgr->showSessionEventError(
+											  "mute",
+											  "not_a_mod_error",
+											  mSessionID);
+			}
+			else
+			{
+				gIMMgr->showSessionEventError(
+											  "mute",
+											  "generic_request_error",
+											  mSessionID);
+			}
+		}
+	}
+	
+private:
+	LLUUID mSessionID;
+};
+
+class UpdateResponder : public LLHTTPClient::Responder
+{
+public:
+	UpdateResponder(const LLUUID& session_id)
+	{
+		mSessionID = session_id;
+	}
+	
+	virtual void error(U32 status, const std::string& reason)
+	{
+		llinfos << "Merov debug : UpdateResponder error, status = " << status << ": " << reason << llendl;
+	}
+	
+private:
+	LLUUID mSessionID;
+};
+
+//
 // LLSpeakerMgr
 //
 
@@ -483,6 +541,37 @@ void LLSpeakerMgr::updateSpeakerList()
 
 		}
 	}
+	else 
+	{
+		// Check if the list is empty, except if it's Nearby Chat (session_id NULL).
+		LLUUID session_id = getSessionID();
+		if ((mSpeakers.size() == 0) && (!session_id.isNull()))
+		{
+			llinfos << "Merov debug : LLSpeakerMgr::updateSpeakerList: No speakers in " << session_id << llendl;
+			// MAINT-1551 : If the list is empty for too long, we should send a message to the sim so that
+			// it sends the participant list again.
+			updateSession();
+		}
+	}
+}
+
+void LLSpeakerMgr::updateSession()
+{
+	std::string url = gAgent.getRegion()->getCapability("ChatSessionRequest");
+	LLSD data;
+	data["method"] = "accept invitation";
+//	data["method"] = "session update";
+	data["session-id"] = getSessionID();
+//	data["params"] = LLSD::emptyMap();
+	
+//	data["params"]["update_info"] = LLSD::emptyMap();
+	
+//	data["params"]["update_info"]["moderated_mode"] = LLSD::emptyMap();
+//	data["params"]["update_info"]["moderated_mode"]["voice"] = false;
+	
+	llinfos << "Merov debug : viewer->sim : LLSpeakerMgr::updateSession, session id = " << getSessionID() << ", data = " << LLSDOStreamer<LLSDNotationFormatter>(data) << llendl;
+
+	LLHTTPClient::post(url, data, new UpdateResponder(getSessionID()));
 }
 
 void LLSpeakerMgr::setSpeakerNotInChannel(LLSpeaker* speakerp)
@@ -735,43 +824,6 @@ void LLIMSpeakerMgr::updateSpeakers(const LLSD& update)
 		}
 	}
 }
-
-class ModerationResponder : public LLHTTPClient::Responder
-{
-public:
-	ModerationResponder(const LLUUID& session_id)
-	{
-		mSessionID = session_id;
-	}
-
-	virtual void error(U32 status, const std::string& reason)
-	{
-		llwarns << status << ": " << reason << llendl;
-
-		if ( gIMMgr )
-		{
-			//403 == you're not a mod
-			//should be disabled if you're not a moderator
-			if ( 403 == status )
-			{
-				gIMMgr->showSessionEventError(
-					"mute",
-					"not_a_mod_error",
-					mSessionID);
-			}
-			else
-			{
-				gIMMgr->showSessionEventError(
-					"mute",
-					"generic_request_error",
-					mSessionID);
-			}
-		}
-	}
-
-private:
-	LLUUID mSessionID;
-};
 
 void LLIMSpeakerMgr::toggleAllowTextChat(const LLUUID& speaker_id)
 {
