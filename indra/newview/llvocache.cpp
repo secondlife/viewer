@@ -170,7 +170,7 @@ void LLVOCacheEntry::setOctreeEntry(LLViewerOctreeEntry* entry)
 //virtual 
 S32  LLVOCacheEntry::getMinVisFrameRange()const
 {
-	const S32 MIN_RANGE = 128; //frames
+	const S32 MIN_RANGE = 64; //frames
 
 	return MIN_RANGE;
 }

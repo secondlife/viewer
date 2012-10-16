@@ -1066,7 +1066,7 @@ void LLViewerRegion::killObject(LLVOCacheEntry* entry, std::vector<LLDrawable*>&
 			if(child->mDrawable->isRecentlyVisible())
 			{
 				//set the parent group visible if any of its children visible.
-				drawablep->getSpatialGroup()->setVisible();
+				((LLViewerOctreeEntryData*)drawablep)->setVisible();
 				return;
 			}
 		}
