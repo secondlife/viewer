@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <toggleable_menu name="save_outfit_menu">
 	<menu_item_call label="儲存" name="save_outfit"/>
-	<menu_item_call label="另存" name="save_as_new_outfit"/>
+	<menu_item_call label="另存為" name="save_as_new_outfit"/>
 </toggleable_menu>

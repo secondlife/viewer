@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="inspect" title="INSPECT OBJECTS">
+<floater name="inspect" title="檢視物件">
 	<floater.string name="timeStamp">
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
 	</floater.string>
-	<scroll_list name="object_list" tool_tip="Select an object from this list to highlight it in-world">
+	<scroll_list name="object_list" tool_tip="從清單中選取一物件，在虛擬世界中加以高亮顯示。">
 		<scroll_list.columns label="物件名稱" name="object_name"/>
-		<scroll_list.columns label="擁有者名稱" name="owner_name"/>
+		<scroll_list.columns label="所有人名稱" name="owner_name"/>
 		<scroll_list.columns label="創造者名稱" name="creator_name"/>
 		<scroll_list.columns label="創造日期" name="creation_date"/>
 	</scroll_list>
-	<button label="察看擁有者檔案..." name="button owner" tool_tip="See profile of the highlighted object&apos;s owner"/>
-	<button label="察看創造者檔案..." name="button creator" tool_tip="See profile of the highlighted object&apos;s original creator"/>
+	<button label="察看所有人檔案..." name="button owner" tool_tip="察看高亮顯示的物件的物主個人檔案"/>
+	<button label="察看創造人檔案..." name="button creator" tool_tip="察看高亮顯示的物件的原創人個人檔案"/>
 </floater>

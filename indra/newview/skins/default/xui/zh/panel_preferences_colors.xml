@@ -3,12 +3,12 @@
 	<text name="effects_color_textbox">
 		我的效果（選擇指標）：
 	</text>
-	<color_swatch name="effect_color_swatch" tool_tip="點擊以開啟顏色挑選器"/>
+	<color_swatch name="effect_color_swatch" tool_tip="點按以開啟顏色挑選器"/>
 	<text name="font_colors">
 		聊天字型顏色：
 	</text>
 	<text name="text_box1">
-		自己
+		我自己
 	</text>
 	<text name="text_box2">
 		其他人
@@ -22,11 +22,14 @@
 	<text name="text_box5">
 		錯誤
 	</text>
+	<text name="text_box10">
+		直接
+	</text>
 	<text name="text_box7">
-		擁有者
+		所有人
 	</text>
 	<text name="text_box9">
-		URLs
+		URL
 	</text>
 	<text name="bubble_chat">
 		名稱標籤背景色（亦會影響聊天泡泡）：

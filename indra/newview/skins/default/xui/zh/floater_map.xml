@@ -1,36 +1,36 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Map" title="">
 	<floater.string name="ToolTipMsg">
-		[REGION](Double-click to open Map, shift-drag to pan)
+		[REGION]（雙擊以開啟地圖，按下 shift 鍵拖曳來平移）
 	</floater.string>
 	<floater.string name="AltToolTipMsg">
-		[REGION](Double-click to teleport, shift-drag to pan)
+		[REGION]（雙擊以瞬間傳送，按下 shift 鍵拖曳來平移）
 	</floater.string>
 	<floater.string name="mini_map_caption">
-		MINIMAP
+		迷你地圖
 	</floater.string>
-	<text label="N" name="floater_map_north">
-		N
+	<text label="北" name="floater_map_north">
+		北
 	</text>
 	<text label="E" name="floater_map_east">
 		E
 	</text>
-	<text label="W" name="floater_map_west">
-		W
+	<text label="西" name="floater_map_west">
+		西
 	</text>
-	<text label="S" name="floater_map_south">
-		S
+	<text label="南" name="floater_map_south">
+		南
 	</text>
-	<text label="SE" name="floater_map_southeast">
-		SE
+	<text label="東南" name="floater_map_southeast">
+		東南
 	</text>
-	<text label="NE" name="floater_map_northeast">
-		NE
+	<text label="東北" name="floater_map_northeast">
+		東北
 	</text>
-	<text label="SW" name="floater_map_southwest">
-		SW
+	<text label="西南" name="floater_map_southwest">
+		西南
 	</text>
-	<text label="NW" name="floater_map_northwest">
-		NW
+	<text label="西北" name="floater_map_northwest">
+		西北
 	</text>
 </floater>

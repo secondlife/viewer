@@ -390,7 +390,7 @@ LLObjectSelectionHandle LLSelectMgr::selectObjectAndFamily(LLViewerObject* obj, 
 	// don't include an avatar.
 	LLViewerObject* root = obj;
 	
-	while(!root->isAvatar() && root->getParent() && !root->isJointChild())
+	while(!root->isAvatar() && root->getParent())
 	{
 		LLViewerObject* parent = (LLViewerObject*)root->getParent();
 		if (parent->isAvatar())
@@ -684,7 +684,7 @@ void LLSelectMgr::deselectObjectAndFamily(LLViewerObject* object, BOOL send_to_s
 		// don't include an avatar.
 		LLViewerObject* root = object;
 	
-		while(!root->isAvatar() && root->getParent() && !root->isJointChild())
+		while(!root->isAvatar() && root->getParent())
 		{
 			LLViewerObject* parent = (LLViewerObject*)root->getParent();
 			if (parent->isAvatar())
@@ -1397,7 +1397,7 @@ void LLSelectMgr::promoteSelectionToRoot()
 		}
 
 		LLViewerObject* parentp = object;
-		while(parentp->getParent() && !(parentp->isRootEdit() || parentp->isJointChild()))
+		while(parentp->getParent() && !(parentp->isRootEdit()))
 		{
 			parentp = (LLViewerObject*)parentp->getParent();
 		}
@@ -4474,8 +4474,7 @@ struct LLSelectMgrApplyFlags : public LLSelectedObjectFunctor
 	virtual bool apply(LLViewerObject* object)
 	{
 		if ( object->permModify() &&	// preemptive permissions check
-			 object->isRoot() &&		// don't send for child objects
-			 !object->isJointChild())
+			 object->isRoot()) 		// don't send for child objects
 		{
 			object->setFlags( mFlags, mState);
 		}
@@ -6330,8 +6329,6 @@ void LLSelectMgr::updateSelectionCenter()
 		// matches the root prim's (affecting the orientation of the manipulators). 
 		bbox.addBBoxAgent( (mSelectedObjects->getFirstRootObject(TRUE))->getBoundingBoxAgent() ); 
 	                 
-		std::vector < LLViewerObject *> jointed_objects;
-
 		for (LLObjectSelection::iterator iter = mSelectedObjects->begin();
 			 iter != mSelectedObjects->end(); iter++)
 		{
@@ -6349,11 +6346,6 @@ void LLSelectMgr::updateSelectionCenter()
 			}
 
 			bbox.addBBoxAgent( object->getBoundingBoxAgent() );
-
-			if (object->isJointChild())
-			{
-				jointed_objects.push_back(object);
-			}
 		}
 		
 		LLVector3 bbox_center_agent = bbox.getCenterAgent();
@@ -6643,19 +6635,19 @@ void LLSelectMgr::setAgentHUDZoom(F32 target_zoom, F32 current_zoom)
 bool LLObjectSelection::is_root::operator()(LLSelectNode *node)
 {
 	LLViewerObject* object = node->getObject();
-	return (object != NULL) && !node->mIndividualSelection && (object->isRootEdit() || object->isJointChild());
+	return (object != NULL) && !node->mIndividualSelection && (object->isRootEdit());
 }
 
 bool LLObjectSelection::is_valid_root::operator()(LLSelectNode *node)
 {
 	LLViewerObject* object = node->getObject();
-	return (object != NULL) && node->mValid && !node->mIndividualSelection && (object->isRootEdit() || object->isJointChild());
+	return (object != NULL) && node->mValid && !node->mIndividualSelection && (object->isRootEdit());
 }
 
 bool LLObjectSelection::is_root_object::operator()(LLSelectNode *node)
 {
 	LLViewerObject* object = node->getObject();
-	return (object != NULL) && (object->isRootEdit() || object->isJointChild());
+	return (object != NULL) && (object->isRootEdit());
 }
 
 LLObjectSelection::LLObjectSelection() : 

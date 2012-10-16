@@ -3,6 +3,9 @@
 	<panel.string name="unknown">
 		(bilinmiyor)
 	</panel.string>
+	<panel.string name="unknown_multiple">
+		(bilinmiyor veya birden çok değer)
+	</panel.string>
 	<panel.string name="public">
 		(kamuya açık)
 	</panel.string>

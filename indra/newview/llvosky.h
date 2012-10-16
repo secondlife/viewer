@@ -461,7 +461,7 @@ public:
 	void cleanupGL();
 	void restoreGL();
 
-	/*virtual*/ BOOL idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
+	/*virtual*/ void idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
 	BOOL updateSky();
 	
 	// Graphical stuff for objects - maybe broken out into render class

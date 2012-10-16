@@ -151,6 +151,8 @@ public:
 
 	void		 unlinkDrawable(LLDrawable*);
 
+	static void removeMutedAVsLights(LLVOAvatar*);
+
 	// Object related methods
 	void        markVisible(LLDrawable *drawablep, LLCamera& camera);
 	void		markOccluder(LLSpatialGroup* group);
@@ -223,6 +225,7 @@ public:
 	void updateGL();
 	void rebuildPriorityGroups();
 	void rebuildGroups();
+	void clearRebuildGroups();
 
 	//calculate pixel area of given box from vantage point of given camera
 	static F32 calcPixelArea(LLVector3 center, LLVector3 size, LLCamera& camera);
@@ -382,6 +385,7 @@ private:
 	BOOL updateDrawableGeom(LLDrawable* drawable, BOOL priority);
 	void assertInitializedDoError();
 	bool assertInitialized() { const bool is_init = isInit(); if (!is_init) assertInitializedDoError(); return is_init; };
+	void connectRefreshCachedSettingsSafe(const std::string name);
 	void hideDrawable( LLDrawable *pDrawable );
 	void unhideDrawable( LLDrawable *pDrawable );
 public:

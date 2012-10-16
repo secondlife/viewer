@@ -449,6 +449,19 @@ LLPipeline::LLPipeline() :
 	mLightFunc = 0;
 }
 
+void LLPipeline::connectRefreshCachedSettingsSafe(const std::string name)
+{
+	LLPointer<LLControlVariable> cntrl_ptr = gSavedSettings.getControl(name);
+	if ( cntrl_ptr.isNull() )
+	{
+		llwarns << "Global setting name not found:" << name << llendl;
+	}
+	else
+	{
+		cntrl_ptr->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
+	}
+}
+
 void LLPipeline::init()
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE_INIT);
@@ -533,88 +546,86 @@ void LLPipeline::init()
 	//
 	// Update all settings to trigger a cached settings refresh
 	//
-
-	gSavedSettings.getControl("RenderAutoMaskAlphaDeferred")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderAutoMaskAlphaNonDeferred")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderUseFarClip")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderAvatarMaxVisible")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderDelayVBUpdate")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	
-	gSavedSettings.getControl("UseOcclusion")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	
-	gSavedSettings.getControl("VertexShaderEnable")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderAvatarVP")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("WindLightUseAtmosShaders")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderDeferred")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderDeferredSunWash")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderFSAASamples")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderResolutionDivisor")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderUIBuffer")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderShadowDetail")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderDeferredSSAO")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderShadowResolutionScale")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderLocalLights")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderDelayCreation")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderAnimateRes")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("FreezeTime")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("DebugBeaconLineWidth")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderHighlightBrightness")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderHighlightColor")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderHighlightThickness")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderSpotLightsInNondeferred")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("PreviewAmbientColor")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("PreviewDiffuse0")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("PreviewSpecular0")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("PreviewDiffuse1")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("PreviewSpecular1")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("PreviewDiffuse2")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("PreviewSpecular2")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("PreviewDirection0")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("PreviewDirection1")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("PreviewDirection2")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderGlowMinLuminance")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderGlowMaxExtractAlpha")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderGlowWarmthAmount")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderGlowLumWeights")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderGlowWarmthWeights")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderGlowResolutionPow")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderGlowIterations")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderGlowWidth")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderGlowStrength")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderDepthOfField")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("CameraFocusTransitionTime")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("CameraFNumber")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("CameraFocalLength")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("CameraFieldOfView")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderShadowNoise")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderShadowBlurSize")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderSSAOScale")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderSSAOMaxScale")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderSSAOFactor")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderSSAOEffect")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderShadowOffsetError")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderShadowBiasError")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderShadowOffset")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderShadowBias")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderSpotShadowOffset")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderSpotShadowBias")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderEdgeDepthCutoff")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderEdgeNormCutoff")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderShadowGaussian")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderShadowBlurDistFactor")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderDeferredAtmospheric")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderReflectionDetail")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderHighlightFadeTime")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderShadowClipPlanes")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderShadowOrthoClipPlanes")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderShadowNearDist")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderFarClip")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderShadowSplitExponent")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderShadowErrorCutoff")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("RenderShadowFOVCutoff")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("CameraOffset")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("CameraMaxCoF")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-	gSavedSettings.getControl("CameraDoFResScale")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
+	connectRefreshCachedSettingsSafe("RenderAutoMaskAlphaDeferred");
+	connectRefreshCachedSettingsSafe("RenderAutoMaskAlphaNonDeferred");
+	connectRefreshCachedSettingsSafe("RenderUseFarClip");
+	connectRefreshCachedSettingsSafe("RenderAvatarMaxVisible");
+	connectRefreshCachedSettingsSafe("RenderDelayVBUpdate");
+	connectRefreshCachedSettingsSafe("UseOcclusion");
+	connectRefreshCachedSettingsSafe("VertexShaderEnable");
+	connectRefreshCachedSettingsSafe("RenderAvatarVP");
+	connectRefreshCachedSettingsSafe("WindLightUseAtmosShaders");
+	connectRefreshCachedSettingsSafe("RenderDeferred");
+	connectRefreshCachedSettingsSafe("RenderDeferredSunWash");
+	connectRefreshCachedSettingsSafe("RenderFSAASamples");
+	connectRefreshCachedSettingsSafe("RenderResolutionDivisor");
+	connectRefreshCachedSettingsSafe("RenderUIBuffer");
+	connectRefreshCachedSettingsSafe("RenderShadowDetail");
+	connectRefreshCachedSettingsSafe("RenderDeferredSSAO");
+	connectRefreshCachedSettingsSafe("RenderShadowResolutionScale");
+	connectRefreshCachedSettingsSafe("RenderLocalLights");
+	connectRefreshCachedSettingsSafe("RenderDelayCreation");
+	connectRefreshCachedSettingsSafe("RenderAnimateRes");
+	connectRefreshCachedSettingsSafe("FreezeTime");
+	connectRefreshCachedSettingsSafe("DebugBeaconLineWidth");
+	connectRefreshCachedSettingsSafe("RenderHighlightBrightness");
+	connectRefreshCachedSettingsSafe("RenderHighlightColor");
+	connectRefreshCachedSettingsSafe("RenderHighlightThickness");
+	connectRefreshCachedSettingsSafe("RenderSpotLightsInNondeferred");
+	connectRefreshCachedSettingsSafe("PreviewAmbientColor");
+	connectRefreshCachedSettingsSafe("PreviewDiffuse0");
+	connectRefreshCachedSettingsSafe("PreviewSpecular0");
+	connectRefreshCachedSettingsSafe("PreviewDiffuse1");
+	connectRefreshCachedSettingsSafe("PreviewSpecular1");
+	connectRefreshCachedSettingsSafe("PreviewDiffuse2");
+	connectRefreshCachedSettingsSafe("PreviewSpecular2");
+	connectRefreshCachedSettingsSafe("PreviewDirection0");
+	connectRefreshCachedSettingsSafe("PreviewDirection1");
+	connectRefreshCachedSettingsSafe("PreviewDirection2");
+	connectRefreshCachedSettingsSafe("RenderGlowMinLuminance");
+	connectRefreshCachedSettingsSafe("RenderGlowMaxExtractAlpha");
+	connectRefreshCachedSettingsSafe("RenderGlowWarmthAmount");
+	connectRefreshCachedSettingsSafe("RenderGlowLumWeights");
+	connectRefreshCachedSettingsSafe("RenderGlowWarmthWeights");
+	connectRefreshCachedSettingsSafe("RenderGlowResolutionPow");
+	connectRefreshCachedSettingsSafe("RenderGlowIterations");
+	connectRefreshCachedSettingsSafe("RenderGlowWidth");
+	connectRefreshCachedSettingsSafe("RenderGlowStrength");
+	connectRefreshCachedSettingsSafe("RenderDepthOfField");
+	connectRefreshCachedSettingsSafe("CameraFocusTransitionTime");
+	connectRefreshCachedSettingsSafe("CameraFNumber");
+	connectRefreshCachedSettingsSafe("CameraFocalLength");
+	connectRefreshCachedSettingsSafe("CameraFieldOfView");
+	connectRefreshCachedSettingsSafe("RenderShadowNoise");
+	connectRefreshCachedSettingsSafe("RenderShadowBlurSize");
+	connectRefreshCachedSettingsSafe("RenderSSAOScale");
+	connectRefreshCachedSettingsSafe("RenderSSAOMaxScale");
+	connectRefreshCachedSettingsSafe("RenderSSAOFactor");
+	connectRefreshCachedSettingsSafe("RenderSSAOEffect");
+	connectRefreshCachedSettingsSafe("RenderShadowOffsetError");
+	connectRefreshCachedSettingsSafe("RenderShadowBiasError");
+	connectRefreshCachedSettingsSafe("RenderShadowOffset");
+	connectRefreshCachedSettingsSafe("RenderShadowBias");
+	connectRefreshCachedSettingsSafe("RenderSpotShadowOffset");
+	connectRefreshCachedSettingsSafe("RenderSpotShadowBias");
+	connectRefreshCachedSettingsSafe("RenderEdgeDepthCutoff");
+	connectRefreshCachedSettingsSafe("RenderEdgeNormCutoff");
+	connectRefreshCachedSettingsSafe("RenderShadowGaussian");
+	connectRefreshCachedSettingsSafe("RenderShadowBlurDistFactor");
+	connectRefreshCachedSettingsSafe("RenderDeferredAtmospheric");
+	connectRefreshCachedSettingsSafe("RenderReflectionDetail");
+	connectRefreshCachedSettingsSafe("RenderHighlightFadeTime");
+	connectRefreshCachedSettingsSafe("RenderShadowClipPlanes");
+	connectRefreshCachedSettingsSafe("RenderShadowOrthoClipPlanes");
+	connectRefreshCachedSettingsSafe("RenderShadowNearDist");
+	connectRefreshCachedSettingsSafe("RenderFarClip");
+	connectRefreshCachedSettingsSafe("RenderShadowSplitExponent");
+	connectRefreshCachedSettingsSafe("RenderShadowErrorCutoff");
+	connectRefreshCachedSettingsSafe("RenderShadowFOVCutoff");
+	connectRefreshCachedSettingsSafe("CameraOffset");
+	connectRefreshCachedSettingsSafe("CameraMaxCoF");
+	connectRefreshCachedSettingsSafe("CameraDoFResScale");
+	connectRefreshCachedSettingsSafe("RenderAutoHideSurfaceAreaLimit");
 	gSavedSettings.getControl("RenderAutoHideSurfaceAreaLimit")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
 }
 
@@ -720,7 +731,7 @@ void LLPipeline::destroyGL()
 	{
 		glDeleteQueriesARB(1, &mMeshDirtyQueryObject);
 		mMeshDirtyQueryObject = 0;
-}
+	}
 }
 
 static LLFastTimer::DeclareTimer FTM_RESIZE_SCREEN_TEXTURE("Resize Screen Texture");
@@ -879,7 +890,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 			U32 sun_shadow_map_width = ((U32(resX*scale)+1)&~1); // must be even to avoid a stripe in the horizontal shadow blur
 			for (U32 i = 0; i < 4; i++)
 			{
-				if (!mShadow[i].allocate(sun_shadow_map_width,U32(resY*scale), 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE)) return false;
+				if (!mShadow[i].allocate(sun_shadow_map_width,U32(resY*scale), 0, TRUE, FALSE, LLTexUnit::TT_TEXTURE)) return false;
 			}
 		}
 		else
@@ -1669,6 +1680,21 @@ void LLPipeline::unlinkDrawable(LLDrawable *drawable)
 
 }
 
+//static
+void LLPipeline::removeMutedAVsLights(LLVOAvatar* muted_avatar)
+{
+	LLFastTimer t(FTM_REMOVE_FROM_LIGHT_SET);
+	for (light_set_t::iterator iter = gPipeline.mNearbyLights.begin();
+		 iter != gPipeline.mNearbyLights.end(); iter++)
+	{
+		if (iter->drawable->getVObj()->isAttachment() && iter->drawable->getVObj()->getAvatar() == muted_avatar)
+		{
+			gPipeline.mLights.erase(iter->drawable);
+			gPipeline.mNearbyLights.erase(iter);
+		}
+	}
+}
+
 U32 LLPipeline::addObject(LLViewerObject *vobj)
 {
 	LLMemType mt_ao(LLMemType::MTYPE_PIPELINE_ADD_OBJECT);
@@ -1848,6 +1874,10 @@ void LLPipeline::updateMovedList(LLDrawable::drawable_vector_t& moved_list)
 		drawablep->clearState(LLDrawable::EARLY_MOVE | LLDrawable::MOVE_UNDAMPED);
 		if (done)
 		{
+			if (drawablep->isRoot())
+			{
+				drawablep->makeStatic();
+			}
 			drawablep->clearState(LLDrawable::ON_MOVE_LIST);
 			if (drawablep->isState(LLDrawable::ANIMATED_CHILD))
 			{ //will likely not receive any future world matrix updates
@@ -2542,6 +2572,31 @@ void LLPipeline::updateGL()
 }
 
 static LLFastTimer::DeclareTimer FTM_REBUILD_PRIORITY_GROUPS("Rebuild Priority Groups");
+
+void LLPipeline::clearRebuildGroups()
+{
+	mGroupQ1Locked = true;
+	// Iterate through all drawables on the priority build queue,
+	for (LLSpatialGroup::sg_vector_t::iterator iter = mGroupQ1.begin();
+		 iter != mGroupQ1.end(); ++iter)
+	{
+		LLSpatialGroup* group = *iter;
+		group->clearState(LLSpatialGroup::IN_BUILD_Q1);
+	}
+	mGroupQ1.clear();
+	mGroupQ1Locked = false;
+
+	mGroupQ2Locked = true;
+	for (LLSpatialGroup::sg_vector_t::iterator iter = mGroupQ2.begin();
+		 iter != mGroupQ2.end(); ++iter)
+	{
+		LLSpatialGroup* group = *iter;
+		group->clearState(LLSpatialGroup::IN_BUILD_Q2);
+	}	
+
+	mGroupQ2.clear();
+	mGroupQ2Locked = false;
+}
 
 void LLPipeline::rebuildPriorityGroups()
 {
@@ -3467,7 +3522,7 @@ void LLPipeline::postSort(LLCamera& camera)
 	rebuildPriorityGroups();
 	llpushcallstacks ;
 
-
+	
 	//build render map
 	for (LLCullResult::sg_iterator i = sCull->beginVisibleGroups(); i != sCull->endVisibleGroups(); ++i)
 	{
@@ -3539,7 +3594,7 @@ void LLPipeline::postSort(LLCamera& camera)
 			}
 		}
 	}
-		
+	
 	//flush particle VB
 	LLVOPartGroup::sVB->flush();
 
@@ -6718,9 +6773,9 @@ void LLPipeline::resetVertexBuffers(LLDrawable* drawable)
 		LLFace* facep = drawable->getFace(i);
 		if (facep)
 		{
-		facep->clearVertexBuffer();
+			facep->clearVertexBuffer();
+		}
 	}
-}
 }
 
 void LLPipeline::resetVertexBuffers()
@@ -6759,6 +6814,8 @@ void LLPipeline::doResetVertexBuffers()
 	resetDrawOrders();
 
 	gSky.resetVertexBuffers();
+
+	LLVOPartGroup::destroyGL();
 
 	if ( LLPathingLib::getInstance() )
 	{
@@ -7094,15 +7151,8 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 				}
 				else
 				{
-					LLViewerObject* obj = gAgentCamera.getFocusObject();
-					if (obj)
-					{ //focus on alt-zoom target
-						focus_point = LLVector3(gAgentCamera.getFocusGlobal()-gAgent.getRegion()->getOriginGlobal());
-					}
-					else
-					{ //focus on your avatar
-						focus_point = gAgent.getPositionAgent();
-					}
+					//focus on alt-zoom target
+					focus_point = LLVector3(gAgentCamera.getFocusGlobal()-gAgent.getRegion()->getOriginGlobal());
 				}
 			}
 
@@ -7603,7 +7653,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 
 	for (U32 i = 0; i < 4; i++)
 	{
-		channel = shader.enableTexture(LLShaderMgr::DEFERRED_SHADOW0+i, LLTexUnit::TT_RECT_TEXTURE);
+		channel = shader.enableTexture(LLShaderMgr::DEFERRED_SHADOW0+i, LLTexUnit::TT_TEXTURE);
 		stop_glerror();
 		if (channel > -1)
 		{
@@ -7613,8 +7663,8 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 			gGL.getTexUnit(channel)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 			stop_glerror();
 			
-			glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
-			glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
 			stop_glerror();
 		}
 	}
@@ -7694,13 +7744,13 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 								matrix_nondiag, matrix_nondiag, matrix_diag};
 	shader.uniformMatrix3fv(LLShaderMgr::DEFERRED_SSAO_EFFECT_MAT, 1, GL_FALSE, ssao_effect_mat);
 
-	F32 shadow_offset_error = 1.f + RenderShadowOffsetError * fabsf(LLViewerCamera::getInstance()->getOrigin().mV[2]);
-	F32 shadow_bias_error = 1.f + RenderShadowBiasError * fabsf(LLViewerCamera::getInstance()->getOrigin().mV[2]);
+	//F32 shadow_offset_error = 1.f + RenderShadowOffsetError * fabsf(LLViewerCamera::getInstance()->getOrigin().mV[2]);
+	F32 shadow_bias_error = RenderShadowBiasError * fabsf(LLViewerCamera::getInstance()->getOrigin().mV[2])/3000.f;
 
 	shader.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, mDeferredScreen.getWidth(), mDeferredScreen.getHeight());
 	shader.uniform1f(LLShaderMgr::DEFERRED_NEAR_CLIP, LLViewerCamera::getInstance()->getNear()*2.f);
-	shader.uniform1f (LLShaderMgr::DEFERRED_SHADOW_OFFSET, RenderShadowOffset*shadow_offset_error);
-	shader.uniform1f(LLShaderMgr::DEFERRED_SHADOW_BIAS, RenderShadowBias*shadow_bias_error);
+	shader.uniform1f (LLShaderMgr::DEFERRED_SHADOW_OFFSET, RenderShadowOffset); //*shadow_offset_error);
+	shader.uniform1f(LLShaderMgr::DEFERRED_SHADOW_BIAS, RenderShadowBias+shadow_bias_error);
 	shader.uniform1f(LLShaderMgr::DEFERRED_SPOT_SHADOW_OFFSET, RenderSpotShadowOffset);
 	shader.uniform1f(LLShaderMgr::DEFERRED_SPOT_SHADOW_BIAS, RenderSpotShadowBias);	
 
@@ -7991,7 +8041,7 @@ void LLPipeline::renderDeferredLighting()
 				}
 
 				mCubeVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
-
+				
 				LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 				for (LLDrawable::drawable_set_t::iterator iter = mLights.begin(); iter != mLights.end(); ++iter)
 				{
@@ -8037,7 +8087,7 @@ void LLPipeline::renderDeferredLighting()
 					}
 
 					sVisibleLightCount++;
-
+										
 					if (camera->getOrigin().mV[0] > c[0] + s + 0.2f ||
 						camera->getOrigin().mV[0] < c[0] - s - 0.2f ||
 						camera->getOrigin().mV[1] > c[1] + s + 0.2f ||
@@ -8424,9 +8474,9 @@ void LLPipeline::unbindDeferredShader(LLGLSLShader &shader)
 
 	for (U32 i = 0; i < 4; i++)
 	{
-		if (shader.disableTexture(LLShaderMgr::DEFERRED_SHADOW0+i, LLTexUnit::TT_RECT_TEXTURE) > -1)
+		if (shader.disableTexture(LLShaderMgr::DEFERRED_SHADOW0+i) > -1)
 		{
-			glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_COMPARE_MODE_ARB, GL_NONE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_NONE);
 		}
 	}
 
@@ -8843,6 +8893,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 		gGL.setColorMask(false, false);
 	
 		LLFastTimer ftm(FTM_SHADOW_SIMPLE);
+		
 		gGL.getTexUnit(0)->disable();
 		for (U32 i = 0; i < sizeof(types)/sizeof(U32); ++i)
 		{

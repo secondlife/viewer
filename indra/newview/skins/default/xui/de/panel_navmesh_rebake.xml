@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_navmesh_rebake">
+	<button label="Region neu formen" name="navmesh_btn" tool_tip="Klicken, um das Navmesh der Region neu zu formen."/>
+	<button label="Neuformen wird angefordert" name="navmesh_btn_sending" tool_tip="Anforderung zum Neuformen wird an den Server gesendet."/>
+	<button label="Region wird neu geformt" name="navmesh_btn_baking" tool_tip="Region wird neu geformt. Nach Abschluss des Vorgangs verschwindet diese Schaltfläche."/>
+</panel>

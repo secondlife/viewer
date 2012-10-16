@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="Popup">
-	<menu_item_call label="Zoom Close" name="Zoom Close"/>
-	<menu_item_call label="Zoom Medium" name="Zoom Medium"/>
-	<menu_item_call label="Zoom Far" name="Zoom Far"/>
-	<menu_item_call label="Zoom Default" name="Zoom Default"/>
+	<menu_item_call label="放大靠近" name="Zoom Close"/>
+	<menu_item_call label="遠近適距" name="Zoom Medium"/>
+	<menu_item_call label="縮小遠離" name="Zoom Far"/>
+	<menu_item_call label="縮放恢復預設" name="Zoom Default"/>
 	<menu_item_check label="旋轉地圖" name="Rotate Map"/>
 	<menu_item_check label="自動居中" name="Auto Center"/>
 	<menu_item_call label="停止追蹤" name="Stop Tracking"/>

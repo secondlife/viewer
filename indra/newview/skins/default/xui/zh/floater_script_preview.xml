@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="preview lsl text" title="SCRIPT: ROTATION SCRIPT">
+<floater name="preview lsl text" title="腳本：旋轉腳本">
 	<floater.string name="Title">
 		腳本：[NAME]
 	</floater.string>

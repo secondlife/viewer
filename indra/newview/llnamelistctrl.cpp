@@ -336,7 +336,7 @@ LLScrollListItem* LLNameListCtrl::addNameItemRow(
 				// ...schedule a callback
 				LLAvatarNameCache::get(id,
 					boost::bind(&LLNameListCtrl::onAvatarNameCache,
-						this, _1, _2));
+						this, _1, _2, item->getHandle()));
 			}
 			break;
 		}
@@ -392,7 +392,8 @@ void LLNameListCtrl::removeNameItem(const LLUUID& agent_id)
 }
 
 void LLNameListCtrl::onAvatarNameCache(const LLUUID& agent_id,
-									   const LLAvatarName& av_name)
+									   const LLAvatarName& av_name,
+									   LLHandle<LLNameListItem> item)
 {
 	std::string name;
 	if (mShortNames)
@@ -400,17 +401,14 @@ void LLNameListCtrl::onAvatarNameCache(const LLUUID& agent_id,
 	else
 		name = av_name.getCompleteName();
 
-	item_list::iterator iter;
-	for (iter = getItemList().begin(); iter != getItemList().end(); iter++)
+	LLNameListItem* list_item = item.get();
+	if (list_item && list_item->getUUID() == agent_id)
 	{
-		LLScrollListItem* item = *iter;
-		if (item->getUUID() == agent_id)
+		LLScrollListCell* cell = list_item->getColumn(mNameColumnIndex);
+		if (cell)
 		{
-			LLScrollListCell* cell = item->getColumn(mNameColumnIndex);
-			if (cell)
-			{
-				cell->setValue(name);
-			}
+			cell->setValue(name);
+			setNeedsSort();
 		}
 	}
 
@@ -430,4 +428,9 @@ void LLNameListCtrl::updateColumns()
 			mNameColumnIndex = name_column->mIndex;
 		}
 	}
+}
+
+void LLNameListCtrl::sortByName(BOOL ascending)
+{
+	sortByColumnIndex(mNameColumnIndex,ascending);
 }

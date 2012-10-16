@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater label="地點" name="voice_effects" title="語音變聲">
 	<string name="no_voice_effect">
-		(No Voice Morph)
+		（無變聲效果）
 	</string>
 	<string name="active_voice_effect">
-		(Active)
+		（使用中）
 	</string>
 	<string name="unsubscribed_voice_effect">
-		(Unsubscribed)
+		（已停止訂用）
 	</string>
 	<string name="new_voice_effect">
-		(New!)
+		（新的！）
 	</string>
 	<text name="preview_text">
-		To Preview
+		預覽
 	</text>
 	<text name="status_text">
-		Record a sample, then click on a voice to hear how it will sound.
+		錄下一段樣本，再點按聲音檢查結果。
 	</text>
-	<button label="Record" name="record_btn" tool_tip="Record a sample of your voice."/>
+	<button label="錄音" name="record_btn" tool_tip="錄下一段你的聲音。"/>
 	<button label="停止" name="record_stop_btn"/>
 	<text name="voice_morphing_link">
-		[[URL] Subscribe Now]
+		[[URL] 現在訂用]
 	</text>
-	<scroll_list name="voice_effect_list" tool_tip="Record a sample of your voice, then click an effect to preview.">
+	<scroll_list name="voice_effect_list" tool_tip="錄下一段你的聲音，再點選一個效果試聽。">
 		<scroll_list.columns label="語音名稱" name="name"/>
 		<scroll_list.columns label="過期" name="expires"/>
 	</scroll_list>

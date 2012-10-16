@@ -63,27 +63,26 @@ Ses Sunucusu Sürümü: [VOICE_VERSION]
 		</panel>
 		<panel label="Lisanslar" name="licenses_panel">
 			<text_editor name="credits_editor">
-				3Dconnexion SDK Telif Hakkı (C) 1992-2007 3Dconnexion
-        APR Telif Hakkı (C) 2000-2004 The Apache Software Foundation
-        Collada DOM Telif Hakkı 2005 Sony Computer Entertainment Inc.
-        cURL Telif Hakkı (C) 1996-2002, Daniel Stenberg, (daniel@haxx.se)
+				3Dconnexion SDK Telif Hakkı (C) 1992-2009 3Dconnexion
+        APR Telif Hakkı (C) 2011 The Apache Software Foundation
+        Collada DOM Telif Hakkı 2006 Sony Computer Entertainment Inc.
+        cURL Telif Hakkı (C) 1996-2010, Daniel Stenberg, (daniel@haxx.se)
         DBus/dbus-glib Telif Hakkı (C) 2002, 2003  CodeFactory AB / Telif Hakkı (C) 2003, 2004 Red Hat, Inc.
         expat Telif Hakkı (C) 1998, 1999, 2000 Thai Open Source Software Center Ltd.
-        FreeType Telif Hakkı (C) 1996-2002, The FreeType Project (www.freetype.org).
+        FreeType Telif Hakkı (C) 1996-2002, 2006 David Turner, Robert Wilhelm ve Werner Lemberg.
         GL Telif Hakkı (C) 1999-2004 Brian Paul.
         GLOD Telif Hakkı (C) 2003-04 Jonathan Cohen, Nat Duca, Chris Niski, Johns Hopkins University ve David Luebke, Brenden Schubert, University of Virginia.
         google-perftools Telif Hakkı (c) 2005, Google Inc.
         Havok.com(TM) Telif Hakkı (C) 1999-2001, Telekinesys Research Limited.
         jpeg2000 Telif Hakkı (C) 2001, David Taubman, The University of New South Wales (UNSW)
         jpeglib Telif Hakkı (C) 1991-1998, Thomas G. Lane.
-        ogg/vorbis Telif Hakkı (C) 2001, Xiphophorus
-        OpenSSL Telif Hakkı (C) 1998-2002 The OpenSSL Project.
-        PCRE Telif Hakkı (c) 1997-2008 University of Cambridge
+        ogg/vorbis Telif Hakkı (C) 2002, Xiphophorus
+        OpenSSL Telif Hakkı (C) 1998-2008 The OpenSSL Project.
+        PCRE Telif Hakkı (c) 1997-2012 University of Cambridge
         SDL Telif Hakkı (C) 1997, 1998, 1999, 2000, 2001, 2002 Sam Lantinga
         SSLeay Telif Hakkı (C) 1995-1998 Eric Young (eay@cryptsoft.com)
         xmlrpc-epi Telif Hakkı (C) 2000 Epinions, Inc.
-        zlib Telif Hakkı (C) 1995-2002 Jean-loup Gailly ve Mark Adler.
-        google-perftools Telif Hakkı (c) 2005, Google Inc.
+        zlib Telif Hakkı (C) 1995-2012 Jean-loup Gailly ve Mark Adler.
 
         Second Life Görüntüleyicisi Havok (TM) Fizik motorunu kullanmaktadır. (c)Telif Hakkı 1999-2010 Havok.com Inc. (ve Lisans Verenleri). Tüm Hakları Saklıdır. Ayrıntılı bilgi için bkz. www.havok.com
 
