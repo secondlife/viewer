@@ -2,7 +2,7 @@
 <floater
  legacy_header_height="18"
  can_resize="true"
- height="350"
+ height="372"
  layout="topleft"
  min_height="300"
  min_width="450"
@@ -21,10 +21,6 @@
     <floater.string
      name="scripts_score_label">
         Time
-    </floater.string>
-    <floater.string
-     name="scripts_mono_time_label">
-        Mono Time
     </floater.string>
     <floater.string
      name="top_colliders_title">
@@ -68,31 +64,35 @@
         <scroll_list.columns
          label="Score"
          name="score"
-         width="55" />
+         width="45" />
         <scroll_list.columns
          label="Name"
          name="name"
-         width="140" />
+         width="130" />
         <scroll_list.columns
          label="Owner"
          name="owner"
-         width="105" />
+         width="100" />
         <scroll_list.columns
          label="Location"
          name="location"
-         width="130" />
+         width="120" />
+        <scroll_list.columns
+         label="Parcel"
+         name="parcel"
+         width="120" />
         <scroll_list.columns
          label="Time"
          name="time"
-         width="150" />
-        <scroll_list.columns
-         label="Mono Time"
-         name="mono_time"
-         width="100" />
+         width="130" />
           <scroll_list.columns
           	label="URLs"
           	name="URLs"
-          	width="100" />
+         width="40" />
+        <scroll_list.columns
+         label="Memory (KB)"
+         name="memory"
+         width="40" />
 		<scroll_list.commit_callback
           function="TopObjects.CommitObjectsList" />
     </scroll_list>
@@ -192,6 +192,38 @@
      width="100">
       <button.commit_callback
           function="TopObjects.GetByOwnerName" />
+    </button>
+    <text
+     type="string"
+     length="1"
+     follows="left|bottom"
+     height="20"
+     layout="topleft"
+     left="10"
+     top_pad="5"
+     name="parcel_name_text"
+     width="107">
+        Parcel:
+    </text>
+    <line_editor
+     follows="left|bottom|right"
+     height="20"
+     layout="topleft"
+     left_pad="3"
+     name="parcel_name_editor"
+     top_delta="-3"
+     width="568" />
+    <button
+     follows="bottom|right"
+     height="23"
+     label="Filter"
+     layout="topleft"
+     left_pad="5"
+     name="filter_parcel_btn"
+     top_delta="0"
+     width="100">
+      <button.commit_callback
+          function="TopObjects.GetByParcelName" />
     </button>
     <button
      follows="bottom|right"

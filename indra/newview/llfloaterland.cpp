@@ -2212,8 +2212,8 @@ void LLPanelLandOptions::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	BOOL allow_damage		= !self->mCheckSafe->get();
 	BOOL allow_fly			= self->mCheckFly->get();
 	BOOL allow_landmark		= TRUE; // cannot restrict landmark creation
-	BOOL allow_group_scripts	= self->mCheckGroupScripts->get() || self->mCheckOtherScripts->get();
 	BOOL allow_other_scripts	= self->mCheckOtherScripts->get();
+	BOOL allow_group_scripts	= self->mCheckGroupScripts->get() || allow_other_scripts;
 	BOOL allow_publish		= FALSE;
 	BOOL mature_publish		= self->mMatureCtrl->get();
 	BOOL push_restriction	= self->mPushRestrictionCtrl->get();
@@ -2226,11 +2226,16 @@ void LLPanelLandOptions::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	LLViewerRegion* region;
 	region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
 
-	if (!allow_other_scripts && region && region->getAllowDamage())
-	{
-
-		LLNotificationsUtil::add("UnableToDisableOutsideScripts");
-		return;
+	if (region && region->getAllowDamage())
+	{	// Damage is allowed on the region - server will always allow scripts
+		if ( (!allow_other_scripts && parcel->getParcelFlag(PF_ALLOW_OTHER_SCRIPTS)) ||
+			 (!allow_group_scripts && parcel->getParcelFlag(PF_ALLOW_GROUP_SCRIPTS)) )
+		{	// Don't allow turning off "Run Scripts" if damage is allowed in the region
+			self->mCheckOtherScripts->set(parcel->getParcelFlag(PF_ALLOW_OTHER_SCRIPTS));	// Restore UI to actual settings
+			self->mCheckGroupScripts->set(parcel->getParcelFlag(PF_ALLOW_GROUP_SCRIPTS));
+			LLNotificationsUtil::add("UnableToDisableOutsideScripts");
+			return;
+		}
 	}
 
 	// Push data into current parcel
@@ -2357,12 +2362,6 @@ LLPanelLandAccess::~LLPanelLandAccess()
 void LLPanelLandAccess::refresh()
 {
 	LLFloater* parent_floater = gFloaterView->getParentFloater(this);
-	
-	if (mListAccess)
-		mListAccess->deleteAllItems();
-	if (mListBanned)
-		mListBanned->deleteAllItems();
-	
 	LLParcel *parcel = mParcel->getParcel();
 		
 	// Display options
@@ -2380,7 +2379,11 @@ void LLPanelLandAccess::refresh()
 		getChild<LLUICtrl>("GroupCheck")->setLabelArg("[GROUP]", group_name );
 		
 		// Allow list
+		if (mListAccess)
 		{
+			// Clear the sort order so we don't re-sort on every add.
+			mListAccess->clearSortOrder();
+			mListAccess->deleteAllItems();
 			S32 count = parcel->mAccessList.size();
 			getChild<LLUICtrl>("AccessList")->setToolTipArg(LLStringExplicit("[LISTED]"), llformat("%d",count));
 			getChild<LLUICtrl>("AccessList")->setToolTipArg(LLStringExplicit("[MAX]"), llformat("%d",PARCEL_MAX_ACCESS_LIST));
@@ -2415,13 +2418,17 @@ void LLPanelLandAccess::refresh()
 					}
 					suffix.append(" " + parent_floater->getString("Remaining") + ")");
 				}
-				if (mListAccess)
-					mListAccess->addNameItem(entry.mID, ADD_DEFAULT, TRUE, suffix);
+				mListAccess->addNameItem(entry.mID, ADD_DEFAULT, TRUE, suffix);
 			}
+			mListAccess->sortByName(TRUE);
 		}
 		
 		// Ban List
+		if(mListBanned)
 		{
+			// Clear the sort order so we don't re-sort on every add.
+			mListBanned->clearSortOrder();
+			mListBanned->deleteAllItems();
 			S32 count = parcel->mBanList.size();
 
 			getChild<LLUICtrl>("BannedList")->setToolTipArg(LLStringExplicit("[LISTED]"), llformat("%d",count));
@@ -2459,6 +2466,7 @@ void LLPanelLandAccess::refresh()
 				}
 				mListBanned->addNameItem(entry.mID, ADD_DEFAULT, TRUE, suffix);
 			}
+			mListBanned->sortByName(TRUE);
 		}
 
 		if(parcel->getRegionDenyAnonymousOverride())
@@ -2594,13 +2602,13 @@ void LLPanelLandAccess::refresh_ui()
 		getChildView("AccessList")->setEnabled(can_manage_allowed);
 		S32 allowed_list_count = parcel->mAccessList.size();
 		getChildView("add_allowed")->setEnabled(can_manage_allowed && allowed_list_count < PARCEL_MAX_ACCESS_LIST);
-		BOOL has_selected = mListAccess->getSelectionInterface()->getFirstSelectedIndex() >= 0;
+		BOOL has_selected = (mListAccess && mListAccess->getSelectionInterface()->getFirstSelectedIndex() >= 0);
 		getChildView("remove_allowed")->setEnabled(can_manage_allowed && has_selected);
 		
 		getChildView("BannedList")->setEnabled(can_manage_banned);
 		S32 banned_list_count = parcel->mBanList.size();
 		getChildView("add_banned")->setEnabled(can_manage_banned && banned_list_count < PARCEL_MAX_ACCESS_LIST);
-		has_selected = mListBanned->getSelectionInterface()->getFirstSelectedIndex() >= 0;
+		has_selected = (mListBanned && mListBanned->getSelectionInterface()->getFirstSelectedIndex() >= 0);
 		getChildView("remove_banned")->setEnabled(can_manage_banned && has_selected);
 	}
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="outgoing call" title="CALLING">
+<floater name="outgoing call" title="打電話">
 	<floater.string name="lifetime">
 		5
 	</floater.string>
@@ -10,31 +10,31 @@
 		匿名
 	</floater.string>
 	<floater.string name="VoiceInviteP2P">
-		通話中。
+		來電中。
 	</floater.string>
 	<floater.string name="VoiceInviteAdHoc">
-		has joined a Voice Chat call with a conference chat.
+		已加入多方語音通話。
 	</floater.string>
 	<text name="connecting">
-		Connecting to [CALLEE_NAME]
+		正在連通 [CALLEE_NAME]
 	</text>
 	<text name="calling">
-		Calling [CALLEE_NAME]
+		正在打給 [CALLEE_NAME]
 	</text>
 	<text name="noanswer">
-		無應答，請稍候再試。
+		無人接聽。  請稍候再試一次。
 	</text>
 	<text name="nearby">
-		You have been disconnected from [VOICE_CHANNEL_NAME].  [RECONNECT_NEARBY]
+		你的 [VOICE_CHANNEL_NAME] 通話已經中斷。  [RECONNECT_NEARBY]
 	</text>
 	<text name="nearby_P2P_by_other">
-		Your call has ended.  [RECONNECT_NEARBY]
+		你的通話已經結束。  [RECONNECT_NEARBY]
 	</text>
 	<text name="nearby_P2P_by_agent">
-		You have ended the call.  [RECONNECT_NEARBY]
+		你已經結束通話。  [RECONNECT_NEARBY]
 	</text>
 	<text name="leaving">
-		Leaving [CURRENT_CHAT].
+		離開 [CURRENT_CHAT]。
 	</text>
 	<button label="取消" label_selected="取消" name="Cancel"/>
 </floater>

@@ -27,6 +27,7 @@
 		<menu_item_call label="Preferencias..." name="Preferences"/>
 		<menu_item_call label="Botones de la barra de herramientas..." name="Toolbars"/>
 		<menu_item_call label="Ocultar todos los controles" name="Hide UI"/>
+		<menu_item_check label="Mostrar los HUD anexados" name="Show HUD Attachments"/>
 		<menu_item_call label="Salir de [APP_NAME]" name="Quit"/>
 	</menu>
 	<menu label="Comunicarme" name="Communicate">
@@ -38,6 +39,7 @@
 		<menu_item_call label="Amigos" name="My Friends"/>
 		<menu_item_call label="Grupos" name="My Groups"/>
 		<menu_item_call label="Gente cerca" name="Active Speakers"/>
+		<menu_item_call label="Lista de ignorados" name="Block List"/>
 	</menu>
 	<menu label="Mundo" name="World">
 		<menu_item_call label="Crear un hito de este sitio" name="Create Landmark Here"/>
@@ -123,6 +125,11 @@
 			<menu_item_call label="Definir los scripts a ejecutar" name="Set Scripts to Running"/>
 			<menu_item_call label="Configurar scripts como no ejecutándose" name="Set Scripts to Not Running"/>
 		</menu>
+		<menu label="Pathfinding" name="Pathfinding">
+			<menu_item_call label="Linksets..." name="pathfinding_linksets_menu_item"/>
+			<menu_item_call label="Personajes..." name="pathfinding_characters_menu_item"/>
+			<menu_item_call label="Ver/probar..." name="pathfinding_console_menu_item"/>
+		</menu>
 		<menu label="Opciones" name="Options">
 			<menu_item_check label="Mostrar los permisos avanzados" name="DebugPermissions"/>
 			<menu_item_check label="Seleccionar sólo mis objetos" name="Select Only My Objects"/>
@@ -173,7 +180,6 @@
 			<menu_item_check label="Ocultar las partículas" name="Hide Particles"/>
 			<menu_item_check label="Ocultar lo seleccionado" name="Hide Selected"/>
 			<menu_item_check label="Realzar las transparencias" name="Highlight Transparent"/>
-			<menu_item_check label="Mostrar los HUD anexados" name="Show HUD Attachments"/>
 			<menu_item_check label="Mostrar el Punto de Mira en la vista subjetiva" name="ShowCrosshairs"/>
 		</menu>
 		<menu label="Objetos representados" name="Rendering Types">
@@ -225,11 +231,10 @@
 			<menu_item_check label="Texture Console" name="Texture Console"/>
 			<menu_item_check label="Debug Console" name="Debug Console"/>
 			<menu_item_call label="Notifications Console" name="Notifications"/>
-			<menu_item_check label="Texture Size Console" name="Texture Size"/>
-			<menu_item_check label="Texture Category Console" name="Texture Category"/>
 			<menu_item_check label="Fast Timers" name="Fast Timers"/>
 			<menu_item_check label="Memory" name="Memory"/>
 			<menu_item_check label="Datos de la escena" name="Scene Statistics"/>
+			<menu_item_call label="Consola de depuración de obtención de texturas" name="Texture Fetch Debug Console"/>
 			<menu_item_call label="Region Info to Debug Console" name="Region Info to Debug Console"/>
 			<menu_item_check label="Camera" name="Camera"/>
 			<menu_item_check label="Wind" name="Wind"/>
@@ -270,6 +275,12 @@
 			<menu_item_check label="Complejidad del renderizado" name="rendercomplexity"/>
 			<menu_item_check label="Bytes de adjunto" name="attachment bytes"/>
 			<menu_item_check label="Esculpir" name="Sculpt"/>
+			<menu label="Densidad de textura" name="Texture Density">
+				<menu_item_check label="Ninguna" name="None"/>
+				<menu_item_check label="Actual" name="Current"/>
+				<menu_item_check label="Deseada" name="Desired"/>
+				<menu_item_check label="Completa" name="Full"/>
+			</menu>
 		</menu>
 		<menu label="Rendering" name="Rendering">
 			<menu_item_check label="Axes" name="Axes"/>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="autoreplace_floater" title="Paramètres Rechercher/Remplacer">
+	<check_box label="Activer la fonction Rechercher/Remplacer" name="autoreplace_enable" tool_tip="Lors de la saisie du texte d&apos;un chat, remplace chaque mot-clé spécifié par la valeur correspondante."/>
+	<button label="Importer une liste..." name="autoreplace_import_list" tool_tip="Charger une liste précédemment exportée à partir d&apos;un fichier."/>
+	<button label="Exporter la liste..." name="autoreplace_export_list" tool_tip="Enregistrer la liste sélectionnée dans un fichier afin de pouvoir la partager."/>
+	<button label="Nouvelle liste..." name="autoreplace_new_list" tool_tip="Créer une nouvelle liste."/>
+	<button label="Supprimer la liste" name="autoreplace_delete_list" tool_tip="Supprimer la liste sélectionnée."/>
+	<button name="autoreplace_list_up" tool_tip="Augmenter la priorité de cette liste."/>
+	<button name="autoreplace_list_down" tool_tip="Diminuer la priorité de cette liste."/>
+	<scroll_list name="autoreplace_list_replacements">
+		<scroll_list.columns label="Mot-clé" name="keyword"/>
+		<scroll_list.columns label="Remplacement" name="replacement"/>
+	</scroll_list>
+	<button label="Ajouter..." name="autoreplace_add_entry"/>
+	<button label="Supprimer" name="autoreplace_delete_entry"/>
+	<button label="Enregistrer" name="autoreplace_save_entry" tool_tip="Enregistrer cette entrée."/>
+	<button label="Enregistrer les modifications" name="autoreplace_save_changes" tool_tip="Enregistrer toutes les modifications."/>
+	<button label="Annuler" name="autoreplace_cancel" tool_tip="Ignorer toutes les modifications."/>
+</floater>
+<!--
+  <text 
+   top_pad="10"
+   left="10"
+   height="16"
+   width="260"
+   follows="left|top"
+   halign="center"
+   mouse_opaque="true"
+   name="autoreplace_text2">
+    Entries
+  </text>
+-->

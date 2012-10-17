@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_pathfinding_characters" title="Yol bulma karakterleri">
+	<floater.string name="messaging_get_inprogress">
+		Yol bulma karakterleri için sorgulama yapılıyor ...
+	</floater.string>
+	<floater.string name="messaging_get_error">
+		Yol bulma karakterleri için sorgulama yapılırken hata saptandı.
+	</floater.string>
+	<floater.string name="messaging_complete_none_found">
+		Yol bulma karakterleri yok.
+	</floater.string>
+	<floater.string name="messaging_complete_available">
+		Toplam [NUM_TOTAL] karakter içerisinden [NUM_SELECTED] adet seçildi.
+	</floater.string>
+	<floater.string name="messaging_not_enabled">
+		Bu bölgede yol bulma etkin değil.
+	</floater.string>
+	<floater.string name="character_cpu_time">
+		[CPU_TIME] µs
+	</floater.string>
+	<floater.string name="character_owner_loading">
+		[Yükleniyor]
+	</floater.string>
+	<floater.string name="character_owner_unknown">
+		[Bilinmiyor]
+	</floater.string>
+	<floater.string name="character_owner_group">
+		[grup]
+	</floater.string>
+	<panel>
+		<scroll_list name="objects_scroll_list">
+			<scroll_list.columns label="Ad" name="name"/>
+			<scroll_list.columns label="Açıklama" name="description"/>
+			<scroll_list.columns label="Sahip" name="owner"/>
+			<scroll_list.columns label="CPU" name="cpu_time"/>
+			<scroll_list.columns label="İrtifa" name="altitude"/>
+		</scroll_list>
+		<text name="messaging_status">
+			Karakterler:
+		</text>
+		<button label="Listeyi yenile" name="refresh_objects_list"/>
+		<button label="Tümünü seç" name="select_all_objects"/>
+		<button label="Hiçbirini seçme" name="select_none_objects"/>
+	</panel>
+	<panel>
+		<text name="actions_label">
+			Seçilen karakterler üzerinde eylemler:
+		</text>
+		<check_box label="İşareti göster" name="show_beacon"/>
+		<check_box label="Fizik kapsülünü göster" name="show_physics_capsule"/>
+		<button label="Al" name="take_objects"/>
+		<button label="Kopya al" name="take_copy_objects"/>
+		<button label="Beni ona ışınla" name="teleport_me_to_object" tool_tip="Sadece bir karakter seçildiğinde etkindir."/>
+		<button label="İade Et" name="return_objects"/>
+		<button label="Sil" name="delete_objects"/>
+	</panel>
+</floater>

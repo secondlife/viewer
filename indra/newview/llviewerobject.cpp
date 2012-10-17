@@ -199,6 +199,7 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mID(id),
 	mLocalID(0),
 	mTotalCRC(0),
+	mListIndex(-1),
 	mTEImages(NULL),
 	mGLName(0),
 	mbCanSelect(TRUE),
@@ -235,7 +236,7 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mNumFaces(0),
 	mTimeDilation(1.f),
 	mRotTime(0.f),
-	mJointInfo(NULL),
+	mAngularVelocityRot(),
 	mState(0),
 	mMedia(NULL),
 	mClickAction(0),
@@ -265,6 +266,7 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	{
 		mPositionAgent = mRegionp->getOriginAgent();
 	}
+	resetRot();
 
 	LLViewerObject::sNumObjects++;
 }
@@ -278,12 +280,6 @@ LLViewerObject::~LLViewerObject()
 		mInventory->clear();  // will deref and delete entries
 		delete mInventory;
 		mInventory = NULL;
-	}
-
-	if (mJointInfo)
-	{
-		delete mJointInfo;
-		mJointInfo = NULL;
 	}
 
 	if (mPartSourcep)
@@ -336,9 +332,6 @@ void LLViewerObject::markDead()
 		if (getParent())
 		{
 			((LLViewerObject *)getParent())->removeChild(this);
-			// go ahead and delete any jointinfo's that we find
-			delete mJointInfo;
-			mJointInfo = NULL;
 		}
 
 		// Mark itself as dead
@@ -448,7 +441,7 @@ void LLViewerObject::dump() const
 	/*
 	llinfos << "Velocity: " << getVelocity() << llendl;
 	llinfos << "AnyOwner: " << permAnyOwner() << " YouOwner: " << permYouOwner() << " Edit: " << mPermEdit << llendl;
-	llinfos << "UsePhysics: " << usePhysics() << " CanSelect " << mbCanSelect << " UserSelected " << mUserSelected << llendl;
+	llinfos << "UsePhysics: " << flagUsePhysics() << " CanSelect " << mbCanSelect << " UserSelected " << mUserSelected << llendl;
 	llinfos << "AppAngle: " << mAppAngle << llendl;
 	llinfos << "PixelArea: " << mPixelArea << llendl;
 
@@ -741,7 +734,7 @@ void LLViewerObject::addThisAndNonJointChildren(std::vector<LLViewerObject*>& ob
 		 iter != mChildList.end(); iter++)
 	{
 		LLViewerObject* child = *iter;
-		if ( (!child->isAvatar()) && (!child->isJointChild()))
+		if ( (!child->isAvatar()))
 		{
 			child->addThisAndNonJointChildren(objects);
 		}
@@ -791,7 +784,13 @@ BOOL LLViewerObject::setDrawableParent(LLDrawable* parentp)
 	}
 	LLDrawable* old_parent = mDrawable->mParent;
 	mDrawable->mParent = parentp; 
-		
+	
+	if (parentp && mDrawable->isActive())
+	{
+		parentp->makeActive();
+		parentp->setState(LLDrawable::ACTIVE_CHILD);
+	}
+
 	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
 	if(	(old_parent != parentp && old_parent)
 		|| (parentp && parentp->isActive()))
@@ -1292,26 +1291,6 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 						// Send an update message in case it was formerly in use
 						parameterChanged(iter->first, iter->second->data, FALSE, false);
 					}
-				}
-
-				U8 joint_type = 0;
-				mesgsys->getU8Fast(_PREHASH_ObjectData, _PREHASH_JointType, joint_type, block_num);
-				if (joint_type)
-				{
-					// create new joint info 
-					if (!mJointInfo)
-					{
-						mJointInfo = new LLVOJointInfo;
-					}
-					mJointInfo->mJointType = (EHavokJointType) joint_type;
-					mesgsys->getVector3Fast(_PREHASH_ObjectData, _PREHASH_JointPivot, mJointInfo->mPivot, block_num);
-					mesgsys->getVector3Fast(_PREHASH_ObjectData, _PREHASH_JointAxisOrAnchor, mJointInfo->mAxisOrAnchor, block_num);
-				}
-				else if (mJointInfo)
-				{
-					// this joint info is no longer needed
-					delete mJointInfo;
-					mJointInfo = NULL;
 				}
 
 				break;
@@ -1961,14 +1940,6 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 						cur_parentp->removeChild(this);
 
-						if (mJointInfo && !parent_id)
-						{
-							// since this object is no longer parent-relative
-							// we make sure we delete any joint info
-							delete mJointInfo;
-							mJointInfo = NULL;
-						}
-
 						setChanged(MOVED | SILHOUETTE);
 
 						if (mDrawable.notNull())
@@ -2067,18 +2038,24 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		}
 	}
 
-	if (new_rot != mLastRot
+	if (new_rot != getRotation()
 		|| new_angv != old_angv)
 	{
-		if (new_rot != mLastRot)
+		if (new_angv != old_angv)
 		{
-			mLastRot = new_rot;
-			setRotation(new_rot);
+			if (flagUsePhysics())
+			{
+				resetRot();
+			}
+			else
+			{
+				resetRotTime();
+			}
 		}
-		
+
+		// Set the rotation of the object followed by adjusting for the accumulated angular velocity (llSetTargetOmega)
+		setRotation(new_rot * mAngularVelocityRot);
 		setChanged(ROTATED | SILHOUETTE);
-		
-		resetRot();
 	}
 
 
@@ -2096,9 +2073,15 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		gPipeline.addDebugBlip(getPositionAgent(), color);
 	}
 
-	if ((0.0f == vel_mag_sq) && 
-		(0.0f == accel_mag_sq) &&
-		(0.0f == getAngularVelocity().magVecSquared()))
+	const F32 MAG_CUTOFF = F_APPROXIMATELY_ZERO;
+
+	llassert(vel_mag_sq >= 0.f);
+	llassert(accel_mag_sq >= 0.f);
+	llassert(getAngularVelocity().magVecSquared() >= 0.f);
+
+	if ((MAG_CUTOFF >= vel_mag_sq) && 
+		(MAG_CUTOFF >= accel_mag_sq) &&
+		(MAG_CUTOFF >= getAngularVelocity().magVecSquared()))
 	{
 		mStatic = TRUE; // This object doesn't move!
 	}
@@ -2169,117 +2152,36 @@ BOOL LLViewerObject::isActive() const
 
 
 
-BOOL LLViewerObject::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
+void LLViewerObject::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
-	static LLFastTimer::DeclareTimer ftm("Viewer Object");
-	LLFastTimer t(ftm);
+	//static LLFastTimer::DeclareTimer ftm("Viewer Object");
+	//LLFastTimer t(ftm);
 
-	if (mDead)
+	if (!mDead)
 	{
-		// It's dead.  Don't update it.
-		return TRUE;
-	}
-
-	// CRO - don't velocity interp linked objects!
-	// Leviathan - but DO velocity interp joints
-	if (!mStatic && sVelocityInterpolate && !isSelected())
-	{
-		// calculate dt from last update
-		F32 dt_raw = (F32)(time - mLastInterpUpdateSecs);
-		F32 dt = mTimeDilation * dt_raw;
-
-		if (!mJointInfo)
+		// CRO - don't velocity interp linked objects!
+		// Leviathan - but DO velocity interp joints
+		if (!mStatic && sVelocityInterpolate && !isSelected())
 		{
+			// calculate dt from last update
+			F32 dt_raw = (F32)(time - mLastInterpUpdateSecs);
+			F32 dt = mTimeDilation * dt_raw;
+
 			applyAngularVelocity(dt);
-		}
-
-		LLViewerObject *parentp = (LLViewerObject *) getParent();
-		if (mJointInfo)
-		{
-			if (parentp)
+			
+			if (isAttachment())
 			{
-				// do parent-relative stuff
-				LLVector3 ang_vel = getAngularVelocity();
-				F32 omega = ang_vel.magVecSquared();
-				F32 angle = 0.0f;
-				LLQuaternion dQ;
-				if (omega > 0.00001f)
-				{
-					omega = sqrt(omega);
-					angle = omega * dt;
-					dQ.setQuat(angle, ang_vel);
-				}
-				LLVector3 pos = getPosition();
-	
-				if (HJT_HINGE == mJointInfo->mJointType)
-				{
-					// hinge = uniform circular motion
-					LLVector3 parent_pivot = getVelocity();
-					LLVector3 parent_axis = getAcceleration();
-	
-					angle = dt * (ang_vel * mJointInfo->mAxisOrAnchor);	// AxisOrAnchor = axis
-					dQ.setQuat(angle, mJointInfo->mAxisOrAnchor);		// AxisOrAnchor = axis
-					LLVector3 pivot_offset = pos - mJointInfo->mPivot;	// pos in pivot-frame
-					pivot_offset = pivot_offset * dQ;					// new rotated pivot-frame pos
-					pos = mJointInfo->mPivot + pivot_offset;			// parent-frame
-					LLViewerObject::setPosition(pos);
-					LLQuaternion Q_PC = getRotation();
-					setRotation(Q_PC * dQ);
-					mLastInterpUpdateSecs = time;
-				}
-				else if (HJT_POINT == mJointInfo->mJointType)
-						// || HJT_LPOINT == mJointInfo->mJointType)
-				{
-					// point-to-point = spin about axis and uniform circular motion
-					// 					of axis about the pivot point
-					//
-					// NOTE: this interpolation scheme is not quite good enough to
-					// reduce the bandwidth -- needs a gravitational correction. 
-					// Similarly for hinges with axes that deviate from vertical.
-	
-					LLQuaternion Q_PC = getRotation();
-					Q_PC = Q_PC * dQ;
-					setRotation(Q_PC);
-
-					LLVector3 pivot_to_child = - mJointInfo->mAxisOrAnchor;	// AxisOrAnchor = anchor
-					pos = mJointInfo->mPivot + pivot_to_child * Q_PC;
-					LLViewerObject::setPosition(pos);
-					mLastInterpUpdateSecs = time;
-				}
-				/* else if (HJT_WHEEL == mJointInfo->mJointInfo)
-				{
-					// wheel = uniform rotation about axis, with linear
-					//		   velocity interpolation (if any)
-					LLVector3 parent_axis = getAcceleration();	// HACK -- accel stores the parent-axis (parent-frame)
-	
-					LLQuaternion Q_PC = getRotation();
-	
-					angle = dt * (parent_axis * ang_vel);
-					dQ.setQuat(angle, parent_axis);
-	
-					Q_PC = Q_PC * dQ;
-					setRotation(Q_PC);
-
-					pos = getPosition() + dt * getVelocity();
-					LLViewerObject::setPosition(pos);
-					mLastInterpUpdateSecs = time;
-				}*/
+				mLastInterpUpdateSecs = time;
+				return;
+			}
+			else
+			{	// Move object based on it's velocity and rotation
+				interpolateLinearMotion(time, dt);
 			}
 		}
-		else if (isAttachment())
-		{
-			mLastInterpUpdateSecs = time;
-			return TRUE;
-		}
-		else
-		{	// Move object based on it's velocity and rotation
-			interpolateLinearMotion(time, dt);
-		}
+
+		updateDrawable(FALSE);
 	}
-
-	updateDrawable(FALSE);
-
-	return TRUE;
 }
 
 
@@ -2957,6 +2859,21 @@ void LLViewerObject::updateInventory(
 	bool is_new)
 {
 	LLMemType mt(LLMemType::MTYPE_OBJECT);
+
+	std::list<LLUUID>::iterator begin = mPendingInventoryItemsIDs.begin();
+	std::list<LLUUID>::iterator end = mPendingInventoryItemsIDs.end();
+
+	bool is_fetching = std::find(begin, end, item->getAssetUUID()) != end;
+	bool is_fetched = getInventoryItemByAsset(item->getAssetUUID()) != NULL;
+
+	if (is_fetched || is_fetching)
+	{
+		return;
+	}
+	else
+	{
+		mPendingInventoryItemsIDs.push_back(item->getAssetUUID());
+	}
 
 	// This slices the object into what we're concerned about on the
 	// viewer. The simulator will take the permissions and transfer
@@ -3869,15 +3786,6 @@ void LLViewerObject::setPositionEdit(const LLVector3 &pos_edit, BOOL damped)
 		((LLViewerObject *)getParent())->setPositionEdit(pos_edit - position_offset);
 		updateDrawable(damped);
 	}
-	else if (isJointChild())
-	{
-		// compute new parent-relative position
-		LLViewerObject *parent = (LLViewerObject *) getParent();
-		LLQuaternion inv_parent_rot = parent->getRotation();
-		inv_parent_rot.transQuat();
-		LLVector3 pos_parent = (pos_edit - parent->getPositionRegion()) * inv_parent_rot;
-		LLViewerObject::setPosition(pos_parent, damped);
-	}
 	else
 	{
 		LLViewerObject::setPosition(pos_edit, damped);
@@ -3891,8 +3799,7 @@ LLViewerObject* LLViewerObject::getRootEdit() const
 {
 	const LLViewerObject* root = this;
 	while (root->mParent 
-		   && !(root->mJointInfo
-			   || ((LLViewerObject*)root->mParent)->isAvatar()) )
+		   && !((LLViewerObject*)root->mParent)->isAvatar()) 
 	{
 		root = (LLViewerObject*)root->mParent;
 	}
@@ -4084,38 +3991,6 @@ void LLViewerObject::sendMaterialUpdate() const
 	gMessageSystem->sendReliable( regionp->getHost() );
 
 }
-
-// formerly send_object_rotation
-void LLViewerObject::sendRotationUpdate() const
-{
-	LLViewerRegion* regionp = getRegion();
-	if(!regionp) return;
-	gMessageSystem->newMessageFast(_PREHASH_ObjectRotation);
-	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-	gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
-	gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-	gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
-	gMessageSystem->addU32Fast(_PREHASH_ObjectLocalID, mLocalID);
-	gMessageSystem->addQuatFast(_PREHASH_Rotation, getRotationEdit());
-	//llinfos << "Sent rotation " << getRotationEdit() << llendl;
-	gMessageSystem->sendReliable( regionp->getHost() );
-}
-
-/* Obsolete, we use MultipleObjectUpdate instead
-//// formerly send_object_position_global
-//void LLViewerObject::sendPositionUpdate() const
-//{
-//	gMessageSystem->newMessageFast(_PREHASH_ObjectPosition);
-//	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-//	gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
-//	gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-//	gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
-//	gMessageSystem->addU32Fast(_PREHASH_ObjectLocalID,	mLocalID );
-//	gMessageSystem->addVector3Fast(_PREHASH_Position, getPositionRegion());
-//	LLViewerRegion* regionp = getRegion();
-//	gMessageSystem->sendReliable(regionp->getHost());
-//}
-*/
 
 //formerly send_object_shape(LLViewerObject *object)
 void LLViewerObject::sendShapeUpdate()
@@ -4633,19 +4508,11 @@ void LLViewerObject::clearIcon()
 
 LLViewerObject* LLViewerObject::getSubParent() 
 { 
-	if (isJointChild())
-	{
-		return this;
-	}
 	return (LLViewerObject*) getParent();
 }
 
 const LLViewerObject* LLViewerObject::getSubParent() const
 {
-	if (isJointChild())
-	{
-		return this;
-	}
 	return (const LLViewerObject*) getParent();
 }
 
@@ -4824,9 +4691,11 @@ void LLViewerObject::deleteParticleSource()
 // virtual
 void LLViewerObject::updateDrawable(BOOL force_damped)
 {
-	if (mDrawable.notNull() && 
-		!mDrawable->isState(LLDrawable::ON_MOVE_LIST) &&
-		isChanged(MOVED))
+	if (!isChanged(MOVED))
+	{ //most common case, having an empty if case here makes for better branch prediction
+	}
+	else if (mDrawable.notNull() && 
+		!mDrawable->isState(LLDrawable::ON_MOVE_LIST))
 	{
 		BOOL damped_motion = 
 			!isChanged(SHIFTED) &&										// not shifted between regions this frame and...
@@ -5191,7 +5060,7 @@ BOOL LLViewerObject::permAnyOwner() const
 { 
 	if (isRootEdit())
 	{
-		return ((mFlags & FLAGS_OBJECT_ANY_OWNER) != 0); 
+		return flagObjectAnyOwner(); 
 	}
 	else
 	{
@@ -5213,7 +5082,7 @@ BOOL LLViewerObject::permYouOwner() const
 			return TRUE;
 		}
 # endif
-		return ((mFlags & FLAGS_OBJECT_YOU_OWNER) != 0); 
+		return flagObjectYouOwner(); 
 #endif
 	}
 	else
@@ -5227,7 +5096,7 @@ BOOL LLViewerObject::permGroupOwner() const
 { 
 	if (isRootEdit())
 	{
-		return ((mFlags & FLAGS_OBJECT_GROUP_OWNED) != 0); 
+		return flagObjectGroupOwned(); 
 	}
 	else
 	{
@@ -5250,7 +5119,7 @@ BOOL LLViewerObject::permOwnerModify() const
 			return TRUE;
 	}
 # endif
-		return ((mFlags & FLAGS_OBJECT_OWNER_MODIFY) != 0); 
+		return flagObjectOwnerModify(); 
 #endif
 	}
 	else
@@ -5274,7 +5143,7 @@ BOOL LLViewerObject::permModify() const
 			return TRUE;
 	}
 # endif
-		return ((mFlags & FLAGS_OBJECT_MODIFY) != 0); 
+		return flagObjectModify(); 
 #endif
 	}
 	else
@@ -5298,7 +5167,7 @@ BOOL LLViewerObject::permCopy() const
 			return TRUE;
 		}
 # endif
-		return ((mFlags & FLAGS_OBJECT_COPY) != 0); 
+		return flagObjectCopy();
 #endif
 	}
 	else
@@ -5322,7 +5191,7 @@ BOOL LLViewerObject::permMove() const
 			return TRUE;
 		}
 # endif
-		return ((mFlags & FLAGS_OBJECT_MOVE) != 0); 
+		return flagObjectMove(); 
 #endif
 	}
 	else
@@ -5346,7 +5215,7 @@ BOOL LLViewerObject::permTransfer() const
 			return TRUE;
 		}
 # endif
-		return ((mFlags & FLAGS_OBJECT_TRANSFER) != 0); 
+		return flagObjectTransfer(); 
 #endif
 	}
 	else
@@ -5389,21 +5258,19 @@ void LLViewerObject::markForUpdate(BOOL priority)
 	}
 }
 
+bool LLViewerObject::isPermanentEnforced() const
+{
+	return flagObjectPermanent() && (mRegionp != gAgent.getRegion()) && !gAgent.isGodlike();
+}
+
 bool LLViewerObject::getIncludeInSearch() const
 {
-	return ((mFlags & FLAGS_INCLUDE_IN_SEARCH) != 0);
+	return flagIncludeInSearch();
 }
 
 void LLViewerObject::setIncludeInSearch(bool include_in_search)
 {
-	if (include_in_search)
-	{
-		mFlags |= FLAGS_INCLUDE_IN_SEARCH;
-	}
-	else
-	{
-		mFlags &= ~FLAGS_INCLUDE_IN_SEARCH;
-	}
+	setFlags(FLAGS_INCLUDE_IN_SEARCH, include_in_search);
 }
 
 void LLViewerObject::setRegion(LLViewerRegion *regionp)
@@ -5442,8 +5309,8 @@ void	LLViewerObject::updateRegion(LLViewerRegion *regionp)
 
 bool LLViewerObject::specialHoverCursor() const
 {
-	return (mFlags & FLAGS_USE_PHYSICS)
-			|| (mFlags & FLAGS_HANDLE_TOUCH)
+	return flagUsePhysics()
+			|| flagHandleTouch()
 			|| (mClickAction != 0);
 }
 
@@ -5456,10 +5323,15 @@ void LLViewerObject::updateFlags(BOOL physics_changed)
 	gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
 	gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 	gMessageSystem->addU32Fast(_PREHASH_ObjectLocalID, getLocalID() );
-	gMessageSystem->addBOOLFast(_PREHASH_UsePhysics, usePhysics() );
+	gMessageSystem->addBOOLFast(_PREHASH_UsePhysics, flagUsePhysics() );
 	gMessageSystem->addBOOL("IsTemporary", flagTemporaryOnRez() );
 	gMessageSystem->addBOOL("IsPhantom", flagPhantom() );
-	gMessageSystem->addBOOL("CastsShadows", flagCastShadows() );
+
+	// stinson 02/28/2012 : This CastsShadows BOOL is no longer used in either the viewer or the simulator
+	// The simulator code does not even unpack this value when the message is received.
+	// This could be potentially hijacked in the future for another use should the urgent need arise.
+	gMessageSystem->addBOOL("CastsShadows", FALSE );
+
 	if (physics_changed)
 	{
 		gMessageSystem->nextBlock("ExtraPhysics");
@@ -5473,6 +5345,19 @@ void LLViewerObject::updateFlags(BOOL physics_changed)
 }
 
 BOOL LLViewerObject::setFlags(U32 flags, BOOL state)
+{
+	BOOL setit = setFlagsWithoutUpdate(flags, state);
+
+	// BUG: Sometimes viewer physics and simulator physics get
+	// out of sync.  To fix this, always send update to simulator.
+// 	if (setit)
+	{
+		updateFlags();
+	}
+	return setit;
+}
+
+BOOL LLViewerObject::setFlagsWithoutUpdate(U32 flags, BOOL state)
 {
 	BOOL setit = FALSE;
 	if (state)
@@ -5491,21 +5376,17 @@ BOOL LLViewerObject::setFlags(U32 flags, BOOL state)
 			setit = TRUE;
 		}
 	}
-
-	// BUG: Sometimes viewer physics and simulator physics get
-	// out of sync.  To fix this, always send update to simulator.
-// 	if (setit)
-	{
-		updateFlags();
-	}
 	return setit;
 }
 
 void LLViewerObject::setPhysicsShapeType(U8 type)
 {
 	mPhysicsShapeUnknown = false;
-	mPhysicsShapeType = type;
-	mCostStale = true;
+	if (type != mPhysicsShapeType)
+	{
+		mPhysicsShapeType = type;
+		mCostStale = true;
+	}
 }
 
 void LLViewerObject::setPhysicsGravity(F32 gravity)
@@ -5532,7 +5413,6 @@ U8 LLViewerObject::getPhysicsShapeType() const
 { 
 	if (mPhysicsShapeUnknown)
 	{
-		mPhysicsShapeUnknown = false;
 		gObjectList.updatePhysicsFlags(this);
 	}
 
@@ -5554,16 +5434,29 @@ void LLViewerObject::applyAngularVelocity(F32 dt)
 
 		ang_vel *= 1.f/omega;
 		
+		// calculate the delta increment based on the object's angular velocity
 		dQ.setQuat(angle, ang_vel);
+
+		// accumulate the angular velocity rotations to re-apply in the case of an object update
+		mAngularVelocityRot *= dQ;
 		
+		// Just apply the delta increment to the current rotation
 		setRotation(getRotation()*dQ);
 		setChanged(MOVED | SILHOUETTE);
 	}
 }
 
-void LLViewerObject::resetRot()
+void LLViewerObject::resetRotTime()
 {
 	mRotTime = 0.0f;
+}
+
+void LLViewerObject::resetRot()
+{
+	resetRotTime();
+
+	// Reset the accumulated angular velocity rotation
+	mAngularVelocityRot.loadIdentity(); 
 }
 
 U32 LLViewerObject::getPartitionType() const

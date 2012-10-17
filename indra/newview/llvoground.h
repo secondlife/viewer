@@ -41,7 +41,7 @@ protected:
 public:
 	LLVOGround(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
 
-	/*virtual*/ BOOL idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
+	/*virtual*/ void idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
 	
 	// Graphical stuff for objects - maybe broken out into render class
 	// later?

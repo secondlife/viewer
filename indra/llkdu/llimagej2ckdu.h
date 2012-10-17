@@ -32,6 +32,7 @@
 //
 // KDU core header files
 //
+#define KDU_NO_THREADS
 #include "kdu_elementary.h"
 #include "kdu_messaging.h"
 #include "kdu_params.h"

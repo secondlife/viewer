@@ -24,6 +24,7 @@
  * $/LicenseInfo$
  */
 
+#include "llmemory.h"
 #include "llmath.h"
 #include "llquantize.h"
 
@@ -44,7 +45,10 @@ extern const LLVector4a LL_V4A_EPSILON = reinterpret_cast<const LLVector4a&> ( F
 	assert(dst != NULL);
 	assert(bytes > 0);
 	assert((bytes % sizeof(F32))== 0); 
-	
+	ll_assert_aligned(src,16);
+	ll_assert_aligned(dst,16);
+	assert(bytes%16==0);
+
 	F32* end = dst + (bytes / sizeof(F32) );
 
 	if (bytes > 64)
@@ -189,6 +193,8 @@ void LLVector4a::quantize16( const LLVector4a& low, const LLVector4a& high )
 		LLVector4a oneOverDelta;
 		{
 			static LL_ALIGN_16( const F32 F_TWO_4A[4] ) = { 2.f, 2.f, 2.f, 2.f };
+			ll_assert_aligned(F_TWO_4A,16);
+			
 			LLVector4a two; two.load4a( F_TWO_4A );
 
 			// Here we use _mm_rcp_ps plus one round of newton-raphson

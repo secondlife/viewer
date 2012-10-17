@@ -816,6 +816,30 @@ class DarwinManifest(ViewerManifest):
             self.run_command("chmod +x %r" % os.path.join(self.get_dst_prefix(), script))
 
     def package_finish(self):
+        # Sign the app if requested.
+        if 'signature' in self.args:
+            identity = self.args['signature']
+            if identity == '':
+                identity = 'Developer ID Application'
+
+            # Look for an environment variable set via build.sh when running in Team City.
+            try:
+                build_secrets_checkout = os.environ['build_secrets_checkout']
+            except KeyError:
+                pass
+            else:
+                # variable found so use it to unlock keyvchain followed by codesign
+                home_path = os.environ['HOME']
+                keychain_pwd_path = os.path.join(build_secrets_checkout,'code-signing-osx','password.txt')
+                keychain_pwd = open(keychain_pwd_path).read().rstrip()
+
+                self.run_command('security unlock-keychain -p "%s" "%s/Library/Keychains/viewer.keychain"' % ( keychain_pwd, home_path ) )
+                self.run_command('codesign --verbose --force --keychain "%(home_path)s/Library/Keychains/viewer.keychain" --sign %(identity)r %(bundle)r' % {
+                                 'home_path' : home_path,
+                                 'identity': identity,
+                                 'bundle': self.get_dst_prefix()
+                })
+
         channel_standin = 'Second Life Viewer'  # hah, our default channel is not usable on its own
         if not self.default_channel():
             channel_standin = self.channel()
@@ -1062,6 +1086,7 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libalut.so")
             self.path("libopenal.so", "libopenal.so.1")
             self.path("libopenal.so", "libvivoxoal.so.1") # vivox's sdk expects this soname
+
             # KLUDGE: As of 2012-04-11, the 'fontconfig' package installs
             # libfontconfig.so.1.4.4, along with symlinks libfontconfig.so.1
             # and libfontconfig.so. Before we added support for library-file

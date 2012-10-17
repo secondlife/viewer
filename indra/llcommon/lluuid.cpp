@@ -922,3 +922,174 @@ LLAssetID LLTransactionID::makeAssetID(const LLUUID& session) const
 	}
 	return result;
 }
+
+// Construct
+LLUUID::LLUUID()
+{
+	setNull();
+}
+
+
+// Faster than copying from memory
+ void LLUUID::setNull()
+{
+	U32 *word = (U32 *)mData;
+	word[0] = 0;
+	word[1] = 0;
+	word[2] = 0;
+	word[3] = 0;
+}
+
+
+// Compare
+ bool LLUUID::operator==(const LLUUID& rhs) const
+{
+	U32 *tmp = (U32 *)mData;
+	U32 *rhstmp = (U32 *)rhs.mData;
+	// Note: binary & to avoid branching
+	return 
+		(tmp[0] == rhstmp[0]) &  
+		(tmp[1] == rhstmp[1]) &
+		(tmp[2] == rhstmp[2]) &
+		(tmp[3] == rhstmp[3]);
+}
+
+
+ bool LLUUID::operator!=(const LLUUID& rhs) const
+{
+	U32 *tmp = (U32 *)mData;
+	U32 *rhstmp = (U32 *)rhs.mData;
+	// Note: binary | to avoid branching
+	return 
+		(tmp[0] != rhstmp[0]) |
+		(tmp[1] != rhstmp[1]) |
+		(tmp[2] != rhstmp[2]) |
+		(tmp[3] != rhstmp[3]);
+}
+
+/*
+// JC: This is dangerous.  It allows UUIDs to be cast automatically
+// to integers, among other things.  Use isNull() or notNull().
+ LLUUID::operator bool() const
+{
+	U32 *word = (U32 *)mData;
+	return (word[0] | word[1] | word[2] | word[3]) > 0;
+}
+*/
+
+ BOOL LLUUID::notNull() const
+{
+	U32 *word = (U32 *)mData;
+	return (word[0] | word[1] | word[2] | word[3]) > 0;
+}
+
+// Faster than == LLUUID::null because doesn't require
+// as much memory access.
+ BOOL LLUUID::isNull() const
+{
+	U32 *word = (U32 *)mData;
+	// If all bits are zero, return !0 == TRUE
+	return !(word[0] | word[1] | word[2] | word[3]);
+}
+
+// Copy constructor
+ LLUUID::LLUUID(const LLUUID& rhs)
+{
+	U32 *tmp = (U32 *)mData;
+	U32 *rhstmp = (U32 *)rhs.mData;
+	tmp[0] = rhstmp[0];
+	tmp[1] = rhstmp[1];
+	tmp[2] = rhstmp[2];
+	tmp[3] = rhstmp[3];
+}
+
+ LLUUID::~LLUUID()
+{
+}
+
+// Assignment
+ LLUUID& LLUUID::operator=(const LLUUID& rhs)
+{
+	// No need to check the case where this==&rhs.  The branch is slower than the write.
+	U32 *tmp = (U32 *)mData;
+	U32 *rhstmp = (U32 *)rhs.mData;
+	tmp[0] = rhstmp[0];
+	tmp[1] = rhstmp[1];
+	tmp[2] = rhstmp[2];
+	tmp[3] = rhstmp[3];
+	
+	return *this;
+}
+
+
+ LLUUID::LLUUID(const char *in_string)
+{
+	if (!in_string || in_string[0] == 0)
+	{
+		setNull();
+		return;
+	}
+ 
+	set(in_string);
+}
+
+ LLUUID::LLUUID(const std::string& in_string)
+{
+	if (in_string.empty())
+	{
+		setNull();
+		return;
+	}
+
+	set(in_string);
+}
+
+// IW: DON'T "optimize" these w/ U32s or you'll scoogie the sort order
+// IW: this will make me very sad
+ bool LLUUID::operator<(const LLUUID &rhs) const
+{
+	U32 i;
+	for( i = 0; i < (UUID_BYTES - 1); i++ )
+	{
+		if( mData[i] != rhs.mData[i] )
+		{
+			return (mData[i] < rhs.mData[i]);
+		}
+	}
+	return (mData[UUID_BYTES - 1] < rhs.mData[UUID_BYTES - 1]);
+}
+
+ bool LLUUID::operator>(const LLUUID &rhs) const
+{
+	U32 i;
+	for( i = 0; i < (UUID_BYTES - 1); i++ )
+	{
+		if( mData[i] != rhs.mData[i] )
+		{
+			return (mData[i] > rhs.mData[i]);
+		}
+	}
+	return (mData[UUID_BYTES - 1] > rhs.mData[UUID_BYTES - 1]);
+}
+
+ U16 LLUUID::getCRC16() const
+{
+	// A UUID is 16 bytes, or 8 shorts.
+	U16 *short_data = (U16*)mData;
+	U16 out = 0;
+	out += short_data[0];
+	out += short_data[1];
+	out += short_data[2];
+	out += short_data[3];
+	out += short_data[4];
+	out += short_data[5];
+	out += short_data[6];
+	out += short_data[7];
+	return out;
+}
+
+ U32 LLUUID::getCRC32() const
+{
+	U32 *tmp = (U32*)mData;
+	return tmp[0] + tmp[1] + tmp[2] + tmp[3];
+}

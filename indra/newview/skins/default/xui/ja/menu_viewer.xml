@@ -28,6 +28,7 @@
 		<menu_item_call label="環境設定..." name="Preferences"/>
 		<menu_item_call label="ツールバーのボタン..." name="Toolbars"/>
 		<menu_item_call label="全てのコントロールを非表示にする" name="Hide UI"/>
+		<menu_item_check label="HUD を表示" name="Show HUD Attachments"/>
 		<menu_item_call label="[APP_NAME] を終了" name="Quit"/>
 	</menu>
 	<menu label="コミュニケーション" name="Communicate">
@@ -39,6 +40,7 @@
 		<menu_item_call label="フレンド" name="My Friends"/>
 		<menu_item_call label="グループ" name="My Groups"/>
 		<menu_item_call label="近くにいる人" name="Active Speakers"/>
+		<menu_item_call label="リストをブロック" name="Block List"/>
 	</menu>
 	<menu label="世界" name="World">
 		<menu_item_call label="現在地をランドマーク" name="Create Landmark Here"/>
@@ -124,6 +126,11 @@
 			<menu_item_call label="スクリプトを実行中にする" name="Set Scripts to Running"/>
 			<menu_item_call label="スクリプトを実行停止にする" name="Set Scripts to Not Running"/>
 		</menu>
+		<menu label="パスファインディング" name="Pathfinding">
+			<menu_item_call label="リンクセット..." name="pathfinding_linksets_menu_item"/>
+			<menu_item_call label="キャラクター..." name="pathfinding_characters_menu_item"/>
+			<menu_item_call label="表示/テスト..." name="pathfinding_console_menu_item"/>
+		</menu>
 		<menu label="オプション" name="Options">
 			<menu_item_check label="権限の詳細を表示する" name="DebugPermissions"/>
 			<menu_item_check label="私のオブジェクトだけを選択する" name="Select Only My Objects"/>
@@ -174,7 +181,6 @@
 			<menu_item_check label="パーティクルを非表示にする" name="Hide Particles"/>
 			<menu_item_check label="選択したものを非表示にする" name="Hide Selected"/>
 			<menu_item_check label="透明部分をハイライトする" name="Highlight Transparent"/>
-			<menu_item_check label="HUD を表示する" name="Show HUD Attachments"/>
 			<menu_item_check label="一人称視点のときに十字線を表示する" name="ShowCrosshairs"/>
 		</menu>
 		<menu label="レンダリング（種類）" name="Rendering Types">
@@ -227,11 +233,10 @@
 			<menu_item_check label="テクスチャのコンソール" name="Texture Console"/>
 			<menu_item_check label="デバッグコンソール" name="Debug Console"/>
 			<menu_item_call label="通知コンソール" name="Notifications"/>
-			<menu_item_check label="テクスチャサイズのコンソール" name="Texture Size"/>
-			<menu_item_check label="テクスチャカテゴリのコンソール" name="Texture Category"/>
 			<menu_item_check label="ファーストタイマー" name="Fast Timers"/>
 			<menu_item_check label="メモリ" name="Memory"/>
 			<menu_item_check label="風景の統計" name="Scene Statistics"/>
+			<menu_item_call label="テクスチャ取得デバッグコンソール" name="Texture Fetch Debug Console"/>
 			<menu_item_call label="リージョン情報をデバッグコンソールへ" name="Region Info to Debug Console"/>
 			<menu_item_call label="グループ情報をデバッグコンソールへ" name="Group Info to Debug Console"/>
 			<menu_item_call label="性能情報をデバッグコンソールへ" name="Capabilities Info to Debug Console"/>
@@ -289,6 +294,12 @@
 			<menu_item_check label="描画の詳細度" name="rendercomplexity"/>
 			<menu_item_check label="添付アイテムのバイト数" name="attachment bytes"/>
 			<menu_item_check label="スカルプト" name="Sculpt"/>
+			<menu label="テクスチャの密度" name="Texture Density">
+				<menu_item_check label="なし" name="None"/>
+				<menu_item_check label="現在" name="Current"/>
+				<menu_item_check label="望ましい" name="Desired"/>
+				<menu_item_check label="フル" name="Full"/>
+			</menu>
 		</menu>
 		<menu label="レンダリング" name="Rendering">
 			<menu_item_check label="軸" name="Axes"/>
@@ -306,7 +317,6 @@
 			<menu_item_check label="アニメーションテクスチャ" name="Animation Textures"/>
 			<menu_item_check label="テクスチャを無効にする" name="Disable Textures"/>
 			<menu_item_check label="フル解像度テクスチャ" name="Rull Res Textures"/>
-			<menu_item_check label="テクスチャの検査" name="Audit Textures"/>
 			<menu_item_check label="テクスチャアトラス（試験段階）" name="Texture Atlas"/>
 			<menu_item_check label="装着された光源を描画する" name="Render Attached Lights"/>
 			<menu_item_check label="取り付けられたパーティクルを描画する" name="Render Attached Particles"/>
@@ -373,7 +383,6 @@
 				<menu_item_call label="キャラクタジオメトリの切り替え" name="Toggle Character Geometry"/>
 				<menu_item_call label="男性アバターのテスト" name="Test Male"/>
 				<menu_item_call label="女性アバターのテスト" name="Test Female"/>
-				<menu_item_call label="PG のトグル" name="Toggle PG"/>
 				<menu_item_check label="選択アバター許可" name="Allow Select Avatar"/>
 			</menu>
 			<menu_item_call label="パラメータを強制的にデフォルトにする" name="Force Params to Default"/>

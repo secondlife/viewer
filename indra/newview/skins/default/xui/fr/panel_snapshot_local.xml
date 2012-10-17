@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_snapshot_local">
 	<text name="title">
-		Enregistrer sur mon ordinateur
+		Enregistrer sur l&apos;ordinateur
 	</text>
 	<combo_box label="Résolution" name="local_size_combo">
 		<combo_box.item label="Fenêtre actuelle" name="CurrentWindow"/>
@@ -25,7 +25,7 @@
 				<combo_box.item label="JPEG" name="JPEG"/>
 				<combo_box.item label="BMP (sans perte)" name="BMP"/>
 			</combo_box>
-			<slider label="Qualité de l&apos;image" name="image_quality_slider"/>
+			<slider label="Qualité d&apos;image" name="image_quality_slider"/>
 			<text name="image_quality_level">
 				([QLVL])
 			</text>

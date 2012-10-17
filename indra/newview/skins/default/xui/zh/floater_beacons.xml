@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="beacons" title="BEACONS">
+<floater name="beacons" title="指標">
 	<panel name="beacons_panel">
 		<text name="label_show">
-			Show :
+			顯示：
 		</text>
-		<check_box label="Beacons" name="beacons"/>
-		<check_box label="Highlights" name="highlights"/>
-		<text name="beacon_width_label" tool_tip="Beacon width">
-			Width:
+		<check_box label="指標" name="beacons"/>
+		<check_box label="高亮顯示" name="highlights"/>
+		<text name="beacon_width_label" tool_tip="指標寬度">
+			寬：
 		</text>
 		<text name="label_objects">
-			For these objects:
+			對象物件：
 		</text>
-		<check_box label="Physical" name="physical"/>
-		<check_box label="Scripted" name="scripted"/>
-		<check_box label="Touch only" name="touch_only"/>
-		<check_box label="Sound sources" name="sounds"/>
-		<check_box label="Particle sources" name="particles"/>
-		<check_box label="Media sources" name="moapbeacon"/>
+		<check_box label="物理性" name="physical"/>
+		<check_box label="有腳本" name="scripted"/>
+		<check_box label="僅可觸碰" name="touch_only"/>
+		<check_box label="聲音來源" name="sounds"/>
+		<check_box label="例子來源" name="particles"/>
+		<check_box label="媒體來源" name="moapbeacon"/>
 	</panel>
 </floater>

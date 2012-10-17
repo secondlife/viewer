@@ -31,7 +31,6 @@
 #include "v3math.h"
 #include "llvector4a.h"
 #include <vector>
-#include <set>
 
 #define OCT_ERRS LL_WARNS("OctreeErrors")
 
@@ -79,16 +78,18 @@ public:
 
 	typedef LLOctreeTraveler<T>									oct_traveler;
 	typedef LLTreeTraveler<T>									tree_traveler;
-	typedef typename std::set<LLPointer<T> >					element_list;
-	typedef typename element_list::iterator						element_iter;
-	typedef typename element_list::const_iterator	const_element_iter;
+	typedef LLPointer<T>*										element_list;
+	typedef LLPointer<T>*										element_iter;
+	typedef const LLPointer<T>*									const_element_iter;
 	typedef typename std::vector<LLTreeListener<T>*>::iterator	tree_listener_iter;
-	typedef typename std::vector<LLOctreeNode<T>* >				child_list;
+	typedef LLOctreeNode<T>**									child_list;
+	typedef LLOctreeNode<T>**									child_iter;
+
 	typedef LLTreeNode<T>		BaseType;
 	typedef LLOctreeNode<T>		oct_node;
 	typedef LLOctreeListener<T>	oct_listener;
 
-	/*void* operator new(size_t size)
+	void* operator new(size_t size)
 	{
 		return ll_aligned_malloc_16(size);
 	}
@@ -96,7 +97,7 @@ public:
 	void operator delete(void* ptr)
 	{
 		ll_aligned_free_16(ptr);
-	}*/
+	}
 
 	LLOctreeNode(	const LLVector4a& center, 
 					const LLVector4a& size, 
@@ -105,6 +106,9 @@ public:
 	:	mParent((oct_node*)parent), 
 		mOctant(octant) 
 	{ 
+		mData = NULL;
+		mDataEnd = NULL;
+
 		mCenter = center;
 		mSize = size;
 
@@ -123,6 +127,16 @@ public:
 	{ 
 		BaseType::destroyListeners(); 
 		
+		for (U32 i = 0; i < mElementCount; ++i)
+		{
+			mData[i]->setBinIndex(-1);
+			mData[i] = NULL;
+		}
+
+		free(mData);
+		mData = NULL;
+		mDataEnd = NULL;
+
 		for (U32 i = 0; i < getChildCount(); i++)
 		{
 			delete getChild(i);
@@ -219,12 +233,17 @@ public:
 	}
 
 	void accept(oct_traveler* visitor)				{ visitor->visit(this); }
-	virtual bool isLeaf() const						{ return mChild.empty(); }
+	virtual bool isLeaf() const						{ return mChildCount == 0; }
 	
 	U32 getElementCount() const						{ return mElementCount; }
+	bool isEmpty() const							{ return mElementCount == 0; }
 	element_list& getData()							{ return mData; }
 	const element_list& getData() const				{ return mData; }
-	
+	element_iter getDataBegin()						{ return mData; }
+	element_iter getDataEnd()						{ return mDataEnd; }
+	const_element_iter getDataBegin() const			{ return mData; }
+	const_element_iter getDataEnd() const			{ return mDataEnd; }
+		
 	U32 getChildCount()	const						{ return mChildCount; }
 	oct_node* getChild(U32 index)					{ return mChild[index]; }
 	const oct_node* getChild(U32 index) const		{ return mChild[index]; }
@@ -289,7 +308,7 @@ public:
 	
 	virtual bool insert(T* data)
 	{
-		if (data == NULL)
+		if (data == NULL || data->getBinIndex() != -1)
 		{
 			OCT_ERRS << "!!! INVALID ELEMENT ADDED TO OCTREE BRANCH !!!" << llendl;
 			return false;
@@ -302,13 +321,16 @@ public:
 			if ((getElementCount() < gOctreeMaxCapacity && contains(data->getBinRadius()) ||
 				(data->getBinRadius() > getSize()[0] &&	parent && parent->getElementCount() >= gOctreeMaxCapacity))) 
 			{ //it belongs here
-				//if this is a redundant insertion, error out (should never happen)
-				llassert(mData.find(data) == mData.end());
+				mElementCount++;
+				mData = (element_list) realloc(mData, sizeof(LLPointer<T>)*mElementCount);
 
-				mData.insert(data);
+				//avoid unref on uninitialized memory
+				memset(mData+mElementCount-1, 0, sizeof(LLPointer<T>));
+
+				mData[mElementCount-1] = data;
+				mDataEnd = mData + mElementCount;
+				data->setBinIndex(mElementCount-1);
 				BaseType::insert(data);
-
-				mElementCount = mData.size();
 				return true;
 			}
 			else
@@ -342,10 +364,16 @@ public:
 
 				if( lt == 0x7 )
 				{
-					mData.insert(data);
-					BaseType::insert(data);
+					mElementCount++;
+					mData = (element_list) realloc(mData, sizeof(LLPointer<T>)*mElementCount);
 
-					mElementCount = mData.size();
+					//avoid unref on uninitialized memory
+					memset(mData+mElementCount-1, 0, sizeof(LLPointer<T>));
+
+					mData[mElementCount-1] = data;
+					mDataEnd = mData + mElementCount;
+					data->setBinIndex(mElementCount-1);
+					BaseType::insert(data);
 					return true;
 				}
 
@@ -394,23 +422,59 @@ public:
 		return false;
 	}
 
+	void _remove(T* data, S32 i)
+	{ //precondition -- mElementCount > 0, idx is in range [0, mElementCount)
+
+		mElementCount--;
+		data->setBinIndex(-1); 
+		
+		if (mElementCount > 0)
+		{
+			if (mElementCount != i)
+			{
+				mData[i] = mData[mElementCount]; //might unref data, do not access data after this point
+				mData[i]->setBinIndex(i);
+			}
+
+			mData[mElementCount] = NULL; //needed for unref
+			mData = (element_list) realloc(mData, sizeof(LLPointer<T>)*mElementCount);
+			mDataEnd = mData+mElementCount;
+		}
+		else
+		{
+			mData[0] = NULL; //needed for unref
+			free(mData);
+			mData = NULL;
+			mDataEnd = NULL;
+		}
+
+		notifyRemoval(data);
+		checkAlive();
+	}
+
 	bool remove(T* data)
 	{
-		if (mData.find(data) != mData.end())
-		{	//we have data
-			mData.erase(data);
-			mElementCount = mData.size();
-			notifyRemoval(data);
-			checkAlive();
-			return true;
+		S32 i = data->getBinIndex();
+
+		if (i >= 0 && i < mElementCount)
+		{
+			if (mData[i] == data)
+			{ //found it
+				_remove(data, i);
+				llassert(data->getBinIndex() == -1);
+				return true;
+			}
 		}
-		else if (isInside(data))
+		
+		if (isInside(data))
 		{
 			oct_node* dest = getNodeAt(data);
 
 			if (dest != this)
 			{
-				return dest->remove(data);
+				bool ret = dest->remove(data);
+				llassert(data->getBinIndex() == -1);
+				return ret;
 			}
 		}
 
@@ -429,19 +493,20 @@ public:
 		//node is now root
 		llwarns << "!!! OCTREE REMOVING FACE BY ADDRESS, SEVERE PERFORMANCE PENALTY |||" << llendl;
 		node->removeByAddress(data);
+		llassert(data->getBinIndex() == -1);
 		return true;
 	}
 
 	void removeByAddress(T* data)
 	{
-        if (mData.find(data) != mData.end())
+        for (U32 i = 0; i < mElementCount; ++i)
 		{
-			mData.erase(data);
-			mElementCount = mData.size();
-			notifyRemoval(data);
-			llwarns << "FOUND!" << llendl;
-			checkAlive();
-			return;
+			if (mData[i] == data)
+			{ //we have data
+				_remove(data, i);
+				llwarns << "FOUND!" << llendl;
+				return;
+			}
 		}
 		
 		for (U32 i = 0; i < getChildCount(); i++)
@@ -453,8 +518,8 @@ public:
 
 	void clearChildren()
 	{
-		mChild.clear();
 		mChildCount = 0;
+
 		U32* foo = (U32*) mChildMap;
 		foo[0] = foo[1] = 0xFFFFFFFF;
 	}
@@ -516,7 +581,7 @@ public:
 
 		mChildMap[child->getOctant()] = mChildCount;
 
-		mChild.push_back(child);
+		mChild[mChildCount] = child;
 		++mChildCount;
 		child->setParent(this);
 
@@ -543,8 +608,11 @@ public:
 			mChild[index]->destroy();
 			delete mChild[index];
 		}
-		mChild.erase(mChild.begin() + index);
+
 		--mChildCount;
+
+		mChild[index] = mChild[mChildCount];
+		
 
 		//rebuild child map
 		U32* foo = (U32*) mChildMap;
@@ -601,11 +669,12 @@ protected:
 	oct_node* mParent;
 	U8 mOctant;
 
-	child_list mChild;
+	LLOctreeNode<T>* mChild[8];
 	U8 mChildMap[8];
 	U32 mChildCount;
 
 	element_list mData;
+	element_iter mDataEnd;
 	U32 mElementCount;
 		
 }; 

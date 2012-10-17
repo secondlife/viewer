@@ -5,16 +5,17 @@
 	<check_box label="服裝" name="check_clothing"/>
 	<check_box label="姿勢" name="check_gesture"/>
 	<check_box label="地標" name="check_landmark"/>
+	<check_box label="網面" name="check_mesh"/>
 	<check_box label="記事卡" name="check_notecard"/>
-	<check_box label="Objects" name="check_object"/>
+	<check_box label="物件" name="check_object"/>
 	<check_box label="腳本" name="check_script"/>
-	<check_box label="Sounds" name="check_sound"/>
+	<check_box label="聲音" name="check_sound"/>
 	<check_box label="材質" name="check_texture"/>
-	<check_box label="Snapshots" name="check_snapshot"/>
+	<check_box label="快照" name="check_snapshot"/>
 	<button label="全部" label_selected="全部" name="All"/>
 	<button label="無" label_selected="無" name="None"/>
-	<check_box label="Always show folders" name="check_show_empty"/>
-	<check_box label="Since Logoff" name="check_since_logoff"/>
+	<check_box label="固定顯示資料夾" name="check_show_empty"/>
+	<check_box label="自上次登出" name="check_since_logoff"/>
 	<text name="- OR -">
 		- 或 -
 	</text>

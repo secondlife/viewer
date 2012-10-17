@@ -243,6 +243,7 @@ public:
 	virtual void destroyView();
 
 	BOOL isSelected() const { return mIsSelected; }
+	bool isInSelection() const;
 
 	void setUnselected() { mIsSelected = FALSE; }
 
