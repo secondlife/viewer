@@ -75,7 +75,14 @@ def main(configuration, viewer_dir, viewer_exes, libs_suffix, dump_syms_tool, vi
 
     def dump_module(m):
         print "dumping module '%s' with '%s'..." % (m, dump_syms_tool)
-        child = subprocess.Popen([dump_syms_tool, m] , stdout=subprocess.PIPE)
+        dsym_full_path = m
+        if sys.platform in ['darwin']:
+            dsym_dir=os.path.join(m+".dSYM", 'Contents', 'Resources', 'DWARF')
+            if os.path.isdir(dsym_dir):
+                dsym_full_path=os.path.join(dsym_dir, os.path.basename(m))
+            else:
+                dsym_full_path = m
+        child = subprocess.Popen([dump_syms_tool, dsym_full_path] , stdout=subprocess.PIPE)
         out, err = child.communicate()
         return (m,child.returncode, out, err)
 
