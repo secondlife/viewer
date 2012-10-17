@@ -771,13 +771,8 @@ void LLPanelLogin::loadLoginPage()
 	// add OS info
 	params["os"] = LLAppViewer::instance()->getOSInfo().getOSStringSimple();
 
-	// sourceid: create_account_url's sourceid= varies by skin
-	LLURI create_account_url(LLTrans::getString("create_account_url"));
-	LLSD create_account_params(create_account_url.queryMap());
-	if (create_account_params.has("sourceid"))
-	{
-		params["sourceid"] = create_account_params["sourceid"];
-	}
+	// sourceid
+	params["sourceid"] = gSavedSettings.getString("sourceid");
 
 	// Make an LLURI with this augmented info
 	LLURI login_uri(LLURI::buildHTTP(login_page.authority(),
