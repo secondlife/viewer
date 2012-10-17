@@ -289,6 +289,7 @@ void LLApp::setupErrorHandling()
 	// occasionally checks to see if the app is in an error state, and sees if it needs to be run.
 
 #if LL_WINDOWS
+#if LL_SEND_CRASH_REPORTS
 	// This sets a callback to handle w32 signals to the console window.
 	// The viewer shouldn't be affected, sicne its a windowed app.
 	SetConsoleCtrlHandler( (PHANDLER_ROUTINE) ConsoleCtrlHandler, TRUE);
@@ -300,7 +301,7 @@ void LLApp::setupErrorHandling()
 		mExceptionHandler = new google_breakpad::ExceptionHandler(
 			L"C:\\Temp\\", 0, windows_post_minidump_callback, 0, google_breakpad::ExceptionHandler::HANDLER_ALL);
 	}
-
+#endif
 #else
 	//
 	// Start up signal handling.

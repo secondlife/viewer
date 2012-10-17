@@ -71,9 +71,9 @@ class LLIamHere : public LLHTTPClient::Responder
 
 	public:
 
-		static boost::intrusive_ptr< LLIamHere > build( LLFloaterTOS* parent )
+		static LLIamHere* build( LLFloaterTOS* parent )
 		{
-			return boost::intrusive_ptr< LLIamHere >( new LLIamHere( parent ) );
+			return new LLIamHere( parent );
 		};
 		
 		virtual void  setParent( LLFloaterTOS* parentIn )
@@ -102,7 +102,7 @@ class LLIamHere : public LLHTTPClient::Responder
 
 // this is global and not a class member to keep crud out of the header file
 namespace {
-	boost::intrusive_ptr< LLIamHere > gResponsePtr = 0;
+	LLPointer< LLIamHere > gResponsePtr = 0;
 };
 
 BOOL LLFloaterTOS::postBuild()
