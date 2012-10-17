@@ -286,7 +286,7 @@ void LLFolderView::addFolder( LLFolderViewFolder* folder)
 	//{
 	//	mFolders.insert(mFolders.begin(), folder);
 	//}
-	}
+}
 
 void LLFolderView::closeAllFolders()
 {
@@ -309,7 +309,7 @@ void LLFolderView::openTopLevelFolders()
 // *width should be 0
 // conform show folder state works
 S32 LLFolderView::arrange( S32* unused_width, S32* unused_height )
-		{
+	{
 	mMinWidth = 0;
 	S32 target_height;
 
@@ -856,7 +856,7 @@ void LLFolderView::propertiesSelectedItems( void )
 	//		multi_propertiesp->openFloater(LLSD());
 	//	}
 	//}
-}
+	}
 
 
 void LLFolderView::autoOpenItem( LLFolderViewFolder* item )
@@ -1542,7 +1542,7 @@ BOOL LLFolderView::handleRightMouseDown( S32 x, S32 y, MASK mask )
 		if (mCallbackRegistrar)
         {
 			mCallbackRegistrar->popScope();
-        }
+	}
 	}
 	else
 	{
@@ -1718,7 +1718,6 @@ void LLFolderView::update()
 	{
 		mNeedsAutoSelect = TRUE;
 	}
-
 	// filter to determine visibility before arranging
 	filter(getFolderViewModel()->getFilter());
 	// Clear the modified setting on the filter only if the filter count is non-zero after running the filter process
@@ -1727,7 +1726,7 @@ void LLFolderView::update()
 	{
 		getFolderViewModel()->getFilter().clearModified();
 	}
-			
+
 	// automatically show matching items, and select first one if we had a selection
 	if (mNeedsAutoSelect)
 	{
