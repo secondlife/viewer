@@ -664,12 +664,13 @@ BOOL LLVOAvatarSelf::setParamWeight(const LLViewerVisualParam *param, F32 weight
 		return FALSE;
 	}
 
+#if 0
 	// FIXME DRANO - kludgy way to avoid overwriting avatar state from wearables.
 	if (isUsingServerBakes() && !isUsingLocalAppearance())
 	{
 		return FALSE;
 	}
-
+#endif
 
 	if (param->getCrossWearable())
 	{
@@ -2654,13 +2655,10 @@ void LLVOAvatarSelf::onCustomizeStart(bool disable_camera_switch)
 			gAgentCamera.changeCameraToCustomizeAvatar();
 		}
 
-		bool enable_verbose_dumps = gSavedSettings.getBOOL("DebugAvatarAppearanceMessage");
-		std::string dump_prefix = gAgentAvatarp->getFullname() + "_" + (gAgentAvatarp->isSelf()?"s":"o") + "_";
-		if (enable_verbose_dumps) { gAgentAvatarp->dumpArchetypeXML(dump_prefix + "on_customize_start"); }
+#if 0
 		gAgentAvatarp->clearVisualParamWeights();
-		if (enable_verbose_dumps) { gAgentAvatarp->dumpArchetypeXML(dump_prefix + "on_customize_post_clear"); } 
 		gAgentAvatarp->idleUpdateAppearanceAnimation();
-		if (enable_verbose_dumps) { gAgentAvatarp->dumpArchetypeXML(dump_prefix + "on_customize_post_update"); }
+#endif
 		
 		gAgentAvatarp->invalidateAll();
 		gAgentAvatarp->updateMeshTextures();
