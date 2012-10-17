@@ -321,6 +321,7 @@ Dale Glass
 	VWR-1358
 	VWR-2041
 Darien Caldwell
+	SH-3055
 Dartagan Shepherd
 Debs Regent
 Decro Schmooz
@@ -890,6 +891,8 @@ Nicholaz Beresford
 	VWR-2682
 	VWR-2684
 Nick Rhodes
+NickyD
+	MAINT-873
 Nicky Perian
 	OPEN-1
 	STORM-1087
@@ -1243,6 +1246,7 @@ Westley Streeter
 Whimsy Winx
 Whirly Fizzle
 	STORM-1895
+	MAINT-873
 Whoops Babii
 	VWR-631
 	VWR-1640
