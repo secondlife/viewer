@@ -307,7 +307,7 @@ public:
 	
 	virtual void error(U32 status, const std::string& reason)
 	{
-		llinfos << "Merov debug : UpdateResponder error, status = " << status << ": " << reason << llendl;
+		llinfos << "Merov debug : UpdateResponder error, on " << mSessionID << ", status = " << status << ": " << reason << llendl;
 	}
 	
 private:
@@ -322,8 +322,11 @@ LLSpeakerMgr::LLSpeakerMgr(LLVoiceChannel* channelp) :
 	mVoiceChannel(channelp)
 , mVoiceModerated(false)
 , mModerateModeHandledFirstTime(false)
+, mSessionUpdated(false)
+, mSessionID()
 {
 	static LLUICachedControl<F32> remove_delay ("SpeakerParticipantRemoveDelay", 10.0);
+//	mSessionID = getSessionID();
 
 	mSpeakerDelayRemover = new LLSpeakersDelayActionsStorage(boost::bind(&LLSpeakerMgr::removeSpeaker, this, _1), remove_delay);
 }
@@ -547,7 +550,7 @@ void LLSpeakerMgr::updateSpeakerList()
 		LLUUID session_id = getSessionID();
 		if ((mSpeakers.size() == 0) && (!session_id.isNull()))
 		{
-			llinfos << "Merov debug : LLSpeakerMgr::updateSpeakerList: No speakers in " << session_id << llendl;
+			//llinfos << "Merov debug : LLSpeakerMgr::updateSpeakerList: No speakers in " << session_id << llendl;
 			// MAINT-1551 : If the list is empty for too long, we should send a message to the sim so that
 			// it sends the participant list again.
 			updateSession();
@@ -557,21 +560,50 @@ void LLSpeakerMgr::updateSpeakerList()
 
 void LLSpeakerMgr::updateSession()
 {
+	// We perform this update if is has never been done or if the session id changed (which happens in ad-hoc sessions)
+	if (mSessionUpdated && (mSessionID == getSessionID()))
+		return;
+	
 	std::string url = gAgent.getRegion()->getCapability("ChatSessionRequest");
 	LLSD data;
-	data["method"] = "accept invitation";
-//	data["method"] = "session update";
+
+// That doesn't work apparently because we are not in the invite list so we get error 500
+//	data["method"] = "accept invitation";
+//	data["session-id"] = getSessionID();
+
+// That doesn't work because we're not a moderator on an IM session so our request is rejected as such	(error 403)
+	data["method"] = "session update";
 	data["session-id"] = getSessionID();
-//	data["params"] = LLSD::emptyMap();
-	
-//	data["params"]["update_info"] = LLSD::emptyMap();
-	
-//	data["params"]["update_info"]["moderated_mode"] = LLSD::emptyMap();
-//	data["params"]["update_info"]["moderated_mode"]["voice"] = false;
+	data["params"] = LLSD::emptyMap();	
+	data["params"]["update_info"] = LLSD::emptyMap();
+	data["params"]["update_info"]["moderated_mode"] = LLSD::emptyMap();
+	data["params"]["update_info"]["moderated_mode"]["voice"] = false;
+
+// That doesn't work, we eventually time out (error 502)...
+//	data["method"] = "call";
+//	data["session-id"] = getSessionID();
+
+	data["params"] = LLSD::emptyArray();
+//	for (int i = 0; i < count; i++)
+//	{
+//		data["params"].append(ids[i]);
+//	}
+	data["params"].append(gAgentID);
+	data["method"] = "invite";
+	data["session-id"] = getSessionID();
 	
 	llinfos << "Merov debug : viewer->sim : LLSpeakerMgr::updateSession, session id = " << getSessionID() << ", data = " << LLSDOStreamer<LLSDNotationFormatter>(data) << llendl;
 
 	LLHTTPClient::post(url, data, new UpdateResponder(getSessionID()));
+	
+	// bit of extra in the case of invite being sent
+	data.clear();
+	data["method"] = "accept invitation";
+	data["session-id"] = getSessionID();
+	LLHTTPClient::post(url, data, new UpdateResponder(getSessionID()));
+
+	mSessionUpdated = true;
+	mSessionID = getSessionID();
 }
 
 void LLSpeakerMgr::setSpeakerNotInChannel(LLSpeaker* speakerp)

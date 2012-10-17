@@ -238,6 +238,7 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 
 	//we need to wait for session initialization for outgoing ad-hoc and group chat session
 	//correct session id for initiated ad-hoc chat will be received from the server
+	// Merov : MAINT-1551 : We need to read that mInitialTargetIDs when initializing the conversation
 	if (!LLIMModel::getInstance()->sendStartSession(mSessionID, mOtherParticipantID, 
 		mInitialTargetIDs, mType))
 	{

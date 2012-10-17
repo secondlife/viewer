@@ -259,6 +259,8 @@ protected:
 	bool removeSpeaker(const LLUUID& speaker_id);
 
 	void updateSession();
+	bool mSessionUpdated;
+	LLUUID mSessionID;
 
 	typedef std::map<LLUUID, LLPointer<LLSpeaker> > speaker_map_t;
 	speaker_map_t		mSpeakers;
