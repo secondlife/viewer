@@ -503,13 +503,13 @@ private:
 
 void LLGLTexMemBar::draw()
 {
-	S32 bound_mem = BYTES_TO_MEGA_BYTES(LLViewerTexture::sBoundTextureMemoryInBytes);
- 	S32 max_bound_mem = LLViewerTexture::sMaxBoundTextureMemInMegaBytes;
-	S32 total_mem = BYTES_TO_MEGA_BYTES(LLViewerTexture::sTotalTextureMemoryInBytes);
-	S32 max_total_mem = LLViewerTexture::sMaxTotalTextureMemInMegaBytes;
+	LLUnit::Megabytes<S32> bound_mem = LLViewerTexture::sBoundTextureMemory;
+ 	LLUnit::Megabytes<S32> max_bound_mem = LLViewerTexture::sMaxBoundTextureMem;
+	LLUnit::Megabytes<S32> total_mem = LLViewerTexture::sTotalTextureMemory;
+	LLUnit::Megabytes<S32> max_total_mem = LLViewerTexture::sMaxTotalTextureMem;
 	F32 discard_bias = LLViewerTexture::sDesiredDiscardBias;
-	F32 cache_usage = (F32)BYTES_TO_MEGA_BYTES(LLAppViewer::getTextureCache()->getUsage()) ;
-	F32 cache_max_usage = (F32)BYTES_TO_MEGA_BYTES(LLAppViewer::getTextureCache()->getMaxUsage()) ;
+	F32 cache_usage = (F32)LLTrace::Megabytes(LLAppViewer::getTextureCache()->getUsage()).value() ;
+	F32 cache_max_usage = (F32)LLTrace::Megabytes(LLAppViewer::getTextureCache()->getMaxUsage()).value() ;
 	S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
 	S32 v_offset = 0;//(S32)((texture_bar_height + 2.2f) * mTextureView->mNumTextureBars + 2.0f);
 	F32 total_texture_downloaded = (F32)gTotalTextureBytes / (1024 * 1024);
@@ -526,10 +526,10 @@ void LLGLTexMemBar::draw()
 											 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
 	text = llformat("GL Tot: %d/%d MB Bound: %d/%d MB FBO: %d MB Raw Tot: %d MB Bias: %.2f Cache: %.1f/%.1f MB",
-					total_mem,
-					max_total_mem,
-					bound_mem,
-					max_bound_mem,
+					total_mem.value(),
+					max_total_mem.value(),
+					bound_mem.value(),
+					max_bound_mem.value(),
 					LLRenderTarget::sBytesAllocated/(1024*1024),
 					LLImageRaw::sGlobalRawMemory >> 20,	discard_bias,
 					cache_usage, cache_max_usage);

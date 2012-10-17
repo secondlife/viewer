@@ -2790,7 +2790,7 @@ void LLVOAvatarSelf::deleteScratchTextures()
 
 		sScratchTexNames.deleteAllData();
 		sScratchTexLastBindTime.deleteAllData();
-		LLImageGL::sGlobalTextureMemoryInBytes -= sScratchTexBytes;
+		LLImageGL::sGlobalTextureMemory -= sScratchTexBytes;
 		sScratchTexBytes = 0;
 	}
 }

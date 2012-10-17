@@ -88,7 +88,7 @@ extern LLTrace::Count<>						FPS,
 											TEX_REBAKES;
 
 
-extern LLTrace::Count<LLUnits::Kilobits>	KBIT,
+extern LLTrace::Count<LLTrace::Kilobits>	KBIT,
 											LAYERS_KBIT,
 											OBJECT_KBIT,
 											ASSET_KBIT,
@@ -96,7 +96,7 @@ extern LLTrace::Count<LLUnits::Kilobits>	KBIT,
 											ACTUAL_IN_KBIT,
 											ACTUAL_OUT_KBIT;
 
-extern LLTrace::Count<LLUnits::Seconds>		AVATAR_EDIT_TIME,
+extern LLTrace::Count<LLTrace::Seconds>		AVATAR_EDIT_TIME,
 											TOOLBOX_TIME,
 											MOUSELOOK_TIME,
 											FPS_10_TIME,
@@ -145,9 +145,9 @@ extern LLTrace::Measurement<>				NUM_IMAGES,
 											WINDOW_WIDTH,
 											WINDOW_HEIGHT;
 
-extern LLTrace::Measurement<LLUnits::Meters> AGENT_POSITION_SNAP;
+extern LLTrace::Measurement<LLTrace::Meters> AGENT_POSITION_SNAP;
 
-extern LLTrace::Measurement<LLUnits::Bytes>	SIM_UNACKED_BYTES,
+extern LLTrace::Measurement<LLTrace::Bytes>	SIM_UNACKED_BYTES,
 											DELTA_BANDWIDTH,
 											MAX_BANDWIDTH,
 											SIM_PHYSICS_MEM,
@@ -156,7 +156,7 @@ extern LLTrace::Measurement<LLUnits::Bytes>	SIM_UNACKED_BYTES,
 											RAW_MEM,
 											FORMATTED_MEM;
 
-extern SimMeasurement<LLUnits::Milliseconds>	SIM_FRAME_TIME,
+extern SimMeasurement<LLTrace::Milliseconds>	SIM_FRAME_TIME,
 												SIM_NET_TIME,
 												SIM_OTHER_TIME,
 												SIM_PHYSICS_TIME,
@@ -172,7 +172,7 @@ extern SimMeasurement<LLUnits::Milliseconds>	SIM_FRAME_TIME,
 												SIM_PUMP_IO_TIME;
 
 
-extern LLTrace::Measurement<LLUnits::Milliseconds>	FRAMETIME_JITTER,
+extern LLTrace::Measurement<LLTrace::Milliseconds>	FRAMETIME_JITTER,
 													FRAMETIME_SLEW,
 													LOGIN_SECONDS,
 													REGION_CROSSING_TIME,

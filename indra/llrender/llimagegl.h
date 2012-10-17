@@ -34,6 +34,7 @@
 #include "llpointer.h"
 #include "llrefcount.h"
 #include "v2math.h"
+#include "llunit.h"
 
 #include "llrender.h"
 class LLTextureAtlas ;
@@ -245,9 +246,9 @@ public:
 	static F32 sLastFrameTime;
 
 	// Global memory statistics
-	static S32 sGlobalTextureMemoryInBytes;		// Tracks main memory texmem
-	static S32 sBoundTextureMemoryInBytes;	// Tracks bound texmem for last completed frame
-	static S32 sCurBoundTextureMemory;		// Tracks bound texmem for current frame
+	static LLUnit::Bytes<S32> sGlobalTextureMemory;	// Tracks main memory texmem
+	static LLUnit::Bytes<S32> sBoundTextureMemory;	// Tracks bound texmem for last completed frame
+	static LLUnit::Bytes<S32> sCurBoundTextureMemory;		// Tracks bound texmem for current frame
 	static U32 sBindCount;					// Tracks number of texture binds for current frame
 	static U32 sUniqueCount;				// Tracks number of unique texture binds for current frame
 	static BOOL sGlobalUseAnisotropic;

@@ -703,11 +703,11 @@ void LLWorld::updateNetStats()
 	S32 actual_in_bits = gMessageSystem->mPacketRing.getAndResetActualInBits();
 	S32 actual_out_bits = gMessageSystem->mPacketRing.getAndResetActualOutBits();
 
-	LLStatViewer::ACTUAL_IN_KBIT.add<LLUnits::Bits>(actual_in_bits);
-	LLStatViewer::ACTUAL_OUT_KBIT.add<LLUnits::Bits>(actual_out_bits);
+	LLStatViewer::ACTUAL_IN_KBIT.add<LLTrace::Bits>(actual_in_bits);
+	LLStatViewer::ACTUAL_OUT_KBIT.add<LLTrace::Bits>(actual_out_bits);
 	//LLViewerStats::getInstance()->mActualInKBitStat.addValue(actual_in_bits/1024.f);
 	//LLViewerStats::getInstance()->mActualOutKBitStat.addValue(actual_out_bits/1024.f);
-	LLStatViewer::KBIT.add<LLUnits::Bits>(bits);
+	LLStatViewer::KBIT.add<LLTrace::Bits>(bits);
 	//LLViewerStats::getInstance()->mKBitStat.addValue(bits/1024.f);
 	LLStatViewer::PACKETS_IN.add(packets_in);
 	LLStatViewer::PACKETS_OUT.add(packets_out);

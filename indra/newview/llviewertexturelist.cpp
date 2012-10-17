@@ -606,8 +606,8 @@ void LLViewerTextureList::updateImages(F32 max_time)
 	if(gTeleportDisplay)
 	{
 		if(!cleared)
-	{
-		clearFetchingRequests();
+		{
+			clearFetchingRequests();
 			gPipeline.clearRebuildGroups();
 			cleared = TRUE;
 		}
@@ -623,10 +623,10 @@ void LLViewerTextureList::updateImages(F32 max_time)
 		using namespace LLStatViewer;
 		NUM_IMAGES.sample(sNumImages);
 		NUM_RAW_IMAGES.sample(LLImageRaw::sRawImageCount);
-		GL_TEX_MEM.sample<LLUnits::Bytes>(LLImageGL::sGlobalTextureMemoryInBytes);
-		GL_BOUND_MEM.sample<LLUnits::Bytes>(LLImageGL::sBoundTextureMemoryInBytes);
-		RAW_MEM.sample<LLUnits::Bytes>(LLImageRaw::sGlobalRawMemory);
-		FORMATTED_MEM.sample<LLUnits::Bytes>(LLImageFormatted::sGlobalFormattedMemory);
+		GL_TEX_MEM.sample(LLImageGL::sGlobalTextureMemory);
+		GL_BOUND_MEM.sample(LLImageGL::sBoundTextureMemory);
+		RAW_MEM.sample<LLTrace::Bytes>(LLImageRaw::sGlobalRawMemory);
+		FORMATTED_MEM.sample<LLTrace::Bytes>(LLImageFormatted::sGlobalFormattedMemory);
 	}
 
 	{
@@ -1184,7 +1184,7 @@ S32 LLViewerTextureList::getMinVideoRamSetting()
 {
 	S32 system_ram = (S32)BYTES_TO_MEGA_BYTES(gSysMemory.getPhysicalMemoryClamped());
 	//min texture mem sets to 64M if total physical mem is more than 1.5GB
-	return (system_ram > 1500) ? 64 : MIN_VIDEO_RAM_IN_MEGA_BYTES ;
+	return (system_ram > 1500) ? 64 : gMinVideoRam.value() ;
 }
 
 //static
@@ -1234,7 +1234,7 @@ S32 LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended)
 	else
 		max_texmem = llmin(max_texmem, (S32)(system_ram));
 		
-	max_texmem = llclamp(max_texmem, getMinVideoRamSetting(), MAX_VIDEO_RAM_IN_MEGA_BYTES); 
+	max_texmem = llclamp(max_texmem, getMinVideoRamSetting(), gMaxVideoRam.value()); 
 	
 	return max_texmem;
 }
@@ -1322,7 +1322,7 @@ void LLViewerTextureList::receiveImageHeader(LLMessageSystem *msg, void **user_d
 	{
 		received_size = msg->getReceiveSize() ;		
 	}
-	LLStatViewer::TEXTURE_KBIT.add<LLUnits::Bytes>(received_size);
+	LLStatViewer::TEXTURE_KBIT.add<LLTrace::Bytes>(received_size);
 	LLStatViewer::TEXTURE_PACKETS.add(1);
 	
 	U8 codec;
@@ -1396,7 +1396,7 @@ void LLViewerTextureList::receiveImagePacket(LLMessageSystem *msg, void **user_d
 		received_size = msg->getReceiveSize() ;		
 	}
 
-	LLStatViewer::TEXTURE_KBIT.add<LLUnits::Bytes>(received_size);
+	LLStatViewer::TEXTURE_KBIT.add<LLTrace::Bytes>(received_size);
 	LLStatViewer::TEXTURE_PACKETS.add(1);
 	
 	//llprintline("Start decode, image header...");

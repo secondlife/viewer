@@ -214,7 +214,7 @@ namespace LLTrace
 			return mRecordingPeriods[(mCurPeriod + mNumPeriods - 1) % mNumPeriods];
 		}
 
-		Recording getCurRecordingPeriod()
+		Recording& getCurRecordingPeriod()
 		{
 			return mRecordingPeriods[mCurPeriod];
 		}

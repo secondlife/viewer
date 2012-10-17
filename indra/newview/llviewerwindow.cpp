@@ -4740,7 +4740,7 @@ void LLViewerWindow::stopGL(BOOL save_state)
 		gGLManager.mIsDisabled = TRUE;
 		stop_glerror();
 		
-		llinfos << "Remaining allocated texture memory: " << LLImageGL::sGlobalTextureMemoryInBytes << " bytes" << llendl;
+		llinfos << "Remaining allocated texture memory: " << LLImageGL::sGlobalTextureMemory.value() << " bytes" << llendl;
 	}
 }
 

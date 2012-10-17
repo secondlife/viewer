@@ -46,6 +46,30 @@ namespace LLTrace
 {
 	class Recording;
 
+	typedef LLUnit::Bytes<F64>			Bytes;
+	typedef LLUnit::Kilobytes<F64>		Kilobytes;
+	typedef LLUnit::Megabytes<F64>		Megabytes;
+	typedef LLUnit::Gigabytes<F64>		Gigabytes;
+	typedef LLUnit::Bits<F64>			Bits;
+	typedef LLUnit::Kilobits<F64>		Kilobits;
+	typedef LLUnit::Megabits<F64>		Megabits;
+	typedef LLUnit::Gigabits<F64>		Gigabits;
+
+	typedef LLUnit::Seconds<F64>		Seconds;
+	typedef LLUnit::Milliseconds<F64>	Milliseconds;
+	typedef LLUnit::Minutes<F64>		Minutes;
+	typedef LLUnit::Hours<F64>			Hours;
+	typedef LLUnit::Days<F64>			Days;
+	typedef LLUnit::Weeks<F64>			Weeks;
+	typedef LLUnit::Milliseconds<F64>	Milliseconds;
+	typedef LLUnit::Microseconds<F64>	Microseconds;
+	typedef LLUnit::Nanoseconds<F64>	Nanoseconds;
+
+	typedef LLUnit::Meters<F64>			Meters;
+	typedef LLUnit::Kilometers<F64>		Kilometers;
+	typedef LLUnit::Centimeters<F64>	Centimeters;
+	typedef LLUnit::Millimeters<F64>	Millimeters;
+
 	void init();
 	void cleanup();
 
@@ -353,15 +377,15 @@ namespace LLTrace
 
 	template <typename T>
 	class LL_COMMON_API Measurement <T, typename T::is_unit_t>
-	:	public Measurement<typename T::value_t>
+	:	public Measurement<typename T::storage_t>
 	{
 	public:
 		typedef typename T::storage_t storage_t;
 		typedef typename T::base_unit_t base_unit_t;
-		typedef Measurement<typename T::value_t> base_measurement_t;
+		typedef Measurement<typename T::storage_t> base_measurement_t;
 
 		Measurement(const char* name, const char* description = NULL) 
-		:	Measurement<typename T::value_t>(name)
+		:	Measurement<typename T::storage_t>(name, description)
 		{}
 
 		template<typename UNIT_T>
@@ -393,15 +417,15 @@ namespace LLTrace
 
 	template <typename T>
 	class LL_COMMON_API Count <T, typename T::is_unit_t>
-	:	public Count<typename T::value_t>
+	:	public Count<typename T::storage_t>
 	{
 	public:
 		typedef typename T::storage_t storage_t;
 		typedef typename T::base_unit_t base_unit_t;
-		typedef Count<typename T::value_t> base_count_t;
+		typedef Count<typename T::storage_t> base_count_t;
 
 		Count(const char* name, const char* description = NULL) 
-		:	Count<typename T::value_t>(name)
+		:	Count<typename T::storage_t>(name)
 		{}
 
 		template<typename UNIT_T>
