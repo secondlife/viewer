@@ -54,7 +54,7 @@ LLMenuOptionPathfindingRebakeNavmesh::LLMenuOptionPathfindingRebakeNavmesh()
 
 LLMenuOptionPathfindingRebakeNavmesh::~LLMenuOptionPathfindingRebakeNavmesh() 
 {
-	if (getMode() == kRebakeNavMesh_RequestSent)
+	if (mRebakeNavMeshMode == kRebakeNavMesh_RequestSent)
 	{
 		LL_WARNS("navmeshRebaking") << "During destruction of the LLMenuOptionPathfindingRebakeNavmesh "
 			<< "singleton, the mode indicates that a request has been sent for which a response has yet "
