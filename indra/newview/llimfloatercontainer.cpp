@@ -44,6 +44,7 @@
 #include "llfloateravatarpicker.h"
 #include "llfloaterpreference.h"
 #include "llimview.h"
+#include "llnotificationsutil.h"
 #include "lltransientfloatermgr.h"
 #include "llviewercontrol.h"
 #include "llconversationview.h"
@@ -830,59 +831,67 @@ void LLIMFloaterContainer::getParticipantUUIDs(uuid_vec_t& selected_uuids)
 
 void LLIMFloaterContainer::doToParticipants(const std::string& command, uuid_vec_t& selectedIDS)
 {
-    if(selectedIDS.size() > 0)
-{
-        const LLUUID userID = selectedIDS.front();
+	if(selectedIDS.size() > 0)
+	{
+		const LLUUID& userID = selectedIDS.front();
 
-    if ("view_profile" == command)
-    {
-        LLAvatarActions::showProfile(userID);
-    }
-    else if("im" == command)
-    {
-        LLAvatarActions::startIM(userID);
-    }
-    else if("offer_teleport" == command)
-    {
-        LLAvatarActions::offerTeleport(selectedIDS);
-    }
-    else if("voice_call" == command)
-    {
-        LLAvatarActions::startCall(userID);
-    }
-    else if("chat_history" == command)
-    {
-        LLAvatarActions::viewChatHistory(userID);
-    }
-    else if("add_friend" == command)
-    {
-        LLAvatarActions::requestFriendshipDialog(userID);
-    }
-    else if("remove_friend" == command)
-    {
-        LLAvatarActions::removeFriendDialog(userID);
-    }
-    else if("invite_to_group" == command)
-    {
-        LLAvatarActions::inviteToGroup(userID);
-    }
-    else if("map" == command)
-    {
-        LLAvatarActions::showOnMap(userID);
-    }
-    else if("share" == command)
-    {
-        LLAvatarActions::share(userID);
-    }
-    else if("pay" == command)
-    {
-        LLAvatarActions::pay(userID);
-    }
-    else if("block_unblock" == command)
-    {
-        LLAvatarActions::toggleBlock(userID);
-    }
-}
+		if ("view_profile" == command)
+		{
+			LLAvatarActions::showProfile(userID);
+		}
+		else if("im" == command)
+		{
+			LLAvatarActions::startIM(userID);
+		}
+		else if("offer_teleport" == command)
+		{
+			LLAvatarActions::offerTeleport(selectedIDS);
+		}
+		else if("voice_call" == command)
+		{
+			LLAvatarActions::startCall(userID);
+		}
+		else if("chat_history" == command)
+		{
+			LLAvatarActions::viewChatHistory(userID);
+		}
+		else if("add_friend" == command)
+		{
+			LLAvatarActions::requestFriendshipDialog(userID);
+		}
+		else if("remove_friend" == command)
+		{
+			LLAvatarActions::removeFriendDialog(userID);
+		}
+		else if("invite_to_group" == command)
+		{
+			LLAvatarActions::inviteToGroup(userID);
+		}
+		else if("map" == command)
+		{
+			LLAvatarActions::showOnMap(userID);
+		}
+		else if("share" == command)
+		{
+			LLAvatarActions::share(userID);
+		}
+		else if("pay" == command)
+		{
+			LLAvatarActions::pay(userID);
+		}
+		else if("block_unblock" == command)
+		{
+			LLAvatarActions::toggleBlock(userID);
+		}
+		else if("selected" == command || "mute_all" == command || "unmute_all" == command)
+		{
+			moderateVoice(command, userID);
+		}
+		else if ("toggle_allow_text_chat" == command)
+		{
+			toggleAllowTextChat(userID);
+		}
+	}
 }
 
 void LLIMFloaterContainer::doToSelectedConversation(const std::string& command, uuid_vec_t& selectedIDS)
@@ -963,8 +972,8 @@ void LLIMFloaterContainer::doToSelectedGroup(const LLSD& userdata)
 bool LLIMFloaterContainer::enableContextMenuItem(const LLSD& userdata)
 {
     std::string item = userdata.asString();
-    uuid_vec_t mUUIDs;
-    getParticipantUUIDs(mUUIDs);
+	uuid_vec_t uuids;
+	getParticipantUUIDs(uuids);
 
     if(item == std::string("can_activate_group"))
     {
@@ -972,7 +981,7 @@ bool LLIMFloaterContainer::enableContextMenuItem(const LLSD& userdata)
     	return gAgent.getGroupID() != selected_group_id;
     }
 
-    if(mUUIDs.size() <= 0)
+	if(uuids.size() <= 0)
     {
         return false;
     }
@@ -982,7 +991,7 @@ bool LLIMFloaterContainer::enableContextMenuItem(const LLSD& userdata)
 
     if (item == std::string("can_block"))
     {
-        const LLUUID& id = mUUIDs.front();
+		const LLUUID& id = uuids.front();
         return LLAvatarActions::canBlock(id);
     }
     else if (item == std::string("can_add"))
@@ -992,7 +1001,7 @@ bool LLIMFloaterContainer::enableContextMenuItem(const LLSD& userdata)
         // - and there are no friends among selection yet.
 
         //EXT-7389 - disable for more than 1
-        if(mUUIDs.size() > 1)
+		if(uuids.size() > 1)
         {
             return false;
         }
@@ -1000,8 +1009,8 @@ bool LLIMFloaterContainer::enableContextMenuItem(const LLSD& userdata)
         bool result = true;
 
         uuid_vec_t::const_iterator
-            id = mUUIDs.begin(),
-            uuids_end = mUUIDs.end();
+			id = uuids.begin(),
+			uuids_end = uuids.end();
 
         for (;id != uuids_end; ++id)
         {
@@ -1020,11 +1029,11 @@ bool LLIMFloaterContainer::enableContextMenuItem(const LLSD& userdata)
         // - there are selected people
         // - and there are only friends among selection.
 
-        bool result = (mUUIDs.size() > 0);
+        bool result = (uuids.size() > 0);
 
         uuid_vec_t::const_iterator
-            id = mUUIDs.begin(),
-            uuids_end = mUUIDs.end();
+			id = uuids.begin(),
+			uuids_end = uuids.end();
 
         for (;id != uuids_end; ++id)
         {
@@ -1043,15 +1052,20 @@ bool LLIMFloaterContainer::enableContextMenuItem(const LLSD& userdata)
     }
     else if (item == std::string("can_show_on_map"))
     {
-        const LLUUID& id = mUUIDs.front();
+		const LLUUID& id = uuids.front();
 
         return (LLAvatarTracker::instance().isBuddyOnline(id) && is_agent_mappable(id))
             || gAgent.isGodlike();
     }
     else if(item == std::string("can_offer_teleport"))
     {
-        return LLAvatarActions::canOfferTeleport(mUUIDs);
+		return LLAvatarActions::canOfferTeleport(uuids);
     }
+	else if("can_moderate_voice" == item || "can_allow_text_chat" == item || "can_mute" == item || "can_unmute" == item)
+	{
+		return enableModerateContextMenuItem(item);
+	}
+
     return false;
 }
 
@@ -1063,10 +1077,19 @@ bool LLIMFloaterContainer::checkContextMenuItem(const LLSD& userdata)
 
     if(mUUIDs.size() > 0 )
     {
-    if (item == std::string("is_blocked"))
-    {
-            return LLAvatarActions::isBlocked(mUUIDs.front());
-        }
+		if ("is_blocked" == item)
+		{
+			return LLAvatarActions::isBlocked(mUUIDs.front());
+		}
+		else if ("is_allowed_text_chat" == item)
+		{
+			const LLSpeaker * speakerp = getSpeakerOfSelectedParticipant(getSpeakerMgrForSelectedParticipant());
+
+			if (NULL != speakerp)
+			{
+				return !speakerp->mModeratorMutedText;
+			}
+		}
     }
 
     return false;
@@ -1282,6 +1305,191 @@ LLConversationViewParticipant* LLIMFloaterContainer::createConversationViewParti
 	params.participant_id = item->getUUID();
 	
 	return LLUICtrlFactory::create<LLConversationViewParticipant>(params);
+}
+
+bool LLIMFloaterContainer::enableModerateContextMenuItem(const std::string& userdata)
+{
+	// only group moderators can perform actions related to this "enable callback"
+	if (!isGroupModerator())
+	{
+		return false;
+	}
+
+	LLSpeaker * speakerp = getSpeakerOfSelectedParticipant(getSpeakerMgrForSelectedParticipant());
+	if (NULL == speakerp)
+	{
+		return false;
+	}
+
+	bool voice_channel = speakerp->isInVoiceChannel();
+
+	if ("can_moderate_voice" == userdata)
+	{
+		return voice_channel;
+	}
+	else if ("can_mute" == userdata)
+	{
+		return voice_channel && !isMuted(getCurSelectedViewModelItem()->getUUID());
+	}
+	else if ("can_unmute" == userdata)
+	{
+		return voice_channel && isMuted(getCurSelectedViewModelItem()->getUUID());
+	}
+
+	// The last invoke is used to check whether the "can_allow_text_chat" will enabled
+	return LLVoiceClient::getInstance()->isParticipantAvatar(getCurSelectedViewModelItem()->getUUID());
+}
+
+bool LLIMFloaterContainer::isGroupModerator()
+{
+	LLSpeakerMgr * speaker_manager = getSpeakerMgrForSelectedParticipant();
+	if (NULL == speaker_manager)
+	{
+		llwarns << "Speaker manager is missing" << llendl;
+		return false;
+	}
+
+	// Is session a group call/chat?
+	if(gAgent.isInGroup(speaker_manager->getSessionID()))
+	{
+		LLSpeaker * speaker = speaker_manager->findSpeaker(gAgentID).get();
+
+		// Is agent a moderator?
+		return speaker && speaker->mIsModerator;
+	}
+
+	return false;
+}
+
+void LLIMFloaterContainer::moderateVoice(const std::string& command, const LLUUID& userID)
+{
+	if (!gAgent.getRegion()) return;
+
+	if (command.compare("selected"))
+	{
+		moderateVoiceAllParticipants(command.compare("mute_all"));
+	}
+	else
+	{
+		moderateVoiceParticipant(userID, isMuted(userID));
+	}
+}
+
+bool LLIMFloaterContainer::isMuted(const LLUUID& avatar_id)
+{
+	const LLSpeaker * speakerp = getSpeakerOfSelectedParticipant(getSpeakerMgrForSelectedParticipant());
+	return NULL == speakerp ? true : speakerp->mStatus == LLSpeaker::STATUS_MUTED;
+}
+
+void LLIMFloaterContainer::moderateVoiceAllParticipants(bool unmute)
+{
+	LLIMSpeakerMgr * speaker_managerp = dynamic_cast<LLIMSpeakerMgr*>(getSpeakerMgrForSelectedParticipant());
+
+	if (NULL != speaker_managerp)
+	{
+		if (!unmute)
+		{
+			LLSD payload;
+			payload["session_id"] = speaker_managerp->getSessionID();
+			LLNotificationsUtil::add("ConfirmMuteAll", LLSD(), payload, confirmMuteAllCallback);
+			return;
+		}
+
+		speaker_managerp->moderateVoiceAllParticipants(unmute);
+	}
+}
+
+// static
+void LLIMFloaterContainer::confirmMuteAllCallback(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	// if Cancel pressed
+	if (option == 1)
+	{
+		return;
+	}
+
+	const LLSD& payload = notification["payload"];
+	const LLUUID& session_id = payload["session_id"];
+
+	LLIMSpeakerMgr * speaker_manager = dynamic_cast<LLIMSpeakerMgr*> (
+		LLIMModel::getInstance()->getSpeakerManager(session_id));
+	if (speaker_manager)
+	{
+		speaker_manager->moderateVoiceAllParticipants(false);
+	}
+
+	return;
+}
+
+void LLIMFloaterContainer::moderateVoiceParticipant(const LLUUID& avatar_id, bool unmute)
+{
+	LLIMSpeakerMgr * speaker_managerp = dynamic_cast<LLIMSpeakerMgr *>(getSpeakerMgrForSelectedParticipant());
+
+	if (NULL != speaker_managerp)
+	{
+		speaker_managerp->moderateVoiceParticipant(avatar_id, unmute);
+	}
+}
+
+LLSpeakerMgr * LLIMFloaterContainer::getSpeakerMgrForSelectedParticipant()
+{
+	LLFolderViewItem * selected_folder_itemp = mConversationsRoot->getCurSelectedItem();
+	if (NULL == selected_folder_itemp)
+	{
+		llwarns << "Current selected item is null" << llendl;
+		return NULL;
+	}
+
+	LLFolderViewFolder * conversation_itemp = selected_folder_itemp->getParentFolder();
+
+	conversations_widgets_map::const_iterator iter = mConversationsWidgets.begin();
+	conversations_widgets_map::const_iterator end = mConversationsWidgets.end();
+	const LLUUID * conversation_uuidp = NULL;
+	while(iter != end)
+	{
+		if (iter->second == conversation_itemp)
+		{
+			conversation_uuidp = &iter->first;
+			break;
+		}
+		++iter;
+	}
+	if (NULL == conversation_uuidp)
+	{
+		llwarns << "Cannot find conversation item widget" << llendl;
+		return NULL;
+	}
+
+	return conversation_uuidp->isNull() ? (LLSpeakerMgr *)LLLocalSpeakerMgr::getInstance()
+		: LLIMModel::getInstance()->getSpeakerManager(*conversation_uuidp);
+}
+
+LLSpeaker * LLIMFloaterContainer::getSpeakerOfSelectedParticipant(LLSpeakerMgr * speaker_managerp)
+{
+	if (NULL == speaker_managerp)
+	{
+		llwarns << "Speaker manager is missing" << llendl;
+		return NULL;
+	}
+
+	const LLConversationItem * participant_itemp = getCurSelectedViewModelItem();
+	if (NULL == participant_itemp)
+	{
+		llwarns << "Cannot evaluate current selected view model item" << llendl;
+		return NULL;
+	}
+
+	return speaker_managerp->findSpeaker(participant_itemp->getUUID());
+}
+
+void LLIMFloaterContainer::toggleAllowTextChat(const LLUUID& participant_uuid)
+{
+	LLIMSpeakerMgr * speaker_managerp = dynamic_cast<LLIMSpeakerMgr*>(getSpeakerMgrForSelectedParticipant());
+	if (NULL != speaker_managerp)
+	{
+		speaker_managerp->toggleAllowTextChat(participant_uuid);
+	}
 }
 
 // EOF
