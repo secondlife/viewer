@@ -664,12 +664,13 @@ BOOL LLVOAvatarSelf::setParamWeight(const LLViewerVisualParam *param, F32 weight
 		return FALSE;
 	}
 
+#if 0
 	// FIXME DRANO - kludgy way to avoid overwriting avatar state from wearables.
 	if (isUsingServerBakes() && !isUsingLocalAppearance())
 	{
 		return FALSE;
 	}
-
+#endif
 
 	if (param->getCrossWearable())
 	{
@@ -2654,7 +2655,11 @@ void LLVOAvatarSelf::onCustomizeStart(bool disable_camera_switch)
 			gAgentCamera.changeCameraToCustomizeAvatar();
 		}
 
+#if 0
 		gAgentAvatarp->clearVisualParamWeights();
+		gAgentAvatarp->idleUpdateAppearanceAnimation();
+#endif
+		
 		gAgentAvatarp->invalidateAll();
 		gAgentAvatarp->updateMeshTextures();
 	}

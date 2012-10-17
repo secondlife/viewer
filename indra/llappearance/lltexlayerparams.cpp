@@ -67,6 +67,7 @@ BOOL LLTexLayerParam::setInfo(LLViewerVisualParamInfo *info, BOOL add_to_appeara
 	if (add_to_appearance)
 	{
 		mAvatarAppearance->addVisualParam( this);
+		this->setParamLocation(mAvatarAppearance->isSelf() ? LOC_AV_SELF : LOC_AV_OTHER);
 	}
 
 	return TRUE;

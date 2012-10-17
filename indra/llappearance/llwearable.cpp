@@ -128,7 +128,10 @@ void LLWearable::createVisualParams(LLAvatarAppearance *avatarp)
 	{
 		if (param->getWearableType() == mType)
 		{
-			addVisualParam(param->cloneParam(this));
+			LLVisualParam *clone_param = param->cloneParam(this);
+			clone_param->setParamLocation(LOC_UNKNOWN);
+			clone_param->setParamLocation(LOC_WEARABLE);
+			addVisualParam(clone_param);
 		}
 	}
 
@@ -629,6 +632,7 @@ void LLWearable::addVisualParam(LLVisualParam *param)
 		delete mVisualParamIndexMap[param->getID()];
 	}
 	param->setIsDummy(FALSE);
+	param->setParamLocation(LOC_WEARABLE);
 	mVisualParamIndexMap[param->getID()] = param;
 	mSavedVisualParamMap[param->getID()] = param->getDefaultWeight();
 }

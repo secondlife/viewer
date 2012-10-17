@@ -481,6 +481,7 @@ BOOL LLDriverParam::linkDrivenParams(visual_param_mapper mapper, BOOL only_cross
 		if (!found)
 		{
 			LLViewerVisualParam* param = (LLViewerVisualParam*)mapper(driven_id);
+			if (param) param->setParamLocation(this->getParamLocation());
 			bool push = param && (!only_cross_params || param->getCrossWearable());
 			if (push)
 			{
