@@ -283,7 +283,7 @@ private:
 	struct Line
 	{
 		Line(const std::string& in_text, S32 in_x, S32 in_y) : text(in_text), x(in_x), y(in_y) {}
-		std::string text;
+		std::string text; 
 		S32 x,y;
 	};
 
