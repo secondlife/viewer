@@ -222,6 +222,13 @@ void LLConversationViewSession::toggleOpen()
 	if (!mMinimizedMode)
 	{
 		LLFolderViewFolder::toggleOpen();
+
+		// do item's selection when opened
+		if (LLFolderViewFolder::isOpen())
+		{
+			getParentFolder()->setSelection(this, true);
+		}
+		
 	}
 }
 
