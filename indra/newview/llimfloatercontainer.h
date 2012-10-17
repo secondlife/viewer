@@ -45,6 +45,8 @@ class LLLayoutPanel;
 class LLLayoutStack;
 class LLTabContainer;
 class LLIMFloaterContainer;
+class LLSpeaker;
+class LLSpeakerMgr;
 
 class LLIMFloaterContainer
 	: public LLMultiFloater
@@ -89,6 +91,7 @@ public:
 
 	LLConversationViewModel& getRootViewModel() { return mConversationViewModel; }
     LLUUID getSelectedSession() { return mSelectedSession; }
+    void setSelectedSession(LLUUID sessionID) { mSelectedSession = sessionID; }
 
 private:
 	typedef std::map<LLUUID,LLFloater*> avatarID_panel_map_t;
@@ -124,6 +127,17 @@ private:
     void doToSelectedGroup(const LLSD& userdata);
     bool checkContextMenuItem(const LLSD& userdata);
     bool enableContextMenuItem(const LLSD& userdata);
+
+	static void confirmMuteAllCallback(const LLSD& notification, const LLSD& response);
+	bool enableModerateContextMenuItem(const std::string& userdata);
+	LLSpeaker * getSpeakerOfSelectedParticipant(LLSpeakerMgr * speaker_managerp);
+	LLSpeakerMgr * getSpeakerMgrForSelectedParticipant();
+	bool isGroupModerator();
+	bool isMuted(const LLUUID& avatar_id);
+	void moderateVoice(const std::string& command, const LLUUID& userID);
+	void moderateVoiceAllParticipants(bool unmute);
+	void moderateVoiceParticipant(const LLUUID& avatar_id, bool unmute);
+	void toggleAllowTextChat(const LLUUID& participant_uuid);
 
 	LLButton* mExpandCollapseBtn;
 	LLLayoutPanel* mMessagesPane;

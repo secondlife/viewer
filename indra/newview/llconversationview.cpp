@@ -242,6 +242,9 @@ void LLConversationViewSession::selectItem()
 	
 	// Set the focus on the selected floater
 	session_floater->setFocus(TRUE);
+    // Store the active session
+    LLIMFloaterContainer::getInstance()->setSelectedSession(item->getUUID());
+
 
 	LLFolderViewItem::selectItem();
 }
@@ -441,6 +444,9 @@ void LLConversationViewParticipant::selectItem()
         {
             LLIMFloater::show(vmi->getUUID());
         }
+
+        // Store the active session
+        container->setSelectedSession(vmi->getUUID());
     }
     //Focus the current conversation floater (it is already visible so just focus it)
     else
