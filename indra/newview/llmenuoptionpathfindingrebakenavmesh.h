@@ -24,34 +24,22 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LL_LLPANELPATHFINDINGREBAKENAVMESH_H
-#define LL_LLPANELPATHFINDINGREBAKENAVMESH_H
+#ifndef LL_LLMENUOPTIONPATHFINDINGREBAKENAVMESH_H
+#define LL_LLMENUOPTIONPATHFINDINGREBAKENAVMESH_H
 
 #include <boost/signals2.hpp>
 
-#include "llpanel.h"
 #include "llpathfindingmanager.h"
 #include "llpathfindingnavmesh.h"
+#include "llsingleton.h"
 
-class LLButton;
 class LLPathfindingNavMeshStatus;
 
-class LLPanelPathfindingRebakeNavmesh : public LLPanel
+class LLMenuOptionPathfindingRebakeNavmesh : public LLSingleton<LLMenuOptionPathfindingRebakeNavmesh>
 {
-
-	LOG_CLASS(LLPanelPathfindingRebakeNavmesh);
+	LOG_CLASS(LLMenuOptionPathfindingRebakeNavmesh);
 
 public:
-	static LLPanelPathfindingRebakeNavmesh* getInstance();
-
-	virtual BOOL postBuild();
-
-	virtual void draw();
-	virtual BOOL handleToolTip( S32 x, S32 y, MASK mask );
-
-protected:
-
-private:
 	typedef enum
 	{
 		kRebakeNavMesh_Available,
@@ -61,15 +49,21 @@ private:
 		kRebakeNavMesh_Default = kRebakeNavMesh_NotAvailable
 	} ERebakeNavMeshMode;
 
-	LLPanelPathfindingRebakeNavmesh();
-	virtual ~LLPanelPathfindingRebakeNavmesh();
+	LLMenuOptionPathfindingRebakeNavmesh();
+	virtual ~LLMenuOptionPathfindingRebakeNavmesh();
 
-	static LLPanelPathfindingRebakeNavmesh* getPanel();
+	void               initialize();
+	void               quit();
 
-	void               setMode(ERebakeNavMeshMode pRebakeNavMeshMode);
+	bool               canRebakeRegion() const;
 	ERebakeNavMeshMode getMode() const;
 	
-	void onNavMeshRebakeClick();
+	void               sendRequestRebakeNavmesh();
+
+protected:
+
+private:
+	void setMode(ERebakeNavMeshMode pRebakeNavMeshMode);
 
 	void handleAgentState(BOOL pCanRebakeRegion);
 	void handleRebakeNavMeshResponse(bool pResponseStatus);
@@ -78,19 +72,14 @@ private:
 
 	void createNavMeshStatusListenerForCurrentRegion();
 
-	bool doDraw() const;
-	void updatePosition();
+	bool                                     mIsInitialized;
 
-	BOOL                                     mCanRebakeRegion;
+	bool                                     mCanRebakeRegion;
 	ERebakeNavMeshMode                       mRebakeNavMeshMode;
 	
-	LLButton*                                mNavMeshRebakeButton;
-	LLButton*                                mNavMeshSendingButton;
-	LLButton*                                mNavMeshBakingButton;
-
 	LLPathfindingNavMesh::navmesh_slot_t     mNavMeshSlot;
 	boost::signals2::connection              mRegionCrossingSlot;
 	LLPathfindingManager::agent_state_slot_t mAgentStateSlot;
 };
 
-#endif // LL_LLPANELPATHFINDINGREBAKENAVMESH_H
+#endif // LL_LLMENUOPTIONPATHFINDINGREBAKENAVMESH_H

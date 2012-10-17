@@ -984,6 +984,16 @@
           <menu_item_call.on_enable
               function="Tools.EnablePathfindingView" />
         </menu_item_call>
+        <menu_item_call
+            label="Rebake region"
+            name="pathfinding_rebake_navmesh_item">
+          <menu_item_call.on_click
+              function="Tools.DoPathfindingRebakeRegion"/>
+          <menu_item_call.on_enable
+              function="Tools.EnablePathfindingRebakeRegion" />
+          <menu_item_call.on_visible
+              function="Tools.VisiblePathfindingRebakeRegion" />
+        </menu_item_call>
       </menu>
 
 

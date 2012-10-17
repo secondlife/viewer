@@ -34,148 +34,147 @@
 #include <boost/signals2.hpp>
 
 #include "llagent.h"
-#include "llbutton.h"
 #include "llenvmanager.h"
-#include "llhints.h"
 #include "llnotificationsutil.h"
-#include "llpanel.h"
 #include "llpathfindingmanager.h"
 #include "llpathfindingnavmesh.h"
 #include "llpathfindingnavmeshstatus.h"
-#include "lltoolbar.h"
-#include "lltoolbarview.h"
-#include "lltooltip.h"
 #include "llviewerregion.h"
 
-LLPanelPathfindingRebakeNavmesh* LLPanelPathfindingRebakeNavmesh::getInstance()
-{
-	static LLPanelPathfindingRebakeNavmesh* panel = getPanel();
-	return panel;
-}
-
-BOOL LLPanelPathfindingRebakeNavmesh::postBuild()
-{
-	//Rebake button
-	mNavMeshRebakeButton = findChild<LLButton>("navmesh_btn");
-	llassert(mNavMeshRebakeButton != NULL);
-	mNavMeshRebakeButton->setCommitCallback(boost::bind(&LLPanelPathfindingRebakeNavmesh::onNavMeshRebakeClick, this));
-	LLHints::registerHintTarget("navmesh_btn", mNavMeshRebakeButton->getHandle());
-	
-	//Sending rebake request
-	mNavMeshSendingButton = findChild<LLButton>("navmesh_btn_sending");
-	llassert(mNavMeshSendingButton != NULL);
-	LLHints::registerHintTarget("navmesh_btn_sending", mNavMeshSendingButton->getHandle());
-
-	//rebaking...
-	mNavMeshBakingButton = findChild<LLButton>("navmesh_btn_baking");
-	llassert(mNavMeshBakingButton != NULL);
-	LLHints::registerHintTarget("navmesh_btn_baking", mNavMeshBakingButton->getHandle());
-
-	setMode(kRebakeNavMesh_Default);
-
-	createNavMeshStatusListenerForCurrentRegion();
-
-	if ( !mRegionCrossingSlot.connected() )
-	{
-		mRegionCrossingSlot = LLEnvManagerNew::getInstance()->setRegionChangeCallback(boost::bind(&LLPanelPathfindingRebakeNavmesh::handleRegionBoundaryCrossed, this));
-	}
-
-	if (!mAgentStateSlot.connected())
-	{
-		mAgentStateSlot = LLPathfindingManager::getInstance()->registerAgentStateListener(boost::bind(&LLPanelPathfindingRebakeNavmesh::handleAgentState, this, _1));
-	}
-	LLPathfindingManager::getInstance()->requestGetAgentState();
-
-	return LLPanel::postBuild();
-}
-
-void LLPanelPathfindingRebakeNavmesh::draw()
-{
-	if (doDraw())
-	{
-		updatePosition();
-		LLPanel::draw();
-	}
-}
-
-BOOL LLPanelPathfindingRebakeNavmesh::handleToolTip( S32 x, S32 y, MASK mask )
-{
-	LLToolTipMgr::instance().unblockToolTips();
-
-	if (mNavMeshRebakeButton->getVisible())
-	{
-		LLToolTipMgr::instance().show(mNavMeshRebakeButton->getToolTip());
-	}
-	else if (mNavMeshSendingButton->getVisible())
-	{
-		LLToolTipMgr::instance().show(mNavMeshSendingButton->getToolTip());
-	}
-	else if (mNavMeshBakingButton->getVisible())
-	{
-		LLToolTipMgr::instance().show(mNavMeshBakingButton->getToolTip());
-	}
-
-	return LLPanel::handleToolTip(x, y, mask);
-}
-
-LLPanelPathfindingRebakeNavmesh::LLPanelPathfindingRebakeNavmesh() 
-	: LLPanel(),
-	mCanRebakeRegion(FALSE),
+LLMenuOptionPathfindingRebakeNavmesh::LLMenuOptionPathfindingRebakeNavmesh() 
+	: LLSingleton<LLMenuOptionPathfindingRebakeNavmesh>(),
+	mIsInitialized(false),
+	mCanRebakeRegion(false),
 	mRebakeNavMeshMode(kRebakeNavMesh_Default),
-	mNavMeshRebakeButton(NULL),
-	mNavMeshSendingButton(NULL),
-	mNavMeshBakingButton(NULL),
 	mNavMeshSlot(),
 	mRegionCrossingSlot(),
 	mAgentStateSlot()
 {
-	// make sure we have the only instance of this class
-	static bool b = true;
-	llassert_always(b);
-	b=false;
 }
 
-LLPanelPathfindingRebakeNavmesh::~LLPanelPathfindingRebakeNavmesh() 
+LLMenuOptionPathfindingRebakeNavmesh::~LLMenuOptionPathfindingRebakeNavmesh() 
 {
-}
-
-LLPanelPathfindingRebakeNavmesh* LLPanelPathfindingRebakeNavmesh::getPanel()
-{
-	LLPanelPathfindingRebakeNavmesh* panel = new LLPanelPathfindingRebakeNavmesh();
-	panel->buildFromFile("panel_navmesh_rebake.xml");
-	return panel;
-}
-
-void LLPanelPathfindingRebakeNavmesh::setMode(ERebakeNavMeshMode pRebakeNavMeshMode)
-{
-	if (pRebakeNavMeshMode == kRebakeNavMesh_Available)
+	if (getMode() == kRebakeNavMesh_RequestSent)
 	{
-		LLNotificationsUtil::add("PathfindingRebakeNavmesh");
+		LL_WARNS("navmeshRebaking") << "During destruction of the LLMenuOptionPathfindingRebakeNavmesh "
+			<< "singleton, the mode indicates that a request has been sent for which a response has yet "
+			<< "to be received.  This could contribute to a crash on exit." << LL_ENDL;
 	}
-	mNavMeshRebakeButton->setVisible(pRebakeNavMeshMode == kRebakeNavMesh_Available);
-	mNavMeshSendingButton->setVisible(pRebakeNavMeshMode == kRebakeNavMesh_RequestSent);
-	mNavMeshBakingButton->setVisible(pRebakeNavMeshMode == kRebakeNavMesh_InProgress);
-	mRebakeNavMeshMode = pRebakeNavMeshMode;
+
+	llassert(!mIsInitialized);
+	if (mIsInitialized)
+	{
+		quit();
+	}
 }
 
-LLPanelPathfindingRebakeNavmesh::ERebakeNavMeshMode LLPanelPathfindingRebakeNavmesh::getMode() const
+void LLMenuOptionPathfindingRebakeNavmesh::initialize()
 {
+	llassert(!mIsInitialized);
+	if (!mIsInitialized)
+	{
+		mIsInitialized = true;
+
+		setMode(kRebakeNavMesh_Default);
+
+		createNavMeshStatusListenerForCurrentRegion();
+
+		if ( !mRegionCrossingSlot.connected() )
+		{
+			mRegionCrossingSlot = LLEnvManagerNew::getInstance()->setRegionChangeCallback(boost::bind(&LLMenuOptionPathfindingRebakeNavmesh::handleRegionBoundaryCrossed, this));
+		}
+
+		if (!mAgentStateSlot.connected())
+		{
+			mAgentStateSlot = LLPathfindingManager::getInstance()->registerAgentStateListener(boost::bind(&LLMenuOptionPathfindingRebakeNavmesh::handleAgentState, this, _1));
+		}
+		LLPathfindingManager::getInstance()->requestGetAgentState();
+	}
+}
+
+void LLMenuOptionPathfindingRebakeNavmesh::quit()
+{
+	llassert(mIsInitialized);
+	if (mIsInitialized)
+	{
+		if (mNavMeshSlot.connected())
+		{
+			mNavMeshSlot.disconnect();
+		}
+
+		if (mRegionCrossingSlot.connected())
+		{
+			mRegionCrossingSlot.disconnect();
+		}
+
+		if (mAgentStateSlot.connected())
+		{
+			mAgentStateSlot.disconnect();
+		}
+
+		mIsInitialized = false;
+	}
+}
+
+bool LLMenuOptionPathfindingRebakeNavmesh::canRebakeRegion() const
+{
+	if (!mIsInitialized)
+	{
+		LL_ERRS("navmeshRebaking") << "LLMenuOptionPathfindingRebakeNavmesh class has not been initialized "
+			<< "when the ability to rebake navmesh is being requested." << LL_ENDL;
+	}
+	return mCanRebakeRegion;
+}
+
+LLMenuOptionPathfindingRebakeNavmesh::ERebakeNavMeshMode LLMenuOptionPathfindingRebakeNavmesh::getMode() const
+{
+	if (!mIsInitialized)
+	{
+		LL_ERRS("navmeshRebaking") << "LLMenuOptionPathfindingRebakeNavmesh class has not been initialized "
+			<< "when the mode is being requested." << LL_ENDL;
+	}
 	return mRebakeNavMeshMode;
 }
 
-void LLPanelPathfindingRebakeNavmesh::onNavMeshRebakeClick()
+void LLMenuOptionPathfindingRebakeNavmesh::sendRequestRebakeNavmesh()
 {
-	setMode(kRebakeNavMesh_RequestSent);
-	LLPathfindingManager::getInstance()->requestRebakeNavMesh(boost::bind(&LLPanelPathfindingRebakeNavmesh::handleRebakeNavMeshResponse, this, _1));
+	if (!mIsInitialized)
+	{
+		LL_ERRS("navmeshRebaking") << "LLMenuOptionPathfindingRebakeNavmesh class has not been initialized "
+			<< "when the request is being made to rebake the navmesh." << LL_ENDL;
+	}
+	else
+	{
+		if (!canRebakeRegion())
+		{
+			LL_WARNS("navmeshRebaking") << "attempting to rebake navmesh when user does not have permissions "
+				<< "on this region" << LL_ENDL;
+		}
+		if (getMode() != kRebakeNavMesh_Available)
+		{
+			LL_WARNS("navmeshRebaking") << "attempting to rebake navmesh when mode is not available"
+				<< LL_ENDL;
+		}
+
+		setMode(kRebakeNavMesh_RequestSent);
+		LLPathfindingManager::getInstance()->requestRebakeNavMesh(boost::bind(&LLMenuOptionPathfindingRebakeNavmesh::handleRebakeNavMeshResponse, this, _1));
+	}
 }
 
-void LLPanelPathfindingRebakeNavmesh::handleAgentState(BOOL pCanRebakeRegion)
+void LLMenuOptionPathfindingRebakeNavmesh::setMode(ERebakeNavMeshMode pRebakeNavMeshMode)
 {
+	mRebakeNavMeshMode = pRebakeNavMeshMode;
+}
+
+void LLMenuOptionPathfindingRebakeNavmesh::handleAgentState(BOOL pCanRebakeRegion)
+{
+	llassert(mIsInitialized);
 	mCanRebakeRegion = pCanRebakeRegion;
 }
 
-void LLPanelPathfindingRebakeNavmesh::handleRebakeNavMeshResponse(bool pResponseStatus)
+void LLMenuOptionPathfindingRebakeNavmesh::handleRebakeNavMeshResponse(bool pResponseStatus)
 {
+	llassert(mIsInitialized);
 	if (getMode() == kRebakeNavMesh_RequestSent)
 	{
 		setMode(pResponseStatus ? kRebakeNavMesh_InProgress : kRebakeNavMesh_Default);
@@ -187,8 +186,9 @@ void LLPanelPathfindingRebakeNavmesh::handleRebakeNavMeshResponse(bool pResponse
 	}
 }
 
-void LLPanelPathfindingRebakeNavmesh::handleNavMeshStatus(const LLPathfindingNavMeshStatus &pNavMeshStatus)
+void LLMenuOptionPathfindingRebakeNavmesh::handleNavMeshStatus(const LLPathfindingNavMeshStatus &pNavMeshStatus)
 {
+	llassert(mIsInitialized);
 	ERebakeNavMeshMode rebakeNavMeshMode = kRebakeNavMesh_Default;
 	if (pNavMeshStatus.isValid())
 	{
@@ -214,14 +214,15 @@ void LLPanelPathfindingRebakeNavmesh::handleNavMeshStatus(const LLPathfindingNav
 	setMode(rebakeNavMeshMode);
 }
 
-void LLPanelPathfindingRebakeNavmesh::handleRegionBoundaryCrossed()
+void LLMenuOptionPathfindingRebakeNavmesh::handleRegionBoundaryCrossed()
 {
+	llassert(mIsInitialized);
 	createNavMeshStatusListenerForCurrentRegion();
 	mCanRebakeRegion = FALSE;
 	LLPathfindingManager::getInstance()->requestGetAgentState();
 }
 
-void LLPanelPathfindingRebakeNavmesh::createNavMeshStatusListenerForCurrentRegion()
+void LLMenuOptionPathfindingRebakeNavmesh::createNavMeshStatusListenerForCurrentRegion()
 {
 	if (mNavMeshSlot.connected())
 	{
@@ -231,39 +232,7 @@ void LLPanelPathfindingRebakeNavmesh::createNavMeshStatusListenerForCurrentRegio
 	LLViewerRegion *currentRegion = gAgent.getRegion();
 	if (currentRegion != NULL)
 	{
-		mNavMeshSlot = LLPathfindingManager::getInstance()->registerNavMeshListenerForRegion(currentRegion, boost::bind(&LLPanelPathfindingRebakeNavmesh::handleNavMeshStatus, this, _2));
+		mNavMeshSlot = LLPathfindingManager::getInstance()->registerNavMeshListenerForRegion(currentRegion, boost::bind(&LLMenuOptionPathfindingRebakeNavmesh::handleNavMeshStatus, this, _2));
 		LLPathfindingManager::getInstance()->requestGetNavMeshForRegion(currentRegion, true);
 	}
-}
-
-bool LLPanelPathfindingRebakeNavmesh::doDraw() const
-{
-	return (mCanRebakeRegion && (mRebakeNavMeshMode != kRebakeNavMesh_NotAvailable));
-}
-
-void LLPanelPathfindingRebakeNavmesh::updatePosition()
-{
-	S32 y_pos = 0;
-	S32 bottom_tb_center = 0;
-
-	if (LLToolBar* toolbar_bottom = gToolBarView->getChild<LLToolBar>("toolbar_bottom"))
-	{
-		y_pos = toolbar_bottom->getRect().getHeight();
-		bottom_tb_center = toolbar_bottom->getRect().getCenterX();
-	}
-
-	S32 left_tb_width = 0;
-	if (LLToolBar* toolbar_left = gToolBarView->getChild<LLToolBar>("toolbar_left"))
-	{
-		left_tb_width = toolbar_left->getRect().getWidth();
-	}
-
-	if(LLPanel* panel_ssf_container = getRootView()->getChild<LLPanel>("state_management_buttons_container"))
-	{
-		panel_ssf_container->setOrigin(0, y_pos);
-	}
-
-	S32 x_pos = bottom_tb_center-getRect().getWidth()/2 - left_tb_width + 113 /* width of stand/fly button */ + 10 /* margin */;
-
-	setOrigin( x_pos, 0);
 }
