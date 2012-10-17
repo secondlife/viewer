@@ -6306,8 +6306,15 @@ void dump_visual_param(apr_file_t* file, LLVisualParam* viewer_param, F32 value)
 		type_string = "param_morph";
 	if (dynamic_cast<LLPolySkeletalDistortion*>(viewer_param))
 		type_string = "param_skeleton";
-	apr_file_printf(file, "\t\t<param id=\"%d\" name=\"%s\" value=\"%.3f\"/ type=\"%s\">\n",
-					viewer_param->getID(), viewer_param->getName().c_str(), value, type_string.c_str());
+	S32 wtype = -1;
+	LLViewerVisualParam *vparam = dynamic_cast<LLViewerVisualParam*>(viewer_param);
+	if (vparam)
+	{
+		wtype = vparam->getWearableType();
+	}
+	apr_file_printf(file, "\t\t<param id=\"%d\" name=\"%s\" value=\"%.3f\" type=\"%s\" wearable=\"%s\"/>\n",
+					viewer_param->getID(), viewer_param->getName().c_str(), value, type_string.c_str(),
+					LLWearableType::getTypeName(LLWearableType::EType(wtype)).c_str());
 }
 
 

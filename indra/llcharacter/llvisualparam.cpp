@@ -324,7 +324,7 @@ void LLVisualParam::resetDrivenParams()
 
 void LLVisualParam::setParamLocation(EParamLocation loc)
 {
-	if (mParamLocation == LOC_UNKNOWN)
+	if (mParamLocation == LOC_UNKNOWN || loc == LOC_UNKNOWN)
 	{
 		mParamLocation = loc;
 	}
