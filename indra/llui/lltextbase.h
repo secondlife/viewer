@@ -382,7 +382,7 @@ public:
 
 	/**
 	 * If label is set, draws text label (which is LLLabelTextSegment)
-	 * that is visible when no user text provided and has no focus
+	 * that is visible when no user text provided
 	 */
 	void					resetLabel();
 
@@ -501,7 +501,9 @@ protected:
 	LLTextBase(const Params &p);
 	virtual ~LLTextBase();
 	void							initFromParams(const Params& p);
+    virtual void					beforeValueChange();
 	virtual void					onValueChange(S32 start, S32 end);
+    virtual BOOL                    useLabel();
 
 	// draw methods
 	void							drawSelectionBackground(); // draws the black box behind the selected text

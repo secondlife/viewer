@@ -136,6 +136,34 @@ void LLChatEntry::updateHistory()
 	}
 }
 
+void LLChatEntry::beforeValueChange()
+{
+    if(this->getLength() == 0 && !mLabel.empty())
+    {
+        this->clearSegments();
+    }
+}
+
+void LLChatEntry::onValueChange(S32 start, S32 end)
+{
+    resetLabel();
+}
+
+BOOL LLChatEntry::useLabel()
+{
+    return !getLength() && !mLabel.empty();
+}
+
+void LLChatEntry::onFocusReceived()
+{
+
+}
+
+void LLChatEntry::onFocusLost()
+{
+
+}
+
 BOOL LLChatEntry::handleSpecialKey(const KEY key, const MASK mask)
 {
 	BOOL handled = FALSE;

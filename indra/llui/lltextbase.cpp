@@ -338,6 +338,11 @@ const LLStyle::Params& LLTextBase::getStyleParams()
 	return mStyle;
 }
 
+void LLTextBase::beforeValueChange()
+{
+
+}
+
 void LLTextBase::onValueChange(S32 start, S32 end)
 {
 }
@@ -530,7 +535,7 @@ void LLTextBase::drawText()
 	{
 		return;
 	}
-	else if (text_len <= 0 && !mLabel.empty() && !hasFocus())
+	else if (useLabel() == TRUE)
 	{
 		text_len = mLabel.getWString().length();
 	}
@@ -747,6 +752,8 @@ void LLTextBase::drawText()
 
 S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::segment_vec_t* segments )
 {
+    beforeValueChange();
+
 	S32 old_len = getLength();		// length() returns character length
 	S32 insert_len = wstr.length();
 
@@ -822,6 +829,8 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
 
 S32 LLTextBase::removeStringNoUndo(S32 pos, S32 length)
 {
+
+    beforeValueChange();
 	segment_set_t::iterator seg_iter = getSegIterContaining(pos);
 	while(seg_iter != mSegments.end())
 	{
@@ -880,6 +889,8 @@ S32 LLTextBase::removeStringNoUndo(S32 pos, S32 length)
 
 S32 LLTextBase::overwriteCharNoUndo(S32 pos, llwchar wc)
 {
+    beforeValueChange();
+
 	if (pos > (S32)getLength())
 	{
 		return 0;
@@ -2048,7 +2059,7 @@ BOOL LLTextBase::setLabelArg(const std::string& key, const LLStringExplicit& tex
 
 void LLTextBase::resetLabel()
 {
-	if (!getLength() && !mLabel.empty() && !hasFocus())
+	if (useLabel() == TRUE)
 	{
 		clearSegments();
 
@@ -2059,6 +2070,11 @@ void LLTextBase::resetLabel()
 		LLTextSegmentPtr label = new LLLabelTextSegment(sp, 0, mLabel.getWString().length() + 1, *this);
 		insertSegment(label);
 	}
+}
+
+BOOL LLTextBase::useLabel()
+{
+    return !getLength() && !mLabel.empty() && !hasFocus();
 }
 
 void LLTextBase::setFont(const LLFontGL* font)
