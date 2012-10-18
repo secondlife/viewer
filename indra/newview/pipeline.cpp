@@ -2313,7 +2313,7 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 		bound_shader = true;
 		gOcclusionCubeProgram.bind();
 	}
-
+	
 	if (sUseOcclusion > 1)
 	{
 		if (mCubeVB.isNull())
@@ -2491,7 +2491,7 @@ void LLPipeline::doOcclusion(LLCamera& camera)
 			{
 				gOcclusionCubeProgram.bind();
 			}
-			}
+		}
 
 		if (mCubeVB.isNull())
 		{ //cube VB will be used for issuing occlusion queries
@@ -2548,11 +2548,6 @@ void LLPipeline::updateGL()
 			glu->mInQ = FALSE;
 			LLGLUpdate::sGLQ.pop_front();
 		}
-
-	{ //seed VBO Pools
-		LLFastTimer t(FTM_SEED_VBO_POOLS);
-		LLVertexBuffer::seedPools();
-	}
 	}
 
 	{ //seed VBO Pools
@@ -3336,10 +3331,10 @@ void renderScriptedTouchBeacons(LLDrawable* drawablep)
 				if (facep)
 				{
 					gPipeline.mHighlightFaces.push_back(facep);
-				}
 			}
 		}
 	}
+}
 }
 
 void renderPhysicalBeacons(LLDrawable* drawablep)
@@ -3365,10 +3360,10 @@ void renderPhysicalBeacons(LLDrawable* drawablep)
 				if (facep)
 				{
 					gPipeline.mHighlightFaces.push_back(facep);
-				}
 			}
 		}
 	}
+}
 }
 
 void renderMOAPBeacons(LLDrawable* drawablep)
@@ -3405,10 +3400,10 @@ void renderMOAPBeacons(LLDrawable* drawablep)
 				if (facep)
 				{
 					gPipeline.mHighlightFaces.push_back(facep);
-				}
 			}
 		}
 	}
+}
 }
 
 void renderParticleBeacons(LLDrawable* drawablep)
@@ -3434,10 +3429,10 @@ void renderParticleBeacons(LLDrawable* drawablep)
 				if (facep)
 				{
 					gPipeline.mHighlightFaces.push_back(facep);
-				}
 			}
 		}
 	}
+}
 }
 
 void renderSoundHighlights(LLDrawable* drawablep)
@@ -3456,10 +3451,10 @@ void renderSoundHighlights(LLDrawable* drawablep)
 				if (facep)
 				{
 					gPipeline.mHighlightFaces.push_back(facep);
-				}
 			}
 		}
 	}
+}
 }
 
 void LLPipeline::postSort(LLCamera& camera)
@@ -3673,7 +3668,7 @@ void LLPipeline::postSort(LLCamera& camera)
 						if (facep)
 						{
 							gPipeline.mSelectedFaces.push_back(facep);
-						}
+					}
 					}
 					return true;
 				}

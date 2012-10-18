@@ -256,6 +256,47 @@ bool LLSpeakersDelayActionsStorage::onTimerActionCallback(const LLUUID& speaker_
 
 
 //
+// ModerationResponder
+//
+
+class ModerationResponder : public LLHTTPClient::Responder
+{
+public:
+	ModerationResponder(const LLUUID& session_id)
+	{
+		mSessionID = session_id;
+	}
+	
+	virtual void error(U32 status, const std::string& reason)
+	{
+		llwarns << status << ": " << reason << llendl;
+		
+		if ( gIMMgr )
+		{
+			//403 == you're not a mod
+			//should be disabled if you're not a moderator
+			if ( 403 == status )
+			{
+				gIMMgr->showSessionEventError(
+											  "mute",
+											  "not_a_mod_error",
+											  mSessionID);
+			}
+			else
+			{
+				gIMMgr->showSessionEventError(
+											  "mute",
+											  "generic_request_error",
+											  mSessionID);
+			}
+		}
+	}
+	
+private:
+	LLUUID mSessionID;
+};
+
+//
 // LLSpeakerMgr
 //
 
@@ -478,6 +519,28 @@ void LLSpeakerMgr::updateSpeakerList()
 						   (LLVoiceClient::getInstance()->isParticipantAvatar(*participant_it)?LLSpeaker::SPEAKER_AGENT:LLSpeaker::SPEAKER_EXTERNAL));
 
 
+		}
+	}
+	else 
+	{
+		// Check if the list is empty, except if it's Nearby Chat (session_id NULL).
+		LLUUID session_id = getSessionID();
+		if ((mSpeakers.size() == 0) && (!session_id.isNull()))
+		{
+			// If the list is empty, we update it with whatever was used to initiate the call so that it doesn't stay empty too long.
+			// *TODO: Fix the server side code that sometimes forgets to send back the list of agents after a chat started 
+			// (IOW, fix why we get no ChatterBoxSessionAgentListUpdates message after the initial ChatterBoxSessionStartReply)
+			LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(session_id);
+			for (uuid_vec_t::iterator it = session->mInitialTargetIDs.begin();it!=session->mInitialTargetIDs.end();++it)
+			{
+				// We only add avatars that are on line
+				if (LLAvatarTracker::instance().isBuddyOnline(*it))
+				{
+					setSpeaker(*it, "", LLSpeaker::STATUS_VOICE_ACTIVE, LLSpeaker::SPEAKER_AGENT);
+				}
+			}
+			// Also add the current agent
+			setSpeaker(gAgentID, "", LLSpeaker::STATUS_VOICE_ACTIVE, LLSpeaker::SPEAKER_AGENT);
 		}
 	}
 }
@@ -732,43 +795,6 @@ void LLIMSpeakerMgr::updateSpeakers(const LLSD& update)
 		}
 	}
 }
-
-class ModerationResponder : public LLHTTPClient::Responder
-{
-public:
-	ModerationResponder(const LLUUID& session_id)
-	{
-		mSessionID = session_id;
-	}
-
-	virtual void error(U32 status, const std::string& reason)
-	{
-		llwarns << status << ": " << reason << llendl;
-
-		if ( gIMMgr )
-		{
-			//403 == you're not a mod
-			//should be disabled if you're not a moderator
-			if ( 403 == status )
-			{
-				gIMMgr->showSessionEventError(
-					"mute",
-					"not_a_mod_error",
-					mSessionID);
-			}
-			else
-			{
-				gIMMgr->showSessionEventError(
-					"mute",
-					"generic_request_error",
-					mSessionID);
-			}
-		}
-	}
-
-private:
-	LLUUID mSessionID;
-};
 
 void LLIMSpeakerMgr::toggleAllowTextChat(const LLUUID& speaker_id)
 {

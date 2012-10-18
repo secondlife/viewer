@@ -54,11 +54,16 @@ protected:
 
 	friend class LLUICtrlFactory;
 	LLChatEntry(const Params& p);
+    /*virtual*/ void    beforeValueChange();
+    /*virtual*/ void    onValueChange(S32 start, S32 end);
+    /*virtual*/ bool    useLabel();
 
 public:
 
 	virtual void	draw();
 	virtual	void	onCommit();
+    /*virtual*/ void	onFocusReceived();
+    /*virtual*/ void	onFocusLost();
 
 	boost::signals2::connection setTextExpandedCallback(const commit_signal_t::slot_type& cb);
 

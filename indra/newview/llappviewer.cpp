@@ -1893,8 +1893,17 @@ bool LLAppViewer::cleanup()
 	sTextureFetch->shutDownTextureCacheThread() ;
 	sTextureFetch->shutDownImageDecodeThread() ;
 
+	llinfos << "Shutting down message system" << llendflush;
+	end_messaging_system();
+
+	// *NOTE:Mani - The following call is not thread safe. 
+	LL_CHECK_MEMORY
+	LLCurl::cleanupClass();
+	LL_CHECK_MEMORY
+
 	LLFilePickerThread::cleanupClass();
 
+	//MUST happen AFTER LLCurl::cleanupClass
 	delete sTextureCache;
     sTextureCache = NULL;
 	delete sTextureFetch;
@@ -1963,12 +1972,6 @@ bool LLAppViewer::cleanup()
 
 	LLViewerAssetStatsFF::cleanup();
 	
-	llinfos << "Shutting down message system" << llendflush;
-	end_messaging_system();
-
-	// *NOTE:Mani - The following call is not thread safe. 
-	LLCurl::cleanupClass();
-
 	// If we're exiting to launch an URL, do that here so the screen
 	// is at the right resolution before we launch IE.
 	if (!gLaunchFileOnQuit.empty())

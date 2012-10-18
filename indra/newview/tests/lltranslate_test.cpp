@@ -299,11 +299,6 @@ LLControlGroup::LLControlGroup(const std::string& name) : LLInstanceTracker<LLCo
 std::string LLControlGroup::getString(const std::string& name) { return "dummy"; }
 LLControlGroup::~LLControlGroup() {}
 
-namespace boost {
-	void intrusive_ptr_add_ref(LLCurl::Responder*) {}
-	void intrusive_ptr_release(LLCurl::Responder*) {}
-}
-
 LLCurl::Responder::Responder() {}
 void LLCurl::Responder::completedHeader(U32, std::string const&, LLSD const&) {}
 void LLCurl::Responder::completedRaw(U32, const std::string&, const LLChannelDescriptors&, const LLIOPipe::buffer_ptr_t& buffer) {}
@@ -314,7 +309,7 @@ void LLCurl::Responder::result(LLSD const&) {}
 LLCurl::Responder::~Responder() {}
 
 void LLHTTPClient::get(const std::string&, const LLSD&, ResponderPtr, const LLSD&, const F32) {}
-void LLHTTPClient::get(const std::string&, boost::intrusive_ptr<LLCurl::Responder>, const LLSD&, const F32) {}
+void LLHTTPClient::get(const std::string&, LLPointer<LLCurl::Responder>, const LLSD&, const F32) {}
 
 LLBufferStream::LLBufferStream(const LLChannelDescriptors& channels, LLBufferArray* buffer)
 :	std::iostream(&mStreamBuf), mStreamBuf(channels, buffer) {}
