@@ -286,32 +286,21 @@ void LLIMFloaterContainer::onCloseFloater(LLUUID& id)
 // virtual
 void LLIMFloaterContainer::computeResizeLimits(S32& new_min_width, S32& new_min_height)
 {
-	bool is_left_pane_expanded = !mConversationsPane->isCollapsed();
-	bool is_right_pane_expanded = !mMessagesPane->isCollapsed();
-
-	S32 conversations_pane_min_dim = mConversationsPane->getMinDim();
-
-	if (is_right_pane_expanded)
+	// possibly increase floater's minimum height according to children's minimums
+	for (S32 tab_idx = 0; tab_idx < mTabContainer->getTabCount(); ++tab_idx)
 	{
-		S32 conversations_pane_width =
-				(is_left_pane_expanded ? gSavedPerAccountSettings.getS32("ConversationsListPaneWidth") : conversations_pane_min_dim);
-
-		// possibly increase minimum size constraint due to children's minimums.
-		for (S32 tab_idx = 0; tab_idx < mTabContainer->getTabCount(); ++tab_idx)
+		LLFloater* floaterp = dynamic_cast<LLFloater*>(mTabContainer->getPanelByIndex(tab_idx));
+		if (floaterp)
 		{
-			LLFloater* floaterp = dynamic_cast<LLFloater*>(mTabContainer->getPanelByIndex(tab_idx));
-			if (floaterp)
-			{
-				new_min_width = llmax(new_min_width,
-						floaterp->getMinWidth() + conversations_pane_width + LLPANEL_BORDER_WIDTH * 2);
-				new_min_height = llmax(new_min_height, floaterp->getMinHeight());
-			}
+			new_min_height = llmax(new_min_height, floaterp->getMinHeight());
 		}
 	}
-	else
-	{
-		new_min_width = conversations_pane_min_dim;
-	}
+
+	S32 conversations_pane_min_dim = mConversationsPane->getRelevantMinDim();
+	S32 messages_pane_min_dim = mMessagesPane->getRelevantMinDim();
+
+	// set floater's minimum width according to relevant minimal children's dimensionals
+	new_min_width = conversations_pane_min_dim + messages_pane_min_dim + LLPANEL_BORDER_WIDTH*2;
 }
 
 void LLIMFloaterContainer::onNewMessageReceived(const LLSD& data)
