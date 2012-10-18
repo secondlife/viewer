@@ -195,7 +195,7 @@ if (DARWIN)
   # This is a known issue where getcontext(3) is writing past the end of the
   # ucontext_t struct when _XOPEN_SOURCE is not defined (rdar://problem/5578699 ).
   # As a workaround, define _XOPEN_SOURCE before including ucontext.h.
-  add_definitions(-DLL_DARWIN=1 -D_XOPEN_SOURCE)
+  add_definitions(-DLL_DARWIN=1 -D_XOPEN_SOURCE -g)
   set(CMAKE_CXX_LINK_FLAGS "-Wl,-headerpad_max_install_names,-search_paths_first")
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_CXX_LINK_FLAGS}")
   set(DARWIN_extra_cstar_flags "-mlong-branch")
