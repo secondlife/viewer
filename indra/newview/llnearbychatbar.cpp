@@ -639,7 +639,6 @@ void send_chat_from_viewer(const std::string& utf8_out_text, EChatType type, S32
 	gAgent.sendReliableMessage();
 
 	LLStatViewer::CHAT_COUNT.add(1);
-	//LLViewerStats::getInstance()->incStat(LLViewerStats::ST_CHAT_COUNT);
 }
 
 class LLChatCommandHandler : public LLCommandHandler

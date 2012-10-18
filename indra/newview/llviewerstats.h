@@ -57,7 +57,7 @@ struct SimMeasurement : public LLTrace::Measurement<T>, public SimMeasurementSam
 
 	/*virtual*/ void sample(F64 value)
 	{
-		LLTrace::Measurement<T>::sample(value);
+		LLTrace::Measurement<T>::sample(T(value));
 	}
 };
 
@@ -318,7 +318,7 @@ void update_statistics();
 void send_stats();
 
 extern LLFrameTimer gTextureTimer;
-extern U32	gTotalTextureBytes;
-extern U32  gTotalObjectBytes;
-extern U32  gTotalTextureBytesPerBoostLevel[] ;
+extern LLUnit::Bytes<U32>	gTotalTextureData;
+extern LLUnit::Bytes<U32>  gTotalObjectData;
+extern LLUnit::Bytes<U32>  gTotalTextureBytesPerBoostLevel[] ;
 #endif // LL_LLVIEWERSTATS_H

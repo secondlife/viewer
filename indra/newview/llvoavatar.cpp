@@ -7813,14 +7813,14 @@ void LLVOAvatar::cullAvatarsByPixelArea()
 		if (gFrameTimeSeconds != sUnbakedUpdateTime) // only update once per frame
 		{
 			sUnbakedUpdateTime = gFrameTimeSeconds;
-			sUnbakedTime += gFrameIntervalSeconds;
+			sUnbakedTime += gFrameIntervalSeconds.value();
 		}
 		if (grey_avatars > 0)
 		{
 			if (gFrameTimeSeconds != sGreyUpdateTime) // only update once per frame
 			{
 				sGreyUpdateTime = gFrameTimeSeconds;
-				sGreyTime += gFrameIntervalSeconds;
+				sGreyTime += gFrameIntervalSeconds.value();
 			}
 		}
 	}

@@ -607,7 +607,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 		{
 			LLFastTimer t(FTM_DISPLAY_UPDATE_GEOM);
-			const F32 max_geom_update_time = 0.005f*10.f*gFrameIntervalSeconds; // 50 ms/second update time
+			const F32 max_geom_update_time = 0.005f*10.f*gFrameIntervalSeconds.value(); // 50 ms/second update time
 			gPipeline.createObjects(max_geom_update_time);
 			gPipeline.processPartitionQ();
 			gPipeline.updateGeom(max_geom_update_time);
@@ -760,7 +760,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 			{
 				LLFastTimer t(FTM_IMAGE_UPDATE_LIST);
-				F32 max_image_decode_time = 0.050f*gFrameIntervalSeconds; // 50 ms/second decode time
+				F32 max_image_decode_time = 0.050f*gFrameIntervalSeconds.value(); // 50 ms/second decode time
 				max_image_decode_time = llclamp(max_image_decode_time, 0.002f, 0.005f ); // min 2ms/frame, max 5ms/frame)
 				gTextureList.updateImages(max_image_decode_time);
 			}

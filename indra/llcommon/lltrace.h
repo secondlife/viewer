@@ -192,10 +192,12 @@ namespace LLTrace
 
 	template<typename ACCUMULATOR>
 	class LL_COMMON_API TraceType 
+	:	 public LLInstanceTracker<TraceType<ACCUMULATOR>, std::string>
 	{
 	public:
 		TraceType(const char* name, const char* description = NULL)
-		:	mName(name),
+		:	LLInstanceTracker(name),
+			mName(name),
 			mDescription(description ? description : "")
 		{
 			mAccumulatorIndex = AccumulatorBuffer<ACCUMULATOR>::getDefaultBuffer().reserveSlot();
@@ -355,18 +357,17 @@ namespace LLTrace
 		U32	mNumSamples;
 	};
 
+	typedef TraceType<MeasurementAccumulator<F64> > measurement_common_t;
+
 	template <typename T = F64, typename IS_UNIT = void>
 	class LL_COMMON_API Measurement
-	:	public TraceType<MeasurementAccumulator<T> >, 
-		public LLInstanceTracker<Measurement<T, IS_UNIT>, std::string>
+	:	public TraceType<MeasurementAccumulator<T> >
 	{
 	public:
 		typedef T storage_t;
-		typedef T base_unit_t;
 
 		Measurement(const char* name, const char* description = NULL) 
-		:	TraceType(name),
-			LLInstanceTracker(name)
+		:	TraceType(name, description)
 		{}
 
 		void sample(T value)
@@ -376,37 +377,37 @@ namespace LLTrace
 	};
 
 	template <typename T>
-	class LL_COMMON_API Measurement <T, typename T::is_unit_t>
-	:	public Measurement<typename T::storage_t>
+	class LL_COMMON_API Measurement <T, typename T::is_unit_tag_t>
+	:	public TraceType<MeasurementAccumulator<typename T::storage_t> >
 	{
 	public:
 		typedef typename T::storage_t storage_t;
-		typedef typename T::base_unit_t base_unit_t;
 		typedef Measurement<typename T::storage_t> base_measurement_t;
 
 		Measurement(const char* name, const char* description = NULL) 
-		:	Measurement<typename T::storage_t>(name, description)
+		:	TraceType(name, description)
 		{}
 
 		template<typename UNIT_T>
 		void sample(UNIT_T value)
 		{
-			base_measurement_t::sample(((T)value).value());
+			T converted_value;
+			converted_value.assignFrom(value);
+			getPrimaryAccumulator().sample(converted_value.value());
 		}
 	};
 
+	typedef TraceType<CountAccumulator<F64> > count_common_t;
+
 	template <typename T = F64, typename IS_UNIT = void>
 	class LL_COMMON_API Count 
-	:	public TraceType<CountAccumulator<T> >, 
-		public LLInstanceTracker<Count<T>, std::string>
+	:	public TraceType<CountAccumulator<T> >
 	{
 	public:
 		typedef T storage_t;
-		typedef T base_unit_t;
 
 		Count(const char* name, const char* description = NULL) 
-		:	TraceType(name),
-			LLInstanceTracker(name)
+		:	TraceType(name)
 		{}
 
 		void add(T value)
@@ -416,22 +417,23 @@ namespace LLTrace
 	};
 
 	template <typename T>
-	class LL_COMMON_API Count <T, typename T::is_unit_t>
-	:	public Count<typename T::storage_t>
+	class LL_COMMON_API Count <T, typename T::is_unit_tag_t>
+	:	public TraceType<CountAccumulator<typename T::storage_t> >
 	{
 	public:
 		typedef typename T::storage_t storage_t;
-		typedef typename T::base_unit_t base_unit_t;
 		typedef Count<typename T::storage_t> base_count_t;
 
 		Count(const char* name, const char* description = NULL) 
-		:	Count<typename T::storage_t>(name)
+		:	TraceType(name)
 		{}
 
 		template<typename UNIT_T>
 		void add(UNIT_T value)
 		{
-			base_count_t::add(((T)value).value());
+			T converted_value;
+			converted_value.assignFrom(value);
+			getPrimaryAccumulator().add(converted_value.value());
 		}
 	};
 

@@ -59,9 +59,9 @@ public:
 
 	struct StatParams : public LLInitParam::ChoiceBlock<StatParams>
 	{
-		Alternative<LLStat*>				legacy_stat;
-		Alternative<LLTrace::Count<>* >		count_stat;
-		Alternative<LLTrace::Measurement<>* >	measurement_stat;
+		Alternative<LLStat*>							legacy_stat;
+		Alternative<LLTrace::count_common_t* >			count_stat;
+		Alternative<LLTrace::measurement_common_t* >	measurement_stat;
 	};
 
 	struct Params : public LLInitParam::Block<Params, LLView::Params>
@@ -106,8 +106,8 @@ public:
 	/*virtual*/ void setValue(const LLSD& value);
 	
 private:
-	LLStat*				mStatp;
-	LLTrace::Count<>*	mNewStatp;
+	LLStat*						mStatp;
+	LLTrace::count_common_t*	mNewStatp;
 
 	BOOL mPerSec;
 

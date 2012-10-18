@@ -910,18 +910,11 @@ void LLVOAvatarSelf::updateRegion(LLViewerRegion *regionp)
 		if (mLastRegionHandle != 0)
 		{
 			++mRegionCrossingCount;
-			F64 delta = (F64)mRegionCrossingTimer.getElapsedTimeF32();
-			//F64 avg = (mRegionCrossingCount == 1) ? 0 : LLViewerStats::getInstance()->getStat(LLViewerStats::ST_CROSSING_AVG);
-			//F64 delta_avg = (delta + avg*(mRegionCrossingCount-1)) / mRegionCrossingCount;
+			LLTrace::Seconds delta = mRegionCrossingTimer.getElapsedTimeF32();
 			LLStatViewer::REGION_CROSSING_TIME.sample(delta);
-			//LLViewerStats::getInstance()->setStat(LLViewerStats::ST_CROSSING_AVG, delta_avg);
-			//
-			//F64 max = (mRegionCrossingCount == 1) ? 0 : LLViewerStats::getInstance()->getStat(LLViewerStats::ST_CROSSING_MAX);
-			//max = llmax(delta, max);
-			//LLViewerStats::getInstance()->setStat(LLViewerStats::ST_CROSSING_MAX, max);
 
 			// Diagnostics
-			llinfos << "Region crossing took " << (F32)(delta * 1000.0) << " ms " << llendl;
+			llinfos << "Region crossing took " << (F32)(delta * 1000.0).value() << " ms " << llendl;
 		}
 		if (regionp)
 		{
@@ -2589,7 +2582,6 @@ void LLVOAvatarSelf::processRebakeAvatarTextures(LLMessageSystem* msg, void**)
 					gAgentAvatarp->invalidateComposite(layer_set, TRUE);
 					found = TRUE;
 					LLStatViewer::TEX_REBAKES.add(1);
-					//LLViewerStats::getInstance()->incStat(LLViewerStats::ST_TEX_REBAKES);
 				}
 			}
 		}
@@ -2635,7 +2627,6 @@ void LLVOAvatarSelf::forceBakeAllTextures(bool slam_for_debug)
 
 			invalidateComposite(layer_set, TRUE);
 			LLStatViewer::TEX_REBAKES.add(1);
-			//LLViewerStats::getInstance()->incStat(LLViewerStats::ST_TEX_REBAKES);
 		}
 		else
 		{

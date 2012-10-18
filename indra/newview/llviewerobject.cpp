@@ -2034,7 +2034,6 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		if ( asAvatar() && asAvatar()->isSelf() && (mag_sqr > 0.25f) )
 		{
 			LLStatViewer::AGENT_POSITION_SNAP.sample<LLTrace::Meters>(diff.length());
-			//LLViewerStats::getInstance()->mAgentPositionSnaps.push( diff.length() );
 		}
 	}
 

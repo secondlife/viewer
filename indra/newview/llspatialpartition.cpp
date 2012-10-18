@@ -1580,7 +1580,7 @@ void LLSpatialGroup::checkOcclusion()
 					LLFastTimer t(FTM_OCCLUSION_WAIT);
 					while (!available && max_loop-- > 0)
 					{
-						F32 max_time = llmin(gFrameIntervalSeconds*10.f, 1.f);
+						F32 max_time = llmin(gFrameIntervalSeconds.value()*10.f, 1.f);
 						//do some usefu work while we wait
 						LLAppViewer::getTextureCache()->update(max_time); // unpauses the texture cache thread
 						LLAppViewer::getImageDecodeThread()->update(max_time); // unpauses the image thread
@@ -2574,7 +2574,7 @@ void renderOctree(LLSpatialGroup* group)
 	LLVector4 col;
 	if (group->mBuilt > 0.f)
 	{
-		group->mBuilt -= 2.f * gFrameIntervalSeconds;
+		group->mBuilt -= 2.f * gFrameIntervalSeconds.value();
 		if (group->mBufferUsage == GL_STATIC_DRAW_ARB)
 		{
 			col.setVec(1.0f, 0, 0, group->mBuilt*0.5f);

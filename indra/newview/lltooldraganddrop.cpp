@@ -1063,7 +1063,6 @@ void LLToolDragAndDrop::dropTextureAllFaces(LLViewerObject* hit_obj,
 	}
 	LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture(asset_id);
 	LLStatViewer::EDIT_TEXTURE.add(1);
-	//LLViewerStats::getInstance()->incStat(LLViewerStats::ST_EDIT_TEXTURE_COUNT );
 	S32 num_faces = hit_obj->getNumTEs();
 	for( S32 face = 0; face < num_faces; face++ )
 	{
@@ -1132,7 +1131,6 @@ void LLToolDragAndDrop::dropTextureOneFace(LLViewerObject* hit_obj,
 	// update viewer side image in anticipation of update from simulator
 	LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture(asset_id);
 	LLStatViewer::EDIT_TEXTURE.add(1);
-	//LLViewerStats::getInstance()->incStat(LLViewerStats::ST_EDIT_TEXTURE_COUNT );
 	hit_obj->setTEImage(hit_face, image);
 	dialog_refresh_all();
 
@@ -1357,7 +1355,6 @@ void LLToolDragAndDrop::dropObject(LLViewerObject* raycast_target,
 	effectp->setColor(LLColor4U(gAgent.getEffectColor()));
 
 	LLStatViewer::OBJECT_REZ.add(1);
-	//LLViewerStats::getInstance()->incStat(LLViewerStats::ST_REZ_COUNT);
 }
 
 void LLToolDragAndDrop::dropInventory(LLViewerObject* hit_obj,

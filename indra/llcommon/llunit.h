@@ -36,7 +36,7 @@ struct LLUnitType : public BASE_UNIT
 	typedef DERIVED_UNIT unit_t;
 
 	typedef typename STORAGE_TYPE storage_t;
-	typedef void is_unit_t;
+	typedef void is_unit_tag_t;
 
 	LLUnitType()
 	{}
@@ -57,7 +57,7 @@ struct LLUnitType : public BASE_UNIT
 	}
 
 	template<typename CONVERTED_TYPE>
-	storage_t value() const
+	storage_t as() const
 	{
 		return CONVERTED_TYPE(*this).value();
 	}
@@ -80,8 +80,7 @@ struct LLUnitType<STORAGE_TYPE, T, T>
 {
 	typedef T unit_t;
 	typedef STORAGE_TYPE storage_t;
-	typedef void is_unit_t;
-	typedef T base_unit_t;             
+	typedef void is_unit_tag_t;
 
 	LLUnitType()
 	:	mBaseValue()
@@ -104,6 +103,13 @@ struct LLUnitType<STORAGE_TYPE, T, T>
 	}
 
 	storage_t value() const { return mBaseValue; }
+
+	template<typename CONVERTED_TYPE>
+	storage_t as() const
+	{
+		return CONVERTED_TYPE(*this).value();
+	}
+
 
 	static storage_t convertToBase(storage_t derived_value)
 	{
@@ -354,10 +360,16 @@ bool operator != (LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT> first, LLUni
 		template <typename SOURCE_STORAGE_TYPE, typename SOURCE_TYPE>                                            \
 		unit_name(LLUnitType<SOURCE_STORAGE_TYPE, unit_name<SOURCE_STORAGE_TYPE>, SOURCE_TYPE> source)			 \
 		{                                                                                                        \
-			setBaseValue((storage_t)source.unit_name<SOURCE_STORAGE_TYPE>::unit_t::value());			         \
+			assignFrom(source);			                                                                         \
 		}                                                                                                        \
 		                                                                                                         \
-	};
+		template <typename SOURCE_STORAGE_TYPE, typename SOURCE_TYPE>                                            \
+		void assignFrom(LLUnitType<SOURCE_STORAGE_TYPE, unit_name<SOURCE_STORAGE_TYPE>, SOURCE_TYPE> source)     \
+		{                                                                                                        \
+			setBaseValue((storage_t)source.unit_name<SOURCE_STORAGE_TYPE>::unit_t::value());                     \
+		}                                                                                                        \
+	                                                                                                             \
+	};                                                                                                           \
 
 #define LL_DECLARE_DERIVED_UNIT(base_unit, derived_unit, conversion_factor)                                      \
 	template<typename STORAGE>	                                                                                 \
@@ -372,12 +384,18 @@ bool operator != (LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT> first, LLUni
 		template <typename SOURCE_STORAGE_TYPE, typename SOURCE_TYPE>                                            \
 		derived_unit(LLUnitType<SOURCE_STORAGE_TYPE, base_unit<SOURCE_STORAGE_TYPE>, SOURCE_TYPE> source)		 \
 		{                                                                                                        \
-			setBaseValue((storage_t)source.base_unit<SOURCE_STORAGE_TYPE>::unit_t::value());					 \
+			assignFrom(source);					                                                                 \
+		}                                                                                                        \
+		                                                                                                         \
+		template <typename SOURCE_STORAGE_TYPE, typename SOURCE_TYPE>                                            \
+		void assignFrom(LLUnitType<SOURCE_STORAGE_TYPE, base_unit<SOURCE_STORAGE_TYPE>, SOURCE_TYPE> source)     \
+		{                                                                                                        \
+			setBaseValue((storage_t)source.base_unit<SOURCE_STORAGE_TYPE>::unit_t::value());                     \
 		}                                                                                                        \
 		                                                                                                         \
 		static F32 conversionToBaseFactor() { return (F32)(conversion_factor); }                                 \
 		                                                                                                         \
-	};
+	};                                                                                                           \
 
 namespace LLUnit
 {

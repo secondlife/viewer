@@ -993,7 +993,6 @@ void LLSnapshotLivePreview::saveTexture()
 	}
 
 	LLStatViewer::SNAPSHOT.add(1);
-	//LLViewerStats::getInstance()->incStat(LLViewerStats::ST_SNAPSHOT_COUNT );
 	
 	mDataSize = 0;
 }

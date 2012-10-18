@@ -1033,10 +1033,6 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 	LLStatViewer::NUM_ACTIVE_OBJECTS.sample(idle_count);
 	LLStatViewer::NUM_SIZE_CULLED.sample(mNumSizeCulled);
 	LLStatViewer::NUM_VIS_CULLED.sample(mNumVisCulled);
-	//LLViewerStats::getInstance()->mNumObjectsStat.addValue((S32) mObjects.size());
-	//LLViewerStats::getInstance()->mNumActiveObjectsStat.addValue(idle_count);
-	//LLViewerStats::getInstance()->mNumSizeCulledStat.addValue(mNumSizeCulled);
-	//LLViewerStats::getInstance()->mNumVisCulledStat.addValue(mNumVisCulled);
 }
 
 void LLViewerObjectList::fetchObjectCosts()

@@ -56,8 +56,7 @@ LLStatBar::LLStatBar(const Params& p)
 	  mDisplayBar(p.show_bar),
 	  mDisplayHistory(p.show_history),
 	  mDisplayMean(p.show_mean)
-{
-}
+{}
 
 BOOL LLStatBar::handleMouseDown(S32 x, S32 y, MASK mask)
 {

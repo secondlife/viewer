@@ -37,6 +37,7 @@
 #include "llsimplestat.h"
 #include "llsd.h"
 #include "llvoavatar.h"
+#include "lltrace.h"
 
 /**
  * @class LLViewerAssetStats
@@ -240,6 +241,7 @@ public:
 
 protected:
 	typedef std::map<region_handle_t, LLPointer<PerRegionStats> > PerRegionContainer;
+	typedef std::map<region_handle_t, LLTrace::Recording > PerRegionRecordingContainer;
 
 	// Region of the currently-active region.  Always valid but may
 	// be zero after construction or when explicitly set.  Unchanged
@@ -251,8 +253,13 @@ protected:
 	// Always points to a collection contained in mRegionStats.
 	LLPointer<PerRegionStats> mCurRegionStats;
 
+	static LLTrace::Count<> sEnqueued[EVACCount];
+	static LLTrace::Count<> sDequeued[EVACCount];
+	static LLTrace::Measurement<LLTrace::Seconds> sResponse[EVACCount];
+
 	// Metrics data for all regions during one collection cycle
 	PerRegionContainer mRegionStats;
+	PerRegionRecordingContainer mRegionRecordings;
 
 	// Time of last reset
 	duration_t mResetTimestamp;

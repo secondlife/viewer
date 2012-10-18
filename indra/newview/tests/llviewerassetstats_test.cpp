@@ -220,7 +220,18 @@ get_region(const LLSD & sd, U64 region_handle1)
 namespace tut
 {
 	struct tst_viewerassetstats_index
-	{};
+	{
+		tst_viewerassetstats_index()
+		{
+			LLTrace::init();
+		}
+
+		~tst_viewerassetstats_index()
+		{
+			LLTrace::cleanup();
+		}
+
+	};
 	typedef test_group<tst_viewerassetstats_index> tst_viewerassetstats_index_t;
 	typedef tst_viewerassetstats_index_t::object tst_viewerassetstats_index_object_t;
 	tut::tst_viewerassetstats_index_t tut_tst_viewerassetstats_index("tst_viewerassetstats_test");

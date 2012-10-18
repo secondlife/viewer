@@ -1551,7 +1551,6 @@ void LLObjectSelection::applyNoCopyTextureToTEs(LLViewerInventoryItem* item)
 
 				// apply texture for the selected faces
 				LLStatViewer::EDIT_TEXTURE.add(1);
-				//LLViewerStats::getInstance()->incStat(LLViewerStats::ST_EDIT_TEXTURE_COUNT );
 				object->setTEImage(te, image);
 				dialog_refresh_all();
 

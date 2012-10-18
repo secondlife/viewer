@@ -731,7 +731,7 @@ public:
 			{
 				if(gTotalTextureBytesPerBoostLevel[i] > 0)
 				{
-					addText(xpos, ypos, llformat("Boost_Level %d:  %.3f MB", i, (F32)gTotalTextureBytesPerBoostLevel[i] / (1024 * 1024)));
+					addText(xpos, ypos, llformat("Boost_Level %d:  %.3f MB", i, LLUnit::Megabytes<F32>(gTotalTextureBytesPerBoostLevel[i]).value()));
 					ypos += y_inc;
 				}
 			}
@@ -1405,8 +1405,8 @@ BOOL LLViewerWindow::handlePaint(LLWindow *window,  S32 x,  S32 y, S32 width,  S
 		LLTrace::Recording& recording = LLViewerStats::instance().getRecording();
 		temp_str = llformat( "FPS %3.1f Phy FPS %2.1f Time Dil %1.3f",		/* Flawfinder: ignore */
 				recording.getPerSec(LLStatViewer::FPS), //mFPSStat.getMeanPerSec(),
-				recording.getMean(LLStatViewer::SIM_PHYSICS_FPS), //LLViewerStats::getInstance()->mSimPhysicsFPS.getPrev(0),
-				recording.getMean(LLStatViewer::SIM_TIME_DILATION)); //LLViewerStats::getInstance()->mSimTimeDilation.getPrev(0));
+				recording.getLastValue(LLStatViewer::SIM_PHYSICS_FPS), 
+				recording.getLastValue(LLStatViewer::SIM_TIME_DILATION));
 		S32 len = temp_str.length();
 		TextOutA(hdc, 0, 0, temp_str.c_str(), len); 
 
@@ -2185,9 +2185,7 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 		}
 
 		LLStatViewer::WINDOW_WIDTH.sample((F64)width);
-		//LLViewerStats::getInstance()->setStat(LLViewerStats::ST_WINDOW_WIDTH, (F64)width);
 		LLStatViewer::WINDOW_HEIGHT.sample((F64)height);
-		//LLViewerStats::getInstance()->setStat(LLViewerStats::ST_WINDOW_HEIGHT, (F64)height);
 
 		LLLayoutStack::updateClass();
 	}
@@ -3237,8 +3235,8 @@ void LLViewerWindow::updateMouseDelta()
 		static F32 fdy = 0.f;
 
 		F32 amount = 16.f;
-		fdx = fdx + ((F32) dx - fdx) * llmin(gFrameIntervalSeconds*amount,1.f);
-		fdy = fdy + ((F32) dy - fdy) * llmin(gFrameIntervalSeconds*amount,1.f);
+		fdx = fdx + ((F32) dx - fdx) * llmin(gFrameIntervalSeconds.value()*amount,1.f);
+		fdy = fdy + ((F32) dy - fdy) * llmin(gFrameIntervalSeconds.value()*amount,1.f);
 
 		mCurrentMouseDelta.set(llround(fdx), llround(fdy));
 		mouse_vel.setVec(fdx,fdy);

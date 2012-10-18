@@ -84,6 +84,30 @@
 // ------------------------------------------------------
 LLViewerAssetStats * gViewerAssetStatsMain(0);
 LLViewerAssetStats * gViewerAssetStatsThread1(0);
+LLTrace::Count<> LLViewerAssetStats::sEnqueued[EVACCount] = {LLTrace::Count<>("enqueuedassetrequeststemptexturehttp", "Number of temporary texture asset http requests enqueued"),
+																LLTrace::Count<>("enqueuedassetrequeststemptextureudp", "Number of temporary texture asset udp requests enqueued"),
+																LLTrace::Count<>("enqueuedassetrequestsnontemptexturehttp", "Number of texture asset http requests enqueued"),
+																LLTrace::Count<>("enqueuedassetrequestsnontemptextureudp", "Number of texture asset udp requests enqueued"),
+																LLTrace::Count<>("enqueuedassetrequestswearableudp", "Number of wearable asset requests enqueued"),
+																LLTrace::Count<>("enqueuedassetrequestssoundudp", "Number of sound asset requests enqueued"),
+																LLTrace::Count<>("enqueuedassetrequestsgestureudp", "Number of gesture asset requests enqueued"),
+																LLTrace::Count<>("enqueuedassetrequestsother", "Number of other asset requests enqueued")};
+LLTrace::Count<> LLViewerAssetStats::sDequeued[EVACCount] = {LLTrace::Count<>("dequeuedassetrequeststemptexturehttp", "Number of temporary texture asset http requests dequeued"),
+																LLTrace::Count<>("dequeuedassetrequeststemptextureudp", "Number of temporary texture asset udp requests dequeued"),
+																LLTrace::Count<>("dequeuedassetrequestsnontemptexturehttp", "Number of texture asset http requests dequeued"),
+																LLTrace::Count<>("dequeuedassetrequestsnontemptextureudp", "Number of texture asset udp requests dequeued"),
+																LLTrace::Count<>("dequeuedassetrequestswearableudp", "Number of wearable asset requests dequeued"),
+																LLTrace::Count<>("dequeuedassetrequestssoundudp", "Number of sound asset requests dequeued"),
+																LLTrace::Count<>("dequeuedassetrequestsgestureudp", "Number of gesture asset requests dequeued"),
+																LLTrace::Count<>("dequeuedassetrequestsother", "Number of other asset requests dequeued")};
+LLTrace::Measurement<LLTrace::Seconds> LLViewerAssetStats::sResponse[EVACCount] = {LLTrace::Measurement<LLTrace::Seconds>("assetresponsetimestemptexturehttp", "Time spent responding to temporary texture asset http requests"),
+																					LLTrace::Measurement<LLTrace::Seconds>("assetresponsetimestemptextureudp", "Time spent responding to temporary texture asset udp requests"),
+																					LLTrace::Measurement<LLTrace::Seconds>("assetresponsetimesnontemptexturehttp", "Time spent responding to texture asset http requests"),
+																					LLTrace::Measurement<LLTrace::Seconds>("assetresponsetimesnontemptextureudp", "Time spent responding to texture asset udp requests"),
+																					LLTrace::Measurement<LLTrace::Seconds>("assetresponsetimeswearableudp", "Time spent responding to wearable asset requests"),
+																					LLTrace::Measurement<LLTrace::Seconds>("assetresponsetimessoundudp", "Time spent responding to sound asset requests"),
+																					LLTrace::Measurement<LLTrace::Seconds>("assetresponsetimesgestureudp", "Time spent responding to gesture asset requests"),
+																					LLTrace::Measurement<LLTrace::Seconds>("assetresponsetimesother", "Time spent responding to other asset requests")};
 
 
 // ------------------------------------------------------
@@ -234,6 +258,7 @@ LLViewerAssetStats::recordGetEnqueued(LLViewerAssetType::EType at, bool with_htt
 	const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
 	
 	++(mCurRegionStats->mRequests[int(eac)].mEnqueued);
+	sEnqueued[int(eac)].add(1);
 }
 	
 void
@@ -242,6 +267,7 @@ LLViewerAssetStats::recordGetDequeued(LLViewerAssetType::EType at, bool with_htt
 	const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
 
 	++(mCurRegionStats->mRequests[int(eac)].mDequeued);
+	sDequeued[int(eac)].add(1);
 }
 
 void
@@ -250,6 +276,7 @@ LLViewerAssetStats::recordGetServiced(LLViewerAssetType::EType at, bool with_htt
 	const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
 
 	mCurRegionStats->mRequests[int(eac)].mResponse.record(duration);
+	sResponse[int(eac)].sample<LLTrace::Seconds>(duration);
 }
 
 void

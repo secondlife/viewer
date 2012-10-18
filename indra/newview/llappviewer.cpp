@@ -277,7 +277,7 @@ LLPumpIO* gServicePump = NULL;
 
 U64 gFrameTime = 0;
 F32 gFrameTimeSeconds = 0.f;
-F32 gFrameIntervalSeconds = 0.f;
+LLUnit::Seconds<F32> gFrameIntervalSeconds = 0.f;
 F32 gFPSClamped = 10.f;						// Pretend we start at target rate.
 F32 gFrameDTClamped = 0.f;					// Time between adjacent checks to network for packets
 U64	gStartTime = 0; // gStartTime is "private", used only to calculate gFrameTimeSeconds
@@ -1395,7 +1395,7 @@ bool LLAppViewer::mainLoop()
 				{
 					S32 work_pending = 0;
 					S32 io_pending = 0;
-					F32 max_time = llmin(gFrameIntervalSeconds*10.f, 1.f);
+					F32 max_time = llmin(gFrameIntervalSeconds.value() *10.f, 1.f);
 
 					{
 						LLFastTimer ftm(FTM_TEXTURE_CACHE);
@@ -4811,7 +4811,6 @@ void LLAppViewer::idleNetwork()
 		}
 	}
 	LLStatViewer::NUM_NEW_OBJECTS.sample(gObjectList.mNumNewObjects);
-	//LLViewerStats::getInstance()->mNumNewObjectsStat.addValue(gObjectList.mNumNewObjects);
 
 	// Retransmit unacknowledged packets.
 	gXferManager->retransmitUnackedPackets();

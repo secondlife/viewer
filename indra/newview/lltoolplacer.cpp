@@ -434,7 +434,6 @@ BOOL LLToolPlacer::addObject( LLPCode pcode, S32 x, S32 y, U8 use_physics )
 	effectp->setColor(LLColor4U(gAgent.getEffectColor()));
 
 	LLStatViewer::OBJECT_CREATE.add(1);
-	//LLViewerStats::getInstance()->incStat(LLViewerStats::ST_CREATE_COUNT);
 
 	return TRUE;
 }

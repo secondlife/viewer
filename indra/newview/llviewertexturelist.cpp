@@ -709,7 +709,7 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 	// Update the decode priority for N images each frame
 	{
         static const S32 MAX_PRIO_UPDATES = gSavedSettings.getS32("TextureFetchUpdatePriorities");         // default: 32
-		const size_t max_update_count = llmin((S32) (MAX_PRIO_UPDATES*MAX_PRIO_UPDATES*gFrameIntervalSeconds) + 1, MAX_PRIO_UPDATES);
+		const size_t max_update_count = llmin((S32) (MAX_PRIO_UPDATES*MAX_PRIO_UPDATES*gFrameIntervalSeconds.value()) + 1, MAX_PRIO_UPDATES);
 		S32 update_counter = llmin(max_update_count, mUUIDMap.size());
 		uuid_map_t::iterator iter = mUUIDMap.upper_bound(mLastUpdateUUID);
 		while ((update_counter-- > 0) && !mUUIDMap.empty())
@@ -943,11 +943,11 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
 	static const F32 MIN_PRIORITY_THRESHOLD = gSavedSettings.getF32("TextureFetchUpdatePriorityThreshold"); // default: 0.0
 	static const bool SKIP_LOW_PRIO = gSavedSettings.getBOOL("TextureFetchUpdateSkipLowPriority");          // default: false
 
-	size_t max_priority_count = llmin((S32) (MAX_HIGH_PRIO_COUNT*MAX_HIGH_PRIO_COUNT*gFrameIntervalSeconds)+1, MAX_HIGH_PRIO_COUNT);
+	size_t max_priority_count = llmin((S32) (MAX_HIGH_PRIO_COUNT*MAX_HIGH_PRIO_COUNT*gFrameIntervalSeconds.value())+1, MAX_HIGH_PRIO_COUNT);
 	max_priority_count = llmin(max_priority_count, mImageList.size());
 	
 	size_t total_update_count = mUUIDMap.size();
-	size_t max_update_count = llmin((S32) (MAX_UPDATE_COUNT*MAX_UPDATE_COUNT*gFrameIntervalSeconds)+1, MAX_UPDATE_COUNT);
+	size_t max_update_count = llmin((S32) (MAX_UPDATE_COUNT*MAX_UPDATE_COUNT*gFrameIntervalSeconds.value())+1, MAX_UPDATE_COUNT);
 	max_update_count = llmin(max_update_count, total_update_count);	
 	
 	// MAX_HIGH_PRIO_COUNT high priority entries

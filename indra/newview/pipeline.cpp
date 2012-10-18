@@ -4892,7 +4892,7 @@ void LLPipeline::renderDebug()
 		{
 			DebugBlip& blip = *iter;
 
-			blip.mAge += gFrameIntervalSeconds;
+			blip.mAge += gFrameIntervalSeconds.value();
 			if (blip.mAge > 2.f)
 			{
 				mDebugBlips.erase(iter++);
@@ -4902,7 +4902,7 @@ void LLPipeline::renderDebug()
 				iter++;
 			}
 
-			blip.mPosition.mV[2] += gFrameIntervalSeconds*2.f;
+			blip.mPosition.mV[2] += gFrameIntervalSeconds.value()*2.f;
 
 			gGL.color4fv(blip.mColor.mV);
 			gGL.vertex3fv(blip.mPosition.mV);
@@ -5713,7 +5713,7 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 				{
 					if (farthest_light->fade >= 0.f)
 					{
-						farthest_light->fade = -gFrameIntervalSeconds;
+						farthest_light->fade = -(gFrameIntervalSeconds.value());
 					}
 				}
 				else
@@ -5809,12 +5809,12 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 				if (fade >= 0.f)
 				{
 					fade = fade / LIGHT_FADE_TIME;
-					((Light*) (&(*iter)))->fade += gFrameIntervalSeconds;
+					((Light*) (&(*iter)))->fade += gFrameIntervalSeconds.value();
 				}
 				else
 				{
 					fade = 1.f + fade / LIGHT_FADE_TIME;
-					((Light*) (&(*iter)))->fade -= gFrameIntervalSeconds;
+					((Light*) (&(*iter)))->fade -= gFrameIntervalSeconds.value();
 				}
 				fade = llclamp(fade,0.f,1.f);
 				light_color *= fade;
@@ -7129,7 +7129,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 			}
 			else if (transition_time < 1.f)
 			{ //currently in a transition, continue interpolating
-				transition_time += 1.f/CameraFocusTransitionTime*gFrameIntervalSeconds;
+				transition_time += 1.f/CameraFocusTransitionTime*gFrameIntervalSeconds.value();
 				transition_time = llmin(transition_time, 1.f);
 
 				F32 t = cosf(transition_time*F_PI+F_PI)*0.5f+0.5f;
@@ -9121,7 +9121,7 @@ void LLPipeline::generateHighlight(LLCamera& camera)
 	
 	if (!mHighlightSet.empty())
 	{
-		F32 transition = gFrameIntervalSeconds/RenderHighlightFadeTime;
+		F32 transition = gFrameIntervalSeconds.value()/RenderHighlightFadeTime;
 
 		LLGLDisable test(GL_ALPHA_TEST);
 		LLGLDepthTest depth(GL_FALSE);
@@ -9756,7 +9756,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 	if (gen_shadow)
 	{
-		F32 fade_amt = gFrameIntervalSeconds * llmax(LLViewerCamera::getInstance()->getVelocityStat()->getCurrentPerSec(), 1.f);
+		F32 fade_amt = gFrameIntervalSeconds.value() * llmax(LLViewerCamera::getInstance()->getVelocityStat()->getCurrentPerSec(), 1.f);
 
 		//update shadow targets
 		for (U32 i = 0; i < 2; i++)

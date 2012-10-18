@@ -2491,8 +2491,6 @@ void LLPanelEstateCovenant::onLoadComplete(LLVFS *vfs,
 		}
 		else
 		{
-			//LLViewerStats::getInstance()->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
-
 			if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status ||
 				LL_ERR_FILE_EMPTY == status)
 			{

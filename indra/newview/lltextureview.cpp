@@ -512,8 +512,8 @@ void LLGLTexMemBar::draw()
 	F32 cache_max_usage = (F32)LLTrace::Megabytes(LLAppViewer::getTextureCache()->getMaxUsage()).value() ;
 	S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
 	S32 v_offset = 0;//(S32)((texture_bar_height + 2.2f) * mTextureView->mNumTextureBars + 2.0f);
-	F32 total_texture_downloaded = (F32)gTotalTextureBytes / (1024 * 1024);
-	F32 total_object_downloaded = (F32)gTotalObjectBytes / (1024 * 1024);
+	LLUnit::Megabytes<F32> total_texture_downloaded = gTotalTextureData;
+	LLUnit::Megabytes<F32> total_object_downloaded = gTotalObjectData;
 	U32 total_http_requests = LLAppViewer::getTextureFetch()->getCurlRequest().getTotalIssuedRequests() ;
 	//----------------------------------------------------------------------------
 	LLGLSUIDefault gls_ui;
@@ -537,7 +537,7 @@ void LLGLTexMemBar::draw()
 											 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
 	text = llformat("Net Tot Tex: %.1f MB Tot Obj: %.1f MB Tot Htp: %d",
-					total_texture_downloaded, total_object_downloaded, total_http_requests);
+					total_texture_downloaded.value(), total_object_downloaded.value(), total_http_requests);
 	//, cache_entries, cache_max_entries
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*3,
 											 text_color, LLFontGL::LEFT, LLFontGL::TOP);

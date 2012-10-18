@@ -112,64 +112,121 @@ namespace LLTrace
 		void update();
 
 		// Count accessors
-		template <typename T, typename IS_UNIT>
-		typename Count<T, IS_UNIT>::base_unit_t getSum(const Count<T, IS_UNIT>& stat) const
+		template <typename T>
+		T getSum(const TraceType<CountAccumulator<T> >& stat) const
 		{
-			return (typename Count<T, IS_UNIT>::base_unit_t)stat.getAccumulator(mCounts).getSum();
+			return (T)stat.getAccumulator(mCounts).getSum();
 		}
 
 		template <typename T, typename IS_UNIT>
-		typename Count<T, IS_UNIT>::base_unit_t getPerSec(const Count<T, IS_UNIT>& stat) const
+		T getSum(const Count<T, IS_UNIT>& stat) const
 		{
-			return (typename Count<T, IS_UNIT>::base_unit_t)stat.getAccumulator(mCounts).getSum() / mElapsedSeconds;
+			return (T)stat.getAccumulator(mCounts).getSum();
+		}
+
+		template <typename T>
+		T getPerSec(const TraceType<CountAccumulator<T> >& stat) const
+		{
+			return (T)stat.getAccumulator(mCounts).getSum() / mElapsedSeconds;
+		}
+
+		template <typename T, typename IS_UNIT>
+		T getPerSec(const Count<T, IS_UNIT>& stat) const
+		{
+			return (T)stat.getAccumulator(mCounts).getSum() / mElapsedSeconds;
 		}
 
 		// Measurement accessors
-		template <typename T, typename IS_UNIT>
-		typename Measurement<T, IS_UNIT>::base_unit_t getSum(const Measurement<T, IS_UNIT>& stat) const
+		template <typename T>
+		T getSum(const TraceType<MeasurementAccumulator<T> >& stat) const
 		{
-			return (typename Measurement<T, IS_UNIT>::base_unit_t)stat.getAccumulator(mMeasurements).getSum();
+			return (T)stat.getAccumulator(mMeasurements).getSum();
 
 		}
 
 		template <typename T, typename IS_UNIT>
-		typename Measurement<T, IS_UNIT>::base_unit_t getPerSec(const Measurement<T, IS_UNIT>& stat) const
+		T getSum(const Measurement<T, IS_UNIT>& stat) const
+		{
+			return (T)stat.getAccumulator(mMeasurements).getSum();
+
+		}
+
+		template <typename T>
+		T getPerSec(const TraceType<MeasurementAccumulator<T> >& stat) const
+		{
+			return (T)stat.getAccumulator(mMeasurements).getSum() / mElapsedSeconds;
+		}
+
+		template <typename T, typename IS_UNIT>
+		T getPerSec(const Measurement<T, IS_UNIT>& stat) const
 		{
 			return (typename Count<T, IS_UNIT>::base_unit_t)stat.getAccumulator(mMeasurements).getSum() / mElapsedSeconds;
 		}
 
-		template <typename T, typename IS_UNIT>
-		typename Measurement<T, IS_UNIT>::base_unit_t getMin(const Measurement<T, IS_UNIT>& stat) const
+		template <typename T>
+		T getMin(const TraceType<MeasurementAccumulator<T> >& stat) const
 		{
-			return (typename Measurement<T, IS_UNIT>::base_unit_t)stat.getAccumulator(mMeasurements).getMin();
+			return (T)stat.getAccumulator(mMeasurements).getMin();
 		}
 
 		template <typename T, typename IS_UNIT>
-		typename Measurement<T, IS_UNIT>::base_unit_t getMax(const Measurement<T, IS_UNIT>& stat) const
+		T getMin(const Measurement<T, IS_UNIT>& stat) const
 		{
-			return (typename Measurement<T, IS_UNIT>::base_unit_t)stat.getAccumulator(mMeasurements).getMax();
+			return (T)stat.getAccumulator(mMeasurements).getMin();
+		}
+
+
+		template <typename T>
+		T getMax(const TraceType<MeasurementAccumulator<T> >& stat) const
+		{
+			return (T)stat.getAccumulator(mMeasurements).getMax();
 		}
 
 		template <typename T, typename IS_UNIT>
-		typename Measurement<T, IS_UNIT>::base_unit_t getMean(Measurement<T, IS_UNIT>& stat) const
+		T getMax(const Measurement<T, IS_UNIT>& stat) const
 		{
-			return (typename Measurement<T, IS_UNIT>::base_unit_t)stat.getAccumulator(mMeasurements).getMean();
+			return (T)stat.getAccumulator(mMeasurements).getMax();
+		}
+
+		template <typename T>
+		T getMean(const TraceType<MeasurementAccumulator<T> >& stat) const
+		{
+			return (T)stat.getAccumulator(mMeasurements).getMean();
 		}
 
 		template <typename T, typename IS_UNIT>
-		typename Measurement<T, IS_UNIT>::base_unit_t getStandardDeviation(const Measurement<T, IS_UNIT>& stat) const
+		T getMean(Measurement<T, IS_UNIT>& stat) const
 		{
-			return (typename Measurement<T, IS_UNIT>::base_unit_t)stat.getAccumulator(mMeasurements).getStandardDeviation();
+			return (T)stat.getAccumulator(mMeasurements).getMean();
+		}
+
+		template <typename T>
+		T getStandardDeviation(const TraceType<MeasurementAccumulator<T> >& stat) const
+		{
+			return (T)stat.getAccumulator(mMeasurements).getStandardDeviation();
 		}
 
 		template <typename T, typename IS_UNIT>
-		typename Measurement<T, IS_UNIT>::base_unit_t getLastValue(const Measurement<T, IS_UNIT>& stat) const
+		T getStandardDeviation(const Measurement<T, IS_UNIT>& stat) const
 		{
-			return (typename Measurement<T, IS_UNIT>::base_unit_t)stat.getAccumulator(mMeasurements).getLastValue();
+			return (T)stat.getAccumulator(mMeasurements).getStandardDeviation();
+		}
+
+		template <typename T>
+		T getLastValue(const TraceType<MeasurementAccumulator<T> >& stat) const
+		{
+			return (T)stat.getAccumulator(mMeasurements).getLastValue();
 		}
 
 		template <typename T, typename IS_UNIT>
-		U32 getSampleCount(const Measurement<T, IS_UNIT>& stat) const
+		T getLastValue(const Measurement<T, IS_UNIT>& stat) const
+		{
+			return (T)stat.getAccumulator(mMeasurements).getLastValue();
+		}
+
+
+		template <typename T>
+		U32 getSampleCount(const TraceType<MeasurementAccumulator<T> >& stat) const
 		{
 			return stat.getAccumulator(mMeasurements).getSampleCount();
 		}

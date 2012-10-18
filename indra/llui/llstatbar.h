@@ -99,7 +99,7 @@ private:
 	LLTrace::PeriodicRecording* mFrameRecording;
 
 	LLStat* mStatp;
-	LLTrace::Count<>* mNewStatp;
+	LLTrace::count_common_t* mNewStatp;
 
 	LLFrameTimer mUpdateTimer;
 	LLUIString mLabel;
