@@ -540,7 +540,6 @@ void LLVoiceChannelGroup::getChannelInfo()
 		LLSD data;
 		data["method"] = "call";
 		data["session-id"] = mSessionID;
-		llinfos << "Merov debug : viewer-> sim : LLVoiceChannelGroup::getChannelInfo, session id = " << mSessionID << ", data = " << LLSDOStreamer<LLSDNotationFormatter>(data) << llendl;
 		LLHTTPClient::post(url,
 						   data,
 						   new LLVoiceCallCapResponder(mSessionID));

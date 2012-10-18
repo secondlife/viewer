@@ -59,7 +59,6 @@
 #include "llviewerchat.h"
 #include "llnotificationmanager.h"
 #include "llautoreplace.h"
-#include "llsdserialize.h"
 
 floater_showed_signal_t LLIMFloater::sIMFloaterShowedSignal;
 
@@ -1209,12 +1208,11 @@ BOOL LLIMFloater::inviteToSession(const uuid_vec_t& ids)
 			}
 			data["method"] = "invite";
 			data["session-id"] = mSessionID;
-			llinfos << "Merov debug : viewer->sim :  LLIMFloater::inviteToSession, session id = " << mSessionID << ", data = " << LLSDOStreamer<LLSDNotationFormatter>(data) << llendl;
 			LLHTTPClient::post(url,	data,new LLSessionInviteResponder(mSessionID));
 		}
 		else
 		{
-			llinfos << "Merov debug : LLIMFloater::inviteToSession -"
+			llinfos << "LLIMFloater::inviteToSession -"
 					<< " no need to invite agents for "
 					<< mDialog << llendl;
 			// successful add, because everyone that needed to get added
