@@ -36,7 +36,6 @@
 #include "llviewerobjectlist.h"
 #include "llvoavatar.h"
 #include "llworld.h"
-#include "llsdserialize.h"
 
 const LLColor4 INACTIVE_COLOR(0.3f, 0.3f, 0.3f, 0.5f);
 const LLColor4 ACTIVE_COLOR(0.5f, 0.5f, 0.5f, 1.f);
@@ -297,23 +296,6 @@ private:
 	LLUUID mSessionID;
 };
 
-class UpdateResponder : public LLHTTPClient::Responder
-{
-public:
-	UpdateResponder(const LLUUID& session_id)
-	{
-		mSessionID = session_id;
-	}
-	
-	virtual void error(U32 status, const std::string& reason)
-	{
-		llinfos << "Merov debug : UpdateResponder error, on " << mSessionID << ", status = " << status << ": " << reason << llendl;
-	}
-	
-private:
-	LLUUID mSessionID;
-};
-
 //
 // LLSpeakerMgr
 //
@@ -322,11 +304,8 @@ LLSpeakerMgr::LLSpeakerMgr(LLVoiceChannel* channelp) :
 	mVoiceChannel(channelp)
 , mVoiceModerated(false)
 , mModerateModeHandledFirstTime(false)
-, mSessionUpdated(false)
-, mSessionID()
 {
 	static LLUICachedControl<F32> remove_delay ("SpeakerParticipantRemoveDelay", 10.0);
-//	mSessionID = getSessionID();
 
 	mSpeakerDelayRemover = new LLSpeakersDelayActionsStorage(boost::bind(&LLSpeakerMgr::removeSpeaker, this, _1), remove_delay);
 }
@@ -348,7 +327,6 @@ LLPointer<LLSpeaker> LLSpeakerMgr::setSpeaker(const LLUUID& id, const std::strin
 		mSpeakers.insert(std::make_pair(speakerp->mID, speakerp));
 		mSpeakersSorted.push_back(speakerp);
 		LL_DEBUGS("Speakers") << "Added speaker " << id << llendl;
-		//llinfos << "Merov debug : setSpeaker, add, id = " << id << ", name = " << name << llendl;
 		fireEvent(new LLSpeakerListChangeEvent(this, speakerp->mID), "add");
 	}
 	else
@@ -369,7 +347,6 @@ LLPointer<LLSpeaker> LLSpeakerMgr::setSpeaker(const LLUUID& id, const std::strin
 		}
 		else
 		{
-			llinfos << "Merov debug : setSpeaker, speaker not found? id = " << id << ", name = " << name << llendl;
 			LL_WARNS("Speakers") << "Speaker " << id << " not found" << llendl;
 		}
 	}
@@ -550,60 +527,22 @@ void LLSpeakerMgr::updateSpeakerList()
 		LLUUID session_id = getSessionID();
 		if ((mSpeakers.size() == 0) && (!session_id.isNull()))
 		{
-			//llinfos << "Merov debug : LLSpeakerMgr::updateSpeakerList: No speakers in " << session_id << llendl;
-			// MAINT-1551 : If the list is empty for too long, we should send a message to the sim so that
-			// it sends the participant list again.
-			updateSession();
+			// If the list is empty, we update it with whatever was used to initiate the call so that it doesn't stay empty too long.
+			// *TODO: Fix the server side code that sometimes forgets to send back the list of agents after a chat started 
+			// (IOW, fix why we get no ChatterBoxSessionAgentListUpdates message after the initial ChatterBoxSessionStartReply)
+			LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(session_id);
+			for (uuid_vec_t::iterator it = session->mInitialTargetIDs.begin();it!=session->mInitialTargetIDs.end();++it)
+			{
+				// We only add avatars that are on line
+				if (LLAvatarTracker::instance().isBuddyOnline(*it))
+				{
+					setSpeaker(*it, "", LLSpeaker::STATUS_VOICE_ACTIVE, LLSpeaker::SPEAKER_AGENT);
+				}
+			}
+			// Also add the current agent
+			setSpeaker(gAgentID, "", LLSpeaker::STATUS_VOICE_ACTIVE, LLSpeaker::SPEAKER_AGENT);
 		}
 	}
-}
-
-void LLSpeakerMgr::updateSession()
-{
-	// We perform this update if is has never been done or if the session id changed (which happens in ad-hoc sessions)
-	if (mSessionUpdated && (mSessionID == getSessionID()))
-		return;
-	
-	std::string url = gAgent.getRegion()->getCapability("ChatSessionRequest");
-	LLSD data;
-
-// That doesn't work apparently because we are not in the invite list so we get error 500
-//	data["method"] = "accept invitation";
-//	data["session-id"] = getSessionID();
-
-// That doesn't work because we're not a moderator on an IM session so our request is rejected as such	(error 403)
-	data["method"] = "session update";
-	data["session-id"] = getSessionID();
-	data["params"] = LLSD::emptyMap();	
-	data["params"]["update_info"] = LLSD::emptyMap();
-	data["params"]["update_info"]["moderated_mode"] = LLSD::emptyMap();
-	data["params"]["update_info"]["moderated_mode"]["voice"] = false;
-
-// That doesn't work, we eventually time out (error 502)...
-//	data["method"] = "call";
-//	data["session-id"] = getSessionID();
-
-	data["params"] = LLSD::emptyArray();
-//	for (int i = 0; i < count; i++)
-//	{
-//		data["params"].append(ids[i]);
-//	}
-	data["params"].append(gAgentID);
-	data["method"] = "invite";
-	data["session-id"] = getSessionID();
-	
-	llinfos << "Merov debug : viewer->sim : LLSpeakerMgr::updateSession, session id = " << getSessionID() << ", data = " << LLSDOStreamer<LLSDNotationFormatter>(data) << llendl;
-
-	LLHTTPClient::post(url, data, new UpdateResponder(getSessionID()));
-	
-	// bit of extra in the case of invite being sent
-	data.clear();
-	data["method"] = "accept invitation";
-	data["session-id"] = getSessionID();
-	LLHTTPClient::post(url, data, new UpdateResponder(getSessionID()));
-
-	mSessionUpdated = true;
-	mSessionID = getSessionID();
 }
 
 void LLSpeakerMgr::setSpeakerNotInChannel(LLSpeaker* speakerp)
@@ -872,7 +811,6 @@ void LLIMSpeakerMgr::toggleAllowTextChat(const LLUUID& speaker_id)
 	//current value represents ability to type, so invert
 	data["params"]["mute_info"]["text"] = !speakerp->mModeratorMutedText;
 
-	llinfos << "Merov debug : viewer->sim : LLIMSpeakerMgr::toggleAllowTextChat, session id = " << getSessionID() << ", data = " << LLSDOStreamer<LLSDNotationFormatter>(data) << llendl;
 	LLHTTPClient::post(url, data, new ModerationResponder(getSessionID()));
 }
 
@@ -897,7 +835,6 @@ void LLIMSpeakerMgr::moderateVoiceParticipant(const LLUUID& avatar_id, bool unmu
 	data["params"]["mute_info"] = LLSD::emptyMap();
 	data["params"]["mute_info"]["voice"] = !unmute;
 
-	llinfos << "Merov debug : viewer->sim : LLIMSpeakerMgr::moderateVoiceParticipant, session id = " << getSessionID() << ", data = " << LLSDOStreamer<LLSDNotationFormatter>(data) << llendl;
 	LLHTTPClient::post(
 		url,
 		data,
@@ -940,7 +877,6 @@ void LLIMSpeakerMgr::moderateVoiceSession(const LLUUID& session_id, bool disallo
 	data["params"]["update_info"]["moderated_mode"] = LLSD::emptyMap();
 	data["params"]["update_info"]["moderated_mode"]["voice"] = disallow_voice;
 
-	llinfos << "Merov debug : viewer->sim : LLIMSpeakerMgr::moderateVoiceSession, session id = " << session_id << ", data = " << LLSDOStreamer<LLSDNotationFormatter>(data) << llendl;
 	LLHTTPClient::post(url, data, new ModerationResponder(session_id));
 }
 

@@ -303,9 +303,6 @@ void LLAvatarActions::startConference(const uuid_vec_t& ids, const LLUUID& float
 	}
 	
 	LLIMFloater::show(session_id);
-//	gIMMgr->processAgentListUpdates(session_id, LLSD());
-//	gIMMgr->startCall(session_id,LLVoiceChannel::OUTGOING_CALL);
-//	gIMMgr->endCall(session_id);
 	
 	make_ui_sound("UISndStartIM");
 }

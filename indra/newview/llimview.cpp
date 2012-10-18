@@ -238,7 +238,6 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 
 	//we need to wait for session initialization for outgoing ad-hoc and group chat session
 	//correct session id for initiated ad-hoc chat will be received from the server
-	// Merov : MAINT-1551 : We need to read that mInitialTargetIDs when initializing the conversation
 	if (!LLIMModel::getInstance()->sendStartSession(mSessionID, mOtherParticipantID, 
 		mInitialTargetIDs, mType))
 	{
@@ -1301,6 +1300,7 @@ bool LLIMModel::sendStartSession(
 	else if ( dialog == IM_SESSION_CONFERENCE_START )
 	{
 		LLSD agents;
+		agents.append(gAgent.getID());
 		for (int i = 0; i < (S32) ids.size(); i++)
 		{
 			agents.append(ids[i]);
@@ -1319,6 +1319,7 @@ bool LLIMModel::sendStartSession(
 			data["params"] = agents;
 
 			llinfos << "Merov debug : viewer-> sim : LLIMModel::sendStartSession, session id = " << temp_session_id << ", data = " << LLSDOStreamer<LLSDNotationFormatter>(data) << llendl;
+			llinfos << "Merov debug : Extra info for LLIMModel::sendStartSession, other_participant_id = " << other_participant_id << ", agent id = " << gAgent.getID() << llendl;
 			LLHTTPClient::post(
 				url,
 				data,
