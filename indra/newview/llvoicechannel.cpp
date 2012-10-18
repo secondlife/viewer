@@ -35,7 +35,6 @@
 #include "llrecentpeople.h"
 #include "llviewercontrol.h"
 #include "llvoicechannel.h"
-#include "llsdserialize.h"
 
 
 LLVoiceChannel::voice_channel_map_t LLVoiceChannel::sVoiceChannelMap;
