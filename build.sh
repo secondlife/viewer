@@ -76,6 +76,10 @@ pre_build()
      -DLL_TESTS:BOOL="$run_tests" \
      -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url
 
+    mv ${build_dir}/SecondLife.xcodeproj/project.pbxproj ${build_dir}/SecondLife.xcodeproj/project.pbxproj.intermediate
+    grep -v GCC_GENERATE_DEBUGGING_SYMBOLS ${build_dir}/SecondLife.xcodeproj/project.pbxproj.intermediate > ${build_dir}/SecondLife.xcodeproj/project.pbxproj
+    rm ${build_dir}/SecondLife.xcodeproj/project.pbxproj.intermediate
+
     check_for "After 'autobuild configure'" ${build_dir}/packages/dictionaries
 
  end_section "Pre$variant"
