@@ -146,10 +146,11 @@ void LLChatEntry::beforeValueChange()
 
 void LLChatEntry::onValueChange(S32 start, S32 end)
 {
+    //Internally resetLabel() must meet a condition before it can reset the label
     resetLabel();
 }
 
-BOOL LLChatEntry::useLabel()
+bool LLChatEntry::useLabel()
 {
     return !getLength() && !mLabel.empty();
 }

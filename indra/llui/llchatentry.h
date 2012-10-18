@@ -56,7 +56,7 @@ protected:
 	LLChatEntry(const Params& p);
     /*virtual*/ void    beforeValueChange();
     /*virtual*/ void    onValueChange(S32 start, S32 end);
-    /*virtual*/ BOOL    useLabel();
+    /*virtual*/ bool    useLabel();
 
 public:
 

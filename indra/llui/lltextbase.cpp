@@ -535,7 +535,7 @@ void LLTextBase::drawText()
 	{
 		return;
 	}
-	else if (useLabel() == TRUE)
+	else if (useLabel())
 	{
 		text_len = mLabel.getWString().length();
 	}
@@ -2059,7 +2059,7 @@ BOOL LLTextBase::setLabelArg(const std::string& key, const LLStringExplicit& tex
 
 void LLTextBase::resetLabel()
 {
-	if (useLabel() == TRUE)
+	if (useLabel())
 	{
 		clearSegments();
 
@@ -2072,7 +2072,7 @@ void LLTextBase::resetLabel()
 	}
 }
 
-BOOL LLTextBase::useLabel()
+bool LLTextBase::useLabel()
 {
     return !getLength() && !mLabel.empty() && !hasFocus();
 }

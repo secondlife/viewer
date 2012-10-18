@@ -503,7 +503,7 @@ protected:
 	void							initFromParams(const Params& p);
     virtual void					beforeValueChange();
 	virtual void					onValueChange(S32 start, S32 end);
-    virtual BOOL                    useLabel();
+    virtual bool                    useLabel();
 
 	// draw methods
 	void							drawSelectionBackground(); // draws the black box behind the selected text
