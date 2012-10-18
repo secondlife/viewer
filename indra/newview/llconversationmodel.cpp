@@ -27,6 +27,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llagent.h"
 #include "llavatarnamecache.h"
 #include "llavataractions.h"
 #include "llevents.h"
@@ -113,6 +114,19 @@ void LLConversationItem::buildParticipantMenuOptions(menuentry_vec_t&   items)
     items.push_back(std::string("share"));
     items.push_back(std::string("pay"));
     items.push_back(std::string("block_unblock"));
+
+	if(this->getType() != CONV_SESSION_1_ON_1)
+	{
+		items.push_back(std::string("Moderator Options Separator"));
+		items.push_back(std::string("Moderator Options"));
+		items.push_back(std::string("AllowTextChat"));
+		items.push_back(std::string("moderate_voice_separator"));
+		items.push_back(std::string("ModerateVoiceMuteSelected"));
+		items.push_back(std::string("ModerateVoiceUnMuteSelected"));
+		items.push_back(std::string("ModerateVoiceMute"));
+		items.push_back(std::string("ModerateVoiceUnmute"));
+	}
+
 }
 
 //
@@ -374,7 +388,10 @@ void LLConversationItemParticipant::buildContextMenu(LLMenuGL& menu, U32 flags)
     menuentry_vec_t items;
     menuentry_vec_t disabled_items;
 
-    buildParticipantMenuOptions(items);
+    if(gAgent.getID() != mUUID)
+    {
+    	buildParticipantMenuOptions(items);
+    }
     hide_context_entries(menu, items, disabled_items);
 }
 

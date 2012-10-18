@@ -45,6 +45,8 @@ class LLLayoutPanel;
 class LLLayoutStack;
 class LLTabContainer;
 class LLIMFloaterContainer;
+class LLSpeaker;
+class LLSpeakerMgr;
 
 class LLIMFloaterContainer
 	: public LLMultiFloater
@@ -64,6 +66,7 @@ public:
 								BOOL select_added_floater, 
 								LLTabContainer::eInsertionPoint insertion_point = LLTabContainer::END);
     void setConvItemSelect(const LLUUID& session_id);
+    void setItemSelect(const LLUUID& session_id);
 	/*virtual*/ void tabClose();
 
 	static LLFloater* getCurrentVoiceFloater();
@@ -81,11 +84,14 @@ public:
 
 	// LLIMSessionObserver observe triggers
 	/*virtual*/ void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id);
+    /*virtual*/ void sessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id);
 	/*virtual*/ void sessionVoiceOrIMStarted(const LLUUID& session_id);
 	/*virtual*/ void sessionRemoved(const LLUUID& session_id);
 	/*virtual*/ void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id);
 
 	LLConversationViewModel& getRootViewModel() { return mConversationViewModel; }
+    LLUUID getSelectedSession() { return mSelectedSession; }
+    void setSelectedSession(LLUUID sessionID) { mSelectedSession = sessionID; }
 
 private:
 	typedef std::map<LLUUID,LLFloater*> avatarID_panel_map_t;
@@ -122,6 +128,17 @@ private:
     bool checkContextMenuItem(const LLSD& userdata);
     bool enableContextMenuItem(const LLSD& userdata);
 
+	static void confirmMuteAllCallback(const LLSD& notification, const LLSD& response);
+	bool enableModerateContextMenuItem(const std::string& userdata);
+	LLSpeaker * getSpeakerOfSelectedParticipant(LLSpeakerMgr * speaker_managerp);
+	LLSpeakerMgr * getSpeakerMgrForSelectedParticipant();
+	bool isGroupModerator();
+	bool isMuted(const LLUUID& avatar_id);
+	void moderateVoice(const std::string& command, const LLUUID& userID);
+	void moderateVoiceAllParticipants(bool unmute);
+	void moderateVoiceParticipant(const LLUUID& avatar_id, bool unmute);
+	void toggleAllowTextChat(const LLUUID& participant_uuid);
+
 	LLButton* mExpandCollapseBtn;
 	LLLayoutPanel* mMessagesPane;
 	LLLayoutPanel* mConversationsPane;
@@ -133,8 +150,8 @@ private:
 
 	// Conversation list implementation
 public:
-	void removeConversationListItem(const LLUUID& uuid, bool change_focus = true);
-	void addConversationListItem(const LLUUID& uuid);
+	bool removeConversationListItem(const LLUUID& uuid, bool change_focus = true);
+	void addConversationListItem(const LLUUID& uuid, bool isWidgetSelected = false);
 	void setTimeNow(const LLUUID& session_id, const LLUUID& participant_id);
 	void setNearbyDistances();
 

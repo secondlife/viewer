@@ -67,6 +67,16 @@ public:
 
 	/*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable = NULL) const;
 
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free_16(ptr);
+	}
+
 	// LLVisualParam Virtual functions
 	///*virtual*/ BOOL		parseData(LLXmlTreeNode* node);
 	/*virtual*/ void		apply( ESex avatar_sex ) {}
@@ -142,6 +152,16 @@ public:
 	LLTexLayerParamColor( LLTexLayerInterface* layer );
 	LLTexLayerParamColor( LLVOAvatar* avatar );
 	/* virtual */ ~LLTexLayerParamColor();
+
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free_16(ptr);
+	}
 
 	/*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable = NULL) const;
 

@@ -32,6 +32,8 @@
 #include <boost/bind.hpp>
 #include "llagentdata.h"
 #include "llconversationmodel.h"
+#include "llimfloater.h"
+#include "llnearbychat.h"
 #include "llimconversation.h"
 #include "llimfloatercontainer.h"
 #include "llfloaterreg.h"
@@ -220,6 +222,13 @@ void LLConversationViewSession::toggleOpen()
 	if (!mMinimizedMode)
 	{
 		LLFolderViewFolder::toggleOpen();
+
+		// do item's selection when opened
+		if (LLFolderViewFolder::isOpen())
+		{
+			getParentFolder()->setSelection(this, true);
+		}
+		
 	}
 }
 
@@ -240,6 +249,9 @@ void LLConversationViewSession::selectItem()
 	
 	// Set the focus on the selected floater
 	session_floater->setFocus(TRUE);
+    // Store the active session
+    LLIMFloaterContainer::getInstance()->setSelectedSession(item->getUUID());
+
 
 	LLFolderViewItem::selectItem();
 }
@@ -405,21 +417,53 @@ void LLConversationViewParticipant::draw()
     static LLUIColor sMouseOverColor = LLUIColorTable::instance().getColor("InventoryMouseOverColor", DEFAULT_WHITE);
 
     const BOOL show_context = (getRoot() ? getRoot()->getShowSelectionContext() : FALSE);
-    const BOOL filled = show_context || (getRoot() ? getRoot()->getParentPanel()->hasFocus() : FALSE); // If we have keyboard focus, draw selection filled
 
     const LLFontGL* font = getLabelFontForStyle(mLabelStyle);
     F32 right_x  = 0;
 
     F32 y = (F32)getRect().getHeight() - font->getLineHeight() - (F32)mTextPad;
     F32 text_left = (F32)getLabelXPos();
-    LLColor4 color = (mIsSelected && filled) ? sHighlightFgColor : sFgColor;
+    LLColor4 color = mIsSelected ? sHighlightFgColor : sFgColor;
 
-    drawHighlight(show_context, filled, sHighlightBgColor, sFocusOutlineColor, sMouseOverColor);
+    drawHighlight(show_context, mIsSelected, sHighlightBgColor, sFocusOutlineColor, sMouseOverColor);
     drawLabel(font, text_left, y, color, right_x);
 
     LLView::draw();
 }
 
+void LLConversationViewParticipant::selectItem()
+{
+    LLConversationItem* vmi = this->getParentFolder() ? static_cast<LLConversationItem*>(this->getParentFolder()->getViewModelItem()) : NULL;
+    LLIMFloaterContainer* container = LLIMFloaterContainer::getInstance();
+    LLFloater* session_floater;
+
+    //Only execute when switching floaters (conversations)
+    if(vmi && vmi->getUUID() != container->getSelectedSession())
+    {
+        //When null, show the nearby chat conversation floater
+        if(vmi->getUUID().isNull())
+        {
+            LLNearbyChat* nearbyChat = LLFloaterReg::findTypedInstance<LLNearbyChat>("nearby_chat");
+            nearbyChat->show();
+        }
+        //Otherwise, show the IM conversation floater
+        else
+        {
+            LLIMFloater::show(vmi->getUUID());
+        }
+
+        // Store the active session
+        container->setSelectedSession(vmi->getUUID());
+    }
+    //Focus the current conversation floater (it is already visible so just focus it)
+    else
+    {
+        session_floater = LLIMConversation::getConversation(vmi->getUUID());
+        session_floater->setFocus(TRUE);
+    }
+
+    LLFolderViewItem::selectItem();
+}
 
 void LLConversationViewParticipant::refresh()
 {

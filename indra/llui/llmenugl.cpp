@@ -1764,6 +1764,26 @@ bool LLMenuGL::addChild(LLView* view, S32 tab_group)
 	return false;
 }
 
+// Used in LLContextMenu and in LLTogleableMenu
+
+// Add an item to the context menu branch
+bool LLMenuGL::addContextChild(LLView* view, S32 tab_group)
+{
+	LLContextMenu* context = dynamic_cast<LLContextMenu*>(view);
+	if (context)
+		return appendContextSubMenu(context);
+
+	LLMenuItemSeparatorGL* separator = dynamic_cast<LLMenuItemSeparatorGL*>(view);
+	if (separator)
+		return append(separator);
+
+	LLMenuItemGL* item = dynamic_cast<LLMenuItemGL*>(view);
+	if (item)
+		return append(item);
+
+	return false;
+}
+
 void LLMenuGL::removeChild( LLView* ctrl)
 {
 	// previously a dynamic_cast with if statement to check validity
@@ -2501,6 +2521,32 @@ BOOL LLMenuGL::appendMenu( LLMenuGL* menu )
 	return success;
 }
 
+// add a context menu branch
+
+BOOL LLMenuGL::appendContextSubMenu(LLMenuGL *menu)
+
+{
+	if (menu == this)
+	{
+		llerrs << "Can't attach a context menu to itself" << llendl;
+	}
+
+	LLContextMenuBranch *item;
+	LLContextMenuBranch::Params p;
+
+	p.name = menu->getName();
+	p.label = menu->getLabel();
+	p.branch = (LLContextMenu *)menu;
+	p.enabled_color=LLUIColorTable::instance().getColor("MenuItemEnabledColor");
+	p.disabled_color=LLUIColorTable::instance().getColor("MenuItemDisabledColor");
+	p.highlight_bg_color=LLUIColorTable::instance().getColor("MenuItemHighlightBgColor");
+	p.highlight_fg_color=LLUIColorTable::instance().getColor("MenuItemHighlightFgColor");
+	item = LLUICtrlFactory::create<LLContextMenuBranch>(p);
+	LLMenuGL::sMenuContainer->addChild(item->getBranch());
+
+	return append( item );
+}
+
 void LLMenuGL::setEnabledSubMenus(BOOL enable)
 {
 	setEnabled(enable);
@@ -3037,7 +3083,17 @@ void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y)
 	const S32 CURSOR_HEIGHT = 22;		// Approximate "normal" cursor size
 	const S32 CURSOR_WIDTH = 12;
 
-	if(menu->getChildList()->empty())
+	//Do not show menu if all menu items are disabled
+	BOOL item_enabled = false;
+	for (LLView::child_list_t::const_iterator itor = menu->getChildList()->begin();
+			 itor != menu->getChildList()->end();
+			 ++itor)
+	{
+		LLView *menu_item = (*itor);
+		item_enabled = item_enabled || menu_item->getEnabled();
+	}
+
+	if(menu->getChildList()->empty() || !item_enabled)
 	{
 		return;
 	}
@@ -3725,39 +3781,6 @@ void LLTearOffMenu::closeTearOff()
 	mMenu->setDropShadowed(TRUE);
 }
 
-
-//-----------------------------------------------------------------------------
-// class LLContextMenuBranch
-// A branch to another context menu
-//-----------------------------------------------------------------------------
-class LLContextMenuBranch : public LLMenuItemGL
-{
-public:
-	struct Params : public LLInitParam::Block<Params, LLMenuItemGL::Params>
-	{
-		Mandatory<LLContextMenu*> branch;
-	};
-
-	LLContextMenuBranch(const Params&);
-
-	virtual ~LLContextMenuBranch()
-	{}
-
-	// called to rebuild the draw label
-	virtual void	buildDrawLabel( void );
-
-	// onCommit() - do the primary funcationality of the menu item.
-	virtual void	onCommit( void );
-
-	LLContextMenu*	getBranch() { return mBranch.get(); }
-	void			setHighlight( BOOL highlight );
-
-protected:
-	void	showSubMenu();
-
-	LLHandle<LLContextMenu> mBranch;
-};
-
 LLContextMenuBranch::LLContextMenuBranch(const LLContextMenuBranch::Params& p) 
 :	LLMenuItemGL(p),
 	mBranch( p.branch()->getHandle() )
@@ -4029,44 +4052,8 @@ BOOL LLContextMenu::handleRightMouseUp( S32 x, S32 y, MASK mask )
 	return result;
 }
 
-BOOL LLContextMenu::appendContextSubMenu(LLContextMenu *menu)
-{
-	
-	if (menu == this)
-	{
-		llerrs << "Can't attach a context menu to itself" << llendl;
-	}
-
-	LLContextMenuBranch *item;
-	LLContextMenuBranch::Params p;
-	p.name = menu->getName();
-	p.label = menu->getLabel();
-	p.branch = menu;
-	p.enabled_color=LLUIColorTable::instance().getColor("MenuItemEnabledColor");
-	p.disabled_color=LLUIColorTable::instance().getColor("MenuItemDisabledColor");
-	p.highlight_bg_color=LLUIColorTable::instance().getColor("MenuItemHighlightBgColor");
-	p.highlight_fg_color=LLUIColorTable::instance().getColor("MenuItemHighlightFgColor");
-	
-	item = LLUICtrlFactory::create<LLContextMenuBranch>(p);
-	LLMenuGL::sMenuContainer->addChild(item->getBranch());
-
-	return append( item );
-}
-
 bool LLContextMenu::addChild(LLView* view, S32 tab_group)
 {
-	LLContextMenu* context = dynamic_cast<LLContextMenu*>(view);
-	if (context)
-		return appendContextSubMenu(context);
-
-	LLMenuItemSeparatorGL* separator = dynamic_cast<LLMenuItemSeparatorGL*>(view);
-	if (separator)
-		return append(separator);
-
-	LLMenuItemGL* item = dynamic_cast<LLMenuItemGL*>(view);
-	if (item)
-		return append(item);
-
-	return false;
+	return addContextChild(view, tab_group);
 }
 

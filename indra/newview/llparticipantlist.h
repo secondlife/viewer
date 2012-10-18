@@ -160,79 +160,6 @@ protected:
 	};
 
 	/**
-	 * Menu used in the participant list.
-	 */
-	class LLParticipantListMenu : public LLListContextMenu
-	{
-	public:
-		LLParticipantListMenu(LLParticipantList& parent):mParent(parent){};
-		/*virtual*/ LLContextMenu* createMenu();
-		/*virtual*/ void show(LLView* spawning_view, const uuid_vec_t& uuids, S32 x, S32 y);
-	protected:
-		LLParticipantList& mParent;
-	private:
-		bool enableContextMenuItem(const LLSD& userdata);
-		bool enableModerateContextMenuItem(const LLSD& userdata);
-		bool checkContextMenuItem(const LLSD& userdata);
-
-		void sortParticipantList(const LLSD& userdata);
-		void toggleAllowTextChat(const LLSD& userdata);
-		void toggleMute(const LLSD& userdata, U32 flags);
-		void toggleMuteText(const LLSD& userdata);
-		void toggleMuteVoice(const LLSD& userdata);
-		
-		/**
-		 * Return true if Agent is group moderator(and moderator of group call).
-		 */
-		bool isGroupModerator();
-
-		// Voice moderation support
-		/**
-		 * Check whether specified by argument avatar is muted for group chat or not.
-		 */
-		bool isMuted(const LLUUID& avatar_id);
-
-		/**
-		 * Processes Voice moderation menu items.
-		 *
-		 * It calls either moderateVoiceParticipant() or moderateVoiceParticipant() depend on
-		 * passed parameter.
-		 *
-		 * @param userdata can be "selected" or "others".
-		 *
-		 * @see moderateVoiceParticipant()
-		 * @see moderateVoiceAllParticipants()
-		 */
-		void moderateVoice(const LLSD& userdata);
-
-		/**
-		 * Mutes/Unmutes avatar for current group voice chat.
-		 *
-		 * It only marks avatar as muted for session and does not use local Agent's Block list.
-		 * It does not mute Agent itself.
-		 *
-		 * @param[in] avatar_id UUID of avatar to be processed
-		 * @param[in] unmute if true - specified avatar will be muted, otherwise - unmuted.
-		 *
-		 * @see moderateVoiceAllParticipants()
-		 */
-		void moderateVoiceParticipant(const LLUUID& avatar_id, bool unmute);
-
-		/**
-		 * Mutes/Unmutes all avatars for current group voice chat.
-		 *
-		 * It only marks avatars as muted for session and does not use local Agent's Block list.
-		 *
-		 * @param[in] unmute if true - avatars will be muted, otherwise - unmuted.
-		 *
-		 * @see moderateVoiceParticipant()
-		 */
-		void moderateVoiceAllParticipants(bool unmute);
-
-		static void confirmMuteAllCallback(const LLSD& notification, const LLSD& response);
-	};
-
-	/**
 	 * Comparator for comparing avatar items by last spoken time
 	 */
 	class LLAvatarItemRecentSpeakerComparator : public LLAvatarItemNameComparator, public LLRefCount
@@ -275,8 +202,6 @@ private:
 	LLPointer<SpeakerUpdateListener>	        mSpeakerUpdateListener;
 	LLPointer<SpeakerModeratorUpdateListener>	mSpeakerModeratorListener;
 	LLPointer<SpeakerMuteListener>				mSpeakerMuteListener;
-
-	LLParticipantListMenu*    mParticipantListMenu;
 
 	/**
 	 * This field manages an adding  a new avatar_id in the mAvatarList

@@ -117,6 +117,7 @@
      layout="topleft"
      name="activate_group">
         <on_click function="Group.DoToSelected" parameter="activate_group"/>
+        <on_enable function="Avatar.EnableItem" parameter="can_activate_group" />
     </menu_item_call>		
     <menu_item_call
      label="Leave Group"
@@ -124,4 +125,49 @@
      name="leave_group">
         <on_click function="Group.DoToSelected" parameter="leave_group"/>
     </menu_item_call>
+	<menu_item_separator
+	 layout="topleft"
+	 name="Moderator Options Separator"/>
+	<context_menu
+	 label="Moderator Options"
+	 layout="topleft"
+	 name="Moderator Options">
+		<menu_item_check
+		 label="Allow text chat"
+		 layout="topleft"
+		 name="AllowTextChat">
+			<on_check function="Avatar.CheckItem" parameter="is_allowed_text_chat" />
+			<on_click function="Avatar.DoToSelected" parameter="toggle_allow_text_chat" />
+			<on_enable function="Avatar.EnableItem" parameter="can_allow_text_chat" />
+		</menu_item_check>
+		<menu_item_separator layout="topleft" name="moderate_voice_separator" />
+		<menu_item_call
+		 label="Mute this participant"
+		 layout="topleft"
+		 name="ModerateVoiceMuteSelected">
+			<on_click function="Avatar.DoToSelected" parameter="selected" />
+			<on_enable function="Avatar.EnableItem" parameter="can_mute" />
+		</menu_item_call>
+		<menu_item_call
+		 label="Unmute this participant"
+		 layout="topleft"
+		 name="ModerateVoiceUnMuteSelected">
+			<on_click function="Avatar.DoToSelected" parameter="selected" />
+			<on_enable function="Avatar.EnableItem" parameter="can_unmute" />
+		</menu_item_call>
+		<menu_item_call
+		 label="Mute everyone"
+		 layout="topleft"
+		 name="ModerateVoiceMute">
+			<on_click function="Avatar.DoToSelected" parameter="mute_all" />
+			<on_enable function="Avatar.EnableItem" parameter="can_moderate_voice" />
+		</menu_item_call>
+		<menu_item_call
+		 label="Unmute everyone"
+		 layout="topleft"
+		 name="ModerateVoiceUnmute">
+			<on_click function="Avatar.DoToSelected" parameter="unmute_all" />
+			<on_enable function="Avatar.EnableItem" parameter="can_moderate_voice" />
+		</menu_item_call>
+	</context_menu>
 </toggleable_menu>
