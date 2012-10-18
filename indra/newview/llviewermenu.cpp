@@ -3908,25 +3908,27 @@ class LLViewToggleUI : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLNotification::Params params("ConfirmHideUI");
-		params.functor.function(boost::bind(&LLViewToggleUI::confirm, this, _1, _2));
-		LLSD substitutions;
+		if(gAgentCamera.getCameraMode() != CAMERA_MODE_MOUSELOOK)
+		{
+			LLNotification::Params params("ConfirmHideUI");
+			params.functor.function(boost::bind(&LLViewToggleUI::confirm, this, _1, _2));
+			LLSD substitutions;
 #if LL_DARWIN
-		substitutions["SHORTCUT"] = "Cmd+Shift+U";
+			substitutions["SHORTCUT"] = "Cmd+Shift+U";
 #else
-		substitutions["SHORTCUT"] = "Ctrl+Shift+U";
+			substitutions["SHORTCUT"] = "Ctrl+Shift+U";
 #endif
-		params.substitutions = substitutions;
-		if (gViewerWindow->getUIVisibility())
-		{
-			// hiding, so show notification
-			LLNotifications::instance().add(params);
+			params.substitutions = substitutions;
+			if (!gSavedSettings.getBOOL("HideUIControls"))
+			{
+				// hiding, so show notification
+				LLNotifications::instance().add(params);
+			}
+			else
+			{
+				LLNotifications::instance().forceResponse(params, 0);
+			}
 		}
-		else
-		{
-			LLNotifications::instance().forceResponse(params, 0);
-		}
-
 		return true;
 	}
 
@@ -3936,8 +3938,9 @@ class LLViewToggleUI : public view_listener_t
 
 		if (option == 0) // OK
 		{
-			gViewerWindow->setUIVisibility(!gViewerWindow->getUIVisibility());
-			LLPanelStandStopFlying::getInstance()->setVisible(gViewerWindow->getUIVisibility());
+			gViewerWindow->setUIVisibility(gSavedSettings.getBOOL("HideUIControls"));
+			LLPanelStandStopFlying::getInstance()->setVisible(gSavedSettings.getBOOL("HideUIControls"));
+			gSavedSettings.setBOOL("HideUIControls",!gSavedSettings.getBOOL("HideUIControls"));
 		}
 	}
 };
