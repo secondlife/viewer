@@ -3340,9 +3340,9 @@ public :
 	{
 	}
 
-	static boost::intrusive_ptr<ChatTranslationReceiver> build(const std::string &from_lang, const std::string &to_lang, const std::string &mesg, const LLChat &chat, const LLSD &toast_args)
+	static ChatTranslationReceiver* build(const std::string &from_lang, const std::string &to_lang, const std::string &mesg, const LLChat &chat, const LLSD &toast_args)
 	{
-		return boost::intrusive_ptr<ChatTranslationReceiver>(new ChatTranslationReceiver(from_lang, to_lang, mesg, chat, toast_args));
+		return new ChatTranslationReceiver(from_lang, to_lang, mesg, chat, toast_args);
 	}
 
 protected:

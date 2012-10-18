@@ -5087,6 +5087,11 @@ BOOL LLModelPreview::render()
 		refresh();
 	}
 
+	if (use_shaders)
+	{
+		gObjectPreviewProgram.bind();
+	}
+
 	gGL.loadIdentity();
 	gPipeline.enableLightsPreview();
 
@@ -5111,11 +5116,6 @@ BOOL LLModelPreview::render()
 	gGL.color3f(BRIGHTNESS, BRIGHTNESS, BRIGHTNESS);
 
 	const U32 type_mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0;
-
-	if (use_shaders)
-	{
-		gObjectPreviewProgram.bind();
-	}
 
 	LLGLEnable normalize(GL_NORMALIZE);
 
@@ -5305,7 +5305,7 @@ BOOL LLModelPreview::render()
 											hull_colors.push_back(LLColor4U(rand()%128+127, rand()%128+127, rand()%128+127, 128));
 										}
 
-										glColor4ubv(hull_colors[i].mV);
+										gGL.diffuseColor4ubv(hull_colors[i].mV);
 										LLVertexBuffer::drawArrays(LLRender::TRIANGLES, physics.mMesh[i].mPositions, physics.mMesh[i].mNormals);
 
 										if (explode > 0.f)

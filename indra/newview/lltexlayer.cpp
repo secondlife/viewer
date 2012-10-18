@@ -510,7 +510,13 @@ void LLTexLayerSetBuffer::doUpload()
 			BOOL valid = FALSE;
 			LLPointer<LLImageJ2C> integrity_test = new LLImageJ2C;
 			S32 file_size = 0;
-			U8* data = LLVFile::readFile(gVFS, asset_id, LLAssetType::AT_TEXTURE, &file_size);
+			
+			//data buffer MUST be allocated using LLImageBase
+			LLVFile file(gVFS, asset_id, LLAssetType::AT_TEXTURE);
+			file_size = file.getSize();
+			U8* data = integrity_test->allocateData(file_size);
+			file.read(data, file_size);
+			
 			if (data)
 			{
 				valid = integrity_test->validate(data, file_size); // integrity_test will delete 'data'

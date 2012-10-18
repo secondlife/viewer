@@ -166,7 +166,8 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 
 	//special value to indicate uninitialized position
 	mIndicesIndex	= 0xFFFFFFFF;
-
+	
+	mIndexInTex = 0;
 	mTexture		= NULL;
 	mTEOffset		= -1;
 	mTextureIndex = 255;

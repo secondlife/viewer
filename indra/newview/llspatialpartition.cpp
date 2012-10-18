@@ -1832,6 +1832,8 @@ BOOL LLSpatialPartition::remove(LLDrawable *drawablep, LLSpatialGroup *curp)
 		drawablep->setSpatialGroup(NULL);
 	}
 
+	drawablep->setSpatialGroup(NULL);
+
 	assert_octree_valid(mOctree);
 	
 	return TRUE;
@@ -4162,7 +4164,7 @@ public:
 						{
 							if (index < 255)
 							{
-								if (facep->mDrawInfo->mTextureList.size()<= index)
+								if (facep->mDrawInfo->mTextureList.size() <= index)
 								{
 									llerrs << "Face texture index out of bounds." << llendl;
 								}

@@ -21,6 +21,7 @@
 			<menu_item_call label="Beschäftigt" name="Set Busy"/>
 		</menu>
 		<menu_item_call label="L$ kaufen..." name="Buy and Sell L$"/>
+		<menu_item_call label="Händler-Outbox..." name="MerchantOutbox"/>
 		<menu_item_call label="Kontoübersicht..." name="Manage My Account">
 			<menu_item_call.on_click name="ManageMyAccount_url" parameter="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=de"/>
 		</menu_item_call>

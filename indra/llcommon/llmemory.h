@@ -30,6 +30,12 @@
 
 class LLMutex ;
 
+#if LL_WINDOWS && LL_DEBUG
+#define LL_CHECK_MEMORY llassert(_CrtCheckMemory());
+#else
+#define LL_CHECK_MEMORY
+#endif
+
 inline void* ll_aligned_malloc( size_t size, int align )
 {
 	void* mem = malloc( size + (align - 1) + sizeof(void*) );
@@ -89,10 +95,11 @@ inline void* ll_aligned_realloc_16(void* ptr, size_t size, size_t old_size) // r
 	return ret;
 #endif
 }
+
 #else // USE_TCMALLOC
 // ll_aligned_foo_16 are not needed with tcmalloc
 #define ll_aligned_malloc_16 malloc
-#define ll_aligned_realloc_16 realloc
+#define ll_aligned_realloc_16(a,b,c) realloc(a,b)
 #define ll_aligned_free_16 free
 #endif // USE_TCMALLOC
 
