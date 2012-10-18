@@ -1175,8 +1175,18 @@ void LLIMFloaterContainer::setNearbyDistances()
 void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid, bool isWidgetSelected /*= false*/)
 {
 	bool is_nearby_chat = uuid.isNull();
-	
-	std::string display_name = is_nearby_chat ? LLTrans::getString("NearbyChatTitle") : LLIMModel::instance().getName(uuid);
+	std::string display_name;
+
+    //Stores the display name for the conversation line item
+    if(is_nearby_chat)
+    {
+        //Adds parenthesis in code since these are independent of the translated string
+        display_name = "(" + LLTrans::getString("NearbyChatTitle") + ")";
+    }
+    else
+    {
+        display_name = LLIMModel::instance().getName(uuid);
+    }
 
 	// Check if the item is not already in the list, exit if it is and has the same name and uuid (nothing to do)
 	// Note: this happens often, when reattaching a torn off conversation for instance
