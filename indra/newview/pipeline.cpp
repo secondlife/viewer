@@ -706,6 +706,8 @@ void LLPipeline::cleanup()
 	mInitialized = FALSE;
 
 	mDeferredVB = NULL;
+
+	mCubeVB = NULL;
 }
 
 //============================================================================
