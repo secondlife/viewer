@@ -1359,6 +1359,7 @@ void LLTextBase::onSpellCheckSettingsChange()
 
 void LLTextBase::onFocusReceived()
 {
+	LLUICtrl::onFocusReceived();
 	if (!getLength() && !mLabel.empty())
 	{
 		// delete label which is LLLabelTextSegment
@@ -1368,6 +1369,7 @@ void LLTextBase::onFocusReceived()
 
 void LLTextBase::onFocusLost()
 {
+	LLUICtrl::onFocusLost();
 	if (!getLength() && !mLabel.empty())
 	{
 		resetLabel();
