@@ -20,6 +20,8 @@ email_status_this_is_os = true
 # Limit extent of codeticket updates to revisions after...
 codeticket_since = 3.3.0-release
 
+build_clean_on_success = false
+
 # ========================================
 # Viewer Development
 # ========================================
