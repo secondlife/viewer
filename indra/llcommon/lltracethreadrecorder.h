@@ -114,8 +114,8 @@ namespace LLTrace
 			void copyFrom(const Recording& source);
 			void copyTo(Recording& sink);
 		private:
-			LLMutex		mRecorderMutex;
-			Recording	mRecorder;
+			LLMutex		mRecordingMutex;
+			Recording	mRecording;
 		};
 		SharedData		mSharedData;
 	};

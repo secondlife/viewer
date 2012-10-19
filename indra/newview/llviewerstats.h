@@ -147,10 +147,8 @@ extern LLTrace::Measurement<>				NUM_IMAGES,
 
 extern LLTrace::Measurement<LLTrace::Meters> AGENT_POSITION_SNAP;
 
-extern LLTrace::Measurement<LLTrace::Bytes>	SIM_UNACKED_BYTES,
-											DELTA_BANDWIDTH,
+extern LLTrace::Measurement<LLTrace::Bytes>	DELTA_BANDWIDTH,
 											MAX_BANDWIDTH,
-											SIM_PHYSICS_MEM,
 											GL_TEX_MEM,
 											GL_BOUND_MEM,
 											RAW_MEM,
@@ -170,6 +168,9 @@ extern SimMeasurement<LLTrace::Milliseconds>	SIM_FRAME_TIME,
 												SIM_SPARE_TIME,
 												SIM_SLEEP_TIME,
 												SIM_PUMP_IO_TIME;
+
+extern SimMeasurement<LLTrace::Bytes>			SIM_UNACKED_BYTES,
+												SIM_PHYSICS_MEM;
 
 
 extern LLTrace::Measurement<LLTrace::Milliseconds>	FRAMETIME_JITTER,

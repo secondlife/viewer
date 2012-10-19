@@ -167,13 +167,22 @@ namespace LLTrace
 			size_t next_slot = mNextStorageSlot++;
 			if (next_slot >= mStorageSize)
 			{
-				size_t new_size = mStorageSize + (mStorageSize >> 2);
-				delete [] mStorage;
-				mStorage = new ACCUMULATOR[new_size];
-				mStorageSize = new_size;
+				resize(mStorageSize + (mStorageSize >> 2));
 			}
-			llassert(next_slot < mStorageSize);
+			llassert(mStorage && next_slot < mStorageSize);
 			return next_slot;
+		}
+
+		void resize(size_t new_size)
+		{
+			ACCUMULATOR* old_storage = mStorage;
+			mStorage = new ACCUMULATOR[new_size];
+			for (S32 i = 0; i < mStorageSize; i++)
+			{
+				mStorage[i] = old_storage[i];
+			}
+			mStorageSize = new_size;
+			delete[] old_storage;
 		}
 
 		static AccumulatorBuffer<ACCUMULATOR>& getDefaultBuffer()

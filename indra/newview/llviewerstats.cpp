@@ -149,9 +149,7 @@ LLTrace::Measurement<>		NUM_IMAGES("numimagesstat"),
 LLTrace::Measurement<LLTrace::Meters> AGENT_POSITION_SNAP("agentpositionsnap", "agent position corrections");
 
 
-LLTrace::Measurement<LLTrace::Bytes>	SIM_UNACKED_BYTES("simtotalunackedbytes"),
-										SIM_PHYSICS_MEM("physicsmemoryallocated"),
-										GL_TEX_MEM("gltexmemstat"),
+LLTrace::Measurement<LLTrace::Bytes>	GL_TEX_MEM("gltexmemstat"),
 										GL_BOUND_MEM("glboundmemstat"),
 										RAW_MEM("rawmemstat"),
 										FORMATTED_MEM("formattedmemstat"),
@@ -173,6 +171,10 @@ SimMeasurement<LLTrace::Milliseconds> SIM_FRAME_TIME("simframemsec", "", LL_SIM_
 										SIM_SPARE_TIME("simsparemsec", "", LL_SIM_STAT_SIMSPARETIME),
 										SIM_SLEEP_TIME("simsleepmsec", "", LL_SIM_STAT_SIMSLEEPTIME),
 										SIM_PUMP_IO_TIME("simpumpiomsec", "", LL_SIM_STAT_IOPUMPTIME);
+
+SimMeasurement<LLTrace::Bytes> SIM_UNACKED_BYTES("simtotalunackedbytes", "", LL_SIM_STAT_TOTAL_UNACKED_BYTES),
+								SIM_PHYSICS_MEM("physicsmemoryallocated", "", LL_SIM_STAT_SIMPHYSICSMEMORY);
+
 
 LLTrace::Measurement<LLTrace::Milliseconds>	FRAMETIME_JITTER("frametimejitter", "Average delta between successive frame times"),
 											FRAMETIME_SLEW("frametimeslew", "Average delta between frame time and mean"),

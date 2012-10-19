@@ -127,7 +127,6 @@ void ThreadRecorder::ActiveRecording::moveBaselineToTarget()
 ///////////////////////////////////////////////////////////////////////
 
 SlaveThreadRecorder::SlaveThreadRecorder()
-:	ThreadRecorder(getMasterThreadRecorder())
 {
 	getMasterThreadRecorder().addSlaveThread(this);
 }
@@ -149,14 +148,14 @@ void SlaveThreadRecorder::pushToMaster()
 
 void SlaveThreadRecorder::SharedData::copyFrom( const Recording& source )
 {
-	LLMutexLock lock(&mRecorderMutex);
-	mRecorder.mergeRecording(source);
+	LLMutexLock lock(&mRecordingMutex);
+	mRecording.mergeRecording(source);
 }
 
 void SlaveThreadRecorder::SharedData::copyTo( Recording& sink )
 {
-	LLMutexLock lock(&mRecorderMutex);
-	sink.mergeRecording(mRecorder);
+	LLMutexLock lock(&mRecordingMutex);
+	sink.mergeRecording(mRecording);
 }
 
 ///////////////////////////////////////////////////////////////////////
