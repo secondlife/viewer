@@ -533,8 +533,8 @@ void LLSpeakerMgr::updateSpeakerList()
 			LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(session_id);
 			for (uuid_vec_t::iterator it = session->mInitialTargetIDs.begin();it!=session->mInitialTargetIDs.end();++it)
 			{
-				// We only add avatars that are on line
-				if (LLAvatarTracker::instance().isBuddyOnline(*it))
+				// Allow to set buddies if they are on line. Allow any other avatar.
+				if (!LLAvatarTracker::instance().isBuddy(*it) || LLAvatarTracker::instance().isBuddyOnline(*it))
 				{
 					setSpeaker(*it, "", LLSpeaker::STATUS_VOICE_ACTIVE, LLSpeaker::SPEAKER_AGENT);
 				}
