@@ -1919,6 +1919,10 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 		}
 		mOriginFetchSource = mFetchSource;
 	}
+
+	//reset the texture timer.
+	gTextureTimer.reset();
+	gTextureTimer.pause();
 }
 
 LLTextureFetch::~LLTextureFetch()
