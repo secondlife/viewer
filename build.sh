@@ -76,9 +76,14 @@ pre_build()
      -DLL_TESTS:BOOL="$run_tests" \
      -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url
 
-    mv ${build_dir}/SecondLife.xcodeproj/project.pbxproj ${build_dir}/SecondLife.xcodeproj/project.pbxproj.intermediate
-    grep -v GCC_GENERATE_DEBUGGING_SYMBOLS ${build_dir}/SecondLife.xcodeproj/project.pbxproj.intermediate > ${build_dir}/SecondLife.xcodeproj/project.pbxproj
-    rm ${build_dir}/SecondLife.xcodeproj/project.pbxproj.intermediate
+    # *HACK - Fix debug symbol generation in xcode
+    case "$arch" in
+      Darwin) sed -i '' 's/GCC_GENERATE_DEBUGGING_SYMBOLS = NO/GCC_GENERATE_DEBUGGING_SYMBOLS = YES/' ${build_dir}/SecondLife.xcodeproj/project.pbxproj
+      #mv ${build_dir}/SecondLife.xcodeproj/project.pbxproj ${build_dir}/SecondLife.xcodeproj/project.pbxproj.intermediate
+      #grep -v GCC_GENERATE_DEBUGGING_SYMBOLS ${build_dir}/SecondLife.xcodeproj/project.pbxproj.intermediate > ${build_dir}/SecondLife.xcodeproj/project.pbxproj
+      #rm ${build_dir}/SecondLife.xcodeproj/project.pbxproj.intermediate
+      ;;
+    esac
 
     check_for "After 'autobuild configure'" ${build_dir}/packages/dictionaries
 
