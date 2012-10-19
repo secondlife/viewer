@@ -87,7 +87,11 @@ inline void* ll_aligned_realloc_16(void* ptr, size_t size, size_t old_size) // r
 	void* ret = ll_aligned_malloc_16(size);
 	if (ptr)
 	{
-		memcpy(ret, ptr, old_size);
+		if (ret)
+		{
+			// Only copy the size of the smallest memory block to avoid memory corruption.
+			memcpy(ret, ptr, llmin(old_size, size));
+		}
 		ll_aligned_free_16(ptr);
 	}
 	return ret;
