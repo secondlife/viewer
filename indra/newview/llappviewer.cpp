@@ -4278,10 +4278,6 @@ void LLAppViewer::idle()
 				gObjectList.mNumUnknownUpdates = 0;
 			}
 
-			// ViewerMetrics FPS piggy-backing on the debug timer.
-			// The 5-second interval is nice for this purpose.  If the object debug
-			// bit moves or is disabled, please give this a suitable home.
-			LLViewerAssetStatsFF::record_fps_main(gFPSClamped);
 			LLViewerAssetStatsFF::record_avatar_stats();
 		}
 	}
@@ -5220,17 +5216,7 @@ void LLAppViewer::metricsUpdateRegion(U64 region_handle)
 {
 	if (0 != region_handle)
 	{
-		LLViewerAssetStatsFF::set_region_main(region_handle);
-		if (LLAppViewer::sTextureFetch)
-		{
-			// Send a region update message into 'thread1' to get the new region.
-			LLAppViewer::sTextureFetch->commandSetRegion(region_handle);
-		}
-		else
-		{
-			// No 'thread1', a.k.a. TextureFetch, so update directly
-			LLViewerAssetStatsFF::set_region_thread1(region_handle);
-		}
+		LLViewerAssetStatsFF::set_region(region_handle);
 	}
 }
 
@@ -5241,7 +5227,7 @@ void LLAppViewer::metricsUpdateRegion(U64 region_handle)
  */
 void LLAppViewer::metricsSend(bool enable_reporting)
 {
-	if (! gViewerAssetStatsMain)
+	if (! gViewerAssetStats)
 		return;
 
 	if (LLAppViewer::sTextureFetch)
@@ -5254,7 +5240,7 @@ void LLAppViewer::metricsSend(bool enable_reporting)
 
 			// Make a copy of the main stats to send into another thread.
 			// Receiving thread takes ownership.
-			LLViewerAssetStats * main_stats(new LLViewerAssetStats(*gViewerAssetStatsMain));
+			LLViewerAssetStats * main_stats(new LLViewerAssetStats(*gViewerAssetStats));
 			
 			// Send a report request into 'thread1' to get the rest of the data
 			// and provide some additional parameters while here.
@@ -5273,6 +5259,6 @@ void LLAppViewer::metricsSend(bool enable_reporting)
 	// Reset even if we can't report.  Rather than gather up a huge chunk of
 	// data, we'll keep to our sampling interval and retain the data
 	// resolution in time.
-	gViewerAssetStatsMain->reset();
+	gViewerAssetStats->reset();
 }
 

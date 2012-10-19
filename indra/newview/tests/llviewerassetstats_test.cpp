@@ -243,11 +243,11 @@ namespace tut
 		// Check that helpers aren't bothered by missing global stats
 		ensure("Global gViewerAssetStatsMain should be NULL", (NULL == gViewerAssetStatsMain));
 
-		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_TEXTURE, false, false);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_TEXTURE, false, false);
 
-		LLViewerAssetStatsFF::record_dequeue_main(LLViewerAssetType::AT_TEXTURE, false, false);
+		LLViewerAssetStatsFF::record_dequeue(LLViewerAssetType::AT_TEXTURE, false, false);
 
-		LLViewerAssetStatsFF::record_response_main(LLViewerAssetType::AT_GESTURE, false, false, 12300000ULL);
+		LLViewerAssetStatsFF::record_response(LLViewerAssetType::AT_GESTURE, false, false, 12300000ULL);
 	}
 
 	// Create a non-global instance and check the structure
@@ -326,13 +326,13 @@ namespace tut
 	void tst_viewerassetstats_index_object_t::test<4>()
 	{
 		gViewerAssetStatsMain = new LLViewerAssetStats();
-		LLViewerAssetStatsFF::set_region_main(region1_handle);
+		LLViewerAssetStatsFF::set_region(region1_handle);
 
-		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_TEXTURE, false, false);
-		LLViewerAssetStatsFF::record_dequeue_main(LLViewerAssetType::AT_TEXTURE, false, false);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_TEXTURE, false, false);
+		LLViewerAssetStatsFF::record_dequeue(LLViewerAssetType::AT_TEXTURE, false, false);
 
-		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_BODYPART, false, false);
-		LLViewerAssetStatsFF::record_dequeue_main(LLViewerAssetType::AT_BODYPART, false, false);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_BODYPART, false, false);
+		LLViewerAssetStatsFF::record_dequeue(LLViewerAssetType::AT_BODYPART, false, false);
 
 		LLSD sd = gViewerAssetStatsMain->asLLSD(false);
 		ensure("Correct single-key LLSD map root", is_triple_key_map(sd, "regions", "duration", "avatar"));
@@ -364,13 +364,13 @@ namespace tut
 	{
 		gViewerAssetStatsThread1 = new LLViewerAssetStats();
 		gViewerAssetStatsMain = new LLViewerAssetStats();
-		LLViewerAssetStatsFF::set_region_main(region1_handle);
+		LLViewerAssetStatsFF::set_region(region1_handle);
 
-		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_TEXTURE, false, false);
-		LLViewerAssetStatsFF::record_dequeue_main(LLViewerAssetType::AT_TEXTURE, false, false);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_TEXTURE, false, false);
+		LLViewerAssetStatsFF::record_dequeue(LLViewerAssetType::AT_TEXTURE, false, false);
 
-		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_BODYPART, false, false);
-		LLViewerAssetStatsFF::record_dequeue_main(LLViewerAssetType::AT_BODYPART, false, false);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_BODYPART, false, false);
+		LLViewerAssetStatsFF::record_dequeue(LLViewerAssetType::AT_BODYPART, false, false);
 
 		LLSD sd = gViewerAssetStatsThread1->asLLSD(false);
 		ensure("Other collector is empty", is_no_stats_map(sd));
@@ -393,8 +393,6 @@ namespace tut
 		
 		delete gViewerAssetStatsMain;
 		gViewerAssetStatsMain = NULL;
-		delete gViewerAssetStatsThread1;
-		gViewerAssetStatsThread1 = NULL;
 
 		ensure("sd[get_texture_non_temp_udp][enqueued] is reset", (0 == sd["get_texture_non_temp_udp"]["enqueued"].asInteger()));
 		ensure("sd[get_gesture_udp][dequeued] is reset", (0 == sd["get_gesture_udp"]["dequeued"].asInteger()));
@@ -406,20 +404,20 @@ namespace tut
 	{
 		gViewerAssetStatsMain = new LLViewerAssetStats();
 
-		LLViewerAssetStatsFF::set_region_main(region1_handle);
+		LLViewerAssetStatsFF::set_region(region1_handle);
 
-		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_TEXTURE, false, false);
-		LLViewerAssetStatsFF::record_dequeue_main(LLViewerAssetType::AT_TEXTURE, false, false);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_TEXTURE, false, false);
+		LLViewerAssetStatsFF::record_dequeue(LLViewerAssetType::AT_TEXTURE, false, false);
 
-		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_BODYPART, false, false);
-		LLViewerAssetStatsFF::record_dequeue_main(LLViewerAssetType::AT_BODYPART, false, false);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_BODYPART, false, false);
+		LLViewerAssetStatsFF::record_dequeue(LLViewerAssetType::AT_BODYPART, false, false);
 
-		LLViewerAssetStatsFF::set_region_main(region2_handle);
+		LLViewerAssetStatsFF::set_region(region2_handle);
 
-		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_GESTURE, false, false);
-		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_GESTURE, false, false);
-		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_GESTURE, false, false);
-		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_GESTURE, false, false);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_GESTURE, false, false);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_GESTURE, false, false);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_GESTURE, false, false);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_GESTURE, false, false);
 
 		LLSD sd = gViewerAssetStatsMain->asLLSD(false);
 
@@ -465,35 +463,35 @@ namespace tut
 	{
 		gViewerAssetStatsMain = new LLViewerAssetStats();
 
-		LLViewerAssetStatsFF::set_region_main(region1_handle);
+		LLViewerAssetStatsFF::set_region(region1_handle);
 
-		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_TEXTURE, false, false);
-		LLViewerAssetStatsFF::record_dequeue_main(LLViewerAssetType::AT_TEXTURE, false, false);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_TEXTURE, false, false);
+		LLViewerAssetStatsFF::record_dequeue(LLViewerAssetType::AT_TEXTURE, false, false);
 
-		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_BODYPART, false, false);
-		LLViewerAssetStatsFF::record_dequeue_main(LLViewerAssetType::AT_BODYPART, false, false);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_BODYPART, false, false);
+		LLViewerAssetStatsFF::record_dequeue(LLViewerAssetType::AT_BODYPART, false, false);
 
-		LLViewerAssetStatsFF::set_region_main(region2_handle);
+		LLViewerAssetStatsFF::set_region(region2_handle);
 
-		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_GESTURE, false, false);
-		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_GESTURE, false, false);
-		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_GESTURE, false, false);
-		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_GESTURE, false, false);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_GESTURE, false, false);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_GESTURE, false, false);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_GESTURE, false, false);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_GESTURE, false, false);
 
-		LLViewerAssetStatsFF::set_region_main(region1_handle);
+		LLViewerAssetStatsFF::set_region(region1_handle);
 
-		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_TEXTURE, true, true);
-		LLViewerAssetStatsFF::record_dequeue_main(LLViewerAssetType::AT_TEXTURE, true, true);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_TEXTURE, true, true);
+		LLViewerAssetStatsFF::record_dequeue(LLViewerAssetType::AT_TEXTURE, true, true);
 
-		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_BODYPART, false, false);
-		LLViewerAssetStatsFF::record_dequeue_main(LLViewerAssetType::AT_BODYPART, false, false);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_BODYPART, false, false);
+		LLViewerAssetStatsFF::record_dequeue(LLViewerAssetType::AT_BODYPART, false, false);
 
-		LLViewerAssetStatsFF::set_region_main(region2_handle);
+		LLViewerAssetStatsFF::set_region(region2_handle);
 
-		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_GESTURE, false, false);
-		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_GESTURE, false, false);
-		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_GESTURE, false, false);
-		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_GESTURE, false, false);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_GESTURE, false, false);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_GESTURE, false, false);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_GESTURE, false, false);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_GESTURE, false, false);
 
 		LLSD sd = gViewerAssetStatsMain->asLLSD(false);
 
@@ -538,30 +536,30 @@ namespace tut
 	{
 		gViewerAssetStatsThread1 = new LLViewerAssetStats();
 		gViewerAssetStatsMain = new LLViewerAssetStats();
-		LLViewerAssetStatsFF::set_region_main(region1_handle);
+		LLViewerAssetStatsFF::set_region(region1_handle);
 
-		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_TEXTURE, false, false);
-		LLViewerAssetStatsFF::record_dequeue_main(LLViewerAssetType::AT_TEXTURE, false, false);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_TEXTURE, false, false);
+		LLViewerAssetStatsFF::record_dequeue(LLViewerAssetType::AT_TEXTURE, false, false);
 
-		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_BODYPART, false, false);
-		LLViewerAssetStatsFF::record_dequeue_main(LLViewerAssetType::AT_BODYPART, false, false);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_BODYPART, false, false);
+		LLViewerAssetStatsFF::record_dequeue(LLViewerAssetType::AT_BODYPART, false, false);
 
-		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_BODYPART, false, true);
-		LLViewerAssetStatsFF::record_dequeue_main(LLViewerAssetType::AT_BODYPART, false, true);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_BODYPART, false, true);
+		LLViewerAssetStatsFF::record_dequeue(LLViewerAssetType::AT_BODYPART, false, true);
 
-		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_BODYPART, true, false);
-		LLViewerAssetStatsFF::record_dequeue_main(LLViewerAssetType::AT_BODYPART, true, false);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_BODYPART, true, false);
+		LLViewerAssetStatsFF::record_dequeue(LLViewerAssetType::AT_BODYPART, true, false);
 
-		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_BODYPART, true, true);
-		LLViewerAssetStatsFF::record_dequeue_main(LLViewerAssetType::AT_BODYPART, true, true);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_BODYPART, true, true);
+		LLViewerAssetStatsFF::record_dequeue(LLViewerAssetType::AT_BODYPART, true, true);
 
-		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_LSL_BYTECODE, false, false);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_LSL_BYTECODE, false, false);
 
-		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_LSL_BYTECODE, false, true);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_LSL_BYTECODE, false, true);
 
-		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_LSL_BYTECODE, true, false);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_LSL_BYTECODE, true, false);
 
-		LLViewerAssetStatsFF::record_enqueue_main(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
+		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
 
 		LLSD sd = gViewerAssetStatsThread1->asLLSD(false);
 		ensure("Other collector is empty", is_no_stats_map(sd));
