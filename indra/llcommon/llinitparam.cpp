@@ -196,12 +196,7 @@ namespace LLInitParam
 			if (serialize_func)
 			{
 				const Param* diff_param = diff_block ? diff_block->getParamFromHandle(param_handle) : NULL;
-				// each param descriptor remembers its serial number
-				// so we can inspect the same param under different names
-				// and see that it has the same number
-				name_stack.push_back(std::make_pair("", true));
 				serialize_func(*param, parser, name_stack, diff_param);
-				name_stack.pop_back();
 			}
 		}
 

@@ -231,7 +231,7 @@ namespace LLTrace
 			return stat.getAccumulator(mMeasurements).getSampleCount();
 		}
 
-		F64 getDuration() const { return mElapsedSeconds; }
+		LLUnit::Seconds<F64> getDuration() const { return mElapsedSeconds; }
 
 		// implementation for LLVCRControlsMixin
 		/*virtual*/ void handleStart();

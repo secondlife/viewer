@@ -127,7 +127,8 @@ extern SimMeasurement<>						SIM_TIME_DILATION,
 											SIM_PHYSICS_PINNED_TASKS,
 											SIM_PHYSICS_LOD_TASKS;
 
-extern LLTrace::Measurement<>				NUM_IMAGES,
+extern LLTrace::Measurement<>				FPS_SAMPLE,
+											NUM_IMAGES,
 											NUM_RAW_IMAGES,
 											NUM_OBJECTS,
 											NUM_ACTIVE_OBJECTS,

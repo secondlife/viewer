@@ -91,6 +91,90 @@ public:
 	 */
 	typedef U64 region_handle_t;
 
+	struct AssetRequestType : public LLInitParam::Block<AssetRequestType>
+	{
+		Mandatory<S32>	enqueued,
+						dequeued,
+						resp_count;
+		Mandatory<F64>	resp_min,
+						resp_max,
+						resp_mean;
+	
+		AssetRequestType();
+	};
+
+	struct FPSStats : public LLInitParam::Block<FPSStats>
+	{
+		Mandatory<S32>	count;
+		Mandatory<F64>	min,
+						max,
+						mean;
+		FPSStats();
+	};
+
+	struct RegionStats : public LLInitParam::Block<RegionStats>
+	{
+		Optional<LLInitParam::Flag>				empty;
+		Optional<AssetRequestType>	get_texture_temp_http,
+									get_texture_temp_udp,
+									get_texture_non_temp_http,
+									get_texture_non_temp_udp,
+									get_wearable_udp,
+									get_sound_udp,
+									get_gesture_udp,
+									get_other;
+		Optional<FPSStats>			fps;
+		Optional<S32>				grid_x,
+									grid_y;
+		Optional<F64>				duration;
+
+		RegionStats();
+	};
+
+	struct AvatarRezState : public LLInitParam::Block<AvatarRezState>
+	{
+		Mandatory<S32>	cloud,
+						gray,
+						textured;
+		AvatarRezState();
+	};
+
+	struct AvatarPhaseStats : public LLInitParam::Block<AvatarPhaseStats>
+	{
+		Mandatory<LLSD>	cloud,
+						cloud_or_gray;
+
+		AvatarPhaseStats()
+		:	cloud("cloud"),
+			cloud_or_gray("cloud-or-gray")
+		{}
+	};
+
+	struct AvatarInfo : public LLInitParam::Block<AvatarInfo>
+	{
+		Optional<AvatarRezState> nearby;
+		Optional<AvatarPhaseStats> phase_stats;
+
+		AvatarInfo();
+	};
+
+	struct AssetStats : public LLInitParam::Block<AssetStats>
+	{
+		Multiple<RegionStats>	regions;
+		Mandatory<F64>			duration;
+		Mandatory<AvatarInfo>	avatar;
+
+		Mandatory<LLUUID>		session_id,
+								agent_id;
+
+		Mandatory<std::string>	message;
+		Mandatory<S32>			sequence;
+		Mandatory<bool>			initial,
+								break_;
+
+		AssetStats();
+	};
+
 public:
 	LLViewerAssetStats();
 	LLViewerAssetStats(const LLViewerAssetStats &);
@@ -146,11 +230,7 @@ public:
 	//   }
 	// }
 	//
-	// @param	compact_output		If true, omits from conversion any mmm_block
-	//								or stats_block that would contain all zero data.
-	//								Useful for transmission when the receiver knows
-	//								what is expected and will assume zero for missing
-	//								blocks.
+	void getStats(AssetStats& stats, bool compact_output);
 	LLSD asLLSD(bool compact_output);
 
 protected:

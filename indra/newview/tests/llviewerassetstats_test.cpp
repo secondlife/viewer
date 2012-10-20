@@ -37,6 +37,11 @@
 #include "llregionhandle.h"
 #include "../llvoavatar.h"
 
+namespace LLStatViewer
+{
+	LLTrace::Measurement<>		FPS_SAMPLE("fpssample");
+}
+
 void LLVOAvatar::getNearbyRezzedStats(std::vector<S32>& counts)
 {
 	counts.resize(3);
@@ -241,7 +246,7 @@ namespace tut
 	void tst_viewerassetstats_index_object_t::test<1>()
 	{
 		// Check that helpers aren't bothered by missing global stats
-		ensure("Global gViewerAssetStatsMain should be NULL", (NULL == gViewerAssetStatsMain));
+		ensure("Global gViewerAssetStats should be NULL", (NULL == gViewerAssetStats));
 
 		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_TEXTURE, false, false);
 
@@ -254,11 +259,11 @@ namespace tut
 	template<> template<>
 	void tst_viewerassetstats_index_object_t::test<2>()
 	{
-		ensure("Global gViewerAssetStatsMain should be NULL", (NULL == gViewerAssetStatsMain));
+		ensure("Global gViewerAssetStats should be NULL", (NULL == gViewerAssetStats));
 
 		LLViewerAssetStats * it = new LLViewerAssetStats();
 
-		ensure("Global gViewerAssetStatsMain should still be NULL", (NULL == gViewerAssetStatsMain));
+		ensure("Global gViewerAssetStats should still be NULL", (NULL == gViewerAssetStats));
 
 		LLSD sd_full = it->asLLSD(false);
 
@@ -325,7 +330,7 @@ namespace tut
 	template<> template<>
 	void tst_viewerassetstats_index_object_t::test<4>()
 	{
-		gViewerAssetStatsMain = new LLViewerAssetStats();
+		gViewerAssetStats = new LLViewerAssetStats();
 		LLViewerAssetStatsFF::set_region(region1_handle);
 
 		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_TEXTURE, false, false);
@@ -334,7 +339,7 @@ namespace tut
 		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_BODYPART, false, false);
 		LLViewerAssetStatsFF::record_dequeue(LLViewerAssetType::AT_BODYPART, false, false);
 
-		LLSD sd = gViewerAssetStatsMain->asLLSD(false);
+		LLSD sd = gViewerAssetStats->asLLSD(false);
 		ensure("Correct single-key LLSD map root", is_triple_key_map(sd, "regions", "duration", "avatar"));
 		ensure("Correct single-slot LLSD array regions", is_single_slot_array(sd["regions"], region1_handle));
 		sd = sd["regions"][0];
@@ -348,11 +353,11 @@ namespace tut
 
 		// Reset and check zeros...
 		// Reset leaves current region in place
-		gViewerAssetStatsMain->reset();
-		sd = gViewerAssetStatsMain->asLLSD(false)["regions"][region1_handle_str];
+		gViewerAssetStats->reset();
+		sd = gViewerAssetStats->asLLSD(false)["regions"][region1_handle_str];
 		
-		delete gViewerAssetStatsMain;
-		gViewerAssetStatsMain = NULL;
+		delete gViewerAssetStats;
+		gViewerAssetStats = NULL;
 
 		ensure("sd[get_texture_non_temp_udp][enqueued] is reset", (0 == sd["get_texture_non_temp_udp"]["enqueued"].asInteger()));
 		ensure("sd[get_gesture_udp][dequeued] is reset", (0 == sd["get_gesture_udp"]["dequeued"].asInteger()));
@@ -362,8 +367,7 @@ namespace tut
 	template<> template<>
 	void tst_viewerassetstats_index_object_t::test<5>()
 	{
-		gViewerAssetStatsThread1 = new LLViewerAssetStats();
-		gViewerAssetStatsMain = new LLViewerAssetStats();
+		gViewerAssetStats = new LLViewerAssetStats();
 		LLViewerAssetStatsFF::set_region(region1_handle);
 
 		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_TEXTURE, false, false);
@@ -372,9 +376,7 @@ namespace tut
 		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_BODYPART, false, false);
 		LLViewerAssetStatsFF::record_dequeue(LLViewerAssetType::AT_BODYPART, false, false);
 
-		LLSD sd = gViewerAssetStatsThread1->asLLSD(false);
-		ensure("Other collector is empty", is_no_stats_map(sd));
-		sd = gViewerAssetStatsMain->asLLSD(false);
+		LLSD sd = gViewerAssetStats->asLLSD(false);
 		ensure("Correct single-key LLSD map root", is_triple_key_map(sd, "regions", "duration", "avatar"));
 		ensure("Correct single-slot LLSD array regions", is_single_slot_array(sd["regions"], region1_handle));
 		sd = sd["regions"][0];
@@ -388,11 +390,11 @@ namespace tut
 
 		// Reset and check zeros...
 		// Reset leaves current region in place
-		gViewerAssetStatsMain->reset();
-		sd = gViewerAssetStatsMain->asLLSD(false)["regions"][0];
+		gViewerAssetStats->reset();
+		sd = gViewerAssetStats->asLLSD(false)["regions"][0];
 		
-		delete gViewerAssetStatsMain;
-		gViewerAssetStatsMain = NULL;
+		delete gViewerAssetStats;
+		gViewerAssetStats = NULL;
 
 		ensure("sd[get_texture_non_temp_udp][enqueued] is reset", (0 == sd["get_texture_non_temp_udp"]["enqueued"].asInteger()));
 		ensure("sd[get_gesture_udp][dequeued] is reset", (0 == sd["get_gesture_udp"]["dequeued"].asInteger()));
@@ -402,7 +404,7 @@ namespace tut
 	template<> template<>
 	void tst_viewerassetstats_index_object_t::test<6>()
 	{
-		gViewerAssetStatsMain = new LLViewerAssetStats();
+		gViewerAssetStats = new LLViewerAssetStats();
 
 		LLViewerAssetStatsFF::set_region(region1_handle);
 
@@ -419,7 +421,7 @@ namespace tut
 		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_GESTURE, false, false);
 		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_GESTURE, false, false);
 
-		LLSD sd = gViewerAssetStatsMain->asLLSD(false);
+		LLSD sd = gViewerAssetStats->asLLSD(false);
 
 		// std::cout << sd << std::endl;
 		
@@ -444,14 +446,14 @@ namespace tut
 
 		// Reset and check zeros...
 		// Reset leaves current region in place
-		gViewerAssetStatsMain->reset();
-		sd = gViewerAssetStatsMain->asLLSD(false);
+		gViewerAssetStats->reset();
+		sd = gViewerAssetStats->asLLSD(false);
 		ensure("Correct single-key LLSD map root", is_triple_key_map(sd, "regions", "duration", "avatar"));
 		ensure("Correct single-slot LLSD array regions (p2)", is_single_slot_array(sd["regions"], region2_handle));
 		sd2 = sd["regions"][0];
 		
-		delete gViewerAssetStatsMain;
-		gViewerAssetStatsMain = NULL;
+		delete gViewerAssetStats;
+		gViewerAssetStats = NULL;
 
 		ensure("sd2[get_texture_non_temp_udp][enqueued] is reset", (0 == sd2["get_texture_non_temp_udp"]["enqueued"].asInteger()));
 		ensure("sd2[get_gesture_udp][enqueued] is reset", (0 == sd2["get_gesture_udp"]["enqueued"].asInteger()));
@@ -461,7 +463,7 @@ namespace tut
 	template<> template<>
 	void tst_viewerassetstats_index_object_t::test<7>()
 	{
-		gViewerAssetStatsMain = new LLViewerAssetStats();
+		gViewerAssetStats = new LLViewerAssetStats();
 
 		LLViewerAssetStatsFF::set_region(region1_handle);
 
@@ -493,7 +495,7 @@ namespace tut
 		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_GESTURE, false, false);
 		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_GESTURE, false, false);
 
-		LLSD sd = gViewerAssetStatsMain->asLLSD(false);
+		LLSD sd = gViewerAssetStats->asLLSD(false);
 
 		ensure("Correct double-key LLSD map root", is_triple_key_map(sd, "duration", "regions", "avatar"));
 		ensure("Correct double-slot LLSD array regions", is_double_slot_array(sd["regions"], region1_handle, region2_handle));
@@ -502,6 +504,8 @@ namespace tut
 		ensure("Region1 is present in results", sd1.isMap());
 		ensure("Region2 is present in results", sd2.isMap());
 		
+		llinfos << ll_pretty_print_sd(sd1) << llendl;
+
 		// Check a few points on the tree for content
 		ensure("sd1[get_texture_non_temp_udp][enqueued] is 1", (1 == sd1["get_texture_non_temp_udp"]["enqueued"].asInteger()));
 		ensure("sd1[get_texture_temp_udp][enqueued] is 0", (0 == sd1["get_texture_temp_udp"]["enqueued"].asInteger()));
@@ -516,15 +520,15 @@ namespace tut
 
 		// Reset and check zeros...
 		// Reset leaves current region in place
-		gViewerAssetStatsMain->reset();
-		sd = gViewerAssetStatsMain->asLLSD(false);
+		gViewerAssetStats->reset();
+		sd = gViewerAssetStats->asLLSD(false);
 		ensure("Correct single-key LLSD map root", is_triple_key_map(sd, "duration", "regions", "avatar"));
 		ensure("Correct single-slot LLSD array regions (p2)", is_single_slot_array(sd["regions"], region2_handle));
 		sd2 = get_region(sd, region2_handle);
 		ensure("Region2 is present in results", sd2.isMap());
 		
-		delete gViewerAssetStatsMain;
-		gViewerAssetStatsMain = NULL;
+		delete gViewerAssetStats;
+		gViewerAssetStats = NULL;
 
 		ensure_equals("sd2[get_texture_non_temp_udp][enqueued] is reset", sd2["get_texture_non_temp_udp"]["enqueued"].asInteger(), 0);
 		ensure_equals("sd2[get_gesture_udp][enqueued] is reset", sd2["get_gesture_udp"]["enqueued"].asInteger(), 0);
@@ -534,8 +538,7 @@ namespace tut
 	template<> template<>
 	void tst_viewerassetstats_index_object_t::test<8>()
 	{
-		gViewerAssetStatsThread1 = new LLViewerAssetStats();
-		gViewerAssetStatsMain = new LLViewerAssetStats();
+		gViewerAssetStats = new LLViewerAssetStats();
 		LLViewerAssetStatsFF::set_region(region1_handle);
 
 		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_TEXTURE, false, false);
@@ -561,9 +564,7 @@ namespace tut
 
 		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
 
-		LLSD sd = gViewerAssetStatsThread1->asLLSD(false);
-		ensure("Other collector is empty", is_no_stats_map(sd));
-		sd = gViewerAssetStatsMain->asLLSD(false);
+		LLSD sd = gViewerAssetStats->asLLSD(false);
 		ensure("Correct single-key LLSD map root", is_triple_key_map(sd, "regions", "duration", "avatar"));
 		ensure("Correct single-slot LLSD array regions", is_single_slot_array(sd["regions"], region1_handle));
 		sd = get_region(sd, region1_handle);
@@ -581,445 +582,14 @@ namespace tut
 
 		// Reset and check zeros...
 		// Reset leaves current region in place
-		gViewerAssetStatsMain->reset();
-		sd = get_region(gViewerAssetStatsMain->asLLSD(false), region1_handle);
+		gViewerAssetStats->reset();
+		sd = get_region(gViewerAssetStats->asLLSD(false), region1_handle);
 		ensure("Region1 is present in results", sd.isMap());
 		
-		delete gViewerAssetStatsMain;
-		gViewerAssetStatsMain = NULL;
-		delete gViewerAssetStatsThread1;
-		gViewerAssetStatsThread1 = NULL;
+		delete gViewerAssetStats;
+		gViewerAssetStats = NULL;
 
 		ensure_equals("sd[get_texture_non_temp_udp][enqueued] is reset", sd["get_texture_non_temp_udp"]["enqueued"].asInteger(), 0);
 		ensure_equals("sd[get_gesture_udp][dequeued] is reset", sd["get_gesture_udp"]["dequeued"].asInteger(), 0);
 	}
-
-
-	// LLViewerAssetStats::merge() basic functions work
-	template<> template<>
-	void tst_viewerassetstats_index_object_t::test<9>()
-	{
-		LLViewerAssetStats s1;
-		LLViewerAssetStats s2;
-
-		s1.setRegion(region1_handle);
-		s2.setRegion(region1_handle);
-
-		s1.recordGetServiced(LLViewerAssetType::AT_TEXTURE, true, true, 5000000);
-		s1.recordGetServiced(LLViewerAssetType::AT_TEXTURE, true, true, 6000000);
-		s1.recordGetServiced(LLViewerAssetType::AT_TEXTURE, true, true, 8000000);
-		s1.recordGetServiced(LLViewerAssetType::AT_TEXTURE, true, true, 7000000);
-		s1.recordGetServiced(LLViewerAssetType::AT_TEXTURE, true, true, 9000000);
-		
-		s2.recordGetServiced(LLViewerAssetType::AT_TEXTURE, true, true, 2000000);
-		s2.recordGetServiced(LLViewerAssetType::AT_TEXTURE, true, true, 3000000);
-		s2.recordGetServiced(LLViewerAssetType::AT_TEXTURE, true, true, 4000000);
-
-		s2.merge(s1);
-
-		LLSD s2_llsd = get_region(s2.asLLSD(false), region1_handle);
-		ensure("Region1 is present in results", s2_llsd.isMap());
-		
-		ensure_equals("count after merge", s2_llsd["get_texture_temp_http"]["resp_count"].asInteger(), 8);
-		ensure_approximately_equals("min after merge", s2_llsd["get_texture_temp_http"]["resp_min"].asReal(), 2.0, 22);
-		ensure_approximately_equals("max after merge", s2_llsd["get_texture_temp_http"]["resp_max"].asReal(), 9.0, 22);
-		ensure_approximately_equals("max after merge", s2_llsd["get_texture_temp_http"]["resp_mean"].asReal(), 5.5, 22);
-	}
-
-	// LLViewerAssetStats::merge() basic functions work without corrupting source data
-	template<> template<>
-	void tst_viewerassetstats_index_object_t::test<10>()
-	{
-		LLViewerAssetStats s1;
-		LLViewerAssetStats s2;
-
-		s1.setRegion(region1_handle);
-		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-
-		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-
-		s1.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 23289200);
-		s1.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 282900);
-
-		
-		s2.setRegion(region2_handle);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-
-		s2.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 6500000);
-		s2.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 10000);
-
-		{
-			s2.merge(s1);
-			
-			LLSD src = s1.asLLSD(false);
-			LLSD dst = s2.asLLSD(false);
-
-			ensure_equals("merge src has single region", src["regions"].size(), 1);
-			ensure_equals("merge dst has dual regions", dst["regions"].size(), 2);
-			
-			// Remove time stamps, they're a problem
-			src.erase("duration");
-			src["regions"][0].erase("duration");
-			dst.erase("duration");
-			dst["regions"][0].erase("duration");
-			dst["regions"][1].erase("duration");
-
-			LLSD s1_llsd = get_region(src, region1_handle);
-			ensure("Region1 is present in src", s1_llsd.isMap());
-			LLSD s2_llsd = get_region(dst, region1_handle);
-			ensure("Region1 is present in dst", s2_llsd.isMap());
-
-			ensure("result from src is in dst", llsd_equals(s1_llsd, s2_llsd));
-		}
-
-		s1.setRegion(region1_handle);
-		s2.setRegion(region1_handle);
-		s1.reset();
-		s2.reset();
-		
-		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-
-		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-
-		s1.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 23289200);
-		s1.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 282900);
-
-		
-		s2.setRegion(region1_handle);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-
-		s2.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 6500000);
-		s2.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 10000);
-
-		{
-			s2.merge(s1);
-			
-			LLSD src = s1.asLLSD(false);
-			LLSD dst = s2.asLLSD(false);
-
-			ensure_equals("merge src has single region (p2)", src["regions"].size(), 1);
-			ensure_equals("merge dst has single region (p2)", dst["regions"].size(), 1);
-
-			// Remove time stamps, they're a problem
-			src.erase("duration");
-			src["regions"][0].erase("duration");
-			dst.erase("duration");
-			dst["regions"][0].erase("duration");
-			
-			LLSD s1_llsd = get_region(src, region1_handle);
-			ensure("Region1 is present in src", s1_llsd.isMap());
-			LLSD s2_llsd = get_region(dst, region1_handle);
-			ensure("Region1 is present in dst", s2_llsd.isMap());
-
-			ensure_equals("src counts okay (enq)", s1_llsd["get_other"]["enqueued"].asInteger(), 4);
-			ensure_equals("src counts okay (deq)", s1_llsd["get_other"]["dequeued"].asInteger(), 4);
-			ensure_equals("src resp counts okay", s1_llsd["get_other"]["resp_count"].asInteger(), 2);
-			ensure_approximately_equals("src respmin okay", s1_llsd["get_other"]["resp_min"].asReal(), 0.2829, 20);
-			ensure_approximately_equals("src respmax okay", s1_llsd["get_other"]["resp_max"].asReal(), 23.2892, 20);
-			
-			ensure_equals("dst counts okay (enq)", s2_llsd["get_other"]["enqueued"].asInteger(), 12);
-			ensure_equals("src counts okay (deq)", s2_llsd["get_other"]["dequeued"].asInteger(), 11);
-			ensure_equals("dst resp counts okay", s2_llsd["get_other"]["resp_count"].asInteger(), 4);
-			ensure_approximately_equals("dst respmin okay", s2_llsd["get_other"]["resp_min"].asReal(), 0.010, 20);
-			ensure_approximately_equals("dst respmax okay", s2_llsd["get_other"]["resp_max"].asReal(), 23.2892, 20);
-		}
-	}
-
-
-    // Maximum merges are interesting when one side contributes nothing
-	template<> template<>
-	void tst_viewerassetstats_index_object_t::test<11>()
-	{
-		LLViewerAssetStats s1;
-		LLViewerAssetStats s2;
-
-		s1.setRegion(region1_handle);
-		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-
-		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-
-		// Want to test negative numbers here but have to work in U64
-		s1.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 0);
-		s1.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 0);
-		s1.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 0);
-
-		s2.setRegion(region1_handle);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-
-		{
-			s2.merge(s1);
-			
-			LLSD src = s1.asLLSD(false);
-			LLSD dst = s2.asLLSD(false);
-
-			ensure_equals("merge src has single region", src["regions"].size(), 1);
-			ensure_equals("merge dst has single region", dst["regions"].size(), 1);
-			
-			// Remove time stamps, they're a problem
-			src.erase("duration");
-			src["regions"][0].erase("duration");
-			dst.erase("duration");
-			dst["regions"][0].erase("duration");
-
-			LLSD s2_llsd = get_region(dst, region1_handle);
-			ensure("Region1 is present in dst", s2_llsd.isMap());
-			
-			ensure_equals("dst counts come from src only", s2_llsd["get_other"]["resp_count"].asInteger(), 3);
-
-			ensure_approximately_equals("dst maximum with count 0 does not contribute to merged maximum",
-										s2_llsd["get_other"]["resp_max"].asReal(), F64(0.0), 20);
-		}
-
-		// Other way around
-		s1.setRegion(region1_handle);
-		s2.setRegion(region1_handle);
-		s1.reset();
-		s2.reset();
-
-		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-
-		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-
-		// Want to test negative numbers here but have to work in U64
-		s1.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 0);
-		s1.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 0);
-		s1.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 0);
-
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-
-		{
-			s1.merge(s2);
-			
-			LLSD src = s2.asLLSD(false);
-			LLSD dst = s1.asLLSD(false);
-
-			ensure_equals("merge src has single region", src["regions"].size(), 1);
-			ensure_equals("merge dst has single region", dst["regions"].size(), 1);
-			
-			// Remove time stamps, they're a problem
-			src.erase("duration");
-			src["regions"][0].erase("duration");
-			dst.erase("duration");
-			dst["regions"][0].erase("duration");
-
-			LLSD s2_llsd = get_region(dst, region1_handle);
-			ensure("Region1 is present in dst", s2_llsd.isMap());
-
-			ensure_equals("dst counts come from src only (flipped)", s2_llsd["get_other"]["resp_count"].asInteger(), 3);
-
-			ensure_approximately_equals("dst maximum with count 0 does not contribute to merged maximum (flipped)",
-										s2_llsd["get_other"]["resp_max"].asReal(), F64(0.0), 20);
-		}
-	}
-
-    // Minimum merges are interesting when one side contributes nothing
-	template<> template<>
-	void tst_viewerassetstats_index_object_t::test<12>()
-	{
-		LLViewerAssetStats s1;
-		LLViewerAssetStats s2;
-
-		s1.setRegion(region1_handle);
-		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-
-		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-
-		s1.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 3800000);
-		s1.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 2700000);
-		s1.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 2900000);
-
-		s2.setRegion(region1_handle);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-
-		{
-			s2.merge(s1);
-			
-			LLSD src = s1.asLLSD(false);
-			LLSD dst = s2.asLLSD(false);
-
-			ensure_equals("merge src has single region", src["regions"].size(), 1);
-			ensure_equals("merge dst has single region", dst["regions"].size(), 1);
-			
-			// Remove time stamps, they're a problem
-			src.erase("duration");
-			src["regions"][0].erase("duration");
-			dst.erase("duration");
-			dst["regions"][0].erase("duration");
-
-			LLSD s2_llsd = get_region(dst, region1_handle);
-			ensure("Region1 is present in dst", s2_llsd.isMap());
-
-			ensure_equals("dst counts come from src only", s2_llsd["get_other"]["resp_count"].asInteger(), 3);
-
-			ensure_approximately_equals("dst minimum with count 0 does not contribute to merged minimum",
-										s2_llsd["get_other"]["resp_min"].asReal(), F64(2.7), 20);
-		}
-
-		// Other way around
-		s1.setRegion(region1_handle);
-		s2.setRegion(region1_handle);
-		s1.reset();
-		s2.reset();
-
-		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-
-		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s1.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-
-		s1.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 3800000);
-		s1.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 2700000);
-		s1.recordGetServiced(LLViewerAssetType::AT_LSL_BYTECODE, true, true, 2900000);
-
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetEnqueued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-		s2.recordGetDequeued(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
-
-		{
-			s1.merge(s2);
-			
-			LLSD src = s2.asLLSD(false);
-			LLSD dst = s1.asLLSD(false);
-
-			ensure_equals("merge src has single region", src["regions"].size(), 1);
-			ensure_equals("merge dst has single region", dst["regions"].size(), 1);
-			
-			// Remove time stamps, they're a problem
-			src.erase("duration");
-			src["regions"][0].erase("duration");
-			dst.erase("duration");
-			dst["regions"][0].erase("duration");
-
-			LLSD s2_llsd = get_region(dst, region1_handle);
-			ensure("Region1 is present in dst", s2_llsd.isMap());
-
-			ensure_equals("dst counts come from src only (flipped)", s2_llsd["get_other"]["resp_count"].asInteger(), 3);
-
-			ensure_approximately_equals("dst minimum with count 0 does not contribute to merged minimum (flipped)",
-										s2_llsd["get_other"]["resp_min"].asReal(), F64(2.7), 20);
-		}
-	}
-
 }

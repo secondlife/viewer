@@ -128,7 +128,8 @@ SimMeasurement<>			SIM_TIME_DILATION("simtimedilation", "", LL_SIM_STAT_TIME_DIL
 							SIM_PHYSICS_PINNED_TASKS("physicspinnedtasks", "", LL_SIM_STAT_PHYSICS_PINNED_TASKS),
 							SIM_PHYSICS_LOD_TASKS("physicslodtasks", "", LL_SIM_STAT_PHYSICS_LOD_TASKS);
 
-LLTrace::Measurement<>		NUM_IMAGES("numimagesstat"),
+LLTrace::Measurement<>		FPS_SAMPLE("fpssample"),
+							NUM_IMAGES("numimagesstat"),
 							NUM_RAW_IMAGES("numrawimagesstat"),
 							NUM_OBJECTS("numobjectsstat"),
 							NUM_ACTIVE_OBJECTS("numactiveobjectsstat"),
@@ -343,6 +344,7 @@ void update_statistics()
 	}
 
 	LLStatViewer::FPS.add(1);
+	LLStatViewer::FPS_SAMPLE.sample(LLTrace::get_frame_recording().getTotalRecording().getPerSec(LLStatViewer::FPS));
 	F32 layer_bits = (F32)(gVLManager.getLandBits() + gVLManager.getWindBits() + gVLManager.getCloudBits());
 	LLStatViewer::LAYERS_KBIT.add<LLTrace::Bits>(layer_bits);
 	LLStatViewer::OBJECT_KBIT.add(gObjectData);

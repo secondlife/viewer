@@ -53,6 +53,7 @@
 #include "llviewerstatsrecorder.h"
 #include "llviewerassetstats.h"
 #include "llworld.h"
+#include "llsdparam.h"
 #include "llsdutil.h"
 #include "llstartup.h"
 #include "llviewerstats.h"
@@ -2867,8 +2868,8 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 
 	}; // class lcl_responder
 	
-	if (! gViewerAssetStatsThread1)
-		return true;
+	//if (! gViewerAssetStatsThread1)
+	//	return true;
 
 	static volatile bool reporting_started(false);
 	static volatile S32 report_sequence(0);
@@ -2878,31 +2879,42 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 	// but leave it in 'this'.  Destructor will rid us of it.
 	LLViewerAssetStats & main_stats = *mMainStats;
 
-	// Merge existing stats into those from main, convert to LLSD
-	main_stats.merge(*gViewerAssetStatsThread1);
-	LLSD merged_llsd = main_stats.asLLSD(true);
+	LLViewerAssetStats::AssetStats stats;
+	main_stats.getStats(stats);
+	//LLSD merged_llsd = main_stats.asLLSD();
 
-	// Add some additional meta fields to the content
-	merged_llsd["session_id"] = mSessionID;
-	merged_llsd["agent_id"] = mAgentID;
-	merged_llsd["message"] = "ViewerAssetMetrics";					// Identifies the type of metrics
-	merged_llsd["sequence"] = report_sequence;						// Sequence number
-	merged_llsd["initial"] = ! reporting_started;					// Initial data from viewer
-	merged_llsd["break"] = LLTextureFetch::svMetricsDataBreak;		// Break in data prior to this report
-		
+	stats.session_id = mSessionID;
+	stats.agent_id = mAgentID;
+	stats.message = "ViewerAssetMetrics";
+	stats.sequence = static_cast<bool>(report_sequence);
+	stats.initial = static_cast<bool>(!reporting_started);
+	stats.break_ = static_cast<bool>(LLTextureFetch::svMetricsDataBreak);
+	//// Add some additional meta fields to the content
+	//merged_llsd["session_id"] = mSessionID;
+	//merged_llsd["agent_id"] = mAgentID;
+	//merged_llsd["message"] = "ViewerAssetMetrics";					// Identifies the type of metrics
+	//merged_llsd["sequence"] = report_sequence;						// Sequence number
+	//merged_llsd["initial"] = ! reporting_started;					// Initial data from viewer
+	//merged_llsd["break"] = LLTextureFetch::svMetricsDataBreak;		// Break in data prior to this report
+	
+	LLSD sd;
+	LLParamSDParser parser;
+	parser.writeSD(sd, stats);
+
 	// Update sequence number
 	if (S32_MAX == ++report_sequence)
 		report_sequence = 0;
 
 	// Limit the size of the stats report if necessary.
-	merged_llsd["truncated"] = truncate_viewer_metrics(10, merged_llsd);
+	
+	sd["truncated"] = truncate_viewer_metrics(10, sd);
 
 	if (! mCapsURL.empty())
 	{
 		LLCurlRequest::headers_t headers;
 		fetcher->getCurlRequest().post(mCapsURL,
 									   headers,
-									   merged_llsd,
+									   sd,
 									   new lcl_responder(fetcher,
 														 report_sequence,
                                                          report_sequence,
@@ -2917,10 +2929,10 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 	// In QA mode, Metrics submode, log the result for ease of testing
 	if (fetcher->isQAMode())
 	{
-		LL_INFOS("Textures") << ll_pretty_print_sd(merged_llsd) << LL_ENDL;
+		LL_INFOS("Textures") << ll_pretty_print_sd(sd) << LL_ENDL;
 	}
 
-	gViewerAssetStatsThread1->reset();
+	//gViewerAssetStatsThread1->reset();
 
 	return true;
 }
