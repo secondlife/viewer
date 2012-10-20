@@ -385,6 +385,7 @@ Please try logging in again in a minute.</string>
 
 	<!-- Chat -->
 	<string name="NearbyChatTitle">Nearby chat</string>
+  <string name="NearbyChatLabel">(Nearby chat)</string>
 	<string name="whisper">whispers:</string>
 	<string name="shout">shouts:</string>
 	<string name="ringing">Connecting to in-world Voice Chat...</string>
