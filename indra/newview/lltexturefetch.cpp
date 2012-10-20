@@ -2880,7 +2880,7 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 	LLViewerAssetStats & main_stats = *mMainStats;
 
 	LLViewerAssetStats::AssetStats stats;
-	main_stats.getStats(stats);
+	main_stats.getStats(stats, true);
 	//LLSD merged_llsd = main_stats.asLLSD();
 
 	stats.session_id = mSessionID;
