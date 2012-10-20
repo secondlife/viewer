@@ -202,16 +202,10 @@ void LLIMConversation::onFocusReceived()
 {
 	setBackgroundOpaque(true);
 
-	if (mSessionID.notNull())
+	if (mSessionID.notNull() && isInVisibleChain())
 	{
-		LLChicletBar::getInstance()->getChicletPanel()->setChicletToggleState(mSessionID, true);
-
-		if (getVisible())
-		{
-			// suppress corresponding toast only if this floater is visible and have focus
-			LLIMModel::getInstance()->setActiveSessionID(mSessionID);
-			LLIMModel::instance().sendNoUnreadMessages(mSessionID);
-		}
+        LLIMModel::getInstance()->setActiveSessionID(mSessionID);
+		LLIMModel::instance().sendNoUnreadMessages(mSessionID);
 	}
 
 	LLTransientDockableFloater::onFocusReceived();
@@ -219,6 +213,7 @@ void LLIMConversation::onFocusReceived()
 
 void LLIMConversation::onFocusLost()
 {
+    LLIMModel::getInstance()->resetActiveSessionID();
 	setBackgroundOpaque(false);
 	LLTransientDockableFloater::onFocusLost();
 }

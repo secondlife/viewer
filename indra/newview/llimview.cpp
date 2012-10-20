@@ -119,8 +119,7 @@ void toast_callback(const LLSD& msg){
 	}
 
 	// check whether incoming IM belongs to an active session or not
-	if (LLIMModel::getInstance()->getActiveSessionID().notNull()
-			&& LLIMModel::getInstance()->getActiveSessionID() == msg["session_id"])
+	if (LLIMModel::getInstance()->getActiveSessionID() == msg["session_id"])
 	{
 		return;
 	}
@@ -147,7 +146,7 @@ void toast_callback(const LLSD& msg){
 
 	// Skip toasting if we have open window of IM with this session id
 	LLIMFloater* open_im_floater = LLIMFloater::findInstance(msg["session_id"]);
-	if (open_im_floater && open_im_floater->getVisible())
+	if (open_im_floater && open_im_floater->isInVisibleChain() && open_im_floater->hasFocus())
 	{
 		return;
 	}
