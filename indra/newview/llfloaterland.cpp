@@ -1045,6 +1045,8 @@ void LLPanelLandGeneral::onCommitAny(LLUICtrl *ctrl, void *userdata)
 void LLPanelLandGeneral::onClickSellLand(void* data)
 {
 	LLViewerParcelMgr::getInstance()->startSellLand();
+	LLPanelLandGeneral *panelp = (LLPanelLandGeneral *)data;
+	panelp->refresh();
 }
 
 // static

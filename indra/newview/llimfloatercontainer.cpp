@@ -927,15 +927,18 @@ void LLIMFloaterContainer::doToSelected(const LLSD& userdata)
     const LLConversationItem * conversationItem = getCurSelectedViewModelItem();
     uuid_vec_t selected_uuids;
 
-    getParticipantUUIDs(selected_uuids);
+    if(conversationItem != NULL)
+    {
+    	getParticipantUUIDs(selected_uuids);
 
-    if(conversationItem->getType() == LLConversationItem::CONV_PARTICIPANT)
-    {
-        doToParticipants(command, selected_uuids);
-    }
-    else
-    {
-        doToSelectedConversation(command, selected_uuids);
+    	if(conversationItem->getType() == LLConversationItem::CONV_PARTICIPANT)
+    	{
+    		doToParticipants(command, selected_uuids);
+    	}
+    	else
+    	{
+    		doToSelectedConversation(command, selected_uuids);
+    	}
     }
 }
 

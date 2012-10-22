@@ -504,7 +504,11 @@ void LLFolderView::sanitizeSelection()
 		LLFolderViewItem* item = *item_iter;
 
 		// ensure that each ancestor is open and potentially passes filtering
-		BOOL visible = item->getViewModelItem()->potentiallyVisible(); // initialize from filter state for this item
+		BOOL visible = false;
+		if(item->getViewModelItem())
+		{
+			visible = item->getViewModelItem()->potentiallyVisible(); // initialize from filter state for this item
+		}
 		// modify with parent open and filters states
 		LLFolderViewFolder* parent_folder = item->getParentFolder();
 		// Move up through parent folders and see what's visible
