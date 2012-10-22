@@ -504,8 +504,6 @@ namespace tut
 		ensure("Region1 is present in results", sd1.isMap());
 		ensure("Region2 is present in results", sd2.isMap());
 		
-		llinfos << ll_pretty_print_sd(sd1) << llendl;
-
 		// Check a few points on the tree for content
 		ensure("sd1[get_texture_non_temp_udp][enqueued] is 1", (1 == sd1["get_texture_non_temp_udp"]["enqueued"].asInteger()));
 		ensure("sd1[get_texture_temp_udp][enqueued] is 0", (0 == sd1["get_texture_temp_udp"]["enqueued"].asInteger()));
