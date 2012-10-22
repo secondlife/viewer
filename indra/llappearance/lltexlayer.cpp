@@ -148,10 +148,16 @@ BOOL LLTexLayerSetBuffer::renderTexLayerSet()
 	
 	bool use_shaders = LLGLSLShader::sNoFixedFunction;
 
+	LLGLEnable(GL_ALPHA_TEST);
+
 	if (use_shaders)
 	{
 		gAlphaMaskProgram.bind();
 		gAlphaMaskProgram.setMinimumAlpha(0.004f);
+	}
+	else
+	{
+		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.004f);
 	}
 
 	LLVertexBuffer::unbind();
@@ -391,6 +397,7 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 	LLGLSUIDefault gls_ui;
 	LLGLDepthTest gls_depth(GL_FALSE, GL_FALSE);
 	gGL.setColorMask(true, true);
+	LLGLEnable(GL_ALPHA_TEST);
 
 	// clear buffer area to ensure we don't pick up UI elements
 	{
@@ -400,6 +407,11 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 		{
 			gAlphaMaskProgram.setMinimumAlpha(0.0f);
 		}
+		else
+		{
+			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.0f);
+		}
+
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		gGL.color4f( 0.f, 0.f, 0.f, 1.f );
 
@@ -409,6 +421,10 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 		if (use_shaders)
 		{
 			gAlphaMaskProgram.setMinimumAlpha(0.004f);
+		}
+		else
+		{
+			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.004f);
 		}
 	}
 
@@ -440,6 +456,10 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 		{
 			gAlphaMaskProgram.setMinimumAlpha(0.f);
 		}
+		else
+		{
+			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.0f);
+		}
 
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		gGL.color4f( 0.f, 0.f, 0.f, 0.f );
@@ -452,6 +472,11 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 		{
 			gAlphaMaskProgram.setMinimumAlpha(0.004f);
 		}
+		else
+		{
+			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.004f);
+		}
+
 	}
 
 	return success;
@@ -542,6 +567,7 @@ void LLTexLayerSet::renderAlphaMaskTextures(S32 x, S32 y, S32 width, S32 height,
 
 	gGL.setColorMask(false, true);
 	gGL.setSceneBlendType(LLRender::BT_REPLACE);
+	LLGLEnable(GL_ALPHA_TEST);
 	
 	// (Optionally) replace alpha with a single component image from a tga file.
 	if (!info->mStaticAlphaFileName.empty())
@@ -568,6 +594,11 @@ void LLTexLayerSet::renderAlphaMaskTextures(S32 x, S32 y, S32 width, S32 height,
 		{
 			gAlphaMaskProgram.setMinimumAlpha(0.f);
 		}
+		else
+		{
+			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.0f);
+		}
+
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		gGL.color4f( 0.f, 0.f, 0.f, 1.f );
 		
@@ -578,6 +609,11 @@ void LLTexLayerSet::renderAlphaMaskTextures(S32 x, S32 y, S32 width, S32 height,
 		{
 			gAlphaMaskProgram.setMinimumAlpha(0.004f);
 		}
+		else
+		{
+			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.004f);
+		}
+
 	}
 	
 	// (Optional) Mask out part of the baked texture with alpha masks
@@ -1085,6 +1121,7 @@ BOOL LLTexLayer::render(S32 x, S32 y, S32 width, S32 height)
 	//gPipeline.disableLights();
 	stop_glerror();
 	glDisable(GL_LIGHTING);
+	glEnable(GL_ALPHA_TEST);
 	stop_glerror();
 
 	bool use_shaders = LLGLSLShader::sNoFixedFunction;
@@ -1171,9 +1208,16 @@ BOOL LLTexLayer::render(S32 x, S32 y, S32 width, S32 height)
 				{
 					bool no_alpha_test = getInfo()->mWriteAllChannels;
 					LLGLDisable alpha_test(no_alpha_test ? GL_ALPHA_TEST : 0);
-					if (use_shaders && no_alpha_test)
+					if (no_alpha_test)
 					{
-						gAlphaMaskProgram.setMinimumAlpha(0.f);
+						if (use_shaders)
+						{
+							gAlphaMaskProgram.setMinimumAlpha(0.f);
+						}
+						else
+						{
+							gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.0f);
+						}
 					}
 					
 					LLTexUnit::eTextureAddressMode old_mode = tex->getAddressMode();
@@ -1185,9 +1229,16 @@ BOOL LLTexLayer::render(S32 x, S32 y, S32 width, S32 height)
 
 					gGL.getTexUnit(0)->setTextureAddressMode(old_mode);
 					gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-					if (use_shaders && no_alpha_test)
+					if (no_alpha_test)
 					{
-						gAlphaMaskProgram.setMinimumAlpha(0.004f);
+						if (use_shaders)
+						{
+							gAlphaMaskProgram.setMinimumAlpha(0.004f);
+						}
+						else
+						{
+							gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.004f);
+						}
 					}
 					
 				}
@@ -1226,12 +1277,21 @@ BOOL LLTexLayer::render(S32 x, S32 y, S32 width, S32 height)
 		{
 			gAlphaMaskProgram.setMinimumAlpha(0.f);
 		}
+		else
+		{
+			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.0f);
+		}
+
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		gGL.color4fv( net_color.mV );
 		gl_rect_2d_simple( width, height );
 		if (use_shaders)
 		{
 			gAlphaMaskProgram.setMinimumAlpha(0.004f);
+		}
+		else
+		{
+			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.004f);
 		}
 	}
 
@@ -1321,6 +1381,7 @@ BOOL LLTexLayer::blendAlphaTexture(S32 x, S32 y, S32 width, S32 height)
 	gGL.flush();
 	
 	bool use_shaders = LLGLSLShader::sNoFixedFunction;
+	LLGLEnable(GL_ALPHA_TEST);
 
 	if( !getInfo()->mStaticImageFileName.empty() )
 	{
@@ -1332,12 +1393,21 @@ BOOL LLTexLayer::blendAlphaTexture(S32 x, S32 y, S32 width, S32 height)
 			{
 				gAlphaMaskProgram.setMinimumAlpha(0.f);
 			}
+			else
+			{
+				gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.0f);
+			}
+
 			gGL.getTexUnit(0)->bind(tex, TRUE);
 			gl_rect_2d_simple_tex( width, height );
 			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 			if (use_shaders)
 			{
 				gAlphaMaskProgram.setMinimumAlpha(0.004f);
+			}
+			else
+			{
+				gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.004f);
 			}
 		}
 		else
@@ -1357,6 +1427,11 @@ BOOL LLTexLayer::blendAlphaTexture(S32 x, S32 y, S32 width, S32 height)
 				{
 					gAlphaMaskProgram.setMinimumAlpha(0.f);
 				}
+				else
+				{
+					gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.0f);
+				}
+
 				gGL.getTexUnit(0)->bind(tex);
 				gl_rect_2d_simple_tex( width, height );
 				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
@@ -1364,6 +1439,10 @@ BOOL LLTexLayer::blendAlphaTexture(S32 x, S32 y, S32 width, S32 height)
 				if (use_shaders)
 				{
 					gAlphaMaskProgram.setMinimumAlpha(0.004f);
+				}
+				else
+				{
+					gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.0f);
 				}
 			}
 		}
@@ -1386,11 +1465,17 @@ BOOL LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 	llassert( !mParamAlphaList.empty() );
 
 	bool use_shaders = LLGLSLShader::sNoFixedFunction;
+	LLGLEnable(GL_ALPHA_TEST);
 
 	if (use_shaders)
 	{
 		gAlphaMaskProgram.setMinimumAlpha(0.f);
 	}
+	else
+	{
+		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.0f);
+	}
+
 
 	gGL.setColorMask(false, true);
 
@@ -1470,6 +1555,10 @@ BOOL LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 	if (use_shaders)
 	{
 		gAlphaMaskProgram.setMinimumAlpha(0.004f);
+	}
+	else
+	{
+		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.004f);
 	}
 
 	LLGLSUIDefault gls_ui;
