@@ -349,12 +349,7 @@ void LLApp::setupErrorHandling()
 	if(installHandler && (mExceptionHandler == 0))
 	{
 		std::string dumpPath = "/tmp/";
-		mExceptionHandler = new google_breakpad::ExceptionHandler(dumpPath, 
-																  0,
-																  &unix_post_minidump_callback,
-																  0,
-																  true,
-																  NULL);
+		mExceptionHandler = new google_breakpad::ExceptionHandler(dumpPath, 0, &unix_post_minidump_callback, 0, true);
 	}
 #endif
 
