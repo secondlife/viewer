@@ -1113,6 +1113,9 @@ void LLIMFloaterContainer::setItemSelect(const LLUUID& session_id)
             mSelectedSession = session_id;
             LLFolderViewItem* widget = mConversationsWidgets[session_id];
             (widget->getRoot())->setSelection(widget, FALSE, FALSE);
+
+			// Scroll to selected item
+			mConversationsRoot->scrollToShowSelection();
         }
     }
 }
@@ -1227,6 +1230,9 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid, bool isWi
 	
 	// set the widget to minimized mode if conversations pane is collapsed
 	widget->toggleMinimizedMode(mConversationsPane->isCollapsed());
+
+	// scroll to newly added item
+	mConversationsRoot->scrollToShowSelection();
 
 	return;
 }
