@@ -190,6 +190,7 @@ BOOL LLDriverParam::setInfo(LLDriverParamInfo *info)
 	// FIXME DRANO this clobbers mWearablep, which means any code
 	// currently using mWearablep is wrong, or at least untested.
 	*new_param = *this;
+	//new_param->mWearablep = wearable;
 //	new_param->mDriven.clear(); // clear driven list to avoid overwriting avatar driven params from wearables. 
 	return new_param;
 }

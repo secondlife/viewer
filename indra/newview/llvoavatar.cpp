@@ -6400,8 +6400,6 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		//mesgsys->getU32Fast(_PREHASH_AppearanceData, _PREHASH_Flags, appearance_flags, 0);
 	}
 
-	mUseServerBakes = (appearance_version > 0);
-
 	// Only now that we have result of appearance_version can we decide whether to bail out.
 	if( isSelf() )
 	{
@@ -6409,7 +6407,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		{
 			llwarns << avString() << "Received AvatarAppearance message for self in non-server-bake region" << llendl;
 		}
-		if( mFirstTEMessageReceived && !isUsingServerBakes())
+		if( mFirstTEMessageReceived && (appearance_version == 0))
 		{
 			return;
 		}
@@ -6417,7 +6415,8 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 
 
 	// Check for stale update.
-	if (isUsingServerBakes() && isSelf()
+	if (isSelf()
+		&& isUsingServerBakes()
 		&& this_update_cof_version >= LLViewerInventoryCategory::VERSION_INITIAL
 		&& this_update_cof_version < last_update_request_cof_version)
 	{
@@ -6425,6 +6424,9 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 				<< ", got " << this_update_cof_version << llendl;
 		return;
 	}
+
+	mUseServerBakes = (appearance_version > 0);
+
 	applyParsedTEMessage(tec);
 
 	// prevent the overwriting of valid baked textures with invalid baked textures

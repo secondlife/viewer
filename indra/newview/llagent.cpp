@@ -904,6 +904,16 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 	{
 		LLEnvManagerNew::instance().onRegionCrossing();
 	}
+
+	// If the newly entered region is using server bakes, and our
+	// current appearance is non-baked, request appearance update from
+	// server.
+	if (isAgentAvatarValid() &&
+		!gAgentAvatarp->isUsingServerBakes() &&
+		(mRegionp->getCentralBakeVersion()>0))
+	{
+		LLAppearanceMgr::instance().requestServerAppearanceUpdate();
+	}
 }
 
 
