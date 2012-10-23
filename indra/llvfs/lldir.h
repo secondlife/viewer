@@ -208,6 +208,13 @@ protected:
 	// build mSearchSkinDirs without adding duplicates
 	void addSearchSkinDir(const std::string& skindir);
 
+	// Internal to findSkinnedFilenames()
+	template <typename FUNCTION>
+	void walkSearchSkinDirs(const std::string& subdir,
+							const std::vector<std::string>& subsubdirs,
+							const std::string& filename,
+							const FUNCTION& function) const;
+
 	std::string mAppName;               // install directory under progams/ ie "SecondLife"   
 	std::string mExecutablePathAndName; // full path + Filename of .exe
 	std::string mExecutableFilename;    // Filename of .exe

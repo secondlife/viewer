@@ -73,35 +73,41 @@ struct LLDir_Dummy: public LLDir
         // the real one.
         static const char* preload[] =
         {
+            // We group these fixture-data pathnames by basename, rather than
+            // sorting by full path as you might expect, because the outcome
+            // of each test strongly depends on which skins/languages provide
+            // a given basename.
             "install/skins/default/colors.xml",
+            "install/skins/steam/colors.xml",
+            "user/skins/default/colors.xml",
+            "user/skins/steam/colors.xml",
+
             "install/skins/default/xui/en/strings.xml",
             "install/skins/default/xui/fr/strings.xml",
-            "install/skins/default/xui/en/floater.xml",
-            "install/skins/default/xui/fr/floater.xml",
-            "install/skins/default/xui/en/newfile.xml",
-            "install/skins/default/xui/fr/newfile.xml",
-            "install/skins/default/html/en-us/welcome.html",
-            "install/skins/default/html/fr/welcome.html",
-            "install/skins/default/textures/only_default.jpeg",
-            "install/skins/default/future/somefile.txt",
-            "install/skins/steam/colors.xml",
             "install/skins/steam/xui/en/strings.xml",
             "install/skins/steam/xui/fr/strings.xml",
-            "install/skins/steam/textures/only_steam.jpeg",
-            "user/skins/default/colors.xml",
             "user/skins/default/xui/en/strings.xml",
             "user/skins/default/xui/fr/strings.xml",
-            // This is an attempted override that doesn't work: for a
-            // localized subdir, a skin must have subdir/en/filename as well
-            // as subdir/language/filename.
-            "user/skins/default/xui/fr/floater.xml",
-            // This is an override that only specifies the "en" version
-            "user/skins/default/xui/en/newfile.xml",
-            "user/skins/default/textures/only_user_default.jpeg",
-            "user/skins/steam/colors.xml",
             "user/skins/steam/xui/en/strings.xml",
             "user/skins/steam/xui/fr/strings.xml",
-            "user/skins/steam/textures/only_user_steam.jpeg"
+
+            "install/skins/default/xui/en/floater.xml",
+            "install/skins/default/xui/fr/floater.xml",
+            "user/skins/default/xui/fr/floater.xml",
+
+            "install/skins/default/xui/en/newfile.xml",
+            "install/skins/default/xui/fr/newfile.xml",
+            "user/skins/default/xui/en/newfile.xml",
+
+            "install/skins/default/html/en-us/welcome.html",
+            "install/skins/default/html/fr/welcome.html",
+
+            "install/skins/default/textures/only_default.jpeg",
+            "install/skins/steam/textures/only_steam.jpeg",
+            "user/skins/default/textures/only_user_default.jpeg",
+            "user/skins/steam/textures/only_user_steam.jpeg",
+
+            "install/skins/default/future/somefile.txt"
         };
         BOOST_FOREACH(const char* path, preload)
         {
@@ -594,7 +600,7 @@ namespace tut
         ensure_equals(lldir.findSkinnedFilenames(LLDir::TEXTURES, "only_default.jpeg"),
                       vec(list_of("install/skins/default/textures/only_default.jpeg")));
         // Nor should we have needed to check skins/default/textures/en
-        // because textures is known to be unlocalized.
+        // because textures is known not to be localized.
         lldir.ensure_not_checked("install/skins/default/textures/en");
 
         StringVec expected(vec(list_of("install/skins/default/xui/en/strings.xml")
@@ -661,20 +667,21 @@ namespace tut
                           ("user/skins/default/xui/en/strings.xml")
                           ("user/skins/default/xui/fr/strings.xml")));
 
-        // The most specific skin for our dummy floater.xml is the installed
-        // default. Although we have a user xui/fr/floater.xml, we would also
-        // need a xui/en/floater.xml file to consider the user skin for this.
+        // Our dummy floater.xml has a user localization (for "fr") but no
+        // English override. This is a case in which CURRENT_SKIN nonetheless
+        // returns paths from two different skins.
         ensure_equals(lldir.findSkinnedFilenames(LLDir::XUI, "floater.xml"),
                       vec(list_of
                           ("install/skins/default/xui/en/floater.xml")
-                          ("install/skins/default/xui/fr/floater.xml")));
+                          ("user/skins/default/xui/fr/floater.xml")));
 
-        // The user override for the default skin does define newfile.xml, but
-        // only an "en" version, not a "fr" version as well. Nonetheless
-        // that's the most specific skin we have, regardless of the existence
-        // of a "fr" version in the installed default skin.
+        // Our dummy newfile.xml has an English override but no user
+        // localization. This is another case in which CURRENT_SKIN
+        // nonetheless returns paths from two different skins.
         ensure_equals(lldir.findSkinnedFilenames(LLDir::XUI, "newfile.xml"),
-                      vec(list_of("user/skins/default/xui/en/newfile.xml")));
+                      vec(list_of
+                          ("user/skins/default/xui/en/newfile.xml")
+                          ("install/skins/default/xui/fr/newfile.xml")));
 
         ensure_equals(lldir.findSkinnedFilenames("html", "welcome.html"),
                       vec(list_of
@@ -683,8 +690,8 @@ namespace tut
 
         /*------------------------ "default", "zh" -------------------------*/
         lldir.setSkinFolder("default", "zh");
-        // Because the user default skins strings.xml has only a "fr" override
-        // but not a "zh" override, the most localized version we can find is "en".
+        // Because strings.xml has only a "fr" override but no "zh" override
+        // in any skin, the most localized version we can find is "en".
         ensure_equals(lldir.findSkinnedFilenames(LLDir::XUI, "strings.xml"),
                       vec(list_of("user/skins/default/xui/en/strings.xml")));
 
@@ -710,11 +717,11 @@ namespace tut
         ensure_equals(lldir.findSkinnedFilenames(LLDir::TEXTURES, "only_user_steam.jpeg"),
                       vec(list_of("user/skins/steam/textures/only_user_steam.jpeg")));
 
-        // merge=false
+        // CURRENT_SKIN
         ensure_equals(lldir.findSkinnedFilenames(LLDir::XUI, "strings.xml"),
                       vec(list_of("user/skins/steam/xui/en/strings.xml")));
 
-        // pass merge=true to request this filename in all relevant skins
+        // pass constraint=ALL_SKINS to request this filename in all relevant skins
         ensure_equals(lldir.findSkinnedFilenames(LLDir::XUI, "strings.xml", LLDir::ALL_SKINS),
                       vec(list_of
                           ("install/skins/default/xui/en/strings.xml")
@@ -725,13 +732,13 @@ namespace tut
         /*------------------------- "steam", "fr" --------------------------*/
         lldir.setSkinFolder("steam", "fr");
 
-        // pass merge=true to request this filename in all relevant skins
+        // pass CURRENT_SKIN to request only the most specialized files
         ensure_equals(lldir.findSkinnedFilenames(LLDir::XUI, "strings.xml"),
                       vec(list_of
                           ("user/skins/steam/xui/en/strings.xml")
                           ("user/skins/steam/xui/fr/strings.xml")));
 
-        // pass merge=true to request this filename in all relevant skins
+        // pass ALL_SKINS to request this filename in all relevant skins
         ensure_equals(lldir.findSkinnedFilenames(LLDir::XUI, "strings.xml", LLDir::ALL_SKINS),
                       vec(list_of
                           ("install/skins/default/xui/en/strings.xml")

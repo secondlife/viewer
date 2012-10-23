@@ -46,6 +46,8 @@
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/assign/list_of.hpp>
+#include <boost/bind.hpp>
+#include <boost/ref.hpp>
 #include <algorithm>
 
 using boost::assign::list_of;
@@ -569,6 +571,43 @@ std::string LLDir::findSkinnedFilename(const std::string &subdir,
 	return found.back();
 }
 
+// This method exists because the two code paths for
+// findSkinnedFilenames(ALL_SKINS) and findSkinnedFilenames(CURRENT_SKIN) must
+// generate the list of candidate pathnames in identical ways. The only
+// difference is in the body of the inner loop.
+template <typename FUNCTION>
+void LLDir::walkSearchSkinDirs(const std::string& subdir,
+							   const std::vector<std::string>& subsubdirs,
+							   const std::string& filename,
+							   const FUNCTION& function) const
+{
+	BOOST_FOREACH(std::string skindir, mSearchSkinDirs)
+	{
+		std::string subdir_path(add(skindir, subdir));
+		BOOST_FOREACH(std::string subsubdir, subsubdirs)
+		{
+			std::string full_path(add(add(subdir_path, subsubdir), filename));
+			if (fileExists(full_path))
+			{
+				function(subsubdir, full_path);
+			}
+		}
+	}
+}
+
+// ridiculous little helper function that should go away when we can use lambda
+inline void push_back(std::vector<std::string>& vector, const std::string& value)
+{
+	vector.push_back(value);
+}
+
+typedef std::map<std::string, std::string> StringMap;
+// ridiculous little helper function that should go away when we can use lambda
+inline void store_in_map(StringMap& map, const std::string& key, const std::string& value)
+{
+	map[key] = value;
+}
+
 std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
 													 const std::string& filename,
 													 ESkinConstraint constraint) const
@@ -587,11 +626,10 @@ std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
 	// Cache the default language directory for each subdir we've encountered.
 	// A cache entry whose value is the empty string means "not localized,
 	// don't bother checking again."
-	typedef std::map<std::string, std::string> LocalizedMap;
-	static LocalizedMap sLocalized;
+	static StringMap sLocalized;
 
 	// Check whether we've already discovered if this subdir is localized.
-	LocalizedMap::const_iterator found = sLocalized.find(subdir);
+	StringMap::const_iterator found = sLocalized.find(subdir);
 	if (found == sLocalized.end())
 	{
 		// We have not yet determined that. Is it one of the subdirs "known"
@@ -599,7 +637,7 @@ std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
 		if (sUnlocalized.find(subdir) != sUnlocalized.end())
 		{
 			// This subdir is known to be unlocalized. Remember that.
-			found = sLocalized.insert(LocalizedMap::value_type(subdir, "")).first;
+			found = sLocalized.insert(StringMap::value_type(subdir, "")).first;
 		}
 		else
 		{
@@ -608,20 +646,20 @@ std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
 			if (fileExists(add(subdir_path, "en")))
 			{
 				// defaultSkinDir/subdir contains subdir "en". That's our
-				// default language; this subdir is localized. 
-				found = sLocalized.insert(LocalizedMap::value_type(subdir, "en")).first;
+				// default language; this subdir is localized.
+				found = sLocalized.insert(StringMap::value_type(subdir, "en")).first;
 			}
 			else if (fileExists(add(subdir_path, "en-us")))
 			{
 				// defaultSkinDir/subdir contains subdir "en-us" but not "en".
 				// Set as default language; this subdir is localized.
-				found = sLocalized.insert(LocalizedMap::value_type(subdir, "en-us")).first;
+				found = sLocalized.insert(StringMap::value_type(subdir, "en-us")).first;
 			}
 			else
 			{
 				// defaultSkinDir/subdir contains neither "en" nor "en-us".
 				// Assume it's not localized. Remember that assumption.
-				found = sLocalized.insert(LocalizedMap::value_type(subdir, "")).first;
+				found = sLocalized.insert(StringMap::value_type(subdir, "")).first;
 			}
 		}
 	}
@@ -648,48 +686,52 @@ std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
 			subsubdirs.push_back(mLanguage);
 		}
 	}
-	// Code below relies on subsubdirs not being empty: more specifically, on
-	// front() being valid. There may or may not be additional entries, but we
-	// have at least one. For an unlocalized subdir, it's the only one; for a
-	// localized subdir, it's the default one.
-	llassert(! subsubdirs.empty());
 
 	// Build results vector.
 	std::vector<std::string> results;
-	BOOST_FOREACH(std::string skindir, mSearchSkinDirs)
+	// The process we use depends on 'constraint'.
+	if (constraint != CURRENT_SKIN) // meaning ALL_SKINS
 	{
-		std::string subdir_path(add(skindir, subdir));
-		// Does subdir_path/subsubdirs[0]/filename exist? If there's more than
-		// one entry in subsubdirs, the first is the default language ("en"),
-		// the second is the current language. A skin that contains
-		// subdir/language/filename without also containing subdir/en/filename
-		// is ill-formed: skip any such skin. So to decide whether to keep
-		// this skin dir or skip it, we need only check for the existence of
-		// the first subsubdir entry ("en" or only).
-		std::string subsubdir_path(add(add(subdir_path, subsubdirs.front()), filename));
-		if (! fileExists(subsubdir_path))
-			continue;
-
-		// Here the desired filename exists in the first subsubdir. That means
-		// this is a skindir we want to record in results. But if the caller
-		// passed constraint=CURRENT_SKIN, we must discard all previous skindirs.
-		if (constraint == CURRENT_SKIN)
+		// ALL_SKINS is simpler: just return every pathname generated by
+		// walkSearchSkinDirs(). Tricky bit: walkSearchSkinDirs() passes its
+		// FUNCTION the subsubdir as well as the full pathname. We just want
+		// the full pathname.
+		walkSearchSkinDirs(subdir, subsubdirs, filename,
+						   boost::bind(push_back, boost::ref(results), _2));
+	}
+	else                            // CURRENT_SKIN
+	{
+		// CURRENT_SKIN turns out to be a bit of a misnomer because we might
+		// still return files from two different skins. In any case, this
+		// value of 'constraint' means we will return at most two paths: one
+		// for the default language, one for the current language (supposing
+		// those differ).
+		// It is important to allow a user to override only the localization
+		// for a particular file, for all viewer installs, without also
+		// overriding the default-language file.
+		// It is important to allow a user to override only the default-
+		// language file, for all viewer installs, without also overriding the
+		// applicable localization of that file.
+		// Therefore, treat the default language and the current language as
+		// two separate cases. For each, capture the most-specialized file
+		// that exists.
+		// Use a map keyed by subsubdir (i.e. language code). This allows us
+		// to handle the case of a single subsubdirs entry with the same logic
+		// that handles two. For every real file path generated by
+		// walkSearchSkinDirs(), update the map entry for its subsubdir.
+		StringMap path_for;
+		walkSearchSkinDirs(subdir, subsubdirs, filename,
+						   boost::bind(store_in_map, boost::ref(path_for), _1, _2));
+		// Now that we have a path for each of the default language and the
+		// current language, copy them -- in proper order -- into results.
+		// Don't drive this by walking the map itself: it matters that we
+		// generate results in the same order as subsubdirs.
+		BOOST_FOREACH(std::string subsubdir, subsubdirs)
 		{
-			results.clear();
-		}
-
-		// Now add every subsubdir in which filename exists. We already know
-		// it exists in the first one.
-		results.push_back(subsubdir_path);
-
-		// Append all remaining subsubdirs in which filename exists.
-		for (std::vector<std::string>::const_iterator ssdi(subsubdirs.begin() + 1), ssdend(subsubdirs.end());
-			 ssdi != ssdend; ++ssdi)
-		{
-			subsubdir_path = add(add(subdir_path, *ssdi), filename);
-			if (fileExists(subsubdir_path))
+			StringMap::const_iterator found(path_for.find(subsubdir));
+			if (found != path_for.end())
 			{
-				results.push_back(subsubdir_path);
+				results.push_back(found->second);
 			}
 		}
 	}
