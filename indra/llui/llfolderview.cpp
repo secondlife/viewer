@@ -505,7 +505,7 @@ void LLFolderView::sanitizeSelection()
 
 		// ensure that each ancestor is open and potentially passes filtering
 		BOOL visible = false;
-		if(item->getViewModelItem())
+		if(item->getViewModelItem() != NULL)
 		{
 			visible = item->getViewModelItem()->potentiallyVisible(); // initialize from filter state for this item
 		}
