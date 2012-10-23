@@ -180,8 +180,9 @@ namespace LLInitParam
 		return true;
 	}
 
-	void BaseBlock::serializeBlock(Parser& parser, Parser::name_stack_t& name_stack, const LLInitParam::BaseBlock* diff_block) const
+	bool BaseBlock::serializeBlock(Parser& parser, Parser::name_stack_t& name_stack, const LLInitParam::BaseBlock* diff_block) const
 	{
+		bool serialized = false;
 		// named param is one like LLView::Params::follows
 		// unnamed param is like LLView::Params::rect - implicit
 		const BlockDescriptor& block_data = mostDerivedBlockDescriptor();
@@ -193,10 +194,10 @@ namespace LLInitParam
 			param_handle_t param_handle = (*it)->mParamHandle;
 			const Param* param = getParamFromHandle(param_handle);
 			ParamDescriptor::serialize_func_t serialize_func = (*it)->mSerializeFunc;
-			if (serialize_func)
+			if (serialize_func && param->anyProvided())
 			{
 				const Param* diff_param = diff_block ? diff_block->getParamFromHandle(param_handle) : NULL;
-				serialize_func(*param, parser, name_stack, diff_param);
+				serialized |= serialize_func(*param, parser, name_stack, diff_param);
 			}
 		}
 
@@ -232,10 +233,13 @@ namespace LLInitParam
 
 				name_stack.push_back(std::make_pair(it->first, !duplicate));
 				const Param* diff_param = diff_block ? diff_block->getParamFromHandle(param_handle) : NULL;
-				serialize_func(*param, parser, name_stack, diff_param);
+				serialized |= serialize_func(*param, parser, name_stack, diff_param);
 				name_stack.pop_back();
 			}
 		}
+
+		// was anything serialized in this block?
+		return serialized;
 	}
 
 	bool BaseBlock::inspectBlock(Parser& parser, Parser::name_stack_t name_stack, S32 min_count, S32 max_count) const
@@ -354,7 +358,7 @@ namespace LLInitParam
 	}
 
 	//static 
-	void BaseBlock::addParam(BlockDescriptor& block_data, const ParamDescriptorPtr in_param, const char* char_name)
+	void BaseBlock::addParam(BlockDescriptor& block_data, ParamDescriptorPtr in_param, const char* char_name)
 	{
 		// create a copy of the param descriptor in mAllParams
 		// so other data structures can store a pointer to it
