@@ -204,7 +204,6 @@ void LLIMConversation::onFocusReceived()
 
 	if (mSessionID.notNull() && isInVisibleChain())
 	{
-        LLIMModel::getInstance()->setActiveSessionID(mSessionID);
 		LLIMModel::instance().sendNoUnreadMessages(mSessionID);
 	}
 
@@ -213,7 +212,6 @@ void LLIMConversation::onFocusReceived()
 
 void LLIMConversation::onFocusLost()
 {
-    LLIMModel::getInstance()->resetActiveSessionID();
 	setBackgroundOpaque(false);
 	LLTransientDockableFloater::onFocusLost();
 }

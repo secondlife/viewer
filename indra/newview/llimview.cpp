@@ -118,11 +118,12 @@ void toast_callback(const LLSD& msg){
 		return;
 	}
 
-	// check whether incoming IM belongs to an active session or not
-	if (LLIMModel::getInstance()->getActiveSessionID() == msg["session_id"])
-	{
-		return;
-	}
+    // Skip toasting if we have open window of IM with this session id
+    LLIMFloater* open_im_floater = LLIMFloater::findInstance(msg["session_id"]);
+    if (open_im_floater && open_im_floater->isInVisibleChain() && open_im_floater->hasFocus())
+    {
+        return;
+    }
 
 	// Skip toasting for system messages
 	if (msg["from_id"].asUUID() == LLUUID::null)
@@ -144,28 +145,9 @@ void toast_callback(const LLSD& msg){
 		return;
 	}
 
-	// Skip toasting if we have open window of IM with this session id
-	LLIMFloater* open_im_floater = LLIMFloater::findInstance(msg["session_id"]);
-	if (open_im_floater && open_im_floater->isInVisibleChain() && open_im_floater->hasFocus())
-	{
-		return;
-	}
-
 	LLAvatarNameCache::get(msg["from_id"].asUUID(),
 		boost::bind(&on_avatar_name_cache_toast,
 			_1, _2, msg));
-}
-
-void LLIMModel::setActiveSessionID(const LLUUID& session_id)
-{
-	// check if such an ID really exists
-	if (!findIMSession(session_id))
-	{
-		llwarns << "Trying to set as active a non-existent session!" << llendl;
-		return;
-	}
-
-	mActiveSessionID = session_id;
 }
 
 LLIMModel::LLIMModel() 
