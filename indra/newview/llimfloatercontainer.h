@@ -151,7 +151,7 @@ private:
 	// Conversation list implementation
 public:
 	bool removeConversationListItem(const LLUUID& uuid, bool change_focus = true);
-	void addConversationListItem(const LLUUID& uuid, bool isWidgetSelected = false);
+	LLConversationItemSession* addConversationListItem(const LLUUID& uuid, bool isWidgetSelected = false);
 	void setTimeNow(const LLUUID& session_id, const LLUUID& participant_id);
 	void setNearbyDistances();
 

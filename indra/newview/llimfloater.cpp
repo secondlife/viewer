@@ -582,7 +582,7 @@ void LLIMFloater::onParticipantsListChanged(LLUICtrl* ctrl)
 	}
 }
 
-void LLIMFloater::addToHost(const LLUUID& session_id, const bool force)
+void LLIMFloater::addToHost(const LLUUID& session_id, LLConversationItemSession* session_root_model, const bool force)
 {
 	if (!LLIMConversation::isChatMultiTab() || !gIMMgr->hasSession(session_id))
 	{
@@ -593,7 +593,7 @@ void LLIMFloater::addToHost(const LLUUID& session_id, const bool force)
 	bool exist = findInstance(session_id);
 
 	// Get the floater: this will create the instance if it didn't exist
-	LLIMFloater* floater = getInstance(session_id);
+	LLIMFloater* floater = getInstance(session_id, session_root_model);
 	if (floater)
 	{
 
@@ -672,11 +672,12 @@ LLIMFloater* LLIMFloater::findInstance(const LLUUID& session_id)
 	return conversation;
 }
 
-LLIMFloater* LLIMFloater::getInstance(const LLUUID& session_id)
+LLIMFloater* LLIMFloater::getInstance(const LLUUID& session_id, LLConversationItemSession* session_root_model)
 {
 	LLIMFloater* conversation =
 				LLFloaterReg::getTypedInstance<LLIMFloater>("impanel", session_id);
 
+	conversation->setSessionRoot(session_root_model);
 	return conversation;
 }
 
@@ -1322,6 +1323,7 @@ void LLIMFloater::sRemoveTypingIndicator(const LLSD& data)
 	floater->removeTypingIndicator();
 }
 
+// CHUI-441 : We should not create a floater here but go through LLIMFLoaterContainer
 void LLIMFloater::onIMChicletCreated( const LLUUID& session_id )
 {
 	LLIMFloater::addToHost(session_id);

@@ -98,8 +98,8 @@ LLIMFloaterContainer::~LLIMFloaterContainer()
 
 void LLIMFloaterContainer::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
 {
-	LLIMFloater::addToHost(session_id, true);
-	addConversationListItem(session_id, true);
+	LLConversationItemSession* item = addConversationListItem(session_id, true);
+	LLIMFloater::addToHost(session_id, item, true);
 }
 
 void LLIMFloaterContainer::sessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
@@ -109,12 +109,13 @@ void LLIMFloaterContainer::sessionActivated(const LLUUID& session_id, const std:
 
 void LLIMFloaterContainer::sessionVoiceOrIMStarted(const LLUUID& session_id)
 {
-	LLIMFloater::addToHost(session_id, true);
-	addConversationListItem(session_id, true);
+	LLConversationItemSession* item = addConversationListItem(session_id, true);
+	LLIMFloater::addToHost(session_id, item, true);
 }
 
 void LLIMFloaterContainer::sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id)
 {
+	// CHUI-441 : We should do this *without* delete and recreate
 	addConversationListItem(new_session_id, removeConversationListItem(old_session_id));
 }
 
@@ -1167,11 +1168,11 @@ void LLIMFloaterContainer::setNearbyDistances()
 	}
 }
 
-void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid, bool isWidgetSelected /*= false*/)
+LLConversationItemSession* LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid, bool isWidgetSelected /*= false*/)
 {
 	bool is_nearby_chat = uuid.isNull();
 
-    //Stores the display name for the conversation line item
+    // Stores the display name for the conversation line item
 	std::string display_name = is_nearby_chat ? LLTrans::getString("NearbyChatLabel") : LLIMModel::instance().getName(uuid);
 
 	// Check if the item is not already in the list, exit if it is and has the same name and uuid (nothing to do)
@@ -1179,7 +1180,7 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid, bool isWi
 	conversations_items_map::iterator item_it = mConversationsItems.find(uuid);
 	if (item_it != mConversationsItems.end())
 	{
-		return;
+		return item_it->second;
 	}
 
 	// Remove the conversation item that might exist already: it'll be recreated anew further down anyway
@@ -1196,7 +1197,7 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid, bool isWi
 	if (!item)
 	{
 		llwarns << "Couldn't create conversation session item : " << display_name << llendl;
-		return;
+		return NULL;
 	}
 	item->renameItem(display_name);
 	item->updateParticipantName(NULL);
@@ -1234,7 +1235,7 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid, bool isWi
 	// scroll to newly added item
 	mConversationsRoot->scrollToShowSelection();
 
-	return;
+	return item;
 }
 
 bool LLIMFloaterContainer::removeConversationListItem(const LLUUID& uuid, bool change_focus)
