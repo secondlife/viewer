@@ -3942,7 +3942,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 		{
 			limit = mFMP->childGetValue("lod_triangle_limit_" + lod_name[which_lod]).asInteger();
 			//convert from "scene wide" to "non-instanced" triangle limit
-			limit *= triangle_ratio;
+			limit = (S32) ( (F32) limit*triangle_ratio );
 		}
 	}
 	else
@@ -4048,7 +4048,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 		U32 actual_verts = 0;
 		U32 submeshes = 0;
 
-		mRequestedTriangleCount[lod] = triangle_count/triangle_ratio;
+		mRequestedTriangleCount[lod] = (S32) ( (F32) triangle_count / triangle_ratio );
 		mRequestedErrorThreshold[lod] = lod_error_threshold;
 
 		glodGroupParameteri(mGroup, GLOD_ADAPT_MODE, lod_mode);
