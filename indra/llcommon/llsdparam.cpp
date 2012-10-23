@@ -329,7 +329,7 @@ namespace LLInitParam
 		p.writeValue<LLSD::String>(sd.asString(), name_stack);
 	}
 
-	void ParamValue<LLSD, TypeValues<LLSD>, false>::serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const BaseBlock* diff_block) const
+	void ParamValue<LLSD, TypeValues<LLSD>, false>::serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const BaseBlock* diff_block) const
 	{
 		// attempt to write LLSD out directly
 		if (!p.writeValue<LLSD>(mValue, name_stack))

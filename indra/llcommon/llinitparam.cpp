@@ -164,24 +164,37 @@ namespace LLInitParam
 
 	bool BaseBlock::validateBlock(bool emit_errors) const
 	{
-		const BlockDescriptor& block_data = mostDerivedBlockDescriptor();
-		for (BlockDescriptor::param_validation_list_t::const_iterator it = block_data.mValidationList.begin(); it != block_data.mValidationList.end(); ++it)
+		// only validate block when it hasn't already passed validation with current data
+		if (!mValidated)
 		{
-			const Param* param = getParamFromHandle(it->first);
-			if (!it->second(param))
+			const BlockDescriptor& block_data = mostDerivedBlockDescriptor();
+			for (BlockDescriptor::param_validation_list_t::const_iterator it = block_data.mValidationList.begin(); it != block_data.mValidationList.end(); ++it)
 			{
-				if (emit_errors)
+				const Param* param = getParamFromHandle(it->first);
+				if (!it->second(param))
 				{
-					llwarns << "Invalid param \"" << getParamName(block_data, param) << "\"" << llendl;
+					if (emit_errors)
+					{
+						llwarns << "Invalid param \"" << getParamName(block_data, param) << "\"" << llendl;
+					}
+					return false;
 				}
-				return false;
 			}
+			mValidated = true;
 		}
-		return true;
+		return mValidated;
 	}
 
-	void BaseBlock::serializeBlock(Parser& parser, Parser::name_stack_t& name_stack, const LLInitParam::BaseBlock* diff_block) const
+	void BaseBlock::serializeBlock(Parser& parser, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const LLInitParam::BaseBlock* diff_block) const
 	{
+		if (!isProvided())
+		{
+			if ((~predicate_rule_t(PROVIDED) && predicate_rule).isTriviallyFalse())
+			{
+				return;
+			}
+		}
+
 		// named param is one like LLView::Params::follows
 		// unnamed param is like LLView::Params::rect - implicit
 		const BlockDescriptor& block_data = mostDerivedBlockDescriptor();
@@ -196,7 +209,7 @@ namespace LLInitParam
 			if (serialize_func)
 			{
 				const Param* diff_param = diff_block ? diff_block->getParamFromHandle(param_handle) : NULL;
-				serialize_func(*param, parser, name_stack, diff_param);
+				serialize_func(*param, parser, name_stack, predicate_rule, diff_param);
 			}
 		}
 
@@ -232,7 +245,7 @@ namespace LLInitParam
 
 				name_stack.push_back(std::make_pair(it->first, !duplicate));
 				const Param* diff_param = diff_block ? diff_block->getParamFromHandle(param_handle) : NULL;
-				serialize_func(*param, parser, name_stack, diff_param);
+				serialize_func(*param, parser, name_stack, predicate_rule, diff_param);
 				name_stack.pop_back();
 			}
 		}

@@ -77,6 +77,7 @@ set(llcommon_SOURCE_FILES
     llmutex.cpp
     lloptioninterface.cpp
     llptrto.cpp 
+    llpredicate.cpp
     llprocess.cpp
     llprocessor.cpp
     llqueuedthread.cpp
@@ -205,6 +206,7 @@ set(llcommon_HEADER_FILES
     llnametable.h
     lloptioninterface.h
     llpointer.h
+    llpredicate.h
     llpreprocessor.h
     llpriqueuemap.h
     llprocess.h
