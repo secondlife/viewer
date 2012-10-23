@@ -32,7 +32,6 @@
 #include <boost/function.hpp>
 #include <boost/type_traits/is_convertible.hpp>
 #include <boost/unordered_map.hpp>
-//#include <boost/shared_ptr.hpp>
 
 #include "llerror.h"
 #include "llstl.h"
@@ -314,7 +313,7 @@ namespace LLInitParam
 
 		typedef bool(*merge_func_t)(Param&, const Param&, bool);
 		typedef bool(*deserialize_func_t)(Param&, Parser&, const Parser::name_stack_range_t&, bool);
-		typedef void(*serialize_func_t)(const Param&, Parser&, Parser::name_stack_t&, const predicate_rule_t, const Param*);
+		typedef bool(*serialize_func_t)(const Param&, Parser&, Parser::name_stack_t&, const predicate_rule_t, const Param*);
 		typedef void(*inspect_func_t)(const Param&, Parser&, Parser::name_stack_t&, S32, S32);
 		typedef bool(*validation_func_t)(const Param*);
 
@@ -546,7 +545,7 @@ namespace LLInitParam
 		}
 
 		bool deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack_range, bool new_name);
-		void serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const predicate_rule_t rule = predicate_rule_t(), const BaseBlock* diff_block = NULL) const;
+		bool serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const predicate_rule_t rule = predicate_rule_t(), const BaseBlock* diff_block = NULL) const;
 		bool inspectBlock(Parser& p, Parser::name_stack_t name_stack = Parser::name_stack_t(), S32 min_count = 0, S32 max_count = S32_MAX) const;
 
 		virtual const BlockDescriptor& mostDerivedBlockDescriptor() const { return selfBlockDescriptor(); }
@@ -906,8 +905,9 @@ namespace LLInitParam
 			return false;
 		}
 
-		static void serializeParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const Param* diff_param)
+		static bool serializeParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const Param* diff_param)
 		{
+			bool serialized = false;
 			const self_t& typed_param = static_cast<const self_t&>(param);
 			const self_t* diff_typed_param = static_cast<const self_t*>(diff_param);
 
@@ -925,7 +925,7 @@ namespace LLInitParam
 				}
 			}
 
-			if (!predicate_rule.check(predicate)) return;
+			if (!predicate_rule.check(predicate)) return false;
 
 			if (!name_stack.empty())
 			{
@@ -940,21 +940,23 @@ namespace LLInitParam
 			{
 				if (!diff_typed_param || !ParamCompare<std::string>::equals(diff_typed_param->getValueName(), key))
 				{
-					parser.writeValue(key, name_stack);
+					serialized = parser.writeValue(key, name_stack);
 				}
 			}
 			// then try to serialize value directly
 			else if (!diff_typed_param || ParamCompare<T>::equals(typed_param.getValue(), diff_typed_param->getValue()))
 			{
-				if (!parser.writeValue(typed_param.getValue(), name_stack)) 
+				serialized = parser.writeValue(typed_param.getValue(), name_stack);
+				if (!serialized) 
 				{
 					std::string calculated_key = typed_param.calcValueName(typed_param.getValue());
 					if (!diff_typed_param || !ParamCompare<std::string>::equals(diff_typed_param->getValueName(), calculated_key))
 					{
-						parser.writeValue(calculated_key, name_stack);
+						serialized = parser.writeValue(calculated_key, name_stack);
 					}
 				}
 			}
+			return serialized;
 		}
 
 		static void inspectParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, S32 min_count, S32 max_count)
@@ -1066,7 +1068,7 @@ namespace LLInitParam
 			return false;
 		}
 
-		static void serializeParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const Param* diff_param)
+		static bool serializeParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const Param* diff_param)
 		{
 			const self_t& typed_param = static_cast<const self_t&>(param);
 			const self_t* diff_typed_param = static_cast<const self_t*>(diff_param);
@@ -1085,7 +1087,7 @@ namespace LLInitParam
 				}
 			}
 
-			if (!predicate_rule.check(predicate)) return;
+			if (!predicate_rule.check(predicate)) return false;
 
 			if (!name_stack.empty())
 			{
@@ -1095,15 +1097,17 @@ namespace LLInitParam
 			std::string key = typed_param.getValueName();
 			if (!key.empty())
 			{
-				if (!parser.writeValue(key, name_stack))
+				if (parser.writeValue(key, name_stack))
 				{
-					return;
+					return true;
 				}
 			}
 			else
 			{
-				typed_param.serializeBlock(parser, name_stack, predicate_rule, static_cast<const self_t*>(diff_param));
+				return typed_param.serializeBlock(parser, name_stack, predicate_rule, static_cast<const self_t*>(diff_param));
 			}
+			
+			return false;
 		}
 
 		static void inspectParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, S32 min_count, S32 max_count)
@@ -1263,10 +1267,11 @@ namespace LLInitParam
 			return false;
 		}
 
-		static void serializeParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const Param* diff_param)
+		static bool serializeParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const Param* diff_param)
 		{
+			bool serialized = false;
 			const self_t& typed_param = static_cast<const self_t&>(param);
-			if (!typed_param.isProvided()) return;
+			if (!typed_param.isProvided()) return false;
 
 			for (const_iterator it = typed_param.mValues.begin(), end_it = typed_param.mValues.end();
 				it != end_it;
@@ -1282,7 +1287,11 @@ namespace LLInitParam
 					if (!value_written)
 					{
 						std::string calculated_key = it->calcValueName(it->getValue());
-						if (!parser.writeValue(calculated_key, name_stack))
+						if (parser.writeValue(calculated_key, name_stack))
+						{
+							serialized = true;
+						}
+						else
 						{
 							break;
 						}
@@ -1290,7 +1299,11 @@ namespace LLInitParam
 				}
 				else 
 				{
-					if(!parser.writeValue(key, name_stack))
+					if(parser.writeValue(key, name_stack))
+					{
+						serialized = true;
+					}
+					else
 					{
 						break;
 					}
@@ -1298,6 +1311,7 @@ namespace LLInitParam
 
 				name_stack.pop_back();
 			}
+			return serialized;
 		}
 
 		static void inspectParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, S32 min_count, S32 max_count)
@@ -1497,14 +1511,15 @@ namespace LLInitParam
 			return false;
 		}
 
-		static void serializeParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const Param* diff_param)
+		static bool serializeParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const Param* diff_param)
 		{
+			bool serialized = false;
 			const self_t& typed_param = static_cast<const self_t&>(param);
 
 			LLPredicate::Value<ESerializePredicates> predicate_value;
 			if (typed_param.isProvided()) predicate_value.set(PROVIDED);
 			
-			if (!typed_param.isProvided()) return;
+			if (!typed_param.isProvided()) return false;
 
 			for (const_iterator it = typed_param.mValues.begin(), end_it = typed_param.mValues.end();
 				it != end_it;
@@ -1515,17 +1530,18 @@ namespace LLInitParam
 				std::string key = it->getValueName();
 				if (!key.empty())
 				{
-					parser.writeValue(key, name_stack);
+					serialized |= parser.writeValue(key, name_stack);
 				}
 				// Not parsed via named values, write out value directly
 				// NOTE: currently we don't do diffing of Multiples
 				else 
 				{
-					it->serializeBlock(parser, name_stack, predicate_rule, NULL);
+					serialized = it->serializeBlock(parser, name_stack, predicate_rule, NULL);
 				}
 
 				name_stack.pop_back();
 			}
+			return serialized;
 		}
 
 		static void inspectParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, S32 min_count, S32 max_count)
@@ -2109,11 +2125,11 @@ namespace LLInitParam
 			return mValue.get().deserializeBlock(p, name_stack_range, new_name);
 		}
 
-		void serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const BaseBlock* diff_block = NULL) const
+		bool serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const BaseBlock* diff_block = NULL) const
 		{
-			if (mValue.empty()) return;
+			if (mValue.empty()) return false;
 			
-			mValue.get().serializeBlock(p, name_stack, predicate_rule, diff_block);
+			return mValue.get().serializeBlock(p, name_stack, predicate_rule, diff_block);
 		}
 
 		bool inspectBlock(Parser& p, Parser::name_stack_t name_stack = Parser::name_stack_t(), S32 min_count = 0, S32 max_count = S32_MAX) const
@@ -2156,7 +2172,7 @@ namespace LLInitParam
 
 		// block param interface
 		LL_COMMON_API bool deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack_range, bool new_name);
-		LL_COMMON_API void serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const BaseBlock* diff_block = NULL) const;
+		LL_COMMON_API bool serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const BaseBlock* diff_block = NULL) const;
 		bool inspectBlock(Parser& p, Parser::name_stack_t name_stack = Parser::name_stack_t(), S32 min_count = 0, S32 max_count = S32_MAX) const
 		{
 			//TODO: implement LLSD params as schema type Any
@@ -2215,7 +2231,7 @@ namespace LLInitParam
 			return typed_param.BaseBlock::deserializeBlock(parser, name_stack_range, new_name);
 		}
 
-		void serializeBlock(Parser& parser, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const BaseBlock* diff_block = NULL) const
+		bool serializeBlock(Parser& parser, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const BaseBlock* diff_block = NULL) const
 		{
 			const derived_t& typed_param = static_cast<const derived_t&>(*this);
 			const derived_t* diff_param = static_cast<const derived_t*>(diff_block);
@@ -2227,14 +2243,18 @@ namespace LLInitParam
 			{
 				if (!diff_param || !ParamCompare<std::string>::equals(diff_param->getValueName(), key))
 				{
-					parser.writeValue(key, name_stack);
+					return parser.writeValue(key, name_stack);
 				}
 			}
 			// then try to serialize value directly
 			else if (!diff_param || !ParamCompare<T>::equals(typed_param.getValue(), diff_param->getValue()))
             {
 				
-				if (!parser.writeValue(typed_param.getValue(), name_stack)) 
+				if (parser.writeValue(typed_param.getValue(), name_stack)) 
+				{
+					return true;
+				}
+				else
 				{
 					//RN: *always* serialize provided components of BlockValue (don't pass diff_param on),
 					// since these tend to be viewed as the constructor arguments for the value T.  It seems
@@ -2251,14 +2271,15 @@ namespace LLInitParam
 						// and serialize those params
 						derived_t copy(typed_param);
 						copy.updateBlockFromValue(true);
-						copy.block_t::serializeBlock(parser, name_stack, predicate_rule, NULL);
+						return copy.block_t::serializeBlock(parser, name_stack, predicate_rule, NULL);
 					}
 					else
 					{
-						block_t::serializeBlock(parser, name_stack, predicate_rule, NULL);
+						return block_t::serializeBlock(parser, name_stack, predicate_rule, NULL);
 					}
 				}
 			}
+			return false;
 		}
 
 		bool inspectBlock(Parser& parser, Parser::name_stack_t name_stack = Parser::name_stack_t(), S32 min_count = 0, S32 max_count = S32_MAX) const

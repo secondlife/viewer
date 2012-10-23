@@ -167,34 +167,34 @@ namespace LLInitParam
 		// only validate block when it hasn't already passed validation with current data
 		if (!mValidated)
 		{
-			const BlockDescriptor& block_data = mostDerivedBlockDescriptor();
-			for (BlockDescriptor::param_validation_list_t::const_iterator it = block_data.mValidationList.begin(); it != block_data.mValidationList.end(); ++it)
+		const BlockDescriptor& block_data = mostDerivedBlockDescriptor();
+		for (BlockDescriptor::param_validation_list_t::const_iterator it = block_data.mValidationList.begin(); it != block_data.mValidationList.end(); ++it)
+		{
+			const Param* param = getParamFromHandle(it->first);
+			if (!it->second(param))
 			{
-				const Param* param = getParamFromHandle(it->first);
-				if (!it->second(param))
+				if (emit_errors)
 				{
-					if (emit_errors)
-					{
-						llwarns << "Invalid param \"" << getParamName(block_data, param) << "\"" << llendl;
-					}
-					return false;
+					llwarns << "Invalid param \"" << getParamName(block_data, param) << "\"" << llendl;
 				}
+				return false;
 			}
+		}
 			mValidated = true;
 		}
 		return mValidated;
 	}
 
-	void BaseBlock::serializeBlock(Parser& parser, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const LLInitParam::BaseBlock* diff_block) const
+	bool BaseBlock::serializeBlock(Parser& parser, Parser::name_stack_t& name_stack, const LLInitParam::BaseBlock* diff_block) const
 	{
+		bool serialized = false;
 		if (!isProvided())
 		{
 			if ((~predicate_rule_t(PROVIDED) && predicate_rule).isTriviallyFalse())
 			{
-				return;
+				return false;
 			}
 		}
-
 		// named param is one like LLView::Params::follows
 		// unnamed param is like LLView::Params::rect - implicit
 		const BlockDescriptor& block_data = mostDerivedBlockDescriptor();
@@ -206,10 +206,10 @@ namespace LLInitParam
 			param_handle_t param_handle = (*it)->mParamHandle;
 			const Param* param = getParamFromHandle(param_handle);
 			ParamDescriptor::serialize_func_t serialize_func = (*it)->mSerializeFunc;
-			if (serialize_func)
+			if (serialize_func && param->anyProvided())
 			{
 				const Param* diff_param = diff_block ? diff_block->getParamFromHandle(param_handle) : NULL;
-				serialize_func(*param, parser, name_stack, predicate_rule, diff_param);
+				serialized |= serialize_func(*param, parser, name_stack, predicate_rule, diff_param);
 			}
 		}
 
@@ -245,10 +245,13 @@ namespace LLInitParam
 
 				name_stack.push_back(std::make_pair(it->first, !duplicate));
 				const Param* diff_param = diff_block ? diff_block->getParamFromHandle(param_handle) : NULL;
-				serialize_func(*param, parser, name_stack, predicate_rule, diff_param);
+				serialized |= serialize_func(*param, parser, name_stack, predicate_rule, diff_param);
 				name_stack.pop_back();
 			}
 		}
+
+		// was anything serialized in this block?
+		return serialized;
 	}
 
 	bool BaseBlock::inspectBlock(Parser& parser, Parser::name_stack_t name_stack, S32 min_count, S32 max_count) const
@@ -367,7 +370,7 @@ namespace LLInitParam
 	}
 
 	//static 
-	void BaseBlock::addParam(BlockDescriptor& block_data, const ParamDescriptorPtr in_param, const char* char_name)
+	void BaseBlock::addParam(BlockDescriptor& block_data, ParamDescriptorPtr in_param, const char* char_name)
 	{
 		// create a copy of the param descriptor in mAllParams
 		// so other data structures can store a pointer to it
