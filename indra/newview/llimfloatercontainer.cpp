@@ -348,10 +348,10 @@ LLIMFloaterContainer* LLIMFloaterContainer::getInstance()
 	return LLFloaterReg::getTypedInstance<LLIMFloaterContainer>("im_container");
 }
 
+// Returns a pointer to the session model if found, NULL otherwise.
 LLConversationItemSession* LLIMFloaterContainer::getSessionModel(const LLUUID& session_id)
 {
-	LLConversationItemSession* session_model = dynamic_cast<LLConversationItemSession*>(mConversationsItems[session_id]);
-	return session_model;
+	return (mConversationsItems.find(session_id) != mConversationsItems.end() ? dynamic_cast<LLConversationItemSession*>(mConversationsItems[session_id]) : NULL);
 }
 
 void LLIMFloaterContainer::setMinimized(BOOL b)
@@ -454,7 +454,7 @@ bool LLIMFloaterContainer::onConversationModelEvent(const LLSD& event)
 	{
 		if (!participant_view)
 		{
-			LLConversationItemSession* session_model = dynamic_cast<LLConversationItemSession*>(mConversationsItems[session_id]);
+			LLConversationItemSession* session_model = getSessionModel(session_id);
 			if (session_model)
 			{
 				LLConversationItemParticipant* participant_model = session_model->findParticipant(participant_id);
@@ -1137,47 +1137,39 @@ void LLIMFloaterContainer::setItemSelect(const LLUUID& session_id)
 
 void LLIMFloaterContainer::setTimeNow(const LLUUID& session_id, const LLUUID& participant_id)
 {
-	conversations_items_map::iterator item_it = mConversationsItems.find(session_id);
-	if (item_it != mConversationsItems.end())
+	LLConversationItemSession* item = getSessionModel(session_id);
+	if (item)
 	{
-		LLConversationItemSession* item = dynamic_cast<LLConversationItemSession*>(item_it->second);
-		if (item)
-		{
-			item->setTimeNow(participant_id);
-			mConversationViewModel.requestSortAll();
-			mConversationsRoot->arrangeAll();
-		}
+		item->setTimeNow(participant_id);
+		mConversationViewModel.requestSortAll();
+		mConversationsRoot->arrangeAll();
 	}
 }
 
 void LLIMFloaterContainer::setNearbyDistances()
 {
-	// Get the nearby chat session: that's the one with uuid nul in mConversationsItems
-	conversations_items_map::iterator item_it = mConversationsItems.find(LLUUID());
-	if (item_it != mConversationsItems.end())
+	// Get the nearby chat session: that's the one with uuid nul
+	LLConversationItemSession* item = getSessionModel(LLUUID());
+	if (item)
 	{
-		LLConversationItemSession* item = dynamic_cast<LLConversationItemSession*>(item_it->second);
-		if (item)
+		// Get the positions of the nearby avatars and their ids
+		std::vector<LLVector3d> positions;
+		uuid_vec_t avatar_ids;
+		LLWorld::getInstance()->getAvatars(&avatar_ids, &positions, gAgent.getPositionGlobal(), gSavedSettings.getF32("NearMeRange"));
+		// Get the position of the agent
+		const LLVector3d& me_pos = gAgent.getPositionGlobal();
+		// For each nearby avatar, compute and update the distance
+		int avatar_count = positions.size();
+		for (int i = 0; i < avatar_count; i++)
 		{
-			// Get the positions of the nearby avatars and their ids
-			std::vector<LLVector3d> positions;
-			uuid_vec_t avatar_ids;
-			LLWorld::getInstance()->getAvatars(&avatar_ids, &positions, gAgent.getPositionGlobal(), gSavedSettings.getF32("NearMeRange"));
-			// Get the position of the agent
-			const LLVector3d& me_pos = gAgent.getPositionGlobal();
-			// For each nearby avatar, compute and update the distance
-			int avatar_count = positions.size();
-			for (int i = 0; i < avatar_count; i++)
-			{
-				F64 dist = dist_vec_squared(positions[i], me_pos);
-				item->setDistance(avatar_ids[i],dist);
-			}
-			// Also does it for the agent itself
-			item->setDistance(gAgent.getID(),0.0f);
-			// Request resort
-			mConversationViewModel.requestSortAll();
-			mConversationsRoot->arrangeAll();
+			F64 dist = dist_vec_squared(positions[i], me_pos);
+			item->setDistance(avatar_ids[i],dist);
 		}
+		// Also does it for the agent itself
+		item->setDistance(gAgent.getID(),0.0f);
+		// Request resort
+		mConversationViewModel.requestSortAll();
+		mConversationsRoot->arrangeAll();
 	}
 }
 
@@ -1188,14 +1180,12 @@ LLConversationItem* LLIMFloaterContainer::addConversationListItem(const LLUUID& 
     // Stores the display name for the conversation line item
 	std::string display_name = is_nearby_chat ? LLTrans::getString("NearbyChatLabel") : LLIMModel::instance().getName(uuid);
 
-	// Check if the item is not already in the list, exit if it is and has the same name and uuid (nothing to do)
+	// Check if the item is not already in the list, exit (nothing to do)
 	// Note: this happens often, when reattaching a torn off conversation for instance
 	conversations_items_map::iterator item_it = mConversationsItems.find(uuid);
 	if (item_it != mConversationsItems.end())
 	{
-		llinfos << "Merov debug : addConversationListItem, item already present -> exit, id = " << uuid << llendl;
-		// HACK!!! DO NOT COMMIT!! Understand why this thing is already present...
-		//return item_it->second;
+		return item_it->second;
 	}
 
 	// Remove the conversation item that might exist already: it'll be recreated anew further down anyway
