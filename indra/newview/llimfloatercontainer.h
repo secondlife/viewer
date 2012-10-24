@@ -138,6 +138,7 @@ private:
 	void moderateVoiceAllParticipants(bool unmute);
 	void moderateVoiceParticipant(const LLUUID& avatar_id, bool unmute);
 	void toggleAllowTextChat(const LLUUID& participant_uuid);
+	void openNearbyChat();
 
 	LLButton* mExpandCollapseBtn;
 	LLLayoutPanel* mMessagesPane;

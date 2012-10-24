@@ -222,6 +222,7 @@ BOOL LLIMFloaterContainer::postBuild()
 void LLIMFloaterContainer::onOpen(const LLSD& key)
 {
 	LLMultiFloater::onOpen(key);
+	openNearbyChat();
 }
 
 // virtual
@@ -508,6 +509,7 @@ void LLIMFloaterContainer::setVisible(BOOL visible)
 			LLSD name("nearby_chat");
 			LLFloaterReg::toggleInstanceOrBringToFront(name);
 		}
+		openNearbyChat();
 	}
 
 	nearby_chat = LLFloaterReg::findTypedInstance<LLNearbyChat>("nearby_chat");
@@ -1488,6 +1490,20 @@ void LLIMFloaterContainer::toggleAllowTextChat(const LLUUID& participant_uuid)
 	if (NULL != speaker_managerp)
 	{
 		speaker_managerp->toggleAllowTextChat(participant_uuid);
+	}
+}
+
+void LLIMFloaterContainer::openNearbyChat()
+{
+	// If there's only one conversation in the container and that conversation is the nearby chat
+	//(which it should be...), open it so to make the list of participants visible. This happens to be the most common case when opening the Chat floater.
+	if(mConversationsItems.size() == 1)
+	{
+		LLConversationViewSession* nearby_chat = dynamic_cast<LLConversationViewSession*>(mConversationsWidgets[LLUUID()]);
+		if (nearby_chat)
+		{
+			nearby_chat->setOpen(TRUE);
+		}
 	}
 }
 
