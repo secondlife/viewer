@@ -228,7 +228,9 @@ void LLViewerTextureList::shutdown()
 		if (!image->hasGLTexture() ||
 			!image->getUseDiscard() ||
 			image->needsAux() ||
-			image->getTargetHost() != LLHost::invalid)
+			image->getTargetHost() != LLHost::invalid ||
+			!image->getUrl().empty()
+			)
 		{
 			continue; // avoid UI, baked, and other special images
 		}
