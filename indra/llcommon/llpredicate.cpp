@@ -30,4 +30,18 @@
 namespace LLPredicate
 {
 	EmptyRule make_rule() { return EmptyRule(); }
+
+	int predicateFlagsFromValue(int value)
+	{
+		llassert(value < 5);
+		static const int predicates[5] = 
+		{
+			0xAAAAaaaa, //  10101010101010101010101010101010
+			0xCCCCcccc, //  11001100110011001100110011001100
+			0xF0F0F0F0, //  11110000111100001111000011110000
+			0xFF00FF00, //  11111111000000001111111100000000
+			0xFFFF0000  //  11111111111111110000000000000000 
+		};
+		return predicates[value];
+	}
 }

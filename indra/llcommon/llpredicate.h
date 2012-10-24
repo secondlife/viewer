@@ -33,21 +33,21 @@ namespace LLPredicate
 {
 	template<typename ENUM> class Rule;
 
+	int predicateFlagsFromValue(int value);
+
 	template<typename ENUM>
 	struct Value
 	{
 		friend Rule<ENUM>;
 	public:
 		Value(ENUM e)
-		:	mPredicateFlags(0x1),
-			mPredicateCombinationFlags(0x1)
+		:	mPredicateCombinationFlags(0x1)
 		{
 			add(e);
 		}
 
 		Value()
-		:	mPredicateFlags(0x1),
-			mPredicateCombinationFlags(0x1)
+		:	mPredicateCombinationFlags(0x1)
 		{}
 
 		void add(ENUM predicate)
@@ -55,39 +55,42 @@ namespace LLPredicate
 			llassert(predicate < 5);
 			if (!has(predicate))
 			{
-				int predicate_flag = 0x1 << (0x1 << (int)predicate);
-				mPredicateCombinationFlags *= predicate_flag;
-				mPredicateFlags |= predicate_flag;
+				int predicate_shift = 0x1 << (int)predicate;
+				mPredicateCombinationFlags <<= predicate_shift;
 			}
 		}
 
 		void remove(ENUM predicate)
 		{
 			llassert(predicate < 5);
-			int predicate_flag = 0x1 << (0x1 << (int)predicate);
-			if (mPredicateFlags & predicate_flag)
-			{
-				mPredicateCombinationFlags /= predicate_flag;
-				mPredicateFlags &= ~predicate_flag;
-			}
+			int predicate_shift = 0x1 << (int)predicate;
+			int flag_mask = predicateFlagsFromValue(predicate);
+			int flags_to_modify = mPredicateCombinationFlags & flag_mask;
+			// clear flags containing predicate to be removed
+			mPredicateCombinationFlags &= ~flag_mask;
+			// shift flags, in effect removing predicate
+			flags_to_modify >>= predicate_shift;
+			// put modified flags back
+			mPredicateCombinationFlags |= flags_to_modify;
 		}
 
 		void unknown(ENUM predicate)
 		{
 			add(predicate);
-			int predicate_shift = 0x1 << (int)predicate;
-			mPredicateCombinationFlags |= mPredicateCombinationFlags << predicate_shift;
+			int flags_with_predicate = mPredicateCombinationFlags;
+			remove(predicate);
+			// unknown is result of adding and removing predicate at the same time!
+			mPredicateCombinationFlags |= flags_with_predicate;
 		}
 
 		bool has(ENUM predicate)
 		{
-			int predicate_flag = 0x1 << (0x1 << (int)predicate);
-			return (mPredicateFlags & predicate_flag) != 0;
+			int flag_mask = predicateFlagsFromValue(predicate);
+			return (mPredicateCombinationFlags & flag_mask) != 0;
 		}
 
 	private:
 		int mPredicateCombinationFlags;
-		int mPredicateFlags;
 	};
 
 	struct EmptyRule {};
@@ -97,7 +100,7 @@ namespace LLPredicate
 	{
 	public:
 		Rule(ENUM value)
-		:	mPredicateRequirements(predicateFromValue(value))
+		:	mPredicateRequirements(predicateFlagsFromValue(value))
 		{}
 
 		Rule()
@@ -128,20 +131,6 @@ namespace LLPredicate
 		bool check(const Value<ENUM>& value) const
 		{
 			return ((value.mPredicateCombinationFlags | 0x1) & mPredicateRequirements) != 0;
-		}
-
-		static int predicateFromValue(ENUM value)
-		{
-			llassert(value < 5);
-			static const int predicates[5] = 
-			{
-				0xAAAAaaaa, //  10101010101010101010101010101010
-				0xCCCCcccc, //  11001100110011001100110011001100
-				0xF0F0F0F0, //  11110000111100001111000011110000
-				0xFF00FF00, //  11111111000000001111111100000000
-				0xFFFF0000  //  11111111111111110000000000000000 
-			};
-			return predicates[value];
 		}
 
 		bool isTriviallyTrue() const
