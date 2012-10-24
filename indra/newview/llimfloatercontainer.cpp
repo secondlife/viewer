@@ -1089,6 +1089,12 @@ bool LLIMFloaterContainer::checkContextMenuItem(const LLSD& userdata)
     return false;
 }
 
+void LLIMFloaterContainer::showConversation(const LLUUID& session_id)
+{
+    setVisibleAndFrontmost(false);
+    setConvItemSelect(session_id);    
+}
+
 //Will select only the conversation item
 void LLIMFloaterContainer::setConvItemSelect(const LLUUID& session_id)
 {
