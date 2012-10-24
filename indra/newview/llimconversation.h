@@ -35,6 +35,7 @@
 #include "lleventtimer.h"
 #include "llimview.h"
 #include "llconversationmodel.h"
+#include "llconversationview.h"
 
 class LLPanelChatControlPanel;
 class LLChatEntry;
@@ -114,10 +115,16 @@ protected:
 
 	LLIMModel::LLIMSession* mSession;
 
-	LLLayoutPanel* mParticipantListPanel;
-	LLParticipantList* mParticipantList;
-	LLUUID mSessionID;
+	// Participants list: model and view
+	LLConversationViewParticipant* createConversationViewParticipant(LLConversationItem* item);
+	
+	LLUUID mSessionID; 
+	LLLayoutPanel* mParticipantListPanel;	// add the widgets to that see mConversationsListPanel
+	//LLParticipantList* mParticipantList; get this from the mConversationsItems for the moment
+	LLParticipantList* getParticipantList();
+	conversations_widgets_map mConversationsWidgets;
 	LLConversationViewModel mConversationViewModel;
+	LLFolderView* mConversationsRoot;
 
 	LLChatHistory* mChatHistory;
 	LLChatEntry* mInputEditor;

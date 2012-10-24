@@ -582,10 +582,11 @@ void LLIMFloater::onParticipantsListChanged(LLUICtrl* ctrl)
 	}
 }
 
-void LLIMFloater::addToHost(const LLUUID& session_id, LLConversationItemSession* session_root_model, const bool force)
+void LLIMFloater::addToHost(const LLUUID& session_id, const bool force)
 {
 	if (!LLIMConversation::isChatMultiTab() || !gIMMgr->hasSession(session_id))
 	{
+		llinfos << "Merov debug : addToHost, not added! multitab = " << LLIMConversation::isChatMultiTab() << ", has session = " << gIMMgr->hasSession(session_id) << llendl;
 		return;
 	}
 
@@ -593,11 +594,13 @@ void LLIMFloater::addToHost(const LLUUID& session_id, LLConversationItemSession*
 	bool exist = findInstance(session_id);
 
 	// Get the floater: this will create the instance if it didn't exist
-	LLIMFloater* floater = getInstance(session_id, session_root_model);
+	LLIMFloater* floater = getInstance(session_id);
 	if (floater)
 	{
 
 		LLIMFloaterContainer* floater_container = LLIMFloaterContainer::getInstance();
+
+		llinfos << "Merov debug : addToHost, done! exist = " << exist << llendl;
 
 		// Do not add again existing floaters
 		if (!exist)
@@ -672,12 +675,11 @@ LLIMFloater* LLIMFloater::findInstance(const LLUUID& session_id)
 	return conversation;
 }
 
-LLIMFloater* LLIMFloater::getInstance(const LLUUID& session_id, LLConversationItemSession* session_root_model)
+LLIMFloater* LLIMFloater::getInstance(const LLUUID& session_id)
 {
 	LLIMFloater* conversation =
 				LLFloaterReg::getTypedInstance<LLIMFloater>("impanel", session_id);
 
-	conversation->setSessionRoot(session_root_model);
 	return conversation;
 }
 

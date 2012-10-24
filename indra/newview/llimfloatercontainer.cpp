@@ -98,8 +98,10 @@ LLIMFloaterContainer::~LLIMFloaterContainer()
 
 void LLIMFloaterContainer::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
 {
-	LLConversationItemSession* item = addConversationListItem(session_id, true);
-	LLIMFloater::addToHost(session_id, item, true);
+	llinfos << "Merov debug : sessionAdded, adding LLIMFloater, id = " << session_id << llendl;
+	LLIMFloater::addToHost(session_id, true);
+	llinfos << "Merov debug : sessionAdded, adding conversation item, id = " << session_id << llendl;
+	addConversationListItem(session_id, true);
 }
 
 void LLIMFloaterContainer::sessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
@@ -109,8 +111,10 @@ void LLIMFloaterContainer::sessionActivated(const LLUUID& session_id, const std:
 
 void LLIMFloaterContainer::sessionVoiceOrIMStarted(const LLUUID& session_id)
 {
-	LLConversationItemSession* item = addConversationListItem(session_id, true);
-	LLIMFloater::addToHost(session_id, item, true);
+	llinfos << "Merov debug : sessionVoiceOrIMStarted, adding LLIMFloater, id = " << session_id << llendl;
+	LLIMFloater::addToHost(session_id, true);
+	llinfos << "Merov debug : sessionVoiceOrIMStarted, adding conversation item, id = " << session_id << llendl;
+	addConversationListItem(session_id, true);
 }
 
 void LLIMFloaterContainer::sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id)
@@ -129,6 +133,7 @@ void LLIMFloaterContainer::onCurrentChannelChanged(const LLUUID& session_id)
 {
     if (session_id != LLUUID::null)
     {
+		llinfos << "Merov debug : onCurrentChannelChanged, LLIMFloater::show, id = " << session_id << llendl;
     	LLIMFloater::show(session_id);
     }
 }
@@ -341,6 +346,12 @@ LLIMFloaterContainer* LLIMFloaterContainer::findInstance()
 LLIMFloaterContainer* LLIMFloaterContainer::getInstance()
 {
 	return LLFloaterReg::getTypedInstance<LLIMFloaterContainer>("im_container");
+}
+
+LLConversationItemSession* LLIMFloaterContainer::getSessionModel(const LLUUID& session_id)
+{
+	LLConversationItemSession* session_model = dynamic_cast<LLConversationItemSession*>(mConversationsItems[session_id]);
+	return session_model;
 }
 
 void LLIMFloaterContainer::setMinimized(BOOL b)
@@ -813,6 +824,7 @@ void LLIMFloaterContainer::getParticipantUUIDs(uuid_vec_t& selected_uuids)
     //When a one-on-one conversation exists, retrieve the participant id from the conversation floater
     else if(conversationItem->getType() == LLConversationItem::CONV_SESSION_1_ON_1)
     {
+		llinfos << "Merov debug : getParticipantUUIDs, LLIMFloater::findInstance, id = " << conversationItem->getUUID() << llendl;
         LLIMFloater *conversationFloater = LLIMFloater::findInstance(conversationItem->getUUID());
         LLUUID participantID = conversationFloater->getOtherParticipantUUID();
         selected_uuids.push_back(participantID);
@@ -888,6 +900,7 @@ void LLIMFloaterContainer::doToSelectedConversation(const std::string& command, 
 {
     //Find the conversation floater associated with the selected id
     const LLConversationItem * conversationItem = getCurSelectedViewModelItem();
+	llinfos << "Merov debug : doToSelectedConversation, LLIMFloater::findInstance, id = " << conversationItem->getUUID() << llendl;
     LLIMFloater *conversationFloater = LLIMFloater::findInstance(conversationItem->getUUID());
 
     if(conversationFloater)
@@ -1168,7 +1181,7 @@ void LLIMFloaterContainer::setNearbyDistances()
 	}
 }
 
-LLConversationItemSession* LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid, bool isWidgetSelected /*= false*/)
+LLConversationItem* LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid, bool isWidgetSelected /*= false*/)
 {
 	bool is_nearby_chat = uuid.isNull();
 
@@ -1180,7 +1193,9 @@ LLConversationItemSession* LLIMFloaterContainer::addConversationListItem(const L
 	conversations_items_map::iterator item_it = mConversationsItems.find(uuid);
 	if (item_it != mConversationsItems.end())
 	{
-		return item_it->second;
+		llinfos << "Merov debug : addConversationListItem, item already present -> exit, id = " << uuid << llendl;
+		// HACK!!! DO NOT COMMIT!! Understand why this thing is already present...
+		//return item_it->second;
 	}
 
 	// Remove the conversation item that might exist already: it'll be recreated anew further down anyway
@@ -1196,6 +1211,7 @@ LLConversationItemSession* LLIMFloaterContainer::addConversationListItem(const L
 	}
 	if (!item)
 	{
+		llinfos << "Merov debug : Couldn't create conversation session item : " << display_name << llendl;
 		llwarns << "Couldn't create conversation session item : " << display_name << llendl;
 		return NULL;
 	}

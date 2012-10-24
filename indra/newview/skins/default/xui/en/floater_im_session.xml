@@ -158,18 +158,6 @@
       width="150" 
       height="310" 
       auto_resize="false">
-            <avatar_list
-             color="DkGray2"
-             follows="all"
-             height="310"
-             ignore_online_status="true"
-        layout="topleft"
-             name="speakers_list"
-             opaque="false"
-             show_info_btn="true"
-             show_profile_btn="false"
-             show_speaking_indicator="false"
-             width="150" />
       </layout_panel>
     <layout_panel
        default_tab_group="3"

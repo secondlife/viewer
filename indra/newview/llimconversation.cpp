@@ -49,7 +49,7 @@ LLIMConversation::LLIMConversation(const LLSD& session_id)
   ,  mTearOffBtn(NULL)
   ,  mCloseBtn(NULL)
   ,  mSessionID(session_id.asUUID())
-  , mParticipantList(NULL)
+//  , mParticipantList(NULL)
   , mChatHistory(NULL)
   , mInputEditor(NULL)
   , mInputEditorTopPad(0)
@@ -73,11 +73,13 @@ LLIMConversation::LLIMConversation(const LLSD& session_id)
 
 LLIMConversation::~LLIMConversation()
 {
+	/*
 	if (mParticipantList)
 	{
 		delete mParticipantList;
 		mParticipantList = NULL;
 	}
+	 */
 
 	delete mRefreshTimer;
 }
@@ -127,11 +129,41 @@ BOOL LLIMConversation::postBuild()
 	mExpandCollapseBtn = getChild<LLButton>("expand_collapse_btn");
 	mExpandCollapseBtn->setClickedCallback(boost::bind(&LLIMConversation::onSlide, this));
 
-	mParticipantListPanel = getChild<LLLayoutPanel>("speakers_list_panel");
-
 	mTearOffBtn = getChild<LLButton>("tear_off_btn");
 	mTearOffBtn->setCommitCallback(boost::bind(&LLIMConversation::onTearOffClicked, this));
 
+	mParticipantListPanel = getChild<LLLayoutPanel>("speakers_list_panel");
+	
+	// Create a root view folder for all participants
+	LLConversationItem* base_item = new LLConversationItem(mConversationViewModel);
+    LLFolderView::Params p(LLUICtrlFactory::getDefaultParams<LLFolderView>());
+    //p.name = getName();
+    //p.title = getLabel();
+    p.rect = LLRect(0, 0, getRect().getWidth(), 0);
+    p.parent_panel = mParticipantListPanel;
+    //p.tool_tip = p.name;
+    p.listener = base_item;
+    p.view_model = &mConversationViewModel;
+    p.root = NULL;
+    p.use_ellipses = true;
+    //p.options_menu = "menu_conversation.xml";
+	mConversationsRoot = LLUICtrlFactory::create<LLFolderView>(p);
+    mConversationsRoot->setCallbackRegistrar(&mCommitCallbackRegistrar);
+	
+	// Add a scroller for the folder (participant) view
+	LLRect scroller_view_rect = mParticipantListPanel->getRect();
+	scroller_view_rect.translate(-scroller_view_rect.mLeft, -scroller_view_rect.mBottom);
+	LLScrollContainer::Params scroller_params(LLUICtrlFactory::getDefaultParams<LLFolderViewScrollContainer>());
+	scroller_params.rect(scroller_view_rect);
+	LLScrollContainer* scroller = LLUICtrlFactory::create<LLFolderViewScrollContainer>(scroller_params);
+	scroller->setFollowsAll();
+	mParticipantListPanel->addChild(scroller);
+	scroller->addChild(mConversationsRoot);
+	mConversationsRoot->setScrollContainer(scroller);
+	mConversationsRoot->setFollowsAll();
+	mConversationsRoot->addChild(mConversationsRoot->mStatusTextBox);
+	
+	
 	mChatHistory = getChild<LLChatHistory>("chat_history");
 
 	mInputEditor = getChild<LLChatEntry>("chat_editor");
@@ -167,15 +199,20 @@ BOOL LLIMConversation::postBuild()
 	return result;
 }
 
+LLParticipantList* LLIMConversation::getParticipantList()
+{
+	return dynamic_cast<LLParticipantList*>(LLIMFloaterContainer::getInstance()->getSessionModel(mSessionID));
+}
+
 void LLIMConversation::draw()
 {
 	LLTransientDockableFloater::draw();
 
 	if (mRefreshTimer->hasExpired())
 	{
-		if (mParticipantList)
+		if (getParticipantList())
 		{
-			mParticipantList->update();
+			getParticipantList()->update();
 		}
 
 		refresh();
@@ -274,6 +311,7 @@ void LLIMConversation::appendMessage(const LLChat& chat, const LLSD &args)
 
 void LLIMConversation::buildParticipantList()
 {
+	/*
 	if (mIsNearbyChat)
 	{
 		LLLocalSpeakerMgr* speaker_manager = LLLocalSpeakerMgr::getInstance();
@@ -289,13 +327,57 @@ void LLIMConversation::buildParticipantList()
 			mParticipantList = new LLParticipantList(speaker_manager, getChild<LLAvatarList>("speakers_list"), mConversationViewModel, true, false);
 		}
 	}
-	updateHeaderAndToolbar();
+	*/
+
+	// Create the participants widgets now
+	// Note: inspired from LLIMFloaterContainer::addConversationListItem()
+	LLParticipantList* item = getParticipantList();
+	if (!item)
+	{
+		llinfos << "Merov debug : buildParticipantList, no list!" << llendl;
+		return;
+	}
+	LLFolderViewModelItemCommon::child_list_t::const_iterator current_participant_model = item->getChildrenBegin();
+	LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = item->getChildrenEnd();
+	while (current_participant_model != end_participant_model)
+	{
+		LLConversationItem* participant_model = dynamic_cast<LLConversationItem*>(*current_participant_model);
+		LLConversationViewParticipant* participant_view = createConversationViewParticipant(participant_model);
+		participant_view->addToFolder(mConversationsRoot);	// ! Not sure about that. TBC...
+		participant_view->setVisible(TRUE);
+		current_participant_model++;
+	}
+	
+	//updateHeaderAndToolbar();
+}
+
+// Copied from LLIMFloaterContainer::createConversationViewParticipant(). Refactor opportunity!
+LLConversationViewParticipant* LLIMConversation::createConversationViewParticipant(LLConversationItem* item)
+{
+	LLConversationViewParticipant::Params params;
+    LLRect panel_rect = mParticipantListPanel->getRect();
+	
+	params.name = item->getDisplayName();
+	//params.icon = bridge->getIcon();
+	//params.icon_open = bridge->getOpenIcon();
+	//params.creation_date = bridge->getCreationDate();
+	params.root = mConversationsRoot;
+	params.listener = item;
+	
+    //24 is the the current hight of an item (itemHeight) loaded from conversation_view_participant.xml.
+	params.rect = LLRect (0, 24, panel_rect.getWidth(), 0);
+	params.tool_tip = params.name;
+	params.participant_id = item->getUUID();
+	
+	llinfos << "Merov debug : LLIMConversation, create participant, name = " << item->getDisplayName() << llendl;
+	
+	return LLUICtrlFactory::create<LLConversationViewParticipant>(params);
 }
 
 void LLIMConversation::onSortMenuItemClicked(const LLSD& userdata)
 {
 	// TODO: Check this code when sort order menu will be added. (EM)
-	if (!mParticipantList)
+	if (!getParticipantList())
 	{
 		return;
 	}
@@ -304,7 +386,7 @@ void LLIMConversation::onSortMenuItemClicked(const LLSD& userdata)
 
 	if (chosen_item == "sort_name")
 	{
-		mParticipantList->setSortOrder(LLParticipantList::E_SORT_BY_NAME);
+		getParticipantList()->setSortOrder(LLParticipantList::E_SORT_BY_NAME);
 	}
 
 }

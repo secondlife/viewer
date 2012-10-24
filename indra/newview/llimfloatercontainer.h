@@ -92,6 +92,7 @@ public:
 	LLConversationViewModel& getRootViewModel() { return mConversationViewModel; }
     LLUUID getSelectedSession() { return mSelectedSession; }
     void setSelectedSession(LLUUID sessionID) { mSelectedSession = sessionID; }
+	LLConversationItemSession* getSessionModel(const LLUUID& session_id);
 
 private:
 	typedef std::map<LLUUID,LLFloater*> avatarID_panel_map_t;
@@ -151,7 +152,7 @@ private:
 	// Conversation list implementation
 public:
 	bool removeConversationListItem(const LLUUID& uuid, bool change_focus = true);
-	LLConversationItemSession* addConversationListItem(const LLUUID& uuid, bool isWidgetSelected = false);
+	LLConversationItem* addConversationListItem(const LLUUID& uuid, bool isWidgetSelected = false);
 	void setTimeNow(const LLUUID& session_id, const LLUUID& participant_id);
 	void setNearbyDistances();
 
