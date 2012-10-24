@@ -33,7 +33,7 @@ namespace LLPredicate
 {
 	template<typename ENUM> class Rule;
 
-	int predicateFlagsFromValue(int value);
+	S32 predicateFlagsFromValue(S32 value);
 
 	template<typename ENUM>
 	struct Value
@@ -41,31 +41,35 @@ namespace LLPredicate
 		friend Rule<ENUM>;
 	public:
 		Value(ENUM e)
-		:	mPredicateCombinationFlags(0x1)
+		:	mPredicateCombinationFlags(0xFFFFffff)
 		{
 			add(e);
 		}
 
 		Value()
-		:	mPredicateCombinationFlags(0x1)
+		:	mPredicateCombinationFlags(0xFFFFffff)
 		{}
 
 		void add(ENUM predicate)
 		{
 			llassert(predicate < 5);
-			if (!has(predicate))
-			{
-				int predicate_shift = 0x1 << (int)predicate;
-				mPredicateCombinationFlags <<= predicate_shift;
-			}
+			S32 predicate_shift = 0x1 << (S32)predicate;
+			S32 flag_mask = predicateFlagsFromValue(predicate);
+			S32 flags_to_modify = mPredicateCombinationFlags & ~flag_mask;
+			// clear flags containing predicate to be removed
+			mPredicateCombinationFlags &= ~flag_mask;
+			// shift flags, in effect removing predicate
+			flags_to_modify <<= predicate_shift;
+			// put modified flags back
+			mPredicateCombinationFlags |= flags_to_modify;
 		}
 
 		void remove(ENUM predicate)
 		{
 			llassert(predicate < 5);
-			int predicate_shift = 0x1 << (int)predicate;
-			int flag_mask = predicateFlagsFromValue(predicate);
-			int flags_to_modify = mPredicateCombinationFlags & flag_mask;
+			S32 predicate_shift = 0x1 << (S32)predicate;
+			S32 flag_mask = predicateFlagsFromValue(predicate);
+			S32 flags_to_modify = mPredicateCombinationFlags & flag_mask;
 			// clear flags containing predicate to be removed
 			mPredicateCombinationFlags &= ~flag_mask;
 			// shift flags, in effect removing predicate
@@ -77,7 +81,7 @@ namespace LLPredicate
 		void unknown(ENUM predicate)
 		{
 			add(predicate);
-			int flags_with_predicate = mPredicateCombinationFlags;
+			S32 flags_with_predicate = mPredicateCombinationFlags;
 			remove(predicate);
 			// unknown is result of adding and removing predicate at the same time!
 			mPredicateCombinationFlags |= flags_with_predicate;
@@ -85,12 +89,12 @@ namespace LLPredicate
 
 		bool has(ENUM predicate)
 		{
-			int flag_mask = predicateFlagsFromValue(predicate);
+			S32 flag_mask = predicateFlagsFromValue(predicate);
 			return (mPredicateCombinationFlags & flag_mask) != 0;
 		}
 
 	private:
-		int mPredicateCombinationFlags;
+		S32 mPredicateCombinationFlags;
 	};
 
 	struct EmptyRule {};
@@ -144,7 +148,7 @@ namespace LLPredicate
 		}
 
 	private:
-		int mPredicateRequirements;
+		S32 mPredicateRequirements;
 	};
 
 	template<typename ENUM>

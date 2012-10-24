@@ -31,10 +31,10 @@ namespace LLPredicate
 {
 	EmptyRule make_rule() { return EmptyRule(); }
 
-	int predicateFlagsFromValue(int value)
+	S32 predicateFlagsFromValue(S32 value)
 	{
 		llassert(value < 5);
-		static const int predicates[5] = 
+		static const S32 predicates[5] = 
 		{
 			0xAAAAaaaa, //  10101010101010101010101010101010
 			0xCCCCcccc, //  11001100110011001100110011001100
