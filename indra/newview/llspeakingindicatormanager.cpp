@@ -241,7 +241,7 @@ void SpeakingIndicatorManager::switchSpeakerIndicators(const speaker_ids_t& spea
 			BOOL switch_current_on = switch_on;
 
 			// we should show indicator for specified voice session only if this is current channel. EXT-5562.
-			if (switch_current_on && indicator->getTargetSessionID().notNull())
+			if (switch_current_on)
 			{
 				switch_current_on = indicator->getTargetSessionID() == session_id;
 				LL_DEBUGS("SpeakingIndicator") << "Session: " << session_id << ", target: " << indicator->getTargetSessionID() << ", the same? = " << switch_current_on << LL_ENDL;
