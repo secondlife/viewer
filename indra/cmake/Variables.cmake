@@ -70,10 +70,6 @@ endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(LINUX ON BOOl FORCE)
 
-  if (INSTALL_PROPRIETARY)
-    set(BUILD_HEADLESS ON CACHE BOOL "Build headless libraries.")
-  endif (INSTALL_PROPRIETARY)
-
   # If someone has specified a word size, use that to determine the
   # architecture.  Otherwise, let the architecture specify the word size.
   if (WORD_SIZE EQUAL 32)
@@ -97,18 +93,37 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
   if (WORD_SIZE EQUAL 32)
     set(DEB_ARCHITECTURE i386)
+    set(FIND_LIBRARY_USE_LIB64_PATHS OFF)
+    set(CMAKE_SYSTEM_LIBRARY_PATH /usr/lib32 ${CMAKE_SYSTEM_LIBRARY_PATH})
   else (WORD_SIZE EQUAL 32)
     set(DEB_ARCHITECTURE amd64)
+    set(FIND_LIBRARY_USE_LIB64_PATHS ON)
   endif (WORD_SIZE EQUAL 32)
 
-  execute_process(COMMAND dpkg-architecture -a${DEB_ARCHITECTURE} -qDEB_HOST_MULTIARCH RESULT_VARIABLE DPKG_RESULT OUTPUT_VARIABLE DPKG_ARCH OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
+  execute_process(COMMAND dpkg-architecture -a${DEB_ARCHITECTURE} -qDEB_HOST_MULTIARCH 
+      RESULT_VARIABLE DPKG_RESULT
+      OUTPUT_VARIABLE DPKG_ARCH
+      OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
   #message (STATUS "DPKG_RESULT ${DPKG_RESULT}, DPKG_ARCH ${DPKG_ARCH}")
   if (DPKG_RESULT EQUAL 0)
     set(CMAKE_LIBRARY_ARCHITECTURE ${DPKG_ARCH})
+    set(CMAKE_SYSTEM_LIBRARY_PATH /usr/lib/${DPKG_ARCH} /usr/local/lib/${DPKG_ARCH} ${CMAKE_SYSTEM_LIBRARY_PATH})
   endif (DPKG_RESULT EQUAL 0)
+
+  include(ConfigurePkgConfig)
 
   set(LL_ARCH ${ARCH}_linux)
   set(LL_ARCH_DIR ${ARCH}-linux)
+
+  if (INSTALL_PROPRIETARY)
+    # Only turn on headless if we can find osmesa libraries.
+    include(FindPkgConfig)
+    pkg_check_modules(OSMESA osmesa)
+    if (OSMESA_FOUND)
+      set(BUILD_HEADLESS ON CACHE BOOL "Build headless libraries.")
+    endif (OSMESA_FOUND)
+  endif (INSTALL_PROPRIETARY)
+
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
