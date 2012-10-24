@@ -914,14 +914,15 @@ namespace LLInitParam
 			LLPredicate::Value<ESerializePredicates> predicate;
 			if (!diff_typed_param || ParamCompare<T>::equals(typed_param.getValue(), diff_typed_param->getValue()))
 			{
-				predicate.set(NON_DEFAULT);
+				predicate.add(NON_DEFAULT);
 			}
+			predicate.unknown(REQUIRED);
 			if (typed_param.isValid())
 			{
-				predicate.set(VALID);
+				predicate.add(VALID);
 				if (typed_param.anyProvided())
 				{
-					predicate.set(PROVIDED);
+					predicate.add(PROVIDED);
 				}
 			}
 
@@ -1071,19 +1072,17 @@ namespace LLInitParam
 		static bool serializeParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const Param* diff_param)
 		{
 			const self_t& typed_param = static_cast<const self_t&>(param);
-			const self_t* diff_typed_param = static_cast<const self_t*>(diff_param);
 
 			LLPredicate::Value<ESerializePredicates> predicate;
-			if (!diff_typed_param || ParamCompare<T>::equals(typed_param.getValue(), diff_typed_param->getValue()))
-			{
-				predicate.set(NON_DEFAULT);
-			}
+			predicate.unknown(NON_DEFAULT);
+			predicate.unknown(REQUIRED);
+
 			if (typed_param.isValid())
 			{
-				predicate.set(VALID);
+				predicate.add(VALID);
 				if (typed_param.anyProvided())
 				{
-					predicate.set(PROVIDED);
+					predicate.add(PROVIDED);
 				}
 			}
 
@@ -1271,7 +1270,29 @@ namespace LLInitParam
 		{
 			bool serialized = false;
 			const self_t& typed_param = static_cast<const self_t&>(param);
-			if (!typed_param.isProvided()) return false;
+			
+			LLPredicate::Value<ESerializePredicates> predicate;
+			predicate.unknown(NON_DEFAULT);
+
+			if (typed_param.mMinCount > 0)
+			{
+				predicate.add(REQUIRED);
+			}
+			else
+			{
+				predicate.unknown(REQUIRED);
+			}
+
+			if (typed_param.isValid())
+			{
+				predicate.add(VALID);
+				if (typed_param.anyProvided())
+				{
+					predicate.add(PROVIDED);
+				}
+			}
+
+			if (!predicate_rule.check(predicate)) return false;
 
 			for (const_iterator it = typed_param.mValues.begin(), end_it = typed_param.mValues.end();
 				it != end_it;
@@ -1516,10 +1537,28 @@ namespace LLInitParam
 			bool serialized = false;
 			const self_t& typed_param = static_cast<const self_t&>(param);
 
-			LLPredicate::Value<ESerializePredicates> predicate_value;
-			if (typed_param.isProvided()) predicate_value.set(PROVIDED);
-			
-			if (!typed_param.isProvided()) return false;
+			LLPredicate::Value<ESerializePredicates> predicate;
+			predicate.unknown(NON_DEFAULT);
+
+			if (typed_param.mMinCount > 0)
+			{
+				predicate.add(REQUIRED);
+			}
+			else
+			{
+				predicate.unknown(REQUIRED);
+			}
+
+			if (typed_param.isValid())
+			{
+				predicate.add(VALID);
+				if (typed_param.anyProvided())
+				{
+					predicate.add(PROVIDED);
+				}
+			}
+
+			if (!predicate_rule.check(predicate)) return false;
 
 			for (const_iterator it = typed_param.mValues.begin(), end_it = typed_param.mValues.end();
 				it != end_it;

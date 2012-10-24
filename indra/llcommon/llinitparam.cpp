@@ -185,7 +185,7 @@ namespace LLInitParam
 		return mValidated;
 	}
 
-	bool BaseBlock::serializeBlock(Parser& parser, Parser::name_stack_t& name_stack, const LLInitParam::BaseBlock* diff_block) const
+	bool BaseBlock::serializeBlock(Parser& parser, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const LLInitParam::BaseBlock* diff_block) const
 	{
 		bool serialized = false;
 		if (!isProvided())

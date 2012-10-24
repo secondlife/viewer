@@ -865,7 +865,7 @@ void LLXUIParser::writeXUI(LLXMLNodePtr node, const LLInitParam::BaseBlock &bloc
 {
 	mWriteRootNode = node;
 	name_stack_t name_stack = Parser::name_stack_t();
-	block.serializeBlock(*this, name_stack, diff_block);
+	block.serializeBlock(*this, name_stack, LLPredicate::Rule<LLInitParam::ESerializePredicates>(), diff_block);
 	mOutNodes.clear();
 }
 

@@ -42,40 +42,47 @@ namespace LLPredicate
 		:	mPredicateFlags(0x1),
 			mPredicateCombinationFlags(0x1)
 		{
-			set(e);
+			add(e);
 		}
 
 		Value()
-			:	mPredicateFlags(0x1),
+		:	mPredicateFlags(0x1),
 			mPredicateCombinationFlags(0x1)
 		{}
 
-		void set(ENUM predicate)
+		void add(ENUM predicate)
 		{
-			llassert(predicate <= 5);
-			int predicate_flag = 0x1 << (0x1 << (int)predicate);
-			if (!(mPredicateFlags & predicate_flag))
+			llassert(predicate < 5);
+			if (!has(predicate))
 			{
+				int predicate_flag = 0x1 << (0x1 << (int)predicate);
 				mPredicateCombinationFlags *= predicate_flag;
 				mPredicateFlags |= predicate_flag;
 			}
 		}
 
-		bool get(ENUM predicate)
+		void remove(ENUM predicate)
 		{
-			int predicate_flag = 0x1 << (0x1 << (int)predicate);
-			return (mPredicateFlags & predicate_flag) != 0;
-		}
-
-		void clear(ENUM predicate)
-		{
-			llassert(predicate <= 5);
+			llassert(predicate < 5);
 			int predicate_flag = 0x1 << (0x1 << (int)predicate);
 			if (mPredicateFlags & predicate_flag)
 			{
 				mPredicateCombinationFlags /= predicate_flag;
 				mPredicateFlags &= ~predicate_flag;
 			}
+		}
+
+		void unknown(ENUM predicate)
+		{
+			add(predicate);
+			int predicate_shift = 0x1 << (int)predicate;
+			mPredicateCombinationFlags |= mPredicateCombinationFlags << predicate_shift;
+		}
+
+		bool has(ENUM predicate)
+		{
+			int predicate_flag = 0x1 << (0x1 << (int)predicate);
+			return (mPredicateFlags & predicate_flag) != 0;
 		}
 
 	private:
@@ -89,16 +96,12 @@ namespace LLPredicate
 	class Rule
 	{
 	public:
-		Rule(EmptyRule e)
-			:	mPredicateRequirements(0x1)
-		{}
-
 		Rule(ENUM value)
-			:	mPredicateRequirements(predicateFromValue(value))
+		:	mPredicateRequirements(predicateFromValue(value))
 		{}
 
 		Rule()
-			:	mPredicateRequirements(0x1)
+		:	mPredicateRequirements(0x1)
 		{}
 
 		Rule operator~()
@@ -129,25 +132,16 @@ namespace LLPredicate
 
 		static int predicateFromValue(ENUM value)
 		{
-			int countdown = value;
-			bool bit_val = false;
-
-			int predicate = 0x0;
-
-			for (int bit_index = 0; bit_index < 32; bit_index++)
+			llassert(value < 5);
+			static const int predicates[5] = 
 			{
-				if (bit_val)
-				{
-					predicate |= 0x1 << bit_index;
-				}
-
-				if (countdown-- == 0)
-				{
-					countdown = value;
-					bit_val = !bit_val;
-				}
-			}
-			return predicate;
+				0xAAAAaaaa, //  10101010101010101010101010101010
+				0xCCCCcccc, //  11001100110011001100110011001100
+				0xF0F0F0F0, //  11110000111100001111000011110000
+				0xFF00FF00, //  11111111000000001111111100000000
+				0xFFFF0000  //  11111111111111110000000000000000 
+			};
+			return predicates[value];
 		}
 
 		bool isTriviallyTrue() const
@@ -167,6 +161,7 @@ namespace LLPredicate
 	template<typename ENUM>
 	Rule<ENUM> make_rule(ENUM e) { return Rule<ENUM>(e);}
 
+	// return generic empty rule class to avoid requiring template argument to create an empty rule
 	EmptyRule make_rule();
 
 }
