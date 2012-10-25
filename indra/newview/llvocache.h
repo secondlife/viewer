@@ -54,7 +54,7 @@ public:
 	LLVOCacheEntry(LLAPRFile* apr_file);
 	LLVOCacheEntry();	
 
-	void setState(U32 state) {mState = state;}
+	void setState(U32 state);
 	bool isState(U32 state)  {return mState == state;}
 	U32  getState() const    {return mState;}
 
@@ -92,6 +92,8 @@ protected:
 	LLDataPackerBinaryBuffer	mDP;
 	U8							*mBuffer;
 
+	S32                         mVisFrameRange;
+	S32                         mRepeatedVisCounter; //number of repeatedly visible within a short time.
 	U32                         mState;
 	std::vector<LLVOCacheEntry*> mChildrenList; //children entries in a linked set.
 };

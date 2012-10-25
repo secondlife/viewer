@@ -54,7 +54,9 @@ LLVOCacheEntry::LLVOCacheEntry(U32 local_id, U32 crc, LLDataPackerBinaryBuffer &
 	mHitCount(0),
 	mDupeCount(0),
 	mCRCChangeCount(0),
-	mState(INACTIVE)
+	mState(INACTIVE),
+	mRepeatedVisCounter(0),
+	mVisFrameRange(64)
 {
 	mBuffer = new U8[dp.getBufferSize()];
 	mDP.assignBuffer(mBuffer, dp.getBufferSize());
@@ -69,7 +71,9 @@ LLVOCacheEntry::LLVOCacheEntry()
 	mDupeCount(0),
 	mCRCChangeCount(0),
 	mBuffer(NULL),
-	mState(INACTIVE)
+	mState(INACTIVE),
+	mRepeatedVisCounter(0),
+	mVisFrameRange(64)
 {
 	mDP.assignBuffer(mBuffer, 0);
 }
@@ -77,7 +81,9 @@ LLVOCacheEntry::LLVOCacheEntry()
 LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 	: LLViewerOctreeEntryData(LLViewerOctreeEntry::LLVOCACHEENTRY), 
 	mBuffer(NULL),
-	mState(INACTIVE)
+	mState(INACTIVE),
+	mRepeatedVisCounter(0),
+	mVisFrameRange(64)
 {
 	S32 size = -1;
 	BOOL success;
@@ -167,12 +173,41 @@ void LLVOCacheEntry::setOctreeEntry(LLViewerOctreeEntry* entry)
 	LLViewerOctreeEntryData::setOctreeEntry(entry);
 }
 
+void LLVOCacheEntry::setState(U32 state)
+{
+	mState = state;
+
+	if(mState == ACTIVE)
+	{
+		const S32 MIN_REAVTIVE_INTERVAL = 20;
+		U32 last_visible = getVisible();
+		
+		setVisible();
+
+		if(getVisible() - last_visible < MIN_REAVTIVE_INTERVAL + mVisFrameRange)
+		{
+			mRepeatedVisCounter++;
+		}
+		else
+		{
+			mRepeatedVisCounter = 0;
+			mVisFrameRange = 64;
+		}
+
+		if(mRepeatedVisCounter > 2) 
+		{
+			//if repeatedly becomes visible immediately after invisible, enlarge the visible frame range
+
+			mRepeatedVisCounter = 0;
+			mVisFrameRange *= 2;
+		}
+	}
+}
+
 //virtual 
 S32  LLVOCacheEntry::getMinVisFrameRange()const
 {
-	const S32 MIN_RANGE = 64; //frames
-
-	return MIN_RANGE;
+	return mVisFrameRange;
 }
 
 void LLVOCacheEntry::addChild(LLVOCacheEntry* entry)
