@@ -92,7 +92,7 @@ public:
 	LLConversationViewModel& getRootViewModel() { return mConversationViewModel; }
     LLUUID getSelectedSession() { return mSelectedSession; }
     void setSelectedSession(LLUUID sessionID) { mSelectedSession = sessionID; }
-	LLConversationItemSession* getSessionModel(const LLUUID& session_id);
+	LLConversationItem* getSessionModel(const LLUUID& session_id) { return get_ptr_in_map(mConversationsItems,session_id); }
 
 private:
 	typedef std::map<LLUUID,LLFloater*> avatarID_panel_map_t;

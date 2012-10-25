@@ -348,12 +348,6 @@ LLIMFloaterContainer* LLIMFloaterContainer::getInstance()
 	return LLFloaterReg::getTypedInstance<LLIMFloaterContainer>("im_container");
 }
 
-// Returns a pointer to the session model if found, NULL otherwise.
-LLConversationItemSession* LLIMFloaterContainer::getSessionModel(const LLUUID& session_id)
-{
-	return (mConversationsItems.find(session_id) != mConversationsItems.end() ? dynamic_cast<LLConversationItemSession*>(mConversationsItems[session_id]) : NULL);
-}
-
 void LLIMFloaterContainer::setMinimized(BOOL b)
 {
 	if (isMinimized() == b) return;
@@ -432,7 +426,7 @@ bool LLIMFloaterContainer::onConversationModelEvent(const LLSD& event)
 	LLUUID session_id = event.get("session_uuid").asUUID();
 	LLUUID participant_id = event.get("participant_uuid").asUUID();
 
-	LLConversationViewSession* session_view = dynamic_cast<LLConversationViewSession*>(mConversationsWidgets[session_id]);
+	LLConversationViewSession* session_view = dynamic_cast<LLConversationViewSession*>(get_ptr_in_map(mConversationsWidgets,session_id));
 	if (!session_view)
 	{
 		// We skip events that are not associated to a session
@@ -454,7 +448,7 @@ bool LLIMFloaterContainer::onConversationModelEvent(const LLSD& event)
 	{
 		if (!participant_view)
 		{
-			LLConversationItemSession* session_model = getSessionModel(session_id);
+			LLConversationItemSession* session_model = dynamic_cast<LLConversationItemSession*>(get_ptr_in_map(mConversationsItems,session_id));
 			if (session_model)
 			{
 				LLConversationItemParticipant* participant_model = session_model->findParticipant(participant_id);
@@ -1101,18 +1095,18 @@ bool LLIMFloaterContainer::checkContextMenuItem(const LLSD& userdata)
     return false;
 }
 
-//Will select only the conversation item
+// Will select only the conversation item
 void LLIMFloaterContainer::setConvItemSelect(const LLUUID& session_id)
 {
-	LLFolderViewItem* widget = mConversationsWidgets[session_id];
-	if (widget && mSelectedSession != session_id)
+	LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,session_id);
+	if (widget && (mSelectedSession != session_id))
 	{
 		mSelectedSession = session_id;
 		(widget->getRoot())->setSelection(widget, FALSE, FALSE);
 	}
 }
 
-//Will select the conversation/participant item
+// Will select the conversation/participant item
 void LLIMFloaterContainer::setItemSelect(const LLUUID& session_id)
 {
 
@@ -1125,7 +1119,7 @@ void LLIMFloaterContainer::setItemSelect(const LLUUID& session_id)
         if(session_id != vmi->getUUID())
         {
             mSelectedSession = session_id;
-            LLFolderViewItem* widget = mConversationsWidgets[session_id];
+			LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,session_id);
             (widget->getRoot())->setSelection(widget, FALSE, FALSE);
 
 			// Scroll to selected item
@@ -1137,7 +1131,7 @@ void LLIMFloaterContainer::setItemSelect(const LLUUID& session_id)
 
 void LLIMFloaterContainer::setTimeNow(const LLUUID& session_id, const LLUUID& participant_id)
 {
-	LLConversationItemSession* item = getSessionModel(session_id);
+	LLConversationItemSession* item = dynamic_cast<LLConversationItemSession*>(get_ptr_in_map(mConversationsItems,session_id));
 	if (item)
 	{
 		item->setTimeNow(participant_id);
@@ -1149,7 +1143,7 @@ void LLIMFloaterContainer::setTimeNow(const LLUUID& session_id, const LLUUID& pa
 void LLIMFloaterContainer::setNearbyDistances()
 {
 	// Get the nearby chat session: that's the one with uuid nul
-	LLConversationItemSession* item = getSessionModel(LLUUID());
+	LLConversationItemSession* item = dynamic_cast<LLConversationItemSession*>(get_ptr_in_map(mConversationsItems,LLUUID()));
 	if (item)
 	{
 		// Get the positions of the nearby avatars and their ids
@@ -1250,15 +1244,11 @@ bool LLIMFloaterContainer::removeConversationListItem(const LLUUID& uuid, bool c
 	// Note : since the mConversationsItems is also the listener to the widget, deleting 
 	// the widget will also delete its listener
 	bool isWidgetSelected = false;
-	conversations_widgets_map::iterator widget_it = mConversationsWidgets.find(uuid);
-	if (widget_it != mConversationsWidgets.end())
+	LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,uuid);
+	if (widget)
 	{
-		LLFolderViewItem* widget = widget_it->second;
-		if (widget)
-		{
-			isWidgetSelected = widget->isSelected();
-			widget->destroyView();
-		}
+		isWidgetSelected = widget->isSelected();
+		widget->destroyView();
 	}
 	
 	// Suppress the conversation items and widgets from their respective maps
