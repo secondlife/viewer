@@ -104,7 +104,7 @@ void LLIMFloaterContainer::sessionAdded(const LLUUID& session_id, const std::str
 
 void LLIMFloaterContainer::sessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
 {
-    setConvItemSelect(session_id);
+    selectConversation(session_id);
 }
 
 void LLIMFloaterContainer::sessionVoiceOrIMStarted(const LLUUID& session_id)
@@ -1092,11 +1092,11 @@ bool LLIMFloaterContainer::checkContextMenuItem(const LLSD& userdata)
 void LLIMFloaterContainer::showConversation(const LLUUID& session_id)
 {
     setVisibleAndFrontmost(false);
-    setConvItemSelect(session_id);    
+    selectConversation(session_id);    
 }
 
 //Will select only the conversation item
-void LLIMFloaterContainer::setConvItemSelect(const LLUUID& session_id)
+void LLIMFloaterContainer::selectConversation(const LLUUID& session_id)
 {
 	LLFolderViewItem* widget = mConversationsWidgets[session_id];
 	if (widget)
@@ -1210,7 +1210,7 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid, bool isWi
 
 	if (isWidgetSelected)
 	{
-		setConvItemSelect(uuid);
+		selectConversation(uuid);
 	}
 	
 	// set the widget to minimized mode if conversations pane is collapsed

@@ -67,7 +67,7 @@ public:
 								LLTabContainer::eInsertionPoint insertion_point = LLTabContainer::END);
     
     void showConversation(const LLUUID& session_id);
-    void setConvItemSelect(const LLUUID& session_id);
+    void selectConversation(const LLUUID& session_id);
 	/*virtual*/ void tabClose();
 
 	static LLFloater* getCurrentVoiceFloater();
