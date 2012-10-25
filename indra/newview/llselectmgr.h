@@ -769,8 +769,6 @@ private:
 	LLVector3				mGridOrigin;
 	LLVector3				mGridScale;
 	EGridMode				mGridMode;
-	BOOL					mGridValid;
-
 
 	BOOL					mTEMode;			// render te
 	LLVector3d				mSelectionCenterGlobal;

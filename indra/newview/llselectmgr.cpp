@@ -211,7 +211,6 @@ LLSelectMgr::LLSelectMgr()
 
 	mGridMode = GRID_MODE_WORLD;
 	gSavedSettings.setS32("GridMode", (S32)GRID_MODE_WORLD);
-	mGridValid = FALSE;
 
 	mSelectedObjects = new LLObjectSelection();
 	mHoverObjects = new LLObjectSelection();
@@ -1170,7 +1169,6 @@ void LLSelectMgr::setGridMode(EGridMode mode)
 	mGridMode = mode;
 	gSavedSettings.setS32("GridMode", mode);
 	updateSelectionCenter();
-	mGridValid = FALSE;
 }
 
 void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &scale)
@@ -1271,7 +1269,6 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
 	origin = mGridOrigin;
 	rotation = mGridRotation;
 	scale = mGridScale;
-	mGridValid = TRUE;
 }
 
 //-----------------------------------------------------------------------------
