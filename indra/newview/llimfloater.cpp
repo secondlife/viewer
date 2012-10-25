@@ -586,12 +586,8 @@ void LLIMFloater::addToHost(const LLUUID& session_id, const bool force)
 {
 	if (!LLIMConversation::isChatMultiTab() || !gIMMgr->hasSession(session_id))
 	{
-		llinfos << "Merov debug : addToHost, not added! multitab = " << LLIMConversation::isChatMultiTab() << ", has session = " << gIMMgr->hasSession(session_id) << llendl;
 		return;
 	}
-
-	// Test the existence of the floater before we try to create it
-	bool exist = findInstance(session_id);
 
 	// Get the floater: this will create the instance if it didn't exist
 	LLIMFloater* floater = getInstance(session_id);
@@ -600,10 +596,8 @@ void LLIMFloater::addToHost(const LLUUID& session_id, const bool force)
 
 		LLIMFloaterContainer* floater_container = LLIMFloaterContainer::getInstance();
 
-		llinfos << "Merov debug : addToHost, done! exist = " << exist << llendl;
-
-		// Do not add again existing floaters
-		if (!exist)
+		// Do not attach to the IM container if it's already attached
+		if (!getFloaterHost())
 		{
 			//		LLTabContainer::eInsertionPoint i_pt = user_initiated ? LLTabContainer::RIGHT_OF_CURRENT : LLTabContainer::END;
 			// TODO: mantipov: use LLTabContainer::RIGHT_OF_CURRENT if it exists

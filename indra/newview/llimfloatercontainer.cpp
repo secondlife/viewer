@@ -98,10 +98,10 @@ LLIMFloaterContainer::~LLIMFloaterContainer()
 
 void LLIMFloaterContainer::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
 {
-	llinfos << "Merov debug : sessionAdded, adding LLIMFloater, id = " << session_id << llendl;
-	LLIMFloater::addToHost(session_id, true);
 	llinfos << "Merov debug : sessionAdded, adding conversation item, id = " << session_id << llendl;
 	addConversationListItem(session_id, true);
+	llinfos << "Merov debug : sessionAdded, adding LLIMFloater, id = " << session_id << llendl;
+	LLIMFloater::addToHost(session_id, true);
 }
 
 void LLIMFloaterContainer::sessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
@@ -111,10 +111,10 @@ void LLIMFloaterContainer::sessionActivated(const LLUUID& session_id, const std:
 
 void LLIMFloaterContainer::sessionVoiceOrIMStarted(const LLUUID& session_id)
 {
-	llinfos << "Merov debug : sessionVoiceOrIMStarted, adding LLIMFloater, id = " << session_id << llendl;
-	LLIMFloater::addToHost(session_id, true);
 	llinfos << "Merov debug : sessionVoiceOrIMStarted, adding conversation item, id = " << session_id << llendl;
 	addConversationListItem(session_id, true);
+	llinfos << "Merov debug : sessionVoiceOrIMStarted, adding LLIMFloater, id = " << session_id << llendl;
+	LLIMFloater::addToHost(session_id, true);
 }
 
 void LLIMFloaterContainer::sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id)
@@ -1195,7 +1195,6 @@ LLConversationItem* LLIMFloaterContainer::addConversationListItem(const LLUUID& 
 	}
 	if (!item)
 	{
-		llinfos << "Merov debug : Couldn't create conversation session item : " << display_name << llendl;
 		llwarns << "Couldn't create conversation session item : " << display_name << llendl;
 		return NULL;
 	}
