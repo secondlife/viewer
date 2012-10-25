@@ -6416,9 +6416,8 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 
 	// Check for stale update.
 	if (isSelf()
-		&& isUsingServerBakes()
-		&& this_update_cof_version >= LLViewerInventoryCategory::VERSION_INITIAL
-		&& this_update_cof_version < last_update_request_cof_version)
+		&& (appearance_version>0)
+		&& (this_update_cof_version < last_update_request_cof_version))
 	{
 		llwarns << "Stale appearance update, wanted version " << last_update_request_cof_version
 				<< ", got " << this_update_cof_version << llendl;
