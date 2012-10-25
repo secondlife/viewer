@@ -104,7 +104,7 @@ void LLIMFloaterContainer::sessionAdded(const LLUUID& session_id, const std::str
 
 void LLIMFloaterContainer::sessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
 {
-    setItemSelect(session_id);
+    setConvItemSelect(session_id);
 }
 
 void LLIMFloaterContainer::sessionVoiceOrIMStarted(const LLUUID& session_id)
@@ -1099,33 +1099,10 @@ void LLIMFloaterContainer::showConversation(const LLUUID& session_id)
 void LLIMFloaterContainer::setConvItemSelect(const LLUUID& session_id)
 {
 	LLFolderViewItem* widget = mConversationsWidgets[session_id];
-	if (widget && mSelectedSession != session_id)
+	if (widget)
 	{
-		mSelectedSession = session_id;
 		(widget->getRoot())->setSelection(widget, FALSE, FALSE);
 	}
-}
-
-//Will select the conversation/participant item
-void LLIMFloaterContainer::setItemSelect(const LLUUID& session_id)
-{
-
-    if(mConversationsRoot->getCurSelectedItem() && mConversationsRoot->getCurSelectedItem()->getParentFolder())
-    {
-        //Retreive the conversation id. When a participant is selected, then have to to get the converation id from the parent.
-        LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(mConversationsRoot->getCurSelectedItem()->getParentFolder()->getViewModelItem());
-
-        //Will allow selection/highlighting of the conversation/participant
-        if(session_id != vmi->getUUID())
-        {
-            mSelectedSession = session_id;
-            LLFolderViewItem* widget = mConversationsWidgets[session_id];
-            (widget->getRoot())->setSelection(widget, FALSE, FALSE);
-
-			// Scroll to selected item
-			mConversationsRoot->scrollToShowSelection();
-        }
-    }
 }
 
 

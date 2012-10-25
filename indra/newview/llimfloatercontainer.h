@@ -68,7 +68,6 @@ public:
     
     void showConversation(const LLUUID& session_id);
     void setConvItemSelect(const LLUUID& session_id);
-    void setItemSelect(const LLUUID& session_id);
 	/*virtual*/ void tabClose();
 
 	static LLFloater* getCurrentVoiceFloater();
