@@ -273,7 +273,8 @@ void LLXMLNode::addChild(LLXMLNodePtr new_child, LLXMLNodePtr after_child)
 	new_child->mParent = this;
 	if (new_child->mIsAttribute)
 	{
-		mAttributes.insert(std::make_pair(new_child->mName, new_child));
+		std::pair<LLXMLAttribList::iterator, bool> result = mAttributes.insert(std::make_pair(new_child->mName, new_child));
+		llassert(result.second);
 	}
 	else
 	{

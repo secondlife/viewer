@@ -916,7 +916,6 @@ namespace LLInitParam
 			{
 				predicate.add(NON_DEFAULT);
 			}
-			predicate.unknown(REQUIRED);
 			if (typed_param.isValid())
 			{
 				predicate.add(VALID);
@@ -1074,8 +1073,6 @@ namespace LLInitParam
 			const self_t& typed_param = static_cast<const self_t&>(param);
 
 			LLPredicate::Value<ESerializePredicates> predicate;
-			predicate.unknown(NON_DEFAULT);
-			predicate.unknown(REQUIRED);
 
 			if (typed_param.isValid())
 			{
@@ -1272,15 +1269,10 @@ namespace LLInitParam
 			const self_t& typed_param = static_cast<const self_t&>(param);
 			
 			LLPredicate::Value<ESerializePredicates> predicate;
-			predicate.unknown(NON_DEFAULT);
 
 			if (typed_param.mMinCount > 0)
 			{
 				predicate.add(REQUIRED);
-			}
-			else
-			{
-				predicate.unknown(REQUIRED);
 			}
 
 			if (typed_param.isValid())
@@ -1538,15 +1530,10 @@ namespace LLInitParam
 			const self_t& typed_param = static_cast<const self_t&>(param);
 
 			LLPredicate::Value<ESerializePredicates> predicate;
-			predicate.unknown(NON_DEFAULT);
 
 			if (typed_param.mMinCount > 0)
 			{
 				predicate.add(REQUIRED);
-			}
-			else
-			{
-				predicate.unknown(REQUIRED);
 			}
 
 			if (typed_param.isValid())
