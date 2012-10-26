@@ -234,9 +234,9 @@ void LLConversationViewSession::toggleOpen()
 
 void LLConversationViewSession::selectItem()
 {
-	
-	LLConversationItem* item = dynamic_cast<LLConversationItem*>(mViewModelItem);
-	LLFloater* session_floater = LLIMConversation::getConversation(item->getUUID());
+	LLFolderViewModelItem* item = mViewModelItem;
+	LLUUID session_uuid = dynamic_cast<LLConversationItem*>(item)->getUUID();
+	LLFloater* session_floater = LLIMConversation::getConversation(session_uuid);
 	LLMultiFloater* host_floater = session_floater->getHost();
 	
 	if (host_floater == mContainer)
@@ -250,7 +250,7 @@ void LLConversationViewSession::selectItem()
 	// Set the focus on the selected floater
 	session_floater->setFocus(TRUE);
     // Store the active session
-    LLIMFloaterContainer::getInstance()->setSelectedSession(item->getUUID());
+    LLIMFloaterContainer::getInstance()->setSelectedSession(session_uuid);
 
 
 	LLFolderViewItem::selectItem();
@@ -272,8 +272,9 @@ void LLConversationViewSession::setVisibleIfDetached(BOOL visible)
 {
 	// Do this only if the conversation floater has been torn off (i.e. no multi floater host) and is not minimized
 	// Note: minimized dockable floaters are brought to front hence unminimized when made visible and we don't want that here
-	LLConversationItem* item = dynamic_cast<LLConversationItem*>(mViewModelItem);
-	LLFloater* session_floater = LLIMConversation::getConversation(item->getUUID());
+	LLFolderViewModelItem* item = mViewModelItem;
+	LLUUID session_uuid = dynamic_cast<LLConversationItem*>(item)->getUUID();
+	LLFloater* session_floater = LLIMConversation::getConversation(session_uuid);
 	
 	if (session_floater && !session_floater->getHost() && !session_floater->isMinimized())
 	{

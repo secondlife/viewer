@@ -98,9 +98,7 @@ LLIMFloaterContainer::~LLIMFloaterContainer()
 
 void LLIMFloaterContainer::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
 {
-	llinfos << "Merov debug : sessionAdded, adding conversation item, id = " << session_id << llendl;
 	addConversationListItem(session_id, true);
-	llinfos << "Merov debug : sessionAdded, adding LLIMFloater, id = " << session_id << llendl;
 	LLIMFloater::addToHost(session_id, true);
 }
 
@@ -111,9 +109,7 @@ void LLIMFloaterContainer::sessionActivated(const LLUUID& session_id, const std:
 
 void LLIMFloaterContainer::sessionVoiceOrIMStarted(const LLUUID& session_id)
 {
-	llinfos << "Merov debug : sessionVoiceOrIMStarted, adding conversation item, id = " << session_id << llendl;
 	addConversationListItem(session_id, true);
-	llinfos << "Merov debug : sessionVoiceOrIMStarted, adding LLIMFloater, id = " << session_id << llendl;
 	LLIMFloater::addToHost(session_id, true);
 }
 
@@ -433,6 +429,7 @@ bool LLIMFloaterContainer::onConversationModelEvent(const LLSD& event)
 		return false;
 	}
 	LLConversationViewParticipant* participant_view = session_view->findParticipant(participant_id);
+    LLIMFloater *conversation_floater = LLIMFloater::findInstance(session_id);
 
 	if (type == "remove_participant")
 	{
@@ -446,20 +443,18 @@ bool LLIMFloaterContainer::onConversationModelEvent(const LLSD& event)
 	}
 	else if (type == "add_participant")
 	{
-		if (!participant_view)
+		LLConversationItemSession* session_model = dynamic_cast<LLConversationItemSession*>(get_ptr_in_map(mConversationsItems,session_id));
+		LLConversationItemParticipant* participant_model = (session_model ? session_model->findParticipant(participant_id) : NULL);
+		if (!participant_view && session_model && participant_model)
 		{
-			LLConversationItemSession* session_model = dynamic_cast<LLConversationItemSession*>(get_ptr_in_map(mConversationsItems,session_id));
-			if (session_model)
-			{
-				LLConversationItemParticipant* participant_model = session_model->findParticipant(participant_id);
-				if (participant_model)
-				{
-					participant_view = createConversationViewParticipant(participant_model);
-					participant_view->addToFolder(session_view);
-					participant_view->setVisible(TRUE);
-				}
-			}
-
+			participant_view = createConversationViewParticipant(participant_model);
+			participant_view->addToFolder(session_view);
+			participant_view->setVisible(TRUE);
+		}
+		// CHUI-441 : 
+		if (conversation_floater && participant_model)
+		{
+			conversation_floater->addConversationViewParticipant(participant_model);
 		}
 	}
 	else if (type == "update_participant")

@@ -169,7 +169,6 @@ BOOL LLFolderViewItem::postBuild()
 // Destroys the object
 LLFolderViewItem::~LLFolderViewItem( void )
 {
-	delete mViewModelItem;
 	mViewModelItem = NULL;
 }
 
@@ -473,8 +472,9 @@ void LLFolderViewItem::rename(const std::string& new_name)
 
 const std::string& LLFolderViewItem::getName( void ) const
 {
-	return getViewModelItem()->getName();
-	}
+	static const std::string noName("");
+	return getViewModelItem() ? getViewModelItem()->getName() : noName;
+}
 
 // LLView functionality
 BOOL LLFolderViewItem::handleRightMouseDown( S32 x, S32 y, MASK mask )

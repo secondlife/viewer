@@ -351,6 +351,17 @@ void LLIMConversation::buildParticipantList()
 	//updateHeaderAndToolbar();
 }
 
+void LLIMConversation::addConversationViewParticipant(LLConversationItem* participant_model)
+{
+	// Check if the model already has an associated view
+	llinfos << "Merov debug : addConversationViewParticipant(). We need to check the existence!!!" << llendl;
+	
+	// Create the participant view and attach it to the root
+	LLConversationViewParticipant* participant_view = createConversationViewParticipant(participant_model);
+	participant_view->addToFolder(mConversationsRoot);	// ! Not sure about that. TBC...
+	participant_view->setVisible(TRUE);	
+}
+
 // Copied from LLIMFloaterContainer::createConversationViewParticipant(). Refactor opportunity!
 LLConversationViewParticipant* LLIMConversation::createConversationViewParticipant(LLConversationItem* item)
 {

@@ -87,7 +87,7 @@ protected:
 	bool						mLabelWidthDirty;
     S32                         mLabelPaddingRight;
 	LLFolderViewFolder*			mParentFolder;
-	LLFolderViewModelItem*		mViewModelItem;
+	LLPointer<LLFolderViewModelItem> mViewModelItem;
 	LLFontGL::StyleFlags		mLabelStyle;
 	std::string					mLabelSuffix;
 	LLUIImagePtr				mIcon,

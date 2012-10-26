@@ -71,6 +71,8 @@ public:
 	/*virtual*/ void onClose(bool app_quitting);
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void draw();
+	
+	void addConversationViewParticipant(LLConversationItem* item);
 
 protected:
 

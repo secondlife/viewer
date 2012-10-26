@@ -129,10 +129,11 @@ public:
 
 // This is am abstract base class that users of the folderview classes
 // would use to bridge the folder view with the underlying data
-class LLFolderViewModelItem
+class LLFolderViewModelItem : public LLRefCount
 {
 public:
-	virtual ~LLFolderViewModelItem( void ) {};
+	LLFolderViewModelItem() { }
+	virtual ~LLFolderViewModelItem() { }
 
 	virtual void update() {}	//called when drawing
 	virtual const std::string& getName() const = 0;
