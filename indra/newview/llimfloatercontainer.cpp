@@ -825,62 +825,64 @@ void LLIMFloaterContainer::doToParticipants(const std::string& command, uuid_vec
 	if(selectedIDS.size() > 0)
 	{
 		const LLUUID& userID = selectedIDS.front();
-
-		if ("view_profile" == command)
+		if(gAgent.getID() != userID)
 		{
-			LLAvatarActions::showProfile(userID);
-		}
-		else if("im" == command)
-		{
-			LLAvatarActions::startIM(userID);
-		}
-		else if("offer_teleport" == command)
-		{
-			LLAvatarActions::offerTeleport(selectedIDS);
-		}
-		else if("voice_call" == command)
-		{
-			LLAvatarActions::startCall(userID);
-		}
-		else if("chat_history" == command)
-		{
-			LLAvatarActions::viewChatHistory(userID);
-		}
-		else if("add_friend" == command)
-		{
-			LLAvatarActions::requestFriendshipDialog(userID);
-		}
-		else if("remove_friend" == command)
-		{
-			LLAvatarActions::removeFriendDialog(userID);
-		}
-		else if("invite_to_group" == command)
-		{
-			LLAvatarActions::inviteToGroup(userID);
-		}
-		else if("map" == command)
-		{
-			LLAvatarActions::showOnMap(userID);
-		}
-		else if("share" == command)
-		{
-			LLAvatarActions::share(userID);
-		}
-		else if("pay" == command)
-		{
-			LLAvatarActions::pay(userID);
-		}
-		else if("block_unblock" == command)
-		{
-			LLAvatarActions::toggleBlock(userID);
-		}
-		else if("selected" == command || "mute_all" == command || "unmute_all" == command)
-		{
-			moderateVoice(command, userID);
-		}
-		else if ("toggle_allow_text_chat" == command)
-		{
-			toggleAllowTextChat(userID);
+			if ("view_profile" == command)
+			{
+				LLAvatarActions::showProfile(userID);
+			}
+			else if("im" == command)
+			{
+				LLAvatarActions::startIM(userID);
+			}
+			else if("offer_teleport" == command)
+			{
+				LLAvatarActions::offerTeleport(selectedIDS);
+			}
+			else if("voice_call" == command)
+			{
+				LLAvatarActions::startCall(userID);
+			}
+			else if("chat_history" == command)
+			{
+				LLAvatarActions::viewChatHistory(userID);
+			}
+			else if("add_friend" == command)
+			{
+				LLAvatarActions::requestFriendshipDialog(userID);
+			}
+			else if("remove_friend" == command)
+			{
+				LLAvatarActions::removeFriendDialog(userID);
+			}
+			else if("invite_to_group" == command)
+			{
+				LLAvatarActions::inviteToGroup(userID);
+			}
+			else if("map" == command)
+			{
+				LLAvatarActions::showOnMap(userID);
+			}
+			else if("share" == command)
+			{
+				LLAvatarActions::share(userID);
+			}
+			else if("pay" == command)
+			{
+				LLAvatarActions::pay(userID);
+			}
+			else if("block_unblock" == command)
+			{
+				LLAvatarActions::toggleBlock(userID);
+			}
+			else if("selected" == command || "mute_all" == command || "unmute_all" == command)
+			{
+				moderateVoice(command, userID);
+			}
+			else if ("toggle_allow_text_chat" == command)
+			{
+				toggleAllowTextChat(userID);
+			}
 		}
 	}
 }
