@@ -46,7 +46,7 @@
 #include "llfriendcard.h"
 #include "llgesturemgr.h"
 #include "llgiveinventory.h" 
-#include "llimfloater.h"
+#include "llimfloatercontainer.h"
 #include "llimview.h"
 #include "llclipboard.h"
 #include "llinventorydefines.h"
@@ -4704,7 +4704,7 @@ void LLCallingCardBridge::performAction(LLInventoryModel* model, std::string act
 			LLUUID session_id = gIMMgr->addSession(callingcard_name, IM_NOTHING_SPECIAL, item->getCreatorUUID());
 			if (session_id != LLUUID::null)
 			{
-				LLIMFloater::show(session_id);
+				LLIMFloaterContainer::getInstance()->showConversation(session_id);
 			}
 		}
 	}

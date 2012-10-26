@@ -128,7 +128,7 @@ void LLIMFloaterContainer::onCurrentChannelChanged(const LLUUID& session_id)
 {
     if (session_id != LLUUID::null)
     {
-    	LLIMFloater::show(session_id);
+    	LLIMFloaterContainer::getInstance()->showConversation(session_id);
     }
 }
 
