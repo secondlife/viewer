@@ -338,8 +338,10 @@ LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry*
 				objectp->updateRegion(regionp); // for LLVOAvatar
 			}
 		}
-
-		//return TRUE; //already loaded.
+		else
+		{
+			return objectp; //already loaded.
+		}
 	}
 
 	bool justCreated = false;
