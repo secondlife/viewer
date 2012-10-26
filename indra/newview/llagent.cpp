@@ -809,6 +809,18 @@ void LLAgent::standUp()
 }
 
 
+void LLAgent::handleServerBakeRegionTransition(const LLUUID& region_id)
+{
+	llinfos << "called" << llendl;
+
+	if (isAgentAvatarValid() &&
+		!gAgentAvatarp->isUsingServerBakes() &&
+		(mRegionp->getCentralBakeVersion()>0))
+	{
+		LLAppearanceMgr::instance().requestServerAppearanceUpdate();
+	}
+}
+
 //-----------------------------------------------------------------------------
 // setRegion()
 //-----------------------------------------------------------------------------
@@ -908,11 +920,14 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 	// If the newly entered region is using server bakes, and our
 	// current appearance is non-baked, request appearance update from
 	// server.
-	if (isAgentAvatarValid() &&
-		!gAgentAvatarp->isUsingServerBakes() &&
-		(mRegionp->getCentralBakeVersion()>0))
+	if (mRegionp->capabilitiesReceived())
 	{
-		LLAppearanceMgr::instance().requestServerAppearanceUpdate();
+		handleServerBakeRegionTransition(mRegionp->getRegionID());
+	}
+	else
+	{
+		// Need to handle via callback after caps arrive.
+		mRegionp->setCapabilitiesReceivedCallback(boost::bind(&LLAgent::handleServerBakeRegionTransition,this,_1));
 	}
 }
 

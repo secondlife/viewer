@@ -2677,6 +2677,10 @@ void LLAppearanceMgr::requestServerAppearanceUpdate()
 	{
 		llwarns << "Region not set, cannot request server appearance update" << llendl;
 	}
+	if (gAgent.getRegion()->getCentralBakeVersion()==0)
+	{
+		llwarns << "Region does not support baking" << llendl;
+	}
 	std::string url = gAgent.getRegion()->getCapability("UpdateAvatarAppearance");	
 	if (url.empty())
 	{
