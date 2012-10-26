@@ -204,15 +204,18 @@ class LLMeshHeaderResponder : public LLCurl::Responder
 {
 public:
 	LLVolumeParams mMeshParams;
-	
+	bool mProcessed;
+
 	LLMeshHeaderResponder(const LLVolumeParams& mesh_params)
 		: mMeshParams(mesh_params)
 	{
 		LLMeshRepoThread::sActiveHeaderRequests++;
+		mProcessed = false;
 	}
 
 	~LLMeshHeaderResponder()
 	{
+		llassert(mProcessed);
 		LLMeshRepoThread::sActiveHeaderRequests--;
 	}
 
@@ -229,15 +232,18 @@ public:
 	S32 mLOD;
 	U32 mRequestedBytes;
 	U32 mOffset;
+	bool mProcessed;
 
 	LLMeshLODResponder(const LLVolumeParams& mesh_params, S32 lod, U32 offset, U32 requested_bytes)
 		: mMeshParams(mesh_params), mLOD(lod), mOffset(offset), mRequestedBytes(requested_bytes)
 	{
 		LLMeshRepoThread::sActiveLODRequests++;
+		mProcessed = false;
 	}
 
 	~LLMeshLODResponder()
 	{
+		llassert(mProcessed);
 		LLMeshRepoThread::sActiveLODRequests--;
 	}
 
@@ -253,10 +259,17 @@ public:
 	LLUUID mMeshID;
 	U32 mRequestedBytes;
 	U32 mOffset;
+	bool mProcessed;
 
 	LLMeshSkinInfoResponder(const LLUUID& id, U32 offset, U32 size)
 		: mMeshID(id), mRequestedBytes(size), mOffset(offset)
 	{
+		mProcessed = false;
+	}
+
+	~LLMeshSkinInfoResponder()
+	{
+		llassert(mProcessed);
 	}
 
 	virtual void completedRaw(U32 status, const std::string& reason,
@@ -271,10 +284,17 @@ public:
 	LLUUID mMeshID;
 	U32 mRequestedBytes;
 	U32 mOffset;
+	bool mProcessed;
 
 	LLMeshDecompositionResponder(const LLUUID& id, U32 offset, U32 size)
 		: mMeshID(id), mRequestedBytes(size), mOffset(offset)
 	{
+		mProcessed = false;
+	}
+
+	~LLMeshDecompositionResponder()
+	{
+		llassert(mProcessed);
 	}
 
 	virtual void completedRaw(U32 status, const std::string& reason,
@@ -289,10 +309,17 @@ public:
 	LLUUID mMeshID;
 	U32 mRequestedBytes;
 	U32 mOffset;
+	bool mProcessed;
 
 	LLMeshPhysicsShapeResponder(const LLUUID& id, U32 offset, U32 size)
 		: mMeshID(id), mRequestedBytes(size), mOffset(offset)
 	{
+		mProcessed = false;
+	}
+
+	~LLMeshPhysicsShapeResponder()
+	{
+		llassert(mProcessed);
 	}
 
 	virtual void completedRaw(U32 status, const std::string& reason,
@@ -1819,6 +1846,7 @@ void LLMeshLODResponder::completedRaw(U32 status, const std::string& reason,
 							  const LLChannelDescriptors& channels,
 							  const LLIOPipe::buffer_ptr_t& buffer)
 {
+	mProcessed = true;
 
 	S32 data_size = buffer->countAfter(channels.in(), NULL);
 
@@ -1831,11 +1859,13 @@ void LLMeshLODResponder::completedRaw(U32 status, const std::string& reason,
 	{
 		if (status == 499 || status == 503)
 		{ //timeout or service unavailable, try again
+			llwarns << "Timeout or service unavailable, retrying." << llendl;
 			LLMeshRepository::sHTTPRetryCount++;
 			gMeshRepo.mThread->loadMeshLOD(mMeshParams, mLOD);
 		}
 		else
 		{
+			llassert(status == 499 || status == 503); //intentionally trigger a breakpoint
 			llwarns << "Unhandled status " << status << llendl;
 		}
 		return;
@@ -1874,6 +1904,8 @@ void LLMeshSkinInfoResponder::completedRaw(U32 status, const std::string& reason
 							  const LLChannelDescriptors& channels,
 							  const LLIOPipe::buffer_ptr_t& buffer)
 {
+	mProcessed = true;
+
 	S32 data_size = buffer->countAfter(channels.in(), NULL);
 
 	if (status < 200 || status > 400)
@@ -1885,11 +1917,13 @@ void LLMeshSkinInfoResponder::completedRaw(U32 status, const std::string& reason
 	{
 		if (status == 499 || status == 503)
 		{ //timeout or service unavailable, try again
+			llwarns << "Timeout or service unavailable, retrying." << llendl;
 			LLMeshRepository::sHTTPRetryCount++;
 			gMeshRepo.mThread->loadMeshSkinInfo(mMeshID);
 		}
 		else
 		{
+			llassert(status == 499 || status == 503); //intentionally trigger a breakpoint
 			llwarns << "Unhandled status " << status << llendl;
 		}
 		return;
@@ -1928,6 +1962,8 @@ void LLMeshDecompositionResponder::completedRaw(U32 status, const std::string& r
 							  const LLChannelDescriptors& channels,
 							  const LLIOPipe::buffer_ptr_t& buffer)
 {
+	mProcessed = true;
+
 	S32 data_size = buffer->countAfter(channels.in(), NULL);
 
 	if (status < 200 || status > 400)
@@ -1939,11 +1975,13 @@ void LLMeshDecompositionResponder::completedRaw(U32 status, const std::string& r
 	{
 		if (status == 499 || status == 503)
 		{ //timeout or service unavailable, try again
+			llwarns << "Timeout or service unavailable, retrying." << llendl;
 			LLMeshRepository::sHTTPRetryCount++;
 			gMeshRepo.mThread->loadMeshDecomposition(mMeshID);
 		}
 		else
 		{
+			llassert(status == 499 || status == 503); //intentionally trigger a breakpoint
 			llwarns << "Unhandled status " << status << llendl;
 		}
 		return;
@@ -1982,6 +2020,8 @@ void LLMeshPhysicsShapeResponder::completedRaw(U32 status, const std::string& re
 							  const LLChannelDescriptors& channels,
 							  const LLIOPipe::buffer_ptr_t& buffer)
 {
+	mProcessed = true;
+
 	S32 data_size = buffer->countAfter(channels.in(), NULL);
 
 	if (status < 200 || status > 400)
@@ -1993,11 +2033,13 @@ void LLMeshPhysicsShapeResponder::completedRaw(U32 status, const std::string& re
 	{
 		if (status == 499 || status == 503)
 		{ //timeout or service unavailable, try again
+			llwarns << "Timeout or service unavailable, retrying." << llendl;
 			LLMeshRepository::sHTTPRetryCount++;
 			gMeshRepo.mThread->loadMeshPhysicsShape(mMeshID);
 		}
 		else
 		{
+			llassert(status == 499 || status == 503); //intentionally trigger a breakpoint
 			llwarns << "Unhandled status " << status << llendl;
 		}
 		return;
@@ -2036,6 +2078,8 @@ void LLMeshHeaderResponder::completedRaw(U32 status, const std::string& reason,
 							  const LLChannelDescriptors& channels,
 							  const LLIOPipe::buffer_ptr_t& buffer)
 {
+	mProcessed = true;
+
 	if (status < 200 || status > 400)
 	{
 		//llwarns
@@ -2048,14 +2092,22 @@ void LLMeshHeaderResponder::completedRaw(U32 status, const std::string& reason,
 		// TODO*: Add maximum retry logic, exponential backoff
 		// and (somewhat more optional than the others) retries
 		// again after some set period of time
+
+		llassert(status == 503 || status == 499);
+
 		if (status == 503 || status == 499)
 		{ //retry
+			llwarns << "Timeout or service unavailable, retrying." << llendl;
 			LLMeshRepository::sHTTPRetryCount++;
 			LLMeshRepoThread::HeaderRequest req(mMeshParams);
 			LLMutexLock lock(gMeshRepo.mThread->mMutex);
 			gMeshRepo.mThread->mHeaderReqQ.push(req);
 
 			return;
+		}
+		else
+		{
+			llwarns << "Unhandled status." << llendl;
 		}
 	}
 
@@ -2071,7 +2123,11 @@ void LLMeshHeaderResponder::completedRaw(U32 status, const std::string& reason,
 
 	LLMeshRepository::sBytesReceived += llmin(data_size, 4096);
 
-	if (!gMeshRepo.mThread->headerReceived(mMeshParams, data, data_size))
+	bool success = gMeshRepo.mThread->headerReceived(mMeshParams, data, data_size);
+	
+	llassert(success);
+
+	if (!success)
 	{
 		llwarns
 			<< "Unable to parse mesh header: "
