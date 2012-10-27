@@ -72,7 +72,11 @@ public:
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void draw();
 	
+	// Handle the left hand participant list widgets
 	void addConversationViewParticipant(LLConversationItem* item);
+	void removeConversationViewParticipant(const LLUUID& participant_id);
+	void updateConversationViewParticipant(const LLUUID& participant_id);
+	void refreshConversation();
 
 protected:
 

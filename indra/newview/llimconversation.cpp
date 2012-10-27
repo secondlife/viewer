@@ -137,16 +137,12 @@ BOOL LLIMConversation::postBuild()
 	// Create a root view folder for all participants
 	LLConversationItem* base_item = new LLConversationItem(mConversationViewModel);
     LLFolderView::Params p(LLUICtrlFactory::getDefaultParams<LLFolderView>());
-    //p.name = getName();
-    //p.title = getLabel();
     p.rect = LLRect(0, 0, getRect().getWidth(), 0);
     p.parent_panel = mParticipantListPanel;
-    //p.tool_tip = p.name;
     p.listener = base_item;
     p.view_model = &mConversationViewModel;
     p.root = NULL;
     p.use_ellipses = true;
-    //p.options_menu = "menu_conversation.xml";
 	mConversationsRoot = LLUICtrlFactory::create<LLFolderView>(p);
     mConversationsRoot->setCallbackRegistrar(&mCommitCallbackRegistrar);
 	
@@ -157,6 +153,8 @@ BOOL LLIMConversation::postBuild()
 	scroller_params.rect(scroller_view_rect);
 	LLScrollContainer* scroller = LLUICtrlFactory::create<LLFolderViewScrollContainer>(scroller_params);
 	scroller->setFollowsAll();
+	
+	// Insert that scroller into the panel widgets hierarchy and folder view
 	mParticipantListPanel->addChild(scroller);
 	scroller->addChild(mConversationsRoot);
 	mConversationsRoot->setScrollContainer(scroller);
@@ -311,72 +309,86 @@ void LLIMConversation::appendMessage(const LLChat& chat, const LLSD &args)
 
 void LLIMConversation::buildParticipantList()
 {
-	/*
-	if (mIsNearbyChat)
-	{
-		LLLocalSpeakerMgr* speaker_manager = LLLocalSpeakerMgr::getInstance();
-		mParticipantList = new LLParticipantList(speaker_manager, getChild<LLAvatarList>("speakers_list"), mConversationViewModel, true, false);
-	}
-	else
-	{
-		LLSpeakerMgr* speaker_manager = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
-		// for group and ad-hoc chat we need to include agent into list
-		if(!mIsP2PChat && mSessionID.notNull() && speaker_manager)
-		{
-			delete mParticipantList; // remove the old list and create a new one if the session id has changed
-			mParticipantList = new LLParticipantList(speaker_manager, getChild<LLAvatarList>("speakers_list"), mConversationViewModel, true, false);
-		}
-	}
-	*/
-
-	// Create the participants widgets now
-	// Note: inspired from LLIMFloaterContainer::addConversationListItem()
+	// Get the model list
 	LLParticipantList* item = getParticipantList();
 	if (!item)
 	{
-		llinfos << "Merov debug : buildParticipantList, no list!" << llendl;
+		// Nothing to do if the model list is empty
 		return;
 	}
+
+	// Create the participants widgets now
 	LLFolderViewModelItemCommon::child_list_t::const_iterator current_participant_model = item->getChildrenBegin();
 	LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = item->getChildrenEnd();
 	while (current_participant_model != end_participant_model)
 	{
 		LLConversationItem* participant_model = dynamic_cast<LLConversationItem*>(*current_participant_model);
-		LLConversationViewParticipant* participant_view = createConversationViewParticipant(participant_model);
-		participant_view->addToFolder(mConversationsRoot);	// ! Not sure about that. TBC...
-		participant_view->setVisible(TRUE);
+		addConversationViewParticipant(participant_model);
 		current_participant_model++;
 	}
-	
-	//updateHeaderAndToolbar();
 }
 
 void LLIMConversation::addConversationViewParticipant(LLConversationItem* participant_model)
 {
 	// Check if the model already has an associated view
-	llinfos << "Merov debug : addConversationViewParticipant(). We need to check the existence!!!" << llendl;
+	LLUUID uuid = participant_model->getUUID();
+	LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,uuid);
 	
-	// Create the participant view and attach it to the root
-	LLConversationViewParticipant* participant_view = createConversationViewParticipant(participant_model);
-	participant_view->addToFolder(mConversationsRoot);	// ! Not sure about that. TBC...
-	participant_view->setVisible(TRUE);	
+	// If not already present, create the participant view and attach it to the root, otherwise, just refresh it
+	if (widget)
+	{
+		updateConversationViewParticipant(uuid); // overkill?
+	}
+	else
+	{
+		LLConversationViewParticipant* participant_view = createConversationViewParticipant(participant_model);
+		mConversationsWidgets[uuid] = widget;
+		participant_view->addToFolder(mConversationsRoot);
+		participant_view->setVisible(TRUE);
+		refreshConversation();
+	}
+}
+
+void LLIMConversation::removeConversationViewParticipant(const LLUUID& participant_id)
+{
+	LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,participant_id);
+	if (widget)
+	{
+		mConversationsRoot->extractItem(widget);
+		delete widget;
+		mConversationsWidgets.erase(participant_id);
+		refreshConversation();
+	}
+}
+
+void LLIMConversation::updateConversationViewParticipant(const LLUUID& participant_id)
+{
+	LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,participant_id);
+	if (widget)
+	{
+		widget->refresh();
+		refreshConversation();
+	}
+}
+
+void LLIMConversation::refreshConversation()
+{
+	// *TODO: update the conversation name
+	// *TODO: check that all participant models do have a view (this is a consistency check)
+	mConversationViewModel.requestSortAll();
+	mConversationsRoot->arrangeAll();
 }
 
 // Copied from LLIMFloaterContainer::createConversationViewParticipant(). Refactor opportunity!
 LLConversationViewParticipant* LLIMConversation::createConversationViewParticipant(LLConversationItem* item)
 {
-	LLConversationViewParticipant::Params params;
     LLRect panel_rect = mParticipantListPanel->getRect();
 	
+	LLConversationViewParticipant::Params params;
 	params.name = item->getDisplayName();
-	//params.icon = bridge->getIcon();
-	//params.icon_open = bridge->getOpenIcon();
-	//params.creation_date = bridge->getCreationDate();
 	params.root = mConversationsRoot;
 	params.listener = item;
-	
-    //24 is the the current hight of an item (itemHeight) loaded from conversation_view_participant.xml.
-	params.rect = LLRect (0, 24, panel_rect.getWidth(), 0);
+	params.rect = LLRect (0, 24, panel_rect.getWidth(), 0); // *TODO: use conversation_view_participant.xml itemHeight value in lieu of 24
 	params.tool_tip = params.name;
 	params.participant_id = item->getUUID();
 	

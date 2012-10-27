@@ -408,7 +408,7 @@ bool LLIMFloaterContainer::onConversationModelEvent(const LLSD& event)
 	// For debug only
 	//std::ostringstream llsd_value;
 	//llsd_value << LLSDOStreamer<LLSDNotationFormatter>(event) << std::endl;
-	//llinfos << "Merov debug : onConversationModelEvent, event = " << llsd_value.str() << llendl;
+	//llinfos << "LLIMFloaterContainer::onConversationModelEvent, event = " << llsd_value.str() << llendl;
 	// end debug
 	
 	// Note: In conversations, the model is not responsible for creating the view, which is a good thing. This means that
@@ -425,7 +425,7 @@ bool LLIMFloaterContainer::onConversationModelEvent(const LLSD& event)
 	LLConversationViewSession* session_view = dynamic_cast<LLConversationViewSession*>(get_ptr_in_map(mConversationsWidgets,session_id));
 	if (!session_view)
 	{
-		// We skip events that are not associated to a session
+		// We skip events that are not associated with a session
 		return false;
 	}
 	LLConversationViewParticipant* participant_view = session_view->findParticipant(participant_id);
@@ -433,6 +433,7 @@ bool LLIMFloaterContainer::onConversationModelEvent(const LLSD& event)
 
 	if (type == "remove_participant")
 	{
+		// Remove a participant view from the hierarchical conversation list
 		if (participant_view)
 		{
 			session_view->extractItem(participant_view);
@@ -440,18 +441,24 @@ bool LLIMFloaterContainer::onConversationModelEvent(const LLSD& event)
 			session_view->refresh();
 			mConversationsRoot->arrangeAll();
 		}
+		// Remove a participant view from the conversation floater 
+		if (conversation_floater)
+		{
+			conversation_floater->removeConversationViewParticipant(participant_id);
+		}
 	}
 	else if (type == "add_participant")
 	{
 		LLConversationItemSession* session_model = dynamic_cast<LLConversationItemSession*>(get_ptr_in_map(mConversationsItems,session_id));
 		LLConversationItemParticipant* participant_model = (session_model ? session_model->findParticipant(participant_id) : NULL);
+		// Add a participant view to the hierarchical conversation list
 		if (!participant_view && session_model && participant_model)
 		{
 			participant_view = createConversationViewParticipant(participant_model);
 			participant_view->addToFolder(session_view);
 			participant_view->setVisible(TRUE);
 		}
-		// CHUI-441 : 
+		// Add a participant view to the conversation floater 
 		if (conversation_floater && participant_model)
 		{
 			conversation_floater->addConversationViewParticipant(participant_model);
@@ -459,14 +466,24 @@ bool LLIMFloaterContainer::onConversationModelEvent(const LLSD& event)
 	}
 	else if (type == "update_participant")
 	{
+		// Update the participant view in the hierarchical conversation list
 		if (participant_view)
 		{
 			participant_view->refresh();
+		}
+		// Update the participant view in the conversation floater 
+		if (conversation_floater)
+		{
+			conversation_floater->updateConversationViewParticipant(participant_id);
 		}
 	}
 	else if (type == "update_session")
 	{
 		session_view->refresh();
+		if (conversation_floater)
+		{
+			conversation_floater->refreshConversation();
+		}
 	}
 	
 	mConversationViewModel.requestSortAll();
