@@ -545,7 +545,7 @@ namespace LLInitParam
 		}
 
 		bool deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack_range, bool new_name);
-		bool serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const predicate_rule_t rule = predicate_rule_t(), const BaseBlock* diff_block = NULL) const;
+		bool serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const predicate_rule_t rule = predicate_rule_t(ll_predicate(PROVIDED) && ll_predicate(NON_DEFAULT)), const BaseBlock* diff_block = NULL) const;
 		bool inspectBlock(Parser& p, Parser::name_stack_t name_stack = Parser::name_stack_t(), S32 min_count = 0, S32 max_count = S32_MAX) const;
 
 		virtual const BlockDescriptor& mostDerivedBlockDescriptor() const { return selfBlockDescriptor(); }
@@ -912,17 +912,17 @@ namespace LLInitParam
 			const self_t* diff_typed_param = static_cast<const self_t*>(diff_param);
 
 			LLPredicate::Value<ESerializePredicates> predicate;
-			if (!diff_typed_param || ParamCompare<T>::equals(typed_param.getValue(), diff_typed_param->getValue()))
-			{
-				predicate.add(NON_DEFAULT);
-			}
+			predicate.set(NON_DEFAULT, !diff_typed_param || ParamCompare<T>::equals(typed_param.getValue(), diff_typed_param->getValue()));
+
 			if (typed_param.isValid())
 			{
-				predicate.add(VALID);
-				if (typed_param.anyProvided())
-				{
-					predicate.add(PROVIDED);
-				}
+				predicate.set(VALID, true);
+				predicate.set(PROVIDED, typed_param.anyProvided());
+			}
+			else
+			{
+				predicate.set(VALID, false);
+				predicate.set(PROVIDED, false);
 			}
 
 			if (!predicate_rule.check(predicate)) return false;
@@ -1076,11 +1076,13 @@ namespace LLInitParam
 
 			if (typed_param.isValid())
 			{
-				predicate.add(VALID);
-				if (typed_param.anyProvided())
-				{
-					predicate.add(PROVIDED);
-				}
+				predicate.set(VALID, true);
+				predicate.set(PROVIDED, typed_param.anyProvided());
+			}
+			else
+			{
+				predicate.set(VALID, false);
+				predicate.set(PROVIDED, false);
 			}
 
 			if (!predicate_rule.check(predicate)) return false;
@@ -1270,19 +1272,18 @@ namespace LLInitParam
 			
 			LLPredicate::Value<ESerializePredicates> predicate;
 
-			if (typed_param.mMinCount > 0)
-			{
-				predicate.add(REQUIRED);
-			}
+			predicate.set(REQUIRED, typed_param.mMinCount > 0);
 
 			if (typed_param.isValid())
 			{
-				predicate.add(VALID);
-				if (typed_param.anyProvided())
-				{
-					predicate.add(PROVIDED);
-				}
+				predicate.set(VALID, true);
+				predicate.set(PROVIDED, typed_param.anyProvided());
 			}
+			else
+			{
+				predicate.set(VALID, false);
+				predicate.set(PROVIDED, false);
+			}			
 
 			if (!predicate_rule.check(predicate)) return false;
 
@@ -1531,19 +1532,18 @@ namespace LLInitParam
 
 			LLPredicate::Value<ESerializePredicates> predicate;
 
-			if (typed_param.mMinCount > 0)
-			{
-				predicate.add(REQUIRED);
-			}
+			predicate.set(REQUIRED, typed_param.mMinCount > 0);
 
 			if (typed_param.isValid())
 			{
-				predicate.add(VALID);
-				if (typed_param.anyProvided())
-				{
-					predicate.add(PROVIDED);
-				}
+				predicate.set(VALID, true);
+				predicate.set(PROVIDED, typed_param.anyProvided());
 			}
+			else
+			{
+				predicate.set(VALID, false);
+				predicate.set(PROVIDED, false);
+			}	
 
 			if (!predicate_rule.check(predicate)) return false;
 

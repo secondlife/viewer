@@ -33,129 +33,180 @@ namespace LLPredicate
 {
 	template<typename ENUM> class Rule;
 
-	S32 predicateFlagsFromValue(S32 value);
+	extern const U32 cPredicateFlagsFromEnum[5];
 
 	template<typename ENUM>
-	struct Value
+	class Literal
 	{
 		friend Rule<ENUM>;
+
 	public:
-		Value(ENUM e)
-		:	mPredicateCombinationFlags(0xFFFFffff)
+		typedef U32 predicate_flag_t;
+		static const S32 cMaxEnum = 5;
+
+		Literal(ENUM e)
+		:	mPredicateFlags(cPredicateFlagsFromEnum[e])
 		{
-			add(e);
+			llassert(0 <= e && e < cMaxEnum);
 		}
 
-		Value()
-		:	mPredicateCombinationFlags(0xFFFFffff)
+		Literal()
+		:	mPredicateFlags(0xFFFFffff)
 		{}
 
-		void add(ENUM predicate)
+		Literal operator~()
 		{
-			llassert(predicate < 5);
-			S32 predicate_shift = 0x1 << (S32)predicate;
-			S32 flag_mask = predicateFlagsFromValue(predicate);
-			S32 flags_to_modify = mPredicateCombinationFlags & ~flag_mask;
-			// clear flags containing predicate to be removed
-			mPredicateCombinationFlags &= ~flag_mask;
-			// shift flags, in effect removing predicate
-			flags_to_modify <<= predicate_shift;
-			// put modified flags back
-			mPredicateCombinationFlags |= flags_to_modify;
+			Literal new_rule;
+			new_rule.mPredicateFlags = ~mPredicateFlags;
+			return new_rule;
 		}
 
-		void remove(ENUM predicate)
+		Literal operator &&(const Literal& other)
 		{
-			llassert(predicate < 5);
-			S32 predicate_shift = 0x1 << (S32)predicate;
-			S32 flag_mask = predicateFlagsFromValue(predicate);
-			S32 flags_to_modify = mPredicateCombinationFlags & flag_mask;
-			// clear flags containing predicate to be removed
-			mPredicateCombinationFlags &= ~flag_mask;
-			// shift flags, in effect removing predicate
-			flags_to_modify >>= predicate_shift;
-			// put modified flags back
-			mPredicateCombinationFlags |= flags_to_modify;
+			Literal new_rule;
+			new_rule.mPredicateFlags = mPredicateFlags & other.mPredicateFlags;
+			return new_rule;
 		}
 
-		void unknown(ENUM predicate)
+		Literal operator ||(const Literal& other)
 		{
-			add(predicate);
-			S32 flags_with_predicate = mPredicateCombinationFlags;
-			remove(predicate);
-			// unknown is result of adding and removing predicate at the same time!
-			mPredicateCombinationFlags |= flags_with_predicate;
+			Literal new_rule;
+			new_rule.mPredicateFlags = mPredicateFlags | other.mPredicateFlags;
+			return new_rule;
 		}
 
-		bool has(ENUM predicate)
+		void set(ENUM e, bool value)
 		{
-			S32 flag_mask = predicateFlagsFromValue(predicate);
-			return (mPredicateCombinationFlags & flag_mask) != 0;
+			llassert(0 <= e && e < cMaxEnum);
+			modifyPredicate(0x1 << (S32)e, cPredicateFlagsFromEnum[e], value);
+		}
+
+		void set(const Literal& other, bool value)
+		{
+			U32 predicate_flags = other.mPredicateFlags;
+			while(predicate_flags)
+			{
+				U32 next_flags = clearLSB(predicate_flags);
+				lsb_flag = predicate_flags ^ next_flags;
+				U32 mask = 0;
+				for (S32 i = 0; i < cMaxEnum; i++)
+				{
+					if (cPredicateFlagsFromEnum[i] & lsb_flag)
+					{
+						mask |= cPredicateFlagsFromEnum[i];
+					}
+				}
+
+				modifyPredicate(lsb_flag, mask, value);
+				
+				predicate_flags = next_flags;
+			} 
+		}
+
+		void forget(ENUM e)
+		{
+			set(e, true);
+			U32 flags_with_predicate = mPredicateFlags;
+			set(e, false);
+			// ambiguous value is result of adding and removing predicate at the same time!
+			mPredicateFlags |= flags_with_predicate;
+		}
+
+		void forget(const Literal& literal)
+		{
+			set(literal, true);
+			U32 flags_with_predicate = mPredicateFlags;
+			set(literal, false);
+			// ambiguous value is result of adding and removing predicate at the same time!
+			mPredicateFlags |= flags_with_predicate;
 		}
 
 	private:
-		S32 mPredicateCombinationFlags;
+
+		predicate_flag_t clearLSB(predicate_flag_t value)
+		{
+			return value & (value - 1);
+		}
+
+		void modifyPredicate(predicate_flag_t predicate_flag, predicate_flag_t mask, bool value)
+		{
+			llassert(clearLSB(predicate_flag) == 0);
+			predicate_flag_t flags_to_modify;
+
+			if (value)
+			{
+				flags_to_modify = (mPredicateFlags & ~mask);
+				// clear flags not containing predicate to be added
+				mPredicateFlags &= mask;
+				// shift flags, in effect adding predicate
+				flags_to_modify *= predicate_flag;
+			}
+			else
+			{
+				flags_to_modify = mPredicateFlags & mask;
+				// clear flags containing predicate to be removed
+				mPredicateFlags &= ~mask;
+				// shift flags, in effect removing predicate
+				flags_to_modify /= predicate_flag;
+			}
+			// put modified flags back
+			mPredicateFlags |= flags_to_modify;
+		}
+
+		predicate_flag_t mPredicateFlags;
 	};
 
-	struct EmptyRule {};
+	template<typename ENUM>
+	struct Value
+	:	public Literal<ENUM>
+	{
+	public:
+		Value(ENUM e)
+		:	Literal(e)
+		{}
+
+		Value()
+		{}
+	};
 
 	template<typename ENUM>
 	class Rule
+	:	public Literal<ENUM>
 	{
 	public:
 		Rule(ENUM value)
-		:	mPredicateRequirements(predicateFlagsFromValue(value))
+		:	Literal(value)
+		{}
+
+		Rule(const Literal other)
+		:	Literal(other)
 		{}
 
 		Rule()
-		:	mPredicateRequirements(0x1)
 		{}
-
-		Rule operator~()
-		{
-			Rule new_rule;
-			new_rule.mPredicateRequirements = ~mPredicateRequirements;
-			return new_rule;
-		}
-
-		Rule operator &&(const Rule& other)
-		{
-			Rule new_rule;
-			new_rule.mPredicateRequirements = mPredicateRequirements & other.mPredicateRequirements;
-			return new_rule;
-		}
-
-		Rule operator ||(const Rule& other)
-		{
-			Rule new_rule;
-			new_rule.mPredicateRequirements = mPredicateRequirements | other.mPredicateRequirements;
-			return new_rule;
-		}
 
 		bool check(const Value<ENUM>& value) const
 		{
-			return ((value.mPredicateCombinationFlags | 0x1) & mPredicateRequirements) != 0;
+			return (value.mPredicateFlags & mPredicateFlags) != 0;
 		}
 
 		bool isTriviallyTrue() const
 		{
-			return mPredicateRequirements & 0x1;
+			return mPredicateFlags == 0xFFFFffff;
 		}
 
 		bool isTriviallyFalse() const
 		{
-			return mPredicateRequirements == 0;
+			return mPredicateFlags == 0;
 		}
-
-	private:
-		S32 mPredicateRequirements;
 	};
-
-	template<typename ENUM>
-	Rule<ENUM> make_rule(ENUM e) { return Rule<ENUM>(e);}
-
-	// return generic empty rule class to avoid requiring template argument to create an empty rule
-	EmptyRule make_rule();
-
 }
+
+template<typename ENUM>
+LLPredicate::Literal<ENUM> ll_predicate(ENUM e)
+{
+	 return LLPredicate::Literal<ENUM>(e);
+}
+
+
 #endif // LL_LLPREDICATE_H
