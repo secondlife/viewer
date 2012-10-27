@@ -174,7 +174,7 @@ BOOL LLIMConversation::postBuild()
 
 	setOpenPositioning(LLFloaterEnums::POSITIONING_RELATIVE);
 
-	buildParticipantList();
+	buildConversationViewParticipant();
 
 	updateHeaderAndToolbar();
 
@@ -307,7 +307,7 @@ void LLIMConversation::appendMessage(const LLChat& chat, const LLSD &args)
 }
 
 
-void LLIMConversation::buildParticipantList()
+void LLIMConversation::buildConversationViewParticipant()
 {
 	// Get the model list
 	LLParticipantList* item = getParticipantList();

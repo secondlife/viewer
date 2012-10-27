@@ -77,6 +77,7 @@ public:
 	void removeConversationViewParticipant(const LLUUID& participant_id);
 	void updateConversationViewParticipant(const LLUUID& participant_id);
 	void refreshConversation();
+	void buildConversationViewParticipant();
 
 protected:
 
@@ -95,7 +96,6 @@ protected:
 	// refresh a visual state of the Call button
 	void updateCallBtnState(bool callIsActive);
 
-	void buildParticipantList();
 	void onSortMenuItemClicked(const LLSD& userdata);
 
 	void hideOrShowTitle(); // toggle the floater's drag handle

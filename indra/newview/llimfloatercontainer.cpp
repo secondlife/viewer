@@ -429,7 +429,7 @@ bool LLIMFloaterContainer::onConversationModelEvent(const LLSD& event)
 		return false;
 	}
 	LLConversationViewParticipant* participant_view = session_view->findParticipant(participant_id);
-    LLIMFloater *conversation_floater = LLIMFloater::findInstance(session_id);
+    LLIMConversation *conversation_floater = (session_id.isNull() ? (LLIMConversation*)(LLFloaterReg::findTypedInstance<LLNearbyChat>("nearby_chat")) : (LLIMConversation*)(LLIMFloater::findInstance(session_id)));
 
 	if (type == "remove_participant")
 	{
@@ -830,7 +830,6 @@ void LLIMFloaterContainer::getParticipantUUIDs(uuid_vec_t& selected_uuids)
     //When a one-on-one conversation exists, retrieve the participant id from the conversation floater
     else if(conversationItem->getType() == LLConversationItem::CONV_SESSION_1_ON_1)
     {
-		llinfos << "Merov debug : getParticipantUUIDs, LLIMFloater::findInstance, id = " << conversationItem->getUUID() << llendl;
         LLIMFloater *conversationFloater = LLIMFloater::findInstance(conversationItem->getUUID());
         LLUUID participantID = conversationFloater->getOtherParticipantUUID();
         selected_uuids.push_back(participantID);
@@ -906,7 +905,6 @@ void LLIMFloaterContainer::doToSelectedConversation(const std::string& command, 
 {
     //Find the conversation floater associated with the selected id
     const LLConversationItem * conversationItem = getCurSelectedViewModelItem();
-	llinfos << "Merov debug : doToSelectedConversation, LLIMFloater::findInstance, id = " << conversationItem->getUUID() << llendl;
     LLIMFloater *conversationFloater = LLIMFloater::findInstance(conversationItem->getUUID());
 
     if(conversationFloater)
@@ -1233,6 +1231,12 @@ LLConversationItem* LLIMFloaterContainer::addConversationListItem(const LLUUID& 
 		LLConversationViewParticipant* participant_view = createConversationViewParticipant(participant_model);
 		participant_view->addToFolder(widget);
 		current_participant_model++;
+	}
+	// Do that too for the conversation dialog
+    LLIMConversation *conversation_floater = (uuid.isNull() ? (LLIMConversation*)(LLFloaterReg::findTypedInstance<LLNearbyChat>("nearby_chat")) : (LLIMConversation*)(LLIMFloater::findInstance(uuid)));
+	if (conversation_floater)
+	{
+		conversation_floater->buildConversationViewParticipant();
 	}
 
 	if (isWidgetSelected)

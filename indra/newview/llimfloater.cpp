@@ -825,8 +825,7 @@ void LLIMFloater::sessionInitReplyReceived(const LLUUID& im_session_id)
 	if (mSessionID != im_session_id)
 	{
 		initIMSession(im_session_id);
-
-		buildParticipantList();
+		buildConversationViewParticipant();
 	}
 
 	initIMFloater();
