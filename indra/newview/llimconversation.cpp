@@ -50,6 +50,7 @@ LLIMConversation::LLIMConversation(const LLSD& session_id)
   ,  mCloseBtn(NULL)
   ,  mSessionID(session_id.asUUID())
 //  , mParticipantList(NULL)
+  , mConversationsRoot(NULL)
   , mChatHistory(NULL)
   , mInputEditor(NULL)
   , mInputEditorTopPad(0)
@@ -309,6 +310,15 @@ void LLIMConversation::appendMessage(const LLChat& chat, const LLSD &args)
 
 void LLIMConversation::buildConversationViewParticipant()
 {
+	// Clear the widget list since we are rebuilding afresh from the model
+	conversations_widgets_map::iterator widget_it = mConversationsWidgets.begin();
+	while (widget_it != mConversationsWidgets.end())
+	{
+		removeConversationViewParticipant(widget_it->first);
+		// Iterators are invalidated by erase so we need to pick begin again
+		widget_it = mConversationsWidgets.begin();
+	}
+	
 	// Get the model list
 	LLParticipantList* item = getParticipantList();
 	if (!item)
@@ -342,7 +352,7 @@ void LLIMConversation::addConversationViewParticipant(LLConversationItem* partic
 	else
 	{
 		LLConversationViewParticipant* participant_view = createConversationViewParticipant(participant_model);
-		mConversationsWidgets[uuid] = widget;
+		mConversationsWidgets[uuid] = participant_view;
 		participant_view->addToFolder(mConversationsRoot);
 		participant_view->setVisible(TRUE);
 		refreshConversation();
@@ -373,10 +383,10 @@ void LLIMConversation::updateConversationViewParticipant(const LLUUID& participa
 
 void LLIMConversation::refreshConversation()
 {
-	// *TODO: update the conversation name
-	// *TODO: check that all participant models do have a view (this is a consistency check)
+	// *TODO: check that all participant models do have a view (debug consistency check)
 	mConversationViewModel.requestSortAll();
 	mConversationsRoot->arrangeAll();
+	mConversationsRoot->update();
 }
 
 // Copied from LLIMFloaterContainer::createConversationViewParticipant(). Refactor opportunity!
@@ -391,8 +401,6 @@ LLConversationViewParticipant* LLIMConversation::createConversationViewParticipa
 	params.rect = LLRect (0, 24, panel_rect.getWidth(), 0); // *TODO: use conversation_view_participant.xml itemHeight value in lieu of 24
 	params.tool_tip = params.name;
 	params.participant_id = item->getUUID();
-	
-	llinfos << "Merov debug : LLIMConversation, create participant, name = " << item->getDisplayName() << llendl;
 	
 	return LLUICtrlFactory::create<LLConversationViewParticipant>(params);
 }

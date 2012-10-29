@@ -129,7 +129,6 @@ void LLIMFloaterContainer::onCurrentChannelChanged(const LLUUID& session_id)
 {
     if (session_id != LLUUID::null)
     {
-		llinfos << "Merov debug : onCurrentChannelChanged, LLIMFloater::show, id = " << session_id << llendl;
     	LLIMFloater::show(session_id);
     }
 }
