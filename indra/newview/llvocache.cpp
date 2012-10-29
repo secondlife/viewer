@@ -89,6 +89,8 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 	BOOL success;
 
 	mDP.assignBuffer(mBuffer, 0);
+	setOctreeEntry(NULL);
+
 	success = check_read(apr_file, &mLocalID, sizeof(U32));
 	if(success)
 	{
@@ -105,6 +107,21 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 	if(success)
 	{
 		success = check_read(apr_file, &mCRCChangeCount, sizeof(S32));
+	}
+	if(success)
+	{
+		LLVector4 pos;
+		success = check_read(apr_file, (void*)pos.mV, sizeof(LLVector4));
+
+		LLVector4a pos_;
+		pos_.load4a(pos.mV);
+		setPositionGroup(pos_);
+	}
+	if(success)
+	{
+		F32 rad;
+		success = check_read(apr_file, &rad, sizeof(F32));
+		setBinRadius(rad);
 	}
 	if(success)
 	{
@@ -144,6 +161,7 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 		mDupeCount = 0;
 		mCRCChangeCount = 0;
 		mBuffer = NULL;
+		mEntry = NULL;
 	}
 }
 
@@ -289,6 +307,11 @@ void LLVOCacheEntry::dump() const
 
 BOOL LLVOCacheEntry::writeToFile(LLAPRFile* apr_file) const
 {
+	if(!mEntry)
+	{
+		return FALSE;
+	}
+
 	BOOL success;
 	success = check_write(apr_file, (void*)&mLocalID, sizeof(U32));
 	if(success)
@@ -306,6 +329,17 @@ BOOL LLVOCacheEntry::writeToFile(LLAPRFile* apr_file) const
 	if(success)
 	{
 		success = check_write(apr_file, (void*)&mCRCChangeCount, sizeof(S32));
+	}
+	if(success)
+	{
+		const LLVector4a pos_ = getPositionGroup() ;
+		LLVector4 pos(pos_[0], pos_[1], pos_[2], pos_[3]);
+		success = check_write(apr_file, pos.mV, sizeof(LLVector4));		
+	}
+	if(success)
+	{
+		F32 rad = getBinRadius();
+		success = check_write(apr_file, (void*)&rad, sizeof(F32));
 	}
 	if(success)
 	{
