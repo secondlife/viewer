@@ -1121,7 +1121,7 @@ BOOL LLTexLayer::render(S32 x, S32 y, S32 width, S32 height)
 	//gPipeline.disableLights();
 	stop_glerror();
 	glDisable(GL_LIGHTING);
-	glEnable(GL_ALPHA_TEST);
+	LLGLEnable(GL_ALPHA_TEST);
 	stop_glerror();
 
 	bool use_shaders = LLGLSLShader::sNoFixedFunction;
