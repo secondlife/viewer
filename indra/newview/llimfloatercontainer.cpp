@@ -98,8 +98,8 @@ LLIMFloaterContainer::~LLIMFloaterContainer()
 
 void LLIMFloaterContainer::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
 {
-	LLIMFloater::addToHost(session_id, true);
-	addConversationListItem(session_id, true);
+	LLIMFloater::addToHost(session_id);
+	addConversationListItem(session_id);
 }
 
 void LLIMFloaterContainer::sessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
@@ -109,8 +109,8 @@ void LLIMFloaterContainer::sessionActivated(const LLUUID& session_id, const std:
 
 void LLIMFloaterContainer::sessionVoiceOrIMStarted(const LLUUID& session_id)
 {
-	LLIMFloater::addToHost(session_id, true);
-	addConversationListItem(session_id, true);
+	LLIMFloater::addToHost(session_id);
+	addConversationListItem(session_id);
 }
 
 void LLIMFloaterContainer::sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id)
@@ -128,7 +128,7 @@ void LLIMFloaterContainer::onCurrentChannelChanged(const LLUUID& session_id)
 {
     if (session_id != LLUUID::null)
     {
-    	LLIMFloater::show(session_id);
+    	LLIMFloaterContainer::getInstance()->showConversation(session_id);
     }
 }
 
@@ -1196,16 +1196,15 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid, bool isWi
 		current_participant_model++;
 	}
 
-	if (isWidgetSelected)
-	{
-		selectConversation(uuid);
-	}
-	
 	// set the widget to minimized mode if conversations pane is collapsed
 	widget->toggleMinimizedMode(mConversationsPane->isCollapsed());
 
-	// scroll to newly added item
-	mConversationsRoot->scrollToShowSelection();
+    if (isWidgetSelected)
+    {
+        selectConversation(uuid);
+        // scroll to newly added item
+        mConversationsRoot->scrollToShowSelection();
+    }
 
 	return;
 }
