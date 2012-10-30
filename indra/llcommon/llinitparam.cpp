@@ -190,7 +190,7 @@ namespace LLInitParam
 		bool serialized = false;
 		if (!isProvided())
 		{
-			if (predicate_rule_t(~ll_predicate(PROVIDED) && predicate_rule).isTriviallyFalse())
+			if ((predicate_rule && !ll_predicate(PROVIDED)).isTriviallyFalse())
 			{
 				return false;
 			}

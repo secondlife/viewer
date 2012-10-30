@@ -36,43 +36,41 @@ namespace LLPredicate
 	extern const U32 cPredicateFlagsFromEnum[5];
 
 	template<typename ENUM>
-	class Literal
+	class Value
 	{
-		friend Rule<ENUM>;
-
 	public:
 		typedef U32 predicate_flag_t;
 		static const S32 cMaxEnum = 5;
 
-		Literal(ENUM e)
+		Value(ENUM e)
 		:	mPredicateFlags(cPredicateFlagsFromEnum[e])
 		{
 			llassert(0 <= e && e < cMaxEnum);
 		}
 
-		Literal()
+		Value()
 		:	mPredicateFlags(0xFFFFffff)
 		{}
 
-		Literal operator~()
+		Value operator!() const
 		{
-			Literal new_rule;
-			new_rule.mPredicateFlags = ~mPredicateFlags;
-			return new_rule;
+			Value new_value;
+			new_value.mPredicateFlags = ~mPredicateFlags;
+			return new_value;
 		}
 
-		Literal operator &&(const Literal& other)
+		Value operator &&(const Value other) const
 		{
-			Literal new_rule;
-			new_rule.mPredicateFlags = mPredicateFlags & other.mPredicateFlags;
-			return new_rule;
+			Value new_value;
+			new_value.mPredicateFlags = mPredicateFlags & other.mPredicateFlags;
+			return new_value;
 		}
 
-		Literal operator ||(const Literal& other)
+		Value operator ||(const Value other) const
 		{
-			Literal new_rule;
-			new_rule.mPredicateFlags = mPredicateFlags | other.mPredicateFlags;
-			return new_rule;
+			Value new_value;
+			new_value.mPredicateFlags = mPredicateFlags | other.mPredicateFlags;
+			return new_value;
 		}
 
 		void set(ENUM e, bool value)
@@ -81,19 +79,21 @@ namespace LLPredicate
 			modifyPredicate(0x1 << (S32)e, cPredicateFlagsFromEnum[e], value);
 		}
 
-		void set(const Literal& other, bool value)
+		void set(const Value other, bool value)
 		{
 			U32 predicate_flags = other.mPredicateFlags;
 			while(predicate_flags)
 			{
 				U32 next_flags = clearLSB(predicate_flags);
 				lsb_flag = predicate_flags ^ next_flags;
+
 				U32 mask = 0;
 				for (S32 i = 0; i < cMaxEnum; i++)
 				{
 					if (cPredicateFlagsFromEnum[i] & lsb_flag)
 					{
 						mask |= cPredicateFlagsFromEnum[i];
+						modifyPredicate(0x1 << (0x1 << i ), cPredicateFlagsFromEnum[i], !value);
 					}
 				}
 
@@ -112,13 +112,23 @@ namespace LLPredicate
 			mPredicateFlags |= flags_with_predicate;
 		}
 
-		void forget(const Literal& literal)
+		void forget(const Value value)
 		{
-			set(literal, true);
+			set(value, true);
 			U32 flags_with_predicate = mPredicateFlags;
-			set(literal, false);
+			set(value, false);
 			// ambiguous value is result of adding and removing predicate at the same time!
 			mPredicateFlags |= flags_with_predicate;
+		}
+
+		bool allSet() const
+		{
+			return mPredicateFlags == ~0;
+		}
+
+		bool noneSet() const
+		{
+			return mPredicateFlags == 0;
 		}
 
 	private:
@@ -157,55 +167,69 @@ namespace LLPredicate
 	};
 
 	template<typename ENUM>
-	struct Value
-	:	public Literal<ENUM>
-	{
-	public:
-		Value(ENUM e)
-		:	Literal(e)
-		{}
-
-		Value()
-		{}
-	};
-
-	template<typename ENUM>
 	class Rule
-	:	public Literal<ENUM>
 	{
 	public:
 		Rule(ENUM value)
-		:	Literal(value)
+		:	mRule(value)
 		{}
 
-		Rule(const Literal other)
-		:	Literal(other)
+		Rule(const Rule& other)
+		:	mRule(other.mRule)
+		{}
+
+		Rule(const Value<ENUM> other)
+		:	mRule(other)
 		{}
 
 		Rule()
 		{}
 
-		bool check(const Value<ENUM>& value) const
+		bool check(const Value<ENUM> value) const
 		{
-			return (value.mPredicateFlags & mPredicateFlags) != 0;
+			return !(mRule && value).noneSet();
 		}
 
 		bool isTriviallyTrue() const
 		{
-			return mPredicateFlags == 0xFFFFffff;
+			return mRule.allSet();
 		}
 
 		bool isTriviallyFalse() const
 		{
-			return mPredicateFlags == 0;
+			return mRule.noneSet();
 		}
+
+		Rule operator!() const
+		{
+			Rule new_rule;
+			new_rule.mRule = !mRule;
+			return new_rule;
+		}
+
+		Rule operator &&(const Rule other) const
+		{
+			Rule new_rule;
+			new_rule.mRule = mRule && other.mRule;
+			return new_rule;
+		}
+
+		Rule operator ||(const Rule other) const
+		{
+			Rule new_rule;
+			new_rule.mRule = mRule || other.mRule;
+			return new_rule;
+		}
+
+	private:
+		Value<ENUM> mRule;
 	};
 }
 
 template<typename ENUM>
-LLPredicate::Literal<ENUM> ll_predicate(ENUM e)
+LLPredicate::Value<ENUM> ll_predicate(ENUM e)
 {
-	 return LLPredicate::Literal<ENUM>(e);
+	 return LLPredicate::Value<ENUM>(e);
 }
 
 
