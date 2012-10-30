@@ -358,16 +358,7 @@ void LLIMFloaterContainer::processParticipantsStyleUpdate()
 		{
 			LLConversationItemParticipant* participant_model = dynamic_cast<LLConversationItemParticipant*>(*current_participant_model);
 			// Get the avatar name for this participant id from the cache and update the model
-			LLUUID participant_id = participant_model->getUUID();
-			LLAvatarName av_name;
-			LLAvatarNameCache::get(participant_id,&av_name);
-			// Avoid updating the model though if the cache is still waiting for its first update
-			if (!av_name.mDisplayName.empty())
-			{
-				participant_model->onAvatarNameCache(av_name);
-			}
-			// Bind update to the next cache name signal
-			LLAvatarNameCache::get(participant_id, boost::bind(&LLConversationItemParticipant::onAvatarNameCache, participant_model, _2));
+			participant_model->fetchAvatarName();
 			// Next participant
 			current_participant_model++;
 		}

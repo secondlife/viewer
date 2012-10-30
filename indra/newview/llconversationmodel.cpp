@@ -369,7 +369,8 @@ LLConversationItemParticipant::LLConversationItemParticipant(std::string display
 	LLConversationItem(display_name,uuid,root_view_model),
 	mIsMuted(false),
 	mIsModerator(false),
-	mDistToAgent(-1.0)
+	mDistToAgent(-1.0),
+	mAvatarNameCacheConnection()
 {
 	mConvType = CONV_PARTICIPANT;
 }
@@ -378,9 +379,36 @@ LLConversationItemParticipant::LLConversationItemParticipant(const LLUUID& uuid,
 	LLConversationItem(uuid,root_view_model),
 	mIsMuted(false),
 	mIsModerator(false),
-	mDistToAgent(-1.0)
+	mDistToAgent(-1.0),
+	mAvatarNameCacheConnection()
 {
 	mConvType = CONV_PARTICIPANT;
+}
+
+LLConversationItemParticipant::~LLConversationItemParticipant()
+{
+	// Disconnect any previous avatar name cache connection to ensure
+	// that the callback method is not called after destruction
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
+}
+
+void LLConversationItemParticipant::fetchAvatarName()
+{
+	// Disconnect any previous avatar name cache connection
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
+
+	// Request the avatar name from the cache
+	llassert(getUUID().notNull());
+	if (getUUID().notNull())
+	{
+		mAvatarNameCacheConnection = LLAvatarNameCache::get(getUUID(), boost::bind(&LLConversationItemParticipant::onAvatarNameCache, this, _2));
+	}
 }
 
 void LLConversationItemParticipant::buildContextMenu(LLMenuGL& menu, U32 flags)
