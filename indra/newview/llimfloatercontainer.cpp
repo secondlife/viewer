@@ -343,20 +343,6 @@ LLIMFloaterContainer* LLIMFloaterContainer::getInstance()
 	return LLFloaterReg::getTypedInstance<LLIMFloaterContainer>("im_container");
 }
 
-void LLIMFloaterContainer::setMinimized(BOOL b)
-{
-	if (isMinimized() == b) return;
-	
-	LLMultiFloater::setMinimized(b);
-
-	if (isMinimized()) return;
-
-	if (getActiveFloater())
-	{
-		getActiveFloater()->setVisible(TRUE);
-	}
-}
-
 // Update all participants in the conversation lists
 void LLIMFloaterContainer::processParticipantsStyleUpdate()
 {
