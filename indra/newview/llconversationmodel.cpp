@@ -401,12 +401,13 @@ void LLConversationItemParticipant::onAvatarNameCache(const LLAvatarName& av_nam
 	mDisplayName = (av_name.mDisplayName.empty() ? av_name.mUsername : av_name.mDisplayName);
 	mNeedsRefresh = true;
 	LLConversationItemSession* parent_session = dynamic_cast<LLConversationItemSession*>(mParent);
-	if (parent_session)
+	if (parent_session != NULL)
 	{
 		parent_session->requestSort();
 		parent_session->updateParticipantName(this);
+		postEvent("update_participant", parent_session, this);
 	}
-	postEvent("update_participant", parent_session, this);
+
 }
 
 void LLConversationItemParticipant::dumpDebugData()
