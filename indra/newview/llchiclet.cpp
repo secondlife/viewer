@@ -34,6 +34,7 @@
 #include "llgroupactions.h"
 #include "lliconctrl.h"
 #include "llimfloater.h"
+#include "llimfloatercontainer.h"
 #include "llimview.h"
 #include "llfloaterreg.h"
 #include "lllocalcliprect.h"
@@ -1196,7 +1197,7 @@ void LLChicletPanel::onCurrentVoiceChannelChanged(const LLUUID& session_id)
 			chiclet->setShowSpeaker(true);
 			if (gSavedSettings.getBOOL("OpenIMOnVoice"))
 			{
-				LLIMFloater::show(chiclet->getSessionId());
+				LLIMFloaterContainer::getInstance()->showConversation(session_id);
 			}
 		}
 	}

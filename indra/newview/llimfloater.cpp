@@ -582,7 +582,7 @@ void LLIMFloater::onParticipantsListChanged(LLUICtrl* ctrl)
 	}
 }
 
-void LLIMFloater::addToHost(const LLUUID& session_id, const bool force)
+void LLIMFloater::addToHost(const LLUUID& session_id)
 {
 	if (!LLIMConversation::isChatMultiTab() || !gIMMgr->hasSession(session_id))
 	{
@@ -604,20 +604,7 @@ void LLIMFloater::addToHost(const LLUUID& session_id, const bool force)
 			LLTabContainer::eInsertionPoint i_pt = LLTabContainer::END;
 			if (floater_container)
 			{
-				floater_container->addFloater(floater, TRUE, i_pt);
-			}
-		}
-
-		if (force)
-		{
-			if (floater_container && floater_container->getVisible())
-			{
-				floater->openFloater(floater->getKey());
-				floater->setVisible(TRUE);
-			}
-			else
-			{
-				floater->setVisible(FALSE);
+				floater_container->addFloater(floater, FALSE, i_pt);
 			}
 		}
 	}

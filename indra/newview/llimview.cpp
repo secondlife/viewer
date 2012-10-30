@@ -49,6 +49,7 @@
 #include "llcallingcard.h"
 #include "llchat.h"
 #include "llimfloater.h"
+#include "llimfloatercontainer.h"
 #include "llgroupiconctrl.h"
 #include "llmd5.h"
 #include "llmutelist.h"
@@ -108,7 +109,7 @@ static void on_avatar_name_cache_toast(const LLUUID& agent_id,
 	args["FROM"] = av_name.getCompleteName();
 	args["FROM_ID"] = msg["from_id"];
 	args["SESSION_ID"] = msg["session_id"];
-	LLNotificationsUtil::add("IMToast", args, LLSD(), boost::bind(&LLIMFloater::show, msg["session_id"].asUUID()));
+	LLNotificationsUtil::add("IMToast", args, LLSD(), boost::bind(&LLIMFloaterContainer::showConversation, LLIMFloaterContainer::getInstance(), msg["session_id"].asUUID()));
 }
 
 void toast_callback(const LLSD& msg){
@@ -118,12 +119,12 @@ void toast_callback(const LLSD& msg){
 		return;
 	}
 
-	// check whether incoming IM belongs to an active session or not
-	if (LLIMModel::getInstance()->getActiveSessionID().notNull()
-			&& LLIMModel::getInstance()->getActiveSessionID() == msg["session_id"])
-	{
-		return;
-	}
+    // Skip toasting if we have open window of IM with this session id
+    LLIMFloater* open_im_floater = LLIMFloater::findInstance(msg["session_id"]);
+    if (open_im_floater && open_im_floater->isInVisibleChain() && open_im_floater->hasFocus())
+    {
+        return;
+    }
 
 	// Skip toasting for system messages
 	if (msg["from_id"].asUUID() == LLUUID::null)
@@ -145,28 +146,9 @@ void toast_callback(const LLSD& msg){
 		return;
 	}
 
-	// Skip toasting if we have open window of IM with this session id
-	LLIMFloater* open_im_floater = LLIMFloater::findInstance(msg["session_id"]);
-	if (open_im_floater && open_im_floater->getVisible())
-	{
-		return;
-	}
-
 	LLAvatarNameCache::get(msg["from_id"].asUUID(),
 		boost::bind(&on_avatar_name_cache_toast,
 			_1, _2, msg));
-}
-
-void LLIMModel::setActiveSessionID(const LLUUID& session_id)
-{
-	// check if such an ID really exists
-	if (!findIMSession(session_id))
-	{
-		llwarns << "Trying to set as active a non-existent session!" << llendl;
-		return;
-	}
-
-	mActiveSessionID = session_id;
 }
 
 LLIMModel::LLIMModel() 

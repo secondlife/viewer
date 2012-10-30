@@ -438,28 +438,19 @@ void LLConversationViewParticipant::selectItem()
     LLIMFloaterContainer* container = LLIMFloaterContainer::getInstance();
     LLFloater* session_floater;
 
-    //Only execute when switching floaters (conversations)
-    if(vmi && vmi->getUUID() != container->getSelectedSession())
-    {
-        //When null, show the nearby chat conversation floater
-        if(vmi->getUUID().isNull())
-        {
-            LLNearbyChat* nearbyChat = LLFloaterReg::findTypedInstance<LLNearbyChat>("nearby_chat");
-            nearbyChat->show();
-        }
-        //Otherwise, show the IM conversation floater
-        else
-        {
-            LLIMFloater::show(vmi->getUUID());
-        }
-
-        // Store the active session
-        container->setSelectedSession(vmi->getUUID());
-    }
-    //Focus the current conversation floater (it is already visible so just focus it)
-    else
+    if(vmi)
     {
         session_floater = LLIMConversation::getConversation(vmi->getUUID());
+
+        //Only execute when switching floaters (conversations)
+        if(vmi->getUUID() != container->getSelectedSession())
+        {
+            container->selectFloater(session_floater);
+            // Store the active session
+            container->setSelectedSession(vmi->getUUID());
+        }
+
+        //Redirect focus to the conversation floater
         session_floater->setFocus(TRUE);
     }
 

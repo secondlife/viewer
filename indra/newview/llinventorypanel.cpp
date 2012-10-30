@@ -39,7 +39,7 @@
 #include "llfloatersidepanelcontainer.h"
 #include "llfolderview.h"
 #include "llfolderviewitem.h"
-#include "llimfloater.h"
+#include "llimfloatercontainer.h"
 #include "llimview.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
@@ -1087,7 +1087,7 @@ bool LLInventoryPanel::beginIMSession()
 	LLUUID session_id = gIMMgr->addSession(name, type, members[0], members);
 	if (session_id != LLUUID::null)
 	{
-		LLIMFloater::show(session_id);
+		LLIMFloaterContainer::getInstance()->showConversation(session_id);
 	}
 		
 	return true;

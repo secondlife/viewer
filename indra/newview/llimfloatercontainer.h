@@ -65,8 +65,9 @@ public:
 	/*virtual*/ void addFloater(LLFloater* floaterp, 
 								BOOL select_added_floater, 
 								LLTabContainer::eInsertionPoint insertion_point = LLTabContainer::END);
-    void setConvItemSelect(const LLUUID& session_id);
-    void setItemSelect(const LLUUID& session_id);
+    
+    void showConversation(const LLUUID& session_id);
+    void selectConversation(const LLUUID& session_id);
 	/*virtual*/ void tabClose();
 
 	static LLFloater* getCurrentVoiceFloater();
@@ -139,6 +140,7 @@ private:
 	void moderateVoiceAllParticipants(bool unmute);
 	void moderateVoiceParticipant(const LLUUID& avatar_id, bool unmute);
 	void toggleAllowTextChat(const LLUUID& participant_uuid);
+	void openNearbyChat();
 
 	LLButton* mExpandCollapseBtn;
 	LLLayoutPanel* mMessagesPane;

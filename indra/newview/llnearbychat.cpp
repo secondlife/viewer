@@ -287,10 +287,10 @@ void	LLNearbyChat::setVisible(BOOL visible)
 {
 	LLIMConversation::setVisible(visible);
 
-    if(visible)
-    {
-        removeScreenChat();
-    }
+	if(visible)
+	{
+		removeScreenChat();
+	}
     setFocus(visible);
 }
 
@@ -327,7 +327,7 @@ void LLNearbyChat::addToHost()
 
 		mIsHostSet = true;
 	}
-}
+	}
 
 bool LLNearbyChat::isHostSet()
 {
@@ -722,7 +722,7 @@ void LLNearbyChat::sendChatFromViewer(const LLWString &wtext, EChatType type, BO
 	send_chat_from_viewer(utf8_out_text, type, channel);
 }
 
-// static
+// static 
 bool LLNearbyChat::isWordsName(const std::string& name)
 {
 	// checking to see if it's display name plus username in parentheses

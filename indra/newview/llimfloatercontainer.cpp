@@ -98,19 +98,19 @@ LLIMFloaterContainer::~LLIMFloaterContainer()
 
 void LLIMFloaterContainer::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
 {
-	addConversationListItem(session_id, true);
-	LLIMFloater::addToHost(session_id, true);
+	addConversationListItem(session_id);
+	LLIMFloater::addToHost(session_id);
 }
 
 void LLIMFloaterContainer::sessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
 {
-    setItemSelect(session_id);
+    selectConversation(session_id);
 }
 
 void LLIMFloaterContainer::sessionVoiceOrIMStarted(const LLUUID& session_id)
 {
-	addConversationListItem(session_id, true);
-	LLIMFloater::addToHost(session_id, true);
+	addConversationListItem(session_id);
+	LLIMFloater::addToHost(session_id);
 }
 
 void LLIMFloaterContainer::sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id)
@@ -129,7 +129,7 @@ void LLIMFloaterContainer::onCurrentChannelChanged(const LLUUID& session_id)
 {
     if (session_id != LLUUID::null)
     {
-    	LLIMFloater::show(session_id);
+    	LLIMFloaterContainer::getInstance()->showConversation(session_id);
     }
 }
 
@@ -223,6 +223,7 @@ BOOL LLIMFloaterContainer::postBuild()
 void LLIMFloaterContainer::onOpen(const LLSD& key)
 {
 	LLMultiFloater::onOpen(key);
+	openNearbyChat();
 }
 
 // virtual
@@ -525,6 +526,7 @@ void LLIMFloaterContainer::setVisible(BOOL visible)
 			LLSD name("nearby_chat");
 			LLFloaterReg::toggleInstanceOrBringToFront(name);
 		}
+		openNearbyChat();
 	}
 
 	nearby_chat = LLFloaterReg::findTypedInstance<LLNearbyChat>("nearby_chat");
@@ -840,62 +842,64 @@ void LLIMFloaterContainer::doToParticipants(const std::string& command, uuid_vec
 	if(selectedIDS.size() > 0)
 	{
 		const LLUUID& userID = selectedIDS.front();
-
-		if ("view_profile" == command)
+		if(gAgent.getID() != userID)
 		{
-			LLAvatarActions::showProfile(userID);
-		}
-		else if("im" == command)
-		{
-			LLAvatarActions::startIM(userID);
-		}
-		else if("offer_teleport" == command)
-		{
-			LLAvatarActions::offerTeleport(selectedIDS);
-		}
-		else if("voice_call" == command)
-		{
-			LLAvatarActions::startCall(userID);
-		}
-		else if("chat_history" == command)
-		{
-			LLAvatarActions::viewChatHistory(userID);
-		}
-		else if("add_friend" == command)
-		{
-			LLAvatarActions::requestFriendshipDialog(userID);
-		}
-		else if("remove_friend" == command)
-		{
-			LLAvatarActions::removeFriendDialog(userID);
-		}
-		else if("invite_to_group" == command)
-		{
-			LLAvatarActions::inviteToGroup(userID);
-		}
-		else if("map" == command)
-		{
-			LLAvatarActions::showOnMap(userID);
-		}
-		else if("share" == command)
-		{
-			LLAvatarActions::share(userID);
-		}
-		else if("pay" == command)
-		{
-			LLAvatarActions::pay(userID);
-		}
-		else if("block_unblock" == command)
-		{
-			LLAvatarActions::toggleBlock(userID);
-		}
-		else if("selected" == command || "mute_all" == command || "unmute_all" == command)
-		{
-			moderateVoice(command, userID);
-		}
-		else if ("toggle_allow_text_chat" == command)
-		{
-			toggleAllowTextChat(userID);
+			if ("view_profile" == command)
+			{
+				LLAvatarActions::showProfile(userID);
+			}
+			else if("im" == command)
+			{
+				LLAvatarActions::startIM(userID);
+			}
+			else if("offer_teleport" == command)
+			{
+				LLAvatarActions::offerTeleport(selectedIDS);
+			}
+			else if("voice_call" == command)
+			{
+				LLAvatarActions::startCall(userID);
+			}
+			else if("chat_history" == command)
+			{
+				LLAvatarActions::viewChatHistory(userID);
+			}
+			else if("add_friend" == command)
+			{
+				LLAvatarActions::requestFriendshipDialog(userID);
+			}
+			else if("remove_friend" == command)
+			{
+				LLAvatarActions::removeFriendDialog(userID);
+			}
+			else if("invite_to_group" == command)
+			{
+				LLAvatarActions::inviteToGroup(userID);
+			}
+			else if("map" == command)
+			{
+				LLAvatarActions::showOnMap(userID);
+			}
+			else if("share" == command)
+			{
+				LLAvatarActions::share(userID);
+			}
+			else if("pay" == command)
+			{
+				LLAvatarActions::pay(userID);
+			}
+			else if("block_unblock" == command)
+			{
+				LLAvatarActions::toggleBlock(userID);
+			}
+			else if("selected" == command || "mute_all" == command || "unmute_all" == command)
+			{
+				moderateVoice(command, userID);
+			}
+			else if ("toggle_allow_text_chat" == command)
+			{
+				toggleAllowTextChat(userID);
+			}
 		}
 	}
 }
@@ -1104,37 +1108,20 @@ bool LLIMFloaterContainer::checkContextMenuItem(const LLSD& userdata)
     return false;
 }
 
-// Will select only the conversation item
-void LLIMFloaterContainer::setConvItemSelect(const LLUUID& session_id)
+void LLIMFloaterContainer::showConversation(const LLUUID& session_id)
 {
-	LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,session_id);
-	if (widget && (mSelectedSession != session_id))
-	{
-		mSelectedSession = session_id;
-		(widget->getRoot())->setSelection(widget, FALSE, FALSE);
-	}
+    setVisibleAndFrontmost(false);
+    selectConversation(session_id);    
 }
 
-// Will select the conversation/participant item
-void LLIMFloaterContainer::setItemSelect(const LLUUID& session_id)
+// Will select only the conversation item
+void LLIMFloaterContainer::selectConversation(const LLUUID& session_id)
 {
-
-    if(mConversationsRoot->getCurSelectedItem() && mConversationsRoot->getCurSelectedItem()->getParentFolder())
-    {
-        //Retreive the conversation id. When a participant is selected, then have to to get the converation id from the parent.
-        LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(mConversationsRoot->getCurSelectedItem()->getParentFolder()->getViewModelItem());
-
-        //Will allow selection/highlighting of the conversation/participant
-        if(session_id != vmi->getUUID())
-        {
-            mSelectedSession = session_id;
-			LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,session_id);
-            (widget->getRoot())->setSelection(widget, FALSE, FALSE);
-
-			// Scroll to selected item
-			mConversationsRoot->scrollToShowSelection();
-        }
-    }
+	LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,session_id);
+	if (widget)
+	{
+		(widget->getRoot())->setSelection(widget, FALSE, FALSE);
+	}
 }
 
 
@@ -1238,16 +1225,15 @@ LLConversationItem* LLIMFloaterContainer::addConversationListItem(const LLUUID& 
 		conversation_floater->buildConversationViewParticipant();
 	}
 
-	if (isWidgetSelected)
-	{
-		setConvItemSelect(uuid);
-	}
-	
 	// set the widget to minimized mode if conversations pane is collapsed
 	widget->toggleMinimizedMode(mConversationsPane->isCollapsed());
 
-	// scroll to newly added item
-	mConversationsRoot->scrollToShowSelection();
+    if (isWidgetSelected)
+    {
+        selectConversation(uuid);
+        // scroll to newly added item
+        mConversationsRoot->scrollToShowSelection();
+    }
 
 	return item;
 }
@@ -1499,6 +1485,20 @@ void LLIMFloaterContainer::toggleAllowTextChat(const LLUUID& participant_uuid)
 	if (NULL != speaker_managerp)
 	{
 		speaker_managerp->toggleAllowTextChat(participant_uuid);
+	}
+}
+
+void LLIMFloaterContainer::openNearbyChat()
+{
+	// If there's only one conversation in the container and that conversation is the nearby chat
+	//(which it should be...), open it so to make the list of participants visible. This happens to be the most common case when opening the Chat floater.
+	if(mConversationsItems.size() == 1)
+	{
+		LLConversationViewSession* nearby_chat = dynamic_cast<LLConversationViewSession*>(mConversationsWidgets[LLUUID()]);
+		if (nearby_chat)
+		{
+			nearby_chat->setOpen(TRUE);
+		}
 	}
 }
 

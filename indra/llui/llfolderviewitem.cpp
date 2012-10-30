@@ -1473,6 +1473,8 @@ void LLFolderViewFolder::destroyView()
 // doesn't delete it.
 void LLFolderViewFolder::extractItem( LLFolderViewItem* item )
 {
+	if (item->isSelected())
+		getRoot()->clearSelection();
 	items_t::iterator it = std::find(mItems.begin(), mItems.end(), item);
 	if(it == mItems.end())
 	{

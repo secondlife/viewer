@@ -72,7 +72,7 @@ public:
 
 	static LLIMFloater* findInstance(const LLUUID& session_id);
 	static LLIMFloater* getInstance(const LLUUID& session_id);
-	static void addToHost(const LLUUID& session_id, const bool force = false);
+	static void addToHost(const LLUUID& session_id);
 
 	// LLFloater overrides
 	/*virtual*/ void onClose(bool app_quitting);
