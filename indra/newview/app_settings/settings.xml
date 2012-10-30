@@ -69,7 +69,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>0.95</real>
+      <real>1</real>
     </map>
     <key>AdvanceSnapshot</key>
     <map>
@@ -4302,7 +4302,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>0.65</real>
+      <real>0.95</real>
     </map>
     <key>InBandwidth</key>
     <map>
