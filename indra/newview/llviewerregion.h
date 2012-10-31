@@ -69,6 +69,8 @@ class LLBBox;
 class LLSpatialGroup;
 class LLDrawable;
 class LLViewerRegionImpl;
+class LLviewerOctreeGroup;
+class LLVOCachePartition;
 
 class LLViewerRegion: public LLCapabilityProvider // implements this interface
 {
@@ -85,7 +87,7 @@ public:
 		PARTITION_GRASS,
 		PARTITION_VOLUME,
 		PARTITION_BRIDGE,
-		PARTITION_HUD_PARTICLE,
+		PARTITION_HUD_PARTICLE,		
 		PARTITION_VO_CACHE,
 		PARTITION_NONE,
 		NUM_PARTITIONS
@@ -218,12 +220,12 @@ public:
 	F32	getWidth() const						{ return mWidth; }
 
 	BOOL idleUpdate(F32 max_update_time);
-	void addVisibleGroup(LLSpatialGroup* group);
+	void addVisibleGroup(LLviewerOctreeGroup* group);
 	void addVisibleCacheEntry(LLVOCacheEntry* entry);
 	void addActiveCacheEntry(LLVOCacheEntry* entry);
 	void removeActiveCacheEntry(LLVOCacheEntry* entry, LLDrawable* drawablep);	
 	void killCacheEntry(U32 local_id); //physically delete the cache entry	
-	void clearVisibleGroup(LLSpatialGroup* group);
+	void clearVisibleGroup(LLviewerOctreeGroup* group);
 
 	// Like idleUpdate, but forces everything to complete regardless of
 	// how long it takes.
@@ -333,6 +335,7 @@ public:
 
 	U32 getNumOfActiveCachedObjects() const;
 	LLSpatialPartition* getSpatialPartition(U32 type);
+	LLVOCachePartition* getVOCachePartition();
 
 	bool objectIsReturnable(const LLVector3& pos, const std::vector<LLBBox>& boxes) const;
 	bool childrenObjectReturnable( const std::vector<LLBBox>& boxes ) const;
@@ -349,6 +352,10 @@ private:
 	void removeFromVOCacheTree(LLVOCacheEntry* entry);
 	void replaceCacheEntry(LLVOCacheEntry* old_entry, LLVOCacheEntry* new_entry);
 	void killCacheEntry(LLVOCacheEntry* entry); //physically delete the cache entry	
+
+	F32 killInvisibleObjects(F32 max_time);
+	F32 addLinkedSetChildren(F32 max_time, S32& max_num_objects);
+	F32 addVisibleObjects(F32 max_time, S32& max_num_objects);
 
 public:
 	struct CompareDistance
@@ -384,6 +391,7 @@ public:
 	LLDynamicArray<U32> mMapAvatars;
 	LLDynamicArray<LLUUID> mMapAvatarIDs;
 
+	static LLViewerRegion* sCurRegionp;
 private:
 	LLViewerRegionImpl * mImpl;
 

@@ -86,6 +86,7 @@
 #include "llviewerregion.h" // for audio debugging.
 #include "llviewerwindow.h" // For getSpinAxis
 #include "llvoavatarself.h"
+#include "llvocache.h"
 #include "llvoground.h"
 #include "llvosky.h"
 #include "llvotree.h"
@@ -2352,11 +2353,14 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 				{
 					part->cull(camera);
 				}
-				else if(part->mPartitionType == LLViewerRegion::PARTITION_VO_CACHE)
-				{
-					part->cull(camera);
-				}
 			}
+		}
+
+		//scan the VO Cache tree
+		LLVOCachePartition* vo_part = region->getVOCachePartition();
+		if(vo_part)
+		{
+			vo_part->cull(camera);
 		}
 	}
 
@@ -2433,12 +2437,8 @@ void LLPipeline::markNotCulled(LLSpatialGroup* group, LLCamera& camera)
 	}
 
 	assertInitialized();
-	
-	if(group->mSpatialPartition->mPartitionType == LLViewerRegion::PARTITION_VO_CACHE)
-	{
-		group->mSpatialPartition->mRegionp->addVisibleGroup(group);
-	}
-	else if (!group->mSpatialPartition->mRenderByGroup)
+		
+	if (!group->mSpatialPartition->mRenderByGroup)
 	{ //render by drawable
 		sCull->pushDrawableGroup(group);
 	}

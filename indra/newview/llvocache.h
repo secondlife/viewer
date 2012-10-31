@@ -98,6 +98,19 @@ protected:
 	std::vector<LLVOCacheEntry*> mChildrenList; //children entries in a linked set.
 };
 
+class LLVOCachePartition : public LLViewerOctreePartition
+{
+public:
+	LLVOCachePartition(LLViewerRegion* regionp);
+
+	void addEntry(LLViewerOctreeEntry* entry);
+	void removeEntry(LLViewerOctreeEntry* entry);
+	/*virtual*/ S32 cull(LLCamera &camera);
+
+private:
+	U32 mVisitedTime;
+};
+
 //
 //Note: LLVOCache is not thread-safe
 //

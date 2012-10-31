@@ -264,11 +264,7 @@ LLSpatialGroup::~LLSpatialGroup()
 	{
 		llerrs << "Illegal deletion of LLSpatialGroup!" << llendl;
 	}*/
-	if(isVisible())
-	{
-		mSpatialPartition->mRegionp->clearVisibleGroup(this);
-	}
-
+	
 	if (gDebugGL)
 	{
 		gPipeline.checkReferences(this);
@@ -432,16 +428,6 @@ BOOL LLSpatialGroup::isRecentlyVisible() const
 {
 	const S32 MIN_VIS_FRAME_RANGE = 2;
 	return (LLDrawable::getCurrentFrame() - mVisible[LLViewerCamera::sCurCameraID]) < MIN_VIS_FRAME_RANGE ;
-}
-
-BOOL LLSpatialGroup::isVisible() const
-{
-	return mVisible[LLViewerCamera::sCurCameraID] >= LLDrawable::getCurrentFrame() ? TRUE : FALSE;
-}
-
-void LLSpatialGroup::setVisible()
-{
-	mVisible[LLViewerCamera::sCurCameraID] = LLDrawable::getCurrentFrame();
 }
 
 void LLSpatialGroup::validate()
@@ -1165,12 +1151,6 @@ BOOL LLSpatialGroup::changeLOD()
 
 void LLSpatialGroup::handleInsertion(const TreeNode* node, LLViewerOctreeEntry* entry)
 {
-	if(mSpatialPartition->isVOCachePartition())
-	{
-		LLviewerOctreeGroup::handleInsertion(node, entry);
-		return;
-	}
-		
 	addObject((LLDrawable*)entry->getDrawable());
 	unbound();
 	setState(OBJECT_DIRTY);
@@ -1178,22 +1158,13 @@ void LLSpatialGroup::handleInsertion(const TreeNode* node, LLViewerOctreeEntry* 
 
 void LLSpatialGroup::handleRemoval(const TreeNode* node, LLViewerOctreeEntry* entry)
 {
-	if(!mSpatialPartition->isVOCachePartition())
-	{
-		removeObject((LLDrawable*)entry->getDrawable(), TRUE);
-	}
+	removeObject((LLDrawable*)entry->getDrawable(), TRUE);
 	LLviewerOctreeGroup::handleRemoval(node, entry);
 }
 
 void LLSpatialGroup::handleDestruction(const TreeNode* node)
 {
 	setState(DEAD);
-
-	if(mSpatialPartition->isVOCachePartition())
-	{
-		LLviewerOctreeGroup::handleDestruction(node);
-		return;
-	}
 
 	for (element_iter i = getDataBegin(); i != getDataEnd(); ++i)
 	{
@@ -1510,8 +1481,9 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 //==============================================
 
 LLSpatialPartition::LLSpatialPartition(U32 data_mask, BOOL render_by_group, U32 buffer_usage, LLViewerRegion* regionp)
-: mRenderByGroup(render_by_group), mBridge(NULL), mRegionp(regionp)
+: mRenderByGroup(render_by_group), mBridge(NULL)
 {
+	mRegionp = regionp;
 	mOcclusionEnabled = TRUE;
 	mDrawableType = 0;
 	mPartitionType = LLViewerRegion::PARTITION_NONE;
@@ -1521,27 +1493,14 @@ LLSpatialPartition::LLSpatialPartition(U32 data_mask, BOOL render_by_group, U32 
 	mBufferUsage = buffer_usage;
 	mDepthMask = FALSE;
 	mSlopRatio = 0.25f;
-	mInfiniteFarClip = FALSE;
-	mVisitedTime = 0;
+	mInfiniteFarClip = FALSE;	
 
-	LLVector4a center, size;
-	center.splat(0.f);
-	size.splat(1.f);
-
-	mOctree = new OctreeRoot(center,size, NULL);
 	new LLSpatialGroup(mOctree, this);
 }
 
 
 LLSpatialPartition::~LLSpatialPartition()
-{
-	delete mOctree;
-	mOctree = NULL;
-}
-
-BOOL LLSpatialPartition::isVOCachePartition() const
-{
-	return mPartitionType == LLViewerRegion::PARTITION_VO_CACHE;
+{	
 }
 
 LLSpatialGroup *LLSpatialPartition::put(LLDrawable *drawablep, BOOL was_visible)
@@ -2050,12 +2009,7 @@ BOOL LLSpatialPartition::visibleObjectsInFrustum(LLCamera& camera)
 
 S32 LLSpatialPartition::cull(LLCamera &camera, std::vector<LLDrawable *>* results, BOOL for_select)
 {
-	bool is_vo_cache_part = (mPartitionType == LLViewerRegion::PARTITION_VO_CACHE);
-	
-	if(is_vo_cache_part && mVisitedTime == LLViewerOctreeEntryData::getCurrentFrame())
-	{
-		return 0; //no need to visit more than once per frame
-	}		
+	llassert(results != NULL && for_select);
 
 #if LL_OCTREE_PARANOIA_CHECK
 	((LLSpatialGroup*)mOctree->getListener(0))->checkStates();
@@ -2070,19 +2024,34 @@ S32 LLSpatialPartition::cull(LLCamera &camera, std::vector<LLDrawable *>* result
 	((LLSpatialGroup*)mOctree->getListener(0))->validate();
 #endif
 
+	LLOctreeSelect selecter(&camera, results);
+	selecter.traverse(mOctree);
 	
-	if (for_select && !is_vo_cache_part)
+	return 0;
+}
+
+S32 LLSpatialPartition::cull(LLCamera &camera)
+{
+#if LL_OCTREE_PARANOIA_CHECK
+	((LLSpatialGroup*)mOctree->getListener(0))->checkStates();
+#endif
 	{
-		LLOctreeSelect selecter(&camera, results);
-		selecter.traverse(mOctree);
+		LLFastTimer ftm(FTM_CULL_REBOUND);		
+		LLSpatialGroup* group = (LLSpatialGroup*) mOctree->getListener(0);
+		group->rebound();
 	}
-	else if (LLPipeline::sShadowRender && !is_vo_cache_part)
+
+#if LL_OCTREE_PARANOIA_CHECK
+	((LLSpatialGroup*)mOctree->getListener(0))->validate();
+#endif
+
+	if (LLPipeline::sShadowRender)
 	{
 		LLFastTimer ftm(FTM_FRUSTUM_CULL);
 		LLOctreeCullShadow culler(&camera);
 		culler.traverse(mOctree);
 	}
-	else if ((mInfiniteFarClip || !LLPipeline::sUseFarClip) && !is_vo_cache_part)
+	else if (mInfiniteFarClip || !LLPipeline::sUseFarClip)
 	{
 		LLFastTimer ftm(FTM_FRUSTUM_CULL);		
 		LLOctreeCullNoFarClip culler(&camera);
@@ -2090,11 +2059,6 @@ S32 LLSpatialPartition::cull(LLCamera &camera, std::vector<LLDrawable *>* result
 	}
 	else
 	{
-		if(is_vo_cache_part)
-		{
-			mVisitedTime = LLViewerOctreeEntryData::getCurrentFrame();
-		}
-
 		LLFastTimer ftm(FTM_FRUSTUM_CULL);		
 		LLOctreeCull culler(&camera);
 		culler.traverse(mOctree);
@@ -4663,21 +4627,3 @@ void LLCullResult::assertDrawMapsEmpty()
 	}
 }
 
-LLVOCachePartition::LLVOCachePartition(LLViewerRegion* regionp) : LLSpatialPartition(0, FALSE, 0, regionp)
-{
-	mPartitionType = LLViewerRegion::PARTITION_VO_CACHE;
-}
-
-void LLVOCachePartition::addEntry(LLViewerOctreeEntry* entry)
-{
-	llassert(entry->hasVOCacheEntry());
-
-	mOctree->insert(entry);
-}
-	
-void LLVOCachePartition::removeEntry(LLViewerOctreeEntry* entry)
-{
-	entry->getVOCacheEntry()->setGroup(NULL);
-
-	llassert(!entry->getGroup());
-}

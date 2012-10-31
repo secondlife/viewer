@@ -86,6 +86,8 @@ const F32 CAP_REQUEST_TIMEOUT = 18;
 // Even though we gave up on login, keep trying for caps after we are logged in:
 const S32 MAX_CAP_REQUEST_ATTEMPTS = 30;
 
+LLViewerRegion* LLViewerRegion::sCurRegionp = NULL;
+
 typedef std::map<std::string, std::string> CapabilityMap;
 
 class LLViewerRegionImpl {
@@ -139,7 +141,7 @@ public:
 	LLVOCacheEntry::vocache_entry_set_t mWaitingSet; //entries waiting for LLDrawable to be generated.
 	LLVOCacheEntry::vocache_entry_set_t mVisibleEntries; //visible root entries of a linked set.
 	std::set< LLPointer<LLVOCacheEntry> > mDummyEntries; //dummy vo cache entries, for LLSpatialBridge use.
-	std::set< LLSpatialGroup* >         mVisibleGroups; //visible llspatialgroup
+	std::set< LLviewerOctreeGroup* >      mVisibleGroups; //visible llspatialgroup
 	LLVOCachePartition*                 mVOCachePartition;
 
 	// time?
@@ -165,7 +167,7 @@ public:
 	LLCapabilityListener mCapabilityListener;
 
 	//spatial partitions for objects in this region
-	std::vector<LLSpatialPartition*> mObjectPartition;
+	std::vector<LLViewerOctreePartition*> mObjectPartition;
 };
 
 // support for secondlife:///app/region/{REGION} SLapps
@@ -345,7 +347,7 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
 	mImpl->mObjectPartition.push_back(new LLVOCachePartition(this)); //PARTITION_VO_CACHE
 	mImpl->mObjectPartition.push_back(NULL);						//PARTITION_NONE
 
-	mImpl->mVOCachePartition = (LLVOCachePartition*)getSpatialPartition(PARTITION_VO_CACHE);
+	mImpl->mVOCachePartition = getVOCachePartition();
 }
 
 
@@ -384,11 +386,11 @@ LLViewerRegion::~LLViewerRegion()
 	delete mParcelOverlay;
 	delete mImpl->mLandp;
 	delete mImpl->mEventPoll;
-	LLHTTPSender::clearSender(mImpl->mHost);
-	
-	saveObjectCache();
+	LLHTTPSender::clearSender(mImpl->mHost);	
 
 	std::for_each(mImpl->mObjectPartition.begin(), mImpl->mObjectPartition.end(), DeletePointer());
+
+	saveObjectCache();
 
 	delete mImpl;
 	mImpl = NULL;
@@ -865,13 +867,13 @@ void LLViewerRegion::removeActiveCacheEntry(LLVOCacheEntry* entry, LLDrawable* d
 	entry->setState(LLVOCacheEntry::INACTIVE);
 }
 
-void LLViewerRegion::addVisibleGroup(LLSpatialGroup* group)
+void LLViewerRegion::addVisibleGroup(LLviewerOctreeGroup* group)
 {
-	if(mDead || group->isEmpty() || group->isDead())
+	if(mDead || group->isEmpty())
 	{
 		return;
 	}
-
+	group->setVisible();
 	mImpl->mVisibleGroups.insert(group);
 }
 
@@ -909,7 +911,7 @@ void LLViewerRegion::addVisibleCacheEntry(LLVOCacheEntry* entry)
 	mImpl->mVisibleEntries.insert(entry);
 }
 
-void LLViewerRegion::clearVisibleGroup(LLSpatialGroup* group)
+void LLViewerRegion::clearVisibleGroup(LLviewerOctreeGroup* group)
 {
 	if(mDead)
 	{
@@ -920,44 +922,18 @@ void LLViewerRegion::clearVisibleGroup(LLSpatialGroup* group)
 
 	mImpl->mVisibleGroups.erase(group);
 }
-
-BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
-{
-	LLTimer update_timer;
-
-	// did_update returns TRUE if we did at least one significant update
-	BOOL did_update = mImpl->mLandp->idleUpdate(max_update_time);
 	
-	if (mParcelOverlay)
+//return time left
+F32 LLViewerRegion::addLinkedSetChildren(F32 max_time, S32& max_num_objects)
+{
+	if(mImpl->mVisibleEntries.empty())
 	{
-		// Hopefully not a significant time sink...
-		mParcelOverlay->idleUpdate();
+		return max_time;
 	}
 
-	if(update_timer.getElapsedTimeF32() > max_update_time)
-	{
-		return did_update;
-	}
-
-	//kill invisible objects
-	std::vector<LLDrawable*> delete_list;
-	for(LLVOCacheEntry::vocache_entry_set_t::iterator iter = mImpl->mActiveSet.begin();
-		iter != mImpl->mActiveSet.end(); ++iter)
-	{
-		if(!(*iter)->isRecentlyVisible())
-		{
-			killObject((*iter), delete_list);
-		}
-	}
-	for(S32 i = 0; i < delete_list.size(); i++)
-	{
-		gObjectList.killObject(delete_list[i]->getVObj());
-	}
-	delete_list.clear();
-
+	LLTimer update_timer;
 	bool timeout = false;
-	S32 new_object_count = 64; //minimum number of new objects to be added
-	//add childrens of visible objects to the rendering pipeline
+
 	for(LLVOCacheEntry::vocache_entry_set_t::iterator iter = mImpl->mVisibleEntries.begin(); iter != mImpl->mVisibleEntries.end();)
 	{
 		LLVOCacheEntry* entry = *iter;				
@@ -968,9 +944,9 @@ BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 			{
 				addNewObject(child);
 				
-				if(new_object_count-- < 0 && update_timer.getElapsedTimeF32() > max_update_time)
+				if(max_num_objects-- < 0 && update_timer.getElapsedTimeF32() > max_time)
 				{
-					timeout = true;
+					timeout = true; //timeout
 					break;
 				}
 			}
@@ -982,7 +958,10 @@ BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 			{
 				mImpl->mDummyEntries.erase(entry);
 			}
-
+		}
+		
+		if(!timeout)
+		{
 			iter = mImpl->mVisibleEntries.erase(iter);
 		}
 		else
@@ -990,17 +969,28 @@ BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 			break; //timeout
 		}
 	}
+
 	if(timeout)
 	{
-		mImpl->mVisibleGroups.clear();
-		return did_update;
+		return -1.f;
+	}
+	return max_time - update_timer.getElapsedTimeF32(); //time left
+}
+
+F32 LLViewerRegion::addVisibleObjects(F32 max_time, S32& max_num_objects)
+{
+	if(mImpl->mVisibleGroups.empty())
+	{
+		return max_time;
 	}
 
-	//add objects in the visible groups to the rendering pipeline
-	std::set< LLSpatialGroup* >::iterator group_iter = mImpl->mVisibleGroups.begin();
+	LLTimer update_timer;
+	bool timeout = false;
+
+	std::set< LLviewerOctreeGroup* >::iterator group_iter = mImpl->mVisibleGroups.begin();
 	while(group_iter != mImpl->mVisibleGroups.end())
 	{
-		LLSpatialGroup* group = *group_iter;
+		LLviewerOctreeGroup* group = *group_iter;
 		if(!group->getOctreeNode() || group->isEmpty())
 		{
 			mImpl->mVisibleGroups.erase(group_iter);
@@ -1009,7 +999,7 @@ BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 		}
 
 		std::vector<LLViewerOctreeEntry*> entry_list;
-		for (LLSpatialGroup::element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
+		for (LLviewerOctreeGroup::element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
 		{
 			//group data contents could change during creating new objects, so copy all contents first.
 			entry_list.push_back(*i);
@@ -1028,7 +1018,7 @@ BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 				else if(vo_entry->isState(LLVOCacheEntry::INACTIVE))
 				{
 					addNewObject(vo_entry);
-					if(new_object_count-- < 0 && update_timer.getElapsedTimeF32() > max_update_time)
+					if(max_num_objects-- < 0 && update_timer.getElapsedTimeF32() > max_time)
 					{
 						timeout = true;
 						break;
@@ -1044,10 +1034,73 @@ BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 		}
 		mImpl->mVisibleGroups.erase(group);
 		group_iter = mImpl->mVisibleGroups.begin();
-	}
-	mImpl->mVisibleGroups.clear();
+	}	
 
+	if(timeout)
+	{
+		return -1.0f;
+	}
+	return max_time - update_timer.getElapsedTimeF32();
+}
+
+BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
+{
+	LLTimer update_timer;
+
+	// did_update returns TRUE if we did at least one significant update
+	BOOL did_update = mImpl->mLandp->idleUpdate(max_update_time);
+	
+	if (mParcelOverlay)
+	{
+		// Hopefully not a significant time sink...
+		mParcelOverlay->idleUpdate();
+	}
+
+	max_update_time -= update_timer.getElapsedTimeF32();
+	if(max_update_time < 0.f)
+	{
+		return did_update;
+	}
+
+	sCurRegionp = this;
+
+	//kill invisible objects
+	max_update_time = killInvisibleObjects(max_update_time);
+
+	S32 new_object_count = 64; //minimum number of new objects to be added
+	
+	//add childrens of visible objects to the rendering pipeline
+	max_update_time = addLinkedSetChildren(max_update_time, new_object_count);
+
+	//add objects in the visible groups to the rendering pipeline
+	if(max_update_time > 0.f)
+	{
+		addVisibleObjects(max_update_time, new_object_count);
+	}
+
+	mImpl->mVisibleGroups.clear();
+	sCurRegionp = NULL;
 	return did_update;
+}
+
+F32 LLViewerRegion::killInvisibleObjects(F32 max_time)
+{
+	std::vector<LLDrawable*> delete_list;
+	for(LLVOCacheEntry::vocache_entry_set_t::iterator iter = mImpl->mActiveSet.begin();
+		iter != mImpl->mActiveSet.end(); ++iter)
+	{
+		if(!(*iter)->isRecentlyVisible())
+		{
+			killObject((*iter), delete_list);
+		}
+	}
+	for(S32 i = 0; i < delete_list.size(); i++)
+	{
+		gObjectList.killObject(delete_list[i]->getVObj());
+	}
+	delete_list.clear();
+
+	return max_time;
 }
 
 void LLViewerRegion::killObject(LLVOCacheEntry* entry, std::vector<LLDrawable*>& delete_list)
@@ -2189,9 +2242,18 @@ void LLViewerRegion::logActiveCapabilities() const
 
 LLSpatialPartition* LLViewerRegion::getSpatialPartition(U32 type)
 {
-	if (type < mImpl->mObjectPartition.size())
+	if (type < mImpl->mObjectPartition.size() && type < PARTITION_VO_CACHE)
 	{
-		return mImpl->mObjectPartition[type];
+		return (LLSpatialPartition*)mImpl->mObjectPartition[type];
+	}
+	return NULL;
+}
+
+LLVOCachePartition* LLViewerRegion::getVOCachePartition()
+{
+	if(PARTITION_VO_CACHE < mImpl->mObjectPartition.size())
+	{
+		return (LLVOCachePartition*)mImpl->mObjectPartition[PARTITION_VO_CACHE];
 	}
 	return NULL;
 }

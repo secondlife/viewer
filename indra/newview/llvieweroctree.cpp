@@ -26,6 +26,7 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llvieweroctree.h"
+#include "llviewerregion.h"
 
 //-----------------------------------------------------------------------------------
 //static variables definitions
@@ -324,6 +325,10 @@ void LLViewerOctreeEntryData::setVisible() const
 
 LLviewerOctreeGroup::~LLviewerOctreeGroup()
 {
+	if(LLViewerRegion::sCurRegionp && isVisible())
+	{
+		LLViewerRegion::sCurRegionp->clearVisibleGroup(this);
+	}
 }
 
 LLviewerOctreeGroup::LLviewerOctreeGroup(OctreeNode* node) :
@@ -482,8 +487,10 @@ void LLviewerOctreeGroup::handleDestruction(const TreeNode* node)
 		if (obj && obj->getGroup() == this)
 		{
 			obj->nullGroup();
+			//obj->setGroup(NULL);
 		}
 	}
+	mOctreeNode = NULL;
 }
 	
 //virtual 
@@ -500,8 +507,17 @@ void LLviewerOctreeGroup::handleStateChange(const TreeNode* node)
 //virtual 
 void LLviewerOctreeGroup::handleChildAddition(const OctreeNode* parent, OctreeNode* child)
 {
-	llerrs << "can not access here. It is an abstract class." << llendl;
+	if (child->getListenerCount() == 0)
+	{
+		new LLviewerOctreeGroup(child);
+	}
+	else
+	{
+		OCT_ERRS << "LLSpatialGroup redundancy detected." << llendl;
+	}
 
+	unbound();
+	
 	//((LLviewerOctreeGroup*)child->getListener(0))->unbound();
 }
 	
@@ -589,7 +605,35 @@ bool LLviewerOctreeGroup::boundObjects(BOOL empty, LLVector4a& minOut, LLVector4
 //virtual 
 BOOL LLviewerOctreeGroup::isVisible() const
 {
-	return TRUE;
+	return mVisible[LLViewerCamera::sCurCameraID] >= LLViewerOctreeEntryData::getCurrentFrame() ? TRUE : FALSE;
+}
+
+//virtual 
+BOOL LLviewerOctreeGroup::isRecentlyVisible() const 
+{
+	return FALSE;
+}
+
+void LLviewerOctreeGroup::setVisible()
+{
+	mVisible[LLViewerCamera::sCurCameraID] = LLViewerOctreeEntryData::getCurrentFrame();
+}
+//-----------------------------------------------------------------------------------
+//class LLViewerOctreePartition definitions
+//-----------------------------------------------------------------------------------
+LLViewerOctreePartition::LLViewerOctreePartition() : mRegionp(NULL)
+{
+	LLVector4a center, size;
+	center.splat(0.f);
+	size.splat(1.f);
+
+	mOctree = new OctreeRoot(center,size, NULL);
+}
+	
+LLViewerOctreePartition::~LLViewerOctreePartition()
+{
+	delete mOctree;
+	mOctree = NULL;
 }
 
 //-----------------------------------------------------------------------------------

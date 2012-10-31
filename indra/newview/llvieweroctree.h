@@ -37,8 +37,9 @@
 #include "llvector4a.h"
 #include "llquaternion.h"
 #include "lloctree.h"
-#include "llcamera.h"
+#include "llviewercamera.h"
 
+class LLViewerRegion;
 class LLViewerOctreeEntryData;
 class LLviewerOctreeGroup;
 class LLViewerOctreeEntry;
@@ -181,6 +182,9 @@ public:
 	};
 
 public:
+	typedef LLOctreeNode<LLViewerOctreeEntry>::element_iter element_iter;
+	typedef LLOctreeNode<LLViewerOctreeEntry>::element_list element_list;
+
 	LLviewerOctreeGroup(OctreeNode* node);
 	LLviewerOctreeGroup(const LLviewerOctreeGroup& rhs)
 	{
@@ -203,8 +207,10 @@ public:
 	virtual void unbound();
 	virtual void rebound();
 
-	virtual BOOL isVisible() const;
-	virtual BOOL isRecentlyVisible() const = 0;
+	void setVisible();
+	BOOL isVisible() const;
+	virtual BOOL isRecentlyVisible() const;
+	bool isEmpty() const { return mOctreeNode->isEmpty(); }
 
 	U32  getState()				   {return mState; }
 	bool isDirty() const           {return mState & DIRTY;}
@@ -228,19 +234,42 @@ public:
 	const LLVector4a* getObjectBounds() const  {return mObjectBounds;}
 	const LLVector4a* getObjectExtents() const {return mObjectExtents;}
 
+	//octree wrappers to make code more readable
+	element_list& getData() { return mOctreeNode->getData(); }
+	element_iter getDataBegin() { return mOctreeNode->getDataBegin(); }
+	element_iter getDataEnd() { return mOctreeNode->getDataEnd(); }
+	U32 getElementCount() const { return mOctreeNode->getElementCount(); }	
+
 private:
 	virtual bool boundObjects(BOOL empty, LLVector4a& minOut, LLVector4a& maxOut);	
 	
 protected:
 	U32         mState;
-	OctreeNode* mOctreeNode;
-	
+	OctreeNode* mOctreeNode;	
+
 	LL_ALIGN_16(LLVector4a mBounds[2]);       // bounding box (center, size) of this node and all its children (tight fit to objects)
 	LL_ALIGN_16(LLVector4a mObjectBounds[2]); // bounding box (center, size) of objects in this node
 	LL_ALIGN_16(LLVector4a mExtents[2]); // extents (min, max) of this node and all its children
 	LL_ALIGN_16(LLVector4a mObjectExtents[2]); // extents (min, max) of objects in this node
 
+public:
+	S32         mVisible[LLViewerCamera::NUM_CAMERAS];
 }LL_ALIGN_POSTFIX(16);
+
+class LLViewerOctreePartition
+{
+public:
+	LLViewerOctreePartition();
+	virtual ~LLViewerOctreePartition();
+
+	// Cull on arbitrary frustum
+	virtual S32 cull(LLCamera &camera) = 0;
+
+public:	
+	U32              mPartitionType;
+	OctreeNode*      mOctree;
+	LLViewerRegion*  mRegionp; // the region this partition belongs to.
+};
 
 class LLViewerOctreeCull : public OctreeTraveler
 {

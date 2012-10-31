@@ -45,6 +45,7 @@
 #define SG_STATE_INHERIT_MASK (OCCLUDED)
 #define SG_INITIAL_STATE_MASK (DIRTY | GEOM_DIRTY)
 
+class LLViewerOctreePartition;
 class LLSpatialPartition;
 class LLSpatialBridge;
 class LLSpatialGroup;
@@ -225,10 +226,7 @@ public:
 	typedef std::map<U32, drawmap_elem_t > draw_map_t;	
 	typedef std::vector<LLPointer<LLVertexBuffer> > buffer_list_t;
 	typedef std::map<LLFace*, buffer_list_t> buffer_texture_map_t;
-	typedef std::map<U32, buffer_texture_map_t> buffer_map_t;
-
-	typedef LLOctreeNode<LLViewerOctreeEntry>::element_iter element_iter;
-	typedef LLOctreeNode<LLViewerOctreeEntry>::element_list element_list;
+	typedef std::map<U32, buffer_texture_map_t> buffer_map_t;	
 
 	struct CompareDistanceGreater
 	{
@@ -308,9 +306,7 @@ public:
 	BOOL addObject(LLDrawable *drawablep);
 	BOOL removeObject(LLDrawable *drawablep, BOOL from_octree = FALSE);
 	BOOL updateInGroup(LLDrawable *drawablep, BOOL immediate = FALSE); // Update position if it's in the group
-	BOOL isVisible() const;
 	BOOL isRecentlyVisible() const;
-	void setVisible();
 	void shift(const LLVector4a &offset);
 	void checkOcclusion(); //read back last occlusion query (if any)
 	void doOcclusion(LLCamera* camera); //issue occlusion query
@@ -325,14 +321,7 @@ public:
 
 	void setState(U32 state)       {mState |= state;}
 	void dirtyGeom() { setState(GEOM_DIRTY); }
-	void dirtyMesh() { setState(MESH_DIRTY); }
-
-	//octree wrappers to make code more readable
-	element_list& getData() { return mOctreeNode->getData(); }
-	element_iter getDataBegin() { return mOctreeNode->getDataBegin(); }
-	element_iter getDataEnd() { return mOctreeNode->getDataEnd(); }
-	U32 getElementCount() const { return mOctreeNode->getElementCount(); }
-	bool isEmpty() const { return mOctreeNode->isEmpty(); }
+	void dirtyMesh() { setState(MESH_DIRTY); }		
 
 	void drawObjectBox(LLColor4 col);
 
@@ -404,8 +393,7 @@ public:
 
 	U32 mBufferUsage;
 	draw_map_t mDrawMap;
-	
-	S32 mVisible[LLViewerCamera::NUM_CAMERAS];
+		
 	F32 mDistance;
 	F32 mDepth;
 	F32 mLastUpdateDistance;
@@ -428,7 +416,7 @@ public:
 	virtual LLVertexBuffer* createVertexBuffer(U32 type_mask, U32 usage);
 };
 
-class LLSpatialPartition: public LLGeometryManager
+class LLSpatialPartition: public LLViewerOctreePartition, public LLGeometryManager
 {
 public:
 	LLSpatialPartition(U32 data_mask,  BOOL render_by_group, U32 mBufferUsage, LLViewerRegion* regionp);
@@ -458,7 +446,8 @@ public:
 	virtual void rebuildMesh(LLSpatialGroup* group);
 
 	BOOL visibleObjectsInFrustum(LLCamera& camera);
-	S32 cull(LLCamera &camera, std::vector<LLDrawable *>* results = NULL, BOOL for_select = FALSE); // Cull on arbitrary frustum
+	/*virtual*/ S32 cull(LLCamera &camera); // Cull on arbitrary frustum
+	S32 cull(LLCamera &camera, std::vector<LLDrawable *>* results, BOOL for_select); // Cull on arbitrary frustum
 	
 	BOOL isVisible(const LLVector3& v);
 	bool isHUDPartition() ;
@@ -473,26 +462,21 @@ public:
 	void resetVertexBuffers();
 	BOOL isOcclusionEnabled();
 	BOOL getVisibleExtents(LLCamera& camera, LLVector3& visMin, LLVector3& visMax);
-	BOOL isVOCachePartition() const;
-
+	
 public:
-	OctreeNode*      mOctree;
 	LLSpatialBridge* mBridge; // NULL for non-LLSpatialBridge instances, otherwise, mBridge == this
 							// use a pointer instead of making "isBridge" and "asBridge" virtual so it's safe
 							// to call asBridge() from the destructor
 	BOOL mOcclusionEnabled; // if TRUE, occlusion culling is performed
 	BOOL mInfiniteFarClip; // if TRUE, frustum culling ignores far clip plane
 	U32 mBufferUsage;
+	U32   mDrawableType;
 	const BOOL mRenderByGroup;
 	U32 mLODSeed;
 	U32 mLODPeriod;	//number of frames between LOD updates for a given spatial group (staggered by mLODSeed)
 	U32 mVertexDataMask;
 	F32 mSlopRatio; //percentage distance must change before drawables receive LOD update (default is 0.25);
-	BOOL mDepthMask; //if TRUE, objects in this partition will be written to depth during alpha rendering
-	U32 mDrawableType;
-	U32 mPartitionType;
-	U32 mVisitedTime;
-	LLViewerRegion* mRegionp; // the region this partition belongs to.
+	BOOL mDepthMask; //if TRUE, objects in this partition will be written to depth during alpha rendering	
 };
 
 // class for creating bridges between spatial partitions
@@ -636,19 +620,6 @@ class LLVoidWaterPartition : public LLWaterPartition
 {
 public:
 	LLVoidWaterPartition(LLViewerRegion* regionp);
-};
-
-//spatial partition for hole and edge water (implemented in LLVOWater.cpp)
-class LLVOCachePartition : public LLSpatialPartition
-{
-public:
-	LLVOCachePartition(LLViewerRegion* regionp);
-
-	void addEntry(LLViewerOctreeEntry* entry);
-	void removeEntry(LLViewerOctreeEntry* entry);
-
-	virtual void getGeometry(LLSpatialGroup* group) {  }
-	virtual void addGeometryCount(LLSpatialGroup* group, U32 &vertex_count, U32& index_count) { }
 };
 
 //spatial partition for terrain (impelmented in LLVOSurfacePatch.cpp)

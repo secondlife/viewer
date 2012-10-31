@@ -31,6 +31,7 @@
 #include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
 #include "lldrawable.h"
+#include "llviewerregion.h"
 
 BOOL check_read(LLAPRFile* apr_file, void* src, S32 n_bytes) 
 {
@@ -353,6 +354,82 @@ BOOL LLVOCacheEntry::writeToFile(LLAPRFile* apr_file) const
 	}
 
 	return success ;
+}
+
+//-------------------------------------------------------------------
+//LLVOCachePartition
+//-------------------------------------------------------------------
+LLVOCachePartition::LLVOCachePartition(LLViewerRegion* regionp)
+{
+	mRegionp = regionp;
+	mPartitionType = LLViewerRegion::PARTITION_VO_CACHE;
+	mVisitedTime = 0;
+
+	new LLviewerOctreeGroup(mOctree);
+}
+
+void LLVOCachePartition::addEntry(LLViewerOctreeEntry* entry)
+{
+	llassert(entry->hasVOCacheEntry());
+
+	mOctree->insert(entry);
+}
+	
+void LLVOCachePartition::removeEntry(LLViewerOctreeEntry* entry)
+{
+	entry->getVOCacheEntry()->setGroup(NULL);
+
+	llassert(!entry->getGroup());
+}
+	
+class LLVOCacheOctreeCull : public LLViewerOctreeCull
+{
+public:
+	LLVOCacheOctreeCull(LLCamera* camera, LLViewerRegion* regionp) : LLViewerOctreeCull(camera), mRegionp(regionp) {}
+
+	virtual S32 frustumCheck(const LLviewerOctreeGroup* group)
+	{
+		S32 res = AABBInFrustumNoFarClipGroupBounds(group);
+		if (res != 0)
+		{
+			res = llmin(res, AABBSphereIntersectGroupExtents(group));
+		}
+		return res;
+	}
+
+	virtual S32 frustumCheckObjects(const LLviewerOctreeGroup* group)
+	{
+		S32 res = AABBInFrustumNoFarClipObjectBounds(group);
+		if (res != 0)
+		{
+			res = llmin(res, AABBSphereIntersectObjectExtents(group));
+		}
+		return res;
+	}
+
+	virtual void processGroup(LLviewerOctreeGroup* base_group)
+	{
+		mRegionp->addVisibleGroup(base_group);
+	}
+
+private:
+	LLViewerRegion* mRegionp;
+};
+
+S32 LLVOCachePartition::cull(LLCamera &camera)
+{
+	if(mVisitedTime == LLViewerOctreeEntryData::getCurrentFrame())
+	{
+		return 0; //already visited.
+	}
+	mVisitedTime = LLViewerOctreeEntryData::getCurrentFrame();
+
+	((LLviewerOctreeGroup*)mOctree->getListener(0))->rebound();
+		
+	LLVOCacheOctreeCull culler(&camera, mRegionp);
+	culler.traverse(mOctree);
+
+	return 0;
 }
 
 //-------------------------------------------------------------------
