@@ -98,7 +98,7 @@ LLIMFloaterContainer::~LLIMFloaterContainer()
 
 void LLIMFloaterContainer::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
 {
-	LLIMFloater::addToHost(session_id);
+	LLIMConversation::addToHost(session_id);
 	addConversationListItem(session_id);
 }
 
@@ -109,7 +109,7 @@ void LLIMFloaterContainer::sessionActivated(const LLUUID& session_id, const std:
 
 void LLIMFloaterContainer::sessionVoiceOrIMStarted(const LLUUID& session_id)
 {
-	LLIMFloater::addToHost(session_id);
+	LLIMConversation::addToHost(session_id);
 	addConversationListItem(session_id);
 }
 
@@ -490,9 +490,9 @@ void LLIMFloaterContainer::setVisible(BOOL visible)
 	}
 
 	nearby_chat = LLFloaterReg::findTypedInstance<LLNearbyChat>("nearby_chat");
-	if (nearby_chat && !nearby_chat->isHostSet())
+	if (nearby_chat)
 	{
-		nearby_chat->addToHost();
+		LLIMConversation::addToHost(LLUUID());
 	}
 
 	// We need to show/hide all the associated conversations that have been torn off

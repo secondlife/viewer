@@ -91,8 +91,7 @@ LLNearbyChat::LLNearbyChat(const LLSD& llsd)
 :	LLIMConversation(llsd),
 	//mOutputMonitor(NULL),
 	mSpeakerMgr(NULL),
-	mExpandedHeight(COLLAPSED_HEIGHT + EXPANDED_HEIGHT),
-	mIsHostSet(false)
+	mExpandedHeight(COLLAPSED_HEIGHT + EXPANDED_HEIGHT)
 {
     mIsP2PChat = false;
 	mIsNearbyChat = true;
@@ -283,7 +282,7 @@ void LLNearbyChat::setFocus(BOOL focusFlag)
     
 }
 
-void	LLNearbyChat::setVisible(BOOL visible)
+void LLNearbyChat::setVisible(BOOL visible)
 {
 	LLIMConversation::setVisible(visible);
 
@@ -304,35 +303,6 @@ void LLNearbyChat::onTearOffClicked()
 	gSavedSettings.setBOOL("NearbyChatIsNotTornOff", in_the_multifloater);
 }
 
-void LLNearbyChat::addToHost()
-{
-	if ( LLIMConversation::isChatMultiTab())
-	{
-		LLIMFloaterContainer* im_box = LLIMFloaterContainer::getInstance();
-		if (im_box)
-		{
-			if (gSavedSettings.getBOOL("NearbyChatIsNotTornOff"))
-			{
-				im_box->addFloater(this, TRUE, LLTabContainer::END);
-			}
-			else
-			{
-				// setting of the "potential" host: this sequence sets
-				// LLFloater::mHostHandle = NULL (a current host), but
-				// LLFloater::mLastHostHandle = im_box (a "future" host)
-				setHost(im_box);
-				setHost(NULL);
-			}
-		}
-
-		mIsHostSet = true;
-	}
-	}
-
-bool LLNearbyChat::isHostSet()
-{
-    return mIsHostSet;
-}
 
 // virtual
 void LLNearbyChat::onOpen(const LLSD& key)
