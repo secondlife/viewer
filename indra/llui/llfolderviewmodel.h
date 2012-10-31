@@ -202,6 +202,7 @@ public:
 	virtual S32 getSortVersion() = 0;
 	virtual void setSortVersion(S32 version) = 0;
 	virtual void setParent(LLFolderViewModelItem* parent) = 0;
+	virtual bool hasParent() = 0;
 
 protected:
 
@@ -332,6 +333,7 @@ public:
 
 protected:
 	virtual void setParent(LLFolderViewModelItem* parent) { mParent = parent; }
+	virtual bool hasParent() { return mParent != NULL; }
 
 	S32						mSortVersion;
 	bool					mPassedFilter;

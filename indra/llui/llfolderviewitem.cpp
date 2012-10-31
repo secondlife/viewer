@@ -1563,7 +1563,7 @@ BOOL LLFolderViewFolder::isRemovable()
 void LLFolderViewFolder::addItem(LLFolderViewItem* item)
 {
 	if (item->getParentFolder())
-{
+	{
 		item->getParentFolder()->extractItem(item);
 	}
 	item->setParentFolder(this);
@@ -1574,7 +1574,13 @@ void LLFolderViewFolder::addItem(LLFolderViewItem* item)
 	item->setVisible(FALSE);
 	
 	addChild(item);
-	getViewModelItem()->addChild(item->getViewModelItem());
+
+	// When the model is already hooked into a hierarchy (i.e. has a parent), do not reparent it
+	// Note: this happens when models are created before views or shared between views
+	if (!item->getViewModelItem()->hasParent())
+	{
+		getViewModelItem()->addChild(item->getViewModelItem());
+	}
 	
 	//TODO RN - make sort bubble up as long as parent Folder doesn't have anything matching sort criteria
 	//// Traverse parent folders and update creation date and resort, if necessary
@@ -1593,11 +1599,11 @@ void LLFolderViewFolder::addItem(LLFolderViewItem* item)
 
 // this is an internal method used for adding items to folders. 
 void LLFolderViewFolder::addFolder(LLFolderViewFolder* folder)
-	{
+{
 	if (folder->mParentFolder)
-		{
+	{
 		folder->mParentFolder->extractItem(folder);
-		}
+	}
 	folder->mParentFolder = this;
 	mFolders.push_back(folder);
 	folder->setOrigin(0, 0);
@@ -1607,9 +1613,15 @@ void LLFolderViewFolder::addFolder(LLFolderViewFolder* folder)
 	//folder->requestArrange();
 	//requestSort();
 
-	addChild( folder );
-	getViewModelItem()->addChild(folder->getViewModelItem());
+	addChild(folder);
+
+	// When the model is already hooked into a hierarchy (i.e. has a parent), do not reparent it
+	// Note: this happens when models are created before views or shared between views
+	if (!folder->getViewModelItem()->hasParent())
+	{
+		getViewModelItem()->addChild(folder->getViewModelItem());
 	}
+}
 
 void LLFolderViewFolder::requestArrange()
 { 

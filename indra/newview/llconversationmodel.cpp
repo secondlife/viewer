@@ -405,8 +405,8 @@ void LLConversationItemParticipant::onAvatarNameCache(const LLAvatarName& av_nam
 	{
 		parent_session->requestSort();
 		parent_session->updateParticipantName(this);
+		postEvent("update_participant", parent_session, this);
 	}
-	postEvent("update_participant", parent_session, this);
 }
 
 void LLConversationItemParticipant::dumpDebugData()
