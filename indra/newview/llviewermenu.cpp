@@ -1638,6 +1638,54 @@ class LLAdvancedForceParamsToDefault : public view_listener_t
 };
 
 
+//////////////////////////
+//   ANIMATION SPEED    //
+//////////////////////////
+
+// Utility function to set all AV time factors to the same global value
+static void set_all_animation_time_factors(F32	time_factor)
+{
+	LLMotionController::setCurrentTimeFactor(time_factor);
+	for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
+		iter != LLCharacter::sInstances.end(); ++iter)
+	{
+		(*iter)->setAnimTimeFactor(time_factor);
+	}
+}
+
+class LLAdvancedAnimTenFaster : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		//llinfos << "LLAdvancedAnimTenFaster" << llendl;
+		F32 time_factor = LLMotionController::getCurrentTimeFactor();
+		time_factor = llmin(time_factor + 0.1f, 2.f);	// Upper limit is 200% speed
+		set_all_animation_time_factors(time_factor);
+		return true;
+	}
+};
+
+class LLAdvancedAnimTenSlower : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		//llinfos << "LLAdvancedAnimTenSlower" << llendl;
+		F32 time_factor = LLMotionController::getCurrentTimeFactor();
+		time_factor = llmax(time_factor - 0.1f, 0.1f);	// Lower limit is at 10% of normal speed
+		set_all_animation_time_factors(time_factor);
+		return true;
+	}
+};
+
+class LLAdvancedAnimResetAll : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		set_all_animation_time_factors(1.f);
+		return true;
+	}
+};
+
 
 //////////////////////////
 // RELOAD VERTEX SHADER //
@@ -8407,6 +8455,11 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedTestMale(), "Advanced.TestMale");
 	view_listener_t::addMenu(new LLAdvancedTestFemale(), "Advanced.TestFemale");
 	
+	// Advanced > Character > Animation Speed
+	view_listener_t::addMenu(new LLAdvancedAnimTenFaster(), "Advanced.AnimTenFaster");
+	view_listener_t::addMenu(new LLAdvancedAnimTenSlower(), "Advanced.AnimTenSlower");
+	view_listener_t::addMenu(new LLAdvancedAnimResetAll(), "Advanced.AnimResetAll");
+
 	// Advanced > Character (toplevel)
 	view_listener_t::addMenu(new LLAdvancedForceParamsToDefault(), "Advanced.ForceParamsToDefault");
 	view_listener_t::addMenu(new LLAdvancedReloadVertexShader(), "Advanced.ReloadVertexShader");
