@@ -129,6 +129,7 @@ protected:
 	void initFromParams(const Params& params);
 	BOOL postBuild();
     /*virtual*/ void draw();
+    /*virtual*/ S32 arrange(S32* width, S32* height);
 	
 	void onInfoBtnClick();
 

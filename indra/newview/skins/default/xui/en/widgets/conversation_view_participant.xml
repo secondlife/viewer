@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <conversation_view_participant
   folder_arrow_image="Folder_Arrow"
-  folder_indentation="0"
   item_height="24" 
   item_top_pad="0"
   selection_image="Rounded_Square"
@@ -20,7 +19,6 @@
      height="20"
      default_icon_name="Generic_Person"
 	 layout="topleft"
-     left="50"
 	 top="2"
      width="20" />
 <info_button

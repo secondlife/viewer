@@ -1289,9 +1289,6 @@ LLConversationViewParticipant* LLIMFloaterContainer::createConversationViewParti
     LLRect panel_rect = mConversationsListPanel->getRect();
 	
 	params.name = item->getDisplayName();
-	//params.icon = bridge->getIcon();
-	//params.icon_open = bridge->getOpenIcon();
-	//params.creation_date = bridge->getCreationDate();
 	params.root = mConversationsRoot;
 	params.listener = item;
 
@@ -1299,7 +1296,8 @@ LLConversationViewParticipant* LLIMFloaterContainer::createConversationViewParti
 	params.rect = LLRect (0, 24, panel_rect.getWidth(), 0);
 	params.tool_tip = params.name;
 	params.participant_id = item->getUUID();
-	
+    params.folder_indentation = 42;
+
 	return LLUICtrlFactory::create<LLConversationViewParticipant>(params);
 }
 

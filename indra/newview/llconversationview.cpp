@@ -432,6 +432,22 @@ void LLConversationViewParticipant::draw()
     LLView::draw();
 }
 
+// virtual
+S32 LLConversationViewParticipant::arrange(S32* width, S32* height)
+{
+    //Need to call arrange first since it computes value used in getIndentation()
+    S32 arranged = LLFolderViewItem::arrange(width, height);
+
+    //Adjusts the avatar icon based upon the indentation
+    LLRect avatarRect(getIndentation(), 
+                        mAvatarIcon->getRect().mTop,
+                        getIndentation() + mAvatarIcon->getRect().getWidth(),
+                        mAvatarIcon->getRect().mBottom);
+    mAvatarIcon->setShape(avatarRect);
+
+    return arranged;
+}
+
 void LLConversationViewParticipant::selectItem()
 {
     LLConversationItem* vmi = this->getParentFolder() ? static_cast<LLConversationItem*>(this->getParentFolder()->getViewModelItem()) : NULL;
@@ -507,7 +523,7 @@ void LLConversationViewParticipant::onMouseLeave(S32 x, S32 y, MASK mask)
 
 S32 LLConversationViewParticipant::getLabelXPos()
 {
-    return mAvatarIcon->getRect().mRight + mIconPad;
+    return getIndentation() + mAvatarIcon->getRect().getWidth() + mIconPad;
 }
 
 // static
