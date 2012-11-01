@@ -1206,6 +1206,7 @@ bool LLIMFloaterContainer::removeConversationListItem(const LLUUID& uuid, bool c
 	// Note : since the mConversationsItems is also the listener to the widget, deleting 
 	// the widget will also delete its listener
 	bool isWidgetSelected = false;
+	LLFolderViewItem* new_selection = NULL;
 	conversations_widgets_map::iterator widget_it = mConversationsWidgets.find(uuid);
 	if (widget_it != mConversationsWidgets.end())
 	{
@@ -1213,6 +1214,11 @@ bool LLIMFloaterContainer::removeConversationListItem(const LLUUID& uuid, bool c
 		if (widget)
 		{
 			isWidgetSelected = widget->isSelected();
+			new_selection = mConversationsRoot->getNextFromChild(widget);
+			if(new_selection == NULL)
+			{
+				new_selection = mConversationsRoot->getPreviousFromChild(widget);
+			}
 			widget->destroyView();
 		}
 	}
@@ -1225,12 +1231,13 @@ bool LLIMFloaterContainer::removeConversationListItem(const LLUUID& uuid, bool c
 	if (change_focus)
 	{
 		setFocus(TRUE);
-		conversations_widgets_map::iterator widget_it = mConversationsWidgets.begin();
-		if (widget_it != mConversationsWidgets.end())
+		if(new_selection != NULL)
 		{
-            mSelectedSession = widget_it->first;
-			LLFolderViewItem* widget = widget_it->second;
-			widget->selectItem();
+			LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(new_selection->getViewModelItem());
+			if(vmi != NULL)
+			{
+				selectConversation(vmi->getUUID());
+			}
 		}
 	}
 	return isWidgetSelected;
