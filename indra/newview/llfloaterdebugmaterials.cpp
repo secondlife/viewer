@@ -49,6 +49,7 @@
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
 #include "llsd.h"
+#include "llsdserialize.h"
 #include "llselectmgr.h"
 #include "llspinctrl.h"
 #include "llstring.h"
@@ -67,6 +68,8 @@
 #include "v4coloru.h"
 
 #define MATERIALS_CAPABILITY_NAME                 "RenderMaterials"
+
+#define MATERIALS_CAP_ZIP_FIELD                   "Zipped"
 
 #define MATERIALS_CAP_FULL_PER_FACE_FIELD         "FullMaterialsPerFace"
 #define MATERIALS_CAP_FACE_FIELD                  "Face"
@@ -383,7 +386,7 @@ void LLFloaterDebugMaterials::onValueEntered(LLUICtrl* pUICtrl)
 
 	if (doResetValue)
 	{
-		llwarns << "cannot parse string '" << valueString << "' to an S32 value" <<llendl;
+		LL_WARNS("debugMaterials") << "cannot parse string '" << valueString << "' to an S32 value" <<LL_ENDL;
 		LLSD value = static_cast<LLSD::Integer>(intValue);
 		pLineEditor->setValue(value);
 	}
@@ -459,8 +462,6 @@ void LLFloaterDebugMaterials::onGetScrollListSelectionChange(LLUICtrl* pUICtrl)
 
 		llassert(selectedItem != NULL);
 		const LLSD& selectedIdValue = selectedItem->getValue();
-
-		llinfos << "attempting to select by value '" << selectedIdValue << "'" << llendl;
 
 		if (scrollListCtrl != mGetNormalMapScrollList)
 		{
@@ -542,7 +543,7 @@ void LLFloaterDebugMaterials::checkRegionMaterialStatus()
 
 	if (region == NULL)
 	{
-		llwarns << "Region is NULL" << llendl;
+		LL_WARNS("debugMaterials") << "Region is NULL" << LL_ENDL;
 		setState(kNoRegion);
 	}
 	else if (!region->capabilitiesReceived())
@@ -556,8 +557,8 @@ void LLFloaterDebugMaterials::checkRegionMaterialStatus()
 
 		if (capURL.empty())
 		{
-			llwarns << "Capability '" << MATERIALS_CAPABILITY_NAME << "' is not defined on the current region '"
-				<< region->getName() << "'" << llendl;
+			LL_WARNS("debugMaterials") << "Capability '" << MATERIALS_CAPABILITY_NAME
+				<< "' is not defined on the current region '" << region->getName() << "'" << LL_ENDL;
 			setState(kNotEnabled);
 		}
 		else
@@ -583,7 +584,7 @@ void LLFloaterDebugMaterials::requestGetMaterials()
 
 	if (region == NULL)
 	{
-		llwarns << "Region is NULL" << llendl;
+		LL_WARNS("debugMaterials") << "Region is NULL" << LL_ENDL;
 		setState(kNoRegion);
 	}
 	else if (!region->capabilitiesReceived())
@@ -597,16 +598,14 @@ void LLFloaterDebugMaterials::requestGetMaterials()
 
 		if (capURL.empty())
 		{
-			llwarns << "Capability '" << MATERIALS_CAPABILITY_NAME << "' is not defined on the current region '"
-				<< region->getName() << "'" << llendl;
+			LL_WARNS("debugMaterials") << "Capability '" << MATERIALS_CAPABILITY_NAME
+				<< "' is not defined on the current region '" << region->getName() << "'" << LL_ENDL;
 			setState(kNotEnabled);
 		}
 		else
 		{
 			setState(kRequestStarted);
 			LLHTTPClient::ResponderPtr materialsResponder = new MaterialsResponder("GET", capURL, boost::bind(&LLFloaterDebugMaterials::onGetResponse, this, _1, _2));
-			llinfos << "STINSON DEBUG: sending request GET to capability '" << MATERIALS_CAPABILITY_NAME
-				<< "' with url '" << capURL << "'" << llendl;
 			LLHTTPClient::get(capURL, materialsResponder);
 		}
 	}
@@ -628,7 +627,7 @@ void LLFloaterDebugMaterials::requestPutMaterials(bool pIsDoSet)
 
 	if (region == NULL)
 	{
-		llwarns << "Region is NULL" << llendl;
+		LL_WARNS("debugMaterials") << "Region is NULL" << LL_ENDL;
 		setState(kNoRegion);
 	}
 	else if (!region->capabilitiesReceived())
@@ -642,8 +641,8 @@ void LLFloaterDebugMaterials::requestPutMaterials(bool pIsDoSet)
 
 		if (capURL.empty())
 		{
-			llwarns << "Capability '" << MATERIALS_CAPABILITY_NAME << "' is not defined on the current region '"
-				<< region->getName() << "'" << llendl;
+			LL_WARNS("debugMaterials") << "Capability '" << MATERIALS_CAPABILITY_NAME
+				<< "' is not defined on the current region '" << region->getName() << "'" << LL_ENDL;
 			setState(kNotEnabled);
 		}
 		else
@@ -689,7 +688,7 @@ void LLFloaterDebugMaterials::requestPutMaterials(bool pIsDoSet)
 					const LLViewerRegion* viewerRegion = viewerObject->getRegion();
 					if (region != viewerRegion)
 					{
-						llerrs << "cannot currently edit an object on a different region through the debug materials floater" << llendl;
+						LL_ERRS("debugMaterials") << "cannot currently edit an object on a different region through the debug materials floater" << llendl;
 					}
 					S32 numTEs = llmin(static_cast<S32>(viewerObject->getNumTEs()), viewerObject->getNumFaces());
 					for (S32 curTEIndex = 0; curTEIndex < numTEs; ++curTEIndex)
@@ -709,13 +708,28 @@ void LLFloaterDebugMaterials::requestPutMaterials(bool pIsDoSet)
 				}
 			}
 
-			LLSD putData = LLSD::emptyMap();
-			putData[MATERIALS_CAP_FULL_PER_FACE_FIELD] = facesData;
+			LLSD materialsData = LLSD::emptyMap();
+			materialsData[MATERIALS_CAP_FULL_PER_FACE_FIELD] = facesData;
 
-			LLHTTPClient::ResponderPtr materialsResponder = new MaterialsResponder("PUT", capURL, boost::bind(&LLFloaterDebugMaterials::onPutResponse, this, _1, _2));
-			llinfos << "STINSON DEBUG: sending request PUT to capability '" << MATERIALS_CAPABILITY_NAME
-				<< "' with url '" << capURL << "' and with data " << putData << llendl;
-			LLHTTPClient::put(capURL, putData, materialsResponder);
+			std::string materialString = zip_llsd(materialsData);
+			S32 materialSize = materialString.size();
+
+			if (materialSize <= 0)
+			{
+				LL_ERRS("debugMaterials") << "cannot zip LLSD binary content" << LL_ENDL;
+			}
+			else
+			{
+				LLSD::Binary materialBinary;
+				materialBinary.resize(materialSize);
+				memcpy(materialBinary.data(), materialString.data(), materialSize);
+
+				LLSD putData = LLSD::emptyMap();
+				putData[MATERIALS_CAP_ZIP_FIELD] = materialBinary;
+
+				LLHTTPClient::ResponderPtr materialsResponder = new MaterialsResponder("PUT", capURL, boost::bind(&LLFloaterDebugMaterials::onPutResponse, this, _1, _2));
+				LLHTTPClient::put(capURL, putData, materialsResponder);
+			}
 		}
 	}
 }
@@ -737,7 +751,7 @@ void LLFloaterDebugMaterials::requestPostMaterials(bool pUseGoodData)
 
 	if (region == NULL)
 	{
-		llwarns << "Region is NULL" << llendl;
+		LL_WARNS("debugMaterials") << "Region is NULL" << LL_ENDL;
 		setState(kNoRegion);
 	}
 	else if (!region->capabilitiesReceived())
@@ -751,8 +765,8 @@ void LLFloaterDebugMaterials::requestPostMaterials(bool pUseGoodData)
 
 		if (capURL.empty())
 		{
-			llwarns << "Capability '" << MATERIALS_CAPABILITY_NAME << "' is not defined on the current region '"
-				<< region->getName() << "'" << llendl;
+			LL_WARNS("debugMaterials") << "Capability '" << MATERIALS_CAPABILITY_NAME
+				<< "' is not defined on the current region '" << region->getName() << "'" << LL_ENDL;
 			setState(kNotEnabled);
 		}
 		else
@@ -792,8 +806,6 @@ void LLFloaterDebugMaterials::requestPostMaterials(bool pUseGoodData)
 			}
 
 			LLHTTPClient::ResponderPtr materialsResponder = new MaterialsResponder("POST", capURL, boost::bind(&LLFloaterDebugMaterials::onPostResponse, this, _1, _2));
-			llinfos << "STINSON DEBUG: sending request POST to capability '" << MATERIALS_CAPABILITY_NAME
-				<< "' with url '" << capURL << "' and with data " << postData << llendl;
 			LLHTTPClient::post(capURL, postData, materialsResponder);
 		}
 	}
@@ -877,7 +889,6 @@ void LLFloaterDebugMaterials::queryViewableObjects()
 
 void LLFloaterDebugMaterials::parseGetResponse(const LLSD& pContent)
 {
-	printResponse("GET", pContent);
 	clearGetResults();
 
 	LLScrollListCell::Params cellParams;
@@ -885,233 +896,267 @@ void LLFloaterDebugMaterials::parseGetResponse(const LLSD& pContent)
 	LLScrollListItem::Params specularMapRowParams;
 	LLScrollListItem::Params otherDataRowParams;
 
-	llassert(pContent.isArray());
-	for (LLSD::array_const_iterator materialIter = pContent.beginArray(); materialIter != pContent.endArray();
-		++materialIter)
+	llassert(pContent.isMap());
+	llassert(pContent.has(MATERIALS_CAP_ZIP_FIELD));
+	llassert(pContent.get(MATERIALS_CAP_ZIP_FIELD).isBinary());
+
+	LLSD::Binary responseBinary = pContent.get(MATERIALS_CAP_ZIP_FIELD).asBinary();
+	S32 responseSize = static_cast<S32>(responseBinary.size());
+	std::string responseString(reinterpret_cast<const char*>(responseBinary.data()), responseSize);
+
+	std::istringstream responseStream(responseString);
+
+	LLSD responseContent;
+	if (!unzip_llsd(responseContent, responseStream, responseSize))
 	{
-		const LLSD &material = *materialIter;
-		llassert(material.isMap());
-		llassert(material.has(MATERIALS_CAP_OBJECT_ID_FIELD));
-		llassert(material.get(MATERIALS_CAP_OBJECT_ID_FIELD).isBinary());
-		const LLSD &materialID = material.get(MATERIALS_CAP_OBJECT_ID_FIELD);
-		std::string materialIDString = convertToPrintableMaterialID(materialID);
+		LL_ERRS("debugMaterials") << "cannot unzip LLSD binary content" << LL_ENDL;
+	}
+	else
+	{
+		llassert(responseContent.isArray());
+		for (LLSD::array_const_iterator materialIter = responseContent.beginArray(); materialIter != responseContent.endArray();
+			++materialIter)
+		{
+			const LLSD &material = *materialIter;
+			llassert(material.isMap());
+			llassert(material.has(MATERIALS_CAP_OBJECT_ID_FIELD));
+			llassert(material.get(MATERIALS_CAP_OBJECT_ID_FIELD).isBinary());
+			const LLSD &materialID = material.get(MATERIALS_CAP_OBJECT_ID_FIELD);
+			std::string materialIDString = convertToPrintableMaterialID(materialID);
 
-		llassert(material.has(MATERIALS_CAP_MATERIAL_FIELD));
-		const LLSD &materialData = material.get(MATERIALS_CAP_MATERIAL_FIELD);
-		llassert(materialData.isMap());
+			llassert(material.has(MATERIALS_CAP_MATERIAL_FIELD));
+			const LLSD &materialData = material.get(MATERIALS_CAP_MATERIAL_FIELD);
+			llassert(materialData.isMap());
 
-		llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_FIELD));
-		llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_FIELD).isUUID());
-		const LLUUID &normalMapID = materialData.get(MATERIALS_CAP_NORMAL_MAP_FIELD).asUUID();
+			llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_FIELD));
+			llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_FIELD).isUUID());
+			const LLUUID &normalMapID = materialData.get(MATERIALS_CAP_NORMAL_MAP_FIELD).asUUID();
 
-		llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_OFFSET_X_FIELD));
-		llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_OFFSET_X_FIELD).isInteger());
-		S32 normalMapOffsetX = materialData.get(MATERIALS_CAP_NORMAL_MAP_OFFSET_X_FIELD).asInteger();
+			llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_OFFSET_X_FIELD));
+			llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_OFFSET_X_FIELD).isInteger());
+			S32 normalMapOffsetX = materialData.get(MATERIALS_CAP_NORMAL_MAP_OFFSET_X_FIELD).asInteger();
 
-		llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_OFFSET_Y_FIELD));
-		llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_OFFSET_Y_FIELD).isInteger());
-		S32 normalMapOffsetY = materialData.get(MATERIALS_CAP_NORMAL_MAP_OFFSET_Y_FIELD).asInteger();
+			llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_OFFSET_Y_FIELD));
+			llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_OFFSET_Y_FIELD).isInteger());
+			S32 normalMapOffsetY = materialData.get(MATERIALS_CAP_NORMAL_MAP_OFFSET_Y_FIELD).asInteger();
 
-		llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_REPEAT_X_FIELD));
-		llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_REPEAT_X_FIELD).isInteger());
-		S32 normalMapRepeatX = materialData.get(MATERIALS_CAP_NORMAL_MAP_REPEAT_X_FIELD).asInteger();
+			llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_REPEAT_X_FIELD));
+			llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_REPEAT_X_FIELD).isInteger());
+			S32 normalMapRepeatX = materialData.get(MATERIALS_CAP_NORMAL_MAP_REPEAT_X_FIELD).asInteger();
 
-		llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_REPEAT_Y_FIELD));
-		llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_REPEAT_Y_FIELD).isInteger());
-		S32 normalMapRepeatY = materialData.get(MATERIALS_CAP_NORMAL_MAP_REPEAT_Y_FIELD).asInteger();
+			llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_REPEAT_Y_FIELD));
+			llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_REPEAT_Y_FIELD).isInteger());
+			S32 normalMapRepeatY = materialData.get(MATERIALS_CAP_NORMAL_MAP_REPEAT_Y_FIELD).asInteger();
 
-		llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_ROTATION_FIELD));
-		llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_ROTATION_FIELD).isInteger());
-		S32 normalMapRotation = materialData.get(MATERIALS_CAP_NORMAL_MAP_ROTATION_FIELD).asInteger();
+			llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_ROTATION_FIELD));
+			llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_ROTATION_FIELD).isInteger());
+			S32 normalMapRotation = materialData.get(MATERIALS_CAP_NORMAL_MAP_ROTATION_FIELD).asInteger();
 
-		llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_FIELD));
-		llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_FIELD).isUUID());
-		const LLUUID &specularMapID = materialData.get(MATERIALS_CAP_SPECULAR_MAP_FIELD).asUUID();
+			llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_FIELD));
+			llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_FIELD).isUUID());
+			const LLUUID &specularMapID = materialData.get(MATERIALS_CAP_SPECULAR_MAP_FIELD).asUUID();
 
-		llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_OFFSET_X_FIELD));
-		llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_OFFSET_X_FIELD).isInteger());
-		S32 specularMapOffsetX = materialData.get(MATERIALS_CAP_SPECULAR_MAP_OFFSET_X_FIELD).asInteger();
+			llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_OFFSET_X_FIELD));
+			llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_OFFSET_X_FIELD).isInteger());
+			S32 specularMapOffsetX = materialData.get(MATERIALS_CAP_SPECULAR_MAP_OFFSET_X_FIELD).asInteger();
 
-		llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_OFFSET_Y_FIELD));
-		llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_OFFSET_Y_FIELD).isInteger());
-		S32 specularMapOffsetY = materialData.get(MATERIALS_CAP_SPECULAR_MAP_OFFSET_Y_FIELD).asInteger();
+			llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_OFFSET_Y_FIELD));
+			llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_OFFSET_Y_FIELD).isInteger());
+			S32 specularMapOffsetY = materialData.get(MATERIALS_CAP_SPECULAR_MAP_OFFSET_Y_FIELD).asInteger();
 
-		llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_REPEAT_X_FIELD));
-		llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_REPEAT_X_FIELD).isInteger());
-		S32 specularMapRepeatX = materialData.get(MATERIALS_CAP_SPECULAR_MAP_REPEAT_X_FIELD).asInteger();
+			llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_REPEAT_X_FIELD));
+			llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_REPEAT_X_FIELD).isInteger());
+			S32 specularMapRepeatX = materialData.get(MATERIALS_CAP_SPECULAR_MAP_REPEAT_X_FIELD).asInteger();
 
-		llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_REPEAT_Y_FIELD));
-		llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_REPEAT_Y_FIELD).isInteger());
-		S32 specularMapRepeatY = materialData.get(MATERIALS_CAP_SPECULAR_MAP_REPEAT_Y_FIELD).asInteger();
+			llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_REPEAT_Y_FIELD));
+			llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_REPEAT_Y_FIELD).isInteger());
+			S32 specularMapRepeatY = materialData.get(MATERIALS_CAP_SPECULAR_MAP_REPEAT_Y_FIELD).asInteger();
 
-		llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_ROTATION_FIELD));
-		llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_ROTATION_FIELD).isInteger());
-		S32 specularMapRotation = materialData.get(MATERIALS_CAP_SPECULAR_MAP_ROTATION_FIELD).asInteger();
+			llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_ROTATION_FIELD));
+			llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_ROTATION_FIELD).isInteger());
+			S32 specularMapRotation = materialData.get(MATERIALS_CAP_SPECULAR_MAP_ROTATION_FIELD).asInteger();
 
-		llassert(materialData.has(MATERIALS_CAP_SPECULAR_COLOR_FIELD));
-		llassert(materialData.get(MATERIALS_CAP_SPECULAR_COLOR_FIELD).isArray());
-		LLColor4U specularColor;
-		specularColor.setValue(materialData.get(MATERIALS_CAP_SPECULAR_COLOR_FIELD));
+			llassert(materialData.has(MATERIALS_CAP_SPECULAR_COLOR_FIELD));
+			llassert(materialData.get(MATERIALS_CAP_SPECULAR_COLOR_FIELD).isArray());
+			LLColor4U specularColor;
+			specularColor.setValue(materialData.get(MATERIALS_CAP_SPECULAR_COLOR_FIELD));
 
-		llassert(materialData.has(MATERIALS_CAP_SPECULAR_EXP_FIELD));
-		llassert(materialData.get(MATERIALS_CAP_SPECULAR_EXP_FIELD).isInteger());
-		S32 specularExp = materialData.get(MATERIALS_CAP_SPECULAR_EXP_FIELD).asInteger();
+			llassert(materialData.has(MATERIALS_CAP_SPECULAR_EXP_FIELD));
+			llassert(materialData.get(MATERIALS_CAP_SPECULAR_EXP_FIELD).isInteger());
+			S32 specularExp = materialData.get(MATERIALS_CAP_SPECULAR_EXP_FIELD).asInteger();
 
-		llassert(materialData.has(MATERIALS_CAP_ENV_INTENSITY_FIELD));
-		llassert(materialData.get(MATERIALS_CAP_ENV_INTENSITY_FIELD).isInteger());
-		S32 envIntensity = materialData.get(MATERIALS_CAP_ENV_INTENSITY_FIELD).asInteger();
+			llassert(materialData.has(MATERIALS_CAP_ENV_INTENSITY_FIELD));
+			llassert(materialData.get(MATERIALS_CAP_ENV_INTENSITY_FIELD).isInteger());
+			S32 envIntensity = materialData.get(MATERIALS_CAP_ENV_INTENSITY_FIELD).asInteger();
 
-		llassert(materialData.has(MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD));
-		llassert(materialData.get(MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD).isInteger());
-		S32 alphaMaskCutoff = materialData.get(MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD).asInteger();
+			llassert(materialData.has(MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD));
+			llassert(materialData.get(MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD).isInteger());
+			S32 alphaMaskCutoff = materialData.get(MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD).asInteger();
 
-		llassert(materialData.has(MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD));
-		llassert(materialData.get(MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD).isInteger());
-		S32 diffuseAlphaMode = materialData.get(MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD).asInteger();
+			llassert(materialData.has(MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD));
+			llassert(materialData.get(MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD).isInteger());
+			S32 diffuseAlphaMode = materialData.get(MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD).asInteger();
 
-		cellParams.font = LLFontGL::getFontMonospace();
+			cellParams.font = LLFontGL::getFontMonospace();
 
-		cellParams.column = "id";
-		cellParams.value = materialIDString;
-		normalMapRowParams.columns.add(cellParams);
-		specularMapRowParams.columns.add(cellParams);
-		otherDataRowParams.columns.add(cellParams);
+			cellParams.column = "id";
+			cellParams.value = materialIDString;
+			normalMapRowParams.columns.add(cellParams);
+			specularMapRowParams.columns.add(cellParams);
+			otherDataRowParams.columns.add(cellParams);
 
-		cellParams.column = "normal_map_list_map";
-		cellParams.value = normalMapID.asString();
-		normalMapRowParams.columns.add(cellParams);
+			cellParams.column = "normal_map_list_map";
+			cellParams.value = normalMapID.asString();
+			normalMapRowParams.columns.add(cellParams);
 
-		cellParams.font = LLFontGL::getFontSansSerif();
+			cellParams.font = LLFontGL::getFontSansSerif();
 
-		cellParams.column = "normal_map_list_offset_x";
-		cellParams.value = llformat("%d", normalMapOffsetX);
-		normalMapRowParams.columns.add(cellParams);
+			cellParams.column = "normal_map_list_offset_x";
+			cellParams.value = llformat("%d", normalMapOffsetX);
+			normalMapRowParams.columns.add(cellParams);
 
-		cellParams.column = "normal_map_list_offset_y";
-		cellParams.value = llformat("%d", normalMapOffsetY);
-		normalMapRowParams.columns.add(cellParams);
+			cellParams.column = "normal_map_list_offset_y";
+			cellParams.value = llformat("%d", normalMapOffsetY);
+			normalMapRowParams.columns.add(cellParams);
 
-		cellParams.column = "normal_map_list_repeat_x";
-		cellParams.value = llformat("%d", normalMapRepeatX);
-		normalMapRowParams.columns.add(cellParams);
+			cellParams.column = "normal_map_list_repeat_x";
+			cellParams.value = llformat("%d", normalMapRepeatX);
+			normalMapRowParams.columns.add(cellParams);
 
-		cellParams.column = "normal_map_list_repeat_y";
-		cellParams.value = llformat("%d", normalMapRepeatY);
-		normalMapRowParams.columns.add(cellParams);
+			cellParams.column = "normal_map_list_repeat_y";
+			cellParams.value = llformat("%d", normalMapRepeatY);
+			normalMapRowParams.columns.add(cellParams);
 
-		cellParams.column = "normal_map_list_rotation";
-		cellParams.value = llformat("%d", normalMapRotation);
-		normalMapRowParams.columns.add(cellParams);
+			cellParams.column = "normal_map_list_rotation";
+			cellParams.value = llformat("%d", normalMapRotation);
+			normalMapRowParams.columns.add(cellParams);
 
-		cellParams.font = LLFontGL::getFontMonospace();
+			cellParams.font = LLFontGL::getFontMonospace();
 
-		cellParams.column = "specular_map_list_map";
-		cellParams.value = specularMapID.asString();
-		specularMapRowParams.columns.add(cellParams);
+			cellParams.column = "specular_map_list_map";
+			cellParams.value = specularMapID.asString();
+			specularMapRowParams.columns.add(cellParams);
 
-		cellParams.font = LLFontGL::getFontSansSerif();
+			cellParams.font = LLFontGL::getFontSansSerif();
 
-		cellParams.column = "specular_map_list_offset_x";
-		cellParams.value = llformat("%d", specularMapOffsetX);
-		specularMapRowParams.columns.add(cellParams);
+			cellParams.column = "specular_map_list_offset_x";
+			cellParams.value = llformat("%d", specularMapOffsetX);
+			specularMapRowParams.columns.add(cellParams);
 
-		cellParams.column = "specular_map_list_offset_y";
-		cellParams.value = llformat("%d", specularMapOffsetY);
-		specularMapRowParams.columns.add(cellParams);
+			cellParams.column = "specular_map_list_offset_y";
+			cellParams.value = llformat("%d", specularMapOffsetY);
+			specularMapRowParams.columns.add(cellParams);
 
-		cellParams.column = "specular_map_list_repeat_x";
-		cellParams.value = llformat("%d", specularMapRepeatX);
-		specularMapRowParams.columns.add(cellParams);
+			cellParams.column = "specular_map_list_repeat_x";
+			cellParams.value = llformat("%d", specularMapRepeatX);
+			specularMapRowParams.columns.add(cellParams);
 
-		cellParams.column = "specular_map_list_repeat_y";
-		cellParams.value = llformat("%d", specularMapRepeatY);
-		specularMapRowParams.columns.add(cellParams);
+			cellParams.column = "specular_map_list_repeat_y";
+			cellParams.value = llformat("%d", specularMapRepeatY);
+			specularMapRowParams.columns.add(cellParams);
 
-		cellParams.column = "specular_map_list_rotation";
-		cellParams.value = llformat("%d", specularMapRotation);
-		specularMapRowParams.columns.add(cellParams);
+			cellParams.column = "specular_map_list_rotation";
+			cellParams.value = llformat("%d", specularMapRotation);
+			specularMapRowParams.columns.add(cellParams);
 
-		cellParams.column = "specular_color";
-		cellParams.value = llformat("(%d, %d, %d, %d)", specularColor.mV[0],
-			specularColor.mV[1], specularColor.mV[2], specularColor.mV[3]);
-		otherDataRowParams.columns.add(cellParams);
+			cellParams.column = "specular_color";
+			cellParams.value = llformat("(%d, %d, %d, %d)", specularColor.mV[0],
+				specularColor.mV[1], specularColor.mV[2], specularColor.mV[3]);
+			otherDataRowParams.columns.add(cellParams);
 
-		cellParams.column = "specular_exponent";
-		cellParams.value = llformat("%d", specularExp);
-		otherDataRowParams.columns.add(cellParams);
+			cellParams.column = "specular_exponent";
+			cellParams.value = llformat("%d", specularExp);
+			otherDataRowParams.columns.add(cellParams);
 
-		cellParams.column = "env_intensity";
-		cellParams.value = llformat("%d", envIntensity);
-		otherDataRowParams.columns.add(cellParams);
+			cellParams.column = "env_intensity";
+			cellParams.value = llformat("%d", envIntensity);
+			otherDataRowParams.columns.add(cellParams);
 
-		cellParams.column = "alpha_mask_cutoff";
-		cellParams.value = llformat("%d", alphaMaskCutoff);
-		otherDataRowParams.columns.add(cellParams);
+			cellParams.column = "alpha_mask_cutoff";
+			cellParams.value = llformat("%d", alphaMaskCutoff);
+			otherDataRowParams.columns.add(cellParams);
 
-		cellParams.column = "diffuse_alpha_mode";
-		cellParams.value = llformat("%d", diffuseAlphaMode);
-		otherDataRowParams.columns.add(cellParams);
+			cellParams.column = "diffuse_alpha_mode";
+			cellParams.value = llformat("%d", diffuseAlphaMode);
+			otherDataRowParams.columns.add(cellParams);
 
-		normalMapRowParams.value = materialIDString;
-		specularMapRowParams.value = materialIDString;
-		otherDataRowParams.value = materialIDString;
+			normalMapRowParams.value = materialIDString;
+			specularMapRowParams.value = materialIDString;
+			otherDataRowParams.value = materialIDString;
 
-		mGetNormalMapScrollList->addRow(normalMapRowParams);
-		mGetSpecularMapScrollList->addRow(specularMapRowParams);
-		mGetOtherDataScrollList->addRow(otherDataRowParams);
+			mGetNormalMapScrollList->addRow(normalMapRowParams);
+			mGetSpecularMapScrollList->addRow(specularMapRowParams);
+			mGetOtherDataScrollList->addRow(otherDataRowParams);
+		}
 	}
 }
 
 void LLFloaterDebugMaterials::parsePutResponse(const LLSD& pContent)
 {
-	printResponse("PUT", pContent);
 	clearPutResults();
 
 	LLScrollListCell::Params cellParams;
 	LLScrollListItem::Params rowParams;
 
-	llassert(pContent.isArray());
-	for (LLSD::array_const_iterator faceIter = pContent.beginArray(); faceIter != pContent.endArray();
-		++faceIter)
+	llassert(pContent.isMap());
+	llassert(pContent.has(MATERIALS_CAP_ZIP_FIELD));
+	llassert(pContent.get(MATERIALS_CAP_ZIP_FIELD).isBinary());
+
+	LLSD::Binary responseBinary = pContent.get(MATERIALS_CAP_ZIP_FIELD).asBinary();
+	S32 responseSize = static_cast<S32>(responseBinary.size());
+	std::string responseString(reinterpret_cast<const char*>(responseBinary.data()), responseSize);
+
+	std::istringstream responseStream(responseString);
+
+	LLSD responseContent;
+	if (!unzip_llsd(responseContent, responseStream, responseSize))
 	{
-		const LLSD &face = *faceIter;
-		llassert(face.isMap());
+		LL_ERRS("debugMaterials") << "cannot unzip LLSD binary content" << LL_ENDL;
+	}
+	else
+	{
+		llassert(responseContent.isArray());
+		for (LLSD::array_const_iterator faceIter = responseContent.beginArray(); faceIter != responseContent.endArray();
+			++faceIter)
+		{
+			const LLSD &face = *faceIter;
+			llassert(face.isMap());
 
-		llassert(face.has(MATERIALS_CAP_FACE_FIELD));
-		llassert(face.get(MATERIALS_CAP_FACE_FIELD).isInteger());
-		S32 faceId = face.get(MATERIALS_CAP_FACE_FIELD).asInteger();
+			llassert(face.has(MATERIALS_CAP_FACE_FIELD));
+			llassert(face.get(MATERIALS_CAP_FACE_FIELD).isInteger());
+			S32 faceId = face.get(MATERIALS_CAP_FACE_FIELD).asInteger();
 
-		llassert(face.has(MATERIALS_CAP_OBJECT_ID_FIELD));
-		llassert(face.get(MATERIALS_CAP_OBJECT_ID_FIELD).isInteger());
-		S32 objectId = face.get(MATERIALS_CAP_OBJECT_ID_FIELD).asInteger();
+			llassert(face.has(MATERIALS_CAP_OBJECT_ID_FIELD));
+			llassert(face.get(MATERIALS_CAP_OBJECT_ID_FIELD).isInteger());
+			S32 objectId = face.get(MATERIALS_CAP_OBJECT_ID_FIELD).asInteger();
 
-		llassert(face.has(MATERIALS_CAP_MATERIAL_ID_FIELD));
-		llassert(face.get(MATERIALS_CAP_MATERIAL_ID_FIELD).isBinary());
-		std::string materialIDString = convertToPrintableMaterialID(face.get(MATERIALS_CAP_MATERIAL_ID_FIELD));
+			llassert(face.has(MATERIALS_CAP_MATERIAL_ID_FIELD));
+			llassert(face.get(MATERIALS_CAP_MATERIAL_ID_FIELD).isBinary());
+			std::string materialIDString = convertToPrintableMaterialID(face.get(MATERIALS_CAP_MATERIAL_ID_FIELD));
 
-		cellParams.font = LLFontGL::getFontMonospace();
+			cellParams.font = LLFontGL::getFontMonospace();
 
-		cellParams.column = "material_id";
-		cellParams.value = materialIDString;
-		rowParams.columns.add(cellParams);
+			cellParams.column = "material_id";
+			cellParams.value = materialIDString;
+			rowParams.columns.add(cellParams);
 
-		cellParams.font = LLFontGL::getFontSansSerif();
+			cellParams.font = LLFontGL::getFontSansSerif();
 
-		cellParams.column = "object_id";
-		cellParams.value = llformat("%d", objectId);
-		rowParams.columns.add(cellParams);
+			cellParams.column = "object_id";
+			cellParams.value = llformat("%d", objectId);
+			rowParams.columns.add(cellParams);
 
-		cellParams.column = "face_index";
-		cellParams.value = llformat("%d", faceId);
-		rowParams.columns.add(cellParams);
+			cellParams.column = "face_index";
+			cellParams.value = llformat("%d", faceId);
+			rowParams.columns.add(cellParams);
 
-		mPutScrollList->addRow(rowParams);
+			mPutScrollList->addRow(rowParams);
+		}
 	}
 }
 
 void LLFloaterDebugMaterials::parsePostResponse(const LLSD& pContent)
 {
-	printResponse("POST", pContent);
 #if 0
 	clearPostResults();
 
@@ -1204,13 +1249,6 @@ void LLFloaterDebugMaterials::parsePostResponse(const LLSD& pContent)
 		mPostScrollList->addRow(rowParams);
 	}
 #endif
-}
-
-void LLFloaterDebugMaterials::printResponse(const std::string& pRequestType, const LLSD& pContent) const
-{
-	llinfos << "--------------------------------------------------------------------------" << llendl;
-	llinfos << pRequestType << " Response: '" << pContent << "'" << llendl;
-	llinfos << "--------------------------------------------------------------------------" << llendl;
 }
 
 void LLFloaterDebugMaterials::setState(EState pState)
@@ -1497,10 +1535,10 @@ void MaterialsResponder::result(const LLSD& pContent)
 
 void MaterialsResponder::error(U32 pStatus, const std::string& pReason)
 {
-	llwarns << "--------------------------------------------------------------------------" << llendl;
-	llwarns << mMethod << " Error[" << pStatus << "] cannot access cap '" << MATERIALS_CAPABILITY_NAME
-		<< "' with url '" << mCapabilityURL	<< "' because " << pReason << llendl;
-	llwarns << "--------------------------------------------------------------------------" << llendl;
+	LL_WARNS("debugMaterials") << "--------------------------------------------------------------------------" << LL_ENDL;
+	LL_WARNS("debugMaterials") << mMethod << " Error[" << pStatus << "] cannot access cap '" << MATERIALS_CAPABILITY_NAME
+		<< "' with url '" << mCapabilityURL	<< "' because " << pReason << LL_ENDL;
+	LL_WARNS("debugMaterials") << "--------------------------------------------------------------------------" << LL_ENDL;
 
 	LLSD emptyResult;
 	mCallback(false, emptyResult);

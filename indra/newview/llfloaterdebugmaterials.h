@@ -109,7 +109,6 @@ private:
 	void          parseGetResponse(const LLSD& pContent);
 	void          parsePutResponse(const LLSD& pContent);
 	void          parsePostResponse(const LLSD& pContent);
-	void          printResponse(const std::string& pRequestType, const LLSD& pContent) const;
 
 	void          setState(EState pState);
 	inline EState getState() const;
