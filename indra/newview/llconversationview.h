@@ -69,6 +69,8 @@ public:
 
 	/*virtual*/ void toggleOpen();
 
+	/*virtual*/	bool isMinimized() { return mMinimizedMode; }
+
 	void toggleMinimizedMode(bool is_minimized);
 
 	void setVisibleIfDetached(BOOL visible);
