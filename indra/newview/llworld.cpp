@@ -692,8 +692,10 @@ void LLWorld::updateNetStats()
 	{
 		LLViewerRegion* regionp = *iter;
 		regionp->updateNetStats();
-		bits += regionp->mBitStat.getCurrent();
-		packets += llfloor( regionp->mPacketsStat.getCurrent() );
+		bits += regionp->mBitsReceived;
+		packets += llfloor( regionp->mPacketsReceived );
+		regionp->mBitsReceived = 0.f;
+		regionp->mPacketsReceived = 0.f;
 	}
 
 	S32 packets_in = gMessageSystem->mPacketsIn - mLastPacketsIn;
@@ -705,26 +707,15 @@ void LLWorld::updateNetStats()
 
 	LLStatViewer::ACTUAL_IN_KBIT.add<LLTrace::Bits>(actual_in_bits);
 	LLStatViewer::ACTUAL_OUT_KBIT.add<LLTrace::Bits>(actual_out_bits);
-	//LLViewerStats::getInstance()->mActualInKBitStat.addValue(actual_in_bits/1024.f);
-	//LLViewerStats::getInstance()->mActualOutKBitStat.addValue(actual_out_bits/1024.f);
 	LLStatViewer::KBIT.add<LLTrace::Bits>(bits);
-	//LLViewerStats::getInstance()->mKBitStat.addValue(bits/1024.f);
 	LLStatViewer::PACKETS_IN.add(packets_in);
 	LLStatViewer::PACKETS_OUT.add(packets_out);
 	LLStatViewer::PACKETS_LOST.add(packets_lost);
 	LLStatViewer::PACKETS_LOST_PERCENT.sample(100.f*((F32)packets_lost/(F32)packets_in));
-	//LLViewerStats::getInstance()->mPacketsInStat.addValue(packets_in);
-	//LLViewerStats::getInstance()->mPacketsOutStat.addValue(packets_out);
-	//LLViewerStats::getInstance()->mPacketsLostStat.addValue(gMessageSystem->mDroppedPackets);
 	if (packets_in)
 	{
 		LLStatViewer::PACKETS_LOST_PERCENT.sample(100.f*((F32)packets_lost/(F32)packets_in));
-	//	LLViewerStats::getInstance()->mPacketsLostPercentStat.addValue(100.f*((F32)packets_lost/(F32)packets_in));
 	}
-	//else
-	//{
-	//	LLViewerStats::getInstance()->mPacketsLostPercentStat.addValue(0.f);
-	//}
 
 	mLastPacketsIn = gMessageSystem->mPacketsIn;
 	mLastPacketsOut = gMessageSystem->mPacketsOut;

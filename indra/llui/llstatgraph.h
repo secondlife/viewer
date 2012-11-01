@@ -32,8 +32,6 @@
 #include "v4color.h"
 #include "lltrace.h"
 
-class LLStat;
-
 class LLStatGraph : public LLView
 {
 public:
@@ -59,9 +57,10 @@ public:
 
 	struct StatParams : public LLInitParam::ChoiceBlock<StatParams>
 	{
-		Alternative<LLStat*>							legacy_stat;
-		Alternative<LLTrace::count_common_t* >			count_stat;
-		Alternative<LLTrace::measurement_common_t* >	measurement_stat;
+		Alternative<LLTrace::count_common_float_t* >	count_stat_float;
+		Alternative<LLTrace::count_common_int_t* >		count_stat_int;
+		Alternative<LLTrace::measurement_common_float_t* >	measurement_stat_float;
+		Alternative<LLTrace::measurement_common_int_t* >	measurement_stat_int;
 	};
 
 	struct Params : public LLInitParam::Block<Params, LLView::Params>
@@ -106,8 +105,8 @@ public:
 	/*virtual*/ void setValue(const LLSD& value);
 	
 private:
-	LLStat*						mStatp;
-	LLTrace::count_common_t*	mNewStatp;
+	LLTrace::count_common_float_t*	mNewStatFloatp;
+	LLTrace::count_common_int_t*	mNewStatIntp;
 
 	BOOL mPerSec;
 

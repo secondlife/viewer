@@ -1081,8 +1081,8 @@ void LLAgentCamera::updateLookAt(const S32 mouse_x, const S32 mouse_y)
 	LLQuaternion av_inv_rot = ~gAgentAvatarp->mRoot.getWorldRotation();
 	LLVector3 root_at = LLVector3::x_axis * gAgentAvatarp->mRoot.getWorldRotation();
 
-	if 	((gViewerWindow->getMouseVelocityStat()->getCurrent() < 0.01f) &&
-		 (root_at * last_at_axis > 0.95f))
+	if 	(LLTrace::get_frame_recording().getLastRecordingPeriod().getLastValue(*gViewerWindow->getMouseVelocityStat()) < 0.01f
+		&& (root_at * last_at_axis > 0.95f))
 	{
 		LLVector3 vel = gAgentAvatarp->getVelocity();
 		if (vel.magVecSquared() > 4.f)

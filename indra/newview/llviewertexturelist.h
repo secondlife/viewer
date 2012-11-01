@@ -30,7 +30,6 @@
 #include "lluuid.h"
 //#include "message.h"
 #include "llgl.h"
-#include "llstat.h"
 #include "llviewertexture.h"
 #include "llui.h"
 #include <list>

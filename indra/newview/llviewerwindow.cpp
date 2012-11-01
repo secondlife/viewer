@@ -77,7 +77,6 @@
 #include "llmediaentry.h"
 #include "llurldispatcher.h"
 #include "raytrace.h"
-#include "llstat.h"
 
 // newview includes
 #include "llagent.h"
@@ -248,6 +247,9 @@ std::string	LLViewerWindow::sSnapshotBaseName;
 std::string	LLViewerWindow::sSnapshotDir;
 
 std::string	LLViewerWindow::sMovieBaseName;
+
+LLTrace::Measurement<> LLViewerWindow::sMouseVelocityStat("Mouse Velocity");
+
 
 class RecordToChatConsole : public LLError::Recorder, public LLSingleton<RecordToChatConsole>
 {
@@ -1541,8 +1543,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	mResDirty(false),
 	mStatesDirty(false),
 	mCurrResolutionIndex(0),
-	mProgressView(NULL),
-	mMouseVelocityStat(new LLStat("Mouse Velocity"))
+	mProgressView(NULL)
 {
 	// gKeyboard is still NULL, so it doesn't do LLWindowListener any good to
 	// pass its value right now. Instead, pass it a nullary function that
@@ -2072,8 +2073,6 @@ LLViewerWindow::~LLViewerWindow()
 
 	delete mDebugText;
 	mDebugText = NULL;
-
-	delete mMouseVelocityStat;
 }
 
 
@@ -3247,7 +3246,7 @@ void LLViewerWindow::updateMouseDelta()
 		mouse_vel.setVec((F32) dx, (F32) dy);
 	}
     
-	mMouseVelocityStat->addValue(mouse_vel.magVec());
+	sMouseVelocityStat.sample(mouse_vel.magVec());
 }
 
 void LLViewerWindow::updateKeyboardFocus()

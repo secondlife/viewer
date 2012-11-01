@@ -46,7 +46,6 @@
 #include "llviewertexturelist.h"
 #include "llui.h"
 #include "llviewercontrol.h"
-#include "llstat.h"
 
 #include "llfasttimer.h"
 #include "lltreeiterators.h"

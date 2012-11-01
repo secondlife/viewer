@@ -113,9 +113,13 @@ ThreadRecorder::ActiveRecording::ActiveRecording( Recording* target )
 
 void ThreadRecorder::ActiveRecording::moveBaselineToTarget()
 {
+	mTargetRecording->mMeasurementsFloat.write()->addSamples(*mBaseline.mMeasurementsFloat);
+	mTargetRecording->mCountsFloat.write()->addSamples(*mBaseline.mCountsFloat);
 	mTargetRecording->mMeasurements.write()->addSamples(*mBaseline.mMeasurements);
 	mTargetRecording->mCounts.write()->addSamples(*mBaseline.mCounts);
 	mTargetRecording->mStackTimers.write()->addSamples(*mBaseline.mStackTimers);
+	mBaseline.mMeasurementsFloat.write()->reset();
+	mBaseline.mCountsFloat.write()->reset();
 	mBaseline.mMeasurements.write()->reset();
 	mBaseline.mCounts.write()->reset();
 	mBaseline.mStackTimers.write()->reset();

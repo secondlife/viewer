@@ -227,10 +227,33 @@ namespace LLTrace
 	};
 
 
+	template<typename T, typename IS_UNIT = void>
+	struct StorageType
+	{
+		typedef T type_t;
+	};
+
+	template<typename T>
+	struct StorageType<T, typename T::is_unit_tag_t>
+	{
+		typedef typename StorageType<typename T::storage_t>::type_t type_t;
+	};
+
+	template<> struct StorageType<F32> { typedef F64 type_t; };
+	template<> struct StorageType<S32> { typedef S64 type_t; };
+	template<> struct StorageType<U32> { typedef S64 type_t; };
+	template<> struct StorageType<S16> { typedef S64 type_t; };
+	template<> struct StorageType<U16> { typedef S64 type_t; };
+	template<> struct StorageType<S8> { typedef S64 type_t; };
+	template<> struct StorageType<U8> { typedef S64 type_t; };
+
 	template<typename T>
 	class LL_COMMON_API MeasurementAccumulator
 	{
 	public:
+		typedef T value_t;
+		typedef MeasurementAccumulator<T> self_t;
+
 		MeasurementAccumulator()
 		:	mSum(0),
 			mMin(std::numeric_limits<T>::max()),
@@ -243,23 +266,24 @@ namespace LLTrace
 
 		LL_FORCE_INLINE void sample(T value)
 		{
+			T storage_value(value);
 			mNumSamples++;
-			mSum += value;
-			if (value < mMin)
+			mSum += storage_value;
+			if (storage_value < mMin)
 			{
-				mMin = value;
+				mMin = storage_value;
 			}
-			else if (value > mMax)
+			if (storage_value > mMax)
 			{
-				mMax = value;
+				mMax = storage_value;
 			}
 			F64 old_mean = mMean;
-			mMean += ((F64)value - old_mean) / (F64)mNumSamples;
-			mVarianceSum += ((F64)value - old_mean) * ((F64)value - mMean);
-			mLastValue = value;
+			mMean += ((F64)storage_value - old_mean) / (F64)mNumSamples;
+			mVarianceSum += ((F64)storage_value - old_mean) * ((F64)storage_value - mMean);
+			mLastValue = storage_value;
 		}
 
-		void addSamples(const MeasurementAccumulator<T>& other)
+		void addSamples(const self_t& other)
 		{
 			mSum += other.mSum;
 			if (other.mMin < mMin)
@@ -293,7 +317,7 @@ namespace LLTrace
 			}
 			else
 			{
-				mVarianceSum =  (F32)mNumSamples
+				mVarianceSum =  (F64)mNumSamples
 							* ((((n_1 - 1.f) * sd_1 * sd_1)
 								+ ((n_2 - 1.f) * sd_2 * sd_2)
 								+ (((n_1 * n_2) / (n_1 + n_2))
@@ -311,10 +335,10 @@ namespace LLTrace
 			mMax = 0;
 		}
 
-		T	getSum() const { return mSum; }
-		T	getMin() const { return mMin; }
-		T	getMax() const { return mMax; }
-		T	getLastValue() const { return mLastValue; }
+		T	getSum() const { return (T)mSum; }
+		T	getMin() const { return (T)mMin; }
+		T	getMax() const { return (T)mMax; }
+		T	getLastValue() const { return (T)mLastValue; }
 		F64	getMean() const { return mMean; }
 		F64 getStandardDeviation() const { return sqrtf(mVarianceSum / mNumSamples); }
 		U32 getSampleCount() const { return mNumSamples; }
@@ -325,7 +349,7 @@ namespace LLTrace
 			mMax,
 			mLastValue;
 
-		F64 mMean,
+		F64	mMean,
 			mVarianceSum;
 
 		U32	mNumSamples;
@@ -335,6 +359,8 @@ namespace LLTrace
 	class LL_COMMON_API CountAccumulator
 	{
 	public:
+		typedef T value_t;
+
 		CountAccumulator()
 		:	mSum(0),
 			mNumSamples(0)
@@ -358,7 +384,7 @@ namespace LLTrace
 			mSum = 0;
 		}
 
-		T	getSum() const { return mSum; }
+		T	getSum() const { return (T)mSum; }
 
 	private:
 		T	mSum;
@@ -366,14 +392,15 @@ namespace LLTrace
 		U32	mNumSamples;
 	};
 
-	typedef TraceType<MeasurementAccumulator<F64> > measurement_common_t;
+	typedef TraceType<MeasurementAccumulator<F64> > measurement_common_float_t;
+	typedef TraceType<MeasurementAccumulator<S64> > measurement_common_int_t;
 
 	template <typename T = F64, typename IS_UNIT = void>
 	class LL_COMMON_API Measurement
-	:	public TraceType<MeasurementAccumulator<T> >
+	:	public TraceType<MeasurementAccumulator<typename StorageType<T>::type_t> >
 	{
 	public:
-		typedef T storage_t;
+		typedef typename StorageType<T>::type_t storage_t;
 
 		Measurement(const char* name, const char* description = NULL) 
 		:	TraceType(name, description)
@@ -381,17 +408,16 @@ namespace LLTrace
 
 		void sample(T value)
 		{
-			getPrimaryAccumulator().sample(value);
+			getPrimaryAccumulator().sample((storage_t)value);
 		}
 	};
 
 	template <typename T>
 	class LL_COMMON_API Measurement <T, typename T::is_unit_tag_t>
-	:	public TraceType<MeasurementAccumulator<typename T::storage_t> >
+	:	public TraceType<MeasurementAccumulator<typename StorageType<typename T::storage_t>::type_t> >
 	{
 	public:
-		typedef typename T::storage_t storage_t;
-		typedef Measurement<typename T::storage_t> base_measurement_t;
+		typedef typename StorageType<typename T::storage_t>::type_t storage_t;
 
 		Measurement(const char* name, const char* description = NULL) 
 		:	TraceType(name, description)
@@ -402,18 +428,19 @@ namespace LLTrace
 		{
 			T converted_value;
 			converted_value.assignFrom(value);
-			getPrimaryAccumulator().sample(converted_value.value());
+			getPrimaryAccumulator().sample((storage_t)converted_value.value());
 		}
 	};
 
-	typedef TraceType<CountAccumulator<F64> > count_common_t;
+	typedef TraceType<CountAccumulator<F64> > count_common_float_t;
+	typedef TraceType<CountAccumulator<S64> > count_common_int_t;
 
 	template <typename T = F64, typename IS_UNIT = void>
 	class LL_COMMON_API Count 
-	:	public TraceType<CountAccumulator<T> >
+	:	public TraceType<CountAccumulator<typename StorageType<T>::type_t> >
 	{
 	public:
-		typedef T storage_t;
+		typedef typename StorageType<T>::type_t storage_t;
 
 		Count(const char* name, const char* description = NULL) 
 		:	TraceType(name)
@@ -421,17 +448,16 @@ namespace LLTrace
 
 		void add(T value)
 		{
-			getPrimaryAccumulator().add(value);
+			getPrimaryAccumulator().add((storage_t)value);
 		}
 	};
 
 	template <typename T>
 	class LL_COMMON_API Count <T, typename T::is_unit_tag_t>
-	:	public TraceType<CountAccumulator<typename T::storage_t> >
+	:	public TraceType<CountAccumulator<typename StorageType<typename T::storage_t>::type_t> >
 	{
 	public:
-		typedef typename T::storage_t storage_t;
-		typedef Count<typename T::storage_t> base_count_t;
+		typedef typename StorageType<typename T::storage_t>::type_t storage_t;
 
 		Count(const char* name, const char* description = NULL) 
 		:	TraceType(name)
@@ -442,7 +468,7 @@ namespace LLTrace
 		{
 			T converted_value;
 			converted_value.assignFrom(value);
-			getPrimaryAccumulator().add(converted_value.value());
+			getPrimaryAccumulator().add((storage_t)converted_value.value());
 		}
 	};
 

@@ -165,6 +165,10 @@ namespace LLPredicate
 		:	Literal(e)
 		{}
 
+		Value(const Literal other)
+		:	Literal(other)
+		{}
+
 		Value()
 		{}
 	};

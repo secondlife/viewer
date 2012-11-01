@@ -77,8 +77,8 @@ protected:
 /// This mix-in class adds support for tracking all instances of the specified class parameter T
 /// The (optional) key associates a value of type KEY with a given instance of T, for quick lookup
 /// If KEY is not provided, then instances are stored in a simple set
-/// @NOTE: see explicit specialization below for default KEY==T* case
-template<typename T, typename KEY = T*>
+/// @NOTE: see explicit specialization below for default KEY==void case
+template<typename T, typename KEY = void>
 class LLInstanceTracker : public LLInstanceTrackerBase
 {
 	typedef LLInstanceTracker<T, KEY> MyT;
@@ -224,12 +224,12 @@ private:
 	KEY mInstanceKey;
 };
 
-/// explicit specialization for default case where KEY is T*
+/// explicit specialization for default case where KEY is void
 /// use a simple std::set<T*>
 template<typename T>
-class LLInstanceTracker<T, T*> : public LLInstanceTrackerBase
+class LLInstanceTracker<T, void> : public LLInstanceTrackerBase
 {
-	typedef LLInstanceTracker<T, T*> MyT;
+	typedef LLInstanceTracker<T, void> MyT;
 	typedef typename std::set<T*> InstanceSet;
 	struct StaticData: public StaticBase
 	{

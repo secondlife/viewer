@@ -27,7 +27,6 @@
 #ifndef LL_LLVIEWERSTATS_H
 #define LL_LLVIEWERSTATS_H
 
-#include "llstat.h"
 #include "llstatenums.h"
 #include "lltextureinfo.h"
 #include "lltracerecording.h"

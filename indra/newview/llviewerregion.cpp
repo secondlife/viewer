@@ -291,7 +291,9 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
 	mCacheLoaded(FALSE),
 	mCacheDirty(FALSE),
 	mReleaseNotesRequested(FALSE),
-	mCapabilitiesReceived(false)
+	mCapabilitiesReceived(false),
+	mBitsReceived(0.f),
+	mPacketsReceived(0.f)
 {
 	mWidth = region_width_meters;
 	mImpl->mOriginGlobal = from_region_handle(handle); 
@@ -909,9 +911,8 @@ void LLViewerRegion::updateNetStats()
 	mPacketsLost =				cdp->getPacketsLost();
 	mPingDelay =				cdp->getPingDelay();
 
-	mBitStat.addValue(mBitsIn - mLastBitsIn);
-	mPacketsStat.addValue(mPacketsIn - mLastPacketsIn);
-	mPacketsLostStat.addValue(mPacketsLost);
+	mBitsReceived += mBitsIn - mLastBitsIn;
+	mPacketsReceived += mPacketsIn - mLastPacketsIn;
 }
 
 

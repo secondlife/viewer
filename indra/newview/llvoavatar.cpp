@@ -4318,8 +4318,6 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 	//--------------------------------------------------------------------
 	// render all geometry attached to the skeleton
 	//--------------------------------------------------------------------
-	static LLStat render_stat;
-
 	LLViewerJointMesh::sRenderPass = pass;
 
 	if (pass == AVATAR_RENDER_PASS_SINGLE)
@@ -4372,10 +4370,6 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 	
 	LLViewerJointMesh::sRenderPass = AVATAR_RENDER_PASS_SINGLE;
 	
-	//llinfos << "Avatar render: " << render_timer.getElapsedTimeF32() << llendl;
-
-	//render_stat.addValue(render_timer.getElapsedTimeF32()*1000.f);
-
 	return num_indices;
 }
 
