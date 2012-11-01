@@ -1405,8 +1405,9 @@ void LLViewerObjectList::removeFromActiveList(LLViewerObject* objectp)
 		{
 			mActiveObjects[idx] = mActiveObjects[last_index];
 			mActiveObjects[idx]->setListIndex(idx);
-			mActiveObjects.pop_back();
 		}
+
+		mActiveObjects.pop_back();
 	}
 }
 
@@ -1450,6 +1451,12 @@ void LLViewerObjectList::updateActive(LLViewerObject *objectp)
 			objectp->setOnActiveList(FALSE);
 		}
 	}
+
+	//post condition: if object is active, it must be on the active list
+	llassert(!active || std::find(mActiveObjects.begin(), mActiveObjects.end(), objectp) != mActiveObjects.end());
+
+	//post condition: if object is not active, it must not be on the active list
+	llassert(active || std::find(mActiveObjects.begin(), mActiveObjects.end(), objectp) == mActiveObjects.end());
 }
 
 void LLViewerObjectList::updateObjectCost(LLViewerObject* object)
