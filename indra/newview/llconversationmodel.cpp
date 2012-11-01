@@ -369,7 +369,8 @@ LLConversationItemParticipant::LLConversationItemParticipant(std::string display
 	LLConversationItem(display_name,uuid,root_view_model),
 	mIsMuted(false),
 	mIsModerator(false),
-	mDistToAgent(-1.0)
+	mDistToAgent(-1.0),
+	mAvatarNameCacheConnection()
 {
 	mConvType = CONV_PARTICIPANT;
 }
@@ -378,9 +379,36 @@ LLConversationItemParticipant::LLConversationItemParticipant(const LLUUID& uuid,
 	LLConversationItem(uuid,root_view_model),
 	mIsMuted(false),
 	mIsModerator(false),
-	mDistToAgent(-1.0)
+	mDistToAgent(-1.0),
+	mAvatarNameCacheConnection()
 {
 	mConvType = CONV_PARTICIPANT;
+}
+
+LLConversationItemParticipant::~LLConversationItemParticipant()
+{
+	// Disconnect any previous avatar name cache connection to ensure
+	// that the callback method is not called after destruction
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
+}
+
+void LLConversationItemParticipant::fetchAvatarName()
+{
+	// Disconnect any previous avatar name cache connection
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
+
+	// Request the avatar name from the cache
+	llassert(getUUID().notNull());
+	if (getUUID().notNull())
+	{
+		mAvatarNameCacheConnection = LLAvatarNameCache::get(getUUID(), boost::bind(&LLConversationItemParticipant::onAvatarNameCache, this, _2));
+	}
 }
 
 void LLConversationItemParticipant::buildContextMenu(LLMenuGL& menu, U32 flags)
@@ -400,14 +428,16 @@ void LLConversationItemParticipant::onAvatarNameCache(const LLAvatarName& av_nam
 	mName = (av_name.mUsername.empty() ? av_name.mDisplayName : av_name.mUsername);
 	mDisplayName = (av_name.mDisplayName.empty() ? av_name.mUsername : av_name.mDisplayName);
 	mNeedsRefresh = true;
-	LLConversationItemSession* parent_session = dynamic_cast<LLConversationItemSession*>(mParent);
-	if (parent_session != NULL)
+	if(mParent != NULL)
 	{
-		parent_session->requestSort();
-		parent_session->updateParticipantName(this);
-		postEvent("update_participant", parent_session, this);
+		LLConversationItemSession* parent_session = dynamic_cast<LLConversationItemSession*>(mParent);
+		if (parent_session != NULL)
+		{
+			parent_session->requestSort();
+			parent_session->updateParticipantName(this);
+			postEvent("update_participant", parent_session, this);
+		}
 	}
-
 }
 
 void LLConversationItemParticipant::dumpDebugData()

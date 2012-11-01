@@ -97,7 +97,7 @@ void LLChicletBar::sessionAdded(const LLUUID& session_id, const std::string& nam
 	// Do not spawn chiclet when using the new multitab conversation UI
 	if (LLIMConversation::isChatMultiTab())
 	{
-		LLIMFloater::addToHost(session_id);
+		LLIMConversation::addToHost(session_id);
 		return;
 	}
 	

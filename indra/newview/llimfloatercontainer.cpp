@@ -98,7 +98,7 @@ LLIMFloaterContainer::~LLIMFloaterContainer()
 
 void LLIMFloaterContainer::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
 {
-	LLIMFloater::addToHost(session_id);
+	LLIMConversation::addToHost(session_id);
 	addConversationListItem(session_id);
 }
 
@@ -109,7 +109,7 @@ void LLIMFloaterContainer::sessionActivated(const LLUUID& session_id, const std:
 
 void LLIMFloaterContainer::sessionVoiceOrIMStarted(const LLUUID& session_id)
 {
-	LLIMFloater::addToHost(session_id);
+	LLIMConversation::addToHost(session_id);
 	addConversationListItem(session_id);
 }
 
@@ -358,16 +358,7 @@ void LLIMFloaterContainer::processParticipantsStyleUpdate()
 		{
 			LLConversationItemParticipant* participant_model = dynamic_cast<LLConversationItemParticipant*>(*current_participant_model);
 			// Get the avatar name for this participant id from the cache and update the model
-			LLUUID participant_id = participant_model->getUUID();
-			LLAvatarName av_name;
-			LLAvatarNameCache::get(participant_id,&av_name);
-			// Avoid updating the model though if the cache is still waiting for its first update
-			if (!av_name.mDisplayName.empty())
-			{
-				participant_model->onAvatarNameCache(av_name);
-			}
-			// Bind update to the next cache name signal
-			LLAvatarNameCache::get(participant_id, boost::bind(&LLConversationItemParticipant::onAvatarNameCache, participant_model, _2));
+			participant_model->fetchAvatarName();
 			// Next participant
 			current_participant_model++;
 		}
@@ -499,9 +490,9 @@ void LLIMFloaterContainer::setVisible(BOOL visible)
 	}
 
 	nearby_chat = LLFloaterReg::findTypedInstance<LLNearbyChat>("nearby_chat");
-	if (nearby_chat && !nearby_chat->isHostSet())
+	if (nearby_chat)
 	{
-		nearby_chat->addToHost();
+		LLIMConversation::addToHost(LLUUID());
 	}
 
 	// We need to show/hide all the associated conversations that have been torn off
@@ -1215,6 +1206,7 @@ bool LLIMFloaterContainer::removeConversationListItem(const LLUUID& uuid, bool c
 	// Note : since the mConversationsItems is also the listener to the widget, deleting 
 	// the widget will also delete its listener
 	bool isWidgetSelected = false;
+	LLFolderViewItem* new_selection = NULL;
 	conversations_widgets_map::iterator widget_it = mConversationsWidgets.find(uuid);
 	if (widget_it != mConversationsWidgets.end())
 	{
@@ -1222,6 +1214,11 @@ bool LLIMFloaterContainer::removeConversationListItem(const LLUUID& uuid, bool c
 		if (widget)
 		{
 			isWidgetSelected = widget->isSelected();
+			new_selection = mConversationsRoot->getNextFromChild(widget);
+			if(new_selection == NULL)
+			{
+				new_selection = mConversationsRoot->getPreviousFromChild(widget);
+			}
 			widget->destroyView();
 		}
 	}
@@ -1234,12 +1231,13 @@ bool LLIMFloaterContainer::removeConversationListItem(const LLUUID& uuid, bool c
 	if (change_focus)
 	{
 		setFocus(TRUE);
-		conversations_widgets_map::iterator widget_it = mConversationsWidgets.begin();
-		if (widget_it != mConversationsWidgets.end())
+		if(new_selection != NULL)
 		{
-            mSelectedSession = widget_it->first;
-			LLFolderViewItem* widget = widget_it->second;
-			widget->selectItem();
+			LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(new_selection->getViewModelItem());
+			if(vmi != NULL)
+			{
+				selectConversation(vmi->getUUID());
+			}
 		}
 	}
 	return isWidgetSelected;

@@ -59,17 +59,27 @@ public:
 	 */
 	static bool isChatMultiTab();
 
+	// add conversation to container
+	static void addToHost(const LLUUID& session_id);
+
+	bool isHostAttached() {return mIsHostAttached;}
+	void setHostAttached(bool is_attached) {mIsHostAttached = is_attached;}
+
     static LLIMConversation* findConversation(const LLUUID& uuid);
     static LLIMConversation* getConversation(const LLUUID& uuid);
 
 	// show/hide the translation check box
 	void showTranslationCheckbox(const BOOL visible = FALSE);
 
+	bool isNearbyChat() {return mIsNearbyChat;}
+
 	// LLFloater overrides
 	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ void onClose(bool app_quitting);
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void draw();
+	/*virtual*/ void setVisible(BOOL visible);
+
 
 protected:
 
@@ -139,6 +149,7 @@ private:
 	void reshapeChatHistory();
 
 	bool checkIfTornOff();
+    bool mIsHostAttached;
 
 	LLTimer* mRefreshTimer; ///< Defines the rate at which refresh() is called.
 };

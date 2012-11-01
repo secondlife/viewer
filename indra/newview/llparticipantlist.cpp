@@ -676,8 +676,7 @@ void LLParticipantList::addAvatarIDExceptAgent(const LLUUID& avatar_id)
 		LLAvatarName avatar_name;
 		bool has_name = LLAvatarNameCache::get(avatar_id, &avatar_name);
 		participant = new LLConversationItemParticipant(!has_name ? LLTrans::getString("AvatarNameWaiting") : avatar_name.mDisplayName , avatar_id, mRootViewModel);
-		// Binds avatar's name update callback
-		LLAvatarNameCache::get(avatar_id, boost::bind(&LLConversationItemParticipant::onAvatarNameCache, participant, _2));
+		participant->fetchAvatarName();
 		if (mAvatarList)
 		{
 			mAvatarList->getIDs().push_back(avatar_id);
