@@ -111,6 +111,17 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 	}
 	if(success)
 	{
+		F32 ext[8];
+		success = check_read(apr_file, (void*)ext, sizeof(F32) * 8);
+
+		LLVector4a exts[2];
+		exts[0].load4a(ext);
+		exts[1].load4a(&ext[4]);
+	
+		setSpatialExtents(exts[0], exts[1]);
+	}
+	if(success)
+	{
 		LLVector4 pos;
 		success = check_read(apr_file, (void*)pos.mV, sizeof(LLVector4));
 
@@ -330,6 +341,17 @@ BOOL LLVOCacheEntry::writeToFile(LLAPRFile* apr_file) const
 	if(success)
 	{
 		success = check_write(apr_file, (void*)&mCRCChangeCount, sizeof(S32));
+	}
+	if(success)
+	{
+		const LLVector4a* exts = getSpatialExtents() ;
+		LLVector4 ext(exts[0][0], exts[0][1], exts[0][2], exts[0][3]);
+		success = check_write(apr_file, ext.mV, sizeof(LLVector4));		
+		if(success)
+		{
+			ext.set(exts[1][0], exts[1][1], exts[1][2], exts[1][3]);
+			success = check_write(apr_file, ext.mV, sizeof(LLVector4));		
+		}
 	}
 	if(success)
 	{
