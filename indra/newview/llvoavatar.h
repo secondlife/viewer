@@ -595,6 +595,7 @@ private:
  **/
 
 public:
+	void			debugColorizeSubMeshes(U32 i, const LLColor4& color);
 	virtual void 	updateMeshTextures();
 	void 			updateSexDependentLayerSets(BOOL upload_bake);
 	virtual void	dirtyMesh(); // Dirty the avatar mesh

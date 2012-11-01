@@ -1750,6 +1750,8 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering)
 	{
 		requestServerAppearanceUpdate();
 	}
+	// DRANO really should wait for the appearance message to set this.
+	// verify that deleting this line doesn't break anything.
 	gAgentAvatarp->setIsUsingServerBakes(gAgent.getRegion() && gAgent.getRegion()->getCentralBakeVersion());
 	
 	//dumpCat(getCOF(),"COF, start");
@@ -2684,7 +2686,7 @@ void LLAppearanceMgr::requestServerAppearanceUpdate()
 	std::string url = gAgent.getRegion()->getCapability("UpdateAvatarAppearance");	
 	if (url.empty())
 	{
-		llwarns << "NO CAP for UpdateAvatarAppearance. This is a bug." << llendl;
+		llwarns << "No cap for UpdateAvatarAppearance." << llendl;
 		return;
 	}
 	
