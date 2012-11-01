@@ -14,7 +14,7 @@
  width="394"
  can_resize="true"
  can_tear_off="false"
- min_width="250"
+ min_width="340"
  min_height="190"
  positioning="relative">
     <floater.string name="call_btn_start">Conv_toolbar_open_call</floater.string>
@@ -157,7 +157,8 @@
       min_width="115"
       width="150" 
       height="310" 
-      auto_resize="false">
+      user_resize="true"
+      auto_resize="true">
       </layout_panel>
     <layout_panel
        default_tab_group="3"
@@ -171,7 +172,8 @@
        user_resize="true"
        auto_resize="true"
        visible="true"
-       name="left_part_holder">
+       name="left_part_holder"
+       min_width="225">
         <panel
          name="trnsAndChat_panel"
          follows="all"
