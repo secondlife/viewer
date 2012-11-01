@@ -566,7 +566,7 @@ void LLFolderView::sanitizeSelection()
 				parent_folder;
 				parent_folder = parent_folder->getParentFolder())
 			{
-				if (parent_folder->getViewModelItem()->potentiallyVisible())
+				if (parent_folder->getViewModelItem() && parent_folder->getViewModelItem()->potentiallyVisible())
 				{
 					// give initial selection to first ancestor folder that potentially passes the filter
 					if (!new_selection)

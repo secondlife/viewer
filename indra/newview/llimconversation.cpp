@@ -376,7 +376,44 @@ void LLIMConversation::updateConversationViewParticipant(const LLUUID& participa
 
 void LLIMConversation::refreshConversation()
 {
-	// *TODO: check that all participant models do have a view (debug consistency check)
+	// Debug : Check that all participant models do have a view (debug consistency check)
+	/*
+	LLParticipantList* item = getParticipantList();
+	llinfos << "Merov debug : Start consistency check" << llendl;
+	LLFolderViewModelItemCommon::child_list_t::const_iterator current_participant_model = item->getChildrenBegin();
+	LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = item->getChildrenEnd();
+	while (current_participant_model != end_participant_model)
+	{
+		LLConversationItemParticipant* participant_model = dynamic_cast<LLConversationItemParticipant*>(*current_participant_model);
+		if (participant_model != NULL)
+		{
+			LLUUID uuid = participant_model->getUUID();
+			LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,uuid);
+			if (!widget)
+			{
+				llinfos << "Merov debug : Consistency error! Couldn't find widget for " << participant_model->getName() << llendl;
+			}
+			else 
+			{
+				llinfos << "Merov debug : Consistency check pass for " << participant_model->getName() << llendl;
+			}
+		}
+		else
+		{
+			llinfos << "Merov debug : Consistency check, skip non participant child" << llendl;
+		}
+		current_participant_model++;
+	}
+	llinfos << "Merov debug : End consistency check" << llendl;
+	 */
+		
+	conversations_widgets_map::iterator widget_it = mConversationsWidgets.begin();
+	while (widget_it != mConversationsWidgets.end())
+	{
+		widget_it->second->refresh();
+		widget_it->second->setVisible(TRUE);
+		++widget_it;
+	}
 	mConversationViewModel.requestSortAll();
 	mConversationsRoot->arrangeAll();
 	mConversationsRoot->update();
@@ -629,6 +666,7 @@ void LLIMConversation::onTearOffClicked()
     initRectControl();
 	LLFloater::onClickTearOff(this);
 	updateHeaderAndToolbar();
+	refreshConversation();
 }
 
 // static
