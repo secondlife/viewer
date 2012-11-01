@@ -488,7 +488,6 @@ void LLPipeline::init()
 	getPool(LLDrawPool::POOL_BUMP);
 	getPool(LLDrawPool::POOL_GLOW);
 
-	//LLViewerStats::getInstance()->mTrianglesDrawnStat.reset();
 	resetFrameStats();
 
 	for (U32 i = 0; i < NUM_RENDER_TYPES; ++i)
@@ -1769,7 +1768,6 @@ void LLPipeline::resetFrameStats()
 	assertInitialized();
 
 	LLStatViewer::TRIANGLES_DRAWN.add(mTrianglesDrawn);
-	//LLViewerStats::getInstance()->mTrianglesDrawnStat.addValue(mTrianglesDrawn/1000.f);
 
 	if (mBatchCount > 0)
 	{
@@ -9756,7 +9754,9 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 	if (gen_shadow)
 	{
-		F32 fade_amt = gFrameIntervalSeconds.value() * llmax(LLViewerCamera::getInstance()->getVelocityStat()->getCurrentPerSec(), 1.f);
+		LLTrace::Measurement<>* velocity_stat = LLViewerCamera::getVelocityStat();
+		F32 fade_amt = gFrameIntervalSeconds.value() 
+			* llmax(LLTrace::get_frame_recording().getLastRecordingPeriod().getLastValue(*velocity_stat), 1.0);
 
 		//update shadow targets
 		for (U32 i = 0; i < 2; i++)

@@ -32,7 +32,6 @@
 
 #include "llmath.h"
 #include "llui.h"
-#include "llstat.h"
 #include "llgl.h"
 #include "llglheaders.h"
 #include "lltracerecording.h"
@@ -48,8 +47,8 @@ LLStatGraph::LLStatGraph(const Params& p)
 	mPerSec(true),
 	mPrecision(p.precision),
 	mValue(p.value),
-	mStatp(p.stat.legacy_stat),
-	mNewStatp(p.stat.count_stat)
+	mNewStatFloatp(p.stat.count_stat_float),
+	mNewStatIntp(p.stat.count_stat_int)
 {
 	setToolTip(p.name());
 
@@ -73,30 +72,31 @@ void LLStatGraph::draw()
 {
 	F32 range, frac;
 	range = mMax - mMin;
-	if (mStatp)
-	{
-		if (mPerSec)
-		{
-			mValue = mStatp->getMeanPerSec();
-		}
-		else
-		{
-			mValue = mStatp->getMean();
-		}
-	}
-	else if (mNewStatp)
+	if (mNewStatFloatp)
 	{
 		LLTrace::Recording& recording = LLTrace::get_frame_recording().getLastRecordingPeriod();
 
 		if (mPerSec)
 		{
-			mValue = recording.getPerSec(*mNewStatp);
+			mValue = recording.getPerSec(*mNewStatFloatp);
 		}
 		else
 		{
-			mValue = recording.getSum(*mNewStatp);
+			mValue = recording.getSum(*mNewStatFloatp);
 		}
+	}
+	else if (mNewStatIntp)
+	{
+		LLTrace::Recording& recording = LLTrace::get_frame_recording().getLastRecordingPeriod();
 
+		if (mPerSec)
+		{
+			mValue = recording.getPerSec(*mNewStatIntp);
+		}
+		else
+		{
+			mValue = recording.getSum(*mNewStatIntp);
+		}
 	}
 
 	frac = (mValue - mMin) / range;

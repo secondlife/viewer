@@ -30,7 +30,6 @@
 #include "llview.h"
 #include "llframetimer.h"
 #include "lltracerecording.h"
-class LLStat;
 
 class LLStatBar : public LLView
 {
@@ -79,7 +78,8 @@ public:
 	virtual void draw();
 	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 
-	void setStat(LLStat* stat) { mStatp = stat; }
+	void setStat(const std::string& stat_name);
+
 	void setRange(F32 bar_min, F32 bar_max, F32 tick_spacing, F32 label_spacing);
 	void getRange(F32& bar_min, F32& bar_max) { bar_min = mMinBar; bar_max = mMaxBar; }
 	
@@ -96,10 +96,11 @@ private:
 	BOOL mDisplayBar;			// Display the bar graph.
 	BOOL mDisplayHistory;
 	BOOL mDisplayMean;			// If true, display mean, if false, display current value
-	LLTrace::PeriodicRecording* mFrameRecording;
 
-	LLStat* mStatp;
-	LLTrace::count_common_t* mNewStatp;
+	LLTrace::count_common_float_t* mCountFloatp;
+	LLTrace::count_common_int_t* mCountIntp;
+	LLTrace::measurement_common_float_t* mMeasurementFloatp;
+	LLTrace::measurement_common_int_t* mMeasurementIntp;
 
 	LLFrameTimer mUpdateTimer;
 	LLUIString mLabel;

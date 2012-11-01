@@ -112,124 +112,81 @@ namespace LLTrace
 		void update();
 
 		// Count accessors
+		F64 getSum(const TraceType<CountAccumulator<F64> >& stat) const;
+		S64 getSum(const TraceType<CountAccumulator<S64> >& stat) const;
 		template <typename T>
-		T getSum(const TraceType<CountAccumulator<T> >& stat) const
+		T getSum(const Count<T, typename T::is_unit_tag_t>& stat) const
 		{
-			return (T)stat.getAccumulator(mCounts).getSum();
+			return (T)getSum(static_cast<const TraceType<CountAccumulator<StorageType<T>::type_t> >&> (stat));
 		}
 
-		template <typename T, typename IS_UNIT>
-		T getSum(const Count<T, IS_UNIT>& stat) const
-		{
-			return (T)stat.getAccumulator(mCounts).getSum();
-		}
-
+		F64 getPerSec(const TraceType<CountAccumulator<F64> >& stat) const;
+		F64 getPerSec(const TraceType<CountAccumulator<S64> >& stat) const;
 		template <typename T>
-		T getPerSec(const TraceType<CountAccumulator<T> >& stat) const
+		T getPerSec(const Count<T, typename T::is_unit_tag_t>& stat) const
 		{
-			return (T)stat.getAccumulator(mCounts).getSum() / mElapsedSeconds;
-		}
-
-		template <typename T, typename IS_UNIT>
-		T getPerSec(const Count<T, IS_UNIT>& stat) const
-		{
-			return (T)stat.getAccumulator(mCounts).getSum() / mElapsedSeconds;
+			return (T)getPerSec(static_cast<const TraceType<CountAccumulator<StorageType<T>::type_t> >&> (stat));
 		}
 
 		// Measurement accessors
+		F64 getSum(const TraceType<MeasurementAccumulator<F64> >& stat) const;
+		S64 getSum(const TraceType<MeasurementAccumulator<S64> >& stat) const;
 		template <typename T>
-		T getSum(const TraceType<MeasurementAccumulator<T> >& stat) const
+		T getSum(const Measurement<T, typename T::is_unit_tag_t>& stat) const
 		{
-			return (T)stat.getAccumulator(mMeasurements).getSum();
-
+			return (T)getSum(static_cast<const TraceType<MeasurementAccumulator<StorageType<T>::type_t> >&> (stat));
 		}
 
-		template <typename T, typename IS_UNIT>
-		T getSum(const Measurement<T, IS_UNIT>& stat) const
-		{
-			return (T)stat.getAccumulator(mMeasurements).getSum();
-
-		}
-
+		F64 getPerSec(const TraceType<MeasurementAccumulator<F64> >& stat) const;
+		F64 getPerSec(const TraceType<MeasurementAccumulator<S64> >& stat) const;
 		template <typename T>
-		T getPerSec(const TraceType<MeasurementAccumulator<T> >& stat) const
+		T getPerSec(const Measurement<T, typename T::is_unit_tag_t>& stat) const
 		{
-			return (T)stat.getAccumulator(mMeasurements).getSum() / mElapsedSeconds;
+			return (T)getPerSec(static_cast<const TraceType<MeasurementAccumulator<StorageType<T>::type_t> >&> (stat));
 		}
 
-		template <typename T, typename IS_UNIT>
-		T getPerSec(const Measurement<T, IS_UNIT>& stat) const
-		{
-			return (typename Count<T, IS_UNIT>::base_unit_t)stat.getAccumulator(mMeasurements).getSum() / mElapsedSeconds;
-		}
-
+		F64 getMin(const TraceType<MeasurementAccumulator<F64> >& stat) const;
+		S64 getMin(const TraceType<MeasurementAccumulator<S64> >& stat) const;
 		template <typename T>
-		T getMin(const TraceType<MeasurementAccumulator<T> >& stat) const
+		T getMin(const Measurement<T, typename T::is_unit_tag_t>& stat) const
 		{
-			return (T)stat.getAccumulator(mMeasurements).getMin();
+			return (T)getMin(static_cast<const TraceType<MeasurementAccumulator<StorageType<T>::type_t> >&> (stat));
 		}
 
-		template <typename T, typename IS_UNIT>
-		T getMin(const Measurement<T, IS_UNIT>& stat) const
-		{
-			return (T)stat.getAccumulator(mMeasurements).getMin();
-		}
-
-
+		F64 getMax(const TraceType<MeasurementAccumulator<F64> >& stat) const;
+		S64 getMax(const TraceType<MeasurementAccumulator<S64> >& stat) const;
 		template <typename T>
-		T getMax(const TraceType<MeasurementAccumulator<T> >& stat) const
+		T getMax(const Measurement<T, typename T::is_unit_tag_t>& stat) const
 		{
-			return (T)stat.getAccumulator(mMeasurements).getMax();
+			return (T)getMax(static_cast<const TraceType<MeasurementAccumulator<StorageType<T>::type_t> >&> (stat));
 		}
 
-		template <typename T, typename IS_UNIT>
-		T getMax(const Measurement<T, IS_UNIT>& stat) const
-		{
-			return (T)stat.getAccumulator(mMeasurements).getMax();
-		}
-
+		F64 getMean(const TraceType<MeasurementAccumulator<F64> >& stat) const;
+		F64 getMean(const TraceType<MeasurementAccumulator<S64> >& stat) const;
 		template <typename T>
-		T getMean(const TraceType<MeasurementAccumulator<T> >& stat) const
+		T getMean(Measurement<T, typename T::is_unit_tag_t>& stat) const
 		{
-			return (T)stat.getAccumulator(mMeasurements).getMean();
+			return (T)getMean(static_cast<const TraceType<MeasurementAccumulator<StorageType<T>::type_t> >&> (stat));
 		}
 
-		template <typename T, typename IS_UNIT>
-		T getMean(Measurement<T, IS_UNIT>& stat) const
-		{
-			return (T)stat.getAccumulator(mMeasurements).getMean();
-		}
-
+		F64 getStandardDeviation(const TraceType<MeasurementAccumulator<F64> >& stat) const;
+		F64 getStandardDeviation(const TraceType<MeasurementAccumulator<S64> >& stat) const;
 		template <typename T>
-		T getStandardDeviation(const TraceType<MeasurementAccumulator<T> >& stat) const
+		T getStandardDeviation(const Measurement<T, typename T::is_unit_tag_t>& stat) const
 		{
-			return (T)stat.getAccumulator(mMeasurements).getStandardDeviation();
+			return (T)getMean(static_cast<const TraceType<MeasurementAccumulator<StorageType<T>::type_t> >&> (stat));
 		}
 
-		template <typename T, typename IS_UNIT>
-		T getStandardDeviation(const Measurement<T, IS_UNIT>& stat) const
-		{
-			return (T)stat.getAccumulator(mMeasurements).getStandardDeviation();
-		}
-
+		F64 getLastValue(const TraceType<MeasurementAccumulator<F64> >& stat) const;
+		S64 getLastValue(const TraceType<MeasurementAccumulator<S64> >& stat) const;
 		template <typename T>
-		T getLastValue(const TraceType<MeasurementAccumulator<T> >& stat) const
+		T getLastValue(const Measurement<T, typename T::is_unit_tag_t>& stat) const
 		{
-			return (T)stat.getAccumulator(mMeasurements).getLastValue();
+			return (T)getLastValue(static_cast<const TraceType<MeasurementAccumulator<StorageType<T>::type_t> >&> (stat));
 		}
 
-		template <typename T, typename IS_UNIT>
-		T getLastValue(const Measurement<T, IS_UNIT>& stat) const
-		{
-			return (T)stat.getAccumulator(mMeasurements).getLastValue();
-		}
-
-
-		template <typename T>
-		U32 getSampleCount(const TraceType<MeasurementAccumulator<T> >& stat) const
-		{
-			return stat.getAccumulator(mMeasurements).getSampleCount();
-		}
+		U32 getSampleCount(const TraceType<MeasurementAccumulator<F64> >& stat) const;
+		U32 getSampleCount(const TraceType<MeasurementAccumulator<S64> >& stat) const;
 
 		LLUnit::Seconds<F64> getDuration() const { return mElapsedSeconds; }
 
@@ -244,8 +201,10 @@ namespace LLTrace
 		// returns data for current thread
 		class ThreadRecorder* getThreadRecorder(); 
 
-		LLCopyOnWritePointer<AccumulatorBuffer<CountAccumulator<F64> > >		mCounts;
-		LLCopyOnWritePointer<AccumulatorBuffer<MeasurementAccumulator<F64> > >	mMeasurements;
+		LLCopyOnWritePointer<AccumulatorBuffer<CountAccumulator<F64> > >		mCountsFloat;
+		LLCopyOnWritePointer<AccumulatorBuffer<MeasurementAccumulator<F64> > >	mMeasurementsFloat;
+		LLCopyOnWritePointer<AccumulatorBuffer<CountAccumulator<S64> > >		mCounts;
+		LLCopyOnWritePointer<AccumulatorBuffer<MeasurementAccumulator<S64> > >	mMeasurements;
 		LLCopyOnWritePointer<AccumulatorBuffer<TimerAccumulator> >				mStackTimers;
 
 		LLTimer			mSamplingTimer;
@@ -260,6 +219,7 @@ namespace LLTrace
 		~PeriodicRecording();
 
 		void nextPeriod();
+		S32 getNumPeriods() { return mNumPeriods; }
 
 		Recording& getLastRecordingPeriod()
 		{
@@ -268,7 +228,7 @@ namespace LLTrace
 
 		const Recording& getLastRecordingPeriod() const
 		{
-			return mRecordingPeriods[(mCurPeriod + mNumPeriods - 1) % mNumPeriods];
+			return getPrevRecordingPeriod(1);
 		}
 
 		Recording& getCurRecordingPeriod()
@@ -281,6 +241,16 @@ namespace LLTrace
 			return mRecordingPeriods[mCurPeriod];
 		}
 
+		Recording& getPrevRecordingPeriod(S32 offset)
+		{
+			return mRecordingPeriods[(mCurPeriod + mNumPeriods - offset) % mNumPeriods];
+		}
+
+		const Recording& getPrevRecordingPeriod(S32 offset) const
+		{
+			return mRecordingPeriods[(mCurPeriod + mNumPeriods - offset) % mNumPeriods];
+		}
+
 		Recording snapshotCurRecordingPeriod() const
 		{
 			Recording recording_copy(getCurRecordingPeriod());
@@ -289,6 +259,84 @@ namespace LLTrace
 		}
 
 		Recording& getTotalRecording();
+
+		template <typename T>
+		typename T getPeriodMin(const TraceType<CountAccumulator<T> >& stat) const
+		{
+			T min_val = std::numeric_limits<T>::max();
+			for (S32 i = 0; i < mNumPeriods; i++)
+			{
+				min_val = llmin(min_val, mRecordingPeriods[i].getSum(stat));
+			}
+			return (T)min_val;
+		}
+
+		template <typename T>
+		F64 getPeriodMinPerSec(const TraceType<CountAccumulator<T> >& stat) const
+		{
+			F64 min_val = std::numeric_limits<F64>::max();
+			for (S32 i = 0; i < mNumPeriods; i++)
+			{
+				min_val = llmin(min_val, mRecordingPeriods[i].getPerSec(stat));
+			}
+			return min_val;
+		}
+
+		template <typename T>
+		T getPeriodMax(const TraceType<CountAccumulator<T> >& stat) const
+		{
+			T max_val = std::numeric_limits<T>::min();
+			for (S32 i = 0; i < mNumPeriods; i++)
+			{
+				max_val = llmax(max_val, mRecordingPeriods[i].getSum(stat));
+			}
+			return max_val;
+		}
+
+		template <typename T>
+		F64 getPeriodMaxPerSec(const TraceType<CountAccumulator<T> >& stat) const
+		{
+			F64 max_val = std::numeric_limits<F64>::min();
+			for (S32 i = 0; i < mNumPeriods; i++)
+			{
+				max_val = llmax(max_val, mRecordingPeriods[i].getPerSec(stat));
+			}
+			return max_val;
+		}
+
+		template <typename T>
+		F64 getPeriodMean(const TraceType<CountAccumulator<T> >& stat) const
+		{
+			F64 mean = 0.0;
+			F64 count = 0;
+			for (S32 i = 0; i < mNumPeriods; i++)
+			{
+				if (mRecordingPeriods[i].getDuration() > 0.f)
+				{
+					count++;
+					mean += mRecordingPeriods[i].getSum(stat);
+				}
+			}
+			mean /= (F64)mNumPeriods;
+			return mean;
+		}
+
+		template <typename T>
+		F64 getPeriodMeanPerSec(const TraceType<CountAccumulator<T> >& stat) const
+		{
+			F64 mean = 0.0;
+			F64 count = 0;
+			for (S32 i = 0; i < mNumPeriods; i++)
+			{
+				if (mRecordingPeriods[i].getDuration() > 0.f)
+				{
+					count++;
+					mean += mRecordingPeriods[i].getPerSec(stat);
+				}
+			}
+			mean /= count;
+			return mean;
+		}
 
 	private:
 

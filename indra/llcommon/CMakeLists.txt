@@ -91,7 +91,6 @@ set(llcommon_SOURCE_FILES
     llsdutil.cpp
     llsecondlifeurls.cpp
     llsingleton.cpp
-    llstat.cpp
     llstacktrace.cpp
     llstreamqueue.cpp
     llstreamtools.cpp
@@ -234,7 +233,6 @@ set(llcommon_HEADER_FILES
     llsortedvector.h
     llstack.h
     llstacktrace.h
-    llstat.h
     llstatenums.h
     llstl.h
     llstreamqueue.h

@@ -748,8 +748,10 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			
 			{
 				LLFastTimer t(FTM_IMAGE_UPDATE_CLASS);
-				LLViewerTexture::updateClass(LLViewerCamera::getInstance()->getVelocityStat()->getMean(),
-											LLViewerCamera::getInstance()->getAngularVelocityStat()->getMean());
+				LLTrace::Count<>* velocity_stat = LLViewerCamera::getVelocityStat();
+				LLTrace::Count<>* angular_velocity_stat = LLViewerCamera::getAngularVelocityStat();
+				LLViewerTexture::updateClass(LLTrace::get_frame_recording().getPeriodMeanPerSec(*velocity_stat),
+											LLTrace::get_frame_recording().getPeriodMeanPerSec(*angular_velocity_stat));
 			}
 
 			

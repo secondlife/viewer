@@ -94,8 +94,8 @@ LLTrace::Count<LLTrace::Kilobits>	KBIT("kbitstat"),
 									OBJECT_KBIT("objectkbitstat"),
 									ASSET_KBIT("assetkbitstat"),
 									TEXTURE_KBIT("texturekbitstat"),
-									ACTUAL_IN_KBIT("actualinkbit"),
-									ACTUAL_OUT_KBIT("actualoutkbit");
+									ACTUAL_IN_KBIT("actualinkbitstat"),
+									ACTUAL_OUT_KBIT("actualoutkbitstat");
 
 LLTrace::Count<LLTrace::Seconds> AVATAR_EDIT_TIME("avataredittime", "Seconds in Edit Appearence"),
 								TOOLBOX_TIME("toolboxtime", "Seconds using Toolbox"),
@@ -276,20 +276,25 @@ void LLViewerStats::addToMessage(LLSD &body) const
 
 // *NOTE:Mani The following methods used to exist in viewer.cpp
 // Moving them here, but not merging them into LLViewerStats yet.
-U32		gTotalLandIn = 0, gTotalLandOut = 0;
-U32		gTotalWaterIn = 0, gTotalWaterOut = 0;
+U32		gTotalLandIn = 0, 
+		gTotalLandOut = 0,
+		gTotalWaterIn = 0, 
+		gTotalWaterOut = 0;
 
-F32		gAveLandCompression = 0.f, gAveWaterCompression = 0.f;
-F32		gBestLandCompression = 1.f, gBestWaterCompression = 1.f;
-F32		gWorstLandCompression = 0.f, gWorstWaterCompression = 0.f;
+F32		gAveLandCompression = 0.f, 
+		gAveWaterCompression = 0.f,
+		gBestLandCompression = 1.f,
+		gBestWaterCompression = 1.f,
+		gWorstLandCompression = 0.f, 
+		gWorstWaterCompression = 0.f;
 
 LLUnit::Bytes<U32>		gTotalWorldData = 0, 
 						gTotalObjectData = 0, 
 						gTotalTextureData = 0;
-U32		gSimPingCount = 0;
+U32						gSimPingCount = 0;
 LLUnit::Bits<U32>		gObjectData = 0;
-F32		gAvgSimPing = 0.f;
-LLUnit::Bytes<U32>     gTotalTextureBytesPerBoostLevel[LLViewerTexture::MAX_GL_IMAGE_CATEGORY] = {0};
+F32						gAvgSimPing = 0.f;
+LLUnit::Bytes<U32>		gTotalTextureBytesPerBoostLevel[LLViewerTexture::MAX_GL_IMAGE_CATEGORY] = {0};
 
 extern U32  gVisCompared;
 extern U32  gVisTested;
@@ -334,13 +339,13 @@ void update_statistics()
 	LLCircuitData *cdp = gMessageSystem->mCircuitInfo.findCircuit(gAgent.getRegion()->getHost());
 	if (cdp)
 	{
-		LLStatViewer::SIM_PING.sample<LLTrace::Seconds>(cdp->getPingDelay());
+		LLStatViewer::SIM_PING.sample<LLTrace::Milliseconds>(cdp->getPingDelay());
 		gAvgSimPing = ((gAvgSimPing * (F32)gSimPingCount) + (F32)(cdp->getPingDelay())) / ((F32)gSimPingCount + 1);
 		gSimPingCount++;
 	}
 	else
 	{
-		LLStatViewer::SIM_PING.sample<LLTrace::Seconds>(10000);
+		LLStatViewer::SIM_PING.sample<LLTrace::Seconds>(10);
 	}
 
 	LLStatViewer::FPS.add(1);
@@ -390,8 +395,6 @@ void update_statistics()
 			texture_stats_timer.reset();
 		}
 	}
-
-	LLTrace::get_frame_recording().nextPeriod();
 }
 
 class ViewerStatsResponder : public LLHTTPClient::Responder

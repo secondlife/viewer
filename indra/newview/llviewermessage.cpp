@@ -4765,28 +4765,6 @@ void process_sim_stats(LLMessageSystem *msg, void **user_data)
 		}
 	}
 
-	/*
-	msg->getF32Fast(_PREHASH_Statistics, _PREHASH_PhysicsTimeDilation, time_dilation);
-	LLViewerStats::getInstance()->mSimTDStat.addValue(time_dilation);
-
-	// Process information
-	//	{	CpuUsage			F32				}
-	//	{	SimMemTotal			F32				}
-	//	{	SimMemRSS			F32				}
-	//	{	ProcessUptime		F32				}
-	F32 cpu_usage;
-	F32 sim_mem_total;
-	F32 sim_mem_rss;
-	F32 process_uptime;
-	msg->getF32Fast(_PREHASH_Statistics, _PREHASH_CpuUsage, cpu_usage);
-	msg->getF32Fast(_PREHASH_Statistics, _PREHASH_SimMemTotal, sim_mem_total);
-	msg->getF32Fast(_PREHASH_Statistics, _PREHASH_SimMemRSS, sim_mem_rss);
-	msg->getF32Fast(_PREHASH_Statistics, _PREHASH_ProcessUptime, process_uptime);
-	LLViewerStats::getInstance()->mSimCPUUsageStat.addValue(cpu_usage);
-	LLViewerStats::getInstance()->mSimMemTotalStat.addValue(sim_mem_total);
-	LLViewerStats::getInstance()->mSimMemRSSStat.addValue(sim_mem_rss);
-	*/
-
 	//
 	// Various hacks that aren't statistics, but are being handled here.
 	//

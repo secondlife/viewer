@@ -4305,6 +4305,9 @@ void LLAppViewer::idle()
 		update_statistics();
 	}
 
+	LLTrace::get_frame_recording().nextPeriod();
+
+
 	////////////////////////////////////////
 	//
 	// Handle the regular UI idle callbacks as well as

@@ -35,8 +35,7 @@
 #include "lltextureinfo.h"
 #include "llapr.h"
 #include "llimageworker.h"
-#include "llstat.h"
-//#include "lltexturecache.h"
+#include "lltrace.h"
 
 class LLViewerTexture;
 class LLTextureFetchWorker;
@@ -166,8 +165,8 @@ private:
 	LLMutex mQueueMutex;        //to protect mRequestMap and mCommands only
 	LLMutex mNetworkQueueMutex; //to protect mNetworkQueue, mHTTPTextureQueue and mCancelQueue.
 
-	static LLStat sCacheHitRate;
-	static LLStat sCacheReadLatency;
+	static LLTrace::Measurement<> sCacheHitRate;
+	static LLTrace::Measurement<> sCacheReadLatency;
 
 	LLTextureCache* mTextureCache;
 	LLImageDecodeThread* mImageDecodeThread;

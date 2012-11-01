@@ -39,8 +39,10 @@ namespace LLTrace
 
 Recording::Recording() 
 :	mElapsedSeconds(0),
-	mCounts(new AccumulatorBuffer<CountAccumulator<F64> >()),
-	mMeasurements(new AccumulatorBuffer<MeasurementAccumulator<F64> >()),
+	mCountsFloat(new AccumulatorBuffer<CountAccumulator<F64> >()),
+	mMeasurementsFloat(new AccumulatorBuffer<MeasurementAccumulator<F64> >()),
+	mCounts(new AccumulatorBuffer<CountAccumulator<S64> >()),
+	mMeasurements(new AccumulatorBuffer<MeasurementAccumulator<S64> >()),
 	mStackTimers(new AccumulatorBuffer<TimerAccumulator>())
 {}
 
@@ -59,6 +61,8 @@ void Recording::update()
 
 void Recording::handleReset()
 {
+	mCountsFloat.write()->reset();
+	mMeasurementsFloat.write()->reset();
 	mCounts.write()->reset();
 	mMeasurements.write()->reset();
 	mStackTimers.write()->reset();
@@ -88,6 +92,8 @@ void Recording::handleSplitTo(Recording& other)
 
 void Recording::makePrimary()
 {
+	mCountsFloat.write()->makePrimary();
+	mMeasurementsFloat.write()->makePrimary();
 	mCounts.write()->makePrimary();
 	mMeasurements.write()->makePrimary();
 	mStackTimers.write()->makePrimary();
@@ -100,14 +106,120 @@ bool Recording::isPrimary() const
 
 void Recording::mergeRecording( const Recording& other )
 {
+	mCountsFloat.write()->addSamples(*other.mCountsFloat);
+	mMeasurementsFloat.write()->addSamples(*other.mMeasurementsFloat);
 	mCounts.write()->addSamples(*other.mCounts);
 	mMeasurements.write()->addSamples(*other.mMeasurements);
 	mStackTimers.write()->addSamples(*other.mStackTimers);
 	mElapsedSeconds += other.mElapsedSeconds;
 }
 
+F64 Recording::getSum( const TraceType<CountAccumulator<F64> >& stat ) const
+{
+	return stat.getAccumulator(mCountsFloat).getSum();
+}
+
+S64 Recording::getSum( const TraceType<CountAccumulator<S64> >& stat ) const
+{
+	return stat.getAccumulator(mCounts).getSum();
+}
+
+F64 Recording::getSum( const TraceType<MeasurementAccumulator<F64> >& stat ) const
+{
+	return (F64)stat.getAccumulator(mMeasurementsFloat).getSum();
+}
+
+S64 Recording::getSum( const TraceType<MeasurementAccumulator<S64> >& stat ) const
+{
+	return (S64)stat.getAccumulator(mMeasurements).getSum();
+}
+
+
+
+F64 Recording::getPerSec( const TraceType<CountAccumulator<F64> >& stat ) const
+{
+	return stat.getAccumulator(mCountsFloat).getSum() / mElapsedSeconds;
+}
+
+F64 Recording::getPerSec( const TraceType<CountAccumulator<S64> >& stat ) const
+{
+	return (F64)stat.getAccumulator(mCounts).getSum() / mElapsedSeconds;
+}
+
+F64 Recording::getPerSec( const TraceType<MeasurementAccumulator<F64> >& stat ) const
+{
+	return stat.getAccumulator(mMeasurementsFloat).getSum() / mElapsedSeconds;
+}
+
+F64 Recording::getPerSec( const TraceType<MeasurementAccumulator<S64> >& stat ) const
+{
+	return (F64)stat.getAccumulator(mMeasurements).getSum() / mElapsedSeconds;
+}
+
+F64 Recording::getMin( const TraceType<MeasurementAccumulator<F64> >& stat ) const
+{
+	return stat.getAccumulator(mMeasurementsFloat).getMin();
+}
+
+S64 Recording::getMin( const TraceType<MeasurementAccumulator<S64> >& stat ) const
+{
+	return stat.getAccumulator(mMeasurements).getMin();
+}
+
+F64 Recording::getMax( const TraceType<MeasurementAccumulator<F64> >& stat ) const
+{
+	return stat.getAccumulator(mMeasurementsFloat).getMax();
+}
+
+S64 Recording::getMax( const TraceType<MeasurementAccumulator<S64> >& stat ) const
+{
+	return stat.getAccumulator(mMeasurements).getMax();
+}
+
+F64 Recording::getMean( const TraceType<MeasurementAccumulator<F64> >& stat ) const
+{
+	return stat.getAccumulator(mMeasurementsFloat).getMean();
+}
+
+F64 Recording::getMean( const TraceType<MeasurementAccumulator<S64> >& stat ) const
+{
+	return stat.getAccumulator(mMeasurements).getMean();
+}
+
+F64 Recording::getStandardDeviation( const TraceType<MeasurementAccumulator<F64> >& stat ) const
+{
+	return stat.getAccumulator(mMeasurementsFloat).getStandardDeviation();
+}
+
+F64 Recording::getStandardDeviation( const TraceType<MeasurementAccumulator<S64> >& stat ) const
+{
+	return stat.getAccumulator(mMeasurements).getStandardDeviation();
+}
+
+F64 Recording::getLastValue( const TraceType<MeasurementAccumulator<F64> >& stat ) const
+{
+	return stat.getAccumulator(mMeasurementsFloat).getLastValue();
+}
+
+S64 Recording::getLastValue( const TraceType<MeasurementAccumulator<S64> >& stat ) const
+{
+	return stat.getAccumulator(mMeasurements).getLastValue();
+}
+
+U32 Recording::getSampleCount( const TraceType<MeasurementAccumulator<F64> >& stat ) const
+{
+	return stat.getAccumulator(mMeasurementsFloat).getSampleCount();
+}
+
+U32 Recording::getSampleCount( const TraceType<MeasurementAccumulator<S64> >& stat ) const
+{
+	return stat.getAccumulator(mMeasurements).getSampleCount();
+}
+
+
+
 ///////////////////////////////////////////////////////////////////////
-// Recording
+// PeriodicRecording
 ///////////////////////////////////////////////////////////////////////
 
 PeriodicRecording::PeriodicRecording( S32 num_periods ) 
@@ -178,6 +290,7 @@ void PeriodicRecording::handleSplitTo( PeriodicRecording& other )
 {
 	getCurRecordingPeriod().handleSplitTo(other.getCurRecordingPeriod());
 }
+
 
 ///////////////////////////////////////////////////////////////////////
 // ExtendableRecording

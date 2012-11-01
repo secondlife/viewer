@@ -29,7 +29,6 @@
 #include "indra_constants.h"
 #include "llerror.h"
 #include "llsdserialize.h"
-#include "llstat.h"
 #include "lltreeiterators.h"
 #include "llmetricperformancetester.h"
 
