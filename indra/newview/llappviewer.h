@@ -209,7 +209,9 @@ private:
 
 	bool anotherInstanceRunning(); 
 	void initMarkerFile(); 
-    
+	static void recordMarkerVersion(LLAPRFile& marker_file);
+	bool markerIsSameVersion(const std::string& marker_name) const;
+	
     void idle(); 
     void idleShutdown();
 	// update avatar SLID and display name caches
@@ -229,7 +231,7 @@ private:
 	LLAPRFile mMarkerFile; // A file created to indicate the app is running.
 
 	std::string mLogoutMarkerFileName;
-	apr_file_t* mLogoutMarkerFile; // A file created to indicate the app is running.
+	LLAPRFile mLogoutMarkerFile; // A file created to indicate the app is running.
 
 	
 	LLOSInfo mSysOSInfo; 
