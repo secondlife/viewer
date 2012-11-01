@@ -20,8 +20,13 @@ email_status_this_is_os = true
 # Limit extent of codeticket updates to revisions after...
 codeticket_since = 3.3.0-release
 
+clean_on_success = false
+run_tests = false
+build_Darwin_Debug = false
+build_Darwin_RelWithDebInfo = false
+    
 # ========================================
-# Viewer Development
+# Viewer Development --
 # ========================================
 
 # Report changes since...
