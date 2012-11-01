@@ -428,14 +428,16 @@ void LLConversationItemParticipant::onAvatarNameCache(const LLAvatarName& av_nam
 	mName = (av_name.mUsername.empty() ? av_name.mDisplayName : av_name.mUsername);
 	mDisplayName = (av_name.mDisplayName.empty() ? av_name.mUsername : av_name.mDisplayName);
 	mNeedsRefresh = true;
-	LLConversationItemSession* parent_session = dynamic_cast<LLConversationItemSession*>(mParent);
-	if (parent_session != NULL)
+	if(mParent != NULL)
 	{
-		parent_session->requestSort();
-		parent_session->updateParticipantName(this);
-		postEvent("update_participant", parent_session, this);
+		LLConversationItemSession* parent_session = dynamic_cast<LLConversationItemSession*>(mParent);
+		if (parent_session != NULL)
+		{
+			parent_session->requestSort();
+			parent_session->updateParticipantName(this);
+			postEvent("update_participant", parent_session, this);
+		}
 	}
-
 }
 
 void LLConversationItemParticipant::dumpDebugData()
