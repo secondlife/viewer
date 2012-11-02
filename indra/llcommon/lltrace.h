@@ -138,11 +138,11 @@ namespace LLTrace
 			}
 		}
 
-		void reset()
+		void reset(const AccumulatorBuffer<ACCUMULATOR>* other = NULL)
 		{
 			for (size_t i = 0; i < mNextStorageSlot; i++)
 			{
-				mStorage[i].reset();
+				mStorage[i].reset(other ? &other->mStorage[i] : NULL);
 			}
 		}
 
@@ -285,54 +285,60 @@ namespace LLTrace
 
 		void addSamples(const self_t& other)
 		{
-			mSum += other.mSum;
-			if (other.mMin < mMin)
+			if (other.mNumSamples)
 			{
-				mMin = other.mMin;
-			}
-			if (other.mMax > mMax)
-			{
-				mMax = other.mMax;
-			}
-			mNumSamples += other.mNumSamples;
-			F64 weight = (F64)mNumSamples / (F64)(mNumSamples + other.mNumSamples);
-			mMean = mMean * weight + other.mMean * (1.f - weight);
+				mSum += other.mSum;
+				if (other.mMin < mMin)
+				{
+					mMin = other.mMin;
+				}
+				if (other.mMax > mMax)
+				{
+					mMax = other.mMax;
+				}
+				F64 weight = (F64)mNumSamples / (F64)(mNumSamples + other.mNumSamples);
+				mNumSamples += other.mNumSamples;
+				mMean = mMean * weight + other.mMean * (1.f - weight);
 
-			F64 n_1 = (F64)mNumSamples,
-				n_2 = (F64)other.mNumSamples;
-			F64 m_1 = mMean,
-				m_2 = other.mMean;
-			F64 sd_1 = getStandardDeviation(),
-				sd_2 = other.getStandardDeviation();
-			// combine variance (and hence standard deviation) of 2 different sized sample groups using
-			// the following formula: http://www.mrc-bsu.cam.ac.uk/cochrane/handbook/chapter_7/7_7_3_8_combining_groups.htm
-			if (n_1 == 0)
-			{
-				mVarianceSum = other.mVarianceSum;
+				F64 n_1 = (F64)mNumSamples,
+					n_2 = (F64)other.mNumSamples;
+				F64 m_1 = mMean,
+					m_2 = other.mMean;
+				F64 sd_1 = getStandardDeviation(),
+					sd_2 = other.getStandardDeviation();
+				// combine variance (and hence standard deviation) of 2 different sized sample groups using
+				// the following formula: http://www.mrc-bsu.cam.ac.uk/cochrane/handbook/chapter_7/7_7_3_8_combining_groups.htm
+				if (n_1 == 0)
+				{
+					mVarianceSum = other.mVarianceSum;
+				}
+				else if (n_2 == 0)
+				{
+					// don't touch variance
+					// mVarianceSum = mVarianceSum;
+				}
+				else
+				{
+					mVarianceSum =  (F64)mNumSamples
+								* ((((n_1 - 1.f) * sd_1 * sd_1)
+									+ ((n_2 - 1.f) * sd_2 * sd_2)
+									+ (((n_1 * n_2) / (n_1 + n_2))
+										* ((m_1 * m_1) + (m_2 * m_2) - (2.f * m_1 * m_2))))
+								/ (n_1 + n_2 - 1.f));
+				}
+				mLastValue = other.mLastValue;
 			}
-			else if (n_2 == 0)
-			{
-				// don't touch variance
-				// mVarianceSum = mVarianceSum;
-			}
-			else
-			{
-				mVarianceSum =  (F64)mNumSamples
-							* ((((n_1 - 1.f) * sd_1 * sd_1)
-								+ ((n_2 - 1.f) * sd_2 * sd_2)
-								+ (((n_1 * n_2) / (n_1 + n_2))
-									* ((m_1 * m_1) + (m_2 * m_2) - (2.f * m_1 * m_2))))
-							/ (n_1 + n_2 - 1.f));
-			}
-			mLastValue = other.mLastValue;
 		}
 
-		void reset()
+		void reset(const self_t* other)
 		{
 			mNumSamples = 0;
 			mSum = 0;
 			mMin = 0;
 			mMax = 0;
+			mMean = 0;
+			mVarianceSum = 0;
+			mLastValue = other ? other->mLastValue : 0;
 		}
 
 		T	getSum() const { return (T)mSum; }
@@ -359,6 +365,7 @@ namespace LLTrace
 	class LL_COMMON_API CountAccumulator
 	{
 	public:
+		typedef CountAccumulator<T> self_t;
 		typedef T value_t;
 
 		CountAccumulator()
@@ -378,7 +385,7 @@ namespace LLTrace
 			mNumSamples += other.mNumSamples;
 		}
 
-		void reset()
+		void reset(const self_t* other)
 		{
 			mNumSamples = 0;
 			mSum = 0;
@@ -475,6 +482,8 @@ namespace LLTrace
 	class LL_COMMON_API TimerAccumulator
 	{
 	public:
+		typedef TimerAccumulator self_t;
+
 		U32 							mTotalTimeCounter,
 										mChildTimeCounter,
 										mCalls;
@@ -493,7 +502,7 @@ namespace LLTrace
 			mCalls += other.mCalls;
 		}
 
-		void reset()
+		void reset(const self_t* other)
 		{
 			mTotalTimeCounter = 0;
 			mChildTimeCounter = 0;

@@ -73,7 +73,7 @@ std::list<ThreadRecorder::ActiveRecording>::iterator ThreadRecorder::update( Rec
 		if (next_it != mActiveRecordings.end())
 		{
 			// ...push our gathered data down to it
-			next_it->mBaseline.mergeRecording(it->mBaseline);
+			next_it->mBaseline.appendRecording(it->mBaseline);
 		}
 
 		// copy accumulated measurements into result buffer and clear accumulator (mBaseline)
@@ -153,13 +153,13 @@ void SlaveThreadRecorder::pushToMaster()
 void SlaveThreadRecorder::SharedData::copyFrom( const Recording& source )
 {
 	LLMutexLock lock(&mRecordingMutex);
-	mRecording.mergeRecording(source);
+	mRecording.appendRecording(source);
 }
 
 void SlaveThreadRecorder::SharedData::copyTo( Recording& sink )
 {
 	LLMutexLock lock(&mRecordingMutex);
-	sink.mergeRecording(mRecording);
+	sink.appendRecording(mRecording);
 }
 
 ///////////////////////////////////////////////////////////////////////

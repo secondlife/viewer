@@ -81,12 +81,12 @@ class LLVCRControlsMixin
 public:
 	void splitTo(DERIVED& other)
 	{
-		onSplitTo(other);
+		handleSplitTo(other);
 	}
 
 	void splitFrom(DERIVED& other)
 	{
-		other.onSplitTo(*this);
+		other.handleSplitTo(*this);
 	}
 private:
 	// atomically stop this object while starting the other
@@ -107,7 +107,7 @@ namespace LLTrace
 		void makePrimary();
 		bool isPrimary() const;
 
-		void mergeRecording(const Recording& other);
+		void appendRecording(const Recording& other);
 
 		void update();
 

@@ -711,7 +711,6 @@ void LLWorld::updateNetStats()
 	LLStatViewer::PACKETS_IN.add(packets_in);
 	LLStatViewer::PACKETS_OUT.add(packets_out);
 	LLStatViewer::PACKETS_LOST.add(packets_lost);
-	LLStatViewer::PACKETS_LOST_PERCENT.sample(100.f*((F32)packets_lost/(F32)packets_in));
 	if (packets_in)
 	{
 		LLStatViewer::PACKETS_LOST_PERCENT.sample(100.f*((F32)packets_lost/(F32)packets_in));

@@ -44,7 +44,8 @@ public:
 								bar_max,
 								tick_spacing,
 								label_spacing,
-								update_rate;
+								update_rate,
+								unit_scale;
 
 		Optional<U32>			precision;
 
@@ -64,6 +65,7 @@ public:
 			  label_spacing("label_spacing", 10.0f),
 			  precision("precision", 0),
 			  update_rate("update_rate", 5.0f),
+			  unit_scale("unit_scale", 1.f),
 			  show_per_sec("show_per_sec", true),
 			  show_bar("show_bar", TRUE),
 			  show_history("show_history", false),
@@ -92,6 +94,7 @@ private:
 	F32 mLabelSpacing;
 	U32 mPrecision;
 	F32 mUpdatesPerSec;
+	F32 mUnitScale;
 	BOOL mPerSec;				// Use the per sec stats.
 	BOOL mDisplayBar;			// Display the bar graph.
 	BOOL mDisplayHistory;

@@ -53,6 +53,7 @@ LLStatBar::LLStatBar(const Params& p)
 	  mLabelSpacing(p.label_spacing),
 	  mPrecision(p.precision),
 	  mUpdatesPerSec(p.update_rate),
+	  mUnitScale(p.unit_scale),
 	  mPerSec(p.show_per_sec),
 	  mDisplayBar(p.show_bar),
 	  mDisplayHistory(p.show_history),
@@ -147,6 +148,11 @@ void LLStatBar::draw()
 		max = recording.getMax(*mMeasurementIntp);
 		mean = recording.getMean(*mMeasurementIntp);
 	}
+
+	current *= mUnitScale;
+	min *= mUnitScale;
+	max *= mUnitScale;
+	mean *= mUnitScale;
 
 	if ((mUpdatesPerSec == 0.f) || (mUpdateTimer.getElapsedTimeF32() > 1.f/mUpdatesPerSec) || (mValue == 0.f))
 	{

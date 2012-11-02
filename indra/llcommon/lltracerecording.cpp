@@ -87,6 +87,8 @@ void Recording::handleSplitTo(Recording& other)
 {
 	stop();
 	other.restart();
+	other.mMeasurementsFloat.write()->reset(mMeasurementsFloat);
+	other.mMeasurements.write()->reset(mMeasurements);
 }
 
 
@@ -104,7 +106,7 @@ bool Recording::isPrimary() const
 	return mCounts->isPrimary();
 }
 
-void Recording::mergeRecording( const Recording& other )
+void Recording::appendRecording( const Recording& other )
 {
 	mCountsFloat.write()->addSamples(*other.mCountsFloat);
 	mMeasurementsFloat.write()->addSamples(*other.mMeasurementsFloat);
@@ -138,22 +140,34 @@ S64 Recording::getSum( const TraceType<MeasurementAccumulator<S64> >& stat ) con
 
 F64 Recording::getPerSec( const TraceType<CountAccumulator<F64> >& stat ) const
 {
-	return stat.getAccumulator(mCountsFloat).getSum() / mElapsedSeconds;
+	F64 sum = stat.getAccumulator(mCountsFloat).getSum();
+	return  (sum != 0.0) 
+		? (sum / mElapsedSeconds)
+		: 0.0;
 }
 
 F64 Recording::getPerSec( const TraceType<CountAccumulator<S64> >& stat ) const
 {
-	return (F64)stat.getAccumulator(mCounts).getSum() / mElapsedSeconds;
+	S64 sum = stat.getAccumulator(mCounts).getSum();
+	return (sum != 0) 
+		? ((F64)sum / mElapsedSeconds)
+		: 0.0;
 }
 
 F64 Recording::getPerSec( const TraceType<MeasurementAccumulator<F64> >& stat ) const
 {
-	return stat.getAccumulator(mMeasurementsFloat).getSum() / mElapsedSeconds;
+	F64 sum = stat.getAccumulator(mMeasurementsFloat).getSum();
+	return  (sum != 0.0) 
+		? (sum / mElapsedSeconds)
+		: 0.0;
 }
 
 F64 Recording::getPerSec( const TraceType<MeasurementAccumulator<S64> >& stat ) const
 {
-	return (F64)stat.getAccumulator(mMeasurements).getSum() / mElapsedSeconds;
+	S64 sum = stat.getAccumulator(mMeasurements).getSum();
+	return (sum != 0) 
+		? ((F64)sum / mElapsedSeconds)
+		: 0.0;
 }
 
 F64 Recording::getMin( const TraceType<MeasurementAccumulator<F64> >& stat ) const
@@ -240,17 +254,19 @@ PeriodicRecording::~PeriodicRecording()
 void PeriodicRecording::nextPeriod()
 {
 	EPlayState play_state = getPlayState();
-	getCurRecordingPeriod().stop();
+	Recording& old_recording = getCurRecordingPeriod();
 	mCurPeriod = (mCurPeriod + 1) % mNumPeriods;
+	old_recording.splitTo(getCurRecordingPeriod());
+
 	switch(play_state)
 	{
 	case STOPPED:
+		getCurRecordingPeriod().stop();
 		break;
 	case PAUSED:
 		getCurRecordingPeriod().pause();
 		break;
 	case STARTED:
-		getCurRecordingPeriod().start();
 		break;
 	}
 	// new period, need to recalculate total
@@ -264,7 +280,7 @@ Recording& PeriodicRecording::getTotalRecording()
 		mTotalRecording.reset();
 		for (S32 i = mCurPeriod + 1; i < mCurPeriod + mNumPeriods; i++)
 		{
-			mTotalRecording.mergeRecording(mRecordingPeriods[i % mNumPeriods]);
+			mTotalRecording.appendRecording(mRecordingPeriods[i % mNumPeriods]);
 		}
 	}
 	mTotalValid = true;
@@ -298,7 +314,7 @@ void PeriodicRecording::handleSplitTo( PeriodicRecording& other )
 
 void ExtendableRecording::extend()
 {
-	mAcceptedRecording.mergeRecording(mPotentialRecording);
+	mAcceptedRecording.appendRecording(mPotentialRecording);
 	mPotentialRecording.reset();
 }
 
