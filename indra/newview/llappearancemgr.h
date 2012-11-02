@@ -187,7 +187,7 @@ public:
 
 	bool isInUpdateAppearanceFromCOF() { return mIsInUpdateAppearanceFromCOF; }
 
-	void requestServerAppearanceUpdate();
+	void requestServerAppearanceUpdate(LLCurl::ResponderPtr responder_ptr = NULL);
 
 protected:
 	LLAppearanceMgr();
