@@ -3,6 +3,7 @@
 # Please refer to:
 #  https://wiki.secondlife.com/wiki/Automated_Build_System
 
+
 # Global setting for now...
 Darwin.symbolfiles = "newview/Release/secondlife-symbols-darwin.tar.bz2"
 CYGWIN.symbolfiles = "newview/Release/secondlife-symbols-windows.tar.bz2"
