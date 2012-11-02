@@ -545,7 +545,7 @@ namespace LLInitParam
 		}
 
 		bool deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack_range, bool new_name);
-		bool serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const predicate_rule_t rule = predicate_rule_t(ll_predicate(PROVIDED) && ll_predicate(NON_DEFAULT)), const BaseBlock* diff_block = NULL) const;
+		bool serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const predicate_rule_t rule, const BaseBlock* diff_block = NULL) const;
 		bool inspectBlock(Parser& p, Parser::name_stack_t name_stack = Parser::name_stack_t(), S32 min_count = 0, S32 max_count = S32_MAX) const;
 
 		virtual const BlockDescriptor& mostDerivedBlockDescriptor() const { return selfBlockDescriptor(); }

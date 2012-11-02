@@ -188,12 +188,9 @@ namespace LLInitParam
 	bool BaseBlock::serializeBlock(Parser& parser, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const LLInitParam::BaseBlock* diff_block) const
 	{
 		bool serialized = false;
-		if (!isProvided())
+		if (!predicate_rule.check(ll_make_predicate(PROVIDED, isProvided())))
 		{
-			if ((predicate_rule && !ll_predicate(PROVIDED)).isTriviallyFalse())
-			{
-				return false;
-			}
+			return false;
 		}
 		// named param is one like LLView::Params::follows
 		// unnamed param is like LLView::Params::rect - implicit
@@ -206,7 +203,7 @@ namespace LLInitParam
 			param_handle_t param_handle = (*it)->mParamHandle;
 			const Param* param = getParamFromHandle(param_handle);
 			ParamDescriptor::serialize_func_t serialize_func = (*it)->mSerializeFunc;
-			if (serialize_func && param->anyProvided())
+			if (serialize_func && predicate_rule.check(ll_make_predicate(PROVIDED, param->anyProvided())))
 			{
 				const Param* diff_param = diff_block ? diff_block->getParamFromHandle(param_handle) : NULL;
 				serialized |= serialize_func(*param, parser, name_stack, predicate_rule, diff_param);
@@ -220,7 +217,7 @@ namespace LLInitParam
 			param_handle_t param_handle = it->second->mParamHandle;
 			const Param* param = getParamFromHandle(param_handle);
 			ParamDescriptor::serialize_func_t serialize_func = it->second->mSerializeFunc;
-			if (serialize_func && param->anyProvided())
+			if (serialize_func && predicate_rule.check(ll_make_predicate(PROVIDED, param->anyProvided())))
 			{
 				// Ensure this param has not already been serialized
 				// Prevents <rect> from being serialized as its own tag.

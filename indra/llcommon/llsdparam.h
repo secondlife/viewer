@@ -50,7 +50,7 @@ typedef LLInitParam::Parser parser_t;
 public:
 	LLParamSDParser();
 	void readSD(const LLSD& sd, LLInitParam::BaseBlock& block, bool silent = false);
-	void writeSD(LLSD& sd, const LLInitParam::BaseBlock& block);
+	void writeSD(LLSD& sd, const LLInitParam::BaseBlock& block, LLInitParam::predicate_rule_t rules = LLInitParam::predicate_rule_t(LLInitParam::PROVIDED) && LLInitParam::NON_DEFAULT);
 
 	/*virtual*/ std::string getCurrentElementName();
 

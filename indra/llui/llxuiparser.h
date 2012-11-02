@@ -109,7 +109,7 @@ public:
 	/*virtual*/ void parserError(const std::string& message);
 
 	void readXUI(LLXMLNodePtr node, LLInitParam::BaseBlock& block, const std::string& filename = LLStringUtil::null, bool silent=false);
-	void writeXUI(LLXMLNodePtr node, const LLInitParam::BaseBlock& block, const LLInitParam::BaseBlock* diff_block = NULL);
+	void writeXUI(LLXMLNodePtr node, const LLInitParam::BaseBlock& block, LLInitParam::predicate_rule_t rules = LLInitParam::predicate_rule_t(LLInitParam::PROVIDED) && LLInitParam::NON_DEFAULT, const LLInitParam::BaseBlock* diff_block = NULL);
 
 private:
 	bool readXUIImpl(LLXMLNodePtr node, LLInitParam::BaseBlock& block);

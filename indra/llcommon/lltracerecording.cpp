@@ -347,7 +347,7 @@ PeriodicRecording& get_frame_recording()
 
 }
 
-void LLVCRControlsMixinCommon::start()
+void LLStopWatchControlsMixinCommon::start()
 {
 	switch (mPlayState)
 	{
@@ -365,7 +365,7 @@ void LLVCRControlsMixinCommon::start()
 	mPlayState = STARTED;
 }
 
-void LLVCRControlsMixinCommon::stop()
+void LLStopWatchControlsMixinCommon::stop()
 {
 	switch (mPlayState)
 	{
@@ -381,7 +381,7 @@ void LLVCRControlsMixinCommon::stop()
 	mPlayState = STOPPED;
 }
 
-void LLVCRControlsMixinCommon::pause()
+void LLStopWatchControlsMixinCommon::pause()
 {
 	switch (mPlayState)
 	{
@@ -396,7 +396,7 @@ void LLVCRControlsMixinCommon::pause()
 	mPlayState = PAUSED;
 }
 
-void LLVCRControlsMixinCommon::resume()
+void LLStopWatchControlsMixinCommon::resume()
 {
 	switch (mPlayState)
 	{
@@ -412,7 +412,7 @@ void LLVCRControlsMixinCommon::resume()
 	mPlayState = STARTED;
 }
 
-void LLVCRControlsMixinCommon::restart()
+void LLStopWatchControlsMixinCommon::restart()
 {
 	switch (mPlayState)
 	{
@@ -431,7 +431,7 @@ void LLVCRControlsMixinCommon::restart()
 	mPlayState = STARTED;
 }
 
-void LLVCRControlsMixinCommon::reset()
+void LLStopWatchControlsMixinCommon::reset()
 {
 	handleReset();
 }

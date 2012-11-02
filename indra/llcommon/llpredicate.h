@@ -42,8 +42,8 @@ namespace LLPredicate
 		typedef U32 predicate_flag_t;
 		static const S32 cMaxEnum = 5;
 
-		Value(ENUM e)
-		:	mPredicateFlags(cPredicateFlagsFromEnum[e])
+		Value(ENUM e, bool predicate_value = true)
+		:	mPredicateFlags(predicate_value ? cPredicateFlagsFromEnum[e] : ~cPredicateFlagsFromEnum[e])
 		{
 			llassert(0 <= e && e < cMaxEnum);
 		}
@@ -227,9 +227,9 @@ namespace LLPredicate
 }
 
 template<typename ENUM>
-LLPredicate::Value<ENUM> ll_predicate(ENUM e)
+LLPredicate::Value<ENUM> ll_make_predicate(ENUM e, bool predicate_value = true)
 {
-	 return LLPredicate::Value<ENUM>(e);
+	 return LLPredicate::Value<ENUM>(e, predicate_value);
 }
 
 

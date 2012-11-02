@@ -861,11 +861,11 @@ bool LLXUIParser::readAttributes(LLXMLNodePtr nodep, LLInitParam::BaseBlock& blo
 	return any_parsed;
 }
 
-void LLXUIParser::writeXUI(LLXMLNodePtr node, const LLInitParam::BaseBlock &block, const LLInitParam::BaseBlock* diff_block)
+void LLXUIParser::writeXUI(LLXMLNodePtr node, const LLInitParam::BaseBlock &block, LLInitParam::predicate_rule_t rules, const LLInitParam::BaseBlock* diff_block)
 {
 	mWriteRootNode = node;
 	name_stack_t name_stack = Parser::name_stack_t();
-	block.serializeBlock(*this, name_stack, LLPredicate::Rule<LLInitParam::ESerializePredicates>(), diff_block);
+	block.serializeBlock(*this, name_stack, rules, diff_block);
 	mOutNodes.clear();
 }
 

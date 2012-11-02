@@ -273,7 +273,7 @@ private:
 			// Export only the differences between this any default params
 			typename T::Params default_params(getDefaultParams<T>());
 			copyName(node, output_node);
-			parser.writeXUI(output_node, output_params, &default_params);
+			parser.writeXUI(output_node, output_params, LLInitParam::predicate_rule_t(LLInitParam::PROVIDED) && LLInitParam::NON_DEFAULT, &default_params);
 		}
 
 		// Apply layout transformations, usually munging rect

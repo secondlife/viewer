@@ -34,10 +34,10 @@
 #include "lltimer.h"
 #include "lltrace.h"
 
-class LL_COMMON_API LLVCRControlsMixinCommon
+class LL_COMMON_API LLStopWatchControlsMixinCommon
 {
 public:
-	virtual ~LLVCRControlsMixinCommon() {}
+	virtual ~LLStopWatchControlsMixinCommon() {}
 
 	enum EPlayState
 	{
@@ -59,7 +59,7 @@ public:
 	EPlayState getPlayState() { return mPlayState; }
 
 protected:
-	LLVCRControlsMixinCommon()
+	LLStopWatchControlsMixinCommon()
 	:	mPlayState(STOPPED)
 	{}
 
@@ -75,8 +75,8 @@ private:
 };
 
 template<typename DERIVED>
-class LLVCRControlsMixin
-:	public LLVCRControlsMixinCommon
+class LLStopWatchControlsMixin
+:	public LLStopWatchControlsMixinCommon
 {
 public:
 	void splitTo(DERIVED& other)
@@ -97,7 +97,7 @@ private:
 
 namespace LLTrace
 {
-	class LL_COMMON_API Recording : public LLVCRControlsMixin<Recording>
+	class LL_COMMON_API Recording : public LLStopWatchControlsMixin<Recording>
 	{
 	public:
 		Recording();
@@ -190,7 +190,7 @@ namespace LLTrace
 
 		LLUnit::Seconds<F64> getDuration() const { return mElapsedSeconds; }
 
-		// implementation for LLVCRControlsMixin
+		// implementation for LLStopWatchControlsMixin
 		/*virtual*/ void handleStart();
 		/*virtual*/ void handleStop();
 		/*virtual*/ void handleReset();
@@ -212,7 +212,7 @@ namespace LLTrace
 	};
 
 	class LL_COMMON_API PeriodicRecording
-	:	public LLVCRControlsMixin<PeriodicRecording>
+	:	public LLStopWatchControlsMixin<PeriodicRecording>
 	{
 	public:
 		PeriodicRecording(S32 num_periods);
@@ -340,7 +340,7 @@ namespace LLTrace
 
 	private:
 
-		// implementation for LLVCRControlsMixin
+		// implementation for LLStopWatchControlsMixin
 		/*virtual*/ void handleStart();
 		/*virtual*/ void handleStop();
 		/*virtual*/ void handleReset();
@@ -357,12 +357,12 @@ namespace LLTrace
 	PeriodicRecording& get_frame_recording();
 
 	class ExtendableRecording
-	:	public LLVCRControlsMixin<ExtendableRecording>
+	:	public LLStopWatchControlsMixin<ExtendableRecording>
 	{
 		void extend();
 
 	private:
-		// implementation for LLVCRControlsMixin
+		// implementation for LLStopWatchControlsMixin
 		/*virtual*/ void handleStart();
 		/*virtual*/ void handleStop();
 		/*virtual*/ void handleReset();
