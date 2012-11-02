@@ -4,9 +4,9 @@
     can_tear_off="false"
     can_resize="true"
     height="725"
-    width="1030"
+    width="1040"
     min_height="750"
-    min_width="1030"
+    min_width="1040"
     layout="topleft"
     name="floater_debug_materials"
     reuse_instance="true"
@@ -20,6 +20,8 @@
   <floater.string name="status_request_completed">Request received.</floater.string>
   <floater.string name="status_not_enabled">Materials are not enabled for this region.</floater.string>
   <floater.string name="status_error">An error occurred during the request.</floater.string>
+  <floater.string name="loading_status_in_progress">Processing [NUM_PROCESSED] out of [NUM_TOTAL]</floater.string>
+  <floater.string name="loading_status_done">Complete</floater.string>
   <panel
       border="false"
       bevel_style="none"
@@ -64,7 +66,7 @@
       left="10"
       top_pad="10"
       height="620"
-      width="1010">
+      width="1020">
     <panel
         border="true"
         bevel_style="none"
@@ -73,15 +75,15 @@
         label="Current region"
         height="620"
         top_pad="10"
-        width="1010">
+        width="1020">
       <panel
           border="false"
           bevel_style="none"
           follows="left|top|right"
           layout="topleft"
-          height="458"
+          height="479"
           top_pad="10"
-          width="1010">
+          width="1020">
         <button
             follows="left|top"
             height="22"
@@ -90,17 +92,46 @@
             name="get_button"
             top_pad="0"
             width="214"/>
+        <text
+            height="13"
+            word_wrap="true"
+            use_ellipses="false"
+            type="string"
+            text_color="LabelTextColor"
+            length="1"
+            follows="left|top"
+            layout="topleft"
+            left="2"
+            top_pad="8"
+            width="150">
+          Loading Status
+        </text>
+        <text
+            height="13"
+            word_wrap="true"
+            use_ellipses="false"
+            type="string"
+            text_color="MaterialGoodColor"
+            length="1"
+            follows="left|top"
+            layout="topleft"
+            left_pad="0"
+            name="loading_status"
+            top_pad="-13"
+            width="400">
+        </text>
         <scroll_list
             column_padding="0"
             draw_heading="true"
             follows="left|top|right"
             height="135"
             layout="topleft"
+            left="0"
             top_pad="10"
             tab_stop="false"
             multi_select="false"
             name="get_other_data_scroll_list"
-            width="765">
+            width="775">
           <scroll_list.columns
               label="Material ID"
               name="id"
@@ -136,7 +167,7 @@
             tab_stop="false"
             multi_select="false"
             name="get_specular_map_scroll_list"
-            width="1010">
+            width="1020">
           <scroll_list.columns
               label="Material ID"
               name="id"
@@ -176,7 +207,7 @@
             tab_stop="false"
             multi_select="false"
             name="get_normal_map_scroll_list"
-            width="1010">
+            width="1020">
           <scroll_list.columns
               label="Material ID"
               name="id"
@@ -827,7 +858,7 @@
         label="Viewable objects"
         height="620"
         top_pad="10"
-        width="1010">
+        width="1020">
       <panel
           border="false"
           bevel_style="none"
@@ -835,7 +866,7 @@
           layout="topleft"
           height="620"
           top_pad="0"
-          width="1010">
+          width="1020">
         <panel
             border="false"
             bevel_style="none"
@@ -895,7 +926,7 @@
             name="horiz_separator"
             top_pad="10"
             left="0"
-            width="1010"/>
+            width="1020"/>
         <panel
             border="false"
             bevel_style="none"
@@ -903,7 +934,7 @@
             layout="topleft"
             height="458"
             top_pad="10"
-            width="1010">
+            width="1020">
           <button
               follows="left|top"
               height="22"
@@ -931,7 +962,7 @@
               tab_stop="false"
               multi_select="false"
               name="post_other_data_scroll_list"
-              width="765">
+              width="775">
             <scroll_list.columns
                 label="Material ID"
                 name="id"
@@ -967,7 +998,7 @@
               tab_stop="false"
               multi_select="false"
               name="post_specular_map_scroll_list"
-              width="1010">
+              width="1020">
             <scroll_list.columns
                 label="Material ID"
                 name="id"
@@ -1007,7 +1038,7 @@
               tab_stop="false"
               multi_select="false"
               name="post_normal_map_scroll_list"
-              width="1010">
+              width="1020">
             <scroll_list.columns
                 label="Material ID"
                 name="id"

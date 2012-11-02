@@ -45,6 +45,7 @@
 #include "llhttpclient.h"
 #include "lllineeditor.h"
 #include "llmaterialid.h"
+#include "llresmgr.h"
 #include "llscrolllistcell.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
@@ -124,6 +125,9 @@ BOOL LLFloaterDebugMaterials::postBuild()
 	mGetButton = findChild<LLButton>("get_button");
 	llassert(mGetButton != NULL);
 	mGetButton->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onGetClicked, this));
+
+	mParsingStatusText = findChild<LLTextBase>("loading_status");
+	llassert(mParsingStatusText != NULL);
 
 	mGetNormalMapScrollList = findChild<LLScrollListCtrl>("get_normal_map_scroll_list");
 	llassert(mGetNormalMapScrollList != NULL);
@@ -321,10 +325,20 @@ void LLFloaterDebugMaterials::onClose(bool pIsAppQuitting)
 	LLFloater::onClose(pIsAppQuitting);
 }
 
+void LLFloaterDebugMaterials::draw()
+{
+	if (mUnparsedGetData.isDefined())
+	{
+		parseGetResponse();
+	}
+	LLFloater::draw();
+}
+
 LLFloaterDebugMaterials::LLFloaterDebugMaterials(const LLSD& pParams)
 	: LLFloater(pParams),
 	mStatusText(NULL),
 	mGetButton(NULL),
+	mParsingStatusText(NULL),
 	mGetNormalMapScrollList(NULL),
 	mGetSpecularMapScrollList(NULL),
 	mGetOtherDataScrollList(NULL),
@@ -361,7 +375,9 @@ LLFloaterDebugMaterials::LLFloaterDebugMaterials(const LLSD& pParams)
 	mErrorColor(),
 	mRegionCrossConnection(),
 	mTeleportFailedConnection(),
-	mSelectionUpdateConnection()
+	mSelectionUpdateConnection(),
+	mUnparsedGetData(),
+	mNextUnparsedGetDataIndex(-1)
 {
 }
 
@@ -500,10 +516,11 @@ void LLFloaterDebugMaterials::onDeferredRequestPostMaterials(LLUUID regionId, bo
 
 void LLFloaterDebugMaterials::onGetResponse(bool pRequestStatus, const LLSD& pContent)
 {
+	clearGetResults();
 	if (pRequestStatus)
 	{
 		setState(kRequestCompleted);
-		parseGetResponse(pContent);
+		setUnparsedGetData(pContent);
 	}
 	else
 	{
@@ -887,35 +904,31 @@ void LLFloaterDebugMaterials::queryViewableObjects()
 	}
 }
 
-void LLFloaterDebugMaterials::parseGetResponse(const LLSD& pContent)
+void LLFloaterDebugMaterials::parseGetResponse()
 {
-	clearGetResults();
+	llassert(mUnparsedGetData.isDefined());
+	llassert(mNextUnparsedGetDataIndex >= 0);
 
-	LLScrollListCell::Params cellParams;
-	LLScrollListItem::Params normalMapRowParams;
-	LLScrollListItem::Params specularMapRowParams;
-	LLScrollListItem::Params otherDataRowParams;
-
-	llassert(pContent.isMap());
-	llassert(pContent.has(MATERIALS_CAP_ZIP_FIELD));
-	llassert(pContent.get(MATERIALS_CAP_ZIP_FIELD).isBinary());
-
-	LLSD::Binary responseBinary = pContent.get(MATERIALS_CAP_ZIP_FIELD).asBinary();
-	S32 responseSize = static_cast<S32>(responseBinary.size());
-	std::string responseString(reinterpret_cast<const char*>(responseBinary.data()), responseSize);
-
-	std::istringstream responseStream(responseString);
-
-	LLSD responseContent;
-	if (!unzip_llsd(responseContent, responseStream, responseSize))
+	if (mUnparsedGetData.isDefined())
 	{
-		LL_ERRS("debugMaterials") << "cannot unzip LLSD binary content" << LL_ENDL;
-	}
-	else
-	{
-		llassert(responseContent.isArray());
-		for (LLSD::array_const_iterator materialIter = responseContent.beginArray(); materialIter != responseContent.endArray();
-			++materialIter)
+		LLScrollListCell::Params cellParams;
+		LLScrollListItem::Params normalMapRowParams;
+		LLScrollListItem::Params specularMapRowParams;
+		LLScrollListItem::Params otherDataRowParams;
+
+		llassert(mUnparsedGetData.isArray());
+		LLSD::array_const_iterator materialIter = mUnparsedGetData.beginArray();
+		S32 materialIndex;
+
+		for (materialIndex = 0;
+			(materialIndex < mNextUnparsedGetDataIndex) && (materialIter != mUnparsedGetData.endArray());
+			++materialIndex, ++materialIter)
+		{
+		}
+
+		for (S32 currentParseCount = 0;
+			(currentParseCount < 10) && (materialIter != mUnparsedGetData.endArray());
+			++currentParseCount, ++materialIndex, ++materialIter)
 		{
 			const LLSD &material = *materialIter;
 			llassert(material.isMap());
@@ -1087,6 +1100,16 @@ void LLFloaterDebugMaterials::parseGetResponse(const LLSD& pContent)
 			mGetNormalMapScrollList->addRow(normalMapRowParams);
 			mGetSpecularMapScrollList->addRow(specularMapRowParams);
 			mGetOtherDataScrollList->addRow(otherDataRowParams);
+		}
+
+		if (materialIter != mUnparsedGetData.endArray())
+		{
+			mNextUnparsedGetDataIndex = materialIndex;
+			updateGetParsingStatus();
+		}
+		else
+		{
+			clearUnparsedGetData();
 		}
 	}
 }
@@ -1290,6 +1313,7 @@ void LLFloaterDebugMaterials::clearGetResults()
 	mGetNormalMapScrollList->deleteAllItems();
 	mGetSpecularMapScrollList->deleteAllItems();
 	mGetOtherDataScrollList->deleteAllItems();
+	clearUnparsedGetData();
 }
 
 void LLFloaterDebugMaterials::clearPutResults()
@@ -1307,6 +1331,63 @@ void LLFloaterDebugMaterials::clearPostResults()
 void LLFloaterDebugMaterials::clearViewableObjectsResults()
 {
 	mViewableObjectsScrollList->deleteAllItems();
+}
+
+void LLFloaterDebugMaterials::setUnparsedGetData(const LLSD& pGetData)
+{
+	llassert(pGetData.isMap());
+	llassert(pGetData.has(MATERIALS_CAP_ZIP_FIELD));
+	llassert(pGetData.get(MATERIALS_CAP_ZIP_FIELD).isBinary());
+
+	LLSD::Binary getDataBinary = pGetData.get(MATERIALS_CAP_ZIP_FIELD).asBinary();
+	S32 getDataSize = static_cast<S32>(getDataBinary.size());
+	std::string getDataString(reinterpret_cast<const char*>(getDataBinary.data()), getDataSize);
+
+	std::istringstream getDataStream(getDataString);
+
+	llassert(!mUnparsedGetData.isDefined());
+	if (!unzip_llsd(mUnparsedGetData, getDataStream, getDataSize))
+	{
+		LL_ERRS("debugMaterials") << "cannot unzip LLSD binary content" << LL_ENDL;
+	}
+	mNextUnparsedGetDataIndex = 0;
+
+	updateGetParsingStatus();
+}
+
+void LLFloaterDebugMaterials::clearUnparsedGetData()
+{
+	mUnparsedGetData.clear();
+	mNextUnparsedGetDataIndex = -1;
+
+	updateGetParsingStatus();
+}
+
+void LLFloaterDebugMaterials::updateGetParsingStatus()
+{
+	std::string parsingStatus;
+
+	if (mUnparsedGetData.isDefined())
+	{
+		LLLocale locale(LLStringUtil::getLocale());
+		std::string numProcessedString;
+		LLResMgr::getInstance()->getIntegerString(numProcessedString, mNextUnparsedGetDataIndex);
+
+		std::string numTotalString;
+		LLResMgr::getInstance()->getIntegerString(numTotalString, mUnparsedGetData.size());
+
+		LLStringUtil::format_map_t stringArgs;
+		stringArgs["[NUM_PROCESSED]"] = numProcessedString;
+		stringArgs["[NUM_TOTAL]"] = numTotalString;
+
+		parsingStatus = getString("loading_status_in_progress", stringArgs);
+	}
+	else
+	{
+		parsingStatus = getString("loading_status_done");
+	}
+
+	mParsingStatusText->setText(static_cast<const LLStringExplicit>(parsingStatus));
 }
 
 void LLFloaterDebugMaterials::updateStatusMessage()

@@ -55,6 +55,8 @@ public:
 	virtual void onOpen(const LLSD& pKey);
 	virtual void onClose(bool pIsAppQuitting);
 
+	virtual void draw();
+
 protected:
 
 private:
@@ -106,7 +108,7 @@ private:
 
 	void          queryViewableObjects();
 
-	void          parseGetResponse(const LLSD& pContent);
+	void          parseGetResponse();
 	void          parsePutResponse(const LLSD& pContent);
 	void          parsePostResponse(const LLSD& pContent);
 
@@ -118,6 +120,10 @@ private:
 	void          clearPutResults();
 	void          clearPostResults();
 	void          clearViewableObjectsResults();
+
+	void          setUnparsedGetData(const LLSD& pGetData);
+	void          clearUnparsedGetData();
+	void          updateGetParsingStatus();
 
 	void          updateStatusMessage();
 	void          updateControls();
@@ -145,6 +151,7 @@ private:
 
 	LLTextBase*                 mStatusText;
 	LLButton*                   mGetButton;
+	LLTextBase*                 mParsingStatusText;
 	LLScrollListCtrl*           mGetNormalMapScrollList;
 	LLScrollListCtrl*           mGetSpecularMapScrollList;
 	LLScrollListCtrl*           mGetOtherDataScrollList;
@@ -186,6 +193,9 @@ private:
 	boost::signals2::connection mRegionCrossConnection;
 	boost::signals2::connection mTeleportFailedConnection;
 	boost::signals2::connection mSelectionUpdateConnection;
+
+	LLSD                        mUnparsedGetData;
+	S32                         mNextUnparsedGetDataIndex;
 };
 
 
