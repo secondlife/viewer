@@ -508,6 +508,12 @@ void LLIMConversation::hideOrShowTitle()
 	floater_contents->setShape(contents_rect);
 }
 
+void LLIMConversation::updateSessionName(const std::string& name)
+{
+	llinfos << "Merov debug : updateSessionName, name = " << name << llendl;
+	mInputEditor->setLabel(LLTrans::getString("IM_to_label") + " " + name);
+}
+
 void LLIMConversation::hideAllStandardButtons()
 {
 	for (S32 i = 0; i < BUTTON_COUNT; i++)

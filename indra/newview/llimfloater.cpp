@@ -243,7 +243,6 @@ void LLIMFloater::initIMSession(const LLUUID& session_id)
 	{
 		mIsP2PChat = mSession->isP2PSessionType();
 		mSessionInitialized = mSession->mSessionInitialized;
-
 		mDialog = mSession->mType;
 	}
 }
@@ -281,7 +280,7 @@ void LLIMFloater::initIMFloater()
 	else
 	{
 		std::string session_name(LLIMModel::instance().getName(mSessionID));
-		updateSessionName(session_name, session_name);
+		updateSessionName(session_name);
 
 		// For ad hoc conferences we should update the title with participants names.
 		if ((IM_SESSION_INVITE == mDialog && !gAgent.isInGroup(mSessionID))
@@ -292,6 +291,8 @@ void LLIMFloater::initIMFloater()
 				mParticipantsListRefreshConnection.disconnect();
 			}
 
+			// CHUI-441: We shouldn't have any avatar_list anymore... see floater_im_session.xml
+			// *TODO: Track and delete if not necessary anymore
 			LLAvatarList* avatar_list = getChild<LLAvatarList>("speakers_list");
 			mParticipantsListRefreshConnection = avatar_list->setRefreshCompleteCallback(
 					boost::bind(&LLIMFloater::onParticipantsListChanged, this, _1));
@@ -525,20 +526,21 @@ void LLIMFloater::onVoiceChannelStateChanged(
 	updateCallBtnState(callIsActive);
 }
 
-void LLIMFloater::updateSessionName(const std::string& ui_title,
-									const std::string& ui_label)
+void LLIMFloater::updateSessionName(const std::string& name)
 {
-	mInputEditor->setLabel(LLTrans::getString("IM_to_label") + " " + ui_label);
-	setTitle(ui_title);	
+	LLIMConversation::updateSessionName(name);
+	setTitle(name);	
 }
 
 void LLIMFloater::onAvatarNameCache(const LLUUID& agent_id,
 									const LLAvatarName& av_name)
 {
-	// Use display name only for labels, as the extended name will be in the
-	// floater title
+	// Use display name for label
+	updateSessionName(av_name.mDisplayName);
+	
+	// Overwrite the floater title with the extended name
 	std::string ui_title = av_name.getCompleteName();
-	updateSessionName(ui_title, av_name.mDisplayName);
+	setTitle(ui_title);	
 	mTypingStart.setArg("[NAME]", ui_title);
 }
 
@@ -550,35 +552,45 @@ void LLIMFloater::onParticipantsListChanged(LLUICtrl* ctrl)
 		return;
 	}
 
-	bool all_names_resolved = true;
 	std::vector<LLSD> participants_uuids;
 	uuid_vec_t temp_uuids; // uuids vector for building the added participants' names string
+	LLUUID unfound_id;
 
 	avatar_list->getValues(participants_uuids);
 
-	// Check whether we have all participants names in LLAvatarNameCache
+	// Check participants names in LLAvatarNameCache
     for (std::vector<LLSD>::const_iterator it = participants_uuids.begin(); it != participants_uuids.end(); ++it)
 	{
 		const LLUUID& id = it->asUUID();
-		temp_uuids.push_back(id);
 		LLAvatarName av_name;
         if (!LLAvatarNameCache::get(id, &av_name))
         {
-			all_names_resolved = false;
-
-			// If a name is not found in cache, request it and continue the process recursively
-			// until all ids are resolved into names.
-			LLAvatarNameCache::get(id,
-					boost::bind(&LLIMFloater::onParticipantsListChanged, this, avatar_list));
-			break;
+			// Keep the first not found avatar id
+			if (unfound_id.isNull())
+			{
+				unfound_id = id;
+			}
         }
+		else
+		{
+			// Add the participant to the list of existing names
+			temp_uuids.push_back(id);
+		}
 	}
 
-	if (all_names_resolved)
+	if (temp_uuids.size() != 0)
 	{
+		// Build the session name and update it
 		std::string ui_title;
 		LLAvatarActions::buildResidentsString(temp_uuids, ui_title);
-		updateSessionName(ui_title, ui_title);
+		updateSessionName(ui_title);
+	}
+
+	if (unfound_id.notNull())
+	{
+		// If a name is not found in cache, request it and continue the process recursively
+		// until all ids are resolved into names.
+		LLAvatarNameCache::get(unfound_id, boost::bind(&LLIMFloater::onParticipantsListChanged, this, avatar_list));
 	}
 }
 
