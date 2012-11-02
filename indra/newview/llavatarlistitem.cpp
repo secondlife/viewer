@@ -27,6 +27,8 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include <boost/signals2.hpp>
+
 #include "llavataractions.h"
 #include "llavatarlistitem.h"
 
@@ -59,7 +61,8 @@ LLAvatarListItem::Params::Params()
 
 
 LLAvatarListItem::LLAvatarListItem(bool not_from_ui_factory/* = true*/)
-:	LLPanel(),
+	: LLPanel(),
+	LLFriendObserver(),
 	mAvatarIcon(NULL),
 	mAvatarName(NULL),
 	mLastInteractionTime(NULL),
@@ -74,7 +77,8 @@ LLAvatarListItem::LLAvatarListItem(bool not_from_ui_factory/* = true*/)
 	mShowInfoBtn(true),
 	mShowProfileBtn(true),
 	mShowPermissions(false),
-	mHovered(false)
+	mHovered(false),
+	mAvatarNameCacheConnection()
 {
 	if (not_from_ui_factory)
 	{
@@ -87,7 +91,14 @@ LLAvatarListItem::LLAvatarListItem(bool not_from_ui_factory/* = true*/)
 LLAvatarListItem::~LLAvatarListItem()
 {
 	if (mAvatarId.notNull())
+	{
 		LLAvatarTracker::instance().removeParticularFriendObserver(mAvatarId, this);
+	}
+
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
 }
 
 BOOL  LLAvatarListItem::postBuild()
@@ -128,6 +139,19 @@ BOOL  LLAvatarListItem::postBuild()
 	}
 
 	return TRUE;
+}
+
+void LLAvatarListItem::fetchAvatarName()
+{
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
+
+	if (mAvatarId.notNull())
+	{
+		mAvatarNameCacheConnection = LLAvatarNameCache::get(getAvatarId(), boost::bind(&LLAvatarListItem::onAvatarNameCache, this, _2));
+	}
 }
 
 S32 LLAvatarListItem::notifyParent(const LLSD& info)
@@ -260,8 +284,7 @@ void LLAvatarListItem::setAvatarId(const LLUUID& id, const LLUUID& session_id, b
 		mAvatarIcon->setValue(id);
 
 		// Set avatar name.
-		LLAvatarNameCache::get(id,
-			boost::bind(&LLAvatarListItem::onAvatarNameCache, this, _2));
+		fetchAvatarName();
 	}
 }
 
@@ -414,8 +437,7 @@ std::string LLAvatarListItem::getAvatarToolTip() const
 
 void LLAvatarListItem::updateAvatarName()
 {
-	LLAvatarNameCache::get(getAvatarId(),
-			boost::bind(&LLAvatarListItem::onAvatarNameCache, this, _2));
+	fetchAvatarName();
 }
 
 //== PRIVATE SECITON ==========================================================

@@ -27,6 +27,8 @@
 #ifndef LL_LLAVATARLISTITEM_H
 #define LL_LLAVATARLISTITEM_H
 
+#include <boost/signals2.hpp>
+
 #include "llpanel.h"
 #include "lloutputmonitorctrl.h"
 #include "llbutton.h"
@@ -217,6 +219,9 @@ private:
 
 	/// true when the mouse pointer is hovering over this item
 	bool mHovered;
+	
+	void fetchAvatarName();
+	boost::signals2::connection mAvatarNameCacheConnection;
 
 	static bool	sStaticInitialized; // this variable is introduced to improve code readability
 	static S32  sLeftPadding; // padding to first left visible child (icon or name)

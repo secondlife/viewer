@@ -28,6 +28,8 @@
 
 #include "llchathistory.h"
 
+#include <boost/signals2.hpp>
+
 #include "llavatarnamecache.h"
 #include "llinstantmessage.h"
 
@@ -110,7 +112,8 @@ public:
 		mFrom(),
 		mSessionID(),
 		mMinUserNameWidth(0),
-		mUserNameFont(NULL)
+		mUserNameFont(NULL),
+		mAvatarNameCacheConnection()
 	{}
 
 	static LLChatHistoryHeader* createInstance(const std::string& file_name)
@@ -124,6 +127,11 @@ public:
 	{
 		// Detach the info button so that it doesn't get destroyed (EXT-8463).
 		hideInfoCtrl();
+
+		if (mAvatarNameCacheConnection.connected())
+		{
+			mAvatarNameCacheConnection.disconnect();
+		}
 	}
 
 	BOOL handleMouseUp(S32 x, S32 y, MASK mask)
@@ -283,8 +291,7 @@ public:
 			// Start with blank so sample data from XUI XML doesn't
 			// flash on the screen
 			user_name->setValue( LLSD() );
-			LLAvatarNameCache::get(mAvatarID,
-				boost::bind(&LLChatHistoryHeader::onAvatarNameCache, this, _1, _2));
+			fetchAvatarName();
 		}
 		else if (chat.mChatStyle == CHAT_STYLE_HISTORY ||
 				 mSourceType == CHAT_SOURCE_AGENT)
@@ -416,31 +423,6 @@ public:
 		}
 	}
 
-	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name)
-	{
-		mFrom = av_name.mDisplayName;
-
-		LLTextBox* user_name = getChild<LLTextBox>("user_name");
-		user_name->setValue( LLSD(av_name.mDisplayName ) );
-		user_name->setToolTip( av_name.mUsername );
-
-		if (gSavedSettings.getBOOL("NameTagShowUsernames") && 
-			LLAvatarNameCache::useDisplayNames() &&
-			!av_name.mIsDisplayNameDefault)
-		{
-			LLStyle::Params style_params_name;
-			LLColor4 userNameColor = LLUIColorTable::instance().getColor("EmphasisColor");
-			style_params_name.color(userNameColor);
-			style_params_name.font.name("SansSerifSmall");
-			style_params_name.font.style("NORMAL");
-			style_params_name.readonly_color(userNameColor);
-			user_name->appendText("  - " + av_name.mUsername, FALSE, style_params_name);
-		}
-		setToolTip( av_name.mUsername );
-		// name might have changed, update width
-		updateMinUserNameWidth();
-	}
-
 protected:
 	static const S32 PADDING = 20;
 
@@ -555,6 +537,45 @@ private:
 		user_name->reshape(user_rect.getWidth() + delta_pos_x, user_rect.getHeight());
 	}
 
+	void fetchAvatarName()
+	{
+		if (mAvatarNameCacheConnection.connected())
+		{
+			mAvatarNameCacheConnection.disconnect();
+		}
+		
+		if (mAvatarID.notNull())
+		{
+			mAvatarNameCacheConnection = LLAvatarNameCache::get(mAvatarID,
+				boost::bind(&LLChatHistoryHeader::onAvatarNameCache, this, _1, _2));
+		}
+	}
+
+	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name)
+	{
+		mFrom = av_name.mDisplayName;
+
+		LLTextBox* user_name = getChild<LLTextBox>("user_name");
+		user_name->setValue( LLSD(av_name.mDisplayName ) );
+		user_name->setToolTip( av_name.mUsername );
+
+		if (gSavedSettings.getBOOL("NameTagShowUsernames") && 
+			LLAvatarNameCache::useDisplayNames() &&
+			!av_name.mIsDisplayNameDefault)
+		{
+			LLStyle::Params style_params_name;
+			LLColor4 userNameColor = LLUIColorTable::instance().getColor("EmphasisColor");
+			style_params_name.color(userNameColor);
+			style_params_name.font.name("SansSerifSmall");
+			style_params_name.font.style("NORMAL");
+			style_params_name.readonly_color(userNameColor);
+			user_name->appendText("  - " + av_name.mUsername, FALSE, style_params_name);
+		}
+		setToolTip( av_name.mUsername );
+		// name might have changed, update width
+		updateMinUserNameWidth();
+	}
+
 protected:
 	LLHandle<LLView>	mPopupMenuHandleAvatar;
 	LLHandle<LLView>	mPopupMenuHandleObject;
@@ -569,6 +590,9 @@ protected:
 
 	S32					mMinUserNameWidth;
 	const LLFontGL*		mUserNameFont;
+
+private:
+	boost::signals2::connection mAvatarNameCacheConnection;
 };
 
 LLUICtrl* LLChatHistoryHeader::sInfoCtrl = NULL;
