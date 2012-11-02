@@ -36,7 +36,7 @@
 #include "llcriticaldamp.h"
 #include "boost/foreach.hpp"
 
-static const F32 MIN_FRACTIONAL_SIZE = 0.0f;
+static const F32 MIN_FRACTIONAL_SIZE = 0.00001f;
 static const F32 MAX_FRACTIONAL_SIZE = 1.f;
 
 static LLDefaultChildRegistry::Register<LLLayoutStack> register_layout_stack("layout_stack");
@@ -71,7 +71,7 @@ LLLayoutPanel::LLLayoutPanel(const Params& p)
 	mCollapseAmt(0.f),
 	mVisibleAmt(1.f), // default to fully visible
 	mResizeBar(NULL),
-	mFractionalSize(MIN_FRACTIONAL_SIZE),
+	mFractionalSize(0.f),
 	mTargetDim(0),
 	mIgnoreReshape(false),
 	mOrientation(LLLayoutStack::HORIZONTAL)
@@ -521,7 +521,7 @@ void LLLayoutStack::updateFractionalSizes()
 	{
 		if (panelp->mAutoResize)
 		{
-			total_resizable_dim += llmax(0, panelp->getLayoutDim() - panelp->getRelevantMinDim());
+			total_resizable_dim += llmax(MIN_FRACTIONAL_SIZE, (F32)(panelp->getLayoutDim() - panelp->getRelevantMinDim()));
 		}
 	}
 
@@ -767,7 +767,7 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
 			{	// freeze new size as fraction
 				F32 new_fractional_size = (updated_auto_resize_headroom == 0.f)
 					? MAX_FRACTIONAL_SIZE
-					: llclamp(total_visible_fraction * (F32)(new_dim - (panelp->getRelevantMinDim() - 1)) / updated_auto_resize_headroom, MIN_FRACTIONAL_SIZE, MAX_FRACTIONAL_SIZE);
+					: llclamp(total_visible_fraction * (F32)(new_dim - panelp->getRelevantMinDim()) / updated_auto_resize_headroom, MIN_FRACTIONAL_SIZE, MAX_FRACTIONAL_SIZE);
 				fraction_given_up -= new_fractional_size - panelp->mFractionalSize;
 				fraction_remaining -= panelp->mFractionalSize;
 				panelp->mFractionalSize = new_fractional_size;
