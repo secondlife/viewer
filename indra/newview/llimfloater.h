@@ -142,9 +142,6 @@ private:
 	// Update the window title and input field help text
 	/*virtual*/ void updateSessionName(const std::string& name);
 
-	// For display name lookups for IM window titles
-	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
-
 	/// Updates the list of ad hoc conference participants
 	/// in an IM floater title.
 	void onParticipantsListChanged(LLUICtrl* ctrl);
