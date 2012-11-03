@@ -297,11 +297,13 @@ namespace LLInitParam
 		PROVIDED,
 		REQUIRED,
 		VALID,
-		NON_DEFAULT
+		HAS_DEFAULT_VALUE,
+		EMPTY
 	};
 
 	typedef LLPredicate::Rule<ESerializePredicates> predicate_rule_t;
 
+	predicate_rule_t default_parse_rules();
 
 	// various callbacks and constraints associated with an individual param
 	struct LL_COMMON_API ParamDescriptor
@@ -912,7 +914,10 @@ namespace LLInitParam
 			const self_t* diff_typed_param = static_cast<const self_t*>(diff_param);
 
 			LLPredicate::Value<ESerializePredicates> predicate;
-			predicate.set(NON_DEFAULT, !diff_typed_param || ParamCompare<T>::equals(typed_param.getValue(), diff_typed_param->getValue()));
+			if (diff_typed_param && ParamCompare<T>::equals(typed_param.getValue(), diff_typed_param->getValue()))
+			{
+				predicate.set(HAS_DEFAULT_VALUE);
+			}
 
 			if (typed_param.isValid())
 			{
@@ -924,6 +929,8 @@ namespace LLInitParam
 				predicate.set(VALID, false);
 				predicate.set(PROVIDED, false);
 			}
+
+			predicate.set(EMPTY, false);
 
 			if (!predicate_rule.check(predicate)) return false;
 
@@ -1285,6 +1292,8 @@ namespace LLInitParam
 				predicate.set(PROVIDED, false);
 			}			
 
+			predicate.set(EMPTY, typed_param.mValues.empty());
+
 			if (!predicate_rule.check(predicate)) return false;
 
 			for (const_iterator it = typed_param.mValues.begin(), end_it = typed_param.mValues.end();
@@ -1325,6 +1334,12 @@ namespace LLInitParam
 
 				name_stack.pop_back();
 			}
+
+			if (!serialized && predicate_rule.check(ll_make_predicate(EMPTY)))
+			{
+				serialized |= parser.writeValue(Flag(), name_stack);
+			}
+
 			return serialized;
 		}
 
@@ -1567,6 +1582,12 @@ namespace LLInitParam
 
 				name_stack.pop_back();
 			}
+
+			if (!serialized && predicate_rule.check(ll_make_predicate(EMPTY)))
+			{
+				serialized |= parser.writeValue(Flag(), name_stack);
+			}
+
 			return serialized;
 		}
 

@@ -520,7 +520,7 @@ BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr outpu
 				Params output_params(params);
 				setupParamsForExport(output_params, parent);
 				output_node->setName(node->getName()->mString);
-				parser.writeXUI(output_node, output_params, LLInitParam::predicate_rule_t(LLInitParam::PROVIDED) && LLInitParam::NON_DEFAULT, &default_params);
+				parser.writeXUI(output_node, output_params, LLInitParam::default_parse_rules(), &default_params);
 				return TRUE;
 			}
 		
@@ -551,7 +551,7 @@ BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr outpu
 			Params output_params(params);
 			setupParamsForExport(output_params, parent);
 			output_node->setName(node->getName()->mString);
-			parser.writeXUI(output_node, output_params, LLInitParam::predicate_rule_t(LLInitParam::PROVIDED) && LLInitParam::NON_DEFAULT, &default_params);
+			parser.writeXUI(output_node, output_params, LLInitParam::default_parse_rules(), &default_params);
 		}
 		
 		params.from_xui = true;

@@ -303,138 +303,133 @@ void LLViewerAssetStats::getStats(AssetStats& stats, bool compact_output)
 		mCurRecording->update();
 	}
 	
-	if (mRegionRecordings.empty())
+	stats.regions.setProvided();
+	
+	for (PerRegionRecordingContainer::iterator it = mRegionRecordings.begin(), end_it = mRegionRecordings.end();
+		it != end_it;
+		++it)
 	{
-		stats.regions.add().empty.setProvided();
-	}
-	else
-	{
-		for (PerRegionRecordingContainer::iterator it = mRegionRecordings.begin(), end_it = mRegionRecordings.end();
-			it != end_it;
-			++it)
+		RegionStats& r = stats.regions.add();
+		LLTrace::Recording& rec = it->second;
+		if (!compact_output
+			|| rec.getSum(sEnqueued[EVACTextureTempHTTPGet]) 
+			|| rec.getSum(sDequeued[EVACTextureTempHTTPGet])
+			|| rec.getSum(sResponse[EVACTextureTempHTTPGet]).value())
 		{
-			RegionStats& r = stats.regions.add();
-			LLTrace::Recording& rec = it->second;
-			if (!compact_output
-				|| rec.getSum(sEnqueued[EVACTextureTempHTTPGet]) 
-				|| rec.getSum(sDequeued[EVACTextureTempHTTPGet])
-				|| rec.getSum(sResponse[EVACTextureTempHTTPGet]).value())
-			{
-				r.get_texture_temp_http	.enqueued(rec.getSum(sEnqueued[EVACTextureTempHTTPGet]))
-										.dequeued(rec.getSum(sDequeued[EVACTextureTempHTTPGet]))
-										.resp_count(rec.getSum(sResponse[EVACTextureTempHTTPGet]).value())
-										.resp_min(rec.getMin(sResponse[EVACTextureTempHTTPGet]).value())
-										.resp_max(rec.getMax(sResponse[EVACTextureTempHTTPGet]).value())
-										.resp_mean(rec.getMean(sResponse[EVACTextureTempHTTPGet]).value());
-			}
-			if (!compact_output
-				|| rec.getSum(sEnqueued[EVACTextureTempUDPGet]) 
-				|| rec.getSum(sDequeued[EVACTextureTempUDPGet])
-				|| rec.getSum(sResponse[EVACTextureTempUDPGet]).value())
-			{
-				r.get_texture_temp_udp	.enqueued(rec.getSum(sEnqueued[EVACTextureTempUDPGet]))
-										.dequeued(rec.getSum(sDequeued[EVACTextureTempUDPGet]))
-										.resp_count(rec.getSum(sResponse[EVACTextureTempUDPGet]).value())
-										.resp_min(rec.getMin(sResponse[EVACTextureTempUDPGet]).value())
-										.resp_max(rec.getMax(sResponse[EVACTextureTempUDPGet]).value())
-										.resp_mean(rec.getMean(sResponse[EVACTextureTempUDPGet]).value());
-			}
-			if (!compact_output
-				|| rec.getSum(sEnqueued[EVACTextureNonTempHTTPGet]) 
-				|| rec.getSum(sDequeued[EVACTextureNonTempHTTPGet])
-				|| rec.getSum(sResponse[EVACTextureNonTempHTTPGet]).value())
-			{
-				r.get_texture_non_temp_http	.enqueued(rec.getSum(sEnqueued[EVACTextureNonTempHTTPGet]))
-											.dequeued(rec.getSum(sDequeued[EVACTextureNonTempHTTPGet]))
-											.resp_count(rec.getSum(sResponse[EVACTextureNonTempHTTPGet]).value())
-											.resp_min(rec.getMin(sResponse[EVACTextureNonTempHTTPGet]).value())
-											.resp_max(rec.getMax(sResponse[EVACTextureNonTempHTTPGet]).value())
-											.resp_mean(rec.getMean(sResponse[EVACTextureNonTempHTTPGet]).value());
-			}
-
-			if (!compact_output
-				|| rec.getSum(sEnqueued[EVACTextureNonTempUDPGet]) 
-				|| rec.getSum(sDequeued[EVACTextureNonTempUDPGet])
-				|| rec.getSum(sResponse[EVACTextureNonTempUDPGet]).value())
-			{
-				r.get_texture_non_temp_udp	.enqueued(rec.getSum(sEnqueued[EVACTextureNonTempUDPGet]))
-											.dequeued(rec.getSum(sDequeued[EVACTextureNonTempUDPGet]))
-											.resp_count(rec.getSum(sResponse[EVACTextureNonTempUDPGet]).value())
-											.resp_min(rec.getMin(sResponse[EVACTextureNonTempUDPGet]).value())
-											.resp_max(rec.getMax(sResponse[EVACTextureNonTempUDPGet]).value())
-											.resp_mean(rec.getMean(sResponse[EVACTextureNonTempUDPGet]).value());
-			}
-
-			if (!compact_output
-				|| rec.getSum(sEnqueued[EVACWearableUDPGet]) 
-				|| rec.getSum(sDequeued[EVACWearableUDPGet])
-				|| rec.getSum(sResponse[EVACWearableUDPGet]).value())
-			{
-				r.get_wearable_udp	.enqueued(rec.getSum(sEnqueued[EVACWearableUDPGet]))
-									.dequeued(rec.getSum(sDequeued[EVACWearableUDPGet]))
-									.resp_count(rec.getSum(sResponse[EVACWearableUDPGet]).value())
-									.resp_min(rec.getMin(sResponse[EVACWearableUDPGet]).value())
-									.resp_max(rec.getMax(sResponse[EVACWearableUDPGet]).value())
-									.resp_mean(rec.getMean(sResponse[EVACWearableUDPGet]).value());
-			}
-
-			if (!compact_output
-				|| rec.getSum(sEnqueued[EVACSoundUDPGet]) 
-				|| rec.getSum(sDequeued[EVACSoundUDPGet])
-				|| rec.getSum(sResponse[EVACSoundUDPGet]).value())
-			{
-				r.get_sound_udp	.enqueued(rec.getSum(sEnqueued[EVACSoundUDPGet]))
-								.dequeued(rec.getSum(sDequeued[EVACSoundUDPGet]))
-								.resp_count(rec.getSum(sResponse[EVACSoundUDPGet]).value())
-								.resp_min(rec.getMin(sResponse[EVACSoundUDPGet]).value())
-								.resp_max(rec.getMax(sResponse[EVACSoundUDPGet]).value())
-								.resp_mean(rec.getMean(sResponse[EVACSoundUDPGet]).value());
-			}
-
-			if (!compact_output
-				|| rec.getSum(sEnqueued[EVACGestureUDPGet]) 
-				|| rec.getSum(sDequeued[EVACGestureUDPGet])
-				|| rec.getSum(sResponse[EVACGestureUDPGet]).value())
-			{
-				r.get_gesture_udp	.enqueued(rec.getSum(sEnqueued[EVACGestureUDPGet]))
-									.dequeued(rec.getSum(sDequeued[EVACGestureUDPGet]))
-									.resp_count(rec.getSum(sResponse[EVACGestureUDPGet]).value())
-									.resp_min(rec.getMin(sResponse[EVACGestureUDPGet]).value())
-									.resp_max(rec.getMax(sResponse[EVACGestureUDPGet]).value())
-									.resp_mean(rec.getMean(sResponse[EVACGestureUDPGet]).value());
-			}
-
-			if (!compact_output
-				|| rec.getSum(sEnqueued[EVACOtherGet]) 
-				|| rec.getSum(sDequeued[EVACOtherGet])
-				|| rec.getSum(sResponse[EVACOtherGet]).value())
-			{
-				r.get_other	.enqueued(rec.getSum(sEnqueued[EVACOtherGet]))
-							.dequeued(rec.getSum(sDequeued[EVACOtherGet]))
-							.resp_count(rec.getSum(sResponse[EVACOtherGet]).value())
-							.resp_min(rec.getMin(sResponse[EVACOtherGet]).value())
-							.resp_max(rec.getMax(sResponse[EVACOtherGet]).value())
-							.resp_mean(rec.getMean(sResponse[EVACOtherGet]).value());
-			}
-
-			S32 fps = rec.getSum(LLStatViewer::FPS_SAMPLE);
-			if (!compact_output || fps != 0)
-			{
-				r.fps.count(fps);
-				r.fps.min(rec.getMin(LLStatViewer::FPS_SAMPLE));
-				r.fps.max(rec.getMax(LLStatViewer::FPS_SAMPLE));
-				r.fps.mean(rec.getMean(LLStatViewer::FPS_SAMPLE));
-			}
-			U32 grid_x(0), grid_y(0);
-			grid_from_region_handle(it->first, &grid_x, &grid_y);
-			r.grid_x(grid_x);
-			r.grid_y(grid_y);
-			r.duration(LLUnit::Microseconds<F64>(rec.getDuration()).value());
+			r.get_texture_temp_http	.enqueued(rec.getSum(sEnqueued[EVACTextureTempHTTPGet]))
+									.dequeued(rec.getSum(sDequeued[EVACTextureTempHTTPGet]))
+									.resp_count(rec.getSum(sResponse[EVACTextureTempHTTPGet]).value())
+									.resp_min(rec.getMin(sResponse[EVACTextureTempHTTPGet]).value())
+									.resp_max(rec.getMax(sResponse[EVACTextureTempHTTPGet]).value())
+									.resp_mean(rec.getMean(sResponse[EVACTextureTempHTTPGet]).value());
 		}
+		if (!compact_output
+			|| rec.getSum(sEnqueued[EVACTextureTempUDPGet]) 
+			|| rec.getSum(sDequeued[EVACTextureTempUDPGet])
+			|| rec.getSum(sResponse[EVACTextureTempUDPGet]).value())
+		{
+			r.get_texture_temp_udp	.enqueued(rec.getSum(sEnqueued[EVACTextureTempUDPGet]))
+									.dequeued(rec.getSum(sDequeued[EVACTextureTempUDPGet]))
+									.resp_count(rec.getSum(sResponse[EVACTextureTempUDPGet]).value())
+									.resp_min(rec.getMin(sResponse[EVACTextureTempUDPGet]).value())
+									.resp_max(rec.getMax(sResponse[EVACTextureTempUDPGet]).value())
+									.resp_mean(rec.getMean(sResponse[EVACTextureTempUDPGet]).value());
+		}
+		if (!compact_output
+			|| rec.getSum(sEnqueued[EVACTextureNonTempHTTPGet]) 
+			|| rec.getSum(sDequeued[EVACTextureNonTempHTTPGet])
+			|| rec.getSum(sResponse[EVACTextureNonTempHTTPGet]).value())
+		{
+			r.get_texture_non_temp_http	.enqueued(rec.getSum(sEnqueued[EVACTextureNonTempHTTPGet]))
+										.dequeued(rec.getSum(sDequeued[EVACTextureNonTempHTTPGet]))
+										.resp_count(rec.getSum(sResponse[EVACTextureNonTempHTTPGet]).value())
+										.resp_min(rec.getMin(sResponse[EVACTextureNonTempHTTPGet]).value())
+										.resp_max(rec.getMax(sResponse[EVACTextureNonTempHTTPGet]).value())
+										.resp_mean(rec.getMean(sResponse[EVACTextureNonTempHTTPGet]).value());
+		}
+
+		if (!compact_output
+			|| rec.getSum(sEnqueued[EVACTextureNonTempUDPGet]) 
+			|| rec.getSum(sDequeued[EVACTextureNonTempUDPGet])
+			|| rec.getSum(sResponse[EVACTextureNonTempUDPGet]).value())
+		{
+			r.get_texture_non_temp_udp	.enqueued(rec.getSum(sEnqueued[EVACTextureNonTempUDPGet]))
+										.dequeued(rec.getSum(sDequeued[EVACTextureNonTempUDPGet]))
+										.resp_count(rec.getSum(sResponse[EVACTextureNonTempUDPGet]).value())
+										.resp_min(rec.getMin(sResponse[EVACTextureNonTempUDPGet]).value())
+										.resp_max(rec.getMax(sResponse[EVACTextureNonTempUDPGet]).value())
+										.resp_mean(rec.getMean(sResponse[EVACTextureNonTempUDPGet]).value());
+		}
+
+		if (!compact_output
+			|| rec.getSum(sEnqueued[EVACWearableUDPGet]) 
+			|| rec.getSum(sDequeued[EVACWearableUDPGet])
+			|| rec.getSum(sResponse[EVACWearableUDPGet]).value())
+		{
+			r.get_wearable_udp	.enqueued(rec.getSum(sEnqueued[EVACWearableUDPGet]))
+								.dequeued(rec.getSum(sDequeued[EVACWearableUDPGet]))
+								.resp_count(rec.getSum(sResponse[EVACWearableUDPGet]).value())
+								.resp_min(rec.getMin(sResponse[EVACWearableUDPGet]).value())
+								.resp_max(rec.getMax(sResponse[EVACWearableUDPGet]).value())
+								.resp_mean(rec.getMean(sResponse[EVACWearableUDPGet]).value());
+		}
+
+		if (!compact_output
+			|| rec.getSum(sEnqueued[EVACSoundUDPGet]) 
+			|| rec.getSum(sDequeued[EVACSoundUDPGet])
+			|| rec.getSum(sResponse[EVACSoundUDPGet]).value())
+		{
+			r.get_sound_udp	.enqueued(rec.getSum(sEnqueued[EVACSoundUDPGet]))
+							.dequeued(rec.getSum(sDequeued[EVACSoundUDPGet]))
+							.resp_count(rec.getSum(sResponse[EVACSoundUDPGet]).value())
+							.resp_min(rec.getMin(sResponse[EVACSoundUDPGet]).value())
+							.resp_max(rec.getMax(sResponse[EVACSoundUDPGet]).value())
+							.resp_mean(rec.getMean(sResponse[EVACSoundUDPGet]).value());
+		}
+
+		if (!compact_output
+			|| rec.getSum(sEnqueued[EVACGestureUDPGet]) 
+			|| rec.getSum(sDequeued[EVACGestureUDPGet])
+			|| rec.getSum(sResponse[EVACGestureUDPGet]).value())
+		{
+			r.get_gesture_udp	.enqueued(rec.getSum(sEnqueued[EVACGestureUDPGet]))
+								.dequeued(rec.getSum(sDequeued[EVACGestureUDPGet]))
+								.resp_count(rec.getSum(sResponse[EVACGestureUDPGet]).value())
+								.resp_min(rec.getMin(sResponse[EVACGestureUDPGet]).value())
+								.resp_max(rec.getMax(sResponse[EVACGestureUDPGet]).value())
+								.resp_mean(rec.getMean(sResponse[EVACGestureUDPGet]).value());
+		}
+
+		if (!compact_output
+			|| rec.getSum(sEnqueued[EVACOtherGet]) 
+			|| rec.getSum(sDequeued[EVACOtherGet])
+			|| rec.getSum(sResponse[EVACOtherGet]).value())
+		{
+			r.get_other	.enqueued(rec.getSum(sEnqueued[EVACOtherGet]))
+						.dequeued(rec.getSum(sDequeued[EVACOtherGet]))
+						.resp_count(rec.getSum(sResponse[EVACOtherGet]).value())
+						.resp_min(rec.getMin(sResponse[EVACOtherGet]).value())
+						.resp_max(rec.getMax(sResponse[EVACOtherGet]).value())
+						.resp_mean(rec.getMean(sResponse[EVACOtherGet]).value());
+		}
+
+		S32 fps = rec.getSum(LLStatViewer::FPS_SAMPLE);
+		if (!compact_output || fps != 0)
+		{
+			r.fps.count(fps);
+			r.fps.min(rec.getMin(LLStatViewer::FPS_SAMPLE));
+			r.fps.max(rec.getMax(LLStatViewer::FPS_SAMPLE));
+			r.fps.mean(rec.getMean(LLStatViewer::FPS_SAMPLE));
+		}
+		U32 grid_x(0), grid_y(0);
+		grid_from_region_handle(it->first, &grid_x, &grid_y);
+		r.grid_x(grid_x);
+		r.grid_y(grid_y);
+		r.duration(LLUnit::Microseconds<F64>(rec.getDuration()).value());
 	}
 
 	stats.duration(mCurRecording ? LLUnit::Microseconds<F64>(mCurRecording->getDuration()).value() : 0.0);
-	//stats.avatar.setProvided(true);
+	stats.avatar.setProvided(true);
 
 	for (S32 rez_stat=0; rez_stat < mAvatarRezStates.size(); ++rez_stat)
 	{
@@ -453,7 +448,12 @@ LLSD LLViewerAssetStats::asLLSD(bool compact_output)
 	LLSD sd;
 	AssetStats stats;
 	getStats(stats, compact_output);
-	parser.writeSD(sd, stats);
+	LLInitParam::predicate_rule_t rule = LLInitParam::default_parse_rules();
+	if (!compact_output)
+	{
+		rule.allow(LLInitParam::EMPTY);
+	}
+	parser.writeSD(sd, stats, rule);
 	return sd;
 }
 

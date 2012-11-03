@@ -102,13 +102,13 @@ void LLParamSDParser::readSD(const LLSD& sd, LLInitParam::BaseBlock& block, bool
 	//readSDValues(sd, block);
 }
 
-void LLParamSDParser::writeSD(LLSD& sd, const LLInitParam::BaseBlock& block, LLInitParam::predicate_rule_t rules)
+void LLParamSDParser::writeSDImpl(LLSD& sd, const LLInitParam::BaseBlock& block, const LLInitParam::predicate_rule_t rules, const LLInitParam::BaseBlock* diff_block)
 {
 	mNameStack.clear();
 	mWriteRootSD = &sd;
 
 	name_stack_t name_stack;
-	block.serializeBlock(*this, name_stack, rules);
+	block.serializeBlock(*this, name_stack, rules, diff_block);
 }
 
 /*virtual*/ std::string LLParamSDParser::getCurrentElementName()

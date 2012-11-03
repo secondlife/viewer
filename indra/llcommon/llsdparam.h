@@ -50,11 +50,28 @@ typedef LLInitParam::Parser parser_t;
 public:
 	LLParamSDParser();
 	void readSD(const LLSD& sd, LLInitParam::BaseBlock& block, bool silent = false);
-	void writeSD(LLSD& sd, const LLInitParam::BaseBlock& block, LLInitParam::predicate_rule_t rules = LLInitParam::predicate_rule_t(LLInitParam::PROVIDED) && LLInitParam::NON_DEFAULT);
+	template<typename BLOCK>
+	void writeSD(LLSD& sd, 
+		const BLOCK& block, 
+		const LLInitParam::predicate_rule_t rules = LLInitParam::default_parse_rules(),
+		const LLInitParam::BaseBlock* diff_block = NULL)
+	{
+		if (!diff_block 
+			&& !rules.isAmbivalent(LLInitParam::HAS_DEFAULT_VALUE))
+		{
+			diff_block = &LLInitParam::defaultValue<BLOCK>();
+		}
+		writeSDImpl(sd, block, rules, diff_block);
+	}
 
 	/*virtual*/ std::string getCurrentElementName();
 
 private:
+	void writeSDImpl(LLSD& sd, 
+		const LLInitParam::BaseBlock& block, 
+		const LLInitParam::predicate_rule_t,
+		const LLInitParam::BaseBlock* diff_block);
+
 	void submit(LLInitParam::BaseBlock& block, const LLSD& sd, LLInitParam::Parser::name_stack_t& name_stack);
 
 	template<typename T>

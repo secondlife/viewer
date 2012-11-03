@@ -73,43 +73,37 @@ namespace LLPredicate
 			return new_value;
 		}
 
-		void set(ENUM e, bool value)
+		void set(ENUM e, bool value = true)
 		{
 			llassert(0 <= e && e < cMaxEnum);
-			modifyPredicate(0x1 << (S32)e, cPredicateFlagsFromEnum[e], value);
+			mPredicateFlags = modifyPredicate(0x1 << (S32)e, cPredicateFlagsFromEnum[e], value, mPredicateFlags);
 		}
 
 		void set(const Value other, bool value)
 		{
-			U32 predicate_flags = other.mPredicateFlags;
-			while(predicate_flags)
+			predicate_flag_t predicate_flags_to_set = other.mPredicateFlags;
+			predicate_flag_t cumulative_flags = 0;
+			while(predicate_flags_to_set)
 			{
-				U32 next_flags = clearLSB(predicate_flags);
-				lsb_flag = predicate_flags ^ next_flags;
+				predicate_flag_t next_flags = clearLSB(predicate_flags_to_set);
+				predicate_flag_t lsb_flag = predicate_flags_to_set ^ next_flags;
 
-				U32 mask = 0;
+				predicate_flag_t mask = 0;
+				predicate_flag_t cur_flags = mPredicateFlags;
 				for (S32 i = 0; i < cMaxEnum; i++)
 				{
 					if (cPredicateFlagsFromEnum[i] & lsb_flag)
 					{
 						mask |= cPredicateFlagsFromEnum[i];
-						modifyPredicate(0x1 << (0x1 << i ), cPredicateFlagsFromEnum[i], !value);
+						cur_flags = modifyPredicate(0x1 << (0x1 << i ), cPredicateFlagsFromEnum[i], !value, cur_flags);
 					}
 				}
 
-				modifyPredicate(lsb_flag, mask, value);
+				cumulative_flags |= modifyPredicate(lsb_flag, mask, value, cur_flags);
 				
-				predicate_flags = next_flags;
-			} 
-		}
-
-		void forget(ENUM e)
-		{
-			set(e, true);
-			U32 flags_with_predicate = mPredicateFlags;
-			set(e, false);
-			// ambiguous value is result of adding and removing predicate at the same time!
-			mPredicateFlags |= flags_with_predicate;
+				predicate_flags_to_set = next_flags;
+			}
+			mPredicateFlags = cumulative_flags;
 		}
 
 		void forget(const Value value)
@@ -131,6 +125,11 @@ namespace LLPredicate
 			return mPredicateFlags == 0;
 		}
 
+		bool someSet() const
+		{
+			return mPredicateFlags != 0;
+		}
+
 	private:
 
 		predicate_flag_t clearLSB(predicate_flag_t value)
@@ -138,16 +137,16 @@ namespace LLPredicate
 			return value & (value - 1);
 		}
 
-		void modifyPredicate(predicate_flag_t predicate_flag, predicate_flag_t mask, bool value)
+		predicate_flag_t modifyPredicate(predicate_flag_t predicate_flag, predicate_flag_t mask, predicate_flag_t value, bool set)
 		{
 			llassert(clearLSB(predicate_flag) == 0);
 			predicate_flag_t flags_to_modify;
 
-			if (value)
+			if (set)
 			{
 				flags_to_modify = (mPredicateFlags & ~mask);
 				// clear flags not containing predicate to be added
-				mPredicateFlags &= mask;
+				value &= mask;
 				// shift flags, in effect adding predicate
 				flags_to_modify *= predicate_flag;
 			}
@@ -155,12 +154,13 @@ namespace LLPredicate
 			{
 				flags_to_modify = mPredicateFlags & mask;
 				// clear flags containing predicate to be removed
-				mPredicateFlags &= ~mask;
+				value &= ~mask;
 				// shift flags, in effect removing predicate
 				flags_to_modify /= predicate_flag;
 			}
 			// put modified flags back
-			mPredicateFlags |= flags_to_modify;
+			value |= flags_to_modify;
+			return value;
 		}
 
 		predicate_flag_t mPredicateFlags;
@@ -174,10 +174,6 @@ namespace LLPredicate
 		:	mRule(value)
 		{}
 
-		Rule(const Rule& other)
-		:	mRule(other.mRule)
-		{}
-
 		Rule(const Value<ENUM> other)
 		:	mRule(other)
 		{}
@@ -185,17 +181,37 @@ namespace LLPredicate
 		Rule()
 		{}
 
-		bool check(const Value<ENUM> value) const
+		void require(const Value<ENUM> value)
 		{
-			return !(mRule && value).noneSet();
+			mRule.set(value, require);
 		}
 
-		bool isTriviallyTrue() const
+		void allow(const Value<ENUM> value)
+		{
+			mRule.forget(value);
+		}
+
+		bool check(const Value<ENUM> value) const
+		{
+			return (mRule && value).someSet();
+		}
+
+		bool requires(const Value<ENUM> value) const
+		{
+			return (mRule && value).someSet() && (!mRule && value).noneSet();
+		}
+
+		bool isAmbivalent(const Value<ENUM> value) const
+		{
+			return (mRule && value).someSet() && (!mRule && value).someSet();
+		}
+
+		bool acceptsAll() const
 		{
 			return mRule.allSet();
 		}
 
-		bool isTriviallyFalse() const
+		bool acceptsNone() const
 		{
 			return mRule.noneSet();
 		}

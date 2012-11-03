@@ -32,6 +32,12 @@
 
 namespace LLInitParam
 {
+
+	predicate_rule_t default_parse_rules() 
+	{ 
+		return ll_make_predicate(PROVIDED) && !ll_make_predicate(EMPTY) && !ll_make_predicate(HAS_DEFAULT_VALUE); 
+	}
+
 	//
 	// Param
 	//
@@ -247,6 +253,10 @@ namespace LLInitParam
 			}
 		}
 
+		if (!serialized && predicate_rule.check(ll_make_predicate(EMPTY)))
+		{
+			serialized |= parser.writeValue(Flag(), name_stack);
+		}
 		// was anything serialized in this block?
 		return serialized;
 	}
