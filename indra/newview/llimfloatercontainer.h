@@ -76,8 +76,6 @@ public:
 
 	static void onCurrentChannelChanged(const LLUUID& session_id);
 
-	virtual void setMinimized(BOOL b);
-
 	void collapseMessagesPane(bool collapse);
 	
 	// Callbacks

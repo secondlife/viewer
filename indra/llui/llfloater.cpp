@@ -725,7 +725,27 @@ void LLFloater::closeFloater(bool app_quitting)
 			make_ui_sound("UISndWindowClose");
 		}
 
-        //If floater is a dependent, remove it from parent (dependee)
+		gFocusMgr.clearLastFocusForGroup(this);
+
+			if (hasFocus())
+			{
+				// Do this early, so UI controls will commit before the
+				// window is taken down.
+				releaseFocus();
+
+				// give focus to dependee floater if it exists, and we had focus first
+				if (isDependent())
+				{
+					LLFloater* dependee = mDependeeHandle.get();
+					if (dependee && !dependee->isDead())
+					{
+						dependee->setFocus(TRUE);
+					}
+				}
+			}
+
+
+		//If floater is a dependent, remove it from parent (dependee)
         LLFloater* dependee = mDependeeHandle.get();
         if (dependee)
         {
@@ -750,24 +770,6 @@ void LLFloater::closeFloater(bool app_quitting)
 		}
 		
 		cleanupHandles();
-		gFocusMgr.clearLastFocusForGroup(this);
-
-		if (hasFocus())
-		{
-			// Do this early, so UI controls will commit before the
-			// window is taken down.
-			releaseFocus();
-
-			// give focus to dependee floater if it exists, and we had focus first
-			if (isDependent())
-			{
-				LLFloater* dependee = mDependeeHandle.get();
-				if (dependee && !dependee->isDead())
-				{
-					dependee->setFocus(TRUE);
-				}
-			}
-		}
 
 		dirtyRect();
 

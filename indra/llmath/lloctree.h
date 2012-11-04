@@ -78,7 +78,7 @@ public:
 
 	typedef LLOctreeTraveler<T>									oct_traveler;
 	typedef LLTreeTraveler<T>									tree_traveler;
-	typedef LLPointer<T>*										element_list;
+	typedef std::vector<LLPointer<T> >							element_list;
 	typedef LLPointer<T>*										element_iter;
 	typedef const LLPointer<T>*									const_element_iter;
 	typedef typename std::vector<LLTreeListener<T>*>::iterator	tree_listener_iter;
@@ -106,8 +106,9 @@ public:
 	:	mParent((oct_node*)parent), 
 		mOctant(octant) 
 	{ 
-		mData = NULL;
-		mDataEnd = NULL;
+		//always keep a NULL terminated list to avoid out of bounds exceptions in debug builds
+		mData.push_back(NULL);
+		mDataEnd = &mData[0];
 
 		mCenter = center;
 		mSize = size;
@@ -133,9 +134,9 @@ public:
 			mData[i] = NULL;
 		}
 
-		free(mData);
-		mData = NULL;
-		mDataEnd = NULL;
+		mData.clear();
+		mData.push_back(NULL);
+		mDataEnd = &mData[0];
 
 		for (U32 i = 0; i < getChildCount(); i++)
 		{
@@ -239,9 +240,9 @@ public:
 	bool isEmpty() const							{ return mElementCount == 0; }
 	element_list& getData()							{ return mData; }
 	const element_list& getData() const				{ return mData; }
-	element_iter getDataBegin()						{ return mData; }
+	element_iter getDataBegin()						{ return &mData[0]; }
 	element_iter getDataEnd()						{ return mDataEnd; }
-	const_element_iter getDataBegin() const			{ return mData; }
+	const_element_iter getDataBegin() const			{ return &mData[0]; }
 	const_element_iter getDataEnd() const			{ return mDataEnd; }
 		
 	U32 getChildCount()	const						{ return mChildCount; }
@@ -321,14 +322,10 @@ public:
 			if ((getElementCount() < gOctreeMaxCapacity && contains(data->getBinRadius()) ||
 				(data->getBinRadius() > getSize()[0] &&	parent && parent->getElementCount() >= gOctreeMaxCapacity))) 
 			{ //it belongs here
+				mData.push_back(NULL);
+				mData[mElementCount] = data;
 				mElementCount++;
-				mData = (element_list) realloc(mData, sizeof(LLPointer<T>)*mElementCount);
-
-				//avoid unref on uninitialized memory
-				memset(mData+mElementCount-1, 0, sizeof(LLPointer<T>));
-
-				mData[mElementCount-1] = data;
-				mDataEnd = mData + mElementCount;
+				mDataEnd = &mData[mElementCount];
 				data->setBinIndex(mElementCount-1);
 				BaseType::insert(data);
 				return true;
@@ -364,14 +361,10 @@ public:
 
 				if( lt == 0x7 )
 				{
+					mData.push_back(NULL);
+					mData[mElementCount] = data;
 					mElementCount++;
-					mData = (element_list) realloc(mData, sizeof(LLPointer<T>)*mElementCount);
-
-					//avoid unref on uninitialized memory
-					memset(mData+mElementCount-1, 0, sizeof(LLPointer<T>));
-
-					mData[mElementCount-1] = data;
-					mDataEnd = mData + mElementCount;
+					mDataEnd = &mData[mElementCount];
 					data->setBinIndex(mElementCount-1);
 					BaseType::insert(data);
 					return true;
@@ -436,16 +429,15 @@ public:
 				mData[i]->setBinIndex(i);
 			}
 
-			mData[mElementCount] = NULL; //needed for unref
-			mData = (element_list) realloc(mData, sizeof(LLPointer<T>)*mElementCount);
-			mDataEnd = mData+mElementCount;
+			mData[mElementCount] = NULL;
+			mData.pop_back();
+			mDataEnd = &mData[mElementCount];
 		}
 		else
 		{
-			mData[0] = NULL; //needed for unref
-			free(mData);
-			mData = NULL;
-			mDataEnd = NULL;
+			mData.clear();
+			mData.push_back(NULL);
+			mDataEnd = &mData[0];
 		}
 
 		notifyRemoval(data);
@@ -491,7 +483,7 @@ public:
 		}
 
 		//node is now root
-		llwarns << "!!! OCTREE REMOVING FACE BY ADDRESS, SEVERE PERFORMANCE PENALTY |||" << llendl;
+		llwarns << "!!! OCTREE REMOVING ELEMENT BY ADDRESS, SEVERE PERFORMANCE PENALTY |||" << llendl;
 		node->removeByAddress(data);
 		llassert(data->getBinIndex() == -1);
 		return true;

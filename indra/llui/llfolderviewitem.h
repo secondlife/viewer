@@ -289,6 +289,7 @@ protected:
 	friend class LLUICtrlFactory;
 
 	void updateLabelRotation();
+	virtual bool isMinimized() { return FALSE; }
 
 public:
 	typedef std::list<LLFolderViewItem*> items_t;

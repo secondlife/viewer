@@ -28,6 +28,8 @@
 
 #include "llavatariconctrl.h"
 
+#include <boost/signals2.hpp>
+
 // viewer includes
 #include "llagent.h"
 #include "llavatarconstants.h"
@@ -148,9 +150,13 @@ LLAvatarIconCtrl::Params::Params()
 
 
 LLAvatarIconCtrl::LLAvatarIconCtrl(const LLAvatarIconCtrl::Params& p)
-:	LLIconCtrl(p),
+	: LLIconCtrl(p),
+	LLAvatarPropertiesObserver(),
+	mAvatarId(),
+	mFullName(),
 	mDrawTooltip(p.draw_tooltip),
-	mDefaultIconName(p.default_icon_name)
+	mDefaultIconName(p.default_icon_name),
+	mAvatarNameCacheConnection()
 {
 	mPriority = LLViewerFetchedTexture::BOOST_ICON;
 	
@@ -203,6 +209,11 @@ LLAvatarIconCtrl::~LLAvatarIconCtrl()
 		LLAvatarPropertiesProcessor::getInstance()->removeObserver(mAvatarId, this);
 		// Name callbacks will be automatically disconnected since LLUICtrl is trackable
 	}
+
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
 }
 
 //virtual
@@ -245,9 +256,19 @@ void LLAvatarIconCtrl::setValue(const LLSD& value)
 		LLIconCtrl::setValue(value);
 	}
 
-	if (mAvatarId != LLUUID::null)
+	fetchAvatarName();
+}
+
+void LLAvatarIconCtrl::fetchAvatarName()
+{
+	if (mAvatarNameCacheConnection.connected())
 	{
-		LLAvatarNameCache::get(mAvatarId, boost::bind(&LLAvatarIconCtrl::onAvatarNameCache, this, _1, _2));
+		mAvatarNameCacheConnection.disconnect();
+	}
+
+	if (mAvatarId.notNull())
+	{
+		mAvatarNameCacheConnection = LLAvatarNameCache::get(mAvatarId, boost::bind(&LLAvatarIconCtrl::onAvatarNameCache, this, _1, _2));
 	}
 }
 

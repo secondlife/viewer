@@ -119,6 +119,55 @@ LLIMConversation* LLIMConversation::getConversation(const LLUUID& uuid)
 	return conv;
 };
 
+void LLIMConversation::setVisible(BOOL visible)
+{
+	LLTransientDockableFloater::setVisible(visible);
+
+	if(visible)
+	{
+			LLIMConversation::addToHost(mSessionID);
+	}
+    setFocus(visible);
+}
+
+
+
+void LLIMConversation::addToHost(const LLUUID& session_id)
+{
+	if ((session_id.notNull() && !gIMMgr->hasSession(session_id))
+			|| !LLIMConversation::isChatMultiTab())
+	{
+		return;
+	}
+
+	// Get the floater: this will create the instance if it didn't exist
+	LLIMConversation* conversp = LLIMConversation::getConversation(session_id);
+	if (conversp)
+	{
+		LLIMFloaterContainer* floater_container = LLIMFloaterContainer::getInstance();
+
+		// Do not add again existing floaters
+		if (floater_container && !conversp->isHostAttached())
+		{
+			conversp->setHostAttached(true);
+
+			if (!conversp->isNearbyChat()
+					|| gSavedSettings.getBOOL("NearbyChatIsNotTornOff"))
+			{
+				floater_container->addFloater(conversp, TRUE, LLTabContainer::END);
+			}
+			else
+			{
+				// setting of the "potential" host for Nearby Chat: this sequence sets
+				// LLFloater::mHostHandle = NULL (a current host), but
+				// LLFloater::mLastHostHandle = floater_container (a "future" host)
+				conversp->setHost(floater_container);
+				conversp->setHost(NULL);
+			}
+
+		}
+	}
+}
 
 BOOL LLIMConversation::postBuild()
 {

@@ -594,34 +594,6 @@ void LLIMFloater::onParticipantsListChanged(LLUICtrl* ctrl)
 	}
 }
 
-void LLIMFloater::addToHost(const LLUUID& session_id)
-{
-	if (!LLIMConversation::isChatMultiTab() || !gIMMgr->hasSession(session_id))
-	{
-		return;
-	}
-
-	// Get the floater: this will create the instance if it didn't exist
-	LLIMFloater* floater = getInstance(session_id);
-	if (floater)
-	{
-
-		LLIMFloaterContainer* floater_container = LLIMFloaterContainer::getInstance();
-
-		// Do not attach to the IM container if it's already attached
-		if (!getFloaterHost())
-		{
-			//		LLTabContainer::eInsertionPoint i_pt = user_initiated ? LLTabContainer::RIGHT_OF_CURRENT : LLTabContainer::END;
-			// TODO: mantipov: use LLTabContainer::RIGHT_OF_CURRENT if it exists
-			LLTabContainer::eInsertionPoint i_pt = LLTabContainer::END;
-			if (floater_container)
-			{
-				floater_container->addFloater(floater, FALSE, i_pt);
-			}
-		}
-	}
-}
-
 
 //static
 LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
@@ -730,7 +702,7 @@ void LLIMFloater::setVisible(BOOL visible)
 		(LLNotificationsUI::LLChannelManager::getInstance()->
 											findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
 
-	LLTransientDockableFloater::setVisible(visible);
+	LLIMConversation::setVisible(visible);
 
 	// update notification channel state
 	if(channel)
@@ -1317,7 +1289,7 @@ void LLIMFloater::sRemoveTypingIndicator(const LLSD& data)
 	floater->removeTypingIndicator();
 }
 
-// CHUI-441 : We should not create a floater here but go through LLIMFLoaterContainer
+// static
 void LLIMFloater::onIMChicletCreated( const LLUUID& session_id )
 {
 	LLIMFloater::addToHost(session_id);

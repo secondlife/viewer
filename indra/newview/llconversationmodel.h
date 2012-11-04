@@ -27,9 +27,11 @@
 #ifndef LL_LLCONVERSATIONMODEL_H
 #define LL_LLCONVERSATIONMODEL_H
 
+#include <boost/signals2.hpp>
+
+#include "llavatarname.h"
 #include "llfolderviewitem.h"
 #include "llfolderviewmodel.h"
-#include "llavatarname.h"
 #include "llviewerfoldertype.h"
 
 // Implementation of conversations list
@@ -177,7 +179,7 @@ class LLConversationItemParticipant : public LLConversationItem
 public:
 	LLConversationItemParticipant(std::string display_name, const LLUUID& uuid, LLFolderViewModelInterface& root_view_model);
 	LLConversationItemParticipant(const LLUUID& uuid, LLFolderViewModelInterface& root_view_model);
-	virtual ~LLConversationItemParticipant() {}
+	virtual ~LLConversationItemParticipant();
 	
 	virtual const std::string& getDisplayName() const { return mDisplayName; }
 
@@ -189,17 +191,21 @@ public:
 	void setDistance(F64 dist) { mDistToAgent = dist; mNeedsRefresh = true; }
 
     void buildContextMenu(LLMenuGL& menu, U32 flags);
-	void onAvatarNameCache(const LLAvatarName& av_name);
 
 	virtual const bool getDistanceToAgent(F64& dist) const { dist = mDistToAgent; return (dist >= 0.0); }
+
+	void fetchAvatarName();
 
 	void dumpDebugData();
 
 private:
+	void onAvatarNameCache(const LLAvatarName& av_name);
+
 	bool mIsMuted;		// default is false
 	bool mIsModerator;	// default is false
 	std::string mDisplayName;
 	F64  mDistToAgent;  // Distance to the agent. A negative (meaningless) value means the distance has not been set.
+	boost::signals2::connection mAvatarNameCacheConnection;
 };
 
 // We don't want to ever filter conversations but we need to declare that class to create a conversation view model.

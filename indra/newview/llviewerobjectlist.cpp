@@ -948,7 +948,7 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 	std::vector<LLViewerObject*>::iterator idle_end = idle_list.begin()+idle_count;
 
 	if (gSavedSettings.getBOOL("FreezeTime"))
-	{	
+	{
 		
 		for (std::vector<LLViewerObject*>::iterator iter = idle_list.begin();
 			iter != idle_end; iter++)
@@ -969,14 +969,14 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 			llassert(objectp->isActive());
 			objectp->idleUpdate(agent, world, frame_time);
 
-		}
+			}
 
 		//update flexible objects
 		LLVolumeImplFlexible::updateClass();
 
 		//update animated textures
 		LLViewerTextureAnim::updateClass();
-	}
+			}
 
 
 
@@ -1401,9 +1401,9 @@ void LLViewerObjectList::removeFromActiveList(LLViewerObject* objectp)
 			mActiveObjects[idx]->setListIndex(idx);
 		}
 
-		mActiveObjects.pop_back();
+			mActiveObjects.pop_back();
+		}
 	}
-}
 
 void LLViewerObjectList::updateActive(LLViewerObject *objectp)
 {
@@ -1446,8 +1446,11 @@ void LLViewerObjectList::updateActive(LLViewerObject *objectp)
 		}
 	}
 
-	llassert(objectp->isActive() || objectp->getListIndex() == -1);
+	//post condition: if object is active, it must be on the active list
+	llassert(!active || std::find(mActiveObjects.begin(), mActiveObjects.end(), objectp) != mActiveObjects.end());
 
+	//post condition: if object is not active, it must not be on the active list
+	llassert(active || std::find(mActiveObjects.begin(), mActiveObjects.end(), objectp) == mActiveObjects.end());
 }
 
 void LLViewerObjectList::updateObjectCost(LLViewerObject* object)

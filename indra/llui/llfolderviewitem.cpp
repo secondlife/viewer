@@ -1838,7 +1838,7 @@ BOOL LLFolderViewFolder::handleMouseDown( S32 x, S32 y, MASK mask )
 	}
 	if( !handled )
 	{
-		if(mIndentation < x && x < mIndentation + mArrowSize + mTextPad)
+		if(mIndentation < x && x < mIndentation + (isMinimized() ? 0 : mArrowSize) + mTextPad)
 		{
 			toggleOpen();
 			handled = TRUE;
@@ -1862,7 +1862,7 @@ BOOL LLFolderViewFolder::handleDoubleClick( S32 x, S32 y, MASK mask )
 	}
 	if( !handled )
 	{
-		if(mIndentation < x && x < mIndentation + mArrowSize + mTextPad)
+		if(mIndentation < x && x < mIndentation + (isMinimized() ? 0 : mArrowSize) + mTextPad)
 		{
 			// don't select when user double-clicks plus sign
 			// so as not to contradict single-click behavior
