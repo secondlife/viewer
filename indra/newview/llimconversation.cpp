@@ -29,6 +29,8 @@
 
 #include "llimconversation.h"
 
+#include "llagent.h"
+#include "llavataractions.h"
 #include "llchatentry.h"
 #include "llchathistory.h"
 #include "llchiclet.h"
@@ -419,50 +421,47 @@ void LLIMConversation::updateConversationViewParticipant(const LLUUID& participa
 	if (widget)
 	{
 		widget->refresh();
-		refreshConversation();
 	}
+	refreshConversation();
 }
 
 void LLIMConversation::refreshConversation()
 {
-	// Debug : Check that all participant models do have a view (debug consistency check)
-	/*
-	LLParticipantList* item = getParticipantList();
-	llinfos << "Merov debug : Start consistency check" << llendl;
-	LLFolderViewModelItemCommon::child_list_t::const_iterator current_participant_model = item->getChildrenBegin();
-	LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = item->getChildrenEnd();
-	while (current_participant_model != end_participant_model)
+	// Note: We collect participants names to change the session name only in the case of ad-hoc conversations
+	bool is_ad_hoc = (mSession ? mSession->isAdHocSessionType() : false);
+	uuid_vec_t participants_uuids; // uuids vector for building the added participants name string
+	// For P2P chat, we still need to update the session name who may have changed (switch display name for instance)
+	if (mIsP2PChat && mSession)
 	{
-		LLConversationItemParticipant* participant_model = dynamic_cast<LLConversationItemParticipant*>(*current_participant_model);
-		if (participant_model != NULL)
-		{
-			LLUUID uuid = participant_model->getUUID();
-			LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,uuid);
-			if (!widget)
-			{
-				llinfos << "Merov debug : Consistency error! Couldn't find widget for " << participant_model->getName() << llendl;
-			}
-			else 
-			{
-				llinfos << "Merov debug : Consistency check pass for " << participant_model->getName() << llendl;
-			}
-		}
-		else
-		{
-			llinfos << "Merov debug : Consistency check, skip non participant child" << llendl;
-		}
-		current_participant_model++;
+		participants_uuids.push_back(mSession->mOtherParticipantID);
 	}
-	llinfos << "Merov debug : End consistency check" << llendl;
-	 */
-		
+
 	conversations_widgets_map::iterator widget_it = mConversationsWidgets.begin();
 	while (widget_it != mConversationsWidgets.end())
 	{
+		// Add the participant to the list except if it's the agent itself (redundant)
+		if (is_ad_hoc && (widget_it->first != gAgentID))
+		{
+			participants_uuids.push_back(widget_it->first);
+		}
 		widget_it->second->refresh();
 		widget_it->second->setVisible(TRUE);
 		++widget_it;
 	}
+	if (is_ad_hoc || mIsP2PChat)
+	{
+		// Build the session name and update it
+		std::string session_name;
+		if (participants_uuids.size() != 0)
+		{
+			LLAvatarActions::buildResidentsString(participants_uuids, session_name);
+		}
+		else
+		{
+			session_name = LLIMModel::instance().getName(mSessionID);
+		}
+		updateSessionName(session_name);
+	} 
 	mConversationViewModel.requestSortAll();
 	mConversationsRoot->arrangeAll();
 	mConversationsRoot->update();
@@ -559,7 +558,6 @@ void LLIMConversation::hideOrShowTitle()
 
 void LLIMConversation::updateSessionName(const std::string& name)
 {
-	llinfos << "Merov debug : updateSessionName, name = " << name << llendl;
 	mInputEditor->setLabel(LLTrans::getString("IM_to_label") + " " + name);
 }
 

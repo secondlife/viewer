@@ -270,14 +270,7 @@ void LLIMFloater::initIMFloater()
 		mInputEditor->setLabel(LLTrans::getString("IM_unavailable_text_label"));
 	}
 
-	if (mIsP2PChat)
-	{
-		// look up display name for window title
-		LLAvatarNameCache::get(mSession->mOtherParticipantID,
-							   boost::bind(&LLIMFloater::onAvatarNameCache,
-										   this, _1, _2));
-	}
-	else
+	if (!mIsP2PChat)
 	{
 		std::string session_name(LLIMModel::instance().getName(mSessionID));
 		updateSessionName(session_name);
@@ -530,18 +523,7 @@ void LLIMFloater::updateSessionName(const std::string& name)
 {
 	LLIMConversation::updateSessionName(name);
 	setTitle(name);	
-}
-
-void LLIMFloater::onAvatarNameCache(const LLUUID& agent_id,
-									const LLAvatarName& av_name)
-{
-	// Use display name for label
-	updateSessionName(av_name.mDisplayName);
-	
-	// Overwrite the floater title with the extended name
-	std::string ui_title = av_name.getCompleteName();
-	setTitle(ui_title);	
-	mTypingStart.setArg("[NAME]", ui_title);
+	mTypingStart.setArg("[NAME]", name);
 }
 
 void LLIMFloater::onParticipantsListChanged(LLUICtrl* ctrl)
