@@ -3712,8 +3712,7 @@ void LLVivoxVoiceClient::participantUpdatedEvent(
 			 voice participant mIsModeratorMuted is changed after speakers are updated in Speaker Manager                                          
 			 and event is not fired.                                                                                                               
 			 
-			 So, we have to call LLSpeakerMgr::update() here. In any case it is better than call it                                                
-			 in LLCallFloater::draw()                                                                                                              
+			 So, we have to call LLSpeakerMgr::update() here.                                                                                                              
 			 */
 			LLVoiceChannel* voice_cnl = LLVoiceChannel::getCurrentVoiceChannel();
 			

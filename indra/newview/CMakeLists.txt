@@ -117,7 +117,6 @@ set(viewer_SOURCE_FILES
     llbrowsernotification.cpp
     llbuycurrencyhtml.cpp
     llcallbacklist.cpp
-    llcallfloater.cpp
     llcallingcard.cpp
     llcapabilitylistener.cpp
     llcaphttpsender.cpp
@@ -701,7 +700,6 @@ set(viewer_HEADER_FILES
     llbreadcrumbview.h
     llbuycurrencyhtml.h
     llcallbacklist.h
-    llcallfloater.h
     llcallingcard.h
     llcapabilitylistener.h
     llcapabilityprovider.h

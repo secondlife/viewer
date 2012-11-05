@@ -95,7 +95,6 @@
 #include "llweb.h"
 #include "llsecondlifeurls.h"
 #include "llupdaterservice.h"
-#include "llcallfloater.h"
 #include "llfloatertexturefetchdebugger.h"
 #include "llspellcheck.h"
 
