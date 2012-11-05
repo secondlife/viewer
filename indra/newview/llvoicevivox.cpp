@@ -394,7 +394,15 @@ const LLVoiceVersionInfo& LLVivoxVoiceClient::getVersion()
 
 void LLVivoxVoiceClient::updateSettings()
 {
-	setVoiceEnabled(gSavedSettings.getBOOL("EnableVoiceChat"));
+	if(!mAudioSession)
+	{
+		// If audio module is not initialized, pretend that voice is enabled, thus letting state machine to take a full cycle
+		setVoiceEnabled(true);
+	}
+	else
+	{
+		setVoiceEnabled(gSavedSettings.getBOOL("EnableVoiceChat"));
+	}
 	setEarLocation(gSavedSettings.getS32("VoiceEarLocation"));
 
 	std::string inputDevice = gSavedSettings.getString("VoiceInputAudioDevice");
@@ -1478,6 +1486,9 @@ void LLVivoxVoiceClient::stateMachine()
 					mUpdateTimer.setTimerExpirySec(UPDATE_THROTTLE_SECONDS);
 					sendPositionalUpdate();
 				}
+
+				// Now that audio module is fully initialized, check for actual mVoiceEnabled value
+				updateSettings();
 			}
 		break;
 		
