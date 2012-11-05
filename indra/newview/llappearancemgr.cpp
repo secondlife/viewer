@@ -2731,6 +2731,7 @@ public:
 		F32 seconds_to_wait;
 		if (mRetryPolicy->shouldRetry(status,seconds_to_wait))
 		{
+			llinfos << "retrying" << llendl;
 			doAfterInterval(boost::bind(&LLAppearanceMgr::requestServerAppearanceUpdate,
 										LLAppearanceMgr::getInstance(),
 										LLCurl::ResponderPtr(this)),
