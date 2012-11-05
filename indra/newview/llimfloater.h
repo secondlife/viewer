@@ -141,10 +141,6 @@ private:
 	// Update the window title and input field help text
 	/*virtual*/ void updateSessionName(const std::string& name);
 
-	/// Updates the list of ad hoc conference participants
-	/// in an IM floater title.
-	void onParticipantsListChanged(LLUICtrl* ctrl);
-
 	bool dropPerson(LLUUID* person_id, bool drop);
 
 	BOOL isInviteAllowed() const;
@@ -196,8 +192,6 @@ private:
 
 	// connection to voice channel state change signal
 	boost::signals2::connection mVoiceChannelStateChangeConnection;
-
-	boost::signals2::connection mParticipantsListRefreshConnection;
 };
 
 #endif  // LL_IMFLOATER_H
