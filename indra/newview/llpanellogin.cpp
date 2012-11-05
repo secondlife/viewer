@@ -139,14 +139,17 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	mLogoImage = LLUI::getUIImage("startup_logo");
 
 	buildFromFile( "panel_login.xml");
-	
+
 	reshape(rect.getWidth(), rect.getHeight());
 
-	getChild<LLLineEditor>("password_edit")->setKeystrokeCallback(onPassKey, this);
+	LLLineEditor* password_edit(getChild<LLLineEditor>("password_edit"));
+	password_edit->setKeystrokeCallback(onPassKey, this);
+	// STEAM-14: When user presses Enter with this field in focus, initiate login
+	password_edit->setCommitCallback(boost::bind(&LLPanelLogin::onClickConnect, this));
 
 	// change z sort of clickable text to be behind buttons
 	sendChildToBack(getChildView("forgot_password_text"));
-	
+
 	LLComboBox* location_combo = getChild<LLComboBox>("start_location_combo");
 	updateLocationSelectorsVisibility(); // separate so that it can be called from preferences
 	location_combo->setFocusLostCallback(boost::bind(&LLPanelLogin::onLocationSLURL, this));
@@ -220,14 +223,17 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	// get the web browser control
 	LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("login_html");
 	web_browser->addObserver(this);
-	
+
 	reshapeBrowser();
 
 	loadLoginPage();
-			
+
 	// Show last logged in user favorites in "Start at" combo.
 	addUsersWithFavoritesToUsername();
-	getChild<LLComboBox>("username_combo")->setTextChangedCallback(boost::bind(&LLPanelLogin::addFavoritesToStartLocation, this));
+	LLComboBox* username_combo(getChild<LLComboBox>("username_combo"));
+	username_combo->setTextChangedCallback(boost::bind(&LLPanelLogin::addFavoritesToStartLocation, this));
+	// STEAM-14: When user presses Enter with this field in focus, initiate login
+	username_combo->setCommitCallback(boost::bind(&LLPanelLogin::onClickConnect, this));
 }
 
 void LLPanelLogin::addUsersWithFavoritesToUsername()
