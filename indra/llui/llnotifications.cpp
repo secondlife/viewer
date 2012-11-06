@@ -1424,25 +1424,19 @@ void addPathIfExists(const std::string& new_path, std::vector<std::string>& path
 bool LLNotifications::loadTemplates()
 {
 	llinfos << "Reading notifications template" << llendl;
-	std::vector<std::string> search_paths;
-	
-	std::string skin_relative_path = gDirUtilp->getDirDelimiter() + LLUI::getSkinPath() + gDirUtilp->getDirDelimiter() + "notifications.xml";
-	std::string localized_skin_relative_path = gDirUtilp->getDirDelimiter() + LLUI::getLocalizedSkinPath() + gDirUtilp->getDirDelimiter() + "notifications.xml";
-
-	addPathIfExists(gDirUtilp->getDefaultSkinDir() + skin_relative_path, search_paths);
-	addPathIfExists(gDirUtilp->getDefaultSkinDir() + localized_skin_relative_path, search_paths);
-	addPathIfExists(gDirUtilp->getSkinDir() + skin_relative_path, search_paths);
-	addPathIfExists(gDirUtilp->getSkinDir() + localized_skin_relative_path, search_paths);
-	addPathIfExists(gDirUtilp->getUserSkinDir() + skin_relative_path, search_paths);
-	addPathIfExists(gDirUtilp->getUserSkinDir() + localized_skin_relative_path, search_paths);
+	// Passing findSkinnedFilenames(constraint=LLDir::ALL_SKINS) makes it
+	// output all relevant pathnames instead of just the ones from the most
+	// specific skin.
+	std::vector<std::string> search_paths =
+		gDirUtilp->findSkinnedFilenames(LLDir::XUI, "notifications.xml", LLDir::ALL_SKINS);
 
 	std::string base_filename = search_paths.front();
 	LLXMLNodePtr root;
 	BOOL success  = LLXMLNode::getLayeredXMLNode(root, search_paths);
-	
+
 	if (!success || root.isNull() || !root->hasName( "notifications" ))
 	{
-		llerrs << "Problem reading UI Notifications file: " << base_filename << llendl;
+		llerrs << "Problem reading XML from UI Notifications file: " << base_filename << llendl;
 		return false;
 	}
 
@@ -1452,7 +1446,7 @@ bool LLNotifications::loadTemplates()
 
 	if(!params.validateBlock())
 	{
-		llerrs << "Problem reading UI Notifications file: " << base_filename << llendl;
+		llerrs << "Problem reading XUI from UI Notifications file: " << base_filename << llendl;
 		return false;
 	}
 
@@ -1508,7 +1502,9 @@ bool LLNotifications::loadTemplates()
 bool LLNotifications::loadVisibilityRules()
 {
 	const std::string xml_filename = "notification_visibility.xml";
-	std::string full_filename = gDirUtilp->findSkinnedFilename(LLUI::getXUIPaths().front(), xml_filename);
+	// Note that here we're looking for the "en" version, the default
+	// language, rather than the most localized version of this file.
+	std::string full_filename = gDirUtilp->findSkinnedFilenameBaseLang(LLDir::XUI, xml_filename);
 
 	LLNotificationVisibilityRule::Rules params;
 	LLSimpleXUIParser parser;

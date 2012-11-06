@@ -114,7 +114,6 @@ class ViewerManifest(LLManifest):
 
             # skins
             if self.prefix(src="skins"):
-                    self.path("paths.xml")
                     # include the entire textures directory recursively
                     if self.prefix(src="*/textures"):
                             self.path("*/*.tga")
@@ -132,11 +131,18 @@ class ViewerManifest(LLManifest):
                     self.path("*/*.xml")
 
                     # Local HTML files (e.g. loading screen)
-                    if self.prefix(src="*/html"):
+                    # The claim is that we never use local html files any
+                    # longer. But rather than commenting out this block, let's
+                    # rename every html subdirectory as html.old. That way, if
+                    # we're wrong, a user actually does have the relevant
+                    # files; s/he just needs to rename every html.old
+                    # directory back to html to recover them.
+                    if self.prefix(src="*/html", dst="*/html.old"):
                             self.path("*.png")
                             self.path("*/*/*.html")
                             self.path("*/*/*.gif")
                             self.end_prefix("*/html")
+
                     self.end_prefix("skins")
 
             # local_assets dir (for pre-cached textures)

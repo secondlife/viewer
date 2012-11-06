@@ -123,7 +123,6 @@
 #include <boost/algorithm/string.hpp>
 
 
-
 #if LL_WINDOWS
 #	include <share.h> // For _SH_DENYWR in initMarkerFile
 #else
@@ -691,7 +690,7 @@ bool LLAppViewer::init()
 	gDirUtilp->initAppDirs("SecondLife");
 	// set skin search path to default, will be overridden later
 	// this allows simple skinned file lookups to work
-	gDirUtilp->setSkinFolder("default");
+	gDirUtilp->setSkinFolder("default", "en");
 
 	initLogging();
 	
@@ -775,12 +774,16 @@ bool LLAppViewer::init()
 		&LLUI::sGLScaleFactor);
 	LL_INFOS("InitInfo") << "UI initialized." << LL_ENDL ;
 
-	// Setup paths and LLTrans after LLUI::initClass has been called.
-	LLUI::setupPaths();
+	// NOW LLUI::getLanguage() should work. gDirUtilp must know the language
+	// for this session ASAP so all the file-loading commands that follow,
+	// that use findSkinnedFilenames(), will include the localized files.
+	gDirUtilp->setSkinFolder(gDirUtilp->getSkinFolder(), LLUI::getLanguage());
+
+	// Setup LLTrans after LLUI::initClass has been called.
 	LLTransUtil::parseStrings("strings.xml", default_trans_args);
 	LLTransUtil::parseLanguageStrings("language_settings.xml");
 
-	// Setup notifications after LLUI::setupPaths() has been called.
+	// Setup notifications after LLUI::initClass() has been called.
 	LLNotifications::instance();
 	LL_INFOS("InitInfo") << "Notifications initialized." << LL_ENDL ;
 
@@ -2252,8 +2255,7 @@ bool LLAppViewer::initConfiguration()
 		OSMessageBox(msg.str(),LLStringUtil::null,OSMB_OK);
 		return false;
 	}
-	
-	LLUI::setupPaths(); // setup paths for LLTrans based on settings files only
+
 	LLTransUtil::parseStrings("strings.xml", default_trans_args);
 	LLTransUtil::parseLanguageStrings("language_settings.xml");
 	// - set procedural settings
@@ -2569,13 +2571,15 @@ bool LLAppViewer::initConfiguration()
 		LLStartUp::setStartSLURL(start_slurl);
     }
 
-    const LLControlVariable* skinfolder = gSavedSettings.getControl("SkinCurrent");
-    if(skinfolder && LLStringUtil::null != skinfolder->getValue().asString())
-    {   
-		// hack to force the skin to default.
-        gDirUtilp->setSkinFolder(skinfolder->getValue().asString());
-		//gDirUtilp->setSkinFolder("default");
-    }
+	const LLControlVariable* skinfolder = gSavedSettings.getControl("SkinCurrent");
+	if(skinfolder && LLStringUtil::null != skinfolder->getValue().asString())
+	{	
+		// Examining "Language" may not suffice -- see LLUI::getLanguage()
+		// logic. Unfortunately LLUI::getLanguage() doesn't yet do us much
+		// good because we haven't yet called LLUI::initClass().
+		gDirUtilp->setSkinFolder(skinfolder->getValue().asString(),
+								 gSavedSettings.getString("Language"));
+	}
 
 	if (gSavedSettings.getBOOL("SpellCheck"))
 	{
@@ -3599,8 +3603,7 @@ void LLAppViewer::migrateCacheDirectory()
 	{
 		gSavedSettings.setBOOL("MigrateCacheDirectory", FALSE);
 
-		std::string delimiter = gDirUtilp->getDirDelimiter();
-		std::string old_cache_dir = gDirUtilp->getOSUserAppDir() + delimiter + "cache";
+		std::string old_cache_dir = gDirUtilp->add(gDirUtilp->getOSUserAppDir(), "cache");
 		std::string new_cache_dir = gDirUtilp->getCacheDir(true);
 
 		if (gDirUtilp->fileExists(old_cache_dir))
@@ -3616,8 +3619,8 @@ void LLAppViewer::migrateCacheDirectory()
 			while (iter.next(file_name))
 			{
 				if (file_name == "." || file_name == "..") continue;
-				std::string source_path = old_cache_dir + delimiter + file_name;
-				std::string dest_path = new_cache_dir + delimiter + file_name;
+				std::string source_path = gDirUtilp->add(old_cache_dir, file_name);
+				std::string dest_path = gDirUtilp->add(new_cache_dir, file_name);
 				if (!LLFile::rename(source_path, dest_path))
 				{
 					file_count++;
@@ -3848,7 +3851,7 @@ bool LLAppViewer::initCache()
 		LLDirIterator iter(dir, mask);
 		if (iter.next(found_file))
 		{
-			old_vfs_data_file = dir + gDirUtilp->getDirDelimiter() + found_file;
+			old_vfs_data_file = gDirUtilp->add(dir, found_file);
 
 			S32 start_pos = found_file.find_last_of('.');
 			if (start_pos > 0)
@@ -5163,20 +5166,20 @@ void LLAppViewer::launchUpdater()
 	// we tell the updater where to find the xml containing string
 	// translations which it can use for its own UI
 	std::string xml_strings_file = "strings.xml";
-	std::vector<std::string> xui_path_vec = LLUI::getXUIPaths();
+	std::vector<std::string> xui_path_vec =
+		gDirUtilp->findSkinnedFilenames(LLDir::XUI, xml_strings_file);
 	std::string xml_search_paths;
-	std::vector<std::string>::const_iterator iter;
+	const char* delim = "";
 	// build comma-delimited list of xml paths to pass to updater
-	for (iter = xui_path_vec.begin(); iter != xui_path_vec.end(); )
+	BOOST_FOREACH(std::string this_skin_path, xui_path_vec)
 	{
-		std::string this_skin_dir = gDirUtilp->getDefaultSkinDir()
-			+ gDirUtilp->getDirDelimiter()
-			+ (*iter);
-		llinfos << "Got a XUI path: " << this_skin_dir << llendl;
-		xml_search_paths.append(this_skin_dir);
-		++iter;
-		if (iter != xui_path_vec.end())
-			xml_search_paths.append(","); // comma-delimit
+		// Although we already have the full set of paths with the filename
+		// appended, the linux-updater.bin command-line switches require us to
+		// snip the filename OFF and pass it as a separate switch argument. :-P
+		llinfos << "Got a XUI path: " << this_skin_path << llendl;
+		xml_search_paths.append(delim);
+		xml_search_paths.append(gDirUtilp->getDirName(this_skin_path));
+		delim = ",";
 	}
 	// build the overall command-line to run the updater correctly
 	LLAppViewer::sUpdaterInfo->mUpdateExePath = 
