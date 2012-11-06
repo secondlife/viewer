@@ -187,7 +187,7 @@ BOOL LLIMConversation::postBuild()
 	mParticipantListPanel = getChild<LLLayoutPanel>("speakers_list_panel");
 	
 	// Create a root view folder for all participants
-	LLConversationItem* base_item = new LLConversationItem(mConversationViewModel);
+	LLConversationItem* base_item = new LLConversationItem(mSessionID, mConversationViewModel);
     LLFolderView::Params p(LLUICtrlFactory::getDefaultParams<LLFolderView>());
     p.rect = LLRect(0, 0, getRect().getWidth(), 0);
     p.parent_panel = mParticipantListPanel;
