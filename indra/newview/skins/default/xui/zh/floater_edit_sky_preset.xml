@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Edit Sky Preset" title="編輯天空自訂配置">
+	<string name="title_new">
+		建立新的天空自訂配置
+	</string>
+	<string name="title_edit">
+		編輯天空自訂配置
+	</string>
+	<string name="hint_new">
+		為自訂配置定名，調整各項控制確定配置細節，完成後點按「儲存」。
+	</string>
+	<string name="hint_edit">
+		若要編輯你的天空自訂配置，請調整各項控制，再點按「儲存」。
+	</string>
+	<string name="combo_label">
+		-選擇一個自訂配置-
+	</string>
+	<text name="hint">
+		若要編輯你的自訂配置，請調整各項控制，再點按「儲存」。
+	</text>
+	<text name="label">
+		自訂配置名稱：
+	</text>
+	<text name="note">
+		注意：更改自訂配置的名稱將會新建一個自訂配置，不會改變原有的自訂配置。
+	</text>
+	<tab_container name="WindLight Tabs">
+		<panel label="大氣" name="Atmosphere">
+			<text name="BHText">
+				藍天水平線
+			</text>
+			<text name="BDensText">
+				陰霾水平線
+			</text>
+			<text name="BDensText2">
+				藍天密度
+			</text>
+			<text name="HDText">
+				陰霾密度
+			</text>
+			<text name="DensMultText">
+				密度倍增
+			</text>
+			<text name="WLDistanceMultText">
+				距離倍增
+			</text>
+			<text name="MaxAltText">
+				最大高度
+			</text>
+		</panel>
+		<panel label="照明" name="Lighting">
+			<text name="SLCText">
+				日／月 顏色
+			</text>
+			<text name="WLAmbientText">
+				環境
+			</text>
+			<text name="SunGlowText">
+				太陽光輝
+			</text>
+			<slider label="聚焦" name="WLGlowB"/>
+			<slider label="尺寸" name="WLGlowR"/>
+			<text name="WLStarText">
+				星空亮度
+			</text>
+			<text name="SceneGammaText">
+				場景 Gamma 值
+			</text>
+			<text name="TODText">
+				日／月 位置
+			</text>
+			<multi_slider initial_value="0" name="WLSunPos"/>
+			<text name="WL12amHash">
+				|
+			</text>
+			<text name="WL6amHash">
+				|
+			</text>
+			<text name="WL12pmHash2">
+				|
+			</text>
+			<text name="WL6pmHash">
+				|
+			</text>
+			<text name="WL12amHash2">
+				|
+			</text>
+			<text name="WL12am">
+				午夜 12 點
+			</text>
+			<text name="WL6am">
+				上午 6 點
+			</text>
+			<text name="WL12pmHash">
+				中午 12 點
+			</text>
+			<text name="WL6pm">
+				下午 6 點
+			</text>
+			<text name="WL12am2">
+				午夜 12 點
+			</text>
+			<time name="WLDayTime" value="上午 6 點"/>
+			<text name="WLEastAngleText">
+				東升角度
+			</text>
+		</panel>
+		<panel label="雲彩" name="Clouds">
+			<text name="WLCloudColorText">
+				雲彩顏色
+			</text>
+			<text name="WLCloudColorText2">
+				雲彩 XY 軸 / 密度
+			</text>
+			<slider label="X" name="WLCloudX"/>
+			<slider label="Y" name="WLCloudY"/>
+			<slider label="D" name="WLCloudDensity"/>
+			<text name="WLCloudCoverageText">
+				雲彩覆蓋
+			</text>
+			<text name="WLCloudScaleText">
+				雲彩規模
+			</text>
+			<text name="WLCloudDetailText">
+				雲彩細節（XY 軸 / 密度）
+			</text>
+			<slider label="X" name="WLCloudDetailX"/>
+			<slider label="Y" name="WLCloudDetailY"/>
+			<slider label="D" name="WLCloudDetailDensity"/>
+			<text name="WLCloudScrollXText">
+				雲彩 X 滾軸
+			</text>
+			<check_box label="鎖定" name="WLCloudLockX"/>
+			<text name="WLCloudScrollYText">
+				雲彩 Y 滾軸
+			</text>
+			<check_box label="鎖定" name="WLCloudLockY"/>
+		</panel>
+	</tab_container>
+	<check_box label="根據這自訂配置變更我的天空設定" name="make_default_cb"/>
+	<button label="儲存" name="save"/>
+	<button label="取消" name="cancel"/>
+</floater>

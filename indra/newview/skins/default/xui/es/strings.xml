@@ -1390,6 +1390,12 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="InvFolder favorite">
 		Mis Favoritos
 	</string>
+	<string name="InvFolder Favorites">
+		Mis Favoritos
+	</string>
+	<string name="InvFolder favorites">
+		Mis Favoritos
+	</string>
 	<string name="InvFolder Current Outfit">
 		Vestuario actual
 	</string>
@@ -1404,6 +1410,12 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	</string>
 	<string name="InvFolder Meshes">
 		Redes
+	</string>
+	<string name="InvFolder Received Items">
+		Objetos recibidos
+	</string>
+	<string name="InvFolder Merchant Outbox">
+		Buzón de salida de comerciante
 	</string>
 	<string name="InvFolder Friends">
 		Amigos

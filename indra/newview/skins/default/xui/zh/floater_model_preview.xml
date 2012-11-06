@@ -3,6 +3,9 @@
 	<string name="status_idle">
 		閒置中
 	</string>
+	<string name="status_parse_error">
+		剖析 dae 時出錯，詳見記錄檔。
+	</string>
 	<string name="status_reading_file">
 		載入中...
 	</string>
@@ -11,6 +14,9 @@
 	</string>
 	<string name="status_vertex_number_overflow">
 		錯誤：頂點數目超過 65534，程序已中止！
+	</string>
+	<string name="bad_element">
+		錯誤：無效的元件
 	</string>
 	<string name="high">
 		高
@@ -54,6 +60,9 @@
 	<string name="simplifying">
 		簡化中…
 	</string>
+	<string name="tbd">
+		（未定）
+	</string>
 	<text name="name_label">
 		名稱：
 	</text>
@@ -74,23 +83,26 @@
 			細節層次：最低
 		</combo_item>
 	</combo_box>
-	<panel>
-		<text name="streaming cost">
-			資源花費：[COST]
-		</text>
-		<text name="physics cost">
-			物理花費：[COST]
-		</text>
-		<text name="upload fee">
-			上傳費：無
-		</text>
-	</panel>
-	<text name="status">
-		[STATUS]
+	<text name="warning_title">
+		警告：
 	</text>
-	<button label="預設值" name="reset_btn" tool_tip="重設為預設值"/>
-	<button label="上傳" name="ok_btn" tool_tip="上傳至模擬器"/>
-	<button label="取消" name="cancel_btn"/>
+	<text name="warning_message">
+		你將無法完成將這模型上傳到第二人生伺服器的最後手續。 [[VURL] 瞭解如何]啟用網面模型上傳。
+	</text>
+	<text name="weights_text">
+		下載：
+身體物理：
+伺服器：
+
+幾何元件等值物：
+	</text>
+	<text name="weights">
+		[ST]
+[PH]
+[SIM]
+
+[EQ]
+	</text>
 	<tab_container name="import_tab">
 		<panel label="細節層次" name="lod_panel">
 			<text name="lod_table_header">
@@ -228,4 +240,11 @@
 			<spinner name="pelvis_offset" value="0.0"/>
 		</panel>
 	</tab_container>
+	<text name="upload_fee">
+		上傳費用：L$ [FEE]
+	</text>
+	<button label="設為預設值" name="reset_btn" tool_tip="設為預設值"/>
+	<button label="計算重量和費用" name="calculate_btn" tool_tip="計算重量和費用"/>
+	<button label="上傳" name="ok_btn" tool_tip="上傳至模擬器"/>
+	<button label="取消" name="cancel_btn"/>
 </floater>

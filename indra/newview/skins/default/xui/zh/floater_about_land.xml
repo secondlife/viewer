@@ -132,12 +132,12 @@
 				0
 			</text>
 			<button label="購買土地" name="Buy Land..."/>
+			<button label="Linden 出售" name="Linden Sale..." tool_tip="土地必須有人擁有、已設有內容，並且不在拍賣中。"/>
 			<button label="腳本資訊" name="Scripts..."/>
 			<button label="為群組購買" name="Buy For Group..."/>
 			<button label="購買通行權" name="Buy Pass..." tool_tip="通行權允許你暫時可出入這塊土地。"/>
 			<button label="放棄土地" name="Abandon Land..."/>
 			<button label="收回土地" name="Reclaim Land..."/>
-			<button label="Linden 出售" name="Linden Sale..." tool_tip="土地必須有人擁有、已設有內容，並且不在拍賣中。"/>
 		</panel>
 		<panel label="契約" name="land_covenant_panel">
 			<panel.string name="can_resell">
@@ -306,6 +306,9 @@
 			<panel.string name="push_restrict_region_text">
 				禁止推撞（地區設定覆蓋）
 			</panel.string>
+			<panel.string name="see_avs_text">
+				察看本地段的居民，和他們交談
+			</panel.string>
 			<text name="allow_label">
 				允許其他居民去：
 			</text>
@@ -368,6 +371,10 @@
 				快照：
 			</text>
 			<texture_picker name="snapshot_ctrl" tool_tip="點按以挑選圖片"/>
+			<text name="allow_label5">
+				允許其他地段的居民：
+			</text>
+			<check_box label="察看化身" name="SeeAvatarsCheck" tool_tip="允許其他地段的居民看到你和本地段的居民，並可互相交談。"/>
 			<text name="landing_point">
 				登陸點：[LANDING]
 			</text>
@@ -424,6 +431,11 @@
 				聲音：
 			</text>
 			<check_box label="將姿勢和物件的聲音限制於此地段" name="check sound local"/>
+			<text name="Avatar Sounds:">
+				化身聲音：
+			</text>
+			<check_box label="任何人" name="all av sound check"/>
+			<check_box label="群組" name="group av sound check"/>
 			<text name="Voice settings:">
 				語音：
 			</text>

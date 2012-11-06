@@ -30,5 +30,5 @@
 	<button label="En Çok Çarpışanlar..." name="top_colliders_btn" tool_tip="En çok potansiyel çarpışma yaşayan nesnelerin listesi"/>
 	<button label="En Çok Komut Dsy. Çalştr...." name="top_scripts_btn" tool_tip="Komut dosyalarını çalıştırırken en çok zaman harcayan nesnelerin listesi"/>
 	<button label="Bölgeyi Yeniden Başlat" name="restart_btn" tool_tip="2 dakikalık bir geri sayımdan sonra bölgeyi yeniden başlat"/>
-	<button label="Yeniden Başlatmayı İptal Et" name="cancel_restart_btn" tool_tip="Bölgenin yeniden başlatılmasını 1 saat ertele"/>
+	<button label="Yeniden Başlatmayı İptal Et" name="cancel_restart_btn" tool_tip="Bölge yeniden başlatmasını iptal et"/>
 </panel>

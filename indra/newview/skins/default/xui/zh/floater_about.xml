@@ -42,15 +42,20 @@ Qt Webkit 版本： [QT_WEBKIT_VERSION]
 			<button label="覆製到剪貼簿" name="copy_btn"/>
 		</panel>
 		<panel label="貸記" name="credits_panel">
-			<text_editor name="credits_editor">
-				「第二人生」由……等多人協力開發。
-
-感謝下列居民相助，我們得以推出如此完美的版本：……。要感謝的人還很多，族繁不及備載。
-
-
-
-
-「任務永續，目標常在，希望長存，夢想萬古不朽。」——愛德華・甘迺迪
+			<text name="linden_intro">
+				「第二人生」由以下的 Linden 家族帶給你：
+			</text>
+			<text name="contrib_intro">
+				這些人士做了開放源碼的貢獻：
+			</text>
+			<text_editor name="contrib_names">
+				執行時期被取代的假名稱
+			</text_editor>
+			<text name="trans_intro">
+				以下人士提供翻譯：
+			</text>
+			<text_editor name="trans_names">
+				執行時期被取代的假名稱
 			</text_editor>
 		</panel>
 		<panel label="許可" name="licenses_panel">

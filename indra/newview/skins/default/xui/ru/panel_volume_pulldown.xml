@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="volumepulldown_floater">
+	<slider label="Общая" name="System Volume"/>
+	<slider label="Кнопки" name="UI Volume"/>
+	<slider label="Окружающая" name="Wind Volume"/>
+	<slider label="Звуки" name="SFX Volume"/>
+	<check_box name="gesture_audio_play_btn" tool_tip="Включить звуки от жестов"/>
+	<slider label="Музыка" name="Music Volume"/>
+	<check_box name="enable_music" tool_tip="Включить потоковую музыку"/>
+	<slider label="Медиа" name="Media Volume"/>
+	<check_box name="enable_media" tool_tip="Включить потоковое медиа"/>
+	<slider label="Голос" name="Voice Volume"/>
+	<check_box name="enable_voice_check" tool_tip="Включить голосовой чат"/>
+</panel>

@@ -34,6 +34,9 @@
 	<string name="StartupInitializingVFS">
 		VFS 初始化中...
 	</string>
+	<string name="StartupRequireDriverUpdate">
+		顯像初始化失敗。 請更新你的顯像卡驅動程式！
+	</string>
 	<string name="ProgressRestoring">
 		回存中...
 	</string>
@@ -90,6 +93,12 @@
 	</string>
 	<string name="LoginQuicktimeOK">
 		QuickTime 已成功初始化。
+	</string>
+	<string name="LoginRequestSeedCapGrant">
+		詢問地區負荷力…
+	</string>
+	<string name="LoginRetrySeedCapGrant">
+		詢問地區負荷力，第 [NUMBER] 次嘗試…
 	</string>
 	<string name="LoginWaitingForRegionHandshake">
 		地區交握等待中...
@@ -325,6 +334,18 @@ http://secondlife.com/viewer-access-faq
 		只有一個物品可以被拖曳到此處
 	</string>
 	<string name="TooltipPrice" value="L$[AMOUNT]："/>
+	<string name="TooltipOutboxNoTransfer">
+		有些物件無法出售或轉移給另一位使用者。
+	</string>
+	<string name="TooltipOutboxWorn">
+		你目前穿著這些物件中至少一件。 請先從你的化身身上卸下，再嘗試加以移動。
+	</string>
+	<string name="TooltipOutboxFolderLevels">
+		此資料夾裡子目錄的層次太深。 請重新整理資料夾，最多可容許 4 層的深度（例：根目錄下有 A，A 底下有 B，B 底下有 C）。
+	</string>
+	<string name="TooltipOutboxTooManyObjects">
+		資料夾包含超過 200 個物件。 請將其中一些裝箱，減少物件數目。
+	</string>
 	<string name="TooltipHttpUrl">
 		點按以察看這個網頁
 	</string>
@@ -1184,6 +1205,69 @@ http://secondlife.com/viewer-access-faq
 	<string name="InventoryNoTexture">
 		你的收納區裡沒有這個材質的副本
 	</string>
+	<string name="InventoryInboxNoItems">
+		從第二人生購物市集購得的物項將送到這裡。
+	</string>
+	<string name="MarketplaceURL">
+		http://marketplace.[DOMAIN_NAME]
+	</string>
+	<string name="MarketplaceURL_CreateStore">
+		http://marketplace.[DOMAIN_NAME]/create_store
+	</string>
+	<string name="MarketplaceURL_LearnMore">
+		http://marketplace.[DOMAIN_NAME]/learn_more
+	</string>
+	<string name="InventoryOutboxCreationErrorTitle">
+		你的商家發件匣設置不正常。
+	</string>
+	<string name="InventoryOutboxCreationErrorTooltip">
+		商家發件匣設置錯誤
+	</string>
+	<string name="InventoryOutboxCreationError">
+		請聯絡客服人員解決問題。
+	</string>
+	<string name="InventoryOutboxNotMerchantTitle">
+		任何人都可在第二人生購物市集出售物品
+	</string>
+	<string name="InventoryOutboxNotMerchantTooltip">
+		成為商家！
+	</string>
+	<string name="InventoryOutboxNotMerchant">
+		[[MARKETPLACE_URL] 第二人生購物市集]提供一百多萬種可供選購的虛擬產品，全都由居民一手打造。 你不但可以出售你自己創造的物件，也可以轉售你所購買的部分物件。 手續簡便，免費啟用。  [[LEARN_MORE_URL] 獲知詳情]，或在第二人生購物市集[[CREATE_STORE_URL] 開設商店]，立即行動。
+	</string>
+	<string name="InventoryOutboxNoItemsTitle">
+		將物項送往第二人生購物市集的新方法
+	</string>
+	<string name="InventoryOutboxNoItemsTooltip">
+		將物項拖曳並置放到這裡，準備在第二人生購物市集出售
+	</string>
+	<string name="InventoryOutboxNoItems">
+		將你想要出售的物項或資料夾拖曳到這個區域。  該物項將出現複製版本，不會影響你的收納區，除非你拖曳的是不可複製的物項。  你若準備好將物項送往第二人生購物市集，請點按上傳按鈕。 當物項被移往你的第二人生購物市集存貨區後，將從這個資料夾消失。
+	</string>
+	<string name="Marketplace Error None">
+		零錯誤
+	</string>
+	<string name="Marketplace Error Not Merchant">
+		發生錯誤：將物項送往第二人生購物市集之前，你必須取得商家的身份（免費）。
+	</string>
+	<string name="Marketplace Error Empty Folder">
+		錯誤：此資料夾沒有內容。
+	</string>
+	<string name="Marketplace Error Unassociated Products">
+		錯誤：此物項上傳失敗，因為你的商家帳戶有太多和產品無關聯的物項。  要解決這個問題，請登入第二人生購物市集網站，減低你的無關聯物項數目。
+	</string>
+	<string name="Marketplace Error Object Limit">
+		錯誤：此物項包含太多物件。  要解決這錯誤，請將物件裝箱，使總物件數目不超過 200。
+	</string>
+	<string name="Marketplace Error Folder Depth">
+		錯誤：此物項含有太多層的巢狀資料夾。  請加以重新整理，至多允許 3 層的巢狀資料夾。
+	</string>
+	<string name="Marketplace Error Unsellable Item">
+		錯誤：此物項無法在第二人生購物市集出售。
+	</string>
+	<string name="Marketplace Error Internal Import">
+		錯誤：這個物項有問題。  請稍候再試一次。
+	</string>
 	<string name="no_transfer" value="（禁止轉讓）"/>
 	<string name="no_modify" value="（禁止修改）"/>
 	<string name="no_copy" value="（禁止複製）"/>
@@ -1229,9 +1313,6 @@ http://secondlife.com/viewer-access-faq
 	<string name="Since Logoff" value="- 自上次登出"/>
 	<string name="InvFolder My Inventory">
 		我的收納區
-	</string>
-	<string name="InvFolder My Favorites">
-		我的最愛
 	</string>
 	<string name="InvFolder Library">
 		資源庫
@@ -1316,6 +1397,9 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="InvFolder All">
 		全部
+	</string>
+	<string name="no_attachments">
+		未穿著任何附件
 	</string>
 	<string name="Buy">
 		購買
@@ -1626,6 +1710,9 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="SummaryForTheWeek" value="本週摘要，起始日："/>
 	<string name="NextStipendDay" value="下一個發薪日為"/>
+	<string name="GroupPlanningDate">
+		[mthnum,datetime,utc]/[day,datetime,utc]/[year,datetime,utc]
+	</string>
 	<string name="GroupIndividualShare" value="群組       個人份額"/>
 	<string name="GroupColumn" value="群組"/>
 	<string name="Balance">
@@ -1651,6 +1738,9 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="IMTeen">
 		青少年
+	</string>
+	<string name="Anyone">
+		任何人
 	</string>
 	<string name="RegionInfoError">
 		錯誤
@@ -1874,6 +1964,12 @@ http://secondlife.com/viewer-access-faq
 	<string name="Public">
 		公開
 	</string>
+	<string name="LocalSettings">
+		本地設定
+	</string>
+	<string name="RegionSettings">
+		地區設定
+	</string>
 	<string name="ClassifiedClicksTxt">
 		點按：[TELEPORT] 瞬間傳送，[MAP] 地圖，[PROFILE] 檔案
 	</string>
@@ -1945,6 +2041,9 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="GroupMoneyDebits">
 		借記
+	</string>
+	<string name="GroupMoneyDate">
+		[weekday,datetime,utc] [mth,datetime,utc] [day,datetime,utc], [year,datetime,utc]
 	</string>
 	<string name="ViewerObjectContents">
 		內容
@@ -3719,6 +3818,9 @@ http://secondlife.com/viewer-access-faq
 	<string name="LocationCtrlGeneralIconTooltip">
 		一般普級地區
 	</string>
+	<string name="LocationCtrlSeeAVsTooltip">
+		可看到本地段外的化身，並與之交談
+	</string>
 	<string name="UpdaterWindowTitle">
 		[APP_NAME] 更新
 	</string>
@@ -4143,6 +4245,87 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="Female - Wow">
 		女性 - 哇塞
+	</string>
+	<string name="/bow1">
+		/彎腰點頭1
+	</string>
+	<string name="/clap">
+		/拍手
+	</string>
+	<string name="/count">
+		/計數
+	</string>
+	<string name="/extinguish">
+		/熄菸
+	</string>
+	<string name="/kmb">
+		/給我一個吻
+	</string>
+	<string name="/muscle">
+		/肌肉
+	</string>
+	<string name="/no">
+		/不
+	</string>
+	<string name="/no!">
+		/不！
+	</string>
+	<string name="/paper">
+		/布
+	</string>
+	<string name="/pointme">
+		/指自己
+	</string>
+	<string name="/pointyou">
+		/指向你
+	</string>
+	<string name="/rock">
+		/石頭
+	</string>
+	<string name="/scissor">
+		/剪刀
+	</string>
+	<string name="/smoke">
+		/抽菸
+	</string>
+	<string name="/stretch">
+		/伸展
+	</string>
+	<string name="/whistle">
+		/吹口哨
+	</string>
+	<string name="/yes">
+		/是
+	</string>
+	<string name="/yes!">
+		/是！
+	</string>
+	<string name="afk">
+		暫時離開
+	</string>
+	<string name="dance1">
+		跳舞1
+	</string>
+	<string name="dance2">
+		跳舞2
+	</string>
+	<string name="dance3">
+		跳舞3
+	</string>
+	<string name="dance4">
+		跳舞4
+	</string>
+	<string name="dance5">
+		跳舞5
+	</string>
+	<string name="dance6">
+		跳舞6
+	</string>
+	<string name="dance7">
+		跳舞7
+	</string>
+	<string name="dance8">
+		跳舞8
 	</string>
 	<string name="AvatarBirthDateFormat">
 		[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_search" title="尋找">
+<floater name="floater_search" title="">
 	<floater.string name="loading_text">
 		載入中...
 	</floater.string>

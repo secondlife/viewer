@@ -29,6 +29,7 @@
 		<menu_item_call label="我的群組" name="My Groups"/>
 		<menu_item_check label="附近的聊天" name="Nearby Chat"/>
 		<menu_item_call label="附近的人群" name="Active Speakers"/>
+		<menu_item_check label="附近的語音" name="Nearby Voice"/>
 	</menu>
 	<menu label="世界" name="World">
 		<menu_item_check label="迷你地圖" name="Mini-Map"/>
@@ -61,8 +62,24 @@
 			<menu_item_call label="中午" name="Noon"/>
 			<menu_item_call label="日落" name="Sunset"/>
 			<menu_item_call label="午夜" name="Midnight"/>
-			<menu_item_call label="領地時間" name="Revert to Region Default"/>
-			<menu_item_call label="環境編輯器" name="Environment Editor"/>
+		</menu>
+		<menu label="環境編輯器" name="Enviroment Editor">
+			<menu_item_call label="環境設定…" name="Enviroment Settings"/>
+			<menu label="水的自訂配置" name="Water Presets">
+				<menu_item_call label="新的自訂配置…" name="new_water_preset"/>
+				<menu_item_call label="編輯自訂配置…" name="edit_water_preset"/>
+				<menu_item_call label="刪除自訂配置…" name="delete_water_preset"/>
+			</menu>
+			<menu label="天空自訂配置" name="Sky Presets">
+				<menu_item_call label="新的自訂配置…" name="new_sky_preset"/>
+				<menu_item_call label="編輯自訂配置…" name="edit_sky_preset"/>
+				<menu_item_call label="刪除自訂配置…" name="delete_sky_preset"/>
+			</menu>
+			<menu label="日的自訂配置" name="Day Presets">
+				<menu_item_call label="新的自訂配置…" name="new_day_preset"/>
+				<menu_item_call label="編輯自訂配置…" name="edit_day_preset"/>
+				<menu_item_call label="刪除自訂配置…" name="delete_day_preset"/>
+			</menu>
 		</menu>
 	</menu>
 	<menu label="建造" name="BuildTools">
@@ -119,7 +136,6 @@
 			<menu_item_call label="聲音（L$[COST]）..." name="Upload Sound"/>
 			<menu_item_call label="動作（L$[COST]）..." name="Upload Animation"/>
 			<menu_item_call label="模型…" name="Upload Model"/>
-			<menu_item_call label="模型精靈…" name="Upload Model Wizard"/>
 			<menu_item_call label="批量（每檔案 L$[COST] ）..." name="Bulk Upload"/>
 			<menu_item_call label="設定預設上傳權限" name="perm prefs"/>
 		</menu>
@@ -141,7 +157,6 @@
 		<menu_item_check label="取消鏡頭限制" name="Disable Camera Distance"/>
 		<menu_item_check label="高解析度快照" name="HighResSnapshot"/>
 		<menu_item_check label="靜音拍攝快照到硬碟" name="QuietSnapshotsToDisk"/>
-		<menu_item_check label="壓縮快照存到硬碟" name="CompressSnapshotsToDisk"/>
 		<menu label="效能工具" name="Performance Tools">
 			<menu_item_call label="Lag 測量器" name="Lag Meter"/>
 			<menu_item_check label="統計列" name="Statistics Bar"/>
@@ -236,6 +251,7 @@
 			<menu_item_check label="顯示矩陣" name="Show Matrices"/>
 			<menu_item_check label="游標下顯示顏色" name="Show Color Under Cursor"/>
 			<menu_item_check label="顯示記憶體" name="Show Memory"/>
+			<menu_item_check label="顯示私區記憶體資訊" name="Show Private Mem Info"/>
 			<menu_item_check label="顯示更新到物件" name="Show Updates"/>
 		</menu>
 		<menu label="強制錯誤" name="Force Errors">
