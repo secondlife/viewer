@@ -331,6 +331,7 @@ void LLIMFloaterContainer::onExpandCollapseButtonClicked()
 	{
 		collapseConversationsPane(!mConversationsPane->isCollapsed());
 	}
+	selectConversation(mSelectedSession);
 }
 
 LLIMFloaterContainer* LLIMFloaterContainer::findInstance()
