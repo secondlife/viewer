@@ -31,6 +31,7 @@
       width="996"/>
   <layout_stack
       animate="false"
+      clip="false"
       follows="left|bottom|right"
       name="login_widgets"
       layout="topleft"
@@ -68,12 +69,16 @@
           width="150">
         Username:
       </text>
+      <!-- STEAM-14: Turn off commit_on_focus_lost so if user presses Enter
+           with focus in this combo_box, we can use commit action to initiate
+           login -->
       <combo_box
           allow_text_entry="true"
           follows="left|bottom"
           height="22"
           left_delta="0"
           max_chars="128"
+          commit_on_focus_lost="false"
           combo_editor.prevalidate_callback="ascii"
           tool_tip="The username you chose when you registered, like bobsmith12 or Steller Sunshine"
           top_pad="0"
@@ -96,6 +101,9 @@
           width="150">
         Password:
       </text>
+      <!-- STEAM-14: Turn off commit_on_focus_lost so if user presses Enter
+           with focus in this line_editor, we can use commit action to
+           initiate login -->
       <line_editor
           follows="left|bottom"
           height="22"
@@ -103,6 +111,7 @@
           name="password_edit"
           is_password="true" 
           select_on_focus="true"
+          commit_on_focus_lost="false"
           top_pad="0"
           width="135" />
     </layout_panel>
@@ -223,7 +232,7 @@
         follows="right|bottom"
         name="links" 
         width="210"
-        min_width="210"
+        min_width="100"
         height="80">
       <text
           follows="right|bottom"

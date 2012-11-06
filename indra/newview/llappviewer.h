@@ -194,6 +194,7 @@ private:
 	void initMaxHeapSize();
 	bool initThreads(); // Initialize viewer threads, return false on failure.
 	bool initConfiguration(); // Initialize settings from the command line/config file.
+	void initStrings();       // Initialize LLTrans machinery
 	void initUpdater(); // Initialize the updater service.
 	bool initCache(); // Initialize local client cache.
 	void checkMemory() ;

@@ -128,7 +128,7 @@
 		結束退出
 	</string>
 	<string name="create_account_url">
-		http://join.secondlife.com/
+		http://join.secondlife.com/?sourceid=[sourceid]
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		你目前所用的 Viewer 已經無法再進入第二人生。 請到這個頁面下載最新 Viewer：
