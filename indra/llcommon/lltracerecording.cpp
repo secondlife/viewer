@@ -52,9 +52,8 @@ Recording::~Recording()
 void Recording::update()
 {
 	if (isStarted())
-{
+	{
 		LLTrace::get_thread_recorder()->update(this);
-		mElapsedSeconds = 0.0;
 		mSamplingTimer.reset();
 	}
 }

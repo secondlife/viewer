@@ -35,7 +35,7 @@ namespace LLInitParam
 
 	predicate_rule_t default_parse_rules() 
 	{ 
-		return ll_make_predicate(PROVIDED) && !ll_make_predicate(EMPTY) && !ll_make_predicate(HAS_DEFAULT_VALUE); 
+		return ll_make_predicate(PROVIDED) && !ll_make_predicate(EMPTY);
 	}
 
 	//

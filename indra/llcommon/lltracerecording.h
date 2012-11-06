@@ -53,15 +53,19 @@ public:
 	void restart();
 	void reset();
 
-	bool isStarted() { return mPlayState == STARTED; }
-	bool isPaused()  { return mPlayState == PAUSED; }
-	bool isStopped() { return mPlayState == STOPPED; }
-	EPlayState getPlayState() { return mPlayState; }
+	bool isStarted() const { return mPlayState == STARTED; }
+	bool isPaused() const  { return mPlayState == PAUSED; }
+	bool isStopped() const { return mPlayState == STOPPED; }
+	EPlayState getPlayState() const { return mPlayState; }
 
 protected:
 	LLStopWatchControlsMixinCommon()
 	:	mPlayState(STOPPED)
 	{}
+
+	// derived classes can call this from their constructor in order
+	// to enforce invariants
+	void forceState(EPlayState state) { mPlayState = state; }
 
 private:
 	// trigger data accumulation (without reset)
@@ -102,6 +106,23 @@ namespace LLTrace
 	public:
 		Recording();
 
+		Recording(const Recording& other)
+		{
+			mSamplingTimer = other.mSamplingTimer;
+			mElapsedSeconds = other.mElapsedSeconds;
+			mCountsFloat = other.mCountsFloat;
+			mMeasurementsFloat = other.mMeasurementsFloat;
+			mCounts = other.mCounts;
+			mMeasurements = other.mMeasurements;
+			mStackTimers = other.mStackTimers;
+
+			if (other.isStarted())
+			{
+				handleStart();
+			}
+
+			forceState(other.getPlayState());
+		}
 		~Recording();
 
 		void makePrimary();

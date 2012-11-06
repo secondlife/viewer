@@ -246,9 +246,11 @@ LLViewerAssetStats::LLViewerAssetStats()
 LLViewerAssetStats::LLViewerAssetStats(const LLViewerAssetStats & src)
 :	mRegionHandle(src.mRegionHandle),
 	mPhaseStats(src.mPhaseStats),
-	mAvatarRezStates(src.mAvatarRezStates),
-	mRegionRecordings(src.mRegionRecordings)
+	mAvatarRezStates(src.mAvatarRezStates)
 {
+	src.mCurRecording->update();
+	mRegionRecordings = src.mRegionRecordings;
+	
 	mCurRecording = &mRegionRecordings[mRegionHandle];
 }
 
@@ -294,14 +296,17 @@ void LLViewerAssetStats::recordAvatarStats()
 	mPhaseStats["cloud-or-gray"] = LLViewerStats::PhaseMap::getPhaseStats("cloud-or-gray");
 }
 
-void LLViewerAssetStats::getStats(AssetStats& stats, bool compact_output)
+void LLViewerAssetStats::updateStats()
 {
-	using namespace LLViewerAssetStatsFF;
-
-	if (mCurRecording)
+	if (mCurRecording && mCurRecording->isStarted())
 	{
 		mCurRecording->update();
 	}
+}
+
+void LLViewerAssetStats::getStats(AssetStats& stats, bool compact_output)
+{
+	using namespace LLViewerAssetStatsFF;
 	
 	stats.regions.setProvided();
 	
@@ -463,25 +468,6 @@ LLSD LLViewerAssetStats::asLLSD(bool compact_output)
 
 namespace LLViewerAssetStatsFF
 {
-//
-// Target thread is elaborated in the function name.  This could
-// have been something 'templatey' like specializations iterated
-// over a set of constants but with so few, this is clearer I think.
-//
-// As for the threads themselves... rather than do fine-grained
-// locking as we gather statistics, this code creates a collector
-// for each thread, allocated and run independently.  Logging
-// happens at relatively infrequent intervals and at that time
-// the data is sent to a single thread to be aggregated into
-// a single entity with locks, thread safety and other niceties.
-//
-// A particularly fussy implementation would distribute the
-// per-thread pointers across separate cache lines.  But that should
-// be beyond current requirements.
-//
-
-// 'main' thread - initial program thread
-
 void set_region(LLViewerAssetStats::region_handle_t region_handle)
 {
 	if (! gViewerAssetStats)

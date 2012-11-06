@@ -192,43 +192,12 @@ public:
 	// Avatar-related statistics
 	void recordAvatarStats();
 
+	// gather latest metrics data
+	// call from main thread
+	void updateStats();
+
 	// Retrieve current metrics for all visited regions (NULL region UUID/handle excluded)
-    // Returned LLSD is structured as follows:
-	//
-	// &stats_group = {
-	//   enqueued   : int,
-	//   dequeued   : int,
-	//   resp_count : int,
-	//   resp_min   : float,
-	//   resp_max   : float,
-	//   resp_mean  : float
-	// }
-	//
-	// &mmm_group = {
-	//   count : int,
-	//   min   : float,
-	//   max   : float,
-	//   mean  : float
-	// }
-	//
-	// {
-	//   duration: int
-	//   regions: {
-	//     $: {			// Keys are strings of the region's handle in hex
-	//       duration:                 : int,
-	//		 fps:					   : &mmm_group,
-	//       get_texture_temp_http     : &stats_group,
-	//       get_texture_temp_udp      : &stats_group,
-	//       get_texture_non_temp_http : &stats_group,
-	//       get_texture_non_temp_udp  : &stats_group,
-	//       get_wearable_udp          : &stats_group,
-	//       get_sound_udp             : &stats_group,
-	//       get_gesture_udp           : &stats_group,
-	//       get_other                 : &stats_group
-	//     }
-	//   }
-	// }
-	//
+    // Uses AssetStats structure seen above
 	void getStats(AssetStats& stats, bool compact_output);
 	LLSD asLLSD(bool compact_output);
 

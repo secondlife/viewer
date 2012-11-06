@@ -5244,6 +5244,8 @@ void LLAppViewer::metricsSend(bool enable_reporting)
 			// Make a copy of the main stats to send into another thread.
 			// Receiving thread takes ownership.
 			LLViewerAssetStats * main_stats(new LLViewerAssetStats(*gViewerAssetStats));
+
+			main_stats->updateStats();
 			
 			// Send a report request into 'thread1' to get the rest of the data
 			// and provide some additional parameters while here.

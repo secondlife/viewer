@@ -38,9 +38,9 @@
 
 #include <list>
 
-#define TOKEN_PASTE_ACTUAL(x, y) x##y
-#define TOKEN_PASTE(x, y) TOKEN_PASTE_ACTUAL(x, y)
-#define RECORD_BLOCK_TIME(block_timer) LLTrace::BlockTimer::Recorder TOKEN_PASTE(block_time_recorder, __COUNTER__)(block_timer);
+#define LL_TOKEN_PASTE_ACTUAL(x, y) x##y
+#define LL_TOKEN_PASTE(x, y) LL_TOKEN_PASTE_ACTUAL(x, y)
+#define LL_RECORD_BLOCK_TIME(block_timer) LLTrace::BlockTimer::Recorder LL_TOKEN_PASTE(block_time_recorder, __COUNTER__)(block_timer);
 
 namespace LLTrace
 {
@@ -93,13 +93,16 @@ namespace LLTrace
 
 	public:
 
-		// copying an accumulator buffer does not copy the actual contents, but simply initializes the buffer size
-		// to be identical to the other buffer
 		AccumulatorBuffer(const AccumulatorBuffer& other = getDefaultBuffer())
 		:	mStorageSize(other.mStorageSize),
 			mStorage(new ACCUMULATOR[other.mStorageSize]),
 			mNextStorageSlot(other.mNextStorageSlot)
-		{}
+		{
+			for (S32 i = 0; i < mNextStorageSlot; i++)
+			{
+				mStorage[i] = other.mStorage[i];
+			}
+		}
 
 		~AccumulatorBuffer()
 		{

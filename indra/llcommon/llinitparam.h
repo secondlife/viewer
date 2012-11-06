@@ -919,17 +919,8 @@ namespace LLInitParam
 				predicate.set(HAS_DEFAULT_VALUE);
 			}
 
-			if (typed_param.isValid())
-			{
-				predicate.set(VALID, true);
-				predicate.set(PROVIDED, typed_param.anyProvided());
-			}
-			else
-			{
-				predicate.set(VALID, false);
-				predicate.set(PROVIDED, false);
-			}
-
+			predicate.set(VALID, typed_param.isValid());
+			predicate.set(PROVIDED, typed_param.anyProvided());
 			predicate.set(EMPTY, false);
 
 			if (!predicate_rule.check(predicate)) return false;
@@ -1014,15 +1005,15 @@ namespace LLInitParam
 	};
 
 	// parameter that is a block
-	template <typename T, typename NAME_VALUE_LOOKUP>
-	class TypedParam<T, NAME_VALUE_LOOKUP, false, true> 
+	template <typename BLOCK_T, typename NAME_VALUE_LOOKUP>
+	class TypedParam<BLOCK_T, NAME_VALUE_LOOKUP, false, true> 
 	:	public Param,
-		public ParamValue<T, NAME_VALUE_LOOKUP>
+		public ParamValue<BLOCK_T, NAME_VALUE_LOOKUP>
 	{
 	public:
-		typedef ParamValue<T, NAME_VALUE_LOOKUP>				param_value_t;
+		typedef ParamValue<BLOCK_T, NAME_VALUE_LOOKUP>				param_value_t;
 		typedef typename param_value_t::value_assignment_t		value_assignment_t;
-		typedef TypedParam<T, NAME_VALUE_LOOKUP, false, true>	self_t;
+		typedef TypedParam<BLOCK_T, NAME_VALUE_LOOKUP, false, true>	self_t;
 		typedef NAME_VALUE_LOOKUP								name_value_lookup_t;
 
 		using param_value_t::operator();
@@ -1081,16 +1072,8 @@ namespace LLInitParam
 
 			LLPredicate::Value<ESerializePredicates> predicate;
 
-			if (typed_param.isValid())
-			{
-				predicate.set(VALID, true);
-				predicate.set(PROVIDED, typed_param.anyProvided());
-			}
-			else
-			{
-				predicate.set(VALID, false);
-				predicate.set(PROVIDED, false);
-			}
+			predicate.set(VALID, typed_param.isValid());
+			predicate.set(PROVIDED, typed_param.anyProvided());
 
 			if (!predicate_rule.check(predicate)) return false;
 
@@ -1187,13 +1170,13 @@ namespace LLInitParam
 	};
 
 	// container of non-block parameters
-	template <typename VALUE_TYPE, typename NAME_VALUE_LOOKUP>
-	class TypedParam<VALUE_TYPE, NAME_VALUE_LOOKUP, true, false> 
+	template <typename MULTI_VALUE_T, typename NAME_VALUE_LOOKUP>
+	class TypedParam<MULTI_VALUE_T, NAME_VALUE_LOOKUP, true, false> 
 	:	public Param
 	{
 	public:
-		typedef TypedParam<VALUE_TYPE, NAME_VALUE_LOOKUP, true, false>		self_t;
-		typedef ParamValue<VALUE_TYPE, NAME_VALUE_LOOKUP>					param_value_t;
+		typedef TypedParam<MULTI_VALUE_T, NAME_VALUE_LOOKUP, true, false>		self_t;
+		typedef ParamValue<MULTI_VALUE_T, NAME_VALUE_LOOKUP>					param_value_t;
 		typedef typename std::vector<param_value_t>							container_t;
 		typedef const container_t&											value_assignment_t;
 
@@ -1280,18 +1263,8 @@ namespace LLInitParam
 			LLPredicate::Value<ESerializePredicates> predicate;
 
 			predicate.set(REQUIRED, typed_param.mMinCount > 0);
-
-			if (typed_param.isValid())
-			{
-				predicate.set(VALID, true);
-				predicate.set(PROVIDED, typed_param.anyProvided());
-			}
-			else
-			{
-				predicate.set(VALID, false);
-				predicate.set(PROVIDED, false);
-			}			
-
+			predicate.set(VALID, typed_param.isValid());
+			predicate.set(PROVIDED, typed_param.anyProvided());
 			predicate.set(EMPTY, typed_param.mValues.empty());
 
 			if (!predicate_rule.check(predicate)) return false;
@@ -1345,7 +1318,7 @@ namespace LLInitParam
 
 		static void inspectParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, S32 min_count, S32 max_count)
 		{
-			parser.inspectValue<VALUE_TYPE>(name_stack, min_count, max_count, NULL);
+			parser.inspectValue<MULTI_VALUE_T>(name_stack, min_count, max_count, NULL);
 			if (name_value_lookup_t::getPossibleValues())
 			{
 				parser.inspectValue<std::string>(name_stack, min_count, max_count, name_value_lookup_t::getPossibleValues());
@@ -1437,13 +1410,13 @@ namespace LLInitParam
 	};
 
 	// container of block parameters
-	template <typename VALUE_TYPE, typename NAME_VALUE_LOOKUP>
-	class TypedParam<VALUE_TYPE, NAME_VALUE_LOOKUP, true, true> 
+	template <typename MULTI_BLOCK_T, typename NAME_VALUE_LOOKUP>
+	class TypedParam<MULTI_BLOCK_T, NAME_VALUE_LOOKUP, true, true> 
 	:	public Param
 	{
 	public:
-		typedef TypedParam<VALUE_TYPE, NAME_VALUE_LOOKUP, true, true>	self_t;
-		typedef ParamValue<VALUE_TYPE, NAME_VALUE_LOOKUP>				param_value_t;
+		typedef TypedParam<MULTI_BLOCK_T, NAME_VALUE_LOOKUP, true, true>	self_t;
+		typedef ParamValue<MULTI_BLOCK_T, NAME_VALUE_LOOKUP>				param_value_t;
 		typedef typename std::vector<param_value_t>						container_t;
 		typedef const container_t&										value_assignment_t;
 		typedef typename param_value_t::value_t							value_t;
@@ -1548,17 +1521,9 @@ namespace LLInitParam
 			LLPredicate::Value<ESerializePredicates> predicate;
 
 			predicate.set(REQUIRED, typed_param.mMinCount > 0);
-
-			if (typed_param.isValid())
-			{
-				predicate.set(VALID, true);
-				predicate.set(PROVIDED, typed_param.anyProvided());
-			}
-			else
-			{
-				predicate.set(VALID, false);
-				predicate.set(PROVIDED, false);
-			}	
+			predicate.set(VALID, typed_param.isValid());
+			predicate.set(PROVIDED, typed_param.anyProvided());
+			predicate.set(EMPTY, typed_param.mValues.empty());
 
 			if (!predicate_rule.check(predicate)) return false;
 

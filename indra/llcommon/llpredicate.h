@@ -76,41 +76,31 @@ namespace LLPredicate
 		void set(ENUM e, bool value = true)
 		{
 			llassert(0 <= e && e < cMaxEnum);
-			mPredicateFlags = modifyPredicate(0x1 << (S32)e, cPredicateFlagsFromEnum[e], value, mPredicateFlags);
-		}
-
-		void set(const Value other, bool value)
-		{
-			predicate_flag_t predicate_flags_to_set = other.mPredicateFlags;
-			predicate_flag_t cumulative_flags = 0;
-			while(predicate_flags_to_set)
-			{
-				predicate_flag_t next_flags = clearLSB(predicate_flags_to_set);
-				predicate_flag_t lsb_flag = predicate_flags_to_set ^ next_flags;
-
-				predicate_flag_t mask = 0;
-				predicate_flag_t cur_flags = mPredicateFlags;
-				for (S32 i = 0; i < cMaxEnum; i++)
-				{
-					if (cPredicateFlagsFromEnum[i] & lsb_flag)
-					{
-						mask |= cPredicateFlagsFromEnum[i];
-						cur_flags = modifyPredicate(0x1 << (0x1 << i ), cPredicateFlagsFromEnum[i], !value, cur_flags);
-					}
-				}
-
-				cumulative_flags |= modifyPredicate(lsb_flag, mask, value, cur_flags);
-				
-				predicate_flags_to_set = next_flags;
+			predicate_flag_t flags_to_modify;
+			predicate_flag_t mask = cPredicateFlagsFromEnum[e];
+			if (value)
+			{	// add predicate "e" to flags that don't contain it already
+				flags_to_modify = (mPredicateFlags & ~mask);
+				// clear flags not containing e
+				mPredicateFlags &= mask;
+				// add back flags shifted to contain e
+				mPredicateFlags |= flags_to_modify << (0x1 << e);
 			}
-			mPredicateFlags = cumulative_flags;
+			else
+			{	// remove predicate "e" from flags that contain it
+				flags_to_modify = (mPredicateFlags & mask);
+				// clear flags containing e
+				mPredicateFlags &= ~mask;
+				// add back flags shifted to not contain e
+				mPredicateFlags |= flags_to_modify >> (0x1 << e);
+			}
 		}
 
-		void forget(const Value value)
+		void forget(ENUM e)
 		{
-			set(value, true);
+			set(e, true);
 			U32 flags_with_predicate = mPredicateFlags;
-			set(value, false);
+			set(e, false);
 			// ambiguous value is result of adding and removing predicate at the same time!
 			mPredicateFlags |= flags_with_predicate;
 		}
@@ -131,38 +121,6 @@ namespace LLPredicate
 		}
 
 	private:
-
-		predicate_flag_t clearLSB(predicate_flag_t value)
-		{
-			return value & (value - 1);
-		}
-
-		predicate_flag_t modifyPredicate(predicate_flag_t predicate_flag, predicate_flag_t mask, predicate_flag_t value, bool set)
-		{
-			llassert(clearLSB(predicate_flag) == 0);
-			predicate_flag_t flags_to_modify;
-
-			if (set)
-			{
-				flags_to_modify = (mPredicateFlags & ~mask);
-				// clear flags not containing predicate to be added
-				value &= mask;
-				// shift flags, in effect adding predicate
-				flags_to_modify *= predicate_flag;
-			}
-			else
-			{
-				flags_to_modify = mPredicateFlags & mask;
-				// clear flags containing predicate to be removed
-				value &= ~mask;
-				// shift flags, in effect removing predicate
-				flags_to_modify /= predicate_flag;
-			}
-			// put modified flags back
-			value |= flags_to_modify;
-			return value;
-		}
-
 		predicate_flag_t mPredicateFlags;
 	};
 
@@ -181,14 +139,14 @@ namespace LLPredicate
 		Rule()
 		{}
 
-		void require(const Value<ENUM> value)
+		void require(ENUM e)
 		{
-			mRule.set(value, require);
+			mRule.set(e, require);
 		}
 
-		void allow(const Value<ENUM> value)
+		void allow(ENUM e)
 		{
-			mRule.forget(value);
+			mRule.forget(e);
 		}
 
 		bool check(const Value<ENUM> value) const
