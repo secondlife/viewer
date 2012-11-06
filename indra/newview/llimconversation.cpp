@@ -202,10 +202,6 @@ BOOL LLIMConversation::postBuild()
 
 	if (isChatMultiTab())
 	{
-		if (mIsNearbyChat)
-		{
-			setCanClose(FALSE);
-		}
 		result = LLFloater::postBuild();
 	}
 	else
