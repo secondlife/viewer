@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_login">
-	<panel.string name="create_account_url">
-		http://join.secondlife.com/
-	</panel.string>
 	<panel.string name="forgot_password_url">
 		http://secondlife.com/account/request.php
 	</panel.string>
 	<layout_stack name="login_widgets">
 		<layout_panel name="login">
+			<text name="log_in_text">
+				OTURUM AÇ
+			</text>
 			<text name="username_text">
 				Kullanıcı Adı:
 			</text>
@@ -15,15 +15,8 @@
 			<text name="password_text">
 				Parola:
 			</text>
-			<check_box label="Parolayı hatırla" name="remember_check"/>
-			<button label="Oturum Aç" name="connect_btn"/>
-			<text name="mode_selection_text">
-				Mod:
-			</text>
-			<combo_box name="mode_combo" tool_tip="Modunuzu seçin. Hızlı, kolay keşif yapmak ve sohbet için Temel seçimini yapın. Daha fazla özelliğe erişmek için Gelişmiş seçimini yapın.">
-				<combo_box.item label="Temel" name="Basic"/>
-				<combo_box.item label="Gelişmiş" name="Advanced"/>
-			</combo_box>
+		</layout_panel>
+		<layout_panel name="start_location_panel">
 			<text name="start_location_text">
 				Buradan başla:
 			</text>
@@ -33,16 +26,21 @@
 				<combo_box.item label="&lt;Bölge adını girin&gt;" name="Typeregionname"/>
 			</combo_box>
 		</layout_panel>
-		<layout_panel name="links">
-			<text name="create_new_account_text">
-				Kaydolun
+		<layout_panel name="links_login_panel">
+			<text name="login_help">
+				Oturum açarken yardım mı gerekiyor?
 			</text>
 			<text name="forgot_password_text">
 				Kullanıcı adınızı veya parolanızı mı unuttunuz?
 			</text>
-			<text name="login_help">
-				Oturum açarken yardım mı gerekiyor?
+			<button label="Oturum Aç" name="connect_btn"/>
+			<check_box label="Parolayı hatırla" name="remember_check"/>
+		</layout_panel>
+		<layout_panel name="links">
+			<text name="create_account_text">
+				CREATE YǾUR ACCǾUNT
 			</text>
+			<button name="create_new_account_btn" label="Kaydolun"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

@@ -19,7 +19,7 @@
 		Zugang nur Einwohnern gestatten, die:
 	</text>
 	<check_box label="Zahlungsinformationen hinterlegt haben" name="limit_payment" tool_tip="Um diesen Grundbesitz besuchen zu können, müssen Einwohner Zahlungsinformationen hinterlegt haben. Weitere Informationen finden Sie auf [SUPPORT_SITE]."/>
-	<check_box label="ihr Alter bestätigt haben" name="limit_age_verified" tool_tip="Um diesen Grundbesitz besuchen zu können, müssen Einwohner ihr Alter bestätigt haben. Weitere Informationen finden Sie auf [SUPPORT_SITE]."/>
+	<check_box label="Sind mindestens 18 Jahre alt" name="limit_age_verified" tool_tip="Nur Einwohner, die mindestens 18 Jahre alt sind, können diesen Grundbesitz betreten. Weitere Informationen finden Sie unter [SUPPORT_SITE]."/>
 	<check_box label="Voice-Chat erlauben" name="voice_chat_check"/>
 	<button label="?" name="voice_chat_help"/>
 	<text name="abuse_email_text" width="222">

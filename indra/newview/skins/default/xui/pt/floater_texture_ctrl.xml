@@ -19,6 +19,8 @@
 	<button label="Padrão" label_selected="Padrão" name="Default"/>
 	<button label="Branco" label_selected="Branco" name="Blank"/>
 	<button label="Nenhum" label_selected="Nenhum" name="None"/>
+	<check_box initial_value="true" label="Visualização em tempo real" name="apply_immediate_check"/>
+	<text name="preview_disabled" value="Visualização desativada"/>
 	<filter_editor label="Filtrar texturas" name="inventory search editor"/>
 	<check_box initial_value="false" label="Exibir pastas" name="show_folders_check"/>
 	<button label="Adicionar" label_selected="Adicionar" name="l_add_btn"/>
@@ -30,5 +32,4 @@
 	</scroll_list>
 	<button label="OK" label_selected="OK" name="Select"/>
 	<button label="Cancelar" label_selected="Cancelar" name="Cancel"/>
-	<check_box initial_value="true" label="Applicar agora" name="apply_immediate_check"/>
 </floater>

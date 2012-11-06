@@ -2,7 +2,7 @@
 <floater name="panel_im">
 	<layout_stack name="im_panels">
 		<layout_panel>
-			<line_editor label="To" name="chat_editor"/>
+			<line_editor label="至" name="chat_editor"/>
 		</layout_panel>
 	</layout_stack>
 </floater>

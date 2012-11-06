@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="buy land" title="購買土地">
 	<floater.string name="can_resell">
-		May be resold.
+		得以再出售。
 	</floater.string>
 	<floater.string name="can_not_resell">
-		May not be resold.
+		不得再出售。
 	</floater.string>
 	<floater.string name="can_change">
-		May be joined or subdivided.
+		得以合併或分割。
 	</floater.string>
 	<floater.string name="can_not_change">
-		May not be joined or subdivided.
+		不得合併或分割。
 	</floater.string>
 	<floater.string name="cant_buy_for_group">
-		You do not have permission to buy land for your active group.
+		你沒有權限為你當前的群組購買土地。
 	</floater.string>
 	<floater.string name="no_land_selected">
 		無土地被選擇。
 	</floater.string>
 	<floater.string name="multiple_parcels_selected">
-		Multiple different parcels selected. 
-Try selecting a smaller area.
+		選取了多個不同地段。 
+請嘗試選取較小區域。
 	</floater.string>
 	<floater.string name="no_permission">
-		You do not have permission to buy land for your active group.
+		你沒有權限為你當前的群組購買土地。
 	</floater.string>
 	<floater.string name="parcel_not_for_sale">
 		所選擇的地段不出售。.
@@ -35,37 +35,37 @@ Try selecting a smaller area.
 		你已經擁有這個地段。
 	</floater.string>
 	<floater.string name="set_to_sell_to_other">
-		The selected parcel is set to sell to another party.
+		所選地段已設為待售給他人。
 	</floater.string>
 	<floater.string name="no_public_land">
-		The selected area has no public land.
+		所選區域內無公共土地。
 	</floater.string>
 	<floater.string name="not_owned_by_you">
-		Land owned by another Resident is selected. 
-Try selecting a smaller area.
+		選取了另一位居民所擁有土地。 
+請嘗試選取較小區域。
 	</floater.string>
 	<floater.string name="processing">
-		Processing your purchase...
+		正在處理你的購買…
  
-（過程這將會花費一到兩分鐘）
+（這過程將會花費一到兩分鐘。）
 	</floater.string>
 	<floater.string name="fetching_error">
-		There has been an error while fetching land buying information.
+		擷取購地訊息時發生錯誤。
 	</floater.string>
 	<floater.string name="buying_will">
-		Buying this land will:
+		購買這塊土地後：
 	</floater.string>
 	<floater.string name="buying_for_group">
-		Buying land for group will:
+		為群組購買土地後：
 	</floater.string>
 	<floater.string name="cannot_buy_now">
-		Cannot buy now:
+		現在無法購買：
 	</floater.string>
 	<floater.string name="not_for_sale">
 		不出售：
 	</floater.string>
 	<floater.string name="none_needed">
-		none needed
+		不需要
 	</floater.string>
 	<floater.string name="must_upgrade">
 		你的帳戶必須要升級才能擁有土地。
@@ -77,52 +77,52 @@ Try selecting a smaller area.
 		你持有 [BUYER] m² 土地。
 	</floater.string>
 	<floater.string name="pay_to_for_land">
-		Pay L$ [AMOUNT] to [SELLER] for this land
+		支付 L$ [AMOUNT] 給 [SELLER] 購買這土地
 	</floater.string>
 	<floater.string name="buy_for_US">
-		Buy L$ [AMOUNT] for approx. [LOCAL_AMOUNT],
+		購買 L$ [AMOUNT]，所需花費約為 [LOCAL_AMOUNT]，
 	</floater.string>
 	<floater.string name="parcel_meters">
-		這個地段為 [AMOUNT] m²
+		這個地段有 [AMOUNT] 平方公尺
 	</floater.string>
 	<floater.string name="premium_land">
-		This land is premium, and will charge as [AMOUNT] m².
+		這土地屬於高價地段，將計為 [AMOUNT] 平方公尺。
 	</floater.string>
 	<floater.string name="discounted_land">
-		This land is discounted, and will charge as [AMOUNT] m².
+		這土地有折扣，將計為 [AMOUNT] 平方公尺。
 	</floater.string>
 	<floater.string name="meters_supports_object">
-		[AMOUNT] m²
-supports [AMOUNT2] objects
+		[AMOUNT] 平方公尺
+支援 [AMOUNT2] 項物件
 	</floater.string>
 	<floater.string name="sold_with_objects">
-		sold with objects
+		含物件出售
 	</floater.string>
 	<floater.string name="sold_without_objects">
-		objects not included
+		不含物件
 	</floater.string>
 	<floater.string name="info_price_string">
-		L$ [PRICE]
-(L$ [PRICE_PER_SQM]/m²)
+		L$[PRICE]
+（L$ [PRICE_PER_SQM]/平方公尺）
 [SOLD_WITH_OBJECTS]
 	</floater.string>
 	<floater.string name="insufficient_land_credits">
-		The group [GROUP] will need sufficient contributed land use credits to cover this parcel before the purchase will complete.
+		群組 [GROUP] 需先有足夠的捐地使用額度來支應這個地段，才可完成購買。
 	</floater.string>
 	<floater.string name="have_enough_lindens">
-		You have L$ [AMOUNT], which is enough to buy this land.
+		你有 L$ [AMOUNT]，足以購買這土地。
 	</floater.string>
 	<floater.string name="not_enough_lindens">
-		You have only L$ [AMOUNT], and need L$ [AMOUNT2] more.
+		你只有 L$ [AMOUNT]，尚缺 L$ [AMOUNT2]。
 	</floater.string>
 	<floater.string name="balance_left">
-		After the purchase, you will have L$ [AMOUNT] left.
+		購買後，你將剩餘 L$ [AMOUNT]。
 	</floater.string>
 	<floater.string name="balance_needed">
-		You need to buy at least L$ [AMOUNT] to afford this land.
+		你至少必須購買 L$ [AMOUNT] 才能添購這土地。
 	</floater.string>
 	<floater.string name="no_parcel_selected">
-		（無地段被選擇）
+		（未選擇地段）
 	</floater.string>
 	<text name="region_name_label">
 		地區：
@@ -143,27 +143,27 @@ supports [AMOUNT2] objects
 		（未知）
 	</text>
 	<text name="estate_owner_label">
-		領地擁有者：
+		領地所有人：
 	</text>
 	<text name="estate_owner_text">
 		（未知）
 	</text>
 	<text name="resellable_changeable_label">
-		Purchased land in this region:
+		在本地區已購土地：
 	</text>
 	<text name="resellable_clause">
-		May or may not be resold.
+		是否可再售出。
 	</text>
 	<text name="changeable_clause">
-		May or may not be joined or subdivided.
+		是否可合併或分割。
 	</text>
 	<text name="covenant_text">
-		You must agree to the Estate Covenant:
+		你必須同意領地契約：
 	</text>
 	<text_editor name="covenant_editor">
 		載入中...
 	</text_editor>
-	<check_box label="I Agree to the Covenant Defined Above." name="agree_covenant"/>
+	<check_box label="我同意以上所訂契約。" name="agree_covenant"/>
 	<text name="info_parcel_label">
 		地段：
 	</text>
@@ -174,60 +174,60 @@ supports [AMOUNT2] objects
 		尺寸：
 	</text>
 	<text name="info_size">
-		1024 m²
+		1024 平方公尺
 	</text>
 	<text name="info_price_label">
 		價格：
 	</text>
 	<text name="info_price">
 		L$ 1500
-(L$ 1.1/m²)
-sold with objects
+（L$ 1.1/平方公尺）
+含物件出售
 	</text>
 	<text name="info_action">
-		Buying this land will:
+		購買這塊土地後：
 	</text>
 	<text name="error_message">
-		Something ain&apos;t right.
+		恐怕出問題了。
 	</text>
 	<button label="前往網站" name="error_web"/>
 	<text name="account_action">
-		Upgrade you to premium membership.
+		將你升級為付費用戶
 	</text>
 	<text name="account_reason">
-		Only premimum members may own land.
+		只有付費用戶才能擁有土地。
 	</text>
 	<combo_box name="account_level">
-		<combo_box.item label="US$9.95/month, billed monthly" name="US$9.95/month,billedmonthly"/>
-		<combo_box.item label="US$7.50/month, billed quarterly" name="US$7.50/month,billedquarterly"/>
-		<combo_box.item label="US$6.00/month, billed annually" name="US$6.00/month,billedannually"/>
+		<combo_box.item label="每月 US$9.95，按月支付" name="US$9.95/month,billedmonthly"/>
+		<combo_box.item label="每月 US$7.50，按季支付" name="US$7.50/month,billedquarterly"/>
+		<combo_box.item label="每月 US$6.00，一年支付一次" name="US$6.00/month,billedannually"/>
 	</combo_box>
 	<text name="land_use_action">
-		Increase your monthly land use fees to US$ 40/month.
+		將你的每月土地使用費增加為每月 US$ 40。
 	</text>
 	<text name="land_use_reason">
-		You hold 1309 m² of land.
-This parcel is 512 m² of land.
+		你持有 1309 平方公尺土地。
+這地段有 512 平方公尺的土地。
 	</text>
 	<text name="purchase_action">
-		Pay Joe Resident L$ 4000 for the land
+		支付給居民 Joe L$ 4000 購買土地
 	</text>
 	<text name="currency_reason">
-		You have L$ 2,100.
+		你有 L$ 2,100。
 	</text>
 	<text name="currency_action">
-		Buy additional L$
+		購買更多 L$
 	</text>
 	<line_editor name="currency_amt">
 		1000
 	</line_editor>
 	<text name="currency_est">
-		for approx. [LOCAL_AMOUNT]
+		花費大約 [LOCAL_AMOUNT]
 	</text>
 	<text name="currency_balance">
-		You have L$ 2,100.
+		你有 L$ 2,100。
 	</text>
-	<check_box label="Remove [AMOUNT] m² of contribution from group." name="remove_contribution"/>
-	<button label="Purchase" name="buy_btn"/>
+	<check_box label="從群組移除 [AMOUNT] 平方公尺的捐出地。" name="remove_contribution"/>
+	<button label="購買" name="buy_btn"/>
 	<button label="取消" name="cancel_btn"/>
 </floater>

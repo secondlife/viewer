@@ -3,66 +3,66 @@
 	<scroll_container name="statistics_scroll">
 		<container_view name="statistics_view">
 			<stat_view label="基本" name="basic">
-				<stat_bar label="FPS" name="fps"/>
+				<stat_bar label="每秒幀數" name="fps"/>
 				<stat_bar label="頻寬" name="bandwidth"/>
 				<stat_bar label="封包損失" name="packet_loss"/>
-				<stat_bar label="Ping Sim" name="ping"/>
+				<stat_bar label="探詢模擬器有無反應" name="ping"/>
 			</stat_view>
 			<stat_view label="進階" name="advanced">
-				<stat_view label="Render" name="render">
-					<stat_bar label="KTris Drawn" name="ktrisframe"/>
-					<stat_bar label="KTris Drawn" name="ktrissec"/>
+				<stat_view label="呈像" name="render">
+					<stat_bar label="KTris 繪出" name="ktrisframe"/>
+					<stat_bar label="KTris 繪出" name="ktrissec"/>
 					<stat_bar label="物件總計" name="objs"/>
 					<stat_bar label="新物件" name="newobjs"/>
 				</stat_view>
 				<stat_view label="材質" name="texture">
 					<stat_bar label="計數" name="numimagesstat"/>
-					<stat_bar label="Raw Count" name="numrawimagesstat"/>
-					<stat_bar label="GL Mem" name="gltexmemstat"/>
-					<stat_bar label="Formatted Mem" name="formattedmemstat"/>
-					<stat_bar label="Raw Mem" name="rawmemstat"/>
-					<stat_bar label="Bound Mem" name="glboundmemstat"/>
+					<stat_bar label="原始計數" name="numrawimagesstat"/>
+					<stat_bar label="GL 記憶" name="gltexmemstat"/>
+					<stat_bar label="格式化記憶" name="formattedmemstat"/>
+					<stat_bar label="原始記憶" name="rawmemstat"/>
+					<stat_bar label="界限記憶" name="glboundmemstat"/>
 				</stat_view>
 				<stat_view label="網路" name="network">
-					<stat_bar label="Packets In" name="packetsinstat"/>
-					<stat_bar label="Packets Out" name="packetsoutstat"/>
+					<stat_bar label="進入封包" name="packetsinstat"/>
+					<stat_bar label="出去封包" name="packetsoutstat"/>
 					<stat_bar label="物件" name="objectkbitstat"/>
 					<stat_bar label="材質" name="texturekbitstat"/>
 					<stat_bar label="資產" name="assetkbitstat"/>
-					<stat_bar label="Layers" name="layerskbitstat"/>
-					<stat_bar label="Actual In" name="actualinkbitstat"/>
-					<stat_bar label="Actual Out" name="actualoutkbitstat"/>
-					<stat_bar label="VFS Pending Ops" name="vfspendingoperations"/>
+					<stat_bar label="層次" name="layerskbitstat"/>
+					<stat_bar label="實入" name="actualinkbitstat"/>
+					<stat_bar label="實出" name="actualoutkbitstat"/>
+					<stat_bar label="VFS 待行作業" name="vfspendingoperations"/>
 				</stat_view>
 			</stat_view>
 			<stat_view label="模擬器" name="sim">
-				<stat_bar label="Time Dilation" name="simtimedilation"/>
-				<stat_bar label="Sim FPS" name="simfps"/>
-				<stat_bar label="Physics FPS" name="simphysicsfps"/>
-				<stat_view label="Physics Details" name="physicsdetail">
-					<stat_bar label="Pinned Objects" name="physicspinnedtasks"/>
-					<stat_bar label="Low LOD Objects" name="physicslodtasks"/>
+				<stat_bar label="時間膨脹" name="simtimedilation"/>
+				<stat_bar label="模擬器每秒幀數" name="simfps"/>
+				<stat_bar label="物理引擎每秒幀數" name="simphysicsfps"/>
+				<stat_view label="物理細節" name="physicsdetail">
+					<stat_bar label="固位物件" name="physicspinnedtasks"/>
+					<stat_bar label="低細節層次物件" name="physicslodtasks"/>
 					<stat_bar label="記憶體配置" name="physicsmemoryallocated"/>
 				</stat_view>
-				<stat_bar label="Agent Updates/Sec" name="simagentups"/>
-				<stat_bar label="Main Agents" name="simmainagents"/>
-				<stat_bar label="Child Agents" name="simchildagents"/>
+				<stat_bar label="用戶更新 / 秒" name="simagentups"/>
+				<stat_bar label="主要用戶" name="simmainagents"/>
+				<stat_bar label="兒童用戶" name="simchildagents"/>
 				<stat_bar label="物件" name="simobjects"/>
-				<stat_bar label="Active Objects" name="simactiveobjects"/>
-				<stat_bar label="Active Scripts" name="simactivescripts"/>
+				<stat_bar label="使用中物件" name="simactiveobjects"/>
+				<stat_bar label="使用中腳本" name="simactivescripts"/>
 				<stat_bar label="腳本事件" name="simscripteps"/>
 				<stat_bar label="進入封包" name="siminpps"/>
 				<stat_bar label="出去封包" name="simoutpps"/>
 				<stat_bar label="擱置下載" name="simpendingdownloads"/>
 				<stat_bar label="擱置上傳" name="simpendinguploads"/>
-				<stat_bar label="Total Unacked Bytes" name="simtotalunackedbytes"/>
-				<stat_view label="Time (ms)" name="simperf">
-					<stat_bar label="Total Frame Time" name="simframemsec"/>
-					<stat_bar label="Net Time" name="simnetmsec"/>
-					<stat_bar label="Physics Time" name="simsimphysicsmsec"/>
-					<stat_bar label="Simulation Time" name="simsimothermsec"/>
-					<stat_bar label="Agent Time" name="simagentmsec"/>
-					<stat_bar label="Images Time" name="simimagesmsec"/>
+				<stat_bar label="未承認的總位元組數" name="simtotalunackedbytes"/>
+				<stat_view label="時間（毫秒）" name="simperf">
+					<stat_bar label="總禎時間" name="simframemsec"/>
+					<stat_bar label="淨時間" name="simnetmsec"/>
+					<stat_bar label="物理時間" name="simsimphysicsmsec"/>
+					<stat_bar label="模擬時間" name="simsimothermsec"/>
+					<stat_bar label="用戶時間" name="simagentmsec"/>
+					<stat_bar label="圖像時間" name="simimagesmsec"/>
 					<stat_bar label="腳本時間" name="simscriptmsec"/>
 				</stat_view>
 			</stat_view>

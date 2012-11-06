@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<toggleable_menu name="Mode Change">
-	<menu_item_check label="Básico" name="BasicMode"/>
-	<menu_item_check label="Avanzado" name="AdvancedMode"/>
-</toggleable_menu>

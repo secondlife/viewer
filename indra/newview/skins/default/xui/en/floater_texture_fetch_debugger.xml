@@ -2,7 +2,7 @@
 <floater
  legacy_header_height="18"
  can_minimize="false"
- height="550"
+ height="600"
  layout="topleft"
  name="TexFetchDebugger"
  help_topic="texfetchdebugger"
@@ -195,10 +195,34 @@
   height="25"
   layout="topleft"
   left_delta="0"
+  name="total_time_refetch_all_cache_label"
+  top_delta="25"
+  width="540">
+    16, Refetching all textures from cache, Time: [TIME] seconds, Fetched: [SIZE]KB, [PIXEL]MPixels
+  </text>
+  <text
+  type="string"
+  length="1"
+  follows="left|top"
+  height="25"
+  layout="topleft"
+  left_delta="0"
   name="total_time_refetch_vis_http_label"
   top_delta="25"
   width="540">
-    16, Refetching visibles from HTTP, Time: [TIME] seconds, Fetched: [SIZE]KB, [PIXEL]MPixels
+    17, Refetching visibles from HTTP, Time: [TIME] seconds, Fetched: [SIZE]KB, [PIXEL]MPixels
+  </text>
+  <text
+  type="string"
+  length="1"
+  follows="left|top"
+  height="25"
+  layout="topleft"
+  left_delta="0"
+  name="total_time_refetch_all_http_label"
+  top_delta="25"
+  width="540">
+    18, Refetching all textures from HTTP, Time: [TIME] seconds, Fetched: [SIZE]KB, [PIXEL]MPixels
   </text>
   <spinner
      decimal_digits="2"
@@ -206,7 +230,7 @@
      height="20"
      increment="0.01"
      initial_value="1.0"
-     label="17, Ratio of Texel/Pixel:"
+     label="19, Ratio of Texel/Pixel:"
      label_width="130"
      layout="topleft"
      left_delta="0"
@@ -218,14 +242,53 @@
     <spinner.commit_callback
 		function="TexFetchDebugger.ChangeTexelPixelRatio" />
   </spinner>
+  <text
+  type="string"
+  length="1"
+  follows="left|top"
+  height="25"
+  layout="topleft"
+  left_delta="0"
+  name="texture_source_label"
+  top_delta="30"
+  width="110">
+    20, Texture Source:
+  </text>
+  <radio_group
+     control_name="TextureFetchSource"
+     follows="top|left"
+     draw_border="false"
+     height="25"
+     layout="topleft"
+     left_pad="0"
+     name="texture_source"
+     top_delta="0"
+     width="264">
+    <radio_item
+     height="16"
+     label="Cache + HTTP"
+     layout="topleft"
+     left="3"
+     name="0"
+     top="0"
+     width="100" />
+    <radio_item
+     height="16"
+     label="HTTP Only"
+     layout="topleft"
+     left_delta="100"
+     name="1"
+     top_delta="0"
+     width="200" />
+  </radio_group>
   <button
    follows="left|top"
    height="20"
    label="Start"
    layout="topleft"
-   left_delta="0"
+   left="10"
    name="start_btn"
-   top_delta="30"
+   top_delta="20"
    width="70">
     <button.commit_callback
 		function="TexFetchDebugger.Start" />
@@ -261,7 +324,7 @@
    layout="topleft"
    left="10"
    name="cacheread_btn"
-   top_delta="30"
+   top_delta="20"
    width="80">
     <button.commit_callback
 		function="TexFetchDebugger.CacheRead" />
@@ -321,10 +384,22 @@
    layout="topleft"
    left="10"
    name="refetchviscache_btn"
-   top_delta="30"
+   top_delta="20"
    width="120">
     <button.commit_callback
 		function="TexFetchDebugger.RefetchVisCache" />
+  </button>
+  <button
+   follows="left|top"
+   height="20"
+   label="Refetch All Cache"
+   layout="topleft"
+   left_pad="7"
+   name="refetchallcache_btn"
+   top_delta="0"
+   width="120">
+    <button.commit_callback
+		function="TexFetchDebugger.RefetchAllCache" />
   </button>
   <button
    follows="left|top"
@@ -337,5 +412,17 @@
    width="120">
     <button.commit_callback
 		function="TexFetchDebugger.RefetchVisHTTP" />
+  </button>
+  <button
+   follows="left|top"
+   height="20"
+   label="Refetch All HTTP"
+   layout="topleft"
+   left_pad="7"
+   name="refetchallhttp_btn"
+   top_delta="0"
+   width="120">
+    <button.commit_callback
+		function="TexFetchDebugger.RefetchAllHTTP" />
   </button>
 </floater>

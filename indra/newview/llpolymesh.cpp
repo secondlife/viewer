@@ -240,6 +240,7 @@ BOOL LLPolyMeshSharedData::allocateVertexData( U32 numVertices )
 			mBaseCoords[i].clear();
 			mBaseNormals[i].clear();
 			mBaseBinormals[i].clear();
+			mTexCoords[i].clear();
 			mWeights[i] = 0.f;
         }
         mNumVertices = numVertices;

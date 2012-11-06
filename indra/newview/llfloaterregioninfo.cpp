@@ -287,8 +287,7 @@ void LLFloaterRegionInfo::processEstateOwnerRequest(LLMessageSystem* msg,void**)
 	//dispatch the message
 	dispatch.dispatch(request, invoice, strings);
 
-	LLViewerRegion* region = gAgent.getRegion();
-	panel->updateControls(region);
+	panel->updateControls(gAgent.getRegion());
 }
 
 
@@ -1924,10 +1923,18 @@ void LLPanelEstateInfo::updateControls(LLViewerRegion* region)
 	BOOL manager = (region && region->isEstateManager());
 	setCtrlsEnabled(god || owner || manager);
 	
+	BOOL has_allowed_avatar = getChild<LLNameListCtrl>("allowed_avatar_name_list")->getFirstSelected() ?  TRUE : FALSE;
+	BOOL has_allowed_group = getChild<LLNameListCtrl>("allowed_group_name_list")->getFirstSelected() ?  TRUE : FALSE;
+	BOOL has_banned_agent = getChild<LLNameListCtrl>("banned_avatar_name_list")->getFirstSelected() ?  TRUE : FALSE;
+	BOOL has_estate_manager = getChild<LLNameListCtrl>("estate_manager_name_list")->getFirstSelected() ?  TRUE : FALSE;
+
 	getChildView("add_allowed_avatar_btn")->setEnabled(god || owner || manager);
-	getChildView("remove_allowed_avatar_btn")->setEnabled(god || owner || manager);
+	getChildView("remove_allowed_avatar_btn")->setEnabled(has_allowed_avatar && (god || owner || manager));
+	getChildView("allowed_avatar_name_list")->setEnabled(god || owner || manager);
+	
 	getChildView("add_allowed_group_btn")->setEnabled(god || owner || manager);
-	getChildView("remove_allowed_group_btn")->setEnabled(god || owner || manager);
+	getChildView("remove_allowed_group_btn")->setEnabled(has_allowed_group && (god || owner || manager) );
+	getChildView("allowed_group_name_list")->setEnabled(god || owner || manager);
 
 	// Can't ban people from mainland, orientation islands, etc. because this
 	// creates much network traffic and server load.
@@ -1935,14 +1942,15 @@ void LLPanelEstateInfo::updateControls(LLViewerRegion* region)
 	bool linden_estate = isLindenEstate();
 	bool enable_ban = (god || owner || manager) && !linden_estate;
 	getChildView("add_banned_avatar_btn")->setEnabled(enable_ban);
-	getChildView("remove_banned_avatar_btn")->setEnabled(enable_ban);
+	getChildView("remove_banned_avatar_btn")->setEnabled(has_banned_agent && enable_ban);
+	getChildView("banned_avatar_name_list")->setEnabled(god || owner || manager);
 
 	getChildView("message_estate_btn")->setEnabled(god || owner || manager);
 	getChildView("kick_user_from_estate_btn")->setEnabled(god || owner || manager);
 
 	// estate managers can't add estate managers
 	getChildView("add_estate_manager_btn")->setEnabled(god || owner);
-	getChildView("remove_estate_manager_btn")->setEnabled(god || owner);
+	getChildView("remove_estate_manager_btn")->setEnabled(has_estate_manager && (god || owner));
 	getChildView("estate_manager_name_list")->setEnabled(god || owner);
 
 	refresh();
@@ -1979,10 +1987,8 @@ bool LLPanelEstateInfo::refreshFromRegion(LLViewerRegion* region)
 
 void LLPanelEstateInfo::updateChild(LLUICtrl* child_ctrl)
 {
-	if (checkRemovalButton(child_ctrl->getName()))
-	{
-		// do nothing
-	}
+	// Ensure appropriate state of the management ui.
+	updateControls(gAgent.getRegion());
 }
 
 bool LLPanelEstateInfo::estateUpdate(LLMessageSystem* msg)
@@ -2080,23 +2086,8 @@ void LLPanelEstateInfo::refreshFromEstate()
 	getChild<LLUICtrl>("limit_payment")->setValue(estate_info.getDenyAnonymous());
 	getChild<LLUICtrl>("limit_age_verified")->setValue(estate_info.getDenyAgeUnverified());
 
-	// If visible from mainland, disable the access allowed
-	// UI, as anyone can teleport there.
-	// However, gods need to be able to edit the access list for
-	// linden estates, regardless of visibility, to allow object
-	// and L$ transfers.
-	{
-		bool visible_from_mainland = estate_info.getIsExternallyVisible();
-		bool god = gAgent.isGodlike();
-		bool linden_estate = isLindenEstate();
-
-		bool enable_agent = (!visible_from_mainland || (god && linden_estate));
-		bool enable_group = enable_agent;
-		bool enable_ban = !linden_estate;
-
-		setAccessAllowedEnabled(enable_agent, enable_group, enable_ban);
-	}
-
+	// Ensure appriopriate state of the management UI
+	updateControls(gAgent.getRegion());
 	refresh();
 }
 
@@ -2225,47 +2216,6 @@ void LLPanelEstateInfo::setOwnerName(const std::string& name)
 	getChild<LLUICtrl>("estate_owner")->setValue(LLSD(name));
 }
 
-void LLPanelEstateInfo::setAccessAllowedEnabled(bool enable_agent,
-												bool enable_group,
-												bool enable_ban)
-{
-	getChildView("allow_resident_label")->setEnabled(enable_agent);
-	getChildView("allowed_avatar_name_list")->setEnabled(enable_agent);
-	getChildView("allowed_avatar_name_list")->setVisible( enable_agent);
-	getChildView("add_allowed_avatar_btn")->setEnabled(enable_agent);
-	getChildView("remove_allowed_avatar_btn")->setEnabled(enable_agent);
-
-	// Groups
-	getChildView("allow_group_label")->setEnabled(enable_group);
-	getChildView("allowed_group_name_list")->setEnabled(enable_group);
-	getChildView("allowed_group_name_list")->setVisible( enable_group);
-	getChildView("add_allowed_group_btn")->setEnabled(enable_group);
-	getChildView("remove_allowed_group_btn")->setEnabled(enable_group);
-
-	// Ban
-	getChildView("ban_resident_label")->setEnabled(enable_ban);
-	getChildView("banned_avatar_name_list")->setEnabled(enable_ban);
-	getChildView("banned_avatar_name_list")->setVisible( enable_ban);
-	getChildView("add_banned_avatar_btn")->setEnabled(enable_ban);
-	getChildView("remove_banned_avatar_btn")->setEnabled(enable_ban);
-
-	// Update removal buttons if needed
-	if (enable_agent)
-	{
-		checkRemovalButton("allowed_avatar_name_list");
-	}
-
-	if (enable_group)
-	{
-		checkRemovalButton("allowed_group_name_list");
-	}
-
-	if (enable_ban)
-	{
-		checkRemovalButton("banned_avatar_name_list");
-	}
-}
-
 void LLPanelEstateInfo::clearAccessLists() 
 {
 	LLNameListCtrl* name_list = getChild<LLNameListCtrl>("allowed_avatar_name_list");
@@ -2279,39 +2229,7 @@ void LLPanelEstateInfo::clearAccessLists()
 	{
 		name_list->deleteAllItems();
 	}
-}
-
-// enables/disables the "remove" button for the various allow/ban lists
-BOOL LLPanelEstateInfo::checkRemovalButton(std::string name)
-{
-	std::string btn_name = "";
-	if (name == "allowed_avatar_name_list")
-	{
-		btn_name = "remove_allowed_avatar_btn";
-	}
-	else if (name == "allowed_group_name_list")
-	{
-		btn_name = "remove_allowed_group_btn";
-	}
-	else if (name == "banned_avatar_name_list")
-	{
-		btn_name = "remove_banned_avatar_btn";
-	}
-	else if (name == "estate_manager_name_list")
-	{
-		//ONLY OWNER CAN ADD /DELET ESTATE MANAGER
-		LLViewerRegion* region = gAgent.getRegion();
-		if (region && (region->getOwner() == gAgent.getID()))
-		{
-			btn_name = "remove_estate_manager_btn";
-		}
-	}
-
-	// enable the remove button if something is selected
-	LLNameListCtrl* name_list = getChild<LLNameListCtrl>(name);
-	getChildView(btn_name)->setEnabled(name_list && name_list->getFirstSelected() ? TRUE : FALSE);
-
-	return (btn_name != "");
+	updateControls(gAgent.getRegion());
 }
 
 // static
@@ -2792,15 +2710,15 @@ bool LLDispatchSetEstateAccess::operator()(
 
 		if (allowed_agent_name_list)
 		{
-			//allowed_agent_name_list->deleteAllItems();
+			// Don't sort these as we add them, sort them when we are done.
+			allowed_agent_name_list->clearSortOrder();
 			for (S32 i = 0; i < num_allowed_agents && i < ESTATE_MAX_ACCESS_IDS; i++)
 			{
 				LLUUID id;
 				memcpy(id.mData, strings[index++].data(), UUID_BYTES);		/* Flawfinder: ignore */
 				allowed_agent_name_list->addNameItem(id);
 			}
-			panel->getChildView("remove_allowed_avatar_btn")->setEnabled(allowed_agent_name_list->getFirstSelected() ? TRUE : FALSE);
-			allowed_agent_name_list->sortByColumnIndex(0, TRUE);
+			allowed_agent_name_list->sortByName(TRUE);
 		}
 	}
 
@@ -2817,6 +2735,8 @@ bool LLDispatchSetEstateAccess::operator()(
 
 		if (allowed_group_name_list)
 		{
+			// Don't sort these as we add them, sort them when we are done.
+			allowed_group_name_list->clearSortOrder();
 			allowed_group_name_list->deleteAllItems();
 			for (S32 i = 0; i < num_allowed_groups && i < ESTATE_MAX_GROUP_IDS; i++)
 			{
@@ -2824,8 +2744,7 @@ bool LLDispatchSetEstateAccess::operator()(
 				memcpy(id.mData, strings[index++].data(), UUID_BYTES);		/* Flawfinder: ignore */
 				allowed_group_name_list->addGroupNameItem(id);
 			}
-			panel->getChildView("remove_allowed_group_btn")->setEnabled(allowed_group_name_list->getFirstSelected() ? TRUE : FALSE);
-			allowed_group_name_list->sortByColumnIndex(0, TRUE);
+			allowed_group_name_list->sortByName(TRUE);
 		}
 	}
 
@@ -2849,15 +2768,16 @@ bool LLDispatchSetEstateAccess::operator()(
 
 		if (banned_agent_name_list)
 		{
-			//banned_agent_name_list->deleteAllItems();
+			// Don't sort these as we add them, sort them when we are done.
+			banned_agent_name_list->clearSortOrder();
+
 			for (S32 i = 0; i < num_banned_agents && i < ESTATE_MAX_ACCESS_IDS; i++)
 			{
 				LLUUID id;
 				memcpy(id.mData, strings[index++].data(), UUID_BYTES);		/* Flawfinder: ignore */
 				banned_agent_name_list->addNameItem(id);
 			}
-			panel->getChildView("remove_banned_avatar_btn")->setEnabled(banned_agent_name_list->getFirstSelected() ? TRUE : FALSE);
-			banned_agent_name_list->sortByColumnIndex(0, TRUE);
+			banned_agent_name_list->sortByName(TRUE);
 		}
 	}
 
@@ -2872,6 +2792,9 @@ bool LLDispatchSetEstateAccess::operator()(
 			panel->getChild<LLNameListCtrl>("estate_manager_name_list");
 		if (estate_manager_name_list)
 		{	
+			// Don't sort these as we add them, sort them when we are done.
+			estate_manager_name_list->clearSortOrder();
+
 			estate_manager_name_list->deleteAllItems();		// Clear existing entries
 
 			// There should be only ESTATE_MAX_MANAGERS people in the list, but if the database gets more (SL-46107) don't 
@@ -2883,10 +2806,12 @@ bool LLDispatchSetEstateAccess::operator()(
 				memcpy(id.mData, strings[index++].data(), UUID_BYTES);		/* Flawfinder: ignore */
 				estate_manager_name_list->addNameItem(id);
 			}
-			panel->getChildView("remove_estate_manager_btn")->setEnabled(estate_manager_name_list->getFirstSelected() ? TRUE : FALSE);
-			estate_manager_name_list->sortByColumnIndex(0, TRUE);
+			estate_manager_name_list->sortByName(TRUE);
 		}
 	}
+
+	// Update the buttons which may change based on the list contents but also needs to account for general access features.
+	panel->updateControls(gAgent.getRegion());
 
 	return true;
 }

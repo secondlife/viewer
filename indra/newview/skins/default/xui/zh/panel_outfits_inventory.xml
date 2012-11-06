@@ -4,19 +4,19 @@
 		穿上所選擇的裝扮
 	</panel.string>
 	<panel.string name="wear_items_tooltip">
-		Wear selected items
+		穿上所選擇的物件
 	</panel.string>
 	<tab_container name="appearance_tabs">
 		<panel label="我的裝扮" name="outfitslist_tab"/>
-		<panel label="WEARING" name="cof_tab"/>
+		<panel label="目前穿著" name="cof_tab"/>
 	</tab_container>
 	<panel name="bottom_panel">
 		<layout_stack name="bottom_panel_ls">
 			<layout_panel name="save_btn_lp">
-				<button label="另存" name="save_btn"/>
+				<button label="另存為" name="save_btn"/>
 			</layout_panel>
 			<layout_panel name="wear_btn_lp">
-				<button label="Wear" name="wear_btn"/>
+				<button label="穿上" name="wear_btn"/>
 			</layout_panel>
 		</layout_stack>
 	</panel>

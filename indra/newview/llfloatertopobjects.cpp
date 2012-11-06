@@ -82,6 +82,7 @@ LLFloaterTopObjects::LLFloaterTopObjects(const LLSD& key)
 	mCommitCallbackRegistrar.add("TopObjects.Refresh",			boost::bind(&LLFloaterTopObjects::onRefresh, this));
 	mCommitCallbackRegistrar.add("TopObjects.GetByObjectName",	boost::bind(&LLFloaterTopObjects::onGetByObjectName, this));
 	mCommitCallbackRegistrar.add("TopObjects.GetByOwnerName",	boost::bind(&LLFloaterTopObjects::onGetByOwnerName, this));
+	mCommitCallbackRegistrar.add("TopObjects.GetByParcelName",	boost::bind(&LLFloaterTopObjects::onGetByParcelName, this));
 	mCommitCallbackRegistrar.add("TopObjects.CommitObjectsList",boost::bind(&LLFloaterTopObjects::onCommitObjectsList, this));
 }
 
@@ -98,21 +99,6 @@ BOOL LLFloaterTopObjects::postBuild()
 	objects_list->setCommitOnSelectionChange(TRUE);
 
 	setDefaultBtn("show_beacon_btn");
-
-	/*
-	LLLineEditor* line_editor = getChild<LLLineEditor>("owner_name_editor");
-	if (line_editor)
-	{
-		line_editor->setCommitOnFocusLost(FALSE);
-		line_editor->setCommitCallback(onGetByOwnerName, this);
-	}
-
-	line_editor = getChild<LLLineEditor>("object_name_editor");
-	if (line_editor)
-	{
-		line_editor->setCommitOnFocusLost(FALSE);
-		line_editor->setCommitCallback(onGetByObjectName, this);
-	}*/
 
 	mCurrentMode = STAT_REPORT_TOP_SCRIPTS;
 	mFlags = 0;
@@ -168,9 +154,11 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 		F32 score;
 		std::string name_buf;
 		std::string owner_buf;
+		std::string parcel_buf("unknown");
 		F32 mono_score = 0.f;
 		bool have_extended_data = false;
 		S32 public_urls = 0;
+		F32 script_memory = 0.f;
 
 		msg->getU32Fast(_PREHASH_ReportData, _PREHASH_TaskLocalID, task_local_id, block);
 		msg->getUUIDFast(_PREHASH_ReportData, _PREHASH_TaskID, task_id, block);
@@ -180,12 +168,18 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 		msg->getF32Fast(_PREHASH_ReportData, _PREHASH_Score, score, block);
 		msg->getStringFast(_PREHASH_ReportData, _PREHASH_TaskName, name_buf, block);
 		msg->getStringFast(_PREHASH_ReportData, _PREHASH_OwnerName, owner_buf, block);
+
 		if(msg->has("DataExtended"))
 		{
 			have_extended_data = true;
 			msg->getU32("DataExtended", "TimeStamp", time_stamp, block);
 			msg->getF32("DataExtended", "MonoScore", mono_score, block);
 			msg->getS32("DataExtended", "PublicURLs", public_urls, block);
+			if (msg->getSize("DataExtended", "ParcelName") > 0)
+			{
+				msg->getString("DataExtended", "ParcelName", parcel_buf, block);
+				msg->getF32("DataExtended", "Size", script_memory, block);
+			}
 		}
 
 		LLSD element;
@@ -193,13 +187,14 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 		element["id"] = task_id;
 
 		LLSD columns;
-		columns[0]["column"] = "score";
-		columns[0]["value"] = llformat("%0.3f", score);
-		columns[0]["font"] = "SANSSERIF";
+		S32 column_num = 0;
+		columns[column_num]["column"] = "score";
+		columns[column_num]["value"] = llformat("%0.3f", score);
+		columns[column_num++]["font"] = "SANSSERIF";
 		
-		columns[1]["column"] = "name";
-		columns[1]["value"] = name_buf;
-		columns[1]["font"] = "SANSSERIF";
+		columns[column_num]["column"] = "name";
+		columns[column_num]["value"] = name_buf;
+		columns[column_num++]["font"] = "SANSSERIF";
 		
 		// Owner names can have trailing spaces sent from server
 		LLStringUtil::trim(owner_buf);
@@ -215,28 +210,33 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 			// ...just strip out legacy "Resident" name
 			owner_buf = LLCacheName::cleanFullName(owner_buf);
 		}
-		columns[2]["column"] = "owner";
-		columns[2]["value"] = owner_buf;
-		columns[2]["font"] = "SANSSERIF";
+		columns[column_num]["column"] = "owner";
+		columns[column_num]["value"] = owner_buf;
+		columns[column_num++]["font"] = "SANSSERIF";
 
-		columns[3]["column"] = "location";
-		columns[3]["value"] = llformat("<%0.1f,%0.1f,%0.1f>", location_x, location_y, location_z);
-		columns[3]["font"] = "SANSSERIF";
-		columns[4]["column"] = "time";
-		columns[4]["type"] = "date";
-		columns[4]["value"] = LLDate((time_t)time_stamp);
-		columns[4]["font"] = "SANSSERIF";
+		columns[column_num]["column"] = "location";
+		columns[column_num]["value"] = llformat("<%0.1f,%0.1f,%0.1f>", location_x, location_y, location_z);
+		columns[column_num++]["font"] = "SANSSERIF";
+
+		columns[column_num]["column"] = "parcel";
+		columns[column_num]["value"] = parcel_buf;
+		columns[column_num++]["font"] = "SANSSERIF";
+
+		columns[column_num]["column"] = "time";
+		columns[column_num]["type"] = "date";
+		columns[column_num]["value"] = LLDate((time_t)time_stamp);
+		columns[column_num++]["font"] = "SANSSERIF";
 
 		if (mCurrentMode == STAT_REPORT_TOP_SCRIPTS
 			&& have_extended_data)
 		{
-			columns[5]["column"] = "mono_time";
-			columns[5]["value"] = llformat("%0.3f", mono_score);
-			columns[5]["font"] = "SANSSERIF";
+			columns[column_num]["column"] = "memory";
+			columns[column_num]["value"] = llformat("%0.0f", (script_memory / 1000.f));
+			columns[column_num++]["font"] = "SANSSERIF";
 
-			columns[6]["column"] = "URLs";
-			columns[6]["value"] = llformat("%d", public_urls);
-			columns[6]["font"] = "SANSSERIF";
+			columns[column_num]["column"] = "URLs";
+			columns[column_num]["value"] = llformat("%d", public_urls);
+			columns[column_num++]["font"] = "SANSSERIF";
 		}
 		element["columns"] = columns;
 		list->addElement(element);
@@ -260,18 +260,18 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 	{
 		setTitle(getString("top_scripts_title"));
 		list->setColumnLabel("score", getString("scripts_score_label"));
-		list->setColumnLabel("mono_time", getString("scripts_mono_time_label"));
 		
 		LLUIString format = getString("top_scripts_text");
 		format.setArg("[COUNT]", llformat("%d", total_count));
-		format.setArg("[TIME]", llformat("%0.1f", mtotalScore));
+		format.setArg("[TIME]", llformat("%0.3f", mtotalScore));
 		getChild<LLUICtrl>("title_text")->setValue(LLSD(format));
 	}
 	else
 	{
 		setTitle(getString("top_colliders_title"));
 		list->setColumnLabel("score", getString("colliders_score_label"));
-		list->setColumnLabel("mono_time", "");
+		list->setColumnLabel("URLs", "");
+		list->setColumnLabel("memory", "");
 		LLUIString format = getString("top_colliders_text");
 		format.setArg("[COUNT]", llformat("%d", total_count));
 		getChild<LLUICtrl>("title_text")->setValue(LLSD(format));
@@ -301,6 +301,7 @@ void LLFloaterTopObjects::updateSelectionInfo()
 	{
 		getChild<LLUICtrl>("object_name_editor")->setValue(sli->getColumn(1)->getValue().asString());
 		getChild<LLUICtrl>("owner_name_editor")->setValue(sli->getColumn(2)->getValue().asString());
+		getChild<LLUICtrl>("parcel_name_editor")->setValue(sli->getColumn(4)->getValue().asString());
 	}
 }
 
@@ -479,6 +480,15 @@ void LLFloaterTopObjects::onGetByOwnerName()
 	mFilter = getChild<LLUICtrl>("owner_name_editor")->getValue().asString();
 	onRefresh();
 }
+
+
+void LLFloaterTopObjects::onGetByParcelName()
+{
+	mFlags  = STAT_FILTER_BY_PARCEL_NAME;
+	mFilter = getChild<LLUICtrl>("parcel_name_editor")->getValue().asString();
+	onRefresh();
+}
+
 
 void LLFloaterTopObjects::showBeacon()
 {

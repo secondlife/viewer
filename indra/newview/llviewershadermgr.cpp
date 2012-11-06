@@ -529,9 +529,10 @@ void LLViewerShaderMgr::setShaders()
 			{
 				loaded = loadShadersInterface();
 			}
-			
+
 			if (loaded)
-			{
+
+		    {
 				loaded = loadTransformShaders();
 			}
 
