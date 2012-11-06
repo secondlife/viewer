@@ -129,6 +129,7 @@ public:
 	LLViewerObject *getSelectedObject(const U32 object_id);
 
 	inline S32 getNumObjects() { return (S32) mObjects.size(); }
+	inline S32 getNumActiveObjects() { return (S32) mActiveObjects.size(); }
 
 	void addToMap(LLViewerObject *objectp);
 	void removeFromMap(LLViewerObject *objectp);
