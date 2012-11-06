@@ -115,7 +115,7 @@ void LLIMFloaterContainer::sessionVoiceOrIMStarted(const LLUUID& session_id)
 
 void LLIMFloaterContainer::sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id)
 {
-	// CHUI-441 : We should do this *without* delete and recreate
+	// *TODO: We should do this *without* delete and recreate
 	addConversationListItem(new_session_id, removeConversationListItem(old_session_id));
 }
 
@@ -1164,7 +1164,7 @@ LLConversationItem* LLIMFloaterContainer::addConversationListItem(const LLUUID& 
 	LLSpeakerMgr* speaker_manager = (is_nearby_chat ? (LLSpeakerMgr*)(LLLocalSpeakerMgr::getInstance()) : LLIMModel::getInstance()->getSpeakerManager(uuid));
 	if (speaker_manager)
 	{
-		item = new LLParticipantList(speaker_manager, NULL, getRootViewModel(), true, false);
+		item = new LLParticipantList(speaker_manager, getRootViewModel(), true, false);
 	}
 	if (!item)
 	{

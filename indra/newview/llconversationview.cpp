@@ -108,7 +108,7 @@ BOOL LLConversationViewSession::postBuild()
 	mSessionTitle = mItemPanel->getChild<LLTextBox>("conversation_title");
 
 	mActiveVoiceChannelConnection = LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLConversationViewSession::onCurrentVoiceSessionChanged, this, _1));
-	mSpeakingIndicator = getChild<LLOutputMonitorCtrl>("speaking_indicatorn");
+	mSpeakingIndicator = getChild<LLOutputMonitorCtrl>("speaking_indicator");
 
 	LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(getViewModelItem());
 	if (vmi)
@@ -476,10 +476,11 @@ void LLConversationViewParticipant::selectItem()
 void LLConversationViewParticipant::refresh()
 {
 	// Refresh the participant view from its model data
-	LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(getViewModelItem());
+	LLConversationItemParticipant* vmi = dynamic_cast<LLConversationItemParticipant*>(getViewModelItem());
 	vmi->resetRefresh();
 	
-	// Note: for the moment, all that needs to be done is done by LLFolderViewItem::refresh()
+	// *TODO: We should also do something with vmi->isModerator() to echo that state in the UI somewhat
+	mSpeakingIndicator->setIsMuted(vmi->isMuted());
 	
 	// Do the regular upstream refresh
 	LLFolderViewItem::refresh();

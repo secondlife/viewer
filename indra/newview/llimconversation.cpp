@@ -485,7 +485,8 @@ LLConversationViewParticipant* LLIMConversation::createConversationViewParticipa
 
 void LLIMConversation::onSortMenuItemClicked(const LLSD& userdata)
 {
-	// TODO: Check this code when sort order menu will be added. (EM)
+	// *TODO: Check this code when sort order menu will be added. (EM)
+	/*
 	if (!getParticipantList())
 	{
 		return;
@@ -497,7 +498,7 @@ void LLIMConversation::onSortMenuItemClicked(const LLSD& userdata)
 	{
 		getParticipantList()->setSortOrder(LLParticipantList::E_SORT_BY_NAME);
 	}
-
+	 */
 }
 
 void LLIMConversation::onIMSessionMenuItemClicked(const LLSD& userdata)

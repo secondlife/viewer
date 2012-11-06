@@ -1,6 +1,6 @@
 /** 
  * @file llparticipantlist.h
- * @brief LLParticipantList intended to update view(LLAvatarList) according to incoming messages
+ * @brief LLParticipantList widgets of a conversation list
  *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -29,12 +29,10 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llevent.h"
-#include "llavatarlist.h" // for LLAvatarItemRecentSpeakerComparator
 #include "lllistcontextmenu.h"
 #include "llconversationmodel.h"
 
 class LLSpeakerMgr;
-class LLAvatarList;
 class LLUICtrl;
 class LLAvalineUpdater;
 
@@ -46,13 +44,12 @@ public:
 	typedef boost::function<bool (const LLUUID& speaker_id)> validate_speaker_callback_t;
 
 	LLParticipantList(LLSpeakerMgr* data_source, 
-					  LLAvatarList* avatar_list, 
 					  LLFolderViewModelInterface& root_view_model,
 					  bool use_context_menu = true, 
 					  bool exclude_agent = true, 
 					  bool can_toggle_icons = true);
 	~LLParticipantList();
-	void setSpeakingIndicatorsVisible(BOOL visible);
+//	void setSpeakingIndicatorsVisible(BOOL visible);
 
 	enum EParticipantSortOrder
 	{
@@ -70,8 +67,8 @@ public:
 	/**
 	 * Set and sort Avatarlist by given order
 	 */
-	void setSortOrder(EParticipantSortOrder order = E_SORT_BY_NAME);
-	const EParticipantSortOrder getSortOrder() const;
+	//void setSortOrder(EParticipantSortOrder order = E_SORT_BY_NAME);
+	//const EParticipantSortOrder getSortOrder() const;
 
 	/**
 	 * Refreshes the participant list.
@@ -101,7 +98,7 @@ protected:
 	/**
 	 * Sorts the Avatarlist by stored order
 	 */
-	void sort();
+	//void sort();
 
 	/**
 	 * List of listeners implementing LLOldEvents::LLSimpleListener.
@@ -159,24 +156,9 @@ protected:
 		/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 	};
 
-	/**
-	 * Comparator for comparing avatar items by last spoken time
-	 */
-	class LLAvatarItemRecentSpeakerComparator : public LLAvatarItemNameComparator, public LLRefCount
-	{
-		LOG_CLASS(LLAvatarItemRecentSpeakerComparator);
-	public:
-		LLAvatarItemRecentSpeakerComparator(LLParticipantList& parent):mParent(parent){};
-		virtual ~LLAvatarItemRecentSpeakerComparator() {};
-	protected:
-		virtual bool doCompare(const LLAvatarListItem* avatar_item1, const LLAvatarListItem* avatar_item2) const;
-	private:
-		LLParticipantList& mParent;
-	};
-
 private:
-	void onAvatarListDoubleClicked(LLUICtrl* ctrl);
-	void onAvatarListRefreshed(LLUICtrl* ctrl, const LLSD& param);
+//	void onAvatarListDoubleClicked(LLUICtrl* ctrl);
+//	void onAvatarListRefreshed(LLUICtrl* ctrl, const LLSD& param);
 
 	void onAvalineCallerFound(const LLUUID& participant_id);
 	void onAvalineCallerRemoved(const LLUUID& participant_id);
@@ -188,10 +170,7 @@ private:
 	 */
 	void adjustParticipant(const LLUUID& speaker_id);
 
-	bool isHovered();
-
 	LLSpeakerMgr*		mSpeakerMgr;
-	LLAvatarList*		mAvatarList;
 
 	std::set<LLUUID>	mModeratorList;
 	std::set<LLUUID>	mModeratorToRemoveList;
@@ -216,7 +195,7 @@ private:
 	boost::signals2::connection mAvatarListReturnConnection;
 	boost::signals2::connection mAvatarListToggleIconsConnection;
 
-	LLPointer<LLAvatarItemRecentSpeakerComparator> mSortByRecentSpeakers;
+//	LLPointer<LLAvatarItemRecentSpeakerComparator> mSortByRecentSpeakers;
 	validate_speaker_callback_t mValidateSpeakerCallback;
 	LLAvalineUpdater* mAvalineUpdater;
 };

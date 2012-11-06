@@ -90,7 +90,7 @@
 		     layout="topleft"
 		     left_pad="5"
  		     mouse_opaque="true"
- 		     name="speaking_indicatorn"
+ 		     name="speaking_indicator"
  		     visible="false"
  		     width="20" />
         </layout_panel>

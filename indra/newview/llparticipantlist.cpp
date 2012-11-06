@@ -1,6 +1,6 @@
 /** 
  * @file llparticipantlist.cpp
- * @brief LLParticipantList intended to update view(LLAvatarList) according to incoming messages
+ * @brief LLParticipantList widgets of a conversation list
  *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -47,23 +47,6 @@
 #if LL_MSVC
 #pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
 #endif
-
-static const LLAvatarItemAgentOnTopComparator AGENT_ON_TOP_NAME_COMPARATOR;
-
-// helper function to update AvatarList Item's indicator in the voice participant list
-static void update_speaker_indicator(const LLAvatarList* const avatar_list, const LLUUID& avatar_uuid, bool is_muted)
-{
-	if (avatar_list)
-	{
-		LLAvatarListItem* item = dynamic_cast<LLAvatarListItem*>(avatar_list->getItemByValue(avatar_uuid));
-		if (item)
-		{
-			LLOutputMonitorCtrl* indicator = item->getChild<LLOutputMonitorCtrl>("speaking_indicator");
-			indicator->setIsMuted(is_muted);
-		}
-	}
-}
-
 
 // See EXT-4301.
 /**
@@ -205,14 +188,12 @@ private:
 };
 
 LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source,
-									 LLAvatarList* avatar_list,
 									 LLFolderViewModelInterface& root_view_model,
 									 bool use_context_menu/* = true*/,
 									 bool exclude_agent /*= true*/,
 									 bool can_toggle_icons /*= true*/) :
 	LLConversationItemSession(data_source->getSessionID(), root_view_model),
 	mSpeakerMgr(data_source),
-	mAvatarList(avatar_list),
 	mExcludeAgent(exclude_agent),
 	mValidateSpeakerCallback(NULL)
 {
@@ -234,7 +215,7 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source,
 	mSpeakerMgr->addListener(mSpeakerUpdateListener, "update_speaker");
 
 	setSessionID(mSpeakerMgr->getSessionID());
-	
+	/*
 	if (mAvatarList)
 	{
 		mAvatarList->setNoItemsCommentText(LLTrans::getString("LoadingData"));
@@ -260,7 +241,7 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source,
 			mAvatarListToggleIconsConnection = gSavedSettings.getControl("ParticipantListShowIcons")->getSignal()->connect(boost::bind(&LLAvatarList::toggleIcons, mAvatarList));
 		}
 	}
-
+	 */
 	//Lets fill avatarList with existing speakers
 	LLSpeakerMgr::speaker_list_t speaker_list;
 	mSpeakerMgr->getSpeakerList(&speaker_list, true);
@@ -278,8 +259,6 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source,
 			mModeratorToRemoveList.insert(speakerp->mID);
 		}
 	}
-	// we need to exclude agent id for non group chat
-	sort();
 	
 	// Identify and store what kind of session we are
 	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(data_source->getSessionID());
@@ -305,6 +284,7 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source,
 
 LLParticipantList::~LLParticipantList()
 {
+	/*
 	if (mAvatarList)
 	{
 		mAvatarListDoubleClickConnection.disconnect();
@@ -318,10 +298,11 @@ LLParticipantList::~LLParticipantList()
 		mAvatarList->setContextMenu(NULL);
 		mAvatarList->setComparator(NULL);
 	}
-
+	 */
 	delete mAvalineUpdater;
 }
 
+/*
 void LLParticipantList::setSpeakingIndicatorsVisible(BOOL visible)
 {
 	if (mAvatarList)
@@ -329,7 +310,8 @@ void LLParticipantList::setSpeakingIndicatorsVisible(BOOL visible)
 		mAvatarList->setSpeakingIndicatorsVisible(visible);
 	}
 }
-
+*/
+/*
 void LLParticipantList::onAvatarListDoubleClicked(LLUICtrl* ctrl)
 {
 	LLAvatarListItem* item = dynamic_cast<LLAvatarListItem*>(ctrl);
@@ -345,7 +327,8 @@ void LLParticipantList::onAvatarListDoubleClicked(LLUICtrl* ctrl)
 	
 	LLAvatarActions::startIM(clicked_id);
 }
-
+*/
+/*
 void LLParticipantList::onAvatarListRefreshed(LLUICtrl* ctrl, const LLSD& param)
 {
 	LLAvatarList* list = dynamic_cast<LLAvatarList*>(ctrl);
@@ -423,11 +406,10 @@ void LLParticipantList::onAvatarListRefreshed(LLUICtrl* ctrl, const LLSD& param)
 		if (speakerp->mStatus == LLSpeaker::STATUS_TEXT_ONLY)
 		{
 			setParticipantIsMuted(speakerp->mID, speakerp->mModeratorMutedVoice);
-			update_speaker_indicator(list, speakerp->mID, speakerp->mModeratorMutedVoice);
 		}
 	}
 }
-
+*/
 /*
   Seems this method is not necessary after onAvalineCallerRemoved was implemented;
 
@@ -441,40 +423,11 @@ void LLParticipantList::onAvatarListRefreshed(LLUICtrl* ctrl, const LLSD& param)
 */
 void LLParticipantList::onAvalineCallerFound(const LLUUID& participant_id)
 {
-	if (mAvatarList)
-	{
-		LLPanel* item = mAvatarList->getItemByValue(participant_id);
-
-		if (NULL == item)
-		{
-			LL_WARNS("Avaline") << "Something wrong. Unable to find item for: " << participant_id << LL_ENDL;
-			return;
-		}
-
-		if (typeid(*item) == typeid(LLAvalineListItem))
-		{
-			LL_DEBUGS("Avaline") << "Avaline caller has already correct class type for: " << participant_id << LL_ENDL;
-			// item representing an Avaline caller has a correct type already.
-			return;
-		}
-
-		LL_DEBUGS("Avaline") << "remove item from the list and re-add it: " << participant_id << LL_ENDL;
-
-		// remove UUID from LLAvatarList::mIDs to be able add it again.
-		uuid_vec_t& ids = mAvatarList->getIDs();
-		uuid_vec_t::iterator pos = std::find(ids.begin(), ids.end(), participant_id);
-		ids.erase(pos);
-
-		// remove item directly
-		mAvatarList->removeItem(item);
-	}
-	
 	LLConversationItemParticipant* participant = findParticipant(participant_id);
 	if (participant)
 	{
 		removeParticipant(participant);
 	}
-
 	// re-add avaline caller with a correct class instance.
 	addAvatarIDExceptAgent(participant_id);
 }
@@ -485,7 +438,7 @@ void LLParticipantList::onAvalineCallerRemoved(const LLUUID& participant_id)
 
 	mSpeakerMgr->removeAvalineSpeaker(participant_id);
 }
-
+/*
 void LLParticipantList::setSortOrder(EParticipantSortOrder order)
 {
 	const U32 speaker_sort_order = gSavedSettings.getU32("SpeakerParticipantDefaultOrder");
@@ -502,7 +455,7 @@ const LLParticipantList::EParticipantSortOrder LLParticipantList::getSortOrder()
 	const U32 speaker_sort_order = gSavedSettings.getU32("SpeakerParticipantDefaultOrder");
 	return EParticipantSortOrder(speaker_sort_order);
 }
-
+*/
 void LLParticipantList::setValidateSpeakerCallback(validate_speaker_callback_t cb)
 {
 	mValidateSpeakerCallback = cb;
@@ -512,19 +465,14 @@ void LLParticipantList::update()
 {
 	mSpeakerMgr->update(true);
 
+	/*
 	// Need to resort the participant list if it's in sort by recent speaker order.
-	if (E_SORT_BY_RECENT_SPEAKERS == getSortOrder() && !isHovered())
+	if (E_SORT_BY_RECENT_SPEAKERS == getSortOrder())
 	{
 		// Resort avatar list
 		sort();
 	}
-}
-
-bool LLParticipantList::isHovered()
-{
-	S32 x, y;
-	LLUI::getMousePositionScreen(&x, &y);
-	return (mAvatarList ? mAvatarList->calcScreenRect().pointInRect(x, y) : false);
+	 */
 }
 
 bool LLParticipantList::onAddItemEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
@@ -537,35 +485,18 @@ bool LLParticipantList::onAddItemEvent(LLPointer<LLOldEvents::LLEvent> event, co
 	}
 
 	addAvatarIDExceptAgent(uu_id);
-	sort();
 	return true;
 }
 
 bool LLParticipantList::onRemoveItemEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
 {
 	LLUUID avatar_id = event->getValue().asUUID();
-	if (mAvatarList)
-	{
-		uuid_vec_t& group_members = mAvatarList->getIDs();
-		uuid_vec_t::iterator pos = std::find(group_members.begin(), group_members.end(), avatar_id);
-		if(pos != group_members.end())
-		{
-			group_members.erase(pos);
-			mAvatarList->setDirty();
-		}
-	}
 	removeParticipant(avatar_id);
 	return true;
 }
 
 bool LLParticipantList::onClearListEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
 {
-	if (mAvatarList)
-	{
-		uuid_vec_t& group_members = mAvatarList->getIDs();
-		group_members.clear();
-		mAvatarList->setDirty();
-	}
 	clearParticipants();
 	return true;
 }
@@ -605,9 +536,9 @@ bool LLParticipantList::onModeratorUpdateEvent(LLPointer<LLOldEvents::LLEvent> e
 					mModeratorList.erase(id);
 				}
 			}
-
+			// *TODO : do we have to fire an event so that LLIMConversation::refreshConversation() gets called
 			// apply changes immediately
-			onAvatarListRefreshed(mAvatarList, LLSD());
+			//onAvatarListRefreshed(mAvatarList, LLSD());
 		}
 	}
 	return true;
@@ -622,11 +553,11 @@ bool LLParticipantList::onSpeakerMuteEvent(LLPointer<LLOldEvents::LLEvent> event
 	if (event->getValue().asString() == "voice")
 	{
 		setParticipantIsMuted(speakerp->mID, speakerp->mModeratorMutedVoice);
-		update_speaker_indicator(mAvatarList, speakerp->mID, speakerp->mModeratorMutedVoice);
 	}
 	return true;
 }
 
+/*
 void LLParticipantList::sort()
 {
 	// *TODO : Merov : Need to plan for sort() for LLConversationModel
@@ -658,12 +589,12 @@ void LLParticipantList::sort()
 			return;
 	}
 }
+*/
 
 void LLParticipantList::addAvatarIDExceptAgent(const LLUUID& avatar_id)
 {
 	// Do not add if already in there or excluded for some reason
 	if (mExcludeAgent && gAgent.getID() == avatar_id) return;
-	if (mAvatarList && mAvatarList->contains(avatar_id)) return;
 	if (findParticipant(avatar_id)) return;
 
 	bool is_avatar = LLVoiceClient::getInstance()->isParticipantAvatar(avatar_id);
@@ -677,21 +608,25 @@ void LLParticipantList::addAvatarIDExceptAgent(const LLUUID& avatar_id)
 		bool has_name = LLAvatarNameCache::get(avatar_id, &avatar_name);
 		participant = new LLConversationItemParticipant(!has_name ? LLTrans::getString("AvatarNameWaiting") : avatar_name.mDisplayName , avatar_id, mRootViewModel);
 		participant->fetchAvatarName();
+		/*
 		if (mAvatarList)
 		{
 			mAvatarList->getIDs().push_back(avatar_id);
 			mAvatarList->setDirty();
 		}
+		 */
 	}
 	else
 	{
 		std::string display_name = LLVoiceClient::getInstance()->getDisplayName(avatar_id);
 		// Create a participant view model instance
 		participant = new LLConversationItemParticipant(display_name.empty() ? LLTrans::getString("AvatarNameWaiting") : display_name, avatar_id, mRootViewModel);
+		/*
 		if (mAvatarList)
 		{
 			mAvatarList->addAvalineItem(avatar_id, mSpeakerMgr->getSessionID(), display_name.empty() ? LLTrans::getString("AvatarNameWaiting") : display_name);
 		}
+		 */
 		mAvalineUpdater->watchAvalineCaller(avatar_id);
 	}
 
@@ -766,35 +701,6 @@ bool LLParticipantList::SpeakerModeratorUpdateListener::handleEvent(LLPointer<LL
 bool LLParticipantList::SpeakerMuteListener::handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
 {
 	return mParent.onSpeakerMuteEvent(event, userdata);
-}
-
-bool LLParticipantList::LLAvatarItemRecentSpeakerComparator::doCompare(const LLAvatarListItem* avatar_item1, const LLAvatarListItem* avatar_item2) const
-{
-	if (mParent.mSpeakerMgr)
-	{
-		LLPointer<LLSpeaker> lhs = mParent.mSpeakerMgr->findSpeaker(avatar_item1->getAvatarId());
-		LLPointer<LLSpeaker> rhs = mParent.mSpeakerMgr->findSpeaker(avatar_item2->getAvatarId());
-		if ( lhs.notNull() && rhs.notNull() )
-		{
-			// Compare by last speaking time
-			if( lhs->mLastSpokeTime != rhs->mLastSpokeTime )
-				return ( lhs->mLastSpokeTime > rhs->mLastSpokeTime );
-			else if ( lhs->mSortIndex != rhs->mSortIndex )
-				return ( lhs->mSortIndex < rhs->mSortIndex );
-		}
-		else if ( lhs.notNull() )
-		{
-			// True if only avatar_item1 speaker info available
-			return true;
-		}
-		else if ( rhs.notNull() )
-		{
-			// False if only avatar_item2 speaker info available
-			return false;
-		}
-	}
-	// By default compare by name.
-	return LLAvatarItemNameComparator::doCompare(avatar_item1, avatar_item2);
 }
 
 //EOF
