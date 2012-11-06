@@ -71,6 +71,8 @@ public:
 
 	/*virtual*/	bool isMinimized() { return mMinimizedMode; }
 
+	/*virtual*/ void drawOpenFolderArrow(const LLFolderViewItem::Params& default_params, const LLUIColor& fg_color);
+
 	void toggleMinimizedMode(bool is_minimized);
 
 	void setVisibleIfDetached(BOOL visible);
