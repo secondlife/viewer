@@ -61,6 +61,12 @@ void doOnIdleOneTime(nullary_func_t callable);
 // Repeatedly call a callable in idle loop until it returns true.
 void doOnIdleRepeating(bool_func_t callable);
 
+// Call a given callable once after specified interval.
+void doAfterInterval(nullary_func_t callable, F32 seconds);
+
+// Call a given callable every specified number of seconds, until it returns true.
+void doPeriodically(bool_func_t callable, F32 seconds);
+
 extern LLCallbackList gIdleCallbacks;
 
 #endif

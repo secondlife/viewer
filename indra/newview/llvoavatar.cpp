@@ -5767,6 +5767,25 @@ LLMotion* LLVOAvatar::findMotion(const LLUUID& id) const
 	return mMotionController.findMotion(id);
 }
 
+void LLVOAvatar::debugColorizeSubMeshes(U32 i, const LLColor4& color)
+{
+	if (gSavedSettings.getBOOL("DebugAvatarCompositeBaked"))
+	{
+		avatar_joint_mesh_list_t::iterator iter = mBakedTextureDatas[i].mJointMeshes.begin();
+		avatar_joint_mesh_list_t::iterator end  = mBakedTextureDatas[i].mJointMeshes.end();
+		for (; iter != end; ++iter)
+		{
+			LLAvatarJointMesh* mesh = (*iter);
+			if (mesh)
+			{
+				{
+					mesh->setColor(color);
+				}
+			}
+		}
+	}
+}
+
 //-----------------------------------------------------------------------------
 // updateMeshTextures()
 // Uses the current TE values to set the meshes' and layersets' textures.
@@ -5814,7 +5833,7 @@ void LLVOAvatar::updateMeshTextures()
 										  && ( !layerset->getViewerComposite()->isInitialized()
 										  || !layerset->isLocalTextureDataAvailable() );
 			use_lkg_baked_layer[i] = (!is_layer_baked[i] 
-									  && (mBakedTextureDatas[i].mLastTextureIndex != IMG_DEFAULT_AVATAR) 
+									  && (mBakedTextureDatas[i].mLastTextureID != IMG_DEFAULT_AVATAR) 
 									  && layerset_invalid);
 			if (use_lkg_baked_layer[i])
 			{
@@ -5824,21 +5843,23 @@ void LLVOAvatar::updateMeshTextures()
 		else
 		{
 			use_lkg_baked_layer[i] = (!is_layer_baked[i] 
-									  && mBakedTextureDatas[i].mLastTextureIndex != IMG_DEFAULT_AVATAR);
+									  && mBakedTextureDatas[i].mLastTextureID != IMG_DEFAULT_AVATAR);
 		}
 
 	}
 	
 	for (U32 i=0; i < mBakedTextureDatas.size(); i++)
 	{
+		debugColorizeSubMeshes(i, LLColor4::white);
+
 		LLViewerTexLayerSet* layerset = getTexLayerSet(i);
 		if (use_lkg_baked_layer[i] && !isUsingLocalAppearance() )
 		{
 			LLViewerFetchedTexture* baked_img;
-			const std::string url = getImageURL(i, mBakedTextureDatas[i].mLastTextureIndex);
+			const std::string url = getImageURL(i, mBakedTextureDatas[i].mLastTextureID);
 			if (!url.empty())
 			{
-				baked_img = LLViewerTextureManager::getFetchedTextureFromUrl(url, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, mBakedTextureDatas[i].mLastTextureIndex);
+				baked_img = LLViewerTextureManager::getFetchedTextureFromUrl(url, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, mBakedTextureDatas[i].mLastTextureID);
 			}
 			else
 			{
@@ -5849,10 +5870,13 @@ void LLVOAvatar::updateMeshTextures()
 					llwarns << "updateMeshTextures: invalid host for object: " << getID() << llendl;
 				}
 
-				baked_img = LLViewerTextureManager::getFetchedTextureFromHost( mBakedTextureDatas[i].mLastTextureIndex, target_host );
+				baked_img = LLViewerTextureManager::getFetchedTextureFromHost( mBakedTextureDatas[i].mLastTextureID, target_host );
 			}
 
 			mBakedTextureDatas[i].mIsUsed = TRUE;
+
+			debugColorizeSubMeshes(i,LLColor4::red);
+
 			avatar_joint_mesh_list_t::iterator iter = mBakedTextureDatas[i].mJointMeshes.begin();
 			avatar_joint_mesh_list_t::iterator end  = mBakedTextureDatas[i].mJointMeshes.end();
 			for (; iter != end; ++iter)
@@ -5861,17 +5885,13 @@ void LLVOAvatar::updateMeshTextures()
 				if (mesh)
 				{
 					mesh->setTexture( baked_img );
-					if (gSavedSettings.getBOOL("DebugAvatarCompositeBaked"))
-					{
-						mesh->setColor(LLColor4::red);
-					}
 				}
 			}
 		}
 		else if (!isUsingLocalAppearance() && is_layer_baked[i])
 		{
 			LLViewerFetchedTexture* baked_img = LLViewerTextureManager::staticCastToFetchedTexture(getImage( mBakedTextureDatas[i].mTextureIndex, 0 ), TRUE) ;
-			if( baked_img->getID() == mBakedTextureDatas[i].mLastTextureIndex )
+			if( baked_img->getID() == mBakedTextureDatas[i].mLastTextureID )
 			{
 				// Even though the file may not be finished loading, we'll consider it loaded and use it (rather than doing compositing).
 				useBakedTexture( baked_img->getID() );
@@ -5890,9 +5910,12 @@ void LLVOAvatar::updateMeshTextures()
 		}
 		else if (layerset && isUsingLocalAppearance())
 		{
+			debugColorizeSubMeshes(i,LLColor4::yellow );
+
 			layerset->createComposite();
 			layerset->setUpdatesEnabled( TRUE );
 			mBakedTextureDatas[i].mIsUsed = FALSE;
+
 			avatar_joint_mesh_list_t::iterator iter = mBakedTextureDatas[i].mJointMeshes.begin();
 			avatar_joint_mesh_list_t::iterator end  = mBakedTextureDatas[i].mJointMeshes.end();
 			for (; iter != end; ++iter)
@@ -5901,28 +5924,12 @@ void LLVOAvatar::updateMeshTextures()
 				if (mesh)
 				{
 					mesh->setLayerSet( layerset );
-					if (gSavedSettings.getBOOL("DebugAvatarCompositeBaked"))
-					{
-						mesh->setColor( LLColor4::yellow );
-					}
 				}
 			}
 		}
 		else
 		{
-			if (gSavedSettings.getBOOL("DebugAvatarCompositeBaked"))
-			{
-				avatar_joint_mesh_list_t::iterator iter = mBakedTextureDatas[i].mJointMeshes.begin();
-				avatar_joint_mesh_list_t::iterator end  = mBakedTextureDatas[i].mJointMeshes.end();
-				for (; iter != end; ++iter)
-				{
-					LLAvatarJointMesh* mesh = (*iter);
-					if (mesh)
-					{
-						mesh->setColor( LLColor4::blue );
-					}
-				}
-			}
+			debugColorizeSubMeshes(i,LLColor4::blue);
 		}
 	}
 
@@ -6241,7 +6248,7 @@ void LLVOAvatar::onFirstTEMessageReceived()
 			if (layer_baked)
 			{
 				LLViewerFetchedTexture* image = LLViewerTextureManager::staticCastToFetchedTexture(getImage( mBakedTextureDatas[i].mTextureIndex, 0 ), TRUE) ;
-				mBakedTextureDatas[i].mLastTextureIndex = image->getID();
+				mBakedTextureDatas[i].mLastTextureID = image->getID();
 				// If we have more than one texture for the other baked layers, we'll want to call this for them too.
 				if ( (image->getID() != IMG_INVISIBLE) && ((i == BAKED_HEAD) || (i == BAKED_UPPER) || (i == BAKED_LOWER)) )
 				{
@@ -6432,11 +6439,11 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	for (U8 baked_index = 0; baked_index < mBakedTextureDatas.size(); baked_index++)
 	{
 		if (!isTextureDefined(mBakedTextureDatas[baked_index].mTextureIndex) 
-			&& mBakedTextureDatas[baked_index].mLastTextureIndex != IMG_DEFAULT
+			&& mBakedTextureDatas[baked_index].mLastTextureID != IMG_DEFAULT
 			&& baked_index != BAKED_SKIRT)
 		{
 			setTEImage(mBakedTextureDatas[baked_index].mTextureIndex, 
-				LLViewerTextureManager::getFetchedTexture(mBakedTextureDatas[baked_index].mLastTextureIndex, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
+				LLViewerTextureManager::getFetchedTexture(mBakedTextureDatas[baked_index].mLastTextureID, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
 		}
 	}
 
@@ -6766,8 +6773,11 @@ void LLVOAvatar::useBakedTexture( const LLUUID& id )
 		{
 			LL_DEBUGS("Avatar") << avString() << " i " << i << " id " << id << LL_ENDL;
 			mBakedTextureDatas[i].mIsLoaded = true;
-			mBakedTextureDatas[i].mLastTextureIndex = id;
+			mBakedTextureDatas[i].mLastTextureID = id;
 			mBakedTextureDatas[i].mIsUsed = true;
+
+			debugColorizeSubMeshes(i,LLColor4::green);
+
 			avatar_joint_mesh_list_t::iterator iter = mBakedTextureDatas[i].mJointMeshes.begin();
 			avatar_joint_mesh_list_t::iterator end  = mBakedTextureDatas[i].mJointMeshes.end();
 			for (; iter != end; ++iter)
@@ -6776,10 +6786,6 @@ void LLVOAvatar::useBakedTexture( const LLUUID& id )
 				if (mesh)
 				{
 					mesh->setTexture( image_baked );
-					if (gSavedSettings.getBOOL("DebugAvatarCompositeBaked"))
-					{
-						mesh->setColor( LLColor4::green );
-					}
 				}
 			}
 			if (mBakedTextureDatas[i].mTexLayerSet)

@@ -351,7 +351,7 @@ public:
 			if (!success)
 			{
 				worker->setGetStatus(status, reason);
-// 				llwarns << "CURL GET FAILED, status:" << status << " reason:" << reason << llendl;
+ 				llwarns << "CURL GET FAILED, status:" << status << " reason:" << reason << " id: " << mID <<llendl;
 			}
 			
 			data_size = worker->callbackHttpGet(channels, buffer, partial, success);
