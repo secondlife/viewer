@@ -2192,7 +2192,7 @@ void LLViewerObject::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 	}
 
 	updateDrawable(FALSE);
-}
+	}
 }
 
 
