@@ -275,6 +275,7 @@ private:
 protected:
 	LLUUID mID;
 	S32 mBoostLevel;				// enum describing priority level
+	F32 mSelectedTime;				// time texture was last selected
 	S32 mFullWidth;
 	S32 mFullHeight;
 	BOOL  mUseMipMaps ;
