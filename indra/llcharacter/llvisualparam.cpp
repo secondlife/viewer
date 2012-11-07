@@ -322,6 +322,18 @@ void LLVisualParam::resetDrivenParams()
 	return;
 }
 
+const std::string param_location_name(const EParamLocation& loc)
+{
+	switch (loc)
+	{
+		case LOC_UNKNOWN: return "unknown";
+		case LOC_AV_SELF: return "self";
+		case LOC_AV_OTHER: return "other";
+		case LOC_WEARABLE: return "wearable";
+		default: return "error";
+	}
+}
+
 void LLVisualParam::setParamLocation(EParamLocation loc)
 {
 	if (mParamLocation == LOC_UNKNOWN || loc == LOC_UNKNOWN)

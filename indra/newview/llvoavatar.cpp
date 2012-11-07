@@ -6320,9 +6320,11 @@ void dump_visual_param(apr_file_t* file, LLVisualParam* viewer_param, F32 value)
 		wtype = vparam->getWearableType();
 	}
 	S32 u8_value = F32_to_U8(value,viewer_param->getMinWeight(),viewer_param->getMaxWeight());
-	apr_file_printf(file, "\t\t<param id=\"%d\" name=\"%s\" value=\"%.3f\" u8=\"%d\" type=\"%s\" wearable=\"%s\"/>\n",
+	apr_file_printf(file, "\t\t<param id=\"%d\" name=\"%s\" value=\"%.3f\" u8=\"%d\" type=\"%s\" wearable=\"%s\" loc=\"%s\"/>\n",
 					viewer_param->getID(), viewer_param->getName().c_str(), value, u8_value, type_string.c_str(),
-					LLWearableType::getTypeName(LLWearableType::EType(wtype)).c_str());
+					LLWearableType::getTypeName(LLWearableType::EType(wtype)).c_str(),
+					param_location_name(vparam->getParamLocation()).c_str()
+		);
 }
 
 
@@ -6929,6 +6931,12 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 	apr_file_printf( file, "\t</archetype>\n" );
 	apr_file_printf( file, "\n</linden_genepool>\n" );
 
+	bool ultra_verbose = false;
+	if (isSelf() && ultra_verbose)
+	{
+		// show the cloned params inside the wearables as well.
+		gAgentAvatarp->dumpWearableInfo(outfile);
+	}
 	// File will close when handle goes out of scope
 }
 
