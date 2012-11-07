@@ -115,8 +115,8 @@ void LLPanelMarketplaceInbox::onFocusReceived()
 	if (sidepanel_inventory)
 	{
 		sidepanel_inventory->clearSelections(true, false);
-	}
-
+		}
+	
 	gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
 }
 
@@ -168,8 +168,8 @@ U32 LLPanelMarketplaceInbox::getFreshItemCount() const
 				if (inbox_item_view && inbox_item_view->isFresh())
 				{
 					fresh_item_count++;
-				}
-			}
+		}
+	}
 		}
 	}
 

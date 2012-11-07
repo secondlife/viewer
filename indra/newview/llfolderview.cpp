@@ -2234,12 +2234,11 @@ void LLFolderView::doIdle()
 		mDebugFilters = debug_filters;
 		arrangeAll();
 	}
-
 	BOOL filter_modified_and_active = mFilter->isModified() && mFilter->isNotDefault();
 	mNeedsAutoSelect = filter_modified_and_active &&
 						!(gFocusMgr.childHasKeyboardFocus(this) || gFocusMgr.getMouseCapture());
 	mFilter->clearModified();
-			
+
 	// filter to determine visibility before arranging
 	filterFromRoot();
 

@@ -6,7 +6,7 @@
     height="395"
     width="1075"
     min_height="395"
-    min_width="1075"
+    min_width="990"
     layout="topleft"
     name="floater_pathfinding_linksets"
     help_topic="floater_pathfinding_linksets"
@@ -524,7 +524,7 @@
         tool_tip="Walkability for characters of type D.  Example character type is other."
         width="45" />
     <button
-        follows="right|bottom"
+        follows="left|bottom"
         height="21"
         label="Apply changes"
         layout="topleft"

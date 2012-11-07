@@ -98,7 +98,11 @@ LLFloaterPathfindingLinksets::LLFloaterPathfindingLinksets(const LLSD& pSeed)
 	mLabelSuggestedUseD(NULL),
 	mEditD(NULL),
 	mApplyEditsButton(NULL),
-	mBeaconColor()
+	mBeaconColor(),
+	mPreviousValueA(LLPathfindingLinkset::MAX_WALKABILITY_VALUE),
+	mPreviousValueB(LLPathfindingLinkset::MAX_WALKABILITY_VALUE),
+	mPreviousValueC(LLPathfindingLinkset::MAX_WALKABILITY_VALUE),
+	mPreviousValueD(LLPathfindingLinkset::MAX_WALKABILITY_VALUE)
 {
 }
 
@@ -168,7 +172,7 @@ BOOL LLFloaterPathfindingLinksets::postBuild()
 	mEditA = findChild<LLLineEditor>("edit_a_value");
 	llassert(mEditA != NULL);
 	mEditA->setPrevalidate(LLTextValidate::validateNonNegativeS32);
-	mEditA->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onWalkabilityCoefficientEntered, this, _1));
+	mEditA->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onWalkabilityCoefficientEntered, this, _1, mPreviousValueA));
 
 	mLabelEditB = findChild<LLTextBase>("edit_b_label");
 	llassert(mLabelEditB != NULL);
@@ -179,7 +183,7 @@ BOOL LLFloaterPathfindingLinksets::postBuild()
 	mEditB = findChild<LLLineEditor>("edit_b_value");
 	llassert(mEditB != NULL);
 	mEditB->setPrevalidate(LLTextValidate::validateNonNegativeS32);
-	mEditB->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onWalkabilityCoefficientEntered, this, _1));
+	mEditB->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onWalkabilityCoefficientEntered, this, _1, mPreviousValueB));
 
 	mLabelEditC = findChild<LLTextBase>("edit_c_label");
 	llassert(mLabelEditC != NULL);
@@ -190,7 +194,7 @@ BOOL LLFloaterPathfindingLinksets::postBuild()
 	mEditC = findChild<LLLineEditor>("edit_c_value");
 	llassert(mEditC != NULL);
 	mEditC->setPrevalidate(LLTextValidate::validateNonNegativeS32);
-	mEditC->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onWalkabilityCoefficientEntered, this, _1));
+	mEditC->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onWalkabilityCoefficientEntered, this, _1, mPreviousValueC));
 
 	mLabelEditD = findChild<LLTextBase>("edit_d_label");
 	llassert(mLabelEditD != NULL);
@@ -201,7 +205,7 @@ BOOL LLFloaterPathfindingLinksets::postBuild()
 	mEditD = findChild<LLLineEditor>("edit_d_value");
 	llassert(mEditD != NULL);
 	mEditD->setPrevalidate(LLTextValidate::validateNonNegativeS32);
-	mEditD->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onWalkabilityCoefficientEntered, this, _1));
+	mEditD->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onWalkabilityCoefficientEntered, this, _1, mPreviousValueD));
 
 	mApplyEditsButton = findChild<LLButton>("apply_edit_values");
 	llassert(mApplyEditsButton != NULL);
@@ -323,26 +327,38 @@ void LLFloaterPathfindingLinksets::onClearFiltersClicked()
 	rebuildObjectsScrollList();
 }
 
-void LLFloaterPathfindingLinksets::onWalkabilityCoefficientEntered(LLUICtrl *pUICtrl)
+void LLFloaterPathfindingLinksets::onWalkabilityCoefficientEntered(LLUICtrl *pUICtrl, LLSD &pPreviousValue)
 {
 	LLLineEditor *pLineEditor = static_cast<LLLineEditor *>(pUICtrl);
 	llassert(pLineEditor != NULL);
 
 	const std::string &valueString = pLineEditor->getText();
-	S32 value;
 
-	if (LLStringUtil::convertToS32(valueString, value))
+	S32 intValue;
+	LLSD value;
+	bool doResetValue = false;
+
+	if (valueString.empty())
 	{
-		if ((value < LLPathfindingLinkset::MIN_WALKABILITY_VALUE) || (value > LLPathfindingLinkset::MAX_WALKABILITY_VALUE))
-		{
-			value = llclamp(value, LLPathfindingLinkset::MIN_WALKABILITY_VALUE, LLPathfindingLinkset::MAX_WALKABILITY_VALUE);
-			pLineEditor->setValue(LLSD(value));
-		}
+		value = pPreviousValue;
+		doResetValue = true;
+	}
+	else if (LLStringUtil::convertToS32(valueString, intValue))
+	{
+		doResetValue = ((intValue < LLPathfindingLinkset::MIN_WALKABILITY_VALUE) || (intValue > LLPathfindingLinkset::MAX_WALKABILITY_VALUE));
+		value = LLSD(llclamp(intValue, LLPathfindingLinkset::MIN_WALKABILITY_VALUE, LLPathfindingLinkset::MAX_WALKABILITY_VALUE));
 	}
 	else
 	{
-		pLineEditor->setValue(LLSD(LLPathfindingLinkset::MAX_WALKABILITY_VALUE));
+		value = LLSD(LLPathfindingLinkset::MAX_WALKABILITY_VALUE);
+		doResetValue = true;
 	}
+
+	if (doResetValue)
+	{
+		pLineEditor->setValue(value);
+	}
+	pPreviousValue = value;
 }
 
 void LLFloaterPathfindingLinksets::onApplyChangesClicked()
@@ -376,10 +392,14 @@ void LLFloaterPathfindingLinksets::updateEditFieldValues()
 		const LLPathfindingLinkset *linkset = dynamic_cast<const LLPathfindingLinkset *>(firstSelectedObjectPtr.get());
 
 		setEditLinksetUse(linkset->getLinksetUse());
-		mEditA->setValue(LLSD(linkset->getWalkabilityCoefficientA()));
-		mEditB->setValue(LLSD(linkset->getWalkabilityCoefficientB()));
-		mEditC->setValue(LLSD(linkset->getWalkabilityCoefficientC()));
-		mEditD->setValue(LLSD(linkset->getWalkabilityCoefficientD()));
+		mPreviousValueA = LLSD(linkset->getWalkabilityCoefficientA());
+		mPreviousValueB = LLSD(linkset->getWalkabilityCoefficientB());
+		mPreviousValueC = LLSD(linkset->getWalkabilityCoefficientC());
+		mPreviousValueD = LLSD(linkset->getWalkabilityCoefficientD());
+		mEditA->setValue(mPreviousValueA);
+		mEditB->setValue(mPreviousValueB);
+		mEditC->setValue(mPreviousValueC);
+		mEditD->setValue(mPreviousValueD);
 	}
 }
 
