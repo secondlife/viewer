@@ -46,6 +46,25 @@ Recording::Recording()
 	mStackTimers(new AccumulatorBuffer<TimerAccumulator>())
 {}
 
+Recording::Recording( const Recording& other )
+{
+	llassert(other.mCountsFloat.get() != NULL);
+	mSamplingTimer     = other.mSamplingTimer;
+	mElapsedSeconds    = other.mElapsedSeconds;
+	mCountsFloat       = other.mCountsFloat;
+	mMeasurementsFloat = other.mMeasurementsFloat;
+	mCounts            = other.mCounts;
+	mMeasurements      = other.mMeasurements;
+	mStackTimers       = other.mStackTimers;
+
+	LLStopWatchControlsMixin::initTo(other.getPlayState());
+	if (other.isStarted())
+	{
+		handleStart();
+	}
+}
+
+
 Recording::~Recording()
 {}
 

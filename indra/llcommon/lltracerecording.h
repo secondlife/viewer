@@ -106,23 +106,7 @@ namespace LLTrace
 	public:
 		Recording();
 
-		Recording(const Recording& other)
-		{
-			mSamplingTimer     = other.mSamplingTimer;
-			mElapsedSeconds    = other.mElapsedSeconds;
-			mCountsFloat       = other.mCountsFloat;
-			mMeasurementsFloat = other.mMeasurementsFloat;
-			mCounts            = other.mCounts;
-			mMeasurements      = other.mMeasurements;
-			mStackTimers       = other.mStackTimers;
-
-			LLStopWatchControlsMixin::initTo(other.getPlayState());
-			if (other.isStarted())
-			{
-				handleStart();
-			}
-
-		}
+		Recording(const Recording& other);
 		~Recording();
 
 		void makePrimary();

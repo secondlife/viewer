@@ -533,7 +533,7 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 		sTotalTextureMemory >= sMaxTotalTextureMem)
 	{
 		//when texture memory overflows, lower down the threashold to release the textures more aggressively.
-		sMaxDesiredTextureMem = llmin(sMaxDesiredTextureMem * 0.75f, (LLUnit::Bytes<S32>)gMaxVideoRam) ;//512 MB
+		sMaxDesiredTextureMem = llmin(sMaxDesiredTextureMem * 0.75f, LLUnit::Bytes<S32>(gMaxVideoRam));
 	
 		// If we are using more texture memory than we should,
 		// scale up the desired discard level
@@ -3312,7 +3312,7 @@ void LLViewerLODTexture::processTextureStats()
 				scaleDown() ;
 			}
 			// Only allow GL to have 2x the video card memory
-			else if ( sTotalTextureMemory > sMaxTotalTextureMem*texmem_middle_bound_scale &&
+			else if ( sTotalTextureMemory > sMaxTotalTextureMem * texmem_middle_bound_scale &&
 				(!getBoundRecently() || mDesiredDiscardLevel >= mCachedRawDiscardLevel))
 			{
 				scaleDown() ;

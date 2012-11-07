@@ -51,6 +51,11 @@ struct LLUnitType : public BASE_UNIT
 		return static_cast<unit_t&>(*this);
 	}
 
+	operator storage_t () const
+	{
+		return value();
+	}
+
 	storage_t value() const
 	{
 		return convertToDerived(mBaseValue);
@@ -102,6 +107,11 @@ struct LLUnitType<STORAGE_TYPE, T, T>
 		return static_cast<unit_t&>(*this);
 	}
 
+	operator storage_t () const
+	{
+		return value();
+	}
+
 	storage_t value() const { return mBaseValue; }
 
 	template<typename CONVERTED_TYPE>
@@ -109,7 +119,6 @@ struct LLUnitType<STORAGE_TYPE, T, T>
 	{
 		return CONVERTED_TYPE(*this).value();
 	}
-
 
 	static storage_t convertToBase(storage_t derived_value)
 	{
@@ -150,97 +159,75 @@ protected:
 	storage_t mBaseValue;
 };
 
+template<typename STORAGE_TYPE, typename BASE_UNIT, typename DERIVED_UNIT>
+struct LLUnitTypeWrapper
+:	public LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT>
+{
+	typedef LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT> unit_t;
+	LLUnitTypeWrapper(const unit_t& other)
+	:	unit_t(other)
+	{}
+};
+
+
 //
 // operator +
 //
-template<typename STORAGE_TYPE, typename BASE_UNIT, typename DERIVED_UNIT>
-DERIVED_UNIT operator + (typename LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT>::storage_t first, LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT> second)
+template<typename STORAGE_TYPE, typename BASE_UNIT, typename DERIVED_UNIT, typename STORAGE_TYPE2, typename BASE_UNIT2, typename DERIVED_UNIT2>
+DERIVED_UNIT operator + (typename LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT>::storage_t first, LLUnitType<STORAGE_TYPE2, BASE_UNIT2, DERIVED_UNIT2> second)
 {
-	return DERIVED_UNIT(first + second.value());
+	return DERIVED_UNIT(first + LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT>(second).value());
 }
 
-template<typename STORAGE_TYPE, typename BASE_UNIT, typename DERIVED_UNIT>
-DERIVED_UNIT operator + (LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT> first, typename LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT>::storage_t second)
-{
-	return DERIVED_UNIT(first.value() + second);
-}
-
-template<typename STORAGE_TYPE, typename BASE_UNIT, typename DERIVED_UNIT, typename OTHER_DERIVED_UNIT>
-DERIVED_UNIT operator + (LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT> first, LLUnitType<STORAGE_TYPE, BASE_UNIT, OTHER_DERIVED_UNIT> second)
-{
-	return DERIVED_UNIT(first.value() + second.value());
-}
 
 //
 // operator -
 //
-template<typename STORAGE_TYPE, typename BASE_UNIT, typename DERIVED_UNIT>
+template<typename STORAGE_TYPE, typename BASE_UNIT, typename DERIVED_UNIT, typename STORAGE_TYPE2, typename BASE_UNIT2, typename DERIVED_UNIT2>
 DERIVED_UNIT operator - (typename LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT>::storage_t first, LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT> second)
 {
-	return DERIVED_UNIT(first - second.value());
-}
-
-template<typename STORAGE_TYPE, typename BASE_UNIT, typename DERIVED_UNIT>
-DERIVED_UNIT operator - (LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT> first, typename LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT>::storage_t second)
-{
-	return DERIVED_UNIT(first.value() - second);
-}
-
-template<typename STORAGE_TYPE, typename BASE_UNIT, typename DERIVED_UNIT, typename OTHER_DERIVED_UNIT>
-DERIVED_UNIT operator - (LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT> first, LLUnitType<STORAGE_TYPE, BASE_UNIT, OTHER_DERIVED_UNIT> second)
-{
-	return DERIVED_UNIT(first.value() - second.value());
+	return DERIVED_UNIT(first - LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT>(second).value());
 }
 
 //
 // operator *
 //
 template<typename STORAGE_TYPE, typename BASE_UNIT, typename DERIVED_UNIT>
-DERIVED_UNIT operator * (typename LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT>::storage_t first, LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT> second)
+DERIVED_UNIT operator * (STORAGE_TYPE first, LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT> second)
 {
 	return DERIVED_UNIT(first * second.value());
 }
 
 template<typename STORAGE_TYPE, typename BASE_UNIT, typename DERIVED_UNIT>
-DERIVED_UNIT operator * (LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT> first, typename LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT>::storage_t second)
+DERIVED_UNIT operator * (LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT> first, STORAGE_TYPE second)
 {
 	return DERIVED_UNIT(first.value() * second);
 }
+
 
 //
 // operator /
 //
 template<typename STORAGE_TYPE, typename BASE_UNIT, typename DERIVED_UNIT>
-DERIVED_UNIT operator / (typename LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT>::storage_t first, LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT> second)
+DERIVED_UNIT operator / (STORAGE_TYPE first, LLUnitTypeWrapper<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT> second)
 {
-	return DERIVED_UNIT(first * second.value());
+	return DERIVED_UNIT(first / second.value());
 }
 
 template<typename STORAGE_TYPE, typename BASE_UNIT, typename DERIVED_UNIT>
-DERIVED_UNIT operator / (LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT> first, typename LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT>::storage_t second)
+DERIVED_UNIT operator / (LLUnitTypeWrapper<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT> first, STORAGE_TYPE second)
 {
-	return DERIVED_UNIT(first.value() * second);
+	return DERIVED_UNIT(first.value() / second);
 }
 
 //
 // operator <
 //
-template<typename STORAGE_TYPE, typename BASE_UNIT, typename DERIVED_UNIT>
+template<typename STORAGE_TYPE, typename BASE_UNIT, typename DERIVED_UNIT, typename STORAGE_TYPE2, typename BASE_UNIT2, typename DERIVED_UNIT2>
+
 bool operator < (typename LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT>::storage_t first, LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT> second)
 {
 	return first < second.value();
-}
-
-template<typename STORAGE_TYPE, typename BASE_UNIT, typename DERIVED_UNIT>
-bool operator < (LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT> first, typename LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT>::storage_t second)
-{
-	return first.value() < second;
-}
-
-template<typename STORAGE_TYPE, typename BASE_UNIT, typename DERIVED_UNIT, typename OTHER_DERIVED_UNIT>
-bool operator < (LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT> first, LLUnitType<STORAGE_TYPE, BASE_UNIT, OTHER_DERIVED_UNIT> second)
-{
-	return first.value() < second.value();
 }
 
 //
@@ -252,17 +239,6 @@ bool operator <= (typename LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT>::st
 	return first <= second.value();
 }
 
-template<typename STORAGE_TYPE, typename BASE_UNIT, typename DERIVED_UNIT>
-bool operator <= (LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT> first, typename LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT>::storage_t second)
-{
-	return first.value() <= second;
-}
-
-template<typename STORAGE_TYPE, typename BASE_UNIT, typename DERIVED_UNIT, typename OTHER_DERIVED_UNIT>
-bool operator <= (LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT> first, LLUnitType<STORAGE_TYPE, BASE_UNIT, OTHER_DERIVED_UNIT> second)
-{
-	return first.value() <= second.value();
-}
 
 //
 // operator >
@@ -273,17 +249,6 @@ bool operator > (typename LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT>::sto
 	return first > second.value();
 }
 
-template<typename STORAGE_TYPE, typename BASE_UNIT, typename DERIVED_UNIT>
-bool operator > (LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT> first, typename LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT>::storage_t second)
-{
-	return first.value() > second;
-}
-
-template<typename STORAGE_TYPE, typename BASE_UNIT, typename DERIVED_UNIT, typename OTHER_DERIVED_UNIT>
-bool operator > (LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT> first, LLUnitType<STORAGE_TYPE, BASE_UNIT, OTHER_DERIVED_UNIT> second)
-{
-	return first.value() > second.value();
-}
 //
 // operator >=
 //
@@ -291,18 +256,6 @@ template<typename STORAGE_TYPE, typename BASE_UNIT, typename DERIVED_UNIT>
 bool operator >= (typename LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT>::storage_t first, LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT> second)
 {
 	return first >= second.value();
-}
-
-template<typename STORAGE_TYPE, typename BASE_UNIT, typename DERIVED_UNIT>
-bool operator >= (LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT> first, typename LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT>::storage_t second)
-{
-	return first.value() >= second;
-}
-
-template<typename STORAGE_TYPE, typename BASE_UNIT, typename DERIVED_UNIT, typename OTHER_DERIVED_UNIT>
-bool operator >= (LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT> first, LLUnitType<STORAGE_TYPE, BASE_UNIT, OTHER_DERIVED_UNIT> second)
-{
-	return first.value() >= second.value();
 }
 
 //
@@ -314,18 +267,6 @@ bool operator == (typename LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT>::st
 	return first == second.value();
 }
 
-template<typename STORAGE_TYPE, typename BASE_UNIT, typename DERIVED_UNIT>
-bool operator == (LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT> first, typename LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT>::storage_t second)
-{
-	return first.value() == second;
-}
-
-template<typename STORAGE_TYPE, typename BASE_UNIT, typename DERIVED_UNIT, typename OTHER_DERIVED_UNIT>
-bool operator == (LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT> first, LLUnitType<STORAGE_TYPE, BASE_UNIT, OTHER_DERIVED_UNIT> second)
-{
-	return first.value() == second.value();
-}
-
 //
 // operator !=
 //
@@ -333,18 +274,6 @@ template<typename STORAGE_TYPE, typename BASE_UNIT, typename DERIVED_UNIT>
 bool operator != (typename LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT>::storage_t first, LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT> second)
 {
 	return first != second.value();
-}
-
-template<typename STORAGE_TYPE, typename BASE_UNIT, typename DERIVED_UNIT>
-bool operator != (LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT> first, typename LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT>::storage_t second)
-{
-	return first.value() != second;
-}
-
-template<typename STORAGE_TYPE, typename BASE_UNIT, typename DERIVED_UNIT, typename OTHER_DERIVED_UNIT>
-bool operator != (LLUnitType<STORAGE_TYPE, BASE_UNIT, DERIVED_UNIT> first, LLUnitType<STORAGE_TYPE, BASE_UNIT, OTHER_DERIVED_UNIT> second)
-{
-	return first.value() != second.value();
 }
 
 #define LL_DECLARE_BASE_UNIT(unit_name)                                                                          \
