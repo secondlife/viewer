@@ -764,6 +764,19 @@ void LLIMFloaterContainer::setSortOrder(const LLConversationSort& order)
 	mConversationsRoot->arrangeAll();
 	// try to keep selection onscreen, even if it wasn't to start with
 	mConversationsRoot->scrollToShowSelection();
+	
+	// Notify all conversation (torn off or not) of the change to the sort order
+	// Note: For the moment, the sort order is *unique* across all conversations. That might change in the future.
+	for (conversations_items_map::iterator it_session = mConversationsItems.begin(); it_session != mConversationsItems.end(); it_session++)
+	{
+		LLUUID session_id = it_session->first;
+		LLIMConversation *conversation_floater = (session_id.isNull() ? (LLIMConversation*)(LLFloaterReg::findTypedInstance<LLNearbyChat>("nearby_chat")) : (LLIMConversation*)(LLIMFloater::findInstance(session_id)));
+		if (conversation_floater)
+		{
+			conversation_floater->setSortOrder(order);
+		}
+	}
+	
 	gSavedSettings.setU32("ConversationSortOrder", (U32)order);
 }
 

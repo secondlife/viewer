@@ -303,15 +303,6 @@ LLParticipantList::~LLParticipantList()
 }
 
 /*
-void LLParticipantList::setSpeakingIndicatorsVisible(BOOL visible)
-{
-	if (mAvatarList)
-	{
-		mAvatarList->setSpeakingIndicatorsVisible(visible);
-	}
-}
-*/
-/*
 void LLParticipantList::onAvatarListDoubleClicked(LLUICtrl* ctrl)
 {
 	LLAvatarListItem* item = dynamic_cast<LLAvatarListItem*>(ctrl);

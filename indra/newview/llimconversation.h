@@ -89,7 +89,8 @@ public:
 	void refreshConversation();
 	void buildConversationViewParticipant();
 
-
+	void setSortOrder(const LLConversationSort& order);
+	
 protected:
 
 	// callback for click on any items of the visual states menu
@@ -106,8 +107,6 @@ protected:
 
 	// refresh a visual state of the Call button
 	void updateCallBtnState(bool callIsActive);
-
-	void onSortMenuItemClicked(const LLSD& userdata);
 
 	void hideOrShowTitle(); // toggle the floater's drag handle
 	void hideAllStandardButtons();

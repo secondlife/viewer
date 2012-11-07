@@ -166,7 +166,8 @@ void LLIMConversation::addToHost(const LLUUID& session_id)
 				conversp->setHost(floater_container);
 				conversp->setHost(NULL);
 			}
-
+			// Added floaters share some state (like sort order) with their host
+			conversp->setSortOrder(floater_container->getSortOrder());
 		}
 	}
 }
@@ -483,22 +484,11 @@ LLConversationViewParticipant* LLIMConversation::createConversationViewParticipa
 	return LLUICtrlFactory::create<LLConversationViewParticipant>(params);
 }
 
-void LLIMConversation::onSortMenuItemClicked(const LLSD& userdata)
+void LLIMConversation::setSortOrder(const LLConversationSort& order)
 {
-	// *TODO: Check this code when sort order menu will be added. (EM)
-	/*
-	if (!getParticipantList())
-	{
-		return;
-	}
-
-	std::string chosen_item = userdata.asString();
-
-	if (chosen_item == "sort_name")
-	{
-		getParticipantList()->setSortOrder(LLParticipantList::E_SORT_BY_NAME);
-	}
-	 */
+	mConversationViewModel.setSorter(order);
+	mConversationsRoot->arrangeAll();
+	refreshConversation();
 }
 
 void LLIMConversation::onIMSessionMenuItemClicked(const LLSD& userdata)

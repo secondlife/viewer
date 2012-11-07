@@ -92,6 +92,7 @@ public:
     LLUUID getSelectedSession() { return mSelectedSession; }
     void setSelectedSession(LLUUID sessionID) { mSelectedSession = sessionID; }
 	LLConversationItem* getSessionModel(const LLUUID& session_id) { return get_ptr_in_map(mConversationsItems,session_id); }
+	LLConversationSort& getSortOrder() { return mConversationViewModel.getSorter(); }
 
 private:
 	typedef std::map<LLUUID,LLFloater*> avatarID_panel_map_t;

@@ -49,7 +49,6 @@ public:
 					  bool exclude_agent = true, 
 					  bool can_toggle_icons = true);
 	~LLParticipantList();
-//	void setSpeakingIndicatorsVisible(BOOL visible);
 
 	enum EParticipantSortOrder
 	{
