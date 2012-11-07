@@ -187,14 +187,9 @@ private:
 	uuid_set_t mAvalineCallers;
 };
 
-LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source,
-									 LLFolderViewModelInterface& root_view_model,
-									 bool use_context_menu/* = true*/,
-									 bool exclude_agent /*= true*/,
-									 bool can_toggle_icons /*= true*/) :
+LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLFolderViewModelInterface& root_view_model) :
 	LLConversationItemSession(data_source->getSessionID(), root_view_model),
 	mSpeakerMgr(data_source),
-	mExcludeAgent(exclude_agent),
 	mValidateSpeakerCallback(NULL)
 {
 
@@ -215,33 +210,7 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source,
 	mSpeakerMgr->addListener(mSpeakerUpdateListener, "update_speaker");
 
 	setSessionID(mSpeakerMgr->getSessionID());
-	/*
-	if (mAvatarList)
-	{
-		mAvatarList->setNoItemsCommentText(LLTrans::getString("LoadingData"));
-		LL_DEBUGS("SpeakingIndicator") << "Set session for speaking indicators: " << mSpeakerMgr->getSessionID() << LL_ENDL;
-		mAvatarList->setSessionID(mSpeakerMgr->getSessionID());
-		mAvatarListDoubleClickConnection = mAvatarList->setItemDoubleClickCallback(boost::bind(&LLParticipantList::onAvatarListDoubleClicked, this, _1));
-		mAvatarListRefreshConnection = mAvatarList->setRefreshCompleteCallback(boost::bind(&LLParticipantList::onAvatarListRefreshed, this, _1, _2));
-		// Set onAvatarListDoubleClicked as default on_return action.
-		mAvatarListReturnConnection = mAvatarList->setReturnCallback(boost::bind(&LLParticipantList::onAvatarListDoubleClicked, this, mAvatarList));
 
-		if (use_context_menu)
-		{
-			mAvatarList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
-		}
-		else
-		{
-			mAvatarList->setContextMenu(NULL);
-		}
-
-		if (use_context_menu && can_toggle_icons)
-		{
-			mAvatarList->setShowIcons("ParticipantListShowIcons");
-			mAvatarListToggleIconsConnection = gSavedSettings.getControl("ParticipantListShowIcons")->getSignal()->connect(boost::bind(&LLAvatarList::toggleIcons, mAvatarList));
-		}
-	}
-	 */
 	//Lets fill avatarList with existing speakers
 	LLSpeakerMgr::speaker_list_t speaker_list;
 	mSpeakerMgr->getSpeakerList(&speaker_list, true);
@@ -284,21 +253,6 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source,
 
 LLParticipantList::~LLParticipantList()
 {
-	/*
-	if (mAvatarList)
-	{
-		mAvatarListDoubleClickConnection.disconnect();
-		mAvatarListRefreshConnection.disconnect();
-		mAvatarListReturnConnection.disconnect();
-		mAvatarListToggleIconsConnection.disconnect();
-	}
-
-	if (mAvatarList)
-	{
-		mAvatarList->setContextMenu(NULL);
-		mAvatarList->setComparator(NULL);
-	}
-	 */
 	delete mAvalineUpdater;
 }
 
@@ -429,24 +383,7 @@ void LLParticipantList::onAvalineCallerRemoved(const LLUUID& participant_id)
 
 	mSpeakerMgr->removeAvalineSpeaker(participant_id);
 }
-/*
-void LLParticipantList::setSortOrder(EParticipantSortOrder order)
-{
-	const U32 speaker_sort_order = gSavedSettings.getU32("SpeakerParticipantDefaultOrder");
 
-	if ( speaker_sort_order != order )
-	{
-		gSavedSettings.setU32("SpeakerParticipantDefaultOrder", (U32)order);
-		sort();
-	}
-}
-
-const LLParticipantList::EParticipantSortOrder LLParticipantList::getSortOrder() const
-{
-	const U32 speaker_sort_order = gSavedSettings.getU32("SpeakerParticipantDefaultOrder");
-	return EParticipantSortOrder(speaker_sort_order);
-}
-*/
 void LLParticipantList::setValidateSpeakerCallback(validate_speaker_callback_t cb)
 {
 	mValidateSpeakerCallback = cb;
@@ -455,15 +392,6 @@ void LLParticipantList::setValidateSpeakerCallback(validate_speaker_callback_t c
 void LLParticipantList::update()
 {
 	mSpeakerMgr->update(true);
-
-	/*
-	// Need to resort the participant list if it's in sort by recent speaker order.
-	if (E_SORT_BY_RECENT_SPEAKERS == getSortOrder())
-	{
-		// Resort avatar list
-		sort();
-	}
-	 */
 }
 
 bool LLParticipantList::onAddItemEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
@@ -528,8 +456,6 @@ bool LLParticipantList::onModeratorUpdateEvent(LLPointer<LLOldEvents::LLEvent> e
 				}
 			}
 			// *TODO : do we have to fire an event so that LLIMConversation::refreshConversation() gets called
-			// apply changes immediately
-			//onAvatarListRefreshed(mAvatarList, LLSD());
 		}
 	}
 	return true;
@@ -548,44 +474,9 @@ bool LLParticipantList::onSpeakerMuteEvent(LLPointer<LLOldEvents::LLEvent> event
 	return true;
 }
 
-/*
-void LLParticipantList::sort()
-{
-	// *TODO : Merov : Need to plan for sort() for LLConversationModel
-	if ( !mAvatarList )
-		return;
-
-	switch ( getSortOrder() ) 
-	{
-		case E_SORT_BY_NAME :
-			// if mExcludeAgent == true , then no need to keep agent on top of the list
-			if(mExcludeAgent)
-			{
-				mAvatarList->sortByName();
-			}
-			else
-			{
-				mAvatarList->setComparator(&AGENT_ON_TOP_NAME_COMPARATOR);
-				mAvatarList->sort();
-			}
-			break;
-		case E_SORT_BY_RECENT_SPEAKERS:
-			if (mSortByRecentSpeakers.isNull())
-				mSortByRecentSpeakers = new LLAvatarItemRecentSpeakerComparator(*this);
-			mAvatarList->setComparator(mSortByRecentSpeakers.get());
-			mAvatarList->sort();
-			break;
-		default :
-			llwarns << "Unrecognized sort order for " << mAvatarList->getName() << llendl;
-			return;
-	}
-}
-*/
-
 void LLParticipantList::addAvatarIDExceptAgent(const LLUUID& avatar_id)
 {
 	// Do not add if already in there or excluded for some reason
-	if (mExcludeAgent && gAgent.getID() == avatar_id) return;
 	if (findParticipant(avatar_id)) return;
 
 	bool is_avatar = LLVoiceClient::getInstance()->isParticipantAvatar(avatar_id);
@@ -599,29 +490,16 @@ void LLParticipantList::addAvatarIDExceptAgent(const LLUUID& avatar_id)
 		bool has_name = LLAvatarNameCache::get(avatar_id, &avatar_name);
 		participant = new LLConversationItemParticipant(!has_name ? LLTrans::getString("AvatarNameWaiting") : avatar_name.mDisplayName , avatar_id, mRootViewModel);
 		participant->fetchAvatarName();
-		/*
-		if (mAvatarList)
-		{
-			mAvatarList->getIDs().push_back(avatar_id);
-			mAvatarList->setDirty();
-		}
-		 */
 	}
 	else
 	{
 		std::string display_name = LLVoiceClient::getInstance()->getDisplayName(avatar_id);
 		// Create a participant view model instance
 		participant = new LLConversationItemParticipant(display_name.empty() ? LLTrans::getString("AvatarNameWaiting") : display_name, avatar_id, mRootViewModel);
-		/*
-		if (mAvatarList)
-		{
-			mAvatarList->addAvalineItem(avatar_id, mSpeakerMgr->getSessionID(), display_name.empty() ? LLTrans::getString("AvatarNameWaiting") : display_name);
-		}
-		 */
 		mAvalineUpdater->watchAvalineCaller(avatar_id);
 	}
 
-	// *TODO : Merov : need to update the online/offline status of the participant.
+	// *TODO : Need to update the online/offline status of the participant
 	// Hack for this: LLAvatarTracker::instance().isBuddyOnline(avatar_id))
 
 	// Add the participant model to the session's children list

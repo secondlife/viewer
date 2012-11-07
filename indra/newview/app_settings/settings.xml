@@ -12395,17 +12395,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>SpeakerParticipantDefaultOrder</key>
-    <map>
-      <key>Comment</key>
-      <string>Order for displaying speakers in voice controls.  0 = alphabetical. 1 = recent.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>SpeakerParticipantRemoveDelay</key>
     <map>
       <key>Comment</key>

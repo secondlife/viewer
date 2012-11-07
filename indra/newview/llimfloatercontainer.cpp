@@ -1177,7 +1177,7 @@ LLConversationItem* LLIMFloaterContainer::addConversationListItem(const LLUUID& 
 	LLSpeakerMgr* speaker_manager = (is_nearby_chat ? (LLSpeakerMgr*)(LLLocalSpeakerMgr::getInstance()) : LLIMModel::getInstance()->getSpeakerManager(uuid));
 	if (speaker_manager)
 	{
-		item = new LLParticipantList(speaker_manager, getRootViewModel(), true, false);
+		item = new LLParticipantList(speaker_manager, getRootViewModel());
 	}
 	if (!item)
 	{

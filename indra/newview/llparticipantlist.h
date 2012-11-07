@@ -43,18 +43,8 @@ public:
 
 	typedef boost::function<bool (const LLUUID& speaker_id)> validate_speaker_callback_t;
 
-	LLParticipantList(LLSpeakerMgr* data_source, 
-					  LLFolderViewModelInterface& root_view_model,
-					  bool use_context_menu = true, 
-					  bool exclude_agent = true, 
-					  bool can_toggle_icons = true);
+	LLParticipantList(LLSpeakerMgr* data_source, LLFolderViewModelInterface& root_view_model);
 	~LLParticipantList();
-
-	enum EParticipantSortOrder
-	{
-		E_SORT_BY_NAME = 0,
-		E_SORT_BY_RECENT_SPEAKERS = 1,
-	};
 
 	/**
 	 * Adds specified avatar ID to the existing list if it is not Agent's ID
@@ -62,12 +52,6 @@ public:
 	 * @param[in] avatar_id - Avatar UUID to be added into the list
 	 */
 	void addAvatarIDExceptAgent(const LLUUID& avatar_id);
-
-	/**
-	 * Set and sort Avatarlist by given order
-	 */
-	//void setSortOrder(EParticipantSortOrder order = E_SORT_BY_NAME);
-	//const EParticipantSortOrder getSortOrder() const;
 
 	/**
 	 * Refreshes the participant list.
@@ -93,11 +77,6 @@ protected:
 	bool onModeratorUpdateEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 	bool onSpeakerUpdateEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 	bool onSpeakerMuteEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
-
-	/**
-	 * Sorts the Avatarlist by stored order
-	 */
-	//void sort();
 
 	/**
 	 * List of listeners implementing LLOldEvents::LLSimpleListener.
@@ -181,20 +160,6 @@ private:
 	LLPointer<SpeakerModeratorUpdateListener>	mSpeakerModeratorListener;
 	LLPointer<SpeakerMuteListener>				mSpeakerMuteListener;
 
-	/**
-	 * This field manages an adding  a new avatar_id in the mAvatarList
-	 * If true, then agent_id wont  be added into mAvatarList
-	 * Also by default this field is controlling a sort procedure, @c sort() 
-	 */
-	bool mExcludeAgent;
-
-	// boost::connections
-	boost::signals2::connection mAvatarListDoubleClickConnection;
-	boost::signals2::connection mAvatarListRefreshConnection;
-	boost::signals2::connection mAvatarListReturnConnection;
-	boost::signals2::connection mAvatarListToggleIconsConnection;
-
-//	LLPointer<LLAvatarItemRecentSpeakerComparator> mSortByRecentSpeakers;
 	validate_speaker_callback_t mValidateSpeakerCallback;
 	LLAvalineUpdater* mAvalineUpdater;
 };
