@@ -1787,22 +1787,18 @@ std::ostream& operator<<(std::ostream& s, const LLNotification& notification)
 	return s;
 }
 
-//static
-void LLPostponedNotification::lookupName(LLPostponedNotification* thiz,
-										 const LLUUID& id,
+void LLPostponedNotification::lookupName(const LLUUID& id,
 										 bool is_group)
 {
 	if (is_group)
 	{
 		gCacheName->getGroup(id,
 			boost::bind(&LLPostponedNotification::onGroupNameCache,
-				thiz, _1, _2, _3));
+				this, _1, _2, _3));
 	}
 	else
 	{
-		LLAvatarNameCache::get(id,
-			boost::bind(&LLPostponedNotification::onAvatarNameCache,
-				thiz, _1, _2));
+		fetchAvatarName(id);
 	}
 }
 
@@ -1811,6 +1807,20 @@ void LLPostponedNotification::onGroupNameCache(const LLUUID& id,
 											   bool is_group)
 {
 	finalizeName(full_name);
+}
+
+void LLPostponedNotification::fetchAvatarName(const LLUUID& id)
+{
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
+
+	if (id.notNull())
+	{
+		mAvatarNameCacheConnection = LLAvatarNameCache::get(id,
+			boost::bind(&LLPostponedNotification::onAvatarNameCache, this, _1, _2));
+	}
 }
 
 void LLPostponedNotification::onAvatarNameCache(const LLUUID& agent_id,

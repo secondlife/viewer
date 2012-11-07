@@ -87,6 +87,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/type_traits.hpp>
+#include <boost/signals2.hpp>
 
 #include "llevents.h"
 #include "llfunctorregistry.h"
@@ -972,14 +973,15 @@ public:
 		thiz->mParams = params;
 
 		// Avoid header file dependency on llcachename.h
-		lookupName(thiz, id, is_group);
+		thiz->lookupName(id, is_group);
 	}
 
 private:
-	static void lookupName(LLPostponedNotification* thiz, const LLUUID& id, bool is_group);
+	void lookupName(const LLUUID& id, bool is_group);
 	// only used for groups
 	void onGroupNameCache(const LLUUID& id, const std::string& full_name, bool is_group);
 	// only used for avatars
+	void fetchAvatarName(const LLUUID& id);
 	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
 	// used for both group and avatar names
 	void finalizeName(const std::string& name);
@@ -990,8 +992,19 @@ private:
 	}
 
 protected:
-	LLPostponedNotification() {}
-	virtual ~LLPostponedNotification() {}
+	LLPostponedNotification()
+		: mParams(),
+		mName(),
+		mAvatarNameCacheConnection()
+	{}
+
+	virtual ~LLPostponedNotification()
+	{
+		if (mAvatarNameCacheConnection.connected())
+		{
+			mAvatarNameCacheConnection.disconnect();
+		}
+	}
 
 	/**
 	 * Abstract method provides possibility to modify notification parameters and
@@ -1002,6 +1015,7 @@ protected:
 
 	LLNotification::Params mParams;
 	std::string mName;
+	boost::signals2::connection mAvatarNameCacheConnection;
 };
 
 // Stores only persistent notifications.
