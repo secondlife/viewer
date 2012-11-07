@@ -334,7 +334,7 @@ void LLVisualParam::setParamLocation(EParamLocation loc)
 	}
 	else
 	{
-		llwarns << "param location is already " << mParamLocation << ", not slamming to " << loc << llendl;
+		lldebugs << "param location is already " << mParamLocation << ", not slamming to " << loc << llendl;
 	}
 }
 
