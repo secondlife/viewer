@@ -7019,15 +7019,9 @@ void LLVOAvatar::cullAvatarsByPixelArea()
 		}
 	}
 
-	// runway - this doesn't detect gray/grey state.
-	// think we just need to be checking self av since it's the only
-	// one with lltexlayer stuff.
+	// runway - this doesn't really detect gray/grey state.
 	S32 grey_avatars = 0;
-	if (LLVOAvatar::areAllNearbyInstancesBaked(grey_avatars))
-	{
-		LLVOAvatar::deleteCachedImages(false);
-	}
-	else
+	if (!LLVOAvatar::areAllNearbyInstancesBaked(grey_avatars))
 	{
 		if (gFrameTimeSeconds != sUnbakedUpdateTime) // only update once per frame
 		{
