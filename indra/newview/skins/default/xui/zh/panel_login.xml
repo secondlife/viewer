@@ -34,13 +34,13 @@
 				忘記你的使用者名稱或密碼？
 			</text>
 			<button label="登入" name="connect_btn"/>
-			<check_box label="記住密碼" name="remember_check"/>
+			<check_box label="記住密碼：" name="remember_check"/>
 		</layout_panel>
 		<layout_panel name="links">
 			<text name="create_account_text">
-				新建你的帳號
+				建立你的帳號
 			</text>
-			<button label="立即行動" name="create_new_account_btn"/>
+			<button label="現在就開始" name="create_new_account_btn"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_merchant_outbox" title="商家發件匣">
+	<string name="OutboxFolderCount1">
+		1 個資料夾
+	</string>
+	<string name="OutboxFolderCountN">
+		[NUM] 個資料夾
+	</string>
+	<string name="OutboxImporting">
+		正在傳送資料夾…
+	</string>
+	<string name="OutboxInitializing">
+		正在初始化…
+	</string>
+	<panel label="">
+		<panel>
+			<panel name="outbox_inventory_placeholder_panel">
+				<text name="outbox_inventory_placeholder_title">
+					載入中...
+				</text>
+			</panel>
+		</panel>
+		<panel>
+			<button label="送往第二人生購物市集" name="outbox_import_btn" tool_tip="推到我第二人生購物市集的店面"/>
+		</panel>
+	</panel>
+</floater>

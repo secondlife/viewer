@@ -18,11 +18,8 @@
 	<panel name="balance_bg">
 		<text name="balance" tool_tip="點按以重新更新你的 L$ 帳戶餘額" value="L$20"/>
 		<button label="購買 L$" name="buyL" tool_tip="點按以購買更多 L$"/>
+		<button label="購物" name="goShop" tool_tip="打開第二人生購物市集"/>
 	</panel>
-	<combo_box name="mode_combo" tool_tip="請選擇你的模式。 選用基本模式可以快速、簡單地探索與聊天； 選用進階模式則可以使用更多功能。">
-		<combo_box.item label="基本模式" name="Basic"/>
-		<combo_box.item label="進階模式" name="Advanced"/>
-	</combo_box>
 	<text name="TimeText" tool_tip="目前時區（太平洋）">
 		24:00 AM PST
 	</text>

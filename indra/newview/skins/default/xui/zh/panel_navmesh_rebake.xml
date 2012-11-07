@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_navmesh_rebake">
+	<button label="重新產出地區" name="navmesh_btn" tool_tip="點按即可重新產出該地區的導航網面。"/>
+	<button label="正在請求重新產出" name="navmesh_btn_sending" tool_tip="正向伺服器發送重新產出請求。"/>
+	<button label="地區正在重新產出" name="navmesh_btn_baking" tool_tip="地區正在重新產出。  完成後，這個按鈕將會消失。"/>
+</panel>

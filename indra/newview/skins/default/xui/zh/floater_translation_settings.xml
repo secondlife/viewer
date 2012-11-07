@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_translation_settings" title="聊天內容翻譯設定">
+	<string name="bing_api_key_not_verified">
+		Bing AppID 未通過驗證。 請再試一次。
+	</string>
+	<string name="google_api_key_not_verified">
+		Google API 鍵值未通過驗證。 請再試一次。
+	</string>
+	<string name="bing_api_key_verified">
+		Bing AppID 驗證成功。
+	</string>
+	<string name="google_api_key_verified">
+		Google API 鍵值驗證成功。
+	</string>
+	<check_box label="聊天時啟用機器翻譯" name="translate_chat_checkbox"/>
+	<text name="translate_language_label">
+		將聊天內容翻譯成：
+	</text>
+	<combo_box name="translate_language_combo">
+		<combo_box.item label="系統預設" name="System Default Language"/>
+		<combo_box.item label="英語" name="English"/>
+		<combo_box.item label="Dansk（丹麥語）" name="Danish"/>
+		<combo_box.item label="Deutsch（德語）" name="German"/>
+		<combo_box.item label="Español（西班牙語）" name="Spanish"/>
+		<combo_box.item label="Français（法語）" name="French"/>
+		<combo_box.item label="Italiano（義大利語）" name="Italian"/>
+		<combo_box.item label="Magyar（匈牙利語）" name="Hungarian"/>
+		<combo_box.item label="Nederlands（荷蘭語）" name="Dutch"/>
+		<combo_box.item label="Polski（波蘭語）" name="Polish"/>
+		<combo_box.item label="Português（葡萄牙語）" name="Portugese"/>
+		<combo_box.item label="Русский（俄羅斯語）" name="Russian"/>
+		<combo_box.item label="Türkçe（土耳其語）" name="Turkish"/>
+		<combo_box.item label="Українська（烏克蘭語）" name="Ukrainian"/>
+		<combo_box.item label="中文（正體）" name="Chinese"/>
+		<combo_box.item label="日本語（日語）" name="Japanese"/>
+		<combo_box.item label="한국어（漢語）" name="Korean"/>
+	</combo_box>
+	<text name="tip">
+		選擇翻譯服務：
+	</text>
+	<radio_group name="translation_service_rg">
+		<radio_item initial_value="bing" label="Bing 翻譯器" name="bing"/>
+		<radio_item initial_value="google" label="Google 翻譯" name="google"/>
+	</radio_group>
+	<text name="bing_api_key_label">
+		Bing [http://www.bing.com/developers/createapp.aspx AppID]：
+	</text>
+	<button label="驗證" name="verify_bing_api_key_btn"/>
+	<text name="google_api_key_label">
+		Google [http://code.google.com/apis/language/translate/v2/getting_started.html#auth API 鍵值]：
+	</text>
+	<button label="驗證" name="verify_google_api_key_btn"/>
+	<text name="google_links_text">
+		[http://code.google.com/apis/language/translate/v2/pricing.html 價格表] | [https://code.google.com/apis/console 統計]
+	</text>
+	<button label="確定" name="ok_btn"/>
+	<button label="取消" name="cancel_btn"/>
+</floater>

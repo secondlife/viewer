@@ -42,13 +42,16 @@
 	<string name="effect_Demon">
 		魔鬼
 	</string>
+	<string name="effect_Female Elf">
+		女性 - 小精靈
+	</string>
 	<string name="effect_Flirty">
 		調情
 	</string>
 	<string name="effect_Foxy">
 		香豔
 	</string>
-	<string name="effect_Halloween_2010_Bonus">
+	<string name="effect_Halloween 2010 Bonus">
 		2010萬聖節加贈
 	</string>
 	<string name="effect_Helium">
@@ -57,8 +60,17 @@
 	<string name="effect_Husky">
 		沙啞
 	</string>
+	<string name="effect_Husky Whisper">
+		沙啞耳語
+	</string>
 	<string name="effect_Intercom">
 		對講機
+	</string>
+	<string name="effect_Julia">
+		茱莉亞
+	</string>
+	<string name="effect_Lo Lilt">
+		輕微抑揚頓挫
 	</string>
 	<string name="effect_Macho">
 		陽剛
@@ -68,6 +80,9 @@
 	</string>
 	<string name="effect_Mini">
 		迷你
+	</string>
+	<string name="effect_Model">
+		模型
 	</string>
 	<string name="effect_Nano">
 		Nano
@@ -90,6 +105,9 @@
 	<string name="effect_Roxanne">
 		蘿姍
 	</string>
+	<string name="effect_Rumble">
+		低沉隆隆聲
+	</string>
 	<string name="effect_Sabrina">
 		薩賓娜
 	</string>
@@ -101,6 +119,9 @@
 	</string>
 	<string name="effect_Shorty">
 		矮個兒
+	</string>
+	<string name="effect_Smaller">
+		較小
 	</string>
 	<string name="effect_Sneaky">
 		鬼祟
