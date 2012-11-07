@@ -671,19 +671,6 @@ void LLIMFloater::setDocked(bool docked, bool pop_on_undock)
 	}
 }
 
-void LLIMFloater::setFocus(BOOL focusFlag)
-{
-    LLTransientDockableFloater::setFocus(focusFlag);
-
-    //Redirect focus to input editor
-    if (focusFlag)
-    {
-        updateMessages();
-        mInputEditor->setFocus(TRUE);
-    }
-    
-}
-
 void LLIMFloater::setVisible(BOOL visible)
 {
 	LLNotificationsUI::LLScreenChannel* channel = static_cast<LLNotificationsUI::LLScreenChannel*>
