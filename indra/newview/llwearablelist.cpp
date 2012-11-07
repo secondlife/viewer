@@ -134,6 +134,10 @@ void LLWearableList::processGetAssetReply( const char* filename, const LLAssetID
 
 			if(filename)
 			{
+				if (ifs.is_open())
+				{
+					ifs.close();
+				}
 				LLFile::remove(std::string(filename));
 			}
 		}
