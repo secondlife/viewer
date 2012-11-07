@@ -133,6 +133,7 @@ BOOL LLConversationViewSession::postBuild()
 			LLGroupIconCtrl* icon = mItemPanel->getChild<LLGroupIconCtrl>("group_icon");
 			icon->setVisible(true);
 			mSpeakingIndicator->setSpeakerId(gAgentID, vmi->getUUID(), true);
+			break;
 		}
 		case LLConversationItem::CONV_SESSION_GROUP:
 		{
