@@ -41,7 +41,7 @@ struct LLUnitType : public BASE_UNIT
 	LLUnitType()
 	{}
 
-	explicit LLUnitType(storage_t value)
+	LLUnitType(storage_t value)
 	:	BASE_UNIT(convertToBase(value))
 	{}
 
@@ -86,7 +86,7 @@ struct LLUnitType<STORAGE_TYPE, T, T>
 	:	mBaseValue()
 	{}
 
-	explicit LLUnitType(storage_t value)
+	LLUnitType(storage_t value)
 	:	mBaseValue(value)
 	{}
 
