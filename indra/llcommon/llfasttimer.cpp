@@ -319,7 +319,7 @@ void LLFastTimer::NamedTimer::buildHierarchy()
 
 	// set up initial tree
 	{
-		for (instance_iter it = beginInstances(); it != endInstances(); ++it)
+		for (instance_iter it = beginInstances(), end_it = endInstances(); it != end_it; ++it)
 		{
 			NamedTimer& timer = *it;
 			if (&timer == NamedTimerFactory::instance().getRootTimer()) continue;
@@ -449,7 +449,7 @@ void LLFastTimer::NamedTimer::resetFrame()
 		LLSD sd;
 
 		{
-			for (instance_iter it = beginInstances(); it != endInstances(); ++it)
+			for (instance_iter it = beginInstances(), end_it = endInstances(); it != end_it; ++it)
 			{
 				NamedTimer& timer = *it;
 				FrameState& info = timer.getFrameState();
@@ -472,7 +472,7 @@ void LLFastTimer::NamedTimer::resetFrame()
 	}
 
 	// reset for next frame
-	for (instance_iter it = beginInstances(); it != endInstances(); ++it)
+	for (instance_iter it = beginInstances(), end_it = endInstances(); it != end_it; ++it)
 	{
 		NamedTimer& timer = *it;
 			
@@ -512,7 +512,7 @@ void LLFastTimer::NamedTimer::reset()
 
 	// reset all history
 	{
-		for (instance_iter it = beginInstances(); it != endInstances(); ++it)
+		for (instance_iter it = beginInstances(), end_it = endInstances(); it != end_it; ++it)
 		{
 			NamedTimer& timer = *it;
 			if (&timer != NamedTimerFactory::instance().getRootTimer()) 

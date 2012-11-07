@@ -117,29 +117,29 @@ void Recording::appendRecording( const Recording& other )
 
 F64 Recording::getSum( const TraceType<CountAccumulator<F64> >& stat ) const
 {
-	return stat.getAccumulator(mCountsFloat).getSum();
+	return (*mCountsFloat)[stat.getIndex()].getSum();
 }
 
 S64 Recording::getSum( const TraceType<CountAccumulator<S64> >& stat ) const
 {
-	return stat.getAccumulator(mCounts).getSum();
+	return (*mCounts)[stat.getIndex()].getSum();
 }
 
 F64 Recording::getSum( const TraceType<MeasurementAccumulator<F64> >& stat ) const
 {
-	return (F64)stat.getAccumulator(mMeasurementsFloat).getSum();
+	return (F64)(*mMeasurementsFloat)[stat.getIndex()].getSum();
 }
 
 S64 Recording::getSum( const TraceType<MeasurementAccumulator<S64> >& stat ) const
 {
-	return (S64)stat.getAccumulator(mMeasurements).getSum();
+	return (S64)(*mMeasurements)[stat.getIndex()].getSum();
 }
 
 
 
 F64 Recording::getPerSec( const TraceType<CountAccumulator<F64> >& stat ) const
 {
-	F64 sum = stat.getAccumulator(mCountsFloat).getSum();
+	F64 sum = (*mCountsFloat)[stat.getIndex()].getSum();
 	return  (sum != 0.0) 
 		? (sum / mElapsedSeconds)
 		: 0.0;
@@ -147,15 +147,26 @@ F64 Recording::getPerSec( const TraceType<CountAccumulator<F64> >& stat ) const
 
 F64 Recording::getPerSec( const TraceType<CountAccumulator<S64> >& stat ) const
 {
-	S64 sum = stat.getAccumulator(mCounts).getSum();
+	S64 sum = (*mCounts)[stat.getIndex()].getSum();
 	return (sum != 0) 
 		? ((F64)sum / mElapsedSeconds)
 		: 0.0;
 }
 
+U32 Recording::getSampleCount( const TraceType<CountAccumulator<F64> >& stat ) const
+{
+	return (*mCountsFloat)[stat.getIndex()].getSampleCount();
+}
+
+U32 Recording::getSampleCount( const TraceType<CountAccumulator<S64> >& stat ) const
+{
+	return (*mMeasurementsFloat)[stat.getIndex()].getSampleCount();
+}
+
+
 F64 Recording::getPerSec( const TraceType<MeasurementAccumulator<F64> >& stat ) const
 {
-	F64 sum = stat.getAccumulator(mMeasurementsFloat).getSum();
+	F64 sum = (*mMeasurementsFloat)[stat.getIndex()].getSum();
 	return  (sum != 0.0) 
 		? (sum / mElapsedSeconds)
 		: 0.0;
@@ -163,7 +174,7 @@ F64 Recording::getPerSec( const TraceType<MeasurementAccumulator<F64> >& stat ) 
 
 F64 Recording::getPerSec( const TraceType<MeasurementAccumulator<S64> >& stat ) const
 {
-	S64 sum = stat.getAccumulator(mMeasurements).getSum();
+	S64 sum = (*mMeasurements)[stat.getIndex()].getSum();
 	return (sum != 0) 
 		? ((F64)sum / mElapsedSeconds)
 		: 0.0;
@@ -171,62 +182,62 @@ F64 Recording::getPerSec( const TraceType<MeasurementAccumulator<S64> >& stat ) 
 
 F64 Recording::getMin( const TraceType<MeasurementAccumulator<F64> >& stat ) const
 {
-	return stat.getAccumulator(mMeasurementsFloat).getMin();
+	return (*mMeasurementsFloat)[stat.getIndex()].getMin();
 }
 
 S64 Recording::getMin( const TraceType<MeasurementAccumulator<S64> >& stat ) const
 {
-	return stat.getAccumulator(mMeasurements).getMin();
+	return (*mMeasurements)[stat.getIndex()].getMin();
 }
 
 F64 Recording::getMax( const TraceType<MeasurementAccumulator<F64> >& stat ) const
 {
-	return stat.getAccumulator(mMeasurementsFloat).getMax();
+	return (*mMeasurementsFloat)[stat.getIndex()].getMax();
 }
 
 S64 Recording::getMax( const TraceType<MeasurementAccumulator<S64> >& stat ) const
 {
-	return stat.getAccumulator(mMeasurements).getMax();
+	return (*mMeasurements)[stat.getIndex()].getMax();
 }
 
 F64 Recording::getMean( const TraceType<MeasurementAccumulator<F64> >& stat ) const
 {
-	return stat.getAccumulator(mMeasurementsFloat).getMean();
+	return (*mMeasurementsFloat)[stat.getIndex()].getMean();
 }
 
 F64 Recording::getMean( const TraceType<MeasurementAccumulator<S64> >& stat ) const
 {
-	return stat.getAccumulator(mMeasurements).getMean();
+	return (*mMeasurements)[stat.getIndex()].getMean();
 }
 
 F64 Recording::getStandardDeviation( const TraceType<MeasurementAccumulator<F64> >& stat ) const
 {
-	return stat.getAccumulator(mMeasurementsFloat).getStandardDeviation();
+	return (*mMeasurementsFloat)[stat.getIndex()].getStandardDeviation();
 }
 
 F64 Recording::getStandardDeviation( const TraceType<MeasurementAccumulator<S64> >& stat ) const
 {
-	return stat.getAccumulator(mMeasurements).getStandardDeviation();
+	return (*mMeasurements)[stat.getIndex()].getStandardDeviation();
 }
 
 F64 Recording::getLastValue( const TraceType<MeasurementAccumulator<F64> >& stat ) const
 {
-	return stat.getAccumulator(mMeasurementsFloat).getLastValue();
+	return (*mMeasurementsFloat)[stat.getIndex()].getLastValue();
 }
 
 S64 Recording::getLastValue( const TraceType<MeasurementAccumulator<S64> >& stat ) const
 {
-	return stat.getAccumulator(mMeasurements).getLastValue();
+	return (*mMeasurements)[stat.getIndex()].getLastValue();
 }
 
 U32 Recording::getSampleCount( const TraceType<MeasurementAccumulator<F64> >& stat ) const
 {
-	return stat.getAccumulator(mMeasurementsFloat).getSampleCount();
+	return (*mMeasurementsFloat)[stat.getIndex()].getSampleCount();
 }
 
 U32 Recording::getSampleCount( const TraceType<MeasurementAccumulator<S64> >& stat ) const
 {
-	return stat.getAccumulator(mMeasurements).getSampleCount();
+	return (*mMeasurements)[stat.getIndex()].getSampleCount();
 }
 
 
@@ -235,13 +246,14 @@ U32 Recording::getSampleCount( const TraceType<MeasurementAccumulator<S64> >& st
 // PeriodicRecording
 ///////////////////////////////////////////////////////////////////////
 
-PeriodicRecording::PeriodicRecording( S32 num_periods ) 
+PeriodicRecording::PeriodicRecording( S32 num_periods, EStopWatchState state) 
 :	mNumPeriods(num_periods),
 	mCurPeriod(0),
 	mTotalValid(false),
 	mRecordingPeriods( new Recording[num_periods])
 {
 	llassert(mNumPeriods > 0);
+	initTo(state);
 }
 
 PeriodicRecording::~PeriodicRecording()
@@ -252,7 +264,7 @@ PeriodicRecording::~PeriodicRecording()
 
 void PeriodicRecording::nextPeriod()
 {
-	EPlayState play_state = getPlayState();
+	EStopWatchState play_state = getPlayState();
 	Recording& old_recording = getCurRecordingPeriod();
 	mCurPeriod = (mCurPeriod + 1) % mNumPeriods;
 	old_recording.splitTo(getCurRecordingPeriod());
@@ -286,24 +298,44 @@ Recording& PeriodicRecording::getTotalRecording()
 	return mTotalRecording;
 }
 
-void PeriodicRecording::handleStart()
+void PeriodicRecording::start()
 {
-	getCurRecordingPeriod().handleStart();
+	getCurRecordingPeriod().start();
 }
 
-void PeriodicRecording::handleStop()
+void PeriodicRecording::stop()
 {
-	getCurRecordingPeriod().handleStop();
+	getCurRecordingPeriod().stop();
 }
 
-void PeriodicRecording::handleReset()
+void PeriodicRecording::pause()
 {
-	getCurRecordingPeriod().handleReset();
+	getCurRecordingPeriod().pause();
 }
 
-void PeriodicRecording::handleSplitTo( PeriodicRecording& other )
+void PeriodicRecording::resume()
 {
-	getCurRecordingPeriod().handleSplitTo(other.getCurRecordingPeriod());
+	getCurRecordingPeriod().resume();
+}
+
+void PeriodicRecording::restart()
+{
+	getCurRecordingPeriod().restart();
+}
+
+void PeriodicRecording::reset()
+{
+	getCurRecordingPeriod().reset();
+}
+
+void PeriodicRecording::splitTo(PeriodicRecording& other)
+{
+	getCurRecordingPeriod().splitTo(other.getCurRecordingPeriod());
+}
+
+void PeriodicRecording::splitFrom(PeriodicRecording& other)
+{
+	getCurRecordingPeriod().splitFrom(other.getCurRecordingPeriod());
 }
 
 
@@ -317,38 +349,59 @@ void ExtendableRecording::extend()
 	mPotentialRecording.reset();
 }
 
-void ExtendableRecording::handleStart()
+void ExtendableRecording::start()
 {
-	mPotentialRecording.handleStart();
+	mPotentialRecording.start();
 }
 
-void ExtendableRecording::handleStop()
+void ExtendableRecording::stop()
 {
-	mPotentialRecording.handleStop();
+	mPotentialRecording.stop();
 }
 
-void ExtendableRecording::handleReset()
+void ExtendableRecording::pause()
 {
-	mAcceptedRecording.handleReset();
-	mPotentialRecording.handleReset();
+	mPotentialRecording.pause();
 }
 
-void ExtendableRecording::handleSplitTo( ExtendableRecording& other )
+void ExtendableRecording::resume()
 {
-	mPotentialRecording.handleSplitTo(other.mPotentialRecording);
+	mPotentialRecording.resume();
+}
+
+void ExtendableRecording::restart()
+{
+	mAcceptedRecording.reset();
+	mPotentialRecording.restart();
+}
+
+void ExtendableRecording::reset()
+{
+	mAcceptedRecording.reset();
+	mPotentialRecording.reset();
+}
+
+void ExtendableRecording::splitTo(ExtendableRecording& other)
+{
+	mPotentialRecording.splitTo(other.mPotentialRecording);
+}
+
+void ExtendableRecording::splitFrom(ExtendableRecording& other)
+{
+	mPotentialRecording.splitFrom(other.mPotentialRecording);
 }
 
 PeriodicRecording& get_frame_recording()
 {
-	static PeriodicRecording sRecording(64);
-	return sRecording;
+	static LLThreadLocalPointer<PeriodicRecording> sRecording(new PeriodicRecording(64, PeriodicRecording::STARTED));
+	return *sRecording;
 }
 
 }
 
 void LLStopWatchControlsMixinCommon::start()
 {
-	switch (mPlayState)
+	switch (mState)
 	{
 	case STOPPED:
 		handleReset();
@@ -360,13 +413,16 @@ void LLStopWatchControlsMixinCommon::start()
 	case STARTED:
 		handleReset();
 		break;
+	default:
+		llassert(false);
+		break;
 	}
-	mPlayState = STARTED;
+	mState = STARTED;
 }
 
 void LLStopWatchControlsMixinCommon::stop()
 {
-	switch (mPlayState)
+	switch (mState)
 	{
 	case STOPPED:
 		break;
@@ -376,13 +432,16 @@ void LLStopWatchControlsMixinCommon::stop()
 	case STARTED:
 		handleStop();
 		break;
+	default:
+		llassert(false);
+		break;
 	}
-	mPlayState = STOPPED;
+	mState = STOPPED;
 }
 
 void LLStopWatchControlsMixinCommon::pause()
 {
-	switch (mPlayState)
+	switch (mState)
 	{
 	case STOPPED:
 		break;
@@ -391,13 +450,16 @@ void LLStopWatchControlsMixinCommon::pause()
 	case STARTED:
 		handleStop();
 		break;
+	default:
+		llassert(false);
+		break;
 	}
-	mPlayState = PAUSED;
+	mState = PAUSED;
 }
 
 void LLStopWatchControlsMixinCommon::resume()
 {
-	switch (mPlayState)
+	switch (mState)
 	{
 	case STOPPED:
 		handleStart();
@@ -407,13 +469,16 @@ void LLStopWatchControlsMixinCommon::resume()
 		break;
 	case STARTED:
 		break;
+	default:
+		llassert(false);
+		break;
 	}
-	mPlayState = STARTED;
+	mState = STARTED;
 }
 
 void LLStopWatchControlsMixinCommon::restart()
 {
-	switch (mPlayState)
+	switch (mState)
 	{
 	case STOPPED:
 		handleReset();
@@ -426,11 +491,33 @@ void LLStopWatchControlsMixinCommon::restart()
 	case STARTED:
 		handleReset();
 		break;
+	default:
+		llassert(false);
+		break;
 	}
-	mPlayState = STARTED;
+	mState = STARTED;
 }
 
 void LLStopWatchControlsMixinCommon::reset()
 {
 	handleReset();
+}
+
+void LLStopWatchControlsMixinCommon::initTo( EStopWatchState state )
+{
+	switch(state)
+	{
+	case STOPPED:
+		break;
+	case PAUSED:
+		break;
+	case STARTED:
+		handleStart();
+		break;
+	default:
+		llassert(false);
+		break;
+	}
+
+	mState = state;
 }

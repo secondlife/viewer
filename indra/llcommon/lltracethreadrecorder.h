@@ -81,17 +81,8 @@ namespace LLTrace
 		LLMutex* getSlaveListMutex() { return &mSlaveListMutex; }
 
 	private:
-		struct SlaveThreadRecorderProxy
-		{
-			SlaveThreadRecorderProxy(class SlaveThreadRecorder* recorder);
 
-			class SlaveThreadRecorder*	mRecorder;
-			Recording					mSlaveRecording;
-		private:
-			//no need to copy these and then have to duplicate the storage
-			SlaveThreadRecorderProxy(const SlaveThreadRecorderProxy& other) {}
-		};
-		typedef std::list<SlaveThreadRecorderProxy*> slave_thread_recorder_list_t;
+		typedef std::list<class SlaveThreadRecorder*> slave_thread_recorder_list_t;
 
 		slave_thread_recorder_list_t	mSlaveThreadRecorders;
 		LLMutex							mSlaveListMutex;

@@ -334,14 +334,13 @@ public:
 	{}
 
 	explicit LLThreadLocalPointer(T* value)
-		:	LLThreadLocalPointerBase(&cleanup)
 	{
 		set(value);
 	}
 
 
 	LLThreadLocalPointer(const LLThreadLocalPointer<T>& other)
-	:	LLThreadLocalPointerBase(other, &cleanup)
+	:	LLThreadLocalPointerBase(other)
 	{
 		set(other.get());		
 	}

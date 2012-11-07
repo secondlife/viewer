@@ -266,7 +266,6 @@ namespace tut
 		ensure("Global gViewerAssetStats should still be NULL", (NULL == gViewerAssetStats));
 
 		LLSD sd_full = it->asLLSD(false);
-		llinfos << ll_pretty_print_sd(sd_full) << llendl;
 
 		// Default (NULL) region ID doesn't produce LLSD results so should
 		// get an empty map back from output

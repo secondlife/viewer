@@ -39,43 +39,42 @@ class LL_COMMON_API LLStopWatchControlsMixinCommon
 public:
 	virtual ~LLStopWatchControlsMixinCommon() {}
 
-	enum EPlayState
+	enum EStopWatchState
 	{
 		STOPPED,
 		PAUSED,
 		STARTED
 	};
 
-	void start();
-	void stop();
-	void pause();
-	void resume();
-	void restart();
-	void reset();
+	virtual void start();
+	virtual void stop();
+	virtual void pause();
+	virtual void resume();
+	virtual void restart();
+	virtual void reset();
 
-	bool isStarted() const { return mPlayState == STARTED; }
-	bool isPaused() const  { return mPlayState == PAUSED; }
-	bool isStopped() const { return mPlayState == STOPPED; }
-	EPlayState getPlayState() const { return mPlayState; }
+	bool isStarted() const { return mState == STARTED; }
+	bool isPaused() const  { return mState == PAUSED; }
+	bool isStopped() const { return mState == STOPPED; }
+	EStopWatchState getPlayState() const { return mState; }
 
 protected:
 	LLStopWatchControlsMixinCommon()
-	:	mPlayState(STOPPED)
+	:	mState(STOPPED)
 	{}
 
-	// derived classes can call this from their constructor in order
-	// to enforce invariants
-	void forceState(EPlayState state) { mPlayState = state; }
-
+	// derived classes can call this from their copy constructor in order
+	// to duplicate play state of source
+	void initTo(EStopWatchState state);
 private:
-	// trigger data accumulation (without reset)
-	virtual void handleStart() = 0;
-	// stop data accumulation, should put object in queryable state
-	virtual void handleStop() = 0;
-	// clear accumulated values, can be called while started
-	virtual void handleReset() = 0;
+	// trigger active behavior (without reset)
+	virtual void handleStart(){};
+	// stop active behavior
+	virtual void handleStop(){};
+	// clear accumulated state, can be called while started
+	virtual void handleReset(){};
 
-	EPlayState mPlayState;
+	EStopWatchState mState;
 };
 
 template<typename DERIVED>
@@ -83,19 +82,20 @@ class LLStopWatchControlsMixin
 :	public LLStopWatchControlsMixinCommon
 {
 public:
-	void splitTo(DERIVED& other)
+	typedef LLStopWatchControlsMixin<DERIVED> self_t;
+	virtual void splitTo(DERIVED& other)
 	{
 		handleSplitTo(other);
 	}
 
-	void splitFrom(DERIVED& other)
+	virtual void splitFrom(DERIVED& other)
 	{
-		other.handleSplitTo(*this);
+		static_cast<self_t&>(other).handleSplitTo(*static_cast<DERIVED*>(this));
 	}
 private:
 	// atomically stop this object while starting the other
 	// no data can be missed in between stop and start
-	virtual void handleSplitTo(DERIVED& other) = 0;
+	virtual void handleSplitTo(DERIVED& other) {};
 
 };
 
@@ -108,20 +108,20 @@ namespace LLTrace
 
 		Recording(const Recording& other)
 		{
-			mSamplingTimer = other.mSamplingTimer;
-			mElapsedSeconds = other.mElapsedSeconds;
-			mCountsFloat = other.mCountsFloat;
+			mSamplingTimer     = other.mSamplingTimer;
+			mElapsedSeconds    = other.mElapsedSeconds;
+			mCountsFloat       = other.mCountsFloat;
 			mMeasurementsFloat = other.mMeasurementsFloat;
-			mCounts = other.mCounts;
-			mMeasurements = other.mMeasurements;
-			mStackTimers = other.mStackTimers;
+			mCounts            = other.mCounts;
+			mMeasurements      = other.mMeasurements;
+			mStackTimers       = other.mStackTimers;
 
+			LLStopWatchControlsMixin::initTo(other.getPlayState());
 			if (other.isStarted())
 			{
 				handleStart();
 			}
 
-			forceState(other.getPlayState());
 		}
 		~Recording();
 
@@ -148,6 +148,10 @@ namespace LLTrace
 		{
 			return (T)getPerSec(static_cast<const TraceType<CountAccumulator<StorageType<T>::type_t> >&> (stat));
 		}
+
+		U32 getSampleCount(const TraceType<CountAccumulator<F64> >& stat) const;
+		U32 getSampleCount(const TraceType<CountAccumulator<S64> >& stat) const;
+
 
 		// Measurement accessors
 		F64 getSum(const TraceType<MeasurementAccumulator<F64> >& stat) const;
@@ -211,14 +215,15 @@ namespace LLTrace
 
 		LLUnit::Seconds<F64> getDuration() const { return mElapsedSeconds; }
 
+	private:
+		friend class ThreadRecorder;
+
 		// implementation for LLStopWatchControlsMixin
 		/*virtual*/ void handleStart();
 		/*virtual*/ void handleStop();
 		/*virtual*/ void handleReset();
 		/*virtual*/ void handleSplitTo(Recording& other);
 
-	private:
-		friend class ThreadRecorder;
 		// returns data for current thread
 		class ThreadRecorder* getThreadRecorder(); 
 
@@ -236,7 +241,7 @@ namespace LLTrace
 	:	public LLStopWatchControlsMixin<PeriodicRecording>
 	{
 	public:
-		PeriodicRecording(S32 num_periods);
+		PeriodicRecording(S32 num_periods, EStopWatchState state = STOPPED);
 		~PeriodicRecording();
 
 		void nextPeriod();
@@ -359,15 +364,17 @@ namespace LLTrace
 			return mean;
 		}
 
-	private:
-
 		// implementation for LLStopWatchControlsMixin
-		/*virtual*/ void handleStart();
-		/*virtual*/ void handleStop();
-		/*virtual*/ void handleReset();
+		/*virtual*/ void start();
+		/*virtual*/ void stop();
+		/*virtual*/ void pause();
+		/*virtual*/ void resume();
+		/*virtual*/ void restart();
+		/*virtual*/ void reset();
+		/*virtual*/ void splitTo(PeriodicRecording& other);
+		/*virtual*/ void splitFrom(PeriodicRecording& other);
 
-		/*virtual*/ void handleSplitTo(PeriodicRecording& other);
-
+	private:
 		Recording*	mRecordingPeriods;
 		Recording	mTotalRecording;
 		bool		mTotalValid;
@@ -382,13 +389,16 @@ namespace LLTrace
 	{
 		void extend();
 
-	private:
 		// implementation for LLStopWatchControlsMixin
-		/*virtual*/ void handleStart();
-		/*virtual*/ void handleStop();
-		/*virtual*/ void handleReset();
-		/*virtual*/ void handleSplitTo(ExtendableRecording& other);
-
+		/*virtual*/ void start();
+		/*virtual*/ void stop();
+		/*virtual*/ void pause();
+		/*virtual*/ void resume();
+		/*virtual*/ void restart();
+		/*virtual*/ void reset();
+		/*virtual*/ void splitTo(ExtendableRecording& other);
+		/*virtual*/ void splitFrom(ExtendableRecording& other);
+	private:
 		Recording mAcceptedRecording;
 		Recording mPotentialRecording;
 	};

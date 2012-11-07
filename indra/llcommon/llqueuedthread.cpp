@@ -112,8 +112,6 @@ void LLQueuedThread::shutdown()
 // virtual
 S32 LLQueuedThread::update(F32 max_time_ms)
 {
-	LLTrace::get_thread_recorder()->pushToMaster();
-
 	if (!mStarted)
 	{
 		if (!mThreaded)
@@ -511,6 +509,9 @@ void LLQueuedThread::run()
 		threadedUpdate();
 		
 		int res = processNextRequest();
+
+		LLTrace::get_thread_recorder()->pushToMaster();
+
 		if (res == 0)
 		{
 			mIdleThread = TRUE;

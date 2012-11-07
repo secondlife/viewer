@@ -171,15 +171,20 @@ void SlaveThreadRecorder::SharedData::copyTo( Recording& sink )
 // MasterThreadRecorder
 ///////////////////////////////////////////////////////////////////////
 
+LLFastTimer::DeclareTimer FTM_PULL_TRACE_DATA_FROM_SLAVES("Pull slave trace data");
 void MasterThreadRecorder::pullFromSlaveThreads()
 {
+	LLFastTimer _(FTM_PULL_TRACE_DATA_FROM_SLAVES);
+	if (mActiveRecordings.empty()) return;
+
 	LLMutexLock lock(&mSlaveListMutex);
 
+	Recording& target_recording = mActiveRecordings.front().mBaseline;
 	for (slave_thread_recorder_list_t::iterator it = mSlaveThreadRecorders.begin(), end_it = mSlaveThreadRecorders.end();
 		it != end_it;
 		++it)
 	{
-		(*it)->mRecorder->mSharedData.copyTo((*it)->mSlaveRecording);
+		(*it)->mSharedData.copyTo(target_recording);
 	}
 }
 
@@ -187,7 +192,7 @@ void MasterThreadRecorder::addSlaveThread( class SlaveThreadRecorder* child )
 {
 	LLMutexLock lock(&mSlaveListMutex);
 
-	mSlaveThreadRecorders.push_back(new SlaveThreadRecorderProxy(child));
+	mSlaveThreadRecorders.push_back(child);
 }
 
 void MasterThreadRecorder::removeSlaveThread( class SlaveThreadRecorder* child )
@@ -198,7 +203,7 @@ void MasterThreadRecorder::removeSlaveThread( class SlaveThreadRecorder* child )
 		it != end_it;
 		++it)
 	{
-		if ((*it)->mRecorder == child)
+		if ((*it) == child)
 		{
 			mSlaveThreadRecorders.erase(it);
 			break;
@@ -210,14 +215,6 @@ void MasterThreadRecorder::pushToMaster()
 {}
 
 MasterThreadRecorder::MasterThreadRecorder()
-{}
-
-///////////////////////////////////////////////////////////////////////
-// MasterThreadRecorder::SlaveThreadTraceProxy
-///////////////////////////////////////////////////////////////////////
-
-MasterThreadRecorder::SlaveThreadRecorderProxy::SlaveThreadRecorderProxy( class SlaveThreadRecorder* recorder) 
-:	mRecorder(recorder)
 {}
 
 }

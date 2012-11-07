@@ -349,7 +349,10 @@ void update_statistics()
 	}
 
 	LLStatViewer::FPS.add(1);
-	LLStatViewer::FPS_SAMPLE.sample(LLTrace::get_frame_recording().getTotalRecording().getPerSec(LLStatViewer::FPS));
+	if (LLTrace::get_frame_recording().getTotalRecording().getSampleCount(LLStatViewer::FPS))
+	{
+		LLStatViewer::FPS_SAMPLE.sample(LLTrace::get_frame_recording().getTotalRecording().getPerSec(LLStatViewer::FPS));
+	}
 	F32 layer_bits = (F32)(gVLManager.getLandBits() + gVLManager.getWindBits() + gVLManager.getCloudBits());
 	LLStatViewer::LAYERS_KBIT.add<LLTrace::Bits>(layer_bits);
 	LLStatViewer::OBJECT_KBIT.add(gObjectData);

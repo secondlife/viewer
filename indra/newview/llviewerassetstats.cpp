@@ -494,7 +494,7 @@ void record_response(LLViewerAssetType::EType at, bool with_http, bool is_temp, 
 {
 	const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
 
-	sResponse[int(eac)].sample<LLTrace::Seconds>(duration);
+	sResponse[int(eac)].sample<LLTrace::Microseconds>(duration);
 }
 
 void record_avatar_stats()

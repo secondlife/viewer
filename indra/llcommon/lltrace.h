@@ -220,8 +220,7 @@ namespace LLTrace
 			return AccumulatorBuffer<ACCUMULATOR>::getPrimaryStorage()[mAccumulatorIndex];
 		}
 
-		ACCUMULATOR& getAccumulator(AccumulatorBuffer<ACCUMULATOR>* buffer) { return (*buffer)[mAccumulatorIndex]; }
-		const ACCUMULATOR& getAccumulator(const AccumulatorBuffer<ACCUMULATOR>* buffer) const { return (*buffer)[mAccumulatorIndex]; }
+		size_t getIndex() const { return mAccumulatorIndex; }
 
 	protected:
 		std::string	mName;
@@ -395,6 +394,8 @@ namespace LLTrace
 		}
 
 		T	getSum() const { return (T)mSum; }
+
+		U32 getSampleCount() const { return mNumSamples; }
 
 	private:
 		T	mSum;
