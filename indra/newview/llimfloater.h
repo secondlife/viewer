@@ -65,7 +65,6 @@ public:
 
 	// LLView overrides
 	/*virtual*/ BOOL postBuild();
-    /*virtual*/ void setFocus(BOOL focusFlag);
 	/*virtual*/ void setVisible(BOOL visible);
 	/*virtual*/ BOOL getVisible();
 	// Check typing timeout timer.
@@ -86,7 +85,7 @@ public:
 	void sessionInitReplyReceived(const LLUUID& im_session_id);
 
 	// get new messages from LLIMModel
-	void updateMessages();
+	/*virtual*/ void updateMessages();
 	void reloadMessages();
 	static void onSendMsg(LLUICtrl*, void*);
 	void sendMsgFromInputEditor();

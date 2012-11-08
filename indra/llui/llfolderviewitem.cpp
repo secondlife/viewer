@@ -409,8 +409,8 @@ void LLFolderViewItem::selectItem(void)
 {
 	if (mIsSelected == FALSE)
 	{
-		getViewModelItem()->selectItem();
 		mIsSelected = TRUE;
+		getViewModelItem()->selectItem();
 	}
 }
 

@@ -81,6 +81,7 @@ public:
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void draw();
 	/*virtual*/ void setVisible(BOOL visible);
+	/*virtual*/ void setFocus(BOOL focus);
 	
 	// Handle the left hand participant list widgets
 	void addConversationViewParticipant(LLConversationItem* item);
@@ -91,6 +92,8 @@ public:
 
 	void setSortOrder(const LLConversationSort& order);
 	
+	virtual void updateMessages() {}
+
 protected:
 
 	// callback for click on any items of the visual states menu

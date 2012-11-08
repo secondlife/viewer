@@ -1118,6 +1118,47 @@ void LLIMFloaterContainer::selectConversation(const LLUUID& session_id)
 	}
 }
 
+// Synchronous select the conversation item and the conversation floater
+BOOL LLIMFloaterContainer::selectConversationPair(const LLUUID& session_id, bool select_widget)
+{
+    BOOL handled = TRUE;
+
+    /* widget processing */
+    if (select_widget)
+    {
+    	LLFolderViewItem* widget = mConversationsWidgets[session_id];
+    	if (widget && widget->getParentFolder())
+    	{
+    		widget->getParentFolder()->setSelection(widget, FALSE, FALSE);
+    	}
+    }
+
+    /* floater processing */
+
+    if (session_id != getSelectedSession())
+    {
+        // Store the active session
+        setSelectedSession(session_id);
+
+		LLIMConversation* session_floater = LLIMConversation::getConversation(session_id);
+
+		if (session_floater->getHost())
+		{
+			// Always expand the message pane if the panel is hosted by the container
+			collapseMessagesPane(false);
+			// Switch to the conversation floater that is being selected
+			selectFloater(session_floater);
+		}
+
+		// Set the focus on the selected floater
+		if (!session_floater->hasFocus())
+		{
+			session_floater->setFocus(TRUE);
+		}
+    }
+
+    return handled;
+}
 
 void LLIMFloaterContainer::setTimeNow(const LLUUID& session_id, const LLUUID& participant_id)
 {
