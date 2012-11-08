@@ -6764,7 +6764,7 @@ Is this OK?
    type="notify">
 Warning: The object &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; wants total access to your Linden Dollars account. If you allow access, it can remove funds from your account at any time, or empty your account completely, on an ongoing basis with no additional warnings.
   
-It is rare that such a request is legitimate. Do not allow access if you do not fully understand why it wants access to your account.
+Do not allow access if you do not fully understand why it wants access to your account.
 
   <tag>confirm</tag>
     <form name="form">
@@ -8271,5 +8271,1694 @@ Attempt cancelled.
      notext="No"
      yestext="Yes"/>
   </notification>
+
+
+  <notification
+   icon="alertmodal.tga"
+   name="AvatarFrozen"
+   type="notify">
+   <tag>fail</tag>
+[AV_FREEZER] has frozen you. You cannot move or interact with the world.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="AvatarFrozenDuration"
+   type="notify">
+   <tag>fail</tag>
+[AV_FREEZER] has frozen you for [AV_FREEZE_TIME] seconds. You cannot move or interact with the world.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="YouFrozeAvatar"
+   type="notify">
+   <tag>fail</tag>
+Avatar frozen.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="AvatarHasUnFrozenYou"
+   type="notify">
+   <tag>fail</tag>
+[AV_FREEZER] has unfrozen you.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="AvatarUnFrozen"
+   type="notify">
+   <tag>fail</tag>
+Avatar unfrozen.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="AvatarFreezeFailure"
+   type="notify">
+   <tag>fail</tag>
+Freeze failed because you don't have admin permission for that parcel.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="AvatarFreezeThaw"
+   type="notify">
+   <tag>fail</tag>
+Your freeze expired, go about your business.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="AvatarCantFreeze"
+   type="notify">
+   <tag>fail</tag>
+Sorry, can't freeze that user.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NowOwnObject"
+   type="notify">
+   <tag>fail</tag>
+You are now the owner of object [OBJECT_NAME]
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantRezOnLand"
+   type="notify">
+   <tag>fail</tag>
+Can't rez object at [OBJECT_POS] because the owner of this land does not allow it.  Use the land tool to see land ownership.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="RezFailTooManyRequests"
+   type="notify">
+   <tag>fail</tag>
+Object can not be rezzed because there are too many requests.
+  </notification>
+ 
+  <notification
+   icon="alertmodal.tga"
+   name="SitFailCantMove"
+   type="notify">
+   <tag>fail</tag>
+You cannot sit because you cannot move at this time.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SitFailNotAllowedOnLand"
+   type="notify">
+   <tag>fail</tag>
+You cannot sit because you are not allowed on that land.
+  </notification>
+ 
+  <notification
+   icon="alertmodal.tga"
+   name="SitFailNotSameRegion"
+   type="notify">
+   <tag>fail</tag>
+Try moving closer.  Can't sit on object because
+it is not in the same region as you.
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
+   name="NoNewObjectRegionFull"
+   type="notify">
+   <tag>fail</tag>
+Unable to create new object. The region is full.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="FailedToPlaceObject"
+   type="notify">
+   <tag>fail</tag>
+Failed to place object at specified location.  Please try again.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoOwnNoGardening"
+   type="notify">
+   <tag>fail</tag>
+You Can't create trees and grass on land you don't own.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoCopyPermsNoObject"
+   type="notify">
+   <tag>fail</tag>
+Copy failed because you lack permission to copy the object '[OBJ_NAME]'.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoTransPermsNoObject"
+   type="notify">
+   <tag>fail</tag>
+Copy failed because the object '[OBJ_NAME]' cannot be transferred to you.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="AddToNavMeshNoCopy"
+   type="notify">
+   <tag>fail</tag>
+Copy failed because the object '[OBJ_NAME]' contributes to navmesh.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="DupeWithNoRootsSelected"
+   type="notify">
+   <tag>fail</tag>
+Duplicate with no root objects selected.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantDupeCuzRegionIsFull"
+   type="notify">
+   <tag>fail</tag>
+Can't duplicate objects because the region is full.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantDupeCuzParcelNotFound"
+   type="notify">
+   <tag>fail</tag>
+Can't duplicate objects - Can't find the parcel they are on.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantCreateCuzParcelFull"
+   type="notify">
+   <tag>fail</tag>
+Can't create object because 
+the parcel is full.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="RezAttemptFailed"
+   type="notify">
+   <tag>fail</tag>
+Attempt to rez an object failed.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ToxicInvRezAttemptFailed"
+   type="notify">
+   <tag>fail</tag>
+Unable to create item that has caused problems on this region.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvItemIsBlacklisted"
+   type="notify">
+   <tag>fail</tag>
+That inventory item has been blacklisted.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoCanRezObjects"
+   type="notify">
+   <tag>fail</tag>
+You are not currently allowed to create objects.
+  </notification>
+ 
+  <notification
+   icon="alertmodal.tga"
+   name="LandSearchBlocked"
+   type="notify">
+   <tag>fail</tag>
+Land Search Blocked.
+You have performed too many land searches too quickly.
+Please try again in a minute.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NotEnoughResourcesToAttach"
+   type="notify">
+   <tag>fail</tag>
+Not enough script resources available to attach object!
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="YouDiedAndGotTPHome"
+   type="notify">
+   <tag>fail</tag>
+You died and have been teleported to your home location
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="EjectComingSoon"
+   type="notify">
+   <tag>fail</tag>
+You are no longer allowed here and have [EJECT_TIME] seconds to leave.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoEnterServerFull"
+   type="notify">
+   <tag>fail</tag>
+You can't enter this region because 
+the server is full.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SaveBackToInvDisabled"
+   type="notify">
+   <tag>fail</tag>
+Save Back To Inventory has been disabled.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoExistNoSaveToContents"
+   type="notify">
+   <tag>fail</tag>
+Cannot save '[OBJ_NAME]' to object contents because the object it was rezzed from no longer exists.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoModNoSaveToContents"
+   type="notify">
+   <tag>fail</tag>
+Cannot save '[OBJ_NAME]' to object contents because you do not have permission to modify the object '[DEST_NAME]'.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoSaveBackToInvDisabled"
+   type="notify">
+   <tag>fail</tag>
+Cannot save '[OBJ_NAME]' back to inventory -- this operation has been disabled.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoCopyNoSelCopy"
+   type="notify">
+   <tag>fail</tag>
+You cannot copy your selection because you do not have permission to copy the object '[OBJ_NAME]'.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoTransNoSelCopy"
+   type="notify">
+   <tag>fail</tag>
+You cannot copy your selection because the object '[OBJ_NAME]' is not transferrable.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoTransNoCopy"
+   type="notify">
+   <tag>fail</tag>
+You cannot copy your selection because the object '[OBJ_NAME]' is not transferrable.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoPermsNoRemoval"
+   type="notify">
+   <tag>fail</tag>
+Removal of the object '[OBJ_NAME]' from the simulator is disallowed by the permissions system.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoModNoSaveSelection"
+   type="notify">
+   <tag>fail</tag>
+Cannot save your selection because you do not have permission to modify the object '[OBJ_NAME]'.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoCopyNoSaveSelection"
+   type="notify">
+   <tag>fail</tag>
+Cannot save your selection because the object '[OBJ_NAME]' is not copyable.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoModNoTaking"
+   type="notify">
+   <tag>fail</tag>
+You cannot take your selection because you do not have permission to modify the object '[OBJ_NAME]'.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="RezDestInternalError"
+   type="notify">
+   <tag>fail</tag>
+Internal Error: Unknown destination type.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="DeleteFailObjNotFound"
+   type="notify">
+   <tag>fail</tag>
+Delete failed because object not found
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SorryCantEjectUser"
+   type="notify">
+   <tag>fail</tag>
+Sorry, can't eject that user.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="RegionSezNotAHome"
+   type="notify">
+   <tag>fail</tag>
+This region does not allow you to set your home location here.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="HomeLocationLimits"
+   type="notify">
+   <tag>fail</tag>
+You can only set your 'Home Location' on your land or at a mainland Infohub.
+   </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="HomePositionSet"
+   type="notify">
+   <tag>fail</tag>
+Home position set.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="AvatarEjected"
+   type="notify">
+   <tag>fail</tag>
+Avatar ejected.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="AvatarEjectFailed"
+   type="notify">
+   <tag>fail</tag>
+Eject failed because you don't have admin permission for that parcel.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantMoveObjectParcelFull"
+   type="notify">
+   <tag>fail</tag>
+Can't move object '[OBJECT_NAME]' to
+[OBJ_POSITION] in region [REGION_NAME] because the parcel is full.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantMoveObjectParcelPerms"
+   type="notify">
+   <tag>fail</tag>
+Can't move object '[OBJECT_NAME]' to
+[OBJ_POSITION] in region [REGION_NAME] because your objects are not allowed on this parcel.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantMoveObjectParcelResources"
+   type="notify">
+   <tag>fail</tag>
+Can't move object '[OBJECT_NAME]' to
+[OBJ_POSITION] in region [REGION_NAME] because there are not enough resources for this object on this parcel.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantMoveObjectRegionVersion"
+   type="notify">
+   <tag>fail</tag>
+Can't move object '[OBJECT_NAME]' to
+[OBJ_POSITION] in region [REGION_NAME] because the other region is running an older version which does not support receiving this object via region crossing.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantMoveObjectNavMesh"
+   type="notify">
+   <tag>fail</tag>
+Can't move object '[OBJECT_NAME]' to
+[OBJ_POSITION] in region [REGION_NAME] because you cannot modify the navmesh across region boundaries.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantMoveObjectWTF"
+   type="notify">
+   <tag>fail</tag>
+Can't move object '[OBJECT_NAME]' to
+[OBJ_POSITION] in region [REGION_NAME] because of an unknown reason. ([FAILURE_TYPE])
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoPermModifyObject"
+   type="notify">
+   <tag>fail</tag>
+You don't have permission to modify that object
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantEnablePhysObjContributesToNav"
+   type="notify">
+   <tag>fail</tag>
+Can't enable physics for an object that contributes to the navmesh.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantEnablePhysKeyframedObj"
+   type="notify">
+   <tag>fail</tag>
+Can't enable physics for keyframed objects.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantEnablePhysNotEnoughLandResources"
+   type="notify">
+   <tag>fail</tag>
+Can't enable physics for object -- insufficient land resources.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantEnablePhysCostTooGreat"
+   persist="true"
+   type="notify">
+   <tag>fail</tag>
+Can't enable physics for object with physics resource cost greater than [MAX_OBJECTS]
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="PhantomWithConcavePiece"
+   type="notify">
+   <tag>fail</tag>
+This object cannot have a concave piece because it is phantom and contributes to the navmesh.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="UnableAddItem"
+   type="notify">
+   <tag>fail</tag>
+Unable to add item!
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="UnableEditItem"
+   type="notify">
+   <tag>fail</tag>
+Unable to edit this!
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoPermToEdit"
+   type="notify">
+   <tag>fail</tag>
+Not permitted to edit this.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoPermToCopyInventory"
+   type="notify">
+   <tag>fail</tag>
+Not permitted to copy that inventory.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantSaveItemDoesntExist"
+   type="notify">
+   <tag>fail</tag>
+Cannot save to object contents: Item no longer exists.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantSaveItemAlreadyExists"
+   type="notify">
+   <tag>fail</tag>
+Cannot save to object contents: Item with that name already exists in inventory
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantSaveModifyAttachment"
+   type="notify">
+   <tag>fail</tag>
+Cannot save to object contents: This would modify the attachment permissions.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoPermToEdit"
+   type="notify">
+   <tag>fail</tag>
+Not permitted to edit this!
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="TooManyScripts"
+   type="notify">
+   <tag>fail</tag>
+Too many scripts.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="UnableAddScript"
+   type="notify">
+   <tag>fail</tag>
+Unable to add script!
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="AssetServerTimeoutObjReturn"
+   type="notify">
+   <tag>fail</tag>
+Asset server didn't respond in a timely fashion.  Object returned to sim.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="RegionDisablePhysicsShapes"
+   type="notify">
+   <tag>fail</tag>
+This region does not have physics shapes enabled.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoModNavmeshAcrossRegions"
+   type="notify">
+   <tag>fail</tag>
+You cannot modify the navmesh across region boundaries.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoPermModifyObject"
+   type="notify">
+   <tag>fail</tag>
+You don't have permission to modify that object.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantEnablePhysObjContributesToNav"
+   type="notify">
+   <tag>fail</tag>
+Can't enable physics for an object that contributes to the navmesh.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantEnablePhysKeyframedObj"
+   type="notify">
+   <tag>fail</tag>
+Can't enable physics for keyframed objects.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantEnablePhysNotEnoughLandResources"
+   type="notify">
+   <tag>fail</tag>
+Can't enable physics for object -- insufficient land resources.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantEnablePhysCostTooGreat"
+   persist="true"
+   type="notify">
+   <tag>fail</tag>
+Can't enable physics for object with physics resource cost greater than [MAX_OBJECTS]
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoSetPhysicsPropertiesOnObjectType"
+   type="notify">
+   <tag>fail</tag>
+Cannot set physics properties on that object type.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoSetRootPrimWithNoShape"
+   type="notify">
+   <tag>fail</tag>
+Cannot set root prim to have no shape.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoRegionSupportPhysMats"
+   type="notify">
+   <tag>fail</tag>
+This region does not have physics materials enabled.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="OnlyRootPrimPhysMats"
+   type="notify">
+   <tag>fail</tag>
+Only root prims may have their physics materials adjusted.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoSupportCharacterPhysMats"
+   type="notify">
+   <tag>fail</tag>
+Setting physics materials on characters is not yet supported.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidPhysMatProperty"
+   type="notify">
+   <tag>fail</tag>
+One or more of the specified physics material properties was invalid.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoPermsAlterStitchingMeshObj"
+   type="notify">
+   <tag>fail</tag>
+You may not alter the stitching type of a mesh object.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoPermsAlterShapeMeshObj"
+   type="notify">
+   <tag>fail</tag>
+You may not alter the shape of a mesh object
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="FullRegionCantEnter"
+   type="notify">
+   <tag>fail</tag>
+You can't enter this region because \nthe region is full.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="LinkFailedOwnersDiffer"
+   type="notify">
+   <tag>fail</tag>
+Link failed -- owners differ
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="LinkFailedNoModNavmeshAcrossRegions"
+   type="notify">
+   <tag>fail</tag>
+Link failed -- cannot modify the navmesh across region boundaries.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="LinkFailedNoPermToEdit"
+   type="notify">
+   <tag>fail</tag>
+Link failed because you do not have edit permission.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="LinkFailedTooManyPrims"
+   type="notify">
+   <tag>fail</tag>
+Link failed -- too many primitives
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="LinkFailedCantLinkNoCopyNoTrans"
+   type="notify">
+   <tag>fail</tag>
+Link failed -- cannot link no-copy with no-transfer
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="LinkFailedNothingLinkable"
+   type="notify">
+   <tag>fail</tag>
+Link failed -- nothing linkable.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="LinkFailedTooManyPathfindingChars"
+   type="notify">
+   <tag>fail</tag>
+Link failed -- too many pathfinding characters
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="LinkFailedInsufficientLand"
+   type="notify">
+   <tag>fail</tag>
+Link failed -- insufficient land resources
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="LinkFailedTooMuchPhysics"
+   type="notify">
+   <tag>fail</tag>
+Object uses too many physics resources -- its dynamics have been disabled.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="TeleportedHomeByObjectOnParcel"
+   persist="true"
+   type="notify">
+   <tag>fail</tag>
+You have been teleported home by the object '[OBJECT_NAME]' on the parcel '[PARCEL_NAME]'
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="TeleportedHomeByObject"
+   persist="true"
+   type="notify">
+   <tag>fail</tag>
+You have been teleported home by the object '[OBJECT_NAME]'
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="TeleportedByAttachment"
+   type="notify">
+   <tag>fail</tag>
+You have been teleported by an attachment on [ITEM_ID]
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="TeleportedByObjectOnParcel"
+   type="notify">
+   <tag>fail</tag>
+You have been teleported by the object '[OBJECT_NAME]' on the parcel '[PARCEL_NAME]'
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="TeleportedByObjectOwnedBy"
+   type="notify">
+   <tag>fail</tag>
+You have been teleported by the object '[OBJECT_NAME]' owned by [OWNER_ID]
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="TeleportedByObjectUnknownUser"
+   type="notify">
+   <tag>fail</tag>
+You have been teleported by the object '[OBJECT_NAME]' owned by an unknown user.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantCreateObjectRegionFull"
+   type="notify">
+   <tag>fail</tag>
+Unable to create requested object. The region is full.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantAttackMultipleObjOneSpot"
+   type="notify">
+   <tag>fail</tag>
+You can't attach multiple objects to one spot.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantCreateMultipleObjAtLoc"
+   type="notify">
+   <tag>fail</tag>
+You can't create multiple objects here.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="UnableToCreateObjTimeOut"
+   type="notify">
+   <tag>fail</tag>
+Unable to create requested object. Object is missing from database.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="UnableToCreateObjUnknown"
+   type="notify">
+   <tag>fail</tag>
+Unable to create requested object. The request timed out. Please try again.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="UnableToCreateObjMissingFromDB"
+   type="notify">
+   <tag>fail</tag>
+Unable to create requested object. Please try again.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="RezFailureTookTooLong"
+   type="notify">
+   <tag>fail</tag>
+Rez failed, requested object took too long to load.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="FailedToPlaceObjAtLoc"
+   type="notify">
+   <tag>fail</tag>
+Failed to place object at specified location.  Please try again.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantCreatePlantsOnLand"
+   type="notify">
+   <tag>fail</tag>
+You cannot create plants on this land.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantRestoreObjectNoWorldPos"
+   type="notify">
+   <tag>fail</tag>
+Cannot restore object. No world position found.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantRezObjectInvalidMeshData"
+   type="notify">
+   <tag>fail</tag>
+Unable to rez object because its mesh data is invalid.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantRezObjectTooManyScripts"
+   type="notify">
+   <tag>fail</tag>
+Unable to rez object because there are already too many scripts in this region.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantCreateObjectNoAccess"
+   type="notify">
+   <tag>fail</tag>
+Your access privileges don't allow you to create objects there.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantCreateObject"
+   type="notify">
+   <tag>fail</tag>
+You are not currently allowed to create objects.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidObjectParams"
+   type="notify">
+   <tag>fail</tag>
+Invalid object parameters
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantDuplicateObjectNoAcess"
+   type="notify">
+   <tag>fail</tag>
+Your access privileges don't allow you to duplicate objects here.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantChangeShape"
+   type="notify">
+   <tag>fail</tag>
+You are not allowed to change this shape.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoAccessToClaimObjects"
+   type="notify">
+   <tag>fail</tag>
+Your access privileges don't allow you to claim objects here.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="DeedFailedNoPermToDeedForGroup"
+   type="notify">
+   <tag>fail</tag>
+Deed failed because you do not have permission to deed objects for your group.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoPrivsToBuyObject"
+   type="notify">
+   <tag>fail</tag>
+Your access privileges don't allow you to buy objects here.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantAttachObjectAvatarSittingOnIt"
+   type="notify">
+   <tag>fail</tag>
+Cannot attach object because an avatar is sitting on it.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="WhyAreYouTryingToWearShrubbery"
+   type="notify">
+   <tag>fail</tag>
+Trees and grasses cannot be worn as attachments.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantAttachGroupOwnedObjs"
+   type="notify">
+   <tag>fail</tag>
+Cannot attach group-owned objects.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantAttachObjectsNotOwned"
+   type="notify">
+   <tag>fail</tag>
+Cannot attach objects that you don't own.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantAttachNavmeshObjects"
+   type="notify">
+   <tag>fail</tag>
+Cannot attach objects that contribute to navmesh.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantAttachObjectNoMovePermissions"
+   type="notify">
+   <tag>fail</tag>
+Cannot attach object because you do not have permission to move it.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantAttachNotEnoughScriptResources"
+   type="notify">
+   <tag>fail</tag>
+Not enough script resources available to attach object!
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantDropItemTrialUser"
+   type="notify">
+   <tag>fail</tag>
+You can't drop objects here; try the Free Trial area.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantDropMeshAttachment"
+   type="notify">
+   <tag>fail</tag>
+You can't drop mesh attachments. Detach to inventory and then rez in world.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantDropAttachmentNoPermission"
+   type="notify">
+   <tag>fail</tag>
+Failed to drop attachment: you don't have permission to drop there.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantDropAttachmentInsufficientLandResources"
+   type="notify">
+   <tag>fail</tag>
+Failed to drop attachment: insufficient available land resource.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantDropAttachmentInsufficientResources"
+   type="notify">
+   <tag>fail</tag>
+Failed to drop attachments: insufficient available resources.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantDropObjectFullParcel"
+   type="notify">
+   <tag>fail</tag>
+Cannot drop object here.  Parcel is full.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantTouchObjectBannedFromParcel"
+   type="notify">
+   <tag>fail</tag>
+Can't touch/grab this object because you are banned from the land parcel.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="PlzNarrowDeleteParams"
+   type="notify">
+   <tag>fail</tag>
+Please narrow your delete parameters.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="UnableToUploadAsset"
+   type="notify">
+   <tag>fail</tag>
+Unable to upload asset.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantTeleportCouldNotFindUser"
+   type="notify">
+   <tag>fail</tag>
+Could not find user to teleport home
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="GodlikeRequestFailed"
+   type="notify">
+   <tag>fail</tag>
+godlike request failed
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="GenericRequestFailed"
+   type="notify">
+   <tag>fail</tag>
+generic request failed
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantUploadPostcard"
+   type="notify">
+   <tag>fail</tag>
+Unable to upload postcard.  Try again later.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantFetchInventoryForGroupNotice"
+   type="notify">
+   <tag>fail</tag>
+Unable to fetch inventory details for the group notice.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantSendGroupNoticeNotPermitted"
+   type="notify">
+   <tag>fail</tag>
+Unable to send group notice -- not permitted.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantSendGroupNoticeCantConstructInventory"
+   type="notify">
+   <tag>fail</tag>
+Unable to send group notice -- could not construct inventory.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantParceInventoryInNotice"
+   type="notify">
+   <tag>fail</tag>
+Unable to parse inventory in notice.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="TerrainUploadFailed"
+   type="notify">
+   <tag>fail</tag>
+Terrain upload failed.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="TerrainFileWritten"
+   type="notify">
+   <tag>fail</tag>
+Terrain file written.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="TerrainFileWrittenStartingDownload"
+   type="notify">
+   <tag>fail</tag>
+Terrain file written, starting download...
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="TerrainBaked"
+   type="notify">
+   <tag>fail</tag>
+Terrain baked.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="TenObjectsDisabledPlzRefresh"
+   type="notify">
+   <tag>fail</tag>
+Only the first 10 selected objects have been disabled. Refresh and make additional selections if required.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="UpdateViewerBuyParcel"
+   type="notify">
+   <tag>fail</tag>
+You need to update your viewer to buy this parcel.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="LandBuyAccessBlocked"
+   type="notify">
+   <tag>fail</tag>
+You can't buy this land due to your maturity Rating. You may need to validate your age and/or install the latest Viewer. Please go to the Knowledge Base for details on accessing areas with this maturity Rating.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantBuyParcelNotForSale"
+   type="notify">
+   <tag>fail</tag>
+Unable to buy, this parcel is not for sale.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantBuySalePriceOrLandAreaChanged"
+   type="notify">
+   <tag>fail</tag>
+Unable to buy, the sale price or land area has changed.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantBuyParcelNotAuthorized"
+   type="notify">
+   <tag>fail</tag>
+You are not the authorized buyer for this parcel.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantBuyParcelAwaitingPurchaseAuth"
+   type="notify">
+   <tag>fail</tag>
+You cannot purchase this parcel because it is already awaiting purchase aut
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantBuildOverflowParcel"
+   type="notify">
+   <tag>fail</tag>
+You cannot build objects here because doing so would overflow the parcel.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SelectedMultipleOwnedLand"
+   type="notify">
+   <tag>fail</tag>
+You selected land with different owners. Please select a smaller area and try again.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantJoinTooFewLeasedParcels"
+   type="notify">
+   <tag>fail</tag>
+Not enough leased parcels in selection to join.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantDivideLandMultipleParcelsSelected"
+   type="notify">
+   <tag>fail</tag>
+Can't divide land.\nThere is more than one parcel selected.\nTry selecting a smaller piece of land.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantDivideLandCantFindParcel"
+   type="notify">
+   <tag>fail</tag>
+Can't divide land.\nCan't find the parcel.\nPlease report with Help -> Reprt Bug...
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantDivideLandWholeParcelSelected"
+   type="notify">
+   <tag>fail</tag>
+Can't divide land. Whole parcel is selected.\nTry selecting a smaller piece of land.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="LandHasBeenDivided"
+   type="notify">
+   <tag>fail</tag>
+Land has been divided.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="PassPurchased"
+   type="notify">
+   <tag>fail</tag>
+You purchased a pass.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="RegionDisallowsClassifieds"
+   type="notify">
+   <tag>fail</tag>
+Region does not allow classified advertisements.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="LandPassExpireSoon"
+   type="notify">
+   <tag>fail</tag>
+Your pass to this land is about to expire.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantSitNoSuitableSurface"
+   type="notify">
+   <tag>fail</tag>
+There is no suitable surface to sit on, try another spot.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantSitNoRoom"
+   type="notify">
+   <tag>fail</tag>
+No room to sit here, try another spot.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="AutopilotCanceled"
+   type="notify">
+   <tag>fail</tag>
+Autopilot canceled
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ClaimObjectFailedNoPermission"
+   type="notify">
+   <tag>fail</tag>
+Claim object failed because you don't have permission
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ClaimObjectFailedNoMoney"
+   type="notify">
+   <tag>fail</tag>
+Claim object failed because you don't have enough L$.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantDeedGroupLand"
+   type="notify">
+   <tag>fail</tag>
+Cannot deed group-owned land.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="BuyObjectFailedNoMoney"
+   type="notify">
+   <tag>fail</tag>
+Buy object failed because you don't have enough L$.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="BuyInventoryFailedNoMoney"
+   type="notify">
+   <tag>fail</tag>
+Buy inventory failed because you do not have enough L$
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="BuyPassFailedNoMoney"
+   type="notify">
+   <tag>fail</tag>
+You don't have enough L$ to buy a pass to this land.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantBuyPassTryAgain"
+   type="notify">
+   <tag>fail</tag>
+Unable to buy pass right now.  Try again later.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantCreateObjectParcelFull"
+   type="notify">
+   <tag>fail</tag>
+Can't create object because \nthe parcel is full.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="FailedPlacingObject"
+   type="notify">
+   <tag>fail</tag>
+Failed to place object at specified location.  Please try again.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantCreateLandmarkForEvent"
+   type="notify">
+   <tag>fail</tag>
+Unable to create landmark for event.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="GodBeatsFreeze"
+   type="notify">
+   <tag>fail</tag>
+Your godlike powers break the freeze!
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SpecialPowersRequestFailedLogged"
+   type="notify">
+   <tag>fail</tag>
+Request for special powers failed. This request has been logged.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ExpireExplanation"
+   type="notify">
+   <tag>fail</tag>
+The system is currently unable to process your request. The request timed out.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="DieExplanation"
+   type="notify">
+   <tag>fail</tag>
+The system is unable to process your request.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="AddPrimitiveFailure"
+   type="notify">
+   <tag>fail</tag>
+Insufficient funds to create primitve.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="RezObjectFailure"
+   type="notify">
+   <tag>fail</tag>
+Insufficient funds to create object.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ResetHomePositionNotLegal"
+   type="notify">
+   <tag>fail</tag>
+Reset Home position since Home wasn't legal.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantInviteRegionFull"
+   type="notify">
+   <tag>fail</tag>
+You cannot currently invite anyone to your location because the region is full. Try again later.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantSetHomeAtRegion"
+   type="notify">
+   <tag>fail</tag>
+This region does not allow you to set your home location here.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ListValidHomeLocations"
+   type="notify">
+   <tag>fail</tag>
+You can only set your 'Home Location' on your land or at a mainland Infohub.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SetHomePosition"
+   type="notify">
+   <tag>fail</tag>
+Home position set.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantDerezInventoryError"
+   type="notify">
+   <tag>fail</tag>
+Cannot derez object due to inventory fault.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantCreateRequestedInv"
+   type="notify">
+   <tag>fail</tag>
+Cannot create requested inventory.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantCreateRequestedInvFolder"
+   type="notify">
+   <tag>fail</tag>
+Cannot create requested inventory folder.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantCreateInventory"
+   type="notify">
+   <tag>fail</tag>
+Cannot create that inventory.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantCreateLandmark"
+   type="notify">
+   <tag>fail</tag>
+Cannot create landmark.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantCreateOutfit"
+   type="notify">
+   <tag>fail</tag>
+Cannot create outfit right now. Try again in a minute.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InventoryNotForSale"
+   type="notify">
+   <tag>fail</tag>
+Inventory is not for sale.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantFindInvItem"
+   type="notify">
+   <tag>fail</tag>
+Unable to find inventory item.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantFindObject"
+   type="notify">
+   <tag>fail</tag>
+Unable to find object.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantTransfterMoneyRegionDisabled"
+   type="notify">
+   <tag>fail</tag>
+Money transfers to objects are currently disabled in this region.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantPayNoAgent"
+   type="notify">
+   <tag>fail</tag>
+Could not figure out who to pay.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantDonateToPublicObjects"
+   type="notify">
+   <tag>fail</tag>
+You cannot give L$ to public objects.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InventoryCreationInWorldObjectFailed"
+   type="notify">
+   <tag>fail</tag>
+Inventory creation on in-world object failed.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="UserBalanceOrLandUsageError"
+   type="notify">
+   <tag>fail</tag>
+An internal error prevented us from properly updating your viewer.  The L$ balance or parcel holdings displayed in your viewer may not reflect your actual balance on the servers.
+  </notification>
+
 
 </notifications>

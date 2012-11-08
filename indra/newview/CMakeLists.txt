@@ -333,7 +333,6 @@ set(viewer_SOURCE_FILES
     llmarketplacenotifications.cpp
     llmediactrl.cpp
     llmediadataclient.cpp
-    llmemoryview.cpp
     llmeshrepository.cpp
     llmimetypes.cpp
     llmorphview.cpp
@@ -909,7 +908,6 @@ set(viewer_HEADER_FILES
     llmarketplacenotifications.h
     llmediactrl.h
     llmediadataclient.h
-    llmemoryview.h
     llmeshrepository.h
     llmimetypes.h
     llmorphview.h

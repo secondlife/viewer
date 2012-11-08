@@ -730,10 +730,6 @@ bool LLAppViewer::init()
 
     mAlloc.setProfilingEnabled(gSavedSettings.getBOOL("MemProfiling"));
 
-#if LL_RECORD_VIEWER_STATS
-	LLViewerStatsRecorder::initClass();
-#endif
-
     // *NOTE:Mani - LLCurl::initClass is not thread safe. 
     // Called before threads are created.
     LLCurl::initClass(gSavedSettings.getF32("CurlRequestTimeOut"), 
@@ -800,9 +796,6 @@ bool LLAppViewer::init()
 	//////////////////////////////////////////////////////////////////////////////
 	// *FIX: The following code isn't grouped into functions yet.
 
-	// Statistics / debug timer initialization
-	init_statistics();
-	
 	//
 	// Various introspection concerning the libs we're using - particularly
 	// the libs involved in getting to a full login screen.
@@ -1188,9 +1181,10 @@ static LLFastTimer::DeclareTimer FTM_SERVICE_CALLBACK("Callback");
 static LLFastTimer::DeclareTimer FTM_AGENT_AUTOPILOT("Autopilot");
 static LLFastTimer::DeclareTimer FTM_AGENT_UPDATE("Update");
 
+LLFastTimer::DeclareTimer FTM_FRAME("Frame", true);
+
 bool LLAppViewer::mainLoop()
 {
-	LLMemType mt1(LLMemType::MTYPE_MAIN);
 	mMainloopTimeout = new LLWatchdogTimeout();
 	
 	//-------------------------------------------
@@ -1226,7 +1220,8 @@ bool LLAppViewer::mainLoop()
 	// Handle messages
 	while (!LLApp::isExiting())
 	{
-		LLFastTimer::nextFrame(); // Should be outside of any timer instances
+		LLFastTimer _(FTM_FRAME);
+		LLFastTimer::nextFrame(); 
 
 		//clear call stack records
 		llclearcallstacks;
@@ -1290,7 +1285,6 @@ bool LLAppViewer::mainLoop()
 					&& (gHeadlessClient || !gViewerWindow->getShowProgress())
 					&& !gFocusMgr.focusLocked())
 				{
-					LLMemType mjk(LLMemType::MTYPE_JOY_KEY);
 					joystick->scanJoystick();
 					gKeyboard->scanKeyboard();
 				}
@@ -1304,7 +1298,6 @@ bool LLAppViewer::mainLoop()
 
 					if (gAres != NULL && gAres->isInitialized())
 					{
-						LLMemType mt_ip(LLMemType::MTYPE_IDLE_PUMP);
 						pingMainloopTimeout("Main:ServicePump");				
 						LLFastTimer t4(FTM_PUMP);
 						{
@@ -1354,7 +1347,6 @@ bool LLAppViewer::mainLoop()
 
 			// Sleep and run background threads
 			{
-				LLMemType mt_sleep(LLMemType::MTYPE_SLEEP);
 				LLFastTimer t2(FTM_SLEEP);
 				
 				// yield some time to the os based on command line option
@@ -1926,10 +1918,6 @@ bool LLAppViewer::cleanup()
 	}	
 
 	LLMetricPerformanceTesterBasic::cleanClass() ;
-
-#if LL_RECORD_VIEWER_STATS
-	LLViewerStatsRecorder::cleanupClass();
-#endif
 
 	llinfos << "Cleaning up Media and Textures" << llendflush;
 
@@ -3164,8 +3152,6 @@ void LLAppViewer::writeSystemInfo()
 	LL_INFOS("SystemInfo") << "OS: " << getOSInfo().getOSStringSimple() << LL_ENDL;
 	LL_INFOS("SystemInfo") << "OS info: " << getOSInfo() << LL_ENDL;
 
-	LL_INFOS("SystemInfo") << "Timers: " << LLFastTimer::sClockType << LL_ENDL;
-
 	writeDebugInfo(); // Save out debug_info.log early, in case of crash.
 }
 
@@ -4150,7 +4136,6 @@ static LLFastTimer::DeclareTimer FTM_VLMANAGER("VL Manager");
 ///////////////////////////////////////////////////////
 void LLAppViewer::idle()
 {
-	LLMemType mt_idle(LLMemType::MTYPE_IDLE);
 	pingMainloopTimeout("Main:Idle");
 	
 	// Update frame timers
@@ -4263,7 +4248,6 @@ void LLAppViewer::idle()
 		// of SEND_STATS_PERIOD so that the initial stats report will
 		// be sent immediately.
 		static LLFrameStatsTimer viewer_stats_timer(SEND_STATS_PERIOD);
-		reset_statistics();
 
 		// Update session stats every large chunk of time
 		// *FIX: (???) SAMANTHA
@@ -4323,7 +4307,7 @@ void LLAppViewer::idle()
 		idle_afk_check();
 
 		//  Update statistics for this frame
-		update_statistics(gFrameCount);
+		update_statistics();
 	}
 
 	////////////////////////////////////////
@@ -4749,7 +4733,6 @@ static LLFastTimer::DeclareTimer FTM_CHECK_REGION_CIRCUIT("Check Region Circuit"
 
 void LLAppViewer::idleNetwork()
 {
-	LLMemType mt_in(LLMemType::MTYPE_IDLE_NETWORK);
 	pingMainloopTimeout("idleNetwork");
 	
 	gObjectList.mNumNewObjects = 0;

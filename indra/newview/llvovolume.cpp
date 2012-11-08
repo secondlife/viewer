@@ -1138,17 +1138,29 @@ void LLVOVolume::sculpt()
 		S32 current_discard = getVolume()->getSculptLevel() ;
 		if(current_discard < -2)
 		{
-			llwarns << "WARNING!!: Current discard of sculpty at " << current_discard 
-				<< " is less than -2." << llendl;
+			static S32 low_sculpty_discard_warning_count = 100;
+			if (++low_sculpty_discard_warning_count >= 100)
+			{	// Log first time, then every 100 afterwards otherwise this can flood the logs
+				llwarns << "WARNING!!: Current discard for sculpty " << mSculptTexture->getID() 
+					<< " at " << current_discard 
+					<< " is less than -2." << llendl;
+				low_sculpty_discard_warning_count = 0;
+			}
 			
 			// corrupted volume... don't update the sculpty
 			return;
 		}
 		else if (current_discard > MAX_DISCARD_LEVEL)
 		{
-			llwarns << "WARNING!!: Current discard of sculpty at " << current_discard 
-				<< " is more than than allowed max of " << MAX_DISCARD_LEVEL << llendl;
-			
+			static S32 high_sculpty_discard_warning_count = 100;
+			if (++high_sculpty_discard_warning_count >= 100)
+			{	// Log first time, then every 100 afterwards otherwise this can flood the logs
+				llwarns << "WARNING!!: Current discard for sculpty " << mSculptTexture->getID() 
+					<< " at " << current_discard 
+					<< " is more than than allowed max of " << MAX_DISCARD_LEVEL << llendl;
+				high_sculpty_discard_warning_count = 0;
+			}
+
 			// corrupted volume... don't update the sculpty			
 			return;
 		}
@@ -1472,7 +1484,7 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
 
 	updateRadius();
 	mDrawable->movePartition();
-			
+				
 	return res;
 }
 
@@ -3562,7 +3574,6 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& e
 		if (LLFloater::isVisible(gFloaterTools) && getAvatar()->isSelf())
 		{
 			updateRiggedVolume();
-			genBBoxes(FALSE);
 			volume = mRiggedVolume;
 			transform = false;
 		}
@@ -3961,7 +3972,6 @@ static LLFastTimer::DeclareTimer FTM_REGISTER_FACE("Register Face");
 void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep, U32 type)
 {
 	LLFastTimer t(FTM_REGISTER_FACE);
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 
 	if (facep->getViewerObject()->isSelected() && LLSelectMgr::getInstance()->mHideSelectedObjects)
 	{
@@ -4004,10 +4014,6 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 	else
 	{
 		model_mat = &(drawable->getRegion()->mRenderMatrix);
-		if (model_mat->isIdentity())
-		{
-			model_mat = NULL;
-		}
 	}
 
 	//drawable->getVObj()->setDebugText(llformat("%d", drawable->isState(LLDrawable::ANIMATED_CHILD)));
@@ -4888,11 +4894,19 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 				facep->setTextureIndex(cur_tex);
 				texture_list.push_back(tex);
 
-				//if (can_batch_texture(facep))
-				{
+				if (can_batch_texture(facep))
+				{ //populate texture_list with any textures that can be batched
+				  //move i to the next unbatchable face
 					while (i != faces.end())
 					{
 						facep = *i;
+						
+						if (!can_batch_texture(facep))
+						{ //face is bump mapped or has an animated texture matrix -- can't 
+							//batch more than 1 texture at a time
+							break;
+						}
+
 						if (facep->getTexture() != tex)
 						{
 							if (distance_sort)
@@ -4916,12 +4930,6 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 							else
 							{
 								cur_tex++;
-							}
-
-							if (!can_batch_texture(facep))
-							{ //face is bump mapped or has an animated texture matrix -- can't 
-								//batch more than 1 texture at a time
-								break;
 							}
 
 							if (cur_tex >= texture_index_channels)

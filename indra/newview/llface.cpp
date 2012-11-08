@@ -263,8 +263,6 @@ void LLFace::setPool(LLFacePool* pool)
 
 void LLFace::setPool(LLFacePool* new_pool, LLViewerTexture *texturep)
 {
-	LLMemType mt1(LLMemType::MTYPE_DRAWABLE);
-	
 	if (!new_pool)
 	{
 		llerrs << "Setting pool to null!" << llendl;
@@ -442,8 +440,6 @@ U16 LLFace::getGeometryAvatar(
 						LLStrider<F32>		 &vertex_weights,
 						LLStrider<LLVector4> &clothing_weights)
 {
-	LLMemType mt1(LLMemType::MTYPE_DRAWABLE);
-
 	if (mVertexBuffer.notNull())
 	{
 		mVertexBuffer->getVertexStrider      (vertices, mGeomIndex, mGeomCount);
@@ -459,8 +455,6 @@ U16 LLFace::getGeometryAvatar(
 U16 LLFace::getGeometry(LLStrider<LLVector3> &vertices, LLStrider<LLVector3> &normals,
 					    LLStrider<LLVector2> &tex_coords, LLStrider<U16> &indicesp)
 {
-	LLMemType mt1(LLMemType::MTYPE_DRAWABLE);
-	
 	if (mVertexBuffer.notNull())
 	{
 		mVertexBuffer->getVertexStrider(vertices,   mGeomIndex, mGeomCount);
@@ -770,8 +764,6 @@ bool less_than_max_mag(const LLVector4a& vec)
 BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 								const LLMatrix4& mat_vert_in, const LLMatrix3& mat_normal_in, BOOL global_volume)
 {
-	LLMemType mt1(LLMemType::MTYPE_DRAWABLE);
-
 	//get bounding box
 	if (mDrawablep->isState(LLDrawable::REBUILD_VOLUME | LLDrawable::REBUILD_POSITION | LLDrawable::REBUILD_RIGGED))
 	{

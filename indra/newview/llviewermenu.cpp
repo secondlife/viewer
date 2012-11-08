@@ -165,7 +165,6 @@ LLContextMenu	*gMenuAttachmentSelf = NULL;
 LLContextMenu	*gMenuAttachmentOther = NULL;
 LLContextMenu	*gMenuLand	= NULL;
 
-const std::string SAVE_INTO_INVENTORY("Save Object Back to My Inventory");
 const std::string SAVE_INTO_TASK_INVENTORY("Save Object Back to Object Contents");
 
 LLMenuGL* gAttachSubMenu = NULL;
@@ -310,7 +309,6 @@ void handle_grab_baked_texture(void*);
 BOOL enable_grab_baked_texture(void*);
 void handle_dump_region_object_cache(void*);
 
-BOOL enable_save_into_inventory(void*);
 BOOL enable_save_into_task_inventory(void*);
 
 BOOL enable_detach(const LLSD& = LLSD());
@@ -341,7 +339,8 @@ LLMenuParcelObserver::~LLMenuParcelObserver()
 
 void LLMenuParcelObserver::changed()
 {
-	gMenuHolder->childSetEnabled("Land Buy Pass", LLPanelLandGeneral::enableBuyPass(NULL));
+	LLParcel *parcel = LLViewerParcelMgr::getInstance()->getParcelSelection()->getParcel();
+	gMenuHolder->childSetEnabled("Land Buy Pass", LLPanelLandGeneral::enableBuyPass(NULL) && !(parcel->getOwnerID()== gAgent.getID()));
 	
 	BOOL buyable = enable_buy_land(NULL);
 	gMenuHolder->childSetEnabled("Land Buy", buyable);
@@ -1312,22 +1311,6 @@ class LLAdvancedPrintAgentInfo : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		print_agent_nvpairs(NULL);
-		return true;
-	}
-};
-
-
-
-////////////////////////////////
-// PRINT TEXTURE MEMORY STATS //
-////////////////////////////////
-
-
-class LLAdvancedPrintTextureMemoryStats : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		output_statistics(NULL);
 		return true;
 	}
 };
@@ -3463,6 +3446,20 @@ bool enable_sitdown_self()
     return isAgentAvatarValid() && !gAgentAvatarp->isSitting() && !gAgent.getFlying();
 }
 
+class LLCheckPanelPeopleTab : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+		{
+			std::string panel_name = userdata.asString();
+
+			LLPanel *panel = LLFloaterSidePanelContainer::getPanel("people", panel_name);
+			if(panel && panel->isInVisibleChain())
+			{
+				return true;
+			}
+			return false;
+		}
+};
 // Toggle one of "People" panel tabs in side tray.
 class LLTogglePanelPeopleTab : public view_listener_t
 {
@@ -3940,6 +3937,7 @@ class LLViewToggleUI : public view_listener_t
 		if (option == 0) // OK
 		{
 			gViewerWindow->setUIVisibility(!gViewerWindow->getUIVisibility());
+			LLPanelStandStopFlying::getInstance()->setVisible(gViewerWindow->getUIVisibility());
 		}
 	}
 };
@@ -4833,18 +4831,6 @@ BOOL sitting_on_selection()
 
 	return (gAgentAvatarp->isSitting() && gAgentAvatarp->getRoot() == root_object);
 }
-
-class LLToolsSaveToInventory : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		if(enable_save_into_inventory(NULL))
-		{
-			derez_objects(DRD_SAVE_INTO_AGENT_INVENTORY, LLUUID::null);
-		}
-		return true;
-	}
-};
 
 class LLToolsSaveToObjectInventory : public view_listener_t
 {
@@ -7107,50 +7093,6 @@ bool LLHasAsset::operator()(LLInventoryCategory* cat,
 	return FALSE;
 }
 
-BOOL enable_save_into_inventory(void*)
-{
-	// *TODO: clean this up
-	// find the last root
-	LLSelectNode* last_node = NULL;
-	for (LLObjectSelection::root_iterator iter = LLSelectMgr::getInstance()->getSelection()->root_begin();
-		 iter != LLSelectMgr::getInstance()->getSelection()->root_end(); iter++)
-	{
-		last_node = *iter;
-	}
-
-#ifdef HACKED_GODLIKE_VIEWER
-	return TRUE;
-#else
-# ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-	if (!LLGridManager::getInstance()->isInProductionGrid()
-        && gAgent.isGodlike())
-	{
-		return TRUE;
-	}
-# endif
-	// check all pre-req's for save into inventory.
-	if(last_node && last_node->mValid && !last_node->mItemID.isNull()
-	   && (last_node->mPermissions->getOwner() == gAgent.getID())
-	   && (gInventory.getItem(last_node->mItemID) != NULL))
-	{
-		LLViewerObject* obj = last_node->getObject();
-		if( obj && !obj->isAttachment() )
-		{
-			return TRUE;
-		}
-	}
-	return FALSE;
-#endif
-}
-
-class LLToolsEnableSaveToInventory : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		bool new_value = enable_save_into_inventory(NULL);
-		return new_value;
-	}
-};
 
 BOOL enable_save_into_task_inventory(void*)
 {
@@ -8342,7 +8284,6 @@ void initialize_menus()
 	commit.add("Tools.LookAtSelection", boost::bind(&handle_look_at_selection, _2));
 	commit.add("Tools.BuyOrTake", boost::bind(&handle_buy_or_take));
 	commit.add("Tools.TakeCopy", boost::bind(&handle_take_copy));
-	view_listener_t::addMenu(new LLToolsSaveToInventory(), "Tools.SaveToInventory");
 	view_listener_t::addMenu(new LLToolsSaveToObjectInventory(), "Tools.SaveToObjectInventory");
 	view_listener_t::addMenu(new LLToolsSelectedScriptAction(), "Tools.SelectedScriptAction");
 
@@ -8354,7 +8295,6 @@ void initialize_menus()
 	enable.add("Tools.EnableTakeCopy", boost::bind(&enable_object_take_copy));
 	enable.add("Tools.VisibleBuyObject", boost::bind(&tools_visible_buy_object));
 	enable.add("Tools.VisibleTakeObject", boost::bind(&tools_visible_take_object));
-	view_listener_t::addMenu(new LLToolsEnableSaveToInventory(), "Tools.EnableSaveToInventory");
 	view_listener_t::addMenu(new LLToolsEnableSaveToObjectInventory(), "Tools.EnableSaveToObjectInventory");
 
 	view_listener_t::addMenu(new LLToolsEnablePathfinding(), "Tools.EnablePathfinding");
@@ -8432,7 +8372,6 @@ void initialize_menus()
 	commit.add("Advanced.DumpFocusHolder", boost::bind(&handle_dump_focus) );
 	view_listener_t::addMenu(new LLAdvancedPrintSelectedObjectInfo(), "Advanced.PrintSelectedObjectInfo");
 	view_listener_t::addMenu(new LLAdvancedPrintAgentInfo(), "Advanced.PrintAgentInfo");
-	view_listener_t::addMenu(new LLAdvancedPrintTextureMemoryStats(), "Advanced.PrintTextureMemoryStats");
 	view_listener_t::addMenu(new LLAdvancedToggleDebugClicks(), "Advanced.ToggleDebugClicks");
 	view_listener_t::addMenu(new LLAdvancedCheckDebugClicks(), "Advanced.CheckDebugClicks");
 	view_listener_t::addMenu(new LLAdvancedCheckDebugViews(), "Advanced.CheckDebugViews");
@@ -8551,6 +8490,7 @@ void initialize_menus()
 
 	// we don't use boost::bind directly to delay side tray construction
 	view_listener_t::addMenu( new LLTogglePanelPeopleTab(), "SideTray.PanelPeopleTab");
+	view_listener_t::addMenu( new LLCheckPanelPeopleTab(), "SideTray.CheckPanelPeopleTab");
 
 	 // Avatar pie menu
 	view_listener_t::addMenu(new LLObjectMute(), "Avatar.Mute");

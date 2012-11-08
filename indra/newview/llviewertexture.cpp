@@ -39,7 +39,6 @@
 #include "llimagebmp.h"
 #include "llimagej2c.h"
 #include "llimagetga.h"
-#include "llmemtype.h"
 #include "llstl.h"
 #include "llvfile.h"
 #include "llvfs.h"

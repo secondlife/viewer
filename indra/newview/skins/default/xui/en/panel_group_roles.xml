@@ -254,7 +254,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          column_padding="0"
          draw_stripes="true"
          height="200"
-         follows="left|top"
+         follows="left|top|right"
          layout="topleft"
          left="0"
          right="-1"
