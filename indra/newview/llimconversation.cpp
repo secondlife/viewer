@@ -57,6 +57,7 @@ LLIMConversation::LLIMConversation(const LLSD& session_id)
   , mInputEditor(NULL)
   , mInputEditorTopPad(0)
   , mRefreshTimer(new LLTimer())
+  , mIsHostAttached(false)
 {
 	mSession = LLIMModel::getInstance()->findIMSession(mSessionID);
 

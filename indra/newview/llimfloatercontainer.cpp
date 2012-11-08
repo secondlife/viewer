@@ -332,6 +332,7 @@ void LLIMFloaterContainer::onExpandCollapseButtonClicked()
 	{
 		collapseConversationsPane(!mConversationsPane->isCollapsed());
 	}
+	selectConversation(mSelectedSession);
 }
 
 LLIMFloaterContainer* LLIMFloaterContainer::findInstance()
@@ -426,14 +427,17 @@ bool LLIMFloaterContainer::onConversationModelEvent(const LLSD& event)
 	}
 	else if (type == "add_participant")
 	{
-		LLConversationItemSession* session_model = dynamic_cast<LLConversationItemSession*>(get_ptr_in_map(mConversationsItems,session_id));
+		LLConversationItemSession* session_model = dynamic_cast<LLConversationItemSession*>(mConversationsItems[session_id]);
 		LLConversationItemParticipant* participant_model = (session_model ? session_model->findParticipant(participant_id) : NULL);
-		// Add a participant view to the hierarchical conversation list
 		if (!participant_view && session_model && participant_model)
 		{
-			participant_view = createConversationViewParticipant(participant_model);
-			participant_view->addToFolder(session_view);
-			participant_view->setVisible(TRUE);
+			LLIMModel::LLIMSession * im_sessionp = LLIMModel::getInstance()->findIMSession(session_id);
+			if (session_id.isNull() || (im_sessionp && !im_sessionp->isP2PSessionType()))
+			{
+				participant_view = createConversationViewParticipant(participant_model);
+				participant_view->addToFolder(session_view);
+				participant_view->setVisible(TRUE);
+			}
 		}
 		// Add a participant view to the conversation floater 
 		if (conversation_floater && participant_model)
@@ -1196,17 +1200,22 @@ LLConversationItem* LLIMFloaterContainer::addConversationListItem(const LLUUID& 
 	// Add a new conversation widget to the root folder of the folder view
 	widget->addToFolder(mConversationsRoot);
 	widget->requestArrange();
-	
+
+	LLIMModel::LLIMSession * im_sessionp = LLIMModel::getInstance()->findIMSession(uuid);
+
 	// Create the participants widgets now
 	// Note: usually, we do not get an updated avatar list at that point
-	LLFolderViewModelItemCommon::child_list_t::const_iterator current_participant_model = item->getChildrenBegin();
-	LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = item->getChildrenEnd();
-	while (current_participant_model != end_participant_model)
+	if (uuid.isNull() || im_sessionp && !im_sessionp->isP2PSessionType())
 	{
-		LLConversationItem* participant_model = dynamic_cast<LLConversationItem*>(*current_participant_model);
-		LLConversationViewParticipant* participant_view = createConversationViewParticipant(participant_model);
-		participant_view->addToFolder(widget);
-		current_participant_model++;
+		LLFolderViewModelItemCommon::child_list_t::const_iterator current_participant_model = item->getChildrenBegin();
+		LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = item->getChildrenEnd();
+		while (current_participant_model != end_participant_model)
+		{
+			LLConversationItem* participant_model = dynamic_cast<LLConversationItem*>(*current_participant_model);
+			LLConversationViewParticipant* participant_view = createConversationViewParticipant(participant_model);
+			participant_view->addToFolder(widget);
+			current_participant_model++;
+		}
 	}
 	// Do that too for the conversation dialog
     LLIMConversation *conversation_floater = (uuid.isNull() ? (LLIMConversation*)(LLFloaterReg::findTypedInstance<LLNearbyChat>("nearby_chat")) : (LLIMConversation*)(LLIMFloater::findInstance(uuid)));

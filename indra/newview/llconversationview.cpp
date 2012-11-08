@@ -133,6 +133,7 @@ BOOL LLConversationViewSession::postBuild()
 			LLGroupIconCtrl* icon = mItemPanel->getChild<LLGroupIconCtrl>("group_icon");
 			icon->setVisible(true);
 			mSpeakingIndicator->setSpeakerId(gAgentID, vmi->getUUID(), true);
+			break;
 		}
 		case LLConversationItem::CONV_SESSION_GROUP:
 		{
@@ -341,6 +342,15 @@ void LLConversationViewSession::onCurrentVoiceSessionChanged(const LLUUID& sessi
 
 		mSpeakingIndicator->switchIndicator(is_active);
 		mCallIconLayoutPanel->setVisible(is_active);
+	}
+}
+
+void LLConversationViewSession::drawOpenFolderArrow(const LLFolderViewItem::Params& default_params, const LLUIColor& fg_color)
+{
+	LLConversationItem * itemp = dynamic_cast<LLConversationItem*>(getViewModelItem());
+	if (itemp && itemp->getType() != LLConversationItem::CONV_SESSION_1_ON_1)
+	{
+		LLFolderViewFolder::drawOpenFolderArrow(default_params, fg_color);
 	}
 }
 
