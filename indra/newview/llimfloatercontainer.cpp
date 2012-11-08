@@ -331,6 +331,7 @@ void LLIMFloaterContainer::onExpandCollapseButtonClicked()
 	{
 		collapseConversationsPane(!mConversationsPane->isCollapsed());
 	}
+	selectConversation(mSelectedSession);
 }
 
 LLIMFloaterContainer* LLIMFloaterContainer::findInstance()
@@ -423,15 +424,21 @@ bool LLIMFloaterContainer::onConversationModelEvent(const LLSD& event)
 			LLConversationItemSession* session_model = dynamic_cast<LLConversationItemSession*>(mConversationsItems[session_id]);
 			if (session_model)
 			{
-				LLConversationItemParticipant* participant_model = session_model->findParticipant(participant_id);
-				if (participant_model)
+				const LLUUID& uuid = session_model->getUUID();
+
+				LLIMModel::LLIMSession * im_sessionp = LLIMModel::getInstance()->findIMSession(uuid);
+
+				if (uuid.isNull() || im_sessionp && !im_sessionp->isP2PSessionType())
 				{
-					participant_view = createConversationViewParticipant(participant_model);
-					participant_view->addToFolder(session_view);
-					participant_view->setVisible(TRUE);
+					LLConversationItemParticipant* participant_model = session_model->findParticipant(participant_id);
+					if (participant_model)
+					{
+						participant_view = createConversationViewParticipant(participant_model);
+						participant_view->addToFolder(session_view);
+						participant_view->setVisible(TRUE);
+					}
 				}
 			}
-
 		}
 	}
 	else if (type == "update_participant")
@@ -1084,6 +1091,47 @@ void LLIMFloaterContainer::selectConversation(const LLUUID& session_id)
 	}
 }
 
+// Synchronous select the conversation item and the conversation floater
+BOOL LLIMFloaterContainer::selectConversationPair(const LLUUID& session_id, bool select_widget)
+{
+    BOOL handled = TRUE;
+
+    /* widget processing */
+    if (select_widget)
+    {
+    	LLFolderViewItem* widget = mConversationsWidgets[session_id];
+    	if (widget && widget->getParentFolder())
+    	{
+    		widget->getParentFolder()->setSelection(widget, FALSE, FALSE);
+    	}
+    }
+
+    /* floater processing */
+
+    if (session_id != getSelectedSession())
+    {
+        // Store the active session
+        setSelectedSession(session_id);
+
+		LLIMConversation* session_floater = LLIMConversation::getConversation(session_id);
+
+		if (session_floater->getHost())
+		{
+			// Always expand the message pane if the panel is hosted by the container
+			collapseMessagesPane(false);
+			// Switch to the conversation floater that is being selected
+			selectFloater(session_floater);
+		}
+
+		// Set the focus on the selected floater
+		if (!session_floater->hasFocus())
+		{
+			session_floater->setFocus(TRUE);
+		}
+    }
+
+    return handled;
+}
 
 void LLIMFloaterContainer::setTimeNow(const LLUUID& session_id, const LLUUID& participant_id)
 {
@@ -1174,17 +1222,22 @@ void LLIMFloaterContainer::addConversationListItem(const LLUUID& uuid, bool isWi
 	// Add a new conversation widget to the root folder of the folder view
 	widget->addToFolder(mConversationsRoot);
 	widget->requestArrange();
-	
+
+	LLIMModel::LLIMSession * im_sessionp = LLIMModel::getInstance()->findIMSession(uuid);
+
 	// Create the participants widgets now
 	// Note: usually, we do not get an updated avatar list at that point
-	LLFolderViewModelItemCommon::child_list_t::const_iterator current_participant_model = item->getChildrenBegin();
-	LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = item->getChildrenEnd();
-	while (current_participant_model != end_participant_model)
+	if (uuid.isNull() || im_sessionp && !im_sessionp->isP2PSessionType())
 	{
-		LLConversationItem* participant_model = dynamic_cast<LLConversationItem*>(*current_participant_model);
-		LLConversationViewParticipant* participant_view = createConversationViewParticipant(participant_model);
-		participant_view->addToFolder(widget);
-		current_participant_model++;
+		LLFolderViewModelItemCommon::child_list_t::const_iterator current_participant_model = item->getChildrenBegin();
+		LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = item->getChildrenEnd();
+		while (current_participant_model != end_participant_model)
+		{
+			LLConversationItem* participant_model = dynamic_cast<LLConversationItem*>(*current_participant_model);
+			LLConversationViewParticipant* participant_view = createConversationViewParticipant(participant_model);
+			participant_view->addToFolder(widget);
+			current_participant_model++;
+		}
 	}
 
 	// set the widget to minimized mode if conversations pane is collapsed

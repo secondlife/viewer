@@ -133,6 +133,7 @@ BOOL LLConversationViewSession::postBuild()
 			LLGroupIconCtrl* icon = mItemPanel->getChild<LLGroupIconCtrl>("group_icon");
 			icon->setVisible(true);
 			mSpeakingIndicator->setSpeakerId(gAgentID, vmi->getUUID(), true);
+			break;
 		}
 		case LLConversationItem::CONV_SESSION_GROUP:
 		{
@@ -202,6 +203,17 @@ void LLConversationViewSession::draw()
 	LLView::draw();
 }
 
+BOOL LLConversationViewSession::handleMouseDown( S32 x, S32 y, MASK mask )
+{
+	LLConversationItem* item = dynamic_cast<LLConversationItem *>(getViewModelItem());
+    LLUUID session_id = item? item->getUUID() : LLUUID();
+
+	(LLFloaterReg::getTypedInstance<LLIMFloaterContainer>("im_container"))->
+    		selectConversationPair(session_id, false);
+
+	return LLFolderViewFolder::handleMouseDown(x, y, mask);
+}
+
 // virtual
 S32 LLConversationViewSession::arrange(S32* width, S32* height)
 {
@@ -232,29 +244,6 @@ void LLConversationViewSession::toggleOpen()
 	}
 }
 
-void LLConversationViewSession::selectItem()
-{
-	
-	LLConversationItem* item = dynamic_cast<LLConversationItem*>(mViewModelItem);
-	LLFloater* session_floater = LLIMConversation::getConversation(item->getUUID());
-	LLMultiFloater* host_floater = session_floater->getHost();
-	
-	if (host_floater == mContainer)
-	{
-		// Always expand the message pane if the panel is hosted by the container
-		mContainer->collapseMessagesPane(false);
-		// Switch to the conversation floater that is being selected
-		mContainer->selectFloater(session_floater);
-	}
-	
-	// Set the focus on the selected floater
-	session_floater->setFocus(TRUE);
-    // Store the active session
-    LLIMFloaterContainer::getInstance()->setSelectedSession(item->getUUID());
-
-
-	LLFolderViewItem::selectItem();
-}
 
 void LLConversationViewSession::toggleMinimizedMode(bool is_minimized)
 {
@@ -340,6 +329,15 @@ void LLConversationViewSession::onCurrentVoiceSessionChanged(const LLUUID& sessi
 
 		mSpeakingIndicator->switchIndicator(is_active);
 		mCallIconLayoutPanel->setVisible(is_active);
+	}
+}
+
+void LLConversationViewSession::drawOpenFolderArrow(const LLFolderViewItem::Params& default_params, const LLUIColor& fg_color)
+{
+	LLConversationItem * itemp = dynamic_cast<LLConversationItem*>(getViewModelItem());
+	if (itemp && itemp->getType() != LLConversationItem::CONV_SESSION_1_ON_1)
+	{
+		LLFolderViewFolder::drawOpenFolderArrow(default_params, fg_color);
 	}
 }
 
@@ -431,31 +429,6 @@ void LLConversationViewParticipant::draw()
     LLView::draw();
 }
 
-void LLConversationViewParticipant::selectItem()
-{
-    LLConversationItem* vmi = this->getParentFolder() ? static_cast<LLConversationItem*>(this->getParentFolder()->getViewModelItem()) : NULL;
-    LLIMFloaterContainer* container = LLIMFloaterContainer::getInstance();
-    LLFloater* session_floater;
-
-    if(vmi)
-    {
-        session_floater = LLIMConversation::getConversation(vmi->getUUID());
-
-        //Only execute when switching floaters (conversations)
-        if(vmi->getUUID() != container->getSelectedSession())
-        {
-            container->selectFloater(session_floater);
-            // Store the active session
-            container->setSelectedSession(vmi->getUUID());
-        }
-
-        //Redirect focus to the conversation floater
-        session_floater->setFocus(TRUE);
-    }
-
-    LLFolderViewItem::selectItem();
-}
-
 void LLConversationViewParticipant::refresh()
 {
 	// Refresh the participant view from its model data
@@ -502,6 +475,23 @@ void LLConversationViewParticipant::onMouseLeave(S32 x, S32 y, MASK mask)
     mInfoBtn->setVisible(false);
     updateChildren();
     LLFolderViewItem::onMouseLeave(x, y, mask);
+}
+
+BOOL LLConversationViewParticipant::handleMouseDown( S32 x, S32 y, MASK mask )
+{
+	LLConversationItem* item = NULL;
+	LLConversationViewSession* session_widget =
+			dynamic_cast<LLConversationViewSession *>(this->getParentFolder());
+	if (session_widget)
+	{
+	    item = dynamic_cast<LLConversationItem*>(session_widget->getViewModelItem());
+	}
+    LLUUID session_id = item? item->getUUID() : LLUUID();
+
+	(LLFloaterReg::getTypedInstance<LLIMFloaterContainer>("im_container"))->
+    		selectConversationPair(session_id, false);
+
+	return LLFolderViewItem::handleMouseDown(x, y, mask);
 }
 
 S32 LLConversationViewParticipant::getLabelXPos()

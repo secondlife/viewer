@@ -60,16 +60,18 @@ protected:
 	
 public:
 	virtual ~LLConversationViewSession();
-	virtual void selectItem();	
 
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void draw();
+	/*virtual*/ BOOL handleMouseDown( S32 x, S32 y, MASK mask );
 
 	/*virtual*/ S32 arrange(S32* width, S32* height);
 
 	/*virtual*/ void toggleOpen();
 
 	/*virtual*/	bool isMinimized() { return mMinimizedMode; }
+
+	/*virtual*/ void drawOpenFolderArrow(const LLFolderViewItem::Params& default_params, const LLUIColor& fg_color);
 
 	void toggleMinimizedMode(bool is_minimized);
 
@@ -115,10 +117,12 @@ public:
 	};
 	
     virtual ~LLConversationViewParticipant( void ) { }
-    void selectItem();	
+
     bool hasSameValue(const LLUUID& uuid) { return (uuid == mUUID); }
     virtual void refresh();
     void addToFolder(LLFolderViewFolder* folder);
+
+    /*virtual*/ BOOL handleMouseDown( S32 x, S32 y, MASK mask );
 
     void onMouseEnter(S32 x, S32 y, MASK mask);
     void onMouseLeave(S32 x, S32 y, MASK mask);

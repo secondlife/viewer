@@ -195,8 +195,13 @@ BOOL	LLNearbyChat::handleMouseDown(S32 x, S32 y, MASK mask)
 	//background opaque. This all happenn since NearByChat is "chrome" and didn't process focus change.
 
 	if(mChatHistory)
+	{
 		mChatHistory->setFocus(TRUE);
-	return LLPanel::handleMouseDown(x, y, mask);
+	}
+
+	BOOL handled = LLPanel::handleMouseDown(x, y, mask);
+	setFocus(handled);
+	return handled;
 }
 
 void LLNearbyChat::reloadMessages()
@@ -270,17 +275,6 @@ void LLNearbyChat::removeScreenChat()
 	}
 }
 
-void LLNearbyChat::setFocus(BOOL focusFlag)
-{
-    LLTransientDockableFloater::setFocus(focusFlag);
-    
-    //Redirect focus to input editor
-    if (focusFlag)
-    {
-        mInputEditor->setFocus(TRUE);
-    }
-    
-}
 
 void LLNearbyChat::setVisible(BOOL visible)
 {

@@ -79,7 +79,9 @@ public:
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void draw();
 	/*virtual*/ void setVisible(BOOL visible);
+	/*virtual*/ void setFocus(BOOL focus);
 
+	virtual void updateMessages() {}
 
 protected:
 
