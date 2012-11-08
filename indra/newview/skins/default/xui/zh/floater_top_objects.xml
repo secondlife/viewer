@@ -9,9 +9,6 @@
 	<floater.string name="scripts_score_label">
 		時間
 	</floater.string>
-	<floater.string name="scripts_mono_time_label">
-		Mono 時間
-	</floater.string>
 	<floater.string name="top_colliders_title">
 		最常碰撞物項
 	</floater.string>
@@ -32,9 +29,10 @@
 		<scroll_list.columns label="名稱" name="name"/>
 		<scroll_list.columns label="所有人" name="owner"/>
 		<scroll_list.columns label="位置" name="location"/>
+		<scroll_list.columns label="地段" name="parcel"/>
 		<scroll_list.columns label="時間" name="time"/>
-		<scroll_list.columns label="Mono 時間" name="mono_time"/>
 		<scroll_list.columns label="URL" name="URLs"/>
+		<scroll_list.columns label="記憶體 (KB)" name="memory"/>
 	</scroll_list>
 	<text name="id_text">
 		物件 ID:
@@ -48,6 +46,10 @@
 		所有人：
 	</text>
 	<button label="過濾器" name="filter_owner_btn"/>
+	<text name="parcel_name_text">
+		地段：
+	</text>
+	<button label="過濾器" name="filter_parcel_btn"/>
 	<button label="退回所選擇的" name="return_selected_btn"/>
 	<button label="全部退回" name="return_all_btn"/>
 	<button label="停用所選的" name="disable_selected_btn"/>

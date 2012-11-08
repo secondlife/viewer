@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="toolbox floater" short_title="建造工具">
+	<floater.string name="grid_screen_text">
+		螢幕
+	</floater.string>
+	<floater.string name="grid_local_text">
+		本地
+	</floater.string>
+	<floater.string name="grid_world_text">
+		世界
+	</floater.string>
+	<floater.string name="grid_reference_text">
+		參考
+	</floater.string>
+	<floater.string name="grid_attachment_text">
+		附件
+	</floater.string>
 	<floater.string name="status_rotate">
 		拖曳色條可以旋轉物件
 	</floater.string>
@@ -25,10 +40,10 @@
 		按住並拖曳，可以選取土地
 	</floater.string>
 	<floater.string name="status_selectcount">
-		選取了 [OBJ_COUNT] 個物件（[PRIM_COUNT] 個幾何元件 [PE_STRING]）
+		選取了 [OBJ_COUNT] 個物件，土地衝擊量 [LAND_IMPACT]
 	</floater.string>
-	<floater.string name="status_selectprimequiv">
-		，[SEL_WEIGHT] 幾何元件等值物
+	<floater.string name="status_remaining_capacity">
+		剩餘容納量 [LAND_CAPACITY]。
 	</floater.string>
 	<button name="button focus" tool_tip="聚焦"/>
 	<button name="button move" tool_tip="移動"/>
@@ -63,7 +78,12 @@
 	</text>
 	<check_box initial_value="true" label="伸展材質" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="Snap" name="checkbox snap to grid"/>
-	<button label="選項…" name="Options..." tool_tip="察看更多格線選項"/>
+	<combo_box name="combobox grid mode" tool_tip="選擇物件定位參考的格線尺度類型">
+		<combo_box.item label="世界" name="World"/>
+		<combo_box.item label="本地" name="Local"/>
+		<combo_box.item label="參考" name="Reference"/>
+	</combo_box>
+	<button label="" name="Options..." tool_tip="察看更多格線選項"/>
 	<button name="ToolCube" tool_tip="立方體"/>
 	<button name="ToolPrism" tool_tip="稜鏡體"/>
 	<button name="ToolPyramid" tool_tip="金字塔"/>
@@ -107,8 +127,8 @@
 	<text name="selection_empty">
 		未做任何選擇。
 	</text>
-	<text name="selection_weight">
-		物理重量 [PHYS_WEIGHT]，呈像成本 [DISP_WEIGHT]。
+	<text name="remaining_capacity">
+		[CAPACITY_STRING] [secondlife:///app/openfloater/object_weights 詳情]
 	</text>
 	<tab_container name="Object Info Tabs">
 		<panel label="一般" name="General">
@@ -129,6 +149,12 @@
 			</panel.string>
 			<panel.string name="text modify info 4">
 				你不能修改這些物件
+			</panel.string>
+			<panel.string name="text modify info 5">
+				無法跨地區修改這個物件
+			</panel.string>
+			<panel.string name="text modify info 6">
+				無法跨地區修改這些物件
 			</panel.string>
 			<panel.string name="text modify warning">
 				你必須選取整個物件以設定權限
@@ -179,12 +205,12 @@
 				<combo_box.item label="縮放" name="Zoom"/>
 			</combo_box>
 			<check_box label="出售中：" name="checkbox for sale"/>
+			<spinner label="L$" name="Edit Cost"/>
 			<combo_box name="sale type">
 				<combo_box.item label="恚庨" name="Copy"/>
 				<combo_box.item label="內容" name="Contents"/>
 				<combo_box.item label="原件" name="Original"/>
 			</combo_box>
-			<spinner label="價格： L$" name="Edit Cost"/>
 			<check_box label="顯示在搜尋中" name="search_check" tool_tip="讓其他人可以在搜尋結果中察看到此物件"/>
 			<panel name="perms_build">
 				<text name="perm_modify">
@@ -218,6 +244,11 @@
 				</text>
 				<text name="F:">
 					F:
+				</text>
+			</panel>
+			<panel name="pathfinding_attrs_panel">
+				<text name="pathfinding_attributes_label">
+					尋徑屬性：
 				</text>
 			</panel>
 		</panel>
@@ -321,7 +352,6 @@
 				縫合類型
 			</text>
 			<combo_box name="sculpt type control">
-				<combo_box.item label="（無）" name="None"/>
 				<combo_box.item label="球體" name="Sphere"/>
 				<combo_box.item label="環面" name="Torus"/>
 				<combo_box.item label="平面" name="Plane"/>
