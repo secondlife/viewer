@@ -1,6 +1,6 @@
 /** 
  * @file llparticipantlist.cpp
- * @brief LLParticipantList widgets of a conversation list
+ * @brief LLParticipantList : model of a conversation session with added speaker events handling
  *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -26,22 +26,11 @@
 
 #include "llviewerprecompiledheaders.h"
 
-// common includes
-#include "lltrans.h"
-#include "llavataractions.h"
 #include "llavatarnamecache.h"
-#include "llavatarname.h"
-#include "llagent.h"
-
 #include "llimview.h"
 #include "llimfloatercontainer.h"
-#include "llpanelpeoplemenus.h"
-#include "llnotificationsutil.h"
 #include "llparticipantlist.h"
 #include "llspeakers.h"
-#include "llviewercontrol.h"
-#include "llviewermenu.h"
-#include "llvoiceclient.h"
 
 //LLParticipantList retrieves add, clear and remove events and updates view accordingly 
 #if LL_MSVC
@@ -256,105 +245,6 @@ LLParticipantList::~LLParticipantList()
 	delete mAvalineUpdater;
 }
 
-/*
-void LLParticipantList::onAvatarListDoubleClicked(LLUICtrl* ctrl)
-{
-	LLAvatarListItem* item = dynamic_cast<LLAvatarListItem*>(ctrl);
-	if(!item)
-	{
-		return;
-	}
-
-	LLUUID clicked_id = item->getAvatarId();
-
-	if (clicked_id.isNull() || clicked_id == gAgent.getID())
-		return;
-	
-	LLAvatarActions::startIM(clicked_id);
-}
-*/
-/*
-void LLParticipantList::onAvatarListRefreshed(LLUICtrl* ctrl, const LLSD& param)
-{
-	LLAvatarList* list = dynamic_cast<LLAvatarList*>(ctrl);
-	const std::string moderator_indicator(LLTrans::getString("IM_moderator_label")); 
-	const std::size_t moderator_indicator_len = moderator_indicator.length();
-
-	// Firstly remove moderators indicator
-	std::set<LLUUID>::const_iterator
-		moderator_list_it = mModeratorToRemoveList.begin(),
-		moderator_list_end = mModeratorToRemoveList.end();
-	for (;moderator_list_it != moderator_list_end; ++moderator_list_it)
-	{
-		LLAvatarListItem* item = (list ? dynamic_cast<LLAvatarListItem*> (list->getItemByValue(*moderator_list_it)) : NULL);
-		if ( item )
-		{
-			std::string name = item->getAvatarName();
-			std::string tooltip = item->getAvatarToolTip();
-			size_t found = name.find(moderator_indicator);
-			if (found != std::string::npos)
-			{
-				name.erase(found, moderator_indicator_len);
-				item->setAvatarName(name);
-			}
-			found = tooltip.find(moderator_indicator);
-			if (found != tooltip.npos)
-			{
-				tooltip.erase(found, moderator_indicator_len);
-				item->setAvatarToolTip(tooltip);
-			}
-		}
-		setParticipantIsModerator(*moderator_list_it,false);
-	}
-
-	mModeratorToRemoveList.clear();
-
-	// Add moderators indicator
-	moderator_list_it = mModeratorList.begin();
-	moderator_list_end = mModeratorList.end();
-	for (;moderator_list_it != moderator_list_end; ++moderator_list_it)
-	{
-		LLAvatarListItem* item = (list ? dynamic_cast<LLAvatarListItem*> (list->getItemByValue(*moderator_list_it)) : NULL);
-		if ( item )
-		{
-			std::string name = item->getAvatarName();
-			std::string tooltip = item->getAvatarToolTip();
-			size_t found = name.find(moderator_indicator);
-			if (found == std::string::npos)
-			{
-				name += " ";
-				name += moderator_indicator;
-				item->setAvatarName(name);
-			}
-			found = tooltip.find(moderator_indicator);
-			if (found == std::string::npos)
-			{
-				tooltip += " ";
-				tooltip += moderator_indicator;
-				item->setAvatarToolTip(tooltip);
-			}
-		}
-		setParticipantIsModerator(*moderator_list_it,true);
-	}
-
-	// update voice mute state of all items. See EXT-7235
-	LLSpeakerMgr::speaker_list_t speaker_list;
-
-	// Use also participants which are not in voice session now (the second arg is TRUE).
-	// They can already have mModeratorMutedVoice set from the previous voice session
-	// and LLSpeakerVoiceModerationEvent will not be sent when speaker manager is updated next time.
-	mSpeakerMgr->getSpeakerList(&speaker_list, TRUE);
-	for(LLSpeakerMgr::speaker_list_t::iterator it = speaker_list.begin(); it != speaker_list.end(); it++)
-	{
-		const LLPointer<LLSpeaker>& speakerp = *it;
-
-		if (speakerp->mStatus == LLSpeaker::STATUS_TEXT_ONLY)
-		{
-			setParticipantIsMuted(speakerp->mID, speakerp->mModeratorMutedVoice);
-		}
-	}
-}
-*/
 /*
   Seems this method is not necessary after onAvalineCallerRemoved was implemented;
 

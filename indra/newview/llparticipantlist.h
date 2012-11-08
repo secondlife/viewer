@@ -1,6 +1,6 @@
 /** 
  * @file llparticipantlist.h
- * @brief LLParticipantList widgets of a conversation list
+ * @brief LLParticipantList : model of a conversation session with added speaker events handling
  *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -28,8 +28,6 @@
 #define LL_PARTICIPANTLIST_H
 
 #include "llviewerprecompiledheaders.h"
-#include "llevent.h"
-#include "lllistcontextmenu.h"
 #include "llconversationmodel.h"
 
 class LLSpeakerMgr;
@@ -135,9 +133,6 @@ protected:
 	};
 
 private:
-//	void onAvatarListDoubleClicked(LLUICtrl* ctrl);
-//	void onAvatarListRefreshed(LLUICtrl* ctrl, const LLSD& param);
-
 	void onAvalineCallerFound(const LLUUID& participant_id);
 	void onAvalineCallerRemoved(const LLUUID& participant_id);
 
