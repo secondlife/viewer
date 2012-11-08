@@ -179,6 +179,8 @@ const BOOL SCRIPT_QUESTION_IS_CAUTION[SCRIPT_PERMISSION_EOF] =
 	FALSE	// TeleportYourAgent
 };
 
+static void busy_message (LLMessageSystem* msg, const LLUUID& from_id, const LLUUID& session_id = LLUUID::null);
+
 bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
@@ -2358,12 +2360,11 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	BOOL is_muted = LLMuteList::getInstance()->isMuted(from_id, name, LLMute::flagTextChat)
 		// object IMs contain sender object id in session_id (STORM-1209)
 		|| dialog == IM_FROM_TASK && LLMuteList::getInstance()->isMuted(session_id);
-	BOOL is_linden = LLMuteList::getInstance()->isLinden(name);
 	BOOL is_owned_by_me = FALSE;
 	BOOL is_friend = (LLAvatarTracker::instance().getBuddyInfo(from_id) == NULL) ? false : true;
 	BOOL accept_im_from_only_friend = gSavedSettings.getBOOL("VoiceCallsFriendsOnly");
 	
-	chat.mMuted = is_muted && !is_linden;
+	chat.mMuted = is_muted;
 	chat.mFromID = from_id;
 	chat.mFromName = name;
 	chat.mSourceType = (from_id.isNull() || (name == std::string(SYSTEM_FROM))) ? CHAT_SOURCE_SYSTEM : CHAT_SOURCE_AGENT;
@@ -2401,7 +2402,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			// do nothing -- don't distract newbies in
 			// Prelude with global IMs
 		}
-		else if (offline == IM_ONLINE && !is_linden && is_busy && name != SYSTEM_FROM)
+		else if (offline == IM_ONLINE && is_busy && name != SYSTEM_FROM)
 		{
 			// return a standard "busy" message, but only do it to online IM 
 			// (i.e. not other auto responses and not store-and-forward IM)
@@ -2409,21 +2410,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			{
 				// if there is not a panel for this conversation (i.e. it is a new IM conversation
 				// initiated by the other party) then...
-				std::string my_name;
-				LLAgentUI::buildFullname(my_name);
-				std::string response = gSavedPerAccountSettings.getString("BusyModeResponse");
-				pack_instant_message(
-					gMessageSystem,
-					gAgent.getID(),
-					FALSE,
-					gAgent.getSessionID(),
-					from_id,
-					my_name,
-					response,
-					IM_ONLINE,
-					IM_BUSY_AUTO_RESPONSE,
-					session_id);
-				gAgent.sendReliableMessage();
+				busy_message(msg, from_id, session_id);
 			}
 
 			// now store incoming IM in chat history
@@ -2484,7 +2471,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 				mute_im = true;
 			}
-			if (!mute_im || is_linden) 
+			if (!mute_im) 
 			{
 				gIMMgr->addMessage(
 					session_id,
@@ -2658,11 +2645,9 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		break;
 	case IM_GROUP_INVITATION:
 		{
-			//if (!is_linden && (is_busy || is_muted))
-			if ((is_busy || is_muted))
+			if (is_busy || is_muted)
 			{
-				LLMessageSystem *msg = gMessageSystem;
-				busy_message(msg,from_id);
+				busy_message(msg, from_id);
 			}
 			else
 			{
@@ -2974,7 +2959,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			}
 			else if (is_busy) 
 			{
-				busy_message(msg,from_id);
+				busy_message(msg, from_id);
 			}
 			else
 			{
@@ -3261,7 +3246,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	}
 }
 
-void busy_message (LLMessageSystem* msg, LLUUID from_id) 
+static void busy_message (LLMessageSystem* msg, const LLUUID& from_id, const LLUUID& session_id)
 {
 	if (gAgent.getBusy())
 	{
@@ -3269,7 +3254,7 @@ void busy_message (LLMessageSystem* msg, LLUUID from_id)
 		LLAgentUI::buildFullname(my_name);
 		std::string response = gSavedPerAccountSettings.getString("BusyModeResponse");
 		pack_instant_message(
-			gMessageSystem,
+			msg,
 			gAgent.getID(),
 			FALSE,
 			gAgent.getSessionID(),
@@ -3277,7 +3262,8 @@ void busy_message (LLMessageSystem* msg, LLUUID from_id)
 			my_name,
 			response,
 			IM_ONLINE,
-			IM_BUSY_AUTO_RESPONSE);
+			IM_BUSY_AUTO_RESPONSE,
+			session_id);
 		gAgent.sendReliableMessage();
 	}
 }
