@@ -2033,11 +2033,14 @@ bool lure_callback(const LLSD& notification, const LLSD& response)
 
 	LLNotificationPtr notification_ptr = LLNotifications::instance().find(notification["id"].asUUID());
 
-	LLNotificationFormPtr modified_form(new LLNotificationForm(*notification_ptr->getForm()));
-	modified_form->setElementEnabled("Teleport", false);
-	modified_form->setElementEnabled("Cancel", false);
-	notification_ptr->updateForm(modified_form);
-	notification_ptr->repost();
+	if (notification_ptr)
+	{
+		LLNotificationFormPtr modified_form(new LLNotificationForm(*notification_ptr->getForm()));
+		modified_form->setElementEnabled("Teleport", false);
+		modified_form->setElementEnabled("Cancel", false);
+		notification_ptr->updateForm(modified_form);
+		notification_ptr->repost();
+	}
 
 	return false;
 }
