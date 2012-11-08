@@ -291,6 +291,7 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 	mCaptureDeviceDirty(false),
 	mRenderDeviceDirty(false),
 	mSpatialCoordsDirty(false),
+	mIsInitialized(false),
 
 	mMuteMic(false),
 	mMuteMicDirty(false),
@@ -520,7 +521,7 @@ void LLVivoxVoiceClient::requestVoiceAccountProvision(S32 retries)
 {
 	LLViewerRegion *region = gAgent.getRegion();
 	
-	if ( region && mVoiceEnabled )
+	if ( region && (mVoiceEnabled || !mIsInitialized))
 	{
 		std::string url = 
 		region->getCapability("ProvisionVoiceAccountRequest");
@@ -691,7 +692,7 @@ void LLVivoxVoiceClient::stateMachine()
 		setVoiceEnabled(false);
 	}
 	
-	if(mVoiceEnabled)
+	if(mVoiceEnabled || !mIsInitialized)
 	{
 		updatePosition();
 	}
@@ -736,7 +737,7 @@ void LLVivoxVoiceClient::stateMachine()
 		
 		//MARK: stateDisabled
 		case stateDisabled:
-			if(mTuningMode || (mVoiceEnabled && !mAccountName.empty()))
+			if(mTuningMode || ((mVoiceEnabled || !mIsInitialized) && !mAccountName.empty()))
 			{
 				setState(stateStart);
 			}
@@ -891,7 +892,7 @@ void LLVivoxVoiceClient::stateMachine()
 				mTuningExitState = stateIdle;
 				setState(stateMicTuningStart);
 			}
-			else if(!mVoiceEnabled)
+			else if(!mVoiceEnabled && mIsInitialized)
 			{
 				// We never started up the connector.  This will shut down the daemon.
 				setState(stateConnectorStopped);
@@ -1085,7 +1086,7 @@ void LLVivoxVoiceClient::stateMachine()
 
 			//MARK: stateConnectorStart
 		case stateConnectorStart:
-			if(!mVoiceEnabled)
+			if(!mVoiceEnabled && mIsInitialized)
 			{
 				// We were never logged in.  This will shut down the connector.
 				setState(stateLoggedOut);
@@ -1103,7 +1104,7 @@ void LLVivoxVoiceClient::stateMachine()
 		
 		//MARK: stateConnectorStarted
 		case stateConnectorStarted:		// connector handle received
-			if(!mVoiceEnabled)
+			if(!mVoiceEnabled && mIsInitialized)
 			{
 				// We were never logged in.  This will shut down the connector.
 				setState(stateLoggedOut);
@@ -1247,7 +1248,7 @@ void LLVivoxVoiceClient::stateMachine()
 		
 		//MARK: stateCreatingSessionGroup
 		case stateCreatingSessionGroup:
-			if(mSessionTerminateRequested || !mVoiceEnabled)
+			if(mSessionTerminateRequested || !mVoiceEnabled && mIsInitialized)
 			{
 				// *TODO: Question: is this the right way out of this state
 				setState(stateSessionTerminated);
@@ -1263,7 +1264,7 @@ void LLVivoxVoiceClient::stateMachine()
 		//MARK: stateRetrievingParcelVoiceInfo
 		case stateRetrievingParcelVoiceInfo: 
 			// wait until parcel voice info is received.
-			if(mSessionTerminateRequested || !mVoiceEnabled)
+			if(mSessionTerminateRequested || !mVoiceEnabled && mIsInitialized)
 			{
 				// if a terminate request has been received,
 				// bail and go to the stateSessionTerminated
@@ -1283,7 +1284,7 @@ void LLVivoxVoiceClient::stateMachine()
 			// Otherwise, if you log in but don't join a proximal channel (such as when your login location has voice disabled), your friends list won't sync.
 			sendFriendsListUpdates();
 			
-			if(mSessionTerminateRequested || !mVoiceEnabled)
+			if(mSessionTerminateRequested || !mVoiceEnabled && mIsInitialized)
 			{
 				// TODO: Question: Is this the right way out of this state?
 				setState(stateSessionTerminated);
@@ -1364,7 +1365,7 @@ void LLVivoxVoiceClient::stateMachine()
 		    }
 			
 			// joinedAudioSession() will transition from here to stateSessionJoined.
-			if(!mVoiceEnabled)
+			if(!mVoiceEnabled && mIsInitialized)
 			{
 				// User bailed out during connect -- jump straight to teardown.
 				setState(stateSessionTerminated);
@@ -1411,7 +1412,7 @@ void LLVivoxVoiceClient::stateMachine()
 				notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_JOINED);
 
 			}
-			else if(!mVoiceEnabled)
+			else if(!mVoiceEnabled && mIsInitialized)
 			{
 				// User bailed out during connect -- jump straight to teardown.
 				setState(stateSessionTerminated);
@@ -1431,7 +1432,7 @@ void LLVivoxVoiceClient::stateMachine()
 		//MARK: stateRunning
 		case stateRunning:				// steady state
 			// Disabling voice or disconnect requested.
-			if(!mVoiceEnabled || mSessionTerminateRequested)
+			if(!mVoiceEnabled && mIsInitialized || mSessionTerminateRequested)
 			{
 				leaveAudioSession();
 			}
@@ -1478,6 +1479,8 @@ void LLVivoxVoiceClient::stateMachine()
 					mUpdateTimer.setTimerExpirySec(UPDATE_THROTTLE_SECONDS);
 					sendPositionalUpdate();
 				}
+
+				mIsInitialized = true;
 			}
 		break;
 		
@@ -1511,7 +1514,7 @@ void LLVivoxVoiceClient::stateMachine()
 			// Always reset the terminate request flag when we get here.
 			mSessionTerminateRequested = false;
 
-			if(mVoiceEnabled && !mRelogRequested)
+			if((mVoiceEnabled || !mIsInitialized) && !mRelogRequested)
 			{				
 				// Just leaving a channel, go back to stateNoChannel (the "logged in but have no channel" state).
 				setState(stateNoChannel);
@@ -1539,7 +1542,7 @@ void LLVivoxVoiceClient::stateMachine()
 			mAccountHandle.clear();
 			cleanUp();
 
-			if(mVoiceEnabled && !mRelogRequested)
+			if((mVoiceEnabled || !mIsInitialized) && !mRelogRequested)
 			{
 				// User was logged out, but wants to be logged in.  Send a new login request.
 				setState(stateNeedsLogin);

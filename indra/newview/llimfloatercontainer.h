@@ -68,6 +68,8 @@ public:
     
     void showConversation(const LLUUID& session_id);
     void selectConversation(const LLUUID& session_id);
+    BOOL selectConversationPair(const LLUUID& session_id, bool select_widget);
+
 	/*virtual*/ void tabClose();
 
 	static LLFloater* getCurrentVoiceFloater();
@@ -91,6 +93,8 @@ public:
 	LLConversationViewModel& getRootViewModel() { return mConversationViewModel; }
     LLUUID getSelectedSession() { return mSelectedSession; }
     void setSelectedSession(LLUUID sessionID) { mSelectedSession = sessionID; }
+
+	void onNearbyChatClosed();
 
 private:
 	typedef std::map<LLUUID,LLFloater*> avatarID_panel_map_t;

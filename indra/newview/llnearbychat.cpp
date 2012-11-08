@@ -195,8 +195,13 @@ BOOL	LLNearbyChat::handleMouseDown(S32 x, S32 y, MASK mask)
 	//background opaque. This all happenn since NearByChat is "chrome" and didn't process focus change.
 
 	if(mChatHistory)
+	{
 		mChatHistory->setFocus(TRUE);
-	return LLPanel::handleMouseDown(x, y, mask);
+	}
+
+	BOOL handled = LLPanel::handleMouseDown(x, y, mask);
+	setFocus(handled);
+	return handled;
 }
 
 void LLNearbyChat::reloadMessages()
@@ -270,17 +275,6 @@ void LLNearbyChat::removeScreenChat()
 	}
 }
 
-void LLNearbyChat::setFocus(BOOL focusFlag)
-{
-    LLTransientDockableFloater::setFocus(focusFlag);
-    
-    //Redirect focus to input editor
-    if (focusFlag)
-    {
-        mInputEditor->setFocus(TRUE);
-    }
-    
-}
 
 void LLNearbyChat::setVisible(BOOL visible)
 {
@@ -293,7 +287,7 @@ void LLNearbyChat::setVisible(BOOL visible)
     setFocus(visible);
 }
 
-
+// virtual
 void LLNearbyChat::onTearOffClicked()
 {
 	LLIMConversation::onTearOffClicked();
@@ -309,6 +303,26 @@ void LLNearbyChat::onOpen(const LLSD& key)
 {
 	LLIMConversation::onOpen(key);
 	showTranslationCheckbox(LLTranslate::isTranslationConfigured());
+}
+
+// virtual
+void LLNearbyChat::onClose(bool app_quitting)
+{
+	// Override LLIMConversation::onClose() so that Nearby Chat is not removed from the conversation floater
+}
+
+// virtual
+void LLNearbyChat::onClickCloseBtn()
+{
+	if (!isTornOff())
+		return;
+	onTearOffClicked();
+	
+	LLIMFloaterContainer *im_box = LLIMFloaterContainer::findInstance();
+	if (im_box)
+	{
+		im_box->onNearbyChatClosed();
+	}
 }
 
 void LLNearbyChat::onChatFontChange(LLFontGL* fontp)

@@ -741,6 +741,8 @@ private:
 	std::string mRenderDevice;
 	bool mCaptureDeviceDirty;
 	bool mRenderDeviceDirty;
+
+	bool mIsInitialized;
 	
 	
 	bool checkParcelChanged(bool update = false);

@@ -52,7 +52,7 @@ public:
 
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
-    /*virtual*/ void setFocus(BOOL focusFlag);
+	/*virtual*/ void onClose(bool app_quitting);
 	/*virtual*/ void setVisible(BOOL visible);
 
 	void loadHistory();
@@ -96,6 +96,7 @@ protected:
 	void onChatFontChange(LLFontGL* fontp);
 
 	/*virtual*/ void onTearOffClicked();
+	/*virtual*/ void onClickCloseBtn();
 
 	static LLWString stripChannelNumber(const LLWString &mesg, S32* channel);
 	EChatType processChatTypeTriggers(EChatType type, std::string &str);

@@ -121,7 +121,14 @@ void toast_callback(const LLSD& msg){
 
     // Skip toasting if we have open window of IM with this session id
     LLIMFloater* open_im_floater = LLIMFloater::findInstance(msg["session_id"]);
-    if (open_im_floater && open_im_floater->isInVisibleChain() && open_im_floater->hasFocus())
+    if (
+           open_im_floater
+           && open_im_floater->isInVisibleChain()
+           && open_im_floater->hasFocus()
+           && !open_im_floater->isMinimized()
+           && !(open_im_floater->getHost()
+                   && open_im_floater->getHost()->isMinimized())
+       )
     {
         return;
     }

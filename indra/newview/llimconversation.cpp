@@ -128,6 +128,22 @@ void LLIMConversation::setVisible(BOOL visible)
     setFocus(visible);
 }
 
+/*virtual*/
+void LLIMConversation::setFocus(BOOL focus)
+{
+	LLTransientDockableFloater::setFocus(focus);
+
+    //Redirect focus to input editor
+    if (focus)
+	{
+    	updateMessages();
+
+        if (mInputEditor)
+        {
+    	    mInputEditor->setFocus(TRUE);
+        }
+	}
+}
 
 
 void LLIMConversation::addToHost(const LLUUID& session_id)
@@ -203,10 +219,6 @@ BOOL LLIMConversation::postBuild()
 
 	if (isChatMultiTab())
 	{
-		if (mIsNearbyChat)
-		{
-			setCanClose(FALSE);
-		}
 		result = LLFloater::postBuild();
 	}
 	else
@@ -247,7 +259,6 @@ void LLIMConversation::enableDisableCallBtn()
     		&& mSession->mCallBackEnabled);
 }
 
-
 void LLIMConversation::onFocusReceived()
 {
 	setBackgroundOpaque(true);
@@ -258,6 +269,12 @@ void LLIMConversation::onFocusReceived()
 	}
 
 	LLTransientDockableFloater::onFocusReceived();
+
+	LLIMFloaterContainer* container = LLFloaterReg::getTypedInstance<LLIMFloaterContainer>("im_container");
+	if (container)
+	{
+		container->selectConversationPair(mSessionID, true);
+	}
 }
 
 void LLIMConversation::onFocusLost()
