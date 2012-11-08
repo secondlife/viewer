@@ -1,9 +1,9 @@
 <llsd>
     <map>
-    <key>BusyResponseChanged</key>
+    <key>DoNotDisturbResponseChanged</key>
         <map>
         <key>Comment</key>
-            <string>Does user's busy mode message differ from default?</string>
+            <string>Does user's do not disturb mode message differ from default?</string>
         <key>Persist</key>
             <integer>1</integer>
         <key>Type</key>
@@ -11,10 +11,10 @@
         <key>Value</key>
             <integer>0</integer>
         </map>
-    <key>BusyModeResponse</key>
+    <key>DoNotDisturbModeResponse</key>
         <map>
         <key>Comment</key>
-            <string>Auto response to instant messages while in busy mode.</string>
+            <string>Auto response to instant messages while in do not disturb mode.</string>
         <key>Persist</key>
             <integer>1</integer>
         <key>Type</key>

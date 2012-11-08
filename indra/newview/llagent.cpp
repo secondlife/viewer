@@ -376,7 +376,7 @@ LLAgent::LLAgent() :
 	mShowAvatar(TRUE),
 	mFrameAgent(),
 
-	mIsBusy(FALSE),
+	mIsDoNotDisturb(false),
 
 	mControlFlags(0x00000000),
 	mbFlagsDirty(FALSE),
@@ -1397,39 +1397,27 @@ BOOL LLAgent::getAFK() const
 }
 
 //-----------------------------------------------------------------------------
-// setBusy()
+// setDoNotDisturb()
 //-----------------------------------------------------------------------------
-void LLAgent::setBusy()
+void LLAgent::setDoNotDisturb(bool pIsDotNotDisturb)
 {
-	sendAnimationRequest(ANIM_AGENT_BUSY, ANIM_REQUEST_START);
-	mIsBusy = TRUE;
-	if (gBusyMenu)
+	mIsDoNotDisturb = pIsDotNotDisturb;
+	EAnimRequest animRequest = (pIsDotNotDisturb ? ANIM_REQUEST_START : ANIM_REQUEST_STOP);
+
+	sendAnimationRequest(ANIM_AGENT_DO_NOT_DISTURB, animRequest);
+	if (gDoNotDisturbMenu)
 	{
-		gBusyMenu->setLabel(LLTrans::getString("AvatarSetNotBusy"));
+		gDoNotDisturbMenu->setLabel(LLTrans::getString((pIsDotNotDisturb ? "AvatarSetAvailable" : "AvatarSetDoNotDisturb")));
 	}
-	LLNotificationsUI::LLChannelManager::getInstance()->muteAllChannels(true);
+	LLNotificationsUI::LLChannelManager::getInstance()->muteAllChannels(pIsDotNotDisturb);
 }
 
 //-----------------------------------------------------------------------------
-// clearBusy()
+// isDoNotDisturb()
 //-----------------------------------------------------------------------------
-void LLAgent::clearBusy()
+bool LLAgent::isDoNotDisturb() const
 {
-	mIsBusy = FALSE;
-	sendAnimationRequest(ANIM_AGENT_BUSY, ANIM_REQUEST_STOP);
-	if (gBusyMenu)
-	{
-		gBusyMenu->setLabel(LLTrans::getString("AvatarSetBusy"));
-	}
-	LLNotificationsUI::LLChannelManager::getInstance()->muteAllChannels(false);
-}
-
-//-----------------------------------------------------------------------------
-// getBusy()
-//-----------------------------------------------------------------------------
-BOOL LLAgent::getBusy() const
-{
-	return mIsBusy;
+	return mIsDoNotDisturb;
 }
 
 

@@ -3691,12 +3691,12 @@ Cannot offer friendship at this time. Please try again in a moment.
 
   <notification
    icon="alert.tga"
-   name="BusyModeSet"
+   name="DoNotDisturbModeSet"
    type="alert">
 Busy mode is set.
 Chat and instant messages will be hidden. Instant messages will get your Busy mode response. All teleportation offers will be declined. All inventory offers will go to your Trash.
     <usetemplate
-     ignoretext="I change my status to Busy mode"
+     ignoretext="I change my status to Do Not Disturb mode"
      name="okignore"
      yestext="OK"/>
   </notification>
@@ -5167,8 +5167,8 @@ Do you want to replace it with the selected object?
 
   <notification
    icon="alert.tga"
-   label="Busy Mode Warning"
-   name="BusyModePay"
+   label="Do Not Disturb Mode Warning"
+   name="DoNotDisturbModePay"
    type="alert">
 You are in Busy Mode, which means you will not receive any items offered in exchange for this payment.
 
@@ -5177,15 +5177,15 @@ Would you like to leave Busy Mode before completing this transaction?
     <form name="form">
       <ignore name="ignore"
        save_option="true"
-       text="I am about to pay a person or object while I am in Busy mode"/>
+       text="I am about to pay a person or object while I am in Do Not Disturb mode"/>
       <button
        default="true"
-       ignore="Always leave Busy Mode"
+       ignore="Always leave Do Not Disturb Mode"
        index="0"
        name="Yes"
        text="OK"/>
       <button
-       ignore="Never leave Busy Mode"
+       ignore="Never leave Do Not Disturb Mode"
        index="1"
        name="No"
        text="Cancel"/>

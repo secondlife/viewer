@@ -3939,7 +3939,7 @@ void LLVivoxVoiceClient::messageEvent(
 		sessionState *session = findSession(sessionHandle);
 		if(session)
 		{
-			bool is_busy = gAgent.getBusy();
+			bool is_do_not_disturb = gAgent.isDoNotDisturb();
 			bool is_muted = LLMuteList::getInstance()->isMuted(session->mCallerID, session->mName, LLMute::flagTextChat);
 			bool is_linden = LLMuteList::getInstance()->isLinden(session->mName);
 			bool quiet_chat = false;
@@ -3953,10 +3953,10 @@ void LLVivoxVoiceClient::messageEvent(
 				chat.mFromName = session->mName;
 				chat.mSourceType = CHAT_SOURCE_AGENT;
 
-				if(is_busy && !is_linden)
+				if(is_do_not_disturb && !is_linden)
 				{
 					quiet_chat = true;
-					// TODO: Question: Return busy mode response here?  Or maybe when session is started instead?
+					// TODO: Question: Return do not disturb mode response here?  Or maybe when session is started instead?
 				}
 				
 				LL_DEBUGS("Voice") << "adding message, name " << session->mName << " session " << session->mIMSessionID << ", target " << session->mCallerID << LL_ENDL;

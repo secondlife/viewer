@@ -75,8 +75,8 @@ public:
 	// refresh all the graphics preferences menus
 	static void refreshEnabledGraphics();
 	
-	// translate user's busy response message according to current locale if message is default, otherwise do nothing
-	static void initBusyResponse();
+	// translate user's do not disturb response message according to current locale if message is default, otherwise do nothing
+	static void initDoNotDisturbResponse();
 
 	void processProperties( void* pData, EAvatarProcessorType type );
 	void processProfileProperties(const LLAvatarData* pAvatarData );
@@ -93,9 +93,9 @@ protected:
 	void		onLanguageChange();
 	void		onNameTagOpacityChange(const LLSD& newvalue);
 
-	// set value of "BusyResponseChanged" in account settings depending on whether busy response
+	// set value of "DoNotDisturbResponseChanged" in account settings depending on whether do not disturb response
 	// string differs from default after user changes.
-	void onBusyResponseChanged();
+	void onDoNotDisturbResponseChanged();
 	// if the custom settings box is clicked
 	void onChangeCustom();
 	void updateMeterText(LLUICtrl* ctrl);

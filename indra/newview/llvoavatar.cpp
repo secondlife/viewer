@@ -680,7 +680,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mNameString(),
 	mTitle(),
 	mNameAway(false),
-	mNameBusy(false),
+	mNameDoNotDisturb(false),
 	mNameMute(false),
 	mNameAppearance(false),
 	mNameFriend(false),
@@ -1366,7 +1366,7 @@ void LLVOAvatar::initInstance(void)
 	if (LLCharacter::sInstances.size() == 1)
 	{
 		LLKeyframeMotion::setVFS(gStaticVFS);
-		registerMotion( ANIM_AGENT_BUSY,					LLNullMotion::create );
+		registerMotion( ANIM_AGENT_DO_NOT_DISTURB,					LLNullMotion::create );
 		registerMotion( ANIM_AGENT_CROUCH,					LLKeyframeStandMotion::create );
 		registerMotion( ANIM_AGENT_CROUCHWALK,				LLKeyframeWalkMotion::create );
 		registerMotion( ANIM_AGENT_EXPRESS_AFRAID,			LLEmote::create );
@@ -3100,7 +3100,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 	if (!firstname || !lastname) return;
 
 	bool is_away = mSignaledAnimations.find(ANIM_AGENT_AWAY)  != mSignaledAnimations.end();
-	bool is_busy = mSignaledAnimations.find(ANIM_AGENT_BUSY) != mSignaledAnimations.end();
+	bool is_do_not_disturb = mSignaledAnimations.find(ANIM_AGENT_DO_NOT_DISTURB) != mSignaledAnimations.end();
 	bool is_appearance = mSignaledAnimations.find(ANIM_AGENT_CUSTOMIZE) != mSignaledAnimations.end();
 	bool is_muted;
 	if (isSelf())
@@ -3132,7 +3132,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		|| (!title && !mTitle.empty())
 		|| (title && mTitle != title->getString())
 		|| is_away != mNameAway 
-		|| is_busy != mNameBusy 
+		|| is_do_not_disturb != mNameDoNotDisturb 
 		|| is_muted != mNameMute
 		|| is_appearance != mNameAppearance 
 		|| is_friend != mNameFriend
@@ -3142,7 +3142,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 
 		clearNameTag();
 
-		if (is_away || is_muted || is_busy || is_appearance)
+		if (is_away || is_muted || is_do_not_disturb || is_appearance)
 		{
 			std::string line;
 			if (is_away)
@@ -3150,9 +3150,9 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 				line += LLTrans::getString("AvatarAway");
 				line += ", ";
 			}
-			if (is_busy)
+			if (is_do_not_disturb)
 			{
-				line += LLTrans::getString("AvatarBusy");
+				line += LLTrans::getString("AvatarDoNotDisturb");
 				line += ", ";
 			}
 			if (is_muted)
@@ -3222,7 +3222,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		}
 
 		mNameAway = is_away;
-		mNameBusy = is_busy;
+		mNameDoNotDisturb = is_do_not_disturb;
 		mNameMute = is_muted;
 		mNameAppearance = is_appearance;
 		mNameFriend = is_friend;

@@ -188,7 +188,7 @@ extern LLContextMenu* gAttachBodyPartPieMenus[8];
 extern LLContextMenu* gDetachBodyPartPieMenus[8];
 
 extern LLMenuItemCallGL* gAFKMenu;
-extern LLMenuItemCallGL* gBusyMenu;
+extern LLMenuItemCallGL* gDoNotDisturbMenu;
 extern LLMenuItemCallGL* gMutePieMenu;
 extern LLMenuItemCallGL* gMuteObjectPieMenu;
 extern LLMenuItemCallGL* gBuyPassPieMenu;

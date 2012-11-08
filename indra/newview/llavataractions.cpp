@@ -386,12 +386,12 @@ void LLAvatarActions::showOnMap(const LLUUID& id)
 // static
 void LLAvatarActions::pay(const LLUUID& id)
 {
-	LLNotification::Params params("BusyModePay");
+	LLNotification::Params params("DoNotDisturbModePay");
 	params.functor.function(boost::bind(&LLAvatarActions::handlePay, _1, _2, id));
 
-	if (gAgent.getBusy())
+	if (gAgent.isDoNotDisturb())
 	{
-		// warn users of being in busy mode during a transaction
+		// warn users of being in do not disturb mode during a transaction
 		LLNotifications::instance().add(params);
 	}
 	else
@@ -982,7 +982,7 @@ bool LLAvatarActions::handlePay(const LLSD& notification, const LLSD& response, 
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (option == 0)
 	{
-		gAgent.clearBusy();
+		gAgent.setDoNotDisturb(false);
 	}
 
 	LLFloaterPayUtil::payDirectly(&give_money, avatar_id, /*is_group=*/false);

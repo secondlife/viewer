@@ -115,8 +115,8 @@ enum EInstantMessage
 	// viewer, since you can't IM an object yet.
 	IM_FROM_TASK = 19,
 
-	// sent an IM to a busy user, this is the auto response
-	IM_BUSY_AUTO_RESPONSE = 20,
+	// sent an IM to a do not disturb user, this is the auto response
+	IM_DO_NOT_DISTURB_AUTO_RESPONSE = 20,
 
 	// Shows the message in the console and chat history
 	IM_CONSOLE_AND_CHAT_HISTORY = 21,
