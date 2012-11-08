@@ -547,6 +547,10 @@ F32 LLDrawable::updateXform(BOOL undamped)
 			}
 		}
 	}
+	else if (!damped && isVisible())
+	{
+		dist_squared = dist_vec_squared(old_pos, target_pos);
+	}
 
 	LLVector3 vec = mCurrentScale-target_scale;
 	

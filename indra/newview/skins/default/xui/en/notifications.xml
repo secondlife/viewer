@@ -9960,5 +9960,12 @@ Inventory creation on in-world object failed.
 An internal error prevented us from properly updating your viewer.  The L$ balance or parcel holdings displayed in your viewer may not reflect your actual balance on the servers.
   </notification>
 
+  <notification
+   icon="alertmodal.tga"
+   name="LargePrimAgentIntersect"
+   type="notify">
+   <tag>fail</tag>
+Cannot create large prims that intersect other players.  Please re-try when other players have moved.
+  </notification>
 
 </notifications>
