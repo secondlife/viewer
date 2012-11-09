@@ -3693,8 +3693,11 @@ Cannot offer friendship at this time. Please try again in a moment.
    icon="alert.tga"
    name="DoNotDisturbModeSet"
    type="alert">
-Busy mode is set.
-Chat and instant messages will be hidden. Instant messages will get your Busy mode response. All teleportation offers will be declined. All inventory offers will go to your Trash.
+Do Not Disturb is on.  You will not be notified of incoming communications.
+
+- Other residents will receive your Do Not Disturb response (set in Preferences &gt; General).
+- Teleportation offers will be declined.
+- Inventory offers will go to your Trash.
     <usetemplate
      ignoretext="I change my status to Do Not Disturb mode"
      name="okignore"
@@ -5170,9 +5173,9 @@ Do you want to replace it with the selected object?
    label="Do Not Disturb Mode Warning"
    name="DoNotDisturbModePay"
    type="alert">
-You are in Busy Mode, which means you will not receive any items offered in exchange for this payment.
+You have turned on Do Not Disturb. You will not receive any items offered in exchange for this payment.
 
-Would you like to leave Busy Mode before completing this transaction?
+Would you like to turn off Do Not Disturb before completing this transaction?
     <tag>confirm</tag>
     <form name="form">
       <ignore name="ignore"
