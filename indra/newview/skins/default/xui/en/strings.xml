@@ -2520,7 +2520,7 @@ Drag folders to this area and click "Send to Marketplace" to list them for sale 
 	<string name="PanelContentsNewScript">New Script</string>
 
   <!-- panel preferences general -->
-  <string name="DoNotDisturbModeResponseDefault">The Resident you messaged is in &apos;busy mode&apos; which means they have requested not to be disturbed.  Your message will still be shown in their IM panel for later viewing.</string>
+  <string name="DoNotDisturbModeResponseDefault">This resident has turned on &apos;Do Not Disturb&apos; and will see your message later.</string>
 
 	<!-- Mute -->
 	<string name="MuteByName">(By name)</string>

@@ -2941,9 +2941,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		}
 		else
 		{
-			// TODO: after LLTrans hits release, get "busy response" into translatable file
-			buffer = llformat("%s (%s): %s", name.c_str(), "busy response", message.c_str());
-			gIMMgr->addMessage(session_id, from_id, name, buffer);
+			gIMMgr->addMessage(session_id, from_id, name, message);
 		}
 		break;
 		
