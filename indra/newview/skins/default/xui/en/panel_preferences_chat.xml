@@ -1,151 +1,150 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
- border="true"
- follows="left|top|right|bottom"
- height="408"
- label="Text Chat"
- layout="topleft"
- left="102"
- name="chat"
- top="1"
- width="517">
+    border="true"
+    follows="left|top|right|bottom"
+    height="408"
+    label="Text Chat"
+    layout="topleft"
+    left="102"
+    name="chat"
+    top="1"
+    width="517">
 
   <panel
-  border="false"
-  follows="left|top"
-  height="90"
-  layout="topleft"
-  top="10"
-  left="13"
-  width="517">
+      border="false"
+      follows="left|top"
+      height="90"
+      layout="topleft"
+      top="10"
+      left="13"
+      width="517">
 
     <check_box
-       control_name="PlayTypingAnim"
-       height="16"
-       initial_value="true"
-       label="Play typing animation when chatting"
-       layout="topleft"
-       top="0"
-       name="play_typing_animation"
-       width="330" />
+        control_name="PlayTypingAnim"
+        height="16"
+        initial_value="true"
+        label="Play typing animation when chatting"
+        layout="topleft"
+        top="0"
+        name="play_typing_animation"
+        width="330" />
     <check_box
-     enabled="false"
-     height="16"
-     label="Email me IMs when I'm offline"
-     layout="topleft"
-     name="send_im_to_email"
-     top_pad="6"
-     width="330" />
+        enabled="false"
+        height="16"
+        label="Email me IMs when I'm offline"
+        layout="topleft"
+        name="send_im_to_email"
+        top_pad="6"
+        width="330" />
     <check_box
-    height="16"
-    label="Keep a conversation log and transcripts"
-    layout="topleft"
-    name="keep_convo_log_and_transcripts"
-    top_pad="6"
-    width="330" />
+        height="16"
+        label="Keep a conversation log and transcripts"
+        layout="topleft"
+        name="keep_convo_log_and_transcripts"
+        top_pad="6"
+        width="330" />
     <check_box
-     control_name="UseChatBubbles"
-     follows="left|top"
-     height="16"
-     label="Bubble Chat"
-     layout="topleft"
-     top_pad="6"
-     name="bubble_text_chat"
-     width="330" />
+        control_name="UseChatBubbles"
+        follows="left|top"
+        height="16"
+        label="Bubble Chat"
+        layout="topleft"
+        top_pad="6"
+        name="bubble_text_chat"
+        width="330" />
     <text
-     follows="left|top"
-     layout="topleft"
-     left="345"
-     height="12"
-     name="font_size"
-     width="120"
-     top="0">
+        follows="left|top"
+        layout="topleft"
+        left="345"
+        height="12"
+        name="font_size"
+        width="120"
+        top="0">
       Font size:
     </text>
     <radio_group
-       height="90"
-       layout="topleft"
-       left="352"
-     control_name="ChatFontSize"
-       name="chat_font_size"
-       top_pad="0"
-       width="50">
+        height="90"
+        layout="topleft"
+        left="352"
+        control_name="ChatFontSize"
+        name="chat_font_size"
+        top_pad="0"
+        width="50">
       <radio_item
-       height="16"
-       label="Small"
-       layout="topleft"
-       name="radio"
-       value="0"
-       top="10"
-       width="125" />
+          height="16"
+          label="Small"
+          layout="topleft"
+          name="radio"
+          value="0"
+          top="10"
+          width="125" />
       <radio_item
-       height="16"
-       label="Medium"
-       layout="topleft"
-       name="radio2"
-       value="1"
-       top_pad="6"
-       width="125" />
+          height="16"
+          label="Medium"
+          layout="topleft"
+          name="radio2"
+          value="1"
+          top_pad="6"
+          width="125" />
       <radio_item
-       height="16"
-       label="Large"
-       layout="topleft"
-       name="radio3"
-       value="2"
-       top_pad="6"
-       width="125" />
+          height="16"
+          label="Large"
+          layout="topleft"
+          name="radio3"
+          value="2"
+          top_pad="6"
+          width="125" />
     </radio_group>    
     
   </panel>  
 
   <panel
-  border="false"
-  follows="left|top"
-  height="193"
-  layout="topleft"
-  left="13"
-  width="517">
+      border="false"
+      follows="left|top"
+      height="193"
+      layout="topleft"
+      left="13"
+      width="517">
 
     <text
-     follows="left|top"
-     layout="topleft"
-     height="12"
-     name="notifications"
-     left="0"
-     width="120">
+        follows="left|top"
+        layout="topleft"
+        height="12"
+        name="notifications"
+        left="0"
+        width="120">
       Notifications:
     </text>
     <text
-     follows="left|top"
-     layout="topleft"
-     height="12"
-     name="friend_ims"
-     width="145"
-     left="0"
-     top_pad="15"
-     >
+        follows="left|top"
+        layout="topleft"
+        height="12"
+        name="friend_ims"
+        width="145"
+        left="0"
+        top_pad="15">
       Friend IMs:
     </text>
     <combo_box
-             control_name="NotificationFriendIMOptions"
-             height="23"
-             layout="topleft"
-             left_pad="5"
-             top_delta="-6"
-             name="FriendIMOptions"
-             width="223">
+        control_name="NotificationFriendIMOptions"
+        height="23"
+        layout="topleft"
+        left_pad="5"
+        top_delta="-6"
+        name="FriendIMOptions"
+        width="223">
       <combo_box.item
-       label="Pop up the message"
-       name="0"
-       value="0"/>
+          label="Pop up the message"
+          name="0"
+          value="0"/>
       <combo_box.item
-       label="Flash toolbar button"
-       name="1"
-       value="1"/>
+          label="Flash toolbar button"
+          name="1"
+          value="1"/>
       <combo_box.item
-       label="None"
-       name="2"
-       value="2"/>
+          label="None"
+          name="2"
+          value="2"/>
     </combo_box>
     <text
         follows="left|top"
@@ -154,244 +153,239 @@
         name="non_friend_ims"
         width="145"
         left="0"
-     top_pad="15"
-     >
+        top_pad="15">
       Non-friend IMs:
     </text>
     <combo_box
-             control_name="NotificationNonFriendIMOptions"
-             height="23"
-             layout="topleft"
-             left_pad="5"
-             top_delta="-6"
-             name="NonFriendIMOptions"
-             width="223">
+        control_name="NotificationNonFriendIMOptions"
+        height="23"
+        layout="topleft"
+        left_pad="5"
+        top_delta="-6"
+        name="NonFriendIMOptions"
+        width="223">
       <combo_box.item
-       label="Pop up the message"
-       name="0"
-       value="0"/>
+          label="Pop up the message"
+          name="0"
+          value="0"/>
       <combo_box.item
-       label="Flash toolbar button"
-       name="1"
-       value="1"/>
+          label="Flash toolbar button"
+          name="1"
+          value="1"/>
       <combo_box.item
-       label="None"
-       name="2"
-       value="2"/>
+          label="None"
+          name="2"
+          value="2"/>
     </combo_box>
     <text
-          follows="left|top"
-          layout="topleft"
-          left="0"
-          height="13"
-          name="conference_ims"
-          width="145"
-          top_pad="14"
-     >
+        follows="left|top"
+        layout="topleft"
+        left="0"
+        height="13"
+        name="conference_ims"
+        width="145"
+        top_pad="14">
       Conference IMs:
     </text>
     <combo_box
-             control_name="NotificationConferenceIMOptions"
-             height="23"
-             layout="topleft"
-             left_pad="5"
-             top_delta="-6"
-             name="ConferenceIMOptions"
-             width="223">
+        control_name="NotificationConferenceIMOptions"
+        height="23"
+        layout="topleft"
+        left_pad="5"
+        top_delta="-6"
+        name="ConferenceIMOptions"
+        width="223">
       <combo_box.item
-       label="Pop up the message"
-       name="0"
-       value="0"/>
+          label="Pop up the message"
+          name="0"
+          value="0"/>
       <combo_box.item
-       label="Flash toolbar button"
-       name="1"
-       value="1"/>
+          label="Flash toolbar button"
+          name="1"
+          value="1"/>
       <combo_box.item
-       label="None"
-       name="2"
-       value="2"/>
+          label="None"
+          name="2"
+          value="2"/>
     </combo_box>
     <text
-          follows="left|top"
-          layout="topleft"
-          left="0"
-          height="13"
-          name="group_chat"
-          width="145"
-          top_pad="14"
-     >
+        follows="left|top"
+        layout="topleft"
+        left="0"
+        height="13"
+        name="group_chat"
+        width="145"
+        top_pad="14">
       Group chat:
     </text>
     <combo_box
-             control_name="NotificationGroupChatOptions"
-             height="23"
-             layout="topleft"
-             left_pad="5"
-             top_delta="-6"
-             name="GroupChatOptions"
-             width="223">
+        control_name="NotificationGroupChatOptions"
+        height="23"
+        layout="topleft"
+        left_pad="5"
+        top_delta="-6"
+        name="GroupChatOptions"
+        width="223">
       <combo_box.item
-       label="Pop up the message"
-       name="0"
-       value="0"/>
+          label="Pop up the message"
+          name="0"
+          value="0"/>
       <combo_box.item
-       label="Flash toolbar button"
-       name="1"
-       value="1"/>
+          label="Flash toolbar button"
+          name="1"
+          value="1"/>
       <combo_box.item
-       label="None"
-       name="2"
-       value="2"/>
+          label="None"
+          name="2"
+          value="2"/>
     </combo_box>
     <text
-            follows="left|top"
-            layout="topleft"
-            left="0"
-            height="12"
-            name="nearby_chat"
-            width="145"
-            top_pad="14"
-     >
+        follows="left|top"
+        layout="topleft"
+        left="0"
+        height="12"
+        name="nearby_chat"
+        width="145"
+        top_pad="14">
       Nearby chat:
     </text>
     <combo_box
-             control_name="NotificationNearbyChatOptions"
-             height="23"
-             layout="topleft"
-             left_pad="5"
-             top_delta="-6"
-             name="NearbyChatOptions"
-             width="223">
+        control_name="NotificationNearbyChatOptions"
+        height="23"
+        layout="topleft"
+        left_pad="5"
+        top_delta="-6"
+        name="NearbyChatOptions"
+        width="223">
       <combo_box.item
-       label="Pop up the message"
-       name="0"
-       value="0"/>
+          label="Pop up the message"
+          name="0"
+          value="0"/>
       <combo_box.item
-       label="Flash toolbar button"
-       name="1"
-       value="1"/>
+          label="Flash toolbar button"
+          name="1"
+          value="1"/>
       <combo_box.item
-       label="None"
-       name="2"
-       value="2"/>
+          label="None"
+          name="2"
+          value="2"/>
     </combo_box>
     <text
-            follows="left|top"
-            layout="topleft"
-            left="0"
-            height="12"
-            name="notifications_alert"
-            width="350"
-            top_pad="11"
-            visible="true"
-            text_color="DrYellow"
-     >
+        follows="left|top"
+        layout="topleft"
+        left="0"
+        height="12"
+        name="notifications_alert"
+        width="350"
+        top_pad="11"
+        visible="true"
+        text_color="DrYellow">
       To temporarily stop all notifications, use Me > Status > Busy.
     </text>
 
   </panel>
 
   <panel
-  border="false"
-  follows="left|top"
-  height="1"
-  layout="topleft"
-  left="13"
-  width="517">
+      border="false"
+      follows="left|top"
+      height="1"
+      layout="topleft"
+      left="13"
+      width="517">
 
     <text
-      follows="left|top"
-      layout="topleft"
-      left="0"
-      name="play_sound"
-      width="100"
-      top_pad="13"
-      visible="true">
+        follows="left|top"
+        layout="topleft"
+        left="0"
+        name="play_sound"
+        width="100"
+        top_pad="13"
+        visible="true">
       Play sound:
     </text>
     <check_box
-         control_name="NewConversation"
-         height="16"
-         initial_value="true"
-         label="New conversation"
-         layout="topleft"
-         left_pad="15"
-         top_pad="-10"
-         name="new_conversation"
-         width="150" />
+        control_name="NewConversation"
+        height="16"
+        initial_value="true"
+        label="New conversation"
+        layout="topleft"
+        left_pad="15"
+        top_pad="-10"
+        name="new_conversation"
+        width="150" />
     <check_box
-         control_name="IncomingVoiceCall"
-         height="16"
-         initial_value="true"
-         label="Incoming voice call"
-         layout="topleft"
-         top_pad="6"
-         name="incoming_voice_call"
-         width="150" />
+        control_name="IncomingVoiceCall"
+        height="16"
+        initial_value="true"
+        label="Incoming voice call"
+        layout="topleft"
+        top_pad="6"
+        name="incoming_voice_call"
+        width="150" />
     <check_box
-         control_name="GroupChatMessages"
-         height="16"
-         initial_value="false"
-         label="Group chat messages"
-         layout="topleft"
-         top_pad="6"
-         name="group_chat_messages"
-         width="150" />
+        control_name="GroupChatMessages"
+        height="16"
+        initial_value="false"
+        label="Group chat messages"
+        layout="topleft"
+        top_pad="6"
+        name="group_chat_messages"
+        width="150" />
     <check_box
-         control_name="TeleportOffer"
-         height="16"
-         initial_value="true"
-         label="Teleport offer"
-         layout="topleft"
-         left_pad="35"
-         top_pad="-59"
-         name="teleport_offer"
-         width="150" />
+        control_name="TeleportOffer"
+        height="16"
+        initial_value="true"
+        label="Teleport offer"
+        layout="topleft"
+        left_pad="35"
+        top_pad="-59"
+        name="teleport_offer"
+        width="150" />
     <check_box
-         control_name="InventoryOffer"
-         height="16"
-         initial_value="false"
-         label="Inventory offer"
-         layout="topleft"
-         top_pad="6"
-         name="inventory_offer"
-         width="150" />
+        control_name="InventoryOffer"
+        height="16"
+        initial_value="false"
+        label="Inventory offer"
+        layout="topleft"
+        top_pad="6"
+        name="inventory_offer"
+        width="150" />
 
   </panel>
-    
+  
   <button
-   follows="left|top"
-   height="23"
-   label="Translation..."
-   layout="topleft"
-   left="9"
-   name="ok_btn"
-   top="-29"
-   width="170">
-   <button.commit_callback
-    function="Pref.TranslationSettings" />
+      follows="left|top"
+      height="23"
+      label="Translation..."
+      layout="topleft"
+      left="9"
+      name="ok_btn"
+      top="-29"
+      width="170">
+    <button.commit_callback
+        function="Pref.TranslationSettings" />
   </button>
   <button
-   follows="top|left"
-   height="23"
-   layout="topleft"
-   top_pad="-23"
-   left_pad="5"
-   name="autoreplace_showgui"
-   commit_callback.function="Pref.AutoReplace"
-   label="Auto-Replace..."
-   width="150">
+      follows="top|left"
+      height="23"
+      layout="topleft"
+      top_pad="-23"
+      left_pad="5"
+      name="autoreplace_showgui"
+      commit_callback.function="Pref.AutoReplace"
+      label="Auto-Replace..."
+      width="150">
   </button>
   <button
-   follows="top|left"
-   height="23"
-   layout="topleft"
-   top_pad="-23"
-   left_pad="5"
-   name="spellcheck_showgui"
-   commit_callback.function="Pref.SpellChecker"
-   label="Spell Checking..."
-   width="150">
+      follows="top|left"
+      height="23"
+      layout="topleft"
+      top_pad="-23"
+      left_pad="5"
+      name="spellcheck_showgui"
+      commit_callback.function="Pref.SpellChecker"
+      label="Spell Checking..."
+      width="150">
   </button>
 
 </panel>
