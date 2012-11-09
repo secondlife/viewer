@@ -2074,12 +2074,6 @@ For AI Character: Get the closest navigable point to the point provided.
 	</string>
 
 
-  <!-- Avatar busy/away mode -->
-	<string name="AvatarSetNotAway">Not Away</string>
-	<string name="AvatarSetAway">Away</string>
-	<string name="AvatarSetAvailable">Not Busy</string>
-	<string name="AvatarSetDoNotDisturb">Busy</string>
-
 	<!-- Wearable Types -->
 	<string name="shape">Shape</string>
 	<string name="skin">Skin</string>

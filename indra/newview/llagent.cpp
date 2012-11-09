@@ -1356,12 +1356,7 @@ void LLAgent::setAFK()
 	{
 		sendAnimationRequest(ANIM_AGENT_AWAY, ANIM_REQUEST_START);
 		setControlFlags(AGENT_CONTROL_AWAY | AGENT_CONTROL_STOP);
-		LL_INFOS("AFK") << "Setting Away" << LL_ENDL;
 		gAwayTimer.start();
-		if (gAFKMenu)
-		{
-			gAFKMenu->setLabel(LLTrans::getString("AvatarSetNotAway"));
-		}
 	}
 }
 
@@ -1380,11 +1375,6 @@ void LLAgent::clearAFK()
 	{
 		sendAnimationRequest(ANIM_AGENT_AWAY, ANIM_REQUEST_STOP);
 		clearControlFlags(AGENT_CONTROL_AWAY);
-		LL_INFOS("AFK") << "Clearing Away" << LL_ENDL;
-		if (gAFKMenu)
-		{
-			gAFKMenu->setLabel(LLTrans::getString("AvatarSetAway"));
-		}
 	}
 }
 
@@ -1402,13 +1392,7 @@ BOOL LLAgent::getAFK() const
 void LLAgent::setDoNotDisturb(bool pIsDotNotDisturb)
 {
 	mIsDoNotDisturb = pIsDotNotDisturb;
-	EAnimRequest animRequest = (pIsDotNotDisturb ? ANIM_REQUEST_START : ANIM_REQUEST_STOP);
-
-	sendAnimationRequest(ANIM_AGENT_DO_NOT_DISTURB, animRequest);
-	if (gDoNotDisturbMenu)
-	{
-		gDoNotDisturbMenu->setLabel(LLTrans::getString((pIsDotNotDisturb ? "AvatarSetAvailable" : "AvatarSetDoNotDisturb")));
-	}
+	sendAnimationRequest(ANIM_AGENT_DO_NOT_DISTURB, (pIsDotNotDisturb ? ANIM_REQUEST_START : ANIM_REQUEST_STOP));
 	LLNotificationsUI::LLChannelManager::getInstance()->muteAllChannels(pIsDotNotDisturb);
 }
 
