@@ -207,11 +207,11 @@ BOOL LLConversationViewSession::handleMouseDown( S32 x, S32 y, MASK mask )
 {
 	LLConversationItem* item = dynamic_cast<LLConversationItem *>(getViewModelItem());
     LLUUID session_id = item? item->getUUID() : LLUUID();
-
+    BOOL result = LLFolderViewFolder::handleMouseDown(x, y, mask);
 	(LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container"))->
     		selectConversationPair(session_id, false);
 
-	return LLFolderViewFolder::handleMouseDown(x, y, mask);
+	return result;
 }
 
 // virtual
@@ -240,7 +240,7 @@ void LLConversationViewSession::toggleOpen()
 		{
 			getParentFolder()->setSelection(this, true);
 		}
-		
+
 	}
 }
 
@@ -504,11 +504,11 @@ BOOL LLConversationViewParticipant::handleMouseDown( S32 x, S32 y, MASK mask )
 	    item = dynamic_cast<LLConversationItem*>(session_widget->getViewModelItem());
 	}
     LLUUID session_id = item? item->getUUID() : LLUUID();
+    BOOL result = LLFolderViewItem::handleMouseDown(x, y, mask);
+    (LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container"))->
+        		selectConversationPair(session_id, false);
 
-	(LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container"))->
-    		selectConversationPair(session_id, false);
-
-	return LLFolderViewItem::handleMouseDown(x, y, mask);
+	return result;
 }
 
 S32 LLConversationViewParticipant::getLabelXPos()
