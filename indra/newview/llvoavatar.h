@@ -945,6 +945,7 @@ private:
 	F32					mMaxPixelArea;
 	F32					mAdjustedPixelArea;
 	std::string  		mDebugText;
+	std::string			mBakedTextureDebugText;
 
 
 	//--------------------------------------------------------------------

@@ -2888,10 +2888,14 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		{
 			central_bake_version = getRegion()->getCentralBakeVersion();
 		}
-		addDebugText(llformat("mUseLocalAppearance: %d\nmIsEditingAppearance: %d\n"
-							  "mUseServerBakes %d\ncentralBakeVersion %d",
+		addDebugText(llformat("mLocal: %d, mEdit: %d, mUSB: %d, CBV: %d",
 							  mUseLocalAppearance, mIsEditingAppearance,
 							  mUseServerBakes, central_bake_version));
+	}
+	if (gSavedSettings.getBOOL("DebugAvatarCompositeBaked"))
+	{
+		if (!mBakedTextureDebugText.empty())
+			addDebugText(mBakedTextureDebugText);
 	}
 				 
 	if (LLVOAvatar::sShowAnimationDebug)
@@ -5793,7 +5797,8 @@ void LLVOAvatar::debugColorizeSubMeshes(U32 i, const LLColor4& color)
 // virtual
 void LLVOAvatar::updateMeshTextures()
 {
-    // llinfos << "updateMeshTextures" << llendl;
+	mBakedTextureDebugText.clear();
+	
 	// if user has never specified a texture, assign the default
 	for (U32 i=0; i < getNumTEs(); i++)
 	{
@@ -5819,17 +5824,19 @@ void LLVOAvatar::updateMeshTextures()
 	std::vector<BOOL> use_lkg_baked_layer; // lkg = "last known good"
 	use_lkg_baked_layer.resize(mBakedTextureDatas.size(), false);
 
+	mBakedTextureDebugText +=          "indx layerset linvld ltda ilb ulkg ltid\n";
 	for (U32 i=0; i < mBakedTextureDatas.size(); i++)
 	{
 		is_layer_baked[i] = isTextureDefined(mBakedTextureDatas[i].mTextureIndex);
-
+		LLViewerTexLayerSet* layerset = NULL;
+		bool layerset_invalid = false;
 		if (!other_culled)
 		{
 			// When an avatar is changing clothes and not in Appearance mode,
 			// use the last-known good baked texture until it finish the first
 			// render of the new layerset.
-			LLViewerTexLayerSet* layerset = getTexLayerSet(i);
-			const BOOL layerset_invalid = layerset
+			layerset = getTexLayerSet(i);
+			layerset_invalid = layerset
 										  && ( !layerset->getViewerComposite()->isInitialized()
 										  || !layerset->isLocalTextureDataAvailable() );
 			use_lkg_baked_layer[i] = (!is_layer_baked[i] 
@@ -5846,6 +5853,24 @@ void LLVOAvatar::updateMeshTextures()
 									  && mBakedTextureDatas[i].mLastTextureID != IMG_DEFAULT_AVATAR);
 		}
 
+		std::string last_id_string;
+		if (mBakedTextureDatas[i].mLastTextureID == IMG_DEFAULT_AVATAR)
+			last_id_string = "A";
+		else if (mBakedTextureDatas[i].mLastTextureID == IMG_DEFAULT)
+			last_id_string = "D";
+		else
+			last_id_string = "*";
+		bool is_ltda = layerset
+			&& layerset->getViewerComposite()->isInitialized()
+			&& layerset->isLocalTextureDataAvailable();
+		mBakedTextureDebugText += llformat("%4d   %4s     %4d %4d %4d %4d %4s\n",
+										   i,
+										   (layerset?"*":"0"),
+										   layerset_invalid,
+										   is_ltda,
+										   is_layer_baked[i],
+										   use_lkg_baked_layer[i],
+										   last_id_string.c_str());
 	}
 	
 	for (U32 i=0; i < mBakedTextureDatas.size(); i++)
@@ -5856,6 +5881,7 @@ void LLVOAvatar::updateMeshTextures()
 		if (use_lkg_baked_layer[i] && !isUsingLocalAppearance() )
 		{
 			LLViewerFetchedTexture* baked_img;
+			LLViewerFetchedTexture* existing_baked_img = LLViewerTextureManager::getFetchedTexture(mBakedTextureDatas[i].mLastTextureID);
 			const std::string url = getImageURL(i, mBakedTextureDatas[i].mLastTextureID);
 			if (!url.empty())
 			{
@@ -5872,6 +5898,7 @@ void LLVOAvatar::updateMeshTextures()
 
 				baked_img = LLViewerTextureManager::getFetchedTextureFromHost( mBakedTextureDatas[i].mLastTextureID, target_host );
 			}
+			llassert(baked_img == existing_baked_img);
 
 			mBakedTextureDatas[i].mIsUsed = TRUE;
 
