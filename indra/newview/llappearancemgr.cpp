@@ -1602,8 +1602,6 @@ void LLAppearanceMgr::updateAgentWearables(LLWearableHoldingPattern* holder, boo
 	{
 		gAgentWearables.setWearableOutfit(items, wearables, !append);
 	}
-
-//	dec_busy_count();
 }
 
 static void remove_non_link_items(LLInventoryModel::item_array_t &items)
@@ -2004,7 +2002,6 @@ void LLAppearanceMgr::wearInventoryCategoryOnAvatar( LLInventoryCategory* catego
 void LLAppearanceMgr::wearOutfitByName(const std::string& name)
 {
 	LL_INFOS("Avatar") << self_av_string() << "Wearing category " << name << LL_ENDL;
-	//inc_busy_count();
 
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t item_array;
@@ -2044,8 +2041,6 @@ void LLAppearanceMgr::wearOutfitByName(const std::string& name)
 		llwarns << "Couldn't find outfit " <<name<< " in wearOutfitByName()"
 				<< llendl;
 	}
-
-	//dec_busy_count();
 }
 
 bool areMatchingWearables(const LLViewerInventoryItem *a, const LLViewerInventoryItem *b)
@@ -2967,7 +2962,6 @@ public:
 		{
 			llwarns << "Nothing fetched in category " << mComplete.front()
 					<< llendl;
-			//dec_busy_count();
 			gInventory.removeObserver(this);
 
 			// lets notify observers that loading is finished.

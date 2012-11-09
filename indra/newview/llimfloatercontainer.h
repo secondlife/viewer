@@ -96,6 +96,8 @@ public:
 	LLConversationItem* getSessionModel(const LLUUID& session_id) { return get_ptr_in_map(mConversationsItems,session_id); }
 	LLConversationSort& getSortOrder() { return mConversationViewModel.getSorter(); }
 
+	void onNearbyChatClosed();
+
 private:
 	typedef std::map<LLUUID,LLFloater*> avatarID_panel_map_t;
 	avatarID_panel_map_t mSessions;

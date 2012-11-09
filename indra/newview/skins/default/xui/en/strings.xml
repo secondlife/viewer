@@ -295,7 +295,7 @@ Please try logging in again in a minute.</string>
 	<!-- llvoavatar. Displayed in the avatar chat bubble -->
 	<string name="AvatarEditingAppearance">(Editing Appearance)</string>
 	<string name="AvatarAway">Away</string>
-	<string name="AvatarBusy">Busy</string>
+	<string name="AvatarDoNotDisturb">Busy</string>
 	<string name="AvatarMuted">Blocked</string>
 
 	<!-- animations -->
@@ -2077,8 +2077,8 @@ For AI Character: Get the closest navigable point to the point provided.
   <!-- Avatar busy/away mode -->
 	<string name="AvatarSetNotAway">Not Away</string>
 	<string name="AvatarSetAway">Away</string>
-	<string name="AvatarSetNotBusy">Not Busy</string>
-	<string name="AvatarSetBusy">Busy</string>
+	<string name="AvatarSetAvailable">Not Busy</string>
+	<string name="AvatarSetDoNotDisturb">Busy</string>
 
 	<!-- Wearable Types -->
 	<string name="shape">Shape</string>
@@ -2526,7 +2526,7 @@ Drag folders to this area and click "Send to Marketplace" to list them for sale 
 	<string name="PanelContentsNewScript">New Script</string>
 
   <!-- panel preferences general -->
-  <string name="BusyModeResponseDefault">The Resident you messaged is in &apos;busy mode&apos; which means they have requested not to be disturbed.  Your message will still be shown in their IM panel for later viewing.</string>
+  <string name="DoNotDisturbModeResponseDefault">The Resident you messaged is in &apos;busy mode&apos; which means they have requested not to be disturbed.  Your message will still be shown in their IM panel for later viewing.</string>
 
 	<!-- Mute -->
 	<string name="MuteByName">(By name)</string>

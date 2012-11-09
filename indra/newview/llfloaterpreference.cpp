@@ -443,23 +443,23 @@ BOOL LLFloaterPreference::postBuild()
 
 	getChild<LLComboBox>("language_combobox")->setCommitCallback(boost::bind(&LLFloaterPreference::onLanguageChange, this));
 
-	// if floater is opened before login set default localized busy message
+	// if floater is opened before login set default localized do not disturb message
 	if (LLStartUp::getStartupState() < STATE_STARTED)
 	{
-		gSavedPerAccountSettings.setString("BusyModeResponse", LLTrans::getString("BusyModeResponseDefault"));
+		gSavedPerAccountSettings.setString("DoNotDisturbModeResponse", LLTrans::getString("DoNotDisturbModeResponseDefault"));
 	}
 
 	return TRUE;
 }
 
-void LLFloaterPreference::onBusyResponseChanged()
+void LLFloaterPreference::onDoNotDisturbResponseChanged()
 {
-	// set "BusyResponseChanged" TRUE if user edited message differs from default, FALSE otherwise
-	bool busy_flag =
-			LLTrans::getString("BusyModeResponseDefault")
-					!= getChild<LLUICtrl>("busy_response")->getValue().asString();
+	// set "DoNotDisturbResponseChanged" TRUE if user edited message differs from default, FALSE otherwise
+	bool response_changed_flag =
+			LLTrans::getString("DoNotDisturbModeResponseDefault")
+					!= getChild<LLUICtrl>("do_not_disturb_response")->getValue().asString();
 
-	gSavedPerAccountSettings.setBOOL("BusyResponseChanged", busy_flag );
+	gSavedPerAccountSettings.setBOOL("DoNotDisturbResponseChanged", response_changed_flag );
 }
 
 LLFloaterPreference::~LLFloaterPreference()
@@ -542,12 +542,8 @@ void LLFloaterPreference::apply()
 		LLViewerMedia::setProxyConfig(proxy_enable, proxy_address, proxy_port);
 	}
 	
-//	LLWString busy_response = utf8str_to_wstring(getChild<LLUICtrl>("busy_response")->getValue().asString());
-//	LLWStringUtil::replaceTabsWithSpaces(busy_response, 4);
-	
 	if (mGotPersonalInfo)
 	{ 
-//		gSavedSettings.setString("BusyModeResponse2", std::string(wstring_to_utf8str(busy_response)));
 		bool new_im_via_email = getChild<LLUICtrl>("send_im_to_email")->getValue().asBoolean();
 		bool new_hide_online = getChild<LLUICtrl>("online_visibility")->getValue().asBoolean();		
 	
@@ -633,21 +629,21 @@ void LLFloaterPreference::cancel()
 void LLFloaterPreference::onOpen(const LLSD& key)
 {
 	
-	// this variable and if that follows it are used to properly handle busy mode response message
+	// this variable and if that follows it are used to properly handle do not disturb mode response message
 	static bool initialized = FALSE;
-	// if user is logged in and we haven't initialized busy_response yet, do it
+	// if user is logged in and we haven't initialized do not disturb mode response yet, do it
 	if (!initialized && LLStartUp::getStartupState() == STATE_STARTED)
 	{
-		// Special approach is used for busy response localization, because "BusyModeResponse" is
+		// Special approach is used for do not disturb response localization, because "DoNotDisturbModeResponse" is
 		// in non-localizable xml, and also because it may be changed by user and in this case it shouldn't be localized.
-		// To keep track of whether busy response is default or changed by user additional setting BusyResponseChanged
+		// To keep track of whether do not disturb response is default or changed by user additional setting DoNotDisturbResponseChanged
 		// was added into per account settings.
 
 		// initialization should happen once,so setting variable to TRUE
 		initialized = TRUE;
-		// this connection is needed to properly set "BusyResponseChanged" setting when user makes changes in
-		// busy response message.
-		gSavedPerAccountSettings.getControl("BusyModeResponse")->getSignal()->connect(boost::bind(&LLFloaterPreference::onBusyResponseChanged, this));
+		// this connection is needed to properly set "DoNotDisturbResponseChanged" setting when user makes changes in
+		// do not disturb response message.
+		gSavedPerAccountSettings.getControl("DoNotDisturbModeResponse")->getSignal()->connect(boost::bind(&LLFloaterPreference::onDoNotDisturbResponseChanged, this));
 	}
 	gAgent.sendAgentUserInfoRequest();
 
@@ -709,12 +705,12 @@ void LLFloaterPreference::onVertexShaderEnable()
 }
 
 //static
-void LLFloaterPreference::initBusyResponse()
+void LLFloaterPreference::initDoNotDisturbResponse()
 	{
-		if (!gSavedPerAccountSettings.getBOOL("BusyResponseChanged"))
+		if (!gSavedPerAccountSettings.getBOOL("DoNotDisturbResponseChanged"))
 		{
-			//LLTrans::getString("BusyModeResponseDefault") is used here for localization (EXT-5885)
-			gSavedPerAccountSettings.setString("BusyModeResponse", LLTrans::getString("BusyModeResponseDefault"));
+			//LLTrans::getString("DoNotDisturbModeResponseDefault") is used here for localization (EXT-5885)
+			gSavedPerAccountSettings.setString("DoNotDisturbModeResponse", LLTrans::getString("DoNotDisturbModeResponseDefault"));
 		}
 	}
 
@@ -1431,13 +1427,10 @@ void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im
 	getChild<LLUICtrl>("send_im_to_email")->setValue(im_via_email);
 	getChildView("log_instant_messages")->setEnabled(TRUE);
 //	getChildView("log_chat")->setEnabled(TRUE);
-//	getChildView("busy_response")->setEnabled(TRUE);
 //	getChildView("log_instant_messages_timestamp")->setEnabled(TRUE);
 //	getChildView("log_chat_timestamp")->setEnabled(TRUE);
 	getChildView("log_chat_IM")->setEnabled(TRUE);
 	getChildView("log_date_timestamp")->setEnabled(TRUE);
-	
-//	getChild<LLUICtrl>("busy_response")->setValue(gSavedSettings.getString("BusyModeResponse2"));
 	
 	getChildView("favorites_on_login_check")->setEnabled(TRUE);
 	getChildView("log_nearby_chat")->setEnabled(TRUE);
@@ -1662,7 +1655,6 @@ BOOL LLPanelPreference::postBuild()
 	if (hasChild("online_visibility") && hasChild("send_im_to_email"))
 	{
 		getChild<LLUICtrl>("email_address")->setValue(getString("log_in_to_change") );
-//		getChild<LLUICtrl>("busy_response")->setValue(getString("log_in_to_change"));		
 	}
 	
 	//////////////////////PanelPrivacy ///////////////////

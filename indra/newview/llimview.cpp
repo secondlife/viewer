@@ -113,8 +113,8 @@ static void on_avatar_name_cache_toast(const LLUUID& agent_id,
 }
 
 void toast_callback(const LLSD& msg){
-	// do not show toast in busy mode or it goes from agent
-	if (gAgent.getBusy() || gAgent.getID() == msg["from_id"])
+	// do not show toast in do not disturb mode or it goes from agent
+	if (gAgent.isDoNotDisturb() || gAgent.getID() == msg["from_id"])
 	{
 		return;
 	}
@@ -3299,13 +3299,13 @@ public:
 			time_t timestamp =
 				(time_t) message_params["timestamp"].asInteger();
 
-			BOOL is_busy = gAgent.getBusy();
+			BOOL is_do_not_disturb = gAgent.isDoNotDisturb();
 			BOOL is_muted = LLMuteList::getInstance()->isMuted(
 				from_id,
 				name,
 				LLMute::flagTextChat);
 
-			if (is_busy || is_muted)
+			if (is_do_not_disturb || is_muted)
 			{
 				return;
 			}

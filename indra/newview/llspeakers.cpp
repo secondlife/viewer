@@ -504,7 +504,7 @@ void LLSpeakerMgr::update(BOOL resort_ok)
 void LLSpeakerMgr::updateSpeakerList()
 {
 	// are we bound to the currently active voice channel?
-	if ((!mVoiceChannel && LLVoiceClient::getInstance()->inProximalChannel()) || (mVoiceChannel && mVoiceChannel->isActive()))
+	if ((!mVoiceChannel && LLVoiceClient::getInstance()->inProximalChannel()) || (mVoiceChannel))
 	{
 	        std::set<LLUUID> participants;
 	        LLVoiceClient::getInstance()->getParticipantList(participants);

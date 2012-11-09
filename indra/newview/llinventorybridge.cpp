@@ -92,21 +92,6 @@ struct LLMoveInv
 
 using namespace LLOldEvents;
 
-// Helpers
-// bug in busy count inc/dec right now, logic is complex... do we really need it?
-void inc_busy_count()
-{
-// 	gViewerWindow->getWindow()->incBusyCount();
-//  check balance of these calls if this code is changed to ever actually
-//  *do* something!
-}
-void dec_busy_count()
-{
-// 	gViewerWindow->getWindow()->decBusyCount();
-//  check balance of these calls if this code is changed to ever actually
-//  *do* something!
-}
-
 // Function declarations
 void remove_inventory_category_from_avatar(LLInventoryCategory* category);
 void remove_inventory_category_from_avatar_step2( BOOL proceed, LLUUID category_id);
@@ -167,7 +152,6 @@ public:
 	{
 		if (clear_observer)
 		{
-			dec_busy_count();
 			gInventory.removeObserver(this);
 			delete this;
 		}
@@ -2668,7 +2652,6 @@ void LLRightClickInventoryFetchDescendentsObserver::execute(bool clear_observer)
 		llwarns << "LLRightClickInventoryFetchDescendentsObserver::done with empty mCompleteFolders" << llendl;
 		if (clear_observer)
 		{
-		dec_busy_count();
 		gInventory.removeObserver(this);
 		delete this;
 		}
@@ -2682,7 +2665,6 @@ void LLRightClickInventoryFetchDescendentsObserver::execute(bool clear_observer)
 	// could notify observers and throw us into an infinite loop.
 	if (clear_observer)
 	{
-		dec_busy_count();
 		gInventory.removeObserver(this);
 		delete this;
 	}
@@ -2744,7 +2726,6 @@ void LLRightClickInventoryFetchDescendentsObserver::execute(bool clear_observer)
 	{
 				// it's all on its way - add an observer, and the inventory
 	// will call done for us when everything is here.
-				inc_busy_count();
 	gInventory.addObserver(outfit);
 			}
 			*/
@@ -2763,7 +2744,6 @@ void LLRightClickInventoryFetchDescendentsObserver::execute(bool clear_observer)
 			{
 				// it's all on its way - add an observer, and the inventory
 				// will call done for us when everything is here.
-				inc_busy_count();
 				gInventory.addObserver(categories);
 			}
 		}
@@ -3475,7 +3455,6 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 		else
 		{
 			// it's all on its way - add an observer, and the inventory will call done for us when everything is here.
-			inc_busy_count();
 			gInventory.addObserver(fetch);
 	}
 }

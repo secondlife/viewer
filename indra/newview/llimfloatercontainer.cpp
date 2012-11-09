@@ -1547,4 +1547,11 @@ void LLIMFloaterContainer::openNearbyChat()
 	}
 }
 
+void LLIMFloaterContainer::onNearbyChatClosed()
+{
+	// If nearby chat is the only remaining conversation and it is closed, close whole conversation floater as well
+	if (mConversationsItems.size() == 1)
+		closeFloater();
+}
+
 // EOF

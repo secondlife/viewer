@@ -412,7 +412,7 @@
        Busy mode response:
     </text>
     <text_editor
-     control_name="BusyModeResponse"
+     control_name="DoNotDisturbModeResponse"
       text_readonly_color="LabelDisabledColor"
       bg_writeable_color="LtGray"
       use_ellipses="false"
@@ -421,7 +421,7 @@
      height="29"
      layout="topleft"
      left="30"
-     name="busy_response"
+     name="do_not_disturb_response"
      width="470"
      word_wrap="true">
        log_in_to_change

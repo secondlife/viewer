@@ -560,7 +560,7 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg,
 		|| ( chat_msg.mSourceType == CHAT_SOURCE_AGENT
 			&& gSavedSettings.getBOOL("UseChatBubbles") )
 		|| mChannel.isDead()
-		|| !mChannel.get()->getShowToasts() ) // to prevent toasts in Busy mode
+		|| !mChannel.get()->getShowToasts() ) // to prevent toasts in Do Not Disturb mode
 		return;//no need in toast if chat is visible or if bubble chat is enabled
 
 	// arrange a channel on a screen

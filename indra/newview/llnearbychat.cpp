@@ -287,7 +287,7 @@ void LLNearbyChat::setVisible(BOOL visible)
     setFocus(visible);
 }
 
-
+// virtual
 void LLNearbyChat::onTearOffClicked()
 {
 	LLIMConversation::onTearOffClicked();
@@ -303,6 +303,26 @@ void LLNearbyChat::onOpen(const LLSD& key)
 {
 	LLIMConversation::onOpen(key);
 	showTranslationCheckbox(LLTranslate::isTranslationConfigured());
+}
+
+// virtual
+void LLNearbyChat::onClose(bool app_quitting)
+{
+	// Override LLIMConversation::onClose() so that Nearby Chat is not removed from the conversation floater
+}
+
+// virtual
+void LLNearbyChat::onClickCloseBtn()
+{
+	if (!isTornOff())
+		return;
+	onTearOffClicked();
+	
+	LLIMFloaterContainer *im_box = LLIMFloaterContainer::findInstance();
+	if (im_box)
+	{
+		im_box->onNearbyChatClosed();
+	}
 }
 
 void LLNearbyChat::onChatFontChange(LLFontGL* fontp)

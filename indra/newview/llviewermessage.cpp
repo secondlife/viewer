@@ -179,6 +179,8 @@ const BOOL SCRIPT_QUESTION_IS_CAUTION[SCRIPT_PERMISSION_EOF] =
 	FALSE	// TeleportYourAgent
 };
 
+static void send_do_not_disturb_message (LLMessageSystem* msg, const LLUUID& from_id, const LLUUID& session_id = LLUUID::null);
+
 bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
@@ -256,11 +258,6 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 static LLNotificationFunctorRegistration friendship_offer_callback_reg("OfferFriendship", friendship_offer_callback);
 static LLNotificationFunctorRegistration friendship_offer_callback_reg_nm("OfferFriendshipNoMessage", friendship_offer_callback);
 
-//const char BUSY_AUTO_RESPONSE[] =	"The Resident you messaged is in 'busy mode' which means they have "
-//									"requested not to be disturbed. Your message will still be shown in their IM "
-//									"panel for later viewing.";
-
-//
 // Functions
 //
 
@@ -1518,8 +1515,6 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 	// TODO: when task inventory offers can also be handled the new way, migrate the code that sets these strings here:
 	from_string = chatHistory_string = mFromName;
 	
-	bool busy = gAgent.getBusy();
-	
 	LLNotificationFormPtr modified_form(notification_ptr ? new LLNotificationForm(*notification_ptr->getForm()) : new LLNotificationForm());
 
 	switch(button)
@@ -1621,9 +1616,9 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 			}
 			
 			
-			if (busy &&	(!mFromGroup && !mFromObject))
+			if (gAgent.isDoNotDisturb() && (!mFromGroup && !mFromObject))
 			{
-				busy_message(gMessageSystem, mFromID);
+				send_do_not_disturb_message(gMessageSystem, mFromID);
 			}
 
 			if (modified_form != NULL)
@@ -1748,7 +1743,7 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 		from_string = chatHistory_string = mFromName;
 	}
 	
-	bool busy = gAgent.getBusy();
+	bool is_do_not_disturb = gAgent.isDoNotDisturb();
 	
 	switch(button)
 	{
@@ -1821,9 +1816,9 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 				LLNotificationsUtil::add("SystemMessageTip", args);
 			}
 			
-			if (busy &&	(!mFromGroup && !mFromObject))
+			if (is_do_not_disturb &&	(!mFromGroup && !mFromObject))
 			{
-				busy_message(msg,mFromID);
+				send_do_not_disturb_message(msg,mFromID);
 			}
 			break;
 	}
@@ -2038,11 +2033,14 @@ bool lure_callback(const LLSD& notification, const LLSD& response)
 
 	LLNotificationPtr notification_ptr = LLNotifications::instance().find(notification["id"].asUUID());
 
-	LLNotificationFormPtr modified_form(new LLNotificationForm(*notification_ptr->getForm()));
-	modified_form->setElementEnabled("Teleport", false);
-	modified_form->setElementEnabled("Cancel", false);
-	notification_ptr->updateForm(modified_form);
-	notification_ptr->repost();
+	if (notification_ptr)
+	{
+		LLNotificationFormPtr modified_form(new LLNotificationForm(*notification_ptr->getForm()));
+		modified_form->setElementEnabled("Teleport", false);
+		modified_form->setElementEnabled("Cancel", false);
+		notification_ptr->updateForm(modified_form);
+		notification_ptr->repost();
+	}
 
 	return false;
 }
@@ -2205,7 +2203,7 @@ static std::string clean_name_from_im(const std::string& name, EInstantMessage t
 	case IM_SESSION_SEND:
 	case IM_SESSION_LEAVE:
 	//IM_FROM_TASK
-	case IM_BUSY_AUTO_RESPONSE:
+	case IM_DO_NOT_DISTURB_AUTO_RESPONSE:
 	case IM_CONSOLE_AND_CHAT_HISTORY:
 	case IM_LURE_USER:
 	case IM_LURE_ACCEPTED:
@@ -2354,16 +2352,15 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	// IDEVO convert new-style "Resident" names for display
 	name = clean_name_from_im(name, dialog);
 
-	BOOL is_busy = gAgent.getBusy();
+	BOOL is_do_not_disturb = gAgent.isDoNotDisturb();
 	BOOL is_muted = LLMuteList::getInstance()->isMuted(from_id, name, LLMute::flagTextChat)
 		// object IMs contain sender object id in session_id (STORM-1209)
 		|| dialog == IM_FROM_TASK && LLMuteList::getInstance()->isMuted(session_id);
-	BOOL is_linden = LLMuteList::getInstance()->isLinden(name);
 	BOOL is_owned_by_me = FALSE;
 	BOOL is_friend = (LLAvatarTracker::instance().getBuddyInfo(from_id) == NULL) ? false : true;
 	BOOL accept_im_from_only_friend = gSavedSettings.getBOOL("VoiceCallsFriendsOnly");
 	
-	chat.mMuted = is_muted && !is_linden;
+	chat.mMuted = is_muted;
 	chat.mFromID = from_id;
 	chat.mFromName = name;
 	chat.mSourceType = (from_id.isNull() || (name == std::string(SYSTEM_FROM))) ? CHAT_SOURCE_SYSTEM : CHAT_SOURCE_AGENT;
@@ -2401,29 +2398,15 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			// do nothing -- don't distract newbies in
 			// Prelude with global IMs
 		}
-		else if (offline == IM_ONLINE && !is_linden && is_busy && name != SYSTEM_FROM)
+		else if (offline == IM_ONLINE && is_do_not_disturb && name != SYSTEM_FROM)
 		{
-			// return a standard "busy" message, but only do it to online IM 
+			// return a standard "do not disturb" message, but only do it to online IM 
 			// (i.e. not other auto responses and not store-and-forward IM)
 			if (!gIMMgr->hasSession(session_id))
 			{
 				// if there is not a panel for this conversation (i.e. it is a new IM conversation
 				// initiated by the other party) then...
-				std::string my_name;
-				LLAgentUI::buildFullname(my_name);
-				std::string response = gSavedPerAccountSettings.getString("BusyModeResponse");
-				pack_instant_message(
-					gMessageSystem,
-					gAgent.getID(),
-					FALSE,
-					gAgent.getSessionID(),
-					from_id,
-					my_name,
-					response,
-					IM_ONLINE,
-					IM_BUSY_AUTO_RESPONSE,
-					session_id);
-				gAgent.sendReliableMessage();
+				send_do_not_disturb_message(msg, from_id, session_id);
 			}
 
 			// now store incoming IM in chat history
@@ -2484,7 +2467,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 				mute_im = true;
 			}
-			if (!mute_im || is_linden) 
+			if (!mute_im) 
 			{
 				gIMMgr->addMessage(
 					session_id,
@@ -2658,11 +2641,9 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		break;
 	case IM_GROUP_INVITATION:
 		{
-			//if (!is_linden && (is_busy || is_muted))
-			if ((is_busy || is_muted))
+			if (is_do_not_disturb || is_muted)
 			{
-				LLMessageSystem *msg = gMessageSystem;
-				busy_message(msg,from_id);
+				send_do_not_disturb_message(msg, from_id);
 			}
 			else
 			{
@@ -2745,7 +2726,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			info->mFromName = name;
 			info->mDesc = message;
 			info->mHost = msg->getSender();
-			//if (((is_busy && !is_owned_by_me) || is_muted))
+			//if (((is_do_not_disturb && !is_owned_by_me) || is_muted))
 			if (is_muted)
 			{
 				// Prefetch the offered item so that it can be discarded by the appropriate observer. (EXT-4331)
@@ -2756,9 +2737,9 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				// Same as closing window
 				info->forceResponse(IOR_DECLINE);
 			}
-			else if (is_busy && dialog != IM_TASK_INVENTORY_OFFERED) // busy mode must not affect interaction with objects (STORM-565)
+			else if (is_do_not_disturb && dialog != IM_TASK_INVENTORY_OFFERED) // busy mode must not affect interaction with objects (STORM-565)
 			{
-				// Until throttling is implemented, busy mode should reject inventory instead of silently
+				// Until throttling is implemented, do not disturb mode should reject inventory instead of silently
 				// accepting it.  SEE SL-39554
 				info->forceResponse(IOR_DECLINE);
 			}
@@ -2803,7 +2784,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	
 	case IM_SESSION_SEND:
 	{
-		if (is_busy)
+		if (is_do_not_disturb)
 		{
 			return;
 		}
@@ -2844,7 +2825,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 	case IM_FROM_TASK:
 		{
-			if (is_busy && !is_owned_by_me)
+			if (is_do_not_disturb && !is_owned_by_me)
 			{
 				return;
 			}
@@ -2941,7 +2922,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		}
 		break;
 	case IM_FROM_TASK_AS_ALERT:
-		if (is_busy && !is_owned_by_me)
+		if (is_do_not_disturb && !is_owned_by_me)
 		{
 			return;
 		}
@@ -2952,10 +2933,10 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			LLNotificationsUtil::add("ObjectMessage", args);
 		}
 		break;
-	case IM_BUSY_AUTO_RESPONSE:
+	case IM_DO_NOT_DISTURB_AUTO_RESPONSE:
 		if (is_muted)
 		{
-			LL_DEBUGS("Messaging") << "Ignoring busy response from " << from_id << LL_ENDL;
+			LL_DEBUGS("Messaging") << "Ignoring do-not-disturb response from " << from_id << LL_ENDL;
 			return;
 		}
 		else
@@ -2972,9 +2953,9 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			{ 
 				return;
 			}
-			else if (is_busy) 
+			else if (is_do_not_disturb) 
 			{
-				busy_message(msg,from_id);
+				send_do_not_disturb_message(msg, from_id);
 			}
 			else
 			{
@@ -3195,9 +3176,9 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			payload["online"] = (offline == IM_ONLINE);
 			payload["sender"] = msg->getSender().getIPandPort();
 
-			if (is_busy)
+			if (is_do_not_disturb)
 			{
-				busy_message(msg, from_id);
+				send_do_not_disturb_message(msg, from_id);
 				LLNotifications::instance().forceResponse(LLNotification::Params("OfferFriendship").payload(payload), 1);
 			}
 			else if (is_muted)
@@ -3261,15 +3242,15 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	}
 }
 
-void busy_message (LLMessageSystem* msg, LLUUID from_id) 
+static void send_do_not_disturb_message (LLMessageSystem* msg, const LLUUID& from_id, const LLUUID& session_id)
 {
-	if (gAgent.getBusy())
+	if (gAgent.isDoNotDisturb())
 	{
 		std::string my_name;
 		LLAgentUI::buildFullname(my_name);
-		std::string response = gSavedPerAccountSettings.getString("BusyModeResponse");
+		std::string response = gSavedPerAccountSettings.getString("DoNotDisturbModeResponse");
 		pack_instant_message(
-			gMessageSystem,
+			msg,
 			gAgent.getID(),
 			FALSE,
 			gAgent.getSessionID(),
@@ -3277,7 +3258,8 @@ void busy_message (LLMessageSystem* msg, LLUUID from_id)
 			my_name,
 			response,
 			IM_ONLINE,
-			IM_BUSY_AUTO_RESPONSE);
+			IM_DO_NOT_DISTURB_AUTO_RESPONSE,
+			session_id);
 		gAgent.sendReliableMessage();
 	}
 }
@@ -3312,7 +3294,7 @@ bool callingcard_offer_callback(const LLSD& notification, const LLSD& response)
 		msg->nextBlockFast(_PREHASH_TransactionBlock);
 		msg->addUUIDFast(_PREHASH_TransactionID, notification["payload"]["transaction_id"].asUUID());
 		msg->sendReliable(LLHost(notification["payload"]["sender"].asString()));
-		busy_message(msg, notification["payload"]["source_id"].asUUID());
+		send_do_not_disturb_message(msg, notification["payload"]["source_id"].asUUID());
 		break;
 	default:
 		// close button probably, possibly timed out
@@ -3354,7 +3336,7 @@ void process_offer_callingcard(LLMessageSystem* msg, void**)
 
 	if(!source_name.empty())
 	{
-		if (gAgent.getBusy() 
+		if (gAgent.isDoNotDisturb() 
 			|| LLMuteList::getInstance()->isMuted(source_id, source_name, LLMute::flagTextChat))
 		{
 			// automatically decline offer
@@ -3483,7 +3465,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		chat.mFromName = from_name;
 	}
 
-	BOOL is_busy = gAgent.getBusy();
+	BOOL is_do_not_disturb = gAgent.isDoNotDisturb();
 
 	BOOL is_muted = FALSE;
 	BOOL is_linden = FALSE;
@@ -3517,7 +3499,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 
 		// record last audible utterance
 		if (is_audible
-			&& (is_linden || (!is_muted && !is_busy)))
+			&& (is_linden || (!is_muted && !is_do_not_disturb)))
 		{
 			if (chat.mChatType != CHAT_TYPE_START 
 				&& chat.mChatType != CHAT_TYPE_STOP)
@@ -3612,7 +3594,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 			LLLocalSpeakerMgr::getInstance()->setSpeakerTyping(from_id, FALSE);
 			((LLVOAvatar*)chatter)->stopTyping();
 			
-			if (!is_muted && !is_busy)
+			if (!is_muted && !is_do_not_disturb)
 			{
 				visible_in_chat_bubble = gSavedSettings.getBOOL("UseChatBubbles");
 				std::string formated_msg = "";
@@ -4150,14 +4132,14 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 		gAgent.setFlying(gAgent.canFly());
 	}
 
-	// force simulator to recognize busy state
-	if (gAgent.getBusy())
+	// force simulator to recognize do not disturb state
+	if (gAgent.isDoNotDisturb())
 	{
-		gAgent.setBusy();
+		gAgent.setDoNotDisturb(true);
 	}
 	else
 	{
-		gAgent.clearBusy();
+		gAgent.setDoNotDisturb(false);
 	}
 
 	if (isAgentAvatarValid())
