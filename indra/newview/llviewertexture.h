@@ -39,8 +39,8 @@
 #include <map>
 #include <list>
 
-extern const LLUnit::Megabytes<S32> gMinVideoRam;
-extern const LLUnit::Megabytes<S32> gMaxVideoRam;
+extern const LLUnit<LLUnits::Megabytes, S32> gMinVideoRam;
+extern const LLUnit<LLUnits::Megabytes, S32> gMaxVideoRam;
 
 class LLFace;
 class LLImageGL ;
@@ -323,11 +323,11 @@ public:
 	static LLFrameTimer sEvaluationTimer;
 	static F32 sDesiredDiscardBias;
 	static F32 sDesiredDiscardScale;
-	static LLUnit::Bytes<S32> sBoundTextureMemory;
-	static LLUnit::Bytes<S32> sTotalTextureMemory;
-	static LLUnit::Megabytes<S32> sMaxBoundTextureMem;
-	static LLUnit::Megabytes<S32> sMaxTotalTextureMem;
-	static LLUnit::Bytes<S32> sMaxDesiredTextureMem ;
+	static LLUnit<LLUnits::Bytes, S32> sBoundTextureMemory;
+	static LLUnit<LLUnits::Bytes, S32> sTotalTextureMemory;
+	static LLUnit<LLUnits::Megabytes, S32> sMaxBoundTextureMem;
+	static LLUnit<LLUnits::Megabytes, S32> sMaxTotalTextureMem;
+	static LLUnit<LLUnits::Bytes, S32> sMaxDesiredTextureMem ;
 	static S8  sCameraMovingDiscardBias;
 	static F32 sCameraMovingBias;
 	static S32 sMaxSculptRez ;

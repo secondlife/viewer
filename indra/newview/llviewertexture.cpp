@@ -65,8 +65,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 // extern
-const LLUnit::Megabytes<S32> gMinVideoRam = 32;
-const LLUnit::Megabytes<S32> gMaxVideoRam = 512;
+const LLUnit<LLUnits::Megabytes, S32> gMinVideoRam = 32;
+const LLUnit<LLUnits::Megabytes, S32> gMaxVideoRam = 512;
 
 
 // statics
@@ -87,11 +87,11 @@ S32 LLViewerTexture::sAuxCount = 0;
 LLFrameTimer LLViewerTexture::sEvaluationTimer;
 F32 LLViewerTexture::sDesiredDiscardBias = 0.f;
 F32 LLViewerTexture::sDesiredDiscardScale = 1.1f;
-LLUnit::Bytes<S32> LLViewerTexture::sBoundTextureMemory = 0;
-LLUnit::Bytes<S32> LLViewerTexture::sTotalTextureMemory = 0;
-LLUnit::Megabytes<S32> LLViewerTexture::sMaxBoundTextureMem = 0;
-LLUnit::Megabytes<S32> LLViewerTexture::sMaxTotalTextureMem = 0;
-LLUnit::Bytes<S32> LLViewerTexture::sMaxDesiredTextureMem = 0 ;
+LLUnit<LLUnits::Bytes, S32> LLViewerTexture::sBoundTextureMemory = 0;
+LLUnit<LLUnits::Bytes, S32> LLViewerTexture::sTotalTextureMemory = 0;
+LLUnit<LLUnits::Megabytes, S32> LLViewerTexture::sMaxBoundTextureMem = 0;
+LLUnit<LLUnits::Megabytes, S32> LLViewerTexture::sMaxTotalTextureMem = 0;
+LLUnit<LLUnits::Bytes, S32> LLViewerTexture::sMaxDesiredTextureMem = 0 ;
 S8  LLViewerTexture::sCameraMovingDiscardBias = 0 ;
 F32 LLViewerTexture::sCameraMovingBias = 0.0f ;
 S32 LLViewerTexture::sMaxSculptRez = 128 ; //max sculpt image size
@@ -532,8 +532,8 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 	if (sBoundTextureMemory >= sMaxBoundTextureMem ||
 		sTotalTextureMemory >= sMaxTotalTextureMem)
 	{
-		//when texture memory overflows, lower down the threashold to release the textures more aggressively.
-		sMaxDesiredTextureMem = llmin(sMaxDesiredTextureMem * 0.75f, LLUnit::Bytes<S32>(gMaxVideoRam));
+		//when texture memory overflows, lower down the threshold to release the textures more aggressively.
+		sMaxDesiredTextureMem = llmin(sMaxDesiredTextureMem * 0.75f, LLUnit<LLUnits::Bytes, S32>(gMaxVideoRam));
 	
 		// If we are using more texture memory than we should,
 		// scale up the desired discard level

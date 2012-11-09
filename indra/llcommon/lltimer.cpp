@@ -287,15 +287,14 @@ LLTimer::~LLTimer()
 }
 
 // static
-LLUnit::Microseconds<U64> LLTimer::getTotalTime()
+LLUnit<LLUnits::Microseconds, U64> LLTimer::getTotalTime()
 {
-	LLUnit::Seconds<F64> sec = LLUnit::Milliseconds<U32>(2000) + LLUnit::Hours<F32>(1.f / 360.f);
 	// simply call into the implementation function.
 	return totalTime();
 }	
 
 // static
-LLUnit::Seconds<F64> LLTimer::getTotalSeconds()
+LLUnit<LLUnits::Seconds, F64> LLTimer::getTotalSeconds()
 {
 	return U64_to_F64(getTotalTime()) * USEC_TO_SEC_F64;
 }
@@ -344,23 +343,23 @@ U64 getElapsedTimeAndUpdate(U64& lastClockCount)
 }
 
 
-LLUnit::Seconds<F64> LLTimer::getElapsedTimeF64() const
+LLUnit<LLUnits::Seconds, F64> LLTimer::getElapsedTimeF64() const
 {
 	U64 last = mLastClockCount;
 	return (F64)getElapsedTimeAndUpdate(last) * gClockFrequencyInv;
 }
 
-LLUnit::Seconds<F32> LLTimer::getElapsedTimeF32() const
+LLUnit<LLUnits::Seconds, F32> LLTimer::getElapsedTimeF32() const
 {
 	return (F32)getElapsedTimeF64();
 }
 
-LLUnit::Seconds<F64> LLTimer::getElapsedTimeAndResetF64()
+LLUnit<LLUnits::Seconds, F64> LLTimer::getElapsedTimeAndResetF64()
 {
 	return (F64)getElapsedTimeAndUpdate(mLastClockCount) * gClockFrequencyInv;
 }
 
-LLUnit::Seconds<F32> LLTimer::getElapsedTimeAndResetF32()
+LLUnit<LLUnits::Seconds, F32> LLTimer::getElapsedTimeAndResetF32()
 {
 	return (F32)getElapsedTimeAndResetF64();
 }
@@ -373,7 +372,7 @@ void  LLTimer::setTimerExpirySec(F32 expiration)
 		+ (U64)((F32)(expiration * gClockFrequency));
 }
 
-LLUnit::Seconds<F32> LLTimer::getRemainingTimeF32() const
+LLUnit<LLUnits::Seconds, F32> LLTimer::getRemainingTimeF32() const
 {
 	U64 cur_ticks = get_clock_count();
 	if (cur_ticks > mExpirationTicks)

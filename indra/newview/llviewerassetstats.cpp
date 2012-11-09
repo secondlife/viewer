@@ -430,10 +430,10 @@ void LLViewerAssetStats::getStats(AssetStats& stats, bool compact_output)
 		grid_from_region_handle(it->first, &grid_x, &grid_y);
 		r.grid_x(grid_x);
 		r.grid_y(grid_y);
-		r.duration(LLUnit::Microseconds<F64>(rec.getDuration()).value());
+		r.duration(LLUnit<LLUnits::Microseconds, F64>(rec.getDuration()).value());
 	}
 
-	stats.duration(mCurRecording ? LLUnit::Microseconds<F64>(mCurRecording->getDuration()).value() : 0.0);
+	stats.duration(mCurRecording ? LLUnit<LLUnits::Microseconds, F64>(mCurRecording->getDuration()).value() : 0.0);
 	stats.avatar.setProvided(true);
 
 	for (S32 rez_stat=0; rez_stat < mAvatarRezStates.size(); ++rez_stat)

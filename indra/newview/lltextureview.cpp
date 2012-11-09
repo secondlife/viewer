@@ -503,17 +503,17 @@ private:
 
 void LLGLTexMemBar::draw()
 {
-	LLUnit::Megabytes<S32> bound_mem = LLViewerTexture::sBoundTextureMemory;
- 	LLUnit::Megabytes<S32> max_bound_mem = LLViewerTexture::sMaxBoundTextureMem;
-	LLUnit::Megabytes<S32> total_mem = LLViewerTexture::sTotalTextureMemory;
-	LLUnit::Megabytes<S32> max_total_mem = LLViewerTexture::sMaxTotalTextureMem;
+	LLUnit<LLUnits::Megabytes, S32> bound_mem = LLViewerTexture::sBoundTextureMemory;
+ 	LLUnit<LLUnits::Megabytes, S32> max_bound_mem = LLViewerTexture::sMaxBoundTextureMem;
+	LLUnit<LLUnits::Megabytes, S32> total_mem = LLViewerTexture::sTotalTextureMemory;
+	LLUnit<LLUnits::Megabytes, S32> max_total_mem = LLViewerTexture::sMaxTotalTextureMem;
 	F32 discard_bias = LLViewerTexture::sDesiredDiscardBias;
 	F32 cache_usage = (F32)LLTrace::Megabytes(LLAppViewer::getTextureCache()->getUsage()).value() ;
 	F32 cache_max_usage = (F32)LLTrace::Megabytes(LLAppViewer::getTextureCache()->getMaxUsage()).value() ;
 	S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
 	S32 v_offset = 0;//(S32)((texture_bar_height + 2.2f) * mTextureView->mNumTextureBars + 2.0f);
-	LLUnit::Megabytes<F32> total_texture_downloaded = gTotalTextureData;
-	LLUnit::Megabytes<F32> total_object_downloaded = gTotalObjectData;
+	LLUnit<LLUnits::Megabytes, F32> total_texture_downloaded = gTotalTextureData;
+	LLUnit<LLUnits::Megabytes, F32> total_object_downloaded = gTotalObjectData;
 	U32 total_http_requests = LLAppViewer::getTextureFetch()->getCurlRequest().getTotalIssuedRequests() ;
 	//----------------------------------------------------------------------------
 	LLGLSUIDefault gls_ui;
@@ -661,7 +661,7 @@ void LLGLTexSizeBar::draw()
 
 	if(LLImageGL::sCurTexSizeBar == mIndex)
 	{
-		F32 text_color[] = {1.f, 1.f, 1.f, 0.75f};	
+		LLColor4 text_color(1.f, 1.f, 1.f, 0.75f);	
 		std::string text;
 	
 		text = llformat("%d", mTopLoaded) ;
@@ -673,8 +673,8 @@ void LLGLTexSizeBar::draw()
 									 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 	}
 
-	F32 loaded_color[] = {1.0f, 0.0f, 0.0f, 0.75f};
-	F32 bound_color[] = {1.0f, 1.0f, 0.0f, 0.75f};
+	LLColor4 loaded_color(1.0f, 0.0f, 0.0f, 0.75f);
+	LLColor4 bound_color(1.0f, 1.0f, 0.0f, 0.75f);
 	gl_rect_2d(mLeft, mBottom + (S32)(mTopLoaded * mScale), (mLeft + mRight) / 2, mBottom, loaded_color) ;
 	gl_rect_2d((mLeft + mRight) / 2, mBottom + (S32)(mTopBound * mScale), mRight, mBottom, bound_color) ;
 }

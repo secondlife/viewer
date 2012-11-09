@@ -67,16 +67,16 @@ public:
 
 	// Return a high precision number of seconds since the start of
 	// this application instance.
-	static LLUnit::Seconds<F64> getElapsedSeconds()
+	static LLUnit<LLUnits::Seconds, F64> getElapsedSeconds()
 	{
 		return sTimer->getElapsedTimeF64();
 	}
 
 	// Return a high precision usec since epoch
-	static LLUnit::Microseconds<U64> getTotalTime();
+	static LLUnit<LLUnits::Microseconds, U64> getTotalTime();
 
 	// Return a high precision seconds since epoch
-	static LLUnit::Seconds<F64> getTotalSeconds();
+	static LLUnit<LLUnits::Seconds, F64> getTotalSeconds();
 
 
 	// MANIPULATORS
@@ -87,16 +87,16 @@ public:
 	void setTimerExpirySec(F32 expiration);
 	BOOL checkExpirationAndReset(F32 expiration);
 	BOOL hasExpired() const;
-	LLUnit::Seconds<F32> getElapsedTimeAndResetF32();	// Returns elapsed time in seconds with reset
-	LLUnit::Seconds<F64> getElapsedTimeAndResetF64();
+	LLUnit<LLUnits::Seconds, F32> getElapsedTimeAndResetF32();	// Returns elapsed time in seconds with reset
+	LLUnit<LLUnits::Seconds, F64> getElapsedTimeAndResetF64();
 
-	LLUnit::Seconds<F32> getRemainingTimeF32() const;
+	LLUnit<LLUnits::Seconds, F32> getRemainingTimeF32() const;
 
 	static BOOL knownBadTimer();
 
 	// ACCESSORS
-	LLUnit::Seconds<F32> getElapsedTimeF32() const;			// Returns elapsed time in seconds
-	LLUnit::Seconds<F64> getElapsedTimeF64() const;			// Returns elapsed time in seconds
+	LLUnit<LLUnits::Seconds, F32> getElapsedTimeF32() const;			// Returns elapsed time in seconds
+	LLUnit<LLUnits::Seconds, F64> getElapsedTimeF64() const;			// Returns elapsed time in seconds
 
 	bool getStarted() const { return mStarted; }
 

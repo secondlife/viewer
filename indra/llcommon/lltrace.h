@@ -38,37 +38,35 @@
 
 #include <list>
 
-#define LL_TOKEN_PASTE_ACTUAL(x, y) x##y
-#define LL_TOKEN_PASTE(x, y) LL_TOKEN_PASTE_ACTUAL(x, y)
-#define LL_RECORD_BLOCK_TIME(block_timer) LLTrace::BlockTimer::Recorder LL_TOKEN_PASTE(block_time_recorder, __COUNTER__)(block_timer);
+#define LL_RECORD_BLOCK_TIME(block_timer) LLTrace::BlockTimer::Recorder LL_GLUE_TOKENS(block_time_recorder, __COUNTER__)(block_timer);
 
 namespace LLTrace
 {
 	class Recording;
 
-	typedef LLUnit::Bytes<F64>			Bytes;
-	typedef LLUnit::Kilobytes<F64>		Kilobytes;
-	typedef LLUnit::Megabytes<F64>		Megabytes;
-	typedef LLUnit::Gigabytes<F64>		Gigabytes;
-	typedef LLUnit::Bits<F64>			Bits;
-	typedef LLUnit::Kilobits<F64>		Kilobits;
-	typedef LLUnit::Megabits<F64>		Megabits;
-	typedef LLUnit::Gigabits<F64>		Gigabits;
+	typedef LLUnit<LLUnits::Bytes, F64>			Bytes;
+	typedef LLUnit<LLUnits::Kilobytes, F64>		Kilobytes;
+	typedef LLUnit<LLUnits::Megabytes, F64>		Megabytes;
+	typedef LLUnit<LLUnits::Gigabytes, F64>		Gigabytes;
+	typedef LLUnit<LLUnits::Bits, F64>			Bits;
+	typedef LLUnit<LLUnits::Kilobits, F64>		Kilobits;
+	typedef LLUnit<LLUnits::Megabits, F64>		Megabits;
+	typedef LLUnit<LLUnits::Gigabits, F64>		Gigabits;
 
-	typedef LLUnit::Seconds<F64>		Seconds;
-	typedef LLUnit::Milliseconds<F64>	Milliseconds;
-	typedef LLUnit::Minutes<F64>		Minutes;
-	typedef LLUnit::Hours<F64>			Hours;
-	typedef LLUnit::Days<F64>			Days;
-	typedef LLUnit::Weeks<F64>			Weeks;
-	typedef LLUnit::Milliseconds<F64>	Milliseconds;
-	typedef LLUnit::Microseconds<F64>	Microseconds;
-	typedef LLUnit::Nanoseconds<F64>	Nanoseconds;
+	typedef LLUnit<LLUnits::Seconds, F64>		Seconds;
+	typedef LLUnit<LLUnits::Milliseconds, F64>	Milliseconds;
+	typedef LLUnit<LLUnits::Minutes, F64>		Minutes;
+	typedef LLUnit<LLUnits::Hours, F64>			Hours;
+	typedef LLUnit<LLUnits::Days, F64>			Days;
+	typedef LLUnit<LLUnits::Weeks, F64>			Weeks;
+	typedef LLUnit<LLUnits::Milliseconds, F64>	Milliseconds;
+	typedef LLUnit<LLUnits::Microseconds, F64>	Microseconds;
+	typedef LLUnit<LLUnits::Nanoseconds, F64>	Nanoseconds;
 
-	typedef LLUnit::Meters<F64>			Meters;
-	typedef LLUnit::Kilometers<F64>		Kilometers;
-	typedef LLUnit::Centimeters<F64>	Centimeters;
-	typedef LLUnit::Millimeters<F64>	Millimeters;
+	typedef LLUnit<LLUnits::Meters, F64>			Meters;
+	typedef LLUnit<LLUnits::Kilometers, F64>		Kilometers;
+	typedef LLUnit<LLUnits::Centimeters, F64>	Centimeters;
+	typedef LLUnit<LLUnits::Millimeters, F64>	Millimeters;
 
 	void init();
 	void cleanup();
@@ -438,7 +436,7 @@ namespace LLTrace
 		void sample(UNIT_T value)
 		{
 			T converted_value;
-			converted_value.assignFrom(value);
+			converted_value = value;
 			getPrimaryAccumulator().sample((storage_t)converted_value.value());
 		}
 	};
@@ -478,7 +476,7 @@ namespace LLTrace
 		void add(UNIT_T value)
 		{
 			T converted_value;
-			converted_value.assignFrom(value);
+			converted_value = value;
 			getPrimaryAccumulator().add((storage_t)converted_value.value());
 		}
 	};

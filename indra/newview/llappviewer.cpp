@@ -277,7 +277,7 @@ LLPumpIO* gServicePump = NULL;
 
 U64 gFrameTime = 0;
 F32 gFrameTimeSeconds = 0.f;
-LLUnit::Seconds<F32> gFrameIntervalSeconds = 0.f;
+LLUnit<LLUnits::Seconds, F32> gFrameIntervalSeconds = 0.f;
 F32 gFPSClamped = 10.f;						// Pretend we start at target rate.
 F32 gFrameDTClamped = 0.f;					// Time between adjacent checks to network for packets
 U64	gStartTime = 0; // gStartTime is "private", used only to calculate gFrameTimeSeconds
