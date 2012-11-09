@@ -38,7 +38,7 @@
 #include "llmenugl.h"
 #include "lluictrlfactory.h"
 #include "llagentdata.h"
-#include "llimfloater.h"
+#include "llfloaterimsession.h"
 
 // library includes
 #include "llavatarnamecache.h"

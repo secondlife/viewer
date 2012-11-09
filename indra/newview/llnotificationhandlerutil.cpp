@@ -34,9 +34,9 @@
 #include "llurlaction.h"
 
 #include "llagent.h"
-#include "llimfloater.h"
+#include "llfloaterimsession.h"
 #include "llimview.h"
-#include "llnearbychat.h"
+#include "llfloaterimnearbychat.h"
 #include "llnotificationhandler.h"
 
 using namespace LLNotificationsUI;
@@ -52,7 +52,7 @@ bool LLHandlerUtil::isIMFloaterOpened(const LLNotificationPtr& notification)
 
 	LLUUID from_id = notification->getPayload()["from_id"];
 	LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, from_id);
-	LLIMFloater* im_floater = LLFloaterReg::findTypedInstance<LLIMFloater>("impanel", session_id);
+	LLFloaterIMSession* im_floater = LLFloaterReg::findTypedInstance<LLFloaterIMSession>("impanel", session_id);
 
 	if (im_floater != NULL)
 	{
@@ -164,7 +164,7 @@ void LLHandlerUtil::logGroupNoticeToIMGroup(
 // static
 void LLHandlerUtil::logToNearbyChat(const LLNotificationPtr& notification, EChatSourceType type)
 {
-    LLNearbyChat* nearby_chat = LLFloaterReg::findTypedInstance<LLNearbyChat>("nearby_chat");
+    LLFloaterIMNearbyChat* nearby_chat = LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
 	if (nearby_chat)
 	{
 		LLChat chat_msg(notification->getMessage());
@@ -244,7 +244,7 @@ void LLHandlerUtil::addNotifPanelToIM(const LLNotificationPtr& notification)
 // static
 void LLHandlerUtil::updateIMFLoaterMesages(const LLUUID& session_id)
 {
-	LLIMFloater* im_floater = LLIMFloater::findInstance(session_id);
+	LLFloaterIMSession* im_floater = LLFloaterIMSession::findInstance(session_id);
 	if (im_floater != NULL && im_floater->getVisible())
 	{
 		im_floater->updateMessages();

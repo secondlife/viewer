@@ -1,6 +1,6 @@
 /** 
- * @file llimfloater.h
- * @brief LLIMFloater class definition
+ * @file llfloaterimsession.h
+ * @brief LLFloaterIMSession class definition
  *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -24,11 +24,11 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_IMFLOATER_H
-#define LL_IMFLOATER_H
+#ifndef LL_FLOATERIMSESSION_H
+#define LL_FLOATERIMSESSION_H
 
 #include "llimview.h"
-#include "llimconversation.h"
+#include "llfloaterimsessiontab.h"
 #include "llinstantmessage.h"
 #include "lllogchat.h"
 #include "lltooldraganddrop.h"
@@ -50,15 +50,15 @@ typedef boost::signals2::signal<void(const LLUUID& session_id)> floater_showed_s
  * Individual IM window that appears at the bottom of the screen,
  * optionally "docked" to the bottom tray.
  */
-class LLIMFloater
+class LLFloaterIMSession
     : public LLVoiceClientStatusObserver
-    , public LLIMConversation
+    , public LLFloaterIMSessionTab
 {
-	LOG_CLASS(LLIMFloater);
+	LOG_CLASS(LLFloaterIMSession);
 public:
-	LLIMFloater(const LLUUID& session_id);
+	LLFloaterIMSession(const LLUUID& session_id);
 
-	virtual ~LLIMFloater();
+	virtual ~LLFloaterIMSession();
 
 	void initIMSession(const LLUUID& session_id);
 	void initIMFloater();
@@ -69,14 +69,14 @@ public:
 	/*virtual*/ BOOL getVisible();
 	// Check typing timeout timer.
 
-	static LLIMFloater* findInstance(const LLUUID& session_id);
-	static LLIMFloater* getInstance(const LLUUID& session_id);
+	static LLFloaterIMSession* findInstance(const LLUUID& session_id);
+	static LLFloaterIMSession* getInstance(const LLUUID& session_id);
 
 	// LLFloater overrides
 	/*virtual*/ void onClose(bool app_quitting);
 	/*virtual*/ void setDocked(bool docked, bool pop_on_undock = true);
 	// Make IM conversion visible and update the message history
-	static LLIMFloater* show(const LLUUID& session_id);
+	static LLFloaterIMSession* show(const LLUUID& session_id);
 
 	// Toggle panel specified by session_id
 	// Returns true iff panel became visible
@@ -193,4 +193,4 @@ private:
 	boost::signals2::connection mVoiceChannelStateChangeConnection;
 };
 
-#endif  // LL_IMFLOATER_H
+#endif  // LL_FLOATERIMSESSION_H

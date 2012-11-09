@@ -37,7 +37,7 @@
 #include "llnotifications.h"
 
 class LLMenuGL;
-class LLIMFloater;
+class LLFloaterIMSession;
 
 /**
  * Class for displaying amount of messages/notifications(unread).

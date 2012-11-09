@@ -32,10 +32,10 @@
 #include <boost/bind.hpp>
 #include "llagentdata.h"
 #include "llconversationmodel.h"
-#include "llimfloater.h"
-#include "llnearbychat.h"
-#include "llimconversation.h"
-#include "llimfloatercontainer.h"
+#include "llfloaterimsession.h"
+#include "llfloaterimnearbychat.h"
+#include "llfloaterimsessiontab.h"
+#include "llfloaterimcontainer.h"
 #include "llfloaterreg.h"
 #include "llgroupiconctrl.h"
 #include "lluictrlfactory.h"
@@ -208,7 +208,7 @@ BOOL LLConversationViewSession::handleMouseDown( S32 x, S32 y, MASK mask )
 	LLConversationItem* item = dynamic_cast<LLConversationItem *>(getViewModelItem());
     LLUUID session_id = item? item->getUUID() : LLUUID();
 
-	(LLFloaterReg::getTypedInstance<LLIMFloaterContainer>("im_container"))->
+	(LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container"))->
     		selectConversationPair(session_id, false);
 
 	return LLFolderViewFolder::handleMouseDown(x, y, mask);
@@ -262,7 +262,7 @@ void LLConversationViewSession::setVisibleIfDetached(BOOL visible)
 	// Note: minimized dockable floaters are brought to front hence unminimized when made visible and we don't want that here
 	LLFolderViewModelItem* item = mViewModelItem;
 	LLUUID session_uuid = dynamic_cast<LLConversationItem*>(item)->getUUID();
-	LLFloater* session_floater = LLIMConversation::getConversation(session_uuid);
+	LLFloater* session_floater = LLFloaterIMSessionTab::getConversation(session_uuid);
 	
 	if (session_floater && !session_floater->getHost() && !session_floater->isMinimized())
 	{
@@ -505,7 +505,7 @@ BOOL LLConversationViewParticipant::handleMouseDown( S32 x, S32 y, MASK mask )
 	}
     LLUUID session_id = item? item->getUUID() : LLUUID();
 
-	(LLFloaterReg::getTypedInstance<LLIMFloaterContainer>("im_container"))->
+	(LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container"))->
     		selectConversationPair(session_id, false);
 
 	return LLFolderViewItem::handleMouseDown(x, y, mask);

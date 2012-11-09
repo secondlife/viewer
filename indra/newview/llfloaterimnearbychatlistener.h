@@ -1,8 +1,8 @@
 /**
- * @file   llnearbychatbarlistener.h
+ * @file   llfloaterimnearbychatlistener.h
  * @author Dave Simmons
  * @date   2011-03-15
- * @brief  Class definition for LLNearbyChatBarListener.
+ * @brief  Class definition for LLFloaterIMNearbyChatListener.
  *
  * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -27,24 +27,24 @@
  */
 
 
-#ifndef LL_LLNEARBYCHATBARLISTENER_H
-#define LL_LLNEARBYCHATBARLISTENER_H
+#ifndef LL_LLFLOATERIMNEARBYCHATLISTENER_H
+#define LL_LLFLOATERIMNEARBYCHATLISTENER_H
 
 #include "lleventapi.h"
 
 class LLSD;
-class LLNearbyChat;
+class LLFloaterIMNearbyChat;
 
-class LLNearbyChatBarListener : public LLEventAPI
+class LLFloaterIMNearbyChatListener : public LLEventAPI
 {
 public:
-	LLNearbyChatBarListener(LLNearbyChat & chatbar);
+	LLFloaterIMNearbyChatListener(LLFloaterIMNearbyChat & chatbar);
 
 private:
     void sendChat(LLSD const & chat_data) const;
 
-	LLNearbyChat & mChatbar;
+	LLFloaterIMNearbyChat & mChatbar;
 };
 
-#endif // LL_LLNEARBYCHATBARLISTENER_H
+#endif // LL_LLFLOATERIMNEARBYCHATLISTENER_H
 

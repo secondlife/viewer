@@ -41,15 +41,15 @@
 #include "lltextutil.h"
 #include "lltrans.h"
 #include "lluictrlfactory.h"
-#include "llimconversation.h"
+#include "llfloaterimsessiontab.h"
 #include "llagent.h"
 #include "llagentui.h"
 #include "llappviewer.h"
 #include "llavatariconctrl.h"
 #include "llcallingcard.h"
 #include "llchat.h"
-#include "llimfloater.h"
-#include "llimfloatercontainer.h"
+#include "llfloaterimsession.h"
+#include "llfloaterimcontainer.h"
 #include "llgroupiconctrl.h"
 #include "llmd5.h"
 #include "llmutelist.h"
@@ -58,7 +58,7 @@
 #include "llviewerwindow.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
-#include "llnearbychat.h"
+#include "llfloaterimnearbychat.h"
 #include "llspeakers.h" //for LLIMSpeakerMgr
 #include "lltextbox.h"
 #include "lltoolbarview.h"
@@ -109,7 +109,7 @@ static void on_avatar_name_cache_toast(const LLUUID& agent_id,
 	args["FROM"] = av_name.getCompleteName();
 	args["FROM_ID"] = msg["from_id"];
 	args["SESSION_ID"] = msg["session_id"];
-	LLNotificationsUtil::add("IMToast", args, LLSD(), boost::bind(&LLIMFloaterContainer::showConversation, LLIMFloaterContainer::getInstance(), msg["session_id"].asUUID()));
+	LLNotificationsUtil::add("IMToast", args, LLSD(), boost::bind(&LLFloaterIMContainer::showConversation, LLFloaterIMContainer::getInstance(), msg["session_id"].asUUID()));
 }
 
 void toast_callback(const LLSD& msg){
@@ -120,7 +120,7 @@ void toast_callback(const LLSD& msg){
 	}
 
     // Skip toasting if we have open window of IM with this session id
-    LLIMFloater* open_im_floater = LLIMFloater::findInstance(msg["session_id"]);
+    LLFloaterIMSession* open_im_floater = LLFloaterIMSession::findInstance(msg["session_id"]);
     if (
            open_im_floater
            && open_im_floater->isInVisibleChain()
@@ -160,7 +160,7 @@ void toast_callback(const LLSD& msg){
 
 LLIMModel::LLIMModel() 
 {
-	addNewMsgCallback(boost::bind(&LLIMFloater::newIMCallback, _1));
+	addNewMsgCallback(boost::bind(&LLFloaterIMSession::newIMCallback, _1));
 	addNewMsgCallback(boost::bind(&toast_callback, _1));
 }
 
@@ -638,7 +638,7 @@ void LLIMModel::processSessionInitializedReply(const LLUUID& old_session_id, con
 			mId2SessionMap[new_session_id] = session;
 		}
 
-		LLIMFloater* im_floater = LLIMFloater::findInstance(old_session_id);
+		LLFloaterIMSession* im_floater = LLFloaterIMSession::findInstance(old_session_id);
 		if (im_floater)
 		{
 			im_floater->sessionInitReplyReceived(new_session_id);
@@ -1387,7 +1387,7 @@ public:
 				&& LLIMModel::getInstance()->findIMSession(mSessionID))
 			{
 				// TODO remove in 2010, for voice calls we do not open an IM window
-				//LLIMFloater::show(mSessionID);
+				//LLFloaterIMSession::show(mSessionID);
 			}
 
 			gIMMgr->clearPendingAgentListUpdates(mSessionID);
@@ -1531,7 +1531,7 @@ LLIMMgr::onConfirmForceCloseError(
 	//only 1 option really
 	LLUUID session_id = notification["payload"]["session_id"];
 
-	LLFloater* floater = LLIMFloater::findInstance(session_id);
+	LLFloater* floater = LLFloaterIMSession::findInstance(session_id);
 	if ( floater )
 	{
 		floater->closeFloater(FALSE);
@@ -2397,7 +2397,7 @@ LLIMMgr::LLIMMgr()
 	mPendingInvitations = LLSD::emptyMap();
 	mPendingAgentListUpdates = LLSD::emptyMap();
 
-	LLIMModel::getInstance()->addNewMsgCallback(boost::bind(&LLIMFloater::sRemoveTypingIndicator, _1));
+	LLIMModel::getInstance()->addNewMsgCallback(boost::bind(&LLFloaterIMSession::sRemoveTypingIndicator, _1));
 }
 
 // Add a message to a session. 
@@ -2492,7 +2492,7 @@ void LLIMMgr::addSystemMessage(const LLUUID& session_id, const std::string& mess
 		LLChat chat(message);
 		chat.mSourceType = CHAT_SOURCE_SYSTEM;
 
-		LLNearbyChat* nearby_chat = LLFloaterReg::findTypedInstance<LLNearbyChat>("nearby_chat");
+		LLFloaterIMNearbyChat* nearby_chat = LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
 		if (nearby_chat)
 		{
 			nearby_chat->addMessage(chat);
@@ -2618,12 +2618,12 @@ LLUUID LLIMMgr::addSession(
 
 	if (floater_id.notNull())
 	{
-		LLIMFloater* im_floater = LLIMFloater::findInstance(floater_id);
+		LLFloaterIMSession* im_floater = LLFloaterIMSession::findInstance(floater_id);
 
 		if (im_floater && im_floater->getStartConferenceInSameFloater())
 		{
 			// The IM floater should be initialized with a new session_id
-			// so that it is found by that id when creating a chiclet in LLIMFloater::onIMChicletCreated,
+			// so that it is found by that id when creating a chiclet in LLFloaterIMSession::onIMChicletCreated,
 			// and a new floater is not created.
 			im_floater->initIMSession(session_id);
 		}
@@ -2841,7 +2841,7 @@ void LLIMMgr::clearPendingInvitation(const LLUUID& session_id)
 
 void LLIMMgr::processAgentListUpdates(const LLUUID& session_id, const LLSD& body)
 {
-	LLIMFloater* im_floater = LLIMFloater::findInstance(session_id);
+	LLFloaterIMSession* im_floater = LLFloaterIMSession::findInstance(session_id);
 	if ( im_floater )
 	{
 		im_floater->processAgentListUpdates(body);
@@ -3115,7 +3115,7 @@ void LLIMMgr::processIMTypingStop(const LLIMInfo* im_info)
 void LLIMMgr::processIMTypingCore(const LLIMInfo* im_info, BOOL typing)
 {
 	LLUUID session_id = computeSessionID(im_info->mIMType, im_info->mFromID);
-	LLIMFloater* im_floater = LLIMFloater::findInstance(session_id);
+	LLFloaterIMSession* im_floater = LLFloaterIMSession::findInstance(session_id);
 	if ( im_floater )
 	{
 		im_floater->processIMTyping(im_info, typing);
@@ -3160,7 +3160,7 @@ public:
 				speaker_mgr->updateSpeakers(gIMMgr->getPendingAgentListUpdates(session_id));
 			}
 
-			LLIMFloater* im_floater = LLIMFloater::findInstance(session_id);
+			LLFloaterIMSession* im_floater = LLFloaterIMSession::findInstance(session_id);
 			if ( im_floater )
 			{
 				if ( body.has("session_info") )
@@ -3254,7 +3254,7 @@ public:
 		const LLSD& input) const
 	{
 		LLUUID session_id = input["body"]["session_id"].asUUID();
-		LLIMFloater* im_floater = LLIMFloater::findInstance(session_id);
+		LLFloaterIMSession* im_floater = LLFloaterIMSession::findInstance(session_id);
 		if ( im_floater )
 		{
 			im_floater->processSessionUpdate(input["body"]["info"]);

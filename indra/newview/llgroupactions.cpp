@@ -36,7 +36,7 @@
 #include "llfloaterreg.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llgroupmgr.h"
-#include "llimfloatercontainer.h"
+#include "llfloaterimcontainer.h"
 #include "llimview.h" // for gIMMgr
 #include "llnotificationsutil.h"
 #include "llstatusbar.h"	// can_afford_transaction()
@@ -335,7 +335,7 @@ LLUUID LLGroupActions::startIM(const LLUUID& group_id)
 			group_id);
 		if (session_id != LLUUID::null)
 		{
-			LLIMFloaterContainer::getInstance()->showConversation(session_id);
+			LLFloaterIMContainer::getInstance()->showConversation(session_id);
 		}
 		make_ui_sound("UISndStartIM");
 		return session_id;

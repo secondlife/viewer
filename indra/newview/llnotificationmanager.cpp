@@ -31,7 +31,7 @@
 
 #include "llnotificationmanager.h"
 
-#include "llnearbychathandler.h"
+#include "llfloaterimnearbychathandler.h"
 #include "llnotifications.h"
 
 #include <boost/bind.hpp>
@@ -64,7 +64,7 @@ void LLNotificationManager::init()
 	mChannels.push_back(new LLOutboxNotification());
 	mChannels.push_back(new LLIMHandler());
   
-	mChatHandler = boost::shared_ptr<LLNearbyChatHandler>(new LLNearbyChatHandler());
+	mChatHandler = boost::shared_ptr<LLFloaterIMNearbyChatHandler>(new LLFloaterIMNearbyChatHandler());
 }
 
 //--------------------------------------------------------------------------

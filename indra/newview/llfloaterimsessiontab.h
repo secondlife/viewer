@@ -1,7 +1,7 @@
 /**
- * @file llimconversation.h
- * @brief LLIMConversation class implements the common behavior of LNearbyChatBar
- * @brief and LLIMFloater for hosting both in LLIMContainer
+ * @file llfloaterimsessiontab.h
+ * @brief LLFloaterIMSessionTab class implements the common behavior of LNearbyChatBar
+ * @brief and LLFloaterIMSession for hosting both in LLIMContainer
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -25,8 +25,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_IMCONVERSATION_H
-#define LL_IMCONVERSATION_H
+#ifndef LL_FLOATERIMSESSIONTAB_H
+#define LL_FLOATERIMSESSIONTAB_H
 
 #include "lllayoutstack.h"
 #include "llparticipantlist.h"
@@ -42,15 +42,15 @@ class LLPanelChatControlPanel;
 class LLChatEntry;
 class LLChatHistory;
 
-class LLIMConversation
+class LLFloaterIMSessionTab
 	: public LLTransientDockableFloater
 {
 
 public:
-	LOG_CLASS(LLIMConversation);
+	LOG_CLASS(LLFloaterIMSessionTab);
 
-	LLIMConversation(const LLSD& session_id);
-	~LLIMConversation();
+	LLFloaterIMSessionTab(const LLSD& session_id);
+	~LLFloaterIMSessionTab();
 
 	// reload all message with new settings of visual modes
 	static void processChatHistoryStyleUpdate();
@@ -67,8 +67,8 @@ public:
 	bool isHostAttached() {return mIsHostAttached;}
 	void setHostAttached(bool is_attached) {mIsHostAttached = is_attached;}
 
-    static LLIMConversation* findConversation(const LLUUID& uuid);
-    static LLIMConversation* getConversation(const LLUUID& uuid);
+    static LLFloaterIMSessionTab* findConversation(const LLUUID& uuid);
+    static LLFloaterIMSessionTab* getConversation(const LLUUID& uuid);
 
 	// show/hide the translation check box
 	void showTranslationCheckbox(const BOOL visible = FALSE);
@@ -105,7 +105,7 @@ protected:
 	//
 	bool onIMShowModesMenuItemCheck(const LLSD& userdata);
 	bool onIMShowModesMenuItemEnable(const LLSD& userdata);
-	static void onSlide(LLIMConversation *self);
+	static void onSlide(LLFloaterIMSessionTab *self);
 	virtual void onTearOffClicked();
 
 	// refresh a visual state of the Call button
@@ -173,4 +173,4 @@ private:
 };
 
 
-#endif // LL_IMCONVERSATION_H
+#endif /* LL_FLOATERIMSESSIONTAB_H */

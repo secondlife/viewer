@@ -28,7 +28,7 @@
 
 #include "llavatarnamecache.h"
 #include "llimview.h"
-#include "llimfloatercontainer.h"
+#include "llfloaterimcontainer.h"
 #include "llparticipantlist.h"
 #include "llspeakers.h"
 
@@ -316,7 +316,7 @@ bool LLParticipantList::onSpeakerUpdateEvent(LLPointer<LLOldEvents::LLEvent> eve
 	if ( evt_data.has("id") )
 	{
 		LLUUID participant_id = evt_data["id"];
-		LLIMFloaterContainer* im_box = LLIMFloaterContainer::findInstance();
+		LLFloaterIMContainer* im_box = LLFloaterIMContainer::findInstance();
 		if (im_box)
 		{
 			im_box->setTimeNow(mUUID,participant_id);
@@ -345,7 +345,7 @@ bool LLParticipantList::onModeratorUpdateEvent(LLPointer<LLOldEvents::LLEvent> e
 					mModeratorList.erase(id);
 				}
 			}
-			// *TODO : do we have to fire an event so that LLIMConversation::refreshConversation() gets called
+			// *TODO : do we have to fire an event so that LLFloaterIMSessionTab::refreshConversation() gets called
 		}
 	}
 	return true;

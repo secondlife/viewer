@@ -60,7 +60,7 @@ public:
 	void onChat(const LLChat& msg, const LLSD &args);
 
 private:
-	boost::shared_ptr<class LLNearbyChatHandler> mChatHandler;
+	boost::shared_ptr<class LLFloaterIMNearbyChatHandler> mChatHandler;
 	std::vector<LLNotificationChannelPtr> mChannels;
 };
 

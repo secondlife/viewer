@@ -1,6 +1,6 @@
 /** 
- * @file llnearbychat.h
- * @brief LLNearbyChat class definition
+ * @file llfloaterimnearbychat.h
+ * @brief LLFloaterIMNearbyChat class definition
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -24,10 +24,10 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLNEARBYCHAT_H
-#define LL_LLNEARBYCHAT_H
+#ifndef LL_LLFLOATERIMNEARBYCHAT_H
+#define LL_LLFLOATERIMNEARBYCHAT_H
 
-#include "llimconversation.h"
+#include "llfloaterimsessiontab.h"
 #include "llcombobox.h"
 #include "llgesturemgr.h"
 #include "llchat.h"
@@ -40,15 +40,15 @@
 
 class LLResizeBar;
 
-class LLNearbyChat
-	:	public LLIMConversation
+class LLFloaterIMNearbyChat
+	:	public LLFloaterIMSessionTab
 {
 public:
 	// constructor for inline chat-bars (e.g. hosted in chat history window)
-	LLNearbyChat(const LLSD& key = LLSD(LLUUID()));
-	~LLNearbyChat() {}
+	LLFloaterIMNearbyChat(const LLSD& key = LLSD(LLUUID()));
+	~LLFloaterIMNearbyChat() {}
 
-	static LLNearbyChat* buildFloater(const LLSD& key);
+	static LLFloaterIMNearbyChat* buildFloater(const LLSD& key);
 
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
@@ -122,4 +122,4 @@ private:
 
 };
 
-#endif
+#endif // LL_LLFLOATERIMNEARBYCHAT_H

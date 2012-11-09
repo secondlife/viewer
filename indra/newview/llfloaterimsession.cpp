@@ -1,6 +1,6 @@
 /** 
- * @file llimfloater.cpp
- * @brief LLIMFloater class definition
+ * @file llfloaterimsession.cpp
+ * @brief LLFloaterIMSession class definition
  *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -26,7 +26,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llimfloater.h"
+#include "llfloaterimsession.h"
 
 #include "lldraghandle.h"
 #include "llnotificationsutil.h"
@@ -41,7 +41,7 @@
 #include "llchicletbar.h"
 #include "llfloaterreg.h"
 #include "llfloateravatarpicker.h"
-#include "llimfloatercontainer.h" // to replace separate IM Floaters with multifloater container
+#include "llfloaterimcontainer.h" // to replace separate IM Floaters with multifloater container
 #include "llinventoryfunctions.h"
 //#include "lllayoutstack.h"
 #include "llchatentry.h"
@@ -60,10 +60,10 @@
 #include "llnotificationmanager.h"
 #include "llautoreplace.h"
 
-floater_showed_signal_t LLIMFloater::sIMFloaterShowedSignal;
+floater_showed_signal_t LLFloaterIMSession::sIMFloaterShowedSignal;
 
-LLIMFloater::LLIMFloater(const LLUUID& session_id)
-  : LLIMConversation(session_id),
+LLFloaterIMSession::LLFloaterIMSession(const LLUUID& session_id)
+  : LLFloaterIMSessionTab(session_id),
 	mLastMessageIndex(-1),
 	mDialog(IM_NOTHING_SPECIAL),
 	mSavedTitle(),
@@ -90,7 +90,7 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 
 
 // virtual
-void LLIMFloater::refresh()
+void LLFloaterIMSession::refresh()
 {
 	if (mMeTyping)
 {
@@ -103,7 +103,7 @@ void LLIMFloater::refresh()
 }
 
 // virtual
-void LLIMFloater::onClickCloseBtn()
+void LLFloaterIMSession::onClickCloseBtn()
 {
 	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(mSessionID);
 
@@ -129,17 +129,17 @@ void LLIMFloater::onClickCloseBtn()
 		return;
 	}
 
-	LLIMConversation::onClickCloseBtn();
+	LLFloaterIMSessionTab::onClickCloseBtn();
 }
 
 /* static */
-void LLIMFloater::newIMCallback(const LLSD& data)
+void LLFloaterIMSession::newIMCallback(const LLSD& data)
 {
 	if (data["num_unread"].asInteger() > 0 || data["from_id"].asUUID().isNull())
 	{
 		LLUUID session_id = data["session_id"].asUUID();
 
-		LLIMFloater* floater = LLFloaterReg::findTypedInstance<LLIMFloater>("impanel", session_id);
+		LLFloaterIMSession* floater = LLFloaterReg::findTypedInstance<LLFloaterIMSession>("impanel", session_id);
 
         // update if visible, otherwise will be updated when opened
 		if (floater && floater->getVisible())
@@ -149,7 +149,7 @@ void LLIMFloater::newIMCallback(const LLSD& data)
 	}
 }
 
-void LLIMFloater::onVisibilityChange(const LLSD& new_visibility)
+void LLFloaterIMSession::onVisibilityChange(const LLSD& new_visibility)
 {
 	bool visible = new_visibility.asBoolean();
 
@@ -166,14 +166,14 @@ void LLIMFloater::onVisibilityChange(const LLSD& new_visibility)
 	}
 }
 
-void LLIMFloater::onSendMsg( LLUICtrl* ctrl, void* userdata )
+void LLFloaterIMSession::onSendMsg( LLUICtrl* ctrl, void* userdata )
 {
-	LLIMFloater* self = (LLIMFloater*) userdata;
+	LLFloaterIMSession* self = (LLFloaterIMSession*) userdata;
 	self->sendMsgFromInputEditor();
 	self->setTyping(false);
 }
 
-void LLIMFloater::sendMsgFromInputEditor()
+void LLFloaterIMSession::sendMsgFromInputEditor()
 {
 	if (gAgent.isGodlike()
 		|| (mDialog != IM_NOTHING_SPECIAL)
@@ -201,7 +201,7 @@ void LLIMFloater::sendMsgFromInputEditor()
 	}
 }
 
-void LLIMFloater::sendMsg(const std::string& msg)
+void LLFloaterIMSession::sendMsg(const std::string& msg)
 {
 	const std::string utf8_text = utf8str_truncate(msg, MAX_MSG_BUF_SIZE - 1);
 
@@ -218,7 +218,7 @@ void LLIMFloater::sendMsg(const std::string& msg)
 	updateMessages();
 }
 
-LLIMFloater::~LLIMFloater()
+LLFloaterIMSession::~LLFloaterIMSession()
 {
 	mVoiceChannelStateChangeConnection.disconnect();
 	if(LLVoiceClient::instanceExists())
@@ -230,7 +230,7 @@ LLIMFloater::~LLIMFloater()
 }
 
 
-void LLIMFloater::initIMSession(const LLUUID& session_id)
+void LLFloaterIMSession::initIMSession(const LLUUID& session_id)
 {
 	// Change the floater key to bind it to a new session.
 	setKey(session_id);
@@ -246,7 +246,7 @@ void LLIMFloater::initIMSession(const LLUUID& session_id)
 	}
 }
 
-void LLIMFloater::initIMFloater()
+void LLFloaterIMSession::initIMFloater()
 {
 	const LLUUID& other_party_id =
 			LLIMModel::getInstance()->getOtherParticipantID(mSessionID);
@@ -277,9 +277,9 @@ void LLIMFloater::initIMFloater()
 }
 
 //virtual
-BOOL LLIMFloater::postBuild()
+BOOL LLFloaterIMSession::postBuild()
 {
-	BOOL result = LLIMConversation::postBuild();
+	BOOL result = LLFloaterIMSessionTab::postBuild();
 
 	mInputEditor->setMaxTextLength(1023);
 	// enable line history support for instant message bar
@@ -300,9 +300,9 @@ BOOL LLIMFloater::postBuild()
 
 	// Allow to add chat participants depending on the session type
 	add_btn->setEnabled(isInviteAllowed());
-	add_btn->setClickedCallback(boost::bind(&LLIMFloater::onAddButtonClicked, this));
+	add_btn->setClickedCallback(boost::bind(&LLFloaterIMSession::onAddButtonClicked, this));
 
-	childSetAction("voice_call_btn", boost::bind(&LLIMFloater::onCallButtonClicked, this));
+	childSetAction("voice_call_btn", boost::bind(&LLFloaterIMSession::onCallButtonClicked, this));
 
 	LLVoiceClient::getInstance()->addObserver(this);
 	
@@ -314,18 +314,18 @@ BOOL LLIMFloater::postBuild()
 	return result;
 }
 
-void LLIMFloater::onAddButtonClicked()
+void LLFloaterIMSession::onAddButtonClicked()
 {
     LLView * button = findChild<LLView>("toolbar_panel")->findChild<LLButton>("add_btn");
     LLFloater* root_floater = gFloaterView->getParentFloater(this);
-	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLIMFloater::addSessionParticipants, this, _1), TRUE, TRUE, FALSE, root_floater->getName(), button);
+	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLFloaterIMSession::addSessionParticipants, this, _1), TRUE, TRUE, FALSE, root_floater->getName(), button);
 	if (!picker)
 	{
 		return;
 	}
 
 	// Need to disable 'ok' button when selected users are already in conversation.
-	picker->setOkBtnEnableCb(boost::bind(&LLIMFloater::canAddSelectedToChat, this, _1));
+	picker->setOkBtnEnableCb(boost::bind(&LLFloaterIMSession::canAddSelectedToChat, this, _1));
 	
 	if (root_floater)
 	{
@@ -333,7 +333,7 @@ void LLIMFloater::onAddButtonClicked()
 	}
 }
 
-bool LLIMFloater::canAddSelectedToChat(const uuid_vec_t& uuids)
+bool LLFloaterIMSession::canAddSelectedToChat(const uuid_vec_t& uuids)
 {
 	if (!mSession
 		|| mDialog == IM_SESSION_GROUP_START
@@ -385,7 +385,7 @@ bool LLIMFloater::canAddSelectedToChat(const uuid_vec_t& uuids)
 	return true;
 }
 
-void LLIMFloater::addSessionParticipants(const uuid_vec_t& uuids)
+void LLFloaterIMSession::addSessionParticipants(const uuid_vec_t& uuids)
 {
 	if (mIsP2PChat)
 	{
@@ -393,7 +393,7 @@ void LLIMFloater::addSessionParticipants(const uuid_vec_t& uuids)
 		LLSD args;
 
 		LLNotificationsUtil::add("ConfirmAddingChatParticipants", args, payload,
-				boost::bind(&LLIMFloater::addP2PSessionParticipants, this, _1, _2, uuids));
+				boost::bind(&LLFloaterIMSession::addP2PSessionParticipants, this, _1, _2, uuids));
 	}
 	else
 	{
@@ -404,7 +404,7 @@ void LLIMFloater::addSessionParticipants(const uuid_vec_t& uuids)
 	}
 }
 
-void LLIMFloater::addP2PSessionParticipants(const LLSD& notification, const LLSD& response, const uuid_vec_t& uuids)
+void LLFloaterIMSession::addP2PSessionParticipants(const LLSD& notification, const LLSD& response, const uuid_vec_t& uuids)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (option != 0)
@@ -446,7 +446,7 @@ void LLIMFloater::addP2PSessionParticipants(const LLSD& notification, const LLSD
 	}
 }
 
-void LLIMFloater::sendParticipantsAddedNotification(const uuid_vec_t& uuids)
+void LLFloaterIMSession::sendParticipantsAddedNotification(const uuid_vec_t& uuids)
 {
 	std::string names_string;
 	LLAvatarActions::buildResidentsString(uuids, names_string);
@@ -456,13 +456,13 @@ void LLIMFloater::sendParticipantsAddedNotification(const uuid_vec_t& uuids)
 	sendMsg(getString(uuids.size() > 1 ? "multiple_participants_added" : "participant_added", args));
 }
 
-void LLIMFloater::boundVoiceChannel()
+void LLFloaterIMSession::boundVoiceChannel()
 {
 	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(mSessionID);
 	if(voice_channel)
 	{
 		mVoiceChannelStateChangeConnection = voice_channel->setStateChangedCallback(
-				boost::bind(&LLIMFloater::onVoiceChannelStateChanged, this, _1, _2));
+				boost::bind(&LLFloaterIMSession::onVoiceChannelStateChanged, this, _1, _2));
 
 		//call (either p2p, group or ad-hoc) can be already in started state
 		bool callIsActive = voice_channel->getState() >= LLVoiceChannel::STATE_CALL_STARTED;
@@ -470,7 +470,7 @@ void LLIMFloater::boundVoiceChannel()
 	}
 }
 
-void LLIMFloater::onCallButtonClicked()
+void LLFloaterIMSession::onCallButtonClicked()
 {
 	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(mSessionID);
 	if (voice_channel)
@@ -487,7 +487,7 @@ void LLIMFloater::onCallButtonClicked()
 	}
 }
 
-void LLIMFloater::onChange(EStatusType status, const std::string &channelURI, bool proximal)
+void LLFloaterIMSession::onChange(EStatusType status, const std::string &channelURI, bool proximal)
 {
 	if(status != STATUS_JOINING && status != STATUS_LEFT_CHANNEL)
 	{
@@ -495,22 +495,22 @@ void LLIMFloater::onChange(EStatusType status, const std::string &channelURI, bo
 	}
 }
 
-void LLIMFloater::onVoiceChannelStateChanged(
+void LLFloaterIMSession::onVoiceChannelStateChanged(
 		const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state)
 {
 	bool callIsActive = new_state >= LLVoiceChannel::STATE_CALL_STARTED;
 	updateCallBtnState(callIsActive);
 }
 
-void LLIMFloater::updateSessionName(const std::string& name)
+void LLFloaterIMSession::updateSessionName(const std::string& name)
 {
-	LLIMConversation::updateSessionName(name);
+	LLFloaterIMSessionTab::updateSessionName(name);
 	setTitle(name);	
 	mTypingStart.setArg("[NAME]", name);
 }
 
 //static
-LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
+LLFloaterIMSession* LLFloaterIMSession::show(const LLUUID& session_id)
 {
 	closeHiddenIMToasts();
 
@@ -521,11 +521,11 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 	bool exist = findInstance(session_id);
 
 	// Get the floater: this will create the instance if it didn't exist
-	LLIMFloater* floater = getInstance(session_id);
+	LLFloaterIMSession* floater = getInstance(session_id);
 	if (!floater)
 		return NULL;
 
-	LLIMFloaterContainer* floater_container = LLIMFloaterContainer::getInstance();
+	LLFloaterIMContainer* floater_container = LLFloaterIMContainer::getInstance();
 
 	// Do not add again existing floaters
 	if (!exist)
@@ -546,23 +546,23 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 	return floater;
 }
 //static
-LLIMFloater* LLIMFloater::findInstance(const LLUUID& session_id)
+LLFloaterIMSession* LLFloaterIMSession::findInstance(const LLUUID& session_id)
 {
-    LLIMFloater* conversation =
-    		LLFloaterReg::findTypedInstance<LLIMFloater>("impanel", session_id);
+    LLFloaterIMSession* conversation =
+    		LLFloaterReg::findTypedInstance<LLFloaterIMSession>("impanel", session_id);
 
 	return conversation;
 }
 
-LLIMFloater* LLIMFloater::getInstance(const LLUUID& session_id)
+LLFloaterIMSession* LLFloaterIMSession::getInstance(const LLUUID& session_id)
 {
-	LLIMFloater* conversation =
-				LLFloaterReg::getTypedInstance<LLIMFloater>("impanel", session_id);
+	LLFloaterIMSession* conversation =
+				LLFloaterReg::getTypedInstance<LLFloaterIMSession>("impanel", session_id);
 
 	return conversation;
 }
 
-void LLIMFloater::onClose(bool app_quitting)
+void LLFloaterIMSession::onClose(bool app_quitting)
 {
 	setTyping(false);
 
@@ -574,10 +574,10 @@ void LLIMFloater::onClose(bool app_quitting)
 	gIMMgr->leaveSession(mSessionID);
 
 	// Clean up the conversation *after* the session has been ended
-	LLIMConversation::onClose(app_quitting);
+	LLFloaterIMSessionTab::onClose(app_quitting);
 }
 
-void LLIMFloater::setDocked(bool docked, bool pop_on_undock)
+void LLFloaterIMSession::setDocked(bool docked, bool pop_on_undock)
 {
 	// update notification channel state
 	LLNotificationsUI::LLScreenChannel* channel = static_cast<LLNotificationsUI::LLScreenChannel*>
@@ -597,13 +597,13 @@ void LLIMFloater::setDocked(bool docked, bool pop_on_undock)
 	}
 }
 
-void LLIMFloater::setVisible(BOOL visible)
+void LLFloaterIMSession::setVisible(BOOL visible)
 {
 	LLNotificationsUI::LLScreenChannel* channel = static_cast<LLNotificationsUI::LLScreenChannel*>
 		(LLNotificationsUI::LLChannelManager::getInstance()->
 											findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
 
-	LLIMConversation::setVisible(visible);
+	LLFloaterIMSessionTab::setVisible(visible);
 
 	// update notification channel state
 	if(channel)
@@ -630,14 +630,14 @@ void LLIMFloater::setVisible(BOOL visible)
     setFocus(visible);
 }
 
-BOOL LLIMFloater::getVisible()
+BOOL LLFloaterIMSession::getVisible()
 {
 	bool visible;
 
 	if(isChatMultiTab())
 	{
-		LLIMFloaterContainer* im_container =
-				LLIMFloaterContainer::getInstance();
+		LLFloaterIMContainer* im_container =
+				LLFloaterIMContainer::getInstance();
 		
 		// Treat inactive floater as invisible.
 		bool is_active = im_container->getActiveFloater() == this;
@@ -663,11 +663,11 @@ BOOL LLIMFloater::getVisible()
 }
 
 //static
-bool LLIMFloater::toggle(const LLUUID& session_id)
+bool LLFloaterIMSession::toggle(const LLUUID& session_id)
 {
 	if(!isChatMultiTab())
 	{
-		LLIMFloater* floater = LLFloaterReg::findTypedInstance<LLIMFloater>(
+		LLFloaterIMSession* floater = LLFloaterReg::findTypedInstance<LLFloaterIMSession>(
 				"impanel", session_id);
 		if (floater && floater->getVisible() && floater->hasFocus())
 		{
@@ -689,7 +689,7 @@ bool LLIMFloater::toggle(const LLUUID& session_id)
 	return true;
 }
 
-void LLIMFloater::sessionInitReplyReceived(const LLUUID& im_session_id)
+void LLFloaterIMSession::sessionInitReplyReceived(const LLUUID& im_session_id)
 {
 	mSessionInitialized = true;
 
@@ -719,7 +719,7 @@ void LLIMFloater::sessionInitReplyReceived(const LLUUID& im_session_id)
 	}
 }
 
-void LLIMFloater::updateMessages()
+void LLFloaterIMSession::updateMessages()
 {
 	std::list<LLSD> messages;
 
@@ -798,7 +798,7 @@ void LLIMFloater::updateMessages()
 	}
 }
 
-void LLIMFloater::reloadMessages()
+void LLFloaterIMSession::reloadMessages()
 {
 	mChatHistory->clear();
 	mLastMessageIndex = -1;
@@ -807,11 +807,11 @@ void LLIMFloater::reloadMessages()
 }
 
 // static
-void LLIMFloater::onInputEditorFocusReceived( LLFocusableElement* caller, void* userdata )
+void LLFloaterIMSession::onInputEditorFocusReceived( LLFocusableElement* caller, void* userdata )
 {
-	LLIMFloater* self= (LLIMFloater*) userdata;
+	LLFloaterIMSession* self= (LLFloaterIMSession*) userdata;
 
-	// Allow enabling the LLIMFloater input editor only if session can accept text
+	// Allow enabling the LLFloaterIMSession input editor only if session can accept text
 	LLIMModel::LLIMSession* im_session =
 		LLIMModel::instance().findIMSession(self->mSessionID);
 	//TODO: While disabled lllineeditor can receive focus we need to check if it is enabled (EK)
@@ -823,23 +823,23 @@ void LLIMFloater::onInputEditorFocusReceived( LLFocusableElement* caller, void* 
 }
 
 // static
-void LLIMFloater::onInputEditorFocusLost(LLFocusableElement* caller, void* userdata)
+void LLFloaterIMSession::onInputEditorFocusLost(LLFocusableElement* caller, void* userdata)
 {
-	LLIMFloater* self = (LLIMFloater*) userdata;
+	LLFloaterIMSession* self = (LLFloaterIMSession*) userdata;
 	self->setTyping(false);
 }
 
 // static
-void LLIMFloater::onInputEditorKeystroke(LLTextEditor* caller, void* userdata)
+void LLFloaterIMSession::onInputEditorKeystroke(LLTextEditor* caller, void* userdata)
 {
-	LLIMFloater* self = (LLIMFloater*)userdata;
+	LLFloaterIMSession* self = (LLFloaterIMSession*)userdata;
 	std::string text = self->mInputEditor->getText();
 
 		// Deleting all text counts as stopping typing.
 	self->setTyping(!text.empty());
 }
 
-void LLIMFloater::setTyping(bool typing)
+void LLFloaterIMSession::setTyping(bool typing)
 {
 	if ( typing )
 	{
@@ -881,7 +881,7 @@ void LLIMFloater::setTyping(bool typing)
 	}
 }
 
-void LLIMFloater::processIMTyping(const LLIMInfo* im_info, BOOL typing)
+void LLFloaterIMSession::processIMTyping(const LLIMInfo* im_info, BOOL typing)
 {
 	if ( typing )
 	{
@@ -895,7 +895,7 @@ void LLIMFloater::processIMTyping(const LLIMInfo* im_info, BOOL typing)
 	}
 }
 
-void LLIMFloater::processAgentListUpdates(const LLSD& body)
+void LLFloaterIMSession::processAgentListUpdates(const LLSD& body)
 {
 	uuid_vec_t joined_uuids;
 
@@ -959,7 +959,7 @@ void LLIMFloater::processAgentListUpdates(const LLSD& body)
 							   mInvitedParticipants.end());
 }
 
-void LLIMFloater::processSessionUpdate(const LLSD& session_update)
+void LLFloaterIMSession::processSessionUpdate(const LLSD& session_update)
 {
 	// *TODO : verify following code when moderated mode will be implemented
 	if ( false && session_update.has("moderated_mode") &&
@@ -985,7 +985,7 @@ void LLIMFloater::processSessionUpdate(const LLSD& session_update)
 }
 
 // virtual
-BOOL LLIMFloater::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+BOOL LLFloaterIMSession::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 									EDragAndDropType cargo_type,
 									void* cargo_data,
 									EAcceptance* accept,
@@ -1011,7 +1011,7 @@ BOOL LLIMFloater::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	return TRUE;
 }
 
-bool LLIMFloater::dropPerson(LLUUID* person_id, bool drop)
+bool LLFloaterIMSession::dropPerson(LLUUID* person_id, bool drop)
 {
 	bool res = person_id && person_id->notNull();
 	if(res)
@@ -1029,7 +1029,7 @@ bool LLIMFloater::dropPerson(LLUUID* person_id, bool drop)
 	return res;
 }
 
-BOOL LLIMFloater::isInviteAllowed() const
+BOOL LLFloaterIMSession::isInviteAllowed() const
 {
 	return ( (IM_SESSION_CONFERENCE_START == mDialog)
 			 || (IM_SESSION_INVITE == mDialog && !gAgent.isInGroup(mSessionID))
@@ -1054,7 +1054,7 @@ private:
 	LLUUID mSessionID;
 };
 
-BOOL LLIMFloater::inviteToSession(const uuid_vec_t& ids)
+BOOL LLFloaterIMSession::inviteToSession(const uuid_vec_t& ids)
 {
 	LLViewerRegion* region = gAgent.getRegion();
 	bool is_region_exist = region != NULL;
@@ -1065,7 +1065,7 @@ BOOL LLIMFloater::inviteToSession(const uuid_vec_t& ids)
 
 		if( isInviteAllowed() && (count > 0) )
 		{
-			llinfos << "LLIMFloater::inviteToSession() - inviting participants" << llendl;
+			llinfos << "LLFloaterIMSession::inviteToSession() - inviting participants" << llendl;
 
 			std::string url = region->getCapability("ChatSessionRequest");
 
@@ -1081,7 +1081,7 @@ BOOL LLIMFloater::inviteToSession(const uuid_vec_t& ids)
 		}
 		else
 		{
-			llinfos << "LLIMFloater::inviteToSession -"
+			llinfos << "LLFloaterIMSession::inviteToSession -"
 					<< " no need to invite agents for "
 					<< mDialog << llendl;
 			// successful add, because everyone that needed to get added
@@ -1092,7 +1092,7 @@ BOOL LLIMFloater::inviteToSession(const uuid_vec_t& ids)
 	return is_region_exist;
 }
 
-void LLIMFloater::addTypingIndicator(const LLIMInfo* im_info)
+void LLFloaterIMSession::addTypingIndicator(const LLIMInfo* im_info)
 {
 	// We may have lost a "stop-typing" packet, don't add it twice
 	if ( im_info && !mOtherTyping )
@@ -1112,7 +1112,7 @@ void LLIMFloater::addTypingIndicator(const LLIMInfo* im_info)
 	}
 }
 
-void LLIMFloater::removeTypingIndicator(const LLIMInfo* im_info)
+void LLFloaterIMSession::removeTypingIndicator(const LLIMInfo* im_info)
 {
 	if ( mOtherTyping )
 	{
@@ -1134,7 +1134,7 @@ void LLIMFloater::removeTypingIndicator(const LLIMInfo* im_info)
 }
 
 // static
-void LLIMFloater::closeHiddenIMToasts()
+void LLFloaterIMSession::closeHiddenIMToasts()
 {
 	class IMToastMatcher: public LLNotificationsUI::LLScreenChannel::Matcher
 	{
@@ -1154,7 +1154,7 @@ void LLIMFloater::closeHiddenIMToasts()
 	}
 }
 // static
-void LLIMFloater::confirmLeaveCallCallback(const LLSD& notification, const LLSD& response)
+void LLFloaterIMSession::confirmLeaveCallCallback(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	const LLSD& payload = notification["payload"];
@@ -1170,7 +1170,7 @@ void LLIMFloater::confirmLeaveCallCallback(const LLSD& notification, const LLSD&
 }
 
 // static
-void LLIMFloater::sRemoveTypingIndicator(const LLSD& data)
+void LLFloaterIMSession::sRemoveTypingIndicator(const LLSD& data)
 {
 	LLUUID session_id = data["session_id"];
 	if (session_id.isNull())
@@ -1180,7 +1180,7 @@ void LLIMFloater::sRemoveTypingIndicator(const LLSD& data)
 	if (gAgentID == from_id || LLUUID::null == from_id)
 		return;
 
-	LLIMFloater* floater = LLIMFloater::findInstance(session_id);
+	LLFloaterIMSession* floater = LLFloaterIMSession::findInstance(session_id);
 	if (!floater)
 		return;
 
@@ -1191,12 +1191,12 @@ void LLIMFloater::sRemoveTypingIndicator(const LLSD& data)
 }
 
 // static
-void LLIMFloater::onIMChicletCreated( const LLUUID& session_id )
+void LLFloaterIMSession::onIMChicletCreated( const LLUUID& session_id )
 {
-	LLIMFloater::addToHost(session_id);
+	LLFloaterIMSession::addToHost(session_id);
 }
 
-boost::signals2::connection LLIMFloater::setIMFloaterShowedCallback(const floater_showed_signal_t::slot_type& cb)
+boost::signals2::connection LLFloaterIMSession::setIMFloaterShowedCallback(const floater_showed_signal_t::slot_type& cb)
 {
-	return LLIMFloater::sIMFloaterShowedSignal.connect(cb);
+	return LLFloaterIMSession::sIMFloaterShowedSignal.connect(cb);
 }

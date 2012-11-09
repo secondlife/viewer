@@ -1,7 +1,7 @@
 /**
- * @file llimconversation.cpp
- * @brief LLIMConversation class implements the common behavior of LNearbyChatBar
- * @brief and LLIMFloater for hosting both in LLIMContainer
+ * @file llfloaterimsessiontab.cpp
+ * @brief LLFloaterIMSessionTab class implements the common behavior of LNearbyChatBar
+ * @brief and LLFloaterIMSession for hosting both in LLIMContainer
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -27,7 +27,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llimconversation.h"
+#include "llfloaterimsessiontab.h"
 
 #include "llagent.h"
 #include "llavataractions.h"
@@ -37,14 +37,14 @@
 #include "llchicletbar.h"
 #include "lldraghandle.h"
 #include "llfloaterreg.h"
-#include "llimfloater.h"
-#include "llimfloatercontainer.h" // to replace separate IM Floaters with multifloater container
+#include "llfloaterimsession.h"
+#include "llfloaterimcontainer.h" // to replace separate IM Floaters with multifloater container
 #include "lllayoutstack.h"
-#include "llnearbychat.h"
+#include "llfloaterimnearbychat.h"
 
 const F32 REFRESH_INTERVAL = 0.2f;
 
-LLIMConversation::LLIMConversation(const LLSD& session_id)
+LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
   : LLTransientDockableFloater(NULL, true, session_id)
   ,  mIsP2PChat(false)
   ,  mExpandCollapseBtn(NULL)
@@ -61,71 +61,71 @@ LLIMConversation::LLIMConversation(const LLSD& session_id)
 	mSession = LLIMModel::getInstance()->findIMSession(mSessionID);
 
 	mCommitCallbackRegistrar.add("IMSession.Menu.Action",
-			boost::bind(&LLIMConversation::onIMSessionMenuItemClicked,  this, _2));
+			boost::bind(&LLFloaterIMSessionTab::onIMSessionMenuItemClicked,  this, _2));
 	mEnableCallbackRegistrar.add("IMSession.Menu.CompactExpandedModes.CheckItem",
-			boost::bind(&LLIMConversation::onIMCompactExpandedMenuItemCheck, this, _2));
+			boost::bind(&LLFloaterIMSessionTab::onIMCompactExpandedMenuItemCheck, this, _2));
 	mEnableCallbackRegistrar.add("IMSession.Menu.ShowModes.CheckItem",
-			boost::bind(&LLIMConversation::onIMShowModesMenuItemCheck,   this, _2));
+			boost::bind(&LLFloaterIMSessionTab::onIMShowModesMenuItemCheck,   this, _2));
 	mEnableCallbackRegistrar.add("IMSession.Menu.ShowModes.Enable",
-			boost::bind(&LLIMConversation::onIMShowModesMenuItemEnable,  this, _2));
+			boost::bind(&LLFloaterIMSessionTab::onIMShowModesMenuItemEnable,  this, _2));
 
 	// Zero expiry time is set only once to allow initial update.
 	mRefreshTimer->setTimerExpirySec(0);
 	mRefreshTimer->start();
 }
 
-LLIMConversation::~LLIMConversation()
+LLFloaterIMSessionTab::~LLFloaterIMSessionTab()
 {
 	delete mRefreshTimer;
 }
 
 //static
-LLIMConversation* LLIMConversation::findConversation(const LLUUID& uuid)
+LLFloaterIMSessionTab* LLFloaterIMSessionTab::findConversation(const LLUUID& uuid)
 {
-	LLIMConversation* conv;
+	LLFloaterIMSessionTab* conv;
 
 	if (uuid.isNull())
 	{
-		conv = LLFloaterReg::findTypedInstance<LLIMConversation>("nearby_chat");
+		conv = LLFloaterReg::findTypedInstance<LLFloaterIMSessionTab>("nearby_chat");
 	}
 	else
 	{
-		conv = LLFloaterReg::findTypedInstance<LLIMConversation>("impanel", LLSD(uuid));
+		conv = LLFloaterReg::findTypedInstance<LLFloaterIMSessionTab>("impanel", LLSD(uuid));
 	}
 
 	return conv;
 };
 
 //static
-LLIMConversation* LLIMConversation::getConversation(const LLUUID& uuid)
+LLFloaterIMSessionTab* LLFloaterIMSessionTab::getConversation(const LLUUID& uuid)
 {
-	LLIMConversation* conv;
+	LLFloaterIMSessionTab* conv;
 
 	if (uuid.isNull())
 	{
-		conv = LLFloaterReg::getTypedInstance<LLIMConversation>("nearby_chat");
+		conv = LLFloaterReg::getTypedInstance<LLFloaterIMSessionTab>("nearby_chat");
 	}
 	else
 	{
-		conv = LLFloaterReg::getTypedInstance<LLIMConversation>("impanel", LLSD(uuid));
+		conv = LLFloaterReg::getTypedInstance<LLFloaterIMSessionTab>("impanel", LLSD(uuid));
 	}
 
 	return conv;
 };
 
-void LLIMConversation::setVisible(BOOL visible)
+void LLFloaterIMSessionTab::setVisible(BOOL visible)
 {
 	LLTransientDockableFloater::setVisible(visible);
 
 	if(visible)
 	{
-			LLIMConversation::addToHost(mSessionID);
+			LLFloaterIMSessionTab::addToHost(mSessionID);
 	}
     setFocus(visible);
 }
 
 /*virtual*/
-void LLIMConversation::setFocus(BOOL focus)
+void LLFloaterIMSessionTab::setFocus(BOOL focus)
 {
 	LLTransientDockableFloater::setFocus(focus);
 
@@ -142,19 +142,19 @@ void LLIMConversation::setFocus(BOOL focus)
 }
 
 
-void LLIMConversation::addToHost(const LLUUID& session_id)
+void LLFloaterIMSessionTab::addToHost(const LLUUID& session_id)
 {
 	if ((session_id.notNull() && !gIMMgr->hasSession(session_id))
-			|| !LLIMConversation::isChatMultiTab())
+			|| !LLFloaterIMSessionTab::isChatMultiTab())
 	{
 		return;
 	}
 
 	// Get the floater: this will create the instance if it didn't exist
-	LLIMConversation* conversp = LLIMConversation::getConversation(session_id);
+	LLFloaterIMSessionTab* conversp = LLFloaterIMSessionTab::getConversation(session_id);
 	if (conversp)
 	{
-		LLIMFloaterContainer* floater_container = LLIMFloaterContainer::getInstance();
+		LLFloaterIMContainer* floater_container = LLFloaterIMContainer::getInstance();
 
 		// Do not add again existing floaters
 		if (floater_container && !conversp->isHostAttached())
@@ -180,7 +180,7 @@ void LLIMConversation::addToHost(const LLUUID& session_id)
 	}
 }
 
-BOOL LLIMConversation::postBuild()
+BOOL LLFloaterIMSessionTab::postBuild()
 {
 	BOOL result;
 
@@ -188,10 +188,10 @@ BOOL LLIMConversation::postBuild()
 	mCloseBtn->setCommitCallback(boost::bind(&LLFloater::onClickClose, this));
 
 	mExpandCollapseBtn = getChild<LLButton>("expand_collapse_btn");
-	mExpandCollapseBtn->setClickedCallback(boost::bind(&LLIMConversation::onSlide, this));
+	mExpandCollapseBtn->setClickedCallback(boost::bind(&LLFloaterIMSessionTab::onSlide, this));
 
 	mTearOffBtn = getChild<LLButton>("tear_off_btn");
-	mTearOffBtn->setCommitCallback(boost::bind(&LLIMConversation::onTearOffClicked, this));
+	mTearOffBtn->setCommitCallback(boost::bind(&LLFloaterIMSessionTab::onTearOffClicked, this));
 
 	mParticipantListPanel = getChild<LLLayoutPanel>("speakers_list_panel");
 	
@@ -226,7 +226,7 @@ BOOL LLIMConversation::postBuild()
 	mChatHistory = getChild<LLChatHistory>("chat_history");
 
 	mInputEditor = getChild<LLChatEntry>("chat_editor");
-	mInputEditor->setTextExpandedCallback(boost::bind(&LLIMConversation::reshapeChatHistory, this));
+	mInputEditor->setTextExpandedCallback(boost::bind(&LLFloaterIMSessionTab::reshapeChatHistory, this));
 	mInputEditor->setCommitOnFocusLost( FALSE );
 	mInputEditor->setPassDelete(TRUE);
 	mInputEditor->setFont(LLViewerChat::getChatFont());
@@ -254,12 +254,12 @@ BOOL LLIMConversation::postBuild()
 	return result;
 }
 
-LLParticipantList* LLIMConversation::getParticipantList()
+LLParticipantList* LLFloaterIMSessionTab::getParticipantList()
 {
-	return dynamic_cast<LLParticipantList*>(LLIMFloaterContainer::getInstance()->getSessionModel(mSessionID));
+	return dynamic_cast<LLParticipantList*>(LLFloaterIMContainer::getInstance()->getSessionModel(mSessionID));
 }
 
-void LLIMConversation::draw()
+void LLFloaterIMSessionTab::draw()
 {
 	if (mRefreshTimer->hasExpired())
 	{
@@ -277,7 +277,7 @@ void LLIMConversation::draw()
 	LLTransientDockableFloater::draw();
 }
 
-void LLIMConversation::enableDisableCallBtn()
+void LLFloaterIMSessionTab::enableDisableCallBtn()
 {
     getChildView("voice_call_btn")->setEnabled(
     		mSessionID.notNull()
@@ -288,7 +288,7 @@ void LLIMConversation::enableDisableCallBtn()
     		&& mSession->mCallBackEnabled);
 }
 
-void LLIMConversation::onFocusReceived()
+void LLFloaterIMSessionTab::onFocusReceived()
 {
 	setBackgroundOpaque(true);
 
@@ -299,20 +299,20 @@ void LLIMConversation::onFocusReceived()
 
 	LLTransientDockableFloater::onFocusReceived();
 
-	LLIMFloaterContainer* container = LLFloaterReg::getTypedInstance<LLIMFloaterContainer>("im_container");
+	LLFloaterIMContainer* container = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
 	if (container)
 	{
 		container->selectConversationPair(mSessionID, true);
 	}
 }
 
-void LLIMConversation::onFocusLost()
+void LLFloaterIMSessionTab::onFocusLost()
 {
 	setBackgroundOpaque(false);
 	LLTransientDockableFloater::onFocusLost();
 }
 
-std::string LLIMConversation::appendTime()
+std::string LLFloaterIMSessionTab::appendTime()
 {
 	time_t utc_time;
 	utc_time = time_corrected();
@@ -327,10 +327,10 @@ std::string LLIMConversation::appendTime()
 	return timeStr;
 }
 
-void LLIMConversation::appendMessage(const LLChat& chat, const LLSD &args)
+void LLFloaterIMSessionTab::appendMessage(const LLChat& chat, const LLSD &args)
 {
 	// Update the participant activity time
-	LLIMFloaterContainer* im_box = LLIMFloaterContainer::findInstance();
+	LLFloaterIMContainer* im_box = LLFloaterIMContainer::findInstance();
 	if (im_box)
 	{
 		im_box->setTimeNow(mSessionID,chat.mFromID);
@@ -361,7 +361,7 @@ void LLIMConversation::appendMessage(const LLChat& chat, const LLSD &args)
 }
 
 
-void LLIMConversation::buildConversationViewParticipant()
+void LLFloaterIMSessionTab::buildConversationViewParticipant()
 {
 	// Clear the widget list since we are rebuilding afresh from the model
 	conversations_widgets_map::iterator widget_it = mConversationsWidgets.begin();
@@ -391,7 +391,7 @@ void LLIMConversation::buildConversationViewParticipant()
 	}
 }
 
-void LLIMConversation::addConversationViewParticipant(LLConversationItem* participant_model)
+void LLFloaterIMSessionTab::addConversationViewParticipant(LLConversationItem* participant_model)
 {
 	// Check if the model already has an associated view
 	LLUUID uuid = participant_model->getUUID();
@@ -412,7 +412,7 @@ void LLIMConversation::addConversationViewParticipant(LLConversationItem* partic
 	}
 }
 
-void LLIMConversation::removeConversationViewParticipant(const LLUUID& participant_id)
+void LLFloaterIMSessionTab::removeConversationViewParticipant(const LLUUID& participant_id)
 {
 	LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,participant_id);
 	if (widget)
@@ -424,7 +424,7 @@ void LLIMConversation::removeConversationViewParticipant(const LLUUID& participa
 	}
 }
 
-void LLIMConversation::updateConversationViewParticipant(const LLUUID& participant_id)
+void LLFloaterIMSessionTab::updateConversationViewParticipant(const LLUUID& participant_id)
 {
 	LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,participant_id);
 	if (widget)
@@ -434,7 +434,7 @@ void LLIMConversation::updateConversationViewParticipant(const LLUUID& participa
 	refreshConversation();
 }
 
-void LLIMConversation::refreshConversation()
+void LLFloaterIMSessionTab::refreshConversation()
 {
 	// Note: We collect participants names to change the session name only in the case of ad-hoc conversations
 	bool is_ad_hoc = (mSession ? mSession->isAdHocSessionType() : false);
@@ -478,8 +478,8 @@ void LLIMConversation::refreshConversation()
 	refresh();
 }
 
-// Copied from LLIMFloaterContainer::createConversationViewParticipant(). Refactor opportunity!
-LLConversationViewParticipant* LLIMConversation::createConversationViewParticipant(LLConversationItem* item)
+// Copied from LLFloaterIMContainer::createConversationViewParticipant(). Refactor opportunity!
+LLConversationViewParticipant* LLFloaterIMSessionTab::createConversationViewParticipant(LLConversationItem* item)
 {
     LLRect panel_rect = mParticipantListPanel->getRect();
 	
@@ -494,14 +494,14 @@ LLConversationViewParticipant* LLIMConversation::createConversationViewParticipa
 	return LLUICtrlFactory::create<LLConversationViewParticipant>(params);
 }
 
-void LLIMConversation::setSortOrder(const LLConversationSort& order)
+void LLFloaterIMSessionTab::setSortOrder(const LLConversationSort& order)
 {
 	mConversationViewModel.setSorter(order);
 	mConversationsRoot->arrangeAll();
 	refreshConversation();
 }
 
-void LLIMConversation::onIMSessionMenuItemClicked(const LLSD& userdata)
+void LLFloaterIMSessionTab::onIMSessionMenuItemClicked(const LLSD& userdata)
 {
 	std::string item = userdata.asString();
 
@@ -515,11 +515,11 @@ void LLIMConversation::onIMSessionMenuItemClicked(const LLSD& userdata)
 		gSavedSettings.setBOOL(item, !prev_value);
 	}
 
-	LLIMConversation::processChatHistoryStyleUpdate();
+	LLFloaterIMSessionTab::processChatHistoryStyleUpdate();
 }
 
 
-bool LLIMConversation::onIMCompactExpandedMenuItemCheck(const LLSD& userdata)
+bool LLFloaterIMSessionTab::onIMCompactExpandedMenuItemCheck(const LLSD& userdata)
 {
 	std::string item = userdata.asString();
 	bool is_plain_text_mode = gSavedSettings.getBOOL("PlainTextChatHistory");
@@ -528,13 +528,13 @@ bool LLIMConversation::onIMCompactExpandedMenuItemCheck(const LLSD& userdata)
 }
 
 
-bool LLIMConversation::onIMShowModesMenuItemCheck(const LLSD& userdata)
+bool LLFloaterIMSessionTab::onIMShowModesMenuItemCheck(const LLSD& userdata)
 {
 	return gSavedSettings.getBOOL(userdata.asString());
 }
 
 // enable/disable states for the "show time" and "show names" items of the show-modes menu
-bool LLIMConversation::onIMShowModesMenuItemEnable(const LLSD& userdata)
+bool LLFloaterIMSessionTab::onIMShowModesMenuItemEnable(const LLSD& userdata)
 {
 	std::string item = userdata.asString();
 	bool plain_text = gSavedSettings.getBOOL("PlainTextChatHistory");
@@ -542,7 +542,7 @@ bool LLIMConversation::onIMShowModesMenuItemEnable(const LLSD& userdata)
 	return (plain_text && (is_not_names || mIsP2PChat));
 }
 
-void LLIMConversation::hideOrShowTitle()
+void LLFloaterIMSessionTab::hideOrShowTitle()
 {
 	const LLFloater::Params& default_params = LLFloater::getDefaultParams();
 	S32 floater_header_size = default_params.header_height;
@@ -557,12 +557,12 @@ void LLIMConversation::hideOrShowTitle()
 	floater_contents->setShape(contents_rect);
 }
 
-void LLIMConversation::updateSessionName(const std::string& name)
+void LLFloaterIMSessionTab::updateSessionName(const std::string& name)
 {
 	mInputEditor->setLabel(LLTrans::getString("IM_to_label") + " " + name);
 }
 
-void LLIMConversation::hideAllStandardButtons()
+void LLFloaterIMSessionTab::hideAllStandardButtons()
 {
 	for (S32 i = 0; i < BUTTON_COUNT; i++)
 	{
@@ -574,10 +574,10 @@ void LLIMConversation::hideAllStandardButtons()
 	}
 }
 
-void LLIMConversation::updateHeaderAndToolbar()
+void LLFloaterIMSessionTab::updateHeaderAndToolbar()
 {
 	// prevent start conversation before its container
-    LLIMFloaterContainer::getInstance();
+    LLFloaterIMContainer::getInstance();
 
 	bool is_torn_off = checkIfTornOff();
 	if (!is_torn_off)
@@ -619,7 +619,7 @@ void LLIMConversation::updateHeaderAndToolbar()
 	showTranslationCheckbox();
 }
 
-void LLIMConversation::reshapeChatHistory()
+void LLFloaterIMSessionTab::reshapeChatHistory()
 {
 	LLRect chat_rect  = mChatHistory->getRect();
 	LLRect input_rect = mInputEditor->getRect();
@@ -630,33 +630,33 @@ void LLIMConversation::reshapeChatHistory()
 	mChatHistory->setShape(chat_rect);
 }
 
-void LLIMConversation::showTranslationCheckbox(BOOL show)
+void LLFloaterIMSessionTab::showTranslationCheckbox(BOOL show)
 {
 	getChild<LLUICtrl>("translate_chat_checkbox_lp")->setVisible(mIsNearbyChat? show : FALSE);
 }
 
 // static
-void LLIMConversation::processChatHistoryStyleUpdate()
+void LLFloaterIMSessionTab::processChatHistoryStyleUpdate()
 {
 	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("impanel");
 	for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin();
 			iter != inst_list.end(); ++iter)
 	{
-		LLIMFloater* floater = dynamic_cast<LLIMFloater*>(*iter);
+		LLFloaterIMSession* floater = dynamic_cast<LLFloaterIMSession*>(*iter);
 		if (floater)
 		{
 			floater->reloadMessages();
 		}
 	}
 
-	LLNearbyChat* nearby_chat = LLFloaterReg::findTypedInstance<LLNearbyChat>("nearby_chat");
+	LLFloaterIMNearbyChat* nearby_chat = LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
 	if (nearby_chat)
 	{
              nearby_chat->reloadMessages();
 	}
 }
 
-void LLIMConversation::updateCallBtnState(bool callIsActive)
+void LLFloaterIMSessionTab::updateCallBtnState(bool callIsActive)
 {
 	getChild<LLButton>("voice_call_btn")->setImageOverlay(
 			callIsActive? getString("call_btn_stop") : getString("call_btn_start"));
@@ -664,9 +664,9 @@ void LLIMConversation::updateCallBtnState(bool callIsActive)
 
 }
 
-void LLIMConversation::onSlide(LLIMConversation* self)
+void LLFloaterIMSessionTab::onSlide(LLFloaterIMSessionTab* self)
 {
-	LLIMFloaterContainer* host_floater = dynamic_cast<LLIMFloaterContainer*>(self->getHost());
+	LLFloaterIMContainer* host_floater = dynamic_cast<LLFloaterIMContainer*>(self->getHost());
 	if (host_floater)
 	{
 		// Hide the messages pane if a floater is hosted in the Conversations
@@ -689,23 +689,23 @@ void LLIMConversation::onSlide(LLIMConversation* self)
 }
 
 /*virtual*/
-void LLIMConversation::onOpen(const LLSD& key)
+void LLFloaterIMSessionTab::onOpen(const LLSD& key)
 {
 	if (!checkIfTornOff())
 	{
-		LLIMFloaterContainer* host_floater = dynamic_cast<LLIMFloaterContainer*>(getHost());
+		LLFloaterIMContainer* host_floater = dynamic_cast<LLFloaterIMContainer*>(getHost());
 		// Show the messages pane when opening a floater hosted in the Conversations
 		host_floater->collapseMessagesPane(false);
 	}
 }
 
 // virtual
-void LLIMConversation::onClose(bool app_quitting)
+void LLFloaterIMSessionTab::onClose(bool app_quitting)
 {
 	// Always suppress the IM from the conversations list on close if present for any reason
-	if (LLIMConversation::isChatMultiTab())
+	if (LLFloaterIMSessionTab::isChatMultiTab())
 	{
-		LLIMFloaterContainer* im_box = LLIMFloaterContainer::findInstance();
+		LLFloaterIMContainer* im_box = LLFloaterIMContainer::findInstance();
 		if (im_box)
 		{
             im_box->removeConversationListItem(mKey);
@@ -713,7 +713,7 @@ void LLIMConversation::onClose(bool app_quitting)
     }
 }
 
-void LLIMConversation::onTearOffClicked()
+void LLFloaterIMSessionTab::onTearOffClicked()
 {
     setFollows(isTornOff()? FOLLOWS_ALL : FOLLOWS_NONE);
     mSaveRect = isTornOff();
@@ -723,13 +723,13 @@ void LLIMConversation::onTearOffClicked()
 }
 
 // static
-bool LLIMConversation::isChatMultiTab()
+bool LLFloaterIMSessionTab::isChatMultiTab()
 {
 	// Restart is required in order to change chat window type.
 	return true;
 }
 
-bool LLIMConversation::checkIfTornOff()
+bool LLFloaterIMSessionTab::checkIfTornOff()
 {
 	bool isTorn = !getHost();
 	

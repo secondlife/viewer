@@ -1,8 +1,8 @@
 /**
- * @file   llnearbychatbarlistener.cpp
+ * @file   llfloaterimnearbychatlistener.cpp
  * @author Dave Simmons
  * @date   2011-03-15
- * @brief  Implementation for LLNearbyChatBarListener.
+ * @brief  Implementation for LLFloaterIMNearbyChatListener.
  *
  * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -28,15 +28,15 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llnearbychatbarlistener.h"
-#include "llnearbychat.h"
+#include "llfloaterimnearbychatlistener.h"
+#include "llfloaterimnearbychat.h"
 
 #include "llagent.h"
 #include "llchat.h"
 
 
 
-LLNearbyChatBarListener::LLNearbyChatBarListener(LLNearbyChat & chatbar)
+LLFloaterIMNearbyChatListener::LLFloaterIMNearbyChatListener(LLFloaterIMNearbyChat & chatbar)
   : LLEventAPI("LLChatBar",
                "LLChatBar listener to (e.g.) sendChat, etc."),
 	mChatbar(chatbar)
@@ -46,12 +46,12 @@ LLNearbyChatBarListener::LLNearbyChatBarListener(LLNearbyChat & chatbar)
         "[\"message\"] chat message text [required]\n"
         "[\"channel\"] chat channel number [default = 0]\n"
 		"[\"type\"] chat type \"whisper\", \"normal\", \"shout\" [default = \"normal\"]",
-        &LLNearbyChatBarListener::sendChat);
+        &LLFloaterIMNearbyChatListener::sendChat);
 }
 
 
 // "sendChat" command
-void LLNearbyChatBarListener::sendChat(LLSD const & chat_data) const
+void LLFloaterIMNearbyChatListener::sendChat(LLSD const & chat_data) const
 {
 	// Extract the data
 	std::string chat_text = chat_data["message"].asString();

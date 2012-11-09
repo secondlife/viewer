@@ -56,7 +56,7 @@
 #include "llinventorybridge.h"
 #include "llinventorymodel.h"	// for gInventory.findCategoryUUIDForType
 #include "llinventorypanel.h"
-#include "llimfloatercontainer.h"
+#include "llfloaterimcontainer.h"
 #include "llimview.h"			// for gIMMgr
 #include "llmutelist.h"
 #include "llnotificationsutil.h"	// for LLNotificationsUtil
@@ -184,7 +184,7 @@ static void on_avatar_name_cache_start_im(const LLUUID& agent_id,
 	LLUUID session_id = gIMMgr->addSession(name, IM_NOTHING_SPECIAL, agent_id);
 	if (session_id != LLUUID::null)
 	{
-		LLIMFloaterContainer::getInstance()->showConversation(session_id);
+		LLFloaterIMContainer::getInstance()->showConversation(session_id);
 	}
 	make_ui_sound("UISndStartIM");
 }
@@ -302,7 +302,7 @@ void LLAvatarActions::startConference(const uuid_vec_t& ids, const LLUUID& float
 		return;
 	}
 	
-	LLIMFloaterContainer::getInstance()->showConversation(session_id);
+	LLFloaterIMContainer::getInstance()->showConversation(session_id);
 	
 	make_ui_sound("UISndStartIM");
 }

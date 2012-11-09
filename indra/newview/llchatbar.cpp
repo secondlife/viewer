@@ -672,7 +672,7 @@ void LLChatBar::onCommitGesture(LLUICtrl* ctrl)
 
 
 /* Cruft - global gChatHandler declared below has been commented out,
-   so this class is never used.  See similar code in llnearbychatbar.cpp
+   so this class is never used.  See similar code in llfloaterimnearbychatbar.cpp
 class LLChatHandler : public LLCommandHandler
 {
 public:

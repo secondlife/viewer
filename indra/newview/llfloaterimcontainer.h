@@ -1,5 +1,5 @@
 /** 
- * @file llimfloatercontainer.h
+ * @file llfloaterimcontainer.h
  * @brief Multifloater containing active IM sessions in separate tab container tabs
  *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLIMFLOATERCONTAINER_H
-#define LL_LLIMFLOATERCONTAINER_H
+#ifndef LL_LLFLOATERIMCONTAINER_H
+#define LL_LLFLOATERIMCONTAINER_H
 
 #include <map>
 #include <vector>
@@ -44,17 +44,17 @@ class LLButton;
 class LLLayoutPanel;
 class LLLayoutStack;
 class LLTabContainer;
-class LLIMFloaterContainer;
+class LLFloaterIMContainer;
 class LLSpeaker;
 class LLSpeakerMgr;
 
-class LLIMFloaterContainer
+class LLFloaterIMContainer
 	: public LLMultiFloater
 	, public LLIMSessionObserver
 {
 public:
-	LLIMFloaterContainer(const LLSD& seed);
-	virtual ~LLIMFloaterContainer();
+	LLFloaterIMContainer(const LLSD& seed);
+	virtual ~LLFloaterIMContainer();
 	
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
@@ -73,8 +73,8 @@ public:
 	/*virtual*/ void tabClose();
 
 	static LLFloater* getCurrentVoiceFloater();
-	static LLIMFloaterContainer* findInstance();
-	static LLIMFloaterContainer* getInstance();
+	static LLFloaterIMContainer* findInstance();
+	static LLFloaterIMContainer* getInstance();
 
 	static void onCurrentChannelChanged(const LLUUID& session_id);
 
@@ -175,4 +175,4 @@ private:
 	LLEventStream mConversationsEventStream; 
 };
 
-#endif // LL_LLIMFLOATERCONTAINER_H
+#endif // LL_LLFLOATERIMCONTAINER_H

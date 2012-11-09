@@ -1,5 +1,5 @@
 /** 
- * @file LLNearbyChatHandler.cpp
+ * @file LLFloaterIMNearbyChatHandler.cpp
  * @brief Nearby chat chat managment
  *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
@@ -27,45 +27,45 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llagentdata.h" // for gAgentID
-#include "llnearbychathandler.h"
+#include "llfloaterimnearbychathandler.h"
 
 #include "llchatitemscontainerctrl.h"
 #include "llfirstuse.h"
 #include "llfloaterscriptdebug.h"
 #include "llhints.h"
-#include "llnearbychat.h"
+#include "llfloaterimnearbychat.h"
 #include "llrecentpeople.h"
 
 #include "llviewercontrol.h"
 
 #include "llfloaterreg.h"//for LLFloaterReg::getTypedInstance
 #include "llviewerwindow.h"//for screen channel position
-#include "llnearbychat.h"
+#include "llfloaterimnearbychat.h"
 #include "llrootview.h"
 #include "lllayoutstack.h"
 
-//add LLNearbyChatHandler to LLNotificationsUI namespace
+//add LLFloaterIMNearbyChatHandler to LLNotificationsUI namespace
 using namespace LLNotificationsUI;
 
-static LLNearbyChatToastPanel* createToastPanel()
+static LLFloaterIMNearbyChatToastPanel* createToastPanel()
 {
-	LLNearbyChatToastPanel* item = LLNearbyChatToastPanel::createInstance();
+	LLFloaterIMNearbyChatToastPanel* item = LLFloaterIMNearbyChatToastPanel::createInstance();
 	return item;
 }
 
 
 //-----------------------------------------------------------------------------------------------
-//LLNearbyChatScreenChannel
+//LLFloaterIMNearbyChatScreenChannel
 //-----------------------------------------------------------------------------------------------	
 
-class LLNearbyChatScreenChannel: public LLScreenChannelBase
+class LLFloaterIMNearbyChatScreenChannel: public LLScreenChannelBase
 {
-	LOG_CLASS(LLNearbyChatScreenChannel);
+	LOG_CLASS(LLFloaterIMNearbyChatScreenChannel);
 public:
 	typedef std::vector<LLHandle<LLToast> > toast_vec_t;
 	typedef std::list<LLHandle<LLToast> > toast_list_t;
 
-	LLNearbyChatScreenChannel(const Params& p)
+	LLFloaterIMNearbyChatScreenChannel(const Params& p)
 		: LLScreenChannelBase(p)
 	{
 		mStopProcessing = false;
@@ -73,20 +73,20 @@ public:
 		LLControlVariable* ctrl = gSavedSettings.getControl("NearbyToastLifeTime").get();
 		if (ctrl)
 		{
-			ctrl->getSignal()->connect(boost::bind(&LLNearbyChatScreenChannel::updateToastsLifetime, this));
+			ctrl->getSignal()->connect(boost::bind(&LLFloaterIMNearbyChatScreenChannel::updateToastsLifetime, this));
 		}
 
 		ctrl = gSavedSettings.getControl("NearbyToastFadingTime").get();
 		if (ctrl)
 		{
-			ctrl->getSignal()->connect(boost::bind(&LLNearbyChatScreenChannel::updateToastFadingTime, this));
+			ctrl->getSignal()->connect(boost::bind(&LLFloaterIMNearbyChatScreenChannel::updateToastFadingTime, this));
 		}
 	}
 
 	void addChat	(LLSD& chat);
 	void arrangeToasts		();
 	
-	typedef boost::function<LLNearbyChatToastPanel* (void )> create_toast_panel_callback_t;
+	typedef boost::function<LLFloaterIMNearbyChatToastPanel* (void )> create_toast_panel_callback_t;
 	void setCreatePanelCallback(create_toast_panel_callback_t value) { m_create_toast_panel_callback_t = value;}
 
 	void onToastDestroyed	(LLToast* toast, bool app_quitting);
@@ -157,16 +157,16 @@ protected:
 
 
 //-----------------------------------------------------------------------------------------------
-// LLNearbyChatToast
+// LLFloaterIMNearbyChatToast
 //-----------------------------------------------------------------------------------------------
 
 // We're deriving from LLToast to be able to override onClose()
 // in order to handle closing nearby chat toasts properly.
-class LLNearbyChatToast : public LLToast
+class LLFloaterIMNearbyChatToast : public LLToast
 {
-	LOG_CLASS(LLNearbyChatToast);
+	LOG_CLASS(LLFloaterIMNearbyChatToast);
 public:
-	LLNearbyChatToast(const LLToast::Params& p, LLNearbyChatScreenChannel* nc_channelp)
+	LLFloaterIMNearbyChatToast(const LLToast::Params& p, LLFloaterIMNearbyChatScreenChannel* nc_channelp)
 	:	LLToast(p),
 	 	mNearbyChatScreenChannelp(nc_channelp)
 	{
@@ -175,14 +175,14 @@ public:
 	/*virtual*/ void onClose(bool app_quitting);
 
 private:
-	LLNearbyChatScreenChannel*	mNearbyChatScreenChannelp;
+	LLFloaterIMNearbyChatScreenChannel*	mNearbyChatScreenChannelp;
 };
 
 //-----------------------------------------------------------------------------------------------
-// LLNearbyChatScreenChannel
+// LLFloaterIMNearbyChatScreenChannel
 //-----------------------------------------------------------------------------------------------
 
-void LLNearbyChatScreenChannel::deactivateToast(LLToast* toast)
+void LLFloaterIMNearbyChatScreenChannel::deactivateToast(LLToast* toast)
 {
 	toast_vec_t::iterator pos = std::find(m_active_toasts.begin(), m_active_toasts.end(), toast->getHandle());
 
@@ -196,12 +196,12 @@ void LLNearbyChatScreenChannel::deactivateToast(LLToast* toast)
 	m_active_toasts.erase(pos);
 }
 
-void	LLNearbyChatScreenChannel::createOverflowToast(S32 bottom, F32 timer)
+void	LLFloaterIMNearbyChatScreenChannel::createOverflowToast(S32 bottom, F32 timer)
 {
 	//we don't need overflow toast in nearby chat
 }
 
-void LLNearbyChatScreenChannel::onToastDestroyed(LLToast* toast, bool app_quitting)
+void LLFloaterIMNearbyChatScreenChannel::onToastDestroyed(LLToast* toast, bool app_quitting)
 {	
 	LL_DEBUGS("NearbyChat") << "Toast destroyed (app_quitting=" << app_quitting << ")" << llendl;
 
@@ -220,7 +220,7 @@ void LLNearbyChatScreenChannel::onToastDestroyed(LLToast* toast, bool app_quitti
 	}
 }
 
-void LLNearbyChatScreenChannel::onToastFade(LLToast* toast)
+void LLFloaterIMNearbyChatScreenChannel::onToastFade(LLToast* toast)
 {	
 	LL_DEBUGS("NearbyChat") << "Toast fading" << llendl;
 
@@ -235,7 +235,7 @@ void LLNearbyChatScreenChannel::onToastFade(LLToast* toast)
 	arrangeToasts();
 }
 
-void LLNearbyChatScreenChannel::updateToastsLifetime()
+void LLFloaterIMNearbyChatScreenChannel::updateToastsLifetime()
 {
 	S32 seconds = gSavedSettings.getS32("NearbyToastLifeTime");
 	toast_list_t::iterator it;
@@ -246,7 +246,7 @@ void LLNearbyChatScreenChannel::updateToastsLifetime()
 	}
 }
 
-void LLNearbyChatScreenChannel::updateToastFadingTime()
+void LLFloaterIMNearbyChatScreenChannel::updateToastFadingTime()
 {
 	S32 seconds = gSavedSettings.getS32("NearbyToastFadingTime");
 	toast_list_t::iterator it;
@@ -257,9 +257,9 @@ void LLNearbyChatScreenChannel::updateToastFadingTime()
 	}
 }
 
-bool	LLNearbyChatScreenChannel::createPoolToast()
+bool	LLFloaterIMNearbyChatScreenChannel::createPoolToast()
 {
-	LLNearbyChatToastPanel* panel= m_create_toast_panel_callback_t();
+	LLFloaterIMNearbyChatToastPanel* panel= m_create_toast_panel_callback_t();
 	if(!panel)
 		return false;
 	
@@ -268,20 +268,20 @@ bool	LLNearbyChatScreenChannel::createPoolToast()
 	p.lifetime_secs = gSavedSettings.getS32("NearbyToastLifeTime");
 	p.fading_time_secs = gSavedSettings.getS32("NearbyToastFadingTime");
 
-	LLToast* toast = new LLNearbyChatToast(p, this);
+	LLToast* toast = new LLFloaterIMNearbyChatToast(p, this);
 	
 	
-	toast->setOnFadeCallback(boost::bind(&LLNearbyChatScreenChannel::onToastFade, this, _1));
+	toast->setOnFadeCallback(boost::bind(&LLFloaterIMNearbyChatScreenChannel::onToastFade, this, _1));
 
 	// If the toast gets somehow prematurely destroyed, deactivate it to prevent crash (STORM-1352).
-	toast->setOnToastDestroyedCallback(boost::bind(&LLNearbyChatScreenChannel::onToastDestroyed, this, _1, false));
+	toast->setOnToastDestroyedCallback(boost::bind(&LLFloaterIMNearbyChatScreenChannel::onToastDestroyed, this, _1, false));
 
 	LL_DEBUGS("NearbyChat") << "Creating and pooling toast" << llendl;	
 	m_toast_pool.push_back(toast->getHandle());
 	return true;
 }
 
-void LLNearbyChatScreenChannel::addChat(LLSD& chat)
+void LLFloaterIMNearbyChatScreenChannel::addChat(LLSD& chat)
 {
 	//look in pool. if there is any message
 	if(mStopProcessing)
@@ -298,7 +298,7 @@ void LLNearbyChatScreenChannel::addChat(LLSD& chat)
 		LLToast* toast = m_active_toasts[0].get();
 		if (toast)
 		{
-			LLNearbyChatToastPanel* panel = dynamic_cast<LLNearbyChatToastPanel*>(toast->getPanel());
+			LLFloaterIMNearbyChatToastPanel* panel = dynamic_cast<LLFloaterIMNearbyChatToastPanel*>(toast->getPanel());
   
 			if(panel && panel->messageID() == fromID && panel->getFromName() == from && panel->canAddText())
 			{
@@ -343,7 +343,7 @@ void LLNearbyChatScreenChannel::addChat(LLSD& chat)
 	m_toast_pool.pop_back();
 
 
-	LLNearbyChatToastPanel* panel = dynamic_cast<LLNearbyChatToastPanel*>(toast->getPanel());
+	LLFloaterIMNearbyChatToastPanel* panel = dynamic_cast<LLFloaterIMNearbyChatToastPanel*>(toast->getPanel());
 	if(!panel)
 		return;
 	panel->init(chat);
@@ -365,7 +365,7 @@ static bool sort_toasts_predicate(LLHandle<LLToast> first, LLHandle<LLToast> sec
 	return v1 > v2;
 }
 
-void LLNearbyChatScreenChannel::arrangeToasts()
+void LLFloaterIMNearbyChatScreenChannel::arrangeToasts()
 {
 	if(mStopProcessing || isHovering())
 		return;
@@ -445,18 +445,18 @@ void LLNearbyChatScreenChannel::arrangeToasts()
 
 
 //-----------------------------------------------------------------------------------------------
-//LLNearbyChatHandler
+//LLFloaterIMNearbyChatHandler
 //-----------------------------------------------------------------------------------------------
-boost::scoped_ptr<LLEventPump> LLNearbyChatHandler::sChatWatcher(new LLEventStream("LLChat"));
+boost::scoped_ptr<LLEventPump> LLFloaterIMNearbyChatHandler::sChatWatcher(new LLEventStream("LLChat"));
 
-LLNearbyChatHandler::LLNearbyChatHandler()
+LLFloaterIMNearbyChatHandler::LLFloaterIMNearbyChatHandler()
 {
 	// Getting a Channel for our notifications
-	LLNearbyChatScreenChannel::Params p;
+	LLFloaterIMNearbyChatScreenChannel::Params p;
 	p.id = LLUUID(gSavedSettings.getString("NearByChatChannelUUID"));
-	LLNearbyChatScreenChannel* channel = new LLNearbyChatScreenChannel(p);
+	LLFloaterIMNearbyChatScreenChannel* channel = new LLFloaterIMNearbyChatScreenChannel(p);
 	
-	LLNearbyChatScreenChannel::create_toast_panel_callback_t callback = createToastPanel;
+	LLFloaterIMNearbyChatScreenChannel::create_toast_panel_callback_t callback = createToastPanel;
 
 	channel->setCreatePanelCallback(callback);
 
@@ -465,12 +465,12 @@ LLNearbyChatHandler::LLNearbyChatHandler()
 	mChannel = channel->getHandle();
 }
 
-LLNearbyChatHandler::~LLNearbyChatHandler()
+LLFloaterIMNearbyChatHandler::~LLFloaterIMNearbyChatHandler()
 {
 }
 
 
-void LLNearbyChatHandler::initChannel()
+void LLFloaterIMNearbyChatHandler::initChannel()
 {
 	//LLRect snap_rect = gFloaterView->getSnapRect();
 	//mChannel->init(snap_rect.mLeft, snap_rect.mLeft + 200);
@@ -478,7 +478,7 @@ void LLNearbyChatHandler::initChannel()
 
 
 
-void LLNearbyChatHandler::processChat(const LLChat& chat_msg,
+void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
 									  const LLSD &args)
 {
 	if(chat_msg.mMuted == TRUE)
@@ -488,7 +488,7 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg,
 		return;//don't process empty messages
 
     LLFloaterReg::getInstance("im_container");
-	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat");
+	LLFloaterIMNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
 
 	// Build notification data 
 	LLSD chat;
@@ -581,7 +581,7 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg,
 	}
 	*/
 
-	LLNearbyChatScreenChannel* channel = dynamic_cast<LLNearbyChatScreenChannel*>(mChannel.get());
+	LLFloaterIMNearbyChatScreenChannel* channel = dynamic_cast<LLFloaterIMNearbyChatScreenChannel*>(mChannel.get());
 
 	if(channel)
 	{
@@ -618,11 +618,11 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg,
 
 
 //-----------------------------------------------------------------------------------------------
-// LLNearbyChatToast
+// LLFloaterIMNearbyChatToast
 //-----------------------------------------------------------------------------------------------
 
 // virtual
-void LLNearbyChatToast::onClose(bool app_quitting)
+void LLFloaterIMNearbyChatToast::onClose(bool app_quitting)
 {
 	mNearbyChatScreenChannelp->onToastDestroyed(this, app_quitting);
 }

@@ -47,13 +47,13 @@ LLConversationLogListItem::LLConversationLogListItem(const LLConversation* conve
 {
 	buildFromFile("panel_conversation_log_list_item.xml");
 
-	LLIMFloater* floater = LLIMFloater::findInstance(mConversation->getSessionID());
+	LLFloaterIMSession* floater = LLFloaterIMSession::findInstance(mConversation->getSessionID());
 
-	bool ims_are_read = LLIMFloater::isVisible(floater) && floater->hasFocus();
+	bool ims_are_read = LLFloaterIMSession::isVisible(floater) && floater->hasFocus();
 
 	if (mConversation->hasOfflineMessages() && !ims_are_read)
 	{
-		mIMFloaterShowedConnection = LLIMFloater::setIMFloaterShowedCallback(boost::bind(&LLConversationLogListItem::onIMFloaterShown, this, _1));
+		mIMFloaterShowedConnection = LLFloaterIMSession::setIMFloaterShowedCallback(boost::bind(&LLConversationLogListItem::onIMFloaterShown, this, _1));
 	}
 }
 

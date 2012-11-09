@@ -27,7 +27,7 @@
 #define LLCONVERSATIONLOG_H_
 
 #include "llcallingcard.h"
-#include "llimfloater.h"
+#include "llfloaterimsession.h"
 #include "llimview.h"
 
 class LLConversationLogObserver;
@@ -80,7 +80,7 @@ public:
 private:
 
 	/*
-	 * If conversation has unread offline messages sets callback for opening LLIMFloater
+	 * If conversation has unread offline messages sets callback for opening LLFloaterIMSession
 	 * with this conversation.
 	 */
 	void setListenIMFloaterOpened();

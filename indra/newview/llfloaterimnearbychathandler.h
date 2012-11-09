@@ -1,5 +1,5 @@
 /** 
- * @file llnearbychathandler.h
+ * @file llfloaterimnearbychathandler.h
  * @brief nearby chat notify
  *
  * $LicenseInfo:firstyear=2004&license=viewerlgpl$
@@ -24,21 +24,21 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLNEARBYCHATHANDLER_H
-#define LL_LLNEARBYCHATHANDLER_H
+#ifndef LL_LLFLOATERIMNEARBYCHATHANDLER_H
+#define LL_LLFLOATERIMNEARBYCHATHANDLER_H
 
 #include "llnotificationhandler.h"
 
 class LLEventPump;
 
-//add LLNearbyChatHandler to LLNotificationsUI namespace
+//add LLFloaterIMNearbyChatHandler to LLNotificationsUI namespace
 namespace LLNotificationsUI{
 
-class LLNearbyChatHandler : public LLChatHandler
+class LLFloaterIMNearbyChatHandler : public LLChatHandler
 {
 public:
-	LLNearbyChatHandler();
-	virtual ~LLNearbyChatHandler();
+	LLFloaterIMNearbyChatHandler();
+	virtual ~LLFloaterIMNearbyChatHandler();
 
 
 	virtual void processChat(const LLChat& chat_msg, const LLSD &args);
@@ -51,4 +51,4 @@ protected:
 
 }
 
-#endif /* LL_LLNEARBYCHATHANDLER_H */
+#endif /* LL_LLFLOATERIMNEARBYCHATHANDLER_H */

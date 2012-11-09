@@ -40,7 +40,7 @@
 #include "lltrans.h"
 #include "llnotificationsutil.h"
 #include "llviewermessage.h"
-#include "llimfloater.h"
+#include "llfloaterimsession.h"
 
 const S32 BOTTOM_PAD = VPAD * 3;
 const S32 IGNORE_BTN_TOP_DELTA = 3*VPAD;//additional ignore_btn padding

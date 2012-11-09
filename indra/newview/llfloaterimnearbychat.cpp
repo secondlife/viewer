@@ -1,6 +1,6 @@
 /** 
- * @file LLNearbyChat.cpp
- * @brief LLNearbyChat class implementation
+ * @file LLFloaterIMNearbyChat.cpp
+ * @brief LLFloaterIMNearbyChat class implementation
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -33,7 +33,7 @@
 #include "llchatentry.h"
 #include "llfloaterreg.h"
 #include "lltrans.h"
-#include "llimfloatercontainer.h"
+#include "llfloaterimcontainer.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfocusmgr.h"
 #include "lllogchat.h"
@@ -42,7 +42,7 @@
 #include "lldraghandle.h"
 #include "llmenugl.h"
 #include "llviewermenu.h" // for gMenuHolder
-#include "llnearbychathandler.h"
+#include "llfloaterimnearbychathandler.h"
 #include "llchannelmanager.h"
 #include "llchathistory.h"
 #include "llstylemap.h"
@@ -51,7 +51,7 @@
 #include "lltrans.h"
 
 #include "llfirstuse.h"
-#include "llnearbychat.h"
+#include "llfloaterimnearbychat.h"
 #include "llagent.h" // gAgent
 #include "llgesturemgr.h"
 #include "llmultigesture.h"
@@ -67,7 +67,7 @@
 #include "llviewerchat.h"
 #include "lltranslate.h"
 
-S32 LLNearbyChat::sLastSpecialChatChannel = 0;
+S32 LLFloaterIMNearbyChat::sLastSpecialChatChannel = 0;
 
 const S32 EXPANDED_HEIGHT = 266;
 const S32 COLLAPSED_HEIGHT = 60;
@@ -87,8 +87,8 @@ static LLChatTypeTrigger sChatTypeTriggers[] = {
 };
 
 
-LLNearbyChat::LLNearbyChat(const LLSD& llsd)
-:	LLIMConversation(llsd),
+LLFloaterIMNearbyChat::LLFloaterIMNearbyChat(const LLSD& llsd)
+:	LLFloaterIMSessionTab(llsd),
 	//mOutputMonitor(NULL),
 	mSpeakerMgr(NULL),
 	mExpandedHeight(COLLAPSED_HEIGHT + EXPANDED_HEIGHT)
@@ -101,28 +101,28 @@ LLNearbyChat::LLNearbyChat(const LLSD& llsd)
 }
 
 //static
-LLNearbyChat* LLNearbyChat::buildFloater(const LLSD& key)
+LLFloaterIMNearbyChat* LLFloaterIMNearbyChat::buildFloater(const LLSD& key)
 {
     LLFloaterReg::getInstance("im_container");
-    return new LLNearbyChat(key);
+    return new LLFloaterIMNearbyChat(key);
 }
 
 //virtual
-BOOL LLNearbyChat::postBuild()
+BOOL LLFloaterIMNearbyChat::postBuild()
 {
     setIsSingleInstance(TRUE);
-    BOOL result = LLIMConversation::postBuild();
-	mInputEditor->setCommitCallback(boost::bind(&LLNearbyChat::onChatBoxCommit, this));
+    BOOL result = LLFloaterIMSessionTab::postBuild();
+	mInputEditor->setCommitCallback(boost::bind(&LLFloaterIMNearbyChat::onChatBoxCommit, this));
 	mInputEditor->setKeystrokeCallback(boost::bind(&onChatBoxKeystroke, _1, this));
 	mInputEditor->setFocusLostCallback(boost::bind(&onChatBoxFocusLost, _1, this));
-	mInputEditor->setFocusReceivedCallback(boost::bind(&LLNearbyChat::onChatBoxFocusReceived, this));
+	mInputEditor->setFocusReceivedCallback(boost::bind(&LLFloaterIMNearbyChat::onChatBoxFocusReceived, this));
 	mInputEditor->setLabel(LLTrans::getString("NearbyChatTitle"));
 
 //	mOutputMonitor = getChild<LLOutputMonitorCtrl>("chat_zone_indicator");
 //	mOutputMonitor->setVisible(FALSE);
 
 	// Register for font change notifications
-	LLViewerChat::setFontChangedCallback(boost::bind(&LLNearbyChat::onChatFontChange, this, _1));
+	LLViewerChat::setFontChangedCallback(boost::bind(&LLFloaterIMNearbyChat::onChatFontChange, this, _1));
 
 	// title must be defined BEFORE call addConversationListItem() because
 	// it is used for show the item's name in the conversations list
@@ -132,8 +132,8 @@ BOOL LLNearbyChat::postBuild()
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 
-	enable_registrar.add("NearbyChat.Check", boost::bind(&LLNearbyChat::onNearbyChatCheckContextMenuItem, this, _2));
-	registrar.add("NearbyChat.Action", boost::bind(&LLNearbyChat::onNearbyChatContextMenuItemClicked, this, _2));
+	enable_registrar.add("NearbyChat.Check", boost::bind(&LLFloaterIMNearbyChat::onNearbyChatCheckContextMenuItem, this, _2));
+	registrar.add("NearbyChat.Action", boost::bind(&LLFloaterIMNearbyChat::onNearbyChatContextMenuItemClicked, this, _2));
 
 	LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_nearby_chat.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	if(menu)
@@ -153,7 +153,7 @@ BOOL LLNearbyChat::postBuild()
 }
 
 // virtual
-void LLNearbyChat::refresh()
+void LLFloaterIMNearbyChat::refresh()
 {
 	displaySpeakingIndicator();
 	updateCallBtnState(LLVoiceClient::getInstance()->getUserPTTState());
@@ -167,18 +167,18 @@ void LLNearbyChat::refresh()
 	}
 }
 
-void LLNearbyChat::onNearbySpeakers()
+void LLFloaterIMNearbyChat::onNearbySpeakers()
 {
 	LLSD param;
 	param["people_panel_tab_name"] = "nearby_panel";
 	LLFloaterSidePanelContainer::showPanel("people", "panel_people", param);
 }
 
-void	LLNearbyChat::onNearbyChatContextMenuItemClicked(const LLSD& userdata)
+void	LLFloaterIMNearbyChat::onNearbyChatContextMenuItemClicked(const LLSD& userdata)
 {
 }
 
-bool	LLNearbyChat::onNearbyChatCheckContextMenuItem(const LLSD& userdata)
+bool	LLFloaterIMNearbyChat::onNearbyChatCheckContextMenuItem(const LLSD& userdata)
 {
 	std::string str = userdata.asString();
 	if(str == "nearby_people")
@@ -187,7 +187,7 @@ bool	LLNearbyChat::onNearbyChatCheckContextMenuItem(const LLSD& userdata)
 }
 
 
-BOOL	LLNearbyChat::handleMouseDown(S32 x, S32 y, MASK mask)
+BOOL	LLFloaterIMNearbyChat::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	//fix for EXT-6625
 	//highlight NearbyChat history whenever mouseclick happen in NearbyChat
@@ -204,7 +204,7 @@ BOOL	LLNearbyChat::handleMouseDown(S32 x, S32 y, MASK mask)
 	return handled;
 }
 
-void LLNearbyChat::reloadMessages()
+void LLFloaterIMNearbyChat::reloadMessages()
 {
 	mChatHistory->clear();
 
@@ -217,7 +217,7 @@ void LLNearbyChat::reloadMessages()
 	}
 }
 
-void LLNearbyChat::loadHistory()
+void LLFloaterIMNearbyChat::loadHistory()
 {
 	LLSD do_not_log;
 	do_not_log["do_not_log"] = true;
@@ -266,7 +266,7 @@ void LLNearbyChat::loadHistory()
 	}
 }
 
-void LLNearbyChat::removeScreenChat()
+void LLFloaterIMNearbyChat::removeScreenChat()
 {
 	LLNotificationsUI::LLScreenChannelBase* chat_channel = LLNotificationsUI::LLChannelManager::getInstance()->findChannelByID(LLUUID(gSavedSettings.getString("NearByChatChannelUUID")));
 	if(chat_channel)
@@ -276,9 +276,9 @@ void LLNearbyChat::removeScreenChat()
 }
 
 
-void LLNearbyChat::setVisible(BOOL visible)
+void LLFloaterIMNearbyChat::setVisible(BOOL visible)
 {
-	LLIMConversation::setVisible(visible);
+	LLFloaterIMSessionTab::setVisible(visible);
 
 	if(visible)
 	{
@@ -288,9 +288,9 @@ void LLNearbyChat::setVisible(BOOL visible)
 }
 
 // virtual
-void LLNearbyChat::onTearOffClicked()
+void LLFloaterIMNearbyChat::onTearOffClicked()
 {
-	LLIMConversation::onTearOffClicked();
+	LLFloaterIMSessionTab::onTearOffClicked();
 
 	// see CHUI-170: Save torn-off state of the nearby chat between sessions
 	BOOL in_the_multifloater = !isTornOff();
@@ -299,33 +299,33 @@ void LLNearbyChat::onTearOffClicked()
 
 
 // virtual
-void LLNearbyChat::onOpen(const LLSD& key)
+void LLFloaterIMNearbyChat::onOpen(const LLSD& key)
 {
-	LLIMConversation::onOpen(key);
+	LLFloaterIMSessionTab::onOpen(key);
 	showTranslationCheckbox(LLTranslate::isTranslationConfigured());
 }
 
 // virtual
-void LLNearbyChat::onClose(bool app_quitting)
+void LLFloaterIMNearbyChat::onClose(bool app_quitting)
 {
-	// Override LLIMConversation::onClose() so that Nearby Chat is not removed from the conversation floater
+	// Override LLFloaterIMSessionTab::onClose() so that Nearby Chat is not removed from the conversation floater
 }
 
 // virtual
-void LLNearbyChat::onClickCloseBtn()
+void LLFloaterIMNearbyChat::onClickCloseBtn()
 {
 	if (!isTornOff())
 		return;
 	onTearOffClicked();
 	
-	LLIMFloaterContainer *im_box = LLIMFloaterContainer::findInstance();
+	LLFloaterIMContainer *im_box = LLFloaterIMContainer::findInstance();
 	if (im_box)
 	{
 		im_box->onNearbyChatClosed();
 	}
 }
 
-void LLNearbyChat::onChatFontChange(LLFontGL* fontp)
+void LLFloaterIMNearbyChat::onChatFontChange(LLFontGL* fontp)
 {
 	// Update things with the new font whohoo
 	if (mInputEditor)
@@ -335,7 +335,7 @@ void LLNearbyChat::onChatFontChange(LLFontGL* fontp)
 }
 
 
-void LLNearbyChat::show()
+void LLFloaterIMNearbyChat::show()
 {
 	if (isChatMultiTab())
 	{
@@ -343,10 +343,10 @@ void LLNearbyChat::show()
 	}
 }
 
-bool LLNearbyChat::isChatVisible() const
+bool LLFloaterIMNearbyChat::isChatVisible() const
 {
 	bool isVisible = false;
-	LLIMFloaterContainer* im_box = LLIMFloaterContainer::getInstance();
+	LLFloaterIMContainer* im_box = LLFloaterIMContainer::getInstance();
 	// Is the IM floater container ever null?
 	llassert(im_box != NULL);
 	if (im_box != NULL)
@@ -360,19 +360,19 @@ bool LLNearbyChat::isChatVisible() const
 	return isVisible;
 }
 
-void LLNearbyChat::showHistory()
+void LLFloaterIMNearbyChat::showHistory()
 {
 	openFloater();
 	setResizeLimits(getMinWidth(), EXPANDED_MIN_HEIGHT);
 }
 
-std::string LLNearbyChat::getCurrentChat()
+std::string LLFloaterIMNearbyChat::getCurrentChat()
 {
 	return mInputEditor ? mInputEditor->getText() : LLStringUtil::null;
 }
 
 // virtual
-BOOL LLNearbyChat::handleKeyHere( KEY key, MASK mask )
+BOOL LLFloaterIMNearbyChat::handleKeyHere( KEY key, MASK mask )
 {
 	BOOL handled = FALSE;
 
@@ -386,7 +386,7 @@ BOOL LLNearbyChat::handleKeyHere( KEY key, MASK mask )
 	return handled;
 }
 
-BOOL LLNearbyChat::matchChatTypeTrigger(const std::string& in_str, std::string* out_str)
+BOOL LLFloaterIMNearbyChat::matchChatTypeTrigger(const std::string& in_str, std::string* out_str)
 {
 	U32 in_len = in_str.length();
 	S32 cnt = sizeof(sChatTypeTriggers) / sizeof(*sChatTypeTriggers);
@@ -411,11 +411,11 @@ BOOL LLNearbyChat::matchChatTypeTrigger(const std::string& in_str, std::string* 
 	return string_was_found;
 }
 
-void LLNearbyChat::onChatBoxKeystroke(LLTextEditor* caller, void* userdata)
+void LLFloaterIMNearbyChat::onChatBoxKeystroke(LLTextEditor* caller, void* userdata)
 {
 	LLFirstUse::otherAvatarChatFirst(false);
 
-	LLNearbyChat* self = (LLNearbyChat *)userdata;
+	LLFloaterIMNearbyChat* self = (LLFloaterIMNearbyChat *)userdata;
 
 	LLWString raw_text = self->mInputEditor->getWText();
 
@@ -485,18 +485,18 @@ void LLNearbyChat::onChatBoxKeystroke(LLTextEditor* caller, void* userdata)
 }
 
 // static
-void LLNearbyChat::onChatBoxFocusLost(LLFocusableElement* caller, void* userdata)
+void LLFloaterIMNearbyChat::onChatBoxFocusLost(LLFocusableElement* caller, void* userdata)
 {
 	// stop typing animation
 	gAgent.stopTyping();
 }
 
-void LLNearbyChat::onChatBoxFocusReceived()
+void LLFloaterIMNearbyChat::onChatBoxFocusReceived()
 {
 	mInputEditor->setEnabled(!gDisconnected);
 }
 
-EChatType LLNearbyChat::processChatTypeTriggers(EChatType type, std::string &str)
+EChatType LLFloaterIMNearbyChat::processChatTypeTriggers(EChatType type, std::string &str)
 {
 	U32 length = str.length();
 	S32 cnt = sizeof(sChatTypeTriggers) / sizeof(*sChatTypeTriggers);
@@ -528,7 +528,7 @@ EChatType LLNearbyChat::processChatTypeTriggers(EChatType type, std::string &str
 	return type;
 }
 
-void LLNearbyChat::sendChat( EChatType type )
+void LLFloaterIMNearbyChat::sendChat( EChatType type )
 {
 	if (mInputEditor)
 	{
@@ -578,7 +578,7 @@ void LLNearbyChat::sendChat( EChatType type )
 	}
 }
 
-void	LLNearbyChat::addMessage(const LLChat& chat,bool archive,const LLSD &args)
+void	LLFloaterIMNearbyChat::addMessage(const LLChat& chat,bool archive,const LLSD &args)
 {
 	appendMessage(chat, args);
 
@@ -612,7 +612,7 @@ void	LLNearbyChat::addMessage(const LLChat& chat,bool archive,const LLSD &args)
 }
 
 
-void LLNearbyChat::onChatBoxCommit()
+void LLFloaterIMNearbyChat::onChatBoxCommit()
 {
 	if (mInputEditor->getText().length() > 0)
 	{
@@ -622,7 +622,7 @@ void LLNearbyChat::onChatBoxCommit()
 	gAgent.stopTyping();
 }
 
-void LLNearbyChat::displaySpeakingIndicator()
+void LLFloaterIMNearbyChat::displaySpeakingIndicator()
 {
 	LLSpeakerMgr::speaker_list_t speaker_list;
 	LLUUID id;
@@ -652,12 +652,12 @@ void LLNearbyChat::displaySpeakingIndicator()
 	}
 }
 
-void LLNearbyChat::sendChatFromViewer(const std::string &utf8text, EChatType type, BOOL animate)
+void LLFloaterIMNearbyChat::sendChatFromViewer(const std::string &utf8text, EChatType type, BOOL animate)
 {
 	sendChatFromViewer(utf8str_to_wstring(utf8text), type, animate);
 }
 
-void LLNearbyChat::sendChatFromViewer(const LLWString &wtext, EChatType type, BOOL animate)
+void LLFloaterIMNearbyChat::sendChatFromViewer(const LLWString &wtext, EChatType type, BOOL animate)
 {
 	// Look for "/20 foo" channel chats.
 	S32 channel = 0;
@@ -707,7 +707,7 @@ void LLNearbyChat::sendChatFromViewer(const LLWString &wtext, EChatType type, BO
 }
 
 // static 
-bool LLNearbyChat::isWordsName(const std::string& name)
+bool LLFloaterIMNearbyChat::isWordsName(const std::string& name)
 {
 	// checking to see if it's display name plus username in parentheses
 	S32 open_paren = name.find(" (", 0);
@@ -727,9 +727,9 @@ bool LLNearbyChat::isWordsName(const std::string& name)
 }
 
 // static 
-void LLNearbyChat::startChat(const char* line)
+void LLFloaterIMNearbyChat::startChat(const char* line)
 {
-	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat");
+	LLFloaterIMNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
 	if (nearby_chat)
 	{
 		nearby_chat->show();
@@ -749,9 +749,9 @@ void LLNearbyChat::startChat(const char* line)
 
 // Exit "chat mode" and do the appropriate focus changes
 // static
-void LLNearbyChat::stopChat()
+void LLFloaterIMNearbyChat::stopChat()
 {
-	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat");
+	LLFloaterIMNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
 	if (nearby_chat)
 	{
 		nearby_chat->mInputEditor->setFocus(FALSE);
@@ -761,7 +761,7 @@ void LLNearbyChat::stopChat()
 
 // If input of the form "/20foo" or "/20 foo", returns "foo" and channel 20.
 // Otherwise returns input and channel 0.
-LLWString LLNearbyChat::stripChannelNumber(const LLWString &mesg, S32* channel)
+LLWString LLFloaterIMNearbyChat::stripChannelNumber(const LLWString &mesg, S32* channel)
 {
 	if (mesg[0] == '/'
 		&& mesg[1] == '/')

@@ -34,7 +34,7 @@
 #include "lloutputmonitorctrl.h"
 
 class LLTextBox;
-class LLIMFloaterContainer;
+class LLFloaterIMContainer;
 class LLConversationViewSession;
 class LLConversationViewParticipant;
 
@@ -47,7 +47,7 @@ class LLConversationViewSession : public LLFolderViewFolder
 public:
 	struct Params : public LLInitParam::Block<Params, LLFolderViewItem::Params>
 	{
-		Optional<LLIMFloaterContainer*>			container;
+		Optional<LLFloaterIMContainer*>			container;
 
 		Params();
 	};
@@ -56,7 +56,7 @@ protected:
 	friend class LLUICtrlFactory;
 	LLConversationViewSession( const Params& p );
 	
-	LLIMFloaterContainer* mContainer;
+	LLFloaterIMContainer* mContainer;
 	
 public:
 	virtual ~LLConversationViewSession();
@@ -107,7 +107,7 @@ public:
 
 	struct Params : public LLInitParam::Block<Params, LLFolderViewItem::Params>
 	{
-        Optional<LLIMFloaterContainer*>			container;
+        Optional<LLFloaterIMContainer*>			container;
 		Optional<LLUUID>	                    participant_id;
         Optional<LLAvatarIconCtrl::Params>	    avatar_icon;
 		Optional<LLButton::Params>				info_button;

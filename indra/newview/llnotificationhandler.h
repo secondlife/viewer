@@ -36,7 +36,7 @@
 #include "llinstantmessage.h"
 #include "llnotificationptr.h"
 
-class LLIMFloater;
+class LLFloaterIMSession;
 
 namespace LLNotificationsUI
 {

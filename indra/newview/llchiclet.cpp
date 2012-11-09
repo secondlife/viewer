@@ -33,8 +33,8 @@
 #include "lleventtimer.h"
 #include "llgroupactions.h"
 #include "lliconctrl.h"
-#include "llimfloater.h"
-#include "llimfloatercontainer.h"
+#include "llfloaterimsession.h"
+#include "llfloaterimcontainer.h"
 #include "llimview.h"
 #include "llfloaterreg.h"
 #include "lllocalcliprect.h"
@@ -605,7 +605,7 @@ bool LLIMChiclet::getShowNewMessagesIcon()
 
 void LLIMChiclet::onMouseDown()
 {
-	LLIMFloater::toggle(getSessionId());
+	LLFloaterIMSession::toggle(getSessionId());
 	setCounter(0);
 }
 
@@ -754,7 +754,7 @@ void LLIMP2PChiclet::updateMenuItems()
 	if(getSessionId().isNull())
 		return;
 
-	LLIMFloater* open_im_floater = LLIMFloater::findInstance(getSessionId());
+	LLFloaterIMSession* open_im_floater = LLFloaterIMSession::findInstance(getSessionId());
 	bool open_window_exists = open_im_floater && open_im_floater->getVisible();
 	mPopupMenu->getChild<LLUICtrl>("Send IM")->setEnabled(!open_window_exists);
 	
@@ -1030,7 +1030,7 @@ void LLIMGroupChiclet::updateMenuItems()
 	if(getSessionId().isNull())
 		return;
 
-	LLIMFloater* open_im_floater = LLIMFloater::findInstance(getSessionId());
+	LLFloaterIMSession* open_im_floater = LLFloaterIMSession::findInstance(getSessionId());
 	bool open_window_exists = open_im_floater && open_im_floater->getVisible();
 	mPopupMenu->getChild<LLUICtrl>("Chat")->setEnabled(!open_window_exists);
 }
@@ -1116,7 +1116,7 @@ void LLChicletPanel::onMessageCountChanged(const LLSD& data)
 	LLUUID session_id = data["session_id"].asUUID();
 	S32 unread = data["participant_unread"].asInteger();
 
-	LLIMFloater* im_floater = LLIMFloater::findInstance(session_id);
+	LLFloaterIMSession* im_floater = LLFloaterIMSession::findInstance(session_id);
 	if (im_floater && im_floater->getVisible() && im_floater->hasFocus())
 	{
 		unread = 0;
@@ -1197,7 +1197,7 @@ void LLChicletPanel::onCurrentVoiceChannelChanged(const LLUUID& session_id)
 			chiclet->setShowSpeaker(true);
 			if (gSavedSettings.getBOOL("OpenIMOnVoice"))
 			{
-				LLIMFloaterContainer::getInstance()->showConversation(session_id);
+				LLFloaterIMContainer::getInstance()->showConversation(session_id);
 			}
 		}
 	}
@@ -1688,7 +1688,7 @@ bool LLChicletPanel::isAnyIMFloaterDoked()
 	for (chiclet_list_t::iterator it = mChicletList.begin(); it
 			!= mChicletList.end(); it++)
 	{
-		LLIMFloater* im_floater = LLFloaterReg::findTypedInstance<LLIMFloater>(
+		LLFloaterIMSession* im_floater = LLFloaterReg::findTypedInstance<LLFloaterIMSession>(
 				"impanel", (*it)->getSessionId());
 		if (im_floater != NULL && im_floater->getVisible()
 				&& !im_floater->isMinimized() && im_floater->isDocked())

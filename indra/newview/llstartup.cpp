@@ -54,7 +54,7 @@
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
 #include "llhttpsender.h"
-#include "llimfloater.h"
+#include "llfloaterimsession.h"
 #include "lllocationhistory.h"
 #include "llimageworker.h"
 
@@ -63,8 +63,8 @@
 #include "llmemorystream.h"
 #include "llmessageconfig.h"
 #include "llmoveview.h"
-#include "llimfloatercontainer.h"
-#include "llnearbychat.h"
+#include "llfloaterimcontainer.h"
+#include "llfloaterimnearbychat.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llteleporthistory.h"
@@ -1384,7 +1384,7 @@ bool idle_startup()
 
 		// create a container's instance for start a controlling conversation windows
 		// by the voice's events
-		LLIMFloaterContainer::getInstance();
+		LLFloaterIMContainer::getInstance();
 
 		// *Note: this is where gWorldMap used to be initialized.
 

@@ -54,7 +54,7 @@
 #include "llmorphview.h"
 #include "llmoveview.h"
 #include "llnavigationbar.h" // to show/hide navigation bar when changing mouse look state
-#include "llnearbychat.h"
+#include "llfloaterimnearbychat.h"
 #include "llnotificationsutil.h"
 #include "llpanelpathfindingrebakenavmesh.h"
 #include "llpaneltopinfobar.h"
@@ -1899,7 +1899,7 @@ void LLAgent::startTyping()
 	{
 		sendAnimationRequest(ANIM_AGENT_TYPE, ANIM_REQUEST_START);
 	}
-	(LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat"))->
+	(LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat"))->
 			sendChatFromViewer("", CHAT_TYPE_START, FALSE);
 }
 
@@ -1912,7 +1912,7 @@ void LLAgent::stopTyping()
 	{
 		clearRenderState(AGENT_STATE_TYPING);
 		sendAnimationRequest(ANIM_AGENT_TYPE, ANIM_REQUEST_STOP);
-		(LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat"))->
+		(LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat"))->
 				sendChatFromViewer("", CHAT_TYPE_STOP, FALSE);
 	}
 }

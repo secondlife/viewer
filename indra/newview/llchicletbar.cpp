@@ -34,7 +34,7 @@
 
 // newview includes
 #include "llchiclet.h"
-#include "llimfloater.h" // for LLIMFloater
+#include "llfloaterimsession.h" // for LLFloaterIMSession
 #include "llpaneltopinfobar.h"
 #include "llsyswellwindow.h"
 
@@ -95,9 +95,9 @@ void LLChicletBar::sessionAdded(const LLUUID& session_id, const std::string& nam
 	if (session->isP2P() && session->isOtherParticipantAvaline()) return;
 
 	// Do not spawn chiclet when using the new multitab conversation UI
-	if (LLIMConversation::isChatMultiTab())
+	if (LLFloaterIMSessionTab::isChatMultiTab())
 	{
-		LLIMConversation::addToHost(session_id);
+		LLFloaterIMSessionTab::addToHost(session_id);
 		return;
 	}
 	
@@ -109,7 +109,7 @@ void LLChicletBar::sessionAdded(const LLUUID& session_id, const std::string& nam
 		chiclet->setIMSessionName(name);
 		chiclet->setOtherParticipantId(other_participant_id);
 
-		LLIMFloater::onIMChicletCreated(session_id);
+		LLFloaterIMSession::onIMChicletCreated(session_id);
 
 	}
 	else
@@ -124,7 +124,7 @@ void LLChicletBar::sessionRemoved(const LLUUID& session_id)
 	if(getChicletPanel())
 	{
 		// IM floater should be closed when session removed and associated chiclet closed
-		LLIMFloater* im_floater = LLFloaterReg::findTypedInstance<LLIMFloater>("impanel", session_id);
+		LLFloaterIMSession* im_floater = LLFloaterReg::findTypedInstance<LLFloaterIMSession>("impanel", session_id);
 		if (im_floater != NULL && !im_floater->getStartConferenceInSameFloater())
 		{
 			// Close the IM floater only if we are not planning to close the P2P chat

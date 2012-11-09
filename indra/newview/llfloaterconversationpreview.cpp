@@ -29,7 +29,7 @@
 #include "llfloaterconversationpreview.h"
 #include "llimview.h"
 #include "lllineeditor.h"
-#include "llnearbychat.h"
+#include "llfloaterimnearbychat.h"
 #include "llspinctrl.h"
 #include "lltrans.h"
 
@@ -149,7 +149,7 @@ void LLFloaterConversationPreview::showHistory()
 		}
 		else if (from_id.isNull())
 		{
-			chat.mSourceType = LLNearbyChat::isWordsName(from) ? CHAT_SOURCE_UNKNOWN : CHAT_SOURCE_OBJECT;
+			chat.mSourceType = LLFloaterIMNearbyChat::isWordsName(from) ? CHAT_SOURCE_UNKNOWN : CHAT_SOURCE_OBJECT;
 		}
 
 		mChatHistory->appendMessage(chat);

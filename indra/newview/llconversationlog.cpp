@@ -140,15 +140,15 @@ bool LLConversation::isOlderThan(U32 days) const
 
 void LLConversation::setListenIMFloaterOpened()
 {
-	LLIMFloater* floater = LLIMFloater::findInstance(mSessionID);
+	LLFloaterIMSession* floater = LLFloaterIMSession::findInstance(mSessionID);
 
-	bool offline_ims_visible = LLIMFloater::isVisible(floater) && floater->hasFocus();
+	bool offline_ims_visible = LLFloaterIMSession::isVisible(floater) && floater->hasFocus();
 
 	// we don't need to listen for im floater with this conversation is opened
 	// if floater is already opened or this conversation doesn't have unread offline messages
 	if (mHasOfflineIMs && !offline_ims_visible)
 	{
-		mIMFloaterShowedConnection = LLIMFloater::setIMFloaterShowedCallback(boost::bind(&LLConversation::onIMFloaterShown, this, _1));
+		mIMFloaterShowedConnection = LLFloaterIMSession::setIMFloaterShowedCallback(boost::bind(&LLConversation::onIMFloaterShown, this, _1));
 	}
 	else
 	{
