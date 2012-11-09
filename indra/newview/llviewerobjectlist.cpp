@@ -376,7 +376,7 @@ LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry*
 void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 											 void **user_data,
 											 const EObjectUpdateType update_type,
-											 bool cached, bool compressed)
+											 bool compressed)
 {
 	LLFastTimer t(FTM_PROCESS_OBJECTS);	
 	
@@ -395,7 +395,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 	num_objects = mesgsys->getNumberOfBlocksFast(_PREHASH_ObjectData);
 
 	// I don't think this case is ever hit.  TODO* Test this.
-	if (!cached && !compressed && update_type != OUT_FULL)
+	if (!compressed && update_type != OUT_FULL)
 	{
 		//llinfos << "TEST: !cached && !compressed && update_type != OUT_FULL" << llendl;
 		gTerseObjectUpdates += num_objects;
@@ -439,7 +439,6 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 
 	U8 compressed_dpbuffer[2048];
 	LLDataPackerBinaryBuffer compressed_dp(compressed_dpbuffer, 2048);
-	LLDataPacker *cached_dpp = NULL;
 	LLViewerStatsRecorder& recorder = LLViewerStatsRecorder::instance();
 
 	for (i = 0; i < num_objects; i++)
@@ -449,34 +448,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 		BOOL justCreated = FALSE;
 		S32	msg_size = 0;
 
-		if (cached)
-		{
-			U32 id;
-			U32 crc;
-			mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_ID, id, i);
-			mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_CRC, crc, i);
-			msg_size += sizeof(U32) * 2;
-		
-			// Lookup data packer and add this id to cache miss lists if necessary.
-			U8 cache_miss_type = LLViewerRegion::CACHE_MISS_TYPE_NONE;
-			cached_dpp = regionp->getDP(id, crc, cache_miss_type);
-			if (cached_dpp)
-			{
-				// Cache Hit.
-				cached_dpp->reset();
-				cached_dpp->unpackUUID(fullid, "ID");
-				cached_dpp->unpackU32(local_id, "LocalID");
-				cached_dpp->unpackU8(pcode, "PCode");
-			}
-			else
-			{
-				// Cache Miss.
-				recorder.cacheMissEvent(id, update_type, cache_miss_type, msg_size);
-
-				continue; // no data packer, skip this object
-			}
-		}
-		else if (compressed)
+		if (compressed)
 		{
 			S32	uncompressed_length = 2048;
 			compressed_dp.reset();			
@@ -575,9 +547,6 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 					continue;
 				}
 			}
-			else if (cached) // Cache hit only?
-			{
-			}
 			else
 			{
 				if (update_type != OUT_FULL)
@@ -610,7 +579,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			}
 			justCreated = TRUE;
 			mNumNewObjects++;
-			sCacheHitRate.addValue(cached ? 100.f : 0.f);
+			sCacheHitRate.addValue(0.f);
 
 		}
 
@@ -641,11 +610,6 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 				}
 			}
 		}
-		else if (cached) // Cache hit only?
-		{
-			objectp->mLocalID = local_id;
-			processUpdateCore(objectp, user_data, i, update_type, cached_dpp, justCreated);
-		}
 		else
 		{
 			if (update_type == OUT_FULL)
@@ -668,14 +632,51 @@ void LLViewerObjectList::processCompressedObjectUpdate(LLMessageSystem *mesgsys,
 											 void **user_data,
 											 const EObjectUpdateType update_type)
 {
-	processObjectUpdate(mesgsys, user_data, update_type, false, true);
+	processObjectUpdate(mesgsys, user_data, update_type, true);
 }
 
 void LLViewerObjectList::processCachedObjectUpdate(LLMessageSystem *mesgsys,
 											 void **user_data,
 											 const EObjectUpdateType update_type)
 {
-	processObjectUpdate(mesgsys, user_data, update_type, true, false);
+	//processObjectUpdate(mesgsys, user_data, update_type, true, false);
+
+	S32 num_objects = mesgsys->getNumberOfBlocksFast(_PREHASH_ObjectData);
+	gFullObjectUpdates += num_objects;
+
+	U64 region_handle;
+	mesgsys->getU64Fast(_PREHASH_RegionData, _PREHASH_RegionHandle, region_handle);	
+	LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(region_handle);
+	if (!regionp)
+	{
+		llwarns << "Object update from unknown region! " << region_handle << llendl;
+		return;
+	}
+
+	LLViewerStatsRecorder& recorder = LLViewerStatsRecorder::instance();
+
+	for (S32 i = 0; i < num_objects; i++)
+	{
+		S32	msg_size = 0;
+		U32 id;
+		U32 crc;
+		mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_ID, id, i);
+		mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_CRC, crc, i);
+		msg_size += sizeof(U32) * 2;
+		
+		// Lookup data packer and add this id to cache miss lists if necessary.
+		U8 cache_miss_type = LLViewerRegion::CACHE_MISS_TYPE_NONE;
+		if(!regionp->probeCache(id, crc, cache_miss_type))
+		{
+			// Cache Miss.
+			recorder.cacheMissEvent(id, update_type, cache_miss_type, msg_size);
+
+			continue; // no data packer, skip this object
+		}
+		sCacheHitRate.addValue(100.f);
+	}
+
+	return;
 }	
 
 void LLViewerObjectList::dirtyAllObjectInventory()

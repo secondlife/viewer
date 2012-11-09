@@ -36,17 +36,47 @@
 //---------------------------------------------------------------------------
 // Cache entries
 class LLVOCacheEntry;
+class LLCamera;
 
 class LLVOCacheEntry : public LLViewerOctreeEntryData
 {
 public:
 	enum
 	{
-		INACTIVE = 0,
-		WAITING,
-		ACTIVE
+		INACTIVE = 0x00000000,     //not visible
+		IN_QUEUE = 0x00000001,     //in visible queue, object to be created
+		WAITING  = 0x00000002,     //object creation request sent
+		ACTIVE   = 0x00000004      //object created, and in rendering pipeline.
 	};
 
+	enum
+	{
+		CHILD        = 0x00010000, //has parent
+		BRIDGE_CHILD = 0x00020000  //is a child of a spatial bridge.
+	};
+
+	struct CompareVOCacheEntry
+	{
+		bool operator()(const LLVOCacheEntry* const& lhs, const LLVOCacheEntry* const& rhs)
+		{
+			F32 lpa = lhs->getSceneContribution();
+			F32 rpa = rhs->getSceneContribution();
+
+			//larger pixel area first
+			if(lpa > rpa)		
+			{
+				return true;
+			}
+			else if(lpa < rpa)
+			{
+				return false;
+			}
+			else
+			{
+				return lhs < rhs;
+			}			
+		}
+	};
 protected:
 	~LLVOCacheEntry();
 public:
@@ -55,33 +85,45 @@ public:
 	LLVOCacheEntry();	
 
 	void setState(U32 state);
-	bool isState(U32 state)  {return mState == state;}
-	U32  getState() const    {return mState;}
+	bool isState(U32 state)   {return (mState & 0xffff) == state;}
+	U32  getState() const     {return (mState & 0xffff);}
+	U32  getFullState() const {return mState;}
+
+	void setBridgeChild();  
+	void clearBridgeChild(); 
+	bool isBridgeChild()     {return mState & BRIDGE_CHILD;}
 
 	U32 getLocalID() const			{ return mLocalID; }
 	U32 getCRC() const				{ return mCRC; }
 	S32 getHitCount() const			{ return mHitCount; }
 	S32 getCRCChangeCount() const	{ return mCRCChangeCount; }
-	S32 getMinVisFrameRange()const;
+	S32 getMinVisFrameRange()const;	
+	U32 getParentID();
+
+	void calcSceneContribution(const LLVector3& camera_origin, bool needs_update, U32 last_update);
+	void setSceneContribution(F32 scene_contrib) {mSceneContrib = scene_contrib;}
+	F32 getSceneContribution() const             { return mSceneContrib;}
 
 	void dump() const;
 	BOOL writeToFile(LLAPRFile* apr_file) const;
-	void assignCRC(U32 crc, LLDataPackerBinaryBuffer &dp);
 	LLDataPackerBinaryBuffer *getDP(U32 crc);
 	LLDataPackerBinaryBuffer *getDP();
 	void recordHit();
 	void recordDupe() { mDupeCount++; }
 	
+	void copy(LLVOCacheEntry* entry); //copy variables 
 	/*virtual*/ void setOctreeEntry(LLViewerOctreeEntry* entry);
 
 	void addChild(LLVOCacheEntry* entry);
-	LLVOCacheEntry* getNextChild();
-	S32 getNumOfChildren() {return mChildrenList.size();}
-	bool isDummy() {return !mBuffer;}
+	LLVOCacheEntry* getChild(S32 i) {return mChildrenList[i];}
+	S32  getNumOfChildren()         {return mChildrenList.size();}
+	void clearChildrenList()        {mChildrenList.clear();}
+	bool isDummy()                  {return !mBuffer;}	
 
 public:
-	typedef std::map<U32, LLPointer<LLVOCacheEntry> >	vocache_entry_map_t;
-	typedef std::set<LLVOCacheEntry*>                   vocache_entry_set_t;
+	typedef std::map<U32, LLPointer<LLVOCacheEntry> >	   vocache_entry_map_t;
+	typedef std::set<LLVOCacheEntry*>                      vocache_entry_set_t;
+	typedef std::set<LLVOCacheEntry*, CompareVOCacheEntry> vocache_entry_priority_list_t;	
 
 protected:
 	U32							mLocalID;
@@ -92,9 +134,10 @@ protected:
 	LLDataPackerBinaryBuffer	mDP;
 	U8							*mBuffer;
 
+	F32                         mSceneContrib; //projected scene contributuion of this object.
 	S32                         mVisFrameRange;
 	S32                         mRepeatedVisCounter; //number of repeatedly visible within a short time.
-	U32                         mState;
+	U32                         mState; //high 16 bits reserved for special use.
 	std::vector<LLVOCacheEntry*> mChildrenList; //children entries in a linked set.
 };
 

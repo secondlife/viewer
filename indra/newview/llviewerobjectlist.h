@@ -83,7 +83,7 @@ public:
 	void processUpdateCore(LLViewerObject* objectp, void** data, U32 block, const EObjectUpdateType update_type, 
 		                   LLDataPacker* dpp, bool justCreated, bool from_cache = false);
 	LLViewerObject* processObjectUpdateFromCache(LLVOCacheEntry* entry, LLViewerRegion* regionp);
-	void processObjectUpdate(LLMessageSystem *mesgsys, void **user_data, EObjectUpdateType update_type, bool cached=false, bool compressed=false);
+	void processObjectUpdate(LLMessageSystem *mesgsys, void **user_data, EObjectUpdateType update_type, bool compressed=false);
 	void processCompressedObjectUpdate(LLMessageSystem *mesgsys, void **user_data, EObjectUpdateType update_type);
 	void processCachedObjectUpdate(LLMessageSystem *mesgsys, void **user_data, EObjectUpdateType update_type);
 	void updateApparentAngles(LLAgent &agent);

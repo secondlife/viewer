@@ -32,6 +32,7 @@
 #include "llviewerobjectlist.h"
 #include "lldrawable.h"
 #include "llviewerregion.h"
+#include "pipeline.h"
 
 BOOL check_read(LLAPRFile* apr_file, void* src, S32 n_bytes) 
 {
@@ -57,11 +58,24 @@ LLVOCacheEntry::LLVOCacheEntry(U32 local_id, U32 crc, LLDataPackerBinaryBuffer &
 	mCRCChangeCount(0),
 	mState(INACTIVE),
 	mRepeatedVisCounter(0),
-	mVisFrameRange(64)
+	mVisFrameRange(64),
+	mSceneContrib(0.f)
 {
 	mBuffer = new U8[dp.getBufferSize()];
 	mDP.assignBuffer(mBuffer, dp.getBufferSize());
 	mDP = dp;
+
+	if(dp.getBufferSize() > 0)
+	{
+		U32 parent_id = 0;
+		dp.reset();
+		dp.unpackU32(parent_id, "ParentID");
+		dp.reset();
+		if(parent_id > 0)
+		{
+			mState |= CHILD; //is a child
+		}
+	}
 }
 
 LLVOCacheEntry::LLVOCacheEntry()
@@ -74,7 +88,8 @@ LLVOCacheEntry::LLVOCacheEntry()
 	mBuffer(NULL),
 	mState(INACTIVE),
 	mRepeatedVisCounter(0),
-	mVisFrameRange(64)
+	mVisFrameRange(64),
+	mSceneContrib(0.f)
 {
 	mDP.assignBuffer(mBuffer, 0);
 }
@@ -84,7 +99,8 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 	mBuffer(NULL),
 	mState(INACTIVE),
 	mRepeatedVisCounter(0),
-	mVisFrameRange(64)
+	mVisFrameRange(64),
+	mSceneContrib(0.f)
 {
 	S32 size = -1;
 	BOOL success;
@@ -108,6 +124,10 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 	if(success)
 	{
 		success = check_read(apr_file, &mCRCChangeCount, sizeof(S32));
+	}
+	if(success)
+	{
+		success = check_read(apr_file, &mState, sizeof(U32));
 	}
 	if(success)
 	{
@@ -174,6 +194,7 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 		mCRCChangeCount = 0;
 		mBuffer = NULL;
 		mEntry = NULL;
+		mState = 0;
 	}
 }
 
@@ -203,11 +224,40 @@ void LLVOCacheEntry::setOctreeEntry(LLViewerOctreeEntry* entry)
 	LLViewerOctreeEntryData::setOctreeEntry(entry);
 }
 
+void LLVOCacheEntry::setBridgeChild()
+{
+	mState |= BRIDGE_CHILD;
+}
+	
+void LLVOCacheEntry::clearBridgeChild()
+{
+	mState &= ~BRIDGE_CHILD;
+}
+
+void LLVOCacheEntry::copy(LLVOCacheEntry* entry)
+{
+	//copy LLViewerOctreeEntry
+	LLViewerOctreeEntry* oct_entry = entry->getEntry();
+	if(!oct_entry)
+	{
+		setOctreeEntry(oct_entry);
+	}
+
+	//copy children
+	S32 num_children = entry->getNumOfChildren();
+	for(S32 i = 0; i < num_children; i++)
+	{
+		addChild(entry->getChild(i));
+	}
+}
+
 void LLVOCacheEntry::setState(U32 state)
 {
-	mState = state;
+	mState &= 0xffff0000; //clear the low 16 bits
+	state &= 0x0000ffff;  //clear the high 16 bits;
+	mState |= state;
 
-	if(mState == ACTIVE)
+	if(getState() == ACTIVE)
 	{
 		const S32 MIN_REAVTIVE_INTERVAL = 20;
 		U32 last_visible = getVisible();
@@ -247,37 +297,6 @@ void LLVOCacheEntry::addChild(LLVOCacheEntry* entry)
 	mChildrenList.push_back(entry);
 }
 	
-LLVOCacheEntry* LLVOCacheEntry::getNextChild()
-{
-	S32 size = mChildrenList.size();
-	if(!size)
-	{
-		return NULL;
-	}
-
-	LLVOCacheEntry* entry = mChildrenList[size - 1];
-	mChildrenList.pop_back(); //remove the entry;
-
-	return entry;
-}
-
-// New CRC means the object has changed.
-void LLVOCacheEntry::assignCRC(U32 crc, LLDataPackerBinaryBuffer &dp)
-{
-	if (  (mCRC != crc)
-		||(mDP.getBufferSize() == 0))
-	{
-		mCRC = crc;
-		mHitCount = 0;
-		mCRCChangeCount++;
-
-		mDP.freeBuffer();
-		mBuffer = new U8[dp.getBufferSize()];
-		mDP.assignBuffer(mBuffer, dp.getBufferSize());
-		mDP = dp;
-	}
-}
-
 LLDataPackerBinaryBuffer *LLVOCacheEntry::getDP(U32 crc)
 {
 	if (  (mCRC != crc)
@@ -344,6 +363,11 @@ BOOL LLVOCacheEntry::writeToFile(LLAPRFile* apr_file) const
 	}
 	if(success)
 	{
+		U32 state = mState & 0xffff0000; //only store the high 16 bits.
+		success = check_write(apr_file, (void*)&state, sizeof(U32));
+	}
+	if(success)
+	{
 		const LLVector4a* exts = getSpatialExtents() ;
 		LLVector4 ext(exts[0][0], exts[0][1], exts[0][2], exts[0][3]);
 		success = check_write(apr_file, ext.mV, sizeof(LLVector4));		
@@ -376,6 +400,46 @@ BOOL LLVOCacheEntry::writeToFile(LLAPRFile* apr_file) const
 	}
 
 	return success ;
+}
+
+void LLVOCacheEntry::calcSceneContribution(const LLVector3& camera_origin, bool needs_update, U32 last_update)
+{
+	if(!needs_update && getVisible() >= last_update)
+	{
+		return; //no need to update
+	}
+
+	const LLVector4a& center = getPositionGroup();
+	
+	LLVector4a origin;
+	origin.load3(camera_origin.mV);
+
+	LLVector4a lookAt;
+	lookAt.setSub(center, origin);
+	F32 squared_dist = lookAt.dot3(lookAt).getF32();
+
+	F32 rad = getBinRadius();
+	mSceneContrib = rad * rad / squared_dist;
+
+	setVisible();
+}
+
+U32 LLVOCacheEntry::getParentID()
+{
+	if(!(mState & CHILD))
+	{
+		return 0; //not a child
+	}
+
+	U32 parent_id = 0;
+	LLDataPackerBinaryBuffer* dp = getDP();
+	if(dp)
+	{
+		dp->reset();
+		dp->unpackU32(parent_id, "ParentID");
+		dp->reset();
+	}
+	return parent_id;
 }
 
 //-------------------------------------------------------------------

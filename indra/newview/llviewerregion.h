@@ -317,7 +317,7 @@ public:
 	// handle a full update message
 	eCacheUpdateResult cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp);	
 	LLVOCacheEntry* getCacheEntryForOctree(U32 local_id);
-	LLDataPacker *getDP(U32 local_id, U32 crc, U8 &cache_miss_type);
+	bool probeCache(U32 local_id, U32 crc, U8 &cache_miss_type);
 	void requestCacheMisses();
 	void addCacheMissFull(const U32 local_id);
 
@@ -354,8 +354,8 @@ private:
 	void killCacheEntry(LLVOCacheEntry* entry); //physically delete the cache entry	
 
 	F32 killInvisibleObjects(F32 max_time);
-	F32 addLinkedSetChildren(F32 max_time, S32& max_num_objects);
-	F32 addVisibleObjects(F32 max_time, S32& max_num_objects);
+	F32 createVisibleObjects(F32 max_time);
+	F32 updateVisibleEntries(F32 max_time); //update visible entries
 
 public:
 	struct CompareDistance

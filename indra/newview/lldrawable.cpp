@@ -470,7 +470,13 @@ void LLDrawable::makeActive()
 		}
 		updatePartition();
 	}
-
+	else if (!isRoot() && !mParent->isActive()) //this should not happen, but occasionally it does...
+	{
+		mParent->makeActive();
+		//NOTE: linked set will now NEVER become static
+		mParent->setState(LLDrawable::ACTIVE_CHILD);
+	}
+	
 	llassert(isAvatar() || isRoot() || mParent->isActive());
 }
 
@@ -1093,6 +1099,11 @@ LLSpatialBridge::LLSpatialBridge(LLDrawable* root, BOOL render_by_group, U32 dat
 	{
 		part->put(this);
 	}
+
+	if(mDrawable->getEntry()->hasVOCacheEntry())
+	{
+		((LLVOCacheEntry*)mDrawable->getEntry()->getVOCacheEntry())->setBridgeChild();
+	}
 }
 
 LLSpatialBridge::~LLSpatialBridge()
@@ -1470,9 +1481,9 @@ void LLSpatialBridge::cleanupReferences()
 		dummy_entry = new LLVOCacheEntry();
 		dummy_entry->setOctreeEntry(mEntry);
 		dummy_entry->addChild((LLVOCacheEntry*)mDrawable->getEntry()->getVOCacheEntry());
-		llassert(!mDrawable->getParent());
+		//llassert(!mDrawable->getParent());
 		
-		mDrawable->mParent = this;
+		//mDrawable->mParent = this;
 	}
 
 	LLDrawable::cleanupReferences();

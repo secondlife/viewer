@@ -135,7 +135,7 @@ public:
 	const LLVector4a*    getSpatialExtents() const;
 	LLviewerOctreeGroup* getGroup()const;
 	const LLVector4a&    getPositionGroup() const;
-
+	
 	void setBinRadius(F32 rad)  {mEntry->mBinRadius = rad;}
 	void setSpatialExtents(const LLVector3& min, const LLVector3& max);
 	void setSpatialExtents(const LLVector4a& min, const LLVector4a& max);
@@ -247,9 +247,9 @@ protected:
 	U32         mState;
 	OctreeNode* mOctreeNode;	
 
-	LL_ALIGN_16(LLVector4a mBounds[2]);       // bounding box (center, size) of this node and all its children (tight fit to objects)
-	LL_ALIGN_16(LLVector4a mObjectBounds[2]); // bounding box (center, size) of objects in this node
-	LL_ALIGN_16(LLVector4a mExtents[2]); // extents (min, max) of this node and all its children
+	LL_ALIGN_16(LLVector4a mBounds[2]);        // bounding box (center, size) of this node and all its children (tight fit to objects)
+	LL_ALIGN_16(LLVector4a mObjectBounds[2]);  // bounding box (center, size) of objects in this node
+	LL_ALIGN_16(LLVector4a mExtents[2]);       // extents (min, max) of this node and all its children
 	LL_ALIGN_16(LLVector4a mObjectExtents[2]); // extents (min, max) of objects in this node
 
 public:

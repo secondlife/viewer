@@ -126,13 +126,14 @@ S32 AABBSphereIntersectR2(const LLVector4a& min, const LLVector4a& max, const LL
 //-----------------------------------------------------------------------------------
 //class LLViewerOctreeEntry definitions
 //-----------------------------------------------------------------------------------
-LLViewerOctreeEntry::LLViewerOctreeEntry() : mGroup(NULL)
+LLViewerOctreeEntry::LLViewerOctreeEntry() 
+	: mGroup(NULL),
+	  mBinRadius(0.f),
+	  mBinIndex(-1)
 {
 	mPositionGroup.clear();
 	mExtents[0].clear();
-	mExtents[1].clear();
-	mBinRadius = 0.f;
-	mBinIndex = -1;
+	mExtents[1].clear();	
 
 	for(S32 i = 0; i < NUM_DATA_TYPE; i++)
 	{
