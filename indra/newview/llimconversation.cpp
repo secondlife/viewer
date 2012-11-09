@@ -51,7 +51,6 @@ LLIMConversation::LLIMConversation(const LLSD& session_id)
   ,  mTearOffBtn(NULL)
   ,  mCloseBtn(NULL)
   ,  mSessionID(session_id.asUUID())
-//  , mParticipantList(NULL)
   , mConversationsRoot(NULL)
   , mChatHistory(NULL)
   , mInputEditor(NULL)
@@ -77,14 +76,6 @@ LLIMConversation::LLIMConversation(const LLSD& session_id)
 
 LLIMConversation::~LLIMConversation()
 {
-	/*
-	if (mParticipantList)
-	{
-		delete mParticipantList;
-		mParticipantList = NULL;
-	}
-	 */
-
 	delete mRefreshTimer;
 }
 
@@ -246,8 +237,6 @@ BOOL LLIMConversation::postBuild()
 
 	buildConversationViewParticipant();
 
-	updateHeaderAndToolbar();
-
 	mSaveRect = isTornOff();
 	initRectControl();
 
@@ -264,6 +253,8 @@ BOOL LLIMConversation::postBuild()
 		result = LLDockableFloater::postBuild();
 	}
 
+	refreshConversation();
+	
 	return result;
 }
 
@@ -274,8 +265,6 @@ LLParticipantList* LLIMConversation::getParticipantList()
 
 void LLIMConversation::draw()
 {
-	LLTransientDockableFloater::draw();
-
 	if (mRefreshTimer->hasExpired())
 	{
 		if (getParticipantList())
@@ -283,12 +272,13 @@ void LLIMConversation::draw()
 			getParticipantList()->update();
 		}
 
-		refresh();
-		updateHeaderAndToolbar();
+		refreshConversation();
 
 		// Restart the refresh timer
 		mRefreshTimer->setTimerExpirySec(REFRESH_INTERVAL);
 	}
+	
+	LLTransientDockableFloater::draw();
 }
 
 void LLIMConversation::enableDisableCallBtn()
@@ -488,6 +478,8 @@ void LLIMConversation::refreshConversation()
 	mConversationViewModel.requestSortAll();
 	mConversationsRoot->arrangeAll();
 	mConversationsRoot->update();
+	updateHeaderAndToolbar();
+	refresh();
 }
 
 // Copied from LLIMFloaterContainer::createConversationViewParticipant(). Refactor opportunity!
@@ -731,7 +723,6 @@ void LLIMConversation::onTearOffClicked()
     mSaveRect = isTornOff();
     initRectControl();
 	LLFloater::onClickTearOff(this);
-	updateHeaderAndToolbar();
 	refreshConversation();
 }
 
@@ -749,7 +740,7 @@ bool LLIMConversation::checkIfTornOff()
 	if (isTorn != isTornOff())
 	{
 		setTornOff(isTorn);
-		updateHeaderAndToolbar();
+		refreshConversation();
 	}
 
 	return isTorn;

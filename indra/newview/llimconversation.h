@@ -142,7 +142,6 @@ protected:
 	
 	LLUUID mSessionID; 
 	LLLayoutPanel* mParticipantListPanel;	// add the widgets to that see mConversationsListPanel
-	//LLParticipantList* mParticipantList; get this from the mConversationsItems for the moment
 	LLParticipantList* getParticipantList();
 	conversations_widgets_map mConversationsWidgets;
 	LLConversationViewModel mConversationViewModel;
