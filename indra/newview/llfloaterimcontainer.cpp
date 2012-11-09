@@ -141,6 +141,8 @@ BOOL LLFloaterIMContainer::postBuild()
 	// mTabContainer will be initialized in LLMultiFloater::addChild()
 	
 	setTabContainer(getChild<LLTabContainer>("im_box_tab_container"));
+	mStubPanel = getChild<LLPanel>("stub_panel");
+    mStubTextBox = getChild<LLTextBox>("stub_textbox");
 
 	mConversationsStack = getChild<LLLayoutStack>("conversations_stack");
 	mConversationsPane = getChild<LLLayoutPanel>("conversations_layout_panel");
@@ -492,6 +494,16 @@ void LLFloaterIMContainer::tabClose()
 		// still needs the conversation list. Simply collapse the message pane in that case.
 		collapseMessagesPane(true);
 	}
+}
+
+void LLFloaterIMContainer::showStub(bool stub_is_visible)
+{
+	if (stub_is_visible)
+	{
+		mTabContainer->hideAllTabs();
+	}
+
+	mStubPanel->setVisible(stub_is_visible);
 }
 
 void LLFloaterIMContainer::setVisible(BOOL visible)

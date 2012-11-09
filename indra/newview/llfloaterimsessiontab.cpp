@@ -313,6 +313,7 @@ void LLFloaterIMSessionTab::onFocusReceived()
 	if (container)
 	{
 		container->selectConversationPair(mSessionID, true);
+		container->showStub(! getHost());
 	}
 }
 
