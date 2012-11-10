@@ -295,7 +295,7 @@ Please try logging in again in a minute.</string>
 	<!-- llvoavatar. Displayed in the avatar chat bubble -->
 	<string name="AvatarEditingAppearance">(Editing Appearance)</string>
 	<string name="AvatarAway">Away</string>
-	<string name="AvatarDoNotDisturb">Busy</string>
+	<string name="AvatarDoNotDisturb">Do Not Disturb</string>
 	<string name="AvatarMuted">Blocked</string>
 
 	<!-- animations -->
