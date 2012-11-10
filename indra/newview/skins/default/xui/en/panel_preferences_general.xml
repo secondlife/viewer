@@ -409,7 +409,7 @@
      name="text_box3"
      top_pad="3"
      width="240">
-       Busy mode response:
+       Do Not Disturb response:
     </text>
     <text_editor
      control_name="DoNotDisturbModeResponse"

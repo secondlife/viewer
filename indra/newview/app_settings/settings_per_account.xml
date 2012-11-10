@@ -20,7 +20,7 @@
         <key>Type</key>
             <string>String</string>
         <key>Value</key>
-            <string>The Resident you messaged is in &apos;busy mode&apos; which means they have requested not to be disturbed.  Your message will still be shown in their IM panel for later viewing.</string>
+            <string>This resident has turned on &apos;Do Not Disturb&apos; and will see your message later.</string>
         </map>
     <key>ConversationsExpandMessagePaneFirst</key>
     <map>
