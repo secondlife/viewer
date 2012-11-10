@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="hide_navbar_menu">
-	<menu_item_check label="顯示導覽列" name="ShowNavbarNavigationPanel"/>
+	<menu_item_check label="顯示導覽列和我的最愛" name="ShowNavbarNavigationPanel"/>
 	<menu_item_check label="顯示最愛列" name="ShowNavbarFavoritesPanel"/>
 	<menu_item_check label="顯示迷你位置列" name="ShowMiniLocationPanel"/>
 </menu>
