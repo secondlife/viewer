@@ -1126,7 +1126,7 @@ BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool
     /* widget processing */
     if (select_widget)
     {
-    	LLFolderViewItem* widget = mConversationsWidgets[session_id];
+		LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,session_id);
     	if (widget && widget->getParentFolder())
     	{
     		widget->getParentFolder()->setSelection(widget, FALSE, FALSE);
@@ -1539,7 +1539,7 @@ void LLFloaterIMContainer::openNearbyChat()
 	//(which it should be...), open it so to make the list of participants visible. This happens to be the most common case when opening the Chat floater.
 	if(mConversationsItems.size() == 1)
 	{
-		LLConversationViewSession* nearby_chat = dynamic_cast<LLConversationViewSession*>(mConversationsWidgets[LLUUID()]);
+		LLConversationViewSession* nearby_chat = dynamic_cast<LLConversationViewSession*>(get_ptr_in_map(mConversationsWidgets,LLUUID()));
 		if (nearby_chat)
 		{
 			nearby_chat->setOpen(TRUE);
