@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Participant List Context Menu">
 	<menu_item_check label="依名稱排序" name="SortByName"/>
-	<menu_item_check label="Sort by Recent Speakers" name="SortByRecentSpeakers"/>
+	<menu_item_check label="依最近說話者排序" name="SortByRecentSpeakers"/>
 	<menu_item_call label="察看檔案" name="View Profile"/>
 	<menu_item_call label="加為朋友" name="Add Friend"/>
 	<menu_item_call label="IM" name="IM"/>
@@ -9,13 +9,13 @@
 	<menu_item_call label="分享" name="Share"/>
 	<menu_item_call label="支付" name="Pay"/>
 	<menu_item_check label="察看人群圖示" name="View Icons"/>
-	<menu_item_check label="Block Voice" name="Block/Unblock"/>
-	<menu_item_check label="Block Text" name="MuteText"/>
-	<context_menu label="Moderator Options" name="Moderator Options">
-		<menu_item_check label="Allow text chat" name="AllowTextChat"/>
-		<menu_item_call label="Mute this participant" name="ModerateVoiceMuteSelected"/>
-		<menu_item_call label="Unmute this participant" name="ModerateVoiceUnMuteSelected"/>
-		<menu_item_call label="Mute everyone" name="ModerateVoiceMute"/>
-		<menu_item_call label="Unmute everyone" name="ModerateVoiceUnmute"/>
+	<menu_item_check label="禁止語音" name="Block/Unblock"/>
+	<menu_item_check label="禁止文字" name="MuteText"/>
+	<context_menu label="主持人選項" name="Moderator Options">
+		<menu_item_check label="允許文字聊天" name="AllowTextChat"/>
+		<menu_item_call label="將此人消音" name="ModerateVoiceMuteSelected"/>
+		<menu_item_call label="取消對此人的消音" name="ModerateVoiceUnMuteSelected"/>
+		<menu_item_call label="所有人消音" name="ModerateVoiceMute"/>
+		<menu_item_call label="取消所有人的消音" name="ModerateVoiceUnmute"/>
 	</context_menu>
 </context_menu>

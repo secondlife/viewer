@@ -2,11 +2,11 @@
 <panel name="edit_alpha_panel">
 	<scroll_container name="avatar_alpha_color_panel_scroll">
 		<panel name="avatar_alpha_color_panel">
-			<texture_picker label="下半身半透明" name="Lower Alpha" tool_tip="點擊以挑選圖像"/>
-			<texture_picker label="上半身半透明" name="Upper Alpha" tool_tip="點擊以挑選圖像"/>
-			<texture_picker label="頭部半透明" name="Head Alpha" tool_tip="點擊以挑選圖像"/>
-			<texture_picker label="眼睛半透明" name="Eye Alpha" tool_tip="點擊以挑選圖像"/>
-			<texture_picker label="頭髮半透明" name="Hair Alpha" tool_tip="點擊以挑選圖像"/>
+			<texture_picker label="下半身半透明" name="Lower Alpha" tool_tip="點按以挑選圖片"/>
+			<texture_picker label="上半身半透明" name="Upper Alpha" tool_tip="點按以挑選圖片"/>
+			<texture_picker label="頭部半透明" name="Head Alpha" tool_tip="點按以挑選圖片"/>
+			<texture_picker label="眼睛半透明" name="Eye Alpha" tool_tip="點按以挑選圖片"/>
+			<texture_picker label="頭髮半透明" name="Hair Alpha" tool_tip="點按以挑選圖片"/>
 		</panel>
 	</scroll_container>
 </panel>

@@ -4,7 +4,7 @@
 		載入中...
 	</panel.string>
 	<panel.string name="can_not_view">
-		你不能察看或編輯此腳本，自從它被設定為 &quot;no copy&quot; 後。你需要完整權限去察看或編輯有包含腳本在內的物件。
+		你無法察看或編輯這腳本，它被設為「禁止複製」。 你需要完整權限去察看或編輯物件內的腳本。
 	</panel.string>
 	<panel.string name="public_objects_can_not_run">
 		公開物件不能執行腳本
@@ -27,7 +27,7 @@
 			<menu_item_call label="復原" name="Undo"/>
 			<menu_item_call label="重做" name="Redo"/>
 			<menu_item_call label="剪下" name="Cut"/>
-			<menu_item_call label="覆製" name="Copy"/>
+			<menu_item_call label="恚庨" name="Copy"/>
 			<menu_item_call label="貼上" name="Paste"/>
 			<menu_item_call label="全選" name="Select All"/>
 			<menu_item_call label="取消選擇" name="Deselect"/>

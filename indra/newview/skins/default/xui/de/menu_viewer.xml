@@ -28,6 +28,7 @@
 		<menu_item_call label="Einstellungen..." name="Preferences"/>
 		<menu_item_call label="Symbolleistenschaltflächen..." name="Toolbars"/>
 		<menu_item_call label="Alle Steuerelemente ausblenden" name="Hide UI"/>
+		<menu_item_check label="HUD-Anhänge anzeigen" name="Show HUD Attachments"/>
 		<menu_item_call label="[APP_NAME] schließen" name="Quit"/>
 	</menu>
 	<menu label="Unterhalten" name="Communicate">
@@ -39,6 +40,7 @@
 		<menu_item_call label="Freunde" name="My Friends"/>
 		<menu_item_call label="Gruppen" name="My Groups"/>
 		<menu_item_call label="Leute in der Nähe" name="Active Speakers"/>
+		<menu_item_call label="Blockierliste" name="Block List"/>
 	</menu>
 	<menu label="Welt" name="World">
 		<menu_item_call label="Landmarke für diesen Ort setzen" name="Create Landmark Here"/>
@@ -124,6 +126,11 @@
 			<menu_item_call label="Skripts auf ausführen einstellen" name="Set Scripts to Running"/>
 			<menu_item_call label="Skripts auf nicht ausführen einstellen" name="Set Scripts to Not Running"/>
 		</menu>
+		<menu label="Pathfinding" name="Pathfinding">
+			<menu_item_call label="Linksets..." name="pathfinding_linksets_menu_item"/>
+			<menu_item_call label="Figuren..." name="pathfinding_characters_menu_item"/>
+			<menu_item_call label="Anzeigen/Testen..." name="pathfinding_console_menu_item"/>
+		</menu>
 		<menu label="Optionen" name="Options">
 			<menu_item_check label="Erweiterte Berechtigungen anzeigen" name="DebugPermissions"/>
 			<menu_item_check label="Nur meine Objekte auswählen" name="Select Only My Objects"/>
@@ -174,7 +181,6 @@
 			<menu_item_check label="Partikel ausblenden" name="Hide Particles"/>
 			<menu_item_check label="Auswahl ausblenden" name="Hide Selected"/>
 			<menu_item_check label="Durchsichtig hervorheben" name="Highlight Transparent"/>
-			<menu_item_check label="HUD-Anhänge anzeigen" name="Show HUD Attachments"/>
 			<menu_item_check label="Fadenkreuz für Mouselook anzeigen" name="ShowCrosshairs"/>
 		</menu>
 		<menu label="Darstellungstypen" name="Rendering Types">
@@ -377,7 +383,6 @@
 				<menu_item_call label="Avatargeometry ein-/ausschalten" name="Toggle Character Geometry"/>
 				<menu_item_call label="Männlich testen" name="Test Male"/>
 				<menu_item_call label="Weiblich testen" name="Test Female"/>
-				<menu_item_call label="PG ein-/ausschalten" name="Toggle PG"/>
 				<menu_item_check label="Avatarauswahl zulassen" name="Allow Select Avatar"/>
 			</menu>
 			<menu_item_call label="Param auf Standard erzwingen" name="Force Params to Default"/>

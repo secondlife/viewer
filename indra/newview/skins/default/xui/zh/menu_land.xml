@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Land Pie">
-	<menu_item_call label="關於土地" name="Place Information..."/>
-	<menu_item_call label="坐在此處" name="Sit Here"/>
+	<menu_item_call label="土地資料" name="Place Information..."/>
+	<menu_item_call label="坐在這裡" name="Sit Here"/>
 	<menu_item_call label="購買這塊土地" name="Land Buy"/>
 	<menu_item_call label="購買通行權" name="Land Buy Pass"/>
 	<menu_item_call label="建造" name="Create"/>

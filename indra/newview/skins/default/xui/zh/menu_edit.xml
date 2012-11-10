@@ -3,7 +3,7 @@
 	<menu_item_call label="復原" name="Undo"/>
 	<menu_item_call label="重做" name="Redo"/>
 	<menu_item_call label="剪下" name="Cut"/>
-	<menu_item_call label="覆製" name="Copy"/>
+	<menu_item_call label="恚庨" name="Copy"/>
 	<menu_item_call label="貼上" name="Paste"/>
 	<menu_item_call label="刪除" name="Delete"/>
 	<menu_item_call label="覆製貼上" name="Duplicate"/>

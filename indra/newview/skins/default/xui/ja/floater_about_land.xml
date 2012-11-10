@@ -464,7 +464,7 @@
 				次の住人にのみアクセスを許可：
 			</text>
 			<check_box label="支払情情報が登録されている [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="支払情報が登録されていないと、この区画にアクセスすることはできません。詳細については、[SUPPORT_SITE] をご覧ください。"/>
-			<check_box label="年齢確認が済んでいる [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="この区画にアクセスするには、年齢確認を済ませる必要があります。詳細については、[SUPPORT_SITE] をご覧ください。"/>
+			<check_box label="18 才以上です [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="この区画にアクセスするには、18 才以上でなければなりません。詳細については、[SUPPORT_SITE] をご覧ください。"/>
 			<check_box label="グループのアクセスを許可：[GROUP]" name="GroupCheck" tool_tip="「一般」タブで、グループを選択してください。"/>
 			<check_box label="入場許可を販売：" name="PassCheck" tool_tip="この区画への一時的なアクセスを許可します。"/>
 			<combo_box name="pass_combo">

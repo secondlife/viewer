@@ -26,7 +26,7 @@
 
 請嘗試儲存圖像為 24 位元 Targa（.tga）格式。
 	</text>
-	<check_box label="Use lossless compression" name="lossless_check"/>
+	<check_box label="使用零失真壓縮" name="lossless_check"/>
 	<button label="取消" name="cancel_btn"/>
 	<button label="上傳（L$[AMOUNT]）" name="ok_btn"/>
 </floater>

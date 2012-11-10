@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="我的檔案" name="panel_me">
+<panel label="我的個人檔案" name="panel_me">
 	<tab_container name="tabs">
 		<panel label="我的檔案" name="panel_profile"/>
 		<panel label="我的精選地點" name="panel_picks"/>
