@@ -4667,6 +4667,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>KeepConversationLogTranscripts</key>
+    <map>
+      <key>Comment</key>
+      <string>Keep a conversation log and transcripts</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>LandBrushSize</key>
     <map>
       <key>Comment</key>
@@ -6285,6 +6296,61 @@
       <key>Value</key>
       <integer>305</integer>
     </map>
+    <key>NotificationConferenceIMOptions</key>
+    <map>
+      <key>Comment</key>
+      <string>Specifies how the UI responds to Conference IM Notifications.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>0</string>
+    </map>  
+    <key>NotificationFriendIMOptions</key>
+    <map>
+      <key>Comment</key>
+      <string>Specifies how the UI responds to Friend IM Notifications.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>0</string>
+    </map>
+    <key>NotificationGroupChatOptions</key>
+    <map>
+      <key>Comment</key>
+      <string>Specifies how the UI responds to Group Chat Notifications.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>0</string>
+    </map>
+    <key>NotificationNearbyChatOptions</key>
+    <map>
+      <key>Comment</key>
+      <string>Specifies how the UI responds to Nearby Chat Notifications.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>0</string>
+    </map>
+    <key>NotificationNonFriendIMOptions</key>
+    <map>
+      <key>Comment</key>
+      <string>Specifies how the UI responds to Non Friend IM Notifications.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>0</string>
+    </map>  
     <key>NotificationToastLifeTime</key>
     <map>
       <key>Comment</key>
@@ -6794,6 +6860,61 @@
     <map>
       <key>Comment</key>
       <string>Your avatar plays the typing animation whenever you type in the chat bar</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>PlaySoundGroupChatMessages</key>
+    <map>
+      <key>Comment</key>
+      <string>Plays a sound when have a group chat message.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>  
+    <key>PlaySoundIncomingVoiceCall</key>
+    <map>
+      <key>Comment</key>
+      <string>Plays a sound when have an incoming voice call.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>PlaySoundInventoryOffer</key>
+    <map>
+      <key>Comment</key>
+      <string>Plays a sound when have an inventory offer.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>  
+    <key>PlaySoundNewConversation</key>
+    <map>
+      <key>Comment</key>
+      <string>Plays a sound when have a new conversation.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>PlaySoundTeleportOffer</key>
+    <map>
+      <key>Comment</key>
+      <string>Plays a sound when have a teleport offer.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
