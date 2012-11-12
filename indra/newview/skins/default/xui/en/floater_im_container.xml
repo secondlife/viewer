@@ -159,9 +159,9 @@
                    top="40"
                    height="20"
                    valign="center"
-                   parse_urls="false"
+                   parse_urls="true"
                    wrap="true">
-                     Bring it back.
+                     [secondlife:/// Bring it back.]
                 </text>
              </panel>
             </panel_container>

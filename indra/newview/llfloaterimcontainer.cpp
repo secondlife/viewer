@@ -133,7 +133,6 @@ void LLFloaterIMContainer::onCurrentChannelChanged(const LLUUID& session_id)
     }
 }
 
-
 BOOL LLFloaterIMContainer::postBuild()
 {
 	mNewMessageConnection = LLIMModel::instance().mNewMsgSignal.connect(boost::bind(&LLFloaterIMContainer::onNewMessageReceived, this, _1));
@@ -142,7 +141,8 @@ BOOL LLFloaterIMContainer::postBuild()
 	
 	setTabContainer(getChild<LLTabContainer>("im_box_tab_container"));
 	mStubPanel = getChild<LLPanel>("stub_panel");
-    mStubTextBox = getChild<LLTextBox>("stub_textbox");
+    mStubTextBox = getChild<LLTextBox>("stub_textbox_2");
+    mStubTextBox->setURLClickedCallback(boost::bind(&LLFloaterIMContainer::returnFloaterToHost, this));
 
 	mConversationsStack = getChild<LLLayoutStack>("conversations_stack");
 	mConversationsPane = getChild<LLLayoutPanel>("conversations_layout_panel");
@@ -504,6 +504,14 @@ void LLFloaterIMContainer::showStub(bool stub_is_visible)
 	}
 
 	mStubPanel->setVisible(stub_is_visible);
+}
+
+// listener for click on mStubTextBox2
+void LLFloaterIMContainer::returnFloaterToHost()
+{
+	LLUUID session_id = this->getSelectedSession();
+	LLFloaterIMSessionTab* floater = LLFloaterIMSessionTab::getConversation(session_id);
+	floater->onTearOffClicked();
 }
 
 void LLFloaterIMContainer::setVisible(BOOL visible)
