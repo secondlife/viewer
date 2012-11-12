@@ -204,7 +204,7 @@ BOOL LLNameListCtrl::handleToolTip(S32 x, S32 y, MASK mask)
 {
 	BOOL handled = FALSE;
 	S32 column_index = getColumnIndexFromOffset(x);
-	LLScrollListItem* hit_item = hitItem(x, y);
+	LLNameListItem* hit_item = dynamic_cast<LLNameListItem*>(hitItem(x, y));
 	if (hit_item
 		&& column_index == mNameColumnIndex)
 	{
@@ -228,7 +228,7 @@ BOOL LLNameListCtrl::handleToolTip(S32 x, S32 y, MASK mask)
 				LLCoordGL pos( sticky_rect.mRight - info_icon_size, sticky_rect.mTop - (sticky_rect.getHeight() - icon->getHeight())/2 );
 
 				// Should we show a group or an avatar inspector?
-				bool is_group = hit_item->getValue()["is_group"].asBoolean();
+				bool is_group = hit_item->isGroup();
 
 				LLToolTip::Params params;
 				params.background_visible( false );
@@ -293,18 +293,11 @@ LLScrollListItem* LLNameListCtrl::addNameItemRow(
 	const std::string& suffix)
 {
 	LLUUID id = name_item.value().asUUID();
-	LLNameListItem* item = NULL;
-
-	// Store item type so that we can invoke the proper inspector.
-	// *TODO Vadim: Is there a more proper way of storing additional item data?
-	{
-		LLNameListCtrl::NameItem item_p(name_item);
-		item_p.value = LLSD().with("uuid", id).with("is_group", name_item.target() == GROUP);
-		item = new LLNameListItem(item_p);
-		LLScrollListCtrl::addRow(item, item_p, pos);
-	}
+	LLNameListItem* item = new LLNameListItem(name_item,name_item.target() == GROUP);
 
 	if (!item) return NULL;
+
+	LLScrollListCtrl::addRow(item, name_item, pos);
 
 	// use supplied name by default
 	std::string fullname = name_item.name;
@@ -411,7 +404,7 @@ void LLNameListCtrl::onAvatarNameCache(const LLUUID& agent_id,
 			setNeedsSort();
 		}
 	}
-
+	
 	dirtyColumns();
 }
 

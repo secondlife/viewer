@@ -42,14 +42,24 @@ class LLAvatarName;
 class LLNameListItem : public LLScrollListItem, public LLHandleProvider<LLNameListItem>
 {
 public:
-	LLUUID	getUUID() const		{ return getValue()["uuid"].asUUID(); }
+	bool isGroup() const { return mIsGroup; }
+	void setIsGroup(bool is_group) { mIsGroup = is_group; }
+
 protected:
 	friend class LLNameListCtrl;
 
 	LLNameListItem( const LLScrollListItem::Params& p )
-	:	LLScrollListItem(p)
+	:	LLScrollListItem(p), mIsGroup(false)
 	{
 	}
+
+	LLNameListItem( const LLScrollListItem::Params& p, bool is_group )
+	:	LLScrollListItem(p), mIsGroup(is_group)
+	{
+	}
+
+private:
+	bool mIsGroup;
 };
 
 
