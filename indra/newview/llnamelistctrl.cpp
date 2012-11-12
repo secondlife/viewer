@@ -68,7 +68,7 @@ LLNameListCtrl::LLNameListCtrl(const LLNameListCtrl::Params& p)
 {}
 
 // public
-void LLNameListCtrl::addNameItem(const LLUUID& agent_id, EAddPosition pos,
+LLScrollListItem* LLNameListCtrl::addNameItem(const LLUUID& agent_id, EAddPosition pos,
 								 BOOL enabled, const std::string& suffix)
 {
 	//llinfos << "LLNameListCtrl::addNameItem " << agent_id << llendl;
@@ -78,7 +78,7 @@ void LLNameListCtrl::addNameItem(const LLUUID& agent_id, EAddPosition pos,
 	item.enabled = enabled;
 	item.target = INDIVIDUAL;
 
-	addNameItemRow(item, pos, suffix);
+	return addNameItemRow(item, pos, suffix);
 }
 
 // virtual, public
@@ -271,10 +271,10 @@ void LLNameListCtrl::addGroupNameItem(LLNameListCtrl::NameItem& item, EAddPositi
 	addNameItemRow(item, pos);
 }
 
-void LLNameListCtrl::addNameItem(LLNameListCtrl::NameItem& item, EAddPosition pos)
+LLScrollListItem* LLNameListCtrl::addNameItem(LLNameListCtrl::NameItem& item, EAddPosition pos)
 {
 	item.target = INDIVIDUAL;
-	addNameItemRow(item, pos);
+	return addNameItemRow(item, pos);
 }
 
 LLScrollListItem* LLNameListCtrl::addElement(const LLSD& element, EAddPosition pos, void* userdata)
