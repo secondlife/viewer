@@ -203,7 +203,7 @@
              name="translate_chat_checkbox_lp"
              top_delta="0"
              visible="true"
-             width="230">
+             width="210">
                 <check_box
                  top="10"
                  control_name="TranslateChat"
@@ -217,7 +217,7 @@
             </layout_panel>
             <layout_panel
              height="248"
-             width="230"
+             width="210"
              layout="topleft"
              follows="all"
              left_delta="0"
@@ -227,17 +227,17 @@
              user_resize="true"
              auto_resize="true"
              name="chat_holder">      
-        <chat_history
-	 font="SansSerifSmall"
-             		follows="all"
-             		visible="true"
-             		height="240"
-         name="chat_history"
-         parse_highlights="true"
-         parse_urls="true"
-       	 width="230"
-       	 left="5">
-        </chat_history>
+               <chat_history
+                font="SansSerifSmall"
+                follows="all"
+                visible="true"
+                height="240"
+                name="chat_history"
+                parse_highlights="true"
+                parse_urls="true"
+                right="-5"
+                left="5">
+               </chat_history>
             </layout_panel>
            </layout_stack>
            </panel>
