@@ -712,9 +712,8 @@ void LLPanelGroupGeneral::updateMembers()
 
 	LLAvatarName av_name;
 
-	S32 i = 0;
 	for( ; mMemberProgress != gdatap->mMembers.end() && !update_time.hasExpired(); 
-			++mMemberProgress, ++i)
+			++mMemberProgress)
 	{
 		LLGroupMemberData* member = mMemberProgress->second;
 		if (!member)
@@ -735,7 +734,6 @@ void LLPanelGroupGeneral::updateMembers()
 		}
 	}
 
-	llinfos << "Updated " << i << " members in " << (F32)(1000.0 * update_time.getElapsedTimeF32()) << "ms this frame." << llendl;
 	if (mMemberProgress == gdatap->mMembers.end())
 	{
 		lldebugs << "   member list completed." << llendl;
