@@ -124,7 +124,47 @@
              left="0"
              name="im_box_tab_container"
              top="0"
-             width="412"/>
+             width="412">
+             <panel
+               follows="all"
+               layout="topleft"
+               name="stub_panel"
+               opaque="true"
+               top_pad="0"
+               left="0"
+               height="430"
+               width="412">
+                 <text
+                   type="string"
+                   clip_partial="false"
+                   follows="left|top"
+                   layout="topleft"
+                   left="20"
+                   right="-20"
+                   name="stub_textbox_1"
+                   top="10"
+                   height="20"
+                   valign="center"
+                   wrap="true">
+                   This conversation is in a separate window.
+                 </text>
+                 <text
+                   type="string"
+                   clip_partial="false"
+                   follows="left|top"
+                   layout="topleft"
+                   left="20"
+                   right="-20"
+                   name="stub_textbox_2"
+                   top="40"
+                   height="20"
+                   valign="center"
+                   parse_urls="true"
+                   wrap="true">
+                     [secondlife:/// Bring it back.]
+                </text>
+             </panel>
+            </panel_container>
         </layout_panel>
     </layout_stack>
 </multi_floater>

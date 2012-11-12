@@ -263,11 +263,21 @@ void LLFloaterIMSessionTab::draw()
 {
 	if (mRefreshTimer->hasExpired())
 	{
-		if (getParticipantList())
+		LLParticipantList* item = getParticipantList();
+		if (item)
 		{
-			getParticipantList()->update();
+			// Update all model items
+			item->update();
+			// If the model and view list diverge in count, rebuild
+			// Note: this happens sometimes right around init (add participant events fire but get dropped) and is the cause
+			// of missing participants, often, the user agent itself. As there will be no other event fired, there's
+			// no other choice but get those inconsistencies regularly (and lightly) checked and scrubbed.
+			if (item->getChildrenCount() != mConversationsWidgets.size())
+			{
+				buildConversationViewParticipant();
+			}
 		}
-
+		
 		refreshConversation();
 
 		// Restart the refresh timer
@@ -303,6 +313,7 @@ void LLFloaterIMSessionTab::onFocusReceived()
 	if (container)
 	{
 		container->selectConversationPair(mSessionID, true);
+		container->showStub(! getHost());
 	}
 }
 
@@ -376,7 +387,7 @@ void LLFloaterIMSessionTab::buildConversationViewParticipant()
 	LLParticipantList* item = getParticipantList();
 	if (!item)
 	{
-		// Nothing to do if the model list is empty
+		// Nothing to do if the model list is inexistent
 		return;
 	}
 
@@ -470,7 +481,8 @@ void LLFloaterIMSessionTab::refreshConversation()
 			session_name = LLIMModel::instance().getName(mSessionID);
 		}
 		updateSessionName(session_name);
-	} 
+	}
+	
 	mConversationViewModel.requestSortAll();
 	mConversationsRoot->arrangeAll();
 	mConversationsRoot->update();

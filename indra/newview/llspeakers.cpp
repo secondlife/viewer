@@ -503,27 +503,23 @@ void LLSpeakerMgr::update(BOOL resort_ok)
 
 void LLSpeakerMgr::updateSpeakerList()
 {
-	// are we bound to the currently active voice channel?
-	if ((!mVoiceChannel && LLVoiceClient::getInstance()->inProximalChannel()) || (mVoiceChannel))
+	// Are we bound to the currently active voice channel?
+	if ((!mVoiceChannel && LLVoiceClient::getInstance()->inProximalChannel()) || (mVoiceChannel && mVoiceChannel->isActive()))
 	{
-	        std::set<LLUUID> participants;
-	        LLVoiceClient::getInstance()->getParticipantList(participants);
-		// add new participants to our list of known speakers
-		for (std::set<LLUUID>::iterator participant_it = participants.begin();
-			 participant_it != participants.end(); 
-			 ++participant_it)
+		std::set<LLUUID> participants;
+		LLVoiceClient::getInstance()->getParticipantList(participants);
+		// If we are, add all voice client participants to our list of known speakers
+		for (std::set<LLUUID>::iterator participant_it = participants.begin(); participant_it != participants.end(); ++participant_it)
 		{
 				setSpeaker(*participant_it, 
 						   LLVoiceClient::getInstance()->getDisplayName(*participant_it),
 						   LLSpeaker::STATUS_VOICE_ACTIVE, 
 						   (LLVoiceClient::getInstance()->isParticipantAvatar(*participant_it)?LLSpeaker::SPEAKER_AGENT:LLSpeaker::SPEAKER_EXTERNAL));
-
-
 		}
 	}
 	else 
 	{
-		// Check if the list is empty, except if it's Nearby Chat (session_id NULL).
+		// If not, check if the list is empty, except if it's Nearby Chat (session_id NULL).
 		LLUUID session_id = getSessionID();
 		if ((mSpeakers.size() == 0) && (!session_id.isNull()))
 		{
@@ -533,16 +529,16 @@ void LLSpeakerMgr::updateSpeakerList()
 			LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(session_id);
 			for (uuid_vec_t::iterator it = session->mInitialTargetIDs.begin();it!=session->mInitialTargetIDs.end();++it)
 			{
-				// Allow to set buddies if they are on line. Allow any other avatar.
+				// Add buddies if they are on line, add any other avatar.
 				if (!LLAvatarTracker::instance().isBuddy(*it) || LLAvatarTracker::instance().isBuddyOnline(*it))
 				{
 					setSpeaker(*it, "", LLSpeaker::STATUS_VOICE_ACTIVE, LLSpeaker::SPEAKER_AGENT);
 				}
 			}
-			// Also add the current agent
-			setSpeaker(gAgentID, "", LLSpeaker::STATUS_VOICE_ACTIVE, LLSpeaker::SPEAKER_AGENT);
 		}
 	}
+	// Finally, always add the current agent (it has to be there no matter what...)
+	setSpeaker(gAgentID, "", LLSpeaker::STATUS_VOICE_ACTIVE, LLSpeaker::SPEAKER_AGENT);
 }
 
 void LLSpeakerMgr::setSpeakerNotInChannel(LLSpeaker* speakerp)
