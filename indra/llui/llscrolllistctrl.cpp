@@ -35,6 +35,7 @@
 #include "llboost.h"
 //#include "indra_constants.h"
 
+#include "llavatarnamecache.h"
 #include "llcheckboxctrl.h"
 #include "llclipboard.h"
 #include "llfocusmgr.h"
@@ -1805,7 +1806,9 @@ void LLScrollListCtrl::copyNameToClipboard(std::string id, bool is_group)
 	}
 	else
 	{
-		gCacheName->getFullName(LLUUID(id), name);
+		LLAvatarName av_name;
+		LLAvatarNameCache::get(LLUUID(id), &av_name);
+		name = av_name.getLegacyName();
 	}
 	LLUrlAction::copyURLToClipboard(name);
 }
