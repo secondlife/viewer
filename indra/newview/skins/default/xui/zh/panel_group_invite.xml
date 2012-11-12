@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="邀請一個成員" name="invite_panel">
 	<panel.string name="confirm_invite_owner_str">
-		Are you sure you want to invite new owner(s)? This action is permanent!
+		確定邀請新的所有人？ 這動作一旦完成，不能取消！
 	</panel.string>
 	<panel.string name="loading">
 		（載入中...）
 	</panel.string>
 	<panel.string name="already_in_group">
-		Some Residents you chose are already in the group, and so were not sent an invitation.
+		你所選的居民有些已經在群組裡，所以不會再對他們發送邀請。
 	</panel.string>
 	<text name="help_text">
-		You can select multiple Residents to invite to your group. Click &apos;Open Resident Chooser&apos; to start.
+		你可以選擇邀請多位居民到你的群組來。 點按「開啟居民選擇工具」開始選擇。
 	</text>
-	<button label="開啟居民選擇視窗" name="add_button"/>
-	<name_list name="invitee_list" tool_tip="Hold the Ctrl key and click Resident names to multi-select"/>
-	<button label="Remove Selected from List" name="remove_button" tool_tip="Removes the Residents selected above from the invite list"/>
+	<button label="開啟居民選擇工具" name="add_button"/>
+	<name_list name="invitee_list" tool_tip="按下 Ctrl 鍵同時點選居民的名字，即可選取多個人"/>
+	<button label="將所選的從名單移除" name="remove_button" tool_tip="將上面所選居民從邀請名單中移除"/>
 	<text name="role_text">
-		Choose what Role to assign them to:
+		選擇指派給他們的角色：
 	</text>
-	<combo_box name="role_name" tool_tip="Choose from the list of Roles you are allowed to assign members to"/>
+	<combo_box name="role_name" tool_tip="從角色清單選擇你有權指派給成員的角色："/>
 	<button label="送出邀請" name="ok_button"/>
 	<button label="取消" name="cancel_button"/>
 	<string name="GroupInvitation">

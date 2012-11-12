@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_pathfinding_characters" title="Персонажи с поиском пути">
+	<floater.string name="messaging_get_inprogress">
+		Опрос персонажей с поиском пути...
+	</floater.string>
+	<floater.string name="messaging_get_error">
+		Ошибка при опросе персонажей с поиском пути.
+	</floater.string>
+	<floater.string name="messaging_complete_none_found">
+		Нет персонажей с поиском пути.
+	</floater.string>
+	<floater.string name="messaging_complete_available">
+		Выбрано персонажей: [NUM_SELECTED] из [NUM_TOTAL].
+	</floater.string>
+	<floater.string name="messaging_not_enabled">
+		В этом регионе не разрешен поиск пути.
+	</floater.string>
+	<floater.string name="character_cpu_time">
+		[CPU_TIME] мкс
+	</floater.string>
+	<floater.string name="character_owner_loading">
+		[Загрузка]
+	</floater.string>
+	<floater.string name="character_owner_unknown">
+		[Неизвестно]
+	</floater.string>
+	<floater.string name="character_owner_group">
+		[группа]
+	</floater.string>
+	<panel>
+		<scroll_list name="objects_scroll_list">
+			<scroll_list.columns label="Имя" name="name"/>
+			<scroll_list.columns label="Описание" name="description"/>
+			<scroll_list.columns label="Владелец" name="owner"/>
+			<scroll_list.columns label="ЦП" name="cpu_time"/>
+			<scroll_list.columns label="Высота" name="altitude"/>
+		</scroll_list>
+		<text name="messaging_status">
+			Персонажи:
+		</text>
+		<button label="Обновить список" name="refresh_objects_list"/>
+		<button label="Выбрать все" name="select_all_objects"/>
+		<button label="Отменить выбор" name="select_none_objects"/>
+	</panel>
+	<panel>
+		<text name="actions_label">
+			Действия с выбранными персонажами:
+		</text>
+		<check_box label="Показать метку" name="show_beacon"/>
+		<check_box label="Показать физическую капсулу" name="show_physics_capsule"/>
+		<button label="Взять" name="take_objects"/>
+		<button label="Сделать копию" name="take_copy_objects"/>
+		<button label="Телепортировать меня туда" name="teleport_me_to_object" tool_tip="Разрешено, только если выбран один персонаж."/>
+		<button label="Возврат" name="return_objects"/>
+		<button label="Удалить" name="delete_objects"/>
+	</panel>
+</floater>

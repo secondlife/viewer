@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="queue" title="RESET PROGRESS">
+<floater name="queue" title="重設進度">
 	<floater.string name="Starting">
-		Starting [START] of [COUNT] items.
+		正在啟動 [START] 項，共 [COUNT] 項。
 	</floater.string>
 	<floater.string name="Done">
-		Done.
+		完成。
 	</floater.string>
 	<floater.string name="Resetting">
 		重設中

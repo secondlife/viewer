@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="objectcontents" title="物件內容">
 	<text name="object_name">
-		[DESC]:
+		[DESC]：
 	</text>
 	<button label="覆製到收納區" label_selected="覆製到收納區" name="copy_to_inventory_button"/>
 	<button label="覆製且穿上" label_selected="覆製且穿上" name="copy_and_wear_button"/>

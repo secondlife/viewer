@@ -1,0 +1,4454 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- This file contains strings that used to be hardcoded in the source.
+     It is only for those strings which do not belong in a floater.
+     For example, the strings used in avatar chat bubbles, and strings
+     that are returned from one component and may appear in many places-->
+<strings>
+	<string name="SECOND_LIFE">
+		第二人生
+	</string>
+	<string name="APP_NAME">
+		第二人生
+	</string>
+	<string name="CAPITALIZED_APP_NAME">
+		第二人生
+	</string>
+	<string name="SECOND_LIFE_GRID">
+		第二人生網格
+	</string>
+	<string name="SUPPORT_SITE">
+		第二人生支援入口
+	</string>
+	<string name="StartupDetectingHardware">
+		硬體偵測中...
+	</string>
+	<string name="StartupLoading">
+		[APP_NAME] 載入中...
+	</string>
+	<string name="StartupClearingCache">
+		快取清除中...
+	</string>
+	<string name="StartupInitializingTextureCache">
+		材質快取初始化中...
+	</string>
+	<string name="StartupInitializingVFS">
+		VFS 初始化中...
+	</string>
+	<string name="ProgressRestoring">
+		回存中...
+	</string>
+	<string name="ProgressChangingResolution">
+		變更解析度...
+	</string>
+	<string name="Fullbright">
+		全亮（舊版）
+	</string>
+	<string name="LoginInProgress">
+		登入中。[APP_NAME] 可能出現凍結狀態。請耐心稍等。
+	</string>
+	<string name="LoginInProgressNoFrozen">
+		登入中...
+	</string>
+	<string name="LoginAuthenticating">
+		身份驗證中
+	</string>
+	<string name="LoginMaintenance">
+		進行帳戶維護...
+	</string>
+	<string name="LoginAttempt">
+		先前企圖嘗試登入失敗。現登入中，嘗試 [NUMBER]
+	</string>
+	<string name="LoginPrecaching">
+		世界載入中...
+	</string>
+	<string name="LoginInitializingBrowser">
+		內嵌式網頁瀏覽器初始化中...
+	</string>
+	<string name="LoginInitializingMultimedia">
+		多媒體初始化中...
+	</string>
+	<string name="LoginInitializingFonts">
+		字型載入中...
+	</string>
+	<string name="LoginVerifyingCache">
+		驗證快取檔案（約需 60-90 秒左右）...
+	</string>
+	<string name="LoginProcessingResponse">
+		回應處理中...
+	</string>
+	<string name="LoginInitializingWorld">
+		世界初始化中...
+	</string>
+	<string name="LoginDecodingImages">
+		圖像解碼中...
+	</string>
+	<string name="LoginInitializingQuicktime">
+		QuickTime 初始化中...
+	</string>
+	<string name="LoginQuicktimeNotFound">
+		QuickTime 未發現 - 無法進行初始化。
+	</string>
+	<string name="LoginQuicktimeOK">
+		QuickTime 已成功初始化。
+	</string>
+	<string name="LoginWaitingForRegionHandshake">
+		地區交握等待中...
+	</string>
+	<string name="LoginConnectingToRegion">
+		地區聯結中...
+	</string>
+	<string name="LoginDownloadingClothing">
+		服裝下載中...
+	</string>
+	<string name="InvalidCertificate">
+		伺服器回傳一個無效果損壞的憑證。請連繫網格管理者。
+	</string>
+	<string name="CertInvalidHostname">
+		An invalid hostname was used to access the server, please check your SLURL or Grid hostname.
+	</string>
+	<string name="CertExpired">
+		The certificate returned by the Grid appears to be expired.  Please check your system clock, or contact your Grid administrator.
+	</string>
+	<string name="CertKeyUsage">
+		The certificate returned by the server could not be used for SSL.  Please contact your Grid administrator.
+	</string>
+	<string name="CertBasicConstraints">
+		Too many certificates were in the servers Certificate chain.  Please contact your Grid administrator.
+	</string>
+	<string name="CertInvalidSignature">
+		The certificate signature returned by the Grid server could not be verified.  Please contact your Grid administrator.
+	</string>
+	<string name="LoginFailedNoNetwork">
+		Network Error: Could not establish connection, please check your network connection.
+	</string>
+	<string name="LoginFailed">
+		登入失敗。
+	</string>
+	<string name="Quit">
+		結束退出
+	</string>
+	<string name="create_account_url">
+		http://join.secondlife.com/?sourceid=1206_steam
+	</string>
+	<string name="AgentLostConnection">
+		這個地區可能遭遇問題，請檢查你的網路連線。
+	</string>
+	<string name="SavingSettings">
+		你的設定儲存中...
+	</string>
+	<string name="LoggingOut">
+		登出中...
+	</string>
+	<string name="ShuttingDown">
+		關閉中...
+	</string>
+	<string name="YouHaveBeenDisconnected">
+		你已經被所在的地區中斷聯結。
+	</string>
+	<string name="SentToInvalidRegion">
+		你被傳送到一個無效的地區。
+	</string>
+	<string name="TestingDisconnect">
+		測試瀏覽器斷線
+	</string>
+	<string name="TooltipPerson">
+		人
+	</string>
+	<string name="TooltipNoName">
+		（無名稱）
+	</string>
+	<string name="TooltipOwner">
+		擁有者：
+	</string>
+	<string name="TooltipPublic">
+		公開
+	</string>
+	<string name="TooltipIsGroup">
+		（群組）
+	</string>
+	<string name="TooltipForSaleL$">
+		出售： L$[AMOUNT]
+	</string>
+	<string name="TooltipFlagGroupBuild">
+		群組建造
+	</string>
+	<string name="TooltipFlagNoBuild">
+		禁止建造
+	</string>
+	<string name="TooltipFlagNoEdit">
+		群組建造
+	</string>
+	<string name="TooltipFlagNotSafe">
+		非安全
+	</string>
+	<string name="TooltipFlagNoFly">
+		禁止飛行
+	</string>
+	<string name="TooltipFlagGroupScripts">
+		群組腳本
+	</string>
+	<string name="TooltipFlagNoScripts">
+		禁止腳本
+	</string>
+	<string name="TooltipLand">
+		土地：
+	</string>
+	<string name="TooltipMustSingleDrop">
+		只有一個物品可以被拖曳到此處
+	</string>
+	<string name="TooltipPrice" value="L$[AMOUNT]:"/>
+	<string name="TooltipHttpUrl">
+		點擊以察看這個網頁
+	</string>
+	<string name="TooltipSLURL">
+		點擊以察看這個位置資訊
+	</string>
+	<string name="TooltipAgentUrl">
+		點擊以察看這個居民檔案
+	</string>
+	<string name="TooltipAgentInspect">
+		瞭解更多有關這個居民
+	</string>
+	<string name="TooltipAgentMute">
+		點擊以封鎖這位居民
+	</string>
+	<string name="TooltipAgentUnmute">
+		點擊以解除封鎖這位居民
+	</string>
+	<string name="TooltipAgentIM">
+		點擊開始 IM 這位居民
+	</string>
+	<string name="TooltipAgentPay">
+		點擊以支付這位居民
+	</string>
+	<string name="TooltipAgentOfferTeleport">
+		點擊以送出瞬間傳送邀請給這位居民
+	</string>
+	<string name="TooltipAgentRequestFriend">
+		點擊以送出交友邀請給這位居民
+	</string>
+	<string name="TooltipGroupUrl">
+		點擊以察看這個群組的描述
+	</string>
+	<string name="TooltipEventUrl">
+		點擊以察看這個活動的描述
+	</string>
+	<string name="TooltipClassifiedUrl">
+		Click to view this classified
+	</string>
+	<string name="TooltipParcelUrl">
+		點擊以察看這個地段的描述
+	</string>
+	<string name="TooltipTeleportUrl">
+		點擊以傳送到這個位置
+	</string>
+	<string name="TooltipObjectIMUrl">
+		點擊以察看這個物件的描述
+	</string>
+	<string name="TooltipMapUrl">
+		點擊以察看此處在地圖上的位置
+	</string>
+	<string name="TooltipSLAPP">
+		點擊以執行 secondlife:// 指令
+	</string>
+	<string name="CurrentURL" value="目前網址：[CurrentURL]"/>
+	<string name="SLurlLabelTeleport">
+		瞬間傳送到
+	</string>
+	<string name="SLurlLabelShowOnMap">
+		顯示地圖為了
+	</string>
+	<string name="SLappAgentMute">
+		封鎖
+	</string>
+	<string name="SLappAgentUnmute">
+		解除封鎖
+	</string>
+	<string name="SLappAgentIM">
+		IM
+	</string>
+	<string name="SLappAgentPay">
+		支付
+	</string>
+	<string name="SLappAgentOfferTeleport">
+		發給瞬間傳送請求到
+	</string>
+	<string name="SLappAgentRequestFriend">
+		交友要求
+	</string>
+	<string name="BUTTON_CLOSE_DARWIN">
+		關閉（⌘W）
+	</string>
+	<string name="BUTTON_CLOSE_WIN">
+		關閉（Ctrl+W）
+	</string>
+	<string name="BUTTON_CLOSE_CHROME">
+		關閉
+	</string>
+	<string name="BUTTON_RESTORE">
+		還原
+	</string>
+	<string name="BUTTON_MINIMIZE">
+		最小化
+	</string>
+	<string name="BUTTON_TEAR_OFF">
+		脫下
+	</string>
+	<string name="BUTTON_DOCK">
+		停泊固定
+	</string>
+	<string name="BUTTON_HELP">
+		顯示幫助
+	</string>
+	<string name="Searching">
+		搜尋中...
+	</string>
+	<string name="NoneFound">
+		未發現。
+	</string>
+	<string name="RetrievingData">
+		檢索...
+	</string>
+	<string name="ReleaseNotes">
+		釋出版本說明
+	</string>
+	<string name="LoadingData">
+		載入中...
+	</string>
+	<string name="AvatarNameNobody">
+		（沒有人）
+	</string>
+	<string name="AvatarNameWaiting">
+		（等待中）
+	</string>
+	<string name="AvatarNameMultiple">
+		（多個）
+	</string>
+	<string name="GroupNameNone">
+		（無）
+	</string>
+	<string name="AvalineCaller">
+		Avaline Caller [ORDER]
+	</string>
+	<string name="AssetErrorNone">
+		無錯誤
+	</string>
+	<string name="AssetErrorRequestFailed">
+		資產請求：失敗
+	</string>
+	<string name="AssetErrorNonexistentFile">
+		資產要求：非已存在檔案
+	</string>
+	<string name="AssetErrorNotInDatabase">
+		資產要求：資產並未發現於資料庫中
+	</string>
+	<string name="AssetErrorEOF">
+		檔案結尾
+	</string>
+	<string name="AssetErrorCannotOpenFile">
+		無法開啟檔案
+	</string>
+	<string name="AssetErrorFileNotFound">
+		檔案未發現
+	</string>
+	<string name="AssetErrorTCPTimeout">
+		檔案傳輸逾時
+	</string>
+	<string name="AssetErrorCircuitGone">
+		Circuit gone
+	</string>
+	<string name="AssetErrorPriceMismatch">
+		Viewer and server do not agree on price
+	</string>
+	<string name="AssetErrorUnknownStatus">
+		未知狀態
+	</string>
+	<string name="texture">
+		材質
+	</string>
+	<string name="sound">
+		聲音
+	</string>
+	<string name="calling card">
+		名片
+	</string>
+	<string name="landmark">
+		地標
+	</string>
+	<string name="legacy script">
+		舊版腳本
+	</string>
+	<string name="clothing">
+		服裝
+	</string>
+	<string name="object">
+		物件
+	</string>
+	<string name="note card">
+		記事卡
+	</string>
+	<string name="folder">
+		資料夾
+	</string>
+	<string name="root">
+		root
+	</string>
+	<string name="lsl2 script">
+		LSL2 script
+	</string>
+	<string name="lsl bytecode">
+		LSL bytecode
+	</string>
+	<string name="tga texture">
+		tga 材質
+	</string>
+	<string name="body part">
+		身體部位
+	</string>
+	<string name="snapshot">
+		快照
+	</string>
+	<string name="lost and found">
+		Lost and Found
+	</string>
+	<string name="targa image">
+		targa 圖像
+	</string>
+	<string name="trash">
+		垃圾桶
+	</string>
+	<string name="jpeg image">
+		jpeg 圖像
+	</string>
+	<string name="animation">
+		動作
+	</string>
+	<string name="gesture">
+		姿勢
+	</string>
+	<string name="simstate">
+		模擬器狀態
+	</string>
+	<string name="favorite">
+		我的最愛
+	</string>
+	<string name="symbolic link">
+		聯結
+	</string>
+	<string name="symbolic folder link">
+		資料夾聯結
+	</string>
+	<string name="AvatarEditingAppearance">
+		（外觀編輯中）
+	</string>
+	<string name="AvatarAway">
+		離開
+	</string>
+	<string name="AvatarBusy">
+		忙碌
+	</string>
+	<string name="AvatarMuted">
+		封鎖的
+	</string>
+	<string name="anim_express_afraid">
+		害怕
+	</string>
+	<string name="anim_express_anger">
+		生氣
+	</string>
+	<string name="anim_away">
+		Away
+	</string>
+	<string name="anim_backflip">
+		Backflip
+	</string>
+	<string name="anim_express_laugh">
+		Belly Laugh
+	</string>
+	<string name="anim_express_toothsmile">
+		BigSmile
+	</string>
+	<string name="anim_blowkiss">
+		Blow Kiss
+	</string>
+	<string name="anim_express_bored">
+		無聊
+	</string>
+	<string name="anim_bow">
+		Bow
+	</string>
+	<string name="anim_clap">
+		拍手
+	</string>
+	<string name="anim_courtbow">
+		Court Bow
+	</string>
+	<string name="anim_express_cry">
+		哭泣
+	</string>
+	<string name="anim_dance1">
+		Dance 1
+	</string>
+	<string name="anim_dance2">
+		Dance 2
+	</string>
+	<string name="anim_dance3">
+		Dance 3
+	</string>
+	<string name="anim_dance4">
+		Dance 4
+	</string>
+	<string name="anim_dance5">
+		Dance 5
+	</string>
+	<string name="anim_dance6">
+		Dance 6
+	</string>
+	<string name="anim_dance7">
+		Dance 7
+	</string>
+	<string name="anim_dance8">
+		Dance 8
+	</string>
+	<string name="anim_express_disdain">
+		Disdain
+	</string>
+	<string name="anim_drink">
+		Drink
+	</string>
+	<string name="anim_express_embarrased">
+		Embarrassed
+	</string>
+	<string name="anim_angry_fingerwag">
+		Finger Wag
+	</string>
+	<string name="anim_fist_pump">
+		Fist Pump
+	</string>
+	<string name="anim_yoga_float">
+		Floating Yoga
+	</string>
+	<string name="anim_express_frown">
+		Frown
+	</string>
+	<string name="anim_impatient">
+		Impatient
+	</string>
+	<string name="anim_jumpforjoy">
+		Jump For Joy
+	</string>
+	<string name="anim_kissmybutt">
+		Kiss My Butt
+	</string>
+	<string name="anim_express_kiss">
+		親吻
+	</string>
+	<string name="anim_laugh_short">
+		笑
+	</string>
+	<string name="anim_musclebeach">
+		Muscle Beach
+	</string>
+	<string name="anim_no_unhappy">
+		不（不快樂）
+	</string>
+	<string name="anim_no_head">
+		不
+	</string>
+	<string name="anim_nyanya">
+		Nya-nya-nya
+	</string>
+	<string name="anim_punch_onetwo">
+		One-Two Punch
+	</string>
+	<string name="anim_express_open_mouth">
+		Open Mouth
+	</string>
+	<string name="anim_peace">
+		Peace
+	</string>
+	<string name="anim_point_you">
+		Point at Other
+	</string>
+	<string name="anim_point_me">
+		Point at Self
+	</string>
+	<string name="anim_punch_l">
+		Punch Left
+	</string>
+	<string name="anim_punch_r">
+		Punch Right
+	</string>
+	<string name="anim_rps_countdown">
+		RPS count
+	</string>
+	<string name="anim_rps_paper">
+		RPS paper
+	</string>
+	<string name="anim_rps_rock">
+		RPS rock
+	</string>
+	<string name="anim_rps_scissors">
+		RPS scissors
+	</string>
+	<string name="anim_express_repulsed">
+		Repulsed
+	</string>
+	<string name="anim_kick_roundhouse_r">
+		Roundhouse Kick
+	</string>
+	<string name="anim_express_sad">
+		傷心
+	</string>
+	<string name="anim_salute">
+		敬禮
+	</string>
+	<string name="anim_shout">
+		Shout
+	</string>
+	<string name="anim_express_shrug">
+		Shrug
+	</string>
+	<string name="anim_express_smile">
+		微笑
+	</string>
+	<string name="anim_smoke_idle">
+		Smoke Idle
+	</string>
+	<string name="anim_smoke_inhale">
+		Smoke Inhale
+	</string>
+	<string name="anim_smoke_throw_down">
+		Smoke Throw Down
+	</string>
+	<string name="anim_express_surprise">
+		驚喜
+	</string>
+	<string name="anim_sword_strike_r">
+		Sword Strike
+	</string>
+	<string name="anim_angry_tantrum">
+		Tantrum
+	</string>
+	<string name="anim_express_tongue_out">
+		TongueOut
+	</string>
+	<string name="anim_hello">
+		Wave
+	</string>
+	<string name="anim_whisper">
+		耳語
+	</string>
+	<string name="anim_whistle">
+		吹口哨
+	</string>
+	<string name="anim_express_wink">
+		眨眼
+	</string>
+	<string name="anim_wink_hollywood">
+		眨眼（好萊塢）
+	</string>
+	<string name="anim_express_worry">
+		擔心
+	</string>
+	<string name="anim_yes_happy">
+		是（快樂）
+	</string>
+	<string name="anim_yes_head">
+		是
+	</string>
+	<string name="texture_loading">
+		載入中...
+	</string>
+	<string name="worldmap_offline">
+		離線
+	</string>
+	<string name="worldmap_item_tooltip_format">
+		[AREA] m² L$[PRICE]
+	</string>
+	<string name="worldmap_results_none_found">
+		沒有發現。
+	</string>
+	<string name="Ok">
+		確定
+	</string>
+	<string name="Premature end of file">
+		Premature end of file
+	</string>
+	<string name="ST_NO_JOINT">
+		Can&apos;t find ROOT or JOINT.
+	</string>
+	<string name="whisper">
+		低語：
+	</string>
+	<string name="shout">
+		吶喊：
+	</string>
+	<string name="ringing">
+		聯接到虛擬世界的語音功能中...
+	</string>
+	<string name="connected">
+		已聯接
+	</string>
+	<string name="unavailable">
+		語音聊天功能於你目前所在的位置無法使用
+	</string>
+	<string name="hang_up">
+		虛擬世界中的語音聊天中斷
+	</string>
+	<string name="reconnect_nearby">
+		現在你將重新聯接到附近的語音聊天
+	</string>
+	<string name="ScriptQuestionCautionChatGranted">
+		&apos;[OBJECTNAME]&apos;, an object owned by &apos;[OWNERNAME]&apos;, located in [REGIONNAME] at [REGIONPOS], has been granted permission to: [PERMISSIONS].
+	</string>
+	<string name="ScriptQuestionCautionChatDenied">
+		&apos;[OBJECTNAME]&apos;, an object owned by &apos;[OWNERNAME]&apos;, located in [REGIONNAME] at [REGIONPOS], has been denied permission to: [PERMISSIONS].
+	</string>
+	<string name="ScriptTakeMoney">
+		由你身上拿走林登幣（L$）
+	</string>
+	<string name="ActOnControlInputs">
+		Act on your control inputs
+	</string>
+	<string name="RemapControlInputs">
+		Remap your control inputs
+	</string>
+	<string name="AnimateYourAvatar">
+		Animate your avatar
+	</string>
+	<string name="AttachToYourAvatar">
+		Attach to your avatar
+	</string>
+	<string name="ReleaseOwnership">
+		Release ownership and become public
+	</string>
+	<string name="LinkAndDelink">
+		Link and delink from other objects
+	</string>
+	<string name="AddAndRemoveJoints">
+		Add and remove joints with other objects
+	</string>
+	<string name="ChangePermissions">
+		變更它的權限
+	</string>
+	<string name="TrackYourCamera">
+		追蹤你的攝影機
+	</string>
+	<string name="ControlYourCamera">
+		控制你的攝影機
+	</string>
+	<string name="NotConnected">
+		未聯接
+	</string>
+	<string name="SIM_ACCESS_PG">
+		一般普級
+	</string>
+	<string name="SIM_ACCESS_MATURE">
+		適度成人
+	</string>
+	<string name="SIM_ACCESS_ADULT">
+		完全成人
+	</string>
+	<string name="SIM_ACCESS_DOWN">
+		離線
+	</string>
+	<string name="SIM_ACCESS_MIN">
+		未知
+	</string>
+	<string name="land_type_unknown">
+		（未知）
+	</string>
+	<string name="Estate / Full Region">
+		領地 / 完整地區
+	</string>
+	<string name="Estate / Homestead">
+		領地 / 家園
+	</string>
+	<string name="Mainland / Homestead">
+		大陸 / 家園
+	</string>
+	<string name="Mainland / Full Region">
+		大陸 / 完整地區
+	</string>
+	<string name="all_files">
+		全部檔案
+	</string>
+	<string name="sound_files">
+		聲音
+	</string>
+	<string name="animation_files">
+		動作
+	</string>
+	<string name="image_files">
+		圖像
+	</string>
+	<string name="save_file_verb">
+		儲存
+	</string>
+	<string name="load_file_verb">
+		載入
+	</string>
+	<string name="targa_image_files">
+		Targa 圖像
+	</string>
+	<string name="bitmap_image_files">
+		Bitmap 圖像
+	</string>
+	<string name="avi_movie_file">
+		AVI 視頻檔案
+	</string>
+	<string name="xaf_animation_file">
+		XAF Anim File
+	</string>
+	<string name="xml_file">
+		XML 檔案
+	</string>
+	<string name="raw_file">
+		RAW 檔案
+	</string>
+	<string name="compressed_image_files">
+		壓縮的圖像
+	</string>
+	<string name="load_files">
+		載入檔案
+	</string>
+	<string name="choose_the_directory">
+		選擇目錄
+	</string>
+	<string name="AvatarSetNotAway">
+		非離開
+	</string>
+	<string name="AvatarSetAway">
+		離開
+	</string>
+	<string name="AvatarSetNotBusy">
+		非忙碌
+	</string>
+	<string name="AvatarSetBusy">
+		忙碌
+	</string>
+	<string name="shape">
+		體形
+	</string>
+	<string name="skin">
+		皮膚
+	</string>
+	<string name="hair">
+		頭髮
+	</string>
+	<string name="eyes">
+		眼睛
+	</string>
+	<string name="shirt">
+		襯衫
+	</string>
+	<string name="pants">
+		褲子
+	</string>
+	<string name="shoes">
+		鞋子
+	</string>
+	<string name="socks">
+		襪子
+	</string>
+	<string name="jacket">
+		夾克
+	</string>
+	<string name="gloves">
+		手套
+	</string>
+	<string name="undershirt">
+		內衣
+	</string>
+	<string name="underpants">
+		內褲
+	</string>
+	<string name="skirt">
+		裙子
+	</string>
+	<string name="alpha">
+		半透明
+	</string>
+	<string name="tattoo">
+		刺青
+	</string>
+	<string name="physics">
+		身體物理
+	</string>
+	<string name="invalid">
+		無效
+	</string>
+	<string name="none">
+		無
+	</string>
+	<string name="shirt_not_worn">
+		襯衫未穿
+	</string>
+	<string name="pants_not_worn">
+		褲子未穿
+	</string>
+	<string name="shoes_not_worn">
+		鞋子未穿
+	</string>
+	<string name="socks_not_worn">
+		襪子未穿
+	</string>
+	<string name="jacket_not_worn">
+		夾克未穿
+	</string>
+	<string name="gloves_not_worn">
+		手套未穿
+	</string>
+	<string name="undershirt_not_worn">
+		內衣未穿
+	</string>
+	<string name="underpants_not_worn">
+		內褲未穿
+	</string>
+	<string name="skirt_not_worn">
+		裙子未穿
+	</string>
+	<string name="alpha_not_worn">
+		半透明未穿
+	</string>
+	<string name="tattoo_not_worn">
+		刺青未穿
+	</string>
+	<string name="physics_not_worn">
+		身體物理未穿
+	</string>
+	<string name="invalid_not_worn">
+		無效
+	</string>
+	<string name="create_new_shape">
+		創造新體形
+	</string>
+	<string name="create_new_skin">
+		創造新皮膚
+	</string>
+	<string name="create_new_hair">
+		創造新頭髮
+	</string>
+	<string name="create_new_eyes">
+		創造新眼睛
+	</string>
+	<string name="create_new_shirt">
+		創造新襯衫
+	</string>
+	<string name="create_new_pants">
+		創造新褲子
+	</string>
+	<string name="create_new_shoes">
+		創造新鞋子
+	</string>
+	<string name="create_new_socks">
+		創造新襪子
+	</string>
+	<string name="create_new_jacket">
+		創造新夾克
+	</string>
+	<string name="create_new_gloves">
+		創造新手套
+	</string>
+	<string name="create_new_undershirt">
+		創造新內衣
+	</string>
+	<string name="create_new_underpants">
+		創造新內褲
+	</string>
+	<string name="create_new_skirt">
+		創造新裙子
+	</string>
+	<string name="create_new_alpha">
+		創造新半透明
+	</string>
+	<string name="create_new_tattoo">
+		創造新刺青
+	</string>
+	<string name="create_new_physics">
+		創造新身體物理
+	</string>
+	<string name="create_new_invalid">
+		無效
+	</string>
+	<string name="NewWearable">
+		新 [WEARABLE_ITEM]
+	</string>
+	<string name="next">
+		下一個
+	</string>
+	<string name="ok">
+		確定
+	</string>
+	<string name="GroupNotifyGroupNotice">
+		群組通知
+	</string>
+	<string name="GroupNotifyGroupNotices">
+		群組通知
+	</string>
+	<string name="GroupNotifySentBy">
+		送出由
+	</string>
+	<string name="GroupNotifyAttached">
+		Attached:
+	</string>
+	<string name="GroupNotifyViewPastNotices">
+		View past notices or opt-out of receiving these messages here.
+	</string>
+	<string name="GroupNotifyOpenAttachment">
+		Open Attachment
+	</string>
+	<string name="GroupNotifySaveAttachment">
+		Save Attachment
+	</string>
+	<string name="TeleportOffer">
+		Teleport offering
+	</string>
+	<string name="StartUpNotifications">
+		當你離開時有新的通知送達。
+	</string>
+	<string name="OverflowInfoChannelString">
+		你有約 %d 通知
+	</string>
+	<string name="BodyPartsRightArm">
+		右臂
+	</string>
+	<string name="BodyPartsHead">
+		頭部
+	</string>
+	<string name="BodyPartsLeftArm">
+		左臂
+	</string>
+	<string name="BodyPartsLeftLeg">
+		左腿
+	</string>
+	<string name="BodyPartsTorso">
+		軀幹
+	</string>
+	<string name="BodyPartsRightLeg">
+		右腿
+	</string>
+	<string name="GraphicsQualityLow">
+		低
+	</string>
+	<string name="GraphicsQualityMid">
+		中
+	</string>
+	<string name="GraphicsQualityHigh">
+		高
+	</string>
+	<string name="LeaveMouselook">
+		按下 ESC 鍵回復到世界的視角
+	</string>
+	<string name="InventoryNoMatchingItems">
+		沒有發現你想要找的嗎？試試 [secondlife:///app/search/all/[SEARCH_TERM] 搜尋]。
+	</string>
+	<string name="PlacesNoMatchingItems">
+		沒有發現你想要找的嗎？試試 [secondlife:///app/search/places/[SEARCH_TERM] 搜尋]。
+	</string>
+	<string name="FavoritesNoMatchingItems">
+		Drag a landmark here to add it to your favorites.
+	</string>
+	<string name="InventoryNoTexture">
+		You do not have a copy of this texture in your inventory
+	</string>
+	<string name="no_transfer" value="（禁止轉讓）"/>
+	<string name="no_modify" value="（禁止修改）"/>
+	<string name="no_copy" value="（禁止複製）"/>
+	<string name="worn" value="（已穿）"/>
+	<string name="link" value="（聯結）"/>
+	<string name="broken_link" value="（損壞的聯結）"/>
+	<string name="LoadingContents">
+		內容載入中...
+	</string>
+	<string name="NoContents">
+		無內容
+	</string>
+	<string name="WornOnAttachmentPoint" value="（已穿 [ATTACHMENT_POINT]）"/>
+	<string name="ActiveGesture" value="[GESLABEL] (active)"/>
+	<string name="PermYes">
+		是
+	</string>
+	<string name="PermNo">
+		否
+	</string>
+	<string name="Chat Message" value="聊天："/>
+	<string name="Sound" value="聲音："/>
+	<string name="Wait" value="--- 等待："/>
+	<string name="AnimFlagStop" value="停止動作："/>
+	<string name="AnimFlagStart" value="開始動作："/>
+	<string name="Wave" value="Wave"/>
+	<string name="GestureActionNone" value="無"/>
+	<string name="HelloAvatar" value="Hello, avatar!"/>
+	<string name="ViewAllGestures" value="察看全部 &gt;&gt;"/>
+	<string name="GetMoreGestures" value="取得更多 &gt;&gt;"/>
+	<string name="Animations" value="動作,"/>
+	<string name="Calling Cards" value="名片,"/>
+	<string name="Clothing" value="服裝,"/>
+	<string name="Gestures" value="姿勢,"/>
+	<string name="Landmarks" value="地標,"/>
+	<string name="Notecards" value="記事卡,"/>
+	<string name="Objects" value="物件,"/>
+	<string name="Scripts" value="腳本,"/>
+	<string name="Sounds" value="聲音,"/>
+	<string name="Textures" value="材質,"/>
+	<string name="Snapshots" value="快照,"/>
+	<string name="No Filters" value="No"/>
+	<string name="Since Logoff" value="- 自上次登出"/>
+	<string name="InvFolder My Inventory">
+		我的收納區
+	</string>
+	<string name="InvFolder My Favorites">
+		我的最愛
+	</string>
+	<string name="InvFolder Library">
+		資源庫
+	</string>
+	<string name="InvFolder Textures">
+		材質
+	</string>
+	<string name="InvFolder Sounds">
+		聲音
+	</string>
+	<string name="InvFolder Calling Cards">
+		名片
+	</string>
+	<string name="InvFolder Landmarks">
+		地標
+	</string>
+	<string name="InvFolder Scripts">
+		腳本
+	</string>
+	<string name="InvFolder Clothing">
+		服裝
+	</string>
+	<string name="InvFolder Objects">
+		物件
+	</string>
+	<string name="InvFolder Notecards">
+		記事卡
+	</string>
+	<string name="InvFolder New Folder">
+		新資料夾
+	</string>
+	<string name="InvFolder Inventory">
+		收納區
+	</string>
+	<string name="InvFolder Uncompressed Images">
+		Uncompressed Images
+	</string>
+	<string name="InvFolder Body Parts">
+		身體部位
+	</string>
+	<string name="InvFolder Trash">
+		垃圾桶
+	</string>
+	<string name="InvFolder Photo Album">
+		相簿
+	</string>
+	<string name="InvFolder Lost And Found">
+		Lost And Found
+	</string>
+	<string name="InvFolder Uncompressed Sounds">
+		無壓縮聲音
+	</string>
+	<string name="InvFolder Animations">
+		動作
+	</string>
+	<string name="InvFolder Gestures">
+		姿勢
+	</string>
+	<string name="InvFolder Favorite">
+		我的最愛
+	</string>
+	<string name="InvFolder favorite">
+		我的最愛
+	</string>
+	<string name="InvFolder Current Outfit">
+		目前裝扮
+	</string>
+	<string name="InvFolder Initial Outfits">
+		初始裝扮
+	</string>
+	<string name="InvFolder My Outfits">
+		我的裝扮
+	</string>
+	<string name="InvFolder Accessories">
+		配件
+	</string>
+	<string name="InvFolder Friends">
+		朋友
+	</string>
+	<string name="InvFolder All">
+		全部
+	</string>
+	<string name="Buy">
+		購買
+	</string>
+	<string name="BuyforL$">
+		Buy for L$
+	</string>
+	<string name="Stone">
+		石頭
+	</string>
+	<string name="Metal">
+		金屬
+	</string>
+	<string name="Glass">
+		玻璃
+	</string>
+	<string name="Wood">
+		木頭
+	</string>
+	<string name="Flesh">
+		肌肉
+	</string>
+	<string name="Plastic">
+		塑膠
+	</string>
+	<string name="Rubber">
+		橡膠
+	</string>
+	<string name="Light">
+		Light
+	</string>
+	<string name="KBShift">
+		Shift
+	</string>
+	<string name="KBCtrl">
+		Ctrl
+	</string>
+	<string name="Chest">
+		胸部
+	</string>
+	<string name="Skull">
+		頭顱
+	</string>
+	<string name="Left Shoulder">
+		左肩
+	</string>
+	<string name="Right Shoulder">
+		右肩
+	</string>
+	<string name="Left Hand">
+		左手
+	</string>
+	<string name="Right Hand">
+		右手
+	</string>
+	<string name="Left Foot">
+		左腳
+	</string>
+	<string name="Right Foot">
+		右腳
+	</string>
+	<string name="Spine">
+		脊椎
+	</string>
+	<string name="Pelvis">
+		骨盆
+	</string>
+	<string name="Mouth">
+		嘴
+	</string>
+	<string name="Chin">
+		下巴
+	</string>
+	<string name="Left Ear">
+		左耳
+	</string>
+	<string name="Right Ear">
+		右耳
+	</string>
+	<string name="Left Eyeball">
+		左眼球
+	</string>
+	<string name="Right Eyeball">
+		右眼球
+	</string>
+	<string name="Nose">
+		鼻子
+	</string>
+	<string name="R Upper Arm">
+		右上臂
+	</string>
+	<string name="R Forearm">
+		右前臂
+	</string>
+	<string name="L Upper Arm">
+		左上臂
+	</string>
+	<string name="L Forearm">
+		左前臂
+	</string>
+	<string name="Right Hip">
+		右臀
+	</string>
+	<string name="R Upper Leg">
+		右大腿
+	</string>
+	<string name="R Lower Leg">
+		右小腿
+	</string>
+	<string name="Left Hip">
+		左臀
+	</string>
+	<string name="L Upper Leg">
+		左大腿
+	</string>
+	<string name="L Lower Leg">
+		左小腿
+	</string>
+	<string name="Stomach">
+		腹肌
+	</string>
+	<string name="Left Pec">
+		左胸肌
+	</string>
+	<string name="Right Pec">
+		右胸肌
+	</string>
+	<string name="Invalid Attachment">
+		無效的附件聯接點
+	</string>
+	<string name="YearsMonthsOld">
+		[AGEYEARS] [AGEMONTHS] old
+	</string>
+	<string name="YearsOld">
+		[AGEYEARS] old
+	</string>
+	<string name="MonthsOld">
+		[AGEMONTHS] old
+	</string>
+	<string name="WeeksOld">
+		[AGEWEEKS] old
+	</string>
+	<string name="DaysOld">
+		[AGEDAYS] old
+	</string>
+	<string name="TodayOld">
+		今日剛加入
+	</string>
+	<string name="AgeYearsA">
+		[COUNT] 年
+	</string>
+	<string name="AgeYearsB">
+		[COUNT] 年
+	</string>
+	<string name="AgeYearsC">
+		[COUNT] 年
+	</string>
+	<string name="AgeMonthsA">
+		[COUNT] 月
+	</string>
+	<string name="AgeMonthsB">
+		[COUNT] 月
+	</string>
+	<string name="AgeMonthsC">
+		[COUNT] 月
+	</string>
+	<string name="AgeWeeksA">
+		[COUNT] 週
+	</string>
+	<string name="AgeWeeksB">
+		[COUNT] 週
+	</string>
+	<string name="AgeWeeksC">
+		[COUNT] 週
+	</string>
+	<string name="AgeDaysA">
+		[COUNT] 天
+	</string>
+	<string name="AgeDaysB">
+		[COUNT] 天
+	</string>
+	<string name="AgeDaysC">
+		[COUNT] 天
+	</string>
+	<string name="GroupMembersA">
+		[COUNT] 成員
+	</string>
+	<string name="GroupMembersB">
+		[COUNT] 成員
+	</string>
+	<string name="GroupMembersC">
+		[COUNT] 成員
+	</string>
+	<string name="AcctTypeResident">
+		居民
+	</string>
+	<string name="AcctTypeTrial">
+		Trial
+	</string>
+	<string name="AcctTypeCharterMember">
+		Charter Member
+	</string>
+	<string name="AcctTypeEmployee">
+		林登實驗室員工
+	</string>
+	<string name="PaymentInfoUsed">
+		Payment Info Used
+	</string>
+	<string name="PaymentInfoOnFile">
+		Payment Info On File
+	</string>
+	<string name="NoPaymentInfoOnFile">
+		No Payment Info On File
+	</string>
+	<string name="AgeVerified">
+		已年齡驗證
+	</string>
+	<string name="NotAgeVerified">
+		未年齡驗證
+	</string>
+	<string name="Center 2">
+		中央 2
+	</string>
+	<string name="Top Right">
+		右上
+	</string>
+	<string name="Top">
+		上方
+	</string>
+	<string name="Top Left">
+		左上
+	</string>
+	<string name="Center">
+		中央
+	</string>
+	<string name="Bottom Left">
+		左下
+	</string>
+	<string name="Bottom">
+		下方
+	</string>
+	<string name="Bottom Right">
+		右下
+	</string>
+	<string name="CompileQueueDownloadedCompiling">
+		已下載，現在進行編譯中
+	</string>
+	<string name="CompileQueueScriptNotFound">
+		伺服器上未發現腳本。
+	</string>
+	<string name="CompileQueueProblemDownloading">
+		問題下載中
+	</string>
+	<string name="CompileQueueInsufficientPermDownload">
+		Insufficient permissions to download a script.
+	</string>
+	<string name="CompileQueueInsufficientPermFor">
+		Insufficient permissions for
+	</string>
+	<string name="CompileQueueUnknownFailure">
+		Unknown failure to download
+	</string>
+	<string name="CompileQueueTitle">
+		重新編譯進度
+	</string>
+	<string name="CompileQueueStart">
+		重新編譯
+	</string>
+	<string name="ResetQueueTitle">
+		重設進度
+	</string>
+	<string name="ResetQueueStart">
+		重設
+	</string>
+	<string name="RunQueueTitle">
+		設定執行中程序
+	</string>
+	<string name="RunQueueStart">
+		設為執行中
+	</string>
+	<string name="NotRunQueueTitle">
+		設定非執行中程序
+	</string>
+	<string name="NotRunQueueStart">
+		設為非執行中
+	</string>
+	<string name="CompileSuccessful">
+		編譯成功!!
+	</string>
+	<string name="CompileSuccessfulSaving">
+		編譯成功，儲存中...
+	</string>
+	<string name="SaveComplete">
+		儲存完畢。
+	</string>
+	<string name="ObjectOutOfRange">
+		腳本（物件超出範圍）
+	</string>
+	<string name="GodToolsObjectOwnedBy">
+		物件 [OBJECT] 為 [OWNER] 所擁有
+	</string>
+	<string name="GroupsNone">
+		無
+	</string>
+	<string name="Group" value="（群組）"/>
+	<string name="Unknown">
+		（未知）
+	</string>
+	<string name="SummaryForTheWeek" value="Summary for this week, beginning on"/>
+	<string name="NextStipendDay" value="下一個發薪日為"/>
+	<string name="GroupIndividualShare" value="Group       Individual Share"/>
+	<string name="GroupColumn" value="群組"/>
+	<string name="Balance">
+		Balance
+	</string>
+	<string name="Credits">
+		Credits
+	</string>
+	<string name="Debits">
+		Debits
+	</string>
+	<string name="Total">
+		Total
+	</string>
+	<string name="NoGroupDataFound">
+		無群組資料發現
+	</string>
+	<string name="IMParentEstate">
+		parent estate
+	</string>
+	<string name="IMMainland">
+		mainland
+	</string>
+	<string name="IMTeen">
+		teen
+	</string>
+	<string name="RegionInfoError">
+		error
+	</string>
+	<string name="RegionInfoAllEstatesOwnedBy">
+		[OWNER] 所擁有的的全部領地
+	</string>
+	<string name="RegionInfoAllEstatesYouOwn">
+		你所擁有的全部領地
+	</string>
+	<string name="RegionInfoAllEstatesYouManage">
+		all estates that you manage for [OWNER]
+	</string>
+	<string name="RegionInfoAllowedResidents">
+		Allowed Residents: ([ALLOWEDAGENTS], max [MAXACCESS])
+	</string>
+	<string name="RegionInfoAllowedGroups">
+		允許的群群組：（[ALLOWEDGROUPS]，最大 [MAXACCESS]）
+	</string>
+	<string name="ScriptLimitsParcelScriptMemory">
+		地段腳本記憶體
+	</string>
+	<string name="ScriptLimitsParcelsOwned">
+		地段清單：[PARCELS]
+	</string>
+	<string name="ScriptLimitsMemoryUsed">
+		計憶體用量：使用 [MAX] kb 中的 [COUNT] kb ；剩餘 [AVAILABLE] kb 可用
+	</string>
+	<string name="ScriptLimitsMemoryUsedSimple">
+		記憶體用量：[COUNT] kb
+	</string>
+	<string name="ScriptLimitsParcelScriptURLs">
+		地段腳本 URLs
+	</string>
+	<string name="ScriptLimitsURLsUsed">
+		URLs used: [COUNT] out of [MAX]; [AVAILABLE] available
+	</string>
+	<string name="ScriptLimitsURLsUsedSimple">
+		URLs used: [COUNT]
+	</string>
+	<string name="ScriptLimitsRequestError">
+		Error requesting information
+	</string>
+	<string name="ScriptLimitsRequestNoParcelSelected">
+		無地段被選擇
+	</string>
+	<string name="ScriptLimitsRequestWrongRegion">
+		Error: script information is only available in your current region
+	</string>
+	<string name="ScriptLimitsRequestWaiting">
+		Retrieving information...
+	</string>
+	<string name="ScriptLimitsRequestDontOwnParcel">
+		You do not have permission to examine this parcel
+	</string>
+	<string name="SITTING_ON">
+		坐在
+	</string>
+	<string name="ATTACH_CHEST">
+		胸部
+	</string>
+	<string name="ATTACH_HEAD">
+		頭部
+	</string>
+	<string name="ATTACH_LSHOULDER">
+		左肩
+	</string>
+	<string name="ATTACH_RSHOULDER">
+		右肩
+	</string>
+	<string name="ATTACH_LHAND">
+		左手
+	</string>
+	<string name="ATTACH_RHAND">
+		右手
+	</string>
+	<string name="ATTACH_LFOOT">
+		左腳
+	</string>
+	<string name="ATTACH_RFOOT">
+		右腳
+	</string>
+	<string name="ATTACH_BACK">
+		背部
+	</string>
+	<string name="ATTACH_PELVIS">
+		骨盆
+	</string>
+	<string name="ATTACH_MOUTH">
+		嘴巴
+	</string>
+	<string name="ATTACH_CHIN">
+		下巴
+	</string>
+	<string name="ATTACH_LEAR">
+		左耳
+	</string>
+	<string name="ATTACH_REAR">
+		右耳
+	</string>
+	<string name="ATTACH_LEYE">
+		左眼
+	</string>
+	<string name="ATTACH_REYE">
+		右眼
+	</string>
+	<string name="ATTACH_NOSE">
+		鼻子
+	</string>
+	<string name="ATTACH_RUARM">
+		右上臂
+	</string>
+	<string name="ATTACH_RLARM">
+		右前臂
+	</string>
+	<string name="ATTACH_LUARM">
+		左上臂
+	</string>
+	<string name="ATTACH_LLARM">
+		左前臂
+	</string>
+	<string name="ATTACH_RHIP">
+		右臀
+	</string>
+	<string name="ATTACH_RULEG">
+		右大腿
+	</string>
+	<string name="ATTACH_RLLEG">
+		右小腿
+	</string>
+	<string name="ATTACH_LHIP">
+		左臀
+	</string>
+	<string name="ATTACH_LULEG">
+		左大腿
+	</string>
+	<string name="ATTACH_LLLEG">
+		左小腿
+	</string>
+	<string name="ATTACH_BELLY">
+		腹部
+	</string>
+	<string name="ATTACH_RPEC">
+		右胸肌
+	</string>
+	<string name="ATTACH_LPEC">
+		左胸肌
+	</string>
+	<string name="ATTACH_HUD_CENTER_2">
+		HUD Center 2
+	</string>
+	<string name="ATTACH_HUD_TOP_RIGHT">
+		HUD Top Right
+	</string>
+	<string name="ATTACH_HUD_TOP_CENTER">
+		HUD Top Center
+	</string>
+	<string name="ATTACH_HUD_TOP_LEFT">
+		HUD Top Left
+	</string>
+	<string name="ATTACH_HUD_CENTER_1">
+		HUD Center 1
+	</string>
+	<string name="ATTACH_HUD_BOTTOM_LEFT">
+		HUD Bottom Left
+	</string>
+	<string name="ATTACH_HUD_BOTTOM">
+		HUD Bottom
+	</string>
+	<string name="ATTACH_HUD_BOTTOM_RIGHT">
+		HUD Bottom Right
+	</string>
+	<string name="CursorPos">
+		Line [LINE], Column [COLUMN]
+	</string>
+	<string name="PanelDirCountFound">
+		[COUNT] found
+	</string>
+	<string name="PanelDirTimeStr">
+		[hour12,datetime,slt]:[min,datetime,slt] [ampm,datetime,slt]
+	</string>
+	<string name="PanelDirEventsDateText">
+		[mthnum,datetime,slt]/[day,datetime,slt]
+	</string>
+	<string name="PanelContentsTooltip">
+		物件的內容
+	</string>
+	<string name="PanelContentsNewScript">
+		新腳本
+	</string>
+	<string name="BusyModeResponseDefault">
+		你傳送訊息的居民目前處於忙碌模式中，這意味著他要求不被打擾。你所傳的訊息仍將會留存並顯示於 IM 面板上供他稍後時查閱。
+	</string>
+	<string name="MuteByName">
+		（由名稱）
+	</string>
+	<string name="MuteAgent">
+		（居民）
+	</string>
+	<string name="MuteObject">
+		（物件）
+	</string>
+	<string name="MuteGroup">
+		（群組）
+	</string>
+	<string name="MuteExternal">
+		（外部）
+	</string>
+	<string name="RegionNoCovenant">
+		此領地未提供任何契約要求。
+	</string>
+	<string name="RegionNoCovenantOtherOwner">
+		There is no Covenant provided for this Estate. The land on this estate is being sold by the Estate owner, not Linden Lab.  Please contact the Estate Owner for sales details.
+	</string>
+	<string name="covenant_last_modified" value="最後修改於："/>
+	<string name="none_text" value="（無）"/>
+	<string name="never_text" value="（絕不）"/>
+	<string name="GroupOwned">
+		群組所擁有
+	</string>
+	<string name="Public">
+		公開
+	</string>
+	<string name="ClassifiedClicksTxt">
+		Clicks: [TELEPORT] teleport, [MAP] map, [PROFILE] profile
+	</string>
+	<string name="ClassifiedUpdateAfterPublish">
+		（將於發布後自動更新）
+	</string>
+	<string name="NoPicksClassifiedsText">
+		You haven&apos;t created any Picks or Classifieds. Click the Plus button below to create a Pick or Classified.
+	</string>
+	<string name="NoAvatarPicksClassifiedsText">
+		使用者無精選地點或個人廣告
+	</string>
+	<string name="PicksClassifiedsLoadingText">
+		載入中...
+	</string>
+	<string name="MultiPreviewTitle">
+		預覽
+	</string>
+	<string name="MultiPropertiesTitle">
+		屬性
+	</string>
+	<string name="InvOfferAnObjectNamed">
+		An object named
+	</string>
+	<string name="InvOfferOwnedByGroup">
+		群組所擁有
+	</string>
+	<string name="InvOfferOwnedByUnknownGroup">
+		由一個未知的群組所擁有
+	</string>
+	<string name="InvOfferOwnedBy">
+		owned by
+	</string>
+	<string name="InvOfferOwnedByUnknownUser">
+		owned by an unknown user
+	</string>
+	<string name="InvOfferGaveYou">
+		gave you
+	</string>
+	<string name="InvOfferDecline">
+		You decline [DESC] from &lt;nolink&gt;[NAME]&lt;/nolink&gt;.
+	</string>
+	<string name="GroupMoneyTotal">
+		Total
+	</string>
+	<string name="GroupMoneyBought">
+		bought
+	</string>
+	<string name="GroupMoneyPaidYou">
+		paid you
+	</string>
+	<string name="GroupMoneyPaidInto">
+		paid into
+	</string>
+	<string name="GroupMoneyBoughtPassTo">
+		bought pass to
+	</string>
+	<string name="GroupMoneyPaidFeeForEvent">
+		paid fee for event
+	</string>
+	<string name="GroupMoneyPaidPrizeForEvent">
+		paid prize for event
+	</string>
+	<string name="GroupMoneyBalance">
+		Balance
+	</string>
+	<string name="GroupMoneyCredits">
+		Credits
+	</string>
+	<string name="GroupMoneyDebits">
+		Debits
+	</string>
+	<string name="ViewerObjectContents">
+		Contents
+	</string>
+	<string name="AcquiredItems">
+		Acquired Items
+	</string>
+	<string name="Cancel">
+		取消
+	</string>
+	<string name="UploadingCosts">
+		花費 L$ [AMOUNT] 上傳 [NAME]
+	</string>
+	<string name="BuyingCosts">
+		花費 L$ [AMOUNT] 購買這個
+	</string>
+	<string name="UnknownFileExtension">
+		未知的副檔名 .%s
+預期為 .wav, .tga, .bmp, .jpg, .jpeg, or .bvh　類型
+	</string>
+	<string name="MuteObject2">
+		Block
+	</string>
+	<string name="MuteAvatar">
+		Block
+	</string>
+	<string name="UnmuteObject">
+		Unblock
+	</string>
+	<string name="UnmuteAvatar">
+		Unblock
+	</string>
+	<string name="AddLandmarkNavBarMenu">
+		添加到我的地標...
+	</string>
+	<string name="EditLandmarkNavBarMenu">
+		編輯我的地標...
+	</string>
+	<string name="accel-mac-control">
+		⌃
+	</string>
+	<string name="accel-mac-command">
+		⌘
+	</string>
+	<string name="accel-mac-option">
+		⌥
+	</string>
+	<string name="accel-mac-shift">
+		⇧
+	</string>
+	<string name="accel-win-control">
+		Ctrl+
+	</string>
+	<string name="accel-win-alt">
+		Alt+
+	</string>
+	<string name="accel-win-shift">
+		Shift+
+	</string>
+	<string name="FileSaved">
+		檔案已儲存
+	</string>
+	<string name="Receiving">
+		接收中
+	</string>
+	<string name="AM">
+		AM
+	</string>
+	<string name="PM">
+		PM
+	</string>
+	<string name="PST">
+		PST
+	</string>
+	<string name="PDT">
+		PDT
+	</string>
+	<string name="Direction_Forward">
+		向前
+	</string>
+	<string name="Direction_Left">
+		向左
+	</string>
+	<string name="Direction_Right">
+		向右
+	</string>
+	<string name="Direction_Back">
+		向後
+	</string>
+	<string name="Direction_North">
+		北
+	</string>
+	<string name="Direction_South">
+		南
+	</string>
+	<string name="Direction_West">
+		西
+	</string>
+	<string name="Direction_East">
+		東
+	</string>
+	<string name="Direction_Up">
+		向上
+	</string>
+	<string name="Direction_Down">
+		向下
+	</string>
+	<string name="Any Category">
+		任何類別
+	</string>
+	<string name="Shopping">
+		採購
+	</string>
+	<string name="Land Rental">
+		Land Rental
+	</string>
+	<string name="Property Rental">
+		Property Rental
+	</string>
+	<string name="Special Attraction">
+		Special Attraction
+	</string>
+	<string name="New Products">
+		New Products
+	</string>
+	<string name="Employment">
+		Employment
+	</string>
+	<string name="Wanted">
+		Wanted
+	</string>
+	<string name="Service">
+		Service
+	</string>
+	<string name="Personal">
+		Personal
+	</string>
+	<string name="None">
+		無
+	</string>
+	<string name="Linden Location">
+		Linden Location
+	</string>
+	<string name="Adult">
+		完全成人
+	</string>
+	<string name="Arts&amp;Culture">
+		藝術與文化
+	</string>
+	<string name="Business">
+		商業
+	</string>
+	<string name="Educational">
+		教育
+	</string>
+	<string name="Gaming">
+		遊戲
+	</string>
+	<string name="Hangout">
+		聚會所
+	</string>
+	<string name="Newcomer Friendly">
+		新手友善
+	</string>
+	<string name="Parks&amp;Nature">
+		公園與自然
+	</string>
+	<string name="Residential">
+		住宅
+	</string>
+	<string name="Stage">
+		Stage
+	</string>
+	<string name="Other">
+		Other
+	</string>
+	<string name="Rental">
+		Rental
+	</string>
+	<string name="Any">
+		Any
+	</string>
+	<string name="You">
+		你
+	</string>
+	<string name=":">
+		:
+	</string>
+	<string name=",">
+		,
+	</string>
+	<string name="...">
+		...
+	</string>
+	<string name="***">
+		***
+	</string>
+	<string name="(">
+		(
+	</string>
+	<string name=")">
+		)
+	</string>
+	<string name=".">
+		.
+	</string>
+	<string name="&apos;">
+		&apos;
+	</string>
+	<string name="---">
+		---
+	</string>
+	<string name="Multiple Media">
+		多媒體
+	</string>
+	<string name="Play Media">
+		播放／暫停 媒體
+	</string>
+	<string name="MBCmdLineError">
+		解析命令列時發現錯誤。
+請參閱： http://wiki.secondlife.com/wiki/Client_parameters
+錯誤：
+	</string>
+	<string name="MBCmdLineUsg">
+		[APP_NAME] 命令列用法：
+	</string>
+	<string name="MBUnableToAccessFile">
+		[APP_NAME] 無法存取它所需要的檔案。
+
+This can be because you somehow have multiple copies running, or your system incorrectly thinks a file is open.
+If this message persists, restart your computer and try again.
+If it continues to persist, you may need to completely uninstall [APP_NAME] and reinstall it.
+	</string>
+	<string name="MBFatalError">
+		致命錯誤
+	</string>
+	<string name="MBRequiresAltiVec">
+		[APP_NAME] requires a processor with AltiVec (G4 or later).
+	</string>
+	<string name="MBAlreadyRunning">
+		[APP_NAME] 已經在執行中。
+請檢查你的工作列裡是否有其他最小化的相同程式。
+如果這個訊息持續出現，請重新啟動你的電腦。
+	</string>
+	<string name="MBFrozenCrashed">
+		[APP_NAME] appears to have frozen or crashed on the previous run.
+Would you like to send a crash report?
+	</string>
+	<string name="MBAlert">
+		通知
+	</string>
+	<string name="MBNoDirectX">
+		[APP_NAME] is unable to detect DirectX 9.0b or greater.
+[APP_NAME] uses DirectX to detect hardware and/or outdated drivers that can cause stability problems, poor performance and crashes.  While you can run [APP_NAME] without it, we highly recommend running with DirectX 9.0b.
+
+Do you wish to continue?
+	</string>
+	<string name="MBWarning">
+		警告
+	</string>
+	<string name="MBNoAutoUpdate">
+		Automatic updating is not yet implemented for Linux.
+Please download the latest version from www.secondlife.com.
+	</string>
+	<string name="MBRegClassFailed">
+		RegisterClass failed
+	</string>
+	<string name="MBError">
+		錯誤
+	</string>
+	<string name="MBFullScreenErr">
+		無法執行全螢幕於 [WIDTH] x [HEIGHT].
+執行於視窗中。
+	</string>
+	<string name="MBDestroyWinFailed">
+		Shutdown Error while destroying window (DestroyWindow() failed)
+	</string>
+	<string name="MBShutdownErr">
+		Shutdown Error
+	</string>
+	<string name="MBDevContextErr">
+		Can&apos;t make GL device context
+	</string>
+	<string name="MBPixelFmtErr">
+		Can&apos;t find suitable pixel format
+	</string>
+	<string name="MBPixelFmtDescErr">
+		Can&apos;t get pixel format description
+	</string>
+	<string name="MBTrueColorWindow">
+		[APP_NAME] requires True Color (32-bit) to run.
+Please go to your computer&apos;s display settings and set the color mode to 32-bit.
+	</string>
+	<string name="MBAlpha">
+		[APP_NAME] is unable to run because it can&apos;t get an 8 bit alpha channel.  Usually this is due to video card driver issues.
+Please make sure you have the latest video card drivers installed.
+Also be sure your monitor is set to True Color (32-bit) in Control Panels &gt; Display &gt; Settings.
+If you continue to receive this message, contact the [SUPPORT_SITE].
+	</string>
+	<string name="MBPixelFmtSetErr">
+		無法設定像素格式
+	</string>
+	<string name="MBGLContextErr">
+		Can&apos;t create GL rendering context
+	</string>
+	<string name="MBGLContextActErr">
+		Can&apos;t activate GL rendering context
+	</string>
+	<string name="MBVideoDrvErr">
+		[APP_NAME] is unable to run because your video card drivers did not install properly, are out of date, or are for unsupported hardware. Please make sure you have the latest video card drivers and even if you do have the latest, try reinstalling them.
+
+If you continue to receive this message, contact the [SUPPORT_SITE].
+	</string>
+	<string name="5 O&apos;Clock Shadow">
+		5 O&apos;Clock Shadow
+	</string>
+	<string name="All White">
+		全白
+	</string>
+	<string name="Anime Eyes">
+		Anime Eyes
+	</string>
+	<string name="Arced">
+		Arced
+	</string>
+	<string name="Arm Length">
+		Arm Length
+	</string>
+	<string name="Attached">
+		Attached
+	</string>
+	<string name="Attached Earlobes">
+		Attached Earlobes
+	</string>
+	<string name="Back Fringe">
+		Back Fringe
+	</string>
+	<string name="Baggy">
+		Baggy
+	</string>
+	<string name="Bangs">
+		Bangs
+	</string>
+	<string name="Beady Eyes">
+		Beady Eyes
+	</string>
+	<string name="Belly Size">
+		Belly Size
+	</string>
+	<string name="Big">
+		Big
+	</string>
+	<string name="Big Butt">
+		Big Butt
+	</string>
+	<string name="Big Hair Back">
+		Big Hair: Back
+	</string>
+	<string name="Big Hair Front">
+		Big Hair: Front
+	</string>
+	<string name="Big Hair Top">
+		Big Hair: Top
+	</string>
+	<string name="Big Head">
+		Big Head
+	</string>
+	<string name="Big Pectorals">
+		Big Pectorals
+	</string>
+	<string name="Big Spikes">
+		Big Spikes
+	</string>
+	<string name="Black">
+		Black
+	</string>
+	<string name="Blonde">
+		Blonde
+	</string>
+	<string name="Blonde Hair">
+		Blonde Hair
+	</string>
+	<string name="Blush">
+		Blush
+	</string>
+	<string name="Blush Color">
+		Blush Color
+	</string>
+	<string name="Blush Opacity">
+		Blush Opacity
+	</string>
+	<string name="Body Definition">
+		Body Definition
+	</string>
+	<string name="Body Fat">
+		Body Fat
+	</string>
+	<string name="Body Freckles">
+		Body Freckles
+	</string>
+	<string name="Body Thick">
+		Body Thick
+	</string>
+	<string name="Body Thickness">
+		Body Thickness
+	</string>
+	<string name="Body Thin">
+		Body Thin
+	</string>
+	<string name="Bow Legged">
+		Bow Legged
+	</string>
+	<string name="Breast Buoyancy">
+		Breast Buoyancy
+	</string>
+	<string name="Breast Cleavage">
+		Breast Cleavage
+	</string>
+	<string name="Breast Size">
+		Breast Size
+	</string>
+	<string name="Bridge Width">
+		Bridge Width
+	</string>
+	<string name="Broad">
+		Broad
+	</string>
+	<string name="Brow Size">
+		Brow Size
+	</string>
+	<string name="Bug Eyes">
+		Bug Eyes
+	</string>
+	<string name="Bugged Eyes">
+		Bugged Eyes
+	</string>
+	<string name="Bulbous">
+		Bulbous
+	</string>
+	<string name="Bulbous Nose">
+		Bulbous Nose
+	</string>
+	<string name="Breast Physics Mass">
+		Breast Mass
+	</string>
+	<string name="Breast Physics Smoothing">
+		Breast Smoothing
+	</string>
+	<string name="Breast Physics Gravity">
+		Breast Gravity
+	</string>
+	<string name="Breast Physics Drag">
+		Breast Drag
+	</string>
+	<string name="Breast Physics InOut Max Effect">
+		Max Effect
+	</string>
+	<string name="Breast Physics InOut Spring">
+		Spring
+	</string>
+	<string name="Breast Physics InOut Gain">
+		Gain
+	</string>
+	<string name="Breast Physics InOut Damping">
+		Damping
+	</string>
+	<string name="Breast Physics UpDown Max Effect">
+		Max Effect
+	</string>
+	<string name="Breast Physics UpDown Spring">
+		Spring
+	</string>
+	<string name="Breast Physics UpDown Gain">
+		Gain
+	</string>
+	<string name="Breast Physics UpDown Damping">
+		Damping
+	</string>
+	<string name="Breast Physics LeftRight Max Effect">
+		Max Effect
+	</string>
+	<string name="Breast Physics LeftRight Spring">
+		Spring
+	</string>
+	<string name="Breast Physics LeftRight Gain">
+		Gain
+	</string>
+	<string name="Breast Physics LeftRight Damping">
+		Damping
+	</string>
+	<string name="Belly Physics Mass">
+		Belly Mass
+	</string>
+	<string name="Belly Physics Smoothing">
+		Belly Smoothing
+	</string>
+	<string name="Belly Physics Gravity">
+		Belly Gravity
+	</string>
+	<string name="Belly Physics Drag">
+		Belly Drag
+	</string>
+	<string name="Belly Physics UpDown Max Effect">
+		Max Effect
+	</string>
+	<string name="Belly Physics UpDown Spring">
+		Spring
+	</string>
+	<string name="Belly Physics UpDown Gain">
+		Gain
+	</string>
+	<string name="Belly Physics UpDown Damping">
+		Damping
+	</string>
+	<string name="Butt Physics Mass">
+		Butt Mass
+	</string>
+	<string name="Butt Physics Smoothing">
+		Butt Smoothing
+	</string>
+	<string name="Butt Physics Gravity">
+		Butt Gravity
+	</string>
+	<string name="Butt Physics Drag">
+		Butt Drag
+	</string>
+	<string name="Butt Physics UpDown Max Effect">
+		Max Effect
+	</string>
+	<string name="Butt Physics UpDown Spring">
+		Spring
+	</string>
+	<string name="Butt Physics UpDown Gain">
+		Gain
+	</string>
+	<string name="Butt Physics UpDown Damping">
+		Damping
+	</string>
+	<string name="Butt Physics LeftRight Max Effect">
+		Max Effect
+	</string>
+	<string name="Butt Physics LeftRight Spring">
+		Spring
+	</string>
+	<string name="Butt Physics LeftRight Gain">
+		Gain
+	</string>
+	<string name="Butt Physics LeftRight Damping">
+		Damping
+	</string>
+	<string name="Bushy Eyebrows">
+		Bushy Eyebrows
+	</string>
+	<string name="Bushy Hair">
+		Bushy Hair
+	</string>
+	<string name="Butt Size">
+		Butt Size
+	</string>
+	<string name="Butt Gravity">
+		Butt Gravity
+	</string>
+	<string name="bustle skirt">
+		Bustle Skirt
+	</string>
+	<string name="no bustle">
+		No Bustle
+	</string>
+	<string name="more bustle">
+		More Bustle
+	</string>
+	<string name="Chaplin">
+		Chaplin
+	</string>
+	<string name="Cheek Bones">
+		Cheek Bones
+	</string>
+	<string name="Chest Size">
+		Chest Size
+	</string>
+	<string name="Chin Angle">
+		下巴角度
+	</string>
+	<string name="Chin Cleft">
+		Chin Cleft
+	</string>
+	<string name="Chin Curtains">
+		Chin Curtains
+	</string>
+	<string name="Chin Depth">
+		Chin Depth
+	</string>
+	<string name="Chin Heavy">
+		Chin Heavy
+	</string>
+	<string name="Chin In">
+		Chin In
+	</string>
+	<string name="Chin Out">
+		Chin Out
+	</string>
+	<string name="Chin-Neck">
+		Chin-Neck
+	</string>
+	<string name="Clear">
+		清除
+	</string>
+	<string name="Cleft">
+		Cleft
+	</string>
+	<string name="Close Set Eyes">
+		Close Set Eyes
+	</string>
+	<string name="Closed">
+		Closed
+	</string>
+	<string name="Closed Back">
+		Closed Back
+	</string>
+	<string name="Closed Front">
+		Closed Front
+	</string>
+	<string name="Closed Left">
+		Closed Left
+	</string>
+	<string name="Closed Right">
+		Closed Right
+	</string>
+	<string name="Coin Purse">
+		Coin Purse
+	</string>
+	<string name="Collar Back">
+		Collar Back
+	</string>
+	<string name="Collar Front">
+		Collar Front
+	</string>
+	<string name="Corner Down">
+		Corner Down
+	</string>
+	<string name="Corner Up">
+		Corner Up
+	</string>
+	<string name="Creased">
+		Creased
+	</string>
+	<string name="Crooked Nose">
+		Crooked Nose
+	</string>
+	<string name="Cuff Flare">
+		Cuff Flare
+	</string>
+	<string name="Dark">
+		Dark
+	</string>
+	<string name="Dark Green">
+		Dark Green
+	</string>
+	<string name="Darker">
+		Darker
+	</string>
+	<string name="Deep">
+		Deep
+	</string>
+	<string name="Default Heels">
+		Default Heels
+	</string>
+	<string name="Dense">
+		Dense
+	</string>
+	<string name="Double Chin">
+		Double Chin
+	</string>
+	<string name="Downturned">
+		Downturned
+	</string>
+	<string name="Duffle Bag">
+		Duffle Bag
+	</string>
+	<string name="Ear Angle">
+		Ear Angle
+	</string>
+	<string name="Ear Size">
+		Ear Size
+	</string>
+	<string name="Ear Tips">
+		Ear Tips
+	</string>
+	<string name="Egg Head">
+		Egg Head
+	</string>
+	<string name="Eye Bags">
+		Eye Bags
+	</string>
+	<string name="Eye Color">
+		Eye Color
+	</string>
+	<string name="Eye Depth">
+		Eye Depth
+	</string>
+	<string name="Eye Lightness">
+		Eye Lightness
+	</string>
+	<string name="Eye Opening">
+		Eye Opening
+	</string>
+	<string name="Eye Pop">
+		Eye Pop
+	</string>
+	<string name="Eye Size">
+		Eye Size
+	</string>
+	<string name="Eye Spacing">
+		Eye Spacing
+	</string>
+	<string name="Eyebrow Arc">
+		Eyebrow Arc
+	</string>
+	<string name="Eyebrow Density">
+		Eyebrow Density
+	</string>
+	<string name="Eyebrow Height">
+		Eyebrow Height
+	</string>
+	<string name="Eyebrow Points">
+		Eyebrow Points
+	</string>
+	<string name="Eyebrow Size">
+		Eyebrow Size
+	</string>
+	<string name="Eyelash Length">
+		Eyelash Length
+	</string>
+	<string name="Eyeliner">
+		Eyeliner
+	</string>
+	<string name="Eyeliner Color">
+		Eyeliner Color
+	</string>
+	<string name="Eyes Bugged">
+		Eyes Bugged
+	</string>
+	<string name="Face Shear">
+		Face Shear
+	</string>
+	<string name="Facial Definition">
+		Facial Definition
+	</string>
+	<string name="Far Set Eyes">
+		Far Set Eyes
+	</string>
+	<string name="Fat Lips">
+		Fat Lips
+	</string>
+	<string name="Female">
+		Female
+	</string>
+	<string name="Fingerless">
+		Fingerless
+	</string>
+	<string name="Fingers">
+		Fingers
+	</string>
+	<string name="Flared Cuffs">
+		Flared Cuffs
+	</string>
+	<string name="Flat">
+		Flat
+	</string>
+	<string name="Flat Butt">
+		Flat Butt
+	</string>
+	<string name="Flat Head">
+		Flat Head
+	</string>
+	<string name="Flat Toe">
+		Flat Toe
+	</string>
+	<string name="Foot Size">
+		Foot Size
+	</string>
+	<string name="Forehead Angle">
+		Forehead Angle
+	</string>
+	<string name="Forehead Heavy">
+		Forehead Heavy
+	</string>
+	<string name="Freckles">
+		Freckles
+	</string>
+	<string name="Front Fringe">
+		Front Fringe
+	</string>
+	<string name="Full Back">
+		Full Back
+	</string>
+	<string name="Full Eyeliner">
+		Full Eyeliner
+	</string>
+	<string name="Full Front">
+		Full Front
+	</string>
+	<string name="Full Hair Sides">
+		Full Hair Sides
+	</string>
+	<string name="Full Sides">
+		Full Sides
+	</string>
+	<string name="Glossy">
+		Glossy
+	</string>
+	<string name="Glove Fingers">
+		Glove Fingers
+	</string>
+	<string name="Glove Length">
+		Glove Length
+	</string>
+	<string name="Hair">
+		頭髮
+	</string>
+	<string name="Hair Back">
+		Hair: Back
+	</string>
+	<string name="Hair Front">
+		Hair: Front
+	</string>
+	<string name="Hair Sides">
+		Hair: Sides
+	</string>
+	<string name="Hair Sweep">
+		Hair Sweep
+	</string>
+	<string name="Hair Thickess">
+		Hair Thickness
+	</string>
+	<string name="Hair Thickness">
+		Hair Thickness
+	</string>
+	<string name="Hair Tilt">
+		Hair Tilt
+	</string>
+	<string name="Hair Tilted Left">
+		Hair Tilted Left
+	</string>
+	<string name="Hair Tilted Right">
+		Hair Tilted Right
+	</string>
+	<string name="Hair Volume">
+		Hair: Volume
+	</string>
+	<string name="Hand Size">
+		Hand Size
+	</string>
+	<string name="Handlebars">
+		Handlebars
+	</string>
+	<string name="Head Length">
+		Head Length
+	</string>
+	<string name="Head Shape">
+		Head Shape
+	</string>
+	<string name="Head Size">
+		Head Size
+	</string>
+	<string name="Head Stretch">
+		Head Stretch
+	</string>
+	<string name="Heel Height">
+		Heel Height
+	</string>
+	<string name="Heel Shape">
+		Heel Shape
+	</string>
+	<string name="Height">
+		Height
+	</string>
+	<string name="High">
+		High
+	</string>
+	<string name="High Heels">
+		High Heels
+	</string>
+	<string name="High Jaw">
+		High Jaw
+	</string>
+	<string name="High Platforms">
+		High Platforms
+	</string>
+	<string name="High and Tight">
+		High and Tight
+	</string>
+	<string name="Higher">
+		Higher
+	</string>
+	<string name="Hip Length">
+		Hip Length
+	</string>
+	<string name="Hip Width">
+		Hip Width
+	</string>
+	<string name="In">
+		In
+	</string>
+	<string name="In Shdw Color">
+		Inner Shadow Color
+	</string>
+	<string name="In Shdw Opacity">
+		Inner Shadow Opacity
+	</string>
+	<string name="Inner Eye Corner">
+		Inner Eye Corner
+	</string>
+	<string name="Inner Eye Shadow">
+		Inner Eye Shadow
+	</string>
+	<string name="Inner Shadow">
+		Inner Shadow
+	</string>
+	<string name="Jacket Length">
+		Jacket Length
+	</string>
+	<string name="Jacket Wrinkles">
+		Jacket Wrinkles
+	</string>
+	<string name="Jaw Angle">
+		Jaw Angle
+	</string>
+	<string name="Jaw Jut">
+		Jaw Jut
+	</string>
+	<string name="Jaw Shape">
+		Jaw Shape
+	</string>
+	<string name="Join">
+		Join
+	</string>
+	<string name="Jowls">
+		Jowls
+	</string>
+	<string name="Knee Angle">
+		Knee Angle
+	</string>
+	<string name="Knock Kneed">
+		Knock Kneed
+	</string>
+	<string name="Large">
+		Large
+	</string>
+	<string name="Large Hands">
+		Large Hands
+	</string>
+	<string name="Left Part">
+		Left Part
+	</string>
+	<string name="Leg Length">
+		Leg Length
+	</string>
+	<string name="Leg Muscles">
+		Leg Muscles
+	</string>
+	<string name="Less">
+		Less
+	</string>
+	<string name="Less Body Fat">
+		Less Body Fat
+	</string>
+	<string name="Less Curtains">
+		Less Curtains
+	</string>
+	<string name="Less Freckles">
+		Less Freckles
+	</string>
+	<string name="Less Full">
+		Less Full
+	</string>
+	<string name="Less Gravity">
+		Less Gravity
+	</string>
+	<string name="Less Love">
+		Less Love
+	</string>
+	<string name="Less Muscles">
+		Less Muscles
+	</string>
+	<string name="Less Muscular">
+		Less Muscular
+	</string>
+	<string name="Less Rosy">
+		Less Rosy
+	</string>
+	<string name="Less Round">
+		Less Round
+	</string>
+	<string name="Less Saddle">
+		Less Saddle
+	</string>
+	<string name="Less Square">
+		Less Square
+	</string>
+	<string name="Less Volume">
+		Less Volume
+	</string>
+	<string name="Less soul">
+		Less soul
+	</string>
+	<string name="Lighter">
+		Lighter
+	</string>
+	<string name="Lip Cleft">
+		Lip Cleft
+	</string>
+	<string name="Lip Cleft Depth">
+		Lip Cleft Depth
+	</string>
+	<string name="Lip Fullness">
+		Lip Fullness
+	</string>
+	<string name="Lip Pinkness">
+		Lip Pinkness
+	</string>
+	<string name="Lip Ratio">
+		Lip Ratio
+	</string>
+	<string name="Lip Thickness">
+		Lip Thickness
+	</string>
+	<string name="Lip Width">
+		Lip Width
+	</string>
+	<string name="Lipgloss">
+		Lipgloss
+	</string>
+	<string name="Lipstick">
+		Lipstick
+	</string>
+	<string name="Lipstick Color">
+		Lipstick Color
+	</string>
+	<string name="Long">
+		Long
+	</string>
+	<string name="Long Head">
+		Long Head
+	</string>
+	<string name="Long Hips">
+		Long Hips
+	</string>
+	<string name="Long Legs">
+		Long Legs
+	</string>
+	<string name="Long Neck">
+		Long Neck
+	</string>
+	<string name="Long Pigtails">
+		Long Pigtails
+	</string>
+	<string name="Long Ponytail">
+		Long Ponytail
+	</string>
+	<string name="Long Torso">
+		Long Torso
+	</string>
+	<string name="Long arms">
+		Long arms
+	</string>
+	<string name="Loose Pants">
+		Loose Pants
+	</string>
+	<string name="Loose Shirt">
+		Loose Shirt
+	</string>
+	<string name="Loose Sleeves">
+		Loose Sleeves
+	</string>
+	<string name="Love Handles">
+		Love Handles
+	</string>
+	<string name="Low">
+		Low
+	</string>
+	<string name="Low Heels">
+		Low Heels
+	</string>
+	<string name="Low Jaw">
+		Low Jaw
+	</string>
+	<string name="Low Platforms">
+		Low Platforms
+	</string>
+	<string name="Low and Loose">
+		Low and Loose
+	</string>
+	<string name="Lower">
+		Lower
+	</string>
+	<string name="Lower Bridge">
+		Lower Bridge
+	</string>
+	<string name="Lower Cheeks">
+		Lower Cheeks
+	</string>
+	<string name="Male">
+		男性
+	</string>
+	<string name="Middle Part">
+		Middle Part
+	</string>
+	<string name="More">
+		更多
+	</string>
+	<string name="More Blush">
+		More Blush
+	</string>
+	<string name="More Body Fat">
+		More Body Fat
+	</string>
+	<string name="More Curtains">
+		More Curtains
+	</string>
+	<string name="More Eyeshadow">
+		More Eyeshadow
+	</string>
+	<string name="More Freckles">
+		More Freckles
+	</string>
+	<string name="More Full">
+		More Full
+	</string>
+	<string name="More Gravity">
+		More Gravity
+	</string>
+	<string name="More Lipstick">
+		More Lipstick
+	</string>
+	<string name="More Love">
+		More Love
+	</string>
+	<string name="More Lower Lip">
+		More Lower Lip
+	</string>
+	<string name="More Muscles">
+		More Muscles
+	</string>
+	<string name="More Muscular">
+		More Muscular
+	</string>
+	<string name="More Rosy">
+		More Rosy
+	</string>
+	<string name="More Round">
+		More Round
+	</string>
+	<string name="More Saddle">
+		More Saddle
+	</string>
+	<string name="More Sloped">
+		More Sloped
+	</string>
+	<string name="More Square">
+		More Square
+	</string>
+	<string name="More Upper Lip">
+		More Upper Lip
+	</string>
+	<string name="More Vertical">
+		More Vertical
+	</string>
+	<string name="More Volume">
+		More Volume
+	</string>
+	<string name="More soul">
+		More soul
+	</string>
+	<string name="Moustache">
+		Moustache
+	</string>
+	<string name="Mouth Corner">
+		Mouth Corner
+	</string>
+	<string name="Mouth Position">
+		Mouth Position
+	</string>
+	<string name="Mowhawk">
+		Mowhawk
+	</string>
+	<string name="Muscular">
+		Muscular
+	</string>
+	<string name="Mutton Chops">
+		Mutton Chops
+	</string>
+	<string name="Nail Polish">
+		Nail Polish
+	</string>
+	<string name="Nail Polish Color">
+		Nail Polish Color
+	</string>
+	<string name="Narrow">
+		Narrow
+	</string>
+	<string name="Narrow Back">
+		Narrow Back
+	</string>
+	<string name="Narrow Front">
+		Narrow Front
+	</string>
+	<string name="Narrow Lips">
+		Narrow Lips
+	</string>
+	<string name="Natural">
+		Natural
+	</string>
+	<string name="Neck Length">
+		Neck Length
+	</string>
+	<string name="Neck Thickness">
+		Neck Thickness
+	</string>
+	<string name="No Blush">
+		No Blush
+	</string>
+	<string name="No Eyeliner">
+		No Eyeliner
+	</string>
+	<string name="No Eyeshadow">
+		No Eyeshadow
+	</string>
+	<string name="No Lipgloss">
+		No Lipgloss
+	</string>
+	<string name="No Lipstick">
+		No Lipstick
+	</string>
+	<string name="No Part">
+		No Part
+	</string>
+	<string name="No Polish">
+		No Polish
+	</string>
+	<string name="No Red">
+		No Red
+	</string>
+	<string name="No Spikes">
+		No Spikes
+	</string>
+	<string name="No White">
+		No White
+	</string>
+	<string name="No Wrinkles">
+		No Wrinkles
+	</string>
+	<string name="Normal Lower">
+		Normal Lower
+	</string>
+	<string name="Normal Upper">
+		Normal Upper
+	</string>
+	<string name="Nose Left">
+		Nose Left
+	</string>
+	<string name="Nose Right">
+		Nose Right
+	</string>
+	<string name="Nose Size">
+		Nose Size
+	</string>
+	<string name="Nose Thickness">
+		Nose Thickness
+	</string>
+	<string name="Nose Tip Angle">
+		Nose Tip Angle
+	</string>
+	<string name="Nose Tip Shape">
+		Nose Tip Shape
+	</string>
+	<string name="Nose Width">
+		Nose Width
+	</string>
+	<string name="Nostril Division">
+		Nostril Division
+	</string>
+	<string name="Nostril Width">
+		Nostril Width
+	</string>
+	<string name="Opaque">
+		Opaque
+	</string>
+	<string name="Open">
+		Open
+	</string>
+	<string name="Open Back">
+		Open Back
+	</string>
+	<string name="Open Front">
+		Open Front
+	</string>
+	<string name="Open Left">
+		Open Left
+	</string>
+	<string name="Open Right">
+		Open Right
+	</string>
+	<string name="Orange">
+		Orange
+	</string>
+	<string name="Out">
+		Out
+	</string>
+	<string name="Out Shdw Color">
+		Outer Shadow Color
+	</string>
+	<string name="Out Shdw Opacity">
+		Outer Shadow Opacity
+	</string>
+	<string name="Outer Eye Corner">
+		Outer Eye Corner
+	</string>
+	<string name="Outer Eye Shadow">
+		Outer Eye Shadow
+	</string>
+	<string name="Outer Shadow">
+		Outer Shadow
+	</string>
+	<string name="Overbite">
+		Overbite
+	</string>
+	<string name="Package">
+		Package
+	</string>
+	<string name="Painted Nails">
+		Painted Nails
+	</string>
+	<string name="Pale">
+		Pale
+	</string>
+	<string name="Pants Crotch">
+		Pants Crotch
+	</string>
+	<string name="Pants Fit">
+		Pants Fit
+	</string>
+	<string name="Pants Length">
+		Pants Length
+	</string>
+	<string name="Pants Waist">
+		Pants Waist
+	</string>
+	<string name="Pants Wrinkles">
+		Pants Wrinkles
+	</string>
+	<string name="Part">
+		Part
+	</string>
+	<string name="Part Bangs">
+		Part Bangs
+	</string>
+	<string name="Pectorals">
+		Pectorals
+	</string>
+	<string name="Pigment">
+		Pigment
+	</string>
+	<string name="Pigtails">
+		Pigtails
+	</string>
+	<string name="Pink">
+		Pink
+	</string>
+	<string name="Pinker">
+		Pinker
+	</string>
+	<string name="Platform Height">
+		Platform Height
+	</string>
+	<string name="Platform Width">
+		Platform Width
+	</string>
+	<string name="Pointy">
+		Pointy
+	</string>
+	<string name="Pointy Heels">
+		Pointy Heels
+	</string>
+	<string name="Ponytail">
+		Ponytail
+	</string>
+	<string name="Poofy Skirt">
+		Poofy Skirt
+	</string>
+	<string name="Pop Left Eye">
+		Pop Left Eye
+	</string>
+	<string name="Pop Right Eye">
+		Pop Right Eye
+	</string>
+	<string name="Puffy">
+		Puffy
+	</string>
+	<string name="Puffy Eyelids">
+		Puffy Eyelids
+	</string>
+	<string name="Rainbow Color">
+		Rainbow Color
+	</string>
+	<string name="Red Hair">
+		Red Hair
+	</string>
+	<string name="Regular">
+		Regular
+	</string>
+	<string name="Right Part">
+		Right Part
+	</string>
+	<string name="Rosy Complexion">
+		Rosy Complexion
+	</string>
+	<string name="Round">
+		Round
+	</string>
+	<string name="Ruddiness">
+		Ruddiness
+	</string>
+	<string name="Ruddy">
+		Ruddy
+	</string>
+	<string name="Rumpled Hair">
+		Rumpled Hair
+	</string>
+	<string name="Saddle Bags">
+		Saddle Bags
+	</string>
+	<string name="Scrawny Leg">
+		Scrawny Leg
+	</string>
+	<string name="Separate">
+		Separate
+	</string>
+	<string name="Shallow">
+		Shallow
+	</string>
+	<string name="Shear Back">
+		Shear Back
+	</string>
+	<string name="Shear Face">
+		Shear Face
+	</string>
+	<string name="Shear Front">
+		Shear Front
+	</string>
+	<string name="Shear Left Up">
+		Shear Left Up
+	</string>
+	<string name="Shear Right Up">
+		Shear Right Up
+	</string>
+	<string name="Sheared Back">
+		Sheared Back
+	</string>
+	<string name="Sheared Front">
+		Sheared Front
+	</string>
+	<string name="Shift Left">
+		Shift Left
+	</string>
+	<string name="Shift Mouth">
+		Shift Mouth
+	</string>
+	<string name="Shift Right">
+		Shift Right
+	</string>
+	<string name="Shirt Bottom">
+		Shirt Bottom
+	</string>
+	<string name="Shirt Fit">
+		Shirt Fit
+	</string>
+	<string name="Shirt Wrinkles">
+		Shirt Wrinkles
+	</string>
+	<string name="Shoe Height">
+		Shoe Height
+	</string>
+	<string name="Short">
+		Short
+	</string>
+	<string name="Short Arms">
+		Short Arms
+	</string>
+	<string name="Short Legs">
+		Short Legs
+	</string>
+	<string name="Short Neck">
+		Short Neck
+	</string>
+	<string name="Short Pigtails">
+		Short Pigtails
+	</string>
+	<string name="Short Ponytail">
+		Short Ponytail
+	</string>
+	<string name="Short Sideburns">
+		Short Sideburns
+	</string>
+	<string name="Short Torso">
+		Short Torso
+	</string>
+	<string name="Short hips">
+		Short hips
+	</string>
+	<string name="Shoulders">
+		Shoulders
+	</string>
+	<string name="Side Fringe">
+		Side Fringe
+	</string>
+	<string name="Sideburns">
+		Sideburns
+	</string>
+	<string name="Sides Hair">
+		Sides Hair
+	</string>
+	<string name="Sides Hair Down">
+		Sides Hair Down
+	</string>
+	<string name="Sides Hair Up">
+		Sides Hair Up
+	</string>
+	<string name="Skinny Neck">
+		Skinny Neck
+	</string>
+	<string name="Skirt Fit">
+		Skirt Fit
+	</string>
+	<string name="Skirt Length">
+		Skirt Length
+	</string>
+	<string name="Slanted Forehead">
+		Slanted Forehead
+	</string>
+	<string name="Sleeve Length">
+		Sleeve Length
+	</string>
+	<string name="Sleeve Looseness">
+		Sleeve Looseness
+	</string>
+	<string name="Slit Back">
+		Slit: Back
+	</string>
+	<string name="Slit Front">
+		Slit: Front
+	</string>
+	<string name="Slit Left">
+		Slit: Left
+	</string>
+	<string name="Slit Right">
+		Slit: Right
+	</string>
+	<string name="Small">
+		Small
+	</string>
+	<string name="Small Hands">
+		Small Hands
+	</string>
+	<string name="Small Head">
+		Small Head
+	</string>
+	<string name="Smooth">
+		Smooth
+	</string>
+	<string name="Smooth Hair">
+		Smooth Hair
+	</string>
+	<string name="Socks Length">
+		Socks Length
+	</string>
+	<string name="Soulpatch">
+		Soulpatch
+	</string>
+	<string name="Sparse">
+		Sparse
+	</string>
+	<string name="Spiked Hair">
+		Spiked Hair
+	</string>
+	<string name="Square">
+		Square
+	</string>
+	<string name="Square Toe">
+		Square Toe
+	</string>
+	<string name="Squash Head">
+		Squash Head
+	</string>
+	<string name="Stretch Head">
+		Stretch Head
+	</string>
+	<string name="Sunken">
+		Sunken
+	</string>
+	<string name="Sunken Chest">
+		Sunken Chest
+	</string>
+	<string name="Sunken Eyes">
+		Sunken Eyes
+	</string>
+	<string name="Sweep Back">
+		Sweep Back
+	</string>
+	<string name="Sweep Forward">
+		Sweep Forward
+	</string>
+	<string name="Tall">
+		Tall
+	</string>
+	<string name="Taper Back">
+		Taper Back
+	</string>
+	<string name="Taper Front">
+		Taper Front
+	</string>
+	<string name="Thick Heels">
+		Thick Heels
+	</string>
+	<string name="Thick Neck">
+		Thick Neck
+	</string>
+	<string name="Thick Toe">
+		Thick Toe
+	</string>
+	<string name="Thin">
+		Thin
+	</string>
+	<string name="Thin Eyebrows">
+		Thin Eyebrows
+	</string>
+	<string name="Thin Lips">
+		Thin Lips
+	</string>
+	<string name="Thin Nose">
+		Thin Nose
+	</string>
+	<string name="Tight Chin">
+		Tight Chin
+	</string>
+	<string name="Tight Cuffs">
+		Tight Cuffs
+	</string>
+	<string name="Tight Pants">
+		Tight Pants
+	</string>
+	<string name="Tight Shirt">
+		Tight Shirt
+	</string>
+	<string name="Tight Skirt">
+		Tight Skirt
+	</string>
+	<string name="Tight Sleeves">
+		Tight Sleeves
+	</string>
+	<string name="Toe Shape">
+		Toe Shape
+	</string>
+	<string name="Toe Thickness">
+		Toe Thickness
+	</string>
+	<string name="Torso Length">
+		Torso Length
+	</string>
+	<string name="Torso Muscles">
+		Torso Muscles
+	</string>
+	<string name="Torso Scrawny">
+		Torso Scrawny
+	</string>
+	<string name="Unattached">
+		Unattached
+	</string>
+	<string name="Uncreased">
+		Uncreased
+	</string>
+	<string name="Underbite">
+		Underbite
+	</string>
+	<string name="Unnatural">
+		Unnatural
+	</string>
+	<string name="Upper Bridge">
+		Upper Bridge
+	</string>
+	<string name="Upper Cheeks">
+		Upper Cheeks
+	</string>
+	<string name="Upper Chin Cleft">
+		Upper Chin Cleft
+	</string>
+	<string name="Upper Eyelid Fold">
+		Upper Eyelid Fold
+	</string>
+	<string name="Upturned">
+		Upturned
+	</string>
+	<string name="Very Red">
+		Very Red
+	</string>
+	<string name="Waist Height">
+		Waist Height
+	</string>
+	<string name="Well-Fed">
+		Well-Fed
+	</string>
+	<string name="White Hair">
+		White Hair
+	</string>
+	<string name="Wide">
+		Wide
+	</string>
+	<string name="Wide Back">
+		Wide Back
+	</string>
+	<string name="Wide Front">
+		Wide Front
+	</string>
+	<string name="Wide Lips">
+		Wide Lips
+	</string>
+	<string name="Wild">
+		Wild
+	</string>
+	<string name="Wrinkles">
+		Wrinkles
+	</string>
+	<string name="LocationCtrlAddLandmarkTooltip">
+		添加到我的地標
+	</string>
+	<string name="LocationCtrlEditLandmarkTooltip">
+		編輯我的地標
+	</string>
+	<string name="LocationCtrlInfoBtnTooltip">
+		察看更多關於目前位置的資訊
+	</string>
+	<string name="LocationCtrlComboBtnTooltip">
+		我的位置歷史紀錄
+	</string>
+	<string name="LocationCtrlForSaleTooltip">
+		購買這塊土地
+	</string>
+	<string name="LocationCtrlVoiceTooltip">
+		此地並不允許語音
+	</string>
+	<string name="LocationCtrlFlyTooltip">
+		不允許飛行
+	</string>
+	<string name="LocationCtrlPushTooltip">
+		禁止推撞
+	</string>
+	<string name="LocationCtrlBuildTooltip">
+		建造／丟棄 物件不被允許
+	</string>
+	<string name="LocationCtrlScriptsTooltip">
+		腳本不被允許
+	</string>
+	<string name="LocationCtrlDamageTooltip">
+		健康
+	</string>
+	<string name="LocationCtrlAdultIconTooltip">
+		完全成人地區
+	</string>
+	<string name="LocationCtrlModerateIconTooltip">
+		適度成人地區
+	</string>
+	<string name="LocationCtrlGeneralIconTooltip">
+		一般普級地區
+	</string>
+	<string name="UpdaterWindowTitle">
+		[APP_NAME] 更新
+	</string>
+	<string name="UpdaterNowUpdating">
+		[APP_NAME] 現更新中...
+	</string>
+	<string name="UpdaterNowInstalling">
+		[APP_NAME] 安裝中...
+	</string>
+	<string name="UpdaterUpdatingDescriptive">
+		Your [APP_NAME] Viewer is being updated to the latest release.  This may take some time, so please be patient.
+	</string>
+	<string name="UpdaterProgressBarTextWithEllipses">
+		更新下載中...
+	</string>
+	<string name="UpdaterProgressBarText">
+		更新下載
+	</string>
+	<string name="UpdaterFailDownloadTitle">
+		夏載更新失敗
+	</string>
+	<string name="UpdaterFailUpdateDescriptive">
+		An error occurred while updating [APP_NAME]. Please download the latest version from www.secondlife.com.
+	</string>
+	<string name="UpdaterFailInstallTitle">
+		安裝更新失敗
+	</string>
+	<string name="UpdaterFailStartTitle">
+		啟動瀏覽器失敗
+	</string>
+	<string name="ItemsComingInTooFastFrom">
+		[APP_NAME]: Items coming in too fast from [FROM_NAME], automatic preview disabled for [TIME] seconds
+	</string>
+	<string name="ItemsComingInTooFast">
+		[APP_NAME]: Items coming in too fast, automatic preview disabled for [TIME] seconds
+	</string>
+	<string name="IM_logging_string">
+		-- Instant message logging enabled --
+	</string>
+	<string name="IM_typing_start_string">
+		[NAME] 正在輸入...
+	</string>
+	<string name="Unnamed">
+		（未命名）
+	</string>
+	<string name="IM_moderated_chat_label">
+		(Moderated: Voices off by default)
+	</string>
+	<string name="IM_unavailable_text_label">
+		Text chat is not available for this call.
+	</string>
+	<string name="IM_muted_text_label">
+		Your text chat has been disabled by a Group Moderator.
+	</string>
+	<string name="IM_default_text_label">
+		點擊此處以傳送即時訊息。
+	</string>
+	<string name="IM_to_label">
+		至
+	</string>
+	<string name="IM_moderator_label">
+		(Moderator)
+	</string>
+	<string name="Saved_message">
+		(Saved [LONG_TIMESTAMP])
+	</string>
+	<string name="answered_call">
+		Your call has been answered
+	</string>
+	<string name="you_started_call">
+		You started a voice call
+	</string>
+	<string name="you_joined_call">
+		You joined the voice call
+	</string>
+	<string name="name_started_call">
+		[NAME] started a voice call
+	</string>
+	<string name="ringing-im">
+		加入語音通話...
+	</string>
+	<string name="connected-im">
+		Connected, click Leave Call to hang up
+	</string>
+	<string name="hang_up-im">
+		離開語音通話
+	</string>
+	<string name="answering-im">
+		聯接中...
+	</string>
+	<string name="conference-title">
+		Ad-hoc Conference
+	</string>
+	<string name="conference-title-incoming">
+		Conference with [AGENT_NAME]
+	</string>
+	<string name="inventory_item_offered-im">
+		Inventory item offered
+	</string>
+	<string name="share_alert">
+		Drag items from inventory here
+	</string>
+	<string name="no_session_message">
+		（IM 會話不存在）
+	</string>
+	<string name="only_user_message">
+		You are the only user in this session.
+	</string>
+	<string name="offline_message">
+		[NAME] 離線。
+	</string>
+	<string name="invite_message">
+		Click the [BUTTON NAME] button to accept/connect to this voice chat.
+	</string>
+	<string name="muted_message">
+		You have blocked this Resident. Sending a message will automatically unblock them.
+	</string>
+	<string name="generic">
+		Error making request, please try again later.
+	</string>
+	<string name="generic_request_error">
+		Error making request, please try again later.
+	</string>
+	<string name="insufficient_perms_error">
+		You do not have sufficient permissions.
+	</string>
+	<string name="session_does_not_exist_error">
+		此會話不再存在
+	</string>
+	<string name="no_ability_error">
+		你並不具有這個能力。
+	</string>
+	<string name="no_ability">
+		你並不具有這個能力。
+	</string>
+	<string name="not_a_mod_error">
+		You are not a session moderator.
+	</string>
+	<string name="muted">
+		A group moderator disabled your text chat.
+	</string>
+	<string name="muted_error">
+		A group moderator disabled your text chat.
+	</string>
+	<string name="add_session_event">
+		Unable to add users to chat session with [RECIPIENT].
+	</string>
+	<string name="message">
+		Unable to send your message to the chat session with [RECIPIENT].
+	</string>
+	<string name="message_session_event">
+		Unable to send your message to the chat session with [RECIPIENT].
+	</string>
+	<string name="mute">
+		Error while moderating.
+	</string>
+	<string name="removed">
+		你已經由群組中被移除。
+	</string>
+	<string name="removed_from_group">
+		你已經由群組中被移除。
+	</string>
+	<string name="close_on_no_ability">
+		You no longer have the ability to be in the chat session.
+	</string>
+	<string name="unread_chat_single">
+		[SOURCES] has said something new
+	</string>
+	<string name="unread_chat_multiple">
+		[SOURCES] have said something new
+	</string>
+	<string name="session_initialization_timed_out_error">
+		The session initialization is timed out
+	</string>
+	<string name="voice_morphing_url">
+		http://secondlife.com/landing/voicemorphing
+	</string>
+	<string name="paid_you_ldollars">
+		[NAME] paid you L$[AMOUNT] [REASON].
+	</string>
+	<string name="paid_you_ldollars_no_reason">
+		[NAME] paid you L$[AMOUNT].
+	</string>
+	<string name="you_paid_ldollars">
+		You paid [NAME] L$[AMOUNT] [REASON].
+	</string>
+	<string name="you_paid_ldollars_no_info">
+		You paid L$[AMOUNT].
+	</string>
+	<string name="you_paid_ldollars_no_reason">
+		You paid [NAME] L$[AMOUNT].
+	</string>
+	<string name="you_paid_ldollars_no_name">
+		You paid L$[AMOUNT] [REASON].
+	</string>
+	<string name="for item">
+		for [ITEM]
+	</string>
+	<string name="for a parcel of land">
+		for a parcel of land
+	</string>
+	<string name="for a land access pass">
+		for a land access pass
+	</string>
+	<string name="for deeding land">
+		for deeding land
+	</string>
+	<string name="to create a group">
+		以創造群組
+	</string>
+	<string name="to join a group">
+		以加入群組
+	</string>
+	<string name="to upload">
+		以上傳
+	</string>
+	<string name="to publish a classified ad">
+		to publish a classified ad
+	</string>
+	<string name="giving">
+		Giving L$ [AMOUNT]
+	</string>
+	<string name="uploading_costs">
+		上傳花費 L$ [AMOUNT]
+	</string>
+	<string name="this_costs">
+		This costs L$ [AMOUNT]
+	</string>
+	<string name="buying_selected_land">
+		Buying selected land for L$ [AMOUNT]
+	</string>
+	<string name="this_object_costs">
+		This object costs L$ [AMOUNT]
+	</string>
+	<string name="group_role_everyone">
+		任何人
+	</string>
+	<string name="group_role_officers">
+		Officers
+	</string>
+	<string name="group_role_owners">
+		擁有者
+	</string>
+	<string name="group_member_status_online">
+		上線
+	</string>
+	<string name="uploading_abuse_report">
+		上傳中...
+  
+舉報濫用
+	</string>
+	<string name="New Shape">
+		新體形
+	</string>
+	<string name="New Skin">
+		新皮膚
+	</string>
+	<string name="New Hair">
+		新頭髮
+	</string>
+	<string name="New Eyes">
+		新眼睛
+	</string>
+	<string name="New Shirt">
+		新襯衫
+	</string>
+	<string name="New Pants">
+		新褲子
+	</string>
+	<string name="New Shoes">
+		新鞋子
+	</string>
+	<string name="New Socks">
+		新襪子
+	</string>
+	<string name="New Jacket">
+		新夾克
+	</string>
+	<string name="New Gloves">
+		新手套
+	</string>
+	<string name="New Undershirt">
+		新內衣
+	</string>
+	<string name="New Underpants">
+		新內褲
+	</string>
+	<string name="New Skirt">
+		新裙子
+	</string>
+	<string name="New Alpha">
+		新半透明
+	</string>
+	<string name="New Tattoo">
+		新刺青
+	</string>
+	<string name="New Physics">
+		新身體物理
+	</string>
+	<string name="Invalid Wearable">
+		無效的可穿裝扮
+	</string>
+	<string name="New Gesture">
+		新姿勢
+	</string>
+	<string name="New Script">
+		新腳本
+	</string>
+	<string name="New Note">
+		新記事卡
+	</string>
+	<string name="New Folder">
+		新資料夾
+	</string>
+	<string name="Contents">
+		內容
+	</string>
+	<string name="Gesture">
+		姿勢
+	</string>
+	<string name="Male Gestures">
+		男性姿勢
+	</string>
+	<string name="Female Gestures">
+		女性姿勢
+	</string>
+	<string name="Other Gestures">
+		其他姿勢
+	</string>
+	<string name="Speech Gestures">
+		演說姿勢
+	</string>
+	<string name="Common Gestures">
+		一般姿勢
+	</string>
+	<string name="Male - Excuse me">
+		Male - Excuse me
+	</string>
+	<string name="Male - Get lost">
+		Male - Get lost
+	</string>
+	<string name="Male - Blow kiss">
+		Male - Blow kiss
+	</string>
+	<string name="Male - Boo">
+		Male - Boo
+	</string>
+	<string name="Male - Bored">
+		Male - Bored
+	</string>
+	<string name="Male - Hey">
+		Male - Hey
+	</string>
+	<string name="Male - Laugh">
+		Male - Laugh
+	</string>
+	<string name="Male - Repulsed">
+		Male - Repulsed
+	</string>
+	<string name="Male - Shrug">
+		Male - Shrug
+	</string>
+	<string name="Male - Stick tougue out">
+		Male - Stick tougue out
+	</string>
+	<string name="Male - Wow">
+		Male - Wow
+	</string>
+	<string name="Female - Chuckle">
+		Female - Chuckle
+	</string>
+	<string name="Female - Cry">
+		Female - Cry
+	</string>
+	<string name="Female - Embarrassed">
+		Female - Embarrassed
+	</string>
+	<string name="Female - Excuse me">
+		Female - Excuse me
+	</string>
+	<string name="Female - Get lost">
+		Female - Get lost
+	</string>
+	<string name="Female - Blow kiss">
+		Female - Blow kiss
+	</string>
+	<string name="Female - Boo">
+		Female - Boo
+	</string>
+	<string name="Female - Bored">
+		Female - Bored
+	</string>
+	<string name="Female - Hey">
+		Female - Hey
+	</string>
+	<string name="Female - Hey baby">
+		Female - Hey baby
+	</string>
+	<string name="Female - Laugh">
+		Female - Laugh
+	</string>
+	<string name="Female - Looking good">
+		Female - Looking good
+	</string>
+	<string name="Female - Over here">
+		Female - Over here
+	</string>
+	<string name="Female - Please">
+		Female - Please
+	</string>
+	<string name="Female - Repulsed">
+		Female - Repulsed
+	</string>
+	<string name="Female - Shrug">
+		Female - Shrug
+	</string>
+	<string name="Female - Stick tougue out">
+		Female - Stick tougue out
+	</string>
+	<string name="Female - Wow">
+		Female - Wow
+	</string>
+	<string name="AvatarBirthDateFormat">
+		[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]
+	</string>
+	<string name="DefaultMimeType">
+		無/無
+	</string>
+	<string name="texture_load_dimensions_error">
+		無法載入圖像大於 [WIDTH]*[HEIGHT]
+	</string>
+	<string name="words_separator" value=","/>
+	<string name="server_is_down">
+		Despite our best efforts, something unexpected has gone wrong.
+
+	Please check status.secondlifegrid.net to see if there is a known problem with the service.  
+        If you continue to experience problems, please check your network and firewall setup.
+	</string>
+	<string name="dateTimeWeekdaysNames">
+		Sunday:Monday:Tuesday:Wednesday:Thursday:Friday:Saturday
+	</string>
+	<string name="dateTimeWeekdaysShortNames">
+		Sun:Mon:Tue:Wed:Thu:Fri:Sat
+	</string>
+	<string name="dateTimeMonthNames">
+		January:February:March:April:May:June:July:August:September:October:November:December
+	</string>
+	<string name="dateTimeMonthShortNames">
+		Jan:Feb:Mar:Apr:May:Jun:Jul:Aug:Sep:Oct:Nov:Dec
+	</string>
+	<string name="dateTimeDayFormat">
+		[MDAY]
+	</string>
+	<string name="dateTimeAM">
+		AM
+	</string>
+	<string name="dateTimePM">
+		PM
+	</string>
+	<string name="LocalEstimateUSD">
+		US$ [AMOUNT]
+	</string>
+	<string name="Membership">
+		成員資格
+	</string>
+	<string name="Roles">
+		角色
+	</string>
+	<string name="Group Identity">
+		Group Identity
+	</string>
+	<string name="Parcel Management">
+		地段管理
+	</string>
+	<string name="Parcel Identity">
+		Parcel Identity
+	</string>
+	<string name="Parcel Settings">
+		地段設定
+	</string>
+	<string name="Parcel Powers">
+		Parcel Powers
+	</string>
+	<string name="Parcel Access">
+		Parcel Access
+	</string>
+	<string name="Parcel Content">
+		Parcel Content
+	</string>
+	<string name="Object Management">
+		物件管理
+	</string>
+	<string name="Accounting">
+		會計
+	</string>
+	<string name="Notices">
+		通知
+	</string>
+	<string name="Chat">
+		聊天
+	</string>
+	<string name="DeleteItems">
+		刪除所選取的物品？
+	</string>
+	<string name="DeleteItem">
+		刪除所選取的物品？
+	</string>
+	<string name="EmptyOutfitText">
+		沒有任何物品在這個裝扮內
+	</string>
+	<string name="ExternalEditorNotSet">
+		選擇一個編輯器使用 ExternalEditor 設定。
+	</string>
+	<string name="ExternalEditorNotFound">
+		Cannot find the external editor you specified.
+Try enclosing path to the editor with double quotes.
+(e.g. &quot;/path to my/editor&quot; &quot;%s&quot;)
+	</string>
+	<string name="ExternalEditorCommandParseError">
+		Error parsing the external editor command.
+	</string>
+	<string name="ExternalEditorFailedToRun">
+		執行外部編輯器失敗。
+	</string>
+	<string name="Esc">
+		Esc
+	</string>
+	<string name="Space">
+		Space
+	</string>
+	<string name="Enter">
+		Enter
+	</string>
+	<string name="Tab">
+		Tab
+	</string>
+	<string name="Ins">
+		Ins
+	</string>
+	<string name="Del">
+		Del
+	</string>
+	<string name="Backsp">
+		Backsp
+	</string>
+	<string name="Shift">
+		Shift
+	</string>
+	<string name="Ctrl">
+		Ctrl
+	</string>
+	<string name="Alt">
+		Alt
+	</string>
+	<string name="CapsLock">
+		CapsLock
+	</string>
+	<string name="Left">
+		Left
+	</string>
+	<string name="Right">
+		Right
+	</string>
+	<string name="Up">
+		Up
+	</string>
+	<string name="Down">
+		Down
+	</string>
+	<string name="Home">
+		Home
+	</string>
+	<string name="End">
+		End
+	</string>
+	<string name="PgUp">
+		PgUp
+	</string>
+	<string name="PgDn">
+		PgDn
+	</string>
+	<string name="F1">
+		F1
+	</string>
+	<string name="F2">
+		F2
+	</string>
+	<string name="F3">
+		F3
+	</string>
+	<string name="F4">
+		F4
+	</string>
+	<string name="F5">
+		F5
+	</string>
+	<string name="F6">
+		F6
+	</string>
+	<string name="F7">
+		F7
+	</string>
+	<string name="F8">
+		F8
+	</string>
+	<string name="F9">
+		F9
+	</string>
+	<string name="F10">
+		F10
+	</string>
+	<string name="F11">
+		F11
+	</string>
+	<string name="F12">
+		F12
+	</string>
+	<string name="Add">
+		Add
+	</string>
+	<string name="Subtract">
+		Subtract
+	</string>
+	<string name="Multiply">
+		Multiply
+	</string>
+	<string name="Divide">
+		Divide
+	</string>
+	<string name="PAD_DIVIDE">
+		PAD_DIVIDE
+	</string>
+	<string name="PAD_LEFT">
+		PAD_LEFT
+	</string>
+	<string name="PAD_RIGHT">
+		PAD_RIGHT
+	</string>
+	<string name="PAD_DOWN">
+		PAD_DOWN
+	</string>
+	<string name="PAD_UP">
+		PAD_UP
+	</string>
+	<string name="PAD_HOME">
+		PAD_HOME
+	</string>
+	<string name="PAD_END">
+		PAD_END
+	</string>
+	<string name="PAD_PGUP">
+		PAD_PGUP
+	</string>
+	<string name="PAD_PGDN">
+		PAD_PGDN
+	</string>
+	<string name="PAD_CENTER">
+		PAD_CENTER
+	</string>
+	<string name="PAD_INS">
+		PAD_INS
+	</string>
+	<string name="PAD_DEL">
+		PAD_DEL
+	</string>
+	<string name="PAD_Enter">
+		PAD_Enter
+	</string>
+	<string name="PAD_BUTTON0">
+		PAD_BUTTON0
+	</string>
+	<string name="PAD_BUTTON1">
+		PAD_BUTTON1
+	</string>
+	<string name="PAD_BUTTON2">
+		PAD_BUTTON2
+	</string>
+	<string name="PAD_BUTTON3">
+		PAD_BUTTON3
+	</string>
+	<string name="PAD_BUTTON4">
+		PAD_BUTTON4
+	</string>
+	<string name="PAD_BUTTON5">
+		PAD_BUTTON5
+	</string>
+	<string name="PAD_BUTTON6">
+		PAD_BUTTON6
+	</string>
+	<string name="PAD_BUTTON7">
+		PAD_BUTTON7
+	</string>
+	<string name="PAD_BUTTON8">
+		PAD_BUTTON8
+	</string>
+	<string name="PAD_BUTTON9">
+		PAD_BUTTON9
+	</string>
+	<string name="PAD_BUTTON10">
+		PAD_BUTTON10
+	</string>
+	<string name="PAD_BUTTON11">
+		PAD_BUTTON11
+	</string>
+	<string name="PAD_BUTTON12">
+		PAD_BUTTON12
+	</string>
+	<string name="PAD_BUTTON13">
+		PAD_BUTTON13
+	</string>
+	<string name="PAD_BUTTON14">
+		PAD_BUTTON14
+	</string>
+	<string name="PAD_BUTTON15">
+		PAD_BUTTON15
+	</string>
+	<string name="-">
+		-
+	</string>
+	<string name="=">
+		=
+	</string>
+	<string name="`">
+		`
+	</string>
+	<string name=";">
+		;
+	</string>
+	<string name="[">
+		[
+	</string>
+	<string name="]">
+		]
+	</string>
+	<string name="\">
+		\
+	</string>
+	<string name="0">
+		0
+	</string>
+	<string name="1">
+		1
+	</string>
+	<string name="2">
+		2
+	</string>
+	<string name="3">
+		3
+	</string>
+	<string name="4">
+		4
+	</string>
+	<string name="5">
+		5
+	</string>
+	<string name="6">
+		6
+	</string>
+	<string name="7">
+		7
+	</string>
+	<string name="8">
+		8
+	</string>
+	<string name="9">
+		9
+	</string>
+	<string name="A">
+		A
+	</string>
+	<string name="B">
+		B
+	</string>
+	<string name="C">
+		C
+	</string>
+	<string name="D">
+		D
+	</string>
+	<string name="E">
+		E
+	</string>
+	<string name="F">
+		F
+	</string>
+	<string name="G">
+		G
+	</string>
+	<string name="H">
+		H
+	</string>
+	<string name="I">
+		I
+	</string>
+	<string name="J">
+		J
+	</string>
+	<string name="K">
+		K
+	</string>
+	<string name="L">
+		L
+	</string>
+	<string name="M">
+		M
+	</string>
+	<string name="N">
+		N
+	</string>
+	<string name="O">
+		O
+	</string>
+	<string name="P">
+		P
+	</string>
+	<string name="Q">
+		Q
+	</string>
+	<string name="R">
+		R
+	</string>
+	<string name="S">
+		S
+	</string>
+	<string name="T">
+		T
+	</string>
+	<string name="U">
+		U
+	</string>
+	<string name="V">
+		V
+	</string>
+	<string name="W">
+		W
+	</string>
+	<string name="X">
+		X
+	</string>
+	<string name="Y">
+		Y
+	</string>
+	<string name="Z">
+		Z
+	</string>
+	<string name="BeaconParticle">
+		Viewing particle beacons (blue)
+	</string>
+	<string name="BeaconPhysical">
+		Viewing physical object beacons (green)
+	</string>
+	<string name="BeaconScripted">
+		Viewing scripted object beacons (red)
+	</string>
+	<string name="BeaconScriptedTouch">
+		Viewing scripted object with touch function beacons (red)
+	</string>
+	<string name="BeaconSound">
+		Viewing sound beacons (yellow)
+	</string>
+	<string name="BeaconMedia">
+		Viewing media beacons (white)
+	</string>
+	<string name="ParticleHiding">
+		Hiding Particles
+	</string>
+</strings>

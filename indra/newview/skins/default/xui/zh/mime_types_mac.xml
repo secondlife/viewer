@@ -30,7 +30,7 @@
 			有一個圖像在此位置
 		</tooltip>
 		<playtip name="image_playtip">
-			察看在此位置的圖像
+			察看這個位置的圖像
 		</playtip>
 	</widgetset>
 	<widgetset name="audio">
@@ -41,7 +41,7 @@
 			有一個音頻在此位置
 		</tooltip>
 		<playtip name="audio_playtip">
-			播放在此位置的音頻
+			播放這個位置的音頻
 		</playtip>
 	</widgetset>
 	<scheme name="rtsp">
@@ -66,7 +66,7 @@
 	</mimetype>
 	<mimetype name="video/*">
 		<label name="video2_label">
-			視頻
+			影片
 		</label>
 	</mimetype>
 	<mimetype name="image/*">
@@ -76,7 +76,7 @@
 	</mimetype>
 	<mimetype name="video/vnd.secondlife.qt.legacy">
 		<label name="vnd.secondlife.qt.legacy_label">
-			視頻 （QuickTime）
+			視頻（QuickTime）
 		</label>
 	</mimetype>
 	<mimetype name="application/javascript">
@@ -86,7 +86,7 @@
 	</mimetype>
 	<mimetype name="application/ogg">
 		<label name="application/ogg_label">
-			OGG 音頻/視頻
+			Ogg 音頻/視頻
 		</label>
 	</mimetype>
 	<mimetype name="application/pdf">
@@ -121,7 +121,7 @@
 	</mimetype>
 	<mimetype name="audio/mid">
 		<label name="audio/mid_label">
-			音頻 （MIDI）
+			音頻（MIDI）
 		</label>
 	</mimetype>
 	<mimetype name="audio/mpeg">

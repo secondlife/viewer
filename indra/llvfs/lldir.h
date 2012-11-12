@@ -1,4 +1,4 @@
-/** 
+/**  
  * @file lldir.h
  * @brief Definition of directory utilities class
  *

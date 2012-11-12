@@ -1179,7 +1179,7 @@ LLKDUDecodeState::LLKDUDecodeState(kdu_tile tile, kdu_byte *buf, S32 row_gap)
 			llassert(mDims == comp_dims); // Safety check; the caller has ensured this
 		}
 		bool use_shorts = (mComps[c].get_bit_depth(true) <= 16);
-		mLines[c].pre_create(&mAllocator,mDims.size.x,mReversible[c],use_shorts);
+		mLines[c].pre_create(&mAllocator,mDims.size.x,mReversible[c],use_shorts,0,0);
 		if (res.which() == 0) // No DWT levels used
 		{
 			mEngines[c] = kdu_decoder(res.access_subband(LL_BAND),&mAllocator,use_shorts);
@@ -1223,7 +1223,7 @@ separation between consecutive rows in the real buffer. */
 	{
 		for (c = 0; c < mNumComponents; c++)
 		{
-			mEngines[c].pull(mLines[c],true);
+			mEngines[c].pull(mLines[c]);
 		}
 		if ((mNumComponents >= 3) && mUseYCC)
 		{

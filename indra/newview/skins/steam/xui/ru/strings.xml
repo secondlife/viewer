@@ -1,0 +1,5024 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- This file contains strings that used to be hardcoded in the source.
+     It is only for those strings which do not belong in a floater.
+     For example, the strings used in avatar chat bubbles, and strings
+     that are returned from one component and may appear in many places-->
+<strings>
+	<string name="SECOND_LIFE">
+		Second Life
+	</string>
+	<string name="APP_NAME">
+		Second Life
+	</string>
+	<string name="CAPITALIZED_APP_NAME">
+		SECOND LIFE
+	</string>
+	<string name="SECOND_LIFE_GRID">
+		Сетка Second Life
+	</string>
+	<string name="SUPPORT_SITE">
+		Портал поддержки Second Life
+	</string>
+	<string name="StartupDetectingHardware">
+		Проверка оборудования...
+	</string>
+	<string name="StartupLoading">
+		Загружается [APP_NAME]...
+	</string>
+	<string name="StartupClearingCache">
+		Очистка кэша...
+	</string>
+	<string name="StartupInitializingTextureCache">
+		Инициализация кэша текстур...
+	</string>
+	<string name="StartupInitializingVFS">
+		Инициализация виртуальной файловой системы...
+	</string>
+	<string name="StartupRequireDriverUpdate">
+		Ошибка инициализации графики. Обновите графический драйвер!
+	</string>
+	<string name="ProgressRestoring">
+		Восстановление...
+	</string>
+	<string name="ProgressChangingResolution">
+		Изменение разрешения...
+	</string>
+	<string name="Fullbright">
+		Собственная яркость (устаревший параметр)
+	</string>
+	<string name="LoginInProgress">
+		Вход... Может показаться, что программа [APP_NAME] зависла.  Ожидайте.
+	</string>
+	<string name="LoginInProgressNoFrozen">
+		Вход...
+	</string>
+	<string name="LoginAuthenticating">
+		Аутентификация
+	</string>
+	<string name="LoginMaintenance">
+		Идет обслуживание аккаунта...
+	</string>
+	<string name="LoginAttempt">
+		Предыдущая попытка входа была неудачной. Вход: попытка № [NUMBER]
+	</string>
+	<string name="LoginPrecaching">
+		Загрузка мира...
+	</string>
+	<string name="LoginInitializingBrowser">
+		Инициализация встроенного веб-браузера...
+	</string>
+	<string name="LoginInitializingMultimedia">
+		Инициализация мультимедиа...
+	</string>
+	<string name="LoginInitializingFonts">
+		Загрузка шрифтов...
+	</string>
+	<string name="LoginVerifyingCache">
+		Проверка файлов кэша (может занять 60-90 с)...
+	</string>
+	<string name="LoginProcessingResponse">
+		Обработка ответа...
+	</string>
+	<string name="LoginInitializingWorld">
+		Инициализация мира...
+	</string>
+	<string name="LoginDecodingImages">
+		Декодирование изображений...
+	</string>
+	<string name="LoginInitializingQuicktime">
+		Инициализация QuickTime...
+	</string>
+	<string name="LoginQuicktimeNotFound">
+		QuickTime не найден – ошибка инициализации.
+	</string>
+	<string name="LoginQuicktimeOK">
+		Успешная инициализация QuickTime.
+	</string>
+	<string name="LoginRequestSeedCapGrant">
+		Запрос возможностей региона...
+	</string>
+	<string name="LoginRetrySeedCapGrant">
+		Запрос возможностей региона, попытка [NUMBER]...
+	</string>
+	<string name="LoginWaitingForRegionHandshake">
+		Устанавливается связь с регионом...
+	</string>
+	<string name="LoginConnectingToRegion">
+		Подключение к региону...
+	</string>
+	<string name="LoginDownloadingClothing">
+		Загрузка одежды...
+	</string>
+	<string name="InvalidCertificate">
+		Сервер возвратил недействительный или поврежденный сертификат. Обратитесь к администратору сетки.
+	</string>
+	<string name="CertInvalidHostname">
+		Для доступа к серверу использовалось недействительное имя узла. Проверьте URL-адрес SL или имя узла в сетке.
+	</string>
+	<string name="CertExpired">
+		Судя по всему, истек срок действия сертификата, возвращенного сеткой.  Проверьте время, установленное в системе, или обратитесь к администратору сетки.
+	</string>
+	<string name="CertKeyUsage">
+		Не удалось использовать в протоколе SSL сертификат, возвращенный сервером.  Обратитесь к администратору сетки.
+	</string>
+	<string name="CertBasicConstraints">
+		В цепочке сертификатов серверов слишком много сертификатов.  Обратитесь к администратору сетки.
+	</string>
+	<string name="CertInvalidSignature">
+		Не удалось проверить подпись сертификата, возвращенного сервером сетки.  Обратитесь к администратору сетки.
+	</string>
+	<string name="LoginFailedNoNetwork">
+		Ошибка сети: не удалось установить соединение. Проверьте подключение к сети.
+	</string>
+	<string name="LoginFailed">
+		Ошибка входа.
+	</string>
+	<string name="Quit">
+		Выйти
+	</string>
+	<string name="create_account_url">
+		http://join.secondlife.com/index.php?sourceid=1206_steam&amp;lang=ru-RU
+	</string>
+	<string name="LoginFailedViewerNotPermitted">
+		У клиента, которым вы пользуетесь, больше нет доступа к игре Second Life. Загрузить новую версию клиента можно по адресу
+http://secondlife.com/download
+
+Дополнительные сведения см. в разделе вопросов и ответов по адресу
+http://secondlife.com/viewer-access-faq
+	</string>
+	<string name="LoginIntermediateOptionalUpdateAvailable">
+		Доступно необязательное обновление клиента: [VERSION]
+	</string>
+	<string name="LoginFailedRequiredUpdate">
+		Необходимо обновить клиент: [VERSION]
+	</string>
+	<string name="LoginFailedAlreadyLoggedIn">
+		С этого клиента уже выполнен вход.
+	</string>
+	<string name="LoginFailedAuthenticationFailed">
+		Извините! Не удается обеспечить ваш вход.
+Убедитесь, что вы правильно ввели:
+    * имя пользователя (например, bobsmith12 или steller.sunshine)
+    * пароль
+Кроме того, убедитесь, что режим Caps Lock отключен.
+	</string>
+	<string name="LoginFailedPasswordChanged">
+		В качестве меры предосторожности ваш пароль изменен.
+Перейдите на страницу своего аккаунта по адресу http://secondlife.com/password
+и ответьте на контрольный вопрос, чтобы восстановить свой пароль
+Приносим извинения за неудобство.
+	</string>
+	<string name="LoginFailedPasswordReset">
+		В нашу систему внесены изменения, поэтому вам следует восстановить свой пароль.
+Перейдите на страницу своего аккаунта по адресу http://secondlife.com/password
+и ответьте на контрольный вопрос, чтобы восстановить свой пароль
+Приносим извинения за неудобство.
+	</string>
+	<string name="LoginFailedEmployeesOnly">
+		Сайт Second Life временно закрыт на техническое обслуживание.
+В данное время входить могут только сотрудники.
+Обновление состояния см. на веб-странице www.secondlife.com/status.
+	</string>
+	<string name="LoginFailedPremiumOnly">
+		Вход в Second Life временно ограничен, чтобы сохранить наивысшее качество игрового мира для текущих пользователей.
+
+В это время у пользователей с бесплатными аккаунтами не будет доступа к Second Life, чтобы у тех, кто заплатил, было больше места.
+	</string>
+	<string name="LoginFailedComputerProhibited">
+		Нельзя входить в игру Second Life на этом компьютере.
+Если вы считаете, что это ошибка, отправьте сообщение по адресу
+support@secondlife.com.
+	</string>
+	<string name="LoginFailedAcountSuspended">
+		Ваш аккаунт не будет доступен до
+[TIME] по тихоокеанскому времени.
+	</string>
+	<string name="LoginFailedAccountDisabled">
+		В данное время нам не удается выполнить ваш запрос.
+Обратитесь за помощью в службу поддержки Second Life по адресу http://secondlife.com/support.
+Если вам не удается изменить свой пароль, позвоните по телефону (866) 476-9763.
+	</string>
+	<string name="LoginFailedTransformError">
+		При входе обнаружена несогласованность данных.
+Напишите сообщения по адресу support@secondlife.com.
+	</string>
+	<string name="LoginFailedAccountMaintenance">
+		Выполняется небольшое обслуживание вашего аккаунта.
+Ваш аккаунт не будет доступен до
+[TIME] по тихоокеанскому времени.
+Если вы считаете, что это ошибка, отправьте сообщение по адресу support@secondlife.com.
+	</string>
+	<string name="LoginFailedPendingLogoutFault">
+		В ответ на запрос выхода симулятор возвратил сообщение о сбое.
+	</string>
+	<string name="LoginFailedPendingLogout">
+		В системе выполняется выход для вашего аккаунта.
+Она будет недоступна до
+[TIME] по тихоокеанскому времени.
+	</string>
+	<string name="LoginFailedUnableToCreateSession">
+		Не удается создать допустимый сеанс.
+	</string>
+	<string name="LoginFailedUnableToConnectToSimulator">
+		Не удается подключиться к симулятору.
+	</string>
+	<string name="LoginFailedRestrictedHours">
+		Вы можете входить в Second Life только
+от [START] до [END] по тихоокеанскому времени.
+Заходите в это время.
+Если вы считаете, что это ошибка, отправьте сообщение по адресу support@secondlife.com.
+	</string>
+	<string name="LoginFailedIncorrectParameters">
+		Неправильные параметры.
+Если вы считаете, что это ошибка, отправьте сообщение по адресу support@secondlife.com.
+	</string>
+	<string name="LoginFailedFirstNameNotAlphanumeric">
+		Имя должно состоять только из букв и цифр.
+Если вы считаете, что это ошибка, отправьте сообщение по адресу support@secondlife.com.
+	</string>
+	<string name="LoginFailedLastNameNotAlphanumeric">
+		Фамилия должна состоять только из букв и цифр.
+Если вы считаете, что это ошибка, отправьте сообщение по адресу support@secondlife.com.
+	</string>
+	<string name="LogoutFailedRegionGoingOffline">
+		Регион переходит в автономный режим.
+Попробуйте повторно войти через минуту.
+	</string>
+	<string name="LogoutFailedAgentNotInRegion">
+		Агент отсутствует в регионе.
+Попробуйте повторно войти через минуту.
+	</string>
+	<string name="LogoutFailedPendingLogin">
+		Вход в регион выполнен в другом сеансе.
+Попробуйте повторно войти через минуту.
+	</string>
+	<string name="LogoutFailedLoggingOut">
+		Для региона выполнен выход в предыдущем сеансе.
+Попробуйте повторно войти через минуту.
+	</string>
+	<string name="LogoutFailedStillLoggingOut">
+		Для региона все еще выполняется выход в предыдущем сеансе.
+Попробуйте повторно войти через минуту.
+	</string>
+	<string name="LogoutSucceeded">
+		В последнем сеансе для региона выполнен выход.
+Попробуйте повторно войти через минуту.
+	</string>
+	<string name="LogoutFailedLogoutBegun">
+		Для региона начат процесс выхода.
+Попробуйте повторно войти через минуту.
+	</string>
+	<string name="LoginFailedLoggingOutSession">
+		Во время вашего последнего сеанса система начала процедуру выхода.
+Попробуйте повторно войти через минуту.
+	</string>
+	<string name="AgentLostConnection">
+		Возможно, в этом регионе возникли проблемы.  Проверьте подключение к Интернету.
+	</string>
+	<string name="SavingSettings">
+		Сохранение настроек...
+	</string>
+	<string name="LoggingOut">
+		Выполняется выход...
+	</string>
+	<string name="ShuttingDown">
+		Игра закрывается...
+	</string>
+	<string name="YouHaveBeenDisconnected">
+		Произошло отключение от региона, в котором вы находились.
+	</string>
+	<string name="SentToInvalidRegion">
+		Вы отправлены в недействительный регион.
+	</string>
+	<string name="TestingDisconnect">
+		Тестирование отключения клиента
+	</string>
+	<string name="TooltipPerson">
+		Человек
+	</string>
+	<string name="TooltipNoName">
+		(нет имени)
+	</string>
+	<string name="TooltipOwner">
+		Владелец:
+	</string>
+	<string name="TooltipPublic">
+		Общедоступно
+	</string>
+	<string name="TooltipIsGroup">
+		(группа)
+	</string>
+	<string name="TooltipForSaleL$">
+		Продается: L$[AMOUNT]
+	</string>
+	<string name="TooltipFlagGroupBuild">
+		Стройка в составе группы
+	</string>
+	<string name="TooltipFlagNoBuild">
+		Стройка запрещена
+	</string>
+	<string name="TooltipFlagNoEdit">
+		Стройка в составе группы
+	</string>
+	<string name="TooltipFlagNotSafe">
+		Небезопасно
+	</string>
+	<string name="TooltipFlagNoFly">
+		Полеты запрещены
+	</string>
+	<string name="TooltipFlagGroupScripts">
+		Скрипты для группы
+	</string>
+	<string name="TooltipFlagNoScripts">
+		Скрипты запрещены
+	</string>
+	<string name="TooltipLand">
+		Земля:
+	</string>
+	<string name="TooltipMustSingleDrop">
+		Сюда можно перетащить только одну вещь
+	</string>
+	<string name="TooltipPrice" value="L$[AMOUNT]:"/>
+	<string name="TooltipOutboxDragToWorld">
+		Нельзя выложить предметы из папке «Торговые исходящие»
+	</string>
+	<string name="TooltipOutboxNoTransfer">
+		Часть этих объектов нельзя продать или передать.
+	</string>
+	<string name="TooltipOutboxNotInInventory">
+		Ваша папка «Торговые исходящие» может получать вещи только непосредственно из вашего инвентаря
+	</string>
+	<string name="TooltipOutboxWorn">
+		Носимые предметы нельзя поместить в папку «Торговые исходящие»
+	</string>
+	<string name="TooltipOutboxCallingCard">
+		Визитки нельзя поместить в папку «Торговые исходящие»
+	</string>
+	<string name="TooltipOutboxFolderLevels">
+		Глубина вложения папок превышает 3
+	</string>
+	<string name="TooltipOutboxTooManyFolders">
+		В папке верхнего уровня более 20 подпапок
+	</string>
+	<string name="TooltipOutboxTooManyObjects">
+		В папке верхнего уровня более 200 предметов
+	</string>
+	<string name="TooltipDragOntoOwnChild">
+		Папку нельзя переместить в ее подпапку
+	</string>
+	<string name="TooltipDragOntoSelf">
+		Папку нельзя переместить саму в себя
+	</string>
+	<string name="TooltipHttpUrl">
+		Щелкните, чтобы просмотреть эту веб-страницу
+	</string>
+	<string name="TooltipSLURL">
+		Щелкните, чтобы просмотреть информацию об этом месте
+	</string>
+	<string name="TooltipAgentUrl">
+		Щелкните, чтобы просмотреть профиль этого жителя
+	</string>
+	<string name="TooltipAgentInspect">
+		Узнать больше об этом жителе
+	</string>
+	<string name="TooltipAgentMute">
+		Щелкните, чтобы не слышать этого жителя
+	</string>
+	<string name="TooltipAgentUnmute">
+		Щелкните, чтобы слышать этого жителя
+	</string>
+	<string name="TooltipAgentIM">
+		Щелкните, чтобы открыть личный чат с этим жителем
+	</string>
+	<string name="TooltipAgentPay">
+		Щелкните, чтобы заплатить жителю
+	</string>
+	<string name="TooltipAgentOfferTeleport">
+		Щелкните, чтобы предложить этому жителю телепортацию
+	</string>
+	<string name="TooltipAgentRequestFriend">
+		Щелкните, чтобы предложить этому жителю дружбу
+	</string>
+	<string name="TooltipGroupUrl">
+		Щелкните, чтобы просмотреть описание группы
+	</string>
+	<string name="TooltipEventUrl">
+		Щелкните, чтобы просмотреть описание события
+	</string>
+	<string name="TooltipClassifiedUrl">
+		Щелкните, чтобы просмотреть эту рекламу
+	</string>
+	<string name="TooltipParcelUrl">
+		Щелкните, чтобы посмотреть описание участка
+	</string>
+	<string name="TooltipTeleportUrl">
+		Щелкните, чтобы телепортироваться в это место
+	</string>
+	<string name="TooltipObjectIMUrl">
+		Щелкните, открыть описание этого объекта
+	</string>
+	<string name="TooltipMapUrl">
+		Щелкните, чтобы посмотреть это место на карте
+	</string>
+	<string name="TooltipSLAPP">
+		Щелкните, чтобы выполнить команду secondlife://
+	</string>
+	<string name="CurrentURL" value="Текущий URL-адрес: [CurrentURL]"/>
+	<string name="SLurlLabelTeleport">
+		Телепортироваться в
+	</string>
+	<string name="SLurlLabelShowOnMap">
+		Показать карту для
+	</string>
+	<string name="SLappAgentMute">
+		Откл. звук
+	</string>
+	<string name="SLappAgentUnmute">
+		Вкл. звук
+	</string>
+	<string name="SLappAgentIM">
+		IM
+	</string>
+	<string name="SLappAgentPay">
+		Заплатить
+	</string>
+	<string name="SLappAgentOfferTeleport">
+		Предложить телепортацию в
+	</string>
+	<string name="SLappAgentRequestFriend">
+		Предложить дружбу
+	</string>
+	<string name="BUTTON_CLOSE_DARWIN">
+		Закрыть (⌘W)
+	</string>
+	<string name="BUTTON_CLOSE_WIN">
+		Закрыть (Ctrl+W)
+	</string>
+	<string name="BUTTON_CLOSE_CHROME">
+		Закрыть
+	</string>
+	<string name="BUTTON_RESTORE">
+		Развернуть
+	</string>
+	<string name="BUTTON_MINIMIZE">
+		Свернуть
+	</string>
+	<string name="BUTTON_TEAR_OFF">
+		Отделить
+	</string>
+	<string name="BUTTON_DOCK">
+		Присоединить
+	</string>
+	<string name="BUTTON_HELP">
+		Показать справку
+	</string>
+	<string name="Searching">
+		Поиск...
+	</string>
+	<string name="NoneFound">
+		Ничего не найдено.
+	</string>
+	<string name="RetrievingData">
+		Получение...
+	</string>
+	<string name="ReleaseNotes">
+		Заметки о выпуске
+	</string>
+	<string name="LoadingData">
+		Загрузка...
+	</string>
+	<string name="AvatarNameNobody">
+		(без имени)
+	</string>
+	<string name="AvatarNameWaiting">
+		(ожидание)
+	</string>
+	<string name="AvatarNameMultiple">
+		(несколько)
+	</string>
+	<string name="GroupNameNone">
+		(нет)
+	</string>
+	<string name="AvalineCaller">
+		[ORDER] абонента Avaline
+	</string>
+	<string name="AssetErrorNone">
+		Ошибок нет
+	</string>
+	<string name="AssetErrorRequestFailed">
+		Запрос актива: сбой
+	</string>
+	<string name="AssetErrorNonexistentFile">
+		Запрос актива: файл не существует
+	</string>
+	<string name="AssetErrorNotInDatabase">
+		Запрос актива: актив не найден в базе данных
+	</string>
+	<string name="AssetErrorEOF">
+		Конец файла
+	</string>
+	<string name="AssetErrorCannotOpenFile">
+		Не удается открыть файл
+	</string>
+	<string name="AssetErrorFileNotFound">
+		Файл не найден
+	</string>
+	<string name="AssetErrorTCPTimeout">
+		Вышло время передачи файла
+	</string>
+	<string name="AssetErrorCircuitGone">
+		Обрыв в канале
+	</string>
+	<string name="AssetErrorPriceMismatch">
+		Не достигнута договоренность по цене между клиентом и сервером
+	</string>
+	<string name="AssetErrorUnknownStatus">
+		Неизвестный статус
+	</string>
+	<string name="texture">
+		текстуру
+	</string>
+	<string name="sound">
+		звук
+	</string>
+	<string name="calling card">
+		визитку
+	</string>
+	<string name="landmark">
+		закладку
+	</string>
+	<string name="legacy script">
+		старый скрипт
+	</string>
+	<string name="clothing">
+		одежду
+	</string>
+	<string name="object">
+		объект
+	</string>
+	<string name="note card">
+		заметку
+	</string>
+	<string name="folder">
+		папку
+	</string>
+	<string name="root">
+		корневой каталог
+	</string>
+	<string name="lsl2 script">
+		скрипт LSL2
+	</string>
+	<string name="lsl bytecode">
+		байт-код LSL
+	</string>
+	<string name="tga texture">
+		текстуру TGA
+	</string>
+	<string name="body part">
+		часть тела
+	</string>
+	<string name="snapshot">
+		снимок
+	</string>
+	<string name="lost and found">
+		найденные вещи
+	</string>
+	<string name="targa image">
+		изображение TGA
+	</string>
+	<string name="trash">
+		содержимое корзины
+	</string>
+	<string name="jpeg image">
+		изображение JPEG
+	</string>
+	<string name="animation">
+		анимацию
+	</string>
+	<string name="gesture">
+		жест
+	</string>
+	<string name="simstate">
+		состояние симуляции
+	</string>
+	<string name="favorite">
+		избранное
+	</string>
+	<string name="symbolic link">
+		ссылку
+	</string>
+	<string name="symbolic folder link">
+		ссылку на папку
+	</string>
+	<string name="mesh">
+		сетка
+	</string>
+	<string name="AvatarEditingAppearance">
+		(внешний вид редактируется)
+	</string>
+	<string name="AvatarAway">
+		Нет на месте
+	</string>
+	<string name="AvatarBusy">
+		Не беспокоить
+	</string>
+	<string name="AvatarMuted">
+		В черном списке
+	</string>
+	<string name="anim_express_afraid">
+		Страх
+	</string>
+	<string name="anim_express_anger">
+		Гнев
+	</string>
+	<string name="anim_away">
+		Нет на месте
+	</string>
+	<string name="anim_backflip">
+		Сальто назад
+	</string>
+	<string name="anim_express_laugh">
+		Хохот
+	</string>
+	<string name="anim_express_toothsmile">
+		Широкая улыбка
+	</string>
+	<string name="anim_blowkiss">
+		Воздушный поцелуй
+	</string>
+	<string name="anim_express_bored">
+		Скука
+	</string>
+	<string name="anim_bow">
+		Поклон
+	</string>
+	<string name="anim_clap">
+		Хлопок
+	</string>
+	<string name="anim_courtbow">
+		Учтивый поклон
+	</string>
+	<string name="anim_express_cry">
+		Плач
+	</string>
+	<string name="anim_dance1">
+		Танец 1
+	</string>
+	<string name="anim_dance2">
+		Танец 2
+	</string>
+	<string name="anim_dance3">
+		Танец 3
+	</string>
+	<string name="anim_dance4">
+		Танец 4
+	</string>
+	<string name="anim_dance5">
+		Танец 5
+	</string>
+	<string name="anim_dance6">
+		Танец 6
+	</string>
+	<string name="anim_dance7">
+		Танец 7
+	</string>
+	<string name="anim_dance8">
+		Танец 8
+	</string>
+	<string name="anim_express_disdain">
+		Презрение
+	</string>
+	<string name="anim_drink">
+		Питьё
+	</string>
+	<string name="anim_express_embarrased">
+		Смущение
+	</string>
+	<string name="anim_angry_fingerwag">
+		Погрозить пальцем
+	</string>
+	<string name="anim_fist_pump">
+		Поднимание кулака
+	</string>
+	<string name="anim_yoga_float">
+		Парящий Будда
+	</string>
+	<string name="anim_express_frown">
+		Хмурость
+	</string>
+	<string name="anim_impatient">
+		Нетерпение
+	</string>
+	<string name="anim_jumpforjoy">
+		Прыжок радости
+	</string>
+	<string name="anim_kissmybutt">
+		Поцелуй в зад
+	</string>
+	<string name="anim_express_kiss">
+		Поцелуй
+	</string>
+	<string name="anim_laugh_short">
+		Смех
+	</string>
+	<string name="anim_musclebeach">
+		Демонстрация мускулов
+	</string>
+	<string name="anim_no_unhappy">
+		Грустный отказ
+	</string>
+	<string name="anim_no_head">
+		Отказ
+	</string>
+	<string name="anim_nyanya">
+		Ня-ня-ня
+	</string>
+	<string name="anim_punch_onetwo">
+		Двойка руками
+	</string>
+	<string name="anim_express_open_mouth">
+		Открывание рта
+	</string>
+	<string name="anim_peace">
+		Дружелюбие
+	</string>
+	<string name="anim_point_you">
+		Указывание на кого-то
+	</string>
+	<string name="anim_point_me">
+		Указывание на себя
+	</string>
+	<string name="anim_punch_l">
+		Удар левой рукой
+	</string>
+	<string name="anim_punch_r">
+		Удар правой рукой
+	</string>
+	<string name="anim_rps_countdown">
+		Счет в КНБ
+	</string>
+	<string name="anim_rps_paper">
+		КНБ – бумага
+	</string>
+	<string name="anim_rps_rock">
+		КНБ – камень
+	</string>
+	<string name="anim_rps_scissors">
+		КНБ – ножницы
+	</string>
+	<string name="anim_express_repulsed">
+		Отказ
+	</string>
+	<string name="anim_kick_roundhouse_r">
+		«Вертушка»
+	</string>
+	<string name="anim_express_sad">
+		Грусть
+	</string>
+	<string name="anim_salute">
+		Приветствие
+	</string>
+	<string name="anim_shout">
+		Крик
+	</string>
+	<string name="anim_express_shrug">
+		Пожимание плечами
+	</string>
+	<string name="anim_express_smile">
+		Улыбка
+	</string>
+	<string name="anim_smoke_idle">
+		Курение не в затяжку
+	</string>
+	<string name="anim_smoke_inhale">
+		Курение в затяжку
+	</string>
+	<string name="anim_smoke_throw_down">
+		Бросить сигарету
+	</string>
+	<string name="anim_express_surprise">
+		Удивление
+	</string>
+	<string name="anim_sword_strike_r">
+		Удар мечом
+	</string>
+	<string name="anim_angry_tantrum">
+		Вспышка гнева
+	</string>
+	<string name="anim_express_tongue_out">
+		Показ языка
+	</string>
+	<string name="anim_hello">
+		Приветствие рукой
+	</string>
+	<string name="anim_whisper">
+		Шепот
+	</string>
+	<string name="anim_whistle">
+		Свист
+	</string>
+	<string name="anim_express_wink">
+		Подмигивание
+	</string>
+	<string name="anim_wink_hollywood">
+		Подмигивание по-голливудски
+	</string>
+	<string name="anim_express_worry">
+		Беспокойство
+	</string>
+	<string name="anim_yes_happy">
+		Радостное согласие
+	</string>
+	<string name="anim_yes_head">
+		Согласие
+	</string>
+	<string name="multiple_textures">
+		Несколько
+	</string>
+	<string name="texture_loading">
+		Загрузка...
+	</string>
+	<string name="worldmap_offline">
+		Не в сети
+	</string>
+	<string name="worldmap_item_tooltip_format">
+		[AREA] м² L$[PRICE]
+	</string>
+	<string name="worldmap_results_none_found">
+		Ничего не найдено.
+	</string>
+	<string name="Ok">
+		ОК
+	</string>
+	<string name="Premature end of file">
+		Преждевременный конец файла
+	</string>
+	<string name="ST_NO_JOINT">
+		Не удается найти объект ROOT или JOINT.
+	</string>
+	<string name="whisper">
+		шепчет:
+	</string>
+	<string name="shout">
+		кричит:
+	</string>
+	<string name="ringing">
+		Подключение к голосовому чату...
+	</string>
+	<string name="connected">
+		Подключение установлено
+	</string>
+	<string name="unavailable">
+		В этом месте голосовая связь недоступна
+	</string>
+	<string name="hang_up">
+		Отключение от общего голосового чата
+	</string>
+	<string name="reconnect_nearby">
+		Будет установлено подключение к локальному голосовому чату
+	</string>
+	<string name="ScriptQuestionCautionChatGranted">
+		Объекту «[OBJECTNAME]», который принадлежит пользователю «[OWNERNAME]» и находится в [REGIONPOS] в регионе «[REGIONNAME]», предоставлено разрешение: [PERMISSIONS].
+	</string>
+	<string name="ScriptQuestionCautionChatDenied">
+		Объекту «[OBJECTNAME]», который принадлежит пользователю «[OWNERNAME]» и находится в [REGIONPOS] в регионе «[REGIONNAME]», отказано в разрешении: [PERMISSIONS].
+	</string>
+	<string name="ScriptTakeMoney">
+		У вас берут Linden-деньги
+	</string>
+	<string name="ActOnControlInputs">
+		Действия при активации элементов управления
+	</string>
+	<string name="RemapControlInputs">
+		Новое сопоставление элементов управления
+	</string>
+	<string name="AnimateYourAvatar">
+		Анимировать ваш аватар
+	</string>
+	<string name="AttachToYourAvatar">
+		Прикрепить к аватару
+	</string>
+	<string name="ReleaseOwnership">
+		Отказаться от владения, сделать всеобщим
+	</string>
+	<string name="LinkAndDelink">
+		Связать или отменить связь с другими объектами
+	</string>
+	<string name="AddAndRemoveJoints">
+		Добавление и удаление связей с другими объектами
+	</string>
+	<string name="ChangePermissions">
+		Изменить разрешения
+	</string>
+	<string name="TrackYourCamera">
+		Следить за камерой
+	</string>
+	<string name="ControlYourCamera">
+		Управлять камерой
+	</string>
+	<string name="NotConnected">
+		Нет подключения
+	</string>
+	<string name="SIM_ACCESS_PG">
+		Общий
+	</string>
+	<string name="SIM_ACCESS_MATURE">
+		Умеренный
+	</string>
+	<string name="SIM_ACCESS_ADULT">
+		Для взрослых
+	</string>
+	<string name="SIM_ACCESS_DOWN">
+		Не в сети
+	</string>
+	<string name="SIM_ACCESS_MIN">
+		Неизвестно
+	</string>
+	<string name="land_type_unknown">
+		(неизвестно)
+	</string>
+	<string name="Estate / Full Region">
+		Землевладение/весь регион
+	</string>
+	<string name="Estate / Homestead">
+		Землевладение/поместье
+	</string>
+	<string name="Mainland / Homestead">
+		Материк/поместье
+	</string>
+	<string name="Mainland / Full Region">
+		Материк/весь регион
+	</string>
+	<string name="all_files">
+		Все файлы
+	</string>
+	<string name="sound_files">
+		Звуки
+	</string>
+	<string name="animation_files">
+		Анимация
+	</string>
+	<string name="image_files">
+		Изображения
+	</string>
+	<string name="save_file_verb">
+		Сохранить
+	</string>
+	<string name="load_file_verb">
+		Загрузить
+	</string>
+	<string name="targa_image_files">
+		Изображения TGA
+	</string>
+	<string name="bitmap_image_files">
+		Изображения BMP
+	</string>
+	<string name="avi_movie_file">
+		Видео AVI
+	</string>
+	<string name="xaf_animation_file">
+		Анимация XAF
+	</string>
+	<string name="xml_file">
+		XML-файл
+	</string>
+	<string name="raw_file">
+		RAW-файл
+	</string>
+	<string name="compressed_image_files">
+		Несжатые изображения
+	</string>
+	<string name="load_files">
+		Загрузить файлы
+	</string>
+	<string name="choose_the_directory">
+		Выбрать каталог
+	</string>
+	<string name="script_files">
+		Скрипты
+	</string>
+	<string name="AvatarSetNotAway">
+		На месте
+	</string>
+	<string name="AvatarSetAway">
+		Нет на месте
+	</string>
+	<string name="AvatarSetNotBusy">
+		Не занят(а)
+	</string>
+	<string name="AvatarSetBusy">
+		Не беспокоить
+	</string>
+	<string name="shape">
+		Фигура
+	</string>
+	<string name="skin">
+		Кожа
+	</string>
+	<string name="hair">
+		Волосы
+	</string>
+	<string name="eyes">
+		Глаза
+	</string>
+	<string name="shirt">
+		Рубашка
+	</string>
+	<string name="pants">
+		Брюки
+	</string>
+	<string name="shoes">
+		Обувь
+	</string>
+	<string name="socks">
+		Носки
+	</string>
+	<string name="jacket">
+		Пиджак
+	</string>
+	<string name="gloves">
+		Перчатки
+	</string>
+	<string name="undershirt">
+		Майка
+	</string>
+	<string name="underpants">
+		Трусы
+	</string>
+	<string name="skirt">
+		Юбка
+	</string>
+	<string name="alpha">
+		Альфа-маска
+	</string>
+	<string name="tattoo">
+		Тату
+	</string>
+	<string name="physics">
+		Физические данные
+	</string>
+	<string name="invalid">
+		ошибка
+	</string>
+	<string name="none">
+		нет
+	</string>
+	<string name="shirt_not_worn">
+		Рубашка не надета
+	</string>
+	<string name="pants_not_worn">
+		Брюки не надеты
+	</string>
+	<string name="shoes_not_worn">
+		Обувь не надета
+	</string>
+	<string name="socks_not_worn">
+		Носки не надеты
+	</string>
+	<string name="jacket_not_worn">
+		Пиджак не надет
+	</string>
+	<string name="gloves_not_worn">
+		Перчатки не надеты
+	</string>
+	<string name="undershirt_not_worn">
+		Майка не надета
+	</string>
+	<string name="underpants_not_worn">
+		Трусы не надеты
+	</string>
+	<string name="skirt_not_worn">
+		Юбка не надета
+	</string>
+	<string name="alpha_not_worn">
+		Альфа-маска не надета
+	</string>
+	<string name="tattoo_not_worn">
+		Тату не надето
+	</string>
+	<string name="physics_not_worn">
+		Физика не учитывается
+	</string>
+	<string name="invalid_not_worn">
+		ошибка
+	</string>
+	<string name="create_new_shape">
+		Создать фигуру
+	</string>
+	<string name="create_new_skin">
+		Создать кожу
+	</string>
+	<string name="create_new_hair">
+		Создать волосы
+	</string>
+	<string name="create_new_eyes">
+		Создать глаза
+	</string>
+	<string name="create_new_shirt">
+		Создать рубашку
+	</string>
+	<string name="create_new_pants">
+		Создать брюки
+	</string>
+	<string name="create_new_shoes">
+		Создать обувь
+	</string>
+	<string name="create_new_socks">
+		Создать носки
+	</string>
+	<string name="create_new_jacket">
+		Создать пиджак
+	</string>
+	<string name="create_new_gloves">
+		Создать перчатки
+	</string>
+	<string name="create_new_undershirt">
+		Создать майку
+	</string>
+	<string name="create_new_underpants">
+		Создать трусы
+	</string>
+	<string name="create_new_skirt">
+		Создать юбку
+	</string>
+	<string name="create_new_alpha">
+		Создать альфа-маску
+	</string>
+	<string name="create_new_tattoo">
+		Создать тату
+	</string>
+	<string name="create_new_physics">
+		Создать физику
+	</string>
+	<string name="create_new_invalid">
+		ошибка
+	</string>
+	<string name="NewWearable">
+		Создать [WEARABLE_ITEM]
+	</string>
+	<string name="next">
+		Далее
+	</string>
+	<string name="ok">
+		ОК
+	</string>
+	<string name="GroupNotifyGroupNotice">
+		Групповое уведомление
+	</string>
+	<string name="GroupNotifyGroupNotices">
+		Групповые уведомления
+	</string>
+	<string name="GroupNotifySentBy">
+		Отправитель
+	</string>
+	<string name="GroupNotifyAttached">
+		Вложение:
+	</string>
+	<string name="GroupNotifyViewPastNotices">
+		Здесь можно просмотреть последние уведомления или отказаться от их получения.
+	</string>
+	<string name="GroupNotifyOpenAttachment">
+		Открыть вложение
+	</string>
+	<string name="GroupNotifySaveAttachment">
+		Сохранить вложение
+	</string>
+	<string name="TeleportOffer">
+		Предложена телепортация
+	</string>
+	<string name="StartUpNotifications">
+		Пока вы отсутствовали, пришли новые уведомления.
+	</string>
+	<string name="OverflowInfoChannelString">
+		Других уведомлений: %d
+	</string>
+	<string name="BodyPartsRightArm">
+		Правая рука
+	</string>
+	<string name="BodyPartsHead">
+		Голова
+	</string>
+	<string name="BodyPartsLeftArm">
+		Левая рука
+	</string>
+	<string name="BodyPartsLeftLeg">
+		Левая нога
+	</string>
+	<string name="BodyPartsTorso">
+		Торс
+	</string>
+	<string name="BodyPartsRightLeg">
+		Правая нога
+	</string>
+	<string name="GraphicsQualityLow">
+		низкая
+	</string>
+	<string name="GraphicsQualityMid">
+		средняя
+	</string>
+	<string name="GraphicsQualityHigh">
+		высокая
+	</string>
+	<string name="LeaveMouselook">
+		Нажмите ESC, чтобы вернуться к обычному обзору
+	</string>
+	<string name="InventoryNoMatchingItems">
+		Не нашли того, что вам нужно? Воспользуйтесь [secondlife:///app/search/all/[SEARCH_TERM] поиском].
+	</string>
+	<string name="PlacesNoMatchingItems">
+		Не нашли того, что вам нужно? Воспользуйтесь [secondlife:///app/search/places/[SEARCH_TERM] поиском].
+	</string>
+	<string name="FavoritesNoMatchingItems">
+		Перетащите сюда закладку, чтобы добавить ее в список избранного.
+	</string>
+	<string name="InventoryNoTexture">
+		В вашем инвентаре нет копии этой текстуры
+	</string>
+	<string name="InventoryInboxNoItems">
+		Здесь будут показаны ваши покупки из торгового центра. Их можно будет перетащить в ваш инвентарь для использования.
+	</string>
+	<string name="MarketplaceURL">
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
+	</string>
+	<string name="MarketplaceURL_CreateStore">
+		http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.4
+	</string>
+	<string name="MarketplaceURL_Dashboard">
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/dashboard
+	</string>
+	<string name="MarketplaceURL_Imports">
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/imports
+	</string>
+	<string name="MarketplaceURL_LearnMore">
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more
+	</string>
+	<string name="InventoryOutboxNotMerchantTitle">
+		Продавать вещи в торговом центре может кто угодно.
+	</string>
+	<string name="InventoryOutboxNotMerchantTooltip"/>
+	<string name="InventoryOutboxNotMerchant">
+		Если вы хотите стать торговцем, [[MARKETPLACE_CREATE_STORE_URL] создайте магазин].
+	</string>
+	<string name="InventoryOutboxNoItemsTitle">
+		Ваша папка «Исходящие» пуста.
+	</string>
+	<string name="InventoryOutboxNoItemsTooltip"/>
+	<string name="InventoryOutboxNoItems">
+		Перетащите папки в эту область и щелкните «Отправить в торговый центр», чтобы выставить их на продажу в [[MARKETPLACE_DASHBOARD_URL] Торговом центре].
+	</string>
+	<string name="Marketplace Error None">
+		Ошибок нет
+	</string>
+	<string name="Marketplace Error Not Merchant">
+		Ошибка. Прежде чем отправлять вещи в магазин, необходимо зарегистрироваться как торговец (бесплатно).
+	</string>
+	<string name="Marketplace Error Empty Folder">
+		Ошибка. В этой папке нет контента.
+	</string>
+	<string name="Marketplace Error Unassociated Products">
+		Ошибка. Не удается передать эту вещь, поскольку в вашем торговом аккаунте слишком много вещей, не связанных с продуктами.  Чтобы исправить эту ошибку, войдите на веб-сайт торгового центра и уменьшите число своих вещей, которые ни с чем не связаны.
+	</string>
+	<string name="Marketplace Error Object Limit">
+		Ошибка. Эта вещь содержит слишком много объектов.  Исправьте эту ошибку, сложив объекты в коробки и уменьшив их общее число (должно быть меньше 200).
+	</string>
+	<string name="Marketplace Error Folder Depth">
+		Ошибка. Эта вещь содержит слишком много уровней вложенных папок.  Измените структуру так, чтобы уровней вложенных папок было не более 3.
+	</string>
+	<string name="Marketplace Error Unsellable Item">
+		Ошибка. Эту вещь нельзя продать в магазине.
+	</string>
+	<string name="Marketplace Error Internal Import">
+		Ошибка. Эта вещь создает проблему.  Повторите попытку позже.
+	</string>
+	<string name="Open landmarks">
+		Открыть закладки
+	</string>
+	<string name="no_transfer" value="(не передается)"/>
+	<string name="no_modify" value="(не изменяется)"/>
+	<string name="no_copy" value="(не копируется)"/>
+	<string name="worn" value="(носится)"/>
+	<string name="link" value="(ссылка)"/>
+	<string name="broken_link" value="(broken_link)"/>
+	<string name="LoadingContents">
+		Загрузка содержимого...
+	</string>
+	<string name="NoContents">
+		Нет контента
+	</string>
+	<string name="WornOnAttachmentPoint" value="(где носится: [ATTACHMENT_POINT])"/>
+	<string name="ActiveGesture" value="[GESLABEL] (активно)"/>
+	<string name="PermYes">
+		Да
+	</string>
+	<string name="PermNo">
+		Нет
+	</string>
+	<string name="Chat Message" value="Чат:"/>
+	<string name="Sound" value="Звук:"/>
+	<string name="Wait" value="--- Ждите:"/>
+	<string name="AnimFlagStop" value="Остановить анимацию:"/>
+	<string name="AnimFlagStart" value="Начать анимацию:"/>
+	<string name="Wave" value="Приветствие рукой"/>
+	<string name="GestureActionNone" value="Нет"/>
+	<string name="HelloAvatar" value="Привет, аватар!"/>
+	<string name="ViewAllGestures" value="Просмотреть все &gt;&gt;"/>
+	<string name="GetMoreGestures" value="Дополнительно &gt;&gt;"/>
+	<string name="Animations" value="Анимация,"/>
+	<string name="Calling Cards" value="Визитки,"/>
+	<string name="Clothing" value="Одежда,"/>
+	<string name="Gestures" value="Жесты,"/>
+	<string name="Landmarks" value="Закладки,"/>
+	<string name="Notecards" value="Заметки,"/>
+	<string name="Objects" value="Объекты,"/>
+	<string name="Scripts" value="Скрипты,"/>
+	<string name="Sounds" value="Звуки,"/>
+	<string name="Textures" value="Текстуры,"/>
+	<string name="Snapshots" value="Снимки,"/>
+	<string name="No Filters" value="Нет"/>
+	<string name="Since Logoff" value="- С момента выхода"/>
+	<string name="InvFolder My Inventory">
+		Мой инвентарь
+	</string>
+	<string name="InvFolder Library">
+		Библиотека
+	</string>
+	<string name="InvFolder Textures">
+		Текстуры
+	</string>
+	<string name="InvFolder Sounds">
+		Звуки
+	</string>
+	<string name="InvFolder Calling Cards">
+		Визитки
+	</string>
+	<string name="InvFolder Landmarks">
+		Закладки
+	</string>
+	<string name="InvFolder Scripts">
+		Скрипты
+	</string>
+	<string name="InvFolder Clothing">
+		Одежда
+	</string>
+	<string name="InvFolder Objects">
+		Объекты
+	</string>
+	<string name="InvFolder Notecards">
+		Заметки
+	</string>
+	<string name="InvFolder New Folder">
+		Новая папка
+	</string>
+	<string name="InvFolder Inventory">
+		Инвентарь
+	</string>
+	<string name="InvFolder Uncompressed Images">
+		Несжатые изображения
+	</string>
+	<string name="InvFolder Body Parts">
+		Части тела
+	</string>
+	<string name="InvFolder Trash">
+		Корзина
+	</string>
+	<string name="InvFolder Photo Album">
+		Фотоальбом
+	</string>
+	<string name="InvFolder Lost And Found">
+		Бюро находок
+	</string>
+	<string name="InvFolder Uncompressed Sounds">
+		Несжатые звуки
+	</string>
+	<string name="InvFolder Animations">
+		Анимация
+	</string>
+	<string name="InvFolder Gestures">
+		Жесты
+	</string>
+	<string name="InvFolder Favorite">
+		Мое избранное
+	</string>
+	<string name="InvFolder favorite">
+		Мое избранное
+	</string>
+	<string name="InvFolder Current Outfit">
+		Текущий костюм
+	</string>
+	<string name="InvFolder Initial Outfits">
+		Начальные костюмы
+	</string>
+	<string name="InvFolder My Outfits">
+		Мои костюмы
+	</string>
+	<string name="InvFolder Accessories">
+		Аксессуары
+	</string>
+	<string name="InvFolder Meshes">
+		Меши
+	</string>
+	<string name="InvFolder Friends">
+		Друзья
+	</string>
+	<string name="InvFolder All">
+		Все
+	</string>
+	<string name="no_attachments">
+		Нет прикрепленных объектов
+	</string>
+	<string name="Attachments remain">
+		Присоединения (осталось гнезд: [COUNT])
+	</string>
+	<string name="Buy">
+		Купить
+	</string>
+	<string name="BuyforL$">
+		Купить за L$
+	</string>
+	<string name="Stone">
+		Камень
+	</string>
+	<string name="Metal">
+		Металл
+	</string>
+	<string name="Glass">
+		Стекло
+	</string>
+	<string name="Wood">
+		Дерево
+	</string>
+	<string name="Flesh">
+		Плоть
+	</string>
+	<string name="Plastic">
+		Пластик
+	</string>
+	<string name="Rubber">
+		Резина
+	</string>
+	<string name="Light">
+		Светлый
+	</string>
+	<string name="KBShift">
+		SHIFT
+	</string>
+	<string name="KBCtrl">
+		CTRL
+	</string>
+	<string name="Chest">
+		Грудь
+	</string>
+	<string name="Skull">
+		Череп
+	</string>
+	<string name="Left Shoulder">
+		Левое плечо
+	</string>
+	<string name="Right Shoulder">
+		Правое плечо
+	</string>
+	<string name="Left Hand">
+		Левая кисть
+	</string>
+	<string name="Right Hand">
+		Правая кисть
+	</string>
+	<string name="Left Foot">
+		Левая ступня
+	</string>
+	<string name="Right Foot">
+		Правая ступня
+	</string>
+	<string name="Spine">
+		Позвоночник
+	</string>
+	<string name="Pelvis">
+		Таз
+	</string>
+	<string name="Mouth">
+		Рот
+	</string>
+	<string name="Chin">
+		Подбородок
+	</string>
+	<string name="Left Ear">
+		Левое ухо
+	</string>
+	<string name="Right Ear">
+		Правое ухо
+	</string>
+	<string name="Left Eyeball">
+		Левый глаз
+	</string>
+	<string name="Right Eyeball">
+		Правый глаз
+	</string>
+	<string name="Nose">
+		Нос
+	</string>
+	<string name="R Upper Arm">
+		Правое плечо
+	</string>
+	<string name="R Forearm">
+		Правое предплечье
+	</string>
+	<string name="L Upper Arm">
+		Левое плечо
+	</string>
+	<string name="L Forearm">
+		Левое предплечье
+	</string>
+	<string name="Right Hip">
+		Правое бедро
+	</string>
+	<string name="R Upper Leg">
+		Правое колено
+	</string>
+	<string name="R Lower Leg">
+		Правая голень
+	</string>
+	<string name="Left Hip">
+		Левое бедро
+	</string>
+	<string name="L Upper Leg">
+		Левое колено
+	</string>
+	<string name="L Lower Leg">
+		Левая голень
+	</string>
+	<string name="Stomach">
+		Живот
+	</string>
+	<string name="Left Pec">
+		Левая грудь
+	</string>
+	<string name="Right Pec">
+		Правая грудь
+	</string>
+	<string name="Neck">
+		Шея
+	</string>
+	<string name="Avatar Center">
+		Центр аватара
+	</string>
+	<string name="Invalid Attachment">
+		Неверная точка присоединения
+	</string>
+	<string name="YearsMonthsOld">
+		[AGEYEARS] [AGEMONTHS]
+	</string>
+	<string name="YearsOld">
+		[AGEYEARS]
+	</string>
+	<string name="MonthsOld">
+		[AGEMONTHS]
+	</string>
+	<string name="WeeksOld">
+		[AGEWEEKS]
+	</string>
+	<string name="DaysOld">
+		[AGEDAYS]
+	</string>
+	<string name="TodayOld">
+		Сегодня
+	</string>
+	<string name="AgeYearsA">
+		[COUNT] год
+	</string>
+	<string name="AgeYearsB">
+		[COUNT] года
+	</string>
+	<string name="AgeYearsC">
+		[COUNT] лет
+	</string>
+	<string name="AgeMonthsA">
+		[COUNT] месяц
+	</string>
+	<string name="AgeMonthsB">
+		[COUNT] месяца
+	</string>
+	<string name="AgeMonthsC">
+		[COUNT] месяцев
+	</string>
+	<string name="AgeWeeksA">
+		[COUNT] неделя
+	</string>
+	<string name="AgeWeeksB">
+		[COUNT] недели
+	</string>
+	<string name="AgeWeeksC">
+		[COUNT] недель
+	</string>
+	<string name="AgeDaysA">
+		[COUNT] день
+	</string>
+	<string name="AgeDaysB">
+		[COUNT] дня
+	</string>
+	<string name="AgeDaysC">
+		[COUNT] дней
+	</string>
+	<string name="GroupMembersA">
+		[COUNT] участник
+	</string>
+	<string name="GroupMembersB">
+		[COUNT] участника
+	</string>
+	<string name="GroupMembersC">
+		[COUNT] участников
+	</string>
+	<string name="AcctTypeResident">
+		Житель
+	</string>
+	<string name="AcctTypeTrial">
+		Гость
+	</string>
+	<string name="AcctTypeCharterMember">
+		Учредитель
+	</string>
+	<string name="AcctTypeEmployee">
+		Сотрудник Linden Lab
+	</string>
+	<string name="PaymentInfoUsed">
+		Есть информация о платежах
+	</string>
+	<string name="PaymentInfoOnFile">
+		Есть зарегистрир. информация о платежах
+	</string>
+	<string name="NoPaymentInfoOnFile">
+		Нет информации о платежах
+	</string>
+	<string name="AgeVerified">
+		Возраст проверен
+	</string>
+	<string name="NotAgeVerified">
+		Возраст не проверен
+	</string>
+	<string name="Center 2">
+		В центре 2
+	</string>
+	<string name="Top Right">
+		Вверху справа
+	</string>
+	<string name="Top">
+		Вверху
+	</string>
+	<string name="Top Left">
+		Вверху слева
+	</string>
+	<string name="Center">
+		В центре
+	</string>
+	<string name="Bottom Left">
+		Внизу слева
+	</string>
+	<string name="Bottom">
+		Внизу
+	</string>
+	<string name="Bottom Right">
+		Внизу справа
+	</string>
+	<string name="CompileQueueDownloadedCompiling">
+		Загружено, компилируется
+	</string>
+	<string name="CompileQueueScriptNotFound">
+		Скрипт не найден на сервере.
+	</string>
+	<string name="CompileQueueProblemDownloading">
+		Проблема при загрузке
+	</string>
+	<string name="CompileQueueInsufficientPermDownload">
+		Недостаточно разрешений для загрузки скрипта.
+	</string>
+	<string name="CompileQueueInsufficientPermFor">
+		Недостаточно разрешений для
+	</string>
+	<string name="CompileQueueUnknownFailure">
+		Неизвестный сбой загрузки
+	</string>
+	<string name="CompileQueueTitle">
+		Ход повторной компиляции
+	</string>
+	<string name="CompileQueueStart">
+		скомпилировать повторно
+	</string>
+	<string name="ResetQueueTitle">
+		Ход сброса
+	</string>
+	<string name="ResetQueueStart">
+		сброс
+	</string>
+	<string name="RunQueueTitle">
+		Ход запуска
+	</string>
+	<string name="RunQueueStart">
+		запустить
+	</string>
+	<string name="NotRunQueueTitle">
+		Ход остановки выполнения
+	</string>
+	<string name="NotRunQueueStart">
+		прекратить выполнение
+	</string>
+	<string name="CompileSuccessful">
+		Компиляция успешно выполнена!
+	</string>
+	<string name="CompileSuccessfulSaving">
+		Компиляция успешно выполнена, сохраняется...
+	</string>
+	<string name="SaveComplete">
+		Сохранение завершено.
+	</string>
+	<string name="ObjectOutOfRange">
+		Скрипт (объект вне области)
+	</string>
+	<string name="GodToolsObjectOwnedBy">
+		Объект [OBJECT] пользователя [OWNER]
+	</string>
+	<string name="GroupsNone">
+		нет
+	</string>
+	<string name="Group" value="(группа)"/>
+	<string name="Unknown">
+		(Неизвестно)
+	</string>
+	<string name="SummaryForTheWeek" value="Сводка за неделю, начиная с"/>
+	<string name="NextStipendDay" value="Дата очередного жалования:"/>
+	<string name="GroupPlanningDate">
+		[day,datetime,utc].[mthnum,datetime,utc].[year,datetime,utc]
+	</string>
+	<string name="GroupIndividualShare" value="Для группы       Персонально Совместно"/>
+	<string name="GroupColumn" value="Группа"/>
+	<string name="Balance">
+		Баланс
+	</string>
+	<string name="Credits">
+		Расход
+	</string>
+	<string name="Debits">
+		Приход
+	</string>
+	<string name="Total">
+		Итого
+	</string>
+	<string name="NoGroupDataFound">
+		Не найдены данные для группы
+	</string>
+	<string name="IMParentEstate">
+		родовое землевладение
+	</string>
+	<string name="IMMainland">
+		материк
+	</string>
+	<string name="IMTeen">
+		подростковый
+	</string>
+	<string name="Anyone">
+		все
+	</string>
+	<string name="RegionInfoError">
+		ошибка
+	</string>
+	<string name="RegionInfoAllEstatesOwnedBy">
+		все землевладения пользователя [OWNER]
+	</string>
+	<string name="RegionInfoAllEstatesYouOwn">
+		все ваши землевладения
+	</string>
+	<string name="RegionInfoAllEstatesYouManage">
+		все землевладения пользователя [OWNER], которыми вы управляете
+	</string>
+	<string name="RegionInfoAllowedResidents">
+		Допущенные жители: ([ALLOWEDAGENTS], не более [MAXACCESS])
+	</string>
+	<string name="RegionInfoAllowedGroups">
+		Допущенные группы: ([ALLOWEDGROUPS], не более [MAXACCESS])
+	</string>
+	<string name="ScriptLimitsParcelScriptMemory">
+		Память под скрипты на участке
+	</string>
+	<string name="ScriptLimitsParcelsOwned">
+		Участков в списке: [PARCELS]
+	</string>
+	<string name="ScriptLimitsMemoryUsed">
+		Используется памяти: [COUNT] КБ из [MAX] КБ; доступно: [AVAILABLE] КБ
+	</string>
+	<string name="ScriptLimitsMemoryUsedSimple">
+		Используется памяти: [COUNT] КБ
+	</string>
+	<string name="ScriptLimitsParcelScriptURLs">
+		URL-адреса скрипта участков
+	</string>
+	<string name="ScriptLimitsURLsUsed">
+		Используется URL-адресов: [COUNT] из [MAX] (доступно: [AVAILABLE])
+	</string>
+	<string name="ScriptLimitsURLsUsedSimple">
+		Используется URL-адресов: [COUNT]
+	</string>
+	<string name="ScriptLimitsRequestError">
+		Ошибка при запросе данных
+	</string>
+	<string name="ScriptLimitsRequestNoParcelSelected">
+		Участок не выбран
+	</string>
+	<string name="ScriptLimitsRequestWrongRegion">
+		Ошибка. Сведения о скрипте доступны только в текущем регионе
+	</string>
+	<string name="ScriptLimitsRequestWaiting">
+		Получение данных...
+	</string>
+	<string name="ScriptLimitsRequestDontOwnParcel">
+		У вас нет прав для исследования этого участка
+	</string>
+	<string name="SITTING_ON">
+		Сидит на
+	</string>
+	<string name="ATTACH_CHEST">
+		Грудь
+	</string>
+	<string name="ATTACH_HEAD">
+		Голова
+	</string>
+	<string name="ATTACH_LSHOULDER">
+		Левое плечо
+	</string>
+	<string name="ATTACH_RSHOULDER">
+		Правое плечо
+	</string>
+	<string name="ATTACH_LHAND">
+		Левая кисть
+	</string>
+	<string name="ATTACH_RHAND">
+		Правая кисть
+	</string>
+	<string name="ATTACH_LFOOT">
+		Левая ступня
+	</string>
+	<string name="ATTACH_RFOOT">
+		Правая ступня
+	</string>
+	<string name="ATTACH_BACK">
+		Спина
+	</string>
+	<string name="ATTACH_PELVIS">
+		Таз
+	</string>
+	<string name="ATTACH_MOUTH">
+		Рот
+	</string>
+	<string name="ATTACH_CHIN">
+		Подбородок
+	</string>
+	<string name="ATTACH_LEAR">
+		Левое ухо
+	</string>
+	<string name="ATTACH_REAR">
+		Правое ухо
+	</string>
+	<string name="ATTACH_LEYE">
+		Левый глаз
+	</string>
+	<string name="ATTACH_REYE">
+		Правый глаз
+	</string>
+	<string name="ATTACH_NOSE">
+		Нос
+	</string>
+	<string name="ATTACH_RUARM">
+		Правое плечо
+	</string>
+	<string name="ATTACH_RLARM">
+		Правое предплечье
+	</string>
+	<string name="ATTACH_LUARM">
+		Левое плечо
+	</string>
+	<string name="ATTACH_LLARM">
+		Левое предплечье
+	</string>
+	<string name="ATTACH_RHIP">
+		Правое бедро
+	</string>
+	<string name="ATTACH_RULEG">
+		Правое колено
+	</string>
+	<string name="ATTACH_RLLEG">
+		Правая голень
+	</string>
+	<string name="ATTACH_LHIP">
+		Левое бедро
+	</string>
+	<string name="ATTACH_LULEG">
+		Левое колено
+	</string>
+	<string name="ATTACH_LLLEG">
+		Левая голень
+	</string>
+	<string name="ATTACH_BELLY">
+		Живот
+	</string>
+	<string name="ATTACH_RPEC">
+		Правая грудь
+	</string>
+	<string name="ATTACH_LPEC">
+		Левая грудь
+	</string>
+	<string name="ATTACH_HUD_CENTER_2">
+		Данные в игре в центре 2
+	</string>
+	<string name="ATTACH_HUD_TOP_RIGHT">
+		Данные в игре вверху справа
+	</string>
+	<string name="ATTACH_HUD_TOP_CENTER">
+		Данные в игре вверху в центре
+	</string>
+	<string name="ATTACH_HUD_TOP_LEFT">
+		Данные в игре вверху слева
+	</string>
+	<string name="ATTACH_HUD_CENTER_1">
+		Данные в игре в центре 1
+	</string>
+	<string name="ATTACH_HUD_BOTTOM_LEFT">
+		Данные в игре внизу слева
+	</string>
+	<string name="ATTACH_HUD_BOTTOM">
+		Данные в игре внизу
+	</string>
+	<string name="ATTACH_HUD_BOTTOM_RIGHT">
+		Данные в игре внизу справа
+	</string>
+	<string name="CursorPos">
+		Строка [LINE], столбец [COLUMN]
+	</string>
+	<string name="PanelDirCountFound">
+		Найдено: [COUNT]
+	</string>
+	<string name="PanelDirTimeStr">
+		[hour,datetime,slt]:[min,datetime,slt]
+	</string>
+	<string name="PanelDirEventsDateText">
+		[day,datetime,slt].[mthnum,datetime,slt]
+	</string>
+	<string name="PanelContentsTooltip">
+		Подключение к объекту
+	</string>
+	<string name="PanelContentsNewScript">
+		Новый скрипт
+	</string>
+	<string name="BusyModeResponseDefault">
+		У адресата вашего сообщения задан статус «Не беспокоить».  Ваше сообщение все равно будет отображено на панели IM для просмотра позже.
+	</string>
+	<string name="MuteByName">
+		(по имени)
+	</string>
+	<string name="MuteAgent">
+		(для жителя)
+	</string>
+	<string name="MuteObject">
+		(для объекта)
+	</string>
+	<string name="MuteGroup">
+		(для группы)
+	</string>
+	<string name="MuteExternal">
+		(внешний)
+	</string>
+	<string name="RegionNoCovenant">
+		Нет соглашения для этого землевладения.
+	</string>
+	<string name="RegionNoCovenantOtherOwner">
+		Нет соглашения для этого землевладения. Земля в этом землевладении продается его владельцем, а не компанией Linden Lab.  Чтобы узнать подробности о продаже, обратитесь к землевладельцу.
+	</string>
+	<string name="covenant_last_modified" value="Дата последнего изменения:"/>
+	<string name="none_text" value="(нет)"/>
+	<string name="never_text" value="(никогда)"/>
+	<string name="GroupOwned">
+		Собственность группы
+	</string>
+	<string name="Public">
+		Общая собственность
+	</string>
+	<string name="LocalSettings">
+		Локальные настройки
+	</string>
+	<string name="RegionSettings">
+		Региональные настройки
+	</string>
+	<string name="ClassifiedClicksTxt">
+		Щелчки: телепорт [TELEPORT], карта [MAP], профиль [PROFILE]
+	</string>
+	<string name="ClassifiedUpdateAfterPublish">
+		(будет обновлено после публикации)
+	</string>
+	<string name="NoPicksClassifiedsText">
+		Вы не создали подборки или рекламы. Нажмите кнопку со знаком «плюс» ниже, чтобы создать подборку или рекламу
+	</string>
+	<string name="NoAvatarPicksClassifiedsText">
+		У жителя нет подборки или рекламы
+	</string>
+	<string name="PicksClassifiedsLoadingText">
+		Загрузка...
+	</string>
+	<string name="MultiPreviewTitle">
+		Предварительный просмотр
+	</string>
+	<string name="MultiPropertiesTitle">
+		Свойства
+	</string>
+	<string name="InvOfferAnObjectNamed">
+		Объект с именем
+	</string>
+	<string name="InvOfferOwnedByGroup">
+		принадлежит группе
+	</string>
+	<string name="InvOfferOwnedByUnknownGroup">
+		принадлежит известной группе
+	</string>
+	<string name="InvOfferOwnedBy">
+		принадлежит
+	</string>
+	<string name="InvOfferOwnedByUnknownUser">
+		принадлежит неизвестному пользователю
+	</string>
+	<string name="InvOfferGaveYou">
+		дал(а) вам
+	</string>
+	<string name="InvOfferDecline">
+		Вы не приняли [DESC] от жителя &lt;nolink&gt;[NAME]&lt;/nolink&gt;.
+	</string>
+	<string name="GroupMoneyTotal">
+		Итого
+	</string>
+	<string name="GroupMoneyBought">
+		куплено
+	</string>
+	<string name="GroupMoneyPaidYou">
+		уплачено вам
+	</string>
+	<string name="GroupMoneyPaidInto">
+		уплачено в
+	</string>
+	<string name="GroupMoneyBoughtPassTo">
+		куплен пропуск в
+	</string>
+	<string name="GroupMoneyPaidFeeForEvent">
+		уплачено за событие
+	</string>
+	<string name="GroupMoneyPaidPrizeForEvent">
+		выплачено призовых за событие
+	</string>
+	<string name="GroupMoneyBalance">
+		Баланс
+	</string>
+	<string name="GroupMoneyCredits">
+		Расход
+	</string>
+	<string name="GroupMoneyDebits">
+		Приход
+	</string>
+	<string name="GroupMoneyDate">
+		[weekday,datetime,utc], [day,datetime,utc] [mth,datetime,utc] [year,datetime,utc]
+	</string>
+	<string name="ViewerObjectContents">
+		Контент
+	</string>
+	<string name="AcquiredItems">
+		Купленные вещи
+	</string>
+	<string name="Cancel">
+		Отмена
+	</string>
+	<string name="UploadingCosts">
+		Передача [NAME] стоит L$[AMOUNT]
+	</string>
+	<string name="BuyingCosts">
+		Стоимость покупки: L$[AMOUNT]
+	</string>
+	<string name="UnknownFileExtension">
+		Неизвестное расширение файла .%s
+Ожидаются расширения: WAV, TGA, BMP, JPG, JPEG или BVH
+	</string>
+	<string name="MuteObject2">
+		Заблокировать
+	</string>
+	<string name="MuteAvatar">
+		Заблокировать
+	</string>
+	<string name="UnmuteObject">
+		Разблокировать
+	</string>
+	<string name="UnmuteAvatar">
+		Разблокировать
+	</string>
+	<string name="AddLandmarkNavBarMenu">
+		Добавить в мои закладки...
+	</string>
+	<string name="EditLandmarkNavBarMenu">
+		Изменить мою закладку...
+	</string>
+	<string name="accel-mac-control">
+		⌃
+	</string>
+	<string name="accel-mac-command">
+		⌘
+	</string>
+	<string name="accel-mac-option">
+		⌥
+	</string>
+	<string name="accel-mac-shift">
+		⇧
+	</string>
+	<string name="accel-win-control">
+		CTRL+
+	</string>
+	<string name="accel-win-alt">
+		ALT+
+	</string>
+	<string name="accel-win-shift">
+		SHIFT+
+	</string>
+	<string name="FileSaved">
+		Файл сохранен
+	</string>
+	<string name="Receiving">
+		Получение
+	</string>
+	<string name="AM">
+		до полудня
+	</string>
+	<string name="PM">
+		после полудня
+	</string>
+	<string name="PST">
+		Тихоокеанское время
+	</string>
+	<string name="PDT">
+		Летнее тихоокеанское время
+	</string>
+	<string name="Direction_Forward">
+		Вперед
+	</string>
+	<string name="Direction_Left">
+		Влево
+	</string>
+	<string name="Direction_Right">
+		Вправо
+	</string>
+	<string name="Direction_Back">
+		Назад
+	</string>
+	<string name="Direction_North">
+		Север
+	</string>
+	<string name="Direction_South">
+		Юг
+	</string>
+	<string name="Direction_West">
+		Запад
+	</string>
+	<string name="Direction_East">
+		Восток
+	</string>
+	<string name="Direction_Up">
+		Вверх
+	</string>
+	<string name="Direction_Down">
+		Вниз
+	</string>
+	<string name="Any Category">
+		Все категории
+	</string>
+	<string name="Shopping">
+		Покупки
+	</string>
+	<string name="Land Rental">
+		Земельная рента
+	</string>
+	<string name="Property Rental">
+		Аренда имущества
+	</string>
+	<string name="Special Attraction">
+		Особое событие
+	</string>
+	<string name="New Products">
+		Новые продукты
+	</string>
+	<string name="Employment">
+		Род занятий
+	</string>
+	<string name="Wanted">
+		Хочу найти
+	</string>
+	<string name="Service">
+		Услуги
+	</string>
+	<string name="Personal">
+		Личное сообщение
+	</string>
+	<string name="None">
+		Нет
+	</string>
+	<string name="Linden Location">
+		Место Linden
+	</string>
+	<string name="Adult">
+		Для взрослых
+	</string>
+	<string name="Arts&amp;Culture">
+		Искусство и культура
+	</string>
+	<string name="Business">
+		Бизнес
+	</string>
+	<string name="Educational">
+		Образование
+	</string>
+	<string name="Gaming">
+		Игры
+	</string>
+	<string name="Hangout">
+		Места встреч
+	</string>
+	<string name="Newcomer Friendly">
+		Для новичков
+	</string>
+	<string name="Parks&amp;Nature">
+		Парки и природа
+	</string>
+	<string name="Residential">
+		Проживание
+	</string>
+	<string name="Stage">
+		Стадия
+	</string>
+	<string name="Other">
+		Другое
+	</string>
+	<string name="Rental">
+		Аренда
+	</string>
+	<string name="Any">
+		Все
+	</string>
+	<string name="You">
+		Вы
+	</string>
+	<string name=":">
+		:
+	</string>
+	<string name=",">
+		,
+	</string>
+	<string name="...">
+		...
+	</string>
+	<string name="***">
+		***
+	</string>
+	<string name="(">
+		(
+	</string>
+	<string name=")">
+		)
+	</string>
+	<string name=".">
+		.
+	</string>
+	<string name="&apos;">
+		&apos;
+	</string>
+	<string name="---">
+		---
+	</string>
+	<string name="Multiple Media">
+		Несколько источников мультимедиа
+	</string>
+	<string name="Play Media">
+		Мультимедиа – воспроизведение/пауза
+	</string>
+	<string name="MBCmdLineError">
+		Ошибка при анализе командной строки.
+См.: http://wiki.secondlife.com/wiki/Client_parameters
+Ошибка:
+	</string>
+	<string name="MBCmdLineUsg">
+		Использование командной строки [APP_NAME]:
+	</string>
+	<string name="MBUnableToAccessFile">
+		Приложению [APP_NAME] не удается получить доступ к нужному файлу.
+Возможно, выполняется несколько копий или в системе неправильно открыт файл.
+Если это сообщение по-прежнему будет отображаться, перезагрузите компьютер и повторите попытку.
+Если и это не поможет, возможно, придется повторно установить приложение [APP_NAME].
+	</string>
+	<string name="MBFatalError">
+		Неустранимая ошибка
+	</string>
+	<string name="MBRequiresAltiVec">
+		Для работы [APP_NAME] необходим процессор с поддержкой AltiVec (версии G4 или более поздней).
+	</string>
+	<string name="MBAlreadyRunning">
+		[APP_NAME] уже выполняется.
+Поищите значок программы на панели задач.
+Если это сообщение по-прежнему будет отображаться, перезагрузите компьютер.
+	</string>
+	<string name="MBFrozenCrashed">
+		По-видимому, при предыдущем запуске приложения [APP_NAME] оно зависло или в нем возник сбой.
+Отправить отчет о сбое?
+	</string>
+	<string name="MBAlert">
+		Уведомление
+	</string>
+	<string name="MBNoDirectX">
+		Приложению [APP_NAME] не удается обнаружить DirectX 9.0b или более поздних версий.
+В приложении [APP_NAME] используется DirectX для проверки оборудования и выявления устаревших драйверов, из-за которых может снизиться стабильность работы и быстродействие, а также возникнуть сбои.  Настоятельно рекомендуется установить DirectX 9.0b, хотя приложение [APP_NAME] работает и без этого компонента.
+Продолжить?
+	</string>
+	<string name="MBWarning">
+		Внимание!
+	</string>
+	<string name="MBNoAutoUpdate">
+		В ОС Linux автоматическое обновление еще не реализовано.
+Загрузите новую версию на сайте www.secondlife.com.
+	</string>
+	<string name="MBRegClassFailed">
+		Ошибка RegisterClass
+	</string>
+	<string name="MBError">
+		Ошибка
+	</string>
+	<string name="MBFullScreenErr">
+		Невозможна работа в полноэкранном режиме на экране [WIDTH] x [HEIGHT].
+Запущено в окне.
+	</string>
+	<string name="MBDestroyWinFailed">
+		Ошибка завершения работы при удалении окна (сбой функции DestroyWindow())
+	</string>
+	<string name="MBShutdownErr">
+		Ошибка завершения работы
+	</string>
+	<string name="MBDevContextErr">
+		Не удается создать контекст устройства GL
+	</string>
+	<string name="MBPixelFmtErr">
+		Не удается найти подходящий формат пикселей
+	</string>
+	<string name="MBPixelFmtDescErr">
+		Не удается получить описание формата пикселей
+	</string>
+	<string name="MBTrueColorWindow">
+		Для работы [APP_NAME] необходим режим True Color (32 бита).
+Задайте в настройках дисплея 32-битный режим цвета.
+	</string>
+	<string name="MBAlpha">
+		Не удается запустить [APP_NAME] из-за отсутствия доступа к 8-битному альфа-каналу.  Обычно эта проблема возникает из-за неполадок с драйвером видеокарты.
+Установите новые драйверы видеокарты.
+Также задайте для монитора 32-битный режим True Color (Панель управления &gt; Экран &gt; Параметры).
+Если это сообщение продолжает отображаться, обратитесь на сайт [SUPPORT_SITE].
+	</string>
+	<string name="MBPixelFmtSetErr">
+		Не удается задать формат пикселей
+	</string>
+	<string name="MBGLContextErr">
+		Не удается создать контекст визуализации GL
+	</string>
+	<string name="MBGLContextActErr">
+		Не удается активировать контекст визуализации GL
+	</string>
+	<string name="MBVideoDrvErr">
+		Не удается запустить приложение [APP_NAME], поскольку драйверы видеокарты неправильно установлены, устарели или предназначены для оборудования, которое не поддерживается. Установите или переустановите последние драйверы видеокарты.
+Если это сообщение продолжает отображаться, обратитесь на сайт [SUPPORT_SITE].
+	</string>
+	<string name="5 O&apos;Clock Shadow">
+		Жидкие
+	</string>
+	<string name="All White">
+		Полностью белые
+	</string>
+	<string name="Anime Eyes">
+		Глаза как в аниме
+	</string>
+	<string name="Arced">
+		Дугой
+	</string>
+	<string name="Arm Length">
+		Длина рук
+	</string>
+	<string name="Attached">
+		Прикреплено
+	</string>
+	<string name="Attached Earlobes">
+		Приросшие мочки
+	</string>
+	<string name="Back Fringe">
+		Затылок
+	</string>
+	<string name="Baggy">
+		С мешками
+	</string>
+	<string name="Bangs">
+		Челки
+	</string>
+	<string name="Beady Eyes">
+		Бусинки
+	</string>
+	<string name="Belly Size">
+		Размер живота
+	</string>
+	<string name="Big">
+		Большой
+	</string>
+	<string name="Big Butt">
+		Большой зад
+	</string>
+	<string name="Big Hair Back">
+		Пышные волосы: сзади
+	</string>
+	<string name="Big Hair Front">
+		Пышные волосы: спереди
+	</string>
+	<string name="Big Hair Top">
+		Пышные волосы: сверху
+	</string>
+	<string name="Big Head">
+		Большая голова
+	</string>
+	<string name="Big Pectorals">
+		Выпуклая грудь
+	</string>
+	<string name="Big Spikes">
+		Большие «шипы»
+	</string>
+	<string name="Black">
+		Черный
+	</string>
+	<string name="Blonde">
+		Светлый
+	</string>
+	<string name="Blonde Hair">
+		Светлые волосы
+	</string>
+	<string name="Blush">
+		Румяна
+	</string>
+	<string name="Blush Color">
+		Цвет румян
+	</string>
+	<string name="Blush Opacity">
+		Прозрачность румян
+	</string>
+	<string name="Body Definition">
+		Тип тела
+	</string>
+	<string name="Body Fat">
+		Жировая прослойка
+	</string>
+	<string name="Body Freckles">
+		Веснушки
+	</string>
+	<string name="Body Thick">
+		Полное тело
+	</string>
+	<string name="Body Thickness">
+		Полнота
+	</string>
+	<string name="Body Thin">
+		Худое тело
+	</string>
+	<string name="Bow Legged">
+		Ноги колесом
+	</string>
+	<string name="Breast Buoyancy">
+		Высота груди
+	</string>
+	<string name="Breast Cleavage">
+		Ложбинка между грудей
+	</string>
+	<string name="Breast Size">
+		Размер груди
+	</string>
+	<string name="Bridge Width">
+		Ширина переносицы
+	</string>
+	<string name="Broad">
+		Широкая
+	</string>
+	<string name="Brow Size">
+		Размер надбровных дуг
+	</string>
+	<string name="Bug Eyes">
+		Выпученные глаза
+	</string>
+	<string name="Bugged Eyes">
+		Выпученные глаза
+	</string>
+	<string name="Bulbous">
+		Картошкой
+	</string>
+	<string name="Bulbous Nose">
+		Нос картошкой
+	</string>
+	<string name="Breast Physics Mass">
+		Масса груди
+	</string>
+	<string name="Breast Physics Smoothing">
+		Гладкость груди
+	</string>
+	<string name="Breast Physics Gravity">
+		Обвислость груди
+	</string>
+	<string name="Breast Physics Drag">
+		Аэродинамика груди
+	</string>
+	<string name="Breast Physics InOut Max Effect">
+		Верхняя граница
+	</string>
+	<string name="Breast Physics InOut Spring">
+		Упругость
+	</string>
+	<string name="Breast Physics InOut Gain">
+		Отклик
+	</string>
+	<string name="Breast Physics InOut Damping">
+		Затухание
+	</string>
+	<string name="Breast Physics UpDown Max Effect">
+		Верхняя граница
+	</string>
+	<string name="Breast Physics UpDown Spring">
+		Упругость
+	</string>
+	<string name="Breast Physics UpDown Gain">
+		Отклик
+	</string>
+	<string name="Breast Physics UpDown Damping">
+		Затухание
+	</string>
+	<string name="Breast Physics LeftRight Max Effect">
+		Верхняя граница
+	</string>
+	<string name="Breast Physics LeftRight Spring">
+		Упругость
+	</string>
+	<string name="Breast Physics LeftRight Gain">
+		Отклик
+	</string>
+	<string name="Breast Physics LeftRight Damping">
+		Затухание
+	</string>
+	<string name="Belly Physics Mass">
+		Масса живота
+	</string>
+	<string name="Belly Physics Smoothing">
+		Гладкость живота
+	</string>
+	<string name="Belly Physics Gravity">
+		Обвислость живота
+	</string>
+	<string name="Belly Physics Drag">
+		Инертность живота
+	</string>
+	<string name="Belly Physics UpDown Max Effect">
+		Верхняя граница
+	</string>
+	<string name="Belly Physics UpDown Spring">
+		Упругость
+	</string>
+	<string name="Belly Physics UpDown Gain">
+		Отклик
+	</string>
+	<string name="Belly Physics UpDown Damping">
+		Затухание
+	</string>
+	<string name="Butt Physics Mass">
+		Масса зада
+	</string>
+	<string name="Butt Physics Smoothing">
+		Гладкость зада
+	</string>
+	<string name="Butt Physics Gravity">
+		Обвислость зада
+	</string>
+	<string name="Butt Physics Drag">
+		Инертность зада
+	</string>
+	<string name="Butt Physics UpDown Max Effect">
+		Верхняя граница
+	</string>
+	<string name="Butt Physics UpDown Spring">
+		Упругость
+	</string>
+	<string name="Butt Physics UpDown Gain">
+		Отклик
+	</string>
+	<string name="Butt Physics UpDown Damping">
+		Затухание
+	</string>
+	<string name="Butt Physics LeftRight Max Effect">
+		Верхняя граница
+	</string>
+	<string name="Butt Physics LeftRight Spring">
+		Упругость
+	</string>
+	<string name="Butt Physics LeftRight Gain">
+		Отклик
+	</string>
+	<string name="Butt Physics LeftRight Damping">
+		Затухание
+	</string>
+	<string name="Bushy Eyebrows">
+		Кустистые брови
+	</string>
+	<string name="Bushy Hair">
+		Пышные
+	</string>
+	<string name="Butt Size">
+		Размер зада
+	</string>
+	<string name="Butt Gravity">
+		Обвислость зада
+	</string>
+	<string name="bustle skirt">
+		Турнюр
+	</string>
+	<string name="no bustle">
+		Без турнюра
+	</string>
+	<string name="more bustle">
+		Большой турнюр
+	</string>
+	<string name="Chaplin">
+		«Чарли Чаплин»
+	</string>
+	<string name="Cheek Bones">
+		Скулы
+	</string>
+	<string name="Chest Size">
+		Размер грудной клетки
+	</string>
+	<string name="Chin Angle">
+		Угол подбородка
+	</string>
+	<string name="Chin Cleft">
+		Ямка на подбородке
+	</string>
+	<string name="Chin Curtains">
+		Шкиперская бородка
+	</string>
+	<string name="Chin Depth">
+		Толщина подбородка
+	</string>
+	<string name="Chin Heavy">
+		Мощный подбородок
+	</string>
+	<string name="Chin In">
+		Подбородок внутрь
+	</string>
+	<string name="Chin Out">
+		Подбородок наружу
+	</string>
+	<string name="Chin-Neck">
+		Переход от подбородка к шее
+	</string>
+	<string name="Clear">
+		Чистый
+	</string>
+	<string name="Cleft">
+		Ямка
+	</string>
+	<string name="Close Set Eyes">
+		Близко посаженные
+	</string>
+	<string name="Closed">
+		Закрыто
+	</string>
+	<string name="Closed Back">
+		Закрыто сзади
+	</string>
+	<string name="Closed Front">
+		Закрыто спереди
+	</string>
+	<string name="Closed Left">
+		Закрыто слева
+	</string>
+	<string name="Closed Right">
+		Закрыто справа
+	</string>
+	<string name="Coin Purse">
+		Кошелек для мелочи
+	</string>
+	<string name="Collar Back">
+		Вырез сзади
+	</string>
+	<string name="Collar Front">
+		Вырез спереди
+	</string>
+	<string name="Corner Down">
+		Уголки опущены
+	</string>
+	<string name="Corner Up">
+		Уголки подняты
+	</string>
+	<string name="Creased">
+		Измятый
+	</string>
+	<string name="Crooked Nose">
+		Искривленный нос
+	</string>
+	<string name="Cuff Flare">
+		Манжеты
+	</string>
+	<string name="Dark">
+		Темный
+	</string>
+	<string name="Dark Green">
+		Темно-зеленый
+	</string>
+	<string name="Darker">
+		Темнее
+	</string>
+	<string name="Deep">
+		Глубоко
+	</string>
+	<string name="Default Heels">
+		Стандартные каблуки
+	</string>
+	<string name="Dense">
+		Густые
+	</string>
+	<string name="Double Chin">
+		Двойной подбородок
+	</string>
+	<string name="Downturned">
+		Вниз
+	</string>
+	<string name="Duffle Bag">
+		Больше
+	</string>
+	<string name="Ear Angle">
+		Оттопыренность ушей
+	</string>
+	<string name="Ear Size">
+		Размер ушей
+	</string>
+	<string name="Ear Tips">
+		Кончики ушей
+	</string>
+	<string name="Egg Head">
+		Яйцеголовость
+	</string>
+	<string name="Eye Bags">
+		Мешки под глазами
+	</string>
+	<string name="Eye Color">
+		Цвет глаз
+	</string>
+	<string name="Eye Depth">
+		Глубина глаз
+	</string>
+	<string name="Eye Lightness">
+		Светлость глаз
+	</string>
+	<string name="Eye Opening">
+		Открытость глаз
+	</string>
+	<string name="Eye Pop">
+		Вытаращить глаз
+	</string>
+	<string name="Eye Size">
+		Размер глаз
+	</string>
+	<string name="Eye Spacing">
+		Расстояние между глазами
+	</string>
+	<string name="Eyebrow Arc">
+		Линия бровей
+	</string>
+	<string name="Eyebrow Density">
+		Густота бровей
+	</string>
+	<string name="Eyebrow Height">
+		Высота бровей
+	</string>
+	<string name="Eyebrow Points">
+		Кончики бровей
+	</string>
+	<string name="Eyebrow Size">
+		Размер бровей
+	</string>
+	<string name="Eyelash Length">
+		Длина ресниц
+	</string>
+	<string name="Eyeliner">
+		Подводка
+	</string>
+	<string name="Eyeliner Color">
+		Цвет подводки
+	</string>
+	<string name="Eyes Bugged">
+		Выпученные глаза
+	</string>
+	<string name="Face Shear">
+		Перекос лица
+	</string>
+	<string name="Facial Definition">
+		Черты лица
+	</string>
+	<string name="Far Set Eyes">
+		Широко расставленные глаза
+	</string>
+	<string name="Fat Lips">
+		Толстые губы
+	</string>
+	<string name="Female">
+		Женщина
+	</string>
+	<string name="Fingerless">
+		Без пальцев
+	</string>
+	<string name="Fingers">
+		С пальцами
+	</string>
+	<string name="Flared Cuffs">
+		С манжетами
+	</string>
+	<string name="Flat">
+		Плоские
+	</string>
+	<string name="Flat Butt">
+		Плоский зад
+	</string>
+	<string name="Flat Head">
+		Плоская голова
+	</string>
+	<string name="Flat Toe">
+		Плоский носок
+	</string>
+	<string name="Foot Size">
+		Размер ступни
+	</string>
+	<string name="Forehead Angle">
+		Наклон лба
+	</string>
+	<string name="Forehead Heavy">
+		Мощный лоб
+	</string>
+	<string name="Freckles">
+		Веснушки
+	</string>
+	<string name="Front Fringe">
+		Челка спереди
+	</string>
+	<string name="Full Back">
+		Полностью назад
+	</string>
+	<string name="Full Eyeliner">
+		Подводка полностью
+	</string>
+	<string name="Full Front">
+		Полностью наперед
+	</string>
+	<string name="Full Hair Sides">
+		Волосы по бокам
+	</string>
+	<string name="Full Sides">
+		По бокам
+	</string>
+	<string name="Glossy">
+		Блестящие
+	</string>
+	<string name="Glove Fingers">
+		Пальцы перчаток
+	</string>
+	<string name="Glove Length">
+		Длина перчаток
+	</string>
+	<string name="Hair">
+		Волосы
+	</string>
+	<string name="Hair Back">
+		Волосы: сзади
+	</string>
+	<string name="Hair Front">
+		Волосы: спереди
+	</string>
+	<string name="Hair Sides">
+		Волосы: по бокам
+	</string>
+	<string name="Hair Sweep">
+		Волосы на глаза
+	</string>
+	<string name="Hair Thickess">
+		Толщина волос
+	</string>
+	<string name="Hair Thickness">
+		Толщина волос
+	</string>
+	<string name="Hair Tilt">
+		Зачес
+	</string>
+	<string name="Hair Tilted Left">
+		Зачес назад
+	</string>
+	<string name="Hair Tilted Right">
+		Зачес вправо
+	</string>
+	<string name="Hair Volume">
+		Волосы: объем
+	</string>
+	<string name="Hand Size">
+		Размер кисти
+	</string>
+	<string name="Handlebars">
+		Длинные усы
+	</string>
+	<string name="Head Length">
+		Длина головы
+	</string>
+	<string name="Head Shape">
+		Форма головы
+	</string>
+	<string name="Head Size">
+		Размер головы
+	</string>
+	<string name="Head Stretch">
+		Вытянутость головы
+	</string>
+	<string name="Heel Height">
+		Высота каблука
+	</string>
+	<string name="Heel Shape">
+		Форма каблука
+	</string>
+	<string name="Height">
+		Рост
+	</string>
+	<string name="High">
+		Высокие
+	</string>
+	<string name="High Heels">
+		Высокий каблук
+	</string>
+	<string name="High Jaw">
+		Челюсть высоко
+	</string>
+	<string name="High Platforms">
+		Высокая платформа
+	</string>
+	<string name="High and Tight">
+		Высокий и плотный
+	</string>
+	<string name="Higher">
+		Выше
+	</string>
+	<string name="Hip Length">
+		Длина бедер
+	</string>
+	<string name="Hip Width">
+		Ширина бедер
+	</string>
+	<string name="In">
+		Внутрь
+	</string>
+	<string name="In Shdw Color">
+		Цвет внутренних теней
+	</string>
+	<string name="In Shdw Opacity">
+		Прозрачность внутр. теней
+	</string>
+	<string name="Inner Eye Corner">
+		Внутренние уголки глаз
+	</string>
+	<string name="Inner Eye Shadow">
+		Тени на внутренних уголках
+	</string>
+	<string name="Inner Shadow">
+		Внутренние тени
+	</string>
+	<string name="Jacket Length">
+		Длина пиджака
+	</string>
+	<string name="Jacket Wrinkles">
+		Смятый пиджак
+	</string>
+	<string name="Jaw Angle">
+		Угол челюсти
+	</string>
+	<string name="Jaw Jut">
+		Выступание челюсти
+	</string>
+	<string name="Jaw Shape">
+		Форма челюсти
+	</string>
+	<string name="Join">
+		Прикрепить
+	</string>
+	<string name="Jowls">
+		Щеки
+	</string>
+	<string name="Knee Angle">
+		Угол колен
+	</string>
+	<string name="Knock Kneed">
+		Колченогие
+	</string>
+	<string name="Large">
+		Больше
+	</string>
+	<string name="Large Hands">
+		Большие кисти
+	</string>
+	<string name="Left Part">
+		Левый пробор
+	</string>
+	<string name="Leg Length">
+		Длина ног
+	</string>
+	<string name="Leg Muscles">
+		Мышцы на ногах
+	</string>
+	<string name="Less">
+		Меньше
+	</string>
+	<string name="Less Body Fat">
+		Меньше жира
+	</string>
+	<string name="Less Curtains">
+		Меньше борода
+	</string>
+	<string name="Less Freckles">
+		Меньше веснушек
+	</string>
+	<string name="Less Full">
+		Менее полное
+	</string>
+	<string name="Less Gravity">
+		Меньше притяжения
+	</string>
+	<string name="Less Love">
+		Меньше
+	</string>
+	<string name="Less Muscles">
+		Меньше мышц
+	</string>
+	<string name="Less Muscular">
+		Меньше мышц
+	</string>
+	<string name="Less Rosy">
+		Меньше румян
+	</string>
+	<string name="Less Round">
+		Меньше округлости
+	</string>
+	<string name="Less Saddle">
+		Меньше
+	</string>
+	<string name="Less Square">
+		Меньше угловатости
+	</string>
+	<string name="Less Volume">
+		Меньше объема
+	</string>
+	<string name="Less soul">
+		Меньше
+	</string>
+	<string name="Lighter">
+		Светлее
+	</string>
+	<string name="Lip Cleft">
+		Ямка между губ
+	</string>
+	<string name="Lip Cleft Depth">
+		Глубина ямки
+	</string>
+	<string name="Lip Fullness">
+		Полнота губ
+	</string>
+	<string name="Lip Pinkness">
+		Розоватость губ
+	</string>
+	<string name="Lip Ratio">
+		Пропорция губ
+	</string>
+	<string name="Lip Thickness">
+		Толщина губ
+	</string>
+	<string name="Lip Width">
+		Ширина губ
+	</string>
+	<string name="Lipgloss">
+		Блеск губ
+	</string>
+	<string name="Lipstick">
+		Губная помада
+	</string>
+	<string name="Lipstick Color">
+		Цвет помады
+	</string>
+	<string name="Long">
+		Длиннее
+	</string>
+	<string name="Long Head">
+		Длинная голова
+	</string>
+	<string name="Long Hips">
+		Длинные бедра
+	</string>
+	<string name="Long Legs">
+		Длинные ноги
+	</string>
+	<string name="Long Neck">
+		Длинная шея
+	</string>
+	<string name="Long Pigtails">
+		Длинные хвосты по бокам
+	</string>
+	<string name="Long Ponytail">
+		Длинный хвост сзади
+	</string>
+	<string name="Long Torso">
+		Длинный торс
+	</string>
+	<string name="Long arms">
+		Длинные руки
+	</string>
+	<string name="Loose Pants">
+		Свободные брюки
+	</string>
+	<string name="Loose Shirt">
+		Свободная рубашка
+	</string>
+	<string name="Loose Sleeves">
+		Свободные рукава
+	</string>
+	<string name="Love Handles">
+		Отложения на талии
+	</string>
+	<string name="Low">
+		Низкие
+	</string>
+	<string name="Low Heels">
+		Низкий каблук
+	</string>
+	<string name="Low Jaw">
+		Челюсть низко
+	</string>
+	<string name="Low Platforms">
+		Низкая платформа
+	</string>
+	<string name="Low and Loose">
+		Низкий и свободный
+	</string>
+	<string name="Lower">
+		Ниже
+	</string>
+	<string name="Lower Bridge">
+		Спинка носа
+	</string>
+	<string name="Lower Cheeks">
+		Щеки ниже
+	</string>
+	<string name="Male">
+		Мужчина
+	</string>
+	<string name="Middle Part">
+		Пробор по центру
+	</string>
+	<string name="More">
+		Больше
+	</string>
+	<string name="More Blush">
+		Больше румян
+	</string>
+	<string name="More Body Fat">
+		Больше жира
+	</string>
+	<string name="More Curtains">
+		Больше борода
+	</string>
+	<string name="More Eyeshadow">
+		Больше теней
+	</string>
+	<string name="More Freckles">
+		Больше веснушек
+	</string>
+	<string name="More Full">
+		Более полное
+	</string>
+	<string name="More Gravity">
+		Большее притяжение
+	</string>
+	<string name="More Lipstick">
+		Больше помады
+	</string>
+	<string name="More Love">
+		Больше
+	</string>
+	<string name="More Lower Lip">
+		Больше нижняя губа
+	</string>
+	<string name="More Muscles">
+		Больше мышц
+	</string>
+	<string name="More Muscular">
+		Больше мышц
+	</string>
+	<string name="More Rosy">
+		Больше румянца
+	</string>
+	<string name="More Round">
+		Больше округлости
+	</string>
+	<string name="More Saddle">
+		Больше
+	</string>
+	<string name="More Sloped">
+		Более наклонный
+	</string>
+	<string name="More Square">
+		Более квадратная
+	</string>
+	<string name="More Upper Lip">
+		Больше верхняя губа
+	</string>
+	<string name="More Vertical">
+		Более вертикальный
+	</string>
+	<string name="More Volume">
+		Больше объема
+	</string>
+	<string name="More soul">
+		Больше
+	</string>
+	<string name="Moustache">
+		Усы
+	</string>
+	<string name="Mouth Corner">
+		Угол рта
+	</string>
+	<string name="Mouth Position">
+		Положение рта
+	</string>
+	<string name="Mowhawk">
+		Ирокез
+	</string>
+	<string name="Muscular">
+		Мускулистое
+	</string>
+	<string name="Mutton Chops">
+		Бакенбарды
+	</string>
+	<string name="Nail Polish">
+		Лак для ногтей
+	</string>
+	<string name="Nail Polish Color">
+		Цвет лака
+	</string>
+	<string name="Narrow">
+		Узко
+	</string>
+	<string name="Narrow Back">
+		Узко сзади
+	</string>
+	<string name="Narrow Front">
+		Узкий перед
+	</string>
+	<string name="Narrow Lips">
+		Узкие губы
+	</string>
+	<string name="Natural">
+		Естественный
+	</string>
+	<string name="Neck Length">
+		Длина шеи
+	</string>
+	<string name="Neck Thickness">
+		Толщина шеи
+	</string>
+	<string name="No Blush">
+		Без румян
+	</string>
+	<string name="No Eyeliner">
+		Без подводки
+	</string>
+	<string name="No Eyeshadow">
+		Без теней
+	</string>
+	<string name="No Lipgloss">
+		Без блеска
+	</string>
+	<string name="No Lipstick">
+		Без помады
+	</string>
+	<string name="No Part">
+		Без пробора
+	</string>
+	<string name="No Polish">
+		Без лака
+	</string>
+	<string name="No Red">
+		Не красные
+	</string>
+	<string name="No Spikes">
+		Без «шипов»
+	</string>
+	<string name="No White">
+		Нет белого
+	</string>
+	<string name="No Wrinkles">
+		Без морщин
+	</string>
+	<string name="Normal Lower">
+		Ниже обычного
+	</string>
+	<string name="Normal Upper">
+		Выше обычного
+	</string>
+	<string name="Nose Left">
+		Нос влево
+	</string>
+	<string name="Nose Right">
+		Нос вправо
+	</string>
+	<string name="Nose Size">
+		Размер носа
+	</string>
+	<string name="Nose Thickness">
+		Толщина носа
+	</string>
+	<string name="Nose Tip Angle">
+		Загнутость кончика носа
+	</string>
+	<string name="Nose Tip Shape">
+		Форма кончика носа
+	</string>
+	<string name="Nose Width">
+		Ширина носа
+	</string>
+	<string name="Nostril Division">
+		Перегородка
+	</string>
+	<string name="Nostril Width">
+		Ширина ноздрей
+	</string>
+	<string name="Opaque">
+		Непрозрачный
+	</string>
+	<string name="Open">
+		Открыто
+	</string>
+	<string name="Open Back">
+		Открыто сзади
+	</string>
+	<string name="Open Front">
+		Открыто спереди
+	</string>
+	<string name="Open Left">
+		Открыто слева
+	</string>
+	<string name="Open Right">
+		Открыто справа
+	</string>
+	<string name="Orange">
+		Оранжевый
+	</string>
+	<string name="Out">
+		Наружу
+	</string>
+	<string name="Out Shdw Color">
+		Цвет внешних теней
+	</string>
+	<string name="Out Shdw Opacity">
+		Прозрачность внеш. теней
+	</string>
+	<string name="Outer Eye Corner">
+		Внешние уголки глаз
+	</string>
+	<string name="Outer Eye Shadow">
+		Тени во внешних уголках
+	</string>
+	<string name="Outer Shadow">
+		Внешние тени
+	</string>
+	<string name="Overbite">
+		Глубокий прикус
+	</string>
+	<string name="Package">
+		Гульфик
+	</string>
+	<string name="Painted Nails">
+		Покрашенные
+	</string>
+	<string name="Pale">
+		Бледный
+	</string>
+	<string name="Pants Crotch">
+		Шаг
+	</string>
+	<string name="Pants Fit">
+		Облегающие брюки
+	</string>
+	<string name="Pants Length">
+		Длина
+	</string>
+	<string name="Pants Waist">
+		Талия брюк
+	</string>
+	<string name="Pants Wrinkles">
+		Смятость брюк
+	</string>
+	<string name="Part">
+		Пробор
+	</string>
+	<string name="Part Bangs">
+		Челка с пробором
+	</string>
+	<string name="Pectorals">
+		Грудные мышцы
+	</string>
+	<string name="Pigment">
+		Пигментация
+	</string>
+	<string name="Pigtails">
+		Хвосты по бокам
+	</string>
+	<string name="Pink">
+		Розовый
+	</string>
+	<string name="Pinker">
+		Розовее
+	</string>
+	<string name="Platform Height">
+		Высота платформы
+	</string>
+	<string name="Platform Width">
+		Ширина платформы
+	</string>
+	<string name="Pointy">
+		Острые
+	</string>
+	<string name="Pointy Heels">
+		Острый каблук
+	</string>
+	<string name="Ponytail">
+		Хвост сзади
+	</string>
+	<string name="Poofy Skirt">
+		Пышная юбка
+	</string>
+	<string name="Pop Left Eye">
+		Левый глаз
+	</string>
+	<string name="Pop Right Eye">
+		Правый глаз
+	</string>
+	<string name="Puffy">
+		Пухлые
+	</string>
+	<string name="Puffy Eyelids">
+		Припухлость век
+	</string>
+	<string name="Rainbow Color">
+		Цвета радуги
+	</string>
+	<string name="Red Hair">
+		Рыжие волосы
+	</string>
+	<string name="Regular">
+		Обычное
+	</string>
+	<string name="Right Part">
+		Правый пробор
+	</string>
+	<string name="Rosy Complexion">
+		Розовое лицо
+	</string>
+	<string name="Round">
+		Круглое
+	</string>
+	<string name="Ruddiness">
+		Румянец
+	</string>
+	<string name="Ruddy">
+		Румяный
+	</string>
+	<string name="Rumpled Hair">
+		Взъерошенные
+	</string>
+	<string name="Saddle Bags">
+		Галифе
+	</string>
+	<string name="Scrawny Leg">
+		Сухопарая нога
+	</string>
+	<string name="Separate">
+		Разделить
+	</string>
+	<string name="Shallow">
+		Мелко
+	</string>
+	<string name="Shear Back">
+		Скос сзади
+	</string>
+	<string name="Shear Face">
+		Перекос лица
+	</string>
+	<string name="Shear Front">
+		Скос спереди
+	</string>
+	<string name="Shear Left Up">
+		Скос влево вверх
+	</string>
+	<string name="Shear Right Up">
+		Скос вправо вверх
+	</string>
+	<string name="Sheared Back">
+		Уменьшено сзади
+	</string>
+	<string name="Sheared Front">
+		Уменьшено спереди
+	</string>
+	<string name="Shift Left">
+		Сдвинуть влево
+	</string>
+	<string name="Shift Mouth">
+		Сдвинуть рот
+	</string>
+	<string name="Shift Right">
+		Сдвинуть вправо
+	</string>
+	<string name="Shirt Bottom">
+		Низ рубашки
+	</string>
+	<string name="Shirt Fit">
+		Облегание рубашки
+	</string>
+	<string name="Shirt Wrinkles">
+		Помятость рубашки
+	</string>
+	<string name="Shoe Height">
+		Высота обуви
+	</string>
+	<string name="Short">
+		Ниже
+	</string>
+	<string name="Short Arms">
+		Короткие руки
+	</string>
+	<string name="Short Legs">
+		Короткие ноги
+	</string>
+	<string name="Short Neck">
+		Короткая шея
+	</string>
+	<string name="Short Pigtails">
+		Короткие хвосты по бокам
+	</string>
+	<string name="Short Ponytail">
+		Короткий хвост сзади
+	</string>
+	<string name="Short Sideburns">
+		Короткие баки
+	</string>
+	<string name="Short Torso">
+		Короткий торс
+	</string>
+	<string name="Short hips">
+		Короткие бедра
+	</string>
+	<string name="Shoulders">
+		Плечи
+	</string>
+	<string name="Side Fringe">
+		Челка набок
+	</string>
+	<string name="Sideburns">
+		Бакенбарды
+	</string>
+	<string name="Sides Hair">
+		Волосы по бокам
+	</string>
+	<string name="Sides Hair Down">
+		Волосы по бокам внизу
+	</string>
+	<string name="Sides Hair Up">
+		Волосы по бокам вверху
+	</string>
+	<string name="Skinny Neck">
+		Худая шея
+	</string>
+	<string name="Skirt Fit">
+		Облегающая юбка
+	</string>
+	<string name="Skirt Length">
+		Длина юбки
+	</string>
+	<string name="Slanted Forehead">
+		Наклонный лоб
+	</string>
+	<string name="Sleeve Length">
+		Длина рукавов
+	</string>
+	<string name="Sleeve Looseness">
+		Ширина рукавов
+	</string>
+	<string name="Slit Back">
+		Разрез: сзади
+	</string>
+	<string name="Slit Front">
+		Разрез: спереди
+	</string>
+	<string name="Slit Left">
+		Разрез: слева
+	</string>
+	<string name="Slit Right">
+		Разрез: справа
+	</string>
+	<string name="Small">
+		Меньше
+	</string>
+	<string name="Small Hands">
+		Маленькие кисти
+	</string>
+	<string name="Small Head">
+		Маленькая голова
+	</string>
+	<string name="Smooth">
+		Гладко
+	</string>
+	<string name="Smooth Hair">
+		Приглаженные
+	</string>
+	<string name="Socks Length">
+		Длина носков
+	</string>
+	<string name="Soulpatch">
+		Эспаньолка
+	</string>
+	<string name="Sparse">
+		Жидкие
+	</string>
+	<string name="Spiked Hair">
+		Прическа «шипами»
+	</string>
+	<string name="Square">
+		Квадратный
+	</string>
+	<string name="Square Toe">
+		Квадратный носок
+	</string>
+	<string name="Squash Head">
+		Голова-тыква
+	</string>
+	<string name="Stretch Head">
+		Вытянутость головы
+	</string>
+	<string name="Sunken">
+		Впалые
+	</string>
+	<string name="Sunken Chest">
+		Впалая грудь
+	</string>
+	<string name="Sunken Eyes">
+		Впалые глаза
+	</string>
+	<string name="Sweep Back">
+		Зачесанные назад
+	</string>
+	<string name="Sweep Forward">
+		Зачесанные вперед
+	</string>
+	<string name="Tall">
+		Выше
+	</string>
+	<string name="Taper Back">
+		Конус сзади
+	</string>
+	<string name="Taper Front">
+		Конус спереди
+	</string>
+	<string name="Thick Heels">
+		Широкий каблук
+	</string>
+	<string name="Thick Neck">
+		Толстая шея
+	</string>
+	<string name="Thick Toe">
+		Толстый носок
+	</string>
+	<string name="Thin">
+		Тонкий
+	</string>
+	<string name="Thin Eyebrows">
+		Тонкие брови
+	</string>
+	<string name="Thin Lips">
+		Тонкие губы
+	</string>
+	<string name="Thin Nose">
+		Тонкий нос
+	</string>
+	<string name="Tight Chin">
+		Тонкий подбородок
+	</string>
+	<string name="Tight Cuffs">
+		Манжеты на резинке
+	</string>
+	<string name="Tight Pants">
+		Облегающие брюки
+	</string>
+	<string name="Tight Shirt">
+		Облегающая рубашка
+	</string>
+	<string name="Tight Skirt">
+		Облегающая юбка
+	</string>
+	<string name="Tight Sleeves">
+		Облегающие рукава
+	</string>
+	<string name="Toe Shape">
+		Форма носка
+	</string>
+	<string name="Toe Thickness">
+		Толщина носка
+	</string>
+	<string name="Torso Length">
+		Длина торса
+	</string>
+	<string name="Torso Muscles">
+		Мускулистость торса
+	</string>
+	<string name="Torso Scrawny">
+		Сухопарость торса
+	</string>
+	<string name="Unattached">
+		Не прикреплено
+	</string>
+	<string name="Uncreased">
+		Без складок
+	</string>
+	<string name="Underbite">
+		Мезиальный прикус
+	</string>
+	<string name="Unnatural">
+		Неестественный
+	</string>
+	<string name="Upper Bridge">
+		Переносица
+	</string>
+	<string name="Upper Cheeks">
+		Щеки выше
+	</string>
+	<string name="Upper Chin Cleft">
+		Ямка на подбородке выше
+	</string>
+	<string name="Upper Eyelid Fold">
+		Складка верхнего века
+	</string>
+	<string name="Upturned">
+		Вверх
+	</string>
+	<string name="Very Red">
+		Очень красные
+	</string>
+	<string name="Waist Height">
+		Высота талии
+	</string>
+	<string name="Well-Fed">
+		Упитанные
+	</string>
+	<string name="White Hair">
+		Белые волосы
+	</string>
+	<string name="Wide">
+		Широко
+	</string>
+	<string name="Wide Back">
+		Широко сзади
+	</string>
+	<string name="Wide Front">
+		Широкий перед
+	</string>
+	<string name="Wide Lips">
+		Широкие губы
+	</string>
+	<string name="Wild">
+		Безумный
+	</string>
+	<string name="Wrinkles">
+		Складки
+	</string>
+	<string name="LocationCtrlAddLandmarkTooltip">
+		Добавить в закладки
+	</string>
+	<string name="LocationCtrlEditLandmarkTooltip">
+		Изменить закладку
+	</string>
+	<string name="LocationCtrlInfoBtnTooltip">
+		Посмотреть подробную информацию о текущем месте
+	</string>
+	<string name="LocationCtrlComboBtnTooltip">
+		Моя история посещений
+	</string>
+	<string name="LocationCtrlForSaleTooltip">
+		Купить эту землю
+	</string>
+	<string name="LocationCtrlVoiceTooltip">
+		Голосовое общение здесь недоступно
+	</string>
+	<string name="LocationCtrlFlyTooltip">
+		Полеты запрещены
+	</string>
+	<string name="LocationCtrlPushTooltip">
+		Нельзя толкаться
+	</string>
+	<string name="LocationCtrlBuildTooltip">
+		Строительство/выкладывание объектов не разрешено
+	</string>
+	<string name="LocationCtrlScriptsTooltip">
+		Запускать скрипты запрещено
+	</string>
+	<string name="LocationCtrlDamageTooltip">
+		Здоровье
+	</string>
+	<string name="LocationCtrlAdultIconTooltip">
+		Область для взрослых
+	</string>
+	<string name="LocationCtrlModerateIconTooltip">
+		Область умеренной дозволенности
+	</string>
+	<string name="LocationCtrlGeneralIconTooltip">
+		Область общей дозволенности
+	</string>
+	<string name="LocationCtrlSeeAVsTooltip">
+		Все жители с других участков могут видеть аватары и общаться в чате
+	</string>
+	<string name="UpdaterWindowTitle">
+		Обновление [APP_NAME]
+	</string>
+	<string name="UpdaterNowUpdating">
+		Обновляется [APP_NAME]...
+	</string>
+	<string name="UpdaterNowInstalling">
+		Устанавливается [APP_NAME]...
+	</string>
+	<string name="UpdaterUpdatingDescriptive">
+		Клиент [APP_NAME] обновляется до последнего выпуска.  Это может занять какое-то время. Проявите терпение.
+	</string>
+	<string name="UpdaterProgressBarTextWithEllipses">
+		Загрузка обновления...
+	</string>
+	<string name="UpdaterProgressBarText">
+		Загружается обновление
+	</string>
+	<string name="UpdaterFailDownloadTitle">
+		Не удалось загрузить обновление
+	</string>
+	<string name="UpdaterFailUpdateDescriptive">
+		При обновлении приложения [APP_NAME] возникла ошибка. Загрузите новую версию на сайте www.secondlife.com.
+	</string>
+	<string name="UpdaterFailInstallTitle">
+		Не удалось установить обновление
+	</string>
+	<string name="UpdaterFailStartTitle">
+		Не удалось запустить клиент
+	</string>
+	<string name="ItemsComingInTooFastFrom">
+		[APP_NAME]: Из-за слишком быстрого поступления элементов с [FROM_NAME] автоматический просмотр отключен на [TIME] с
+	</string>
+	<string name="ItemsComingInTooFast">
+		[APP_NAME]: из-за слишком быстрого поступления элементов автоматический просмотр отключен на [TIME] с
+	</string>
+	<string name="IM_logging_string">
+		-- Включена регистрация сообщений IM --
+	</string>
+	<string name="IM_typing_start_string">
+		[NAME] вводит текст...
+	</string>
+	<string name="Unnamed">
+		(Без имени)
+	</string>
+	<string name="IM_moderated_chat_label">
+		(Модерируется: голоса по умолчанию отключены)
+	</string>
+	<string name="IM_unavailable_text_label">
+		Во время этого звонка текстовый чат недоступен.
+	</string>
+	<string name="IM_muted_text_label">
+		Ваш текстовый чат отключен модератором группы.
+	</string>
+	<string name="IM_default_text_label">
+		Щелкните здесь, чтобы создать IM-сообщение.
+	</string>
+	<string name="IM_to_label">
+		Кому
+	</string>
+	<string name="IM_moderator_label">
+		(Модератор)
+	</string>
+	<string name="Saved_message">
+		(Сохранено [LONG_TIMESTAMP])
+	</string>
+	<string name="IM_unblock_only_groups_friends">
+		Для просмотра этого сообщения снимите флажок «Только друзья и группы могут звонить мне и отправлять IM» в окне «Настройки/Приватность».
+	</string>
+	<string name="answered_call">
+		На ваш звонок ответили
+	</string>
+	<string name="you_started_call">
+		Вы начали голосовую беседу
+	</string>
+	<string name="you_joined_call">
+		Вы присоединились к голосовой беседе
+	</string>
+	<string name="name_started_call">
+		Житель [NAME] начал голосовую беседу
+	</string>
+	<string name="ringing-im">
+		Присоединение к голосовой беседе...
+	</string>
+	<string name="connected-im">
+		Соединение установлено. Выберите команду «Прервать звонок», чтобы повесить трубку
+	</string>
+	<string name="hang_up-im">
+		Голосовой звонок прерван
+	</string>
+	<string name="answering-im">
+		Соединяется...
+	</string>
+	<string name="conference-title">
+		Спонтанная конференция
+	</string>
+	<string name="conference-title-incoming">
+		Конференция с жителем [AGENT_NAME]
+	</string>
+	<string name="inventory_item_offered-im">
+		Предложено пополнить инвентарь
+	</string>
+	<string name="share_alert">
+		Перетаскивайте вещи из инвентаря сюда
+	</string>
+	<string name="no_session_message">
+		(Сеанс IM не существует)
+	</string>
+	<string name="only_user_message">
+		Вы – единственный пользователь в этом сеансе.
+	</string>
+	<string name="offline_message">
+		[NAME] не в сети.
+	</string>
+	<string name="invite_message">
+		Нажмите кнопку [BUTTON NAME], чтобы участвовать в этом голосовом чате.
+	</string>
+	<string name="muted_message">
+		Вы заблокировали этого жителя. Если отправить ему сообщение, блок автоматически снимется.
+	</string>
+	<string name="generic">
+		Ошибка при запросе. Повторите попытку.
+	</string>
+	<string name="generic_request_error">
+		Ошибка при запросе. Повторите попытку.
+	</string>
+	<string name="insufficient_perms_error">
+		У вас недостаточно разрешений.
+	</string>
+	<string name="session_does_not_exist_error">
+		Сеанс больше не существует
+	</string>
+	<string name="no_ability_error">
+		У вас нет этой способности.
+	</string>
+	<string name="no_ability">
+		У вас нет этой способности.
+	</string>
+	<string name="not_a_mod_error">
+		Вы – не модератор сеанса.
+	</string>
+	<string name="muted">
+		Модератор группы отключил для вас текстовый чат.
+	</string>
+	<string name="muted_error">
+		Модератор группы отключил для вас текстовый чат.
+	</string>
+	<string name="add_session_event">
+		Не удается добавить пользователей в сеанс чата с жителем [RECIPIENT].
+	</string>
+	<string name="message">
+		Не удается отправить ваше сообщение в сеанс чата с жителем [RECIPIENT].
+	</string>
+	<string name="message_session_event">
+		Не удается отправить ваше сообщение в сеанс чата с жителем [RECIPIENT].
+	</string>
+	<string name="mute">
+		Ошибка при модерировании.
+	</string>
+	<string name="removed">
+		Вы исключены из группы.
+	</string>
+	<string name="removed_from_group">
+		Вы исключены из группы.
+	</string>
+	<string name="close_on_no_ability">
+		У вас больше нет возможности участвовать в сеансе чата.
+	</string>
+	<string name="unread_chat_single">
+		[SOURCES] сказал что-то новое
+	</string>
+	<string name="unread_chat_multiple">
+		[SOURCES] сказал что-то новое
+	</string>
+	<string name="session_initialization_timed_out_error">
+		Истекло время ожидания инициализации сеанса
+	</string>
+	<string name="Home position set.">
+		Задано положение дома.
+	</string>
+	<string name="voice_morphing_url">
+		http://secondlife.com/landing/voicemorphing
+	</string>
+	<string name="paid_you_ldollars">
+		Житель [NAME] заплатил вам L$[AMOUNT] за [REASON].
+	</string>
+	<string name="paid_you_ldollars_no_reason">
+		Житель [NAME] заплатил вам L$[AMOUNT].
+	</string>
+	<string name="you_paid_ldollars">
+		Вы заплатили жителю [NAME] L$[AMOUNT] за [REASON].
+	</string>
+	<string name="you_paid_ldollars_no_info">
+		Вы заплатили L$[AMOUNT].
+	</string>
+	<string name="you_paid_ldollars_no_reason">
+		Вы заплатили жителю [NAME] L$[AMOUNT].
+	</string>
+	<string name="you_paid_ldollars_no_name">
+		Вы заплатили L$[AMOUNT] за [REASON].
+	</string>
+	<string name="you_paid_failure_ldollars">
+		Вы не смогли заплатить пользователю [NAME] L$[AMOUNT]: [REASON].
+	</string>
+	<string name="you_paid_failure_ldollars_no_info">
+		Вы не смогли заплатить L$[AMOUNT]
+	</string>
+	<string name="you_paid_failure_ldollars_no_reason">
+		Вы не смогли заплатить пользователю [NAME] L$[AMOUNT]
+	</string>
+	<string name="you_paid_failure_ldollars_no_name">
+		Вы не смогли заплатить L$[AMOUNT]: [REASON].
+	</string>
+	<string name="for item">
+		за [ITEM]
+	</string>
+	<string name="for a parcel of land">
+		за земельный участок
+	</string>
+	<string name="for a land access pass">
+		за пропуск на землю
+	</string>
+	<string name="for deeding land">
+		за передачу земли
+	</string>
+	<string name="to create a group">
+		за создание группы
+	</string>
+	<string name="to join a group">
+		за вступление в группу
+	</string>
+	<string name="to upload">
+		за передачу по сети
+	</string>
+	<string name="to publish a classified ad">
+		за публикацию рекламы
+	</string>
+	<string name="giving">
+		Уплата L$[AMOUNT]
+	</string>
+	<string name="uploading_costs">
+		Передача стоит L$[AMOUNT]
+	</string>
+	<string name="this_costs">
+		Это стоит L$[AMOUNT]
+	</string>
+	<string name="buying_selected_land">
+		Покупка выбранной земли за L$[AMOUNT]
+	</string>
+	<string name="this_object_costs">
+		Этот объект стоит L$[AMOUNT]
+	</string>
+	<string name="group_role_everyone">
+		Все
+	</string>
+	<string name="group_role_officers">
+		Должностные лица
+	</string>
+	<string name="group_role_owners">
+		Владельцы
+	</string>
+	<string name="group_member_status_online">
+		В сети
+	</string>
+	<string name="uploading_abuse_report">
+		Загружается...
+
+Жалоба
+	</string>
+	<string name="New Shape">
+		Новая фигура
+	</string>
+	<string name="New Skin">
+		Новая кожа
+	</string>
+	<string name="New Hair">
+		Новые волосы
+	</string>
+	<string name="New Eyes">
+		Новые глаза
+	</string>
+	<string name="New Shirt">
+		Новая рубашка
+	</string>
+	<string name="New Pants">
+		Новые брюки
+	</string>
+	<string name="New Shoes">
+		Новая обувь
+	</string>
+	<string name="New Socks">
+		Новые носки
+	</string>
+	<string name="New Jacket">
+		Новый пиджак
+	</string>
+	<string name="New Gloves">
+		Новые перчатки
+	</string>
+	<string name="New Undershirt">
+		Новая майка
+	</string>
+	<string name="New Underpants">
+		Новые трусы
+	</string>
+	<string name="New Skirt">
+		Новая юбка
+	</string>
+	<string name="New Alpha">
+		Новая альфа-маска
+	</string>
+	<string name="New Tattoo">
+		Новое тату
+	</string>
+	<string name="New Physics">
+		Новая физика
+	</string>
+	<string name="Invalid Wearable">
+		Нельзя носить
+	</string>
+	<string name="New Gesture">
+		Новый жест
+	</string>
+	<string name="New Script">
+		Новый скрипт
+	</string>
+	<string name="New Note">
+		Новая заметка
+	</string>
+	<string name="New Folder">
+		Новая папка
+	</string>
+	<string name="Contents">
+		Контент
+	</string>
+	<string name="Gesture">
+		Жест
+	</string>
+	<string name="Male Gestures">
+		Мужские жесты
+	</string>
+	<string name="Female Gestures">
+		Женские жесты
+	</string>
+	<string name="Other Gestures">
+		Прочие жесты
+	</string>
+	<string name="Speech Gestures">
+		Жесты в разговорах
+	</string>
+	<string name="Common Gestures">
+		Стандартные жесты
+	</string>
+	<string name="Male - Excuse me">
+		Мужчина – извинение
+	</string>
+	<string name="Male - Get lost">
+		Мужчина – скройтесь
+	</string>
+	<string name="Male - Blow kiss">
+		Мужчина – воздушный поцелуй
+	</string>
+	<string name="Male - Boo">
+		Мужчина – фу!
+	</string>
+	<string name="Male - Bored">
+		Мужчина – скука
+	</string>
+	<string name="Male - Hey">
+		Мужчина – эй!
+	</string>
+	<string name="Male - Laugh">
+		Мужчина – смех
+	</string>
+	<string name="Male - Repulsed">
+		Мужчина – неприятие
+	</string>
+	<string name="Male - Shrug">
+		Мужчина – пожимает плечами
+	</string>
+	<string name="Male - Stick tougue out">
+		Мужчина – показывает язык
+	</string>
+	<string name="Male - Wow">
+		Мужчина – ух ты!
+	</string>
+	<string name="Female - Chuckle">
+		Женщина – смешок
+	</string>
+	<string name="Female - Cry">
+		Женщина – плач
+	</string>
+	<string name="Female - Embarrassed">
+		Женщина – смущение
+	</string>
+	<string name="Female - Excuse me">
+		Женщина – извинение
+	</string>
+	<string name="Female - Get lost">
+		Женщина – скройтесь
+	</string>
+	<string name="Female - Blow kiss">
+		Женщина – воздушный поцелуй
+	</string>
+	<string name="Female - Boo">
+		Женщина – фу!
+	</string>
+	<string name="Female - Bored">
+		Женщина – скука
+	</string>
+	<string name="Female - Hey">
+		Женщина – эй!
+	</string>
+	<string name="Female - Hey baby">
+		Женщина – эй, бейби!
+	</string>
+	<string name="Female - Laugh">
+		Женщина – смех
+	</string>
+	<string name="Female - Looking good">
+		Женщина – хорошо выглядишь
+	</string>
+	<string name="Female - Over here">
+		Женщина – сюда!
+	</string>
+	<string name="Female - Please">
+		Женщина – просьба
+	</string>
+	<string name="Female - Repulsed">
+		Женщина – неприятие
+	</string>
+	<string name="Female - Shrug">
+		Женщина – пожимает плечами
+	</string>
+	<string name="Female - Stick tougue out">
+		Женщина – показывает язык
+	</string>
+	<string name="Female - Wow">
+		Женщина – ух ты!
+	</string>
+	<string name="/bow">
+		/поклониться
+	</string>
+	<string name="/clap">
+		/хлопнуть
+	</string>
+	<string name="/count">
+		/счет
+	</string>
+	<string name="/extinguish">
+		/затушить
+	</string>
+	<string name="/kmb">
+		/поцелуй меня в зад
+	</string>
+	<string name="/muscle">
+		/силач
+	</string>
+	<string name="/no">
+		/нет
+	</string>
+	<string name="/no!">
+		/нет!
+	</string>
+	<string name="/paper">
+		/бумага
+	</string>
+	<string name="/pointme">
+		/показать на себя
+	</string>
+	<string name="/pointyou">
+		/показать на другого
+	</string>
+	<string name="/rock">
+		/камень
+	</string>
+	<string name="/scissor">
+		/ножницы
+	</string>
+	<string name="/smoke">
+		/курить
+	</string>
+	<string name="/stretch">
+		/потянуться
+	</string>
+	<string name="/whistle">
+		/свистнуть
+	</string>
+	<string name="/yes">
+		/да
+	</string>
+	<string name="/yes!">
+		/о да!
+	</string>
+	<string name="afk">
+		отошел
+	</string>
+	<string name="dance1">
+		танец1
+	</string>
+	<string name="dance2">
+		танец2
+	</string>
+	<string name="dance3">
+		танец3
+	</string>
+	<string name="dance4">
+		танец4
+	</string>
+	<string name="dance5">
+		танец5
+	</string>
+	<string name="dance6">
+		танец6
+	</string>
+	<string name="dance7">
+		танец7
+	</string>
+	<string name="dance8">
+		танец8
+	</string>
+	<string name="AvatarBirthDateFormat">
+		[day,datetime,slt].[mthnum,datetime,slt].[year,datetime,slt]
+	</string>
+	<string name="DefaultMimeType">
+		нет/нет
+	</string>
+	<string name="texture_load_dimensions_error">
+		Нельзя загружать изображения, размер которых превышает [WIDTH]*[HEIGHT]
+	</string>
+	<string name="words_separator" value=","/>
+	<string name="server_is_down">
+		Несмотря на наши усилия, что-то неожиданно пошло не так.
+
+	Ознакомьтесь с описанием известных проблем в работе этой службы на сайте status.secondlifegrid.net.
+        Если проблемы продолжаются, то проверьте подключение к сети и настройки брандмауэра.
+	</string>
+	<string name="dateTimeWeekdaysNames">
+		Воскресенье:Понедельник:Вторник:Среда:Четверг:Пятница:Суббота
+	</string>
+	<string name="dateTimeWeekdaysShortNames">
+		Вс:Пн:Вт:Ср:Чт:Пт:Сб
+	</string>
+	<string name="dateTimeMonthNames">
+		Январь:Февраль:Март:Апрель:Май:Июнь:Июль:Август:Сентябрь:Октябрь:Ноябрь:Декабрь
+	</string>
+	<string name="dateTimeMonthShortNames">
+		Янв:Фев:Мар:Апр:Май:Июн:Июл:Авг:Сен:Окт:Ноя:Дек
+	</string>
+	<string name="dateTimeDayFormat">
+		[MDAY]
+	</string>
+	<string name="dateTimeAM">
+		до полудня
+	</string>
+	<string name="dateTimePM">
+		после полудня
+	</string>
+	<string name="LocalEstimateUSD">
+		[AMOUNT] US$
+	</string>
+	<string name="Membership">
+		Членство
+	</string>
+	<string name="Roles">
+		Роли
+	</string>
+	<string name="Group Identity">
+		Удостоверение группы
+	</string>
+	<string name="Parcel Management">
+		Управление участком
+	</string>
+	<string name="Parcel Identity">
+		Удостоверение участка
+	</string>
+	<string name="Parcel Settings">
+		Параметры участка
+	</string>
+	<string name="Parcel Powers">
+		Способности для участка
+	</string>
+	<string name="Parcel Access">
+		Доступ к участку
+	</string>
+	<string name="Parcel Content">
+		Содержимое на участке
+	</string>
+	<string name="Object Management">
+		Управление объектами
+	</string>
+	<string name="Accounting">
+		Бухгалтерия
+	</string>
+	<string name="Notices">
+		Уведомления
+	</string>
+	<string name="Chat">
+		Чат
+	</string>
+	<string name="DeleteItems">
+		Удалить выбранные объекты?
+	</string>
+	<string name="DeleteItem">
+		Удалить выбранный объект?
+	</string>
+	<string name="EmptyOutfitText">
+		Для этого костюма нет вещей
+	</string>
+	<string name="ExternalEditorNotSet">
+		Выберите редактор, используя параметр ExternalEditor.
+	</string>
+	<string name="ExternalEditorNotFound">
+		Не удается найти указанный внешний редактор.
+Попробуйте взять путь к редактору в двойные кавычки
+(например &quot;/path to my/editor&quot; &quot;%s&quot;)
+	</string>
+	<string name="ExternalEditorCommandParseError">
+		Ошибка анализа командной строки для внешнего редактора.
+	</string>
+	<string name="ExternalEditorFailedToRun">
+		Не удалось запустить внешний редактор.
+	</string>
+	<string name="TranslationFailed">
+		Ошибка телепортации: [REASON]
+	</string>
+	<string name="TranslationResponseParseError">
+		Ошибка при анализе ответа переводчика.
+	</string>
+	<string name="Esc">
+		ESC
+	</string>
+	<string name="Space">
+		ПРОБЕЛ
+	</string>
+	<string name="Enter">
+		ВВОД
+	</string>
+	<string name="Tab">
+		TAB
+	</string>
+	<string name="Ins">
+		INS
+	</string>
+	<string name="Del">
+		DEL
+	</string>
+	<string name="Backsp">
+		BACKSP
+	</string>
+	<string name="Shift">
+		SHIFT
+	</string>
+	<string name="Ctrl">
+		CTRL
+	</string>
+	<string name="Alt">
+		ALT
+	</string>
+	<string name="CapsLock">
+		CAPSLOCK
+	</string>
+	<string name="Left">
+		Стрелка влево
+	</string>
+	<string name="Right">
+		Стрелка вправо
+	</string>
+	<string name="Up">
+		Стрелка вверх
+	</string>
+	<string name="Down">
+		Стрелка вниз
+	</string>
+	<string name="Home">
+		HOME
+	</string>
+	<string name="End">
+		END
+	</string>
+	<string name="PgUp">
+		PgUp
+	</string>
+	<string name="PgDn">
+		PgDn
+	</string>
+	<string name="F1">
+		F1
+	</string>
+	<string name="F2">
+		F2
+	</string>
+	<string name="F3">
+		F3
+	</string>
+	<string name="F4">
+		F4
+	</string>
+	<string name="F5">
+		F5
+	</string>
+	<string name="F6">
+		F6
+	</string>
+	<string name="F7">
+		F7
+	</string>
+	<string name="F8">
+		F8
+	</string>
+	<string name="F9">
+		F9
+	</string>
+	<string name="F10">
+		F10
+	</string>
+	<string name="F11">
+		F11
+	</string>
+	<string name="F12">
+		F12
+	</string>
+	<string name="Add">
+		+
+	</string>
+	<string name="Subtract">
+		-
+	</string>
+	<string name="Multiply">
+		*
+	</string>
+	<string name="Divide">
+		/
+	</string>
+	<string name="PAD_DIVIDE">
+		PAD_DIVIDE
+	</string>
+	<string name="PAD_LEFT">
+		PAD_LEFT
+	</string>
+	<string name="PAD_RIGHT">
+		PAD_RIGHT
+	</string>
+	<string name="PAD_DOWN">
+		PAD_DOWN
+	</string>
+	<string name="PAD_UP">
+		PAD_UP
+	</string>
+	<string name="PAD_HOME">
+		PAD_HOME
+	</string>
+	<string name="PAD_END">
+		PAD_END
+	</string>
+	<string name="PAD_PGUP">
+		PAD_PGUP
+	</string>
+	<string name="PAD_PGDN">
+		PAD_PGDN
+	</string>
+	<string name="PAD_CENTER">
+		PAD_CENTER
+	</string>
+	<string name="PAD_INS">
+		PAD_INS
+	</string>
+	<string name="PAD_DEL">
+		PAD_DEL
+	</string>
+	<string name="PAD_Enter">
+		PAD_Enter
+	</string>
+	<string name="PAD_BUTTON0">
+		PAD_BUTTON0
+	</string>
+	<string name="PAD_BUTTON1">
+		PAD_BUTTON1
+	</string>
+	<string name="PAD_BUTTON2">
+		PAD_BUTTON2
+	</string>
+	<string name="PAD_BUTTON3">
+		PAD_BUTTON3
+	</string>
+	<string name="PAD_BUTTON4">
+		PAD_BUTTON4
+	</string>
+	<string name="PAD_BUTTON5">
+		PAD_BUTTON5
+	</string>
+	<string name="PAD_BUTTON6">
+		PAD_BUTTON6
+	</string>
+	<string name="PAD_BUTTON7">
+		PAD_BUTTON7
+	</string>
+	<string name="PAD_BUTTON8">
+		PAD_BUTTON8
+	</string>
+	<string name="PAD_BUTTON9">
+		PAD_BUTTON9
+	</string>
+	<string name="PAD_BUTTON10">
+		PAD_BUTTON10
+	</string>
+	<string name="PAD_BUTTON11">
+		PAD_BUTTON11
+	</string>
+	<string name="PAD_BUTTON12">
+		PAD_BUTTON12
+	</string>
+	<string name="PAD_BUTTON13">
+		PAD_BUTTON13
+	</string>
+	<string name="PAD_BUTTON14">
+		PAD_BUTTON14
+	</string>
+	<string name="PAD_BUTTON15">
+		PAD_BUTTON15
+	</string>
+	<string name="-">
+		-
+	</string>
+	<string name="=">
+		=
+	</string>
+	<string name="`">
+		`
+	</string>
+	<string name=";">
+		;
+	</string>
+	<string name="[">
+		[
+	</string>
+	<string name="]">
+		]
+	</string>
+	<string name="\">
+		\
+	</string>
+	<string name="0">
+		0
+	</string>
+	<string name="1">
+		1
+	</string>
+	<string name="2">
+		2
+	</string>
+	<string name="3">
+		3
+	</string>
+	<string name="4">
+		4
+	</string>
+	<string name="5">
+		5
+	</string>
+	<string name="6">
+		6
+	</string>
+	<string name="7">
+		7
+	</string>
+	<string name="8">
+		8
+	</string>
+	<string name="9">
+		9
+	</string>
+	<string name="A">
+		A
+	</string>
+	<string name="B">
+		B
+	</string>
+	<string name="C">
+		C
+	</string>
+	<string name="D">
+		D
+	</string>
+	<string name="E">
+		E
+	</string>
+	<string name="F">
+		F
+	</string>
+	<string name="G">
+		G
+	</string>
+	<string name="H">
+		H
+	</string>
+	<string name="I">
+		I
+	</string>
+	<string name="J">
+		J
+	</string>
+	<string name="K">
+		K
+	</string>
+	<string name="L">
+		L
+	</string>
+	<string name="M">
+		M
+	</string>
+	<string name="N">
+		N
+	</string>
+	<string name="O">
+		O
+	</string>
+	<string name="P">
+		P
+	</string>
+	<string name="Q">
+		Q
+	</string>
+	<string name="R">
+		R
+	</string>
+	<string name="S">
+		S
+	</string>
+	<string name="T">
+		T
+	</string>
+	<string name="U">
+		U
+	</string>
+	<string name="V">
+		V
+	</string>
+	<string name="W">
+		W
+	</string>
+	<string name="X">
+		X
+	</string>
+	<string name="Y">
+		Y
+	</string>
+	<string name="Z">
+		Z
+	</string>
+	<string name="BeaconParticle">
+		Просмотр меток участков (синие)
+	</string>
+	<string name="BeaconPhysical">
+		Просмотр меток физических объектов (зеленые)
+	</string>
+	<string name="BeaconScripted">
+		Просмотр меток объектов со скриптами (красные)
+	</string>
+	<string name="BeaconScriptedTouch">
+		Просмотр меток объектов со скриптами и функцией касания (красные)
+	</string>
+	<string name="BeaconSound">
+		Просмотр звуковых меток (желтые)
+	</string>
+	<string name="BeaconMedia">
+		Просмотр медийных меток (белые)
+	</string>
+	<string name="ParticleHiding">
+		Частицы скрыты
+	</string>
+	<string name="Command_AboutLand_Label">
+		О земле
+	</string>
+	<string name="Command_Appearance_Label">
+		Внешность
+	</string>
+	<string name="Command_Avatar_Label">
+		Аватар
+	</string>
+	<string name="Command_Build_Label">
+		Строительство
+	</string>
+	<string name="Command_Chat_Label">
+		Чат
+	</string>
+	<string name="Command_Compass_Label">
+		Компас
+	</string>
+	<string name="Command_Destinations_Label">
+		Пункты
+	</string>
+	<string name="Command_Gestures_Label">
+		Жесты
+	</string>
+	<string name="Command_HowTo_Label">
+		Инструкции
+	</string>
+	<string name="Command_Inventory_Label">
+		Инвентарь
+	</string>
+	<string name="Command_Map_Label">
+		Карта
+	</string>
+	<string name="Command_Marketplace_Label">
+		Торговый центр
+	</string>
+	<string name="Command_MiniMap_Label">
+		Миникарта
+	</string>
+	<string name="Command_Move_Label">
+		Ходьба / бег / полет
+	</string>
+	<string name="Command_Outbox_Label">
+		Торговые исходящие
+	</string>
+	<string name="Command_People_Label">
+		Люди
+	</string>
+	<string name="Command_Picks_Label">
+		Подборка
+	</string>
+	<string name="Command_Places_Label">
+		Места
+	</string>
+	<string name="Command_Preferences_Label">
+		Настройки
+	</string>
+	<string name="Command_Profile_Label">
+		Профиль
+	</string>
+	<string name="Command_Search_Label">
+		Поиск
+	</string>
+	<string name="Command_Snapshot_Label">
+		Снимок
+	</string>
+	<string name="Command_Speak_Label">
+		Говорить
+	</string>
+	<string name="Command_View_Label">
+		Управление камерой
+	</string>
+	<string name="Command_Voice_Label">
+		Настройки голоса
+	</string>
+	<string name="Command_AboutLand_Tooltip">
+		Информация о посещаемой вами земле
+	</string>
+	<string name="Command_Appearance_Tooltip">
+		Изменить аватар
+	</string>
+	<string name="Command_Avatar_Tooltip">
+		Выбор аватара
+	</string>
+	<string name="Command_Build_Tooltip">
+		Построение объектов и формирование ландшафта
+	</string>
+	<string name="Command_Chat_Tooltip">
+		Обменивайтесь текстовыми репликами с людьми вокруг вас
+	</string>
+	<string name="Command_Compass_Tooltip">
+		Компас
+	</string>
+	<string name="Command_Destinations_Tooltip">
+		Интересные места
+	</string>
+	<string name="Command_Gestures_Tooltip">
+		Жесты для аватара
+	</string>
+	<string name="Command_HowTo_Tooltip">
+		Выполнение типичных задач
+	</string>
+	<string name="Command_Inventory_Tooltip">
+		Просмотр и использование вашего имущества
+	</string>
+	<string name="Command_Map_Tooltip">
+		Карта мира
+	</string>
+	<string name="Command_Marketplace_Tooltip">
+		Покупки
+	</string>
+	<string name="Command_MiniMap_Tooltip">
+		Показать людей поблизости
+	</string>
+	<string name="Command_Move_Tooltip">
+		Перемещение аватара
+	</string>
+	<string name="Command_Outbox_Tooltip">
+		Перенести предметы в торговый центр для продажи
+	</string>
+	<string name="Command_People_Tooltip">
+		Друзья, группы и люди поблизости
+	</string>
+	<string name="Command_Picks_Tooltip">
+		Места, которые будут показаны в вашем профиле как избранное
+	</string>
+	<string name="Command_Places_Tooltip">
+		Сохраненные вами места
+	</string>
+	<string name="Command_Preferences_Tooltip">
+		Настройки
+	</string>
+	<string name="Command_Profile_Tooltip">
+		Редактирование или просмотр вашего профиля
+	</string>
+	<string name="Command_Search_Tooltip">
+		Поиск мест, событий, людей
+	</string>
+	<string name="Command_Snapshot_Tooltip">
+		Сделать снимок
+	</string>
+	<string name="Command_Speak_Tooltip">
+		Говорите с людьми вокруг вас с помощью микрофона
+	</string>
+	<string name="Command_View_Tooltip">
+		Изменение угла камеры
+	</string>
+	<string name="Command_Voice_Tooltip">
+		Регулировка громкости вызовов и разговоров с людьми около вас
+	</string>
+	<string name="Toolbar_Bottom_Tooltip">
+		сейчас на нижней панели инструментов
+	</string>
+	<string name="Toolbar_Left_Tooltip">
+		сейчас на левой панели инструментов
+	</string>
+	<string name="Toolbar_Right_Tooltip">
+		сейчас на правой панели инструментов
+	</string>
+	<string name="Retain%">
+		Остаток%
+	</string>
+	<string name="Detail">
+		Детализация
+	</string>
+	<string name="Better Detail">
+		Более детально
+	</string>
+	<string name="Surface">
+		Поверхность
+	</string>
+	<string name="Solid">
+		Сплошной
+	</string>
+	<string name="Wrap">
+		Оболочка
+	</string>
+	<string name="Preview">
+		Предварительный просмотр
+	</string>
+	<string name="Normal">
+		Нормальный
+	</string>
+	<string name="snapshot_quality_very_low">
+		Очень низкий
+	</string>
+	<string name="snapshot_quality_low">
+		Низкий
+	</string>
+	<string name="snapshot_quality_medium">
+		Средний
+	</string>
+	<string name="snapshot_quality_high">
+		Высокий
+	</string>
+	<string name="snapshot_quality_very_high">
+		Очень высокий
+	</string>
+</strings>

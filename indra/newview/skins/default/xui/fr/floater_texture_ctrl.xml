@@ -20,6 +20,8 @@
 	<button label="Vierge" label_selected="Vierge" name="Blank" width="60"/>
 	<button label="Aucune" label_selected="Aucune" left="68" name="None" width="60"/>
 	<button bottom="-240" label="" label_selected="" name="Pipette"/>
+	<check_box initial_value="true" label="Aperçu en direct" name="apply_immediate_check"/>
+	<text name="preview_disabled" value="Aperçu désactivé"/>
 	<filter_editor label="Filtrer les textures" name="inventory search editor"/>
 	<check_box initial_value="false" label="Afficher les dossiers" name="show_folders_check"/>
 	<button label="Ajouter" label_selected="Ajouter" name="l_add_btn"/>
@@ -31,5 +33,4 @@
 	</scroll_list>
 	<button label="OK" label_selected="OK" name="Select"/>
 	<button label="Annuler" label_selected="Annuler" name="Cancel"/>
-	<check_box initial_value="true" label="Appliquer maintenant" name="apply_immediate_check"/>
 </floater>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_sound_devices" title="聲音裝置">
+	<text name="voice_label">
+		語音聊天
+	</text>
+	<check_box label="已啟用" name="enable_voice"/>
+</floater>

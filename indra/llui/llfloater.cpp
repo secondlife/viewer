@@ -240,7 +240,6 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	mTitle(p.title),
 	mShortTitle(p.short_title),
 	mSingleInstance(p.single_instance),
-	mIsReuseInitialized(p.reuse_instance.isProvided()),
 	mReuseInstance(p.reuse_instance.isProvided() ? p.reuse_instance : p.single_instance), // reuse single-instance floaters by default
 	mKey(key),
 	mCanTearOff(p.can_tear_off),
@@ -2978,22 +2977,22 @@ void LLFloater::setInstanceName(const std::string& name)
 {
 	if (name != mInstanceName)
 	{
-		llassert_always(mInstanceName.empty());
-		mInstanceName = name;
-		if (!mInstanceName.empty())
-		{
-			std::string ctrl_name = getControlName(mInstanceName, mKey);
+	llassert_always(mInstanceName.empty());
+	mInstanceName = name;
+	if (!mInstanceName.empty())
+	{
+		std::string ctrl_name = getControlName(mInstanceName, mKey);
 			initRectControl();
-			if (!mVisibilityControl.empty())
-			{
-				mVisibilityControl = LLFloaterReg::declareVisibilityControl(ctrl_name);
-			}
-			if(!mDocStateControl.empty())
-			{
-				mDocStateControl = LLFloaterReg::declareDockStateControl(ctrl_name);
-			}
+		if (!mVisibilityControl.empty())
+		{
+			mVisibilityControl = LLFloaterReg::declareVisibilityControl(ctrl_name);
+		}
+		if(!mDocStateControl.empty())
+		{
+			mDocStateControl = LLFloaterReg::declareDockStateControl(ctrl_name);
 		}
 	}
+}
 }
 
 void LLFloater::setKey(const LLSD& newkey)

@@ -2168,6 +2168,12 @@ BOOL LLFace::hasMedia() const
 const F32 LEAST_IMPORTANCE = 0.05f ;
 const F32 LEAST_IMPORTANCE_FOR_LARGE_IMAGE = 0.3f ;
 
+void LLFace::resetVirtualSize()
+{
+	setVirtualSize(0.f);
+	mImportanceToCamera = 0.f;
+}
+
 F32 LLFace::getTextureVirtualSize()
 {
 	F32 radius;
@@ -2233,8 +2239,17 @@ BOOL LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
 	LLVector4a t;
 	t.load3(camera->getOrigin().mV);
 	lookAt.setSub(center, t);
+	
 	F32 dist = lookAt.getLength3().getF32();
-	dist = llmax(dist-size.getLength3().getF32(), 0.f);
+	dist = llmax(dist-size.getLength3().getF32(), 0.001f);
+	//ramp down distance for nearby objects
+	if (dist < 16.f)
+	{
+		dist /= 16.f;
+		dist *= dist;
+		dist *= 16.f;
+	}
+
 	lookAt.normalize3fast() ;	
 
 	//get area of circle around node

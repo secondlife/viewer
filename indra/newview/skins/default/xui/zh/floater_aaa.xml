@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Test Floater" title="測試浮動視窗">
 	<string name="test_the_vlt">
-		This string CHANGE2 is extracted.
+		字串 CHANGE2 已抽取。
 	</string>
 	<string name="testing_eli">
 		這只是測試 - 變更。

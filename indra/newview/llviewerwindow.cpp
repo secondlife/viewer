@@ -283,7 +283,7 @@ private:
 	struct Line
 	{
 		Line(const std::string& in_text, S32 in_x, S32 in_y) : text(in_text), x(in_x), y(in_y) {}
-		std::string text; 
+		std::string text;
 		S32 x,y;
 	};
 
@@ -1559,8 +1559,12 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 
 	mAlertsChannel->connectChanged(&LLViewerWindow::onAlert);
 	mModalAlertsChannel->connectChanged(&LLViewerWindow::onAlert);
-	LLNotifications::instance().setIgnoreAllNotifications(gSavedSettings.getBOOL("IgnoreAllNotifications"));
+	bool ignore = gSavedSettings.getBOOL("IgnoreAllNotifications");
+	LLNotifications::instance().setIgnoreAllNotifications(ignore);
+	if (ignore)
+	{
 	llinfos << "NOTE: ALL NOTIFICATIONS THAT OCCUR WILL GET ADDED TO IGNORE LIST FOR LATER RUNS." << llendl;
+	}
 
 	// Default to application directory.
 	LLViewerWindow::sSnapshotBaseName = "Snapshot";
@@ -2504,37 +2508,37 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 		if (nearby_chat)
 		{
 			LLChatEntry* chat_editor = nearby_chat->getChatBox();
-
-			// arrow keys move avatar while chatting hack
-			if (chat_editor && chat_editor->hasFocus())
+		
+		// arrow keys move avatar while chatting hack
+		if (chat_editor && chat_editor->hasFocus())
+		{
+			// If text field is empty, there's no point in trying to move
+			// cursor with arrow keys, so allow movement
+			if (chat_editor->getText().empty() 
+				|| gSavedSettings.getBOOL("ArrowKeysAlwaysMove"))
 			{
-				// If text field is empty, there's no point in trying to move
-				// cursor with arrow keys, so allow movement
-				if (chat_editor->getText().empty()
-					|| gSavedSettings.getBOOL("ArrowKeysAlwaysMove"))
+				// let Control-Up and Control-Down through for chat line history,
+				if (!(key == KEY_UP && mask == MASK_CONTROL)
+					&& !(key == KEY_DOWN && mask == MASK_CONTROL))
 				{
-					// let Control-Up and Control-Down through for chat line history,
-					if (!(key == KEY_UP && mask == MASK_CONTROL)
-						&& !(key == KEY_DOWN && mask == MASK_CONTROL))
+					switch(key)
 					{
-						switch(key)
-						{
-						case KEY_LEFT:
-						case KEY_RIGHT:
-						case KEY_UP:
-						case KEY_DOWN:
-						case KEY_PAGE_UP:
-						case KEY_PAGE_DOWN:
-						case KEY_HOME:
-							// when chatbar is empty or ArrowKeysAlwaysMove set,
-							// pass arrow keys on to avatar...
-							return FALSE;
-						default:
-							break;
-						}
+					case KEY_LEFT:
+					case KEY_RIGHT:
+					case KEY_UP:
+					case KEY_DOWN:
+					case KEY_PAGE_UP:
+					case KEY_PAGE_DOWN:
+					case KEY_HOME:
+						// when chatbar is empty or ArrowKeysAlwaysMove set,
+						// pass arrow keys on to avatar...
+						return FALSE;
+					default:
+						break;
 					}
 				}
 			}
+		}
 		}
 
 		if (keyboard_focus->handleKey(key, mask, FALSE))
@@ -2564,7 +2568,7 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	// If "Pressing letter keys starts local chat" option is selected, we are not in mouselook, 
 	// no view has keyboard focus, this is a printable character key (and no modifier key is 
 	// pressed except shift), then give focus to nearby chat (STORM-560)
-	if ( gSavedSettings.getS32("LetterKeysFocusChatBar") && !gAgentCamera.cameraMouselook() &&
+	if ( gSavedSettings.getS32("LetterKeysFocusChatBar") && !gAgentCamera.cameraMouselook() && 
 		!keyboard_focus && key < 0x80 && (mask == MASK_NONE || mask == MASK_SHIFT) )
 	{
 		// Initialize nearby chat if it's missing

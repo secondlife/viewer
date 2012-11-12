@@ -1401,9 +1401,9 @@ void LLViewerObjectList::removeFromActiveList(LLViewerObject* objectp)
 			mActiveObjects[idx]->setListIndex(idx);
 		}
 
-			mActiveObjects.pop_back();
-		}
+		mActiveObjects.pop_back();
 	}
+}
 
 void LLViewerObjectList::updateActive(LLViewerObject *objectp)
 {

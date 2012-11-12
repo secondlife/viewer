@@ -133,7 +133,6 @@ void LLFloaterIMContainer::onCurrentChannelChanged(const LLUUID& session_id)
     }
 }
 
-
 BOOL LLFloaterIMContainer::postBuild()
 {
 	mNewMessageConnection = LLIMModel::instance().mNewMsgSignal.connect(boost::bind(&LLFloaterIMContainer::onNewMessageReceived, this, _1));
@@ -141,6 +140,9 @@ BOOL LLFloaterIMContainer::postBuild()
 	// mTabContainer will be initialized in LLMultiFloater::addChild()
 	
 	setTabContainer(getChild<LLTabContainer>("im_box_tab_container"));
+	mStubPanel = getChild<LLPanel>("stub_panel");
+    mStubTextBox = getChild<LLTextBox>("stub_textbox_2");
+    mStubTextBox->setURLClickedCallback(boost::bind(&LLFloaterIMContainer::returnFloaterToHost, this));
 
 	mConversationsStack = getChild<LLLayoutStack>("conversations_stack");
 	mConversationsPane = getChild<LLLayoutPanel>("conversations_layout_panel");
@@ -492,6 +494,24 @@ void LLFloaterIMContainer::tabClose()
 		// still needs the conversation list. Simply collapse the message pane in that case.
 		collapseMessagesPane(true);
 	}
+}
+
+void LLFloaterIMContainer::showStub(bool stub_is_visible)
+{
+	if (stub_is_visible)
+	{
+		mTabContainer->hideAllTabs();
+	}
+
+	mStubPanel->setVisible(stub_is_visible);
+}
+
+// listener for click on mStubTextBox2
+void LLFloaterIMContainer::returnFloaterToHost()
+{
+	LLUUID session_id = this->getSelectedSession();
+	LLFloaterIMSessionTab* floater = LLFloaterIMSessionTab::getConversation(session_id);
+	floater->onTearOffClicked();
 }
 
 void LLFloaterIMContainer::setVisible(BOOL visible)
@@ -1126,7 +1146,7 @@ BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool
     /* widget processing */
     if (select_widget)
     {
-    	LLFolderViewItem* widget = mConversationsWidgets[session_id];
+		LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,session_id);
     	if (widget && widget->getParentFolder())
     	{
     		widget->getParentFolder()->setSelection(widget, FALSE, FALSE);
@@ -1539,7 +1559,7 @@ void LLFloaterIMContainer::openNearbyChat()
 	//(which it should be...), open it so to make the list of participants visible. This happens to be the most common case when opening the Chat floater.
 	if(mConversationsItems.size() == 1)
 	{
-		LLConversationViewSession* nearby_chat = dynamic_cast<LLConversationViewSession*>(mConversationsWidgets[LLUUID()]);
+		LLConversationViewSession* nearby_chat = dynamic_cast<LLConversationViewSession*>(get_ptr_in_map(mConversationsWidgets,LLUUID()));
 		if (nearby_chat)
 		{
 			nearby_chat->setOpen(TRUE);

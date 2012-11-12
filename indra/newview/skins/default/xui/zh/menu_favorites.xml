@@ -4,7 +4,7 @@
 	<menu_item_call label="察看 / 編輯 地標" name="Landmark Open"/>
 	<menu_item_call label="覆製 SLurl" name="Copy slurl"/>
 	<menu_item_call label="顯示在地圖上" name="Show On Map"/>
-	<menu_item_call label="覆製" name="Landmark Copy"/>
+	<menu_item_call label="恚庨" name="Landmark Copy"/>
 	<menu_item_call label="貼上" name="Landmark Paste"/>
 	<menu_item_call label="刪除" name="Delete"/>
 </menu>
