@@ -1,5 +1,5 @@
 /** 
- * @file mac_crash_logger.cpp
+ * @file llcrashloggermacdelegate.h
  * @brief Mac OSX crash logger implementation
  *
  * $LicenseInfo:firstyear=2003&license=viewerlgpl$
@@ -24,40 +24,27 @@
  * $/LicenseInfo$
  */
 
-#include "linden_common.h"
-#include "llcrashloggermac.h"
-#include "indra_constants.h"
+/*
+#import <Cocoa/Cocoa.h>
 
-#include <iostream>
-#include <fstream>
-
-    
-int main(int argc, char **argv)
+@interface LLCrashLoggerMacDelegate : NSObject <NSApplicationDelegate>
 {
-    std::ofstream outputFile;
-    outputFile.open("/tmp/aura.txt");
-    outputFile << "TEstiNG" << std::endl;
-    llinfos << "SPATTERS ASDFSDFSDF" << llendl;
-	llinfos << "Starting crash reporter." << llendl;
-
-	LLCrashLoggerMac app;
-	app.parseCommandOptions(argc, argv);
-
-	if (! app.init())
-	{
-		llwarns << "Unable to initialize application." << llendl;
-		return 1;
-	}
-    if (app.getCrashBehavior() != CRASH_BEHAVIOR_ALWAYS_SEND)
-    {
-        
-//        return NSApplicationMain(argc, (const char **)argv);
-    }
-	app.mainLoop();
-	app.cleanup();
-	llinfos << "Crash reporter finished normally." << llendl;
+    IBOutlet NSTextField *crashText;
+    IBOutlet NSButton *rememberCheck;
     
-    outputFile.close();
-    
-	return 0;
+    NSWindow *_window;
+    bool mRemember;
+
 }
+
+- (void)setWindow:(NSWindow *)newWindow;
+- (NSWindow *)window;
+
+- (IBAction)remember:(id)sender;
+- (IBAction)send:(id)sender;
+- (IBAction)cancel:(id)sender;
+
+@property (assign) IBOutlet NSWindow *window;
+
+@end
+*/

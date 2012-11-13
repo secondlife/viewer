@@ -1,5 +1,5 @@
 /** 
- * @file mac_crash_logger.cpp
+ * @file llcrashloggermacdelegate.mm
  * @brief Mac OSX crash logger implementation
  *
  * $LicenseInfo:firstyear=2003&license=viewerlgpl$
@@ -24,40 +24,52 @@
  * $/LicenseInfo$
  */
 
-#include "linden_common.h"
-#include "llcrashloggermac.h"
-#include "indra_constants.h"
 
+/*
+#import "llcrashloggermacdelegate.h"
 #include <iostream>
-#include <fstream>
 
-    
-int main(int argc, char **argv)
+extern std::string gUserNotes;
+extern bool gSendReport;
+extern bool gRememberChoice;
+
+@implementation LLCrashLoggerMacDelegate
+
+- (void)setWindow:(NSWindow *)window
 {
-    std::ofstream outputFile;
-    outputFile.open("/tmp/aura.txt");
-    outputFile << "TEstiNG" << std::endl;
-    llinfos << "SPATTERS ASDFSDFSDF" << llendl;
-	llinfos << "Starting crash reporter." << llendl;
-
-	LLCrashLoggerMac app;
-	app.parseCommandOptions(argc, argv);
-
-	if (! app.init())
-	{
-		llwarns << "Unable to initialize application." << llendl;
-		return 1;
-	}
-    if (app.getCrashBehavior() != CRASH_BEHAVIOR_ALWAYS_SEND)
-    {
-        
-//        return NSApplicationMain(argc, (const char **)argv);
-    }
-	app.mainLoop();
-	app.cleanup();
-	llinfos << "Crash reporter finished normally." << llendl;
-    
-    outputFile.close();
-    
-	return 0;
+    _window = window;
 }
+
+- (NSWindow *)window
+{
+    return _window;
+}
+
+- (void)dealloc
+{
+    [super dealloc];
+}
+
+std::string* NSToString( NSString *ns_str )
+{
+    return ( new std::string([ns_str UTF8String]) );
+}
+
+- (IBAction)remember:(id)sender
+{
+    gRememberChoice = [rememberCheck state];
+}
+
+- (IBAction)send:(id)sender
+{
+    std::string* user_input = NSToString([crashText stringValue]);
+    gUserNotes = *user_input;
+    gSendReport = true;
+}
+
+- (IBAction)cancel:(id)sender
+{
+    [ _window close];
+}
+@end
+*/
