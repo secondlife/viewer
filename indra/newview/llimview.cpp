@@ -2424,14 +2424,21 @@ void LLIMMgr::addMessage(
 
 	//*NOTE session_name is empty in case of incoming P2P sessions
 	std::string fixed_session_name = from;
+	bool name_is_setted = false;
 	if(!session_name.empty() && session_name.size()>1)
 	{
 		fixed_session_name = session_name;
+		name_is_setted = true;
 	}
 
 	bool new_session = !hasSession(new_session_id);
 	if (new_session)
 	{
+		LLAvatarName av_name;
+		if (LLAvatarNameCache::get(other_participant_id, &av_name) && !name_is_setted)
+		{
+			fixed_session_name = (av_name.mDisplayName.empty() ? av_name.mUsername : av_name.mDisplayName);
+		}
 		LLIMModel::getInstance()->newSession(new_session_id, fixed_session_name, dialog, other_participant_id, false, is_offline_msg);
 
 		// When we get a new IM, and if you are a god, display a bit
