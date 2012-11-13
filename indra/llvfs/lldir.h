@@ -1,4 +1,4 @@
-/** 
+/**  
  * @file lldir.h
  * @brief Definition of directory utilities class
  *
@@ -73,10 +73,8 @@ class LLDir
 	virtual S32 deleteFilesInDir(const std::string &dirname, const std::string &mask);
 
 // pure virtual functions
-	virtual U32 countFilesInDir(const std::string &dirname, const std::string &mask) = 0;
-
 	virtual std::string getCurPath() = 0;
-	virtual BOOL fileExists(const std::string &filename) const = 0;
+	virtual bool fileExists(const std::string &filename) const = 0;
 
 	const std::string findFile(const std::string& filename, const std::vector<std::string> filenames) const; 
 	const std::string findFile(const std::string& filename, const std::string& searchPath1 = "", const std::string& searchPath2 = "", const std::string& searchPath3 = "") const;

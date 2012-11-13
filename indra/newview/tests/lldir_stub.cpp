@@ -48,7 +48,7 @@ public:
 	/*virtual*/ U32 countFilesInDir(const std::string &dirname, const std::string &mask) { return 42; }
 	/*virtual*/ BOOL getNextFileInDir(const std::string &dirname, const std::string &mask, std::string &fname, BOOL wrap) { fname = fname + "_NEXT"; return false; }
 	/*virtual*/ void getRandomFileInDir(const std::string &dirname, const std::string &mask, std::string &fname) { fname = "RANDOM_FILE"; }
-	/*virtual*/ BOOL fileExists(const std::string &filename) const { return false; }
+	/*virtual*/ bool fileExists(const std::string &filename) const { return false; }
 };
 
 LLDir_stub gDirUtil;

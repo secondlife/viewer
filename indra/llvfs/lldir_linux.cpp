@@ -254,7 +254,7 @@ std::string LLDir_Linux::getCurPath()
 }
 
 
-BOOL LLDir_Linux::fileExists(const std::string &filename) const
+bool LLDir_Linux::fileExists(const std::string &filename) const
 {
 	struct stat stat_data;
 	// Check the age of the file
