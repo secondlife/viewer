@@ -96,7 +96,18 @@ LLVolumeImplFlexible::~LLVolumeImplFlexible()
 //static
 void LLVolumeImplFlexible::updateClass()
 {
-#ifdef XXX_STINSON_HACK_FIX
+	// XXX stinson 11/13/2012 : This hack removes the optimization for limiting the number of flexi-prims
+	// updated.  With the optimization, flexi-prims attached to the users avatar were not being
+	// animated correctly immediately following teleport.  With the optimization removed, the bug went away.
+#define XXX_STINSON_MAINT_1890_HACK_FIX 1
+#if XXX_STINSON_MAINT_1890_HACK_FIX
+	for (std::vector<LLVolumeImplFlexible*>::iterator iter = sInstanceList.begin();
+		iter != sInstanceList.end();
+		++iter)
+	{
+		(*iter)->doIdleUpdate();
+	}
+#else // XXX_STINSON_MAINT_1890_HACK_FIX
 	std::vector<S32>::iterator delay_iter = sUpdateDelay.begin();
 
 	for (std::vector<LLVolumeImplFlexible*>::iterator iter = sInstanceList.begin();
@@ -110,14 +121,7 @@ void LLVolumeImplFlexible::updateClass()
 		}
 		++delay_iter;
 	}
-#else // XXX_STINSON_HACK_FIX
-	for (std::vector<LLVolumeImplFlexible*>::iterator iter = sInstanceList.begin();
-		iter != sInstanceList.end();
-		++iter)
-	{
-		(*iter)->doIdleUpdate();
-	}
-#endif // XXX_STINSON_HACK_FIX
+#endif // XXX_STINSON_MAINT_1890_HACK_FIX
 }
 
 LLVector3 LLVolumeImplFlexible::getFramePosition() const
