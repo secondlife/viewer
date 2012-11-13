@@ -96,6 +96,7 @@ LLVolumeImplFlexible::~LLVolumeImplFlexible()
 //static
 void LLVolumeImplFlexible::updateClass()
 {
+#ifdef XXX_STINSON_HACK_FIX
 	std::vector<S32>::iterator delay_iter = sUpdateDelay.begin();
 
 	for (std::vector<LLVolumeImplFlexible*>::iterator iter = sInstanceList.begin();
@@ -109,6 +110,14 @@ void LLVolumeImplFlexible::updateClass()
 		}
 		++delay_iter;
 	}
+#else // XXX_STINSON_HACK_FIX
+	for (std::vector<LLVolumeImplFlexible*>::iterator iter = sInstanceList.begin();
+		iter != sInstanceList.end();
+		++iter)
+	{
+		(*iter)->doIdleUpdate();
+	}
+#endif // XXX_STINSON_HACK_FIX
 }
 
 LLVector3 LLVolumeImplFlexible::getFramePosition() const
