@@ -2577,14 +2577,23 @@ void LLRightClickInventoryFetchDescendentsObserver::execute(bool clear_observer)
 		LLInventoryModel::item_array_t* item_array;
 		gInventory.getDirectDescendentsOf(*current_folder, cat_array, item_array);
 
-		S32 item_count = item_array->count();
-		S32 cat_count = cat_array->count();
-	
+		S32 item_count(0);
+		if( item_array )
+		{			
+			item_count = item_array->count();
+		}
+		
+		S32 cat_count(0);
+		if( cat_array )
+		{			
+			cat_count = cat_array->count();
+		}
+
 		// Move to next if current folder empty
 		if ((item_count == 0) && (cat_count == 0))
-	{
+		{
 			continue;
-	}
+		}
 
 		uuid_vec_t ids;
 		LLRightClickInventoryFetchObserver* outfit = NULL;
