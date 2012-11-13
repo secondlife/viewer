@@ -42,6 +42,7 @@ void init()
 void cleanup()
 {
 	delete gMasterThreadRecorder;
+	LLUnitStrict<LLUnits::Seconds, F32> seconds;
 	gMasterThreadRecorder = NULL;
 }
 

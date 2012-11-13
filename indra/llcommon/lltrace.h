@@ -57,8 +57,6 @@ namespace LLTrace
 	typedef LLUnit<LLUnits::Milliseconds, F64>	Milliseconds;
 	typedef LLUnit<LLUnits::Minutes, F64>		Minutes;
 	typedef LLUnit<LLUnits::Hours, F64>			Hours;
-	typedef LLUnit<LLUnits::Days, F64>			Days;
-	typedef LLUnit<LLUnits::Weeks, F64>			Weeks;
 	typedef LLUnit<LLUnits::Milliseconds, F64>	Milliseconds;
 	typedef LLUnit<LLUnits::Microseconds, F64>	Microseconds;
 	typedef LLUnit<LLUnits::Nanoseconds, F64>	Nanoseconds;
@@ -226,27 +224,6 @@ namespace LLTrace
 		size_t		mAccumulatorIndex;
 	};
 
-
-	template<typename T, typename IS_UNIT = void>
-	struct StorageType
-	{
-		typedef T type_t;
-	};
-
-	template<typename T>
-	struct StorageType<T, typename T::is_unit_tag_t>
-	{
-		typedef typename StorageType<typename T::storage_t>::type_t type_t;
-	};
-
-	template<> struct StorageType<F32> { typedef F64 type_t; };
-	template<> struct StorageType<S32> { typedef S64 type_t; };
-	template<> struct StorageType<U32> { typedef S64 type_t; };
-	template<> struct StorageType<S16> { typedef S64 type_t; };
-	template<> struct StorageType<U16> { typedef S64 type_t; };
-	template<> struct StorageType<S8> { typedef S64 type_t; };
-	template<> struct StorageType<U8> { typedef S64 type_t; };
-
 	template<typename T>
 	class LL_COMMON_API MeasurementAccumulator
 	{
@@ -406,10 +383,10 @@ namespace LLTrace
 
 	template <typename T = F64, typename IS_UNIT = void>
 	class LL_COMMON_API Measurement
-	:	public TraceType<MeasurementAccumulator<typename StorageType<T>::type_t> >
+	:	public TraceType<MeasurementAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >
 	{
 	public:
-		typedef typename StorageType<T>::type_t storage_t;
+		typedef typename LLUnits::HighestPrecisionType<T>::type_t storage_t;
 
 		Measurement(const char* name, const char* description = NULL) 
 		:	TraceType(name, description)
@@ -423,10 +400,10 @@ namespace LLTrace
 
 	template <typename T>
 	class LL_COMMON_API Measurement <T, typename T::is_unit_tag_t>
-	:	public TraceType<MeasurementAccumulator<typename StorageType<typename T::storage_t>::type_t> >
+	:	public TraceType<MeasurementAccumulator<typename LLUnits::HighestPrecisionType<typename T::storage_t>::type_t> >
 	{
 	public:
-		typedef typename StorageType<typename T::storage_t>::type_t storage_t;
+		typedef typename LLUnits::HighestPrecisionType<typename T::storage_t>::type_t storage_t;
 
 		Measurement(const char* name, const char* description = NULL) 
 		:	TraceType(name, description)
@@ -446,10 +423,10 @@ namespace LLTrace
 
 	template <typename T = F64, typename IS_UNIT = void>
 	class LL_COMMON_API Count 
-	:	public TraceType<CountAccumulator<typename StorageType<T>::type_t> >
+	:	public TraceType<CountAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >
 	{
 	public:
-		typedef typename StorageType<T>::type_t storage_t;
+		typedef typename LLUnits::HighestPrecisionType<T>::type_t storage_t;
 
 		Count(const char* name, const char* description = NULL) 
 		:	TraceType(name)
@@ -463,10 +440,10 @@ namespace LLTrace
 
 	template <typename T>
 	class LL_COMMON_API Count <T, typename T::is_unit_tag_t>
-	:	public TraceType<CountAccumulator<typename StorageType<typename T::storage_t>::type_t> >
+	:	public TraceType<CountAccumulator<typename LLUnits::HighestPrecisionType<typename T::storage_t>::type_t> >
 	{
 	public:
-		typedef typename StorageType<typename T::storage_t>::type_t storage_t;
+		typedef typename LLUnits::HighestPrecisionType<typename T::storage_t>::type_t storage_t;
 
 		Count(const char* name, const char* description = NULL) 
 		:	TraceType(name)

@@ -32,19 +32,44 @@
 
 namespace LLUnits
 {
-template<typename DERIVED_UNITS_TAG, typename BASE_UNITS_TAG>
+
+template<typename T, typename IS_UNIT = void>
+struct HighestPrecisionType
+{
+	typedef T type_t;
+};
+
+template<typename T>
+struct HighestPrecisionType<T, typename T::is_unit_tag_t>
+{
+	typedef typename HighestPrecisionType<typename T::storage_t>::type_t type_t;
+};
+
+template<> struct HighestPrecisionType<F32> { typedef F64 type_t; };
+template<> struct HighestPrecisionType<S32> { typedef S64 type_t; };
+template<> struct HighestPrecisionType<U32> { typedef S64 type_t; };
+template<> struct HighestPrecisionType<S16> { typedef S64 type_t; };
+template<> struct HighestPrecisionType<U16> { typedef S64 type_t; };
+template<> struct HighestPrecisionType<S8> { typedef S64 type_t; };
+template<> struct HighestPrecisionType<U8> { typedef S64 type_t; };
+
+template<typename DERIVED_UNITS_TAG, typename BASE_UNITS_TAG, typename VALUE_TYPE>
 struct ConversionFactor
 {
-	static F64 get()
+	static typename HighestPrecisionType<VALUE_TYPE>::type_t get()
 	{
+		// spurious use of dependent type to stop gcc from triggering the static assertion before instantiating the template
 		llstatic_assert(sizeof(DERIVED_UNITS_TAG) == 0, "Cannot convert between types.");
 	}
 };
 
-template<typename BASE_UNITS_TAG>
-struct ConversionFactor<BASE_UNITS_TAG, BASE_UNITS_TAG>
+template<typename BASE_UNITS_TAG, typename VALUE_TYPE>
+struct ConversionFactor<BASE_UNITS_TAG, BASE_UNITS_TAG, VALUE_TYPE>
 {
-	static F64 get() { return 1.0; }
+	static typename HighestPrecisionType<VALUE_TYPE>::type_t get() 
+	{ 
+		return 1; 
+	}
 };
 }
 
@@ -91,6 +116,11 @@ struct LLUnit
 		return mValue;
 	}
 
+	template<typename NEW_UNIT_TYPE> LLUnit<NEW_UNIT_TYPE, STORAGE_TYPE> as()
+	{
+		return LLUnit<NEW_UNIT_TYPE, STORAGE_TYPE>(*this);
+	}
+
 	void operator += (storage_t value)
 	{
 		mValue += value;
@@ -121,7 +151,8 @@ struct LLUnit
 	template<typename OTHER_UNIT, typename OTHER_STORAGE>
 	void operator *= (LLUnit<OTHER_UNIT, OTHER_STORAGE> multiplicand)
 	{
-		llstatic_assert(sizeof(OTHER_UNIT) == false, "Multiplication of unit types not supported.");
+		// spurious use of dependent type to stop gcc from triggering the static assertion before instantiating the template
+		llstatic_assert(sizeof(OTHER_UNIT) == 0, "Multiplication of unit types not supported.");
 	}
 
 	void operator /= (storage_t divisor)
@@ -132,20 +163,47 @@ struct LLUnit
 	template<typename OTHER_UNIT, typename OTHER_STORAGE>
 	void operator /= (LLUnit<OTHER_UNIT, OTHER_STORAGE> divisor)
 	{
-		llstatic_assert(sizeof(OTHER_UNIT) == false, "Division of unit types not supported.");
+		// spurious use of dependent type to stop gcc from triggering the static assertion before instantiating the template
+		llstatic_assert(sizeof(OTHER_UNIT) == 0, "Division of unit types not supported.");
 	}
 
-	template<typename SOURCE_UNITS, typename SOURCE_VALUE>
-	static storage_t convert(LLUnit<SOURCE_UNITS, SOURCE_VALUE> v) 
+	template<typename SOURCE_UNITS, typename SOURCE_STORAGE>
+	static storage_t convert(LLUnit<SOURCE_UNITS, SOURCE_STORAGE> v) 
 	{ 
 		return (storage_t)(v.value() 
-			* LLUnits::ConversionFactor<SOURCE_UNITS, typename UNIT_TYPE::base_unit_t>::get() 
-			* LLUnits::ConversionFactor<typename UNIT_TYPE::base_unit_t, UNIT_TYPE>::get()); 
+			* LLUnits::ConversionFactor<SOURCE_UNITS, typename UNIT_TYPE::base_unit_t, SOURCE_STORAGE>::get() 
+			* LLUnits::ConversionFactor<typename UNIT_TYPE::base_unit_t, UNIT_TYPE, STORAGE_TYPE>::get()); 
 	}
 
 protected:
 
 	storage_t mValue;
+};
+
+template<typename UNIT_TYPE, typename STORAGE_TYPE>
+struct LLUnitStrict : public LLUnit<UNIT_TYPE, STORAGE_TYPE>
+{
+	typedef LLUnitStrict<UNIT_TYPE, STORAGE_TYPE> self_t;
+
+	explicit LLUnitStrict(storage_t value = storage_t())
+	:	LLUnit(value)
+	{}
+
+	template<typename OTHER_UNIT, typename OTHER_STORAGE>
+	LLUnitStrict(LLUnit<OTHER_UNIT, OTHER_STORAGE> other)
+	:	LLUnit(convert(other))
+	{}
+
+	LLUnitStrict(self_t& other)
+	:	LLUnit(other)
+	{}
+
+
+private:
+	operator storage_t() const
+	{
+		return value();
+	}
 };
 
 //
@@ -221,7 +279,8 @@ LLUnit<STORAGE_TYPE, UNIT_TYPE> operator * (LLUnit<STORAGE_TYPE, UNIT_TYPE> firs
 template<typename STORAGE_TYPE1, typename UNIT_TYPE1, typename STORAGE_TYPE2, typename UNIT_TYPE2>
 void operator * (LLUnit<STORAGE_TYPE1, UNIT_TYPE1>, LLUnit<STORAGE_TYPE2, UNIT_TYPE2>)
 {
-	llstatic_assert(sizeof(STORAGE_TYPE1) == false, "Multiplication of unit types results in new unit type - not supported.");
+	// spurious use of dependent type to stop gcc from triggering the static assertion before instantiating the template
+	llstatic_assert(sizeof(STORAGE_TYPE1) == 0, "Multiplication of unit types results in new unit type - not supported.");
 }
 
 //
@@ -242,7 +301,8 @@ LLUnit<STORAGE_TYPE, UNIT_TYPE> operator / (LLUnit<STORAGE_TYPE, UNIT_TYPE> firs
 template<typename STORAGE_TYPE1, typename UNIT_TYPE1, typename STORAGE_TYPE2, typename UNIT_TYPE2>
 void operator / (LLUnit<STORAGE_TYPE1, UNIT_TYPE1>, LLUnit<STORAGE_TYPE2, UNIT_TYPE2>)
 {
-	llstatic_assert(sizeof(STORAGE_TYPE1) == false, "Multiplication of unit types results in new unit type - not supported.");
+	// spurious use of dependent type to stop gcc from triggering the static assertion before instantiating the template
+	llstatic_assert(sizeof(STORAGE_TYPE1) == 0, "Multiplication of unit types results in new unit type - not supported.");
 }
 
 #define COMPARISON_OPERATORS(op)                                                                     \
@@ -273,21 +333,21 @@ COMPARISON_OPERATORS(!=)
 
 namespace LLUnits
 {
-#define LL_DECLARE_DERIVED_UNIT(base_unit_name, unit_name, conversion_factor)\
-struct unit_name                                                             \
-{                                                                            \
-	typedef base_unit_name base_unit_t;                                      \
-};                                                                           \
-template<>                                                                   \
-struct ConversionFactor<unit_name, base_unit_name>                           \
-{                                                                            \
-	static F64 get() { return (conversion_factor); }                         \
-};                                                                           \
-	                                                                         \
-template<>                                                                   \
-struct ConversionFactor<base_unit_name, unit_name>						     \
-{                                                                            \
-	static F64 get() { return 1.0 / (conversion_factor); }                   \
+#define LL_DECLARE_DERIVED_UNIT(base_unit_name, unit_name, conversion_factor)                                                                                   \
+struct unit_name                                                                                                                                                \
+{                                                                                                                                                               \
+	typedef base_unit_name base_unit_t;                                                                                                                         \
+};                                                                                                                                                              \
+template<typename STORAGE_TYPE>                                                                                                                                 \
+struct ConversionFactor<unit_name, base_unit_name, STORAGE_TYPE>                                                                                                \
+{                                                                                                                                                               \
+	static typename HighestPrecisionType<STORAGE_TYPE>::type_t get() { return typename HighestPrecisionType<STORAGE_TYPE>::type_t(conversion_factor); }         \
+};                                                                                                                                                              \
+	                                                                                                                                                            \
+template<typename STORAGE_TYPE>                                                                                                                                 \
+struct ConversionFactor<base_unit_name, unit_name, STORAGE_TYPE>						                                                                        \
+{                                                                                                                                                               \
+	static typename HighestPrecisionType<STORAGE_TYPE>::type_t get() { return typename HighestPrecisionType<STORAGE_TYPE>::type_t(1.0 / (conversion_factor)); } \
 }
 
 struct Bytes { typedef Bytes base_unit_t; };
@@ -302,16 +362,19 @@ LL_DECLARE_DERIVED_UNIT(Bytes, Gigabits,  (1024 * 1024 * 1024 / 8));
 struct Seconds { typedef Seconds base_unit_t; };
 LL_DECLARE_DERIVED_UNIT(Seconds, Minutes,		60);
 LL_DECLARE_DERIVED_UNIT(Seconds, Hours,			60 * 60);
-LL_DECLARE_DERIVED_UNIT(Seconds, Days,			60 * 60 * 24);
-LL_DECLARE_DERIVED_UNIT(Seconds, Weeks,			60 * 60 * 24 * 7);
 LL_DECLARE_DERIVED_UNIT(Seconds, Milliseconds,	(1.0 / 1000.0));
 LL_DECLARE_DERIVED_UNIT(Seconds, Microseconds,	(1.0 / (1000000.0)));
 LL_DECLARE_DERIVED_UNIT(Seconds, Nanoseconds,	(1.0 / (1000000000.0)));
 
 struct Meters { typedef Meters base_unit_t; };
 LL_DECLARE_DERIVED_UNIT(Meters, Kilometers, 1000);
-LL_DECLARE_DERIVED_UNIT(Meters, Centimeters, (1.0 / 100));
-LL_DECLARE_DERIVED_UNIT(Meters, Millimeters, (1.0 / 1000));
+LL_DECLARE_DERIVED_UNIT(Meters, Centimeters, (1.0 / 100.0));
+LL_DECLARE_DERIVED_UNIT(Meters, Millimeters, (1.0 / 1000.0));
+
+struct Hertz { typedef Hertz base_unit_t; };
+LL_DECLARE_DERIVED_UNIT(Hertz, Kilohertz, 1000);
+LL_DECLARE_DERIVED_UNIT(Hertz, Megahertz, 1000 * 1000);
+LL_DECLARE_DERIVED_UNIT(Hertz, Gigahertz, 1000 * 1000 * 1000);
 }
 
 #endif // LL_LLUNIT_H

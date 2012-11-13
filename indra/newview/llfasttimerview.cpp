@@ -61,17 +61,17 @@ static const S32 LINE_GRAPH_HEIGHT = 240;
 static S32 FTV_NUM_TIMERS;
 const S32 FTV_MAX_DEPTH = 8;
 
-std::vector<LLFastTimer::NamedTimer*> ft_display_idx; // line of table entry for display purposes (for collapse)
+std::vector<LLFastTimer::DeclareTimer*> ft_display_idx; // line of table entry for display purposes (for collapse)
 
-typedef LLTreeDFSIter<LLFastTimer::NamedTimer, LLFastTimer::NamedTimer::child_const_iter> timer_tree_iterator_t;
+typedef LLTreeDFSIter<LLFastTimer::DeclareTimer, LLFastTimer::DeclareTimer::child_const_iter> timer_tree_iterator_t;
 
 BOOL LLFastTimerView::sAnalyzePerformance = FALSE;
 
-static timer_tree_iterator_t begin_timer_tree(LLFastTimer::NamedTimer& id) 
+static timer_tree_iterator_t begin_timer_tree(LLFastTimer::DeclareTimer& id) 
 { 
 	return timer_tree_iterator_t(&id, 
-							boost::bind(boost::mem_fn(&LLFastTimer::NamedTimer::beginChildren), _1), 
-							boost::bind(boost::mem_fn(&LLFastTimer::NamedTimer::endChildren), _1));
+							boost::bind(boost::mem_fn(&LLFastTimer::DeclareTimer::beginChildren), _1), 
+							boost::bind(boost::mem_fn(&LLFastTimer::DeclareTimer::endChildren), _1));
 }
 
 static timer_tree_iterator_t end_timer_tree() 
@@ -92,7 +92,7 @@ LLFastTimerView::LLFastTimerView(const LLSD& key)
 	mScrollIndex = 0;
 	mHoverID = NULL;
 	mHoverBarIndex = -1;
-	FTV_NUM_TIMERS = LLFastTimer::NamedTimer::instanceCount();
+	FTV_NUM_TIMERS = LLFastTimer::DeclareTimer::instanceCount();
 	mPrintStats = -1;	
 }
 
@@ -139,13 +139,13 @@ BOOL LLFastTimerView::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	{
 		S32 bar_idx = MAX_VISIBLE_HISTORY - ((y - mBarRect.mBottom) * (MAX_VISIBLE_HISTORY + 2) / mBarRect.getHeight());
 		bar_idx = llclamp(bar_idx, 0, MAX_VISIBLE_HISTORY);
-		mPrintStats = LLFastTimer::NamedTimer::HISTORY_NUM - mScrollIndex - bar_idx;
+		mPrintStats = LLFastTimer::DeclareTimer::HISTORY_NUM - mScrollIndex - bar_idx;
 		return TRUE;
 	}
 	return LLFloater::handleRightMouseDown(x, y, mask);
 }
 
-LLFastTimer::NamedTimer* LLFastTimerView::getLegendID(S32 y)
+LLFastTimer::DeclareTimer* LLFastTimerView::getLegendID(S32 y)
 {
 	S32 idx = (getRect().getHeight() - y) / (LLFontGL::getFontMonospace()->getLineHeight()+2) - 5;
 
@@ -172,7 +172,7 @@ BOOL LLFastTimerView::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	if (x < mBarRect.mLeft) 
 	{
-		LLFastTimer::NamedTimer* idp = getLegendID(y);
+		LLFastTimer::DeclareTimer* idp = getLegendID(y);
 		if (idp)
 		{
 			idp->setCollapsed(!idp->getCollapsed());
@@ -235,7 +235,7 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 	if (hasMouseCapture())
 	{
 		F32 lerp = llclamp(1.f - (F32) (x - mGraphRect.mLeft) / (F32) mGraphRect.getWidth(), 0.f, 1.f);
-		mScrollIndex = llround( lerp * (F32)(LLFastTimer::NamedTimer::HISTORY_NUM - MAX_VISIBLE_HISTORY));
+		mScrollIndex = llround( lerp * (F32)(LLFastTimer::DeclareTimer::HISTORY_NUM - MAX_VISIBLE_HISTORY));
 		mScrollIndex = llclamp(	mScrollIndex, 0, LLFastTimer::getLastFrameIndex());
 		return TRUE;
 	}
@@ -288,7 +288,7 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 	}
 	else if (x < mBarRect.mLeft) 
 	{
-		LLFastTimer::NamedTimer* timer_id = getLegendID(y);
+		LLFastTimer::DeclareTimer* timer_id = getLegendID(y);
 		if (timer_id)
 		{
 			mHoverID = timer_id;
@@ -298,6 +298,23 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 	return LLFloater::handleHover(x, y, mask);
 }
 
+
+static std::string get_tooltip(LLFastTimer::DeclareTimer& timer, S32 history_index = -1)
+{
+	F64 ms_multiplier = 1000.0 / (F64)LLFastTimer::countsPerSecond();
+
+	std::string tooltip;
+	if (history_index < 0)
+	{
+		// by default, show average number of call
+		tooltip = llformat("%s (%d ms, %d calls)", timer.getName().c_str(), (S32)(timer.getCountAverage() * ms_multiplier), (S32)timer.getCallAverage());
+	}
+	else
+	{
+		tooltip = llformat("%s (%d ms, %d calls)", timer.getName().c_str(), (S32)(timer.getHistoricalCount(history_index) * ms_multiplier), (S32)timer.getHistoricalCalls(history_index));
+	}
+	return tooltip;
+}
 
 BOOL LLFastTimerView::handleToolTip(S32 x, S32 y, MASK mask)
 {
@@ -309,8 +326,10 @@ BOOL LLFastTimerView::handleToolTip(S32 x, S32 y, MASK mask)
 			LLRect screen_rect;
 			localRectToScreen(mToolTipRect, &screen_rect);
 
+			std::string tooltip = get_tooltip(*mHoverTimer, LLFastTimer::DeclareTimer::HISTORY_NUM - mScrollIndex - mHoverBarIndex);
+
 			LLToolTipMgr::instance().show(LLToolTip::Params()
-				.message(mHoverTimer->getToolTip(LLFastTimer::NamedTimer::HISTORY_NUM - mScrollIndex - mHoverBarIndex))
+				.message(tooltip)
 				.sticky_rect(screen_rect)
 				.delay_time(0.f));
 
@@ -322,10 +341,10 @@ BOOL LLFastTimerView::handleToolTip(S32 x, S32 y, MASK mask)
 		// tooltips for timer legend
 		if (x < mBarRect.mLeft) 
 		{
-			LLFastTimer::NamedTimer* idp = getLegendID(y);
+			LLFastTimer::DeclareTimer* idp = getLegendID(y);
 			if (idp)
 			{
-				LLToolTipMgr::instance().show(idp->getToolTip());
+				LLToolTipMgr::instance().show(get_tooltip(*idp));
 
 				return TRUE;
 			}
@@ -340,13 +359,13 @@ BOOL LLFastTimerView::handleScrollWheel(S32 x, S32 y, S32 clicks)
 	LLFastTimer::sPauseHistory = TRUE;
 	mScrollIndex = llclamp(	mScrollIndex + clicks,
 							0,
-							llmin(LLFastTimer::getLastFrameIndex(), (S32)LLFastTimer::NamedTimer::HISTORY_NUM - MAX_VISIBLE_HISTORY));
+							llmin(LLFastTimer::getLastFrameIndex(), (S32)LLFastTimer::DeclareTimer::HISTORY_NUM - MAX_VISIBLE_HISTORY));
 	return TRUE;
 }
 
 static LLFastTimer::DeclareTimer FTM_RENDER_TIMER("Timers", true);
 
-static std::map<LLFastTimer::NamedTimer*, LLColor4> sTimerColors;
+static std::map<LLFastTimer::DeclareTimer*, LLColor4> sTimerColors;
 
 void LLFastTimerView::draw()
 {
@@ -426,7 +445,7 @@ void LLFastTimerView::draw()
 		it != timer_tree_iterator_t();
 		++it)
 	{
-		LLFastTimer::NamedTimer* idp = (*it);
+		LLFastTimer::DeclareTimer* idp = (*it);
 
 		const F32 HUE_INCREMENT = 0.23f;
 		hue = fmodf(hue + HUE_INCREMENT, 1.f);
@@ -446,12 +465,12 @@ void LLFastTimerView::draw()
 		LLLocalClipRect clip(LLRect(margin, y, LEGEND_WIDTH, margin));
 		S32 cur_line = 0;
 		ft_display_idx.clear();
-		std::map<LLFastTimer::NamedTimer*, S32> display_line;
+		std::map<LLFastTimer::DeclareTimer*, S32> display_line;
 		for (timer_tree_iterator_t it = begin_timer_tree(getFrameTimer());
 			it != timer_tree_iterator_t();
 			++it)
 		{
-			LLFastTimer::NamedTimer* idp = (*it);
+			LLFastTimer::DeclareTimer* idp = (*it);
 			display_line[idp] = cur_line;
 			ft_display_idx.push_back(idp);
 			cur_line++;
@@ -471,7 +490,7 @@ void LLFastTimerView::draw()
 			S32 calls = 0;
 			if (mHoverBarIndex > 0 && mHoverID)
 			{
-				S32 hidx = LLFastTimer::NamedTimer::HISTORY_NUM - mScrollIndex - mHoverBarIndex;
+				S32 hidx = LLFastTimer::DeclareTimer::HISTORY_NUM - mScrollIndex - mHoverBarIndex;
 				U64 ticks = idp->getHistoricalCount(hidx);
 				ms = (F32)((F64)ticks * iclock_freq);
 				calls = (S32)idp->getHistoricalCalls(hidx);
@@ -509,7 +528,7 @@ void LLFastTimerView::draw()
 
 			x += dx;
 			BOOL is_child_of_hover_item = (idp == mHoverID);
-			LLFastTimer::NamedTimer* next_parent = idp->getParent();
+			LLFastTimer::DeclareTimer* next_parent = idp->getParent();
 			while(!is_child_of_hover_item && next_parent)
 			{
 				is_child_of_hover_item = (mHoverID == next_parent);
@@ -687,7 +706,7 @@ void LLFastTimerView::draw()
 			S32 tidx;
 			if (j >= 0)
 			{
-				tidx = LLFastTimer::NamedTimer::HISTORY_NUM - j - 1 - mScrollIndex;
+				tidx = LLFastTimer::DeclareTimer::HISTORY_NUM - j - 1 - mScrollIndex;
 			}
 			else
 			{
@@ -701,14 +720,14 @@ void LLFastTimerView::draw()
 			std::vector<S32> deltax;
 			xpos.push_back(xleft);
 			
-			LLFastTimer::NamedTimer* prev_id = NULL;
+			LLFastTimer::DeclareTimer* prev_id = NULL;
 
 			S32 i = 0;
 			for(timer_tree_iterator_t it = begin_timer_tree(getFrameTimer());
 				it != end_timer_tree();
 				++it, ++i)
 			{
-				LLFastTimer::NamedTimer* idp = (*it);
+				LLFastTimer::DeclareTimer* idp = (*it);
 				F32 frac = tidx == -1
 					? (F32)idp->getCountAverage() / (F32)totalticks 
 					: (F32)idp->getHistoricalCount(tidx) / (F32)totalticks;
@@ -735,7 +754,7 @@ void LLFastTimerView::draw()
 				{
 					U64 sublevelticks = 0;
 
-					for (LLFastTimer::NamedTimer::child_const_iter it = prev_id->beginChildren();
+					for (LLFastTimer::DeclareTimer::child_const_iter it = prev_id->beginChildren();
 						it != prev_id->endChildren();
 						++it)
 					{
@@ -777,7 +796,7 @@ void LLFastTimerView::draw()
 					S32 scale_offset = 0;
 
 					BOOL is_child_of_hover_item = (idp == mHoverID);
-					LLFastTimer::NamedTimer* next_parent = idp->getParent();
+					LLFastTimer::DeclareTimer* next_parent = idp->getParent();
 					while(!is_child_of_hover_item && next_parent)
 					{
 						is_child_of_hover_item = (mHoverID == next_parent);
@@ -842,10 +861,10 @@ void LLFastTimerView::draw()
 
 			//highlight visible range
 			{
-				S32 first_frame = LLFastTimer::NamedTimer::HISTORY_NUM - mScrollIndex;
+				S32 first_frame = LLFastTimer::DeclareTimer::HISTORY_NUM - mScrollIndex;
 				S32 last_frame = first_frame - MAX_VISIBLE_HISTORY;
 				
-				F32 frame_delta = ((F32) (mGraphRect.getWidth()))/(LLFastTimer::NamedTimer::HISTORY_NUM-1);
+				F32 frame_delta = ((F32) (mGraphRect.getWidth()))/(LLFastTimer::DeclareTimer::HISTORY_NUM-1);
 				
 				F32 right = (F32) mGraphRect.mLeft + frame_delta*first_frame;
 				F32 left = (F32) mGraphRect.mLeft + frame_delta*last_frame;
@@ -872,7 +891,7 @@ void LLFastTimerView::draw()
 				it != end_timer_tree();
 				++it)
 			{
-				LLFastTimer::NamedTimer* idp = (*it);
+				LLFastTimer::DeclareTimer* idp = (*it);
 				
 				//fatten highlighted timer
 				if (mHoverID == idp)
@@ -896,8 +915,8 @@ void LLFastTimerView::draw()
 
 				gGL.color4f(col[0], col[1], col[2], alpha);				
 				gGL.begin(LLRender::TRIANGLE_STRIP);
-				for (U32 j = llmax(0, LLFastTimer::NamedTimer::HISTORY_NUM - LLFastTimer::getLastFrameIndex());
-					j < LLFastTimer::NamedTimer::HISTORY_NUM;
+				for (U32 j = llmax(0, LLFastTimer::DeclareTimer::HISTORY_NUM - LLFastTimer::getLastFrameIndex());
+					j < LLFastTimer::DeclareTimer::HISTORY_NUM;
 					j++)
 				{
 					U64 ticks = idp->getHistoricalCount(j);
@@ -918,7 +937,7 @@ void LLFastTimerView::draw()
 						//normalize to highlighted timer
 						cur_max = llmax(cur_max, ticks);
 					}
-					F32 x = mGraphRect.mLeft + ((F32) (mGraphRect.getWidth()))/(LLFastTimer::NamedTimer::HISTORY_NUM-1)*j;
+					F32 x = mGraphRect.mLeft + ((F32) (mGraphRect.getWidth()))/(LLFastTimer::DeclareTimer::HISTORY_NUM-1)*j;
 					F32 y = mGraphRect.mBottom + (F32) mGraphRect.getHeight()/max_ticks*ticks;
 					gGL.vertex2f(x,y);
 					gGL.vertex2f(x,mGraphRect.mBottom);
@@ -973,7 +992,7 @@ void LLFastTimerView::draw()
 			it != end_timer_tree();
 			++it)
 		{
-			LLFastTimer::NamedTimer* idp = (*it);
+			LLFastTimer::DeclareTimer* idp = (*it);
 
 			if (!first)
 			{
@@ -995,7 +1014,7 @@ void LLFastTimerView::draw()
 			it != end_timer_tree();
 			++it)
 		{
-			LLFastTimer::NamedTimer* idp = (*it);
+			LLFastTimer::DeclareTimer* idp = (*it);
 
 			if (!first)
 			{
@@ -1033,11 +1052,8 @@ void LLFastTimerView::draw()
 
 F64 LLFastTimerView::getTime(const std::string& name)
 {
-	const LLFastTimer::NamedTimer* timerp = LLFastTimer::getTimerByName(name);
-	if (timerp)
-	{
-		return (F64)timerp->getCountAverage() / (F64)LLFastTimer::countsPerSecond();
-	}
+	//TODO: replace calls to this with use of timer object directly
+	//llstatic_assert(false, "TODO: implement");
 	return 0.0;
 }
 
@@ -1552,9 +1568,9 @@ void	LLFastTimerView::onClickCloseBtn()
 	setVisible(false);
 }
 
-LLFastTimer::NamedTimer& LLFastTimerView::getFrameTimer()
+LLFastTimer::DeclareTimer& LLFastTimerView::getFrameTimer()
 {
-	return FTM_FRAME.getNamedTimer();
+	return FTM_FRAME;
 }
 
 

@@ -122,7 +122,7 @@ namespace LLTrace
 		template <typename T>
 		T getSum(const Count<T, typename T::is_unit_tag_t>& stat) const
 		{
-			return (T)getSum(static_cast<const TraceType<CountAccumulator<StorageType<T>::type_t> >&> (stat));
+			return (T)getSum(static_cast<const TraceType<CountAccumulator<LLUnits::HighestPrecisionType<T>::type_t> >&> (stat));
 		}
 
 		F64 getPerSec(const TraceType<CountAccumulator<F64> >& stat) const;
@@ -130,7 +130,7 @@ namespace LLTrace
 		template <typename T>
 		T getPerSec(const Count<T, typename T::is_unit_tag_t>& stat) const
 		{
-			return (T)getPerSec(static_cast<const TraceType<CountAccumulator<StorageType<T>::type_t> >&> (stat));
+			return (T)getPerSec(static_cast<const TraceType<CountAccumulator<LLUnits::HighestPrecisionType<T>::type_t> >&> (stat));
 		}
 
 		U32 getSampleCount(const TraceType<CountAccumulator<F64> >& stat) const;
@@ -143,7 +143,7 @@ namespace LLTrace
 		template <typename T>
 		T getSum(const Measurement<T, typename T::is_unit_tag_t>& stat) const
 		{
-			return (T)getSum(static_cast<const TraceType<MeasurementAccumulator<StorageType<T>::type_t> >&> (stat));
+			return (T)getSum(static_cast<const TraceType<MeasurementAccumulator<LLUnits::HighestPrecisionType<T>::type_t> >&> (stat));
 		}
 
 		F64 getPerSec(const TraceType<MeasurementAccumulator<F64> >& stat) const;
@@ -151,7 +151,7 @@ namespace LLTrace
 		template <typename T>
 		T getPerSec(const Measurement<T, typename T::is_unit_tag_t>& stat) const
 		{
-			return (T)getPerSec(static_cast<const TraceType<MeasurementAccumulator<StorageType<T>::type_t> >&> (stat));
+			return (T)getPerSec(static_cast<const TraceType<MeasurementAccumulator<LLUnits::HighestPrecisionType<T>::type_t> >&> (stat));
 		}
 
 		F64 getMin(const TraceType<MeasurementAccumulator<F64> >& stat) const;
@@ -159,7 +159,7 @@ namespace LLTrace
 		template <typename T>
 		T getMin(const Measurement<T, typename T::is_unit_tag_t>& stat) const
 		{
-			return (T)getMin(static_cast<const TraceType<MeasurementAccumulator<StorageType<T>::type_t> >&> (stat));
+			return (T)getMin(static_cast<const TraceType<MeasurementAccumulator<LLUnits::HighestPrecisionType<T>::type_t> >&> (stat));
 		}
 
 		F64 getMax(const TraceType<MeasurementAccumulator<F64> >& stat) const;
@@ -167,7 +167,7 @@ namespace LLTrace
 		template <typename T>
 		T getMax(const Measurement<T, typename T::is_unit_tag_t>& stat) const
 		{
-			return (T)getMax(static_cast<const TraceType<MeasurementAccumulator<StorageType<T>::type_t> >&> (stat));
+			return (T)getMax(static_cast<const TraceType<MeasurementAccumulator<LLUnits::HighestPrecisionType<T>::type_t> >&> (stat));
 		}
 
 		F64 getMean(const TraceType<MeasurementAccumulator<F64> >& stat) const;
@@ -175,7 +175,7 @@ namespace LLTrace
 		template <typename T>
 		T getMean(Measurement<T, typename T::is_unit_tag_t>& stat) const
 		{
-			return (T)getMean(static_cast<const TraceType<MeasurementAccumulator<StorageType<T>::type_t> >&> (stat));
+			return (T)getMean(static_cast<const TraceType<MeasurementAccumulator<LLUnits::HighestPrecisionType<T>::type_t> >&> (stat));
 		}
 
 		F64 getStandardDeviation(const TraceType<MeasurementAccumulator<F64> >& stat) const;
@@ -183,7 +183,7 @@ namespace LLTrace
 		template <typename T>
 		T getStandardDeviation(const Measurement<T, typename T::is_unit_tag_t>& stat) const
 		{
-			return (T)getMean(static_cast<const TraceType<MeasurementAccumulator<StorageType<T>::type_t> >&> (stat));
+			return (T)getMean(static_cast<const TraceType<MeasurementAccumulator<LLUnits::HighestPrecisionType<T>::type_t> >&> (stat));
 		}
 
 		F64 getLastValue(const TraceType<MeasurementAccumulator<F64> >& stat) const;
@@ -191,7 +191,7 @@ namespace LLTrace
 		template <typename T>
 		T getLastValue(const Measurement<T, typename T::is_unit_tag_t>& stat) const
 		{
-			return (T)getLastValue(static_cast<const TraceType<MeasurementAccumulator<StorageType<T>::type_t> >&> (stat));
+			return (T)getLastValue(static_cast<const TraceType<MeasurementAccumulator<LLUnits::HighestPrecisionType<T>::type_t> >&> (stat));
 		}
 
 		U32 getSampleCount(const TraceType<MeasurementAccumulator<F64> >& stat) const;

@@ -30,7 +30,6 @@
 #include "llinstancetracker.h"
 
 #define FAST_TIMER_ON 1
-#define DEBUG_FAST_TIMER_THREADS 1
 
 class LLMutex;
 
@@ -45,64 +44,53 @@ LL_COMMON_API void assert_main_thread();
 class LL_COMMON_API LLFastTimer
 {
 public:
-	class NamedTimer;
-
+	class DeclareTimer;
 	struct LL_COMMON_API FrameState
 	{
 		FrameState();
-		void setNamedTimer(class NamedTimer* timerp) { mTimer = timerp; }
 
 		U32 				mSelfTimeCounter;
 		U32 				mTotalTimeCounter;
 		U32 				mCalls;
-		FrameState*			mParent;		// info for caller timer
-		FrameState*			mLastCaller;	// used to bootstrap tree construction
-		class NamedTimer*	mTimer;
+		DeclareTimer*		mLastCaller;	// used to bootstrap tree construction
 		U16					mActiveCount;	// number of timers with this ID active on stack
 		bool				mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame
 	};
 
 	// stores a "named" timer instance to be reused via multiple LLFastTimer stack instances
-	class LL_COMMON_API NamedTimer
-	:	public LLInstanceTracker<NamedTimer>
+	class LL_COMMON_API DeclareTimer
+	:	public LLInstanceTracker<DeclareTimer>
 	{
-		friend class DeclareTimer;
 	public:
-		~NamedTimer();
+		DeclareTimer(const std::string& name, bool open = false, DeclareTimer* parent = &getRootTimer());
+		~DeclareTimer();
 
 		enum { HISTORY_NUM = 300 };
 
 		const std::string& getName() const { return mName; }
-		NamedTimer* getParent() const { return mParent; }
-		void setParent(NamedTimer* parent);
+		DeclareTimer* getParent() const { return mParent; }
+		void setParent(DeclareTimer* parent);
 		S32 getDepth();
-		std::string getToolTip(S32 history_index = -1);
 
-		typedef std::vector<NamedTimer*>::const_iterator child_const_iter;
+		typedef std::vector<DeclareTimer*>::const_iterator child_const_iter;
 		child_const_iter beginChildren();
 		child_const_iter endChildren();
-		std::vector<NamedTimer*>& getChildren();
+		std::vector<DeclareTimer*>& getChildren();
 
-		void setCollapsed(bool collapsed) { mCollapsed = collapsed; }
-		bool getCollapsed() const { return mCollapsed; }
+		void setCollapsed(bool collapsed)	{ mCollapsed = collapsed; }
+		bool getCollapsed() const			{ return mCollapsed; }
 
 		U32 getCountAverage() const { return mCountAverage; }
-		U32 getCallAverage() const { return mCallAverage; }
+		U32 getCallAverage() const	{ return mCallAverage; }
 
 		U32 getHistoricalCount(S32 history_index = 0) const;
 		U32 getHistoricalCalls(S32 history_index = 0) const;
 
-		void setFrameState(FrameState* state) { mFrameState = state; state->setNamedTimer(this); }
-		FrameState& getFrameState() const;
+		static DeclareTimer& getRootTimer();
 
 	private:
 		friend class LLFastTimer;
-		friend class NamedTimerFactory;
 
-		//
-		// methods
-		//
-		NamedTimer(const std::string& name);
 		// recursive call to gather total time from children
 		static void accumulateTimings();
 
@@ -117,82 +105,62 @@ public:
 		//
 		// members
 		//
-		FrameState*		mFrameState;
+		U32 						mSelfTimeCounter;
+		U32 						mTotalTimeCounter;
+		U32 						mCalls;
+		DeclareTimer*				mLastCaller;	// used to bootstrap tree construction
+		U16							mActiveCount;	// number of timers with this ID active on stack
+		bool						mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame
 
-		std::string	mName;
+		std::string					mName;
 
-		// sum of recorded self time and tree time of all children timers (might not match actual recorded time of children if topology is incomplete
-		U32 		mTreeTimeCounter; 
+		// sum of recored self time and tree time of all children timers (might not match actual recorded time of children if topology is incomplete
+		U32 						mTreeTimeCounter; 
 
-		U32 		mCountAverage;
-		U32			mCallAverage;
+		U32 						mCountAverage;
+		U32							mCallAverage;
 
-		U32*		mCountHistory;
-		U32*		mCallHistory;
+		U32*						mCountHistory;
+		U32*						mCallHistory;
 
 		// tree structure
-		NamedTimer*					mParent;				// NamedTimer of caller(parent)
-		std::vector<NamedTimer*>	mChildren;
+		DeclareTimer*				mParent;				// DeclareTimer of caller(parent)
+		std::vector<DeclareTimer*>	mChildren;
 		bool						mCollapsed;				// don't show children
 		bool						mNeedsSorting;			// sort children whenever child added
 	};
 
-	// used to statically declare a new named timer
-	class LL_COMMON_API DeclareTimer
-	:	public LLInstanceTracker<DeclareTimer>
-	{
-		friend class LLFastTimer;
-	public:
-		DeclareTimer(const std::string& name, bool open);
-		DeclareTimer(const std::string& name);
-
-		NamedTimer& getNamedTimer() { return mTimer; }
-
-	private:
-		FrameState		mFrameState;
-		NamedTimer&		mTimer;
-	};
-
 public:
-	//LLFastTimer(LLFastTimer::FrameState* state);
-
 	LL_FORCE_INLINE LLFastTimer(LLFastTimer::DeclareTimer& timer)
 	{
 #if FAST_TIMER_ON
-		LLFastTimer::FrameState* frame_state = &timer.mFrameState;
 		mStartTime = getCPUClockCount32();
 
-		frame_state->mActiveCount++;
-		frame_state->mCalls++;
+		timer.mActiveCount++;
+		timer.mCalls++;
 		// keep current parent as long as it is active when we are
-		frame_state->mMoveUpTree |= (frame_state->mParent->mActiveCount == 0);
+		timer.mMoveUpTree |= (timer.mParent->mActiveCount == 0);
 
 		LLFastTimer::CurTimerData* cur_timer_data = &LLFastTimer::sCurTimerData;
 		mLastTimerData = *cur_timer_data;
 		cur_timer_data->mCurTimer = this;
-		cur_timer_data->mFrameState = frame_state;
+		cur_timer_data->mTimerData = &timer;
 		cur_timer_data->mChildTime = 0;
-#endif
-#if DEBUG_FAST_TIMER_THREADS
-#if !LL_RELEASE
-		assert_main_thread();
-#endif
 #endif
 	}
 
 	LL_FORCE_INLINE ~LLFastTimer()
 	{
 #if FAST_TIMER_ON
-		LLFastTimer::FrameState* frame_state = LLFastTimer::sCurTimerData.mFrameState;
 		U32 total_time = getCPUClockCount32() - mStartTime;
-
-		frame_state->mSelfTimeCounter += total_time - LLFastTimer::sCurTimerData.mChildTime;
-		frame_state->mTotalTimeCounter += total_time;
-		frame_state->mActiveCount--;
+		DeclareTimer* timer_data = LLFastTimer::sCurTimerData.mTimerData;
+		timer_data->mSelfTimeCounter += total_time - LLFastTimer::sCurTimerData.mChildTime;
+		timer_data->mTotalTimeCounter += total_time;
+		timer_data->mActiveCount--;
 
 		// store last caller to bootstrap tree creation
 		// do this in the destructor in case of recursion to get topmost caller
-		frame_state->mLastCaller = mLastTimerData.mFrameState;
+		timer_data->mLastCaller = mLastTimerData.mTimerData;
 
 		// we are only tracking self time, so subtract our total time delta from parents
 		mLastTimerData.mChildTime += total_time;
@@ -225,12 +193,11 @@ public:
 	static S32 getCurFrameIndex() { return sCurFrameIndex; }
 
 	static void writeLog(std::ostream& os);
-	static const NamedTimer* getTimerByName(const std::string& name);
 
 	struct CurTimerData
 	{
 		LLFastTimer*	mCurTimer;
-		FrameState*		mFrameState;
+		DeclareTimer*	mTimerData;
 		U32				mChildTime;
 	};
 	static CurTimerData		sCurTimerData;
@@ -374,15 +341,13 @@ private:
 
 #endif
 
-	static U64 sClockResolution;
-
-	static S32				sCurFrameIndex;
-	static S32				sLastFrameIndex;
-	static U64				sLastFrameTime;
+	static U64	sClockResolution;
+	static S32	sCurFrameIndex;
+	static S32	sLastFrameIndex;
+	static U64	sLastFrameTime;
 
 	U32							mStartTime;
 	LLFastTimer::CurTimerData	mLastTimerData;
-
 };
 
 typedef class LLFastTimer LLFastTimer;

@@ -2715,7 +2715,7 @@ void LLPipeline::updateGeom(F32 max_dtime)
 		
 	S32 count = 0;
 	
-	max_dtime = llmax(update_timer.getElapsedTimeF32()+0.001f, max_dtime);
+	max_dtime = llmax(update_timer.getElapsedTimeF32()+0.001f, LLUnit<LLUnits::Seconds, F32>(max_dtime));
 	LLSpatialGroup* last_group = NULL;
 	LLSpatialBridge* last_bridge = NULL;
 
