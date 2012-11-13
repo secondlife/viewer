@@ -5453,6 +5453,7 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 						p.on_enable.parameter = cbparams;
 						LLView* parent = attachment->getIsHUDAttachment() ? attach_hud_menu : attach_menu;
 						LLUICtrlFactory::create<LLMenuItemCallGL>(p, parent);
+						items.push_back(p.name);
 					}
 				}
 			}
