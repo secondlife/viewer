@@ -38,25 +38,9 @@ class LLMutex;
 
 #define LL_FASTTIMER_USE_RDTSC 1
 
-
-LL_COMMON_API void assert_main_thread();
-
 class LL_COMMON_API LLFastTimer
 {
 public:
-	class DeclareTimer;
-	struct LL_COMMON_API FrameState
-	{
-		FrameState();
-
-		U32 				mSelfTimeCounter;
-		U32 				mTotalTimeCounter;
-		U32 				mCalls;
-		DeclareTimer*		mLastCaller;	// used to bootstrap tree construction
-		U16					mActiveCount;	// number of timers with this ID active on stack
-		bool				mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame
-	};
-
 	// stores a "named" timer instance to be reused via multiple LLFastTimer stack instances
 	class LL_COMMON_API DeclareTimer
 	:	public LLInstanceTracker<DeclareTimer>

@@ -140,15 +140,6 @@ U64 LLFastTimer::countsPerSecond() // counts per second for the *32-bit* timer
 }
 #endif
 
-LLFastTimer::FrameState::FrameState()
-:	mActiveCount(0),
-	mCalls(0),
-	mSelfTimeCounter(0),
-	mLastCaller(NULL),
-	mMoveUpTree(false)
-{}
-
-
 LLFastTimer::DeclareTimer::DeclareTimer(const std::string& name, bool open, DeclareTimer* parent)
 :	mName(name),
 	mCollapsed(true),
@@ -156,7 +147,12 @@ LLFastTimer::DeclareTimer::DeclareTimer(const std::string& name, bool open, Decl
 	mTreeTimeCounter(0),
 	mCountAverage(0),
 	mCallAverage(0),
-	mNeedsSorting(false)
+	mNeedsSorting(false),
+	mActiveCount(0),
+	mCalls(0),
+	mSelfTimeCounter(0),
+	mLastCaller(NULL),
+	mMoveUpTree(false)
 {
 	setCollapsed(!open);
 
