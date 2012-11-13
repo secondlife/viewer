@@ -212,7 +212,7 @@
               <key>hash</key>
               <string>6b448a9d0014c43f4f77b1410062525b</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-boost/rev/266872/arch/CYGWIN/installer/boost-1.52.0-windows-20121112.tar.bz</string>
+              <string>https://s3.amazonaws.com/automated-builds-secondlife-com/hg/repo/3p-boost/rev/266872/arch/CYGWIN/installer/boost-1.52.0-windows-20121112.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
