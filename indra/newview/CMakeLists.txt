@@ -199,6 +199,7 @@ set(viewer_SOURCE_FILES
     llfloatereditwater.cpp
     llfloaterenvironmentsettings.cpp
     llfloaterevent.cpp
+    llfloaterexperiences.cpp
     llfloaterfonttest.cpp
     llfloatergesture.cpp
     llfloatergodtools.cpp
@@ -367,6 +368,7 @@ set(viewer_SOURCE_FILES
     llpanelclassified.cpp
     llpanelcontents.cpp
     llpaneleditwearable.cpp
+    llpanelexperiences.cpp
     llpanelface.cpp
     llpanelgenerictip.cpp
     llpanelgroup.cpp
@@ -775,6 +777,7 @@ set(viewer_HEADER_FILES
     llfloatereditwater.h
     llfloaterenvironmentsettings.h
     llfloaterevent.h
+    llfloaterexperiences.h
     llfloaterfonttest.h
     llfloatergesture.h
     llfloatergodtools.h
@@ -937,6 +940,7 @@ set(viewer_HEADER_FILES
     llpanelclassified.h
     llpanelcontents.h
     llpaneleditwearable.h
+    llpanelexperiences.h
     llpanelface.h
     llpanelgenerictip.h
     llpanelgroup.h
