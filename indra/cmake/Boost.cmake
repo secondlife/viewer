@@ -40,13 +40,13 @@ else (STANDALONE)
           optimized libboost_program_options-mt
           debug libboost_program_options-mt-gd)
       set(BOOST_REGEX_LIBRARY
-          optimized libboost_regex-mt}
+          optimized libboost_regex-mt
           debug libboost_regex-mt-gd)
       set(BOOST_SYSTEM_LIBRARY 
-          optimized libboost_system-mt}
+          optimized libboost_system-mt
           debug libboost_system-mt-gd)
       set(BOOST_FILESYSTEM_LIBRARY 
-          optimized libboost_filesystem-mt}
+          optimized libboost_filesystem-mt
           debug libboost_filesystem-mt-gd)    
     endif (MSVC80)
   elseif (DARWIN OR LINUX)
