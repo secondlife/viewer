@@ -283,6 +283,12 @@ bool	LLFloaterIMNearbyChatScreenChannel::createPoolToast()
 
 void LLFloaterIMNearbyChatScreenChannel::addChat(LLSD& chat)
 {
+    //Ignore Nearby Toasts
+    if(gSavedSettings.getString("NotificationNearbyChatOptions") != "0")
+    {
+        return;
+    }
+
 	//look in pool. if there is any message
 	if(mStopProcessing)
 		return;
