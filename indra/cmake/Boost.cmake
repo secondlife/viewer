@@ -17,8 +17,8 @@ else (STANDALONE)
   set(Boost_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include)
 
   if (WINDOWS)
-    set(BOOST_VERSION 1_52)
     if(MSVC80)
+      set(BOOST_VERSION 1_52)
       set(BOOST_PROGRAM_OPTIONS_LIBRARY 
           optimized libboost_program_options-vc80-mt-${BOOST_VERSION}
           debug libboost_program_options-vc80-mt-gd-${BOOST_VERSION})
@@ -37,17 +37,17 @@ else (STANDALONE)
     else(MSVC80)
       # MSVC 10.0 config
       set(BOOST_PROGRAM_OPTIONS_LIBRARY 
-          optimized libboost_program_options-vc100-mt-${BOOST_VERSION}
-          debug libboost_program_options-vc100-mt-gd-${BOOST_VERSION})
+          optimized libboost_program_options-mt
+          debug libboost_program_options-mt-gd)
       set(BOOST_REGEX_LIBRARY
-          optimized libboost_regex-vc100-mt-${BOOST_VERSION}
-          debug libboost_regex-vc100-mt-gd-${BOOST_VERSION})
+          optimized libboost_regex-mt}
+          debug libboost_regex-mt-gd)
       set(BOOST_SYSTEM_LIBRARY 
-          optimized libboost_system-vc100-mt-${BOOST_VERSION}
-          debug libboost_system-vc100-mt-gd-${BOOST_VERSION})
+          optimized libboost_system-mt}
+          debug libboost_system-mt-gd)
       set(BOOST_FILESYSTEM_LIBRARY 
-          optimized libboost_filesystem-vc100-mt-${BOOST_VERSION}
-          debug libboost_filesystem-vc100-mt-gd-${BOOST_VERSION})    
+          optimized libboost_filesystem-mt}
+          debug libboost_filesystem-mt-gd)    
     endif (MSVC80)
   elseif (DARWIN OR LINUX)
     set(BOOST_PROGRAM_OPTIONS_LIBRARY boost_program_options-mt)
