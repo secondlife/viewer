@@ -149,29 +149,30 @@ void toast_callback(const LLSD& msg){
     {
         //Ignores non-friends
         if(LLAvatarTracker::instance().getBuddyInfo(msg["from_id"]) == NULL &&
-            gSavedSettings.getString("NotificationNonFriendIMOptions") != "0")
+            gSavedSettings.getString("NotificationNonFriendIMOptions") != "toast")
         {
             return;
         }
         //Ignores friends
-        else if(gSavedSettings.getString("NotificationFriendIMOptions") != "0")
+        else if(gSavedSettings.getString("NotificationFriendIMOptions") != "toast")
         {
             return;
         }
     }
     //Ignore Ad Hoc Toasts
     else if(session->isAdHocSessionType() &&
-        gSavedSettings.getString("NotificationConferenceIMOptions") != "0")
+        gSavedSettings.getString("NotificationConferenceIMOptions") != "toast")
     {
         return;
     }
     //Ignore Group Toasts
     else if(session->isGroupSessionType() &&
-        gSavedSettings.getString("NotificationGroupChatOptions") != "0")
+        gSavedSettings.getString("NotificationGroupChatOptions") != "toast")
     {
         return;
     }
 
+    //Show toast
 	LLAvatarNameCache::get(msg["from_id"].asUUID(),
 		boost::bind(&on_avatar_name_cache_toast,
 			_1, _2, msg));

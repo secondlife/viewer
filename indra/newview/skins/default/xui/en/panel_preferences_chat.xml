@@ -137,15 +137,15 @@
       <combo_box.item
           label="Pop up the message"
           name="PopUpMessage"
-          value="0"/>
+          value="toast"/>
       <combo_box.item
           label="Flash toolbar button"
           name="FlashToolbarButton"
-          value="1"/>
+          value="flash"/>
       <combo_box.item
           label="None"
           name="None"
-          value="2"/>
+          value="none"/>
     </combo_box>
     <text
         follows="left|top"
@@ -168,15 +168,15 @@
       <combo_box.item
           label="Pop up the message"
           name="PopUpMessage"
-          value="0"/>
+          value="toast"/>
       <combo_box.item
           label="Flash toolbar button"
           name="FlashToolbarButton"
-          value="1"/>
+          value="flash"/>
       <combo_box.item
           label="None"
           name="None"
-          value="2"/>
+          value="none"/>
     </combo_box>
     <text
         follows="left|top"
@@ -199,15 +199,15 @@
       <combo_box.item
           label="Pop up the message"
           name="PopUpMessage"
-          value="0"/>
+          value="toast"/>
       <combo_box.item
           label="Flash toolbar button"
           name="FlashToolbarButton"
-          value="1"/>
+          value="flash"/>
       <combo_box.item
           label="None"
           name="None"
-          value="2"/>
+          value="none"/>
     </combo_box>
     <text
         follows="left|top"
@@ -230,15 +230,15 @@
       <combo_box.item
           label="Pop up the message"
           name="PopUpMessage"
-          value="0"/>
+          value="toast"/>
       <combo_box.item
           label="Flash toolbar button"
           name="FlashToolbarButton"
-          value="1"/>
+          value="flash"/>
       <combo_box.item
           label="None"
           name="None"
-          value="2"/>
+          value="none"/>
     </combo_box>
     <text
         follows="left|top"
@@ -261,15 +261,15 @@
       <combo_box.item
           label="Pop up the message"
           name="PopUpMessage"
-          value="0"/>
+          value="toast"/>
       <combo_box.item
           label="Flash toolbar button"
           name="FlashToolBarButton"
-          value="1"/>
+          value="flash"/>
       <combo_box.item
           label="None"
           name="None"
-          value="2"/>
+          value="none"/>
     </combo_box>
     <text
         follows="left|top"

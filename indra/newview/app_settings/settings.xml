@@ -6316,7 +6316,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>0</string>
+      <string>toast</string>
     </map>  
     <key>NotificationFriendIMOptions</key>
     <map>
@@ -6327,7 +6327,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>0</string>
+      <string>toast</string>
     </map>
     <key>NotificationGroupChatOptions</key>
     <map>
@@ -6338,7 +6338,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>0</string>
+      <string>toast</string>
     </map>
     <key>NotificationNearbyChatOptions</key>
     <map>
@@ -6349,7 +6349,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>0</string>
+      <string>toast</string>
     </map>
     <key>NotificationNonFriendIMOptions</key>
     <map>
@@ -6360,7 +6360,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>0</string>
+      <string>toast</string>
     </map>  
     <key>NotificationToastLifeTime</key>
     <map>
