@@ -240,7 +240,7 @@ void LLConversationViewSession::toggleOpen()
 		{
 			getParentFolder()->setSelection(this, true);
 		}
-
+		mContainer->reSelectConversation();
 	}
 }
 

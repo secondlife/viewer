@@ -334,7 +334,7 @@ void LLFloaterIMContainer::onExpandCollapseButtonClicked()
 	{
 		collapseConversationsPane(!mConversationsPane->isCollapsed());
 	}
-	selectConversation(mSelectedSession);
+	reSelectConversation();
 }
 
 LLFloaterIMContainer* LLFloaterIMContainer::findInstance()
@@ -1572,6 +1572,16 @@ void LLFloaterIMContainer::onNearbyChatClosed()
 	// If nearby chat is the only remaining conversation and it is closed, close whole conversation floater as well
 	if (mConversationsItems.size() == 1)
 		closeFloater();
+}
+
+void LLFloaterIMContainer::reSelectConversation()
+{
+	LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(mSelectedSession);
+	if (session_floater->getHost())
+	{
+		selectFloater(session_floater);
+	}
+
 }
 
 // EOF

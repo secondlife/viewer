@@ -163,6 +163,7 @@ public:
 	LLConversationItem* addConversationListItem(const LLUUID& uuid, bool isWidgetSelected = false);
 	void setTimeNow(const LLUUID& session_id, const LLUUID& participant_id);
 	void setNearbyDistances();
+	void reSelectConversation();
 
 private:
 	LLConversationViewSession* createConversationItemWidget(LLConversationItem* item);
