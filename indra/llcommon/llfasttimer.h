@@ -33,131 +33,26 @@
 
 class LLMutex;
 
-#include <queue>
-#include "llsd.h"
+#include "lltrace.h"
 
 #define LL_FASTTIMER_USE_RDTSC 1
 
-class LL_COMMON_API LLFastTimer
+namespace LLTrace
+{
+
+class Time
 {
 public:
-	// stores a "named" timer instance to be reused via multiple LLFastTimer stack instances
-	class LL_COMMON_API DeclareTimer
-	:	public LLInstanceTracker<DeclareTimer>
-	{
-	public:
-		DeclareTimer(const std::string& name, bool open = false, DeclareTimer* parent = &getRootTimer());
-		~DeclareTimer();
-
-		enum { HISTORY_NUM = 300 };
-
-		const std::string& getName() const { return mName; }
-		DeclareTimer* getParent() const { return mParent; }
-		void setParent(DeclareTimer* parent);
-		S32 getDepth();
-
-		typedef std::vector<DeclareTimer*>::const_iterator child_const_iter;
-		child_const_iter beginChildren();
-		child_const_iter endChildren();
-		std::vector<DeclareTimer*>& getChildren();
-
-		void setCollapsed(bool collapsed)	{ mCollapsed = collapsed; }
-		bool getCollapsed() const			{ return mCollapsed; }
-
-		U32 getCountAverage() const { return mCountAverage; }
-		U32 getCallAverage() const	{ return mCallAverage; }
-
-		U32 getHistoricalCount(S32 history_index = 0) const;
-		U32 getHistoricalCalls(S32 history_index = 0) const;
-
-		static DeclareTimer& getRootTimer();
-
-	private:
-		friend class LLFastTimer;
-
-		// recursive call to gather total time from children
-		static void accumulateTimings();
-
-		// updates cumulative times and hierarchy,
-		// can be called multiple times in a frame, at any point
-		static void processTimes();
-
-		static void buildHierarchy();
-		static void resetFrame();
-		static void reset();
-
-		//
-		// members
-		//
-		U32 						mSelfTimeCounter;
-		U32 						mTotalTimeCounter;
-		U32 						mCalls;
-		DeclareTimer*				mLastCaller;	// used to bootstrap tree construction
-		U16							mActiveCount;	// number of timers with this ID active on stack
-		bool						mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame
-
-		std::string					mName;
-
-		// sum of recored self time and tree time of all children timers (might not match actual recorded time of children if topology is incomplete
-		U32 						mTreeTimeCounter; 
-
-		U32 						mCountAverage;
-		U32							mCallAverage;
-
-		U32*						mCountHistory;
-		U32*						mCallHistory;
-
-		// tree structure
-		DeclareTimer*				mParent;				// DeclareTimer of caller(parent)
-		std::vector<DeclareTimer*>	mChildren;
-		bool						mCollapsed;				// don't show children
-		bool						mNeedsSorting;			// sort children whenever child added
-	};
+	typedef Time self_t;
+	typedef class BlockTimer DeclareTimer;
 
 public:
-	LL_FORCE_INLINE LLFastTimer(LLFastTimer::DeclareTimer& timer)
-	{
-#if FAST_TIMER_ON
-		mStartTime = getCPUClockCount32();
-
-		timer.mActiveCount++;
-		timer.mCalls++;
-		// keep current parent as long as it is active when we are
-		timer.mMoveUpTree |= (timer.mParent->mActiveCount == 0);
-
-		LLFastTimer::CurTimerData* cur_timer_data = &LLFastTimer::sCurTimerData;
-		mLastTimerData = *cur_timer_data;
-		cur_timer_data->mCurTimer = this;
-		cur_timer_data->mTimerData = &timer;
-		cur_timer_data->mChildTime = 0;
-#endif
-	}
-
-	LL_FORCE_INLINE ~LLFastTimer()
-	{
-#if FAST_TIMER_ON
-		U32 total_time = getCPUClockCount32() - mStartTime;
-		DeclareTimer* timer_data = LLFastTimer::sCurTimerData.mTimerData;
-		timer_data->mSelfTimeCounter += total_time - LLFastTimer::sCurTimerData.mChildTime;
-		timer_data->mTotalTimeCounter += total_time;
-		timer_data->mActiveCount--;
-
-		// store last caller to bootstrap tree creation
-		// do this in the destructor in case of recursion to get topmost caller
-		timer_data->mLastCaller = mLastTimerData.mTimerData;
-
-		// we are only tracking self time, so subtract our total time delta from parents
-		mLastTimerData.mChildTime += total_time;
-
-		LLFastTimer::sCurTimerData = mLastTimerData;
-#endif
-	}
+	Time(BlockTimer& timer);
+	~Time();
 
 public:
-	static LLMutex*			sLogLock;
-	static std::queue<LLSD> sLogQueue;
-	static BOOL				sLog;
-	static BOOL				sMetricLog;
+	static bool				sLog;
+	static bool				sMetricLog;
 	static std::string		sLogName;
 	static bool 			sPauseHistory;
 	static bool 			sResetHistory;
@@ -180,11 +75,11 @@ public:
 
 	struct CurTimerData
 	{
-		LLFastTimer*	mCurTimer;
-		DeclareTimer*	mTimerData;
-		U32				mChildTime;
+		Time*				mCurTimer;
+		BlockTimer*			mTimerData;
+		U64					mChildTime;
 	};
-	static CurTimerData		sCurTimerData;
+	static LLThreadLocalPointer<CurTimerData>	sCurTimerData;
 
 private:
 
@@ -211,14 +106,14 @@ private:
 	//#undef _interlockedbittestandset
 	//#undef _interlockedbittestandreset
 
-	//inline U32 LLFastTimer::getCPUClockCount32()
+	//inline U32 Time::getCPUClockCount32()
 	//{
 	//	U64 time_stamp = __rdtsc();
 	//	return (U32)(time_stamp >> 8);
 	//}
 	//
 	//// return full timer value, *not* shifted by 8 bits
-	//inline U64 LLFastTimer::getCPUClockCount64()
+	//inline U64 Time::getCPUClockCount64()
 	//{
 	//	return __rdtsc();
 	//}
@@ -258,7 +153,7 @@ private:
 	}
 
 #else
-	//LL_COMMON_API U64 get_clock_count(); // in lltimer.cpp
+	//U64 get_clock_count(); // in lltimer.cpp
 	// These use QueryPerformanceCounter, which is arguably fine and also works on AMD architectures.
 	static U32 getCPUClockCount32()
 	{
@@ -330,10 +225,131 @@ private:
 	static S32	sLastFrameIndex;
 	static U64	sLastFrameTime;
 
-	U32							mStartTime;
-	LLFastTimer::CurTimerData	mLastTimerData;
+	U64							mStartTime;
+	Time::CurTimerData	mLastTimerData;
 };
 
-typedef class LLFastTimer LLFastTimer;
+struct TimerAccumulator
+{
+	void addSamples(const TimerAccumulator& other);
+	void reset(const TimerAccumulator* other);
+
+	//
+	// members
+	//
+	U64 						mSelfTimeCounter,
+								mTotalTimeCounter;
+	U32 						mCalls;
+	BlockTimer*					mLastCaller;	// used to bootstrap tree construction
+	U16							mActiveCount;	// number of timers with this ID active on stack
+	bool						mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame
+};
+
+// stores a "named" timer instance to be reused via multiple Time stack instances
+class BlockTimer 
+:	public TraceType<TimerAccumulator>,
+	public LLInstanceTracker<BlockTimer>
+{
+public:
+	BlockTimer(const char* name, bool open = false, BlockTimer* parent = &getRootTimer());
+	~BlockTimer();
+
+	enum { HISTORY_NUM = 300 };
+
+	BlockTimer* getParent() const { return mParent; }
+	void setParent(BlockTimer* parent);
+	S32 getDepth();
+
+	typedef std::vector<BlockTimer*>::const_iterator child_const_iter;
+	child_const_iter beginChildren();
+	child_const_iter endChildren();
+	std::vector<BlockTimer*>& getChildren();
+
+	void setCollapsed(bool collapsed)	{ mCollapsed = collapsed; }
+	bool getCollapsed() const			{ return mCollapsed; }
+
+	U32 getCountAverage() const { return mCountAverage; }
+	U32 getCallAverage() const	{ return mCallAverage; }
+
+	U32 getHistoricalCount(S32 history_index = 0) const;
+	U32 getHistoricalCalls(S32 history_index = 0) const;
+
+	static BlockTimer& getRootTimer();
+
+private:
+	friend class Time;
+
+	// recursive call to gather total time from children
+	static void accumulateTimings();
+
+	// updates cumulative times and hierarchy,
+	// can be called multiple times in a frame, at any point
+	static void processTimes();
+
+	static void buildHierarchy();
+	static void resetFrame();
+	static void reset();
+
+	// sum of recorded self time and tree time of all children timers (might not match actual recorded time of children if topology is incomplete
+	U32 						mTreeTimeCounter; 
+
+	U32 						mCountAverage;
+	U32							mCallAverage;
+
+	U32*						mCountHistory;
+	U32*						mCallHistory;
+
+	// tree structure
+	BlockTimer*					mParent;				// BlockTimer of caller(parent)
+	std::vector<BlockTimer*>	mChildren;
+	bool						mCollapsed;				// don't show children
+	bool						mNeedsSorting;			// sort children whenever child added
+};
+
+LL_FORCE_INLINE Time::Time(BlockTimer& timer)
+{
+#if FAST_TIMER_ON
+	mStartTime = getCPUClockCount64();
+
+	TimerAccumulator& accumulator = timer.getPrimaryAccumulator();
+	accumulator.mActiveCount++;
+	accumulator.mCalls++;
+	// keep current parent as long as it is active when we are
+	accumulator.mMoveUpTree |= (timer.mParent->getPrimaryAccumulator().mActiveCount == 0);
+
+	CurTimerData* cur_timer_data = Time::sCurTimerData.get();
+	// store top of stack
+	mLastTimerData = *cur_timer_data;
+	// push new information
+	cur_timer_data->mCurTimer = this;
+	cur_timer_data->mTimerData = &timer;
+	cur_timer_data->mChildTime = 0;
+#endif
+}
+
+LL_FORCE_INLINE Time::~Time()
+{
+#if FAST_TIMER_ON
+	U64 total_time = getCPUClockCount64() - mStartTime;
+	CurTimerData* cur_timer_data = Time::sCurTimerData.get();
+	TimerAccumulator& accumulator = cur_timer_data->mTimerData->getPrimaryAccumulator();
+	accumulator.mSelfTimeCounter += total_time - cur_timer_data->mChildTime;
+	accumulator.mTotalTimeCounter += total_time;
+	accumulator.mActiveCount--;
+
+	// store last caller to bootstrap tree creation
+	// do this in the destructor in case of recursion to get topmost caller
+	accumulator.mLastCaller = mLastTimerData.mTimerData;
+
+	// we are only tracking self time, so subtract our total time delta from parents
+	mLastTimerData.mChildTime += total_time;
+
+	*sCurTimerData = mLastTimerData;
+#endif
+}
+
+}
+
+typedef LLTrace::Time LLFastTimer;
 
 #endif // LL_LLFASTTIMER_H

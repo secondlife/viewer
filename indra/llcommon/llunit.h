@@ -209,26 +209,26 @@ private:
 //
 // operator +
 //
-template<typename STORAGE_TYPE1, typename UNIT_TYPE1, typename STORAGE_TYPE2, typename UNIT_TYPE2>
-LLUnit<STORAGE_TYPE1, UNIT_TYPE1> operator + (LLUnit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnit<STORAGE_TYPE2, UNIT_TYPE2> second)
+template<typename UNIT_TYPE1, typename STORAGE_TYPE1, typename UNIT_TYPE2, typename STORAGE_TYPE2>
+LLUnit<STORAGE_TYPE1, UNIT_TYPE1> operator + (LLUnit<UNIT_TYPE1, STORAGE_TYPE1> first, LLUnit<UNIT_TYPE2, STORAGE_TYPE2> second)
 {
-	LLUnit<STORAGE_TYPE1, UNIT_TYPE1> result(first);
+	LLUnit<UNIT_TYPE1, STORAGE_TYPE1> result(first);
 	result += second;
 	return result;
 }
 
-template<typename STORAGE_TYPE, typename UNIT_TYPE, typename SCALAR_TYPE>
-LLUnit<STORAGE_TYPE, UNIT_TYPE> operator + (LLUnit<STORAGE_TYPE, UNIT_TYPE> first, SCALAR_TYPE second)
+template<typename UNIT_TYPE, typename STORAGE_TYPE, typename SCALAR_TYPE>
+LLUnit<UNIT_TYPE, STORAGE_TYPE> operator + (LLUnit<UNIT_TYPE, STORAGE_TYPE> first, SCALAR_TYPE second)
 {
-	LLUnit<STORAGE_TYPE, UNIT_TYPE> result(first);
+	LLUnit<UNIT_TYPE, STORAGE_TYPE> result(first);
 	result += second;
 	return result;
 }
 
-template<typename STORAGE_TYPE, typename UNIT_TYPE, typename SCALAR_TYPE>
-LLUnit<STORAGE_TYPE, UNIT_TYPE> operator + (SCALAR_TYPE first, LLUnit<STORAGE_TYPE, UNIT_TYPE> second)
+template<typename UNIT_TYPE, typename STORAGE_TYPE, typename SCALAR_TYPE>
+LLUnit<UNIT_TYPE, STORAGE_TYPE> operator + (SCALAR_TYPE first, LLUnit<UNIT_TYPE, STORAGE_TYPE> second)
 {
-	LLUnit<STORAGE_TYPE, UNIT_TYPE> result(first);
+	LLUnit<UNIT_TYPE, STORAGE_TYPE> result(first);
 	result += second;
 	return result;
 }
@@ -236,27 +236,27 @@ LLUnit<STORAGE_TYPE, UNIT_TYPE> operator + (SCALAR_TYPE first, LLUnit<STORAGE_TY
 //
 // operator -
 //
-template<typename STORAGE_TYPE1, typename UNIT_TYPE1, typename STORAGE_TYPE2, typename UNIT_TYPE2>
-LLUnit<STORAGE_TYPE1, UNIT_TYPE1> operator - (LLUnit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnit<STORAGE_TYPE2, UNIT_TYPE2> second)
+template<typename UNIT_TYPE1, typename STORAGE_TYPE1, typename UNIT_TYPE2, typename STORAGE_TYPE2>
+LLUnit<UNIT_TYPE1, STORAGE_TYPE1> operator - (LLUnit<UNIT_TYPE1, STORAGE_TYPE1> first, LLUnit<UNIT_TYPE2, STORAGE_TYPE2> second)
 {
-	LLUnit<STORAGE_TYPE1, UNIT_TYPE1> result(first);
+	LLUnit<UNIT_TYPE1, STORAGE_TYPE1> result(first);
 	result -= second;
 	return result;
 }
 
 
-template<typename STORAGE_TYPE, typename UNIT_TYPE, typename SCALAR_TYPE>
-LLUnit<STORAGE_TYPE, UNIT_TYPE> operator - (LLUnit<STORAGE_TYPE, UNIT_TYPE> first, SCALAR_TYPE second)
+template<typename UNIT_TYPE, typename STORAGE_TYPE, typename SCALAR_TYPE>
+LLUnit<UNIT_TYPE, STORAGE_TYPE> operator - (LLUnit<UNIT_TYPE, STORAGE_TYPE> first, SCALAR_TYPE second)
 {
-	LLUnit<STORAGE_TYPE, UNIT_TYPE> result(first);
+	LLUnit<UNIT_TYPE, STORAGE_TYPE> result(first);
 	result -= second;
 	return result;
 }
 
-template<typename STORAGE_TYPE, typename UNIT_TYPE, typename SCALAR_TYPE>
-LLUnit<STORAGE_TYPE, UNIT_TYPE> operator - (SCALAR_TYPE first, LLUnit<STORAGE_TYPE, UNIT_TYPE> second)
+template<typename UNIT_TYPE, typename STORAGE_TYPE, typename SCALAR_TYPE>
+LLUnit<UNIT_TYPE, STORAGE_TYPE> operator - (SCALAR_TYPE first, LLUnit<UNIT_TYPE, STORAGE_TYPE> second)
 {
-	LLUnit<STORAGE_TYPE, UNIT_TYPE> result(first);
+	LLUnit<UNIT_TYPE, STORAGE_TYPE> result(first);
 	result -= second;
 	return result;
 }
@@ -264,20 +264,20 @@ LLUnit<STORAGE_TYPE, UNIT_TYPE> operator - (SCALAR_TYPE first, LLUnit<STORAGE_TY
 //
 // operator *
 //
-template<typename STORAGE_TYPE, typename UNIT_TYPE, typename SCALAR_TYPE>
-LLUnit<STORAGE_TYPE, UNIT_TYPE> operator * (SCALAR_TYPE first, LLUnit<STORAGE_TYPE, UNIT_TYPE> second)
+template<typename UNIT_TYPE, typename STORAGE_TYPE, typename SCALAR_TYPE>
+LLUnit<UNIT_TYPE, STORAGE_TYPE> operator * (SCALAR_TYPE first, LLUnit<UNIT_TYPE, STORAGE_TYPE> second)
 {
-	return LLUnit<STORAGE_TYPE, UNIT_TYPE>(first * second.value());
+	return LLUnit<UNIT_TYPE, STORAGE_TYPE>(first * second.value());
 }
 
-template<typename STORAGE_TYPE, typename UNIT_TYPE, typename SCALAR_TYPE>
-LLUnit<STORAGE_TYPE, UNIT_TYPE> operator * (LLUnit<STORAGE_TYPE, UNIT_TYPE> first, SCALAR_TYPE second)
+template<typename UNIT_TYPE, typename STORAGE_TYPE, typename SCALAR_TYPE>
+LLUnit<UNIT_TYPE, STORAGE_TYPE> operator * (LLUnit<UNIT_TYPE, STORAGE_TYPE> first, SCALAR_TYPE second)
 {
-	return LLUnit<STORAGE_TYPE, UNIT_TYPE>(first.value() * second);
+	return LLUnit<UNIT_TYPE, STORAGE_TYPE>(first.value() * second);
 }
 
-template<typename STORAGE_TYPE1, typename UNIT_TYPE1, typename STORAGE_TYPE2, typename UNIT_TYPE2>
-void operator * (LLUnit<STORAGE_TYPE1, UNIT_TYPE1>, LLUnit<STORAGE_TYPE2, UNIT_TYPE2>)
+template<typename UNIT_TYPE1, typename STORAGE_TYPE1, typename UNIT_TYPE2, typename STORAGE_TYPE2>
+void operator * (LLUnit<UNIT_TYPE1, STORAGE_TYPE1>, LLUnit<UNIT_TYPE2, STORAGE_TYPE2>)
 {
 	// spurious use of dependent type to stop gcc from triggering the static assertion before instantiating the template
 	llstatic_assert(sizeof(STORAGE_TYPE1) == 0, "Multiplication of unit types results in new unit type - not supported.");
@@ -286,40 +286,40 @@ void operator * (LLUnit<STORAGE_TYPE1, UNIT_TYPE1>, LLUnit<STORAGE_TYPE2, UNIT_T
 //
 // operator /
 //
-template<typename STORAGE_TYPE, typename UNIT_TYPE, typename SCALAR_TYPE>
-SCALAR_TYPE operator / (SCALAR_TYPE first, LLUnit<STORAGE_TYPE, UNIT_TYPE> second)
+template<typename UNIT_TYPE, typename STORAGE_TYPE, typename SCALAR_TYPE>
+SCALAR_TYPE operator / (SCALAR_TYPE first, LLUnit<UNIT_TYPE, STORAGE_TYPE> second)
 {
 	return SCALAR_TYPE(first / second.value());
 }
 
-template<typename STORAGE_TYPE, typename UNIT_TYPE, typename SCALAR_TYPE>
-LLUnit<STORAGE_TYPE, UNIT_TYPE> operator / (LLUnit<STORAGE_TYPE, UNIT_TYPE> first, SCALAR_TYPE second)
+template<typename UNIT_TYPE, typename STORAGE_TYPE, typename SCALAR_TYPE>
+LLUnit<UNIT_TYPE, STORAGE_TYPE> operator / (LLUnit<UNIT_TYPE, STORAGE_TYPE> first, SCALAR_TYPE second)
 {
-	return LLUnit<STORAGE_TYPE, UNIT_TYPE>(first.value() / second);
+	return LLUnit<UNIT_TYPE, STORAGE_TYPE>(first.value() / second);
 }
 
-template<typename STORAGE_TYPE1, typename UNIT_TYPE1, typename STORAGE_TYPE2, typename UNIT_TYPE2>
-void operator / (LLUnit<STORAGE_TYPE1, UNIT_TYPE1>, LLUnit<STORAGE_TYPE2, UNIT_TYPE2>)
+template<typename UNIT_TYPE1, typename STORAGE_TYPE1, typename UNIT_TYPE2, typename STORAGE_TYPE2>
+void operator / (LLUnit<UNIT_TYPE1, STORAGE_TYPE1>, LLUnit<UNIT_TYPE2, STORAGE_TYPE2>)
 {
 	// spurious use of dependent type to stop gcc from triggering the static assertion before instantiating the template
 	llstatic_assert(sizeof(STORAGE_TYPE1) == 0, "Multiplication of unit types results in new unit type - not supported.");
 }
 
 #define COMPARISON_OPERATORS(op)                                                                     \
-template<typename STORAGE_TYPE, typename UNIT_TYPE, typename SCALAR_TYPE>                            \
-bool operator op (SCALAR_TYPE first, LLUnit<STORAGE_TYPE, UNIT_TYPE> second)                         \
+template<typename UNIT_TYPE, typename STORAGE_TYPE, typename SCALAR_TYPE>                            \
+bool operator op (SCALAR_TYPE first, LLUnit<UNIT_TYPE, STORAGE_TYPE> second)                         \
 {                                                                                                    \
 	return first op second.value();                                                                  \
 }                                                                                                    \
 	                                                                                                 \
-template<typename STORAGE_TYPE, typename UNIT_TYPE, typename SCALAR_TYPE>                            \
-bool operator op (LLUnit<STORAGE_TYPE, UNIT_TYPE> first, SCALAR_TYPE second)                         \
+template<typename UNIT_TYPE, typename STORAGE_TYPE, typename SCALAR_TYPE>                            \
+bool operator op (LLUnit<UNIT_TYPE, STORAGE_TYPE> first, SCALAR_TYPE second)                         \
 {                                                                                                    \
 	return first.value() op second;                                                                  \
 }                                                                                                    \
 	                                                                                                 \
-template<typename STORAGE_TYPE1, typename UNIT_TYPE1, typename STORAGE_TYPE2, typename UNIT_TYPE2>   \
-bool operator op (LLUnit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnit<STORAGE_TYPE2, UNIT_TYPE2> second) \
+template<typename UNIT_TYPE1, typename STORAGE_TYPE1, typename UNIT_TYPE2, typename STORAGE_TYPE2>   \
+bool operator op (LLUnit<UNIT_TYPE1, STORAGE_TYPE1> first, LLUnit<UNIT_TYPE2, STORAGE_TYPE2> second) \
 {                                                                                                    \
 	return first.value() op first.convert(second);                                                   \
 }
@@ -333,6 +333,12 @@ COMPARISON_OPERATORS(!=)
 
 namespace LLUnits
 {
+template<typename UNIT_TYPE, typename STORAGE_TYPE> 
+struct HighestPrecisionType<LLUnit<UNIT_TYPE, STORAGE_TYPE> >
+{
+	typedef typename HighestPrecisionType<STORAGE_TYPE>::type_t type_t;
+};
+
 #define LL_DECLARE_DERIVED_UNIT(base_unit_name, unit_name, conversion_factor)                                                                                   \
 struct unit_name                                                                                                                                                \
 {                                                                                                                                                               \

@@ -32,7 +32,6 @@
 
 #include "llmemory.h"
 #include "llrefcount.h"
-//#include "lltracethreadrecorder.h"
 #include "llunit.h"
 #include "llapr.h"
 
@@ -61,8 +60,8 @@ namespace LLTrace
 	typedef LLUnit<LLUnits::Microseconds, F64>	Microseconds;
 	typedef LLUnit<LLUnits::Nanoseconds, F64>	Nanoseconds;
 
-	typedef LLUnit<LLUnits::Meters, F64>			Meters;
-	typedef LLUnit<LLUnits::Kilometers, F64>		Kilometers;
+	typedef LLUnit<LLUnits::Meters, F64>		Meters;
+	typedef LLUnit<LLUnits::Kilometers, F64>	Kilometers;
 	typedef LLUnit<LLUnits::Centimeters, F64>	Centimeters;
 	typedef LLUnit<LLUnits::Millimeters, F64>	Millimeters;
 
@@ -71,11 +70,11 @@ namespace LLTrace
 
 	LLThreadLocalPointer<class ThreadRecorder>& get_thread_recorder();
 
-	class LL_COMMON_API MasterThreadRecorder& getMasterThreadRecorder();
+	class MasterThreadRecorder& getMasterThreadRecorder();
 
 	// one per thread per type
 	template<typename ACCUMULATOR>
-	class LL_COMMON_API AccumulatorBuffer : public LLRefCount
+	class AccumulatorBuffer : public LLRefCount
 	{
 		static const U32 DEFAULT_ACCUMULATOR_BUFFER_SIZE = 64;
 	private:
@@ -199,7 +198,7 @@ namespace LLTrace
 	template<typename ACCUMULATOR> LLThreadLocalPointer<ACCUMULATOR> AccumulatorBuffer<ACCUMULATOR>::sPrimaryStorage;
 
 	template<typename ACCUMULATOR>
-	class LL_COMMON_API TraceType 
+	class TraceType 
 	:	 public LLInstanceTracker<TraceType<ACCUMULATOR>, std::string>
 	{
 	public:
@@ -218,6 +217,9 @@ namespace LLTrace
 
 		size_t getIndex() const { return mAccumulatorIndex; }
 
+		std::string& getName() { return mName; }
+		const std::string& getName() const { return mName; }
+
 	protected:
 		std::string	mName;
 		std::string mDescription;
@@ -225,7 +227,7 @@ namespace LLTrace
 	};
 
 	template<typename T>
-	class LL_COMMON_API MeasurementAccumulator
+	class MeasurementAccumulator
 	{
 	public:
 		typedef T value_t;
@@ -339,7 +341,7 @@ namespace LLTrace
 	};
 
 	template<typename T>
-	class LL_COMMON_API CountAccumulator
+	class CountAccumulator
 	{
 	public:
 		typedef CountAccumulator<T> self_t;
@@ -378,11 +380,8 @@ namespace LLTrace
 		U32	mNumSamples;
 	};
 
-	typedef TraceType<MeasurementAccumulator<F64> > measurement_common_float_t;
-	typedef TraceType<MeasurementAccumulator<S64> > measurement_common_int_t;
-
-	template <typename T = F64, typename IS_UNIT = void>
-	class LL_COMMON_API Measurement
+	template <typename T = F64>
+	class Measurement
 	:	public TraceType<MeasurementAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >
 	{
 	public:
@@ -392,37 +391,16 @@ namespace LLTrace
 		:	TraceType(name, description)
 		{}
 
-		void sample(T value)
-		{
-			getPrimaryAccumulator().sample((storage_t)value);
-		}
-	};
-
-	template <typename T>
-	class LL_COMMON_API Measurement <T, typename T::is_unit_tag_t>
-	:	public TraceType<MeasurementAccumulator<typename LLUnits::HighestPrecisionType<typename T::storage_t>::type_t> >
-	{
-	public:
-		typedef typename LLUnits::HighestPrecisionType<typename T::storage_t>::type_t storage_t;
-
-		Measurement(const char* name, const char* description = NULL) 
-		:	TraceType(name, description)
-		{}
-
 		template<typename UNIT_T>
 		void sample(UNIT_T value)
 		{
-			T converted_value;
-			converted_value = value;
-			getPrimaryAccumulator().sample((storage_t)converted_value.value());
+			T converted_value(value);
+			getPrimaryAccumulator().sample((storage_t)converted_value);
 		}
 	};
 
-	typedef TraceType<CountAccumulator<F64> > count_common_float_t;
-	typedef TraceType<CountAccumulator<S64> > count_common_int_t;
-
-	template <typename T = F64, typename IS_UNIT = void>
-	class LL_COMMON_API Count 
+	template <typename T = F64>
+	class Count 
 	:	public TraceType<CountAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >
 	{
 	public:
@@ -432,148 +410,12 @@ namespace LLTrace
 		:	TraceType(name)
 		{}
 
-		void add(T value)
-		{
-			getPrimaryAccumulator().add((storage_t)value);
-		}
-	};
-
-	template <typename T>
-	class LL_COMMON_API Count <T, typename T::is_unit_tag_t>
-	:	public TraceType<CountAccumulator<typename LLUnits::HighestPrecisionType<typename T::storage_t>::type_t> >
-	{
-	public:
-		typedef typename LLUnits::HighestPrecisionType<typename T::storage_t>::type_t storage_t;
-
-		Count(const char* name, const char* description = NULL) 
-		:	TraceType(name)
-		{}
-
 		template<typename UNIT_T>
 		void add(UNIT_T value)
 		{
-			T converted_value;
-			converted_value = value;
-			getPrimaryAccumulator().add((storage_t)converted_value.value());
+			T converted_value(value);
+			getPrimaryAccumulator().add((storage_t)converted_value);
 		}
-	};
-
-	class LL_COMMON_API TimerAccumulator
-	{
-	public:
-		typedef TimerAccumulator self_t;
-
-		U32 							mTotalTimeCounter,
-										mChildTimeCounter,
-										mCalls;
-
-		TimerAccumulator*				mParent;		// info for caller timer
-		TimerAccumulator*				mLastCaller;	// used to bootstrap tree construction
-		const class BlockTimer*			mTimer;			// points to block timer associated with this storage
-		U8								mActiveCount;	// number of timers with this ID active on stack
-		bool							mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame
-		std::vector<TimerAccumulator*>	mChildren;		// currently assumed child timers
-
-		void addSamples(const TimerAccumulator& other)
-		{
-			mTotalTimeCounter += other.mTotalTimeCounter;
-			mChildTimeCounter += other.mChildTimeCounter;
-			mCalls += other.mCalls;
-		}
-
-		void reset(const self_t* other)
-		{
-			mTotalTimeCounter = 0;
-			mChildTimeCounter = 0;
-			mCalls = 0;
-		}
-
-	};
-
-	class LL_COMMON_API BlockTimer : public TraceType<TimerAccumulator>
-	{
-	public:
-		BlockTimer(const char* name)
-		:	TraceType(name)
-		{}
-
-		struct Recorder
-		{
-			struct StackEntry
-			{
-				Recorder*			mRecorder;
-				TimerAccumulator*	mAccumulator;
-				U32					mChildTime;
-			};
-
-			LL_FORCE_INLINE Recorder(BlockTimer& block_timer)
-			:	mLastRecorder(sCurRecorder)
-			{
-				mStartTime = getCPUClockCount32();
-				TimerAccumulator* accumulator = &block_timer.getPrimaryAccumulator(); // get per-thread accumulator
-				accumulator->mActiveCount++;
-				accumulator->mCalls++;
-				accumulator->mMoveUpTree |= (accumulator->mParent->mActiveCount == 0);
-
-				// push new timer on stack
-				sCurRecorder.mRecorder = this;
-				sCurRecorder.mAccumulator = accumulator;
-				sCurRecorder.mChildTime = 0;
-			}
-
-			LL_FORCE_INLINE ~Recorder()
-			{
-				U32 total_time = getCPUClockCount32() - mStartTime;
-
-				TimerAccumulator* accumulator = sCurRecorder.mAccumulator;
-				accumulator->mTotalTimeCounter += total_time;
-				accumulator->mChildTimeCounter += sCurRecorder.mChildTime;
-				accumulator->mActiveCount--;
-
-				accumulator->mLastCaller = mLastRecorder.mAccumulator;
-				mLastRecorder.mChildTime += total_time;
-
-				// pop stack
-				sCurRecorder = mLastRecorder;
-			}
-
-			StackEntry mLastRecorder;
-			U32 mStartTime;
-		};
-
-	private:
-		static U32 getCPUClockCount32()
-		{
-			U32 ret_val;
-			__asm
-			{
-				_emit   0x0f
-				_emit   0x31
-				shr eax,8
-				shl edx,24
-				or eax, edx
-				mov dword ptr [ret_val], eax
-			}
-			return ret_val;
-		}
-
-		// return full timer value, *not* shifted by 8 bits
-		static U64 getCPUClockCount64()
-		{
-			U64 ret_val;
-			__asm
-			{
-				_emit   0x0f
-				_emit   0x31
-				mov eax,eax
-				mov edx,edx
-				mov dword ptr [ret_val+4], edx
-				mov dword ptr [ret_val], eax
-			}
-			return ret_val;
-		}
-
-		static Recorder::StackEntry sCurRecorder;
 	};
 }
 

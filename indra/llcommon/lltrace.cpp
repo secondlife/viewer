@@ -28,6 +28,7 @@
 #include "lltrace.h"
 #include "lltracerecording.h"
 #include "lltracethreadrecorder.h"
+#include "llfasttimer.h"
 
 namespace LLTrace
 {
@@ -37,13 +38,15 @@ static MasterThreadRecorder* gMasterThreadRecorder = NULL;
 void init()
 {
 	gMasterThreadRecorder = new MasterThreadRecorder();
+	Time::sCurTimerData = new Time::CurTimerData();
 }
 
 void cleanup()
 {
 	delete gMasterThreadRecorder;
-	LLUnitStrict<LLUnits::Seconds, F32> seconds;
 	gMasterThreadRecorder = NULL;
+	delete Time::sCurTimerData.get();
+	Time::sCurTimerData = NULL;
 }
 
 MasterThreadRecorder& getMasterThreadRecorder()
@@ -58,7 +61,5 @@ LLThreadLocalPointer<ThreadRecorder>& get_thread_recorder()
 	return s_thread_recorder;
 
 }
-
-BlockTimer::Recorder::StackEntry BlockTimer::sCurRecorder;
 
 }

@@ -33,8 +33,10 @@
 #include "lltreeiterators.h"
 #include "llsdserialize.h"
 #include "llunit.h"
+#include "llsd.h"
 
 #include <boost/bind.hpp>
+#include <queue>
 
 
 #if LL_WINDOWS
@@ -50,37 +52,40 @@
 #error "architecture not supported"
 #endif
 
+namespace LLTrace
+{
+
 //////////////////////////////////////////////////////////////////////////////
 // statics
 
-S32 LLFastTimer::sCurFrameIndex = -1;
-S32 LLFastTimer::sLastFrameIndex = -1;
-U64 LLFastTimer::sLastFrameTime = LLFastTimer::getCPUClockCount64();
-bool LLFastTimer::sPauseHistory = 0;
-bool LLFastTimer::sResetHistory = 0;
-LLFastTimer::CurTimerData LLFastTimer::sCurTimerData;
-BOOL LLFastTimer::sLog = FALSE;
-std::string LLFastTimer::sLogName = "";
-BOOL LLFastTimer::sMetricLog = FALSE;
-LLMutex* LLFastTimer::sLogLock = NULL;
-std::queue<LLSD> LLFastTimer::sLogQueue;
+S32 Time::sCurFrameIndex = -1;
+S32 Time::sLastFrameIndex = -1;
+U64 Time::sLastFrameTime = Time::getCPUClockCount64();
+bool Time::sPauseHistory = 0;
+bool Time::sResetHistory = 0;
+LLThreadLocalPointer<Time::CurTimerData> Time::sCurTimerData;
+bool Time::sLog = FALSE;
+std::string Time::sLogName = "";
+bool Time::sMetricLog = FALSE;
+static LLMutex*			sLogLock = NULL;
+static std::queue<LLSD> sLogQueue;
 
 #if LL_LINUX || LL_SOLARIS
-U64 LLFastTimer::sClockResolution = 1000000000; // Nanosecond resolution
+U64 Time::sClockResolution = 1000000000; // Nanosecond resolution
 #else
-U64 LLFastTimer::sClockResolution = 1000000; // Microsecond resolution
+U64 Time::sClockResolution = 1000000; // Microsecond resolution
 #endif
 
 // FIXME: move these declarations to the relevant modules
 
 // helper functions
-typedef LLTreeDFSPostIter<LLFastTimer::DeclareTimer, LLFastTimer::DeclareTimer::child_const_iter> timer_tree_bottom_up_iterator_t;
+typedef LLTreeDFSPostIter<BlockTimer, BlockTimer::child_const_iter> timer_tree_bottom_up_iterator_t;
 
-static timer_tree_bottom_up_iterator_t begin_timer_tree_bottom_up(LLFastTimer::DeclareTimer& id) 
+static timer_tree_bottom_up_iterator_t begin_timer_tree_bottom_up(BlockTimer& id) 
 { 
 	return timer_tree_bottom_up_iterator_t(&id, 
-							boost::bind(boost::mem_fn(&LLFastTimer::DeclareTimer::beginChildren), _1), 
-							boost::bind(boost::mem_fn(&LLFastTimer::DeclareTimer::endChildren), _1));
+							boost::bind(boost::mem_fn(&BlockTimer::beginChildren), _1), 
+							boost::bind(boost::mem_fn(&BlockTimer::endChildren), _1));
 }
 
 static timer_tree_bottom_up_iterator_t end_timer_tree_bottom_up() 
@@ -88,14 +93,14 @@ static timer_tree_bottom_up_iterator_t end_timer_tree_bottom_up()
 	return timer_tree_bottom_up_iterator_t(); 
 }
 
-typedef LLTreeDFSIter<LLFastTimer::DeclareTimer, LLFastTimer::DeclareTimer::child_const_iter> timer_tree_dfs_iterator_t;
+typedef LLTreeDFSIter<BlockTimer, BlockTimer::child_const_iter> timer_tree_dfs_iterator_t;
 
 
-static timer_tree_dfs_iterator_t begin_timer_tree(LLFastTimer::DeclareTimer& id) 
+static timer_tree_dfs_iterator_t begin_timer_tree(BlockTimer& id) 
 { 
 	return timer_tree_dfs_iterator_t(&id, 
-		boost::bind(boost::mem_fn(&LLFastTimer::DeclareTimer::beginChildren), _1), 
-							boost::bind(boost::mem_fn(&LLFastTimer::DeclareTimer::endChildren), _1));
+		boost::bind(boost::mem_fn(&BlockTimer::beginChildren), _1), 
+							boost::bind(boost::mem_fn(&BlockTimer::endChildren), _1));
 }
 
 static timer_tree_dfs_iterator_t end_timer_tree() 
@@ -103,21 +108,21 @@ static timer_tree_dfs_iterator_t end_timer_tree()
 	return timer_tree_dfs_iterator_t(); 
 }
 
-LLFastTimer::DeclareTimer& LLFastTimer::DeclareTimer::getRootTimer()
+BlockTimer& BlockTimer::getRootTimer()
 {
-	static DeclareTimer root_timer("root", true, NULL);
+	static BlockTimer root_timer("root", true, NULL);
 	return root_timer;
 }
 
 
 //static
 #if (LL_DARWIN || LL_LINUX || LL_SOLARIS) && !(defined(__i386__) || defined(__amd64__))
-U64 LLFastTimer::countsPerSecond() // counts per second for the *32-bit* timer
+U64 Time::countsPerSecond() // counts per second for the *32-bit* timer
 {
 	return sClockResolution >> 8;
 }
 #else // windows or x86-mac or x86-linux or x86-solaris
-U64 LLFastTimer::countsPerSecond() // counts per second for the *32-bit* timer
+U64 Time::countsPerSecond() // counts per second for the *32-bit* timer
 {
 #if LL_FASTTIMER_USE_RDTSC || !LL_WINDOWS
 	//getCPUFrequency returns MHz and sCPUClockFrequency wants to be in Hz
@@ -140,19 +145,14 @@ U64 LLFastTimer::countsPerSecond() // counts per second for the *32-bit* timer
 }
 #endif
 
-LLFastTimer::DeclareTimer::DeclareTimer(const std::string& name, bool open, DeclareTimer* parent)
-:	mName(name),
+BlockTimer::BlockTimer(const char* name, bool open, BlockTimer* parent)
+:	TraceType(name),
 	mCollapsed(true),
 	mParent(NULL),
 	mTreeTimeCounter(0),
 	mCountAverage(0),
 	mCallAverage(0),
-	mNeedsSorting(false),
-	mActiveCount(0),
-	mCalls(0),
-	mSelfTimeCounter(0),
-	mLastCaller(NULL),
-	mMoveUpTree(false)
+	mNeedsSorting(false)
 {
 	setCollapsed(!open);
 
@@ -171,13 +171,13 @@ LLFastTimer::DeclareTimer::DeclareTimer(const std::string& name, bool open, Decl
 	memset(mCallHistory, 0, sizeof(U32) * HISTORY_NUM);
 }
 
-LLFastTimer::DeclareTimer::~DeclareTimer()
+BlockTimer::~BlockTimer()
 {
 	delete[] mCountHistory;
 	delete[] mCallHistory;
 }
 
-void LLFastTimer::DeclareTimer::setParent(DeclareTimer* parent)
+void BlockTimer::setParent(BlockTimer* parent)
 {
 	llassert_always(parent != this);
 	llassert_always(parent != NULL);
@@ -193,8 +193,8 @@ void LLFastTimer::DeclareTimer::setParent(DeclareTimer* parent)
 		// subtract average timing from previous parent
 		mParent->mCountAverage -= mCountAverage;
 
-		std::vector<DeclareTimer*>& children = mParent->getChildren();
-		std::vector<DeclareTimer*>::iterator found_it = std::find(children.begin(), children.end(), this);
+		std::vector<BlockTimer*>& children = mParent->getChildren();
+		std::vector<BlockTimer*>::iterator found_it = std::find(children.begin(), children.end(), this);
 		if (found_it != children.end())
 		{
 			children.erase(found_it);
@@ -209,10 +209,10 @@ void LLFastTimer::DeclareTimer::setParent(DeclareTimer* parent)
 	}
 }
 
-S32 LLFastTimer::DeclareTimer::getDepth()
+S32 BlockTimer::getDepth()
 {
 	S32 depth = 0;
-	DeclareTimer* timerp = mParent;
+	BlockTimer* timerp = mParent;
 	while(timerp)
 	{
 		depth++;
@@ -223,9 +223,9 @@ S32 LLFastTimer::DeclareTimer::getDepth()
 }
 
 // static
-void LLFastTimer::DeclareTimer::processTimes()
+void BlockTimer::processTimes()
 {
-	if (sCurFrameIndex < 0) return;
+	if (Time::getCurFrameIndex() < 0) return;
 
 	buildHierarchy();
 	accumulateTimings();
@@ -234,27 +234,27 @@ void LLFastTimer::DeclareTimer::processTimes()
 // sort child timers by name
 struct SortTimerByName
 {
-	bool operator()(const LLFastTimer::DeclareTimer* i1, const LLFastTimer::DeclareTimer* i2)
+	bool operator()(const BlockTimer* i1, const BlockTimer* i2)
 	{
 		return i1->getName() < i2->getName();
 	}
 };
 
 //static
-void LLFastTimer::DeclareTimer::buildHierarchy()
+void BlockTimer::buildHierarchy()
 {
-	if (sCurFrameIndex < 0 ) return;
+	if (Time::getCurFrameIndex() < 0 ) return;
 
 	// set up initial tree
 	{
-		for (instance_iter it = beginInstances(), end_it = endInstances(); it != end_it; ++it)
+		for (LLInstanceTracker<BlockTimer>::instance_iter it = LLInstanceTracker<BlockTimer>::beginInstances(), end_it = LLInstanceTracker<BlockTimer>::endInstances(); it != end_it; ++it)
 		{
-			DeclareTimer& timer = *it;
-			if (&timer == &DeclareTimer::getRootTimer()) continue;
+			BlockTimer& timer = *it;
+			if (&timer == &BlockTimer::getRootTimer()) continue;
 			
 			// bootstrap tree construction by attaching to last timer to be on stack
 			// when this timer was called
-			if (timer.mLastCaller && timer.mParent == &DeclareTimer::getRootTimer())
+			if (timer.mLastCaller && timer.mParent == &BlockTimer::getRootTimer())
 			{
 				timer.setParent(timer.mLastCaller);
 				// no need to push up tree on first use, flag can be set spuriously
@@ -266,13 +266,13 @@ void LLFastTimer::DeclareTimer::buildHierarchy()
 	// bump timers up tree if they've been flagged as being in the wrong place
 	// do this in a bottom up order to promote descendants first before promoting ancestors
 	// this preserves partial order derived from current frame's observations
-	for(timer_tree_bottom_up_iterator_t it = begin_timer_tree_bottom_up(DeclareTimer::getRootTimer());
+	for(timer_tree_bottom_up_iterator_t it = begin_timer_tree_bottom_up(BlockTimer::getRootTimer());
 		it != end_timer_tree_bottom_up();
 		++it)
 	{
-		DeclareTimer* timerp = *it;
+		BlockTimer* timerp = *it;
 		// skip root timer
-		if (timerp == &DeclareTimer::getRootTimer()) continue;
+		if (timerp == &BlockTimer::getRootTimer()) continue;
 
 		if (timerp->mMoveUpTree)
 		{
@@ -289,11 +289,11 @@ void LLFastTimer::DeclareTimer::buildHierarchy()
 	}
 
 	// sort timers by time last called, so call graph makes sense
-	for(timer_tree_dfs_iterator_t it = begin_timer_tree(DeclareTimer::getRootTimer());
+	for(timer_tree_dfs_iterator_t it = begin_timer_tree(BlockTimer::getRootTimer());
 		it != end_timer_tree();
 		++it)
 	{
-		DeclareTimer* timerp = (*it);
+		BlockTimer* timerp = (*it);
 		if (timerp->mNeedsSorting)
 		{
 			std::sort(timerp->getChildren().begin(), timerp->getChildren().end(), SortTimerByName());
@@ -303,12 +303,12 @@ void LLFastTimer::DeclareTimer::buildHierarchy()
 }
 
 //static
-void LLFastTimer::DeclareTimer::accumulateTimings()
+void BlockTimer::accumulateTimings()
 {
 	U32 cur_time = getCPUClockCount32();
 
 	// walk up stack of active timers and accumulate current time while leaving timing structures active
-	LLFastTimer* cur_timer = sCurTimerData.mCurTimer;
+	Time* cur_timer = sCurTimerData.mCurTimer;
 	// root defined by parent pointing to self
 	CurTimerData* cur_data = &sCurTimerData;
 	while(cur_timer && cur_timer->mLastTimerData.mCurTimer != cur_timer)
@@ -328,11 +328,11 @@ void LLFastTimer::DeclareTimer::accumulateTimings()
 	}
 
 	// traverse tree in DFS post order, or bottom up
-	for(timer_tree_bottom_up_iterator_t it = begin_timer_tree_bottom_up(DeclareTimer::getRootTimer());
+	for(timer_tree_bottom_up_iterator_t it = begin_timer_tree_bottom_up(BlockTimer::getRootTimer());
 		it != end_timer_tree_bottom_up();
 		++it)
 	{
-		DeclareTimer* timerp = (*it);
+		BlockTimer* timerp = (*it);
 		timerp->mTreeTimeCounter = timerp->mSelfTimeCounter;
 		for (child_const_iter child_it = timerp->beginChildren(); child_it != timerp->endChildren(); ++child_it)
 		{
@@ -354,7 +354,7 @@ void LLFastTimer::DeclareTimer::accumulateTimings()
 }
 
 // static
-void LLFastTimer::DeclareTimer::resetFrame()
+void BlockTimer::resetFrame()
 {
 	if (sLog)
 	{ //output current frame counts to performance log
@@ -379,7 +379,7 @@ void LLFastTimer::DeclareTimer::resetFrame()
 		{
 			for (instance_iter it = beginInstances(), end_it = endInstances(); it != end_it; ++it)
 			{
-				DeclareTimer& timer = *it;
+				BlockTimer& timer = *it;
 				sd[timer.getName()]["Time"] = (LLSD::Real) (timer.mSelfTimeCounter*iclock_freq);	
 				sd[timer.getName()]["Calls"] = (LLSD::Integer) timer.mCalls;
 				
@@ -401,7 +401,7 @@ void LLFastTimer::DeclareTimer::resetFrame()
 	// reset for next frame
 	for (instance_iter it = beginInstances(), end_it = endInstances(); it != end_it; ++it)
 	{
-		DeclareTimer& timer = *it;
+		BlockTimer& timer = *it;
 		timer.mSelfTimeCounter = 0;
 		timer.mCalls = 0;
 		timer.mLastCaller = NULL;
@@ -410,7 +410,7 @@ void LLFastTimer::DeclareTimer::resetFrame()
 }
 
 //static
-void LLFastTimer::DeclareTimer::reset()
+void BlockTimer::reset()
 {
 	resetFrame(); // reset frame data
 
@@ -420,7 +420,7 @@ void LLFastTimer::DeclareTimer::reset()
 
 	// root defined by parent pointing to self
 	CurTimerData* cur_data = &sCurTimerData;
-	LLFastTimer* cur_timer = cur_data->mCurTimer;
+	Time* cur_timer = cur_data->mCurTimer;
 	while(cur_timer && cur_timer->mLastTimerData.mCurTimer != cur_timer)
 	{
 		cur_timer->mStartTime = cur_time;
@@ -434,10 +434,10 @@ void LLFastTimer::DeclareTimer::reset()
 	{
 		for (instance_iter it = beginInstances(), end_it = endInstances(); it != end_it; ++it)
 		{
-			DeclareTimer& timer = *it;
-			if (&timer != &DeclareTimer::getRootTimer()) 
+			BlockTimer& timer = *it;
+			if (&timer != &BlockTimer::getRootTimer()) 
 			{
-				timer.setParent(&DeclareTimer::getRootTimer());
+				timer.setParent(&BlockTimer::getRootTimer());
 			}
 			
 			timer.mCountAverage = 0;
@@ -451,35 +451,35 @@ void LLFastTimer::DeclareTimer::reset()
 	sCurFrameIndex = 0;
 }
 
-U32 LLFastTimer::DeclareTimer::getHistoricalCount(S32 history_index) const
+U32 BlockTimer::getHistoricalCount(S32 history_index) const
 {
-	S32 history_idx = (getLastFrameIndex() + history_index) % LLFastTimer::DeclareTimer::HISTORY_NUM;
+	S32 history_idx = (getLastFrameIndex() + history_index) % BlockTimer::HISTORY_NUM;
 	return mCountHistory[history_idx];
 }
 
-U32 LLFastTimer::DeclareTimer::getHistoricalCalls(S32 history_index ) const
+U32 BlockTimer::getHistoricalCalls(S32 history_index ) const
 {
-	S32 history_idx = (getLastFrameIndex() + history_index) % LLFastTimer::DeclareTimer::HISTORY_NUM;
+	S32 history_idx = (getLastFrameIndex() + history_index) % BlockTimer::HISTORY_NUM;
 	return mCallHistory[history_idx];
 }
 
-std::vector<LLFastTimer::DeclareTimer*>::const_iterator LLFastTimer::DeclareTimer::beginChildren()
+std::vector<BlockTimer*>::const_iterator BlockTimer::beginChildren()
 { 
 	return mChildren.begin(); 
 }
 
-std::vector<LLFastTimer::DeclareTimer*>::const_iterator LLFastTimer::DeclareTimer::endChildren()
+std::vector<BlockTimer*>::const_iterator BlockTimer::endChildren()
 {
 	return mChildren.end();
 }
 
-std::vector<LLFastTimer::DeclareTimer*>& LLFastTimer::DeclareTimer::getChildren()
+std::vector<BlockTimer*>& BlockTimer::getChildren()
 {
 	return mChildren;
 }
 
 //static
-void LLFastTimer::nextFrame()
+void Time::nextFrame()
 {
 	countsPerSecond(); // good place to calculate clock frequency
 	U64 frame_time = getCPUClockCount64();
@@ -490,30 +490,30 @@ void LLFastTimer::nextFrame()
 
 	if (!sPauseHistory)
 	{
-		DeclareTimer::processTimes();
+		BlockTimer::processTimes();
 		sLastFrameIndex = sCurFrameIndex++;
 	}
 	
 	// get ready for next frame
-	DeclareTimer::resetFrame();
+	BlockTimer::resetFrame();
 	sLastFrameTime = frame_time;
 }
 
 //static
-void LLFastTimer::dumpCurTimes()
+void Time::dumpCurTimes()
 {
 	// accumulate timings, etc.
-	DeclareTimer::processTimes();
+	BlockTimer::processTimes();
 	
 	F64 clock_freq = (F64)countsPerSecond();
 	F64 iclock_freq = 1000.0 / clock_freq; // clock_ticks -> milliseconds
 
 	// walk over timers in depth order and output timings
-	for(timer_tree_dfs_iterator_t it = begin_timer_tree(DeclareTimer::getRootTimer());
+	for(timer_tree_dfs_iterator_t it = begin_timer_tree(BlockTimer::getRootTimer());
 		it != end_timer_tree();
 		++it)
 	{
-		DeclareTimer* timerp = (*it);
+		BlockTimer* timerp = (*it);
 		F64 total_time_ms = ((F64)timerp->getHistoricalCount(0) * iclock_freq);
 		// Don't bother with really brief times, keep output concise
 		if (total_time_ms < 0.1) continue;
@@ -534,14 +534,14 @@ void LLFastTimer::dumpCurTimes()
 }
 
 //static 
-void LLFastTimer::reset()
+void Time::reset()
 {
-	DeclareTimer::reset();
+	BlockTimer::reset();
 }
 
 
 //static
-void LLFastTimer::writeLog(std::ostream& os)
+void Time::writeLog(std::ostream& os)
 {
 	while (!sLogQueue.empty())
 	{
@@ -552,3 +552,25 @@ void LLFastTimer::writeLog(std::ostream& os)
 	}
 }
 
+
+void LLTrace::TimerAccumulator::addSamples( const LLTrace::TimerAccumulator& other )
+{
+	mSelfTimeCounter += other.mSelfTimeCounter;
+	mTotalTimeCounter += other.mTotalTimeCounter;
+	mCalls += other.mCalls;
+	if (!mLastCaller)
+	{
+		mLastCaller = other.mLastCaller;
+	}
+
+	//mActiveCount stays the same;
+	mMoveUpTree |= other.mMoveUpTree;
+}
+
+void LLTrace::TimerAccumulator::reset( const LLTrace::TimerAccumulator* other )
+{
+	mTotalTimeCounter = 0;
+	mSelfTimeCounter = 0;
+	mCalls = 0;
+}
+}
