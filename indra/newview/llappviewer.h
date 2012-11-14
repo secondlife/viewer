@@ -31,6 +31,7 @@
 #include "llcontrol.h"
 #include "llsys.h"			// for LLOSInfo
 #include "lltimer.h"
+#include "llappcorehttp.h"
 
 class LLCommandLineParser;
 class LLFrameTimer;
@@ -173,6 +174,9 @@ public:
 	// Metrics policy helper statics.
 	static void metricsUpdateRegion(U64 region_handle);
 	static void metricsSend(bool enable_reporting);
+
+	// llcorehttp init/shutdown/config information.
+	LLAppCoreHttp & getAppCoreHttp()			{ return mAppCoreHttp; }
 	
 protected:
 	virtual bool initWindow(); // Initialize the viewer's window.
@@ -270,6 +274,9 @@ private:
 	LLFrameTimer mMemCheckTimer;
 	
 	boost::scoped_ptr<LLUpdaterService> mUpdater;
+
+	// llcorehttp library init/shutdown helper
+	LLAppCoreHttp mAppCoreHttp;
 
 	//---------------------------------------------
 	//*NOTE: Mani - legacy updater stuff
