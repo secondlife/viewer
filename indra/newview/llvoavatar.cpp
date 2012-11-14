@@ -6462,6 +6462,12 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		return;
 	}
 
+	if (isSelf() && isEditingAppearance())
+	{
+		llinfos << "ignoring appearance message while in appearance edit" << llendl;
+		return;
+	}
+
 	mUseServerBakes = (appearance_version > 0);
 
 	applyParsedTEMessage(tec);
