@@ -2765,7 +2765,6 @@ bool LLAppViewer::initConfiguration()
 // keeps growing, necessitating a method all its own.
 void LLAppViewer::initStrings()
 {
-	LLUI::setupPaths();
 	LLTransUtil::parseStrings("strings.xml", default_trans_args);
 	LLTransUtil::parseLanguageStrings("language_settings.xml");
 
