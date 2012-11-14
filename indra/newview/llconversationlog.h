@@ -59,7 +59,7 @@ public:
 	bool				hasOfflineMessages()	const	{ return mHasOfflineIMs; }
 
 	void setConverstionName(std::string conv_name) { mConversationName = conv_name; }
-
+	void setOfflineMessages(bool new_messages) { mHasOfflineIMs = new_messages; }
 	bool isOlderThan(U32 days) const;
 
 	/*
@@ -123,7 +123,7 @@ public:
 	void removeObserver(LLConversationLogObserver* observer);
 
 	// LLIMSessionObserver triggers
-	virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id);
+	virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, BOOL has_offline_msg);
     virtual void sessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id) {}; // Stub
 	virtual void sessionRemoved(const LLUUID& session_id){}											// Stub
 	virtual void sessionVoiceOrIMStarted(const LLUUID& session_id){};								// Stub
@@ -147,9 +147,9 @@ private:
 	/**
 	 * adds conversation to the conversation list and notifies observers
 	 */
-	void logConversation(const LLUUID& session_id);
+	void logConversation(const LLUUID& session_id, BOOL has_offline_msg);
 
-	void notifyPrticularConversationObservers(const LLUUID& session_id, U32 mask);
+	void notifyParticularConversationObservers(const LLUUID& session_id, U32 mask);
 
 	/**
 	 * constructs file name in which conversations log will be saved
@@ -165,6 +165,7 @@ private:
 	void createConversation(const LLIMModel::LLIMSession* session);
 	void updateConversationTimestamp(LLConversation* conversation);
 	void updateConversationName(const LLIMModel::LLIMSession* session, const std::string& name);
+	void updateOfflineIMs(const LLIMModel::LLIMSession* session, BOOL new_messages);
 
 	LLConversation* findConversation(const LLIMModel::LLIMSession* session);
 
@@ -184,7 +185,8 @@ public:
 	enum EConversationChange
 		{
 			CHANGED_TIME = 1, // last interaction time changed
-			CHANGED_NAME = 2  // conversation name changed
+			CHANGED_NAME = 2,  // conversation name changed
+			CHANGED_OfflineIMs = 3
 		};
 
 	virtual ~LLConversationLogObserver(){}

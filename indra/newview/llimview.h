@@ -295,7 +295,7 @@ class LLIMSessionObserver
 {
 public:
 	virtual ~LLIMSessionObserver() {}
-	virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id) = 0;
+	virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, BOOL has_offline_msg) = 0;
     virtual void sessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id) = 0;
 	virtual void sessionVoiceOrIMStarted(const LLUUID& session_id) = 0;
 	virtual void sessionRemoved(const LLUUID& session_id) = 0;
@@ -462,7 +462,7 @@ private:
 
 	static void onInviteNameLookup(LLSD payload, const LLUUID& id, const std::string& name, bool is_group);
 
-	void notifyObserverSessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id);
+	void notifyObserverSessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, bool has_offline_msg);
     //Triggers when a session has already been added
     void notifyObserverSessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id);
 	void notifyObserverSessionVoiceOrIMStarted(const LLUUID& session_id);

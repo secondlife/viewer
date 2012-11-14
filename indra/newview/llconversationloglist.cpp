@@ -171,6 +171,10 @@ void LLConversationLogList::changed(const LLUUID& session_id, U32 mask)
 			mIsDirty = true;
 		}
 	}
+	else if (mask & LLConversationLogObserver::CHANGED_OfflineIMs)
+	{
+		item->updateOfflineIMs();
+	}
 }
 
 void LLConversationLogList::addNewItem(const LLConversation* conversation)

@@ -223,13 +223,17 @@ void LLConversationLog::enableLogging(bool enable)
 	notifyObservers();
 }
 
-void LLConversationLog::logConversation(const LLUUID& session_id)
+void LLConversationLog::logConversation(const LLUUID& session_id, BOOL has_offline_msg)
 {
 	const LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(session_id);
 	LLConversation* conversation = findConversation(session);
 
 	if (session && conversation)
 	{
+		if(has_offline_msg)
+		{
+			updateOfflineIMs(session, has_offline_msg);
+		}
 		updateConversationTimestamp(conversation);
 	}
 	else if (session && !conversation)
@@ -265,7 +269,22 @@ void LLConversationLog::updateConversationName(const LLIMModel::LLIMSession* ses
 	if (conversation)
 	{
 		conversation->setConverstionName(name);
-		notifyPrticularConversationObservers(conversation->getSessionID(), LLConversationLogObserver::CHANGED_NAME);
+		notifyParticularConversationObservers(conversation->getSessionID(), LLConversationLogObserver::CHANGED_NAME);
+	}
+}
+
+void LLConversationLog::updateOfflineIMs(const LLIMModel::LLIMSession* session, BOOL new_messages)
+{
+	if (!session)
+	{
+		return;
+	}
+
+	LLConversation* conversation = findConversation(session);
+	if (conversation)
+	{
+		conversation->setOfflineMessages(new_messages);
+		notifyParticularConversationObservers(conversation->getSessionID(), LLConversationLogObserver::CHANGED_OfflineIMs);
 	}
 }
 
@@ -274,7 +293,7 @@ void LLConversationLog::updateConversationTimestamp(LLConversation* conversation
 	if (conversation)
 	{
 		conversation->updateTimestamp();
-		notifyPrticularConversationObservers(conversation->getSessionID(), LLConversationLogObserver::CHANGED_TIME);
+		notifyParticularConversationObservers(conversation->getSessionID(), LLConversationLogObserver::CHANGED_TIME);
 	}
 }
 
@@ -337,9 +356,9 @@ void LLConversationLog::removeObserver(LLConversationLogObserver* observer)
 	mObservers.erase(observer);
 }
 
-void LLConversationLog::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
+void LLConversationLog::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, BOOL has_offline_msg)
 {
-	logConversation(session_id);
+	logConversation(session_id, has_offline_msg);
 }
 
 void LLConversationLog::cache()
@@ -477,7 +496,7 @@ void LLConversationLog::notifyObservers()
 	}
 }
 
-void LLConversationLog::notifyPrticularConversationObservers(const LLUUID& session_id, U32 mask)
+void LLConversationLog::notifyParticularConversationObservers(const LLUUID& session_id, U32 mask)
 {
 	std::set<LLConversationLogObserver*>::const_iterator iter = mObservers.begin();
 	for (; iter != mObservers.end(); ++iter)
@@ -489,7 +508,7 @@ void LLConversationLog::notifyPrticularConversationObservers(const LLUUID& sessi
 void LLConversationLog::onNewMessageReceived(const LLSD& data)
 {
 	const LLUUID session_id = data["session_id"].asUUID();
-	logConversation(session_id);
+	logConversation(session_id, false);
 }
 
 void LLConversationLog::onAvatarNameCache(const LLUUID& participant_id, const LLAvatarName& av_name, const LLIMModel::LLIMSession* session)

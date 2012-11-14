@@ -96,7 +96,7 @@ LLFloaterIMContainer::~LLFloaterIMContainer()
 	}
 }
 
-void LLFloaterIMContainer::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
+void LLFloaterIMContainer::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, BOOL has_offline_msg)
 {
 	addConversationListItem(session_id);
 	LLFloaterIMSessionTab::addToHost(session_id);
