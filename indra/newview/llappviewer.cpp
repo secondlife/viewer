@@ -116,6 +116,7 @@
 #include "llnotificationsutil.h"
 
 #include "llleap.h"
+#include "stringize.h"
 
 // Third party library includes
 #include <boost/bind.hpp>
@@ -781,9 +782,7 @@ bool LLAppViewer::init()
 	LL_INFOS("InitInfo") << "UI initialized." << LL_ENDL ;
 
 	// Setup paths and LLTrans after LLUI::initClass has been called.
-	LLUI::setupPaths();
-	LLTransUtil::parseStrings("strings.xml", default_trans_args);
-	LLTransUtil::parseLanguageStrings("language_settings.xml");
+	initStrings();
 
 	// Setup notifications after LLUI::setupPaths() has been called.
 	LLNotifications::instance();
@@ -2261,10 +2260,8 @@ bool LLAppViewer::initConfiguration()
 		OSMessageBox(msg.str(),LLStringUtil::null,OSMB_OK);
 		return false;
 	}
-	
-	LLUI::setupPaths(); // setup paths for LLTrans based on settings files only
-	LLTransUtil::parseStrings("strings.xml", default_trans_args);
-	LLTransUtil::parseLanguageStrings("language_settings.xml");
+
+	initStrings(); // setup paths for LLTrans based on settings files only
 	// - set procedural settings
 	// Note: can't use LL_PATH_PER_SL_ACCOUNT for any of these since we haven't logged in yet
 	gSavedSettings.setString("ClientSettingsFile", 
@@ -2754,6 +2751,53 @@ bool LLAppViewer::initConfiguration()
 	loadColorSettings();
 
 	return true; // Config was successful.
+}
+
+// The following logic is replicated in initConfiguration() (to be able to get
+// some initial strings before we've finished initializing enough to know the
+// current language) and also in init() (to initialize for real). Somehow it
+// keeps growing, necessitating a method all its own.
+void LLAppViewer::initStrings()
+{
+	LLUI::setupPaths();
+	LLTransUtil::parseStrings("strings.xml", default_trans_args);
+	LLTransUtil::parseLanguageStrings("language_settings.xml");
+
+	// parseStrings() sets up the LLTrans substitution table. Add this one item.
+	LLTrans::setDefaultArg("[sourceid]", gSavedSettings.getString("sourceid"));
+
+	// Now that we've set "[sourceid]", have to go back through
+	// default_trans_args and reinitialize all those other keys because some
+	// of them, in turn, reference "[sourceid]".
+	BOOST_FOREACH(std::string key, default_trans_args)
+	{
+		std::string brackets(key), nobrackets(key);
+		// Invalid to inspect key[0] if key is empty(). But then, the entire
+		// body of this loop is pointless if key is empty().
+		if (key.empty())
+			continue;
+
+		if (key[0] != '[')
+		{
+			// key was passed without brackets. That means that 'nobrackets'
+			// is correct but 'brackets' is not.
+			brackets = STRINGIZE('[' << brackets << ']');
+		}
+		else
+		{
+			// key was passed with brackets. That means that 'brackets' is
+			// correct but 'nobrackets' is not. Erase the left bracket.
+			nobrackets.erase(0, 1);
+			std::string::size_type length(nobrackets.length());
+			if (length && nobrackets[length - 1] == ']')
+			{
+				nobrackets.erase(length - 1);
+			}
+		}
+		// Calling LLTrans::getString() is what embeds the other default
+		// translation strings into this one.
+		LLTrans::setDefaultArg(brackets, LLTrans::getString(nobrackets));
+	}
 }
 
 namespace {
