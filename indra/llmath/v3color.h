@@ -33,6 +33,7 @@ class LLVector4;
 #include "llerror.h"
 #include "llmath.h"
 #include "llsd.h"
+#include <string.h>
 
 //  LLColor3 = |r g b|
 

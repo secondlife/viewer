@@ -77,15 +77,7 @@ void LLFloaterHelpBrowser::onOpen(const LLSD& key)
 	gSavedSettings.setBOOL("HelpFloaterOpen", TRUE);
 
 	std::string topic = key.asString();
-
-	if (topic == "__local")
-	{
-		mBrowser->navigateToLocalPage( "help-offline" , "index.html" );
-	}
-	else
-	{
-		mBrowser->navigateTo(LLViewerHelp::instance().getURL(topic));
-	}
+	mBrowser->navigateTo(LLViewerHelp::instance().getURL(topic));
 }
 
 //virtual

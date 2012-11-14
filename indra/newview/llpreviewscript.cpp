@@ -815,7 +815,7 @@ void LLScriptEdCore::onBtnDynamicHelp()
 	if (!live_help_floater)
 	{
 		live_help_floater = new LLFloater(LLSD());
-		live_help_floater->buildFromFile("floater_lsl_guide.xml", NULL);
+		live_help_floater->buildFromFile("floater_lsl_guide.xml");
 		LLFloater* parent = dynamic_cast<LLFloater*>(getParent());
 		llassert(parent);
 		if (parent)
