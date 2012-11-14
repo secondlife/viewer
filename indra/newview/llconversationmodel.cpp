@@ -440,6 +440,16 @@ void LLConversationItemParticipant::onAvatarNameCache(const LLAvatarName& av_nam
 	}
 }
 
+LLConversationItemSession* LLConversationItemParticipant::getParentSession()
+{
+	LLConversationItemSession* parent_session = NULL;
+	if (hasParent())
+	{
+		parent_session = dynamic_cast<LLConversationItemSession*>(mParent);
+	}
+	return parent_session;
+}
+
 void LLConversationItemParticipant::dumpDebugData()
 {
 	llinfos << "Merov debug : participant, uuid = " << mUUID << ", name = " << mName << ", display name = " << mDisplayName << ", muted = " << mIsMuted << ", moderator = " << mIsModerator << llendl;

@@ -195,6 +195,7 @@ public:
 	virtual const bool getDistanceToAgent(F64& dist) const { dist = mDistToAgent; return (dist >= 0.0); }
 
 	void fetchAvatarName();
+	LLConversationItemSession* getParentSession();
 
 	void dumpDebugData();
 
