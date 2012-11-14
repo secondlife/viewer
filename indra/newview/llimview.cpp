@@ -148,8 +148,8 @@ void toast_callback(const LLSD& msg){
     if(session->isP2PSessionType())
     {
         //Ignores non-friends
-        if(LLAvatarTracker::instance().getBuddyInfo(msg["from_id"]) == NULL &&
-            gSavedSettings.getString("NotificationNonFriendIMOptions") != "toast")
+        if((LLAvatarTracker::instance().getBuddyInfo(msg["from_id"]) == NULL) 
+            && (gSavedSettings.getString("NotificationNonFriendIMOptions") != "toast"))
         {
             return;
         }
@@ -160,14 +160,14 @@ void toast_callback(const LLSD& msg){
         }
     }
     //Ignore Ad Hoc Toasts
-    else if(session->isAdHocSessionType() &&
-        gSavedSettings.getString("NotificationConferenceIMOptions") != "toast")
+    else if(session->isAdHocSessionType() 
+            && (gSavedSettings.getString("NotificationConferenceIMOptions") != "toast"))
     {
         return;
     }
     //Ignore Group Toasts
-    else if(session->isGroupSessionType() &&
-        gSavedSettings.getString("NotificationGroupChatOptions") != "toast")
+    else if(session->isGroupSessionType() 
+            && (gSavedSettings.getString("NotificationGroupChatOptions") != "toast"))
     {
         return;
     }
