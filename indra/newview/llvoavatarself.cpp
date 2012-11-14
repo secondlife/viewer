@@ -2275,29 +2275,26 @@ void LLVOAvatarSelf::addLocalTextureStats( ETextureIndex type, LLViewerFetchedTe
 {
 	if (!isIndexLocalTexture(type)) return;
 
-	if (!covered_by_baked)
+	if (getLocalTextureID(type, index) != IMG_DEFAULT_AVATAR && imagep->getDiscardLevel() != 0)
 	{
-		if (getLocalTextureID(type, index) != IMG_DEFAULT_AVATAR && imagep->getDiscardLevel() != 0)
-		{
-			F32 desired_pixels;
-			desired_pixels = llmin(mPixelArea, (F32)getTexImageArea());
-			imagep->setBoostLevel(getAvatarBoostLevel());
+		F32 desired_pixels;
+		desired_pixels = llmin(mPixelArea, (F32)getTexImageArea());
+		imagep->setBoostLevel(getAvatarBoostLevel());
 
-			imagep->resetTextureStats();
-			imagep->setMaxVirtualSizeResetInterval(MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL);
-			imagep->addTextureStats( desired_pixels / texel_area_ratio );
-			imagep->setAdditionalDecodePriority(SELF_ADDITIONAL_PRI) ;
-			imagep->forceUpdateBindStats() ;
-			if (imagep->getDiscardLevel() < 0)
-			{
-				mHasGrey = TRUE; // for statistics gathering
-			}
-		}
-		else
+		imagep->resetTextureStats();
+		imagep->setMaxVirtualSizeResetInterval(MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL);
+		imagep->addTextureStats( desired_pixels / texel_area_ratio );
+		imagep->setAdditionalDecodePriority(SELF_ADDITIONAL_PRI) ;
+		imagep->forceUpdateBindStats() ;
+		if (imagep->getDiscardLevel() < 0)
 		{
-			// texture asset is missing
 			mHasGrey = TRUE; // for statistics gathering
 		}
+	}
+	else
+	{
+		// texture asset is missing
+		mHasGrey = TRUE; // for statistics gathering
 	}
 }
 

@@ -1745,7 +1745,7 @@ bool LLViewerRegion::isSpecialCapabilityName(const std::string &name)
 
 std::string LLViewerRegion::getCapability(const std::string& name) const
 {
-	if (!capabilitiesReceived() && (name!=std::string("Seed")))
+	if (!capabilitiesReceived() && (name!=std::string("Seed")) && (name!=std::string("ObjectMedia")))
 	{
 		llwarns << "getCapability called before caps received" << llendl;
 	}
