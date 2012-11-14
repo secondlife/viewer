@@ -5881,7 +5881,9 @@ void LLVOAvatar::updateMeshTextures()
 		if (use_lkg_baked_layer[i] && !isUsingLocalAppearance() )
 		{
 			LLViewerFetchedTexture* baked_img;
+#ifndef LL_RELEASE_FOR_DOWNLOAD
 			LLViewerFetchedTexture* existing_baked_img = LLViewerTextureManager::getFetchedTexture(mBakedTextureDatas[i].mLastTextureID);
+#endif
 			const std::string url = getImageURL(i, mBakedTextureDatas[i].mLastTextureID);
 			if (!url.empty())
 			{
