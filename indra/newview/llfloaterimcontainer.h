@@ -65,12 +65,13 @@ public:
 	/*virtual*/ void addFloater(LLFloater* floaterp, 
 								BOOL select_added_floater, 
 								LLTabContainer::eInsertionPoint insertion_point = LLTabContainer::END);
-    
+	void returnFloaterToHost();
     void showConversation(const LLUUID& session_id);
     void selectConversation(const LLUUID& session_id);
     BOOL selectConversationPair(const LLUUID& session_id, bool select_widget);
 
 	/*virtual*/ void tabClose();
+	void showStub(bool visible);
 
 	static LLFloater* getCurrentVoiceFloater();
 	static LLFloaterIMContainer* findInstance();
@@ -146,6 +147,8 @@ private:
 	void openNearbyChat();
 
 	LLButton* mExpandCollapseBtn;
+	LLPanel* mStubPanel;
+	LLTextBox* mStubTextBox;
 	LLLayoutPanel* mMessagesPane;
 	LLLayoutPanel* mConversationsPane;
 	LLLayoutStack* mConversationsStack;

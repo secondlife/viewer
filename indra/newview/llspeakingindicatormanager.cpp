@@ -155,6 +155,7 @@ void SpeakingIndicatorManager::registerSpeakingIndicator(const LLUUID& speaker_i
 	BOOL is_in_same_voice = LLVoiceClient::getInstance()->isParticipant(speaker_id);
 
 	speakers_uuids.insert(speaker_id);
+	llinfos << "Merov debug : registerSpeakingIndicator call switchSpeakerIndicators, switch = " << is_in_same_voice << llendl;	
 	switchSpeakerIndicators(speakers_uuids, is_in_same_voice);
 }
 
@@ -195,6 +196,7 @@ SpeakingIndicatorManager::~SpeakingIndicatorManager()
 
 void SpeakingIndicatorManager::sOnCurrentChannelChanged(const LLUUID& /*session_id*/)
 {
+	llinfos << "Merov debug : sOnCurrentChannelChanged call switchSpeakerIndicators, FALSE" << llendl;	
 	switchSpeakerIndicators(mSwitchedIndicatorsOn, FALSE);
 	mSwitchedIndicatorsOn.clear();
 }
@@ -208,16 +210,21 @@ void SpeakingIndicatorManager::onParticipantsChanged()
 
 	LL_DEBUGS("SpeakingIndicator") << "Switching all OFF, count: " << mSwitchedIndicatorsOn.size() << LL_ENDL;
 	// switch all indicators off
+	llinfos << "Merov debug : onParticipantsChanged call switchSpeakerIndicators, FALSE" << llendl;	
 	switchSpeakerIndicators(mSwitchedIndicatorsOn, FALSE);
+	llinfos << "Merov debug : onParticipantsChanged call switchSpeakerIndicators, end FALSE switch" << llendl;	
 	mSwitchedIndicatorsOn.clear();
 
 	LL_DEBUGS("SpeakingIndicator") << "Switching all ON, count: " << speakers_uuids.size() << LL_ENDL;
 	// then switch current voice participants indicators on
+	llinfos << "Merov debug : onParticipantsChanged call switchSpeakerIndicators, TRUE" << llendl;	
 	switchSpeakerIndicators(speakers_uuids, TRUE);
+	llinfos << "Merov debug : onParticipantsChanged call switchSpeakerIndicators, end TRUE switch" << llendl;	
 }
 
 void SpeakingIndicatorManager::switchSpeakerIndicators(const speaker_ids_t& speakers_uuids, BOOL switch_on)
 {
+	llinfos << "Merov debug : switchSpeakerIndicators, switch_on = " << switch_on << llendl;
 	LLVoiceChannel* voice_channel = LLVoiceChannel::getCurrentVoiceChannel();
 	LLUUID session_id;
 	if (voice_channel)

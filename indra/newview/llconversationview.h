@@ -94,7 +94,7 @@ private:
 	bool					mMinimizedMode;
 
 	LLVoiceClientStatusObserver* mVoiceClientObserver;
-
+	
 	boost::signals2::connection mActiveVoiceChannelConnection;
 };
 
@@ -116,7 +116,7 @@ public:
 		Params();
 	};
 	
-    virtual ~LLConversationViewParticipant( void ) { }
+    virtual ~LLConversationViewParticipant( void );
 
     bool hasSameValue(const LLUUID& uuid) { return (uuid == mUUID); }
     virtual void refresh();
@@ -141,6 +141,8 @@ protected:
 	void onInfoBtnClick();
 
 private:
+	void onCurrentVoiceSessionChanged(const LLUUID& session_id);
+
     LLAvatarIconCtrl* mAvatarIcon;
 	LLButton * mInfoBtn;
     LLOutputMonitorCtrl* mSpeakingIndicator;
@@ -157,6 +159,8 @@ private:
     static void initChildrenWidths(LLConversationViewParticipant* self);
     void updateChildren();
     LLView* getItemChildView(EAvatarListItemChildIndex child_view_index);
+	
+	boost::signals2::connection mActiveVoiceChannelConnection;
 };
 
 #endif // LL_LLCONVERSATIONVIEW_H

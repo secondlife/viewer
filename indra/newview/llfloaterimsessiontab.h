@@ -91,6 +91,7 @@ public:
 	void buildConversationViewParticipant();
 
 	void setSortOrder(const LLConversationSort& order);
+	virtual void onTearOffClicked();
 	
 	virtual void updateMessages() {}
 
@@ -106,7 +107,6 @@ protected:
 	bool onIMShowModesMenuItemCheck(const LLSD& userdata);
 	bool onIMShowModesMenuItemEnable(const LLSD& userdata);
 	static void onSlide(LLFloaterIMSessionTab *self);
-	virtual void onTearOffClicked();
 
 	// refresh a visual state of the Call button
 	void updateCallBtnState(bool callIsActive);
