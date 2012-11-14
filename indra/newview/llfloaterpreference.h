@@ -82,6 +82,8 @@ public:
 	void processProfileProperties(const LLAvatarData* pAvatarData );
 	void storeAvatarProperties( const LLAvatarData* pAvatarData );
 	void saveAvatarProperties( void );
+	void selectPrivacyPanel();
+	void selectChatPanel();
 
 protected:	
 	void		onBtnOK();
@@ -164,6 +166,8 @@ public:
 	
 	void buildPopupLists();
 	static void refreshSkin(void* data);
+	void selectPanel(const LLSD& name);
+
 private:
 	static std::string sSkin;
 	bool mClickActionDirty; ///< Set to true when the click/double-click options get changed by user.
