@@ -38,6 +38,7 @@ set(llmessage_SOURCE_FILES
     llcurl.cpp
     lldatapacker.cpp
     lldispatcher.cpp
+	llexperiencecache.cpp
     llfiltersd2xmlrpc.cpp
     llhost.cpp
     llhttpassetstorage.cpp
@@ -128,6 +129,7 @@ set(llmessage_HEADER_FILES
     lldbstrings.h
     lldispatcher.h
     lleventflags.h
+	llexperiencecache.h
     llfiltersd2xmlrpc.h
     llfollowcamparams.h
     llhost.h

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+
+<panel
+  layout="topleft"
+  top="3"
+  left="3"
+  right="-3"
+  bottom="-3"
+  label="Experiences"
+  follows="all">
+  <string
+    name="no_experiences"
+    value="No experiences."/>
+
+  <accordion
+    fit_parent="true"
+    layout="topleft"
+    top="0"
+    left="3"
+    right="-3"
+    bottom="-3"
+    single_expansion="true"
+    follows="all">
+    <accordion_tab
+      name="tab_experiences"
+      layout="topleft"
+      top="0"
+      left="0"
+      right="-3"
+      title="Experiences"
+      follows="all">
+      <flat_list_view
+        name="experiences_list"
+        layout="topleft"
+        top="0"
+        left="0"
+        follows="all"/>
+    </accordion_tab>
+  </accordion>
+</panel>

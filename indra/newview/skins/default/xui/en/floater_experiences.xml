@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+
+<floater
+  positioning="cascading"
+  can_close="true"
+  can_resize="true"
+  height="400"
+  help_topic="sidebar_experiences"
+  min_height="300"
+  min_width="300"
+  layout="topleft"
+  name="floater_experiences"
+  save_rect="false"
+  single_instance="true"
+  reuse_instance="false"
+  title="EXPERIENCES"
+  width="400">
+  <panel
+    top="3"
+    left="3"
+    layout="topleft"
+    right="-3"
+    follows="all"
+    height="300"
+    class="experiences_panel"
+    filename="panel_experiences.xml"
+    >
+  </panel>
+</floater>
