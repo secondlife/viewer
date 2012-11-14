@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_voice_controls" title="語音控制">
 	<string name="title_nearby">
-		附近的語音
+		語音設定
 	</string>
 	<string name="title_group">
 		與 [GROUP] 進行群組通話
@@ -10,7 +10,7 @@
 		多方通話
 	</string>
 	<string name="title_peer_2_peer">
-		與 [NAME] 進行通話
+		和 [NAME] 通話
 	</string>
 	<string name="no_one_near">
 		附近沒有一人開啟語音

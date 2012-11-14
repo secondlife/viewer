@@ -36,5 +36,5 @@
 	<button label="?" left="337" name="top_scripts_help"/>
 	<button label="Redémarrer la région" name="restart_btn" tool_tip="Redémarrer la région au bout de 2 minutes" width="160"/>
 	<button label="?" left="177" name="restart_help"/>
-	<button label="Annuler le redémarrage" name="cancel_restart_btn" tool_tip="Retarder le redémarrage de la région d&apos;une heure" width="160"/>
+	<button label="Annuler le redémarrage" name="cancel_restart_btn" tool_tip="Annuler le redémarrage de la région." width="160"/>
 </panel>

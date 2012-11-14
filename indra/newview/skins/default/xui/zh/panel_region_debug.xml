@@ -30,5 +30,5 @@
 	<button label="取得最常碰撞的物件..." name="top_colliders_btn" tool_tip="條列出目前運作中最常碰撞的物件清單"/>
 	<button label="取得最耗能腳本..." name="top_scripts_btn" tool_tip="條列���目前運作中最耗能的腳本清單"/>
 	<button label="地區重新啟動" name="restart_btn" tool_tip="給予兩分鐘倒數計時並重新啟動"/>
-	<button label="延遲重新啟動" name="cancel_restart_btn" tool_tip="延遲地區重新啟動一小時"/>
+	<button label="取消重新啟動" name="cancel_restart_btn" tool_tip="取消地區重新啟動"/>
 </panel>

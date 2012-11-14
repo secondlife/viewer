@@ -1414,6 +1414,12 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="InvFolder favorite">
 		Meine Favoriten
 	</string>
+	<string name="InvFolder Favorites">
+		Meine Favoriten
+	</string>
+	<string name="InvFolder favorites">
+		Meine Favoriten
+	</string>
 	<string name="InvFolder Current Outfit">
 		Aktuelles Outfit
 	</string>
@@ -1428,6 +1434,12 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	</string>
 	<string name="InvFolder Meshes">
 		Netze
+	</string>
+	<string name="InvFolder Received Items">
+		Erhaltene Artikel
+	</string>
+	<string name="InvFolder Merchant Outbox">
+		Händler-Outbox
 	</string>
 	<string name="InvFolder Friends">
 		Freunde
