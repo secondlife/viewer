@@ -10789,6 +10789,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>TextureFetchConcurrency</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum number of HTTP connections used for texture fetches</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>TextureFetchDebuggerEnabled</key>
     <map>
       <key>Comment</key>

@@ -9,6 +9,9 @@
 	<panel.string name="already_in_group">
 		你所選的居民有些已經在群組裡，所以不會再對他們發送邀請。
 	</panel.string>
+	<panel.string name="invite_selection_too_large">
+		未送出群組邀請：所選的居民人數太多。 群組邀請每次以 100 人為上限。
+	</panel.string>
 	<text name="help_text">
 		你可以選擇邀請多位居民到你的群組來。 點按「開啟居民選擇工具」開始選擇。
 	</text>

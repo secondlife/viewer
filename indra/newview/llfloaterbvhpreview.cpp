@@ -422,13 +422,14 @@ void LLFloaterBvhPreview::resetMotion()
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
 	BOOL paused = avatarp->areAnimationsPaused();
 
-	// *TODO: Fix awful casting hack
-	LLKeyframeMotion* motionp = (LLKeyframeMotion*)avatarp->findMotion(mMotionID);
-	
-	// Set emotion
-	std::string emote = getChild<LLUICtrl>("emote_combo")->getValue().asString();
-	motionp->setEmote(mIDList[emote]);
-	
+	LLKeyframeMotion* motionp = dynamic_cast<LLKeyframeMotion*>(avatarp->findMotion(mMotionID));
+	if( motionp )
+	{
+		// Set emotion
+		std::string emote = getChild<LLUICtrl>("emote_combo")->getValue().asString();
+		motionp->setEmote(mIDList[emote]);
+	}
+
 	LLUUID base_id = mIDList[getChild<LLUICtrl>("preview_base_anim")->getValue().asString()];
 	avatarp->deactivateAllMotions();
 	avatarp->startMotion(mMotionID, 0.0f);
@@ -438,8 +439,12 @@ void LLFloaterBvhPreview::resetMotion()
 	// Set pose
 	std::string handpose = getChild<LLUICtrl>("hand_pose_combo")->getValue().asString();
 	avatarp->startMotion( ANIM_AGENT_HAND_MOTION, 0.0f );
-	motionp->setHandPose(LLHandMotion::getHandPose(handpose));
 
+	if( motionp )
+	{
+		motionp->setHandPose(LLHandMotion::getHandPose(handpose));
+	}
+	
 	if (paused)
 	{
 		mPauseRequest = avatarp->requestPause();

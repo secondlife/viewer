@@ -46,7 +46,7 @@
 		L$ [AMT]
 	</text>
 	<text name="currency_links">
-		[http://www.secondlife.com/my/account/payment_method_management.php 付費方法] | [http://www.secondlife.com/my/account/currency.php 幣種] | [http://www.secondlife.com/my/account/exchange_rates.php 匯率]
+		[http://www.secondlife.com/my/account/payment_method_management.php 付費方式] | [http://www.secondlife.com/my/account/currency.php 幣種]
 	</text>
 	<text name="exchange_rate_note">
 		重新輸入金額即可察看最新的匯率。

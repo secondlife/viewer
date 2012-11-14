@@ -1414,6 +1414,12 @@ support@secondlife.com にお問い合わせください。
 	<string name="InvFolder favorite">
 		お気に入り
 	</string>
+	<string name="InvFolder Favorites">
+		お気に入り
+	</string>
+	<string name="InvFolder favorites">
+		お気に入り
+	</string>
 	<string name="InvFolder Current Outfit">
 		着用中のアウトフィット
 	</string>
@@ -1428,6 +1434,12 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="InvFolder Meshes">
 		メッシュ
+	</string>
+	<string name="InvFolder Received Items">
+		受け取った商品
+	</string>
+	<string name="InvFolder Merchant Outbox">
+		マーチャントのアウトボックス
 	</string>
 	<string name="InvFolder Friends">
 		フレンド

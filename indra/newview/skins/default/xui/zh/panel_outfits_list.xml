@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="Outfits">
+	<accordion name="outfits_accordion">
+		<no_matched_tabs_text name="no_matched_outfits_msg" value="找不到你要找的嗎？ 請試試 [secondlife:///app/search/places/ 搜尋]。"/>
+		<no_visible_tabs_text name="no_outfits_msg" value="你還沒有任何裝扮。 請試試[secondlife:///app/search/all/ 搜尋]"/>
+	</accordion>
 	<panel name="bottom_panel">
 		<menu_button name="options_gear_btn" tool_tip="顯示額外選項"/>
 		<button name="trash_btn" tool_tip="刪除所選擇的裝扮"/>

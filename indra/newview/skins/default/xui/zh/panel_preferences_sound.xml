@@ -19,6 +19,7 @@
 	<check_box label="已啟用" name="enable_voice_check"/>
 	<check_box label="允許媒體自動播放" name="media_auto_play_btn" tool_tip="若你想要，可以勾選這個允許媒體自動播放" value="true"/>
 	<check_box label="播放附加到其他化身身上的媒體" name="media_show_on_others_btn" tool_tip="若未勾選，將隱藏附著於附近其他化身身上的媒體" value="true"/>
+	<check_box label="播放來自姿勢的聲音" name="gesture_audio_play_btn" tool_tip="勾選即可聽到來自姿勢的聲音" value="true"/>
 	<text name="voice_chat_settings">
 		語音聊天設定
 	</text>
@@ -35,28 +36,5 @@
 	<button label="設定按鍵" name="set_voice_hotkey_button"/>
 	<button name="set_voice_middlemouse_button" tool_tip="重設滑鼠中鍵按鈕"/>
 	<button label="輸入 / 輸出設備" name="device_settings_btn"/>
-	<panel label="設備設定" name="device_settings_panel">
-		<panel.string name="default_text">
-			預設
-		</panel.string>
-		<panel.string name="default system device">
-			預設系統設備
-		</panel.string>
-		<panel.string name="no device">
-			無設備
-		</panel.string>
-		<text name="Input">
-			輸入
-		</text>
-		<text name="My volume label">
-			我的音量：
-		</text>
-		<slider_bar initial_value="1.0" name="mic_volume_slider" tool_tip="用這控制條改變音量"/>
-		<text name="wait_text">
-			請稍候
-		</text>
-		<text name="Output">
-			輸出
-		</text>
-	</panel>
+	<panel label="設備設定" name="device_settings_panel"/>
 </panel>

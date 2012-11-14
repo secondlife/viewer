@@ -1411,6 +1411,12 @@ support@secondlife.com.
 	<string name="InvFolder favorite">
 		Мое избранное
 	</string>
+	<string name="InvFolder Favorites">
+		Мое избранное
+	</string>
+	<string name="InvFolder favorites">
+		Мое избранное
+	</string>
 	<string name="InvFolder Current Outfit">
 		Текущий костюм
 	</string>
@@ -1425,6 +1431,12 @@ support@secondlife.com.
 	</string>
 	<string name="InvFolder Meshes">
 		Меши
+	</string>
+	<string name="InvFolder Received Items">
+		Полученные вещи
+	</string>
+	<string name="InvFolder Merchant Outbox">
+		Торговые исходящие
 	</string>
 	<string name="InvFolder Friends">
 		Друзья

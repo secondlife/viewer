@@ -2,4 +2,5 @@
 <toggleable_menu name="Gear Wearing">
 	<menu_item_call label="編輯裝扮" name="edit"/>
 	<menu_item_call label="脫下" name="takeoff"/>
+	<menu_item_call label="複製裝扮清單到剪貼簿" name="copy"/>
 </toggleable_menu>

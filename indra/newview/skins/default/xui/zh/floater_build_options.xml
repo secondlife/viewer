@@ -1,7 +1,30 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="build options floater" title="格線選項">
-	<spinner label="格線單位（公尺）" name="GridResolution"/>
-	<spinner label="格線延伸範圍（公尺）" name="GridDrawSize"/>
+	<floater.string name="grid_screen_text">
+		螢幕
+	</floater.string>
+	<floater.string name="grid_local_text">
+		本地
+	</floater.string>
+	<floater.string name="grid_world_text">
+		世界
+	</floater.string>
+	<floater.string name="grid_reference_text">
+		參考
+	</floater.string>
+	<floater.string name="grid_attachment_text">
+		附件
+	</floater.string>
+	<text name="grid_mode_label" tool_tip="格線不透明度">
+		模式
+	</text>
+	<combo_box name="combobox grid mode" tool_tip="選擇物件定位參考的格線尺度類型">
+		<combo_box.item label="世界格線" name="World"/>
+		<combo_box.item label="地方格線" name="Local"/>
+		<combo_box.item label="參考格線" name="Reference"/>
+	</combo_box>
+	<spinner label="單位（公尺）" name="GridResolution"/>
+	<spinner label="範圍（公尺）" name="GridDrawSize"/>
 	<check_box label="貼齊至子單位" name="GridSubUnit"/>
 	<check_box label="檢視橫剖面" name="GridCrossSection"/>
 	<text name="grid_opacity_label" tool_tip="格線不透明度">

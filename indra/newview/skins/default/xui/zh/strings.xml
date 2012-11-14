@@ -29,10 +29,13 @@
 		快取清除中...
 	</string>
 	<string name="StartupInitializingTextureCache">
-		材質快取初始化中...
+		正在初始化材質快取...
 	</string>
 	<string name="StartupInitializingVFS">
 		VFS 初始化中...
+	</string>
+	<string name="StartupRequireDriverUpdate">
+		顯像初始化失敗。 請更新你的顯像卡驅動程式！
 	</string>
 	<string name="ProgressRestoring">
 		回存中...
@@ -74,10 +77,10 @@
 		驗證快取檔案（約需 60-90 秒左右）...
 	</string>
 	<string name="LoginProcessingResponse">
-		回應處理中...
+		正在處理回應...
 	</string>
 	<string name="LoginInitializingWorld">
-		世界初始化中...
+		正在初始化虛擬世界…
 	</string>
 	<string name="LoginDecodingImages">
 		圖像解碼中...
@@ -90,6 +93,12 @@
 	</string>
 	<string name="LoginQuicktimeOK">
 		QuickTime 已成功初始化。
+	</string>
+	<string name="LoginRequestSeedCapGrant">
+		詢問地區負荷力…
+	</string>
+	<string name="LoginRetrySeedCapGrant">
+		詢問地區負荷力，第 [NUMBER] 次嘗試…
 	</string>
 	<string name="LoginWaitingForRegionHandshake">
 		地區交握等待中...
@@ -119,7 +128,7 @@
 		無法檢驗通過網格伺服器傳回的憑證簽名。  請聯絡網格管理員。
 	</string>
 	<string name="LoginFailedNoNetwork">
-		網路出錯：無法建立連線，請檢查網路連線是否正常。
+		網路錯誤：無法建立連線，請檢查網路連線是否正常。
 	</string>
 	<string name="LoginFailed">
 		登入失敗。
@@ -172,7 +181,7 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="LoginFailedPremiumOnly">
 		第二人生此時暫時限制登入，以確保不影響效能，讓目前虛擬世界裡的用戶享受最佳的體驗。
-	 	
+
 免費帳戶的用戶此時暫時無法進入第二人生，因為我們必須優先容納付費用戶。
 	</string>
 	<string name="LoginFailedComputerProhibited">
@@ -325,6 +334,36 @@ http://secondlife.com/viewer-access-faq
 		只有一個物品可以被拖曳到此處
 	</string>
 	<string name="TooltipPrice" value="L$[AMOUNT]："/>
+	<string name="TooltipOutboxDragToWorld">
+		商家發件匣內的物項無法產生到虛擬世界
+	</string>
+	<string name="TooltipOutboxNoTransfer">
+		至少一個物件無法出售或轉移。
+	</string>
+	<string name="TooltipOutboxNotInInventory">
+		你的商家發件匣只能接受直接來自收納區的物項。
+	</string>
+	<string name="TooltipOutboxWorn">
+		你穿著中的物項無法放入商家發件匣。
+	</string>
+	<string name="TooltipOutboxCallingCard">
+		名片不得放入商家發件匣
+	</string>
+	<string name="TooltipOutboxFolderLevels">
+		巢狀資料夾深度超過 3
+	</string>
+	<string name="TooltipOutboxTooManyFolders">
+		頂層資料夾的子資料夾數目超過 20
+	</string>
+	<string name="TooltipOutboxTooManyObjects">
+		頂層資料夾物項數目超過 200
+	</string>
+	<string name="TooltipDragOntoOwnChild">
+		資料夾不得移到其子資料夾底下
+	</string>
+	<string name="TooltipDragOntoSelf">
+		資料夾移動的目標不得為它本身
+	</string>
 	<string name="TooltipHttpUrl">
 		點按以察看這個網頁
 	</string>
@@ -788,6 +827,9 @@ http://secondlife.com/viewer-access-faq
 	<string name="anim_yes_head">
 		是
 	</string>
+	<string name="multiple_textures">
+		多個
+	</string>
 	<string name="texture_loading">
 		載入中...
 	</string>
@@ -836,6 +878,9 @@ http://secondlife.com/viewer-access-faq
 	<string name="ScriptQuestionCautionChatDenied">
 		物件「[OBJECTNAME]&apos;」（所有人「[OWNERNAME]」，位於「[REGIONNAME]」，方位「[REGIONPOS]」）已被撤除下列權限：[PERMISSIONS]。
 	</string>
+	<string name="AdditionalPermissionsRequestHeader">
+		你如果打開帳戶權限，也將一併允許該物件：
+	</string>
 	<string name="ScriptTakeMoney">
 		由你身上拿走林登幣（L$）
 	</string>
@@ -868,6 +913,9 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="ControlYourCamera">
 		控制你的攝影機
+	</string>
+	<string name="TeleportYourAgent">
+		瞬間傳送你本人
 	</string>
 	<string name="NotConnected">
 		未聯接
@@ -946,6 +994,12 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="choose_the_directory">
 		選擇目錄
+	</string>
+	<string name="script_files">
+		腳本
+	</string>
+	<string name="dictionary_files">
+		字典
 	</string>
 	<string name="AvatarSetNotAway">
 		非離開
@@ -1184,6 +1238,65 @@ http://secondlife.com/viewer-access-faq
 	<string name="InventoryNoTexture">
 		你的收納區裡沒有這個材質的副本
 	</string>
+	<string name="InventoryInboxNoItems">
+		你從第二人生購物市集購買的物品將出現在這裡。 你可以把它們拖曳到你的收納區，開始使用。
+	</string>
+	<string name="MarketplaceURL">
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
+	</string>
+	<string name="MarketplaceURL_CreateStore">
+		http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.4
+	</string>
+	<string name="MarketplaceURL_Dashboard">
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/dashboard
+	</string>
+	<string name="MarketplaceURL_Imports">
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/imports
+	</string>
+	<string name="MarketplaceURL_LearnMore">
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more
+	</string>
+	<string name="InventoryOutboxNotMerchantTitle">
+		任何人都可在第二人生購物市集出售物品。
+	</string>
+	<string name="InventoryOutboxNotMerchantTooltip"/>
+	<string name="InventoryOutboxNotMerchant">
+		如果你想成為商家，你需要在第二人生購物市集[[MARKETPLACE_CREATE_STORE_URL]開設一間商店]。
+	</string>
+	<string name="InventoryOutboxNoItemsTitle">
+		你的發件匣目前是空的。
+	</string>
+	<string name="InventoryOutboxNoItemsTooltip"/>
+	<string name="InventoryOutboxNoItems">
+		將資料夾拖曳到這個區域，再點按「送往第二人生購物市集」，即可在[[MARKETPLACE_DASHBOARD_URL]第二人生購物市集]登列出售。
+	</string>
+	<string name="Marketplace Error None">
+		零錯誤
+	</string>
+	<string name="Marketplace Error Not Merchant">
+		發生錯誤：將物項送往第二人生購物市集之前，你必須取得商家的身份（免費）。
+	</string>
+	<string name="Marketplace Error Empty Folder">
+		錯誤：此資料夾沒有內容。
+	</string>
+	<string name="Marketplace Error Unassociated Products">
+		錯誤：此物項上傳失敗，因為你的商家帳戶有太多和產品無關聯的物項。  要解決這個問題，請登入第二人生購物市集網站，減低你的無關聯物項數目。
+	</string>
+	<string name="Marketplace Error Object Limit">
+		錯誤：此物項包含太多物件。  要解決這錯誤，請將物件裝箱，使總物件數目不超過 200。
+	</string>
+	<string name="Marketplace Error Folder Depth">
+		錯誤：此物項含有太多層的巢狀資料夾。  請加以重新整理，至多允許 3 層的巢狀資料夾。
+	</string>
+	<string name="Marketplace Error Unsellable Item">
+		錯誤：此物項無法在第二人生購物市集出售。
+	</string>
+	<string name="Marketplace Error Internal Import">
+		錯誤：這個物項有問題。  請稍候再試一次。
+	</string>
+	<string name="Open landmarks">
+		開啟地標
+	</string>
 	<string name="no_transfer" value="（禁止轉讓）"/>
 	<string name="no_modify" value="（禁止修改）"/>
 	<string name="no_copy" value="（禁止複製）"/>
@@ -1229,9 +1342,6 @@ http://secondlife.com/viewer-access-faq
 	<string name="Since Logoff" value="- 自上次登出"/>
 	<string name="InvFolder My Inventory">
 		我的收納區
-	</string>
-	<string name="InvFolder My Favorites">
-		我的最愛
 	</string>
 	<string name="InvFolder Library">
 		資源庫
@@ -1296,6 +1406,12 @@ http://secondlife.com/viewer-access-faq
 	<string name="InvFolder favorite">
 		我的最愛
 	</string>
+	<string name="InvFolder Favorites">
+		我的最愛
+	</string>
+	<string name="InvFolder favorites">
+		我的最愛
+	</string>
 	<string name="InvFolder Current Outfit">
 		目前裝扮
 	</string>
@@ -1311,11 +1427,23 @@ http://secondlife.com/viewer-access-faq
 	<string name="InvFolder Meshes">
 		網面
 	</string>
+	<string name="InvFolder Received Items">
+		收到的物項
+	</string>
+	<string name="InvFolder Merchant Outbox">
+		商家發件匣
+	</string>
 	<string name="InvFolder Friends">
 		朋友
 	</string>
 	<string name="InvFolder All">
 		全部
+	</string>
+	<string name="no_attachments">
+		未穿著任何附件
+	</string>
+	<string name="Attachments remain">
+		附件（尚可容納 [COUNT] 件）
 	</string>
 	<string name="Buy">
 		購買
@@ -1442,6 +1570,12 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="Right Pec">
 		右胸肌
+	</string>
+	<string name="Neck">
+		頸部
+	</string>
+	<string name="Avatar Center">
+		化身中心
 	</string>
 	<string name="Invalid Attachment">
 		無效的附接點
@@ -1626,6 +1760,9 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="SummaryForTheWeek" value="本週摘要，起始日："/>
 	<string name="NextStipendDay" value="下一個發薪日為"/>
+	<string name="GroupPlanningDate">
+		[mthnum,datetime,utc]/[day,datetime,utc]/[year,datetime,utc]
+	</string>
 	<string name="GroupIndividualShare" value="群組       個人份額"/>
 	<string name="GroupColumn" value="群組"/>
 	<string name="Balance">
@@ -1651,6 +1788,9 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="IMTeen">
 		青少年
+	</string>
+	<string name="Anyone">
+		任何人
 	</string>
 	<string name="RegionInfoError">
 		錯誤
@@ -1874,6 +2014,12 @@ http://secondlife.com/viewer-access-faq
 	<string name="Public">
 		公開
 	</string>
+	<string name="LocalSettings">
+		本地設定
+	</string>
+	<string name="RegionSettings">
+		地區設定
+	</string>
 	<string name="ClassifiedClicksTxt">
 		點按：[TELEPORT] 瞬間傳送，[MAP] 地圖，[PROFILE] 檔案
 	</string>
@@ -1945,6 +2091,9 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="GroupMoneyDebits">
 		借記
+	</string>
+	<string name="GroupMoneyDate">
+		[weekday,datetime,utc] [mth,datetime,utc] [day,datetime,utc], [year,datetime,utc]
 	</string>
 	<string name="ViewerObjectContents">
 		內容
@@ -3719,6 +3868,15 @@ http://secondlife.com/viewer-access-faq
 	<string name="LocationCtrlGeneralIconTooltip">
 		一般普級地區
 	</string>
+	<string name="LocationCtrlSeeAVsTooltip">
+		可看到本地段外的化身，並與之交談
+	</string>
+	<string name="LocationCtrlPathfindingDirtyTooltip">
+		地區重新產出之前，可移動物件可能無法正常運作。
+	</string>
+	<string name="LocationCtrlPathfindingDisabledTooltip">
+		這地區並未啟用動態尋徑。
+	</string>
 	<string name="UpdaterWindowTitle">
 		[APP_NAME] 更新
 	</string>
@@ -3784,6 +3942,9 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="Saved_message">
 		（於 [LONG_TIMESTAMP] 儲存）
+	</string>
+	<string name="IM_unblock_only_groups_friends">
+		要察看這訊息，你必須到「偏好設定 / 隱私」，取消勾選「只有我的朋友和群組可以 IM 或與我通話」。
 	</string>
 	<string name="answered_call">
 		你的通話已經接通
@@ -3917,6 +4078,18 @@ http://secondlife.com/viewer-access-faq
 	<string name="you_paid_ldollars_no_name">
 		你支付了 L$[AMOUNT]（[REASON]）。
 	</string>
+	<string name="you_paid_failure_ldollars">
+		你支付 L$[AMOUNT] 給 [NAME] 時出錯：[REASON]。
+	</string>
+	<string name="you_paid_failure_ldollars_no_info">
+		你支付 L$[AMOUNT] 時出錯。
+	</string>
+	<string name="you_paid_failure_ldollars_no_reason">
+		你支付 L$[AMOUNT] 給 [NAME] 時出錯。
+	</string>
+	<string name="you_paid_failure_ldollars_no_name">
+		你支付 L$[AMOUNT] 時出錯：[REASON]。
+	</string>
 	<string name="for item">
 		購買 [ITEM]
 	</string>
@@ -3970,7 +4143,7 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="uploading_abuse_report">
 		上傳中...
-  
+
 違規舉報
 	</string>
 	<string name="New Shape">
@@ -4144,6 +4317,87 @@ http://secondlife.com/viewer-access-faq
 	<string name="Female - Wow">
 		女性 - 哇塞
 	</string>
+	<string name="/bow">
+		/彎腰點頭
+	</string>
+	<string name="/clap">
+		/拍手
+	</string>
+	<string name="/count">
+		/計數
+	</string>
+	<string name="/extinguish">
+		/熄菸
+	</string>
+	<string name="/kmb">
+		/給我一個吻
+	</string>
+	<string name="/muscle">
+		/肌肉
+	</string>
+	<string name="/no">
+		/不
+	</string>
+	<string name="/no!">
+		/不！
+	</string>
+	<string name="/paper">
+		/布
+	</string>
+	<string name="/pointme">
+		/指自己
+	</string>
+	<string name="/pointyou">
+		/指向你
+	</string>
+	<string name="/rock">
+		/石頭
+	</string>
+	<string name="/scissor">
+		/剪刀
+	</string>
+	<string name="/smoke">
+		/抽菸
+	</string>
+	<string name="/stretch">
+		/伸展
+	</string>
+	<string name="/whistle">
+		/吹口哨
+	</string>
+	<string name="/yes">
+		/是
+	</string>
+	<string name="/yes!">
+		/是！
+	</string>
+	<string name="afk">
+		暫時離開
+	</string>
+	<string name="dance1">
+		跳舞1
+	</string>
+	<string name="dance2">
+		跳舞2
+	</string>
+	<string name="dance3">
+		跳舞3
+	</string>
+	<string name="dance4">
+		跳舞4
+	</string>
+	<string name="dance5">
+		跳舞5
+	</string>
+	<string name="dance6">
+		跳舞6
+	</string>
+	<string name="dance7">
+		跳舞7
+	</string>
+	<string name="dance8">
+		跳舞8
+	</string>
 	<string name="AvatarBirthDateFormat">
 		[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]
 	</string>
@@ -4157,7 +4411,7 @@ http://secondlife.com/viewer-access-faq
 	<string name="server_is_down">
 		儘管我們努力避免，還是發生意料外的錯誤。
 
-	請察訪 status.secondlifegrid.net 看是否發生了已知狀況。  
+	請察訪 status.secondlifegrid.net 看是否發生了已知狀況。
         如果文體繼續發生，請檢查你的網路和防火牆設定。
 	</string>
 	<string name="dateTimeWeekdaysNames">
@@ -4245,6 +4499,12 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="ExternalEditorFailedToRun">
 		執行外部編輯器失敗。
+	</string>
+	<string name="TranslationFailed">
+		無法翻譯：[REASON]
+	</string>
+	<string name="TranslationResponseParseError">
+		無法剖析平移回應。
 	</string>
 	<string name="Esc">
 		Esc 鍵
@@ -4587,5 +4847,224 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="ParticleHiding">
 		隱藏粒子效果
+	</string>
+	<string name="Command_AboutLand_Label">
+		土地資料
+	</string>
+	<string name="Command_Appearance_Label">
+		編輯外觀
+	</string>
+	<string name="Command_Avatar_Label">
+		化身
+	</string>
+	<string name="Command_Build_Label">
+		建造
+	</string>
+	<string name="Command_Chat_Label">
+		聊天
+	</string>
+	<string name="Command_Compass_Label">
+		羅盤
+	</string>
+	<string name="Command_Destinations_Label">
+		目的地
+	</string>
+	<string name="Command_Gestures_Label">
+		姿勢
+	</string>
+	<string name="Command_HowTo_Label">
+		簡易教學
+	</string>
+	<string name="Command_Inventory_Label">
+		收納區
+	</string>
+	<string name="Command_Map_Label">
+		地圖
+	</string>
+	<string name="Command_Marketplace_Label">
+		第二人生購物市集
+	</string>
+	<string name="Command_MiniMap_Label">
+		迷你地圖
+	</string>
+	<string name="Command_Move_Label">
+		行走 / 跑步 / 飛行
+	</string>
+	<string name="Command_Outbox_Label">
+		商家發件匣
+	</string>
+	<string name="Command_People_Label">
+		人群
+	</string>
+	<string name="Command_Picks_Label">
+		精選地點
+	</string>
+	<string name="Command_Places_Label">
+		地點
+	</string>
+	<string name="Command_Preferences_Label">
+		偏好設定
+	</string>
+	<string name="Command_Profile_Label">
+		檔案
+	</string>
+	<string name="Command_Search_Label">
+		搜尋
+	</string>
+	<string name="Command_Snapshot_Label">
+		快照
+	</string>
+	<string name="Command_Speak_Label">
+		說話
+	</string>
+	<string name="Command_View_Label">
+		攝影機控制
+	</string>
+	<string name="Command_Voice_Label">
+		語音設定
+	</string>
+	<string name="Command_AboutLand_Tooltip">
+		有關你所處土地的資訊
+	</string>
+	<string name="Command_Appearance_Tooltip">
+		改變化身
+	</string>
+	<string name="Command_Avatar_Tooltip">
+		選擇一個完整的化身
+	</string>
+	<string name="Command_Build_Tooltip">
+		建製物件和重塑地形
+	</string>
+	<string name="Command_Chat_Tooltip">
+		透過文字和附近人們聊天
+	</string>
+	<string name="Command_Compass_Tooltip">
+		指南針
+	</string>
+	<string name="Command_Destinations_Tooltip">
+		你可能感興趣的目的地
+	</string>
+	<string name="Command_Gestures_Tooltip">
+		你化身可用的姿勢
+	</string>
+	<string name="Command_HowTo_Tooltip">
+		如何完成常用的動作
+	</string>
+	<string name="Command_Inventory_Tooltip">
+		察看並使用你擁有的物件
+	</string>
+	<string name="Command_Map_Tooltip">
+		世界地圖
+	</string>
+	<string name="Command_Marketplace_Tooltip">
+		前往購物
+	</string>
+	<string name="Command_MiniMap_Tooltip">
+		顯示附近的人
+	</string>
+	<string name="Command_Move_Tooltip">
+		移動化身
+	</string>
+	<string name="Command_Outbox_Tooltip">
+		將物項轉移到第二人生購物市集待售
+	</string>
+	<string name="Command_People_Tooltip">
+		朋友、群組和附近的人
+	</string>
+	<string name="Command_Picks_Tooltip">
+		顯示在你的小檔案中的最愛地點
+	</string>
+	<string name="Command_Places_Tooltip">
+		你儲存的地點
+	</string>
+	<string name="Command_Preferences_Tooltip">
+		偏好設定
+	</string>
+	<string name="Command_Profile_Tooltip">
+		編輯或察看你的小檔案
+	</string>
+	<string name="Command_Search_Tooltip">
+		尋找地點、活動、其他人
+	</string>
+	<string name="Command_Snapshot_Tooltip">
+		拍一張照片
+	</string>
+	<string name="Command_Speak_Tooltip">
+		用麥克風和附近人們交談
+	</string>
+	<string name="Command_View_Tooltip">
+		調整攝影機角度
+	</string>
+	<string name="Command_Voice_Tooltip">
+		在虛擬世界裡通話和附近人群的音量控制
+	</string>
+	<string name="Toolbar_Bottom_Tooltip">
+		目前位在你的底部工具列
+	</string>
+	<string name="Toolbar_Left_Tooltip">
+		目前位在你的左工具列
+	</string>
+	<string name="Toolbar_Right_Tooltip">
+		目前位在你的右工具列
+	</string>
+	<string name="Retain%">
+		保留%
+	</string>
+	<string name="Detail">
+		細節
+	</string>
+	<string name="Better Detail">
+		更多細節
+	</string>
+	<string name="Surface">
+		表面
+	</string>
+	<string name="Solid">
+		固體
+	</string>
+	<string name="Wrap">
+		Wrap
+	</string>
+	<string name="Preview">
+		預覽
+	</string>
+	<string name="Normal">
+		正常
+	</string>
+	<string name="Pathfinding_Wiki_URL">
+		http://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer
+	</string>
+	<string name="Pathfinding_Object_Attr_None">
+		無
+	</string>
+	<string name="Pathfinding_Object_Attr_Permanent">
+		影響導航網面
+	</string>
+	<string name="Pathfinding_Object_Attr_Character">
+		角色
+	</string>
+	<string name="Pathfinding_Object_Attr_MultiSelect">
+		（多項）
+	</string>
+	<string name="snapshot_quality_very_low">
+		很低
+	</string>
+	<string name="snapshot_quality_low">
+		低
+	</string>
+	<string name="snapshot_quality_medium">
+		中
+	</string>
+	<string name="snapshot_quality_high">
+		高
+	</string>
+	<string name="snapshot_quality_very_high">
+		很高
+	</string>
+	<string name="TeleportMaturityExceeded">
+		此居民不得進入此地區。
+	</string>
+	<string name="UserDictionary">
+		[User]
 	</string>
 </strings>

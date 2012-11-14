@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="volumepulldown_floater">
+	<slider label="主控音量" name="System Volume"/>
+	<slider label="按鍵音" name="UI Volume"/>
+	<slider label="環境" name="Wind Volume"/>
+	<slider label="聲音" name="SFX Volume"/>
+	<check_box name="gesture_audio_play_btn" tool_tip="啟用姿勢聲音"/>
+	<slider label="音樂" name="Music Volume"/>
+	<check_box name="enable_music" tool_tip="啟用串流音樂"/>
+	<slider label="媒體" name="Media Volume"/>
+	<check_box name="enable_media" tool_tip="啟用串流媒體"/>
+	<slider label="語音" name="Voice Volume"/>
+	<check_box name="enable_voice_check" tool_tip="啟用語音聊天"/>
+</panel>

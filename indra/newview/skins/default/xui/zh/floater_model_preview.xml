@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Model Preview" title="上傳模型">
-	<string name="status_idle">
-		閒置中
+	<string name="status_idle"/>
+	<string name="status_parse_error">
+		錯誤：剖析 dae 時出錯，詳見記錄檔。
+	</string>
+	<string name="status_material_mismatch">
+		錯誤：模型材料並非參考模型的子集合。
 	</string>
 	<string name="status_reading_file">
 		載入中...
@@ -11,6 +15,9 @@
 	</string>
 	<string name="status_vertex_number_overflow">
 		錯誤：頂點數目超過 65534，程序已中止！
+	</string>
+	<string name="bad_element">
+		錯誤：無效的元件
 	</string>
 	<string name="high">
 		高
@@ -45,6 +52,9 @@
 	<string name="mesh_status_missing_lod">
 		缺乏需要的細節層次。
 	</string>
+	<string name="mesh_status_invalid_material_list">
+		細節層次材料並非參考模型的子集合。
+	</string>
 	<string name="layer_all">
 		全部
 	</string>
@@ -54,178 +64,249 @@
 	<string name="simplifying">
 		簡化中…
 	</string>
-	<text name="name_label">
-		名稱：
-	</text>
+	<string name="tbd">
+		（未定）
+	</string>
+	<panel name="left_panel">
+		<panel name="model_name_representation_panel">
+			<text name="name_label">
+				模型名稱：
+			</text>
+			<text name="model_category_label">
+				這模型代表…
+			</text>
+			<combo_box name="model_category_combo">
+				<combo_item label="選擇一項…" name="Choose one"/>
+				<combo_item label="化身形狀" name="Avatar shape"/>
+				<combo_item label="化身附件" name="Avatar attachment"/>
+				<combo_item label="會移動的物件（車輛、動物）" name="Moving object (vehicle, animal)"/>
+				<combo_item label="建製元件" name="Building Component"/>
+				<combo_item label="大型、不會移動等類型" name="Large, non moving etc"/>
+				<combo_item label="較小型、不會移動等類型" name="Smaller, non-moving etc"/>
+				<combo_item label="並非其中任何一個" name="Not really any of these"/>
+			</combo_box>
+		</panel>
+		<tab_container name="import_tab">
+			<panel label="細節層次" name="lod_panel" title="細節層次">
+				<text initial_value="來源" name="source" value="來源"/>
+				<text initial_value="三角形" name="triangles" value="三角形"/>
+				<text initial_value="頂點" name="vertices" value="頂點"/>
+				<text initial_value="高" name="high_label" value="高"/>
+				<combo_box name="lod_source_high">
+					<item name="Load from file" value="從檔案載入"/>
+					<item name="Generate" value="產生"/>
+				</combo_box>
+				<button label="瀏覽…" name="lod_browse_high"/>
+				<combo_box name="lod_mode_high">
+					<item name="Triangle Limit" value="三角形上限"/>
+					<item name="Error Threshold" value="錯誤門檻"/>
+				</combo_box>
+				<text initial_value="0" name="high_triangles" value="0"/>
+				<text initial_value="0" name="high_vertices" value="0"/>
+				<text initial_value="中" name="medium_label" value="中"/>
+				<combo_box name="lod_source_medium">
+					<item name="Load from file" value="從檔案載入"/>
+					<item name="Generate" value="產生"/>
+					<item name="Use LoD above" value="以上使用低階細節"/>
+				</combo_box>
+				<button label="瀏覽…" name="lod_browse_medium"/>
+				<combo_box name="lod_mode_medium">
+					<item name="Triangle Limit" value="三角形上限"/>
+					<item name="Error Threshold" value="錯誤門檻"/>
+				</combo_box>
+				<text initial_value="0" name="medium_triangles" value="0"/>
+				<text initial_value="0" name="medium_vertices" value="0"/>
+				<text initial_value="低" name="low_label" value="低"/>
+				<combo_box name="lod_source_low">
+					<item name="Load from file" value="從檔案載入"/>
+					<item name="Generate" value="產生"/>
+					<item name="Use LoD above" value="以上使用低階細節"/>
+				</combo_box>
+				<button label="瀏覽…" name="lod_browse_low"/>
+				<combo_box name="lod_mode_low">
+					<item name="Triangle Limit" value="三角形上限"/>
+					<item name="Error Threshold" value="錯誤門檻"/>
+				</combo_box>
+				<text initial_value="0" name="low_triangles" value="0"/>
+				<text initial_value="0" name="low_vertices" value="0"/>
+				<text initial_value="最低" name="lowest_label" value="最低"/>
+				<combo_box name="lod_source_lowest">
+					<item name="Load from file" value="從檔案載入"/>
+					<item name="Generate" value="產生"/>
+					<item name="Use LoD above" value="以上使用低階細節"/>
+				</combo_box>
+				<button label="瀏覽…" name="lod_browse_lowest"/>
+				<combo_box name="lod_mode_lowest">
+					<item name="Triangle Limit" value="三角形上限"/>
+					<item name="Error Threshold" value="錯誤門檻"/>
+				</combo_box>
+				<text initial_value="0" name="lowest_triangles" value="0"/>
+				<text initial_value="0" name="lowest_vertices" value="0"/>
+				<check_box label="產生法線" name="gen_normals"/>
+				<text initial_value="皺褶角度：" name="crease_label" value="皺褶角度："/>
+				<spinner name="crease_angle" value="75"/>
+			</panel>
+			<panel label="物理" name="physics_panel">
+				<panel name="physics geometry">
+					<text name="first_step_name">
+						步驟 1：細節層次
+					</text>
+					<combo_box name="physics_lod_combo" tool_tip="物理形狀所採用的細節層次">
+						<combo_item name="choose_one">
+							選擇一項…
+						</combo_item>
+						<combo_item name="physics_high">
+							高
+						</combo_item>
+						<combo_item name="physics_medium">
+							中
+						</combo_item>
+						<combo_item name="physics_low">
+							低
+						</combo_item>
+						<combo_item name="physics_lowest">
+							最低
+						</combo_item>
+						<combo_item name="load_from_file">
+							來自檔案
+						</combo_item>
+					</combo_box>
+					<button label="瀏覽…" name="physics_browse"/>
+				</panel>
+				<panel name="physics analysis">
+					<text name="method_label">
+						步驟 2：分析
+					</text>
+					<text name="analysis_method_label">
+						方法：
+					</text>
+					<text name="quality_label">
+						品質：
+					</text>
+					<text name="smooth_method_label">
+						平滑：
+					</text>
+					<check_box label="關閉洞口" name="Close Holes (Slow)"/>
+					<button label="分析" name="Decompose"/>
+					<button label="取消" name="decompose_cancel"/>
+				</panel>
+				<panel name="physics simplification">
+					<text name="second_step_label">
+						步驟 3：簡化
+					</text>
+					<text name="simp_method_header">
+						方法：
+					</text>
+					<text name="pass_method_header">
+						階段數：
+					</text>
+					<text name="Detail Scale label">
+						細節比例：
+					</text>
+					<text name="Retain%_label">
+						保留：
+					</text>
+					<combo_box name="Combine Quality" value="1"/>
+					<button label="簡化" name="Simplify"/>
+					<button label="取消" name="simplify_cancel"/>
+				</panel>
+				<panel name="physics info">
+					<text name="results_text">
+						結果：
+					</text>
+					<text name="physics_triangles">
+						三角形：[TRIANGLES]，
+					</text>
+					<text name="physics_points">
+						頂點：[POINTS]，
+					</text>
+					<text name="physics_hulls">
+						殼面：[HULLS]
+					</text>
+				</panel>
+			</panel>
+			<panel label="上傳選項" name="modifiers_panel">
+				<text name="scale_label">
+					比例（1 = 原比例）：
+				</text>
+				<spinner name="import_scale" value="1.0"/>
+				<text name="dimensions_label">
+					規格：
+				</text>
+				<text name="import_dimensions">
+					[X] X [Y] X [Z]
+				</text>
+				<check_box label="包含材質" name="upload_textures"/>
+				<text name="include_label">
+					僅限化身模型：
+				</text>
+				<check_box label="包含表皮重量" name="upload_skin"/>
+				<check_box label="包含接點位置" name="upload_joints"/>
+				<text name="pelvis_offset_label">
+					Z 偏距（升高或降低化身）：
+				</text>
+				<spinner name="pelvis_offset" value="0.0"/>
+			</panel>
+		</tab_container>
+		<panel name="weights_and_warning_panel">
+			<button label="計算重量和費用" name="calculate_btn" tool_tip="計算重量和費用"/>
+			<button label="取消" name="cancel_btn"/>
+			<button label="上傳" name="ok_btn" tool_tip="上傳至模擬器"/>
+			<button label="清除設定並重設形式" name="reset_btn"/>
+			<text name="upload_fee">
+				上傳費用：L$ [FEE]
+			</text>
+			<text name="prim_weight">
+				土地衝擊量：[EQ]
+			</text>
+			<text name="download_weight">
+				下載：[ST]
+			</text>
+			<text name="physics_weight">
+				物理：[PH]
+			</text>
+			<text name="server_weight">
+				伺服器：[SIM]
+			</text>
+			<text name="warning_title">
+				附註：
+			</text>
+			<text name="warning_message">
+				你無權上傳網面模型。 [[VURL] 瞭解如何]通過認證。
+			</text>
+			<text name="status">
+				[STATUS]
+			</text>
+		</panel>
+	</panel>
 	<text name="lod_label">
 		預覽：
 	</text>
-	<combo_box name="preview_lod_combo" tool_tip="要在呈像預覽中察看的細節層次">
-		<combo_item name="high">
-			細節層次：高度
-		</combo_item>
-		<combo_item name="medium">
-			細節層次：中度
-		</combo_item>
-		<combo_item name="low">
-			細節層次：低度
-		</combo_item>
-		<combo_item name="lowest">
-			細節層次：最低
-		</combo_item>
-	</combo_box>
-	<panel>
-		<text name="streaming cost">
-			資源花費：[COST]
+	<panel name="right_panel">
+		<combo_box name="preview_lod_combo" tool_tip="要在呈像預覽中察看的細節層次">
+			<combo_item name="high">
+				高
+			</combo_item>
+			<combo_item name="medium">
+				中
+			</combo_item>
+			<combo_item name="low">
+				低
+			</combo_item>
+			<combo_item name="lowest">
+				最低
+			</combo_item>
+		</combo_box>
+		<text name="label_display">
+			顯示…
 		</text>
-		<text name="physics cost">
-			物理花費：[COST]
-		</text>
-		<text name="upload fee">
-			上傳費：無
+		<check_box label="邊" name="show_edges"/>
+		<check_box label="物理" name="show_physics"/>
+		<check_box label="材質" name="show_textures"/>
+		<check_box label="表皮重量" name="show_skin_weight"/>
+		<check_box label="接點" name="show_joint_positions"/>
+		<text name="physics_explode_label">
+			預覽伸展：
 		</text>
 	</panel>
-	<text name="status">
-		[STATUS]
-	</text>
-	<button label="預設值" name="reset_btn" tool_tip="重設為預設值"/>
-	<button label="上傳" name="ok_btn" tool_tip="上傳至模擬器"/>
-	<button label="取消" name="cancel_btn"/>
-	<tab_container name="import_tab">
-		<panel label="細節層次" name="lod_panel">
-			<text name="lod_table_header">
-				選擇細節層次：
-			</text>
-			<text name="high_label" value="高"/>
-			<text name="high_triangles" value="0"/>
-			<text name="high_vertices" value="0"/>
-			<text name="medium_label" value="中"/>
-			<text name="medium_triangles" value="0"/>
-			<text name="medium_vertices" value="0"/>
-			<text name="low_label" value="低"/>
-			<text name="low_triangles" value="0"/>
-			<text name="low_vertices" value="0"/>
-			<text name="lowest_label" value="最低"/>
-			<text name="lowest_triangles" value="0"/>
-			<text name="lowest_vertices" value="0"/>
-			<text name="lod_table_footer">
-				細節層次：[DETAIL]
-			</text>
-			<radio_group name="lod_file_or_limit" value="lod_from_file">
-				<radio_item label="從檔案載入" name="lod_from_file"/>
-				<radio_item label="自動生成" name="lod_auto_generate"/>
-				<radio_item label="無" name="lod_none"/>
-			</radio_group>
-			<button label="瀏覽…" name="lod_browse"/>
-			<combo_box name="lod_mode">
-				<combo_item name="triangle_limit">
-					三角形上限
-				</combo_item>
-				<combo_item name="error_threshold">
-					錯誤門檻
-				</combo_item>
-			</combo_box>
-			<text name="build_operator_text">
-				建製操作元：
-			</text>
-			<text name="queue_mode_text">
-				佇列模式：
-			</text>
-			<combo_box name="build_operator">
-				<combo_item name="edge_collapse">
-					側邊摺疊
-				</combo_item>
-				<combo_item name="half_edge_collapse">
-					半側邊摺疊
-				</combo_item>
-			</combo_box>
-			<combo_box name="queue_mode">
-				<combo_item name="greedy">
-					儘量最大
-				</combo_item>
-				<combo_item name="lazy">
-					儘量最小
-				</combo_item>
-				<combo_item name="independent">
-					獨立
-				</combo_item>
-			</combo_box>
-			<text name="border_mode_text">
-				邊界模式：
-			</text>
-			<text name="share_tolderance_text">
-				分享容忍：
-			</text>
-			<combo_box name="border_mode">
-				<combo_item name="border_unlock">
-					解鎖
-				</combo_item>
-				<combo_item name="border_lock">
-					鎖定
-				</combo_item>
-			</combo_box>
-			<text name="crease_label">
-				皺褶角度：
-			</text>
-			<spinner name="crease_angle" value="75"/>
-		</panel>
-		<panel label="物理" name="physics_panel">
-			<panel name="physics geometry">
-				<radio_group name="physics_load_radio" value="physics_load_from_file">
-					<radio_item label="檔案：" name="physics_load_from_file"/>
-					<radio_item label="使用細節層次：" name="physics_use_lod"/>
-				</radio_group>
-				<combo_box name="physics_lod_combo" tool_tip="物理形狀所採用的細節層次">
-					<combo_item name="physics_lowest">
-						最低
-					</combo_item>
-					<combo_item name="physics_low">
-						低
-					</combo_item>
-					<combo_item name="physics_medium">
-						中
-					</combo_item>
-					<combo_item name="physics_high">
-						高
-					</combo_item>
-				</combo_box>
-				<button label="瀏覽…" name="physics_browse"/>
-			</panel>
-			<panel name="physics analysis">
-				<slider label="平滑：" name="Smooth"/>
-				<check_box label="關閉洞口（慢）" name="Close Holes (Slow)"/>
-				<button label="分析" name="Decompose"/>
-				<button label="取消" name="decompose_cancel"/>
-			</panel>
-			<panel name="physics simplification">
-				<slider label="階段數：" name="Combine Quality"/>
-				<slider label="細節比例：" name="Detail Scale"/>
-				<slider label="保留：" name="Retain%"/>
-				<button label="簡化" name="Simplify"/>
-				<button label="取消" name="simplify_cancel"/>
-			</panel>
-			<panel name="physics info">
-				<slider label="預覽伸展：" name="physics_explode"/>
-				<text name="physics_triangles">
-					三角形：[TRIANGLES]
-				</text>
-				<text name="physics_points">
-					頂點：[POINTS]
-				</text>
-				<text name="physics_hulls">
-					殼面：[HULLS]
-				</text>
-			</panel>
-		</panel>
-		<panel label="修飾器" name="modifiers_panel">
-			<spinner name="import_scale" value="1.0"/>
-			<text name="import_dimensions">
-				[X] x [Y] x [Z] 公尺
-			</text>
-			<check_box label="材質" name="upload_textures"/>
-			<check_box label="表皮重量" name="upload_skin"/>
-			<check_box label="接點位置" name="upload_joints"/>
-			<spinner name="pelvis_offset" value="0.0"/>
-		</panel>
-	</tab_container>
 </floater>

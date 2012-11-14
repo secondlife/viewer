@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2012, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -218,6 +218,7 @@
 #include "llsecapi.h"
 #include "llmachineid.h"
 #include "llmainlooprepeater.h"
+
 
 // *FIX: These extern globals should be cleaned up.
 // The globals either represent state/config/resource-storage of either 
@@ -734,6 +735,10 @@ bool LLAppViewer::init()
 	LLViewerStatsRecorder::initClass();
 #endif
 
+	// Initialize the non-LLCurl libcurl library.  Should be called
+	// before consumers (LLTextureFetch).
+	mAppCoreHttp.init();
+	
     // *NOTE:Mani - LLCurl::initClass is not thread safe. 
     // Called before threads are created.
     LLCurl::initClass(gSavedSettings.getF32("CurlRequestTimeOut"), 
@@ -1884,6 +1889,7 @@ bool LLAppViewer::cleanup()
 
 	// Delete workers first
 	// shotdown all worker threads before deleting them in case of co-dependencies
+	mAppCoreHttp.requestStop();
 	sTextureFetch->shutdown();
 	sTextureCache->shutdown();	
 	sImageDecodeThread->shutdown();
@@ -1898,6 +1904,9 @@ bool LLAppViewer::cleanup()
 	LL_CHECK_MEMORY
 	LLCurl::cleanupClass();
 	LL_CHECK_MEMORY
+
+	// Non-LLCurl libcurl library
+	mAppCoreHttp.cleanup();
 
 	LLFilePickerThread::cleanupClass();
 
