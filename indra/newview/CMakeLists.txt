@@ -178,6 +178,7 @@ set(viewer_SOURCE_FILES
     llfilepicker.cpp
     llfilteredwearablelist.cpp
     llfirstuse.cpp
+    llflashtimer.cpp
     llflexibleobject.cpp
     llfloaterabout.cpp
     llfloaterbvhpreview.cpp
@@ -762,6 +763,7 @@ set(viewer_HEADER_FILES
     llfilepicker.h
     llfilteredwearablelist.h
     llfirstuse.h
+    llflashtimer.h
     llflexibleobject.h
     llfloaterabout.h
     llfloaterbvhpreview.h
