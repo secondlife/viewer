@@ -417,6 +417,7 @@ void LLFloaterIMSessionTab::addConversationViewParticipant(LLConversationItem* p
 		LLConversationViewParticipant* participant_view = createConversationViewParticipant(participant_model);
 		mConversationsWidgets[uuid] = participant_view;
 		participant_view->addToFolder(mConversationsRoot);
+		participant_view->addToSession(mSessionID);
 		participant_view->setVisible(TRUE);
 		refreshConversation();
 	}

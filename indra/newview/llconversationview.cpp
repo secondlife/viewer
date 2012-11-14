@@ -460,19 +460,24 @@ void LLConversationViewParticipant::refresh()
 
 void LLConversationViewParticipant::addToFolder(LLFolderViewFolder* folder)
 {
-    //Add the item to the folder (conversation)
+    // Add the item to the folder (conversation)
     LLFolderViewItem::addToFolder(folder);
 	
-    //Now retrieve the folder (conversation) UUID, which is the speaker session
+    // Retrieve the folder (conversation) UUID, which is also the speaker session UUID
     LLConversationItem* vmi = this->getParentFolder() ? dynamic_cast<LLConversationItem*>(this->getParentFolder()->getViewModelItem()) : NULL;
-    if(vmi)
+    if (vmi)
     {
-        //Allows speaking icon image to be loaded based on mUUID
-        mAvatarIcon->setValue(mUUID);
-
-        //Allows the speaker indicator to be activated based on the user and conversation
-        mSpeakingIndicator->setSpeakerId(mUUID, vmi->getUUID()); 
+		addToSession(vmi->getUUID());
     }
+}
+
+void LLConversationViewParticipant::addToSession(const LLUUID& session_id)
+{
+	//Allows speaking icon image to be loaded based on mUUID
+	mAvatarIcon->setValue(mUUID);
+	
+	//Allows the speaker indicator to be activated based on the user and conversation
+	mSpeakingIndicator->setSpeakerId(mUUID, session_id); 
 }
 
 void LLConversationViewParticipant::onInfoBtnClick()
