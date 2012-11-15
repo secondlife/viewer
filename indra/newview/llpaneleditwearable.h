@@ -31,6 +31,8 @@
 #include "llscrollingpanellist.h"
 #include "llmodaldialog.h"
 #include "llavatarappearancedefines.h"
+#include "llagent.h"
+#include "llviewerregion.h"
 #include "llwearabletype.h"
 
 class LLAccordionCtrl;
@@ -94,7 +96,7 @@ private:
 	void				toggleTypeSpecificControls(LLWearableType::EType type);
 	void				updateTypeSpecificControls(LLWearableType::EType type);
 
-	//alpha mask checkboxes
+	// alpha mask checkboxes
 	void configureAlphaCheckbox(LLAvatarAppearanceDefines::ETextureIndex te, const std::string& name);
 	void onInvisibilityCommit(LLCheckBoxCtrl* checkbox_ctrl, LLAvatarAppearanceDefines::ETextureIndex te);
 	void updateAlphaCheckboxes();
@@ -104,7 +106,7 @@ private:
 	// callback for HeightUnits parameter.
 	bool changeHeightUnits(const LLSD& new_value);
 
-	// updates current metric and replacemet metric label text
+	// updates current metric and replacement metric label text
 	void updateMetricLayout(BOOL new_value);
 
 	// updates avatar height label
@@ -113,6 +115,8 @@ private:
 	void onWearablePanelVisibilityChange(const LLSD &in_visible_chain, LLAccordionCtrl* accordion_ctrl);
 
 	void setWearablePanelVisibilityChangeCallback(LLPanel* bodypart_panel);
+
+	static void incrementCofVersion();
 
 	// the pointer to the wearable we're editing. NULL means we're not editing a wearable.
 	LLViewerWearable *mWearablePtr;
@@ -128,7 +132,7 @@ private:
 	LLTextBox *mTxtAvatarHeight;
 
 
-	// localized and parametrized strings that used to build avatar_height_label
+	// localized and parameterized strings that used to build avatar_height_label
 	std::string mMeters;
 	std::string mFeet;
 	std::string mHeigth;
@@ -151,7 +155,7 @@ private:
 	LLPanel *mPanelEyes;
 	LLPanel *mPanelHair;
 
-	//clothes
+	// clothes
 	LLPanel *mPanelShirt;
 	LLPanel *mPanelPants;
 	LLPanel *mPanelShoes;

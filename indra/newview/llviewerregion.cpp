@@ -1541,6 +1541,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 		capabilityNames.append("FetchLibDescendents2");
 		capabilityNames.append("FetchInventory2");
 		capabilityNames.append("FetchInventoryDescendents2");
+		capabilityNames.append("IncrementCOFVersion");
 	}
 
 	capabilityNames.append("GetDisplayNames");

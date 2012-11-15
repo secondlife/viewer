@@ -1028,6 +1028,46 @@ void LLPanelEditWearable::updatePanelPickerControls(LLWearableType::EType type)
         }
 }
 
+//static
+void LLPanelEditWearable::incrementCofVersion()
+{
+        // Create a response handler
+        LLHTTPClient::ResponderPtr responderPtr = LLHTTPClient::ResponderPtr(new LLMaturityPreferencesResponder(this));
+
+        // Look up the capability to POST to.
+        std::string url = gAgent.getRegion()->getCapability("IncrementCofVersion");
+
+		// If we don't have a region, report it as an error
+		if (getRegion() == NULL)
+		{
+			responderPtr->error(0U, "region is not defined");
+		}
+		else
+		{
+			// Find the capability to send maturity preference
+			std::string url = getRegion()->getCapability("UpdateAgentInformation");
+
+			// If the capability is not defined, report it as an error
+			if (url.empty())
+			{
+				responderPtr->error(0U, "capability 'UpdateAgentInformation' is not defined for region");
+			}
+			else
+			{
+				// Set new access preference
+				LLSD access_prefs = LLSD::emptyMap();
+				access_prefs["max"] = LLViewerRegion::accessToShortString(pPreferredMaturity);
+
+				LLSD body = LLSD::emptyMap();
+				body["access_prefs"] = access_prefs;
+				llinfos << "Sending viewer preferred maturity to '" << LLViewerRegion::accessToString(pPreferredMaturity)
+					<< "' via capability to: " << url << llendl;
+				LLSD headers;
+				LLHTTPClient::post(url, body, responderPtr, headers, 30.0f);
+			}
+        }
+}
+
 void LLPanelEditWearable::saveChanges(bool force_save_as)
 {
         if (!mWearablePtr || !isDirty())
@@ -1050,6 +1090,8 @@ void LLPanelEditWearable::saveChanges(bool force_save_as)
         {
                 gAgentWearables.saveWearable(mWearablePtr->getType(), index, TRUE, new_name);
         }
+
+        LLPanelEditWearable::incrementCofVersion();
 }
 
 void LLPanelEditWearable::revertChanges()
