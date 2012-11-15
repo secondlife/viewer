@@ -118,6 +118,7 @@ protected:
 
 	// For now assuming all colors are the same in derived classes.
 	static LLUIColor			sFgColor;
+	static LLUIColor			sFgDisabledColor;
 	static LLUIColor			sHighlightBgColor;
 	static LLUIColor			sHighlightFgColor;
 	static LLUIColor			sFocusOutlineColor;

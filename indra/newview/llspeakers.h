@@ -193,6 +193,8 @@ public:
 	void unsetActionTimer(const LLUUID& speaker_id);
 
 	void removeAllTimers();
+
+	bool isTimerStarted(const LLUUID& speaker_id);
 private:
 	/**
 	 * Callback of the each instance of LLSpeakerActionTimer.
@@ -237,6 +239,7 @@ public:
 	void getSpeakerList(speaker_list_t* speaker_list, BOOL include_text);
 	LLVoiceChannel* getVoiceChannel() { return mVoiceChannel; }
 	const LLUUID getSessionID();
+	bool isSpeakerToBeRemoved(const LLUUID& speaker_id);
 
 	/**
 	 * Removes avaline speaker.
