@@ -96,7 +96,7 @@ LLFloaterIMContainer::~LLFloaterIMContainer()
 	}
 }
 
-void LLFloaterIMContainer::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
+void LLFloaterIMContainer::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, BOOL has_offline_msg)
 {
 	addConversationListItem(session_id);
 	LLFloaterIMSessionTab::addToHost(session_id);
@@ -717,15 +717,18 @@ void LLFloaterIMContainer::onCustomAction(const LLSD& userdata)
 	}
 	if ("chat_preferences" == command)
 	{
-		LLFloaterPreference* floater_prefs = LLFloaterReg::showTypedInstance<LLFloaterPreference>("preferences");
-		if (floater_prefs)
+		LLFloaterPreference * floater_prefp = LLFloaterReg::showTypedInstance<LLFloaterPreference>("preferences");
+		if (floater_prefp)
 		{
-			LLTabContainer* tab_container = floater_prefs->getChild<LLTabContainer>("pref core");
-			LLPanel* chat_panel = tab_container->getPanelByName("chat");
-			if (tab_container && chat_panel)
-			{
-				tab_container->selectTabPanel(chat_panel);
-			}
+			floater_prefp->selectChatPanel();
+		}
+	}
+	if ("privacy_preferences" == command)
+	{
+		LLFloaterPreference * floater_prefp = LLFloaterReg::showTypedInstance<LLFloaterPreference>("preferences");
+		if (floater_prefp)
+		{
+			floater_prefp->selectPrivacyPanel();
 		}
 	}
 }

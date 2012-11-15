@@ -119,6 +119,11 @@ void LLConversationLogListItem::updateName()
 	mConversationName->setValue(mConversation->getConversationName());
 }
 
+void LLConversationLogListItem::updateOfflineIMs()
+{
+	getChild<LLIconCtrl>("unread_ims_icon")->setVisible(mConversation->hasOfflineMessages());
+}
+
 void LLConversationLogListItem::onMouseEnter(S32 x, S32 y, MASK mask)
 {
 	getChildView("hovered_icon")->setVisible(true);

@@ -254,6 +254,10 @@ bool LLSpeakersDelayActionsStorage::onTimerActionCallback(const LLUUID& speaker_
 	return true;
 }
 
+bool LLSpeakersDelayActionsStorage::isTimerStarted(const LLUUID& speaker_id)
+{
+	return (mActionTimersMap.size() > 0) && (mActionTimersMap.find(speaker_id) != mActionTimersMap.end());
+}
 
 //
 // ModerationResponder
@@ -603,6 +607,10 @@ const LLUUID LLSpeakerMgr::getSessionID()
 	return mVoiceChannel->getSessionID(); 
 }
 
+bool LLSpeakerMgr::isSpeakerToBeRemoved(const LLUUID& speaker_id)
+{
+	return mSpeakerDelayRemover && mSpeakerDelayRemover->isTimerStarted(speaker_id);
+}
 
 void LLSpeakerMgr::setSpeakerTyping(const LLUUID& speaker_id, BOOL typing)
 {

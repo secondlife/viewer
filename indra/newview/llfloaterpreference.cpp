@@ -1570,6 +1570,26 @@ void LLFloaterPreference::setCacheLocation(const LLStringExplicit& location)
 	cache_location_editor->setToolTip(location);
 }
 
+void LLFloaterPreference::selectPanel(const LLSD& name)
+{
+	LLTabContainer * tab_containerp = getChild<LLTabContainer>("pref core");
+	LLPanel * panel = tab_containerp->getPanelByName(name);
+	if (NULL != panel)
+	{
+		tab_containerp->selectTabPanel(panel);
+	}
+}
+
+void LLFloaterPreference::selectPrivacyPanel()
+{
+	selectPanel("im");
+}
+
+void LLFloaterPreference::selectChatPanel()
+{
+	selectPanel("chat");
+}
+
 //------------------------------Updater---------------------------------------
 
 static bool handleBandwidthChanged(const LLSD& newvalue)

@@ -69,6 +69,7 @@ public:
 	 */
 	void updateTimestamp();
 	void updateName();
+	void updateOfflineIMs();
 
 private:
 
