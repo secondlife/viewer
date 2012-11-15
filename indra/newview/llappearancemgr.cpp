@@ -1750,6 +1750,8 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering)
 	{
 		requestServerAppearanceUpdate();
 	}
+	// DRANO really should wait for the appearance message to set this.
+	// verify that deleting this line doesn't break anything.
 	gAgentAvatarp->setIsUsingServerBakes(gAgent.getRegion() && gAgent.getRegion()->getCentralBakeVersion());
 	
 	//dumpCat(getCOF(),"COF, start");
@@ -2650,12 +2652,70 @@ void LLAppearanceMgr::updateClothingOrderingInfo(LLUUID cat_id, bool update_base
 	if (inventory_changed) gInventory.notifyObservers();
 }
 
+// This is intended for use with HTTP Clients/Responders, but is not
+// specifically coupled with those classes.
+class LLHTTPRetryPolicy: public LLThreadSafeRefCount
+{
+public:
+	LLHTTPRetryPolicy() {}
+	virtual ~LLHTTPRetryPolicy() {}
+	virtual bool shouldRetry(U32 status, F32& seconds_to_wait) = 0;
+};
+
+// Example of simplest possible policy, not necessarily recommended.
+class LLAlwaysRetryImmediatelyPolicy: public LLHTTPRetryPolicy
+{
+public:
+	LLAlwaysRetryImmediatelyPolicy() {}
+	bool shouldRetry(U32 status, F32& seconds_to_wait)
+	{
+		seconds_to_wait = 0.0;
+		return true;
+	}
+};
+
+// Very general policy with geometric back-off after failures,
+// up to a maximum delay, and maximum number of retries.
+class LLAdaptiveRetryPolicy: public LLHTTPRetryPolicy
+{
+public:
+	LLAdaptiveRetryPolicy(F32 min_delay, F32 max_delay, F32 backoff_factor, U32 max_retries):
+		mMinDelay(min_delay),
+		mMaxDelay(max_delay),
+		mBackoffFactor(backoff_factor),
+		mMaxRetries(max_retries),
+		mDelay(min_delay),
+		mRetryCount(0)
+	{
+	}
+
+	bool shouldRetry(U32 status, F32& seconds_to_wait)
+	{
+		seconds_to_wait = mDelay;
+		mDelay = llclamp(mDelay*mBackoffFactor,mMinDelay,mMaxDelay);
+		mRetryCount++;
+		return (mRetryCount<=mMaxRetries);
+	}
+
+private:
+	F32 mMinDelay; // delay never less than this value
+	F32 mMaxDelay; // delay never exceeds this value
+	F32 mBackoffFactor; // delay increases by this factor after each retry, up to mMaxDelay.
+	U32 mMaxRetries; // maximum number of times shouldRetry will return true.
+	F32 mDelay; // current delay.
+	U32 mRetryCount; // number of times shouldRetry has been called.
+};
+
 class RequestAgentUpdateAppearanceResponder: public LLHTTPClient::Responder
 {
 public:
 	RequestAgentUpdateAppearanceResponder()
 	{
-		llinfos << "request created" << llendl;
+		mRetryPolicy = new LLAdaptiveRetryPolicy(1.0, 16.0, 2.0, 5);
+	}
+
+	virtual ~RequestAgentUpdateAppearanceResponder()
+	{
 	}
 
 	// Successful completion.
@@ -2667,27 +2727,51 @@ public:
 	// Error
 	/*virtual*/ void error(U32 status, const std::string& reason)
 	{
-		llwarns << "appearance update request failed, reason: " << reason << llendl;
+		llwarns << "appearance update request failed, status: " << status << " reason: " << reason << llendl;
+		F32 seconds_to_wait;
+		if (mRetryPolicy->shouldRetry(status,seconds_to_wait))
+		{
+			llinfos << "retrying" << llendl;
+			doAfterInterval(boost::bind(&LLAppearanceMgr::requestServerAppearanceUpdate,
+										LLAppearanceMgr::getInstance(),
+										LLCurl::ResponderPtr(this)),
+							seconds_to_wait);
+		}
+		else
+		{
+			llwarns << "giving up after too many retries" << llendl;
+		}
 	}	
+
+	LLPointer<LLHTTPRetryPolicy> mRetryPolicy;
 };
 
-void LLAppearanceMgr::requestServerAppearanceUpdate()
+void LLAppearanceMgr::requestServerAppearanceUpdate(LLCurl::ResponderPtr responder_ptr)
 {
 	if (!gAgent.getRegion())
 	{
 		llwarns << "Region not set, cannot request server appearance update" << llendl;
 	}
+	if (gAgent.getRegion()->getCentralBakeVersion()==0)
+	{
+		llwarns << "Region does not support baking" << llendl;
+	}
 	std::string url = gAgent.getRegion()->getCapability("UpdateAvatarAppearance");	
 	if (url.empty())
 	{
-		llwarns << "NO CAP for UpdateAvatarAppearance. This is a bug." << llendl;
+		llwarns << "No cap for UpdateAvatarAppearance." << llendl;
 		return;
 	}
 	
 	LLSD body;
 	S32 cof_version = getCOFVersion();
 	body["cof_version"] = cof_version;
-	LLHTTPClient::post(url, body, new RequestAgentUpdateAppearanceResponder);
+	//LLCurl::ResponderPtr responder_ptr;
+	if (!responder_ptr.get())
+	{
+		responder_ptr = new RequestAgentUpdateAppearanceResponder;
+	}
+	LLHTTPClient::post(url, body, responder_ptr);
 	llassert(cof_version >= mLastUpdateRequestCOFVersion);
 	mLastUpdateRequestCOFVersion = cof_version;
 }

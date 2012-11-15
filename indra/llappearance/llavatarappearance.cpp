@@ -175,7 +175,7 @@ LLAvatarAppearance::LLAvatarAppearance(LLWearableData* wearable_data) :
 	mBakedTextureDatas.resize(LLAvatarAppearanceDefines::BAKED_NUM_INDICES);
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++ )
 	{
-		mBakedTextureDatas[i].mLastTextureIndex = IMG_DEFAULT_AVATAR;
+		mBakedTextureDatas[i].mLastTextureID = IMG_DEFAULT_AVATAR;
 		mBakedTextureDatas[i].mTexLayerSet = NULL;
 		mBakedTextureDatas[i].mIsLoaded = false;
 		mBakedTextureDatas[i].mIsUsed = false;

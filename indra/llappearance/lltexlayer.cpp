@@ -48,9 +48,6 @@
 
 using namespace LLAvatarAppearanceDefines;
 
-static const S32 BAKE_UPLOAD_ATTEMPTS = 7;
-static const F32 BAKE_UPLOAD_RETRY_DELAY = 2.f; // actual delay grows by power of 2 each attempt
-
 // runway consolidate
 extern std::string self_av_string();
 
@@ -148,6 +145,8 @@ BOOL LLTexLayerSetBuffer::renderTexLayerSet()
 	
 	bool use_shaders = LLGLSLShader::sNoFixedFunction;
 
+	LLGLEnable(GL_ALPHA_TEST);
+
 	if (use_shaders)
 	{
 		gAlphaMaskProgram.bind();
@@ -155,7 +154,7 @@ BOOL LLTexLayerSetBuffer::renderTexLayerSet()
 	}
 	else
 	{
-		glAlphaFunc(GL_GEQUAL, 0.004f);
+		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.004f);
 	}
 
 	LLVertexBuffer::unbind();
@@ -395,6 +394,7 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 	LLGLSUIDefault gls_ui;
 	LLGLDepthTest gls_depth(GL_FALSE, GL_FALSE);
 	gGL.setColorMask(true, true);
+	LLGLEnable(GL_ALPHA_TEST);
 
 	// clear buffer area to ensure we don't pick up UI elements
 	{
@@ -406,7 +406,7 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 		}
 		else
 		{
-			glAlphaFunc(GL_GEQUAL, 0.0f);
+			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.0f);
 		}
 
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
@@ -421,7 +421,7 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 		}
 		else
 		{
-			glAlphaFunc(GL_GEQUAL, 0.004f);
+			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.004f);
 		}
 	}
 
@@ -455,7 +455,7 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 		}
 		else
 		{
-			glAlphaFunc(GL_GEQUAL, 0.0f);
+			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.0f);
 		}
 
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
@@ -471,7 +471,7 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 		}
 		else
 		{
-			glAlphaFunc(GL_GEQUAL, 0.004f);
+			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.004f);
 		}
 
 	}
@@ -564,6 +564,7 @@ void LLTexLayerSet::renderAlphaMaskTextures(S32 x, S32 y, S32 width, S32 height,
 
 	gGL.setColorMask(false, true);
 	gGL.setSceneBlendType(LLRender::BT_REPLACE);
+	LLGLEnable(GL_ALPHA_TEST);
 	
 	// (Optionally) replace alpha with a single component image from a tga file.
 	if (!info->mStaticAlphaFileName.empty())
@@ -592,7 +593,7 @@ void LLTexLayerSet::renderAlphaMaskTextures(S32 x, S32 y, S32 width, S32 height,
 		}
 		else
 		{
-			glAlphaFunc(GL_GEQUAL, 0.0f);
+			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.0f);
 		}
 
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
@@ -607,7 +608,7 @@ void LLTexLayerSet::renderAlphaMaskTextures(S32 x, S32 y, S32 width, S32 height,
 		}
 		else
 		{
-			glAlphaFunc(GL_GEQUAL, 0.004f);
+			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.004f);
 		}
 
 	}
@@ -1117,6 +1118,7 @@ BOOL LLTexLayer::render(S32 x, S32 y, S32 width, S32 height)
 	//gPipeline.disableLights();
 	stop_glerror();
 	glDisable(GL_LIGHTING);
+	LLGLEnable(GL_ALPHA_TEST);
 	stop_glerror();
 
 	bool use_shaders = LLGLSLShader::sNoFixedFunction;
@@ -1211,7 +1213,7 @@ BOOL LLTexLayer::render(S32 x, S32 y, S32 width, S32 height)
 						}
 						else
 						{
-							glAlphaFunc(GL_GEQUAL, 0.0f);
+							gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.0f);
 						}
 					}
 					
@@ -1232,7 +1234,7 @@ BOOL LLTexLayer::render(S32 x, S32 y, S32 width, S32 height)
 						}
 						else
 						{
-							glAlphaFunc(GL_GEQUAL, 0.004f);
+							gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.004f);
 						}
 					}
 					
@@ -1274,7 +1276,7 @@ BOOL LLTexLayer::render(S32 x, S32 y, S32 width, S32 height)
 		}
 		else
 		{
-			glAlphaFunc(GL_GEQUAL, 0.0f);
+			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.0f);
 		}
 
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
@@ -1286,7 +1288,7 @@ BOOL LLTexLayer::render(S32 x, S32 y, S32 width, S32 height)
 		}
 		else
 		{
-			glAlphaFunc(GL_GEQUAL, 0.004f);
+			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.004f);
 		}
 	}
 
@@ -1376,6 +1378,7 @@ BOOL LLTexLayer::blendAlphaTexture(S32 x, S32 y, S32 width, S32 height)
 	gGL.flush();
 	
 	bool use_shaders = LLGLSLShader::sNoFixedFunction;
+	LLGLEnable(GL_ALPHA_TEST);
 
 	if( !getInfo()->mStaticImageFileName.empty() )
 	{
@@ -1389,7 +1392,7 @@ BOOL LLTexLayer::blendAlphaTexture(S32 x, S32 y, S32 width, S32 height)
 			}
 			else
 			{
-				glAlphaFunc(GL_GEQUAL, 0.0f);
+				gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.0f);
 			}
 
 			gGL.getTexUnit(0)->bind(tex, TRUE);
@@ -1401,7 +1404,7 @@ BOOL LLTexLayer::blendAlphaTexture(S32 x, S32 y, S32 width, S32 height)
 			}
 			else
 			{
-				glAlphaFunc(GL_GEQUAL, 0.004f);
+				gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.004f);
 			}
 		}
 		else
@@ -1423,7 +1426,7 @@ BOOL LLTexLayer::blendAlphaTexture(S32 x, S32 y, S32 width, S32 height)
 				}
 				else
 				{
-					glAlphaFunc(GL_GEQUAL, 0.0f);
+					gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.0f);
 				}
 
 				gGL.getTexUnit(0)->bind(tex);
@@ -1436,7 +1439,7 @@ BOOL LLTexLayer::blendAlphaTexture(S32 x, S32 y, S32 width, S32 height)
 				}
 				else
 				{
-					glAlphaFunc(GL_GEQUAL, 0.004f);
+					gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.0f);
 				}
 			}
 		}
@@ -1459,6 +1462,7 @@ BOOL LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 	llassert( !mParamAlphaList.empty() );
 
 	bool use_shaders = LLGLSLShader::sNoFixedFunction;
+	LLGLEnable(GL_ALPHA_TEST);
 
 	if (use_shaders)
 	{
@@ -1466,7 +1470,7 @@ BOOL LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 	}
 	else
 	{
-		glAlphaFunc(GL_GEQUAL, 0.0f);
+		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.0f);
 	}
 
 
@@ -1551,7 +1555,7 @@ BOOL LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 	}
 	else
 	{
-		glAlphaFunc(GL_GEQUAL, 0.004f);
+		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.004f);
 	}
 
 	LLGLSUIDefault gls_ui;

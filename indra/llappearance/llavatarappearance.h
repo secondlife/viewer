@@ -308,7 +308,7 @@ protected:
 	typedef std::deque<LLMaskedMorph *> 	morph_list_t;
 	struct BakedTextureData
 	{
-		LLUUID								mLastTextureIndex;
+		LLUUID								mLastTextureID;
 		LLTexLayerSet*		 				mTexLayerSet; // Only exists for self
 		bool								mIsLoaded;
 		bool								mIsUsed;

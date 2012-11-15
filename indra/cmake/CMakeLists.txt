@@ -15,6 +15,7 @@ set(cmake_SOURCE_FILES
     BuildVersion.cmake
     CARes.cmake
     CMakeCopyIfDifferent.cmake
+    ConfigurePkgConfig.cmake
     CURL.cmake
     Copy3rdPartyLibs.cmake
     DBusGlib.cmake

@@ -58,6 +58,8 @@ enum EParamLocation
 	LOC_WEARABLE
 };
 
+const std::string param_location_name(const EParamLocation& loc);
+
 const S32 MAX_TRANSMITTED_VISUAL_PARAMS = 255;
 
 //-----------------------------------------------------------------------------

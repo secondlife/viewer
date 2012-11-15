@@ -1290,9 +1290,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6d3959428402ef091863ef2a163ec629</string>
+              <string>d6da17e42aab527bbdd408aebfef8b00</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llappearanceutility-source/rev/265640/arch/Linux/installer/llappearanceutility_source-0.1-linux-20121006.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llappearanceutility-source/rev/267038/arch/Linux/installer/llappearanceutility_source-0.1-linux-20121115.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1450,30 +1450,6 @@
             </map>
             <key>name</key>
             <string>windows</string>
-          </map>
-        </map>
-      </map>
-      <key>mesa</key>
-      <map>
-        <key>license</key>
-        <string>mesa</string>
-        <key>license_file</key>
-        <string>LICENSES/mesa.txt</string>
-        <key>name</key>
-        <string>mesa</string>
-        <key>platforms</key>
-        <map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>621ec29861ddac6614668b2b00c0ea8e</string>
-              <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-mesa/rev/265524/arch/Linux/installer/mesa-7.11.1-linux-20121004.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
           </map>
         </map>
       </map>

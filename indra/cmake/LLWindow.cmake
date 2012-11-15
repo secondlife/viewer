@@ -14,7 +14,6 @@ if (STANDALONE)
       SDL_LIBRARY
       )
 else (STANDALONE)
-  use_prebuilt_binary(mesa)
   if (LINUX)
     use_prebuilt_binary(SDL)
     set (SDL_FOUND TRUE)

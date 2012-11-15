@@ -1946,8 +1946,10 @@ void LLViewerFetchedTexture::setIsMissingAsset()
 	}
 	else
 	{
-		//it is normal no map tile on an empty region.
-		//llwarns << mUrl << ": Marking image as missing" << llendl;
+		// This may or may not be an error - it is normal to have no
+		// map tile on an empty region, but bad if we're failing on a
+		// server bake texture.
+		llwarns << mUrl << ": Marking image as missing" << llendl;
 	}
 	if (mHasFetcher)
 	{

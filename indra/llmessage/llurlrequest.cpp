@@ -181,6 +181,10 @@ void LLURLRequest::setURL(const std::string& url)
 {
 	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 	mDetail->mURL = url;
+	if (url.empty())
+	{
+		llwarns << "empty URL specified" << llendl;
+	}
 }
 
 std::string LLURLRequest::getURL() const

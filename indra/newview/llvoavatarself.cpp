@@ -1379,7 +1379,8 @@ BOOL LLVOAvatarSelf::isLocalTextureDataAvailable(const LLViewerTexLayerSet* laye
 				const U32 wearable_count = gAgentWearables.getWearableCount(wearable_type);
 				for (U32 wearable_index = 0; wearable_index < wearable_count; wearable_index++)
 				{
-					ret &= (getLocalDiscardLevel(tex_index, wearable_index) >= 0);
+					BOOL tex_avail = (getLocalDiscardLevel(tex_index, wearable_index) >= 0);
+					ret &= tex_avail;
 				}
 			}
 			return ret;
@@ -1781,6 +1782,7 @@ void LLVOAvatarSelf::setLocalTexture(ETextureIndex type, LLViewerTexture* src_te
 	local_tex_obj->setID(tex->getID());
 	setBakedReady(type,baked_version_ready,index);
 }
+
 //virtual
 void LLVOAvatarSelf::setBakedReady(LLAvatarAppearanceDefines::ETextureIndex type, BOOL baked_version_exists, U32 index)
 {
@@ -2275,29 +2277,29 @@ void LLVOAvatarSelf::addLocalTextureStats( ETextureIndex type, LLViewerFetchedTe
 {
 	if (!isIndexLocalTexture(type)) return;
 
-	if (!covered_by_baked)
+	if (getLocalTextureID(type, index) != IMG_DEFAULT_AVATAR && imagep->getDiscardLevel() != 0)
 	{
-		if (getLocalTextureID(type, index) != IMG_DEFAULT_AVATAR && imagep->getDiscardLevel() != 0)
-		{
-			F32 desired_pixels;
-			desired_pixels = llmin(mPixelArea, (F32)getTexImageArea());
-			imagep->setBoostLevel(getAvatarBoostLevel());
+		F32 desired_pixels;
+		desired_pixels = llmin(mPixelArea, (F32)getTexImageArea());
 
-			imagep->resetTextureStats();
-			imagep->setMaxVirtualSizeResetInterval(MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL);
-			imagep->addTextureStats( desired_pixels / texel_area_ratio );
-			imagep->setAdditionalDecodePriority(SELF_ADDITIONAL_PRI) ;
-			imagep->forceUpdateBindStats() ;
-			if (imagep->getDiscardLevel() < 0)
-			{
-				mHasGrey = TRUE; // for statistics gathering
-			}
-		}
-		else
+		if (isUsingLocalAppearance())
 		{
-			// texture asset is missing
+			imagep->setBoostLevel(getAvatarBoostLevel());
+			imagep->setAdditionalDecodePriority(SELF_ADDITIONAL_PRI) ;
+		}
+		imagep->resetTextureStats();
+		imagep->setMaxVirtualSizeResetInterval(MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL);
+		imagep->addTextureStats( desired_pixels / texel_area_ratio );
+		imagep->forceUpdateBindStats() ;
+		if (imagep->getDiscardLevel() < 0)
+		{
 			mHasGrey = TRUE; // for statistics gathering
 		}
+	}
+	else
+	{
+		// texture asset is missing
+		mHasGrey = TRUE; // for statistics gathering
 	}
 }
 
@@ -2776,4 +2778,39 @@ void LLVOAvatarSelf::deleteScratchTextures()
 void LLVOAvatarSelf::dumpScratchTextureByteCount()
 {
 	llinfos << "Scratch Texture GL: " << (sScratchTexBytes/1024) << "KB" << llendl;
+}
+
+void dump_visual_param(apr_file_t* file, LLVisualParam* viewer_param, F32 value);
+
+void LLVOAvatarSelf::dumpWearableInfo(LLAPRFile& outfile)
+{
+	apr_file_t* file = outfile.getFileHandle();
+	if (!file)
+	{
+		return;
+	}
+
+	
+	apr_file_printf( file, "\n<wearable_info>\n" );
+
+	LLWearableData *wd = getWearableData();
+	for (S32 type = 0; type < LLWearableType::WT_COUNT; type++)
+	{
+		const std::string& type_name = LLWearableType::getTypeName((LLWearableType::EType)type);
+		for (U32 j=0; j< wd->getWearableCount((LLWearableType::EType)type); j++)
+		{
+			LLViewerWearable *wearable = gAgentWearables.getViewerWearable((LLWearableType::EType)type,j);
+			apr_file_printf( file, "\n\t    <wearable type=\"%s\" name=\"%s\"/>\n",
+							 type_name.c_str(), wearable->getName().c_str() );
+			LLWearable::visual_param_vec_t v_params;
+			wearable->getVisualParams(v_params);
+			for (LLWearable::visual_param_vec_t::iterator it = v_params.begin();
+				 it != v_params.end(); ++it)
+			{
+				LLVisualParam *param = *it;
+				dump_visual_param(file, param, param->getWeight());
+			}
+		}
+	}
+	apr_file_printf( file, "\n</wearable_info>\n" );
 }
