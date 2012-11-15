@@ -32,7 +32,6 @@
 //#endif
 
 #if defined(LL_WINDOWS)
-//# include <windows.h>
 # include <psapi.h>
 #elif defined(LL_DARWIN)
 # include <sys/types.h>

@@ -27,9 +27,7 @@
 
 // We can't use WIN32_LEAN_AND_MEAN here, needs lots of includes.
 #if LL_WINDOWS
-#undef WIN32_LEAN_AND_MEAN
-#include <winsock2.h>
-#include <windows.h>
+#include "llwin32headers.h"
 // ugh, this is ugly.  We need to straighten out our linking for this library
 #pragma comment(lib, "IPHLPAPI.lib")
 #include <iphlpapi.h>

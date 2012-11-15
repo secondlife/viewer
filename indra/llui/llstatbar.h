@@ -100,10 +100,10 @@ private:
 	BOOL mDisplayHistory;
 	BOOL mDisplayMean;			// If true, display mean, if false, display current value
 
-	LLTrace::TraceType<CountAccumulator<F64> >* mCountFloatp;
-	LLTrace::TraceType<CountAccumulator<S64> >* mCountIntp;
-	LLTrace::TraceType<MeasurementAccumulator<F64> >* mMeasurementFloatp;
-	LLTrace::TraceType<MeasurementAccumulator<S64> >* mMeasurementIntp;
+	LLTrace::TraceType<LLTrace::CountAccumulator<F64> >* mCountFloatp;
+	LLTrace::TraceType<LLTrace::CountAccumulator<S64> >* mCountIntp;
+	LLTrace::TraceType<LLTrace::MeasurementAccumulator<F64> >* mMeasurementFloatp;
+	LLTrace::TraceType<LLTrace::MeasurementAccumulator<S64> >* mMeasurementIntp;
 
 	LLFrameTimer mUpdateTimer;
 	LLUIString mLabel;

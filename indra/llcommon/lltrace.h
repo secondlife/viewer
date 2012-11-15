@@ -235,8 +235,8 @@ namespace LLTrace
 
 		MeasurementAccumulator()
 		:	mSum(0),
-			mMin(std::numeric_limits<T>::max()),
-			mMax(std::numeric_limits<T>::min()),
+			mMin((std::numeric_limits<T>::max)()),
+			mMax((std::numeric_limits<T>::min)()),
 			mMean(0),
 			mVarianceSum(0),
 			mNumSamples(0),
@@ -379,6 +379,24 @@ namespace LLTrace
 
 		U32	mNumSamples;
 	};
+
+	class TimerAccumulator
+	{
+	public:
+		void addSamples(const TimerAccumulator& other);
+		void reset(const TimerAccumulator* other);
+
+		//
+		// members
+		//
+		U64 						mSelfTimeCounter,
+									mTotalTimeCounter;
+		U32 						mCalls;
+		class BlockTimer*			mLastCaller;	// used to bootstrap tree construction
+		U16							mActiveCount;	// number of timers with this ID active on stack
+		bool						mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame
+	};
+
 
 	template <typename T = F64>
 	class Measurement

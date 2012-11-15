@@ -38,6 +38,7 @@
 
 // Linden library includes
 #include "llerror.h"
+#include "llfasttimer.h"
 #include "llgl.h"
 #include "llstring.h"
 #include "lldir.h"

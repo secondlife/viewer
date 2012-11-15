@@ -28,60 +28,77 @@
 #define LL_FASTTIMER_H
 
 #include "llinstancetracker.h"
+#include "lltrace.h"
 
 #define FAST_TIMER_ON 1
+#define LL_FASTTIMER_USE_RDTSC 1
 
 class LLMutex;
 
-#include "lltrace.h"
-
-#define LL_FASTTIMER_USE_RDTSC 1
-
 namespace LLTrace
 {
+struct CurTimerData
+{
+	class Time*			mCurTimer;
+	class BlockTimer*	mTimerData;
+	U64					mChildTime;
+};
 
 class Time
 {
 public:
+	friend class BlockTimer;
 	typedef Time self_t;
 	typedef class BlockTimer DeclareTimer;
 
-public:
 	Time(BlockTimer& timer);
 	~Time();
 
 public:
-	static bool				sLog;
-	static bool				sMetricLog;
-	static std::string		sLogName;
-	static bool 			sPauseHistory;
-	static bool 			sResetHistory;
-
-	// call this once a frame to reset timers
-	static void nextFrame();
-
 	// dumps current cumulative frame stats to log
 	// call nextFrame() to reset timers
 	static void dumpCurTimes();
 
-	// call this to reset timer hierarchy, averages, etc.
-	static void reset();
-
-	static U64 countsPerSecond();
-	static S32 getLastFrameIndex() { return sLastFrameIndex; }
-	static S32 getCurFrameIndex() { return sCurFrameIndex; }
-
 	static void writeLog(std::ostream& os);
 
-	struct CurTimerData
-	{
-		Time*				mCurTimer;
-		BlockTimer*			mTimerData;
-		U64					mChildTime;
-	};
-	static LLThreadLocalPointer<CurTimerData>	sCurTimerData;
-
 private:
+
+	U64				mStartTime;
+	CurTimerData	mLastTimerData;
+};
+
+// stores a "named" timer instance to be reused via multiple Time stack instances
+class BlockTimer 
+:	public TraceType<TimerAccumulator>,
+	public LLInstanceTracker<BlockTimer>
+{
+public:
+	BlockTimer(const char* name, bool open = false, BlockTimer* parent = &getRootTimer());
+	~BlockTimer();
+
+	enum { HISTORY_NUM = 300 };
+
+	BlockTimer* getParent() const { return mParent; }
+	void setParent(BlockTimer* parent);
+	S32 getDepth();
+
+	typedef std::vector<BlockTimer*>::const_iterator child_const_iter;
+	child_const_iter beginChildren();
+	child_const_iter endChildren();
+	std::vector<BlockTimer*>& getChildren();
+
+	void setCollapsed(bool collapsed)	{ mCollapsed = collapsed; }
+	bool getCollapsed() const			{ return mCollapsed; }
+
+	U32 getCountAverage() const { return mCountAverage; }
+	U32 getCallAverage() const	{ return mCallAverage; }
+
+	U32 getHistoricalCount(S32 history_index = 0) const;
+	U32 getHistoricalCalls(S32 history_index = 0) const;
+
+	static BlockTimer& getRootTimer();
+	static void pushLog(LLSD sd);
+	friend class Time;
 
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -106,14 +123,14 @@ private:
 	//#undef _interlockedbittestandset
 	//#undef _interlockedbittestandreset
 
-	//inline U32 Time::getCPUClockCount32()
+	//inline U32 BlockTimer::getCPUClockCount32()
 	//{
 	//	U64 time_stamp = __rdtsc();
 	//	return (U32)(time_stamp >> 8);
 	//}
 	//
 	//// return full timer value, *not* shifted by 8 bits
-	//inline U64 Time::getCPUClockCount64()
+	//inline U64 BlockTimer::getCPUClockCount64()
 	//{
 	//	return __rdtsc();
 	//}
@@ -220,64 +237,7 @@ private:
 
 #endif
 
-	static U64	sClockResolution;
-	static S32	sCurFrameIndex;
-	static S32	sLastFrameIndex;
-	static U64	sLastFrameTime;
-
-	U64							mStartTime;
-	Time::CurTimerData	mLastTimerData;
-};
-
-struct TimerAccumulator
-{
-	void addSamples(const TimerAccumulator& other);
-	void reset(const TimerAccumulator* other);
-
-	//
-	// members
-	//
-	U64 						mSelfTimeCounter,
-								mTotalTimeCounter;
-	U32 						mCalls;
-	BlockTimer*					mLastCaller;	// used to bootstrap tree construction
-	U16							mActiveCount;	// number of timers with this ID active on stack
-	bool						mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame
-};
-
-// stores a "named" timer instance to be reused via multiple Time stack instances
-class BlockTimer 
-:	public TraceType<TimerAccumulator>,
-	public LLInstanceTracker<BlockTimer>
-{
-public:
-	BlockTimer(const char* name, bool open = false, BlockTimer* parent = &getRootTimer());
-	~BlockTimer();
-
-	enum { HISTORY_NUM = 300 };
-
-	BlockTimer* getParent() const { return mParent; }
-	void setParent(BlockTimer* parent);
-	S32 getDepth();
-
-	typedef std::vector<BlockTimer*>::const_iterator child_const_iter;
-	child_const_iter beginChildren();
-	child_const_iter endChildren();
-	std::vector<BlockTimer*>& getChildren();
-
-	void setCollapsed(bool collapsed)	{ mCollapsed = collapsed; }
-	bool getCollapsed() const			{ return mCollapsed; }
-
-	U32 getCountAverage() const { return mCountAverage; }
-	U32 getCallAverage() const	{ return mCallAverage; }
-
-	U32 getHistoricalCount(S32 history_index = 0) const;
-	U32 getHistoricalCalls(S32 history_index = 0) const;
-
-	static BlockTimer& getRootTimer();
-
-private:
-	friend class Time;
+	static U64 countsPerSecond();
 
 	// recursive call to gather total time from children
 	static void accumulateTimings();
@@ -289,6 +249,12 @@ private:
 	static void buildHierarchy();
 	static void resetFrame();
 	static void reset();
+	// call this once a frame to reset timers
+	static void nextFrame();
+	static S32 getLastFrameIndex() { return sLastFrameIndex; }
+	static S32 getCurFrameIndex() { return sCurFrameIndex; }
+
+
 
 	// sum of recorded self time and tree time of all children timers (might not match actual recorded time of children if topology is incomplete
 	U32 						mTreeTimeCounter; 
@@ -304,12 +270,25 @@ private:
 	std::vector<BlockTimer*>	mChildren;
 	bool						mCollapsed;				// don't show children
 	bool						mNeedsSorting;			// sort children whenever child added
+
+	// statics
+	static std::string							sLogName;
+	static bool									sMetricLog;
+	static bool									sLog;	
+	static LLThreadLocalPointer<CurTimerData>	sCurTimerData;
+	static U64									sClockResolution;
+	static S32									sCurFrameIndex;
+	static S32									sLastFrameIndex;
+	static U64									sLastFrameTime;
+	static bool 								sPauseHistory;
+	static bool 								sResetHistory;
+
 };
 
 LL_FORCE_INLINE Time::Time(BlockTimer& timer)
 {
 #if FAST_TIMER_ON
-	mStartTime = getCPUClockCount64();
+	mStartTime = BlockTimer::getCPUClockCount64();
 
 	TimerAccumulator& accumulator = timer.getPrimaryAccumulator();
 	accumulator.mActiveCount++;
@@ -317,7 +296,7 @@ LL_FORCE_INLINE Time::Time(BlockTimer& timer)
 	// keep current parent as long as it is active when we are
 	accumulator.mMoveUpTree |= (timer.mParent->getPrimaryAccumulator().mActiveCount == 0);
 
-	CurTimerData* cur_timer_data = Time::sCurTimerData.get();
+	CurTimerData* cur_timer_data = BlockTimer::sCurTimerData.get();
 	// store top of stack
 	mLastTimerData = *cur_timer_data;
 	// push new information
@@ -330,8 +309,8 @@ LL_FORCE_INLINE Time::Time(BlockTimer& timer)
 LL_FORCE_INLINE Time::~Time()
 {
 #if FAST_TIMER_ON
-	U64 total_time = getCPUClockCount64() - mStartTime;
-	CurTimerData* cur_timer_data = Time::sCurTimerData.get();
+	U64 total_time = BlockTimer::getCPUClockCount64() - mStartTime;
+	CurTimerData* cur_timer_data = BlockTimer::sCurTimerData.get();
 	TimerAccumulator& accumulator = cur_timer_data->mTimerData->getPrimaryAccumulator();
 	accumulator.mSelfTimeCounter += total_time - cur_timer_data->mChildTime;
 	accumulator.mTotalTimeCounter += total_time;
@@ -344,7 +323,7 @@ LL_FORCE_INLINE Time::~Time()
 	// we are only tracking self time, so subtract our total time delta from parents
 	mLastTimerData.mChildTime += total_time;
 
-	*sCurTimerData = mLastTimerData;
+	*BlockTimer::sCurTimerData = mLastTimerData;
 #endif
 }
 

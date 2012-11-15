@@ -29,6 +29,7 @@
 #define LL_LLPARAM_H
 
 #include <vector>
+#include <list>
 #include <boost/function.hpp>
 #include <boost/type_traits/is_convertible.hpp>
 #include <boost/unordered_map.hpp>

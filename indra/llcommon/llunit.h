@@ -33,16 +33,10 @@
 namespace LLUnits
 {
 
-template<typename T, typename IS_UNIT = void>
+template<typename T>
 struct HighestPrecisionType
 {
 	typedef T type_t;
-};
-
-template<typename T>
-struct HighestPrecisionType<T, typename T::is_unit_tag_t>
-{
-	typedef typename HighestPrecisionType<typename T::storage_t>::type_t type_t;
 };
 
 template<> struct HighestPrecisionType<F32> { typedef F64 type_t; };
@@ -78,7 +72,6 @@ struct LLUnit
 {
 	typedef LLUnit<UNIT_TYPE, STORAGE_TYPE> self_t;
 	typedef typename STORAGE_TYPE storage_t;
-	typedef void is_unit_tag_t;
 
 	LLUnit(storage_t value = storage_t())
 	:	mValue(value)

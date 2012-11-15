@@ -31,6 +31,7 @@
 #include "llassetstorage.h"
 #include "llinventorytype.h"
 #include "llfilepicker.h"
+#include <queue>
 
 class LLTransactionID;
 

@@ -1,9 +1,10 @@
 /** 
- * @file lltrace.cpp
+ * @file llwindows.h
+ * @brief sanitized include of windows header files
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2010, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,43 +24,15 @@
  * $/LicenseInfo$
  */
 
-#include "linden_common.h"
+#ifndef LL_LLWINDOWS_H
+#define LL_LLWINDOWS_H
 
-#include "lltrace.h"
-#include "lltracerecording.h"
-#include "lltracethreadrecorder.h"
-#include "llfasttimer.h"
+#ifdef LL_WINDOWS
+#define NOMINMAX
+#undef WIN32_LEAN_AND_MEAN
+#include <winsock2.h>
+#include <windows.h>
+#undef NOMINMAX
+#endif
 
-namespace LLTrace
-{
-
-static MasterThreadRecorder* gMasterThreadRecorder = NULL;
-
-void init()
-{
-	gMasterThreadRecorder = new MasterThreadRecorder();
-	BlockTimer::sCurTimerData = new CurTimerData();
-}
-
-void cleanup()
-{
-	delete gMasterThreadRecorder;
-	gMasterThreadRecorder = NULL;
-	delete BlockTimer::sCurTimerData.get();
-	BlockTimer::sCurTimerData = NULL;
-}
-
-MasterThreadRecorder& getMasterThreadRecorder()
-{
-	llassert(gMasterThreadRecorder != NULL);
-	return *gMasterThreadRecorder;
-}
-
-LLThreadLocalPointer<ThreadRecorder>& get_thread_recorder()
-{
-	static LLThreadLocalPointer<ThreadRecorder> s_thread_recorder;
-	return s_thread_recorder;
-
-}
-
-}
+#endif

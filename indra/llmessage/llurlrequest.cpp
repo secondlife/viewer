@@ -33,6 +33,7 @@
 #include <openssl/x509_vfy.h>
 #include <openssl/ssl.h>
 #include "llcurl.h"
+#include "llfasttimer.h"
 #include "llioutil.h"
 #include "llproxy.h"
 #include "llpumpio.h"

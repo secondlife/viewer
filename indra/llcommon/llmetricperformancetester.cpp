@@ -31,6 +31,7 @@
 #include "llsdserialize.h"
 #include "lltreeiterators.h"
 #include "llmetricperformancetester.h"
+#include "llfasttimer.h"
 
 //----------------------------------------------------------------------------------------------
 // LLMetricPerformanceTesterBasic : static methods and testers management
@@ -90,7 +91,7 @@ LLMetricPerformanceTesterBasic* LLMetricPerformanceTesterBasic::getTester(std::s
 // Return TRUE if this metric is requested or if the general default "catch all" metric is requested
 BOOL LLMetricPerformanceTesterBasic::isMetricLogRequested(std::string name)
 {
-	return (LLFastTimer::sMetricLog && ((LLFastTimer::sLogName == name) || (LLFastTimer::sLogName == DEFAULT_METRIC_NAME)));
+	return (LLTrace::BlockTimer::sMetricLog && ((LLTrace::BlockTimer::sLogName == name) || (LLTrace::BlockTimer::sLogName == DEFAULT_METRIC_NAME)));
 }
 
 /*static*/ 
@@ -193,8 +194,7 @@ void LLMetricPerformanceTesterBasic::preOutputTestResults(LLSD* sd)
 
 void LLMetricPerformanceTesterBasic::postOutputTestResults(LLSD* sd)
 {
-	LLMutexLock lock(LLFastTimer::sLogLock);
-	LLFastTimer::sLogQueue.push((*sd));
+	LLTrace::BlockTimer::pushLog(*sd);
 }
 
 void LLMetricPerformanceTesterBasic::outputTestResults() 

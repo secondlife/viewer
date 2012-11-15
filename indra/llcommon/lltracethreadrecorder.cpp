@@ -26,6 +26,7 @@
 #include "linden_common.h"
 
 #include "lltracethreadrecorder.h"
+#include "llfasttimer.h"
 
 namespace LLTrace
 {

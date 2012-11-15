@@ -29,7 +29,7 @@
 #include "llxuiparser.h"
 
 #include "llxmlnode.h"
-
+#include "llfasttimer.h"
 #ifdef LL_STANDALONE
 #include <expat.h>
 #else

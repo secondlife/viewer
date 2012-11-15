@@ -28,11 +28,10 @@
 
 #include "llstring.h"
 #include "llerror.h"
+#include "llfasttimer.h"
 
 #if LL_WINDOWS
-#define WIN32_LEAN_AND_MEAN
-#include <winsock2.h>
-#include <windows.h>
+#include "llwin32headerslean.h"
 #include <winnls.h> // for WideCharToMultiByte
 #endif
 

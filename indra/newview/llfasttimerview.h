@@ -46,7 +46,7 @@ private:
 	static LLSD analyzePerformanceLogDefault(std::istream& is) ;
 	static void exportCharts(const std::string& base, const std::string& target);
 	void onPause();
-	LLFastTimer::DeclareTimer& getFrameTimer();
+	LLTrace::BlockTimer& getFrameTimer();
 
 public:
 
@@ -59,7 +59,7 @@ public:
 	virtual BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
 	virtual void draw();
 
-	LLFastTimer::DeclareTimer* getLegendID(S32 y);
+	LLTrace::BlockTimer* getLegendID(S32 y);
 	F64 getTime(const std::string& name);
 
 protected:
@@ -85,8 +85,8 @@ private:
 	U64 mMaxCountTotal;
 	LLRect mBarRect;
 	S32	mScrollIndex;
-	LLFastTimer::DeclareTimer* mHoverID;
-	LLFastTimer::DeclareTimer* mHoverTimer;
+	LLTrace::BlockTimer* mHoverID;
+	LLTrace::BlockTimer* mHoverTimer;
 	LLRect					mToolTipRect;
 	S32 mHoverBarIndex;
 	LLFrameTimer mHighlightTimer;

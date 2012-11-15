@@ -30,6 +30,7 @@
 #include "llsdrpcclient.h"
 
 #include "llbufferstream.h"
+#include "llfasttimer.h"
 #include "llfiltersd2xmlrpc.h"
 #include "llpumpio.h"
 #include "llsd.h"

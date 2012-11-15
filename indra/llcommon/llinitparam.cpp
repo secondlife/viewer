@@ -28,6 +28,7 @@
 #include "linden_common.h"
 
 #include "llinitparam.h"
+#include "llformat.h"
 
 
 namespace LLInitParam

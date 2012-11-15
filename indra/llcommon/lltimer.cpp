@@ -31,11 +31,9 @@
 #include "u64.h"
 
 #if LL_WINDOWS
-#	define WIN32_LEAN_AND_MEAN
-#	include <winsock2.h>
-#	include <windows.h>
+#	include "llwin32headerslean.h"
 #elif LL_LINUX || LL_SOLARIS || LL_DARWIN
-#       include <errno.h>
+#   include <errno.h>
 #	include <sys/time.h>
 #else 
 #	error "architecture not supported"

@@ -273,7 +273,7 @@ namespace LLTrace
 		template <typename T>
 		typename T getPeriodMin(const TraceType<CountAccumulator<T> >& stat) const
 		{
-			T min_val = std::numeric_limits<T>::max();
+			T min_val = (std::numeric_limits<T>::max)();
 			for (S32 i = 0; i < mNumPeriods; i++)
 			{
 				min_val = llmin(min_val, mRecordingPeriods[i].getSum(stat));
@@ -284,7 +284,7 @@ namespace LLTrace
 		template <typename T>
 		F64 getPeriodMinPerSec(const TraceType<CountAccumulator<T> >& stat) const
 		{
-			F64 min_val = std::numeric_limits<F64>::max();
+			F64 min_val = (std::numeric_limits<F64>::max)();
 			for (S32 i = 0; i < mNumPeriods; i++)
 			{
 				min_val = llmin(min_val, mRecordingPeriods[i].getPerSec(stat));
@@ -295,7 +295,7 @@ namespace LLTrace
 		template <typename T>
 		T getPeriodMax(const TraceType<CountAccumulator<T> >& stat) const
 		{
-			T max_val = std::numeric_limits<T>::min();
+			T max_val = (std::numeric_limits<T>::min)();
 			for (S32 i = 0; i < mNumPeriods; i++)
 			{
 				max_val = llmax(max_val, mRecordingPeriods[i].getSum(stat));
@@ -306,7 +306,7 @@ namespace LLTrace
 		template <typename T>
 		F64 getPeriodMaxPerSec(const TraceType<CountAccumulator<T> >& stat) const
 		{
-			F64 max_val = std::numeric_limits<F64>::min();
+			F64 max_val = (std::numeric_limits<F64>::min)();
 			for (S32 i = 0; i < mNumPeriods; i++)
 			{
 				max_val = llmax(max_val, mRecordingPeriods[i].getPerSec(stat));
