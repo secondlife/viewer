@@ -724,7 +724,7 @@ bool LLIMModel::newSession(const LLUUID& session_id, const std::string& name, co
 	// When notifying observer, name of session is used instead of "name", because they may not be the
 	// same if it is an adhoc session (in this case name is localized in LLIMSession constructor).
 	std::string session_name = LLIMModel::getInstance()->getName(session_id);
-	LLIMMgr::getInstance()->notifyObserverSessionAdded(session_id, session_name, other_participant_id);
+	LLIMMgr::getInstance()->notifyObserverSessionAdded(session_id, session_name, other_participant_id,has_offline_msg);
 
 	return true;
 
@@ -2974,11 +2974,11 @@ void LLIMMgr::clearPendingAgentListUpdates(const LLUUID& session_id)
 	}
 }
 
-void LLIMMgr::notifyObserverSessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
+void LLIMMgr::notifyObserverSessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, bool has_offline_msg)
 {
 	for (session_observers_list_t::iterator it = mSessionObservers.begin(); it != mSessionObservers.end(); it++)
 	{
-		(*it)->sessionAdded(session_id, name, other_participant_id);
+		(*it)->sessionAdded(session_id, name, other_participant_id, has_offline_msg);
 	}
 }
 

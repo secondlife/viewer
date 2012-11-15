@@ -68,6 +68,13 @@
          function="IMFloaterContainer.Action"
          parameter="chat_preferences" />
       </menu_item_call>
+    <menu_item_call
+         label="Privacy preferences..."
+         name="privacy_preferences">
+        <on_click
+         function="IMFloaterContainer.Action"
+         parameter="privacy_preferences" />
+    </menu_item_call>
     <menu_item_check
          label="Open conversation log"
          name="Conversation"

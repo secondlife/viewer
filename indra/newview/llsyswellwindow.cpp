@@ -617,7 +617,7 @@ BOOL LLIMWellWindow::postBuild()
 
 //virtual
 void LLIMWellWindow::sessionAdded(const LLUUID& session_id,
-								   const std::string& name, const LLUUID& other_participant_id)
+								   const std::string& name, const LLUUID& other_participant_id, BOOL has_offline_msg)
 {
 	LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(session_id);
 	if (!session) return;
