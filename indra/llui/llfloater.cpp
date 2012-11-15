@@ -2234,7 +2234,8 @@ LLFloaterView::LLFloaterView (const Params& p)
 	mFocusCycleMode(FALSE),
 	mMinimizePositionVOffset(0),
 	mSnapOffsetBottom(0),
-	mSnapOffsetRight(0)
+	mSnapOffsetRight(0),
+	mFrontChild(NULL)
 {
 	mSnapView = getHandle();
 }
@@ -2383,6 +2384,13 @@ LLRect LLFloaterView::findNeighboringPosition( LLFloater* reference_floater, LLF
 
 void LLFloaterView::bringToFront(LLFloater* child, BOOL give_focus)
 {
+	if (mFrontChild == child)
+	{
+		return;
+	}
+
+	mFrontChild = child;
+
 	// *TODO: make this respect floater's mAutoFocus value, instead of
 	// using parameter
 	if (child->getHost())
