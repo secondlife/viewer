@@ -349,15 +349,21 @@ const bool LLConversationItemSession::getTime(F64& time) const
 	return has_time;
 }
 
-void LLConversationItemSession::dumpDebugData()
+void LLConversationItemSession::dumpDebugData(bool dump_children)
 {
+	// Session info
 	llinfos << "Merov debug : session " << this << ", uuid = " << mUUID << ", name = " << mName << ", is loaded = " << mIsLoaded << llendl;
-	LLConversationItemParticipant* participant = NULL;
-	child_list_t::iterator iter;
-	for (iter = mChildren.begin(); iter != mChildren.end(); iter++)
+	// Children info
+	if (dump_children)
 	{
-		participant = dynamic_cast<LLConversationItemParticipant*>(*iter);
-		participant->dumpDebugData();
+		for (child_list_t::iterator iter = mChildren.begin(); iter != mChildren.end(); iter++)
+		{
+			LLConversationItemParticipant* participant = dynamic_cast<LLConversationItemParticipant*>(*iter);
+			if (participant)
+			{
+				participant->dumpDebugData();
+			}
+		}
 	}
 }
 

@@ -224,13 +224,13 @@ void SpeakingIndicatorManager::onParticipantsChanged()
 
 void SpeakingIndicatorManager::switchSpeakerIndicators(const speaker_ids_t& speakers_uuids, BOOL switch_on)
 {
-	llinfos << "Merov debug : switchSpeakerIndicators, switch_on = " << switch_on << llendl;
 	LLVoiceChannel* voice_channel = LLVoiceChannel::getCurrentVoiceChannel();
 	LLUUID session_id;
 	if (voice_channel)
 	{
 		session_id = voice_channel->getSessionID();
 	}
+	llinfos << "Merov debug : switchSpeakerIndicators, switch_on = " << switch_on << ", voice channel = " << session_id << llendl;
 
 	speaker_ids_t::const_iterator it_uuid = speakers_uuids.begin(); 
 	for (; it_uuid != speakers_uuids.end(); ++it_uuid)
@@ -255,17 +255,17 @@ void SpeakingIndicatorManager::switchSpeakerIndicators(const speaker_ids_t& spea
 			}
 			was_switched_on = was_switched_on || switch_current_on;
 
+			llinfos << "Merov debug : indicator for " << *it_uuid << ", switch_current_on = " << switch_current_on << ", session = " << indicator->getTargetSessionID() << llendl;
 			indicator->switchIndicator(switch_current_on);
-
 		}
 
 		if (was_found)
 		{
-			LL_DEBUGS("SpeakingIndicator") << mSpeakingIndicators.count(*it_uuid) << " indicators where found" << LL_ENDL;
+			LL_DEBUGS("SpeakingIndicator") << mSpeakingIndicators.count(*it_uuid) << " indicators were found" << LL_ENDL;
 
 			if (switch_on && !was_switched_on)
 			{
-				LL_DEBUGS("SpeakingIndicator") << "but non of them where switched on" << LL_ENDL;
+				LL_DEBUGS("SpeakingIndicator") << "but none of them were switched on" << LL_ENDL;
 			}
 
 			if (was_switched_on)
