@@ -899,6 +899,11 @@ bool LLNotification::hasFormElements() const
 	return mTemplatep->mForm->getNumElements() != 0;
 }
 
+void LLNotification::playSound()
+{ 
+    LLUI::sAudioCallback(mTemplatep->mSoundEffect);
+}
+
 LLNotification::ECombineBehavior LLNotification::getCombineBehavior() const
 {
 	return mTemplatep->mCombineBehavior;

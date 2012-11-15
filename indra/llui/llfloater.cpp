@@ -64,6 +64,8 @@
 // use this to control "jumping" behavior when Ctrl-Tabbing
 const S32 TABBED_FLOATER_OFFSET = 0;
 
+extern LLControlGroup gSavedSettings;
+
 namespace LLInitParam
 {
 	void TypeValues<LLFloaterEnums::EOpenPositioning>::declareValues()
@@ -660,7 +662,18 @@ void LLFloater::openFloater(const LLSD& key)
 		&& !getFloaterHost()
 		&& (!getVisible() || isMinimized()))
 	{
-		make_ui_sound("UISndWindowOpen");
+        bool playSound = true;
+
+        //Don't play a sound for incoming voice call based upon chat preference setting
+        if(getName() == "incoming call" && gSavedSettings.getBOOL("PlaySoundIncomingVoiceCall") == FALSE)
+        {
+            playSound = false;
+        }
+
+        if(playSound)
+        {
+            make_ui_sound("UISndWindowOpen");
+        }
 	}
 
 	//RN: for now, we don't allow rehosting from one multifloater to another

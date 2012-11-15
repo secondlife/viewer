@@ -2494,7 +2494,11 @@ void LLIMMgr::addMessage(
 			return;
 		}
 
-		make_ui_sound("UISndNewIncomingIMSession");
+        //Play sound for new conversations
+        if(gSavedSettings.getBOOL("PlaySoundNewConversation") == TRUE)
+        {
+            make_ui_sound("UISndNewIncomingIMSession");
+        }
 	}
 
 	bool skip_message = (gSavedSettings.getBOOL("VoiceCallsFriendsOnly") &&

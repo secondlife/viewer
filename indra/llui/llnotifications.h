@@ -524,6 +524,7 @@ public:
 	bool canLogToIM() const;
 	bool canShowToast() const;
 	bool hasFormElements() const;
+    void playSound();
 
 	typedef enum e_combine_behavior
 	{
