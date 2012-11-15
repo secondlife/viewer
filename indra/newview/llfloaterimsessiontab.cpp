@@ -313,7 +313,13 @@ void LLFloaterIMSessionTab::onFocusReceived()
 	if (container)
 	{
 		container->selectConversationPair(mSessionID, true);
+		// XXX stinson 11/15/2012 : calling show stub from this focus handler results in a circular
+		// logic loop of function calls that eventually result in a stack overflow.
+		// See CHUI-524 for documentation
+#define	XXX_STINSON_HACK_CHUI_524 1
+#if !XXX_STINSON_HACK_CHUI_524
 		container->showStub(! getHost());
+#endif
 	}
 }
 
