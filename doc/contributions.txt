@@ -1271,6 +1271,8 @@ Whoops Babii
 Winter Ventura
 Wilton Lundquist
 	VWR-7682
+Wolf Loonie
+	STORM-1868
 WolfPup Lowenhar
 	OPEN-1
 	OPEN-37
