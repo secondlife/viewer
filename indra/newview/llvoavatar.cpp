@@ -5805,7 +5805,9 @@ void LLVOAvatar::updateMeshTextures()
 		const LLViewerTexture* te_image = getImage(i, 0);
 		if(!te_image || te_image->getID().isNull() || (te_image->getID() == IMG_DEFAULT))
 		{
-			setImage(i, LLViewerTextureManager::getFetchedTexture(i == TEX_HAIR ? IMG_DEFAULT : IMG_DEFAULT_AVATAR), 0); // IMG_DEFAULT_AVATAR = a special texture that's never rendered.
+			// IMG_DEFAULT_AVATAR = a special texture that's never rendered.
+			const LLUUID& image_id = (i == TEX_HAIR ? IMG_DEFAULT : IMG_DEFAULT_AVATAR);
+			setImage(i, LLViewerTextureManager::getFetchedTexture(image_id), 0); 
 		}
 	}
 
@@ -5833,12 +5835,11 @@ void LLVOAvatar::updateMeshTextures()
 		if (!other_culled)
 		{
 			// When an avatar is changing clothes and not in Appearance mode,
-			// use the last-known good baked texture until it finish the first
+			// use the last-known good baked texture until it finishes the first
 			// render of the new layerset.
 			layerset = getTexLayerSet(i);
-			layerset_invalid = layerset
-										  && ( !layerset->getViewerComposite()->isInitialized()
-										  || !layerset->isLocalTextureDataAvailable() );
+			layerset_invalid = layerset && ( !layerset->getViewerComposite()->isInitialized()
+											 || !layerset->isLocalTextureDataAvailable() );
 			use_lkg_baked_layer[i] = (!is_layer_baked[i] 
 									  && (mBakedTextureDatas[i].mLastTextureID != IMG_DEFAULT_AVATAR) 
 									  && layerset_invalid);
@@ -5919,16 +5920,21 @@ void LLVOAvatar::updateMeshTextures()
 		}
 		else if (!isUsingLocalAppearance() && is_layer_baked[i])
 		{
-			LLViewerFetchedTexture* baked_img = LLViewerTextureManager::staticCastToFetchedTexture(getImage( mBakedTextureDatas[i].mTextureIndex, 0 ), TRUE) ;
+			LLViewerFetchedTexture* baked_img =
+				LLViewerTextureManager::staticCastToFetchedTexture(
+					getImage( mBakedTextureDatas[i].mTextureIndex, 0 ), TRUE) ;
 			if( baked_img->getID() == mBakedTextureDatas[i].mLastTextureID )
 			{
-				// Even though the file may not be finished loading, we'll consider it loaded and use it (rather than doing compositing).
+				// Even though the file may not be finished loading,
+				// we'll consider it loaded and use it (rather than
+				// doing compositing).
 				useBakedTexture( baked_img->getID() );
 			}
 			else
 			{
 				mBakedTextureDatas[i].mIsLoaded = FALSE;
-				if ( (baked_img->getID() != IMG_INVISIBLE) && ((i == BAKED_HEAD) || (i == BAKED_UPPER) || (i == BAKED_LOWER)) )
+				if ( (baked_img->getID() != IMG_INVISIBLE) &&
+					 ((i == BAKED_HEAD) || (i == BAKED_UPPER) || (i == BAKED_LOWER)) )
 				{			
 					baked_img->setLoadedCallback(onBakedTextureMasksLoaded, MORPH_MASK_REQUESTED_DISCARD, TRUE, TRUE, new LLTextureMaskData( mID ), 
 						src_callback_list, paused);	
@@ -5983,7 +5989,8 @@ void LLVOAvatar::updateMeshTextures()
 	} 
 	
 	
-	for (LLAvatarAppearanceDictionary::BakedTextures::const_iterator baked_iter = LLAvatarAppearanceDictionary::getInstance()->getBakedTextures().begin();
+	for (LLAvatarAppearanceDictionary::BakedTextures::const_iterator baked_iter =
+			 LLAvatarAppearanceDictionary::getInstance()->getBakedTextures().begin();
 		 baked_iter != LLAvatarAppearanceDictionary::getInstance()->getBakedTextures().end();
 		 ++baked_iter)
 	{
@@ -6766,7 +6773,7 @@ void LLVOAvatar::onBakedTextureLoaded(BOOL success,
 									  LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src,
 									  S32 discard_level, BOOL final, void* userdata)
 {
-	//llinfos << "onBakedTextureLoaded: " << src_vi->getID() << llendl;
+	// llinfos << "onBakedTextureLoaded: " << src_vi->getID() << llendl;
 
 	LLUUID id = src_vi->getID();
 	LLUUID *avatar_idp = (LLUUID *)userdata;
@@ -6797,12 +6804,6 @@ void LLVOAvatar::onBakedTextureLoaded(BOOL success,
 void LLVOAvatar::useBakedTexture( const LLUUID& id )
 {
 
-	
-	/* if(id == head_baked->getID())
-		 mHeadBakedLoaded = TRUE;
-		 mLastHeadBakedID = id;
-		 mHeadMesh0.setTexture( head_baked );
-		 mHeadMesh1.setTexture( head_baked ); */
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 	{
 		LLViewerTexture* image_baked = getImage( mBakedTextureDatas[i].mTextureIndex, 0 );
@@ -6813,23 +6814,28 @@ void LLVOAvatar::useBakedTexture( const LLUUID& id )
 			mBakedTextureDatas[i].mLastTextureID = id;
 			mBakedTextureDatas[i].mIsUsed = true;
 
-			debugColorizeSubMeshes(i,LLColor4::green);
-
-			avatar_joint_mesh_list_t::iterator iter = mBakedTextureDatas[i].mJointMeshes.begin();
-			avatar_joint_mesh_list_t::iterator end  = mBakedTextureDatas[i].mJointMeshes.end();
-			for (; iter != end; ++iter)
+			if (isUsingLocalAppearance())
 			{
-				LLAvatarJointMesh* mesh = (*iter);
-				if (mesh)
+				llinfos << "not changing to baked texture while isUsingLocalAppearance" << llendl;
+			}
+			else
+			{
+				debugColorizeSubMeshes(i,LLColor4::green);
+
+				avatar_joint_mesh_list_t::iterator iter = mBakedTextureDatas[i].mJointMeshes.begin();
+				avatar_joint_mesh_list_t::iterator end  = mBakedTextureDatas[i].mJointMeshes.end();
+				for (; iter != end; ++iter)
 				{
-					mesh->setTexture( image_baked );
+					LLAvatarJointMesh* mesh = (*iter);
+					if (mesh)
+					{
+						mesh->setTexture( image_baked );
+					}
 				}
 			}
-			if (mBakedTextureDatas[i].mTexLayerSet)
-			{
-				//mBakedTextureDatas[i].mTexLayerSet->destroyComposite();
-			}
-			const LLAvatarAppearanceDictionary::BakedEntry *baked_dict = LLAvatarAppearanceDictionary::getInstance()->getBakedTexture((EBakedTextureIndex)i);
+			
+			const LLAvatarAppearanceDictionary::BakedEntry *baked_dict =
+				LLAvatarAppearanceDictionary::getInstance()->getBakedTexture((EBakedTextureIndex)i);
 			for (texture_vec_t::const_iterator local_tex_iter = baked_dict->mLocalTextures.begin();
 				 local_tex_iter != baked_dict->mLocalTextures.end();
 				 ++local_tex_iter)
