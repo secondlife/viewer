@@ -80,6 +80,8 @@ protected:
 	void 	onSelectColor(const LLSD& data);
 	
 	static 	void onCommitTextureInfo( 		LLUICtrl* ctrl, void* userdata);
+	static void		onCommitMaterialsMedia(		LLUICtrl* ctrl, void* userdata);
+	static void		onCommitMaterialType(		LLUICtrl* ctrl, void* userdata);
 	static void		onCommitBump(			LLUICtrl* ctrl, void* userdata);
 	static void		onCommitTexGen(			LLUICtrl* ctrl, void* userdata);
 	static void		onCommitShiny(			LLUICtrl* ctrl, void* userdata);
@@ -87,7 +89,7 @@ protected:
 	static void     onCommitGlow(           LLUICtrl* ctrl, void *userdata);
 	static void		onCommitPlanarAlign(	LLUICtrl* ctrl, void* userdata);
 	
-	static void		onClickApply(void*);
+	static void		onCommitRepeatsPerMeter(	LLUICtrl* ctrl, void* userinfo);
 	static void		onClickAutoFix(void*);
 	static F32      valueGlow(LLViewerObject* object, S32 face);
 

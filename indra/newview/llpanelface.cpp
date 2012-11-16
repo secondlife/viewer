@@ -71,14 +71,14 @@
 
 BOOL	LLPanelFace::postBuild()
 {
+	childSetCommitCallback("combobox matmedia",&LLPanelFace::onCommitMaterialsMedia,this);
+	childSetCommitCallback("combobox mattype",&LLPanelFace::onCommitMaterialType,this);
 	childSetCommitCallback("combobox shininess",&LLPanelFace::onCommitShiny,this);
 	childSetCommitCallback("combobox bumpiness",&LLPanelFace::onCommitBump,this);
 	childSetCommitCallback("TexScaleU",&LLPanelFace::onCommitTextureInfo, this);
-	childSetCommitCallback("checkbox flip s",&LLPanelFace::onCommitTextureInfo, this);
 	childSetCommitCallback("TexScaleV",&LLPanelFace::onCommitTextureInfo, this);
-	childSetCommitCallback("checkbox flip t",&LLPanelFace::onCommitTextureInfo, this);
 	childSetCommitCallback("TexRot",&LLPanelFace::onCommitTextureInfo, this);
-	childSetAction("button apply",&LLPanelFace::onClickApply,this);
+	childSetCommitCallback("rptctrl",&LLPanelFace::onCommitRepeatsPerMeter, this);
 	childSetCommitCallback("checkbox planar align",&LLPanelFace::onCommitPlanarAlign, this);
 	childSetCommitCallback("TexOffsetU",LLPanelFace::onCommitTextureInfo, this);
 	childSetCommitCallback("TexOffsetV",LLPanelFace::onCommitTextureInfo, this);
@@ -98,6 +98,7 @@ BOOL	LLPanelFace::postBuild()
 	LLSpinCtrl*     mCtrlGlow;
 
 	setMouseOpaque(FALSE);
+
 	mTextureCtrl = getChild<LLTextureCtrl>("texture control");
 	if(mTextureCtrl)
 	{
@@ -269,22 +270,20 @@ struct LLPanelFaceSetTEFunctor : public LLSelectedTEFunctor
 		LLSpinCtrl*	ctrlTexOffsetS = mPanel->getChild<LLSpinCtrl>("TexOffsetU");
 		LLSpinCtrl*	ctrlTexOffsetT = mPanel->getChild<LLSpinCtrl>("TexOffsetV");
 		LLSpinCtrl*	ctrlTexRotation = mPanel->getChild<LLSpinCtrl>("TexRot");
-		LLCheckBoxCtrl*	checkFlipScaleS = mPanel->getChild<LLCheckBoxCtrl>("checkbox flip s");
-		LLCheckBoxCtrl*	checkFlipScaleT = mPanel->getChild<LLCheckBoxCtrl>("checkbox flip t");
 		LLComboBox*		comboTexGen = mPanel->getChild<LLComboBox>("combobox texgen");
 		llassert(comboTexGen);
 		llassert(object);
 
 		if (ctrlTexScaleS)
 		{
-			valid = !ctrlTexScaleS->getTentative() || !checkFlipScaleS->getTentative();
+			valid = !ctrlTexScaleS->getTentative(); // || !checkFlipScaleS->getTentative();
 			if (valid)
 			{
 				value = ctrlTexScaleS->get();
-				if( checkFlipScaleS->get() )
-				{
-					value = -value;
-				}
+				//if( checkFlipScaleS->get() )
+				//{
+				//	value = -value;
+				//}
 				if (comboTexGen &&
 				    comboTexGen->getCurrentIndex() == 1)
 				{
@@ -296,14 +295,14 @@ struct LLPanelFaceSetTEFunctor : public LLSelectedTEFunctor
 
 		if (ctrlTexScaleT)
 		{
-			valid = !ctrlTexScaleT->getTentative() || !checkFlipScaleT->getTentative();
+			valid = !ctrlTexScaleT->getTentative(); // || !checkFlipScaleT->getTentative();
 			if (valid)
 			{
 				value = ctrlTexScaleT->get();
-				if( checkFlipScaleT->get() )
-				{
-					value = -value;
-				}
+				//if( checkFlipScaleT->get() )
+				//{
+				//	value = -value;
+				//}
 				if (comboTexGen &&
 				    comboTexGen->getCurrentIndex() == 1)
 				{
@@ -495,6 +494,31 @@ void LLPanelFace::getState()
 		// only turn on auto-adjust button if there is a media renderer and the media is loaded
 		getChildView("textbox autofix")->setEnabled(editable);
 		getChildView("button align")->setEnabled(editable);
+
+		LLCtrlSelectionInterface* combobox_matmedia =
+		      childGetSelectionInterface("combobox matmedia");
+		if (combobox_matmedia)
+		{
+			combobox_matmedia->selectNthItem(0);
+		}
+		else
+		{
+			llwarns << "failed childGetSelectionInterface for 'combobox matmedia'" << llendl;
+		}
+		getChildView("combobox matmedia")->setEnabled(editable);
+
+		LLCtrlSelectionInterface* combobox_mattype =
+		      childGetSelectionInterface("combobox mattype");
+		if (combobox_mattype)
+		{
+			combobox_mattype->selectNthItem(0);
+		}
+		else
+		{
+			llwarns << "failed childGetSelectionInterface for 'combobox mattype'" << llendl;
+		}
+		getChildView("combobox mattype")->setEnabled(editable);
+		onCommitMaterialsMedia(NULL, this);
 		
 		//if ( LLMediaEngine::getInstance()->getMediaRenderer () )
 		//	if ( LLMediaEngine::getInstance()->getMediaRenderer ()->isLoaded () )
@@ -504,7 +528,6 @@ void LLPanelFace::getState()
 		//		
 		//		//mBtnAutoFix->setEnabled ( editable );
 		//	}
-		getChildView("button apply")->setEnabled(editable);
 
 		bool identical;
 		LLTextureCtrl*	texture_ctrl = getChild<LLTextureCtrl>("texture control");
@@ -630,12 +653,9 @@ void LLPanelFace::getState()
 			} func;
 			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, scale_s );
 			identical = align_planar ? identical_planar_aligned : identical;
-			getChild<LLUICtrl>("TexScaleU")->setValue(editable ? llabs(scale_s) : 0);
+			getChild<LLUICtrl>("TexScaleU")->setValue(editable ? scale_s : 0);
 			getChild<LLUICtrl>("TexScaleU")->setTentative(LLSD((BOOL)(!identical)));
 			getChildView("TexScaleU")->setEnabled(editable);
-			getChild<LLUICtrl>("checkbox flip s")->setValue(LLSD((BOOL)(scale_s < 0 ? TRUE : FALSE )));
-			getChild<LLUICtrl>("checkbox flip s")->setTentative(LLSD((BOOL)((!identical) ? TRUE : FALSE )));
-			getChildView("checkbox flip s")->setEnabled(editable);
 		}
 
 		{
@@ -650,12 +670,9 @@ void LLPanelFace::getState()
 			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, scale_t );
 			identical = align_planar ? identical_planar_aligned : identical;
 
-			getChild<LLUICtrl>("TexScaleV")->setValue(llabs(editable ? llabs(scale_t) : 0));
+			getChild<LLUICtrl>("TexScaleV")->setValue(editable ? scale_t : 0);
 			getChild<LLUICtrl>("TexScaleV")->setTentative(LLSD((BOOL)(!identical)));
 			getChildView("TexScaleV")->setEnabled(editable);
-			getChild<LLUICtrl>("checkbox flip t")->setValue(LLSD((BOOL)(scale_t< 0 ? TRUE : FALSE )));
-			getChild<LLUICtrl>("checkbox flip t")->setTentative(LLSD((BOOL)((!identical) ? TRUE : FALSE )));
-			getChildView("checkbox flip t")->setEnabled(editable);
 		}
 
 		// Texture offset
@@ -710,6 +727,9 @@ void LLPanelFace::getState()
 		}
 
 		// Color swatch
+		{
+			getChildView("color label")->setEnabled(editable);
+		}
 		LLColorSwatchCtrl*	mColorSwatch = getChild<LLColorSwatchCtrl>("colorswatch");
 		LLColor4 color = LLColor4::white;
 		if(mColorSwatch)
@@ -895,7 +915,6 @@ void LLPanelFace::getState()
 			{
 				BOOL enabled = editable && (!mComboTexGen || mComboTexGen->getCurrentIndex() != 1);
 				getChildView("rptctrl")->setEnabled(enabled);
-				getChildView("button apply")->setEnabled(enabled);
 			}
 		}
 
@@ -939,7 +958,6 @@ void LLPanelFace::getState()
 		getChildView("textbox autofix")->setEnabled(FALSE);
 
 		getChildView("button align")->setEnabled(FALSE);
-		getChildView("button apply")->setEnabled(FALSE);
 		//getChildView("has media")->setEnabled(FALSE);
 		//getChildView("media info set")->setEnabled(FALSE);
 		
@@ -992,6 +1010,44 @@ void LLPanelFace::onSelectColor(const LLSD& data)
 {
 	LLSelectMgr::getInstance()->saveSelectedObjectColors();
 	sendColor();
+}
+
+// static
+void LLPanelFace::onCommitMaterialsMedia(LLUICtrl* ctrl, void* userdata)
+{
+	LLPanelFace* self = (LLPanelFace*) userdata;
+	LLComboBox* mComboMaterialsMedia = self->getChild<LLComboBox>("combobox matmedia");
+	if (!mComboMaterialsMedia)
+	{
+		return;
+	}
+	U32 materials_media = mComboMaterialsMedia->getCurrentIndex();
+	LLComboBox* mComboMaterialType = self->getChild<LLComboBox>("combobox mattype");
+	if (!mComboMaterialType)
+	{
+		return;
+	}
+	U32 material_type = mComboMaterialType->getCurrentIndex();
+	bool show_media = (materials_media == 1);
+	bool show_texture = (!show_media) && (material_type == 0);
+	bool show_bumpiness = (!show_media) && (material_type == 1);
+	bool show_shininess = (!show_media) && (material_type == 2);
+	self->getChildView("combobox mattype")->setVisible(!show_media);
+	self->getChildView("media_info")->setVisible(show_media);
+	self->getChildView("add_media")->setVisible(show_media);
+	self->getChildView("delete_media")->setVisible(show_media);
+	self->getChildView("button align")->setVisible(show_media);
+	self->getChildView("texture control")->setVisible(show_texture);
+	self->getChildView("combobox shininess")->setVisible(show_shininess);
+	self->getChildView("label shininess")->setVisible(show_shininess);
+	self->getChildView("combobox bumpiness")->setVisible(show_bumpiness);
+	self->getChildView("label bumpiness")->setVisible(show_bumpiness);
+}
+
+// static
+void LLPanelFace::onCommitMaterialType(LLUICtrl* ctrl, void* userdata)
+{
+	onCommitMaterialsMedia(ctrl, userdata);
 }
 
 // static
@@ -1074,7 +1130,7 @@ void LLPanelFace::onCommitTextureInfo( LLUICtrl* ctrl, void* userdata )
 
 // Commit the number of repeats per meter
 // static
-void LLPanelFace::onClickApply(void* userdata)
+void LLPanelFace::onCommitRepeatsPerMeter(LLUICtrl* ctrl, void* userdata)
 {
 	LLPanelFace* self = (LLPanelFace*) userdata;
 	
