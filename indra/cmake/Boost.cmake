@@ -18,8 +18,8 @@ else (STANDALONE)
   set(Boost_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include)
 
   if (WINDOWS)
-    set(BOOST_VERSION 1_48)
     if(MSVC80)
+      set(BOOST_VERSION 1_52)
       set(BOOST_PROGRAM_OPTIONS_LIBRARY 
           optimized libboost_program_options-vc80-mt-${BOOST_VERSION}
           debug libboost_program_options-vc80-mt-gd-${BOOST_VERSION})

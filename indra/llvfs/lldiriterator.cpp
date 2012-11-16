@@ -59,7 +59,7 @@ LLDirIterator::Impl::Impl(const std::string &dirname, const std::string &mask)
 	{
 		is_dir = fs::is_directory(dir_path);
 	}
-	catch (fs::basic_filesystem_error<fs::path>& e)
+	catch (const fs::filesystem_error& e)
 	{
 		llwarns << e.what() << llendl;
 		return;
@@ -76,7 +76,7 @@ LLDirIterator::Impl::Impl(const std::string &dirname, const std::string &mask)
 	{
 		mIter = fs::directory_iterator(dir_path);
 	}
-	catch (fs::basic_filesystem_error<fs::path>& e)
+	catch (const fs::filesystem_error& e)
 	{
 		llwarns << e.what() << llendl;
 		return;
@@ -121,7 +121,7 @@ bool LLDirIterator::Impl::next(std::string &fname)
 	while (mIter != end_itr && !found)
 	{
 		boost::smatch match;
-		std::string name = mIter->path().filename();
+		std::string name = mIter->path().filename().string();
 		if (found = boost::regex_match(name, match, mFilterExp))
 		{
 			fname = name;
