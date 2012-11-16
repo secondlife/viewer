@@ -64,6 +64,7 @@
 #include "lltoolbarview.h"
 #include "llviewercontrol.h"
 #include "llviewerparcelmgr.h"
+#include "message.h"
 
 
 const static std::string ADHOC_NAME_SUFFIX(" Conference");
@@ -2801,12 +2802,17 @@ void LLIMMgr::inviteToSession(
 
 	if (voice_invite)
 	{
-		if	(	// if we are rejecting group calls 
-				(gSavedSettings.getBOOL("VoiceCallsRejectGroup") && notify_box_type == "VoiceInviteGroup") ||
-				// or we're rejecting non-friend voice calls and this isn't a friend	
-				(gSavedSettings.getBOOL("VoiceCallsFriendsOnly") && (LLAvatarTracker::instance().getBuddyInfo(caller_id) == NULL))
-			)
+		bool isRejectGroupCall = (gSavedSettings.getBOOL("VoiceCallsRejectGroup") && (notify_box_type == "VoiceInviteGroup"));
+		bool isRejectNonFriendCall = (gSavedSettings.getBOOL("VoiceCallsFriendsOnly") && (LLAvatarTracker::instance().getBuddyInfo(caller_id) == NULL));
+		bool isRejectDoNotDisturb = gAgent.isDoNotDisturb();
+		if	(isRejectGroupCall || isRejectNonFriendCall || isRejectDoNotDisturb)
 		{
+			if (isRejectDoNotDisturb && !isRejectGroupCall && !isRejectNonFriendCall)
+			{
+				LLSD args;
+				LLIMMgr::getInstance()->addSystemMessage(session_id, "you_auto_rejected_call", args);
+				send_do_not_disturb_message(gMessageSystem, caller_id, session_id);
+			}
 			// silently decline the call
 			LLIncomingCallDialog::processCallResponse(1, payload);
 			return;
