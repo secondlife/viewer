@@ -493,6 +493,8 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
 	}
 	// adjust panel's height to the text size
 	snapToMessageHeight(mTextBox, MAX_LENGTH);
+
+
 }
 
 

@@ -323,10 +323,8 @@ struct LLNotificationTemplate
     LLNotificationFormPtr mForm;
 	// default priority for notifications of this type
 	ENotificationPriority mPriority;
-	// UUID of the audio file to be played when this notification arrives
-	// this is loaded as a name, but looked up to get the UUID upon template load.
-	// If null, it wasn't specified.
-	LLUUID mSoundEffect;
+	// Stores the sound name which can then be used to play the sound using make_ui_sound
+	std::string mSoundName;
 	// List of tags that rules can match against.
 	std::list<std::string> mTags;
 

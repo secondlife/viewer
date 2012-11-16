@@ -322,6 +322,7 @@
         name="incoming_voice_call"
         width="150" />
     <check_box
+        enabled="false"
         control_name="PlaySoundGroupChatMessages"
         height="16"
         label="Group chat messages"

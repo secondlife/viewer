@@ -413,12 +413,13 @@ LLNotificationTemplate::LLNotificationTemplate(const LLNotificationTemplate::Par
 	mDefaultFunctor(p.functor.isProvided() ? p.functor() : p.name()),
 	mLogToChat(p.log_to_chat),
 	mLogToIM(p.log_to_im),
-	mShowToast(p.show_toast)
+	mShowToast(p.show_toast),
+    mSoundName("")
 {
 	if (p.sound.isProvided()
 		&& LLUI::sSettingGroups["config"]->controlExists(p.sound))
 	{
-		mSoundEffect = LLUUID(LLUI::sSettingGroups["config"]->getString(p.sound));
+		mSoundName = p.sound;
 	}
 
 	BOOST_FOREACH(const LLNotificationTemplate::UniquenessContext& context, p.unique.contexts)
@@ -897,6 +898,11 @@ bool LLNotification::canShowToast() const
 bool LLNotification::hasFormElements() const
 {
 	return mTemplatep->mForm->getNumElements() != 0;
+}
+
+void LLNotification::playSound()
+{ 
+    make_ui_sound(mTemplatep->mSoundName.c_str());
 }
 
 LLNotification::ECombineBehavior LLNotification::getCombineBehavior() const
