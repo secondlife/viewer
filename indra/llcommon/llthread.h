@@ -32,6 +32,8 @@
 #include "apr_thread_cond.h"
 #include "llmutex.h"
 
+LL_COMMON_API void assert_main_thread();
+
 class LL_COMMON_API LLThread
 {
 private:

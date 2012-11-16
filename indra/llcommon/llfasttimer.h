@@ -98,6 +98,7 @@ public:
 
 	static BlockTimer& getRootTimer();
 	static void pushLog(LLSD sd);
+	static void setLogLock(LLMutex* mutex);
 	friend class Time;
 
 
@@ -329,6 +330,6 @@ LL_FORCE_INLINE Time::~Time()
 
 }
 
-typedef LLTrace::Time LLFastTimer;
+typedef LLTrace::Time LLFastTimer; 
 
 #endif // LL_LLFASTTIMER_H

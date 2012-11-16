@@ -121,6 +121,11 @@ void BlockTimer::pushLog(LLSD log)
 	sLogQueue.push(log);
 }
 
+void BlockTimer::setLogLock(LLMutex* lock)
+{
+	sLogLock = lock;
+}
+
 
 //static
 #if (LL_DARWIN || LL_LINUX || LL_SOLARIS) && !(defined(__i386__) || defined(__amd64__))

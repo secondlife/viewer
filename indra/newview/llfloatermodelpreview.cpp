@@ -113,8 +113,6 @@
 #include "llviewernetwork.h"
 #include "llviewershadermgr.h"
 #include "glod/glod.h"
-#include <boost/algorithm/string.hpp>
-
 
 const S32 SLM_SUPPORTED_VERSION = 3;
 

@@ -92,7 +92,7 @@ LLFastTimerView::LLFastTimerView(const LLSD& key)
 	mScrollIndex = 0;
 	mHoverID = NULL;
 	mHoverBarIndex = -1;
-	FTV_NUM_TIMERS = LLTrace::BlockTimer::instanceCount();
+	FTV_NUM_TIMERS = LLInstanceTracker<LLTrace::BlockTimer>::instanceCount();
 	mPrintStats = -1;	
 }
 
@@ -235,7 +235,7 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 
 	if(LLTrace::BlockTimer::sPauseHistory && mBarRect.pointInRect(x, y))
 	{
-		mHoverBarIndex = llmin(LLFastTimer::getCurFrameIndex() - 1, 
+		mHoverBarIndex = llmin(LLTrace::BlockTimer::getCurFrameIndex() - 1, 
 								MAX_VISIBLE_HISTORY - ((y - mBarRect.mBottom) * (MAX_VISIBLE_HISTORY + 2) / mBarRect.getHeight()));
 		if (mHoverBarIndex == 0)
 		{
@@ -292,7 +292,7 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 
 static std::string get_tooltip(LLTrace::BlockTimer& timer, S32 history_index = -1)
 {
-	F64 ms_multiplier = 1000.0 / (F64)LLFastTimer::countsPerSecond();
+	F64 ms_multiplier = 1000.0 / (F64)LLTrace::BlockTimer::countsPerSecond();
 
 	std::string tooltip;
 	if (history_index < 0)
@@ -364,7 +364,7 @@ void LLFastTimerView::draw()
 	
 	std::string tdesc;
 
-	F64 clock_freq = (F64)LLFastTimer::countsPerSecond();
+	F64 clock_freq = (F64)LLTrace::BlockTimer::countsPerSecond();
 	F64 iclock_freq = 1000.0 / clock_freq;
 	
 	S32 margin = 10;

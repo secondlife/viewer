@@ -59,7 +59,6 @@ LLThreadLocalPointer<ThreadRecorder>& get_thread_recorder()
 {
 	static LLThreadLocalPointer<ThreadRecorder> s_thread_recorder;
 	return s_thread_recorder;
-
 }
 
 }
