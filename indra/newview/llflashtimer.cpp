@@ -29,11 +29,13 @@
 
 #include "llflashtimer.h"
 #include "llviewercontrol.h"
+#include "lleventtimer.h"
 
 LLFlashTimer::LLFlashTimer(callback_t cb, S32 count, F32 period)
 		: LLEventTimer(period)
 		, mCallback(cb)
 		, mCurrentTickCount(0)
+        , mIsFlashing(false)
 {
 	mEventTimer.stop();
 
@@ -49,8 +51,11 @@ LLFlashTimer::LLFlashTimer(callback_t cb, S32 count, F32 period)
 
 BOOL LLFlashTimer::tick()
 {
-	bool blink = !(mCurrentTickCount % 2);
-	mCallback(blink);
+	mIsHighlight = !(mCurrentTickCount % 2);
+	if (mCallback)
+	{
+		mCallback(mIsHighlight);
+	}
 
 	if (++mCurrentTickCount >= mFlashCount)
 	{
@@ -63,10 +68,15 @@ BOOL LLFlashTimer::tick()
 void LLFlashTimer::startFlashing()
 {
 	mCurrentTickCount = 0;
+	mIsFlashing = true;
 	mEventTimer.start();
 }
 
 void LLFlashTimer::stopFlashing()
 {
+	mIsFlashing = false;
+	mIsHighlight = false;
 	mEventTimer.stop();
 }
+
+

@@ -29,6 +29,7 @@
 #include "llview.h"
 #include "lluiimage.h"
 
+class LLFlashTimer;
 class LLFolderView;
 class LLFolderViewModelItem;
 class LLFolderViewFolder;
@@ -272,6 +273,7 @@ public:
 
 private:
 	static std::map<U8, LLFontGL*> sFonts; // map of styles to fonts
+	LLFlashTimer* mFlashTimer;
 
 };
 

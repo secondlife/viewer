@@ -176,7 +176,11 @@ LLButton::LLButton(const LLButton::Params& p)
 {
 	static LLUICachedControl<S32> llbutton_orig_h_pad ("UIButtonOrigHPad", 0);
 	static Params default_params(LLUICtrlFactory::getDefaultParams<LLButton>());
-
+if (this->getName() == "chat")
+{
+bool q = false;
+q = !q;
+}
 	if (!p.label_selected.isProvided())
 	{
 		mSelectedLabel = mUnselectedLabel;

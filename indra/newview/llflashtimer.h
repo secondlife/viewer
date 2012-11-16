@@ -42,13 +42,15 @@ public:
 	 * @param period - how frequently callback should be called
 	 * @param cb - callback to be called each tick
 	 */
-	LLFlashTimer(callback_t cb, S32 count = 0, F32 period = 0.0);
+	LLFlashTimer(callback_t cb = NULL, S32 count = 0, F32 period = 0.0);
 	~LLFlashTimer() {};
 
 	/*virtual*/ BOOL tick();
 
 	void startFlashing();
 	void stopFlashing();
+	bool isFlashing() {return mIsFlashing;}
+	bool isHighlight() {return mIsHighlight;}
 
 private:
 	callback_t		mCallback;
@@ -57,6 +59,8 @@ private:
 	 */
 	S32 mFlashCount;
 	S32 mCurrentTickCount;
+	bool mIsHighlight;
+	bool mIsFlashing;
 };
 
 #endif /* LL_FLASHTIMER_H */

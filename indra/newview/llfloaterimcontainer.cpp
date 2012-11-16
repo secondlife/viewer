@@ -1154,6 +1154,7 @@ void LLFloaterIMContainer::selectConversation(const LLUUID& session_id)
 	}
 }
 
+
 // Synchronous select the conversation item and the conversation floater
 BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool select_widget)
 {
@@ -1592,6 +1593,16 @@ void LLFloaterIMContainer::reSelectConversation()
 	if (session_floater->getHost())
 	{
 		selectFloater(session_floater);
+	}
+
+}
+
+void LLFloaterIMContainer::flashConversationItemWidget(const LLUUID& session_id)
+{
+	LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,session_id);
+	if (widget)
+	{
+		widget->;
 	}
 
 }
