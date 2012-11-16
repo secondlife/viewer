@@ -98,6 +98,7 @@ LLFloaterIMContainer::~LLFloaterIMContainer()
 
 void LLFloaterIMContainer::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
 {
+	llinfos << "Merov debug : sessionAdded, uuid = " << session_id << ", name = " << name << llendl;
 	addConversationListItem(session_id);
 	LLFloaterIMSessionTab::addToHost(session_id);
 }
@@ -109,14 +110,33 @@ void LLFloaterIMContainer::sessionActivated(const LLUUID& session_id, const std:
 
 void LLFloaterIMContainer::sessionVoiceOrIMStarted(const LLUUID& session_id)
 {
+	llinfos << "Merov debug : sessionVoiceOrIMStarted, uuid = " << session_id << llendl;
 	addConversationListItem(session_id);
 	LLFloaterIMSessionTab::addToHost(session_id);
 }
 
 void LLFloaterIMContainer::sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id)
 {
-	// *TODO: We should do this *without* delete and recreate
-	addConversationListItem(new_session_id, removeConversationListItem(old_session_id));
+	llinfos << "Merov debug : sessionIDUpdated, old_session_id = " << old_session_id << ", new_session_id = " << new_session_id << llendl;
+	// Retrieve the session LLFloaterIMSessionTab
+	// just close it: that should erase the mSession, close the tab and remove the list item
+	// *TODO : take the mSessions element (pointing to the tab) out of the list
+	//bool change_focus = removeConversationListItem(old_session_id);
+	// *TODO : detach the old tab from the host
+	// *TODO : delete the tab (that's one thing that's reentrant)
+	LLFloater* floaterp = get_ptr_in_map(mSessions, old_session_id);
+	if (floaterp)
+	{
+		llinfos << "Merov debug : closeFloater, start" << llendl;
+		floaterp->closeFloater();
+		llinfos << "Merov debug : closeFloater, end" << llendl;
+	}
+	bool change_focus = false;
+	llinfos << "Merov debug : addConversationListItem" << llendl;
+	addConversationListItem(new_session_id, change_focus);
+	llinfos << "Merov debug : addToHost" << llendl;
+	LLFloaterIMSessionTab::addToHost(new_session_id);
+	llinfos << "Merov debug : end sessionIDUpdated" << llendl;
 }
 
 void LLFloaterIMContainer::sessionRemoved(const LLUUID& session_id)
@@ -1300,6 +1320,7 @@ LLConversationItem* LLFloaterIMContainer::addConversationListItem(const LLUUID& 
 
 bool LLFloaterIMContainer::removeConversationListItem(const LLUUID& uuid, bool change_focus)
 {
+	llinfos << "Merov debug : removeConversationListItem, uuid = " << uuid << llendl;
 	// Delete the widget and the associated conversation item
 	// Note : since the mConversationsItems is also the listener to the widget, deleting 
 	// the widget will also delete its listener
