@@ -78,6 +78,7 @@ public:
 
 	virtual void		setVisible(BOOL visible);
 
+	static void incrementCofVersion(S32 retries);
 
 private:
 	typedef std::map<F32, LLViewerVisualParam*> value_map_t;
@@ -115,8 +116,6 @@ private:
 	void onWearablePanelVisibilityChange(const LLSD &in_visible_chain, LLAccordionCtrl* accordion_ctrl);
 
 	void setWearablePanelVisibilityChangeCallback(LLPanel* bodypart_panel);
-
-	static void incrementCofVersion();
 
 	// the pointer to the wearable we're editing. NULL means we're not editing a wearable.
 	LLViewerWearable *mWearablePtr;
