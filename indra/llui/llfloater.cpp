@@ -662,13 +662,8 @@ void LLFloater::openFloater(const LLSD& key)
 		&& !getFloaterHost()
 		&& (!getVisible() || isMinimized()))
 	{
-        bool playSound = true;
-
         //Don't play a sound for incoming voice call based upon chat preference setting
-        if(getName() == "incoming call" && gSavedSettings.getBOOL("PlaySoundIncomingVoiceCall") == FALSE)
-        {
-            playSound = false;
-        }
+        bool playSound = !(getName() == "incoming call" && gSavedSettings.getBOOL("PlaySoundIncomingVoiceCall") == FALSE);
 
         if(playSound)
         {
