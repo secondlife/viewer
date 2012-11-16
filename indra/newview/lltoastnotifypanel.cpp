@@ -494,20 +494,7 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
 	// adjust panel's height to the text size
 	snapToMessageHeight(mTextBox, MAX_LENGTH);
 
-    bool playSound = true;
 
-    if((mNotification->getName() == "UserGiveItem"
-            && gSavedSettings.getBOOL("PlaySoundInventoryOffer") == FALSE)
-        ||  mNotification->getName() == "TeleportOffered"
-            && gSavedSettings.getBOOL("PlaySoundTeleportOffer") == FALSE)
-    {
-        playSound = false;
-    }
-
-    if(playSound)
-    {
-        mNotification->playSound();
-    }
 }
 
 

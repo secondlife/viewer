@@ -117,6 +117,23 @@ bool LLOfferHandler::processNotification(const LLNotificationPtr& notification)
 			LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
 			if(channel)
 				channel->addToast(p);
+
+            bool playSound = true;
+
+            //Play notification sound for inventory offer and teleport offer based upon chat preference
+            if((notification->getName() == "UserGiveItem"
+                && gSavedSettings.getBOOL("PlaySoundInventoryOffer") == FALSE)
+                ||  notification->getName() == "TeleportOffered"
+                && gSavedSettings.getBOOL("PlaySoundTeleportOffer") == FALSE)
+            {
+                playSound = false;
+            }
+
+            if(playSound)
+            {
+                notification->playSound();
+            }
+
 		}
 
 		if (notification->canLogToIM())
