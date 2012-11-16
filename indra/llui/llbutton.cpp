@@ -170,17 +170,18 @@ LLButton::LLButton(const LLButton::Params& p)
 	mMouseUpSignal(NULL),
 	mHeldDownSignal(NULL),
 	mUseDrawContextAlpha(p.use_draw_context_alpha),
-	mHandleRightMouse(p.handle_right_mouse),
-	mButtonFlashCount(p.button_flash_count),
-	mButtonFlashRate(p.button_flash_rate)
+	mHandleRightMouse(p.handle_right_mouse)
 {
+	// If optional parameter "p.button_flash_count" is not provided, LLFlashTimer will be
+	// used instead it a "default" value from gSavedSettings.getS32("FlashCount")).
+	// Likewise, missing "p.button_flash_rate" is replaced by gSavedSettings.getF32("FlashPeriod");
+	S32 flash_count = p.button_flash_count || 0;
+	F32 flash_rate = p.button_flash_rate || 0.0; //
+	mFlashingTimer = new LLFlashTimer ((LLFlashTimer::callback_t)NULL, flash_count, flash_rate);
+
 	static LLUICachedControl<S32> llbutton_orig_h_pad ("UIButtonOrigHPad", 0);
 	static Params default_params(LLUICtrlFactory::getDefaultParams<LLButton>());
-if (this->getName() == "chat")
-{
-bool q = false;
-q = !q;
-}
+
 	if (!p.label_selected.isProvided())
 	{
 		mSelectedLabel = mUnselectedLabel;
@@ -271,6 +272,7 @@ LLButton::~LLButton()
 	delete mMouseDownSignal;
 	delete mMouseUpSignal;
 	delete mHeldDownSignal;
+	delete mFlashingTimer;
 }
 
 // HACK: Committing a button is the same as instantly clicking it.
@@ -595,22 +597,11 @@ void LLButton::draw()
 {
 	static LLCachedControl<bool> sEnableButtonFlashing(*LLUI::sSettingGroups["config"], "EnableButtonFlashing", true);
 	F32 alpha = mUseDrawContextAlpha ? getDrawContext().mAlpha : getCurrentTransparency();
-	bool flash = FALSE;
 
-	if( mFlashing)
-	{
-		if ( sEnableButtonFlashing)
-		{
-			F32 elapsed = mFlashingTimer.getElapsedTimeF32();
-			S32 flash_count = S32(elapsed * mButtonFlashRate * 2.f);
-			// flash on or off?
-			flash = (flash_count % 2 == 0) || flash_count > S32((F32)mButtonFlashCount * 2.f);
-		}
-		else
-		{ // otherwise just highlight button in flash color
-			flash = true;
-		}
-	}
+	mFlashing = mFlashingTimer->isFlashing();
+
+	bool flash = mFlashing &&
+	                 (!sEnableButtonFlashing || mFlashingTimer->isHighlight());
 
 	bool pressed_by_keyboard = FALSE;
 	if (hasFocus())
@@ -955,10 +946,13 @@ void LLButton::setToggleState(BOOL b)
 
 void LLButton::setFlashing( BOOL b )	
 { 
-	if ((bool)b != mFlashing)
+	if (b)
 	{
-		mFlashing = b; 
-		mFlashingTimer.reset();
+		mFlashingTimer->startFlashing();
+	}
+	else
+	{
+		mFlashingTimer->stopFlashing();
 	}
 }
 

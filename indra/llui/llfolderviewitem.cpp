@@ -23,8 +23,9 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
+#include "../newview/llviewerprecompiledheaders.h"
 
-#include "../newview/llflashtimer.h"
+#include "llflashtimer.h"
 
 #include "linden_common.h"
 #include "llfolderviewitem.h"
@@ -164,17 +165,19 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 	}
 }
 
+// Destroys the object
+LLFolderViewItem::~LLFolderViewItem()
+{
+	delete mFlashTimer;
+	mViewModelItem = NULL;
+}
+
 BOOL LLFolderViewItem::postBuild()
 {
 	refresh();
 	return TRUE;
 }
 
-// Destroys the object
-LLFolderViewItem::~LLFolderViewItem( void )
-{
-	mViewModelItem = NULL;
-}
 
 LLFolderView* LLFolderViewItem::getRoot()
 {

@@ -41,6 +41,7 @@
 #include "llcallbacklist.h"
 #include "llgroupactions.h"
 #include "llgroupiconctrl.h"
+#include "llflashtimer.h"
 #include "llfloateravatarpicker.h"
 #include "llfloaterpreference.h"
 #include "llimview.h"
@@ -1594,17 +1595,22 @@ void LLFloaterIMContainer::reSelectConversation()
 	{
 		selectFloater(session_floater);
 	}
-
 }
 
-void LLFloaterIMContainer::flashConversationItemWidget(const LLUUID& session_id)
+void LLFloaterIMContainer::flashConversationItemWidget(const LLUUID& session_id, bool is_flashes)
 {
 	LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,session_id);
 	if (widget)
 	{
-		widget->;
+		if (is_flashes)
+		{
+			widget->getFlashTimer()->startFlashing();
+		}
+		else
+		{
+			widget->getFlashTimer()->stopFlashing();
+		}
 	}
-
 }
 
 // EOF

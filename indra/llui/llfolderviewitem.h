@@ -26,10 +26,10 @@
 #ifndef LLFOLDERVIEWITEM_H
 #define LLFOLDERVIEWITEM_H
 
+#include "llflashtimer.h"
 #include "llview.h"
 #include "lluiimage.h"
 
-class LLFlashTimer;
 class LLFolderView;
 class LLFolderViewModelItem;
 class LLFolderViewFolder;
@@ -163,6 +163,7 @@ public:
     S32 getIconPad();
     S32 getTextPad();
 
+    LLFlashTimer* getFlashTimer() {return mFlashTimer;}
 	// If 'selection' is 'this' then note that otherwise ignore.
 	// Returns TRUE if this item ends up being selected.
 	virtual BOOL setSelection(LLFolderViewItem* selection, BOOL openitem, BOOL take_keyboard_focus);

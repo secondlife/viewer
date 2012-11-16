@@ -49,13 +49,14 @@ public:
 
 	void startFlashing();
 	void stopFlashing();
+
 	bool isFlashing() {return mIsFlashing;}
 	bool isHighlight() {return mIsHighlight;}
 
 private:
 	callback_t		mCallback;
 	/**
-	 * How many times Well will blink.
+	 * How many times parent will blink.
 	 */
 	S32 mFlashCount;
 	S32 mCurrentTickCount;
