@@ -186,9 +186,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>11aa8b3e11938076a4a28ab1ead9ba2b</string>
+              <string>f01fb9e6b7e843b6d1179c88a5f77da2</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-boost/rev/266872/arch/Darwin/installer/boost-1.52.0-darwin-20121112.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-boost/rev/267082/arch/Darwin/installer/boost-1.52.0-darwin-20121115.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -198,9 +198,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>eafde4723a18665239e3a2e0a5f20e10</string>
+              <string>3f8d67c43bad126dbc77b863cc232e09</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-boost/rev/266872/arch/Linux/installer/boost-1.52.0-linux-20121112.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-boost/rev/267082/arch/Linux/installer/boost-1.52.0-linux-20121116.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -210,9 +210,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6b448a9d0014c43f4f77b1410062525b</string>
+              <string>e32bb4bc1254003f4c651208e24d3cbd</string>
               <key>url</key>
-              <string>https://s3.amazonaws.com/automated-builds-secondlife-com/hg/repo/3p-boost/rev/266872/arch/CYGWIN/installer/boost-1.52.0-windows-20121112.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-boost/rev/267082/arch/CYGWIN/installer/boost-1.52.0-windows-20121115.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
