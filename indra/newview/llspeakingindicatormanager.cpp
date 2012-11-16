@@ -74,6 +74,16 @@ public:
 	 */
 	void unregisterSpeakingIndicator(const LLUUID& speaker_id, const LLSpeakingIndicator* const speaking_indicator);
 
+	/**
+	 * Callback of changing voice participant list (from LLVoiceClientParticipantObserver).
+	 *
+	 * Switches off indicators had been switched on and switches on indicators of current participants list.
+	 * There is only a few indicators in lists should be switched off/on.
+	 * So, method does not calculate difference between these list it only switches off already 
+	 * switched on indicators and switches on indicators of voice channel participants
+	 */
+	void onParticipantsChanged();
+	
 private:
 	typedef std::set<LLUUID> speaker_ids_t;
 	typedef std::multimap<LLUUID, LLSpeakingIndicator*> speaking_indicators_mmap_t;
@@ -92,16 +102,6 @@ private:
 	 * To reduce overheads only switched on indicators are processed.
 	 */
 	void sOnCurrentChannelChanged(const LLUUID& session_id);
-
-	/**
-	 * Callback of changing voice participant list (from LLVoiceClientParticipantObserver).
-	 *
-	 * Switches off indicators had been switched on and switches on indicators of current participants list.
-	 * There is only a few indicators in lists should be switched off/on.
-	 * So, method does not calculate difference between these list it only switches off already 
-	 * switched on indicators and switches on indicators of voice channel participants
-	 */
-	void onParticipantsChanged();
 
 	/**
 	 * Changes state of indicators specified by LLUUIDs
@@ -318,6 +318,14 @@ void LLSpeakingIndicatorManager::unregisterSpeakingIndicator(const LLUUID& speak
 	if(SpeakingIndicatorManager::instanceExists())
 	{
 		SpeakingIndicatorManager::instance().unregisterSpeakingIndicator(speaker_id, speaking_indicator);
+	}
+}
+
+void LLSpeakingIndicatorManager::updateSpeakingIndicators()
+{
+	if(SpeakingIndicatorManager::instanceExists())
+	{
+		SpeakingIndicatorManager::instance().onParticipantsChanged();
 	}
 }
 

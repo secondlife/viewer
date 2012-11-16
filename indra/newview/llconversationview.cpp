@@ -307,7 +307,9 @@ void LLConversationViewSession::refresh()
 		mSessionTitle->setText(vmi->getDisplayName());
 	}
 
-	// Note: for the moment, all that needs to be done is done by LLFolderViewItem::refresh()
+	// Update all speaking indicators
+	llinfos << "Merov debug : LLConversationViewSession::refresh, updateSpeakingIndicators" << llendl;
+	LLSpeakingIndicatorManager::updateSpeakingIndicators();
 	
 	// Do the regular upstream refresh
 	LLFolderViewFolder::refresh();
@@ -327,7 +329,6 @@ void LLConversationViewSession::onCurrentVoiceSessionChanged(const LLUUID& sessi
 			mSpeakingIndicator->setSpeakerId(is_active ? gAgentID : LLUUID::null);
 		}
 
-		llinfos << "Merov debug : onCurrentVoiceSessionChanged, switchIndicator is_active = " << is_active << llendl;
 		mSpeakingIndicator->switchIndicator(is_active);
 		mCallIconLayoutPanel->setVisible(is_active);
 	}
@@ -456,34 +457,32 @@ void LLConversationViewParticipant::onCurrentVoiceSessionChanged(const LLUUID& s
 {
 	llinfos << "Merov debug : onCurrentVoiceSessionChanged begin, uuid = " << mUUID << ", session_id = " << session_id << llendl;
 	LLConversationItemParticipant* participant_model = dynamic_cast<LLConversationItemParticipant*>(getViewModelItem());
-	//llinfos << "Merov debug : onCurrentVoiceSessionChanged participant_model = " << participant_model << llendl;
 	
 	if (participant_model)
 	{
-		//llinfos << "Merov debug : onCurrentVoiceSessionChanged enter if 1" << llendl;
 		LLConversationItemSession* parent_session = participant_model->getParentSession();
-		//llinfos << "Merov debug : onCurrentVoiceSessionChanged parent_session = " << parent_session << llendl;
 		if (parent_session)
 		{
-			//llinfos << "Merov debug : onCurrentVoiceSessionChanged enter if 2" << llendl;
 			bool is_active = (parent_session->getUUID() == session_id);
-			//llinfos << "Merov debug : onCurrentVoiceSessionChanged, is_active = " << is_active << llendl;
 			mSpeakingIndicator->switchIndicator(is_active);
-			//llinfos << "Merov debug : onCurrentVoiceSessionChanged switchIndicator done" << llendl;
 		}
 	}
-	//llinfos << "Merov debug : onCurrentVoiceSessionChanged end" << llendl;
 }
 
 void LLConversationViewParticipant::refresh()
 {
 	// Refresh the participant view from its model data
-	LLConversationItemParticipant* vmi = dynamic_cast<LLConversationItemParticipant*>(getViewModelItem());
-	vmi->resetRefresh();
+	LLConversationItemParticipant* participant_model = dynamic_cast<LLConversationItemParticipant*>(getViewModelItem());
+	participant_model->resetRefresh();
 	
 	// *TODO: We should also do something with vmi->isModerator() to echo that state in the UI somewhat
-	mSpeakingIndicator->setIsMuted(vmi->isMuted());
-	//mSpeakingIndicator->switchIndicator(true);
+	mSpeakingIndicator->setIsMuted(participant_model->isMuted());
+	//LLConversationItemSession* parent_session = participant_model->getParentSession();
+	//if (parent_session)
+	//{
+	//	bool is_active = (parent_session->getUUID() == session_id);
+	//	mSpeakingIndicator->switchIndicator(is_active);
+	//}
 	
 	// Do the regular upstream refresh
 	LLFolderViewItem::refresh();

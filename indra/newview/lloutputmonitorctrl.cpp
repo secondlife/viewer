@@ -346,11 +346,6 @@ void LLOutputMonitorCtrl::onChange()
 void LLOutputMonitorCtrl::switchIndicator(bool switch_on)
 {
 	llinfos << "Merov debug : switchIndicator, mSpeakerId = " << mSpeakerId << ", switch_on = " << switch_on << llendl;
-	bool test_on = (mSpeakerId == test_uuid);
-	if (test_on && !switch_on)
-	{
-		llinfos << "Merov debug : switching agent off!" << llendl;
-	}
 	// ensure indicator is visible in case it is not in visible chain
 	// to be called when parent became visible next time to notify parent that visibility is changed.
 	setVisible(TRUE);
