@@ -117,26 +117,20 @@ void LLFloaterIMContainer::sessionVoiceOrIMStarted(const LLUUID& session_id)
 
 void LLFloaterIMContainer::sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id)
 {
-	llinfos << "Merov debug : sessionIDUpdated, old_session_id = " << old_session_id << ", new_session_id = " << new_session_id << llendl;
-	// Retrieve the session LLFloaterIMSessionTab
-	// just close it: that should erase the mSession, close the tab and remove the list item
-	// *TODO : take the mSessions element (pointing to the tab) out of the list
-	//bool change_focus = removeConversationListItem(old_session_id);
-	// *TODO : detach the old tab from the host
-	// *TODO : delete the tab (that's one thing that's reentrant)
-	LLFloater* floaterp = get_ptr_in_map(mSessions, old_session_id);
-	if (floaterp)
-	{
-		llinfos << "Merov debug : closeFloater, start" << llendl;
-		floaterp->closeFloater();
-		llinfos << "Merov debug : closeFloater, end" << llendl;
-	}
-	bool change_focus = false;
-	llinfos << "Merov debug : addConversationListItem" << llendl;
+	// The general strategy when a session id is modified is to delete all related objects and create them anew.
+	
+	// Note however that the LLFloaterIMSession has its session id updated through a call to sessionInitReplyReceived() 
+	// and do not need to be deleted and recreated (trying this creates loads of problems). We do need however to suppress 
+	// its related mSessions record as it's indexed with the wrong id.
+	// Grabbing the updated LLFloaterIMSession and readding it in mSessions will eventually be done by addConversationListItem().
+	mSessions.erase(old_session_id);
+
+	// Delete the model and participants related to the old session
+	bool change_focus = removeConversationListItem(old_session_id);
+
+	// Create a new conversation with the new id
 	addConversationListItem(new_session_id, change_focus);
-	llinfos << "Merov debug : addToHost" << llendl;
 	LLFloaterIMSessionTab::addToHost(new_session_id);
-	llinfos << "Merov debug : end sessionIDUpdated" << llendl;
 }
 
 void LLFloaterIMContainer::sessionRemoved(const LLUUID& session_id)
@@ -483,14 +477,14 @@ bool LLFloaterIMContainer::onConversationModelEvent(const LLSD& event)
 	else if (type == "update_session")
 	{
 		session_view->refresh();
-		if (conversation_floater)
-		{
-			conversation_floater->refreshConversation();
-		}
 	}
 	
 	mConversationViewModel.requestSortAll();
 	mConversationsRoot->arrangeAll();
+	if (conversation_floater)
+	{
+		conversation_floater->refreshConversation();
+	}
 	
 	return false;
 }
@@ -1252,10 +1246,6 @@ LLConversationItem* LLFloaterIMContainer::addConversationListItem(const LLUUID& 
 	{
 		return item_it->second;
 	}
-
-	// Remove the conversation item that might exist already: it'll be recreated anew further down anyway
-	// and nothing wrong will happen removing it if it doesn't exist
-	removeConversationListItem(uuid,false);
 
 	// Create a conversation session model
 	LLConversationItemSession* item = NULL;

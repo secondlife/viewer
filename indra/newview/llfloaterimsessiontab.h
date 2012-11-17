@@ -146,6 +146,7 @@ protected:
 	conversations_widgets_map mConversationsWidgets;
 	LLConversationViewModel mConversationViewModel;
 	LLFolderView* mConversationsRoot;
+	LLScrollContainer* mScroller;
 
 	LLChatHistory* mChatHistory;
 	LLChatEntry* mInputEditor;
