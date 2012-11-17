@@ -4126,6 +4126,8 @@ static LLFastTimer::DeclareTimer FTM_WORLD_UPDATE("Update World");
 static LLFastTimer::DeclareTimer FTM_NETWORK("Network");
 static LLFastTimer::DeclareTimer FTM_AGENT_NETWORK("Agent Network");
 static LLFastTimer::DeclareTimer FTM_VLMANAGER("VL Manager");
+static LLFastTimer::DeclareTimer FTM_AGENT_POSITION("Agent Position");
+static LLFastTimer::DeclareTimer FTM_HUD_EFFECTS("HUD Effects");
 
 ///////////////////////////////////////////////////////
 // idle()
@@ -4362,8 +4364,7 @@ void LLAppViewer::idle()
 
 	{
 		// Handle pending gesture processing
-		static LLFastTimer::DeclareTimer ftm("Agent Position");
-		LLFastTimer t(ftm);
+		LLFastTimer t(FTM_AGENT_POSITION);
 		LLGestureMgr::instance().update();
 
 		gAgent.updateAgentPosition(gFrameDTClamped, yaw, current_mouse.mX, current_mouse.mY);
@@ -4410,8 +4411,7 @@ void LLAppViewer::idle()
 	//
 
 	{
-		static LLFastTimer::DeclareTimer ftm("HUD Effects");
-		LLFastTimer t(ftm);
+		LLFastTimer t(FTM_HUD_EFFECTS);
 		LLSelectMgr::getInstance()->updateEffects();
 		LLHUDManager::getInstance()->cleanupEffects();
 		LLHUDManager::getInstance()->sendEffects();

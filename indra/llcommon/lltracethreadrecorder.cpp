@@ -40,6 +40,8 @@ ThreadRecorder::ThreadRecorder()
 {
 	get_thread_recorder() = this;
 	mFullRecording.start();
+
+	BlockTimer::sCurTimerData = new CurTimerData();
 }
 
 ThreadRecorder::ThreadRecorder( const ThreadRecorder& other ) 
@@ -52,6 +54,8 @@ ThreadRecorder::ThreadRecorder( const ThreadRecorder& other )
 ThreadRecorder::~ThreadRecorder()
 {
 	get_thread_recorder() = NULL;
+	delete BlockTimer::sCurTimerData.get();
+	BlockTimer::sCurTimerData = NULL;
 }
 
 void ThreadRecorder::activate( Recording* recording )

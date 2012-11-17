@@ -850,6 +850,8 @@ private:
 	LLSD mObjectIDs;
 };
 
+static LLFastTimer::DeclareTimer FTM_IDLE_COPY("Idle Copy");
+
 void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 {
 	// Update globals
@@ -900,10 +902,8 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 
 	U32 idle_count = 0;
 	
-	static LLFastTimer::DeclareTimer idle_copy("Idle Copy");
-
 	{
-		LLFastTimer t(idle_copy);
+		LLFastTimer t(FTM_IDLE_COPY);
 
  		for (std::vector<LLPointer<LLViewerObject> >::iterator active_iter = mActiveObjects.begin();
 			active_iter != mActiveObjects.end(); active_iter++)

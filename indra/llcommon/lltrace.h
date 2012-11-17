@@ -67,6 +67,7 @@ namespace LLTrace
 
 	void init();
 	void cleanup();
+	bool isInitialized();
 
 	LLThreadLocalPointer<class ThreadRecorder>& get_thread_recorder();
 
@@ -162,6 +163,10 @@ namespace LLTrace
 		// NOTE: this is not thread-safe.  We assume that slots are reserved in the main thread before any child threads are spawned
 		size_t reserveSlot()
 		{
+			if (LLTrace::isInitialized())
+			{
+				llerrs << "Attempting to declare trace object after program initialization.  Trace objects should be statically initialized." << llendl;
+			}
 			size_t next_slot = mNextStorageSlot++;
 			if (next_slot >= mStorageSize)
 			{
@@ -383,6 +388,7 @@ namespace LLTrace
 	class TimerAccumulator
 	{
 	public:
+		TimerAccumulator();
 		void addSamples(const TimerAccumulator& other);
 		void reset(const TimerAccumulator* other);
 

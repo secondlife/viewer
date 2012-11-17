@@ -336,7 +336,10 @@ void BlockTimer::accumulateTimings()
 
 		cur_data = &cur_timer->mLastTimerData;
 		cur_data->mChildTime += cumulative_time_delta;
-		accumulator = cur_data->mTimerData->getPrimaryAccumulator();
+		if (cur_data->mTimerData)
+		{
+			accumulator = cur_data->mTimerData->getPrimaryAccumulator();
+		}
 
 		cur_timer = cur_timer->mLastTimerData.mCurTimer;
 	}
@@ -571,6 +574,14 @@ void Time::writeLog(std::ostream& os)
 	}
 }
 
+
+LLTrace::TimerAccumulator::TimerAccumulator() :	mSelfTimeCounter(0),
+	mTotalTimeCounter(0),
+	mCalls(0),
+	mLastCaller(NULL),
+	mActiveCount(0),
+	mMoveUpTree(false)
+{}
 
 void LLTrace::TimerAccumulator::addSamples( const LLTrace::TimerAccumulator& other )
 {

@@ -396,9 +396,10 @@ LLInventoryFilter::EFolderShow LLInventoryPanel::getShowFolderState()
 	return getFilter()->getShowFolderState();
 }
 
+static LLFastTimer::DeclareTimer FTM_REFRESH("Inventory Refresh");
+
 void LLInventoryPanel::modelChanged(U32 mask)
 {
-	static LLFastTimer::DeclareTimer FTM_REFRESH("Inventory Refresh");
 	LLFastTimer t2(FTM_REFRESH);
 
 	bool handled = false;

@@ -1886,6 +1886,8 @@ void LLPipeline::updateMovedList(LLDrawable::drawable_vector_t& moved_list)
 
 static LLFastTimer::DeclareTimer FTM_OCTREE_BALANCE("Balance Octree");
 static LLFastTimer::DeclareTimer FTM_UPDATE_MOVE("Update Move");
+static LLFastTimer::DeclareTimer FTM_RETEXTURE("Retexture");
+static LLFastTimer::DeclareTimer FTM_MOVED_LIST("Moved List");
 
 void LLPipeline::updateMove()
 {
@@ -1899,8 +1901,7 @@ void LLPipeline::updateMove()
 	assertInitialized();
 
 	{
-		static LLFastTimer::DeclareTimer ftm("Retexture");
-		LLFastTimer t(ftm);
+		LLFastTimer t(FTM_RETEXTURE);
 
 		for (LLDrawable::drawable_set_t::iterator iter = mRetexturedList.begin();
 			 iter != mRetexturedList.end(); ++iter)
@@ -1915,8 +1916,7 @@ void LLPipeline::updateMove()
 	}
 
 	{
-		static LLFastTimer::DeclareTimer ftm("Moved List");
-		LLFastTimer t(ftm);
+		LLFastTimer t(FTM_MOVED_LIST);
 		updateMovedList(mMovedList);
 	}
 
@@ -3688,33 +3688,6 @@ void LLPipeline::postSort(LLCamera& camera)
 		}
 	}
 
-	/*static LLFastTimer::DeclareTimer FTM_TRANSFORM_WAIT("Transform Fence");
-	static LLFastTimer::DeclareTimer FTM_TRANSFORM_DO_WORK("Transform Work");
-	if (use_transform_feedback)
-	{ //using transform feedback, wait for transform feedback to complete
-		LLFastTimer t(FTM_TRANSFORM_WAIT);
-
-		S32 done = 0;
-		//glGetQueryivARB(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, GL_CURRENT_QUERY, &count);
-		
-		glGetQueryObjectivARB(mMeshDirtyQueryObject, GL_QUERY_RESULT_AVAILABLE, &done);
-		
-		while (!done)
-		{ 
-			{
-				LLFastTimer t(FTM_TRANSFORM_DO_WORK);
-				F32 max_time = llmin(gFrameIntervalSeconds*10.f, 1.f);
-				//do some useful work while we wait
-				LLAppViewer::getTextureCache()->update(max_time); // unpauses the texture cache thread
-				LLAppViewer::getImageDecodeThread()->update(max_time); // unpauses the image thread
-				LLAppViewer::getTextureFetch()->update(max_time); // unpauses the texture fetch thread
-			}
-			glGetQueryObjectivARB(mMeshDirtyQueryObject, GL_QUERY_RESULT_AVAILABLE, &done);
-		}
-
-		mTransformFeedbackPrimitives = 0;
-	}*/
-						
 	//LLSpatialGroup::sNoDelete = FALSE;
 	llpushcallstacks ;
 }

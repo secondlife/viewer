@@ -2760,11 +2760,12 @@ void append_xui_tooltip(LLView* viewp, LLToolTip::Params& params)
 	}
 }
 
+static LLFastTimer::DeclareTimer ftm("Update UI");
+
 // Update UI based on stored mouse position from mouse-move
 // event processing.
 void LLViewerWindow::updateUI()
 {
-	static LLFastTimer::DeclareTimer ftm("Update UI");
 	LLFastTimer t(ftm);
 
 	static std::string last_handle_msg;
