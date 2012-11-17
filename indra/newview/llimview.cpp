@@ -2814,7 +2814,7 @@ void LLIMMgr::inviteToSession(
 			if (isRejectDoNotDisturb && !isRejectGroupCall && !isRejectNonFriendCall)
 			{
 				LLSD args;
-				LLIMMgr::getInstance()->addSystemMessage(session_id, "you_auto_rejected_call", args);
+				addSystemMessage(session_id, "you_auto_rejected_call", args);
 				send_do_not_disturb_message(gMessageSystem, caller_id, session_id);
 			}
 			// silently decline the call
