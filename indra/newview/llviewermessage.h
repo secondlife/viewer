@@ -152,6 +152,8 @@ void send_group_notice(const LLUUID& group_id,
 					   const std::string& message,
 					   const LLInventoryItem* item);
 
+void send_do_not_disturb_message (LLMessageSystem* msg, const LLUUID& from_id, const LLUUID& session_id = LLUUID::null);
+
 void handle_lure(const LLUUID& invitee);
 void handle_lure(const uuid_vec_t& ids);
 
