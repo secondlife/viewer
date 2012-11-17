@@ -96,7 +96,7 @@ LLFloaterIMContainer::~LLFloaterIMContainer()
 	}
 }
 
-void LLFloaterIMContainer::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
+void LLFloaterIMContainer::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, BOOL has_offline_msg)
 {
 	llinfos << "Merov debug : sessionAdded, uuid = " << session_id << ", name = " << name << llendl;
 	addConversationListItem(session_id);
@@ -347,7 +347,7 @@ void LLFloaterIMContainer::onExpandCollapseButtonClicked()
 	{
 		collapseConversationsPane(!mConversationsPane->isCollapsed());
 	}
-	selectConversation(mSelectedSession);
+	reSelectConversation();
 }
 
 LLFloaterIMContainer* LLFloaterIMContainer::findInstance()
@@ -730,15 +730,18 @@ void LLFloaterIMContainer::onCustomAction(const LLSD& userdata)
 	}
 	if ("chat_preferences" == command)
 	{
-		LLFloaterPreference* floater_prefs = LLFloaterReg::showTypedInstance<LLFloaterPreference>("preferences");
-		if (floater_prefs)
+		LLFloaterPreference * floater_prefp = LLFloaterReg::showTypedInstance<LLFloaterPreference>("preferences");
+		if (floater_prefp)
 		{
-			LLTabContainer* tab_container = floater_prefs->getChild<LLTabContainer>("pref core");
-			LLPanel* chat_panel = tab_container->getPanelByName("chat");
-			if (tab_container && chat_panel)
-			{
-				tab_container->selectTabPanel(chat_panel);
-			}
+			floater_prefp->selectChatPanel();
+		}
+	}
+	if ("privacy_preferences" == command)
+	{
+		LLFloaterPreference * floater_prefp = LLFloaterReg::showTypedInstance<LLFloaterPreference>("preferences");
+		if (floater_prefp)
+		{
+			floater_prefp->selectPrivacyPanel();
 		}
 	}
 }
@@ -1581,6 +1584,16 @@ void LLFloaterIMContainer::onNearbyChatClosed()
 	// If nearby chat is the only remaining conversation and it is closed, close whole conversation floater as well
 	if (mConversationsItems.size() == 1)
 		closeFloater();
+}
+
+void LLFloaterIMContainer::reSelectConversation()
+{
+	LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(mSelectedSession);
+	if (session_floater->getHost())
+	{
+		selectFloater(session_floater);
+	}
+
 }
 
 // EOF

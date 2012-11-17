@@ -1682,6 +1682,21 @@ void LLPipeline::unlinkDrawable(LLDrawable *drawable)
 
 }
 
+//static
+void LLPipeline::removeMutedAVsLights(LLVOAvatar* muted_avatar)
+{
+	LLFastTimer t(FTM_REMOVE_FROM_LIGHT_SET);
+	for (light_set_t::iterator iter = gPipeline.mNearbyLights.begin();
+		 iter != gPipeline.mNearbyLights.end(); iter++)
+	{
+		if (iter->drawable->getVObj()->isAttachment() && iter->drawable->getVObj()->getAvatar() == muted_avatar)
+		{
+			gPipeline.mLights.erase(iter->drawable);
+			gPipeline.mNearbyLights.erase(iter);
+		}
+	}
+}
+
 U32 LLPipeline::addObject(LLViewerObject *vobj)
 {
 	LLMemType mt_ao(LLMemType::MTYPE_PIPELINE_ADD_OBJECT);
@@ -2559,6 +2574,64 @@ void LLPipeline::updateGL()
 }
 
 static LLFastTimer::DeclareTimer FTM_REBUILD_PRIORITY_GROUPS("Rebuild Priority Groups");
+
+void LLPipeline::clearRebuildGroups()
+{
+	LLSpatialGroup::sg_vector_t	hudGroups;
+
+	mGroupQ1Locked = true;
+	// Iterate through all drawables on the priority build queue,
+	for (LLSpatialGroup::sg_vector_t::iterator iter = mGroupQ1.begin();
+		 iter != mGroupQ1.end(); ++iter)
+	{
+		LLSpatialGroup* group = *iter;
+
+		// If the group contains HUD objects, save the group
+		if (group->isHUDGroup())
+		{
+			hudGroups.push_back(group);
+		}
+		// Else, no HUD objects so clear the build state
+		else
+		{
+			group->clearState(LLSpatialGroup::IN_BUILD_Q1);
+		}
+	}
+
+	// Clear the group
+	mGroupQ1.clear();
+
+	// Copy the saved HUD groups back in
+	mGroupQ1.assign(hudGroups.begin(), hudGroups.end());
+	mGroupQ1Locked = false;
+
+	// Clear the HUD groups
+	hudGroups.clear();
+
+	mGroupQ2Locked = true;
+	for (LLSpatialGroup::sg_vector_t::iterator iter = mGroupQ2.begin();
+		 iter != mGroupQ2.end(); ++iter)
+	{
+		LLSpatialGroup* group = *iter;
+
+		// If the group contains HUD objects, save the group
+		if (group->isHUDGroup())
+		{
+			hudGroups.push_back(group);
+		}
+		// Else, no HUD objects so clear the build state
+		else
+		{
+			group->clearState(LLSpatialGroup::IN_BUILD_Q2);
+		}
+	}	
+	// Clear the group
+	mGroupQ2.clear();
+
+	// Copy the saved HUD groups back in
+	mGroupQ2.assign(hudGroups.begin(), hudGroups.end());
+	mGroupQ2Locked = false;
+}
 
 void LLPipeline::rebuildPriorityGroups()
 {

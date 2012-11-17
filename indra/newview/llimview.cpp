@@ -64,6 +64,7 @@
 #include "lltoolbarview.h"
 #include "llviewercontrol.h"
 #include "llviewerparcelmgr.h"
+#include "message.h"
 
 
 const static std::string ADHOC_NAME_SUFFIX(" Conference");
@@ -139,20 +140,40 @@ void toast_callback(const LLSD& msg){
 		return;
 	}
 
-	// *NOTE Skip toasting if the user disable it in preferences/debug settings ~Alexandrea
-	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(
-				msg["session_id"]);
-	if (!gSavedSettings.getBOOL("EnableGroupChatPopups")
-			&& session->isGroupSessionType())
-	{
-		return;
-	}
-	if (!gSavedSettings.getBOOL("EnableIMChatPopups")
-			&& !session->isGroupSessionType())
-	{
-		return;
-	}
+    // *NOTE Skip toasting if the user disable it in preferences/debug settings ~Alexandrea
+    LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(
+        msg["session_id"]);
 
+
+    //Ignore P2P Friend/Non-Friend toasts
+    if(session->isP2PSessionType())
+    {
+        //Ignores non-friends
+        if((LLAvatarTracker::instance().getBuddyInfo(msg["from_id"]) == NULL) 
+            && (gSavedSettings.getString("NotificationNonFriendIMOptions") != "toast"))
+        {
+            return;
+        }
+        //Ignores friends
+        else if(gSavedSettings.getString("NotificationFriendIMOptions") != "toast")
+        {
+            return;
+        }
+    }
+    //Ignore Ad Hoc Toasts
+    else if(session->isAdHocSessionType() 
+            && (gSavedSettings.getString("NotificationConferenceIMOptions") != "toast"))
+    {
+        return;
+    }
+    //Ignore Group Toasts
+    else if(session->isGroupSessionType() 
+            && (gSavedSettings.getString("NotificationGroupChatOptions") != "toast"))
+    {
+        return;
+    }
+
+    //Show toast
 	LLAvatarNameCache::get(msg["from_id"].asUUID(),
 		boost::bind(&on_avatar_name_cache_toast,
 			_1, _2, msg));
@@ -704,7 +725,7 @@ bool LLIMModel::newSession(const LLUUID& session_id, const std::string& name, co
 	// When notifying observer, name of session is used instead of "name", because they may not be the
 	// same if it is an adhoc session (in this case name is localized in LLIMSession constructor).
 	std::string session_name = LLIMModel::getInstance()->getName(session_id);
-	LLIMMgr::getInstance()->notifyObserverSessionAdded(session_id, session_name, other_participant_id);
+	LLIMMgr::getInstance()->notifyObserverSessionAdded(session_id, session_name, other_participant_id,has_offline_msg);
 
 	return true;
 
@@ -2424,14 +2445,21 @@ void LLIMMgr::addMessage(
 
 	//*NOTE session_name is empty in case of incoming P2P sessions
 	std::string fixed_session_name = from;
+	bool name_is_setted = false;
 	if(!session_name.empty() && session_name.size()>1)
 	{
 		fixed_session_name = session_name;
+		name_is_setted = true;
 	}
 
 	bool new_session = !hasSession(new_session_id);
 	if (new_session)
 	{
+		LLAvatarName av_name;
+		if (LLAvatarNameCache::get(other_participant_id, &av_name) && !name_is_setted)
+		{
+			fixed_session_name = (av_name.mDisplayName.empty() ? av_name.mUsername : av_name.mDisplayName);
+		}
 		LLIMModel::getInstance()->newSession(new_session_id, fixed_session_name, dialog, other_participant_id, false, is_offline_msg);
 
 		// When we get a new IM, and if you are a god, display a bit
@@ -2467,7 +2495,11 @@ void LLIMMgr::addMessage(
 			return;
 		}
 
-		make_ui_sound("UISndNewIncomingIMSession");
+        //Play sound for new conversations
+        if(gSavedSettings.getBOOL("PlaySoundNewConversation") == TRUE)
+        {
+            make_ui_sound("UISndNewIncomingIMSession");
+        }
 	}
 
 	bool skip_message = (gSavedSettings.getBOOL("VoiceCallsFriendsOnly") &&
@@ -2774,12 +2806,17 @@ void LLIMMgr::inviteToSession(
 
 	if (voice_invite)
 	{
-		if	(	// if we are rejecting group calls 
-				(gSavedSettings.getBOOL("VoiceCallsRejectGroup") && notify_box_type == "VoiceInviteGroup") ||
-				// or we're rejecting non-friend voice calls and this isn't a friend	
-				(gSavedSettings.getBOOL("VoiceCallsFriendsOnly") && (LLAvatarTracker::instance().getBuddyInfo(caller_id) == NULL))
-			)
+		bool isRejectGroupCall = (gSavedSettings.getBOOL("VoiceCallsRejectGroup") && (notify_box_type == "VoiceInviteGroup"));
+		bool isRejectNonFriendCall = (gSavedSettings.getBOOL("VoiceCallsFriendsOnly") && (LLAvatarTracker::instance().getBuddyInfo(caller_id) == NULL));
+		bool isRejectDoNotDisturb = gAgent.isDoNotDisturb();
+		if	(isRejectGroupCall || isRejectNonFriendCall || isRejectDoNotDisturb)
 		{
+			if (isRejectDoNotDisturb && !isRejectGroupCall && !isRejectNonFriendCall)
+			{
+				LLSD args;
+				addSystemMessage(session_id, "you_auto_rejected_call", args);
+				send_do_not_disturb_message(gMessageSystem, caller_id, session_id);
+			}
 			// silently decline the call
 			LLIncomingCallDialog::processCallResponse(1, payload);
 			return;
@@ -2947,11 +2984,11 @@ void LLIMMgr::clearPendingAgentListUpdates(const LLUUID& session_id)
 	}
 }
 
-void LLIMMgr::notifyObserverSessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
+void LLIMMgr::notifyObserverSessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, bool has_offline_msg)
 {
 	for (session_observers_list_t::iterator it = mSessionObservers.begin(); it != mSessionObservers.end(); it++)
 	{
-		(*it)->sessionAdded(session_id, name, other_participant_id);
+		(*it)->sessionAdded(session_id, name, other_participant_id, has_offline_msg);
 	}
 }
 

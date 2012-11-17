@@ -37,6 +37,7 @@
         top_pad="6"
         width="330" />
     <check_box
+        control_name="KeepConversationLogTranscripts"
         height="16"
         label="Keep a conversation log and transcripts"
         layout="topleft"
@@ -135,16 +136,16 @@
         width="223">
       <combo_box.item
           label="Pop up the message"
-          name="0"
-          value="0"/>
+          name="PopUpMessage"
+          value="toast"/>
       <combo_box.item
           label="Flash toolbar button"
-          name="1"
-          value="1"/>
+          name="FlashToolbarButton"
+          value="flash"/>
       <combo_box.item
           label="None"
-          name="2"
-          value="2"/>
+          name="None"
+          value="none"/>
     </combo_box>
     <text
         follows="left|top"
@@ -166,16 +167,16 @@
         width="223">
       <combo_box.item
           label="Pop up the message"
-          name="0"
-          value="0"/>
+          name="PopUpMessage"
+          value="toast"/>
       <combo_box.item
           label="Flash toolbar button"
-          name="1"
-          value="1"/>
+          name="FlashToolbarButton"
+          value="flash"/>
       <combo_box.item
           label="None"
-          name="2"
-          value="2"/>
+          name="None"
+          value="none"/>
     </combo_box>
     <text
         follows="left|top"
@@ -197,16 +198,16 @@
         width="223">
       <combo_box.item
           label="Pop up the message"
-          name="0"
-          value="0"/>
+          name="PopUpMessage"
+          value="toast"/>
       <combo_box.item
           label="Flash toolbar button"
-          name="1"
-          value="1"/>
+          name="FlashToolbarButton"
+          value="flash"/>
       <combo_box.item
           label="None"
-          name="2"
-          value="2"/>
+          name="None"
+          value="none"/>
     </combo_box>
     <text
         follows="left|top"
@@ -228,16 +229,16 @@
         width="223">
       <combo_box.item
           label="Pop up the message"
-          name="0"
-          value="0"/>
+          name="PopUpMessage"
+          value="toast"/>
       <combo_box.item
           label="Flash toolbar button"
-          name="1"
-          value="1"/>
+          name="FlashToolbarButton"
+          value="flash"/>
       <combo_box.item
           label="None"
-          name="2"
-          value="2"/>
+          name="None"
+          value="none"/>
     </combo_box>
     <text
         follows="left|top"
@@ -259,16 +260,16 @@
         width="223">
       <combo_box.item
           label="Pop up the message"
-          name="0"
-          value="0"/>
+          name="PopUpMessage"
+          value="toast"/>
       <combo_box.item
           label="Flash toolbar button"
-          name="1"
-          value="1"/>
+          name="FlashToolBarButton"
+          value="flash"/>
       <combo_box.item
           label="None"
-          name="2"
-          value="2"/>
+          name="None"
+          value="none"/>
     </combo_box>
     <text
         follows="left|top"
@@ -304,9 +305,8 @@
       Play sound:
     </text>
     <check_box
-        control_name="NewConversation"
+        control_name="PlaySoundNewConversation"
         height="16"
-        initial_value="true"
         label="New conversation"
         layout="topleft"
         left_pad="15"
@@ -314,27 +314,25 @@
         name="new_conversation"
         width="150" />
     <check_box
-        control_name="IncomingVoiceCall"
+        control_name="PlaySoundIncomingVoiceCall"
         height="16"
-        initial_value="true"
         label="Incoming voice call"
         layout="topleft"
         top_pad="6"
         name="incoming_voice_call"
         width="150" />
     <check_box
-        control_name="GroupChatMessages"
+        enabled="false"
+        control_name="PlaySoundGroupChatMessages"
         height="16"
-        initial_value="false"
         label="Group chat messages"
         layout="topleft"
         top_pad="6"
         name="group_chat_messages"
         width="150" />
     <check_box
-        control_name="TeleportOffer"
+        control_name="PlaySoundTeleportOffer"
         height="16"
-        initial_value="true"
         label="Teleport offer"
         layout="topleft"
         left_pad="35"
@@ -342,9 +340,8 @@
         name="teleport_offer"
         width="150" />
     <check_box
-        control_name="InventoryOffer"
+        control_name="PlaySoundInventoryOffer"
         height="16"
-        initial_value="false"
         label="Inventory offer"
         layout="topleft"
         top_pad="6"

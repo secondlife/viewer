@@ -160,12 +160,12 @@ LLFolderView * LLInventoryPanel::createFolderRoot(LLUUID root_id )
     p.parent_panel = this;
     p.tool_tip = p.name;
     p.listener = mInvFVBridgeBuilder->createBridge(	LLAssetType::AT_CATEGORY,
-        LLAssetType::AT_CATEGORY,
-        LLInventoryType::IT_CATEGORY,
-        this,
+																	LLAssetType::AT_CATEGORY,
+																	LLInventoryType::IT_CATEGORY,
+																	this,
         &mInventoryViewModel,
-        NULL,
-        root_id);
+																	NULL,
+																	root_id);
     p.view_model = &mInventoryViewModel;
     p.use_label_suffix = mParams.use_label_suffix;
     p.allow_multiselect = mAllowMultiSelect;
@@ -173,12 +173,12 @@ LLFolderView * LLInventoryPanel::createFolderRoot(LLUUID root_id )
     p.show_item_link_overlays = mShowItemLinkOverlays;
     p.root = NULL;
     p.options_menu = "menu_inventory.xml";
-
+	
     return LLUICtrlFactory::create<LLFolderView>(p);
 }
-	
+
 void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
-	{
+{
 	// save off copy of params
 	mParams = params;
 	// Clear up the root view
@@ -192,7 +192,7 @@ void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 	}
 	
 	LLMemType mt(LLMemType::MTYPE_INVENTORY_POST_BUILD);
-	
+
 	mCommitCallbackRegistrar.pushScope(); // registered as a widget; need to push callback scope ourselves
 	{
 		// Determine the root folder in case specified, and
@@ -290,7 +290,7 @@ void LLInventoryPanel::draw()
 const LLInventoryFilter& LLInventoryPanel::getFilter() const
 {
 	return getFolderViewModel()->getFilter();
-	}
+}
 
 LLInventoryFilter& LLInventoryPanel::getFilter()
 {
@@ -647,7 +647,7 @@ void LLInventoryPanel::idle(void* user_data)
 		{
 			panel->mFolderRoot->setShowSingleSelection(FALSE);
 		}
-	}
+}
 	else
 	{
 		panel->mFolderRoot->setShowSingleSelection(FALSE);
@@ -779,11 +779,11 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
   			}
  
   	    if (folder_view_item)
-  		{
+  			{
             llassert(parent_folder != NULL);
             folder_view_item->addToFolder(parent_folder);
 			addItemID(id, folder_view_item);
-   		}
+		}
 	}
 
 	// If this is a folder, add the children of the folder and recursively add any 

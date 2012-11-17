@@ -84,7 +84,7 @@ LLIMChiclet* LLChicletBar::createIMChiclet(const LLUUID& session_id)
 }
 
 //virtual
-void LLChicletBar::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
+void LLChicletBar::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, BOOL has_offline_msg)
 {
 	if (!getChicletPanel()) return;
 

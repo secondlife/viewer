@@ -438,7 +438,7 @@ namespace LLInitParam
 		{}
 
 		void operator ()(const std::string& name)
-		{
+	{
 			*this = name;
 		}
 
@@ -625,38 +625,38 @@ namespace LLInitParam
 		class BaseBlock*				mCurrentBlockPtr;		// pointer to block currently being constructed
 	};
 
-	//TODO: implement in terms of owned_ptr
-	template<typename T>
+		//TODO: implement in terms of owned_ptr
+		template<typename T>
 	class LazyValue
-	{
+		{
 		public:
 		LazyValue()
-		: mPtr(NULL)
-		{}
+				: mPtr(NULL)
+			{}
 
 		~LazyValue()
-		{
-			delete mPtr;
-		}
+			{
+				delete mPtr;
+			}
 
 		LazyValue(const T& value)
-		{
+			{
 			mPtr = new T(value);
 		}
 
 		LazyValue(const LazyValue& other)
 		:	mPtr(NULL)
-		{
+				{
 			*this = other;
-		}
+				}
 
 		LazyValue& operator = (const LazyValue& other)
-		{
+				{
 			if (!other.mPtr)
 			{
 				delete mPtr;
-				mPtr = NULL;
-			}
+					mPtr = NULL;
+				}
 			else
 			{
 				if (!mPtr)
@@ -667,9 +667,9 @@ namespace LLInitParam
 				{
 					*mPtr = *(other.mPtr);
 				}
+				}
+				return *this;
 			}
-			return *this;
-		}
 
 		bool operator==(const LazyValue& other) const
 		{
@@ -677,13 +677,13 @@ namespace LLInitParam
 			return *mPtr == *other.mPtr;
 		}
 
-		bool empty() const
-		{
-			return mPtr == NULL;
-		}
+			bool empty() const
+			{
+				return mPtr == NULL;
+			}
 
-		void set(const T& other)
-		{
+			void set(const T& other)
+			{
 			if (!mPtr)
 			{
 				mPtr = new T(other);
@@ -694,36 +694,36 @@ namespace LLInitParam
 			}
 		}
 
-		const T& get() const
-		{
+			const T& get() const
+			{
 			return *ensureInstance();
-		}
+			}
 
-		T& get()
-		{
+			T& get()
+			{
 			return *ensureInstance();
 		}
 
 		operator const T&() const
 		{ 
 			return get(); 
-		}
+			}
 
-	private:
-		// lazily allocate an instance of T
-		T* ensureInstance() const
-		{
-			if (mPtr == NULL)
+		private:
+			// lazily allocate an instance of T
+			T* ensureInstance() const
 			{
-				mPtr = new T();			
-                        }
-			return mPtr;
-		}
+				if (mPtr == NULL)
+				{
+					mPtr = new T();
+				}
+				return mPtr;
+			}
 
-	private:
+		private:
 
-		mutable T* mPtr;
-	};
+			mutable T* mPtr;
+		};
 
 	// root class of all parameter blocks
 
@@ -905,7 +905,7 @@ namespace LLInitParam
 		}
 
 		U32 getEnclosingBlockOffset() const
-		{
+	{
 			return ((U32)mEnclosingBlockOffsetHigh << 16) | (U32)mEnclosingBlockOffsetLow;
 		}
 
@@ -2063,7 +2063,7 @@ namespace LLInitParam
 			// dummy writer interfaces
 			template<typename T>
 			Deprecated& operator =(const T& val)
-			{
+		{
 				// do nothing
 				return *this;
 			}
@@ -2197,9 +2197,9 @@ namespace LLInitParam
 		}
 
 		bool inspectBlock(Parser& p, Parser::name_stack_t name_stack = Parser::name_stack_t(), S32 min_count = 0, S32 max_count = S32_MAX) const
-		{
+			{
 			return mValue.inspectBlock(p, name_stack, min_count, max_count);
-		}
+			}
 
 		bool mergeBlockParam(bool source_provided, bool dst_provided, BlockDescriptor& block_data, const self_t& source, bool overwrite)
 		{
@@ -2209,7 +2209,7 @@ namespace LLInitParam
 				// clear away what is there and take the new stuff as a whole
 				resetToDefault();
 				return mValue.mergeBlock(block_data, source.getValue(), overwrite);
-			}
+		}
 			
 
 			return mValue.mergeBlock(block_data, source.getValue(), overwrite);
@@ -2281,7 +2281,7 @@ namespace LLInitParam
 			if (new_name)
 			{
 				mCurParam = getBlockDescriptor().mAllParams.begin();
-			}
+		}
 			if (name_stack_range.first == name_stack_range.second 
 				&& mCurParam != getBlockDescriptor().mAllParams.end())
 			{
@@ -2293,7 +2293,7 @@ namespace LLInitParam
 				if (deserialize_func 
 					&& paramp 
 					&& deserialize_func(*paramp, p, name_stack_range, new_name))
-				{
+		{
 					++mCurParam;
 					return true;
 				}
@@ -2301,7 +2301,7 @@ namespace LLInitParam
 				{
 					return false;
 				}
-			}
+		}
 			else
 			{
 				return mValue.deserializeBlock(p, name_stack_range, new_name);
@@ -2358,7 +2358,7 @@ namespace LLInitParam
 		:	T(),
 			mValidated(false)
 		{}
-
+	
 		ParamValue(const default_value_t& value)
 		:	T(value.getValue()),
 			mValidated(false)
@@ -2430,7 +2430,7 @@ namespace LLInitParam
 		{
 			return source.mValue.empty() || mValue.get().mergeBlock(block_data, source.getValue(), overwrite);
 		}
-
+			
 		bool validateBlock(bool emit_errors = true) const
 		{
 			return mValue.empty() || mValue.get().validateBlock(emit_errors);
@@ -2545,10 +2545,10 @@ namespace LLInitParam
 		} EValueAge;
 
 		typedef ParamValue<T>			derived_t;
-		typedef CustomParamValue<T>		self_t;
-		typedef Block<derived_t>		block_t;
+		typedef CustomParamValue<T>				self_t;
+		typedef Block<derived_t>				block_t;
 		typedef T						default_value_t;
-		typedef T						value_t;
+		typedef T								value_t;
 		typedef void					baseblock_base_class_t;
 
 

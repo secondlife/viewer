@@ -171,10 +171,10 @@ protected:
 									 BOOL restamp);
 	void removeBatchNoCheck(std::vector<LLFolderViewModelItem*>& batch);
 protected:
-	LLHandle<LLInventoryPanel>	mInventoryPanel;
-	LLFolderView*				mRoot;
-	const LLUUID				mUUID;	// item id
-	LLInventoryType::EType		mInvType;
+	LLHandle<LLInventoryPanel> mInventoryPanel;
+	LLFolderView* mRoot;
+	const LLUUID mUUID;	// item id
+	LLInventoryType::EType mInvType;
 	bool						mIsLink;
 	LLTimer						mTimeSinceRequestStart;
 	mutable std::string			mDisplayName;
@@ -211,6 +211,8 @@ public:
 				 LLFolderView* root,
 				 const LLUUID& uuid) :
 		LLInvFVBridge(inventory, root, uuid) {}
+
+	typedef boost::function<void(std::string& slurl)> slurl_callback_t;
 
 	virtual void performAction(LLInventoryModel* model, std::string action);
 	virtual void selectItem();
@@ -346,7 +348,7 @@ private:
 	bool							mWearables;
 	bool							mIsLoading;
 	LLTimer							mTimeSinceRequestStart;
-	LLRootHandle<LLFolderBridge>	mHandle;
+	LLRootHandle<LLFolderBridge> mHandle;
 };
 
 class LLTextureBridge : public LLItemBridge

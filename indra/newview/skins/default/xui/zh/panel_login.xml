@@ -20,7 +20,7 @@
 			<text name="mode_selection_text">
 				模式：
 			</text>
-			<combo_box name="mode_combo" tool_tip="請選擇你的模式。選用基本模式可以快速、簡單地探索與聊天；選用進階模式則可以使用更多功能。">
+			<combo_box name="mode_combo" tool_tip="請選擇你的模式。 選用基本模式可以快速、簡單地探索與聊天； 選用進階模式則可以使用更多功能。">
 				<combo_box.item label="基本" name="Basic"/>
 				<combo_box.item label="進階" name="Advanced"/>
 			</combo_box>
@@ -30,7 +30,7 @@
 			<combo_box name="start_location_combo">
 				<combo_box.item label="我上一次位置" name="MyLastLocation"/>
 				<combo_box.item label="我的家" name="MyHome"/>
-				<combo_box.item label="&lt; 請輸入地區名稱 &gt;" name="Typeregionname"/>
+				<combo_box.item label="&lt;請輸入地區名稱&gt;" name="Typeregionname"/>
 			</combo_box>
 		</layout_panel>
 		<layout_panel name="links">

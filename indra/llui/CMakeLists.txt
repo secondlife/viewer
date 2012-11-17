@@ -163,7 +163,6 @@ set(llui_HEADER_FILES
     llfolderviewitem.h
     llfolderviewmodel.h
     llfunctorregistry.h
-    llhandle.h
     llhelp.h
     lliconctrl.h
     llkeywords.h

@@ -14,19 +14,19 @@
 			<menu_item_call label="內衣" name="Self Undershirt"/>
 			<menu_item_call label="內褲" name="Self Underpants"/>
 			<menu_item_call label="刺青" name="Self Tattoo"/>
-			<menu_item_call label="Physics" name="Self Physics"/>
+			<menu_item_call label="身體物理" name="Self Physics"/>
 			<menu_item_call label="半透明" name="Self Alpha"/>
 			<menu_item_call label="全部衣服" name="All Clothes"/>
 		</context_menu>
-		<context_menu label="HUD" name="Object Detach HUD"/>
+		<context_menu label="擡頭顯示" name="Object Detach HUD"/>
 		<context_menu label="卸下" name="Object Detach"/>
 		<menu_item_call label="全部卸下" name="Detach All"/>
 	</context_menu>
 	<menu_item_call label="我的外觀" name="Chenge Outfit"/>
-	<menu_item_call label="編輯我裝扮" name="Edit Outfit"/>
+	<menu_item_call label="編輯我的裝扮" name="Edit Outfit"/>
 	<menu_item_call label="編輯我的體形" name="Edit My Shape"/>
 	<menu_item_call label="我的朋友" name="Friends..."/>
 	<menu_item_call label="我的群組" name="Groups..."/>
-	<menu_item_call label="我的檔案" name="Profile..."/>
+	<menu_item_call label="我的個人檔案" name="Profile..."/>
 	<menu_item_call label="材質除錯" name="Debug..."/>
 </context_menu>

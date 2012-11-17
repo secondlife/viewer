@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="publish_classified" title="Publishing Classified">
+<floater name="publish_classified" title="刊登個人廣告">
 	<text name="explanation_text">
-		Your classified ad will run for one week from the date it is published.
+		你的個人廣告將從刊登日起連續刊載一星期。
         
-Remember, Classified fees are non-refundable.
+請注意，個人廣告刊登費恕不退還。
 	</text>
-	<spinner label="價格： L$" name="price_for_listing" tool_tip="刊登費用。" value="50"/>
+	<spinner label="價格： L$" name="price_for_listing" tool_tip="刊登費。" value="50"/>
 	<button label="發布" name="publish_btn"/>
 	<button label="取消" name="cancel_btn"/>
 </floater>

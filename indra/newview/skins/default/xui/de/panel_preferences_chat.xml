@@ -29,5 +29,7 @@
 	<check_box label="IM-Chats" name="EnableIMChatPopups" tool_tip="Markieren, um Popups zu sehen, wenn Instant Message eintrifft"/>
 	<spinner label="Lebenszeit von Toasts für Chat in der Nähe:" name="nearby_toasts_lifetime"/>
 	<spinner label="Ein-/Ausblenddauer von Toasts für Chat in der Nähe:" name="nearby_toasts_fadingtime"/>
-	<button label="Übersetzungseinstellungen für Chats" name="ok_btn"/>
+	<button label="Übersetzen..." name="ok_btn"/>
+	<button label="Automatisch ersetzen..." name="autoreplace_showgui"/>
+	<button label="Rechtschreibprüfung..." name="spellcheck_showgui"/>
 </panel>

@@ -18,16 +18,17 @@
 	<text name="region_type">
 		未知
 	</text>
-	<check_box label="阻止變形" name="block_terraform_check"/>
+	<check_box label="阻止土地變形" name="block_terraform_check"/>
 	<check_box label="阻止飛行" name="block_fly_check"/>
 	<check_box label="允許傷害" name="allow_damage_check"/>
 	<check_box label="限制推撞" name="restrict_pushobject"/>
 	<check_box label="允許土地轉售" name="allow_land_resell_check"/>
 	<check_box label="允許土地 合併/分割" name="allow_parcel_changes_check"/>
 	<check_box label="阻擋土地顯示於搜尋中" name="block_parcel_search_check" tool_tip="讓其他人可以在搜尋結果中看到這個地區與其中的地段"/>
+	<check_box label="允許網面物件" name="mesh_rez_enabled_check" tool_tip="允許大家在此地區產生網面物件"/>
 	<spinner label="人數上限" name="agent_limit_spin"/>
-	<spinner label="Object Bonus" name="object_bonus_spin"/>
-	<text label="Maturity" name="access_text">
+	<spinner label="物件紅利" name="object_bonus_spin"/>
+	<text label="分級" name="access_text">
 		分級：
 	</text>
 	<icons_combo_box label="適度成人" name="access_combo">
@@ -36,8 +37,8 @@
 		<icons_combo_box.item label="一般普級" name="PG" value="13"/>
 	</icons_combo_box>
 	<button label="套用" name="apply_btn"/>
-	<button label="強制瞬間傳送一個居民回家..." name="kick_btn"/>
-	<button label="強制瞬間傳送所有居民回家..." name="kick_all_btn"/>
-	<button label="送出訊息到地區..." name="im_btn"/>
+	<button label="瞬間傳送一位居民回家..." name="kick_btn"/>
+	<button label="瞬間傳送所有居民回家..." name="kick_all_btn"/>
+	<button label="向地區發出訊息..." name="im_btn"/>
 	<button label="管理瞬間傳送中心..." name="manage_telehub_btn"/>
 </panel>

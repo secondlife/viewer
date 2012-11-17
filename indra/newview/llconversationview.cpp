@@ -240,7 +240,7 @@ void LLConversationViewSession::toggleOpen()
 		{
 			getParentFolder()->setSelection(this, true);
 		}
-
+		mContainer->reSelectConversation();
 	}
 }
 
@@ -416,6 +416,7 @@ BOOL LLConversationViewParticipant::postBuild()
 void LLConversationViewParticipant::draw()
 {
     static LLUIColor sFgColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
+	static LLUIColor sFgDisabledColor = LLUIColorTable::instance().getColor("MenuItemDisabledColor", DEFAULT_WHITE);
     static LLUIColor sHighlightFgColor = LLUIColorTable::instance().getColor("MenuItemHighlightFgColor", DEFAULT_WHITE);
     static LLUIColor sHighlightBgColor = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", DEFAULT_WHITE);
     static LLUIColor sFocusOutlineColor = LLUIColorTable::instance().getColor("InventoryFocusOutlineColor", DEFAULT_WHITE);
@@ -428,7 +429,18 @@ void LLConversationViewParticipant::draw()
 
     F32 y = (F32)getRect().getHeight() - font->getLineHeight() - (F32)mTextPad;
     F32 text_left = (F32)getLabelXPos();
-    LLColor4 color = mIsSelected ? sHighlightFgColor : sFgColor;
+	
+	LLColor4 color;
+	LLLocalSpeakerMgr *speakerMgr = LLLocalSpeakerMgr::getInstance();
+
+	if (speakerMgr && speakerMgr->isSpeakerToBeRemoved(mUUID))
+	{
+		color = sFgDisabledColor;
+	}
+	else
+	{
+		color = mIsSelected ? sHighlightFgColor : sFgColor;
+	}
 
     drawHighlight(show_context, mIsSelected, sHighlightBgColor, sFocusOutlineColor, sMouseOverColor);
     drawLabel(font, text_left, y, color, right_x);

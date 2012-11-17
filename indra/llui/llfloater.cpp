@@ -64,6 +64,8 @@
 // use this to control "jumping" behavior when Ctrl-Tabbing
 const S32 TABBED_FLOATER_OFFSET = 0;
 
+extern LLControlGroup gSavedSettings;
+
 namespace LLInitParam
 {
 	void TypeValues<LLFloaterEnums::EOpenPositioning>::declareValues()
@@ -240,7 +242,6 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	mTitle(p.title),
 	mShortTitle(p.short_title),
 	mSingleInstance(p.single_instance),
-	mIsReuseInitialized(p.reuse_instance.isProvided()),
 	mReuseInstance(p.reuse_instance.isProvided() ? p.reuse_instance : p.single_instance), // reuse single-instance floaters by default
 	mKey(key),
 	mCanTearOff(p.can_tear_off),
@@ -661,7 +662,13 @@ void LLFloater::openFloater(const LLSD& key)
 		&& !getFloaterHost()
 		&& (!getVisible() || isMinimized()))
 	{
-		make_ui_sound("UISndWindowOpen");
+        //Don't play a sound for incoming voice call based upon chat preference setting
+        bool playSound = !(getName() == "incoming call" && gSavedSettings.getBOOL("PlaySoundIncomingVoiceCall") == FALSE);
+
+        if(playSound)
+        {
+            make_ui_sound("UISndWindowOpen");
+        }
 	}
 
 	//RN: for now, we don't allow rehosting from one multifloater to another
@@ -2235,7 +2242,8 @@ LLFloaterView::LLFloaterView (const Params& p)
 	mFocusCycleMode(FALSE),
 	mMinimizePositionVOffset(0),
 	mSnapOffsetBottom(0),
-	mSnapOffsetRight(0)
+	mSnapOffsetRight(0),
+	mFrontChild(NULL)
 {
 	mSnapView = getHandle();
 }
@@ -2384,6 +2392,13 @@ LLRect LLFloaterView::findNeighboringPosition( LLFloater* reference_floater, LLF
 
 void LLFloaterView::bringToFront(LLFloater* child, BOOL give_focus)
 {
+	if (mFrontChild == child)
+	{
+		return;
+	}
+
+	mFrontChild = child;
+
 	// *TODO: make this respect floater's mAutoFocus value, instead of
 	// using parameter
 	if (child->getHost())
@@ -2978,22 +2993,22 @@ void LLFloater::setInstanceName(const std::string& name)
 {
 	if (name != mInstanceName)
 	{
-		llassert_always(mInstanceName.empty());
-		mInstanceName = name;
-		if (!mInstanceName.empty())
-		{
-			std::string ctrl_name = getControlName(mInstanceName, mKey);
+	llassert_always(mInstanceName.empty());
+	mInstanceName = name;
+	if (!mInstanceName.empty())
+	{
+		std::string ctrl_name = getControlName(mInstanceName, mKey);
 			initRectControl();
-			if (!mVisibilityControl.empty())
-			{
-				mVisibilityControl = LLFloaterReg::declareVisibilityControl(ctrl_name);
-			}
-			if(!mDocStateControl.empty())
-			{
-				mDocStateControl = LLFloaterReg::declareDockStateControl(ctrl_name);
-			}
+		if (!mVisibilityControl.empty())
+		{
+			mVisibilityControl = LLFloaterReg::declareVisibilityControl(ctrl_name);
+		}
+		if(!mDocStateControl.empty())
+		{
+			mDocStateControl = LLFloaterReg::declareDockStateControl(ctrl_name);
 		}
 	}
+}
 }
 
 void LLFloater::setKey(const LLSD& newkey)

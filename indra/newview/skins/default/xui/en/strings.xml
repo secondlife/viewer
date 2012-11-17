@@ -392,7 +392,7 @@ Please try logging in again in a minute.</string>
 	<string name="connected">Connected</string>
 	<string name="unavailable">Voice not available at your current location</string>
 	<string name="hang_up">Disconnected from in-world Voice Chat</string>
-    <string name="reconnect_nearby">You will now be reconnected to Nearby Voice Chat</string>
+  <string name="reconnect_nearby">You will now be reconnected to Nearby Voice Chat</string>
 	<string name="ScriptQuestionCautionChatGranted">'[OBJECTNAME]', an object owned by '[OWNERNAME]', located in [REGIONNAME] at [REGIONPOS], has been granted permission to: [PERMISSIONS].</string>
 	<string name="ScriptQuestionCautionChatDenied">'[OBJECTNAME]', an object owned by '[OWNERNAME]', located in [REGIONNAME] at [REGIONPOS], has been denied permission to: [PERMISSIONS].</string>
 	<string name="AdditionalPermissionsRequestHeader">If you allow access to your account, you will also be allowing the object to:</string>
@@ -406,10 +406,10 @@ Please try logging in again in a minute.</string>
 	<string name="AddAndRemoveJoints">Add and remove joints with other objects</string>
 	<string name="ChangePermissions">Change its permissions</string>
 	<string name="TrackYourCamera">Track your camera</string>
-	<string name="ControlYourCamera">Control your camera</string>
+  <string name="ControlYourCamera">Control your camera</string>
 	<string name="NotConnected">Not Connected</string>
 	<string name="AgentNameSubst">(You)</string> <!-- Substitution for agent name -->
-    <string name="TeleportYourAgent">Teleport you</string>
+  <string name="TeleportYourAgent">Teleport you</string>
 
 	<!-- Sim Access labels -->
 	<string name="SIM_ACCESS_PG">General</string>
@@ -2271,11 +2271,14 @@ Drag folders to this area and click "Send to Marketplace" to list them for sale 
   We should localize all variants of them with the same value -->
 	<string name="InvFolder favorite">My Favorites</string>
 	<string name="InvFolder Favorites">My Favorites</string>
+	<string name="InvFolder favorites">My Favorites</string>
 	<string name="InvFolder Current Outfit">Current Outfit</string>
 	<string name="InvFolder Initial Outfits">Initial Outfits</string>
 	<string name="InvFolder My Outfits">My Outfits</string>
 	<string name="InvFolder Accessories">Accessories</string>
 	<string name="InvFolder Meshes">Meshes</string>
+	<string name="InvFolder Received Items">Received Items</string>
+	<string name="InvFolder Merchant Outbox">Merchant Outbox</string>
 
   <!-- are used for Friends and Friends/All folders in Inventory "Calling cards" folder. See EXT-694-->
 	<string name="InvFolder Friends">Friends</string>
@@ -3381,7 +3384,8 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="answered_call">Your call has been answered</string>
 	<string name="you_started_call">You started a voice call</string>
 	<string name="you_joined_call">You joined the voice call</string>
-	<string name="name_started_call">[NAME] started a voice call</string>
+  <string name="you_auto_rejected_call-im">You automatically rejected the voice call while &apos;Do Not Disturb&apos; was on.</string>
+  <string name="name_started_call">[NAME] started a voice call</string>
 
   <string name="ringing-im">
     Joining voice call...

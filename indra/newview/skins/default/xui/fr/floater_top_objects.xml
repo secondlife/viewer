@@ -9,9 +9,6 @@
 	<floater.string name="scripts_score_label">
 		Temps
 	</floater.string>
-	<floater.string name="scripts_mono_time_label">
-		Temps Mono
-	</floater.string>
 	<floater.string name="top_colliders_title">
 		Collisions les plus consommatrices
 	</floater.string>
@@ -32,9 +29,10 @@
 		<scroll_list.columns label="Nom" name="name"/>
 		<scroll_list.columns label="Propriétaire" name="owner"/>
 		<scroll_list.columns label="Lieu" name="location"/>
+		<scroll_list.columns label="Parcelle" name="parcel"/>
 		<scroll_list.columns label="Temps" name="time"/>
-		<scroll_list.columns label="Temps Mono" name="mono_time"/>
 		<scroll_list.columns label="URL" name="URLs"/>
+		<scroll_list.columns label="Mémoire (Ko)" name="memory"/>
 	</scroll_list>
 	<text name="id_text">
 		ID de l&apos;objet :
@@ -48,6 +46,10 @@
 		Propriétaire :
 	</text>
 	<button label="Filtre" name="filter_owner_btn"/>
+	<text name="parcel_name_text">
+		Parcelle :
+	</text>
+	<button label="Filtrer" name="filter_parcel_btn"/>
 	<button label="Rafraîchir" name="refresh_btn"/>
 	<button label="Renvoyer" name="return_selected_btn"/>
 	<button label="Tout renvoyer" name="return_all_btn"/>

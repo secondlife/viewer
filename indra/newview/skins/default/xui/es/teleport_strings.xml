@@ -44,6 +44,9 @@ Para repetir el tutorial, visita la isla de bienvenida pública.
 		<message name="no_inventory_host">
 			En estos momentos no está disponible el sistema del inventario.
 		</message>
+		<message name="MustGetAgeRegion">
+			Solo pueden acceder a esta región los mayores de 18 años.
+		</message>
 	</message_set>
 	<message_set name="progress">
 		<message name="sending_dest">
@@ -78,6 +81,9 @@ Para repetir el tutorial, visita la isla de bienvenida pública.
 		</message>
 		<message name="requesting">
 			Solicitando teleporte...
+		</message>
+		<message name="pending">
+			Teleporte pendiente...
 		</message>
 	</message_set>
 </teleport_messages>

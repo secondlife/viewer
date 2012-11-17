@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="spellcheck_floater" title="Yazım Denetimcisi Ayarları">
+	<check_box label="Yazım denetimcisini etkinleştir" name="spellcheck_enable"/>
+	<text name="spellcheck_main">
+		Ana sözlük :
+	</text>
+	<text label="Günlükler:" name="spellcheck_additional">
+		İlave sözlükler :
+	</text>
+	<text name="spellcheck_available">
+		Mevcut
+	</text>
+	<text name="spellcheck_active">
+		Etkin
+	</text>
+	<button label="Kaldır" name="spellcheck_remove_btn"/>
+	<button label="İçeri Aktar..." name="spellcheck_import_btn"/>
+</floater>
