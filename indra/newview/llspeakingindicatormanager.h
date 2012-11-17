@@ -37,7 +37,7 @@ public:
 	virtual ~LLSpeakingIndicator(){}
 	virtual void switchIndicator(bool switch_on) = 0;
 
-//private:
+private:
 	friend class SpeakingIndicatorManager;
 	// Accessors for target voice session UUID.
 	// They are intended to be used only from SpeakingIndicatorManager to ensure target session is 

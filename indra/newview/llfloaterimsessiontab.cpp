@@ -725,7 +725,6 @@ void LLFloaterIMSessionTab::onClose(bool app_quitting)
 		LLFloaterIMContainer* im_box = LLFloaterIMContainer::findInstance();
 		if (im_box)
 		{
-			llinfos << "Merov debug : LLFloaterIMSessionTab::onClose, mKey = " << mKey << llendl;
             im_box->removeConversationListItem(mKey);
         }
     }

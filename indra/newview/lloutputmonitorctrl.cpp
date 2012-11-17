@@ -48,8 +48,6 @@ LLColor4	LLOutputMonitorCtrl::sColorBound;
 //F32			LLOutputMonitorCtrl::sRectWidthRatio	= 0.f;
 //F32			LLOutputMonitorCtrl::sRectHeightRatio	= 0.f;
 
-static LLUUID test_uuid("c684ce33-89fb-4544-8f7b-dae243c8b214");
-
 LLOutputMonitorCtrl::Params::Params()
 :	draw_border("draw_border"),
 	image_mute("image_mute"),
@@ -280,44 +278,24 @@ BOOL LLOutputMonitorCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 
 void LLOutputMonitorCtrl::setSpeakerId(const LLUUID& speaker_id, const LLUUID& session_id/* = LLUUID::null*/, bool show_other_participants_speaking /* = false */)
 {
-	bool test_on = (speaker_id == test_uuid);
-	if (test_on)
-	{
-		llinfos << "Merov debug : setSpeakerId, this = " << this << ", session_id = " << session_id << llendl;
-	}
 	if (speaker_id.isNull() && mSpeakerId.notNull())
 	{
 		LLSpeakingIndicatorManager::unregisterSpeakingIndicator(mSpeakerId, this);
 	}
 
-	if (speaker_id.isNull() || speaker_id == mSpeakerId) 
+	if (speaker_id.isNull() || (speaker_id == mSpeakerId))
 	{
-		if (test_on)
-		{
-			llinfos << "Merov debug : setSpeakerId, nothing done because mSpeakerId == speaker_id" << llendl;
-		}
 		return;
 	}
 
 	if (mSpeakerId.notNull())
 	{
-		if (test_on)
-		{
-			llinfos << "Merov debug : setSpeakerId, unregisterSpeakingIndicator" << llendl;
-		}
 		// Unregister previous registration to avoid crash. EXT-4782.
-		if (getTargetSessionID() == session_id)
-		{
-			LLSpeakingIndicatorManager::unregisterSpeakingIndicator(mSpeakerId, this);
-		}
+		LLSpeakingIndicatorManager::unregisterSpeakingIndicator(mSpeakerId, this);
 	}
 
 	mShowParticipantsSpeaking = show_other_participants_speaking;
 	mSpeakerId = speaker_id;
-	if (test_on)
-	{
-		llinfos << "Merov debug : setSpeakerId, registerSpeakingIndicator" << llendl;
-	}
 	LLSpeakingIndicatorManager::registerSpeakingIndicator(mSpeakerId, this, session_id);
 
 	//mute management
@@ -345,7 +323,6 @@ void LLOutputMonitorCtrl::onChange()
 // virtual
 void LLOutputMonitorCtrl::switchIndicator(bool switch_on)
 {
-	llinfos << "Merov debug : switchIndicator, mSpeakerId = " << mSpeakerId << ", switch_on = " << switch_on << llendl;
 	// ensure indicator is visible in case it is not in visible chain
 	// to be called when parent became visible next time to notify parent that visibility is changed.
 	setVisible(TRUE);

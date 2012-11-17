@@ -308,7 +308,6 @@ void LLConversationViewSession::refresh()
 	}
 
 	// Update all speaking indicators
-	llinfos << "Merov debug : LLConversationViewSession::refresh, updateSpeakingIndicators" << llendl;
 	LLSpeakingIndicatorManager::updateSpeakingIndicators();
 	
 	// Do the regular upstream refresh
@@ -455,7 +454,6 @@ S32 LLConversationViewParticipant::arrange(S32* width, S32* height)
 
 void LLConversationViewParticipant::onCurrentVoiceSessionChanged(const LLUUID& session_id)
 {
-	llinfos << "Merov debug : onCurrentVoiceSessionChanged begin, uuid = " << mUUID << ", session_id = " << session_id << llendl;
 	LLConversationItemParticipant* participant_model = dynamic_cast<LLConversationItemParticipant*>(getViewModelItem());
 	
 	if (participant_model)
@@ -477,12 +475,6 @@ void LLConversationViewParticipant::refresh()
 	
 	// *TODO: We should also do something with vmi->isModerator() to echo that state in the UI somewhat
 	mSpeakingIndicator->setIsMuted(participant_model->isMuted());
-	//LLConversationItemSession* parent_session = participant_model->getParentSession();
-	//if (parent_session)
-	//{
-	//	bool is_active = (parent_session->getUUID() == session_id);
-	//	mSpeakingIndicator->switchIndicator(is_active);
-	//}
 	
 	// Do the regular upstream refresh
 	LLFolderViewItem::refresh();

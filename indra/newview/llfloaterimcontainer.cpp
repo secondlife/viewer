@@ -110,7 +110,6 @@ void LLFloaterIMContainer::sessionActivated(const LLUUID& session_id, const std:
 
 void LLFloaterIMContainer::sessionVoiceOrIMStarted(const LLUUID& session_id)
 {
-	llinfos << "Merov debug : sessionVoiceOrIMStarted, uuid = " << session_id << llendl;
 	addConversationListItem(session_id);
 	LLFloaterIMSessionTab::addToHost(session_id);
 }
@@ -1310,7 +1309,6 @@ LLConversationItem* LLFloaterIMContainer::addConversationListItem(const LLUUID& 
 
 bool LLFloaterIMContainer::removeConversationListItem(const LLUUID& uuid, bool change_focus)
 {
-	llinfos << "Merov debug : removeConversationListItem, uuid = " << uuid << llendl;
 	// Delete the widget and the associated conversation item
 	// Note : since the mConversationsItems is also the listener to the widget, deleting 
 	// the widget will also delete its listener
