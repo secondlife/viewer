@@ -112,6 +112,55 @@ static void on_avatar_name_cache_toast(const LLUUID& agent_id,
 	LLNotificationsUtil::add("IMToast", args, LLSD(), boost::bind(&LLFloaterIMContainer::showConversation, LLFloaterIMContainer::getInstance(), msg["session_id"].asUUID()));
 }
 
+//Will return true if the preference is allowed (user configures these preferences via 'Chat Preference' Dialog
+bool ignoreNotification(const LLSD& msg, const char * preferenceString)
+{
+    //Get the session so we can find out the type of session
+    LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(
+        msg["session_id"]);
+
+    const LLRelationship * relationship;
+
+    // Skip system messages
+    if (msg["from_id"].asUUID() == LLUUID::null)
+    {
+        return true;
+    }
+
+    //Ignore P2P Friend/Non-Friend Notification
+    if(session->isP2PSessionType())
+    {
+        relationship = LLAvatarTracker::instance().getBuddyInfo(msg["from_id"]);
+
+        //Ignores non-friends
+        if(relationship == NULL
+            && (gSavedSettings.getString("NotificationNonFriendIMOptions") != preferenceString))
+        {
+            return true;
+        }
+        //Ignores friends
+        else if(relationship 
+            && gSavedSettings.getString("NotificationFriendIMOptions") != preferenceString)
+        {
+            return true;
+        }
+    }
+    //Ignore Ad Hoc Notification
+    else if(session->isAdHocSessionType() 
+        && (gSavedSettings.getString("NotificationConferenceIMOptions") != preferenceString))
+    {
+        return true;
+    }
+    //Ignore Group Notification
+    else if(session->isGroupSessionType() 
+        && (gSavedSettings.getString("NotificationGroupChatOptions") != preferenceString))
+    {
+        return true;
+    }
+
+    return false;
+}
+
 void toast_callback(const LLSD& msg){
 	// do not show toast in do not disturb mode or it goes from agent
 	if (gAgent.isDoNotDisturb() || gAgent.getID() == msg["from_id"])
@@ -133,55 +182,32 @@ void toast_callback(const LLSD& msg){
         return;
     }
 
-	// Skip toasting for system messages
-	if (msg["from_id"].asUUID() == LLUUID::null)
-	{
-		return;
-	}
-
-    // *NOTE Skip toasting if the user disable it in preferences/debug settings ~Alexandrea
-    LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(
-        msg["session_id"]);
-
-
-    //Ignore P2P Friend/Non-Friend toasts
-    if(session->isP2PSessionType())
-    {
-        //Ignores non-friends
-        if((LLAvatarTracker::instance().getBuddyInfo(msg["from_id"]) == NULL) 
-            && (gSavedSettings.getString("NotificationNonFriendIMOptions") != "toast"))
-        {
-            return;
-        }
-        //Ignores friends
-        else if(gSavedSettings.getString("NotificationFriendIMOptions") != "toast")
-        {
-            return;
-        }
-    }
-    //Ignore Ad Hoc Toasts
-    else if(session->isAdHocSessionType() 
-            && (gSavedSettings.getString("NotificationConferenceIMOptions") != "toast"))
-    {
-        return;
-    }
-    //Ignore Group Toasts
-    else if(session->isGroupSessionType() 
-            && (gSavedSettings.getString("NotificationGroupChatOptions") != "toast"))
-    {
-        return;
-    }
-
     //Show toast
-	LLAvatarNameCache::get(msg["from_id"].asUUID(),
-		boost::bind(&on_avatar_name_cache_toast,
-			_1, _2, msg));
+    if(ignoreNotification(msg, "toast") == false)
+    {
+        LLAvatarNameCache::get(msg["from_id"].asUUID(),
+            boost::bind(&on_avatar_name_cache_toast,
+            _1, _2, msg));
+    }
+}
+
+void open_conversations_callback(const LLSD& msg)
+{
+    LLFloaterIMContainer * floaterIMContainer = LLFloaterIMContainer::getInstance();
+
+    if(floaterIMContainer
+        && ignoreNotification(msg, "openconversations") == false)
+    {
+        floaterIMContainer->setVisible(TRUE);
+        floaterIMContainer->setFrontmost(TRUE);
+    }
 }
 
 LLIMModel::LLIMModel() 
 {
 	addNewMsgCallback(boost::bind(&LLFloaterIMSession::newIMCallback, _1));
 	addNewMsgCallback(boost::bind(&toast_callback, _1));
+    addNewMsgCallback(boost::bind(&open_conversations_callback, _1));
 }
 
 LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, const LLUUID& other_participant_id, const uuid_vec_t& ids, bool voice, bool has_offline_msg)
