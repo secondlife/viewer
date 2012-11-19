@@ -174,9 +174,10 @@ LLButton::LLButton(const LLButton::Params& p)
 {
 	// If optional parameter "p.button_flash_count" is not provided, LLFlashTimer will be
 	// used instead it a "default" value from gSavedSettings.getS32("FlashCount")).
-	// Likewise, missing "p.button_flash_rate" is replaced by gSavedSettings.getF32("FlashPeriod");
-	S32 flash_count = p.button_flash_count || 0;
-	F32 flash_rate = p.button_flash_rate || 0.0; //
+	// Likewise, missing "p.button_flash_rate" is replaced by gSavedSettings.getF32("FlashPeriod").
+	// Note: flashing should be allowed in settings.xml (boolean key "EnableButtonFlashing").
+	S32 flash_count = p.button_flash_count.isProvided()? p.button_flash_count : 0;
+	F32 flash_rate = p.button_flash_rate.isProvided()? p.button_flash_rate : 0.0;
 	mFlashingTimer = new LLFlashTimer ((LLFlashTimer::callback_t)NULL, flash_count, flash_rate);
 
 	static LLUICachedControl<S32> llbutton_orig_h_pad ("UIButtonOrigHPad", 0);
