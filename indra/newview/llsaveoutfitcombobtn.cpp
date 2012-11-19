@@ -31,6 +31,8 @@
 #include "llsidepanelappearance.h"
 #include "llsaveoutfitcombobtn.h"
 #include "llviewermenu.h"
+#include "llagent.h"
+#include "llviewerregion.h"
 
 static const std::string SAVE_BTN("save_btn");
 static const std::string SAVE_FLYOUT_BTN("save_flyout_btn");
@@ -76,8 +78,12 @@ void LLSaveOutfitComboBtn::saveOutfit(bool as_new)
 	if (panel_outfits_inventory)
 	{
 		panel_outfits_inventory->onSave();
+	} 
+	
+    if ( gAgent.getRegion() && gAgent.getRegion()->getCentralBakeVersion())
+	{
+		LLAppearanceMgr::instance().requestServerAppearanceUpdate();
 	}
-
 	//*TODO how to get to know when base outfit is updated or new outfit is created?
 }
 
