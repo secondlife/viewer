@@ -968,25 +968,15 @@ static LLFastTimer::DeclareTimer FTM_BUILD_PANELS("Build Panels");
 //-----------------------------------------------------------------------------
 // buildPanel()
 //-----------------------------------------------------------------------------
-BOOL LLPanel::buildFromFile(const std::string& filename, LLXMLNodePtr output_node, const LLPanel::Params& default_params)
+BOOL LLPanel::buildFromFile(const std::string& filename, const LLPanel::Params& default_params)
 {
 	LLFastTimer timer(FTM_BUILD_PANELS);
 	BOOL didPost = FALSE;
 	LLXMLNodePtr root;
 
-	//if exporting, only load the language being exported, 
-	//instead of layering localized version on top of english
-	if (output_node)
-	{	
-		if (!LLUICtrlFactory::getLocalizedXMLNode(filename, root))
-		{
-			llwarns << "Couldn't parse panel from: " << LLUI::getLocalizedSkinPath() + gDirUtilp->getDirDelimiter() + filename  << llendl;
-			return didPost;
-		}
-	}
-	else if (!LLUICtrlFactory::getLayeredXMLNode(filename, root))
+	if (!LLUICtrlFactory::getLayeredXMLNode(filename, root))
 	{
-		llwarns << "Couldn't parse panel from: " << LLUI::getSkinPath() + gDirUtilp->getDirDelimiter() + filename << llendl;
+		llwarns << "Couldn't parse panel from: " << filename << llendl;
 		return didPost;
 	}
 
@@ -1010,7 +1000,7 @@ BOOL LLPanel::buildFromFile(const std::string& filename, LLXMLNodePtr output_nod
 		getCommitCallbackRegistrar().pushScope();
 		getEnableCallbackRegistrar().pushScope();
 		
-		didPost = initPanelXML(root, NULL, output_node, default_params);
+		didPost = initPanelXML(root, NULL, NULL, default_params);
 
 		getCommitCallbackRegistrar().popScope();
 		getEnableCallbackRegistrar().popScope();
