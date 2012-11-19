@@ -189,9 +189,9 @@ namespace tut
 			}
 		
 		public:
-			static boost::intrusive_ptr<Result> build(HTTPClientTestData& client)
+			static Result* build(HTTPClientTestData& client)
 			{
-				return boost::intrusive_ptr<Result>(new Result(client));
+				return new Result(client);
 			}
 			
 			~Result()

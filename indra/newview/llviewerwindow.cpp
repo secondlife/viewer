@@ -563,6 +563,9 @@ public:
 			addText(xpos, ypos, llformat("%d Render Calls", gPipeline.mBatchCount));
             ypos += y_inc;
 
+			addText(xpos, ypos, llformat("%d/%d Objects Active", gObjectList.getNumActiveObjects(), gObjectList.getNumObjects()));
+			ypos += y_inc;
+
 			addText(xpos, ypos, llformat("%d Matrix Ops", gPipeline.mMatrixOpCount));
 			ypos += y_inc;
 
@@ -4768,8 +4771,11 @@ void LLViewerWindow::requestResolutionUpdate()
 	mResDirty = true;
 }
 
+static LLFastTimer::DeclareTimer FTM_WINDOW_CHECK_SETTINGS("Window Settings");
+
 void LLViewerWindow::checkSettings()
 {
+	LLFastTimer t(FTM_WINDOW_CHECK_SETTINGS);
 	if (mStatesDirty)
 	{
 		gGL.refreshState();

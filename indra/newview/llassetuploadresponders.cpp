@@ -919,7 +919,7 @@ public:
 	bool uploadConfirmationCallback(
 		const LLSD& notification,
 		const LLSD& response,
-		boost::intrusive_ptr<LLNewAgentInventoryVariablePriceResponder> responder)
+		LLPointer<LLNewAgentInventoryVariablePriceResponder> responder)
 	{
 		S32 option;
 		std::string confirmation_url;
@@ -949,7 +949,7 @@ public:
 
 	void confirmUpload(
 		const std::string& confirmation_url,
-		boost::intrusive_ptr<LLNewAgentInventoryVariablePriceResponder> responder)
+		LLPointer<LLNewAgentInventoryVariablePriceResponder> responder)
 	{
 		if ( getFilename().empty() )
 		{
@@ -1124,7 +1124,7 @@ void LLNewAgentInventoryVariablePriceResponder::showConfirmationDialog(
 		// and cause sadness.
 		mImpl->confirmUpload(
 			confirmation_url,
-			boost::intrusive_ptr<LLNewAgentInventoryVariablePriceResponder>(this));
+			LLPointer<LLNewAgentInventoryVariablePriceResponder>(this));
 	}
 	else
 	{
@@ -1157,7 +1157,7 @@ void LLNewAgentInventoryVariablePriceResponder::showConfirmationDialog(
 				mImpl,
 				_1,
 				_2,
-				boost::intrusive_ptr<LLNewAgentInventoryVariablePriceResponder>(this)));
+				LLPointer<LLNewAgentInventoryVariablePriceResponder>(this)));
 	}
 }
 

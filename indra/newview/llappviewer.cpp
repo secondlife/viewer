@@ -89,6 +89,7 @@
 #include "lllogininstance.h"
 #include "llprogressview.h"
 #include "llvocache.h"
+#include "llvopartgroup.h"
 #include "llweb.h"
 #include "llsecondlifeurls.h"
 #include "llupdaterservice.h"
@@ -678,6 +679,9 @@ bool LLAppViewer::init()
 
 	// initialize SSE options
 	LLVector4a::initClass();
+
+	//initialize particle index pool
+	LLVOPartGroup::initClass();
 
 	// Need to do this initialization before we do anything else, since anything
 	// that touches files should really go through the lldir API
@@ -1884,8 +1888,17 @@ bool LLAppViewer::cleanup()
 	sTextureFetch->shutDownTextureCacheThread() ;
 	sTextureFetch->shutDownImageDecodeThread() ;
 
+	llinfos << "Shutting down message system" << llendflush;
+	end_messaging_system();
+
+	// *NOTE:Mani - The following call is not thread safe. 
+	LL_CHECK_MEMORY
+	LLCurl::cleanupClass();
+	LL_CHECK_MEMORY
+
 	LLFilePickerThread::cleanupClass();
 
+	//MUST happen AFTER LLCurl::cleanupClass
 	delete sTextureCache;
     sTextureCache = NULL;
 	delete sTextureFetch;
@@ -1954,12 +1967,6 @@ bool LLAppViewer::cleanup()
 
 	LLViewerAssetStatsFF::cleanup();
 	
-	llinfos << "Shutting down message system" << llendflush;
-	end_messaging_system();
-
-	// *NOTE:Mani - The following call is not thread safe. 
-	LLCurl::cleanupClass();
-
 	// If we're exiting to launch an URL, do that here so the screen
 	// is at the right resolution before we launch IE.
 	if (!gLaunchFileOnQuit.empty())

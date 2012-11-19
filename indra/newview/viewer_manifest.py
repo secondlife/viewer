@@ -537,6 +537,7 @@ class WindowsManifest(ViewerManifest):
                 result += 'File ' + pkg_file + '\n'
             else:
                 result += 'Delete ' + wpath(os.path.join('$INSTDIR', rel_file)) + '\n'
+
         # at the end of a delete, just rmdir all the directories
         if not install:
             deleted_file_dirs = [os.path.dirname(pair[1].replace(self.get_dst_prefix()+os.path.sep,'')) for pair in self.file_list]
@@ -1080,7 +1081,13 @@ class Linux_i686Manifest(LinuxManifest):
             # previous call did, without having to explicitly state the
             # version number.
             self.path("libfontconfig.so.*.*")
-            self.path("libtcmalloc.so*") #formerly called google perf tools
+            try:
+                self.path("libtcmalloc.so*") #formerly called google perf tools
+                pass
+            except:
+                print "tcmalloc files not found, skipping"
+                pass
+
             try:
                     self.path("libfmod-3.75.so")
                     pass

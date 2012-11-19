@@ -34,16 +34,6 @@
 #include "../llsimdmath.h"
 #include "../llvector4a.h"
 
-void* operator new(size_t size)
-{
-	return ll_aligned_malloc_16(size);
-}
-
-void operator delete(void *p)
-{
-	ll_aligned_free_16(p);
-}
-
 namespace tut
 {
 
@@ -59,6 +49,27 @@ tut::alignment_test_t tut_alignment_test("LLAlignment");
 LL_ALIGN_PREFIX(16)
 class MyVector4a
 {
+public:
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete(void *p)
+	{
+		ll_aligned_free_16(p);
+	}
+
+	void* operator new[](size_t count)
+	{	// try to allocate count bytes for an array
+		return ll_aligned_malloc_16(count);
+	}
+
+	void operator delete[](void *p)
+	{
+		ll_aligned_free_16(p);
+	}
+
 	LLQuad mQ;
 } LL_ALIGN_POSTFIX(16);
 
@@ -78,7 +89,7 @@ void alignment_test_object_t::test<1>()
 		align_ptr = ll_aligned_malloc_16(sizeof(MyVector4a));
 		ensure("ll_aligned_malloc_16 failed", is_aligned(align_ptr,16));
 
-		align_ptr = ll_aligned_realloc_16(align_ptr,2*sizeof(MyVector4a));
+		align_ptr = ll_aligned_realloc_16(align_ptr,2*sizeof(MyVector4a), sizeof(MyVector4a));
 		ensure("ll_aligned_realloc_16 failed", is_aligned(align_ptr,16));
 
 		ll_aligned_free_16(align_ptr);

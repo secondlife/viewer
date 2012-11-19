@@ -93,6 +93,16 @@ protected:
  **/
 
 public:
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free_16(ptr);
+	}
+
 	LLVOAvatar(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
 	virtual void		markDead();
 	static void			initClass(); // Initialize data that's only init'd once per class.
@@ -215,7 +225,7 @@ public:
 	bool isBuilt() const { return mIsBuilt; }
 
 private: //aligned members
-	LLVector4a	mImpostorExtents[2];
+	LL_ALIGN_16(LLVector4a	mImpostorExtents[2]);
 
 private:
 	BOOL			mSupportsAlphaLayers; // For backwards compatibility, TRUE for 1.23+ clients
@@ -356,6 +366,10 @@ public:
 
 	LLVector3			mHeadOffset; // current head position
 	LLViewerJoint		mRoot;
+
+	typedef std::map<std::string, LLJoint*> joint_map_t;
+	joint_map_t			mJointMap;
+
 protected:
 	static BOOL			parseSkeletonFile(const std::string& filename);
 	void				buildCharacter();

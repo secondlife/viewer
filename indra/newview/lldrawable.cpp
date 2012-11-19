@@ -57,6 +57,8 @@ const F32 MIN_SHADOW_CASTER_RADIUS = 2.0f;
 
 static LLFastTimer::DeclareTimer FTM_CULL_REBOUND("Cull Rebound");
 
+extern bool gShiftFrame;
+
 
 ////////////////////////
 //
@@ -108,6 +110,8 @@ void LLDrawable::init()
 	
 	mGeneration = -1;
 	mBinRadius = 1.f;
+	mBinIndex = -1;
+
 	mSpatialBridge = NULL;
 }
 
@@ -714,6 +718,11 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 		return;
 	}
 
+	if (gShiftFrame)
+	{
+		return;
+	}
+
 	//switch LOD with the spatial group to avoid artifacts
 	//LLSpatialGroup* sg = getSpatialGroup();
 
@@ -811,14 +820,19 @@ void LLDrawable::shiftPos(const LLVector4a &shift_vector)
 		mXform.setPosition(mVObjp->getPositionAgent());
 	}
 
-	mXform.setRotation(mVObjp->getRotation());
-	mXform.setScale(1,1,1);
 	mXform.updateMatrix();
 
 	if (isStatic())
 	{
 		LLVOVolume* volume = getVOVolume();
-		if (!volume)
+
+		bool rebuild = (!volume && 
+						getRenderType() != LLPipeline::RENDER_TYPE_TREE &&
+						getRenderType() != LLPipeline::RENDER_TYPE_TERRAIN &&
+						getRenderType() != LLPipeline::RENDER_TYPE_SKY &&
+						getRenderType() != LLPipeline::RENDER_TYPE_GROUND);
+
+		if (rebuild)
 		{
 			gPipeline.markRebuild(this, LLDrawable::REBUILD_ALL, TRUE);
 		}
@@ -832,7 +846,7 @@ void LLDrawable::shiftPos(const LLVector4a &shift_vector)
 				facep->mExtents[0].add(shift_vector);
 				facep->mExtents[1].add(shift_vector);
 			
-				if (!volume && facep->hasGeometry())
+				if (rebuild && facep->hasGeometry())
 				{
 					facep->clearVertexBuffer();
 				}
@@ -943,8 +957,20 @@ void LLDrawable::updateUVMinMax()
 {
 }
 
+LLSpatialGroup* LLDrawable::getSpatialGroup() const
+{ 
+	llassert((mSpatialGroupp == NULL) ? getBinIndex() == -1 : getBinIndex() != -1);
+	return mSpatialGroupp; 
+}
+
 void LLDrawable::setSpatialGroup(LLSpatialGroup *groupp)
 {
+	//precondition: mSpatialGroupp MUST be null or DEAD or mSpatialGroupp MUST NOT contain this
+	llassert(!mSpatialGroupp || mSpatialGroupp->isDead() || !mSpatialGroupp->hasElement(this));
+
+	//precondition: groupp MUST be null or groupp MUST contain this
+	llassert(!groupp || groupp->hasElement(this));
+
 /*if (mSpatialGroupp && (groupp != mSpatialGroupp))
 	{
 		mSpatialGroupp->setState(LLSpatialGroup::GEOM_DIRTY);
@@ -963,6 +989,11 @@ void LLDrawable::setSpatialGroup(LLSpatialGroup *groupp)
 			}
 		}
 	}
+
+	//postcondition: if next group is NULL, previous group must be dead OR NULL OR binIndex must be -1
+	//postcondition: if next group is NOT NULL, binIndex must not be -1
+	llassert(groupp == NULL ? (mSpatialGroupp == NULL || mSpatialGroupp->isDead()) || getBinIndex() == -1 :
+							getBinIndex() != -1);
 
 	mSpatialGroupp = groupp;
 }
@@ -1087,6 +1118,8 @@ LLSpatialBridge::LLSpatialBridge(LLDrawable* root, BOOL render_by_group, U32 dat
 	mDrawable = root;
 	root->setSpatialBridge(this);
 	
+	mBinIndex = -1;
+
 	mRenderType = mDrawable->mRenderType;
 	mDrawableType = mDrawable->mRenderType;
 	
@@ -1391,6 +1424,11 @@ void LLSpatialBridge::updateDistance(LLCamera& camera_in, bool force_update)
 		return;
 	}
 
+	if (gShiftFrame)
+	{
+		return;
+	}
+
 	if (mDrawable->getVObj())
 	{
 		if (mDrawable->getVObj()->isAttachment())
@@ -1468,6 +1506,10 @@ void LLSpatialBridge::cleanupReferences()
 	LLDrawable::cleanupReferences();
 	if (mDrawable)
 	{
+		/*
+		
+		DON'T DO THIS -- this should happen through octree destruction
+
 		mDrawable->setSpatialGroup(NULL);
 		if (mDrawable->getVObj())
 		{
@@ -1482,7 +1524,7 @@ void LLSpatialBridge::cleanupReferences()
 					drawable->setSpatialGroup(NULL);
 				}
 			}
-		}
+		}*/
 
 		LLDrawable* drawablep = mDrawable;
 		mDrawable = NULL;

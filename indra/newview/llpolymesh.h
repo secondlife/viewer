@@ -73,9 +73,9 @@ private:
 							
 	// vertex data			
 	S32						mNumVertices;
-	LLVector3				*mBaseCoords;
-	LLVector3				*mBaseNormals;
-	LLVector3				*mBaseBinormals;
+	LLVector4a				*mBaseCoords;
+	LLVector4a				*mBaseNormals;
+	LLVector4a				*mBaseBinormals;
 	LLVector2				*mTexCoords;
 	LLVector2				*mDetailTexCoords;
 	F32						*mWeights;
@@ -217,41 +217,41 @@ public:
 	}
 
 	// Get coords
-	const LLVector4	*getCoords() const{
+	const LLVector4a	*getCoords() const{
 		return mCoords;
 	}
 
 	// non const version
-	LLVector4 *getWritableCoords();
+	LLVector4a *getWritableCoords();
 
 	// Get normals
-	const LLVector4	*getNormals() const{ 
+	const LLVector4a	*getNormals() const{ 
 		return mNormals; 
 	}
 
 	// Get normals
-	const LLVector3	*getBinormals() const{ 
+	const LLVector4a	*getBinormals() const{ 
 		return mBinormals; 
 	}
 
 	// Get base mesh normals
-	const LLVector3 *getBaseNormals() const{
+	const LLVector4a *getBaseNormals() const{
 		llassert(mSharedData);
 		return mSharedData->mBaseNormals;
 	}
 
 	// Get base mesh normals
-	const LLVector3 *getBaseBinormals() const{
+	const LLVector4a *getBaseBinormals() const{
 		llassert(mSharedData);
 		return mSharedData->mBaseBinormals;
 	}
 
 	// intermediate morphed normals and output normals
-	LLVector4 *getWritableNormals();
-	LLVector3 *getScaledNormals();
+	LLVector4a *getWritableNormals();
+	LLVector4a *getScaledNormals();
 
-	LLVector3 *getWritableBinormals();
-	LLVector3 *getScaledBinormals();
+	LLVector4a *getWritableBinormals();
+	LLVector4a *getScaledBinormals();
 
 	// Get texCoords
 	const LLVector2	*getTexCoords() const { 
@@ -275,9 +275,9 @@ public:
 
 	F32			*getWritableWeights() const;
 
-	LLVector4	*getWritableClothingWeights();
+	LLVector4a	*getWritableClothingWeights();
 
-	const LLVector4		*getClothingWeights()
+	const LLVector4a		*getClothingWeights()
 	{
 		return mClothingWeights;	
 	}
@@ -341,17 +341,17 @@ protected:
 	// Single array of floats for allocation / deletion
 	F32						*mVertexData;
 	// deformed vertices (resulting from application of morph targets)
-	LLVector4				*mCoords;
+	LLVector4a				*mCoords;
 	// deformed normals (resulting from application of morph targets)
-	LLVector3				*mScaledNormals;
+	LLVector4a				*mScaledNormals;
 	// output normals (after normalization)
-	LLVector4				*mNormals;
+	LLVector4a				*mNormals;
 	// deformed binormals (resulting from application of morph targets)
-	LLVector3				*mScaledBinormals;
+	LLVector4a				*mScaledBinormals;
 	// output binormals (after normalization)
-	LLVector3				*mBinormals;
+	LLVector4a				*mBinormals;
 	// weight values that mark verts as clothing/skin
-	LLVector4				*mClothingWeights;
+	LLVector4a				*mClothingWeights;
 	// output texture coordinates
 	LLVector2				*mTexCoords;
 	
@@ -406,6 +406,16 @@ public:
 	LLPolySkeletalDistortion(LLVOAvatar *avatarp);
 	~LLPolySkeletalDistortion();
 
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free_16(ptr);
+	}
+
 	// Special: These functions are overridden by child classes
 	LLPolySkeletalDistortionInfo*	getInfo() const { return (LLPolySkeletalDistortionInfo*)mInfo; }
 	//   This sets mInfo and calls initialization functions
@@ -419,17 +429,17 @@ public:
 	
 	// LLViewerVisualParam Virtual functions
 	/*virtual*/ F32					getTotalDistortion() { return 0.1f; }
-	/*virtual*/ const LLVector3&	getAvgDistortion()	{ return mDefaultVec; }
+	/*virtual*/ const LLVector4a&	getAvgDistortion()	{ return mDefaultVec; }
 	/*virtual*/ F32					getMaxDistortion() { return 0.1f; }
-	/*virtual*/ LLVector3			getVertexDistortion(S32 index, LLPolyMesh *poly_mesh){return LLVector3(0.001f, 0.001f, 0.001f);}
-	/*virtual*/ const LLVector3*	getFirstDistortion(U32 *index, LLPolyMesh **poly_mesh){index = 0; poly_mesh = NULL; return &mDefaultVec;};
-	/*virtual*/ const LLVector3*	getNextDistortion(U32 *index, LLPolyMesh **poly_mesh){index = 0; poly_mesh = NULL; return NULL;};
+	/*virtual*/ LLVector4a			getVertexDistortion(S32 index, LLPolyMesh *poly_mesh){return LLVector4a(0.001f, 0.001f, 0.001f);}
+	/*virtual*/ const LLVector4a*	getFirstDistortion(U32 *index, LLPolyMesh **poly_mesh){index = 0; poly_mesh = NULL; return &mDefaultVec;};
+	/*virtual*/ const LLVector4a*	getNextDistortion(U32 *index, LLPolyMesh **poly_mesh){index = 0; poly_mesh = NULL; return NULL;};
 
 protected:
 	typedef std::map<LLJoint*, LLVector3> joint_vec_map_t;
 	joint_vec_map_t mJointScales;
 	joint_vec_map_t mJointOffsets;
-	LLVector3	mDefaultVec;
+	LLVector4a	mDefaultVec;
 	// Backlink only; don't make this an LLPointer.
 	LLVOAvatar *mAvatar;
 };

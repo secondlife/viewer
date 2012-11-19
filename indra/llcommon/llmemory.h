@@ -27,7 +27,13 @@
 #define LLMEMORY_H
 
 #include "llmemtype.h"
-#if LL_DEBUG
+
+#if LL_WINDOWS && LL_DEBUG
+#define LL_CHECK_MEMORY llassert(_CrtCheckMemory());
+#else
+#define LL_CHECK_MEMORY
+#endif
+
 inline void* ll_aligned_malloc( size_t size, int align )
 {
 	void* mem = malloc( size + (align - 1) + sizeof(void*) );
@@ -43,10 +49,11 @@ inline void ll_aligned_free( void* ptr )
 	free( ((void**)ptr)[-1] );
 }
 
+#if !LL_USE_TCMALLOC
 inline void* ll_aligned_malloc_16(size_t size) // returned hunk MUST be freed with ll_aligned_free_16().
 {
 #if defined(LL_WINDOWS)
-	return _mm_malloc(size, 16);
+	return _aligned_malloc(size, 16);
 #elif defined(LL_DARWIN)
 	return malloc(size); // default osx malloc is 16 byte aligned.
 #else
@@ -61,7 +68,7 @@ inline void* ll_aligned_malloc_16(size_t size) // returned hunk MUST be freed wi
 inline void ll_aligned_free_16(void *p)
 {
 #if defined(LL_WINDOWS)
-	_mm_free(p);
+	_aligned_free(p);
 #elif defined(LL_DARWIN)
 	return free(p);
 #else
@@ -69,10 +76,39 @@ inline void ll_aligned_free_16(void *p)
 #endif
 }
 
+inline void* ll_aligned_realloc_16(void* ptr, size_t size, size_t old_size) // returned hunk MUST be freed with ll_aligned_free_16().
+{
+#if defined(LL_WINDOWS)
+	return _aligned_realloc(ptr, size, 16);
+#elif defined(LL_DARWIN)
+	return realloc(ptr,size); // default osx malloc is 16 byte aligned.
+#else
+	//FIXME: memcpy is SLOW
+	void* ret = ll_aligned_malloc_16(size);
+	if (ptr)
+	{
+		if (ret)
+		{
+			// Only copy the size of the smallest memory block to avoid memory corruption.
+			memcpy(ret, ptr, llmin(old_size, size));
+		}
+		ll_aligned_free_16(ptr);
+	}
+	return ret;
+#endif
+}
+
+#else // USE_TCMALLOC
+// ll_aligned_foo_16 are not needed with tcmalloc
+#define ll_aligned_malloc_16 malloc
+#define ll_aligned_realloc_16(a,b,c) realloc(a,b)
+#define ll_aligned_free_16 free
+#endif // USE_TCMALLOC
+
 inline void* ll_aligned_malloc_32(size_t size) // returned hunk MUST be freed with ll_aligned_free_32().
 {
 #if defined(LL_WINDOWS)
-	return _mm_malloc(size, 32);
+	return _aligned_malloc(size, 32);
 #elif defined(LL_DARWIN)
 	return ll_aligned_malloc( size, 32 );
 #else
@@ -87,22 +123,13 @@ inline void* ll_aligned_malloc_32(size_t size) // returned hunk MUST be freed wi
 inline void ll_aligned_free_32(void *p)
 {
 #if defined(LL_WINDOWS)
-	_mm_free(p);
+	_aligned_free(p);
 #elif defined(LL_DARWIN)
 	ll_aligned_free( p );
 #else
 	free(p); // posix_memalign() is compatible with heap deallocator
 #endif
 }
-#else // LL_DEBUG
-// ll_aligned_foo are noops now that we use tcmalloc everywhere (tcmalloc aligns automatically at appropriate intervals)
-#define ll_aligned_malloc( size, align ) malloc(size)
-#define ll_aligned_free( ptr ) free(ptr)
-#define ll_aligned_malloc_16 malloc
-#define ll_aligned_free_16 free
-#define ll_aligned_malloc_32 malloc
-#define ll_aligned_free_32 free
-#endif // LL_DEBUG
 
 #ifndef __DEBUG_PRIVATE_MEM__
 #define __DEBUG_PRIVATE_MEM__  0
@@ -511,5 +538,14 @@ void  LLPrivateMemoryPoolTester::operator delete[](void* addr)
 // LLSafeHandle moved to llsafehandle.h
 
 // LLSingleton moved to llsingleton.h
+
+LL_COMMON_API void ll_assert_aligned_func(uintptr_t ptr,U32 alignment);
+
+#ifdef SHOW_ASSERT
+#define ll_assert_aligned(ptr,alignment) ll_assert_aligned_func(reinterpret_cast<uintptr_t>(ptr),((U32)alignment))
+#else
+#define ll_assert_aligned(ptr,alignment)
+#endif
+
 
 #endif

@@ -255,10 +255,9 @@ public:
 		}
 	}
 
-    static boost::intrusive_ptr<BaseCapabilitiesComplete> build( U64 region_handle, S32 id )
+    static BaseCapabilitiesComplete* build( U64 region_handle, S32 id )
     {
-		return boost::intrusive_ptr<BaseCapabilitiesComplete>( 
-				new BaseCapabilitiesComplete(region_handle, id) );
+		return new BaseCapabilitiesComplete(region_handle, id);
     }
 
 private:
@@ -1487,7 +1486,8 @@ void LLViewerRegion::unpackRegionHandshake()
 		// all of our terrain stuff, by
 		if (compp->getParamsReady())
 		{
-			getLand().dirtyAllPatches();
+			//this line creates frame stalls on region crossing and removing it appears to have no effect
+			//getLand().dirtyAllPatches();
 		}
 		else
 		{
