@@ -31,8 +31,6 @@
 #include "llscrollingpanellist.h"
 #include "llmodaldialog.h"
 #include "llavatarappearancedefines.h"
-#include "llagent.h"
-#include "llviewerregion.h"
 #include "llwearabletype.h"
 
 class LLAccordionCtrl;

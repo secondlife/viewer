@@ -26,8 +26,6 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include <boost/intrusive_ptr.hpp>
-
 #include "llpaneleditwearable.h"
 #include "llpanel.h"
 #include "llviewerwearable.h"
@@ -49,7 +47,6 @@
 #include "llscrollingpanelparam.h"
 #include "llradiogroup.h"
 #include "llnotificationsutil.h"
-#include "llhttpclient.h"
 
 #include "llcolorswatch.h"
 #include "lltexturectrl.h"
