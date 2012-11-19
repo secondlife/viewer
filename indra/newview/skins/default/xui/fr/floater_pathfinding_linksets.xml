@@ -30,6 +30,9 @@
 	<floater.string name="linkset_terrain_owner">
 		--
 	</floater.string>
+	<floater.string name="linkset_terrain_scripted">
+		--
+	</floater.string>
 	<floater.string name="linkset_terrain_land_impact">
 		--
 	</floater.string>
@@ -44,6 +47,15 @@
 	</floater.string>
 	<floater.string name="linkset_owner_group">
 		[Groupe]
+	</floater.string>
+	<floater.string name="linkset_is_scripted">
+		Oui
+	</floater.string>
+	<floater.string name="linkset_is_not_scripted">
+		Non
+	</floater.string>
+	<floater.string name="linkset_is_unknown_scripted">
+		Inconnu
 	</floater.string>
 	<floater.string name="linkset_use_walkable">
 		Marche possible
@@ -94,6 +106,7 @@
 			<scroll_list.columns label="Nom (prim racine)" name="name"/>
 			<scroll_list.columns label="Description (prim racine)" name="description"/>
 			<scroll_list.columns label="Propriétaire" name="owner"/>
+			<scroll_list.columns label="Scripté" name="scripted"/>
 			<scroll_list.columns label="Impact" name="land_impact"/>
 			<scroll_list.columns label="Distance" name="dist_from_you"/>
 			<scroll_list.columns label="Usage du groupe de liens" name="linkset_use"/>

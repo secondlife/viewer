@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Toybox" title="工具列按鈕">
+	<text name="toybox label 1">
+		將按鈕拖入或拖離工具列，即可新增或移除該按鈕。
+	</text>
+	<text name="toybox label 2">
+		按鈕將根據每一個工具列的設定，僅顯示圖示或一併顯示文字標籤。
+	</text>
+	<button label="清除所有工具列" label_selected="清除所有工具列" name="btn_clear_all"/>
+	<button label="還原預設值" label_selected="還原預設值" name="btn_restore_defaults"/>
+</floater>

@@ -1202,7 +1202,7 @@ par une carte [THIS_GPU].
 Vous avez été téléporté vers une région voisine.
 	</notification>
 	<notification name="AvatarMovedLast">
-		Votre dernière destination n&apos;est pas disponible actuellement.
+		La destination demandée n&apos;est pas disponible actuellement.
 Vous avez été téléporté vers une région voisine.
 	</notification>
 	<notification name="AvatarMovedHome">
@@ -1221,7 +1221,7 @@ Vous pouvez utiliser [SECOND_LIFE] normalement, les autres résidents vous voien
 		L&apos;installation de [APP_NAME] est terminée.
 
 Si vous utilisez [SECOND_LIFE] pour la première fois, vous devez ouvrir un compte avant de pouvoir vous connecter.
-		<usetemplate name="okcancelbuttons" notext="Continuer" yestext="Nouveau compte..."/>
+		<usetemplate name="okcancelbuttons" notext="Continuer" yestext="Créer un compte..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">
 		Nous avons des difficultés à vous connecter. Il y a peut-être un problème avec votre connexion Internet ou la [SECOND_LIFE_GRID].
@@ -3233,18 +3233,57 @@ Cliquez sur un point dans le monde et faites glisser votre souris pour faire tou
 		Cette action masquera tous les boutons et articles de menu. Pour les récupérer, cliquez de nouveau sur [SHORTCUT].
 		<usetemplate ignoretext="Confirmer avant de masquer l&apos;interface" name="okcancelignore" notext="Annuler" yestext="OK"/>
 	</notification>
-	<notification name="PathfindingLinksets_SetLinksetUseMismatchOnRestricted">
-		Certains groupes de liens sélectionnés ne peuvent pas être définis sur [REQUESTED_TYPE] en raison des restrictions d&apos;autorisation définies les concernant. Ces groupes de liens seront définis sur [RESTRICTED_TYPE].
+	<notification name="PathfindingLinksets_WarnOnPhantom">
+		L&apos;indicateur Fantôme de certains groupes de liens sélectionnés basculera.
+
+Voulez-vous continuer ?
+		<usetemplate ignoretext="L&apos;indicateur Fantôme de certains groupes de liens basculera." name="okcancelignore" notext="Annuler" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_MismatchOnRestricted">
+		Certains groupes de liens sélectionnés ne peuvent pas être définis sur [REQUESTED_TYPE] en raison des restrictions d&apos;autorisation les concernant. Ces groupes de liens seront définis sur [RESTRICTED_TYPE].
+
+Voulez-vous continuer ?
 		<usetemplate ignoretext="Certains groupes de liens sélectionnés ne peuvent pas être définis en raison des restrictions d&apos;autorisation les concernant." name="okcancelignore" notext="Annuler" yestext="OK"/>
 	</notification>
-	<notification name="PathfindingLinksets_SetLinksetUseMismatchOnVolume">
+	<notification name="PathfindingLinksets_MismatchOnVolume">
 		Certains groupes de liens sélectionnés ne peuvent pas être définis sur [REQUESTED_TYPE] en raison d&apos;une forme non convexe.
+
+Voulez-vous continuer ?
 		<usetemplate ignoretext="Certains groupes de liens sélectionnés ne peuvent pas être définis en raison d&apos;une forme non convexe." name="okcancelignore" notext="Annuler" yestext="OK"/>
 	</notification>
-	<notification name="PathfindingLinksets_SetLinksetUseMismatchOnRestrictedAndVolume">
+	<notification name="PathfindingLinksets_WarnOnPhantom_MismatchOnRestricted">
+		L&apos;indicateur Fantôme de certains groupes de liens sélectionnés basculera.
+
+Certains groupes de liens sélectionnés ne peuvent pas être définis sur [REQUESTED_TYPE] en raison des restrictions d&apos;autorisation les concernant. Ces groupes de liens seront définis sur [RESTRICTED_TYPE].
+
+Voulez-vous continuer ?
+		<usetemplate ignoretext="L&apos;indicateur Fantôme de certains groupes de liens sélectionnés basculera et d&apos;autres ne peuvent pas être définis en raison de restrictions d&apos;autorisation sur les groupes de liens." name="okcancelignore" notext="Annuler" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_WarnOnPhantom_MismatchOnVolume">
+		L&apos;indicateur Fantôme de certains groupes de liens sélectionnés basculera.
+
+Certains groupes de liens sélectionnés ne peuvent pas être définis sur [REQUESTED_TYPE] en raison d&apos;une forme non convexe.
+
+Voulez-vous continuer ?
+		<usetemplate ignoretext="L&apos;indicateur Fantôme de certains groupes de liens sélectionnés basculera et d&apos;autres ne peuvent pas être définis en raison d&apos;une forme non convexe." name="okcancelignore" notext="Annuler" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_MismatchOnRestricted_MismatchOnVolume">
 		Certains groupes de liens sélectionnés ne peuvent pas être définis sur [REQUESTED_TYPE] en raison des restrictions d&apos;autorisation les concernant. Ces groupes de liens seront définis sur [RESTRICTED_TYPE].
- Certains groupes de liens sélectionnés ne peuvent pas être définis sur [REQUESTED_TYPE] en raison d&apos;une forme non convexe. Les types d&apos;usage de ces groupes de liens ne seront pas modifiés.
+
+Certains groupes de liens sélectionnés ne peuvent pas être définis sur [REQUESTED_TYPE] en raison d&apos;une forme non convexe. Les types d&apos;usage de ces groupes de liens ne seront pas modifiés.
+
+Voulez-vous continuer ?
 		<usetemplate ignoretext="Certains groupes de liens sélectionnés ne peuvent pas être définis en raison des restrictions d&apos;autorisation les concernant et d&apos;une forme non convexe." name="okcancelignore" notext="Annuler" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_WarnOnPhantom_MismatchOnRestricted_MismatchOnVolume">
+		L&apos;indicateur Fantôme de certains groupes de liens sélectionnés basculera.
+
+Certains groupes de liens sélectionnés ne peuvent pas être définis sur [REQUESTED_TYPE] en raison des restrictions d&apos;autorisation les concernant. Ces groupes de liens seront définis sur [RESTRICTED_TYPE].
+
+Certains groupes de liens sélectionnés ne peuvent pas être définis sur [REQUESTED_TYPE] en raison d&apos;une forme non convexe. Les types d&apos;usage de ces groupes de liens ne seront pas modifiés.
+
+Voulez-vous continuer ?
+		<usetemplate ignoretext="L&apos;indicateur Fantôme de certains groupes de liens sélectionnés basculera et d&apos;autres ne peuvent pas être définis en raison de restrictions d&apos;autorisation sur les groupes de liens et d&apos;une forme non convexe." name="okcancelignore" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="PathfindingLinksets_ChangeToFlexiblePath">
 		L&apos;objet sélectionné affecte le maillage de navigation. Si vous le modifiez en Flexibilité, il sera supprimé de ce maillage.

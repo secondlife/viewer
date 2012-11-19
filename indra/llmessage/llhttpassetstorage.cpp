@@ -749,7 +749,7 @@ LLAssetRequest* LLHTTPAssetStorage::findNextRequest(LLAssetStorage::request_list
 	request_list_t::iterator pending_iter = pending.begin();
 	request_list_t::iterator pending_end  = pending.end();
 	// Loop over all pending requests until we miss finding it in the running list.
-	for (; pending_iter != pending.end(); ++pending_iter)
+	for (; pending_iter != pending_end; ++pending_iter)
 	{
 		LLAssetRequest* req = *pending_iter;
 		// Look for this pending request in the running list.

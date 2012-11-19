@@ -10,12 +10,15 @@
 			</stat_view>
 			<stat_view label="進階" name="advanced">
 				<stat_view label="呈像" name="render">
-					<stat_bar label="KTris 繪出" name="ktrisframe"/>
-					<stat_bar label="KTris 繪出" name="ktrissec"/>
+					<stat_bar label="繪出的 KTris（每幀）" name="ktrisframe"/>
+					<stat_bar label="繪出的 KTris（每秒）" name="ktrissec"/>
 					<stat_bar label="物件總計" name="objs"/>
 					<stat_bar label="新物件" name="newobjs"/>
+					<stat_bar label="物件快取讀取率" name="object_cache_hits"/>
 				</stat_view>
 				<stat_view label="材質" name="texture">
+					<stat_bar label="快取讀取率" name="texture_cache_hits"/>
+					<stat_bar label="快取讀取延遲" name="texture_cache_read_latency"/>
 					<stat_bar label="計數" name="numimagesstat"/>
 					<stat_bar label="原始計數" name="numrawimagesstat"/>
 					<stat_bar label="GL 記憶" name="gltexmemstat"/>
@@ -50,7 +53,13 @@
 				<stat_bar label="物件" name="simobjects"/>
 				<stat_bar label="使用中物件" name="simactiveobjects"/>
 				<stat_bar label="使用中腳本" name="simactivescripts"/>
+				<stat_bar label="腳本執行" name="simpctscriptsrun"/>
 				<stat_bar label="腳本事件" name="simscripteps"/>
+				<stat_view label="尋徑" name="simpathfinding">
+					<stat_bar label="人工智慧步驟時間" name="simsimaistepmsec"/>
+					<stat_bar label="已略過輪廓步驟" name="simsimskippedsilhouettesteps"/>
+					<stat_bar label="角色已更新" name="simsimpctsteppedcharacters"/>
+				</stat_view>
 				<stat_bar label="進入封包" name="siminpps"/>
 				<stat_bar label="出去封包" name="simoutpps"/>
 				<stat_bar label="擱置下載" name="simpendingdownloads"/>
@@ -64,6 +73,14 @@
 					<stat_bar label="用戶時間" name="simagentmsec"/>
 					<stat_bar label="圖像時間" name="simimagesmsec"/>
 					<stat_bar label="腳本時間" name="simscriptmsec"/>
+					<stat_bar label="閒置時間" name="simsparemsec"/>
+					<stat_view label="時間細節（毫秒）" name="timedetails">
+						<stat_bar label="物理步驟" name="simsimphysicsstepmsec"/>
+						<stat_bar label="更新物理形狀" name="simsimphysicsshapeupdatemsec"/>
+						<stat_bar label="物理（其他）" name="simsimphysicsothermsec"/>
+						<stat_bar label="睡眠時間" name="simsleepmsec"/>
+						<stat_bar label="Pump IO" name="simpumpiomsec"/>
+					</stat_view>
 				</stat_view>
 			</stat_view>
 		</container_view>

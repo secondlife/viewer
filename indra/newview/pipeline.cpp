@@ -2011,6 +2011,7 @@ void LLPipeline::grabReferences(LLCullResult& result)
 void LLPipeline::clearReferences()
 {
 	sCull = NULL;
+	mGroupSaveQ1.clear();
 }
 
 void check_references(LLSpatialGroup* group, LLDrawable* drawable)
@@ -2652,6 +2653,7 @@ void LLPipeline::rebuildPriorityGroups()
 		group->clearState(LLSpatialGroup::IN_BUILD_Q1);
 	}
 
+	mGroupSaveQ1 = mGroupQ1;
 	mGroupQ1.clear();
 	mGroupQ1Locked = false;
 

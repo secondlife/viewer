@@ -2,7 +2,7 @@
 <floater name="spellcheck_floater" title="Paramètres du vérificateur orthographique">
 	<check_box label="Activer le vérificateur orthographique" name="spellcheck_enable"/>
 	<text name="spellcheck_main">
-		Dictionnaire principal :
+		Diction. principal :
 	</text>
 	<text label="Journaux :" name="spellcheck_additional">
 		Dictionnaires supplémentaires :

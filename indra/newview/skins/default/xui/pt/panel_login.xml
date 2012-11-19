@@ -6,7 +6,7 @@
 	<layout_stack name="login_widgets">
 		<layout_panel name="login">
 			<text name="log_in_text">
-				CONECTAR
+				LOGIN
 			</text>
 			<text name="username_text">
 				Nome de usuário:
@@ -22,24 +22,25 @@
 			</text>
 			<combo_box name="start_location_combo">
 				<combo_box.item label="Última posição" name="MyLastLocation"/>
-				<combo_box.item label="Meu início" name="MyHome"/>
+				<combo_box.item label="Minha casa" name="MyHome"/>
+				<combo_box.item label="&lt;Digite o nome da região&gt;" name="Typeregionname"/>
 			</combo_box>
 		</layout_panel>
 		<layout_panel name="links_login_panel">
 			<text name="login_help">
-				Precisa de ajuda ao conectar?
+				Precisa de ajuda com o login?
 			</text>
 			<text name="forgot_password_text">
 				Esqueceu seu nome ou senha?
 			</text>
-			<button label="conectar" name="connect_btn"/>
+			<button label="Login" name="connect_btn"/>
 			<check_box label="Lembrar senha" name="remember_check"/>
 		</layout_panel>
 		<layout_panel name="links">
 			<text name="create_account_text">
-				CREATE YǾUR ACCǾUNT
+				CRIE SUA CONTA
 			</text>
-			<button name="create_new_account_btn" label="Cadastre-se"/>
+			<button label="Comece agora" name="create_new_account_btn"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

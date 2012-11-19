@@ -68,6 +68,8 @@
 						<text name="scripts_value" value="啟動"/>
 						<text name="damage_label" value="傷害："/>
 						<text name="damage_value" value="關閉"/>
+						<text name="see_avatars_label" value="察看化身："/>
+						<text name="see_avatars_value" value="關閉"/>
 						<button label="土地資料" name="about_land_btn"/>
 					</panel>
 				</accordion_tab>
