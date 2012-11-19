@@ -209,14 +209,23 @@ public:
 	LLMeshHeaderResponder(const LLVolumeParams& mesh_params)
 		: mMeshParams(mesh_params)
 	{
-		LLMeshRepoThread::sActiveHeaderRequests++;
+		LLMeshRepoThread::incActiveHeaderRequests();
 		mProcessed = false;
 	}
 
 	~LLMeshHeaderResponder()
 	{
-		llassert(mProcessed);
-		LLMeshRepoThread::sActiveHeaderRequests--;
+		if (!mProcessed && !LLApp::isQuitting())
+		{ //something went wrong, retry
+			llwarns << "Timeout or service unavailable, retrying." << llendl;
+			LLMeshRepository::sHTTPRetryCount++;
+			LLMeshRepoThread::HeaderRequest req(mMeshParams);
+			LLMutexLock lock(gMeshRepo.mThread->mMutex);
+			gMeshRepo.mThread->mHeaderReqQ.push(req);
+
+		}
+
+		LLMeshRepoThread::decActiveHeaderRequests();
 	}
 
 	virtual void completedRaw(U32 status, const std::string& reason,
@@ -237,14 +246,19 @@ public:
 	LLMeshLODResponder(const LLVolumeParams& mesh_params, S32 lod, U32 offset, U32 requested_bytes)
 		: mMeshParams(mesh_params), mLOD(lod), mOffset(offset), mRequestedBytes(requested_bytes)
 	{
-		LLMeshRepoThread::sActiveLODRequests++;
+		LLMeshRepoThread::incActiveLODRequests();
 		mProcessed = false;
 	}
 
 	~LLMeshLODResponder()
 	{
-		llassert(mProcessed);
-		LLMeshRepoThread::sActiveLODRequests--;
+		if (!mProcessed && !LLApp::isQuitting())
+		{
+			llwarns << "Killed without being processed, retrying." << llendl;
+			LLMeshRepository::sHTTPRetryCount++;
+			gMeshRepo.mThread->lockAndLoadMeshLOD(mMeshParams, mLOD);
+		}
+		LLMeshRepoThread::decActiveLODRequests();
 	}
 
 	virtual void completedRaw(U32 status, const std::string& reason,
@@ -665,16 +679,24 @@ void LLMeshRepoThread::loadMeshPhysicsShape(const LLUUID& mesh_id)
 	mPhysicsShapeRequests.insert(mesh_id);
 }
 
+void LLMeshRepoThread::lockAndLoadMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
+{
+	if (!LLAppViewer::isQuitting())
+	{
+		loadMeshLOD(mesh_params, lod);
+	}
+}
+
+
 
 void LLMeshRepoThread::loadMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
-{ //protected by mSignal, no locking needed here
-
+{ //could be called from any thread
+	LLMutexLock lock(mMutex);
 	mesh_header_map::iterator iter = mMeshHeader.find(mesh_params.getSculptID());
 	if (iter != mMeshHeader.end())
 	{ //if we have the header, request LOD byte range
 		LODRequest req(mesh_params, lod);
 		{
-			LLMutexLock lock(mMutex);
 			mLODReqQ.push(req);
 			LLMeshRepository::sLODProcessing++;
 		}
@@ -692,7 +714,6 @@ void LLMeshRepoThread::loadMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
 		}
 		else
 		{ //if no header request is pending, fetch header
-			LLMutexLock lock(mMutex);
 			mHeaderReqQ.push(req);
 			mPendingLOD[mesh_params].push_back(lod);
 		}
@@ -970,6 +991,34 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
 
 	//early out was not hit, effectively fetched
 	return ret;
+}
+
+//static
+void LLMeshRepoThread::incActiveLODRequests()
+{
+	LLMutexLock lock(gMeshRepo.mThread->mMutex);
+	++LLMeshRepoThread::sActiveLODRequests;
+}
+
+//static
+void LLMeshRepoThread::decActiveLODRequests()
+{
+	LLMutexLock lock(gMeshRepo.mThread->mMutex);
+	--LLMeshRepoThread::sActiveLODRequests;
+}
+
+//static
+void LLMeshRepoThread::incActiveHeaderRequests()
+{
+	LLMutexLock lock(gMeshRepo.mThread->mMutex);
+	++LLMeshRepoThread::sActiveHeaderRequests;
+}
+
+//static
+void LLMeshRepoThread::decActiveHeaderRequests()
+{
+	LLMutexLock lock(gMeshRepo.mThread->mMutex);
+	--LLMeshRepoThread::sActiveHeaderRequests;
 }
 
 //return false if failed to get header
