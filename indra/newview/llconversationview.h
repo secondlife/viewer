@@ -78,7 +78,7 @@ public:
 	void setVisibleIfDetached(BOOL visible);
 	LLConversationViewParticipant* findParticipant(const LLUUID& participant_id);
 
-	void showVoiceIndicator();
+	void showVoiceIndicator(bool visible);
 
 	virtual void refresh();
 
