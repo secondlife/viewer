@@ -189,6 +189,8 @@ public:
 
 	void requestServerAppearanceUpdate(LLCurl::ResponderPtr responder_ptr = NULL);
 
+	void incrementCofVersion(LLHTTPClient::ResponderPtr responder_ptr = NULL);
+
 protected:
 	LLAppearanceMgr();
 	~LLAppearanceMgr();

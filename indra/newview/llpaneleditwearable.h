@@ -78,9 +78,6 @@ public:
 
 	virtual void		setVisible(BOOL visible);
 
-	static void incrementCofVersion();
-	static void incrementCofVersion(S32 retries);
-
 private:
 	typedef std::map<F32, LLViewerVisualParam*> value_map_t;
 

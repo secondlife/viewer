@@ -1031,83 +1031,6 @@ void LLPanelEditWearable::updatePanelPickerControls(LLWearableType::EType type)
         }
 }
 
-class LLIncrementCofVersionResponder : public LLHTTPClient::Responder
-{
-public:
-	LLIncrementCofVersionResponder(S32 retries);
-	virtual ~LLIncrementCofVersionResponder();
-
-	virtual void result(const LLSD &pContent);
-	virtual void error(U32 pStatus, const std::string& pReason);
-
-protected:
-
-private:
-	LLAgent         *mAgent;
-	S32				mRetries;
-};
-
-LLIncrementCofVersionResponder::LLIncrementCofVersionResponder(S32 retries)
-	: LLHTTPClient::Responder(),
-	  mRetries(retries)
-{
-}
-
-LLIncrementCofVersionResponder::~LLIncrementCofVersionResponder()
-{
-}
-
-void LLIncrementCofVersionResponder::result(const LLSD &pContent)
-{
-	lldebugs << "Successfully incremented agent's COF." << llendl;
-
-}
-
-void LLIncrementCofVersionResponder::error(U32 pStatus, const std::string& pReason)
-{
-	llwarns << "While attempting to increment the agent's cof we got an error because '"
-		<< pReason << "' [status:" << pStatus << "]" << llendl;
-	LLPanelEditWearable::incrementCofVersion(mRetries++);
-}
-
-//static
-void LLPanelEditWearable::incrementCofVersion()
-{
-	incrementCofVersion(0);
-}
-
-//static
-void LLPanelEditWearable::incrementCofVersion(S32 retries)
-{
-	// Create a response handler
-	LLHTTPClient::ResponderPtr responderPtr = LLHTTPClient::ResponderPtr(new LLIncrementCofVersionResponder(retries));
-
-	// If we don't have a region, report it as an error
-	if (gAgent.getRegion() == NULL)
-	{
-		responderPtr->error(0U, "region is not defined");
-	}
-	else
-	{
-		// Find the capability to send maturity preference
-		std::string url = gAgent.getRegion()->getCapability("IncrementCofVersion");
-
-		// If the capability is not defined, report it as an error
-		if (url.empty())
-		{
-			responderPtr->error(0U, "capability 'UpdateAgentInformation' is not defined for region");
-		}
-		else
-		{
-			llinfos << "Requesting cof_version be incremented via capability to: "
-					<< url << llendl;
-			LLSD headers;
-			LLSD body = LLSD::emptyMap();
-			LLHTTPClient::post(url, body, responderPtr, headers, 30.0f);
-		}
-	}
-}
-
 void LLPanelEditWearable::saveChanges(bool force_save_as)
 {
         if (!mWearablePtr || !isDirty())
@@ -1133,7 +1056,7 @@ void LLPanelEditWearable::saveChanges(bool force_save_as)
 
         if (gAgentAvatarp->isUsingServerBakes())
         {
-        	LLPanelEditWearable::incrementCofVersion(0);
+        	LLAppearanceMgr::getInstance()->incrementCofVersion();
         }
 }
 
