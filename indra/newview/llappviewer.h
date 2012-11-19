@@ -114,6 +114,10 @@ public:
     void loadNameCache();
     void saveNameCache();
 
+	void loadExperienceCache();
+	void saveExperienceCache();
+
+
 	void removeMarkerFile(bool leave_logout_marker = false);
 	
     // LLAppViewer testing helpers.
@@ -218,6 +222,7 @@ private:
     void idle(); 
     void idleShutdown();
 	// update avatar SLID and display name caches
+	void idleExperienceCache();
 	void idleNameCache();
     void idleNetwork();
 
