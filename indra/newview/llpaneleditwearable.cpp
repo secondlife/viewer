@@ -1071,6 +1071,12 @@ void LLIncrementCofVersionResponder::error(U32 pStatus, const std::string& pReas
 }
 
 //static
+void LLPanelEditWearable::incrementCofVersion()
+{
+	incrementCofVersion(0);
+}
+
+//static
 void LLPanelEditWearable::incrementCofVersion(S32 retries)
 {
 	// Create a response handler
@@ -1125,7 +1131,10 @@ void LLPanelEditWearable::saveChanges(bool force_save_as)
                 gAgentWearables.saveWearable(mWearablePtr->getType(), index, TRUE, new_name);
         }
 
-        LLPanelEditWearable::incrementCofVersion(0);
+        if (gAgentAvatarp->isUsingServerBakes())
+        {
+        	LLPanelEditWearable::incrementCofVersion(0);
+        }
 }
 
 void LLPanelEditWearable::revertChanges()

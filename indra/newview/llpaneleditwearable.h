@@ -78,6 +78,7 @@ public:
 
 	virtual void		setVisible(BOOL visible);
 
+	static void incrementCofVersion();
 	static void incrementCofVersion(S32 retries);
 
 private:
