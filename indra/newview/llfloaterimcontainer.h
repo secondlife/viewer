@@ -109,6 +109,7 @@ private:
 	void onNewMessageReceived(const LLSD& data);
 
 	void onExpandCollapseButtonClicked();
+	void onStubCollapseButtonClicked();
 	void processParticipantsStyleUpdate();
 
 	void collapseConversationsPane(bool collapse);
@@ -147,6 +148,7 @@ private:
 	void openNearbyChat();
 
 	LLButton* mExpandCollapseBtn;
+	LLButton* mStubCollapseBtn;
 	LLPanel* mStubPanel;
 	LLTextBox* mStubTextBox;
 	LLLayoutPanel* mMessagesPane;

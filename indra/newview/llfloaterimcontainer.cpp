@@ -205,6 +205,8 @@ BOOL LLFloaterIMContainer::postBuild()
 
 	mExpandCollapseBtn = getChild<LLButton>("expand_collapse_btn");
 	mExpandCollapseBtn->setClickedCallback(boost::bind(&LLFloaterIMContainer::onExpandCollapseButtonClicked, this));
+	mStubCollapseBtn = getChild<LLButton>("stub_collapse_btn");
+	mStubCollapseBtn->setClickedCallback(boost::bind(&LLFloaterIMContainer::onStubCollapseButtonClicked, this));
 
 	childSetAction("add_btn", boost::bind(&LLFloaterIMContainer::onAddButtonClicked, this));
 
@@ -333,6 +335,11 @@ void LLFloaterIMContainer::onNewMessageReceived(const LLSD& data)
 			LLMultiFloater::setFloaterFlashing(floaterp, FALSE);
 		LLMultiFloater::setFloaterFlashing(floaterp, TRUE);
 	}
+}
+
+void LLFloaterIMContainer::onStubCollapseButtonClicked()
+{
+	collapseMessagesPane(true);
 }
 
 void LLFloaterIMContainer::onExpandCollapseButtonClicked()
