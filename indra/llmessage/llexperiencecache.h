@@ -32,7 +32,20 @@
 #include <string>
 
 class LLUUID;
-class LLExperienceData;
+
+
+class LLExperienceData
+{
+public:
+	bool fromLLSD(const LLSD& sd);
+	LLSD asLLSD() const;
+
+
+	std::string mDisplayName;
+	std::string mDescription;
+};
+
+
 
 namespace LLExperienceCache
 {
@@ -41,12 +54,18 @@ namespace LLExperienceCache
 
 
 	void idle();
+	void exportFile(std::ostream& ostr);
+	void importFile(std::istream& istr);
+	void initClass(bool running);
 
 	void erase(const LLUUID& agent_id);
 	void fetch(const LLUUID& agent_id);
 	void insert(const LLUUID& agent_id, const LLExperienceData& experience_data);
 	bool get(const LLUUID& agent_id, LLExperienceData* experience_data);
 
+	typedef std::map<LLUUID, LLExperienceData> cache_t;
+
+	const cache_t& getCached();
 };
 
 #endif // LL_LLEXPERIENCECACHE_H

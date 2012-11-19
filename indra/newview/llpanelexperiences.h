@@ -31,6 +31,7 @@
 #include "llflatlistview.h"
 #include "llpanelavatar.h"
 
+class LLExperienceData;
 class LLExperienceItem;
 class LLPanelProfile; 
 
@@ -87,11 +88,6 @@ private:
 	bool mNoExperiences;
 };
 
-struct LLExperienceData
-{
-	std::string name;
-	std::string desc;
-};
 
 class LLExperienceItem 
 	: public LLPanel

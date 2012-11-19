@@ -3,6 +3,7 @@
 
 #include "llpanelprofile.h"
 #include "lluictrlfactory.h"
+#include "llexperiencecache.h"
 
 #include "llpanelexperiences.h"
 
@@ -34,15 +35,16 @@ BOOL LLPanelExperiences::postBuild( void )
 		mExperiencesList->setNoItemsCommentText(getString("no_experiences"));
 	}
 
-	LLExperienceItem* item = new LLExperienceItem();
-	item->setExperienceName("experience 1");
-	item->setExperienceDescription("hey, I\'m an experience!");
-	mExperiencesList->addItem(item);
-	
-	item = new LLExperienceItem();
-	item->setExperienceName("experience 2");
-	item->setExperienceDescription("hey, I\'m another experience!");
-	mExperiencesList->addItem(item);
+	const LLExperienceCache::cache_t& experiences = LLExperienceCache::getCached();
+
+	LLExperienceCache::cache_t::const_iterator it = experiences.begin();
+	for( ; it != experiences.end() && mExperiencesList->getChildCount() < 10 ; ++it)
+	{
+		LLExperienceItem* item = new LLExperienceItem();
+		item->setExperienceName(it->second.mDisplayName);
+		item->setExperienceDescription(it->second.mDescription);
+		mExperiencesList->addItem(item);
+	}
 
 	mExperiencesAccTab = getChild<LLAccordionCtrlTab>("tab_experiences");
 	mExperiencesAccTab->setDropDownStateChangedCallback(boost::bind(&LLPanelExperiences::onAccordionStateChanged, this, mExperiencesAccTab));
@@ -179,7 +181,8 @@ LLExperienceItem::LLExperienceItem()
 
 void LLExperienceItem::init( LLExperienceData* experience_data )
 {
-
+	setExperienceDescription(experience_data->mDescription);
+	setExperienceName(experience_data->mDisplayName);
 }
 
 void LLExperienceItem::setExperienceDescription( const std::string& val )

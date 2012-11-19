@@ -25,24 +25,20 @@
  */
 
 #include "linden_common.h"
+#include "llavatarname.h"
 #include "llframetimer.h"
 #include "llhttpclient.h"
+#include "llsdserialize.h"
 #include <set>
 #include <map>
 
 #include "llexperiencecache.h"
 
-class LLExperienceData
-{
-public:
-	std::string mDisplayName;
-};
-
 
 
 namespace LLExperienceCache
 {
-	bool sRunning = true;
+	bool sRunning = false;
 	std::string sLookupURL;
 
 	typedef std::set<LLUUID> ask_queue_t;
@@ -52,19 +48,122 @@ namespace LLExperienceCache
 	pending_queue_t sPendingQueue;
 
 
-	typedef std::map<LLUUID, LLExperienceData> cache_t;
 	cache_t sCache;
 
 	LLFrameTimer sRequestTimer;
 
 
+
+	void processExperience( const LLUUID& agent_id, const LLExperienceData& experience, bool add_to_cache ) 
+	{
+		if(add_to_cache)
+		{
+			sCache[agent_id]=experience;
+
+			sPendingQueue.erase(agent_id);
+
+
+			//signal
+		}
+	}
+
+	void initClass( bool running )
+	{
+		sRunning = false;
+	}
+
+	const cache_t& getCached()
+	{
+		return sCache;
+	}
+
+
+
+	void importFile(std::istream& istr)
+	{
+		LLSD data;
+		S32 parse_count = LLSDSerialize::fromXMLDocument(data, istr);
+		if(parse_count < 1) return;
+
+		LLSD agents = data["agents"];
+
+		LLUUID agent_id;
+		LLExperienceData experience;
+		LLSD::map_const_iterator it = agents.beginMap();
+		for(; it != agents.endMap() ; ++it)
+		{
+			agent_id.set(it->first);
+			experience.fromLLSD( it->second);
+			sCache[agent_id]=experience;
+		}
+
+		LL_INFOS("ExperienceCache") << "loaded " << sCache.size() << LL_ENDL;
+	}
+
+	void exportFile(std::ostream& ostr)
+	{
+		LLSD agents;
+
+		cache_t::const_iterator it =sCache.begin();
+		for( ; it != sCache.end() ; ++it)
+		{
+			agents[it->first.asString()] = it->second.asLLSD();
+		}
+
+		LLSD data;
+		data["agents"] = agents;
+
+		LLSDSerialize::toPrettyXML(data, ostr);
+	}
+
 	class LLExperienceResponder : public LLHTTPClient::Responder
 	{
 	public:
-		LLExperienceResponder(std::vector<LLUUID> agent_ids)
+		LLExperienceResponder(const std::vector<LLUUID>& agent_ids)
+			:mAgentIds(agent_ids)
 		{
 
 		}
+
+		virtual void completedHeader(U32 status, const std::string& reason, const LLSD& content)
+		{
+			mHeaders = content;
+		}
+
+		virtual void result(const LLSD& content)
+		{
+			LLSD agents = content["agents"];
+			LLSD::array_const_iterator it = agents.beginArray();
+			for( /**/ ; it != agents.endArray(); ++it)
+			{
+				const LLSD& row = *it;
+				LLUUID agent_id = row["id"].asUUID();
+
+				LLExperienceData experience;
+
+				if(experience.fromLLSD(row))
+				{
+					LL_DEBUGS("ExperienceCache") << __FUNCTION__ << "Received result for " << agent_id 
+						<< "display '" << experience.mDisplayName << "'" << LL_ENDL ;
+
+					processExperience(agent_id, experience, true);
+				}
+			}
+
+			LLSD unresolved_agents = content["bad_ids"];
+			S32 num_unresolved = unresolved_agents.size();
+			if(num_unresolved > 0)
+			{
+				LL_DEBUGS("ExperienceCache") << __FUNCTION__ << "Ignoreing " << num_unresolved 
+					<< " bad ids" << LL_ENDL ;
+			}
+
+			LL_DEBUGS("ExperienceCache") << __FUNCTION__ << sCache.size() << " cached experiences" << LL_ENDL;
+		}
+
+	private:
+		std::vector<LLUUID> mAgentIds;
+		LLSD mHeaders;
 	};
 
 	void requestExperiences() 
@@ -171,7 +270,7 @@ namespace LLExperienceCache
 
 	bool get( const LLUUID& agent_id, LLExperienceData* experience_data )
 	{
-		if(!sRunning) 
+		if(sRunning) 
 		{
 
 			cache_t::const_iterator it = sCache.find(agent_id);
@@ -192,4 +291,23 @@ namespace LLExperienceCache
 	}
 
 
+}
+
+bool LLExperienceData::fromLLSD( const LLSD& sd )
+{
+	mDisplayName = sd["display_name"].asString();
+	mDescription = sd["username"].asString();
+
+	if(mDisplayName.empty() || mDescription.empty()) return false;
+
+	mDescription += " % Hey, this is a description!";
+	return true;
+}
+
+LLSD LLExperienceData::asLLSD() const
+{
+	LLSD sd;
+	sd["display_name"] = mDisplayName;
+	sd["username"] = mDescription.substr(0, llmin(mDescription.size(),mDescription.find(" %")));
+	return sd;
 }

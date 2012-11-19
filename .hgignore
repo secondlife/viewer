@@ -70,3 +70,4 @@ glob:indra/newview/avatar_icons_cache.txt
 glob:indra/newview/avatar_lad.log
 glob:*.diff
 *.rej
+indra/newview/stat
