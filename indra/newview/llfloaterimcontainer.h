@@ -99,6 +99,13 @@ public:
 
 	void onNearbyChatClosed();
 
+	// Handling of lists of participants is public so to be common with llfloatersessiontab
+	// *TODO : Find a better place for this.
+    void doToSelected(const LLSD& userdata);
+    bool checkContextMenuItem(const LLSD& userdata);
+    bool enableContextMenuItem(const LLSD& userdata);
+    void doToParticipants(const std::string& item, uuid_vec_t& selectedIDS);
+
 private:
 	typedef std::map<LLUUID,LLFloater*> avatarID_panel_map_t;
 	avatarID_panel_map_t mSessions;
@@ -127,12 +134,8 @@ private:
     void getSelectedUUIDs(uuid_vec_t& selected_uuids);
     const LLConversationItem * getCurSelectedViewModelItem();
     void getParticipantUUIDs(uuid_vec_t& selected_uuids);
-    void doToSelected(const LLSD& userdata);
     void doToSelectedConversation(const std::string& command, uuid_vec_t& selectedIDS);
-    void doToParticipants(const std::string& item, uuid_vec_t& selectedIDS);
     void doToSelectedGroup(const LLSD& userdata);
-    bool checkContextMenuItem(const LLSD& userdata);
-    bool enableContextMenuItem(const LLSD& userdata);
 
 	static void confirmMuteAllCallback(const LLSD& notification, const LLSD& response);
 	bool enableModerateContextMenuItem(const std::string& userdata);

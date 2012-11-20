@@ -869,6 +869,7 @@ void LLFloaterIMContainer::getParticipantUUIDs(uuid_vec_t& selected_uuids)
 
 void LLFloaterIMContainer::doToParticipants(const std::string& command, uuid_vec_t& selectedIDS)
 {
+	// *TODO : This is where we need to handle a *list* of participant correctly
 	if(selectedIDS.size() > 0)
 	{
 		const LLUUID& userID = selectedIDS.front();
@@ -981,6 +982,8 @@ void LLFloaterIMContainer::doToSelected(const LLSD& userdata)
     if(conversationItem != NULL)
     {
     	getParticipantUUIDs(selected_uuids);
+		
+		llinfos << "Merov debug : doToSelected, command = " << command << ", name = " << conversationItem->getName() << ", uuid size = " << selected_uuids.size() << llendl;
 
     	if(conversationItem->getType() == LLConversationItem::CONV_PARTICIPANT)
     	{

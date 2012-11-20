@@ -1068,7 +1068,7 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 	if ("delete" == action)
 	{
 		LLSD args;
-		args["QUESTION"] = LLTrans::getString(root->getNumSelectedItems() > 1 ? "DeleteItems" :  "DeleteItem");
+		args["QUESTION"] = LLTrans::getString(root->getSelectedCount() > 1 ? "DeleteItems" :  "DeleteItem");
 		LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLInventoryAction::onItemsRemovalConfirmation, _1, _2, root));
 		return;
 	}

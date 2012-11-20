@@ -157,6 +157,10 @@ protected:
 	LLButton* mCloseBtn;
 
 private:
+	// Handling selection and contextual menu
+    void getSelectedUUIDs(uuid_vec_t& selected_uuids);
+    void doToSelected(const LLSD& userdata);
+	
 	/// Refreshes the floater at a constant rate.
 	virtual void refresh() = 0;
 
