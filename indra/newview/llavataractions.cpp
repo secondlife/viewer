@@ -180,7 +180,7 @@ void LLAvatarActions::offerTeleport(const uuid_vec_t& ids)
 static void on_avatar_name_cache_start_im(const LLUUID& agent_id,
 										  const LLAvatarName& av_name)
 {
-	std::string name = av_name.getCompleteName();
+	std::string name = av_name.mDisplayName;
 	LLUUID session_id = gIMMgr->addSession(name, IM_NOTHING_SPECIAL, agent_id);
 	if (session_id != LLUUID::null)
 	{
