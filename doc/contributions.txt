@@ -321,6 +321,7 @@ Dale Glass
 	VWR-1358
 	VWR-2041
 Darien Caldwell
+	SH-3055
 Dartagan Shepherd
 Debs Regent
 Decro Schmooz
@@ -892,6 +893,7 @@ Nicholaz Beresford
 Nick Rhodes
 Nicky Dasmijn
 	VWR-29228
+	MAINT-873
 Nicky Perian
 	OPEN-1
 	STORM-1087
@@ -1059,9 +1061,12 @@ Shawn Kaufmat
 	SNOW-240
 Sheet Spotter
 Shnurui Troughton
+Shyotl Kuhr
+	MAINT-1138
 Siana Gearz
 	STORM-960
 	STORM-1088
+	MAINT-1138
 sicarius Thorne
 Sicarius Toxx
 SignpostMarv Martin
@@ -1243,6 +1248,7 @@ Westley Streeter
 Whimsy Winx
 Whirly Fizzle
 	STORM-1895
+	MAINT-873
 Whoops Babii
 	VWR-631
 	VWR-1640

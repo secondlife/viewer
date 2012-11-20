@@ -142,7 +142,7 @@ public:
 
 	void cleanupRegion(LLViewerRegion *regionp);
 
-	BOOL shouldAddPart(); // Just decides whether this particle should be added or not (for particle count capping)
+	static BOOL shouldAddPart(); // Just decides whether this particle should be added or not (for particle count capping)
 	F32 maxRate() // Return maximum particle generation rate
 	{
 		if (sParticleCount >= MAX_PART_COUNT)

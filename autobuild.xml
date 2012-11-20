@@ -1463,6 +1463,30 @@
           </map>
         </map>
       </map>
+      <key>nvapi</key>
+      <map>
+        <key>license</key>
+        <string>NVAPI</string>
+        <key>license_file</key>
+        <string>LICENSES/NVAPI_SDK_License_Agreement.pdf</string>
+        <key>name</key>
+        <string>nvapi</string>
+        <key>platforms</key>
+        <map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>baf519d36dffe4e4a59471450e391d01</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-nvapi/rev/267102/arch/CYGWIN/installer/nvapi-304-windows-20121116.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+      </map>
       <key>ogg-vorbis</key>
       <map>
         <key>license</key>

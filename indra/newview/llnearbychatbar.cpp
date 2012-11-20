@@ -203,7 +203,12 @@ BOOL LLNearbyChatBar::handleKeyHere( KEY key, MASK mask )
 		sendChat(CHAT_TYPE_SHOUT);
 		handled = TRUE;
 	}
-
+	else if (KEY_RETURN == key && mask == MASK_SHIFT)
+	{
+		// whisper
+		sendChat(CHAT_TYPE_WHISPER);
+		handled = TRUE;
+	}
 	return handled;
 }
 
@@ -390,12 +395,6 @@ void LLNearbyChatBar::sendChat( EChatType type )
 
 	gAgent.stopTyping();
 
-	// If the user wants to stop chatting on hitting return, lose focus
-	// and go out of chat mode.
-	if (gSavedSettings.getBOOL("CloseChatOnReturn"))
-	{
-		stopChat();
-	}
 }
 
 void LLNearbyChatBar::showNearbyChatPanel(bool show)
@@ -446,7 +445,12 @@ void LLNearbyChatBar::onChatBoxCommit()
 	{
 		sendChat(CHAT_TYPE_NORMAL);
 	}
-
+	// If the user wants to stop chatting on hitting return, lose focus
+	// and go out of chat mode.
+	if (gSavedSettings.getBOOL("CloseChatOnReturn"))
+	{
+		stopChat();
+	}
 	gAgent.stopTyping();
 }
 
