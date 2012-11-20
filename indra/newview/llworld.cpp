@@ -55,7 +55,7 @@
 #include "message.h"
 #include "pipeline.h"
 #include "llappviewer.h"		// for do_disconnect()
-
+#include "llscenemonitor.h"
 #include <deque>
 #include <queue>
 #include <map>
@@ -136,6 +136,8 @@ void LLWorld::destroyClass()
 
 	//make all visible drawbles invisible.
 	LLDrawable::incrementVisible();
+
+	LLSceneMonitor::getInstance()->destroyClass();
 }
 
 

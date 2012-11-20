@@ -9469,6 +9469,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>SceneLoadingMonitorEnabled</key>
+    <map>
+      <key>Comment</key>
+      <string>Enabled scene loading monitor if set</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>ScriptHelpFollowsCursor</key>
     <map>
       <key>Comment</key>
@@ -10864,7 +10875,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <integer>0.0</integer>
+      <real>0.0</real>
     </map>
     <key>TextureFetchUpdateSkipLowPriority</key>
     <map>
@@ -12492,6 +12503,7 @@
       <key>Type</key>
       <string>LLSD</string>
       <key>Value</key>
+      <array />
     </map>
     <key>VFSOldSize</key>
     <map>

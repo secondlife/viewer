@@ -459,6 +459,7 @@ set(viewer_SOURCE_FILES
     llremoteparcelrequest.cpp
     llsavedsettingsglue.cpp
     llsaveoutfitcombobtn.cpp
+	llscenemonitor.cpp
     llsceneview.cpp
     llscreenchannel.cpp
     llscriptfloater.cpp
@@ -1025,6 +1026,7 @@ set(viewer_HEADER_FILES
     llrootview.h
     llsavedsettingsglue.h
     llsaveoutfitcombobtn.h
+	llscenemonitor.h
     llsceneview.h
     llscreenchannel.h
     llscriptfloater.h

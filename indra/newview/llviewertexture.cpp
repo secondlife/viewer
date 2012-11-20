@@ -953,6 +953,12 @@ void LLViewerTexture::setCachedRawImage(S32 discard_level, LLImageRaw* imageraw)
 	//nothing here.
 }
 
+BOOL LLViewerTexture::setSubImageFromFrameBuffer(S32 fb_x, S32 fb_y, S32 x_pos, S32 y_pos, S32 width, S32 height)
+{
+	llassert(mGLTexturep.notNull()) ;
+	return mGLTexturep->setSubImageFromFrameBuffer(fb_x, fb_y, x_pos, y_pos, width, height);
+}
+
 void LLViewerTexture::setExplicitFormat(LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format, BOOL swap_bytes)
 {
 	llassert(mGLTexturep.notNull()) ;

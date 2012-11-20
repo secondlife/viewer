@@ -102,6 +102,7 @@
 
 #include "lldebugmessagebox.h"
 #include "llsdutil.h"
+#include "llscenemonitor.h"
 
 extern F32 SPEED_ADJUST_MAX;
 extern F32 SPEED_ADJUST_MAX_SEC;
@@ -771,6 +772,11 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mLastPelvisToFoot = 0.0f;
 	mPelvisFixup = 0.0f;
 	mLastPelvisFixup = 0.0f;
+
+	if(LLSceneMonitor::getInstance()->isEnabled())
+	{
+		LLSceneMonitor::getInstance()->freezeAvatar((LLCharacter*)this);
+	}
 }
 
 std::string LLVOAvatar::avString() const
