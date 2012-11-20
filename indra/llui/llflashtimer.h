@@ -50,8 +50,8 @@ public:
 	void startFlashing();
 	void stopFlashing();
 
-	bool isFlashing() {return mIsFlashing;}
-	bool isHighlight() {return mIsHighlight;}
+	bool isFlashingInProgress() {return mIsFlashingInProgress;}
+	bool isCurrentlyHighlighted() {return mIsCurrentlyHighlighted;}
 
 private:
 	callback_t		mCallback;
@@ -60,8 +60,8 @@ private:
 	 */
 	S32 mFlashCount;
 	S32 mCurrentTickCount;
-	bool mIsHighlight;
-	bool mIsFlashing;
+	bool mIsCurrentlyHighlighted;
+	bool mIsFlashingInProgress;
 };
 
 #endif /* LL_FLASHTIMER_H */

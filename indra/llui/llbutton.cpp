@@ -105,6 +105,7 @@ LLButton::Params::Params()
 	badge("badge"),
 	handle_right_mouse("handle_right_mouse"),
 	held_down_delay("held_down_delay"),
+	button_flash_enable("button_flash_enable", false),
 	button_flash_count("button_flash_count"),
 	button_flash_rate("button_flash_rate")
 {
@@ -170,15 +171,24 @@ LLButton::LLButton(const LLButton::Params& p)
 	mMouseUpSignal(NULL),
 	mHeldDownSignal(NULL),
 	mUseDrawContextAlpha(p.use_draw_context_alpha),
-	mHandleRightMouse(p.handle_right_mouse)
+	mHandleRightMouse(p.handle_right_mouse),
+	mFlashingTimer(NULL)
 {
-	// If optional parameter "p.button_flash_count" is not provided, LLFlashTimer will be
-	// used instead it a "default" value from gSavedSettings.getS32("FlashCount")).
-	// Likewise, missing "p.button_flash_rate" is replaced by gSavedSettings.getF32("FlashPeriod").
-	// Note: flashing should be allowed in settings.xml (boolean key "EnableButtonFlashing").
-	S32 flash_count = p.button_flash_count.isProvided()? p.button_flash_count : 0;
-	F32 flash_rate = p.button_flash_rate.isProvided()? p.button_flash_rate : 0.0;
-	mFlashingTimer = new LLFlashTimer ((LLFlashTimer::callback_t)NULL, flash_count, flash_rate);
+	if (p.button_flash_enable)
+	{
+		// If optional parameter "p.button_flash_count" is not provided, LLFlashTimer will be
+		// used instead it a "default" value from gSavedSettings.getS32("FlashCount")).
+		// Likewise, missing "p.button_flash_rate" is replaced by gSavedSettings.getF32("FlashPeriod").
+		// Note: flashing should be allowed in settings.xml (boolean key "EnableButtonFlashing").
+		S32 flash_count = p.button_flash_count.isProvided()? p.button_flash_count : 0;
+		F32 flash_rate = p.button_flash_rate.isProvided()? p.button_flash_rate : 0.0;
+		mFlashingTimer = new LLFlashTimer ((LLFlashTimer::callback_t)NULL, flash_count, flash_rate);
+	}
+	else
+	{
+		mButtonFlashCount = p.button_flash_count;
+		mButtonFlashRate = p.button_flash_rate;
+	}
 
 	static LLUICachedControl<S32> llbutton_orig_h_pad ("UIButtonOrigHPad", 0);
 	static Params default_params(LLUICtrlFactory::getDefaultParams<LLButton>());
@@ -273,7 +283,11 @@ LLButton::~LLButton()
 	delete mMouseDownSignal;
 	delete mMouseUpSignal;
 	delete mHeldDownSignal;
-	delete mFlashingTimer;
+
+	if (mFlashingTimer)
+	{
+		delete mFlashingTimer;
+	}
 }
 
 // HACK: Committing a button is the same as instantly clicking it.
@@ -599,10 +613,29 @@ void LLButton::draw()
 	static LLCachedControl<bool> sEnableButtonFlashing(*LLUI::sSettingGroups["config"], "EnableButtonFlashing", true);
 	F32 alpha = mUseDrawContextAlpha ? getDrawContext().mAlpha : getCurrentTransparency();
 
-	mFlashing = mFlashingTimer->isFlashing();
-
-	bool flash = mFlashing &&
-	                 (!sEnableButtonFlashing || mFlashingTimer->isHighlight());
+	bool flash = false;
+	if (mFlashingTimer)
+	{
+		mFlashing = mFlashingTimer->isFlashingInProgress();
+		flash = mFlashing && (!sEnableButtonFlashing || mFlashingTimer->isCurrentlyHighlighted());
+	}
+	else 
+	{
+		if(mFlashing)
+		{
+			if ( sEnableButtonFlashing)
+			{
+				F32 elapsed = mFrameTimer.getElapsedTimeF32();
+				S32 flash_count = S32(elapsed * mButtonFlashRate * 2.f);
+				// flash on or off?
+				flash = (flash_count % 2 == 0) || flash_count > S32((F32)mButtonFlashCount * 2.f);
+			}
+			else
+			{ // otherwise just highlight button in flash color
+				flash = true;
+			}
+		}
+	}
 
 	bool pressed_by_keyboard = FALSE;
 	if (hasFocus())
@@ -945,18 +978,25 @@ void LLButton::setToggleState(BOOL b)
 	}
 }
 
-void LLButton::setFlashing( BOOL b )	
+void LLButton::setFlashing( bool b )	
 { 
-	if (b)
+	if (mFlashingTimer)
 	{
-		mFlashingTimer->startFlashing();
+		if (b)
+		{
+			mFlashingTimer->startFlashing();
+		}
+		else
+		{
+			mFlashingTimer->stopFlashing();
+		}
 	}
-	else
+	else if (b != mFlashing)
 	{
-		mFlashingTimer->stopFlashing();
+		mFlashing = b; 
+		mFrameTimer.reset();
 	}
 }
-
 
 BOOL LLButton::toggleState()			
 {

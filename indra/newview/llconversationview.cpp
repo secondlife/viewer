@@ -82,6 +82,7 @@ LLConversationViewSession::LLConversationViewSession(const LLConversationViewSes
 	mVoiceClientObserver(NULL),
 	mMinimizedMode(false)
 {
+	mFlashTimer = new LLFlashTimer();
 }
 
 LLConversationViewSession::~LLConversationViewSession()
@@ -92,6 +93,18 @@ LLConversationViewSession::~LLConversationViewSession()
 	{
 		LLVoiceClient::getInstance()->removeObserver(mVoiceClientObserver);
 	}
+
+	delete mFlashTimer;
+}
+
+bool LLConversationViewSession::isHighlightAllowed()
+{
+	return mFlashTimer->isFlashingInProgress() || mIsSelected;
+}
+
+bool LLConversationViewSession::isHighlightActive()
+{
+	return mFlashTimer->isFlashingInProgress() ? mFlashTimer->isCurrentlyHighlighted() : mIsCurSelection;
 }
 
 BOOL LLConversationViewSession::postBuild()

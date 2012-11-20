@@ -55,7 +55,10 @@ public:
 protected:
 	friend class LLUICtrlFactory;
 	LLConversationViewSession( const Params& p );
-	
+
+	/*virtual*/ bool isHighlightAllowed();
+	/*virtual*/ bool isHighlightActive();
+
 	LLFloaterIMContainer* mContainer;
 	
 public:
@@ -82,6 +85,8 @@ public:
 
 	virtual void refresh();
 
+	LLFlashTimer * getFlashTimer() { return mFlashTimer; }
+
 private:
 
 	void onCurrentVoiceSessionChanged(const LLUUID& session_id);
@@ -90,6 +95,7 @@ private:
 	LLPanel*				mCallIconLayoutPanel;
 	LLTextBox*				mSessionTitle;
 	LLOutputMonitorCtrl*	mSpeakingIndicator;
+	LLFlashTimer*			mFlashTimer;
 
 	bool					mMinimizedMode;
 
