@@ -335,14 +335,6 @@ void LLFloaterIMSessionTab::appendMessage(const LLChat& chat, const LLSD &args)
 	if (im_box)
 	{
 		im_box->setTimeNow(mSessionID,chat.mFromID);
-
-		// TODO: Warning! The next two lines of code are included below only temporarily
-		// to demonstrate the correct format call the appropriate functions.
-		// They should be moved to the right places when working on CHUI-486. ~Alex ProductEngine.
-		// ---- start demo ----
-        //    im_box->flashConversationItemWidget(mSessionID, true); // flashing of the conversation's item
-        //    gToolBarView->flashCommand(LLCommandId("chat"), true); // flashing of the FUI button "Chat"
-        // ---- end demo -----
 	}
 	
 
