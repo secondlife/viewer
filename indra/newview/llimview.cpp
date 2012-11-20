@@ -29,6 +29,7 @@
 #include "llimview.h"
 
 #include "llavatarnamecache.h"	// IDEVO
+#include "llavataractions.h"
 #include "llfloaterreg.h"
 #include "llfontgl.h"
 #include "llgl.h"
@@ -1713,7 +1714,7 @@ BOOL LLCallDialog::postBuild()
 		return FALSE;
 	
 	dockToToolbarButton("speak");
-	
+
 	return TRUE;
 }
 
@@ -2110,7 +2111,6 @@ BOOL LLIncomingCallDialog::postBuild()
 	getChildView("Start IM")->setVisible( is_avatar && notify_box_type != "VoiceInviteAdHoc" && notify_box_type != "VoiceInviteGroup");
 
 	setCanDrag(FALSE);
-
 	return TRUE;
 }
 
@@ -2118,7 +2118,6 @@ void LLIncomingCallDialog::setCallerName(const std::string& ui_title,
 										 const std::string& ui_label,
 										 const std::string& call_type)
 {
-	setTitle(ui_title);
 
 	// call_type may be a string like " is calling."
 	LLUICtrl* caller_name_widget = getChild<LLUICtrl>("caller name");
@@ -2136,25 +2135,13 @@ void LLIncomingCallDialog::onAvatarNameCache(const LLUUID& agent_id,
 void LLIncomingCallDialog::onOpen(const LLSD& key)
 {
 	LLCallDialog::onOpen(key);
-
+	make_ui_sound("UISndStartIM");
 	LLStringUtil::format_map_t args;
 	LLGroupData data;
 	// if it's a group call, retrieve group name to use it in question
 	if (gAgent.getGroupData(key["session_id"].asUUID(), data))
 	{
 		args["[GROUP]"] = data.mName;
-	}
-	// tell the user which voice channel they would be leaving
-	LLVoiceChannel *voice = LLVoiceChannel::getCurrentVoiceChannel();
-	if (voice && !voice->getSessionName().empty())
-	{
-		args["[CURRENT_CHAT]"] = voice->getSessionName();
-		getChild<LLUICtrl>("question")->setValue(getString(key["question_type"].asString(), args));
-	}
-	else
-	{
-		args["[CURRENT_CHAT]"] = getString("localchat");
-		getChild<LLUICtrl>("question")->setValue(getString(key["question_type"].asString(), args));
 	}
 }
 
@@ -2215,6 +2202,10 @@ void LLIncomingCallDialog::processCallResponse(S32 response, const LLSD &payload
 			if (voice)
 			{
 				gIMMgr->startCall(session_id, LLVoiceChannel::INCOMING_CALL);
+			}
+			else
+			{
+				LLAvatarActions::startIM(caller_id);
 			}
 
 			gIMMgr->clearPendingAgentListUpdates(session_id);
