@@ -67,60 +67,6 @@ boost::signals2::signal<LLChiclet* (const LLUUID&),
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-/**
- * Updates the Well's 'Lit' state to flash it when "new messages" are come.
- *
- * It gets callback which will be called 2*N times with passed period. See EXT-3147
- */
-class LLSysWellChiclet::FlashToLitTimer : public LLEventTimer
-{
-public:
-	typedef boost::function<void()> callback_t;
-
-	/**
-	 * Constructor.
-	 *
-	 * @param count - how many times callback should be called (twice to not change original state)
-	 * @param period - how frequently callback should be called
-	 * @param cb - callback to be called each tick
-	 */
-	FlashToLitTimer(S32 count, F32 period, callback_t cb)
-		: LLEventTimer(period)
-		, mCallback(cb)
-		, mFlashCount(2 * count)
-		, mCurrentFlashCount(0)
-	{
-		mEventTimer.stop();
-	}
-
-	BOOL tick()
-	{
-		mCallback();
-
-		if (++mCurrentFlashCount == mFlashCount) mEventTimer.stop();
-		return FALSE;
-	}
-
-	void flash()
-	{
-		mCurrentFlashCount = 0;
-		mEventTimer.start();
-	}
-
-	void stopFlashing()
-	{
-		mEventTimer.stop();
-	}
-
-private:
-	callback_t		mCallback;
-
-	/**
-	 * How many times Well will blink.
-	 */
-	S32 mFlashCount;
-	S32 mCurrentFlashCount;
-};
 
 LLSysWellChiclet::Params::Params()
 : button("button")
@@ -145,13 +91,8 @@ LLSysWellChiclet::LLSysWellChiclet(const Params& p)
 	mButton = LLUICtrlFactory::create<LLButton>(button_params);
 	addChild(mButton);
 
-	// use settings from settings.xml to be able change them via Debug settings. See EXT-5973.
-	// Due to Timer is implemented as derived class from EventTimer it is impossible to change period
-	// in runtime. So, both settings are made as required restart.
-	static S32 flash_to_lit_count = gSavedSettings.getS32("WellIconFlashCount");
-	static F32 flash_period = gSavedSettings.getF32("WellIconFlashPeriod");
 
-	mFlashToLitTimer = new FlashToLitTimer(flash_to_lit_count, flash_period, boost::bind(&LLSysWellChiclet::changeLitState, this));
+	mFlashToLitTimer = new LLFlashTimer(boost::bind(&LLSysWellChiclet::changeLitState, this, _1));
 }
 
 LLSysWellChiclet::~LLSysWellChiclet()
@@ -191,7 +132,7 @@ void LLSysWellChiclet::setToggleState(BOOL toggled) {
 	mButton->setToggleState(toggled);
 }
 
-void LLSysWellChiclet::changeLitState()
+void LLSysWellChiclet::changeLitState(bool blink)
 {
 	setNewMessagesState(!mIsNewMessagesState);
 }
@@ -320,7 +261,7 @@ void LLIMWellChiclet::messageCountChanged(const LLSD& session_data)
 	// we have to flash to 'Lit' state each time new unread message is coming.
 	if (counter > mCounter && im_not_visible)
 	{
-		mFlashToLitTimer->flash();
+		mFlashToLitTimer->startFlashing();
 	}
 	else if (counter == 0)
 	{

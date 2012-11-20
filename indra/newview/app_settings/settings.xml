@@ -13142,10 +13142,10 @@
       <key>Value</key>
       <real>50.0</real>
     </map>
-    <key>WellIconFlashCount</key>
+    <key>FlashCount</key>
     <map>
       <key>Comment</key>
-      <string>Number of flashes of IM Well and Notification Well icons after which flashing buttons stay lit up. Requires restart.</string>
+      <string>Number of flashes of item. Requires restart.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -13153,10 +13153,10 @@
       <key>Value</key>
       <integer>3</integer>
     </map>
-    <key>WellIconFlashPeriod</key>
+    <key>FlashPeriod</key>
     <map>
       <key>Comment</key>
-      <string>Period at which IM Well and Notification Well icons flash (seconds). Requires restart.</string>
+      <string>Period at which item flash (seconds). Requires restart.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

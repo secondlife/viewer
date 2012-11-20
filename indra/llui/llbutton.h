@@ -30,6 +30,7 @@
 #include "lluuid.h"
 #include "llbadgeowner.h"
 #include "llcontrol.h"
+#include "llflashtimer.h"
 #include "lluictrl.h"
 #include "v4color.h"
 #include "llframetimer.h"
@@ -201,6 +202,7 @@ public:
 	void			setHighlight(bool b);
 	void			setFlashing( BOOL b );
 	BOOL			getFlashing() const		{ return mFlashing; }
+    LLFlashTimer*   getFlashTimer() {return mFlashingTimer;}
 
 	void			setHAlign( LLFontGL::HAlign align )		{ mHAlign = align; }
 	LLFontGL::HAlign getHAlign() const						{ return mHAlign; }
@@ -285,8 +287,6 @@ protected:
 
 	LLFrameTimer	mMouseDownTimer;
 	bool			mNeedsHighlight;
-	S32				mButtonFlashCount;
-	F32				mButtonFlashRate;
 
 	void			drawBorder(LLUIImage* imagep, const LLColor4& color, S32 size);
 	void			resetMouseDownTimer();
@@ -373,7 +373,7 @@ protected:
 	bool						mForcePressedState;
 	bool						mDisplayPressedState;
 
-	LLFrameTimer				mFlashingTimer;
+	LLFlashTimer*				mFlashingTimer;
 
 	bool						mHandleRightMouse;
 };

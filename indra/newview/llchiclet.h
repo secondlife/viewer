@@ -29,6 +29,7 @@
 
 #include "llavatariconctrl.h"
 #include "llbutton.h"
+#include "llflashtimer.h"
 #include "llpanel.h"
 #include "lltextbox.h"
 #include "lloutputmonitorctrl.h"
@@ -844,7 +845,7 @@ protected:
 	 * There is an assumption that it will be called 2*N times to do not change its start state.
 	 * @see FlashToLitTimer
 	 */
-	void changeLitState();
+	void changeLitState(bool blink);
 
 	/**
 	 * Displays menu.
@@ -860,7 +861,7 @@ protected:
 	S32 mMaxDisplayedCount;
 	bool mIsNewMessagesState;
 
-	FlashToLitTimer* mFlashToLitTimer;
+	LLFlashTimer* mFlashToLitTimer;
 	LLContextMenu* mContextMenu;
 };
 

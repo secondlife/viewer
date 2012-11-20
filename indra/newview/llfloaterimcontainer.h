@@ -164,6 +164,7 @@ public:
 	void setTimeNow(const LLUUID& session_id, const LLUUID& participant_id);
 	void setNearbyDistances();
 	void reSelectConversation();
+	void flashConversationItemWidget(const LLUUID& session_id, bool is_flashes);
 
 private:
 	LLConversationViewSession* createConversationItemWidget(LLConversationItem* item);

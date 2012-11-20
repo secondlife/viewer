@@ -23,9 +23,12 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
+#include "../newview/llviewerprecompiledheaders.h"
+
+#include "llflashtimer.h"
+
 #include "linden_common.h"
 #include "llfolderviewitem.h"
-
 #include "llfolderview.h"
 #include "llfolderviewmodel.h"
 #include "llpanel.h"
@@ -142,6 +145,8 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
     mArrowSize(p.arrow_size),
     mMaxFolderItemOverlap(p.max_folder_item_overlap)
 {
+	mFlashTimer = new LLFlashTimer();
+
 	sFgColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
 	sHighlightBgColor = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", DEFAULT_WHITE);
 	sHighlightFgColor = LLUIColorTable::instance().getColor("MenuItemHighlightFgColor", DEFAULT_WHITE);
@@ -160,17 +165,19 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 	}
 }
 
+// Destroys the object
+LLFolderViewItem::~LLFolderViewItem()
+{
+	delete mFlashTimer;
+	mViewModelItem = NULL;
+}
+
 BOOL LLFolderViewItem::postBuild()
 {
 	refresh();
 	return TRUE;
 }
 
-// Destroys the object
-LLFolderViewItem::~LLFolderViewItem( void )
-{
-	mViewModelItem = NULL;
-}
 
 LLFolderView* LLFolderViewItem::getRoot()
 {
@@ -676,12 +683,16 @@ void LLFolderViewItem::drawHighlight(const BOOL showContent, const BOOL hasKeybo
     const S32 focus_bottom = getRect().getHeight() - mItemHeight;
     const bool folder_open = (getRect().getHeight() > mItemHeight + 4);
     const S32 FOCUS_LEFT = 1;
+    bool flashing = mFlashTimer->isFlashing();
 
-    if (mIsSelected) // always render "current" item.  Only render other selected items if mShowSingleSelection is FALSE
+    if (flashing? mFlashTimer->isHighlight() : mIsSelected) // always render "current" item (only render other selected items if
+    	             // mShowSingleSelection is FALSE) or flashing item
+
     {
         gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
         LLColor4 bg_color = bgColor;
-        if (!mIsCurSelection)
+        bool selection = flashing? mFlashTimer->isHighlight() : mIsCurSelection;
+        if (!selection)
         {
             // do time-based fade of extra objects
             F32 fade_time = (getRoot() ? getRoot()->getSelectionFadeElapsedTime() : 0.0f);
@@ -701,7 +712,7 @@ void LLFolderViewItem::drawHighlight(const BOOL showContent, const BOOL hasKeybo
             getRect().getWidth() - 2,
             focus_bottom,
             bg_color, hasKeyboardFocus);
-        if (mIsCurSelection)
+        if (selection)
         {
             gl_rect_2d(FOCUS_LEFT, 
                 focus_top, 
