@@ -2808,7 +2808,7 @@ void LLIMMgr::inviteToSession(
 	{
 		bool isRejectGroupCall = (gSavedSettings.getBOOL("VoiceCallsRejectGroup") && (notify_box_type == "VoiceInviteGroup"));
 		bool isRejectNonFriendCall = (gSavedSettings.getBOOL("VoiceCallsFriendsOnly") && (LLAvatarTracker::instance().getBuddyInfo(caller_id) == NULL));
-		bool isRejectDoNotDisturb = gAgent.isDoNotDisturb();
+		bool isRejectDoNotDisturb = (gAgent.isDoNotDisturb() && !hasSession(session_id));
 		if	(isRejectGroupCall || isRejectNonFriendCall || isRejectDoNotDisturb)
 		{
 			if (isRejectDoNotDisturb && !isRejectGroupCall && !isRejectNonFriendCall)
