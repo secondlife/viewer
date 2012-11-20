@@ -42,7 +42,7 @@ private:
 #if LL_DARWIN
 	// statically allocated thread local storage not supported in Darwin executable formats
 #elif LL_WINDOWS
-	static U32 __declspec(thread) LLThread::sThreadIndex;
+	static U32 __declspec(thread) LLThread::sThreadID;
 #elif LL_LINUX
 	static U32 __thread LLThread::sThreadID ;
 #endif

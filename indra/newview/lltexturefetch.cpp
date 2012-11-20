@@ -2280,7 +2280,7 @@ void LLTextureFetchWorker::recordTextureStart(bool is_http)
 	{
 		mMetricsStartTime = LLViewerAssetStatsFF::get_timestamp();
 	}
-	LLViewerAssetStatsFF::record_enqueue_thread1(LLViewerAssetType::AT_TEXTURE,
+	LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_TEXTURE,
 												 is_http,
 												 LLImageBase::TYPE_AVATAR_BAKE == mType);
 }
@@ -2291,13 +2291,13 @@ void LLTextureFetchWorker::recordTextureDone(bool is_http)
 {
 	if (mMetricsStartTime)
 	{
-		LLViewerAssetStatsFF::record_response_thread1(LLViewerAssetType::AT_TEXTURE,
+		LLViewerAssetStatsFF::record_response(LLViewerAssetType::AT_TEXTURE,
 													  is_http,
 													  LLImageBase::TYPE_AVATAR_BAKE == mType,
 													  LLViewerAssetStatsFF::get_timestamp() - mMetricsStartTime);
 		mMetricsStartTime = 0;
 	}
-	LLViewerAssetStatsFF::record_dequeue_thread1(LLViewerAssetType::AT_TEXTURE,
+	LLViewerAssetStatsFF::record_dequeue(LLViewerAssetType::AT_TEXTURE,
 												 is_http,
 												 LLImageBase::TYPE_AVATAR_BAKE == mType);
 }
@@ -2826,9 +2826,9 @@ S32 LLTextureFetch::update(F32 max_time_ms)
 
 	{
 		mNetworkQueueMutex.lock();										// +Mfnq
-	mMaxBandwidth = band_width ;
+		mMaxBandwidth = band_width ;
 
-		gTextureList.sTextureBits += mHTTPTextureBits;
+		LLStatViewer::TEXTURE_KBIT.add(mHTTPTextureBits);
 		mHTTPTextureBits = 0;
 
 		mNetworkQueueMutex.unlock();									// -Mfnq
@@ -3702,7 +3702,7 @@ AssetReportHandler stats_handler;
 bool
 TFReqSetRegion::doWork(LLTextureFetch *)
 {
-	LLViewerAssetStatsFF::set_region_thread1(mRegionHandle);
+	LLViewerAssetStatsFF::set_region(mRegionHandle);
 
 	return true;
 }

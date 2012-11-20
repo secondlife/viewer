@@ -26,7 +26,7 @@
 #ifndef LLMEMORY_H
 #define LLMEMORY_H
 
-#include "llmemtype.h"
+#include "linden_common.h"
 
 class LLMutex ;
 

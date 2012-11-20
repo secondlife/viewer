@@ -86,7 +86,7 @@ void LLMutex::lock()
 #if LL_DARWIN
 	mLockingThread = LLThread::currentID();
 #else
-	mLockingThread = LLThread::sThreadIndex;
+	mLockingThread = LLThread::sThreadID;
 #endif
 }
 
@@ -129,7 +129,7 @@ bool LLMutex::isSelfLocked()
 #if LL_DARWIN
 	return mLockingThread == LLThread::currentID();
 #else
-	return mLockingThread == LLThread::sThreadIndex;
+	return mLockingThread == LLThread::sThreadID;
 #endif
 }
 
@@ -180,50 +180,5 @@ void LLCondition::broadcast()
 	apr_thread_cond_broadcast(mAPRCondp);
 }
 
-
-//============================================================================
-
-//----------------------------------------------------------------------------
-
-//static
-LLMutex* LLThreadSafeRefCount::sMutex = 0;
-
-//static
-void LLThreadSafeRefCount::initThreadSafeRefCount()
-{
-	if (!sMutex)
-	{
-		sMutex = new LLMutex(0);
-	}
-}
-
-//static
-void LLThreadSafeRefCount::cleanupThreadSafeRefCount()
-{
-	delete sMutex;
-	sMutex = NULL;
-}
-
-
-//----------------------------------------------------------------------------
-
-LLThreadSafeRefCount::LLThreadSafeRefCount() :
-mRef(0)
-{
-}
-
-LLThreadSafeRefCount::~LLThreadSafeRefCount()
-{ 
-	if (mRef != 0)
-	{
-		llerrs << "deleting non-zero reference" << llendl;
-	}
-}
-
-//============================================================================
-
-LLResponder::~LLResponder()
-{
-}
 
 //============================================================================

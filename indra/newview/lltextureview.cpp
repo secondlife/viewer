@@ -514,8 +514,8 @@ void LLGLTexMemBar::draw()
 	F32 cache_max_usage = (F32)LLTrace::Megabytes(LLAppViewer::getTextureCache()->getMaxUsage()).value() ;
 	S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
 	S32 v_offset = 0;//(S32)((texture_bar_height + 2.2f) * mTextureView->mNumTextureBars + 2.0f);
-	F32 total_texture_downloaded = (F32)gTotalTextureBytes / (1024 * 1024);
-	F32 total_object_downloaded = (F32)gTotalObjectBytes / (1024 * 1024);
+	LLUnit<LLUnits::Bytes, F32> total_texture_downloaded = gTotalTextureData;
+	LLUnit<LLUnits::Bytes, F32> total_object_downloaded = gTotalObjectData;
 	U32 total_http_requests = LLAppViewer::getTextureFetch()->getTotalNumHTTPRequests() ;
 	//----------------------------------------------------------------------------
 	LLGLSUIDefault gls_ui;

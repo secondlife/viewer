@@ -329,7 +329,7 @@ private:
 	LLTextureInfo mTextureInfo;
 
 	// XXX possible delete
-	U32 mHTTPTextureBits;												// Mfnq
+	LLUnit<LLUnits::Bits, U32> mHTTPTextureBits;												// Mfnq
 
 	// XXX possible delete
 	//debug use

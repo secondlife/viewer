@@ -109,9 +109,9 @@ struct LLUnit
 		return mValue;
 	}
 
-	template<typename NEW_UNIT_TYPE> LLUnit<NEW_UNIT_TYPE, STORAGE_TYPE> as()
+	template<typename NEW_UNIT_TYPE, typename NEW_STORAGE_TYPE> LLUnit<NEW_UNIT_TYPE, NEW_STORAGE_TYPE> as()
 	{
-		return LLUnit<NEW_UNIT_TYPE, STORAGE_TYPE>(*this);
+		return LLUnit<NEW_UNIT_TYPE, NEW_STORAGE_TYPE>(*this);
 	}
 
 	void operator += (storage_t value)
@@ -332,21 +332,27 @@ struct HighestPrecisionType<LLUnit<UNIT_TYPE, STORAGE_TYPE> >
 	typedef typename HighestPrecisionType<STORAGE_TYPE>::type_t type_t;
 };
 
-#define LL_DECLARE_DERIVED_UNIT(base_unit_name, unit_name, conversion_factor)                                                                                   \
-struct unit_name                                                                                                                                                \
-{                                                                                                                                                               \
-	typedef base_unit_name base_unit_t;                                                                                                                         \
-};                                                                                                                                                              \
-template<typename STORAGE_TYPE>                                                                                                                                 \
-struct ConversionFactor<unit_name, base_unit_name, STORAGE_TYPE>                                                                                                \
-{                                                                                                                                                               \
-	static typename HighestPrecisionType<STORAGE_TYPE>::type_t get() { return typename HighestPrecisionType<STORAGE_TYPE>::type_t(conversion_factor); }         \
-};                                                                                                                                                              \
-	                                                                                                                                                            \
-template<typename STORAGE_TYPE>                                                                                                                                 \
-struct ConversionFactor<base_unit_name, unit_name, STORAGE_TYPE>						                                                                        \
-{                                                                                                                                                               \
-	static typename HighestPrecisionType<STORAGE_TYPE>::type_t get() { return typename HighestPrecisionType<STORAGE_TYPE>::type_t(1.0 / (conversion_factor)); } \
+#define LL_DECLARE_DERIVED_UNIT(base_unit_name, unit_name, conversion_factor)                   \
+struct unit_name                                                                                \
+{                                                                                               \
+	typedef base_unit_name base_unit_t;                                                         \
+};                                                                                              \
+template<typename STORAGE_TYPE>                                                                 \
+struct ConversionFactor<unit_name, base_unit_name, STORAGE_TYPE>                                \
+{                                                                                               \
+	static typename HighestPrecisionType<STORAGE_TYPE>::type_t get()                            \
+	{                                                                                           \
+		return typename HighestPrecisionType<STORAGE_TYPE>::type_t(conversion_factor);          \
+	}                                                                                           \
+};                                                                                              \
+	                                                                                            \
+template<typename STORAGE_TYPE>                                                                 \
+struct ConversionFactor<base_unit_name, unit_name, STORAGE_TYPE>						        \
+{                                                                                               \
+	static typename HighestPrecisionType<STORAGE_TYPE>::type_t get()                            \
+	{                                                                                           \
+		return typename HighestPrecisionType<STORAGE_TYPE>::type_t(1.0 / (conversion_factor));  \
+	}                                                                                           \
 }
 
 struct Bytes { typedef Bytes base_unit_t; };

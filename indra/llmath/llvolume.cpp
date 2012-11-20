@@ -6667,6 +6667,10 @@ void LLVolumeFace::resizeVertices(S32 num_verts)
 		mPositions = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
 		ll_assert_aligned(mPositions, 16);
 		mNormals = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
+		if ( ((int)mNormals & 0xF) != 0 )
+		{
+			__debugbreak();
+		}
 		ll_assert_aligned(mNormals, 16);
 
 		//pad texture coordinate block end to allow for QWORD reads
