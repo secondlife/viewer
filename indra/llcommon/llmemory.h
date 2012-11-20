@@ -28,6 +28,8 @@
 
 #include "llmemtype.h"
 
+class LLMutex ;
+
 #if LL_WINDOWS && LL_DEBUG
 #define LL_CHECK_MEMORY llassert(_CrtCheckMemory());
 #else

@@ -215,7 +215,6 @@ set(viewer_SOURCE_FILES
     llfloaterinspect.cpp
     llfloaterinventory.cpp
     llfloaterjoystick.cpp
-    llfloaterlagmeter.cpp
     llfloaterland.cpp
     llfloaterlandholdings.cpp
     llfloatermap.cpp
@@ -336,7 +335,6 @@ set(viewer_SOURCE_FILES
     llmarketplacenotifications.cpp
     llmediactrl.cpp
     llmediadataclient.cpp
-    llmemoryview.cpp
     llmeshrepository.cpp
     llmimetypes.cpp
     llmorphview.cpp
@@ -792,7 +790,6 @@ set(viewer_HEADER_FILES
     llfloaterinspect.h
     llfloaterinventory.h
     llfloaterjoystick.h
-    llfloaterlagmeter.h
     llfloaterland.h
     llfloaterlandholdings.h
     llfloatermap.h
@@ -913,7 +910,6 @@ set(viewer_HEADER_FILES
     llmarketplacenotifications.h
     llmediactrl.h
     llmediadataclient.h
-    llmemoryview.h
     llmeshrepository.h
     llmimetypes.h
     llmorphview.h

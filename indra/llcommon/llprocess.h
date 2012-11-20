@@ -38,8 +38,7 @@
 #include <stdexcept>
 
 #if LL_WINDOWS
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>                // HANDLE (eye roll)
+#include "llwin32headerslean.h"	// for HANDLE
 #elif LL_LINUX
 #if defined(Status)
 #undef Status

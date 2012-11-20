@@ -39,6 +39,7 @@
 
 #include "lltimer.h"
 #include "llstring.h"
+#include "llfasttimer.h"
 
 static const F64 DATE_EPOCH = 0.0;
 
@@ -48,18 +49,15 @@ static const F64 LL_APR_USEC_PER_SEC = 1000000.0;
 
 
 LLDate::LLDate() : mSecondsSinceEpoch(DATE_EPOCH)
-{
-}
+{}
 
 LLDate::LLDate(const LLDate& date) :
 	mSecondsSinceEpoch(date.mSecondsSinceEpoch)
-{
-}
+{}
 
-LLDate::LLDate(F64 seconds_since_epoch) :
-	mSecondsSinceEpoch(seconds_since_epoch)
-{
-}
+LLDate::LLDate(LLUnit<LLUnits::Seconds, F64> seconds_since_epoch) :
+	mSecondsSinceEpoch(seconds_since_epoch.value())
+{}
 
 LLDate::LLDate(const std::string& iso8601_date)
 {

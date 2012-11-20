@@ -31,8 +31,9 @@
 #include <cstdio>
 #include <locale>
 #include <iomanip>
+#include <algorithm>
 #include "llsd.h"
-#include "llfasttimer.h"
+#include "llformat.h"
 
 #if LL_LINUX || LL_SOLARIS
 #include <wctype.h>

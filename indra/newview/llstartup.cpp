@@ -312,8 +312,6 @@ void update_texture_fetch()
 // true when all initialization done.
 bool idle_startup()
 {
-	LLMemType mt1(LLMemType::MTYPE_STARTUP);
-	
 	const F32 PRECACHING_DELAY = gSavedSettings.getF32("PrecachingDelay");
 	static LLTimer timeout;
 	static S32 timeout_count = 0;
@@ -1420,7 +1418,7 @@ bool idle_startup()
 		display_startup();
 
 		//reset statistics
-		LLViewerStats::getInstance()->resetStats();
+		LLViewerStats::instance().resetStats();
 
 		display_startup();
 		//
@@ -2073,7 +2071,7 @@ bool idle_startup()
 		if (wearables_time > MAX_WEARABLES_TIME)
 		{
 			LLNotificationsUtil::add("ClothingLoading");
-			LLViewerStats::getInstance()->incStat(LLViewerStats::ST_WEARABLES_TOO_LONG);
+			LLStatViewer::LOADING_WEARABLES_LONG_DELAY.add(1);
 			LLStartUp::setStartupState( STATE_CLEANUP );
 			return TRUE;
 		}
@@ -2186,7 +2184,7 @@ bool idle_startup()
 		LLAppViewer::instance()->handleLoginComplete();
 
 		// reset timers now that we are running "logged in" logic
-		LLFastTimer::reset();
+		LLTrace::BlockTimer::reset();
 
 		LLAgentPicksInfo::getInstance()->requestNumberOfPicks();
 
@@ -3308,7 +3306,7 @@ bool process_login_success_response()
 		// replace the default help URL format
 		gSavedSettings.setString("HelpURLFormat",text);
 	}
-
+			
 	std::string home_location = response["home"];
 	if(!home_location.empty())
 	{

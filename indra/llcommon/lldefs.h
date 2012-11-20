@@ -244,5 +244,8 @@ inline void llswap(LLDATATYPE& lhs, LLDATATYPE& rhs)
 	rhs = tmp;
 }
 
+#define LL_GLUE_IMPL(x, y) x##y
+#define LL_GLUE_TOKENS(x, y) LL_GLUE_IMPL(x, y)
+
 #endif // LL_LLDEFS_H
 

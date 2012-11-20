@@ -241,7 +241,7 @@ BOOL LLPolyMeshSharedData::allocateVertexData( U32 numVertices )
 			mBaseNormals[i].clear();
 			mBaseBinormals[i].clear();
 			mTexCoords[i].clear();
-			mWeights[i] = 0.f;
+            mWeights[i] = 0.f;
         }
         mNumVertices = numVertices;
         return TRUE;
@@ -750,8 +750,6 @@ const LLVector2 &LLPolyMeshSharedData::getUVs(U32 index)
 //-----------------------------------------------------------------------------
 LLPolyMesh::LLPolyMesh(LLPolyMeshSharedData *shared_data, LLPolyMesh *reference_mesh)
 {       
-	LLMemType mt(LLMemType::MTYPE_AVATAR_MESH);
-
 	llassert(shared_data);
 
 	mSharedData = shared_data;

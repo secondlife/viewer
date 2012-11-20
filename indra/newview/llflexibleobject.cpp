@@ -48,7 +48,7 @@ std::vector<LLVolumeImplFlexible*> LLVolumeImplFlexible::sInstanceList;
 std::vector<S32> LLVolumeImplFlexible::sUpdateDelay;
 
 static LLFastTimer::DeclareTimer FTM_FLEXIBLE_REBUILD("Rebuild");
-static LLFastTimer::DeclareTimer FTM_DO_FLEXIBLE_UPDATE("Update");
+static LLFastTimer::DeclareTimer FTM_DO_FLEXIBLE_UPDATE("Flexible Update");
 
 // LLFlexibleObjectData::pack/unpack now in llprimitive.cpp
 
@@ -377,7 +377,7 @@ void LLVolumeImplFlexible::doIdleUpdate()
 				if	(visible)
 				{
 					if (!drawablep->isState(LLDrawable::IN_REBUILD_Q1) &&
-					mVO->getPixelArea() > 256.f)
+						pixel_area > 256.f)
 					{
 						U32 id;
 				
@@ -444,7 +444,7 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 		//the object is not visible
 		return ;
 	}
-
+	
 	// stinson 11/12/2012: Need to check with davep on the following.
 	// Skipping the flexible update if render res is negative.  If we were to continue with a negative value,
 	// the subsequent S32 num_render_sections = 1<<mRenderRes; code will specify a really large number of

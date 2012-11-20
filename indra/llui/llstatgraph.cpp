@@ -32,48 +32,73 @@
 
 #include "llmath.h"
 #include "llui.h"
-#include "llstat.h"
 #include "llgl.h"
 #include "llglheaders.h"
+#include "lltracerecording.h"
+#include "lltracethreadrecorder.h"
 //#include "llviewercontrol.h"
 
 ///////////////////////////////////////////////////////////////////////////////////
 
-LLStatGraph::LLStatGraph(const LLView::Params& p)
-:	LLView(p)
+LLStatGraph::LLStatGraph(const Params& p)
+:	LLView(p),
+	mMin(p.min),
+	mMax(p.max),
+	mPerSec(true),
+	mPrecision(p.precision),
+	mValue(p.value),
+	mNewStatFloatp(p.stat.count_stat_float),
+	mNewStatIntp(p.stat.count_stat_int)
 {
-	mStatp = NULL;
 	setToolTip(p.name());
-	mNumThresholds = 3;
-	mThresholdColors[0] = LLColor4(0.f, 1.f, 0.f, 1.f);
-	mThresholdColors[1] = LLColor4(1.f, 1.f, 0.f, 1.f);
-	mThresholdColors[2] = LLColor4(1.f, 0.f, 0.f, 1.f);
-	mThresholdColors[3] = LLColor4(1.f, 0.f, 0.f, 1.f);
-	mThresholds[0] = 50.f;
-	mThresholds[1] = 75.f;
-	mThresholds[2] = 100.f;
-	mMin = 0.f;
-	mMax = 125.f;
-	mPerSec = TRUE;
-	mValue = 0.f;
-	mPrecision = 0;
+
+	for(LLInitParam::ParamIterator<ThresholdParams>::const_iterator it = p.thresholds.threshold.begin(), end_it = p.thresholds.threshold.end();
+		it != end_it;
+		++it)
+	{
+		mThresholds.push_back(Threshold(it->value(), it->color));
+	}
+
+	//mThresholdColors[0] = LLColor4(0.f, 1.f, 0.f, 1.f);
+	//mThresholdColors[1] = LLColor4(1.f, 1.f, 0.f, 1.f);
+	//mThresholdColors[2] = LLColor4(1.f, 0.f, 0.f, 1.f);
+	//mThresholdColors[3] = LLColor4(1.f, 0.f, 0.f, 1.f);
+	//mThresholds[0] = 50.f;
+	//mThresholds[1] = 75.f;
+	//mThresholds[2] = 100.f;
 }
 
 void LLStatGraph::draw()
 {
 	F32 range, frac;
 	range = mMax - mMin;
-	if (mStatp)
+	if (mNewStatFloatp)
 	{
+		LLTrace::Recording& recording = LLTrace::get_frame_recording().getLastRecordingPeriod();
+
 		if (mPerSec)
 		{
-			mValue = mStatp->getMeanPerSec();
+			mValue = recording.getPerSec(*mNewStatFloatp);
 		}
 		else
 		{
-			mValue = mStatp->getMean();
+			mValue = recording.getSum(*mNewStatFloatp);
 		}
 	}
+	else if (mNewStatIntp)
+	{
+		LLTrace::Recording& recording = LLTrace::get_frame_recording().getLastRecordingPeriod();
+
+		if (mPerSec)
+		{
+			mValue = recording.getPerSec(*mNewStatIntp);
+		}
+		else
+		{
+			mValue = recording.getSum(*mNewStatIntp);
+		}
+	}
+
 	frac = (mValue - mMin) / range;
 	frac = llmax(0.f, frac);
 	frac = llmin(1.f, frac);
@@ -91,18 +116,21 @@ void LLStatGraph::draw()
 
 	LLColor4 color;
 
-	S32 i;
-	for (i = 0; i < mNumThresholds - 1; i++)
-	{
-		if (mThresholds[i] > mValue)
-		{
-			break;
-		}
-	}
+	//S32 i;
+	//for (i = 0; i < mNumThresholds - 1; i++)
+	//{
+	//	if (mThresholds[i] > mValue)
+	//	{
+	//		break;
+	//	}
+	//}
 
-	//gl_drop_shadow(0,  getRect().getHeight(), getRect().getWidth(), 0,
-	//				LLUIColorTable::instance().getColor("ColorDropShadow"), 
-	//				(S32) gSavedSettings.getF32("DropShadowFloater") );
+	threshold_vec_t::iterator it = std::lower_bound(mThresholds.begin(), mThresholds.end(), Threshold(mValue / mMax, LLUIColor()));
+
+	if (it != mThresholds.begin())
+	{
+		it--;
+	}
 
 	color = LLUIColorTable::instance().getColor( "MenuDefaultBgColor" );
 	gGL.color4fv(color.mV);
@@ -111,14 +139,9 @@ void LLStatGraph::draw()
 	gGL.color4fv(LLColor4::black.mV);
 	gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0, FALSE);
 	
-	color = mThresholdColors[i];
+	color = it->mColor;
 	gGL.color4fv(color.mV);
 	gl_rect_2d(1, llround(frac*getRect().getHeight()), getRect().getWidth() - 1, 0, TRUE);
-}
-
-void LLStatGraph::setValue(const LLSD& value)
-{
-	mValue = (F32)value.asReal();
 }
 
 void LLStatGraph::setMin(const F32 min)
@@ -131,27 +154,3 @@ void LLStatGraph::setMax(const F32 max)
 	mMax = max;
 }
 
-void LLStatGraph::setStat(LLStat *statp)
-{
-	mStatp = statp;
-}
-
-void LLStatGraph::setLabel(const std::string& label)
-{
-	mLabel = label;
-}
-
-void LLStatGraph::setUnits(const std::string& units)
-{
-	mUnits = units;
-}
-
-void LLStatGraph::setPrecision(const S32 precision)
-{
-	mPrecision = precision;
-}
-
-void LLStatGraph::setThreshold(const S32 i, F32 value)
-{
-	mThresholds[i] = value;
-}

@@ -257,8 +257,6 @@ BOOL LLVOAvatarSelf::loadAvatarSelf()
 
 BOOL LLVOAvatarSelf::buildSkeletonSelf(const LLVOAvatarSkeletonInfo *info)
 {
-	LLMemType mt(LLMemType::MTYPE_AVATAR);
-
 	// add special-purpose "screen" joint
 	mScreenp = new LLViewerJoint("mScreen", NULL);
 	// for now, put screen at origin, as it is only used during special
@@ -652,8 +650,6 @@ BOOL LLVOAvatarSelf::loadLayersets()
 // virtual
 BOOL LLVOAvatarSelf::updateCharacter(LLAgent &agent)
 {
-	LLMemType mt(LLMemType::MTYPE_AVATAR);
-
 	// update screen joint size
 	if (mScreenp)
 	{
@@ -914,17 +910,11 @@ void LLVOAvatarSelf::updateRegion(LLViewerRegion *regionp)
 		if (mLastRegionHandle != 0)
 		{
 			++mRegionCrossingCount;
-			F64 delta = (F64)mRegionCrossingTimer.getElapsedTimeF32();
-			F64 avg = (mRegionCrossingCount == 1) ? 0 : LLViewerStats::getInstance()->getStat(LLViewerStats::ST_CROSSING_AVG);
-			F64 delta_avg = (delta + avg*(mRegionCrossingCount-1)) / mRegionCrossingCount;
-			LLViewerStats::getInstance()->setStat(LLViewerStats::ST_CROSSING_AVG, delta_avg);
-			
-			F64 max = (mRegionCrossingCount == 1) ? 0 : LLViewerStats::getInstance()->getStat(LLViewerStats::ST_CROSSING_MAX);
-			max = llmax(delta, max);
-			LLViewerStats::getInstance()->setStat(LLViewerStats::ST_CROSSING_MAX, max);
+			LLTrace::Seconds delta = mRegionCrossingTimer.getElapsedTimeF32();
+			LLStatViewer::REGION_CROSSING_TIME.sample(delta);
 
 			// Diagnostics
-			llinfos << "Region crossing took " << (F32)(delta * 1000.0) << " ms " << llendl;
+			llinfos << "Region crossing took " << (F32)(delta * 1000.0).value() << " ms " << llendl;
 		}
 		if (regionp)
 		{
@@ -1008,8 +998,6 @@ void LLVOAvatarSelf::idleUpdateTractorBeam()
 // virtual
 void LLVOAvatarSelf::restoreMeshData()
 {
-	LLMemType mt(LLMemType::MTYPE_AVATAR);
-	
 	//llinfos << "Restoring" << llendl;
 	mMeshValid = TRUE;
 	updateJointLODs();
@@ -2144,7 +2132,7 @@ LLSD LLVOAvatarSelf::metricsData()
 	result["timers"]["ruth"] = mRuthTimer.getElapsedTimeF32();
 	result["timers"]["invisible"] = mInvisibleTimer.getElapsedTimeF32();
 	result["timers"]["fully_loaded"] = mFullyLoadedTimer.getElapsedTimeF32();
-	result["startup"] = LLStartUp::getPhases().dumpPhases();
+	result["startup"] = LLStartUp::getPhases().asLLSD();
 	
 	return result;
 }
@@ -2226,7 +2214,7 @@ void LLVOAvatarSelf::sendAppearanceChangeMetrics()
 	{
 		LLCurlRequest::headers_t headers;
 		LLHTTPClient::post(caps_url,
-						   msg,
+							msg,
 						   new ViewerAppearanceChangeMetricsResponder(report_sequence,
 																	  report_sequence,
 																	  reporting_started));
@@ -2593,7 +2581,7 @@ void LLVOAvatarSelf::processRebakeAvatarTextures(LLMessageSystem* msg, void**)
 					llinfos << "TAT: rebake - matched entry " << (S32)index << llendl;
 					gAgentAvatarp->invalidateComposite(layer_set, TRUE);
 					found = TRUE;
-					LLViewerStats::getInstance()->incStat(LLViewerStats::ST_TEX_REBAKES);
+					LLStatViewer::TEX_REBAKES.add(1);
 				}
 			}
 		}
@@ -2638,7 +2626,7 @@ void LLVOAvatarSelf::forceBakeAllTextures(bool slam_for_debug)
 			}
 
 			invalidateComposite(layer_set, TRUE);
-			LLViewerStats::getInstance()->incStat(LLViewerStats::ST_TEX_REBAKES);
+			LLStatViewer::TEX_REBAKES.add(1);
 		}
 		else
 		{
@@ -2793,7 +2781,7 @@ void LLVOAvatarSelf::deleteScratchTextures()
 
 		sScratchTexNames.deleteAllData();
 		sScratchTexLastBindTime.deleteAllData();
-		LLImageGL::sGlobalTextureMemoryInBytes -= sScratchTexBytes;
+		LLImageGL::sGlobalTextureMemory -= sScratchTexBytes;
 		sScratchTexBytes = 0;
 	}
 }

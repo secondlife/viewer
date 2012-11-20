@@ -45,7 +45,6 @@
 class LLTimer;
 class LLUUID;
 class LLAgent;
-class LLStat;
 
 static const U8 NO_EDGE    = 0x00;
 static const U8 EAST_EDGE  = 0x01;
@@ -168,9 +167,6 @@ public:
 	U32 mType;				// Useful for identifying derived classes
 	
 	F32 mDetailTextureScale;	//  Number of times to repeat detail texture across this surface 
-
-	static F32 sTextureUpdateTime;
-	static S32 sTexelsUpdated;
 
 protected:
 	void createSTexture();

@@ -3983,7 +3983,6 @@ static LLFastTimer::DeclareTimer FTM_REGISTER_FACE("Register Face");
 void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep, U32 type)
 {
 	LLFastTimer t(FTM_REGISTER_FACE);
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 
 	if (facep->getViewerObject()->isSelected() && LLSelectMgr::getInstance()->mHideSelectedObjects)
 	{
@@ -4910,11 +4909,19 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 				facep->setTextureIndex(cur_tex);
 				texture_list.push_back(tex);
 
-				//if (can_batch_texture(facep))
-				{
+				if (can_batch_texture(facep))
+				{ //populate texture_list with any textures that can be batched
+				  //move i to the next unbatchable face
 					while (i != faces.end())
 					{
 						facep = *i;
+						
+						if (!can_batch_texture(facep))
+						{ //face is bump mapped or has an animated texture matrix -- can't 
+							//batch more than 1 texture at a time
+							break;
+						}
+
 						if (facep->getTexture() != tex)
 						{
 							if (distance_sort)
@@ -4938,12 +4945,6 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 							else
 							{
 								cur_tex++;
-							}
-
-							if (!can_batch_texture(facep))
-							{ //face is bump mapped or has an animated texture matrix -- can't 
-								//batch more than 1 texture at a time
-								break;
 							}
 
 							if (cur_tex >= texture_index_channels)

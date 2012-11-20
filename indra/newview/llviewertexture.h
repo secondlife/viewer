@@ -34,12 +34,13 @@
 #include "llgltypes.h"
 #include "llrender.h"
 #include "llmetricperformancetester.h"
+#include "llunit.h"
 
 #include <map>
 #include <list>
 
-#define MIN_VIDEO_RAM_IN_MEGA_BYTES    32
-#define MAX_VIDEO_RAM_IN_MEGA_BYTES    512 // 512MB max for performance reasons.
+extern const LLUnit<LLUnits::Megabytes, S32> gMinVideoRam;
+extern const LLUnit<LLUnits::Megabytes, S32> gMaxVideoRam;
 
 class LLFace;
 class LLImageGL ;
@@ -322,11 +323,11 @@ public:
 	static LLFrameTimer sEvaluationTimer;
 	static F32 sDesiredDiscardBias;
 	static F32 sDesiredDiscardScale;
-	static S32 sBoundTextureMemoryInBytes;
-	static S32 sTotalTextureMemoryInBytes;
-	static S32 sMaxBoundTextureMemInMegaBytes;
-	static S32 sMaxTotalTextureMemInMegaBytes;
-	static S32 sMaxDesiredTextureMemInBytes ;
+	static LLUnit<LLUnits::Bytes, S32> sBoundTextureMemory;
+	static LLUnit<LLUnits::Bytes, S32> sTotalTextureMemory;
+	static LLUnit<LLUnits::Megabytes, S32> sMaxBoundTextureMem;
+	static LLUnit<LLUnits::Megabytes, S32> sMaxTotalTextureMem;
+	static LLUnit<LLUnits::Bytes, S32> sMaxDesiredTextureMem ;
 	static S8  sCameraMovingDiscardBias;
 	static F32 sCameraMovingBias;
 	static S32 sMaxSculptRez ;

@@ -783,8 +783,9 @@ void LLPanelLandGeneral::refresh()
 			mBtnReleaseLand->setEnabled( can_release );
 		}
 
-		BOOL use_pass = parcel->getParcelFlag(PF_USE_PASS_LIST) && !LLViewerParcelMgr::getInstance()->isCollisionBanned();;
+		BOOL use_pass = parcel->getOwnerID()!= gAgent.getID() && parcel->getParcelFlag(PF_USE_PASS_LIST) && !LLViewerParcelMgr::getInstance()->isCollisionBanned();;
 		mBtnBuyPass->setEnabled(use_pass);
+
 	}
 }
 

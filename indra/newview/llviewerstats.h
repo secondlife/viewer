@@ -1,5 +1,5 @@
 /** 
- * @file llviewerstats.h
+ * @file llviewerim_peningtats.h
  * @brief LLViewerStats class header file
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
@@ -27,170 +27,174 @@
 #ifndef LL_LLVIEWERSTATS_H
 #define LL_LLVIEWERSTATS_H
 
-#include "llstat.h"
+#include "llstatenums.h"
 #include "lltextureinfo.h"
+#include "lltracerecording.h"
+#include "lltrace.h"
+
+namespace LLStatViewer
+{
+
+struct SimMeasurementSampler : public LLInstanceTracker<SimMeasurementSampler, ESimStatID>
+{
+	SimMeasurementSampler(ESimStatID id)
+	:	LLInstanceTracker(id)
+	{}
+	virtual ~SimMeasurementSampler() {}
+	virtual void sample(F64 value) = 0;
+};
+
+template<typename T = F64>
+struct SimMeasurement : public LLTrace::Measurement<T>, public SimMeasurementSampler
+{
+	SimMeasurement(const char* name, const char* description, ESimStatID stat_id)
+	:	LLTrace::Measurement<T>(name, description),
+		SimMeasurementSampler(stat_id)	
+	{}
+
+	using SimMeasurementSampler::getInstance;
+
+	/*virtual*/ void sample(F64 value)
+	{
+		LLTrace::Measurement<T>::sample(T(value));
+	}
+};
+
+extern LLTrace::Count<>						FPS,
+											PACKETS_IN,
+											PACKETS_LOST,
+											PACKETS_OUT,
+											TEXTURE_PACKETS,
+											TRIANGLES_DRAWN,
+											CHAT_COUNT,
+											IM_COUNT,
+											OBJECT_CREATE,
+											OBJECT_REZ,
+											LOADING_WEARABLES_LONG_DELAY,
+											LOGIN_TIMEOUTS,
+											LSL_SAVES,
+											ANIMATION_UPLOADS,
+											FLY,
+											TELEPORT,
+											DELETE_OBJECT,
+											SNAPSHOT,
+											UPLOAD_SOUND,
+											UPLOAD_TEXTURE,
+											EDIT_TEXTURE,
+											KILLED,
+											FRAMETIME_DOUBLED,
+											TEX_BAKES,
+											TEX_REBAKES;
+
+
+extern LLTrace::Count<LLTrace::Kilobits>	KBIT,
+											LAYERS_KBIT,
+											OBJECT_KBIT,
+											ASSET_KBIT,
+											TEXTURE_KBIT,
+											ACTUAL_IN_KBIT,
+											ACTUAL_OUT_KBIT;
+
+extern LLTrace::Count<LLTrace::Seconds>		AVATAR_EDIT_TIME,
+											TOOLBOX_TIME,
+											MOUSELOOK_TIME,
+											FPS_10_TIME,
+											FPS_8_TIME,
+											FPS_2_TIME,
+											SIM_20_FPS_TIME,
+											SIM_PHYSICS_20_FPS_TIME,
+											LOSS_5_PERCENT_TIME;
+
+extern SimMeasurement<>						SIM_TIME_DILATION,
+											SIM_FPS,
+											SIM_PHYSICS_FPS,
+											SIM_AGENT_UPS,
+											SIM_SCRIPT_EPS,
+											SIM_SKIPPED_SILHOUETTE,
+											SIM_SKIPPED_CHARACTERS_PERCENTAGE,
+											SIM_MAIN_AGENTS,
+											SIM_CHILD_AGENTS,
+											SIM_OBJECTS,
+											SIM_ACTIVE_OBJECTS,
+											SIM_ACTIVE_SCRIPTS,
+											SIM_PERCENTAGE_SCRIPTS_RUN,
+											SIM_IN_PACKETS_PER_SEC,
+											SIM_OUT_PACKETS_PER_SEC,
+											SIM_PENDING_DOWNLOADS,
+											SIM_PENDING_UPLOADS,
+											SIM_PENDING_LOCAL_UPLOADS,
+											SIM_PHYSICS_PINNED_TASKS,
+											SIM_PHYSICS_LOD_TASKS;
+
+extern LLTrace::Measurement<>				FPS_SAMPLE,
+											NUM_IMAGES,
+											NUM_RAW_IMAGES,
+											NUM_OBJECTS,
+											NUM_ACTIVE_OBJECTS,
+											NUM_NEW_OBJECTS,
+											NUM_SIZE_CULLED,
+											NUM_VIS_CULLED,
+											ENABLE_VBO,
+											LIGHTING_DETAIL,
+											VISIBLE_AVATARS,
+											SHADER_OBJECTS,
+											DRAW_DISTANCE,
+											CHAT_BUBBLES,
+											PENDING_VFS_OPERATIONS,
+											PACKETS_LOST_PERCENT,
+											WINDOW_WIDTH,
+											WINDOW_HEIGHT;
+
+extern LLTrace::Measurement<LLTrace::Meters> AGENT_POSITION_SNAP;
+
+extern LLTrace::Measurement<LLTrace::Bytes>	DELTA_BANDWIDTH,
+											MAX_BANDWIDTH,
+											GL_TEX_MEM,
+											GL_BOUND_MEM,
+											RAW_MEM,
+											FORMATTED_MEM;
+
+extern SimMeasurement<LLTrace::Milliseconds>	SIM_FRAME_TIME,
+												SIM_NET_TIME,
+												SIM_OTHER_TIME,
+												SIM_PHYSICS_TIME,
+												SIM_PHYSICS_STEP_TIME,
+												SIM_PHYSICS_SHAPE_UPDATE_TIME,
+												SIM_PHYSICS_OTHER_TIME,
+												SIM_AI_TIME,
+												SIM_AGENTS_TIME,
+												SIM_IMAGES_TIME,
+												SIM_SCRIPTS_TIME,
+												SIM_SPARE_TIME,
+												SIM_SLEEP_TIME,
+												SIM_PUMP_IO_TIME;
+
+extern SimMeasurement<LLTrace::Bytes>			SIM_UNACKED_BYTES,
+												SIM_PHYSICS_MEM;
+
+
+extern LLTrace::Measurement<LLTrace::Milliseconds>	FRAMETIME_JITTER,
+													FRAMETIME_SLEW,
+													LOGIN_SECONDS,
+													REGION_CROSSING_TIME,
+													FRAME_STACKTIME,
+													UPDATE_STACKTIME,
+													NETWORK_STACKTIME,
+													IMAGE_STACKTIME,
+													REBUILD_STACKTIME,
+													RENDER_STACKTIME,
+													SIM_PING;
+}
 
 class LLViewerStats : public LLSingleton<LLViewerStats>
 {
 public:
-	LLStat mKBitStat;
-	LLStat mLayersKBitStat;
-	LLStat mObjectKBitStat;
-	LLStat mAssetKBitStat;
-	LLStat mTextureKBitStat;
-	LLStat mVFSPendingOperations;
-	LLStat mObjectsDrawnStat;
-	LLStat mObjectsCulledStat;
-	LLStat mObjectsTestedStat;
-	LLStat mObjectsComparedStat;
-	LLStat mObjectsOccludedStat;
-	LLStat mFPSStat;
-	LLStat mPacketsInStat;
-	LLStat mPacketsLostStat;
-	LLStat mPacketsOutStat;
-	LLStat mPacketsLostPercentStat;
-	LLStat mTexturePacketsStat;
-	LLStat mActualInKBitStat;	// From the packet ring (when faking a bad connection)
-	LLStat mActualOutKBitStat;	// From the packet ring (when faking a bad connection)
-	LLStat mTrianglesDrawnStat;
-
-	// Simulator stats
-	LLStat mSimTimeDilation;
-
-	LLStat mSimFPS;
-	LLStat mSimPhysicsFPS;
-	LLStat mSimAgentUPS;
-	LLStat mSimScriptEPS;
-
-	LLStat mSimFrameMsec;
-	LLStat mSimNetMsec;
-	LLStat mSimSimOtherMsec;
-	LLStat mSimSimPhysicsMsec;
-
-	LLStat mSimSimPhysicsStepMsec;
-	LLStat mSimSimPhysicsShapeUpdateMsec;
-	LLStat mSimSimPhysicsOtherMsec;
-
-	LLStat mSimSimAIStepMsec;
-	LLStat mSimSimSkippedSilhouetteSteps;
-	LLStat mSimSimPctSteppedCharacters;
-
-	LLStat mSimAgentMsec;
-	LLStat mSimImagesMsec;
-	LLStat mSimScriptMsec;
-	LLStat mSimSpareMsec;
-	LLStat mSimSleepMsec;
-	LLStat mSimPumpIOMsec;
-
-	LLStat mSimMainAgents;
-	LLStat mSimChildAgents;
-	LLStat mSimObjects;
-	LLStat mSimActiveObjects;
-	LLStat mSimActiveScripts;
-	LLStat mSimPctScriptsRun;
-
-	LLStat mSimInPPS;
-	LLStat mSimOutPPS;
-	LLStat mSimPendingDownloads;
-	LLStat mSimPendingUploads;
-	LLStat mSimPendingLocalUploads;
-	LLStat mSimTotalUnackedBytes;
-
-	LLStat mPhysicsPinnedTasks;
-	LLStat mPhysicsLODTasks;
-	LLStat mPhysicsMemoryAllocated;
-
-	LLStat mSimPingStat;
-
-	LLStat mNumImagesStat;
-	LLStat mNumRawImagesStat;
-	LLStat mGLTexMemStat;
-	LLStat mGLBoundMemStat;
-	LLStat mRawMemStat;
-	LLStat mFormattedMemStat;
-
-	LLStat mNumObjectsStat;
-	LLStat mNumActiveObjectsStat;
-	LLStat mNumNewObjectsStat;
-	LLStat mNumSizeCulledStat;
-	LLStat mNumVisCulledStat;
-
 	void resetStats();
-public:
-	// If you change this, please also add a corresponding text label
-	// in statTypeToText in llviewerstats.cpp
-	enum EStatType
-	{
-		ST_VERSION = 0,
-		ST_AVATAR_EDIT_SECONDS = 1,
-		ST_TOOLBOX_SECONDS = 2,
-		ST_CHAT_COUNT = 3,
-		ST_IM_COUNT = 4,
-		ST_FULLSCREEN_BOOL = 5,
-		ST_RELEASE_COUNT= 6,
-		ST_CREATE_COUNT = 7,
-		ST_REZ_COUNT = 8,
-		ST_FPS_10_SECONDS = 9,
-		ST_FPS_2_SECONDS = 10,
-		ST_MOUSELOOK_SECONDS = 11,
-		ST_FLY_COUNT = 12,
-		ST_TELEPORT_COUNT = 13,
-		ST_OBJECT_DELETE_COUNT = 14,
-		ST_SNAPSHOT_COUNT = 15,
-		ST_UPLOAD_SOUND_COUNT = 16,
-		ST_UPLOAD_TEXTURE_COUNT = 17,
-		ST_EDIT_TEXTURE_COUNT = 18,
-		ST_KILLED_COUNT = 19,
-		ST_FRAMETIME_JITTER = 20,
-		ST_FRAMETIME_SLEW = 21,
-		ST_INVENTORY_TOO_LONG = 22,
-		ST_WEARABLES_TOO_LONG = 23,
-		ST_LOGIN_SECONDS = 24,
-		ST_LOGIN_TIMEOUT_COUNT = 25,
-		ST_HAS_BAD_TIMER = 26,
-		ST_DOWNLOAD_FAILED = 27,
-		ST_LSL_SAVE_COUNT = 28,
-		ST_UPLOAD_ANIM_COUNT = 29,
-		ST_FPS_8_SECONDS = 30,
-		ST_SIM_FPS_20_SECONDS = 31,
-		ST_PHYS_FPS_20_SECONDS = 32,
-		ST_LOSS_05_SECONDS = 33,
-		ST_FPS_DROP_50_RATIO = 34,
-		ST_ENABLE_VBO = 35,
-		ST_DELTA_BANDWIDTH = 36,
-		ST_MAX_BANDWIDTH = 37,
-		ST_LIGHTING_DETAIL = 38,
-		ST_VISIBLE_AVATARS = 39,
-		ST_SHADER_OBJECTS = 40,
-		ST_SHADER_ENVIRONMENT = 41,
-		ST_DRAW_DIST = 42,
-		ST_CHAT_BUBBLES = 43,
-		ST_SHADER_AVATAR = 44,
-		ST_FRAME_SECS = 45,
-		ST_UPDATE_SECS = 46,
-		ST_NETWORK_SECS = 47,
-		ST_IMAGE_SECS = 48,
-		ST_REBUILD_SECS = 49,
-		ST_RENDER_SECS = 50,
-		ST_CROSSING_AVG = 51,
-		ST_CROSSING_MAX = 52,
-		ST_LIBXUL_WIDGET_USED = 53, // Unused
-		ST_WINDOW_WIDTH = 54,
-		ST_WINDOW_HEIGHT = 55,
-		ST_TEX_BAKES = 56,
-		ST_TEX_REBAKES = 57,
-		
-		ST_COUNT = 58
-	};
 
+public:
 
 	LLViewerStats();
 	~LLViewerStats();
-
-	// all return latest value of given stat
-	F64 getStat(EStatType type) const;
-	F64 setStat(EStatType type, F64 value);		// set the stat to value
-	F64 incStat(EStatType type, F64 value = 1.f);	// add value to the stat
 
 	void updateFrameStats(const F64 time_diff);
 	
@@ -206,7 +210,7 @@ public:
 		U32 mCountOfNextUpdatesToIgnore;
 
 		inline StatsAccumulator()
-		{
+		{	
 			reset();
 		}
 
@@ -266,7 +270,7 @@ public:
 			mCountOfNextUpdatesToIgnore = 0;
 		}
 		
-		inline LLSD getData() const
+		inline LLSD asLLSD() const
 		{
 			LLSD data;
 			data["mean"] = getMean();
@@ -277,8 +281,6 @@ public:
 			return data;
 		}
 	};
-
-	StatsAccumulator mAgentPositionSnaps;
 
 	// Phase tracking (originally put in for avatar rezzing), tracking
 	// progress of active/completed phases for activities like outfit changing.
@@ -296,29 +298,28 @@ public:
 		void			stopPhase(const std::string& phase_name);
 		void			stopAllPhases();
 		void			clearPhases();
-		LLSD			dumpPhases();
+		LLSD			asLLSD();
 		static StatsAccumulator& getPhaseStats(const std::string& phase_name);
 		static void recordPhaseStat(const std::string& phase_name, F32 value);
 	};
 
-private:
-	F64	mStats[ST_COUNT];
+	LLTrace::Recording& getRecording() { return mRecording; }
+	const LLTrace::Recording& getRecording() const { return mRecording; }
 
-	F64 mLastTimeDiff;  // used for time stat updates
+private:
+	LLTrace::Recording				mRecording;
+
+	F64								mLastTimeDiff;  // used for time stat updates
 };
 
 static const F32 SEND_STATS_PERIOD = 300.0f;
 
 // The following are from (older?) statistics code found in appviewer.
-void init_statistics();
-void reset_statistics();
-void output_statistics(void*);
-void update_statistics(U32 frame_count);
+void update_statistics();
 void send_stats();
 
-extern std::map<S32,LLFrameTimer> gDebugTimers;
-extern std::map<S32,std::string> gDebugTimerLabel;
-extern U32	gTotalTextureBytes;
-extern U32  gTotalObjectBytes;
-extern U32  gTotalTextureBytesPerBoostLevel[] ;
+extern LLFrameTimer gTextureTimer;
+extern LLUnit<LLUnits::Bytes, U32>	gTotalTextureData;
+extern LLUnit<LLUnits::Bytes, U32>  gTotalObjectData;
+extern LLUnit<LLUnits::Bytes, U32>  gTotalTextureBytesPerBoostLevel[] ;
 #endif // LL_LLVIEWERSTATS_H

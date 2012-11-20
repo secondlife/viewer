@@ -49,9 +49,13 @@
 #include "llglheaders.h"
 #include "llquaternion.h"
 #include "llwindow.h"			// getPixelAspectRatio()
+#include "lltracerecording.h"
 
 // System includes
 #include <iomanip> // for setprecision
+
+LLTrace::Count<> LLViewerCamera::sVelocityStat("camera_velocity");
+LLTrace::Count<> LLViewerCamera::sAngularVelocityStat("camera_angular_velocity");
 
 U32 LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
 
@@ -163,11 +167,11 @@ void LLViewerCamera::updateCameraLocation(const LLVector3 &center,
 	F32 drot;
 	rotation.getAngleAxis(&drot, &x, &y, &z);
 
-	mVelocityStat.addValue(dpos);
-	mAngularVelocityStat.addValue(drot);
+	sVelocityStat.add(dpos);
+	sAngularVelocityStat.add(drot);
 	
-	mAverageSpeed = mVelocityStat.getMeanPerSec() ;
-	mAverageAngularSpeed = mAngularVelocityStat.getMeanPerSec() ;
+	mAverageSpeed = LLTrace::get_frame_recording().getPeriodMeanPerSec(sVelocityStat);
+	mAverageAngularSpeed = LLTrace::get_frame_recording().getPeriodMeanPerSec(sAngularVelocityStat);
 	mCosHalfCameraFOV = cosf(0.5f * getView() * llmax(1.0f, getAspect()));
 
 	// update pixel meter ratio using default fov, not modified one

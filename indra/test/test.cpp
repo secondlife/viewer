@@ -40,6 +40,7 @@
 #include "tests/wrapllerrs.h"             // RecorderProxy
 #include "stringize.h"
 #include "namedtempfile.h"
+#include "lltrace.h"
 
 #include "apr_pools.h"
 #include "apr_getopt.h"
@@ -512,15 +513,11 @@ int main(int argc, char **argv)
 	ctype_workaround();
 #endif
 
-	apr_initialize();
-	apr_pool_t* pool = NULL;
-	if(APR_SUCCESS != apr_pool_create(&pool, NULL))
-	{
-		std::cerr << "Unable to initialize pool" << std::endl;
-		return 1;
-	}
+	ll_init_apr();
+	LLTrace::init();
+	
 	apr_getopt_t* os = NULL;
-	if(APR_SUCCESS != apr_getopt_init(&os, pool, argc, argv))
+	if(APR_SUCCESS != apr_getopt_init(&os, gAPRPoolp, argc, argv))
 	{
 		std::cerr << "apr_getopt_init() failed" << std::endl;
 		return 1;
@@ -602,7 +599,7 @@ int main(int argc, char **argv)
 	if (LOGFAIL)
 	{
 		LLError::ELevel level = LLError::decodeLevel(LOGFAIL);
-		replayer.reset(new LLReplayLogReal(level, pool));
+		replayer.reset(new LLReplayLogReal(level, gAPRPoolp));
 	}
 	else
 	{
@@ -646,7 +643,7 @@ int main(int argc, char **argv)
 		s.close();
 	}
 
-	apr_terminate();
+	ll_cleanup_apr();
 
 	int retval = (success ? 0 : 1);
 	return retval;

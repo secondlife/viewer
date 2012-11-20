@@ -35,7 +35,6 @@
 #include "llviewercontrol.h"
 #include "llfasttimer.h"
 #include "llfontgl.h"
-#include "llmemtype.h"
 #include "llnamevalue.h"
 #include "llpointer.h"
 #include "llprimitive.h"
@@ -464,8 +463,6 @@ void LLPipeline::connectRefreshCachedSettingsSafe(const std::string name)
 
 void LLPipeline::init()
 {
-	LLMemType mt(LLMemType::MTYPE_PIPELINE_INIT);
-
 	refreshCachedSettings();
 
 	gOctreeMaxCapacity = gSavedSettings.getU32("OctreeMaxNodeCapacity");
@@ -491,7 +488,6 @@ void LLPipeline::init()
 	getPool(LLDrawPool::POOL_BUMP);
 	getPool(LLDrawPool::POOL_GLOW);
 
-	LLViewerStats::getInstance()->mTrianglesDrawnStat.reset();
 	resetFrameStats();
 
 	for (U32 i = 0; i < NUM_RENDER_TYPES; ++i)
@@ -779,7 +775,7 @@ void LLPipeline::allocatePhysicsBuffer()
 	}
 }
 
-void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
+bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 {
 	refreshCachedSettings();
 	U32 samples = RenderFSAASamples;
@@ -789,8 +785,13 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 	// - if not multisampled, shrink resolution and try again (favor X resolution over Y)
 	// Make sure to call "releaseScreenBuffers" after each failure to cleanup the partially loaded state
 
+	bool ret = true;
+
 	if (!allocateScreenBuffer(resX, resY, samples))
 	{
+		//failed to allocate at requested specification, return false
+		ret = false;
+
 		releaseScreenBuffers();
 		//reduce number of samples 
 		while (samples > 0)
@@ -798,7 +799,7 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 			samples /= 2;
 			if (allocateScreenBuffer(resX, resY, samples))
 			{ //success
-				return;
+				return ret;
 			}
 			releaseScreenBuffers();
 		}
@@ -811,20 +812,22 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 			resY /= 2;
 			if (allocateScreenBuffer(resX, resY, samples))
 			{
-				return;
+				return ret;
 			}
 			releaseScreenBuffers();
 
 			resX /= 2;
 			if (allocateScreenBuffer(resX, resY, samples))
 			{
-				return;
+				return ret;
 			}
 			releaseScreenBuffers();
 		}
 
 		llwarns << "Unable to allocate screen buffer at any resolution!" << llendl;
 	}
+
+	return ret;
 }
 
 
@@ -869,7 +872,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		if (!mScreen.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		if (samples > 0)
 		{
-			if (!mFXAABuffer.allocate(nhpo2(resX), nhpo2(resY), GL_RGBA, FALSE, FALSE, LLTexUnit::TT_TEXTURE, FALSE, samples)) return false;
+			if (!mFXAABuffer.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_TEXTURE, FALSE, samples)) return false;
 		}
 		else
 		{
@@ -903,7 +906,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 			}
 		}
 
-		U32 width = nhpo2(U32(resX*scale))/2;
+		U32 width = (U32)(resX*scale);
 		U32 height = width;
 
 		if (shadow_detail > 1)
@@ -1129,7 +1132,6 @@ void LLPipeline::releaseScreenBuffers()
 void LLPipeline::createGLBuffers()
 {
 	stop_glerror();
-	LLMemType mt_cb(LLMemType::MTYPE_PIPELINE_CREATE_BUFFERS);
 	assertInitialized();
 
 	updateRenderDeferred();
@@ -1266,7 +1268,6 @@ void LLPipeline::createLUTBuffers()
 
 void LLPipeline::restoreGL()
 {
-	LLMemType mt_cb(LLMemType::MTYPE_PIPELINE_RESTORE_GL);
 	assertInitialized();
 
 	if (mVertexShadersEnabled)
@@ -1328,7 +1329,6 @@ BOOL LLPipeline::canUseAntiAliasing() const
 
 void LLPipeline::unloadShaders()
 {
-	LLMemType mt_us(LLMemType::MTYPE_PIPELINE_UNLOAD_SHADERS);
 	LLViewerShaderMgr::instance()->unloadShaders();
 
 	mVertexShadersLoaded = 0;
@@ -1360,7 +1360,6 @@ S32 LLPipeline::getMaxLightingDetail() const
 
 S32 LLPipeline::setLightingDetail(S32 level)
 {
-	LLMemType mt_ld(LLMemType::MTYPE_PIPELINE_LIGHTING_DETAIL);
 	refreshCachedSettings();
 
 	if (level < 0)
@@ -1522,7 +1521,6 @@ LLDrawPool *LLPipeline::findPool(const U32 type, LLViewerTexture *tex0)
 
 LLDrawPool *LLPipeline::getPool(const U32 type,	LLViewerTexture *tex0)
 {
-	LLMemType mt(LLMemType::MTYPE_PIPELINE);
 	LLDrawPool *poolp = findPool(type, tex0);
 	if (poolp)
 	{
@@ -1539,7 +1537,6 @@ LLDrawPool *LLPipeline::getPool(const U32 type,	LLViewerTexture *tex0)
 // static
 LLDrawPool* LLPipeline::getPoolFromTE(const LLTextureEntry* te, LLViewerTexture* imagep)
 {
-	LLMemType mt(LLMemType::MTYPE_PIPELINE);
 	U32 type = getPoolTypeFromTE(te, imagep);
 	return gPipeline.getPool(type, imagep);
 }
@@ -1547,8 +1544,6 @@ LLDrawPool* LLPipeline::getPoolFromTE(const LLTextureEntry* te, LLViewerTexture*
 //static 
 U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* imagep)
 {
-	LLMemType mt_gpt(LLMemType::MTYPE_PIPELINE_GET_POOL_TYPE);
-	
 	if (!te || !imagep)
 	{
 		return 0;
@@ -1577,7 +1572,6 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* ima
 
 void LLPipeline::addPool(LLDrawPool *new_poolp)
 {
-	LLMemType mt_a(LLMemType::MTYPE_PIPELINE_ADD_POOL);
 	assertInitialized();
 	mPools.insert(new_poolp);
 	addToQuickLookup( new_poolp );
@@ -1585,7 +1579,6 @@ void LLPipeline::addPool(LLDrawPool *new_poolp)
 
 void LLPipeline::allocDrawable(LLViewerObject *vobj)
 {
-	LLMemType mt_ad(LLMemType::MTYPE_PIPELINE_ALLOCATE_DRAWABLE);
 	LLDrawable *drawable = new LLDrawable();
 	vobj->mDrawable = drawable;
 	
@@ -1699,8 +1692,6 @@ void LLPipeline::removeMutedAVsLights(LLVOAvatar* muted_avatar)
 
 U32 LLPipeline::addObject(LLViewerObject *vobj)
 {
-	LLMemType mt_ao(LLMemType::MTYPE_PIPELINE_ADD_OBJECT);
-
 	if (RenderDelayCreation)
 	{
 		mCreateQ.push_back(vobj);
@@ -1716,7 +1707,6 @@ U32 LLPipeline::addObject(LLViewerObject *vobj)
 void LLPipeline::createObjects(F32 max_dtime)
 {
 	LLFastTimer ftm(FTM_PIPELINE_CREATE);
-	LLMemType mt(LLMemType::MTYPE_PIPELINE_CREATE_OBJECTS);
 
 	LLTimer update_timer;
 
@@ -1779,7 +1769,7 @@ void LLPipeline::resetFrameStats()
 {
 	assertInitialized();
 
-	LLViewerStats::getInstance()->mTrianglesDrawnStat.addValue(mTrianglesDrawn/1000.f);
+	LLStatViewer::TRIANGLES_DRAWN.add(mTrianglesDrawn);
 
 	if (mBatchCount > 0)
 	{
@@ -1898,11 +1888,12 @@ void LLPipeline::updateMovedList(LLDrawable::drawable_vector_t& moved_list)
 
 static LLFastTimer::DeclareTimer FTM_OCTREE_BALANCE("Balance Octree");
 static LLFastTimer::DeclareTimer FTM_UPDATE_MOVE("Update Move");
+static LLFastTimer::DeclareTimer FTM_RETEXTURE("Retexture");
+static LLFastTimer::DeclareTimer FTM_MOVED_LIST("Moved List");
 
 void LLPipeline::updateMove()
 {
 	LLFastTimer t(FTM_UPDATE_MOVE);
-	LLMemType mt_um(LLMemType::MTYPE_PIPELINE_UPDATE_MOVE);
 
 	if (FreezeTime)
 	{
@@ -1912,8 +1903,7 @@ void LLPipeline::updateMove()
 	assertInitialized();
 
 	{
-		static LLFastTimer::DeclareTimer ftm("Retexture");
-		LLFastTimer t(ftm);
+		LLFastTimer t(FTM_RETEXTURE);
 
 		for (LLDrawable::drawable_set_t::iterator iter = mRetexturedList.begin();
 			 iter != mRetexturedList.end(); ++iter)
@@ -1928,8 +1918,7 @@ void LLPipeline::updateMove()
 	}
 
 	{
-		static LLFastTimer::DeclareTimer ftm("Moved List");
-		LLFastTimer t(ftm);
+		LLFastTimer t(FTM_MOVED_LIST);
 		updateMovedList(mMovedList);
 	}
 
@@ -2256,7 +2245,6 @@ static LLFastTimer::DeclareTimer FTM_CULL("Object Culling");
 void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_clip, LLPlane* planep)
 {
 	LLFastTimer t(FTM_CULL);
-	LLMemType mt_uc(LLMemType::MTYPE_PIPELINE_UPDATE_CULL);
 
 	grabReferences(result);
 
@@ -2331,7 +2319,7 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 		bound_shader = true;
 		gOcclusionCubeProgram.bind();
 	}
-	
+
 	if (sUseOcclusion > 1)
 	{
 		if (mCubeVB.isNull())
@@ -2509,7 +2497,7 @@ void LLPipeline::doOcclusion(LLCamera& camera)
 			{
 				gOcclusionCubeProgram.bind();
 			}
-		}
+			}
 
 		if (mCubeVB.isNull())
 		{ //cube VB will be used for issuing occlusion queries
@@ -2595,8 +2583,8 @@ void LLPipeline::clearRebuildGroups()
 		// Else, no HUD objects so clear the build state
 		else
 		{
-			group->clearState(LLSpatialGroup::IN_BUILD_Q1);
-		}
+		group->clearState(LLSpatialGroup::IN_BUILD_Q1);
+	}
 	}
 
 	// Clear the group
@@ -2623,8 +2611,8 @@ void LLPipeline::clearRebuildGroups()
 		// Else, no HUD objects so clear the build state
 		else
 		{
-			group->clearState(LLSpatialGroup::IN_BUILD_Q2);
-		}
+		group->clearState(LLSpatialGroup::IN_BUILD_Q2);
+	}	
 	}	
 	// Clear the group
 	mGroupQ2.clear();
@@ -2638,7 +2626,6 @@ void LLPipeline::rebuildPriorityGroups()
 {
 	LLFastTimer t(FTM_REBUILD_PRIORITY_GROUPS);
 	LLTimer update_timer;
-	LLMemType mt(LLMemType::MTYPE_PIPELINE);
 	assertInitialized();
 
 	gMeshRepo.notifyLoadedMeshes();
@@ -2710,7 +2697,6 @@ void LLPipeline::rebuildGroups()
 void LLPipeline::updateGeom(F32 max_dtime)
 {
 	LLTimer update_timer;
-	LLMemType mt(LLMemType::MTYPE_PIPELINE_UPDATE_GEOM);
 	LLPointer<LLDrawable> drawablep;
 
 	LLFastTimer t(FTM_GEO_UPDATE);
@@ -2761,7 +2747,7 @@ void LLPipeline::updateGeom(F32 max_dtime)
 		
 	S32 count = 0;
 	
-	max_dtime = llmax(update_timer.getElapsedTimeF32()+0.001f, max_dtime);
+	max_dtime = llmax(update_timer.getElapsedTimeF32()+0.001f, LLUnit<LLUnits::Seconds, F32>(max_dtime));
 	LLSpatialGroup* last_group = NULL;
 	LLSpatialBridge* last_bridge = NULL;
 
@@ -2804,8 +2790,6 @@ void LLPipeline::updateGeom(F32 max_dtime)
 
 void LLPipeline::markVisible(LLDrawable *drawablep, LLCamera& camera)
 {
-	LLMemType mt(LLMemType::MTYPE_PIPELINE_MARK_VISIBLE);
-
 	if(drawablep && !drawablep->isDead())
 	{
 		if (drawablep->isSpatialBridge())
@@ -2845,8 +2829,6 @@ void LLPipeline::markVisible(LLDrawable *drawablep, LLCamera& camera)
 
 void LLPipeline::markMoved(LLDrawable *drawablep, BOOL damped_motion)
 {
-	LLMemType mt_mm(LLMemType::MTYPE_PIPELINE_MARK_MOVED);
-
 	if (!drawablep)
 	{
 		//llerrs << "Sending null drawable to moved list!" << llendl;
@@ -2891,8 +2873,6 @@ void LLPipeline::markMoved(LLDrawable *drawablep, BOOL damped_motion)
 
 void LLPipeline::markShift(LLDrawable *drawablep)
 {
-	LLMemType mt(LLMemType::MTYPE_PIPELINE_MARK_SHIFT);
-
 	if (!drawablep || drawablep->isDead())
 	{
 		return;
@@ -2918,8 +2898,6 @@ static LLFastTimer::DeclareTimer FTM_SHIFT_HUD("Shift HUD");
 
 void LLPipeline::shiftObjects(const LLVector3 &offset)
 {
-	LLMemType mt(LLMemType::MTYPE_PIPELINE_SHIFT_OBJECTS);
-
 	assertInitialized();
 
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -2973,8 +2951,6 @@ void LLPipeline::shiftObjects(const LLVector3 &offset)
 
 void LLPipeline::markTextured(LLDrawable *drawablep)
 {
-	LLMemType mt(LLMemType::MTYPE_PIPELINE_MARK_TEXTURED);
-
 	if (drawablep && !drawablep->isDead() && assertInitialized())
 	{
 		mRetexturedList.insert(drawablep);
@@ -3025,8 +3001,6 @@ void LLPipeline::markMeshDirty(LLSpatialGroup* group)
 
 void LLPipeline::markRebuild(LLSpatialGroup* group, BOOL priority)
 {
-	LLMemType mt(LLMemType::MTYPE_PIPELINE);
-	
 	if (group && !group->isDead() && group->mSpatialPartition)
 	{
 		if (group->mSpatialPartition->mPartitionType == LLViewerRegion::PARTITION_HUD)
@@ -3066,8 +3040,6 @@ void LLPipeline::markRebuild(LLSpatialGroup* group, BOOL priority)
 
 void LLPipeline::markRebuild(LLDrawable *drawablep, LLDrawable::EDrawableFlags flag, BOOL priority)
 {
-	LLMemType mt(LLMemType::MTYPE_PIPELINE_MARK_REBUILD);
-
 	if (drawablep && !drawablep->isDead() && assertInitialized())
 	{
 		if (!drawablep->isState(LLDrawable::BUILT))
@@ -3114,7 +3086,6 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 	}
 
 	LLFastTimer ftm(FTM_STATESORT);
-	LLMemType mt(LLMemType::MTYPE_PIPELINE_STATE_SORT);
 
 	//LLVertexBuffer::unbind();
 
@@ -3215,7 +3186,6 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 
 void LLPipeline::stateSort(LLSpatialGroup* group, LLCamera& camera)
 {
-	LLMemType mt(LLMemType::MTYPE_PIPELINE_STATE_SORT);
 	if (group->changeLOD())
 	{
 		for (LLSpatialGroup::element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
@@ -3234,7 +3204,6 @@ void LLPipeline::stateSort(LLSpatialGroup* group, LLCamera& camera)
 
 void LLPipeline::stateSort(LLSpatialBridge* bridge, LLCamera& camera)
 {
-	LLMemType mt(LLMemType::MTYPE_PIPELINE_STATE_SORT);
 	if (bridge->getSpatialGroup()->changeLOD())
 	{
 		bool force_update = false;
@@ -3244,8 +3213,6 @@ void LLPipeline::stateSort(LLSpatialBridge* bridge, LLCamera& camera)
 
 void LLPipeline::stateSort(LLDrawable* drawablep, LLCamera& camera)
 {
-	LLMemType mt(LLMemType::MTYPE_PIPELINE_STATE_SORT);
-		
 	if (!drawablep
 		|| drawablep->isDead() 
 		|| !hasRenderType(drawablep->getRenderType()))
@@ -3408,10 +3375,10 @@ void renderScriptedTouchBeacons(LLDrawable* drawablep)
 				if (facep)
 				{
 					gPipeline.mHighlightFaces.push_back(facep);
+				}
 			}
 		}
 	}
-}
 }
 
 void renderPhysicalBeacons(LLDrawable* drawablep)
@@ -3437,10 +3404,10 @@ void renderPhysicalBeacons(LLDrawable* drawablep)
 				if (facep)
 				{
 					gPipeline.mHighlightFaces.push_back(facep);
+				}
 			}
 		}
 	}
-}
 }
 
 void renderMOAPBeacons(LLDrawable* drawablep)
@@ -3477,10 +3444,10 @@ void renderMOAPBeacons(LLDrawable* drawablep)
 				if (facep)
 				{
 					gPipeline.mHighlightFaces.push_back(facep);
+				}
 			}
 		}
 	}
-}
 }
 
 void renderParticleBeacons(LLDrawable* drawablep)
@@ -3506,10 +3473,10 @@ void renderParticleBeacons(LLDrawable* drawablep)
 				if (facep)
 				{
 					gPipeline.mHighlightFaces.push_back(facep);
+				}
 			}
 		}
 	}
-}
 }
 
 void renderSoundHighlights(LLDrawable* drawablep)
@@ -3528,15 +3495,14 @@ void renderSoundHighlights(LLDrawable* drawablep)
 				if (facep)
 				{
 					gPipeline.mHighlightFaces.push_back(facep);
+				}
 			}
 		}
 	}
 }
-}
 
 void LLPipeline::postSort(LLCamera& camera)
 {
-	LLMemType mt(LLMemType::MTYPE_PIPELINE_POST_SORT);
 	LLFastTimer ftm(FTM_STATESORT_POSTSORT);
 
 	assertInitialized();
@@ -3745,7 +3711,7 @@ void LLPipeline::postSort(LLCamera& camera)
 						if (facep)
 						{
 							gPipeline.mSelectedFaces.push_back(facep);
-					}
+						}
 					}
 					return true;
 				}
@@ -3754,33 +3720,6 @@ void LLPipeline::postSort(LLCamera& camera)
 		}
 	}
 
-	/*static LLFastTimer::DeclareTimer FTM_TRANSFORM_WAIT("Transform Fence");
-	static LLFastTimer::DeclareTimer FTM_TRANSFORM_DO_WORK("Transform Work");
-	if (use_transform_feedback)
-	{ //using transform feedback, wait for transform feedback to complete
-		LLFastTimer t(FTM_TRANSFORM_WAIT);
-
-		S32 done = 0;
-		//glGetQueryivARB(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, GL_CURRENT_QUERY, &count);
-		
-		glGetQueryObjectivARB(mMeshDirtyQueryObject, GL_QUERY_RESULT_AVAILABLE, &done);
-		
-		while (!done)
-		{ 
-			{
-				LLFastTimer t(FTM_TRANSFORM_DO_WORK);
-				F32 max_time = llmin(gFrameIntervalSeconds*10.f, 1.f);
-				//do some useful work while we wait
-				LLAppViewer::getTextureCache()->update(max_time); // unpauses the texture cache thread
-				LLAppViewer::getImageDecodeThread()->update(max_time); // unpauses the image thread
-				LLAppViewer::getTextureFetch()->update(max_time); // unpauses the texture fetch thread
-			}
-			glGetQueryObjectivARB(mMeshDirtyQueryObject, GL_QUERY_RESULT_AVAILABLE, &done);
-		}
-
-		mTransformFeedbackPrimitives = 0;
-	}*/
-						
 	//LLSpatialGroup::sNoDelete = FALSE;
 	llpushcallstacks ;
 }
@@ -3788,7 +3727,6 @@ void LLPipeline::postSort(LLCamera& camera)
 
 void render_hud_elements()
 {
-	LLMemType mt_rhe(LLMemType::MTYPE_PIPELINE_RENDER_HUD_ELS);
 	LLFastTimer t(FTM_RENDER_UI);
 	gPipeline.disableLights();		
 	
@@ -3843,8 +3781,6 @@ void render_hud_elements()
 
 void LLPipeline::renderHighlights()
 {
-	LLMemType mt(LLMemType::MTYPE_PIPELINE_RENDER_HL);
-
 	assertInitialized();
 
 	// Draw 3D UI elements here (before we clear the Z buffer in POOL_HUD)
@@ -4008,7 +3944,6 @@ U32 LLPipeline::sCurRenderPoolType = 0 ;
 
 void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 {
-	LLMemType mt(LLMemType::MTYPE_PIPELINE_RENDER_GEOM);
 	LLFastTimer t(FTM_RENDER_GEOMETRY);
 
 	assertInitialized();
@@ -4261,7 +4196,6 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 {
 	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderGeomDeferred");
 
-	LLMemType mt_rgd(LLMemType::MTYPE_PIPELINE_RENDER_GEOM_DEFFERRED);
 	LLFastTimer t(FTM_RENDER_GEOMETRY);
 
 	LLFastTimer t2(FTM_DEFERRED_POOLS);
@@ -4358,7 +4292,6 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 
 void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 {
-	LLMemType mt_rgpd(LLMemType::MTYPE_PIPELINE_RENDER_GEOM_POST_DEF);
 	LLFastTimer t(FTM_POST_DEFERRED_POOLS);
 	U32 cur_type = 0;
 
@@ -4454,7 +4387,6 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 
 void LLPipeline::renderGeomShadow(LLCamera& camera)
 {
-	LLMemType mt_rgs(LLMemType::MTYPE_PIPELINE_RENDER_GEOM_SHADOW);
 	U32 cur_type = 0;
 	
 	LLGLEnable cull(GL_CULL_FACE);
@@ -4608,8 +4540,6 @@ void LLPipeline::renderPhysicsDisplay()
 
 void LLPipeline::renderDebug()
 {
-	LLMemType mt(LLMemType::MTYPE_PIPELINE);
-
 	assertInitialized();
 
 	bool hud_only = hasRenderType(LLPipeline::RENDER_TYPE_HUD);
@@ -4965,7 +4895,7 @@ void LLPipeline::renderDebug()
 		{
 			DebugBlip& blip = *iter;
 
-			blip.mAge += gFrameIntervalSeconds;
+			blip.mAge += gFrameIntervalSeconds.value();
 			if (blip.mAge > 2.f)
 			{
 				mDebugBlips.erase(iter++);
@@ -4975,7 +4905,7 @@ void LLPipeline::renderDebug()
 				iter++;
 			}
 
-			blip.mPosition.mV[2] += gFrameIntervalSeconds*2.f;
+			blip.mPosition.mV[2] += gFrameIntervalSeconds.value()*2.f;
 
 			gGL.color4fv(blip.mColor.mV);
 			gGL.vertex3fv(blip.mPosition.mV);
@@ -5262,7 +5192,6 @@ static LLFastTimer::DeclareTimer FTM_REBUILD_POOLS("Rebuild Pools");
 void LLPipeline::rebuildPools()
 {
 	LLFastTimer t(FTM_REBUILD_POOLS);
-	LLMemType mt(LLMemType::MTYPE_PIPELINE_REBUILD_POOLS);
 
 	assertInitialized();
 
@@ -5302,8 +5231,6 @@ void LLPipeline::rebuildPools()
 
 void LLPipeline::addToQuickLookup( LLDrawPool* new_poolp )
 {
-	LLMemType mt(LLMemType::MTYPE_PIPELINE_QUICK_LOOKUP);
-
 	assertInitialized();
 
 	switch( new_poolp->getType() )
@@ -5469,7 +5396,6 @@ void LLPipeline::removePool( LLDrawPool* poolp )
 void LLPipeline::removeFromQuickLookup( LLDrawPool* poolp )
 {
 	assertInitialized();
-	LLMemType mt(LLMemType::MTYPE_PIPELINE);
 	switch( poolp->getType() )
 	{
 	case LLDrawPool::POOL_SIMPLE:
@@ -5790,7 +5716,7 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 				{
 					if (farthest_light->fade >= 0.f)
 					{
-						farthest_light->fade = -gFrameIntervalSeconds;
+						farthest_light->fade = -(gFrameIntervalSeconds.value());
 					}
 				}
 				else
@@ -5886,12 +5812,12 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 				if (fade >= 0.f)
 				{
 					fade = fade / LIGHT_FADE_TIME;
-					((Light*) (&(*iter)))->fade += gFrameIntervalSeconds;
+					((Light*) (&(*iter)))->fade += gFrameIntervalSeconds.value();
 				}
 				else
 				{
 					fade = 1.f + fade / LIGHT_FADE_TIME;
-					((Light*) (&(*iter)))->fade -= gFrameIntervalSeconds;
+					((Light*) (&(*iter)))->fade -= gFrameIntervalSeconds.value();
 				}
 				fade = llclamp(fade,0.f,1.f);
 				light_color *= fade;
@@ -6892,7 +6818,6 @@ void LLPipeline::doResetVertexBuffers()
 
 void LLPipeline::renderObjects(U32 type, U32 mask, BOOL texture, BOOL batch_texture)
 {
-	LLMemType mt_ro(LLMemType::MTYPE_PIPELINE_RENDER_OBJECTS);
 	assertInitialized();
 	gGL.loadMatrix(gGLModelView);
 	gGLLastMatrix = NULL;
@@ -6965,7 +6890,6 @@ static LLFastTimer::DeclareTimer FTM_RENDER_BLOOM("Bloom");
 
 void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 {
-	LLMemType mt_ru(LLMemType::MTYPE_PIPELINE_RENDER_BLOOM);
 	if (!(gPipeline.canUseVertexShaders() &&
 		sRenderGlow))
 	{
@@ -7117,11 +7041,11 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 	gGlowProgram.unbind();
 
-	if (LLRenderTarget::sUseFBO)
+	/*if (LLRenderTarget::sUseFBO)
 	{
 		LLFastTimer ftm(FTM_RENDER_BLOOM_FBO);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	}
+	}*/
 
 	gGLViewport[0] = gViewerWindow->getWorldViewRectRaw().mLeft;
 	gGLViewport[1] = gViewerWindow->getWorldViewRectRaw().mBottom;
@@ -7208,7 +7132,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 			}
 			else if (transition_time < 1.f)
 			{ //currently in a transition, continue interpolating
-				transition_time += 1.f/CameraFocusTransitionTime*gFrameIntervalSeconds;
+				transition_time += 1.f/CameraFocusTransitionTime*gFrameIntervalSeconds.value();
 				transition_time = llmin(transition_time, 1.f);
 
 				F32 t = cosf(transition_time*F_PI+F_PI)*0.5f+0.5f;
@@ -7997,10 +7921,6 @@ void LLPipeline::renderDeferredLighting()
 		gGL.popMatrix();
 		stop_glerror();
 
-		//copy depth and stencil from deferred screen
-		//mScreen.copyContents(mDeferredScreen, 0, 0, mDeferredScreen.getWidth(), mDeferredScreen.getHeight(),
-		//					0, 0, mScreen.getWidth(), mScreen.getHeight(), GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
-
 		mScreen.bindTarget();
 		// clear color buffer here - zeroing alpha (glow) is important or it will accumulate against sky
 		glClearColor(0,0,0,0);
@@ -8772,8 +8692,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 		}
 		last_update = LLDrawPoolWater::sNeedsReflectionUpdate && LLDrawPoolWater::sNeedsDistortionUpdate;
 
-		LLRenderTarget::unbindTarget();
-
 		LLPipeline::sReflectionRender = FALSE;
 
 		if (!LLRenderTarget::sUseFBO)
@@ -9206,7 +9124,7 @@ void LLPipeline::generateHighlight(LLCamera& camera)
 	
 	if (!mHighlightSet.empty())
 	{
-		F32 transition = gFrameIntervalSeconds/RenderHighlightFadeTime;
+		F32 transition = gFrameIntervalSeconds.value()/RenderHighlightFadeTime;
 
 		LLGLDisable test(GL_ALPHA_TEST);
 		LLGLDepthTest depth(GL_FALSE);
@@ -9841,7 +9759,9 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 	if (gen_shadow)
 	{
-		F32 fade_amt = gFrameIntervalSeconds * llmax(LLViewerCamera::getInstance()->getVelocityStat()->getCurrentPerSec(), 1.f);
+		LLTrace::Count<>* velocity_stat = LLViewerCamera::getVelocityStat();
+		F32 fade_amt = gFrameIntervalSeconds.value() 
+			* llmax(LLTrace::get_frame_recording().getLastRecordingPeriod().getSum(*velocity_stat) / LLTrace::get_frame_recording().getLastRecordingPeriod().getDuration().value(), 1.0);
 
 		//update shadow targets
 		for (U32 i = 0; i < 2; i++)
@@ -10031,7 +9951,6 @@ static LLFastTimer::DeclareTimer FTM_IMPOSTOR_RESIZE("Impostor Resize");
 
 void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 {
-	LLMemType mt_gi(LLMemType::MTYPE_PIPELINE_GENERATE_IMPOSTOR);
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
 	LLGLState::checkClientArrays();

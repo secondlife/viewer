@@ -32,14 +32,6 @@
 #if LL_LINUX || LL_SOLARIS
 #include <sys/param.h>  // Need PATH_MAX in APR headers...
 #endif
-#if LL_WINDOWS
-	// Limit Windows API to small and manageable set.
-	// If you get undefined symbols, find the appropriate
-	// Windows header file and include that in your .cpp file.
-	#define WIN32_LEAN_AND_MEAN
-	#include <winsock2.h>
-	#include <windows.h>
-#endif
 
 #include <boost/noncopyable.hpp>
 
@@ -48,7 +40,9 @@
 #include "apr_getopt.h"
 #include "apr_signal.h"
 #include "apr_atomic.h"
+
 #include "llstring.h"
+#include "llinstancetracker.h"
 
 extern LL_COMMON_API apr_thread_mutex_t* gLogMutexp;
 extern apr_thread_mutex_t* gCallStacksLogMutexp;
@@ -253,6 +247,136 @@ public:
 	static S32 readEx(const std::string& filename, void *buf, S32 offset, S32 nbytes, LLVolatileAPRPool* pool = NULL);	
 	static S32 writeEx(const std::string& filename, void *buf, S32 offset, S32 nbytes, LLVolatileAPRPool* pool = NULL); // offset<0 means append
 //*******************************************************************************************************************************
+};
+
+class LLThreadLocalPointerBase : LLInstanceTracker<LLThreadLocalPointerBase>
+{
+public:
+	LLThreadLocalPointerBase()
+	:	mThreadKey(NULL)
+	{
+		if (sInitialized)
+		{
+			initStorage();
+		}
+	}
+
+	LLThreadLocalPointerBase( const LLThreadLocalPointerBase& other)
+		:	mThreadKey(NULL)
+	{
+		if (sInitialized)
+		{
+			initStorage();
+		}
+	}
+
+	~LLThreadLocalPointerBase()
+	{
+		destroyStorage();
+	}
+
+	static void initAllThreadLocalStorage();
+	static void destroyAllThreadLocalStorage();
+
+protected:
+	void set(void* value);
+
+	LL_FORCE_INLINE void* get()
+	{
+		llassert(sInitialized);
+		void* ptr;
+		//apr_status_t result =
+		apr_threadkey_private_get(&ptr, mThreadKey);
+		//if (result != APR_SUCCESS)
+		//{
+		//	ll_apr_warn_status(s);
+		//	llerrs << "Failed to get thread local data" << llendl;
+		//}
+		return ptr;
+	}
+
+	LL_FORCE_INLINE const void* get() const
+	{
+		void* ptr;
+		//apr_status_t result =
+		apr_threadkey_private_get(&ptr, mThreadKey);
+		//if (result != APR_SUCCESS)
+		//{
+		//	ll_apr_warn_status(s);
+		//	llerrs << "Failed to get thread local data" << llendl;
+		//}
+		return ptr;
+	}
+
+	void initStorage();
+	void destroyStorage();
+
+protected:
+	apr_threadkey_t* mThreadKey;
+	static bool		sInitialized;
+};
+
+template <typename T>
+class LLThreadLocalPointer : public LLThreadLocalPointerBase
+{
+public:
+
+	LLThreadLocalPointer()
+	{}
+
+	explicit LLThreadLocalPointer(T* value)
+	{
+		set(value);
+	}
+
+
+	LLThreadLocalPointer(const LLThreadLocalPointer<T>& other)
+		:	LLThreadLocalPointerBase(other)
+	{
+		set(other.get());		
+	}
+
+	LL_FORCE_INLINE T* get()
+	{
+		return (T*)LLThreadLocalPointerBase::get();
+	}
+
+	const T* get() const
+	{
+		return (const T*)LLThreadLocalPointerBase::get();
+	}
+
+	T* operator -> ()
+	{
+		return (T*)get();
+	}
+
+	const T* operator -> () const
+	{
+		return (T*)get();
+	}
+
+	T& operator*()
+	{
+		return *(T*)get();
+	}
+
+	const T& operator*() const
+	{
+		return *(T*)get();
+	}
+
+	LLThreadLocalPointer<T>& operator = (T* value)
+	{
+		set((void*)value);
+		return *this;
+	}
+
+	bool operator ==(T* other)
+	{
+		if (!sInitialized) return false;
+		return get() == other;
+	}
 };
 
 /**

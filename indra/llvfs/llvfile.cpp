@@ -30,8 +30,9 @@
 
 #include "llerror.h"
 #include "llthread.h"
-#include "llstat.h"
 #include "llvfs.h"
+#include "lltimer.h"
+#include "llfasttimer.h"
 
 const S32 LLVFile::READ			= 0x00000001;
 const S32 LLVFile::WRITE		= 0x00000002;

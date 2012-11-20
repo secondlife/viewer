@@ -34,7 +34,6 @@
 
 #include "lldarray.h"
 #include "llwind.h"
-#include "llstat.h"
 #include "v3dmath.h"
 #include "llstring.h"
 #include "llregionflags.h"
@@ -351,9 +350,8 @@ public:
 	LLWind  mWind;
 	LLViewerParcelOverlay	*mParcelOverlay;
 
-	LLStat	mBitStat;
-	LLStat	mPacketsStat;
-	LLStat	mPacketsLostStat;
+	F32		mBitsReceived;
+	F32		mPacketsReceived;
 
 	LLMatrix4 mRenderMatrix;
 

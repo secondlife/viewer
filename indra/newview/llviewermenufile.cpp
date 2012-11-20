@@ -34,6 +34,7 @@
 #include "llfilepicker.h"
 #include "llfloaterreg.h"
 #include "llbuycurrencyhtml.h"
+#include "llfloatermap.h"
 #include "llfloatermodelpreview.h"
 #include "llfloatersnapshot.h"
 #include "llimage.h"
@@ -475,7 +476,7 @@ class LLFileEnableCloseWindow : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool new_value = NULL != LLFloater::getClosableFloaterFromFocus();
+		bool new_value = NULL != gFloaterView->getFrontmostClosableFloater();
 		return new_value;
 	}
 };
@@ -484,8 +485,7 @@ class LLFileCloseWindow : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLFloater::closeFocusedFloater();
-
+		LLFloater::closeFrontmostFloater();
 		return true;
 	}
 };
@@ -494,7 +494,7 @@ class LLFileEnableCloseAllWindows : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool open_children = gFloaterView->allChildrenClosed();
+		bool open_children = gFloaterView->allChildrenClosed() && !LLFloaterSnapshot::getInstance()->isInVisibleChain();
 		return !open_children;
 	}
 };
@@ -505,7 +505,7 @@ class LLFileCloseAllWindows : public view_listener_t
 	{
 		bool app_quitting = false;
 		gFloaterView->closeAllChildren(app_quitting);
-
+		LLFloaterSnapshot::getInstance()->closeFloater(app_quitting);
 		return true;
 	}
 };
@@ -1096,17 +1096,17 @@ void upload_new_resource(
 	
 	if( LLAssetType::AT_SOUND == asset_type )
 	{
-		LLViewerStats::getInstance()->incStat(LLViewerStats::ST_UPLOAD_SOUND_COUNT );
+		LLStatViewer::UPLOAD_SOUND.add(1);
 	}
 	else
 	if( LLAssetType::AT_TEXTURE == asset_type )
 	{
-		LLViewerStats::getInstance()->incStat(LLViewerStats::ST_UPLOAD_TEXTURE_COUNT );
+		LLStatViewer::UPLOAD_TEXTURE.add(1);
 	}
 	else
 	if( LLAssetType::AT_ANIMATION == asset_type)
 	{
-		LLViewerStats::getInstance()->incStat(LLViewerStats::ST_UPLOAD_ANIM_COUNT );
+		LLStatViewer::ANIMATION_UPLOADS.add(1);
 	}
 
 	if(LLInventoryType::IT_NONE == inv_type)
@@ -1231,18 +1231,15 @@ void increase_new_upload_stats(LLAssetType::EType asset_type)
 {
 	if ( LLAssetType::AT_SOUND == asset_type )
 	{
-		LLViewerStats::getInstance()->incStat(
-			LLViewerStats::ST_UPLOAD_SOUND_COUNT );
+		LLStatViewer::UPLOAD_SOUND.add(1);
 	}
 	else if ( LLAssetType::AT_TEXTURE == asset_type )
 	{
-		LLViewerStats::getInstance()->incStat(
-			LLViewerStats::ST_UPLOAD_TEXTURE_COUNT );
+		LLStatViewer::UPLOAD_TEXTURE.add(1);
 	}
 	else if ( LLAssetType::AT_ANIMATION == asset_type )
 	{
-		LLViewerStats::getInstance()->incStat(
-			LLViewerStats::ST_UPLOAD_ANIM_COUNT );
+		LLStatViewer::ANIMATION_UPLOADS.add(1);
 	}
 }
 

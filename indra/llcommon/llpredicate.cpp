@@ -1,8 +1,8 @@
 /** 
- * @file llmemoryview.h
- * @brief LLMemoryView class definition
+ * @file llpredicate.cpp
+ * @brief abstraction for filtering objects by predicates, with arbitrary boolean expressions
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2008&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -23,40 +23,19 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
+#include "linden_common.h"
 
-#ifndef LL_LLMEMORYVIEW_H
-#define LL_LLMEMORYVIEW_H
+#include "llpredicate.h"
 
-#include "llview.h"
-
-class LLAllocator;
-
-class LLMemoryView : public LLView
+namespace LLPredicate
 {
-public:
-	struct Params : public LLInitParam::Block<Params, LLView::Params>
+	const U32 cPredicateFlagsFromEnum[5] = 
 	{
-		Params()
-		{
-			changeDefault(mouse_opaque, true);
-			changeDefault(visible, false);
-		}
+		0xAAAAaaaa, // 10101010101010101010101010101010
+		0xCCCCcccc, // 11001100110011001100110011001100
+		0xF0F0F0F0, // 11110000111100001111000011110000
+		0xFF00FF00, // 11111111000000001111111100000000
+		0xFFFF0000  // 11111111111111110000000000000000 
 	};
-	LLMemoryView(const LLMemoryView::Params&);
-	virtual ~LLMemoryView();
+}
 
-	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL handleMouseUp(S32 x, S32 y, MASK mask);
-	virtual BOOL handleHover(S32 x, S32 y, MASK mask);
-	virtual void draw();
-
-	void refreshProfile();
-
-private:
-    std::vector<LLWString> mLines;
-	LLAllocator* mAlloc;
-	BOOL mPaused ;
-
-};
-
-#endif

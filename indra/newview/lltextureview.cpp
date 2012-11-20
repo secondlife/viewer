@@ -505,23 +505,23 @@ private:
 
 void LLGLTexMemBar::draw()
 {
-	S32 bound_mem = BYTES_TO_MEGA_BYTES(LLViewerTexture::sBoundTextureMemoryInBytes);
- 	S32 max_bound_mem = LLViewerTexture::sMaxBoundTextureMemInMegaBytes;
-	S32 total_mem = BYTES_TO_MEGA_BYTES(LLViewerTexture::sTotalTextureMemoryInBytes);
-	S32 max_total_mem = LLViewerTexture::sMaxTotalTextureMemInMegaBytes;
+	LLUnit<LLUnits::Megabytes, S32> bound_mem = LLViewerTexture::sBoundTextureMemory;
+ 	LLUnit<LLUnits::Megabytes, S32> max_bound_mem = LLViewerTexture::sMaxBoundTextureMem;
+	LLUnit<LLUnits::Megabytes, S32> total_mem = LLViewerTexture::sTotalTextureMemory;
+	LLUnit<LLUnits::Megabytes, S32> max_total_mem = LLViewerTexture::sMaxTotalTextureMem;
 	F32 discard_bias = LLViewerTexture::sDesiredDiscardBias;
-	F32 cache_usage = (F32)BYTES_TO_MEGA_BYTES(LLAppViewer::getTextureCache()->getUsage()) ;
-	F32 cache_max_usage = (F32)BYTES_TO_MEGA_BYTES(LLAppViewer::getTextureCache()->getMaxUsage()) ;
+	F32 cache_usage = (F32)LLTrace::Megabytes(LLAppViewer::getTextureCache()->getUsage()).value() ;
+	F32 cache_max_usage = (F32)LLTrace::Megabytes(LLAppViewer::getTextureCache()->getMaxUsage()).value() ;
 	S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
 	S32 v_offset = 0;//(S32)((texture_bar_height + 2.2f) * mTextureView->mNumTextureBars + 2.0f);
 	F32 total_texture_downloaded = (F32)gTotalTextureBytes / (1024 * 1024);
 	F32 total_object_downloaded = (F32)gTotalObjectBytes / (1024 * 1024);
-	U32 total_http_requests = LLAppViewer::getTextureFetch()->getTotalNumHTTPRequests();
+	U32 total_http_requests = LLAppViewer::getTextureFetch()->getTotalNumHTTPRequests() ;
 	//----------------------------------------------------------------------------
 	LLGLSUIDefault gls_ui;
 	LLColor4 text_color(1.f, 1.f, 1.f, 0.75f);
 	LLColor4 color;
-
+	
 	// Gray background using completely magic numbers
 	gGL.color4f(0.f, 0.f, 0.f, 0.25f);
 	// const LLRect & rect(getRect());
@@ -532,10 +532,10 @@ void LLGLTexMemBar::draw()
 											 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
 	text = llformat("GL Tot: %d/%d MB Bound: %d/%d MB FBO: %d MB Raw Tot: %d MB Bias: %.2f Cache: %.1f/%.1f MB",
-					total_mem,
-					max_total_mem,
-					bound_mem,
-					max_bound_mem,
+					total_mem.value(),
+					max_total_mem.value(),
+					bound_mem.value(),
+					max_bound_mem.value(),
 					LLRenderTarget::sBytesAllocated/(1024*1024),
 					LLImageRaw::sGlobalRawMemory >> 20,
 					discard_bias,
@@ -550,8 +550,8 @@ void LLGLTexMemBar::draw()
 	LLAppViewer::getTextureFetch()->getStateStats(&cache_read, &cache_write, &res_wait);
 	
 	text = llformat("Net Tot Tex: %.1f MB Tot Obj: %.1f MB Tot Htp: %d Cread: %u Cwrite: %u Rwait: %u",
-					total_texture_downloaded,
-					total_object_downloaded,
+					total_texture_downloaded.value(),
+					total_object_downloaded.value(),
 					total_http_requests,
 					cache_read,
 					cache_write,
@@ -679,7 +679,7 @@ void LLGLTexSizeBar::draw()
 
 	if(LLImageGL::sCurTexSizeBar == mIndex)
 	{
-		F32 text_color[] = {1.f, 1.f, 1.f, 0.75f};	
+		LLColor4 text_color(1.f, 1.f, 1.f, 0.75f);	
 		std::string text;
 	
 		text = llformat("%d", mTopLoaded) ;
@@ -691,8 +691,8 @@ void LLGLTexSizeBar::draw()
 									 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 	}
 
-	F32 loaded_color[] = {1.0f, 0.0f, 0.0f, 0.75f};
-	F32 bound_color[] = {1.0f, 1.0f, 0.0f, 0.75f};
+	LLColor4 loaded_color(1.0f, 0.0f, 0.0f, 0.75f);
+	LLColor4 bound_color(1.0f, 1.0f, 0.0f, 0.75f);
 	gl_rect_2d(mLeft, mBottom + (S32)(mTopLoaded * mScale), (mLeft + mRight) / 2, mBottom, loaded_color) ;
 	gl_rect_2d((mLeft + mRight) / 2, mBottom + (S32)(mTopBound * mScale), mRight, mBottom, bound_color) ;
 }

@@ -29,8 +29,11 @@
 #include "apr_portable.h"
 
 #include "llthread.h"
+#include "llmutex.h"
 
 #include "lltimer.h"
+#include "lltrace.h"
+#include "lltracethreadrecorder.h"
 
 #if LL_LINUX || LL_SOLARIS
 #include <sched.h>
@@ -56,11 +59,16 @@
 // 
 //----------------------------------------------------------------------------
 
-#if !LL_DARWIN
-U32 ll_thread_local sThreadID = 0;
+#if LL_DARWIN
+// statically allocated thread local storage not supported in Darwin executable formats
+#elif LL_WINDOWS
+U32 __declspec(thread) LLThread::sThreadIndex = 0;
+#elif LL_LINUX
+U32 __thread LLThread::sThreadID = 0;
 #endif 
 
 U32 LLThread::sIDIter = 0;
+
 
 LL_COMMON_API void assert_main_thread()
 {
@@ -85,8 +93,10 @@ void *APR_THREAD_FUNC LLThread::staticRun(apr_thread_t *apr_threadp, void *datap
 {
 	LLThread *threadp = (LLThread *)datap;
 
+	LLTrace::ThreadRecorder* thread_recorder = new LLTrace::SlaveThreadRecorder();
+
 #if !LL_DARWIN
-	sThreadID = threadp->mID;
+	sThreadIndex = threadp->mID;
 #endif
 
 	// Run the user supplied function
@@ -97,9 +107,10 @@ void *APR_THREAD_FUNC LLThread::staticRun(apr_thread_t *apr_threadp, void *datap
 	// We're done with the run function, this thread is done executing now.
 	threadp->mStatus = STOPPED;
 
+	delete thread_recorder;
+
 	return NULL;
 }
-
 
 LLThread::LLThread(const std::string& name, apr_pool_t *poolp) :
 	mPaused(FALSE),
@@ -107,6 +118,7 @@ LLThread::LLThread(const std::string& name, apr_pool_t *poolp) :
 	mAPRThreadp(NULL),
 	mStatus(STOPPED)
 {
+
 	mID = ++sIDIter;
 
 	// Thread creation probably CAN be paranoid about APR being initialized, if necessary
@@ -152,7 +164,7 @@ void LLThread::shutdown()
 			//llinfos << "LLThread::~LLThread() Killing thread " << mName << " Status: " << mStatus << llendl;
 			// Now wait a bit for the thread to exit
 			// It's unclear whether I should even bother doing this - this destructor
-			// should netver get called unless we're already stopped, really...
+			// should never get called unless we're already stopped, really...
 			S32 counter = 0;
 			const S32 MAX_WAIT = 600;
 			while (counter < MAX_WAIT)
@@ -513,7 +525,6 @@ LLThreadSafeRefCount::~LLThreadSafeRefCount()
 		llerrs << "deleting non-zero reference" << llendl;
 	}
 }
-
 
 //============================================================================
 

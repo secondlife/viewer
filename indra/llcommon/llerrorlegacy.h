@@ -29,6 +29,7 @@
 #define LL_LLERRORLEGACY_H
 
 #include "llpreprocessor.h"
+#include <boost/static_assert.hpp>
 
 /*
 	LEGACY -- DO NOT USE THIS STUFF ANYMORE
@@ -109,6 +110,12 @@ const int LL_ERR_PRICE_MISMATCH = -23018;
 #else
 #define llassert(func)
 #define llverify(func)			do {if (func) {}} while(0)
+#endif
+
+#ifdef LL_WINDOWS
+#define llstatic_assert(func, msg) static_assert(func, msg)
+#else
+#define llstatic_assert(func, msg) BOOST_STATIC_ASSERT(func)
 #endif
 
 // handy compile-time assert - enforce those template parameters! 

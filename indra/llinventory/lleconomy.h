@@ -27,6 +27,7 @@
 #define LL_LLECONOMY_H
 
 #include "llsingleton.h"
+#include <list>
 
 class LLMessageSystem;
 class LLVector3;
