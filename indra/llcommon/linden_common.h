@@ -59,8 +59,4 @@
 #include "llerror.h"
 #include "llfile.h"
 
-// Boost 1.45 had version 2 as the default for the filesystem library,
-// 1.48 has version 3 as the default.  Keep compatibility for now.
-#define BOOST_FILESYSTEM_VERSION		2
-
 #endif
