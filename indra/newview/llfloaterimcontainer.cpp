@@ -1022,15 +1022,20 @@ void LLFloaterIMContainer::doToSelectedGroup(const LLSD& userdata)
 
 bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
 {
-    std::string item = userdata.asString();
+    const std::string& item = userdata.asString();
 	uuid_vec_t uuids;
 	getParticipantUUIDs(uuids);
 
-    if(item == std::string("can_activate_group"))
+    if("can_activate_group" == item)
     {
     	LLUUID selected_group_id = getCurSelectedViewModelItem()->getUUID();
     	return gAgent.getGroupID() != selected_group_id;
     }
+
+	if("conversation_log" == item)
+	{
+		return gSavedSettings.getBOOL("KeepConversationLogTranscripts");
+	}
 
 	if(uuids.size() <= 0)
     {
@@ -1040,12 +1045,12 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
     // Note: can_block and can_delete is used only for one person selected menu
     // so we don't need to go over all uuids.
 
-    if (item == std::string("can_block"))
+    if ("can_block" == item)
     {
 		const LLUUID& id = uuids.front();
         return LLAvatarActions::canBlock(id);
     }
-    else if (item == std::string("can_add"))
+    else if ("can_add" == item)
     {
         // We can add friends if:
         // - there are selected people
@@ -1074,7 +1079,7 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
 
         return result;
     }
-    else if (item == std::string("can_delete"))
+    else if ("can_delete" == item)
     {
         // We can remove friends if:
         // - there are selected people
@@ -1097,18 +1102,18 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
 
         return result;
     }
-    else if (item == std::string("can_call"))
+    else if ("can_call" == item)
     {
         return LLAvatarActions::canCall();
     }
-    else if (item == std::string("can_show_on_map"))
+    else if ("can_show_on_map" == item)
     {
 		const LLUUID& id = uuids.front();
 
         return (LLAvatarTracker::instance().isBuddyOnline(id) && is_agent_mappable(id))
             || gAgent.isGodlike();
     }
-    else if(item == std::string("can_offer_teleport"))
+    else if("can_offer_teleport" == item)
     {
 		return LLAvatarActions::canOfferTeleport(uuids);
     }
@@ -1117,7 +1122,7 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
 		return enableModerateContextMenuItem(item);
 	}
 
-    return false;
+	return false;
 }
 
 bool LLFloaterIMContainer::checkContextMenuItem(const LLSD& userdata)

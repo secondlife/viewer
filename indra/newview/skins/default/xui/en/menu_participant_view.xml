@@ -85,5 +85,8 @@
         <menu_item_check.on_click
          function="Floater.Toggle"
          parameter="conversation" />
-      </menu_item_check>
+        <menu_item_check.on_enable
+         function="Avatar.EnableItem"
+         parameter="conversation_log" />
+    </menu_item_check>
 </toggleable_menu>
