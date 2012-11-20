@@ -233,6 +233,8 @@ extern LLGLSLShader			gAlphaMaskProgram;
 
 //output tex0[tc0] + tex1[tc1]
 extern LLGLSLShader			gTwoTextureAddProgram;
+//output tex0[tc0] - tex1[tc1]
+extern LLGLSLShader			gTwoTextureCompareProgram;
 						
 extern LLGLSLShader			gOneTextureNoColorProgram;
 
