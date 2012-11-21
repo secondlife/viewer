@@ -547,7 +547,7 @@ F32 LLDrawable::updateXform(BOOL undamped)
 			}
 		}
 	}
-	else if (!damped && isVisible())
+	else
 	{
 		dist_squared = dist_vec_squared(old_pos, target_pos);
 	}
