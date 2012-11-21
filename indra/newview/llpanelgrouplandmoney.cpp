@@ -517,7 +517,7 @@ void LLPanelGroupLandMoney::impl::processGroupLand(LLMessageSystem* msg)
 			
 			row["columns"][3]["column"] = "type";
 			row["columns"][3]["value"] = land_type;
-			row["columns"][3]["font"] = "SANSSERIFSMALL";
+			row["columns"][3]["font"] = "SANSSERIF_SMALL";
 			
 			// hidden is always last column
 			row["columns"][4]["column"] = "hidden";

@@ -2578,26 +2578,59 @@ static LLFastTimer::DeclareTimer FTM_REBUILD_PRIORITY_GROUPS("Rebuild Priority G
 
 void LLPipeline::clearRebuildGroups()
 {
+	LLSpatialGroup::sg_vector_t	hudGroups;
+
 	mGroupQ1Locked = true;
 	// Iterate through all drawables on the priority build queue,
 	for (LLSpatialGroup::sg_vector_t::iterator iter = mGroupQ1.begin();
 		 iter != mGroupQ1.end(); ++iter)
 	{
 		LLSpatialGroup* group = *iter;
-		group->clearState(LLSpatialGroup::IN_BUILD_Q1);
+
+		// If the group contains HUD objects, save the group
+		if (group->isHUDGroup())
+		{
+			hudGroups.push_back(group);
+		}
+		// Else, no HUD objects so clear the build state
+		else
+		{
+			group->clearState(LLSpatialGroup::IN_BUILD_Q1);
+		}
 	}
+
+	// Clear the group
 	mGroupQ1.clear();
+
+	// Copy the saved HUD groups back in
+	mGroupQ1.assign(hudGroups.begin(), hudGroups.end());
 	mGroupQ1Locked = false;
+
+	// Clear the HUD groups
+	hudGroups.clear();
 
 	mGroupQ2Locked = true;
 	for (LLSpatialGroup::sg_vector_t::iterator iter = mGroupQ2.begin();
 		 iter != mGroupQ2.end(); ++iter)
 	{
 		LLSpatialGroup* group = *iter;
-		group->clearState(LLSpatialGroup::IN_BUILD_Q2);
-	}	
 
+		// If the group contains HUD objects, save the group
+		if (group->isHUDGroup())
+		{
+			hudGroups.push_back(group);
+		}
+		// Else, no HUD objects so clear the build state
+		else
+		{
+			group->clearState(LLSpatialGroup::IN_BUILD_Q2);
+		}
+	}	
+	// Clear the group
 	mGroupQ2.clear();
+
+	// Copy the saved HUD groups back in
+	mGroupQ2.assign(hudGroups.begin(), hudGroups.end());
 	mGroupQ2Locked = false;
 }
 

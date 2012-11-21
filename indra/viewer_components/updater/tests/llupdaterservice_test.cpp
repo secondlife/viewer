@@ -78,7 +78,9 @@ S32 LLDir::deleteFilesInDir(const std::string &dirname,
 void LLDir::setChatLogsDir(const std::string &path){}		
 void LLDir::setPerAccountChatLogsDir(const std::string &username){}
 void LLDir::setLindenUserDir(const std::string &username){}		
-void LLDir::setSkinFolder(const std::string &skin_folder){}
+void LLDir::setSkinFolder(const std::string &skin_folder, const std::string& language){}
+std::string LLDir::getSkinFolder() const { return "default"; }
+std::string LLDir::getLanguage() const { return "en"; }
 bool LLDir::setCacheDir(const std::string &path){ return true; }
 void LLDir::dumpCurrentDirectories() {}
 
