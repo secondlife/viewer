@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="edit_skin_panel">
 	<panel name="avatar_skin_color_panel">
-		<texture_picker label="頭部刺青" name="Head Tattoos" tool_tip="點按以挑選圖片"/>
-		<texture_picker label="上半身刺青" name="Upper Tattoos" tool_tip="點按以挑選圖片"/>
-		<texture_picker label="下半身刺青" name="Lower Tattoos" tool_tip="點按以挑選圖片"/>
+		<texture_picker label="頭部" name="Head" tool_tip="點按以挑選圖片"/>
+		<texture_picker label="上半身" name="Upper Body" tool_tip="點按以挑選圖片"/>
+		<texture_picker label="下半身" name="Lower Body" tool_tip="點按以挑選圖片"/>
 	</panel>
 	<panel name="accordion_panel">
 		<accordion name="wearable_accordion">

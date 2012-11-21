@@ -66,16 +66,16 @@
 			<layout_panel name="view_profile_btn_lp">
 				<button label="檔案" name="view_profile_btn" tool_tip="顯示圖片、群組與其他居民資訊"/>
 			</layout_panel>
-			<layout_panel name="chat_btn_lp">
+			<layout_panel name="im_btn_lp">
 				<button label="IM" name="im_btn" tool_tip="開啟即時訊息會話"/>
 			</layout_panel>
-			<layout_panel name="chat_btn_lp">
+			<layout_panel name="call_btn_lp">
 				<button label="通話" name="call_btn" tool_tip="和這位居民通話"/>
 			</layout_panel>
-			<layout_panel name="chat_btn_lp">
+			<layout_panel name="share_btn_lp">
 				<button label="分享" name="share_btn" tool_tip="分享一個收納區物品"/>
 			</layout_panel>
-			<layout_panel name="chat_btn_lp">
+			<layout_panel name="teleport_btn_lp">
 				<button label="瞬間傳送" name="teleport_btn" tool_tip="發出瞬間傳送邀請"/>
 			</layout_panel>
 		</layout_stack>

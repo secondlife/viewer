@@ -22,13 +22,13 @@
 		Remarque : si vous changez votre préréglage de nom, un nouveau préréglage sera créé et celui existant restera tel quel.
 	</text>
 	<text name="hint_item1">
-		- Modifier un réglage de ciel et d&apos;heure : clic sur le repère
+		- Modifier un réglage de ciel/heure : clic sur le repère
 	</text>
 	<text name="hint_item2">
-		- Définir les heures de transition : clic et glissement des repères
+		- Heures de transition : clic-glissement des repères
 	</text>
 	<text name="hint_item3">
-		- Afficher un aperçu du cycle du jour : déplacer le triangle
+		- Aperçu du cycle du jour : déplacement du triangle
 	</text>
 	<panel name="day_cycle_slider_panel">
 		<multi_slider initial_value="0" name="WLTimeSlider"/>

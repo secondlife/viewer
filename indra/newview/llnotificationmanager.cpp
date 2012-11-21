@@ -72,5 +72,5 @@ void LLNotificationManager::onChat(const LLChat& msg, const LLSD &args)
 {
 	if(mChatHandler)
 		mChatHandler->processChat(msg, args);
-}
+		}
 

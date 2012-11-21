@@ -57,7 +57,7 @@
    layout="topleft"
    name="take_copy">
     <menu_item_call.on_click
-     function="InspectObject.TakeFreeCopy"/>
+     function="Tools.TakeCopy"/>
     <menu_item_call.on_visible
       function="Tools.EnableTakeCopy"/>
   </menu_item_call>

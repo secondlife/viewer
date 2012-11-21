@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="camera_floater">
+<floater name="camera_floater" title="攝影機控制">
 	<floater.string name="rotate_tooltip">
 		繞著焦點轉動攝影機
 	</floater.string>

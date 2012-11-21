@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="nearby_chat">
+	<layout_stack name="stack">
+		<layout_panel name="translate_chat_checkbox_lp">
+			<check_box label="翻譯聊天內容" name="translate_chat_checkbox"/>
+		</layout_panel>
+	</layout_stack>
+</panel>
