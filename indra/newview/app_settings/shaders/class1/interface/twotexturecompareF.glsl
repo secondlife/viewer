@@ -38,5 +38,18 @@ VARYING vec2 vary_texcoord1;
 void main() 
 {
 	frag_color = texture2D(tex0, vary_texcoord0.xy) - texture2D(tex1, vary_texcoord0.xy);
+	
+	if(frag_color[0] < 0.f)
+	{
+		frag_color[0] = -frag_color[0];
+	}
+	if(frag_color[1] < 0.f)
+	{
+		frag_color[1] = -frag_color[1];
+	}
+	if(frag_color[2] < 0.f)
+	{
+		frag_color[2] = -frag_color[2];
+	}
 	frag_color[3] = 1.f;
 }
