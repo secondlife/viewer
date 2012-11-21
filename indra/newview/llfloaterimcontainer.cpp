@@ -106,7 +106,7 @@ void LLFloaterIMContainer::sessionAdded(const LLUUID& session_id, const std::str
 
 void LLFloaterIMContainer::sessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
 {
-    selectConversation(session_id);
+	selectConversationPair(session_id, true);
 }
 
 void LLFloaterIMContainer::sessionVoiceOrIMStarted(const LLUUID& session_id)
