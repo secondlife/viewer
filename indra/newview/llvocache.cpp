@@ -234,20 +234,20 @@ void LLVOCacheEntry::clearBridgeChild()
 	mState &= ~BRIDGE_CHILD;
 }
 
-void LLVOCacheEntry::copy(LLVOCacheEntry* entry)
+void LLVOCacheEntry::copyTo(LLVOCacheEntry* new_entry)
 {
 	//copy LLViewerOctreeEntry
-	LLViewerOctreeEntry* oct_entry = entry->getEntry();
-	if(!oct_entry)
+	if(mEntry.notNull())
 	{
-		setOctreeEntry(oct_entry);
+		new_entry->setOctreeEntry(mEntry);
+		mEntry = NULL;
 	}
 
 	//copy children
-	S32 num_children = entry->getNumOfChildren();
+	S32 num_children = getNumOfChildren();
 	for(S32 i = 0; i < num_children; i++)
 	{
-		addChild(entry->getChild(i));
+		new_entry->addChild(getChild(i));
 	}
 }
 

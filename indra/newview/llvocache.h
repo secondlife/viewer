@@ -111,7 +111,7 @@ public:
 	void recordHit();
 	void recordDupe() { mDupeCount++; }
 	
-	void copy(LLVOCacheEntry* entry); //copy variables 
+	void copyTo(LLVOCacheEntry* new_entry); //copy variables 
 	/*virtual*/ void setOctreeEntry(LLViewerOctreeEntry* entry);
 
 	void addChild(LLVOCacheEntry* entry);

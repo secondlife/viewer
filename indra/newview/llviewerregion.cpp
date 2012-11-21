@@ -746,7 +746,7 @@ void LLViewerRegion::replaceCacheEntry(LLVOCacheEntry* old_entry, LLVOCacheEntry
 
 	if(old_entry)
 	{
-		new_entry->copy(old_entry);
+		old_entry->copyTo(new_entry);
 		state = old_entry->getState();		
 		killCacheEntry(old_entry);
 	}
