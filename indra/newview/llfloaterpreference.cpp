@@ -455,13 +455,6 @@ BOOL LLFloaterPreference::postBuild()
 		gSavedPerAccountSettings.setString("DoNotDisturbModeResponse", LLTrans::getString("DoNotDisturbModeResponseDefault"));
 	}
 
-	//get the options that were checked
-	onNotificationsChange("FriendIMOptions");
-	onNotificationsChange("NonFriendIMOptions");
-	onNotificationsChange("ConferenceIMOptions");
-	onNotificationsChange("GroupChatOptions");
-	onNotificationsChange("NearbyChatOptions");
-
 	return TRUE;
 }
 
@@ -702,6 +695,14 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	// Enabled/disabled popups, might have been changed by user actions
 	// while preferences floater was closed.
 	buildPopupLists();
+
+
+	//get the options that were checked
+	onNotificationsChange("FriendIMOptions");
+	onNotificationsChange("NonFriendIMOptions");
+	onNotificationsChange("ConferenceIMOptions");
+	onNotificationsChange("GroupChatOptions");
+	onNotificationsChange("NearbyChatOptions");
 
 	LLPanelLogin::setAlwaysRefresh(true);
 	refresh();
