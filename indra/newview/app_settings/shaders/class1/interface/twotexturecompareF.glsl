@@ -51,5 +51,5 @@ void main()
 	{
 		frag_color[2] = -frag_color[2];
 	}
-	frag_color[3] = 1.f;
+	frag_color[3] = 0.95f;
 }

@@ -44,7 +44,7 @@ public:
 	void destroyClass();
 	
 	void freezeAvatar(LLCharacter* avatarp);
-	void setEnabled(bool enabled);
+	void setDebugViewerVisible(BOOL visible);
 
 	void capture(); //capture the main frame buffer
 	void compare(); //compare the stored two buffers.	
@@ -62,6 +62,8 @@ private:
 private:
 	BOOL mEnabled;
 	BOOL mNeedsUpdateDiff;
+	BOOL mDebugViewerVisible;
+
 	LLRenderTarget* mFrames[2];
 	LLRenderTarget* mDiff;
 	LLRenderTarget* mCurTarget;

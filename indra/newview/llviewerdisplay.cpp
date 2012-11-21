@@ -1229,6 +1229,13 @@ void render_ui(F32 zoom_factor, int subfield)
 	}
 	
 	{
+		gGL.pushMatrix();
+		gViewerWindow->setup2DRender();
+		LLSceneMonitor::getInstance()->compare();
+		gGL.popMatrix();
+	}
+
+	{
 		BOOL to_texture = gPipeline.canUseVertexShaders() &&
 							LLPipeline::sRenderGlow;
 
@@ -1408,8 +1415,6 @@ void render_ui_2d()
 
 	//  Menu overlays, HUD, etc
 	gViewerWindow->setup2DRender();
-
-	LLSceneMonitor::getInstance()->compare();
 
 	F32 zoom_factor = LLViewerCamera::getInstance()->getZoomFactor();
 	S16 sub_region = LLViewerCamera::getInstance()->getZoomSubRegion();

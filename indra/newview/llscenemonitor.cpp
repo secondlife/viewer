@@ -39,7 +39,12 @@
 
 LLSceneMonitorView* gSceneMonitorView = NULL;
 
-LLSceneMonitor::LLSceneMonitor() : mEnabled(false), mDiff(NULL), mNeedsUpdateDiff(FALSE)
+LLSceneMonitor::LLSceneMonitor() : 
+	mEnabled(FALSE), 
+	mDiff(NULL), 
+	mCurTarget(NULL), 
+	mNeedsUpdateDiff(FALSE), 
+	mDebugViewerVisible(FALSE)
 {
 	mFrames[0] = NULL;
 	mFrames[1] = NULL;
@@ -66,18 +71,14 @@ void LLSceneMonitor::reset()
 	mDiff = NULL;
 }
 
-void LLSceneMonitor::setEnabled(bool enabled)
+void LLSceneMonitor::setDebugViewerVisible(BOOL visible) 
 {
-	if(enabled == (bool)gSavedSettings.getBOOL("SceneLoadingMonitorEnabled"))
-	{
-		return;
-	}
-	gSavedSettings.setBOOL("SceneLoadingMonitorEnabled", enabled);
+	mDebugViewerVisible = visible;
 }
 
 bool LLSceneMonitor::preCapture()
 {
-	static LLCachedControl<bool> enabled(gSavedSettings,"SceneLoadingMonitorEnabled");
+	static LLCachedControl<bool> monitor_enabled(gSavedSettings,"SceneLoadingMonitorEnabled");
 	static LLFrameTimer timer;	
 
 	mCurTarget = NULL;
@@ -85,7 +86,9 @@ bool LLSceneMonitor::preCapture()
 	{
 		return false;
 	}
-	if(mEnabled != (BOOL)enabled)
+
+	BOOL enabled = (BOOL)monitor_enabled || mDebugViewerVisible;
+	if(mEnabled != enabled)
 	{
 		if(mEnabled)
 		{
@@ -97,7 +100,7 @@ bool LLSceneMonitor::preCapture()
 			freezeScene();
 		}
 
-		mEnabled = (BOOL)enabled;
+		mEnabled = enabled;
 	}
 
 	if(!mEnabled)
@@ -260,8 +263,8 @@ void LLSceneMonitor::compare()
 		return;
 	}
 
-	S32 width = mFrames[0]->getWidth();
-	S32 height = mFrames[0]->getHeight();
+	S32 width = gViewerWindow->getWindowWidthRaw();
+	S32 height = gViewerWindow->getWindowHeightRaw();
 	if(!mDiff)
 	{
 		mDiff = new LLRenderTarget();
@@ -288,7 +291,6 @@ void LLSceneMonitor::compare()
 			
 	gl_rect_2d_simple_tex(width, height);
 	
-	gGL.flush();
 	mDiff->flush();
 
 	gTwoTextureCompareProgram.unbind();
@@ -321,10 +323,7 @@ void LLSceneMonitorView::onClickCloseBtn()
 
 void LLSceneMonitorView::setVisible(BOOL visible)
 {
-	if(visible != (BOOL)LLSceneMonitor::getInstance()->isEnabled())
-	{
-		LLSceneMonitor::getInstance()->setEnabled(visible);
-	}
+	LLSceneMonitor::getInstance()->setDebugViewerVisible(visible);
 
 	LLView::setVisible(visible);
 }
@@ -341,17 +340,17 @@ void LLSceneMonitorView::draw()
 		return;
 	}
 
-	S32 height = (S32) (gViewerWindow->getWindowRectScaled().getHeight()*0.75f);
-	S32 width = (S32) (gViewerWindow->getWindowRectScaled().getWidth() * 0.75f);
+	S32 height = (S32) (gViewerWindow->getWindowRectScaled().getHeight()*0.5f);
+	S32 width = (S32) (gViewerWindow->getWindowRectScaled().getWidth() * 0.5f);
 	
 	LLRect new_rect;
 	new_rect.setLeftTopAndSize(getRect().mLeft, getRect().mTop, width, height);
 	setRect(new_rect);
 
-	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-	gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0, LLColor4(0.f, 0.f, 0.f, 0.25f));
+	//gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+	//gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0, LLColor4(0.f, 0.f, 0.f, 0.25f));
 	
-	gl_draw_scaled_target(0, 0, getRect().getWidth(), getRect().getHeight(), target);//, LLColor4(0.f, 0.f, 0.f, 0.25f));
+	gl_draw_scaled_target(0, 0, getRect().getWidth(), getRect().getHeight(), target);
 
 	LLView::draw();
 }
