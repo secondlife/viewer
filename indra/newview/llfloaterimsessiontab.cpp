@@ -73,7 +73,7 @@ LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
 	// Right click menu handling
 	LLFloaterIMContainer* floater_container = LLFloaterIMContainer::getInstance();
     mEnableCallbackRegistrar.add("Avatar.CheckItem",  boost::bind(&LLFloaterIMContainer::checkContextMenuItem,	floater_container, _2));
-    mEnableCallbackRegistrar.add("Avatar.EnableItem", boost::bind(&LLFloaterIMContainer::enableContextMenuItem,	floater_container, _2));
+    mEnableCallbackRegistrar.add("Avatar.EnableItem", boost::bind(&LLFloaterIMSessionTab::enableContextMenuItem, this, _2));
     mCommitCallbackRegistrar.add("Avatar.DoToSelected", boost::bind(&LLFloaterIMSessionTab::doToSelected, this, _2));
 }
 
@@ -785,6 +785,22 @@ void LLFloaterIMSessionTab::doToSelected(const LLSD& userdata)
 	// *TODO : Move this method to LLAvatarActions
 	LLFloaterIMContainer* floater_container = LLFloaterIMContainer::getInstance();
 	floater_container->doToParticipants(command, selected_uuids);
+}
+
+bool LLFloaterIMSessionTab::enableContextMenuItem(const LLSD& userdata)
+{
+	// Get the list of selected items in the tab
+	// Note: By construction, those can only be participants so we do not check if they are sessions or something else
+    std::string command = userdata.asString();
+    uuid_vec_t selected_uuids;
+	getSelectedUUIDs(selected_uuids);
+	
+	llinfos << "Merov debug : enableContextMenuItem, command = " << command << ", uuid size = " << selected_uuids.size() << llendl;
+	
+	// Perform the command (IM, profile, etc...) on the list using the general conversation container method
+	// *TODO : Move this method to LLAvatarActions
+	LLFloaterIMContainer* floater_container = LLFloaterIMContainer::getInstance();
+	return floater_container->enableContextMenuItem(command, selected_uuids);
 }
 
 void LLFloaterIMSessionTab::getSelectedUUIDs(uuid_vec_t& selected_uuids)

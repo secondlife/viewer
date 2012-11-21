@@ -104,6 +104,7 @@ public:
     void doToSelected(const LLSD& userdata);
     bool checkContextMenuItem(const LLSD& userdata);
     bool enableContextMenuItem(const LLSD& userdata);
+    bool enableContextMenuItem(const std::string& item, uuid_vec_t& selectedIDS);
     void doToParticipants(const std::string& item, uuid_vec_t& selectedIDS);
 
 private:
