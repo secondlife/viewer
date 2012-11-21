@@ -496,8 +496,11 @@ void LLFloaterIMSessionTab::refreshConversation()
 	}
 	
 	mConversationViewModel.requestSortAll();
-	mConversationsRoot->arrangeAll();
-	mConversationsRoot->update();
+	if(mConversationsRoot != NULL)
+	{
+		mConversationsRoot->arrangeAll();
+		mConversationsRoot->update();
+	}
 	updateHeaderAndToolbar();
 	refresh();
 }
