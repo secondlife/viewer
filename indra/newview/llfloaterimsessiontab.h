@@ -158,9 +158,11 @@ protected:
 
 private:
 	// Handling selection and contextual menu
-    void getSelectedUUIDs(uuid_vec_t& selected_uuids);
     void doToSelected(const LLSD& userdata);
     bool enableContextMenuItem(const LLSD& userdata);
+    bool checkContextMenuItem(const LLSD& userdata);
+	
+    void getSelectedUUIDs(uuid_vec_t& selected_uuids);
 	
 	/// Refreshes the floater at a constant rate.
 	virtual void refresh() = 0;

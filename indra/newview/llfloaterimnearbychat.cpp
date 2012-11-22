@@ -112,6 +112,7 @@ BOOL LLFloaterIMNearbyChat::postBuild()
 {
     setIsSingleInstance(TRUE);
     BOOL result = LLFloaterIMSessionTab::postBuild();
+	
 	mInputEditor->setCommitCallback(boost::bind(&LLFloaterIMNearbyChat::onChatBoxCommit, this));
 	mInputEditor->setKeystrokeCallback(boost::bind(&onChatBoxKeystroke, _1, this));
 	mInputEditor->setFocusLostCallback(boost::bind(&onChatBoxFocusLost, _1, this));
@@ -122,24 +123,24 @@ BOOL LLFloaterIMNearbyChat::postBuild()
 //	mOutputMonitor->setVisible(FALSE);
 
 	// Register for font change notifications
-	LLViewerChat::setFontChangedCallback(boost::bind(&LLFloaterIMNearbyChat::onChatFontChange, this, _1));
+//	LLViewerChat::setFontChangedCallback(boost::bind(&LLFloaterIMNearbyChat::onChatFontChange, this, _1));
 
 	// title must be defined BEFORE call addConversationListItem() because
 	// it is used for show the item's name in the conversations list
 	setTitle(LLTrans::getString("NearbyChatTitle"));
 
 	//for menu
-	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
-	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
+//	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+//	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 
-	enable_registrar.add("NearbyChat.Check", boost::bind(&LLFloaterIMNearbyChat::onNearbyChatCheckContextMenuItem, this, _2));
-	registrar.add("NearbyChat.Action", boost::bind(&LLFloaterIMNearbyChat::onNearbyChatContextMenuItemClicked, this, _2));
+//	enable_registrar.add("NearbyChat.Check", boost::bind(&LLFloaterIMNearbyChat::onNearbyChatCheckContextMenuItem, this, _2));
+//	registrar.add("NearbyChat.Action", boost::bind(&LLFloaterIMNearbyChat::onNearbyChatContextMenuItemClicked, this, _2));
 
-	LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_nearby_chat.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-	if(menu)
-	{
-		mPopupMenuHandle = menu->getHandle();
-	}
+//	LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_nearby_chat.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+//	if(menu)
+//	{
+//		mPopupMenuHandle = menu->getHandle();
+//	}
 
 	// obsolete, but may be needed for backward compatibility?
 	gSavedSettings.declareS32("nearbychat_showicons_and_names", 2, "NearByChat header settings", true);

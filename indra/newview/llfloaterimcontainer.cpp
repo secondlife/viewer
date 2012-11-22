@@ -98,7 +98,6 @@ LLFloaterIMContainer::~LLFloaterIMContainer()
 
 void LLFloaterIMContainer::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, BOOL has_offline_msg)
 {
-	llinfos << "Merov debug : sessionAdded, uuid = " << session_id << ", name = " << name << llendl;
 	addConversationListItem(session_id);
 	LLFloaterIMSessionTab::addToHost(session_id);
 }
@@ -998,8 +997,6 @@ void LLFloaterIMContainer::doToSelected(const LLSD& userdata)
     {
     	getParticipantUUIDs(selected_uuids);
 		
-		llinfos << "Merov debug : doToSelected, command = " << command << ", name = " << conversationItem->getName() << ", uuid size = " << selected_uuids.size() << llendl;
-
     	if(conversationItem->getType() == LLConversationItem::CONV_PARTICIPANT)
     	{
     		doToParticipants(command, selected_uuids);
@@ -1070,22 +1067,25 @@ bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_v
 	}
 
 	// Handle all other options
-    if (item == std::string("can_block"))
+	if (("can_invite" == item) || ("can_chat_history" == item) || ("can_share" == item) || ("can_pay" == item))
+	{
+		// Those menu items are enable only if a single avatar is selected
+		return is_single_select;
+	}
+    else if ("can_block" == item)
     {
         return (is_single_select ? LLAvatarActions::canBlock(single_id) : false);
     }
-    else if (item == std::string("can_add"))
+    else if ("can_add" == item)
     {
         // We can add friends if:
         // - there is only 1 selected avatar (EXT-7389)
-        // - this avatar is not a friend yet
+        // - this avatar is not already a friend
         return (is_single_select ? !LLAvatarActions::isFriend(single_id) : false);
     }
-    else if (item == std::string("can_delete"))
+    else if ("can_delete" == item)
     {
-        // We can remove friends if:
-        // - there are selected people
-        // - and there are only friends among the selection
+        // We can remove friends if there are only friends among the selection
         bool result = true;
         for (uuid_vec_t::const_iterator id = uuids.begin(); id != uuids.end(); ++id)
         {
@@ -1093,20 +1093,21 @@ bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_v
         }
         return result;
     }
-    else if (item == std::string("can_call"))
+    else if ("can_call" == item)
     {
         return LLAvatarActions::canCall();
     }
-    else if (item == std::string("can_show_on_map"))
+    else if ("can_show_on_map" == item)
     {
         return (is_single_select ? (LLAvatarTracker::instance().isBuddyOnline(single_id) && is_agent_mappable(single_id)) || gAgent.isGodlike() : false);
     }
-    else if (item == std::string("can_offer_teleport"))
+    else if ("can_offer_teleport" == item)
     {
 		return LLAvatarActions::canOfferTeleport(uuids);
     }
-	else if ("can_moderate_voice" == item || "can_allow_text_chat" == item || "can_mute" == item || "can_unmute" == item)
+	else if (("can_moderate_voice" == item) || ("can_allow_text_chat" == item) || ("can_mute" == item) || ("can_unmute" == item))
 	{
+		// *TODO : get that out of here...
 		return enableModerateContextMenuItem(item);
 	}
 
@@ -1117,14 +1118,19 @@ bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_v
 bool LLFloaterIMContainer::checkContextMenuItem(const LLSD& userdata)
 {
     std::string item = userdata.asString();
-    uuid_vec_t mUUIDs;
-    getParticipantUUIDs(mUUIDs);
+	uuid_vec_t uuids;
+	getParticipantUUIDs(uuids);
+	
+	return checkContextMenuItem(item, uuids);
+}
 
-    if(mUUIDs.size() > 0 )
+bool LLFloaterIMContainer::checkContextMenuItem(const std::string& item, uuid_vec_t& uuids)
+{
+    if (uuids.size() == 1)
     {
 		if ("is_blocked" == item)
 		{
-			return LLAvatarActions::isBlocked(mUUIDs.front());
+			return LLAvatarActions::isBlocked(uuids.front());
 		}
 		else if ("is_allowed_text_chat" == item)
 		{
