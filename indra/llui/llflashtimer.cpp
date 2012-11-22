@@ -33,15 +33,15 @@ LLFlashTimer::LLFlashTimer(callback_t cb, S32 count, F32 period)
 		: LLEventTimer(period)
 		, mCallback(cb)
 		, mCurrentTickCount(0)
-        , mIsFlashing(false)
+        , mIsFlashingInProgress(false)
 {
 	mEventTimer.stop();
 
 	// By default use settings from settings.xml to be able change them via Debug settings. See EXT-5973.
 	// Due to Timer is implemented as derived class from EventTimer it is impossible to change period
 	// in runtime. So, both settings are made as required restart.
-	mFlashCount = 2 * ((count>0)? count : gSavedSettings.getS32("FlashCount"));
-	if (mPeriod<=0)
+	mFlashCount = 2 * ((count > 0) ? count : gSavedSettings.getS32("FlashCount"));
+	if (mPeriod <= 0)
 	{
 		mPeriod = gSavedSettings.getF32("FlashPeriod");
 	}
@@ -49,15 +49,18 @@ LLFlashTimer::LLFlashTimer(callback_t cb, S32 count, F32 period)
 
 BOOL LLFlashTimer::tick()
 {
-	mIsHighlight = !(mCurrentTickCount % 2);
+	mIsCurrentlyHighlighted = !mIsCurrentlyHighlighted;
+
 	if (mCallback)
 	{
-		mCallback(mIsHighlight);
+		mCallback(mIsCurrentlyHighlighted);
 	}
 
 	if (++mCurrentTickCount >= mFlashCount)
 	{
 		mEventTimer.stop();
+		mCurrentTickCount = 0;
+		mIsFlashingInProgress = false;
 	}
 
 	return FALSE;
@@ -65,15 +68,14 @@ BOOL LLFlashTimer::tick()
 
 void LLFlashTimer::startFlashing()
 {
-	mCurrentTickCount = 0;
-	mIsFlashing = true;
+	mIsFlashingInProgress = true;
 	mEventTimer.start();
 }
 
 void LLFlashTimer::stopFlashing()
 {
-	mIsFlashing = false;
-	mIsHighlight = false;
+	mIsFlashingInProgress = false;
+	mIsCurrentlyHighlighted = false;
 	mEventTimer.stop();
 }
 

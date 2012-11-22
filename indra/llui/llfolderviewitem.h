@@ -135,6 +135,8 @@ protected:
 	// no-op at this level, but reimplemented in derived classes.
 	virtual void addItem(LLFolderViewItem*) { }
 	virtual void addFolder(LLFolderViewFolder*) { }
+	virtual bool isHighlightAllowed();
+	virtual bool isHighlightActive();
 
 	static LLFontGL* getLabelFontForStyle(U8 style);
 
@@ -163,7 +165,6 @@ public:
     S32 getIconPad();
     S32 getTextPad();
 
-    LLFlashTimer* getFlashTimer() {return mFlashTimer;}
 	// If 'selection' is 'this' then note that otherwise ignore.
 	// Returns TRUE if this item ends up being selected.
 	virtual BOOL setSelection(LLFolderViewItem* selection, BOOL openitem, BOOL take_keyboard_focus);
@@ -274,8 +275,6 @@ public:
 
 private:
 	static std::map<U8, LLFontGL*> sFonts; // map of styles to fonts
-	LLFlashTimer* mFlashTimer;
-
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

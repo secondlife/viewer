@@ -44,6 +44,7 @@
            />
   <command name="chat"
            available_in_toybox="true"
+		   is_flashing_allowed="true"
            icon="Command_Chat_Icon"
            label_ref="Command_Chat_Label"
            tooltip_ref="Command_Conversations_Tooltip"

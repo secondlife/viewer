@@ -506,8 +506,8 @@ void LLTabContainer::draw()
 		}
 	}
 
-	mPrevArrowBtn->getFlashTimer()->stopFlashing();
-	mNextArrowBtn->getFlashTimer()->stopFlashing();
+	mPrevArrowBtn->setFlashing(false);
+	mNextArrowBtn->setFlashing(false);
 }
 
 

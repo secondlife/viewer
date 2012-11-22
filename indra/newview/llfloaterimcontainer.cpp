@@ -1611,7 +1611,7 @@ void LLFloaterIMContainer::reSelectConversation()
 
 void LLFloaterIMContainer::flashConversationItemWidget(const LLUUID& session_id, bool is_flashes)
 {
-	LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,session_id);
+	LLConversationViewSession * widget = dynamic_cast<LLConversationViewSession *>(get_ptr_in_map(mConversationsWidgets,session_id));
 	if (widget)
 	{
 		if (is_flashes)

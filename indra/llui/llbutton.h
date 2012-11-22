@@ -134,6 +134,7 @@ public:
 
 		Optional<bool>				handle_right_mouse;
 
+		Optional<bool>				button_flash_enable;
 		Optional<S32>				button_flash_count;
 		Optional<F32>				button_flash_rate;
 
@@ -200,7 +201,7 @@ public:
 	void			setToggleState(BOOL b);
 
 	void			setHighlight(bool b);
-	void			setFlashing( BOOL b );
+	void			setFlashing( bool b );
 	BOOL			getFlashing() const		{ return mFlashing; }
     LLFlashTimer*   getFlashTimer() {return mFlashingTimer;}
 
@@ -287,6 +288,8 @@ protected:
 
 	LLFrameTimer	mMouseDownTimer;
 	bool			mNeedsHighlight;
+	S32				mButtonFlashCount;
+	F32				mButtonFlashRate;
 
 	void			drawBorder(LLUIImage* imagep, const LLColor4& color, S32 size);
 	void			resetMouseDownTimer();
@@ -373,7 +376,8 @@ protected:
 	bool						mForcePressedState;
 	bool						mDisplayPressedState;
 
-	LLFlashTimer*				mFlashingTimer;
+	LLFrameTimer				mFrameTimer;
+	LLFlashTimer *				mFlashingTimer;
 
 	bool						mHandleRightMouse;
 };
