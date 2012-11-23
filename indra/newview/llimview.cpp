@@ -118,17 +118,18 @@ void on_new_message(const LLSD& msg)
 {
 	std::string action;
 	LLUUID participant_id = msg["from_id"].asUUID();
-	LLUUID session_id = msg["session_id"];
+	LLUUID session_id = msg["session_id"].asUUID();
     LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(session_id);
 
     // determine action for this session
+
     if (session_id.isNull())
     {
     	action = gSavedSettings.getString("NotificationNearbyChatOptions");
     }
     else if(session->isP2PSessionType())
     {
-        if (LLAvatarTracker::instance().isBuddy(msg["from_id"].asUUID()))
+        if (LLAvatarTracker::instance().isBuddy(participant_id))
         {
         	action = gSavedSettings.getString("NotificationFriendIMOptions");
         }
@@ -152,10 +153,12 @@ void on_new_message(const LLSD& msg)
 		return;
 	}
 
+	// execution of the action
+
 	if ("toast" == action)
 	{
 	    // Skip toasting if we have open window of IM with this session id
-        LLFloaterIMSession* open_im_floater = LLFloaterIMSession::findInstance(msg["session_id"]);
+        LLFloaterIMSession* open_im_floater = LLFloaterIMSession::findInstance(session_id);
         if (
              open_im_floater
              && open_im_floater->isInVisibleChain()
