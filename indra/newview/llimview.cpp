@@ -2137,7 +2137,7 @@ void LLIncomingCallDialog::onAvatarNameCache(const LLUUID& agent_id,
 											 const std::string& call_type)
 {
 	std::string title = av_name.getCompleteName();
-	setCallerName(title, av_name.mDisplayName, call_type);
+	setCallerName(title, av_name.getCompleteName(), call_type);
 }
 
 void LLIncomingCallDialog::onOpen(const LLSD& key)
