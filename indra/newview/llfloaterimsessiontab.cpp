@@ -162,7 +162,7 @@ void LLFloaterIMSessionTab::addToHost(const LLUUID& session_id)
 			if (!conversp->isNearbyChat()
 					|| gSavedSettings.getBOOL("NearbyChatIsNotTornOff"))
 			{
-				floater_container->addFloater(conversp, TRUE, LLTabContainer::END);
+				floater_container->addFloater(conversp, FALSE, LLTabContainer::END);
 
 				if (!floater_container->getVisible())
 				{
