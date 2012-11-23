@@ -711,12 +711,17 @@ void LLFolderViewItem::drawHighlight(const BOOL showContent, const BOOL hasKeybo
                 bg_color.mV[VALPHA] = clamp_rescale(fade_time, 0.f, 0.4f, 0.f, bg_color.mV[VALPHA]);
             }
         }
-        gl_rect_2d(FOCUS_LEFT,
-            focus_top, 
-            getRect().getWidth() - 2,
-            focus_bottom,
-            bg_color, hasKeyboardFocus);
-        if (isHighlightActive())
+
+        if (!isHighlightAllowed() || isHighlightActive())
+        {
+        	gl_rect_2d(FOCUS_LEFT,
+                focus_top,
+                getRect().getWidth() - 2,
+                focus_bottom,
+                bg_color, hasKeyboardFocus);
+        }
+
+        if (mIsCurSelection)
         {
             gl_rect_2d(FOCUS_LEFT, 
                 focus_top, 
