@@ -50,8 +50,8 @@ public:
 	void startFlashing();
 	void stopFlashing();
 
-	bool isFlashingInProgress() {return mIsFlashingInProgress;}
-	bool isCurrentlyHighlighted() {return mIsCurrentlyHighlighted;}
+	bool isFlashingInProgress();
+	bool isCurrentlyHighlighted();
 
 private:
 	callback_t		mCallback;

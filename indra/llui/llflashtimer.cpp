@@ -34,6 +34,7 @@ LLFlashTimer::LLFlashTimer(callback_t cb, S32 count, F32 period)
 		, mCallback(cb)
 		, mCurrentTickCount(0)
         , mIsFlashingInProgress(false)
+        , mIsCurrentlyHighlighted(false)
 {
 	mEventTimer.stop();
 
@@ -58,9 +59,7 @@ BOOL LLFlashTimer::tick()
 
 	if (++mCurrentTickCount >= mFlashCount)
 	{
-		mEventTimer.stop();
-		mCurrentTickCount = 0;
-		mIsFlashingInProgress = false;
+		stopFlashing();
 	}
 
 	return FALSE;
@@ -69,14 +68,26 @@ BOOL LLFlashTimer::tick()
 void LLFlashTimer::startFlashing()
 {
 	mIsFlashingInProgress = true;
+	mIsCurrentlyHighlighted = true;
 	mEventTimer.start();
 }
 
 void LLFlashTimer::stopFlashing()
 {
+	mEventTimer.stop();
 	mIsFlashingInProgress = false;
 	mIsCurrentlyHighlighted = false;
-	mEventTimer.stop();
+	mCurrentTickCount = 0;
+}
+
+bool LLFlashTimer::isFlashingInProgress()
+{
+	return mIsFlashingInProgress;
+}
+
+bool LLFlashTimer::isCurrentlyHighlighted()
+{
+	return mIsCurrentlyHighlighted;
 }
 
 
