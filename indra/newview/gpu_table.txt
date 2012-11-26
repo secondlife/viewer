@@ -375,6 +375,7 @@ NVIDIA GTS 150							.*NVIDIA .*GTS *15.*					2	1	0	0
 NVIDIA 205								.*NVIDIA .*GeForce 205.*				2	1	1	3.3
 NVIDIA 210								.*NVIDIA .*GeForce 210.*				3	1	1	3.3
 NVIDIA GT 220							.*NVIDIA .*GT *22.*						2	1	1	3.3
+NVIDIA GT 230							.*NVIDIA .*GT *23.*						2	1	1	3.3
 NVIDIA GTS 240							.*NVIDIA .*GTS *24.*					4	1	1	3.3
 NVIDIA GTS 250							.*NVIDIA .*GTS *25.*					4	1	1	3.3
 NVIDIA GTX 260							.*NVIDIA .*GTX *26.*					4	1	1	3.3
