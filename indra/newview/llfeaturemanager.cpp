@@ -720,7 +720,9 @@ void LLFeatureManager::setGraphicsLevel(S32 level, bool skipFeatures)
 			maskFeatures("High");
 			maskFeatures("Class5");
 			break;
-		
+		case 6:
+			maskFeatures("Ultra");
+			break;
 		default:
 			maskFeatures("Low");
 			maskFeatures("Class0");
