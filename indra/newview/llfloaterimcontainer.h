@@ -115,6 +115,7 @@ private:
 	void onNewMessageReceived(const LLSD& data);
 
 	void onExpandCollapseButtonClicked();
+	void onStubCollapseButtonClicked();
 	void processParticipantsStyleUpdate();
 
 	void collapseConversationsPane(bool collapse);
@@ -152,6 +153,7 @@ private:
 	void openNearbyChat();
 
 	LLButton* mExpandCollapseBtn;
+	LLButton* mStubCollapseBtn;
 	LLPanel* mStubPanel;
 	LLTextBox* mStubTextBox;
 	LLLayoutPanel* mMessagesPane;
@@ -169,6 +171,7 @@ public:
 	void setTimeNow(const LLUUID& session_id, const LLUUID& participant_id);
 	void setNearbyDistances();
 	void reSelectConversation();
+	void flashConversationItemWidget(const LLUUID& session_id, bool is_flashes);
 
 private:
 	LLConversationViewSession* createConversationItemWidget(LLConversationItem* item);

@@ -57,14 +57,11 @@ public:
 
 	virtual void onChange(EStatusType status, const std::string &channelURI, bool proximal)
 	{
-		if (conversation
-		   && status != STATUS_JOINING
-		   && status != STATUS_LEFT_CHANNEL
-		   && LLVoiceClient::getInstance()->voiceEnabled()
-		   && LLVoiceClient::getInstance()->isVoiceWorking())
-		{
-			conversation->showVoiceIndicator();
-		}
+		conversation->showVoiceIndicator(conversation
+			&& status != STATUS_JOINING
+			&& status != STATUS_LEFT_CHANNEL
+			&& LLVoiceClient::getInstance()->voiceEnabled()
+			&& LLVoiceClient::getInstance()->isVoiceWorking());
 	}
 
 private:
@@ -85,6 +82,7 @@ LLConversationViewSession::LLConversationViewSession(const LLConversationViewSes
 	mVoiceClientObserver(NULL),
 	mMinimizedMode(false)
 {
+	mFlashTimer = new LLFlashTimer();
 }
 
 LLConversationViewSession::~LLConversationViewSession()
@@ -95,6 +93,18 @@ LLConversationViewSession::~LLConversationViewSession()
 	{
 		LLVoiceClient::getInstance()->removeObserver(mVoiceClientObserver);
 	}
+
+	delete mFlashTimer;
+}
+
+bool LLConversationViewSession::isHighlightAllowed()
+{
+	return mFlashTimer->isFlashingInProgress() || mIsSelected;
+}
+
+bool LLConversationViewSession::isHighlightActive()
+{
+	return mFlashTimer->isFlashingInProgress() ? mFlashTimer->isCurrentlyHighlighted() : mIsCurSelection;
 }
 
 BOOL LLConversationViewSession::postBuild()
@@ -288,12 +298,9 @@ LLConversationViewParticipant* LLConversationViewSession::findParticipant(const 
 	return (iter == getItemsEnd() ? NULL : participant);
 }
 
-void LLConversationViewSession::showVoiceIndicator()
+void LLConversationViewSession::showVoiceIndicator(bool visible)
 {
-	if (LLVoiceChannel::getCurrentVoiceChannel()->getSessionID().isNull())
-	{
-		mCallIconLayoutPanel->setVisible(true);
-	}
+	mCallIconLayoutPanel->setVisible(visible && LLVoiceChannel::getCurrentVoiceChannel()->getSessionID().isNull());
 }
 
 void LLConversationViewSession::refresh()

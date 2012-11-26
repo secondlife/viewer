@@ -26,6 +26,7 @@
 #ifndef LLFOLDERVIEWITEM_H
 #define LLFOLDERVIEWITEM_H
 
+#include "llflashtimer.h"
 #include "llview.h"
 #include "lluiimage.h"
 
@@ -134,6 +135,8 @@ protected:
 	// no-op at this level, but reimplemented in derived classes.
 	virtual void addItem(LLFolderViewItem*) { }
 	virtual void addFolder(LLFolderViewFolder*) { }
+	virtual bool isHighlightAllowed();
+	virtual bool isHighlightActive();
 
 	static LLFontGL* getLabelFontForStyle(U8 style);
 
@@ -272,7 +275,6 @@ public:
 
 private:
 	static std::map<U8, LLFontGL*> sFonts; // map of styles to fonts
-
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

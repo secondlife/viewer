@@ -15,10 +15,10 @@ if (WINDOWS)
         optimized llprimitive
         debug libcollada14dom22-d
         optimized libcollada14dom22
-        debug libboost_filesystem-vc100-mt-gd-1_45
-        optimized libboost_filesystem-vc100-mt-1_45
-        debug libboost_system-vc100-mt-gd-1_45
-        optimized libboost_system-vc100-mt-1_45
+        debug libboost_filesystem-mt-gd
+        optimized libboost_filesystem-mt
+        debug libboost_system-mt-gd
+        optimized libboost_system-mt
         )
 else (WINDOWS)
     set(LLPRIMITIVE_LIBRARIES 

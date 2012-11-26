@@ -23,9 +23,12 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
+#include "../newview/llviewerprecompiledheaders.h"
+
+#include "llflashtimer.h"
+
 #include "linden_common.h"
 #include "llfolderviewitem.h"
-
 #include "llfolderview.h"
 #include "llfolderviewmodel.h"
 #include "llpanel.h"
@@ -160,17 +163,18 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 	}
 }
 
+// Destroys the object
+LLFolderViewItem::~LLFolderViewItem()
+{
+	mViewModelItem = NULL;
+}
+
 BOOL LLFolderViewItem::postBuild()
 {
 	refresh();
 	return TRUE;
 }
 
-// Destroys the object
-LLFolderViewItem::~LLFolderViewItem( void )
-{
-	mViewModelItem = NULL;
-}
 
 LLFolderView* LLFolderViewItem::getRoot()
 {
@@ -664,6 +668,16 @@ void LLFolderViewItem::drawOpenFolderArrow(const Params& default_params, const L
 	}
 }
 
+/*virtual*/ bool LLFolderViewItem::isHighlightAllowed()
+{
+	return mIsSelected;
+}
+
+/*virtual*/ bool LLFolderViewItem::isHighlightActive()
+{
+	return mIsCurSelection;
+}
+
 void LLFolderViewItem::drawHighlight(const BOOL showContent, const BOOL hasKeyboardFocus, const LLUIColor &bgColor, 
                                                         const LLUIColor &focusOutlineColor, const LLUIColor &mouseOverColor)
 {
@@ -677,11 +691,12 @@ void LLFolderViewItem::drawHighlight(const BOOL showContent, const BOOL hasKeybo
     const bool folder_open = (getRect().getHeight() > mItemHeight + 4);
     const S32 FOCUS_LEFT = 1;
 
-    if (mIsSelected) // always render "current" item.  Only render other selected items if mShowSingleSelection is FALSE
+    if (isHighlightAllowed())	// always render "current" item (only render other selected items if
+    							// mShowSingleSelection is FALSE) or flashing item
     {
         gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
         LLColor4 bg_color = bgColor;
-        if (!mIsCurSelection)
+        if (!isHighlightActive())
         {
             // do time-based fade of extra objects
             F32 fade_time = (getRoot() ? getRoot()->getSelectionFadeElapsedTime() : 0.0f);
@@ -696,11 +711,16 @@ void LLFolderViewItem::drawHighlight(const BOOL showContent, const BOOL hasKeybo
                 bg_color.mV[VALPHA] = clamp_rescale(fade_time, 0.f, 0.4f, 0.f, bg_color.mV[VALPHA]);
             }
         }
-        gl_rect_2d(FOCUS_LEFT,
-            focus_top, 
-            getRect().getWidth() - 2,
-            focus_bottom,
-            bg_color, hasKeyboardFocus);
+
+        if (!isHighlightAllowed() || isHighlightActive())
+        {
+        	gl_rect_2d(FOCUS_LEFT,
+                focus_top,
+                getRect().getWidth() - 2,
+                focus_bottom,
+                bg_color, hasKeyboardFocus);
+        }
+
         if (mIsCurSelection)
         {
             gl_rect_2d(FOCUS_LEFT, 

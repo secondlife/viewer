@@ -40,6 +40,7 @@
 #include "llfloaterimsession.h"
 #include "llfloaterimcontainer.h" // to replace separate IM Floaters with multifloater container
 #include "lllayoutstack.h"
+#include "lltoolbarview.h"
 #include "llfloaterimnearbychat.h"
 
 const F32 REFRESH_INTERVAL = 0.2f;
@@ -166,7 +167,7 @@ void LLFloaterIMSessionTab::addToHost(const LLUUID& session_id)
 			if (!conversp->isNearbyChat()
 					|| gSavedSettings.getBOOL("NearbyChatIsNotTornOff"))
 			{
-				floater_container->addFloater(conversp, TRUE, LLTabContainer::END);
+				floater_container->addFloater(conversp, FALSE, LLTabContainer::END);
 
 				if (!floater_container->getVisible())
 				{
@@ -333,6 +334,7 @@ std::string LLFloaterIMSessionTab::appendTime()
 
 void LLFloaterIMSessionTab::appendMessage(const LLChat& chat, const LLSD &args)
 {
+
 	// Update the participant activity time
 	LLFloaterIMContainer* im_box = LLFloaterIMContainer::findInstance();
 	if (im_box)
@@ -500,8 +502,11 @@ void LLFloaterIMSessionTab::refreshConversation()
 	}
 	
 	mConversationViewModel.requestSortAll();
-	mConversationsRoot->arrangeAll();
-	mConversationsRoot->update();
+	if(mConversationsRoot != NULL)
+	{
+		mConversationsRoot->arrangeAll();
+		mConversationsRoot->update();
+	}
 	updateHeaderAndToolbar();
 	refresh();
 }

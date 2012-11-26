@@ -55,7 +55,10 @@ public:
 protected:
 	friend class LLUICtrlFactory;
 	LLConversationViewSession( const Params& p );
-	
+
+	/*virtual*/ bool isHighlightAllowed();
+	/*virtual*/ bool isHighlightActive();
+
 	LLFloaterIMContainer* mContainer;
 	
 public:
@@ -78,9 +81,11 @@ public:
 	void setVisibleIfDetached(BOOL visible);
 	LLConversationViewParticipant* findParticipant(const LLUUID& participant_id);
 
-	void showVoiceIndicator();
+	void showVoiceIndicator(bool visible);
 
 	virtual void refresh();
+
+	LLFlashTimer * getFlashTimer() { return mFlashTimer; }
 
 private:
 
@@ -90,6 +95,7 @@ private:
 	LLPanel*				mCallIconLayoutPanel;
 	LLTextBox*				mSessionTitle;
 	LLOutputMonitorCtrl*	mSpeakingIndicator;
+	LLFlashTimer*			mFlashTimer;
 
 	bool					mMinimizedMode;
 

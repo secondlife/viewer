@@ -41,6 +41,7 @@
 #include "llcallbacklist.h"
 #include "llgroupactions.h"
 #include "llgroupiconctrl.h"
+#include "llflashtimer.h"
 #include "llfloateravatarpicker.h"
 #include "llfloaterpreference.h"
 #include "llimview.h"
@@ -104,7 +105,7 @@ void LLFloaterIMContainer::sessionAdded(const LLUUID& session_id, const std::str
 
 void LLFloaterIMContainer::sessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
 {
-    selectConversation(session_id);
+	selectConversationPair(session_id, true);
 }
 
 void LLFloaterIMContainer::sessionVoiceOrIMStarted(const LLUUID& session_id)
@@ -203,6 +204,8 @@ BOOL LLFloaterIMContainer::postBuild()
 
 	mExpandCollapseBtn = getChild<LLButton>("expand_collapse_btn");
 	mExpandCollapseBtn->setClickedCallback(boost::bind(&LLFloaterIMContainer::onExpandCollapseButtonClicked, this));
+	mStubCollapseBtn = getChild<LLButton>("stub_collapse_btn");
+	mStubCollapseBtn->setClickedCallback(boost::bind(&LLFloaterIMContainer::onStubCollapseButtonClicked, this));
 
 	childSetAction("add_btn", boost::bind(&LLFloaterIMContainer::onAddButtonClicked, this));
 
@@ -331,6 +334,11 @@ void LLFloaterIMContainer::onNewMessageReceived(const LLSD& data)
 			LLMultiFloater::setFloaterFlashing(floaterp, FALSE);
 		LLMultiFloater::setFloaterFlashing(floaterp, TRUE);
 	}
+}
+
+void LLFloaterIMContainer::onStubCollapseButtonClicked()
+{
+	collapseMessagesPane(true);
 }
 
 void LLFloaterIMContainer::onExpandCollapseButtonClicked()
@@ -1029,11 +1037,11 @@ void LLFloaterIMContainer::doToSelectedGroup(const LLSD& userdata)
 
 bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
 {
-    std::string item = userdata.asString();
+    const std::string& item = userdata.asString();
 	uuid_vec_t uuids;
 	getParticipantUUIDs(uuids);
 
-    if (item == std::string("can_activate_group"))
+    if("can_activate_group" == item)
     {
     	LLUUID selected_group_id = getCurSelectedViewModelItem()->getUUID();
     	return gAgent.getGroupID() != selected_group_id;
@@ -1044,6 +1052,11 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
 
 bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_vec_t& uuids)
 {
+	if ("conversation_log" == item)
+	{
+		return gSavedSettings.getBOOL("KeepConversationLogTranscripts");
+	}
+
 	// If nothing is selected, everything needs to be disabled
 	if (uuids.size() <= 0)
     {
@@ -1161,6 +1174,7 @@ void LLFloaterIMContainer::selectConversation(const LLUUID& session_id)
 		(widget->getRoot())->setSelection(widget, FALSE, FALSE);
 	}
 }
+
 
 // Synchronous select the conversation item and the conversation floater
 BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool select_widget)
@@ -1601,7 +1615,22 @@ void LLFloaterIMContainer::reSelectConversation()
 	{
 		selectFloater(session_floater);
 	}
+}
 
+void LLFloaterIMContainer::flashConversationItemWidget(const LLUUID& session_id, bool is_flashes)
+{
+	LLConversationViewSession * widget = dynamic_cast<LLConversationViewSession *>(get_ptr_in_map(mConversationsWidgets,session_id));
+	if (widget)
+	{
+		if (is_flashes)
+		{
+			widget->getFlashTimer()->startFlashing();
+		}
+		else
+		{
+			widget->getFlashTimer()->stopFlashing();
+		}
+	}
 }
 
 // EOF

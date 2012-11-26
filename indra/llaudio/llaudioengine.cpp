@@ -1792,5 +1792,3 @@ bool LLAudioData::load()
 	mBufferp->mAudioDatap = this;
 	return true;
 }
-
-
