@@ -1353,10 +1353,12 @@ bool LLFloaterIMContainer::removeConversationListItem(const LLUUID& uuid, bool c
 		setFocus(TRUE);
 		if(new_selection != NULL)
 		{
+			if (mConversationsWidgets.size() == 1)
+				new_selection = new_selection->getParentFolder();
 			LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(new_selection->getViewModelItem());
 			if(vmi != NULL)
 			{
-				selectConversation(vmi->getUUID());
+				selectConversationPair(vmi->getUUID(), true);
 			}
 		}
 	}
