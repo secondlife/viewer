@@ -2817,7 +2817,7 @@ void LLStartUp::initNameCache()
 void LLStartUp::initExperienceCache()
 {
 	LLAppViewer::instance()->loadExperienceCache();
-	LLExperienceCache::initClass(false);
+	LLExperienceCache::initClass();
 }
 
 void LLStartUp::cleanupNameCache()

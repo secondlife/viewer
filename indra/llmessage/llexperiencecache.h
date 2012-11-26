@@ -30,6 +30,7 @@
 #define LL_LLEXPERIENCECACHE_H
 
 #include <string>
+#include <boost/signals2.hpp>
 
 class LLUUID;
 
@@ -43,27 +44,40 @@ public:
 
 	std::string mDisplayName;
 	std::string mDescription;
+	F64 mExpires;
 };
 
 
 
 namespace LLExperienceCache
 {
+	// dummy name used when we have nothing else
+	const std::string DUMMY_NAME = "\?\?\?";
+	// Callback types for get() below
+	typedef boost::signals2::signal<
+		void (const LLUUID& agent_id, const LLExperienceData& experience)>
+		callback_signal_t;
+	typedef callback_signal_t::slot_type callback_slot_t;
+	typedef std::map<LLUUID, LLExperienceData> cache_t;
+
+
 	void setLookupURL(const std::string& lookup_url);
 	bool hasLookupURL();
 
+	void setMaximumLookups(int maximumLookups);
 
 	void idle();
 	void exportFile(std::ostream& ostr);
 	void importFile(std::istream& istr);
-	void initClass(bool running);
+	void initClass();
 
 	void erase(const LLUUID& agent_id);
 	void fetch(const LLUUID& agent_id);
 	void insert(const LLUUID& agent_id, const LLExperienceData& experience_data);
 	bool get(const LLUUID& agent_id, LLExperienceData* experience_data);
 
-	typedef std::map<LLUUID, LLExperienceData> cache_t;
+	// If name information is in cache, callback will be called immediately.
+	void get(const LLUUID& agent_id, callback_slot_t slot);
 
 	const cache_t& getCached();
 };
