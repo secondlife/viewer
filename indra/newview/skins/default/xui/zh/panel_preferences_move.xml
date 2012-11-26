@@ -7,18 +7,33 @@
 	</text>
 	<check_box label="建造 / 編輯" name="edit_camera_movement" tool_tip="使用進入或離開編輯模式時自動調整攝影機位置功能"/>
 	<check_box label="編輯外觀" name="appearance_camera_movement" tool_tip="使用編輯模式時自動調整攝影機位置功能"/>
-	<check_box initial_value="true" label="側邊欄" name="appearance_sidebar_positioning" tool_tip="使用開啟側邊欄時自動調整攝影機位置功能"/>
+	<text name="keyboard_lbl">
+		鍵盤：
+	</text>
+	<check_box label="總是使用方向鍵移動" name="arrow_keys_move_avatar_check"/>
+	<check_box label="連點按住後跑步" name="tap_tap_hold_to_run"/>
+	<text name="mouse_lbl">
+		滑鼠：
+	</text>
 	<check_box label="將我顯示於第一人稱視角中" name="first_person_avatar_visible"/>
 	<text name=" Mouse Sensitivity">
 		第一人稱視角滑鼠敏感度：
 	</text>
 	<check_box label="反轉" name="invert_mouse"/>
-	<check_box label="總是使用方向鍵移動" name="arrow_keys_move_avatar_check"/>
-	<check_box label="連點按住後跑步" name="tap_tap_hold_to_run"/>
-	<check_box label="雙擊以：" name="double_click_chkbox"/>
-	<radio_group name="double_click_action">
-		<radio_item label="瞬間傳送" name="radio_teleport"/>
-		<radio_item label="自動導航駕駛" name="radio_autopilot"/>
-	</radio_group>
+	<text name="single_click_action_lbl">
+		在土地上點按一下：
+	</text>
+	<combo_box name="single_click_action_combo">
+		<combo_box.item label="無動作" name="0"/>
+		<combo_box.item label="移動至點按的地點" name="1"/>
+	</combo_box>
+	<text name="double_click_action_lbl">
+		在土地上點按兩下：
+	</text>
+	<combo_box name="double_click_action_combo">
+		<combo_box.item label="無動作" name="0"/>
+		<combo_box.item label="移動至點按的地點" name="1"/>
+		<combo_box.item label="瞬間傳送至點按的地點" name="2"/>
+	</combo_box>
 	<button label="其他設備" name="joystick_setup_button"/>
 </panel>

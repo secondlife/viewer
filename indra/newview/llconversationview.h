@@ -55,7 +55,10 @@ public:
 protected:
 	friend class LLUICtrlFactory;
 	LLConversationViewSession( const Params& p );
-	
+
+	/*virtual*/ bool isHighlightAllowed();
+	/*virtual*/ bool isHighlightActive();
+
 	LLFloaterIMContainer* mContainer;
 	
 public:
@@ -78,9 +81,11 @@ public:
 	void setVisibleIfDetached(BOOL visible);
 	LLConversationViewParticipant* findParticipant(const LLUUID& participant_id);
 
-	void showVoiceIndicator();
+	void showVoiceIndicator(bool visible);
 
 	virtual void refresh();
+
+	LLFlashTimer * getFlashTimer() { return mFlashTimer; }
 
 private:
 
@@ -90,11 +95,12 @@ private:
 	LLPanel*				mCallIconLayoutPanel;
 	LLTextBox*				mSessionTitle;
 	LLOutputMonitorCtrl*	mSpeakingIndicator;
+	LLFlashTimer*			mFlashTimer;
 
 	bool					mMinimizedMode;
 
 	LLVoiceClientStatusObserver* mVoiceClientObserver;
-
+	
 	boost::signals2::connection mActiveVoiceChannelConnection;
 };
 
@@ -116,11 +122,12 @@ public:
 		Params();
 	};
 	
-    virtual ~LLConversationViewParticipant( void ) { }
+    virtual ~LLConversationViewParticipant( void );
 
     bool hasSameValue(const LLUUID& uuid) { return (uuid == mUUID); }
     virtual void refresh();
     void addToFolder(LLFolderViewFolder* folder);
+	void addToSession(const LLUUID& session_id);
 
     /*virtual*/ BOOL handleMouseDown( S32 x, S32 y, MASK mask );
 
@@ -140,6 +147,8 @@ protected:
 	void onInfoBtnClick();
 
 private:
+	void onCurrentVoiceSessionChanged(const LLUUID& session_id);
+
     LLAvatarIconCtrl* mAvatarIcon;
 	LLButton * mInfoBtn;
     LLOutputMonitorCtrl* mSpeakingIndicator;
@@ -156,6 +165,8 @@ private:
     static void initChildrenWidths(LLConversationViewParticipant* self);
     void updateChildren();
     LLView* getItemChildView(EAvatarListItemChildIndex child_view_index);
+	
+	boost::signals2::connection mActiveVoiceChannelConnection;
 };
 
 #endif // LL_LLCONVERSATIONVIEW_H

@@ -809,7 +809,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	if (irc_me || chat.mChatStyle == CHAT_STYLE_IRC)
 	{
 		delimiter = LLStringUtil::null;
-		name_params.font.style = "ITALIC";
+		body_message_params.font.style = "ITALIC";
 	}
 
 	bool message_from_log = chat.mChatStyle == CHAT_STYLE_HISTORY;

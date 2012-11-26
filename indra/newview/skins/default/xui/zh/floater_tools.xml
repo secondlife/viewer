@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="toolbox floater" short_title="建造工具">
+	<floater.string name="grid_screen_text">
+		螢幕
+	</floater.string>
+	<floater.string name="grid_local_text">
+		本地
+	</floater.string>
+	<floater.string name="grid_world_text">
+		世界
+	</floater.string>
+	<floater.string name="grid_reference_text">
+		參考
+	</floater.string>
+	<floater.string name="grid_attachment_text">
+		附件
+	</floater.string>
 	<floater.string name="status_rotate">
 		拖曳色條可以旋轉物件
 	</floater.string>
@@ -24,20 +39,11 @@
 	<floater.string name="status_selectland">
 		按住並拖曳，可以選取土地
 	</floater.string>
-	<floater.string name="grid_screen_text">
-		螢幕
+	<floater.string name="status_selectcount">
+		選取了 [OBJ_COUNT] 個物件，土地衝擊量 [LAND_IMPACT]
 	</floater.string>
-	<floater.string name="grid_local_text">
-		本地
-	</floater.string>
-	<floater.string name="grid_world_text">
-		世界
-	</floater.string>
-	<floater.string name="grid_reference_text">
-		參考
-	</floater.string>
-	<floater.string name="grid_attachment_text">
-		附件
+	<floater.string name="status_remaining_capacity">
+		剩餘容納量 [LAND_CAPACITY]。
 	</floater.string>
 	<button name="button focus" tool_tip="聚焦"/>
 	<button name="button move" tool_tip="移動"/>
@@ -67,20 +73,17 @@
 	<check_box label="編輯聯結部分" name="checkbox edit linked parts"/>
 	<button label="聯結" name="link_btn"/>
 	<button label="取消聯結" name="unlink_btn"/>
-	<text name="RenderingCost" tool_tip="顯示這物件經計算所得的呈像成本">
-		þ：[COUNT]
-	</text>
 	<text label="同時伸展兩側" name="checkbox uniform label">
 		同時伸展兩側
 	</text>
 	<check_box initial_value="true" label="伸展材質" name="checkbox stretch textures"/>
-	<check_box initial_value="true" label="貼齊格線" name="checkbox snap to grid"/>
+	<check_box initial_value="true" label="Snap" name="checkbox snap to grid"/>
 	<combo_box name="combobox grid mode" tool_tip="選擇物件定位參考的格線尺度類型">
-		<combo_box.item label="世界格線" name="World"/>
-		<combo_box.item label="地方格線" name="Local"/>
-		<combo_box.item label="參考格線" name="Reference"/>
+		<combo_box.item label="世界" name="World"/>
+		<combo_box.item label="本地" name="Local"/>
+		<combo_box.item label="參考" name="Reference"/>
 	</combo_box>
-	<button name="Options..." tool_tip="察看更多格線選項"/>
+	<button label="" name="Options..." tool_tip="察看更多格線選項"/>
 	<button name="ToolCube" tool_tip="立方體"/>
 	<button name="ToolPrism" tool_tip="稜鏡體"/>
 	<button name="ToolPyramid" tool_tip="金字塔"/>
@@ -121,23 +124,11 @@
 	</text>
 	<slider_bar initial_value="0.00" name="slider force"/>
 	<button label="套用" label_selected="套用" name="button apply to selection" tool_tip="修改所選擇的土地"/>
-	<text name="obj_count">
-		物件： [COUNT]
+	<text name="selection_empty">
+		未做任何選擇。
 	</text>
-	<text name="prim_count">
-		幾何元件： [COUNT]
-	</text>
-	<text name="linked_set_count">
-		聯結集合：[COUNT]
-	</text>
-	<text name="linked_set_cost" tool_tip="目前所選聯結幾何 [prims],[physics complexity] 的費用">
-		費用：[COST] / [PHYSICS]
-	</text>
-	<text name="object_count">
-		物件： [COUNT]
-	</text>
-	<text name="object_cost" tool_tip="目前所選物件 [prims] / [physics complexity] 的費用">
-		費用：[COST] / [PHYSICS]
+	<text name="remaining_capacity">
+		[CAPACITY_STRING] [secondlife:///app/openfloater/object_weights 詳情]
 	</text>
 	<tab_container name="Object Info Tabs">
 		<panel label="一般" name="General">
@@ -158,6 +149,12 @@
 			</panel.string>
 			<panel.string name="text modify info 4">
 				你不能修改這些物件
+			</panel.string>
+			<panel.string name="text modify info 5">
+				無法跨地區修改這個物件
+			</panel.string>
+			<panel.string name="text modify info 6">
+				無法跨地區修改這些物件
 			</panel.string>
 			<panel.string name="text modify warning">
 				你必須選取整個物件以設定權限
@@ -208,12 +205,12 @@
 				<combo_box.item label="縮放" name="Zoom"/>
 			</combo_box>
 			<check_box label="出售中：" name="checkbox for sale"/>
+			<spinner label="L$" name="Edit Cost"/>
 			<combo_box name="sale type">
 				<combo_box.item label="恚庨" name="Copy"/>
 				<combo_box.item label="內容" name="Contents"/>
 				<combo_box.item label="原件" name="Original"/>
 			</combo_box>
-			<spinner label="價格： L$" name="Edit Cost"/>
 			<check_box label="顯示在搜尋中" name="search_check" tool_tip="讓其他人可以在搜尋結果中察看到此物件"/>
 			<panel name="perms_build">
 				<text name="perm_modify">
@@ -247,6 +244,11 @@
 				</text>
 				<text name="F:">
 					F:
+				</text>
+			</panel>
+			<panel name="pathfinding_attrs_panel">
+				<text name="pathfinding_attributes_label">
+					尋徑屬性：
 				</text>
 			</panel>
 		</panel>
@@ -350,12 +352,10 @@
 				縫合類型
 			</text>
 			<combo_box name="sculpt type control">
-				<combo_box.item label="（無）" name="None"/>
 				<combo_box.item label="球體" name="Sphere"/>
 				<combo_box.item label="環面" name="Torus"/>
 				<combo_box.item label="平面" name="Plane"/>
 				<combo_box.item label="圓柱體" name="Cylinder"/>
-				<combo_box.item label="網面" name="Mesh"/>
 			</combo_box>
 		</panel>
 		<panel label="特性" name="Features">
@@ -407,7 +407,7 @@
 			</combo_box>
 			<spinner label="重力" name="Physics Gravity"/>
 			<spinner label="摩擦" name="Physics Friction"/>
-			<spinner label="密度" name="Physics Density"/>
+			<spinner label="密度（100 公斤 / 立方公尺）" name="Physics Density"/>
 			<spinner label="恢復" name="Physics Restitution"/>
 		</panel>
 		<panel label="材質" name="Texture">

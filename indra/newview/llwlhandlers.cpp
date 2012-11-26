@@ -105,10 +105,16 @@ LLEnvironmentRequestResponder::LLEnvironmentRequestResponder()
 		return;
 	}
 
-	if (unvalidated_content[0]["regionID"].asUUID() != gAgent.getRegion()->getRegionID())
+	LLUUID regionId;
+	if( gAgent.getRegion() )
+	{
+		regionId = gAgent.getRegion()->getRegionID();
+	}
+	
+	if (unvalidated_content[0]["regionID"].asUUID() != regionId )
 	{
 		LL_WARNS("WindlightCaps") << "Not in the region from where this data was received (wanting "
-			<< gAgent.getRegion()->getRegionID() << " but got " << unvalidated_content[0]["regionID"].asUUID()
+			<< regionId << " but got " << unvalidated_content[0]["regionID"].asUUID()
 			<< ") - ignoring..." << LL_ENDL;
 		return;
 	}

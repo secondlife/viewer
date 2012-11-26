@@ -890,6 +890,8 @@ Nicholaz Beresford
 	VWR-2682
 	VWR-2684
 Nick Rhodes
+Nicky Dasmijn
+	VWR-29228
 Nicky Perian
 	OPEN-1
 	STORM-1087
@@ -1122,6 +1124,7 @@ TankMaster Finesmith
 	STORM-1602
 	STORM-1868
     VWR-26622
+	VWR-29224
 Talamasca
 Tali Rosca
 Tayra Dagostino
@@ -1268,6 +1271,8 @@ Whoops Babii
 Winter Ventura
 Wilton Lundquist
 	VWR-7682
+Wolf Loonie
+	STORM-1868
 WolfPup Lowenhar
 	OPEN-1
 	OPEN-37

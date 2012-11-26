@@ -18,6 +18,7 @@ include(JsonCpp)
 include(LLAudio)
 include(LLCharacter)
 include(LLCommon)
+include(LLCoreHttp)
 include(LLImage)
 include(LLImageJ2COJ)
 include(LLInventory)
@@ -57,6 +58,7 @@ include_directories(
     ${LLAUDIO_INCLUDE_DIRS}
     ${LLCHARACTER_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
+    ${LLCOREHTTP_INCLUDE_DIRS}
     ${LLPHYSICS_INCLUDE_DIRS}
     ${FMOD_INCLUDE_DIR}
     ${LLIMAGE_INCLUDE_DIRS}
@@ -97,6 +99,7 @@ set(viewer_SOURCE_FILES
     llagentwearables.cpp
     llagentwearablesfetch.cpp
     llanimstatelabels.cpp
+    llappcorehttp.cpp
     llappearancemgr.cpp
     llappviewer.cpp
     llappviewerlistener.cpp
@@ -680,6 +683,7 @@ set(viewer_HEADER_FILES
     llagentwearables.h
     llagentwearablesfetch.h
     llanimstatelabels.h
+    llappcorehttp.h
     llappearance.h
     llappearancemgr.h
     llappviewer.h
@@ -1827,6 +1831,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${LLXML_LIBRARIES}
     ${LSCRIPT_LIBRARIES}
     ${LLMATH_LIBRARIES}
+    ${LLCOREHTTP_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
     ${NDOF_LIBRARY}
     ${HUNSPELL_LIBRARY}

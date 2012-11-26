@@ -41,6 +41,7 @@
 #include "llcallbacklist.h"
 #include "llgroupactions.h"
 #include "llgroupiconctrl.h"
+#include "llflashtimer.h"
 #include "llfloateravatarpicker.h"
 #include "llfloaterpreference.h"
 #include "llimview.h"
@@ -98,13 +99,14 @@ LLFloaterIMContainer::~LLFloaterIMContainer()
 
 void LLFloaterIMContainer::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, BOOL has_offline_msg)
 {
+	llinfos << "Merov debug : sessionAdded, uuid = " << session_id << ", name = " << name << llendl;
 	addConversationListItem(session_id);
 	LLFloaterIMSessionTab::addToHost(session_id);
 }
 
 void LLFloaterIMContainer::sessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
 {
-    selectConversation(session_id);
+	selectConversationPair(session_id, true);
 }
 
 void LLFloaterIMContainer::sessionVoiceOrIMStarted(const LLUUID& session_id)
@@ -115,8 +117,20 @@ void LLFloaterIMContainer::sessionVoiceOrIMStarted(const LLUUID& session_id)
 
 void LLFloaterIMContainer::sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id)
 {
-	// *TODO: We should do this *without* delete and recreate
-	addConversationListItem(new_session_id, removeConversationListItem(old_session_id));
+	// The general strategy when a session id is modified is to delete all related objects and create them anew.
+	
+	// Note however that the LLFloaterIMSession has its session id updated through a call to sessionInitReplyReceived() 
+	// and do not need to be deleted and recreated (trying this creates loads of problems). We do need however to suppress 
+	// its related mSessions record as it's indexed with the wrong id.
+	// Grabbing the updated LLFloaterIMSession and readding it in mSessions will eventually be done by addConversationListItem().
+	mSessions.erase(old_session_id);
+
+	// Delete the model and participants related to the old session
+	bool change_focus = removeConversationListItem(old_session_id);
+
+	// Create a new conversation with the new id
+	addConversationListItem(new_session_id, change_focus);
+	LLFloaterIMSessionTab::addToHost(new_session_id);
 }
 
 void LLFloaterIMContainer::sessionRemoved(const LLUUID& session_id)
@@ -191,6 +205,8 @@ BOOL LLFloaterIMContainer::postBuild()
 
 	mExpandCollapseBtn = getChild<LLButton>("expand_collapse_btn");
 	mExpandCollapseBtn->setClickedCallback(boost::bind(&LLFloaterIMContainer::onExpandCollapseButtonClicked, this));
+	mStubCollapseBtn = getChild<LLButton>("stub_collapse_btn");
+	mStubCollapseBtn->setClickedCallback(boost::bind(&LLFloaterIMContainer::onStubCollapseButtonClicked, this));
 
 	childSetAction("add_btn", boost::bind(&LLFloaterIMContainer::onAddButtonClicked, this));
 
@@ -319,6 +335,11 @@ void LLFloaterIMContainer::onNewMessageReceived(const LLSD& data)
 			LLMultiFloater::setFloaterFlashing(floaterp, FALSE);
 		LLMultiFloater::setFloaterFlashing(floaterp, TRUE);
 	}
+}
+
+void LLFloaterIMContainer::onStubCollapseButtonClicked()
+{
+	collapseMessagesPane(true);
 }
 
 void LLFloaterIMContainer::onExpandCollapseButtonClicked()
@@ -463,14 +484,14 @@ bool LLFloaterIMContainer::onConversationModelEvent(const LLSD& event)
 	else if (type == "update_session")
 	{
 		session_view->refresh();
-		if (conversation_floater)
-		{
-			conversation_floater->refreshConversation();
-		}
 	}
 	
 	mConversationViewModel.requestSortAll();
 	mConversationsRoot->arrangeAll();
+	if (conversation_floater)
+	{
+		conversation_floater->refreshConversation();
+	}
 	
 	return false;
 }
@@ -1001,15 +1022,20 @@ void LLFloaterIMContainer::doToSelectedGroup(const LLSD& userdata)
 
 bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
 {
-    std::string item = userdata.asString();
+    const std::string& item = userdata.asString();
 	uuid_vec_t uuids;
 	getParticipantUUIDs(uuids);
 
-    if(item == std::string("can_activate_group"))
+    if("can_activate_group" == item)
     {
     	LLUUID selected_group_id = getCurSelectedViewModelItem()->getUUID();
     	return gAgent.getGroupID() != selected_group_id;
     }
+
+	if("conversation_log" == item)
+	{
+		return gSavedSettings.getBOOL("KeepConversationLogTranscripts");
+	}
 
 	if(uuids.size() <= 0)
     {
@@ -1019,12 +1045,12 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
     // Note: can_block and can_delete is used only for one person selected menu
     // so we don't need to go over all uuids.
 
-    if (item == std::string("can_block"))
+    if ("can_block" == item)
     {
 		const LLUUID& id = uuids.front();
         return LLAvatarActions::canBlock(id);
     }
-    else if (item == std::string("can_add"))
+    else if ("can_add" == item)
     {
         // We can add friends if:
         // - there are selected people
@@ -1053,7 +1079,7 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
 
         return result;
     }
-    else if (item == std::string("can_delete"))
+    else if ("can_delete" == item)
     {
         // We can remove friends if:
         // - there are selected people
@@ -1076,18 +1102,18 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
 
         return result;
     }
-    else if (item == std::string("can_call"))
+    else if ("can_call" == item)
     {
         return LLAvatarActions::canCall();
     }
-    else if (item == std::string("can_show_on_map"))
+    else if ("can_show_on_map" == item)
     {
 		const LLUUID& id = uuids.front();
 
         return (LLAvatarTracker::instance().isBuddyOnline(id) && is_agent_mappable(id))
             || gAgent.isGodlike();
     }
-    else if(item == std::string("can_offer_teleport"))
+    else if("can_offer_teleport" == item)
     {
 		return LLAvatarActions::canOfferTeleport(uuids);
     }
@@ -1096,7 +1122,7 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
 		return enableModerateContextMenuItem(item);
 	}
 
-    return false;
+	return false;
 }
 
 bool LLFloaterIMContainer::checkContextMenuItem(const LLSD& userdata)
@@ -1140,6 +1166,7 @@ void LLFloaterIMContainer::selectConversation(const LLUUID& session_id)
 		(widget->getRoot())->setSelection(widget, FALSE, FALSE);
 	}
 }
+
 
 // Synchronous select the conversation item and the conversation floater
 BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool select_widget)
@@ -1235,10 +1262,6 @@ LLConversationItem* LLFloaterIMContainer::addConversationListItem(const LLUUID& 
 	{
 		return item_it->second;
 	}
-
-	// Remove the conversation item that might exist already: it'll be recreated anew further down anyway
-	// and nothing wrong will happen removing it if it doesn't exist
-	removeConversationListItem(uuid,false);
 
 	// Create a conversation session model
 	LLConversationItemSession* item = NULL;
@@ -1584,7 +1607,22 @@ void LLFloaterIMContainer::reSelectConversation()
 	{
 		selectFloater(session_floater);
 	}
+}
 
+void LLFloaterIMContainer::flashConversationItemWidget(const LLUUID& session_id, bool is_flashes)
+{
+	LLConversationViewSession * widget = dynamic_cast<LLConversationViewSession *>(get_ptr_in_map(mConversationsWidgets,session_id));
+	if (widget)
+	{
+		if (is_flashes)
+		{
+			widget->getFlashTimer()->startFlashing();
+		}
+		else
+		{
+			widget->getFlashTimer()->stopFlashing();
+		}
+	}
 }
 
 // EOF

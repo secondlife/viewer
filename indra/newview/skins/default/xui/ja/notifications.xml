@@ -1240,7 +1240,7 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries を参照してく
 近くのリージョンに移動しました。
 	</notification>
 	<notification name="AvatarMovedLast">
-		前回いた場所は現在ご利用いただけません。
+		リクエストされた場所は現在ご利用いただけません。
 近くのリージョンに移動しました。
 	</notification>
 	<notification name="AvatarMovedHome">
@@ -1259,7 +1259,7 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries を参照してく
 		[APP_NAME] のインストールが完了しました。
 
 [SECOND_LIFE] を使ったことがない場合は、ログインする前にアカウントの作成を行ってください。
-		<usetemplate name="okcancelbuttons" notext="続行" yestext="新規アカウント..."/>
+		<usetemplate name="okcancelbuttons" notext="続行" yestext="アカウントを作成..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">
 		接続がなかなかできません。 お使いのインターネット接続か、[SECOND_LIFE_GRID] の問題と考えられます。
@@ -3278,18 +3278,57 @@ M キーを押して変更します。
 		この操作により、全てのメニュー項目とボタンが非表示になります。再び表示するには [SHORTCUT] をもう一度クリックしてください。
 		<usetemplate ignoretext="UI を非表示にする前に確認" name="okcancelignore" notext="取り消し" yestext="OK"/>
 	</notification>
-	<notification name="PathfindingLinksets_SetLinksetUseMismatchOnRestricted">
+	<notification name="PathfindingLinksets_WarnOnPhantom">
+		選択された一部のリンクセットはファントムフラグが切り替えられます。
+
+続けますか？
+		<usetemplate ignoretext="選択された一部のリンクセットのファントムフラグが切り替えられます。" name="okcancelignore" notext="取り消し" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_MismatchOnRestricted">
 		一部の選択されたリンクセットは、リンクセットへの権限が制限されているため、&apos;[REQUESTED_TYPE]&apos; に設定できません。これらのリンクセットは代わりに &apos;[RESTRICTED_TYPE]&apos; に設定されます。
+
+続けますか？
 		<usetemplate ignoretext="一部の選択されたリンクセットは、リンクセットへの権限が制限されているため設定できません。" name="okcancelignore" notext="取り消し" yestext="OK"/>
 	</notification>
-	<notification name="PathfindingLinksets_SetLinksetUseMismatchOnVolume">
+	<notification name="PathfindingLinksets_MismatchOnVolume">
 		選択された一部のリンクセットは、形状が凸状でないため、&apos;[REQUESTED_TYPE]&apos; に設定できません。
+
+続けますか？
 		<usetemplate ignoretext="選択された一部のリンクセットは、形状が凸状でないため設定できません。" name="okcancelignore" notext="取り消し" yestext="OK"/>
 	</notification>
-	<notification name="PathfindingLinksets_SetLinksetUseMismatchOnRestrictedAndVolume">
+	<notification name="PathfindingLinksets_WarnOnPhantom_MismatchOnRestricted">
+		選択された一部のリンクセットはファントムフラグが切り替えられます。
+
+一部の選択されたリンクセットは、リンクセットへの権限が制限されているため、&apos;[REQUESTED_TYPE]&apos; に設定できません。これらのリンクセットは代わりに &apos;[RESTRICTED_TYPE]&apos; に設定されます。
+
+続けますか？
+		<usetemplate ignoretext="選択された一部のリンクセットのファントムフラグが切り替えられ、他のリンクセットはリンクセットへの権限が制限されているため設定できません。" name="okcancelignore" notext="取り消し" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_WarnOnPhantom_MismatchOnVolume">
+		選択された一部のリンクセットはファントムフラグが切り替えられます。
+
+選択された一部のリンクセットは、形状が凸状でないため、&apos;[REQUESTED_TYPE]&apos; に設定できません。
+
+続けますか？
+		<usetemplate ignoretext="選択された一部のリンクセットのファントムフラグが切り替えられ、他のリンクセットは形状が凸状でないため設定できません。" name="okcancelignore" notext="取り消し" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_MismatchOnRestricted_MismatchOnVolume">
 		一部の選択されたリンクセットは、リンクセットへの権限が制限されているため、&apos;[REQUESTED_TYPE]&apos; に設定できません。これらのリンクセットは代わりに &apos;[RESTRICTED_TYPE]&apos; に設定されます。
+
 選択された一部のリンクセットは、形状が凸状でないため、&apos;[REQUESTED_TYPE]&apos; に設定できません。これらのリンクセットの用途タイプは変わりません。
+
+続けますか？
 		<usetemplate ignoretext="一部の選択されたリンクセットは、リンクセットへの権限が制限されており、また形状が凸状でないため設定できません。" name="okcancelignore" notext="取り消し" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_WarnOnPhantom_MismatchOnRestricted_MismatchOnVolume">
+		選択された一部のリンクセットはファントムフラグが切り替えられます。
+
+一部の選択されたリンクセットは、リンクセットへの権限が制限されているため、&apos;[REQUESTED_TYPE]&apos; に設定できません。これらのリンクセットは代わりに &apos;[RESTRICTED_TYPE]&apos; に設定されます。
+
+選択された一部のリンクセットは、形状が凸状でないため、&apos;[REQUESTED_TYPE]&apos; に設定できません。これらのリンクセットの用途タイプは変わりません。
+
+続けますか？
+		<usetemplate ignoretext="選択された一部のリンクセットのファントムフラグが切り替えられ、他のリンクセットはリンクセットへの権限が制限され、また形状が凸状でないため設定できません。" name="okcancelignore" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="PathfindingLinksets_ChangeToFlexiblePath">
 		選択されたオブジェクトはナビメッシュに影響を与えます。オブジェクトをフレキシブルパスに変更すると、ナビメッシュから削除されます。

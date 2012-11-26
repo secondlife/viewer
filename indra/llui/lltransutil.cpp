@@ -31,15 +31,20 @@
 #include "lltrans.h"
 #include "lluictrlfactory.h"
 #include "llxmlnode.h"
-
+#include "lldir.h"
 
 bool LLTransUtil::parseStrings(const std::string& xml_filename, const std::set<std::string>& default_args)
 {
 	LLXMLNodePtr root;
-	BOOL success = LLUICtrlFactory::getLayeredXMLNode(xml_filename, root);
+	// Pass LLDir::ALL_SKINS to load a composite of all the individual string
+	// definitions in the default skin and the current skin. This means an
+	// individual skin can provide an xml_filename that overrides only a
+	// subset of the available string definitions; any string definition not
+	// overridden by that skin will be sought in the default skin.
+	bool success = LLUICtrlFactory::getLayeredXMLNode(xml_filename, root, LLDir::ALL_SKINS);
 	if (!success)
 	{
-		llerrs << "Couldn't load string table" << llendl;
+		llerrs << "Couldn't load string table " << xml_filename << llendl;
 		return false;
 	}
 
@@ -54,7 +59,7 @@ bool LLTransUtil::parseLanguageStrings(const std::string& xml_filename)
 	
 	if (!success)
 	{
-		llerrs << "Couldn't load string table " << xml_filename << llendl;
+		llerrs << "Couldn't load localization table " << xml_filename << llendl;
 		return false;
 	}
 	

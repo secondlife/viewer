@@ -134,6 +134,19 @@
                left="0"
                height="430"
                width="412">
+                 <button
+                 follows="right|top"
+                 height="25"
+                 image_hover_unselected="Toolbar_Middle_Over"
+                 image_overlay="Conv_toolbar_collapse"
+                 image_selected="Toolbar_Middle_Selected"
+                 image_unselected="Toolbar_Middle_Off"
+                 layout="topleft"
+                 top="5"
+                 right="-10"
+                 name="stub_collapse_btn"
+                 tool_tip="Collapse this pane"
+                 width="31" />
                  <text
                    type="string"
                    clip_partial="false"
@@ -142,7 +155,7 @@
                    left="20"
                    right="-20"
                    name="stub_textbox_1"
-                   top="10"
+                   top="30"
                    height="20"
                    valign="center"
                    wrap="true">
@@ -156,7 +169,7 @@
                    left="20"
                    right="-20"
                    name="stub_textbox_2"
-                   top="40"
+                   top="60"
                    height="20"
                    valign="center"
                    parse_urls="true"

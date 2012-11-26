@@ -188,7 +188,7 @@ public:
 	virtual void setGroupID(const LLUUID& id);
 
 	void addMemberToList(LLUUID id, LLGroupMemberData* data);
-	void onNameCache(const LLUUID& update_id, const LLUUID& id);
+	void onNameCache(const LLUUID& update_id, LLGroupMemberData* member, const LLUUID& id, const LLAvatarName& av_name);
 
 protected:
 	typedef std::map<LLUUID, LLRoleMemberChangeType> role_change_data_map_t;

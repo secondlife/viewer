@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<floater name="Delete Env Preset" title="刪除環境自訂配置">
+	<string name="title_water">
+		刪除水的自訂配置
+	</string>
+	<string name="title_sky">
+		刪除天空自訂配置
+	</string>
+	<string name="title_day_cycle">
+		刪除日循環
+	</string>
+	<string name="label_water">
+		自訂配置：
+	</string>
+	<string name="label_sky">
+		自訂配置：
+	</string>
+	<string name="label_day_cycle">
+		日循環：
+	</string>
+	<string name="msg_confirm_deletion">
+		確定要刪除所選自訂配置？
+	</string>
+	<string name="msg_sky_is_referenced">
+		無法刪除日循環有所指涉的自訂配置。
+	</string>
+	<string name="combo_label">
+		-選擇一個自訂配置-
+	</string>
+	<text name="label">
+		自訂配置：
+	</text>
+	<button label="刪除" name="delete"/>
+	<button label="取消" name="cancel"/>
+</floater>

@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Animation Preview">
+	<floater.string name="failed_to_initialize">
+		動作初始化失敗
+	</floater.string>
+	<floater.string name="anim_too_long">
+		動作檔長度為 [LENGTH] 秒。
+
+動作檔長度最多可為 [MAX_LENGTH] 秒。
+	</floater.string>
+	<floater.string name="failed_file_read">
+		無法讀取動作檔。
+
+[STATUS]
+	</floater.string>
+	<floater.string name="E_ST_OK">
+		確定
+	</floater.string>
+	<floater.string name="E_ST_EOF">
+		檔案結尾不正常。
+	</floater.string>
+	<floater.string name="E_ST_NO_CONSTRAINT">
+		無法讀取約束定義。
+	</floater.string>
+	<floater.string name="E_ST_NO_FILE">
+		無法開啟 BVH 檔案。
+	</floater.string>
+	<floater.string name="E_ST_NO_HIER">
+		HIERARCHY 檔頭無效。
+	</floater.string>
+	<floater.string name="E_ST_NO_JOINT">
+		找不到 ROOT 或 JOINT。
+	</floater.string>
+	<floater.string name="E_ST_NO_NAME">
+		無法取得 JOINT 名稱。
+	</floater.string>
+	<floater.string name="E_ST_NO_OFFSET">
+		無法尋找位移。
+	</floater.string>
+	<floater.string name="E_ST_NO_CHANNELS">
+		找不到頻道。
+	</floater.string>
+	<floater.string name="E_ST_NO_ROTATION">
+		無法取得旋轉序。
+	</floater.string>
+	<floater.string name="E_ST_NO_AXIS">
+		無法取得旋轉軸。
+	</floater.string>
+	<floater.string name="E_ST_NO_MOTION">
+		找不到動作。
+	</floater.string>
+	<floater.string name="E_ST_NO_FRAMES">
+		無法取得幀數。
+	</floater.string>
+	<floater.string name="E_ST_NO_FRAME_TIME">
+		無法取得幀時間。
+	</floater.string>
+	<floater.string name="E_ST_NO_POS">
+		無法取得位置值。
+	</floater.string>
+	<floater.string name="E_ST_NO_ROT">
+		無法取得旋轉值。
+	</floater.string>
+	<floater.string name="E_ST_NO_XLT_FILE">
+		無法開啟平移檔案。
+	</floater.string>
+	<floater.string name="E_ST_NO_XLT_HEADER">
+		無法讀取平移檔頭。
+	</floater.string>
+	<floater.string name="E_ST_NO_XLT_NAME">
+		無法讀取平移名稱。
+	</floater.string>
+	<floater.string name="E_ST_NO_XLT_IGNORE">
+		無法讀取平移忽略值。
+	</floater.string>
+	<floater.string name="E_ST_NO_XLT_RELATIVE">
+		無法讀取平移相對值。
+	</floater.string>
+	<floater.string name="E_ST_NO_XLT_OUTNAME">
+		無法讀取平移輸出名稱。
+	</floater.string>
+	<floater.string name="E_ST_NO_XLT_MATRIX">
+		無法讀取平移矩陣。
+	</floater.string>
+	<floater.string name="E_ST_NO_XLT_MERGECHILD">
+		無法取得 mergechild 名稱。
+	</floater.string>
+	<floater.string name="E_ST_NO_XLT_MERGEPARENT">
+		無法取得 mergeparent 名稱。
+	</floater.string>
+	<floater.string name="E_ST_NO_XLT_PRIORITY">
+		無法取得優先值。
+	</floater.string>
+	<floater.string name="E_ST_NO_XLT_LOOP">
+		無法取得迴圈值。
+	</floater.string>
+	<floater.string name="E_ST_NO_XLT_EASEIN">
+		無法取得 easeIn 值。
+	</floater.string>
+	<floater.string name="E_ST_NO_XLT_EASEOUT">
+		無法取得 easeOut 值。
+	</floater.string>
+	<floater.string name="E_ST_NO_XLT_HAND">
+		無法取得 hand morph 值。
+	</floater.string>
+	<floater.string name="E_ST_NO_XLT_EMOTE">
+		無法讀取表情符號名稱。
+	</floater.string>
+	<floater.string name="E_ST_BAD_ROOT">
+		root joint 名稱不正確，使用 &quot;hip&quot;。
+	</floater.string>
+	<text name="name_label">
+		名稱：
+	</text>
+	<text name="description_label">
+		描述：
+	</text>
+	<spinner label="優先度" name="priority" tool_tip="其他動作的控制可被此動作強行取代"/>
+	<check_box label="連續" name="loop_check" tool_tip="讓此動作不斷重覆演繹"/>
+	<spinner label="入(%)" name="loop_in_point" tool_tip="設定動作中重覆演繹的起始點"/>
+	<spinner label="出(%)" name="loop_out_point" tool_tip="設定動作中重覆演繹的結束點"/>
+	<text name="hand_label">
+		手部姿勢
+	</text>
+	<combo_box name="hand_pose_combo" tool_tip="控制動作演繹時雙手的姿勢">
+		<combo_box.item label="張開" name="Spread"/>
+		<combo_box.item label="放鬆" name="Relaxed"/>
+		<combo_box.item label="雙手伸出指頭" name="PointBoth"/>
+		<combo_box.item label="拳頭" name="Fist"/>
+		<combo_box.item label="左邊放鬆" name="RelaxedLeft"/>
+		<combo_box.item label="左邊伸指" name="PointLeft"/>
+		<combo_box.item label="左邊握拳" name="FistLeft"/>
+		<combo_box.item label="右邊放鬆" name="RelaxedRight"/>
+		<combo_box.item label="右邊伸指" name="PointRight"/>
+		<combo_box.item label="右邊握拳" name="FistRight"/>
+		<combo_box.item label="右手敬禮" name="SaluteRight"/>
+		<combo_box.item label="打字" name="Typing"/>
+		<combo_box.item label="右手比出和平手勢" name="PeaceRight"/>
+	</combo_box>
+	<text name="emote_label">
+		表情
+	</text>
+	<combo_box name="emote_combo" tool_tip="控制動作演繹時臉部的姿態">
+		<item label="（無）" name="[None]" value=""/>
+		<item label="張口吶喊貌" name="Aaaaah" value="張口吶喊貌"/>
+		<item label="害怕" name="Afraid" value="害怕"/>
+		<item label="生氣" name="Angry" value="生氣"/>
+		<item label="燦爛笑容" name="BigSmile" value="燦爛笑容"/>
+		<item label="無聊" name="Bored" value="無聊"/>
+		<item label="哭泣" name="Cry" value="哭泣"/>
+		<item label="鄙視" name="Disdain" value="鄙視"/>
+		<item label="尷尬" name="Embarrassed" value="尷尬"/>
+		<item label="皺眉" name="Frown" value="皺眉"/>
+		<item label="親吻" name="Kiss" value="親吻"/>
+		<item label="笑" name="Laugh" value="笑"/>
+		<item label="嫌惡貌" name="Plllppt" value="嫌惡貌"/>
+		<item label="作噁" name="Repulsed" value="作噁"/>
+		<item label="傷心" name="Sad" value="傷心"/>
+		<item label="聳聳肩" name="Shrug" value="聳聳肩"/>
+		<item label="微笑" name="Smile" value="微笑"/>
+		<item label="驚喜" name="Surprise" value="驚喜"/>
+		<item label="眨眼" name="Wink" value="眨眼"/>
+		<item label="擔心" name="Worry" value="擔心"/>
+	</combo_box>
+	<text name="preview_label">
+		預覽…
+	</text>
+	<combo_box name="preview_base_anim" tool_tip="用這個來測試你的化身從一般動作轉入動作演繹時的情況。">
+		<item label="站立" name="Standing" value="站立"/>
+		<item label="步行中" name="Walking" value="步行中"/>
+		<item label="坐著" name="Sitting" value="坐著"/>
+		<item label="飛行" name="Flying" value="飛行"/>
+	</combo_box>
+	<spinner label="淡入（秒）" name="ease_in_time" tool_tip="動作攙混植入的時間長度（秒）"/>
+	<spinner label="淡出（秒）" name="ease_out_time" tool_tip="動作攙混淡出的時間長度（秒）"/>
+	<button name="play_btn" tool_tip="播放你的動作"/>
+	<button name="pause_btn" tool_tip="暫停你的動做"/>
+	<button name="stop_btn" tool_tip="停止播放動作"/>
+	<text name="bad_animation_text">
+		無法讀取動作檔。
+
+我們建議採用由 Poser 4 匯出的 BVH 檔案格式。
+	</text>
+	<button label="上傳（L$[AMOUNT]）" name="ok_btn"/>
+	<button label="取消" name="cancel_btn"/>
+</floater>

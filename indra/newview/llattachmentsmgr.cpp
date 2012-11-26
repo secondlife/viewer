@@ -62,6 +62,12 @@ void LLAttachmentsMgr::onIdle(void *)
 
 void LLAttachmentsMgr::onIdle()
 {
+	// Make sure we got a region before trying anything else
+	if( !gAgent.getRegion() )
+	{
+		return;
+	}
+
 	S32 obj_count = mPendingAttachments.size();
 	if (obj_count == 0)
 	{

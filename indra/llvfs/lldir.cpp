@@ -41,6 +41,17 @@
 #include "lluuid.h"
 
 #include "lldiriterator.h"
+#include "stringize.h"
+#include <boost/foreach.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+#include <boost/assign/list_of.hpp>
+#include <boost/bind.hpp>
+#include <boost/ref.hpp>
+#include <algorithm>
+
+using boost::assign::list_of;
+using boost::assign::map_list_of;
 
 #if LL_WINDOWS
 #include "lldir_win32.h"
@@ -58,6 +69,14 @@ LLDir_Linux gDirUtil;
 
 LLDir *gDirUtilp = (LLDir *)&gDirUtil;
 
+/// Values for findSkinnedFilenames(subdir) parameter
+const char
+	*LLDir::XUI      = "xui",
+	*LLDir::TEXTURES = "textures",
+	*LLDir::SKINBASE = "";
+
+static const char* const empty = "";
+
 LLDir::LLDir()
 :	mAppName(""),
 	mExecutablePathAndName(""),
@@ -70,7 +89,8 @@ LLDir::LLDir()
 	mOSCacheDir(""),
 	mCAFile(""),
 	mTempDir(""),
-	mDirDelimiter("/") // fallback to forward slash if not overridden
+	mDirDelimiter("/"), // fallback to forward slash if not overridden
+	mLanguage("en")
 {
 }
 
@@ -96,9 +116,7 @@ S32 LLDir::deleteFilesInDir(const std::string &dirname, const std::string &mask)
 	LLDirIterator iter(dirname, mask);
 	while (iter.next(filename))
 	{
-		fullpath = dirname;
-		fullpath += getDirDelimiter();
-		fullpath += filename;
+		fullpath = add(dirname, filename);
 
 		if(LLFile::isdir(fullpath))
 		{
@@ -270,12 +288,12 @@ std::string LLDir::buildSLOSCacheDir() const
 		}
 		else
 		{
-			res = getOSUserAppDir() + mDirDelimiter + "cache";
+			res = add(getOSUserAppDir(), "cache");
 		}
 	}
 	else
 	{
-		res = getOSCacheDir() + mDirDelimiter + "SecondLife";
+		res = add(getOSCacheDir(), "SecondLife");
 	}
 	return res;
 }
@@ -298,19 +316,24 @@ const std::string &LLDir::getDirDelimiter() const
 	return mDirDelimiter;
 }
 
+const std::string& LLDir::getDefaultSkinDir() const
+{
+	return mDefaultSkinDir;
+}
+
 const std::string &LLDir::getSkinDir() const
 {
 	return mSkinDir;
 }
 
+const std::string &LLDir::getUserDefaultSkinDir() const
+{
+    return mUserDefaultSkinDir;
+}
+
 const std::string &LLDir::getUserSkinDir() const
 {
 	return mUserSkinDir;
-}
-
-const std::string& LLDir::getDefaultSkinDir() const
-{
-	return mDefaultSkinDir;
 }
 
 const std::string LLDir::getSkinBaseDir() const
@@ -321,6 +344,39 @@ const std::string LLDir::getSkinBaseDir() const
 const std::string &LLDir::getLLPluginDir() const
 {
 	return mLLPluginDir;
+}
+
+static std::string ELLPathToString(ELLPath location)
+{
+	typedef std::map<ELLPath, const char*> ELLPathMap;
+#define ENT(symbol) (symbol, #symbol)
+	static const ELLPathMap sMap = map_list_of
+		ENT(LL_PATH_NONE)
+		ENT(LL_PATH_USER_SETTINGS)
+		ENT(LL_PATH_APP_SETTINGS)
+		ENT(LL_PATH_PER_SL_ACCOUNT) // returns/expands to blank string if we don't know the account name yet
+		ENT(LL_PATH_CACHE)
+		ENT(LL_PATH_CHARACTER)
+		ENT(LL_PATH_HELP)
+		ENT(LL_PATH_LOGS)
+		ENT(LL_PATH_TEMP)
+		ENT(LL_PATH_SKINS)
+		ENT(LL_PATH_TOP_SKIN)
+		ENT(LL_PATH_CHAT_LOGS)
+		ENT(LL_PATH_PER_ACCOUNT_CHAT_LOGS)
+		ENT(LL_PATH_USER_SKIN)
+		ENT(LL_PATH_LOCAL_ASSETS)
+		ENT(LL_PATH_EXECUTABLE)
+		ENT(LL_PATH_DEFAULT_SKIN)
+		ENT(LL_PATH_FONTS)
+		ENT(LL_PATH_LAST)
+	;
+#undef ENT
+
+	ELLPathMap::const_iterator found = sMap.find(location);
+	if (found != sMap.end())
+		return found->second;
+	return STRINGIZE("Invalid ELLPath value " << location);
 }
 
 std::string LLDir::getExpandedFilename(ELLPath location, const std::string& filename) const
@@ -343,15 +399,11 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
 		break;
 
 	case LL_PATH_APP_SETTINGS:
-		prefix = getAppRODataDir();
-		prefix += mDirDelimiter;
-		prefix += "app_settings";
+		prefix = add(getAppRODataDir(), "app_settings");
 		break;
 	
 	case LL_PATH_CHARACTER:
-		prefix = getAppRODataDir();
-		prefix += mDirDelimiter;
-		prefix += "character";
+		prefix = add(getAppRODataDir(), "character");
 		break;
 		
 	case LL_PATH_HELP:
@@ -363,16 +415,22 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
 		break;
 		
 	case LL_PATH_USER_SETTINGS:
-		prefix = getOSUserAppDir();
-		prefix += mDirDelimiter;
-		prefix += "user_settings";
+		prefix = add(getOSUserAppDir(), "user_settings");
 		break;
 
 	case LL_PATH_PER_SL_ACCOUNT:
 		prefix = getLindenUserDir();
 		if (prefix.empty())
 		{
-			// if we're asking for the per-SL-account directory but we haven't logged in yet (or otherwise don't know the account name from which to build this string), then intentionally return a blank string to the caller and skip the below warning about a blank prefix.
+			// if we're asking for the per-SL-account directory but we haven't
+			// logged in yet (or otherwise don't know the account name from
+			// which to build this string), then intentionally return a blank
+			// string to the caller and skip the below warning about a blank
+			// prefix.
+			LL_DEBUGS("LLDir") << "getLindenUserDir() not yet set: "
+							   << ELLPathToString(location)
+							   << ", '" << subdir1 << "', '" << subdir2 << "', '" << in_filename
+							   << "' => ''" << LL_ENDL;
 			return std::string();
 		}
 		break;
@@ -386,9 +444,7 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
 		break;
 
 	case LL_PATH_LOGS:
-		prefix = getOSUserAppDir();
-		prefix += mDirDelimiter;
-		prefix += "logs";
+		prefix = add(getOSUserAppDir(), "logs");
 		break;
 
 	case LL_PATH_TEMP:
@@ -412,9 +468,7 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
 		break;
 
 	case LL_PATH_LOCAL_ASSETS:
-		prefix = getAppRODataDir();
-		prefix += mDirDelimiter;
-		prefix += "local_assets";
+		prefix = add(getAppRODataDir(), "local_assets");
 		break;
 
 	case LL_PATH_EXECUTABLE:
@@ -422,56 +476,36 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
 		break;
 		
 	case LL_PATH_FONTS:
-		prefix = getAppRODataDir();
-		prefix += mDirDelimiter;
-		prefix += "fonts";
+		prefix = add(getAppRODataDir(), "fonts");
 		break;
 		
 	default:
 		llassert(0);
 	}
 
-	std::string filename = in_filename;
-	if (!subdir2.empty())
-	{
-		filename = subdir2 + mDirDelimiter + filename;
-	}
-
-	if (!subdir1.empty())
-	{
-		filename = subdir1 + mDirDelimiter + filename;
-	}
-
 	if (prefix.empty())
 	{
-		llwarns << "prefix is empty, possible bad filename" << llendl;
-	}
-	
-	std::string expanded_filename;
-	if (!filename.empty())
-	{
-		if (!prefix.empty())
-		{
-			expanded_filename += prefix;
-			expanded_filename += mDirDelimiter;
-			expanded_filename += filename;
-		}
-		else
-		{
-			expanded_filename = filename;
-		}
-	}
-	else if (!prefix.empty())
-	{
-		// Directory only, no file name.
-		expanded_filename = prefix;
-	}
-	else
-	{
-		expanded_filename.assign("");
+		llwarns << ELLPathToString(location)
+				<< ", '" << subdir1 << "', '" << subdir2 << "', '" << in_filename
+				<< "': prefix is empty, possible bad filename" << llendl;
 	}
 
-	//llinfos << "*** EXPANDED FILENAME: <" << expanded_filename << ">" << llendl;
+	std::string expanded_filename = add(add(prefix, subdir1), subdir2);
+	if (expanded_filename.empty() && in_filename.empty())
+	{
+		return "";
+	}
+	// Use explicit concatenation here instead of another add() call. Callers
+	// passing in_filename as "" expect to obtain a pathname ending with
+	// mDirSeparator so they can later directly concatenate with a specific
+	// filename. A caller using add() doesn't care, but there's still code
+	// loose in the system that uses std::string::operator+().
+	expanded_filename += mDirDelimiter;
+	expanded_filename += in_filename;
+
+	LL_DEBUGS("LLDir") << ELLPathToString(location)
+					   << ", '" << subdir1 << "', '" << subdir2 << "', '" << in_filename
+					   << "' => '" << expanded_filename << "'" << LL_ENDL;
 	return expanded_filename;
 }
 
@@ -511,31 +545,207 @@ std::string LLDir::getExtension(const std::string& filepath) const
 	return exten;
 }
 
-std::string LLDir::findSkinnedFilename(const std::string &filename) const
+std::string LLDir::findSkinnedFilenameBaseLang(const std::string &subdir,
+											   const std::string &filename,
+											   ESkinConstraint constraint) const
 {
-	return findSkinnedFilename("", "", filename);
+	// This implementation is basically just as described in the declaration comments.
+	std::vector<std::string> found(findSkinnedFilenames(subdir, filename, constraint));
+	if (found.empty())
+	{
+		return "";
+	}
+	return found.front();
 }
 
-std::string LLDir::findSkinnedFilename(const std::string &subdir, const std::string &filename) const
+std::string LLDir::findSkinnedFilename(const std::string &subdir,
+									   const std::string &filename,
+									   ESkinConstraint constraint) const
 {
-	return findSkinnedFilename("", subdir, filename);
+	// This implementation is basically just as described in the declaration comments.
+	std::vector<std::string> found(findSkinnedFilenames(subdir, filename, constraint));
+	if (found.empty())
+	{
+		return "";
+	}
+	return found.back();
 }
 
-std::string LLDir::findSkinnedFilename(const std::string &subdir1, const std::string &subdir2, const std::string &filename) const
+// This method exists because the two code paths for
+// findSkinnedFilenames(ALL_SKINS) and findSkinnedFilenames(CURRENT_SKIN) must
+// generate the list of candidate pathnames in identical ways. The only
+// difference is in the body of the inner loop.
+template <typename FUNCTION>
+void LLDir::walkSearchSkinDirs(const std::string& subdir,
+							   const std::vector<std::string>& subsubdirs,
+							   const std::string& filename,
+							   const FUNCTION& function) const
 {
-	// generate subdirectory path fragment, e.g. "/foo/bar", "/foo", ""
-	std::string subdirs = ((subdir1.empty() ? "" : mDirDelimiter) + subdir1)
-						 + ((subdir2.empty() ? "" : mDirDelimiter) + subdir2);
+	BOOST_FOREACH(std::string skindir, mSearchSkinDirs)
+	{
+		std::string subdir_path(add(skindir, subdir));
+		BOOST_FOREACH(std::string subsubdir, subsubdirs)
+		{
+			std::string full_path(add(add(subdir_path, subsubdir), filename));
+			if (fileExists(full_path))
+			{
+				function(subsubdir, full_path);
+			}
+		}
+	}
+}
 
-	std::vector<std::string> search_paths;
-	
-	search_paths.push_back(getUserSkinDir() + subdirs);		// first look in user skin override
-	search_paths.push_back(getSkinDir() + subdirs);			// then in current skin
-	search_paths.push_back(getDefaultSkinDir() + subdirs);  // then default skin
-	search_paths.push_back(getCacheDir() + subdirs);		// and last in preload directory
+// ridiculous little helper function that should go away when we can use lambda
+inline void push_back(std::vector<std::string>& vector, const std::string& value)
+{
+	vector.push_back(value);
+}
 
-	std::string found_file = findFile(filename, search_paths);
-	return found_file;
+typedef std::map<std::string, std::string> StringMap;
+// ridiculous little helper function that should go away when we can use lambda
+inline void store_in_map(StringMap& map, const std::string& key, const std::string& value)
+{
+	map[key] = value;
+}
+
+std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
+													 const std::string& filename,
+													 ESkinConstraint constraint) const
+{
+	// Recognize subdirs that have no localization.
+	static const std::set<std::string> sUnlocalized = list_of
+		("")                        // top-level directory not localized
+		("textures")                // textures not localized
+	;
+
+	LL_DEBUGS("LLDir") << "subdir '" << subdir << "', filename '" << filename
+					   << "', constraint "
+					   << ((constraint == CURRENT_SKIN)? "CURRENT_SKIN" : "ALL_SKINS")
+					   << LL_ENDL;
+
+	// Cache the default language directory for each subdir we've encountered.
+	// A cache entry whose value is the empty string means "not localized,
+	// don't bother checking again."
+	static StringMap sLocalized;
+
+	// Check whether we've already discovered if this subdir is localized.
+	StringMap::const_iterator found = sLocalized.find(subdir);
+	if (found == sLocalized.end())
+	{
+		// We have not yet determined that. Is it one of the subdirs "known"
+		// to be unlocalized?
+		if (sUnlocalized.find(subdir) != sUnlocalized.end())
+		{
+			// This subdir is known to be unlocalized. Remember that.
+			found = sLocalized.insert(StringMap::value_type(subdir, "")).first;
+		}
+		else
+		{
+			// We do not recognize this subdir. Investigate.
+			std::string subdir_path(add(getDefaultSkinDir(), subdir));
+			if (fileExists(add(subdir_path, "en")))
+			{
+				// defaultSkinDir/subdir contains subdir "en". That's our
+				// default language; this subdir is localized.
+				found = sLocalized.insert(StringMap::value_type(subdir, "en")).first;
+			}
+			else if (fileExists(add(subdir_path, "en-us")))
+			{
+				// defaultSkinDir/subdir contains subdir "en-us" but not "en".
+				// Set as default language; this subdir is localized.
+				found = sLocalized.insert(StringMap::value_type(subdir, "en-us")).first;
+			}
+			else
+			{
+				// defaultSkinDir/subdir contains neither "en" nor "en-us".
+				// Assume it's not localized. Remember that assumption.
+				found = sLocalized.insert(StringMap::value_type(subdir, "")).first;
+			}
+		}
+	}
+	// Every code path above should have resulted in 'found' becoming a valid
+	// iterator to an entry in sLocalized.
+	llassert(found != sLocalized.end());
+
+	// Now -- is this subdir localized, or not? The answer determines what
+	// subdirectories we check (under subdir) for the requested filename.
+	std::vector<std::string> subsubdirs;
+	if (found->second.empty())
+	{
+		// subdir is not localized. filename should be located directly within it.
+		subsubdirs.push_back("");
+	}
+	else
+	{
+		// subdir is localized, and found->second is the default language
+		// directory within it. Check both the default language and the
+		// current language -- if it differs from the default, of course.
+		subsubdirs.push_back(found->second);
+		if (mLanguage != found->second)
+		{
+			subsubdirs.push_back(mLanguage);
+		}
+	}
+
+	// Build results vector.
+	std::vector<std::string> results;
+	// The process we use depends on 'constraint'.
+	if (constraint != CURRENT_SKIN) // meaning ALL_SKINS
+	{
+		// ALL_SKINS is simpler: just return every pathname generated by
+		// walkSearchSkinDirs(). Tricky bit: walkSearchSkinDirs() passes its
+		// FUNCTION the subsubdir as well as the full pathname. We just want
+		// the full pathname.
+		walkSearchSkinDirs(subdir, subsubdirs, filename,
+						   boost::bind(push_back, boost::ref(results), _2));
+	}
+	else                            // CURRENT_SKIN
+	{
+		// CURRENT_SKIN turns out to be a bit of a misnomer because we might
+		// still return files from two different skins. In any case, this
+		// value of 'constraint' means we will return at most two paths: one
+		// for the default language, one for the current language (supposing
+		// those differ).
+		// It is important to allow a user to override only the localization
+		// for a particular file, for all viewer installs, without also
+		// overriding the default-language file.
+		// It is important to allow a user to override only the default-
+		// language file, for all viewer installs, without also overriding the
+		// applicable localization of that file.
+		// Therefore, treat the default language and the current language as
+		// two separate cases. For each, capture the most-specialized file
+		// that exists.
+		// Use a map keyed by subsubdir (i.e. language code). This allows us
+		// to handle the case of a single subsubdirs entry with the same logic
+		// that handles two. For every real file path generated by
+		// walkSearchSkinDirs(), update the map entry for its subsubdir.
+		StringMap path_for;
+		walkSearchSkinDirs(subdir, subsubdirs, filename,
+						   boost::bind(store_in_map, boost::ref(path_for), _1, _2));
+		// Now that we have a path for each of the default language and the
+		// current language, copy them -- in proper order -- into results.
+		// Don't drive this by walking the map itself: it matters that we
+		// generate results in the same order as subsubdirs.
+		BOOST_FOREACH(std::string subsubdir, subsubdirs)
+		{
+			StringMap::const_iterator found(path_for.find(subsubdir));
+			if (found != path_for.end())
+			{
+				results.push_back(found->second);
+			}
+		}
+	}
+
+	LL_DEBUGS("LLDir") << empty;
+	const char* comma = "";
+	BOOST_FOREACH(std::string path, results)
+	{
+		LL_CONT << comma << "'" << path << "'";
+		comma = ", ";
+	}
+	LL_CONT << LL_ENDL;
+
+	return results;
 }
 
 std::string LLDir::getTempFilename() const
@@ -546,12 +756,7 @@ std::string LLDir::getTempFilename() const
 	random_uuid.generate();
 	random_uuid.toString(uuid_str);
 
-	std::string temp_filename = getTempDir();
-	temp_filename += mDirDelimiter;
-	temp_filename += uuid_str;
-	temp_filename += ".tmp";
-
-	return temp_filename;
+	return add(getTempDir(), uuid_str + ".tmp");
 }
 
 // static
@@ -587,9 +792,7 @@ void LLDir::setLindenUserDir(const std::string &username)
 		std::string userlower(username);
 		LLStringUtil::toLower(userlower);
 		LLStringUtil::replaceChar(userlower, ' ', '_');
-		mLindenUserDir = getOSUserAppDir();
-		mLindenUserDir += mDirDelimiter;
-		mLindenUserDir += userlower;
+		mLindenUserDir = add(getOSUserAppDir(), userlower);
 	}
 	else
 	{
@@ -621,9 +824,7 @@ void LLDir::setPerAccountChatLogsDir(const std::string &username)
 		std::string userlower(username);
 		LLStringUtil::toLower(userlower);
 		LLStringUtil::replaceChar(userlower, ' ', '_');
-		mPerAccountChatLogsDir = getChatLogsDir();
-		mPerAccountChatLogsDir += mDirDelimiter;
-		mPerAccountChatLogsDir += userlower;
+		mPerAccountChatLogsDir = add(getChatLogsDir(), userlower);
 	}
 	else
 	{
@@ -632,25 +833,59 @@ void LLDir::setPerAccountChatLogsDir(const std::string &username)
 	
 }
 
-void LLDir::setSkinFolder(const std::string &skin_folder)
+void LLDir::setSkinFolder(const std::string &skin_folder, const std::string& language)
 {
-	mSkinDir = getSkinBaseDir();
-	mSkinDir += mDirDelimiter;
-	mSkinDir += skin_folder;
+	LL_DEBUGS("LLDir") << "Setting skin '" << skin_folder << "', language '" << language << "'"
+					   << LL_ENDL;
+	mSkinName = skin_folder;
+	mLanguage = language;
 
-	// user modifications to current skin
-	// e.g. c:\documents and settings\users\username\application data\second life\skins\dazzle
-	mUserSkinDir = getOSUserAppDir();
-	mUserSkinDir += mDirDelimiter;
-	mUserSkinDir += "skins";
-	mUserSkinDir += mDirDelimiter;	
-	mUserSkinDir += skin_folder;
+	// This method is called multiple times during viewer initialization. Each
+	// time it's called, reset mSearchSkinDirs.
+	mSearchSkinDirs.clear();
 
 	// base skin which is used as fallback for all skinned files
 	// e.g. c:\program files\secondlife\skins\default
 	mDefaultSkinDir = getSkinBaseDir();
-	mDefaultSkinDir += mDirDelimiter;	
-	mDefaultSkinDir += "default";
+	append(mDefaultSkinDir, "default");
+	// This is always the most general of the search skin directories.
+	addSearchSkinDir(mDefaultSkinDir);
+
+	mSkinDir = getSkinBaseDir();
+	append(mSkinDir, skin_folder);
+	// Next level of generality is a skin installed with the viewer.
+	addSearchSkinDir(mSkinDir);
+
+	// user modifications to skins, current and default
+	// e.g. c:\documents and settings\users\username\application data\second life\skins\dazzle
+	mUserSkinDir = getOSUserAppDir();
+	append(mUserSkinDir, "skins");
+	mUserDefaultSkinDir = mUserSkinDir;
+	append(mUserDefaultSkinDir, "default");
+	append(mUserSkinDir, skin_folder);
+	// Next level of generality is user modifications to default skin...
+	addSearchSkinDir(mUserDefaultSkinDir);
+	// then user-defined skins.
+	addSearchSkinDir(mUserSkinDir);
+}
+
+void LLDir::addSearchSkinDir(const std::string& skindir)
+{
+	if (std::find(mSearchSkinDirs.begin(), mSearchSkinDirs.end(), skindir) == mSearchSkinDirs.end())
+	{
+		LL_DEBUGS("LLDir") << "search skin: '" << skindir << "'" << LL_ENDL;
+		mSearchSkinDirs.push_back(skindir);
+	}
+}
+
+std::string LLDir::getSkinFolder() const
+{
+	return mSkinName;
+}
+
+std::string LLDir::getLanguage() const
+{
+	return mLanguage;
 }
 
 bool LLDir::setCacheDir(const std::string &path)
@@ -664,7 +899,7 @@ bool LLDir::setCacheDir(const std::string &path)
 	else
 	{
 		LLFile::mkdir(path);
-		std::string tempname = path + mDirDelimiter + "temp";
+		std::string tempname = add(path, "temp");
 		LLFILE* file = LLFile::fopen(tempname,"wt");
 		if (file)
 		{
@@ -697,6 +932,57 @@ void LLDir::dumpCurrentDirectories()
 	LL_DEBUGS2("AppInit","Directories") << "  SkinDir:               " << getSkinDir() << LL_ENDL;
 }
 
+std::string LLDir::add(const std::string& path, const std::string& name) const
+{
+	std::string destpath(path);
+	append(destpath, name);
+	return destpath;
+}
+
+void LLDir::append(std::string& destpath, const std::string& name) const
+{
+	// Delegate question of whether we need a separator to helper method.
+	SepOff sepoff(needSep(destpath, name));
+	if (sepoff.first)               // do we need a separator?
+	{
+		destpath += mDirDelimiter;
+	}
+	// If destpath ends with a separator, AND name starts with one, skip
+	// name's leading separator.
+	destpath += name.substr(sepoff.second);
+}
+
+LLDir::SepOff LLDir::needSep(const std::string& path, const std::string& name) const
+{
+	if (path.empty() || name.empty())
+	{
+		// If either path or name are empty, we do not need a separator
+		// between them.
+		return SepOff(false, 0);
+	}
+	// Here we know path and name are both non-empty. But if path already ends
+	// with a separator, or if name already starts with a separator, we need
+	// not add one.
+	std::string::size_type seplen(mDirDelimiter.length());
+	bool path_ends_sep(path.substr(path.length() - seplen) == mDirDelimiter);
+	bool name_starts_sep(name.substr(0, seplen) == mDirDelimiter);
+	if ((! path_ends_sep) && (! name_starts_sep))
+	{
+		// If neither path nor name brings a separator to the junction, then
+		// we need one.
+		return SepOff(true, 0);
+	}
+	if (path_ends_sep && name_starts_sep)
+	{
+		// But if BOTH path and name bring a separator, we need not add one.
+		// Moreover, we should actually skip the leading separator of 'name'.
+		return SepOff(false, seplen);
+	}
+	// Here we know that either path_ends_sep or name_starts_sep is true --
+	// but not both. So don't add a separator, and don't skip any characters:
+	// simple concatenation will do the trick.
+	return SepOff(false, 0);
+}
 
 void dir_exists_or_crash(const std::string &dir_name)
 {

@@ -86,10 +86,6 @@ namespace LLAvatarNameCache
     /// Provide some fallback for agents that return errors
 	void handleAgentError(const LLUUID& agent_id);
 
-	// Force a re-fetch of the most recent data, but keep the current
-	// data in cache
-	void fetch(const LLUUID& agent_id);
-
 	void insert(const LLUUID& agent_id, const LLAvatarName& av_name);
 
 	// Compute name expiration time from HTTP Cache-Control header,

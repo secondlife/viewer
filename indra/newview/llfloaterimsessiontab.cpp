@@ -40,6 +40,7 @@
 #include "llfloaterimsession.h"
 #include "llfloaterimcontainer.h" // to replace separate IM Floaters with multifloater container
 #include "lllayoutstack.h"
+#include "lltoolbarview.h"
 #include "llfloaterimnearbychat.h"
 
 const F32 REFRESH_INTERVAL = 0.2f;
@@ -52,6 +53,7 @@ LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
   ,  mCloseBtn(NULL)
   ,  mSessionID(session_id.asUUID())
   , mConversationsRoot(NULL)
+  , mScroller(NULL)
   , mChatHistory(NULL)
   , mInputEditor(NULL)
   , mInputEditorTopPad(0)
@@ -68,10 +70,6 @@ LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
 			boost::bind(&LLFloaterIMSessionTab::onIMShowModesMenuItemCheck,   this, _2));
 	mEnableCallbackRegistrar.add("IMSession.Menu.ShowModes.Enable",
 			boost::bind(&LLFloaterIMSessionTab::onIMShowModesMenuItemEnable,  this, _2));
-
-	// Zero expiry time is set only once to allow initial update.
-	mRefreshTimer->setTimerExpirySec(0);
-	mRefreshTimer->start();
 }
 
 LLFloaterIMSessionTab::~LLFloaterIMSessionTab()
@@ -164,7 +162,7 @@ void LLFloaterIMSessionTab::addToHost(const LLUUID& session_id)
 			if (!conversp->isNearbyChat()
 					|| gSavedSettings.getBOOL("NearbyChatIsNotTornOff"))
 			{
-				floater_container->addFloater(conversp, TRUE, LLTabContainer::END);
+				floater_container->addFloater(conversp, FALSE, LLTabContainer::END);
 
 				if (!floater_container->getVisible())
 				{
@@ -200,33 +198,16 @@ BOOL LLFloaterIMSessionTab::postBuild()
 
 	mParticipantListPanel = getChild<LLLayoutPanel>("speakers_list_panel");
 	
-	// Create a root view folder for all participants
-	LLConversationItem* base_item = new LLConversationItem(mSessionID, mConversationViewModel);
-    LLFolderView::Params p(LLUICtrlFactory::getDefaultParams<LLFolderView>());
-    p.rect = LLRect(0, 0, getRect().getWidth(), 0);
-    p.parent_panel = mParticipantListPanel;
-    p.listener = base_item;
-    p.view_model = &mConversationViewModel;
-    p.root = NULL;
-    p.use_ellipses = true;
-	mConversationsRoot = LLUICtrlFactory::create<LLFolderView>(p);
-    mConversationsRoot->setCallbackRegistrar(&mCommitCallbackRegistrar);
-	
 	// Add a scroller for the folder (participant) view
 	LLRect scroller_view_rect = mParticipantListPanel->getRect();
 	scroller_view_rect.translate(-scroller_view_rect.mLeft, -scroller_view_rect.mBottom);
 	LLScrollContainer::Params scroller_params(LLUICtrlFactory::getDefaultParams<LLFolderViewScrollContainer>());
 	scroller_params.rect(scroller_view_rect);
-	LLScrollContainer* scroller = LLUICtrlFactory::create<LLFolderViewScrollContainer>(scroller_params);
-	scroller->setFollowsAll();
+	mScroller = LLUICtrlFactory::create<LLFolderViewScrollContainer>(scroller_params);
+	mScroller->setFollowsAll();
 	
-	// Insert that scroller into the panel widgets hierarchy and folder view
-	mParticipantListPanel->addChild(scroller);
-	scroller->addChild(mConversationsRoot);
-	mConversationsRoot->setScrollContainer(scroller);
-	mConversationsRoot->setFollowsAll();
-	mConversationsRoot->addChild(mConversationsRoot->mStatusTextBox);
-	
+	// Insert that scroller into the panel widgets hierarchy
+	mParticipantListPanel->addChild(mScroller);	
 	
 	mChatHistory = getChild<LLChatHistory>("chat_history");
 
@@ -240,8 +221,6 @@ BOOL LLFloaterIMSessionTab::postBuild()
 
 	setOpenPositioning(LLFloaterEnums::POSITIONING_RELATIVE);
 
-	buildConversationViewParticipant();
-
 	mSaveRect = isTornOff();
 	initRectControl();
 
@@ -254,8 +233,14 @@ BOOL LLFloaterIMSessionTab::postBuild()
 		result = LLDockableFloater::postBuild();
 	}
 
+	// Now ready to build the conversation and participants list
+	buildConversationViewParticipant();
 	refreshConversation();
-	
+		
+	// Zero expiry time is set only once to allow initial update.
+	mRefreshTimer->setTimerExpirySec(0);
+	mRefreshTimer->start();
+
 	return result;
 }
 
@@ -281,9 +266,8 @@ void LLFloaterIMSessionTab::draw()
 			{
 				buildConversationViewParticipant();
 			}
+			refreshConversation();
 		}
-		
-		refreshConversation();
 
 		// Restart the refresh timer
 		mRefreshTimer->setTimerExpirySec(REFRESH_INTERVAL);
@@ -345,6 +329,7 @@ std::string LLFloaterIMSessionTab::appendTime()
 
 void LLFloaterIMSessionTab::appendMessage(const LLChat& chat, const LLSD &args)
 {
+
 	// Update the participant activity time
 	LLFloaterIMContainer* im_box = LLFloaterIMContainer::findInstance();
 	if (im_box)
@@ -395,7 +380,31 @@ void LLFloaterIMSessionTab::buildConversationViewParticipant()
 		// Nothing to do if the model list is inexistent
 		return;
 	}
-
+	
+	// Create or recreate the root folder: this is a dummy folder (not shown) but required by the LLFolderView architecture 
+	// We need to redo this when rebuilding as the session id (mSessionID) *may* have changed
+	if (mConversationsRoot)
+	{
+		// Remove the old root if any
+		mScroller->removeChild(mConversationsRoot);
+	}
+	// Create the root using an ad-hoc base item
+	LLConversationItem* base_item = new LLConversationItem(mSessionID, mConversationViewModel);
+    LLFolderView::Params p(LLUICtrlFactory::getDefaultParams<LLFolderView>());
+    p.rect = LLRect(0, 0, getRect().getWidth(), 0);
+    p.parent_panel = mParticipantListPanel;
+    p.listener = base_item;
+    p.view_model = &mConversationViewModel;
+    p.root = NULL;
+    p.use_ellipses = true;
+	mConversationsRoot = LLUICtrlFactory::create<LLFolderView>(p);
+    mConversationsRoot->setCallbackRegistrar(&mCommitCallbackRegistrar);
+	// Attach that root to the scroller
+	mScroller->addChild(mConversationsRoot);
+	mConversationsRoot->setScrollContainer(mScroller);
+	mConversationsRoot->setFollowsAll();
+	mConversationsRoot->addChild(mConversationsRoot->mStatusTextBox);
+	
 	// Create the participants widgets now
 	LLFolderViewModelItemCommon::child_list_t::const_iterator current_participant_model = item->getChildrenBegin();
 	LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = item->getChildrenEnd();
@@ -423,8 +432,8 @@ void LLFloaterIMSessionTab::addConversationViewParticipant(LLConversationItem* p
 		LLConversationViewParticipant* participant_view = createConversationViewParticipant(participant_model);
 		mConversationsWidgets[uuid] = participant_view;
 		participant_view->addToFolder(mConversationsRoot);
+		participant_view->addToSession(mSessionID);
 		participant_view->setVisible(TRUE);
-		refreshConversation();
 	}
 }
 
@@ -436,7 +445,6 @@ void LLFloaterIMSessionTab::removeConversationViewParticipant(const LLUUID& part
 		mConversationsRoot->extractItem(widget);
 		delete widget;
 		mConversationsWidgets.erase(participant_id);
-		refreshConversation();
 	}
 }
 
@@ -447,7 +455,6 @@ void LLFloaterIMSessionTab::updateConversationViewParticipant(const LLUUID& part
 	{
 		widget->refresh();
 	}
-	refreshConversation();
 }
 
 void LLFloaterIMSessionTab::refreshConversation()
@@ -489,8 +496,11 @@ void LLFloaterIMSessionTab::refreshConversation()
 	}
 	
 	mConversationViewModel.requestSortAll();
-	mConversationsRoot->arrangeAll();
-	mConversationsRoot->update();
+	if(mConversationsRoot != NULL)
+	{
+		mConversationsRoot->arrangeAll();
+		mConversationsRoot->update();
+	}
 	updateHeaderAndToolbar();
 	refresh();
 }

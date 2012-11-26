@@ -30,6 +30,9 @@
 	<floater.string name="linkset_terrain_owner">
 		--
 	</floater.string>
+	<floater.string name="linkset_terrain_scripted">
+		--
+	</floater.string>
 	<floater.string name="linkset_terrain_land_impact">
 		--
 	</floater.string>
@@ -44,6 +47,15 @@
 	</floater.string>
 	<floater.string name="linkset_owner_group">
 		[grup]
+	</floater.string>
+	<floater.string name="linkset_is_scripted">
+		Evet
+	</floater.string>
+	<floater.string name="linkset_is_not_scripted">
+		Hayır
+	</floater.string>
+	<floater.string name="linkset_is_unknown_scripted">
+		Bilinmiyor
 	</floater.string>
 	<floater.string name="linkset_use_walkable">
 		Yürüyebilir
@@ -94,6 +106,7 @@
 			<scroll_list.columns label="Ad (kök prim)" name="name"/>
 			<scroll_list.columns label="Açıklama (kök prim)" name="description"/>
 			<scroll_list.columns label="Sahip" name="owner"/>
+			<scroll_list.columns label="Komut Dosyalı" name="scripted"/>
 			<scroll_list.columns label="Etki" name="land_impact"/>
 			<scroll_list.columns label="Mesafe" name="dist_from_you"/>
 			<scroll_list.columns label="Bağlantı kümesi kullanımı" name="linkset_use"/>

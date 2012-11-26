@@ -168,7 +168,7 @@ public:
     void addVoiceOptions(menuentry_vec_t& items);
 	virtual const bool getTime(F64& time) const;
 
-	void dumpDebugData();
+	void dumpDebugData(bool dump_children = false);
 
 private:
 	bool mIsLoaded;		// true if at least one participant has been added to the session, false otherwise
@@ -195,6 +195,7 @@ public:
 	virtual const bool getDistanceToAgent(F64& dist) const { dist = mDistToAgent; return (dist >= 0.0); }
 
 	void fetchAvatarName();
+	LLConversationItemSession* getParentSession();
 
 	void dumpDebugData();
 

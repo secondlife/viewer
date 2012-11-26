@@ -65,6 +65,7 @@
 #include "llfloatersnapshot.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
+#include "llimview.h"
 #include "llinventoryfunctions.h"
 #include "llinventoryobserver.h"
 #include "llinventorypanel.h"
@@ -119,6 +120,8 @@
 // disable boost::lexical_cast warning
 #pragma warning (disable:4702)
 #endif
+
+extern void on_new_message(const LLSD& msg);
 
 //
 // Constants
@@ -3641,6 +3644,11 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		{
 			LLNotificationsUI::LLNotificationManager::instance().onChat(chat, args);
 		}
+
+		LLSD msg_notify = LLSD(LLSD::emptyMap());
+		msg_notify["session_id"] = LLUUID();
+        msg_notify["from_id"] = chat.mFromID;
+        on_new_message(msg_notify);
 	}
 }
 

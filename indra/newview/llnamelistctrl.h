@@ -42,14 +42,24 @@ class LLAvatarName;
 class LLNameListItem : public LLScrollListItem, public LLHandleProvider<LLNameListItem>
 {
 public:
-	LLUUID	getUUID() const		{ return getValue()["uuid"].asUUID(); }
+	bool isGroup() const { return mIsGroup; }
+	void setIsGroup(bool is_group) { mIsGroup = is_group; }
+
 protected:
 	friend class LLNameListCtrl;
 
 	LLNameListItem( const LLScrollListItem::Params& p )
-	:	LLScrollListItem(p)
+	:	LLScrollListItem(p), mIsGroup(false)
 	{
 	}
+
+	LLNameListItem( const LLScrollListItem::Params& p, bool is_group )
+	:	LLScrollListItem(p), mIsGroup(is_group)
+	{
+	}
+
+private:
+	bool mIsGroup;
 };
 
 
@@ -105,9 +115,9 @@ protected:
 public:
 	// Add a user to the list by name.  It will be added, the name
 	// requested from the cache, and updated as necessary.
-	void addNameItem(const LLUUID& agent_id, EAddPosition pos = ADD_BOTTOM,
+	LLScrollListItem* addNameItem(const LLUUID& agent_id, EAddPosition pos = ADD_BOTTOM,
 					 BOOL enabled = TRUE, const std::string& suffix = LLStringUtil::null);
-	void addNameItem(NameItem& item, EAddPosition pos = ADD_BOTTOM);
+	LLScrollListItem* addNameItem(NameItem& item, EAddPosition pos = ADD_BOTTOM);
 
 	/*virtual*/ LLScrollListItem* addElement(const LLSD& element, EAddPosition pos = ADD_BOTTOM, void* userdata = NULL);
 	LLScrollListItem* addNameItemRow(const NameItem& value, EAddPosition pos = ADD_BOTTOM, const std::string& suffix = LLStringUtil::null);

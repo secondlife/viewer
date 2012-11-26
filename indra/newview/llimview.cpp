@@ -29,6 +29,7 @@
 #include "llimview.h"
 
 #include "llavatarnamecache.h"	// IDEVO
+#include "llavataractions.h"
 #include "llfloaterreg.h"
 #include "llfontgl.h"
 #include "llgl.h"
@@ -113,102 +114,97 @@ static void on_avatar_name_cache_toast(const LLUUID& agent_id,
 	LLNotificationsUtil::add("IMToast", args, LLSD(), boost::bind(&LLFloaterIMContainer::showConversation, LLFloaterIMContainer::getInstance(), msg["session_id"].asUUID()));
 }
 
-//Will return true if the preference is allowed (user configures these preferences via 'Chat Preference' Dialog
-bool ignoreNotification(const LLSD& msg, const char * preferenceString)
+void on_new_message(const LLSD& msg)
 {
-    //Get the session so we can find out the type of session
-    LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(
-        msg["session_id"]);
+    std::string action;
+    LLUUID participant_id = msg["from_id"].asUUID();
+    LLUUID session_id = msg["session_id"].asUUID();
+    LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(session_id);
 
-    const LLRelationship * relationship;
+    // determine action for this session
 
-    // Skip system messages
-    if (msg["from_id"].asUUID() == LLUUID::null)
+    if (session_id.isNull())
     {
-        return true;
+        action = gSavedSettings.getString("NotificationNearbyChatOptions");
     }
-
-    //Ignore P2P Friend/Non-Friend Notification
-    if(session->isP2PSessionType())
+    else if(session->isP2PSessionType())
     {
-        relationship = LLAvatarTracker::instance().getBuddyInfo(msg["from_id"]);
-
-        //Ignores non-friends
-        if(relationship == NULL
-            && (gSavedSettings.getString("NotificationNonFriendIMOptions") != preferenceString))
+        if (LLAvatarTracker::instance().isBuddy(participant_id))
         {
-            return true;
+            action = gSavedSettings.getString("NotificationFriendIMOptions");
         }
-        //Ignores friends
-        else if(relationship 
-            && gSavedSettings.getString("NotificationFriendIMOptions") != preferenceString)
+        else
         {
-            return true;
+            action = gSavedSettings.getString("NotificationNonFriendIMOptions");
         }
     }
-    //Ignore Ad Hoc Notification
-    else if(session->isAdHocSessionType() 
-        && (gSavedSettings.getString("NotificationConferenceIMOptions") != preferenceString))
+    else if(session->isAdHocSessionType())
     {
-        return true;
+        action = gSavedSettings.getString("NotificationConferenceIMOptions");
     }
-    //Ignore Group Notification
-    else if(session->isGroupSessionType() 
-        && (gSavedSettings.getString("NotificationGroupChatOptions") != preferenceString))
+    else if(session->isGroupSessionType())
     {
-        return true;
+        action = gSavedSettings.getString("NotificationGroupChatOptions");
     }
 
-    return false;
-}
-
-void toast_callback(const LLSD& msg){
-	// do not show toast in do not disturb mode or it goes from agent
-	if (gAgent.isDoNotDisturb() || gAgent.getID() == msg["from_id"])
-	{
-		return;
-	}
-
-    // Skip toasting if we have open window of IM with this session id
-    LLFloaterIMSession* open_im_floater = LLFloaterIMSession::findInstance(msg["session_id"]);
-    if (
-           open_im_floater
-           && open_im_floater->isInVisibleChain()
-           && open_im_floater->hasFocus()
-           && !open_im_floater->isMinimized()
-           && !(open_im_floater->getHost()
-                   && open_im_floater->getHost()->isMinimized())
-       )
+    // do not show notification in "do not disturb" mode or it goes from agent
+    if (gAgent.isDoNotDisturb() || gAgent.getID() == participant_id)
     {
         return;
     }
 
-    //Show toast
-    if(ignoreNotification(msg, "toast") == false)
+    // execution of the action
+
+    if ("toast" == action)
     {
-        LLAvatarNameCache::get(msg["from_id"].asUUID(),
-            boost::bind(&on_avatar_name_cache_toast,
-            _1, _2, msg));
+        // Skip toasting if we have open window of IM with this session id
+        LLFloaterIMSession* open_im_floater = LLFloaterIMSession::findInstance(session_id);
+        if (
+            open_im_floater
+            && open_im_floater->isInVisibleChain()
+            && open_im_floater->hasFocus()
+            && !open_im_floater->isMinimized()
+            && !(open_im_floater->getHost()
+            && open_im_floater->getHost()->isMinimized())
+            )
+        {
+            return;
+        }
+
+        // Skip toasting for system messages
+        if (participant_id.isNull())
+        {
+            return;
+        }
+
+        //Show toast
+        LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
     }
-}
-
-void open_conversations_callback(const LLSD& msg)
-{
-    LLFloaterIMContainer * floaterIMContainer = LLFloaterIMContainer::getInstance();
-
-    if(floaterIMContainer
-        && ignoreNotification(msg, "openconversations") == false)
+    else if ("flash" == action)
     {
-        floaterIMContainer->setVisible(TRUE);
-        floaterIMContainer->setFrontmost(TRUE);
+        LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
+        if (im_box)
+        {
+            im_box->flashConversationItemWidget(session_id, true); // flashing of the conversation's item
+        }
+        gToolBarView->flashCommand(LLCommandId("chat"), true); // flashing of the FUI button "Chat"
+    }
+    else if("openconversations" == action)
+    {
+        LLFloaterIMContainer * floaterIMContainer = LLFloaterIMContainer::getInstance();
+
+        if(floaterIMContainer)
+        {
+            floaterIMContainer->setVisible(TRUE);
+            floaterIMContainer->setFrontmost(TRUE);
+        }
     }
 }
 
 LLIMModel::LLIMModel() 
 {
 	addNewMsgCallback(boost::bind(&LLFloaterIMSession::newIMCallback, _1));
-	addNewMsgCallback(boost::bind(&toast_callback, _1));
-    addNewMsgCallback(boost::bind(&open_conversations_callback, _1));
+	addNewMsgCallback(boost::bind(&on_new_message, _1));
 }
 
 LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, const LLUUID& other_participant_id, const uuid_vec_t& ids, bool voice, bool has_offline_msg)
@@ -2136,7 +2132,6 @@ BOOL LLIncomingCallDialog::postBuild()
 	getChildView("Start IM")->setVisible( is_avatar && notify_box_type != "VoiceInviteAdHoc" && notify_box_type != "VoiceInviteGroup");
 
 	setCanDrag(FALSE);
-
 	return TRUE;
 }
 
@@ -2144,7 +2139,6 @@ void LLIncomingCallDialog::setCallerName(const std::string& ui_title,
 										 const std::string& ui_label,
 										 const std::string& call_type)
 {
-	setTitle(ui_title);
 
 	// call_type may be a string like " is calling."
 	LLUICtrl* caller_name_widget = getChild<LLUICtrl>("caller name");
@@ -2156,31 +2150,19 @@ void LLIncomingCallDialog::onAvatarNameCache(const LLUUID& agent_id,
 											 const std::string& call_type)
 {
 	std::string title = av_name.getCompleteName();
-	setCallerName(title, av_name.mDisplayName, call_type);
+	setCallerName(title, av_name.getCompleteName(), call_type);
 }
 
 void LLIncomingCallDialog::onOpen(const LLSD& key)
 {
 	LLCallDialog::onOpen(key);
-
+	make_ui_sound("UISndStartIM");
 	LLStringUtil::format_map_t args;
 	LLGroupData data;
 	// if it's a group call, retrieve group name to use it in question
 	if (gAgent.getGroupData(key["session_id"].asUUID(), data))
 	{
 		args["[GROUP]"] = data.mName;
-	}
-	// tell the user which voice channel they would be leaving
-	LLVoiceChannel *voice = LLVoiceChannel::getCurrentVoiceChannel();
-	if (voice && !voice->getSessionName().empty())
-	{
-		args["[CURRENT_CHAT]"] = voice->getSessionName();
-		getChild<LLUICtrl>("question")->setValue(getString(key["question_type"].asString(), args));
-	}
-	else
-	{
-		args["[CURRENT_CHAT]"] = getString("localchat");
-		getChild<LLUICtrl>("question")->setValue(getString(key["question_type"].asString(), args));
 	}
 }
 
@@ -2241,6 +2223,10 @@ void LLIncomingCallDialog::processCallResponse(S32 response, const LLSD &payload
 			if (voice)
 			{
 				gIMMgr->startCall(session_id, LLVoiceChannel::INCOMING_CALL);
+			}
+			else
+			{
+				LLAvatarActions::startIM(caller_id);
 			}
 
 			gIMMgr->clearPendingAgentListUpdates(session_id);
@@ -2834,7 +2820,7 @@ void LLIMMgr::inviteToSession(
 	{
 		bool isRejectGroupCall = (gSavedSettings.getBOOL("VoiceCallsRejectGroup") && (notify_box_type == "VoiceInviteGroup"));
 		bool isRejectNonFriendCall = (gSavedSettings.getBOOL("VoiceCallsFriendsOnly") && (LLAvatarTracker::instance().getBuddyInfo(caller_id) == NULL));
-		bool isRejectDoNotDisturb = gAgent.isDoNotDisturb();
+		bool isRejectDoNotDisturb = (gAgent.isDoNotDisturb() && !hasSession(session_id));
 		if	(isRejectGroupCall || isRejectNonFriendCall || isRejectDoNotDisturb)
 		{
 			if (isRejectDoNotDisturb && !isRejectGroupCall && !isRejectNonFriendCall)

@@ -1207,7 +1207,7 @@
 Вы перемещены в соседний регион.
 	</notification>
 	<notification name="AvatarMovedLast">
-		Ваше последнее местоположение сейчас недоступно.
+		Требуемое вами местоположение сейчас недоступно.
 Вы перемещены в соседний регион.
 	</notification>
 	<notification name="AvatarMovedHome">
@@ -3233,18 +3233,57 @@ http://secondlife.com/download.
 		Это действие приведет к скрытию всех меню и кнопок. Чтобы вернуть их, щелкните [SHORTCUT] снова.
 		<usetemplate ignoretext="Подтверждать перед скрытием интерфейса" name="okcancelignore" notext="Отмена" yestext="OK"/>
 	</notification>
-	<notification name="PathfindingLinksets_SetLinksetUseMismatchOnRestricted">
+	<notification name="PathfindingLinksets_WarnOnPhantom">
+		Признак фантомности некоторых выбранных наборов связей будет изменен.
+
+Продолжить?
+		<usetemplate ignoretext="Признак фантомности некоторых выбранных наборов связей будет изменен." name="okcancelignore" notext="Отмена" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_MismatchOnRestricted">
 		Для некоторых выбранных наборов связей нельзя задать тип «[REQUESTED_TYPE]» из-за ограничений этих наборов.  Эти наборы связей будут иметь тип «[RESTRICTED_TYPE]».
+
+Продолжить?
 		<usetemplate ignoretext="Нельзя задать некоторые выбранные наборы связей из-за ограничений этих наборов." name="okcancelignore" notext="Отмена" yestext="OK"/>
 	</notification>
-	<notification name="PathfindingLinksets_SetLinksetUseMismatchOnVolume">
+	<notification name="PathfindingLinksets_MismatchOnVolume">
 		Для некоторых выбранных наборов связей невозможно задать тип «[REQUESTED_TYPE]», так как фигура не выпуклая.
+
+Продолжить?
 		<usetemplate ignoretext="Нельзя задать некоторые выбранные наборы связей, так как фигура не выпуклая." name="okcancelignore" notext="Отмена" yestext="OK"/>
 	</notification>
-	<notification name="PathfindingLinksets_SetLinksetUseMismatchOnRestrictedAndVolume">
+	<notification name="PathfindingLinksets_WarnOnPhantom_MismatchOnRestricted">
+		Признак фантомности некоторых выбранных наборов связей будет изменен.
+
+Для некоторых выбранных наборов связей нельзя задать тип «[REQUESTED_TYPE]» из-за ограничений этих наборов.  Эти наборы связей будут иметь тип «[RESTRICTED_TYPE]».
+
+Продолжить?
+		<usetemplate ignoretext="Для некоторых выбранных наборов связей будет изменен признак фантомности, а другие наборы нельзя задать из-за ограничений этих наборов." name="okcancelignore" notext="Отмена" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_WarnOnPhantom_MismatchOnVolume">
+		Признак фантомности некоторых выбранных наборов связей будет изменен.
+
+Для некоторых выбранных наборов связей невозможно задать тип «[REQUESTED_TYPE]», так как фигура не выпуклая.
+
+Продолжить?
+		<usetemplate ignoretext="Для некоторых выбранных наборов связей будет изменен признак фантомности, а другие наборы нельзя задать, так как фигура не выпуклая." name="okcancelignore" notext="Отмена" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_MismatchOnRestricted_MismatchOnVolume">
 		Для некоторых выбранных наборов связей нельзя задать тип «[REQUESTED_TYPE]» из-за ограничений этих наборов.  Эти наборы связей будут иметь тип «[RESTRICTED_TYPE]».
- Для некоторых выбранных наборов связей невозможно задать тип «[REQUESTED_TYPE]», так как фигура не выпуклая. Тип использования этих наборов связей не изменится.
+
+Для некоторых выбранных наборов связей невозможно задать тип «[REQUESTED_TYPE]», так как фигура не выпуклая. Тип использования этих наборов связей не изменится.
+
+Продолжить?
 		<usetemplate ignoretext="Нельзя задать некоторые выбранные наборы связей из-за ограничений этих наборов и потому, что фигура не выпуклая." name="okcancelignore" notext="Отмена" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_WarnOnPhantom_MismatchOnRestricted_MismatchOnVolume">
+		Признак фантомности некоторых выбранных наборов связей будет изменен.
+
+Для некоторых выбранных наборов связей нельзя задать тип «[REQUESTED_TYPE]» из-за ограничений этих наборов.  Эти наборы связей будут иметь тип «[RESTRICTED_TYPE]».
+
+Для некоторых выбранных наборов связей невозможно задать тип «[REQUESTED_TYPE]», так как фигура не выпуклая. Тип использования этих наборов связей не изменится.
+
+Продолжить?
+		<usetemplate ignoretext="Для некоторых выбранных наборов связей будет изменен признак фантомности, а другие наборы нельзя задать из-за ограничений этих наборов и потому, что фигура не выпуклая." name="okcancelignore" notext="Отмена" yestext="OK"/>
 	</notification>
 	<notification name="PathfindingLinksets_ChangeToFlexiblePath">
 		Выбранный объект влияет на навигационную сетку.  Если заменить его на гибкий путь, он будет удален из навигационной сетки.

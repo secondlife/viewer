@@ -18,6 +18,7 @@
 	<panel name="balance_bg">
 		<text name="balance" tool_tip="點按以重新更新你的 L$ 帳戶餘額" value="L$20"/>
 		<button label="購買 L$" name="buyL" tool_tip="點按以購買更多 L$"/>
+		<button label="購物" name="goShop" tool_tip="打開第二人生購物市集"/>
 	</panel>
 	<text name="TimeText" tool_tip="目前時區（太平洋）">
 		24:00 AM PST
