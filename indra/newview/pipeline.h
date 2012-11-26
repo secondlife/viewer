@@ -122,6 +122,10 @@ public:
 	//allocate the largest screen buffer possible up to resX, resY
 	//returns true if full size buffer allocated, false if some other size is allocated
 	bool allocateScreenBuffer(U32 resX, U32 resY);
+private:
+	//implementation of above, wrapped for easy error handling
+	bool doAllocateScreenBuffer(U32 resX, U32 resY);
+public:
 
 	//attempt to allocate screen buffers at resX, resY
 	//returns true if allocation successful, false otherwise
