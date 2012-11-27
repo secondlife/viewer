@@ -622,13 +622,7 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
         //Will show Conversations floater when chat preference is set
         else if(gSavedSettings.getString("NotificationNearbyChatOptions") == "openconversations")
         {
-            LLFloaterIMContainer * floaterIMContainer = LLFloaterIMContainer::getInstance();
-
-            if(floaterIMContainer)
-            {
-                floaterIMContainer->setVisible(TRUE);
-                floaterIMContainer->setFrontmost(TRUE);
-            }
+            LLFloaterReg::showInstance("im_container");
         }
 
 	}

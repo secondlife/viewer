@@ -191,13 +191,7 @@ void on_new_message(const LLSD& msg)
     }
     else if("openconversations" == action)
     {
-        LLFloaterIMContainer * floaterIMContainer = LLFloaterIMContainer::getInstance();
-
-        if(floaterIMContainer)
-        {
-            floaterIMContainer->setVisible(TRUE);
-            floaterIMContainer->setFrontmost(TRUE);
-        }
+        LLFloaterReg::showInstance("im_container");
     }
 }
 

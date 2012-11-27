@@ -302,6 +302,7 @@ public:
 	/*virtual*/ void handleVisibilityChange ( BOOL new_visibility ); // do not override
 	
 	void			setFrontmost(BOOL take_focus = TRUE);
+    virtual void	setVisibleAndFrontmost(BOOL take_focus=TRUE);    
 	
 	// Defaults to false.
 	virtual BOOL	canSaveAs() const { return FALSE; }
@@ -373,7 +374,6 @@ protected:
 	void		 	setInstanceName(const std::string& name);
 	
 	virtual void	bringToFront(S32 x, S32 y);
-	virtual void	setVisibleAndFrontmost(BOOL take_focus=TRUE);    
 	
 	void			setExpandedRect(const LLRect& rect) { mExpandedRect = rect; } // size when not minimized
 	const LLRect&	getExpandedRect() const { return mExpandedRect; }
