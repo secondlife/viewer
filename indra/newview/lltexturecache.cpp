@@ -1861,7 +1861,12 @@ LLPointer<LLImageRaw> LLTextureCache::readFromFastCache(const LLUUID& id, S32& d
 
 		mFastCachep->seek(APR_SET, offset);		
 	
-		llassert_always(mFastCachep->read(head, TEXTURE_FAST_CACHE_ENTRY_OVERHEAD) == TEXTURE_FAST_CACHE_ENTRY_OVERHEAD);
+		if(mFastCachep->read(head, TEXTURE_FAST_CACHE_ENTRY_OVERHEAD) != TEXTURE_FAST_CACHE_ENTRY_OVERHEAD)
+		{
+			//cache corrupted or under thread race condition
+			closeFastCache(); 
+			return NULL;
+		}
 		
 		S32 image_size = head[0] * head[1] * head[2];
 		if(!image_size) //invalid
@@ -1872,7 +1877,13 @@ LLPointer<LLImageRaw> LLTextureCache::readFromFastCache(const LLUUID& id, S32& d
 		discardlevel = head[3];
 		
 		data =  (U8*)ALLOCATE_MEM(LLImageBase::getPrivatePool(), image_size);
-		llassert_always(mFastCachep->read(data, image_size) == image_size);
+		if(mFastCachep->read(data, image_size) != image_size)
+		{
+			FREE_MEM(LLImageBase::getPrivatePool(), data);
+			closeFastCache();
+			return NULL;
+		}
+
 		closeFastCache();
 	}
 	LLPointer<LLImageRaw> raw = new LLImageRaw(data, head[0], head[1], head[2], true);
