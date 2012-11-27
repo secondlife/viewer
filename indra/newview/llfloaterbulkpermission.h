@@ -72,6 +72,7 @@ private:
 								bool is_new);
 
 	void onCloseBtn();
+	void onOkBtn();
 	void onApplyBtn();
 	void onCommitCopy();
 	void onCheckAll() { doCheckUncheckAll(TRUE); }
