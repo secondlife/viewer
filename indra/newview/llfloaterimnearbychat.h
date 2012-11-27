@@ -117,7 +117,7 @@ private:
 
 	/*virtual*/ void refresh();
 
-	LLHandle<LLView>	mPopupMenuHandle;
+//	LLHandle<LLView>	mPopupMenuHandle;
 	std::vector<LLChat> mMessageArchive;
 
 };

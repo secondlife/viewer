@@ -148,7 +148,6 @@ public:
 	virtual BOOL changeSelection(LLFolderViewItem* selection, BOOL selected);
 
 	virtual std::set<LLFolderViewItem*> getSelectionList() const;
-	S32 getNumSelectedItems() { return mSelectedItems.size(); }
 
 	// Make sure if ancestor is selected, descendants are not
 	void sanitizeSelection();

@@ -70,6 +70,11 @@ LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
 			boost::bind(&LLFloaterIMSessionTab::onIMShowModesMenuItemCheck,   this, _2));
 	mEnableCallbackRegistrar.add("IMSession.Menu.ShowModes.Enable",
 			boost::bind(&LLFloaterIMSessionTab::onIMShowModesMenuItemEnable,  this, _2));
+
+	// Right click menu handling
+    mEnableCallbackRegistrar.add("Avatar.CheckItem",  boost::bind(&LLFloaterIMSessionTab::checkContextMenuItem,	this, _2));
+    mEnableCallbackRegistrar.add("Avatar.EnableItem", boost::bind(&LLFloaterIMSessionTab::enableContextMenuItem, this, _2));
+    mCommitCallbackRegistrar.add("Avatar.DoToSelected", boost::bind(&LLFloaterIMSessionTab::doToSelected, this, _2));
 }
 
 LLFloaterIMSessionTab::~LLFloaterIMSessionTab()
@@ -397,6 +402,7 @@ void LLFloaterIMSessionTab::buildConversationViewParticipant()
     p.view_model = &mConversationViewModel;
     p.root = NULL;
     p.use_ellipses = true;
+    p.options_menu = "menu_conversation.xml";
 	mConversationsRoot = LLUICtrlFactory::create<LLFolderView>(p);
     mConversationsRoot->setCallbackRegistrar(&mCommitCallbackRegistrar);
 	// Attach that root to the scroller
@@ -768,3 +774,56 @@ bool LLFloaterIMSessionTab::checkIfTornOff()
 
 	return isTorn;
 }
+
+void LLFloaterIMSessionTab::doToSelected(const LLSD& userdata)
+{
+	// Get the list of selected items in the tab
+    std::string command = userdata.asString();
+    uuid_vec_t selected_uuids;
+	getSelectedUUIDs(selected_uuids);
+		
+	// Perform the command (IM, profile, etc...) on the list using the general conversation container method
+	LLFloaterIMContainer* floater_container = LLFloaterIMContainer::getInstance();
+	// Note: By construction, those can only be participants so we can call doToParticipants() directly
+	floater_container->doToParticipants(command, selected_uuids);
+}
+
+bool LLFloaterIMSessionTab::enableContextMenuItem(const LLSD& userdata)
+{
+	// Get the list of selected items in the tab
+    std::string command = userdata.asString();
+    uuid_vec_t selected_uuids;
+	getSelectedUUIDs(selected_uuids);
+	
+	// Perform the item enable test on the list using the general conversation container method
+	LLFloaterIMContainer* floater_container = LLFloaterIMContainer::getInstance();
+	return floater_container->enableContextMenuItem(command, selected_uuids);
+}
+
+bool LLFloaterIMSessionTab::checkContextMenuItem(const LLSD& userdata)
+{
+	// Get the list of selected items in the tab
+    std::string command = userdata.asString();
+    uuid_vec_t selected_uuids;
+	getSelectedUUIDs(selected_uuids);
+	
+	// Perform the item check on the list using the general conversation container method
+	LLFloaterIMContainer* floater_container = LLFloaterIMContainer::getInstance();
+	return floater_container->checkContextMenuItem(command, selected_uuids);
+}
+
+void LLFloaterIMSessionTab::getSelectedUUIDs(uuid_vec_t& selected_uuids)
+{
+    const std::set<LLFolderViewItem*> selected_items = mConversationsRoot->getSelectionList();
+	
+    std::set<LLFolderViewItem*>::const_iterator it = selected_items.begin();
+    const std::set<LLFolderViewItem*>::const_iterator it_end = selected_items.end();
+	
+    for (; it != it_end; ++it)
+    {
+        LLConversationItem* conversation_item = static_cast<LLConversationItem *>((*it)->getViewModelItem());
+        selected_uuids.push_back(conversation_item->getUUID());
+    }
+}
+
+

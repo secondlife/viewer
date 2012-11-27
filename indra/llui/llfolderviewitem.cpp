@@ -712,7 +712,7 @@ void LLFolderViewItem::drawHighlight(const BOOL showContent, const BOOL hasKeybo
             }
         }
 
-        if (!isHighlightAllowed() || isHighlightActive())
+        if (isHighlightAllowed() || isHighlightActive())
         {
         	gl_rect_2d(FOCUS_LEFT,
                 focus_top,
@@ -721,7 +721,7 @@ void LLFolderViewItem::drawHighlight(const BOOL showContent, const BOOL hasKeybo
                 bg_color, hasKeyboardFocus);
         }
 
-        if (mIsCurSelection)
+        if (isHighlightActive())
         {
             gl_rect_2d(FOCUS_LEFT, 
                 focus_top, 
