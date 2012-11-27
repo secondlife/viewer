@@ -99,7 +99,6 @@ LLFloaterIMContainer::~LLFloaterIMContainer()
 
 void LLFloaterIMContainer::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, BOOL has_offline_msg)
 {
-	llinfos << "Merov debug : sessionAdded, uuid = " << session_id << ", name = " << name << llendl;
 	addConversationListItem(session_id);
 	LLFloaterIMSessionTab::addToHost(session_id);
 }
@@ -877,67 +876,83 @@ void LLFloaterIMContainer::getParticipantUUIDs(uuid_vec_t& selected_uuids)
 
 void LLFloaterIMContainer::doToParticipants(const std::string& command, uuid_vec_t& selectedIDS)
 {
-	if(selectedIDS.size() > 0)
+	if (selectedIDS.size() == 1)
 	{
 		const LLUUID& userID = selectedIDS.front();
-		if(gAgent.getID() != userID)
+		if ("view_profile" == command)
 		{
-			if ("view_profile" == command)
-			{
-				LLAvatarActions::showProfile(userID);
-			}
-			else if("im" == command)
-			{
-				LLAvatarActions::startIM(userID);
-			}
-			else if("offer_teleport" == command)
-			{
-				LLAvatarActions::offerTeleport(selectedIDS);
-			}
-			else if("voice_call" == command)
-			{
-				LLAvatarActions::startCall(userID);
-			}
-			else if("chat_history" == command)
-			{
-				LLAvatarActions::viewChatHistory(userID);
-			}
-			else if("add_friend" == command)
-			{
-				LLAvatarActions::requestFriendshipDialog(userID);
-			}
-			else if("remove_friend" == command)
-			{
-				LLAvatarActions::removeFriendDialog(userID);
-			}
-			else if("invite_to_group" == command)
-			{
-				LLAvatarActions::inviteToGroup(userID);
-			}
-			else if("map" == command)
-			{
-				LLAvatarActions::showOnMap(userID);
-			}
-			else if("share" == command)
-			{
-				LLAvatarActions::share(userID);
-			}
-			else if("pay" == command)
-			{
-				LLAvatarActions::pay(userID);
-			}
-			else if("block_unblock" == command)
-			{
-				LLAvatarActions::toggleBlock(userID);
-			}
-			else if("selected" == command || "mute_all" == command || "unmute_all" == command)
-			{
-				moderateVoice(command, userID);
-			}
-			else if ("toggle_allow_text_chat" == command)
-			{
-				toggleAllowTextChat(userID);
-			}
+			LLAvatarActions::showProfile(userID);
+		}
+		else if ("im" == command)
+		{
+			LLAvatarActions::startIM(userID);
+		}
+		else if ("offer_teleport" == command)
+		{
+			LLAvatarActions::offerTeleport(selectedIDS);
+		}
+		else if ("voice_call" == command)
+		{
+			LLAvatarActions::startCall(userID);
+		}
+		else if ("chat_history" == command)
+		{
+			LLAvatarActions::viewChatHistory(userID);
+		}
+		else if ("add_friend" == command)
+		{
+			LLAvatarActions::requestFriendshipDialog(userID);
+		}
+		else if ("remove_friend" == command)
+		{
+			LLAvatarActions::removeFriendDialog(userID);
+		}
+		else if ("invite_to_group" == command)
+		{
+			LLAvatarActions::inviteToGroup(userID);
+		}
+		else if ("map" == command)
+		{
+			LLAvatarActions::showOnMap(userID);
+		}
+		else if ("share" == command)
+		{
+			LLAvatarActions::share(userID);
+		}
+		else if ("pay" == command)
+		{
+			LLAvatarActions::pay(userID);
+		}
+		else if ("block_unblock" == command)
+		{
+			LLAvatarActions::toggleBlock(userID);
+		}
+		else if ("selected" == command || "mute_all" == command || "unmute_all" == command)
+		{
+			moderateVoice(command, userID);
+		}
+		else if ("toggle_allow_text_chat" == command)
+		{
+			toggleAllowTextChat(userID);
+		}
+	}
+	else if (selectedIDS.size() > 1)
+	{
+		if ("im" == command)
+		{
+			LLAvatarActions::startConference(selectedIDS);
+		}
+		else if ("offer_teleport" == command)
+		{
+			LLAvatarActions::offerTeleport(selectedIDS);
+		}
+		else if ("voice_call" == command)
+		{
+			LLAvatarActions::startAdhocCall(selectedIDS);
+		}
+		else if ("remove_friend" == command)
+		{
+			LLAvatarActions::removeFriendsDialog(selectedIDS);
 		}
 	}
 }
@@ -989,7 +1004,7 @@ void LLFloaterIMContainer::doToSelected(const LLSD& userdata)
     if(conversationItem != NULL)
     {
     	getParticipantUUIDs(selected_uuids);
-
+		
     	if(conversationItem->getType() == LLConversationItem::CONV_PARTICIPANT)
     	{
     		doToParticipants(command, selected_uuids);
@@ -1031,75 +1046,64 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
     	LLUUID selected_group_id = getCurSelectedViewModelItem()->getUUID();
     	return gAgent.getGroupID() != selected_group_id;
     }
+	
+	return enableContextMenuItem(item, uuids);
+}
 
-	if("conversation_log" == item)
+bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_vec_t& uuids)
+{
+	if ("conversation_log" == item)
 	{
 		return gSavedSettings.getBOOL("KeepConversationLogTranscripts");
 	}
 
-	if(uuids.size() <= 0)
+	// If nothing is selected, everything needs to be disabled
+	if (uuids.size() <= 0)
     {
         return false;
     }
-
-    // Note: can_block and can_delete is used only for one person selected menu
-    // so we don't need to go over all uuids.
-
-    if ("can_block" == item)
+	
+	// Extract the single select info
+	bool is_single_select = (uuids.size() == 1);
+	const LLUUID& single_id = uuids.front();
+	
+	// Handle options that are applicable to all including the user agent
+    if ("can_view_profile" == item)
     {
-		const LLUUID& id = uuids.front();
-        return LLAvatarActions::canBlock(id);
+		return is_single_select;
+	}
+	
+	// Beyond that point, if only the user agent is selected, everything is disabled
+	if (is_single_select && (single_id == gAgentID))
+	{
+		return false;
+	}
+
+	// Handle all other options
+	if (("can_invite" == item) || ("can_chat_history" == item) || ("can_share" == item) || ("can_pay" == item))
+	{
+		// Those menu items are enable only if a single avatar is selected
+		return is_single_select;
+	}
+    else if ("can_block" == item)
+    {
+        return (is_single_select ? LLAvatarActions::canBlock(single_id) : false);
     }
     else if ("can_add" == item)
     {
         // We can add friends if:
-        // - there are selected people
-        // - and there are no friends among selection yet.
-
-        //EXT-7389 - disable for more than 1
-		if(uuids.size() > 1)
-        {
-            return false;
-        }
-
-        bool result = true;
-
-        uuid_vec_t::const_iterator
-			id = uuids.begin(),
-			uuids_end = uuids.end();
-
-        for (;id != uuids_end; ++id)
-        {
-            if ( LLAvatarActions::isFriend(*id) )
-            {
-                result = false;
-                break;
-            }
-        }
-
-        return result;
+        // - there is only 1 selected avatar (EXT-7389)
+        // - this avatar is not already a friend
+        return (is_single_select ? !LLAvatarActions::isFriend(single_id) : false);
     }
     else if ("can_delete" == item)
     {
-        // We can remove friends if:
-        // - there are selected people
-        // - and there are only friends among selection.
-
-        bool result = (uuids.size() > 0);
-
-        uuid_vec_t::const_iterator
-			id = uuids.begin(),
-			uuids_end = uuids.end();
-
-        for (;id != uuids_end; ++id)
+        // We can remove friends if there are only friends among the selection
+        bool result = true;
+        for (uuid_vec_t::const_iterator id = uuids.begin(); id != uuids.end(); ++id)
         {
-            if ( !LLAvatarActions::isFriend(*id) )
-            {
-                result = false;
-                break;
-            }
+			result &= LLAvatarActions::isFriend(*id);
         }
-
         return result;
     }
     else if ("can_call" == item)
@@ -1108,34 +1112,38 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
     }
     else if ("can_show_on_map" == item)
     {
-		const LLUUID& id = uuids.front();
-
-        return (LLAvatarTracker::instance().isBuddyOnline(id) && is_agent_mappable(id))
-            || gAgent.isGodlike();
+        return (is_single_select ? (LLAvatarTracker::instance().isBuddyOnline(single_id) && is_agent_mappable(single_id)) || gAgent.isGodlike() : false);
     }
-    else if("can_offer_teleport" == item)
+    else if ("can_offer_teleport" == item)
     {
 		return LLAvatarActions::canOfferTeleport(uuids);
     }
-	else if("can_moderate_voice" == item || "can_allow_text_chat" == item || "can_mute" == item || "can_unmute" == item)
+	else if (("can_moderate_voice" == item) || ("can_allow_text_chat" == item) || ("can_mute" == item) || ("can_unmute" == item))
 	{
+		// *TODO : get that out of here...
 		return enableModerateContextMenuItem(item);
 	}
 
-	return false;
+	// By default, options that not explicitely disabled are enabled
+    return true;
 }
 
 bool LLFloaterIMContainer::checkContextMenuItem(const LLSD& userdata)
 {
     std::string item = userdata.asString();
-    uuid_vec_t mUUIDs;
-    getParticipantUUIDs(mUUIDs);
+	uuid_vec_t uuids;
+	getParticipantUUIDs(uuids);
+	
+	return checkContextMenuItem(item, uuids);
+}
 
-    if(mUUIDs.size() > 0 )
+bool LLFloaterIMContainer::checkContextMenuItem(const std::string& item, uuid_vec_t& uuids)
+{
+    if (uuids.size() == 1)
     {
 		if ("is_blocked" == item)
 		{
-			return LLAvatarActions::isBlocked(mUUIDs.front());
+			return LLAvatarActions::isBlocked(uuids.front());
 		}
 		else if ("is_allowed_text_chat" == item)
 		{
@@ -1353,10 +1361,12 @@ bool LLFloaterIMContainer::removeConversationListItem(const LLUUID& uuid, bool c
 		setFocus(TRUE);
 		if(new_selection != NULL)
 		{
+			if (mConversationsWidgets.size() == 1)
+				new_selection = new_selection->getParentFolder();
 			LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(new_selection->getViewModelItem());
 			if(vmi != NULL)
 			{
-				selectConversation(vmi->getUUID());
+				selectConversationPair(vmi->getUUID(), true);
 			}
 		}
 	}

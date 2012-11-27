@@ -27,7 +27,6 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llagent.h"
 #include "llavatarnamecache.h"
 #include "llavataractions.h"
 #include "llevents.h"
@@ -422,10 +421,8 @@ void LLConversationItemParticipant::buildContextMenu(LLMenuGL& menu, U32 flags)
     menuentry_vec_t items;
     menuentry_vec_t disabled_items;
 
-    if(gAgent.getID() != mUUID)
-    {
-    	buildParticipantMenuOptions(items);
-    }
+	buildParticipantMenuOptions(items);
+	
     hide_context_entries(menu, items, disabled_items);
 }
 
