@@ -116,79 +116,83 @@ static void on_avatar_name_cache_toast(const LLUUID& agent_id,
 
 void on_new_message(const LLSD& msg)
 {
-	std::string action;
-	LLUUID participant_id = msg["from_id"].asUUID();
-	LLUUID session_id = msg["session_id"].asUUID();
+    std::string action;
+    LLUUID participant_id = msg["from_id"].asUUID();
+    LLUUID session_id = msg["session_id"].asUUID();
     LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(session_id);
 
     // determine action for this session
 
     if (session_id.isNull())
     {
-    	action = gSavedSettings.getString("NotificationNearbyChatOptions");
+        action = gSavedSettings.getString("NotificationNearbyChatOptions");
     }
     else if(session->isP2PSessionType())
     {
         if (LLAvatarTracker::instance().isBuddy(participant_id))
         {
-        	action = gSavedSettings.getString("NotificationFriendIMOptions");
+            action = gSavedSettings.getString("NotificationFriendIMOptions");
         }
         else
         {
-        	action = gSavedSettings.getString("NotificationNonFriendIMOptions");
+            action = gSavedSettings.getString("NotificationNonFriendIMOptions");
         }
     }
     else if(session->isAdHocSessionType())
     {
-    	action = gSavedSettings.getString("NotificationConferenceIMOptions");
+        action = gSavedSettings.getString("NotificationConferenceIMOptions");
     }
     else if(session->isGroupSessionType())
     {
-    	action = gSavedSettings.getString("NotificationGroupChatOptions");
+        action = gSavedSettings.getString("NotificationGroupChatOptions");
     }
 
-	// do not show notification in "do not disturb" mode or it goes from agent
-	if (gAgent.isDoNotDisturb() || gAgent.getID() == participant_id)
-	{
-		return;
-	}
+    // do not show notification in "do not disturb" mode or it goes from agent
+    if (gAgent.isDoNotDisturb() || gAgent.getID() == participant_id)
+    {
+        return;
+    }
 
-	// execution of the action
+    // execution of the action
 
-	if ("toast" == action)
-	{
-	    // Skip toasting if we have open window of IM with this session id
+    if ("toast" == action)
+    {
+        // Skip toasting if we have open window of IM with this session id
         LLFloaterIMSession* open_im_floater = LLFloaterIMSession::findInstance(session_id);
         if (
-             open_im_floater
-             && open_im_floater->isInVisibleChain()
-             && open_im_floater->hasFocus()
-             && !open_im_floater->isMinimized()
-             && !(open_im_floater->getHost()
-                   && open_im_floater->getHost()->isMinimized())
-           )
+            open_im_floater
+            && open_im_floater->isInVisibleChain()
+            && open_im_floater->hasFocus()
+            && !open_im_floater->isMinimized()
+            && !(open_im_floater->getHost()
+            && open_im_floater->getHost()->isMinimized())
+            )
         {
             return;
         }
 
-	    // Skip toasting for system messages
-	    if (participant_id.isNull())
-	    {
-		    return;
-	    }
+        // Skip toasting for system messages
+        if (participant_id.isNull())
+        {
+            return;
+        }
 
         //Show toast
-	    LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
-	}
-	else if ("flash" == action)
-	{
-		LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
-		if (im_box)
+        LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
+    }
+    else if ("flash" == action)
+    {
+        LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
+        if (im_box)
         {
-			im_box->flashConversationItemWidget(session_id, true); // flashing of the conversation's item
+            im_box->flashConversationItemWidget(session_id, true); // flashing of the conversation's item
         }
         gToolBarView->flashCommand(LLCommandId("chat"), true); // flashing of the FUI button "Chat"
-	}
+    }
+    else if("openconversations" == action)
+    {
+        LLFloaterReg::showInstance("im_container");
+    }
 }
 
 LLIMModel::LLIMModel() 
@@ -1725,7 +1729,7 @@ BOOL LLCallDialog::postBuild()
 		return FALSE;
 	
 	dockToToolbarButton("speak");
-
+	
 	return TRUE;
 }
 
