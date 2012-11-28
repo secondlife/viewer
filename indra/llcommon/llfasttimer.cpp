@@ -317,7 +317,7 @@ void BlockTimer::buildHierarchy()
 //static
 void BlockTimer::accumulateTimings()
 {
-	U32 cur_time = getCPUClockCount32();
+	U64 cur_time = getCPUClockCount64();
 
 	// walk up stack of active timers and accumulate current time while leaving timing structures active
 	Time* cur_timer = sCurTimerData->mCurTimer;
@@ -389,7 +389,7 @@ void BlockTimer::resetFrame()
 		}
 		call_count++;
 
-		F64 iclock_freq = 1000.0 / countsPerSecond(); // good place to calculate clock frequency
+		F64 iclock_freq = 1000.0 / get_clock_count(); // good place to calculate clock frequency
 
 		F64 total_time = 0;
 		LLSD sd;
@@ -442,7 +442,7 @@ void BlockTimer::reset()
 
 	// walk up stack of active timers and reset start times to current time
 	// effectively zeroing out any accumulated time
-	U32 cur_time = getCPUClockCount32();
+	U64 cur_time = getCPUClockCount64();
 
 	// root defined by parent pointing to self
 	CurTimerData* cur_data = sCurTimerData.get();
@@ -510,7 +510,7 @@ std::vector<BlockTimer*>& BlockTimer::getChildren()
 //static
 void BlockTimer::nextFrame()
 {
-	BlockTimer::countsPerSecond(); // good place to calculate clock frequency
+	get_clock_count(); // good place to calculate clock frequency
 	U64 frame_time = BlockTimer::getCPUClockCount64();
 	if ((frame_time - sLastFrameTime) >> 8 > 0xffffffff)
 	{
@@ -534,7 +534,7 @@ void Time::dumpCurTimes()
 	// accumulate timings, etc.
 	BlockTimer::processTimes();
 	
-	F64 clock_freq = (F64)BlockTimer::countsPerSecond();
+	F64 clock_freq = (F64)get_clock_count();
 	F64 iclock_freq = 1000.0 / clock_freq; // clock_ticks -> milliseconds
 
 	// walk over timers in depth order and output timings

@@ -1341,6 +1341,7 @@ bool LLAppViewer::mainLoop()
 					gGLActive = FALSE;
 				}
 
+				LLTrace::get_frame_recording().nextPeriod();
 			}
 
 			pingMainloopTimeout("Main:Sleep");
@@ -4306,9 +4307,6 @@ void LLAppViewer::idle()
 		//  Update statistics for this frame
 		update_statistics();
 	}
-
-	LLTrace::get_frame_recording().nextPeriod();
-
 
 	////////////////////////////////////////
 	//
