@@ -1207,7 +1207,7 @@ sonraki: &apos;[THIS_GPU]&apos;
 Yakınındaki başka bir bölgeye taşındınız.
 	</notification>
 	<notification name="AvatarMovedLast">
-		Son konumunuz şu anda kullanılamıyor.
+		Talep ettiğiniz konum şu anda kullanılamıyor.
 Yakınındaki başka bir bölgeye taşındınız.
 	</notification>
 	<notification name="AvatarMovedHome">
@@ -1223,10 +1223,10 @@ Yeni bir ana konum ayarlamak isteyebilirsiniz.
 		</form>
 	</notification>
 	<notification name="FirstRun">
-		[APP_NAME] kurulumu tamamlandı.
+		[APP_NAME] yüklemesi tamamlandı.
 
 [SECOND_LIFE]&apos;ı ilk kez kullanıyorsanız, oturum açmadan önce bir hesap oluşturmalısınız.
-		<usetemplate name="okcancelbuttons" notext="Devam" yestext="Yeni Hesap..."/>
+		<usetemplate name="okcancelbuttons" notext="Devam" yestext="Hesap Oluştur..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">
 		Bağlantıda sorun yaşıyoruz. İnternet bağlantınızda ya da [SECOND_LIFE_GRID] uygulamasında bir problem olabilir.
@@ -3233,18 +3233,57 @@ Görünümünüzü döndürmek için dünya üzerindeki herhangi bir yeri tıkla
 		Bu eylem tüm menü öğelerini ve düğmelerini gizler. Bunları geri almak için [SHORTCUT] üzerine tekrar tıklayın.
 		<usetemplate ignoretext="KA&apos;ni gizlemeden önce onayla" name="okcancelignore" notext="İptal" yestext="Tamam"/>
 	</notification>
-	<notification name="PathfindingLinksets_SetLinksetUseMismatchOnRestricted">
+	<notification name="PathfindingLinksets_WarnOnPhantom">
+		Bazı seçili bağlantı kümelerinin Fantom bayrağı dönüştürülecek.
+
+Devam etmek istiyor musunuz?
+		<usetemplate ignoretext="Bazı seçili bağlantı kümelerinin fantom bayrağı dönüştürülecek." name="okcancelignore" notext="İptal" yestext="Tamam"/>
+	</notification>
+	<notification name="PathfindingLinksets_MismatchOnRestricted">
 		Seçilen bazı bağlantı kümeleri, bağlantı kümesi için izin kısıtlamaları nedeniyle &apos;[REQUESTED_TYPE]&apos; olarak ayarlanamıyor.  Bunun yerine bu bağlantı kümeleri &apos;[RESTRICTED_TYPE]&apos; olarak ayarlanacak.
+
+Devam etmek istiyor musunuz?
 		<usetemplate ignoretext="Seçilen bazı bağlantı kümeleri, bağlantı kümesi için izin kısıtlamaları nedeniyle ayarlanamıyor." name="okcancelignore" notext="İptal" yestext="Tamam"/>
 	</notification>
-	<notification name="PathfindingLinksets_SetLinksetUseMismatchOnVolume">
+	<notification name="PathfindingLinksets_MismatchOnVolume">
 		Seçilen bazı bağlantı kümeleri &apos;[REQUESTED_TYPE]&apos; olarak ayarlanamaz, çünkü şekil konveks değil.
+
+Devam etmek istiyor musunuz?
 		<usetemplate ignoretext="Seçilen bazı bağlantı kümeleri ayarlanamaz, çünkü şekil konveks değil." name="okcancelignore" notext="İptal" yestext="Tamam"/>
 	</notification>
-	<notification name="PathfindingLinksets_SetLinksetUseMismatchOnRestrictedAndVolume">
+	<notification name="PathfindingLinksets_WarnOnPhantom_MismatchOnRestricted">
+		Bazı seçili bağlantı kümelerinin Fantom bayrağı dönüştürülecek.
+
+Seçilen bazı bağlantı kümeleri, bağlantı kümesi için izin kısıtlamaları nedeniyle &apos;[REQUESTED_TYPE]&apos; olarak ayarlanamıyor.  Bunun yerine bu bağlantı kümeleri &apos;[RESTRICTED_TYPE]&apos; olarak ayarlanacak.
+
+Devam etmek istiyor musunuz?
+		<usetemplate ignoretext="Bazı seçili bağlantı kümelerinin fantom bayrağı dönüştürülecek, diğerleri ise bağlantı kümesi için izin kısıtlamaları nedeniyle ayarlanamıyor." name="okcancelignore" notext="İptal" yestext="Tamam"/>
+	</notification>
+	<notification name="PathfindingLinksets_WarnOnPhantom_MismatchOnVolume">
+		Bazı seçili bağlantı kümelerinin Fantom bayrağı dönüştürülecek.
+
+Seçilen bazı bağlantı kümeleri &apos;[REQUESTED_TYPE]&apos; olarak ayarlanamaz, çünkü şekil konveks değil.
+
+Devam etmek istiyor musunuz?
+		<usetemplate ignoretext="Bazı seçili bağlantı kümelerinin fantom bayrağı dönüştürülecek, diğerleri ise şekil konveks olmadığı için ayarlanamıyor" name="okcancelignore" notext="İptal" yestext="Tamam"/>
+	</notification>
+	<notification name="PathfindingLinksets_MismatchOnRestricted_MismatchOnVolume">
 		Seçilen bazı bağlantı kümeleri, bağlantı kümesi için izin kısıtlamaları nedeniyle &apos;[REQUESTED_TYPE]&apos; olarak ayarlanamıyor.  Bunun yerine bu bağlantı kümeleri &apos;[RESTRICTED_TYPE]&apos; olarak ayarlanacak.
- Seçilen bazı bağlantı kümeleri &apos;[REQUESTED_TYPE]&apos; olarak ayarlanamaz, çünkü şekil konveks değil. Bu bağlantı kümelerinin kullanım tipleri değişmez.
+
+Seçilen bazı bağlantı kümeleri &apos;[REQUESTED_TYPE]&apos; olarak ayarlanamaz, çünkü şekil konveks değil. Bu bağlantı kümelerinin kullanım tipleri değişmez.
+
+Devam etmek istiyor musunuz?
 		<usetemplate ignoretext="Seçilen bazı bağlantı kümeleri, bağlantı kümesi için izin kısıtlamaları nedeniyle ve şekil konveks olmadığı için ayarlanamıyor." name="okcancelignore" notext="İptal" yestext="Tamam"/>
+	</notification>
+	<notification name="PathfindingLinksets_WarnOnPhantom_MismatchOnRestricted_MismatchOnVolume">
+		Bazı seçili bağlantı kümelerinin Fantom bayrağı dönüştürülecek.
+
+Seçilen bazı bağlantı kümeleri, bağlantı kümesi için izin kısıtlamaları nedeniyle &apos;[REQUESTED_TYPE]&apos; olarak ayarlanamıyor.  Bunun yerine bu bağlantı kümeleri &apos;[RESTRICTED_TYPE]&apos; olarak ayarlanacak.
+
+Seçilen bazı bağlantı kümeleri &apos;[REQUESTED_TYPE]&apos; olarak ayarlanamaz, çünkü şekil konveks değil. Bu bağlantı kümelerinin kullanım tipleri değişmez.
+
+Devam etmek istiyor musunuz?
+		<usetemplate ignoretext="Bazı seçili bağlantı kümelerinin fantom bayrağı dönüştürülecek, diğerleri ise bağlantı kümesi için izin kısıtlamaları nedeniyle ve şekil konveks olmadığı için ayarlanamıyor." name="okcancelignore" notext="İptal" yestext="Tamam"/>
 	</notification>
 	<notification name="PathfindingLinksets_ChangeToFlexiblePath">
 		Seçilen nesne navigasyon örgüsünü etkiliyor.  Bunu bir Esnek Yol olarak değiştirirseniz, navigasyon örgüsünden çıkartmış olursunuz.

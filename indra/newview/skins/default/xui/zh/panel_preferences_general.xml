@@ -11,10 +11,12 @@
 		<combo_box.item label="Español（西班牙語）- 試用版" name="Spanish"/>
 		<combo_box.item label="Français（法語）- 試用版" name="French"/>
 		<combo_box.item label="Italiano（義大利語）- 試用版" name="Italian"/>
-		<combo_box.item label="Nederlands（荷蘭語）- 試用版" name="Dutch"/>
 		<combo_box.item label="Polski（波蘭語）- 試用版" name="Polish"/>
 		<combo_box.item label="Português（葡萄牙語）- 試用版" name="Portugese"/>
+		<combo_box.item label="Русский（俄羅斯語）- 測試版" name="Russian"/>
+		<combo_box.item label="Türkçe（土耳其語）- 試用版" name="Turkish"/>
 		<combo_box.item label="日本語（日語）- 試用版" name="(Japanese)"/>
+		<combo_box.item label="正體中文 - 測試版" name="Traditional Chinese"/>
 	</combo_box>
 	<text name="language_textbox2">
 		（須重新啟動）

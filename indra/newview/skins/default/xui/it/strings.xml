@@ -134,7 +134,7 @@
 		Esci
 	</string>
 	<string name="create_account_url">
-		http://join.secondlife.com/index.php?lang=it-IT
+		http://join.secondlife.com/index.php?lang=it-IT&amp;sourceid=[sourceid]
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		Il viewer utilizzato non è più in grado di accedere a Second Life. Visita la parina seguente per scaricare un nuovo viewer:
@@ -1399,6 +1399,12 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="InvFolder favorite">
 		I miei preferiti
 	</string>
+	<string name="InvFolder Favorites">
+		I miei preferiti
+	</string>
+	<string name="InvFolder favorites">
+		I miei preferiti
+	</string>
 	<string name="InvFolder Current Outfit">
 		Abbigliamento attuale
 	</string>
@@ -1413,6 +1419,12 @@ Prova ad accedere nuovamente tra un minuto.
 	</string>
 	<string name="InvFolder Meshes">
 		Reticoli
+	</string>
+	<string name="InvFolder Received Items">
+		Oggetti ricevuti
+	</string>
+	<string name="InvFolder Merchant Outbox">
+		Casella venditore in uscita
 	</string>
 	<string name="InvFolder Friends">
 		Amici

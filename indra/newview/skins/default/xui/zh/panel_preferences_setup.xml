@@ -11,17 +11,6 @@
 	</text>
 	<check_box label="自訂埠" name="connection_port_enabled"/>
 	<spinner label="埠號：" name="connection_port"/>
-	<text name="cache_size_label_l">
-		快取尺寸
-	</text>
-	<text name="text_box5">
-		MB
-	</text>
-	<text name="Cache location">
-		快取位置：
-	</text>
-	<button label="瀏覽" label_selected="瀏覽" name="set_cache"/>
-	<button label="重設" label_selected="重設" name="reset_cache"/>
 	<text name="Web:">
 		網頁：
 	</text>
@@ -33,12 +22,6 @@
 	<check_box initial_value="true" label="接受 cookies" name="cookies_enabled"/>
 	<check_box initial_value="true" label="啟用 Javascript" name="browser_javascript_enabled"/>
 	<check_box initial_value="false" label="啟用媒體瀏覽的突顯式視窗" name="media_popup_enabled"/>
-	<check_box initial_value="false" label="啟用網頁代理伺服器" name="web_proxy_enabled"/>
-	<text name="Proxy location">
-		代理伺服器位置：
-	</text>
-	<line_editor name="web_proxy_editor" tool_tip="你希望使用的代理伺服器的名稱或 IP 位址"/>
-	<spinner label="埠號：" name="web_proxy_port"/>
 	<text name="Software updates:">
 		軟體更新：
 	</text>
@@ -46,4 +29,8 @@
 		<combo_box.item label="自動安裝" name="Install_automatically"/>
 		<combo_box.item label="手動下載及安裝" name="Install_manual"/>
 	</combo_box>
+	<text name="Proxy Settings:">
+		代理伺服器設定：
+	</text>
+	<button label="調整代理伺服器設定" label_selected="瀏覽" name="set_proxy"/>
 </panel>

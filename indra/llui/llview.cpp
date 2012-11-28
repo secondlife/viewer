@@ -1549,16 +1549,18 @@ void LLView::screenPointToLocal(S32 screen_x, S32 screen_y, S32* local_x, S32* l
 
 void LLView::localPointToScreen(S32 local_x, S32 local_y, S32* screen_x, S32* screen_y) const
 {
-	*screen_x = local_x + getRect().mLeft;
-	*screen_y = local_y + getRect().mBottom;
+	*screen_x = local_x;
+	*screen_y = local_y;
 
 	const LLView* cur = this;
-	while( cur->mParentView )
+	do
 	{
+		LLRect cur_rect = cur->getRect();
+		*screen_x += cur_rect.mLeft;
+		*screen_y += cur_rect.mBottom;
 		cur = cur->mParentView;
-		*screen_x += cur->getRect().mLeft;
-		*screen_y += cur->getRect().mBottom;
 	}
+	while( cur );
 }
 
 void LLView::screenRectToLocal(const LLRect& screen, LLRect* local) const

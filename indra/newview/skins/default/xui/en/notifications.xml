@@ -6076,26 +6076,6 @@ This area has building disabled. You can&apos;t build or rez objects here.
 
   <notification
    icon="alertmodal.tga"
-   name="PathfindingRebakeNavmesh"
-   type="alertmodal">
-    <unique/>
-    Changing certain objects in this region could cause other moving objects to behave incorrectly.  To make moving objects behave correctly, click the “Rebake region” button.  Choose “Help” for more information.
-    <url
-      option="1"
-      name="url"
-      target = "_external">
-      http://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer
-    </url>
-    <usetemplate
-     name="okhelpignore"
-     ignoretext="Changing certain objects in this region could cause other moving objects to behave incorrectly."
-     yestext="OK"
-     helptext="Help"
-     />
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
    name="PathfindingCannotRebakeNavmesh"
    type="alertmodal">
     <unique/>
@@ -7560,18 +7540,6 @@ You uploaded a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME] second
    type="notifytip">
 ( [EXISTENCE] seconds alive )
 You locally updated a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME] seconds.
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="LivePreviewUnavailable"
-   type="alert">
-   
-We cannot display a preview of this texture because it is no-copy and/or no-transfer.
-  <usetemplate
-    ignoretext="Warn me that Live Preview mode is not available for no-copy and/or no-transfer textures"
-    name="okignore"
-    yestext="OK"/>
   </notification>
 
   <notification

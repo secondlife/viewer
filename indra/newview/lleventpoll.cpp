@@ -86,7 +86,7 @@ namespace
 
 	class LLEventPollEventTimer : public LLEventTimer
 	{
-		typedef boost::intrusive_ptr<LLEventPollResponder> EventPollResponderPtr;
+		typedef LLPointer<LLEventPollResponder> EventPollResponderPtr;
 
 	public:
 		LLEventPollEventTimer(F32 period, EventPollResponderPtr responder)

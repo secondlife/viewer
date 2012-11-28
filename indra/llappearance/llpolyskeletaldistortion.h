@@ -67,6 +67,7 @@ class LLPolySkeletalDistortionInfo : public LLViewerVisualParamInfo
 {
 	friend class LLPolySkeletalDistortion;
 public:
+	
 	LLPolySkeletalDistortionInfo();
 	/*virtual*/ ~LLPolySkeletalDistortionInfo() {};
 	
@@ -84,6 +85,16 @@ protected:
 class LLPolySkeletalDistortion : public LLViewerVisualParam
 {
 public:
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free_16(ptr);
+	}
+
 	LLPolySkeletalDistortion(LLAvatarAppearance *avatarp);
 	~LLPolySkeletalDistortion();
 

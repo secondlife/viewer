@@ -21,8 +21,8 @@
 請稍後再試。
 		</message>
 		<message name="NoHelpIslandTP">
-			您不能瞬间转移回“援助岛”。
-去“公共援助岛”重复您的教程。
+			你無法瞬間傳送回「新手導引島」。
+請到「大眾新手導引島」重新參加導引教學。
 		</message>
 		<message name="noaccess_tport">
 			抱歉，你並沒有權限進入要瞬間傳送的目的地。
@@ -44,6 +44,9 @@
 		</message>
 		<message name="no_inventory_host">
 			收納區功能目前無法使用。
+		</message>
+		<message name="MustGetAgeRegion">
+			你必須年滿 18 歲才可進入這地區。
 		</message>
 	</message_set>
 	<message_set name="progress">
@@ -79,6 +82,9 @@
 		</message>
 		<message name="requesting">
 			瞬間傳送要求中...
+		</message>
+		<message name="pending">
+			等待瞬間傳送…
 		</message>
 	</message_set>
 </teleport_messages>

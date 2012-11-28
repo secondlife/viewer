@@ -201,7 +201,7 @@
 						Passes :
 					</text>
 					<text name="Detail Scale label">
-						Échelle de détail :
+						Échelle détail :
 					</text>
 					<text name="Retain%_label">
 						Retenue :
@@ -227,7 +227,7 @@
 			</panel>
 			<panel label="Option de chargement" name="modifiers_panel">
 				<text name="scale_label">
-					Echelle (1 = pas d&apos;échelle) :
+					Échelle (1 = aucune) :
 				</text>
 				<spinner name="import_scale" value="1.0"/>
 				<text name="dimensions_label">
@@ -238,12 +238,12 @@
 				</text>
 				<check_box label="Inclure les textures" name="upload_textures"/>
 				<text name="include_label">
-					Pour les modèles d&apos;avatar uniquement :
+					Modèles d&apos;avatar uniquement :
 				</text>
-				<check_box label="Inclure la pondération de la peau :" name="upload_skin"/>
-				<check_box label="Inclure la position des articulations :" name="upload_joints"/>
+				<check_box label="Inclure pondération de la peau :" name="upload_skin"/>
+				<check_box label="Inclure position des articulations :" name="upload_joints"/>
 				<text name="pelvis_offset_label">
-					Décalage Z (élever ou abaisser l&apos;avatar) :
+					Décalage Z (élever/abaisser l&apos;avatar) :
 				</text>
 				<spinner name="pelvis_offset" value="0.0"/>
 			</panel>
@@ -252,7 +252,7 @@
 			<button label="Calculer les poids et les frais" name="calculate_btn" tool_tip="Calculer les poids et les frais."/>
 			<button label="Annuler" name="cancel_btn"/>
 			<button label="Charger le modèle" name="ok_btn" tool_tip="Charger dans le simulateur"/>
-			<button label="Effacer les paramètres et réinitialiser le formulaire" name="reset_btn"/>
+			<button label="Effacer les paramètres / réinitialiser le formulaire" name="reset_btn"/>
 			<text name="upload_fee">
 				Frais de chargement : [FEE] L$
 			</text>

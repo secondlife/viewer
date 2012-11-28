@@ -271,6 +271,16 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD login_para
             }
             return;             // Done!
         }
+
+		/* Sometimes we end with "Started" here. Slightly slow server?
+		 * Seems to be ok to just skip it. Otherwise we'd error out and crash in the if below.
+		 */
+		if( status == "Started")
+		{
+			LL_DEBUGS("LLLogin") << mAuthResponse << LL_ENDL;
+			continue;
+		}
+
         // If we don't recognize status at all, trouble
         if (! (status == "CURLError"
                || status == "XMLRPCError"

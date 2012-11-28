@@ -38,9 +38,9 @@
 		</layout_panel>
 		<layout_panel name="links">
 			<text name="create_account_text">
-				CREATE YǾUR ACCǾUNT
+				СОЗДАЙТЕ СВОЙ АККАУНТ
 			</text>
-			<button name="create_new_account_btn" label="Регистрация"/>
+			<button label="Начать" name="create_new_account_btn"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

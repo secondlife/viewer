@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="panel_navmesh_rebake">
-	<button label="Восстановить регион" name="navmesh_btn" tool_tip="Восстановить навигационную сетку региона."/>
-	<button label="Запрос на восстановление" name="navmesh_btn_sending" tool_tip="Отправка запроса на восстановление на сервер."/>
-	<button label="Идет восстановление региона" name="navmesh_btn_baking" tool_tip="Идет восстановление региона.  Когда оно завершится, эта кнопка исчезнет."/>
-</panel>

@@ -3,4 +3,5 @@
 	<menu_item_call label="剪下" name="Cut"/>
 	<menu_item_call label="恚庨" name="Copy"/>
 	<menu_item_call label="貼上" name="Paste"/>
+	<menu_item_call label="開啟網頁偵查器" name="open_webinspector"/>
 </context_menu>

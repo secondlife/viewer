@@ -32,7 +32,7 @@ BOOL LLDir::deleteFilesInDir(const std::string &dirname, const std::string &mask
 void LLDir::setChatLogsDir(const std::string &path) {}
 void LLDir::setPerAccountChatLogsDir(const std::string &first, const std::string &last) {}
 void LLDir::setLindenUserDir(const std::string &first, const std::string &last) {}
-void LLDir::setSkinFolder(const std::string &skin_folder) {}
+void LLDir::setSkinFolder(const std::string &skin_folder, const std::string& language) {}
 bool LLDir::setCacheDir(const std::string &path) { return true; }
 void LLDir::dumpCurrentDirectories() {}
 

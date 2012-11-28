@@ -32,6 +32,7 @@
 #include "llregistry.h"
 #include "llxuiparser.h"
 #include "llstl.h"
+#include "lldir.h"
 
 class LLView;
 
@@ -161,32 +162,21 @@ public:
 	LLView* createFromXML(LLXMLNodePtr node, LLView* parent, const std::string& filename, const widget_registry_t&, LLXMLNodePtr output_node );
 
 	template<typename T>
-	static T* createFromFile(const std::string &filename, LLView *parent, const widget_registry_t& registry, LLXMLNodePtr output_node = NULL)
+	static T* createFromFile(const std::string &filename, LLView *parent, const widget_registry_t& registry)
 	{
 		T* widget = NULL;
-		
-		std::string skinned_filename = findSkinnedFilename(filename);
+
 		instance().pushFileName(filename);
 		{
 			LLXMLNodePtr root_node;
 
-			//if exporting, only load the language being exported, 			
-			//instead of layering localized version on top of english			
-			if (output_node)			
-			{					
-				if (!LLUICtrlFactory::getLocalizedXMLNode(filename, root_node))				
-				{							
-					llwarns << "Couldn't parse XUI file: " <<  filename  << llendl;					
-					goto fail;				
-				}
-			}
-			else if (!LLUICtrlFactory::getLayeredXMLNode(filename, root_node))
+			if (!LLUICtrlFactory::getLayeredXMLNode(filename, root_node))
 			{
-				llwarns << "Couldn't parse XUI file: " << skinned_filename << llendl;
+				llwarns << "Couldn't parse XUI file: " << instance().getCurFileName() << llendl;
 				goto fail;
 			}
-			
-			LLView* view = getInstance()->createFromXML(root_node, parent, filename, registry, output_node);
+
+			LLView* view = getInstance()->createFromXML(root_node, parent, filename, registry, NULL);
 			if (view)
 			{
 				widget = dynamic_cast<T*>(view);
@@ -214,8 +204,8 @@ fail:
 
 	static void createChildren(LLView* viewp, LLXMLNodePtr node, const widget_registry_t&, LLXMLNodePtr output_node = NULL);
 
-	static bool getLayeredXMLNode(const std::string &filename, LLXMLNodePtr& root);
-	static bool getLocalizedXMLNode(const std::string &xui_filename, LLXMLNodePtr& root);
+	static bool getLayeredXMLNode(const std::string &filename, LLXMLNodePtr& root,
+								  LLDir::ESkinConstraint constraint=LLDir::CURRENT_SKIN);
 
 private:
 	//NOTE: both friend declarations are necessary to keep both gcc and msvc happy
@@ -299,9 +289,6 @@ private:
 
 	// this exists to get around dependency on llview
 	static void setCtrlParent(LLView* view, LLView* parent, S32 tab_group);
-
-	// Avoid directly using LLUI and LLDir in the template code
-	static std::string findSkinnedFilename(const std::string& filename);
 
 	class LLPanel*		mDummyPanel;
 	std::vector<std::string>	mFileNames;

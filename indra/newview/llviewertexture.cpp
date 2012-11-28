@@ -623,6 +623,7 @@ LLViewerTexture::~LLViewerTexture()
 // virtual
 void LLViewerTexture::init(bool firstinit)
 {
+	mSelectedTime = 0.f;
 	mMaxVirtualSize = 0.f;
 	mMaxVirtualSizeResetInterval = 1;
 	mMaxVirtualSizeResetCounter = mMaxVirtualSizeResetInterval ;
@@ -654,6 +655,24 @@ void LLViewerTexture::dump()
 	llinfos << "LLViewerTexture"
 			<< " mID " << mID
 			<< llendl;
+}
+
+void LLViewerTexture::setBoostLevel(S32 level)
+{
+	if(mBoostLevel != level)
+	{
+		mBoostLevel = level ;
+		if(mBoostLevel != LLViewerTexture::BOOST_NONE && 
+			mBoostLevel != LLViewerTexture::BOOST_SELECTED)
+		{
+			setNoDelete() ;		
+		}
+	}
+
+	if (mBoostLevel == LLViewerTexture::BOOST_SELECTED)
+	{
+		mSelectedTime = gFrameTimeSeconds;
+	}
 }
 
 bool LLViewerTexture::bindDefaultImage(S32 stage) 
@@ -1597,11 +1616,32 @@ void LLViewerFetchedTexture::updateVirtualSize()
 	for(U32 i = 0 ; i < mNumFaces ; i++)
 	{				
 		LLFace* facep = mFaceList[i] ;
-		if(facep->getDrawable()->isRecentlyVisible())
+		if( facep )
 		{
-			addTextureStats(facep->getVirtualSize()) ;
-			setAdditionalDecodePriority(facep->getImportanceToCamera()) ;
+			LLDrawable* drawable = facep->getDrawable();
+			if (drawable)
+			{
+				if(drawable->isRecentlyVisible())
+				{
+					if (getBoostLevel() == LLViewerTexture::BOOST_NONE && 
+						drawable->getVObj() && drawable->getVObj()->isSelected())
+					{
+						setBoostLevel(LLViewerTexture::BOOST_SELECTED);
+					}
+					addTextureStats(facep->getVirtualSize()) ;
+					setAdditionalDecodePriority(facep->getImportanceToCamera()) ;
+				}
+			}
 		}
+	}
+
+	//reset whether or not a face was selected after 10 seconds
+	const F32 SELECTION_RESET_TIME = 10.f;
+
+	if (getBoostLevel() ==  LLViewerTexture::BOOST_SELECTED && 
+		gFrameTimeSeconds - mSelectedTime > SELECTION_RESET_TIME)
+	{
+		setBoostLevel(LLViewerTexture::BOOST_NONE);
 	}
 
 	if(mMaxVirtualSizeResetCounter > 0)

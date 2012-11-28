@@ -719,6 +719,8 @@ void LLPipeline::cleanup()
 	mInitialized = FALSE;
 
 	mDeferredVB = NULL;
+
+	mCubeVB = NULL;
 }
 
 //============================================================================
@@ -2022,6 +2024,7 @@ void LLPipeline::grabReferences(LLCullResult& result)
 void LLPipeline::clearReferences()
 {
 	sCull = NULL;
+	mGroupSaveQ1.clear();
 }
 
 void check_references(LLSpatialGroup* group, LLDrawable* drawable)
@@ -2341,7 +2344,7 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 		bound_shader = true;
 		gOcclusionCubeProgram.bind();
 	}
-
+	
 	if (sUseOcclusion > 1)
 	{
 		if (mCubeVB.isNull())
@@ -2519,7 +2522,7 @@ void LLPipeline::doOcclusion(LLCamera& camera)
 			{
 				gOcclusionCubeProgram.bind();
 			}
-			}
+		}
 
 		if (mCubeVB.isNull())
 		{ //cube VB will be used for issuing occlusion queries
@@ -2576,11 +2579,6 @@ void LLPipeline::updateGL()
 			glu->mInQ = FALSE;
 			LLGLUpdate::sGLQ.pop_front();
 		}
-
-	{ //seed VBO Pools
-		LLFastTimer t(FTM_SEED_VBO_POOLS);
-		LLVertexBuffer::seedPools();
-	}
 	}
 
 	{ //seed VBO Pools
@@ -2593,26 +2591,59 @@ static LLFastTimer::DeclareTimer FTM_REBUILD_PRIORITY_GROUPS("Rebuild Priority G
 
 void LLPipeline::clearRebuildGroups()
 {
+	LLSpatialGroup::sg_vector_t	hudGroups;
+
 	mGroupQ1Locked = true;
 	// Iterate through all drawables on the priority build queue,
 	for (LLSpatialGroup::sg_vector_t::iterator iter = mGroupQ1.begin();
 		 iter != mGroupQ1.end(); ++iter)
 	{
 		LLSpatialGroup* group = *iter;
-		group->clearState(LLSpatialGroup::IN_BUILD_Q1);
+
+		// If the group contains HUD objects, save the group
+		if (group->isHUDGroup())
+		{
+			hudGroups.push_back(group);
+		}
+		// Else, no HUD objects so clear the build state
+		else
+		{
+			group->clearState(LLSpatialGroup::IN_BUILD_Q1);
+		}
 	}
+
+	// Clear the group
 	mGroupQ1.clear();
+
+	// Copy the saved HUD groups back in
+	mGroupQ1.assign(hudGroups.begin(), hudGroups.end());
 	mGroupQ1Locked = false;
+
+	// Clear the HUD groups
+	hudGroups.clear();
 
 	mGroupQ2Locked = true;
 	for (LLSpatialGroup::sg_vector_t::iterator iter = mGroupQ2.begin();
 		 iter != mGroupQ2.end(); ++iter)
 	{
 		LLSpatialGroup* group = *iter;
-		group->clearState(LLSpatialGroup::IN_BUILD_Q2);
-	}	
 
+		// If the group contains HUD objects, save the group
+		if (group->isHUDGroup())
+		{
+			hudGroups.push_back(group);
+		}
+		// Else, no HUD objects so clear the build state
+		else
+		{
+			group->clearState(LLSpatialGroup::IN_BUILD_Q2);
+		}
+	}	
+	// Clear the group
 	mGroupQ2.clear();
+
+	// Copy the saved HUD groups back in
+	mGroupQ2.assign(hudGroups.begin(), hudGroups.end());
 	mGroupQ2Locked = false;
 }
 
@@ -2635,6 +2666,7 @@ void LLPipeline::rebuildPriorityGroups()
 		group->clearState(LLSpatialGroup::IN_BUILD_Q1);
 	}
 
+	mGroupSaveQ1 = mGroupQ1;
 	mGroupQ1.clear();
 	mGroupQ1Locked = false;
 
@@ -3389,10 +3421,10 @@ void renderScriptedTouchBeacons(LLDrawable* drawablep)
 				if (facep)
 				{
 					gPipeline.mHighlightFaces.push_back(facep);
-				}
 			}
 		}
 	}
+}
 }
 
 void renderPhysicalBeacons(LLDrawable* drawablep)
@@ -3418,10 +3450,10 @@ void renderPhysicalBeacons(LLDrawable* drawablep)
 				if (facep)
 				{
 					gPipeline.mHighlightFaces.push_back(facep);
-				}
 			}
 		}
 	}
+}
 }
 
 void renderMOAPBeacons(LLDrawable* drawablep)
@@ -3458,10 +3490,10 @@ void renderMOAPBeacons(LLDrawable* drawablep)
 				if (facep)
 				{
 					gPipeline.mHighlightFaces.push_back(facep);
-				}
 			}
 		}
 	}
+}
 }
 
 void renderParticleBeacons(LLDrawable* drawablep)
@@ -3487,10 +3519,10 @@ void renderParticleBeacons(LLDrawable* drawablep)
 				if (facep)
 				{
 					gPipeline.mHighlightFaces.push_back(facep);
-				}
 			}
 		}
 	}
+}
 }
 
 void renderSoundHighlights(LLDrawable* drawablep)
@@ -3509,10 +3541,10 @@ void renderSoundHighlights(LLDrawable* drawablep)
 				if (facep)
 				{
 					gPipeline.mHighlightFaces.push_back(facep);
-				}
 			}
 		}
 	}
+}
 }
 
 void LLPipeline::postSort(LLCamera& camera)
@@ -3726,7 +3758,7 @@ void LLPipeline::postSort(LLCamera& camera)
 						if (facep)
 						{
 							gPipeline.mSelectedFaces.push_back(facep);
-						}
+					}
 					}
 					return true;
 				}

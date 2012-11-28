@@ -137,7 +137,7 @@
 		Çık
 	</string>
 	<string name="create_account_url">
-		http://join.secondlife.com/index.php?lang=tr-TR
+		http://join.secondlife.com/index.php?lang=tr-TR&amp;sourceid=[sourceid]
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		Kullandığınız görüntüleyici ile artık Second Life&apos;a erişemezsiniz. Yeni bir görüntüleyiciyi karşıdan yüklemek için lütfen şu sayfayı ziyaret edin:
@@ -1411,6 +1411,12 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="InvFolder favorite">
 		Favorilerim
 	</string>
+	<string name="InvFolder Favorites">
+		Sık Kullanılanlarım
+	</string>
+	<string name="InvFolder favorites">
+		Sık Kullanılanlarım
+	</string>
 	<string name="InvFolder Current Outfit">
 		Mevcut Dış Görünüm
 	</string>
@@ -1425,6 +1431,12 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	</string>
 	<string name="InvFolder Meshes">
 		Örgüler
+	</string>
+	<string name="InvFolder Received Items">
+		Alınan Öğeler
+	</string>
+	<string name="InvFolder Merchant Outbox">
+		Satıcı Giden Kutusu
 	</string>
 	<string name="InvFolder Friends">
 		Arkadaşlar
