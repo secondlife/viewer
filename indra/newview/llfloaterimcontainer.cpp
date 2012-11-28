@@ -1383,6 +1383,12 @@ LLConversationViewSession* LLFloaterIMContainer::createConversationItemWidget(LL
 	params.tool_tip = params.name;
 	params.container = this;
 	
+    //Indentation for aligning the p2p converstation image with the nearby chat arrow
+    if(item->getType() == LLConversationItem::CONV_SESSION_1_ON_1)
+    {
+        params.folder_indentation = 3;
+    }
+
 	return LLUICtrlFactory::create<LLConversationViewSession>(params);
 }
 
