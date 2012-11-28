@@ -1688,49 +1688,43 @@ struct UIImageDeclarations : public LLInitParam::Block<UIImageDeclarations>
 
 bool LLUIImageList::initFromFile()
 {
-	// construct path to canonical textures.xml in default skin dir
-	std::string base_file_path = gDirUtilp->getExpandedFilename(LL_PATH_SKINS, "default", "textures", "textures.xml");
-
-	LLXMLNodePtr root;
-
-	if (!LLXMLNode::parseFile(base_file_path, root, NULL))
+	// Look for textures.xml in all the right places. Pass
+	// constraint=LLDir::ALL_SKINS because we want to overlay textures.xml
+	// from all the skins directories.
+	std::vector<std::string> textures_paths =
+		gDirUtilp->findSkinnedFilenames(LLDir::TEXTURES, "textures.xml", LLDir::ALL_SKINS);
+	std::vector<std::string>::const_iterator pi(textures_paths.begin()), pend(textures_paths.end());
+	if (pi == pend)
 	{
-		llwarns << "Unable to parse UI image list file " << base_file_path << llendl;
+		llwarns << "No textures.xml found in skins directories" << llendl;
+		return false;
+	}
+
+	// The first (most generic) file gets special validations
+	LLXMLNodePtr root;
+	if (!LLXMLNode::parseFile(*pi, root, NULL))
+	{
+		llwarns << "Unable to parse UI image list file " << *pi << llendl;
 		return false;
 	}
 	if (!root->hasAttribute("version"))
 	{
-		llwarns << "No valid version number in UI image list file " << base_file_path << llendl;
+		llwarns << "No valid version number in UI image list file " << *pi << llendl;
 		return false;
 	}
 
 	UIImageDeclarations images;
 	LLXUIParser parser;
-	parser.readXUI(root, images, base_file_path);
+	parser.readXUI(root, images, *pi);
 
-	// add components defined in current skin
-	std::string skin_update_path = gDirUtilp->getSkinDir() 
-									+ gDirUtilp->getDirDelimiter() 
-									+ "textures"
-									+ gDirUtilp->getDirDelimiter()
-									+ "textures.xml";
-	LLXMLNodePtr update_root;
-	if (skin_update_path != base_file_path
-		&& LLXMLNode::parseFile(skin_update_path, update_root, NULL))
+	// add components defined in the rest of the skin paths
+	while (++pi != pend)
 	{
-		parser.readXUI(update_root, images, skin_update_path);
-	}
-
-	// add components defined in user override of current skin
-	skin_update_path = gDirUtilp->getUserSkinDir() 
-						+ gDirUtilp->getDirDelimiter() 
-						+ "textures"
-						+ gDirUtilp->getDirDelimiter()
-						+ "textures.xml";
-	if (skin_update_path != base_file_path
-		&& LLXMLNode::parseFile(skin_update_path, update_root, NULL))
-	{
-		parser.readXUI(update_root, images, skin_update_path);
+		LLXMLNodePtr update_root;
+		if (LLXMLNode::parseFile(*pi, update_root, NULL))
+		{
+			parser.readXUI(update_root, images, *pi);
+		}
 	}
 
 	if (!images.validateBlock()) return false;

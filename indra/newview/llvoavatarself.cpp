@@ -1379,7 +1379,8 @@ BOOL LLVOAvatarSelf::isLocalTextureDataAvailable(const LLViewerTexLayerSet* laye
 				const U32 wearable_count = gAgentWearables.getWearableCount(wearable_type);
 				for (U32 wearable_index = 0; wearable_index < wearable_count; wearable_index++)
 				{
-					ret &= (getLocalDiscardLevel(tex_index, wearable_index) >= 0);
+					BOOL tex_avail = (getLocalDiscardLevel(tex_index, wearable_index) >= 0);
+					ret &= tex_avail;
 				}
 			}
 			return ret;
@@ -1781,6 +1782,7 @@ void LLVOAvatarSelf::setLocalTexture(ETextureIndex type, LLViewerTexture* src_te
 	local_tex_obj->setID(tex->getID());
 	setBakedReady(type,baked_version_ready,index);
 }
+
 //virtual
 void LLVOAvatarSelf::setBakedReady(LLAvatarAppearanceDefines::ETextureIndex type, BOOL baked_version_exists, U32 index)
 {
@@ -2279,12 +2281,15 @@ void LLVOAvatarSelf::addLocalTextureStats( ETextureIndex type, LLViewerFetchedTe
 	{
 		F32 desired_pixels;
 		desired_pixels = llmin(mPixelArea, (F32)getTexImageArea());
-		imagep->setBoostLevel(getAvatarBoostLevel());
 
+		if (isUsingLocalAppearance())
+		{
+			imagep->setBoostLevel(getAvatarBoostLevel());
+			imagep->setAdditionalDecodePriority(SELF_ADDITIONAL_PRI) ;
+		}
 		imagep->resetTextureStats();
 		imagep->setMaxVirtualSizeResetInterval(MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL);
 		imagep->addTextureStats( desired_pixels / texel_area_ratio );
-		imagep->setAdditionalDecodePriority(SELF_ADDITIONAL_PRI) ;
 		imagep->forceUpdateBindStats() ;
 		if (imagep->getDiscardLevel() < 0)
 		{

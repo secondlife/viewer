@@ -128,7 +128,7 @@
 		Sair
 	</string>
 	<string name="create_account_url">
-		http://join.secondlife.com/index.php?lang=pt-BR
+		http://join.secondlife.com/index.php?lang=pt-BR&amp;sourceid=[sourceid]
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		O visualizador utilizado já não é compatível com o Second Life.  Visite a página abaixo para baixar uma versão atual: http://secondlife.com/download
@@ -1354,6 +1354,12 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	<string name="InvFolder favorite">
 		Meus favoritos
 	</string>
+	<string name="InvFolder Favorites">
+		Meus favoritos
+	</string>
+	<string name="InvFolder favorites">
+		Meus favoritos
+	</string>
 	<string name="InvFolder Current Outfit">
 		Look atual
 	</string>
@@ -1368,6 +1374,12 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	</string>
 	<string name="InvFolder Meshes">
 		Meshes:
+	</string>
+	<string name="InvFolder Received Items">
+		Itens recebidos
+	</string>
+	<string name="InvFolder Merchant Outbox">
+		Caixa de saída do lojista
 	</string>
 	<string name="InvFolder Friends">
 		Amigos

@@ -1211,7 +1211,7 @@ a &apos;[THIS_GPU]&apos;
 Se te ha llevado a una región cercana.
 	</notification>
 	<notification name="AvatarMovedLast">
-		En estos momentos no está disponible tu última posición.
+		En estos momentos no está disponible la posición solicitada.
 Se te ha llevado a una región cercana.
 	</notification>
 	<notification name="AvatarMovedHome">
@@ -1229,8 +1229,8 @@ Puedes usar [SECOND_LIFE] de forma normal; los demás residentes te verán corre
 	<notification name="FirstRun">
 		Se ha completado la instalación de [SECOND_LIFE].
 
-Si es la primera vez que usas [SECOND_LIFE], debes crear una cuenta antes de poder iniciar una sesión.
-		<usetemplate name="okcancelbuttons" notext="Continuar" yestext="Cuenta nueva..."/>
+Si es la primera vez que usas [SECOND_LIFE], debes crear una cuenta para poder iniciar una sesión.
+		<usetemplate name="okcancelbuttons" notext="Continuar" yestext="Crear cuenta..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">
 		Tenemos problemas de conexión. Puede deberse a un problema de tu conexión a Internet o de [SECOND_LIFE_GRID].
@@ -3231,18 +3231,57 @@ Al ocultar el botón Hablar se desactiva la función de voz.
 		Esta acción ocultará todos los botones y elementos de menú. Para restaurarlos, pulsa otra vez en [SHORTCUT].
 		<usetemplate ignoretext="Confirmar antes de ocultar la IU" name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
-	<notification name="PathfindingLinksets_SetLinksetUseMismatchOnRestricted">
-		Algunos de los linksets seleccionados no pueden configurarse como &apos;[REQUESTED_TYPE]&apos; debido a restricciones de los permisos del linkset. Estos linksets se configurarán como &apos;[RESTRICTED_TYPE]&apos;.
+	<notification name="PathfindingLinksets_WarnOnPhantom">
+		El indicador de inmaterial de algunos linksets seleccionados se conmutará.
+
+¿Quieres continuar?
+		<usetemplate ignoretext="El indicador de inmaterial de algunos linksets seleccionados se conmutará." name="okcancelignore" notext="Cancelar" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_MismatchOnRestricted">
+		Algunos de los linksets seleccionados no pueden configurarse como &apos;[REQUESTED_TYPE]&apos; debido a restricciones de los permisos del linkset.  Estos linksets se configurarán como &apos;[RESTRICTED_TYPE]&apos;.
+
+¿Quieres continuar?
 		<usetemplate ignoretext="Algunos de los linksets seleccionados no pueden configurarse debido a restricciones de los permisos del linkset." name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
-	<notification name="PathfindingLinksets_SetLinksetUseMismatchOnVolume">
+	<notification name="PathfindingLinksets_MismatchOnVolume">
 		Algunos de los linksets seleccionados no pueden configurarse como &apos;[REQUESTED_TYPE]&apos; porque su forma no es convexa.
+
+¿Quieres continuar?
 		<usetemplate ignoretext="Algunos de los linksets seleccionados no pueden configurarse porque su forma no es convexa." name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
-	<notification name="PathfindingLinksets_SetLinksetUseMismatchOnRestrictedAndVolume">
-		Algunos de los linksets seleccionados no pueden configurarse como &apos;[REQUESTED_TYPE]&apos; debido a restricciones de los permisos del linkset. Estos linksets se configurarán como &apos;[RESTRICTED_TYPE]&apos;.
- Algunos de los linksets seleccionados no pueden configurarse como &apos;[REQUESTED_TYPE]&apos; porque su forma no es convexa. Los tipos de utilización de estos linksets no cambiarán.
+	<notification name="PathfindingLinksets_WarnOnPhantom_MismatchOnRestricted">
+		El indicador de inmaterial de algunos linksets seleccionados se conmutará.
+
+Algunos de los linksets seleccionados no pueden configurarse como &apos;[REQUESTED_TYPE]&apos; debido a restricciones de los permisos del linkset.  Estos linksets se configurarán como &apos;[RESTRICTED_TYPE]&apos;.
+
+¿Quieres continuar?
+		<usetemplate ignoretext="El indicador de inmaterial de algunos linksets seleccionados se conmutará y otros no se podrán establecer debido a restricciones de los permisos del linkset." name="okcancelignore" notext="Cancelar" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_WarnOnPhantom_MismatchOnVolume">
+		El indicador de inmaterial de algunos linksets seleccionados se conmutará.
+
+Algunos de los linksets seleccionados no pueden configurarse como &apos;[REQUESTED_TYPE]&apos; porque su forma no es convexa.
+
+¿Quieres continuar?
+		<usetemplate ignoretext="El indicador de inmaterial de algunos linksets seleccionados se conmutará y otros no se podrán establecer porque la forma no es convexa" name="okcancelignore" notext="Cancelar" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_MismatchOnRestricted_MismatchOnVolume">
+		Algunos de los linksets seleccionados no pueden configurarse como &apos;[REQUESTED_TYPE]&apos; debido a restricciones de los permisos del linkset.  Estos linksets se configurarán como &apos;[RESTRICTED_TYPE]&apos;.
+
+Algunos de los linksets seleccionados no pueden configurarse como &apos;[REQUESTED_TYPE]&apos; porque su forma no es convexa. Los tipos de utilización de estos linksets no cambiarán.
+
+¿Quieres continuar?
 		<usetemplate ignoretext="Algunos de los linksets seleccionados no pueden configurarse debido a restricciones de los permisos del linkset y porque su forma no es convexa." name="okcancelignore" notext="Cancelar" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_WarnOnPhantom_MismatchOnRestricted_MismatchOnVolume">
+		El indicador de inmaterial de algunos linksets seleccionados se conmutará.
+
+Algunos de los linksets seleccionados no pueden configurarse como &apos;[REQUESTED_TYPE]&apos; debido a restricciones de los permisos del linkset.  Estos linksets se configurarán como &apos;[RESTRICTED_TYPE]&apos;.
+
+Algunos de los linksets seleccionados no pueden configurarse como &apos;[REQUESTED_TYPE]&apos; porque su forma no es convexa. Los tipos de utilización de estos linksets no cambiarán.
+
+¿Quieres continuar?
+		<usetemplate ignoretext="El indicador de inmaterial de algunos linksets seleccionados se conmutará y otros no se podrán establecer debido a restricciones de los permisos del linkset y porque su forma no es convexa." name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="PathfindingLinksets_ChangeToFlexiblePath">
 		El objeto que has seleccionado afecta al navmesh. Al cambiarlo a una Ruta flexible se eliminará del navmesh.

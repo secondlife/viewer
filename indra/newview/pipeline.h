@@ -677,6 +677,8 @@ protected:
 	LLSpatialGroup::sg_vector_t		mGroupQ1; //priority
 	LLSpatialGroup::sg_vector_t		mGroupQ2; // non-priority
 
+	LLSpatialGroup::sg_vector_t		mGroupSaveQ1; // a place to save mGroupQ1 until it is safe to unref
+
 	LLSpatialGroup::sg_vector_t		mMeshDirtyGroup; //groups that need rebuildMesh called
 	U32 mMeshDirtyQueryObject;
 

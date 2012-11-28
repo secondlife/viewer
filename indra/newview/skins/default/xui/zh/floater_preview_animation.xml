@@ -6,6 +6,6 @@
 	<text name="desc txt">
 		描述：
 	</text>
-	<button label="在虛擬世界播放" label_selected="停止" name="Anim play btn" tool_tip="播放此動作讓他人看見"/>
-	<button label="在本地播放" label_selected="停止" name="Anim audition btn" tool_tip="播放此動作，只給自己看"/>
+	<button label="在虛擬世界播放" label_selected="停止" name="Inworld" tool_tip="播放此動作讓他人看見"/>
+	<button label="在本地播放" label_selected="停止" name="Locally" tool_tip="播放此動作，只給自己看"/>
 </floater>

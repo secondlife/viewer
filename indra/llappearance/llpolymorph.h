@@ -48,6 +48,16 @@ public:
 	~LLPolyMorphData();
 	LLPolyMorphData(const LLPolyMorphData &rhs);
 
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free_16(ptr);
+	}
+
 	BOOL			loadBinary(LLFILE* fp, LLPolyMeshSharedData *mesh);
 	const std::string& getName() { return mName; }
 
@@ -67,6 +77,9 @@ public:
 	F32					mMaxDistortion;		// maximum single vertex distortion in a given morph
 	LLVector4a			mAvgDistortion;		// average vertex distortion, to infer directionality of the morph
 	LLPolyMeshSharedData*	mMesh;
+
+private:
+	void freeData();
 };
 
 //-----------------------------------------------------------------------------

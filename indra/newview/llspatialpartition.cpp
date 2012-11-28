@@ -1859,6 +1859,8 @@ BOOL LLSpatialPartition::remove(LLDrawable *drawablep, LLSpatialGroup *curp)
 		drawablep->setSpatialGroup(NULL);
 	}
 
+	drawablep->setSpatialGroup(NULL);
+
 	assert_octree_valid(mOctree);
 	
 	return TRUE;
@@ -4191,7 +4193,7 @@ public:
 						{
 							if (index < 255)
 							{
-								if (facep->mDrawInfo->mTextureList.size()<= index)
+								if (facep->mDrawInfo->mTextureList.size() <= index)
 								{
 									llerrs << "Face texture index out of bounds." << llendl;
 								}
@@ -4708,55 +4710,63 @@ LLCullResult::LLCullResult()
 	mVisibleListAllocated = 0;
 	mVisibleBridgeAllocated = 0;
 
-	mVisibleGroups = NULL;
-	mVisibleGroupsEnd = NULL;
-	mAlphaGroups = NULL;
-	mAlphaGroupsEnd = NULL;
-	mOcclusionGroups = NULL;
-	mOcclusionGroupsEnd = NULL;
-	mDrawableGroups = NULL;
-	mDrawableGroupsEnd = NULL;
-	mVisibleList = NULL;
-	mVisibleListEnd = NULL;
-	mVisibleBridge = NULL;
-	mVisibleBridgeEnd = NULL;
+	mVisibleGroups.clear();
+	mVisibleGroups.push_back(NULL);
+	mVisibleGroupsEnd = &mVisibleGroups[0];
+	mAlphaGroups.clear();
+	mAlphaGroups.push_back(NULL);
+	mAlphaGroupsEnd = &mAlphaGroups[0];
+	mOcclusionGroups.clear();
+	mOcclusionGroups.push_back(NULL);
+	mOcclusionGroupsEnd = &mOcclusionGroups[0];
+	mDrawableGroups.clear();
+	mDrawableGroups.push_back(NULL);
+	mDrawableGroupsEnd = &mDrawableGroups[0];
+	mVisibleList.clear();
+	mVisibleList.push_back(NULL);
+	mVisibleListEnd = &mVisibleList[0];
+	mVisibleBridge.clear();
+	mVisibleBridge.push_back(NULL);
+	mVisibleBridgeEnd = &mVisibleBridge[0];
 
 	for (U32 i = 0; i < LLRenderPass::NUM_RENDER_TYPES; i++)
 	{
-		mRenderMap[i] = NULL;
-		mRenderMapEnd[i] = NULL;
+		mRenderMap[i].clear();
+		mRenderMap[i].push_back(NULL);
+		mRenderMapEnd[i] = &mRenderMap[i][0];
 		mRenderMapAllocated[i] = 0;
 	}
 
 	clear();
 }
 
-void LLCullResult::pushBack(void**& head, U32& count, void* val)
+template <class T, class V> 
+void LLCullResult::pushBack(T& head, U32& count, V* val)
 {
+	head[count] = val;
+	head.push_back(NULL);
 	count++;
-	head = (void**) realloc((void*) head, sizeof(void*) * count);
-	head[count-1] = val;
 }
 
 void LLCullResult::clear()
 {
 	mVisibleGroupsSize = 0;
-	mVisibleGroupsEnd = mVisibleGroups;
+	mVisibleGroupsEnd = &mVisibleGroups[0];
 
 	mAlphaGroupsSize = 0;
-	mAlphaGroupsEnd = mAlphaGroups;
+	mAlphaGroupsEnd = &mAlphaGroups[0];
 
 	mOcclusionGroupsSize = 0;
-	mOcclusionGroupsEnd = mOcclusionGroups;
+	mOcclusionGroupsEnd = &mOcclusionGroups[0];
 
 	mDrawableGroupsSize = 0;
-	mDrawableGroupsEnd = mDrawableGroups;
+	mDrawableGroupsEnd = &mDrawableGroups[0];
 
 	mVisibleListSize = 0;
-	mVisibleListEnd = mVisibleList;
+	mVisibleListEnd = &mVisibleList[0];
 
 	mVisibleBridgeSize = 0;
-	mVisibleBridgeEnd = mVisibleBridge;
+	mVisibleBridgeEnd = &mVisibleBridge[0];
 
 
 	for (U32 i = 0; i < LLRenderPass::NUM_RENDER_TYPES; i++)
@@ -4766,13 +4776,13 @@ void LLCullResult::clear()
 			mRenderMap[i][j] = 0;
 		}
 		mRenderMapSize[i] = 0;
-		mRenderMapEnd[i] = mRenderMap[i];
+		mRenderMapEnd[i] = &(mRenderMap[i][0]);
 	}
 }
 
 LLCullResult::sg_iterator LLCullResult::beginVisibleGroups()
 {
-	return mVisibleGroups;
+	return &mVisibleGroups[0];
 }
 
 LLCullResult::sg_iterator LLCullResult::endVisibleGroups()
@@ -4782,7 +4792,7 @@ LLCullResult::sg_iterator LLCullResult::endVisibleGroups()
 
 LLCullResult::sg_iterator LLCullResult::beginAlphaGroups()
 {
-	return mAlphaGroups;
+	return &mAlphaGroups[0];
 }
 
 LLCullResult::sg_iterator LLCullResult::endAlphaGroups()
@@ -4792,7 +4802,7 @@ LLCullResult::sg_iterator LLCullResult::endAlphaGroups()
 
 LLCullResult::sg_iterator LLCullResult::beginOcclusionGroups()
 {
-	return mOcclusionGroups;
+	return &mOcclusionGroups[0];
 }
 
 LLCullResult::sg_iterator LLCullResult::endOcclusionGroups()
@@ -4802,7 +4812,7 @@ LLCullResult::sg_iterator LLCullResult::endOcclusionGroups()
 
 LLCullResult::sg_iterator LLCullResult::beginDrawableGroups()
 {
-	return mDrawableGroups;
+	return &mDrawableGroups[0];
 }
 
 LLCullResult::sg_iterator LLCullResult::endDrawableGroups()
@@ -4812,7 +4822,7 @@ LLCullResult::sg_iterator LLCullResult::endDrawableGroups()
 
 LLCullResult::drawable_iterator LLCullResult::beginVisibleList()
 {
-	return mVisibleList;
+	return &mVisibleList[0];
 }
 
 LLCullResult::drawable_iterator LLCullResult::endVisibleList()
@@ -4822,7 +4832,7 @@ LLCullResult::drawable_iterator LLCullResult::endVisibleList()
 
 LLCullResult::bridge_iterator LLCullResult::beginVisibleBridge()
 {
-	return mVisibleBridge;
+	return &mVisibleBridge[0];
 }
 
 LLCullResult::bridge_iterator LLCullResult::endVisibleBridge()
@@ -4832,7 +4842,7 @@ LLCullResult::bridge_iterator LLCullResult::endVisibleBridge()
 
 LLCullResult::drawinfo_iterator LLCullResult::beginRenderMap(U32 type)
 {
-	return mRenderMap[type];
+	return &mRenderMap[type][0];
 }
 
 LLCullResult::drawinfo_iterator LLCullResult::endRenderMap(U32 type)
@@ -4848,10 +4858,10 @@ void LLCullResult::pushVisibleGroup(LLSpatialGroup* group)
 	}
 	else
 	{
-		pushBack((void**&) mVisibleGroups, mVisibleGroupsAllocated, (void*) group);
+		pushBack(mVisibleGroups, mVisibleGroupsAllocated, group);
 	}
 	++mVisibleGroupsSize;
-	mVisibleGroupsEnd = mVisibleGroups+mVisibleGroupsSize;
+	mVisibleGroupsEnd = &mVisibleGroups[mVisibleGroupsSize];
 }
 
 void LLCullResult::pushAlphaGroup(LLSpatialGroup* group)
@@ -4862,10 +4872,10 @@ void LLCullResult::pushAlphaGroup(LLSpatialGroup* group)
 	}
 	else
 	{
-		pushBack((void**&) mAlphaGroups, mAlphaGroupsAllocated, (void*) group);
+		pushBack(mAlphaGroups, mAlphaGroupsAllocated, group);
 	}
 	++mAlphaGroupsSize;
-	mAlphaGroupsEnd = mAlphaGroups+mAlphaGroupsSize;
+	mAlphaGroupsEnd = &mAlphaGroups[mAlphaGroupsSize];
 }
 
 void LLCullResult::pushOcclusionGroup(LLSpatialGroup* group)
@@ -4876,10 +4886,10 @@ void LLCullResult::pushOcclusionGroup(LLSpatialGroup* group)
 	}
 	else
 	{
-		pushBack((void**&) mOcclusionGroups, mOcclusionGroupsAllocated, (void*) group);
+		pushBack(mOcclusionGroups, mOcclusionGroupsAllocated, group);
 	}
 	++mOcclusionGroupsSize;
-	mOcclusionGroupsEnd = mOcclusionGroups+mOcclusionGroupsSize;
+	mOcclusionGroupsEnd = &mOcclusionGroups[mOcclusionGroupsSize];
 }
 
 void LLCullResult::pushDrawableGroup(LLSpatialGroup* group)
@@ -4890,10 +4900,10 @@ void LLCullResult::pushDrawableGroup(LLSpatialGroup* group)
 	}
 	else
 	{
-		pushBack((void**&) mDrawableGroups, mDrawableGroupsAllocated, (void*) group);
+		pushBack(mDrawableGroups, mDrawableGroupsAllocated, group);
 	}
 	++mDrawableGroupsSize;
-	mDrawableGroupsEnd = mDrawableGroups+mDrawableGroupsSize;
+	mDrawableGroupsEnd = &mDrawableGroups[mDrawableGroupsSize];
 }
 
 void LLCullResult::pushDrawable(LLDrawable* drawable)
@@ -4904,10 +4914,10 @@ void LLCullResult::pushDrawable(LLDrawable* drawable)
 	}
 	else
 	{
-		pushBack((void**&) mVisibleList, mVisibleListAllocated, (void*) drawable);
+		pushBack(mVisibleList, mVisibleListAllocated, drawable);
 	}
 	++mVisibleListSize;
-	mVisibleListEnd = mVisibleList+mVisibleListSize;
+	mVisibleListEnd = &mVisibleList[mVisibleListSize];
 }
 
 void LLCullResult::pushBridge(LLSpatialBridge* bridge)
@@ -4918,10 +4928,10 @@ void LLCullResult::pushBridge(LLSpatialBridge* bridge)
 	}
 	else
 	{
-		pushBack((void**&) mVisibleBridge, mVisibleBridgeAllocated, (void*) bridge);
+		pushBack(mVisibleBridge, mVisibleBridgeAllocated, bridge);
 	}
 	++mVisibleBridgeSize;
-	mVisibleBridgeEnd = mVisibleBridge+mVisibleBridgeSize;
+	mVisibleBridgeEnd = &mVisibleBridge[mVisibleBridgeSize];
 }
 
 void LLCullResult::pushDrawInfo(U32 type, LLDrawInfo* draw_info)
@@ -4932,10 +4942,10 @@ void LLCullResult::pushDrawInfo(U32 type, LLDrawInfo* draw_info)
 	}
 	else
 	{
-		pushBack((void**&) mRenderMap[type], mRenderMapAllocated[type], (void*) draw_info);
+		pushBack(mRenderMap[type], mRenderMapAllocated[type], draw_info);
 	}
 	++mRenderMapSize[type];
-	mRenderMapEnd[type] = mRenderMap[type] + mRenderMapSize[type];
+	mRenderMapEnd[type] = &(mRenderMap[type][mRenderMapSize[type]]);
 }
 
 

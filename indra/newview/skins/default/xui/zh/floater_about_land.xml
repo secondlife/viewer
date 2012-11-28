@@ -129,15 +129,15 @@
 				流量：
 			</text>
 			<text name="DwellText">
-				0
+				載入中...
 			</text>
 			<button label="購買土地" name="Buy Land..."/>
+			<button label="Linden 出售" name="Linden Sale..." tool_tip="土地必須有人擁有、已設有內容，並且不在拍賣中。"/>
 			<button label="腳本資訊" name="Scripts..."/>
 			<button label="為群組購買" name="Buy For Group..."/>
 			<button label="購買通行權" name="Buy Pass..." tool_tip="通行權允許你暫時可出入這塊土地。"/>
 			<button label="放棄土地" name="Abandon Land..."/>
 			<button label="收回土地" name="Reclaim Land..."/>
-			<button label="Linden 出售" name="Linden Sale..." tool_tip="土地必須有人擁有、已設有內容，並且不在拍賣中。"/>
 		</panel>
 		<panel label="契約" name="land_covenant_panel">
 			<panel.string name="can_resell">
@@ -212,19 +212,19 @@
 				地區物件負荷倍數：[BONUS]
 			</text>
 			<text name="Simulator primitive usage:">
-				幾何元件使用：
+				地區容納量：
 			</text>
 			<text name="objects_available">
 				使用　[MAX]　中的 [COUNT] （剩餘 [AVAILABLE] 可用）
 			</text>
 			<text name="Primitives parcel supports:">
-				地段所提供的幾何元件數：
+				地段土地容納量：
 			</text>
 			<text name="object_contrib_text">
 				[COUNT]
 			</text>
 			<text name="Primitives on parcel:">
-				地段上的幾何元件數：
+				地段土地衝擊量：
 			</text>
 			<text name="total_objects_text">
 				[COUNT]
@@ -309,8 +309,10 @@
 			<text name="allow_label">
 				允許其他居民去：
 			</text>
-			<check_box label="編輯地形" name="edit land check" tool_tip="如果勾選，任何人皆可使你的土地變形。 最好不勾選，因為你隨時可以自行編輯你自己的土地。"/>
-			<check_box label="飛行" name="check fly" tool_tip="如果勾選，居民可在你土地上飛行。 如果不勾選，居民僅可飛越你土地。"/>
+			<text name="allow_label0">
+				飛行：
+			</text>
+			<check_box label="任何人" name="check fly" tool_tip="如果勾選，居民可在你土地上飛行。 如果不勾選，居民僅可飛越你土地。"/>
 			<text name="allow_label2">
 				建造：
 			</text>
@@ -326,9 +328,6 @@
 			</text>
 			<check_box label="任何人" name="check other scripts"/>
 			<check_box label="群組" name="check group scripts"/>
-			<text name="land_options_label">
-				土地選項：
-			</text>
 			<check_box label="安全（無傷害）" name="check safe" tool_tip="若勾選，將把土地設為安全，禁絕傷害性的戰鬥。 若未勾選，則允許傷害性的戰鬥。"/>
 			<check_box label="禁止推撞" name="PushRestrictCheck" tool_tip="禁止使用腳本推撞。 勾選這選項可有效防止你土地上出現滋事行為。"/>
 			<check_box label="將地點刊登顯示在搜尋中（L$30 / 每週）" name="ShowDirectoryCheck" tool_tip="讓其他人可以在搜尋結果中看到這塊地段"/>
@@ -368,6 +367,10 @@
 				快照：
 			</text>
 			<texture_picker name="snapshot_ctrl" tool_tip="點按以挑選圖片"/>
+			<text name="allow_label5">
+				其他地段的化身可以看見本地段裡的化身，並與之交談
+			</text>
+			<check_box label="察看化身" name="SeeAvatarsCheck" tool_tip="允許其他地段的化身看到本地段包括你在內的化身，並可互相交談。"/>
 			<text name="landing_point">
 				登陸點：[LANDING]
 			</text>
@@ -424,6 +427,11 @@
 				聲音：
 			</text>
 			<check_box label="將姿勢和物件的聲音限制於此地段" name="check sound local"/>
+			<text name="Avatar Sounds:">
+				化身聲音：
+			</text>
+			<check_box label="任何人" name="all av sound check"/>
+			<check_box label="群組" name="group av sound check"/>
 			<text name="Voice settings:">
 				語音：
 			</text>
@@ -435,20 +443,15 @@
 			<panel.string name="access_estate_defined">
 				（由領地定義）
 			</panel.string>
-			<panel.string name="allow_public_access">
-				允許公開出入（[MATURITY]）（注意：若未勾選，將設立禁越線）
-			</panel.string>
 			<panel.string name="estate_override">
 				至少一個選項在領地的層級設定
 			</panel.string>
-			<text name="Limit access to this parcel to:">
-				此地段出入權
-			</text>
+			<check_box label="允許公開出入（若未勾選，將設立禁越線）" name="public_access"/>
 			<text name="Only Allow">
-				僅允許經過如下驗證的居民出入：
+				僅允許符合以下條件的居民進入：
 			</text>
-			<check_box label="預留付款資料 [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="禁絕身份不明居民。"/>
-			<check_box label="年齡驗證 [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="禁止尚未驗證年齡的居民。 參閱 [SUPPORT_SITE] 獲取進一步資訊。"/>
+			<check_box label="已預留付款資料 [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="居民必須提供付款資料才能進入這地段。  參閱 [SUPPORT_SITE] 獲取進一步資訊。"/>
+			<check_box label="年滿 18 歲 [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="居民必須年滿 18 歲才能進入這地段。 參閱 [SUPPORT_SITE] 獲取進一步資訊。"/>
 			<check_box label="允許出入的群組：[GROUP]" name="GroupCheck" tool_tip="設定群組於一般頁籤。"/>
 			<check_box label="出售通行權給：" name="PassCheck" tool_tip="允許暫時出入這個地段"/>
 			<combo_box name="pass_combo">

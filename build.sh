@@ -78,7 +78,7 @@ pre_build()
 
     check_for "After 'autobuild configure'" ${build_dir}/packages/dictionaries
 
-  end_section "Pre$variant"
+ end_section "Pre$variant"
 }
 
 package_llphysicsextensions_tpv()

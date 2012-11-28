@@ -25,7 +25,7 @@
 				<combo_box.item label="JPEG" name="JPEG"/>
 				<combo_box.item label="BMP (sans perte)" name="BMP"/>
 			</combo_box>
-			<slider label="Qualité d&apos;image" name="image_quality_slider"/>
+			<slider label="Qualité image" name="image_quality_slider"/>
 			<text name="image_quality_level">
 				([QLVL])
 			</text>

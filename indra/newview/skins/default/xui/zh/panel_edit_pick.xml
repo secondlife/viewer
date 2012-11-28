@@ -29,7 +29,7 @@
 			<layout_panel name="layout_panel1">
 				<button label="儲存精選地點" name="save_changes_btn"/>
 			</layout_panel>
-			<layout_panel name="layout_panel1">
+			<layout_panel name="layout_panel2">
 				<button label="取消" name="cancel_btn"/>
 			</layout_panel>
 		</layout_stack>

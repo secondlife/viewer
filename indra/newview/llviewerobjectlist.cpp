@@ -1449,8 +1449,11 @@ void LLViewerObjectList::updateActive(LLViewerObject *objectp)
 		}
 	}
 
-	llassert(objectp->isActive() || objectp->getListIndex() == -1);
+	//post condition: if object is active, it must be on the active list
+	llassert(!active || std::find(mActiveObjects.begin(), mActiveObjects.end(), objectp) != mActiveObjects.end());
 
+	//post condition: if object is not active, it must not be on the active list
+	llassert(active || std::find(mActiveObjects.begin(), mActiveObjects.end(), objectp) == mActiveObjects.end());
 }
 
 void LLViewerObjectList::updateObjectCost(LLViewerObject* object)

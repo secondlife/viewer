@@ -71,6 +71,13 @@ LL_COMMON_API void assert_main_thread()
 	}
 }
 
+void LLThread::registerThreadID()
+{
+#if !LL_DARWIN
+	sThreadID = ++sIDIter;
+#endif
+}
+
 //
 // Handed to the APR thread creation function
 //
@@ -114,7 +121,7 @@ LLThread::LLThread(const std::string& name, apr_pool_t *poolp) :
 		apr_pool_create(&mAPRPoolp, NULL); // Create a subpool for this thread
 	}
 	mRunCondition = new LLCondition(mAPRPoolp);
-
+	mDataLock = new LLMutex(mAPRPoolp);
 	mLocalAPRFilePoolp = NULL ;
 }
 
@@ -173,7 +180,10 @@ void LLThread::shutdown()
 	}
 
 	delete mRunCondition;
-	mRunCondition = 0;
+	mRunCondition = NULL;
+
+	delete mDataLock;
+	mDataLock = NULL;
 	
 	if (mIsLocalPool && mAPRPoolp)
 	{
@@ -242,28 +252,30 @@ bool LLThread::runCondition(void)
 // Stop thread execution if requested until unpaused.
 void LLThread::checkPause()
 {
-	mRunCondition->lock();
+	mDataLock->lock();
 
 	// This is in a while loop because the pthread API allows for spurious wakeups.
 	while(shouldSleep())
 	{
+		mDataLock->unlock();
 		mRunCondition->wait(); // unlocks mRunCondition
+		mDataLock->lock();
 		// mRunCondition is locked when the thread wakes up
 	}
 	
- 	mRunCondition->unlock();
+ 	mDataLock->unlock();
 }
 
 //============================================================================
 
 void LLThread::setQuitting()
 {
-	mRunCondition->lock();
+	mDataLock->lock();
 	if (mStatus == RUNNING)
 	{
 		mStatus = QUITTING;
 	}
-	mRunCondition->unlock();
+	mDataLock->unlock();
 	wake();
 }
 
@@ -285,12 +297,12 @@ void LLThread::yield()
 
 void LLThread::wake()
 {
-	mRunCondition->lock();
+	mDataLock->lock();
 	if(!shouldSleep())
 	{
 		mRunCondition->signal();
 	}
-	mRunCondition->unlock();
+	mDataLock->unlock();
 }
 
 void LLThread::wakeLocked()
@@ -481,6 +493,19 @@ LLThreadSafeRefCount::LLThreadSafeRefCount() :
 {
 }
 
+LLThreadSafeRefCount::LLThreadSafeRefCount(const LLThreadSafeRefCount& src)
+{
+	if (sMutex)
+	{
+		sMutex->lock();
+	}
+	mRef = 0;
+	if (sMutex)
+	{
+		sMutex->unlock();
+	}
+}
+
 LLThreadSafeRefCount::~LLThreadSafeRefCount()
 { 
 	if (mRef != 0)
@@ -488,6 +513,7 @@ LLThreadSafeRefCount::~LLThreadSafeRefCount()
 		llerrs << "deleting non-zero reference" << llendl;
 	}
 }
+
 
 //============================================================================
 

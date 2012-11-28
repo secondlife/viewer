@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Map" title="">
+<floater name="Map" title="迷你地圖">
 	<floater.string name="ToolTipMsg">
 		[REGION]（雙擊以開啟地圖，按下 shift 鍵拖曳來平移）
 	</floater.string>
