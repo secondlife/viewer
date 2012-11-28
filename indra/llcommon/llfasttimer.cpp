@@ -269,8 +269,8 @@ void BlockTimer::buildHierarchy()
 			if (timer.mParent == &BlockTimer::getRootTimer())
 			{
 				if (timer.getPrimaryAccumulator().mLastCaller)
-				{
-					timer.setParent(timer.getPrimaryAccumulator().mLastCaller);
+			{
+				timer.setParent(timer.getPrimaryAccumulator().mLastCaller);
 				}
 				// no need to push up tree on first use, flag can be set spuriously
 				timer.getPrimaryAccumulator().mMoveUpTree = false;
@@ -392,7 +392,7 @@ void BlockTimer::resetFrame()
 		}
 		call_count++;
 
-		F64 iclock_freq = 1000.0 / countsPerSecond(); // good place to calculate clock frequency
+		F64 iclock_freq = 1000.0 / get_clock_count(); // good place to calculate clock frequency
 
 		F64 total_time = 0;
 		LLSD sd;
@@ -514,7 +514,7 @@ std::vector<BlockTimer*>& BlockTimer::getChildren()
 //static
 void BlockTimer::nextFrame()
 {
-	BlockTimer::countsPerSecond(); // good place to calculate clock frequency
+	get_clock_count(); // good place to calculate clock frequency
 	U64 frame_time = BlockTimer::getCPUClockCount64();
 	if ((frame_time - sLastFrameTime) >> 8 > 0xffffffff)
 	{
@@ -538,7 +538,7 @@ void Time::dumpCurTimes()
 	// accumulate timings, etc.
 	BlockTimer::processTimes();
 	
-	F64 clock_freq = (F64)BlockTimer::countsPerSecond();
+	F64 clock_freq = (F64)get_clock_count();
 	F64 iclock_freq = 1000.0 / clock_freq; // clock_ticks -> milliseconds
 
 	// walk over timers in depth order and output timings
