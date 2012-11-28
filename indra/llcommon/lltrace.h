@@ -107,6 +107,7 @@ namespace LLTrace
 				//TODO pick another primary?
 				sPrimaryStorage = NULL;
 			}
+			delete[] mStorage;
 		}
 
 		LL_FORCE_INLINE ACCUMULATOR& operator[](size_t index) 

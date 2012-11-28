@@ -177,8 +177,8 @@ BlockTimer::BlockTimer(const char* name, bool open, BlockTimer* parent)
 		mParent = this;
 	}
 
-	mCountHistory = new U32[HISTORY_NUM];
-	memset(mCountHistory, 0, sizeof(U32) * HISTORY_NUM);
+	mCountHistory = new U64[HISTORY_NUM];
+	memset(mCountHistory, 0, sizeof(U64) * HISTORY_NUM);
 	mCallHistory = new U32[HISTORY_NUM];
 	memset(mCallHistory, 0, sizeof(U32) * HISTORY_NUM);
 }
@@ -266,9 +266,12 @@ void BlockTimer::buildHierarchy()
 			
 			// bootstrap tree construction by attaching to last timer to be on stack
 			// when this timer was called
-			if (timer.getPrimaryAccumulator().mLastCaller && timer.mParent == &BlockTimer::getRootTimer())
+			if (timer.mParent == &BlockTimer::getRootTimer())
 			{
-				timer.setParent(timer.getPrimaryAccumulator().mLastCaller);
+				if (timer.getPrimaryAccumulator().mLastCaller)
+				{
+					timer.setParent(timer.getPrimaryAccumulator().mLastCaller);
+				}
 				// no need to push up tree on first use, flag can be set spuriously
 				timer.getPrimaryAccumulator().mMoveUpTree = false;
 			}
@@ -317,7 +320,7 @@ void BlockTimer::buildHierarchy()
 //static
 void BlockTimer::accumulateTimings()
 {
-	U32 cur_time = getCPUClockCount32();
+	U64 cur_time = getCPUClockCount64();
 
 	// walk up stack of active timers and accumulate current time while leaving timing structures active
 	Time* cur_timer = sCurTimerData->mCurTimer;
@@ -326,8 +329,8 @@ void BlockTimer::accumulateTimings()
 	TimerAccumulator& accumulator = sCurTimerData->mTimerData->getPrimaryAccumulator();
 	while(cur_timer && cur_timer->mLastTimerData.mCurTimer != cur_timer)
 	{
-		U32 cumulative_time_delta = cur_time - cur_timer->mStartTime;
-		U32 self_time_delta = cumulative_time_delta - cur_data->mChildTime;
+		U64 cumulative_time_delta = cur_time - cur_timer->mStartTime;
+		U64 self_time_delta = cumulative_time_delta - cur_data->mChildTime;
 		cur_data->mChildTime = 0;
 		accumulator.mSelfTimeCounter += self_time_delta;
 		accumulator.mTotalTimeCounter += cumulative_time_delta;
@@ -429,6 +432,7 @@ void BlockTimer::resetFrame()
 		BlockTimer& timer = *it;
 		TimerAccumulator& accumulator = timer.getPrimaryAccumulator();
 		accumulator.mSelfTimeCounter = 0;
+		accumulator.mTotalTimeCounter = 0;
 		accumulator.mCalls = 0;
 		accumulator.mLastCaller = NULL;
 		accumulator.mMoveUpTree = false;
@@ -442,7 +446,7 @@ void BlockTimer::reset()
 
 	// walk up stack of active timers and reset start times to current time
 	// effectively zeroing out any accumulated time
-	U32 cur_time = getCPUClockCount32();
+	U64 cur_time = getCPUClockCount64();
 
 	// root defined by parent pointing to self
 	CurTimerData* cur_data = sCurTimerData.get();
@@ -471,7 +475,7 @@ void BlockTimer::reset()
 			
 			timer.mCountAverage = 0;
 			timer.mCallAverage = 0;
-			memset(timer.mCountHistory, 0, sizeof(U32) * HISTORY_NUM);
+			memset(timer.mCountHistory, 0, sizeof(U64) * HISTORY_NUM);
 			memset(timer.mCallHistory, 0, sizeof(U32) * HISTORY_NUM);
 		}
 	}
@@ -480,7 +484,7 @@ void BlockTimer::reset()
 	sCurFrameIndex = 0;
 }
 
-U32 BlockTimer::getHistoricalCount(S32 history_index) const
+U64 BlockTimer::getHistoricalCount(S32 history_index) const
 {
 	S32 history_idx = (getLastFrameIndex() + history_index) % HISTORY_NUM;
 	return mCountHistory[history_idx];

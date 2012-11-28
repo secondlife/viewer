@@ -239,7 +239,7 @@ LLViewerAssetStats::LLViewerAssetStats()
 :	mRegionHandle(U64(0)),
 	mCurRecording(NULL)
 {
-	reset();
+	start();
 }
 
 
@@ -252,6 +252,29 @@ LLViewerAssetStats::LLViewerAssetStats(const LLViewerAssetStats & src)
 	mRegionRecordings = src.mRegionRecordings;
 	
 	mCurRecording = &mRegionRecordings[mRegionHandle];
+	mCurRecording->stop();
+	LLStopWatchControlsMixin::initTo(src.getPlayState());
+}
+
+void LLViewerAssetStats::handleStart()
+{
+	if (mCurRecording)
+	{
+		mCurRecording->start();
+	}
+}
+
+void LLViewerAssetStats::handleStop()
+{
+	if (mCurRecording)
+	{
+		mCurRecording->stop();
+	}
+}
+
+void LLViewerAssetStats::handleReset()
+{
+	reset();
 }
 
 

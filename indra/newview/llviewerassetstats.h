@@ -74,7 +74,7 @@
  * LLViewerAssetStatsFF is provided for conditional test-and-call
  * operations.
  */
-class LLViewerAssetStats
+class LLViewerAssetStats : public LLStopWatchControlsMixin<LLViewerAssetStats>
 {
 public:
 	/**
@@ -177,6 +177,7 @@ public:
 public:
 	LLViewerAssetStats();
 	LLViewerAssetStats(const LLViewerAssetStats &);
+
 	// Default destructor is correct.
 	LLViewerAssetStats & operator=(const LLViewerAssetStats &);			// Not defined
 
@@ -202,6 +203,10 @@ public:
 	LLSD asLLSD(bool compact_output);
 
 protected:
+	void handleStart();
+	void handleStop();
+	void handleReset();
+
 	typedef std::map<region_handle_t, LLTrace::Recording > PerRegionRecordingContainer;
 
 	// Region of the currently-active region.  Always valid but may

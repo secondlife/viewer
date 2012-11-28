@@ -93,7 +93,7 @@ public:
 	U32 getCountAverage() const { return mCountAverage; }
 	U32 getCallAverage() const	{ return mCallAverage; }
 
-	U32 getHistoricalCount(S32 history_index = 0) const;
+	U64 getHistoricalCount(S32 history_index = 0) const;
 	U32 getHistoricalCalls(S32 history_index = 0) const;
 
 	static BlockTimer& getRootTimer();
@@ -258,12 +258,12 @@ public:
 
 
 	// sum of recorded self time and tree time of all children timers (might not match actual recorded time of children if topology is incomplete
-	U32 						mTreeTimeCounter; 
+	U64 						mTreeTimeCounter; 
 
-	U32 						mCountAverage;
+	U64 						mCountAverage;
 	U32							mCallAverage;
 
-	U32*						mCountHistory;
+	U64*						mCountHistory;
 	U32*						mCallHistory;
 
 	// tree structure

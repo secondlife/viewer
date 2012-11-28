@@ -66,7 +66,10 @@ Recording::Recording( const Recording& other )
 
 
 Recording::~Recording()
-{}
+{
+	stop();
+	llassert(isStopped());
+}
 
 void Recording::update()
 {

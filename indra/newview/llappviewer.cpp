@@ -438,7 +438,7 @@ LLAppViewer::LLUpdaterInfo *LLAppViewer::sUpdaterInfo = NULL ;
 //----------------------------------------------------------------------------
 // Metrics logging control constants
 //----------------------------------------------------------------------------
-static const F32 METRICS_INTERVAL_DEFAULT = 600.0;
+static const F32 METRICS_INTERVAL_DEFAULT = 30.0;
 static const F32 METRICS_INTERVAL_QA = 30.0;
 static F32 app_metrics_interval = METRICS_INTERVAL_DEFAULT;
 static bool app_metrics_qa_mode = false;
@@ -5308,6 +5308,7 @@ void LLAppViewer::metricsSend(bool enable_reporting)
 			// Make a copy of the main stats to send into another thread.
 			// Receiving thread takes ownership.
 			LLViewerAssetStats * main_stats(new LLViewerAssetStats(*gViewerAssetStats));
+			main_stats->stop();
 
 			main_stats->updateStats();
 			

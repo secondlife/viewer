@@ -42,6 +42,7 @@
 						</array>
 					<key>tags</key>
 						<array>
+              <string>FastTimers</string>
 						<!-- sample entry for debugging specific items	
 						     <string>Avatar</string>
 						     <string>Voice</string>		

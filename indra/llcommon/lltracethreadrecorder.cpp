@@ -53,6 +53,10 @@ ThreadRecorder::ThreadRecorder( const ThreadRecorder& other )
 
 ThreadRecorder::~ThreadRecorder()
 {
+	while(mActiveRecordings.size())
+	{
+		mActiveRecordings.front().mTargetRecording->stop();
+	}
 	get_thread_recorder() = NULL;
 	delete BlockTimer::sCurTimerData.get();
 	BlockTimer::sCurTimerData = NULL;
