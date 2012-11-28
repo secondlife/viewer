@@ -171,8 +171,8 @@ void on_new_message(const LLSD& msg)
             return;
         }
 
-        // Skip toasting for system messages
-        if (participant_id.isNull())
+	    // Skip toasting for system messages and for nearby chat
+	    if (participant_id.isNull() || session_id.isNull())
         {
             return;
         }
