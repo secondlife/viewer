@@ -72,9 +72,9 @@ public:
 
 	/*virtual*/ void toggleOpen();
 
-	/*virtual*/	bool isMinimized() { return mMinimizedMode; }
+	/*virtual*/	bool isCollapsed() { return mCollapsedMode; }
 
-	void toggleMinimizedMode(bool is_minimized);
+	void toggleCollapsedMode(bool is_collapsed);
 
 	void setVisibleIfDetached(BOOL visible);
 	LLConversationViewParticipant* findParticipant(const LLUUID& participant_id);
@@ -95,7 +95,7 @@ private:
 	LLOutputMonitorCtrl*	mSpeakingIndicator;
 	LLFlashTimer*			mFlashTimer;
 
-	bool					mMinimizedMode;
+	bool					mCollapsedMode;
     bool                    mHasArrow;
 
 	LLVoiceClientStatusObserver* mVoiceClientObserver;

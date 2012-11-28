@@ -640,7 +640,7 @@ void LLFloaterIMContainer::collapseConversationsPane(bool collapse)
 		LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(widget_it->second);
 		if (widget)
 		{
-		    widget->toggleMinimizedMode(collapse);
+		    widget->toggleCollapsedMode(collapse);
 
 		    // force closing all open conversations when collapsing to minimized state
 		    if (collapse)
@@ -1320,7 +1320,7 @@ LLConversationItem* LLFloaterIMContainer::addConversationListItem(const LLUUID& 
 	}
 
 	// set the widget to minimized mode if conversations pane is collapsed
-	widget->toggleMinimizedMode(mConversationsPane->isCollapsed());
+	widget->toggleCollapsedMode(mConversationsPane->isCollapsed());
 
     if (isWidgetSelected)
     {

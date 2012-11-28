@@ -80,7 +80,7 @@ LLConversationViewSession::LLConversationViewSession(const LLConversationViewSes
 	mSessionTitle(NULL),
 	mSpeakingIndicator(NULL),
 	mVoiceClientObserver(NULL),
-	mMinimizedMode(false),
+	mCollapsedMode(false),
     mHasArrow(true)
 {
 	mFlashTimer = new LLFlashTimer();
@@ -185,7 +185,7 @@ void LLConversationViewSession::draw()
 	const BOOL show_context = (getRoot() ? getRoot()->getShowSelectionContext() : FALSE);
 
 	// we don't draw the open folder arrow in minimized mode
-	if (mHasArrow && !mMinimizedMode)
+	if (mHasArrow && !mCollapsedMode)
 	{
 		// update the rotation angle of open folder arrow
 		updateLabelRotation();
@@ -233,7 +233,7 @@ S32 LLConversationViewSession::arrange(S32* width, S32* height)
 
     S32 h_pad = mHasArrow ? getIndentation() + mArrowSize : getIndentation();
 	
-	LLRect rect(mMinimizedMode ? getLocalRect().mLeft : h_pad,
+	LLRect rect(mCollapsedMode ? getLocalRect().mLeft : h_pad,
 				getLocalRect().mTop,
 				getLocalRect().mRight,
 				getLocalRect().mTop - getItemHeight());
@@ -246,7 +246,7 @@ S32 LLConversationViewSession::arrange(S32* width, S32* height)
 void LLConversationViewSession::toggleOpen()
 {
 	// conversations should not be opened while in minimized mode
-	if (!mMinimizedMode)
+	if (!mCollapsedMode)
 	{
 		LLFolderViewFolder::toggleOpen();
 
@@ -259,17 +259,17 @@ void LLConversationViewSession::toggleOpen()
 	}
 }
 
-void LLConversationViewSession::toggleMinimizedMode(bool is_minimized)
+void LLConversationViewSession::toggleCollapsedMode(bool is_collapsed)
 {
-	mMinimizedMode = is_minimized;
+	mCollapsedMode = is_collapsed;
 
 	// hide the layout stack which contains all item's child widgets
 	// except for the icon which we display in minimized mode
-	getChild<LLView>("conversation_item_stack")->setVisible(!mMinimizedMode);
+	getChild<LLView>("conversation_item_stack")->setVisible(!mCollapsedMode);
 
     S32 h_pad = mHasArrow ? getIndentation() + mArrowSize : getIndentation();
 
-	mItemPanel->translate(mMinimizedMode ? -h_pad : h_pad, 0);
+	mItemPanel->translate(mCollapsedMode ? -h_pad : h_pad, 0);
 }
 
 void LLConversationViewSession::setVisibleIfDetached(BOOL visible)
