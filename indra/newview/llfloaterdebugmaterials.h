@@ -39,6 +39,7 @@ class LLButton;
 class LLColorSwatchCtrl;
 class LLColor4U;
 class LLLineEditor;
+class LLMaterial;
 class LLMaterialID;
 class LLScrollListCtrl;
 class LLSD;
@@ -125,24 +126,7 @@ private:
 	std::string   convertToPrintableMaterialID(const LLSD& pBinaryHash) const;
 	std::string   convertToPrintableMaterialID(const LLMaterialID& pMaterialID) const;
 
-	S32           getNormalMapOffsetX() const;
-	S32           getNormalMapOffsetY() const;
-	S32           getNormalMapRepeatX() const;
-	S32           getNormalMapRepeatY() const;
-	S32           getNormalMapRotation() const;
-
-	S32           getSpecularMapOffsetX() const;
-	S32           getSpecularMapOffsetY() const;
-	S32           getSpecularMapRepeatX() const;
-	S32           getSpecularMapRepeatY() const;
-	S32           getSpecularMapRotation() const;
-
-	LLColor4U     getSpecularColor() const;
-	S32           getSpecularExponent() const;
-	S32           getEnvironmentExponent() const;
-	S32           getAlphMaskCutoff() const;
-	S32           getDiffuseAlphaMode() const;
-	S32           getLineEditorValue(const LLLineEditor *pLineEditor) const;
+	LLMaterial    getMaterial() const;
 
 	LLTextBase*                 mStatusText;
 	LLButton*                   mGetButton;
