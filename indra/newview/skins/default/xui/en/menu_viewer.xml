@@ -956,7 +956,7 @@
          create_jump_keys="true"
          label="Pathfinding"
          name="Pathfinding"
-         tear_off="false">
+         tear_off="true">
         <menu_item_call
             label="Linksets..."
             name="pathfinding_linksets_menu_item">
@@ -983,6 +983,14 @@
               parameter="pathfinding_console" />
           <menu_item_call.on_enable
               function="Tools.EnablePathfindingView" />
+        </menu_item_call>
+        <menu_item_call
+            label="Rebake region"
+            name="pathfinding_rebake_navmesh_item">
+          <menu_item_call.on_click
+              function="Tools.DoPathfindingRebakeRegion"/>
+          <menu_item_call.on_enable
+              function="Tools.EnablePathfindingRebakeRegion" />
         </menu_item_call>
       </menu>
 
