@@ -112,7 +112,7 @@ private:
 	void          parseGetResponse();
 	void          parsePutResponse(const LLSD& pContent);
 	void          parseQueryViewableObjects();
-	void          parsePostResponse(const LLSD& pContent);
+	void          parsePostResponse(const LLSD& pMultiContent);
 
 	void          setState(EState pState);
 	inline EState getState() const;
