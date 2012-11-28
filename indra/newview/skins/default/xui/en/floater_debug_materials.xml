@@ -3,7 +3,7 @@
     positioning="cascading"
     can_tear_off="false"
     can_resize="true"
-    height="725"
+    height="746"
     width="1040"
     min_height="750"
     min_width="1040"
@@ -22,6 +22,8 @@
   <floater.string name="status_error">An error occurred during the request.</floater.string>
   <floater.string name="loading_status_in_progress">Processing [NUM_PROCESSED] out of [NUM_TOTAL]</floater.string>
   <floater.string name="loading_status_done">Complete</floater.string>
+  <floater.string name="querying_status_in_progress">Processing [NUM_PROCESSED] out of [NUM_TOTAL]</floater.string>
+  <floater.string name="querying_status_done">Complete</floater.string>
   <panel
       border="false"
       bevel_style="none"
@@ -65,7 +67,7 @@
       tab_position="top"
       left="10"
       top_pad="10"
-      height="620"
+      height="641"
       width="1020">
     <panel
         border="true"
@@ -73,7 +75,7 @@
         follows="left|top|right"
         layout="topleft"
         label="Current region"
-        height="620"
+        height="641"
         top_pad="10"
         width="1020">
       <panel
@@ -245,7 +247,7 @@
         follows="left|top|right"
         layout="topleft"
         label="Object editing"
-        height="620"
+        height="641"
         top_pad="10"
         width="1010">
       <panel
@@ -856,7 +858,7 @@
         follows="left|top|right"
         layout="topleft"
         label="Viewable objects"
-        height="620"
+        height="641"
         top_pad="10"
         width="1020">
       <panel
@@ -864,7 +866,7 @@
           bevel_style="none"
           follows="left|top|right"
           layout="topleft"
-          height="620"
+          height="641"
           top_pad="0"
           width="1020">
         <panel
@@ -874,7 +876,7 @@
             layout="topleft"
             left="0"
             top_pad="10"
-            height="132"
+            height="153"
             width="835">
           <button
               follows="left|top"
@@ -884,6 +886,34 @@
               name="query_viewable_objects_button"
               top_pad="0"
               width="214"/>
+          <text
+              height="13"
+              word_wrap="true"
+              use_ellipses="false"
+              type="string"
+              text_color="LabelTextColor"
+              length="1"
+              follows="left|top"
+              layout="topleft"
+              left="2"
+              top_pad="8"
+              width="150">
+            Loading Status
+          </text>
+          <text
+              height="13"
+              word_wrap="true"
+              use_ellipses="false"
+              type="string"
+              text_color="MaterialGoodColor"
+              length="1"
+              follows="left|top"
+              layout="topleft"
+              left_pad="0"
+              name="query_status"
+              top_pad="-13"
+              width="400">
+          </text>
           <scroll_list
               column_padding="0"
               draw_heading="true"
@@ -938,18 +968,10 @@
           <button
               follows="left|top"
               height="22"
-              label="Post Good Material ID"
+              label="Post Material ID"
               layout="topleft"
-              name="good_post_button"
+              name="post_button"
               top_pad="0"
-              width="214"/>
-          <button
-              follows="left|top"
-              height="22"
-              label="Post Bad Material ID"
-              layout="topleft"
-              name="bad_post_button"
-              left_pad="20"
               width="214"/>
           <scroll_list
               column_padding="0"

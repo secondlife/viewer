@@ -100,6 +100,17 @@ void LLMaterialID::clear()
 	memset(mID, 0, MATERIAL_ID_SIZE * sizeof(U8));
 }
 
+LLSD LLMaterialID::asLLSD() const
+{
+	LLSD::Binary materialIDBinary;
+
+	materialIDBinary.resize(MATERIAL_ID_SIZE * sizeof(U8));
+	memcpy(materialIDBinary.data(), mID, MATERIAL_ID_SIZE * sizeof(U8));
+
+	LLSD materialID = materialIDBinary;
+	return materialID;
+}
+
 void LLMaterialID::parseFromBinary (const LLSD::Binary& pMaterialID)
 {
 	llassert(pMaterialID.size() == (MATERIAL_ID_SIZE * sizeof(U8)));

@@ -29,6 +29,7 @@
 
 #include <string>
 
+#include <boost/shared_ptr.hpp>
 #include <boost/signals2.hpp>
 
 #include "llfloater.h"
@@ -46,6 +47,9 @@ class LLSpinCtrl;
 class LLTextBase;
 class LLTextureCtrl;
 class LLUICtrl;
+class MultiMaterialsResponder;
+
+typedef boost::shared_ptr<MultiMaterialsResponder> MultiMaterialsResponderPtr;
 
 class LLFloaterDebugMaterials : public LLFloater
 {
@@ -81,15 +85,15 @@ private:
 	void          onPutClearClicked();
 	void          onResetPutValuesClicked();
 	void          onQueryVisibleObjectsClicked();
-	void          onGoodPostClicked();
-	void          onBadPostClicked();
+	void          onPostClicked();
 	void          onRegionCross();
 	void          onInWorldSelectionChange();
 	void          onGetScrollListSelectionChange(LLUICtrl* pUICtrl);
+	void          onPostScrollListSelectionChange(LLUICtrl* pUICtrl);
+	void          onViewableObjectsScrollListSelectionChange();
 	void          onDeferredCheckRegionMaterialStatus(LLUUID regionId);
 	void          onDeferredRequestGetMaterials(LLUUID regionId);
 	void          onDeferredRequestPutMaterials(LLUUID regionId, bool pIsDoSet);
-	void          onDeferredRequestPostMaterials(LLUUID regionId, bool pUseGoodData);
 	void          onGetResponse(bool pRequestStatus, const LLSD& pContent);
 	void          onPutResponse(bool pRequestStatus, const LLSD& pContent);
 	void          onPostResponse(bool pRequestStatus, const LLSD& pContent);
@@ -103,13 +107,11 @@ private:
 	void          requestPutMaterials(bool pIsDoSet);
 	void          requestPutMaterials(const LLUUID& regionId, bool pIsDoSet);
 
-	void          requestPostMaterials(bool pUseGoodData);
-	void          requestPostMaterials(const LLUUID& regionId, bool pUseGoodData);
-
-	void          queryViewableObjects();
+	void          requestPostMaterials();
 
 	void          parseGetResponse();
 	void          parsePutResponse(const LLSD& pContent);
+	void          parseQueryViewableObjects();
 	void          parsePostResponse(const LLSD& pContent);
 
 	void          setState(EState pState);
@@ -124,6 +126,10 @@ private:
 	void          setUnparsedGetData(const LLSD& pGetData);
 	void          clearUnparsedGetData();
 	void          updateGetParsingStatus();
+
+	void          setUnparsedQueryData();
+	void          clearUnparsedQueryData();
+	void          updateQueryParsingStatus();
 
 	void          updateStatusMessage();
 	void          updateControls();
@@ -177,9 +183,9 @@ private:
 	LLButton*                   mPutClearButton;
 	LLScrollListCtrl*           mPutScrollList;
 	LLButton*                   mQueryViewableObjectsButton;
+	LLTextBase*                 mQueryStatusText;
 	LLScrollListCtrl*           mViewableObjectsScrollList;
-	LLButton*                   mGoodPostButton;
-	LLButton*                   mBadPostButton;
+	LLButton*                   mPostButton;
 	LLScrollListCtrl*           mPostNormalMapScrollList;
 	LLScrollListCtrl*           mPostSpecularMapScrollList;
 	LLScrollListCtrl*           mPostOtherDataScrollList;
@@ -196,8 +202,10 @@ private:
 
 	LLSD                        mUnparsedGetData;
 	S32                         mNextUnparsedGetDataIndex;
-};
 
+	S32                         mNextUnparsedQueryDataIndex;
+	MultiMaterialsResponderPtr  mMultiMaterialsResponder;
+};
 
 
 LLFloaterDebugMaterials::EState LLFloaterDebugMaterials::getState() const

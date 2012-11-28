@@ -49,6 +49,8 @@ public:
 	void          set(const void* pMemory);
 	void          clear();
 
+	LLSD          asLLSD() const;
+
 	static const LLMaterialID null;
 
 private:
