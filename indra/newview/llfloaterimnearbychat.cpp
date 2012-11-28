@@ -95,7 +95,6 @@ LLFloaterIMNearbyChat::LLFloaterIMNearbyChat(const LLSD& llsd)
 {
     mIsP2PChat = false;
 	mIsNearbyChat = true;
-	setIsChrome(TRUE);
 	mSpeakerMgr = LLLocalSpeakerMgr::getInstance();
 	mSessionID = LLUUID();
 }
@@ -119,28 +118,9 @@ BOOL LLFloaterIMNearbyChat::postBuild()
 	mInputEditor->setFocusReceivedCallback(boost::bind(&LLFloaterIMNearbyChat::onChatBoxFocusReceived, this));
 	mInputEditor->setLabel(LLTrans::getString("NearbyChatTitle"));
 
-//	mOutputMonitor = getChild<LLOutputMonitorCtrl>("chat_zone_indicator");
-//	mOutputMonitor->setVisible(FALSE);
-
-	// Register for font change notifications
-//	LLViewerChat::setFontChangedCallback(boost::bind(&LLFloaterIMNearbyChat::onChatFontChange, this, _1));
-
-	// title must be defined BEFORE call addConversationListItem() because
-	// it is used for show the item's name in the conversations list
+	// Title must be defined BEFORE call to addConversationListItem() because
+	// it is used to show the item's name in the conversations list
 	setTitle(LLTrans::getString("NearbyChatTitle"));
-
-	//for menu
-//	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
-//	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
-
-//	enable_registrar.add("NearbyChat.Check", boost::bind(&LLFloaterIMNearbyChat::onNearbyChatCheckContextMenuItem, this, _2));
-//	registrar.add("NearbyChat.Action", boost::bind(&LLFloaterIMNearbyChat::onNearbyChatContextMenuItemClicked, this, _2));
-
-//	LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_nearby_chat.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-//	if(menu)
-//	{
-//		mPopupMenuHandle = menu->getHandle();
-//	}
 
 	// obsolete, but may be needed for backward compatibility?
 	gSavedSettings.declareS32("nearbychat_showicons_and_names", 2, "NearByChat header settings", true);
@@ -166,43 +146,6 @@ void LLFloaterIMNearbyChat::refresh()
 	{
 		setTransparencyType(hasFocus() ? TT_ACTIVE : TT_INACTIVE);
 	}
-}
-
-void LLFloaterIMNearbyChat::onNearbySpeakers()
-{
-	LLSD param;
-	param["people_panel_tab_name"] = "nearby_panel";
-	LLFloaterSidePanelContainer::showPanel("people", "panel_people", param);
-}
-
-void	LLFloaterIMNearbyChat::onNearbyChatContextMenuItemClicked(const LLSD& userdata)
-{
-}
-
-bool	LLFloaterIMNearbyChat::onNearbyChatCheckContextMenuItem(const LLSD& userdata)
-{
-	std::string str = userdata.asString();
-	if(str == "nearby_people")
-		onNearbySpeakers();
-	return false;
-}
-
-
-BOOL	LLFloaterIMNearbyChat::handleMouseDown(S32 x, S32 y, MASK mask)
-{
-	//fix for EXT-6625
-	//highlight NearbyChat history whenever mouseclick happen in NearbyChat
-	//setting focus to eidtor will force onFocusLost() call that in its turn will change
-	//background opaque. This all happenn since NearByChat is "chrome" and didn't process focus change.
-
-	if(mChatHistory)
-	{
-		mChatHistory->setFocus(TRUE);
-	}
-
-	BOOL handled = LLPanel::handleMouseDown(x, y, mask);
-	setFocus(handled);
-	return handled;
 }
 
 void LLFloaterIMNearbyChat::reloadMessages()
@@ -640,16 +583,6 @@ void LLFloaterIMNearbyChat::displaySpeakingIndicator()
 			id = s->mID;
 			break;
 		}
-	}
-
-	if (!id.isNull())
-	{
-		//mOutputMonitor->setVisible(TRUE);
-		//mOutputMonitor->setSpeakerId(id);
-	}
-	else
-	{
-		//mOutputMonitor->setVisible(FALSE);
 	}
 }
 

@@ -59,21 +59,17 @@ public:
     void reloadMessages();
 	void removeScreenChat();
 
-	void addToHost();
 	void show();
 	bool isChatVisible() const;
 
 	/** @param archive true - to save a message to the chat history log */
 	void	addMessage			(const LLChat& message,bool archive = true, const LLSD &args = LLSD());
-	void	onNearbyChatContextMenuItemClicked(const LLSD& userdata);
-	bool	onNearbyChatCheckContextMenuItem(const LLSD& userdata);
 
 	LLChatEntry* getChatBox() { return mInputEditor; }
 
 	std::string getCurrentChat();
 
 	virtual BOOL handleKeyHere( KEY key, MASK mask );
-	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
 
 	static void startChat(const char* line);
 	static void stopChat();
@@ -112,14 +108,9 @@ protected:
 	S32 mExpandedHeight;
 
 private:
-
-	void	onNearbySpeakers	();
-
 	/*virtual*/ void refresh();
 
-//	LLHandle<LLView>	mPopupMenuHandle;
 	std::vector<LLChat> mMessageArchive;
-
 };
 
 #endif // LL_LLFLOATERIMNEARBYCHAT_H
