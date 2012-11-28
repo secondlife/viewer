@@ -6200,10 +6200,8 @@ void LLVivoxVoiceClient::lookupName(const LLUUID &id)
 void LLVivoxVoiceClient::onAvatarNameCache(const LLUUID& agent_id,
 										   const LLAvatarName& av_name)
 {
-	// For Vivox, we use the legacy name because I'm uncertain whether or
-	// not their service can tolerate switching to Username or Display Name
-	std::string legacy_name = av_name.getLegacyName();
-	avatarNameResolved(agent_id, legacy_name);	
+	std::string display_name = av_name.mDisplayName;
+	avatarNameResolved(agent_id, display_name);
 }
 
 void LLVivoxVoiceClient::avatarNameResolved(const LLUUID &id, const std::string &name)
