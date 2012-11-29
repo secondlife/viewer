@@ -52,7 +52,7 @@
 
 std::string self_av_string()
 {
-	return gAgentAvatarp->avString();
+	return gAgentAvatarp ? gAgentAvatarp->avString() : std::string("self_av_string error, gAgentAvatarp null");
 }
 
 // RAII thingy to guarantee that a variable gets reset when the Setter
