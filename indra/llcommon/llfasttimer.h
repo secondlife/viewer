@@ -37,11 +37,13 @@ class LLMutex;
 
 namespace LLTrace
 {
+
 struct CurTimerData
 {
 	class Time*			mCurTimer;
 	class BlockTimer*	mTimerData;
 	U64					mChildTime;
+	TimerTreeNode*		mTimerTreeData;
 };
 
 class Time
@@ -269,20 +271,20 @@ public:
 	// tree structure
 	BlockTimer*					mParent;				// BlockTimer of caller(parent)
 	std::vector<BlockTimer*>	mChildren;
-	bool						mCollapsed;				// don't show children
-	bool						mNeedsSorting;			// sort children whenever child added
+	bool						mCollapsed,				// don't show children
+								mNeedsSorting;			// sort children whenever child added
 
 	// statics
 	static std::string							sLogName;
-	static bool									sMetricLog;
-	static bool									sLog;	
+	static bool									sMetricLog,
+												sLog;	
 	static LLThreadLocalPointer<CurTimerData>	sCurTimerData;
 	static U64									sClockResolution;
-	static S32									sCurFrameIndex;
-	static S32									sLastFrameIndex;
+	static S32									sCurFrameIndex,
+												sLastFrameIndex;
 	static U64									sLastFrameTime;
-	static bool 								sPauseHistory;
-	static bool 								sResetHistory;
+	static bool 								sPauseHistory,
+												sResetHistory;
 
 };
 
@@ -291,13 +293,12 @@ LL_FORCE_INLINE Time::Time(BlockTimer& timer)
 #if FAST_TIMER_ON
 	mStartTime = BlockTimer::getCPUClockCount64();
 
-	TimerAccumulator& accumulator = timer.getPrimaryAccumulator();
-	accumulator.mActiveCount++;
-	accumulator.mCalls++;
-	// keep current parent as long as it is active when we are
-	accumulator.mMoveUpTree |= (timer.mParent->getPrimaryAccumulator().mActiveCount == 0);
-
 	CurTimerData* cur_timer_data = BlockTimer::sCurTimerData.get();
+	TimerTreeNode& tree_node = cur_timer_data->mTimerTreeData[timer.getIndex()];
+	tree_node.mActiveCount++;
+	// keep current parent as long as it is active when we are
+	tree_node.mMoveUpTree |= (cur_timer_data->mTimerTreeData[timer.mParent->getIndex()].mActiveCount == 0);
+
 	// store top of stack
 	mLastTimerData = *cur_timer_data;
 	// push new information
@@ -313,13 +314,16 @@ LL_FORCE_INLINE Time::~Time()
 	U64 total_time = BlockTimer::getCPUClockCount64() - mStartTime;
 	CurTimerData* cur_timer_data = BlockTimer::sCurTimerData.get();
 	TimerAccumulator& accumulator = cur_timer_data->mTimerData->getPrimaryAccumulator();
+	TimerTreeNode& tree_node = cur_timer_data->mTimerTreeData[cur_timer_data->mTimerData->getIndex()];
+
+	accumulator.mCalls++;
 	accumulator.mSelfTimeCounter += total_time - cur_timer_data->mChildTime;
 	accumulator.mTotalTimeCounter += total_time;
-	accumulator.mActiveCount--;
+	tree_node.mActiveCount--;
 
 	// store last caller to bootstrap tree creation
 	// do this in the destructor in case of recursion to get topmost caller
-	accumulator.mLastCaller = mLastTimerData.mTimerData;
+	tree_node.mLastCaller = mLastTimerData.mTimerData;
 
 	// we are only tracking self time, so subtract our total time delta from parents
 	mLastTimerData.mChildTime += total_time;

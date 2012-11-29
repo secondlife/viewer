@@ -58,23 +58,26 @@ namespace LLTrace
 //////////////////////////////////////////////////////////////////////////////
 // statics
 
-S32 BlockTimer::sCurFrameIndex = -1;
-S32 BlockTimer::sLastFrameIndex = -1;
-U64 BlockTimer::sLastFrameTime = BlockTimer::getCPUClockCount64();
-bool BlockTimer::sPauseHistory = 0;
-bool BlockTimer::sResetHistory = 0;
+S32         BlockTimer::sCurFrameIndex   = -1;
+S32         BlockTimer::sLastFrameIndex  = -1;
+U64         BlockTimer::sLastFrameTime   = BlockTimer::getCPUClockCount64();
+bool        BlockTimer::sPauseHistory    = 0;
+bool        BlockTimer::sResetHistory    = 0;
+bool        BlockTimer::sLog		     = false;
+std::string BlockTimer::sLogName         = "";
+bool        BlockTimer::sMetricLog       = false;
+
+#if LL_LINUX || LL_SOLARIS
+U64         BlockTimer::sClockResolution = 1000000000; // Nanosecond resolution
+#else
+U64         BlockTimer::sClockResolution = 1000000; // Microsecond resolution
+#endif
+
 LLThreadLocalPointer<CurTimerData> BlockTimer::sCurTimerData;
-bool BlockTimer::sLog = false;
-std::string BlockTimer::sLogName = "";
-bool BlockTimer::sMetricLog = false;
+
 static LLMutex*			sLogLock = NULL;
 static std::queue<LLSD> sLogQueue;
 
-#if LL_LINUX || LL_SOLARIS
-U64 BlockTimer::sClockResolution = 1000000000; // Nanosecond resolution
-#else
-U64 BlockTimer::sClockResolution = 1000000; // Microsecond resolution
-#endif
 
 // FIXME: move these declarations to the relevant modules
 
@@ -107,6 +110,7 @@ static timer_tree_dfs_iterator_t end_timer_tree()
 { 
 	return timer_tree_dfs_iterator_t(); 
 }
+
 
 BlockTimer& BlockTimer::getRootTimer()
 {
@@ -142,7 +146,7 @@ U64 BlockTimer::countsPerSecond() // counts per second for the *32-bit* timer
 
 	// we drop the low-order byte in our timers, so report a lower frequency
 #else
-	// If we're not using RDTSC, each fasttimer tick is just a performance counter tick.
+	// If we're not using RDTSC, each fast timer tick is just a performance counter tick.
 	// Not redefining the clock frequency itself (in llprocessor.cpp/calculate_cpu_frequency())
 	// since that would change displayed MHz stats for CPUs
 	static bool firstcall = true;
@@ -268,17 +272,19 @@ void BlockTimer::buildHierarchy()
 			// when this timer was called
 			if (timer.mParent == &BlockTimer::getRootTimer())
 			{
-				if (timer.getPrimaryAccumulator().mLastCaller)
-			{
-				timer.setParent(timer.getPrimaryAccumulator().mLastCaller);
+				TimerTreeNode& tree_node = sCurTimerData->mTimerTreeData[timer.getIndex()];
+
+				if (tree_node.mLastCaller)
+				{
+					timer.setParent(tree_node.mLastCaller);
 				}
 				// no need to push up tree on first use, flag can be set spuriously
-				timer.getPrimaryAccumulator().mMoveUpTree = false;
+				tree_node.mMoveUpTree = false;
 			}
 		}
 	}
 
-	// bump timers up tree if they've been flagged as being in the wrong place
+	// bump timers up tree if they have been flagged as being in the wrong place
 	// do this in a bottom up order to promote descendants first before promoting ancestors
 	// this preserves partial order derived from current frame's observations
 	for(timer_tree_bottom_up_iterator_t it = begin_timer_tree_bottom_up(BlockTimer::getRootTimer());
@@ -288,15 +294,16 @@ void BlockTimer::buildHierarchy()
 		BlockTimer* timerp = *it;
 		// skip root timer
 		if (timerp == &BlockTimer::getRootTimer()) continue;
+		TimerTreeNode& tree_node = sCurTimerData->mTimerTreeData[timerp->getIndex()];
 
-		if (timerp->getPrimaryAccumulator().mMoveUpTree)
+		if (tree_node.mMoveUpTree)
 		{
 			// since ancestors have already been visited, re-parenting won't affect tree traversal
 			//step up tree, bringing our descendants with us
 			LL_DEBUGS("FastTimers") << "Moving " << timerp->getName() << " from child of " << timerp->getParent()->getName() <<
 				" to child of " << timerp->getParent()->getParent()->getName() << LL_ENDL;
 			timerp->setParent(timerp->getParent()->getParent());
-			timerp->getPrimaryAccumulator().mMoveUpTree = false;
+			tree_node.mMoveUpTree = false;
 
 			// don't bubble up any ancestors until descendants are done bubbling up
 			it.skipAncestors();
@@ -322,11 +329,11 @@ void BlockTimer::accumulateTimings()
 {
 	U64 cur_time = getCPUClockCount64();
 
-	// walk up stack of active timers and accumulate current time while leaving timing structures active
-	Time* cur_timer = sCurTimerData->mCurTimer;
 	// root defined by parent pointing to self
 	CurTimerData* cur_data = sCurTimerData.get();
-	TimerAccumulator& accumulator = sCurTimerData->mTimerData->getPrimaryAccumulator();
+	// walk up stack of active timers and accumulate current time while leaving timing structures active
+	Time* cur_timer = cur_data->mCurTimer;
+	TimerAccumulator& accumulator = cur_data->mTimerData->getPrimaryAccumulator();
 	while(cur_timer && cur_timer->mLastTimerData.mCurTimer != cur_timer)
 	{
 		U64 cumulative_time_delta = cur_time - cur_timer->mStartTime;
@@ -431,11 +438,13 @@ void BlockTimer::resetFrame()
 	{
 		BlockTimer& timer = *it;
 		TimerAccumulator& accumulator = timer.getPrimaryAccumulator();
+		TimerTreeNode& tree_node = sCurTimerData->mTimerTreeData[timer.getIndex()];
+
 		accumulator.mSelfTimeCounter = 0;
 		accumulator.mTotalTimeCounter = 0;
 		accumulator.mCalls = 0;
-		accumulator.mLastCaller = NULL;
-		accumulator.mMoveUpTree = false;
+		tree_node.mLastCaller = NULL;
+		tree_node.mMoveUpTree = false;
 	}
 }
 
@@ -579,32 +588,28 @@ void Time::writeLog(std::ostream& os)
 }
 
 
-LLTrace::TimerAccumulator::TimerAccumulator() :	mSelfTimeCounter(0),
+TimerAccumulator::TimerAccumulator() :	mSelfTimeCounter(0),
 	mTotalTimeCounter(0),
-	mCalls(0),
-	mLastCaller(NULL),
-	mActiveCount(0),
-	mMoveUpTree(false)
+	mCalls(0)
 {}
 
-void LLTrace::TimerAccumulator::addSamples( const LLTrace::TimerAccumulator& other )
+void TimerAccumulator::addSamples( const TimerAccumulator& other )
 {
 	mSelfTimeCounter += other.mSelfTimeCounter;
 	mTotalTimeCounter += other.mTotalTimeCounter;
 	mCalls += other.mCalls;
-	if (!mLastCaller)
-	{
-		mLastCaller = other.mLastCaller;
-	}
-
-	//mActiveCount stays the same;
-	mMoveUpTree |= other.mMoveUpTree;
 }
 
-void LLTrace::TimerAccumulator::reset( const LLTrace::TimerAccumulator* other )
+void TimerAccumulator::reset( const TimerAccumulator* other )
 {
 	mTotalTimeCounter = 0;
 	mSelfTimeCounter = 0;
 	mCalls = 0;
 }
+
+TimerTreeNode::TimerTreeNode()
+:	mLastCaller(NULL),
+	mActiveCount(0),
+	mMoveUpTree(false)
+{}
 }

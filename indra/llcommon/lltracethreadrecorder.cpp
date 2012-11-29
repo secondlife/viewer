@@ -41,25 +41,29 @@ ThreadRecorder::ThreadRecorder()
 	get_thread_recorder() = this;
 	mFullRecording.start();
 
-	BlockTimer::sCurTimerData = new CurTimerData();
-}
+	mRootTimerData = new CurTimerData();
+	mRootTimerData->mTimerData = &BlockTimer::getRootTimer();
+	mRootTimerData->mTimerTreeData = new TimerTreeNode[AccumulatorBuffer<TimerAccumulator>::getDefaultBuffer().size()];
+	BlockTimer::sCurTimerData = mRootTimerData;
 
-ThreadRecorder::ThreadRecorder( const ThreadRecorder& other ) 
-:	mFullRecording(other.mFullRecording)
-{
-	get_thread_recorder() = this;
-	mFullRecording.start();
+	mRootTimer = new Time(BlockTimer::getRootTimer());
+	mRootTimerData->mCurTimer = mRootTimer;
+
+	mRootTimerData->mTimerTreeData[BlockTimer::getRootTimer().getIndex()].mActiveCount = 1;
 }
 
 ThreadRecorder::~ThreadRecorder()
 {
+	delete mRootTimer;
+
 	while(mActiveRecordings.size())
 	{
 		mActiveRecordings.front().mTargetRecording->stop();
 	}
 	get_thread_recorder() = NULL;
-	delete BlockTimer::sCurTimerData.get();
 	BlockTimer::sCurTimerData = NULL;
+	delete [] mRootTimerData->mTimerTreeData;
+	delete mRootTimerData;
 }
 
 void ThreadRecorder::activate( Recording* recording )

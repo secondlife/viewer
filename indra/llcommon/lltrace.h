@@ -189,6 +189,11 @@ namespace LLTrace
 			delete[] old_storage;
 		}
 
+		size_t size()
+		{
+			return mNextStorageSlot;
+		}
+
 		static AccumulatorBuffer<ACCUMULATOR>& getDefaultBuffer()
 		{
 			static AccumulatorBuffer sBuffer(STATIC_ALLOC);
@@ -216,7 +221,7 @@ namespace LLTrace
 			mAccumulatorIndex = AccumulatorBuffer<ACCUMULATOR>::getDefaultBuffer().reserveSlot();
 		}
 
-		LL_FORCE_INLINE ACCUMULATOR& getPrimaryAccumulator()
+		LL_FORCE_INLINE ACCUMULATOR& getPrimaryAccumulator() const
 		{
 			return AccumulatorBuffer<ACCUMULATOR>::getPrimaryStorage()[mAccumulatorIndex];
 		}
@@ -399,6 +404,12 @@ namespace LLTrace
 		U64 						mSelfTimeCounter,
 									mTotalTimeCounter;
 		U32 						mCalls;
+	};
+
+	class TimerTreeNode
+	{
+	public:
+		TimerTreeNode();
 		class BlockTimer*			mLastCaller;	// used to bootstrap tree construction
 		U16							mActiveCount;	// number of timers with this ID active on stack
 		bool						mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame

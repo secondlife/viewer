@@ -41,7 +41,6 @@ namespace LLTrace
 		struct ActiveRecording;
 	public:
 		ThreadRecorder();
-		ThreadRecorder(const ThreadRecorder& other);
 
 		virtual ~ThreadRecorder();
 
@@ -63,6 +62,9 @@ namespace LLTrace
 		};
 		Recording					mFullRecording;
 		std::list<ActiveRecording>	mActiveRecordings;
+
+		struct CurTimerData*	mRootTimerData;
+		class Time*				mRootTimer;
 	};
 
 	class LL_COMMON_API MasterThreadRecorder : public ThreadRecorder
