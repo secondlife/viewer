@@ -158,7 +158,6 @@ BOOL LLChicletBar::postBuild()
 	mToolbarStack = getChild<LLLayoutStack>("toolbar_stack");
 	mChicletPanel = getChild<LLChicletPanel>("chiclet_list");
 
-	showWellButton("im_well", !LLIMWellWindow::getInstance()->isWindowEmpty());
 	showWellButton("notification_well", !LLNotificationWellWindow::getInstance()->isWindowEmpty());
 
 	LLPanelTopInfoBar::instance().setResizeCallback(boost::bind(&LLChicletBar::fitWithTopInfoBar, this));
