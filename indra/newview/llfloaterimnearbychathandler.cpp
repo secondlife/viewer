@@ -41,6 +41,7 @@
 #include "llfloaterreg.h"//for LLFloaterReg::getTypedInstance
 #include "llviewerwindow.h"//for screen channel position
 #include "llfloaterimnearbychat.h"
+#include "llfloaterimcontainer.h"
 #include "llrootview.h"
 #include "lllayoutstack.h"
 
@@ -283,12 +284,6 @@ bool	LLFloaterIMNearbyChatScreenChannel::createPoolToast()
 
 void LLFloaterIMNearbyChatScreenChannel::addChat(LLSD& chat)
 {
-    //Ignore Nearby Toasts
-    if(gSavedSettings.getString("NotificationNearbyChatOptions") != "toast")
-    {
-        return;
-    }
-
 	//look in pool. if there is any message
 	if(mStopProcessing)
 		return;
@@ -606,19 +601,30 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
 			toast_msg = chat_msg.mText;
 		}
 
-		// Add a nearby chat toast.
-		LLUUID id;
-		id.generate();
-		chat["id"] = id;
-		std::string r_color_name = "White";
-		F32 r_color_alpha = 1.0f; 
-		LLViewerChat::getChatColor( chat_msg, r_color_name, r_color_alpha);
-		
-		chat["text_color"] = r_color_name;
-		chat["color_alpha"] = r_color_alpha;
-		chat["font_size"] = (S32)LLViewerChat::getChatFontSize() ;
-		chat["message"] = toast_msg;
-		channel->addChat(chat);	
+
+        //Will show toast when chat preference is set        
+        if(gSavedSettings.getString("NotificationNearbyChatOptions") == "toast")
+        {
+            // Add a nearby chat toast.
+            LLUUID id;
+            id.generate();
+            chat["id"] = id;
+            std::string r_color_name = "White";
+            F32 r_color_alpha = 1.0f; 
+            LLViewerChat::getChatColor( chat_msg, r_color_name, r_color_alpha);
+
+            chat["text_color"] = r_color_name;
+            chat["color_alpha"] = r_color_alpha;
+            chat["font_size"] = (S32)LLViewerChat::getChatFontSize() ;
+            chat["message"] = toast_msg;
+            channel->addChat(chat);	
+        }
+        //Will show Conversations floater when chat preference is set
+        else if(gSavedSettings.getString("NotificationNearbyChatOptions") == "openconversations")
+        {
+            LLFloaterReg::showInstance("im_container");
+        }
+
 	}
 }
 

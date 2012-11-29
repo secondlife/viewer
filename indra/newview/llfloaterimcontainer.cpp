@@ -640,7 +640,7 @@ void LLFloaterIMContainer::collapseConversationsPane(bool collapse)
 		LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(widget_it->second);
 		if (widget)
 		{
-		    widget->toggleMinimizedMode(collapse);
+		    widget->toggleCollapsedMode(collapse);
 
 		    // force closing all open conversations when collapsing to minimized state
 		    if (collapse)
@@ -1320,7 +1320,7 @@ LLConversationItem* LLFloaterIMContainer::addConversationListItem(const LLUUID& 
 	}
 
 	// set the widget to minimized mode if conversations pane is collapsed
-	widget->toggleMinimizedMode(mConversationsPane->isCollapsed());
+	widget->toggleCollapsedMode(mConversationsPane->isCollapsed());
 
     if (isWidgetSelected)
     {
@@ -1361,10 +1361,12 @@ bool LLFloaterIMContainer::removeConversationListItem(const LLUUID& uuid, bool c
 		setFocus(TRUE);
 		if(new_selection != NULL)
 		{
+			if (mConversationsWidgets.size() == 1)
+				new_selection = new_selection->getParentFolder();
 			LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(new_selection->getViewModelItem());
 			if(vmi != NULL)
 			{
-				selectConversation(vmi->getUUID());
+				selectConversationPair(vmi->getUUID(), true);
 			}
 		}
 	}
@@ -1381,6 +1383,12 @@ LLConversationViewSession* LLFloaterIMContainer::createConversationItemWidget(LL
 	params.tool_tip = params.name;
 	params.container = this;
 	
+    //Indentation for aligning the p2p converstation image with the nearby chat arrow
+    if(item->getType() == LLConversationItem::CONV_SESSION_1_ON_1)
+    {
+        params.folder_indentation = 3;
+    }
+
 	return LLUICtrlFactory::create<LLConversationViewSession>(params);
 }
 

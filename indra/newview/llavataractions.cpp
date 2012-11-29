@@ -215,7 +215,7 @@ void LLAvatarActions::endIM(const LLUUID& id)
 static void on_avatar_name_cache_start_call(const LLUUID& agent_id,
 											const LLAvatarName& av_name)
 {
-	std::string name = av_name.getCompleteName();
+	std::string name = av_name.mDisplayName;
 	LLUUID session_id = gIMMgr->addSession(name, IM_NOTHING_SPECIAL, agent_id, true);
 	if (session_id != LLUUID::null)
 	{

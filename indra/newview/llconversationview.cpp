@@ -80,7 +80,8 @@ LLConversationViewSession::LLConversationViewSession(const LLConversationViewSes
 	mSessionTitle(NULL),
 	mSpeakingIndicator(NULL),
 	mVoiceClientObserver(NULL),
-	mMinimizedMode(false)
+	mCollapsedMode(false),
+    mHasArrow(true)
 {
 	mFlashTimer = new LLFlashTimer();
 }
@@ -135,6 +136,7 @@ BOOL LLConversationViewSession::postBuild()
 				icon->setVisible(true);
 				icon->setValue(session->mOtherParticipantID);
 				mSpeakingIndicator->setSpeakerId(gAgentID, session->mSessionID, true);
+                mHasArrow = false;
 			}
 			break;
 		}
@@ -183,11 +185,10 @@ void LLConversationViewSession::draw()
 	const BOOL show_context = (getRoot() ? getRoot()->getShowSelectionContext() : FALSE);
 
 	// we don't draw the open folder arrow in minimized mode
-	if (!mMinimizedMode)
+	if (mHasArrow && !mCollapsedMode)
 	{
 		// update the rotation angle of open folder arrow
 		updateLabelRotation();
-
 		drawOpenFolderArrow(default_params, sFgColor);
 	}
 
@@ -227,21 +228,25 @@ BOOL LLConversationViewSession::handleMouseDown( S32 x, S32 y, MASK mask )
 // virtual
 S32 LLConversationViewSession::arrange(S32* width, S32* height)
 {
-	S32 h_pad = getIndentation() + mArrowSize;
-	LLRect rect(mMinimizedMode ? getLocalRect().mLeft : h_pad,
+    //LLFolderViewFolder::arrange computes value for getIndentation() function below
+    S32 arranged = LLFolderViewFolder::arrange(width, height);
+
+    S32 h_pad = mHasArrow ? getIndentation() + mArrowSize : getIndentation();
+	
+	LLRect rect(mCollapsedMode ? getLocalRect().mLeft : h_pad,
 				getLocalRect().mTop,
 				getLocalRect().mRight,
 				getLocalRect().mTop - getItemHeight());
 	mItemPanel->setShape(rect);
 
-	return LLFolderViewFolder::arrange(width, height);
+	return arranged;
 }
 
 // virtual
 void LLConversationViewSession::toggleOpen()
 {
 	// conversations should not be opened while in minimized mode
-	if (!mMinimizedMode)
+	if (!mCollapsedMode)
 	{
 		LLFolderViewFolder::toggleOpen();
 
@@ -254,16 +259,17 @@ void LLConversationViewSession::toggleOpen()
 	}
 }
 
-void LLConversationViewSession::toggleMinimizedMode(bool is_minimized)
+void LLConversationViewSession::toggleCollapsedMode(bool is_collapsed)
 {
-	mMinimizedMode = is_minimized;
+	mCollapsedMode = is_collapsed;
 
 	// hide the layout stack which contains all item's child widgets
 	// except for the icon which we display in minimized mode
-	getChild<LLView>("conversation_item_stack")->setVisible(!mMinimizedMode);
+	getChild<LLView>("conversation_item_stack")->setVisible(!mCollapsedMode);
 
-	S32 h_pad = getIndentation() + mArrowSize;
-	mItemPanel->translate(mMinimizedMode ? -h_pad : h_pad, 0);
+    S32 h_pad = mHasArrow ? getIndentation() + mArrowSize : getIndentation();
+
+	mItemPanel->translate(mCollapsedMode ? -h_pad : h_pad, 0);
 }
 
 void LLConversationViewSession::setVisibleIfDetached(BOOL visible)
@@ -337,15 +343,6 @@ void LLConversationViewSession::onCurrentVoiceSessionChanged(const LLUUID& sessi
 
 		mSpeakingIndicator->switchIndicator(is_active);
 		mCallIconLayoutPanel->setVisible(is_active);
-	}
-}
-
-void LLConversationViewSession::drawOpenFolderArrow(const LLFolderViewItem::Params& default_params, const LLUIColor& fg_color)
-{
-	LLConversationItem * itemp = dynamic_cast<LLConversationItem*>(getViewModelItem());
-	if (itemp && itemp->getType() != LLConversationItem::CONV_SESSION_1_ON_1)
-	{
-		LLFolderViewFolder::drawOpenFolderArrow(default_params, fg_color);
 	}
 }
 

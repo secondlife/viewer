@@ -264,7 +264,7 @@ public:
 
 	//	virtual void handleDropped();
 	virtual void draw();
-	virtual void drawOpenFolderArrow(const Params& default_params, const LLUIColor& fg_color);
+	void drawOpenFolderArrow(const Params& default_params, const LLUIColor& fg_color);
     void drawHighlight(const BOOL showContent, const BOOL hasKeyboardFocus, const LLUIColor &bgColor, const LLUIColor &outlineColor, const LLUIColor &mouseOverColor);
     void drawLabel(const LLFontGL * font, const F32 x, const F32 y, const LLColor4& color, F32 &right_x);
 	virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,

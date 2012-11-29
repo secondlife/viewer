@@ -135,6 +135,10 @@
         name="FriendIMOptions"
         width="223">
       <combo_box.item
+          label="Open Conversations window"
+          name="OpenConversationsWindow"
+          value="openconversations"/>      
+      <combo_box.item
           label="Pop up the message"
           name="PopUpMessage"
           value="toast"/>
@@ -165,6 +169,10 @@
         top_delta="-6"
         name="NonFriendIMOptions"
         width="223">
+      <combo_box.item
+          label="Open Conversations window"
+          name="OpenConversationsWindow"
+          value="openconversations"/>
       <combo_box.item
           label="Pop up the message"
           name="PopUpMessage"
@@ -197,6 +205,10 @@
         name="ConferenceIMOptions"
         width="223">
       <combo_box.item
+          label="Open Conversations window"
+          name="OpenConversationsWindow"
+          value="openconversations"/>
+      <combo_box.item
           label="Pop up the message"
           name="PopUpMessage"
           value="toast"/>
@@ -228,6 +240,10 @@
         name="GroupChatOptions"
         width="223">
       <combo_box.item
+          label="Open Conversations window"
+          name="OpenConversationsWindow"
+          value="openconversations"/>
+      <combo_box.item
           label="Pop up the message"
           name="PopUpMessage"
           value="toast"/>
@@ -258,6 +274,10 @@
         top_delta="-6"
         name="NearbyChatOptions"
         width="223">
+      <combo_box.item
+          label="Open Conversations window"
+          name="OpenConversationsWindow"
+          value="openconversations"/>
       <combo_box.item
           label="Pop up the message"
           name="PopUpMessage"
