@@ -572,7 +572,7 @@ void LLFloaterIMNearbyChat::displaySpeakingIndicator()
 	LLUUID id;
 
 	id.setNull();
-	mSpeakerMgr->update(TRUE);
+	mSpeakerMgr->update(FALSE);
 	mSpeakerMgr->getSpeakerList(&speaker_list, FALSE);
 
 	for (LLSpeakerMgr::speaker_list_t::iterator i = speaker_list.begin(); i != speaker_list.end(); ++i)
