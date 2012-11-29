@@ -6867,17 +6867,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>PlaySoundGroupChatMessages</key>
-    <map>
-      <key>Comment</key>
-      <string>Plays a sound when have a group chat message.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>  
     <key>PlaySoundIncomingVoiceCall</key>
     <map>
       <key>Comment</key>
