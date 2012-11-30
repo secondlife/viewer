@@ -1293,6 +1293,45 @@ Visit [_URL] for more information?
 
   <notification
    icon="alertmodal.tga"
+   name="AMDOldDriver"
+   type="alertmodal">
+    There is likely a newer driver for your graphics chip.  Updating graphics drivers can substantially improve performance.
+
+    Visit [_URL] to check for driver updates?
+    <tag>confirm</tag>
+    <url option="0" name="url">
+      http://support.amd.com/us/Pages/AMDSupportHub.aspx
+    </url>
+    <usetemplate
+     ignoretext="My graphics driver is out of date"
+     name="okcancelignore"
+     notext="No"
+     yestext="Yes"/>
+    <tag>fail</tag>
+  </notification>
+
+  <notification
+ icon="alertmodal.tga"
+ name="NVIDIAOldDriver"
+ type="alertmodal">
+    There is likely a newer driver for your graphics chip.  Updating graphics drivers can substantially improve performance.
+
+    Visit [_URL] to check for driver updates?
+    <tag>confirm</tag>
+    <url option="0" name="url">
+      http://www.nvidia.com/Download/index.aspx?lang=en-us
+    </url>
+    <usetemplate
+     ignoretext="My graphics driver is out of date"
+     name="okcancelignore"
+     notext="No"
+     yestext="Yes"/>
+    <tag>fail</tag>
+  </notification>
+
+
+  <notification
+   icon="alertmodal.tga"
    name="UnknownGPU"
    type="alertmodal">
 Your system contains a graphics card that [APP_NAME] doesn't recognize.
