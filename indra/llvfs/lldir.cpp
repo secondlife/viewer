@@ -431,7 +431,6 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
 		llassert(0);
 	}
 
-    llinfos << "SPATTERS got " << prefix << " for location " << location << llendl;
 	std::string filename = in_filename;
 	if (!subdir2.empty())
 	{
@@ -472,7 +471,7 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
 		expanded_filename.assign("");
 	}
 
-	llinfos << "*** EXPANDED FILENAME: <" << expanded_filename << ">" << llendl;
+	//llinfos << "*** EXPANDED FILENAME: <" << expanded_filename << ">" << llendl;
 	return expanded_filename;
 }
 
