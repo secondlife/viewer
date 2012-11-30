@@ -509,7 +509,6 @@ void LLFloaterIMSession::updateSessionName(const std::string& name)
 		mTypingStart.setArg("[NAME]", name);
 		setTitle (mOtherTyping ? mTypingStart.getString() : name);
 	}
-	llinfos << "Merov debug : updateSessionName, title = " << name << ", typing title = " << mTypingStart.getString() << llendl;
 }
 
 //static
