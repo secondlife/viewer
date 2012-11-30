@@ -66,7 +66,6 @@ LLFloaterIMSession::LLFloaterIMSession(const LLUUID& session_id)
   : LLFloaterIMSessionTab(session_id),
 	mLastMessageIndex(-1),
 	mDialog(IM_NOTHING_SPECIAL),
-	mSavedTitle(),
 	mTypingStart(),
 	mShouldSendTypingState(false),
 	mMeTyping(false),
@@ -504,9 +503,13 @@ void LLFloaterIMSession::onVoiceChannelStateChanged(
 
 void LLFloaterIMSession::updateSessionName(const std::string& name)
 {
-	LLFloaterIMSessionTab::updateSessionName(name);
-	setTitle(name);	
-	mTypingStart.setArg("[NAME]", name);
+	if (!name.empty())
+	{
+		LLFloaterIMSessionTab::updateSessionName(name);
+		mTypingStart.setArg("[NAME]", name);
+		setTitle (mOtherTyping ? mTypingStart.getString() : name);
+	}
+	llinfos << "Merov debug : updateSessionName, title = " << name << ", typing title = " << mTypingStart.getString() << llendl;
 }
 
 //static
@@ -1095,13 +1098,9 @@ BOOL LLFloaterIMSession::inviteToSession(const uuid_vec_t& ids)
 void LLFloaterIMSession::addTypingIndicator(const LLIMInfo* im_info)
 {
 	// We may have lost a "stop-typing" packet, don't add it twice
-	if ( im_info && !mOtherTyping )
+	if (im_info && !mOtherTyping)
 	{
 		mOtherTyping = true;
-
-		// Save and set new title
-		mSavedTitle = getTitle();
-		setTitle (mTypingStart);
 
 		// Update speaker
 		LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
@@ -1114,18 +1113,15 @@ void LLFloaterIMSession::addTypingIndicator(const LLIMInfo* im_info)
 
 void LLFloaterIMSession::removeTypingIndicator(const LLIMInfo* im_info)
 {
-	if ( mOtherTyping )
+	if (mOtherTyping)
 	{
 		mOtherTyping = false;
 
-		// Revert the title to saved one
-		setTitle(mSavedTitle);
-
-		if ( im_info )
+		if (im_info)
 		{
 			// Update speaker
 			LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
-			if ( speaker_mgr )
+			if (speaker_mgr)
 			{
 				speaker_mgr->setSpeakerTyping(im_info->mFromID, FALSE);
 			}
