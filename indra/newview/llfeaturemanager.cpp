@@ -419,7 +419,7 @@ void LLFeatureManager::parseGPUTable(std::string filename)
 
 		// setup the tokenizer
 		std::string buf(buffer);
-		std::string cls, label, expr, supported;
+		std::string cls, label, expr, supported, stats_based, expected_gl_version;
 		boost_tokenizer tokens(buf, boost::char_separator<char>("\t\n"));
 		boost_tokenizer::iterator token_iter = tokens.begin();
 
@@ -439,6 +439,14 @@ void LLFeatureManager::parseGPUTable(std::string filename)
 		if(token_iter != tokens.end())
 		{
 			supported = *token_iter++;
+		}
+		if (token_iter != tokens.end())
+		{
+			stats_based = *token_iter++;
+		}
+		if (token_iter != tokens.end())
+		{
+			expected_gl_version = *token_iter++;
 		}
 
 		if (label.empty() || expr.empty() || cls.empty() || supported.empty())
@@ -469,6 +477,7 @@ void LLFeatureManager::parseGPUTable(std::string filename)
 			mGPUString = label;
 			mGPUClass = (EGPUClass) strtol(cls.c_str(), NULL, 10);
 			mGPUSupported = (BOOL) strtol(supported.c_str(), NULL, 10);
+			sscanf(expected_gl_version.c_str(), "%f", &mExpectedGLVersion);
 		}
 	}
 #if LL_EXPORT_GPU_TABLE
