@@ -34,12 +34,6 @@
     
 int main(int argc, char **argv)
 {
-    std::ofstream outputFile;
-    outputFile.open("/tmp/aura.txt");
-    outputFile << "TEstiNG" << std::endl;
-    llinfos << "SPATTERS ASDFSDFSDF" << llendl;
-	llinfos << "Starting crash reporter." << llendl;
-
 	LLCrashLoggerMac app;
 	app.parseCommandOptions(argc, argv);
 
@@ -56,8 +50,6 @@ int main(int argc, char **argv)
 	app.mainLoop();
 	app.cleanup();
 	llinfos << "Crash reporter finished normally." << llendl;
-    
-    outputFile.close();
     
 	return 0;
 }
