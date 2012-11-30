@@ -112,6 +112,8 @@ namespace LLTrace
 		void makePrimary();
 		bool isPrimary() const;
 
+		void makeUnique();
+
 		void appendRecording(const Recording& other);
 
 		void update();

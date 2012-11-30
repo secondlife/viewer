@@ -58,10 +58,6 @@ Recording::Recording( const Recording& other )
 	mStackTimers       = other.mStackTimers;
 
 	LLStopWatchControlsMixin::initTo(other.getPlayState());
-	if (other.isStarted())
-	{
-		handleStart();
-	}
 }
 
 
@@ -125,6 +121,15 @@ void Recording::makePrimary()
 bool Recording::isPrimary() const
 {
 	return mCounts->isPrimary();
+}
+
+void Recording::makeUnique()
+{
+	mCountsFloat.makeUnique();
+	mMeasurementsFloat.makeUnique();
+	mCounts.makeUnique();
+	mMeasurements.makeUnique();
+	mStackTimers.makeUnique();
 }
 
 void Recording::appendRecording( const Recording& other )
