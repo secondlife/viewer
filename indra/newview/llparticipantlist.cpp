@@ -366,8 +366,11 @@ bool LLParticipantList::onSpeakerMuteEvent(LLPointer<LLOldEvents::LLEvent> event
 
 void LLParticipantList::addAvatarIDExceptAgent(const LLUUID& avatar_id)
 {
-	// Do not add if already in there or excluded for some reason
-	if (findParticipant(avatar_id)) return;
+	// Do not add if already in there, is the session id (hence not an avatar) or excluded for some reason
+	if (findParticipant(avatar_id) || (avatar_id == mUUID))
+	{
+		return;
+	}
 
 	bool is_avatar = LLVoiceClient::getInstance()->isParticipantAvatar(avatar_id);
 
@@ -391,7 +394,7 @@ void LLParticipantList::addAvatarIDExceptAgent(const LLUUID& avatar_id)
 
 	// *TODO : Need to update the online/offline status of the participant
 	// Hack for this: LLAvatarTracker::instance().isBuddyOnline(avatar_id))
-
+	
 	// Add the participant model to the session's children list
 	addParticipant(participant);
 
@@ -413,12 +416,12 @@ void LLParticipantList::adjustParticipant(const LLUUID& speaker_id)
 bool LLParticipantList::SpeakerAddListener::handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
 {
 	/**
-	 * We need to filter speaking objects. These objects shouldn't appear in the list
+	 * We need to filter speaking objects. These objects shouldn't appear in the list.
 	 * @see LLFloaterChat::addChat() in llviewermessage.cpp to get detailed call hierarchy
 	 */
 	const LLUUID& speaker_id = event->getValue().asUUID();
 	LLPointer<LLSpeaker> speaker = mParent.mSpeakerMgr->findSpeaker(speaker_id);
-	if(speaker.isNull() || speaker->mType == LLSpeaker::SPEAKER_OBJECT)
+	if (speaker.isNull() || (speaker->mType == LLSpeaker::SPEAKER_OBJECT))
 	{
 		return false;
 	}
