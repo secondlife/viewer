@@ -154,6 +154,123 @@ LLUUID findDescendentCategoryIDByName(const LLUUID& parent_id, const std::string
 	}
 }
 
+// Shim between inventory callback and boost function
+typedef boost::function<void(const LLUUID&)> inventory_func_type;
+
+class LLBoostFuncInventoryCallback: public LLInventoryCallback
+{
+public:
+
+	LLBoostFuncInventoryCallback(const inventory_func_type& func):
+		mFunc(func)
+	{
+	}
+
+	void fire(const LLUUID& item_id)
+	{
+		mFunc(item_id);
+	}
+
+private:
+	inventory_func_type mFunc;
+};
+
+LLPointer<LLInventoryCallback> make_inventory_func_callback(const inventory_func_type& func)
+{
+	return new LLBoostFuncInventoryCallback(func); 
+}
+
+void report_fire(const LLUUID& item_id)
+{
+	llinfos << item_id << llendl;
+}
+
+class LLInventoryCopyMgr: public LLEventTimer 
+{
+public:
+	LLInventoryCopyMgr(LLInventoryModel::item_array_t& src_items, const LLUUID& dst_cat_id,
+					   bool append, const std::string& phase):
+		mDstCatID(dst_cat_id),
+		mAppend(append),
+		mTrackingPhase(phase),
+		LLEventTimer(5.0)
+	{
+		for (LLInventoryModel::item_array_t::const_iterator it = src_items.begin();
+			 it != src_items.end();
+			 ++it)
+		{
+			LLViewerInventoryItem* item = *it;
+			mSrcTimes[item->getUUID()] = LLTimer();
+			requestCopy(item->getUUID());
+		}
+		if (!mTrackingPhase.empty())
+		{
+			selfStartPhase(mTrackingPhase);
+		}
+	}
+
+	void requestCopy(const LLUUID& item_id)
+	{
+		LLViewerInventoryItem *item = gInventory.getItem(item_id);
+		if (!item)
+		{
+			llwarns << "requestCopy item not found " << item_id << llendl;
+			return;
+		}
+		copy_inventory_item(
+			gAgent.getID(),
+			item->getPermissions().getOwner(),
+			item->getUUID(),
+			mDstCatID,
+			std::string(),
+			make_inventory_func_callback(boost::bind(&LLInventoryCopyMgr::onCopy,this,item->getUUID(),_1))
+			);
+	}
+				
+	void onCopy(const LLUUID& src_id, const LLUUID& dst_id)
+	{
+		LL_DEBUGS("Avatar") << "copied, src_id " << src_id << " to dst_id " << dst_id << " after " << mSrcTimes[src_id].getElapsedTimeF32() << " seconds" << llendl;
+		mSrcTimes.erase(src_id);
+		if (mSrcTimes.empty())
+		{
+			onCompletion();
+		}
+	}
+
+	void onCompletion()
+	{
+		if (!mTrackingPhase.empty())
+		{
+			selfStopPhase(mTrackingPhase);
+		}
+		if( LLInventoryCallbackManager::is_instantiated() )
+		{
+			LLAppearanceMgr::instance().wearInventoryCategoryOnAvatar(gInventory.getCategory(mDstCatID), mAppend);
+		}
+	}
+	
+	// virtual
+	// Will be deleted after returning true - only safe to do this if all callbacks have fired.
+	BOOL tick()
+	{
+		bool all_done = mSrcTimes.empty();
+
+		if (!all_done)
+		{
+			llwarns << "possible hang in copy, waiting on " << mSrcTimes.size() << " items" << llendl;
+			// TODO possibly add retry logic here.
+
+		}
+		return all_done;
+	}
+
+private:
+	std::string mTrackingPhase;
+	std::map<LLUUID,LLTimer> mSrcTimes;
+	LLUUID mDstCatID;
+	bool mAppend;
+};
+
 class LLWearInventoryCategoryCallback : public LLInventoryCallback
 {
 public:
@@ -1979,22 +2096,10 @@ void LLAppearanceMgr::wearCategoryFinal(LLUUID& cat_id, bool copy_items, bool ap
 			pid,
 			LLFolderType::FT_NONE,
 			name);
-		LLPointer<LLInventoryCallback> cb = new LLWearInventoryCategoryCallback(new_cat_id, append);
-		it = items->begin();
-		for(; it < end; ++it)
-		{
-			item = *it;
-			if(item)
-			{
-				copy_inventory_item(
-					gAgent.getID(),
-					item->getPermissions().getOwner(),
-					item->getUUID(),
-					new_cat_id,
-					std::string(),
-					cb);
-			}
-		}
+
+		// Create a CopyMgr that will copy items, manage its own destruction
+		new LLInventoryCopyMgr(*items, new_cat_id, append, std::string("wear_inventory_category_callback"));
+
 		// BAP fixes a lag in display of created dir.
 		gInventory.notifyObservers();
 	}
