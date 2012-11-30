@@ -342,21 +342,12 @@
         name="incoming_voice_call"
         width="150" />
     <check_box
-        enabled="false"
-        control_name="PlaySoundGroupChatMessages"
-        height="16"
-        label="Group chat messages"
-        layout="topleft"
-        top_pad="6"
-        name="group_chat_messages"
-        width="150" />
-    <check_box
         control_name="PlaySoundTeleportOffer"
         height="16"
         label="Teleport offer"
         layout="topleft"
         left_pad="35"
-        top_pad="-59"
+        top_pad="-38"
         name="teleport_offer"
         width="150" />
     <check_box
