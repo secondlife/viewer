@@ -223,7 +223,8 @@ namespace LLTrace
 
 		LL_FORCE_INLINE ACCUMULATOR& getPrimaryAccumulator() const
 		{
-			return AccumulatorBuffer<ACCUMULATOR>::getPrimaryStorage()[mAccumulatorIndex];
+			ACCUMULATOR* accumulator_storage = AccumulatorBuffer<ACCUMULATOR>::getPrimaryStorage();
+			return accumulator_storage[mAccumulatorIndex];
 		}
 
 		size_t getIndex() const { return mAccumulatorIndex; }

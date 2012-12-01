@@ -1235,6 +1235,8 @@ bool LLAppViewer::mainLoop()
 	{
 		LLFastTimer _(FTM_FRAME);
 		LLTrace::BlockTimer::nextFrame(); 
+		LLTrace::get_frame_recording().nextPeriod();
+
 		LLTrace::getMasterThreadRecorder().pullFromSlaveThreads();
 
 		//clear call stack records
@@ -1352,8 +1354,6 @@ bool LLAppViewer::mainLoop()
 					LLFloaterSnapshot::update(); // take snapshots
 					gGLActive = FALSE;
 				}
-
-				LLTrace::get_frame_recording().nextPeriod();
 			}
 
 			pingMainloopTimeout("Main:Sleep");

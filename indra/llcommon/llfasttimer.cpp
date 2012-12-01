@@ -144,7 +144,6 @@ U64 BlockTimer::countsPerSecond() // counts per second for the *32-bit* timer
 	//getCPUFrequency returns MHz and sCPUClockFrequency wants to be in Hz
 	static LLUnit<LLUnits::Hertz, U64> sCPUClockFrequency = LLProcessorInfo().getCPUFrequency();
 
-	// we drop the low-order byte in our timers, so report a lower frequency
 #else
 	// If we're not using RDTSC, each fast timer tick is just a performance counter tick.
 	// Not redefining the clock frequency itself (in llprocessor.cpp/calculate_cpu_frequency())
@@ -157,7 +156,7 @@ U64 BlockTimer::countsPerSecond() // counts per second for the *32-bit* timer
 		firstcall = false;
 	}
 #endif
-	return sCPUClockFrequency >> 8;
+	return sCPUClockFrequency;
 }
 #endif
 
@@ -390,8 +389,7 @@ void BlockTimer::resetFrame()
 		static S32 call_count = 0;
 		if (call_count % 100 == 0)
 		{
-			LL_DEBUGS("FastTimers") << "countsPerSecond (32 bit): " << countsPerSecond() << LL_ENDL;
-			LL_DEBUGS("FastTimers") << "get_clock_count (64 bit): " << get_clock_count() << LL_ENDL;
+			LL_DEBUGS("FastTimers") << "countsPerSecond: " << countsPerSecond() << LL_ENDL;
 			LL_DEBUGS("FastTimers") << "LLProcessorInfo().getCPUFrequency() " << LLProcessorInfo().getCPUFrequency() << LL_ENDL;
 			LL_DEBUGS("FastTimers") << "getCPUClockCount32() " << getCPUClockCount32() << LL_ENDL;
 			LL_DEBUGS("FastTimers") << "getCPUClockCount64() " << getCPUClockCount64() << LL_ENDL;

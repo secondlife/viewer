@@ -71,7 +71,7 @@ template<typename UNIT_TYPE, typename STORAGE_TYPE>
 struct LLUnit
 {
 	typedef LLUnit<UNIT_TYPE, STORAGE_TYPE> self_t;
-	typedef typename STORAGE_TYPE storage_t;
+	typedef STORAGE_TYPE storage_t;
 
 	LLUnit(storage_t value = storage_t())
 	:	mValue(value)
