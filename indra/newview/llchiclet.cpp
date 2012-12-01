@@ -52,7 +52,6 @@
 #include "llsyswellwindow.h"
 
 static LLDefaultChildRegistry::Register<LLChicletPanel> t1("chiclet_panel");
-static LLDefaultChildRegistry::Register<LLIMWellChiclet> t2_0("chiclet_im_well");
 static LLDefaultChildRegistry::Register<LLNotificationChiclet> t2("chiclet_notification");
 static LLDefaultChildRegistry::Register<LLIMP2PChiclet> t3("chiclet_im_p2p");
 static LLDefaultChildRegistry::Register<LLIMGroupChiclet> t4("chiclet_im_group");
@@ -174,103 +173,6 @@ BOOL LLSysWellChiclet::handleRightMouseDown(S32 x, S32 y, MASK mask)
 		LLMenuGL::showPopup(this, mContextMenu, x, y);
 	}
 	return TRUE;
-}
-
-/************************************************************************/
-/*               LLIMWellChiclet implementation                         */
-/************************************************************************/
-LLIMWellChiclet::LLIMWellChiclet(const Params& p)
-: LLSysWellChiclet(p)
-{
-	LLIMModel::instance().addNewMsgCallback(boost::bind(&LLIMWellChiclet::messageCountChanged, this, _1));
-	LLIMModel::instance().addNoUnreadMsgsCallback(boost::bind(&LLIMWellChiclet::messageCountChanged, this, _1));
-
-	LLIMMgr::getInstance()->addSessionObserver(this);
-
-	LLIMWellWindow::getInstance()->setSysWellChiclet(this);
-}
-
-LLIMWellChiclet::~LLIMWellChiclet()
-{
-	LLIMWellWindow* im_well_window = LLIMWellWindow::findInstance();
-	if (im_well_window)
-	{
-		im_well_window->setSysWellChiclet(NULL);
-	}
-
-	LLIMMgr::getInstance()->removeSessionObserver(this);
-}
-
-void LLIMWellChiclet::onMenuItemClicked(const LLSD& user_data)
-{
-	std::string action = user_data.asString();
-	if("close all" == action)
-	{
-		LLIMWellWindow::getInstance()->closeAll();
-	}
-}
-
-bool LLIMWellChiclet::enableMenuItem(const LLSD& user_data)
-{
-	std::string item = user_data.asString();
-	if (item == "can close all")
-	{
-		return !LLIMWellWindow::getInstance()->isWindowEmpty();
-	}
-	return true;
-}
-
-void LLIMWellChiclet::createMenu()
-{
-	if(mContextMenu)
-	{
-		llwarns << "Menu already exists" << llendl;
-		return;
-	}
-
-	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
-	registrar.add("IMWellChicletMenu.Action",
-		boost::bind(&LLIMWellChiclet::onMenuItemClicked, this, _2));
-
-	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
-	enable_registrar.add("IMWellChicletMenu.EnableItem",
-		boost::bind(&LLIMWellChiclet::enableMenuItem, this, _2));
-
-	mContextMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>
-		("menu_im_well_button.xml",
-		 LLMenuGL::sMenuContainer,
-		 LLViewerMenuHolderGL::child_registry_t::instance());
-}
-
-void LLIMWellChiclet::messageCountChanged(const LLSD& session_data)
-{
-	// The singleton class LLChicletBar instance might be already deleted
-	// so don't create a new one.
-	if (!LLChicletBar::instanceExists())
-	{
-		return;
-	}
-
-	const LLUUID& session_id = session_data["session_id"];
-	const S32 counter = LLChicletBar::getInstance()->getTotalUnreadIMCount();
-	const bool im_not_visible = !LLFloaterReg::instanceVisible("im_container")
-		&& !LLFloaterReg::instanceVisible("impanel", session_id);
-
-	setNewMessagesState(counter > mCounter	&& im_not_visible);
-
-	// we have to flash to 'Lit' state each time new unread message is coming.
-	if (counter > mCounter && im_not_visible)
-	{
-		mFlashToLitTimer->startFlashing();
-	}
-	else if (counter == 0)
-	{
-		// if notification is resolved while well is flashing it can leave in the 'Lit' state
-		// when flashing finishes itself. Let break flashing here.
-		mFlashToLitTimer->stopFlashing();
-	}
-
-	setCounter(counter);
 }
 
 /************************************************************************/
