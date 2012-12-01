@@ -27,6 +27,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llagent.h"
 #include "llavatarnamecache.h"
 #include "llavataractions.h"
 #include "llevents.h"
@@ -161,8 +162,8 @@ void LLConversationItemSession::addParticipant(LLConversationItemParticipant* pa
 
 void LLConversationItemSession::updateParticipantName(LLConversationItemParticipant* participant)
 {
-	// We modify the session name only in the case of an ad-hoc session, exit otherwise (nothing to do)
-	if (getType() != CONV_SESSION_AD_HOC)
+	// We modify the session name only in the case of an ad-hoc session or P2P session, exit otherwise (nothing to do)
+	if ((getType() != CONV_SESSION_AD_HOC) && (getType() != CONV_SESSION_1_ON_1))
 	{
 		return;
 	}
@@ -171,26 +172,26 @@ void LLConversationItemSession::updateParticipantName(LLConversationItemParticip
 	{
 		return;
 	}
-	// Build a string containing the participants names and check if ready for display (we don't want "(waiting)" in there)
-	bool all_names_resolved = true;
+	// Build a string containing the participants names (minus own agent) and check if ready for display (we don't want "(waiting)" in there)
+	// Note: we don't bind ourselves to the LLAvatarNameCache event as updateParticipantName() is called by
+	// onAvatarNameCache() which is itself attached to the same event.
 	uuid_vec_t temp_uuids; // uuids vector for building the added participants' names string
 	child_list_t::iterator iter = mChildren.begin();
 	while (iter != mChildren.end())
 	{
 		LLConversationItemParticipant* current_participant = dynamic_cast<LLConversationItemParticipant*>(*iter);
-		temp_uuids.push_back(current_participant->getUUID());
-		LLAvatarName av_name;
-        if (!LLAvatarNameCache::get(current_participant->getUUID(), &av_name))
-        {
-			// If the name is not in the cache yet, bail out
-			// Note: we don't bind ourselves to the LLAvatarNameCache event as we are called by
-			// onAvatarNameCache() which is itself attached to the same event.
-			all_names_resolved = false;
-			break;
+		// Add the avatar uuid to the list (except if it's the own agent uuid)
+		if (current_participant->getUUID() != gAgentID)
+		{
+			LLAvatarName av_name;
+			if (LLAvatarNameCache::get(current_participant->getUUID(), &av_name))
+			{
+				temp_uuids.push_back(current_participant->getUUID());
+			}
 		}
 		iter++;
 	}
-	if (all_names_resolved)
+	if (temp_uuids.size() != 0)
 	{
 		std::string new_session_name;
 		LLAvatarActions::buildResidentsString(temp_uuids, new_session_name);
@@ -203,6 +204,7 @@ void LLConversationItemSession::removeParticipant(LLConversationItemParticipant*
 {
 	removeChild(participant);
 	mNeedsRefresh = true;
+	updateParticipantName(participant);
 	postEvent("remove_participant", this, participant);
 }
 
