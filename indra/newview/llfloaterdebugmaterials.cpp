@@ -159,58 +159,38 @@ BOOL LLFloaterDebugMaterials::postBuild()
 	mNormalMap = findChild<LLTextureCtrl>("normal_map");
 	llassert(mNormalMap != NULL);
 
-	mNormalMapOffsetX = findChild<LLLineEditor>("normal_map_offset_x");
+	mNormalMapOffsetX = findChild<LLSpinCtrl>("normal_map_offset_x");
 	llassert(mNormalMapOffsetX != NULL);
-	mNormalMapOffsetX->setPrevalidate(LLTextValidate::validateInt);
-	mNormalMapOffsetX->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onValueEntered, this, _1));
 
-	mNormalMapOffsetY = findChild<LLLineEditor>("normal_map_offset_y");
+	mNormalMapOffsetY = findChild<LLSpinCtrl>("normal_map_offset_y");
 	llassert(mNormalMapOffsetY != NULL);
-	mNormalMapOffsetY->setPrevalidate(LLTextValidate::validateInt);
-	mNormalMapOffsetY->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onValueEntered, this, _1));
 
-	mNormalMapRepeatX = findChild<LLLineEditor>("normal_map_repeat_x");
+	mNormalMapRepeatX = findChild<LLSpinCtrl>("normal_map_repeat_x");
 	llassert(mNormalMapRepeatX != NULL);
-	mNormalMapRepeatX->setPrevalidate(LLTextValidate::validateInt);
-	mNormalMapRepeatX->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onValueEntered, this, _1));
 
-	mNormalMapRepeatY = findChild<LLLineEditor>("normal_map_repeat_y");
+	mNormalMapRepeatY = findChild<LLSpinCtrl>("normal_map_repeat_y");
 	llassert(mNormalMapRepeatY != NULL);
-	mNormalMapRepeatY->setPrevalidate(LLTextValidate::validateInt);
-	mNormalMapRepeatY->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onValueEntered, this, _1));
 
-	mNormalMapRotation = findChild<LLLineEditor>("normal_map_rotation");
+	mNormalMapRotation = findChild<LLSpinCtrl>("normal_map_rotation");
 	llassert(mNormalMapRotation != NULL);
-	mNormalMapRotation->setPrevalidate(LLTextValidate::validateInt);
-	mNormalMapRotation->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onValueEntered, this, _1));
 
 	mSpecularMap = findChild<LLTextureCtrl>("specular_map");
 	llassert(mSpecularMap != NULL);
 
-	mSpecularMapOffsetX = findChild<LLLineEditor>("specular_map_offset_x");
+	mSpecularMapOffsetX = findChild<LLSpinCtrl>("specular_map_offset_x");
 	llassert(mSpecularMapOffsetX != NULL);
-	mSpecularMapOffsetX->setPrevalidate(LLTextValidate::validateInt);
-	mSpecularMapOffsetX->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onValueEntered, this, _1));
 
-	mSpecularMapOffsetY = findChild<LLLineEditor>("specular_map_offset_y");
+	mSpecularMapOffsetY = findChild<LLSpinCtrl>("specular_map_offset_y");
 	llassert(mSpecularMapOffsetY != NULL);
-	mSpecularMapOffsetY->setPrevalidate(LLTextValidate::validateInt);
-	mSpecularMapOffsetY->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onValueEntered, this, _1));
 
-	mSpecularMapRepeatX = findChild<LLLineEditor>("specular_map_repeat_x");
+	mSpecularMapRepeatX = findChild<LLSpinCtrl>("specular_map_repeat_x");
 	llassert(mSpecularMapRepeatX != NULL);
-	mSpecularMapRepeatX->setPrevalidate(LLTextValidate::validateInt);
-	mSpecularMapRepeatX->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onValueEntered, this, _1));
 
-	mSpecularMapRepeatY = findChild<LLLineEditor>("specular_map_repeat_y");
+	mSpecularMapRepeatY = findChild<LLSpinCtrl>("specular_map_repeat_y");
 	llassert(mSpecularMapRepeatY != NULL);
-	mSpecularMapRepeatY->setPrevalidate(LLTextValidate::validateInt);
-	mSpecularMapRepeatY->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onValueEntered, this, _1));
 
-	mSpecularMapRotation = findChild<LLLineEditor>("specular_map_rotation");
+	mSpecularMapRotation = findChild<LLSpinCtrl>("specular_map_rotation");
 	llassert(mSpecularMapRotation != NULL);
-	mSpecularMapRotation->setPrevalidate(LLTextValidate::validateInt);
-	mSpecularMapRotation->setCommitCallback(boost::bind(&LLFloaterDebugMaterials::onValueEntered, this, _1));
 
 	mSpecularColor = findChild<LLColorSwatchCtrl>("specular_color");
 	llassert(mSpecularColor != NULL);
@@ -1662,15 +1642,6 @@ std::string LLFloaterDebugMaterials::convertToPrintableMaterialID(const LLMateri
 
 template<typename T> T getLineEditorValue(const LLLineEditor *pLineEditor);
 
-template<> F32 getLineEditorValue(const LLLineEditor *pLineEditor)
-{
-	F32 value = 0;
-
-	LLStringUtil::convertToF32(pLineEditor->getText(), value);
-
-	return value;
-}
-
 template<> U8 getLineEditorValue(const LLLineEditor *pLineEditor)
 {
 	U8 value = 0;
@@ -1685,14 +1656,14 @@ LLMaterial LLFloaterDebugMaterials::getMaterial() const
 	LLMaterial material;
 
 	material.setNormalID(mNormalMap->getImageAssetID());
-	material.setNormalOffset(getLineEditorValue<F32>(mNormalMapOffsetX), getLineEditorValue<F32>(mNormalMapOffsetY));
-	material.setNormalRepeat(getLineEditorValue<F32>(mNormalMapRepeatX), getLineEditorValue<F32>(mNormalMapRepeatY));
-	material.setNormalRotation(getLineEditorValue<F32>(mNormalMapRotation));
+	material.setNormalOffset(mNormalMapOffsetX->get(), mNormalMapOffsetY->get());
+	material.setNormalRepeat(mNormalMapRepeatX->get(), mNormalMapRepeatY->get());
+	material.setNormalRotation(mNormalMapRotation->get());
 
 	material.setSpecularID(mSpecularMap->getImageAssetID());
-	material.setSpecularOffset(getLineEditorValue<F32>(mSpecularMapOffsetX), getLineEditorValue<F32>(mSpecularMapOffsetY));
-	material.setSpecularRepeat(getLineEditorValue<F32>(mSpecularMapRepeatX), getLineEditorValue<F32>(mSpecularMapRepeatY));
-	material.setSpecularRotation(getLineEditorValue<F32>(mSpecularMapRotation));
+	material.setSpecularOffset(mSpecularMapOffsetX->get(), mSpecularMapOffsetY->get());
+	material.setSpecularRepeat(mSpecularMapRepeatX->get(), mSpecularMapRepeatY->get());
+	material.setSpecularRotation(mSpecularMapRotation->get());
 
 	const LLColor4& specularColor = mSpecularColor->get();
 	LLColor4U specularColor4U = specularColor;
