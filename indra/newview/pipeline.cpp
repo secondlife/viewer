@@ -112,6 +112,7 @@
 #include "llfloaterpathfindingconsole.h"
 #include "llfloaterpathfindingcharacters.h"
 #include "llpathfindingpathtool.h"
+#include "llscenemonitor.h"
 
 #ifdef _DEBUG
 // Debug indices is disabled for now for debug performance - djs 4/24/02
@@ -3161,7 +3162,9 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 		}
 	}
 		
-	postSort(camera);	
+	postSort(camera);
+
+	LLSceneMonitor::getInstance()->fetchQueryResult();
 }
 
 void LLPipeline::stateSort(LLSpatialGroup* group, LLCamera& camera)

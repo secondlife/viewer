@@ -1,5 +1,5 @@
 /** 
- * @file twotexturecompareF.glsl
+ * @file onetexturefilterV.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -22,20 +22,17 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
+ 
+uniform mat4 modelview_projection_matrix;
 
-#ifdef DEFINE_GL_FRAGCOLOR
-out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
+ATTRIBUTE vec3 position;
+ATTRIBUTE vec2 texcoord0;
 
 VARYING vec2 vary_texcoord0;
-VARYING vec2 vary_texcoord1;
 
-void main() 
+void main()
 {
-	frag_color = abs(texture2D(tex0, vary_texcoord0.xy) - texture2D(tex1, vary_texcoord0.xy));
+	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
+	vary_texcoord0 = texcoord0;
 }
+

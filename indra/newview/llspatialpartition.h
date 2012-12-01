@@ -58,6 +58,8 @@ void pushVerts(LLFace* face, U32 mask);
 // get index buffer for binary encoded axis vertex buffer given a box at center being viewed by given camera
 U32 get_box_fan_indices(LLCamera* camera, const LLVector4a& center);
 U8* get_box_fan_indices_ptr(LLCamera* camera, const LLVector4a& center);
+GLuint get_new_occlusion_query_object_name();
+void release_occlusion_query_object_name(GLuint name);
 
 class LLDrawInfo : public LLRefCount 
 {

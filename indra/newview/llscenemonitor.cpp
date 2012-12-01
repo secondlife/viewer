@@ -36,18 +36,24 @@
 #include "llappviewer.h"
 #include "llwindow.h"
 #include "llpointer.h"
+#include "llspatialpartition.h"
 
 LLSceneMonitorView* gSceneMonitorView = NULL;
 
 LLSceneMonitor::LLSceneMonitor() : 
 	mEnabled(FALSE), 
-	mDiff(NULL), 
+	mDiff(NULL),
+	mDiffResult(0.f),
+	mDiffTolerance(0.1f),
 	mCurTarget(NULL), 
-	mNeedsUpdateDiff(FALSE), 
-	mDebugViewerVisible(FALSE)
+	mNeedsUpdateDiff(FALSE),
+	mHasNewDiff(FALSE),
+	mHasNewQueryResult(FALSE),
+	mDebugViewerVisible(FALSE),
+	mQueryObject(0)
 {
 	mFrames[0] = NULL;
-	mFrames[1] = NULL;
+	mFrames[1] = NULL;	
 }
 
 LLSceneMonitor::~LLSceneMonitor()
@@ -69,6 +75,15 @@ void LLSceneMonitor::reset()
 	mFrames[0] = NULL;
 	mFrames[1] = NULL;
 	mDiff = NULL;
+	mCurTarget = NULL;
+
+	unfreezeScene();
+
+	if(mQueryObject > 0)
+	{
+		release_occlusion_query_object_name(mQueryObject);
+		mQueryObject = 0;
+	}
 }
 
 void LLSceneMonitor::setDebugViewerVisible(BOOL visible) 
@@ -104,28 +119,6 @@ bool LLSceneMonitor::preCapture()
 	}
 
 	if(!mEnabled)
-	{
-		return false;
-	}
-
-	if (LLStartUp::getStartupState() < STATE_STARTED)
-	{
-		return false;
-	}
-
-	if(LLAppViewer::instance()->logoutRequestSent())
-	{
-		return false;
-	}
-
-	if(gWindowResized || gHeadlessClient || gTeleportDisplay || gRestoreGL || gDisconnected)
-	{
-		return false;
-	}
-
-	if (   !gViewerWindow->getActive()
-		|| !gViewerWindow->getWindow()->getVisible() 
-		|| gViewerWindow->getWindow()->getMinimized() )
 	{
 		return false;
 	}
@@ -174,12 +167,6 @@ bool LLSceneMonitor::preCapture()
 	return true;
 }
 
-void LLSceneMonitor::postCapture()
-{
-	mCurTarget = NULL;
-	mNeedsUpdateDiff = TRUE;
-}
-
 void LLSceneMonitor::freezeAvatar(LLCharacter* avatarp)
 {
 	mAvatarPauseHandles.push_back(avatarp->requestPause());
@@ -207,19 +194,14 @@ void LLSceneMonitor::unfreezeScene()
 	gSavedSettings.setBOOL("FreezeTime", FALSE);
 }
 
-LLRenderTarget* LLSceneMonitor::getDiffTarget() const 
-{
-	return mDiff;
-}
-
 void LLSceneMonitor::capture()
 {
-	static U32 count = 0;
-	if(count == gFrameCount)
+	static U32 last_capture_time = 0;
+	if(last_capture_time == gFrameCount)
 	{
 		return;
 	}
-	count = gFrameCount;
+	last_capture_time = gFrameCount;
 
 	preCapture();
 
@@ -239,7 +221,8 @@ void LLSceneMonitor::capture()
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);		
 	glBindFramebuffer(GL_FRAMEBUFFER, old_FBO);
 
-	postCapture();
+	mCurTarget = NULL;
+	mNeedsUpdateDiff = TRUE;
 }
 
 void LLSceneMonitor::compare()
@@ -248,6 +231,7 @@ void LLSceneMonitor::compare()
 	{
 		return;
 	}
+	mNeedsUpdateDiff = FALSE;
 
 	if(!mFrames[0] || !mFrames[1])
 	{
@@ -256,11 +240,6 @@ void LLSceneMonitor::compare()
 	if(mFrames[0]->getWidth() != mFrames[1]->getWidth() || mFrames[0]->getHeight() != mFrames[1]->getHeight())
 	{
 		return; //size does not match
-	}
-
-	if (!LLGLSLShader::sNoFixedFunction)
-	{
-		return;
 	}
 
 	S32 width = gViewerWindow->getWindowWidthRaw();
@@ -274,9 +253,10 @@ void LLSceneMonitor::compare()
 	{
 		mDiff->resize(width, height, GL_RGBA);
 	}
+
 	mDiff->bindTarget();
 	mDiff->clear();
-
+	
 	gTwoTextureCompareProgram.bind();
 	
 	gGL.getTexUnit(0)->activate();
@@ -288,21 +268,108 @@ void LLSceneMonitor::compare()
 	gGL.getTexUnit(1)->enable(LLTexUnit::TT_TEXTURE);
 	gGL.getTexUnit(1)->bind(mFrames[1]);
 	gGL.getTexUnit(1)->activate();	
-			
+	
 	gl_rect_2d_simple_tex(width, height);
 	
-	mDiff->flush();
+	mDiff->flush();	
 
 	gTwoTextureCompareProgram.unbind();
-	
+
 	gGL.getTexUnit(0)->disable();
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	gGL.getTexUnit(1)->disable();
 	gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
 
-	mNeedsUpdateDiff = FALSE;
+	mHasNewDiff = TRUE;
+	
+	//send out the query request.
+	queryDiff();
 }
 
+void LLSceneMonitor::queryDiff()
+{
+	if(mDebugViewerVisible)
+	{
+		return;
+	}
+
+	calcDiffAggregate();
+}
+
+//calculate Diff aggregate information in GPU, and enable gl occlusion query to capture it.
+void LLSceneMonitor::calcDiffAggregate()
+{
+	if(!mHasNewDiff && !mDebugViewerVisible)
+	{
+		return;
+	}	
+
+	if(!mQueryObject)
+	{
+		mQueryObject = get_new_occlusion_query_object_name();
+	}
+
+	LLGLDepthTest depth(true, false, GL_ALWAYS);
+	if(!mDebugViewerVisible)
+	{
+		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	}
+
+	LLGLSLShader* cur_shader = NULL;
+	
+	cur_shader = LLGLSLShader::sCurBoundShaderPtr;
+	gOneTextureFilterProgram.bind();
+	gOneTextureFilterProgram.uniform1f("tolerance", mDiffTolerance);
+
+	if(mHasNewDiff)
+	{
+		glBeginQueryARB(GL_SAMPLES_PASSED_ARB, mQueryObject);
+	}
+
+	gl_draw_scaled_target(0, 0, mDiff->getWidth() * 0.5f, mDiff->getHeight() * 0.5f, mDiff);
+
+	if(mHasNewDiff)
+	{
+		glEndQueryARB(GL_SAMPLES_PASSED_ARB);
+		mHasNewDiff = FALSE;	
+		mHasNewQueryResult = TRUE;
+	}
+		
+	gOneTextureFilterProgram.unbind();
+	
+	if(cur_shader != NULL)
+	{
+		cur_shader->bind();
+	}
+	
+	if(!mDebugViewerVisible)
+	{
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	}	
+}
+
+void LLSceneMonitor::fetchQueryResult()
+{
+	if(!mHasNewQueryResult)
+	{
+		return;
+	}
+	mHasNewQueryResult = FALSE;
+
+	GLuint available = 0;
+	glGetQueryObjectuivARB(mQueryObject, GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+	if(!available)
+	{
+		return;
+	}
+
+	GLuint count = 0;
+	glGetQueryObjectuivARB(mQueryObject, GL_QUERY_RESULT_ARB, &count);
+	
+	mDiffResult = count * 0.5f / (mDiff->getWidth() * mDiff->getHeight() * 0.25f);
+
+	//llinfos << count << " : " << mDiffResult << llendl;
+}
 //-------------------------------------------------------------------------------------------------------------
 //definition of class LLSceneMonitorView
 //-------------------------------------------------------------------------------------------------------------
@@ -330,27 +397,26 @@ void LLSceneMonitorView::setVisible(BOOL visible)
 
 void LLSceneMonitorView::draw()
 {
-	if (!LLGLSLShader::sNoFixedFunction)
-	{
-		return;
-	}
-	LLRenderTarget* target = LLSceneMonitor::getInstance()->getDiffTarget();
+	const LLRenderTarget* target = LLSceneMonitor::getInstance()->getDiffTarget();
 	if(!target)
 	{
 		return;
 	}
 
-	S32 height = (S32) (gViewerWindow->getWindowRectScaled().getHeight()*0.5f);
-	S32 width = (S32) (gViewerWindow->getWindowRectScaled().getWidth() * 0.5f);
+	S32 height = target->getHeight() * 0.5f;
+	S32 width = target->getWidth() * 0.5f;
+	//S32 height = (S32) (gViewerWindow->getWindowRectScaled().getHeight()*0.5f);
+	//S32 width = (S32) (gViewerWindow->getWindowRectScaled().getWidth() * 0.5f);
 	
 	LLRect new_rect;
 	new_rect.setLeftTopAndSize(getRect().mLeft, getRect().mTop, width, height);
 	setRect(new_rect);
 
-	//gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-	//gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0, LLColor4(0.f, 0.f, 0.f, 0.25f));
+	//draw background
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+	gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0, LLColor4(0.f, 0.f, 0.f, 0.25f));
 	
-	gl_draw_scaled_target(0, 0, getRect().getWidth(), getRect().getHeight(), target);
+	LLSceneMonitor::getInstance()->calcDiffAggregate();
 
 	LLView::draw();
 }

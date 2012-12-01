@@ -1,5 +1,5 @@
 /** 
- * @file twotexturecompareF.glsl
+ * @file onetexturefilterF.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -30,12 +30,20 @@ out vec4 frag_color;
 #endif
 
 uniform sampler2D tex0;
-uniform sampler2D tex1;
+uniform float tolerance;
 
 VARYING vec2 vary_texcoord0;
-VARYING vec2 vary_texcoord1;
 
 void main() 
 {
-	frag_color = abs(texture2D(tex0, vary_texcoord0.xy) - texture2D(tex1, vary_texcoord0.xy));
+	frag_color = texture2D(tex0, vary_texcoord0.xy);
+	
+	if(frag_color[0] + frag_color[1] + frag_color[2] < tolerance)
+	{
+		discard;
+	}
+	else
+	{		
+		frag_color[3] = 0.95f;	
+	}	
 }

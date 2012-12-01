@@ -126,6 +126,16 @@ protected:
 
 static LLOcclusionQueryPool sQueryPool;
 
+GLuint get_new_occlusion_query_object_name()
+{
+	return sQueryPool.allocate();
+}
+
+void release_occlusion_query_object_name(GLuint name)
+{
+	sQueryPool.release(name);
+}
+
 //static counter for frame to switch LOD on
 
 void sg_assert(BOOL expr)
@@ -283,7 +293,7 @@ LLSpatialGroup::~LLSpatialGroup()
 		{
 			if (mOcclusionQuery[i])
 			{
-				sQueryPool.release(mOcclusionQuery[i]);
+				release_occlusion_query_object_name(mOcclusionQuery[i]);
 			}
 		}
 	}
@@ -879,7 +889,7 @@ void LLSpatialGroup::setOcclusionState(U32 state, S32 mode)
 
 				if ((state & DISCARD_QUERY) && mOcclusionQuery[i])
 				{
-					sQueryPool.release(mOcclusionQuery[i]);
+					release_occlusion_query_object_name(mOcclusionQuery[i]);
 					mOcclusionQuery[i] = 0;
 				}
 			}
@@ -890,7 +900,7 @@ void LLSpatialGroup::setOcclusionState(U32 state, S32 mode)
 		mOcclusionState[LLViewerCamera::sCurCameraID] |= state;
 		if ((state & DISCARD_QUERY) && mOcclusionQuery[LLViewerCamera::sCurCameraID])
 		{
-			sQueryPool.release(mOcclusionQuery[LLViewerCamera::sCurCameraID]);
+			release_occlusion_query_object_name(mOcclusionQuery[LLViewerCamera::sCurCameraID]);
 			mOcclusionQuery[LLViewerCamera::sCurCameraID] = 0;
 		}
 	}
@@ -1237,7 +1247,7 @@ void LLSpatialGroup::destroyGL(bool keep_occlusion)
 		{
 			if (mOcclusionQuery[i])
 			{
-				sQueryPool.release(mOcclusionQuery[i]);
+				release_occlusion_query_object_name(mOcclusionQuery[i]);
 				mOcclusionQuery[i] = 0;
 			}
 		}
@@ -1318,7 +1328,7 @@ void LLSpatialGroup::checkOcclusion()
 				}
 				else if (mOcclusionQuery[LLViewerCamera::sCurCameraID])
 				{ //delete the query to avoid holding onto hundreds of pending queries
-					sQueryPool.release(mOcclusionQuery[LLViewerCamera::sCurCameraID]);
+					release_occlusion_query_object_name(mOcclusionQuery[LLViewerCamera::sCurCameraID]);
 					mOcclusionQuery[LLViewerCamera::sCurCameraID] = 0;
 				}
 				
@@ -1390,7 +1400,7 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 					if (!mOcclusionQuery[LLViewerCamera::sCurCameraID])
 					{
 						LLFastTimer t(FTM_OCCLUSION_ALLOCATE);
-						mOcclusionQuery[LLViewerCamera::sCurCameraID] = sQueryPool.allocate();
+						mOcclusionQuery[LLViewerCamera::sCurCameraID] = get_new_occlusion_query_object_name();
 					}
 
 					// Depth clamp all water to avoid it being culled as a result of being

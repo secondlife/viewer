@@ -79,6 +79,7 @@ LLGLSLShader	gSplatTextureRectProgram;
 LLGLSLShader	gGlowCombineFXAAProgram;
 LLGLSLShader	gTwoTextureAddProgram;
 LLGLSLShader	gTwoTextureCompareProgram;
+LLGLSLShader	gOneTextureFilterProgram;
 LLGLSLShader	gOneTextureNoColorProgram;
 LLGLSLShader	gDebugProgram;
 LLGLSLShader	gClipProgram;
@@ -674,6 +675,7 @@ void LLViewerShaderMgr::unloadShaders()
 	gGlowCombineFXAAProgram.unload();
 	gTwoTextureAddProgram.unload();
 	gTwoTextureCompareProgram.unload();
+	gOneTextureFilterProgram.unload();
 	gOneTextureNoColorProgram.unload();
 	gSolidColorProgram.unload();
 
@@ -2721,6 +2723,21 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 			gTwoTextureCompareProgram.bind();
 			gTwoTextureCompareProgram.uniform1i("tex0", 0);
 			gTwoTextureCompareProgram.uniform1i("tex1", 1);
+		}
+	}
+
+	if (success)
+	{
+		gOneTextureFilterProgram.mName = "One Texture Filter Shader";
+		gOneTextureFilterProgram.mShaderFiles.clear();
+		gOneTextureFilterProgram.mShaderFiles.push_back(make_pair("interface/onetexturefilterV.glsl", GL_VERTEX_SHADER_ARB));
+		gOneTextureFilterProgram.mShaderFiles.push_back(make_pair("interface/onetexturefilterF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gOneTextureFilterProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];
+		success = gOneTextureFilterProgram.createShader(NULL, NULL);
+		if (success)
+		{
+			gOneTextureFilterProgram.bind();
+			gOneTextureFilterProgram.uniform1i("tex0", 0);
 		}
 	}
 

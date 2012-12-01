@@ -48,8 +48,14 @@ public:
 
 	void capture(); //capture the main frame buffer
 	void compare(); //compare the stored two buffers.	
+	void queryDiff();	
+	void fetchQueryResult();
+	void calcDiffAggregate();
+	void setDiffTolerance(F32 tol) {mDiffTolerance = tol;}
 
-	LLRenderTarget* getDiffTarget() const;
+	const LLRenderTarget* getDiffTarget() const {return mDiff;}
+	F32  getDiffTolerance() const {return mDiffTolerance;}
+	F32  getDiffResult() const { return mDiffResult;}
 	bool isEnabled()const {return mEnabled;}
 	
 private:
@@ -57,16 +63,21 @@ private:
 	void unfreezeScene();
 	void reset();
 	bool preCapture();
-	void postCapture();
-	
+
 private:
 	BOOL mEnabled;
 	BOOL mNeedsUpdateDiff;
+	BOOL mHasNewDiff;
+	BOOL mHasNewQueryResult;
 	BOOL mDebugViewerVisible;
 
 	LLRenderTarget* mFrames[2];
 	LLRenderTarget* mDiff;
 	LLRenderTarget* mCurTarget;
+
+	GLuint  mQueryObject; //used for glQuery
+	F32     mDiffResult;  //aggregate results of mDiff.
+	F32     mDiffTolerance; //pixels are filtered out when R+G+B < mDiffTolerance
 
 	std::vector<LLAnimPauseRequest> mAvatarPauseHandles;
 };
