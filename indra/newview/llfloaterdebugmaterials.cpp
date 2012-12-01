@@ -46,6 +46,7 @@
 #include "llfontgl.h"
 #include "llhttpclient.h"
 #include "lllineeditor.h"
+#include "llmaterial.h"
 #include "llmaterialid.h"
 #include "llresmgr.h"
 #include "llscrolllistcell.h"
@@ -80,26 +81,6 @@
 #define MATERIALS_CAP_MATERIAL_FIELD              "Material"
 #define MATERIALS_CAP_OBJECT_ID_FIELD             "ID"
 #define MATERIALS_CAP_MATERIAL_ID_FIELD           "MaterialID"
-
-#define MATERIALS_CAP_NORMAL_MAP_FIELD            "NormMap"
-#define MATERIALS_CAP_NORMAL_MAP_OFFSET_X_FIELD   "NormOffsetX"
-#define MATERIALS_CAP_NORMAL_MAP_OFFSET_Y_FIELD   "NormOffsetY"
-#define MATERIALS_CAP_NORMAL_MAP_REPEAT_X_FIELD   "NormRepeatX"
-#define MATERIALS_CAP_NORMAL_MAP_REPEAT_Y_FIELD   "NormRepeatY"
-#define MATERIALS_CAP_NORMAL_MAP_ROTATION_FIELD   "NormRotation"
-
-#define MATERIALS_CAP_SPECULAR_MAP_FIELD          "SpecMap"
-#define MATERIALS_CAP_SPECULAR_MAP_OFFSET_X_FIELD "SpecOffsetX"
-#define MATERIALS_CAP_SPECULAR_MAP_OFFSET_Y_FIELD "SpecOffsetY"
-#define MATERIALS_CAP_SPECULAR_MAP_REPEAT_X_FIELD "SpecRepeatX"
-#define MATERIALS_CAP_SPECULAR_MAP_REPEAT_Y_FIELD "SpecRepeatY"
-#define MATERIALS_CAP_SPECULAR_MAP_ROTATION_FIELD "SpecRotation"
-
-#define MATERIALS_CAP_SPECULAR_COLOR_FIELD        "SpecColor"
-#define MATERIALS_CAP_SPECULAR_EXP_FIELD          "SpecExp"
-#define MATERIALS_CAP_ENV_INTENSITY_FIELD         "EnvIntensity"
-#define MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD     "AlphaMaskCutoff"
-#define MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD    "DiffuseAlphaMode"
 
 #define MULTI_MATERIALS_STATUS_FIELD              "status"
 #define MULTI_MATERIALS_DATA_FIELD                "data"
@@ -763,26 +744,8 @@ void LLFloaterDebugMaterials::requestPutMaterials(bool pIsDoSet)
 			LLSD materialData = LLSD::emptyMap();
 			if (pIsDoSet)
 			{
-				materialData[MATERIALS_CAP_NORMAL_MAP_FIELD] = mNormalMap->getImageAssetID();
-				materialData[MATERIALS_CAP_NORMAL_MAP_OFFSET_X_FIELD] = static_cast<LLSD::Integer>(getNormalMapOffsetX());
-				materialData[MATERIALS_CAP_NORMAL_MAP_OFFSET_Y_FIELD] = static_cast<LLSD::Integer>(getNormalMapOffsetY());
-				materialData[MATERIALS_CAP_NORMAL_MAP_REPEAT_X_FIELD] = static_cast<LLSD::Integer>(getNormalMapRepeatX());
-				materialData[MATERIALS_CAP_NORMAL_MAP_REPEAT_Y_FIELD] = static_cast<LLSD::Integer>(getNormalMapRepeatY());
-				materialData[MATERIALS_CAP_NORMAL_MAP_ROTATION_FIELD] = static_cast<LLSD::Integer>(getNormalMapRotation());
-
-				materialData[MATERIALS_CAP_SPECULAR_MAP_FIELD] = mSpecularMap->getImageAssetID();
-				materialData[MATERIALS_CAP_SPECULAR_MAP_OFFSET_X_FIELD] = static_cast<LLSD::Integer>(getSpecularMapOffsetX());
-				materialData[MATERIALS_CAP_SPECULAR_MAP_OFFSET_Y_FIELD] = static_cast<LLSD::Integer>(getSpecularMapOffsetY());
-				materialData[MATERIALS_CAP_SPECULAR_MAP_REPEAT_X_FIELD] = static_cast<LLSD::Integer>(getSpecularMapRepeatX());
-				materialData[MATERIALS_CAP_SPECULAR_MAP_REPEAT_Y_FIELD] = static_cast<LLSD::Integer>(getSpecularMapRepeatY());
-				materialData[MATERIALS_CAP_SPECULAR_MAP_ROTATION_FIELD] = static_cast<LLSD::Integer>(getSpecularMapRotation());
-
-				LLColor4U specularColor = getSpecularColor();
-				materialData[MATERIALS_CAP_SPECULAR_COLOR_FIELD] = specularColor.getValue();
-				materialData[MATERIALS_CAP_SPECULAR_EXP_FIELD] = static_cast<LLSD::Integer>(getSpecularExponent());
-				materialData[MATERIALS_CAP_ENV_INTENSITY_FIELD] = static_cast<LLSD::Integer>(getEnvironmentExponent());
-				materialData[MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD] = static_cast<LLSD::Integer>(getAlphMaskCutoff());
-				materialData[MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD] = static_cast<LLSD::Integer>(getDiffuseAlphaMode());
+				LLMaterial material = getMaterial();
+				materialData = material.asLLSD();
 			}
 
 			LLObjectSelectionHandle selectionHandle = LLSelectMgr::getInstance()->getEditSelection();
@@ -1086,85 +1049,20 @@ void LLFloaterDebugMaterials::parseGetResponse()
 			(currentParseCount < 10) && (materialIter != mUnparsedGetData.endArray());
 			++currentParseCount, ++materialIndex, ++materialIter)
 		{
-			const LLSD &material = *materialIter;
-			llassert(material.isMap());
-			llassert(material.has(MATERIALS_CAP_OBJECT_ID_FIELD));
-			llassert(material.get(MATERIALS_CAP_OBJECT_ID_FIELD).isBinary());
-			const LLSD &materialID = material.get(MATERIALS_CAP_OBJECT_ID_FIELD);
+			const LLSD &material_entry = *materialIter;
+			llassert(material_entry.isMap());
+			llassert(material_entry.has(MATERIALS_CAP_OBJECT_ID_FIELD));
+			llassert(material_entry.get(MATERIALS_CAP_OBJECT_ID_FIELD).isBinary());
+			const LLSD &materialID = material_entry.get(MATERIALS_CAP_OBJECT_ID_FIELD);
 			std::string materialIDString = convertToPrintableMaterialID(materialID);
 
-			llassert(material.has(MATERIALS_CAP_MATERIAL_FIELD));
-			const LLSD &materialData = material.get(MATERIALS_CAP_MATERIAL_FIELD);
+			llassert(material_entry.has(MATERIALS_CAP_MATERIAL_FIELD));
+			const LLSD &materialData = material_entry.get(MATERIALS_CAP_MATERIAL_FIELD);
 			llassert(materialData.isMap());
 
-			llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_FIELD));
-			llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_FIELD).isUUID());
-			const LLUUID &normalMapID = materialData.get(MATERIALS_CAP_NORMAL_MAP_FIELD).asUUID();
+			LLMaterial material(materialData);
 
-			llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_OFFSET_X_FIELD));
-			llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_OFFSET_X_FIELD).isInteger());
-			S32 normalMapOffsetX = materialData.get(MATERIALS_CAP_NORMAL_MAP_OFFSET_X_FIELD).asInteger();
-
-			llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_OFFSET_Y_FIELD));
-			llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_OFFSET_Y_FIELD).isInteger());
-			S32 normalMapOffsetY = materialData.get(MATERIALS_CAP_NORMAL_MAP_OFFSET_Y_FIELD).asInteger();
-
-			llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_REPEAT_X_FIELD));
-			llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_REPEAT_X_FIELD).isInteger());
-			S32 normalMapRepeatX = materialData.get(MATERIALS_CAP_NORMAL_MAP_REPEAT_X_FIELD).asInteger();
-
-			llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_REPEAT_Y_FIELD));
-			llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_REPEAT_Y_FIELD).isInteger());
-			S32 normalMapRepeatY = materialData.get(MATERIALS_CAP_NORMAL_MAP_REPEAT_Y_FIELD).asInteger();
-
-			llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_ROTATION_FIELD));
-			llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_ROTATION_FIELD).isInteger());
-			S32 normalMapRotation = materialData.get(MATERIALS_CAP_NORMAL_MAP_ROTATION_FIELD).asInteger();
-
-			llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_FIELD));
-			llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_FIELD).isUUID());
-			const LLUUID &specularMapID = materialData.get(MATERIALS_CAP_SPECULAR_MAP_FIELD).asUUID();
-
-			llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_OFFSET_X_FIELD));
-			llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_OFFSET_X_FIELD).isInteger());
-			S32 specularMapOffsetX = materialData.get(MATERIALS_CAP_SPECULAR_MAP_OFFSET_X_FIELD).asInteger();
-
-			llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_OFFSET_Y_FIELD));
-			llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_OFFSET_Y_FIELD).isInteger());
-			S32 specularMapOffsetY = materialData.get(MATERIALS_CAP_SPECULAR_MAP_OFFSET_Y_FIELD).asInteger();
-
-			llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_REPEAT_X_FIELD));
-			llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_REPEAT_X_FIELD).isInteger());
-			S32 specularMapRepeatX = materialData.get(MATERIALS_CAP_SPECULAR_MAP_REPEAT_X_FIELD).asInteger();
-
-			llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_REPEAT_Y_FIELD));
-			llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_REPEAT_Y_FIELD).isInteger());
-			S32 specularMapRepeatY = materialData.get(MATERIALS_CAP_SPECULAR_MAP_REPEAT_Y_FIELD).asInteger();
-
-			llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_ROTATION_FIELD));
-			llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_ROTATION_FIELD).isInteger());
-			S32 specularMapRotation = materialData.get(MATERIALS_CAP_SPECULAR_MAP_ROTATION_FIELD).asInteger();
-
-			llassert(materialData.has(MATERIALS_CAP_SPECULAR_COLOR_FIELD));
-			llassert(materialData.get(MATERIALS_CAP_SPECULAR_COLOR_FIELD).isArray());
-			LLColor4U specularColor;
-			specularColor.setValue(materialData.get(MATERIALS_CAP_SPECULAR_COLOR_FIELD));
-
-			llassert(materialData.has(MATERIALS_CAP_SPECULAR_EXP_FIELD));
-			llassert(materialData.get(MATERIALS_CAP_SPECULAR_EXP_FIELD).isInteger());
-			S32 specularExp = materialData.get(MATERIALS_CAP_SPECULAR_EXP_FIELD).asInteger();
-
-			llassert(materialData.has(MATERIALS_CAP_ENV_INTENSITY_FIELD));
-			llassert(materialData.get(MATERIALS_CAP_ENV_INTENSITY_FIELD).isInteger());
-			S32 envIntensity = materialData.get(MATERIALS_CAP_ENV_INTENSITY_FIELD).asInteger();
-
-			llassert(materialData.has(MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD));
-			llassert(materialData.get(MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD).isInteger());
-			S32 alphaMaskCutoff = materialData.get(MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD).asInteger();
-
-			llassert(materialData.has(MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD));
-			llassert(materialData.get(MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD).isInteger());
-			S32 diffuseAlphaMode = materialData.get(MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD).asInteger();
+			F32 x, y;
 
 			cellParams.font = LLFontGL::getFontMonospace();
 
@@ -1175,78 +1073,80 @@ void LLFloaterDebugMaterials::parseGetResponse()
 			otherDataRowParams.columns.add(cellParams);
 
 			cellParams.column = "normal_map_list_map";
-			cellParams.value = normalMapID.asString();
+			cellParams.value = material.getNormalID().asString();
 			normalMapRowParams.columns.add(cellParams);
 
 			cellParams.font = LLFontGL::getFontSansSerif();
 
+			material.getNormalOffset(x, y);
 			cellParams.column = "normal_map_list_offset_x";
-			cellParams.value = llformat("%d", normalMapOffsetX);
+			cellParams.value = llformat("%f", x);
 			normalMapRowParams.columns.add(cellParams);
-
 			cellParams.column = "normal_map_list_offset_y";
-			cellParams.value = llformat("%d", normalMapOffsetY);
+			cellParams.value = llformat("%f", y);
 			normalMapRowParams.columns.add(cellParams);
 
+			material.getNormalRepeat(x, y);
 			cellParams.column = "normal_map_list_repeat_x";
-			cellParams.value = llformat("%d", normalMapRepeatX);
+			cellParams.value = llformat("%f", x);
 			normalMapRowParams.columns.add(cellParams);
-
 			cellParams.column = "normal_map_list_repeat_y";
-			cellParams.value = llformat("%d", normalMapRepeatY);
+			cellParams.value = llformat("%f", y);
 			normalMapRowParams.columns.add(cellParams);
 
 			cellParams.column = "normal_map_list_rotation";
-			cellParams.value = llformat("%d", normalMapRotation);
+			cellParams.value = llformat("%f", material.getNormalRotation());
 			normalMapRowParams.columns.add(cellParams);
 
 			cellParams.font = LLFontGL::getFontMonospace();
 
 			cellParams.column = "specular_map_list_map";
-			cellParams.value = specularMapID.asString();
+			cellParams.value = material.getSpecularID().asString();
 			specularMapRowParams.columns.add(cellParams);
 
 			cellParams.font = LLFontGL::getFontSansSerif();
 
+			material.getSpecularOffset(x, y);
 			cellParams.column = "specular_map_list_offset_x";
-			cellParams.value = llformat("%d", specularMapOffsetX);
+			cellParams.value = llformat("%f", x);
 			specularMapRowParams.columns.add(cellParams);
-
 			cellParams.column = "specular_map_list_offset_y";
-			cellParams.value = llformat("%d", specularMapOffsetY);
+			cellParams.value = llformat("%f", y);
 			specularMapRowParams.columns.add(cellParams);
 
+			material.getSpecularRepeat(x, y);
 			cellParams.column = "specular_map_list_repeat_x";
-			cellParams.value = llformat("%d", specularMapRepeatX);
+			cellParams.value = llformat("%f", x);
 			specularMapRowParams.columns.add(cellParams);
 
 			cellParams.column = "specular_map_list_repeat_y";
-			cellParams.value = llformat("%d", specularMapRepeatY);
+			cellParams.value = llformat("%f", y);
 			specularMapRowParams.columns.add(cellParams);
 
 			cellParams.column = "specular_map_list_rotation";
-			cellParams.value = llformat("%d", specularMapRotation);
+			cellParams.value = llformat("%d", material.getSpecularRotation());
 			specularMapRowParams.columns.add(cellParams);
 
+			const LLColor4U& specularColor = material.getSpecularLightColor();
 			cellParams.column = "specular_color";
 			cellParams.value = llformat("(%d, %d, %d, %d)", specularColor.mV[0],
 				specularColor.mV[1], specularColor.mV[2], specularColor.mV[3]);
 			otherDataRowParams.columns.add(cellParams);
 
 			cellParams.column = "specular_exponent";
-			cellParams.value = llformat("%d", specularExp);
+			cellParams.value = llformat("%d", material.getSpecularLightExponent());
 			otherDataRowParams.columns.add(cellParams);
 
 			cellParams.column = "env_intensity";
-			cellParams.value = llformat("%d", envIntensity);
+			cellParams.value = llformat("%d", material.getEnvironmentIntensity());
 			otherDataRowParams.columns.add(cellParams);
 
 			cellParams.column = "alpha_mask_cutoff";
-			cellParams.value = llformat("%d", alphaMaskCutoff);
+			cellParams.value = llformat("%d", material.getAlphaMaskCutoff());
 			otherDataRowParams.columns.add(cellParams);
 
 			cellParams.column = "diffuse_alpha_mode";
-			cellParams.value = llformat("%d", diffuseAlphaMode);
+			cellParams.value = llformat("%d", material.getDiffuseAlphaMode());
 			otherDataRowParams.columns.add(cellParams);
 
 			normalMapRowParams.value = materialIDString;
@@ -1377,85 +1277,20 @@ void LLFloaterDebugMaterials::parsePostResponse(const LLSD& pMultiContent)
 			for (LLSD::array_const_iterator materialIter = unzippedPostData.beginArray();
 				materialIter != unzippedPostData.endArray(); ++materialIter)
 			{
-				const LLSD &material = *materialIter;
-				llassert(material.isMap());
-				llassert(material.has(MATERIALS_CAP_OBJECT_ID_FIELD));
-				llassert(material.get(MATERIALS_CAP_OBJECT_ID_FIELD).isBinary());
-				const LLSD &materialID = material.get(MATERIALS_CAP_OBJECT_ID_FIELD);
+				const LLSD &material_entry = *materialIter;
+				llassert(material_entry.isMap());
+				llassert(material_entry.has(MATERIALS_CAP_OBJECT_ID_FIELD));
+				llassert(material_entry.get(MATERIALS_CAP_OBJECT_ID_FIELD).isBinary());
+				const LLSD &materialID = material_entry.get(MATERIALS_CAP_OBJECT_ID_FIELD);
 				std::string materialIDString = convertToPrintableMaterialID(materialID);
 
-				llassert(material.has(MATERIALS_CAP_MATERIAL_FIELD));
-				const LLSD &materialData = material.get(MATERIALS_CAP_MATERIAL_FIELD);
+				llassert(material_entry.has(MATERIALS_CAP_MATERIAL_FIELD));
+				const LLSD &materialData = material_entry.get(MATERIALS_CAP_MATERIAL_FIELD);
 				llassert(materialData.isMap());
 
-				llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_FIELD));
-				llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_FIELD).isUUID());
-				const LLUUID &normalMapID = materialData.get(MATERIALS_CAP_NORMAL_MAP_FIELD).asUUID();
+				LLMaterial material(materialData);
 
-				llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_OFFSET_X_FIELD));
-				llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_OFFSET_X_FIELD).isInteger());
-				S32 normalMapOffsetX = materialData.get(MATERIALS_CAP_NORMAL_MAP_OFFSET_X_FIELD).asInteger();
-
-				llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_OFFSET_Y_FIELD));
-				llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_OFFSET_Y_FIELD).isInteger());
-				S32 normalMapOffsetY = materialData.get(MATERIALS_CAP_NORMAL_MAP_OFFSET_Y_FIELD).asInteger();
-
-				llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_REPEAT_X_FIELD));
-				llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_REPEAT_X_FIELD).isInteger());
-				S32 normalMapRepeatX = materialData.get(MATERIALS_CAP_NORMAL_MAP_REPEAT_X_FIELD).asInteger();
-
-				llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_REPEAT_Y_FIELD));
-				llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_REPEAT_Y_FIELD).isInteger());
-				S32 normalMapRepeatY = materialData.get(MATERIALS_CAP_NORMAL_MAP_REPEAT_Y_FIELD).asInteger();
-
-				llassert(materialData.has(MATERIALS_CAP_NORMAL_MAP_ROTATION_FIELD));
-				llassert(materialData.get(MATERIALS_CAP_NORMAL_MAP_ROTATION_FIELD).isInteger());
-				S32 normalMapRotation = materialData.get(MATERIALS_CAP_NORMAL_MAP_ROTATION_FIELD).asInteger();
-
-				llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_FIELD));
-				llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_FIELD).isUUID());
-				const LLUUID &specularMapID = materialData.get(MATERIALS_CAP_SPECULAR_MAP_FIELD).asUUID();
-
-				llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_OFFSET_X_FIELD));
-				llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_OFFSET_X_FIELD).isInteger());
-				S32 specularMapOffsetX = materialData.get(MATERIALS_CAP_SPECULAR_MAP_OFFSET_X_FIELD).asInteger();
-
-				llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_OFFSET_Y_FIELD));
-				llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_OFFSET_Y_FIELD).isInteger());
-				S32 specularMapOffsetY = materialData.get(MATERIALS_CAP_SPECULAR_MAP_OFFSET_Y_FIELD).asInteger();
-
-				llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_REPEAT_X_FIELD));
-				llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_REPEAT_X_FIELD).isInteger());
-				S32 specularMapRepeatX = materialData.get(MATERIALS_CAP_SPECULAR_MAP_REPEAT_X_FIELD).asInteger();
-
-				llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_REPEAT_Y_FIELD));
-				llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_REPEAT_Y_FIELD).isInteger());
-				S32 specularMapRepeatY = materialData.get(MATERIALS_CAP_SPECULAR_MAP_REPEAT_Y_FIELD).asInteger();
-
-				llassert(materialData.has(MATERIALS_CAP_SPECULAR_MAP_ROTATION_FIELD));
-				llassert(materialData.get(MATERIALS_CAP_SPECULAR_MAP_ROTATION_FIELD).isInteger());
-				S32 specularMapRotation = materialData.get(MATERIALS_CAP_SPECULAR_MAP_ROTATION_FIELD).asInteger();
-
-				llassert(materialData.has(MATERIALS_CAP_SPECULAR_COLOR_FIELD));
-				llassert(materialData.get(MATERIALS_CAP_SPECULAR_COLOR_FIELD).isArray());
-				LLColor4U specularColor;
-				specularColor.setValue(materialData.get(MATERIALS_CAP_SPECULAR_COLOR_FIELD));
-
-				llassert(materialData.has(MATERIALS_CAP_SPECULAR_EXP_FIELD));
-				llassert(materialData.get(MATERIALS_CAP_SPECULAR_EXP_FIELD).isInteger());
-				S32 specularExp = materialData.get(MATERIALS_CAP_SPECULAR_EXP_FIELD).asInteger();
-
-				llassert(materialData.has(MATERIALS_CAP_ENV_INTENSITY_FIELD));
-				llassert(materialData.get(MATERIALS_CAP_ENV_INTENSITY_FIELD).isInteger());
-				S32 envIntensity = materialData.get(MATERIALS_CAP_ENV_INTENSITY_FIELD).asInteger();
-
-				llassert(materialData.has(MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD));
-				llassert(materialData.get(MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD).isInteger());
-				S32 alphaMaskCutoff = materialData.get(MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD).asInteger();
-
-				llassert(materialData.has(MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD));
-				llassert(materialData.get(MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD).isInteger());
-				S32 diffuseAlphaMode = materialData.get(MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD).asInteger();
+				F32 x, y;
 
 				cellParams.font = LLFontGL::getFontMonospace();
 
@@ -1466,78 +1301,79 @@ void LLFloaterDebugMaterials::parsePostResponse(const LLSD& pMultiContent)
 				otherDataRowParams.columns.add(cellParams);
 
 				cellParams.column = "normal_map_list_map";
-				cellParams.value = normalMapID.asString();
+				cellParams.value = material.getNormalID().asString();
 				normalMapRowParams.columns.add(cellParams);
 
 				cellParams.font = LLFontGL::getFontSansSerif();
 
+				material.getNormalOffset(x, y);
 				cellParams.column = "normal_map_list_offset_x";
-				cellParams.value = llformat("%d", normalMapOffsetX);
+				cellParams.value = llformat("%f", x);
 				normalMapRowParams.columns.add(cellParams);
-
 				cellParams.column = "normal_map_list_offset_y";
-				cellParams.value = llformat("%d", normalMapOffsetY);
+				cellParams.value = llformat("%f", y);
 				normalMapRowParams.columns.add(cellParams);
 
+				material.getNormalRepeat(x, y);
 				cellParams.column = "normal_map_list_repeat_x";
-				cellParams.value = llformat("%d", normalMapRepeatX);
+				cellParams.value = llformat("%f", x);
 				normalMapRowParams.columns.add(cellParams);
-
 				cellParams.column = "normal_map_list_repeat_y";
-				cellParams.value = llformat("%d", normalMapRepeatY);
+				cellParams.value = llformat("%f", y);
 				normalMapRowParams.columns.add(cellParams);
 
 				cellParams.column = "normal_map_list_rotation";
-				cellParams.value = llformat("%d", normalMapRotation);
+				cellParams.value = llformat("%f", material.getNormalRotation());
 				normalMapRowParams.columns.add(cellParams);
 
 				cellParams.font = LLFontGL::getFontMonospace();
 
 				cellParams.column = "specular_map_list_map";
-				cellParams.value = specularMapID.asString();
+				cellParams.value = material.getSpecularID().asString();
 				specularMapRowParams.columns.add(cellParams);
 
 				cellParams.font = LLFontGL::getFontSansSerif();
 
+				material.getSpecularOffset(x, y);
 				cellParams.column = "specular_map_list_offset_x";
-				cellParams.value = llformat("%d", specularMapOffsetX);
+				cellParams.value = llformat("%f", x);
 				specularMapRowParams.columns.add(cellParams);
-
 				cellParams.column = "specular_map_list_offset_y";
-				cellParams.value = llformat("%d", specularMapOffsetY);
+				cellParams.value = llformat("%f", y);
 				specularMapRowParams.columns.add(cellParams);
 
+				material.getSpecularRepeat(x, y);
 				cellParams.column = "specular_map_list_repeat_x";
-				cellParams.value = llformat("%d", specularMapRepeatX);
+				cellParams.value = llformat("%f", x);
 				specularMapRowParams.columns.add(cellParams);
-
 				cellParams.column = "specular_map_list_repeat_y";
-				cellParams.value = llformat("%d", specularMapRepeatY);
+				cellParams.value = llformat("%f", y);
 				specularMapRowParams.columns.add(cellParams);
 
 				cellParams.column = "specular_map_list_rotation";
-				cellParams.value = llformat("%d", specularMapRotation);
+				cellParams.value = llformat("%d", material.getSpecularRotation());
 				specularMapRowParams.columns.add(cellParams);
 
+				const LLColor4U& specularColor = material.getSpecularLightColor();
 				cellParams.column = "specular_color";
 				cellParams.value = llformat("(%d, %d, %d, %d)", specularColor.mV[0],
 					specularColor.mV[1], specularColor.mV[2], specularColor.mV[3]);
 				otherDataRowParams.columns.add(cellParams);
 
 				cellParams.column = "specular_exponent";
-				cellParams.value = llformat("%d", specularExp);
+				cellParams.value = llformat("%d", material.getSpecularLightExponent());
 				otherDataRowParams.columns.add(cellParams);
 
 				cellParams.column = "env_intensity";
-				cellParams.value = llformat("%d", envIntensity);
+				cellParams.value = llformat("%d", material.getEnvironmentIntensity());
 				otherDataRowParams.columns.add(cellParams);
 
 				cellParams.column = "alpha_mask_cutoff";
-				cellParams.value = llformat("%d", alphaMaskCutoff);
+				cellParams.value = llformat("%d", material.getAlphaMaskCutoff());
 				otherDataRowParams.columns.add(cellParams);
 
 				cellParams.column = "diffuse_alpha_mode";
-				cellParams.value = llformat("%d", diffuseAlphaMode);
+				cellParams.value = llformat("%d", material.getDiffuseAlphaMode());
 				otherDataRowParams.columns.add(cellParams);
 
 				normalMapRowParams.value = materialIDString;
@@ -1824,93 +1660,51 @@ std::string LLFloaterDebugMaterials::convertToPrintableMaterialID(const LLMateri
 	return materialIDString;
 }
 
-S32 LLFloaterDebugMaterials::getNormalMapOffsetX() const
+template<typename T> T getLineEditorValue(const LLLineEditor *pLineEditor);
+
+template<> F32 getLineEditorValue(const LLLineEditor *pLineEditor)
 {
-	return getLineEditorValue(mNormalMapOffsetX);
-}
+	F32 value = 0;
 
-S32 LLFloaterDebugMaterials::getNormalMapOffsetY() const
-{
-	return getLineEditorValue(mNormalMapOffsetY);
-}
-
-S32 LLFloaterDebugMaterials::getNormalMapRepeatX() const
-{
-	return getLineEditorValue(mNormalMapRepeatX);
-}
-
-S32 LLFloaterDebugMaterials::getNormalMapRepeatY() const
-{
-	return getLineEditorValue(mNormalMapRepeatY);
-}
-
-S32 LLFloaterDebugMaterials::getNormalMapRotation() const
-{
-	return getLineEditorValue(mNormalMapRotation);
-}
-
-S32 LLFloaterDebugMaterials::getSpecularMapOffsetX() const
-{
-	return getLineEditorValue(mSpecularMapOffsetX);
-}
-
-S32 LLFloaterDebugMaterials::getSpecularMapOffsetY() const
-{
-	return getLineEditorValue(mSpecularMapOffsetY);
-}
-
-S32 LLFloaterDebugMaterials::getSpecularMapRepeatX() const
-{
-	return getLineEditorValue(mSpecularMapRepeatX);
-}
-
-S32 LLFloaterDebugMaterials::getSpecularMapRepeatY() const
-{
-	return getLineEditorValue(mSpecularMapRepeatY);
-}
-
-S32 LLFloaterDebugMaterials::getSpecularMapRotation() const
-{
-	return getLineEditorValue(mSpecularMapRotation);
-}
-
-LLColor4U LLFloaterDebugMaterials::getSpecularColor() const
-{
-	const LLColor4& specularColor = mSpecularColor->get();
-	LLColor4U specularColor4U = specularColor;
-
-	specularColor4U.setAlpha(static_cast<U8>(llclamp(llround(mSpecularColorAlpha->get()), 0, 255)));
-
-	return specularColor4U;
-}
-
-S32 LLFloaterDebugMaterials::getSpecularExponent() const
-{
-	return getLineEditorValue(mSpecularExponent);
-}
-
-S32 LLFloaterDebugMaterials::getEnvironmentExponent() const
-{
-	return getLineEditorValue(mEnvironmentExponent);
-}
-
-S32 LLFloaterDebugMaterials::getAlphMaskCutoff() const
-{
-	return getLineEditorValue(mAlphaMaskCutoff);
-}
-
-S32 LLFloaterDebugMaterials::getDiffuseAlphaMode() const
-{
-	return getLineEditorValue(mDiffuseAlphaMode);
-}
-
-S32 LLFloaterDebugMaterials::getLineEditorValue(const LLLineEditor *pLineEditor) const
-{
-	S32 value = 0;
-
-	LLStringUtil::convertToS32(pLineEditor->getText(), value);
+	LLStringUtil::convertToF32(pLineEditor->getText(), value);
 
 	return value;
+}
+
+template<> U8 getLineEditorValue(const LLLineEditor *pLineEditor)
+{
+	U8 value = 0;
+
+	LLStringUtil::convertToU8(pLineEditor->getText(), value);
+
+	return value;
+}
+
+LLMaterial LLFloaterDebugMaterials::getMaterial() const
+{
+	LLMaterial material;
+
+	material.setNormalID(mNormalMap->getImageAssetID());
+	material.setNormalOffset(getLineEditorValue<F32>(mNormalMapOffsetX), getLineEditorValue<F32>(mNormalMapOffsetY));
+	material.setNormalRepeat(getLineEditorValue<F32>(mNormalMapRepeatX), getLineEditorValue<F32>(mNormalMapRepeatY));
+	material.setNormalRotation(getLineEditorValue<F32>(mNormalMapRotation));
+
+	material.setSpecularID(mSpecularMap->getImageAssetID());
+	material.setSpecularOffset(getLineEditorValue<F32>(mSpecularMapOffsetX), getLineEditorValue<F32>(mSpecularMapOffsetY));
+	material.setSpecularRepeat(getLineEditorValue<F32>(mSpecularMapRepeatX), getLineEditorValue<F32>(mSpecularMapRepeatY));
+	material.setSpecularRotation(getLineEditorValue<F32>(mSpecularMapRotation));
+
+	const LLColor4& specularColor = mSpecularColor->get();
+	LLColor4U specularColor4U = specularColor;
+	specularColor4U.setAlpha(static_cast<U8>(llclamp(llround(mSpecularColorAlpha->get()), 0, 255)));
+	material.setSpecularLightColor(specularColor4U);
+
+	material.setSpecularLightExponent(getLineEditorValue<U8>(mSpecularExponent));
+	material.setEnvironmentIntensity(getLineEditorValue<U8>(mEnvironmentExponent));
+	material.setDiffuseAlphaMode(getLineEditorValue<U8>(mDiffuseAlphaMode));
+	material.setAlphaMaskCutoff(getLineEditorValue<U8>(mAlphaMaskCutoff));
+
+	return material;
 }
 
 MaterialsResponder::MaterialsResponder(const std::string& pMethod, const std::string& pCapabilityURL, CallbackFunction pCallback)
