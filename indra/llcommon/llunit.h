@@ -177,6 +177,7 @@ template<typename UNIT_TYPE, typename STORAGE_TYPE>
 struct LLUnitStrict : public LLUnit<UNIT_TYPE, STORAGE_TYPE>
 {
 	typedef LLUnitStrict<UNIT_TYPE, STORAGE_TYPE> self_t;
+	typedef typename LLUnit<UNIT_TYPE, STORAGE_TYPE>::storage_t storage_t;
 
 	explicit LLUnitStrict(storage_t value = storage_t())
 	:	LLUnit(value)

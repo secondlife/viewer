@@ -249,7 +249,7 @@ public:
 //*******************************************************************************************************************************
 };
 
-class LLThreadLocalPointerBase : LLInstanceTracker<LLThreadLocalPointerBase>
+class LLThreadLocalPointerBase : public LLInstanceTracker<LLThreadLocalPointerBase>
 {
 public:
 	LLThreadLocalPointerBase()
@@ -331,7 +331,7 @@ public:
 
 
 	LLThreadLocalPointer(const LLThreadLocalPointer<T>& other)
-		:	LLThreadLocalPointerBase(other)
+	:	LLThreadLocalPointerBase(other)
 	{
 		set(other.get());		
 	}
