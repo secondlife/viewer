@@ -817,7 +817,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 
 LLPipeline::eFBOStatus LLPipeline::doAllocateScreenBuffer(U32 resX, U32 resY)
 {
-	//try to allocate screen buffers at requested resolution and samples
+	// try to allocate screen buffers at requested resolution and samples
 	// - on failure, shrink number of samples and try again
 	// - if not multisampled, shrink resolution and try again (favor X resolution over Y)
 	// Make sure to call "releaseScreenBuffers" after each failure to cleanup the partially loaded state
