@@ -31,6 +31,7 @@
 #include "llavatarnamecache.h"
 #include "llavataractions.h"
 #include "llevents.h"
+#include "llfloaterimsession.h"
 #include "llsdutil.h"
 #include "llconversationmodel.h"
 #include "llimview.h" //For LLIMModel
@@ -162,8 +163,9 @@ void LLConversationItemSession::addParticipant(LLConversationItemParticipant* pa
 
 void LLConversationItemSession::updateParticipantName(LLConversationItemParticipant* participant)
 {
+	EConversationType conversation_type = getType();
 	// We modify the session name only in the case of an ad-hoc session or P2P session, exit otherwise (nothing to do)
-	if ((getType() != CONV_SESSION_AD_HOC) && (getType() != CONV_SESSION_1_ON_1))
+	if ((conversation_type != CONV_SESSION_AD_HOC) && (conversation_type != CONV_SESSION_1_ON_1))
 	{
 		return;
 	}
@@ -172,24 +174,35 @@ void LLConversationItemSession::updateParticipantName(LLConversationItemParticip
 	{
 		return;
 	}
-	// Build a string containing the participants names (minus own agent) and check if ready for display (we don't want "(waiting)" in there)
-	// Note: we don't bind ourselves to the LLAvatarNameCache event as updateParticipantName() is called by
-	// onAvatarNameCache() which is itself attached to the same event.
 	uuid_vec_t temp_uuids; // uuids vector for building the added participants' names string
-	child_list_t::iterator iter = mChildren.begin();
-	while (iter != mChildren.end())
+	if (conversation_type == CONV_SESSION_AD_HOC)
 	{
-		LLConversationItemParticipant* current_participant = dynamic_cast<LLConversationItemParticipant*>(*iter);
-		// Add the avatar uuid to the list (except if it's the own agent uuid)
-		if (current_participant->getUUID() != gAgentID)
+		// Build a string containing the participants UUIDs (minus own agent) and check if ready for display (we don't want "(waiting)" in there)
+		// Note: we don't bind ourselves to the LLAvatarNameCache event as updateParticipantName() is called by
+		// onAvatarNameCache() which is itself attached to the same event.
+		child_list_t::iterator iter = mChildren.begin();
+		while (iter != mChildren.end())
 		{
-			LLAvatarName av_name;
-			if (LLAvatarNameCache::get(current_participant->getUUID(), &av_name))
+			LLConversationItemParticipant* current_participant = dynamic_cast<LLConversationItemParticipant*>(*iter);
+			// Add the avatar uuid to the list (except if it's the own agent uuid)
+			if (current_participant->getUUID() != gAgentID)
 			{
-				temp_uuids.push_back(current_participant->getUUID());
+				LLAvatarName av_name;
+				if (LLAvatarNameCache::get(current_participant->getUUID(), &av_name))
+				{
+					temp_uuids.push_back(current_participant->getUUID());
+				}
 			}
+			iter++;
 		}
-		iter++;
+	}
+	else if (conversation_type == CONV_SESSION_1_ON_1)
+	{
+		// In the case of a P2P conversersation, we need to grab the name of the other participant in the session instance itself
+		// as we do not create participants for such a session.
+        LLFloaterIMSession *conversationFloater = LLFloaterIMSession::findInstance(mUUID);
+        LLUUID participantID = conversationFloater->getOtherParticipantUUID();
+        temp_uuids.push_back(participantID);
 	}
 	if (temp_uuids.size() != 0)
 	{
