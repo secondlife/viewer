@@ -1104,7 +1104,7 @@ void LLFloaterDebugMaterials::parseGetResponse()
 			specularMapRowParams.columns.add(cellParams);
 
 			cellParams.column = "specular_map_list_rotation";
-			cellParams.value = llformat("%d", material.getSpecularRotation());
+			cellParams.value = llformat("%f", material.getSpecularRotation());
 			specularMapRowParams.columns.add(cellParams);
 
 			const LLColor4U& specularColor = material.getSpecularLightColor();
