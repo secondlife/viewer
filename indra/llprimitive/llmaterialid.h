@@ -50,6 +50,7 @@ public:
 	void          clear();
 
 	LLSD          asLLSD() const;
+	std::string   asString() const;
 
 	static const LLMaterialID null;
 

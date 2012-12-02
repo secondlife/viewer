@@ -111,6 +111,21 @@ LLSD LLMaterialID::asLLSD() const
 	return materialID;
 }
 
+std::string LLMaterialID::asString() const
+{
+	std::string materialIDString;
+	for (unsigned int i = 0U; i < 4; ++i)
+	{
+		if (i != 0U)
+		{
+			materialIDString += "-";
+		}
+		const U32 *value = reinterpret_cast<const U32*>(&mID[i * 4]);
+		materialIDString += llformat("%08x", *value);
+	}
+	return materialIDString;
+}
+
 void LLMaterialID::parseFromBinary (const LLSD::Binary& pMaterialID)
 {
 	llassert(pMaterialID.size() == (MATERIAL_ID_SIZE * sizeof(U8)));

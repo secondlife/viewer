@@ -972,9 +972,8 @@ void LLFloaterDebugMaterials::parseQueryViewableObjects()
 							rowParams.columns.add(cellParams);
 							cellParams.font = LLFontGL::getFontMonospace();
 
-							std::string materialIDString = convertToPrintableMaterialID(objectMaterialID);
 							cellParams.column = "material_id";
-							cellParams.value = materialIDString;
+							cellParams.value = objectMaterialID.asString();
 							rowParams.columns.add(cellParams);
 
 							LLSD rowValue = LLSD::emptyMap();
@@ -1613,22 +1612,6 @@ std::string LLFloaterDebugMaterials::convertToPrintableMaterialID(const LLSD& pB
 	std::string materialID(reinterpret_cast<const char *>(&materialIDValue[0]), valueSize);
 	std::string materialIDString;
 	for (unsigned int i = 0U; i < (valueSize / 4); ++i)
-	{
-		if (i != 0U)
-		{
-			materialIDString += "-";
-		}
-		const U32 *value = reinterpret_cast<const U32*>(&materialID.c_str()[i * 4]);
-		materialIDString += llformat("%08x", *value);
-	}
-	return materialIDString;
-}
-
-std::string LLFloaterDebugMaterials::convertToPrintableMaterialID(const LLMaterialID& pMaterialID) const
-{
-	std::string materialID(reinterpret_cast<const char *>(pMaterialID.get()), 16);
-	std::string materialIDString;
-	for (unsigned int i = 0U; i < 4; ++i)
 	{
 		if (i != 0U)
 		{

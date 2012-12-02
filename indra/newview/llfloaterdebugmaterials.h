@@ -135,7 +135,6 @@ private:
 	void          updateStatusMessage();
 	void          updateControls();
 	std::string   convertToPrintableMaterialID(const LLSD& pBinaryHash) const;
-	std::string   convertToPrintableMaterialID(const LLMaterialID& pMaterialID) const;
 
 	LLMaterial    getMaterial() const;
 
