@@ -40,6 +40,18 @@
 
 LLSceneMonitorView* gSceneMonitorView = NULL;
 
+//
+//The procedures of monitoring when the scene finishes loading visually, 
+//i.e., no pixel differences among frames, are:
+//1, freeze all dynamic objects and avatars;
+//2, (?) disable all sky and water;
+//3, capture frames periodically, by calling "capture()";
+//4, compute pixel differences between two latest captured frames, by calling "compare()", results are stored at mDiff;
+//5, compute the number of pixels in mDiff above some tolerance threshold in GPU, by calling "queryDiff() -> calcDiffAggregate()";
+//6, use gl occlusion query to fetch the result from GPU, by calling "fetchQueryResult()";
+//END.
+//
+
 LLSceneMonitor::LLSceneMonitor() : 
 	mEnabled(FALSE), 
 	mDiff(NULL),
@@ -50,7 +62,9 @@ LLSceneMonitor::LLSceneMonitor() :
 	mHasNewDiff(FALSE),
 	mHasNewQueryResult(FALSE),
 	mDebugViewerVisible(FALSE),
-	mQueryObject(0)
+	mQueryObject(0),
+	mSamplingTime(1.0f),
+	mDiffPixelRatio(0.5f)
 {
 	mFrames[0] = NULL;
 	mFrames[1] = NULL;	
@@ -123,7 +137,7 @@ bool LLSceneMonitor::preCapture()
 		return false;
 	}
 
-	if(timer.getElapsedTimeF32() < 1.0f)
+	if(timer.getElapsedTimeF32() < mSamplingTime)
 	{
 		return false;
 	}
@@ -326,7 +340,7 @@ void LLSceneMonitor::calcDiffAggregate()
 		glBeginQueryARB(GL_SAMPLES_PASSED_ARB, mQueryObject);
 	}
 
-	gl_draw_scaled_target(0, 0, mDiff->getWidth() * 0.5f, mDiff->getHeight() * 0.5f, mDiff);
+	gl_draw_scaled_target(0, 0, mDiff->getWidth() * mDiffPixelRatio, mDiff->getHeight() * mDiffPixelRatio, mDiff);
 
 	if(mHasNewDiff)
 	{
@@ -366,7 +380,7 @@ void LLSceneMonitor::fetchQueryResult()
 	GLuint count = 0;
 	glGetQueryObjectuivARB(mQueryObject, GL_QUERY_RESULT_ARB, &count);
 	
-	mDiffResult = count * 0.5f / (mDiff->getWidth() * mDiff->getHeight() * 0.25f);
+	mDiffResult = count * 0.5f / (mDiff->getWidth() * mDiff->getHeight() * mDiffPixelRatio * mDiffPixelRatio); //0.5 -> (front face + back face)
 
 	//llinfos << count << " : " << mDiffResult << llendl;
 }
@@ -403,8 +417,9 @@ void LLSceneMonitorView::draw()
 		return;
 	}
 
-	S32 height = target->getHeight() * 0.5f;
-	S32 width = target->getWidth() * 0.5f;
+	F32 ratio = LLSceneMonitor::getInstance()->getDiffPixelRatio();
+	S32 height = target->getHeight() * ratio;
+	S32 width = target->getWidth() * ratio;
 	//S32 height = (S32) (gViewerWindow->getWindowRectScaled().getHeight()*0.5f);
 	//S32 width = (S32) (gViewerWindow->getWindowRectScaled().getWidth() * 0.5f);
 	
@@ -417,6 +432,22 @@ void LLSceneMonitorView::draw()
 	gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0, LLColor4(0.f, 0.f, 0.f, 0.25f));
 	
 	LLSceneMonitor::getInstance()->calcDiffAggregate();
+
+	//show some texts
+	LLColor4 color = LLColor4::white;
+	S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
+
+	S32 lines = 0;
+	std::string num_str = llformat("Frame difference: %.6f", LLSceneMonitor::getInstance()->getDiffResult());
+	LLFontGL::getFontMonospace()->renderUTF8(num_str, 0, 5, getRect().getHeight() - line_height * lines, color, LLFontGL::LEFT, LLFontGL::TOP);
+	lines++;
+
+	num_str = llformat("Pixel tolerance: (R+G+B) < %.4f", LLSceneMonitor::getInstance()->getDiffTolerance());
+	LLFontGL::getFontMonospace()->renderUTF8(num_str, 0, 5, getRect().getHeight() - line_height * lines, color, LLFontGL::LEFT, LLFontGL::TOP);
+	lines++;
+
+	num_str = llformat("Sampling time: %.3f seconds", LLSceneMonitor::getInstance()->getSamplingTime());
+	LLFontGL::getFontMonospace()->renderUTF8(num_str, 0, 5, getRect().getHeight() - line_height * lines, color, LLFontGL::LEFT, LLFontGL::TOP);
 
 	LLView::draw();
 }

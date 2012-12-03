@@ -56,6 +56,8 @@ public:
 	const LLRenderTarget* getDiffTarget() const {return mDiff;}
 	F32  getDiffTolerance() const {return mDiffTolerance;}
 	F32  getDiffResult() const { return mDiffResult;}
+	F32  getSamplingTime() const { return mSamplingTime;}
+	F32  getDiffPixelRatio() const { return mDiffPixelRatio;}
 	bool isEnabled()const {return mEnabled;}
 	
 private:
@@ -78,6 +80,9 @@ private:
 	GLuint  mQueryObject; //used for glQuery
 	F32     mDiffResult;  //aggregate results of mDiff.
 	F32     mDiffTolerance; //pixels are filtered out when R+G+B < mDiffTolerance
+
+	F32     mSamplingTime; //time interval to capture frames, in seconds
+	F32     mDiffPixelRatio; //ratio of pixels used for comparison against the original mDiff size along one dimension
 
 	std::vector<LLAnimPauseRequest> mAvatarPauseHandles;
 };
