@@ -133,12 +133,12 @@ void BlockTimer::setLogLock(LLMutex* lock)
 
 //static
 #if (LL_DARWIN || LL_LINUX || LL_SOLARIS) && !(defined(__i386__) || defined(__amd64__))
-U64 BlockTimer::countsPerSecond() // counts per second for the *32-bit* timer
+U64 BlockTimer::countsPerSecond() // counts per second for the *64-bit* timer
 {
-	return sClockResolution >> 8;
+	return sClockResolution;
 }
 #else // windows or x86-mac or x86-linux or x86-solaris
-U64 BlockTimer::countsPerSecond() // counts per second for the *32-bit* timer
+U64 BlockTimer::countsPerSecond() // counts per second for the *64-bit* timer
 {
 #if LL_FASTTIMER_USE_RDTSC || !LL_WINDOWS
 	//getCPUFrequency returns MHz and sCPUClockFrequency wants to be in Hz

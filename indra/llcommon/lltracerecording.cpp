@@ -26,6 +26,7 @@
 #include "linden_common.h"
 
 #include "lltrace.h"
+#include "llfasttimer.h"
 #include "lltracerecording.h"
 #include "lltracethreadrecorder.h"
 #include "llthread.h"
@@ -140,6 +141,16 @@ void Recording::appendRecording( const Recording& other )
 	mMeasurements.write()->addSamples(*other.mMeasurements);
 	mStackTimers.write()->addSamples(*other.mStackTimers);
 	mElapsedSeconds += other.mElapsedSeconds;
+}
+
+LLUnit<LLUnits::Seconds, F64> Recording::getSum(const TraceType<TimerAccumulator>& stat) const
+{
+	return (F64)(*mStackTimers)[stat.getIndex()].mSelfTimeCounter / (F64)LLTrace::BlockTimer::countsPerSecond();
+}
+
+LLUnit<LLUnits::Seconds, F64> Recording::getPerSec(const TraceType<TimerAccumulator>& stat) const
+{
+	return (F64)(*mStackTimers)[stat.getIndex()].mSelfTimeCounter / ((F64)LLTrace::BlockTimer::countsPerSecond() * mElapsedSeconds);
 }
 
 F64 Recording::getSum( const TraceType<CountAccumulator<F64> >& stat ) const

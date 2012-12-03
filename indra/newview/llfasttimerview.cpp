@@ -294,15 +294,17 @@ static std::string get_tooltip(LLTrace::BlockTimer& timer, S32 history_index = -
 {
 	F64 ms_multiplier = 1000.0 / (F64)LLTrace::BlockTimer::countsPerSecond();
 
+	LLTrace::PeriodicRecording& frame_stats = LLTrace::get_frame_recording();
+
 	std::string tooltip;
 	if (history_index < 0)
 	{
 		// by default, show average number of call
-		tooltip = llformat("%s (%d ms, %d calls)", timer.getName().c_str(), (S32)(timer.getCountAverage() * ms_multiplier), (S32)timer.getCallAverage());
+		tooltip = llformat("%s (%d ms, %d calls)", timer.getName().c_str(), (S32)(frame_stats.getPeriodMean(timer) * ms_multiplier), (S32)timer.getCallAverage());
 	}
 	else
 	{
-		tooltip = llformat("%s (%d ms, %d calls)", timer.getName().c_str(), (S32)(timer.getHistoricalCount(history_index) * ms_multiplier), (S32)timer.getHistoricalCalls(history_index));
+		tooltip = llformat("%s (%d ms, %d calls)", timer.getName().c_str(), (S32)(frame_stats.getPrevRecordingPeriod(history_index).getSum(timer) * ms_multiplier), (S32)timer.getHistoricalCalls(history_index));
 	}
 	return tooltip;
 }

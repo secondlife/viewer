@@ -118,6 +118,10 @@ namespace LLTrace
 
 		void update();
 
+		// Timer accessors
+		LLUnit<LLUnits::Seconds, F64> getSum(const TraceType<TimerAccumulator>& stat) const;
+		LLUnit<LLUnits::Seconds, F64> getPerSec(const TraceType<TimerAccumulator>& stat) const;
+
 		// Count accessors
 		F64 getSum(const TraceType<CountAccumulator<F64> >& stat) const;
 		S64 getSum(const TraceType<CountAccumulator<S64> >& stat) const;
@@ -273,18 +277,18 @@ namespace LLTrace
 		Recording& getTotalRecording();
 
 		template <typename T>
-		typename T getPeriodMin(const TraceType<CountAccumulator<T> >& stat) const
+		typename T::value_t getPeriodMin(const TraceType<T>& stat) const
 		{
-			T min_val = (std::numeric_limits<T>::max)();
+			typename T::value_t min_val = (std::numeric_limits<typename T::value_t>::max)();
 			for (S32 i = 0; i < mNumPeriods; i++)
 			{
 				min_val = llmin(min_val, mRecordingPeriods[i].getSum(stat));
 			}
-			return (T)min_val;
+			return min_val;
 		}
 
 		template <typename T>
-		F64 getPeriodMinPerSec(const TraceType<CountAccumulator<T> >& stat) const
+		F64 getPeriodMinPerSec(const TraceType<T>& stat) const
 		{
 			F64 min_val = (std::numeric_limits<F64>::max)();
 			for (S32 i = 0; i < mNumPeriods; i++)
@@ -295,9 +299,9 @@ namespace LLTrace
 		}
 
 		template <typename T>
-		T getPeriodMax(const TraceType<CountAccumulator<T> >& stat) const
+		typename T::value_t getPeriodMax(const TraceType<T>& stat) const
 		{
-			T max_val = (std::numeric_limits<T>::min)();
+			typename T::value_t max_val = (std::numeric_limits<typename T::value_t>::min)();
 			for (S32 i = 0; i < mNumPeriods; i++)
 			{
 				max_val = llmax(max_val, mRecordingPeriods[i].getSum(stat));
@@ -306,7 +310,7 @@ namespace LLTrace
 		}
 
 		template <typename T>
-		F64 getPeriodMaxPerSec(const TraceType<CountAccumulator<T> >& stat) const
+		F64 getPeriodMaxPerSec(const TraceType<T>& stat) const
 		{
 			F64 max_val = (std::numeric_limits<F64>::min)();
 			for (S32 i = 0; i < mNumPeriods; i++)
@@ -317,7 +321,7 @@ namespace LLTrace
 		}
 
 		template <typename T>
-		F64 getPeriodMean(const TraceType<CountAccumulator<T> >& stat) const
+		F64 getPeriodMean(const TraceType<T>& stat) const
 		{
 			F64 mean = 0.0;
 			F64 count = 0;
@@ -334,7 +338,7 @@ namespace LLTrace
 		}
 
 		template <typename T>
-		F64 getPeriodMeanPerSec(const TraceType<CountAccumulator<T> >& stat) const
+		F64 getPeriodMeanPerSec(const TraceType<T>& stat) const
 		{
 			F64 mean = 0.0;
 			F64 count = 0;
