@@ -69,6 +69,9 @@ public:
 	U8			getAlphaMaskCutoff() const { return mAlphaMaskCutoff; }
 	void		setAlphaMaskCutoff(U8 cutoff) { mAlphaMaskCutoff = cutoff; }
 
+	bool		isNull() const;
+	static const LLMaterial null;
+
 protected:
 	LLUUID		mNormalID;
 	F32			mNormalOffsetX;

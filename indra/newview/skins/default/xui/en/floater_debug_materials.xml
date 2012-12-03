@@ -720,24 +720,24 @@
               left="0"
               top_pad="0"
               width="160">
-            Results
+            Active selection
           </text>
           <scroll_list
               column_padding="0"
               draw_heading="true"
               follows="left|top|right"
-              height="100"
+              height="300"
               layout="topleft"
               left="0"
               top_pad="10"
               tab_stop="false"
               multi_select="true"
               name="put_scroll_list"
-              width="400">
+              width="600">
             <scroll_list.columns
                 label="Object ID"
                 name="object_id"
-                width="80" />
+                width="225" />
             <scroll_list.columns
                 label="Face Index"
                 name="face_index"

@@ -96,7 +96,6 @@ private:
 	void          onDeferredRequestGetMaterials(LLUUID regionId);
 	void          onDeferredRequestPutMaterials(LLUUID regionId, bool pIsDoSet);
 	void          onGetResponse(bool pRequestStatus, const LLSD& pContent);
-	void          onPutResponse(bool pRequestStatus, const LLSD& pContent);
 	void          onPostResponse(bool pRequestStatus, const LLSD& pContent);
 
 	void          checkRegionMaterialStatus();
@@ -111,16 +110,15 @@ private:
 	void          requestPostMaterials();
 
 	void          parseGetResponse();
-	void          parsePutResponse(const LLSD& pContent);
 	void          parseQueryViewableObjects();
 	void          parsePostResponse(const LLSD& pMultiContent);
 
 	void          setState(EState pState);
 	inline EState getState() const;
 
+	void          refreshObjectEdit();
 	void          resetObjectEditInputs();
 	void          clearGetResults();
-	void          clearPutResults();
 	void          clearPostResults();
 	void          clearViewableObjectsResults();
 

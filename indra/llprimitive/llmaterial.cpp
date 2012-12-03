@@ -82,6 +82,8 @@ template<typename T> T getMaterialField(const LLSD& data, const std::string& fie
  * LLMaterial class
  */
 
+const LLMaterial LLMaterial::null;
+
 LLMaterial::LLMaterial()
 	: mSpecularLightColor(MATERIALS_DEFAULT_SPECULAR_COLOR)
 	, mSpecularLightExponent(MATERIALS_DEFAULT_SPECULAR_EXP)
@@ -117,8 +119,8 @@ LLSD LLMaterial::asLLSD() const
 	material_data[MATERIALS_CAP_SPECULAR_COLOR_FIELD]     = mSpecularLightColor.getValue();
 	material_data[MATERIALS_CAP_SPECULAR_EXP_FIELD]       = mSpecularLightExponent;
 	material_data[MATERIALS_CAP_ENV_INTENSITY_FIELD]      = mEnvironmentIntensity;
-	material_data[MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD]  = mDiffuseAlphaMode;
-	material_data[MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD] = mAlphaMaskCutoff;
+	material_data[MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD] = mDiffuseAlphaMode;
+	material_data[MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD]  = mAlphaMaskCutoff;
 
 	return material_data;
 }
@@ -142,6 +144,14 @@ void LLMaterial::fromLLSD(const LLSD& material_data)
 	mSpecularLightColor.setValue(getMaterialField<LLSD>(material_data, MATERIALS_CAP_SPECULAR_COLOR_FIELD, LLSD::TypeArray));
 	mSpecularLightExponent = (U8)getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_SPECULAR_EXP_FIELD,       LLSD::TypeInteger);
 	mEnvironmentIntensity  = (U8)getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_ENV_INTENSITY_FIELD,      LLSD::TypeInteger);
-	mDiffuseAlphaMode      = (U8)getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD,  LLSD::TypeInteger);
-	mAlphaMaskCutoff       = (U8)getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD, LLSD::TypeInteger);
+	mDiffuseAlphaMode      = (U8)getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD, LLSD::TypeInteger);
+	mAlphaMaskCutoff       = (U8)getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD,  LLSD::TypeInteger);
+}
+
+bool LLMaterial::isNull() const
+{
+	// *TODO: find a better way of defining a 'null' material?
+	return 
+		(mNormalID.isNull()) && (.0f == mNormalOffsetX) && (.0f == mNormalOffsetY) && (.0f == mNormalRepeatX) && (.0f == mNormalRepeatY) && 
+		(mSpecularID.isNull()) && (.0f == mSpecularOffsetX) && (.0f == mSpecularOffsetY) && (.0f == mSpecularRepeatX) && (.0f == mSpecularRepeatY);
 }

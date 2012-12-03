@@ -48,6 +48,7 @@
 #include "lllineeditor.h"
 #include "llmaterial.h"
 #include "llmaterialid.h"
+#include "llmaterialmgr.h"
 #include "llresmgr.h"
 #include "llscrolllistcell.h"
 #include "llscrolllistctrl.h"
@@ -76,11 +77,8 @@
 
 #define MATERIALS_CAP_ZIP_FIELD                   "Zipped"
 
-#define MATERIALS_CAP_FULL_PER_FACE_FIELD         "FullMaterialsPerFace"
-#define MATERIALS_CAP_FACE_FIELD                  "Face"
 #define MATERIALS_CAP_MATERIAL_FIELD              "Material"
 #define MATERIALS_CAP_OBJECT_ID_FIELD             "ID"
-#define MATERIALS_CAP_MATERIAL_ID_FIELD           "MaterialID"
 
 #define MULTI_MATERIALS_STATUS_FIELD              "status"
 #define MULTI_MATERIALS_DATA_FIELD                "data"
@@ -292,7 +290,6 @@ void LLFloaterDebugMaterials::onOpen(const LLSD& pKey)
 	checkRegionMaterialStatus();
 	resetObjectEditInputs();
 	clearGetResults();
-	clearPutResults();
 	clearViewableObjectsResults();
 	clearPostResults();
 }
@@ -301,7 +298,6 @@ void LLFloaterDebugMaterials::onClose(bool pIsAppQuitting)
 {
 	resetObjectEditInputs();
 	clearGetResults();
-	clearPutResults();
 	clearViewableObjectsResults();
 	clearPostResults();
 
@@ -332,6 +328,10 @@ void LLFloaterDebugMaterials::draw()
 	if (mNextUnparsedQueryDataIndex >= 0)
 	{
 		parseQueryViewableObjects();
+	}
+	if (LLSelectMgr::instance().getSelection().notNull())
+	{
+		refreshObjectEdit();
 	}
 	LLFloater::draw();
 }
@@ -446,7 +446,6 @@ void LLFloaterDebugMaterials::onRegionCross()
 {
 	checkRegionMaterialStatus();
 	clearGetResults();
-	clearPutResults();
 	clearViewableObjectsResults();
 	clearPostResults();
 }
@@ -580,19 +579,6 @@ void LLFloaterDebugMaterials::onGetResponse(bool pRequestStatus, const LLSD& pCo
 	}
 }
 
-void LLFloaterDebugMaterials::onPutResponse(bool pRequestStatus, const LLSD& pContent)
-{
-	if (pRequestStatus)
-	{
-		setState(kRequestCompleted);
-		parsePutResponse(pContent);
-	}
-	else
-	{
-		setState(kError);
-	}
-}
-
 void LLFloaterDebugMaterials::onPostResponse(bool pRequestStatus, const LLSD& pContent)
 {
 	if (pRequestStatus)
@@ -717,16 +703,9 @@ void LLFloaterDebugMaterials::requestPutMaterials(bool pIsDoSet)
 		}
 		else
 		{
-			setState(kRequestStarted);
+			setState(kReady);
 
-			LLSD facesData  = LLSD::emptyArray();
-
-			LLSD materialData = LLSD::emptyMap();
-			if (pIsDoSet)
-			{
-				LLMaterial material = getMaterial();
-				materialData = material.asLLSD();
-			}
+			LLMaterial material = (pIsDoSet) ? getMaterial() : LLMaterial::null;
 
 			LLObjectSelectionHandle selectionHandle = LLSelectMgr::getInstance()->getEditSelection();
 			for (LLObjectSelection::valid_iterator objectIter = selectionHandle->valid_begin();
@@ -747,41 +726,13 @@ void LLFloaterDebugMaterials::requestPutMaterials(bool pIsDoSet)
 					{
 						if (objectNode->isTESelected(curTEIndex))
 						{
-							LLSD faceData = LLSD::emptyMap();
-							faceData[MATERIALS_CAP_FACE_FIELD] = static_cast<LLSD::Integer>(curTEIndex);
-							faceData[MATERIALS_CAP_OBJECT_ID_FIELD] = static_cast<LLSD::Integer>(viewerObject->getLocalID());
-							if (pIsDoSet)
-							{
-								faceData[MATERIALS_CAP_MATERIAL_FIELD] = materialData;
-							}
-							facesData.append(faceData);
+							LLMaterialMgr::instance().put(viewerObject->getID(), curTEIndex, material);
 						}
 					}
 				}
 			}
 
-			LLSD materialsData = LLSD::emptyMap();
-			materialsData[MATERIALS_CAP_FULL_PER_FACE_FIELD] = facesData;
-
-			std::string materialString = zip_llsd(materialsData);
-			S32 materialSize = materialString.size();
-
-			if (materialSize <= 0)
-			{
-				LL_ERRS("debugMaterials") << "cannot zip LLSD binary content" << LL_ENDL;
-			}
-			else
-			{
-				LLSD::Binary materialBinary;
-				materialBinary.resize(materialSize);
-				memcpy(materialBinary.data(), materialString.data(), materialSize);
-
-				LLSD putData = LLSD::emptyMap();
-				putData[MATERIALS_CAP_ZIP_FIELD] = materialBinary;
-
-				LLHTTPClient::ResponderPtr materialsResponder = new MaterialsResponder("PUT", capURL, boost::bind(&LLFloaterDebugMaterials::onPutResponse, this, _1, _2));
-				LLHTTPClient::put(capURL, putData, materialsResponder);
-			}
+			LLMaterialMgr::instance().processPutQueue();
 		}
 	}
 }
@@ -1149,70 +1100,6 @@ void LLFloaterDebugMaterials::parseGetResponse()
 	}
 }
 
-void LLFloaterDebugMaterials::parsePutResponse(const LLSD& pContent)
-{
-	clearPutResults();
-
-	LLScrollListCell::Params cellParams;
-	LLScrollListItem::Params rowParams;
-
-	llassert(pContent.isMap());
-	llassert(pContent.has(MATERIALS_CAP_ZIP_FIELD));
-	llassert(pContent.get(MATERIALS_CAP_ZIP_FIELD).isBinary());
-
-	LLSD::Binary responseBinary = pContent.get(MATERIALS_CAP_ZIP_FIELD).asBinary();
-	S32 responseSize = static_cast<S32>(responseBinary.size());
-	std::string responseString(reinterpret_cast<const char*>(responseBinary.data()), responseSize);
-
-	std::istringstream responseStream(responseString);
-
-	LLSD responseContent;
-	if (!unzip_llsd(responseContent, responseStream, responseSize))
-	{
-		LL_ERRS("debugMaterials") << "cannot unzip LLSD binary content" << LL_ENDL;
-	}
-	else
-	{
-		llassert(responseContent.isArray());
-		for (LLSD::array_const_iterator faceIter = responseContent.beginArray(); faceIter != responseContent.endArray();
-			++faceIter)
-		{
-			const LLSD &face = *faceIter;
-			llassert(face.isMap());
-
-			llassert(face.has(MATERIALS_CAP_FACE_FIELD));
-			llassert(face.get(MATERIALS_CAP_FACE_FIELD).isInteger());
-			S32 faceId = face.get(MATERIALS_CAP_FACE_FIELD).asInteger();
-
-			llassert(face.has(MATERIALS_CAP_OBJECT_ID_FIELD));
-			llassert(face.get(MATERIALS_CAP_OBJECT_ID_FIELD).isInteger());
-			S32 objectId = face.get(MATERIALS_CAP_OBJECT_ID_FIELD).asInteger();
-
-			llassert(face.has(MATERIALS_CAP_MATERIAL_ID_FIELD));
-			llassert(face.get(MATERIALS_CAP_MATERIAL_ID_FIELD).isBinary());
-			std::string materialIDString = convertToPrintableMaterialID(face.get(MATERIALS_CAP_MATERIAL_ID_FIELD));
-
-			cellParams.font = LLFontGL::getFontMonospace();
-
-			cellParams.column = "material_id";
-			cellParams.value = materialIDString;
-			rowParams.columns.add(cellParams);
-
-			cellParams.font = LLFontGL::getFontSansSerif();
-
-			cellParams.column = "object_id";
-			cellParams.value = llformat("%d", objectId);
-			rowParams.columns.add(cellParams);
-
-			cellParams.column = "face_index";
-			cellParams.value = llformat("%d", faceId);
-			rowParams.columns.add(cellParams);
-
-			mPutScrollList->addRow(rowParams);
-		}
-	}
-}
-
 void LLFloaterDebugMaterials::parsePostResponse(const LLSD& pMultiContent)
 {
 	clearPostResults();
@@ -1374,6 +1261,52 @@ void LLFloaterDebugMaterials::setState(EState pState)
 	updateControls();
 }
 
+void LLFloaterDebugMaterials::refreshObjectEdit()
+{
+	mPutScrollList->deleteAllItems();
+
+	LLScrollListCell::Params cellParams;
+	LLScrollListItem::Params rowParams;
+
+	LLObjectSelectionHandle selectionHandle = LLSelectMgr::getInstance()->getEditSelection();
+	for (LLObjectSelection::valid_iterator objectIter = selectionHandle->valid_begin();
+			objectIter != selectionHandle->valid_end(); ++objectIter)
+	{
+		LLSelectNode* nodep = *objectIter;
+
+		LLViewerObject* objectp = nodep->getObject();
+		if (objectp != NULL)
+		{
+			S32 numTEs = llmin(static_cast<S32>(objectp->getNumTEs()), objectp->getNumFaces());
+			for (S32 curTEIndex = 0; curTEIndex < numTEs; ++curTEIndex)
+			{
+				if (nodep->isTESelected(curTEIndex))
+				{
+					const LLTextureEntry* tep = objectp->getTE(curTEIndex);
+
+					cellParams.font = LLFontGL::getFontMonospace();
+
+					cellParams.column = "material_id";
+					cellParams.value = tep->getMaterialID().asString();
+					rowParams.columns.add(cellParams);
+
+					cellParams.font = LLFontGL::getFontSansSerif();
+
+					cellParams.column = "object_id";
+					cellParams.value = objectp->getID().asString();
+					rowParams.columns.add(cellParams);
+
+					cellParams.column = "face_index";
+					cellParams.value = llformat("%d", curTEIndex);
+					rowParams.columns.add(cellParams);
+
+					mPutScrollList->addRow(rowParams);
+				}
+			}
+		}
+	}
+}
+
 void LLFloaterDebugMaterials::resetObjectEditInputs()
 {
 	const LLSD zeroValue = static_cast<LLSD::Integer>(0);
@@ -1407,11 +1340,6 @@ void LLFloaterDebugMaterials::clearGetResults()
 	mGetSpecularMapScrollList->deleteAllItems();
 	mGetOtherDataScrollList->deleteAllItems();
 	clearUnparsedGetData();
-}
-
-void LLFloaterDebugMaterials::clearPutResults()
-{
-	mPutScrollList->deleteAllItems();
 }
 
 void LLFloaterDebugMaterials::clearPostResults()
