@@ -29,6 +29,7 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "llhttpclient.h"
 
 //
 // Implements asynchronous checking for updates.
@@ -36,7 +37,36 @@
 class LLUpdateChecker {
 public:
 	class Client;
-	class Implementation;
+	class Implementation:
+
+	public LLHTTPClient::Responder
+	{
+	public:
+		Implementation(Client & client);
+		~Implementation();
+		void checkVersion(std::string const & protocolVersion, std::string const & hostUrl, 
+				   std::string const & servicePath, std::string channel, std::string version);
+	
+		// Responder:
+		virtual void completed(U32 status,
+							   const std::string & reason,
+							   const LLSD& content);
+		virtual void error(U32 status, const std::string & reason);
+	
+	private:	
+		static const char * sProtocolVersion;
+	
+		Client & mClient;
+		LLHTTPClient mHttpClient;
+		bool mInProgress;
+		std::string mVersion;
+	
+		std::string buildUrl(std::string const & protocolVersion, std::string const & hostUrl, 
+							 std::string const & servicePath, std::string channel, std::string version);
+
+		LOG_CLASS(LLUpdateChecker::Implementation);
+	};
+
 	
 	// An exception that may be raised on check errors.
 	class CheckError;
@@ -48,7 +78,7 @@ public:
 			   std::string const & servicePath, std::string channel, std::string version);
 	
 private:
-	boost::shared_ptr<Implementation> mImplementation;
+	LLPointer<Implementation> mImplementation;
 };
 
 

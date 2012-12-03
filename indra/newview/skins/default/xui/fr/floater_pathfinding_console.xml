@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_pathfinding_console" title="Vue / test de recherche de chemin">
+<floater name="floater_pathfinding_console" title="Vue/Test de recherche de chemin">
 	<floater.string name="navmesh_viewer_status_library_not_implemented">
 		Implémentation de la bibliothèque de recherche de chemin introuvable
 	</floater.string>
@@ -93,10 +93,10 @@
 		</panel>
 		<panel label="Chemin test" name="test_panel">
 			<text name="ctrl_click_label">
-				Ctrl-clic : sélection du point de départ
+				Ctrl-clic : sélection point de départ
 			</text>
 			<text name="shift_click_label">
-				Maj-clic : sélection du point d&apos;arrivée
+				Maj-clic : sélection point d&apos;arrivée
 			</text>
 			<text name="character_width_label">
 				Largeur du personnage
@@ -115,7 +115,7 @@
 				<combo_box.item label="C" name="path_character_type_c"/>
 				<combo_box.item label="D" name="path_character_type_d"/>
 			</combo_box>
-			<button label="Effacer le chemin" name="clear_path"/>
+			<button label="Effacer chemin" name="clear_path"/>
 		</panel>
 	</tab_container>
 </floater>

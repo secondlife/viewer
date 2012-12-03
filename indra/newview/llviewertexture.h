@@ -127,7 +127,9 @@ public:
 	/*virtual*/ void forceImmediateUpdate() ;
 	
 	/*virtual*/ const LLUUID& getID() const { return mID; }
-	
+	void setBoostLevel(S32 level);
+	S32  getBoostLevel() { return mBoostLevel; }
+
 	void addTextureStats(F32 virtual_size, BOOL needs_gltexture = TRUE) const;
 	void resetTextureStats();	
 	void setMaxVirtualSizeResetInterval(S32 interval)const {mMaxVirtualSizeResetInterval = interval;}
@@ -172,6 +174,7 @@ private:
 	static bool isMemoryForTextureLow() ;
 protected:
 	LLUUID mID;
+	F32 mSelectedTime;				// time texture was last selected
 	mutable F32 mMaxVirtualSize;	// The largest virtual size of the image, in pixels - how much data to we need?	
 	mutable S32  mMaxVirtualSizeResetCounter ;
 	mutable S32  mMaxVirtualSizeResetInterval;

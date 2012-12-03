@@ -944,13 +944,15 @@ LLSD LLMemoryInfo::loadStatsMap()
 	state.dwLength = sizeof(state);
 	GlobalMemoryStatusEx(&state);
 
-	stats.add("Percent Memory use", state.dwMemoryLoad);
-	stats.add("Total Physical KB",  state.ullTotalPhys/1024);
-	stats.add("Avail Physical KB",  state.ullAvailPhys/1024);
-	stats.add("Total page KB",      state.ullTotalPageFile/1024);
-	stats.add("Avail page KB",      state.ullAvailPageFile/1024);
-	stats.add("Total Virtual KB",   state.ullTotalVirtual/1024);
-	stats.add("Avail Virtual KB",   state.ullAvailVirtual/1024);
+	DWORDLONG div = 1024;
+
+	stats.add("Percent Memory use", state.dwMemoryLoad/div);
+	stats.add("Total Physical KB",  state.ullTotalPhys/div);
+	stats.add("Avail Physical KB",  state.ullAvailPhys/div);
+	stats.add("Total page KB",      state.ullTotalPageFile/div);
+	stats.add("Avail page KB",      state.ullAvailPageFile/div);
+	stats.add("Total Virtual KB",   state.ullTotalVirtual/div);
+	stats.add("Avail Virtual KB",   state.ullAvailVirtual/div);
 
 	PERFORMANCE_INFORMATION perf;
 	perf.cb = sizeof(perf);
@@ -982,15 +984,15 @@ LLSD LLMemoryInfo::loadStatsMap()
 	GetProcessMemoryInfo(GetCurrentProcess(), PPROCESS_MEMORY_COUNTERS(&pmem), sizeof(pmem));
 
 	stats.add("Page Fault Count",              pmem.PageFaultCount);
-	stats.add("PeakWorkingSetSize KB",         pmem.PeakWorkingSetSize/1024);
-	stats.add("WorkingSetSize KB",             pmem.WorkingSetSize/1024);
-	stats.add("QutaPeakPagedPoolUsage KB",     pmem.QuotaPeakPagedPoolUsage/1024);
-	stats.add("QuotaPagedPoolUsage KB",        pmem.QuotaPagedPoolUsage/1024);
-	stats.add("QuotaPeakNonPagedPoolUsage KB", pmem.QuotaPeakNonPagedPoolUsage/1024);
-	stats.add("QuotaNonPagedPoolUsage KB",     pmem.QuotaNonPagedPoolUsage/1024);
-	stats.add("PagefileUsage KB",              pmem.PagefileUsage/1024);
-	stats.add("PeakPagefileUsage KB",          pmem.PeakPagefileUsage/1024);
-	stats.add("PrivateUsage KB",               pmem.PrivateUsage/1024);
+	stats.add("PeakWorkingSetSize KB",         pmem.PeakWorkingSetSize/div);
+	stats.add("WorkingSetSize KB",             pmem.WorkingSetSize/div);
+	stats.add("QutaPeakPagedPoolUsage KB",     pmem.QuotaPeakPagedPoolUsage/div);
+	stats.add("QuotaPagedPoolUsage KB",        pmem.QuotaPagedPoolUsage/div);
+	stats.add("QuotaPeakNonPagedPoolUsage KB", pmem.QuotaPeakNonPagedPoolUsage/div);
+	stats.add("QuotaNonPagedPoolUsage KB",     pmem.QuotaNonPagedPoolUsage/div);
+	stats.add("PagefileUsage KB",              pmem.PagefileUsage/div);
+	stats.add("PeakPagefileUsage KB",          pmem.PeakPagefileUsage/div);
+	stats.add("PrivateUsage KB",               pmem.PrivateUsage/div);
 
 #elif LL_DARWIN
 

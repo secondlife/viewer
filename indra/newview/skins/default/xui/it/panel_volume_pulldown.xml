@@ -1,15 +1,15 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="volumepulldown_floater" width="220">
-    <button left="197" name="prefs_btn"/>
-    <slider label="Generale" name="System Volume" label_width="60" width="160"/>
-    <slider label="Interfaccia" name="UI Volume" label_width="60" width="160"/>
-    <slider label="Ambiente" name="Wind Volume" label_width="60" width="160"/>
-    <slider label="Suoni" name="SFX Volume" label_width="60" width="160"/>
-    <check_box name="gesture_audio_play_btn" tool_tip="Attiva suoni Gesture"/>
-    <slider label="Musica" name="Music Volume" label_width="60" width="160"/>
-    <check_box tool_tip="Abilita musica in streaming" name="enable_music"/>
-    <slider label="Media" name="Media Volume" label_width="60" width="160"/>
-    <check_box tool_tip="Abilita riproduzione media" name="enable_media"/>
-    <slider label="Voice" name="Voice Volume" label_width="60" width="160"/>
-    <check_box tool_tip="Abilita il voice" name="enable_voice_check"/>
+	<button left="197" name="prefs_btn"/>
+	<slider label="Principale" label_width="60" name="System Volume" width="160"/>
+	<slider label="Pulsanti" label_width="60" name="UI Volume" width="160"/>
+	<slider label="Ambiente" label_width="60" name="Wind Volume" width="160"/>
+	<slider label="Suoni" label_width="60" name="SFX Volume" width="160"/>
+	<check_box name="gesture_audio_play_btn" tool_tip="Attiva suoni dai gesti"/>
+	<slider label="Musica" label_width="60" name="Music Volume" width="160"/>
+	<check_box name="enable_music" tool_tip="Attiva streaming musica"/>
+	<slider label="Multimedia" label_width="60" name="Media Volume" width="160"/>
+	<check_box name="enable_media" tool_tip="Attiva streaming multimediale"/>
+	<slider label="Voce" label_width="60" name="Voice Volume" width="160"/>
+	<check_box name="enable_voice_check" tool_tip="Attiva chat vocale"/>
 </panel>

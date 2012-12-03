@@ -98,6 +98,7 @@ BOOL LLScrollColumnHeader::handleDoubleClick(S32 x, S32 y, MASK mask)
 	if (canResize() && mResizeBar->getRect().pointInRect(x, y))
 	{
 		// reshape column to max content width
+		mColumn->mParentCtrl->calcMaxContentWidth();
 		LLRect column_rect = getRect();
 		column_rect.mRight = column_rect.mLeft + mColumn->mMaxContentWidth;
 		setShape(column_rect, true);
@@ -126,6 +127,8 @@ LLView*	LLScrollColumnHeader::findSnapEdge(S32& new_edge_val, const LLCoordGL& m
 	threshold = llmin(threshold, 10);
 
 	LLRect snap_rect = getSnapRect();
+
+	mColumn->mParentCtrl->calcMaxContentWidth();
 
 	S32 snap_delta = mColumn->mMaxContentWidth - snap_rect.getWidth();
 

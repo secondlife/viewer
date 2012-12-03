@@ -1196,7 +1196,7 @@ para &apos;[THIS_GPU]&apos;
 Você chegou a uma região próxima.
 	</notification>
 	<notification name="AvatarMovedLast">
-		Esse destino não está disponível no momento. 
+		O destino solicitado não está disponível no momento.
 Você chegou a uma região próxima.
 	</notification>
 	<notification name="AvatarMovedHome">
@@ -1212,10 +1212,10 @@ Enquando isso, use o [SECOND_LIFE] normalmente. Seu visual será exibido correta
 		</form>
 	</notification>
 	<notification name="FirstRun">
-		A instalação do [APP_NAME] está pronta. 
+		A instalação do [APP_NAME] está pronta.
 
 Se você ainda não conhece o [SECOND_LIFE], basta criar uma conta para começar.
-		<usetemplate name="okcancelbuttons" notext="Continuar" yestext="Nova conta.."/>
+		<usetemplate name="okcancelbuttons" notext="Continuar" yestext="Criar conta"/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">
 		Estamos detectando um problema de conexão.  Pode haver um problema com a sua conexão à internet ou com o [SECOND_LIFE_GRID].
@@ -3210,18 +3210,57 @@ Se o botão Falar for ocultado, o recurso de voz será desabilitado.
 		Essa ação irá ocultar todos os itens de menu e botões. Para trazê-los de volta, clique em [SHORTCUT] novamente.
 		<usetemplate ignoretext="Confirmar antes de ocultar interface" name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
-	<notification name="PathfindingLinksets_SetLinksetUseMismatchOnRestricted">
-		Alguns linksets selecionados não podem ser definidos como &apos;[REQUESTED_TYPE]&apos; devido às restrições de permissão no linkset.  Ao invés disso, estes linksets serão definidos como &apos;[RESTRICTED_TYPE]&apos;.
+	<notification name="PathfindingLinksets_WarnOnPhantom">
+		Alguns linksets selecionados terão suas sinalizações fantasmas alternadas.
+
+Deseja continuar?
+		<usetemplate ignoretext="Algumas sinalizações fantasmas dos linksets selecionados serão alternadas." name="okcancelignore" notext="Cancelar" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_MismatchOnRestricted">
+		Algumas sinalizações fantasmas dos linksets selecionados não podem ser definidas como &apos;[REQUESTED_TYPE]&apos; devido às restrições de permissão no linkset.  Ao invés disso, estes linksets serão definidos como &apos;[RESTRICTED_TYPE]&apos;.
+
+Deseja continuar?
 		<usetemplate ignoretext="Alguns linksets selecionados não podem ser definidos devido às restrições de permissão no linkset." name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
-	<notification name="PathfindingLinksets_SetLinksetUseMismatchOnVolume">
+	<notification name="PathfindingLinksets_MismatchOnVolume">
 		Alguns linksets selecionados não podem ser definidos como &apos;[REQUESTED_TYPE]&apos;, pois a forma não é convexa.
+
+Deseja continuar?
 		<usetemplate ignoretext="Alguns linksets selecionados não podem ser definidos, pois a forma não é convexa." name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
-	<notification name="PathfindingLinksets_SetLinksetUseMismatchOnRestrictedAndVolume">
-		Alguns linksets selecionados não podem ser definidos como &apos;[REQUESTED_TYPE]&apos; devido às restrições de permissão no linkset.  Ao invés disso, estes linksets serão definidos como &apos;[RESTRICTED_TYPE]&apos;.
- Alguns linksets selecionados não podem ser definidos como &apos;[REQUESTED_TYPE]&apos;, pois a forma não é convexa. Estes tipos de uso de linksets não mudarão.
-		<usetemplate ignoretext="Alguns linksets selecionados não podem ser definido devido às restrições de permissão no linkset e porque a forma não é convexa." name="okcancelignore" notext="Cancelar" yestext="OK"/>
+	<notification name="PathfindingLinksets_WarnOnPhantom_MismatchOnRestricted">
+		Alguns linksets selecionados terão suas sinalizações fantasmas alternadas.
+
+Algumas sinalizações fantasmas dos linksets selecionados não podem ser definidas como &apos;[REQUESTED_TYPE]&apos; devido às restrições de permissão no linkset.  Ao invés disso, estes linksets serão definidos como &apos;[RESTRICTED_TYPE]&apos;.
+
+Deseja continuar?
+		<usetemplate ignoretext="Algumas sinalizações fantasmas dos linksets selecionados serão alternadas e outras não poderão ser definidas devido às restrições de permissão no linkset." name="okcancelignore" notext="Cancelar" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_WarnOnPhantom_MismatchOnVolume">
+		Alguns linksets selecionados terão suas sinalizações fantasmas alternadas.
+
+Alguns linksets selecionados não podem ser definidos como &apos;[REQUESTED_TYPE]&apos;, pois a forma não é convexa.
+
+Deseja continuar?
+		<usetemplate ignoretext="Algumas sinalizações fantasmas dos linksets selecionados serão alternadas e outros não podem ser definidas, pois a forma não é convexa." name="okcancelignore" notext="Cancelar" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_MismatchOnRestricted_MismatchOnVolume">
+		Algumas sinalizações fantasmas dos linksets selecionados não podem ser definidas como &apos;[REQUESTED_TYPE]&apos; devido às restrições de permissão no linkset.  Ao invés disso, estes linksets serão definidos como &apos;[RESTRICTED_TYPE]&apos;.
+
+Alguns linksets selecionados não podem ser definidos como &apos;[REQUESTED_TYPE]&apos;, pois a forma não é convexa. Estes tipos de uso de linksets não mudarão.
+
+Deseja continuar?
+		<usetemplate ignoretext="Alguns linksets selecionados não podem ser definidos devido às restrições de permissão no linkset e porque a forma não é convexa." name="okcancelignore" notext="Cancelar" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_WarnOnPhantom_MismatchOnRestricted_MismatchOnVolume">
+		Alguns linksets selecionados terão suas sinalizações fantasmas alternadas.
+
+Algumas sinalizações fantasmas dos linksets selecionados não podem ser definidas como &apos;[REQUESTED_TYPE]&apos; devido às restrições de permissão no linkset.  Ao invés disso, estes linksets serão definidos como &apos;[RESTRICTED_TYPE]&apos;.
+
+Alguns linksets selecionados não podem ser definidos como &apos;[REQUESTED_TYPE]&apos;, pois a forma não é convexa. Estes tipos de uso de linksets não mudarão.
+
+Deseja continuar?
+		<usetemplate ignoretext="Algumas sinalizações fantasmas dos linksets selecionados serão alternadas e outras não poderão ser definidas, pois a forma não é convexa." name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="PathfindingLinksets_ChangeToFlexiblePath">
 		O objeto selecionado afeta o navmesh.  Alterá-lo para um Caminho Flexível irá removê-lo do navmesh.

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Toolbars Popup">
+	<menu_item_call label="移除此按鈕" name="Remove button"/>
+	<menu_item_call label="工具列按鈕…" name="Choose Buttons"/>
+	<menu_item_check label="圖示和標籤" name="icons_with_text"/>
+	<menu_item_check label="僅用圖示" name="icons_only"/>
+</context_menu>

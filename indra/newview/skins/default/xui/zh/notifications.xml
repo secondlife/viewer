@@ -37,6 +37,12 @@
 			<button name="Help" text="$helptext"/>
 		</form>
 	</template>
+	<template name="okhelpignore">
+		<form>
+			<button name="OK_okhelpignore" text="$yestext"/>
+			<button name="Help_okhelpignore" text="$helptext"/>
+		</form>
+	</template>
 	<template name="yesnocancelbuttons">
 		<form>
 			<button name="Yes" text="$yestext"/>
@@ -84,6 +90,40 @@
 	<notification name="WearableSave">
 		除存變更到目前的衣服/身體部位？
 		<usetemplate canceltext="取消" name="yesnocancelbuttons" notext="不要儲存" yestext="儲存"/>
+	</notification>
+	<notification name="ConfirmNoCopyToOutbox">
+		你無權將至少一件物項複製到第二人生購物市集的發件匣。  你可以移動這些物項，或保留不動。
+		<usetemplate name="okcancelbuttons" notext="保留不移動物項" yestext="移動物項"/>
+	</notification>
+	<notification name="OutboxFolderCreated">
+		已經為你所轉移到商家發件匣頂層的每一個物項，各自建立了一個新資料夾。
+		<usetemplate ignoretext="商家發件匣裡成功建立了一個新資料夾" name="okignore" yestext="確定"/>
+	</notification>
+	<notification name="OutboxImportComplete">
+		成功
+
+所有資料夾已成功送往第二人生購物市集。
+		<usetemplate ignoretext="所有資料夾已送往第二人生購物市集" name="okignore" yestext="確定"/>
+	</notification>
+	<notification name="OutboxImportHadErrors">
+		一部分的資料夾無法轉移
+
+將一部分資料夾送往第二人生購物市集時出錯。  這些資料夾仍在你的商家發件匣。
+
+詳情請參閱[[MARKETPLACE_IMPORTS_URL]錯誤記錄]。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="OutboxImportFailed">
+		轉移失敗
+
+未將任何資料夾送往第二人生購物市集，系統或網路出錯。  請稍候再試一次。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="OutboxInitFailed">
+		第二人生購物市集初始化失敗
+
+第二人生購物市集初始化失敗，系統或網路出錯。  請稍候再試一次。
+		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 	<notification name="CompileQueueSaveText">
 		上傳腳本文字時出問題，原因：[REASON]。 請稍候再試一次。
@@ -326,12 +366,18 @@
 
 進入 [SECOND_LIFE] 需要一個帳號。 你現在要不要新建一個？
 		<url name="url">
-			http://join.secondlife.com/
+			[create_account_url]
 		</url>
 		<usetemplate name="okcancelbuttons" notext="再試一次" yestext="創造新帳戶"/>
 	</notification>
 	<notification name="InvalidCredentialFormat">
 		你必須在「使用者名稱」欄位裡輸入使用者名稱，或輸入化身的名和姓，然後再登入。
+	</notification>
+	<notification name="InvalidGrid">
+		&apos;[GRID]&apos; 不是有效的網格辨識元。
+	</notification>
+	<notification name="InvalidLocationSLURL">
+		你的開始位置所指定的網格無效。
 	</notification>
 	<notification name="DeleteClassified">
 		刪除個人廣告「[NAME]」？
@@ -438,7 +484,7 @@
 		儲存編譯腳本時出問題，原因：[REASON]。  請稍後再嘗試儲存腳本。
 	</notification>
 	<notification name="StartRegionEmpty">
-		糟糕，你的起始區域尚未定義。
+		你的起始地區尚未定義。
 請在「開始位置」框裡輸入區域名，或選擇「我上一次位置」或「我的家」作為開始位置。
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
@@ -460,6 +506,15 @@
 			http://www.secondlife.com/corporate/sysreqs.php
 		</url>
 		<usetemplate ignoretext="我的電腦硬體並不支援" name="okcancelignore" notext="否" yestext="是"/>
+	</notification>
+	<notification name="IntelOldDriver">
+		你的顯示卡很可能有新版的驅動程式。  更新顯示驅動程式會大幅改善性能。
+
+    前往 [_URL] 察看是否有新版驅動程式？
+		<url name="url">
+			http://www.intel.com/p/en_US/support/detect/graphics
+		</url>
+		<usetemplate ignoretext="我的顯示驅動程式太老舊" name="okcancelignore" notext="否" yestext="是"/>
 	</notification>
 	<notification name="UnknownGPU">
 		你的系統含有一個 [APP_NAME] 無法辨認的顯像卡。
@@ -557,6 +612,9 @@
 
 請確定沒有物件被鎖住，並確定你擁有所有物件。
 	</notification>
+	<notification name="CannotLinkPermanent">
+		物件無法跨越地區界限進行聯結。
+	</notification>
 	<notification name="CannotLinkDifferentOwners">
 		無法聯結；有些物件的所有人不同。
 
@@ -636,7 +694,7 @@
 		無法建立輸出檔：[FILE]
 	</notification>
 	<notification name="DoNotSupportBulkAnimationUpload">
-		[APP_NAME] 目前尚不支援動作檔批量上傳。
+		[APP_NAME] 目前尚不支援 BVH 格式的動作檔批量上傳。
 	</notification>
 	<notification name="CannotUploadReason">
 		無法上傳 [FILE]，原因：[REASON]
@@ -935,6 +993,40 @@
 			<button name="Cancel" text="取消"/>
 		</form>
 	</notification>
+	<notification label="新增自動取代清單" name="AddAutoReplaceList">
+		新清單名稱：
+		<form name="form">
+			<button name="SetName" text="確定"/>
+		</form>
+	</notification>
+	<notification label="更改自動取代清單的名稱" name="RenameAutoReplaceList">
+		「[DUPNAME]」名稱已有人使用。
+    輸入另一個獨特的名稱：
+		<form name="form">
+			<button name="ReplaceList" text="取代目前的清單"/>
+			<button name="SetName" text="使用新名稱"/>
+		</form>
+	</notification>
+	<notification name="InvalidAutoReplaceEntry">
+		關鍵字必須是一個字，取代字不得空白。
+	</notification>
+	<notification name="InvalidAutoReplaceList">
+		該取代清單無效。
+	</notification>
+	<notification name="SpellingDictImportRequired">
+		你必須指定一個檔案、一個名稱和一種語言。
+	</notification>
+	<notification name="SpellingDictIsSecondary">
+		[DIC_NAME] 字典似乎沒有 &quot;aff&quot; 檔案，這表示該字典是「次級」字典。
+它可用做附加字典，但不得作為主要字典。
+
+參見 https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
+	</notification>
+	<notification name="SpellingDictImportFailed">
+		無法複製 [FROM_NAME]
+
+    到 [TO_NAME]
+	</notification>
 	<notification label="儲存裝扮" name="SaveOutfitAs">
 		儲存我正在穿的為新裝扮：
 		<form name="form">
@@ -966,7 +1058,7 @@
 		</form>
 	</notification>
 	<notification name="RemoveFromFriends">
-		你確定要從朋友名單中移除 [NAME] 嗎？
+		確定要從朋友名單中移除 &lt;nolink&gt;[NAME]&lt;/nolink&gt;？
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
 	<notification name="RemoveMultipleFromFriends">
@@ -1091,8 +1183,13 @@
 	<notification name="DisplaySetToSafe">
 		因為你指定了 -safe 選項，已將顯示設為安全等級。
 	</notification>
-	<notification name="DisplaySetToRecommended">
-		根據你的系統設置，已將顯示設定為推薦採用的等級。
+	<notification name="DisplaySetToRecommendedGPUChange">
+		由於你的顯像卡有所變更，已將顯示狀態設為推薦採用的等級。
+原顯像卡：[LAST_GPU]
+新顯像卡：[THIS_GPU]
+	</notification>
+	<notification name="DisplaySetToRecommendedFeatureChange">
+		由於呈像子系統有所變更，已將顯示狀態設為推薦的設定。
 	</notification>
 	<notification name="ErrorMessage">
 		[ERROR_MESSAGE]
@@ -1103,7 +1200,7 @@
 你已被移往一個鄰近地區。
 	</notification>
 	<notification name="AvatarMovedLast">
-		你的上一個地點目前無法前往。
+		你所請求的地點目前無法前往。
 你已被移往一個鄰近地區。
 	</notification>
 	<notification name="AvatarMovedHome">
@@ -1122,8 +1219,7 @@
 		[APP_NAME] 安裝完成。
 
 如果你是第一次使用 [SECOND_LIFE]，你將需要建立新帳號才可登入。
-返回 [http://join.secondlife.com secondlife.com] 建立新帳號？
-		<usetemplate name="okcancelbuttons" notext="繼續" yestext="新帳戶..."/>
+		<usetemplate name="okcancelbuttons" notext="繼續" yestext="建立帳號…"/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">
 		連線出現問題。 問題可能出在你的網路連線或 [SECOND_LIFE_GRID]。
@@ -1409,7 +1505,7 @@ SHA1 指紋：[MD5_DIGEST]
 		<usetemplate ignoretext="在我退回物件給它們的所有人前確認" name="okcancelignore" notext="取消" yestext="確定"/>
 	</notification>
 	<notification name="GroupLeaveConfirmMember">
-		你目前是 [GROUP] 群組的成員。
+		你目前是 &lt;nolink&gt;[GROUP]&lt;/nolink&gt; 群組的成員。
 是否要離開群組？
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
@@ -1544,6 +1640,11 @@ SHA1 指紋：[MD5_DIGEST]
 			<button name="Cancel" text="取消"/>
 		</form>
 	</notification>
+	<notification name="TooManyTeleportOffers">
+		你試圖送出 [OFFERS] 個瞬間傳送邀請。
+超過了 [LIMIT] 個的上限。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
 	<notification name="OfferTeleportFromGod">
 		用神的權力把居民召到你的位置？
 		<form name="form">
@@ -1633,83 +1734,128 @@ SHA1 指紋：[MD5_DIGEST]
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
 	<notification name="RegionEntryAccessBlocked">
-		由於你的內容分級，你不能到該地區。 原因可能是我們沒有足夠資訊驗證你的年齡。
-
-請確定你已安裝最新版的 Viewer，並前往知識庫瞭解如何出入這種內容分級的區域。
+		你所欲前往的地區含有超過你目前偏好的分級的內容。  你可以到「我自己 &gt; 偏好設定 &gt; 一般設定」變更你的偏好設定。
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
-	<notification name="RegionEntryAccessBlocked_KB">
-		由於你的內容分級，你不能到該地區。
-
-前往知識庫進一步瞭解內容分級？
+	<notification name="RegionEntryAccessBlocked_AdultsOnlyContent">
+		你所欲前往的地區含有 [REGIONMATURITY] 的分級內容，僅限成人。
 		<url name="url">
 			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
 		</url>
-		<usetemplate ignoretext="礙於內容分級的限制，我無法進入這個地區" name="okcancelignore" notext="關閉" yestext="前往知識庫"/>
+		<usetemplate ignoretext="跨越地區：你所欲前往的地區含有限制給成人的內容。" name="okcancelignore" notext="關閉" yestext="前往知識庫"/>
 	</notification>
 	<notification name="RegionEntryAccessBlocked_Notify">
-		由於你的內容分級，你不能到該地區。
+		你所欲前往的地區包含 [REGIONMATURITY] 分級的內容，可是你目前的偏好設定排除了 [REGIONMATURITY] 分級的內容。
+	</notification>
+	<notification name="RegionEntryAccessBlocked_NotifyAdultsOnly">
+		你所欲前往的地區含有 [REGIONMATURITY] 的分級內容，僅限成人。
 	</notification>
 	<notification name="RegionEntryAccessBlocked_Change">
-		根據你所設定的內容分級，你不能到該地區。
-
-要進入該地區，請更改你的內容分級偏好。 這將允許你搜尋並接觸 [REGIONMATURITY] 內容。 要還原任何變更，請到「我自己 &gt; 偏好設定 &gt; 一般設定」。
+		你所欲前往的地區包含 [REGIONMATURITY] 分級的內容，可是你目前的偏好設定排除了 [REGIONMATURITY] 分級的內容。 你可以變更你的偏好設定，或取消前往。 你的偏好設定變更後，你可以試圖再進入該地區。
 		<form name="form">
 			<button name="OK" text="變更偏好設定"/>
-			<button name="Cancel" text="關閉"/>
-			<ignore name="ignore" text="我所選擇的內容分級不允許我進入一個地區"/>
+			<button name="Cancel" text="取消"/>
+			<ignore name="ignore" text="跨越地區：你所欲前往的地區含有被你目前的偏好設定排除的分級內容。"/>
 		</form>
 	</notification>
+	<notification name="RegionEntryAccessBlocked_PreferencesOutOfSync">
+		發生技術問題，你的偏好設定和伺服器上的不一致。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="TeleportEntryAccessBlocked">
+		你所欲前往的地區含有超過你目前偏好的分級的內容。  你可以到「我自己 &gt; 偏好設定 &gt; 一般設定」變更你的偏好設定。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="TeleportEntryAccessBlocked_AdultsOnlyContent">
+		你所欲前往的地區含有 [REGIONMATURITY] 的分級內容，僅限成人。
+		<url name="url">
+			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
+		</url>
+		<usetemplate ignoretext="瞬間傳送：你所欲前往的地區含有限制給成人的內容。" name="okcancelignore" notext="關閉" yestext="前往知識庫"/>
+	</notification>
+	<notification name="TeleportEntryAccessBlocked_Notify">
+		你所欲前往的地區包含 [REGIONMATURITY] 分級的內容，可是你目前的偏好設定排除了 [REGIONMATURITY] 分級的內容。
+	</notification>
+	<notification name="TeleportEntryAccessBlocked_NotifyAdultsOnly">
+		你所欲前往的地區含有 [REGIONMATURITY] 的分級內容，僅限成人。
+	</notification>
+	<notification name="TeleportEntryAccessBlocked_ChangeAndReTeleport">
+		你所欲前往的地區包含 [REGIONMATURITY] 分級的內容，可是你目前的偏好設定排除了 [REGIONMATURITY] 分級的內容。 我們可以變更你的偏好設定好讓你繼續瞬間傳送，你也可取消這動作。
+		<form name="form">
+			<button name="OK" text="變更後繼續"/>
+			<button name="Cancel" text="取消"/>
+			<ignore name="ignore" text="瞬間傳送（可重啟）：你所欲前往的地區含有被你目前的偏好設定排除的分級內容。"/>
+		</form>
+	</notification>
+	<notification name="TeleportEntryAccessBlocked_Change">
+		你所欲前往的地區包含 [REGIONMATURITY] 分級的內容，可是你目前的偏好設定排除了 [REGIONMATURITY] 分級的內容。 我們可以變更你的偏好設定，你也可取消瞬間傳送。 你的偏好設定變更後，你可以再嘗試瞬間傳送。
+		<form name="form">
+			<button name="OK" text="變更偏好設定"/>
+			<button name="Cancel" text="取消"/>
+			<ignore name="ignore" text="瞬間傳送（不可重啟）：你所欲前往的地區含有被你目前的偏好設定排除的分級內容。"/>
+		</form>
+	</notification>
+	<notification name="TeleportEntryAccessBlocked_PreferencesOutOfSync">
+		發生技術問題，你的偏好設定和伺服器上的不一致。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
 	<notification name="PreferredMaturityChanged">
-		你的內容分級偏好現在設為 [RATING]。
+		你將不再收到通知，告知你即將進入一個 [RATING] 內容分級的地區。  你可以到選單列底下的「我自己 &gt; 偏好設定 &gt; 一般設定」變更你的內容偏好。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="MaturityChangeError">
+		我們此時無法變更你的偏好設定，讓你觀看 [PREFERRED_MATURITY] 分級的內容。  你的偏好設定已經重設，可觀看 [ACTUAL_MATURITY] 的分級內容。  你可以到選單列的「我自己 &gt; 偏好設定 &gt; 一般設定」再次變更你的偏好。
+		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 	<notification name="LandClaimAccessBlocked">
-		由於你的內容分級，你無法收取這塊土地。 原因可能是我們沒有足夠資訊驗證你的年齡。
-
-請確定你已安裝最新版的 Viewer，並前往知識庫瞭解如何出入這種內容分級的區域。
+		你所欲收取的土地含有超過你目前偏好的分級內容。  你可以到「我自己 &gt; 偏好設定 &gt; 一般設定」變更你的偏好設定。
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
-	<notification name="LandClaimAccessBlocked_KB">
-		由於你的內容分級，你無法收取這塊土地。
-
-前往知識庫進一步瞭解內容分級？
+	<notification name="LandClaimAccessBlocked_AdultsOnlyContent">
+		只有成人才能收取這土地。
 		<url name="url">
 			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
 		</url>
-		<usetemplate ignoretext="礙於內容分級的限制，我無法收取這塊土地" name="okcancelignore" notext="關閉" yestext="前往知識庫"/>
+		<usetemplate ignoretext="只有成人才能收取這土地。" name="okcancelignore" notext="關閉" yestext="前往知識庫"/>
 	</notification>
 	<notification name="LandClaimAccessBlocked_Notify">
-		由於你的內容分級，你無法收取這塊土地。
+		你所欲收取的土地包含 [REGIONMATURITY] 分級的內容，可是你目前的偏好設定排除了 [REGIONMATURITY] 分級的內容。
+	</notification>
+	<notification name="LandClaimAccessBlocked_NotifyAdultsOnly">
+		你所欲收取的土地包含 [REGIONMATURITY] 的分級內容，僅限成人。
 	</notification>
 	<notification name="LandClaimAccessBlocked_Change">
-		礙於你所設的內容分級偏好，你無法收取這塊土地。
-
-你可以現在點按「更改偏好設定」提升內容分級，即可進入。 從現在起，你可以搜尋並接觸 [REGIONMATURITY] 內容。 往後如果你要還原這項變更，請到「我自己 &gt; 偏好設定 &gt; 一般設定」。
-		<usetemplate ignoretext="我所選擇的內容分級不允許我收取土地" name="okcancelignore" notext="關閉" yestext="變更偏好設定"/>
+		你所欲收取的土地包含 [REGIONMATURITY] 分級的內容，可是你目前的偏好設定排除了 [REGIONMATURITY] 分級的內容。 我們可以變更你的偏好，讓你再試圖收取土地。
+		<form name="form">
+			<button name="OK" text="變更偏好設定"/>
+			<button name="Cancel" text="取消"/>
+			<ignore name="ignore" text="你所欲收取的土地含有被你目前的偏好所排除的分級內容。"/>
+		</form>
 	</notification>
 	<notification name="LandBuyAccessBlocked">
-		由於你的內容分級，你無法購買這塊土地。 原因可能是我們沒有足夠資訊驗證你的年齡。
-
-請確定你已安裝最新版的 Viewer，並前往知識庫瞭解如何出入這種內容分級的區域。
+		你所欲購買的土地的內容分級超過你目前所設偏好。  你可以到「我自己 &gt; 偏好設定 &gt; 一般設定」變更你的偏好設定。
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
-	<notification name="LandBuyAccessBlocked_KB">
-		由於你的內容分級，你無法購買這塊土地。
-
-前往知識庫進一步瞭解內容分級？
+	<notification name="LandBuyAccessBlocked_AdultsOnlyContent">
+		只有成人才能購買這土地。
 		<url name="url">
 			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
 		</url>
-		<usetemplate ignoretext="礙於內容分級的限制，我無法購買這塊土地" name="okcancelignore" notext="關閉" yestext="前往知識庫"/>
+		<usetemplate ignoretext="只有成人才能購買這土地。" name="okcancelignore" notext="關閉" yestext="前往知識庫"/>
 	</notification>
 	<notification name="LandBuyAccessBlocked_Notify">
-		由於你的內容分級，你無法購買這塊土地。
+		你所欲購買的土地包含 [REGIONMATURITY] 分級的內容，可是你目前的偏好設定排除了 [REGIONMATURITY] 分級的內容。
+	</notification>
+	<notification name="LandBuyAccessBlocked_NotifyAdultsOnly">
+		你所欲購買的土地含有 [REGIONMATURITY] 分級的內容，僅限成人。
 	</notification>
 	<notification name="LandBuyAccessBlocked_Change">
-		礙於你所設的內容分級，你無法購買這塊土地。
-
-你可以現在點按「更改偏好設定」提升內容分級，即可進入。 從現在起，你可以搜尋並接觸 [REGIONMATURITY] 內容。 往後如果你要還原這項變更，請到「我自己 &gt; 偏好設定 &gt; 一般設定」。
-		<usetemplate ignoretext="我所選擇的內容分級不允許我購買土地" name="okcancelignore" notext="關閉" yestext="變更偏好設定"/>
+		你所欲購買的土地包含 [REGIONMATURITY] 分級的內容，可是你目前的偏好設定排除了 [REGIONMATURITY] 分級的內容。 我們可以變更你的偏好，讓你再試圖購買土地。
+		<form name="form">
+			<button name="OK" text="變更偏好設定"/>
+			<button name="Cancel" text="取消"/>
+			<ignore name="ignore" text="你所欲購買的土地含有被你目前的偏好所排除的分級內容。"/>
+		</form>
 	</notification>
 	<notification name="TooManyPrimsSelected">
 		選擇了太多項的幾何元件。  請至多選擇 [MAX_PRIM_COUNT] 項幾何元件，再試一次。
@@ -1763,10 +1909,9 @@ SHA1 指紋：[MD5_DIGEST]
 		</form>
 	</notification>
 	<notification label="已變更地區的內容分級" name="RegionMaturityChange">
-		地區的內容分級已經更新。
+		此地區的內容分級已經變更。
 可能需要稍候一段時間，地圖才會反映這個變更。
-
-居民若要進入完全成人分級的地區，帳號必須先通過年齡驗證或付款驗證。
+		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 	<notification label="聲音版本不相符" name="VoiceVersionMismatch">
 		這版本的 [APP_NAME] 和本地區的語音聊天功能不相容。 想要語音聊天正常運作，你必須更新 [APP_NAME]。
@@ -1883,6 +2028,18 @@ SHA1 指紋：[MD5_DIGEST]
 		你確定你要結束退出？
 		<usetemplate ignoretext="當我結束退出時進行確認" name="okcancelignore" notext="不要結束退出" yestext="結束退出"/>
 	</notification>
+	<notification name="ConfirmRestoreToybox">
+		這動作將會恢復你預設的按鈕和工具列。
+
+你不能取消這動作。
+		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
+	</notification>
+	<notification name="ConfirmClearAllToybox">
+		這動作將把所有按鈕收入工具箱，你的工具列將會清空。
+    
+你不能取消這動作。
+		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
+	</notification>
 	<notification name="DeleteItems">
 		[QUESTION]
 		<usetemplate ignoretext="刪除物品前確認" name="okcancelignore" notext="取消" yestext="確定"/>
@@ -1963,6 +2120,10 @@ SHA1 指紋：[MD5_DIGEST]
 		你確定要刪除你的旅行、網頁及搜尋歷史紀錄嗎？
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
+	<notification name="ConfirmClearCache">
+		確定要清除你 Viewer 的快取？
+		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
+	</notification>
 	<notification name="ConfirmClearCookies">
 		你確定要清除你的 cookies 嗎？
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="是"/>
@@ -1988,48 +2149,30 @@ SHA1 指紋：[MD5_DIGEST]
 		你要覆寫已儲存的預設配置嗎？
 		<usetemplate name="okcancelbuttons" notext="否" yestext="是"/>
 	</notification>
-	<notification name="WLDeletePresetAlert">
-		你要刪除 [SKY]?
-		<usetemplate name="okcancelbuttons" notext="否" yestext="是"/>
-	</notification>
 	<notification name="WLNoEditDefault">
 		你不能編輯或刪除預設的設定。
 	</notification>
 	<notification name="WLMissingSky">
 		這個「一日循環」檔案參考了一個不存在的天空檔案：[SKY]。
 	</notification>
+	<notification name="WLRegionApplyFail">
+		抱歉，設定無法套用到地區。  離開地區再返回也許可以解決這個問題。  所得的原因為：[FAIL_REASON]
+	</notification>
+	<notification name="EnvCannotDeleteLastDayCycleKey">
+		無法刪除此日循環的最後一組設定，日循環不得為空白。  你應該修改最後一組資料，不要試圖刪除，然後再建立新的。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="DayCycleTooManyKeyframes">
+		你無法新增更多的 keyframe 到這個日循環。  [SCOPE] 範圍的日循環最多允許 [MAX] 個 keyframe。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="EnvUpdateRate">
+		你至多只能每 [WAIT] 秒更新一次地區的環境設定。  請等到這段時間過去了再試一次。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
 	<notification name="PPSaveEffectAlert">
 		PostProcess 效果已經存在。 你是否仍要把它覆寫掉？
 		<usetemplate name="okcancelbuttons" notext="否" yestext="是"/>
-	</notification>
-	<notification name="NewSkyPreset">
-		請為新的天空定一個名稱
-		<form name="form">
-			<input name="message">
-				新預設配配置
-			</input>
-			<button name="OK" text="確定"/>
-			<button name="Cancel" text="取消"/>
-		</form>
-	</notification>
-	<notification name="ExistsSkyPresetAlert">
-		預設值已經存在！
-	</notification>
-	<notification name="NewWaterPreset">
-		請為水的新預設值定一個名稱
-		<form name="form">
-			<input name="message">
-				新預設配配置
-			</input>
-			<button name="OK" text="確定"/>
-			<button name="Cancel" text="取消"/>
-		</form>
-	</notification>
-	<notification name="ExistsWaterPresetAlert">
-		預設值已經存在！
-	</notification>
-	<notification name="WaterNoEditDefault">
-		你不能編輯或刪除預設的設定。
 	</notification>
 	<notification name="ChatterBoxSessionStartError">
 		無法開始一個與　[RECIPIENT]　他的新聊天會話。
@@ -2058,13 +2201,11 @@ SHA1 指紋：[MD5_DIGEST]
 		<usetemplate ignoretext="編輯外觀時能穿上我所創造的服裝" name="okcancelignore" notext="否" yestext="是"/>
 	</notification>
 	<notification name="NotAgeVerified">
-		你必須通過年齡驗證才能進入這區域。  你是否要前往 [SECOND_LIFE] 網站進行年齡驗證？
-
-[_URL]
-		<url name="url">
-			https://secondlife.com/account/verification.php
-		</url>
-		<usetemplate ignoretext="我尚未驗證年齡" name="okcancelignore" notext="否" yestext="是"/>
+		你所欲前往的地點設限給年滿 18 歲的居民進入。
+		<usetemplate ignoretext="我年齡不滿規定，無法進入有年齡限制的區域。" name="okignore" yestext="確定"/>
+	</notification>
+	<notification name="NotAgeVerified_Notify">
+		此地點限制為年滿 18 歲。
 	</notification>
 	<notification name="Cannot enter parcel: no payment info on file">
 		你必須提供付款資料才能進入這區域。  你是否要前往 [SECOND_LIFE] 網站設定付款資料？
@@ -2100,10 +2241,10 @@ SHA1 指紋：[MD5_DIGEST]
 		主旨：[SUBJECT]，訊息：[MESSAGE]
 	</notification>
 	<notification name="FriendOnline">
-		[NAME] 上線
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; 目前在線上
 	</notification>
 	<notification name="FriendOffline">
-		[NAME] 離線
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; 目前離線
 	</notification>
 	<notification name="AddSelfFriend">
 		雖然你人很好，你還是不能把自己加為朋友。
@@ -2125,7 +2266,7 @@ SHA1 指紋：[MD5_DIGEST]
 		地形 .raw 檔已下載
 	</notification>
 	<notification name="GestureMissing">
-		呃… 姿勢 [NAME] 在資料庫中遺失。
+		姿勢 [NAME] 在資料庫中遺失。
 	</notification>
 	<notification name="UnableToLoadGesture">
 		無法載入姿勢 [NAME]。
@@ -2217,14 +2358,15 @@ SHA1 指紋：[MD5_DIGEST]
 		你的名片已被拒絕。
 	</notification>
 	<notification name="TeleportToLandmark">
-		若想瞬間傳送到「[NAME]」等等地點，你可以開啟螢幕右方的「地點」側邊欄，再選擇「地標」頁籤。
-用點按方式選擇任何地標，再按側邊欄底下的「瞬間傳送」。
-（你還可以直接按兩下那個地標，或按滑鼠右鍵，選擇「瞬間傳送」。）
+		要瞬間傳送到「[NAME]」等地點，請點按「地點」按鈕，
+    然後在開啟的視窗裡，選擇「地標」頁籤。 點按任何
+    地標加以選擇，再點按視窗底下的「瞬間傳送」按鈕。
+    （你還可以直接按兩下那個地標，或按滑鼠右鍵，選擇「瞬間傳送」。）
 	</notification>
 	<notification name="TeleportToPerson">
-		若想聯絡「[NAME]」等等居民，你可以開啟螢幕右方的「人群」側邊欄。
-從清單選擇一位居民，再按側邊欄底下的「IM」。
-（你還可以從清單直接按兩下名字，或按滑鼠右鍵，選擇「IM」。）
+		要聯絡如「[NAME]」的任何一位居民，請點按「人群」按鈕，從打開的視窗中選擇一位居民，再點按視窗底下的「IM」。
+
+    （你還可以從清單直接按兩下名字，或按滑鼠右鍵，選擇「IM」。）
 	</notification>
 	<notification name="CantSelectLandFromMultipleRegions">
 		無法選擇超出伺服器邊界的土地。
@@ -2243,6 +2385,9 @@ SHA1 指紋：[MD5_DIGEST]
 		[MESSAGE]
 	</notification>
 	<notification name="PaymentSent">
+		[MESSAGE]
+	</notification>
+	<notification name="PaymentFailure">
 		[MESSAGE]
 	</notification>
 	<notification name="EventNotification">
@@ -2321,6 +2466,26 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="NoBuild">
 		這區域禁止建造物件。 你不能在此建造或產生物件。
 	</notification>
+	<notification name="PathfindingDirty">
+		這地區的尋徑功能有所變更，待儲存。  如果你有建製權，你可以點按「重新產出地區」按鈕重新產出地區。
+	</notification>
+	<notification name="DynamicPathfindingDisabled">
+		這地區並未啟用動態尋徑。  使用尋徑 LSL 呼叫的帶腳本物件，在此地區可能無法正常運作。
+	</notification>
+	<notification name="PathfindingRebakeNavmesh">
+		更改本地區的某些物件將導致其他移動物件的運作發生問題。  要使移動物件正常運作，請點按「重新產出地區」按鈕。  欲獲知詳情請選擇「幫助」。
+		<url name="url">
+			http://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer
+		</url>
+		<usetemplate helptext="幫助" ignoretext="更改本地區的某些物件將導致其他移動物件的運作發生問題。" name="okhelpignore" yestext="確定"/>
+	</notification>
+	<notification name="PathfindingCannotRebakeNavmesh">
+		發生錯誤。  問題可能出在網路或伺服器，也可能因為你無權建製物件。  有時，只要登出再登入即能解決這類問題。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="SeeAvatars">
+		本地段隱藏其內的化身和聊天文字，其他地段看不到。   你看不見地段外的居民，他們也看不見你。  頻道 0 的聊天文字也被封鎖。
+	</notification>
 	<notification name="ScriptsStopped">
 		某管理員已暫時停止區域裡的腳本。
 	</notification>
@@ -2336,9 +2501,7 @@ SHA1 指紋：[MD5_DIGEST]
 		你只能在你所處的區域收取公共土地。
 	</notification>
 	<notification name="RegionTPAccessBlocked">
-		由於你的內容分級，你不能到該地區。 你可能需要通過年齡驗證，且/或安裝最新版的 Viewer。
-
-請前往知識庫瞭解如何出入這種內容分級的區域。
+		你所欲前往的地區含有超過你目前偏好的分級的內容。  你可以到「我自己 &gt; 偏好設定 &gt; 一般設定」變更你的偏好設定。
 	</notification>
 	<notification name="URBannedFromRegion">
 		這個區域禁止你進入。
@@ -2349,11 +2512,11 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="ImproperPaymentStatus">
 		你沒有適當的付款狀態，不能進入這區域。
 	</notification>
-	<notification name="MustGetAgeRgion">
-		你必須通過年齡驗證才能進入這地區。
+	<notification name="MustGetAgeRegion">
+		你必須年滿 18 歲才可進入這地區。
 	</notification>
 	<notification name="MustGetAgeParcel">
-		你必須通過年齡驗證以進入這地段。
+		你必須年滿 18 歲才可進入這地段。
 	</notification>
 	<notification name="NoDestRegion">
 		找不到目的地地區。
@@ -2415,11 +2578,19 @@ SHA1 指紋：[MD5_DIGEST]
 	</notification>
 	<notification name="ObjectGiveItem">
 		名為 &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt;、由 [NAME_SLURL] 擁有的物件給了你這個 [OBJECTTYPE]：
-[ITEM_SLURL]
+&lt;nolink&gt;[ITEM_SLURL]&lt;/nolink&gt;
 		<form name="form">
 			<button name="Keep" text="保留"/>
 			<button name="Discard" text="丟棄"/>
-			<button name="Mute" text="封鎖"/>
+			<button name="Mute" text="封鎖所有人"/>
+		</form>
+	</notification>
+	<notification name="OwnObjectGiveItem">
+		你名為 &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; 的物件給了你這個 [OBJECTTYPE]：
+&lt;nolink&gt;[ITEM_SLURL]&lt;/nolink&gt;
+		<form name="form">
+			<button name="Keep" text="保留"/>
+			<button name="Discard" text="丟棄"/>
 		</form>
 	</notification>
 	<notification name="UserGiveItem">
@@ -2447,11 +2618,32 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="TeleportOffered">
 		[NAME_SLURL] 想要瞬間傳送你到他的地點：
 
-[MESSAGE] - [MATURITY_STR] &lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt;
+“[MESSAGE]”
+&lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt; - [MATURITY_STR]
 		<form name="form">
 			<button name="Teleport" text="瞬間傳送"/>
 			<button name="Cancel" text="取消"/>
 		</form>
+	</notification>
+	<notification name="TeleportOffered_MaturityExceeded">
+		[NAME_SLURL] 想要瞬間傳送你到他的地點：
+
+“[MESSAGE]”
+&lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt; - [MATURITY_STR]
+
+此地區包含 [REGION_CONTENT_MATURITY] 的分級內容，可是你目前的偏好設定排除了 [REGION_CONTENT_MATURITY] 的分級內容。  我們可以變更你的偏好設定好讓你繼續瞬間傳送，你也可取消這動作。
+		<form name="form">
+			<button name="Teleport" text="變更後繼續"/>
+			<button name="Cancel" text="取消"/>
+		</form>
+	</notification>
+	<notification name="TeleportOffered_MaturityBlocked">
+		[NAME_SLURL] 想要瞬間傳送你到他的地點：
+
+“[MESSAGE]”
+&lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt; - [MATURITY_STR]
+
+可是，此地區含有僅限成人的內容。
 	</notification>
 	<notification name="TeleportOfferSent">
 		已向 [TO_NAME] 發出瞬間傳送邀請
@@ -2488,10 +2680,10 @@ SHA1 指紋：[MD5_DIGEST]
 		</form>
 	</notification>
 	<notification name="FriendshipAccepted">
-		[NAME] 接受了你的交友邀請。
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; 接受了你的交友邀請。
 	</notification>
 	<notification name="FriendshipDeclined">
-		[NAME] 謝絕你的交友邀請。
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; 婉拒了你的交友邀請。
 	</notification>
 	<notification name="FriendshipAcceptedByMe">
 		交友邀請被接受。
@@ -2547,30 +2739,28 @@ SHA1 指紋：[MD5_DIGEST]
 		</form>
 	</notification>
 	<notification name="ScriptQuestionCaution">
-		一個名為 &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;、由 &apos;[NAME]&apos; 擁有的物件想要：
-
-[QUESTIONS]
-如果你不信任這物件或它的創造人，你應該拒絕這個要求。
-
-同意這個請求？
+		警告：物件 &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; 要求全權存取你的林登幣帳戶。 你如果允許存取帳戶，它將可在任何時候從你帳戶取走資金，或完全加以清空，或定期取走部分資金，且不會發出警告。
+  
+這很可能是種不當的要求。 如果你不完全瞭解它為何要求存取你的帳戶，請勿允准。
 		<form name="form">
-			<button name="Grant" text="同意"/>
+			<button name="Grant" text="允許全權存取"/>
 			<button name="Deny" text="拒絕"/>
-			<button name="Details" text="細節..."/>
 		</form>
 	</notification>
 	<notification name="ScriptDialog">
 		[NAME] 的 &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
 [MESSAGE]
 		<form name="form">
-			<button name="Ignore" text="忽視"/>
+			<button name="Client_Side_Mute" text="封鎖"/>
+			<button name="Client_Side_Ignore" text="忽視"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialogGroup">
 		[GROUPNAME] 的 &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
 [MESSAGE]
 		<form name="form">
-			<button name="Ignore" text="忽視"/>
+			<button name="Client_Side_Mute" text="封鎖"/>
+			<button name="Client_Side_Ignore" text="忽視"/>
 		</form>
 	</notification>
 	<notification name="BuyLindenDollarSuccess">
@@ -2748,10 +2938,30 @@ SHA1 指紋：[MD5_DIGEST]
 		選取要分享的居民。
 	</notification>
 	<notification name="MeshUploadError">
-		[LABEL] 上傳失敗：[MESSAGE] [IDENTIFIER] [INVALIDITY_IDENTIFIER]
+		[LABEL] 上傳失敗：[MESSAGE] [IDENTIFIER] 
+
+詳見記錄檔。
+	</notification>
+	<notification name="MeshUploadPermError">
+		請求網面上傳權限時出錯。
+	</notification>
+	<notification name="RegionCapabilityRequestError">
+		無法取得地區能力 &apos;[CAPABILITY]&apos;。
 	</notification>
 	<notification name="ShareItemsConfirmation">
 		請確定你要和居民分享這些物項：
+
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
+
+居民：
+
+[RESIDENTS]
+		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
+	</notification>
+	<notification name="ShareFolderConfirmation">
+		一次只能分享一個資料夾。
+
+請確定你要和居民分享這些物項：
 
 &lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
 
@@ -2838,6 +3048,10 @@ SHA1 指紋：[MD5_DIGEST]
 		（存續 [EXISTENCE] 秒鐘）
 你在 [TIME] 秒鐘後在本地為 &apos;[BODYREGION]&apos; 更新了一個 [RESOLUTION] 的定貌材質。
 	</notification>
+	<notification name="LivePreviewUnavailable">
+		我們無法顯示這個材質的預覽，因為它設為「禁止複製」且 / 或「禁止轉移」。
+		<usetemplate ignoretext="「禁止複製」和「禁止轉移」的材質若不能使用實時預覽模式，請給我警示。" name="okignore" yestext="確定"/>
+	</notification>
 	<notification name="ConfirmLeaveCall">
 		你確定要離開這段通話？
 		<usetemplate ignoretext="我結束通話前進行確認" name="okcancelignore" notext="否" yestext="是"/>
@@ -2891,12 +3105,66 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification label="你得到林登幣!" name="HintLindenDollar">
 		這裡顯示你目前的 L$ 餘額。 點按「購買 L$」可添購林登幣。
 	</notification>
+	<notification name="LowMemory">
+		你的可用記憶體很小。 第二人生部分功能將停用，以免當機。 請關閉其他應用程式。 這狀況若持續，請重啟第二人生。
+	</notification>
+	<notification name="ForceQuitDueToLowMemory">
+		記憶體不足，第二人生將於 30 秒後關閉離開。
+	</notification>
 	<notification name="PopupAttempt">
 		一個突顯式視窗開啟時被阻擋。
 		<form name="form">
 			<ignore name="ignore" text="啟用全部的突顯式視窗"/>
 			<button name="open" text="開啟突顯式視窗"/>
 		</form>
+	</notification>
+	<notification name="SOCKS_NOT_PERMITTED">
+		SOCKS 5 代理伺服器 &quot;[HOST]:[PORT]&quot; 拒絕連通，規則集不允許。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="SOCKS_CONNECT_ERROR">
+		SOCKS 5 代理伺服器 &quot;[HOST]:[PORT]&quot; 拒絕連通，無法打開 TCP 頻道。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="SOCKS_NOT_ACCEPTABLE">
+		SOCKS 5 代理伺服器 &quot;[HOST]:[PORT]&quot; 拒絕所選的鑒認方法。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="SOCKS_AUTH_FAIL">
+		SOCKS 5 代理伺服器 &quot;[HOST]:[PORT]&quot; 回報：你的鑒認資料無效。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="SOCKS_UDP_FWD_NOT_GRANTED">
+		SOCKS 5 代理伺服器 &quot;[HOST]:[PORT]&quot; 拒絕 UDP 聯結請求。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="SOCKS_HOST_CONNECT_FAILED">
+		無法連通 SOCKS 5 代理伺服器 &quot;[HOST]:[PORT]&quot;。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="SOCKS_UNKNOWN_STATUS">
+		伺服器 &quot;[HOST]:[PORT]&quot; 發生不明的代理伺服器錯誤。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="SOCKS_INVALID_HOST">
+		無效的 SOCKS 代理伺服器位址或埠號 &quot;[HOST]:[PORT]&quot;。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="SOCKS_BAD_CREDS">
+		無效的 SOCKS 5 使用者名稱或密碼。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="PROXY_INVALID_HTTP_HOST">
+		無效的 HTTP 代理伺服器位址或埠號 &quot;[HOST]:[PORT]&quot;。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="PROXY_INVALID_SOCKS_HOST">
+		無效的 SOCKS 代理伺服器位址或埠號 &quot;[HOST]:[PORT]&quot;。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="ChangeProxySettings">
+		重新啟動 [APP_NAME] 後將採用新的代理伺服器設定。
+		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 	<notification name="AuthRequest">
 		&apos;[REALM]&apos; 領域的 &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; 站點需要使用者名稱和密碼。
@@ -2906,10 +3174,6 @@ SHA1 指紋：[MD5_DIGEST]
 			<button name="ok" text="提交"/>
 			<button name="cancel" text="取消"/>
 		</form>
-	</notification>
-	<notification label="" name="ModeChange">
-		改變劉覽器模式要求你必須結束退出並重新啟動。
-		<usetemplate name="okcancelbuttons" notext="不要結束退出" yestext="結束退出"/>
 	</notification>
 	<notification label="" name="NoClassifieds">
 		只有進階模式才能新建或編輯個人廣告。 你是否想要結束離開，以便變更模式？ 你可在登入畫面選擇想要的模式。
@@ -2955,6 +3219,66 @@ SHA1 指紋：[MD5_DIGEST]
 		只有進階模式才能搜尋。 你是否要登出並且變更模式？
 		<usetemplate name="okcancelbuttons" notext="不要結束退出" yestext="結束退出"/>
 	</notification>
+	<notification label="" name="ConfirmHideUI">
+		這將會隱藏所有選單內容和按鈕。 要恢復原狀，再點按 [SHORTCUT] 一次。
+		<usetemplate ignoretext="隱藏使用者介面前先確認" name="okcancelignore" notext="取消" yestext="確定"/>
+	</notification>
+	<notification name="PathfindingLinksets_WarnOnPhantom">
+		所選的一些聯結集的幻影旗標將被切換。
+
+你確定要繼續嗎？
+		<usetemplate ignoretext="所選的一些聯結集的幻影旗標將被切換。" name="okcancelignore" notext="取消" yestext="確定"/>
+	</notification>
+	<notification name="PathfindingLinksets_MismatchOnRestricted">
+		所選某些聯結集因權限問題，無法設定為 &apos;[REQUESTED_TYPE]&apos;。  這些聯結集將被設為 &apos;[RESTRICTED_TYPE]&apos;。
+
+你確定要繼續嗎？
+		<usetemplate ignoretext="所選某些聯結集因權限問題，無法設定。" name="okcancelignore" notext="取消" yestext="確定"/>
+	</notification>
+	<notification name="PathfindingLinksets_MismatchOnVolume">
+		所選某些聯結集無法設為 &apos;[REQUESTED_TYPE]&apos;，因為形狀屬於非凸面。
+
+你確定要繼續嗎？
+		<usetemplate ignoretext="所選某些聯結集因為形狀屬於非凸面，無法設定" name="okcancelignore" notext="取消" yestext="確定"/>
+	</notification>
+	<notification name="PathfindingLinksets_WarnOnPhantom_MismatchOnRestricted">
+		所選的一些聯結集的幻影旗標將被切換。
+
+所選某些聯結集因權限問題，無法設定為 &apos;[REQUESTED_TYPE]&apos;。  這些聯結集將被設為 &apos;[RESTRICTED_TYPE]&apos;。
+
+你確定要繼續嗎？
+		<usetemplate ignoretext="所選的一些聯結集的幻影旗標可成功切換，其他的則因權限問題而無法設定。" name="okcancelignore" notext="取消" yestext="確定"/>
+	</notification>
+	<notification name="PathfindingLinksets_WarnOnPhantom_MismatchOnVolume">
+		所選的一些聯結集的幻影旗標將被切換。
+
+所選某些聯結集無法設為 &apos;[REQUESTED_TYPE]&apos;，因為形狀屬於非凸面。
+
+你確定要繼續嗎？
+		<usetemplate ignoretext="所選的一些聯結集的幻影旗標可成功切換，其他的則因形狀屬於非凸面而無法設定" name="okcancelignore" notext="取消" yestext="確定"/>
+	</notification>
+	<notification name="PathfindingLinksets_MismatchOnRestricted_MismatchOnVolume">
+		所選某些聯結集因權限問題，無法設定為 &apos;[REQUESTED_TYPE]&apos;。  這些聯結集將被設為 &apos;[RESTRICTED_TYPE]&apos;。
+
+所選某些聯結集無法設為 &apos;[REQUESTED_TYPE]&apos;，因為形狀屬於非凸面。 這些聯結集的使用類型將維持不變。
+
+你確定要繼續嗎？
+		<usetemplate ignoretext="所選某些聯結集因權限不足，且形狀屬於非凸面，因此無法設定。" name="okcancelignore" notext="取消" yestext="確定"/>
+	</notification>
+	<notification name="PathfindingLinksets_WarnOnPhantom_MismatchOnRestricted_MismatchOnVolume">
+		所選的一些聯結集的幻影旗標將被切換。
+
+所選某些聯結集因權限問題，無法設定為 &apos;[REQUESTED_TYPE]&apos;。  這些聯結集將被設為 &apos;[RESTRICTED_TYPE]&apos;。
+
+所選某些聯結集無法設為 &apos;[REQUESTED_TYPE]&apos;，因為形狀屬於非凸面。 這些聯結集的使用類型將維持不變。
+
+你確定要繼續嗎？
+		<usetemplate ignoretext="所選的一些聯結集的幻影旗標將被切換，其他則因權限不足且形狀屬於非凸面，因此無法設定。" name="okcancelignore" notext="取消" yestext="確定"/>
+	</notification>
+	<notification name="PathfindingLinksets_ChangeToFlexiblePath">
+		所選的物件會影響導航網面。  將它改為彈性路徑，將使它從導航網面中被移除。
+		<usetemplate ignoretext="所選的物件會影響導航網面。  將它改為彈性路徑，將使它從導航網面中被移除。" name="okcancelignore" notext="取消" yestext="確定"/>
+	</notification>
 	<global name="UnsupportedGLRequirements">
 		你的硬體設備似乎不符 [APP_NAME] 的要求。 [APP_NAME] 需要可以支援多材質的 OpenGL 顯像卡。 在這狀況下，請確定你的顯像卡安裝了最新的驅動程式，作業系統也安裝了最新的服務包和嵌補程式。
 
@@ -2979,4 +3303,24 @@ SHA1 指紋：[MD5_DIGEST]
 	<global name="You died and have been teleported to your home location">
 		你已經死亡並且被瞬間傳送回你的家的位置。
 	</global>
+	<notification name="LocalBitmapsUpdateFileNotFound">
+		[FNAME] 無法更新，找不到該檔案。
+未來將不再更新該檔案。
+	</notification>
+	<notification name="LocalBitmapsUpdateFailedFinal">
+		[FNAME] 無法開啟或解碼，已嘗試 [NRETRIES] 次，該檔案已被認定為毀壞。
+未來將不再更新該檔案。
+	</notification>
+	<notification name="LocalBitmapsVerifyFail">
+		試圖新增一個無效或無法讀取的圖像檔 [FNAME]，該檔無法開啟或解碼。
+已取消這一嘗試。
+	</notification>
+	<notification name="PathfindingReturnMultipleItems">
+		你正退回 [NUM_ITEMS] 個物項。  你確定你要繼續？
+		<usetemplate ignoretext="確定退回多個物項？" name="okcancelignore" notext="否" yestext="是"/>
+	</notification>
+	<notification name="PathfindingDeleteMultipleItems">
+		你正在刪除 [NUM_ITEMS] 個物項。  你確定你要繼續？
+		<usetemplate ignoretext="確定要刪除多個物項？" name="okcancelignore" notext="否" yestext="是"/>
+	</notification>
 </notifications>

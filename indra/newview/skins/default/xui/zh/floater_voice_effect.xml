@@ -12,6 +12,135 @@
 	<string name="new_voice_effect">
 		（新的！）
 	</string>
+	<string name="effect_Arena">
+		競技場
+	</string>
+	<string name="effect_Beast">
+		野獸
+	</string>
+	<string name="effect_Buff">
+		Buff
+	</string>
+	<string name="effect_Buzz">
+		Buzz
+	</string>
+	<string name="effect_Camille">
+		卡蜜兒
+	</string>
+	<string name="effect_Creepy">
+		怪異
+	</string>
+	<string name="effect_CreepyBot">
+		怪異機器人
+	</string>
+	<string name="effect_Cyber">
+		科幻
+	</string>
+	<string name="effect_DeepBot">
+		深沉機器人
+	</string>
+	<string name="effect_Demon">
+		魔鬼
+	</string>
+	<string name="effect_Female Elf">
+		女性 - 小精靈
+	</string>
+	<string name="effect_Flirty">
+		調情
+	</string>
+	<string name="effect_Foxy">
+		香豔
+	</string>
+	<string name="effect_Halloween 2010 Bonus">
+		2010萬聖節加贈
+	</string>
+	<string name="effect_Helium">
+		氦氣
+	</string>
+	<string name="effect_Husky">
+		沙啞
+	</string>
+	<string name="effect_Husky Whisper">
+		沙啞耳語
+	</string>
+	<string name="effect_Intercom">
+		對講機
+	</string>
+	<string name="effect_Julia">
+		茱莉亞
+	</string>
+	<string name="effect_Lo Lilt">
+		輕微抑揚頓挫
+	</string>
+	<string name="effect_Macho">
+		陽剛
+	</string>
+	<string name="effect_Micro">
+		Micro
+	</string>
+	<string name="effect_Mini">
+		迷你
+	</string>
+	<string name="effect_Model">
+		模型
+	</string>
+	<string name="effect_Nano">
+		Nano
+	</string>
+	<string name="effect_Nightmare">
+		惡夢
+	</string>
+	<string name="effect_PopBot">
+		PopBot
+	</string>
+	<string name="effect_Rachel">
+		瑞秋
+	</string>
+	<string name="effect_Radio">
+		收音機
+	</string>
+	<string name="effect_Robot">
+		機器人
+	</string>
+	<string name="effect_Roxanne">
+		蘿姍
+	</string>
+	<string name="effect_Rumble">
+		低沉隆隆聲
+	</string>
+	<string name="effect_Sabrina">
+		薩賓娜
+	</string>
+	<string name="effect_Samantha">
+		姍曼莎
+	</string>
+	<string name="effect_Sexy">
+		性感
+	</string>
+	<string name="effect_Shorty">
+		矮個兒
+	</string>
+	<string name="effect_Smaller">
+		較小
+	</string>
+	<string name="effect_Sneaky">
+		鬼祟
+	</string>
+	<string name="effect_Stallion">
+		種馬
+	</string>
+	<string name="effect_Sultry">
+		勾魂
+	</string>
+	<string name="effect_Thunder">
+		雷聲
+	</string>
+	<string name="effect_Vixen">
+		潑婦
+	</string>
+	<string name="effect_WhinyBot">
+		哭鬧機器人
+	</string>
 	<text name="preview_text">
 		預覽
 	</text>

@@ -334,8 +334,9 @@ void LLAvatarNameCache::requestNamesViaCapability()
 	// http://pdp60.lindenlab.com:8000/agents/?ids=3941037e-78ab-45f0-b421-bd6e77c1804d&ids=0012809d-7d2d-4c24-9609-af1230a37715&ids=0019aaba-24af-4f0a-aa72-6457953cf7f0
 	//
 	// Apache can handle URLs of 4096 chars, but let's be conservative
-	const U32 NAME_URL_MAX = 4096;
-	const U32 NAME_URL_SEND_THRESHOLD = 3000;
+	static const U32 NAME_URL_MAX = 4096;
+	static const U32 NAME_URL_SEND_THRESHOLD = 3500;
+
 	std::string url;
 	url.reserve(NAME_URL_MAX);
 
@@ -343,10 +344,12 @@ void LLAvatarNameCache::requestNamesViaCapability()
 	agent_ids.reserve(128);
 	
 	U32 ids = 0;
-	ask_queue_t::const_iterator it = sAskQueue.begin();
-	for ( ; it != sAskQueue.end(); ++it)
+	ask_queue_t::const_iterator it;
+	while(!sAskQueue.empty())
 	{
+		it = sAskQueue.begin();
 		const LLUUID& agent_id = *it;
+		sAskQueue.erase(it);
 
 		if (url.empty())
 		{
@@ -369,27 +372,17 @@ void LLAvatarNameCache::requestNamesViaCapability()
 
 		if (url.size() > NAME_URL_SEND_THRESHOLD)
 		{
-			LL_DEBUGS("AvNameCache") << "LLAvatarNameCache::requestNamesViaCapability first "
-									 << ids << " ids"
-									 << LL_ENDL;
-			LLHTTPClient::get(url, new LLAvatarNameResponder(agent_ids));
-			url.clear();
-			agent_ids.clear();
+			break;
 		}
 	}
 
 	if (!url.empty())
 	{
-		LL_DEBUGS("AvNameCache") << "LLAvatarNameCache::requestNamesViaCapability all "
+		LL_DEBUGS("AvNameCache") << "LLAvatarNameCache::requestNamesViaCapability requested "
 								 << ids << " ids"
 								 << LL_ENDL;
 		LLHTTPClient::get(url, new LLAvatarNameResponder(agent_ids));
-		url.clear();
-		agent_ids.clear();
 	}
-
-	// We've moved all asks to the pending request queue
-	sAskQueue.clear();
 }
 
 void LLAvatarNameCache::legacyNameCallback(const LLUUID& agent_id,
@@ -416,12 +409,15 @@ void LLAvatarNameCache::legacyNameCallback(const LLUUID& agent_id,
 
 void LLAvatarNameCache::requestNamesViaLegacy()
 {
+	static const S32 MAX_REQUESTS = 100;
 	F64 now = LLFrameTimer::getTotalSeconds();
 	std::string full_name;
-	ask_queue_t::const_iterator it = sAskQueue.begin();
-	for (; it != sAskQueue.end(); ++it)
+	ask_queue_t::const_iterator it;
+	for (S32 requests = 0; !sAskQueue.empty() && requests < MAX_REQUESTS; ++requests)
 	{
+		it = sAskQueue.begin();
 		const LLUUID& agent_id = *it;
+		sAskQueue.erase(it);
 
 		// Mark as pending first, just in case the callback is immediately
 		// invoked below.  This should never happen in practice.
@@ -433,10 +429,6 @@ void LLAvatarNameCache::requestNamesViaLegacy()
 			boost::bind(&LLAvatarNameCache::legacyNameCallback,
 				_1, _2, _3));
 	}
-
-	// We've either answered immediately or moved all asks to the
-	// pending queue
-	sAskQueue.clear();
 }
 
 void LLAvatarNameCache::initClass(bool running)
@@ -513,11 +505,11 @@ void LLAvatarNameCache::idle()
 	// *TODO: Possibly re-enabled this based on People API load measurements
 	// 100 ms is the threshold for "user speed" operations, so we can
 	// stall for about that long to batch up requests.
-	//const F32 SECS_BETWEEN_REQUESTS = 0.1f;
-	//if (!sRequestTimer.checkExpirationAndReset(SECS_BETWEEN_REQUESTS))
-	//{
-	//	return;
-	//}
+	const F32 SECS_BETWEEN_REQUESTS = 0.1f;
+	if (!sRequestTimer.hasExpired())
+	{
+		return;
+	}
 
 	if (!sAskQueue.empty())
 	{
@@ -530,6 +522,12 @@ void LLAvatarNameCache::idle()
             // ...fall back to legacy name cache system
             requestNamesViaLegacy();
         }
+	}
+
+	if (sAskQueue.empty())
+	{
+		// cleared the list, reset the request timer.
+		sRequestTimer.resetWithExpiry(SECS_BETWEEN_REQUESTS);
 	}
 
     // erase anything that has not been refreshed for more than MAX_UNREFRESHED_TIME
@@ -741,12 +739,6 @@ bool LLAvatarNameCache::useDisplayNames()
 void LLAvatarNameCache::erase(const LLUUID& agent_id)
 {
 	sCache.erase(agent_id);
-}
-
-void LLAvatarNameCache::fetch(const LLUUID& agent_id)
-{
-	// re-request, even if request is already pending
-	sAskQueue.insert(agent_id);
 }
 
 void LLAvatarNameCache::insert(const LLUUID& agent_id, const LLAvatarName& av_name)
