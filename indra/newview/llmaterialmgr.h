@@ -43,13 +43,14 @@ public:
 	const LLMaterialPtr         get(const LLMaterialID& material_id);
 	boost::signals2::connection get(const LLMaterialID& material_id, get_callback_t::slot_type cb);
 	void put(const LLUUID& object_id, const U8 te, const LLMaterial& material);
-	void processGetQueue();
-	void processPutQueue();
 
 protected:
 	bool isGetPending(const LLMaterialID& material_id);
 
+	static void onIdle(void*);
+	void processGetQueue();
 	void onGetResponse(bool success, const LLSD& content);
+	void processPutQueue();
 	void onPutResponse(bool success, const LLSD& content, const LLUUID& object_id);
 
 protected:

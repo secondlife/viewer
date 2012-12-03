@@ -29,6 +29,7 @@
 #include "llsdserialize.h"
 
 #include "llagent.h"
+#include "llcallbacklist.h"
 #include "llmaterialmgr.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
@@ -105,10 +106,12 @@ void LLMaterialsResponder::error(U32 pStatus, const std::string& pReason)
 
 LLMaterialMgr::LLMaterialMgr()
 {
+	gIdleCallbacks.addFunction(&LLMaterialMgr::onIdle, NULL);
 }
 
 LLMaterialMgr::~LLMaterialMgr()
 {
+	gIdleCallbacks.deleteFunction(&LLMaterialMgr::onIdle, NULL);
 }
 
 bool LLMaterialMgr::isGetPending(const LLMaterialID& material_id)
@@ -295,6 +298,25 @@ void LLMaterialMgr::onPutResponse(bool success, const LLSD& content, const LLUUI
 
 			objectp->setTEMaterialID(te, material_id);
 		}
+	}
+}
+
+static LLFastTimer::DeclareTimer FTM_MATERIALS_IDLE("Materials");
+
+void LLMaterialMgr::onIdle(void*)
+{
+	LLFastTimer t(FTM_MATERIALS_IDLE);
+
+	LLMaterialMgr* instancep = LLMaterialMgr::getInstance();
+
+	if (!instancep->mGetQueue.empty())
+	{
+		instancep->processGetQueue();
+	}
+
+	if (!instancep->mPutQueue.empty())
+	{
+		instancep->processPutQueue();
 	}
 }
 

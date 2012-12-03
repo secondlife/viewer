@@ -452,7 +452,6 @@ void LLFloaterDebugMaterials::onPostClicked()
 
 			LLMaterialMgr::instance().get(material_id, boost::bind(&LLFloaterDebugMaterials::onGetMaterial, _1, _2));
 		}
-		LLMaterialMgr::instance().processGetQueue();
 	}
 }
 
@@ -731,8 +730,6 @@ void LLFloaterDebugMaterials::requestPutMaterials(bool pIsDoSet)
 					}
 				}
 			}
-
-			LLMaterialMgr::instance().processPutQueue();
 		}
 	}
 }
