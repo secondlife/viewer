@@ -239,14 +239,12 @@ public:
 
 	void onCompletion()
 	{
+		llinfos << "done" << llendl;
 		if (!mTrackingPhase.empty())
 		{
 			selfStopPhase(mTrackingPhase);
 		}
-		if( LLInventoryCallbackManager::is_instantiated() )
-		{
-			LLAppearanceMgr::instance().wearInventoryCategoryOnAvatar(gInventory.getCategory(mDstCatID), mAppend);
-		}
+		LLAppearanceMgr::instance().wearInventoryCategoryOnAvatar(gInventory.getCategory(mDstCatID), mAppend);
 	}
 	
 	// virtual
@@ -2116,7 +2114,12 @@ void LLAppearanceMgr::wearInventoryCategoryOnAvatar( LLInventoryCategory* catego
 	// Avoid unintentionally overwriting old wearables.  We have to do
 	// this up front to avoid having to deal with the case of multiple
 	// wearables being dirty.
-	if(!category) return;
+	if (!category) return;
+
+	if ( !LLInventoryCallbackManager::is_instantiated() )
+	{
+		return;
+	}
 
 	LL_INFOS("Avatar") << self_av_string() << "wearInventoryCategoryOnAvatar '" << category->getName()
 			 << "'" << LL_ENDL;
