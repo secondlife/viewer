@@ -448,6 +448,7 @@ void LLConversationViewParticipant::draw()
 
     drawHighlight(show_context, mIsSelected, sHighlightBgColor, sFocusOutlineColor, sMouseOverColor);
     drawLabel(font, text_left, y, color, right_x);
+	refresh();
 
     LLView::draw();
 }
