@@ -35,6 +35,7 @@ LLFlashTimer::LLFlashTimer(callback_t cb, S32 count, F32 period)
 		, mCurrentTickCount(0)
         , mIsFlashingInProgress(false)
         , mIsCurrentlyHighlighted(false)
+        , mUnset(false)
 {
 	mEventTimer.stop();
 
@@ -46,6 +47,12 @@ LLFlashTimer::LLFlashTimer(callback_t cb, S32 count, F32 period)
 	{
 		mPeriod = gSavedSettings.getF32("FlashPeriod");
 	}
+}
+
+void LLFlashTimer::unset()
+{
+	mUnset = true;
+	mCallback = NULL;
 }
 
 BOOL LLFlashTimer::tick()
@@ -62,7 +69,7 @@ BOOL LLFlashTimer::tick()
 		stopFlashing();
 	}
 
-	return FALSE;
+	return mUnset;
 }
 
 void LLFlashTimer::startFlashing()

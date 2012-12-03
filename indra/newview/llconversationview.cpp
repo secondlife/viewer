@@ -95,7 +95,7 @@ LLConversationViewSession::~LLConversationViewSession()
 		LLVoiceClient::getInstance()->removeObserver(mVoiceClientObserver);
 	}
 
-	delete mFlashTimer;
+	mFlashTimer->unset();
 }
 
 bool LLConversationViewSession::isHighlightAllowed()
