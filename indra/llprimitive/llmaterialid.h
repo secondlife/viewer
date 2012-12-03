@@ -42,6 +42,7 @@ public:
 	bool          operator == (const LLMaterialID& pOtherMaterialID) const;
 	bool          operator != (const LLMaterialID& pOtherMaterialID) const;
 	LLMaterialID& operator = (const LLMaterialID& pOtherMaterialID);
+	bool          operator < (const LLMaterialID& pOtherMaterialID) const;
 
 	bool          isNull() const;
 

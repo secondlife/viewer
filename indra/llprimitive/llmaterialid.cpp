@@ -77,6 +77,11 @@ LLMaterialID& LLMaterialID::operator = (const LLMaterialID& pOtherMaterialID)
 	return (*this);
 }
 
+bool LLMaterialID::operator < (const LLMaterialID& pOtherMaterialID) const
+{
+	return (compareToOtherMaterialID(pOtherMaterialID) < 0);
+}
+
 bool LLMaterialID::isNull() const
 {
 	return (compareToOtherMaterialID(LLMaterialID::null) == 0);

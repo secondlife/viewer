@@ -27,6 +27,8 @@
 #ifndef LL_LLMATERIAL_H
 #define LL_LLMATERIAL_H
 
+#include <boost/shared_ptr.hpp>
+
 #include "llmaterialid.h"
 #include "llsd.h"
 #include "v4coloru.h"
@@ -93,5 +95,7 @@ protected:
 	U8			mDiffuseAlphaMode;
 	U8			mAlphaMaskCutoff;
 };
+
+typedef boost::shared_ptr<LLMaterial> LLMaterialPtr;
 
 #endif // LL_LLMATERIAL_H

@@ -28,6 +28,7 @@
 
 #include "llsdserialize.h"
 
+#include "llagent.h"
 #include "llmaterialmgr.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
@@ -46,6 +47,8 @@
 #define MATERIALS_CAP_MATERIAL_FIELD              "Material"
 #define MATERIALS_CAP_OBJECT_ID_FIELD             "ID"
 #define MATERIALS_CAP_MATERIAL_ID_FIELD           "MaterialID"
+
+#define MATERIALS_POST_TIMEOUT                    (60.f * 5)
 
 /**
  * LLMaterialsResponder helper class
@@ -108,6 +111,57 @@ LLMaterialMgr::~LLMaterialMgr()
 {
 }
 
+bool LLMaterialMgr::isGetPending(const LLMaterialID& material_id)
+{
+	get_pending_map_t::const_iterator itPending = mGetPending.find(material_id);
+	return (mGetPending.end() != itPending) && (LLFrameTimer::getTotalSeconds() < itPending->second + MATERIALS_POST_TIMEOUT);
+}
+
+const LLMaterialPtr LLMaterialMgr::get(const LLMaterialID& material_id)
+{
+	material_map_t::const_iterator itMaterial = mMaterials.find(material_id);
+	if (itMaterial != mMaterials.end())
+	{
+		return itMaterial->second;
+	}
+
+	if (!isGetPending(material_id))
+	{
+		mGetQueue.insert(material_id);
+	}
+	return LLMaterialPtr();
+}
+
+boost::signals2::connection LLMaterialMgr::get(const LLMaterialID& material_id, LLMaterialMgr::get_callback_t::slot_type cb)
+{
+	material_map_t::const_iterator itMaterial = mMaterials.find(material_id);
+	if (itMaterial != mMaterials.end())
+	{
+		get_callback_t signal;
+		signal.connect(cb);
+		signal(material_id, itMaterial->second);
+		return boost::signals2::connection();
+	}
+
+	if (!isGetPending(material_id))
+	{
+		mGetQueue.insert(material_id);
+	}
+
+	get_callback_t* signalp = NULL;
+	get_callback_map_t::iterator itCallback = mGetCallbacks.find(material_id);
+	if (itCallback == mGetCallbacks.end())
+	{
+		signalp = new get_callback_t();
+		mGetCallbacks.insert(std::pair<LLMaterialID, get_callback_t*>(material_id, signalp));
+	}
+	else
+	{
+		signalp = itCallback->second;
+	}
+	return signalp->connect(cb);;
+}
+
 void LLMaterialMgr::put(const LLUUID& object_id, const U8 te, const LLMaterial& material)
 {
 	put_queue_t::iterator itQueue = mPutQueue.find(object_id);
@@ -125,6 +179,59 @@ void LLMaterialMgr::put(const LLUUID& object_id, const U8 te, const LLMaterial& 
 	else
 	{
 		itFace->second = material;
+	}
+}
+
+void LLMaterialMgr::onGetResponse(bool success, const LLSD& content)
+{
+	if (!success)
+	{
+		// *TODO: is there any kind of error handling we can do here?
+		return;
+	}
+
+	llassert(content.isMap());
+	llassert(content.has(MATERIALS_CAP_ZIP_FIELD));
+	llassert(content.get(MATERIALS_CAP_ZIP_FIELD).isBinary());
+
+	LLSD::Binary content_binary = content.get(MATERIALS_CAP_ZIP_FIELD).asBinary();
+	std::string content_string(reinterpret_cast<const char*>(content_binary.data()), content_binary.size());
+	std::istringstream content_stream(content_string);
+
+	LLSD response_data;
+	if (!unzip_llsd(response_data, content_stream, content_binary.size()))
+	{
+		LL_ERRS("debugMaterials") << "Cannot unzip LLSD binary content" << LL_ENDL;
+		return;
+	}
+	else
+	{
+		llassert(response_data.isArray());
+
+		for (LLSD::array_const_iterator itMaterial = response_data.beginArray(); itMaterial != response_data.endArray(); ++itMaterial)
+		{
+			const LLSD& material_data = *itMaterial;
+			llassert(material_data.isMap());
+
+			llassert(material_data.has(MATERIALS_CAP_OBJECT_ID_FIELD));
+			llassert(material_data.get(MATERIALS_CAP_OBJECT_ID_FIELD).isBinary());
+			LLMaterialID material_id(material_data.get(MATERIALS_CAP_OBJECT_ID_FIELD).asBinary());
+
+			llassert(material_data.has(MATERIALS_CAP_MATERIAL_FIELD));
+			llassert(material_data.get(MATERIALS_CAP_MATERIAL_FIELD).isMap());
+			LLMaterialPtr material(new LLMaterial(material_data.get(MATERIALS_CAP_MATERIAL_FIELD)));
+
+			mMaterials[material_id] = material;
+
+			get_callback_map_t::iterator itCallback = mGetCallbacks.find(material_id);
+			if (itCallback != mGetCallbacks.end())
+			{
+				(*itCallback->second)(material_id, material);
+
+				delete itCallback->second;
+				mGetCallbacks.erase(itCallback);
+			}
+		}
 	}
 }
 
@@ -189,6 +296,56 @@ void LLMaterialMgr::onPutResponse(bool success, const LLSD& content, const LLUUI
 			objectp->setTEMaterialID(te, material_id);
 		}
 	}
+}
+
+void LLMaterialMgr::processGetQueue()
+{
+	LLViewerRegion* regionp = gAgent.getRegion();
+	if (!regionp)
+	{
+		LL_WARNS("debugMaterials") << "Agent region is NULL" << LL_ENDL;
+		return;
+	}
+	else if (!regionp->capabilitiesReceived())
+	{
+		return;
+	}
+
+	const std::string capURL = regionp->getCapability(MATERIALS_CAPABILITY_NAME);
+	if (capURL.empty())
+	{
+		LL_WARNS("debugMaterials") << "Capability '" << MATERIALS_CAPABILITY_NAME
+			<< "' is not defined on region '" << regionp->getName() << "'" << LL_ENDL;
+		return;
+	}
+
+	LLSD materialsData = LLSD::emptyArray();
+
+	for (get_queue_t::const_iterator itQueue = mGetQueue.begin(); itQueue != mGetQueue.end(); ++itQueue)
+	{
+		const LLMaterialID& material_id = *itQueue;
+		materialsData.append(material_id.asLLSD());
+	}
+	mGetQueue.clear();
+
+	std::string materialString = zip_llsd(materialsData);
+
+	S32 materialSize = materialString.size();
+	if (materialSize <= 0)
+	{
+		LL_ERRS("debugMaterials") << "cannot zip LLSD binary content" << LL_ENDL;
+		return;
+	}
+
+	LLSD::Binary materialBinary;
+	materialBinary.resize(materialSize);
+	memcpy(materialBinary.data(), materialString.data(), materialSize);
+
+	LLSD postData = LLSD::emptyMap();
+	postData[MATERIALS_CAP_ZIP_FIELD] = materialBinary;
+
+	LLHTTPClient::ResponderPtr materialsResponder = new LLMaterialsResponder("POST", capURL, boost::bind(&LLMaterialMgr::onGetResponse, this, _1, _2));
+	LLHTTPClient::post(capURL, postData, materialsResponder);
 }
 
 void LLMaterialMgr::processPutQueue()

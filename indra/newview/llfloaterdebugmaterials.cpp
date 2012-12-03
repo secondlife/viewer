@@ -43,6 +43,7 @@
 #include "llcolorswatch.h"
 #include "llenvmanager.h"
 #include "llfloater.h"
+#include "llfloaterreg.h"
 #include "llfontgl.h"
 #include "llhttpclient.h"
 #include "lllineeditor.h"
@@ -380,17 +381,12 @@ LLFloaterDebugMaterials::LLFloaterDebugMaterials(const LLSD& pParams)
 	mSelectionUpdateConnection(),
 	mUnparsedGetData(),
 	mNextUnparsedGetDataIndex(-1),
-	mNextUnparsedQueryDataIndex(-1),
-	mMultiMaterialsResponder()
+	mNextUnparsedQueryDataIndex(-1)
 {
 }
 
 LLFloaterDebugMaterials::~LLFloaterDebugMaterials()
 {
-	if (!mMultiMaterialsResponder)
-	{
-		mMultiMaterialsResponder.reset();
-	}
 }
 
 void LLFloaterDebugMaterials::onGetClicked()
@@ -439,7 +435,25 @@ void LLFloaterDebugMaterials::onQueryVisibleObjectsClicked()
 
 void LLFloaterDebugMaterials::onPostClicked()
 {
-	requestPostMaterials();
+	clearPostResults();
+
+	std::vector<LLScrollListItem*> selectedItems = mViewableObjectsScrollList->getAllSelected();
+	if (!selectedItems.empty())
+	{
+		for (std::vector<LLScrollListItem*>::const_iterator selectedItemIter = selectedItems.begin();
+			selectedItemIter != selectedItems.end(); ++selectedItemIter)
+		{
+			const LLScrollListItem* selectedItem = *selectedItemIter;
+			const LLSD& selectedItemValue = selectedItem->getValue();
+
+			llassert(selectedItemValue.has(VIEWABLE_OBJECTS_MATERIAL_ID_FIELD));
+			llassert(selectedItemValue.get(VIEWABLE_OBJECTS_MATERIAL_ID_FIELD).isBinary());
+			const LLMaterialID material_id(selectedItemValue.get(VIEWABLE_OBJECTS_MATERIAL_ID_FIELD).asBinary());
+
+			LLMaterialMgr::instance().get(material_id, boost::bind(&LLFloaterDebugMaterials::onGetMaterial, _1, _2));
+		}
+		LLMaterialMgr::instance().processGetQueue();
+	}
 }
 
 void LLFloaterDebugMaterials::onRegionCross()
@@ -577,20 +591,6 @@ void LLFloaterDebugMaterials::onGetResponse(bool pRequestStatus, const LLSD& pCo
 	{
 		setState(kError);
 	}
-}
-
-void LLFloaterDebugMaterials::onPostResponse(bool pRequestStatus, const LLSD& pContent)
-{
-	if (pRequestStatus)
-	{
-		setState(kRequestCompleted);
-		parsePostResponse(pContent);
-	}
-	else
-	{
-		setState(kError);
-	}
-	mMultiMaterialsResponder.reset();
 }
 
 void LLFloaterDebugMaterials::checkRegionMaterialStatus()
@@ -744,128 +744,6 @@ void LLFloaterDebugMaterials::requestPutMaterials(const LLUUID& regionId, bool p
 	if ((region != NULL) && (region->getRegionID() == regionId))
 	{
 		requestPutMaterials(pIsDoSet);
-	}
-}
-
-void LLFloaterDebugMaterials::requestPostMaterials()
-{
-	llassert(!mMultiMaterialsResponder);
-
-	std::vector<LLScrollListItem*> selectedItems = mViewableObjectsScrollList->getAllSelected();
-	std::map<LLUUID, std::string> uniqueRegions;
-
-	if (!selectedItems.empty())
-	{
-		for (std::vector<LLScrollListItem*>::const_iterator selectedItemIter = selectedItems.begin();
-			selectedItemIter != selectedItems.end(); ++selectedItemIter)
-		{
-			const LLScrollListItem* selectedItem = *selectedItemIter;
-			const LLSD& selectedItemValue = selectedItem->getValue();
-			llassert(selectedItemValue.isMap());
-
-			llassert(selectedItemValue.has(VIEWABLE_OBJECTS_REGION_ID_FIELD));
-			llassert(selectedItemValue.get(VIEWABLE_OBJECTS_REGION_ID_FIELD).isUUID());
-			const LLUUID& regionId = selectedItemValue.get(VIEWABLE_OBJECTS_REGION_ID_FIELD).asUUID();
-			if (uniqueRegions.find(regionId) == uniqueRegions.end())
-			{
-				llassert(selectedItemValue.has(VIEWABLE_OBJECTS_OBJECT_ID_FIELD));
-				llassert(selectedItemValue.get(VIEWABLE_OBJECTS_OBJECT_ID_FIELD).isUUID());
-				const LLUUID& objectId = selectedItemValue.get(VIEWABLE_OBJECTS_OBJECT_ID_FIELD).asUUID();
-				LLViewerObject* viewerObject = gObjectList.findObject(objectId);
-				if (viewerObject != NULL)
-				{
-					LLViewerRegion* region = viewerObject->getRegion();
-					if (region != NULL)
-					{
-						if (!region->capabilitiesReceived())
-						{
-							LL_WARNS("debugMaterials") << "region '" << region->getName() << "' (id:"
-								<< region->getRegionID().asString() << ") has not received capabilities"
-								<< LL_ENDL;
-						}
-						else
-						{
-							std::string capURL = region->getCapability(MATERIALS_CAPABILITY_NAME);
-
-							if (capURL.empty())
-							{
-								LL_WARNS("debugMaterials") << "Capability '" << MATERIALS_CAPABILITY_NAME
-									<< "' is not defined on the current region '" << region->getName() << "'" << LL_ENDL;
-							}
-							else
-							{
-								uniqueRegions.insert(std::make_pair<LLUUID, std::string>(regionId, capURL));
-							}
-						}
-					}
-				}
-			}
-		}
-
-		unsigned int numRegions = static_cast<unsigned int>(uniqueRegions.size());
-
-		if (numRegions > 0U)
-		{
-			setState(kRequestStarted);
-			mMultiMaterialsResponder = MultiMaterialsResponderPtr(new MultiMaterialsResponder(boost::bind(&LLFloaterDebugMaterials::onPostResponse, this, _1, _2), numRegions));
-
-			for (std::map<LLUUID, std::string>::const_iterator regionIdIter = uniqueRegions.begin();
-				regionIdIter != uniqueRegions.end(); ++regionIdIter)
-			{
-				const LLUUID& regionId = regionIdIter->first;
-				std::string capURL = regionIdIter->second;
-
-				LLSD materialIdsData = LLSD::emptyArray();
-
-				for (std::vector<LLScrollListItem*>::const_iterator selectedItemIter = selectedItems.begin();
-					selectedItemIter != selectedItems.end(); ++selectedItemIter)
-				{
-					const LLScrollListItem* selectedItem = *selectedItemIter;
-					const LLSD& selectedItemValue = selectedItem->getValue();
-
-					llassert(selectedItemValue.has(VIEWABLE_OBJECTS_REGION_ID_FIELD));
-					llassert(selectedItemValue.get(VIEWABLE_OBJECTS_REGION_ID_FIELD).isUUID());
-					const LLUUID& selectedItemRegionId = selectedItemValue.get(VIEWABLE_OBJECTS_REGION_ID_FIELD).asUUID();
-					if (selectedItemRegionId == regionId)
-					{
-						llassert(selectedItemValue.has(VIEWABLE_OBJECTS_MATERIAL_ID_FIELD));
-						llassert(selectedItemValue.get(VIEWABLE_OBJECTS_MATERIAL_ID_FIELD).isBinary());
-						const LLSD& materidIdLLSD = selectedItemValue.get(VIEWABLE_OBJECTS_MATERIAL_ID_FIELD);
-
-						materialIdsData.append(materidIdLLSD);
-					}
-				}
-
-				if (materialIdsData.size() <= 0)
-				{
-					LL_ERRS("debugMaterials") << "no material IDs to POST to region id " << regionId.asString()
-						<< LL_ENDL;
-				}
-				else
-				{
-					std::string materialsString = zip_llsd(materialIdsData);
-					S32 materialsSize = materialsString.size();
-
-					if (materialsSize <= 0)
-					{
-						LL_ERRS("debugMaterials") << "cannot zip LLSD binary content" << LL_ENDL;
-					}
-					else
-					{
-						LLSD::Binary materialsBinary;
-						materialsBinary.resize(materialsSize);
-						memcpy(materialsBinary.data(), materialsString.data(), materialsSize);
-
-						LLSD postData = LLSD::emptyMap();
-						postData[MATERIALS_CAP_ZIP_FIELD] = materialsBinary;
-
-						LLHTTPClient::ResponderPtr materialsResponder = new MaterialsResponder("POST",
-							capURL, boost::bind(&MultiMaterialsResponder::onMaterialsResponse, mMultiMaterialsResponder.get(), _1, _2));
-						LLHTTPClient::post(capURL, postData, materialsResponder);
-					}
-				}
-			}
-		}
 	}
 }
 
@@ -1100,158 +978,111 @@ void LLFloaterDebugMaterials::parseGetResponse()
 	}
 }
 
-void LLFloaterDebugMaterials::parsePostResponse(const LLSD& pMultiContent)
+void LLFloaterDebugMaterials::onGetMaterial(const LLMaterialID& material_id, const LLMaterialPtr materialp)
 {
-	clearPostResults();
-
-	llassert(pMultiContent.isArray());
-	for (LLSD::array_const_iterator contentIter = pMultiContent.beginArray();
-		contentIter != pMultiContent.endArray(); ++contentIter)
+	LLFloaterDebugMaterials* instancep = LLFloaterReg::findTypedInstance<LLFloaterDebugMaterials>("floater_debug_materials");
+	if ( (!instancep) || (!materialp.get()) )
 	{
-		const LLSD& content = *contentIter;
-
-		llassert(content.isMap());
-		llassert(content.has(MULTI_MATERIALS_STATUS_FIELD));
-		llassert(content.get(MULTI_MATERIALS_STATUS_FIELD).isBoolean());
-		if (content.get(MULTI_MATERIALS_STATUS_FIELD).asBoolean())
-		{
-			llassert(content.has(MULTI_MATERIALS_DATA_FIELD));
-			llassert(content.get(MULTI_MATERIALS_DATA_FIELD).isMap());
-			const LLSD& postData = content.get(MULTI_MATERIALS_DATA_FIELD);
-
-			llassert(postData.has(MATERIALS_CAP_ZIP_FIELD));
-			llassert(postData.get(MATERIALS_CAP_ZIP_FIELD).isBinary());
-
-			LLSD::Binary postDataBinary = postData.get(MATERIALS_CAP_ZIP_FIELD).asBinary();
-			S32 postDataSize = static_cast<S32>(postDataBinary.size());
-			std::string postDataString(reinterpret_cast<const char*>(postDataBinary.data()), postDataSize);
-
-			std::istringstream postDataStream(postDataString);
-
-			LLSD unzippedPostData;
-			if (!unzip_llsd(unzippedPostData, postDataStream, postDataSize))
-			{
-				LL_ERRS("debugMaterials") << "cannot unzip LLSD binary content" << LL_ENDL;
-			}
-
-			LLScrollListCell::Params cellParams;
-			LLScrollListItem::Params normalMapRowParams;
-			LLScrollListItem::Params specularMapRowParams;
-			LLScrollListItem::Params otherDataRowParams;
-
-			llassert(unzippedPostData.isArray());
-			for (LLSD::array_const_iterator materialIter = unzippedPostData.beginArray();
-				materialIter != unzippedPostData.endArray(); ++materialIter)
-			{
-				const LLSD &material_entry = *materialIter;
-				llassert(material_entry.isMap());
-				llassert(material_entry.has(MATERIALS_CAP_OBJECT_ID_FIELD));
-				llassert(material_entry.get(MATERIALS_CAP_OBJECT_ID_FIELD).isBinary());
-				const LLSD &materialID = material_entry.get(MATERIALS_CAP_OBJECT_ID_FIELD);
-				std::string materialIDString = convertToPrintableMaterialID(materialID);
-
-				llassert(material_entry.has(MATERIALS_CAP_MATERIAL_FIELD));
-				const LLSD &materialData = material_entry.get(MATERIALS_CAP_MATERIAL_FIELD);
-				llassert(materialData.isMap());
-
-				LLMaterial material(materialData);
-
-				F32 x, y;
-
-				cellParams.font = LLFontGL::getFontMonospace();
-
-				cellParams.column = "id";
-				cellParams.value = materialIDString;
-				normalMapRowParams.columns.add(cellParams);
-				specularMapRowParams.columns.add(cellParams);
-				otherDataRowParams.columns.add(cellParams);
-
-				cellParams.column = "normal_map_list_map";
-				cellParams.value = material.getNormalID().asString();
-				normalMapRowParams.columns.add(cellParams);
-
-				cellParams.font = LLFontGL::getFontSansSerif();
-
-				material.getNormalOffset(x, y);
-				cellParams.column = "normal_map_list_offset_x";
-				cellParams.value = llformat("%f", x);
-				normalMapRowParams.columns.add(cellParams);
-				cellParams.column = "normal_map_list_offset_y";
-				cellParams.value = llformat("%f", y);
-				normalMapRowParams.columns.add(cellParams);
-
-				material.getNormalRepeat(x, y);
-				cellParams.column = "normal_map_list_repeat_x";
-				cellParams.value = llformat("%f", x);
-				normalMapRowParams.columns.add(cellParams);
-				cellParams.column = "normal_map_list_repeat_y";
-				cellParams.value = llformat("%f", y);
-				normalMapRowParams.columns.add(cellParams);
-
-				cellParams.column = "normal_map_list_rotation";
-				cellParams.value = llformat("%f", material.getNormalRotation());
-				normalMapRowParams.columns.add(cellParams);
-
-				cellParams.font = LLFontGL::getFontMonospace();
-
-				cellParams.column = "specular_map_list_map";
-				cellParams.value = material.getSpecularID().asString();
-				specularMapRowParams.columns.add(cellParams);
-
-				cellParams.font = LLFontGL::getFontSansSerif();
-
-				material.getSpecularOffset(x, y);
-				cellParams.column = "specular_map_list_offset_x";
-				cellParams.value = llformat("%f", x);
-				specularMapRowParams.columns.add(cellParams);
-				cellParams.column = "specular_map_list_offset_y";
-				cellParams.value = llformat("%f", y);
-				specularMapRowParams.columns.add(cellParams);
-
-				material.getSpecularRepeat(x, y);
-				cellParams.column = "specular_map_list_repeat_x";
-				cellParams.value = llformat("%f", x);
-				specularMapRowParams.columns.add(cellParams);
-				cellParams.column = "specular_map_list_repeat_y";
-				cellParams.value = llformat("%f", y);
-				specularMapRowParams.columns.add(cellParams);
-
-				cellParams.column = "specular_map_list_rotation";
-				cellParams.value = llformat("%d", material.getSpecularRotation());
-				specularMapRowParams.columns.add(cellParams);
-
-				const LLColor4U& specularColor = material.getSpecularLightColor();
-				cellParams.column = "specular_color";
-				cellParams.value = llformat("(%d, %d, %d, %d)", specularColor.mV[0],
-					specularColor.mV[1], specularColor.mV[2], specularColor.mV[3]);
-				otherDataRowParams.columns.add(cellParams);
-
-				cellParams.column = "specular_exponent";
-				cellParams.value = llformat("%d", material.getSpecularLightExponent());
-				otherDataRowParams.columns.add(cellParams);
-
-				cellParams.column = "env_intensity";
-				cellParams.value = llformat("%d", material.getEnvironmentIntensity());
-				otherDataRowParams.columns.add(cellParams);
-
-				cellParams.column = "alpha_mask_cutoff";
-				cellParams.value = llformat("%d", material.getAlphaMaskCutoff());
-				otherDataRowParams.columns.add(cellParams);
-
-				cellParams.column = "diffuse_alpha_mode";
-				cellParams.value = llformat("%d", material.getDiffuseAlphaMode());
-				otherDataRowParams.columns.add(cellParams);
-
-				normalMapRowParams.value = materialIDString;
-				specularMapRowParams.value = materialIDString;
-				otherDataRowParams.value = materialIDString;
-
-				mPostNormalMapScrollList->addRow(normalMapRowParams);
-				mPostSpecularMapScrollList->addRow(specularMapRowParams);
-				mPostOtherDataScrollList->addRow(otherDataRowParams);
-			}
-		}
+		return;
 	}
+
+	LLScrollListCell::Params cellParams;
+	LLScrollListItem::Params normalMapRowParams;
+	LLScrollListItem::Params specularMapRowParams;
+	LLScrollListItem::Params otherDataRowParams;
+
+	cellParams.font = LLFontGL::getFontMonospace();
+
+	cellParams.column = "id";
+	cellParams.value = material_id.asString();
+	normalMapRowParams.columns.add(cellParams);
+	specularMapRowParams.columns.add(cellParams);
+	otherDataRowParams.columns.add(cellParams);
+
+	cellParams.column = "normal_map_list_map";
+	cellParams.value = materialp->getNormalID().asString();
+	normalMapRowParams.columns.add(cellParams);
+
+	cellParams.font = LLFontGL::getFontSansSerif();
+
+	F32 x, y;
+	materialp->getNormalOffset(x, y);
+	cellParams.column = "normal_map_list_offset_x";
+	cellParams.value = llformat("%f", x);
+	normalMapRowParams.columns.add(cellParams);
+	cellParams.column = "normal_map_list_offset_y";
+	cellParams.value = llformat("%f", y);
+	normalMapRowParams.columns.add(cellParams);
+
+	materialp->getNormalRepeat(x, y);
+	cellParams.column = "normal_map_list_repeat_x";
+	cellParams.value = llformat("%f", x);
+	normalMapRowParams.columns.add(cellParams);
+	cellParams.column = "normal_map_list_repeat_y";
+	cellParams.value = llformat("%f", y);
+	normalMapRowParams.columns.add(cellParams);
+
+	cellParams.column = "normal_map_list_rotation";
+	cellParams.value = llformat("%f", materialp->getNormalRotation());
+	normalMapRowParams.columns.add(cellParams);
+
+	cellParams.font = LLFontGL::getFontMonospace();
+
+	cellParams.column = "specular_map_list_map";
+	cellParams.value = materialp->getSpecularID().asString();
+	specularMapRowParams.columns.add(cellParams);
+
+	cellParams.font = LLFontGL::getFontSansSerif();
+
+	materialp->getSpecularOffset(x, y);
+	cellParams.column = "specular_map_list_offset_x";
+	cellParams.value = llformat("%f", x);
+	specularMapRowParams.columns.add(cellParams);
+	cellParams.column = "specular_map_list_offset_y";
+	cellParams.value = llformat("%f", y);
+	specularMapRowParams.columns.add(cellParams);
+
+	materialp->getSpecularRepeat(x, y);
+	cellParams.column = "specular_map_list_repeat_x";
+	cellParams.value = llformat("%f", x);
+	specularMapRowParams.columns.add(cellParams);
+	cellParams.column = "specular_map_list_repeat_y";
+	cellParams.value = llformat("%f", y);
+	specularMapRowParams.columns.add(cellParams);
+
+	cellParams.column = "specular_map_list_rotation";
+	cellParams.value = llformat("%d", materialp->getSpecularRotation());
+	specularMapRowParams.columns.add(cellParams);
+
+	const LLColor4U& specularColor =materialp->getSpecularLightColor();
+	cellParams.column = "specular_color";
+	cellParams.value = llformat("(%d, %d, %d, %d)", specularColor.mV[0],
+		specularColor.mV[1], specularColor.mV[2], specularColor.mV[3]);
+	otherDataRowParams.columns.add(cellParams);
+
+	cellParams.column = "specular_exponent";
+	cellParams.value = llformat("%d", materialp->getSpecularLightExponent());
+	otherDataRowParams.columns.add(cellParams);
+
+	cellParams.column = "env_intensity";
+	cellParams.value = llformat("%d", materialp->getEnvironmentIntensity());
+	otherDataRowParams.columns.add(cellParams);
+
+	cellParams.column = "alpha_mask_cutoff";
+	cellParams.value = llformat("%d", materialp->getAlphaMaskCutoff());
+	otherDataRowParams.columns.add(cellParams);
+
+	cellParams.column = "diffuse_alpha_mode";
+	cellParams.value = llformat("%d", materialp->getDiffuseAlphaMode());
+	otherDataRowParams.columns.add(cellParams);
+
+	normalMapRowParams.value = cellParams.value;
+	specularMapRowParams.value = cellParams.value;
+	otherDataRowParams.value = cellParams.value;
+
+	instancep->mPostNormalMapScrollList->addRow(normalMapRowParams);
+	instancep->mPostSpecularMapScrollList->addRow(specularMapRowParams);
+	instancep->mPostOtherDataScrollList->addRow(otherDataRowParams);
 }
 
 void LLFloaterDebugMaterials::setState(EState pState)

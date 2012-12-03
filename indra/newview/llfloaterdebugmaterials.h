@@ -33,6 +33,7 @@
 #include <boost/signals2.hpp>
 
 #include "llfloater.h"
+#include "llmaterial.h"
 #include "lluuid.h"
 #include "v4color.h"
 
@@ -40,7 +41,6 @@ class LLButton;
 class LLColorSwatchCtrl;
 class LLColor4U;
 class LLLineEditor;
-class LLMaterial;
 class LLMaterialID;
 class LLScrollListCtrl;
 class LLSD;
@@ -96,7 +96,6 @@ private:
 	void          onDeferredRequestGetMaterials(LLUUID regionId);
 	void          onDeferredRequestPutMaterials(LLUUID regionId, bool pIsDoSet);
 	void          onGetResponse(bool pRequestStatus, const LLSD& pContent);
-	void          onPostResponse(bool pRequestStatus, const LLSD& pContent);
 
 	void          checkRegionMaterialStatus();
 	void          checkRegionMaterialStatus(const LLUUID& regionId);
@@ -107,11 +106,10 @@ private:
 	void          requestPutMaterials(bool pIsDoSet);
 	void          requestPutMaterials(const LLUUID& regionId, bool pIsDoSet);
 
-	void          requestPostMaterials();
+	static void   onGetMaterial(const LLMaterialID& material_id, const LLMaterialPtr materialp);
 
 	void          parseGetResponse();
 	void          parseQueryViewableObjects();
-	void          parsePostResponse(const LLSD& pMultiContent);
 
 	void          setState(EState pState);
 	inline EState getState() const;
@@ -185,7 +183,6 @@ private:
 	S32                         mNextUnparsedGetDataIndex;
 
 	S32                         mNextUnparsedQueryDataIndex;
-	MultiMaterialsResponderPtr  mMultiMaterialsResponder;
 };
 
 

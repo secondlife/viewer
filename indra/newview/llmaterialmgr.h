@@ -28,6 +28,7 @@
 #define LL_LLMATERIALMGR_H
 
 #include "llmaterial.h"
+#include "llmaterialid.h"
 #include "llsingleton.h"
 
 class LLMaterialMgr : public LLSingleton<LLMaterialMgr>
@@ -38,16 +39,33 @@ protected:
 	virtual ~LLMaterialMgr();
 
 public:
+	typedef boost::signals2::signal<void (const LLMaterialID&, const LLMaterialPtr)> get_callback_t;
+	const LLMaterialPtr         get(const LLMaterialID& material_id);
+	boost::signals2::connection get(const LLMaterialID& material_id, get_callback_t::slot_type cb);
 	void put(const LLUUID& object_id, const U8 te, const LLMaterial& material);
+	void processGetQueue();
 	void processPutQueue();
 
 protected:
+	bool isGetPending(const LLMaterialID& material_id);
+
+	void onGetResponse(bool success, const LLSD& content);
 	void onPutResponse(bool success, const LLSD& content, const LLUUID& object_id);
 
 protected:
+	typedef std::set<LLMaterialID> get_queue_t;
+	get_queue_t mGetQueue;
+	typedef std::map<LLMaterialID, F64> get_pending_map_t;
+	get_pending_map_t mGetPending;
+	typedef std::map<LLMaterialID, get_callback_t*> get_callback_map_t;
+	get_callback_map_t mGetCallbacks;
+
 	typedef std::map<U8, LLMaterial> facematerial_map_t;
 	typedef std::map<LLUUID, facematerial_map_t> put_queue_t;
 	put_queue_t mPutQueue;
+
+	typedef std::map<LLMaterialID, LLMaterialPtr> material_map_t;
+	material_map_t mMaterials;
 };
 
 #endif // LL_LLMATERIALMGR_H
