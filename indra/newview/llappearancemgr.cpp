@@ -186,49 +186,59 @@ void report_fire(const LLUUID& item_id)
 	llinfos << item_id << llendl;
 }
 
-class LLInventoryCopyMgr: public LLEventTimer 
+class LLCallAfterInventoryBatchMgr: public LLEventTimer 
 {
 public:
-	LLInventoryCopyMgr(LLInventoryModel::item_array_t& src_items, const LLUUID& dst_cat_id,
-					   bool append, const std::string& phase):
+	LLCallAfterInventoryBatchMgr(const LLUUID& dst_cat_id,
+								 const std::string& phase_name,
+								 nullary_func_t on_completion_func,
+								 F32 check_period = 5.0,
+								 F32 retry_after = 30.0,
+								 S32 max_retries = 2
+		):
 		mDstCatID(dst_cat_id),
-		mAppend(append),
-		mTrackingPhase(phase),
-		LLEventTimer(5.0)
+		mTrackingPhase(phase_name),
+		mOnCompletionFunc(on_completion_func),
+		mRetryAfter(retry_after),
+		mMaxRetries(max_retries),
+		LLEventTimer(check_period)
 	{
-		for (LLInventoryModel::item_array_t::const_iterator it = src_items.begin();
-			 it != src_items.end();
-			 ++it)
-		{
-			LLViewerInventoryItem* item = *it;
-			mSrcTimes[item->getUUID()] = LLTimer();
-			requestCopy(item->getUUID());
-		}
 		if (!mTrackingPhase.empty())
 		{
 			selfStartPhase(mTrackingPhase);
 		}
 	}
 
-	void requestCopy(const LLUUID& item_id)
+	void addItems(LLInventoryModel::item_array_t& src_items)
 	{
-		LLViewerInventoryItem *item = gInventory.getItem(item_id);
+		for (LLInventoryModel::item_array_t::const_iterator it = src_items.begin();
+			 it != src_items.end();
+			 ++it)
+		{
+			LLViewerInventoryItem* item = *it;
+			llassert(item);
+			addItem(item);
+		}
+	}
+
+	void addItem(LLViewerInventoryItem *item)
+	{
+		const LLUUID& item_id = item->getUUID();
 		if (!item)
 		{
-			llwarns << "requestCopy item not found " << item_id << llendl;
+			llwarns << "item not found for " << item_id << llendl;
 			return;
 		}
-		copy_inventory_item(
-			gAgent.getID(),
-			item->getPermissions().getOwner(),
-			item->getUUID(),
-			mDstCatID,
-			std::string(),
-			make_inventory_func_callback(boost::bind(&LLInventoryCopyMgr::onCopy,this,item->getUUID(),_1))
-			);
+		if (mSrcTimes.find(item_id) == mSrcTimes.end())
+		{
+			mSrcTimes[item->getUUID()] = LLTimer();
+		}
+		requestOperation(item);
 	}
-				
-	void onCopy(const LLUUID& src_id, const LLUUID& dst_id)
+
+	virtual void requestOperation(LLViewerInventoryItem *item) = 0;
+
+	void onOp(const LLUUID& src_id, const LLUUID& dst_id)
 	{
 		LL_DEBUGS("Avatar") << "copied, src_id " << src_id << " to dst_id " << dst_id << " after " << mSrcTimes[src_id].getElapsedTimeF32() << " seconds" << llendl;
 		mSrcTimes.erase(src_id);
@@ -245,7 +255,7 @@ public:
 		{
 			selfStopPhase(mTrackingPhase);
 		}
-		LLAppearanceMgr::instance().wearInventoryCategoryOnAvatar(gInventory.getCategory(mDstCatID), mAppend);
+		mOnCompletionFunc();
 	}
 	
 	// virtual
@@ -256,18 +266,51 @@ public:
 
 		if (!all_done)
 		{
-			llwarns << "possible hang in copy, waiting on " << mSrcTimes.size() << " items" << llendl;
+			llwarns << "possible hang in operation, waiting on " << mSrcTimes.size() << " items" << llendl;
 			// TODO possibly add retry logic here.
 
 		}
 		return all_done;
 	}
 
-private:
+	virtual ~LLCallAfterInventoryBatchMgr()
+	{
+		LL_DEBUGS("Avatar") << "ending" << llendl;
+	}
+
+protected:
 	std::string mTrackingPhase;
 	std::map<LLUUID,LLTimer> mSrcTimes;
 	LLUUID mDstCatID;
-	bool mAppend;
+	nullary_func_t mOnCompletionFunc;
+	F32 mRetryAfter;
+	S32 mMaxRetries;
+};
+
+class LLCallAfterInventoryCopyMgr: public LLCallAfterInventoryBatchMgr
+{
+public:
+	LLCallAfterInventoryCopyMgr(LLInventoryModel::item_array_t& src_items,
+								const LLUUID& dst_cat_id,
+								const std::string& phase_name,
+								nullary_func_t on_completion_func
+		):
+		LLCallAfterInventoryBatchMgr(dst_cat_id, phase_name, on_completion_func)
+	{
+		addItems(src_items);
+	}
+	
+	virtual void requestOperation(LLViewerInventoryItem *item)
+	{
+		copy_inventory_item(
+			gAgent.getID(),
+			item->getPermissions().getOwner(),
+			item->getUUID(),
+			mDstCatID,
+			std::string(),
+			make_inventory_func_callback(boost::bind(&LLCallAfterInventoryBatchMgr::onOp,this,item->getUUID(),_1))
+			);
+	}
 };
 
 class LLWearInventoryCategoryCallback : public LLInventoryCallback
@@ -2097,7 +2140,12 @@ void LLAppearanceMgr::wearCategoryFinal(LLUUID& cat_id, bool copy_items, bool ap
 			name);
 
 		// Create a CopyMgr that will copy items, manage its own destruction
-		new LLInventoryCopyMgr(*items, new_cat_id, append, std::string("wear_inventory_category_callback"));
+		new LLCallAfterInventoryCopyMgr(
+			*items, new_cat_id, std::string("wear_inventory_category_callback"),
+			boost::bind(&LLAppearanceMgr::wearInventoryCategoryOnAvatar,
+						LLAppearanceMgr::getInstance(),
+						gInventory.getCategory(new_cat_id),
+						append));
 
 		// BAP fixes a lag in display of created dir.
 		gInventory.notifyObservers();
