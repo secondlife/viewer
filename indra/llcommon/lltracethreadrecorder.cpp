@@ -42,14 +42,14 @@ ThreadRecorder::ThreadRecorder()
 	mFullRecording.start();
 
 	mRootTimerData = new CurTimerData();
-	mRootTimerData->mTimerData = &BlockTimer::getRootTimer();
-	mRootTimerData->mTimerTreeData = new TimerTreeNode[AccumulatorBuffer<TimerAccumulator>::getDefaultBuffer().size()];
-	BlockTimer::sCurTimerData = mRootTimerData;
+	mRootTimerData->mTimerData = &TimeBlock::getRootTimer();
+	mRootTimerData->mTimerTreeData = new TimeBlockTreeNode[AccumulatorBuffer<TimeBlockAccumulator>::getDefaultBuffer().size()];
+	TimeBlock::sCurTimerData = mRootTimerData;
 
-	mRootTimer = new Time(BlockTimer::getRootTimer());
+	mRootTimer = new BlockTimer(TimeBlock::getRootTimer());
 	mRootTimerData->mCurTimer = mRootTimer;
 
-	mRootTimerData->mTimerTreeData[BlockTimer::getRootTimer().getIndex()].mActiveCount = 1;
+	mRootTimerData->mTimerTreeData[TimeBlock::getRootTimer().getIndex()].mActiveCount = 1;
 }
 
 ThreadRecorder::~ThreadRecorder()
@@ -61,7 +61,7 @@ ThreadRecorder::~ThreadRecorder()
 		mActiveRecordings.front().mTargetRecording->stop();
 	}
 	get_thread_recorder() = NULL;
-	BlockTimer::sCurTimerData = NULL;
+	TimeBlock::sCurTimerData = NULL;
 	delete [] mRootTimerData->mTimerTreeData;
 	delete mRootTimerData;
 }

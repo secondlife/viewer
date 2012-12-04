@@ -119,8 +119,10 @@ namespace LLTrace
 		void update();
 
 		// Timer accessors
-		LLUnit<LLUnits::Seconds, F64> getSum(const TraceType<TimerAccumulator>& stat) const;
-		LLUnit<LLUnits::Seconds, F64> getPerSec(const TraceType<TimerAccumulator>& stat) const;
+		LLUnit<LLUnits::Seconds, F64> getSum(const TraceType<TimeBlockAccumulator>& stat) const;
+		U32 getSum(const TraceType<TimeBlockAccumulator::CallCountAspect>& stat) const;
+		LLUnit<LLUnits::Seconds, F64> getPerSec(const TraceType<TimeBlockAccumulator>& stat) const;
+		F32 getPerSec(const TraceType<TimeBlockAccumulator::CallCountAspect>& stat) const;
 
 		// Count accessors
 		F64 getSum(const TraceType<CountAccumulator<F64> >& stat) const;
@@ -221,7 +223,7 @@ namespace LLTrace
 		LLCopyOnWritePointer<AccumulatorBuffer<MeasurementAccumulator<F64> > >	mMeasurementsFloat;
 		LLCopyOnWritePointer<AccumulatorBuffer<CountAccumulator<S64> > >		mCounts;
 		LLCopyOnWritePointer<AccumulatorBuffer<MeasurementAccumulator<S64> > >	mMeasurements;
-		LLCopyOnWritePointer<AccumulatorBuffer<TimerAccumulator> >				mStackTimers;
+		LLCopyOnWritePointer<AccumulatorBuffer<TimeBlockAccumulator> >				mStackTimers;
 
 		LLTimer			mSamplingTimer;
 		F64				mElapsedSeconds;

@@ -64,7 +64,7 @@ namespace LLTrace
 		std::list<ActiveRecording>	mActiveRecordings;
 
 		struct CurTimerData*	mRootTimerData;
-		class Time*				mRootTimer;
+		class BlockTimer*				mRootTimer;
 	};
 
 	class LL_COMMON_API MasterThreadRecorder : public ThreadRecorder

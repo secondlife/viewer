@@ -592,7 +592,7 @@ public:
 		
 		while (!LLAppViewer::instance()->isQuitting())
 		{
-			LLFastTimer::writeLog(os);
+			LLTrace::TimeBlock::writeLog(os);
 			os.flush();
 			ms_sleep(32);
 		}
@@ -680,7 +680,6 @@ bool LLAppViewer::init()
 	// into the log files during normal startup until AFTER
 	// we run the "program crashed last time" error handler below.
 	//
-	LLTrace::BlockTimer::reset();
 
 	// initialize SSE options
 	LLVector4a::initClass();
@@ -1234,7 +1233,7 @@ bool LLAppViewer::mainLoop()
 	while (!LLApp::isExiting())
 	{
 		LLFastTimer _(FTM_FRAME);
-		LLTrace::BlockTimer::nextFrame(); 
+		LLTrace::TimeBlock::nextFrame(); 
 		LLTrace::get_frame_recording().nextPeriod();
 
 		LLTrace::getMasterThreadRecorder().pullFromSlaveThreads();
@@ -1565,9 +1564,9 @@ bool LLAppViewer::cleanup()
 	if (LLFastTimerView::sAnalyzePerformance)
 	{
 		llinfos << "Analyzing performance" << llendl;
-		std::string baseline_name = LLTrace::BlockTimer::sLogName + "_baseline.slp";
-		std::string current_name  = LLTrace::BlockTimer::sLogName + ".slp"; 
-		std::string report_name   = LLTrace::BlockTimer::sLogName + "_report.csv";
+		std::string baseline_name = LLTrace::TimeBlock::sLogName + "_baseline.slp";
+		std::string current_name  = LLTrace::TimeBlock::sLogName + ".slp"; 
+		std::string report_name   = LLTrace::TimeBlock::sLogName + "_report.csv";
 
 		LLFastTimerView::doAnalysis(
 			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, baseline_name),
@@ -1926,9 +1925,9 @@ bool LLAppViewer::cleanup()
 	{
 		llinfos << "Analyzing performance" << llendl;
 		
-		std::string baseline_name = LLTrace::BlockTimer::sLogName + "_baseline.slp";
-		std::string current_name  = LLTrace::BlockTimer::sLogName + ".slp"; 
-		std::string report_name   = LLTrace::BlockTimer::sLogName + "_report.csv";
+		std::string baseline_name = LLTrace::TimeBlock::sLogName + "_baseline.slp";
+		std::string current_name  = LLTrace::TimeBlock::sLogName + ".slp"; 
+		std::string report_name   = LLTrace::TimeBlock::sLogName + "_report.csv";
 
 		LLFastTimerView::doAnalysis(
 			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, baseline_name),
@@ -2051,10 +2050,10 @@ bool LLAppViewer::initThreads()
 													enable_threads && true,
 													app_metrics_qa_mode);	
 
-	if (LLTrace::BlockTimer::sLog || LLTrace::BlockTimer::sMetricLog)
+	if (LLTrace::TimeBlock::sLog || LLTrace::TimeBlock::sMetricLog)
 	{
-		LLTrace::BlockTimer::setLogLock(new LLMutex(NULL));
-		mFastTimerLogThread = new LLFastTimerLogThread(LLTrace::BlockTimer::sLogName);
+		LLTrace::TimeBlock::setLogLock(new LLMutex(NULL));
+		mFastTimerLogThread = new LLFastTimerLogThread(LLTrace::TimeBlock::sLogName);
 		mFastTimerLogThread->start();
 	}
 
@@ -2463,13 +2462,13 @@ bool LLAppViewer::initConfiguration()
 
 	if (clp.hasOption("logperformance"))
 	{
-		LLTrace::BlockTimer::sLog = true;
-		LLTrace::BlockTimer::sLogName = std::string("performance");		
+		LLTrace::TimeBlock::sLog = true;
+		LLTrace::TimeBlock::sLogName = std::string("performance");		
 	}
 	
 	if (clp.hasOption("logmetrics"))
  	{
- 		LLTrace::BlockTimer::sMetricLog = true ;
+ 		LLTrace::TimeBlock::sMetricLog = true ;
 		// '--logmetrics' can be specified with a named test metric argument so the data gathering is done only on that test
 		// In the absence of argument, every metric is gathered (makes for a rather slow run and hard to decipher report...)
 		std::string test_name = clp.getOption("logmetrics")[0];
@@ -2477,11 +2476,11 @@ bool LLAppViewer::initConfiguration()
 		if (test_name == "")
 		{
 			llwarns << "No '--logmetrics' argument given, will output all metrics to " << DEFAULT_METRIC_NAME << llendl;
-			LLTrace::BlockTimer::sLogName = DEFAULT_METRIC_NAME;
+			LLTrace::TimeBlock::sLogName = DEFAULT_METRIC_NAME;
 		}
 		else
 		{
-			LLTrace::BlockTimer::sLogName = test_name;
+			LLTrace::TimeBlock::sLogName = test_name;
 		}
  	}
 

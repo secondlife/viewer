@@ -37,7 +37,7 @@
 
 #include <list>
 
-#define LL_RECORD_BLOCK_TIME(block_timer) LLTrace::BlockTimer::Recorder LL_GLUE_TOKENS(block_time_recorder, __COUNTER__)(block_timer);
+#define LL_RECORD_BLOCK_TIME(block_timer) LLTrace::TimeBlock::Recorder LL_GLUE_TOKENS(block_time_recorder, __COUNTER__)(block_timer);
 
 namespace LLTrace
 {
@@ -213,10 +213,10 @@ namespace LLTrace
 	:	 public LLInstanceTracker<TraceType<ACCUMULATOR>, std::string>
 	{
 	public:
-		TraceType(const char* name, const char* description = NULL)
+		TraceType(const char* name, const char* description = "")
 		:	LLInstanceTracker(name),
 			mName(name),
-			mDescription(description ? description : "")
+			mDescription(description)	
 		{
 			mAccumulatorIndex = AccumulatorBuffer<ACCUMULATOR>::getDefaultBuffer().reserveSlot();
 		}
@@ -392,26 +392,43 @@ namespace LLTrace
 		U32	mNumSamples;
 	};
 
-	class TimerAccumulator
+	class TimeBlockAccumulator
 	{
 	public:
-		TimerAccumulator();
-		void addSamples(const TimerAccumulator& other);
-		void reset(const TimerAccumulator* other);
+		typedef LLUnit<LLUnits::Seconds, F64> value_t;
+
+		// fake class that allows us to view call count aspect of timeblock accumulator
+		struct CallCountAspect 
+		{
+			typedef U32 value_t;
+		};
+
+		TimeBlockAccumulator();
+		void addSamples(const TimeBlockAccumulator& other);
+		void reset(const TimeBlockAccumulator* other);
 
 		//
 		// members
 		//
 		U64 						mSelfTimeCounter,
 									mTotalTimeCounter;
-		U32 						mCalls;
+		U32 mCalls;
 	};
 
-	class TimerTreeNode
+	template<>
+	class TraceType<TimeBlockAccumulator::CallCountAspect>
+	:	public TraceType<TimeBlockAccumulator>
+	{
+		TraceType(const char* name, const char* description = "")
+		:	TraceType<TimeBlockAccumulator>(name, description)
+		{}
+	};
+
+	class TimeBlockTreeNode
 	{
 	public:
-		TimerTreeNode();
-		class BlockTimer*			mLastCaller;	// used to bootstrap tree construction
+		TimeBlockTreeNode();
+		class TimeBlock*			mLastCaller;	// used to bootstrap tree construction
 		U16							mActiveCount;	// number of timers with this ID active on stack
 		bool						mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame
 	};

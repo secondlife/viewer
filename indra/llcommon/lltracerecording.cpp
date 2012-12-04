@@ -44,7 +44,7 @@ Recording::Recording()
 	mMeasurementsFloat(new AccumulatorBuffer<MeasurementAccumulator<F64> >()),
 	mCounts(new AccumulatorBuffer<CountAccumulator<S64> >()),
 	mMeasurements(new AccumulatorBuffer<MeasurementAccumulator<S64> >()),
-	mStackTimers(new AccumulatorBuffer<TimerAccumulator>())
+	mStackTimers(new AccumulatorBuffer<TimeBlockAccumulator>())
 {}
 
 Recording::Recording( const Recording& other )
@@ -143,15 +143,26 @@ void Recording::appendRecording( const Recording& other )
 	mElapsedSeconds += other.mElapsedSeconds;
 }
 
-LLUnit<LLUnits::Seconds, F64> Recording::getSum(const TraceType<TimerAccumulator>& stat) const
+LLUnit<LLUnits::Seconds, F64> Recording::getSum(const TraceType<TimeBlockAccumulator>& stat) const
 {
-	return (F64)(*mStackTimers)[stat.getIndex()].mSelfTimeCounter / (F64)LLTrace::BlockTimer::countsPerSecond();
+	return (F64)(*mStackTimers)[stat.getIndex()].mSelfTimeCounter / (F64)LLTrace::TimeBlock::countsPerSecond();
 }
 
-LLUnit<LLUnits::Seconds, F64> Recording::getPerSec(const TraceType<TimerAccumulator>& stat) const
+U32 Recording::getSum(const TraceType<TimeBlockAccumulator::CallCountAspect>& stat) const
 {
-	return (F64)(*mStackTimers)[stat.getIndex()].mSelfTimeCounter / ((F64)LLTrace::BlockTimer::countsPerSecond() * mElapsedSeconds);
+	return (*mStackTimers)[stat.getIndex()].mCalls;
 }
+
+LLUnit<LLUnits::Seconds, F64> Recording::getPerSec(const TraceType<TimeBlockAccumulator>& stat) const
+{
+	return (F64)(*mStackTimers)[stat.getIndex()].mSelfTimeCounter / ((F64)LLTrace::TimeBlock::countsPerSecond() * mElapsedSeconds);
+}
+
+F32 Recording::getPerSec(const TraceType<TimeBlockAccumulator::CallCountAspect>& stat) const
+{
+	return (F32)(*mStackTimers)[stat.getIndex()].mCalls / mElapsedSeconds;
+}
+
 
 F64 Recording::getSum( const TraceType<CountAccumulator<F64> >& stat ) const
 {

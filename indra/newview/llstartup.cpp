@@ -2184,7 +2184,7 @@ bool idle_startup()
 		LLAppViewer::instance()->handleLoginComplete();
 
 		// reset timers now that we are running "logged in" logic
-		LLTrace::BlockTimer::reset();
+		LLTrace::TimeBlock::reset();
 
 		LLAgentPicksInfo::getInstance()->requestNumberOfPicks();
 

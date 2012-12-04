@@ -180,23 +180,23 @@ struct LLUnitStrict : public LLUnit<UNIT_TYPE, STORAGE_TYPE>
 	typedef typename LLUnit<UNIT_TYPE, STORAGE_TYPE>::storage_t storage_t;
 
 	explicit LLUnitStrict(storage_t value = storage_t())
-	:	LLUnit(value)
+	:	LLUnit<UNIT_TYPE, STORAGE_TYPE>(value)
 	{}
 
 	template<typename OTHER_UNIT, typename OTHER_STORAGE>
 	LLUnitStrict(LLUnit<OTHER_UNIT, OTHER_STORAGE> other)
-	:	LLUnit(convert(other))
+	:	LLUnit<UNIT_TYPE, STORAGE_TYPE>(convert(other))
 	{}
 
 	LLUnitStrict(self_t& other)
-	:	LLUnit(other)
+	:	LLUnit<UNIT_TYPE, STORAGE_TYPE>(other)
 	{}
 
 
 private:
 	operator storage_t() const
 	{
-		return value();
+		return LLUnit<UNIT_TYPE, STORAGE_TYPE>::value();
 	}
 };
 
