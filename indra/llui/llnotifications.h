@@ -92,7 +92,6 @@
 #include "llevents.h"
 #include "llfunctorregistry.h"
 #include "llinitparam.h"
-#include "llnotificationslistener.h"
 #include "llnotificationptr.h"
 #include "llpointer.h"
 #include "llrefcount.h"
@@ -672,7 +671,6 @@ namespace LLNotificationComparators
 };
 
 typedef boost::function<bool (LLNotificationPtr)> LLNotificationFilter;
-typedef boost::function<bool (LLNotificationPtr, LLNotificationPtr)> LLNotificationComparator;
 typedef std::set<LLNotificationPtr, LLNotificationComparators::orderByUUID> LLNotificationSet;
 typedef std::multimap<std::string, LLNotificationPtr> LLNotificationMap;
 
@@ -822,7 +820,6 @@ public:
 private:
 	std::string mName;
 	std::string mParent;
-	LLNotificationComparator mComparator;
 };
 
 // An interface class to provide a clean linker seam to the LLNotifications class.
@@ -942,7 +939,6 @@ private:
 
 	bool mIgnoreAllNotifications;
 
-    boost::scoped_ptr<LLNotificationsListener> mListener;
 	std::vector<LLNotificationChannelPtr> mDefaultChannels;
 };
 

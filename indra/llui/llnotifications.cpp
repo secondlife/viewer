@@ -39,7 +39,6 @@
 #include "lldir.h"
 #include "llsdserialize.h"
 #include "lltrans.h"
-#include "llnotificationslistener.h"
 #include "llstring.h"
 #include "llsdparam.h"
 #include "llsdutil.h"
@@ -1167,8 +1166,6 @@ LLNotifications::LLNotifications()
 	mIgnoreAllNotifications(false)
 {
 	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Notification.Show", boost::bind(&LLNotifications::addFromCallback, this, _2));
-
-    mListener.reset(new LLNotificationsListener(*this));
 }
 
 
