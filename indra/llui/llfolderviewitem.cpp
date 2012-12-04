@@ -501,7 +501,7 @@ BOOL LLFolderViewItem::handleMouseDown( S32 x, S32 y, MASK mask )
 	// No handler needed for focus lost since this class has no
 	// state that depends on it.
 	gFocusMgr.setMouseCapture( this );
-
+    
 	if (!mIsSelected)
 	{
 		if(mask & MASK_CONTROL)
@@ -518,6 +518,11 @@ BOOL LLFolderViewItem::handleMouseDown( S32 x, S32 y, MASK mask )
 		}
 		make_ui_sound("UISndClick");
 	}
+    //Just re-select the item since it is clicked without ctrl or shift
+    else if(!(mask & (MASK_CONTROL | MASK_SHIFT)))
+    {
+        getRoot()->setSelection(this, FALSE);
+    }
 	else
 	{
 		mSelectPending = TRUE;

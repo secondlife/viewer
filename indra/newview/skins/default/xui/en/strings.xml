@@ -3400,7 +3400,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
     Connecting...
   </string>
   <string name="conference-title">
-    Ad-hoc Conference
+    Multi-person chat
   </string>
   <string name="conference-title-incoming">
     Conference with [AGENT_NAME]

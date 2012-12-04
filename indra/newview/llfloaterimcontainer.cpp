@@ -1162,24 +1162,19 @@ bool LLFloaterIMContainer::checkContextMenuItem(const std::string& item, uuid_ve
 void LLFloaterIMContainer::showConversation(const LLUUID& session_id)
 {
     setVisibleAndFrontmost(false);
-    selectConversation(session_id);    
+    selectConversationPair(session_id, true);
 }
 
-// Will select only the conversation item
 void LLFloaterIMContainer::selectConversation(const LLUUID& session_id)
 {
-	LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,session_id);
-	if (widget)
-	{
-		(widget->getRoot())->setSelection(widget, FALSE, FALSE);
+    selectConversationPair(session_id, true);
 	}
-}
-
 
 // Synchronous select the conversation item and the conversation floater
 BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool select_widget)
 {
     BOOL handled = TRUE;
+    LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(session_id);
 
     /* widget processing */
     if (select_widget)
@@ -1198,7 +1193,7 @@ BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool
         // Store the active session
         setSelectedSession(session_id);
 
-		LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(session_id);
+		
 
 		if (session_floater->getHost())
 		{
@@ -1207,13 +1202,13 @@ BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool
 			// Switch to the conversation floater that is being selected
 			selectFloater(session_floater);
 		}
+    }
 
 		// Set the focus on the selected floater
 		if (!session_floater->hasFocus())
 		{
 			session_floater->setFocus(TRUE);
 		}
-    }
 
     return handled;
 }
@@ -1627,13 +1622,26 @@ void LLFloaterIMContainer::reSelectConversation()
 
 void LLFloaterIMContainer::flashConversationItemWidget(const LLUUID& session_id, bool is_flashes)
 {
+    //Finds the conversation line item to flash using the session_id
 	LLConversationViewSession * widget = dynamic_cast<LLConversationViewSession *>(get_ptr_in_map(mConversationsWidgets,session_id));
+    LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(session_id);
+
 	if (widget)
 	{
+        //Start flash
 		if (is_flashes)
 		{
+            //Only flash when conversation is not active
+            if(session_floater
+                && (!session_floater->isInVisibleChain()) //conversation floater not displayed
+                    || 
+                    (session_floater->isInVisibleChain() && session_floater->hasFocus() == false)) //conversation floater is displayed but doesn't have focus
+                
+            {
 			widget->getFlashTimer()->startFlashing();
 		}
+		}
+        //Stop flash
 		else
 		{
 			widget->getFlashTimer()->stopFlashing();

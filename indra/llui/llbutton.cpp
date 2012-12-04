@@ -286,7 +286,7 @@ LLButton::~LLButton()
 
 	if (mFlashingTimer)
 	{
-		delete mFlashingTimer;
+		mFlashingTimer->unset();
 	}
 }
 
