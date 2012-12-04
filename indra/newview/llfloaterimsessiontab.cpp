@@ -691,8 +691,13 @@ void LLFloaterIMSessionTab::processChatHistoryStyleUpdate()
 
 void LLFloaterIMSessionTab::updateCallBtnState(bool callIsActive)
 {
-	getChild<LLButton>("voice_call_btn")->setImageOverlay(
+	LLButton* voiceButton = getChild<LLButton>("voice_call_btn");
+	voiceButton->setImageOverlay(
 			callIsActive? getString("call_btn_stop") : getString("call_btn_start"));
+
+	voiceButton->setToolTip(
+			callIsActive? getString("end_call_button_tooltip") : getString("start_call_button_tooltip"));
+
     enableDisableCallBtn();
 
 }

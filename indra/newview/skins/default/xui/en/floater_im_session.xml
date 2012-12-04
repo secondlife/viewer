@@ -43,6 +43,12 @@
      <floater.string
      name="tooltip_to_main_window"
      value="Move this conversation back to main window"/>
+  <floater.string
+     name="start_call_button_tooltip"
+     value="Open voice connection"/>
+  <floater.string
+     name="end_call_button_tooltip"
+     value="Close voice connection"/>
     <view
         follows="all"
         layout="topleft"
