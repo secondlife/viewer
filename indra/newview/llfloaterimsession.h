@@ -174,7 +174,6 @@ private:
 	LLUUID mOtherParticipantUUID;
 	bool mPositioned;
 
-	std::string mSavedTitle;
 	LLUIString mTypingStart;
 	bool mMeTyping;
 	bool mOtherTyping;

@@ -43,7 +43,7 @@
 #include "lltoolbarview.h"
 #include "llfloaterimnearbychat.h"
 
-const F32 REFRESH_INTERVAL = 0.2f;
+const F32 REFRESH_INTERVAL = 1.0f;
 
 LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
   : LLTransientDockableFloater(NULL, true, session_id)

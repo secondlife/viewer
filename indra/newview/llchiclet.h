@@ -865,54 +865,6 @@ protected:
 	LLContextMenu* mContextMenu;
 };
 
-/**
- * Class represented a chiclet for IM Well Icon.
- *
- * It displays a count of unread messages from other participants in all IM sessions.
- */
-class LLIMWellChiclet : public LLSysWellChiclet, LLIMSessionObserver
-{
-	friend class LLUICtrlFactory;
-public:
-	/*virtual*/ void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, BOOL has_offline_msg) {}
-    /*virtual*/ void sessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id) {}
-	/*virtual*/ void sessionVoiceOrIMStarted(const LLUUID& session_id) {};
-	/*virtual*/ void sessionRemoved(const LLUUID& session_id) { messageCountChanged(LLSD()); }
-	/*virtual*/ void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id) {}
-
-	~LLIMWellChiclet();
-protected:
-	LLIMWellChiclet(const Params& p);
-
-	/**
-	 * Processes clicks on chiclet popup menu.
-	 */
-	virtual void onMenuItemClicked(const LLSD& user_data);
-
-	/**
-	 * Enables chiclet menu items.
-	 */
-	bool enableMenuItem(const LLSD& user_data);
-
-	/**
-	 * Creates menu.
-	 */
-	/*virtual*/ void createMenu();
-
-	/**
-	 * Handles changes in a session (message was added, messages were read, etc.)
-	 *
-	 * It get total count of unread messages from a LLIMMgr in all opened sessions and display it.
-	 *
-	 * @param[in] session_data contains session related data, is not used now
-	 *		["session_id"] - id of an appropriate session
-	 *		["participant_unread"] - count of unread messages from "real" participants.
-	 *
-	 * @see LLIMMgr::getNumberOfUnreadParticipantMessages()
-	 */
-	void messageCountChanged(const LLSD& session_data);
-};
-
 class LLNotificationChiclet : public LLSysWellChiclet
 {
 	LOG_CLASS(LLNotificationChiclet);
