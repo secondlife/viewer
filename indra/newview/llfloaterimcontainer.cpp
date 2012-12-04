@@ -1162,7 +1162,7 @@ bool LLFloaterIMContainer::checkContextMenuItem(const std::string& item, uuid_ve
 void LLFloaterIMContainer::showConversation(const LLUUID& session_id)
 {
     setVisibleAndFrontmost(false);
-    selectConversation(session_id);    
+    selectConversationPair(session_id, true);
 }
 
 void LLFloaterIMContainer::selectConversation(const LLUUID& session_id)
