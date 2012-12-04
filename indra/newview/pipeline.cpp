@@ -861,6 +861,8 @@ bool LLPipeline::doAllocateScreenBuffer(U32 resX, U32 resY)
 	}
 
 	return ret;
+
+	return ret;
 }
 
 bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)

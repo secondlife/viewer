@@ -3210,7 +3210,7 @@ bool LLTextureFetch::receiveImageHeader(const LLHost& host, const LLUUID& id, U8
 	LLViewerStatsRecorder::instance().textureFetch(data_size);
 	LLViewerStatsRecorder::instance().log(0.1f);
 
-	worker->lockWorkMutex();											// +Mw
+	worker->lockWorkMutex();
 
 
 	//	Copy header data into image object
@@ -3258,11 +3258,12 @@ bool LLTextureFetch::receiveImagePacket(const LLHost& host, const LLUUID& id, U1
 		mNetworkQueueMutex.unlock();									// -Mfnq
 		return false;
 	}
-
+	
 	LLViewerStatsRecorder::instance().textureFetch(data_size);
 	LLViewerStatsRecorder::instance().log(0.1f);
 
-	worker->lockWorkMutex();											// +Mw
+	worker->lockWorkMutex();
+
 	
 	res = worker->insertPacket(packet_num, data, data_size);
 	
