@@ -133,8 +133,6 @@ private:
 
 	void          updateStatusMessage();
 	void          updateControls();
-	std::string   convertToPrintableMaterialID(const LLSD& pBinaryHash) const;
-	std::string   convertToPrintableMaterialID(const LLMaterialID& pMaterialID) const;
 
 	S32           getNormalMapOffsetX() const;
 	S32           getNormalMapOffsetY() const;

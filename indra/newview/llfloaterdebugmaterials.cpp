@@ -1029,7 +1029,7 @@ void LLFloaterDebugMaterials::parseQueryViewableObjects()
 							rowParams.columns.add(cellParams);
 							cellParams.font = LLFontGL::getFontMonospace();
 
-							std::string materialIDString = convertToPrintableMaterialID(objectMaterialID);
+							std::string materialIDString = objectMaterialID.asString();
 							cellParams.column = "material_id";
 							cellParams.value = materialIDString;
 							rowParams.columns.add(cellParams);
@@ -1090,8 +1090,9 @@ void LLFloaterDebugMaterials::parseGetResponse()
 			llassert(material.isMap());
 			llassert(material.has(MATERIALS_CAP_OBJECT_ID_FIELD));
 			llassert(material.get(MATERIALS_CAP_OBJECT_ID_FIELD).isBinary());
-			const LLSD &materialID = material.get(MATERIALS_CAP_OBJECT_ID_FIELD);
-			std::string materialIDString = convertToPrintableMaterialID(materialID);
+			const LLSD &materialIdLLSD = material.get(MATERIALS_CAP_OBJECT_ID_FIELD);
+			LLMaterialID materialID(materialIdLLSD);
+			std::string materialIDString = materialID.asString();
 
 			llassert(material.has(MATERIALS_CAP_MATERIAL_FIELD));
 			const LLSD &materialData = material.get(MATERIALS_CAP_MATERIAL_FIELD);
@@ -1311,7 +1312,8 @@ void LLFloaterDebugMaterials::parsePutResponse(const LLSD& pContent)
 
 			llassert(face.has(MATERIALS_CAP_MATERIAL_ID_FIELD));
 			llassert(face.get(MATERIALS_CAP_MATERIAL_ID_FIELD).isBinary());
-			std::string materialIDString = convertToPrintableMaterialID(face.get(MATERIALS_CAP_MATERIAL_ID_FIELD));
+			LLMaterialID materialID(face.get(MATERIALS_CAP_MATERIAL_ID_FIELD));
+			std::string materialIDString = materialID.asString();
 
 			cellParams.font = LLFontGL::getFontMonospace();
 
@@ -1381,8 +1383,9 @@ void LLFloaterDebugMaterials::parsePostResponse(const LLSD& pMultiContent)
 				llassert(material.isMap());
 				llassert(material.has(MATERIALS_CAP_OBJECT_ID_FIELD));
 				llassert(material.get(MATERIALS_CAP_OBJECT_ID_FIELD).isBinary());
-				const LLSD &materialID = material.get(MATERIALS_CAP_OBJECT_ID_FIELD);
-				std::string materialIDString = convertToPrintableMaterialID(materialID);
+				const LLSD &materialIdLLSD = material.get(MATERIALS_CAP_OBJECT_ID_FIELD);
+				LLMaterialID materialID(materialIdLLSD);
+				std::string materialIDString = materialID.asString();
 
 				llassert(material.has(MATERIALS_CAP_MATERIAL_FIELD));
 				const LLSD &materialData = material.get(MATERIALS_CAP_MATERIAL_FIELD);
@@ -1785,43 +1788,6 @@ void LLFloaterDebugMaterials::updateControls()
 		llassert(0);
 		break;
 	}
-}
-
-std::string LLFloaterDebugMaterials::convertToPrintableMaterialID(const LLSD& pBinaryHash) const
-{
-	llassert(pBinaryHash.isBinary());
-	const LLSD::Binary &materialIDValue = pBinaryHash.asBinary();
-	unsigned int valueSize = materialIDValue.size();
-
-	llassert(valueSize == 16);
-	std::string materialID(reinterpret_cast<const char *>(&materialIDValue[0]), valueSize);
-	std::string materialIDString;
-	for (unsigned int i = 0U; i < (valueSize / 4); ++i)
-	{
-		if (i != 0U)
-		{
-			materialIDString += "-";
-		}
-		const U32 *value = reinterpret_cast<const U32*>(&materialID.c_str()[i * 4]);
-		materialIDString += llformat("%08x", *value);
-	}
-	return materialIDString;
-}
-
-std::string LLFloaterDebugMaterials::convertToPrintableMaterialID(const LLMaterialID& pMaterialID) const
-{
-	std::string materialID(reinterpret_cast<const char *>(pMaterialID.get()), 16);
-	std::string materialIDString;
-	for (unsigned int i = 0U; i < 4; ++i)
-	{
-		if (i != 0U)
-		{
-			materialIDString += "-";
-		}
-		const U32 *value = reinterpret_cast<const U32*>(&materialID.c_str()[i * 4]);
-		materialIDString += llformat("%08x", *value);
-	}
-	return materialIDString;
 }
 
 S32 LLFloaterDebugMaterials::getNormalMapOffsetX() const

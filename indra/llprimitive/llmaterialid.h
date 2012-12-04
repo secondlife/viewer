@@ -29,6 +29,8 @@
 
 #define MATERIAL_ID_SIZE 16
 
+#include <string>
+
 class LLMaterialID
 {
 public:
@@ -41,6 +43,12 @@ public:
 
 	bool          operator == (const LLMaterialID& pOtherMaterialID) const;
 	bool          operator != (const LLMaterialID& pOtherMaterialID) const;
+
+	bool          operator < (const LLMaterialID& pOtherMaterialID) const;
+	bool          operator <= (const LLMaterialID& pOtherMaterialID) const;
+	bool          operator > (const LLMaterialID& pOtherMaterialID) const;
+	bool          operator >= (const LLMaterialID& pOtherMaterialID) const;
+
 	LLMaterialID& operator = (const LLMaterialID& pOtherMaterialID);
 
 	bool          isNull() const;
@@ -50,6 +58,7 @@ public:
 	void          clear();
 
 	LLSD          asLLSD() const;
+	std::string   asString() const;
 
 	static const LLMaterialID null;
 
