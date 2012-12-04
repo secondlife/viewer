@@ -191,6 +191,12 @@ void on_new_message(const LLSD& msg)
     }
     else if("openconversations" == action)
     {
+        LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
+        if (im_box)
+        {
+            im_box->flashConversationItemWidget(session_id, true); // flashing of the conversation's item
+        }
+
         LLFloaterReg::showInstance("im_container");
     }
 }

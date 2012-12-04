@@ -306,7 +306,7 @@ void LLFloaterIMSessionTab::onFocusReceived()
 	LLFloaterIMContainer* container = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
 	if (container)
 	{
-		container->selectConversationPair(mSessionID, true);
+		container->selectConversationPair(mSessionID, ! getHost());
 		container->showStub(! getHost());
 	}
 }
