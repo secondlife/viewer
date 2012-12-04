@@ -52,6 +52,11 @@ public:
 
 	bool isFlashingInProgress();
 	bool isCurrentlyHighlighted();
+	/*
+	 * Use this instead of deleting this object.
+	 * The next call to tick() will return true and that will destroy this object.
+	 */
+	void unset();
 
 private:
 	callback_t		mCallback;
@@ -62,6 +67,7 @@ private:
 	S32 mCurrentTickCount;
 	bool mIsCurrentlyHighlighted;
 	bool mIsFlashingInProgress;
+	bool mUnset;
 };
 
 #endif /* LL_FLASHTIMER_H */

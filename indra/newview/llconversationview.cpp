@@ -95,7 +95,7 @@ LLConversationViewSession::~LLConversationViewSession()
 		LLVoiceClient::getInstance()->removeObserver(mVoiceClientObserver);
 	}
 
-	delete mFlashTimer;
+	mFlashTimer->unset();
 }
 
 bool LLConversationViewSession::isHighlightAllowed()
@@ -218,9 +218,15 @@ BOOL LLConversationViewSession::handleMouseDown( S32 x, S32 y, MASK mask )
 {
 	LLConversationItem* item = dynamic_cast<LLConversationItem *>(getViewModelItem());
     LLUUID session_id = item? item->getUUID() : LLUUID();
+    //Will try to select a child node and then itself (if a child was not selected)
     BOOL result = LLFolderViewFolder::handleMouseDown(x, y, mask);
-	(LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container"))->
-    		selectConversationPair(session_id, false);
+
+    //This node (conversation) was selected and a child (participant) was not
+    if(result && getRoot()->getCurSelectedItem() == this)
+    {
+        (LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container"))->
+            selectConversationPair(session_id, false);
+    }
 
 	return result;
 }
@@ -549,8 +555,12 @@ BOOL LLConversationViewParticipant::handleMouseDown( S32 x, S32 y, MASK mask )
 	}
     LLUUID session_id = item? item->getUUID() : LLUUID();
     BOOL result = LLFolderViewItem::handleMouseDown(x, y, mask);
-    (LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container"))->
-        		selectConversationPair(session_id, false);
+
+    if(result)
+    {
+        (LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container"))->
+            selectConversationPair(session_id, false);
+    }
 
 	return result;
 }
