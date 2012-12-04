@@ -361,6 +361,8 @@ void LLVolumeImplFlexible::doIdleUpdate()
 				F32 pixel_area = mVO->getPixelArea();
 
 				U32 update_period = (U32) (llmax((S32) (LLViewerCamera::getInstance()->getScreenPixelArea()*0.01f/(pixel_area*(sUpdateFactor+1.f))),0)+1);
+				// MAINT-1890 Clamp the update period to ensure that the update_period is no greater than 32 frames
+				update_period = llclamp(update_period, 0U, 32U);
 
 				if	(visible)
 				{
@@ -431,6 +433,15 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 	{
 		//the object is not visible
 		return ;
+	}
+
+	// stinson 11/12/2012: Need to check with davep on the following.
+	// Skipping the flexible update if render res is negative.  If we were to continue with a negative value,
+	// the subsequent S32 num_render_sections = 1<<mRenderRes; code will specify a really large number of
+	// render sections which will then create a length exception in the std::vector::resize() method.
+	if (mRenderRes < 0)
+	{
+		return;
 	}
 	
 	S32 num_sections = 1 << mSimulateRes;

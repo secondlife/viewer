@@ -32,9 +32,7 @@
 #include "lllocalbitmaps.h"
 
 /* boost: will not compile unless equivalent is undef'd, beware. */
-#ifdef equivalent
-#undef equivalent
-#endif 
+#include "fix_macros.h"
 #include <boost/filesystem.hpp>
 
 /* image compression headers. */

@@ -564,32 +564,13 @@ void LLMediaCtrl::navigateTo( std::string url_in, std::string mime_type)
 //
 void LLMediaCtrl::navigateToLocalPage( const std::string& subdir, const std::string& filename_in )
 {
-	std::string language = LLUI::getLanguage();
-	std::string delim = gDirUtilp->getDirDelimiter();
-	std::string filename;
+	std::string filename(gDirUtilp->add(subdir, filename_in));
+	std::string expanded_filename = gDirUtilp->findSkinnedFilename("html", filename);
 
-	filename += subdir;
-	filename += delim;
-	filename += filename_in;
-
-	std::string expanded_filename = gDirUtilp->findSkinnedFilename("html", language, filename);
-
-	if (! gDirUtilp->fileExists(expanded_filename))
+	if (expanded_filename.empty())
 	{
-		if (language != "en")
-		{
-			expanded_filename = gDirUtilp->findSkinnedFilename("html", "en", filename);
-			if (! gDirUtilp->fileExists(expanded_filename))
-			{
-				llwarns << "File " << subdir << delim << filename_in << "not found" << llendl;
-				return;
-			}
-		}
-		else
-		{
-			llwarns << "File " << subdir << delim << filename_in << "not found" << llendl;
-			return;
-		}
+		llwarns << "File " << filename << "not found" << llendl;
+		return;
 	}
 	if (ensureMediaSourceExists())
 	{
@@ -597,7 +578,6 @@ void LLMediaCtrl::navigateToLocalPage( const std::string& subdir, const std::str
 		mMediaSource->setSize(mTextureWidth, mTextureHeight);
 		mMediaSource->navigateTo(expanded_filename, "text/html", false);
 	}
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
