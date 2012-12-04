@@ -1937,7 +1937,11 @@ bool LLTextureCache::writeToFastCache(S32 id, LLPointer<LLImageRaw> raw, S32 dis
 		openFastCache();
 
 		mFastCachep->seek(APR_SET, offset);	
-		llassert_always(mFastCachep->write(mFastCachePadBuffer, TEXTURE_FAST_CACHE_ENTRY_SIZE) == TEXTURE_FAST_CACHE_ENTRY_SIZE);
+		
+		//no need to do this assertion check. When it fails, let it fail quietly.
+		//this failure could happen because other viewer removes the fast cache file when clearing cache.
+		//--> llassert_always(mFastCachep->write(mFastCachePadBuffer, TEXTURE_FAST_CACHE_ENTRY_SIZE) == TEXTURE_FAST_CACHE_ENTRY_SIZE);
+		mFastCachep->write(mFastCachePadBuffer, TEXTURE_FAST_CACHE_ENTRY_SIZE);
 
 		closeFastCache(true);
 	}
