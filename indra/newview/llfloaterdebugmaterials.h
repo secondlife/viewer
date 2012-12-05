@@ -96,7 +96,6 @@ private:
 	void          onDeferredCheckRegionMaterialStatus(LLUUID regionId);
 	void          onDeferredRequestGetMaterials(LLUUID regionId);
 	void          onDeferredRequestPutMaterials(LLUUID regionId, bool pIsDoSet);
-	void          onGetResponse(bool pRequestStatus, const LLSD& pContent);
 
 	void          checkRegionMaterialStatus();
 	void          checkRegionMaterialStatus(const LLUUID& regionId);
@@ -110,7 +109,6 @@ private:
 	static void   onGetMaterials(const LLUUID& region_id, const LLMaterialMgr::material_map_t& materials);
 	static void   onPostMaterial(const LLMaterialID& material_id, const LLMaterialPtr materialp);
 
-	void          parseGetResponse();
 	void          parseQueryViewableObjects();
 
 	void          setState(EState pState);
@@ -128,7 +126,6 @@ private:
 
 	void          updateStatusMessage();
 	void          updateControls();
-	std::string   convertToPrintableMaterialID(const LLSD& pBinaryHash) const;
 
 	LLMaterial    getMaterial() const;
 

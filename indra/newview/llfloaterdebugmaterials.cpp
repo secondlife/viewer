@@ -74,60 +74,9 @@
 
 #define MATERIALS_CAPABILITY_NAME                 "RenderMaterials"
 
-#define MATERIALS_CAP_ZIP_FIELD                   "Zipped"
-
-#define MATERIALS_CAP_MATERIAL_FIELD              "Material"
-#define MATERIALS_CAP_OBJECT_ID_FIELD             "ID"
-
-#define MULTI_MATERIALS_STATUS_FIELD              "status"
-#define MULTI_MATERIALS_DATA_FIELD                "data"
-
 #define VIEWABLE_OBJECTS_REGION_ID_FIELD          "regionId"
 #define VIEWABLE_OBJECTS_OBJECT_ID_FIELD          "objectId"
 #define VIEWABLE_OBJECTS_MATERIAL_ID_FIELD        "materialId"
-
-class MaterialsResponder : public LLHTTPClient::Responder
-{
-public:
-	typedef boost::function<void (bool, const LLSD&)> CallbackFunction;
-
-	MaterialsResponder(const std::string& pMethod, const std::string& pCapabilityURL, CallbackFunction pCallback);
-	virtual ~MaterialsResponder();
-
-	virtual void result(const LLSD& pContent);
-	virtual void error(U32 pStatus, const std::string& pReason);
-
-protected:
-
-private:
-	std::string      mMethod;
-	std::string      mCapabilityURL;
-	CallbackFunction mCallback;
-};
-
-class MultiMaterialsResponder
-{
-public:
-	typedef boost::function<void (bool, const LLSD&)> CallbackFunction;
-
-	MultiMaterialsResponder(CallbackFunction pCallback, unsigned int pNumRequests);
-	virtual ~MultiMaterialsResponder();
-
-	void onMaterialsResponse(bool pRequestStatus, const LLSD& pContent);
-
-protected:
-
-private:
-	bool appendRequestResults(bool pRequestStatus, const LLSD& pResults);
-	void fireResponse();
-
-	CallbackFunction mCallback;
-	unsigned int     mNumRequests;
-
-	bool             mRequestStatus;
-	LLSD             mContent;
-	LLMutex*         mMutex;
-};
 
 BOOL LLFloaterDebugMaterials::postBuild()
 {
@@ -1252,27 +1201,6 @@ void LLFloaterDebugMaterials::updateControls()
 	}
 }
 
-std::string LLFloaterDebugMaterials::convertToPrintableMaterialID(const LLSD& pBinaryHash) const
-{
-	llassert(pBinaryHash.isBinary());
-	const LLSD::Binary &materialIDValue = pBinaryHash.asBinary();
-	unsigned int valueSize = materialIDValue.size();
-
-	llassert(valueSize == 16);
-	std::string materialID(reinterpret_cast<const char *>(&materialIDValue[0]), valueSize);
-	std::string materialIDString;
-	for (unsigned int i = 0U; i < (valueSize / 4); ++i)
-	{
-		if (i != 0U)
-		{
-			materialIDString += "-";
-		}
-		const U32 *value = reinterpret_cast<const U32*>(&materialID.c_str()[i * 4]);
-		materialIDString += llformat("%08x", *value);
-	}
-	return materialIDString;
-}
-
 template<typename T> T getLineEditorValue(const LLLineEditor *pLineEditor);
 
 template<> U8 getLineEditorValue(const LLLineEditor *pLineEditor)
@@ -1309,81 +1237,4 @@ LLMaterial LLFloaterDebugMaterials::getMaterial() const
 	material.setAlphaMaskCutoff(getLineEditorValue<U8>(mAlphaMaskCutoff));
 
 	return material;
-}
-
-MaterialsResponder::MaterialsResponder(const std::string& pMethod, const std::string& pCapabilityURL, CallbackFunction pCallback)
-	: LLHTTPClient::Responder(),
-	mMethod(pMethod),
-	mCapabilityURL(pCapabilityURL),
-	mCallback(pCallback)
-{
-}
-
-MaterialsResponder::~MaterialsResponder()
-{
-}
-
-void MaterialsResponder::result(const LLSD& pContent)
-{
-	mCallback(true, pContent);
-}
-
-void MaterialsResponder::error(U32 pStatus, const std::string& pReason)
-{
-	LL_WARNS("debugMaterials") << "--------------------------------------------------------------------------" << LL_ENDL;
-	LL_WARNS("debugMaterials") << mMethod << " Error[" << pStatus << "] cannot access cap '" << MATERIALS_CAPABILITY_NAME
-		<< "' with url '" << mCapabilityURL	<< "' because " << pReason << LL_ENDL;
-	LL_WARNS("debugMaterials") << "--------------------------------------------------------------------------" << LL_ENDL;
-
-	LLSD emptyResult;
-	mCallback(false, emptyResult);
-}
-
-MultiMaterialsResponder::MultiMaterialsResponder(CallbackFunction pCallback, unsigned int pNumRequests)
-	: mCallback(pCallback),
-	mNumRequests(pNumRequests),
-	mRequestStatus(true),
-	mContent(LLSD::emptyArray()),
-	mMutex(NULL)
-{
-	mMutex = new LLMutex(NULL);
-	llassert(mMutex);
-}
-
-MultiMaterialsResponder::~MultiMaterialsResponder()
-{
-	llassert(mMutex);
-	if (mMutex)
-	{
-		delete mMutex;
-	}
-}
-
-void MultiMaterialsResponder::onMaterialsResponse(bool pRequestStatus, const LLSD& pContent)
-{
-	LLSD result = LLSD::emptyMap();
-
-	result[MULTI_MATERIALS_STATUS_FIELD] = static_cast<LLSD::Boolean>(pRequestStatus);
-	result[MULTI_MATERIALS_DATA_FIELD] = pContent;
-
-	if (appendRequestResults(pRequestStatus, result))
-	{
-		fireResponse();
-	}
-}
-
-bool MultiMaterialsResponder::appendRequestResults(bool pRequestStatus, const LLSD& pResults)
-{
-	llassert(mMutex);
-	LLMutexLock mutexLock(mMutex);
-
-	mRequestStatus = mRequestStatus && pRequestStatus;
-	mContent.append(pResults);
-	llassert(mNumRequests > 0U);
-	return (--mNumRequests == 0U);
-}
-
-void MultiMaterialsResponder::fireResponse()
-{
-	mCallback(mRequestStatus, mContent);
 }
