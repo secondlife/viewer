@@ -115,6 +115,7 @@ void LLConversationItem::buildParticipantMenuOptions(menuentry_vec_t&   items)
     items.push_back(std::string("share"));
     items.push_back(std::string("pay"));
     items.push_back(std::string("block_unblock"));
+    items.push_back(std::string("MuteText"));
 
 	if(this->getType() != CONV_SESSION_1_ON_1)
 	{
