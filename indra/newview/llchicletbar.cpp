@@ -25,18 +25,11 @@
  */
 
 #include "llviewerprecompiledheaders.h" // must be first include
-
 #include "llchicletbar.h"
 
-// library includes
-#include "llfloaterreg.h"
-#include "lllayoutstack.h"
-
-// newview includes
 #include "llchiclet.h"
-#include "llfloaterimsession.h" // for LLFloaterIMSession
+#include "lllayoutstack.h"
 #include "llpaneltopinfobar.h"
-#include "llsyswellwindow.h"
 
 namespace
 {
@@ -60,105 +53,10 @@ LLChicletBar::LLChicletBar(const LLSD&)
 	buildFromFile("panel_chiclet_bar.xml");
 }
 
-LLChicletBar::~LLChicletBar()
-{
-}
-
-LLIMChiclet* LLChicletBar::createIMChiclet(const LLUUID& session_id)
-{
-	LLIMChiclet::EType im_chiclet_type = LLIMChiclet::getIMSessionType(session_id);
-
-	switch (im_chiclet_type)
-	{
-	case LLIMChiclet::TYPE_IM:
-		return getChicletPanel()->createChiclet<LLIMP2PChiclet>(session_id);
-	case LLIMChiclet::TYPE_GROUP:
-		return getChicletPanel()->createChiclet<LLIMGroupChiclet>(session_id);
-	case LLIMChiclet::TYPE_AD_HOC:
-		return getChicletPanel()->createChiclet<LLAdHocChiclet>(session_id);
-	case LLIMChiclet::TYPE_UNKNOWN:
-		break;
-	}
-
-	return NULL;
-}
-
-//virtual
-void LLChicletBar::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, BOOL has_offline_msg)
-{
-	if (!getChicletPanel()) return;
-
-	LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(session_id);
-	if (!session) return;
-
-	// no need to spawn chiclets for participants in P2P calls called through Avaline
-	if (session->isP2P() && session->isOtherParticipantAvaline()) return;
-
-	// Do not spawn chiclet when using the new multitab conversation UI
-	if (LLFloaterIMSessionTab::isChatMultiTab())
-	{
-		LLFloaterIMSessionTab::addToHost(session_id);
-		return;
-	}
-	
-	if (getChicletPanel()->findChiclet<LLChiclet>(session_id)) return;
-
-	LLIMChiclet* chiclet = createIMChiclet(session_id);
-	if(chiclet)
-	{
-		chiclet->setIMSessionName(name);
-		chiclet->setOtherParticipantId(other_participant_id);
-
-		LLFloaterIMSession::onIMChicletCreated(session_id);
-
-	}
-	else
-	{
-		llwarns << "Could not create chiclet" << llendl;
-	}
-}
-
-//virtual
-void LLChicletBar::sessionRemoved(const LLUUID& session_id)
-{
-	if(getChicletPanel())
-	{
-		// IM floater should be closed when session removed and associated chiclet closed
-		LLFloaterIMSession* im_floater = LLFloaterReg::findTypedInstance<LLFloaterIMSession>("impanel", session_id);
-		if (im_floater != NULL && !im_floater->getStartConferenceInSameFloater())
-		{
-			// Close the IM floater only if we are not planning to close the P2P chat
-			// and start a new conference in the same floater.
-			im_floater->closeFloater();
-		}
-
-		getChicletPanel()->removeChiclet(session_id);
-	}
-}
-
-void LLChicletBar::sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id)
-{
-	//this is only needed in case of outgoing ad-hoc/group chat sessions
-	LLChicletPanel* chiclet_panel = getChicletPanel();
-	if (chiclet_panel)
-	{
-		//it should be ad-hoc im chiclet or group im chiclet
-		LLChiclet* chiclet = chiclet_panel->findChiclet<LLChiclet>(old_session_id);
-		if (chiclet) chiclet->setSessionId(new_session_id);
-	}
-}
-
-S32 LLChicletBar::getTotalUnreadIMCount()
-{
-	return getChicletPanel()->getTotalUnreadIMCount();
-}
-
 BOOL LLChicletBar::postBuild()
 {
 	mToolbarStack = getChild<LLLayoutStack>("toolbar_stack");
 	mChicletPanel = getChild<LLChicletPanel>("chiclet_list");
-
-	showWellButton("notification_well", !LLNotificationWellWindow::getInstance()->isWindowEmpty());
 
 	LLPanelTopInfoBar::instance().setResizeCallback(boost::bind(&LLChicletBar::fitWithTopInfoBar, this));
 	LLPanelTopInfoBar::instance().setVisibleCallback(boost::bind(&LLChicletBar::fitWithTopInfoBar, this));

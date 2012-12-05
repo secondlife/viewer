@@ -528,12 +528,8 @@ bool LLConversationSort::operator()(const LLConversationItem* const& a, const LL
 	{
 		// If both are sessions
 		U32 sort_order = getSortOrderSessions();
-		if ((type_a == LLConversationItem::CONV_SESSION_NEARBY) || (type_b == LLConversationItem::CONV_SESSION_NEARBY))
-		{
-			// If one is the nearby session, put nearby session *always* first
-			return (type_a == LLConversationItem::CONV_SESSION_NEARBY);
-		}
-		else if (sort_order == LLConversationFilter::SO_DATE)
+
+		if (sort_order == LLConversationFilter::SO_DATE)
 		{
 			// Sort by time
 			F64 time_a = 0.0;
@@ -552,14 +548,22 @@ bool LLConversationSort::operator()(const LLConversationItem* const& a, const LL
 			}
 			// If no time available, we'll default to sort by name at the end of this method
 		}
-		else if (sort_order == LLConversationFilter::SO_SESSION_TYPE)
+		else
 		{
-			if (type_a != type_b)
+			if ((type_a == LLConversationItem::CONV_SESSION_NEARBY) || (type_b == LLConversationItem::CONV_SESSION_NEARBY))
 			{
-				// Lowest types come first. See LLConversationItem definition of types
-				return (type_a < type_b);
+				// If one is the nearby session, put nearby session *always* last
+				return (type_b == LLConversationItem::CONV_SESSION_NEARBY);
 			}
+			else if (sort_order == LLConversationFilter::SO_SESSION_TYPE)
+			{
+				if (type_a != type_b)
+				{
+					// Lowest types come first. See LLConversationItem definition of types
+					return (type_a < type_b);
+				}
 			// If types are identical, we'll default to sort by name at the end of this method
+			}
 		}
 	}
 	else
