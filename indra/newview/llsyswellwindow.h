@@ -27,24 +27,18 @@
 #ifndef LL_LLSYSWELLWINDOW_H
 #define LL_LLSYSWELLWINDOW_H
 
-#include "llsyswellitem.h"
-
-#include "lltransientdockablefloater.h"
-#include "llbutton.h"
-#include "llscreenchannel.h"
-#include "llscrollcontainer.h"
 #include "llimview.h"
 #include "llnotifications.h"
-
-#include "boost/shared_ptr.hpp"
+#include "llscreenchannel.h"
+#include "llsyswellitem.h"
+#include "lltransientdockablefloater.h"
 
 class LLAvatarName;
-class LLFlatListView;
 class LLChiclet;
+class LLFlatListView;
 class LLIMChiclet;
 class LLScriptChiclet;
 class LLSysWellChiclet;
-
 
 class LLSysWellWindow : public LLTransientDockableFloater
 {
@@ -52,7 +46,7 @@ public:
 	LOG_CLASS(LLSysWellWindow);
 
     LLSysWellWindow(const LLSD& key);
-    ~LLSysWellWindow();
+    virtual ~LLSysWellWindow();
 	BOOL postBuild();
 
 	// other interface functions
@@ -72,8 +66,6 @@ public:
 
 	void onStartUpToastClick(S32 x, S32 y, MASK mask);
 
-	void setSysWellChiclet(LLSysWellChiclet* chiclet);
-
 	// size constants for the window and for its elements
 	static const S32 MAX_WINDOW_HEIGHT		= 200;
 	static const S32 MIN_WINDOW_WIDTH		= 318;
@@ -87,16 +79,10 @@ protected:
 	virtual const std::string& getAnchorViewName() = 0;
 
 	void reshapeWindow();
-	void releaseNewMessagesState();
 
 	// pointer to a corresponding channel's instance
 	LLNotificationsUI::LLScreenChannel*	mChannel;
 	LLFlatListView*	mMessageList;
-
-	/**
-	 * Reference to an appropriate Well chiclet to release "new message" state. EXT-3147
-	 */
-	LLSysWellChiclet* mSysWellChiclet;
 
 	bool mIsReshapedByUser;
 };
@@ -157,7 +143,7 @@ private:
  * 
  * It contains a list list of all active IM sessions.
  */
-class LLIMWellWindow : public LLSysWellWindow, LLIMSessionObserver, LLInitClass<LLIMWellWindow>
+class LLIMWellWindow : public LLSysWellWindow, LLInitClass<LLIMWellWindow>
 {
 public:
 	LLIMWellWindow(const LLSD& key);
@@ -169,58 +155,18 @@ public:
 
 	/*virtual*/ BOOL postBuild();
 
-	// LLIMSessionObserver observe triggers
-	/*virtual*/ void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, BOOL has_offline_msg);
-    /*virtual*/ void sessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id) {}
-	/*virtual*/ void sessionVoiceOrIMStarted(const LLUUID& session_id) {};
-	/*virtual*/ void sessionRemoved(const LLUUID& session_id);
-	/*virtual*/ void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id);
-
 	void addObjectRow(const LLUUID& notification_id, bool new_message = false);
 	void removeObjectRow(const LLUUID& notification_id);
-
-	void addIMRow(const LLUUID& session_id);
-	bool hasIMRow(const LLUUID& session_id);
-
 	void closeAll();
 
 protected:
 	/*virtual*/ const std::string& getAnchorViewName() { return IM_WELL_ANCHOR_NAME; }
 
 private:
-	LLChiclet * findIMChiclet(const LLUUID& sessionId);
 	LLChiclet* findObjectChiclet(const LLUUID& notification_id);
 
-	void addIMRow(const LLUUID& sessionId, S32 chicletCounter, const std::string& name, const LLUUID& otherParticipantId);
-	void delIMRow(const LLUUID& sessionId);
 	bool confirmCloseAll(const LLSD& notification, const LLSD& response);
 	void closeAllImpl();
-
-	/**
-	 * Scrolling row panel.
-	 */
-	class RowPanel: public LLPanel
-	{
-	public:
-		RowPanel(const LLSysWellWindow* parent, const LLUUID& sessionId, S32 chicletCounter,
-				const std::string& name, const LLUUID& otherParticipantId);
-		virtual ~RowPanel();
-		void onMouseEnter(S32 x, S32 y, MASK mask);
-		void onMouseLeave(S32 x, S32 y, MASK mask);
-		BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-		BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
-
-	private:
-		static const S32 CHICLET_HPAD = 10;
-		void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
-		void onChicletSizeChanged(LLChiclet* ctrl, const LLSD& param);
-		void onClosePanel();
-	public:
-		LLIMChiclet* mChiclet;
-	private:
-		LLButton*	mCloseBtn;
-		const LLSysWellWindow* mParent;
-	};
 
 	class ObjectRowPanel: public LLPanel
 	{
