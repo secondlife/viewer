@@ -34,6 +34,7 @@
 
 #include "llfloater.h"
 #include "llmaterial.h"
+#include "llmaterialmgr.h"
 #include "lluuid.h"
 #include "v4color.h"
 
@@ -106,7 +107,8 @@ private:
 	void          requestPutMaterials(bool pIsDoSet);
 	void          requestPutMaterials(const LLUUID& regionId, bool pIsDoSet);
 
-	static void   onGetMaterial(const LLMaterialID& material_id, const LLMaterialPtr materialp);
+	static void   onGetMaterials(const LLUUID& region_id, const LLMaterialMgr::material_map_t& materials);
+	static void   onPostMaterial(const LLMaterialID& material_id, const LLMaterialPtr materialp);
 
 	void          parseGetResponse();
 	void          parseQueryViewableObjects();
@@ -119,10 +121,6 @@ private:
 	void          clearGetResults();
 	void          clearPostResults();
 	void          clearViewableObjectsResults();
-
-	void          setUnparsedGetData(const LLSD& pGetData);
-	void          clearUnparsedGetData();
-	void          updateGetParsingStatus();
 
 	void          setUnparsedQueryData();
 	void          clearUnparsedQueryData();
@@ -178,9 +176,6 @@ private:
 	boost::signals2::connection mRegionCrossConnection;
 	boost::signals2::connection mTeleportFailedConnection;
 	boost::signals2::connection mSelectionUpdateConnection;
-
-	LLSD                        mUnparsedGetData;
-	S32                         mNextUnparsedGetDataIndex;
 
 	S32                         mNextUnparsedQueryDataIndex;
 };

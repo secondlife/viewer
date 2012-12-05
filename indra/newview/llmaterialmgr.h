@@ -39,17 +39,26 @@ protected:
 	virtual ~LLMaterialMgr();
 
 public:
+	typedef std::map<LLMaterialID, LLMaterialPtr> material_map_t;
+
 	typedef boost::signals2::signal<void (const LLMaterialID&, const LLMaterialPtr)> get_callback_t;
 	const LLMaterialPtr         get(const LLMaterialID& material_id);
 	boost::signals2::connection get(const LLMaterialID& material_id, get_callback_t::slot_type cb);
+	typedef boost::signals2::signal<void (const LLUUID&, const material_map_t&)> getall_callback_t;
+	void                        getAll(const LLUUID& region_id);
+	boost::signals2::connection getAll(const LLUUID& region_id, getall_callback_t::slot_type cb);
 	void put(const LLUUID& object_id, const U8 te, const LLMaterial& material);
 
 protected:
 	bool isGetPending(const LLMaterialID& material_id);
+	bool isGetAllPending(const LLUUID& region_id);
+	const LLMaterialPtr setMaterial(const LLMaterialID& material_id, const LLSD& material_data);
 
 	static void onIdle(void*);
 	void processGetQueue();
 	void onGetResponse(bool success, const LLSD& content);
+	void processGetAllQueue();
+	void onGetAllResponse(bool success, const LLSD& content, const LLUUID& region_id);
 	void processPutQueue();
 	void onPutResponse(bool success, const LLSD& content, const LLUUID& object_id);
 
@@ -61,11 +70,17 @@ protected:
 	typedef std::map<LLMaterialID, get_callback_t*> get_callback_map_t;
 	get_callback_map_t mGetCallbacks;
 
+	typedef std::set<LLUUID> getall_queue_t;
+	getall_queue_t mGetAllQueue;
+	typedef std::map<LLUUID, F64> getall_pending_map_t;
+	getall_pending_map_t mGetAllPending;
+	typedef std::map<LLUUID, getall_callback_t*> getall_callback_map_t;
+	getall_callback_map_t mGetAllCallbacks;
+
 	typedef std::map<U8, LLMaterial> facematerial_map_t;
 	typedef std::map<LLUUID, facematerial_map_t> put_queue_t;
 	put_queue_t mPutQueue;
 
-	typedef std::map<LLMaterialID, LLMaterialPtr> material_map_t;
 	material_map_t mMaterials;
 };
 

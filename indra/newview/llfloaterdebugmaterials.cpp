@@ -47,9 +47,7 @@
 #include "llfontgl.h"
 #include "llhttpclient.h"
 #include "lllineeditor.h"
-#include "llmaterial.h"
 #include "llmaterialid.h"
-#include "llmaterialmgr.h"
 #include "llresmgr.h"
 #include "llscrolllistcell.h"
 #include "llscrolllistctrl.h"
@@ -322,10 +320,6 @@ void LLFloaterDebugMaterials::onClose(bool pIsAppQuitting)
 
 void LLFloaterDebugMaterials::draw()
 {
-	if (mUnparsedGetData.isDefined())
-	{
-		parseGetResponse();
-	}
 	if (mNextUnparsedQueryDataIndex >= 0)
 	{
 		parseQueryViewableObjects();
@@ -379,8 +373,6 @@ LLFloaterDebugMaterials::LLFloaterDebugMaterials(const LLSD& pParams)
 	mRegionCrossConnection(),
 	mTeleportFailedConnection(),
 	mSelectionUpdateConnection(),
-	mUnparsedGetData(),
-	mNextUnparsedGetDataIndex(-1),
 	mNextUnparsedQueryDataIndex(-1)
 {
 }
@@ -450,7 +442,7 @@ void LLFloaterDebugMaterials::onPostClicked()
 			llassert(selectedItemValue.get(VIEWABLE_OBJECTS_MATERIAL_ID_FIELD).isBinary());
 			const LLMaterialID material_id(selectedItemValue.get(VIEWABLE_OBJECTS_MATERIAL_ID_FIELD).asBinary());
 
-			LLMaterialMgr::instance().get(material_id, boost::bind(&LLFloaterDebugMaterials::onGetMaterial, _1, _2));
+			LLMaterialMgr::instance().get(material_id, boost::bind(&LLFloaterDebugMaterials::onPostMaterial, _1, _2));
 		}
 	}
 }
@@ -578,20 +570,6 @@ void LLFloaterDebugMaterials::onDeferredRequestPutMaterials(LLUUID regionId, boo
 	requestPutMaterials(regionId, pIsDoSet);
 }
 
-void LLFloaterDebugMaterials::onGetResponse(bool pRequestStatus, const LLSD& pContent)
-{
-	clearGetResults();
-	if (pRequestStatus)
-	{
-		setState(kRequestCompleted);
-		setUnparsedGetData(pContent);
-	}
-	else
-	{
-		setState(kError);
-	}
-}
-
 void LLFloaterDebugMaterials::checkRegionMaterialStatus()
 {
 	LLViewerRegion *region = gAgent.getRegion();
@@ -659,9 +637,8 @@ void LLFloaterDebugMaterials::requestGetMaterials()
 		}
 		else
 		{
-			setState(kRequestStarted);
-			LLHTTPClient::ResponderPtr materialsResponder = new MaterialsResponder("GET", capURL, boost::bind(&LLFloaterDebugMaterials::onGetResponse, this, _1, _2));
-			LLHTTPClient::get(capURL, materialsResponder);
+			setState(kReady);
+			LLMaterialMgr::instance().getAll(region->getRegionID(), boost::bind(&LLFloaterDebugMaterials::onGetMaterials, _1, _2));
 		}
 	}
 }
@@ -828,154 +805,129 @@ void LLFloaterDebugMaterials::parseQueryViewableObjects()
 	}
 }
 
-void LLFloaterDebugMaterials::parseGetResponse()
+void LLFloaterDebugMaterials::onGetMaterials(const LLUUID& region_id, const LLMaterialMgr::material_map_t& materials)
 {
-	llassert(mUnparsedGetData.isDefined());
-	llassert(mNextUnparsedGetDataIndex >= 0);
-
-	if (mUnparsedGetData.isDefined())
+	LLFloaterDebugMaterials* instancep = LLFloaterReg::findTypedInstance<LLFloaterDebugMaterials>("floater_debug_materials");
+	if (!instancep)
 	{
-		LLScrollListCell::Params cellParams;
-		LLScrollListItem::Params normalMapRowParams;
-		LLScrollListItem::Params specularMapRowParams;
-		LLScrollListItem::Params otherDataRowParams;
+		return;
+	}
 
-		llassert(mUnparsedGetData.isArray());
-		LLSD::array_const_iterator materialIter = mUnparsedGetData.beginArray();
-		S32 materialIndex;
+	LLViewerRegion* regionp = gAgent.getRegion();
+	if ( (!regionp) || (regionp->getRegionID() != region_id) )
+	{
+		return;
+	}
 
-		for (materialIndex = 0;
-			(materialIndex < mNextUnparsedGetDataIndex) && (materialIter != mUnparsedGetData.endArray());
-			++materialIndex, ++materialIter)
-		{
-		}
+	LLScrollListCell::Params cellParams;
+	LLScrollListItem::Params normalMapRowParams;
+	LLScrollListItem::Params specularMapRowParams;
+	LLScrollListItem::Params otherDataRowParams;
 
-		for (S32 currentParseCount = 0;
-			(currentParseCount < 10) && (materialIter != mUnparsedGetData.endArray());
-			++currentParseCount, ++materialIndex, ++materialIter)
-		{
-			const LLSD &material_entry = *materialIter;
-			llassert(material_entry.isMap());
-			llassert(material_entry.has(MATERIALS_CAP_OBJECT_ID_FIELD));
-			llassert(material_entry.get(MATERIALS_CAP_OBJECT_ID_FIELD).isBinary());
-			const LLSD &materialID = material_entry.get(MATERIALS_CAP_OBJECT_ID_FIELD);
-			std::string materialIDString = convertToPrintableMaterialID(materialID);
+	instancep->clearGetResults();
+	for (LLMaterialMgr::material_map_t::const_iterator itMaterial = materials.begin(); itMaterial != materials.end(); ++itMaterial)
+	{
+		const LLMaterialID& material_id = itMaterial->first;
+		const LLMaterialPtr material = itMaterial->second;
 
-			llassert(material_entry.has(MATERIALS_CAP_MATERIAL_FIELD));
-			const LLSD &materialData = material_entry.get(MATERIALS_CAP_MATERIAL_FIELD);
-			llassert(materialData.isMap());
+		F32 x, y;
 
-			LLMaterial material(materialData);
+		cellParams.font = LLFontGL::getFontMonospace();
 
-			F32 x, y;
+		cellParams.column = "id";
+		cellParams.value = material_id.asString();
+		normalMapRowParams.columns.add(cellParams);
+		specularMapRowParams.columns.add(cellParams);
+		otherDataRowParams.columns.add(cellParams);
 
-			cellParams.font = LLFontGL::getFontMonospace();
+		cellParams.column = "normal_map_list_map";
+		cellParams.value = material->getNormalID().asString();
+		normalMapRowParams.columns.add(cellParams);
 
-			cellParams.column = "id";
-			cellParams.value = materialIDString;
-			normalMapRowParams.columns.add(cellParams);
-			specularMapRowParams.columns.add(cellParams);
-			otherDataRowParams.columns.add(cellParams);
+		cellParams.font = LLFontGL::getFontSansSerif();
 
-			cellParams.column = "normal_map_list_map";
-			cellParams.value = material.getNormalID().asString();
-			normalMapRowParams.columns.add(cellParams);
+		material->getNormalOffset(x, y);
+		cellParams.column = "normal_map_list_offset_x";
+		cellParams.value = llformat("%f", x);
+		normalMapRowParams.columns.add(cellParams);
+		cellParams.column = "normal_map_list_offset_y";
+		cellParams.value = llformat("%f", y);
+		normalMapRowParams.columns.add(cellParams);
 
-			cellParams.font = LLFontGL::getFontSansSerif();
+		material->getNormalRepeat(x, y);
+		cellParams.column = "normal_map_list_repeat_x";
+		cellParams.value = llformat("%f", x);
+		normalMapRowParams.columns.add(cellParams);
+		cellParams.column = "normal_map_list_repeat_y";
+		cellParams.value = llformat("%f", y);
+		normalMapRowParams.columns.add(cellParams);
 
-			material.getNormalOffset(x, y);
-			cellParams.column = "normal_map_list_offset_x";
-			cellParams.value = llformat("%f", x);
-			normalMapRowParams.columns.add(cellParams);
-			cellParams.column = "normal_map_list_offset_y";
-			cellParams.value = llformat("%f", y);
-			normalMapRowParams.columns.add(cellParams);
+		cellParams.column = "normal_map_list_rotation";
+		cellParams.value = llformat("%f", material->getNormalRotation());
+		normalMapRowParams.columns.add(cellParams);
 
-			material.getNormalRepeat(x, y);
-			cellParams.column = "normal_map_list_repeat_x";
-			cellParams.value = llformat("%f", x);
-			normalMapRowParams.columns.add(cellParams);
-			cellParams.column = "normal_map_list_repeat_y";
-			cellParams.value = llformat("%f", y);
-			normalMapRowParams.columns.add(cellParams);
+		cellParams.font = LLFontGL::getFontMonospace();
 
-			cellParams.column = "normal_map_list_rotation";
-			cellParams.value = llformat("%f", material.getNormalRotation());
-			normalMapRowParams.columns.add(cellParams);
+		cellParams.column = "specular_map_list_map";
+		cellParams.value = material->getSpecularID().asString();
+		specularMapRowParams.columns.add(cellParams);
 
-			cellParams.font = LLFontGL::getFontMonospace();
+		cellParams.font = LLFontGL::getFontSansSerif();
 
-			cellParams.column = "specular_map_list_map";
-			cellParams.value = material.getSpecularID().asString();
-			specularMapRowParams.columns.add(cellParams);
+		material->getSpecularOffset(x, y);
+		cellParams.column = "specular_map_list_offset_x";
+		cellParams.value = llformat("%f", x);
+		specularMapRowParams.columns.add(cellParams);
+		cellParams.column = "specular_map_list_offset_y";
+		cellParams.value = llformat("%f", y);
+		specularMapRowParams.columns.add(cellParams);
 
-			cellParams.font = LLFontGL::getFontSansSerif();
+		material->getSpecularRepeat(x, y);
+		cellParams.column = "specular_map_list_repeat_x";
+		cellParams.value = llformat("%f", x);
+		specularMapRowParams.columns.add(cellParams);
 
-			material.getSpecularOffset(x, y);
-			cellParams.column = "specular_map_list_offset_x";
-			cellParams.value = llformat("%f", x);
-			specularMapRowParams.columns.add(cellParams);
-			cellParams.column = "specular_map_list_offset_y";
-			cellParams.value = llformat("%f", y);
-			specularMapRowParams.columns.add(cellParams);
+		cellParams.column = "specular_map_list_repeat_y";
+		cellParams.value = llformat("%f", y);
+		specularMapRowParams.columns.add(cellParams);
 
-			material.getSpecularRepeat(x, y);
-			cellParams.column = "specular_map_list_repeat_x";
-			cellParams.value = llformat("%f", x);
-			specularMapRowParams.columns.add(cellParams);
+		cellParams.column = "specular_map_list_rotation";
+		cellParams.value = llformat("%f", material->getSpecularRotation());
+		specularMapRowParams.columns.add(cellParams);
 
-			cellParams.column = "specular_map_list_repeat_y";
-			cellParams.value = llformat("%f", y);
-			specularMapRowParams.columns.add(cellParams);
+		const LLColor4U& specularColor = material->getSpecularLightColor();
+		cellParams.column = "specular_color";
+		cellParams.value = llformat("(%d, %d, %d, %d)", specularColor.mV[0],
+			specularColor.mV[1], specularColor.mV[2], specularColor.mV[3]);
+		otherDataRowParams.columns.add(cellParams);
 
-			cellParams.column = "specular_map_list_rotation";
-			cellParams.value = llformat("%f", material.getSpecularRotation());
-			specularMapRowParams.columns.add(cellParams);
+		cellParams.column = "specular_exponent";
+		cellParams.value = llformat("%d", material->getSpecularLightExponent());
+		otherDataRowParams.columns.add(cellParams);
 
-			const LLColor4U& specularColor = material.getSpecularLightColor();
-			cellParams.column = "specular_color";
-			cellParams.value = llformat("(%d, %d, %d, %d)", specularColor.mV[0],
-				specularColor.mV[1], specularColor.mV[2], specularColor.mV[3]);
-			otherDataRowParams.columns.add(cellParams);
+		cellParams.column = "env_intensity";
+		cellParams.value = llformat("%d", material->getEnvironmentIntensity());
+		otherDataRowParams.columns.add(cellParams);
 
-			cellParams.column = "specular_exponent";
-			cellParams.value = llformat("%d", material.getSpecularLightExponent());
-			otherDataRowParams.columns.add(cellParams);
+		cellParams.column = "alpha_mask_cutoff";
+		cellParams.value = llformat("%d", material->getAlphaMaskCutoff());
+		otherDataRowParams.columns.add(cellParams);
 
-			cellParams.column = "env_intensity";
-			cellParams.value = llformat("%d", material.getEnvironmentIntensity());
-			otherDataRowParams.columns.add(cellParams);
+		cellParams.column = "diffuse_alpha_mode";
+		cellParams.value = llformat("%d", material->getDiffuseAlphaMode());
+		otherDataRowParams.columns.add(cellParams);
 
-			cellParams.column = "alpha_mask_cutoff";
-			cellParams.value = llformat("%d", material.getAlphaMaskCutoff());
-			otherDataRowParams.columns.add(cellParams);
+		normalMapRowParams.value = cellParams.value;
+		specularMapRowParams.value = cellParams.value;
+		otherDataRowParams.value = cellParams.value;
 
-			cellParams.column = "diffuse_alpha_mode";
-			cellParams.value = llformat("%d", material.getDiffuseAlphaMode());
-			otherDataRowParams.columns.add(cellParams);
-
-			normalMapRowParams.value = materialIDString;
-			specularMapRowParams.value = materialIDString;
-			otherDataRowParams.value = materialIDString;
-
-			mGetNormalMapScrollList->addRow(normalMapRowParams);
-			mGetSpecularMapScrollList->addRow(specularMapRowParams);
-			mGetOtherDataScrollList->addRow(otherDataRowParams);
-		}
-
-		if (materialIter != mUnparsedGetData.endArray())
-		{
-			mNextUnparsedGetDataIndex = materialIndex;
-			updateGetParsingStatus();
-		}
-		else
-		{
-			clearUnparsedGetData();
-		}
+		instancep->mGetNormalMapScrollList->addRow(normalMapRowParams);
+		instancep->mGetSpecularMapScrollList->addRow(specularMapRowParams);
+		instancep->mGetOtherDataScrollList->addRow(otherDataRowParams);
 	}
 }
 
-void LLFloaterDebugMaterials::onGetMaterial(const LLMaterialID& material_id, const LLMaterialPtr materialp)
+void LLFloaterDebugMaterials::onPostMaterial(const LLMaterialID& material_id, const LLMaterialPtr materialp)
 {
 	LLFloaterDebugMaterials* instancep = LLFloaterReg::findTypedInstance<LLFloaterDebugMaterials>("floater_debug_materials");
 	if ( (!instancep) || (!materialp.get()) )
@@ -1167,7 +1119,6 @@ void LLFloaterDebugMaterials::clearGetResults()
 	mGetNormalMapScrollList->deleteAllItems();
 	mGetSpecularMapScrollList->deleteAllItems();
 	mGetOtherDataScrollList->deleteAllItems();
-	clearUnparsedGetData();
 }
 
 void LLFloaterDebugMaterials::clearPostResults()
@@ -1181,63 +1132,6 @@ void LLFloaterDebugMaterials::clearViewableObjectsResults()
 {
 	mViewableObjectsScrollList->deleteAllItems();
 	clearUnparsedQueryData();
-}
-
-void LLFloaterDebugMaterials::setUnparsedGetData(const LLSD& pGetData)
-{
-	llassert(pGetData.isMap());
-	llassert(pGetData.has(MATERIALS_CAP_ZIP_FIELD));
-	llassert(pGetData.get(MATERIALS_CAP_ZIP_FIELD).isBinary());
-
-	LLSD::Binary getDataBinary = pGetData.get(MATERIALS_CAP_ZIP_FIELD).asBinary();
-	S32 getDataSize = static_cast<S32>(getDataBinary.size());
-	std::string getDataString(reinterpret_cast<const char*>(getDataBinary.data()), getDataSize);
-
-	std::istringstream getDataStream(getDataString);
-
-	llassert(!mUnparsedGetData.isDefined());
-	if (!unzip_llsd(mUnparsedGetData, getDataStream, getDataSize))
-	{
-		LL_ERRS("debugMaterials") << "cannot unzip LLSD binary content" << LL_ENDL;
-	}
-	mNextUnparsedGetDataIndex = 0;
-
-	updateGetParsingStatus();
-}
-
-void LLFloaterDebugMaterials::clearUnparsedGetData()
-{
-	mUnparsedGetData.clear();
-	mNextUnparsedGetDataIndex = -1;
-
-	updateGetParsingStatus();
-}
-
-void LLFloaterDebugMaterials::updateGetParsingStatus()
-{
-	std::string parsingStatus;
-
-	if (mUnparsedGetData.isDefined())
-	{
-		LLLocale locale(LLStringUtil::getLocale());
-		std::string numProcessedString;
-		LLResMgr::getInstance()->getIntegerString(numProcessedString, mNextUnparsedGetDataIndex);
-
-		std::string numTotalString;
-		LLResMgr::getInstance()->getIntegerString(numTotalString, mUnparsedGetData.size());
-
-		LLStringUtil::format_map_t stringArgs;
-		stringArgs["[NUM_PROCESSED]"] = numProcessedString;
-		stringArgs["[NUM_TOTAL]"] = numTotalString;
-
-		parsingStatus = getString("loading_status_in_progress", stringArgs);
-	}
-	else
-	{
-		parsingStatus = getString("loading_status_done");
-	}
-
-	mParsingStatusText->setText(static_cast<const LLStringExplicit>(parsingStatus));
 }
 
 void LLFloaterDebugMaterials::setUnparsedQueryData()
