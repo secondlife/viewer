@@ -62,9 +62,9 @@
 #if LL_DARWIN
 // statically allocated thread local storage not supported in Darwin executable formats
 #elif LL_WINDOWS
-U32 __declspec(thread) LLThread::sThreadID = 0;
+U32 __declspec(thread) sThreadID = 0;
 #elif LL_LINUX
-U32 __thread LLThread::sThreadID = 0;
+U32 __thread sThreadID = 0;
 #endif 
 
 U32 LLThread::sIDIter = 0;
@@ -294,7 +294,13 @@ void LLThread::setQuitting()
 // static
 U32 LLThread::currentID()
 {
+#if LL_DARWIN
+	// statically allocated thread local storage not supported in Darwin executable formats
 	return (U32)apr_os_thread_current();
+#else
+	return sThreadID;
+#endif
+
 }
 
 // static

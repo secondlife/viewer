@@ -39,13 +39,6 @@ class LL_COMMON_API LLThread
 private:
 	friend class LLMutex;
 	static U32 sIDIter;
-#if LL_DARWIN
-	// statically allocated thread local storage not supported in Darwin executable formats
-#elif LL_WINDOWS
-	static U32 __declspec(thread) LLThread::sThreadID;
-#elif LL_LINUX
-	static U32 __thread LLThread::sThreadID ;
-#endif
 
 public:
 	typedef enum e_thread_status

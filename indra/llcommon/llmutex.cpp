@@ -83,11 +83,7 @@ void LLMutex::lock()
 	mIsLocked[id] = TRUE;
 #endif
 
-#if LL_DARWIN
 	mLockingThread = LLThread::currentID();
-#else
-	mLockingThread = LLThread::sThreadID;
-#endif
 }
 
 void LLMutex::unlock()
@@ -126,11 +122,7 @@ bool LLMutex::isLocked()
 
 bool LLMutex::isSelfLocked()
 {
-#if LL_DARWIN
 	return mLockingThread == LLThread::currentID();
-#else
-	return mLockingThread == LLThread::sThreadID;
-#endif
 }
 
 U32 LLMutex::lockingThread() const
