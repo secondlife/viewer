@@ -137,7 +137,6 @@ LLSD LLMaterialID::asLLSD() const
 
 std::string LLMaterialID::asString() const
 {
-	std::string materialID(reinterpret_cast<const char *>(get()), MATERIAL_ID_SIZE);
 	std::string materialIDString;
 	for (unsigned int i = 0U; i < static_cast<unsigned int>(MATERIAL_ID_SIZE / sizeof(U32)); ++i)
 	{
@@ -145,7 +144,7 @@ std::string LLMaterialID::asString() const
 		{
 			materialIDString += "-";
 		}
-		const U32 *value = reinterpret_cast<const U32*>(&materialID.c_str()[i * sizeof(U32)]);
+		const U32 *value = reinterpret_cast<const U32*>(&get()[i * sizeof(U32)]);
 		materialIDString += llformat("%08x", *value);
 	}
 	return materialIDString;
@@ -159,10 +158,19 @@ void LLMaterialID::parseFromBinary (const LLSD::Binary& pMaterialID)
 
 void LLMaterialID::copyFromOtherMaterialID(const LLMaterialID& pOtherMaterialID)
 {
-	memcpy(mID, pOtherMaterialID.mID, MATERIAL_ID_SIZE * sizeof(U8));
+	memcpy(mID, pOtherMaterialID.get(), MATERIAL_ID_SIZE * sizeof(U8));
 }
 
 int LLMaterialID::compareToOtherMaterialID(const LLMaterialID& pOtherMaterialID) const
 {
-	return memcmp(mID, pOtherMaterialID.mID, MATERIAL_ID_SIZE * sizeof(U8));
+	int retVal = 0;
+
+	for (unsigned int i = 0U; (retVal == 0) && (i < static_cast<unsigned int>(MATERIAL_ID_SIZE / sizeof(U32))); ++i)
+	{
+		const U32 *thisValue = reinterpret_cast<const U32*>(&get()[i * sizeof(U32)]);
+		const U32 *otherValue = reinterpret_cast<const U32*>(&pOtherMaterialID.get()[i * sizeof(U32)]);
+		retVal = ((*thisValue < *otherValue) ? -1 : ((*thisValue > *otherValue) ? 1 : 0));
+	}
+
+	return retVal;
 }
