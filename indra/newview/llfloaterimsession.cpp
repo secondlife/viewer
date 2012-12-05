@@ -629,7 +629,6 @@ void LLFloaterIMSession::setVisible(BOOL visible)
         
 	}
 
-    setFocus(visible);
 }
 
 BOOL LLFloaterIMSession::getVisible()

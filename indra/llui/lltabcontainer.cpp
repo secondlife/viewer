@@ -1559,7 +1559,8 @@ BOOL LLTabContainer::setTab(S32 which)
 
 void LLTabContainer::hideAllTabs()
 {
-	setCurrentPanelIndex(-1);
+
+	setCurrentPanelIndex(0);
 	for(tuple_list_t::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
 	{
 		(* iter)->mTabPanel->setVisible(FALSE);

@@ -546,8 +546,10 @@ void LLFloaterIMContainer::setVisible(BOOL visible)
 			// *TODO: find a way to move this to XML as a default panel or something like that
 			LLSD name("nearby_chat");
 			LLFloaterReg::toggleInstanceOrBringToFront(name);
+            setSelectedSession(LLUUID(NULL));
 		}
 		openNearbyChat();
+        selectConversationPair(getSelectedSession(), false);
 	}
 
 	nearby_chat = LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
@@ -571,7 +573,6 @@ void LLFloaterIMContainer::setVisible(BOOL visible)
 	
 	// Now, do the normal multifloater show/hide
 	LLMultiFloater::setVisible(visible);
-	
 }
 
 void LLFloaterIMContainer::collapseMessagesPane(bool collapse)
@@ -1624,22 +1625,13 @@ void LLFloaterIMContainer::flashConversationItemWidget(const LLUUID& session_id,
 {
     //Finds the conversation line item to flash using the session_id
 	LLConversationViewSession * widget = dynamic_cast<LLConversationViewSession *>(get_ptr_in_map(mConversationsWidgets,session_id));
-    LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(session_id);
 
 	if (widget)
 	{
         //Start flash
 		if (is_flashes)
 		{
-            //Only flash when conversation is not active
-            if(session_floater
-                && (!session_floater->isInVisibleChain()) //conversation floater not displayed
-                    || 
-                    (session_floater->isInVisibleChain() && session_floater->hasFocus() == false)) //conversation floater is displayed but doesn't have focus
-                
-            {
-			widget->getFlashTimer()->startFlashing();
-		}
+	        widget->getFlashTimer()->startFlashing();
 		}
         //Stop flash
 		else
