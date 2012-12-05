@@ -1971,6 +1971,7 @@ void inventory_offer_handler(LLOfferInfo* info)
 		p.substitutions(args).payload(payload).functor.responder(LLNotificationResponderPtr(info));
 		info->mPersist = true;
 		p.name = "UserGiveItem";
+		p.offer_from_agent = true;
 		
 		// Prefetch the item into your local inventory.
 		LLInventoryFetchItemsObserver* fetch_item = new LLInventoryFetchItemsObserver(info->mObjectID);
@@ -2738,7 +2739,9 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				// Same as closing window
 				info->forceResponse(IOR_DECLINE);
 			}
-			else if (is_do_not_disturb && dialog != IM_TASK_INVENTORY_OFFERED) // busy mode must not affect interaction with objects (STORM-565)
+			// old logic: busy mode must not affect interaction with objects (STORM-565)
+			// new logic: inventory offers from in-world objects should be auto-declined (CHUI-519)
+			else if (is_do_not_disturb && dialog == IM_TASK_INVENTORY_OFFERED)
 			{
 				// Until throttling is implemented, do not disturb mode should reject inventory instead of silently
 				// accepting it.  SEE SL-39554
