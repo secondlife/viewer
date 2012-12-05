@@ -319,11 +319,11 @@ public:
 		if (!mWaitTimes.empty())
 		{
 			llwarns << "still waiting on " << mWaitTimes.size() << " items" << llendl;
-			for (std::map<LLUUID,LLTimer>::const_iterator it = mWaitTimes.begin();
+			for (std::map<LLUUID,LLTimer>::iterator it = mWaitTimes.begin();
 				 it != mWaitTimes.end();)
 			{
 				// Use a copy of iterator because it may be erased/invalidated.
-				std::map<LLUUID,LLTimer>::const_iterator curr_it = it;
+				std::map<LLUUID,LLTimer>::iterator curr_it = it;
 				++it;
 				
 				F32 time_waited = curr_it->second.getElapsedTimeF32();
