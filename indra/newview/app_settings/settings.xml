@@ -4315,6 +4315,17 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
+    <key>InventoryDebugSimulateOpFailureRate</key>
+    <map>
+      <key>Comment</key>
+        <string>Rate at which we simulate failures of copy/link requests in some operations</string>
+      <key>Persist</key>
+        <integer>1</integer>
+      <key>Type</key>
+        <string>F32</string>
+      <key>Value</key>
+        <real>0.0</real>
+    </map>
     <key>InventoryDisplayInbox</key>
     <map>
         <key>Comment</key>
