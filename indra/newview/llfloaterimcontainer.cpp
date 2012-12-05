@@ -1599,6 +1599,7 @@ void LLFloaterIMContainer::openNearbyChat()
 		LLConversationViewSession* nearby_chat = dynamic_cast<LLConversationViewSession*>(get_ptr_in_map(mConversationsWidgets,LLUUID()));
 		if (nearby_chat)
 		{
+			selectConversation(LLUUID());
 			nearby_chat->setOpen(TRUE);
 		}
 	}
