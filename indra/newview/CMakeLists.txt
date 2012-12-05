@@ -2061,6 +2061,15 @@ if (LL_TESTS)
   )
 
   set_source_files_properties(
+    llworldmap.cpp
+    llworldmipmap.cpp
+    PROPERTIES
+    LL_TEST_ADDITIONAL_SOURCE_FILES 
+    tests/llviewertexture_stub.cpp
+    #llviewertexturelist.cpp
+  )
+
+  set_source_files_properties(
     lltranslate.cpp
     PROPERTIES
     LL_TEST_ADDITIONAL_LIBRARIES "${JSONCPP_LIBRARIES}"
