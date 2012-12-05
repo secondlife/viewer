@@ -516,13 +516,32 @@ void LLFloaterIMContainer::tabClose()
 	}
 }
 
+//Shows/hides the stub panel when a conversation floater is torn off
 void LLFloaterIMContainer::showStub(bool stub_is_visible)
 {
-	if (stub_is_visible)
-	{
-		mTabContainer->hideAllTabs();
-	}
+    S32 tabCount = 0;
+    LLPanel * tabPanel = NULL;
 
+    if(stub_is_visible)
+    {
+        tabCount = mTabContainer->getTabCount();
+
+        //Hide all tabs even stub
+        for(S32 i = 0; i < tabCount; ++i)
+        {
+            tabPanel = mTabContainer->getPanelByIndex(i);
+
+            if(tabPanel)
+            {
+                tabPanel->setVisible(false);
+            }
+        }
+
+        //Set the index to the stub panel since we will be showing the stub
+        mTabContainer->setCurrentPanelIndex(0);
+    }
+
+    //Now show/hide the stub
 	mStubPanel->setVisible(stub_is_visible);
 }
 
