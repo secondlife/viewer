@@ -1250,6 +1250,65 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 	}
 }
 
+void LLDrawPoolAvatar::getRiggedGeometry(LLFace* face, LLPointer<LLVertexBuffer>& buffer, U32 data_mask, const LLMeshSkinInfo* skin, LLVolume* volume, const LLVolumeFace& vol_face)
+{
+	face->setGeomIndex(0);
+	face->setIndicesIndex(0);
+		
+	//rigged faces do not batch textures
+	face->setTextureIndex(255);
+
+	if (buffer.isNull() || buffer->getTypeMask() != data_mask || !buffer->isWriteable())
+	{ //make a new buffer
+		if (sShaderLevel > 0)
+		{
+			buffer = new LLVertexBuffer(data_mask, GL_DYNAMIC_DRAW_ARB);
+		}
+		else
+		{
+			buffer = new LLVertexBuffer(data_mask, GL_STREAM_DRAW_ARB);
+		}
+		buffer->allocateBuffer(vol_face.mNumVertices, vol_face.mNumIndices, true);
+	}
+	else
+	{ //resize existing buffer
+		buffer->resizeBuffer(vol_face.mNumVertices, vol_face.mNumIndices);
+	}
+
+	face->setSize(vol_face.mNumVertices, vol_face.mNumIndices);
+	face->setVertexBuffer(buffer);
+
+	U16 offset = 0;
+		
+	LLMatrix4 mat_vert = skin->mBindShapeMatrix;
+	glh::matrix4f m((F32*) mat_vert.mMatrix);
+	m = m.inverse().transpose();
+		
+	F32 mat3[] = 
+	{ m.m[0], m.m[1], m.m[2],
+		m.m[4], m.m[5], m.m[6],
+		m.m[8], m.m[9], m.m[10] };
+
+	LLMatrix3 mat_normal(mat3);				
+
+	//let getGeometryVolume know if alpha should override shiny
+	U32 type = gPipeline.getPoolTypeFromTE(face->getTextureEntry(), face->getTexture());
+
+	if (type == LLDrawPool::POOL_ALPHA)
+	{
+		face->setPoolType(LLDrawPool::POOL_ALPHA);
+	}
+	else
+	{
+		face->setPoolType(LLDrawPool::POOL_AVATAR);
+	}
+
+	llinfos << "Rebuilt face " << face->getTEOffset() << " of " << face->getDrawable() << " at " << gFrameTimeSeconds << llendl;
+	face->getGeometryVolume(*volume, face->getTEOffset(), mat_vert, mat_normal, offset, true);
+
+	buffer->flush();
+}
+
 void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* face, const LLMeshSkinInfo* skin, LLVolume* volume, const LLVolumeFace& vol_face)
 {
 	LLVector4a* weight = vol_face.mWeights;
@@ -1269,60 +1328,27 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* 
 		buffer->getNumIndices() != vol_face.mNumIndices ||
 		(drawable && drawable->isState(LLDrawable::REBUILD_ALL)))
 	{
-		face->setGeomIndex(0);
-		face->setIndicesIndex(0);
-		
-		//rigged faces do not batch textures
-		face->setTextureIndex(255);
+		if (drawable && drawable->isState(LLDrawable::REBUILD_ALL))
+		{ //rebuild EVERY face in the drawable, not just this one, to avoid missing drawable wide rebuild issues
+			for (S32 i = 0; i < drawable->getNumFaces(); ++i)
+			{
+				LLFace* facep = drawable->getFace(i);
+				U32 face_data_mask = facep->getRiggedVertexBufferDataMask();
+				if (face_data_mask)
+				{
+					LLPointer<LLVertexBuffer> cur_buffer = facep->getVertexBuffer();
+					const LLVolumeFace& cur_vol_face = volume->getVolumeFace(i);
+					getRiggedGeometry(facep, cur_buffer, face_data_mask, skin, volume, cur_vol_face);
+				}
+			}
+			drawable->clearState(LLDrawable::REBUILD_ALL);
 
-		if (buffer.isNull() || buffer->getTypeMask() != data_mask || !buffer->isWriteable())
-		{ //make a new buffer
-			if (sShaderLevel > 0)
-			{
-				buffer = new LLVertexBuffer(data_mask, GL_DYNAMIC_DRAW_ARB);
-			}
-			else
-			{
-				buffer = new LLVertexBuffer(data_mask, GL_STREAM_DRAW_ARB);
-			}
-			buffer->allocateBuffer(vol_face.mNumVertices, vol_face.mNumIndices, true);
+			buffer = face->getVertexBuffer();
 		}
 		else
-		{ //resize existing buffer
-			buffer->resizeBuffer(vol_face.mNumVertices, vol_face.mNumIndices);
+		{ //just rebuild this face
+			getRiggedGeometry(face, buffer, data_mask, skin, volume, vol_face);
 		}
-
-		face->setSize(vol_face.mNumVertices, vol_face.mNumIndices);
-		face->setVertexBuffer(buffer);
-
-		U16 offset = 0;
-		
-		LLMatrix4 mat_vert = skin->mBindShapeMatrix;
-		glh::matrix4f m((F32*) mat_vert.mMatrix);
-		m = m.inverse().transpose();
-		
-		F32 mat3[] = 
-		{ m.m[0], m.m[1], m.m[2],
-		  m.m[4], m.m[5], m.m[6],
-		  m.m[8], m.m[9], m.m[10] };
-
-		LLMatrix3 mat_normal(mat3);				
-
-		//let getGeometryVolume know if alpha should override shiny
-		U32 type = gPipeline.getPoolTypeFromTE(face->getTextureEntry(), face->getTexture());
-
-		if (type == LLDrawPool::POOL_ALPHA)
-		{
-			face->setPoolType(LLDrawPool::POOL_ALPHA);
-		}
-		else
-		{
-			face->setPoolType(LLDrawPool::POOL_AVATAR);
-		}
-
-		face->getGeometryVolume(*volume, face->getTEOffset(), mat_vert, mat_normal, offset, true);
-
-		buffer->flush();
 	}
 
 	if (sShaderLevel <= 0 && face->mLastSkinTime < avatar->getLastSkinTime())
@@ -1406,11 +1432,6 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* 
 				norm[j] = dst;
 			}
 		}
-	}
-
-	if (drawable && (face->getTEOffset() == drawable->getNumFaces()-1))
-	{
-		drawable->clearState(LLDrawable::REBUILD_ALL);
 	}
 }
 

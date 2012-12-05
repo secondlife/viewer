@@ -129,6 +129,7 @@ public:
 	void endDeferredRiggedSimple();
 	void endDeferredRiggedBump();
 		
+	void getRiggedGeometry(LLFace* face, LLPointer<LLVertexBuffer>& buffer, U32 data_mask, const LLMeshSkinInfo* skin, LLVolume* volume, const LLVolumeFace& vol_face);
 	void updateRiggedFaceVertexBuffer(LLVOAvatar* avatar,
 									  LLFace* facep, 
 									  const LLMeshSkinInfo* skin, 
