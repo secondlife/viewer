@@ -305,6 +305,20 @@ PeriodicRecording::PeriodicRecording( S32 num_periods, EStopWatchState state)
 	initTo(state);
 }
 
+PeriodicRecording::PeriodicRecording(PeriodicRecording& other)
+:	mNumPeriods(other.mNumPeriods),
+	mCurPeriod(other.mCurPeriod),
+	mTotalValid(other.mTotalValid),
+	mTotalRecording(other.mTotalRecording)
+{
+	mRecordingPeriods = new Recording[mNumPeriods];
+	for (S32 i = 0; i < mNumPeriods; i++)
+	{
+		mRecordingPeriods[i] = other.mRecordingPeriods[i];
+	}
+}
+
+
 PeriodicRecording::~PeriodicRecording()
 {
 	delete[] mRecordingPeriods;

@@ -234,6 +234,7 @@ namespace LLTrace
 	{
 	public:
 		PeriodicRecording(S32 num_periods, EStopWatchState state = STOPPED);
+		PeriodicRecording(PeriodicRecording& recording);
 		~PeriodicRecording();
 
 		void nextPeriod();
@@ -261,11 +262,13 @@ namespace LLTrace
 
 		Recording& getPrevRecordingPeriod(S32 offset)
 		{
+			offset = llclamp(offset, 0, mNumPeriods - 1);
 			return mRecordingPeriods[(mCurPeriod + mNumPeriods - offset) % mNumPeriods];
 		}
 
 		const Recording& getPrevRecordingPeriod(S32 offset) const
 		{
+			offset = llclamp(offset, 0, mNumPeriods - 1);
 			return mRecordingPeriods[(mCurPeriod + mNumPeriods - offset) % mNumPeriods];
 		}
 

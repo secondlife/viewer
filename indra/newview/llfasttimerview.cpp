@@ -87,8 +87,18 @@ LLFastTimerView::LLFastTimerView(const LLSD& key)
 	mScrollIndex(0),
 	mHoverID(NULL),
 	mHoverBarIndex(-1),
-	mPrintStats(-1)
+	mPrintStats(-1),
+	mRecording(&LLTrace::get_frame_recording())
 {}
+
+LLFastTimerView::~LLFastTimerView()
+{
+	if (mRecording != &LLTrace::get_frame_recording())
+	{
+		delete mRecording;
+	}
+	mRecording = NULL;
+}
 
 void LLFastTimerView::onPause()
 {
@@ -96,12 +106,19 @@ void LLFastTimerView::onPause()
 	// reset scroll to bottom when unpausing
 	if (!LLTrace::TimeBlock::sPauseHistory)
 	{
+		mRecording = new LLTrace::PeriodicRecording(LLTrace::get_frame_recording());
 		mScrollIndex = 0;
 		LLTrace::TimeBlock::sResetHistory = true;
 		getChild<LLButton>("pause_btn")->setLabel(getString("pause"));
 	}
 	else
 	{
+		if (mRecording != &LLTrace::get_frame_recording())
+		{
+			delete mRecording;
+		}
+		mRecording = &LLTrace::get_frame_recording();
+
 		getChild<LLButton>("pause_btn")->setLabel(getString("run"));
 	}
 }
@@ -133,7 +150,7 @@ BOOL LLFastTimerView::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	{
 		S32 bar_idx = MAX_VISIBLE_HISTORY - ((y - mBarRect.mBottom) * (MAX_VISIBLE_HISTORY + 2) / mBarRect.getHeight());
 		bar_idx = llclamp(bar_idx, 0, MAX_VISIBLE_HISTORY);
-		mPrintStats = LLTrace::TimeBlock::HISTORY_NUM - mScrollIndex - bar_idx;
+		mPrintStats = mScrollIndex + bar_idx;
 		return TRUE;
 	}
 	return LLFloater::handleRightMouseDown(x, y, mask);
@@ -217,7 +234,7 @@ BOOL LLFastTimerView::handleMouseUp(S32 x, S32 y, MASK mask)
 
 BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 {
-	LLTrace::PeriodicRecording& frame_recording = LLTrace::get_frame_recording();
+	LLTrace::PeriodicRecording& frame_recording = *mRecording;
 
 	if (hasMouseCapture())
 	{
@@ -231,7 +248,7 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 
 	if(LLTrace::TimeBlock::sPauseHistory && mBarRect.pointInRect(x, y))
 	{
-		mHoverBarIndex = llmin(LLTrace::get_frame_recording().getNumPeriods() - 1, 
+		mHoverBarIndex = llmin(mRecording->getNumPeriods() - 1, 
 								MAX_VISIBLE_HISTORY - ((y - mBarRect.mBottom) * (MAX_VISIBLE_HISTORY + 2) / mBarRect.getHeight()));
 		if (mHoverBarIndex == 0)
 		{
@@ -286,11 +303,9 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 }
 
 
-static std::string get_tooltip(LLTrace::TimeBlock& timer, S32 history_index = -1)
+static std::string get_tooltip(LLTrace::TimeBlock& timer, S32 history_index, LLTrace::PeriodicRecording& frame_recording)
 {
 	F64 ms_multiplier = 1000.0 / (F64)LLTrace::TimeBlock::countsPerSecond();
-
-	LLTrace::PeriodicRecording& frame_recording = LLTrace::get_frame_recording();
 
 	std::string tooltip;
 	if (history_index < 0)
@@ -315,7 +330,7 @@ BOOL LLFastTimerView::handleToolTip(S32 x, S32 y, MASK mask)
 			LLRect screen_rect;
 			localRectToScreen(mToolTipRect, &screen_rect);
 
-			std::string tooltip = get_tooltip(*mHoverTimer, LLTrace::TimeBlock::HISTORY_NUM - mScrollIndex - mHoverBarIndex);
+			std::string tooltip = get_tooltip(*mHoverTimer, mScrollIndex + mHoverBarIndex, *mRecording);
 
 			LLToolTipMgr::instance().show(LLToolTip::Params()
 				.message(tooltip)
@@ -333,7 +348,7 @@ BOOL LLFastTimerView::handleToolTip(S32 x, S32 y, MASK mask)
 			LLTrace::TimeBlock* idp = getLegendID(y);
 			if (idp)
 			{
-				LLToolTipMgr::instance().show(get_tooltip(*idp));
+				LLToolTipMgr::instance().show(get_tooltip(*idp, -1,  *mRecording));
 
 				return TRUE;
 			}
@@ -345,7 +360,7 @@ BOOL LLFastTimerView::handleToolTip(S32 x, S32 y, MASK mask)
 
 BOOL LLFastTimerView::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
-	LLTrace::PeriodicRecording& frame_recording = LLTrace::get_frame_recording();
+	LLTrace::PeriodicRecording& frame_recording = *mRecording;
 
 	LLTrace::TimeBlock::sPauseHistory = TRUE;
 	mScrollIndex = llclamp(	mScrollIndex + clicks,
@@ -362,7 +377,7 @@ void LLFastTimerView::draw()
 {
 	LLFastTimer t(FTM_RENDER_TIMER);
 
-	LLTrace::PeriodicRecording& frame_recording = LLTrace::get_frame_recording();
+	LLTrace::PeriodicRecording& frame_recording = *mRecording;
 
 	std::string tdesc;
 
@@ -480,7 +495,7 @@ void LLFastTimerView::draw()
 			S32 calls = 0;
 			if (mHoverBarIndex > 0 && mHoverID)
 			{
-				S32 hidx = LLTrace::TimeBlock::HISTORY_NUM - mScrollIndex - mHoverBarIndex;
+				S32 hidx = mScrollIndex + mHoverBarIndex;
 				ms = frame_recording.getPrevRecordingPeriod(hidx).getSum(*idp);
 				calls = frame_recording.getPrevRecordingPeriod(hidx).getSum(idp->callCount());
 			}
@@ -660,7 +675,7 @@ void LLFastTimerView::draw()
 		S32 tidx;
 		if (j >= 0)
 		{
-			tidx = LLTrace::TimeBlock::HISTORY_NUM - j - 1 - mScrollIndex;
+			tidx = j + 1 + mScrollIndex;
 		}
 		else
 		{
@@ -870,8 +885,8 @@ void LLFastTimerView::draw()
 			gGL.color4f(col[0], col[1], col[2], alpha);				
 			gGL.begin(LLRender::TRIANGLE_STRIP);
 			for (U32 j = frame_recording.getNumPeriods();
-				j < LLTrace::TimeBlock::HISTORY_NUM;
-				j++)
+				j > 0;
+				j--)
 			{
 				LLUnit<LLUnits::Seconds, F32> time = llmax(frame_recording.getPrevRecordingPeriod(j).getSum(*idp), LLUnit<LLUnits::Seconds, F64>(0.000001));
 				U32 calls = frame_recording.getPrevRecordingPeriod(j).getSum(idp->callCount());
@@ -882,7 +897,7 @@ void LLFastTimerView::draw()
 					cur_max = llmax(cur_max, time);
 					cur_max_calls = llmax(cur_max_calls, calls);
 				}
-				F32 x = mGraphRect.mLeft + j * (F32)(mGraphRect.getWidth())/(LLTrace::TimeBlock::HISTORY_NUM-1);
+				F32 x = mGraphRect.mRight - j * (F32)(mGraphRect.getWidth())/(LLTrace::TimeBlock::HISTORY_NUM-1);
 				F32 y = mDisplayHz 
 					? mGraphRect.mBottom + (1.f / time.value()) * ((F32) mGraphRect.getHeight() / (1.f / max_time.value()))
 					: mGraphRect.mBottom + time * ((F32)mGraphRect.getHeight() / max_time);

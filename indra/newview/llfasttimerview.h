@@ -30,11 +30,13 @@
 #include "llfloater.h"
 #include "llfasttimer.h"
 #include "llunit.h"
+#include "lltracerecording.h"
 
 class LLFastTimerView : public LLFloater
 {
 public:
 	LLFastTimerView(const LLSD&);
+	~LLFastTimerView();
 	BOOL postBuild();
 
 	static BOOL sAnalyzePerformance;
@@ -92,6 +94,7 @@ private:
 	LLFrameTimer                  mHighlightTimer;
 	S32                           mPrintStats;
 	LLRect                        mGraphRect;
+	LLTrace::PeriodicRecording*	  mRecording;
 };
 
 #endif

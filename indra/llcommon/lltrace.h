@@ -213,10 +213,10 @@ namespace LLTrace
 	:	 public LLInstanceTracker<TraceType<ACCUMULATOR>, std::string>
 	{
 	public:
-		TraceType(const char* name, const char* description = "")
+		TraceType(const char* name, const char* description = NULL)
 		:	LLInstanceTracker(name),
 			mName(name),
-			mDescription(description)	
+			mDescription(description ? description : "")	
 		{
 			mAccumulatorIndex = AccumulatorBuffer<ACCUMULATOR>::getDefaultBuffer().reserveSlot();
 		}
