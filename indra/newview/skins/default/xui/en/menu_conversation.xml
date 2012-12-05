@@ -116,9 +116,10 @@
      label="Block Text"
      layout="topleft"
      name="MuteText">
-     <on_click function="Avatar.DoToSelected" parameter="mute_unmute"/>
+     <on_click function="Avatar.DoToSelected" parameter="mute_unmute" />
      <on_check function="Avatar.CheckItem" parameter="is_muted" />
      <on_enable  function="Avatar.EnableItem" parameter="can_block" />
+    </menu_item_check>
     <menu_item_call
      label="Group Profile"
      layout="topleft"
