@@ -30,6 +30,7 @@
 #include "llavatarname.h"
 
 #include "lldate.h"
+#include "llframetimer.h"
 #include "llsd.h"
 
 // Store these in pre-built std::strings to avoid memory allocations in
@@ -41,6 +42,8 @@ static const std::string LEGACY_LAST_NAME("legacy_last_name");
 static const std::string IS_DISPLAY_NAME_DEFAULT("is_display_name_default");
 static const std::string DISPLAY_NAME_EXPIRES("display_name_expires");
 static const std::string DISPLAY_NAME_NEXT_UPDATE("display_name_next_update");
+
+bool LLAvatarName::sUseDisplayNames = true;
 
 LLAvatarName::LLAvatarName()
 :	mUsername(),
@@ -59,6 +62,17 @@ bool LLAvatarName::operator<(const LLAvatarName& rhs) const
 		return mDisplayName < rhs.mDisplayName;
 	else
 		return mUsername < rhs.mUsername;
+}
+
+//static 
+void LLAvatarName::setUseDisplayNames(bool use)
+{
+	sUseDisplayNames = use;
+}
+//static 
+bool LLAvatarName::useDisplayNames() 
+{ 
+	return sUseDisplayNames; 
 }
 
 LLSD LLAvatarName::asLLSD() const
@@ -85,6 +99,33 @@ void LLAvatarName::fromLLSD(const LLSD& sd)
 	mExpires = expires.secondsSinceEpoch();
 	LLDate next_update = sd[DISPLAY_NAME_NEXT_UPDATE];
 	mNextUpdate = next_update.secondsSinceEpoch();
+	
+	// Some avatars don't have explicit display names set. Force a legible display name here.
+	if (mDisplayName.empty())
+	{
+		mDisplayName = mUsername;
+	}
+}
+
+void LLAvatarName::fromString(const std::string& full_name, F64 expires)
+{
+	mDisplayName = full_name;
+	std::string::size_type index = full_name.find(' ');
+	if (index != std::string::npos)
+	{
+		mLegacyFirstName = full_name.substr(0, index);
+		mLegacyLastName = full_name.substr(index+1);
+		mUsername = mLegacyFirstName + " " + mLegacyLastName;
+	}
+	else
+	{
+		mLegacyFirstName = full_name;
+		mLegacyLastName = "";
+		mUsername = full_name;
+	}
+	mIsDisplayNameDefault = true;
+	mIsTemporaryName = true;
+	mExpires = LLFrameTimer::getTotalSeconds() + expires;
 }
 
 std::string LLAvatarName::getCompleteName() const
@@ -104,9 +145,22 @@ std::string LLAvatarName::getCompleteName() const
 	return name;
 }
 
-std::string LLAvatarName::getLegacyName() const
+std::string LLAvatarName::getDisplayName() const
 {
-	if (mLegacyFirstName.empty() && mLegacyLastName.empty()) // display names disabled?
+	if (sUseDisplayNames)
+	{
+		return mDisplayName;
+	}
+	else
+	{
+		return getUserName();
+	}
+}
+
+std::string LLAvatarName::getUserName() const
+{
+	// If we cannot create a user name from the legacy strings, use the display name
+	if (mLegacyFirstName.empty() && mLegacyLastName.empty())
 	{
 		return mDisplayName;
 	}
@@ -118,3 +172,14 @@ std::string LLAvatarName::getLegacyName() const
 	name += mLegacyLastName;
 	return name;
 }
+
+void LLAvatarName::dump() const
+{
+	llinfos << "Merov debug : display = " << mDisplayName << ", user = " << mUsername << ", complete = " << getCompleteName() << ", legacy = " << getUserName() << " first = " << mLegacyFirstName << " last = " << mLegacyLastName << llendl;
+	LL_DEBUGS("AvNameCache") << "LLAvatarName: "
+	                         << "user '" << mUsername << "' "
+							 << "display '" << mDisplayName << "' "
+	                         << "expires in " << mExpires - LLFrameTimer::getTotalSeconds() << " seconds"
+							 << LL_ENDL;
+}
+

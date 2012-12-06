@@ -3188,29 +3188,27 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		static LLUICachedControl<bool> show_display_names("NameTagShowDisplayNames");
 		static LLUICachedControl<bool> show_usernames("NameTagShowUsernames");
 
-		if (LLAvatarNameCache::useDisplayNames())
+		if (LLAvatarName::useDisplayNames())
 		{
 			LLAvatarName av_name;
 			if (!LLAvatarNameCache::get(getID(), &av_name))
 			{
-				// ...call this function back when the name arrives
-				// and force a rebuild
-				LLAvatarNameCache::get(getID(),
-					boost::bind(&LLVOAvatar::clearNameTag, this));
+				// ...call this function back when the name arrives and force a rebuild
+				LLAvatarNameCache::get(getID(),boost::bind(&LLVOAvatar::clearNameTag, this));
 			}
 
 			// Might be blank if name not available yet, that's OK
 			if (show_display_names)
 			{
-				addNameTagLine(av_name.mDisplayName, name_tag_color, LLFontGL::NORMAL,
+				addNameTagLine(av_name.getDisplayName(), name_tag_color, LLFontGL::NORMAL,
 					LLFontGL::getFontSansSerif());
 			}
 			// Suppress SLID display if display name matches exactly (ugh)
-			if (show_usernames && !av_name.mIsDisplayNameDefault)
+			if (show_usernames && !av_name.isDisplayNameDefault())
 			{
 				// *HACK: Desaturate the color
 				LLColor4 username_color = name_tag_color * 0.83f;
-				addNameTagLine(av_name.mUsername, username_color, LLFontGL::NORMAL,
+				addNameTagLine(av_name.getUserName(), username_color, LLFontGL::NORMAL,
 					LLFontGL::getFontSansSerifSmall());
 			}
 		}
@@ -3421,20 +3419,18 @@ LLColor4 LLVOAvatar::getNameTagColor(bool is_friend)
 	{
 		color_name = "NameTagFriend";
 	}
-	else if (LLAvatarNameCache::useDisplayNames())
+	else if (LLAvatarName::useDisplayNames())
 	{
-		// ...color based on whether username "matches" a computed display
-		// name
+		// ...color based on whether username "matches" a computed display name
 		LLAvatarName av_name;
-		if (LLAvatarNameCache::get(getID(), &av_name)
-			&& av_name.mIsDisplayNameDefault)
+		if (LLAvatarNameCache::get(getID(), &av_name) && av_name.isDisplayNameDefault())
 		{
 			color_name = "NameTagMatch";
 		}
 		else
 		{
 			color_name = "NameTagMismatch";
-	}
+		}
 	}
 	else
 	{

@@ -306,7 +306,7 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 
 void LLIMModel::LLIMSession::onAdHocNameCache(const LLAvatarName& av_name)
 {
-	if (av_name.mIsTemporaryName)
+	if (!av_name.isValidName())
 	{
 		S32 separator_index = mName.rfind(" ");
 		std::string name = mName.substr(0, separator_index);
@@ -626,15 +626,7 @@ void LLIMModel::LLIMSession::buildHistoryFileName()
 		// so no need for a callback in LLAvatarNameCache::get()
 		if (LLAvatarNameCache::get(mOtherParticipantID, &av_name))
 		{
-			if (av_name.mUsername.empty())
-			{
-				// Display names are off, use mDisplayName which will be the legacy name
-				mHistoryFileName = LLCacheName::buildUsername(av_name.mDisplayName);
-			}
-			else
-			{
-				mHistoryFileName =  av_name.mUsername;
-			}
+			mHistoryFileName = LLCacheName::buildUsername(av_name.getUserName());
 		}
 		else
 		{
@@ -836,7 +828,7 @@ bool LLIMModel::logToFile(const std::string& file_name, const std::string& from,
 		LLAvatarName av_name;
 		if (!from_id.isNull() && 
 			LLAvatarNameCache::get(from_id, &av_name) &&
-			!av_name.mIsDisplayNameDefault)
+			!av_name.isDisplayNameDefault())
 		{	
 			from_name = av_name.getCompleteName();
 		}
@@ -1926,7 +1918,7 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 		LLAvatarName av_name;
 		if (LLAvatarNameCache::get(callee_id, &av_name))
 		{
-			final_callee_name = av_name.mDisplayName;
+			final_callee_name = av_name.getDisplayName();
 			title = av_name.getCompleteName();
 		}
 	}
@@ -2464,7 +2456,7 @@ void LLIMMgr::addMessage(
 		LLAvatarName av_name;
 		if (LLAvatarNameCache::get(other_participant_id, &av_name) && !name_is_setted)
 		{
-			fixed_session_name = (av_name.mDisplayName.empty() ? av_name.mUsername : av_name.mDisplayName);
+			fixed_session_name = av_name.getDisplayName();
 		}
 		LLIMModel::getInstance()->newSession(new_session_id, fixed_session_name, dialog, other_participant_id, false, is_offline_msg);
 
@@ -3110,7 +3102,7 @@ void LLIMMgr::noteOfflineUsers(
 			{
 				LLUIString offline = LLTrans::getString("offline_message");
 				// Use display name only because this user is your friend
-				offline.setArg("[NAME]", av_name.mDisplayName);
+				offline.setArg("[NAME]", av_name.getDisplayName());
 				im_model.proccessOnlineOfflineNotification(session_id, offline);
 			}
 		}

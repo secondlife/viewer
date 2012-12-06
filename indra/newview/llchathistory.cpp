@@ -553,15 +553,15 @@ private:
 
 	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name)
 	{
-		mFrom = av_name.mDisplayName;
+		mFrom = av_name.getDisplayName();
 
 		LLTextBox* user_name = getChild<LLTextBox>("user_name");
-		user_name->setValue( LLSD(av_name.mDisplayName ) );
-		user_name->setToolTip( av_name.mUsername );
+		user_name->setValue( LLSD(av_name.getDisplayName() ) );
+		user_name->setToolTip( av_name.getUserName() );
 
 		if (gSavedSettings.getBOOL("NameTagShowUsernames") && 
-			LLAvatarNameCache::useDisplayNames() &&
-			!av_name.mIsDisplayNameDefault)
+			av_name.useDisplayNames() &&
+			!av_name.isDisplayNameDefault())
 		{
 			LLStyle::Params style_params_name;
 			LLColor4 userNameColor = LLUIColorTable::instance().getColor("EmphasisColor");
@@ -569,9 +569,9 @@ private:
 			style_params_name.font.name("SansSerifSmall");
 			style_params_name.font.style("NORMAL");
 			style_params_name.readonly_color(userNameColor);
-			user_name->appendText("  - " + av_name.mUsername, FALSE, style_params_name);
+			user_name->appendText("  - " + av_name.getUserName(), FALSE, style_params_name);
 		}
-		setToolTip( av_name.mUsername );
+		setToolTip( av_name.getUserName() );
 		// name might have changed, update width
 		updateMinUserNameWidth();
 	}

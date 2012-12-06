@@ -320,7 +320,7 @@ LLScrollListItem* LLNameListCtrl::addNameItemRow(
 			else if (LLAvatarNameCache::get(id, &av_name))
 			{
 				if (mShortNames)
-					fullname = av_name.mDisplayName;
+					fullname = av_name.getDisplayName();
 				else
 					fullname = av_name.getCompleteName();
 			}
@@ -390,7 +390,7 @@ void LLNameListCtrl::onAvatarNameCache(const LLUUID& agent_id,
 {
 	std::string name;
 	if (mShortNames)
-		name = av_name.mDisplayName;
+		name = av_name.getDisplayName();
 	else
 		name = av_name.getCompleteName();
 

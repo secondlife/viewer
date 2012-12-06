@@ -81,6 +81,8 @@ namespace LLAvatarNameCache
 	void setUseDisplayNames(bool use);
 	bool useDisplayNames();
 
+	void flushCache();
+	
 	void erase(const LLUUID& agent_id);
 
     /// Provide some fallback for agents that return errors

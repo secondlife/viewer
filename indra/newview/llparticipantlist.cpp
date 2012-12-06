@@ -381,7 +381,7 @@ void LLParticipantList::addAvatarIDExceptAgent(const LLUUID& avatar_id)
 		// Create a participant view model instance
 		LLAvatarName avatar_name;
 		bool has_name = LLAvatarNameCache::get(avatar_id, &avatar_name);
-		participant = new LLConversationItemParticipant(!has_name ? LLTrans::getString("AvatarNameWaiting") : avatar_name.mDisplayName , avatar_id, mRootViewModel);
+		participant = new LLConversationItemParticipant(!has_name ? LLTrans::getString("AvatarNameWaiting") : avatar_name.getDisplayName() , avatar_id, mRootViewModel);
 		participant->fetchAvatarName();
 	}
 	else

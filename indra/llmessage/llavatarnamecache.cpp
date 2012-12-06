@@ -43,10 +43,6 @@ namespace LLAvatarNameCache
 {
 	use_display_name_signal_t mUseDisplayNamesSignal;
 
-	// Manual override for display names - can disable even if the region
-	// supports it.
-	bool sUseDisplayNames = true;
-
 	// Cache starts in a paused state until we can determine if the
 	// current region supports display names.
 	bool sRunning = false;
@@ -209,17 +205,8 @@ public:
 			// Use expiration time from header
 			av_name.mExpires = expires;
 
-			// Some avatars don't have explicit display names set
-			if (av_name.mDisplayName.empty())
-			{
-				av_name.mDisplayName = av_name.mUsername;
-			}
-
-			LL_DEBUGS("AvNameCache") << "LLAvatarNameResponder::result for " << agent_id << " "
-									 << "user '" << av_name.mUsername << "' "
-									 << "display '" << av_name.mDisplayName << "' "
-									 << "expires in " << expires - now << " seconds"
-									 << LL_ENDL;
+			LL_DEBUGS("AvNameCache") << "LLAvatarNameResponder::result for " << agent_id << LL_ENDL;
+			av_name.dump();
 			
 			// cache it and fire signals
 			LLAvatarNameCache::processName(agent_id, av_name, true);
@@ -291,12 +278,9 @@ void LLAvatarNameCache::handleAgentError(const LLUUID& agent_id)
         LLAvatarNameCache::sPendingQueue.erase(agent_id);
 
         LLAvatarName& av_name = existing->second;
-        LL_DEBUGS("AvNameCache") << "LLAvatarNameCache use cache for agent "
-                                 << agent_id 
-                                 << "user '" << av_name.mUsername << "' "
-                                 << "display '" << av_name.mDisplayName << "' "
-                                 << "expires in " << av_name.mExpires - LLFrameTimer::getTotalSeconds() << " seconds"
-                                 << LL_ENDL;
+        LL_DEBUGS("AvNameCache") << "LLAvatarNameCache use cache for agent " << agent_id << LL_ENDL;
+		av_name.dump();
+
 		av_name.mExpires = LLFrameTimer::getTotalSeconds() + TEMP_CACHE_ENTRY_LIFETIME; // reset expiry time so we don't constantly rerequest.
     }
 }
@@ -476,7 +460,7 @@ void LLAvatarNameCache::exportFile(std::ostream& ostr)
 		const LLUUID& agent_id = it->first;
 		const LLAvatarName& av_name = it->second;
 		// Do not write temporary or expired entries to the stored cache
-		if (!av_name.mIsTemporaryName && av_name.mExpires >= max_unrefreshed)
+		if (av_name.isValidName(max_unrefreshed))
 		{
 			// key must be a string
 			agents[agent_id.asString()] = av_name.asLLSD();
@@ -513,7 +497,7 @@ void LLAvatarNameCache::idle()
 
 	if (!sAskQueue.empty())
 	{
-        if (useDisplayNames())
+        if (hasNameLookupURL())
         {
             requestNamesViaCapability();
         }
@@ -565,7 +549,7 @@ void LLAvatarNameCache::eraseUnrefreshed()
             {
                 const LLUUID& agent_id = it->first;
                 LL_DEBUGS("AvNameCache") << agent_id 
-                                         << " user '" << av_name.mUsername << "' "
+                                         << " user '" << av_name.getUserName() << "' "
                                          << "expired " << now - av_name.mExpires << " secs ago"
                                          << LL_ENDL;
                 sCache.erase(it++);
@@ -583,14 +567,12 @@ void LLAvatarNameCache::buildLegacyName(const std::string& full_name,
 										LLAvatarName* av_name)
 {
 	llassert(av_name);
-	av_name->mUsername = "";
-	av_name->mDisplayName = full_name;
-	av_name->mIsDisplayNameDefault = true;
-	av_name->mIsTemporaryName = true;
-	av_name->mExpires = LLFrameTimer::getTotalSeconds() + TEMP_CACHE_ENTRY_LIFETIME;
+	av_name->fromString(full_name,TEMP_CACHE_ENTRY_LIFETIME);
 	LL_DEBUGS("AvNameCache") << "LLAvatarNameCache::buildLegacyName "
 							 << full_name
 							 << LL_ENDL;
+	// DEBUG ONLY!!! DO NOT COMMIT!!!
+	av_name->dump();
 }
 
 // fills in av_name if it has it in the cache, even if expired (can check expiry time)
@@ -600,7 +582,7 @@ bool LLAvatarNameCache::get(const LLUUID& agent_id, LLAvatarName *av_name)
 	if (sRunning)
 	{
 		// ...only do immediate lookups when cache is running
-		if (useDisplayNames())
+		if (hasNameLookupURL())
 		{
 			// ...use display names cache
 			std::map<LLUUID,LLAvatarName>::iterator it = sCache.find(agent_id);
@@ -662,7 +644,7 @@ LLAvatarNameCache::callback_connection_t LLAvatarNameCache::get(const LLUUID& ag
 	if (sRunning)
 	{
 		// ...only do immediate lookups when cache is running
-		if (useDisplayNames())
+		if (hasNameLookupURL())
 		{
 			// ...use new cache
 			std::map<LLUUID,LLAvatarName>::iterator it = sCache.find(agent_id);
@@ -720,20 +702,16 @@ LLAvatarNameCache::callback_connection_t LLAvatarNameCache::get(const LLUUID& ag
 
 void LLAvatarNameCache::setUseDisplayNames(bool use)
 {
-	if (use != sUseDisplayNames)
+	if (use != LLAvatarName::useDisplayNames())
 	{
-		sUseDisplayNames = use;
-		// flush our cache
-		sCache.clear();
-
+		LLAvatarName::setUseDisplayNames(use);
 		mUseDisplayNamesSignal();
 	}
 }
 
-bool LLAvatarNameCache::useDisplayNames()
+void LLAvatarNameCache::flushCache()
 {
-	// Must be both manually set on and able to look up names.
-	return sUseDisplayNames && !sNameLookupURL.empty();
+	sCache.clear();
 }
 
 void LLAvatarNameCache::erase(const LLUUID& agent_id)

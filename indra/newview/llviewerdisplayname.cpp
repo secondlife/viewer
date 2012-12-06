@@ -97,7 +97,7 @@ void LLViewerDisplayName::set(const std::string& display_name, const set_name_sl
 
 	// People API expects array of [ "old value", "new value" ]
 	LLSD change_array = LLSD::emptyArray();
-	change_array.append(av_name.mDisplayName);
+	change_array.append(av_name.getDisplayName());
 	change_array.append(display_name);
 	
 	llinfos << "Set name POST to " << cap_url << llendl;
@@ -189,8 +189,8 @@ class LLDisplayNameUpdate : public LLHTTPNode
 
 		LLSD args;
 		args["OLD_NAME"] = old_display_name;
-		args["SLID"] = av_name.mUsername;
-		args["NEW_NAME"] = av_name.mDisplayName;
+		args["SLID"] = av_name.getUserName();
+		args["NEW_NAME"] = av_name.getDisplayName();
 		LLNotificationsUtil::add("DisplayNameUpdate", args);
 		if (agent_id == gAgent.getID())
 		{

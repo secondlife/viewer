@@ -2245,16 +2245,7 @@ static std::string clean_name_from_task_im(const std::string& msg,
 		// Don't try to clean up group names
 		if (!from_group)
 		{
-			if (LLAvatarNameCache::useDisplayNames())
-			{
-				// ...just convert to username
-				final += LLCacheName::buildUsername(name);
-			}
-			else
-			{
-				// ...strip out legacy "Resident" name
-				final += LLCacheName::cleanFullName(name);
-			}
+			final += LLCacheName::buildUsername(name);
 		}
 		final += match[3].str();
 		return final;
@@ -2268,7 +2259,7 @@ void notification_display_name_callback(const LLUUID& id,
 					  LLSD& substitutions, 
 					  const LLSD& payload)
 {
-	substitutions["NAME"] = av_name.mDisplayName;
+	substitutions["NAME"] = av_name.getDisplayName();
 	LLNotificationsUtil::add(name, substitutions, payload);
 }
 
@@ -3452,7 +3443,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		LLAvatarName av_name;
 		if (LLAvatarNameCache::get(from_id, &av_name))
 		{
-			chat.mFromName = av_name.mDisplayName;
+			chat.mFromName = av_name.getDisplayName();
 		}
 		else
 		{

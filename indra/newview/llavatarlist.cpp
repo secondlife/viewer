@@ -278,7 +278,7 @@ void LLAvatarList::refresh()
 		LLAvatarName av_name;
 		have_names &= LLAvatarNameCache::get(buddy_id, &av_name);
 
-		if (!have_filter || findInsensitive(av_name.mDisplayName, mNameFilter))
+		if (!have_filter || findInsensitive(av_name.getDisplayName(), mNameFilter))
 		{
 			if (nadded >= ADD_LIMIT)
 			{
@@ -296,8 +296,9 @@ void LLAvatarList::refresh()
 				}
 				else
 				{
+					std::string display_name = av_name.getDisplayName();
 					addNewItem(buddy_id, 
-						av_name.mDisplayName.empty() ? waiting_str : av_name.mDisplayName, 
+						display_name.empty() ? waiting_str : display_name, 
 						LLAvatarTracker::instance().isBuddyOnline(buddy_id));
 				}
 				
@@ -325,7 +326,7 @@ void LLAvatarList::refresh()
 			const LLUUID& buddy_id = it->asUUID();
 			LLAvatarName av_name;
 			have_names &= LLAvatarNameCache::get(buddy_id, &av_name);
-			if (!findInsensitive(av_name.mDisplayName, mNameFilter))
+			if (!findInsensitive(av_name.getDisplayName(), mNameFilter))
 			{
 				removeItemByUUID(buddy_id);
 				modified = true;
@@ -398,7 +399,7 @@ bool LLAvatarList::filterHasMatches()
 		// If name has not been loaded yet we consider it as a match.
 		// When the name will be loaded the filter will be applied again(in refresh()).
 
-		if (have_name && !findInsensitive(av_name.mDisplayName, mNameFilter))
+		if (have_name && !findInsensitive(av_name.getDisplayName(), mNameFilter))
 		{
 			continue;
 		}

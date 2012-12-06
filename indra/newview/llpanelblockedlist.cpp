@@ -224,7 +224,7 @@ void LLPanelBlockedList::onFilterEdit(const std::string& search_string)
 void LLPanelBlockedList::callbackBlockPicked(const uuid_vec_t& ids, const std::vector<LLAvatarName> names)
 {
 	if (names.empty() || ids.empty()) return;
-	LLMute mute(ids[0], names[0].getLegacyName(), LLMute::AGENT);
+	LLMute mute(ids[0], names[0].getUserName(), LLMute::AGENT);
 	LLMuteList::getInstance()->add(mute);
 	showPanelAndSelect(mute.mID);
 }

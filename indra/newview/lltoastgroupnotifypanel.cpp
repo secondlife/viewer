@@ -69,10 +69,8 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(const LLNotificationPtr& notifi
 
 	//header title
 	std::string from_name = payload["sender_name"].asString();
-	if (LLAvatarNameCache::useDisplayNames())
-	{
-		from_name = LLCacheName::buildUsername(from_name);
-	}
+	from_name = LLCacheName::buildUsername(from_name);
+
 	std::stringstream from;
 	from << from_name << "/" << groupData.mName;
 	LLTextBox* pTitleText = getChild<LLTextBox>("title");

@@ -991,8 +991,7 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 			}
 
 			LLAvatarName av_name;
-			if (LLAvatarNameCache::useDisplayNames() && 
-				LLAvatarNameCache::get(hover_object->getID(), &av_name))
+			if (LLAvatarNameCache::get(hover_object->getID(), &av_name))
 			{
 				final_name = av_name.getCompleteName();
 			}
