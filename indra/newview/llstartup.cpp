@@ -1520,7 +1520,7 @@ bool idle_startup()
 	}
 
 	//---------------------------------------------------------------------
-	// Agent Send
+	// World Wait
 	//---------------------------------------------------------------------
 	if(STATE_WORLD_WAIT == LLStartUp::getStartupState())
 	{
@@ -1846,6 +1846,10 @@ bool idle_startup()
 			// Set the show start location to true, now that the user has logged
 			// on with this install.
 			gSavedSettings.setBOOL("ShowStartLocation", TRUE);
+
+			// Open Conversation floater on first login.
+			LLFloaterReg::toggleInstanceOrBringToFront("im_container");
+
 		}
 
 		display_startup();
@@ -2167,7 +2171,6 @@ bool idle_startup()
 		LLStartUp::setStartupState( STATE_STARTED );
 		display_startup();
 
-		// Unmute audio if desired and setup volumes.
 		// Unmute audio if desired and setup volumes.
 		// This is a not-uncommon crash site, so surround it with
 		// llinfos output to aid diagnosis.

@@ -191,7 +191,25 @@ void on_new_message(const LLSD& msg)
     }
     else if("openconversations" == action)
     {
-        LLFloaterReg::showInstance("im_container");
+        LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
+        LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(session_id);
+
+        //Don't flash and show conversation floater when conversation already active (has focus)
+        if(session_floater
+            && (!session_floater->isInVisibleChain()) //conversation floater not displayed
+                || 
+                (session_floater->isInVisibleChain() && session_floater->hasFocus() == false)) //conversation floater is displayed but doesn't have focus
+
+        {
+            //Flash line item
+            if (im_box)
+            {
+                im_box->flashConversationItemWidget(session_id, true); // flashing of the conversation's item
+            }
+
+            //Surface conversations floater
+            LLFloaterReg::showInstance("im_container");
+        }
     }
 }
 

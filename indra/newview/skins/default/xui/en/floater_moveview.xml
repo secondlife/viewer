@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  positioning="specified"
- left="320"
+ left="505"
  bottom="-80"
  legacy_header_height="18"
  can_dock="false"

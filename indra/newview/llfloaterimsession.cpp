@@ -616,10 +616,14 @@ void LLFloaterIMSession::setVisible(BOOL visible)
 
 	if(!visible)
 	{
-		LLIMChiclet* chiclet = LLChicletBar::getInstance()->getChicletPanel()->findChiclet<LLIMChiclet>(mSessionID);
-		if(chiclet)
+		LLChicletPanel * chiclet_panelp = LLChicletBar::getInstance()->getChicletPanel();
+		if (NULL != chiclet_panelp)
 		{
-			chiclet->setToggleState(false);
+			LLIMChiclet * chicletp = chiclet_panelp->findChiclet<LLIMChiclet>(mSessionID);
+			if(NULL != chicletp)
+			{
+				chicletp->setToggleState(false);
+			}
 		}
 	}
 
@@ -629,7 +633,6 @@ void LLFloaterIMSession::setVisible(BOOL visible)
         
 	}
 
-    setFocus(visible);
 }
 
 BOOL LLFloaterIMSession::getVisible()

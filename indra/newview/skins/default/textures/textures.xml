@@ -365,8 +365,6 @@ with the same filename but different name
 
   <texture name="Nearby_chat_icon" file_name="icons/nearby_chat_icon.png" preload="false" />
 
-  <texture name="Notices_Unread" file_name="bottomtray/Notices_Unread.png" preload="true" />
-
   <texture name="NoEntryLines" file_name="world/NoEntryLines.png" use_mips="true" preload="false" />
   <texture name="NoEntryPassLines" file_name="world/NoEntryPassLines.png" use_mips="true" preload="false" />
 
@@ -654,12 +652,6 @@ with the same filename but different name
   <texture name="VoicePTT_Off" file_name="bottomtray/VoicePTT_Off.png" preload="false" />
   <texture name="VoicePTT_On" file_name="bottomtray/VoicePTT_On.png" preload="false" />
   
-  <texture name="VoicePTT_Lvl1_Dark" file_name="bottomtray/VoicePTT_Lvl1_Dark.png" preload="false" />
-  <texture name="VoicePTT_Lvl2_Dark" file_name="bottomtray/VoicePTT_Lvl2_Dark.png" preload="false" />
-  <texture name="VoicePTT_Lvl3_Dark" file_name="bottomtray/VoicePTT_Lvl3_Dark.png" preload="false" />
-  <texture name="VoicePTT_Off_Dark" file_name="bottomtray/VoicePTT_Off_Dark.png" preload="false" />
-  <texture name="VoicePTT_On_Dark" file_name="bottomtray/VoicePTT_On_Dark.png" preload="false" />
-
   <texture name="Wearables_Divider" file_name="windows/Wearables_Divider.png" preload="false" />
 
   <texture name="Web_Profile_Off" file_name="icons/Web_Profile_Off.png" preload="false" />

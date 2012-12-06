@@ -3,7 +3,7 @@
  can_close="true"  
  can_minimize="true"
  can_resize="true"
- height="430"
+ height="230"
  layout="topleft"
  min_height="50"
  name="floater_im_box"
@@ -13,7 +13,8 @@
  single_instance="true"
  reuse_instance="true"
  title="CONVERSATIONS"
- width="680">
+ bottom="-80"
+ width="450">
     <string
      name="collapse_icon"
      value="Conv_toolbar_collapse"/>
@@ -23,13 +24,13 @@
     <layout_stack
      animate="true" 
      follows="all"
-     height="430"
+     height="230"
      layout="topleft"
      left="0"
      name="conversations_stack"
      orientation="horizontal"
      top="0"
-     width="680">
+     width="450">
         <layout_panel
          auto_resize="true"
          user_resize="true"        
