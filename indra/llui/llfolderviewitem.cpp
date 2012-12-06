@@ -47,16 +47,14 @@ static LLDefaultChildRegistry::Register<LLFolderViewItem> r("folder_view_item");
 // statics 
 std::map<U8, LLFontGL*> LLFolderViewItem::sFonts; // map of styles to fonts
 
+bool LLFolderViewItem::sColorSetInitialized = false;
 LLUIColor LLFolderViewItem::sFgColor;
 LLUIColor LLFolderViewItem::sHighlightBgColor;
-LLUIColor LLFolderViewItem::sHighlightFgColor;
 LLUIColor LLFolderViewItem::sFocusOutlineColor;
 LLUIColor LLFolderViewItem::sMouseOverColor;
 LLUIColor LLFolderViewItem::sFilterBGColor;
 LLUIColor LLFolderViewItem::sFilterTextColor;
 LLUIColor LLFolderViewItem::sSuffixColor;
-LLUIColor LLFolderViewItem::sLibraryColor;
-LLUIColor LLFolderViewItem::sLinkColor;
 LLUIColor LLFolderViewItem::sSearchStatusColor;
 
 // only integers can be initialized in header
@@ -106,6 +104,8 @@ LLFolderViewItem::Params::Params()
 	item_top_pad("item_top_pad"),
 	creation_date(),
 	allow_open("allow_open", true),
+	font_color("font_color"),
+	font_highlight_color("font_highlight_color"),
     left_pad("left_pad", 0),
     icon_pad("icon_pad", 0),
     icon_width("icon_width", 0),
@@ -113,7 +113,7 @@ LLFolderViewItem::Params::Params()
     text_pad_right("text_pad_right", 0),
     arrow_size("arrow_size", 0),
     max_folder_item_overlap("max_folder_item_overlap", 0)
-{}
+{ }
 
 // Default constructor
 LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
@@ -137,6 +137,8 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 	mViewModelItem(p.listener),
 	mIsMouseOverTitle(false),
 	mAllowOpen(p.allow_open),
+	mFontColor(p.font_color),
+	mFontHighlightColor(p.font_highlight_color),
     mLeftPad(p.left_pad),
     mIconPad(p.icon_pad),
     mIconWidth(p.icon_width),
@@ -145,17 +147,18 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
     mArrowSize(p.arrow_size),
     mMaxFolderItemOverlap(p.max_folder_item_overlap)
 {
-	sFgColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
-	sHighlightBgColor = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", DEFAULT_WHITE);
-	sHighlightFgColor = LLUIColorTable::instance().getColor("MenuItemHighlightFgColor", DEFAULT_WHITE);
-	sFocusOutlineColor = LLUIColorTable::instance().getColor("InventoryFocusOutlineColor", DEFAULT_WHITE);
-	sMouseOverColor = LLUIColorTable::instance().getColor("InventoryMouseOverColor", DEFAULT_WHITE);
-	sFilterBGColor = LLUIColorTable::instance().getColor("FilterBackgroundColor", DEFAULT_WHITE);
-	sFilterTextColor = LLUIColorTable::instance().getColor("FilterTextColor", DEFAULT_WHITE);
-	sSuffixColor = LLUIColorTable::instance().getColor("InventoryItemColor", DEFAULT_WHITE);
-	sLibraryColor = LLUIColorTable::instance().getColor("InventoryItemLibraryColor", DEFAULT_WHITE);
-	sLinkColor = LLUIColorTable::instance().getColor("InventoryItemLinkColor", DEFAULT_WHITE);
-	sSearchStatusColor = LLUIColorTable::instance().getColor("InventorySearchStatusColor", DEFAULT_WHITE);
+	if (!sColorSetInitialized)
+	{
+		sFgColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
+		sHighlightBgColor = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", DEFAULT_WHITE);
+		sFocusOutlineColor = LLUIColorTable::instance().getColor("InventoryFocusOutlineColor", DEFAULT_WHITE);
+		sMouseOverColor = LLUIColorTable::instance().getColor("InventoryMouseOverColor", DEFAULT_WHITE);
+		sFilterBGColor = LLUIColorTable::instance().getColor("FilterBackgroundColor", DEFAULT_WHITE);
+		sFilterTextColor = LLUIColorTable::instance().getColor("FilterTextColor", DEFAULT_WHITE);
+		sSuffixColor = LLUIColorTable::instance().getColor("InventoryItemColor", DEFAULT_WHITE);
+		sSearchStatusColor = LLUIColorTable::instance().getColor("InventorySearchStatusColor", DEFAULT_WHITE);
+		sColorSetInitialized = true;
+	}
 
 	if (mViewModelItem)
 	{
@@ -785,10 +788,6 @@ void LLFolderViewItem::drawHighlight(const BOOL showContent, const BOOL hasKeybo
 
 void LLFolderViewItem::drawLabel(const LLFontGL * font, const F32 x, const F32 y, const LLColor4& color, F32 &right_x)
 {
-    //TODO RN: implement this in terms of getColor()
-    //if (highlight_link) color = sLinkColor;
-    //if (gInventory.isObjectDescendentOf(getViewModelItem()->getUUID(), gInventory.getLibraryRootFolderID())) color = sLibraryColor;
-
     //--------------------------------------------------------------------------------//
     // Draw the actual label text
     //
@@ -857,7 +856,7 @@ void LLFolderViewItem::draw()
 		box_image->draw(box_rect, sFilterBGColor);
     }
 
-    LLColor4 color = (mIsSelected && filled) ? sHighlightFgColor : sFgColor;
+    LLColor4 color = (mIsSelected && filled) ? mFontHighlightColor : mFontColor;
     drawLabel(font, text_left, y, color, right_x);
 
 	//--------------------------------------------------------------------------------//
@@ -1863,7 +1862,7 @@ BOOL LLFolderViewFolder::handleMouseDown( S32 x, S32 y, MASK mask )
 	}
 	if( !handled )
 	{
-		if(mIndentation < x && x < mIndentation + (isMinimized() ? 0 : mArrowSize) + mTextPad)
+		if(mIndentation < x && x < mIndentation + (isCollapsed() ? 0 : mArrowSize) + mTextPad)
 		{
 			toggleOpen();
 			handled = TRUE;
@@ -1887,7 +1886,7 @@ BOOL LLFolderViewFolder::handleDoubleClick( S32 x, S32 y, MASK mask )
 	}
 	if( !handled )
 	{
-		if(mIndentation < x && x < mIndentation + (isMinimized() ? 0 : mArrowSize) + mTextPad)
+		if(mIndentation < x && x < mIndentation + (isCollapsed() ? 0 : mArrowSize) + mTextPad)
 		{
 			// don't select when user double-clicks plus sign
 			// so as not to contradict single-click behavior

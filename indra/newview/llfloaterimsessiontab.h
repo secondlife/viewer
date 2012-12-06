@@ -94,6 +94,7 @@ public:
 	virtual void onTearOffClicked();
 	
 	virtual void updateMessages() {}
+	LLConversationItem* getCurSelectedViewModelItem();
 
 protected:
 
