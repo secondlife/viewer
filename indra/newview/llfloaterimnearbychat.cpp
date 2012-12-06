@@ -228,7 +228,6 @@ void LLFloaterIMNearbyChat::setVisible(BOOL visible)
 	{
 		removeScreenChat();
 	}
-    setFocus(visible);
 }
 
 // virtual

@@ -516,13 +516,32 @@ void LLFloaterIMContainer::tabClose()
 	}
 }
 
+//Shows/hides the stub panel when a conversation floater is torn off
 void LLFloaterIMContainer::showStub(bool stub_is_visible)
 {
-	if (stub_is_visible)
-	{
-		mTabContainer->hideAllTabs();
-	}
+    S32 tabCount = 0;
+    LLPanel * tabPanel = NULL;
 
+    if(stub_is_visible)
+    {
+        tabCount = mTabContainer->getTabCount();
+
+        //Hide all tabs even stub
+        for(S32 i = 0; i < tabCount; ++i)
+        {
+            tabPanel = mTabContainer->getPanelByIndex(i);
+
+            if(tabPanel)
+            {
+                tabPanel->setVisible(false);
+            }
+        }
+
+        //Set the index to the stub panel since we will be showing the stub
+        mTabContainer->setCurrentPanelIndex(0);
+    }
+
+    //Now show/hide the stub
 	mStubPanel->setVisible(stub_is_visible);
 }
 
@@ -546,8 +565,10 @@ void LLFloaterIMContainer::setVisible(BOOL visible)
 			// *TODO: find a way to move this to XML as a default panel or something like that
 			LLSD name("nearby_chat");
 			LLFloaterReg::toggleInstanceOrBringToFront(name);
+            setSelectedSession(LLUUID(NULL));
 		}
 		openNearbyChat();
+        selectConversationPair(getSelectedSession(), false);
 	}
 
 	nearby_chat = LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
@@ -571,7 +592,6 @@ void LLFloaterIMContainer::setVisible(BOOL visible)
 	
 	// Now, do the normal multifloater show/hide
 	LLMultiFloater::setVisible(visible);
-	
 }
 
 void LLFloaterIMContainer::collapseMessagesPane(bool collapse)
@@ -933,7 +953,11 @@ void LLFloaterIMContainer::doToParticipants(const std::string& command, uuid_vec
 		}
 		else if ("block_unblock" == command)
 		{
-			LLAvatarActions::toggleBlock(userID);
+			toggleMute(userID, LLMute::flagVoiceChat);
+		}
+		else if ("mute_unmute" == command)
+		{
+			toggleMute(userID, LLMute::flagTextChat);
 		}
 		else if ("selected" == command || "mute_all" == command || "unmute_all" == command)
 		{
@@ -1151,8 +1175,12 @@ bool LLFloaterIMContainer::checkContextMenuItem(const std::string& item, uuid_ve
     {
 		if ("is_blocked" == item)
 		{
-			return LLAvatarActions::isBlocked(uuids.front());
+			return LLMuteList::getInstance()->isMuted(uuids.front(), LLMute::flagVoiceChat);
 		}
+		else if (item == "is_muted")
+		{
+		    return LLMuteList::getInstance()->isMuted(uuids.front(), LLMute::flagTextChat);
+	    }
 		else if ("is_allowed_text_chat" == item)
 		{
 			const LLSpeaker * speakerp = getSpeakerOfSelectedParticipant(getSpeakerMgrForSelectedParticipant());
@@ -1596,6 +1624,23 @@ void LLFloaterIMContainer::toggleAllowTextChat(const LLUUID& participant_uuid)
 	}
 }
 
+void LLFloaterIMContainer::toggleMute(const LLUUID& participant_id, U32 flags)
+{
+        BOOL is_muted = LLMuteList::getInstance()->isMuted(participant_id, flags);
+        std::string name;
+        gCacheName->getFullName(participant_id, name);
+        LLMute mute(participant_id, name, LLMute::AGENT);
+
+        if (!is_muted)
+        {
+                LLMuteList::getInstance()->add(mute, flags);
+        }
+        else
+        {
+                LLMuteList::getInstance()->remove(mute, flags);
+        }
+}
+
 void LLFloaterIMContainer::openNearbyChat()
 {
 	// If there's only one conversation in the container and that conversation is the nearby chat
@@ -1605,6 +1650,7 @@ void LLFloaterIMContainer::openNearbyChat()
 		LLConversationViewSession* nearby_chat = dynamic_cast<LLConversationViewSession*>(get_ptr_in_map(mConversationsWidgets,LLUUID()));
 		if (nearby_chat)
 		{
+			selectConversation(LLUUID());
 			nearby_chat->setOpen(TRUE);
 		}
 	}
@@ -1630,22 +1676,13 @@ void LLFloaterIMContainer::flashConversationItemWidget(const LLUUID& session_id,
 {
     //Finds the conversation line item to flash using the session_id
 	LLConversationViewSession * widget = dynamic_cast<LLConversationViewSession *>(get_ptr_in_map(mConversationsWidgets,session_id));
-    LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(session_id);
 
 	if (widget)
 	{
         //Start flash
 		if (is_flashes)
 		{
-            //Only flash when conversation is not active
-            if(session_floater
-                && (!session_floater->isInVisibleChain()) //conversation floater not displayed
-                    || 
-                    (session_floater->isInVisibleChain() && session_floater->hasFocus() == false)) //conversation floater is displayed but doesn't have focus
-                
-            {
-			widget->getFlashTimer()->startFlashing();
-		}
+	        widget->getFlashTimer()->startFlashing();
 		}
         //Stop flash
 		else

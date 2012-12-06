@@ -61,6 +61,9 @@ public:
 		Optional<time_t>							creation_date;
 		Optional<bool>								allow_open;
 
+		Optional<LLUIColor>                         font_color;
+		Optional<LLUIColor>                         font_highlight_color;
+		
         Optional<S32>                               left_pad,
                                                     icon_pad,
                                                     icon_width,
@@ -116,19 +119,20 @@ protected:
 								mIsMouseOverTitle,
 								mAllowOpen,
 								mSelectPending;
+	
+	LLUIColor                   mFontColor;
+	LLUIColor                   mFontHighlightColor;
 
 	// For now assuming all colors are the same in derived classes.
+	static bool                 sColorSetInitialized;
 	static LLUIColor			sFgColor;
 	static LLUIColor			sFgDisabledColor;
 	static LLUIColor			sHighlightBgColor;
-	static LLUIColor			sHighlightFgColor;
 	static LLUIColor			sFocusOutlineColor;
 	static LLUIColor			sMouseOverColor;
 	static LLUIColor			sFilterBGColor;
 	static LLUIColor			sFilterTextColor;
 	static LLUIColor			sSuffixColor;
-	static LLUIColor			sLibraryColor;
-	static LLUIColor			sLinkColor;
 	static LLUIColor			sSearchStatusColor;
 
 	// this is an internal method used for adding items to folders. A
