@@ -60,6 +60,7 @@ LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
   , mRefreshTimer(new LLTimer())
   , mIsHostAttached(false)
 {
+    setAutoFocus(FALSE);
 	mSession = LLIMModel::getInstance()->findIMSession(mSessionID);
 
 	mCommitCallbackRegistrar.add("IMSession.Menu.Action",
@@ -124,7 +125,6 @@ void LLFloaterIMSessionTab::setVisible(BOOL visible)
 	{
 			LLFloaterIMSessionTab::addToHost(mSessionID);
 	}
-    setFocus(visible);
 }
 
 /*virtual*/

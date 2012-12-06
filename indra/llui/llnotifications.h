@@ -316,6 +316,7 @@ public:
 												expiry;
 		Optional<LLNotificationContext*>		context;
 		Optional<void*>							responder;
+		Optional<bool>							offer_from_agent;
 
 		struct Functor : public LLInitParam::ChoiceBlock<Functor>
 		{
@@ -339,7 +340,8 @@ public:
 			payload("payload"),
 			form_elements("form"),
 			substitutions("substitutions"),
-			expiry("expiry")
+			expiry("expiry"),
+			offer_from_agent("offer_from_agent", false)
 		{
 			time_stamp = LLDate::now();
 			responder = NULL;
@@ -352,7 +354,8 @@ public:
 			payload("payload"),
 			form_elements("form"),
 			substitutions("substitutions"),
-			expiry("expiry")
+			expiry("expiry"),
+			offer_from_agent("offer_from_agent", false)
 		{
 			functor.name = _name;
 			name = _name;
@@ -378,6 +381,7 @@ private:
 	LLNotificationFormPtr mForm;
 	void* mResponderObj; // TODO - refactor/remove this field
 	LLNotificationResponderPtr mResponder;
+	bool mOfferFromAgent;
 
 	// a reference to the template
 	LLNotificationTemplatePtr mTemplatep;
@@ -511,6 +515,11 @@ public:
 	const LLDate& getDate() const
 	{
 		return mTimestamp;
+	}
+
+	bool getOfferFromAgent() const
+	{
+		return mOfferFromAgent;
 	}
 
 	std::string getType() const;
