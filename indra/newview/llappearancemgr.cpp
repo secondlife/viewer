@@ -186,13 +186,15 @@ void report_fire(const LLUUID& item_id)
 	llinfos << item_id << llendl;
 }
 
+void no_op() {}
+
 class LLCallAfterInventoryBatchMgr: public LLEventTimer 
 {
 public:
 	LLCallAfterInventoryBatchMgr(const LLUUID& dst_cat_id,
 								 const std::string& phase_name,
 								 nullary_func_t on_completion_func,
-								 nullary_func_t on_failure_func,
+								 nullary_func_t on_failure_func = no_op,
 								 F32 check_period = 5.0,
 								 F32 retry_after = 10.0,
 								 S32 max_retries = 2
@@ -205,6 +207,7 @@ public:
 		mMaxRetries(max_retries),
 		mPendingRequests(0),
 		mFailCount(0),
+		mCompletionOrFailureCalled(false),
 		mRetryCount(0),
 		LLEventTimer(check_period)
 	{
@@ -260,12 +263,16 @@ public:
 
 	void onOp(const LLUUID& src_id, const LLUUID& dst_id)
 	{
-		LL_DEBUGS("Avatar") << "copied, src_id " << src_id << " to dst_id " << dst_id << " after " << mWaitTimes[src_id].getElapsedTimeF32() << " seconds" << llendl;
+		LL_DEBUGS("Avatar") << "op done, src_id " << src_id << " dst_id " << dst_id << " after " << mWaitTimes[src_id].getElapsedTimeF32() << " seconds" << llendl;
 		mPendingRequests--;
 		F32 wait_time = mWaitTimes[src_id].getElapsedTimeF32();
 		mTimeStats.push(wait_time);
 		mWaitTimes.erase(src_id);
-		if (mWaitTimes.empty())
+		if (mCompletionOrFailureCalled)
+		{
+			llinfos << "late-completing operation, src_id " << src_id << "dst_id " << dst_id << llendl;
+		}
+		if (mWaitTimes.empty() && !mCompletionOrFailureCalled)
 		{
 			onCompletionOrFailure();
 		}
@@ -273,6 +280,9 @@ public:
 
 	void onCompletionOrFailure()
 	{
+		assert (!mCompletionOrFailureCalled);
+		mCompletionOrFailureCalled = true;
+		
 		// Will never call onCompletion() if any item has been flagged as
 		// a failure - otherwise could wind up with corrupted
 		// outfit, involuntary nudity, etc.
@@ -356,6 +366,7 @@ public:
 
 	void reportStats()
 	{
+		LL_DEBUGS("Avatar") << "Phase: " << mTrackingPhase << llendl;
 		LL_DEBUGS("Avatar") << "mFailCount: " << mFailCount << llendl;
 		LL_DEBUGS("Avatar") << "mRetryCount: " << mRetryCount << llendl;
 		LL_DEBUGS("Avatar") << "Times: n " << mTimeStats.getCount() << " min " << mTimeStats.getMinValue() << " max " << mTimeStats.getMaxValue() << llendl;
@@ -379,6 +390,7 @@ protected:
 	S32 mPendingRequests;
 	S32 mFailCount;
 	S32 mRetryCount;
+	bool mCompletionOrFailureCalled;
 	LLViewerStats::StatsAccumulator mTimeStats;
 };
 
@@ -389,7 +401,7 @@ public:
 								const LLUUID& dst_cat_id,
 								const std::string& phase_name,
 								nullary_func_t on_completion_func,
-								nullary_func_t on_failure_func
+								nullary_func_t on_failure_func = no_op
 		):
 		LLCallAfterInventoryBatchMgr(dst_cat_id, phase_name, on_completion_func, on_failure_func)
 	{
@@ -411,11 +423,12 @@ public:
 
 class LLCallAfterInventoryLinkMgr: public LLCallAfterInventoryBatchMgr
 {
+public:
 	LLCallAfterInventoryLinkMgr(LLInventoryModel::item_array_t& src_items,
 								const LLUUID& dst_cat_id,
 								const std::string& phase_name,
 								nullary_func_t on_completion_func,
-								nullary_func_t on_failure_func
+								nullary_func_t on_failure_func = no_op
 		):
 		LLCallAfterInventoryBatchMgr(dst_cat_id, phase_name, on_completion_func, on_failure_func)
 	{
@@ -1757,34 +1770,38 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 	purgeCategory(cof, keep_outfit_links);
 	gInventory.notifyObservers();
 
-	// Create links to new COF contents.
-	LL_DEBUGS("Avatar") << self_av_string() << "creating LLUpdateAppearanceOnDestroy" << LL_ENDL;
-	LLPointer<LLInventoryCallback> link_waiter = new LLUpdateAppearanceOnDestroy(!append);
-
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 	LL_DEBUGS("Avatar") << self_av_string() << "Linking body items" << LL_ENDL;
 #endif
-	linkAll(cof, body_items, link_waiter);
+
+	// Create links to new COF contents.
+	LL_DEBUGS("Avatar") << self_av_string() << "creating LLCallAfterInventoryLinkMgr" << LL_ENDL;
+	bool update_base_outfit_ordering = !append;
+	LLCallAfterInventoryLinkMgr *link_waiter =
+		new LLCallAfterInventoryLinkMgr(body_items,cof,"update_appearance_on_destroy",
+										boost::bind(&LLAppearanceMgr::updateAppearanceFromCOF,
+													LLAppearanceMgr::getInstance(),
+													update_base_outfit_ordering));
 
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 	LL_DEBUGS("Avatar") << self_av_string() << "Linking wear items" << LL_ENDL;
 #endif
-	linkAll(cof, wear_items, link_waiter);
+	link_waiter->addItems(wear_items);
 
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 	LL_DEBUGS("Avatar") << self_av_string() << "Linking obj items" << LL_ENDL;
 #endif
-	linkAll(cof, obj_items, link_waiter);
+	link_waiter->addItems(obj_items);
 
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 	LL_DEBUGS("Avatar") << self_av_string() << "Linking gesture items" << LL_ENDL;
 #endif
-	linkAll(cof, gest_items, link_waiter);
+	link_waiter->addItems(gest_items);
 
 	// Add link to outfit if category is an outfit. 
 	if (!append)
 	{
-		createBaseOutfitLink(category, link_waiter);
+		createBaseOutfitLink(category, NULL);
 	}
 	LL_DEBUGS("Avatar") << self_av_string() << "waiting for LLUpdateAppearanceOnDestroy" << LL_ENDL;
 }
@@ -2217,8 +2234,7 @@ void LLAppearanceMgr::wearCategoryFinal(LLUUID& cat_id, bool copy_items, bool ap
 			boost::bind(&LLAppearanceMgr::wearInventoryCategoryOnAvatar,
 						LLAppearanceMgr::getInstance(),
 						gInventory.getCategory(new_cat_id),
-						append),
-			boost::function<void()>());
+						append));
 
 		// BAP fixes a lag in display of created dir.
 		gInventory.notifyObservers();
