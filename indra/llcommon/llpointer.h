@@ -166,52 +166,52 @@ protected:
 };
 
 template<typename Type>
-class LLCopyOnWritePointer : public LLPointer<Type>
+class LLCopyOnWritePointer
 {
 public:
-	typedef LLPointer<Type> ref_pointer_t;
 	typedef LLCopyOnWritePointer<Type> self_t;
 
 	LLCopyOnWritePointer() 
-	{
-	}
+	{}
 
 	LLCopyOnWritePointer(Type* ptr) 
-	:	LLPointer(ptr)
-	{
-	}
+	:	mPointer(ptr)
+	{}
+
+	LLCopyOnWritePointer(LLPointer<Type>& ptr)
+	:	mPointer(ptr)
+	{}
 
 	Type* write()
 	{
 		makeUnique();
-		return mPointer;
+		return mPointer.get();
 	}
 
 	void makeUnique()
 	{
-		if (mPointer && mPointer->getNumRefs() > 1)
+		if (mPointer.notNull() && mPointer.get()->getNumRefs() > 1)
 		{
-			ref_pointer_t::assign(new Type(*mPointer));
+			mPointer = new Type(*mPointer.get());
 		}
 	}
 
-	using ref_pointer_t::operator BOOL;
-	using ref_pointer_t::operator bool;
-	using ref_pointer_t::operator!;
+	operator BOOL()  const						{ return (BOOL)mPointer; }
+	operator bool()  const						{ return (bool)mPointer; }
+	bool operator!() const						{ return !mPointer; }
+	bool isNull() const							{ return mPointer.isNull(); }
+	bool notNull() const						{ return mPointer.notNull(); }
 
-	using ref_pointer_t::operator !=;
-	using ref_pointer_t::operator ==;
-	using LLPointer<Type>::operator =;
+	bool operator !=(Type* ptr) const           { return (mPointer.get() != ptr); 	}
+	bool operator ==(Type* ptr) const           { return (mPointer.get() == ptr); 	}
+	bool operator ==(const LLCopyOnWritePointer<Type>& ptr) const     { return (mPointer == ptr.mPointer); 	}
+	bool operator < (const LLCopyOnWritePointer<Type>& ptr) const     { return (mPointer < ptr.mPointer); 	}
+	bool operator > (const LLCopyOnWritePointer<Type>& ptr) const     { return (mPointer > ptr.mPointer); 	}
 
-	using LLPointer<Type>::operator <;
-	using LLPointer<Type>::operator >;
-
-
-	operator Type*()							{ return mPointer; }
-	operator const Type*()   const				{ return mPointer; }
-	Type*	operator->()						{ return mPointer; }
-	const Type*	operator->() const				{ return mPointer; }
-
+	operator const Type*()   const				{ return mPointer.get(); }
+	const Type*	operator->() const				{ return mPointer.get(); }
+protected:
+	 LLPointer<Type> mPointer;
 };
 
 #endif

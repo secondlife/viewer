@@ -326,36 +326,32 @@ namespace LLTrace
 		}
 
 		template <typename T>
-		F64 getPeriodMean(const TraceType<T>& stat) const
+		typename TraceType<T>::mean_t getPeriodMean(const TraceType<T>& stat) const
 		{
-			F64 mean = 0.0;
-			F64 count = 0;
+			typename TraceType<T>::mean_t mean = 0.0;
 			for (S32 i = 0; i < mNumPeriods; i++)
 			{
 				if (mRecordingPeriods[i].getDuration() > 0.f)
 				{
-					count++;
 					mean += mRecordingPeriods[i].getSum(stat);
 				}
 			}
-			mean /= (F64)mNumPeriods;
+			mean /= mNumPeriods;
 			return mean;
 		}
 
 		template <typename T>
-		F64 getPeriodMeanPerSec(const TraceType<T>& stat) const
+		typename TraceType<T>::mean_t getPeriodMeanPerSec(const TraceType<T>& stat) const
 		{
-			F64 mean = 0.0;
-			F64 count = 0;
+			typename TraceType<T>::mean_t mean = 0.0;
 			for (S32 i = 0; i < mNumPeriods; i++)
 			{
 				if (mRecordingPeriods[i].getDuration() > 0.f)
 				{
-					count++;
 					mean += mRecordingPeriods[i].getPerSec(stat);
 				}
 			}
-			mean /= count;
+			mean /= mNumPeriods;
 			return mean;
 		}
 

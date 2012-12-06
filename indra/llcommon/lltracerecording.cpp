@@ -49,7 +49,7 @@ Recording::Recording()
 
 Recording::Recording( const Recording& other )
 {
-	llassert(other.mCountsFloat.get() != NULL);
+	llassert(other.mCountsFloat.notNull());
 	mSamplingTimer     = other.mSamplingTimer;
 	mElapsedSeconds    = other.mElapsedSeconds;
 	mCountsFloat       = other.mCountsFloat;

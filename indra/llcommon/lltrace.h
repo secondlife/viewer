@@ -201,18 +201,27 @@ namespace LLTrace
 		}
 
 	private:
-		ACCUMULATOR*							mStorage;
-		size_t									mStorageSize;
-		size_t									mNextStorageSlot;
+		ACCUMULATOR*								mStorage;
+		size_t										mStorageSize;
+		size_t										mNextStorageSlot;
 		static LLThreadLocalPointer<ACCUMULATOR>	sPrimaryStorage;
 	};
 	template<typename ACCUMULATOR> LLThreadLocalPointer<ACCUMULATOR> AccumulatorBuffer<ACCUMULATOR>::sPrimaryStorage;
+
+	//TODO: replace with decltype when C++11 is enabled
+	template<typename T>
+	struct MeanValueType
+	{
+		typedef F64 type;
+	};
 
 	template<typename ACCUMULATOR>
 	class TraceType 
 	:	 public LLInstanceTracker<TraceType<ACCUMULATOR>, std::string>
 	{
 	public:
+		typedef typename MeanValueType<TraceType<ACCUMULATOR> >::type  mean_t;
+
 		TraceType(const char* name, const char* description = NULL)
 		:	LLInstanceTracker(name),
 			mName(name),
@@ -413,6 +422,13 @@ namespace LLTrace
 		U64 						mSelfTimeCounter,
 									mTotalTimeCounter;
 		U32 mCalls;
+	};
+
+
+	template<>
+	struct MeanValueType<TraceType<TimeBlockAccumulator> >
+	{
+		typedef LLUnit<LLUnits::Seconds, F64> type;
 	};
 
 	template<>

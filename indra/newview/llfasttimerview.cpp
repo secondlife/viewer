@@ -501,7 +501,7 @@ void LLFastTimerView::draw()
 			}
 			else
 			{
-				ms = frame_recording.getPeriodMean(*idp);
+				ms = LLUnit<LLUnits::Seconds, F64>(frame_recording.getPeriodMean(*idp));
 				calls = frame_recording.getPeriodMean(idp->callCount());
 			}
 
@@ -511,7 +511,7 @@ void LLFastTimerView::draw()
 			}
 			else
 			{
-				tdesc = llformat("%s [%.1f]",idp->getName().c_str(),ms);
+				tdesc = llformat("%s [%.1f]",idp->getName().c_str(),ms.value());
 			}
 			dx = (texth+4) + idp->getDepth()*8;
 
