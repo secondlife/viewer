@@ -155,57 +155,72 @@ void on_new_message(const LLSD& msg)
 
     // execution of the action
 
+    LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
+    LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(session_id);
+
+    bool sessionFloaterInActive = session_floater
+                                    && (!session_floater->isInVisibleChain()) //conversation floater not displayed
+                                        || 
+                                        (session_floater->isInVisibleChain() && session_floater->hasFocus() == false); //conversation floater is displayed but doesn't have focus
+
     if ("toast" == action)
     {
         // Skip toasting if we have open window of IM with this session id
-        LLFloaterIMSession* open_im_floater = LLFloaterIMSession::findInstance(session_id);
         if (
-            open_im_floater
-            && open_im_floater->isInVisibleChain()
-            && open_im_floater->hasFocus()
-            && !open_im_floater->isMinimized()
-            && !(open_im_floater->getHost()
-            && open_im_floater->getHost()->isMinimized())
+            session_floater
+            && session_floater->isInVisibleChain()
+            && session_floater->hasFocus()
+            && !session_floater->isMinimized()
+            && !(session_floater->getHost()
+            && session_floater->getHost()->isMinimized())
             )
         {
             return;
         }
 
 	    // Skip toasting for system messages and for nearby chat
-	    if (participant_id.isNull() || session_id.isNull())
+	    if (participant_id.isNull())
         {
             return;
         }
 
-        //Show toast
-        LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
+        //Show IM toasts (upper right toasts)
+        if(session_id.notNull())
+        {
+            LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
+        }
+
+        //Session floater has focus, so don't need to show notification flashes
+        if(sessionFloaterInActive)
+        {
+            //Flash converstation line item anytime that conversation doesn't have focus
+            im_box->flashConversationItemWidget(session_id, true);
+
+            //Only flash the 'Chat' FUI button when the conversation floater isn't focused (implies not front most floater)
+            if(!im_box->hasFocus())
+            {
+                gToolBarView->flashCommand(LLCommandId("chat"), true);
+            }
+        }
     }
     else if ("flash" == action)
     {
-        LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
-        if (im_box)
+        if(sessionFloaterInActive && !im_box->hasFocus())
+        {
+            gToolBarView->flashCommand(LLCommandId("chat"), true); // flashing of the FUI button "Chat"
+        }
+        else if(sessionFloaterInActive)
         {
             im_box->flashConversationItemWidget(session_id, true); // flashing of the conversation's item
         }
-        gToolBarView->flashCommand(LLCommandId("chat"), true); // flashing of the FUI button "Chat"
     }
     else if("openconversations" == action)
     {
-        LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
-        LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(session_id);
-
         //Don't flash and show conversation floater when conversation already active (has focus)
-        if(session_floater
-            && (!session_floater->isInVisibleChain()) //conversation floater not displayed
-                || 
-                (session_floater->isInVisibleChain() && session_floater->hasFocus() == false)) //conversation floater is displayed but doesn't have focus
-
+        if(sessionFloaterInActive)
         {
             //Flash line item
-            if (im_box)
-            {
-                im_box->flashConversationItemWidget(session_id, true); // flashing of the conversation's item
-            }
+            im_box->flashConversationItemWidget(session_id, true); // flashing of the conversation's item
 
             //Surface conversations floater
             LLFloaterReg::showInstance("im_container");
