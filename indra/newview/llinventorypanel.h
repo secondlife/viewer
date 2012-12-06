@@ -275,6 +275,13 @@ protected:
 	// Builds the UI.  Call this once the inventory is usable.
 	void 				initializeViews();
 
+	// Specific inventory colors
+	static bool                 sColorSetInitialized;
+	static LLUIColor			sDefaultColor;
+	static LLUIColor			sDefaultHighlightColor;
+	static LLUIColor			sLibraryColor;
+	static LLUIColor			sLinkColor;
+	
 	LLFolderViewItem*	buildNewViews(const LLUUID& id);
 	BOOL				getIsHiddenFolderType(LLFolderType::EType folder_type) const;
 	

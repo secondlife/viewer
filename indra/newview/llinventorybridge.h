@@ -107,6 +107,7 @@ public:
 	virtual BOOL isItemMovable() const;
 	virtual BOOL isItemInTrash() const;
 	virtual BOOL isLink() const;
+	virtual BOOL isLibraryItem() const;
 	//virtual BOOL removeItem() = 0;
 	virtual void removeBatch(std::vector<LLFolderViewModelItem*>& batch);
 	virtual void move(LLFolderViewModelItem* new_parent_bridge) {}
