@@ -30,6 +30,7 @@
 
 #include "llavatarnamecache.h"	// IDEVO
 #include "llavataractions.h"
+#include "llfloaterconversationlog.h"
 #include "llfloaterreg.h"
 #include "llfontgl.h"
 #include "llgl.h"
@@ -2465,6 +2466,18 @@ void LLIMMgr::addMessage(
 	{
 		//no session ID...compute new one
 		new_session_id = computeSessionID(dialog, other_participant_id);
+	}
+
+	// Open conversation log if offline messages are present
+	if (is_offline_msg)
+	{
+		LLFloaterConversationLog* floater_log =
+				LLFloaterReg::getTypedInstance<LLFloaterConversationLog>("conversation");
+		if (floater_log && !(floater_log->isFrontmost()))
+		{
+            floater_log->openFloater();
+			floater_log->setFrontmost(TRUE);
+		}
 	}
 
 	//*NOTE session_name is empty in case of incoming P2P sessions
