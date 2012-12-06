@@ -271,10 +271,11 @@ LLUnit<UNIT_TYPE, STORAGE_TYPE> operator * (LLUnit<UNIT_TYPE, STORAGE_TYPE> firs
 }
 
 template<typename UNIT_TYPE1, typename STORAGE_TYPE1, typename UNIT_TYPE2, typename STORAGE_TYPE2>
-void operator * (LLUnit<UNIT_TYPE1, STORAGE_TYPE1>, LLUnit<UNIT_TYPE2, STORAGE_TYPE2>)
+LLUnit<UNIT_TYPE1, STORAGE_TYPE1> operator * (LLUnit<UNIT_TYPE1, STORAGE_TYPE1>, LLUnit<UNIT_TYPE2, STORAGE_TYPE2>)
 {
 	// spurious use of dependent type to stop gcc from triggering the static assertion before instantiating the template
 	llstatic_assert(sizeof(STORAGE_TYPE1) == 0, "Multiplication of unit types results in new unit type - not supported.");
+	return LLUnit<UNIT_TYPE1, STORAGE_TYPE1>();
 }
 
 //
@@ -293,10 +294,10 @@ LLUnit<UNIT_TYPE, STORAGE_TYPE> operator / (LLUnit<UNIT_TYPE, STORAGE_TYPE> firs
 }
 
 template<typename UNIT_TYPE1, typename STORAGE_TYPE1, typename UNIT_TYPE2, typename STORAGE_TYPE2>
-void operator / (LLUnit<UNIT_TYPE1, STORAGE_TYPE1>, LLUnit<UNIT_TYPE2, STORAGE_TYPE2>)
+STORAGE_TYPE1 operator / (LLUnit<UNIT_TYPE1, STORAGE_TYPE1> first, LLUnit<UNIT_TYPE2, STORAGE_TYPE2> second)
 {
 	// spurious use of dependent type to stop gcc from triggering the static assertion before instantiating the template
-	llstatic_assert(sizeof(STORAGE_TYPE1) == 0, "Multiplication of unit types results in new unit type - not supported.");
+	return STORAGE_TYPE1(first.value() / second.value());
 }
 
 #define COMPARISON_OPERATORS(op)                                                                     \

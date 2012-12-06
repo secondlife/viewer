@@ -30,7 +30,6 @@
 #define LLVIEW_CPP
 #include "llview.h"
 
-#include <cassert>
 #include <sstream>
 #include <boost/tokenizer.hpp>
 #include <boost/foreach.hpp>

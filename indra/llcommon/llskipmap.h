@@ -210,8 +210,7 @@ inline LLSkipMap<INDEX_TYPE, DATA_TYPE, BINARY_DEPTH>::LLSkipMap()
 	:	mInsertFirst(NULL),
 		mEquals(defaultEquals)
 {
-	// Skipmaps must have binary depth of at least 2
-	cassert(BINARY_DEPTH >= 2);
+	llstatic_assert(BINARY_DEPTH >= 2, "Skipmaps must have binary depth of at least 2");
 
 	S32 i;
 	for (i = 0; i < BINARY_DEPTH; i++)
@@ -229,8 +228,7 @@ inline LLSkipMap<INDEX_TYPE, DATA_TYPE, BINARY_DEPTH>::LLSkipMap(BOOL	(*insert_f
 	:	mInsertFirst(insert_first),
 		mEquals(equals)
 {
-	// Skipmaps must have binary depth of at least 2
-	cassert(BINARY_DEPTH >= 2);
+	llstatic_assert(BINARY_DEPTH >= 2, "Skipmaps must have binary depth of at least 2");
 
 	mLevel = 1;
 	S32 i;
