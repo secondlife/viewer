@@ -297,6 +297,27 @@ private:
 	LLUUID mTargetLandmarkId;
 };
 
+// Shim between inventory callback and boost function/callable
+typedef boost::function<void(const LLUUID&)> inventory_func_type;
+
+class LLBoostFuncInventoryCallback: public LLInventoryCallback
+{
+public:
+
+	LLBoostFuncInventoryCallback(const inventory_func_type& func):
+		mFunc(func)
+	{
+	}
+
+	void fire(const LLUUID& item_id)
+	{
+		mFunc(item_id);
+	}
+
+private:
+	inventory_func_type mFunc;
+};
+
 // misc functions
 //void inventory_reliable_callback(void**, S32 status);
 
