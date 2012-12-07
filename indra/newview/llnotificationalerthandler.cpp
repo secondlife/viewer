@@ -29,6 +29,7 @@
 
 #include "llnotificationhandler.h"
 
+#include "llagentcamera.h"
 #include "llnotifications.h"
 #include "llprogressview.h"
 #include "lltoastnotifypanel.h"
@@ -41,7 +42,7 @@ using namespace LLNotificationsUI;
 
 //--------------------------------------------------------------------------
 LLAlertHandler::LLAlertHandler(const std::string& name, const std::string& notification_type, bool is_modal) 
-:	LLSysHandler(name, notification_type),
+:	LLSystemNotificationHandler(name, notification_type),
 	mIsModal(is_modal)
 {
 	LLScreenChannelBase::Params p;
@@ -123,3 +124,28 @@ void LLAlertHandler::onChange( LLNotificationPtr notification )
 	if(channel)
 		channel->modifyToastByNotificationID(notification->getID(), (LLToastPanel*)alert_dialog);
 }
+
+//--------------------------------------------------------------------------
+LLViewerAlertHandler::LLViewerAlertHandler(const std::string& name, const std::string& notification_type)
+	: LLSystemNotificationHandler(name, notification_type)
+{
+}
+
+bool LLViewerAlertHandler::processNotification(const LLNotificationPtr& p)
+{
+	if (gHeadlessClient)
+	{
+		LL_INFOS("LLViewerAlertHandler") << "Alert: " << p->getName() << LL_ENDL;
+	}
+
+	// If we're in mouselook, the mouse is hidden and so the user can't click 
+	// the dialog buttons.  In that case, change to First Person instead.
+	if( gAgentCamera.cameraMouselook() )
+	{
+		gAgentCamera.changeCameraToDefault();
+	}
+
+	return false;
+}
+
+

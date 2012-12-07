@@ -41,7 +41,7 @@ using namespace LLNotificationsUI;
 
 //--------------------------------------------------------------------------
 LLOfferHandler::LLOfferHandler()
-:	LLSysHandler("Offer", "offer")
+:	LLCommunicationNotificationHandler("Offer", "offer")
 {
 	// Getting a Channel for our notifications
 	LLScreenChannel* channel = LLChannelManager::getInstance()->createNotificationChannel();
