@@ -65,6 +65,7 @@ struct ConversionFactor<BASE_UNITS_TAG, BASE_UNITS_TAG, VALUE_TYPE>
 		return 1; 
 	}
 };
+
 }
 
 template<typename UNIT_TYPE, typename STORAGE_TYPE>
@@ -73,35 +74,30 @@ struct LLUnit
 	typedef LLUnit<UNIT_TYPE, STORAGE_TYPE> self_t;
 	typedef STORAGE_TYPE storage_t;
 
+	// value initialization
 	LLUnit(storage_t value = storage_t())
 	:	mValue(value)
 	{}
 
+	// unit initialization and conversion
 	template<typename OTHER_UNIT, typename OTHER_STORAGE>
 	LLUnit(LLUnit<OTHER_UNIT, OTHER_STORAGE> other)
 	:	mValue(convert(other))
 	{}
-
-	LLUnit(self_t& other)
-	:	mValue(other.mValue)
-	{}
-
+	
+	// value assignment
 	self_t& operator = (storage_t value)
 	{
 		mValue = value;
 		return *this;
 	}
 
+	// unit assignment
 	template<typename OTHER_UNIT, typename OTHER_STORAGE>
 	self_t& operator = (LLUnit<OTHER_UNIT, OTHER_STORAGE> other)
 	{
 		mValue = convert(other);
 		return *this;
-	}
-
-	operator storage_t() const
-	{
-		return value();
 	}
 
 	storage_t value() const
@@ -157,7 +153,7 @@ struct LLUnit
 	void operator /= (LLUnit<OTHER_UNIT, OTHER_STORAGE> divisor)
 	{
 		// spurious use of dependent type to stop gcc from triggering the static assertion before instantiating the template
-		llstatic_assert(sizeof(OTHER_UNIT) == 0, "Division of unit types not supported.");
+		llstatic_assert(sizeof(OTHER_UNIT) == 0, "Illegal in-place division of unit types.");
 	}
 
 	template<typename SOURCE_UNITS, typename SOURCE_STORAGE>
@@ -169,34 +165,30 @@ struct LLUnit
 	}
 
 protected:
-
 	storage_t mValue;
 };
 
 template<typename UNIT_TYPE, typename STORAGE_TYPE>
-struct LLUnitStrict : public LLUnit<UNIT_TYPE, STORAGE_TYPE>
+struct LLUnitImplicit : public LLUnit<UNIT_TYPE, STORAGE_TYPE>
 {
-	typedef LLUnitStrict<UNIT_TYPE, STORAGE_TYPE> self_t;
+	typedef LLUnitImplicit<UNIT_TYPE, STORAGE_TYPE> self_t;
 	typedef typename LLUnit<UNIT_TYPE, STORAGE_TYPE>::storage_t storage_t;
+	typedef LLUnit<UNIT_TYPE, STORAGE_TYPE> base_t;
 
-	explicit LLUnitStrict(storage_t value = storage_t())
-	:	LLUnit<UNIT_TYPE, STORAGE_TYPE>(value)
+	LLUnitImplicit(storage_t value = storage_t())
+	:	base_t(value)
 	{}
 
 	template<typename OTHER_UNIT, typename OTHER_STORAGE>
-	LLUnitStrict(LLUnit<OTHER_UNIT, OTHER_STORAGE> other)
-	:	LLUnit<UNIT_TYPE, STORAGE_TYPE>(convert(other))
+	LLUnitImplicit(LLUnit<OTHER_UNIT, OTHER_STORAGE> other)
+	:	base_t(convert(other))
 	{}
 
-	LLUnitStrict(self_t& other)
-	:	LLUnit<UNIT_TYPE, STORAGE_TYPE>(other)
-	{}
-
-
-private:
+	// unlike LLUnit, LLUnitImplicit is *implicitly* convertable to a POD scalar (F32, S32, etc)
+	// this allows for interoperability with legacy code
 	operator storage_t() const
 	{
-		return LLUnit<UNIT_TYPE, STORAGE_TYPE>::value();
+		return value();
 	}
 };
 
@@ -204,7 +196,7 @@ private:
 // operator +
 //
 template<typename UNIT_TYPE1, typename STORAGE_TYPE1, typename UNIT_TYPE2, typename STORAGE_TYPE2>
-LLUnit<STORAGE_TYPE1, UNIT_TYPE1> operator + (LLUnit<UNIT_TYPE1, STORAGE_TYPE1> first, LLUnit<UNIT_TYPE2, STORAGE_TYPE2> second)
+LLUnit<UNIT_TYPE1, STORAGE_TYPE1> operator + (LLUnit<UNIT_TYPE1, STORAGE_TYPE1> first, LLUnit<UNIT_TYPE2, STORAGE_TYPE2> second)
 {
 	LLUnit<UNIT_TYPE1, STORAGE_TYPE1> result(first);
 	result += second;
@@ -227,6 +219,30 @@ LLUnit<UNIT_TYPE, STORAGE_TYPE> operator + (SCALAR_TYPE first, LLUnit<UNIT_TYPE,
 	return result;
 }
 
+template<typename UNIT_TYPE1, typename STORAGE_TYPE1, typename UNIT_TYPE2, typename STORAGE_TYPE2>
+LLUnitImplicit<UNIT_TYPE1, STORAGE_TYPE1> operator + (LLUnitImplicit<UNIT_TYPE1, STORAGE_TYPE1> first, LLUnit<UNIT_TYPE2, STORAGE_TYPE2> second)
+{
+	LLUnitImplicit<UNIT_TYPE1, STORAGE_TYPE1> result(first);
+	result += second;
+	return result;
+}
+
+template<typename UNIT_TYPE, typename STORAGE_TYPE, typename SCALAR_TYPE>
+LLUnitImplicit<UNIT_TYPE, STORAGE_TYPE> operator + (LLUnitImplicit<UNIT_TYPE, STORAGE_TYPE> first, SCALAR_TYPE second)
+{
+	LLUnitImplicit<UNIT_TYPE, STORAGE_TYPE> result(first);
+	result += second;
+	return result;
+}
+
+template<typename UNIT_TYPE1, typename STORAGE_TYPE1, typename UNIT_TYPE2, typename STORAGE_TYPE2>
+LLUnitImplicit<UNIT_TYPE1, STORAGE_TYPE1> operator + (LLUnitImplicit<UNIT_TYPE1, STORAGE_TYPE1> first, LLUnitImplicit<UNIT_TYPE2, STORAGE_TYPE2> second)
+{
+	LLUnitImplicit<UNIT_TYPE1, STORAGE_TYPE1> result(first);
+	result += second;
+	return result;
+}
+
 //
 // operator -
 //
@@ -237,7 +253,6 @@ LLUnit<UNIT_TYPE1, STORAGE_TYPE1> operator - (LLUnit<UNIT_TYPE1, STORAGE_TYPE1> 
 	result -= second;
 	return result;
 }
-
 
 template<typename UNIT_TYPE, typename STORAGE_TYPE, typename SCALAR_TYPE>
 LLUnit<UNIT_TYPE, STORAGE_TYPE> operator - (LLUnit<UNIT_TYPE, STORAGE_TYPE> first, SCALAR_TYPE second)
@@ -251,6 +266,30 @@ template<typename UNIT_TYPE, typename STORAGE_TYPE, typename SCALAR_TYPE>
 LLUnit<UNIT_TYPE, STORAGE_TYPE> operator - (SCALAR_TYPE first, LLUnit<UNIT_TYPE, STORAGE_TYPE> second)
 {
 	LLUnit<UNIT_TYPE, STORAGE_TYPE> result(first);
+	result -= second;
+	return result;
+}
+
+template<typename UNIT_TYPE1, typename STORAGE_TYPE1, typename UNIT_TYPE2, typename STORAGE_TYPE2>
+LLUnitImplicit<UNIT_TYPE1, STORAGE_TYPE1> operator - (LLUnitImplicit<UNIT_TYPE1, STORAGE_TYPE1> first, LLUnitImplicit<UNIT_TYPE2, STORAGE_TYPE2> second)
+{
+	LLUnitImplicit<UNIT_TYPE1, STORAGE_TYPE1> result(first);
+	result -= second;
+	return result;
+}
+
+template<typename UNIT_TYPE, typename STORAGE_TYPE, typename SCALAR_TYPE>
+LLUnitImplicit<UNIT_TYPE, STORAGE_TYPE> operator - (LLUnitImplicit<UNIT_TYPE, STORAGE_TYPE> first, SCALAR_TYPE second)
+{
+	LLUnitImplicit<UNIT_TYPE, STORAGE_TYPE> result(first);
+	result -= second;
+	return result;
+}
+
+template<typename UNIT_TYPE, typename STORAGE_TYPE, typename SCALAR_TYPE>
+LLUnitImplicit<UNIT_TYPE, STORAGE_TYPE> operator - (SCALAR_TYPE first, LLUnitImplicit<UNIT_TYPE, STORAGE_TYPE> second)
+{
+	LLUnitImplicit<UNIT_TYPE, STORAGE_TYPE> result(first);
 	result -= second;
 	return result;
 }
@@ -278,6 +317,26 @@ LLUnit<UNIT_TYPE1, STORAGE_TYPE1> operator * (LLUnit<UNIT_TYPE1, STORAGE_TYPE1>,
 	return LLUnit<UNIT_TYPE1, STORAGE_TYPE1>();
 }
 
+template<typename UNIT_TYPE, typename STORAGE_TYPE, typename SCALAR_TYPE>
+LLUnitImplicit<UNIT_TYPE, STORAGE_TYPE> operator * (SCALAR_TYPE first, LLUnitImplicit<UNIT_TYPE, STORAGE_TYPE> second)
+{
+	return LLUnitImplicit<UNIT_TYPE, STORAGE_TYPE>(first * second.value());
+}
+
+template<typename UNIT_TYPE, typename STORAGE_TYPE, typename SCALAR_TYPE>
+LLUnitImplicit<UNIT_TYPE, STORAGE_TYPE> operator * (LLUnitImplicit<UNIT_TYPE, STORAGE_TYPE> first, SCALAR_TYPE second)
+{
+	return LLUnitImplicit<UNIT_TYPE, STORAGE_TYPE>(first.value() * second);
+}
+
+template<typename UNIT_TYPE1, typename STORAGE_TYPE1, typename UNIT_TYPE2, typename STORAGE_TYPE2>
+LLUnitImplicit<UNIT_TYPE1, STORAGE_TYPE1> operator * (LLUnitImplicit<UNIT_TYPE1, STORAGE_TYPE1>, LLUnitImplicit<UNIT_TYPE2, STORAGE_TYPE2>)
+{
+	// spurious use of dependent type to stop gcc from triggering the static assertion before instantiating the template
+	llstatic_assert(sizeof(STORAGE_TYPE1) == 0, "Multiplication of unit types results in new unit type - not supported.");
+	return LLUnitImplicit<UNIT_TYPE1, STORAGE_TYPE1>();
+}
+
 //
 // operator /
 //
@@ -300,23 +359,42 @@ STORAGE_TYPE1 operator / (LLUnit<UNIT_TYPE1, STORAGE_TYPE1> first, LLUnit<UNIT_T
 	return STORAGE_TYPE1(first.value() / second.value());
 }
 
-#define COMPARISON_OPERATORS(op)                                                                     \
-template<typename UNIT_TYPE, typename STORAGE_TYPE, typename SCALAR_TYPE>                            \
-bool operator op (SCALAR_TYPE first, LLUnit<UNIT_TYPE, STORAGE_TYPE> second)                         \
-{                                                                                                    \
-	return first op second.value();                                                                  \
-}                                                                                                    \
-	                                                                                                 \
-template<typename UNIT_TYPE, typename STORAGE_TYPE, typename SCALAR_TYPE>                            \
-bool operator op (LLUnit<UNIT_TYPE, STORAGE_TYPE> first, SCALAR_TYPE second)                         \
-{                                                                                                    \
-	return first.value() op second;                                                                  \
-}                                                                                                    \
-	                                                                                                 \
-template<typename UNIT_TYPE1, typename STORAGE_TYPE1, typename UNIT_TYPE2, typename STORAGE_TYPE2>   \
-bool operator op (LLUnit<UNIT_TYPE1, STORAGE_TYPE1> first, LLUnit<UNIT_TYPE2, STORAGE_TYPE2> second) \
-{                                                                                                    \
-	return first.value() op first.convert(second);                                                   \
+template<typename UNIT_TYPE, typename STORAGE_TYPE, typename SCALAR_TYPE>
+LLUnitImplicit<UNIT_TYPE, STORAGE_TYPE> operator / (LLUnitImplicit<UNIT_TYPE, STORAGE_TYPE> first, SCALAR_TYPE second)
+{
+	return LLUnitImplicit<UNIT_TYPE, STORAGE_TYPE>(first.value() / second);
+}
+
+template<typename UNIT_TYPE1, typename STORAGE_TYPE1, typename UNIT_TYPE2, typename STORAGE_TYPE2>
+STORAGE_TYPE1 operator / (LLUnitImplicit<UNIT_TYPE1, STORAGE_TYPE1> first, LLUnitImplicit<UNIT_TYPE2, STORAGE_TYPE2> second)
+{
+	// spurious use of dependent type to stop gcc from triggering the static assertion before instantiating the template
+	return STORAGE_TYPE1(first.value() / second.value());
+}
+
+#define COMPARISON_OPERATORS(op)                                                                                     \
+template<typename UNIT_TYPE, typename STORAGE_TYPE, typename SCALAR_TYPE>                                            \
+bool operator op (SCALAR_TYPE first, LLUnit<UNIT_TYPE, STORAGE_TYPE> second)                                         \
+{                                                                                                                    \
+	return first op second.value();                                                                                  \
+}                                                                                                                    \
+	                                                                                                                 \
+template<typename UNIT_TYPE, typename STORAGE_TYPE, typename SCALAR_TYPE>                                            \
+bool operator op (LLUnit<UNIT_TYPE, STORAGE_TYPE> first, SCALAR_TYPE second)                                         \
+{                                                                                                                    \
+	return first.value() op second;                                                                                  \
+}                                                                                                                    \
+	                                                                                                                 \
+template<typename UNIT_TYPE1, typename STORAGE_TYPE1, typename UNIT_TYPE2, typename STORAGE_TYPE2>                   \
+bool operator op (LLUnitImplicit<UNIT_TYPE1, STORAGE_TYPE1> first, LLUnitImplicit<UNIT_TYPE2, STORAGE_TYPE2> second) \
+{                                                                                                                    \
+	return first.value() op first.convert(second);                                                                   \
+}                                                                                                                    \
+	                                                                                                                 \
+template<typename UNIT_TYPE1, typename STORAGE_TYPE1, typename UNIT_TYPE2, typename STORAGE_TYPE2>                   \
+	bool operator op (LLUnit<UNIT_TYPE1, STORAGE_TYPE1> first, LLUnit<UNIT_TYPE2, STORAGE_TYPE2> second)             \
+{                                                                                                                    \
+	return first.value() op first.convert(second);                                                                   \
 }
 
 COMPARISON_OPERATORS(<)
@@ -328,6 +406,15 @@ COMPARISON_OPERATORS(!=)
 
 namespace LLUnits
 {
+template<typename T>
+T rawValue(T val) { return val; }
+
+template<typename UNIT_TYPE, typename STORAGE_TYPE> 
+STORAGE_TYPE rawValue(LLUnit<UNIT_TYPE, STORAGE_TYPE> val) { return val.value(); }
+
+template<typename UNIT_TYPE, typename STORAGE_TYPE> 
+STORAGE_TYPE rawValue(LLUnitImplicit<UNIT_TYPE, STORAGE_TYPE> val) { return val.value(); }
+
 template<typename UNIT_TYPE, typename STORAGE_TYPE> 
 struct HighestPrecisionType<LLUnit<UNIT_TYPE, STORAGE_TYPE> >
 {
@@ -361,22 +448,22 @@ struct Bytes { typedef Bytes base_unit_t; };
 LL_DECLARE_DERIVED_UNIT(1024, Bytes, Kilobytes);
 LL_DECLARE_DERIVED_UNIT(1024 * 1024, Bytes, Megabytes);
 LL_DECLARE_DERIVED_UNIT(1024 * 1024 * 1024, Bytes, Gigabytes);
-LL_DECLARE_DERIVED_UNIT((1.0 / 8.0), Bytes, Bits);
-LL_DECLARE_DERIVED_UNIT((1024 / 8), Bytes, Kilobits);
-LL_DECLARE_DERIVED_UNIT((1024 / 8), Bytes, Megabits);
-LL_DECLARE_DERIVED_UNIT((1024 * 1024 * 1024 / 8), Bytes, Gigabits);
+LL_DECLARE_DERIVED_UNIT(1.0 / 8.0, Bytes, Bits);
+LL_DECLARE_DERIVED_UNIT(1024 / 8, Bytes, Kilobits);
+LL_DECLARE_DERIVED_UNIT(1024 / 8, Bytes, Megabits);
+LL_DECLARE_DERIVED_UNIT(1024 * 1024 * 1024 / 8, Bytes, Gigabits);
 
 struct Seconds { typedef Seconds base_unit_t; };
 LL_DECLARE_DERIVED_UNIT(60, Seconds, Minutes);
 LL_DECLARE_DERIVED_UNIT(60 * 60, Seconds, Hours);
-LL_DECLARE_DERIVED_UNIT((1.0 / 1000.0), Seconds, Milliseconds);
-LL_DECLARE_DERIVED_UNIT((1.0 / (1000000.0)), Seconds, Microseconds);
-LL_DECLARE_DERIVED_UNIT((1.0 / (1000000000.0)), Seconds, Nanoseconds);
+LL_DECLARE_DERIVED_UNIT(1.0 / 1000.0, Seconds, Milliseconds);
+LL_DECLARE_DERIVED_UNIT(1.0 / 1000000.0, Seconds, Microseconds);
+LL_DECLARE_DERIVED_UNIT(1.0 / 1000000000.0, Seconds, Nanoseconds);
 
 struct Meters { typedef Meters base_unit_t; };
 LL_DECLARE_DERIVED_UNIT(1000, Meters, Kilometers);
-LL_DECLARE_DERIVED_UNIT((1.0 / 100.0), Meters, Centimeters);
-LL_DECLARE_DERIVED_UNIT((1.0 / 1000.0), Meters, Millimeters);
+LL_DECLARE_DERIVED_UNIT(1.0 / 100.0, Meters, Centimeters);
+LL_DECLARE_DERIVED_UNIT(1.0 / 1000.0, Meters, Millimeters);
 
 struct Hertz { typedef Hertz base_unit_t; };
 LL_DECLARE_DERIVED_UNIT(1000, Hertz, Kilohertz);

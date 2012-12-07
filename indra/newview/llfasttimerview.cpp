@@ -311,11 +311,11 @@ static std::string get_tooltip(LLTrace::TimeBlock& timer, S32 history_index, LLT
 	if (history_index < 0)
 	{
 		// by default, show average number of call
-		tooltip = llformat("%s (%d ms, %d calls)", timer.getName().c_str(), (S32)(frame_recording.getPeriodMean(timer) * ms_multiplier), (S32)frame_recording.getPeriodMean(timer.callCount()));
+		tooltip = llformat("%s (%d ms, %d calls)", timer.getName().c_str(), (S32)(frame_recording.getPeriodMean(timer) * ms_multiplier).value(), (S32)frame_recording.getPeriodMean(timer.callCount()));
 	}
 	else
 	{
-		tooltip = llformat("%s (%d ms, %d calls)", timer.getName().c_str(), (S32)(frame_recording.getPrevRecordingPeriod(history_index).getSum(timer) * ms_multiplier), (S32)frame_recording.getPrevRecordingPeriod(history_index).getSum(timer.callCount()));
+		tooltip = llformat("%s (%d ms, %d calls)", timer.getName().c_str(), (S32)(frame_recording.getPrevRecordingPeriod(history_index).getSum(timer) * ms_multiplier).value(), (S32)frame_recording.getPrevRecordingPeriod(history_index).getSum(timer.callCount()));
 	}
 	return tooltip;
 }
@@ -601,22 +601,22 @@ void LLFastTimerView::draw()
 	{
 		LLUnit<LLUnits::Milliseconds, U32> ms = total_time;
 
-		tdesc = llformat("%.1f ms |", (F32)ms*.25f);
+		tdesc = llformat("%.1f ms |", (F32)ms.value()*.25f);
 		x = xleft + barw/4 - LLFontGL::getFontMonospace()->getWidth(tdesc);
 		LLFontGL::getFontMonospace()->renderUTF8(tdesc, 0, x, y, LLColor4::white,
 										LLFontGL::LEFT, LLFontGL::TOP);
 			
-		tdesc = llformat("%.1f ms |", (F32)ms*.50f);
+		tdesc = llformat("%.1f ms |", (F32)ms.value()*.50f);
 		x = xleft + barw/2 - LLFontGL::getFontMonospace()->getWidth(tdesc);
 		LLFontGL::getFontMonospace()->renderUTF8(tdesc, 0, x, y, LLColor4::white,
 										LLFontGL::LEFT, LLFontGL::TOP);
 			
-		tdesc = llformat("%.1f ms |", (F32)ms*.75f);
+		tdesc = llformat("%.1f ms |", (F32)ms.value()*.75f);
 		x = xleft + (barw*3)/4 - LLFontGL::getFontMonospace()->getWidth(tdesc);
 		LLFontGL::getFontMonospace()->renderUTF8(tdesc, 0, x, y, LLColor4::white,
 										LLFontGL::LEFT, LLFontGL::TOP);
 			
-		tdesc = llformat( "%d ms |", (U32)ms);
+		tdesc = llformat( "%d ms |", (U32)ms.value());
 		x = xleft + barw - LLFontGL::getFontMonospace()->getWidth(tdesc);
 		LLFontGL::getFontMonospace()->renderUTF8(tdesc, 0, x, y, LLColor4::white,
 										LLFontGL::LEFT, LLFontGL::TOP);
@@ -728,11 +728,11 @@ void LLFastTimerView::draw()
 					++it)
 				{
 					sublevelticks += (tidx == -1)
-						? frame_recording.getPeriodMean(**it)
-						: frame_recording.getPrevRecordingPeriod(tidx).getSum(**it);
+						? frame_recording.getPeriodMean(**it).value()
+						: frame_recording.getPrevRecordingPeriod(tidx).getSum(**it).value();
 				}
 
-				F32 subfrac = (F32)sublevelticks / (F32)total_time;
+				F32 subfrac = (F32)sublevelticks / (F32)total_time.value();
 				sublevel_dx[level] = (int)(subfrac * (F32)barw + .5f);
 
 				if (mDisplayCenter == ALIGN_CENTER)
@@ -819,7 +819,7 @@ void LLFastTimerView::draw()
 		else if (mDisplayHz)
 			tdesc = llformat("%d Hz", (int)(1.f / max_time.value()));
 		else
-			tdesc = llformat("%4.2f ms", LLUnit<LLUnits::Milliseconds, F32>(max_time).value());
+			tdesc = llformat("%4.2f ms", max_time.value());
 							
 		x = mGraphRect.mRight - LLFontGL::getFontMonospace()->getWidth(tdesc)-5;
 		y = mGraphRect.mTop - LLFontGL::getFontMonospace()->getLineHeight();
@@ -900,7 +900,7 @@ void LLFastTimerView::draw()
 				F32 x = mGraphRect.mRight - j * (F32)(mGraphRect.getWidth())/(LLTrace::TimeBlock::HISTORY_NUM-1);
 				F32 y = mDisplayHz 
 					? mGraphRect.mBottom + (1.f / time.value()) * ((F32) mGraphRect.getHeight() / (1.f / max_time.value()))
-					: mGraphRect.mBottom + time * ((F32)mGraphRect.getHeight() / max_time);
+					: mGraphRect.mBottom + time / max_time * (F32)mGraphRect.getHeight();
 				gGL.vertex2f(x,y);
 				gGL.vertex2f(x,mGraphRect.mBottom);
 			}
@@ -920,22 +920,22 @@ void LLFastTimerView::draw()
 		}
 			
 		//interpolate towards new maximum
-		max_time = lerp((F32)max_time, (F32) cur_max, LLCriticalDamp::getInterpolant(0.1f));
+		max_time = lerp(max_time.value(), cur_max.value(), LLCriticalDamp::getInterpolant(0.1f));
 		if (max_time - cur_max <= 1 ||  cur_max - max_time  <= 1)
 		{
 			max_time = llmax(LLUnit<LLUnits::Microseconds, F32>(1), LLUnit<LLUnits::Microseconds, F32>(cur_max));
 		}
 
 		max_calls = lerp((F32)max_calls, (F32) cur_max_calls, LLCriticalDamp::getInterpolant(0.1f));
-		if (llabs(max_calls - cur_max) <= 1)
+		if (llabs((S32)(max_calls - cur_max_calls)) <= 1)
 		{
 			max_calls = cur_max_calls;
 		}
 
 		// TODO: make sure alpha is correct in DisplayHz mode
 		F32 alpha_target = (max_time > cur_max)
-			? llmin((F32) max_time/ (F32) cur_max - 1.f,1.f) 
-			: llmin((F32) cur_max/ (F32) max_time - 1.f,1.f);
+			? llmin(max_time / cur_max - 1.f,1.f) 
+			: llmin(cur_max/ max_time - 1.f,1.f);
 		alpha_interp = lerp(alpha_interp, alpha_target, LLCriticalDamp::getInterpolant(0.1f));
 
 		if (mHoverID != NULL)

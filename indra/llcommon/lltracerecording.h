@@ -205,7 +205,7 @@ namespace LLTrace
 		U32 getSampleCount(const TraceType<MeasurementAccumulator<F64> >& stat) const;
 		U32 getSampleCount(const TraceType<MeasurementAccumulator<S64> >& stat) const;
 
-		LLUnit<LLUnits::Seconds, F64> getDuration() const { return mElapsedSeconds; }
+		LLUnit<LLUnits::Seconds, F64> getDuration() const { return LLUnit<LLUnits::Seconds, F64>(mElapsedSeconds); }
 
 	private:
 		friend class ThreadRecorder;

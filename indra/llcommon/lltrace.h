@@ -435,6 +435,9 @@ namespace LLTrace
 	class TraceType<TimeBlockAccumulator::CallCountAspect>
 	:	public TraceType<TimeBlockAccumulator>
 	{
+	public:
+		typedef F32 mean_t;
+
 		TraceType(const char* name, const char* description = "")
 		:	TraceType<TimeBlockAccumulator>(name, description)
 		{}
@@ -465,7 +468,7 @@ namespace LLTrace
 		void sample(UNIT_T value)
 		{
 			T converted_value(value);
-			getPrimaryAccumulator().sample((storage_t)converted_value);
+			getPrimaryAccumulator().sample(LLUnits::rawValue(converted_value));
 		}
 	};
 
@@ -484,7 +487,7 @@ namespace LLTrace
 		void add(UNIT_T value)
 		{
 			T converted_value(value);
-			getPrimaryAccumulator().add((storage_t)converted_value);
+			getPrimaryAccumulator().add(LLUnits::rawValue(converted_value));
 		}
 	};
 }

@@ -68,7 +68,7 @@ namespace tut
 		ensure(int_quatloos.value() == 42);
 
 		float_quatloos = 42.1f;
-		ensure(float_quatloos == 42.1f);
+		ensure(float_quatloos.value() == 42.1f);
 		int_quatloos = float_quatloos;
 		ensure(int_quatloos.value() == 42);
 		LLUnit<Quatloos, U32> unsigned_int_quatloos(float_quatloos);
@@ -152,5 +152,57 @@ namespace tut
 		ensure(quatloos.value() == 5);
 		quatloos -= LLUnit<Latinum, F32>(1.f);
 		ensure(quatloos.value() == 1);
+	}
+
+	// implicit units
+	template<> template<>
+	void units_object_t::test<5>()
+	{
+		// 0-initialized
+		LLUnit<Quatloos, F32> quatloos(0);
+		// initialize implicit unit from explicit
+		LLUnitImplicit<Quatloos, F32> quatloos_implicit = quatloos + 1;
+		ensure(quatloos_implicit.value() == 1);
+
+		// assign implicit to explicit, or perform math operations
+		quatloos = quatloos_implicit;
+		ensure(quatloos.value() == 1);
+		quatloos += quatloos_implicit;
+		ensure(quatloos.value() == 2);
+
+		// math operations on implicits
+		quatloos_implicit = 1;
+		ensure(quatloos_implicit == 1);
+
+		quatloos_implicit += 2;
+		ensure(quatloos_implicit == 3);
+
+		quatloos_implicit *= 2;
+		ensure(quatloos_implicit == 6);
+
+		quatloos_implicit -= 1;
+		ensure(quatloos_implicit == 5);
+
+		quatloos_implicit /= 5;
+		ensure(quatloos_implicit == 1);
+
+		quatloos_implicit = quatloos_implicit + 3 + quatloos_implicit;
+		ensure(quatloos_implicit == 5);
+
+		quatloos_implicit = 10 - quatloos_implicit - 1;
+		ensure(quatloos_implicit == 4);
+
+		quatloos_implicit = 2 * quatloos_implicit * 2;
+		ensure(quatloos_implicit == 16);
+
+		F32 one_half = quatloos_implicit / (quatloos_implicit * 2);
+		ensure(one_half == 0.5f);
+
+		// implicit conversion to POD
+		F32 float_val = quatloos_implicit;
+		ensure(float_val == 16);
+
+		S32 int_val = quatloos_implicit;
+		ensure(int_val == 16);
 	}
 }

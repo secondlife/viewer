@@ -166,7 +166,7 @@ U64 TimeBlock::countsPerSecond() // counts per second for the *64-bit* timer
 		firstcall = false;
 	}
 #endif
-	return sCPUClockFrequency;
+	return sCPUClockFrequency.value();
 }
 #endif
 
@@ -408,7 +408,7 @@ void TimeBlock::nextFrame()
 			}
 			call_count++;
 
-			LLUnit<LLUnits::Seconds, F64> total_time = 0;
+			LLUnit<LLUnits::Seconds, F64> total_time(0);
 			LLSD sd;
 
 			{
@@ -479,7 +479,7 @@ void TimeBlock::dumpCurTimes()
 		}
 
 		out_str << timerp->getName() << " " 
-			<< std::setprecision(3) << total_time_ms.as<LLUnits::Milliseconds, F32>() << " ms, "
+			<< std::setprecision(3) << total_time_ms.as<LLUnits::Milliseconds, F32>().value() << " ms, "
 			<< num_calls << " calls";
 
 		llinfos << out_str.str() << llendl;
