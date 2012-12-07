@@ -57,6 +57,15 @@ const std::string LLInventoryPanel::RECENTITEMS_SORT_ORDER = std::string("Recent
 const std::string LLInventoryPanel::INHERIT_SORT_ORDER = std::string("");
 static const LLInventoryFolderViewModelBuilder INVENTORY_BRIDGE_BUILDER;
 
+// statics 
+bool LLInventoryPanel::sColorSetInitialized = false;
+LLUIColor LLInventoryPanel::sDefaultColor;
+LLUIColor LLInventoryPanel::sDefaultHighlightColor;
+LLUIColor LLInventoryPanel::sLibraryColor;
+LLUIColor LLInventoryPanel::sLinkColor;
+
+const LLColor4U DEFAULT_WHITE(255, 255, 255);
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLInventoryPanelObserver
 //
@@ -140,6 +149,15 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
 {
 	mInvFVBridgeBuilder = &INVENTORY_BRIDGE_BUILDER;
 
+	if (!sColorSetInitialized)
+	{
+		sDefaultColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
+		sDefaultHighlightColor = LLUIColorTable::instance().getColor("MenuItemHighlightFgColor", DEFAULT_WHITE);
+		sLibraryColor = LLUIColorTable::instance().getColor("InventoryItemLibraryColor", DEFAULT_WHITE);
+		sLinkColor = LLUIColorTable::instance().getColor("InventoryItemLinkColor", DEFAULT_WHITE);
+		sColorSetInitialized = true;
+	}
+	
 	// context menu callbacks
 	mCommitCallbackRegistrar.add("Inventory.DoToSelected", boost::bind(&LLInventoryPanel::doToSelected, this, _2));
 	mCommitCallbackRegistrar.add("Inventory.EmptyTrash", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyTrash", LLFolderType::FT_TRASH));
@@ -705,6 +723,9 @@ LLFolderViewFolder * LLInventoryPanel::createFolderViewFolder(LLInvFVBridge * br
 	params.listener = bridge;
 	params.tool_tip = params.name;
 
+	params.font_color = (bridge->isLibraryItem() ? sLibraryColor : (bridge->isLink() ? sLinkColor : sDefaultColor));
+	params.font_highlight_color = (bridge->isLibraryItem() ? sLibraryColor : (bridge->isLink() ? sLinkColor : sDefaultHighlightColor));
+	
 	return LLUICtrlFactory::create<LLFolderViewFolder>(params);
 }
 
@@ -718,6 +739,9 @@ LLFolderViewItem * LLInventoryPanel::createFolderViewItem(LLInvFVBridge * bridge
 	params.listener = bridge;
 	params.rect = LLRect (0, 0, 0, 0);
 	params.tool_tip = params.name;
+
+	params.font_color = (bridge->isLibraryItem() ? sLibraryColor : (bridge->isLink() ? sLinkColor : sDefaultColor));
+	params.font_highlight_color = (bridge->isLibraryItem() ? sLibraryColor : (bridge->isLink() ? sLinkColor : sDefaultHighlightColor));
 	
 	return LLUICtrlFactory::create<LLFolderViewItem>(params);
 }

@@ -831,4 +831,16 @@ void LLFloaterIMSessionTab::getSelectedUUIDs(uuid_vec_t& selected_uuids)
     }
 }
 
+LLConversationItem* LLFloaterIMSessionTab::getCurSelectedViewModelItem()
+{
+	LLConversationItem *conversationItem = NULL;
 
+	if(mConversationsRoot && 
+        mConversationsRoot->getCurSelectedItem() && 
+        mConversationsRoot->getCurSelectedItem()->getViewModelItem())
+	{
+		conversationItem = static_cast<LLConversationItem *>(mConversationsRoot->getCurSelectedItem()->getViewModelItem()) ;
+	}
+
+	return conversationItem;
+}

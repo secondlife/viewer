@@ -1556,18 +1556,6 @@ BOOL LLTabContainer::setTab(S32 which)
 	return is_visible;
 }
 
-
-void LLTabContainer::hideAllTabs()
-{
-
-	setCurrentPanelIndex(0);
-	for(tuple_list_t::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
-	{
-		(* iter)->mTabPanel->setVisible(FALSE);
-	}
-}
-
-
 BOOL LLTabContainer::selectTabByName(const std::string& name)
 {
 	LLPanel* panel = getPanelByName(name);

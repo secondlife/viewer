@@ -516,13 +516,32 @@ void LLFloaterIMContainer::tabClose()
 	}
 }
 
+//Shows/hides the stub panel when a conversation floater is torn off
 void LLFloaterIMContainer::showStub(bool stub_is_visible)
 {
-	if (stub_is_visible)
-	{
-		mTabContainer->hideAllTabs();
-	}
+    S32 tabCount = 0;
+    LLPanel * tabPanel = NULL;
 
+    if(stub_is_visible)
+    {
+        tabCount = mTabContainer->getTabCount();
+
+        //Hide all tabs even stub
+        for(S32 i = 0; i < tabCount; ++i)
+        {
+            tabPanel = mTabContainer->getPanelByIndex(i);
+
+            if(tabPanel)
+            {
+                tabPanel->setVisible(false);
+            }
+        }
+
+        //Set the index to the stub panel since we will be showing the stub
+        mTabContainer->setCurrentPanelIndex(0);
+    }
+
+    //Now show/hide the stub
 	mStubPanel->setVisible(stub_is_visible);
 }
 
@@ -851,8 +870,16 @@ const LLConversationItem * LLFloaterIMContainer::getCurSelectedViewModelItem()
         mConversationsRoot->getCurSelectedItem() && 
         mConversationsRoot->getCurSelectedItem()->getViewModelItem())
     {
-        conversationItem = static_cast<LLConversationItem *>(mConversationsRoot->getCurSelectedItem()->getViewModelItem());
-    }
+		LLFloaterIMSessionTab *selectedSession = LLFloaterIMSessionTab::getConversation(mSelectedSession);
+		if (selectedSession && selectedSession->isTornOff())
+		{
+			conversationItem = selectedSession->getCurSelectedViewModelItem();
+		}
+		else
+		{
+			conversationItem = static_cast<LLConversationItem *>(mConversationsRoot->getCurSelectedItem()->getViewModelItem());
+		}
+	}
 
     return conversationItem;
 }
@@ -1541,21 +1568,19 @@ void LLFloaterIMContainer::moderateVoiceParticipant(const LLUUID& avatar_id, boo
 
 LLSpeakerMgr * LLFloaterIMContainer::getSpeakerMgrForSelectedParticipant()
 {
-	LLFolderViewItem * selected_folder_itemp = mConversationsRoot->getCurSelectedItem();
-	if (NULL == selected_folder_itemp)
+	LLFolderViewItem *selectedItem = mConversationsRoot->getCurSelectedItem();
+	if (NULL == selectedItem)
 	{
 		llwarns << "Current selected item is null" << llendl;
 		return NULL;
 	}
-
-	LLFolderViewFolder * conversation_itemp = selected_folder_itemp->getParentFolder();
 
 	conversations_widgets_map::const_iterator iter = mConversationsWidgets.begin();
 	conversations_widgets_map::const_iterator end = mConversationsWidgets.end();
 	const LLUUID * conversation_uuidp = NULL;
 	while(iter != end)
 	{
-		if (iter->second == conversation_itemp)
+		if (iter->second == selectedItem || iter->second == selectedItem->getParentFolder())
 		{
 			conversation_uuidp = &iter->first;
 			break;

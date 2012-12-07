@@ -255,6 +255,11 @@ BOOL LLInvFVBridge::isLink() const
 	return mIsLink;
 }
 
+BOOL LLInvFVBridge::isLibraryItem() const
+{
+	return gInventory.isObjectDescendentOf(getUUID(),gInventory.getLibraryRootFolderID());
+}
+
 /*virtual*/
 /**
  * @brief Adds this item into clipboard storage
