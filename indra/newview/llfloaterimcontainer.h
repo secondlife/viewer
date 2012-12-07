@@ -117,6 +117,7 @@ private:
 	void onExpandCollapseButtonClicked();
 	void onStubCollapseButtonClicked();
 	void processParticipantsStyleUpdate();
+	void onSpeakButtonClicked();
 
 	void collapseConversationsPane(bool collapse);
 
@@ -172,6 +173,7 @@ public:
 	void setTimeNow(const LLUUID& session_id, const LLUUID& participant_id);
 	void setNearbyDistances();
 	void reSelectConversation();
+	void updateSpeakBtnState();
 	void flashConversationItemWidget(const LLUUID& session_id, bool is_flashes);
 
 private:
