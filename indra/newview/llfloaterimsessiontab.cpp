@@ -698,7 +698,8 @@ void LLFloaterIMSessionTab::updateCallBtnState(bool callIsActive)
 	voiceButton->setToolTip(
 			callIsActive? getString("end_call_button_tooltip") : getString("start_call_button_tooltip"));
 
-    enableDisableCallBtn();
+	LLFloaterIMContainer::getInstance()->updateSpeakBtnState();
+	enableDisableCallBtn();
 
 }
 
