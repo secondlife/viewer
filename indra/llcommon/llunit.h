@@ -334,7 +334,7 @@ struct HighestPrecisionType<LLUnit<UNIT_TYPE, STORAGE_TYPE> >
 	typedef typename HighestPrecisionType<STORAGE_TYPE>::type_t type_t;
 };
 
-#define LL_DECLARE_DERIVED_UNIT(base_unit_name, unit_name, conversion_factor)                   \
+#define LL_DECLARE_DERIVED_UNIT(conversion_factor, base_unit_name, unit_name)                   \
 struct unit_name                                                                                \
 {                                                                                               \
 	typedef base_unit_name base_unit_t;                                                         \
@@ -358,30 +358,30 @@ struct ConversionFactor<base_unit_name, unit_name, STORAGE_TYPE>						        \
 }
 
 struct Bytes { typedef Bytes base_unit_t; };
-LL_DECLARE_DERIVED_UNIT(Bytes, Kilobytes, 1024);
-LL_DECLARE_DERIVED_UNIT(Bytes, Megabytes, 1024 * 1024);
-LL_DECLARE_DERIVED_UNIT(Bytes, Gigabytes, 1024 * 1024 * 1024);
-LL_DECLARE_DERIVED_UNIT(Bytes, Bits,	  (1.0 / 8.0));
-LL_DECLARE_DERIVED_UNIT(Bytes, Kilobits,  (1024 / 8));
-LL_DECLARE_DERIVED_UNIT(Bytes, Megabits,  (1024 / 8));
-LL_DECLARE_DERIVED_UNIT(Bytes, Gigabits,  (1024 * 1024 * 1024 / 8));
+LL_DECLARE_DERIVED_UNIT(1024, Bytes, Kilobytes);
+LL_DECLARE_DERIVED_UNIT(1024 * 1024, Bytes, Megabytes);
+LL_DECLARE_DERIVED_UNIT(1024 * 1024 * 1024, Bytes, Gigabytes);
+LL_DECLARE_DERIVED_UNIT((1.0 / 8.0), Bytes, Bits);
+LL_DECLARE_DERIVED_UNIT((1024 / 8), Bytes, Kilobits);
+LL_DECLARE_DERIVED_UNIT((1024 / 8), Bytes, Megabits);
+LL_DECLARE_DERIVED_UNIT((1024 * 1024 * 1024 / 8), Bytes, Gigabits);
 
 struct Seconds { typedef Seconds base_unit_t; };
-LL_DECLARE_DERIVED_UNIT(Seconds, Minutes,		60);
-LL_DECLARE_DERIVED_UNIT(Seconds, Hours,			60 * 60);
-LL_DECLARE_DERIVED_UNIT(Seconds, Milliseconds,	(1.0 / 1000.0));
-LL_DECLARE_DERIVED_UNIT(Seconds, Microseconds,	(1.0 / (1000000.0)));
-LL_DECLARE_DERIVED_UNIT(Seconds, Nanoseconds,	(1.0 / (1000000000.0)));
+LL_DECLARE_DERIVED_UNIT(60, Seconds, Minutes);
+LL_DECLARE_DERIVED_UNIT(60 * 60, Seconds, Hours);
+LL_DECLARE_DERIVED_UNIT((1.0 / 1000.0), Seconds, Milliseconds);
+LL_DECLARE_DERIVED_UNIT((1.0 / (1000000.0)), Seconds, Microseconds);
+LL_DECLARE_DERIVED_UNIT((1.0 / (1000000000.0)), Seconds, Nanoseconds);
 
 struct Meters { typedef Meters base_unit_t; };
-LL_DECLARE_DERIVED_UNIT(Meters, Kilometers, 1000);
-LL_DECLARE_DERIVED_UNIT(Meters, Centimeters, (1.0 / 100.0));
-LL_DECLARE_DERIVED_UNIT(Meters, Millimeters, (1.0 / 1000.0));
+LL_DECLARE_DERIVED_UNIT(1000, Meters, Kilometers);
+LL_DECLARE_DERIVED_UNIT((1.0 / 100.0), Meters, Centimeters);
+LL_DECLARE_DERIVED_UNIT((1.0 / 1000.0), Meters, Millimeters);
 
 struct Hertz { typedef Hertz base_unit_t; };
-LL_DECLARE_DERIVED_UNIT(Hertz, Kilohertz, 1000);
-LL_DECLARE_DERIVED_UNIT(Hertz, Megahertz, 1000 * 1000);
-LL_DECLARE_DERIVED_UNIT(Hertz, Gigahertz, 1000 * 1000 * 1000);
-}
+LL_DECLARE_DERIVED_UNIT(1000, Hertz, Kilohertz);
+LL_DECLARE_DERIVED_UNIT(1000 * 1000, Hertz, Megahertz);
+LL_DECLARE_DERIVED_UNIT(1000 * 1000 * 1000, Hertz, Gigahertz);
+} // namespace LLUnits
 
 #endif // LL_LLUNIT_H
