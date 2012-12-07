@@ -1119,6 +1119,7 @@ Takeda Terrawyng
 TankMaster Finesmith
 	OPEN-140
 	OPEN-142
+	OPEN-154
 	STORM-1100
 	STORM-1258
 	STORM-1602
