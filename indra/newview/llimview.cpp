@@ -197,7 +197,10 @@ void on_new_message(const LLSD& msg)
                 gToolBarView->flashCommand(LLCommandId("chat"), true);
 
                 //Show IM toasts (upper right toasts)
-                LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
+                if(session_id.notNull())
+                {
+                    LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
+                }
             }
         }
     }
