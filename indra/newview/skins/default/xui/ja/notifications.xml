@@ -37,6 +37,12 @@
 			<button name="Help" text="$helptext"/>
 		</form>
 	</template>
+	<template name="okhelpignore">
+		<form>
+			<button name="OK_okhelpignore" text="$yestext"/>
+			<button name="Help_okhelpignore" text="$helptext"/>
+		</form>
+	</template>
 	<template name="yesnocancelbuttons">
 		<form>
 			<button name="Yes" text="$yestext"/>
@@ -382,12 +388,18 @@ L$ が不足しているのでこのグループに参加することができ�
 
 [SECOND_LIFE] に入るにはアカウントが必要です。今すぐアカウントを作成しますか？
 		<url name="url">
-			https://join.secondlife.com/index.php?lang=ja-JP
+			[create_account_url]
 		</url>
 		<usetemplate name="okcancelbuttons" notext="もう一度試す" yestext="新しいアカウントを作成"/>
 	</notification>
 	<notification name="InvalidCredentialFormat">
 		ユーザー名のフィールドにアバターのユーザー名もしくは氏名を入力してから、再度ログインする必要があります。
+	</notification>
+	<notification name="InvalidGrid">
+		&apos;[GRID]&apos; は有効なグリッド ID ではありません。
+	</notification>
+	<notification name="InvalidLocationSLURL">
+		ログイン位置で有効なグリッドが指定されませんでした。
 	</notification>
 	<notification name="DeleteClassified">
 		クラシファイド広告 [NAME] を削除しますか？
@@ -495,7 +507,7 @@ L$ が不足しているのでこのグループに参加することができ�
 	</notification>
 	<notification name="StartRegionEmpty">
 		ログイン位置が指定されていません。
-ログイン位置の欄にリージョン名を入力するか、「最後にログアウトした場所」か「ホーム」を選択してください。
+ログイン位置の欄にリージョン名を入力するか、「最後にログアウトした場所」か「自宅（ホーム）」を選択してください。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CouldNotStartStopScript">
@@ -622,6 +634,9 @@ L$ が不足しているのでこのグループに参加することができ�
 		すべてのオブジェクトの修正許可がないためリンクできません。
 
 どのオブジェクトもロックされておらず、あなたのものであることを確認してください。
+	</notification>
+	<notification name="CannotLinkPermanent">
+		地域（リージョン）の境界を越えてオブジェクトをリンクできません。
 	</notification>
 	<notification name="CannotLinkDifferentOwners">
 		所有者が異なるため、オブジェクトをリンクできません。
@@ -1009,6 +1024,40 @@ L$ は返金されません。
 			<button name="Cancel" text="キャンセル"/>
 		</form>
 	</notification>
+	<notification label="自動置換リストを追加" name="AddAutoReplaceList">
+		新しいリストの名前:
+		<form name="form">
+			<button name="SetName" text="OK"/>
+		</form>
+	</notification>
+	<notification label="自動置換リストの名前を変更" name="RenameAutoReplaceList">
+		名前 &apos;[DUPNAME]&apos; は既に使われています
+一意の名前を入力してください:
+		<form name="form">
+			<button name="ReplaceList" text="着用中のリストを入れ替える"/>
+			<button name="SetName" text="新しい名前を使用"/>
+		</form>
+	</notification>
+	<notification name="InvalidAutoReplaceEntry">
+		キーワードは一語でなければならず、置換は空にできません。
+	</notification>
+	<notification name="InvalidAutoReplaceList">
+		その置換リストは無効です。
+	</notification>
+	<notification name="SpellingDictImportRequired">
+		ファイル、名前および言語を指定する必要があります。
+	</notification>
+	<notification name="SpellingDictIsSecondary">
+		辞書 [DIC_NAME] に「aff」ファイルがないようです。これはこの辞書が「セカンダリ」辞書であることを意味します。
+この辞書は追加辞書として使用できますが、メイン辞書としては使用できません。
+
+https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries を参照してください。
+	</notification>
+	<notification name="SpellingDictImportFailed">
+		[FROM_NAME] から
+
+[TO_NAME] へコピーできません
+	</notification>
 	<notification label="アウトフィットを保存する" name="SaveOutfitAs">
 		着用中のアウトフィットを新しいアウトフットとして保存：
 		<form name="form">
@@ -1191,7 +1240,7 @@ L$ は返金されません。
 近くのリージョンに移動しました。
 	</notification>
 	<notification name="AvatarMovedLast">
-		前回いた場所は現在ご利用いただけません。
+		リクエストされた場所は現在ご利用いただけません。
 近くのリージョンに移動しました。
 	</notification>
 	<notification name="AvatarMovedHome">
@@ -1210,8 +1259,7 @@ L$ は返金されません。
 		[APP_NAME] のインストールが完了しました。
 
 [SECOND_LIFE] を使ったことがない場合は、ログインする前にアカウントの作成を行ってください。
-[http://join.secondlife.com/?lang=ja-JP] で新しいアカウントを作成しますか？
-		<usetemplate name="okcancelbuttons" notext="続行" yestext="新規アカウント..."/>
+		<usetemplate name="okcancelbuttons" notext="続行" yestext="アカウントを作成..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">
 		接続がなかなかできません。 お使いのインターネット接続か、[SECOND_LIFE_GRID] の問題と考えられます。
@@ -1733,83 +1781,128 @@ http://wiki.secondlife.com/wiki/Setting_your_display_name を参照してくだ�
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="RegionEntryAccessBlocked">
-		あなたのレーティング区分により、そのリージョン（地域）へは入ることができません。 年齢を確認する際の情報に不足があったためと考えられます。
-
-最新ビューワがインストールされているかをご確認ください。このレーティング区分でのアクセスに関する詳細はナレッジベースをご覧ください。
+		訪問しようとしている地域（リージョン）には現在の環境設定を超えるコンテンツが含まれています。「ミー」 &gt; 「環境設定」 &gt; 「一般」を選択して、環境設定を変更できます。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
-	<notification name="RegionEntryAccessBlocked_KB">
-		あなたのレーティング区分により、そのリージョン（地域）へは入ることができません。
-
-ナレッジベースを開きレーティング区分について学びますか？
+	<notification name="RegionEntryAccessBlocked_AdultsOnlyContent">
+		訪問しようとしている地域（リージョン）には、成人のみアクセスできる [REGIONMATURITY] コンテンツが含まれています。
 		<url name="url">
-			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview/ja
+			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
 		</url>
-		<usetemplate ignoretext="レーティング区分の制限のため、リージョンに入ることができないとき" name="okcancelignore" notext="閉じる" yestext="ナレッジベースを開く"/>
+		<usetemplate ignoretext="リージョン（地域）の横断：訪問しようとしている地域（リージョン）には、成人のみアクセスできるコンテンツが含まれています。" name="okcancelignore" notext="閉じる" yestext="ナレッジベースを開く"/>
 	</notification>
 	<notification name="RegionEntryAccessBlocked_Notify">
-		あなたのレーティング区分により、そのリージョン（地域）へは入ることができません。
+		訪問しようとしている地域（リージョン）には [REGIONMATURITY] コンテンツが含まれていますが、現在の環境設定は [REGIONMATURITY] コンテンツ除外するように設定されています。
+	</notification>
+	<notification name="RegionEntryAccessBlocked_NotifyAdultsOnly">
+		訪問しようとしている地域（リージョン）には、成人のみアクセスできる [REGIONMATURITY] コンテンツが含まれています。
 	</notification>
 	<notification name="RegionEntryAccessBlocked_Change">
-		レーティング区分に関する設定により、その地域（リージョン）には立ち入れません。
-
-その地域に入るには、あなたのレーティング区分の設定を変更してください。変更すると、[REGIONMATURITY]のコンテンツの検索やアクセスが可能になります。変更内容を元に戻すには、ミー &gt; 環境設定 &gt; 一般を選択してください。
+		訪問しようとしている地域（リージョン）には [REGIONMATURITY] コンテンツが含まれていますが、現在の環境設定は [REGIONMATURITY] コンテンツを除外するように設定されています。環境設定を変更するか、取り消すことができます。環境設定を変更した後、もう一度、地域（リージョン）に入ることができます。
 		<form name="form">
 			<button name="OK" text="環境設定の変更"/>
-			<button default="true" name="Cancel" text="閉じる"/>
-			<ignore name="ignore" text="選択したレーティング区分が原因で、リージョンに入れないとき"/>
+			<button default="true" name="Cancel" text="取り消し"/>
+			<ignore name="ignore" text="リージョン（地域）の横断：訪問しようとしている地域（リージョン）には現在の環境設定により除外されたコンテンツが含まれています。"/>
 		</form>
 	</notification>
+	<notification name="RegionEntryAccessBlocked_PreferencesOutOfSync">
+		あなたの環境設定がサーバーと同期していないため、テレポートに技術的な問題が発生しています。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="TeleportEntryAccessBlocked">
+		訪問しようとしている地域（リージョン）には現在の環境設定を超えるコンテンツが含まれています。「ミー」 &gt; 「環境設定」 &gt; 「一般」を選択して、環境設定を変更できます。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="TeleportEntryAccessBlocked_AdultsOnlyContent">
+		訪問しようとしている地域（リージョン）には、成人のみアクセスできる [REGIONMATURITY] コンテンツが含まれています。
+		<url name="url">
+			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
+		</url>
+		<usetemplate ignoretext="テレポート：訪問しようとしている地域（リージョン）には、成人のみアクセスできるコンテンツが含まれています。" name="okcancelignore" notext="閉じる" yestext="ナレッジベースを開く"/>
+	</notification>
+	<notification name="TeleportEntryAccessBlocked_Notify">
+		訪問しようとしている地域（リージョン）には [REGIONMATURITY] コンテンツが含まれていますが、現在の環境設定は [REGIONMATURITY] コンテンツを除外するように設定されています。
+	</notification>
+	<notification name="TeleportEntryAccessBlocked_NotifyAdultsOnly">
+		訪問しようとしている地域（リージョン）には、成人のみアクセスできる [REGIONMATURITY] コンテンツが含まれています。
+	</notification>
+	<notification name="TeleportEntryAccessBlocked_ChangeAndReTeleport">
+		訪問しようとしている地域（リージョン）には [REGIONMATURITY] コンテンツが含まれていますが、現在の環境設定は [REGIONMATURITY] コンテンツを除外するように設定されています。環境設定を変更してテレポートを続けるか、このテレポートを取り消すことができます。
+		<form name="form">
+			<button name="OK" text="変更して続ける"/>
+			<button name="Cancel" text="取り消し"/>
+			<ignore name="ignore" text="テレポート（再起動可能）：訪問しようとしている地域（リージョン）には現在の環境設定により除外されたコンテンツが含まれています。"/>
+		</form>
+	</notification>
+	<notification name="TeleportEntryAccessBlocked_Change">
+		訪問しようとしている地域（リージョン）には [REGIONMATURITY] コンテンツが含まれていますが、現在の環境設定は [REGIONMATURITY] コンテンツを除外するように設定されています。環境設定を変更するか、テレポートを取り消すことができます。環境設定を変更した後、もう一度テレポートを実行する必要があります。
+		<form name="form">
+			<button name="OK" text="環境設定の変更"/>
+			<button name="Cancel" text="取り消し"/>
+			<ignore name="ignore" text="テレポート（再起動不可）：訪問しようとしている地域（リージョン）には現在の環境設定により除外されたコンテンツが含まれています。"/>
+		</form>
+	</notification>
+	<notification name="TeleportEntryAccessBlocked_PreferencesOutOfSync">
+		あなたの環境設定がサーバーと同期していないため、テレポートに技術的な問題が発生しています。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="PreferredMaturityChanged">
-		あなたのレーティング区分設定は現在 [RATING] です。
+		今後、[RATING] コンテンツ付きの地域（リージョン）を訪問しようとしているという通知を受け取りません。後でメニューバーの「ミー」 &gt; 「環境設定」 &gt; 「一般」を使用して、コンテンツの環境設定を変更できます。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MaturityChangeError">
+		現在、[PREFERRED_MATURITY] コンテンツを表示するように環境設定を変更できませんでした。あなたの環境設定は、[ACTUAL_MATURITY] コンテンツを表示するようにリセットされました。メニューバーの「ミー」 &gt; 「環境設定」 &gt; 「一般」を使用して、もう一度環境設定を変更できます。
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="LandClaimAccessBlocked">
-		あなたのレーティング区分により、この土地を取得することはできません。 年齢を確認する際の情報に不足があったためと考えられます。
-
-最新ビューワがインストールされているかをご確認ください。このレーティング区分でのアクセスに関する詳細はナレッジベースをご覧ください。
+		取得しようとしている土地には現在の環境設定を超えるレーティング区分が含まれています。「ミー」 &gt; 「環境設定」 &gt; 「一般」を選択して、環境設定を変更できます。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
-	<notification name="LandClaimAccessBlocked_KB">
-		あなたのレーティング区分により、この土地を取得することはできません。
-
-ナレッジベースを開きレーティング区分について学びますか？
+	<notification name="LandClaimAccessBlocked_AdultsOnlyContent">
+		この土地を購入できるのは、成人だけです。
 		<url name="url">
-			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview/ja
+			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
 		</url>
-		<usetemplate ignoretext="レーティング区分の制限のため、この土地を取得できません" name="okcancelignore" notext="閉じる" yestext="ナレッジベースを開く"/>
+		<usetemplate ignoretext="この土地を購入できるのは、成人だけです。" name="okcancelignore" notext="閉じる" yestext="ナレッジベースを開く"/>
 	</notification>
 	<notification name="LandClaimAccessBlocked_Notify">
-		あなたのレーティング区分により、この土地を取得することはできません。
+		取得しようとしている土地には [REGIONMATURITY] コンテンツが含まれていますが、現在の環境設定は [REGIONMATURITY] コンテンツを除外するように設定されています。
+	</notification>
+	<notification name="LandClaimAccessBlocked_NotifyAdultsOnly">
+		取得しようとしている土地には、成人のみアクセスできる [REGIONMATURITY] コンテンツが含まれています。
 	</notification>
 	<notification name="LandClaimAccessBlocked_Change">
-		あなたのレーティング区分設定により、この土地を取得することはできません。
-
-「設定を変更」をクリックしてあなたのレーティング区分を上げると、入れるようになります。 あなたは今後 [REGIONMATURITY] コンテンツの検索及びアクセスが可能となります。 あとで設定を元に戻したい場合は、「編集」＞「環境設定」をご覧ください。
-		<usetemplate ignoretext="選択したレーティング区分が原因で、土地を取得できないとき" name="okcancelignore" notext="閉じる" yestext="設定の変更"/>
+		取得しようとしている土地には [REGIONMATURITY] コンテンツが含まれていますが、現在の環境設定は [REGIONMATURITY] コンテンツを除外するように設定されています。環境設定を変更して、もう一度土地の取得を試みることができます。
+		<form name="form">
+			<button name="OK" text="環境設定の変更"/>
+			<button name="Cancel" text="取り消し"/>
+			<ignore name="ignore" text="取得しようとしている土地には現在の環境設定により除外されたコンテンツが含まれています。"/>
+		</form>
 	</notification>
 	<notification name="LandBuyAccessBlocked">
-		あなたのレーティング区分により、この土地を購入することはできません。 年齢を確認する際の情報に不足があったためと考えられます。
-
-最新ビューワがインストールされているかをご確認ください。このレーティング区分でのアクセスに関する詳細はナレッジベースをご覧ください。
+		購入しようとしている土地には現在の環境設定を超えるレーティング区分が含まれています。「ミー」 &gt; 「環境設定」 &gt; 「一般」を選択して、環境設定を変更できます。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
-	<notification name="LandBuyAccessBlocked_KB">
-		あなたのレーティング区分により、この土地を購入することはできません。
-
-ナレッジベースを開きレーティング区分について学びますか？
+	<notification name="LandBuyAccessBlocked_AdultsOnlyContent">
+		この土地を取得できるのは、成人だけです。
 		<url name="url">
-			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview/ja
+			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
 		</url>
-		<usetemplate ignoretext="レーティング区分の制限のため、この土地を購入できません" name="okcancelignore" notext="閉じる" yestext="ナレッジベースを開く"/>
+		<usetemplate ignoretext="この土地を取得できるのは、成人だけです。" name="okcancelignore" notext="閉じる" yestext="ナレッジベースを開く"/>
 	</notification>
 	<notification name="LandBuyAccessBlocked_Notify">
-		あなたのレーティング区分により、この土地を購入することはできません。
+		購入しようとしている土地には [REGIONMATURITY] コンテンツが含まれていますが、現在の環境設定は [REGIONMATURITY] コンテンツを除外するように設定されています。
+	</notification>
+	<notification name="LandBuyAccessBlocked_NotifyAdultsOnly">
+		購入しようとしている土地には、成人のみアクセスできる [REGIONMATURITY] コンテンツが含まれています。
 	</notification>
 	<notification name="LandBuyAccessBlocked_Change">
-		あなたのレーティング区分設定により、この土地を購入することができません。
-
-「設定を変更」をクリックしてあなたのレーティング区分を上げると、入れるようになります。 あなたは今後 [REGIONMATURITY] コンテンツの検索及びアクセスが可能となります。 あとで設定を元に戻したい場合は、「編集」＞「環境設定」をご覧ください。
-		<usetemplate ignoretext="選択したレーティング区分が原因で、土地を購入できないとき" name="okcancelignore" notext="閉じる" yestext="設定の変更"/>
+		購入しようとしている土地には [REGIONMATURITY] コンテンツが含まれていますが、現在の環境設定は [REGIONMATURITY] コンテンツを除外するように設定されています。環境設定を変更して、もう一度土地の購入を試みることができます。
+		<form name="form">
+			<button name="OK" text="環境設定の変更"/>
+			<button name="Cancel" text="取り消し"/>
+			<ignore name="ignore" text="購入しようとしている土地には現在の環境設定により除外されたコンテンツが含まれています。"/>
+		</form>
 	</notification>
 	<notification name="TooManyPrimsSelected">
 		選択したプリムが多すぎます。  [MAX_PRIM_COUNT] 個選択するか、プリム数を減らしてもう一度お試しください。
@@ -1867,10 +1960,9 @@ L$ [AMOUNT] で、このクラシファイド広告を今すぐ公開します�
 		</form>
 	</notification>
 	<notification label="地域のレーティング区分指定変更済み" name="RegionMaturityChange">
-		このリージョン（地域）のレーティング区分がアップデートされました。
-地図に変更が反映されるまで数分かかることがあります。
-
-Adult 専用リージョンに入るには、住人のアカウントが年齢確認か支払方法のいずれかで「確認済み」でなければなりません。
+		このリージョンのレーティング区分が変更されました。
+地図にこの変更が反映するには数分かかることがあります。
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification label="ボイスバージョンの不一致" name="VoiceVersionMismatch">
 		[APP_NAME] のこのバージョンは、このリージョンにおけるボイスチャットの互換性がありません。 ボイスチャットを正常に行うためには、[APP_NAME] のアップデートが必要です。
@@ -2165,14 +2257,11 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		<usetemplate ignoretext="「容姿」を編集中に、作成する衣類を装着するとき" name="okcancelignore" notext="いいえ" yestext="はい"/>
 	</notification>
 	<notification name="NotAgeVerified">
-		Second Life で Adult 指定のコンテンツや領域にアクセスできるのは 18 歳以上のユーザーのみです。年齢確認ページで 18 歳以上であることを証明してください。 
-これをクリックするとウェブブラウザが開きます。
-
-[_URL]
-		<url name="url" option="0">
-			https://secondlife.com/my/account/verification.php
-		</url>
-		<usetemplate ignoretext="年齢の確認を済ませていないとき" name="okcancelignore" notext="取り消し" yestext="年齢確認ページを開く"/>
+		訪問しようとしているロケーションは、18 才以上の住人に制限されています。
+		<usetemplate ignoretext="年齢制限付きのエリアを訪問する年齢に達していません。" name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="NotAgeVerified_Notify">
+		ロケーションは 18 才以上に制限されています。
 	</notification>
 	<notification name="Cannot enter parcel: no payment info on file">
 		支払情報が登録されていないとこのエリアを訪れることができません。  [SECOND_LIFE] サイトで登録を行いますか？
@@ -2435,6 +2524,23 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 	<notification name="NoBuild">
 		このエリアでは制作が禁止されています。 オブジェクトを制作したり Rez することはできません。
 	</notification>
+	<notification name="PathfindingDirty">
+		この値域（リージョン）には、保留中のパスファインディングの変更があります。制作権がある場合は、「地域の再構築」ボタンをクリックして、地域（リージョン）を再構築できます。
+	</notification>
+	<notification name="DynamicPathfindingDisabled">
+		この地域（リージョン）でダイナミックパスファインディングが有効になっていません。パスファインディング LSL 呼び出しを使用するスクリプト化されたオブジェクトがこの地域（リージョン）では動作できません。
+	</notification>
+	<notification name="PathfindingRebakeNavmesh">
+		この地域（リージョン）のオブジェクトを変更すると、他の移動オブジェクトが正しく動作しなくなる恐れがあります。移動オブジェクトを正しく動作させるには、「地域の再構築」ボタンをクリックします。詳しい情報は見るには「ヘルプ」を選択してください。
+		<url name="url">
+			http://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer
+		</url>
+		<usetemplate helptext="ヘルプ" ignoretext="この地域（リージョン）のオブジェクトを変更すると、他の移動オブジェクトが正しく動作しなくなる恐れがあります。" name="okhelpignore" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingCannotRebakeNavmesh">
+		エラーが発生しました。ネットワークまたはサーバーに問題があるか、制作権がない可能性があります。この問題は、一度ログアウトしてから、ログインし直すと解決される場合があります。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="SeeAvatars">
 		この区画にいるアバターやこの区画内で行われる文字チャットは、他の区画から見えません。あなたには、この区画外にいる住人が見えず、外の住人にはあなたの姿が見えません。チャンネル 0 での通常の文字チャットもブロックされます。
 	</notification>
@@ -2453,9 +2559,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		そのリージョンにいないと公共の土地を取得することはできません。
 	</notification>
 	<notification name="RegionTPAccessBlocked">
-		あなたのレーティング区分によりそのリージョンへは入ることができません。 年齢確認を行うか、最新ビューワをインストールしてください。
-
-現在のレーティング区分でアクセス可能なエリアに関する詳細はナレッジベースを参照してください。
+		訪問しようとしている地域（リージョン）には現在の環境設定を超えるコンテンツが含まれています。「ミー」 &gt; 「環境設定」 &gt; 「一般」を選択して、環境設定を変更できます。
 	</notification>
 	<notification name="URBannedFromRegion">
 		あなたはリージョンへの立入が禁止されています。
@@ -2466,11 +2570,11 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 	<notification name="ImproperPaymentStatus">
 		このリージョンに入るために適した支払いステータスがありません。
 	</notification>
-	<notification name="MustGetAgeRgion">
-		このリージョンに入るためには、年齢確認を済ませる必要があります。
+	<notification name="MustGetAgeRegion">
+		この地域（リージョン）に入るには 18 才以上である必要があります。
 	</notification>
 	<notification name="MustGetAgeParcel">
-		この区画に入るためには、年齢確認を済ませる必要があります。
+		この区画に入るには 18 才以上である必要があります。
 	</notification>
 	<notification name="NoDestRegion">
 		目的地のリージョンが見つかりませんでした。
@@ -2572,11 +2676,32 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 	<notification name="TeleportOffered">
 		[NAME_SLURL] はテレポートであなたを呼んでいます。
 
-[MESSAGE] - [MATURITY_STR] &lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt;
+“[MESSAGE]”
+&lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt; - [MATURITY_STR]
 		<form name="form">
 			<button name="Teleport" text="テレポート"/>
 			<button name="Cancel" text="取り消し"/>
 		</form>
+	</notification>
+	<notification name="TeleportOffered_MaturityExceeded">
+		[NAME_SLURL] はテレポートであなたを呼んでいます。
+
+“[MESSAGE]”
+&lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt; - [MATURITY_STR]
+
+この地域（リージョン）には [REGION_CONTENT_MATURITY] コンテンツが含まれていますが、現在の環境設定は [REGION_CONTENT_MATURITY] コンテンツを除外するように設定されています。環境設定を変更してテレポートを続けるか、このテレポートを取り消すことができます。
+		<form name="form">
+			<button name="Teleport" text="変更して続ける"/>
+			<button name="Cancel" text="取り消し"/>
+		</form>
+	</notification>
+	<notification name="TeleportOffered_MaturityBlocked">
+		[NAME_SLURL] はテレポートであなたを呼んでいます。
+
+“[MESSAGE]”
+&lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt; - [MATURITY_STR]
+
+ただし、この地域（リージョン）には成人のみアクセスできるコンテンツが含まれています。
 	</notification>
 	<notification name="TeleportOfferSent">
 		[TO_NAME] にテレポートを送りました。
@@ -2900,18 +3025,6 @@ M キーを押して変更します。
 [RESIDENTS]
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="Ok"/>
 	</notification>
-	<notification name="ShareFolderConfirmation">
-		フォルダは一度に 1 つしか共有できません。
-
-次のアイテムを共有しますか？
-
-&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
-
-次の住人と共有：
-
-[RESIDENTS]
-		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="Ok"/>
-	</notification>
 	<notification name="ItemsShared">
 		アイテムが共有されました。
 	</notification>
@@ -2989,6 +3102,10 @@ M キーを押して変更します。
 	<notification name="AvatarRezSelfBakedTextureUpdateNotification">
 		( 作成後[EXISTENCE]秒経過）
 &apos;[BODYREGION]&apos;の[RESOLUTION]のベークドテクスチャは[TIME]秒後にローカルに更新されました。
+	</notification>
+	<notification name="LivePreviewUnavailable">
+		コピー不可および/または転送不可のため、このテクスチャを表示できません。
+		<usetemplate ignoretext="コピー不可および/または転送不可テクスチャでライブプレビューモードを使用できないことを警告する" name="okignore" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmLeaveCall">
 		このコールから抜けますか？
@@ -3161,6 +3278,62 @@ M キーを押して変更します。
 		この操作により、全てのメニュー項目とボタンが非表示になります。再び表示するには [SHORTCUT] をもう一度クリックしてください。
 		<usetemplate ignoretext="UI を非表示にする前に確認" name="okcancelignore" notext="取り消し" yestext="OK"/>
 	</notification>
+	<notification name="PathfindingLinksets_WarnOnPhantom">
+		選択された一部のリンクセットはファントムフラグが切り替えられます。
+
+続けますか？
+		<usetemplate ignoretext="選択された一部のリンクセットのファントムフラグが切り替えられます。" name="okcancelignore" notext="取り消し" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_MismatchOnRestricted">
+		一部の選択されたリンクセットは、リンクセットへの権限が制限されているため、&apos;[REQUESTED_TYPE]&apos; に設定できません。これらのリンクセットは代わりに &apos;[RESTRICTED_TYPE]&apos; に設定されます。
+
+続けますか？
+		<usetemplate ignoretext="一部の選択されたリンクセットは、リンクセットへの権限が制限されているため設定できません。" name="okcancelignore" notext="取り消し" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_MismatchOnVolume">
+		選択された一部のリンクセットは、形状が凸状でないため、&apos;[REQUESTED_TYPE]&apos; に設定できません。
+
+続けますか？
+		<usetemplate ignoretext="選択された一部のリンクセットは、形状が凸状でないため設定できません。" name="okcancelignore" notext="取り消し" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_WarnOnPhantom_MismatchOnRestricted">
+		選択された一部のリンクセットはファントムフラグが切り替えられます。
+
+一部の選択されたリンクセットは、リンクセットへの権限が制限されているため、&apos;[REQUESTED_TYPE]&apos; に設定できません。これらのリンクセットは代わりに &apos;[RESTRICTED_TYPE]&apos; に設定されます。
+
+続けますか？
+		<usetemplate ignoretext="選択された一部のリンクセットのファントムフラグが切り替えられ、他のリンクセットはリンクセットへの権限が制限されているため設定できません。" name="okcancelignore" notext="取り消し" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_WarnOnPhantom_MismatchOnVolume">
+		選択された一部のリンクセットはファントムフラグが切り替えられます。
+
+選択された一部のリンクセットは、形状が凸状でないため、&apos;[REQUESTED_TYPE]&apos; に設定できません。
+
+続けますか？
+		<usetemplate ignoretext="選択された一部のリンクセットのファントムフラグが切り替えられ、他のリンクセットは形状が凸状でないため設定できません。" name="okcancelignore" notext="取り消し" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_MismatchOnRestricted_MismatchOnVolume">
+		一部の選択されたリンクセットは、リンクセットへの権限が制限されているため、&apos;[REQUESTED_TYPE]&apos; に設定できません。これらのリンクセットは代わりに &apos;[RESTRICTED_TYPE]&apos; に設定されます。
+
+選択された一部のリンクセットは、形状が凸状でないため、&apos;[REQUESTED_TYPE]&apos; に設定できません。これらのリンクセットの用途タイプは変わりません。
+
+続けますか？
+		<usetemplate ignoretext="一部の選択されたリンクセットは、リンクセットへの権限が制限されており、また形状が凸状でないため設定できません。" name="okcancelignore" notext="取り消し" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_WarnOnPhantom_MismatchOnRestricted_MismatchOnVolume">
+		選択された一部のリンクセットはファントムフラグが切り替えられます。
+
+一部の選択されたリンクセットは、リンクセットへの権限が制限されているため、&apos;[REQUESTED_TYPE]&apos; に設定できません。これらのリンクセットは代わりに &apos;[RESTRICTED_TYPE]&apos; に設定されます。
+
+選択された一部のリンクセットは、形状が凸状でないため、&apos;[REQUESTED_TYPE]&apos; に設定できません。これらのリンクセットの用途タイプは変わりません。
+
+続けますか？
+		<usetemplate ignoretext="選択された一部のリンクセットのファントムフラグが切り替えられ、他のリンクセットはリンクセットへの権限が制限され、また形状が凸状でないため設定できません。" name="okcancelignore" notext="取り消し" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_ChangeToFlexiblePath">
+		選択されたオブジェクトはナビメッシュに影響を与えます。オブジェクトをフレキシブルパスに変更すると、ナビメッシュから削除されます。
+		<usetemplate ignoretext="選択されたオブジェクトはナビメッシュに影響を与えます。オブジェクトをフレキシブルパスに変更すると、ナビメッシュから削除されます。" name="okcancelignore" notext="取り消し" yestext="OK"/>
+	</notification>
 	<global name="UnsupportedGLRequirements">
 		[APP_NAME] に必要なハードウェアがないようです。 [APP_NAME] にはマルチテクスチャをサポートする OpenGL グラフィックカードが必要です。 お使いのグラフィックカードの最新ドライバがインストールされているかどうか、オペレーティングシステムのサービスパックとパッチが入っているかをご確認ください。
 
@@ -3196,5 +3369,13 @@ M キーを押して変更します。
 	<notification name="LocalBitmapsVerifyFail">
 		開くことができない、またはデコードできない無効または読み取り不能な画像ファイル [FNAME] を追加しようとしました。
 この試行はキャンセルされました。
+	</notification>
+	<notification name="PathfindingReturnMultipleItems">
+		[NUM_ITEMS] 個のアイテムを返却中です。続けますか？
+		<usetemplate ignoretext="複数のアイテムを返しますか？" name="okcancelignore" notext="いいえ" yestext="はい"/>
+	</notification>
+	<notification name="PathfindingDeleteMultipleItems">
+		[NUM_ITEMS] 個のアイテムを削除中です。続けますか？
+		<usetemplate ignoretext="複数のアイテムを削除しますか？" name="okcancelignore" notext="いいえ" yestext="はい"/>
 	</notification>
 </notifications>

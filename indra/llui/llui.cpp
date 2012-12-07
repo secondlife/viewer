@@ -1836,88 +1836,37 @@ struct Paths : public LLInitParam::Block<Paths>
 	{}
 };
 
-//static
-void LLUI::setupPaths()
-{
-	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_SKINS, "paths.xml");
-
-	LLXMLNodePtr root;
-	BOOL success  = LLXMLNode::parseFile(filename, root, NULL);
-	Paths paths;
-
-	if(success)
-	{
-		LLXUIParser parser;
-		parser.readXUI(root, paths, filename);
-	}
-	sXUIPaths.clear();
-	
-	if (success && paths.validateBlock())
-	{
-		LLStringUtil::format_map_t path_args;
-		path_args["[LANGUAGE]"] = LLUI::getLanguage();
-		
-		for (LLInitParam::ParamIterator<Directory>::const_iterator it = paths.directories.begin(), 
-				end_it = paths.directories.end();
-			it != end_it;
-			++it)
-		{
-			std::string path_val_ui;
-			for (LLInitParam::ParamIterator<SubDir>::const_iterator subdir_it = it->subdirs.begin(),
-					subdir_end_it = it->subdirs.end();
-				subdir_it != subdir_end_it;)
-			{
-				path_val_ui += subdir_it->value();
-				if (++subdir_it != subdir_end_it)
-					path_val_ui += gDirUtilp->getDirDelimiter();
-			}
-			LLStringUtil::format(path_val_ui, path_args);
-			if (std::find(sXUIPaths.begin(), sXUIPaths.end(), path_val_ui) == sXUIPaths.end())
-			{
-				sXUIPaths.push_back(path_val_ui);
-			}
-
-		}
-	}
-	else // parsing failed
-	{
-		std::string slash = gDirUtilp->getDirDelimiter();
-		std::string dir = "xui" + slash + "en";
-		llwarns << "XUI::config file unable to open: " << filename << llendl;
-		sXUIPaths.push_back(dir);
-	}
-}
-
 
 //static
 std::string LLUI::locateSkin(const std::string& filename)
 {
-	std::string slash = gDirUtilp->getDirDelimiter();
 	std::string found_file = filename;
-	if (!gDirUtilp->fileExists(found_file))
+	if (gDirUtilp->fileExists(found_file))
 	{
-		found_file = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, filename); // Should be CUSTOM_SKINS?
+		return found_file;
 	}
-	if (sSettingGroups["config"] && sSettingGroups["config"]->controlExists("Language"))
+
+	found_file = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, filename); // Should be CUSTOM_SKINS?
+	if (gDirUtilp->fileExists(found_file))
 	{
-		if (!gDirUtilp->fileExists(found_file))
-		{
-			std::string localization = getLanguage();
-			std::string local_skin = "xui" + slash + localization + slash + filename;
-			found_file = gDirUtilp->findSkinnedFilename(local_skin);
-		}
+		return found_file;
 	}
-	if (!gDirUtilp->fileExists(found_file))
+
+	found_file = gDirUtilp->findSkinnedFilename(LLDir::XUI, filename);
+	if (! found_file.empty())
 	{
-		std::string local_skin = "xui" + slash + "en" + slash + filename;
-		found_file = gDirUtilp->findSkinnedFilename(local_skin);
+		return found_file;
 	}
-	if (!gDirUtilp->fileExists(found_file))
+
+	found_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, filename);
+	if (gDirUtilp->fileExists(found_file))
 	{
-		found_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, filename);
+		return found_file;
 	}
-	return found_file;
-}	
+	LL_WARNS("LLUI") << "Can't find '" << filename
+					 << "' in user settings, any skin directory or app_settings" << LL_ENDL;
+	return "";
+}
 
 //static
 LLVector2 LLUI::getWindowSize()

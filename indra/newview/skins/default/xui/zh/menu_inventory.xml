@@ -2,13 +2,13 @@
 <menu name="Popup">
 	<menu_item_call label="分享" name="Share"/>
 	<menu_item_call label="購買" name="Task Buy"/>
-	<menu_item_call label="開啟" name="Task Open"/>
+	<menu_item_call label="打開" name="Task Open"/>
 	<menu_item_call label="播放" name="Task Play"/>
 	<menu_item_call label="屬性" name="Task Properties"/>
 	<menu_item_call label="更名" name="Task Rename"/>
 	<menu_item_call label="刪除" name="Task Remove"/>
 	<menu_item_call label="清空垃圾筒" name="Empty Trash"/>
-	<menu_item_call label="清空 Lost And Found" name="Empty Lost And Found"/>
+	<menu_item_call label="清空所有失物" name="Empty Lost And Found"/>
 	<menu_item_call label="新資料夾" name="New Folder"/>
 	<menu_item_call label="新腳本" name="New Script"/>
 	<menu_item_call label="新記事卡" name="New Note"/>
@@ -18,7 +18,7 @@
 		<menu_item_call label="新褲子" name="New Pants"/>
 		<menu_item_call label="新鞋子" name="New Shoes"/>
 		<menu_item_call label="新襪子" name="New Socks"/>
-		<menu_item_call label="新夾克" name="New Jacket"/>
+		<menu_item_call label="新外套" name="New Jacket"/>
 		<menu_item_call label="新裙子" name="New Skirt"/>
 		<menu_item_call label="新手套" name="New Gloves"/>
 		<menu_item_call label="新內衣" name="New Undershirt"/>
@@ -46,42 +46,46 @@
 		<menu_item_call label="內衣" name="Undershirt"/>
 	</menu>
 	<menu_item_call label="瞬間傳送" name="Landmark Open"/>
-	<menu_item_call label="開啟" name="Animation Open"/>
-	<menu_item_call label="開啟" name="Sound Open"/>
+	<menu_item_call label="打開" name="Animation Open"/>
+	<menu_item_call label="打開" name="Sound Open"/>
 	<menu_item_call label="取代目前的裝扮" name="Replace Outfit"/>
 	<menu_item_call label="添加到目前裝扮" name="Add To Outfit"/>
 	<menu_item_call label="由目前的裝扮移除" name="Remove From Outfit"/>
 	<menu_item_call label="尋找原件" name="Find Original"/>
 	<menu_item_call label="清空物品" name="Purge Item"/>
-	<menu_item_call label="恢復物品" name="Restore Item"/>
-	<menu_item_call label="開啟" name="Open"/>
+	<menu_item_call label="還原物品" name="Restore Item"/>
+	<menu_item_call label="打開" name="Open"/>
 	<menu_item_call label="開啟原件" name="Open Original"/>
 	<menu_item_call label="屬性" name="Properties"/>
 	<menu_item_call label="更名" name="Rename"/>
 	<menu_item_call label="覆製資產 UUID" name="Copy Asset UUID"/>
-	<menu_item_call label="覆製" name="Copy"/>
+	<menu_item_call label="剪下" name="Cut"/>
+	<menu_item_call label="恚庨" name="Copy"/>
 	<menu_item_call label="貼上" name="Paste"/>
-	<menu_item_call label="Paste As Link" name="Paste As Link"/>
+	<menu_item_call label="以連結格式貼上" name="Paste As Link"/>
 	<menu_item_call label="刪除" name="Remove Link"/>
 	<menu_item_call label="刪除" name="Delete"/>
 	<menu_item_call label="刪除系統資料夾" name="Delete System Folder"/>
-	<menu_item_call label="Start Conference Chat" name="Conference Chat Folder"/>
+	<menu_item_call label="發起多方通話" name="Conference Chat Folder"/>
 	<menu_item_call label="播放" name="Sound Play"/>
+	<menu_item_call label="覆製 SLurl" name="url_copy"/>
 	<menu_item_call label="添加地標" name="About Landmark"/>
-	<menu_item_call label="播放於虛擬世界" name="Animation Play"/>
-	<menu_item_call label="播放於本地" name="Animation Audition"/>
+	<menu_item_call label="在虛擬世界播放" name="Animation Play"/>
+	<menu_item_call label="在本地播放" name="Animation Audition"/>
 	<menu_item_call label="送出即時訊息" name="Send Instant Message"/>
-	<menu_item_call label="發給瞬間傳送請求..." name="Offer Teleport..."/>
-	<menu_item_call label="開始會議交談" name="Conference Chat"/>
-	<menu_item_call label="Activate" name="Activate"/>
-	<menu_item_call label="Deactivate" name="Deactivate"/>
-	<menu_item_call label="另存" name="Save As"/>
-	<menu_item_call label="Detach From Yourself" name="Detach From Yourself"/>
-	<menu_item_call label="Wear" name="Wearable And Object Wear"/>
-	<menu label="Attach To" name="Attach To"/>
-	<menu label="Attach To HUD" name="Attach To HUD"/>
+	<menu_item_call label="發出瞬間傳送邀請..." name="Offer Teleport..."/>
+	<menu_item_call label="發起多方通話" name="Conference Chat"/>
+	<menu_item_call label="啟動" name="Activate"/>
+	<menu_item_call label="停用" name="Deactivate"/>
+	<menu_item_call label="另存為" name="Save As"/>
+	<menu_item_call label="從你身上移除" name="Detach From Yourself"/>
+	<menu_item_call label="穿上" name="Wearable And Object Wear"/>
+	<menu label="附著到..." name="Attach To"/>
+	<menu label="附著到擡頭顯示" name="Attach To HUD"/>
 	<menu_item_call label="編輯" name="Wearable Edit"/>
 	<menu_item_call label="添加" name="Wearable Add"/>
 	<menu_item_call label="脫下" name="Take Off"/>
+	<menu_item_call label="複製到商家發件匣" name="Merchant Copy"/>
+	<menu_item_call label="送往第二人生購物市集" name="Marketplace Send"/>
 	<menu_item_call label="-- 無選項 --" name="--no options--"/>
 </menu>

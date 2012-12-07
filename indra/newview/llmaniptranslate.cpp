@@ -1755,6 +1755,11 @@ void LLManipTranslate::highlightIntersection(LLVector3 normal,
 		shader->bind();
 	}
 
+	if (shader)
+	{
+		shader->bind();
+	}
+
 	//draw volume/plane intersections
 	{
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);

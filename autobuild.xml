@@ -186,9 +186,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d98078791ce345bf6168ce9ba53ca2d7</string>
+              <string>610d3c3790b39d44b45ed1e471f7b34d</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-boost/rev/222752/arch/Darwin/installer/boost-1.45.0-darwin-20110304.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-boost/rev/267115/arch/Darwin/installer/boost-1.52.0-darwin-20121117.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -198,9 +198,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a34e7fffdb94a6a4d8a2966b1f216da3</string>
+              <string>86b9108ab71bd6551365d1706e2fb178</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.45.0-linux-20110310.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-boost/rev/267115/arch/Linux/installer/boost-1.52.0-linux-20121117.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -210,9 +210,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>98be22c8833aa2bca184b9fa09fbb82b</string>
+              <string>a3bf306ebd14036a93f7894f898a862c</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.45.0-windows-20110124.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-boost/rev/267115/arch/CYGWIN/installer/boost-1.52.0-windows-20121117.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -762,9 +762,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3ec313ddf607a5716f47d5b1ec0edf31</string>
+              <string>21babc394dbf8572830f2e85adec7b9f</string>
               <key>url</key>
-              <string>https://viewer-source-downloads.s3.amazonaws.com/install_pkgs/google_breakpad-0.0.0-rev1099-darwin-20121011.tar.bz2</string>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google_breakpad-0.0.0-rev599-darwin-20110202.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1062,9 +1062,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d91e1f483209cd3eba04135c6a59e829</string>
+              <string>a5b2dff0d97b643227a58473e5c57906</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-kdu-private/rev/221672/arch/Darwin/installer/kdu-6.4.1-darwin-20110218.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-kdu-private/rev/256978/arch/Darwin/installer/kdu-7.0.0-darwin-20120515.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1086,9 +1086,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6cd9f36465ef73a3df34bf2b3bba2ced</string>
+              <string>6d80d35524e1c0c32d3385014d02d48c</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-kdu-private/rev/221672/arch/CYGWIN/installer/kdu-6.4.1-windows-20110218.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-kdu-private/rev/256978/arch/CYGWIN/installer/kdu-7.0.0-windows-20120515.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1770,9 +1770,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>dde928cb24d22a267004a8c17669ba65</string>
+              <string>8aedfdcf670348c18a9991ae1b384a61</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-perftools/rev/226426/arch/Linux/installer/google_perftools-1.7-linux-20110412.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-perftools/rev/262672/arch/Linux/installer/gperftools-2.0-linux-20120727.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1782,9 +1782,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8308f7bd68bb7083655753b7abe7225f</string>
+              <string>f62841804acb91e1309603a84f3f0ce8</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-perftools/rev/226287/arch/CYGWIN/installer/google_perftools-1.7-windows-20110411.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-perftools/rev/262672/arch/CYGWIN/installer/gperftools-2.0-windows-20120727.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2183,6 +2183,8 @@
                 <array>
                   <string>-configuration Release</string>
                   <string>-project SecondLife.xcodeproj</string>
+                  <string>-DENABLE_SIGNING:BOOL=YES</string>
+                  <string>-DSIGNING_IDENTITY:STRING="Developer ID Application: Linden Research, Inc."</string>
                 </array>
               </map>
               <key>configure</key>
@@ -2210,6 +2212,8 @@
                 <array>
                   <string>-configuration Release</string>
                   <string>-project SecondLife.xcodeproj</string>
+                  <string>-DENABLE_SIGNING:BOOL=YES</string>
+                  <string>-DSIGNING_IDENTITY:STRING="Developer ID Application: Linden Research, Inc."</string>
                 </array>
               </map>
               <key>configure</key>
@@ -2459,6 +2463,18 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>..\indra</string>
+                  <string>&amp;&amp;</string>
+                  <string>..\indra\tools\vstool\VSTool.exe</string>
+                  <string>--solution</string>
+                  <string>SecondLife.sln</string>
+                  <string>--config</string>
+                  <string>Debug</string>
+                  <string>--startup</string>
+                  <string>secondlife-bin</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2535,6 +2551,18 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>..\indra</string>
+                  <string>&amp;&amp;</string>
+                  <string>..\indra\tools\vstool\VSTool.exe</string>
+                  <string>--solution</string>
+                  <string>SecondLife.sln</string>
+                  <string>--config</string>
+                  <string>RelWithDebInfo</string>
+                  <string>--startup</string>
+                  <string>secondlife-bin</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2611,6 +2639,18 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>..\indra</string>
+                  <string>&amp;&amp;</string>
+                  <string>..\indra\tools\vstool\VSTool.exe</string>
+                  <string>--solution</string>
+                  <string>SecondLife.sln</string>
+                  <string>--config</string>
+                  <string>Release</string>
+                  <string>--startup</string>
+                  <string>secondlife-bin</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>

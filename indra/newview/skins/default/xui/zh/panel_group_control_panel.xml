@@ -8,7 +8,7 @@
 			<button label="群組通話" name="call_btn"/>
 		</layout_panel>
 		<layout_panel name="end_call_btn_panel">
-			<button label="結束通話" name="end_call_btn"/>
+			<button label="離開通話" name="end_call_btn"/>
 		</layout_panel>
 		<layout_panel name="voice_ctrls_btn_panel">
 			<button label="開啟語音控制" name="voice_ctrls_btn"/>

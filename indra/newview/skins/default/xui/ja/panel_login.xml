@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_login">
-	<panel.string name="create_account_url">
-		http://jp.secondlife.com/registration/
-	</panel.string>
 	<panel.string name="forgot_password_url">
 		http://secondlife.com/account/request.php?lang=ja
 	</panel.string>
 	<layout_stack name="login_widgets">
 		<layout_panel name="login">
+			<text name="log_in_text">
+				ログイン
+			</text>
 			<text name="username_text">
 				ユーザーネーム：
 			</text>
@@ -15,15 +15,8 @@
 			<text name="password_text">
 				パスワード：
 			</text>
-			<check_box label="パスワードを記憶" name="remember_check"/>
-			<button label="ログイン" left_pad="30" name="connect_btn" width="60"/>
-			<text name="mode_selection_text">
-				モード：
-			</text>
-			<combo_box name="mode_combo" tool_tip="モードを選択します。ベーシックモードでは探索やチャットをすばやく簡単に実行でき、アドバンスモードでは、より多くの機能が利用できます。">
-				<combo_box.item label="ベーシック" name="Basic"/>
-				<combo_box.item label="アドバンス" name="Advanced"/>
-			</combo_box>
+		</layout_panel>
+		<layout_panel name="start_location_panel">
 			<text name="start_location_text">
 				開始地点：
 			</text>
@@ -33,16 +26,21 @@
 				<combo_box.item label="＜地域名を入力＞" name="Typeregionname"/>
 			</combo_box>
 		</layout_panel>
-		<layout_panel name="links">
-			<text name="create_new_account_text">
-				お申し込み
+		<layout_panel name="links_login_panel">
+			<text name="login_help">
+				ログインの方法
 			</text>
 			<text name="forgot_password_text">
 				ユーザー名またはパスワードをお忘れですか？
 			</text>
-			<text name="login_help">
-				ログインの方法
+			<button label="ログイン" left_pad="30" name="connect_btn" width="60"/>
+			<check_box label="パスワードを記憶" name="remember_check"/>
+		</layout_panel>
+		<layout_panel name="links">
+			<text name="create_account_text">
+				アカウントを作成してください
 			</text>
+			<button label="今すぐ開始" name="create_new_account_btn"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

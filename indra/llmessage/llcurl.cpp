@@ -133,12 +133,12 @@ std::string LLCurl::getVersionString()
 //////////////////////////////////////////////////////////////////////////////
 
 LLCurl::Responder::Responder()
-	: mReferenceCount(0)
 {
 }
 
 LLCurl::Responder::~Responder()
 {
+	LL_CHECK_MEMORY
 }
 
 // virtual
@@ -202,23 +202,6 @@ void LLCurl::Responder::completedHeader(U32 status, const std::string& reason, c
 
 }
 
-namespace boost
-{
-	void intrusive_ptr_add_ref(LLCurl::Responder* p)
-	{
-		++p->mReferenceCount;
-	}
-	
-	void intrusive_ptr_release(LLCurl::Responder* p)
-	{
-		if (p && 0 == --p->mReferenceCount)
-		{
-			delete p;
-		}
-	}
-};
-
-
 //////////////////////////////////////////////////////////////////////////////
 
 std::set<CURL*> LLCurl::Easy::sFreeHandles;
@@ -267,15 +250,18 @@ void LLCurl::Easy::releaseEasyHandle(CURL* handle)
 	LLMutexLock lock(sHandleMutexp) ;
 	if (sActiveHandles.find(handle) != sActiveHandles.end())
 	{
+		LL_CHECK_MEMORY
 		sActiveHandles.erase(handle);
-
+		LL_CHECK_MEMORY
 		if(sFreeHandles.size() < MAX_NUM_FREE_HANDLES)
 		{
-		sFreeHandles.insert(handle);
-	}
-	else
-	{
+			sFreeHandles.insert(handle);
+			LL_CHECK_MEMORY
+		}
+		else
+		{
 			LLCurl::deleteEasyHandle(handle) ;
+			LL_CHECK_MEMORY
 		}
 	}
 	else
@@ -308,6 +294,8 @@ LLCurl::Easy* LLCurl::Easy::getEasy()
 	// multi handles cache if they are added to one.
 	CURLcode result = curl_easy_setopt(easy->mCurlEasyHandle, CURLOPT_DNS_CACHE_TIMEOUT, 0);
 	check_curl_code(result);
+	result = curl_easy_setopt(easy->mCurlEasyHandle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+	check_curl_code(result);
 	
 	++gCurlEasyCount;
 	return easy;
@@ -318,13 +306,15 @@ LLCurl::Easy::~Easy()
 	releaseEasyHandle(mCurlEasyHandle);
 	--gCurlEasyCount;
 	curl_slist_free_all(mHeaders);
+	LL_CHECK_MEMORY
 	for_each(mStrings.begin(), mStrings.end(), DeletePointerArray());
-
+	LL_CHECK_MEMORY
 	if (mResponder && LLCurl::sNotQuitting) //aborted
 	{	
 		std::string reason("Request timeout, aborted.") ;
 		mResponder->completedRaw(408, //HTTP_REQUEST_TIME_OUT, timeout, abort
 			reason, mChannels, mOutput);		
+		LL_CHECK_MEMORY
 	}
 	mResponder = NULL;
 }
@@ -494,7 +484,8 @@ void LLCurl::Easy::prepRequest(const std::string& url,
 
 	//setopt(CURLOPT_VERBOSE, 1); // useful for debugging
 	setopt(CURLOPT_NOSIGNAL, 1);
-
+	setopt(CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+	
 	// Set the CURL options for either Socks or HTTP proxy
 	LLProxy::getInstance()->applyProxySettings(this);
 
@@ -599,34 +590,49 @@ void LLCurl::Multi::cleanup(bool deleted)
 	llassert_always(deleted || !mValid) ;
 
 	LLMutexLock lock(mDeletionMutexp);
-	
+
+
 	// Clean up active
 	for(easy_active_list_t::iterator iter = mEasyActiveList.begin();
 		iter != mEasyActiveList.end(); ++iter)
 	{
 		Easy* easy = *iter;
+		LL_CHECK_MEMORY
 		check_curl_multi_code(curl_multi_remove_handle(mCurlMultiHandle, easy->getCurlHandle()));
-
+		LL_CHECK_MEMORY
 		if(deleted)
 		{
 			easy->mResponder = NULL ; //avoid triggering mResponder.
+			LL_CHECK_MEMORY
 		}
 		delete easy;
+		LL_CHECK_MEMORY
 	}
 	mEasyActiveList.clear();
 	mEasyActiveMap.clear();
 	
-	// Clean up freed
+	LL_CHECK_MEMORY
+	
+		// Clean up freed
 	for_each(mEasyFreeList.begin(), mEasyFreeList.end(), DeletePointer());	
 	mEasyFreeList.clear();
-
+	
+	LL_CHECK_MEMORY
+		
 	check_curl_multi_code(LLCurl::deleteMultiHandle(mCurlMultiHandle));
 	mCurlMultiHandle = NULL ;
+
+	LL_CHECK_MEMORY
 	
 	delete mMutexp ;
 	mMutexp = NULL ;
+
+	LL_CHECK_MEMORY
+
 	delete mEasyMutexp ;
 	mEasyMutexp = NULL ;
+
+	LL_CHECK_MEMORY
 
 	mQueued = 0 ;
 	mState = STATE_COMPLETED;
@@ -935,8 +941,8 @@ bool LLCurlThread::CurlRequest::processRequest()
 
 		if(!completed)
 		{
-		setPriority(LLQueuedThread::PRIORITY_LOW) ;
-	}
+			setPriority(LLQueuedThread::PRIORITY_LOW) ;
+		}
 	}
 
 	return completed ;
@@ -946,7 +952,7 @@ void LLCurlThread::CurlRequest::finishRequest(bool completed)
 {
 	if(mMulti->isDead())
 	{
-	mCurlThread->deleteMulti(mMulti) ;
+		mCurlThread->deleteMulti(mMulti) ;
 	}
 	else
 	{
@@ -989,6 +995,7 @@ void LLCurlThread::killMulti(LLCurl::Multi* multi)
 	{
 		return ;
 	}
+
 
 	multi->markDead() ;
 }
@@ -1095,12 +1102,15 @@ void LLCurlRequest::get(const std::string& url, LLCurl::ResponderPtr responder)
 {
 	getByteRange(url, headers_t(), 0, -1, responder);
 }
-	
+
+// Note: (length==0) is interpreted as "the rest of the file", i.e. the whole file if (offset==0) or
+// the remainder of the file if not.
 bool LLCurlRequest::getByteRange(const std::string& url,
 								 const headers_t& headers,
 								 S32 offset, S32 length,
 								 LLCurl::ResponderPtr responder)
 {
+	llassert(LLCurl::sNotQuitting);
 	LLCurl::Easy* easy = allocEasy();
 	if (!easy)
 	{
@@ -1113,6 +1123,11 @@ bool LLCurlRequest::getByteRange(const std::string& url,
 		std::string range = llformat("Range: bytes=%d-%d", offset,offset+length-1);
 		easy->slist_append(range.c_str());
 	}
+	else if (offset > 0)
+	{
+		std::string range = llformat("Range: bytes=%d-", offset);
+		easy->slist_append(range.c_str());
+	}
 	easy->setHeaders();
 	bool res = addEasy(easy);
 	return res;
@@ -1123,6 +1138,7 @@ bool LLCurlRequest::post(const std::string& url,
 						 const LLSD& data,
 						 LLCurl::ResponderPtr responder, S32 time_out)
 {
+	llassert(LLCurl::sNotQuitting);
 	LLCurl::Easy* easy = allocEasy();
 	if (!easy)
 	{
@@ -1150,6 +1166,7 @@ bool LLCurlRequest::post(const std::string& url,
 						 const std::string& data,
 						 LLCurl::ResponderPtr responder, S32 time_out)
 {
+	llassert(LLCurl::sNotQuitting);
 	LLCurl::Easy* easy = allocEasy();
 	if (!easy)
 	{
@@ -1236,6 +1253,208 @@ S32 LLCurlRequest::getQueued()
 		}
 	}
 	return queued;
+}
+
+LLCurlTextureRequest::LLCurlTextureRequest(S32 concurrency) : 
+	LLCurlRequest(), 
+	mConcurrency(concurrency),
+	mInQueue(0),
+	mMutex(NULL),
+	mHandleCounter(1),
+	mTotalIssuedRequests(0),
+	mTotalReceivedBits(0)
+{
+	mGlobalTimer.reset();
+}
+
+LLCurlTextureRequest::~LLCurlTextureRequest()
+{
+	mRequestMap.clear();
+
+	for(req_queue_t::iterator iter = mCachedRequests.begin(); iter != mCachedRequests.end(); ++iter)
+	{
+		delete *iter;
+	}
+	mCachedRequests.clear();
+}
+
+//return 0: success
+// > 0: cached handle
+U32 LLCurlTextureRequest::getByteRange(const std::string& url,
+								 const headers_t& headers,
+								 S32 offset, S32 length, U32 pri,
+								 LLCurl::ResponderPtr responder, F32 delay_time)
+{
+	U32 ret_val = 0;
+	bool success = false;	
+
+	if(mInQueue < mConcurrency && delay_time < 0.f)
+	{
+		success = LLCurlRequest::getByteRange(url, headers, offset, length, responder);		
+	}
+
+	LLMutexLock lock(&mMutex);
+
+	if(success)
+	{
+		mInQueue++;
+		mTotalIssuedRequests++;
+	}
+	else
+	{
+		request_t* request = new request_t(mHandleCounter, url, headers, offset, length, pri, responder);
+		if(delay_time > 0.f)
+		{
+			request->mStartTime = mGlobalTimer.getElapsedTimeF32() + delay_time;
+		}
+
+		mCachedRequests.insert(request);
+		mRequestMap[mHandleCounter] = request;
+		ret_val = mHandleCounter;
+		mHandleCounter++;
+
+		if(!mHandleCounter)
+		{
+			mHandleCounter = 1;
+		}
+	}
+
+	return ret_val;
+}
+
+void LLCurlTextureRequest::completeRequest(S32 received_bytes)
+{
+	LLMutexLock lock(&mMutex);
+
+	llassert_always(mInQueue > 0);
+
+	mInQueue--;
+	mTotalReceivedBits += received_bytes * 8;
+}
+
+void LLCurlTextureRequest::nextRequests()
+{
+	if(mCachedRequests.empty() || mInQueue >= mConcurrency)
+	{
+		return;
+	}
+
+	F32 cur_time = mGlobalTimer.getElapsedTimeF32();
+
+	req_queue_t::iterator iter;	
+	{
+		LLMutexLock lock(&mMutex);
+		iter = mCachedRequests.begin();
+	}
+	while(1)
+	{
+		request_t* request = *iter;
+		if(request->mStartTime < cur_time)
+		{
+			if(!LLCurlRequest::getByteRange(request->mUrl, request->mHeaders, request->mOffset, request->mLength, request->mResponder))
+			{
+				break;
+			}
+
+			LLMutexLock lock(&mMutex);
+			++iter;
+			mInQueue++;
+			mTotalIssuedRequests++;
+			mCachedRequests.erase(request);
+			mRequestMap.erase(request->mHandle);
+			delete request;
+
+			if(iter == mCachedRequests.end() || mInQueue >= mConcurrency)
+			{
+				break;
+			}
+		}
+		else
+		{
+			LLMutexLock lock(&mMutex);
+			++iter;
+			if(iter == mCachedRequests.end() || mInQueue >= mConcurrency)
+			{
+				break;
+			}
+		}
+	}
+
+	return;
+}
+
+void LLCurlTextureRequest::updatePriority(U32 handle, U32 pri)
+{
+	if(!handle)
+	{
+		return;
+	}
+
+	LLMutexLock lock(&mMutex);
+
+	std::map<S32, request_t*>::iterator iter = mRequestMap.find(handle);
+	if(iter != mRequestMap.end())
+	{
+		request_t* req = iter->second;
+		
+		if(req->mPriority != pri)
+		{
+			mCachedRequests.erase(req);
+			req->mPriority = pri;
+			mCachedRequests.insert(req);
+		}
+	}
+}
+
+void LLCurlTextureRequest::removeRequest(U32 handle)
+{
+	if(!handle)
+	{
+		return;
+	}
+
+	LLMutexLock lock(&mMutex);
+
+	std::map<S32, request_t*>::iterator iter = mRequestMap.find(handle);
+	if(iter != mRequestMap.end())
+	{
+		request_t* req = iter->second;
+		mRequestMap.erase(iter);
+		mCachedRequests.erase(req);
+		delete req;
+	}
+}
+
+bool LLCurlTextureRequest::isWaiting(U32 handle)
+{
+	if(!handle)
+	{
+		return false;
+	}
+
+	LLMutexLock lock(&mMutex);
+	return mRequestMap.find(handle) != mRequestMap.end();
+}
+
+U32 LLCurlTextureRequest::getTotalReceivedBits()
+{
+	LLMutexLock lock(&mMutex);
+
+	U32 bits = mTotalReceivedBits;
+	mTotalReceivedBits = 0;
+	return bits;
+}
+
+U32 LLCurlTextureRequest::getTotalIssuedRequests()
+{
+	LLMutexLock lock(&mMutex);
+	return mTotalIssuedRequests;
+}
+
+S32 LLCurlTextureRequest::getNumRequests()
+{
+	LLMutexLock lock(&mMutex);
+	return mInQueue;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -1504,28 +1723,41 @@ void LLCurl::cleanupClass()
 			break ;
 		}
 	}
+	LL_CHECK_MEMORY
 	sCurlThread->shutdown() ;
+	LL_CHECK_MEMORY
 	delete sCurlThread ;
 	sCurlThread = NULL ;
+	LL_CHECK_MEMORY
 
 #if SAFE_SSL
 	CRYPTO_set_locking_callback(NULL);
 	for_each(sSSLMutex.begin(), sSSLMutex.end(), DeletePointer());
 #endif
+	
+	LL_CHECK_MEMORY
 
 	for (std::set<CURL*>::iterator iter = Easy::sFreeHandles.begin(); iter != Easy::sFreeHandles.end(); ++iter)
 	{
 		CURL* curl = *iter;
 		LLCurl::deleteEasyHandle(curl);
 	}
+	
+	LL_CHECK_MEMORY
 
 	Easy::sFreeHandles.clear();
+
+	LL_CHECK_MEMORY
 
 	delete Easy::sHandleMutexp ;
 	Easy::sHandleMutexp = NULL ;
 
+	LL_CHECK_MEMORY
+
 	delete sHandleMutexp ;
 	sHandleMutexp = NULL ;
+
+	LL_CHECK_MEMORY
 
 	// removed as per https://jira.secondlife.com/browse/SH-3115
 	//llassert(Easy::sActiveHandles.empty());
@@ -1534,6 +1766,8 @@ void LLCurl::cleanupClass()
 //static 
 CURLM* LLCurl::newMultiHandle()
 {
+	llassert(sNotQuitting);
+
 	LLMutexLock lock(sHandleMutexp) ;
 
 	if(sTotalHandles + 1 > sMaxHandles)
@@ -1567,6 +1801,7 @@ CURLMcode  LLCurl::deleteMultiHandle(CURLM* handle)
 //static 
 CURL*  LLCurl::newEasyHandle()
 {
+	llassert(sNotQuitting);
 	LLMutexLock lock(sHandleMutexp) ;
 
 	if(sTotalHandles + 1 > sMaxHandles)
@@ -1591,7 +1826,9 @@ void  LLCurl::deleteEasyHandle(CURL* handle)
 	if(handle)
 	{
 		LLMutexLock lock(sHandleMutexp) ;
+		LL_CHECK_MEMORY
 		curl_easy_cleanup(handle) ;
+		LL_CHECK_MEMORY
 		sTotalHandles-- ;
 	}
 }

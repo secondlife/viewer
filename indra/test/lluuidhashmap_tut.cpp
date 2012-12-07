@@ -30,6 +30,10 @@
 #include "linden_common.h"
 #include "lluuidhashmap.h"
 #include "llsdserialize.h"
+#include "lldir.h"
+#include "stringize.h"
+#include <iostream>
+#include <fstream>
 
 namespace tut
 {
@@ -79,40 +83,133 @@ namespace tut
 	template<> template<>
 	void hash_index_object_t::test<1>()
 	{
-		LLUUIDHashMap<UUIDTableEntry, 32>	hashTable(UUIDTableEntry::uuidEq, UUIDTableEntry());
+		set_test_name("stress test");
+		// As of 2012-10-10, I (nat) have observed sporadic failures of this
+		// test: "set/get did not work." The trouble is that since test data
+		// are randomly generated with every run, it is impossible to debug a
+		// test failure. One is left with the uneasy suspicion that
+		// LLUUID::generate() can sometimes produce duplicates even within the
+		// moderately small number requested here. Since rerunning the test
+		// generally allows it to pass, it's too easy to shrug and forget it.
+		// The following code is intended to support reproducing such test
+		// failures. The idea is that, on test failure, we save the generated
+		// data to a canonical filename in a temp directory. Then on every
+		// subsequent run, we check for that filename. If it exists, we reload
+		// that specific data rather than generating fresh data -- which
+		// should presumably reproduce the same test failure. But we inform
+		// the user that to resume normal (random) test runs, s/he need only
+		// delete that file. And since it's in a temp directory, sooner or
+		// later the system will clean it up anyway.
+		const char* tempvar = "TEMP";
+		const char* tempdir = getenv(tempvar); // Windows convention
+		if (! tempdir)
+		{
+			tempvar = "TMPDIR";
+			tempdir = getenv(tempvar); // Mac convention
+		}
+		if (! tempdir)
+		{
+			// reset tempvar to the first var we check; it's just a
+			// recommendation
+			tempvar = "TEMP";
+			tempdir = "/tmp";		// Posix in general
+		}
+		std::string savefile(gDirUtilp->add(tempdir, "lluuidhashmap_tut.save.txt"));
 		const int numElementsToCheck = 32*256*32;
-		std::vector<LLUUID> idList(numElementsToCheck);
-		int i;
-		
-		for (i = 0; i < numElementsToCheck; i++)
+		std::vector<LLUUID> idList;
+		if (gDirUtilp->fileExists(savefile))
 		{
-			LLUUID id;
-			id.generate();
-			UUIDTableEntry entry(id, i);
-			hashTable.set(id, entry);
-			idList[i] = id;
-		}
-
-		for (i = 0; i < numElementsToCheck; i++)
-		{
-			LLUUID idToCheck = idList[i];
-			UUIDTableEntry entryToCheck = hashTable.get(idToCheck);
-			ensure("set/get did not work", entryToCheck.getID() == idToCheck && entryToCheck.getValue() == (size_t)i);
-		}
-
-		for (i = 0; i < numElementsToCheck; i++)
-		{
-			LLUUID idToCheck = idList[i];
-			if (i % 2 != 0)
+			// We have saved data from a previous failed run. Reload that data.
+			std::ifstream inf(savefile.c_str());
+			if (! inf.is_open())
 			{
-				hashTable.remove(idToCheck);
+				fail(STRINGIZE("Although save file '" << savefile << "' exists, it cannot be opened"));
+			}
+			std::string item;
+			while (std::getline(inf, item))
+			{
+				idList.push_back(LLUUID(item));
+			}
+			std::cout << "Reloaded " << idList.size() << " items from '" << savefile << "'";
+			if (idList.size() != numElementsToCheck)
+			{
+				std::cout << " (expected " << numElementsToCheck << ")";
+			}
+			std::cout << " -- delete this file to generate new data" << std::endl;
+		}
+		else
+		{
+			// savefile does not exist (normal case): regenerate idList from
+			// scratch.
+			for (int i = 0; i < numElementsToCheck; ++i)
+			{
+				LLUUID id;
+				id.generate();
+				idList.push_back(id);
 			}
 		}
 
-		for (i = 0; i < numElementsToCheck; i++)
+		LLUUIDHashMap<UUIDTableEntry, 32>	hashTable(UUIDTableEntry::uuidEq, UUIDTableEntry());
+		int i;
+		
+		for (i = 0; i < idList.size(); ++i)
 		{
-			LLUUID idToCheck = idList[i];
-			ensure("remove or check did not work", (i % 2 == 0 && hashTable.check(idToCheck)) || (i % 2 != 0 && !hashTable.check(idToCheck)));
+			UUIDTableEntry entry(idList[i], i);
+			hashTable.set(idList[i], entry);
+		}
+
+		try
+		{
+			for (i = 0; i < idList.size(); i++)
+			{
+				LLUUID idToCheck = idList[i];
+				UUIDTableEntry entryToCheck = hashTable.get(idToCheck);
+				ensure_equals(STRINGIZE("set/get ID (entry " << i << ")").c_str(),
+							  entryToCheck.getID(), idToCheck);
+				ensure_equals(STRINGIZE("set/get value (ID " << idToCheck << ")").c_str(),
+							  entryToCheck.getValue(), (size_t)i);
+			}
+
+			for (i = 0; i < idList.size(); i++)
+			{
+				LLUUID idToCheck = idList[i];
+				if (i % 2 != 0)
+				{
+					hashTable.remove(idToCheck);
+				}
+			}
+
+			for (i = 0; i < idList.size(); i++)
+			{
+				LLUUID idToCheck = idList[i];
+				ensure("remove or check did not work", (i % 2 == 0 && hashTable.check(idToCheck)) || (i % 2 != 0 && !hashTable.check(idToCheck)));
+			}
+		}
+		catch (const failure&)
+		{
+			// One of the above tests failed. Try to save idList to repro with
+			// a later run.
+			std::ofstream outf(savefile.c_str());
+			if (! outf.is_open())
+			{
+				// Sigh, don't use fail() here because we want to preserve
+				// the original test failure.
+				std::cout << "Cannot open file '" << savefile
+						  << "' to save data -- check and fix " << tempvar << std::endl;
+			}
+			else
+			{
+				// outf.is_open()
+				for (int i = 0; i < idList.size(); ++i)
+				{
+					outf << idList[i] << std::endl;
+				}
+				std::cout << "Saved " << idList.size() << " entries to '" << savefile
+						  << "' -- rerun test to debug with these" << std::endl;
+			}
+			// re-raise the same exception -- we WANT this test failure to
+			// be reported! We just needed to save the data on the way out.
+			throw;
 		}
 	}
 

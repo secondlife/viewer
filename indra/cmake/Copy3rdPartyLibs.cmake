@@ -57,10 +57,10 @@ if(WINDOWS)
         libhunspell.dll
         )
 
-    if(USE_GOOGLE_PERFTOOLS)
+    if(USE_TCMALLOC)
       set(debug_files ${debug_files} libtcmalloc_minimal-debug.dll)
       set(release_files ${release_files} libtcmalloc_minimal.dll)
-    endif(USE_GOOGLE_PERFTOOLS)
+    endif(USE_TCMALLOC)
 
     if (FMOD)
       set(debug_files ${debug_files} fmod.dll)
@@ -254,6 +254,12 @@ elseif(LINUX)
         libapr-1.so.0
         libaprutil-1.so.0
         libatk-1.0.so
+        libboost_program_options-mt.so.${BOOST_VERSION}.0
+        libboost_regex-mt.so.${BOOST_VERSION}.0
+        libboost_thread-mt.so.${BOOST_VERSION}.0
+        libboost_filesystem-mt.so.${BOOST_VERSION}.0
+        libboost_signals-mt.so.${BOOST_VERSION}.0
+        libboost_system-mt.so.${BOOST_VERSION}.0
         libbreakpad_client.so.0
         libcollada14dom.so
         libcrypto.so.1.0.0
@@ -272,12 +278,15 @@ elseif(LINUX)
         libopenal.so
         libopenjpeg.so
         libssl.so
-        libtcmalloc_minimal.so
         libuuid.so.16
         libuuid.so.16.0.22
         libssl.so.1.0.0
         libfontconfig.so.1.4.4
        )
+
+    if (USE_TCMALLOC)
+      set(release_files ${release_files} "libtcmalloc_minimal.so")
+    endif (USE_TCMALLOC)
 
     if (FMOD)
       set(release_files ${release_files} "libfmod-3.75.so")

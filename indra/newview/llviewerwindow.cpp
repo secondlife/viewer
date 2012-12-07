@@ -122,11 +122,11 @@
 #include "llkeyboard.h"
 #include "lllineeditor.h"
 #include "llmenugl.h"
+#include "llmenuoptionpathfindingrebakenavmesh.h"
 #include "llmodaldialog.h"
 #include "llmorphview.h"
 #include "llmoveview.h"
 #include "llnavigationbar.h"
-#include "llpanelpathfindingrebakenavmesh.h"
 #include "llpaneltopinfobar.h"
 #include "llpopupview.h"
 #include "llpreviewtexture.h"
@@ -562,6 +562,9 @@ public:
 
 			addText(xpos, ypos, llformat("%d Render Calls", gPipeline.mBatchCount));
             ypos += y_inc;
+
+			addText(xpos, ypos, llformat("%d/%d Objects Active", gObjectList.getNumActiveObjects(), gObjectList.getNumObjects()));
+			ypos += y_inc;
 
 			addText(xpos, ypos, llformat("%d Matrix Ops", gPipeline.mMatrixOpCount));
 			ypos += y_inc;
@@ -1555,8 +1558,12 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 
 	LLNotifications::instance().getChannel("VW_alerts")->connectChanged(&LLViewerWindow::onAlert);
 	LLNotifications::instance().getChannel("VW_alertmodal")->connectChanged(&LLViewerWindow::onAlert);
-	LLNotifications::instance().setIgnoreAllNotifications(gSavedSettings.getBOOL("IgnoreAllNotifications"));
-	llinfos << "NOTE: ALL NOTIFICATIONS THAT OCCUR WILL GET ADDED TO IGNORE LIST FOR LATER RUNS." << llendl;
+	bool ignore = gSavedSettings.getBOOL("IgnoreAllNotifications");
+	LLNotifications::instance().setIgnoreAllNotifications(ignore);
+	if (ignore)
+	{
+		llinfos << "NOTE: ALL NOTIFICATIONS THAT OCCUR WILL GET ADDED TO IGNORE LIST FOR LATER RUNS." << llendl;
+	}
 
 	// Default to application directory.
 	LLViewerWindow::sSnapshotBaseName = "Snapshot";
@@ -1685,8 +1692,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	LLFontGL::initClass( gSavedSettings.getF32("FontScreenDPI"),
 								mDisplayScale.mV[VX],
 								mDisplayScale.mV[VY],
-								gDirUtilp->getAppRODataDir(),
-								LLUI::getXUIPaths());
+								gDirUtilp->getAppRODataDir());
 	
 	// Create container for all sub-views
 	LLView::Params rvp;
@@ -1927,11 +1933,10 @@ void LLViewerWindow::initWorldUI()
 	LLPanelStandStopFlying* panel_stand_stop_flying	= LLPanelStandStopFlying::getInstance();
 	panel_ssf_container->addChild(panel_stand_stop_flying);
 
-	LLPanelPathfindingRebakeNavmesh *panel_rebake_navmesh = LLPanelPathfindingRebakeNavmesh::getInstance();
-	panel_ssf_container->addChild(panel_rebake_navmesh);
-
 	panel_ssf_container->setVisible(TRUE);
 	
+	LLMenuOptionPathfindingRebakeNavmesh::getInstance()->initialize();
+
 	// Load and make the toolbars visible
 	// Note: we need to load the toolbars only *after* the user is logged in and IW
 	if (gToolBarView)
@@ -2000,6 +2005,8 @@ void LLViewerWindow::shutdownViews()
 	delete mRootView;
 	mRootView = NULL;
 	llinfos << "RootView deleted." << llendl ;
+
+	LLMenuOptionPathfindingRebakeNavmesh::getInstance()->quit();
 
 	// Automatically deleted as children of mRootView.  Fix the globals.
 	gStatusBar = NULL;
@@ -4757,8 +4764,7 @@ void LLViewerWindow::initFonts(F32 zoom_factor)
 	LLFontGL::initClass( gSavedSettings.getF32("FontScreenDPI"),
 								mDisplayScale.mV[VX] * zoom_factor,
 								mDisplayScale.mV[VY] * zoom_factor,
-								gDirUtilp->getAppRODataDir(),
-								LLUI::getXUIPaths());
+								gDirUtilp->getAppRODataDir());
 	// Force font reloads, which can be very slow
 	LLFontGL::loadDefaultFonts();
 }
@@ -4768,8 +4774,11 @@ void LLViewerWindow::requestResolutionUpdate()
 	mResDirty = true;
 }
 
+static LLFastTimer::DeclareTimer FTM_WINDOW_CHECK_SETTINGS("Window Settings");
+
 void LLViewerWindow::checkSettings()
 {
+	LLFastTimer t(FTM_WINDOW_CHECK_SETTINGS);
 	if (mStatesDirty)
 	{
 		gGL.refreshState();

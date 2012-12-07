@@ -748,6 +748,10 @@ void LLFloater::closeFloater(bool app_quitting)
 					dependee->setFocus(TRUE);
 				}
 			}
+
+			// STORM-1879: since this floater has focus, treat the closeFloater- call
+			// like a click on the close-button, and close gear- and contextmenus
+			LLMenuGL::sMenuContainer->hideMenus();
 		}
 
 		dirtyRect();
@@ -3229,24 +3233,14 @@ bool LLFloater::isVisible(const LLFloater* floater)
 
 static LLFastTimer::DeclareTimer FTM_BUILD_FLOATERS("Build Floaters");
 
-bool LLFloater::buildFromFile(const std::string& filename, LLXMLNodePtr output_node)
+bool LLFloater::buildFromFile(const std::string& filename)
 {
 	LLFastTimer timer(FTM_BUILD_FLOATERS);
 	LLXMLNodePtr root;
 
-	//if exporting, only load the language being exported, 
-	//instead of layering localized version on top of english
-	if (output_node)
+	if (!LLUICtrlFactory::getLayeredXMLNode(filename, root))
 	{
-		if (!LLUICtrlFactory::getLocalizedXMLNode(filename, root))
-		{
-			llwarns << "Couldn't parse floater from: " << LLUI::getLocalizedSkinPath() + gDirUtilp->getDirDelimiter() + filename << llendl;
-			return false;
-		}
-	}
-	else if (!LLUICtrlFactory::getLayeredXMLNode(filename, root))
-	{
-		llwarns << "Couldn't parse floater from: " << LLUI::getSkinPath() + gDirUtilp->getDirDelimiter() + filename << llendl;
+		llwarns << "Couldn't find (or parse) floater from: " << filename << llendl;
 		return false;
 	}
 	
@@ -3271,7 +3265,7 @@ bool LLFloater::buildFromFile(const std::string& filename, LLXMLNodePtr output_n
 		getCommitCallbackRegistrar().pushScope();
 		getEnableCallbackRegistrar().pushScope();
 		
-		res = initFloaterXML(root, getParent(), filename, output_node);
+		res = initFloaterXML(root, getParent(), filename, NULL);
 
 		setXMLFilename(filename);
 		

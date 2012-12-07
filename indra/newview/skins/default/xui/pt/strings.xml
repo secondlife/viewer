@@ -128,7 +128,7 @@
 		Sair
 	</string>
 	<string name="create_account_url">
-		http://join.secondlife.com/index.php?lang=pt-BR
+		http://join.secondlife.com/index.php?lang=pt-BR&amp;sourceid=[sourceid]
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		O visualizador utilizado já não é compatível com o Second Life.  Visite a página abaixo para baixar uma versão atual: http://secondlife.com/download
@@ -952,6 +952,9 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	<string name="script_files">
 		Scripts
 	</string>
+	<string name="dictionary_files">
+		Dicionários
+	</string>
 	<string name="AvatarSetNotAway">
 		deixar como ausente
 	</string>
@@ -1351,6 +1354,12 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	<string name="InvFolder favorite">
 		Meus favoritos
 	</string>
+	<string name="InvFolder Favorites">
+		Meus favoritos
+	</string>
+	<string name="InvFolder favorites">
+		Meus favoritos
+	</string>
 	<string name="InvFolder Current Outfit">
 		Look atual
 	</string>
@@ -1365,6 +1374,12 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	</string>
 	<string name="InvFolder Meshes">
 		Meshes:
+	</string>
+	<string name="InvFolder Received Items">
+		Itens recebidos
+	</string>
+	<string name="InvFolder Merchant Outbox">
+		Caixa de saída do lojista
 	</string>
 	<string name="InvFolder Friends">
 		Amigos
@@ -3740,6 +3755,12 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="LocationCtrlSeeAVsTooltip">
 		Avatar visíveis e bate-papo permitido fora deste terreno
 	</string>
+	<string name="LocationCtrlPathfindingDirtyTooltip">
+		Os objetos que se movem podem não se comportar corretamente nesta região até que ela seja recarregada.
+	</string>
+	<string name="LocationCtrlPathfindingDisabledTooltip">
+		O pathfinding dinâmico não está habilitado nesta região.
+	</string>
 	<string name="UpdaterWindowTitle">
 		[APP_NAME] Atualização
 	</string>
@@ -4873,6 +4894,21 @@ Tente colocar o caminho do editor entre aspas.
 	<string name="Normal">
 		Normal
 	</string>
+	<string name="Pathfinding_Wiki_URL">
+		http://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer
+	</string>
+	<string name="Pathfinding_Object_Attr_None">
+		Nenhum
+	</string>
+	<string name="Pathfinding_Object_Attr_Permanent">
+		Afeta o navmesh
+	</string>
+	<string name="Pathfinding_Object_Attr_Character">
+		Personagem
+	</string>
+	<string name="Pathfinding_Object_Attr_MultiSelect">
+		(Múltiplo)
+	</string>
 	<string name="snapshot_quality_very_low">
 		Muito baixo
 	</string>
@@ -4887,5 +4923,11 @@ Tente colocar o caminho do editor entre aspas.
 	</string>
 	<string name="snapshot_quality_very_high">
 		Muito alto
+	</string>
+	<string name="TeleportMaturityExceeded">
+		O residente não pode visitar a região.
+	</string>
+	<string name="UserDictionary">
+		[Usuário]
 	</string>
 </strings>

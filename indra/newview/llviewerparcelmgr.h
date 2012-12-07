@@ -223,11 +223,6 @@ public:
 	// Takes an Access List flag, like AL_ACCESS or AL_BAN
 	void	sendParcelAccessListRequest(U32 flags);
 
-	// asks for the parcel's media url filter list
-	void    requestParcelMediaURLFilter();
-	// receive the response
-	void    receiveParcelMediaURLFilter(const LLSD &content);
-	
 	// Dwell is not part of the usual parcel update information because the
 	// simulator doesn't actually know the per-parcel dwell.  Ack!  We have
 	// to get it out of the database.

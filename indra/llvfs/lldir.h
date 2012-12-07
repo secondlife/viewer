@@ -1,4 +1,4 @@
-/** 
+/**  
  * @file lldir.h
  * @brief Definition of directory utilities class
  *
@@ -56,7 +56,7 @@ typedef enum ELLPath
 	LL_PATH_LAST
 } ELLPath;
 
-
+/// Directory operations
 class LLDir
 {
  public:
@@ -100,9 +100,10 @@ class LLDir
 	const std::string &getOSCacheDir() const;		// location of OS-specific cache folder (may be empty string)
 	const std::string &getCAFile() const;			// File containing TLS certificate authorities
 	const std::string &getDirDelimiter() const;	// directory separator for platform (ie. '\' or '/' or ':')
-	const std::string &getSkinDir() const;		// User-specified skin folder.
-	const std::string &getUserSkinDir() const;		// User-specified skin folder with user modifications. e.g. c:\documents and settings\username\application data\second life\skins\curskin
 	const std::string &getDefaultSkinDir() const;	// folder for default skin. e.g. c:\program files\second life\skins\default
+	const std::string &getSkinDir() const;		// User-specified skin folder.
+	const std::string &getUserDefaultSkinDir() const; // dir with user modifications to default skin
+	const std::string &getUserSkinDir() const;		// User-specified skin folder with user modifications. e.g. c:\documents and settings\username\application data\second life\skins\curskin
 	const std::string getSkinBaseDir() const;		// folder that contains all installed skins (not user modifications). e.g. c:\program files\second life\skins
 	const std::string &getLLPluginDir() const;		// Directory containing plugins and plugin shell
 
@@ -117,10 +118,61 @@ class LLDir
 	std::string getExtension(const std::string& filepath) const; // Excludes '.', e.g getExtension("foo.wav") == "wav"
 
 	// these methods search the various skin paths for the specified file in the following order:
-	// getUserSkinDir(), getSkinDir(), getDefaultSkinDir()
-	std::string findSkinnedFilename(const std::string &filename) const;
-	std::string findSkinnedFilename(const std::string &subdir, const std::string &filename) const;
-	std::string findSkinnedFilename(const std::string &subdir1, const std::string &subdir2, const std::string &filename) const;
+	// getUserSkinDir(), getUserDefaultSkinDir(), getSkinDir(), getDefaultSkinDir()
+	/// param value for findSkinnedFilenames(), explained below
+	enum ESkinConstraint { CURRENT_SKIN, ALL_SKINS };
+	/**
+	 * Given a filename within skin, return an ordered sequence of paths to
+	 * search. Nonexistent files will be filtered out -- which means that the
+	 * vector might be empty.
+	 *
+	 * @param subdir Identify top-level skin subdirectory by passing one of
+	 * LLDir::XUI (file lives under "xui" subtree), LLDir::TEXTURES (file
+	 * lives under "textures" subtree), LLDir::SKINBASE (file lives at top
+	 * level of skin subdirectory).
+	 * @param filename Desired filename within subdir within skin, e.g.
+	 * "panel_login.xml". DO NOT prepend (e.g.) "xui" or the desired language.
+	 * @param constraint Callers perform two different kinds of processing.
+	 * When fetching a XUI file, for instance, the existence of @a filename in
+	 * the specified skin completely supercedes any @a filename in the default
+	 * skin. For that case, leave the default @a constraint=CURRENT_SKIN. The
+	 * returned vector will contain only
+	 * ".../<i>current_skin</i>/xui/en/<i>filename</i>",
+	 * ".../<i>current_skin</i>/xui/<i>current_language</i>/<i>filename</i>".
+	 * But for (e.g.) "strings.xml", we want a given skin to be able to
+	 * override only specific entries from the default skin. Any string not
+	 * defined in the specified skin will be sought in the default skin. For
+	 * that case, pass @a constraint=ALL_SKINS. The returned vector will
+	 * contain at least ".../default/xui/en/strings.xml",
+	 * ".../default/xui/<i>current_language</i>/strings.xml",
+	 * ".../<i>current_skin</i>/xui/en/strings.xml",
+	 * ".../<i>current_skin</i>/xui/<i>current_language</i>/strings.xml".
+	 */
+	std::vector<std::string> findSkinnedFilenames(const std::string& subdir,
+												  const std::string& filename,
+												  ESkinConstraint constraint=CURRENT_SKIN) const;
+	/// Values for findSkinnedFilenames(subdir) parameter
+	static const char *XUI, *TEXTURES, *SKINBASE;
+	/**
+	 * Return the base-language pathname from findSkinnedFilenames(), or
+	 * the empty string if no such file exists. Parameters are identical to
+	 * findSkinnedFilenames(). This is shorthand for capturing the vector
+	 * returned by findSkinnedFilenames(), checking for empty() and then
+	 * returning front().
+	 */
+	std::string findSkinnedFilenameBaseLang(const std::string &subdir,
+											const std::string &filename,
+											ESkinConstraint constraint=CURRENT_SKIN) const;
+	/**
+	 * Return the "most localized" pathname from findSkinnedFilenames(), or
+	 * the empty string if no such file exists. Parameters are identical to
+	 * findSkinnedFilenames(). This is shorthand for capturing the vector
+	 * returned by findSkinnedFilenames(), checking for empty() and then
+	 * returning back().
+	 */
+	std::string findSkinnedFilename(const std::string &subdir,
+									const std::string &filename,
+									ESkinConstraint constraint=CURRENT_SKIN) const;
 
 	// random filename in common temporary directory
 	std::string getTempFilename() const;
@@ -132,15 +184,37 @@ class LLDir
 	virtual void setChatLogsDir(const std::string &path);		// Set the chat logs dir to this user's dir
 	virtual void setPerAccountChatLogsDir(const std::string &username);		// Set the per user chat log directory.
 	virtual void setLindenUserDir(const std::string &username);		// Set the linden user dir to this user's dir
-	virtual void setSkinFolder(const std::string &skin_folder);
+	virtual void setSkinFolder(const std::string &skin_folder, const std::string& language);
+	virtual std::string getSkinFolder() const;
+	virtual std::string getLanguage() const;
 	virtual bool setCacheDir(const std::string &path);
 
 	virtual void dumpCurrentDirectories();
-	
+
 	// Utility routine
 	std::string buildSLOSCacheDir() const;
 
+	/// Append specified @a name to @a destpath, separated by getDirDelimiter()
+	/// if both are non-empty.
+	void append(std::string& destpath, const std::string& name) const;
+	/// Append specified @a name to @a path, separated by getDirDelimiter()
+	/// if both are non-empty. Return result, leaving @a path unmodified.
+	std::string add(const std::string& path, const std::string& name) const;
+
 protected:
+	// Does an add() or append() call need a directory delimiter?
+	typedef std::pair<bool, unsigned short> SepOff;
+	SepOff needSep(const std::string& path, const std::string& name) const;
+	// build mSearchSkinDirs without adding duplicates
+	void addSearchSkinDir(const std::string& skindir);
+
+	// Internal to findSkinnedFilenames()
+	template <typename FUNCTION>
+	void walkSearchSkinDirs(const std::string& subdir,
+							const std::vector<std::string>& subsubdirs,
+							const std::string& filename,
+							const FUNCTION& function) const;
+
 	std::string mAppName;               // install directory under progams/ ie "SecondLife"   
 	std::string mExecutablePathAndName; // full path + Filename of .exe
 	std::string mExecutableFilename;    // Filename of .exe
@@ -158,10 +232,18 @@ protected:
 	std::string mDefaultCacheDir;	// default cache diretory
 	std::string mOSCacheDir;		// operating system cache dir
 	std::string mDirDelimiter;
+	std::string mSkinName;           // caller-specified skin name
 	std::string mSkinBaseDir;			// Base for skins paths.
-	std::string mSkinDir;			// Location for current skin info.
 	std::string mDefaultSkinDir;			// Location for default skin info.
+	std::string mSkinDir;			// Location for current skin info.
+	std::string mUserDefaultSkinDir;		// Location for default skin info.
 	std::string mUserSkinDir;			// Location for user-modified skin info.
+	// Skin directories to search, most general to most specific. This order
+	// works well for composing fine-grained files, in which an individual item
+	// in a specific file overrides the corresponding item in more general
+	// files. Of course, for a file-level search, iterate backwards.
+	std::vector<std::string> mSearchSkinDirs;
+	std::string mLanguage;              // Current viewer language
 	std::string mLLPluginDir;			// Location for plugins and plugin shell
 };
 

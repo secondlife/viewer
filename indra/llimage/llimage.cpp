@@ -292,11 +292,16 @@ LLImageRaw::LLImageRaw(U16 width, U16 height, S8 components)
 	++sRawImageCount;
 }
 
-LLImageRaw::LLImageRaw(U8 *data, U16 width, U16 height, S8 components)
+LLImageRaw::LLImageRaw(U8 *data, U16 width, U16 height, S8 components, bool no_copy)
 	: LLImageBase()
 {
 	mMemType = LLMemType::MTYPE_IMAGERAW;
-	if(allocateDataSize(width, height, components))
+
+	if(no_copy)
+	{
+		setDataAndSize(data, width, height, components);
+	}
+	else if(allocateDataSize(width, height, components))
 	{
 		memcpy(getData(), data, width*height*components);
 	}
@@ -1659,6 +1664,12 @@ static void avg4_colors2(const U8* a, const U8* b, const U8* c, const U8* d, U8*
 	dst[0] = (U8)(((U32)(a[0]) + b[0] + c[0] + d[0])>>2);
 	dst[1] = (U8)(((U32)(a[1]) + b[1] + c[1] + d[1])>>2);
 }
+
+void LLImageBase::setDataAndSize(U8 *data, S32 size)
+{ 
+	ll_assert_aligned(data, 16);
+	mData = data; mDataSize = size; 
+}	
 
 //static
 void LLImageBase::generateMip(const U8* indata, U8* mipdata, S32 width, S32 height, S32 nchannels)

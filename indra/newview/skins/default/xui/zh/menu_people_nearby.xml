@@ -2,12 +2,12 @@
 <context_menu name="Avatar Context Menu">
 	<menu_item_call label="察看檔案" name="View Profile"/>
 	<menu_item_call label="加為朋友" name="Add Friend"/>
-	<menu_item_call label="Remove Friend" name="Remove Friend"/>
+	<menu_item_call label="移除朋友" name="Remove Friend"/>
 	<menu_item_call label="IM" name="IM"/>
 	<menu_item_call label="通話" name="Call"/>
 	<menu_item_call label="地圖" name="Map"/>
 	<menu_item_call label="分享" name="Share"/>
 	<menu_item_call label="支付" name="Pay"/>
-	<menu_item_check label="Block/Unblock" name="Block/Unblock"/>
+	<menu_item_check label="封鎖/不再封鎖" name="Block/Unblock"/>
 	<menu_item_call label="發給瞬間傳送請求" name="teleport"/>
 </context_menu>

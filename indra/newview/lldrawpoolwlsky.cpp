@@ -192,14 +192,18 @@ void LLDrawPoolWLSky::renderStars(void) const
 	bool error;
 	LLColor4 star_alpha(LLColor4::black);
 	star_alpha.mV[3] = LLWLParamManager::getInstance()->mCurParams.getFloat("star_brightness", error) / 2.f;
-	llassert_always(!error);
+
+	// If start_brightness is not set, exit
+	if( error )
+	{
+		llwarns << "star_brightness missing in mCurParams" << llendl;
+		return;
+	}
 
 	gGL.getTexUnit(0)->bind(gSky.mVOSkyp->getBloomTex());
 
 	gGL.pushMatrix();
 	gGL.rotatef(gFrameTimeSeconds*0.01f, 0.f, 0.f, 1.f);
-	// gl_FragColor.rgb = gl_Color.rgb;
-	// gl_FragColor.a = gl_Color.a * star_alpha.a;
 	if (LLGLSLShader::sNoFixedFunction)
 	{
 		gCustomAlphaProgram.bind();

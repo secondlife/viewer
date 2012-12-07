@@ -787,7 +787,7 @@ void send_stats()
 		"%-6s Class %d ",
 		gGLManager.mGLVendorShort.substr(0,6).c_str(),
 		(S32)LLFeatureManager::getInstance()->getGPUClass())
-		+ LLFeatureManager::getInstance()->getGPUString();
+		+ gGLManager.getRawGLString();
 
 	system["gpu"] = gpu_desc;
 	system["gpu_class"] = (S32)LLFeatureManager::getInstance()->getGPUClass();
@@ -798,7 +798,18 @@ void send_stats()
 	S32 shader_level = 0;
 	if (LLPipeline::sRenderDeferred)
 	{
-		shader_level = 3;
+		if (LLPipeline::RenderShadowDetail > 0)
+		{
+			shader_level = 5;
+		}
+		else if (LLPipeline::RenderDeferredSSAO)
+		{
+			shader_level = 4;
+		}
+		else
+		{
+			shader_level = 3;
+		}
 	}
 	else if (gPipeline.canUseWindLightShadersOnObjects())
 	{
@@ -949,15 +960,8 @@ LLSD LLViewerStats::PhaseMap::dumpPhases()
 	for (phase_map_t::iterator iter = mPhaseMap.begin(); iter != mPhaseMap.end(); ++iter)
 	{
 		const std::string& phase_name = iter->first;
-		result[phase_name]["completed"] = !(iter->second.getStarted());
+		result[phase_name]["completed"] = LLSD::Integer(!(iter->second.getStarted()));
 		result[phase_name]["elapsed"] = iter->second.getElapsedTimeF32();
-#if 0 // global stats for each phase seem like overkill here
-		phase_stats_t::iterator stats_iter = sPhaseStats.find(phase_name);
-		if (stats_iter != sPhaseStats.end())
-		{
-			result[phase_name]["stats"] = stats_iter->second.getData();
-		}
-#endif
 	}
 	return result;
 }

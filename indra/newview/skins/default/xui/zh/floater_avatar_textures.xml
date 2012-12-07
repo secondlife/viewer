@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="avatar_texture_debug" title="化身材質">
 	<floater.string name="InvalidAvatar">
-		INVALID AVATAR
+		無效的化身
 	</floater.string>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
 			<text name="label">
-				Baked
-Textures
+				確定產出的
+材質
 			</text>
 			<text name="composite_label">
-				Composite
-Textures
+				合成
+材質
 			</text>
-			<button label="Dump IDs to Console" label_selected="Dump" name="Dump"/>
+			<button label="傾印 ID 到控制臺" label_selected="傾印" name="Dump"/>
 			<panel name="scroll_content_panel">
 				<texture_picker label="頭髮" name="hair-baked"/>
 				<texture_picker label="頭髮" name="hair_grain"/>
@@ -25,7 +25,7 @@ Textures
 				<texture_picker label="眼睛" name="eyes-baked"/>
 				<texture_picker label="眼睛" name="eyes_iris"/>
 				<texture_picker label="眼睛半透明" name="eyes_alpha"/>
-				<texture_picker label="上半身半透明" name="upper-baked"/>
+				<texture_picker label="上半身" name="upper-baked"/>
 				<texture_picker label="上半身身體部位" name="upper_bodypaint"/>
 				<texture_picker label="內衣" name="upper_undershirt"/>
 				<texture_picker label="手套" name="upper_gloves"/>

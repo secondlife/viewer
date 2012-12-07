@@ -1,29 +1,158 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater label="地點" name="voice_effects" title="語音變聲">
 	<string name="no_voice_effect">
-		(No Voice Morph)
+		（無變聲效果）
 	</string>
 	<string name="active_voice_effect">
-		(Active)
+		（使用中）
 	</string>
 	<string name="unsubscribed_voice_effect">
-		(Unsubscribed)
+		（已停止訂用）
 	</string>
 	<string name="new_voice_effect">
-		(New!)
+		（新的！）
+	</string>
+	<string name="effect_Arena">
+		競技場
+	</string>
+	<string name="effect_Beast">
+		野獸
+	</string>
+	<string name="effect_Buff">
+		Buff
+	</string>
+	<string name="effect_Buzz">
+		Buzz
+	</string>
+	<string name="effect_Camille">
+		卡蜜兒
+	</string>
+	<string name="effect_Creepy">
+		怪異
+	</string>
+	<string name="effect_CreepyBot">
+		怪異機器人
+	</string>
+	<string name="effect_Cyber">
+		科幻
+	</string>
+	<string name="effect_DeepBot">
+		深沉機器人
+	</string>
+	<string name="effect_Demon">
+		魔鬼
+	</string>
+	<string name="effect_Female Elf">
+		女性 - 小精靈
+	</string>
+	<string name="effect_Flirty">
+		調情
+	</string>
+	<string name="effect_Foxy">
+		香豔
+	</string>
+	<string name="effect_Halloween 2010 Bonus">
+		2010萬聖節加贈
+	</string>
+	<string name="effect_Helium">
+		氦氣
+	</string>
+	<string name="effect_Husky">
+		沙啞
+	</string>
+	<string name="effect_Husky Whisper">
+		沙啞耳語
+	</string>
+	<string name="effect_Intercom">
+		對講機
+	</string>
+	<string name="effect_Julia">
+		茱莉亞
+	</string>
+	<string name="effect_Lo Lilt">
+		輕微抑揚頓挫
+	</string>
+	<string name="effect_Macho">
+		陽剛
+	</string>
+	<string name="effect_Micro">
+		Micro
+	</string>
+	<string name="effect_Mini">
+		迷你
+	</string>
+	<string name="effect_Model">
+		模型
+	</string>
+	<string name="effect_Nano">
+		Nano
+	</string>
+	<string name="effect_Nightmare">
+		惡夢
+	</string>
+	<string name="effect_PopBot">
+		PopBot
+	</string>
+	<string name="effect_Rachel">
+		瑞秋
+	</string>
+	<string name="effect_Radio">
+		收音機
+	</string>
+	<string name="effect_Robot">
+		機器人
+	</string>
+	<string name="effect_Roxanne">
+		蘿姍
+	</string>
+	<string name="effect_Rumble">
+		低沉隆隆聲
+	</string>
+	<string name="effect_Sabrina">
+		薩賓娜
+	</string>
+	<string name="effect_Samantha">
+		姍曼莎
+	</string>
+	<string name="effect_Sexy">
+		性感
+	</string>
+	<string name="effect_Shorty">
+		矮個兒
+	</string>
+	<string name="effect_Smaller">
+		較小
+	</string>
+	<string name="effect_Sneaky">
+		鬼祟
+	</string>
+	<string name="effect_Stallion">
+		種馬
+	</string>
+	<string name="effect_Sultry">
+		勾魂
+	</string>
+	<string name="effect_Thunder">
+		雷聲
+	</string>
+	<string name="effect_Vixen">
+		潑婦
+	</string>
+	<string name="effect_WhinyBot">
+		哭鬧機器人
 	</string>
 	<text name="preview_text">
-		To Preview
+		預覽
 	</text>
 	<text name="status_text">
-		Record a sample, then click on a voice to hear how it will sound.
+		錄下一段樣本，再點按聲音檢查結果。
 	</text>
-	<button label="Record" name="record_btn" tool_tip="Record a sample of your voice."/>
+	<button label="錄音" name="record_btn" tool_tip="錄下一段你的聲音。"/>
 	<button label="停止" name="record_stop_btn"/>
 	<text name="voice_morphing_link">
-		[[URL] Subscribe Now]
+		[[URL] 現在訂用]
 	</text>
-	<scroll_list name="voice_effect_list" tool_tip="Record a sample of your voice, then click an effect to preview.">
+	<scroll_list name="voice_effect_list" tool_tip="錄下一段你的聲音，再點選一個效果試聽。">
 		<scroll_list.columns label="語音名稱" name="name"/>
 		<scroll_list.columns label="過期" name="expires"/>
 	</scroll_list>

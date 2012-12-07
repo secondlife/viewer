@@ -59,7 +59,7 @@
 	<string name="LoginFailedNoNetwork">Network error: Could not establish connection, please check your network connection.</string>
 	<string name="LoginFailed">Login failed.</string>
 	<string name="Quit">Quit</string>
-	<string name="create_account_url">http://join.secondlife.com/</string>
+	<string name="create_account_url">http://join.secondlife.com/?sourceid=[sourceid]</string>
 
 	<string name="LoginFailedViewerNotPermitted">
 The viewer you are using can no longer access Second Life. Please visit the following page to download a new viewer:
@@ -2272,11 +2272,15 @@ Drag folders to this area and click "Send to Marketplace" to list them for sale 
   <!-- historically default name of the Favorites folder can start from either "f" or "F" letter.
   We should localize both of them with the same value -->
 	<string name="InvFolder favorite">My Favorites</string>
+	<string name="InvFolder Favorites">My Favorites</string>
+	<string name="InvFolder favorites">My Favorites</string>
 	<string name="InvFolder Current Outfit">Current Outfit</string>
 	<string name="InvFolder Initial Outfits">Initial Outfits</string>
 	<string name="InvFolder My Outfits">My Outfits</string>
 	<string name="InvFolder Accessories">Accessories</string>
 	<string name="InvFolder Meshes">Meshes</string>
+	<string name="InvFolder Received Items">Received Items</string>
+	<string name="InvFolder Merchant Outbox">Merchant Outbox</string>
 
   <!-- are used for Friends and Friends/All folders in Inventory "Calling cards" folder. See EXT-694-->
 	<string name="InvFolder Friends">Friends</string>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_pathfinding_characters" title="Personnages de recherche de chemin">
+	<floater.string name="messaging_get_inprogress">
+		Requête relative aux personnages de recherche de chemin en cours...
+	</floater.string>
+	<floater.string name="messaging_get_error">
+		Erreur lors de la requête relative aux personnages de recherche de chemin.
+	</floater.string>
+	<floater.string name="messaging_complete_none_found">
+		Aucun personnage de recherche de chemin.
+	</floater.string>
+	<floater.string name="messaging_complete_available">
+		[NUM_SELECTED] personnages sélectionnés sur [NUM_TOTAL].
+	</floater.string>
+	<floater.string name="messaging_not_enabled">
+		La recherche de chemin n&apos;a pas été activée pour cette région.
+	</floater.string>
+	<floater.string name="character_cpu_time">
+		[CPU_TIME] µs
+	</floater.string>
+	<floater.string name="character_owner_loading">
+		[Chargement]
+	</floater.string>
+	<floater.string name="character_owner_unknown">
+		[Inconnu]
+	</floater.string>
+	<floater.string name="character_owner_group">
+		[Groupe]
+	</floater.string>
+	<panel>
+		<scroll_list name="objects_scroll_list">
+			<scroll_list.columns label="Nom" name="name"/>
+			<scroll_list.columns label="Description" name="description"/>
+			<scroll_list.columns label="Propriétaire" name="owner"/>
+			<scroll_list.columns label="CPU" name="cpu_time"/>
+			<scroll_list.columns label="Altitude" name="altitude"/>
+		</scroll_list>
+		<text name="messaging_status">
+			Personnages :
+		</text>
+		<button label="Actualiser" name="refresh_objects_list"/>
+		<button label="Tout sélectionner" name="select_all_objects"/>
+		<button label="Ne rien sélectionner" name="select_none_objects"/>
+	</panel>
+	<panel>
+		<text name="actions_label">
+			Actions sur les personnages sélectionnés :
+		</text>
+		<check_box label="Afficher la balise" name="show_beacon"/>
+		<check_box label="Afficher la capsule physique" name="show_physics_capsule"/>
+		<button label="Prendre" name="take_objects"/>
+		<button label="Prendre une copie" name="take_copy_objects"/>
+		<button label="M&apos;y téléporter" name="teleport_me_to_object" tool_tip="Activé uniquement lorsqu&apos;un personnage est sélectionné."/>
+		<button label="Renvoyer" name="return_objects"/>
+		<button label="Supprimer" name="delete_objects"/>
+	</panel>
+</floater>

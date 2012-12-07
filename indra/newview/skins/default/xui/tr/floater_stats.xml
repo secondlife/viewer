@@ -53,7 +53,13 @@
 				<stat_bar label="Nesneler" name="simobjects"/>
 				<stat_bar label="Etkin Nesneler" name="simactiveobjects"/>
 				<stat_bar label="Etkin Komut Dosyaları" name="simactivescripts"/>
+				<stat_bar label="Çalıştırılan Komut Dosyaları" name="simpctscriptsrun"/>
 				<stat_bar label="Komut Dosyası Etkinlikleri" name="simscripteps"/>
+				<stat_view label="Yol bulma" name="simpathfinding">
+					<stat_bar label="Yapay Zeka Adım Süresi" name="simsimaistepmsec"/>
+					<stat_bar label="Atlanan Siluet Adımları" name="simsimskippedsilhouettesteps"/>
+					<stat_bar label="Güncellenen Karakterler" name="simsimpctsteppedcharacters"/>
+				</stat_view>
 				<stat_bar label="Gelen Paketler" name="siminpps"/>
 				<stat_bar label="Giden Paketler" name="simoutpps"/>
 				<stat_bar label="Bekleyen Karşıdan Yüklemeler" name="simpendingdownloads"/>

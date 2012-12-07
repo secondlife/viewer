@@ -88,6 +88,11 @@ public:
 
 	U32 getID() const { return mID; }
 
+	// Called by threads *not* created via LLThread to register some
+	// internal state used by LLMutex.  You must call this once early
+	// in the running thread to prevent collisions with the main thread.
+	static void registerThreadID();
+	
 private:
 	BOOL				mPaused;
 	
@@ -97,6 +102,7 @@ private:
 protected:
 	std::string			mName;
 	LLCondition*		mRunCondition;
+	LLMutex*			mDataLock;
 
 	apr_thread_t		*mAPRThreadp;
 	apr_pool_t			*mAPRPoolp;
@@ -122,15 +128,15 @@ protected:
 	inline void unlockData();
 	
 	// This is the predicate that decides whether the thread should sleep.  
-	// It should only be called with mRunCondition locked, since the virtual runCondition() function may need to access
+	// It should only be called with mDataLock locked, since the virtual runCondition() function may need to access
 	// data structures that are thread-unsafe.
 	bool shouldSleep(void) { return (mStatus == RUNNING) && (isPaused() || (!runCondition())); }
 
 	// To avoid spurious signals (and the associated context switches) when the condition may or may not have changed, you can do the following:
-	// mRunCondition->lock();
+	// mDataLock->lock();
 	// if(!shouldSleep())
 	//     mRunCondition->signal();
-	// mRunCondition->unlock();
+	// mDataLock->unlock();
 };
 
 //============================================================================
@@ -205,12 +211,12 @@ private:
 
 void LLThread::lockData()
 {
-	mRunCondition->lock();
+	mDataLock->lock();
 }
 
 void LLThread::unlockData()
 {
-	mRunCondition->unlock();
+	mDataLock->unlock();
 }
 
 
@@ -227,15 +233,27 @@ public:
 private:
 	static LLMutex* sMutex;
 
-private:
-	LLThreadSafeRefCount(const LLThreadSafeRefCount&); // not implemented
-	LLThreadSafeRefCount&operator=(const LLThreadSafeRefCount&); // not implemented
-
 protected:
 	virtual ~LLThreadSafeRefCount(); // use unref()
 	
 public:
 	LLThreadSafeRefCount();
+	LLThreadSafeRefCount(const LLThreadSafeRefCount&);
+	LLThreadSafeRefCount& operator=(const LLThreadSafeRefCount& ref) 
+	{
+		if (sMutex)
+		{
+			sMutex->lock();
+		}
+		mRef = 0;
+		if (sMutex)
+		{
+			sMutex->unlock();
+		}
+		return *this;
+	}
+
+
 	
 	void ref()
 	{

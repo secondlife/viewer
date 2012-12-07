@@ -19,6 +19,8 @@
 	<button label="Varsayılan" label_selected="Varsayılan" name="Default"/>
 	<button label="Boş" label_selected="Boş" name="Blank"/>
 	<button label="Hiçbiri" label_selected="Hiçbiri" name="None"/>
+	<check_box initial_value="true" label="Canlı Önizleme" name="apply_immediate_check"/>
+	<text name="preview_disabled" value="Önizleme Devre Dışı"/>
 	<filter_editor label="Dokuları Filtrele" name="inventory search editor"/>
 	<check_box initial_value="false" label="Klasörleri göster" name="show_folders_check"/>
 	<button label="Ekle" label_selected="Ekle" name="l_add_btn"/>
@@ -30,5 +32,4 @@
 	</scroll_list>
 	<button label="Tamam" label_selected="Tamam" name="Select"/>
 	<button label="İptal" label_selected="İptal" name="Cancel"/>
-	<check_box initial_value="true" label="Şimdi uygula" name="apply_immediate_check"/>
 </floater>

@@ -137,7 +137,7 @@
 		終了
 	</string>
 	<string name="create_account_url">
-		http://join.secondlife.com/index.php?lang=ja-JP
+		http://join.secondlife.com/index.php?lang=ja-JP&amp;sourceid=[sourceid]
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		お使いの古いビューワでは Second Life にアクセスできません。以下のページから新しいビューワをダウンロードしてください：
@@ -1006,6 +1006,9 @@ support@secondlife.com にお問い合わせください。
 	<string name="script_files">
 		スクリプト
 	</string>
+	<string name="dictionary_files">
+		辞書
+	</string>
 	<string name="AvatarSetNotAway">
 		一時退席中解除
 	</string>
@@ -1411,6 +1414,12 @@ support@secondlife.com にお問い合わせください。
 	<string name="InvFolder favorite">
 		お気に入り
 	</string>
+	<string name="InvFolder Favorites">
+		お気に入り
+	</string>
+	<string name="InvFolder favorites">
+		お気に入り
+	</string>
 	<string name="InvFolder Current Outfit">
 		着用中のアウトフィット
 	</string>
@@ -1425,6 +1434,12 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="InvFolder Meshes">
 		メッシュ
+	</string>
+	<string name="InvFolder Received Items">
+		受け取った商品
+	</string>
+	<string name="InvFolder Merchant Outbox">
+		マーチャントのアウトボックス
 	</string>
 	<string name="InvFolder Friends">
 		フレンド
@@ -3864,6 +3879,12 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="LocationCtrlSeeAVsTooltip">
 		この区画外にアバターを見えるようにして、チャットも許可
 	</string>
+	<string name="LocationCtrlPathfindingDirtyTooltip">
+		地域（リージョン）が再構築されるまで、移動するオブジェクトは正しく動作しない可能性があります。
+	</string>
+	<string name="LocationCtrlPathfindingDisabledTooltip">
+		この地域（リージョン）でダイナミックパスファインディングが有効になっていません。
+	</string>
 	<string name="UpdaterWindowTitle">
 		[APP_NAME] アップデート
 	</string>
@@ -5006,6 +5027,21 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="Normal">
 		普通
 	</string>
+	<string name="Pathfinding_Wiki_URL">
+		http://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer
+	</string>
+	<string name="Pathfinding_Object_Attr_None">
+		なし
+	</string>
+	<string name="Pathfinding_Object_Attr_Permanent">
+		ナビメッシュに影響を与える
+	</string>
+	<string name="Pathfinding_Object_Attr_Character">
+		キャラクター
+	</string>
+	<string name="Pathfinding_Object_Attr_MultiSelect">
+		（複数）
+	</string>
 	<string name="snapshot_quality_very_low">
 		非常に低い
 	</string>
@@ -5020,5 +5056,11 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="snapshot_quality_very_high">
 		非常に高い
+	</string>
+	<string name="TeleportMaturityExceeded">
+		住人はこの地域（リージョン）を訪問できません。
+	</string>
+	<string name="UserDictionary">
+		[User]
 	</string>
 </strings>

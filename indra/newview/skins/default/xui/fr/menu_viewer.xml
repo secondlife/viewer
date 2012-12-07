@@ -8,7 +8,7 @@
 		<menu_item_call label="Nouvelle fenêtre d&apos;inventaire" name="NewInventoryWindow"/>
 		<menu_item_call label="Endroits..." name="Places"/>
 		<menu_item_call label="Favoris..." name="Picks"/>
-		<menu_item_call label="Paramètres de la caméra..." name="Camera Controls"/>
+		<menu_item_call label="Contrôles de la caméra..." name="Camera Controls"/>
 		<menu label="Déplacement" name="Movement">
 			<menu_item_call label="M&apos;asseoir" name="Sit Down Here"/>
 			<menu_item_check label="Voler" name="Fly"/>
@@ -28,6 +28,7 @@
 		<menu_item_call label="Préférences..." name="Preferences"/>
 		<menu_item_call label="Boutons des barres d&apos;outils..." name="Toolbars"/>
 		<menu_item_call label="Masquer tous les contrôles" name="Hide UI"/>
+		<menu_item_check label="Afficher les éléments HUD" name="Show HUD Attachments"/>
 		<menu_item_call label="Quitter [APP_NAME]" name="Quit"/>
 	</menu>
 	<menu label="Communiquer" name="Communicate">
@@ -39,6 +40,7 @@
 		<menu_item_call label="Amis" name="My Friends"/>
 		<menu_item_call label="Groupes" name="My Groups"/>
 		<menu_item_call label="Personnes près de vous" name="Active Speakers"/>
+		<menu_item_call label="Liste des ignorés" name="Block List"/>
 	</menu>
 	<menu label="Monde" name="World">
 		<menu_item_call label="Créer un repère pour ce lieu" name="Create Landmark Here"/>
@@ -124,6 +126,11 @@
 			<menu_item_call label="Définir les scripts sur Exécution" name="Set Scripts to Running"/>
 			<menu_item_call label="Définir les scripts sur Pas d&apos;exécution" name="Set Scripts to Not Running"/>
 		</menu>
+		<menu label="Recherche de chemin" name="Pathfinding">
+			<menu_item_call label="Groupes de liens..." name="pathfinding_linksets_menu_item"/>
+			<menu_item_call label="Personnages..." name="pathfinding_characters_menu_item"/>
+			<menu_item_call label="Vue / test..." name="pathfinding_console_menu_item"/>
+		</menu>
 		<menu label="Options" name="Options">
 			<menu_item_check label="Afficher les droits avancés" name="DebugPermissions"/>
 			<menu_item_check label="Sélectionner mes objets uniquement" name="Select Only My Objects"/>
@@ -171,10 +178,9 @@
 		</menu>
 		<menu label="Surbrillance et visibilité" name="Highlighting and Visibility">
 			<menu_item_check label="Balise animée" name="Cheesy Beacon"/>
-			<menu_item_check label="Cacher les particules" name="Hide Particles"/>
+			<menu_item_check label="Masquer les particules" name="Hide Particles"/>
 			<menu_item_check label="Masquer la sélection" name="Hide Selected"/>
 			<menu_item_check label="Mettre la transparence en surbrillance" name="Highlight Transparent"/>
-			<menu_item_check label="Afficher les éléments HUD" name="Show HUD Attachments"/>
 			<menu_item_check label="Afficher le réticule de la vue subjective" name="ShowCrosshairs"/>
 		</menu>
 		<menu label="Types de rendu" name="Rendering Types">
@@ -377,7 +383,6 @@
 				<menu_item_call label="Basculer la géométrie des personnages" name="Toggle Character Geometry"/>
 				<menu_item_call label="Test homme" name="Test Male"/>
 				<menu_item_call label="Test femme" name="Test Female"/>
-				<menu_item_call label="Activer/désactiver PG" name="Toggle PG"/>
 				<menu_item_check label="Autoriser la sélection de l&apos;avatar" name="Allow Select Avatar"/>
 			</menu>
 			<menu_item_call label="Forcer les paramètres par défaut" name="Force Params to Default"/>

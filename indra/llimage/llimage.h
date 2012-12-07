@@ -148,7 +148,7 @@ public:
 
 protected:
 	// special accessor to allow direct setting of mData and mDataSize by LLImageFormatted
-	void setDataAndSize(U8 *data, S32 size) { mData = data; mDataSize = size; }	
+	void setDataAndSize(U8 *data, S32 size);
 	
 public:
 	static void generateMip(const U8 *indata, U8* mipdata, int width, int height, S32 nchannels);
@@ -189,7 +189,7 @@ protected:
 public:
 	LLImageRaw();
 	LLImageRaw(U16 width, U16 height, S8 components);
-	LLImageRaw(U8 *data, U16 width, U16 height, S8 components);
+	LLImageRaw(U8 *data, U16 width, U16 height, S8 components, bool no_copy = false);
 	// Construct using createFromFile (used by tools)
 	//LLImageRaw(const std::string& filename, bool j2c_lowest_mip_only = false);
 

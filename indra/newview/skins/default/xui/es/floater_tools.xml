@@ -128,6 +128,12 @@
 			<panel.string name="text modify info 4">
 				No puedes modificar estos objetos
 			</panel.string>
+			<panel.string name="text modify info 5">
+				No se puede modificar este objeto a través del límite de una región
+			</panel.string>
+			<panel.string name="text modify info 6">
+				No se pueden modificar estos objetos a través del límite de una región
+			</panel.string>
 			<panel.string name="text modify warning">
 				Para configurar los permisos, debes seleccionar el objeto completo
 			</panel.string>
@@ -177,12 +183,12 @@
 				<combo_box.item label="Zoom" name="Zoom"/>
 			</combo_box>
 			<check_box label="En venta:" name="checkbox for sale"/>
+			<spinner label="L$" name="Edit Cost"/>
 			<combo_box name="sale type">
 				<combo_box.item label="Copia" name="Copy"/>
 				<combo_box.item label="Contenidos" name="Contents"/>
 				<combo_box.item label="Original" name="Original"/>
 			</combo_box>
-			<spinner label="Precio: L$" name="Edit Cost"/>
 			<check_box label="Mostrar en la búsqueda" name="search_check" tool_tip="Dejar que la gente vea este objeto en los resultados de la búsqueda"/>
 			<panel name="perms_build">
 				<text name="perm_modify">
@@ -216,6 +222,11 @@
 				</text>
 				<text name="F:">
 					F:
+				</text>
+			</panel>
+			<panel name="pathfinding_attrs_panel">
+				<text name="pathfinding_attributes_label">
+					Atributos de pathfinding:
 				</text>
 			</panel>
 		</panel>
