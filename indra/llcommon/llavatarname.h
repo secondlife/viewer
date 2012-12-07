@@ -39,20 +39,25 @@ public:
 	
 	bool operator<(const LLAvatarName& rhs) const;
 
+	// Conversion to and from LLSD (cache file or server response)
 	LLSD asLLSD() const;
-
 	void fromLLSD(const LLSD& sd);
 
 	// Used only in legacy mode when the display name capability is not provided server side
-	void fromString(const std::string& full_name, F64 expires = 0.0f);
+	// or to otherwise create a temporary valid item.
+	void fromString(const std::string& full_name);
 	
+	// Set the name object to become invalid in "expires" seconds from now
+	void setExpires(F64 expires);
+
+	// Set and get the display name flag set by the user in preferences.
 	static void setUseDisplayNames(bool use);
 	static bool useDisplayNames();
 	
-	// Name is valid if not temporary and not yet expired
+	// A name object is valid if not temporary and not yet expired (default is expiration not checked)
 	bool isValidName(F64 max_unrefreshed = 0.0f) const { return !mIsTemporaryName && (mExpires >= max_unrefreshed); }
 	
-	// 
+	// Return true if the name is made up from legacy or temporary data
 	bool isDisplayNameDefault() const { return mIsDisplayNameDefault; }
 	
 	// For normal names, returns "James Linden (james.linden)"
