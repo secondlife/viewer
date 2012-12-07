@@ -159,10 +159,11 @@ void on_new_message(const LLSD& msg)
     LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
     LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(session_id);
 
-    bool sessionFloaterInActive = session_floater
-                                    && (!session_floater->isInVisibleChain()) //conversation floater not displayed
-                                        || 
-                                        (session_floater->isInVisibleChain() && session_floater->hasFocus() == false); //conversation floater is displayed but doesn't have focus
+    //session floater not focused (visible or not)
+    bool sessionFloaterNotFocused = session_floater && !session_floater->hasFocus(); 
+
+    //conversation floater not focused (visible or not)
+    bool conversationFloaterNotFocused = im_box && !im_box->hasFocus();
 
     if ("toast" == action)
     {
@@ -185,43 +186,41 @@ void on_new_message(const LLSD& msg)
             return;
         }
 
-        //Show IM toasts (upper right toasts)
-        if(session_id.notNull())
+        //User is not focused on conversation containing the message
+        if(sessionFloaterNotFocused)
         {
-            LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
-        }
-
-        //Session floater has focus, so don't need to show notification flashes
-        if(sessionFloaterInActive)
-        {
-            //Flash converstation line item anytime that conversation doesn't have focus
             im_box->flashConversationItemWidget(session_id, true);
 
-            //Only flash the 'Chat' FUI button when the conversation floater isn't focused (implies not front most floater)
-            if(!im_box->hasFocus())
+            //The conversation floater isn't focused/open
+            if(conversationFloaterNotFocused)
             {
                 gToolBarView->flashCommand(LLCommandId("chat"), true);
+
+                //Show IM toasts (upper right toasts)
+                LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
             }
         }
     }
     else if ("flash" == action)
     {
-        if(sessionFloaterInActive && !im_box->hasFocus())
+        //User is not focused on conversation containing the message
+        if(sessionFloaterNotFocused && conversationFloaterNotFocused)
         {
-            gToolBarView->flashCommand(LLCommandId("chat"), true); // flashing of the FUI button "Chat"
+            gToolBarView->flashCommand(LLCommandId("chat"), true); 
         }
-        else if(sessionFloaterInActive)
+        //conversation floater is open but a different conversation is focused
+        else if(sessionFloaterNotFocused)
         {
-            im_box->flashConversationItemWidget(session_id, true); // flashing of the conversation's item
+            im_box->flashConversationItemWidget(session_id, true);
         }
     }
     else if("openconversations" == action)
     {
-        //Don't flash and show conversation floater when conversation already active (has focus)
-        if(sessionFloaterInActive)
+        //User is not focused on conversation containing the message
+        if(sessionFloaterNotFocused)
         {
             //Flash line item
-            im_box->flashConversationItemWidget(session_id, true); // flashing of the conversation's item
+            im_box->flashConversationItemWidget(session_id, true);
 
             //Surface conversations floater
             LLFloaterReg::showInstance("im_container");

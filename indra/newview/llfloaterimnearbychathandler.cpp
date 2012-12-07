@@ -557,7 +557,10 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
 	// Send event on to LLEventStream
 	sChatWatcher->post(chat);
 
-	if( nearby_chat->isInVisibleChain()
+    LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
+
+	if( nearby_chat->hasFocus() 
+        || im_box->hasFocus()
 		|| ( chat_msg.mSourceType == CHAT_SOURCE_AGENT
 			&& gSavedSettings.getBOOL("UseChatBubbles") )
 		|| mChannel.isDead()
