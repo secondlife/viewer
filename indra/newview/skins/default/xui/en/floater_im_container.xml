@@ -32,7 +32,7 @@
      top="0"
      width="450">
         <layout_panel
-         auto_resize="true"
+         auto_resize="false"
          user_resize="true"        
          height="430"
          name="conversations_layout_panel"
