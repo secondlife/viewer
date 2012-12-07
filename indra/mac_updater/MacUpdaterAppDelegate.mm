@@ -133,8 +133,6 @@ bool mkTempDir(boost::filesystem::path& temp_dir)
     std::string* temp_str = NSToString(tempDir);
     *temp_str += std::string("SecondLifeUpdate_XXXXXX");
     
-    std::cout << "tempDir is " << temp_str << std::endl;
-    
 	char temp[PATH_MAX] = "";	/* Flawfinder: ignore */
     strncpy(temp, temp_str->c_str(), temp_str->length());
 
@@ -224,7 +222,6 @@ std::string* getUserTrashFolder()
 bool isFSRefViewerBundle(const std::string& targetURL)
 {
 	bool result = false;
-    
     NSString *fullPath = [NSString stringWithCString:targetURL.c_str() 
                                             encoding:[NSString defaultCStringEncoding]];
     NSBundle *targetBundle = [NSBundle bundleWithPath:fullPath];
@@ -233,7 +230,7 @@ bool isFSRefViewerBundle(const std::string& targetURL)
                                             encoding:[NSString defaultCStringEncoding]];
     
     result = [targetBundleStr isEqualToString:sourceBundleStr];
-    
+        
 	if(!result)
     {
         std::cout << "Target bundle ID mismatch." << std::endl;

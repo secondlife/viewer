@@ -135,11 +135,11 @@ void LLMacUpdater::doUpdate()
 }
 
 //SPATTERS TODO this should be moved to lldir_mac.cpp
-const std::string LLMacUpdater::walkParents( unsigned int depth, const std::string& childpath )
+const std::string LLMacUpdater::walkParents( signed int depth, const std::string& childpath )
 {
     boost::filesystem::path  fullpath(childpath.c_str());
     
-    while (depth >= 0 && fullpath.has_parent_path())
+    while (depth > 0 && fullpath.has_parent_path())
     {
         fullpath = boost::filesystem::path(fullpath.parent_path());
         --depth;
@@ -187,10 +187,10 @@ bool LLMacUpdater::isApplication(const std::string& app_str)
 bool LLMacUpdater::findAppBundleOnDiskImage(const boost::filesystem::path& dir_path,
                               boost::filesystem::path& path_found)
 {
-    if ( !exists( dir_path ) ) return false;
+    if ( !boost::filesystem::exists( dir_path ) ) return false;
 
     boost::filesystem::directory_iterator end_itr; 
-    
+        
     for ( boost::filesystem::directory_iterator itr( dir_path );
          itr != end_itr;
          ++itr )
@@ -247,11 +247,9 @@ bool LLMacUpdater::getViewerDir(boost::filesystem::path &app_dir)
 
     app_dir = boost::filesystem::path(app_dir_str);
     
-    std::string app_str(app_dir.string());
-
     //Check to see that the directory's name ends in .app  Lame but it's the best thing we have to go on.
     //If it's not there, we're going to default to /Applications/VIEWERNAME
-    if (!isApplication(app_str))
+    if (!isApplication(app_dir_str))
     {
         llinfos << "Target search failed, defaulting to /Applications/" << *mProductName << ".app." << llendl;
         std::string newpath = std::string("/Applications/") + mProductName->c_str();
@@ -505,7 +503,6 @@ void* LLMacUpdater::updatethreadproc(void*)
     
 	bool replacingTarget = false;
 
-    boost::filesystem::path install_dir;
     boost::filesystem::path app_dir;
     boost::filesystem::path temp_dir;
     boost::filesystem::path mount_dir;
@@ -516,7 +513,6 @@ void* LLMacUpdater::updatethreadproc(void*)
 	try
 	{        
         replacingTarget = getViewerDir( app_dir );
-        install_dir = app_dir.parent_path();
         
         if (!mkTempDir(temp_dir))
         {
@@ -524,24 +520,27 @@ void* LLMacUpdater::updatethreadproc(void*)
         }
        
         //In case the dir doesn't exist, try to create it.  If create fails, verify it exists. 
-        if (! boost::filesystem::create_directory(install_dir))
+        if (! boost::filesystem::create_directory(app_dir))
         {
 
 
-            if(isFSRefViewerBundle(install_dir.parent_path().string()))
+            if(isFSRefViewerBundle(app_dir.string()))
             {
                 // This is the bundle we're looking for.
                 replacingTarget = true;
             }
+            else 
+            {
+                throw 0; 
+            }
         }
         
-        if ( !verifyDirectory(&install_dir, true) )
+        if ( !verifyDirectory(&app_dir, true) )
         {
             // We're so hosed.
             llinfos << "Applications directory not found, giving up." << llendl;
             throw 0;
         }    
-
 		
 		// Skip downloading the file if the dmg was passed on the command line.
 		std::string dmgName;
@@ -553,7 +552,10 @@ void* LLMacUpdater::updatethreadproc(void*)
             
 			dmgName = dmg_path.string();  
             std::string* dmgPath = new std::string(dmg_path.parent_path().string());
-            if (!isDirWritable(*dmgPath)) throw 0;
+            if ( !boost::filesystem::exists( dmg_path.parent_path() ) )            {
+                llinfos << "Path " << *dmgPath << " is not writeable.   Aborting." << llendl;
+                throw 0;
+            }
 
 			chdir(dmgPath->c_str());
 		} else {

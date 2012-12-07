@@ -34,7 +34,7 @@ extern bool gCancelled;
 extern bool gFailure;
 
 void *updatethreadproc(void*);
-std::string* walkParents( unsigned int depth, std::string* childpath );
+std::string* walkParents( signed int depth, std::string* childpath );
 std::string* getUserTrashFolder();
 
 void setProgress(int cur, int max);
@@ -55,7 +55,7 @@ class LLMacUpdater
 public:
     LLMacUpdater();
     void doUpdate();
-    const std::string walkParents( unsigned int depth, const std::string& childpath );
+    const std::string walkParents( signed int depth, const std::string& childpath );
     bool isApplication(const std::string& app_str);
     void filterFile(const char* filename);
 
