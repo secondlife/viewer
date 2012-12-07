@@ -223,7 +223,7 @@ namespace LLTrace
 		typedef typename MeanValueType<TraceType<ACCUMULATOR> >::type  mean_t;
 
 		TraceType(const char* name, const char* description = NULL)
-		:	LLInstanceTracker(name),
+		:	LLInstanceTracker<TraceType<ACCUMULATOR>, std::string>(name),
 			mName(name),
 			mDescription(description ? description : "")	
 		{
@@ -459,16 +459,17 @@ namespace LLTrace
 	{
 	public:
 		typedef typename LLUnits::HighestPrecisionType<T>::type_t storage_t;
+		typedef TraceType<MeasurementAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> > trace_t;
 
 		Measurement(const char* name, const char* description = NULL) 
-		:	TraceType(name, description)
+		:	trace_t(name, description)
 		{}
 
 		template<typename UNIT_T>
 		void sample(UNIT_T value)
 		{
 			T converted_value(value);
-			getPrimaryAccumulator().sample(LLUnits::rawValue(converted_value));
+			trace_t::getPrimaryAccumulator().sample(LLUnits::rawValue(converted_value));
 		}
 	};
 
@@ -478,16 +479,17 @@ namespace LLTrace
 	{
 	public:
 		typedef typename LLUnits::HighestPrecisionType<T>::type_t storage_t;
+		typedef TraceType<CountAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> > trace_t;
 
 		Count(const char* name, const char* description = NULL) 
-		:	TraceType(name)
+		:	trace_t(name)
 		{}
 
 		template<typename UNIT_T>
 		void add(UNIT_T value)
 		{
 			T converted_value(value);
-			getPrimaryAccumulator().add(LLUnits::rawValue(converted_value));
+			trace_t::getPrimaryAccumulator().add(LLUnits::rawValue(converted_value));
 		}
 	};
 }
