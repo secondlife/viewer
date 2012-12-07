@@ -21,9 +21,6 @@ email_status_this_is_os = true
 codeticket_since = 3.3.0-release
 
 clean_on_success = false
-run_tests = false
-build_Darwin_Debug = false
-build_Darwin_RelWithDebInfo = false
 
 # ========================================
 # Viewer Development
