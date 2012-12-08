@@ -66,6 +66,7 @@
 #include "llviewerobjectlist.h"
 #include "llviewermessage.h"
 
+const LLColor4U DEFAULT_WHITE(255, 255, 255);
 
 ///----------------------------------------------------------------------------
 /// Class LLTaskInvFVBridge
@@ -1719,11 +1720,15 @@ void LLPanelObjectInventory::createFolderViews(LLInventoryObject* inventory_root
 	bridge = LLTaskInvFVBridge::createObjectBridge(this, inventory_root);
 	if(bridge)
 	{
+		LLUIColor item_color = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
+
 		LLFolderViewFolder::Params p;
 		p.name = inventory_root->getName();
 		p.tool_tip = p.name;
 		p.root = mFolders;
 		p.listener = bridge;
+		p.font_color = item_color;
+		p.font_highlight_color = item_color;
 
 		LLFolderViewFolder* new_folder = LLUICtrlFactory::create<LLFolderViewFolder>(p);
 		new_folder->addToFolder(mFolders);
@@ -1742,6 +1747,8 @@ void LLPanelObjectInventory::createViewsForCategory(LLInventoryObject::object_li
 											  LLInventoryObject* parent,
 											  LLFolderViewFolder* folder)
 {
+	LLUIColor item_color = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
+
 	// Find all in the first pass
 	LLDynamicArray<obj_folder_pair*> child_categories;
 	LLTaskInvFVBridge* bridge;
@@ -1767,6 +1774,8 @@ void LLPanelObjectInventory::createViewsForCategory(LLInventoryObject::object_li
 				p.root = mFolders;
 				p.listener = bridge;
 				p.tool_tip = p.name;
+				p.font_color = item_color;
+				p.font_highlight_color = item_color;
 				view = LLUICtrlFactory::create<LLFolderViewFolder>(p);
 				child_categories.put(new obj_folder_pair(obj,
 														 (LLFolderViewFolder*)view));
@@ -1780,6 +1789,8 @@ void LLPanelObjectInventory::createViewsForCategory(LLInventoryObject::object_li
 				params.listener(bridge);
 				params.rect(LLRect());
 				params.tool_tip = params.name;
+				params.font_color = item_color;
+				params.font_highlight_color = item_color;
 				view = LLUICtrlFactory::create<LLFolderViewItem> (params);
 			}
 			view->addToFolder(folder);
