@@ -188,7 +188,7 @@ struct LLUnitImplicit : public LLUnit<UNIT_TYPE, STORAGE_TYPE>
 	// this allows for interoperability with legacy code
 	operator storage_t() const
 	{
-		return value();
+		return base_t::value();
 	}
 };
 
