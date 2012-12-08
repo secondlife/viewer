@@ -100,11 +100,14 @@ namespace LLAvatarNameCache
 
 	void requestNamesViaCapability();
 
-	// Legacy name system callback
+	// Legacy name system callbacks
 	void legacyNameCallback(const LLUUID& agent_id,
 							const std::string& full_name,
 							bool is_group);
-
+	void legacyNameFetch(const LLUUID& agent_id,
+						 const std::string& full_name,
+						 bool is_group);
+	
 	void requestNamesViaLegacy();
 
 	// Do a single callback to a given slot
@@ -262,8 +265,7 @@ void LLAvatarNameCache::handleAgentError(const LLUUID& agent_id)
         LL_WARNS("AvNameCache") << "LLAvatarNameCache get legacy for agent "
 								<< agent_id << LL_ENDL;
         gCacheName->get(agent_id, false,  // legacy compatibility
-                        boost::bind(&LLAvatarNameCache::legacyNameCallback,
-                                    _1, _2, _3));
+                        boost::bind(&LLAvatarNameCache::legacyNameFetch, _1, _2, _3));
     }
 	else
     {
@@ -367,19 +369,32 @@ void LLAvatarNameCache::legacyNameCallback(const LLUUID& agent_id,
 										   const std::string& full_name,
 										   bool is_group)
 {
-	LL_DEBUGS("AvNameCache") << "LLAvatarNameCache::legacyNameCallback "
-							 << "agent " << agent_id << " "
+	// Put the received data in the cache
+	legacyNameFetch(agent_id, full_name, is_group);
+	
+	// Retrieve the name and set it to never (or almost never...) expire: when we are using the legacy
+	// protocol, we do not get an expiration date for each name and there's no reason to ask the 
+	// data again and again so we set the expiration time to the largest value admissible.
+	std::map<LLUUID,LLAvatarName>::iterator av_record = sCache.find(agent_id);
+	LLAvatarName& av_name = av_record->second;
+	av_name.setExpires(MAX_UNREFRESHED_TIME);
+}
+
+void LLAvatarNameCache::legacyNameFetch(const LLUUID& agent_id,
+										const std::string& full_name,
+										bool is_group)
+{
+	LL_DEBUGS("AvNameCache") << "LLAvatarNameCache::legacyNameFetch "
+	                         << "agent " << agent_id << " "
 							 << "full name '" << full_name << "'"
-							 << ( is_group ? " [group]" : "" )
-							 << LL_ENDL;
+	                         << ( is_group ? " [group]" : "" )
+	                         << LL_ENDL;
 	
 	// Construct an av_name record from this name.
 	LLAvatarName av_name;
 	av_name.fromString(full_name);
-	av_name.dump();
-
-	// Add to cache, because if we don't we'll keep rerequesting the
-	// same record forever.
+	
+	// Add to cache: we're still using the new cache even if we're using the old (legacy) protocol.
 	processName(agent_id, av_name);
 }
 

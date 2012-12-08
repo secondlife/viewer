@@ -393,6 +393,7 @@ LLConversationItemParticipant::LLConversationItemParticipant(std::string display
 	mDistToAgent(-1.0),
 	mAvatarNameCacheConnection()
 {
+	mDisplayName = display_name;
 	mConvType = CONV_PARTICIPANT;
 }
 
