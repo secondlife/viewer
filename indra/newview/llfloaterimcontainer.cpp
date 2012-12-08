@@ -206,6 +206,7 @@ BOOL LLFloaterIMContainer::postBuild()
 	mExpandCollapseBtn->setClickedCallback(boost::bind(&LLFloaterIMContainer::onExpandCollapseButtonClicked, this));
 	mStubCollapseBtn = getChild<LLButton>("stub_collapse_btn");
 	mStubCollapseBtn->setClickedCallback(boost::bind(&LLFloaterIMContainer::onStubCollapseButtonClicked, this));
+	getChild<LLButton>("speak_btn")->setClickedCallback(boost::bind(&LLFloaterIMContainer::onSpeakButtonClicked, this));
 
 	childSetAction("add_btn", boost::bind(&LLFloaterIMContainer::onAddButtonClicked, this));
 
@@ -341,6 +342,11 @@ void LLFloaterIMContainer::onStubCollapseButtonClicked()
 	collapseMessagesPane(true);
 }
 
+void LLFloaterIMContainer::onSpeakButtonClicked()
+{
+	LLAgent::toggleMicrophone("speak");
+	updateSpeakBtnState();
+}
 void LLFloaterIMContainer::onExpandCollapseButtonClicked()
 {
 	if (mConversationsPane->isCollapsed() && mMessagesPane->isCollapsed()
@@ -870,8 +876,16 @@ const LLConversationItem * LLFloaterIMContainer::getCurSelectedViewModelItem()
         mConversationsRoot->getCurSelectedItem() && 
         mConversationsRoot->getCurSelectedItem()->getViewModelItem())
     {
-        conversationItem = static_cast<LLConversationItem *>(mConversationsRoot->getCurSelectedItem()->getViewModelItem());
-    }
+		LLFloaterIMSessionTab *selectedSession = LLFloaterIMSessionTab::getConversation(mSelectedSession);
+		if (selectedSession && selectedSession->isTornOff())
+		{
+			conversationItem = selectedSession->getCurSelectedViewModelItem();
+		}
+		else
+		{
+			conversationItem = static_cast<LLConversationItem *>(mConversationsRoot->getCurSelectedItem()->getViewModelItem());
+		}
+	}
 
     return conversationItem;
 }
@@ -1560,21 +1574,19 @@ void LLFloaterIMContainer::moderateVoiceParticipant(const LLUUID& avatar_id, boo
 
 LLSpeakerMgr * LLFloaterIMContainer::getSpeakerMgrForSelectedParticipant()
 {
-	LLFolderViewItem * selected_folder_itemp = mConversationsRoot->getCurSelectedItem();
-	if (NULL == selected_folder_itemp)
+	LLFolderViewItem *selectedItem = mConversationsRoot->getCurSelectedItem();
+	if (NULL == selectedItem)
 	{
 		llwarns << "Current selected item is null" << llendl;
 		return NULL;
 	}
-
-	LLFolderViewFolder * conversation_itemp = selected_folder_itemp->getParentFolder();
 
 	conversations_widgets_map::const_iterator iter = mConversationsWidgets.begin();
 	conversations_widgets_map::const_iterator end = mConversationsWidgets.end();
 	const LLUUID * conversation_uuidp = NULL;
 	while(iter != end)
 	{
-		if (iter->second == conversation_itemp)
+		if (iter->second == selectedItem || iter->second == selectedItem->getParentFolder())
 		{
 			conversation_uuidp = &iter->first;
 			break;
@@ -1644,7 +1656,7 @@ void LLFloaterIMContainer::openNearbyChat()
 		LLConversationViewSession* nearby_chat = dynamic_cast<LLConversationViewSession*>(get_ptr_in_map(mConversationsWidgets,LLUUID()));
 		if (nearby_chat)
 		{
-			selectConversation(LLUUID());
+			reSelectConversation();
 			nearby_chat->setOpen(TRUE);
 		}
 	}
@@ -1664,6 +1676,13 @@ void LLFloaterIMContainer::reSelectConversation()
 	{
 		selectFloater(session_floater);
 	}
+}
+
+void LLFloaterIMContainer::updateSpeakBtnState()
+{
+	LLButton* mSpeakBtn = getChild<LLButton>("speak_btn");
+	mSpeakBtn->setToggleState(LLVoiceClient::getInstance()->getUserPTTState());
+	mSpeakBtn->setEnabled(LLAgent::isActionAllowed("speak"));
 }
 
 void LLFloaterIMContainer::flashConversationItemWidget(const LLUUID& session_id, bool is_flashes)

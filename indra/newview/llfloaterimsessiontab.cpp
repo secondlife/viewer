@@ -167,12 +167,7 @@ void LLFloaterIMSessionTab::addToHost(const LLUUID& session_id)
 			if (!conversp->isNearbyChat()
 					|| gSavedSettings.getBOOL("NearbyChatIsNotTornOff"))
 			{
-				floater_container->addFloater(conversp, FALSE, LLTabContainer::END);
-
-				if (!floater_container->getVisible())
-				{
-					LLFloaterReg::toggleInstanceOrBringToFront("im_container");			
-				}
+				floater_container->addFloater(conversp, !floater_container->getVisible(), LLTabContainer::RIGHT_OF_CURRENT);
 			}
 			else
 			{
@@ -698,7 +693,8 @@ void LLFloaterIMSessionTab::updateCallBtnState(bool callIsActive)
 	voiceButton->setToolTip(
 			callIsActive? getString("end_call_button_tooltip") : getString("start_call_button_tooltip"));
 
-    enableDisableCallBtn();
+	LLFloaterIMContainer::getInstance()->updateSpeakBtnState();
+	enableDisableCallBtn();
 
 }
 
@@ -831,4 +827,16 @@ void LLFloaterIMSessionTab::getSelectedUUIDs(uuid_vec_t& selected_uuids)
     }
 }
 
+LLConversationItem* LLFloaterIMSessionTab::getCurSelectedViewModelItem()
+{
+	LLConversationItem *conversationItem = NULL;
 
+	if(mConversationsRoot && 
+        mConversationsRoot->getCurSelectedItem() && 
+        mConversationsRoot->getCurSelectedItem()->getViewModelItem())
+	{
+		conversationItem = static_cast<LLConversationItem *>(mConversationsRoot->getCurSelectedItem()->getViewModelItem()) ;
+	}
+
+	return conversationItem;
+}
