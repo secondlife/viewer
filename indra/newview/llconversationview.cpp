@@ -472,6 +472,9 @@ S32 LLConversationViewParticipant::arrange(S32* width, S32* height)
                         mAvatarIcon->getRect().mBottom);
     mAvatarIcon->setShape(avatarRect);
 
+    //Since dimensions changed, adjust the children (info button, speaker indicator)
+    updateChildren();
+
     return arranged;
 }
 
