@@ -919,7 +919,10 @@ void LLFloaterIMContainer::doToParticipants(const std::string& command, uuid_vec
 		}
 		else if ("im" == command)
 		{
-			LLAvatarActions::startIM(userID);
+			if (gAgent.getID() != userID)
+			{
+				LLAvatarActions::startIM(userID);
+			}
 		}
 		else if ("offer_teleport" == command)
 		{
