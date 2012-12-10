@@ -318,7 +318,7 @@ void LLAvatarIconCtrl::onAvatarNameCache(const LLUUID& agent_id, const LLAvatarN
 	{
 		// Most avatar icon controls are next to a UI element that shows
 		// a display name, so only show username.
-		mFullName = av_name.mUsername;
+		mFullName = av_name.getUserName();
 
 		if (mDrawTooltip)
 		{

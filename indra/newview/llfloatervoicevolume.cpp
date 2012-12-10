@@ -151,7 +151,7 @@ void LLFloaterVoiceVolume::updateVolumeControls()
 
 		// By convention, we only display and toggle voice mutes, not all mutes
 		bool is_muted = LLAvatarActions::isVoiceMuted(mAvatarID);
-		bool is_linden = LLStringUtil::endsWith(mAvatarName.getLegacyName(), " Linden");
+		bool is_linden = LLStringUtil::endsWith(mAvatarName.getUserName(), " Linden");
 
 		mute_btn->setEnabled(!is_linden);
 		mute_btn->setValue(is_muted);

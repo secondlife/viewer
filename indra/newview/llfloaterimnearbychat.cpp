@@ -544,7 +544,7 @@ void	LLFloaterIMNearbyChat::addMessage(const LLChat& chat,bool archive,const LLS
 			LLAvatarName av_name;
 			LLAvatarNameCache::get(chat.mFromID, &av_name);
 
-			if (!av_name.mIsDisplayNameDefault)
+			if (!av_name.isDisplayNameDefault())
 			{
 				from_name = av_name.getCompleteName();
 			}

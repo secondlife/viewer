@@ -393,6 +393,7 @@ LLConversationItemParticipant::LLConversationItemParticipant(std::string display
 	mDistToAgent(-1.0),
 	mAvatarNameCacheConnection()
 {
+	mDisplayName = display_name;
 	mConvType = CONV_PARTICIPANT;
 }
 
@@ -444,8 +445,8 @@ void LLConversationItemParticipant::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 void LLConversationItemParticipant::onAvatarNameCache(const LLAvatarName& av_name)
 {
-	mName = (av_name.mUsername.empty() ? av_name.mDisplayName : av_name.mUsername);
-	mDisplayName = (av_name.mDisplayName.empty() ? av_name.mUsername : av_name.mDisplayName);
+	mName = av_name.getUserName();
+	mDisplayName = av_name.getDisplayName();
 	mNeedsRefresh = true;
 	if(mParent != NULL)
 	{

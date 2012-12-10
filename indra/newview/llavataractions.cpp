@@ -135,7 +135,7 @@ void LLAvatarActions::removeFriendsDialog(const uuid_vec_t& ids)
 		LLAvatarName av_name;
 		if(LLAvatarNameCache::get(agent_id, &av_name))
 		{
-			args["NAME"] = av_name.mDisplayName;
+			args["NAME"] = av_name.getDisplayName();
 		}
 
 		msgType = "RemoveFromFriends";
@@ -180,7 +180,7 @@ void LLAvatarActions::offerTeleport(const uuid_vec_t& ids)
 static void on_avatar_name_cache_start_im(const LLUUID& agent_id,
 										  const LLAvatarName& av_name)
 {
-	std::string name = av_name.mDisplayName;
+	std::string name = av_name.getDisplayName();
 	LLUUID session_id = gIMMgr->addSession(name, IM_NOTHING_SPECIAL, agent_id);
 	if (session_id != LLUUID::null)
 	{
@@ -215,7 +215,7 @@ void LLAvatarActions::endIM(const LLUUID& id)
 static void on_avatar_name_cache_start_call(const LLUUID& agent_id,
 											const LLAvatarName& av_name)
 {
-	std::string name = av_name.mDisplayName;
+	std::string name = av_name.getDisplayName();
 	LLUUID session_id = gIMMgr->addSession(name, IM_NOTHING_SPECIAL, agent_id, true);
 	if (session_id != LLUUID::null)
 	{
@@ -315,11 +315,7 @@ static const char* get_profile_floater_name(const LLUUID& avatar_id)
 
 static void on_avatar_name_show_profile(const LLUUID& agent_id, const LLAvatarName& av_name)
 {
-	std::string username = av_name.mUsername;
-	if (username.empty())
-	{
-		username = LLCacheName::buildUsername(av_name.mDisplayName);
-	}
+	std::string username = av_name.getUserName();
 	
 	llinfos << "opening web profile for " << username << llendl;		
 	std::string url = getProfileURL(username);
@@ -379,7 +375,7 @@ void LLAvatarActions::showOnMap(const LLUUID& id)
 		return;
 	}
 
-	gFloaterWorldMap->trackAvatar(id, av_name.mDisplayName);
+	gFloaterWorldMap->trackAvatar(id, av_name.getDisplayName());
 	LLFloaterReg::showInstance("world_map");
 }
 
@@ -709,7 +705,7 @@ void LLAvatarActions::buildResidentsString(std::vector<LLAvatarName> avatar_name
 	const std::string& separator = LLTrans::getString("words_separator");
 	for (std::vector<LLAvatarName>::const_iterator it = avatar_names.begin(); ; )
 	{
-		residents_string.append((*it).mDisplayName);
+		residents_string.append((*it).getDisplayName());
 		if	(++it == avatar_names.end())
 		{
 			break;

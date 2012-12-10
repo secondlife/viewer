@@ -4717,10 +4717,9 @@ void LLCallingCardBridge::performAction(LLInventoryModel* model, std::string act
 			gCacheName->getFullName(item->getCreatorUUID(), callingcard_name);
 			// IDEVO
 			LLAvatarName av_name;
-			if (LLAvatarNameCache::useDisplayNames()
-				&& LLAvatarNameCache::get(item->getCreatorUUID(), &av_name))
+			if (LLAvatarNameCache::get(item->getCreatorUUID(), &av_name))
 			{
-				callingcard_name = av_name.mDisplayName + " (" + av_name.mUsername + ")";
+				callingcard_name = av_name.getCompleteName();
 			}
 			LLUUID session_id = gIMMgr->addSession(callingcard_name, IM_NOTHING_SPECIAL, item->getCreatorUUID());
 			if (session_id != LLUUID::null)

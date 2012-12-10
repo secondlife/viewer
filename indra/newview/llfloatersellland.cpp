@@ -238,7 +238,7 @@ void LLFloaterSellLandUI::updateParcelInfo()
 void LLFloaterSellLandUI::onBuyerNameCache(const LLAvatarName& av_name)
 {
 	getChild<LLUICtrl>("sell_to_agent")->setValue(av_name.getCompleteName());
-	getChild<LLUICtrl>("sell_to_agent")->setToolTip(av_name.mUsername);
+	getChild<LLUICtrl>("sell_to_agent")->setToolTip(av_name.getUserName());
 }
 
 void LLFloaterSellLandUI::setBadge(const char* id, Badge badge)

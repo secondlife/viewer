@@ -449,8 +449,8 @@ void LLAvatarListItem::setNameInternal(const std::string& name, const std::strin
 
 void LLAvatarListItem::onAvatarNameCache(const LLAvatarName& av_name)
 {
-	setAvatarName(av_name.mDisplayName);
-	setAvatarToolTip(av_name.mUsername);
+	setAvatarName(av_name.getDisplayName());
+	setAvatarToolTip(av_name.getUserName());
 
 	//requesting the list to resort
 	notifyParent(LLSD().with("sort", LLSD()));

@@ -46,11 +46,6 @@ LLAvatarNameCache::callback_connection_t LLAvatarNameCache::get(const LLUUID& ag
 	return connection;
 }
 
-bool LLAvatarNameCache::useDisplayNames()
-{
-	return false;
-}
-
 //
 // Stub implementation for LLCacheName
 //

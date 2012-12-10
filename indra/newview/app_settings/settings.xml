@@ -12648,6 +12648,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+  <key>UsePeopleAPI</key>
+  <map>
+    <key>Comment</key>
+    <string>Use the people API cap for avatar name fetching, use old legacy protocol if false. Requires restart.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
     <key>UseStartScreen</key>
     <map>
       <key>Comment</key>

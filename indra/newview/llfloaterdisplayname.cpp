@@ -164,10 +164,9 @@ void LLFloaterDisplayName::onCancel()
 
 void LLFloaterDisplayName::onReset()
 {
-	if (LLAvatarNameCache::useDisplayNames())
+	if (LLAvatarNameCache::hasNameLookupURL())
 	{
-		LLViewerDisplayName::set("",
-			boost::bind(&LLFloaterDisplayName::onCacheSetName, this, _1, _2, _3));
+		LLViewerDisplayName::set("",boost::bind(&LLFloaterDisplayName::onCacheSetName, this, _1, _2, _3));
 	}	
 	else
 	{
@@ -199,10 +198,9 @@ void LLFloaterDisplayName::onSave()
 		return;
 	}
 	
-	if (LLAvatarNameCache::useDisplayNames())
+	if (LLAvatarNameCache::hasNameLookupURL())
 	{
-		LLViewerDisplayName::set(display_name_utf8,
-			boost::bind(&LLFloaterDisplayName::onCacheSetName, this, _1, _2, _3));	
+		LLViewerDisplayName::set(display_name_utf8,boost::bind(&LLFloaterDisplayName::onCacheSetName, this, _1, _2, _3));	
 	}
 	else
 	{

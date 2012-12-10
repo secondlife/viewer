@@ -263,9 +263,9 @@ void LLInspectAvatar::onAvatarNameCache(
 {
 	if (agent_id == mAvatarID)
 	{
-		getChild<LLUICtrl>("user_name")->setValue(av_name.mDisplayName);
-		getChild<LLUICtrl>("user_name_small")->setValue(av_name.mDisplayName);
-		getChild<LLUICtrl>("user_slid")->setValue(av_name.mUsername);
+		getChild<LLUICtrl>("user_name")->setValue(av_name.getDisplayName());
+		getChild<LLUICtrl>("user_name_small")->setValue(av_name.getDisplayName());
+		getChild<LLUICtrl>("user_slid")->setValue(av_name.getUserName());
 		mAvatarName = av_name;
 		
 		// show smaller display name if too long to display in regular size

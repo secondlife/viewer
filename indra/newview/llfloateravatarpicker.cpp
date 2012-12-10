@@ -307,9 +307,9 @@ void LLFloaterAvatarPicker::populateNearMe()
 		else
 		{
 			element["columns"][0]["column"] = "name";
-			element["columns"][0]["value"] = av_name.mDisplayName;
+			element["columns"][0]["value"] = av_name.getDisplayName();
 			element["columns"][1]["column"] = "username";
-			element["columns"][1]["value"] = av_name.mUsername;
+			element["columns"][1]["value"] = av_name.getUserName();
 
 			sAvatarNameMap[av] = av_name;
 		}
@@ -505,9 +505,7 @@ void LLFloaterAvatarPicker::find()
 	LLViewerRegion* region = gAgent.getRegion();
 	url = region->getCapability("AvatarPickerSearch");
 	// Prefer use of capabilities to search on both SLID and display name
-	// but allow display name search to be manually turned off for test
-	if (!url.empty()
-		&& LLAvatarNameCache::useDisplayNames())
+	if (!url.empty())
 	{
 		// capability urls don't end in '/', but we need one to parse
 		// query parameters correctly
@@ -679,9 +677,7 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 				found_one = TRUE;
 
 				LLAvatarName av_name;
-				av_name.mLegacyFirstName = first_name;
-				av_name.mLegacyLastName = last_name;
-				av_name.mDisplayName = avatar_name;
+				av_name.fromString(avatar_name);
 				const LLUUID& agent_id = avatar_id;
 				sAvatarNameMap[agent_id] = av_name;
 

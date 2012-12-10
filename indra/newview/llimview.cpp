@@ -30,6 +30,7 @@
 
 #include "llavatarnamecache.h"	// IDEVO
 #include "llavataractions.h"
+#include "llfloaterconversationlog.h"
 #include "llfloaterreg.h"
 #include "llfontgl.h"
 #include "llgl.h"
@@ -155,57 +156,74 @@ void on_new_message(const LLSD& msg)
 
     // execution of the action
 
+    LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
+    LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(session_id);
+
+    //session floater not focused (visible or not)
+    bool sessionFloaterNotFocused = session_floater && !session_floater->hasFocus(); 
+
+    //conversation floater not focused (visible or not)
+    bool conversationFloaterNotFocused = im_box && !im_box->hasFocus();
+
     if ("toast" == action)
     {
         // Skip toasting if we have open window of IM with this session id
-        LLFloaterIMSession* open_im_floater = LLFloaterIMSession::findInstance(session_id);
         if (
-            open_im_floater
-            && open_im_floater->isInVisibleChain()
-            && open_im_floater->hasFocus()
-            && !open_im_floater->isMinimized()
-            && !(open_im_floater->getHost()
-            && open_im_floater->getHost()->isMinimized())
+            session_floater
+            && session_floater->isInVisibleChain()
+            && session_floater->hasFocus()
+            && !session_floater->isMinimized()
+            && !(session_floater->getHost()
+            && session_floater->getHost()->isMinimized())
             )
         {
             return;
         }
 
 	    // Skip toasting for system messages and for nearby chat
-	    if (participant_id.isNull() || session_id.isNull())
+	    if (participant_id.isNull())
         {
             return;
         }
 
-        //Show toast
-        LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
+        //User is not focused on conversation containing the message
+        if(sessionFloaterNotFocused)
+        {
+            im_box->flashConversationItemWidget(session_id, true);
+
+            //The conversation floater isn't focused/open
+            if(conversationFloaterNotFocused)
+            {
+                gToolBarView->flashCommand(LLCommandId("chat"), true);
+
+                //Show IM toasts (upper right toasts)
+                if(session_id.notNull())
+                {
+                    LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
+                }
+            }
+        }
     }
     else if ("flash" == action)
     {
-        LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
-        if (im_box)
+        //User is not focused on conversation containing the message
+        if(sessionFloaterNotFocused && conversationFloaterNotFocused)
         {
-            im_box->flashConversationItemWidget(session_id, true); // flashing of the conversation's item
+            gToolBarView->flashCommand(LLCommandId("chat"), true); 
         }
-        gToolBarView->flashCommand(LLCommandId("chat"), true); // flashing of the FUI button "Chat"
+        //conversation floater is open but a different conversation is focused
+        else if(sessionFloaterNotFocused)
+        {
+            im_box->flashConversationItemWidget(session_id, true);
+        }
     }
     else if("openconversations" == action)
     {
-        LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
-        LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(session_id);
-
-        //Don't flash and show conversation floater when conversation already active (has focus)
-        if(session_floater
-            && (!session_floater->isInVisibleChain()) //conversation floater not displayed
-                || 
-                (session_floater->isInVisibleChain() && session_floater->hasFocus() == false)) //conversation floater is displayed but doesn't have focus
-
+        //User is not focused on conversation containing the message
+        if(sessionFloaterNotFocused)
         {
             //Flash line item
-            if (im_box)
-            {
-                im_box->flashConversationItemWidget(session_id, true); // flashing of the conversation's item
-            }
+            im_box->flashConversationItemWidget(session_id, true);
 
             //Surface conversations floater
             LLFloaterReg::showInstance("im_container");
@@ -324,7 +342,7 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 
 void LLIMModel::LLIMSession::onAdHocNameCache(const LLAvatarName& av_name)
 {
-	if (av_name.mIsTemporaryName)
+	if (!av_name.isValidName())
 	{
 		S32 separator_index = mName.rfind(" ");
 		std::string name = mName.substr(0, separator_index);
@@ -644,15 +662,7 @@ void LLIMModel::LLIMSession::buildHistoryFileName()
 		// so no need for a callback in LLAvatarNameCache::get()
 		if (LLAvatarNameCache::get(mOtherParticipantID, &av_name))
 		{
-			if (av_name.mUsername.empty())
-			{
-				// Display names are off, use mDisplayName which will be the legacy name
-				mHistoryFileName = LLCacheName::buildUsername(av_name.mDisplayName);
-			}
-			else
-			{
-				mHistoryFileName =  av_name.mUsername;
-			}
+			mHistoryFileName = LLCacheName::buildUsername(av_name.getUserName());
 		}
 		else
 		{
@@ -854,7 +864,7 @@ bool LLIMModel::logToFile(const std::string& file_name, const std::string& from,
 		LLAvatarName av_name;
 		if (!from_id.isNull() && 
 			LLAvatarNameCache::get(from_id, &av_name) &&
-			!av_name.mIsDisplayNameDefault)
+			!av_name.isDisplayNameDefault())
 		{	
 			from_name = av_name.getCompleteName();
 		}
@@ -1944,7 +1954,7 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 		LLAvatarName av_name;
 		if (LLAvatarNameCache::get(callee_id, &av_name))
 		{
-			final_callee_name = av_name.mDisplayName;
+			final_callee_name = av_name.getDisplayName();
 			title = av_name.getCompleteName();
 		}
 	}
@@ -2467,6 +2477,18 @@ void LLIMMgr::addMessage(
 		new_session_id = computeSessionID(dialog, other_participant_id);
 	}
 
+	// Open conversation log if offline messages are present
+	if (is_offline_msg)
+	{
+		LLFloaterConversationLog* floater_log =
+				LLFloaterReg::getTypedInstance<LLFloaterConversationLog>("conversation");
+		if (floater_log && !(floater_log->isFrontmost()))
+		{
+            floater_log->openFloater();
+			floater_log->setFrontmost(TRUE);
+		}
+	}
+
 	//*NOTE session_name is empty in case of incoming P2P sessions
 	std::string fixed_session_name = from;
 	bool name_is_setted = false;
@@ -2482,7 +2504,7 @@ void LLIMMgr::addMessage(
 		LLAvatarName av_name;
 		if (LLAvatarNameCache::get(other_participant_id, &av_name) && !name_is_setted)
 		{
-			fixed_session_name = (av_name.mDisplayName.empty() ? av_name.mUsername : av_name.mDisplayName);
+			fixed_session_name = av_name.getDisplayName();
 		}
 		LLIMModel::getInstance()->newSession(new_session_id, fixed_session_name, dialog, other_participant_id, false, is_offline_msg);
 
@@ -3128,7 +3150,7 @@ void LLIMMgr::noteOfflineUsers(
 			{
 				LLUIString offline = LLTrans::getString("offline_message");
 				// Use display name only because this user is your friend
-				offline.setArg("[NAME]", av_name.mDisplayName);
+				offline.setArg("[NAME]", av_name.getDisplayName());
 				im_model.proccessOnlineOfflineNotification(session_id, offline);
 			}
 		}

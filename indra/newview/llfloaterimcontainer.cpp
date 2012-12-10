@@ -206,6 +206,7 @@ BOOL LLFloaterIMContainer::postBuild()
 	mExpandCollapseBtn->setClickedCallback(boost::bind(&LLFloaterIMContainer::onExpandCollapseButtonClicked, this));
 	mStubCollapseBtn = getChild<LLButton>("stub_collapse_btn");
 	mStubCollapseBtn->setClickedCallback(boost::bind(&LLFloaterIMContainer::onStubCollapseButtonClicked, this));
+	getChild<LLButton>("speak_btn")->setClickedCallback(boost::bind(&LLFloaterIMContainer::onSpeakButtonClicked, this));
 
 	childSetAction("add_btn", boost::bind(&LLFloaterIMContainer::onAddButtonClicked, this));
 
@@ -341,6 +342,11 @@ void LLFloaterIMContainer::onStubCollapseButtonClicked()
 	collapseMessagesPane(true);
 }
 
+void LLFloaterIMContainer::onSpeakButtonClicked()
+{
+	LLAgent::toggleMicrophone("speak");
+	updateSpeakBtnState();
+}
 void LLFloaterIMContainer::onExpandCollapseButtonClicked()
 {
 	if (mConversationsPane->isCollapsed() && mMessagesPane->isCollapsed()
@@ -913,7 +919,10 @@ void LLFloaterIMContainer::doToParticipants(const std::string& command, uuid_vec
 		}
 		else if ("im" == command)
 		{
-			LLAvatarActions::startIM(userID);
+			if (gAgent.getID() != userID)
+			{
+				LLAvatarActions::startIM(userID);
+			}
 		}
 		else if ("offer_teleport" == command)
 		{
@@ -1650,7 +1659,7 @@ void LLFloaterIMContainer::openNearbyChat()
 		LLConversationViewSession* nearby_chat = dynamic_cast<LLConversationViewSession*>(get_ptr_in_map(mConversationsWidgets,LLUUID()));
 		if (nearby_chat)
 		{
-			selectConversation(LLUUID());
+			reSelectConversation();
 			nearby_chat->setOpen(TRUE);
 		}
 	}
@@ -1670,6 +1679,13 @@ void LLFloaterIMContainer::reSelectConversation()
 	{
 		selectFloater(session_floater);
 	}
+}
+
+void LLFloaterIMContainer::updateSpeakBtnState()
+{
+	LLButton* mSpeakBtn = getChild<LLButton>("speak_btn");
+	mSpeakBtn->setToggleState(LLVoiceClient::getInstance()->getUserPTTState());
+	mSpeakBtn->setEnabled(LLAgent::isActionAllowed("speak"));
 }
 
 void LLFloaterIMContainer::flashConversationItemWidget(const LLUUID& session_id, bool is_flashes)

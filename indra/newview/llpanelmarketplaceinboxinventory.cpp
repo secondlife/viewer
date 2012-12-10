@@ -40,6 +40,8 @@
 
 #define DEBUGGING_FRESHNESS	0
 
+const LLColor4U DEFAULT_WHITE(255, 255, 255);
+
 //
 // statics
 //
@@ -62,18 +64,24 @@ LLInboxInventoryPanel::~LLInboxInventoryPanel()
 
 LLFolderViewFolder * LLInboxInventoryPanel::createFolderViewFolder(LLInvFVBridge * bridge)
 {
+	LLUIColor item_color = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
+
 	LLInboxFolderViewFolder::Params params;
 	
 	params.name = bridge->getDisplayName();
 	params.root = mFolderRoot;
 	params.listener = bridge;
 	params.tool_tip = params.name;
+	params.font_color = item_color;
+	params.font_highlight_color = item_color;
 	
 	return LLUICtrlFactory::create<LLInboxFolderViewFolder>(params);
 }
 
 LLFolderViewItem * LLInboxInventoryPanel::createFolderViewItem(LLInvFVBridge * bridge)
 {
+	LLUIColor item_color = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
+
 	LLInboxFolderViewItem::Params params;
 
 	params.name = bridge->getDisplayName();
@@ -82,6 +90,8 @@ LLFolderViewItem * LLInboxInventoryPanel::createFolderViewItem(LLInvFVBridge * b
 	params.listener = bridge;
 	params.rect = LLRect (0, 0, 0, 0);
 	params.tool_tip = params.name;
+	params.font_color = item_color;
+	params.font_highlight_color = item_color;
 
 	return LLUICtrlFactory::create<LLInboxFolderViewItem>(params);
 }
