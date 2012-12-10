@@ -4421,7 +4421,9 @@ U32 LLVOAvatar::renderTransparent(BOOL first_pass)
 		}
 		// Can't test for baked hair being defined, since that won't always be the case (not all viewers send baked hair)
 		// TODO: 1.25 will be able to switch this logic back to calling isTextureVisible();
-		if (getImage(TEX_HAIR_BAKED, 0)->getID() != IMG_INVISIBLE || LLDrawPoolAlpha::sShowDebugAlpha)
+
+		if ( getImage(TEX_HAIR_BAKED, 0)
+			&& getImage(TEX_HAIR_BAKED, 0)->getID() != IMG_INVISIBLE || LLDrawPoolAlpha::sShowDebugAlpha)
 		{
 			num_indices += mMeshLOD[MESH_ID_HAIR]->render(mAdjustedPixelArea, first_pass, mIsDummy);
 			first_pass = FALSE;
@@ -4565,7 +4567,20 @@ void LLVOAvatar::updateTextures()
 		LLWearableType::EType wearable_type = LLVOAvatarDictionary::getTEWearableType((ETextureIndex)texture_index);
 		U32 num_wearables = gAgentWearables.getWearableCount(wearable_type);
 		const LLTextureEntry *te = getTE(texture_index);
-		const F32 texel_area_ratio = fabs(te->mScaleS * te->mScaleT);
+
+		// getTE can return 0.
+		// Not sure yet why it does, but of course it crashes when te->mScale? gets used.
+		// Put safeguard in place so this corner case get better handling and does not result in a crash.
+		F32 texel_area_ratio = 1.0f;
+		if( te )
+		{
+			texel_area_ratio = fabs(te->mScaleS * te->mScaleT);
+		}
+		else
+		{
+			llwarns << "getTE( " << texture_index << " ) returned 0" <<llendl;
+		}
+
 		LLViewerFetchedTexture *imagep = NULL;
 		for (U32 wearable_index = 0; wearable_index < num_wearables; wearable_index++)
 		{
@@ -8702,6 +8717,12 @@ BOOL LLVOAvatar::isTextureDefined(LLVOAvatarDefines::ETextureIndex te, U32 index
 {
 	if (isIndexLocalTexture(te)) 
 	{
+		return FALSE;
+	}
+
+	if( !getImage( te, index ) )
+	{
+		llwarns << "getImage( " << te << ", " << index << " ) returned 0" << llendl;
 		return FALSE;
 	}
 

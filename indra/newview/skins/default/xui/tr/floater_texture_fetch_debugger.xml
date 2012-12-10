@@ -45,10 +45,23 @@
 	<text name="total_time_refetch_vis_cache_label">
 		15, Görünür dokuların önbellekten tekrar alınması, Süre: [TIME] saniye, Alınan: [SIZE]KB, [PIXEL]MPiksel
 	</text>
-	<text name="total_time_refetch_vis_http_label">
-		16, Görünür dokuların HTTP&apos;den tekrar alınması, Süre: [TIME] saniye, Alınan: [SIZE]KB, [PIXEL]MPiksel
+	<text name="total_time_refetch_all_cache_label">
+		16, Tüm dokuların önbellekten tekrar alınması, Süre: [TIME] saniye, Alınan: [SIZE]KB, [PIXEL]MPiksel
 	</text>
-	<spinner label="17, Teksel/Piksel Oranı:" name="texel_pixel_ratio"/>
+	<text name="total_time_refetch_vis_http_label">
+		17, Görünür dokuların HTTP&apos;den tekrar alınması, Süre: [TIME] saniye, Alınan: [SIZE]KB, [PIXEL]MPiksel
+	</text>
+	<text name="total_time_refetch_all_http_label">
+		18, Tüm dokuların HTTP&apos;den tekrar alınması, Süre: [TIME] saniye, Alınan: [SIZE]KB, [PIXEL]MPiksel
+	</text>
+	<spinner label="19, Teksel/Piksel Oranı:" name="texel_pixel_ratio"/>
+	<text name="texture_source_label">
+		20, Doku Kaynağı:
+	</text>
+	<radio_group name="texture_source">
+		<radio_item label="Önbellek + HTTP" name="0"/>
+		<radio_item label="Sadece HTTP" name="1"/>
+	</radio_group>
 	<button label="Başla" name="start_btn"/>
 	<button label="Sıfırla" name="clear_btn"/>
 	<button label="Kapat" name="close_btn"/>
@@ -58,5 +71,7 @@
 	<button label="Şifre Çöz" name="decode_btn"/>
 	<button label="GL Dokusu" name="gl_btn"/>
 	<button label="Görünür Dokuları Önbellekten Tekrar Al" name="refetchviscache_btn"/>
+	<button label="Tüm Önbelleği Tekrar Al" name="refetchallcache_btn"/>
 	<button label="Görünür Dokuları HTTP&apos;den Tekrar Al" name="refetchvishttp_btn"/>
+	<button label="Tüm HTTP&apos;yi Tekrar Al" name="refetchallhttp_btn"/>
 </floater>

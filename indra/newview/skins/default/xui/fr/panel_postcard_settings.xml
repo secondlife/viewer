@@ -9,12 +9,12 @@
 	</combo_box>
 	<layout_stack name="postcard_image_params_ls">
 		<layout_panel name="postcard_image_size_lp">
-			<spinner label="Largeur" name="postcard_snapshot_width"/>
-			<spinner label="Hauteur" name="postcard_snapshot_height"/>
+			<spinner label="Larg." name="postcard_snapshot_width"/>
+			<spinner label="Haut." name="postcard_snapshot_height"/>
 			<check_box label="Conserver les proportions" name="postcard_keep_aspect_check"/>
 		</layout_panel>
 		<layout_panel name="postcard_image_format_quality_lp">
-			<slider label="Qualité de l&apos;image" name="image_quality_slider"/>
+			<slider label="Qualité image" name="image_quality_slider"/>
 			<text name="image_quality_level">
 				([QLVL])
 			</text>

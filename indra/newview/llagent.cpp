@@ -4045,6 +4045,12 @@ void LLAgent::teleportViaLocation(const LLVector3d& pos_global)
 void LLAgent::doTeleportViaLocation(const LLVector3d& pos_global)
 {
 	LLViewerRegion* regionp = getRegion();
+
+	if (!regionp)
+	{
+		return;
+	}
+
 	U64 handle = to_region_handle(pos_global);
 	LLSimInfo* info = LLWorldMap::getInstance()->simInfoFromHandle(handle);
 	if(regionp && info)

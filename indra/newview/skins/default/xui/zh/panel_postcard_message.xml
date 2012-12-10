@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_postcard_message">
+	<text name="to_label">
+		收件人：
+	</text>
+	<text name="name_label">
+		發件人：
+	</text>
+	<text name="subject_label">
+		主旨：
+	</text>
+	<line_editor label="在此輸入你的主旨。" name="subject_form"/>
+	<text name="msg_label">
+		訊息：
+	</text>
+	<text_editor name="msg_form">
+		在此輸入你的訊息。
+	</text_editor>
+	<button label="取消" name="cancel_btn"/>
+	<button label="送出" name="send_btn"/>
+</panel>

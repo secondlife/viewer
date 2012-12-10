@@ -71,6 +71,13 @@ LL_COMMON_API void assert_main_thread()
 	}
 }
 
+void LLThread::registerThreadID()
+{
+#if !LL_DARWIN
+	sThreadID = ++sIDIter;
+#endif
+}
+
 //
 // Handed to the APR thread creation function
 //

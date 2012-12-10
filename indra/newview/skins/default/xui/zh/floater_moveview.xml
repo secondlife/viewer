@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="move_floater">
+<floater name="move_floater" title="行走 / 跑步 / 飛行">
 	<string name="walk_forward_tooltip">
 		向前走（按下向上箭頭或 W 鍵）
 	</string>

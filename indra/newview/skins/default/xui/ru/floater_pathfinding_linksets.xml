@@ -30,6 +30,9 @@
 	<floater.string name="linkset_terrain_owner">
 		--
 	</floater.string>
+	<floater.string name="linkset_terrain_scripted">
+		--
+	</floater.string>
 	<floater.string name="linkset_terrain_land_impact">
 		--
 	</floater.string>
@@ -44,6 +47,15 @@
 	</floater.string>
 	<floater.string name="linkset_owner_group">
 		[группа]
+	</floater.string>
+	<floater.string name="linkset_is_scripted">
+		Да
+	</floater.string>
+	<floater.string name="linkset_is_not_scripted">
+		Нет
+	</floater.string>
+	<floater.string name="linkset_is_unknown_scripted">
+		Неизвестно
 	</floater.string>
 	<floater.string name="linkset_use_walkable">
 		Проходимое место
@@ -94,6 +106,7 @@
 			<scroll_list.columns label="Имя (корневой примитив)" name="name"/>
 			<scroll_list.columns label="Описание (корневой примитив)" name="description"/>
 			<scroll_list.columns label="Владелец" name="owner"/>
+			<scroll_list.columns label="Скриптовые" name="scripted"/>
 			<scroll_list.columns label="Воздействие" name="land_impact"/>
 			<scroll_list.columns label="Расстояние" name="dist_from_you"/>
 			<scroll_list.columns label="Использование набора связей" name="linkset_use"/>

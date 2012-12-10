@@ -37,6 +37,8 @@
 
 // system includes
 #include <boost/tokenizer.hpp>
+#include <boost/algorithm/string/find_iterator.hpp>
+#include <boost/algorithm/string/finder.hpp>
 
 void encode_character(std::ostream& ostr, std::string::value_type val)
 {
@@ -317,7 +319,7 @@ LLURI LLURI::buildHTTP(const std::string& prefix,
 					   const LLSD& path)
 {
 	LLURI result;
-	
+
 	// TODO: deal with '/' '?' '#' in host_port
 	if (prefix.find("://") != prefix.npos)
 	{
@@ -342,15 +344,41 @@ LLURI LLURI::buildHTTP(const std::string& prefix,
 			result.mEscapedPath += "/" + escapePathComponent(it->asString());
 		}
 	}
-	else if(path.isString())
+	else if (path.isString())
 	{
-		result.mEscapedPath += "/" + escapePathComponent(path.asString());
+		std::string pathstr(path);
+		// Trailing slash is significant in HTTP land. If caller specified,
+		// make a point of preserving.
+		std::string last_slash;
+		std::string::size_type len(pathstr.length());
+		if (len && pathstr[len-1] == '/')
+		{
+			last_slash = "/";
+		}
+
+		// Escape every individual path component, recombining with slashes.
+		for (boost::split_iterator<std::string::const_iterator>
+				 ti(pathstr, boost::first_finder("/")), tend;
+			 ti != tend; ++ti)
+		{
+			// Eliminate a leading slash or duplicate slashes anywhere. (Extra
+			// slashes show up here as empty components.) This test also
+			// eliminates a trailing slash, hence last_slash above.
+			if (! ti->empty())
+			{
+				result.mEscapedPath
+					+= "/" + escapePathComponent(std::string(ti->begin(), ti->end()));
+			}
+		}
+
+		// Reinstate trailing slash, if any.
+		result.mEscapedPath += last_slash;
 	} 
 	else if(path.isUndefined())
 	{
 	  // do nothing
 	}
-    else
+	else
 	{
 	  llwarns << "Valid path arguments to buildHTTP are array, string, or undef, you passed type" 
 			  << path.type() << llendl;

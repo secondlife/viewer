@@ -45,10 +45,23 @@
 	<text name="total_time_refetch_vis_cache_label">
 		15, Obtendo novamente visíveis do cache, Tempo: [TIME] segundos, Obtidos: [SIZE]KB, [PIXEL]MPixels
 	</text>
-	<text name="total_time_refetch_vis_http_label">
-		16, Obtendo novamente visíveis do HTTP, Tempo: [TIME] segundos, Obtidos: [SIZE]KB, [PIXEL]MPixels
+	<text name="total_time_refetch_all_cache_label">
+		16, Obtendo novamente todas as texturas do cache, Tempo: [TIME] segundos, Obtidos: [SIZE]KB, [PIXEL]MPixels
 	</text>
-	<spinner label="17, Proporção de texel/pixel:" name="texel_pixel_ratio"/>
+	<text name="total_time_refetch_vis_http_label">
+		17, Obtendo novamente visíveis do HTTP, Tempo: [TIME] segundos, Obtidos: [SIZE]KB, [PIXEL]MPixels
+	</text>
+	<text name="total_time_refetch_all_http_label">
+		18, Obtendo novamente todas as texturas do HTTP, Tempo: [TIME] segundos, Obtidos: [SIZE]KB, [PIXEL]MPixels
+	</text>
+	<spinner label="19, Proporção de texel/pixel:" name="texel_pixel_ratio"/>
+	<text name="texture_source_label">
+		20, Origem da textura:
+	</text>
+	<radio_group name="texture_source">
+		<radio_item label="Cache + HTTP" name="0"/>
+		<radio_item label="Apenas HTTP" name="1"/>
+	</radio_group>
 	<button label="Iniciar" name="start_btn"/>
 	<button label="Redefinir" name="clear_btn"/>
 	<button label="Fechar" name="close_btn"/>
@@ -58,5 +71,7 @@
 	<button label="Decodificar" name="decode_btn"/>
 	<button label="Textura GL" name="gl_btn"/>
 	<button label="Obter novamente cache visível" name="refetchviscache_btn"/>
+	<button label="Obter todo o cache novamente" name="refetchallcache_btn"/>
 	<button label="Obter novamente HTTP visível" name="refetchvishttp_btn"/>
+	<button label="Obter todo o HTTP novamente" name="refetchallhttp_btn"/>
 </floater>
