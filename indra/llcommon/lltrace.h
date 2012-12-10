@@ -412,6 +412,11 @@ namespace LLTrace
 			typedef U32 value_t;
 		};
 
+		struct SelfTimeAspect
+		{
+			typedef LLUnit<LLUnits::Seconds, F64> value_t;
+		};
+
 		TimeBlockAccumulator();
 		void addSamples(const TimeBlockAccumulator& other);
 		void reset(const TimeBlockAccumulator* other);
@@ -440,6 +445,18 @@ namespace LLTrace
 
 		TraceType(const char* name, const char* description = "")
 		:	TraceType<TimeBlockAccumulator>(name, description)
+		{}
+	};
+
+	template<>
+	class TraceType<TimeBlockAccumulator::SelfTimeAspect>
+		:	public TraceType<TimeBlockAccumulator>
+	{
+	public:
+		typedef F32 mean_t;
+
+		TraceType(const char* name, const char* description = "")
+			:	TraceType<TimeBlockAccumulator>(name, description)
 		{}
 	};
 

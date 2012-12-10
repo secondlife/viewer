@@ -120,8 +120,11 @@ namespace LLTrace
 
 		// Timer accessors
 		LLUnit<LLUnits::Seconds, F64> getSum(const TraceType<TimeBlockAccumulator>& stat) const;
+		LLUnit<LLUnits::Seconds, F64> getSum(const TraceType<TimeBlockAccumulator::SelfTimeAspect>& stat) const;
 		U32 getSum(const TraceType<TimeBlockAccumulator::CallCountAspect>& stat) const;
+
 		LLUnit<LLUnits::Seconds, F64> getPerSec(const TraceType<TimeBlockAccumulator>& stat) const;
+		LLUnit<LLUnits::Seconds, F64> getPerSec(const TraceType<TimeBlockAccumulator::SelfTimeAspect>& stat) const;
 		F32 getPerSec(const TraceType<TimeBlockAccumulator::CallCountAspect>& stat) const;
 
 		// Count accessors

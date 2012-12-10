@@ -381,9 +381,9 @@ void LLFastTimerView::draw()
 
 	std::string tdesc;
 
-	S32 margin = 10;
-	S32 height = getRect().getHeight();
-	S32 width = getRect().getWidth();
+	const S32 margin = 10;
+	const S32 height = getRect().getHeight();
+	const S32 width = getRect().getWidth();
 	
 	LLRect new_rect;
 	new_rect.setLeftTopAndSize(getRect().mLeft, getRect().mTop, width, height);
@@ -391,22 +391,17 @@ void LLFastTimerView::draw()
 
 	S32 left, top, right, bottom;
 	S32 x, y, barw, barh, dx, dy;
-	S32 texth, textw;
+	const S32 texth = (S32)LLFontGL::getFontMonospace()->getLineHeight();
 	LLPointer<LLUIImage> box_imagep = LLUI::getUIImage("Rounded_Square");
 
 	// Draw the window background
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0, LLColor4(0.f, 0.f, 0.f, 0.25f));
 	
-	S32 xleft = margin;
-	S32 ytop = margin;
-	
 	// Draw some help
 	{
-		
-		x = xleft;
-		y = height - ytop;
-		texth = (S32)LLFontGL::getFontMonospace()->getLineHeight();
+		x = margin;
+		y = height - margin;
 
 		char modedesc[][32] = {
 			"2 x Average ",
@@ -422,9 +417,8 @@ void LLFastTimerView::draw()
 
 		tdesc = llformat("Full bar = %s [Click to pause/reset] [SHIFT-Click to toggle]",modedesc[mDisplayMode]);
 		LLFontGL::getFontMonospace()->renderUTF8(tdesc, 0, x, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
-		textw = LLFontGL::getFontMonospace()->getWidth(tdesc);
 
-		x = xleft, y -= (texth + 2);
+		x = margin, y -= (texth + 2);
 		tdesc = llformat("Justification = %s [CTRL-Click to toggle]",centerdesc[mDisplayCenter]);
 		LLFontGL::getFontMonospace()->renderUTF8(tdesc, 0, x, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
 		y -= (texth + 2);
@@ -436,36 +430,38 @@ void LLFastTimerView::draw()
 
 	S32 histmax = llmin(frame_recording.getNumPeriods()+1, MAX_VISIBLE_HISTORY);
 		
-	// Draw the legend
-	xleft = margin;
-	ytop = y;
-
+	const S32 ytop = y;
 	y -= (texth + 2);
 
-	sTimerColors[&getFrameTimer()] = LLColor4::grey;
-
-	F32 hue = 0.f;
-
-	for (timer_tree_iterator_t it = begin_timer_tree(getFrameTimer());
-		it != timer_tree_iterator_t();
-		++it)
+	// generate unique colors
 	{
-		LLTrace::TimeBlock* idp = (*it);
+		sTimerColors[&getFrameTimer()] = LLColor4::grey;
 
-		const F32 HUE_INCREMENT = 0.23f;
-		hue = fmodf(hue + HUE_INCREMENT, 1.f);
-		// saturation increases with depth
-		F32 saturation = clamp_rescale((F32)idp->getDepth(), 0.f, 3.f, 0.f, 1.f);
-		// lightness alternates with depth
-		F32 lightness = idp->getDepth() % 2 ? 0.5f : 0.6f;
+		F32 hue = 0.f;
 
-		LLColor4 child_color;
-		child_color.setHSL(hue, saturation, lightness);
+		for (timer_tree_iterator_t it = begin_timer_tree(getFrameTimer());
+			it != timer_tree_iterator_t();
+			++it)
+		{
+			LLTrace::TimeBlock* idp = (*it);
 
-		sTimerColors[idp] = child_color;
+			const F32 HUE_INCREMENT = 0.23f;
+			hue = fmodf(hue + HUE_INCREMENT, 1.f);
+			// saturation increases with depth
+			F32 saturation = clamp_rescale((F32)idp->getDepth(), 0.f, 3.f, 0.f, 1.f);
+			// lightness alternates with depth
+			F32 lightness = idp->getDepth() % 2 ? 0.5f : 0.6f;
+
+			LLColor4 child_color;
+			child_color.setHSL(hue, saturation, lightness);
+
+			sTimerColors[idp] = child_color;
+		}
 	}
 
+	// draw legend
 	const S32 LEGEND_WIDTH = 220;
+	const S32 x_start = margin + LEGEND_WIDTH + 8;
 	{
 		LLLocalClipRect clip(LLRect(margin, y, LEGEND_WIDTH, margin));
 		S32 cur_line = 0;
@@ -480,7 +476,7 @@ void LLFastTimerView::draw()
 			ft_display_idx.push_back(idp);
 			cur_line++;
 
-			x = xleft;
+			x = margin;
 
 			left = x; right = x + texth;
 			top = y; bottom = y - texth;
@@ -547,8 +543,6 @@ void LLFastTimerView::draw()
 
 			y -= (texth + 2);
 
-			textw = dx + LLFontGL::getFontMonospace()->getWidth(idp->getName()) + 40;
-
 			if (idp->getCollapsed()) 
 			{
 				it.skipDescendants();
@@ -556,11 +550,8 @@ void LLFastTimerView::draw()
 		}
 	}
 
-	xleft += LEGEND_WIDTH + 8;
-	// ytop = ytop;
-
 	// update rectangle that includes timer bars
-	mBarRect.mLeft = xleft;
+	mBarRect.mLeft = x_start;
 	mBarRect.mRight = getRect().getWidth();
 	mBarRect.mTop = ytop - (LLFontGL::getFontMonospace()->getLineHeight() + 4);
 	mBarRect.mBottom = margin + LINE_GRAPH_HEIGHT;
@@ -570,238 +561,239 @@ void LLFastTimerView::draw()
 	dy = barh>>2; // spacing between bars
 	if (dy < 1) dy = 1;
 	barh -= dy;
-	barw = width - xleft - margin;
+	barw = width - x_start - margin;
 
 	// Draw the history bars
-	LLLocalClipRect clip(LLRect(xleft, ytop, getRect().getWidth() - margin, margin));
-
 	LLUnit<LLUnits::Seconds, F64> total_time;
-
-	mAllTimeMax = llmax(mAllTimeMax, frame_recording.getLastRecordingPeriod().getSum(getFrameTimer()));
-
-	if (mDisplayMode == 0)
+	switch(mDisplayMode)
 	{
+	case 0:
 		total_time = frame_recording.getPeriodMean(getFrameTimer())*2;
-	}
-	else if (mDisplayMode == 1)
-	{
+		break;
+	case 1:
 		total_time = mAllTimeMax;
-	}
-	else if (mDisplayMode == 2)
-	{
+		break;
+	case 2:
 		// Calculate the max total ticks for the current history
 		total_time = frame_recording.getPeriodMax(getFrameTimer());
-	}
-	else
-	{
+		break;
+	default:
 		total_time = LLUnit<LLUnits::Milliseconds, F32>(100);
+		break;
 	}
-		
-	// Draw MS ticks
+
+	if (total_time > 0)
 	{
-		LLUnit<LLUnits::Milliseconds, U32> ms = total_time;
+		LLLocalClipRect clip(LLRect(x_start, ytop, getRect().getWidth() - margin, margin));
 
-		tdesc = llformat("%.1f ms |", (F32)ms.value()*.25f);
-		x = xleft + barw/4 - LLFontGL::getFontMonospace()->getWidth(tdesc);
-		LLFontGL::getFontMonospace()->renderUTF8(tdesc, 0, x, y, LLColor4::white,
-										LLFontGL::LEFT, LLFontGL::TOP);
+		mAllTimeMax = llmax(mAllTimeMax, frame_recording.getLastRecordingPeriod().getSum(getFrameTimer()));
+		
+		// Draw MS ticks
+		{
+			LLUnit<LLUnits::Milliseconds, U32> ms = total_time;
+
+			tdesc = llformat("%.1f ms |", (F32)ms.value()*.25f);
+			x = x_start + barw/4 - LLFontGL::getFontMonospace()->getWidth(tdesc);
+			LLFontGL::getFontMonospace()->renderUTF8(tdesc, 0, x, y, LLColor4::white,
+											LLFontGL::LEFT, LLFontGL::TOP);
 			
-		tdesc = llformat("%.1f ms |", (F32)ms.value()*.50f);
-		x = xleft + barw/2 - LLFontGL::getFontMonospace()->getWidth(tdesc);
-		LLFontGL::getFontMonospace()->renderUTF8(tdesc, 0, x, y, LLColor4::white,
-										LLFontGL::LEFT, LLFontGL::TOP);
+			tdesc = llformat("%.1f ms |", (F32)ms.value()*.50f);
+			x = x_start + barw/2 - LLFontGL::getFontMonospace()->getWidth(tdesc);
+			LLFontGL::getFontMonospace()->renderUTF8(tdesc, 0, x, y, LLColor4::white,
+											LLFontGL::LEFT, LLFontGL::TOP);
 			
-		tdesc = llformat("%.1f ms |", (F32)ms.value()*.75f);
-		x = xleft + (barw*3)/4 - LLFontGL::getFontMonospace()->getWidth(tdesc);
-		LLFontGL::getFontMonospace()->renderUTF8(tdesc, 0, x, y, LLColor4::white,
-										LLFontGL::LEFT, LLFontGL::TOP);
+			tdesc = llformat("%.1f ms |", (F32)ms.value()*.75f);
+			x = x_start + (barw*3)/4 - LLFontGL::getFontMonospace()->getWidth(tdesc);
+			LLFontGL::getFontMonospace()->renderUTF8(tdesc, 0, x, y, LLColor4::white,
+											LLFontGL::LEFT, LLFontGL::TOP);
 			
-		tdesc = llformat( "%d ms |", (U32)ms.value());
-		x = xleft + barw - LLFontGL::getFontMonospace()->getWidth(tdesc);
-		LLFontGL::getFontMonospace()->renderUTF8(tdesc, 0, x, y, LLColor4::white,
-										LLFontGL::LEFT, LLFontGL::TOP);
+			tdesc = llformat( "%d ms |", (U32)ms.value());
+			x = x_start + barw - LLFontGL::getFontMonospace()->getWidth(tdesc);
+			LLFontGL::getFontMonospace()->renderUTF8(tdesc, 0, x, y, LLColor4::white,
+											LLFontGL::LEFT, LLFontGL::TOP);
+		}
+
+		// Draw borders
+		{
+			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+			gGL.color4f(0.5f,0.5f,0.5f,0.5f);
+
+			S32 by = y + 2;
+			
+			y -= ((S32)LLFontGL::getFontMonospace()->getLineHeight() + 4);
+
+			//heading
+			gl_rect_2d(x_start-5, by, getRect().getWidth()-5, y+5, FALSE);
+
+			//tree view
+			gl_rect_2d(5, by, x_start-10, 5, FALSE);
+
+			by = y + 5;
+			//average bar
+			gl_rect_2d(x_start-5, by, getRect().getWidth()-5, by-barh-dy-5, FALSE);
+			
+			by -= barh*2+dy;
+			
+			//current frame bar
+			gl_rect_2d(x_start-5, by, getRect().getWidth()-5, by-barh-dy-2, FALSE);
+			
+			by -= barh+dy+1;
+			
+			//history bars
+			gl_rect_2d(x_start-5, by, getRect().getWidth()-5, LINE_GRAPH_HEIGHT-barh-dy-2, FALSE);			
+			
+			by = LINE_GRAPH_HEIGHT-barh-dy-7;
+			
+			//line graph
+			mGraphRect = LLRect(x_start-5, by, getRect().getWidth()-5, 5);
+			
+			gl_rect_2d(mGraphRect, FALSE);
+		}
+		
+		mBarStart.clear();
+		mBarEnd.clear();
+
+		// Draw bars for each history entry
+		// Special: -1 = show running average
+		gGL.getTexUnit(0)->bind(box_imagep->getImage());
+		for (S32 j=-1; j<histmax && y > LINE_GRAPH_HEIGHT; j++)
+		{
+			mBarStart.push_back(std::vector<S32>());
+			mBarEnd.push_back(std::vector<S32>());
+			int sublevel_dx[FTV_MAX_DEPTH];
+			int sublevel_left[FTV_MAX_DEPTH];
+			int sublevel_right[FTV_MAX_DEPTH];
+			S32 tidx;
+			if (j >= 0)
+			{
+				tidx = j + 1 + mScrollIndex;
+			}
+			else
+			{
+				tidx = -1;
+			}
+			
+			x = x_start;
+			
+			// draw the bars for each stat
+			std::vector<S32> xpos;
+			std::vector<S32> deltax;
+			xpos.push_back(x_start);
+			
+			LLTrace::TimeBlock* prev_id = NULL;
+
+			S32 i = 0;
+			for(timer_tree_iterator_t it = begin_timer_tree(getFrameTimer());
+				it != end_timer_tree();
+				++it, ++i)
+			{
+				LLTrace::TimeBlock* idp = (*it);
+				F32 frac = tidx == -1
+					? (frame_recording.getPeriodMean(*idp) / total_time) 
+					: (frame_recording.getPrevRecordingPeriod(tidx).getSum(*idp).value() / total_time.value());
+		
+				dx = llround(frac * (F32)barw);
+				S32 prev_delta_x = deltax.empty() ? 0 : deltax.back();
+				deltax.push_back(dx);
+				
+				int level = idp->getDepth() - 1;
+				
+				while ((S32)xpos.size() > level + 1)
+				{
+					xpos.pop_back();
+				}
+				left = xpos.back();
+				
+				if (level == 0)
+				{
+					sublevel_left[level] = x_start;
+					sublevel_dx[level] = dx;
+					sublevel_right[level] = sublevel_left[level] + sublevel_dx[level];
+				}
+				else if (prev_id && prev_id->getDepth() < idp->getDepth())
+				{
+					U64 sublevelticks = 0;
+
+					for (LLTrace::TimeBlock::child_const_iter it = prev_id->beginChildren();
+						it != prev_id->endChildren();
+						++it)
+					{
+						sublevelticks += (tidx == -1)
+							? frame_recording.getPeriodMean(**it).value()
+							: frame_recording.getPrevRecordingPeriod(tidx).getSum(**it).value();
+					}
+
+					F32 subfrac = (F32)sublevelticks / (F32)total_time.value();
+					sublevel_dx[level] = (int)(subfrac * (F32)barw + .5f);
+
+					if (mDisplayCenter == ALIGN_CENTER)
+					{
+						left += (prev_delta_x - sublevel_dx[level])/2;
+					}
+					else if (mDisplayCenter == ALIGN_RIGHT)
+					{
+						left += (prev_delta_x - sublevel_dx[level]);
+					}
+
+					sublevel_left[level] = left;
+					sublevel_right[level] = sublevel_left[level] + sublevel_dx[level];
+				}				
+
+				right = left + dx;
+				xpos.back() = right;
+				xpos.push_back(left);
+				
+				mBarStart.back().push_back(left);
+				mBarEnd.back().push_back(right);
+
+				top = y;
+				bottom = y - barh;
+
+				if (right > left)
+				{
+					//U32 rounded_edges = 0;
+					LLColor4 color = sTimerColors[idp];//*ft_display_table[i].color;
+					S32 scale_offset = 0;
+
+					BOOL is_child_of_hover_item = (idp == mHoverID);
+					LLTrace::TimeBlock* next_parent = idp->getParent();
+					while(!is_child_of_hover_item && next_parent)
+					{
+						is_child_of_hover_item = (mHoverID == next_parent);
+						if (next_parent->getParent() == next_parent) break;
+						next_parent = next_parent->getParent();
+					}
+
+					if (idp == mHoverID)
+					{
+						scale_offset = llfloor(sinf(mHighlightTimer.getElapsedTimeF32() * 6.f) * 3.f);
+						//color = lerp(color, LLColor4::black, -0.4f);
+					}
+					else if (mHoverID != NULL && !is_child_of_hover_item)
+					{
+						color = lerp(color, LLColor4::grey, 0.8f);
+					}
+
+					gGL.color4fv(color.mV);
+					F32 start_fragment = llclamp((F32)(left - sublevel_left[level]) / (F32)sublevel_dx[level], 0.f, 1.f);
+					F32 end_fragment = llclamp((F32)(right - sublevel_left[level]) / (F32)sublevel_dx[level], 0.f, 1.f);
+					gl_segmented_rect_2d_fragment_tex(sublevel_left[level], top - level + scale_offset, sublevel_right[level], bottom + level - scale_offset, box_imagep->getTextureWidth(), box_imagep->getTextureHeight(), 16, start_fragment, end_fragment);
+
+				}
+
+				if ((*it)->getCollapsed())
+				{
+					it.skipDescendants();
+				}
+		
+				prev_id = idp;
+			}
+			y -= (barh + dy);
+			if (j < 0)
+				y -= barh;
+		}
 	}
 
-	// Draw borders
-	{
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-		gGL.color4f(0.5f,0.5f,0.5f,0.5f);
-
-		S32 by = y + 2;
-			
-		y -= ((S32)LLFontGL::getFontMonospace()->getLineHeight() + 4);
-
-		//heading
-		gl_rect_2d(xleft-5, by, getRect().getWidth()-5, y+5, FALSE);
-
-		//tree view
-		gl_rect_2d(5, by, xleft-10, 5, FALSE);
-
-		by = y + 5;
-		//average bar
-		gl_rect_2d(xleft-5, by, getRect().getWidth()-5, by-barh-dy-5, FALSE);
-			
-		by -= barh*2+dy;
-			
-		//current frame bar
-		gl_rect_2d(xleft-5, by, getRect().getWidth()-5, by-barh-dy-2, FALSE);
-			
-		by -= barh+dy+1;
-			
-		//history bars
-		gl_rect_2d(xleft-5, by, getRect().getWidth()-5, LINE_GRAPH_HEIGHT-barh-dy-2, FALSE);			
-			
-		by = LINE_GRAPH_HEIGHT-barh-dy-7;
-			
-		//line graph
-		mGraphRect = LLRect(xleft-5, by, getRect().getWidth()-5, 5);
-			
-		gl_rect_2d(mGraphRect, FALSE);
-	}
-		
-	mBarStart.clear();
-	mBarEnd.clear();
-
-	// Draw bars for each history entry
-	// Special: -1 = show running average
-	gGL.getTexUnit(0)->bind(box_imagep->getImage());
-	for (S32 j=-1; j<histmax && y > LINE_GRAPH_HEIGHT; j++)
-	{
-		mBarStart.push_back(std::vector<S32>());
-		mBarEnd.push_back(std::vector<S32>());
-		int sublevel_dx[FTV_MAX_DEPTH];
-		int sublevel_left[FTV_MAX_DEPTH];
-		int sublevel_right[FTV_MAX_DEPTH];
-		S32 tidx;
-		if (j >= 0)
-		{
-			tidx = j + 1 + mScrollIndex;
-		}
-		else
-		{
-			tidx = -1;
-		}
-			
-		x = xleft;
-			
-		// draw the bars for each stat
-		std::vector<S32> xpos;
-		std::vector<S32> deltax;
-		xpos.push_back(xleft);
-			
-		LLTrace::TimeBlock* prev_id = NULL;
-
-		S32 i = 0;
-		for(timer_tree_iterator_t it = begin_timer_tree(getFrameTimer());
-			it != end_timer_tree();
-			++it, ++i)
-		{
-			LLTrace::TimeBlock* idp = (*it);
-			F32 frac = tidx == -1
-				? (frame_recording.getPeriodMean(*idp) / total_time) 
-				: (frame_recording.getPrevRecordingPeriod(tidx).getSum(*idp).value() / total_time.value());
-		
-			dx = llround(frac * (F32)barw);
-			S32 prev_delta_x = deltax.empty() ? 0 : deltax.back();
-			deltax.push_back(dx);
-				
-			int level = idp->getDepth() - 1;
-				
-			while ((S32)xpos.size() > level + 1)
-			{
-				xpos.pop_back();
-			}
-			left = xpos.back();
-				
-			if (level == 0)
-			{
-				sublevel_left[level] = xleft;
-				sublevel_dx[level] = dx;
-				sublevel_right[level] = sublevel_left[level] + sublevel_dx[level];
-			}
-			else if (prev_id && prev_id->getDepth() < idp->getDepth())
-			{
-				U64 sublevelticks = 0;
-
-				for (LLTrace::TimeBlock::child_const_iter it = prev_id->beginChildren();
-					it != prev_id->endChildren();
-					++it)
-				{
-					sublevelticks += (tidx == -1)
-						? frame_recording.getPeriodMean(**it).value()
-						: frame_recording.getPrevRecordingPeriod(tidx).getSum(**it).value();
-				}
-
-				F32 subfrac = (F32)sublevelticks / (F32)total_time.value();
-				sublevel_dx[level] = (int)(subfrac * (F32)barw + .5f);
-
-				if (mDisplayCenter == ALIGN_CENTER)
-				{
-					left += (prev_delta_x - sublevel_dx[level])/2;
-				}
-				else if (mDisplayCenter == ALIGN_RIGHT)
-				{
-					left += (prev_delta_x - sublevel_dx[level]);
-				}
-
-				sublevel_left[level] = left;
-				sublevel_right[level] = sublevel_left[level] + sublevel_dx[level];
-			}				
-
-			right = left + dx;
-			xpos.back() = right;
-			xpos.push_back(left);
-				
-			mBarStart.back().push_back(left);
-			mBarEnd.back().push_back(right);
-
-			top = y;
-			bottom = y - barh;
-
-			if (right > left)
-			{
-				//U32 rounded_edges = 0;
-				LLColor4 color = sTimerColors[idp];//*ft_display_table[i].color;
-				S32 scale_offset = 0;
-
-				BOOL is_child_of_hover_item = (idp == mHoverID);
-				LLTrace::TimeBlock* next_parent = idp->getParent();
-				while(!is_child_of_hover_item && next_parent)
-				{
-					is_child_of_hover_item = (mHoverID == next_parent);
-					if (next_parent->getParent() == next_parent) break;
-					next_parent = next_parent->getParent();
-				}
-
-				if (idp == mHoverID)
-				{
-					scale_offset = llfloor(sinf(mHighlightTimer.getElapsedTimeF32() * 6.f) * 3.f);
-					//color = lerp(color, LLColor4::black, -0.4f);
-				}
-				else if (mHoverID != NULL && !is_child_of_hover_item)
-				{
-					color = lerp(color, LLColor4::grey, 0.8f);
-				}
-
-				gGL.color4fv(color.mV);
-				F32 start_fragment = llclamp((F32)(left - sublevel_left[level]) / (F32)sublevel_dx[level], 0.f, 1.f);
-				F32 end_fragment = llclamp((F32)(right - sublevel_left[level]) / (F32)sublevel_dx[level], 0.f, 1.f);
-				gl_segmented_rect_2d_fragment_tex(sublevel_left[level], top - level + scale_offset, sublevel_right[level], bottom + level - scale_offset, box_imagep->getTextureWidth(), box_imagep->getTextureHeight(), 16, start_fragment, end_fragment);
-
-			}
-
-			if ((*it)->getCollapsed())
-			{
-				it.skipDescendants();
-			}
-		
-			prev_id = idp;
-		}
-		y -= (barh + dy);
-		if (j < 0)
-			y -= barh;
-	}
-		
 	//draw line graph history
 	{
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);

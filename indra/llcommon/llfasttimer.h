@@ -89,6 +89,11 @@ public:
 		return static_cast<TraceType<TimeBlockAccumulator::CallCountAspect>&>(*(TraceType<TimeBlockAccumulator>*)this);
 	}
 
+	TraceType<TimeBlockAccumulator::SelfTimeAspect>& selfTime() 
+	{ 
+		return static_cast<TraceType<TimeBlockAccumulator::SelfTimeAspect>&>(*(TraceType<TimeBlockAccumulator>*)this);
+	}
+
 	static TimeBlock& getRootTimer();
 	static void pushLog(LLSD sd);
 	static void setLogLock(LLMutex* mutex);
