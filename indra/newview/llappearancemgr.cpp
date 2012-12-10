@@ -155,37 +155,6 @@ LLUUID findDescendentCategoryIDByName(const LLUUID& parent_id, const std::string
 	}
 }
 
-// Shim between inventory callback and boost function
-typedef boost::function<void(const LLUUID&)> inventory_func_type;
-
-class LLBoostFuncInventoryCallback: public LLInventoryCallback
-{
-public:
-
-	LLBoostFuncInventoryCallback(const inventory_func_type& func):
-		mFunc(func)
-	{
-	}
-
-	void fire(const LLUUID& item_id)
-	{
-		mFunc(item_id);
-	}
-
-private:
-	inventory_func_type mFunc;
-};
-
-LLPointer<LLInventoryCallback> make_inventory_func_callback(const inventory_func_type& func)
-{
-	return new LLBoostFuncInventoryCallback(func); 
-}
-
-void report_fire(const LLUUID& item_id)
-{
-	llinfos << item_id << llendl;
-}
-
 void no_op() {}
 
 class LLCallAfterInventoryBatchMgr: public LLEventTimer 
@@ -195,8 +164,7 @@ public:
 								 const std::string& phase_name,
 								 nullary_func_t on_completion_func,
 								 nullary_func_t on_failure_func = no_op,
-								 F32 check_period = 5.0,
-								 F32 retry_after = 10.0,
+								 F32 retry_after = 15.0,
 								 S32 max_retries = 2
 		):
 		mDstCatID(dst_cat_id),
@@ -209,7 +177,7 @@ public:
 		mFailCount(0),
 		mCompletionOrFailureCalled(false),
 		mRetryCount(0),
-		LLEventTimer(check_period)
+		LLEventTimer(retry_after)
 	{
 		if (!mTrackingPhase.empty())
 		{
@@ -261,17 +229,20 @@ public:
 
 	virtual void requestOperation(LLViewerInventoryItem *item) = 0;
 
-	void onOp(const LLUUID& src_id, const LLUUID& dst_id)
+	void onOp(const LLUUID& src_id, const LLUUID& dst_id, LLTimer timestamp)
 	{
-		LL_DEBUGS("Avatar") << "op done, src_id " << src_id << " dst_id " << dst_id << " after " << mWaitTimes[src_id].getElapsedTimeF32() << " seconds" << llendl;
 		mPendingRequests--;
-		F32 wait_time = mWaitTimes[src_id].getElapsedTimeF32();
-		mTimeStats.push(wait_time);
-		mWaitTimes.erase(src_id);
-		if (mCompletionOrFailureCalled)
+		F32 elapsed = timestamp.getElapsedTimeF32();
+		LL_DEBUGS("Avatar") << "op done, src_id " << src_id << " dst_id " << dst_id << " after " << elapsed << " seconds" << llendl;
+		if (mWaitTimes.find(src_id) == mWaitTimes.end())
 		{
-			llinfos << "late-completing operation, src_id " << src_id << "dst_id " << dst_id << llendl;
+			// No longer waiting for this item - either serviced
+			// already or gave up after too many retries.
+			llwarns << "duplicate or late operation, src_id " << src_id << "dst_id " << dst_id
+					<< " elapsed " << elapsed << " after end " << (S32) mCompletionOrFailureCalled << llendl;
 		}
+		mTimeStats.push(elapsed);
+		mWaitTimes.erase(src_id);
 		if (mWaitTimes.empty() && !mCompletionOrFailureCalled)
 		{
 			onCompletionOrFailure();
@@ -401,9 +372,11 @@ public:
 								const LLUUID& dst_cat_id,
 								const std::string& phase_name,
 								nullary_func_t on_completion_func,
-								nullary_func_t on_failure_func = no_op
+								nullary_func_t on_failure_func = no_op,
+								 F32 retry_after = 15.0,
+								 S32 max_retries = 2
 		):
-		LLCallAfterInventoryBatchMgr(dst_cat_id, phase_name, on_completion_func, on_failure_func)
+		LLCallAfterInventoryBatchMgr(dst_cat_id, phase_name, on_completion_func, on_failure_func, retry_after, max_retries)
 	{
 		addItems(src_items);
 	}
@@ -416,7 +389,7 @@ public:
 			item->getUUID(),
 			mDstCatID,
 			std::string(),
-			make_inventory_func_callback(boost::bind(&LLCallAfterInventoryBatchMgr::onOp,this,item->getUUID(),_1))
+			new LLBoostFuncInventoryCallback(boost::bind(&LLCallAfterInventoryBatchMgr::onOp,this,item->getUUID(),_1,LLTimer()))
 			);
 	}
 };
@@ -428,9 +401,11 @@ public:
 								const LLUUID& dst_cat_id,
 								const std::string& phase_name,
 								nullary_func_t on_completion_func,
-								nullary_func_t on_failure_func = no_op
+								nullary_func_t on_failure_func = no_op,
+								 F32 retry_after = 15.0,
+								 S32 max_retries = 2
 		):
-		LLCallAfterInventoryBatchMgr(dst_cat_id, phase_name, on_completion_func, on_failure_func)
+		LLCallAfterInventoryBatchMgr(dst_cat_id, phase_name, on_completion_func, on_failure_func, retry_after, max_retries)
 	{
 		addItems(src_items);
 	}
@@ -443,8 +418,8 @@ public:
 							item->getName(),
 							item->LLInventoryItem::getDescription(),
 							LLAssetType::AT_LINK,
-							make_inventory_func_callback(
-								boost::bind(&LLCallAfterInventoryBatchMgr::onOp,this,item->getUUID(),_1)));
+							new LLBoostFuncInventoryCallback(
+								boost::bind(&LLCallAfterInventoryBatchMgr::onOp,this,item->getUUID(),_1,LLTimer())));
 	}
 };
 
