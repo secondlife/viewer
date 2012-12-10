@@ -289,7 +289,7 @@ public:
 	// virtual
 	~LLBoostFuncInventoryCallback()
 	{
-		mDestroyFunc;
+		mDestroyFunc();
 	}
 	
 
