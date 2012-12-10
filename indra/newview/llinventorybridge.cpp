@@ -5091,7 +5091,7 @@ void LLObjectBridge::performAction(LLInventoryModel* model, std::string action)
 		else if(item && item->isFinished())
 		{
 			// must be in library. copy it to our inventory and put it on.
-			LLPointer<LLInventoryCallback> cb = new RezAttachmentCallback(0);
+			LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(rez_attachment_cb, _1, (LLViewerJointAttachment*)0));
 			copy_inventory_item(
 				gAgent.getID(),
 				item->getPermissions().getOwner(),

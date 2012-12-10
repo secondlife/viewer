@@ -65,6 +65,10 @@
 #include "llavataractions.h"
 #include "lllogininstance.h"
 
+// Two do-nothing ops for use in callbacks.
+void no_op_inventory_func(const LLUUID&) {} 
+void no_op() {}
+
 ///----------------------------------------------------------------------------
 /// Helper class to store special inventory item names and their localized values.
 ///----------------------------------------------------------------------------
@@ -949,7 +953,7 @@ void LLInventoryCallbackManager::fire(U32 callback_id, const LLUUID& item_id)
 	}
 }
 
-void WearOnAvatarCallback::fire(const LLUUID& inv_item)
+void rez_attachment_cb(const LLUUID& inv_item, LLViewerJointAttachment *attachmentp)
 {
 	if (inv_item.isNull())
 		return;
@@ -957,50 +961,11 @@ void WearOnAvatarCallback::fire(const LLUUID& inv_item)
 	LLViewerInventoryItem *item = gInventory.getItem(inv_item);
 	if (item)
 	{
-		LLAppearanceMgr::instance().wearItemOnAvatar(inv_item, true, mReplace);
+		rez_attachment(item, attachmentp);
 	}
 }
 
-void ModifiedCOFCallback::fire(const LLUUID& inv_item)
-{
-	LLAppearanceMgr::instance().updateAppearanceFromCOF();
-
-	// Start editing the item if previously requested.
-	gAgentWearables.editWearableIfRequested(inv_item);
-
-	// TODO: camera mode may not be changed if a debug setting is tweaked
-	if( gAgentCamera.cameraCustomizeAvatar() )
-	{
-		// If we're in appearance editing mode, the current tab may need to be refreshed
-		LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLFloaterSidePanelContainer::getPanel("appearance"));
-		if (panel)
-		{
-			panel->showDefaultSubpart();
-		}
-	}
-}
-
-RezAttachmentCallback::RezAttachmentCallback(LLViewerJointAttachment *attachmentp)
-{
-	mAttach = attachmentp;
-}
-RezAttachmentCallback::~RezAttachmentCallback()
-{
-}
-
-void RezAttachmentCallback::fire(const LLUUID& inv_item)
-{
-	if (inv_item.isNull())
-		return;
-
-	LLViewerInventoryItem *item = gInventory.getItem(inv_item);
-	if (item)
-	{
-		rez_attachment(item, mAttach);
-	}
-}
-
-void ActivateGestureCallback::fire(const LLUUID& inv_item)
+void activate_gesture_cb(const LLUUID& inv_item)
 {
 	if (inv_item.isNull())
 		return;
@@ -1013,7 +978,7 @@ void ActivateGestureCallback::fire(const LLUUID& inv_item)
 	LLGestureMgr::instance().activateGesture(inv_item);
 }
 
-void CreateGestureCallback::fire(const LLUUID& inv_item)
+void create_gesture_cb(const LLUUID& inv_item)
 {
 	if (inv_item.isNull())
 		return;
@@ -1288,7 +1253,7 @@ void create_new_item(const std::string& name,
 	
 	if (inv_type == LLInventoryType::IT_GESTURE)
 	{
-		LLPointer<LLInventoryCallback> cb = new CreateGestureCallback();
+		LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(create_gesture_cb);
 		create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
 							  parent_id, LLTransactionID::tnull, name, desc, asset_type, inv_type,
 							  NOT_WEARABLE, next_owner_perm, cb);

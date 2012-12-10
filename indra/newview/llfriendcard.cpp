@@ -521,7 +521,7 @@ public:
 	void fire(const LLUUID& inv_item_id)
 	{
 		LLViewerInventoryItem* item = gInventory.getItem(inv_item_id);
-
+		
 		if (item)
 			LLFriendCardsManager::instance().extractAvatarID(item->getCreatorUUID());
 	}
@@ -557,7 +557,7 @@ void LLFriendCardsManager::addFriendCardToInventory(const LLUUID& avatarID)
 		lldebugs << "Sent create_inventory_item for " << avatarID << ", " << name << llendl;
 
 		// TODO: mantipov: Is CreateFriendCardCallback really needed? Probably not
-		LLPointer<LLInventoryCallback> cb = new CreateFriendCardCallback();
+		LLPointer<LLInventoryCallback> cb = new CreateFriendCardCallback;
 
 		create_inventory_callingcard(avatarID, findFriendAllSubfolderUUIDImpl(), cb);
 	}

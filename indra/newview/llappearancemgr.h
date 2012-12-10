@@ -137,9 +137,6 @@ public:
 	void removeAllClothesFromAvatar();
 	void removeAllAttachmentsFromAvatar();
 
-	// Add COF link to ensemble folder.
-	void addEnsembleLink(LLInventoryCategory* item, bool do_update = true);
-
 	//has the current outfit changed since it was loaded?
 	bool isOutfitDirty() { return mOutfitIsDirty; }
 
