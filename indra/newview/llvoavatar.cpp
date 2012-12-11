@@ -6462,6 +6462,10 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	// Only now that we have result of appearance_version can we decide whether to bail out.
 	if( isSelf() )
 	{
+		LL_DEBUGS("Avatar") << "this_update_cof_version " << this_update_cof_version
+				<< " last_update_request_cof_version " << last_update_request_cof_version
+				<<  " my_cof_version " << LLAppearanceMgr::instance().getCOFVersion() << llendl;
+
 		if (getRegion() && (getRegion()->getCentralBakeVersion()==0))
 		{
 			llwarns << avString() << "Received AvatarAppearance message for self in non-server-bake region" << llendl;

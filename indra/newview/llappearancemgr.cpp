@@ -191,19 +191,13 @@ public:
 		{
 			LLViewerInventoryItem* item = *it;
 			llassert(item);
-			addItem(item);
+			addItem(item->getUUID());
 		}
 	}
 
 	// Request or re-request operation for specified item.
-	void addItem(LLViewerInventoryItem *item)
+	void addItem(const LLUUID& item_id)
 	{
-		const LLUUID& item_id = item->getUUID();
-		if (!item)
-		{
-			llwarns << "item not found for " << item_id << llendl;
-			return;
-		}
 		mPendingRequests++;
 		// On a re-request, this will reset the timer.
 		mWaitTimes[item_id] = LLTimer();
@@ -222,10 +216,10 @@ public:
 			return;
 		}
 		
-		requestOperation(item);
+		requestOperation(item_id);
 	}
 
-	virtual void requestOperation(LLViewerInventoryItem *item) = 0;
+	virtual void requestOperation(const LLUUID& item_id) = 0;
 
 	void onOp(const LLUUID& src_id, const LLUUID& dst_id, LLTimer timestamp)
 	{
@@ -314,7 +308,7 @@ public:
 						LL_DEBUGS("Avatar") << "Waited " << time_waited <<
 							" for " << curr_it->first << ", retrying" << llendl;
 						mRetryCount++;
-						addItem(gInventory.getItem(curr_it->first));
+						addItem(curr_it->first);
 					}
 					else
 					{
@@ -379,8 +373,10 @@ public:
 		addItems(src_items);
 	}
 	
-	virtual void requestOperation(LLViewerInventoryItem *item)
+	virtual void requestOperation(const LLUUID& item_id)
 	{
+		LLViewerInventoryItem *item = gInventory.getItem(item_id);
+		llassert(item);
 		copy_inventory_item(
 			gAgent.getID(),
 			item->getPermissions().getOwner(),
@@ -408,16 +404,46 @@ public:
 		addItems(src_items);
 	}
 	
-	virtual void requestOperation(LLViewerInventoryItem *item)
+	virtual void requestOperation(const LLUUID& item_id)
 	{
-		link_inventory_item(gAgent.getID(),
-							item->getLinkedUUID(),
-							mDstCatID,
-							item->getName(),
-							item->LLInventoryItem::getDescription(),
-							LLAssetType::AT_LINK,
-							new LLBoostFuncInventoryCallback(
-								boost::bind(&LLCallAfterInventoryBatchMgr::onOp,this,item->getUUID(),_1,LLTimer())));
+		LLViewerInventoryItem *item = gInventory.getItem(item_id);
+		if (item)
+		{
+			// create an inventory item link.
+			link_inventory_item(gAgent.getID(),
+								item->getLinkedUUID(),
+								mDstCatID,
+								item->getName(),
+								item->LLInventoryItem::getDescription(),
+								LLAssetType::AT_LINK,
+								new LLBoostFuncInventoryCallback(
+									boost::bind(&LLCallAfterInventoryBatchMgr::onOp,this,item->getUUID(),_1,LLTimer())));
+		}
+		else
+		{
+			// create a base outfit link if appropriate.
+			LLViewerInventoryCategory *catp = gInventory.getCategory(item_id);
+			if (!catp)
+			{
+				llwarns << "id not found as inventory item or category " << item_id << llendl;
+				return;
+			}
+			const LLUUID cof = LLAppearanceMgr::instance().getCOF();
+			std::string new_outfit_name = "";
+
+			LLAppearanceMgr::instance().purgeBaseOutfitLink(cof);
+
+			if (catp && catp->getPreferredType() == LLFolderType::FT_OUTFIT)
+			{
+				link_inventory_item(gAgent.getID(), item_id, cof, catp->getName(), "",
+									LLAssetType::AT_LINK_FOLDER, 
+									new LLBoostFuncInventoryCallback(
+										boost::bind(&LLCallAfterInventoryBatchMgr::onOp,this,item_id,_1,LLTimer())));
+				new_outfit_name = catp->getName();
+			}
+	
+			LLAppearanceMgr::instance().updatePanelOutfitName(new_outfit_name);
+		}
 	}
 };
 
@@ -1742,7 +1768,7 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 	// Add link to outfit if category is an outfit. 
 	if (!append)
 	{
-		createBaseOutfitLink(category, NULL);
+		link_waiter->addItem(category);
 	}
 	LL_DEBUGS("Avatar") << self_av_string() << "waiting for LLUpdateAppearanceOnDestroy" << LL_ENDL;
 }
@@ -2967,6 +2993,8 @@ void LLAppearanceMgr::requestServerAppearanceUpdate(LLCurl::ResponderPtr respond
 	LLSD body;
 	S32 cof_version = getCOFVersion();
 	body["cof_version"] = cof_version;
+	LL_DEBUGS("Avatar") << "my_cof_version " << cof_version << llendl;
+	
 	//LLCurl::ResponderPtr responder_ptr;
 	if (!responder_ptr.get())
 	{
