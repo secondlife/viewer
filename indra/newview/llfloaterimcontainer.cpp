@@ -1696,6 +1696,11 @@ void LLFloaterIMContainer::updateSpeakBtnState()
 	mSpeakBtn->setEnabled(LLAgent::isActionAllowed("speak"));
 }
 
+bool LLFloaterIMContainer::isConversationLoggingAllowed()
+{
+	return gSavedSettings.getBOOL("KeepConversationLogTranscripts");
+}
+
 void LLFloaterIMContainer::flashConversationItemWidget(const LLUUID& session_id, bool is_flashes)
 {
     //Finds the conversation line item to flash using the session_id
