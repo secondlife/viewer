@@ -628,7 +628,7 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
 			if (v)
 			{
 				U32 v_idx = idx[j*stride+v_offset]*3;
-				v_idx = llclamp(v_idx, (U32) 0, v->getCount());
+				v_idx = llclamp(v_idx, (U32) 0, (U32) v->getCount());
 				vert.getPosition().set(v->get(v_idx),
 								v->get(v_idx+1),
 								v->get(v_idx+2));
@@ -640,7 +640,7 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
 			if (n && n->getCount() > 0)
 			{
 				U32 n_idx = idx[j*stride+n_offset]*3;
-				n_idx = llclamp(n_idx, (U32) 0, n->getCount());
+				n_idx = llclamp(n_idx, (U32) 0, (U32) n->getCount());
 				vert.getNormal().set(n->get(n_idx),
 								n->get(n_idx+1),
 								n->get(n_idx+2));
@@ -654,7 +654,7 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
 			if (t && t->getCount() > 0)
 			{
 				U32 t_idx = idx[j*stride+t_offset]*2;
-				t_idx = llclamp(t_idx, (U32) 0, t->getCount());
+				t_idx = llclamp(t_idx, (U32) 0, (U32) t->getCount());
 				vert.mTexCoord.setVec(t->get(t_idx),
 								t->get(t_idx+1));								
 			}
