@@ -628,25 +628,41 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
 			if (v)
 			{
 				U32 v_idx = idx[j*stride+v_offset]*3;
+				v_idx = llclamp(v_idx, (U32) 0, v->getCount());
 				vert.getPosition().set(v->get(v_idx),
 								v->get(v_idx+1),
 								v->get(v_idx+2));
 			}
 			
-			if (n)
+			//bounds check n and t lookups because some FBX to DAE converters
+			//use negative indices and empty arrays to indicate data does not exist
+			//for a particular channel
+			if (n && n->getCount() > 0)
 			{
 				U32 n_idx = idx[j*stride+n_offset]*3;
+				n_idx = llclamp(n_idx, (U32) 0, n->getCount());
 				vert.getNormal().set(n->get(n_idx),
 								n->get(n_idx+1),
 								n->get(n_idx+2));
 			}
+			else
+			{
+				vert.getNormal().clear();
+			}
+
 			
-			if (t)
+			if (t && t->getCount() > 0)
 			{
 				U32 t_idx = idx[j*stride+t_offset]*2;
+				t_idx = llclamp(t_idx, (U32) 0, t->getCount());
 				vert.mTexCoord.setVec(t->get(t_idx),
 								t->get(t_idx+1));								
 			}
+			else
+			{
+				vert.mTexCoord.clear();
+			}
+
 						
 			verts.push_back(vert);
 		}
