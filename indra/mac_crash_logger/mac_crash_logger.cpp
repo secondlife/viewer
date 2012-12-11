@@ -34,22 +34,39 @@
     
 int main(int argc, char **argv)
 {
+    std::ofstream wlog;
+    wlog.open("/Users/samantha/crashlogging.txt");
+    wlog << "SPATTERS starting crash reporter.!\n";
 	LLCrashLoggerMac app;
+    wlog << "SPATTERS created app instance.!\n";
+    for (int x=0;x<argc;++x) wlog << "SPATTERS arg " << x << " is '" << argv[x] << "'\n";
 	app.parseCommandOptions(argc, argv);
+    wlog << "SPATTERS parsed commands.!\n";
 
 	if (! app.init())
 	{
+        wlog << "SPATTERS failed to init.!\n";
+
 		llwarns << "Unable to initialize application." << llendl;
 		return 1;
 	}
     if (app.getCrashBehavior() != CRASH_BEHAVIOR_ALWAYS_SEND)
     {
+        wlog << "SPATTERS wanted to dialog.!\n";
+
         
 //        return NSApplicationMain(argc, (const char **)argv);
     }
+    wlog << "SPATTERS starting mainloop.!\n";
+
 	app.mainLoop();
+    wlog << "SPATTERS finished main.!\n";
+
 	app.cleanup();
+    wlog << "SPATTERS finished cleanup.!\n";
+
 	llinfos << "Crash reporter finished normally." << llendl;
+    wlog.close();
     
 	return 0;
 }

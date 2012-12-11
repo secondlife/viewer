@@ -339,6 +339,10 @@ bool LLCrashLogger::runCrashLogPost(std::string host, LLSD data, std::string msg
 
 bool LLCrashLogger::sendCrashLogs()
 {
+    std::ofstream wlog;
+    wlog.open("/Users/samantha/crashlogging2.txt");
+    wlog << "SPATTERS sendingCrashLogs.!\n";
+
 	gatherFiles();
 
 	LLSD post_data;
@@ -350,6 +354,7 @@ bool LLCrashLogger::sendCrashLogs()
 														   "SecondLifeCrashReport");
 	std::string report_file = dump_path + ".log";
 
+    wlog << "SPATTERS looking in dump_path " << dump_path << " report_file " << report_file << "\n";
 	std::ofstream out_file(report_file.c_str());
 	LLSDSerialize::toPrettyXML(post_data, out_file);
 	out_file.close();
@@ -359,14 +364,18 @@ bool LLCrashLogger::sendCrashLogs()
 	//*TODO: Translate
 	if(mCrashHost != "")
 	{
+        wlog << "SPATTERS sending to MAIN host " << mCrashHost << "\n";
 		sent = runCrashLogPost(mCrashHost, post_data, std::string("Sending to server"), 3, 5);
 	}
 
 	if(!sent)
 	{
+        wlog << "SPATTERS sending to MAIN host " << mAltCrashHost << "\n";
 		sent = runCrashLogPost(mAltCrashHost, post_data, std::string("Sending to alternate server"), 3, 5);
 	}
 	
+    wlog.close();
+    
 	mSentCrashLogs = sent;
 
 	return true;
@@ -384,7 +393,7 @@ bool LLCrashLogger::init()
 	LLCurl::initClass(false);
 
 	// We assume that all the logs we're looking for reside on the current drive
-	gDirUtilp->initAppDirs("com.secondlife.indra.viewer");
+	gDirUtilp->initAppDirs("SecondLife");
 
 	LLError::initForApplication(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
 
@@ -394,6 +403,7 @@ bool LLCrashLogger::init()
 	// Rename current log file to ".old"
 	std::string old_log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "crashreport.log.old");
 	std::string log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "crashreport.log");
+    llinfos << "SPATTERS moving " << log_file << " to " << old_log_file <<llendl;
 	LLFile::rename(log_file.c_str(), old_log_file.c_str());
 
 	// Set the log file to crashreport.log
@@ -415,6 +425,7 @@ bool LLCrashLogger::init()
 		return false;
 	}
 
+    llinfos << "SPATTERS gets to here 1" << llendl;
 	gServicePump = new LLPumpIO(gAPRPoolp);
 	gServicePump->prime(gAPRPoolp);
 	LLHTTPClient::setPump(*gServicePump);
