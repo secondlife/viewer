@@ -26,13 +26,8 @@ codeticket_since = 3.3.0-release
 Linux.gcc_version = /usr/bin/gcc-4.6
 Linux.cxx_version = /usr/bin/g++-4.6
 
-clean_on_success = false
-run_tests = false
-build_Darwin_Debug = false
-build_Darwin_RelWithDebInfo = false
-    
 # ========================================
-# Viewer Development --
+# Viewer Development
 # ========================================
 
 # Report changes since...

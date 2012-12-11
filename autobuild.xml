@@ -18,9 +18,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b2fe1c860613a68e74d4384be418ffee</string>
+              <string>e6071abd822c0688390382a26f8a782c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/232684/arch/Darwin/installer/glod-1.0pre4-darwin-20110610.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/267984/arch/Darwin/installer/glod-1.0pre4-darwin-20121211.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
