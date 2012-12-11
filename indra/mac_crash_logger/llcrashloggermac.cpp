@@ -66,32 +66,23 @@ void LLCrashLoggerMac::gatherPlatformSpecificFiles()
 
 bool LLCrashLoggerMac::mainLoop()
 {
-    std::ofstream wlog;
-    wlog.open("/Users/samantha/crashlogging1.txt");
-    wlog << "SPATTERS mainloop.!\n";
-
     if (mCrashBehavior == CRASH_BEHAVIOR_ALWAYS_SEND)
 	{
-        wlog << "sending\n";
 		gSendReport = true;
 	}
 	
 	if(gRememberChoice)
 	{
-        wlog << "momento\n";
 		if(gSendReport) saveCrashBehaviorSetting(CRASH_BEHAVIOR_ALWAYS_SEND);
 		else saveCrashBehaviorSetting(CRASH_BEHAVIOR_NEVER_SEND);
 	}
 	
 	if(gSendReport)
 	{
-        wlog << "Send report!";
 		setUserText(gUserNotes);
 		sendCrashLogs();
 	}	
-	
-    wlog.close();
-	
+		
 	return true;
 }
 

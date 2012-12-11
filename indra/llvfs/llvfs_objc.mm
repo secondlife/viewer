@@ -51,9 +51,6 @@ std::string* findSystemDirectory(NSSearchPathDirectory searchPathDirectory,
                                                          YES);
     if ([paths count])
     {
-        //NSString *bundleName = @"SecondLife";
-        //[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIdentifier"];
-        //path = [[paths objectAtIndex:0] stringByAppendingPathComponent:bundleName];
         path = [paths objectAtIndex:0];
         //SPATTERS HACK:  Always attempt to create directory, ignore errors.
         NSError *error = nil;
