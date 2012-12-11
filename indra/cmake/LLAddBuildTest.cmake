@@ -201,19 +201,13 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
   endif(TEST_DEBUG)
   ADD_EXECUTABLE(INTEGRATION_TEST_${testname} ${source_files})
   SET_TARGET_PROPERTIES(INTEGRATION_TEST_${testname} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${EXE_STAGING_DIR}")
-  if (WINDOWS)
-    set_target_properties(INTEGRATION_TEST_${testname}
-      PROPERTIES 
-      LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS /INCLUDE:__tcmalloc"
-      LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\" /INCREMENTAL:NO"
-      LINK_FLAGS_RELEASE ""
-      )
-  endif(WINDOWS)
 
   if(STANDALONE)
     SET_TARGET_PROPERTIES(INTEGRATION_TEST_${testname} PROPERTIES COMPILE_FLAGS -I"${TUT_INCLUDE_DIR}")
   endif(STANDALONE)
 
+  # The following was copied to llcorehttp/CMakeLists.txt's texture_load target. 
+  # Any changes made here should be replicated there.
   if (WINDOWS)
     SET_TARGET_PROPERTIES(INTEGRATION_TEST_${testname}
         PROPERTIES
