@@ -225,8 +225,6 @@ protected:
 	virtual void initChannel() {};
 };
 
-typedef boost::intrusive_ptr<LLViewerAlertHandler> LLViewerAlertHandlerPtr;
-
 /**
  * Handler for offers notices.
  * It manages life time of offer notices.

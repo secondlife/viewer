@@ -44,7 +44,6 @@
 #include "llstat.h"
 #include "llmousehandler.h"
 #include "llnotifications.h"
-#include "llnotificationhandler.h"
 #include "llhandle.h"
 #include "llinitparam.h"
 
@@ -419,10 +418,10 @@ private:
 	bool			mActive;
 	bool			mUIVisible;
 
-	LLNotificationChannelPtr                    mSystemChannel;
-	LLNotificationChannelPtr                    mCommunicationChannel;
-	LLNotificationsUI::LLViewerAlertHandlerPtr  mAlertsChannel;
-	LLNotificationsUI::LLViewerAlertHandlerPtr  mModalAlertsChannel;
+	LLNotificationChannelPtr mSystemChannel;
+	LLNotificationChannelPtr mCommunicationChannel;
+	LLNotificationChannelPtr mAlertsChannel;
+	LLNotificationChannelPtr mModalAlertsChannel;
 
 	LLRect			mWindowRectRaw;				// whole window, including UI
 	LLRect			mWindowRectScaled;			// whole window, scaled by UI size

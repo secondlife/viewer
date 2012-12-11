@@ -1561,8 +1561,6 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	mAlertsChannel.reset(new LLNotificationsUI::LLViewerAlertHandler("VW_alerts", "alert"));
 	mModalAlertsChannel.reset(new LLNotificationsUI::LLViewerAlertHandler("VW_alertmodal", "alertmodal"));
 
-	//mAlertsChannel->connectChanged(&LLViewerWindow::onAlert);
-	//mModalAlertsChannel->connectChanged(&LLViewerWindow::onAlert);
 	bool ignore = gSavedSettings.getBOOL("IgnoreAllNotifications");
 	LLNotifications::instance().setIgnoreAllNotifications(ignore);
 	if (ignore)
