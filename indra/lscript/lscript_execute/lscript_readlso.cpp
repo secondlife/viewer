@@ -123,7 +123,7 @@ void LLScriptLSOParse::printRegisters(LLFILE *fp)
 void LLScriptLSOParse::printGlobals(LLFILE *fp)
 {
 	// print out registers first
-	S32				offset, varoffset;
+	S32				varoffset;
 	S32				ivalue;
 	F32				fpvalue;
 	LLVector3		vvalue;
@@ -144,7 +144,7 @@ void LLScriptLSOParse::printGlobals(LLFILE *fp)
 
 		// get offset to skip past name
 		varoffset = global_v_offset;
-		offset = bytestream2integer(mRawData, global_v_offset);
+		bytestream2integer(mRawData, global_v_offset);
 		
 		// get typeexport
 		type = *(mRawData + global_v_offset++);
@@ -262,8 +262,6 @@ void LLScriptLSOParse::printGlobalFunctions(LLFILE *fp)
 		fprintf(fp, "[Function #%d] [0x%X] %s\n", function_number, orig_function_offset, name);
 		fprintf(fp, "\tReturn Type: %s\n", LSCRIPTTypeNames[type]);
 		type = *(mRawData + function_offset++);
-		S32 params;
-		params = 0;
 		S32 pcount = 0;
 		while (type)
 		{
@@ -347,7 +345,6 @@ void LLScriptLSOParse::printStates(LLFILE *fp)
 				read_ahead = event_jump_table;
 
 				S32 temp_end;
-				S32 dummy;
 
 				opcode_end = worst_case_opcode_end;
 
@@ -356,7 +353,7 @@ void LLScriptLSOParse::printStates(LLFILE *fp)
 					if (event_handlers & LSCRIPTStateBitField[k])
 					{
 						temp_end = bytestream2integer(mRawData, read_ahead);
-						dummy = bytestream2integer(mRawData, read_ahead);
+						bytestream2integer(mRawData, read_ahead);
 						if (  (temp_end < opcode_end)
 							&&(temp_end > event_offset))
 						{

@@ -110,9 +110,6 @@ LLFloaterReporter::LLFloaterReporter(const LLSD& key)
 // static
 void LLFloaterReporter::processRegionInfo(LLMessageSystem* msg)
 {
-	U32 region_flags;
-	msg->getU32("RegionInfo", "RegionFlags", region_flags);
-	
 	if ( LLFloaterReg::instanceVisible("reporter") )
 	{
 		LLNotificationsUtil::add("HelpReportAbuseEmailLL");
@@ -768,8 +765,8 @@ void LLFloaterReporter::takeScreenshot()
 
 	// store in the image list so it doesn't try to fetch from the server
 	LLPointer<LLViewerFetchedTexture> image_in_list = 
-		LLViewerTextureManager::getFetchedTexture(mResourceDatap->mAssetInfo.mUuid, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::FETCHED_TEXTURE);
-	image_in_list->createGLTexture(0, raw, 0, TRUE, LLViewerTexture::OTHER);
+		LLViewerTextureManager::getFetchedTexture(mResourceDatap->mAssetInfo.mUuid, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::FETCHED_TEXTURE);
+	image_in_list->createGLTexture(0, raw, 0, TRUE, LLGLTexture::OTHER);
 	
 	// the texture picker then uses that texture
 	LLTexturePicker* texture = getChild<LLTextureCtrl>("screenshot");
@@ -816,12 +813,7 @@ void LLFloaterReporter::uploadDoneCallback(const LLUUID &uuid, void *user_data, 
 		return;
 	}
 
-	EReportType report_type = UNKNOWN_REPORT;
-	if (data->mPreferredLocation == LLResourceData::INVALID_LOCATION)
-	{
-		report_type = COMPLAINT_REPORT;
-	}
-	else 
+	if (data->mPreferredLocation != LLResourceData::INVALID_LOCATION)
 	{
 		llwarns << "Unknown report type : " << data->mPreferredLocation << llendl;
 	}

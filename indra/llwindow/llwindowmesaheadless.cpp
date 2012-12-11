@@ -41,28 +41,25 @@ U16 *gMesaBuffer = NULL;
 LLWindowMesaHeadless::LLWindowMesaHeadless(LLWindowCallbacks* callbacks,
                                            const std::string& title, const std::string& name, S32 x, S32 y, S32 width, S32 height,
 							 U32 flags,  BOOL fullscreen, BOOL clearBg,
-							 BOOL disable_vsync, BOOL use_gl, BOOL ignore_pixel_depth)
+							 BOOL disable_vsync, BOOL ignore_pixel_depth)
 	: LLWindow(callbacks, fullscreen, flags)
 {
-	if (use_gl)
+	llinfos << "MESA Init" << llendl;
+	mMesaContext = OSMesaCreateContextExt( GL_RGBA, 32, 0, 0, NULL );
+
+	/* Allocate the image buffer */
+	mMesaBuffer = new unsigned char [width * height * 4 * MESA_CHANNEL_SIZE];
+	llassert(mMesaBuffer);
+
+	gMesaBuffer = (U16*)mMesaBuffer;
+
+	/* Bind the buffer to the context and make it current */
+	if (!OSMesaMakeCurrent( mMesaContext, mMesaBuffer, MESA_CHANNEL_TYPE, width, height ))
 	{
-		llinfos << "MESA Init" << llendl;
-		mMesaContext = OSMesaCreateContextExt( GL_RGBA, 32, 0, 0, NULL );
-
-		/* Allocate the image buffer */
-		mMesaBuffer = new unsigned char [width * height * 4 * MESA_CHANNEL_SIZE];
-		llassert(mMesaBuffer);
-
-		gMesaBuffer = (U16*)mMesaBuffer;
-
-		/* Bind the buffer to the context and make it current */
-		if (!OSMesaMakeCurrent( mMesaContext, mMesaBuffer, MESA_CHANNEL_TYPE, width, height ))
-		{
-			llerrs << "MESA: OSMesaMakeCurrent failed!" << llendl;
-		}
-
-		llverify(gGLManager.initGL());
+		llerrs << "MESA: OSMesaMakeCurrent failed!" << llendl;
 	}
+
+	llverify(gGLManager.initGL());
 }
 
 

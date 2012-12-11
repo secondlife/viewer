@@ -89,11 +89,11 @@ public:
 	BOOL exportFile(LLFILE* fp) const;
 	BOOL importFile(LLFILE* fp, BOOL& has_perm_mask, U32& perm_mask);
 
-	BOOL exportLegacyStream(std::ostream& output_stream) const;
+	BOOL exportStream(std::ostream& output_stream) const;
 	LLSD asLLSD() const;
 	operator LLSD() const { return asLLSD(); }
 	bool fromLLSD(const LLSD& sd, BOOL& has_perm_mask, U32& perm_mask);
-	BOOL importLegacyStream(std::istream& input_stream, BOOL& has_perm_mask, U32& perm_mask);
+	BOOL importStream(std::istream& input_stream, BOOL& has_perm_mask, U32& perm_mask);
 
 	LLSD packMessage() const;
 	void unpackMessage(LLSD sales);

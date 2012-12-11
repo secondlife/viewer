@@ -113,11 +113,23 @@ build()
     check_for "Before 'autobuild build'" ${build_dir}/packages/dictionaries
 
     "$AUTOBUILD" build --no-configure -c $variant
-    viewer_build_ok=$?
+    build_ok=$?
     end_section "Viewer$variant"
+
+    # Run build extensions
+    if [ $build_ok -eq 0 -a -d ${build_dir}/packages/build-extensions ]; then
+        for extension in ${build_dir}/packages/build-extensions/*.sh; do
+            . $extension
+            if [ $build_ok -ne 0 ]; then
+                break
+            fi
+        done
+    fi
+
+    # *TODO: Make this a build extension.
     package_llphysicsextensions_tpv
     tpvlib_build_ok=$?
-    if [ $viewer_build_ok -eq 0 -a $tpvlib_build_ok -eq 0 ]
+    if [ $build_ok -eq 0 -a $tpvlib_build_ok -eq 0 ]
     then
       echo true >"$build_dir"/build_ok
     else
@@ -292,12 +304,98 @@ then
   end_section WaitParallel
 fi
 
+# build debian package
+if [ "$arch" == "Linux" ]
+then
+  if $succeeded
+  then
+    if $build_viewer_deb && [ "$last_built_variant" == "Release" ]
+    then
+      begin_section "Build Viewer Debian Package"
+      # mangle the changelog
+      dch --force-bad-version \
+          --distribution unstable \
+          --newversion "${VIEWER_VERSION}" \
+          "Automated build #$build_id, repository $branch revision $revision." \
+          >> "$build_log" 2>&1
+
+      # build the debian package
+      $pkg_default_debuild_command  >>"$build_log" 2>&1 || record_failure "\"$pkg_default_debuild_command\" failed."
+
+      # Unmangle the changelog file
+      hg revert debian/changelog
+
+      end_section "Build Viewer Debian Package"
+
+      # Run debian extensions
+      if [ -d ${build_dir}/packages/debian-extensions ]; then
+          for extension in ${build_dir}/packages/debian-extensions/*.sh; do
+              . $extension
+          done
+      fi
+      # Move any .deb results.
+      mv ${build_dir}/packages/*.deb ../ 2>/dev/null || true
+
+      # upload debian package and create repository
+      begin_section "Upload Debian Repository"
+      for deb_file in ../*.deb; do
+        upload_item debian $deb_file binary/octet-stream
+      done
+      if [ -d "$build_log_dir/debian_repo" ]
+      then
+        pushd "$build_log_dir/debian_repo"
+        cat > Release <<EOF
+Archive: stable
+Component: main
+Origin: Teamcity
+Label: Teamcity built .debs
+Architecture: i386 amd64 any
+EOF
+        if dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz \
+        && dpkg-scansources . /dev/null | gzip -9c > Sources.gz
+        then
+          begin_section Packages.gz
+          gunzip --stdout Packages.gz
+          for file in *.deb
+          do  
+            stat "$file" | sed 2q
+            md5sum "$file"
+          done
+          end_section Packages.gz
+
+          for file in *
+          do
+            upload_item debian_repo "$file" binary/octet-stream
+          done
+        else
+          record_failure 'Unable to generate Packages.gz or Sources.gz'
+        fi
+        popd
+
+        process_pending_uploads
+
+        # Rename the local debian_repo directory so that the master buildscript
+        # doesn't make a remote repo again.
+
+        mv $build_log_dir/debian_repo $build_log_dir/debian_repo_pushed
+      fi
+      end_section "Upload Debian Repository"
+      
+    else
+      echo skipping debian build
+    fi
+  else
+    echo skipping debian build due to failed build.
+  fi
+fi
+
+
 # check status and upload results to S3
 if $succeeded
 then
   if $build_viewer
   then
-    begin_section Upload
+    begin_section Upload Installer
     # Upload installer - note that ONLY THE FIRST ITEM uploaded as "installer"
     # will appear in the version manager.
     package=$(installer_$arch)
@@ -317,8 +415,9 @@ then
         do
           upload_item symbolfile "$build_dir/$symbolfile" binary/octet-stream
         done
-        
+
         # Upload the llphysicsextensions_tpv package, if one was produced
+        # *TODO: Make this an upload-extension
         if [ -r "$build_dir/llphysicsextensions_package" ]
         then
             llphysicsextensions_package=$(cat $build_dir/llphysicsextensions_package)
@@ -332,15 +431,22 @@ then
         ;;
       esac
 
+      # Run upload extensions
+      if [ -d ${build_dir}/packages/upload-extensions ]; then
+          for extension in ${build_dir}/packages/upload-extensions/*.sh; do
+              . $extension
+          done
+      fi
+
       # Upload stub installers
       upload_stub_installers "$build_dir_stubs"
     fi
-    end_section Upload
+    end_section Upload Installer
   else
-    echo skipping viewer
+    echo skipping upload of installer
   fi
 else
-  echo skipping upload of build results due to failed build.
+  echo skipping upload of installer due to failed build.
 fi
 
 # The branch independent build.sh script invoking this script will finish processing

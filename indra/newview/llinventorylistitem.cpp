@@ -37,6 +37,7 @@
 #include "lltextutil.h"
 
 // newview
+#include "llinventoryicon.h"
 #include "llinventorymodel.h"
 #include "llviewerinventory.h"
 

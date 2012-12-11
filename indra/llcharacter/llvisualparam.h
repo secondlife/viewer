@@ -50,6 +50,16 @@ enum EVisualParamGroup
 	NUM_VISUAL_PARAM_GROUPS
 };
 
+enum EParamLocation
+{
+	LOC_UNKNOWN,
+	LOC_AV_SELF,
+	LOC_AV_OTHER,
+	LOC_WEARABLE
+};
+
+const std::string param_location_name(const EParamLocation& loc);
+
 const S32 MAX_TRANSMITTED_VISUAL_PARAMS = 255;
 
 //-----------------------------------------------------------------------------
@@ -149,6 +159,9 @@ public:
 
 	void					setIsDummy(BOOL is_dummy) { mIsDummy = is_dummy; }
 
+	void					setParamLocation(EParamLocation loc);
+	EParamLocation			getParamLocation() const { return mParamLocation; }
+
 protected:
 	F32					mCurWeight;			// current weight
 	F32					mLastWeight;		// last weight
@@ -160,6 +173,7 @@ protected:
 
 	S32					mID;				// id for storing weight/morphtarget compares compactly
 	LLVisualParamInfo	*mInfo;
+	EParamLocation		mParamLocation;		// where does this visual param live?
 };
 
 #endif // LL_LLVisualParam_H

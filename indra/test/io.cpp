@@ -1140,7 +1140,7 @@ namespace tut
 		bool connected = client->blockingConnect(server_host);
 		ensure("Connected to server", connected);
 		lldebugs << "connected" << llendl;
-		F32 elapsed = pump_loop(mPump,0.1f);
+		pump_loop(mPump,0.1f);
 		count = mPump->runningChains();
 		ensure_equals("server chain onboard", count, 2);
 		lldebugs << "** Client is connected." << llendl;
@@ -1156,20 +1156,20 @@ namespace tut
 		chain.clear();
 
 		// pump for a bit and make sure all 3 chains are running
-		elapsed = pump_loop(mPump,0.1f);
+		pump_loop(mPump,0.1f);
 		count = mPump->runningChains();
 		ensure_equals("client chain onboard", count, 3);
 		lldebugs << "** request should have been sent." << llendl;
 
 		// pump for long enough the the client socket closes, and the
 		// server socket should not be closed yet.
-		elapsed = pump_loop(mPump,0.2f);
+		pump_loop(mPump,0.2f);
 		count = mPump->runningChains();
 		ensure_equals("client chain timed out ", count, 2);
 		lldebugs << "** client chain should be closed." << llendl;
 
 		// At this point, the socket should be closed by the timeout
-		elapsed = pump_loop(mPump,1.0f);
+		pump_loop(mPump,1.0f);
 		count = mPump->runningChains();
 		ensure_equals("accepted socked close", count, 1);
 		lldebugs << "** Sleeper should have timed out.." << llendl;

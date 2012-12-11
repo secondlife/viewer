@@ -74,21 +74,21 @@ void LLWorldMipmap::equalizeBoostLevels()
 		{
 			LLPointer<LLViewerFetchedTexture> img = iter->second;
 			S32 current_boost_level = img->getBoostLevel();
-			if (current_boost_level == LLViewerTexture::BOOST_MAP_VISIBLE)
+			if (current_boost_level == LLGLTexture::BOOST_MAP_VISIBLE)
 			{
 				// If level was BOOST_MAP_VISIBLE, the tile has been used in the last draw so keep it high
-				img->setBoostLevel(LLViewerTexture::BOOST_MAP);
+				img->setBoostLevel(LLGLTexture::BOOST_MAP);
 			}
 			else
 			{
 				// If level was BOOST_MAP only (or anything else...), the tile wasn't used in the last draw 
 				// so we drop its boost level to BOOST_NONE.
-				img->setBoostLevel(LLViewerTexture::BOOST_NONE);
+				img->setBoostLevel(LLGLTexture::BOOST_NONE);
 			}
 #if DEBUG_TILES_STAT
 			// Increment some stats if compile option on
 			nb_tiles++;
-			if (current_boost_level == LLViewerTexture::BOOST_MAP_VISIBLE)
+			if (current_boost_level == LLGLTexture::BOOST_MAP_VISIBLE)
 			{
 				nb_visible++;
 			}
@@ -115,7 +115,7 @@ void LLWorldMipmap::dropBoostLevels()
 		for (sublevel_tiles_t::iterator iter = level_mipmap.begin(); iter != level_mipmap.end(); iter++)
 		{
 			LLPointer<LLViewerFetchedTexture> img = iter->second;
-			img->setBoostLevel(LLViewerTexture::BOOST_NONE);
+			img->setBoostLevel(LLGLTexture::BOOST_NONE);
 		}
 	}
 }
@@ -172,7 +172,7 @@ LLPointer<LLViewerFetchedTexture> LLWorldMipmap::getObjectsTile(U32 grid_x, U32 
 		// Boost the tile level so to mark it's in use *if* load on
 		if (load)
 		{
-			img->setBoostLevel(LLViewerTexture::BOOST_MAP_VISIBLE);
+			img->setBoostLevel(LLGLTexture::BOOST_MAP_VISIBLE);
 		}
 		return img;
 	}
@@ -189,8 +189,8 @@ LLPointer<LLViewerFetchedTexture> LLWorldMipmap::loadObjectsTile(U32 grid_x, U32
 	// END DEBUG
 	//LL_INFOS("World Map") << "LLWorldMipmap::loadObjectsTile(), URL = " << imageurl << LL_ENDL;
 
-	LLPointer<LLViewerFetchedTexture> img = LLViewerTextureManager::getFetchedTextureFromUrl(imageurl, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
-	img->setBoostLevel(LLViewerTexture::BOOST_MAP);
+	LLPointer<LLViewerFetchedTexture> img = LLViewerTextureManager::getFetchedTextureFromUrl(imageurl, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+	img->setBoostLevel(LLGLTexture::BOOST_MAP);
 
 	// Return the smart pointer
 	return img;

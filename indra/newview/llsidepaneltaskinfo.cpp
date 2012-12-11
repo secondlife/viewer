@@ -368,10 +368,8 @@ void LLSidepanelTaskInfo::refresh()
 	
 	// Update creator text field
 	getChildView("Creator:")->setEnabled(TRUE);
-	BOOL creators_identical;
 	std::string creator_name;
-	creators_identical = LLSelectMgr::getInstance()->selectGetCreator(mCreatorID,
-																	  creator_name);
+	LLSelectMgr::getInstance()->selectGetCreator(mCreatorID, creator_name);
 
 	getChild<LLUICtrl>("Creator Name")->setValue(creator_name);
 	getChildView("Creator Name")->setEnabled(TRUE);

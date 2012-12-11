@@ -36,7 +36,7 @@
 class LLFilterEditor;
 class LLCurrentlyWornFetchObserver;
 class LLPanelEditWearable;
-class LLWearable;
+class LLViewerWearable;
 class LLPanelOutfitsInventory;
 
 class LLSidepanelAppearance : public LLPanel
@@ -51,7 +51,7 @@ public:
 
 	void refreshCurrentOutfitName(const std::string& name = "");
 
-	static void editWearable(LLWearable *wearable, LLView *data, BOOL disable_camera_switch = FALSE);
+	static void editWearable(LLViewerWearable *wearable, LLView *data, BOOL disable_camera_switch = FALSE);
 
 	void fetchInventory();
 	void inventoryFetched();
@@ -59,7 +59,7 @@ public:
 
 	void showOutfitsInventoryPanel();
 	void showOutfitEditPanel();
-	void showWearableEditPanel(LLWearable *wearable = NULL, BOOL disable_camera_switch = FALSE);
+	void showWearableEditPanel(LLViewerWearable *wearable = NULL, BOOL disable_camera_switch = FALSE);
 	void setWearablesLoading(bool val);
 	void showDefaultSubpart();
 	void updateScrollingPanelList();
@@ -74,7 +74,7 @@ private:
 
 	void toggleMyOutfitsPanel(BOOL visible);
 	void toggleOutfitEditPanel(BOOL visible, BOOL disable_camera_switch = FALSE);
-	void toggleWearableEditPanel(BOOL visible, LLWearable* wearable = NULL, BOOL disable_camera_switch = FALSE);
+	void toggleWearableEditPanel(BOOL visible, LLViewerWearable* wearable = NULL, BOOL disable_camera_switch = FALSE);
 
 	LLFilterEditor*			mFilterEditor;
 	LLPanelOutfitsInventory* mPanelOutfitsInventory;

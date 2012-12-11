@@ -72,8 +72,8 @@ public:
 	
 	/*virtual*/ S8 getType() const ;
 
-	S32			getOriginX()	{ return mOrigin.mX; }
-	S32			getOriginY()	{ return mOrigin.mY; }
+	S32			getOriginX() const	{ return mOrigin.mX; }
+	S32			getOriginY() const	{ return mOrigin.mY; }
 	
 	S32			getSize()		{ return mFullWidth * mFullHeight * mComponents; }
 

@@ -223,7 +223,7 @@ BOOL LLVLComposition::generateComposition()
 	{
 		if (mDetailTextures[i]->getDiscardLevel() < 0)
 		{
-			mDetailTextures[i]->setBoostLevel(LLViewerTexture::BOOST_TERRAIN); // in case we are at low detail
+			mDetailTextures[i]->setBoostLevel(LLGLTexture::BOOST_TERRAIN); // in case we are at low detail
 			mDetailTextures[i]->addTextureStats(BASE_SIZE*BASE_SIZE);
 			return FALSE;
 		}
@@ -240,7 +240,7 @@ BOOL LLVLComposition::generateComposition()
 				ddiscard++;
 				min_dim /= 2;
 			}
-			mDetailTextures[i]->setBoostLevel(LLViewerTexture::BOOST_TERRAIN); // in case we are at low detail
+			mDetailTextures[i]->setBoostLevel(LLGLTexture::BOOST_TERRAIN); // in case we are at low detail
 			mDetailTextures[i]->setMinDiscardLevel(ddiscard);
 			return FALSE;
 		}
@@ -376,9 +376,6 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 	LLPointer<LLImageRaw> raw = new LLImageRaw(tex_width, tex_height, tex_comps);
 	U8 *rawp = raw->getData();
 
-	F32 tex_width_inv = 1.f/tex_width;
-	F32 tex_height_inv = 1.f/tex_height;
-
 	F32 st_x_stride, st_y_stride;
 	st_x_stride = ((F32)st_width / (F32)mTexScaleX)*((F32)mWidth / (F32)tex_width);
 	st_y_stride = ((F32)st_height / (F32)mTexScaleY)*((F32)mWidth / (F32)tex_height);
@@ -412,11 +409,6 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 			composition -= tex0;
 			tex1 = tex0 + 1;
 			tex1 = llclamp(tex1, 0, 3);
-
-			F32 xy_int_i, xy_int_j;
-
-			xy_int_i = i * tex_width_inv;
-			xy_int_j = j * tex_height_inv;
 
 			st_offset = (lltrunc(sti) + lltrunc(stj)*st_width) * st_comps;
 			for (U32 k = 0; k < tex_comps; k++)
@@ -463,7 +455,7 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 	for (S32 i = 0; i < 4; i++)
 	{
 		// Un-boost detatil textures (will get re-boosted if rendering in high detail)
-		mDetailTextures[i]->setBoostLevel(LLViewerTexture::BOOST_NONE);
+		mDetailTextures[i]->setBoostLevel(LLGLTexture::BOOST_NONE);
 		mDetailTextures[i]->setMinDiscardLevel(MAX_DISCARD_LEVEL + 1);
 	}
 	

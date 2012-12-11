@@ -571,7 +571,7 @@ void LLFloaterTexturePicker::draw()
 		if(mImageAssetID.notNull())
 		{
 			mTexturep = LLViewerTextureManager::getFetchedTexture(mImageAssetID, MIPMAP_YES);
-			mTexturep->setBoostLevel(LLViewerTexture::BOOST_PREVIEW);
+			mTexturep->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
 		}
 
 		if (mTentativeLabel)
@@ -1456,9 +1456,9 @@ void LLTextureCtrl::draw()
 	}
 	else if (!mImageAssetID.isNull())
 	{
-		LLPointer<LLViewerFetchedTexture> texture = LLViewerTextureManager::getFetchedTexture(mImageAssetID, MIPMAP_YES,LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+		LLPointer<LLViewerFetchedTexture> texture = LLViewerTextureManager::getFetchedTexture(mImageAssetID, MIPMAP_YES,LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
 		
-		texture->setBoostLevel(LLViewerTexture::BOOST_PREVIEW);
+		texture->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
 		texture->forceToSaveRawImage(0) ;
 
 		mTexturep = texture;

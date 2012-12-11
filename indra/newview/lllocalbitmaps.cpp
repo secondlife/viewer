@@ -53,7 +53,7 @@
 #include "llviewerobject.h"
 #include "llface.h"
 #include "llvoavatarself.h"
-#include "llwearable.h"
+#include "llviewerwearable.h"
 #include "llagentwearables.h"
 #include "lltexlayerparams.h"
 #include "llvovolume.h"
@@ -438,7 +438,7 @@ void LLLocalBitmap::updateUserPrims(LLUUID old_id, LLUUID new_id)
 					if (face && face->getTexture() && face->getTexture()->getID() == old_id)
 					{
 						object->setTEImage(face_iter, LLViewerTextureManager::getFetchedTexture
-							(new_id, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
+							(new_id, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
 
 						update_obj = true;
 					}
@@ -481,7 +481,7 @@ void LLLocalBitmap::updateUserLayers(LLUUID old_id, LLUUID new_id, LLWearableTyp
 	U32 count = gAgentWearables.getWearableCount(type);
 	for(U32 wearable_iter = 0; wearable_iter < count; wearable_iter++)
 	{
-		LLWearable* wearable = gAgentWearables.getWearable(type, wearable_iter);
+		LLViewerWearable* wearable = gAgentWearables.getViewerWearable(type, wearable_iter);
 		if (wearable)
 		{
 			std::vector<LLLocalTextureObject*> texture_list = wearable->getLocalTextureListSeq();
@@ -493,11 +493,11 @@ void LLLocalBitmap::updateUserLayers(LLUUID old_id, LLUUID new_id, LLWearableTyp
 				if (lto && lto->getID() == old_id)
 				{
 					U32 local_texlayer_index = 0; /* can't keep that as static const, gives errors, so i'm leaving this var here */
-					LLVOAvatarDefines::EBakedTextureIndex baked_texind =
+					LLAvatarAppearanceDefines::EBakedTextureIndex baked_texind =
 						lto->getTexLayer(local_texlayer_index)->getTexLayerSet()->getBakedTexIndex();
 				
-					LLVOAvatarDefines::ETextureIndex reg_texind = getTexIndex(type, baked_texind);
-					if (reg_texind != LLVOAvatarDefines::TEX_NUM_INDICES)
+					LLAvatarAppearanceDefines::ETextureIndex reg_texind = getTexIndex(type, baked_texind);
+					if (reg_texind != LLAvatarAppearanceDefines::TEX_NUM_INDICES)
 					{
 						U32 index = gAgentWearables.getWearableIndex(wearable);
 						gAgentAvatarp->setLocalTexture(reg_texind, gTextureList.getImage(new_id), FALSE, index);
@@ -513,10 +513,10 @@ void LLLocalBitmap::updateUserLayers(LLUUID old_id, LLUUID new_id, LLWearableTyp
 	}
 }
 
-LLVOAvatarDefines::ETextureIndex LLLocalBitmap::getTexIndex(
-	LLWearableType::EType type, LLVOAvatarDefines::EBakedTextureIndex baked_texind)
+LLAvatarAppearanceDefines::ETextureIndex LLLocalBitmap::getTexIndex(
+	LLWearableType::EType type, LLAvatarAppearanceDefines::EBakedTextureIndex baked_texind)
 {
-	LLVOAvatarDefines::ETextureIndex result = LLVOAvatarDefines::TEX_NUM_INDICES; // using as a default/fail return.
+	LLAvatarAppearanceDefines::ETextureIndex result = LLAvatarAppearanceDefines::TEX_NUM_INDICES; // using as a default/fail return.
 
 	switch(type)
 	{
@@ -524,32 +524,32 @@ LLVOAvatarDefines::ETextureIndex LLLocalBitmap::getTexIndex(
 		{
 			switch(baked_texind)
 			{
-				case LLVOAvatarDefines::BAKED_EYES:
+				case LLAvatarAppearanceDefines::BAKED_EYES:
 				{
-					result = LLVOAvatarDefines::TEX_EYES_ALPHA;
+					result = LLAvatarAppearanceDefines::TEX_EYES_ALPHA;
 					break;
 				}
 
-				case LLVOAvatarDefines::BAKED_HAIR:
+				case LLAvatarAppearanceDefines::BAKED_HAIR:
 				{
-					result = LLVOAvatarDefines::TEX_HAIR_ALPHA;
+					result = LLAvatarAppearanceDefines::TEX_HAIR_ALPHA;
 					break;
 				}
 
-				case LLVOAvatarDefines::BAKED_HEAD:
+				case LLAvatarAppearanceDefines::BAKED_HEAD:
 				{
-					result = LLVOAvatarDefines::TEX_HEAD_ALPHA;
+					result = LLAvatarAppearanceDefines::TEX_HEAD_ALPHA;
 					break;
 				}
 
-				case LLVOAvatarDefines::BAKED_LOWER:
+				case LLAvatarAppearanceDefines::BAKED_LOWER:
 				{
-					result = LLVOAvatarDefines::TEX_LOWER_ALPHA;
+					result = LLAvatarAppearanceDefines::TEX_LOWER_ALPHA;
 					break;
 				}
-				case LLVOAvatarDefines::BAKED_UPPER:
+				case LLAvatarAppearanceDefines::BAKED_UPPER:
 				{
-					result = LLVOAvatarDefines::TEX_UPPER_ALPHA;
+					result = LLAvatarAppearanceDefines::TEX_UPPER_ALPHA;
 					break;
 				}
 
@@ -565,9 +565,9 @@ LLVOAvatarDefines::ETextureIndex LLLocalBitmap::getTexIndex(
 
 		case LLWearableType::WT_EYES:
 		{
-			if (baked_texind == LLVOAvatarDefines::BAKED_EYES)
+			if (baked_texind == LLAvatarAppearanceDefines::BAKED_EYES)
 			{
-				result = LLVOAvatarDefines::TEX_EYES_IRIS;
+				result = LLAvatarAppearanceDefines::TEX_EYES_IRIS;
 			}
 
 			break;
@@ -575,9 +575,9 @@ LLVOAvatarDefines::ETextureIndex LLLocalBitmap::getTexIndex(
 
 		case LLWearableType::WT_GLOVES:
 		{
-			if (baked_texind == LLVOAvatarDefines::BAKED_UPPER)
+			if (baked_texind == LLAvatarAppearanceDefines::BAKED_UPPER)
 			{
-				result = LLVOAvatarDefines::TEX_UPPER_GLOVES;
+				result = LLAvatarAppearanceDefines::TEX_UPPER_GLOVES;
 			}
 
 			break;
@@ -585,13 +585,13 @@ LLVOAvatarDefines::ETextureIndex LLLocalBitmap::getTexIndex(
 
 		case LLWearableType::WT_JACKET:
 		{
-			if (baked_texind == LLVOAvatarDefines::BAKED_LOWER)
+			if (baked_texind == LLAvatarAppearanceDefines::BAKED_LOWER)
 			{
-				result = LLVOAvatarDefines::TEX_LOWER_JACKET;
+				result = LLAvatarAppearanceDefines::TEX_LOWER_JACKET;
 			}
-			else if (baked_texind == LLVOAvatarDefines::BAKED_UPPER)
+			else if (baked_texind == LLAvatarAppearanceDefines::BAKED_UPPER)
 			{
-				result = LLVOAvatarDefines::TEX_UPPER_JACKET;
+				result = LLAvatarAppearanceDefines::TEX_UPPER_JACKET;
 			}
 
 			break;
@@ -599,9 +599,9 @@ LLVOAvatarDefines::ETextureIndex LLLocalBitmap::getTexIndex(
 
 		case LLWearableType::WT_PANTS:
 		{
-			if (baked_texind == LLVOAvatarDefines::BAKED_LOWER)
+			if (baked_texind == LLAvatarAppearanceDefines::BAKED_LOWER)
 			{
-				result = LLVOAvatarDefines::TEX_LOWER_PANTS;
+				result = LLAvatarAppearanceDefines::TEX_LOWER_PANTS;
 			}
 
 			break;
@@ -609,9 +609,9 @@ LLVOAvatarDefines::ETextureIndex LLLocalBitmap::getTexIndex(
 
 		case LLWearableType::WT_SHIRT:
 		{
-			if (baked_texind == LLVOAvatarDefines::BAKED_UPPER)
+			if (baked_texind == LLAvatarAppearanceDefines::BAKED_UPPER)
 			{
-				result = LLVOAvatarDefines::TEX_UPPER_SHIRT;
+				result = LLAvatarAppearanceDefines::TEX_UPPER_SHIRT;
 			}
 
 			break;
@@ -619,9 +619,9 @@ LLVOAvatarDefines::ETextureIndex LLLocalBitmap::getTexIndex(
 
 		case LLWearableType::WT_SHOES:
 		{
-			if (baked_texind == LLVOAvatarDefines::BAKED_LOWER)
+			if (baked_texind == LLAvatarAppearanceDefines::BAKED_LOWER)
 			{
-				result = LLVOAvatarDefines::TEX_LOWER_SHOES;
+				result = LLAvatarAppearanceDefines::TEX_LOWER_SHOES;
 			}
 
 			break;
@@ -631,20 +631,20 @@ LLVOAvatarDefines::ETextureIndex LLLocalBitmap::getTexIndex(
 		{
 			switch(baked_texind)
 			{
-				case LLVOAvatarDefines::BAKED_HEAD:
+				case LLAvatarAppearanceDefines::BAKED_HEAD:
 				{
-					result = LLVOAvatarDefines::TEX_HEAD_BODYPAINT;
+					result = LLAvatarAppearanceDefines::TEX_HEAD_BODYPAINT;
 					break;
 				}
 
-				case LLVOAvatarDefines::BAKED_LOWER:
+				case LLAvatarAppearanceDefines::BAKED_LOWER:
 				{
-					result = LLVOAvatarDefines::TEX_LOWER_BODYPAINT;
+					result = LLAvatarAppearanceDefines::TEX_LOWER_BODYPAINT;
 					break;
 				}
-				case LLVOAvatarDefines::BAKED_UPPER:
+				case LLAvatarAppearanceDefines::BAKED_UPPER:
 				{
-					result = LLVOAvatarDefines::TEX_UPPER_BODYPAINT;
+					result = LLAvatarAppearanceDefines::TEX_UPPER_BODYPAINT;
 					break;
 				}
 
@@ -659,9 +659,9 @@ LLVOAvatarDefines::ETextureIndex LLLocalBitmap::getTexIndex(
 
 		case LLWearableType::WT_SKIRT:
 		{
-			if (baked_texind == LLVOAvatarDefines::BAKED_SKIRT)
+			if (baked_texind == LLAvatarAppearanceDefines::BAKED_SKIRT)
 			{
-				result = LLVOAvatarDefines::TEX_SKIRT;
+				result = LLAvatarAppearanceDefines::TEX_SKIRT;
 			}
 
 			break;
@@ -669,9 +669,9 @@ LLVOAvatarDefines::ETextureIndex LLLocalBitmap::getTexIndex(
 
 		case LLWearableType::WT_SOCKS:
 		{
-			if (baked_texind == LLVOAvatarDefines::BAKED_LOWER)
+			if (baked_texind == LLAvatarAppearanceDefines::BAKED_LOWER)
 			{
-				result = LLVOAvatarDefines::TEX_LOWER_SOCKS;
+				result = LLAvatarAppearanceDefines::TEX_LOWER_SOCKS;
 			}
 
 			break;
@@ -681,20 +681,20 @@ LLVOAvatarDefines::ETextureIndex LLLocalBitmap::getTexIndex(
 		{
 			switch(baked_texind)
 			{
-				case LLVOAvatarDefines::BAKED_HEAD:
+				case LLAvatarAppearanceDefines::BAKED_HEAD:
 				{
-					result = LLVOAvatarDefines::TEX_HEAD_TATTOO;
+					result = LLAvatarAppearanceDefines::TEX_HEAD_TATTOO;
 					break;
 				}
 
-				case LLVOAvatarDefines::BAKED_LOWER:
+				case LLAvatarAppearanceDefines::BAKED_LOWER:
 				{
-					result = LLVOAvatarDefines::TEX_LOWER_TATTOO;
+					result = LLAvatarAppearanceDefines::TEX_LOWER_TATTOO;
 					break;
 				}
-				case LLVOAvatarDefines::BAKED_UPPER:
+				case LLAvatarAppearanceDefines::BAKED_UPPER:
 				{
-					result = LLVOAvatarDefines::TEX_UPPER_TATTOO;
+					result = LLAvatarAppearanceDefines::TEX_UPPER_TATTOO;
 					break;
 				}
 
@@ -709,9 +709,9 @@ LLVOAvatarDefines::ETextureIndex LLLocalBitmap::getTexIndex(
 
 		case LLWearableType::WT_UNDERPANTS:
 		{
-			if (baked_texind == LLVOAvatarDefines::BAKED_LOWER)
+			if (baked_texind == LLAvatarAppearanceDefines::BAKED_LOWER)
 			{
-				result = LLVOAvatarDefines::TEX_LOWER_UNDERPANTS;
+				result = LLAvatarAppearanceDefines::TEX_LOWER_UNDERPANTS;
 			}
 
 			break;
@@ -719,9 +719,9 @@ LLVOAvatarDefines::ETextureIndex LLLocalBitmap::getTexIndex(
 
 		case LLWearableType::WT_UNDERSHIRT:
 		{
-			if (baked_texind == LLVOAvatarDefines::BAKED_UPPER)
+			if (baked_texind == LLAvatarAppearanceDefines::BAKED_UPPER)
 			{
-				result = LLVOAvatarDefines::TEX_UPPER_UNDERSHIRT;
+				result = LLAvatarAppearanceDefines::TEX_UPPER_UNDERSHIRT;
 			}
 
 			break;

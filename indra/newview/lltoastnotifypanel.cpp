@@ -369,8 +369,6 @@ void LLToastNotifyPanel::adjustPanelForScriptNotice(S32 button_panel_width, S32 
 
 void LLToastNotifyPanel::adjustPanelForTipNotice()
 {
-	LLRect info_rect = mInfoPanel->getRect();
-	LLRect this_rect = getRect();
 	//we don't need display ControlPanel for tips because they doesn't contain any buttons. 
 	mControlPanel->setVisible(FALSE);
 	reshape(getRect().getWidth(), mInfoPanel->getRect().getHeight());

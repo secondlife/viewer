@@ -421,7 +421,7 @@ void LLWorldMapView::draw()
 			{
 				// Inform the fetch mechanism of the size we need
 				S32 draw_size = llround(sMapScale);
-				overlayimage->setKnownDrawSize(llround(draw_size * LLUI::sGLScaleFactor.mV[VX]), llround(draw_size * LLUI::sGLScaleFactor.mV[VY]));
+				overlayimage->setKnownDrawSize(llround(draw_size * LLUI::getScaleFactor().mV[VX]), llround(draw_size * LLUI::getScaleFactor().mV[VY]));
 				// Draw something whenever we have enough info
 				if (overlayimage->hasGLTexture())
 				{
@@ -965,8 +965,6 @@ void LLWorldMapView::drawTracking(const LLVector3d& pos_global, const LLColor4& 
 	S32 text_x = x;
 	S32 text_y = (S32)(y - sTrackCircleImage->getHeight()/2 - font->getLineHeight());
 
-	BOOL is_in_window = true;
-
 	if(    x < 0 
 		|| y < 0 
 		|| x >= getRect().getWidth() 
@@ -979,7 +977,6 @@ void LLWorldMapView::drawTracking(const LLVector3d& pos_global, const LLColor4& 
 			text_x = sTrackingArrowX;
 			text_y = sTrackingArrowY;
 		}
-		is_in_window = false;
 	}
 	else if (LLTracker::getTrackingStatus() == LLTracker::TRACKING_LOCATION &&
 		LLTracker::getTrackedLocationType() != LLTracker::LOCATION_NOTHING)

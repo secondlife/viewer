@@ -1249,8 +1249,6 @@ BOOL LLSurface::generateWaterTexture(const F32 x, const F32 y,
 		y_end = tex_width;
 	}
 
-	LLVector3d origin_global = from_region_handle(getRegion()->getHandle());
-
 	// OK, for now, just have the composition value equal the height at the point.
 	LLVector3 location;
 	LLColor4U coloru;

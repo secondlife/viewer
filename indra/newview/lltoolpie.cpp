@@ -790,14 +790,10 @@ BOOL LLToolPie::handleTooltipLand(std::string line, std::string tooltip_msg)
 	
 	LLParcel* hover_parcel = LLViewerParcelMgr::getInstance()->getHoverParcel();
 	LLUUID owner;
-	S32 width = 0;
-	S32 height = 0;
 	
 	if ( hover_parcel )
 	{
 		owner = hover_parcel->getOwnerID();
-		width = S32(LLViewerParcelMgr::getInstance()->getHoverParcelWidth());
-		height = S32(LLViewerParcelMgr::getInstance()->getHoverParcelHeight());
 	}
 	
 	// Line: "Land"
@@ -1609,9 +1605,6 @@ BOOL LLToolPie::handleRightClickPick()
 
 	// didn't click in any UI object, so must have clicked in the world
 	LLViewerObject *object = mPick.getObject();
-	LLViewerObject *parent = NULL;
-	if(object)
-		parent = object->getRootEdit();
 	
 	// Can't ignore children here.
 	LLToolSelect::handleObjectSelection(mPick, FALSE, TRUE);

@@ -316,8 +316,8 @@ public:
 	BOOL	importFile(LLFILE* fp);
 	BOOL	exportFile(LLFILE* fp) const;
 
-	BOOL	importLegacyStream(std::istream& input_stream);
-	BOOL	exportLegacyStream(std::ostream& output_stream) const;
+	BOOL	importStream(std::istream& input_stream);
+	BOOL	exportStream(std::ostream& output_stream) const;
 
 	bool operator==(const LLPermissions &rhs) const;
 	bool operator!=(const LLPermissions &rhs) const;
