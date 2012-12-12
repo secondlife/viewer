@@ -206,6 +206,8 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
     SET_TARGET_PROPERTIES(INTEGRATION_TEST_${testname} PROPERTIES COMPILE_FLAGS -I"${TUT_INCLUDE_DIR}")
   endif(STANDALONE)
 
+  # The following was copied to llcorehttp/CMakeLists.txt's texture_load target. 
+  # Any changes made here should be replicated there.
   if (WINDOWS)
     SET_TARGET_PROPERTIES(INTEGRATION_TEST_${testname}
         PROPERTIES
