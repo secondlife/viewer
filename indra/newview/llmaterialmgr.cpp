@@ -51,7 +51,9 @@
 #define MATERIALS_CAP_OBJECT_ID_FIELD             "ID"
 #define MATERIALS_CAP_MATERIAL_ID_FIELD           "MaterialID"
 
+#define MATERIALS_GET_MAX_ENTRIES                 50
 #define MATERIALS_GET_TIMEOUT                     (60.f * 20)
+#define MATERIALS_POST_MAX_ENTRIES                50
 #define MATERIALS_POST_TIMEOUT                    (60.f * 5)
 
 /**
@@ -117,28 +119,34 @@ LLMaterialMgr::~LLMaterialMgr()
 	gIdleCallbacks.deleteFunction(&LLMaterialMgr::onIdle, NULL);
 }
 
-bool LLMaterialMgr::isGetPending(const LLMaterialID& material_id)
+bool LLMaterialMgr::isGetPending(const LLUUID& region_id, const LLMaterialID& material_id)
 {
-	get_pending_map_t::const_iterator itPending = mGetPending.find(material_id);
+	get_pending_map_t::const_iterator itPending = mGetPending.find(pending_material_t(region_id, material_id));
 	return (mGetPending.end() != itPending) && (LLFrameTimer::getTotalSeconds() < itPending->second + MATERIALS_POST_TIMEOUT);
 }
 
-const LLMaterialPtr LLMaterialMgr::get(const LLMaterialID& material_id)
+const LLMaterialPtr LLMaterialMgr::get(const LLUUID& region_id, const LLMaterialID& material_id)
 {
 	material_map_t::const_iterator itMaterial = mMaterials.find(material_id);
-	if (itMaterial != mMaterials.end())
+	if (mMaterials.end() != itMaterial)
 	{
 		return itMaterial->second;
 	}
 
-	if (!isGetPending(material_id))
+	if (!isGetPending(region_id, material_id))
 	{
-		mGetQueue.insert(material_id);
+		get_queue_t::iterator itQueue = mGetQueue.find(region_id);
+		if (mGetQueue.end() == itQueue)
+		{
+			std::pair<get_queue_t::iterator, bool> ret = mGetQueue.insert(std::pair<LLUUID, material_queue_t>(region_id, material_queue_t()));
+			itQueue = ret.first;
+		}
+		itQueue->second.insert(material_id);
 	}
 	return LLMaterialPtr();
 }
 
-boost::signals2::connection LLMaterialMgr::get(const LLMaterialID& material_id, LLMaterialMgr::get_callback_t::slot_type cb)
+boost::signals2::connection LLMaterialMgr::get(const LLUUID& region_id, const LLMaterialID& material_id, LLMaterialMgr::get_callback_t::slot_type cb)
 {
 	material_map_t::const_iterator itMaterial = mMaterials.find(material_id);
 	if (itMaterial != mMaterials.end())
@@ -149,23 +157,24 @@ boost::signals2::connection LLMaterialMgr::get(const LLMaterialID& material_id, 
 		return boost::signals2::connection();
 	}
 
-	if (!isGetPending(material_id))
+	if (!isGetPending(region_id, material_id))
 	{
-		mGetQueue.insert(material_id);
+		get_queue_t::iterator itQueue = mGetQueue.find(region_id);
+		if (mGetQueue.end() == itQueue)
+		{
+			std::pair<get_queue_t::iterator, bool> ret = mGetQueue.insert(std::pair<LLUUID, material_queue_t>(region_id, material_queue_t()));
+			itQueue = ret.first;
+		}
+		itQueue->second.insert(material_id);
 	}
 
-	get_callback_t* signalp = NULL;
 	get_callback_map_t::iterator itCallback = mGetCallbacks.find(material_id);
 	if (itCallback == mGetCallbacks.end())
 	{
-		signalp = new get_callback_t();
-		mGetCallbacks.insert(std::pair<LLMaterialID, get_callback_t*>(material_id, signalp));
+		std::pair<get_callback_map_t::iterator, bool> ret = mGetCallbacks.insert(std::pair<LLMaterialID, get_callback_t*>(material_id, new get_callback_t()));
+		itCallback = ret.first;
 	}
-	else
-	{
-		signalp = itCallback->second;
-	}
-	return signalp->connect(cb);;
+	return itCallback->second->connect(cb);;
 }
 
 bool LLMaterialMgr::isGetAllPending(const LLUUID& region_id)
@@ -189,18 +198,13 @@ boost::signals2::connection LLMaterialMgr::getAll(const LLUUID& region_id, LLMat
 		mGetAllQueue.insert(region_id);
 	}
 
-	getall_callback_t* signalp = NULL;
 	getall_callback_map_t::iterator itCallback = mGetAllCallbacks.find(region_id);
 	if (mGetAllCallbacks.end() == itCallback)
 	{
-		signalp = new getall_callback_t();
-		mGetAllCallbacks.insert(std::pair<LLUUID, getall_callback_t*>(region_id, signalp));
+		std::pair<getall_callback_map_t::iterator, bool> ret = mGetAllCallbacks.insert(std::pair<LLUUID, getall_callback_t*>(region_id, new getall_callback_t()));
+		itCallback = ret.first;
 	}
-	else
-	{
-		signalp = itCallback->second;
-	}
-	return signalp->connect(cb);;
+	return itCallback->second->connect(cb);;
 }
 
 void LLMaterialMgr::put(const LLUUID& object_id, const U8 te, const LLMaterial& material)
@@ -223,20 +227,30 @@ void LLMaterialMgr::put(const LLUUID& object_id, const U8 te, const LLMaterial& 
 	}
 }
 
-const LLMaterialPtr LLMaterialMgr::setMaterial(const LLMaterialID& material_id, const LLSD& material_data)
+const LLMaterialPtr LLMaterialMgr::setMaterial(const LLUUID& region_id, const LLMaterialID& material_id, const LLSD& material_data)
 {
 	material_map_t::const_iterator itMaterial = mMaterials.find(material_id);
 	if (mMaterials.end() == itMaterial)
 	{
-		LLMaterialPtr material(new LLMaterial(material_data));
-		mMaterials[material_id] = material;
-		return material;
+		std::pair<material_map_t::const_iterator, bool> ret = mMaterials.insert(std::pair<LLMaterialID, LLMaterialPtr>(material_id, new LLMaterial(material_data)));
+		itMaterial = ret.first;
 	}
+
+	mGetPending.erase(pending_material_t(region_id, material_id));
+
+	get_callback_map_t::iterator itCallback = mGetCallbacks.find(material_id);
+	if (itCallback != mGetCallbacks.end())
+	{
+		(*itCallback->second)(material_id, itMaterial->second);
+
+		delete itCallback->second;
+		mGetCallbacks.erase(itCallback);
+	}
+
 	return itMaterial->second;
 }
 
-
-void LLMaterialMgr::onGetResponse(bool success, const LLSD& content)
+void LLMaterialMgr::onGetResponse(bool success, const LLSD& content, const LLUUID& region_id)
 {
 	if (!success)
 	{
@@ -246,9 +260,9 @@ void LLMaterialMgr::onGetResponse(bool success, const LLSD& content)
 
 	llassert(content.isMap());
 	llassert(content.has(MATERIALS_CAP_ZIP_FIELD));
-	llassert(content.get(MATERIALS_CAP_ZIP_FIELD).isBinary());
+	llassert(content[MATERIALS_CAP_ZIP_FIELD].isBinary());
 
-	LLSD::Binary content_binary = content.get(MATERIALS_CAP_ZIP_FIELD).asBinary();
+	LLSD::Binary content_binary = content[MATERIALS_CAP_ZIP_FIELD].asBinary();
 	std::string content_string(reinterpret_cast<const char*>(content_binary.data()), content_binary.size());
 	std::istringstream content_stream(content_string);
 
@@ -258,32 +272,21 @@ void LLMaterialMgr::onGetResponse(bool success, const LLSD& content)
 		LL_ERRS("debugMaterials") << "Cannot unzip LLSD binary content" << LL_ENDL;
 		return;
 	}
-	else
+
+	llassert(response_data.isArray());
+	for (LLSD::array_const_iterator itMaterial = response_data.beginArray(); itMaterial != response_data.endArray(); ++itMaterial)
 	{
-		llassert(response_data.isArray());
+		const LLSD& material_data = *itMaterial;
+		llassert(material_data.isMap());
 
-		for (LLSD::array_const_iterator itMaterial = response_data.beginArray(); itMaterial != response_data.endArray(); ++itMaterial)
-		{
-			const LLSD& material_data = *itMaterial;
-			llassert(material_data.isMap());
+		llassert(material_data.has(MATERIALS_CAP_OBJECT_ID_FIELD));
+		llassert(material_data[MATERIALS_CAP_OBJECT_ID_FIELD].isBinary());
+		LLMaterialID material_id(material_data[MATERIALS_CAP_OBJECT_ID_FIELD].asBinary());
 
-			llassert(material_data.has(MATERIALS_CAP_OBJECT_ID_FIELD));
-			llassert(material_data.get(MATERIALS_CAP_OBJECT_ID_FIELD).isBinary());
-			LLMaterialID material_id(material_data.get(MATERIALS_CAP_OBJECT_ID_FIELD).asBinary());
-
-			llassert(material_data.has(MATERIALS_CAP_MATERIAL_FIELD));
-			llassert(material_data.get(MATERIALS_CAP_MATERIAL_FIELD).isMap());
-			LLMaterialPtr material = setMaterial(material_id, material_data.get(MATERIALS_CAP_MATERIAL_FIELD));
-
-			get_callback_map_t::iterator itCallback = mGetCallbacks.find(material_id);
-			if (itCallback != mGetCallbacks.end())
-			{
-				(*itCallback->second)(material_id, material);
-
-				delete itCallback->second;
-				mGetCallbacks.erase(itCallback);
-			}
-		}
+		llassert(material_data.has(MATERIALS_CAP_MATERIAL_FIELD));
+		llassert(material_data[MATERIALS_CAP_MATERIAL_FIELD].isMap());
+			
+		setMaterial(region_id, material_id, material_data[MATERIALS_CAP_MATERIAL_FIELD]);
 	}
 }
 
@@ -297,9 +300,9 @@ void LLMaterialMgr::onGetAllResponse(bool success, const LLSD& content, const LL
 
 	llassert(content.isMap());
 	llassert(content.has(MATERIALS_CAP_ZIP_FIELD));
-	llassert(content.get(MATERIALS_CAP_ZIP_FIELD).isBinary());
+	llassert(content[MATERIALS_CAP_ZIP_FIELD].isBinary());
 
-	LLSD::Binary content_binary = content.get(MATERIALS_CAP_ZIP_FIELD).asBinary();
+	LLSD::Binary content_binary = content[MATERIALS_CAP_ZIP_FIELD].asBinary();
 	std::string content_string(reinterpret_cast<const char*>(content_binary.data()), content_binary.size());
 	std::istringstream content_stream(content_string);
 
@@ -310,20 +313,26 @@ void LLMaterialMgr::onGetAllResponse(bool success, const LLSD& content, const LL
 		return;
 	}
 
-	llassert(response_data.isArray());
+	get_queue_t::iterator itQueue = mGetQueue.find(region_id);
 	material_map_t materials;
+
+	llassert(response_data.isArray());
 	for (LLSD::array_const_iterator itMaterial = response_data.beginArray(); itMaterial != response_data.endArray(); ++itMaterial)
 	{
 		const LLSD& material_data = *itMaterial;
 		llassert(material_data.isMap());
 
 		llassert(material_data.has(MATERIALS_CAP_OBJECT_ID_FIELD));
-		llassert(material_data.get(MATERIALS_CAP_OBJECT_ID_FIELD).isBinary());
-		LLMaterialID material_id(material_data.get(MATERIALS_CAP_OBJECT_ID_FIELD).asBinary());
+		llassert(material_data[MATERIALS_CAP_OBJECT_ID_FIELD].isBinary());
+		LLMaterialID material_id(material_data[MATERIALS_CAP_OBJECT_ID_FIELD].asBinary());
+		if (mGetQueue.end() != itQueue)
+		{
+			itQueue->second.erase(material_id);
+		}
 
 		llassert(material_data.has(MATERIALS_CAP_MATERIAL_FIELD));
-		llassert(material_data.get(MATERIALS_CAP_MATERIAL_FIELD).isMap());
-		LLMaterialPtr material = setMaterial(material_id, material_data.get(MATERIALS_CAP_MATERIAL_FIELD));
+		llassert(material_data[MATERIALS_CAP_MATERIAL_FIELD].isMap());
+		LLMaterialPtr material = setMaterial(region_id, material_id, material_data[MATERIALS_CAP_MATERIAL_FIELD]);
 		
 		materials[material_id] = material;
 	}
@@ -336,6 +345,13 @@ void LLMaterialMgr::onGetAllResponse(bool success, const LLSD& content, const LL
 		delete itCallback->second;
 		mGetAllCallbacks.erase(itCallback);
 	}
+
+	if ( (mGetQueue.end() != itQueue) && (itQueue->second.empty()) )
+	{
+		mGetQueue.erase(itQueue);
+	}
+	mGetAllRequested.insert(region_id);
+	mGetAllPending.erase(region_id);	// Invalidates region_id
 }
 
 void LLMaterialMgr::onPutResponse(bool success, const LLSD& content, const LLUUID& object_id)
@@ -355,9 +371,9 @@ void LLMaterialMgr::onPutResponse(bool success, const LLSD& content, const LLUUI
 
 	llassert(content.isMap());
 	llassert(content.has(MATERIALS_CAP_ZIP_FIELD));
-	llassert(content.get(MATERIALS_CAP_ZIP_FIELD).isBinary());
+	llassert(content[MATERIALS_CAP_ZIP_FIELD].isBinary());
 
-	LLSD::Binary content_binary = content.get(MATERIALS_CAP_ZIP_FIELD).asBinary();
+	LLSD::Binary content_binary = content[MATERIALS_CAP_ZIP_FIELD].asBinary();
 	std::string content_string(reinterpret_cast<const char*>(content_binary.data()), content_binary.size());
 	std::istringstream content_stream(content_string);
 
@@ -377,8 +393,8 @@ void LLMaterialMgr::onPutResponse(bool success, const LLSD& content, const LLUUI
 			llassert(face_data.isMap());
 
 			llassert(face_data.has(MATERIALS_CAP_OBJECT_ID_FIELD));
-			llassert(face_data.get(MATERIALS_CAP_OBJECT_ID_FIELD).isInteger());
-			U32 local_id = face_data.get(MATERIALS_CAP_OBJECT_ID_FIELD).asInteger();
+			llassert(face_data[MATERIALS_CAP_OBJECT_ID_FIELD].isInteger());
+			U32 local_id = face_data[MATERIALS_CAP_OBJECT_ID_FIELD].asInteger();
 			if (objectp->getLocalID() != local_id)
 			{
 				LL_ERRS("debugMaterials") << "Received PUT response for wrong object" << LL_ENDL;
@@ -386,12 +402,12 @@ void LLMaterialMgr::onPutResponse(bool success, const LLSD& content, const LLUUI
 			}
 
 			llassert(face_data.has(MATERIALS_CAP_FACE_FIELD));
-			llassert(face_data.get(MATERIALS_CAP_FACE_FIELD).isInteger());
-			S32 te = face_data.get(MATERIALS_CAP_FACE_FIELD).asInteger();
+			llassert(face_data[MATERIALS_CAP_FACE_FIELD].isInteger());
+			S32 te = face_data[MATERIALS_CAP_FACE_FIELD].asInteger();
 
 			llassert(face_data.has(MATERIALS_CAP_MATERIAL_ID_FIELD));
-			llassert(face_data.get(MATERIALS_CAP_MATERIAL_ID_FIELD).isBinary());
-			LLMaterialID material_id(face_data.get(MATERIALS_CAP_MATERIAL_ID_FIELD).asBinary());
+			llassert(face_data[MATERIALS_CAP_MATERIAL_ID_FIELD].isBinary());
+			LLMaterialID material_id(face_data[MATERIALS_CAP_MATERIAL_ID_FIELD].asBinary());
 
 			LL_INFOS("debugMaterials") << "Setting material '" << material_id.asString() << "' on object '" << local_id 
 				<< "' face " << te << LL_ENDL;
@@ -427,66 +443,89 @@ void LLMaterialMgr::onIdle(void*)
 
 void LLMaterialMgr::processGetQueue()
 {
-	LLViewerRegion* regionp = gAgent.getRegion();
-	if (!regionp)
+	get_queue_t::iterator loopRegionQueue = mGetQueue.begin();
+	while (mGetQueue.end() != loopRegionQueue)
 	{
-		LL_WARNS("debugMaterials") << "Agent region is NULL" << LL_ENDL;
-		return;
+		get_queue_t::iterator itRegionQueue = loopRegionQueue++;
+
+		const LLUUID& region_id = itRegionQueue->first;
+		if (isGetAllPending(region_id))
+		{
+			continue;
+		}
+
+		const LLViewerRegion* regionp = LLWorld::instance().getRegionFromID(region_id);
+		if (!regionp)
+		{
+			LL_WARNS("debugMaterials") << "Unknown region with id " << region_id.asString() << LL_ENDL;
+			mGetQueue.erase(itRegionQueue);
+			continue;
+		}
+		else if (!regionp->capabilitiesReceived())
+		{
+			continue;
+		}
+		else if (mGetAllRequested.end() == mGetAllRequested.find(region_id))
+		{
+			getAll(region_id);
+			continue;
+		}
+
+		const std::string capURL = regionp->getCapability(MATERIALS_CAPABILITY_NAME);
+		if (capURL.empty())
+		{
+			LL_WARNS("debugMaterials") << "Capability '" << MATERIALS_CAPABILITY_NAME
+				<< "' is not defined on region '" << regionp->getName() << "'" << LL_ENDL;
+			mGetQueue.erase(itRegionQueue);
+			continue;
+		}
+
+		LLSD materialsData = LLSD::emptyArray();
+
+		material_queue_t& materials = itRegionQueue->second;
+		material_queue_t::iterator loopMaterial = materials.begin();
+		while ( (materials.end() != loopMaterial) && (materialsData.size() <= MATERIALS_GET_MAX_ENTRIES) )
+		{
+			material_queue_t::iterator itMaterial = loopMaterial++;
+			materialsData.append((*itMaterial).asLLSD());
+			materials.erase(itMaterial);
+			mGetPending.insert(std::pair<pending_material_t, F64>(pending_material_t(region_id, *itMaterial), LLFrameTimer::getTotalSeconds()));
+		}
+
+		std::string materialString = zip_llsd(materialsData);
+
+		S32 materialSize = materialString.size();
+		if (materialSize <= 0)
+		{
+			LL_ERRS("debugMaterials") << "cannot zip LLSD binary content" << LL_ENDL;
+			return;
+		}
+
+		LLSD::Binary materialBinary;
+		materialBinary.resize(materialSize);
+		memcpy(materialBinary.data(), materialString.data(), materialSize);
+
+		LLSD postData = LLSD::emptyMap();
+		postData[MATERIALS_CAP_ZIP_FIELD] = materialBinary;
+
+		LLHTTPClient::ResponderPtr materialsResponder = new LLMaterialsResponder("POST", capURL, boost::bind(&LLMaterialMgr::onGetResponse, this, _1, _2, region_id));
+		LLHTTPClient::post(capURL, postData, materialsResponder);
 	}
-	else if (!regionp->capabilitiesReceived())
-	{
-		return;
-	}
-
-	const std::string capURL = regionp->getCapability(MATERIALS_CAPABILITY_NAME);
-	if (capURL.empty())
-	{
-		LL_WARNS("debugMaterials") << "Capability '" << MATERIALS_CAPABILITY_NAME
-			<< "' is not defined on region '" << regionp->getName() << "'" << LL_ENDL;
-		return;
-	}
-
-	LLSD materialsData = LLSD::emptyArray();
-
-	for (get_queue_t::const_iterator itQueue = mGetQueue.begin(); itQueue != mGetQueue.end(); ++itQueue)
-	{
-		const LLMaterialID& material_id = *itQueue;
-		materialsData.append(material_id.asLLSD());
-	}
-	mGetQueue.clear();
-
-	std::string materialString = zip_llsd(materialsData);
-
-	S32 materialSize = materialString.size();
-	if (materialSize <= 0)
-	{
-		LL_ERRS("debugMaterials") << "cannot zip LLSD binary content" << LL_ENDL;
-		return;
-	}
-
-	LLSD::Binary materialBinary;
-	materialBinary.resize(materialSize);
-	memcpy(materialBinary.data(), materialString.data(), materialSize);
-
-	LLSD postData = LLSD::emptyMap();
-	postData[MATERIALS_CAP_ZIP_FIELD] = materialBinary;
-
-	LLHTTPClient::ResponderPtr materialsResponder = new LLMaterialsResponder("POST", capURL, boost::bind(&LLMaterialMgr::onGetResponse, this, _1, _2));
-	LLHTTPClient::post(capURL, postData, materialsResponder);
 }
 
 void LLMaterialMgr::processGetAllQueue()
 {
-	getall_queue_t::iterator itRegion = mGetAllQueue.begin();
-	while (mGetAllQueue.end() != itRegion)
+	getall_queue_t::iterator loopRegion = mGetAllQueue.begin();
+	while (mGetAllQueue.end() != loopRegion)
 	{
-		getall_queue_t::iterator curRegion = itRegion++;
+		getall_queue_t::iterator itRegion = loopRegion++;
 
-		LLViewerRegion* regionp = LLWorld::instance().getRegionFromID(*curRegion);
+		const LLUUID& region_id = *itRegion;
+		LLViewerRegion* regionp = LLWorld::instance().getRegionFromID(region_id);
 		if (regionp == NULL)
 		{
-			LL_WARNS("debugMaterials") << "Unknown region with id " << (*curRegion).asString() << LL_ENDL;
-			mGetAllQueue.erase(curRegion);
+			LL_WARNS("debugMaterials") << "Unknown region with id " << region_id.asString() << LL_ENDL;
+			mGetAllQueue.erase(itRegion);
 			continue;
 		}
 		else if (!regionp->capabilitiesReceived())
@@ -499,30 +538,31 @@ void LLMaterialMgr::processGetAllQueue()
 		{
 			LL_WARNS("debugMaterials") << "Capability '" << MATERIALS_CAPABILITY_NAME
 				<< "' is not defined on the current region '" << regionp->getName() << "'" << LL_ENDL;
-			mGetAllQueue.erase(curRegion);
+			mGetAllQueue.erase(itRegion);
 			continue;
 		}
 
-		LLHTTPClient::ResponderPtr materialsResponder = new LLMaterialsResponder("GET", capURL, boost::bind(&LLMaterialMgr::onGetAllResponse, this, _1, _2, *curRegion));
+		LLHTTPClient::ResponderPtr materialsResponder = new LLMaterialsResponder("GET", capURL, boost::bind(&LLMaterialMgr::onGetAllResponse, this, _1, _2, *itRegion));
 		LLHTTPClient::get(capURL, materialsResponder);
-		mGetAllQueue.erase(curRegion);
+		mGetAllPending.insert(std::pair<LLUUID, F64>(region_id, LLFrameTimer::getTotalSeconds()));
+		mGetAllQueue.erase(itRegion);	// Invalidates region_id
 	}
 }
 
 void LLMaterialMgr::processPutQueue()
 {
-	put_queue_t::iterator itQueue = mPutQueue.begin();
-	while (itQueue != mPutQueue.end())
+	put_queue_t::iterator loopQueue = mPutQueue.begin();
+	while (mPutQueue.end() != loopQueue)
 	{
-		put_queue_t::iterator curQueue = itQueue++;
+		put_queue_t::iterator itQueue = loopQueue++;
 
-		const LLUUID& object_id = curQueue->first;
+		const LLUUID& object_id = itQueue->first;
 		const LLViewerObject* objectp = gObjectList.findObject(object_id);
 		if ( (!objectp) || (!objectp->getRegion()) )
 		{
 			LL_WARNS("debugMaterials") << "Object or object region is NULL" << LL_ENDL;
 
-			mPutQueue.erase(curQueue);
+			mPutQueue.erase(itQueue);
 			continue;
 		}
 
@@ -538,12 +578,12 @@ void LLMaterialMgr::processPutQueue()
 			LL_WARNS("debugMaterials") << "Capability '" << MATERIALS_CAPABILITY_NAME
 				<< "' is not defined on region '" << regionp->getName() << "'" << LL_ENDL;
 
-			mPutQueue.erase(curQueue);
+			mPutQueue.erase(itQueue);
 			continue;
 		}
 
 		LLSD facesData = LLSD::emptyArray();
-		for (facematerial_map_t::const_iterator itFace = curQueue->second.begin(); itFace != curQueue->second.end(); ++itFace)
+		for (facematerial_map_t::const_iterator itFace = itQueue->second.begin(); itFace != itQueue->second.end(); ++itFace)
 		{
 			LLSD faceData = LLSD::emptyMap();
 			faceData[MATERIALS_CAP_FACE_FIELD] = static_cast<LLSD::Integer>(itFace->first);
@@ -568,7 +608,7 @@ void LLMaterialMgr::processPutQueue()
 		{
 			LL_ERRS("debugMaterials") << "cannot zip LLSD binary content" << LL_ENDL;
 
-			mPutQueue.erase(curQueue);
+			mPutQueue.erase(itQueue);
 			continue;
 		}
 		else

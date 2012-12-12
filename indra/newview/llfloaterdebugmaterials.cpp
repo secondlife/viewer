@@ -386,12 +386,17 @@ void LLFloaterDebugMaterials::onPostClicked()
 		{
 			const LLScrollListItem* selectedItem = *selectedItemIter;
 			const LLSD& selectedItemValue = selectedItem->getValue();
+			llassert(selectedItemValue.isMap());
+
+			llassert(selectedItemValue.has(VIEWABLE_OBJECTS_REGION_ID_FIELD));
+			llassert(selectedItemValue.get(VIEWABLE_OBJECTS_REGION_ID_FIELD).isUUID());
+			const LLUUID& region_id = selectedItemValue.get(VIEWABLE_OBJECTS_REGION_ID_FIELD).asUUID();
 
 			llassert(selectedItemValue.has(VIEWABLE_OBJECTS_MATERIAL_ID_FIELD));
 			llassert(selectedItemValue.get(VIEWABLE_OBJECTS_MATERIAL_ID_FIELD).isBinary());
 			const LLMaterialID material_id(selectedItemValue.get(VIEWABLE_OBJECTS_MATERIAL_ID_FIELD).asBinary());
 
-			LLMaterialMgr::instance().get(material_id, boost::bind(&LLFloaterDebugMaterials::onPostMaterial, _1, _2));
+			LLMaterialMgr::instance().get(region_id, material_id, boost::bind(&LLFloaterDebugMaterials::onPostMaterial, _1, _2));
 		}
 	}
 }
