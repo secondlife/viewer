@@ -191,35 +191,56 @@ public:
 		{
 			LLViewerInventoryItem* item = *it;
 			llassert(item);
-			addItem(item->getLinkedUUID());
+			addItem(item->getUUID());
 		}
 	}
 
 	// Request or re-request operation for specified item.
 	void addItem(const LLUUID& item_id)
 	{
-		mPendingRequests++;
-		// On a re-request, this will reset the timer.
-		mWaitTimes[item_id] = LLTimer();
-		if (mRetryCounts.find(item_id) == mRetryCounts.end())
+		LLUUID linked_id;
+		if (gInventory.getItem(item_id))
 		{
-			mRetryCounts[item_id] = 0;
+			linked_id = gInventory.getItem(item_id)->getLinkedUUID();
+		}
+		else if (gInventory.getCategory(item_id))
+		{
+			linked_id = item_id;
 		}
 		else
 		{
-			mRetryCounts[item_id]++;
+			llwarns << "no referent found for item_id " << item_id << llendl;
+			return;
 		}
-
+		LL_DEBUGS("Avatar") << "item_id " << item_id << " -> linked_id " << linked_id << llendl;
+		
 		if (ll_frand()<gSavedSettings.getF32("InventoryDebugSimulateOpFailureRate"))
 		{
 			// simulate server failure by not sending the request.
 			return;
 		}
 		
-		requestOperation(item_id);
+		if (!requestOperation(linked_id))
+		{
+			LL_DEBUGS("Avatar") << "item_id " << item_id << " linked_id " << linked_id << " not requested" << llendl;
+			return;
+		}
+
+		mPendingRequests++;
+		// On a re-request, this will reset the timer.
+		mWaitTimes[linked_id] = LLTimer();
+		if (mRetryCounts.find(linked_id) == mRetryCounts.end())
+		{
+			mRetryCounts[linked_id] = 0;
+		}
+		else
+		{
+			mRetryCounts[linked_id]++;
+		}
+
 	}
 
-	virtual void requestOperation(const LLUUID& item_id) = 0;
+	virtual bool requestOperation(const LLUUID& item_id) = 0;
 
 	void onOp(const LLUUID& src_id, const LLUUID& dst_id, LLTimer timestamp)
 	{
@@ -373,18 +394,20 @@ public:
 		addItems(src_items);
 	}
 	
-	virtual void requestOperation(const LLUUID& item_id)
+	virtual bool requestOperation(const LLUUID& item_id)
 	{
 		LLViewerInventoryItem *item = gInventory.getItem(item_id);
 		llassert(item);
+		LL_DEBUGS("Avatar") << "copying item " << item_id << llendl;
 		copy_inventory_item(
 			gAgent.getID(),
 			item->getPermissions().getOwner(),
 			item->getUUID(),
 			mDstCatID,
 			std::string(),
-			new LLBoostFuncInventoryCallback(boost::bind(&LLCallAfterInventoryBatchMgr::onOp,this,item->getUUID(),_1,LLTimer()))
+			new LLBoostFuncInventoryCallback(boost::bind(&LLCallAfterInventoryBatchMgr::onOp,this,item_id,_1,LLTimer()))
 			);
+		return true;
 	}
 };
 
@@ -404,20 +427,23 @@ public:
 		addItems(src_items);
 	}
 	
-	virtual void requestOperation(const LLUUID& item_id)
+	virtual bool requestOperation(const LLUUID& item_id)
 	{
+		bool request_sent = false;
 		LLViewerInventoryItem *item = gInventory.getItem(item_id);
 		if (item)
 		{
+			LL_DEBUGS("Avatar") << "linking item " << item_id << " name " << item->getName() << " to " << mDstCatID << llendl;
 			// create an inventory item link.
 			link_inventory_item(gAgent.getID(),
-								item->getLinkedUUID(),
+								item_id,
 								mDstCatID,
 								item->getName(),
 								item->LLInventoryItem::getDescription(),
 								LLAssetType::AT_LINK,
 								new LLBoostFuncInventoryCallback(
-									boost::bind(&LLCallAfterInventoryBatchMgr::onOp,this,item->getUUID(),_1,LLTimer())));
+									boost::bind(&LLCallAfterInventoryBatchMgr::onOp,this,item_id,_1,LLTimer())));
+			request_sent = true;
 		}
 		else
 		{
@@ -426,7 +452,7 @@ public:
 			if (!catp)
 			{
 				llwarns << "id not found as inventory item or category " << item_id << llendl;
-				return;
+				return false;
 			}
 			const LLUUID cof = LLAppearanceMgr::instance().getCOF();
 			std::string new_outfit_name = "";
@@ -435,15 +461,18 @@ public:
 
 			if (catp && catp->getPreferredType() == LLFolderType::FT_OUTFIT)
 			{
+				LL_DEBUGS("Avatar") << "linking folder " << item_id << " name " << catp->getName() << " to cof " << cof << llendl;
 				link_inventory_item(gAgent.getID(), item_id, cof, catp->getName(), "",
 									LLAssetType::AT_LINK_FOLDER, 
 									new LLBoostFuncInventoryCallback(
 										boost::bind(&LLCallAfterInventoryBatchMgr::onOp,this,item_id,_1,LLTimer())));
 				new_outfit_name = catp->getName();
+				request_sent = true;
 			}
 	
 			LLAppearanceMgr::instance().updatePanelOutfitName(new_outfit_name);
 		}
+		return request_sent;
 	}
 };
 
