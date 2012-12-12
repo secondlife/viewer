@@ -777,24 +777,24 @@ void LLViewerRegion::killCacheEntry(LLVOCacheEntry* entry)
 		return;
 	}
 
-	//1, remove from active list and waiting list
+	//remove from active list and waiting list
 	if(entry->isState(LLVOCacheEntry::ACTIVE))
 	{
 		mImpl->mActiveSet.erase(entry);
 	}
-	else if(entry->isState(LLVOCacheEntry::WAITING))
+	else
 	{
-		mImpl->mWaitingSet.erase(entry);
-	}
-	else if(entry->isState(LLVOCacheEntry::IN_QUEUE))
-	{
-		mImpl->mVisibleEntries.erase(entry);
-	}
-	else if(entry->isState(LLVOCacheEntry::INACTIVE))
-	{
+		if(entry->isState(LLVOCacheEntry::WAITING))
+		{
+			mImpl->mWaitingSet.erase(entry);
+		}
+		
 		//remove from mVOCachePartition
 		removeFromVOCacheTree(entry);
 	}
+
+	//remove from the forced visible list
+	mImpl->mVisibleEntries.erase(entry);
 
 	//kill LLViewerObject if exists
 	//this should be done by the rendering pipeline automatically.
