@@ -45,6 +45,9 @@ Bir dakika sonra tekrar deneyin.
 		<message name="no_inventory_host">
 			Envanter sistemi şu anda kullanılamıyor.
 		</message>
+		<message name="MustGetAgeRegion">
+			Bu bölgeye girebilmek için 18 veya üzeri bir yaşta olmanız gerekir.
+		</message>
 	</message_set>
 	<message_set name="progress">
 		<message name="sending_dest">
@@ -79,6 +82,9 @@ Bir dakika sonra tekrar deneyin.
 		</message>
 		<message name="requesting">
 			Işınlanma talep ediliyor...
+		</message>
+		<message name="pending">
+			Işınlama Bekliyor...
 		</message>
 	</message_set>
 </teleport_messages>

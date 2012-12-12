@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_pathfinding_linksets" title="パスファインディングリンクセット">
+	<floater.string name="messaging_get_inprogress">
+		パスファインディングリンクセットを照会中...
+	</floater.string>
+	<floater.string name="messaging_get_error">
+		パスファインディングリンクセットの照会中にエラーが発生しました。
+	</floater.string>
+	<floater.string name="messaging_set_inprogress">
+		選択したパスファインディングリンクセットを修正中...
+	</floater.string>
+	<floater.string name="messaging_set_error">
+		選択したパスファインディングリンクセットの修正中にエラーが発生しました。
+	</floater.string>
+	<floater.string name="messaging_complete_none_found">
+		パスファインディングリンクセットがありません。
+	</floater.string>
+	<floater.string name="messaging_complete_available">
+		[NUM_TOTAL] リンクセット中 [NUM_SELECTED] リンクセットが選択されました。
+	</floater.string>
+	<floater.string name="messaging_not_enabled">
+		この地域（リージョン）はパスファインディングに対応していません。
+	</floater.string>
+	<floater.string name="linkset_terrain_name">
+		[Terrain]
+	</floater.string>
+	<floater.string name="linkset_terrain_description">
+		--
+	</floater.string>
+	<floater.string name="linkset_terrain_owner">
+		--
+	</floater.string>
+	<floater.string name="linkset_terrain_scripted">
+		--
+	</floater.string>
+	<floater.string name="linkset_terrain_land_impact">
+		--
+	</floater.string>
+	<floater.string name="linkset_terrain_dist_from_you">
+		--
+	</floater.string>
+	<floater.string name="linkset_owner_loading">
+		[Loading]
+	</floater.string>
+	<floater.string name="linkset_owner_unknown">
+		[Unknown]
+	</floater.string>
+	<floater.string name="linkset_owner_group">
+		[group]
+	</floater.string>
+	<floater.string name="linkset_is_scripted">
+		はい
+	</floater.string>
+	<floater.string name="linkset_is_not_scripted">
+		いいえ
+	</floater.string>
+	<floater.string name="linkset_is_unknown_scripted">
+		不明
+	</floater.string>
+	<floater.string name="linkset_use_walkable">
+		歩行可能
+	</floater.string>
+	<floater.string name="linkset_use_static_obstacle">
+		静的障害物
+	</floater.string>
+	<floater.string name="linkset_use_dynamic_obstacle">
+		可動障害物
+	</floater.string>
+	<floater.string name="linkset_use_material_volume">
+		素材ボリューム
+	</floater.string>
+	<floater.string name="linkset_use_exclusion_volume">
+		除外ボリューム
+	</floater.string>
+	<floater.string name="linkset_use_dynamic_phantom">
+		可動ボリューム
+	</floater.string>
+	<floater.string name="linkset_is_terrain">
+		[unmodifiable]
+	</floater.string>
+	<floater.string name="linkset_is_restricted_state">
+		[restricted]
+	</floater.string>
+	<floater.string name="linkset_is_non_volume_state">
+		[concave]
+	</floater.string>
+	<floater.string name="linkset_is_restricted_non_volume_state">
+		[restricted,concave]
+	</floater.string>
+	<floater.string name="linkset_choose_use">
+		リンクセットの用途を選択...
+	</floater.string>
+	<panel>
+		<combo_box name="filter_by_linkset_use">
+			<combo_box.item label="リンクセットの用途でフィルター..." name="filter_by_linkset_use_none"/>
+			<combo_box.item label="歩行可能" name="filter_by_linkset_use_walkable"/>
+			<combo_box.item label="静的障害物" name="filter_by_linkset_use_static_obstacle"/>
+			<combo_box.item label="可動障害物" name="filter_by_linkset_use_dynamic_obstacle"/>
+			<combo_box.item label="素材ボリューム" name="filter_by_linkset_use_material_volume"/>
+			<combo_box.item label="除外ボリューム" name="filter_by_linkset_use_exclusion_volume"/>
+			<combo_box.item label="可動ボリューム" name="filter_by_linkset_use_dynamic_phantom"/>
+		</combo_box>
+		<button label="適用" name="apply_filters"/>
+		<button label="クリア" name="clear_filters"/>
+		<scroll_list name="objects_scroll_list">
+			<scroll_list.columns label="名前（ルートプリム）" name="name"/>
+			<scroll_list.columns label="説明（ルートプリム）" name="description"/>
+			<scroll_list.columns label="所有者" name="owner"/>
+			<scroll_list.columns label="スクリプト" name="scripted"/>
+			<scroll_list.columns label="負荷" name="land_impact"/>
+			<scroll_list.columns label="距離" name="dist_from_you"/>
+			<scroll_list.columns label="リンクセットの用途" name="linkset_use"/>
+			<scroll_list.columns label="A %" name="a_percent"/>
+			<scroll_list.columns label="B %" name="b_percent"/>
+			<scroll_list.columns label="C %" name="c_percent"/>
+			<scroll_list.columns label="D %" name="d_percent"/>
+		</scroll_list>
+		<text name="messaging_status">
+			リンクセット:
+		</text>
+		<button label="リスト更新" name="refresh_objects_list"/>
+		<button label="すべて選択" name="select_all_objects"/>
+		<button label="何も選択しない" name="select_none_objects"/>
+	</panel>
+	<panel>
+		<check_box label="ビーコンを表示" name="show_beacon"/>
+		<button label="取る" name="take_objects"/>
+		<button label="コピーを取る" name="take_copy_objects"/>
+		<button label="私をそこにテレポートする" name="teleport_me_to_object"/>
+		<button label="返却" name="return_objects"/>
+		<button label="削除" name="delete_objects"/>
+	</panel>
+	<panel>
+		<text name="walkability_coefficients_label">
+			歩行可能性:
+		</text>
+		<text name="edit_a_label">
+			A
+		</text>
+		<line_editor name="edit_a_value" tool_tip="タイプ A のキャラクターの歩行可能性。キャラクタータイプの例はヒューマノイドです。"/>
+		<text name="edit_b_label">
+			B
+		</text>
+		<line_editor name="edit_b_value" tool_tip="タイプ B のキャラクターの歩行可能性。キャラクタータイプの例はクリーチャーです。"/>
+		<text name="edit_c_label">
+			C
+		</text>
+		<line_editor name="edit_c_value" tool_tip="タイプ C のキャラクターの歩行可能性。キャラクタータイプの例はメカニカルです。"/>
+		<text name="edit_d_label">
+			D
+		</text>
+		<line_editor name="edit_d_value" tool_tip="タイプ D のキャラクターの歩行可能性。キャラクタータイプの例はその他です。"/>
+		<button label="変更を適用" name="apply_edit_values"/>
+		<text name="suggested_use_a_label">
+			(ヒューマノイド)
+		</text>
+		<text name="suggested_use_b_label">
+			(クリーチャー)
+		</text>
+		<text name="suggested_use_c_label">
+			(メカニカル)
+		</text>
+		<text name="suggested_use_d_label">
+			(その他)
+		</text>
+	</panel>
+</floater>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="wearable_item">
 	<text name="item_name" value="..."/>
-	<panel name="btn_lock" tool_tip="你並沒有權限進行編輯"/>
+	<panel name="btn_lock" tool_tip="你沒有編輯權"/>
 	<panel name="btn_edit_panel">
 		<button name="btn_edit" tool_tip="編輯這個體形"/>
 	</panel>

@@ -29,5 +29,7 @@
 	<check_box label="Bate-papos de MI" name="EnableIMChatPopups" tool_tip="Exibir pop-up de mensagens instantâneas novas"/>
 	<spinner label="Transição de avisos de bate-papos por perto:" name="nearby_toasts_lifetime"/>
 	<spinner label="Transição de avisos de bate-papos por perto:" name="nearby_toasts_fadingtime"/>
-	<button label="Configurações de tradução de bate-papo" name="ok_btn"/>
+	<button label="Tradução..." name="ok_btn"/>
+	<button label="Substituição automática..." name="autoreplace_showgui"/>
+	<button label="Verificando a ortografia..." name="spellcheck_showgui"/>
 </panel>

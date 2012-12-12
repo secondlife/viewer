@@ -63,6 +63,7 @@ target_link_libraries(mac-updater
     ${OPENSSL_LIBRARIES}
     ${CRYPTO_LIBRARIES}
     ${COCOA_LIBRARIES}
+	${BOOST_FILESYSTEM_LIBRARY}
     ${IOKIT_LIBRARY}
     ${CURL_LIBRARIES}
     ${CARES_LIBRARIES}

@@ -11,34 +11,17 @@
 	</text>
 	<check_box label="自訂埠" name="connection_port_enabled"/>
 	<spinner label="埠號：" name="connection_port"/>
-	<text name="cache_size_label_l">
-		快取尺寸
-	</text>
-	<text name="text_box5">
-		MB
-	</text>
-	<text name="Cache location">
-		快取位置：
-	</text>
-	<button label="瀏覽" label_selected="瀏覽" name="set_cache"/>
-	<button label="" label_selected="重設" name="reset_cache"/>
 	<text name="Web:">
 		網頁：
 	</text>
 	<radio_group name="use_external_browser">
-		<radio_item label="使用我的網頁瀏覽器（例如 IE, Firefox, Safari）" name="external" tool_tip="Use the default system web browser for help, web links, etc. Not recommended if running full screen." value="1"/>
-		<radio_item label="使用內建網頁瀏覽器" name="internal" tool_tip="Use the built-in web browser for help, web links, etc. This browser opens as a new window inside [APP_NAME]." value=""/>
+		<radio_item label="使用我的網頁瀏覽器（例如 IE, Firefox, Safari）" name="external" tool_tip="使用系統預設的瀏覽器瀏覽幫助，開啟網頁。全螢幕模式下不建議這麼做。" value="1"/>
+		<radio_item label="使用內建網頁瀏覽器" name="internal" tool_tip="使用內建的瀏覽器瀏覽幫助，開啟網頁。該瀏覽器將透過 [APP_NAME] 開啟新視窗。" value=""/>
 	</radio_group>
 	<check_box initial_value="true" label="啟用外掛" name="browser_plugins_enabled"/>
 	<check_box initial_value="true" label="接受 cookies" name="cookies_enabled"/>
 	<check_box initial_value="true" label="啟用 Javascript" name="browser_javascript_enabled"/>
 	<check_box initial_value="false" label="啟用媒體瀏覽的突顯式視窗" name="media_popup_enabled"/>
-	<check_box initial_value="false" label="啟用網頁代理伺服器" name="web_proxy_enabled"/>
-	<text name="Proxy location">
-		代理伺服器位置：
-	</text>
-	<line_editor name="web_proxy_editor" tool_tip="The name or IP address of the proxy you would like to use"/>
-	<spinner label="埠號：" name="web_proxy_port"/>
 	<text name="Software updates:">
 		軟體更新：
 	</text>
@@ -46,4 +29,8 @@
 		<combo_box.item label="自動安裝" name="Install_automatically"/>
 		<combo_box.item label="手動下載及安裝" name="Install_manual"/>
 	</combo_box>
+	<text name="Proxy Settings:">
+		代理伺服器設定：
+	</text>
+	<button label="調整代理伺服器設定" label_selected="瀏覽" name="set_proxy"/>
 </panel>

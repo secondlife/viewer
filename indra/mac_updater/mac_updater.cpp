@@ -494,6 +494,20 @@ bool LLMacUpdater::doInstall(const boost::filesystem::path& app_dir,
     return true;
 }
 
+bool mkTempDir(boost::filesystem::path& temp_dir)
+{    
+    char temp_str[PATH_MAX] = "/tmp/SecondLifeUpdate_XXXXXX";
+    
+    if(mkdtemp(temp_str) == NULL)
+    {
+        return false;
+    }
+    
+    temp_dir = boost::filesystem::path(temp_str);
+    
+    return true;
+}
+
 void* LLMacUpdater::updatethreadproc(void*)
 {
 	char tempDir[PATH_MAX] = "";		/* Flawfinder: ignore */

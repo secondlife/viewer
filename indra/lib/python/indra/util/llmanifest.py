@@ -167,7 +167,12 @@ ARGUMENTS=[
     dict(name='version',
          description="""This specifies the version of Second Life that is
         being packaged up.""",
-         default=get_default_version)
+         default=get_default_version),
+    dict(name='signature',
+         description="""This specifies an identity to sign the viewer with, if any.
+        If no value is supplied, the default signature will be used, if any. Currently
+        only used on Mac OS X.""",
+         default=None)
     ]
 
 def usage(srctree=""):
@@ -621,6 +626,23 @@ class LLManifest(object):
             d = src_re.sub(d_template, s.replace('\\', '/'))
             yield os.path.normpath(s), os.path.normpath(d)
 
+    def path2basename(self, path, file):
+        """
+        It is a common idiom to write:
+        self.path(os.path.join(somedir, somefile), somefile)
+
+        So instead you can write:
+        self.path2basename(somedir, somefile)
+
+        Note that this is NOT the same as:
+        self.path(os.path.join(somedir, somefile))
+
+        which is the same as:
+        temppath = os.path.join(somedir, somefile)
+        self.path(temppath, temppath)
+        """
+        return self.path(os.path.join(path, file), file)
+
     def path(self, src, dst=None):
         sys.stdout.write("Processing %s => %s ... " % (src, dst))
         sys.stdout.flush()
@@ -665,6 +687,10 @@ class LLManifest(object):
             # back to try the next.
 
         print "%d files" % count
+
+        # Let caller check whether we processed as many files as expected. In
+        # particular, let caller notice 0.
+        return count
 
     def do(self, *actions):
         self.actions = actions

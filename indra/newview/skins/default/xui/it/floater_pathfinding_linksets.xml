@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_pathfinding_linksets" title="Set collegati pathfinding">
+	<floater.string name="messaging_get_inprogress">
+		Ricerca set collegati pathfinding in corso...
+	</floater.string>
+	<floater.string name="messaging_get_error">
+		Errore rilevato durante la ricerca di set collegati pathfinding.
+	</floater.string>
+	<floater.string name="messaging_set_inprogress">
+		Modifica set collegati pathfinding selezionati in corso...
+	</floater.string>
+	<floater.string name="messaging_set_error">
+		Errore rilevato durante la modifica dei set collegati pathfinding selezionati.
+	</floater.string>
+	<floater.string name="messaging_complete_none_found">
+		Nessun set collegato con pathfinding.
+	</floater.string>
+	<floater.string name="messaging_complete_available">
+		[NUM_SELECTED] set collegati selezionati su [NUM_TOTAL].
+	</floater.string>
+	<floater.string name="messaging_not_enabled">
+		In questa regione non è attivata la funzione pathfinding
+	</floater.string>
+	<floater.string name="linkset_terrain_name">
+		[Terreno]
+	</floater.string>
+	<floater.string name="linkset_terrain_description">
+		--
+	</floater.string>
+	<floater.string name="linkset_terrain_owner">
+		--
+	</floater.string>
+	<floater.string name="linkset_terrain_scripted">
+		--
+	</floater.string>
+	<floater.string name="linkset_terrain_land_impact">
+		--
+	</floater.string>
+	<floater.string name="linkset_terrain_dist_from_you">
+		--
+	</floater.string>
+	<floater.string name="linkset_owner_loading">
+		[Caricamento in corso]
+	</floater.string>
+	<floater.string name="linkset_owner_unknown">
+		[Sconosciuto]
+	</floater.string>
+	<floater.string name="linkset_owner_group">
+		[gruppo]
+	</floater.string>
+	<floater.string name="linkset_is_scripted">
+		Sì
+	</floater.string>
+	<floater.string name="linkset_is_not_scripted">
+		No
+	</floater.string>
+	<floater.string name="linkset_is_unknown_scripted">
+		Sconosciuto
+	</floater.string>
+	<floater.string name="linkset_use_walkable">
+		Camminabile
+	</floater.string>
+	<floater.string name="linkset_use_static_obstacle">
+		Ostacolo statico
+	</floater.string>
+	<floater.string name="linkset_use_dynamic_obstacle">
+		Ostacolo mobile
+	</floater.string>
+	<floater.string name="linkset_use_material_volume">
+		Volume materiale
+	</floater.string>
+	<floater.string name="linkset_use_exclusion_volume">
+		Volume esclusione
+	</floater.string>
+	<floater.string name="linkset_use_dynamic_phantom">
+		Oggetto fantasma mobile
+	</floater.string>
+	<floater.string name="linkset_is_terrain">
+		[non modificabile]
+	</floater.string>
+	<floater.string name="linkset_is_restricted_state">
+		[limitato]
+	</floater.string>
+	<floater.string name="linkset_is_non_volume_state">
+		[concavo]
+	</floater.string>
+	<floater.string name="linkset_is_restricted_non_volume_state">
+		[limitato,concavo]
+	</floater.string>
+	<floater.string name="linkset_choose_use">
+		Seleziona uso set collegati...
+	</floater.string>
+	<panel>
+		<combo_box name="filter_by_linkset_use">
+			<combo_box.item label="Filtra in base all&apos;uso set collegati..." name="filter_by_linkset_use_none"/>
+			<combo_box.item label="Camminabile" name="filter_by_linkset_use_walkable"/>
+			<combo_box.item label="Ostacolo statico" name="filter_by_linkset_use_static_obstacle"/>
+			<combo_box.item label="Ostacolo mobile" name="filter_by_linkset_use_dynamic_obstacle"/>
+			<combo_box.item label="Volume materiale" name="filter_by_linkset_use_material_volume"/>
+			<combo_box.item label="Volume esclusione" name="filter_by_linkset_use_exclusion_volume"/>
+			<combo_box.item label="Oggetto fantasma mobile" name="filter_by_linkset_use_dynamic_phantom"/>
+		</combo_box>
+		<button label="Applica" name="apply_filters"/>
+		<button label="Cancella" name="clear_filters"/>
+		<scroll_list name="objects_scroll_list">
+			<scroll_list.columns label="Nome (prim principale)" name="name"/>
+			<scroll_list.columns label="Descrizione (prim principale)" name="description"/>
+			<scroll_list.columns label="Proprietario" name="owner"/>
+			<scroll_list.columns label="Scriptato" name="scripted"/>
+			<scroll_list.columns label="Impatto" name="land_impact"/>
+			<scroll_list.columns label="Distanza" name="dist_from_you"/>
+			<scroll_list.columns label="Uso set collegati" name="linkset_use"/>
+			<scroll_list.columns label="A %" name="a_percent"/>
+			<scroll_list.columns label="B %" name="b_percent"/>
+			<scroll_list.columns label="C %" name="c_percent"/>
+			<scroll_list.columns label="D %" name="d_percent"/>
+		</scroll_list>
+		<text name="messaging_status">
+			Set collegati:
+		</text>
+		<button label="Aggiorna lista" name="refresh_objects_list"/>
+		<button label="Seleziona tutto" name="select_all_objects"/>
+		<button label="Non selezionare nessuno" name="select_none_objects"/>
+	</panel>
+	<panel>
+		<check_box label="Mostra marcatore" name="show_beacon"/>
+		<button label="Prendi" name="take_objects"/>
+		<button label="Prendi copia" name="take_copy_objects"/>
+		<button label="Teletrasportami alla posizione" name="teleport_me_to_object"/>
+		<button label="Restituisci" name="return_objects"/>
+		<button label="Elimina" name="delete_objects"/>
+	</panel>
+	<panel>
+		<text name="walkability_coefficients_label">
+			Camminabilità:
+		</text>
+		<text name="edit_a_label">
+			A
+		</text>
+		<line_editor name="edit_a_value" tool_tip="Camminabilità per personaggi di tipo A. Umanoide è un esempio del tipo di personaggio."/>
+		<text name="edit_b_label">
+			B
+		</text>
+		<line_editor name="edit_b_value" tool_tip="Camminabilità per personaggi di tipo B. Creatura è un esempio del tipo di personaggio."/>
+		<text name="edit_c_label">
+			C
+		</text>
+		<line_editor name="edit_c_value" tool_tip="Camminabilità per personaggi di tipo C. Elemento meccanico è un esempio del tipo di personaggio."/>
+		<text name="edit_d_label">
+			D
+		</text>
+		<line_editor name="edit_d_value" tool_tip="Camminabilità per personaggi di tipo D. Altro è un esempio del tipo di personaggio."/>
+		<button label="Applica modifiche" name="apply_edit_values"/>
+		<text name="suggested_use_a_label">
+			(Umanoide)
+		</text>
+		<text name="suggested_use_b_label">
+			(Creatura)
+		</text>
+		<text name="suggested_use_c_label">
+			(Elemento meccanico)
+		</text>
+		<text name="suggested_use_d_label">
+			(Altro)
+		</text>
+	</panel>
+</floater>

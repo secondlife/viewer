@@ -92,19 +92,54 @@
 				<text initial_value="Triangles" name="triangles" value="Triangles"/>
 				<text initial_value="Sommets" name="vertices" value="Sommets"/>
 				<text initial_value="Élevé" name="high_label" value="Élevé"/>
+				<combo_box name="lod_source_high">
+					<item name="Load from file" value="Depuis un fichier"/>
+					<item name="Generate" value="Génération"/>
+				</combo_box>
 				<button label="Parcourir..." name="lod_browse_high"/>
+				<combo_box name="lod_mode_high">
+					<item name="Triangle Limit" value="Triangles max"/>
+					<item name="Error Threshold" value="Seuil d&apos;erreur"/>
+				</combo_box>
 				<text initial_value="0" name="high_triangles" value="0"/>
 				<text initial_value="0" name="high_vertices" value="0"/>
 				<text initial_value="Moyen" name="medium_label" value="Moyen"/>
+				<combo_box name="lod_source_medium">
+					<item name="Load from file" value="Depuis un fichier"/>
+					<item name="Generate" value="Génération"/>
+					<item name="Use LoD above" value="Niveau de détail du dessus"/>
+				</combo_box>
 				<button label="Parcourir..." name="lod_browse_medium"/>
+				<combo_box name="lod_mode_medium">
+					<item name="Triangle Limit" value="Triangles max"/>
+					<item name="Error Threshold" value="Seuil d&apos;erreur"/>
+				</combo_box>
 				<text initial_value="0" name="medium_triangles" value="0"/>
 				<text initial_value="0" name="medium_vertices" value="0"/>
 				<text initial_value="Faible" name="low_label" value="Faible"/>
+				<combo_box name="lod_source_low">
+					<item name="Load from file" value="Depuis un fichier"/>
+					<item name="Generate" value="Génération"/>
+					<item name="Use LoD above" value="Niveau de détail du dessus"/>
+				</combo_box>
 				<button label="Parcourir..." name="lod_browse_low"/>
+				<combo_box name="lod_mode_low">
+					<item name="Triangle Limit" value="Triangles max"/>
+					<item name="Error Threshold" value="Seuil d&apos;erreur"/>
+				</combo_box>
 				<text initial_value="0" name="low_triangles" value="0"/>
 				<text initial_value="0" name="low_vertices" value="0"/>
 				<text initial_value="Le plus faible" name="lowest_label" value="Le plus faible"/>
+				<combo_box name="lod_source_lowest">
+					<item name="Load from file" value="Depuis un fichier"/>
+					<item name="Generate" value="Génération"/>
+					<item name="Use LoD above" value="Niveau de détail du dessus"/>
+				</combo_box>
 				<button label="Parcourir..." name="lod_browse_lowest"/>
+				<combo_box name="lod_mode_lowest">
+					<item name="Triangle Limit" value="Triangles max"/>
+					<item name="Error Threshold" value="Seuil d&apos;erreur"/>
+				</combo_box>
 				<text initial_value="0" name="lowest_triangles" value="0"/>
 				<text initial_value="0" name="lowest_vertices" value="0"/>
 				<check_box label="Génération de normales" name="gen_normals"/>
@@ -166,7 +201,7 @@
 						Passes :
 					</text>
 					<text name="Detail Scale label">
-						Échelle de détail :
+						Échelle détail :
 					</text>
 					<text name="Retain%_label">
 						Retenue :
@@ -192,7 +227,7 @@
 			</panel>
 			<panel label="Option de chargement" name="modifiers_panel">
 				<text name="scale_label">
-					Echelle (1 = pas d&apos;échelle) :
+					Échelle (1 = aucune) :
 				</text>
 				<spinner name="import_scale" value="1.0"/>
 				<text name="dimensions_label">
@@ -203,12 +238,12 @@
 				</text>
 				<check_box label="Inclure les textures" name="upload_textures"/>
 				<text name="include_label">
-					Pour les modèles d&apos;avatar uniquement :
+					Modèles d&apos;avatar uniquement :
 				</text>
-				<check_box label="Inclure la pondération de la peau :" name="upload_skin"/>
-				<check_box label="Inclure la position des articulations :" name="upload_joints"/>
+				<check_box label="Inclure pondération de la peau :" name="upload_skin"/>
+				<check_box label="Inclure position des articulations :" name="upload_joints"/>
 				<text name="pelvis_offset_label">
-					Décalage Z (élever ou abaisser l&apos;avatar) :
+					Décalage Z (élever/abaisser l&apos;avatar) :
 				</text>
 				<spinner name="pelvis_offset" value="0.0"/>
 			</panel>
@@ -217,7 +252,7 @@
 			<button label="Calculer les poids et les frais" name="calculate_btn" tool_tip="Calculer les poids et les frais."/>
 			<button label="Annuler" name="cancel_btn"/>
 			<button label="Charger le modèle" name="ok_btn" tool_tip="Charger dans le simulateur"/>
-			<button label="Effacer les paramètres et réinitialiser le formulaire" name="reset_btn"/>
+			<button label="Effacer les paramètres / réinitialiser le formulaire" name="reset_btn"/>
 			<text name="upload_fee">
 				Frais de chargement : [FEE] L$
 			</text>

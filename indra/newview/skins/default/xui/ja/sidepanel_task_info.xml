@@ -18,6 +18,12 @@
 	<panel.string name="text modify info 4">
 		これらのオブジェクトを修正できません
 	</panel.string>
+	<panel.string name="text modify info 5">
+		地域（リージョン）の境界を越えてこのオブジェクトを修正できません
+	</panel.string>
+	<panel.string name="text modify info 6">
+		地域（リージョン）の境界を越えてこれらのオブジェクトを修正できません
+	</panel.string>
 	<panel.string name="text modify warning">
 		このオブジェクトには、パーツがリンクされています
 	</panel.string>
@@ -95,6 +101,9 @@
 		</combo_box>
 		<spinner label="価格： L$" name="Edit Cost"/>
 		<check_box label="検索に表示" name="search_check" tool_tip="このオブジェクトを検索結果に表示します"/>
+		<text name="pathfinding_attributes_label">
+			パスファインディング属性:
+		</text>
 		<text name="B:">
 			B.
 		</text>

@@ -5,6 +5,9 @@
 	</panel.string>
 	<layout_stack name="login_widgets">
 		<layout_panel name="login">
+			<text name="log_in_text">
+				POŁĄCZ
+			</text>
 			<text name="username_text">
 				Użytkownik:
 			</text>
@@ -12,15 +15,8 @@
 			<text name="password_text">
 				Hasło:
 			</text>
-			<check_box label="Zapamiętaj hasło" name="remember_check"/>
-			<button label="Połącz" name="connect_btn"/>
-			<text name="mode_selection_text">
-				Tryb życia:
-			</text>
-			<combo_box name="mode_combo" tool_tip="Wybierz tryb życia. Wybierz tryb turystyczny dla łatwego zwiedzania i czatowania. Wybierz tryb zaawansowany aby mieć dostęp do większej ilości opcji.">
-				<combo_box.item label="Turystyczny" name="Basic"/>
-				<combo_box.item label="Zaawansowany" name="Advanced"/>
-			</combo_box>
+		</layout_panel>
+		<layout_panel name="start_location_panel">
 			<text name="start_location_text">
 				Rozpocznij w:
 			</text>
@@ -30,16 +26,23 @@
 				<combo_box.item label="&lt;Wpisz Region&gt;" name="Typeregionname"/>
 			</combo_box>
 		</layout_panel>
-		<layout_panel name="links">
-			<text name="create_new_account_text">
-				Utwórz nowe konto
+		<layout_panel name="links_login_panel">
+			<text name="login_help">
+				Potrzebujesz pomocy z logowaniem się?
 			</text>
 			<text name="forgot_password_text">
 				Zapomniałeś swojej nazwy użytkownika lub hasła?
 			</text>
-			<text name="login_help">
-				Potrzebujesz pomocy z logowaniem się?
+			<button label="Połącz" name="connect_btn"/>
+			<check_box label="Zapamiętaj hasło" name="remember_check"/>
+		</layout_panel>
+		<layout_panel name="links">
+			<text name="create_account_text">
+				CREATE YǾUR ACCǾUNT
 			</text>
+			<button name="create_new_account_btn"
+					label="Utwórz nowe konto"
+					width="120"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

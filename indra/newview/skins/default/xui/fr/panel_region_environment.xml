@@ -15,7 +15,7 @@
 			<combo_box.item label="-Effectuer une sélection-" name="item0"/>
 		</combo_box>
 		<text name="sky_dayc_settings_title">
-			Ciel / Cycle du jour
+			Ciel/Cycle du jour
 		</text>
 		<radio_group name="sky_dayc_settings_radio_group">
 			<radio_item label="Ciel fixe" name="my_sky_settings"/>

@@ -124,30 +124,6 @@ void sendProgress(int cur, int max, const std::string str)
     setProgressText(str);
 }
 
-bool mkTempDir(boost::filesystem::path& temp_dir)
-{    
-    NSString * tempDir = NSTemporaryDirectory();
-    if (tempDir == nil)
-        tempDir = @"/tmp/";
-
-    std::string* temp_str = NSToString(tempDir);
-    *temp_str += std::string("SecondLifeUpdate_XXXXXX");
-    
-	char temp[PATH_MAX] = "";	/* Flawfinder: ignore */
-    strncpy(temp, temp_str->c_str(), temp_str->length());
-
-    if(mkdtemp(temp) == NULL)
-    {
-        return false;
-    }
-    
-    temp_dir = boost::filesystem::path(temp);
-    
-    delete temp_str;
-    
-    return true;
-}
-
 bool copyDir(const std::string& src_dir, const std::string& dest_dir)
 {
     NSString* file = [NSString stringWithCString:src_dir.c_str() 

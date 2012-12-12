@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_pathfinding_linksets" title="Yol bulma bağlantı kümeleri">
+	<floater.string name="messaging_get_inprogress">
+		Yol bulma bağlantı kümeleri için sorgulama yapılıyor ...
+	</floater.string>
+	<floater.string name="messaging_get_error">
+		Yol bulma bağlantı kümeleri için sorgulama yapılırken hata saptandı.
+	</floater.string>
+	<floater.string name="messaging_set_inprogress">
+		Seçilen yol bulma bağlantı kümeleri değiştiriliyor ...
+	</floater.string>
+	<floater.string name="messaging_set_error">
+		Seçilen yol bulma bağlantı kümeleri değiştirilirken hata saptandı.
+	</floater.string>
+	<floater.string name="messaging_complete_none_found">
+		Yol bulma bağlantı kümeleri yok.
+	</floater.string>
+	<floater.string name="messaging_complete_available">
+		Toplam [NUM_TOTAL] bağlantı kümesi içerisinden [NUM_SELECTED] adet seçildi.
+	</floater.string>
+	<floater.string name="messaging_not_enabled">
+		Bu bölgede yol bulma etkin değil.
+	</floater.string>
+	<floater.string name="linkset_terrain_name">
+		[Yüzey]
+	</floater.string>
+	<floater.string name="linkset_terrain_description">
+		--
+	</floater.string>
+	<floater.string name="linkset_terrain_owner">
+		--
+	</floater.string>
+	<floater.string name="linkset_terrain_scripted">
+		--
+	</floater.string>
+	<floater.string name="linkset_terrain_land_impact">
+		--
+	</floater.string>
+	<floater.string name="linkset_terrain_dist_from_you">
+		--
+	</floater.string>
+	<floater.string name="linkset_owner_loading">
+		[Yükleniyor]
+	</floater.string>
+	<floater.string name="linkset_owner_unknown">
+		[Bilinmiyor]
+	</floater.string>
+	<floater.string name="linkset_owner_group">
+		[grup]
+	</floater.string>
+	<floater.string name="linkset_is_scripted">
+		Evet
+	</floater.string>
+	<floater.string name="linkset_is_not_scripted">
+		Hayır
+	</floater.string>
+	<floater.string name="linkset_is_unknown_scripted">
+		Bilinmiyor
+	</floater.string>
+	<floater.string name="linkset_use_walkable">
+		Yürüyebilir
+	</floater.string>
+	<floater.string name="linkset_use_static_obstacle">
+		Statik engel
+	</floater.string>
+	<floater.string name="linkset_use_dynamic_obstacle">
+		Hareket ettirilebilir engel
+	</floater.string>
+	<floater.string name="linkset_use_material_volume">
+		Maddi hacim
+	</floater.string>
+	<floater.string name="linkset_use_exclusion_volume">
+		Hariç tutma hacmi
+	</floater.string>
+	<floater.string name="linkset_use_dynamic_phantom">
+		Hareket ettirilebilir fantom
+	</floater.string>
+	<floater.string name="linkset_is_terrain">
+		[değiştirilemez]
+	</floater.string>
+	<floater.string name="linkset_is_restricted_state">
+		[kısıtlı]
+	</floater.string>
+	<floater.string name="linkset_is_non_volume_state">
+		[konkav]
+	</floater.string>
+	<floater.string name="linkset_is_restricted_non_volume_state">
+		[kısıtlı, konkav]
+	</floater.string>
+	<floater.string name="linkset_choose_use">
+		Bağlantı kümesi kullanımını seç...
+	</floater.string>
+	<panel>
+		<combo_box name="filter_by_linkset_use">
+			<combo_box.item label="Bağlantı kümesi kullanımına göre filtrele..." name="filter_by_linkset_use_none"/>
+			<combo_box.item label="Yürüyebilir" name="filter_by_linkset_use_walkable"/>
+			<combo_box.item label="Statik engel" name="filter_by_linkset_use_static_obstacle"/>
+			<combo_box.item label="Hareket ettirilebilir engel" name="filter_by_linkset_use_dynamic_obstacle"/>
+			<combo_box.item label="Maddi hacim" name="filter_by_linkset_use_material_volume"/>
+			<combo_box.item label="Hariç tutma hacmi" name="filter_by_linkset_use_exclusion_volume"/>
+			<combo_box.item label="Hareket ettirilebilir fantom" name="filter_by_linkset_use_dynamic_phantom"/>
+		</combo_box>
+		<button label="Uygula" name="apply_filters"/>
+		<button label="Temizle" name="clear_filters"/>
+		<scroll_list name="objects_scroll_list">
+			<scroll_list.columns label="Ad (kök prim)" name="name"/>
+			<scroll_list.columns label="Açıklama (kök prim)" name="description"/>
+			<scroll_list.columns label="Sahip" name="owner"/>
+			<scroll_list.columns label="Komut Dosyalı" name="scripted"/>
+			<scroll_list.columns label="Etki" name="land_impact"/>
+			<scroll_list.columns label="Mesafe" name="dist_from_you"/>
+			<scroll_list.columns label="Bağlantı kümesi kullanımı" name="linkset_use"/>
+			<scroll_list.columns label="% A" name="a_percent"/>
+			<scroll_list.columns label="% B" name="b_percent"/>
+			<scroll_list.columns label="% C" name="c_percent"/>
+			<scroll_list.columns label="% D" name="d_percent"/>
+		</scroll_list>
+		<text name="messaging_status">
+			Bağlantı kümeleri:
+		</text>
+		<button label="Listeyi yenile" name="refresh_objects_list"/>
+		<button label="Tümünü seç" name="select_all_objects"/>
+		<button label="Hiçbirini seçme" name="select_none_objects"/>
+	</panel>
+	<panel>
+		<check_box label="İşareti göster" name="show_beacon"/>
+		<button label="Al" name="take_objects"/>
+		<button label="Kopya al" name="take_copy_objects"/>
+		<button label="Beni ona ışınla" name="teleport_me_to_object"/>
+		<button label="İade Et" name="return_objects"/>
+		<button label="Sil" name="delete_objects"/>
+	</panel>
+	<panel>
+		<text name="walkability_coefficients_label">
+			Yürüyebilirlik:
+		</text>
+		<text name="edit_a_label">
+			A
+		</text>
+		<line_editor name="edit_a_value" tool_tip="A tipi karakterleri için yürüyebilirlik. Örnek karakter tipi humanoiddir."/>
+		<text name="edit_b_label">
+			B
+		</text>
+		<line_editor name="edit_b_value" tool_tip="B tipi karakterleri için yürüyebilirlik. Örnek karakter tipi yaratıktır."/>
+		<text name="edit_c_label">
+			C
+		</text>
+		<line_editor name="edit_c_value" tool_tip="C tipi karakterleri için yürüyebilirlik. Örnek karakter tipi mekaniktir."/>
+		<text name="edit_d_label">
+			D
+		</text>
+		<line_editor name="edit_d_value" tool_tip="D tipi karakterleri için yürüyebilirlik. Örnek karakter tipi diğerdir."/>
+		<button label="Değişiklikleri uygula" name="apply_edit_values"/>
+		<text name="suggested_use_a_label">
+			(Humanoid)
+		</text>
+		<text name="suggested_use_b_label">
+			(Yaratık)
+		</text>
+		<text name="suggested_use_c_label">
+			(Mekanik)
+		</text>
+		<text name="suggested_use_d_label">
+			(Diğer)
+		</text>
+	</panel>
+</floater>

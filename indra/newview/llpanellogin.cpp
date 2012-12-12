@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llpanellogin.h"
+#include "lllayoutstack.h"
 
 #include "indra_constants.h"		// for key and mask constants
 #include "llfloaterreg.h"
@@ -138,14 +139,17 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	mLogoImage = LLUI::getUIImage("startup_logo");
 
 	buildFromFile( "panel_login.xml");
-	
+
 	reshape(rect.getWidth(), rect.getHeight());
 
-	getChild<LLLineEditor>("password_edit")->setKeystrokeCallback(onPassKey, this);
+	LLLineEditor* password_edit(getChild<LLLineEditor>("password_edit"));
+	password_edit->setKeystrokeCallback(onPassKey, this);
+	// STEAM-14: When user presses Enter with this field in focus, initiate login
+	password_edit->setCommitCallback(boost::bind(&LLPanelLogin::onClickConnect, this));
 
 	// change z sort of clickable text to be behind buttons
 	sendChildToBack(getChildView("forgot_password_text"));
-	
+
 	LLComboBox* location_combo = getChild<LLComboBox>("start_location_combo");
 	updateLocationSelectorsVisibility(); // separate so that it can be called from preferences
 	location_combo->setFocusLostCallback(boost::bind(&LLPanelLogin::onLocationSLURL, this));
@@ -201,7 +205,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	
 	childSetAction("connect_btn", onClickConnect, this);
 
-	getChild<LLPanel>("login")->setDefaultBtn("connect_btn");
+	getChild<LLPanel>("links_login_panel")->setDefaultBtn("connect_btn");
 
 	std::string channel = LLVersionInfo::getChannel();
 	std::string version = llformat("%s (%d)",
@@ -211,8 +215,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	LLTextBox* forgot_password_text = getChild<LLTextBox>("forgot_password_text");
 	forgot_password_text->setClickedCallback(onClickForgotPassword, NULL);
 
-	LLTextBox* create_new_account_text = getChild<LLTextBox>("create_new_account_text");
-	create_new_account_text->setClickedCallback(onClickNewAccount, NULL);
+	childSetAction("create_new_account_btn", onClickNewAccount, NULL);
 
 	LLTextBox* need_help_text = getChild<LLTextBox>("login_help");
 	need_help_text->setClickedCallback(onClickHelp, NULL);
@@ -220,14 +223,17 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	// get the web browser control
 	LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("login_html");
 	web_browser->addObserver(this);
-	
+
 	reshapeBrowser();
 
 	loadLoginPage();
-			
+
 	// Show last logged in user favorites in "Start at" combo.
 	addUsersWithFavoritesToUsername();
-	getChild<LLComboBox>("username_combo")->setTextChangedCallback(boost::bind(&LLPanelLogin::addFavoritesToStartLocation, this));
+	LLComboBox* username_combo(getChild<LLComboBox>("username_combo"));
+	username_combo->setTextChangedCallback(boost::bind(&LLPanelLogin::addFavoritesToStartLocation, this));
+	// STEAM-14: When user presses Enter with this field in focus, initiate login
+	username_combo->setCommitCallback(boost::bind(&LLPanelLogin::onClickConnect, this));
 }
 
 void LLPanelLogin::addUsersWithFavoritesToUsername()
@@ -636,12 +642,10 @@ void LLPanelLogin::updateLocationSelectorsVisibility()
 	if (sInstance) 
 	{
 		BOOL show_start = gSavedSettings.getBOOL("ShowStartLocation");
-		sInstance->getChildView("start_location_combo")->setVisible(show_start);
-		sInstance->getChildView("start_location_text")->setVisible(show_start);
+		sInstance->getChild<LLLayoutPanel>("start_location_panel")->setVisible(show_start);
 
 		BOOL show_server = gSavedSettings.getBOOL("ForceShowGrid");
-		LLComboBox* server_choice_combo = sInstance->getChild<LLComboBox>("server_combo");
-		server_choice_combo->setVisible( show_server );
+		sInstance->getChild<LLLayoutPanel>("grid_panel")->setVisible(show_server);
 	}	
 }
 
@@ -746,63 +750,48 @@ void LLPanelLogin::setAlwaysRefresh(bool refresh)
 void LLPanelLogin::loadLoginPage()
 {
 	if (!sInstance) return;
-	
-	std::ostringstream oStr;
 
-	std::string login_page = LLGridManager::getInstance()->getLoginPage();
+	LLURI login_page = LLURI(LLGridManager::getInstance()->getLoginPage());
+	LLSD params(login_page.queryMap());
 
-	oStr << login_page;
-	
-	// Use the right delimeter depending on how LLURI parses the URL
-	LLURI login_page_uri = LLURI(login_page);
-	
-	std::string first_query_delimiter = "&";
-	if (login_page_uri.queryMap().size() == 0)
-	{
-		first_query_delimiter = "?";
-	}
+	LL_DEBUGS("AppInit") << "login_page: " << login_page << LL_ENDL;
 
 	// Language
-	std::string language = LLUI::getLanguage();
-	oStr << first_query_delimiter<<"lang=" << language;
-	
+	params["lang"] = LLUI::getLanguage();
+
 	// First Login?
 	if (gSavedSettings.getBOOL("FirstLoginThisInstall"))
 	{
-		oStr << "&firstlogin=TRUE";
+		params["firstlogin"] = "TRUE"; // not bool: server expects string TRUE
 	}
 
 	// Channel and Version
-	std::string version = llformat("%s (%d)",
-								   LLVersionInfo::getShortVersion().c_str(),
-								   LLVersionInfo::getBuild());
-
-	char* curl_channel = curl_escape(LLVersionInfo::getChannel().c_str(), 0);
-	char* curl_version = curl_escape(version.c_str(), 0);
-
-	oStr << "&channel=" << curl_channel;
-	oStr << "&version=" << curl_version;
-
-	curl_free(curl_channel);
-	curl_free(curl_version);
+	params["version"] = llformat("%s (%d)",
+								 LLVersionInfo::getShortVersion().c_str(),
+								 LLVersionInfo::getBuild());
+	params["channel"] = LLVersionInfo::getChannel();
 
 	// Grid
-	char* curl_grid = curl_escape(LLGridManager::getInstance()->getGridId().c_str(), 0);
-	oStr << "&grid=" << curl_grid;
-	curl_free(curl_grid);
-	
+	params["grid"] = LLGridManager::getInstance()->getGridId();
+
 	// add OS info
-	char * os_info = curl_escape(LLAppViewer::instance()->getOSInfo().getOSStringSimple().c_str(), 0);
-	oStr << "&os=" << os_info;
-	curl_free(os_info);
-	
+	params["os"] = LLAppViewer::instance()->getOSInfo().getOSStringSimple();
+
+	// sourceid
+	params["sourceid"] = gSavedSettings.getString("sourceid");
+
+	// Make an LLURI with this augmented info
+	LLURI login_uri(LLURI::buildHTTP(login_page.authority(),
+									 login_page.path(),
+									 params));
+
 	gViewerWindow->setMenuBackgroundColor(false, !LLGridManager::getInstance()->isInProductionGrid());
-	
+
 	LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
-	if (web_browser->getCurrentNavUrl() != oStr.str())
+	if (web_browser->getCurrentNavUrl() != login_uri.asString())
 	{
-		LL_DEBUGS("AppInit")<<oStr.str()<<LL_ENDL;
-		web_browser->navigateTo( oStr.str(), "text/html" );
+		LL_DEBUGS("AppInit") << "loading:    " << login_uri << LL_ENDL;
+		web_browser->navigateTo( login_uri.asString(), "text/html" );
 	}
 }
 
@@ -886,7 +875,7 @@ void LLPanelLogin::onClickNewAccount(void*)
 {
 	if (sInstance)
 	{
-		LLWeb::loadURLExternal(sInstance->getString("create_account_url"));
+		LLWeb::loadURLExternal(LLTrans::getString("create_account_url"));
 	}
 }
 
@@ -946,9 +935,11 @@ void LLPanelLogin::updateServer()
 
 			// update the login panel links 
 			bool system_grid = LLGridManager::getInstance()->isSystemGrid();
-	
-			sInstance->getChildView("create_new_account_text")->setVisible( system_grid);
-			sInstance->getChildView("forgot_password_text")->setVisible( system_grid);
+
+			// Want to vanish not only create_new_account_btn, but also the
+			// title text over it, so turn on/off the whole layout_panel element.
+			sInstance->getChild<LLLayoutPanel>("links")->setVisible(system_grid);
+			sInstance->getChildView("forgot_password_text")->setVisible(system_grid);
 
 			// grid changed so show new splash screen (possibly)
 			loadLoginPage();

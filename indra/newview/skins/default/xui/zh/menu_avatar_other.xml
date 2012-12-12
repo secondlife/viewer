@@ -6,11 +6,11 @@
 	<menu_item_call label="IM" name="Send IM..."/>
 	<menu_item_call label="通話" name="Call"/>
 	<menu_item_call label="邀請加入群組" name="Invite..."/>
-	<menu_item_call label="Block" name="Avatar Mute"/>
+	<menu_item_call label="封鎖" name="Avatar Mute"/>
 	<menu_item_call label="回報" name="abuse"/>
 	<menu_item_call label="凍結" name="Freeze..."/>
 	<menu_item_call label="踢出" name="Eject..."/>
 	<menu_item_call label="材質除錯" name="Debug..."/>
-	<menu_item_call label="Zoom In" name="Zoom In"/>
+	<menu_item_call label="放大" name="Zoom In"/>
 	<menu_item_call label="支付" name="Pay..."/>
 </context_menu>

@@ -1,74 +1,65 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Snapshot" title="SNAPSHOT PREVIEW">
+<floater name="Snapshot" title="快照預覽">
 	<floater.string name="unknown">
 		未知
 	</floater.string>
-	<radio_group label="Snapshot type" name="snapshot_type_radio">
-		<radio_item label="Email" name="postcard"/>
-		<radio_item label="我的收納區（L$[AMOUNT]）" name="texture"/>
-		<radio_item label="Save to my computer" name="local"/>
-	</radio_group>
+	<string name="postcard_progress_str">
+		正在發送電郵
+	</string>
+	<string name="profile_progress_str">
+		發佈
+	</string>
+	<string name="inventory_progress_str">
+		儲存到收納區
+	</string>
+	<string name="local_progress_str">
+		正在存到電腦
+	</string>
+	<string name="profile_succeeded_str">
+		圖像已上傳
+	</string>
+	<string name="postcard_succeeded_str">
+		電郵發送成功！
+	</string>
+	<string name="inventory_succeeded_str">
+		成功存入收納區！
+	</string>
+	<string name="local_succeeded_str">
+		成功存入電腦！
+	</string>
+	<string name="profile_failed_str">
+		上傳圖像到你的檔案訊息發佈時出錯。
+	</string>
+	<string name="postcard_failed_str">
+		電郵傳送失敗。
+	</string>
+	<string name="inventory_failed_str">
+		無法存入收納區。
+	</string>
+	<string name="local_failed_str">
+		無法儲入電腦。
+	</string>
+	<button name="advanced_options_btn" tool_tip="進階選項"/>
+	<text name="image_res_text">
+		[WIDTH] x [HEIGHT] 像素
+	</text>
 	<text name="file_size_label">
 		[SIZE] KB
 	</text>
-	<button label="送出" name="send_btn"/>
-	<button label="儲存（L$[AMOUNT]）" name="upload_btn"/>
-	<flyout_button label="儲存" name="save_btn" tool_tip="儲存圖像到檔案">
-		<flyout_button.item label="儲存" name="save_item"/>
-		<flyout_button.item label="另存..." name="saveas_item"/>
-	</flyout_button>
-	<button label="更多" name="more_btn" tool_tip="進階選項"/>
-	<button label="更少" name="less_btn" tool_tip="進階選項"/>
-	<button label="取消" name="discard_btn"/>
-	<text name="type_label2">
-		尺寸
-	</text>
-	<text name="format_label">
-		Format
-	</text>
-	<combo_box label="Resolution" name="postcard_size_combo">
-		<combo_box.item label="目前視窗" name="CurrentWindow"/>
-		<combo_box.item label="640x480" name="640x480"/>
-		<combo_box.item label="800x600" name="800x600"/>
-		<combo_box.item label="1024x768" name="1024x768"/>
-		<combo_box.item label="自訂" name="Custom"/>
-	</combo_box>
-	<combo_box label="Resolution" name="texture_size_combo">
-		<combo_box.item label="目前視窗" name="CurrentWindow"/>
-		<combo_box.item label="Small (128x128)" name="Small(128x128)"/>
-		<combo_box.item label="Medium (256x256)" name="Medium(256x256)"/>
-		<combo_box.item label="Large (512x512)" name="Large(512x512)"/>
-		<combo_box.item label="自訂" name="Custom"/>
-	</combo_box>
-	<combo_box label="Resolution" name="local_size_combo">
-		<combo_box.item label="目前視窗" name="CurrentWindow"/>
-		<combo_box.item label="320x240" name="320x240"/>
-		<combo_box.item label="640x480" name="640x480"/>
-		<combo_box.item label="800x600" name="800x600"/>
-		<combo_box.item label="1024x768" name="1024x768"/>
-		<combo_box.item label="1280x1024" name="1280x1024"/>
-		<combo_box.item label="1600x1200" name="1600x1200"/>
-		<combo_box.item label="Custom" name="Custom"/>
-	</combo_box>
-	<combo_box label="Format" name="local_format_combo">
-		<combo_box.item label="PNG" name="PNG"/>
-		<combo_box.item label="JPEG" name="JPEG"/>
-		<combo_box.item label="BMP" name="BMP"/>
-	</combo_box>
-	<spinner label="Width" name="snapshot_width"/>
-	<spinner label="Height" name="snapshot_height"/>
-	<check_box label="Constrain proportions" name="keep_aspect_check"/>
-	<slider label="圖像品質" name="image_quality_slider"/>
-	<text name="layer_type_label">
-		Capture:
-	</text>
-	<combo_box label="圖層" name="layer_types">
-		<combo_box.item label="Colors" name="Colors"/>
-		<combo_box.item label="Depth" name="Depth"/>
-	</combo_box>
-	<check_box label="Interface" name="ui_check"/>
-	<check_box label="HUDs" name="hud_check"/>
-	<check_box label="Keep open after saving" name="keep_open_check"/>
-	<check_box label="凍結框架（全螢幕）" name="freeze_frame_check"/>
-	<check_box label="Auto-refresh" name="auto_snapshot_check"/>
+	<panel name="advanced_options_panel">
+		<text name="advanced_options_label">
+			進階選項
+		</text>
+		<text name="layer_type_label">
+			擷取快照：
+		</text>
+		<combo_box label="圖層" name="layer_types">
+			<combo_box.item label="顏色" name="Colors"/>
+			<combo_box.item label="深度" name="Depth"/>
+		</combo_box>
+		<check_box label="介面" name="ui_check"/>
+		<check_box label="擡頭顯示" name="hud_check"/>
+		<check_box label="將幀凍結（全螢幕）" name="freeze_frame_check"/>
+		<check_box label="自動刷新" name="auto_snapshot_check"/>
+	</panel>
 </floater>

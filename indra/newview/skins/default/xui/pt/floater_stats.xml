@@ -47,6 +47,12 @@
 					<stat_bar label="Low LOD Objects" name="physicslodtasks"/>
 					<stat_bar label="Memory Allocated" name="physicsmemoryallocated"/>
 				</stat_view>
+				<stat_bar label="Scripts executados" name="simpctscriptsrun"/>
+				<stat_view label="Pathfinding" name="simpathfinding">
+					<stat_bar label="Tempo de etapa de AI" name="simsimaistepmsec"/>
+					<stat_bar label="Etapas de silhueta ignoradas" name="simsimskippedsilhouettesteps"/>
+					<stat_bar label="Personagens atualizados" name="simsimpctsteppedcharacters"/>
+				</stat_view>
 				<stat_view label="Time (ms)" name="simperf">
 					<stat_bar label="Total Frame Time" name="simframemsec"/>
 					<stat_bar label="Net Time" name="simnetmsec"/>

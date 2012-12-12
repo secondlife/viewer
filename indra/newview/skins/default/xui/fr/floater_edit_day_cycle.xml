@@ -22,13 +22,13 @@
 		Remarque : si vous changez votre préréglage de nom, un nouveau préréglage sera créé et celui existant restera tel quel.
 	</text>
 	<text name="hint_item1">
-		- Cliquez sur un repère pour modifier le réglage du ciel et l&apos;heure associés.
+		- Modifier un réglage de ciel/heure : clic sur le repère
 	</text>
 	<text name="hint_item2">
-		- Cliquez sur les repères et faites-les glisser afin de définir les heures de transition.
+		- Heures de transition : clic-glissement des repères
 	</text>
 	<text name="hint_item3">
-		- Déplacez le marqueur en forme de triangle pour afficher un aperçu du cycle du jour.
+		- Aperçu du cycle du jour : déplacement du triangle
 	</text>
 	<panel name="day_cycle_slider_panel">
 		<multi_slider initial_value="0" name="WLTimeSlider"/>
@@ -91,11 +91,11 @@
 		</text>
 	</panel>
 	<text name="WLCurKeyPresetText">
-		Réglage du ciel :
+		Régl. ciel :
 	</text>
 	<combo_box label="Préréglage" name="WLSkyPresets"/>
 	<text name="WLCurKeyTimeText">
-		Heure :
+		H. :
 	</text>
 	<time name="time" value="6h"/>
 	<check_box label="Appliquer ce nouveau cycle du jour" name="make_default_cb"/>

@@ -897,7 +897,8 @@ bool LLXMLNode::getLayeredXMLNode(LLXMLNodePtr& root,
 
 	std::vector<std::string>::const_iterator itor;
 
-	for (itor = paths.begin(), ++itor; itor != paths.end(); ++itor)
+	// We've already dealt with the first item, skip that one
+	for (itor = paths.begin() + 1; itor != paths.end(); ++itor)
 	{
 		std::string layer_filename = *itor;
 		if(layer_filename.empty() || layer_filename == filename)

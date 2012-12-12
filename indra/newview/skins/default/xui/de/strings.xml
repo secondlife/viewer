@@ -137,7 +137,7 @@
 		Beenden
 	</string>
 	<string name="create_account_url">
-		http://join.secondlife.com/index.php?lang=de-DE
+		http://join.secondlife.com/index.php?lang=de-DE&amp;sourceid=[sourceid]
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		Mit dem von Ihnen verwendeten Viewer ist der Zugriff auf Second Life nicht mehr möglich. Laden Sie von den folgenden Seite einen neuen Viewer herunter:
@@ -1006,6 +1006,9 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="script_files">
 		Skripts
 	</string>
+	<string name="dictionary_files">
+		Wörterbücher
+	</string>
 	<string name="AvatarSetNotAway">
 		Nicht abwesend
 	</string>
@@ -1411,6 +1414,12 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="InvFolder favorite">
 		Meine Favoriten
 	</string>
+	<string name="InvFolder Favorites">
+		Meine Favoriten
+	</string>
+	<string name="InvFolder favorites">
+		Meine Favoriten
+	</string>
 	<string name="InvFolder Current Outfit">
 		Aktuelles Outfit
 	</string>
@@ -1425,6 +1434,12 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	</string>
 	<string name="InvFolder Meshes">
 		Netze
+	</string>
+	<string name="InvFolder Received Items">
+		Erhaltene Artikel
+	</string>
+	<string name="InvFolder Merchant Outbox">
+		Händler-Outbox
 	</string>
 	<string name="InvFolder Friends">
 		Freunde
@@ -3864,6 +3879,12 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="LocationCtrlSeeAVsTooltip">
 		Avatare sichtbar; Chat außerhalb dieser Parzelle gestattet
 	</string>
+	<string name="LocationCtrlPathfindingDirtyTooltip">
+		Bewegliche Objekte verhalten sich in dieser Region u. U. erst dann korrekt, wenn die Region neu geformt wird.
+	</string>
+	<string name="LocationCtrlPathfindingDisabledTooltip">
+		Dynamisches Pathfinding ist in dieser Region nicht aktiviert.
+	</string>
 	<string name="UpdaterWindowTitle">
 		[APP_NAME] Aktualisierung
 	</string>
@@ -5006,6 +5027,21 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	<string name="Normal">
 		Normal
 	</string>
+	<string name="Pathfinding_Wiki_URL">
+		http://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer
+	</string>
+	<string name="Pathfinding_Object_Attr_None">
+		Keine
+	</string>
+	<string name="Pathfinding_Object_Attr_Permanent">
+		Wirkt sich auf Navmesh aus
+	</string>
+	<string name="Pathfinding_Object_Attr_Character">
+		Figur
+	</string>
+	<string name="Pathfinding_Object_Attr_MultiSelect">
+		(mehrere)
+	</string>
 	<string name="snapshot_quality_very_low">
 		Sehr niedrig
 	</string>
@@ -5020,5 +5056,11 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	</string>
 	<string name="snapshot_quality_very_high">
 		Sehr hoch
+	</string>
+	<string name="TeleportMaturityExceeded">
+		Der Einwohner kann diese Region nicht besuchen.
+	</string>
+	<string name="UserDictionary">
+		[Benutzer]
 	</string>
 </strings>

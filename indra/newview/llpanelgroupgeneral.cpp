@@ -28,8 +28,10 @@
 
 #include "llpanelgroupgeneral.h"
 
-#include "lluictrlfactory.h"
+#include "llavatarnamecache.h"
 #include "llagent.h"
+#include "llsdparam.h"
+#include "lluictrlfactory.h"
 #include "roles_constants.h"
 
 // UI elements
@@ -313,11 +315,10 @@ void LLPanelGroupGeneral::activate()
 	{
 		LLGroupMgr::getInstance()->sendGroupTitlesRequest(mGroupID);
 		LLGroupMgr::getInstance()->sendGroupPropertiesRequest(mGroupID);
-
 		
 		if (!gdatap || !gdatap->isMemberDataComplete() )
 		{
-			LLGroupMgr::getInstance()->sendGroupMembersRequest(mGroupID);
+			LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mGroupID);
 		}
 
 		mFirstUse = FALSE;
@@ -697,82 +698,88 @@ void LLPanelGroupGeneral::updateMembers()
 
 	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 
-	if (!mListVisibleMembers || !gdatap 
+	if (!mListVisibleMembers 
+		|| !gdatap 
 		|| !gdatap->isMemberDataComplete()
 		|| gdatap->mMembers.empty())
 	{
 		return;
 	}
 
-	static LLTimer all_timer;
-	static LLTimer sd_timer;
-	static LLTimer element_timer;
+	LLTimer update_time;
+	update_time.setTimerExpirySec(UPDATE_MEMBERS_SECONDS_PER_FRAME);
 
-	all_timer.reset();
-	S32 i = 0;
+	LLAvatarName av_name;
 
-	for( ; mMemberProgress != gdatap->mMembers.end() && i<UPDATE_MEMBERS_PER_FRAME; 
-			++mMemberProgress, ++i)
+	for( ; mMemberProgress != gdatap->mMembers.end() && !update_time.hasExpired(); 
+			++mMemberProgress)
 	{
-		//llinfos << "Adding " << iter->first << ", " << iter->second->getTitle() << llendl;
 		LLGroupMemberData* member = mMemberProgress->second;
 		if (!member)
 		{
 			continue;
 		}
-		// Owners show up in bold.
-		std::string style = "NORMAL";
-		sd_timer.reset();
-		LLSD row;
-		row["id"] = member->getID();
 
-		row["columns"][0]["column"] = "name";
-		row["columns"][0]["font"]["name"] = "SANSSERIF_SMALL";
-		row["columns"][0]["font"]["style"] = style;
-		// value is filled in by name list control
-
-		row["columns"][1]["column"] = "title";
-		row["columns"][1]["value"] = member->getTitle();
-		row["columns"][1]["font"]["name"] = "SANSSERIF_SMALL";
-		row["columns"][1]["font"]["style"] = style;
-
-		std::string status = member->getOnlineStatus();
-		
-		row["columns"][2]["column"] = "status";
-		row["columns"][2]["value"] = status;
-		row["columns"][2]["font"]["name"] = "SANSSERIF_SMALL";
-		row["columns"][2]["font"]["style"] = style;
-
-		sSDTime += sd_timer.getElapsedTimeF32();
-
-		element_timer.reset();
-		LLScrollListItem* member_row = mListVisibleMembers->addElement(row);
-		
-		if ( member->isOwner() )
+		if (LLAvatarNameCache::get(mMemberProgress->first, &av_name))
 		{
-			LLScrollListText* name_textp = dynamic_cast<LLScrollListText*>(member_row->getColumn(0));
-			if (name_textp)
-				name_textp->setFontStyle(LLFontGL::BOLD);
+			addMember(mMemberProgress->second);
 		}
-		sElementTime += element_timer.getElapsedTimeF32();
+		else
+		{
+			// If name is not cached, onNameCache() should be called when it is cached and add this member to list.
+			LLAvatarNameCache::get(mMemberProgress->first, 
+									boost::bind(&LLPanelGroupGeneral::onNameCache,
+												this, gdatap->getMemberVersion(), member, _2));
+		}
 	}
-	sAllTime += all_timer.getElapsedTimeF32();
 
-	llinfos << "Updated " << i << " of " << UPDATE_MEMBERS_PER_FRAME << "members in the list." << llendl;
 	if (mMemberProgress == gdatap->mMembers.end())
 	{
-		llinfos << "   member list completed." << llendl;
+		lldebugs << "   member list completed." << llendl;
 		mListVisibleMembers->setEnabled(TRUE);
-
-		llinfos << "All Time: " << sAllTime << llendl;
-		llinfos << "SD Time: " << sSDTime << llendl;
-		llinfos << "Element Time: " << sElementTime << llendl;
 	}
 	else
 	{
 		mPendingMemberUpdate = TRUE;
 		mListVisibleMembers->setEnabled(FALSE);
 	}
+}
+
+void LLPanelGroupGeneral::addMember(LLGroupMemberData* member)
+{
+	LLNameListCtrl::NameItem item_params;
+	item_params.value = member->getID();
+
+	LLScrollListCell::Params column;
+	item_params.columns.add().column("name").font.name("SANSSERIF_SMALL");
+
+	item_params.columns.add().column("title").value(member->getTitle()).font.name("SANSSERIF_SMALL");
+
+	item_params.columns.add().column("status").value(member->getOnlineStatus()).font.name("SANSSERIF_SMALL");
+
+	LLScrollListItem* member_row = mListVisibleMembers->addNameItemRow(item_params);
+
+	if ( member->isOwner() )
+	{
+		LLScrollListText* name_textp = dynamic_cast<LLScrollListText*>(member_row->getColumn(0));
+		if (name_textp)
+			name_textp->setFontStyle(LLFontGL::BOLD);
+	}
+}
+
+void LLPanelGroupGeneral::onNameCache(const LLUUID& update_id, LLGroupMemberData* member, const LLAvatarName& av_name)
+{
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
+
+	if (!gdatap
+		|| !gdatap->isMemberDataComplete()
+		|| gdatap->getMemberVersion() != update_id)
+	{
+		// Stale data
+		return;
+	}
+
+	addMember(member);
 }
 
 void LLPanelGroupGeneral::updateChanged()

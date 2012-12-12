@@ -29,6 +29,7 @@
 #include "llcheckboxctrl.h"
 
 #include "llagent.h"
+#include "llavatarnamecache.h"
 #include "llbutton.h"
 #include "llfiltereditor.h"
 #include "llfloatergroupinvite.h"
@@ -356,7 +357,7 @@ void LLPanelGroupRoles::activate()
 		
 		if (!gdatap || !gdatap->isMemberDataComplete() )
 		{
-			LLGroupMgr::getInstance()->sendGroupMembersRequest(mGroupID);
+			LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mGroupID);
 		}
 
 		// Check role data.
@@ -744,7 +745,6 @@ LLPanelGroupMembersSubTab::LLPanelGroupMembersSubTab()
 	mHasMatch(FALSE),
 	mNumOwnerAdditions(0)
 {
-	mUdpateSessionID = LLUUID::null;
 }
 
 LLPanelGroupMembersSubTab::~LLPanelGroupMembersSubTab()
@@ -1426,10 +1426,17 @@ U64 LLPanelGroupMembersSubTab::getAgentPowersBasedOnRoleChanges(const LLUUID& ag
 		return GP_NO_POWERS;
 	}
 
-	LLGroupMemberData* member_data = gdatap->mMembers[agent_id];
-	if ( !member_data )
+	LLGroupMgrGroupData::member_list_t::iterator iter = gdatap->mMembers.find(agent_id);
+	if ( iter == gdatap->mMembers.end() )
 	{
 		llwarns << "LLPanelGroupMembersSubTab::getAgentPowersBasedOnRoleChanges() -- No member data for member with UUID " << agent_id << llendl;
+		return GP_NO_POWERS;
+	}
+
+	LLGroupMemberData* member_data = (*iter).second;
+	if (!member_data)
+	{
+		llwarns << "LLPanelGroupMembersSubTab::getAgentPowersBasedOnRoleChanges() -- Null member data for member with UUID " << agent_id << llendl;
 		return GP_NO_POWERS;
 	}
 
@@ -1547,10 +1554,6 @@ void LLPanelGroupMembersSubTab::update(LLGroupChange gc)
 		mMemberProgress = gdatap->mMembers.begin();
 		mPendingMemberUpdate = TRUE;
 		mHasMatch = FALSE;
-		// Generate unique ID for current updateMembers()- see onNameCache for details.
-		// Using unique UUID is perhaps an overkill but this way we are perfectly safe
-		// from coincidences.
-		mUdpateSessionID.generate();
 	}
 	else
 	{
@@ -1578,55 +1581,41 @@ void LLPanelGroupMembersSubTab::update(LLGroupChange gc)
 	}
 }
 
-void LLPanelGroupMembersSubTab::addMemberToList(LLUUID id, LLGroupMemberData* data)
+void LLPanelGroupMembersSubTab::addMemberToList(LLGroupMemberData* data)
 {
 	if (!data) return;
 	LLUIString donated = getString("donation_area");
 	donated.setArg("[AREA]", llformat("%d", data->getContribution()));
 
-	LLSD row;
-	row["id"] = id;
+	LLNameListCtrl::NameItem item_params;
+	item_params.value = data->getID();
 
-	row["columns"][0]["column"] = "name";
-	// value is filled in by name list control
+	item_params.columns.add().column("name").font.name("SANSSERIF_SMALL").style("NORMAL");
 
-	row["columns"][1]["column"] = "donated";
-	row["columns"][1]["value"] = donated.getString();
+	item_params.columns.add().column("donated").value(donated.getString())
+			.font.name("SANSSERIF_SMALL").style("NORMAL");
 
-	row["columns"][2]["column"] = "online";
-	row["columns"][2]["value"] = data->getOnlineStatus();
-	row["columns"][2]["font"] = "SANSSERIF_SMALL";
-
-	mMembersList->addElement(row);
+	item_params.columns.add().column("online").value(data->getOnlineStatus())
+			.font.name("SANSSERIF_SMALL").style("NORMAL");
+	mMembersList->addNameItemRow(item_params);
 
 	mHasMatch = TRUE;
 }
 
-void LLPanelGroupMembersSubTab::onNameCache(const LLUUID& update_id, const LLUUID& id)
+void LLPanelGroupMembersSubTab::onNameCache(const LLUUID& update_id, LLGroupMemberData* member, const LLAvatarName& av_name)
 {
-	// Update ID is used to determine whether member whose id is passed
-	// into onNameCache() was passed after current or previous user-initiated update.
-	// This is needed to avoid probable duplication of members in list after changing filter
-	// or adding of members of another group if gets for their names were called on
-	// previous update. If this id is from get() called from older update,
-	// we do nothing.
-	if (mUdpateSessionID != update_id) return;
-	
 	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
-		if (!gdatap) 
+	if (!gdatap
+		|| gdatap->getMemberVersion() != update_id
+		|| !member)
 	{
-		llwarns << "LLPanelGroupMembersSubTab::updateMembers() -- No group data!" << llendl;
 		return;
 	}
 	
-	std::string fullname;
-	gCacheName->getFullName(id, fullname);
-
-	LLGroupMemberData* data;
 	// trying to avoid unnecessary hash lookups
-	if (matchesSearchFilter(fullname) && ((data = gdatap->mMembers[id]) != NULL))
+	if (matchesSearchFilter(av_name.getLegacyName()))
 	{
-		addMemberToList(id, data);
+		addMemberToList(member);
 		if(!mMembersList->getEnabled())
 		{
 			mMembersList->setEnabled(TRUE);
@@ -1665,27 +1654,29 @@ void LLPanelGroupMembersSubTab::updateMembers()
 
 
 	LLGroupMgrGroupData::member_list_t::iterator end = gdatap->mMembers.end();
-	
-	S32 i = 0;
-	for( ; mMemberProgress != end && i<UPDATE_MEMBERS_PER_FRAME; 
-			++mMemberProgress, ++i)
+
+	LLTimer update_time;
+	update_time.setTimerExpirySec(UPDATE_MEMBERS_SECONDS_PER_FRAME);
+
+	for( ; mMemberProgress != end && !update_time.hasExpired(); ++mMemberProgress)
 	{
 		if (!mMemberProgress->second)
 			continue;
+
 		// Do filtering on name if it is already in the cache.
-		std::string fullname;
-		if (gCacheName->getFullName(mMemberProgress->first, fullname))
+		LLAvatarName av_name;
+		if (LLAvatarNameCache::get(mMemberProgress->first, &av_name))
 		{
-			if (matchesSearchFilter(fullname))
+			if (matchesSearchFilter(av_name.getLegacyName()))
 			{
-				addMemberToList(mMemberProgress->first, mMemberProgress->second);
+				addMemberToList(mMemberProgress->second);
 			}
 		}
 		else
 		{
 			// If name is not cached, onNameCache() should be called when it is cached and add this member to list.
-			gCacheName->get(mMemberProgress->first, FALSE, boost::bind(&LLPanelGroupMembersSubTab::onNameCache,
-																	   this, mUdpateSessionID, _1));
+			LLAvatarNameCache::get(mMemberProgress->first, boost::bind(&LLPanelGroupMembersSubTab::onNameCache,
+									this, gdatap->getMemberVersion(), mMemberProgress->second, _2));
 		}
 	}
 
@@ -1987,7 +1978,7 @@ void LLPanelGroupRolesSubTab::update(LLGroupChange gc)
 
 	if (!gdatap || !gdatap->isMemberDataComplete())
 	{
-		LLGroupMgr::getInstance()->sendGroupMembersRequest(mGroupID);
+		LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mGroupID);
 	}
 	
 	if (!gdatap || !gdatap->isRoleMemberDataComplete())
@@ -2580,7 +2571,7 @@ void LLPanelGroupActionsSubTab::handleActionSelect()
 	}
 	else
 	{
-		LLGroupMgr::getInstance()->sendGroupMembersRequest(mGroupID);
+		LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mGroupID);
 	}
 
 	if (gdatap->isRoleDataComplete())
@@ -2604,6 +2595,7 @@ void LLPanelGroupActionsSubTab::handleActionSelect()
 		LLGroupMgr::getInstance()->sendGroupRoleDataRequest(mGroupID);
 	}
 }
+
 void LLPanelGroupRoles::setGroupID(const LLUUID& id)
 {
 	LLPanelGroupTab::setGroupID(id);

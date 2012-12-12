@@ -993,7 +993,12 @@ extern void glGetBufferPointervARB (GLenum, GLenum, GLvoid* *);
 }
 #endif
 
+#if __MAC_OS_X_VERSION_MAX_ALLOWED <= 1070
+#include <OpenGL/gl.h>
+#else
 #include <AGL/gl.h>
+#endif
+
 
 #endif // LL_MESA / LL_WINDOWS / LL_DARWIN
 

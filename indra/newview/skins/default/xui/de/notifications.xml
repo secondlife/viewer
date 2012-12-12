@@ -37,6 +37,12 @@
 			<button name="Help" text="$helptext"/>
 		</form>
 	</template>
+	<template name="okhelpignore">
+		<form>
+			<button name="OK_okhelpignore" text="$yestext"/>
+			<button name="Help_okhelpignore" text="$helptext"/>
+		</form>
+	</template>
 	<template name="yesnocancelbuttons">
 		<form>
 			<button name="Yes" text="$yestext"/>
@@ -367,12 +373,18 @@ Sie müssen den Benutzernamen Ihres Avatars eingeben.
 
 Sie benötigen ein Konto, um [SECOND_LIFE] betreten zu können. Möchten Sie jetzt ein Konto erstellen?
 		<url name="url">
-			https://join.secondlife.com/index.php?lang=de-DE
+			[create_account_url]
 		</url>
 		<usetemplate name="okcancelbuttons" notext="Erneut versuchen" yestext="Neues Benutzerkonto anlegen"/>
 	</notification>
 	<notification name="InvalidCredentialFormat">
 		Sie müssen entweder den Benutzernamen oder den Vor- und Nachnamen Ihres Avatars in das Feld „Benutzername“ eingeben und die Anmeldung dann erneut versuchen.
+	</notification>
+	<notification name="InvalidGrid">
+		„[GRID]“ ist keine gültige Grid-ID.
+	</notification>
+	<notification name="InvalidLocationSLURL">
+		Ihre Startposition gibt kein gültiges Grid an.
 	</notification>
 	<notification name="DeleteClassified">
 		Anzeige „[NAME]“ löschen?
@@ -479,8 +491,8 @@ Das Objekt ist möglicherweise außer Reichweite oder wurde gelöscht.
 		Ein kompiliertes Skript konnte aus folgendem Grund nicht gespeichert werden: [REASON].  Speichern Sie das Skript bitte später.
 	</notification>
 	<notification name="StartRegionEmpty">
-		Sie haben keine Start-Region festgelegt.
-Bitte geben Sie den Namen der Region im Feld „Startposition“ ein oder wählen Sie „Mein letzter Standort“ oder „Mein Zuhause“ als Startposition aus.
+		Ihre Startregion ist nicht definiert.
+Geben Sie den Namen der Region im Feld „Startposition“ ein oder wählen Sie „Mein letzter Standort“ oder „Mein Zuhause“ als Startposition aus.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CouldNotStartStopScript">
@@ -606,6 +618,9 @@ Sie können maximal [MAX] Objekte verknüpfen.
 		Verknüpfung nicht möglich, da Sie nicht alle Objekte bearbeiten dürfen.
 
 Stellen Sie sicher, dass kein Objekt gesperrt ist und alle Objekte Ihnen gehören.
+	</notification>
+	<notification name="CannotLinkPermanent">
+		Objekte können nicht über Regionsgrenzen hinweg verknüpft werden.
 	</notification>
 	<notification name="CannotLinkDifferentOwners">
 		Verknüpfung nicht möglich, da nicht alle Objekte denselben Eigentümer haben.
@@ -991,6 +1006,41 @@ Sie sind nicht berechtigt, Land für die aktive Gruppe zu kaufen.
 			<button name="Cancel" text="Abbrechen"/>
 		</form>
 	</notification>
+	<notification label="Automatische Ersetzungsliste hinzufügen" name="AddAutoReplaceList">
+		Name für neue Liste:
+		<form name="form">
+			<button name="SetName" text="OK"/>
+		</form>
+	</notification>
+	<notification label="Automatische Ersetzungsliste umbenennen" name="RenameAutoReplaceList">
+		Der Name „[DUPNAME]“ wird bereits verwendet.
+ Geben Sie einen neuen eindeutigen Namen ein:
+		<form name="form">
+			<button name="ReplaceList" text="Aktuelle Liste ersetzen"/>
+			<button name="SetName" text="Neuen Namen verwenden"/>
+		</form>
+	</notification>
+	<notification name="InvalidAutoReplaceEntry">
+		Das Schlüsselwort muss ein einziges Wort sein; die Ersetzungszeichenfolge darf nicht leer sein.
+	</notification>
+	<notification name="InvalidAutoReplaceList">
+		Diese Ersetzungsliste ist nicht gültig.
+	</notification>
+	<notification name="SpellingDictImportRequired">
+		Sie müssen eine Datei, einen Namen und eine Sprache angeben.
+	</notification>
+	<notification name="SpellingDictIsSecondary">
+		Das Wörterbuch [DIC_NAME] scheint keine „aff“-Datei zu haben und ist deshalb ein sekundäres Wörterbuch.
+Es kann als zusätzliches Wörterbuch verwendet werden, aber nicht als Hauptwörterbuch.
+
+Weitere Informationen finden Sie unter https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries.
+	</notification>
+	<notification name="SpellingDictImportFailed">
+		Kopieren nicht möglich:
+    [FROM_NAME]
+    in
+    [TO_NAME]
+	</notification>
 	<notification label="Outfit speichern" name="SaveOutfitAs">
 		Mein aktuelles Outfit als neues Outfit speichern:
 		<form name="form">
@@ -1171,7 +1221,7 @@ in „[THIS_GPU]“
 Sie wurden zur nächstgelegenen Region teleportiert.
 	</notification>
 	<notification name="AvatarMovedLast">
-		Ihr letzter Standort ist zurzeit nicht verfügbar.
+		Ihr angeforderter Standort ist zurzeit nicht verfügbar.
 Sie wurden zur nächstgelegenen Region teleportiert.
 	</notification>
 	<notification name="AvatarMovedHome">
@@ -1190,8 +1240,7 @@ Sie können [SECOND_LIFE] normal verwenden. Andere Benutzer können Sie korrekt 
 		Installation von [APP_NAME] vollständig abgeschlossen.
 
 Falls Sie [SECOND_LIFE] zum ersten Mal verwenden, müssen Sie zuerst ein Konto erstellen, bevor Sie sich anmelden können.
-Zurück zu [http://join.secondlife.com secondlife.com], um ein neues Konto zu erstellen?
-		<usetemplate name="okcancelbuttons" notext="Weiter" yestext="Neues Konto..."/>
+		<usetemplate name="okcancelbuttons" notext="Weiter" yestext="Konto erstellen..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">
 		Es gibt Probleme mit der Verbindung. Möglicherweise besteht ein Problem mit Ihrer Internetverbindung oder dem [SECOND_LIFE_GRID].
@@ -1708,83 +1757,128 @@ Tausende Regionen werden verändert und der Spaceserver wird dadurch stark belas
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="RegionEntryAccessBlocked">
-		Sie dürfen diese Region aufgrund Ihrer Alterseinstufung nicht betreten. Der Grund hierfür ist möglicherweise, dass Sie nicht altersüberprüft sind.
-
-Bitte vergewissern Sie sich, dass Sie den aktuellsten Viewer installiert haben und besuchen Sie unsere Knowledgebase, um mehr über Regionen mit dieser Altereinstufung zu erfahren.
+		Die Region, die Sie besuchen möchten, enthält Inhalte, die Ihre aktuellen Einstellungen überschreiten. Sie können Ihre Einstellungen unter „Ich“ &gt; „Einstellungen“ &gt; „Allgemein“ ändern.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
-	<notification name="RegionEntryAccessBlocked_KB">
-		Sie dürfen diese Region aufgrund Ihrer Alterseinstufung nicht betreten.
-
-Möchten Sie unsere Knowledgebase besuchen, um mehr Informationen über Altereinstufung zu erhalten?
+	<notification name="RegionEntryAccessBlocked_AdultsOnlyContent">
+		Die Region, die Sie besuchen möchten, enthält [REGIONMATURITY]-Inhalte, die nur für Erwachsene zugänglich sind.
 		<url name="url">
 			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview/de
 		</url>
-		<usetemplate ignoretext="Ich kann diese Region aufgrund der Alterseinstufung nicht betreten" name="okcancelignore" notext="Schließen" yestext="Zur Knowledgbase"/>
+		<usetemplate ignoretext="Regionswechsel: Die Region, die Sie besuchen möchten, enthält Inhalte, die nur für Erwachsene zugänglich sind." name="okcancelignore" notext="Schließen" yestext="Zur Knowledge Base gehen"/>
 	</notification>
 	<notification name="RegionEntryAccessBlocked_Notify">
-		Aufgrund Ihrer Alterseinstufung dürfen Sie diese Region nicht betreten.
+		Die Region, die Sie besuchen möchten, enthält [REGIONMATURITY]-Inhalte, doch aufgrund Ihrer aktuellen Einstellungen werden [REGIONMATURITY]-Inhalte nicht dargestellt.
+	</notification>
+	<notification name="RegionEntryAccessBlocked_NotifyAdultsOnly">
+		Die Region, die Sie besuchen möchten, enthält [REGIONMATURITY]-Inhalte, die nur für Erwachsene zugänglich sind.
 	</notification>
 	<notification name="RegionEntryAccessBlocked_Change">
-		Sie dürfen diese Region aufgrund der Einstellung Ihrer Inhaltseinstufung nicht betreten.
-
-Bitte ändern Sie Ihre Einstellungen bezüglich der Inhaltseinstufung, um die gewünschte Region zu betreten. Danach können Sie nach [REGIONMATURITY]-Inhalt suchen und auf diesen zugreifen. Um die Veränderungen rückgängig zu machen, gehen Sie zu Ich &gt; Einstellungen &gt; Allgemein.
+		Die Region, die Sie besuchen möchten, enthält [REGIONMATURITY]-Inhalte, doch aufgrund Ihrer aktuellen Einstellungen werden [REGIONMATURITY]-Inhalte nicht dargestellt. Sie können Ihre Einstellungen ändern oder diesen Vorgang abbrechen. Nachdem Sie Ihre Einstellungen geändert haben, können Sie erneut versuchen, die Region zu betreten.
 		<form name="form">
-			<button name="OK" text="Einstellung ändern"/>
-			<button name="Cancel" text="Schließen"/>
-			<ignore name="ignore" text="Meine Alterseinstufung lässt nicht zu, dass ich eine Region betrete."/>
+			<button name="OK" text="Einstellungen ändern"/>
+			<button name="Cancel" text="Abbrechen"/>
+			<ignore name="ignore" text="Regionswechsel: Die Region, die Sie besuchen möchten, enthält Inhalte, die aufgrund Ihrer Einstellungen nicht dargestellt werden können."/>
 		</form>
 	</notification>
+	<notification name="RegionEntryAccessBlocked_PreferencesOutOfSync">
+		Wir haben technische Probleme mit Ihrem Teleport, da Ihre Einstellungen nicht mit dem Server synchronisiert sind.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="TeleportEntryAccessBlocked">
+		Die Region, die Sie besuchen möchten, enthält Inhalte, die Ihre aktuellen Einstellungen überschreiten. Sie können Ihre Einstellungen unter „Ich“ &gt; „Einstellungen“ &gt; „Allgemein“ ändern.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="TeleportEntryAccessBlocked_AdultsOnlyContent">
+		Die Region, die Sie besuchen möchten, enthält [REGIONMATURITY]-Inhalte, die nur für Erwachsene zugänglich sind.
+		<url name="url">
+			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview/de
+		</url>
+		<usetemplate ignoretext="Teleport: Die Region, die Sie besuchen möchten, enthält Inhalte, die nur für Erwachsene zugänglich sind." name="okcancelignore" notext="Schließen" yestext="Zur Knowledge Base gehen"/>
+	</notification>
+	<notification name="TeleportEntryAccessBlocked_Notify">
+		Die Region, die Sie besuchen möchten, enthält [REGIONMATURITY]-Inhalte, doch aufgrund Ihrer aktuellen Einstellungen werden [REGIONMATURITY]-Inhalte nicht dargestellt.
+	</notification>
+	<notification name="TeleportEntryAccessBlocked_NotifyAdultsOnly">
+		Die Region, die Sie besuchen möchten, enthält [REGIONMATURITY]-Inhalte, die nur für Erwachsene zugänglich sind.
+	</notification>
+	<notification name="TeleportEntryAccessBlocked_ChangeAndReTeleport">
+		Die Region, die Sie besuchen möchten, enthält [REGIONMATURITY]-Inhalte, doch aufgrund Ihrer aktuellen Einstellungen werden [REGIONMATURITY]-Inhalte nicht dargestellt. Sie können Ihre Einstellungen ändern und den Teleport fortsetzen oder Sie können den Teleport abbrechen.
+		<form name="form">
+			<button name="OK" text="Ändern und fortfahren"/>
+			<button name="Cancel" text="Abbrechen"/>
+			<ignore name="ignore" text="Teleport (kann neu gestartet werden): Die Region, die Sie besuchen möchten, enthält Inhalte, die aufgrund Ihrer Einstellungen nicht dargestellt werden können."/>
+		</form>
+	</notification>
+	<notification name="TeleportEntryAccessBlocked_Change">
+		Die Region, die Sie besuchen möchten, enthält [REGIONMATURITY]-Inhalte, doch aufgrund Ihrer aktuellen Einstellungen werden [REGIONMATURITY]-Inhalte nicht dargestellt. Sie können Ihre Einstellungen ändern oder den Teleport abbrechen. Nachdem Sie Ihre Einstellungen geändert haben, können Sie den Teleport erneut versuchen.
+		<form name="form">
+			<button name="OK" text="Einstellungen ändern"/>
+			<button name="Cancel" text="Abbrechen"/>
+			<ignore name="ignore" text="Teleport (kann nicht neu gestartet werden): Die Region, die Sie besuchen möchten, enthält Inhalte, die aufgrund Ihrer Einstellungen nicht dargestellt werden können."/>
+		</form>
+	</notification>
+	<notification name="TeleportEntryAccessBlocked_PreferencesOutOfSync">
+		Wir haben technische Probleme mit Ihrem Teleport, da Ihre Einstellungen nicht mit dem Server synchronisiert sind.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="PreferredMaturityChanged">
-		Ihre Inhaltseinstufung ist jetzt [RATING].
+		Sie erhalten keine Benachrichtigungen mehr, wenn Sie eine Region der Inhaltseinstufung „[RATING]“ besuchen. Sie können Ihre Inhaltseinstellungen von der Menüleiste aus ändern („Ich“ &gt; „Einstellungen“ &gt; „Allgemein“).
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MaturityChangeError">
+		Wir konnten Ihre Einstellungen zur Anzeige von [PREFERRED_MATURITY]-Inhalten leider nicht ändern. Ihre Einstellungen wurden auf [ACTUAL_MATURITY]-Inhalte zurückgesetzt. Sie können erneut versuchen, Ihre Inhaltseinstellungen von der Menüleiste aus zu ändern („Ich“ &gt; „Einstellungen“ &gt; „Allgemein“).
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="LandClaimAccessBlocked">
-		Sie haben aufgrund Ihrer Alterseinstufung keinen Anspruch auf dieses Land. Der Grund hierfür ist möglicherweise, dass Sie nicht altersüberprüft sind.
-
-Bitte vergewissern Sie sich, dass Sie den aktuellsten Viewer installiert haben und besuchen Sie unsere Knowledgebase, um mehr über Regionen mit dieser Altereinstufung zu erfahren.
+		Die Inhaltseinstufung des Landes, das Sie in Besitz nehmen möchten, überschreitet Ihre aktuellen Einstellungen. Sie können Ihre Einstellungen unter „Ich“ &gt; „Einstellungen“ &gt; „Allgemein“ ändern.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
-	<notification name="LandClaimAccessBlocked_KB">
-		Sie haben aufgrund Ihrer Alterseinstufung keinen Anspruch auf dieses Land.
-
-Möchten Sie unsere Knowledgebase besuchen, um mehr Informationen über Altereinstufung zu erhalten?
+	<notification name="LandClaimAccessBlocked_AdultsOnlyContent">
+		Nur Erwachsene können dieses Land in Besitz nehmen.
 		<url name="url">
 			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview/de
 		</url>
-		<usetemplate ignoretext="Ich habe aufgrund der Alterseinstufung keinen Anspruch auf dieses Land" name="okcancelignore" notext="Schließen" yestext="Zur Knowledgbase"/>
+		<usetemplate ignoretext="Nur Erwachsene können dieses Land in Besitz nehmen." name="okcancelignore" notext="Schließen" yestext="Zur Knowledge Base gehen"/>
 	</notification>
 	<notification name="LandClaimAccessBlocked_Notify">
-		Sie haben aufgrund Ihrer Alterseinstufung keinen Anspruch auf dieses Land.
+		Das Land, das Sie besuchen möchten, enthält [REGIONMATURITY]-Inhalte, doch aufgrund Ihrer aktuellen Einstellungen werden [REGIONMATURITY]-Inhalte nicht dargestellt.
+	</notification>
+	<notification name="LandClaimAccessBlocked_NotifyAdultsOnly">
+		Das Land, das Sie in Besitz nehmen möchten, enthält [REGIONMATURITY]-Inhalte, die nur für Erwachsene zugänglich sind.
 	</notification>
 	<notification name="LandClaimAccessBlocked_Change">
-		Sie haben aufgrund der Einstellung Ihrer Alterseinstufung keinen Anspruch auf dieses Land.
-
-Klicken Sie auf „Einstellung ändern“, um Ihre Einstellung für Altereinstufung sofort zu ändern und Zugang zu erhalten. Sie können ab sofort [REGIONMATURITY]-Inhalt suchen und auf diesen zugreifen. Falls Sie diese Einstellung später rückgängig machen möchten, gehen Sie zu Bearbeiten &gt; Einstellungen &gt; Allgemein.
-		<usetemplate ignoretext="Meine Alterseinstufung lässt nicht zu, dass ich auf Land Anspruch erhebe" name="okcancelignore" notext="Schließen" yestext="Einstellung ändern"/>
+		Das Land, das Sie besuchen möchten, enthält [REGIONMATURITY]-Inhalte, doch aufgrund Ihrer aktuellen Einstellungen werden [REGIONMATURITY]-Inhalte nicht dargestellt. Sie können Ihre Einstellungen ändern und anschließend erneut versuchen, das Land in Besitz zu nehmen.
+		<form name="form">
+			<button name="OK" text="Einstellungen ändern"/>
+			<button name="Cancel" text="Abbrechen"/>
+			<ignore name="ignore" text="Das Land, das Sie in Besitz nehmen möchten, enthält Inhalte, die aufgrund Ihrer Einstellungen nicht dargestellt werden können."/>
+		</form>
 	</notification>
 	<notification name="LandBuyAccessBlocked">
-		Sie können aufgrund Ihrer Alterseinstufung dieses Land nicht kaufen. Der Grund hierfür ist möglicherweise, dass Sie nicht altersüberprüft sind.
-
-Bitte vergewissern Sie sich, dass Sie den aktuellsten Viewer installiert haben und besuchen Sie unsere Knowledgebase, um mehr über Regionen mit dieser Altereinstufung zu erfahren.
+		Die Inhaltseinstufung des Landes, das Sie kaufen möchten, überschreitet Ihre aktuellen Einstellungen.  Sie können Ihre Einstellungen unter „Ich“ &gt; „Einstellungen“ &gt; „Allgemein“ ändern.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
-	<notification name="LandBuyAccessBlocked_KB">
-		Sie können aufgrund Ihrer Alterseinstufung dieses Land nicht kaufen.
-
-Möchten Sie unsere Knowledgebase besuchen, um mehr Informationen über Altereinstufung zu erhalten?
+	<notification name="LandBuyAccessBlocked_AdultsOnlyContent">
+		Nur Erwachsene können dieses Land kaufen.
 		<url name="url">
 			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview/de
 		</url>
-		<usetemplate ignoretext="Ich kann aufgrund der Alterseinstufung dieses Land nicht kaufen" name="okcancelignore" notext="Schließen" yestext="Zur Knowledgbase"/>
+		<usetemplate ignoretext="Nur Erwachsene können dieses Land kaufen." name="okcancelignore" notext="Schließen" yestext="Zur Knowledge Base gehen"/>
 	</notification>
 	<notification name="LandBuyAccessBlocked_Notify">
-		Sie können aufgrund Ihrer Alterseinstufung dieses Land nicht kaufen.
+		Das Land, das Sie kaufen möchten, enthält [REGIONMATURITY]-Inhalte, doch aufgrund Ihrer aktuellen Einstellungen werden [REGIONMATURITY]-Inhalte nicht dargestellt.
+	</notification>
+	<notification name="LandBuyAccessBlocked_NotifyAdultsOnly">
+		Das Land, das Sie kaufen möchten, enthält Inhalte der Einstufung „[REGIONMATURITY]“, die nur für Erwachsene zugänglich sind.
 	</notification>
 	<notification name="LandBuyAccessBlocked_Change">
-		Sie können aufgrund Ihrer Einstellung für Alterseinstufung dieses Land nicht kaufen.
-
-Klicken Sie auf „Einstellung ändern“, um Ihre Einstellung für Altereinstufung sofort zu ändern und Zugang zu erhalten. Sie können ab sofort [REGIONMATURITY]-Inhalt suchen und auf diesen zugreifen. Falls Sie diese Einstellung später rückgängig machen möchten, gehen Sie zu Bearbeiten &gt; Einstellungen &gt; Allgemein.
-		<usetemplate ignoretext="Meine Alterseinstufung lässt nicht zu, dass ich Land kaufe" name="okcancelignore" notext="Schließen" yestext="Einstellung ändern"/>
+		Das Land, das Sie kaufen möchten, enthält [REGIONMATURITY]-Inhalte, doch aufgrund Ihrer aktuellen Einstellungen werden [REGIONMATURITY]-Inhalte nicht dargestellt. Sie können Ihre Einstellungen ändern und anschließend erneut versuchen, das Land zu kaufen.
+		<form name="form">
+			<button name="OK" text="Einstellungen ändern"/>
+			<button name="Cancel" text="Abbrechen"/>
+			<ignore name="ignore" text="Das Land, das Sie kaufen möchten, enthält Inhalte, die aufgrund Ihrer Einstellungen nicht dargestellt werden können."/>
+		</form>
 	</notification>
 	<notification name="TooManyPrimsSelected">
 		Zu viele Prims wurden ausgewählt.  Bitte wählen Sie höchstens [MAX_PRIM_COUNT] Prims aus und versuchen Sie es erneut.
@@ -1839,10 +1933,9 @@ Anzeige für [AMOUNT] L$ veröffentlichen?
 		</form>
 	</notification>
 	<notification label="Alterseinstufung der Region ändern" name="RegionMaturityChange">
-		Die Alterseinstufung dieser Region wurde aktualisiert.
+		Die Inhaltseinstufung dieser Region wurde geändert.
 Es kann eine Weile dauern, bis diese Änderung auf der Karte angezeigt wird.
-
-Um Regionen der Alterseinstufung „Adult&quot; zu betreten, müssen Einwohner altersüberprüft sein. Dies kann entweder über die Alterverifizierung oder Zahlungsverifizierung geschehen.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification label="Falsche Voice-Version" name="VoiceVersionMismatch">
 		Diese Version von [APP_NAME] ist mit der Voice-Chat-Funktion in dieser Region nicht kompatibel. Damit Voice-Chat funktioniert, müssen Sie [APP_NAME] aktualisieren.
@@ -2132,14 +2225,11 @@ Von einer Webseite zu diesem Formular linken, um anderen leichten Zugang zu dies
 		<usetemplate ignoretext="Die Kleidung, die während dem Bearbeiten meines Aussehens erstellt wird, sofort anziehen" name="okcancelignore" notext="Nein" yestext="Ja"/>
 	</notification>
 	<notification name="NotAgeVerified">
-		Um auf Adult-Inhalte und –Bereiche in Second Life zuzugreifen, müssen Sie mindestens 18 Jahre alt sein. Bitte besuchen Sie die Altersüberprüfungsseite, um zu bestätigen, dass Sie mindestens 18 Jahre alt sind. 
-Hierzu wird Ihr Webbrowser geöffnet.
-
-[_URL]
-		<url name="url" option="0">
-			https://secondlife.com/my/account/verification.php
-		</url>
-		<usetemplate ignoretext="Ich habe mein Alter nicht verifizieren lassen" name="okcancelignore" notext="Abbrechen" yestext="Zur Altersüberprüfung"/>
+		Der Ort, den Sie besuchen möchten, ist nur für Bewohner zugänglich, die mindestens 18 Jahre alt sind.
+		<usetemplate ignoretext="Ich bin nicht alt genug, um beschränkte Bereiche zu besuchen." name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="NotAgeVerified_Notify">
+		Ort auf Einwohner beschränkt, die mindestens 18 Jahre alt sind.
 	</notification>
 	<notification name="Cannot enter parcel: no payment info on file">
 		Um diesen Bereich besuchen zu können, müssen Ihre Zahlungsinformationen gespeichert sein.  Möchten Sie diese Einstellung auf der [SECOND_LIFE]-Webseite einrichten?
@@ -2200,7 +2290,7 @@ Hierzu wird Ihr Webbrowser geöffnet.
 		Terrain.raw heruntergeladen
 	</notification>
 	<notification name="GestureMissing">
-		Hmm. Geste [NAME] fehlt in Datenbank.
+		Geste [NAME] fehlt in Datenbank.
 	</notification>
 	<notification name="UnableToLoadGesture">
 		Geste [NAME] konnte nicht geladen werden.
@@ -2400,6 +2490,23 @@ Fliegen ist hier nicht möglich.
 	<notification name="NoBuild">
 		In diesem Bereich ist das Bauen deaktiviert. Sie können keine Objekte bauen oder rezzen.
 	</notification>
+	<notification name="PathfindingDirty">
+		Diese Region weist ausstehende Pathfinding-Änderungen auf. Wenn Sie Baurechte besitzen, können Sie die Region durch Klicken auf die Schaltfläche „Region neu formen“ neu formen.
+	</notification>
+	<notification name="DynamicPathfindingDisabled">
+		Dynamisches Pathfinding ist in dieser Region nicht aktiviert. Geskriptete Objekte, die Pathfinding-LSL-Aufrufe verwenden, funktionieren in dieser Region u. U. nicht wie erwartet.
+	</notification>
+	<notification name="PathfindingRebakeNavmesh">
+		Wenn Sie bestimmte Objekte in dieser Region ändern, verhalten sich andere bewegliche Objekte u. U. inkorrekt. Um dieses Problem zu beheben, klicken Sie auf die Schaltfläche „Region neu formen“. Um weitere Informationen zu erhalten, klicken Sie auf „Hilfe“.
+		<url name="url">
+			http://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer
+		</url>
+		<usetemplate helptext="Hilfe" ignoretext="Wenn Sie bestimmte Objekte in dieser Region ändern, verhalten sich andere bewegliche Objekte u. U. inkorrekt." name="okhelpignore" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingCannotRebakeNavmesh">
+		Fehler aufgetreten. Möglicherweise ist ein Netzwerk- oder Serverproblem aufgetreten oder Sie haben nicht die erforderlichen Baurechte. Dieses Problem lässt sich manchmal durch Ab- und Anmelden lösen.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="SeeAvatars">
 		Diese Parzelle verbirgt Avatare und Text-Chat vor einer anderen Parzelle.   Sie können Einwohner außerhalb dieser Parzelle weder sehen noch von ihnen gesehen werden.  Regulärer Text-Chat auf Kanal 0 ist ebenfalls blockiert.
 	</notification>
@@ -2418,9 +2525,7 @@ Hier funktionieren nur Skripts, die dem Landeigentümer gehören.
 		Öffentliches Land kann nur in der Region in Besitz genommen werden, in der Sie sich befinden.
 	</notification>
 	<notification name="RegionTPAccessBlocked">
-		Sie dürfen diese Region aufgrund Ihrer Alterseinstufung nicht betreten. Sie müssen eventuell eine Altersüberprüfung vornehmen und/oder den aktuellsten Viewer installieren.
-
-Bitte besuchen Sie unsere Knowledgebase, um mehr Details über Zugang zu Regionen mit dieser Alterseinstufung zu erhalten.
+		Die Region, die Sie besuchen möchten, enthält Inhalte, die Ihre aktuellen Einstellungen überschreiten. Sie können Ihre Einstellungen unter „Ich“ &gt; „Einstellungen“ &gt; „Allgemein“ ändern.
 	</notification>
 	<notification name="URBannedFromRegion">
 		Sie dürfen diese Region nicht betreten.
@@ -2431,11 +2536,11 @@ Bitte besuchen Sie unsere Knowledgebase, um mehr Details über Zugang zu Regione
 	<notification name="ImproperPaymentStatus">
 		Die für den Zutritt zu dieser Region erforderlichen Zahlungsinformationen liegen nicht vor.
 	</notification>
-	<notification name="MustGetAgeRgion">
-		Sie müssen altersüberprüft sein, um diese Region betreten zu können.
+	<notification name="MustGetAgeRegion">
+		Sie müssen mindestens 18 Jahre alt sein, um diese Region betreten zu können.
 	</notification>
 	<notification name="MustGetAgeParcel">
-		Sie müssen altersüberprüft sein, um diese Parzelle betreten zu können.
+		Sie müssen mindestens 18 Jahre alt sein, um diese Parzelle betreten zu können.
 	</notification>
 	<notification name="NoDestRegion">
 		Keine Zielregion gefunden.
@@ -2535,13 +2640,34 @@ Versuchen Sie es in einigen Minuten erneut.
 		</form>
 	</notification>
 	<notification name="TeleportOffered">
-		[NAME_SLURL] hat Ihnen einen Teleport an seine/ihre Position angeboten:
+		[NAME_SLURL] hat Ihnen den Teleport an seinen/ihren Standort angeboten:
 
-[MESSAGE] - [MATURITY_STR] &lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt;
+„[MESSAGE]“
+&lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt; – [MATURITY_STR]
 		<form name="form">
 			<button name="Teleport" text="Teleportieren"/>
 			<button name="Cancel" text="Abbrechen"/>
 		</form>
+	</notification>
+	<notification name="TeleportOffered_MaturityExceeded">
+		[NAME_SLURL] hat Ihnen den Teleport an seinen/ihren Standort angeboten:
+
+„[MESSAGE]“
+&lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt; – [MATURITY_STR]
+
+Diese Region enthält [REGION_CONTENT_MATURITY]-Inhalte, doch aufgrund Ihrer aktuellen Einstellungen werden [REGION_CONTENT_MATURITY]-Inhalte nicht dargestellt. Sie können Ihre Einstellungen ändern und den Teleport fortsetzen oder Sie können den Teleport abbrechen.
+		<form name="form">
+			<button name="Teleport" text="Ändern und fortfahren"/>
+			<button name="Cancel" text="Abbrechen"/>
+		</form>
+	</notification>
+	<notification name="TeleportOffered_MaturityBlocked">
+		[NAME_SLURL] hat Ihnen den Teleport an seinen/ihren Standort angeboten:
+
+„[MESSAGE]“
+&lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt; – [MATURITY_STR]
+
+Diese Region enthält jedoch Inhalte, die nur für Erwachsene zugänglich sind.
 	</notification>
 	<notification name="TeleportOfferSent">
 		Ein Teleportangebot wurde an [TO_NAME] geschickt
@@ -2947,6 +3073,10 @@ Sie haben eine [RESOLUTION]-gebackene Textur für „[BODYREGION]“ nach [TIME]
 		( [EXISTENCE] Sekunden am Leben)
 Sie haben lokal eine [RESOLUTION]-gebackene Textur für „[BODYREGION]“ nach [TIME] Sekunden aktualisiert.
 	</notification>
+	<notification name="LivePreviewUnavailable">
+		Wir können keine Vorschau dieser Textur anzeigen, da sie nicht kopier- und/oder übertragungsfähig ist.
+		<usetemplate ignoretext="Hinweis anzeigen, wenn bei nicht kopier- und/oder übertragungsfähigen Texturen keine Live-Vorschau möglich ist" name="okignore" yestext="OK"/>
+	</notification>
 	<notification name="ConfirmLeaveCall">
 		Möchten Sie dieses Gespräch wirklich verlassen ?
 		<usetemplate ignoretext="Bestätigen, bevor ich den Anruf verlasse." name="okcancelignore" notext="Nein" yestext="Ja"/>
@@ -3116,6 +3246,62 @@ Durch Ausblenden der Schaltfläche „Sprechen“ wird die Sprechfunktion deakti
 		Durch diese Aktion werden alle Menüelemente und Schaltflächen ausgeblendet. Um sie wieder anzuzeigen, klicken Sie erneut auf [SHORTCUT].
 		<usetemplate ignoretext="Vor Ausblenden der UI bestätigen" name="okcancelignore" notext="Abbrechen" yestext="OK"/>
 	</notification>
+	<notification name="PathfindingLinksets_WarnOnPhantom">
+		Bei einigen ausgewählten Linksets wird die Phantom-Markierung umgeschaltet.
+
+Möchten Sie fortfahren?
+		<usetemplate ignoretext="Bei einigen ausgewählten Linksets wird die Phantom-Markierung umgeschaltet." name="okcancelignore" notext="Abbrechen" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_MismatchOnRestricted">
+		Einige der ausgewählten Linksets können aufgrund von Berechtigungseinschränkungen nicht auf „[REQUESTED_TYPE]“ gesetzt werden.  Diese Linksets werden stattdessen auf „[RESTRICTED_TYPE]“ gesetzt.
+
+Möchten Sie fortfahren?
+		<usetemplate ignoretext="Einige der ausgewählten Linksets können aufgrund von Berechtigungseinschränkungen nicht gesetzt werden." name="okcancelignore" notext="Abbrechen" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_MismatchOnVolume">
+		Einige der ausgewählten Linksets können nicht auf „[REQUESTED_TYPE]“ gesetzt werden, da die Form nicht konvex ist.
+
+Möchten Sie fortfahren?
+		<usetemplate ignoretext="Einige der ausgewählten Linksets können nicht gesetzt werden, da die Form nicht konvex ist." name="okcancelignore" notext="Abbrechen" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_WarnOnPhantom_MismatchOnRestricted">
+		Bei einigen ausgewählten Linksets wird die Phantom-Markierung umgeschaltet.
+
+Einige der ausgewählten Linksets können aufgrund von Berechtigungseinschränkungen nicht auf „[REQUESTED_TYPE]“ gesetzt werden.  Diese Linksets werden stattdessen auf „[RESTRICTED_TYPE]“ gesetzt.
+
+Möchten Sie fortfahren?
+		<usetemplate ignoretext="Bei einigen ausgewählten Linksets wird die Phantom-Markierung umgeschaltet und andere können aufgrund von Berechtigungseinschränkungen nicht gesetzt werden." name="okcancelignore" notext="Abbrechen" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_WarnOnPhantom_MismatchOnVolume">
+		Bei einigen ausgewählten Linksets wird die Phantom-Markierung umgeschaltet.
+
+Einige der ausgewählten Linksets können nicht auf „[REQUESTED_TYPE]“ gesetzt werden, da die Form nicht konvex ist.
+
+Möchten Sie fortfahren?
+		<usetemplate ignoretext="Bei einigen ausgewählten Linksets wird die Phantom-Markierung umgeschaltet und andere können nicht gesetzt werden, da die Form nicht konvex ist." name="okcancelignore" notext="Abbrechen" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_MismatchOnRestricted_MismatchOnVolume">
+		Einige der ausgewählten Linksets können aufgrund von Berechtigungseinschränkungen nicht auf „[REQUESTED_TYPE]“ gesetzt werden.  Diese Linksets werden stattdessen auf „[RESTRICTED_TYPE]“ gesetzt.
+
+Einige der ausgewählten Linksets können nicht auf „[REQUESTED_TYPE]“ gesetzt werden, da die Form nicht konvex ist. Die Nutzungsarten dieser Linksets bleiben unverändert.
+
+Möchten Sie fortfahren?
+		<usetemplate ignoretext="Einige der ausgewählten Linksets können nicht gesetzt werden, da die Berechtigungen eingeschränkt sind und die Form nicht konvex ist." name="okcancelignore" notext="Abbrechen" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_WarnOnPhantom_MismatchOnRestricted_MismatchOnVolume">
+		Bei einigen ausgewählten Linksets wird die Phantom-Markierung umgeschaltet.
+
+Einige der ausgewählten Linksets können aufgrund von Berechtigungseinschränkungen nicht auf „[REQUESTED_TYPE]“ gesetzt werden.  Diese Linksets werden stattdessen auf „[RESTRICTED_TYPE]“ gesetzt.
+
+Einige der ausgewählten Linksets können nicht auf „[REQUESTED_TYPE]“ gesetzt werden, da die Form nicht konvex ist. Die Nutzungsarten dieser Linksets bleiben unverändert.
+
+Möchten Sie fortfahren?
+		<usetemplate ignoretext="Bei einigen ausgewählten Linksets wird die Phantom-Markierung umgeschaltet und andere können nicht gesetzt werden, da die Berechtigungen für das Linkset eingeschränkt sind und die Form nicht konvex ist." name="okcancelignore" notext="Abbrechen" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_ChangeToFlexiblePath">
+		Das ausgewählte Objekt wirkt sich auf das Navmesh aus. Wenn Sie es in einen flexiblen Pfad ändern, wird es aus dem Navmesh entfernt.
+		<usetemplate ignoretext="Das ausgewählte Objekt wirkt sich auf das Navmesh aus. Wenn Sie es in einen flexiblen Pfad ändern, wird es aus dem Navmesh entfernt." name="okcancelignore" notext="Abbrechen" yestext="OK"/>
+	</notification>
 	<global name="UnsupportedGLRequirements">
 		Ihr Computer entspricht nicht den Hardwareanforderungen von [APP_NAME]. [APP_NAME] setzt eine OpenGL-Grafikkarte mit Multitextur-Unterstützung voraus. Falls Ihre Grafikkarte diese Funktion unterstützt, installieren Sie die neuesten Treiber sowie die aktuellen Service Packs und Patches für Ihr Betriebssystem.
 
@@ -3151,5 +3337,13 @@ Zukünftige Aktualisierungen dieser Datei werden deaktiviert.
 	<notification name="LocalBitmapsVerifyFail">
 		Versuch, eine ungültige oder nicht lesbare Bilddatei ([FNAME]) hinzuzufügen, die nicht geöffnet oder decodiert werden konnte.
 Versuch abgebrochen.
+	</notification>
+	<notification name="PathfindingReturnMultipleItems">
+		Sie sind dabei, [NUM_ITEMS] Objekte zurückzugeben. Möchten Sie diesen Vorgang wirklich fortsetzen?
+		<usetemplate ignoretext="Möchten Sie wirklich mehrere Objekte zurückgeben?" name="okcancelignore" notext="Nein" yestext="Ja"/>
+	</notification>
+	<notification name="PathfindingDeleteMultipleItems">
+		Sie sind dabei, [NUM_ITEMS] Objekte zu löschen. Möchten Sie diesen Vorgang wirklich fortsetzen?
+		<usetemplate ignoretext="Möchten Sie wirklich mehrere Objekte löschen?" name="okcancelignore" notext="Nein" yestext="Ja"/>
 	</notification>
 </notifications>

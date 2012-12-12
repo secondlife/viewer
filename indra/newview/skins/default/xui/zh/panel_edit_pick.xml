@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="編輯精選地點" name="panel_edit_pick">
 	<panel.string name="location_notice">
-		（將在儲存後更新）
+		（儲存後將會更新）
 	</panel.string>
 	<text name="title">
 		編輯精選地點
 	</text>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
-			<icon label="" name="edit_icon" tool_tip="點擊以選擇圖像"/>
+			<icon label="" name="edit_icon" tool_tip="點按以選擇圖像"/>
 			<text name="Name:">
 				標題：
 			</text>
@@ -29,7 +29,7 @@
 			<layout_panel name="layout_panel1">
 				<button label="儲存精選地點" name="save_changes_btn"/>
 			</layout_panel>
-			<layout_panel name="layout_panel1">
+			<layout_panel name="layout_panel2">
 				<button label="取消" name="cancel_btn"/>
 			</layout_panel>
 		</layout_stack>

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_pathfinding_linksets" title="Groupes de liens de recherche de chemin">
+	<floater.string name="messaging_get_inprogress">
+		Requête relative aux groupes de liens de recherche de chemin en cours...
+	</floater.string>
+	<floater.string name="messaging_get_error">
+		Erreur lors de la requête relative aux groupes de liens de recherche de chemin.
+	</floater.string>
+	<floater.string name="messaging_set_inprogress">
+		Modification des groupes de liens de recherche de chemin sélectionnés...
+	</floater.string>
+	<floater.string name="messaging_set_error">
+		Erreur lors de la modification des groupes de liens de recherche de chemin sélectionnés.
+	</floater.string>
+	<floater.string name="messaging_complete_none_found">
+		Aucun groupe de liens de recherche de chemin.
+	</floater.string>
+	<floater.string name="messaging_complete_available">
+		[NUM_SELECTED] groupes de liens sélectionnés sur [NUM_TOTAL].
+	</floater.string>
+	<floater.string name="messaging_not_enabled">
+		La recherche de chemin n&apos;a pas été activée pour cette région.
+	</floater.string>
+	<floater.string name="linkset_terrain_name">
+		[Terrain]
+	</floater.string>
+	<floater.string name="linkset_terrain_description">
+		--
+	</floater.string>
+	<floater.string name="linkset_terrain_owner">
+		--
+	</floater.string>
+	<floater.string name="linkset_terrain_scripted">
+		--
+	</floater.string>
+	<floater.string name="linkset_terrain_land_impact">
+		--
+	</floater.string>
+	<floater.string name="linkset_terrain_dist_from_you">
+		--
+	</floater.string>
+	<floater.string name="linkset_owner_loading">
+		[Chargement]
+	</floater.string>
+	<floater.string name="linkset_owner_unknown">
+		[Inconnu]
+	</floater.string>
+	<floater.string name="linkset_owner_group">
+		[Groupe]
+	</floater.string>
+	<floater.string name="linkset_is_scripted">
+		Oui
+	</floater.string>
+	<floater.string name="linkset_is_not_scripted">
+		Non
+	</floater.string>
+	<floater.string name="linkset_is_unknown_scripted">
+		Inconnu
+	</floater.string>
+	<floater.string name="linkset_use_walkable">
+		Marche possible
+	</floater.string>
+	<floater.string name="linkset_use_static_obstacle">
+		Obstacle statique
+	</floater.string>
+	<floater.string name="linkset_use_dynamic_obstacle">
+		Obstacle mobile
+	</floater.string>
+	<floater.string name="linkset_use_material_volume">
+		Volume de matériau
+	</floater.string>
+	<floater.string name="linkset_use_exclusion_volume">
+		Volume d&apos;exclusion
+	</floater.string>
+	<floater.string name="linkset_use_dynamic_phantom">
+		Fantôme mobile
+	</floater.string>
+	<floater.string name="linkset_is_terrain">
+		[Non modifiable]
+	</floater.string>
+	<floater.string name="linkset_is_restricted_state">
+		[Restriction]
+	</floater.string>
+	<floater.string name="linkset_is_non_volume_state">
+		[Concave]
+	</floater.string>
+	<floater.string name="linkset_is_restricted_non_volume_state">
+		[Restriction,Concave]
+	</floater.string>
+	<floater.string name="linkset_choose_use">
+		Choisir un usage de groupe de liens...
+	</floater.string>
+	<panel>
+		<combo_box name="filter_by_linkset_use">
+			<combo_box.item label="Filtrer par usage..." name="filter_by_linkset_use_none"/>
+			<combo_box.item label="Marche possible" name="filter_by_linkset_use_walkable"/>
+			<combo_box.item label="Obstacle statique" name="filter_by_linkset_use_static_obstacle"/>
+			<combo_box.item label="Obstacle mobile" name="filter_by_linkset_use_dynamic_obstacle"/>
+			<combo_box.item label="Volume de matériau" name="filter_by_linkset_use_material_volume"/>
+			<combo_box.item label="Volume d&apos;exclusion" name="filter_by_linkset_use_exclusion_volume"/>
+			<combo_box.item label="Fantôme mobile" name="filter_by_linkset_use_dynamic_phantom"/>
+		</combo_box>
+		<button label="Appliquer" name="apply_filters"/>
+		<button label="Effacer" name="clear_filters"/>
+		<scroll_list name="objects_scroll_list">
+			<scroll_list.columns label="Nom (prim racine)" name="name"/>
+			<scroll_list.columns label="Description (prim racine)" name="description"/>
+			<scroll_list.columns label="Propriétaire" name="owner"/>
+			<scroll_list.columns label="Scripté" name="scripted"/>
+			<scroll_list.columns label="Impact" name="land_impact"/>
+			<scroll_list.columns label="Distance" name="dist_from_you"/>
+			<scroll_list.columns label="Usage du groupe de liens" name="linkset_use"/>
+			<scroll_list.columns label="% A" name="a_percent"/>
+			<scroll_list.columns label="% B" name="b_percent"/>
+			<scroll_list.columns label="% C" name="c_percent"/>
+			<scroll_list.columns label="% D" name="d_percent"/>
+		</scroll_list>
+		<text name="messaging_status">
+			Groupes de liens :
+		</text>
+		<button label="Actualiser" name="refresh_objects_list"/>
+		<button label="Tout sélectionner" name="select_all_objects"/>
+		<button label="Ne rien sélectionner" name="select_none_objects"/>
+	</panel>
+	<panel>
+		<check_box label="Afficher la balise" name="show_beacon"/>
+		<button label="Prendre" name="take_objects"/>
+		<button label="Prendre une copie" name="take_copy_objects"/>
+		<button label="M&apos;y téléporter" name="teleport_me_to_object"/>
+		<button label="Renvoyer" name="return_objects"/>
+		<button label="Supprimer" name="delete_objects"/>
+	</panel>
+	<panel>
+		<text name="walkability_coefficients_label">
+			Marche possible :
+		</text>
+		<text name="edit_a_label">
+			A
+		</text>
+		<line_editor name="edit_a_value" tool_tip="Marche possible pour les personnages de type A. Exemple de type de personnage : humanoïde."/>
+		<text name="edit_b_label">
+			B
+		</text>
+		<line_editor name="edit_b_value" tool_tip="Marche possible pour les personnages de type B. Exemple de type de personnage : créature."/>
+		<text name="edit_c_label">
+			C
+		</text>
+		<line_editor name="edit_c_value" tool_tip="Marche possible pour les personnages de type C. Exemple de type de personnage : mécanique."/>
+		<text name="edit_d_label">
+			D
+		</text>
+		<line_editor name="edit_d_value" tool_tip="Marche possible pour les personnages de type D. Exemple de type de personnage : autre."/>
+		<button label="Appliquer les changements" name="apply_edit_values"/>
+		<text name="suggested_use_a_label">
+			(Humanoïde)
+		</text>
+		<text name="suggested_use_b_label">
+			(Créature)
+		</text>
+		<text name="suggested_use_c_label">
+			(Mécanique)
+		</text>
+		<text name="suggested_use_d_label">
+			(Autre)
+		</text>
+	</panel>
+</floater>

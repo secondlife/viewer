@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_login">
-	<panel.string name="create_account_url">
-		http://join.secondlife.com/index.php?lang=es-ES
-	</panel.string>
 	<panel.string name="forgot_password_url">
 		http://secondlife.com/account/request.php?lang=es
 	</panel.string>
 	<layout_stack name="login_widgets">
 		<layout_panel name="login">
+			<text name="log_in_text">
+				INICIAR SESIÓN
+			</text>
 			<text name="username_text">
 				Nombre de usuario:
 			</text>
@@ -15,34 +15,32 @@
 			<text name="password_text">
 				Contraseña:
 			</text>
-			<check_box label="Recordar la contraseña" name="remember_check"/>
-			<button label="Iniciar sesión" name="connect_btn"/>
-			<text name="mode_selection_text">
-				Modo:
-			</text>
-			<combo_box name="mode_combo" tool_tip="Selecciona el modo. Elige Básico para una exploración rápida y fácil y para chatear. Elige Avanzado para tener acceso a más funciones.">
-				<combo_box.item label="Básico" name="Basic"/>
-				<combo_box.item label="Avanzado" name="Advanced"/>
-			</combo_box>
+		</layout_panel>
+		<layout_panel name="start_location_panel">
 			<text name="start_location_text">
 				Empezar en:
 			</text>
 			<combo_box name="start_location_combo">
 				<combo_box.item label="Mi última posición" name="MyLastLocation"/>
 				<combo_box.item label="Mi Base" name="MyHome"/>
-				<combo_box.item label="&lt;Escribe en qué región&gt;" name="Typeregionname"/>
+				<combo_box.item label="&lt;Escribe el nombre de la región&gt;" name="Typeregionname"/>
 			</combo_box>
 		</layout_panel>
-		<layout_panel name="links">
-			<text name="create_new_account_text">
-				Registrarme
+		<layout_panel name="links_login_panel">
+			<text name="login_help">
+				¿Necesitas ayuda para conectarte?
 			</text>
 			<text name="forgot_password_text">
 				¿Olvidaste el nombre de usuario o la contraseña?
 			</text>
-			<text name="login_help">
-				¿Necesitas ayuda para conectarte?
+			<button label="Iniciar sesión" name="connect_btn"/>
+			<check_box label="Recordar la contraseña" name="remember_check"/>
+		</layout_panel>
+		<layout_panel name="links">
+			<text name="create_account_text">
+				CREA TU CUENTA
 			</text>
+			<button label="Iniciar ahora" name="create_new_account_btn"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

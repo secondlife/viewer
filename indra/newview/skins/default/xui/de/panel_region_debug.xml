@@ -36,5 +36,5 @@
 	<button label="?" name="top_scripts_help"/>
 	<button label="Region neu starten" name="restart_btn" tool_tip="2-Minuten-Countdown und Region neu starten"/>
 	<button label="?" name="restart_help"/>
-	<button label="Neustart verzögern" name="cancel_restart_btn" tool_tip="Regionsneustart um eine Stunde verschieben"/>
+	<button label="Neustart abbrechen" name="cancel_restart_btn" tool_tip="Regionsneustart abbrechen"/>
 </panel>

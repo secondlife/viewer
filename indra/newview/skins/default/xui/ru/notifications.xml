@@ -37,6 +37,12 @@
 			<button name="Help" text="$helptext"/>
 		</form>
 	</template>
+	<template name="okhelpignore">
+		<form>
+			<button name="OK_okhelpignore" text="$yestext"/>
+			<button name="Help_okhelpignore" text="$helptext"/>
+		</form>
+	</template>
 	<template name="yesnocancelbuttons">
 		<form>
 			<button name="Yes" text="$yestext"/>
@@ -360,12 +366,18 @@
 
 Для входа в [SECOND_LIFE] нужен аккаунт. Создать его?
 		<url name="url">
-			http://join.secondlife.com/
+			[create_account_url]
 		</url>
 		<usetemplate name="okcancelbuttons" notext="Повторить попытку" yestext="Создать новый аккаунт"/>
 	</notification>
 	<notification name="InvalidCredentialFormat">
 		Введите имя пользователя или имя и фамилию вашего аватара в поле «Имя пользователя», затем снова войдите в программу.
+	</notification>
+	<notification name="InvalidGrid">
+		«[GRID]» – недопустимый идентификатор сетки.
+	</notification>
+	<notification name="InvalidLocationSLURL">
+		В месте старта не указана правильная сетка.
 	</notification>
 	<notification name="DeleteClassified">
 		Удалить рекламу «[NAME]»?
@@ -472,8 +484,8 @@
 		Ошибка при сохранении скомпилированного скрипта по следующей причине: [REASON].  Попробуйте сохранить скрипт через некоторое время.
 	</notification>
 	<notification name="StartRegionEmpty">
-		Ай-яй-яй, ваш стартовый регион не определен.
-Введите название региона в поле «Место старта» или выберите в качестве места старта «Мое последнее местоположение» или «Мой дом».
+		Ваш стартовый регион не определен.
+Введите название региона в поле «Место старта» или выберите в качестве места старта «Мое последнее место» или «Мой дом».
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CouldNotStartStopScript">
@@ -599,6 +611,9 @@
 		Невозможно объединить объекты: у вас нет прав на изменение всех объектов.
 
 Убедитесь, что все объекты разблокированы и что вы владеете всеми ими.
+	</notification>
+	<notification name="CannotLinkPermanent">
+		Объекты нельзя связывать через границу региона.
 	</notification>
 	<notification name="CannotLinkDifferentOwners">
 		Невозможно объединить объекты: не у всех объектов один владелец.
@@ -978,6 +993,41 @@
 			<button name="Cancel" text="Отмена"/>
 		</form>
 	</notification>
+	<notification label="Добавить список автозамены" name="AddAutoReplaceList">
+		Имя нового списка:
+		<form name="form">
+			<button name="SetName" text="OK"/>
+		</form>
+	</notification>
+	<notification label="Переименовать список автозамены" name="RenameAutoReplaceList">
+		Имя «[DUPNAME]» уже занято.
+    Введите новое уникальное имя:
+		<form name="form">
+			<button name="ReplaceList" text="Заменить текущий список"/>
+			<button name="SetName" text="Использовать новое имя"/>
+		</form>
+	</notification>
+	<notification name="InvalidAutoReplaceEntry">
+		Ключевое слово должно быть одним словом, а поле замены не может быть пустым.
+	</notification>
+	<notification name="InvalidAutoReplaceList">
+		Недопустимый список замены.
+	</notification>
+	<notification name="SpellingDictImportRequired">
+		Следует указать файл, имя и язык.
+	</notification>
+	<notification name="SpellingDictIsSecondary">
+		Словарь [DIC_NAME] не является aff-файлом, т. е. это «вспомогательный» словарь.
+Он может использоваться как дополнительный, но не как основной словарь.
+
+См. https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
+	</notification>
+	<notification name="SpellingDictImportFailed">
+		Невозможно скопировать
+    [FROM_NAME]
+    в
+    [TO_NAME]
+	</notification>
 	<notification label="Сохранить костюм" name="SaveOutfitAs">
 		Сохранить текущую одежду как новый костюм:
 		<form name="form">
@@ -1157,7 +1207,7 @@
 Вы перемещены в соседний регион.
 	</notification>
 	<notification name="AvatarMovedLast">
-		Ваше последнее местоположение сейчас недоступно.
+		Требуемое вами местоположение сейчас недоступно.
 Вы перемещены в соседний регион.
 	</notification>
 	<notification name="AvatarMovedHome">
@@ -1176,7 +1226,6 @@
 		Установка [APP_NAME] завершена.
 
 Если вы используете [SECOND_LIFE] впервые, для входа в программу вам потребуется создать аккаунт.
-Вернуться на [http://join.secondlife.com secondlife.com] для создания аккаунта?
 		<usetemplate name="okcancelbuttons" notext="Продолжить" yestext="Создать аккаунт..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">
@@ -1694,83 +1743,128 @@ http://secondlife.com/download.
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
 	</notification>
 	<notification name="RegionEntryAccessBlocked">
-		Вам нельзя быть в этом регионе из-за вашего рейтинга зрелости. Возможно, это результат недостатка информации, подтверждающей ваш возраст.
-
-Убедитесь, что у вас установлена последняя версия клиента, и прочитайте в Базе знаний о доступе к областям с этим рейтингом зрелости.
+		Вы пытаетесь посетить регион, контент в котором не соответствует вашим настройкам.  Попробуйте изменить настройки в меню «Я &gt; Настройки &gt; Общие».
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
-	<notification name="RegionEntryAccessBlocked_KB">
-		Вам нельзя быть в этом регионе из-за вашего рейтинга зрелости.
-
-Перейти в Базу знаний и ознакомиться с рейтингами зрелости?
+	<notification name="RegionEntryAccessBlocked_AdultsOnlyContent">
+		Вы пытаетесь посетить регион, контент в котором имеет рейтинг [REGIONMATURITY] и предназначен только для взрослых.
 		<url name="url">
 			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
 		</url>
-		<usetemplate ignoretext="Я не могу войти в этот регион из-за ограничений по рейтингу зрелости" name="okcancelignore" notext="Закрыть" yestext="Перейти в Базу знаний"/>
+		<usetemplate ignoretext="Пересечение региона: вы пытаетесь посетить регион, контент в котором предназначен только для взрослых." name="okcancelignore" notext="Закрыть" yestext="Перейти в Базу знаний"/>
 	</notification>
 	<notification name="RegionEntryAccessBlocked_Notify">
-		Вам нельзя быть в этом регионе из-за вашего рейтинга зрелости.
+		Вы пытаетесь посетить регион, контент в котором имеет рейтинг [REGIONMATURITY], но ваши настройки не допускают контента [REGIONMATURITY].
+	</notification>
+	<notification name="RegionEntryAccessBlocked_NotifyAdultsOnly">
+		Вы пытаетесь посетить регион, контент в котором имеет рейтинг [REGIONMATURITY] и предназначен только для взрослых.
 	</notification>
 	<notification name="RegionEntryAccessBlocked_Change">
-		Вам нельзя быть в этом регионе из-за вашей настройки рейтинга зрелости.
-
-Для входа в желаемый регион измените настройку рейтинга зрелости. После этого вам будет разрешено искать и просматривать контент [REGIONMATURITY]. Для отмены изменений выберите команды «Я &gt; Настройки &gt; Общие».
+		Вы пытаетесь посетить регион, контент в котором имеет рейтинг [REGIONMATURITY], но ваши настройки не допускают контента [REGIONMATURITY]. Вы можете отказаться от посещения, или ваши настройки будут изменены. После изменения настроек вы можете попробовать войти в регион снова.
 		<form name="form">
-			<button name="OK" text="Изменить настройку"/>
-			<button name="Cancel" text="Закрыть"/>
-			<ignore name="ignore" text="Выбранная мной настройка рейтинга запрещает мне вход в регион"/>
+			<button name="OK" text="Изменить настройки"/>
+			<button name="Cancel" text="Отмена"/>
+			<ignore name="ignore" text="Пересечение региона: вы пытаетесь посетить регион, контент в котором запрещен вашими настройками."/>
 		</form>
 	</notification>
+	<notification name="RegionEntryAccessBlocked_PreferencesOutOfSync">
+		При телепортации возникли технические проблемы, так как ваши настройки не синхронизированы с сервером.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="TeleportEntryAccessBlocked">
+		Вы пытаетесь посетить регион, контент в котором не соответствует вашим настройкам.  Попробуйте изменить настройки в меню «Я &gt; Настройки &gt; Общие».
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="TeleportEntryAccessBlocked_AdultsOnlyContent">
+		Вы пытаетесь посетить регион, контент в котором имеет рейтинг [REGIONMATURITY] и предназначен только для взрослых.
+		<url name="url">
+			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
+		</url>
+		<usetemplate ignoretext="Телепортация: вы пытаетесь посетить регион, контент в котором предназначен только для взрослых." name="okcancelignore" notext="Закрыть" yestext="Перейти в Базу знаний"/>
+	</notification>
+	<notification name="TeleportEntryAccessBlocked_Notify">
+		Вы пытаетесь посетить регион, контент в котором имеет рейтинг [REGIONMATURITY], но ваши настройки не допускают контента [REGIONMATURITY].
+	</notification>
+	<notification name="TeleportEntryAccessBlocked_NotifyAdultsOnly">
+		Вы пытаетесь посетить регион, контент в котором имеет рейтинг [REGIONMATURITY] и предназначен только для взрослых.
+	</notification>
+	<notification name="TeleportEntryAccessBlocked_ChangeAndReTeleport">
+		Вы пытаетесь посетить регион, контент в котором имеет рейтинг [REGIONMATURITY], но ваши настройки не допускают контента [REGIONMATURITY]. Вы можете отказаться от телепортации, или ваши настройки будут изменены.
+		<form name="form">
+			<button name="OK" text="Изменить и продолжить"/>
+			<button name="Cancel" text="Отмена"/>
+			<ignore name="ignore" text="Телепортация (возобновляемая): вы пытаетесь посетить регион, контент в котором запрещен вашими настройками."/>
+		</form>
+	</notification>
+	<notification name="TeleportEntryAccessBlocked_Change">
+		Вы пытаетесь посетить регион, контент в котором имеет рейтинг [REGIONMATURITY], но ваши настройки не допускают контента [REGIONMATURITY]. Вы можете отказаться от телепортации, или ваши настройки будут изменены. После изменения настроек вы можете попробовать телепортироваться снова.
+		<form name="form">
+			<button name="OK" text="Изменить настройки"/>
+			<button name="Cancel" text="Отмена"/>
+			<ignore name="ignore" text="Телепортация (невозобновляемая): вы пытаетесь посетить регион, контент в котором запрещен вашими настройками."/>
+		</form>
+	</notification>
+	<notification name="TeleportEntryAccessBlocked_PreferencesOutOfSync">
+		При телепортации возникли технические проблемы, так как ваши настройки не синхронизированы с сервером.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="PreferredMaturityChanged">
-		Теперь ваша настройка рейтинга зрелости: [RATING].
+		Вы больше не будете получать уведомлений о посещении региона с контентом рейтинга [RATING].  Настройки для контента можно изменить на будущее с помощью команд меню «Я &gt; Настройки &gt; Общие».
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MaturityChangeError">
+		Не удалось изменить ваши настройки так, чтобы вы могли видеть контент с рейтингом [PREFERRED_MATURITY].  Ваши теперешние настройки разрешают просматривать контент [ACTUAL_MATURITY].  Попробуйте изменить настройки снова с помощью команд меню «Я &gt; Настройки &gt; Общие».
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="LandClaimAccessBlocked">
-		Вы не можете претендовать на эту землю из-за вашего рейтинга зрелости. Возможно, это результат недостатка информации, подтверждающей ваш возраст.
-
-Убедитесь, что у вас установлена последняя версия клиента, и прочитайте в Базе знаний о доступе к областям с этим рейтингом зрелости.
+		Вы претендуете на землю, рейтинг зрелости контента на которой не соответствует вашим настройкам.  Попробуйте изменить настройки в меню «Я &gt; Настройки &gt; Общие».
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
-	<notification name="LandClaimAccessBlocked_KB">
-		Вы не можете претендовать на эту землю из-за вашего рейтинга зрелости.
-
-Перейти в Базу знаний и ознакомиться с рейтингами зрелости?
+	<notification name="LandClaimAccessBlocked_AdultsOnlyContent">
+		На эту землю могут претендовать только взрослые.
 		<url name="url">
 			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
 		</url>
-		<usetemplate ignoretext="Я не могу претендовать на эту землю из-за ограничений по рейтингу зрелости" name="okcancelignore" notext="Закрыть" yestext="Перейти в Базу знаний"/>
+		<usetemplate ignoretext="На эту землю могут претендовать только взрослые." name="okcancelignore" notext="Закрыть" yestext="Перейти в Базу знаний"/>
 	</notification>
 	<notification name="LandClaimAccessBlocked_Notify">
-		Вы не можете претендовать на эту землю из-за вашего рейтинга зрелости.
+		Вы претендуете на землю, контент на которой имеет рейтинг [REGIONMATURITY], но ваши настройки не допускают контента [REGIONMATURITY].
+	</notification>
+	<notification name="LandClaimAccessBlocked_NotifyAdultsOnly">
+		Вы претендуете на землю с контентом [REGIONMATURITY], который предназначен только для взрослых.
 	</notification>
 	<notification name="LandClaimAccessBlocked_Change">
-		Вы не можете претендовать на эту землю из-за вашей настройки рейтинга зрелости.
-
-Нажмите кнопку «Изменить настройку», чтобы повысить свой рейтинг зрелости. После этого вам будет разрешено искать и просматривать контент [REGIONMATURITY]. Если в будущем понадобится отменить это изменение, выберите команды «Я &gt; Настройки &gt; Общие».
-		<usetemplate ignoretext="Выбранная мной настройка рейтинга запрещает мне претендовать на землю" name="okcancelignore" notext="Закрыть" yestext="Изменить настройку"/>
+		Вы претендуете на землю, контент на которой имеет рейтинг [REGIONMATURITY], но ваши настройки не допускают контента [REGIONMATURITY]. Мы можем изменить ваши настройки, после чего вы сможете претендовать на землю снова.
+		<form name="form">
+			<button name="OK" text="Изменить настройки"/>
+			<button name="Cancel" text="Отмена"/>
+			<ignore name="ignore" text="Вы претендуете на землю, контент на которой запрещен вашими настройками."/>
+		</form>
 	</notification>
 	<notification name="LandBuyAccessBlocked">
-		Вы не можете купить эту землю из-за вашего рейтинга зрелости. Возможно, это результат недостатка информации, подтверждающей ваш возраст.
-
-Убедитесь, что у вас установлена последняя версия клиента, и прочитайте в Базе знаний о доступе к областям с этим рейтингом зрелости.
+		Вы пытаетесь купить землю, рейтинг зрелости контента на которой не соответствует вашим настройкам.  Попробуйте изменить настройки в меню «Я &gt; Настройки &gt; Общие».
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
-	<notification name="LandBuyAccessBlocked_KB">
-		Вы не можете купить эту землю из-за вашего рейтинга зрелости.
-
-Перейти в Базу знаний и ознакомиться с рейтингами зрелости?
+	<notification name="LandBuyAccessBlocked_AdultsOnlyContent">
+		Эту землю могут купить только взрослые.
 		<url name="url">
 			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
 		</url>
-		<usetemplate ignoretext="Я не могу купить эту землю из-за ограничений по рейтингу зрелости" name="okcancelignore" notext="Закрыть" yestext="Перейти в Базу знаний"/>
+		<usetemplate ignoretext="Эту землю могут купить только взрослые." name="okcancelignore" notext="Закрыть" yestext="Перейти в Базу знаний"/>
 	</notification>
 	<notification name="LandBuyAccessBlocked_Notify">
-		Вы не можете купить эту землю из-за вашего рейтинга зрелости.
+		Вы пытаетесь купить землю, контент на которой имеет рейтинг [REGIONMATURITY], но ваши настройки не допускают контента [REGIONMATURITY].
+	</notification>
+	<notification name="LandBuyAccessBlocked_NotifyAdultsOnly">
+		Вы пытаетесь купить землю с контентом [REGIONMATURITY], который предназначен только для взрослых.
 	</notification>
 	<notification name="LandBuyAccessBlocked_Change">
-		Вы не можете купить эту землю из-за выбранного вами рейтинга зрелости.
-
-Нажмите кнопку «Изменить настройку», чтобы повысить свой рейтинг зрелости. После этого вам будет разрешено искать и просматривать контент [REGIONMATURITY]. Если в будущем понадобится отменить это изменение, выберите команды «Я &gt; Настройки &gt; Общие».
-		<usetemplate ignoretext="Выбранная мной настройка рейтинга запрещает мне покупать землю" name="okcancelignore" notext="Закрыть" yestext="Изменить настройку"/>
+		Вы пытаетесь купить землю, контент на которой имеет рейтинг [REGIONMATURITY], но ваши настройки не допускают контента [REGIONMATURITY]. Мы можем изменить ваши настройки, после чего вы сможете попробовать купить землю снова.
+		<form name="form">
+			<button name="OK" text="Изменить настройки"/>
+			<button name="Cancel" text="Отмена"/>
+			<ignore name="ignore" text="Вы пытаетесь купить землю, контент на которой запрещен вашими настройками."/>
+		</form>
 	</notification>
 	<notification name="TooManyPrimsSelected">
 		Выбрано слишком много примитивов.  Выберите [MAX_PRIM_COUNT] или меньше примитивов и повторите попытку.
@@ -1824,10 +1918,9 @@ http://secondlife.com/download.
 		</form>
 	</notification>
 	<notification label="Изменен рейтинг зрелости региона" name="RegionMaturityChange">
-		Рейтинг зрелости для этого региона будет обновлен.
+		Рейтинг зрелости для этого региона был изменен.
 Отображение этого изменения на карте может занять некоторое время.
-
-Для входа в регионы для взрослых у жителя должен быть подтвержденный аккаунт: либо с подтверждением возраста, либо с подтверждением оплаты.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification label="Несоответствие версии голоса" name="VoiceVersionMismatch">
 		Данная версия [APP_NAME] несовместима с функцией голосового чата в этом регионе. Для правильной работы голосового чата необходимо обновить [APP_NAME].
@@ -2117,14 +2210,11 @@ http://secondlife.com/download.
 		<usetemplate ignoretext="Надевать одежду, создаваемую при редактировании моей внешности" name="okcancelignore" notext="Нет" yestext="Да"/>
 	</notification>
 	<notification name="NotAgeVerified">
-		Доступ к контенту и областям для взрослых в Second Life разрешен только с 18 лет. Посетите нашу страницу проверки возраста и подтвердите, что вам уже исполнилось 18. 
-Страница будет открыта в браузере.
-
-[_URL]
-		<url name="url">
-			https://secondlife.com/my/account/verification.php
-		</url>
-		<usetemplate ignoretext="Мой возраст не подтвержден" name="okcancelignore" notext="Отмена" yestext="Перейти к проверке возраста"/>
+		Вы пытаетесь посетить место, доступ в которое разрешен только жителям 18 лет и старше.
+		<usetemplate ignoretext="Мне еще рано посещать места с ограничениями по возрасту." name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="NotAgeVerified_Notify">
+		Это место разрешено для жителей 18 лет и старше.
 	</notification>
 	<notification name="Cannot enter parcel: no payment info on file">
 		Для посещения этой области необходимо зарегистрировать платеж.  Перейти на веб-сайт [SECOND_LIFE] и ввести эту информацию?
@@ -2386,6 +2476,23 @@ http://secondlife.com/download.
 	<notification name="NoBuild">
 		В этой области запрещено строительство. Здесь вы не сможете строить или выкладывать объекты.
 	</notification>
+	<notification name="PathfindingDirty">
+		В регионе есть незавершенные изменения поиска пути.  Если у вас есть права на строительство, восстановите регион, нажав кнопку «Восстановить регион».
+	</notification>
+	<notification name="DynamicPathfindingDisabled">
+		В этом регионе не разрешен динамический поиск пути.  Возможны нарушения работы скриптовых объектов с использованием вызовов LSL поиска пути.
+	</notification>
+	<notification name="PathfindingRebakeNavmesh">
+		Изменение некоторых объектов в регионе может привести к неправильному поведению других подвижных объектов.  Чтобы исправить их поведение, нажмите кнопку «Восстановить регион».  Более подробная информация – по ссылке «Справка».
+		<url name="url">
+			http://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer
+		</url>
+		<usetemplate helptext="Справка" ignoretext="Изменение некоторых объектов в регионе может привести к неправильному поведению других подвижных объектов." name="okhelpignore" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingCannotRebakeNavmesh">
+		Произошла ошибка.  Возможно, неполадка в сети или на сервере, или у вас нет прав на строительство.  Иногда для устранения этой проблемы достаточно выйти и снова войти.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="SeeAvatars">
 		На этом участке аватары и текстовый чат скрыты от другого участка.   Жителей за пределами этого участка не будет видно, а они не будут видеть вас.  Обычный текстовый чат на канале 0 также блокируется.
 	</notification>
@@ -2404,9 +2511,7 @@ http://secondlife.com/download.
 		Вы можете претендовать на публичную землю только в регионе, в котором вы находитесь.
 	</notification>
 	<notification name="RegionTPAccessBlocked">
-		Вам нельзя быть в этом регионе из-за вашего рейтинга зрелости. Подтвердите свой возраст и/или установите последнюю версию клиента.
-
-Прочитайте в Базе знаний о доступе к областям с этим рейтингом зрелости.
+		Вы пытаетесь посетить регион, контент в котором не соответствует вашим настройкам.  Попробуйте изменить настройки в меню «Я &gt; Настройки &gt; Общие».
 	</notification>
 	<notification name="URBannedFromRegion">
 		Вы забанены в регионе.
@@ -2417,11 +2522,11 @@ http://secondlife.com/download.
 	<notification name="ImproperPaymentStatus">
 		У вас нет необходимого статуса оплаты для входа в этот регион.
 	</notification>
-	<notification name="MustGetAgeRgion">
-		Для входа в этот регион необходимо подтверждение возраста.
+	<notification name="MustGetAgeRegion">
+		Входить в этот регион могут только жители 18 лет и старше.
 	</notification>
 	<notification name="MustGetAgeParcel">
-		Для входа на этот участок необходимо подтверждение возраста.
+		Входить на этот участок могут только жители 18 лет и старше.
 	</notification>
 	<notification name="NoDestRegion">
 		Не найден регион назначения.
@@ -2523,11 +2628,32 @@ http://secondlife.com/download.
 	<notification name="TeleportOffered">
 		[NAME_SLURL] предложил(а) телепортировать вас к себе:
 
-[MESSAGE] - [MATURITY_STR] &lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt;
+«[MESSAGE]»
+&lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt; - [MATURITY_STR]
 		<form name="form">
 			<button name="Teleport" text="Телепортация"/>
 			<button name="Cancel" text="Отмена"/>
 		</form>
+	</notification>
+	<notification name="TeleportOffered_MaturityExceeded">
+		[NAME_SLURL] предложил(а) телепортировать вас к себе:
+
+«[MESSAGE]»
+&lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt; - [MATURITY_STR]
+
+Этот регион содержит контент с рейтингом [REGION_CONTENT_MATURITY], но ваши настройки не допускают контента [REGION_CONTENT_MATURITY].  Вы можете отказаться от телепортации, или ваши настройки будут изменены.
+		<form name="form">
+			<button name="Teleport" text="Изменить и продолжить"/>
+			<button name="Cancel" text="Отмена"/>
+		</form>
+	</notification>
+	<notification name="TeleportOffered_MaturityBlocked">
+		[NAME_SLURL] предложил(а) телепортировать вас к себе:
+
+«[MESSAGE]»
+&lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt; - [MATURITY_STR]
+
+Однако этот регион содержит контент, доступный только для взрослых.
 	</notification>
 	<notification name="TeleportOfferSent">
 		Предложение телепортации отправлено [TO_NAME]
@@ -2932,6 +3058,10 @@ http://secondlife.com/download.
 		( [EXISTENCE] сек. жизни )
 Вы локально обновили готовую текстуру [RESOLUTION] для «[BODYREGION]» через [TIME] сек.
 	</notification>
+	<notification name="LivePreviewUnavailable">
+		Просмотр этой текстуры невозможен, так как запрещено ее копирование и/или перенос.
+		<usetemplate ignoretext="Предупреждать, если режим просмотра вживую недоступен для текстур с запрещенным копированием и/или переносом" name="okignore" yestext="OK"/>
+	</notification>
 	<notification name="ConfirmLeaveCall">
 		Действительно покинуть этот разговор?
 		<usetemplate ignoretext="Подтверждать перед выходом из разговора" name="okcancelignore" notext="Нет" yestext="Да"/>
@@ -3103,6 +3233,62 @@ http://secondlife.com/download.
 		Это действие приведет к скрытию всех меню и кнопок. Чтобы вернуть их, щелкните [SHORTCUT] снова.
 		<usetemplate ignoretext="Подтверждать перед скрытием интерфейса" name="okcancelignore" notext="Отмена" yestext="OK"/>
 	</notification>
+	<notification name="PathfindingLinksets_WarnOnPhantom">
+		Признак фантомности некоторых выбранных наборов связей будет изменен.
+
+Продолжить?
+		<usetemplate ignoretext="Признак фантомности некоторых выбранных наборов связей будет изменен." name="okcancelignore" notext="Отмена" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_MismatchOnRestricted">
+		Для некоторых выбранных наборов связей нельзя задать тип «[REQUESTED_TYPE]» из-за ограничений этих наборов.  Эти наборы связей будут иметь тип «[RESTRICTED_TYPE]».
+
+Продолжить?
+		<usetemplate ignoretext="Нельзя задать некоторые выбранные наборы связей из-за ограничений этих наборов." name="okcancelignore" notext="Отмена" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_MismatchOnVolume">
+		Для некоторых выбранных наборов связей невозможно задать тип «[REQUESTED_TYPE]», так как фигура не выпуклая.
+
+Продолжить?
+		<usetemplate ignoretext="Нельзя задать некоторые выбранные наборы связей, так как фигура не выпуклая." name="okcancelignore" notext="Отмена" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_WarnOnPhantom_MismatchOnRestricted">
+		Признак фантомности некоторых выбранных наборов связей будет изменен.
+
+Для некоторых выбранных наборов связей нельзя задать тип «[REQUESTED_TYPE]» из-за ограничений этих наборов.  Эти наборы связей будут иметь тип «[RESTRICTED_TYPE]».
+
+Продолжить?
+		<usetemplate ignoretext="Для некоторых выбранных наборов связей будет изменен признак фантомности, а другие наборы нельзя задать из-за ограничений этих наборов." name="okcancelignore" notext="Отмена" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_WarnOnPhantom_MismatchOnVolume">
+		Признак фантомности некоторых выбранных наборов связей будет изменен.
+
+Для некоторых выбранных наборов связей невозможно задать тип «[REQUESTED_TYPE]», так как фигура не выпуклая.
+
+Продолжить?
+		<usetemplate ignoretext="Для некоторых выбранных наборов связей будет изменен признак фантомности, а другие наборы нельзя задать, так как фигура не выпуклая." name="okcancelignore" notext="Отмена" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_MismatchOnRestricted_MismatchOnVolume">
+		Для некоторых выбранных наборов связей нельзя задать тип «[REQUESTED_TYPE]» из-за ограничений этих наборов.  Эти наборы связей будут иметь тип «[RESTRICTED_TYPE]».
+
+Для некоторых выбранных наборов связей невозможно задать тип «[REQUESTED_TYPE]», так как фигура не выпуклая. Тип использования этих наборов связей не изменится.
+
+Продолжить?
+		<usetemplate ignoretext="Нельзя задать некоторые выбранные наборы связей из-за ограничений этих наборов и потому, что фигура не выпуклая." name="okcancelignore" notext="Отмена" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_WarnOnPhantom_MismatchOnRestricted_MismatchOnVolume">
+		Признак фантомности некоторых выбранных наборов связей будет изменен.
+
+Для некоторых выбранных наборов связей нельзя задать тип «[REQUESTED_TYPE]» из-за ограничений этих наборов.  Эти наборы связей будут иметь тип «[RESTRICTED_TYPE]».
+
+Для некоторых выбранных наборов связей невозможно задать тип «[REQUESTED_TYPE]», так как фигура не выпуклая. Тип использования этих наборов связей не изменится.
+
+Продолжить?
+		<usetemplate ignoretext="Для некоторых выбранных наборов связей будет изменен признак фантомности, а другие наборы нельзя задать из-за ограничений этих наборов и потому, что фигура не выпуклая." name="okcancelignore" notext="Отмена" yestext="OK"/>
+	</notification>
+	<notification name="PathfindingLinksets_ChangeToFlexiblePath">
+		Выбранный объект влияет на навигационную сетку.  Если заменить его на гибкий путь, он будет удален из навигационной сетки.
+		<usetemplate ignoretext="Выбранный объект влияет на навигационную сетку.  Если заменить его на гибкий путь, он будет удален из навигационной сетки." name="okcancelignore" notext="Отмена" yestext="OK"/>
+	</notification>
 	<global name="UnsupportedGLRequirements">
 		По-видимому, ваше оборудование не удовлетворяет требованиям [APP_NAME]. Для работы [APP_NAME] необходима графическая карта OpenGL с поддержкой мультитекстур. Если у вас есть такая карта, убедитесь, что установлены новейшие версии драйверов для нее и пакеты обновлений и исправления для операционной системы.
 
@@ -3138,5 +3324,13 @@ http://secondlife.com/download.
 	<notification name="LocalBitmapsVerifyFail">
 		Попытка добавить недопустимый или нечитаемый файл изображения [FNAME], который не удалось открыть или декодировать.
 Попытка отменена.
+	</notification>
+	<notification name="PathfindingReturnMultipleItems">
+		Возвращено [NUM_ITEMS] элементов.  Продолжить?
+		<usetemplate ignoretext="Возвратить несколько предметов?" name="okcancelignore" notext="Нет" yestext="Да"/>
+	</notification>
+	<notification name="PathfindingDeleteMultipleItems">
+		Вы удаляете несколько предметов ([NUM_ITEMS]).  Продолжить?
+		<usetemplate ignoretext="Удалить несколько предметов?" name="okcancelignore" notext="Нет" yestext="Да"/>
 	</notification>
 </notifications>

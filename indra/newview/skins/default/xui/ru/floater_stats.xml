@@ -53,7 +53,13 @@
 				<stat_bar label="Объекты" name="simobjects"/>
 				<stat_bar label="Активные объекты" name="simactiveobjects"/>
 				<stat_bar label="Активные скрипты" name="simactivescripts"/>
+				<stat_bar label="Запущенные скрипты" name="simpctscriptsrun"/>
 				<stat_bar label="События скрипта" name="simscripteps"/>
+				<stat_view label="Поиск пути" name="simpathfinding">
+					<stat_bar label="Время шага ИИ" name="simsimaistepmsec"/>
+					<stat_bar label="Пропущенные силуэтные шаги" name="simsimskippedsilhouettesteps"/>
+					<stat_bar label="Обновленные персонажи" name="simsimpctsteppedcharacters"/>
+				</stat_view>
 				<stat_bar label="Входящие пакеты" name="siminpps"/>
 				<stat_bar label="Исходящие пакеты" name="simoutpps"/>
 				<stat_bar label="Отложенные загрузки" name="simpendingdownloads"/>

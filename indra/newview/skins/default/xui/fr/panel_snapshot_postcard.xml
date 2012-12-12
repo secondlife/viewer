@@ -10,7 +10,7 @@
 		Envoi en cours...
 	</string>
 	<text name="title">
-		Envoyer par e-mail
+		E-mail
 	</text>
 	<button label="Message" name="message_btn"/>
 	<button label="Paramètres" name="settings_btn"/>

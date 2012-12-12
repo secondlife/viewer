@@ -83,6 +83,7 @@ public:
 	LLTextBox		*mGroupName;
 	std::string		mOwnerWarning;
 	std::string		mAlreadyInGroup;
+	std::string		mTooManySelected;
 	bool		mConfirmedOwnerInvite;
 
 	void (*mCloseCallback)(void* data);
@@ -185,6 +186,17 @@ void LLPanelGroupInvite::impl::submitInvitations()
 		role_member_pairs[item->getUUID()] = role_id;
 	}
 	
+	const S32 MAX_GROUP_INVITES = 100; // Max invites per request. 100 to match server cap.
+	if (role_member_pairs.size() > MAX_GROUP_INVITES)
+	{
+		// Fail!
+		LLSD msg;
+		msg["MESSAGE"] = mTooManySelected;
+		LLNotificationsUtil::add("GenericAlert", msg);
+		(*mCloseCallback)(mCloseCallbackUserData);
+		return;
+	}
+
 	LLGroupMgr::getInstance()->sendGroupMemberInvites(mGroupID, role_member_pairs);
 	
 	if(already_in_group)
@@ -455,10 +467,11 @@ void LLPanelGroupInvite::addUsers(uuid_vec_t& agent_ids)
 			//so we need to do this additional search in avatar tracker, see EXT-4732
 			if (LLAvatarTracker::instance().isBuddy(agent_id))
 			{
-				if (!gCacheName->getFullName(agent_id, fullname))
+				LLAvatarName av_name;
+				if (!LLAvatarNameCache::get(agent_id, &av_name))
 				{
 					// actually it should happen, just in case
-					gCacheName->get(LLUUID(agent_id), false, boost::bind(
+					LLAvatarNameCache::get(LLUUID(agent_id), boost::bind(
 							&LLPanelGroupInvite::addUserCallback, this, _1, _2));
 					// for this special case!
 					//when there is no cached name we should remove resident from agent_ids list to avoid breaking of sequence
@@ -467,7 +480,7 @@ void LLPanelGroupInvite::addUsers(uuid_vec_t& agent_ids)
 				}
 				else
 				{
-					names.push_back(fullname);
+					names.push_back(av_name.getLegacyName());
 				}
 			}
 		}
@@ -475,12 +488,12 @@ void LLPanelGroupInvite::addUsers(uuid_vec_t& agent_ids)
 	mImplementation->addUsers(names, agent_ids);
 }
 
-void LLPanelGroupInvite::addUserCallback(const LLUUID& id, const std::string& full_name)
+void LLPanelGroupInvite::addUserCallback(const LLUUID& id, const LLAvatarName& av_name)
 {
 	std::vector<std::string> names;
 	uuid_vec_t agent_ids;
 	agent_ids.push_back(id);
-	names.push_back(full_name);
+	names.push_back(av_name.getLegacyName());
 
 	mImplementation->addUsers(names, agent_ids);
 }
@@ -558,8 +571,8 @@ void LLPanelGroupInvite::updateLists()
 		if (!mPendingUpdate) 
 		{
 			LLGroupMgr::getInstance()->sendGroupPropertiesRequest(mImplementation->mGroupID);
-			LLGroupMgr::getInstance()->sendGroupMembersRequest(mImplementation->mGroupID);
 			LLGroupMgr::getInstance()->sendGroupRoleDataRequest(mImplementation->mGroupID);
+			LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mImplementation->mGroupID);
 		}
 		mPendingUpdate = TRUE;
 	} 
@@ -621,6 +634,7 @@ BOOL LLPanelGroupInvite::postBuild()
 
 	mImplementation->mOwnerWarning = getString("confirm_invite_owner_str");
 	mImplementation->mAlreadyInGroup = getString("already_in_group");
+	mImplementation->mTooManySelected = getString("invite_selection_too_large");
 
 	update();
 	

@@ -3270,6 +3270,17 @@
         <key>Value</key>
         <integer>0</integer>
     </map>
+    <key>FastCacheFetchEnabled</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable texture fast cache fetching if set</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <string>1</string>
+    </map>
 	<key>FeatureManagerHTTPTable</key>
       <map>
         <key>Comment</key>
@@ -4039,17 +4050,6 @@
       <string>S32</string>
       <key>Value</key>
       <integer>305</integer>
-    </map>
-    <key>HelpUseLocal</key>
-    <map>
-      <key>Comment</key>
-      <string>If set, always use this for help: skins/default/html/[LANGUAGE]/help-offline/index.html</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
     </map>
     <key>HelpURLFormat</key>
     <map>
@@ -8090,7 +8090,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0</real>
+    <real>-0.007</real>
   </map>
   <key>RenderShadowOffsetError</key>
   <map>
@@ -10778,6 +10778,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>TextureFetchConcurrency</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum number of HTTP connections used for texture fetches</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>TextureFetchDebuggerEnabled</key>
     <map>
       <key>Comment</key>
@@ -10788,6 +10799,83 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>TextureFetchSource</key>
+    <map>
+      <key>Comment</key>
+      <string>Debug use: Source to fetch textures</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>TextureFetchUpdateHighPriority</key>
+    <map>
+      <key>Comment</key>
+      <string>Number of high priority textures to update per frame</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>32</integer>
+    </map>
+    <key>TextureFetchUpdateMaxMediumPriority</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum number of medium priority textures to update per frame</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>256</integer>
+    </map>
+    <key>TextureFetchUpdateMinMediumPriority</key>
+    <map>
+      <key>Comment</key>
+      <string>Minimum number of medium priority textures to update per frame</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>32</integer>
+    </map>
+    <key>TextureFetchUpdatePriorityThreshold</key>
+    <map>
+      <key>Comment</key>
+      <string>Threshold under which textures will be considered too low priority and skipped for update</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <integer>0.0</integer>
+    </map>
+    <key>TextureFetchUpdateSkipLowPriority</key>
+    <map>
+      <key>Comment</key>
+      <string>Flag indicating if we want to skip textures with too low of a priority</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>TextureFetchUpdatePriorities</key>
+    <map>
+      <key>Comment</key>
+      <string>Number of priority texture to update per frame</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>32</integer>
     </map>
     <key>TextureLoadFullRes</key>
     <map>
@@ -12284,6 +12372,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>sourceid</key>
+    <map>
+      <key>Comment</key>
+      <string>Identify referring agency to Linden web servers</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string />
     </map>
     <key>SpeakerParticipantDefaultOrder</key>
     <map>
@@ -13971,5 +14070,17 @@
         <real>1.0</real>
       </array>
     </map>
+
+  <key>SimulateFBOFailure</key>
+  <map>
+    <key>Comment</key>
+    <string>[DEBUG] Make allocateScreenBuffer return false.  Used to test error handling.</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
 </map>
 </llsd>

@@ -43,6 +43,9 @@ Vá para a &apos;Ilha Welcome Pública&apos; para repetir o tutorial.
 		<message name="no_inventory_host">
 			O sistema de inventário está indisponível no momento.
 		</message>
+		<message name="MustGetAgeRegion">
+			Você deve ter 18 anos ou mais para acessar esta região.
+		</message>
 	</message_set>
 	<message_set name="progress">
 		<message name="sending_dest">
@@ -77,6 +80,9 @@ Vá para a &apos;Ilha Welcome Pública&apos; para repetir o tutorial.
 		</message>
 		<message name="requesting">
 			Solicitando teletransporte...
+		</message>
+		<message name="pending">
+			Teletransporte pendente...
 		</message>
 	</message_set>
 </teleport_messages>

@@ -128,7 +128,7 @@
 		Salir
 	</string>
 	<string name="create_account_url">
-		http://join.secondlife.com/index.php?lang=es-ES
+		http://join.secondlife.com/index.php?lang=es-ES&amp;sourceid=[sourceid]
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		Ya no puedes acceder a Second Life con el visor que estás utilizando. Visita la siguiente página para descargar un nuevo visor:
@@ -988,6 +988,9 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="script_files">
 		Scripts
 	</string>
+	<string name="dictionary_files">
+		Diccionarios
+	</string>
 	<string name="AvatarSetNotAway">
 		Salir del estado ausente
 	</string>
@@ -1387,6 +1390,12 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="InvFolder favorite">
 		Mis Favoritos
 	</string>
+	<string name="InvFolder Favorites">
+		Mis Favoritos
+	</string>
+	<string name="InvFolder favorites">
+		Mis Favoritos
+	</string>
 	<string name="InvFolder Current Outfit">
 		Vestuario actual
 	</string>
@@ -1401,6 +1410,12 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	</string>
 	<string name="InvFolder Meshes">
 		Redes
+	</string>
+	<string name="InvFolder Received Items">
+		Objetos recibidos
+	</string>
+	<string name="InvFolder Merchant Outbox">
+		Buzón de salida de comerciante
 	</string>
 	<string name="InvFolder Friends">
 		Amigos
@@ -3780,6 +3795,12 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	<string name="LocationCtrlSeeAVsTooltip">
 		Los avatares están visibles y está permitido el chat fuera de esta parcela
 	</string>
+	<string name="LocationCtrlPathfindingDirtyTooltip">
+		Los objetos que se mueven pueden presentar un comportamiento incorrecto en la región hasta que ésta se recargue.
+	</string>
+	<string name="LocationCtrlPathfindingDisabledTooltip">
+		Esta región no tiene activado el pathfinding dinámico.
+	</string>
 	<string name="UpdaterWindowTitle">
 		Actualizar [APP_NAME]
 	</string>
@@ -4913,6 +4934,21 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 	<string name="Normal">
 		Normal
 	</string>
+	<string name="Pathfinding_Wiki_URL">
+		http://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer
+	</string>
+	<string name="Pathfinding_Object_Attr_None">
+		Ninguno
+	</string>
+	<string name="Pathfinding_Object_Attr_Permanent">
+		Afecta al navmesh
+	</string>
+	<string name="Pathfinding_Object_Attr_Character">
+		Personaje
+	</string>
+	<string name="Pathfinding_Object_Attr_MultiSelect">
+		(Múltiple)
+	</string>
 	<string name="snapshot_quality_very_low">
 		Muy bajo
 	</string>
@@ -4927,5 +4963,11 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 	</string>
 	<string name="snapshot_quality_very_high">
 		Muy alto
+	</string>
+	<string name="TeleportMaturityExceeded">
+		El Residente no puede visitar esta región.
+	</string>
+	<string name="UserDictionary">
+		[Usuario]
 	</string>
 </strings>

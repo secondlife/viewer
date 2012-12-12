@@ -3,6 +3,9 @@
 	<panel.string name="unknown">
 		（未知）
 	</panel.string>
+	<panel.string name="unknown_multiple">
+		（未知 / 多項）
+	</panel.string>
 	<panel.string name="public">
 		（公開）
 	</panel.string>
@@ -10,7 +13,7 @@
 		你可以：
 	</panel.string>
 	<panel.string name="owner_can">
-		擁有者可以：
+		所有人可以：
 	</panel.string>
 	<panel.string name="acquiredDate">
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
@@ -19,7 +22,7 @@
 		（收納區）
 	</panel.string>
 	<panel.string name="origin_inworld">
-		(Inworld)
+		（在虛擬世界）
 	</panel.string>
 	<text name="title" value="物品檔案"/>
 	<text name="origin" value="（收納區）"/>
@@ -35,7 +38,7 @@
 				創造者：
 			</text>
 			<text name="LabelOwnerTitle">
-				擁有者：
+				所有人：
 			</text>
 			<text name="LabelAcquiredTitle">
 				取得於：
@@ -45,26 +48,26 @@
 					你可以：
 				</text>
 				<check_box label="修改" name="CheckOwnerModify"/>
-				<check_box label="覆製" name="CheckOwnerCopy"/>
+				<check_box label="恚庨" name="CheckOwnerCopy"/>
 				<check_box label="轉移" name="CheckOwnerTransfer"/>
 				<text name="AnyoneLabel">
 					任何人：
 				</text>
-				<check_box label="覆製" name="CheckEveryoneCopy"/>
+				<check_box label="恚庨" name="CheckEveryoneCopy"/>
 				<text name="GroupLabel">
 					群組：
 				</text>
-				<check_box label="分享" name="CheckShareWithGroup" tool_tip="Allow all members of the set group to share your modify permissions for this object. You must Deed to enable role restrictions."/>
+				<check_box label="分享" name="CheckShareWithGroup" tool_tip="允許此群組所有成員共享你修改此物件的權限。 你必須讓渡才能啟動角色限制。"/>
 				<text name="NextOwnerLabel">
-					下一個擁有者：
+					下一個所有人：
 				</text>
 				<check_box label="修改" name="CheckNextOwnerModify"/>
-				<check_box label="覆製" name="CheckNextOwnerCopy"/>
-				<check_box label="轉移" name="CheckNextOwnerTransfer" tool_tip="Next owner can give away or resell this object"/>
+				<check_box label="恚庨" name="CheckNextOwnerCopy"/>
+				<check_box label="轉移" name="CheckNextOwnerTransfer" tool_tip="下一個所有人可贈送或轉售這個物件"/>
 			</panel>
 			<check_box label="出售" name="CheckPurchase"/>
 			<combo_box name="combobox sale copy">
-				<combo_box.item label="副本" name="Copy"/>
+				<combo_box.item label="恚庨" name="Copy"/>
 				<combo_box.item label="原件" name="Original"/>
 			</combo_box>
 			<spinner label="價格： L$" name="Edit Cost"/>

@@ -10,20 +10,20 @@
 		（未知）
 	</text>
 	<text name="owner_text">
-		領地擁有者：
+		領地所有人：
 	</text>
 	<text name="estate_owner">
 		（未知）
 	</text>
-	<check_box label="Use Global Time" name="use_global_time_check"/>
+	<check_box label="使用全域時間" name="use_global_time_check"/>
 	<check_box label="固定太陽" name="fixed_sun_check"/>
-	<slider label="Phase" name="sun_hour_slider"/>
+	<slider label="相位" name="sun_hour_slider"/>
 	<check_box label="允許公開出入" name="externally_visible_check"/>
 	<text name="Only Allow">
-		Restrict Access to accounts verified by:
+		僅允許符合以下條件的居民進入：
 	</text>
-	<check_box label="Payment Information on File" name="limit_payment" tool_tip="Ban unidentified Residents"/>
-	<check_box label="年齡驗證" name="limit_age_verified" tool_tip="Ban Residents who have not verified their age. See the [SUPPORT_SITE] for more information."/>
+	<check_box label="已經預留付款資料" name="limit_payment" tool_tip="居民必須提供付款資料才能進入這領地。  參閱 [SUPPORT_SITE] 獲取進一步資訊。"/>
+	<check_box label="已年滿 18 歲" name="limit_age_verified" tool_tip="居民必須年滿 18 歲才能進入這領地。 參閱 [SUPPORT_SITE] 獲取進一步資訊。"/>
 	<check_box label="允許語音聊天" name="voice_chat_check"/>
 	<check_box label="允許直接瞬間傳送" name="allow_direct_teleport"/>
 	<button label="套用" name="apply_btn"/>

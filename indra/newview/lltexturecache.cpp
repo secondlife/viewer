@@ -50,6 +50,8 @@
 const S32 TEXTURE_CACHE_ENTRY_SIZE = FIRST_PACKET_SIZE;//1024;
 const F32 TEXTURE_CACHE_PURGE_AMOUNT = .20f; // % amount to reduce the cache by when it exceeds its limit
 const F32 TEXTURE_CACHE_LRU_SIZE = .10f; // % amount for LRU list (low overhead to regenerate)
+const S32 TEXTURE_FAST_CACHE_ENTRY_OVERHEAD = sizeof(S32) * 4; //w, h, c, level
+const S32 TEXTURE_FAST_CACHE_ENTRY_SIZE = 16 * 16 * 4 + TEXTURE_FAST_CACHE_ENTRY_OVERHEAD;
 
 class LLTextureCacheWorker : public LLWorkerClass
 {
@@ -283,9 +285,12 @@ public:
 	LLTextureCacheRemoteWorker(LLTextureCache* cache, U32 priority, const LLUUID& id,
 						 U8* data, S32 datasize, S32 offset,
 						 S32 imagesize, // for writes
+						 LLPointer<LLImageRaw> raw, S32 discardlevel,
 						 LLTextureCache::Responder* responder) 
 			: LLTextureCacheWorker(cache, priority, id, data, datasize, offset, imagesize, responder),
-			mState(INIT)
+			mState(INIT),
+			mRawImage(raw),
+			mRawDiscardLevel(discardlevel)
 	{
 	}
 
@@ -303,6 +308,8 @@ private:
 	};
 
 	e_state mState;
+	LLPointer<LLImageRaw> mRawImage;
+	S32 mRawDiscardLevel;
 };
 
 
@@ -559,6 +566,11 @@ bool LLTextureCacheRemoteWorker::doWrite()
 		if(idx < 0)
 		{
 			idx = mCache->setHeaderCacheEntry(mID, entry, mImageSize, mDataSize); // create the new entry.
+			if(idx >= 0)
+			{
+				//write to the fast cache.
+				llassert_always(mCache->writeToFastCache(idx, mRawImage, mRawDiscardLevel));
+			}
 		}
 		else
 		{
@@ -658,6 +670,7 @@ bool LLTextureCacheRemoteWorker::doWrite()
 		// Nothing else to do at that point...
 		done = true;
 	}
+	mRawImage = NULL;
 
 	// Clean up and exit
 	return done;
@@ -744,10 +757,14 @@ LLTextureCache::LLTextureCache(bool threaded)
 	  mWorkersMutex(NULL),
 	  mHeaderMutex(NULL),
 	  mListMutex(NULL),
+	  mFastCacheMutex(NULL),
 	  mHeaderAPRFile(NULL),
 	  mReadOnly(TRUE), //do not allow to change the texture cache until setReadOnly() is called.
 	  mTexturesSizeTotal(0),
-	  mDoPurge(FALSE)
+	  mDoPurge(FALSE),
+	  mFastCachep(NULL),
+	  mFastCachePoolp(NULL),
+	  mFastCachePadBuffer(NULL)
 {
 }
 
@@ -755,6 +772,9 @@ LLTextureCache::~LLTextureCache()
 {
 	clearDeleteList() ;
 	writeUpdatedEntries() ;
+	delete mFastCachep;
+	delete mFastCachePoolp;
+	FREE_MEM(LLImageBase::getPrivatePool(), mFastCachePadBuffer);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -879,15 +899,15 @@ BOOL LLTextureCache::isInLocal(const LLUUID& id)
 //////////////////////////////////////////////////////////////////////////////
 
 //static
-const S32 MAX_REASONABLE_FILE_SIZE = 512*1024*1024; // 512 MB
-F32 LLTextureCache::sHeaderCacheVersion = 1.4f;
-U32 LLTextureCache::sCacheMaxEntries = MAX_REASONABLE_FILE_SIZE / TEXTURE_CACHE_ENTRY_SIZE;
+F32 LLTextureCache::sHeaderCacheVersion = 1.7f;
+U32 LLTextureCache::sCacheMaxEntries = 1024 * 1024; //~1 million textures.
 S64 LLTextureCache::sCacheMaxTexturesSize = 0; // no limit
 const char* entries_filename = "texture.entries";
 const char* cache_filename = "texture.cache";
 const char* old_textures_dirname = "textures";
 //change the location of the texture cache to prevent from being deleted by old version viewers.
 const char* textures_dirname = "texturecache";
+const char* fast_cache_filename = "FastCache.cache";
 
 void LLTextureCache::setDirNames(ELLPath location)
 {
@@ -896,6 +916,7 @@ void LLTextureCache::setDirNames(ELLPath location)
 	mHeaderEntriesFileName = gDirUtilp->getExpandedFilename(location, textures_dirname, entries_filename);
 	mHeaderDataFileName = gDirUtilp->getExpandedFilename(location, textures_dirname, cache_filename);
 	mTexturesDirName = gDirUtilp->getExpandedFilename(location, textures_dirname);
+	mFastCacheFileName =  gDirUtilp->getExpandedFilename(location, textures_dirname, fast_cache_filename);
 }
 
 void LLTextureCache::purgeCache(ELLPath location)
@@ -938,8 +959,8 @@ S64 LLTextureCache::initCache(ELLPath location, S64 max_size, BOOL texture_cache
 {
 	llassert_always(getPending() == 0) ; //should not start accessing the texture cache before initialized.
 
-	S64 header_size = (max_size * 2) / 10;
-	S64 max_entries = header_size / TEXTURE_CACHE_ENTRY_SIZE;
+	S64 header_size = (max_size / 100) * 36; //0.36 * max_size
+	S64 max_entries = header_size / (TEXTURE_CACHE_ENTRY_SIZE + TEXTURE_FAST_CACHE_ENTRY_SIZE);
 	sCacheMaxEntries = (S32)(llmin((S64)sCacheMaxEntries, max_entries));
 	header_size = sCacheMaxEntries * TEXTURE_CACHE_ENTRY_SIZE;
 	max_size -= header_size;
@@ -981,6 +1002,7 @@ S64 LLTextureCache::initCache(ELLPath location, S64 max_size, BOOL texture_cache
 	purgeTextures(true); // calc mTexturesSize and make some room in the texture cache if we need it
 
 	llassert_always(getPending() == 0) ; //should not start accessing the texture cache before initialized.
+	openFastCache(true);
 
 	return max_size; // unused cache space
 }
@@ -1751,7 +1773,7 @@ LLTextureCache::handle_t LLTextureCache::readFromCache(const LLUUID& id, U32 pri
 	LLMutexLock lock(&mWorkersMutex);
 	LLTextureCacheWorker* worker = new LLTextureCacheRemoteWorker(this, priority, id,
 																  NULL, size, offset,
-																  0, responder);
+																  0, NULL, 0, responder);
 	handle_t handle = worker->read();
 	mReaders[handle] = worker;
 	return handle;
@@ -1789,6 +1811,7 @@ bool LLTextureCache::readComplete(handle_t handle, bool abort)
 
 LLTextureCache::handle_t LLTextureCache::writeToCache(const LLUUID& id, U32 priority,
 													  U8* data, S32 datasize, S32 imagesize,
+													  LLPointer<LLImageRaw> rawimage, S32 discardlevel,
 													  WriteResponder* responder)
 {
 	if (mReadOnly)
@@ -1807,12 +1830,174 @@ LLTextureCache::handle_t LLTextureCache::writeToCache(const LLUUID& id, U32 prio
 	LLMutexLock lock(&mWorkersMutex);
 	LLTextureCacheWorker* worker = new LLTextureCacheRemoteWorker(this, priority, id,
 																  data, datasize, 0,
-																  imagesize, responder);
+																  imagesize, rawimage, discardlevel, responder);
 	handle_t handle = worker->write();
 	mWriters[handle] = worker;
 	return handle;
 }
 
+//called in the main thread
+LLPointer<LLImageRaw> LLTextureCache::readFromFastCache(const LLUUID& id, S32& discardlevel)
+{
+	U32 offset;
+	{
+		LLMutexLock lock(&mHeaderMutex);
+		id_map_t::const_iterator iter = mHeaderIDMap.find(id);
+		if(iter == mHeaderIDMap.end())
+		{
+			return NULL; //not in the cache
+		}
+
+		offset = iter->second;
+	}
+	offset *= TEXTURE_FAST_CACHE_ENTRY_SIZE;
+
+	U8* data;
+	S32 head[4];
+	{
+		LLMutexLock lock(&mFastCacheMutex);
+
+		openFastCache();
+
+		mFastCachep->seek(APR_SET, offset);		
+	
+		if(mFastCachep->read(head, TEXTURE_FAST_CACHE_ENTRY_OVERHEAD) != TEXTURE_FAST_CACHE_ENTRY_OVERHEAD)
+		{
+			//cache corrupted or under thread race condition
+			closeFastCache(); 
+			return NULL;
+		}
+		
+		S32 image_size = head[0] * head[1] * head[2];
+		if(!image_size) //invalid
+		{
+			closeFastCache();
+			return NULL;
+		}
+		discardlevel = head[3];
+		
+		data =  (U8*)ALLOCATE_MEM(LLImageBase::getPrivatePool(), image_size);
+		if(mFastCachep->read(data, image_size) != image_size)
+		{
+			FREE_MEM(LLImageBase::getPrivatePool(), data);
+			closeFastCache();
+			return NULL;
+		}
+
+		closeFastCache();
+	}
+	LLPointer<LLImageRaw> raw = new LLImageRaw(data, head[0], head[1], head[2], true);
+
+	return raw;
+}
+
+//return the fast cache location
+bool LLTextureCache::writeToFastCache(S32 id, LLPointer<LLImageRaw> raw, S32 discardlevel)
+{
+	//rescale image if needed
+	S32 w, h, c;
+	w = raw->getWidth();
+	h = raw->getHeight();
+	c = raw->getComponents();
+	S32 i = 0 ;
+	
+	while(((w >> i) * (h >> i) * c) > TEXTURE_FAST_CACHE_ENTRY_SIZE - TEXTURE_FAST_CACHE_ENTRY_OVERHEAD)
+	{
+		++i ;
+	}
+		
+	if(i)
+	{
+		w >>= i;
+		h >>= i;
+		if(w * h *c > 0) //valid
+		{
+			LLPointer<LLImageRaw> newraw = new LLImageRaw(raw->getData(), raw->getWidth(), raw->getHeight(), raw->getComponents());
+			newraw->scale(w, h) ;
+			raw = newraw;
+
+			discardlevel += i ;
+		}
+	}
+	
+	//copy data
+	memcpy(mFastCachePadBuffer, &w, sizeof(S32));
+	memcpy(mFastCachePadBuffer + sizeof(S32), &h, sizeof(S32));
+	memcpy(mFastCachePadBuffer + sizeof(S32) * 2, &c, sizeof(S32));
+	memcpy(mFastCachePadBuffer + sizeof(S32) * 3, &discardlevel, sizeof(S32));
+	if(w * h * c > 0) //valid
+	{
+		memcpy(mFastCachePadBuffer + TEXTURE_FAST_CACHE_ENTRY_OVERHEAD, raw->getData(), w * h * c);
+	}
+	S32 offset = id * TEXTURE_FAST_CACHE_ENTRY_SIZE;
+
+	{
+		LLMutexLock lock(&mFastCacheMutex);
+
+		openFastCache();
+
+		mFastCachep->seek(APR_SET, offset);	
+		
+		//no need to do this assertion check. When it fails, let it fail quietly.
+		//this failure could happen because other viewer removes the fast cache file when clearing cache.
+		//--> llassert_always(mFastCachep->write(mFastCachePadBuffer, TEXTURE_FAST_CACHE_ENTRY_SIZE) == TEXTURE_FAST_CACHE_ENTRY_SIZE);
+		mFastCachep->write(mFastCachePadBuffer, TEXTURE_FAST_CACHE_ENTRY_SIZE);
+
+		closeFastCache(true);
+	}
+
+	return true;
+}
+
+void LLTextureCache::openFastCache(bool first_time)
+{
+	if(!mFastCachep)
+	{
+		if(first_time)
+		{
+			if(!mFastCachePadBuffer)
+			{
+				mFastCachePadBuffer = (U8*)ALLOCATE_MEM(LLImageBase::getPrivatePool(), TEXTURE_FAST_CACHE_ENTRY_SIZE);
+			}
+			mFastCachePoolp = new LLVolatileAPRPool();
+			if (LLAPRFile::isExist(mFastCacheFileName, mFastCachePoolp))
+			{
+				mFastCachep = new LLAPRFile(mFastCacheFileName, APR_READ|APR_WRITE|APR_BINARY, mFastCachePoolp) ;				
+			}
+			else
+			{
+				mFastCachep = new LLAPRFile(mFastCacheFileName, APR_CREATE|APR_READ|APR_WRITE|APR_BINARY, mFastCachePoolp) ;
+			}
+		}
+		else
+		{
+			mFastCachep = new LLAPRFile(mFastCacheFileName, APR_READ|APR_WRITE|APR_BINARY, mFastCachePoolp) ;
+		}
+
+		mFastCacheTimer.reset();
+	}
+	return;
+}
+	
+void LLTextureCache::closeFastCache(bool forced)
+{	
+	static const F32 timeout = 10.f ; //seconds
+
+	if(!mFastCachep)
+	{
+		return ;
+	}
+
+	if(!forced && mFastCacheTimer.getElapsedTimeF32() < timeout)
+	{
+		return ;
+	}
+
+	delete mFastCachep;
+	mFastCachep = NULL;
+	return;
+}
+	
 bool LLTextureCache::writeComplete(handle_t handle, bool abort)
 {
 	lockWorkers();

@@ -1,7 +1,10 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="item properties" title="アイテムのプロフィール">
 	<panel.string name="unknown">
 		（不明）
+	</panel.string>
+	<panel.string name="unknown_multiple">
+		(不明/複数)
 	</panel.string>
 	<panel.string name="public">
 		（公開）

@@ -134,7 +134,7 @@
 			<text name="DwellText">
 				Chargement...
 			</text>
-			<button label="Acheter du terrain" label_selected="Acheter le terrain..." left_delta="60" name="Buy Land..." width="125"/>
+			<button label="Acheter le terrain" label_selected="Acheter le terrain..." left_delta="60" name="Buy Land..." width="125"/>
 			<button label="Vente Linden" label_selected="Vente Linden..." name="Linden Sale..." tool_tip="Le terrain doit être la propriété d&apos;un résident, avoir un contenu défini et ne pas être aux enchères."/>
 			<button label="Infos sur les scripts" name="Scripts..." width="110"/>
 			<button label="Acheter pour le groupe" label_selected="Acheter pour le groupe..." name="Buy For Group..."/>
@@ -339,7 +339,7 @@ Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 			<check_box label="Groupe" name="check group scripts"/>
 			<check_box label="Sécurisé (pas de dégâts)" name="check safe" tool_tip="Si cette option est cochée, le terrain est sécurisé et il n&apos;y pas de risques de dommages causés par des combats. Si elle est décochée, des dommages causés par les combats peuvent avoir lieu."/>
 			<check_box label="Pas de bousculades" name="PushRestrictCheck" tool_tip="Empêche l&apos;utilisation de scripts causant des bousculades. Cette option est utile pour empêcher les comportements abusifs sur votre terrain."/>
-			<check_box label="Afficher le lieu dans la recherche (30 L$/semaine)" name="ShowDirectoryCheck" tool_tip="Afficher la parcelle dans les résultats de recherche"/>
+			<check_box label="Voir le lieu dans la recherche (30 L$/sem.)" name="ShowDirectoryCheck" tool_tip="Afficher la parcelle dans les résultats de recherche"/>
 			<combo_box name="land category with adult">
 				<combo_box.item label="Toutes catégories" name="item0"/>
 				<combo_box.item label="Appartenant aux Lindens" name="item1"/>
@@ -377,7 +377,7 @@ Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Cliquez pour sélectionner une image"/>
 			<text name="allow_label5">
-				Les avatars présents sur d&apos;autres parcelles peuvent voir et chatter avec les avatars présents sur cette parcelle.
+				Les avatars sur d&apos;autres parcelles peuvent voir et chatter avec les avatars sur cette parcelle.
 			</text>
 			<check_box label="Voir les avatars" name="SeeAvatarsCheck" tool_tip="Permettre aux avatars présents sur d&apos;autres parcelles de voir et chatter avec les avatars présents sur cette parcelle et à vous de les voir et de chatter avec eux."/>
 			<text name="landing_point">
@@ -470,7 +470,7 @@ musique :
 				Conditions d&apos;accès des résidents :
 			</text>
 			<check_box label="Informations de paiement enregistrées [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Pour pouvoir accéder à cette parcelle, les résidents doivent avoir enregistré des informations de paiement. Consultez le [SUPPORT_SITE] pour plus d&apos;informations."/>
-			<check_box label="Âge vérifié [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Pour que les résidents puissent accéder à cette parcelle, leur âge doit avoir fait l&apos;objet d&apos;une vérification. Consultez le [SUPPORT_SITE] pour plus d&apos;informations."/>
+			<check_box label="Avoir plus de 18 ans [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Pour accéder à cette parcelle, les résidents doivent avoir au moins 18 ans. Consultez le [SUPPORT_SITE] pour plus d&apos;informations."/>
 			<check_box label="Autoriser l&apos;accès au groupe : [GROUP]" name="GroupCheck" tool_tip="Définir le groupe à l&apos;onglet Général."/>
 			<check_box label="Vendre des pass à :" name="PassCheck" tool_tip="Autoriser un accès temporaire à cette parcelle"/>
 			<combo_box name="pass_combo" width="110">

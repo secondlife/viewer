@@ -277,17 +277,17 @@ BOOL LLVOGrass::isActive() const
 	return TRUE;
 }
 
-BOOL LLVOGrass::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
+void LLVOGrass::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
  	if (mDead || !(gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_GRASS)))
 	{
-		return TRUE;
+		return;
 	}
 	
 	if (!mDrawable)
 	{
 		// So drones work.
-		return TRUE;
+		return;
 	}
 
 	if(LLVOTree::isTreeRenderingStopped()) //stop rendering grass
@@ -297,14 +297,14 @@ BOOL LLVOGrass::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 			mNumBlades = 0 ;
 			gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
 		}
-		return TRUE ;
+		return;
 	}
 	else if(!mNumBlades)//restart grass rendering
 	{
 		mNumBlades = GRASS_MAX_BLADES ;
 		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
 		
-		return TRUE ;
+		return;
 	}
 
 	if (mPatch && (mLastPatchUpdateTime != mPatch->getLastUpdateTime()))
@@ -312,7 +312,7 @@ BOOL LLVOGrass::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
 	}
 
-	return TRUE;
+	return;
 }
 
 

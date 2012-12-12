@@ -137,7 +137,7 @@
 		Quitter
 	</string>
 	<string name="create_account_url">
-		http://join.secondlife.com/index.php?lang=fr-FR
+		http://join.secondlife.com/index.php?lang=fr-FR&amp;sourceid=[sourceid]
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		Le client que vous utilisez ne permet plus d&apos;accéder à Second Life. Téléchargez un nouveau client à la page suivante :
@@ -1006,6 +1006,9 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="script_files">
 		Scripts
 	</string>
+	<string name="dictionary_files">
+		Dictionnaires
+	</string>
 	<string name="AvatarSetNotAway">
 		Présent
 	</string>
@@ -1411,6 +1414,12 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="InvFolder favorite">
 		Mes Favoris
 	</string>
+	<string name="InvFolder Favorites">
+		Mes favoris
+	</string>
+	<string name="InvFolder favorites">
+		Mes favoris
+	</string>
 	<string name="InvFolder Current Outfit">
 		Tenue actuelle
 	</string>
@@ -1425,6 +1434,12 @@ Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="InvFolder Meshes">
 		Maillages
+	</string>
+	<string name="InvFolder Received Items">
+		Articles reçus
+	</string>
+	<string name="InvFolder Merchant Outbox">
+		Boîte d&apos;envoi vendeur
 	</string>
 	<string name="InvFolder Friends">
 		Amis
@@ -3864,6 +3879,12 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="LocationCtrlSeeAVsTooltip">
 		Avatars visibles et chat autorisé en dehors de cette parcelle
 	</string>
+	<string name="LocationCtrlPathfindingDirtyTooltip">
+		Les objets mobiles risquent de ne pas se comporter correctement dans cette région tant qu&apos;elle n&apos;est pas refigée.
+	</string>
+	<string name="LocationCtrlPathfindingDisabledTooltip">
+		La recherche de chemin dynamique n&apos;est pas activée dans cette région.
+	</string>
 	<string name="UpdaterWindowTitle">
 		[APP_NAME] - Mise à jour
 	</string>
@@ -4893,7 +4914,7 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 		Parler
 	</string>
 	<string name="Command_View_Label">
-		Paramètres de la caméra
+		Caméra
 	</string>
 	<string name="Command_Voice_Label">
 		Paramètres vocaux
@@ -5006,6 +5027,21 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	<string name="Normal">
 		Normal
 	</string>
+	<string name="Pathfinding_Wiki_URL">
+		http://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer
+	</string>
+	<string name="Pathfinding_Object_Attr_None">
+		Aucun
+	</string>
+	<string name="Pathfinding_Object_Attr_Permanent">
+		Maillage de navigation affecté
+	</string>
+	<string name="Pathfinding_Object_Attr_Character">
+		Personnage
+	</string>
+	<string name="Pathfinding_Object_Attr_MultiSelect">
+		(Multiple)
+	</string>
 	<string name="snapshot_quality_very_low">
 		Très faible
 	</string>
@@ -5020,5 +5056,11 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	</string>
 	<string name="snapshot_quality_very_high">
 		Très élevée
+	</string>
+	<string name="TeleportMaturityExceeded">
+		Le résident ne peut pas visiter cette région.
+	</string>
+	<string name="UserDictionary">
+		[User]
 	</string>
 </strings>
