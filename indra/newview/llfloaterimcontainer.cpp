@@ -101,16 +101,6 @@ void LLFloaterIMContainer::sessionAdded(const LLUUID& session_id, const std::str
 {
 	addConversationListItem(session_id);
 	LLFloaterIMSessionTab::addToHost(session_id);
-
-	// If session was added while floater is not visible, conversation should not change
-	if (!isVisible(this))
-	{
-		LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(mSelectedSession);
-		if (session_floater->getHost())
-		{
-			selectFloater(session_floater);
-		}
-	}
 }
 
 void LLFloaterIMContainer::sessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
