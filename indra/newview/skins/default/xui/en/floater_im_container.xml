@@ -13,7 +13,8 @@
  single_instance="true"
  reuse_instance="true"
  title="CONVERSATIONS"
- bottom="-80"
+ bottom="-50"
+ right="-5"
  width="450">
     <string
      name="collapse_icon"

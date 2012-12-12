@@ -261,6 +261,8 @@
             <menu_item_check.on_check
              function="Floater.Visible"
              parameter="conversation" />
+            <menu_item_check.on_enable
+             function="Conversation.IsConversationLoggingAllowed" />
             <menu_item_check.on_click
              function="Floater.Toggle"
              parameter="conversation" />
