@@ -501,7 +501,7 @@ void LLFeatureManager::parseGPUTable(std::string filename)
 	}
 
 #if LL_DARWIN // never go over "Mid" settings by default on OS X
-	mGPUClass = llmin(mGPUClass, 2);
+	mGPUClass = llmin(mGPUClass, GPU_CLASS_2);
 #endif
 }
 
