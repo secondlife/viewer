@@ -509,6 +509,22 @@ void LLFloaterIMContainer::draw()
 		// still needs the conversation list. Simply collapse the message pane in that case.
 		collapseMessagesPane(true);
 	}
+	
+	//Update moderator options visibility
+	const LLConversationItem *current_session = getCurSelectedViewModelItem();
+	if (current_session)
+	{
+		LLFolderViewModelItemCommon::child_list_t::const_iterator current_participant_model = current_session->getChildrenBegin();
+		LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = current_session->getChildrenEnd();
+		while (current_participant_model != end_participant_model)
+		{
+			LLConversationItemParticipant* participant_model = dynamic_cast<LLConversationItemParticipant*>(*current_participant_model);
+			participant_model->setModeratorOptionsVisible(isGroupModerator() && participant_model->getUUID() != gAgentID);
+
+			current_participant_model++;
+		}
+	}
+
 	LLFloater::draw();
 }
 
@@ -1159,7 +1175,7 @@ bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_v
     {
 		return LLAvatarActions::canOfferTeleport(uuids);
     }
-	else if (("can_moderate_voice" == item) || ("can_allow_text_chat" == item) || ("can_mute" == item) || ("can_unmute" == item))
+	else if (("can_moderate_voice" == item) || ("can_allow_text_chat" == item) || ("can_mute_unmute" == item))
 	{
 		// *TODO : get that out of here...
 		return enableModerateContextMenuItem(item);
@@ -1249,11 +1265,11 @@ BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool
 		}
     }
 
-		// Set the focus on the selected floater
-		if (!session_floater->hasFocus())
-		{
-			session_floater->setFocus(TRUE);
-		}
+	// Set the focus on the selected floater
+	if (!session_floater->hasFocus())
+	{
+		session_floater->setFocus(TRUE);
+	}
 
     return handled;
 }
@@ -1466,17 +1482,9 @@ bool LLFloaterIMContainer::enableModerateContextMenuItem(const std::string& user
 
 	bool voice_channel = speakerp->isInVoiceChannel();
 
-	if ("can_moderate_voice" == userdata)
+	if ("can_moderate_voice" == userdata || "can_mute_unmute" == userdata)
 	{
 		return voice_channel;
-	}
-	else if ("can_mute" == userdata)
-	{
-		return voice_channel && !isMuted(getCurSelectedViewModelItem()->getUUID());
-	}
-	else if ("can_unmute" == userdata)
-	{
-		return voice_channel && isMuted(getCurSelectedViewModelItem()->getUUID());
 	}
 
 	// The last invoke is used to check whether the "can_allow_text_chat" will enabled
@@ -1686,6 +1694,11 @@ void LLFloaterIMContainer::updateSpeakBtnState()
 	LLButton* mSpeakBtn = getChild<LLButton>("speak_btn");
 	mSpeakBtn->setToggleState(LLVoiceClient::getInstance()->getUserPTTState());
 	mSpeakBtn->setEnabled(LLAgent::isActionAllowed("speak"));
+}
+
+bool LLFloaterIMContainer::isConversationLoggingAllowed()
+{
+	return gSavedSettings.getBOOL("KeepConversationLogTranscripts");
 }
 
 void LLFloaterIMContainer::flashConversationItemWidget(const LLUUID& session_id, bool is_flashes)

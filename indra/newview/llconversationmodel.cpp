@@ -46,7 +46,8 @@ LLConversationItem::LLConversationItem(std::string display_name, const LLUUID& u
 	mUUID(uuid),
 	mNeedsRefresh(true),
 	mConvType(CONV_UNKNOWN),
-	mLastActiveTime(0.0)
+	mLastActiveTime(0.0),
+	mDisplayModeratorOptions(false)
 {
 }
 
@@ -56,7 +57,8 @@ LLConversationItem::LLConversationItem(const LLUUID& uuid, LLFolderViewModelInte
 	mUUID(uuid),
 	mNeedsRefresh(true),
 	mConvType(CONV_UNKNOWN),
-	mLastActiveTime(0.0)
+	mLastActiveTime(0.0),
+	mDisplayModeratorOptions(false)
 {
 }
 
@@ -66,7 +68,8 @@ LLConversationItem::LLConversationItem(LLFolderViewModelInterface& root_view_mod
 	mUUID(),
 	mNeedsRefresh(true),
 	mConvType(CONV_UNKNOWN),
-	mLastActiveTime(0.0)
+	mLastActiveTime(0.0),
+	mDisplayModeratorOptions(false)
 {
 }
 
@@ -117,14 +120,13 @@ void LLConversationItem::buildParticipantMenuOptions(menuentry_vec_t&   items)
     items.push_back(std::string("block_unblock"));
     items.push_back(std::string("MuteText"));
 
-	if(this->getType() != CONV_SESSION_1_ON_1)
+	if(this->getType() != CONV_SESSION_1_ON_1 && mDisplayModeratorOptions)
 	{
 		items.push_back(std::string("Moderator Options Separator"));
 		items.push_back(std::string("Moderator Options"));
 		items.push_back(std::string("AllowTextChat"));
 		items.push_back(std::string("moderate_voice_separator"));
-		items.push_back(std::string("ModerateVoiceMuteSelected"));
-		items.push_back(std::string("ModerateVoiceUnMuteSelected"));
+		items.push_back(std::string("ModerateVoiceToggleMuteSelected"));
 		items.push_back(std::string("ModerateVoiceMute"));
 		items.push_back(std::string("ModerateVoiceUnmute"));
 	}
