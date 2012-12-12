@@ -333,7 +333,9 @@ void LLOutputMonitorCtrl::switchIndicator(bool switch_on)
 		LL_DEBUGS("SpeakingIndicator") << "Indicator is in visible chain, notifying parent: " << mSpeakerId << LL_ENDL;
 		setVisible((BOOL)switch_on);
 		notifyParentVisibilityChanged();
-	}
+	    //Visibility has just been updated so make sure not to use the pending visibility when ::draw executes (if one is pending)
+        mIsSwitchDirty = false;
+    }
 
 	// otherwise remember necessary state and mark itself as dirty.
 	// State will be applied in next draw when parents chain becomes visible.
