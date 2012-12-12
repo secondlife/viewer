@@ -2499,7 +2499,7 @@ void LLIMMgr::addMessage(
 	}
 
 	bool new_session = !hasSession(new_session_id);
-	if (new_session)
+	if (new_session && !gAgent.isDoNotDisturb())
 	{
 		LLAvatarName av_name;
 		if (LLAvatarNameCache::get(other_participant_id, &av_name) && !name_is_setted)
