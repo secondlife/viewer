@@ -514,14 +514,27 @@ bool LLFloaterAutoReplaceSettings::callbackListNameConflict(const LLSD& notifica
 
 void LLFloaterAutoReplaceSettings::onDeleteList()
 {
-	std::string listName= mListNames->getFirstSelected()->getColumn(0)->getValue().asString();
-	mSettings.removeReplacementList(listName); // remove from the copy of settings
-	mReplacementsList->deleteSelectedItems();   // remove from the scrolling list
-
-	mSelectedListName.clear();
-	updateListNames();
-	updateListNamesControls();
-	updateReplacementsList();
+	std::string listName = mListNames->getSelectedValue().asString();
+	if ( ! listName.empty() )
+	{
+		if ( mSettings.removeReplacementList(listName) )
+		{
+			LL_INFOS("AutoReplace")<<"deleted list '"<<listName<<"'"<<LL_ENDL;
+			mReplacementsList->deleteSelectedItems();   // remove from the scrolling list
+			mSelectedListName.clear();
+			updateListNames();
+			updateListNamesControls();
+			updateReplacementsList();
+		}
+		else
+		{
+			LL_WARNS("AutoReplace")<<"failed to delete list '"<<listName<<"'"<<LL_ENDL;
+		}
+	}
+	else
+	{
+		LL_DEBUGS("AutoReplace")<<"no list selected for delete"<<LL_ENDL;
+	}
 }
 
 void LLFloaterAutoReplaceSettings::onExportList()
