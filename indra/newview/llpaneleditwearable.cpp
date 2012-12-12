@@ -718,8 +718,8 @@ BOOL LLPanelEditWearable::postBuild()
         mBtnBack = getChild<LLButton>("back_btn");
         mBackBtnLabel = mBtnBack->getLabelUnselected();
         mBtnBack->setLabel(LLStringUtil::null);
-        // handled at appearance panel level?
-        //mBtnBack->setClickedCallback(boost::bind(&LLPanelEditWearable::onBackButtonClicked, this));
+
+        mBtnBack->setClickedCallback(boost::bind(&LLPanelEditWearable::onBackButtonClicked, this));
 
         mNameEditor = getChild<LLLineEditor>("description");
 
@@ -872,6 +872,12 @@ void LLPanelEditWearable::setWearable(LLViewerWearable *wearable, BOOL disable_c
         showWearable(mWearablePtr, TRUE, disable_camera_switch);
 }
 
+//static 
+void LLPanelEditWearable::onBackButtonClicked(void* userdata)
+{
+    LLPanelEditWearable *panel = (LLPanelEditWearable*) userdata;
+	panel->saveChanges(true);
+}
 
 //static 
 void LLPanelEditWearable::onRevertButtonClicked(void* userdata)

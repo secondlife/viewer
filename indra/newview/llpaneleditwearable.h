@@ -70,6 +70,7 @@ public:
 	void 				updateScrollingPanelList();
 
 	static void			onRevertButtonClicked(void* userdata);
+	static void			onBackButtonClicked(void* userdata); 
 	void				onCommitSexChange();
 	void				onSaveAsButtonClicked();
 	void				saveAsCallback(const LLSD& notification, const LLSD& response);

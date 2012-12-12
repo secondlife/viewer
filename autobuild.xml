@@ -30,9 +30,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c0c64dae149d0892343e2ff300fd06b9</string>
+              <string>176736c52b3cde6ca8e7d9e173d91731</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/232684/arch/Linux/installer/glod-1.0pre4-linux-20110611.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/268002/arch/Linux/installer/glod-1.0pre4-linux-20121212.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1453,7 +1453,7 @@
           </map>
         </map>
       </map>
-	  <key>mesa</key>
+      <key>mesa</key>
       <map>
         <key>license</key>
         <string>mesa</string>
