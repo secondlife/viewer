@@ -191,7 +191,7 @@ public:
 		{
 			LLViewerInventoryItem* item = *it;
 			llassert(item);
-			addItem(item->getUUID());
+			addItem(item->getLinkedUUID());
 		}
 	}
 
@@ -1732,11 +1732,6 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 	getDescendentsOfAssetType(category, gest_items, LLAssetType::AT_GESTURE, false);
 	removeDuplicateItems(gest_items);
 	
-	// Remove current COF contents.
-	bool keep_outfit_links = append;
-	purgeCategory(cof, keep_outfit_links);
-	gInventory.notifyObservers();
-
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 	LL_DEBUGS("Avatar") << self_av_string() << "Linking body items" << LL_ENDL;
 #endif
@@ -1770,6 +1765,15 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 	{
 		link_waiter->addItem(category);
 	}
+
+	// Remove current COF contents.  Have to do this after creating
+	// the link_waiter so links can be followed for any items that get
+	// carried over (e.g. keeping old shape if the new outfit does not
+	// contain one)
+	bool keep_outfit_links = append;
+	purgeCategory(cof, keep_outfit_links);
+	gInventory.notifyObservers();
+
 	LL_DEBUGS("Avatar") << self_av_string() << "waiting for LLUpdateAppearanceOnDestroy" << LL_ENDL;
 }
 
