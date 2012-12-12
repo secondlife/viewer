@@ -478,14 +478,25 @@ bool LLFloaterAutoReplaceSettings::callbackNewListName(const LLSD& notification,
 bool LLFloaterAutoReplaceSettings::callbackListNameConflict(const LLSD& notification, const LLSD& response)
 {
 	LLSD newList = notification["payload"]["list"];
-
+	std::string listName = LLAutoReplaceSettings::getListName(newList);
+	
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	switch ( option )
 	{
 	case 0:
 		// Replace current list
-		LL_INFOS("AutoReplace")<<"option 'replace current list' selected"<<LL_ENDL;
-		
+		if ( LLAutoReplaceSettings::AddListOk == mSettings.replaceList(newList) )
+		{
+			LL_INFOS("AutoReplace") << "replaced list '"<<listName<<"'"<<LL_ENDL;
+			mSelectedListName = listName;
+			updateListNames();
+			updateListNamesControls();
+			updateReplacementsList();
+		}
+		else
+		{
+			LL_WARNS("AutoReplace")<<"failed to replace list '"<<listName<<"'"<<LL_ENDL;
+		}
 		break;
 
 	case 1:
