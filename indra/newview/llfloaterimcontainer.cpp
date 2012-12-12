@@ -916,7 +916,12 @@ void LLFloaterIMContainer::getParticipantUUIDs(uuid_vec_t& selected_uuids)
     //Find the conversation floater associated with the selected id
     const LLConversationItem * conversation_item = getCurSelectedViewModelItem();
 
-    if(conversationItem->getType() == LLConversationItem::CONV_PARTICIPANT)
+	if (NULL == conversation_item)
+	{
+		return;
+	}
+
+    if (conversation_item->getType() == LLConversationItem::CONV_PARTICIPANT)
     {
         getSelectedUUIDs(selected_uuids);
     }
