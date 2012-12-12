@@ -88,6 +88,11 @@ LLFloaterIMContainer::~LLFloaterIMContainer()
 	mNewMessageConnection.disconnect();
 	LLTransientFloaterMgr::getInstance()->removeControlView(LLTransientFloaterMgr::IM, this);
 
+	if (mMicroChangedSignal.connected())
+	{
+		mMicroChangedSignal.disconnect();
+	}
+
 	gSavedPerAccountSettings.setBOOL("ConversationsListPaneCollapsed", mConversationsPane->isCollapsed());
 	gSavedPerAccountSettings.setBOOL("ConversationsMessagePaneCollapsed", mMessagesPane->isCollapsed());
 
@@ -213,7 +218,7 @@ BOOL LLFloaterIMContainer::postBuild()
 	collapseMessagesPane(gSavedPerAccountSettings.getBOOL("ConversationsMessagePaneCollapsed"));
 	collapseConversationsPane(gSavedPerAccountSettings.getBOOL("ConversationsListPaneCollapsed"));
 	LLAvatarNameCache::addUseDisplayNamesCallback(boost::bind(&LLFloaterIMSessionTab::processChatHistoryStyleUpdate));
-
+	mMicroChangedSignal = LLVoiceClient::getInstance()->MicroChangedCallback(boost::bind(&LLFloaterIMContainer::updateSpeakBtnState, this));
 	if (! mMessagesPane->isCollapsed())
 	{
 		S32 list_width = gSavedPerAccountSettings.getS32("ConversationsListPaneWidth");

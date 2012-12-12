@@ -551,6 +551,7 @@ void LLVoiceClient::setUserPTTState(bool ptt)
 {
 	mUserPTTState = ptt;
 	updateMicMuteLogic();
+	mMicroChangedSignal();
 }
 
 bool LLVoiceClient::getUserPTTState()
