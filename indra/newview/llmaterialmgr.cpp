@@ -354,18 +354,11 @@ void LLMaterialMgr::onGetAllResponse(bool success, const LLSD& content, const LL
 	mGetAllPending.erase(region_id);	// Invalidates region_id
 }
 
-void LLMaterialMgr::onPutResponse(bool success, const LLSD& content, const LLUUID& object_id)
+void LLMaterialMgr::onPutResponse(bool success, const LLSD& content)
 {
 	if (!success)
 	{
 		// *TODO: is there any kind of error handling we can do here?
-		return;
-	}
-
-	LLViewerObject* objectp = gObjectList.findObject(object_id);
-	if (!objectp)
-	{
-		LL_WARNS("debugMaterials") << "Received PUT response for unknown object" << LL_ENDL;
 		return;
 	}
 
@@ -394,25 +387,17 @@ void LLMaterialMgr::onPutResponse(bool success, const LLSD& content, const LLUUI
 
 			llassert(face_data.has(MATERIALS_CAP_OBJECT_ID_FIELD));
 			llassert(face_data[MATERIALS_CAP_OBJECT_ID_FIELD].isInteger());
-			U32 local_id = face_data[MATERIALS_CAP_OBJECT_ID_FIELD].asInteger();
-			if (objectp->getLocalID() != local_id)
-			{
-				LL_ERRS("debugMaterials") << "Received PUT response for wrong object" << LL_ENDL;
-				continue;
-			}
+//			U32 local_id = face_data[MATERIALS_CAP_OBJECT_ID_FIELD].asInteger();
 
 			llassert(face_data.has(MATERIALS_CAP_FACE_FIELD));
 			llassert(face_data[MATERIALS_CAP_FACE_FIELD].isInteger());
-			S32 te = face_data[MATERIALS_CAP_FACE_FIELD].asInteger();
+//			S32 te = face_data[MATERIALS_CAP_FACE_FIELD].asInteger();
 
 			llassert(face_data.has(MATERIALS_CAP_MATERIAL_ID_FIELD));
 			llassert(face_data[MATERIALS_CAP_MATERIAL_ID_FIELD].isBinary());
-			LLMaterialID material_id(face_data[MATERIALS_CAP_MATERIAL_ID_FIELD].asBinary());
+//			LLMaterialID material_id(face_data[MATERIALS_CAP_MATERIAL_ID_FIELD].asBinary());
 
-			LL_INFOS("debugMaterials") << "Setting material '" << material_id.asString() << "' on object '" << local_id 
-				<< "' face " << te << LL_ENDL;
-
-			objectp->setTEMaterialID(te, material_id);
+			// *TODO: do we really still need to process this?
 		}
 	}
 }
@@ -593,9 +578,6 @@ void LLMaterialMgr::processPutQueue()
 				faceData[MATERIALS_CAP_MATERIAL_FIELD] = itFace->second.asLLSD();
 			}
 			facesData.append(faceData);
-
-			LL_INFOS("debugMaterials") << "Requesting material change on object '" << faceData[MATERIALS_CAP_OBJECT_ID_FIELD].asInteger()
-				<< "' face " << faceData[MATERIALS_CAP_FACE_FIELD].asInteger() << LL_ENDL;
 		}
 
 		LLSD materialsData = LLSD::emptyMap();
@@ -620,8 +602,7 @@ void LLMaterialMgr::processPutQueue()
 			LLSD putData = LLSD::emptyMap();
 			putData[MATERIALS_CAP_ZIP_FIELD] = materialBinary;
 
-			// *HACK: the viewer can't lookup the local object id the cap returns so we'll pass the object's uuid along
-			LLHTTPClient::ResponderPtr materialsResponder = new LLMaterialsResponder("PUT", capURL, boost::bind(&LLMaterialMgr::onPutResponse, this, _1, _2, object_id));
+			LLHTTPClient::ResponderPtr materialsResponder = new LLMaterialsResponder("PUT", capURL, boost::bind(&LLMaterialMgr::onPutResponse, this, _1, _2));
 			LLHTTPClient::put(capURL, putData, materialsResponder);
 		}
 	}

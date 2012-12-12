@@ -60,7 +60,7 @@ protected:
 	void processGetAllQueue();
 	void onGetAllResponse(bool success, const LLSD& content, const LLUUID& region_id);
 	void processPutQueue();
-	void onPutResponse(bool success, const LLSD& content, const LLUUID& object_id);
+	void onPutResponse(bool success, const LLSD& content);
 
 protected:
 	typedef std::set<LLMaterialID> material_queue_t;
