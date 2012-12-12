@@ -891,37 +891,37 @@ void LLFloaterIMContainer::getSelectedUUIDs(uuid_vec_t& selected_uuids)
 
 const LLConversationItem * LLFloaterIMContainer::getCurSelectedViewModelItem()
 {
-    LLConversationItem * conversationItem = NULL;
+    LLConversationItem * conversation_item = NULL;
 
     if(mConversationsRoot && 
         mConversationsRoot->getCurSelectedItem() && 
         mConversationsRoot->getCurSelectedItem()->getViewModelItem())
     {
-		LLFloaterIMSessionTab *selectedSession = LLFloaterIMSessionTab::getConversation(mSelectedSession);
-		if (selectedSession && selectedSession->isTornOff())
+		LLFloaterIMSessionTab *selected_session_floater = LLFloaterIMSessionTab::getConversation(mSelectedSession);
+		if (selected_session_floater && !selected_session_floater->getHost())
 		{
-			conversationItem = selectedSession->getCurSelectedViewModelItem();
+			conversation_item = selected_session_floater->getCurSelectedViewModelItem();
 		}
 		else
 		{
-			conversationItem = static_cast<LLConversationItem *>(mConversationsRoot->getCurSelectedItem()->getViewModelItem());
+			conversation_item = static_cast<LLConversationItem *>(mConversationsRoot->getCurSelectedItem()->getViewModelItem());
 		}
 	}
 
-    return conversationItem;
+    return conversation_item;
 }
 
 void LLFloaterIMContainer::getParticipantUUIDs(uuid_vec_t& selected_uuids)
 {
     //Find the conversation floater associated with the selected id
-    const LLConversationItem * conversationItem = getCurSelectedViewModelItem();
+    const LLConversationItem * conversation_item = getCurSelectedViewModelItem();
 
     if(conversationItem->getType() == LLConversationItem::CONV_PARTICIPANT)
     {
         getSelectedUUIDs(selected_uuids);
     }
     //When a one-on-one conversation exists, retrieve the participant id from the conversation floater
-    else if(conversationItem->getType() == LLConversationItem::CONV_SESSION_1_ON_1)
+    else if(conversation_item->getType() == LLConversationItem::CONV_SESSION_1_ON_1)
     {
         LLFloaterIMSession *conversationFloater = LLFloaterIMSession::findInstance(conversationItem->getUUID());
         LLUUID participantID = conversationFloater->getOtherParticipantUUID();
