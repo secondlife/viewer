@@ -458,7 +458,9 @@ void LLFeatureManager::parseGPUTable(std::string filename)
 		json << "{'label' : '" << label << "',\n" << 
 			"'regexp' : '" << expr << "',\n" <<
 			"'class' : '" << cls << "',\n" <<
-			"'supported' : '" << supported << "'\n},\n";
+			"'supported' : '" << supported << "',\n" <<
+			"'stats_based' : " << stats_based <<  ",\n" <<
+			"'gl_version' : " << expected_gl_version << "\n},\n";
 #endif
 
 		for (U32 i = 0; i < expr.length(); i++)	 /*Flawfinder: ignore*/

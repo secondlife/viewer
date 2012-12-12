@@ -797,7 +797,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
 	}
 
-	bool ret = doAllocateScreenBuffer(resX, resY);
+	eFBOStatus ret = doAllocateScreenBuffer(resX, resY);
 
 	if (save_settings)
 	{
@@ -806,24 +806,35 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
 	}
 	
-	return ret;
+	if (ret == FBO_FAILURE)
+	{ //FAILSAFE: screen buffer allocation failed, disable deferred rendering if it's enabled
+		//NOTE: if the session closes successfully after this call, deferred rendering will be 
+		// disabled on future sessions
+		if (LLPipeline::sRenderDeferred)
+		{
+			gSavedSettings.setBOOL("RenderDeferred", FALSE);
+			LLPipeline::refreshCachedSettings();
+		}
+	}
+
+	return ret == FBO_SUCCESS_FULLRES;
 }
 
 
-bool LLPipeline::doAllocateScreenBuffer(U32 resX, U32 resY)
+LLPipeline::eFBOStatus LLPipeline::doAllocateScreenBuffer(U32 resX, U32 resY)
 {
-	//try to allocate screen buffers at requested resolution and samples
+	// try to allocate screen buffers at requested resolution and samples
 	// - on failure, shrink number of samples and try again
 	// - if not multisampled, shrink resolution and try again (favor X resolution over Y)
 	// Make sure to call "releaseScreenBuffers" after each failure to cleanup the partially loaded state
 
 	U32 samples = RenderFSAASamples;
 
-	bool ret = true;
+	eFBOStatus ret = FBO_SUCCESS_FULLRES;
 	if (!allocateScreenBuffer(resX, resY, samples))
 	{
 		//failed to allocate at requested specification, return false
-		ret = false;
+		ret = FBO_FAILURE;
 
 		releaseScreenBuffers();
 		//reduce number of samples 
@@ -832,7 +843,7 @@ bool LLPipeline::doAllocateScreenBuffer(U32 resX, U32 resY)
 			samples /= 2;
 			if (allocateScreenBuffer(resX, resY, samples))
 			{ //success
-				return ret;
+				return FBO_SUCCESS_LOWRES;
 			}
 			releaseScreenBuffers();
 		}
@@ -845,14 +856,14 @@ bool LLPipeline::doAllocateScreenBuffer(U32 resX, U32 resY)
 			resY /= 2;
 			if (allocateScreenBuffer(resX, resY, samples))
 			{
-				return ret;
+				return FBO_SUCCESS_LOWRES;
 			}
 			releaseScreenBuffers();
 
 			resX /= 2;
 			if (allocateScreenBuffer(resX, resY, samples))
 			{
-				return ret;
+				return FBO_SUCCESS_LOWRES;
 			}
 			releaseScreenBuffers();
 		}
@@ -934,7 +945,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 			}
 		}
 
-		U32 width = (U32)(resX*scale);
+		U32 width = (U32) (resX*scale);
 		U32 height = width;
 
 		if (shadow_detail > 1)

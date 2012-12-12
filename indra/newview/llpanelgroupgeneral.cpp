@@ -670,7 +670,6 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 		{
 			mMemberProgress = gdatap->mMembers.begin();
 			mPendingMemberUpdate = TRUE;
-			mUdpateSessionID.generate();
 
 			sSDTime = 0.0f;
 			sElementTime = 0.0f;
@@ -730,7 +729,7 @@ void LLPanelGroupGeneral::updateMembers()
 			// If name is not cached, onNameCache() should be called when it is cached and add this member to list.
 			LLAvatarNameCache::get(mMemberProgress->first, 
 									boost::bind(&LLPanelGroupGeneral::onNameCache,
-												this, mUdpateSessionID, member, _1, _2));
+												this, gdatap->getMemberVersion(), member, _2));
 		}
 	}
 
@@ -768,11 +767,15 @@ void LLPanelGroupGeneral::addMember(LLGroupMemberData* member)
 	}
 }
 
-void LLPanelGroupGeneral::onNameCache(const LLUUID& update_id, LLGroupMemberData* member, const LLUUID& id, const LLAvatarName& av_name)
+void LLPanelGroupGeneral::onNameCache(const LLUUID& update_id, LLGroupMemberData* member, const LLAvatarName& av_name)
 {
-	if (!member 
-		|| update_id != mUdpateSessionID)
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
+
+	if (!gdatap
+		|| !gdatap->isMemberDataComplete()
+		|| gdatap->getMemberVersion() != update_id)
 	{
+		// Stale data
 		return;
 	}
 
