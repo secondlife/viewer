@@ -749,7 +749,10 @@ void LLFloaterPreference::onClose(bool app_quitting)
 {
 	gSavedSettings.setS32("LastPrefTab", getChild<LLTabContainer>("pref core")->getCurrentPanelIndex());
 	LLPanelLogin::setAlwaysRefresh(false);
-	cancel();
+	if (!app_quitting)
+	{
+		cancel();
+	}
 }
 
 void LLFloaterPreference::onOpenHardwareSettings()
