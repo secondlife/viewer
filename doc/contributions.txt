@@ -477,6 +477,7 @@ Hiro Sommambulist
 Hitomi Tiponi
 	STORM-1741
 	STORM-1862
+	BUG-1067
 Holger Gilruth
 Horatio Freund
 Hoze Menges
