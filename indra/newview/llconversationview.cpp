@@ -223,10 +223,11 @@ BOOL LLConversationViewSession::handleMouseDown( S32 x, S32 y, MASK mask )
 
     //This node (conversation) was selected and a child (participant) was not
     if(result && getRoot()->getCurSelectedItem() == this)
-    {
-        (LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container"))->
-            selectConversationPair(session_id, false);
-    }
+	{
+		LLFloaterIMContainer *im_container = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
+		im_container->selectConversationPair(session_id, false);
+		im_container->collapseMessagesPane(false);
+	}
 
 	return result;
 }

@@ -138,6 +138,7 @@ protected:
 	EConversationType mConvType;	// Type of conversation item
 	bool mNeedsRefresh;	// Flag signaling to the view that something changed for this item
 	F64  mLastActiveTime;
+	bool mDisplayModeratorOptions;
 };
 
 class LLConversationItemSession : public LLConversationItem
@@ -198,6 +199,7 @@ public:
 	LLConversationItemSession* getParentSession();
 
 	void dumpDebugData();
+	void setModeratorOptionsVisible(bool visible) { mDisplayModeratorOptions = visible; }
 
 private:
 	void onAvatarNameCache(const LLAvatarName& av_name);
