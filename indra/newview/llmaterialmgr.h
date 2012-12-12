@@ -31,6 +31,8 @@
 #include "llmaterialid.h"
 #include "llsingleton.h"
 
+class LLViewerRegion;
+
 class LLMaterialMgr : public LLSingleton<LLMaterialMgr>
 {
 	friend LLSingleton<LLMaterialMgr>;
@@ -61,6 +63,7 @@ protected:
 	void onGetAllResponse(bool success, const LLSD& content, const LLUUID& region_id);
 	void processPutQueue();
 	void onPutResponse(bool success, const LLSD& content);
+	void onRegionRemoved(LLViewerRegion* regionp);
 
 protected:
 	typedef std::set<LLMaterialID> material_queue_t;

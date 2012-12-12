@@ -150,6 +150,9 @@ public:
 	typedef std::list<LLViewerRegion*> region_list_t;
 	const region_list_t& getRegionList() const { return mActiveRegionList; }
 
+	typedef boost::signals2::signal<void(LLViewerRegion*)> region_remove_signal_t;
+	boost::signals2::connection setRegionRemovedCallback(const region_remove_signal_t::slot_type& cb);
+
 	// Returns lists of avatar IDs and their world-space positions within a given distance of a point.
 	// All arguments are optional. Given containers will be emptied and then filled.
 	// Not supplying origin or radius input returns data on all avatars in the known regions.
@@ -168,6 +171,8 @@ private:
 	region_list_t	mRegionList;
 	region_list_t	mVisibleRegionList;
 	region_list_t	mCulledRegionList;
+
+	region_remove_signal_t mRegionRemovedSignal;
 
 	// Number of points on edge
 	static const U32 mWidth;

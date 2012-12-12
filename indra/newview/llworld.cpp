@@ -275,7 +275,9 @@ void LLWorld::removeRegion(const LLHost &host)
 	mActiveRegionList.remove(regionp);
 	mCulledRegionList.remove(regionp);
 	mVisibleRegionList.remove(regionp);
-	
+
+	mRegionRemovedSignal(regionp);
+
 	delete regionp;
 
 	updateWaterObjects();
@@ -1257,6 +1259,11 @@ bool LLWorld::isRegionListed(const LLViewerRegion* region) const
 {
 	region_list_t::const_iterator it = find(mRegionList.begin(), mRegionList.end(), region);
 	return it != mRegionList.end();
+}
+
+boost::signals2::connection LLWorld::setRegionRemovedCallback(const region_remove_signal_t::slot_type& cb)
+{
+	return mRegionRemovedSignal.connect(cb);
 }
 
 LLHTTPRegistration<LLEstablishAgentCommunication>

@@ -112,6 +112,7 @@ void LLMaterialsResponder::error(U32 pStatus, const std::string& pReason)
 LLMaterialMgr::LLMaterialMgr()
 {
 	gIdleCallbacks.addFunction(&LLMaterialMgr::onIdle, NULL);
+	LLWorld::instance().setRegionRemovedCallback(boost::bind(&LLMaterialMgr::onRegionRemoved, this, _1));
 }
 
 LLMaterialMgr::~LLMaterialMgr()
@@ -606,4 +607,28 @@ void LLMaterialMgr::processPutQueue()
 			LLHTTPClient::put(capURL, putData, materialsResponder);
 		}
 	}
+}
+
+void LLMaterialMgr::onRegionRemoved(LLViewerRegion* regionp)
+{
+	const LLUUID& region_id = regionp->getRegionID();
+
+	// Get
+	mGetQueue.erase(region_id);
+	for (get_pending_map_t::const_iterator itPending = mGetPending.begin(); itPending != mGetPending.end();)
+	{
+		if (region_id == itPending->first.first)
+			mGetPending.erase(itPending++);
+		else
+			++itPending;
+	}
+
+	// Get all
+	mGetAllQueue.erase(region_id);
+	mGetAllRequested.erase(region_id);
+	mGetAllPending.erase(region_id);
+	mGetAllCallbacks.erase(region_id);
+
+	// Put
+//	mPutQueue.erase(region_id);
 }
