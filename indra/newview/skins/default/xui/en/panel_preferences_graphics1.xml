@@ -55,22 +55,31 @@
      name="LowGraphicsDivet"
      top_delta="-2"
      width="2" />
+  <icon
+     color="0.12 0.12 0.12 1"
+     height="14"
+     image_name="Rounded_Square"
+     layout="topleft"
+     left_pad="41"
+     name="LowMidraphicsDivet"
+     top_delta="-2"
+     width="2" />
     <icon
      color="0.12 0.12 0.12 1"
      height="14"
      image_name="Rounded_Square"
      layout="topleft"
-     left_pad="83"
+     left_pad="41"
      name="MidGraphicsDivet"
      top_delta="0"
      width="2" />
-    <icon
+  <icon
      color="0.12 0.12 0.12 1"
      height="14"
      image_name="Rounded_Square"
      layout="topleft"
-     left_pad="85"
-     name="HighGraphicsDivet"
+     left_pad="41"
+     name="MidHighGraphicsDivet"
      top_delta="0"
      width="2" />
     <icon
@@ -78,7 +87,25 @@
      height="14"
      image_name="Rounded_Square"
      layout="topleft"
-     left_pad="83"
+     left_pad="41"
+     name="HighGraphicsDivet"
+     top_delta="0"
+     width="2" />
+  <icon
+     color="0.12 0.12 0.12 1"
+     height="14"
+     image_name="Rounded_Square"
+     layout="topleft"
+     left_pad="41"
+     name="HighUltraGraphicsDivet"
+     top_delta="0"
+     width="2" />
+    <icon
+     color="0.12 0.12 0.12 1"
+     height="14"
+     image_name="Rounded_Square"
+     layout="topleft"
+     left_pad="41"
      name="UltraGraphicsDivet"
      top_delta="0"
      width="2" />
@@ -91,7 +118,7 @@
      initial_value="0"
      layout="topleft"
      left="120"
-     max_val="3"
+     max_val="6"
      name="QualityPerformanceSelection"
      show_text="false"
      top_delta="-2"
@@ -120,12 +147,12 @@
      height="12"
      layout="topleft"
      left_delta="87"
-     name="ShadersPrefText2"
+     name="ShadersPrefText3"
      top_delta="0"
      width="80">
         Mid
     </text>
-    <text
+  <text
      type="string"
      length="1"
      follows="left|top"
@@ -136,8 +163,8 @@
      name="ShadersPrefText3"
      top_delta="0"
      width="80">
-        High
-    </text>
+      High
+  </text>
     <text
      type="string"
      length="1"
