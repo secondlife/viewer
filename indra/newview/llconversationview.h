@@ -27,10 +27,10 @@
 #ifndef LL_LLCONVERSATIONVIEW_H
 #define LL_LLCONVERSATIONVIEW_H
 
-#include "llfolderviewitem.h"
+#include "../llui/llfolderviewitem.h"
 
 #include "llavatariconctrl.h"
-#include "llbutton.h"
+#include "../llui/llbutton.h"
 #include "lloutputmonitorctrl.h"
 
 class LLTextBox;
