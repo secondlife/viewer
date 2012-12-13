@@ -61,19 +61,16 @@ using namespace LLAvatarAppearanceDefines;
 ///////////////////////////////////////////////////////////////////////////////
 
 // Callback to wear and start editing an item that has just been created.
-class LLWearAndEditCallback : public LLInventoryCallback
+void wear_and_edit_cb(const LLUUID& inv_item)
 {
-	void fire(const LLUUID& inv_item)
-	{
-		if (inv_item.isNull()) return;
-
-		// Request editing the item after it gets worn.
-		gAgentWearables.requestEditingWearable(inv_item);
-
-		// Wear it.
-		LLAppearanceMgr::instance().wearItemOnAvatar(inv_item);
-	}
-};
+	if (inv_item.isNull()) return;
+	
+	// Request editing the item after it gets worn.
+	gAgentWearables.requestEditingWearable(inv_item);
+	
+	// Wear it.
+	LLAppearanceMgr::instance().wearItemOnAvatar(inv_item);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -965,8 +962,8 @@ public:
 		llinfos << "All items created" << llendl;
 		LLPointer<LLInventoryCallback> link_waiter = new LLUpdateAppearanceOnDestroy;
 		LLAppearanceMgr::instance().linkAll(LLAppearanceMgr::instance().getCOF(),
-												mItemsToLink,
-												link_waiter);
+											mItemsToLink,
+											link_waiter);
 	}
 	void addPendingWearable(LLViewerWearable *wearable)
 	{
@@ -1789,7 +1786,7 @@ void LLAgentWearables::createWearable(LLWearableType::EType type, bool wear, con
 	LLViewerWearable* wearable = LLWearableList::instance().createNewWearable(type, gAgentAvatarp);
 	LLAssetType::EType asset_type = wearable->getAssetType();
 	LLInventoryType::EType inv_type = LLInventoryType::IT_WEARABLE;
-	LLPointer<LLInventoryCallback> cb = wear ? new LLWearAndEditCallback : NULL;
+	LLPointer<LLInventoryCallback> cb = wear ? new LLBoostFuncInventoryCallback(wear_and_edit_cb) : NULL;
 	LLUUID folder_id;
 
 	if (parent_id.notNull())

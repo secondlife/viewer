@@ -1,4 +1,4 @@
-version 32
+version 34
 // The version number above should be implemented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -97,9 +97,6 @@ RenderVolumeLODFactor		1	0.5
 VertexShaderEnable			1	0
 WindLightUseAtmosShaders	1	0
 WLSkyDetail					1	48
-RenderDeferred				1	0
-RenderDeferredSSAO			1	0
-RenderShadowDetail			1	0
 RenderFSAASamples			1	0
 
 //
@@ -128,9 +125,6 @@ RenderVolumeLODFactor		1	0.5
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	0
 WLSkyDetail					1	48
-RenderDeferred				1	0
-RenderDeferredSSAO			1	0
-RenderShadowDetail			1	0
 RenderFSAASamples			1	0
 
 //
@@ -158,9 +152,6 @@ RenderVolumeLODFactor		1	1.125
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	0
 WLSkyDetail					1	48
-RenderDeferred				1	0
-RenderDeferredSSAO			1	0
-RenderShadowDetail			1	0
 RenderFSAASamples			1	0
 
 //
@@ -188,9 +179,6 @@ RenderVolumeLODFactor		1	1.125
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
 WLSkyDetail					1	48
-RenderDeferred				1	0
-RenderDeferredSSAO			1	0
-RenderShadowDetail			1	2
 RenderFSAASamples			1	2
 
 //
@@ -228,30 +216,65 @@ RenderFSAASamples			1	2
 //
 list Unknown
 RenderVBOEnable				1	0
+RenderShadowDetail			1	0
+RenderDeferred				1	0
+RenderDeferredSSAO			1	0
 
 //
 // Class 0 Hardware (just old)
 //
 list Class0
 RenderVBOEnable				1	1
+RenderShadowDetail			1	0
+RenderDeferred				1	0
+RenderDeferredSSAO			1	0
 
 //
 // Class 1 Hardware
 //
 list Class1
 RenderVBOEnable				1	1
+RenderShadowDetail			1	0
+RenderDeferred				1	0
+RenderDeferredSSAO			1	0
+
 
 //
-// Class 2 Hardware (make it purty)
+// Class 2 Hardware
 //
 list Class2
 RenderVBOEnable				1	1
+RenderShadowDetail			1	0
+RenderDeferred				1	0
+RenderDeferredSSAO			1	0
+
 
 //
-// Class 3 Hardware (make it purty)
+// Class 3 Hardware (deferred enabled)
 //
 list Class3
 RenderVBOEnable				1	1
+RenderShadowDetail			1	0
+RenderDeferred				1	1
+RenderDeferredSSAO			1	0
+
+//
+// Class 4 Hardware (deferred + SSAO)
+//
+list Class4
+RenderVBOEnable				1	1
+RenderShadowDetail			1	0
+RenderDeferred				1	1
+RenderDeferredSSAO			1	1
+
+//
+// Class 5 Hardware (deferred + SSAO + shadows)
+//
+list Class5
+RenderVBOEnable				1	1
+RenderShadowDetail			1	2
+RenderDeferred				1	1
+RenderDeferredSSAO			1	1
 
 //
 // No Pixel Shaders available

@@ -90,10 +90,12 @@ LLUICtrlFactory::~LLUICtrlFactory()
 
 void LLUICtrlFactory::loadWidgetTemplate(const std::string& widget_tag, LLInitParam::BaseBlock& block)
 {
-	std::string filename = std::string("widgets") + gDirUtilp->getDirDelimiter() + widget_tag + ".xml";
+	std::string filename = gDirUtilp->add("widgets", widget_tag + ".xml");
 	LLXMLNodePtr root_node;
 
-	std::string full_filename = gDirUtilp->findSkinnedFilename(LLUI::getXUIPaths().front(), filename);
+	// Here we're looking for the "en" version, the default-language version
+	// of the file, rather than the localized version.
+	std::string full_filename = gDirUtilp->findSkinnedFilenameBaseLang(LLDir::XUI, filename);
 	if (!full_filename.empty())
 	{
 		LLUICtrlFactory::instance().pushFileName(full_filename);
@@ -149,22 +151,12 @@ static LLFastTimer::DeclareTimer FTM_XML_PARSE("XML Reading/Parsing");
 //-----------------------------------------------------------------------------
 // getLayeredXMLNode()
 //-----------------------------------------------------------------------------
-bool LLUICtrlFactory::getLayeredXMLNode(const std::string &xui_filename, LLXMLNodePtr& root)
+bool LLUICtrlFactory::getLayeredXMLNode(const std::string &xui_filename, LLXMLNodePtr& root,
+                                        LLDir::ESkinConstraint constraint)
 {
 	LLFastTimer timer(FTM_XML_PARSE);
-	
-	std::vector<std::string> paths;
-	std::string path = gDirUtilp->findSkinnedFilename(LLUI::getSkinPath(), xui_filename);
-	if (!path.empty())
-	{
-		paths.push_back(path);
-	}
-
-	std::string localize_path = gDirUtilp->findSkinnedFilename(LLUI::getLocalizedSkinPath(), xui_filename);
-	if (!localize_path.empty() && localize_path != path)
-	{
-		paths.push_back(localize_path);
-	}
+	std::vector<std::string> paths =
+		gDirUtilp->findSkinnedFilenames(LLDir::XUI, xui_filename, constraint);
 
 	if (paths.empty())
 	{
@@ -175,23 +167,6 @@ bool LLUICtrlFactory::getLayeredXMLNode(const std::string &xui_filename, LLXMLNo
 	return LLXMLNode::getLayeredXMLNode(root, paths);
 }
 
-
-//-----------------------------------------------------------------------------
-// getLocalizedXMLNode()
-//-----------------------------------------------------------------------------
-bool LLUICtrlFactory::getLocalizedXMLNode(const std::string &xui_filename, LLXMLNodePtr& root)
-{
-	LLFastTimer timer(FTM_XML_PARSE);
-	std::string full_filename = gDirUtilp->findSkinnedFilename(LLUI::getLocalizedSkinPath(), xui_filename);
-	if (!LLXMLNode::parseFile(full_filename, root, NULL))
-	{
-		return false;
-	}
-	else
-	{
-		return true;
-	}
-}
 
 //-----------------------------------------------------------------------------
 // saveToXML()
@@ -239,8 +214,10 @@ std::string LLUICtrlFactory::getCurFileName()
 
 
 void LLUICtrlFactory::pushFileName(const std::string& name) 
-{ 
-	mFileNames.push_back(gDirUtilp->findSkinnedFilename(LLUI::getSkinPath(), name)); 
+{
+	// Here we seem to be looking for the default language file ("en") rather
+	// than the localized one, if any.
+	mFileNames.push_back(gDirUtilp->findSkinnedFilenameBaseLang(LLDir::XUI, name));
 }
 
 void LLUICtrlFactory::popFileName() 
@@ -253,14 +230,6 @@ void LLUICtrlFactory::setCtrlParent(LLView* view, LLView* parent, S32 tab_group)
 {
 	if (tab_group == S32_MAX) tab_group = parent->getLastTabGroup();
 	parent->addChild(view, tab_group);
-}
-
-
-// Avoid directly using LLUI and LLDir in the template code
-//static
-std::string LLUICtrlFactory::findSkinnedFilename(const std::string& filename)
-{
-	return gDirUtilp->findSkinnedFilename(LLUI::getSkinPath(), filename);
 }
 
 //static 

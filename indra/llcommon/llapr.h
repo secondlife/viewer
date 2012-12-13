@@ -168,7 +168,7 @@ public:
 	void operator -=(Type x) { apr_atomic_sub32(&mData, apr_uint32_t(x)); }
 	void operator +=(Type x) { apr_atomic_add32(&mData, apr_uint32_t(x)); }
 	Type operator ++(int) { return apr_atomic_inc32(&mData); } // Type++
-	Type operator --(int) { return apr_atomic_dec32(&mData); } // Type--
+	Type operator --(int) { return apr_atomic_dec32(&mData); } // approximately --Type (0 if final is 0, non-zero otherwise)
 	
 private:
 	apr_uint32_t mData;

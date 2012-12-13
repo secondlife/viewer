@@ -2575,14 +2575,23 @@ void LLRightClickInventoryFetchDescendentsObserver::execute(bool clear_observer)
 		LLInventoryModel::item_array_t* item_array;
 		gInventory.getDirectDescendentsOf(*current_folder, cat_array, item_array);
 
-		S32 item_count = item_array->count();
-		S32 cat_count = cat_array->count();
-	
+		S32 item_count(0);
+		if( item_array )
+		{			
+			item_count = item_array->count();
+		}
+		
+		S32 cat_count(0);
+		if( cat_array )
+		{			
+			cat_count = cat_array->count();
+		}
+
 		// Move to next if current folder empty
 		if ((item_count == 0) && (cat_count == 0))
-	{
+		{
 			continue;
-	}
+		}
 
 		uuid_vec_t ids;
 		LLRightClickInventoryFetchObserver* outfit = NULL;
@@ -5082,7 +5091,7 @@ void LLObjectBridge::performAction(LLInventoryModel* model, std::string action)
 		else if(item && item->isFinished())
 		{
 			// must be in library. copy it to our inventory and put it on.
-			LLPointer<LLInventoryCallback> cb = new RezAttachmentCallback(0);
+			LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(rez_attachment_cb, _1, (LLViewerJointAttachment*)0));
 			copy_inventory_item(
 				gAgent.getID(),
 				item->getPermissions().getOwner(),

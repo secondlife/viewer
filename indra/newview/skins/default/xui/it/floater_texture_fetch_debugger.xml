@@ -45,10 +45,23 @@
 	<text name="total_time_refetch_vis_cache_label">
 		15, Nuovo fetching elementi visibili dalla cache, Tempo: [TIME] secondi, fetching: [SIZE] KB, [PIXEL] MPixels
 	</text>
-	<text name="total_time_refetch_vis_http_label">
-		16, Nuovo fetching elementi visibili da HTTP, Tempo: [TIME] secondi, fetching: [SIZE] KB, [PIXEL] MPixels
+	<text name="total_time_refetch_all_cache_label">
+		16, Nuovo fetching di tutte le texture dalla cache, Tempo: [TIME] secondi, fetching: [SIZE] KB, [PIXEL] MPixels
 	</text>
-	<spinner label="17, Rapporto Texel/Pixel:" name="texel_pixel_ratio"/>
+	<text name="total_time_refetch_vis_http_label">
+		17, Nuovo fetching elementi visibili da HTTP, Tempo: [TIME] secondi, fetching: [SIZE] KB, [PIXEL] MPixels
+	</text>
+	<text name="total_time_refetch_all_http_label">
+		18, Nuovo fetching di tutte le texture da HTTP, Tempo: [TIME] secondi, fetching: [SIZE] KB, [PIXEL] MPixels
+	</text>
+	<spinner label="19, Rapporto Texel/Pixel:" name="texel_pixel_ratio"/>
+	<text name="texture_source_label">
+		20, Fonte texture:
+	</text>
+	<radio_group name="texture_source">
+		<radio_item label="Cache + HTTP" name="0"/>
+		<radio_item label="Solo HTTP" name="1"/>
+	</radio_group>
 	<button label="Attiva" name="start_btn"/>
 	<button label="Reimposta" name="clear_btn"/>
 	<button label="Chiudi" name="close_btn"/>
@@ -58,5 +71,7 @@
 	<button label="Decodifica" name="decode_btn"/>
 	<button label="Texture GL" name="gl_btn"/>
 	<button label="Nuovo fetch visibili cache" name="refetchviscache_btn"/>
+	<button label="Nuovo fetching di tutta la cache" name="refetchallcache_btn"/>
 	<button label="Nuovo fetch visibili HTTP" name="refetchvishttp_btn"/>
+	<button label="Nuovo fetching di tutto il contenuto HTTP" name="refetchallhttp_btn"/>
 </floater>

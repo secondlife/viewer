@@ -181,9 +181,9 @@ if (DARWIN)
   # ucontext_t struct when _XOPEN_SOURCE is not defined (rdar://problem/5578699 ).
   # As a workaround, define _XOPEN_SOURCE before including ucontext.h.
   add_definitions(-DLL_DARWIN=1 -D_XOPEN_SOURCE)
-  set(CMAKE_CXX_LINK_FLAGS "-Wl,-headerpad_max_install_names,-search_paths_first")
+  set(CMAKE_CXX_LINK_FLAGS "-Wl,-no_compact_unwind -Wl,-headerpad_max_install_names,-search_paths_first")
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_CXX_LINK_FLAGS}")
-  set(DARWIN_extra_cstar_flags "-mlong-branch")
+  set(DARWIN_extra_cstar_flags "-mlong-branch -g")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DARWIN_extra_cstar_flags}")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  ${DARWIN_extra_cstar_flags}")
   # NOTE: it's critical that the optimization flag is put in front.

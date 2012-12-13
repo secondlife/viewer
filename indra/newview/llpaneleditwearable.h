@@ -54,6 +54,7 @@ public:
 	/*virtual*/ BOOL 		postBuild();
 	/*virtual*/ BOOL		isDirty() const;	// LLUICtrl
 	/*virtual*/ void		draw();	
+				void		onClose();
 
 	// changes camera angle to default for selected subpart
 	void				changeCamera(U8 subpart);
@@ -70,6 +71,7 @@ public:
 	void 				updateScrollingPanelList();
 
 	static void			onRevertButtonClicked(void* userdata);
+	static void			onBackButtonClicked(void* userdata); 
 	void				onCommitSexChange();
 	void				onSaveAsButtonClicked();
 	void				saveAsCallback(const LLSD& notification, const LLSD& response);

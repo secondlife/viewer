@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_snapshot_options">
+	<button label="送至我的檔案訊息發佈" name="save_to_profile_btn"/>
+	<button label="電郵" name="save_to_email_btn"/>
+	<button label="儲存到我的收納區（L$[AMOUNT]）" name="save_to_inventory_btn"/>
+	<button label="儲存到電腦上" name="save_to_computer_btn"/>
+</panel>

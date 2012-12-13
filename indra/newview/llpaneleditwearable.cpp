@@ -52,6 +52,7 @@
 #include "lltexturectrl.h"
 #include "lltextureentry.h"
 #include "llviewercontrol.h"    // gSavedSettings
+#include "llviewerregion.h"
 #include "llviewertexturelist.h"
 #include "llagentcamera.h"
 #include "llmorphview.h"
@@ -718,8 +719,8 @@ BOOL LLPanelEditWearable::postBuild()
         mBtnBack = getChild<LLButton>("back_btn");
         mBackBtnLabel = mBtnBack->getLabelUnselected();
         mBtnBack->setLabel(LLStringUtil::null);
-        // handled at appearance panel level?
-        //mBtnBack->setClickedCallback(boost::bind(&LLPanelEditWearable::onBackButtonClicked, this));
+
+        mBtnBack->setClickedCallback(boost::bind(&LLPanelEditWearable::onBackButtonClicked, this));
 
         mNameEditor = getChild<LLLineEditor>("description");
 
@@ -835,11 +836,11 @@ BOOL LLPanelEditWearable::isDirty() const
         BOOL isDirty = FALSE;
         if (mWearablePtr)
         {
-                if (mWearablePtr->isDirty() ||
-                        mWearableItem->getName().compare(mNameEditor->getText()) != 0)
-                {
-                        isDirty = TRUE;
-                }
+			if (mWearablePtr->isDirty() ||
+				( mWearableItem && mNameEditor && mWearableItem->getName().compare(mNameEditor->getText()) != 0 ))
+			{
+				isDirty = TRUE;
+			}
         }
         return isDirty;
 }
@@ -854,6 +855,14 @@ void LLPanelEditWearable::draw()
         }
 
         LLPanel::draw();
+}
+
+void LLPanelEditWearable::onClose()
+{
+	if ( isDirty() )
+	{
+		revertChanges();
+	}
 }
 
 void LLPanelEditWearable::setVisible(BOOL visible)
@@ -872,6 +881,12 @@ void LLPanelEditWearable::setWearable(LLViewerWearable *wearable, BOOL disable_c
         showWearable(mWearablePtr, TRUE, disable_camera_switch);
 }
 
+//static 
+void LLPanelEditWearable::onBackButtonClicked(void* userdata)
+{
+    LLPanelEditWearable *panel = (LLPanelEditWearable*) userdata;
+	panel->saveChanges(true);
+}
 
 //static 
 void LLPanelEditWearable::onRevertButtonClicked(void* userdata)
@@ -1056,7 +1071,7 @@ void LLPanelEditWearable::saveChanges(bool force_save_as)
 			gAgentWearables.saveWearable(mWearablePtr->getType(), index, TRUE, new_name);
 	}
 
-	if (getRegion() && getRegion()->getCentralBakeVersion() > 0)
+	if (gAgent.getRegion() && gAgent.getRegion()->getCentralBakeVersion() > 0)
 	{
 		LLAppearanceMgr::getInstance()->incrementCofVersion();
 	}

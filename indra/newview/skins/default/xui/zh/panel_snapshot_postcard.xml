@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_snapshot_postcard">
+	<string name="default_subject">
+		來自 [SECOND_LIFE] 的明信片。
+	</string>
+	<string name="default_message">
+		快來看看這個！
+	</string>
+	<string name="upload_message">
+		傳送中...
+	</string>
+	<text name="title">
+		電郵
+	</text>
+	<button label="訊息" name="message_btn"/>
+	<button label="設定" name="settings_btn"/>
+</panel>

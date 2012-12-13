@@ -12,6 +12,7 @@
 	<menu_item_call label="添加" name="add"/>
 	<menu_item_call label="回報" name="report"/>
 	<menu_item_call label="封鎖" name="block"/>
+	<menu_item_call label="解除封鎖" name="unblock"/>
 	<menu_item_call label="放大" name="zoom_in"/>
 	<menu_item_call label="移除" name="remove"/>
 	<menu_item_call label="更多資訊" name="more_info"/>

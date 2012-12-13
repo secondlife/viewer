@@ -109,6 +109,7 @@ public:
 	// Update the displayed outfit name in UI.
 	void updatePanelOutfitName(const std::string& name);
 
+	void purgeBaseOutfitLink(const LLUUID& category);
 	void createBaseOutfitLink(const LLUUID& category, LLPointer<LLInventoryCallback> link_waiter);
 
 	void updateAgentWearables(LLWearableHoldingPattern* holder, bool append);
@@ -136,9 +137,6 @@ public:
 	void removeCOFLinksOfType(LLWearableType::EType type);
 	void removeAllClothesFromAvatar();
 	void removeAllAttachmentsFromAvatar();
-
-	// Add COF link to ensemble folder.
-	void addEnsembleLink(LLInventoryCategory* item, bool do_update = true);
 
 	//has the current outfit changed since it was loaded?
 	bool isOutfitDirty() { return mOutfitIsDirty; }
@@ -214,7 +212,6 @@ private:
 								   bool follow_folder_links);
 
 	void purgeCategory(const LLUUID& category, bool keep_outfit_links);
-	void purgeBaseOutfitLink(const LLUUID& category);
 
 	static void onOutfitRename(const LLSD& notification, const LLSD& response);
 

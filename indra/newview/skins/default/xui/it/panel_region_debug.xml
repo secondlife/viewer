@@ -36,5 +36,5 @@
 	<button label="?" left="297" name="top_scripts_help"/>
 	<button label="Riavvia la regione" name="restart_btn" tool_tip="Dai 2 minuti di tempo massimo e fai riavviare la regione"/>
 	<button label="?" name="restart_help"/>
-	<button label="Annulla riavvio" name="cancel_restart_btn" tool_tip="Ritarda il riavvio della regione di un&apos;ora"/>
+	<button label="Annulla riavvio" name="cancel_restart_btn" tool_tip="Annulla riavvio regione"/>
 </panel>

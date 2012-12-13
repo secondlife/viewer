@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="volumepulldown_floater">
+	<slider label="Principal" name="System Volume"/>
+	<slider label="Boutons" name="UI Volume"/>
+	<slider label="Ambiant" name="Wind Volume"/>
+	<slider label="Sons" name="SFX Volume"/>
+	<check_box name="gesture_audio_play_btn" tool_tip="Activer les sons des gestes."/>
+	<slider label="Musique" name="Music Volume"/>
+	<check_box name="enable_music" tool_tip="Activer les flux de musique."/>
+	<slider label="Médias" name="Media Volume"/>
+	<check_box name="enable_media" tool_tip="Activer les flux de média."/>
+	<slider label="Voix" name="Voice Volume"/>
+	<check_box name="enable_voice_check" tool_tip="Activer le chat vocal."/>
+</panel>

@@ -719,6 +719,8 @@ void LLPipeline::cleanup()
 	mInitialized = FALSE;
 
 	mDeferredVB = NULL;
+
+	mCubeVB = NULL;
 }
 
 //============================================================================
@@ -790,18 +792,57 @@ void LLPipeline::allocatePhysicsBuffer()
 	}
 }
 
-void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
+bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 {
 	refreshCachedSettings();
-	U32 samples = RenderFSAASamples;
+	
+	bool save_settings = sRenderDeferred;
+	if (save_settings)
+	{
+		// Set this flag in case we crash while resizing window or allocating space for deferred rendering targets
+		gSavedSettings.setBOOL("RenderInitError", TRUE);
+		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
+	}
 
-	//try to allocate screen buffers at requested resolution and samples
+	eFBOStatus ret = doAllocateScreenBuffer(resX, resY);
+
+	if (save_settings)
+	{
+		// don't disable shaders on next session
+		gSavedSettings.setBOOL("RenderInitError", FALSE);
+		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
+	}
+	
+	if (ret == FBO_FAILURE)
+	{ //FAILSAFE: screen buffer allocation failed, disable deferred rendering if it's enabled
+		//NOTE: if the session closes successfully after this call, deferred rendering will be 
+		// disabled on future sessions
+		if (LLPipeline::sRenderDeferred)
+		{
+			gSavedSettings.setBOOL("RenderDeferred", FALSE);
+			LLPipeline::refreshCachedSettings();
+		}
+	}
+
+	return ret == FBO_SUCCESS_FULLRES;
+}
+
+
+LLPipeline::eFBOStatus LLPipeline::doAllocateScreenBuffer(U32 resX, U32 resY)
+{
+	// try to allocate screen buffers at requested resolution and samples
 	// - on failure, shrink number of samples and try again
 	// - if not multisampled, shrink resolution and try again (favor X resolution over Y)
 	// Make sure to call "releaseScreenBuffers" after each failure to cleanup the partially loaded state
 
+	U32 samples = RenderFSAASamples;
+
+	eFBOStatus ret = FBO_SUCCESS_FULLRES;
 	if (!allocateScreenBuffer(resX, resY, samples))
 	{
+		//failed to allocate at requested specification, return false
+		ret = FBO_FAILURE;
+
 		releaseScreenBuffers();
 		//reduce number of samples 
 		while (samples > 0)
@@ -809,7 +850,7 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 			samples /= 2;
 			if (allocateScreenBuffer(resX, resY, samples))
 			{ //success
-				return;
+				return FBO_SUCCESS_LOWRES;
 			}
 			releaseScreenBuffers();
 		}
@@ -822,22 +863,23 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 			resY /= 2;
 			if (allocateScreenBuffer(resX, resY, samples))
 			{
-				return;
+				return FBO_SUCCESS_LOWRES;
 			}
 			releaseScreenBuffers();
 
 			resX /= 2;
 			if (allocateScreenBuffer(resX, resY, samples))
 			{
-				return;
+				return FBO_SUCCESS_LOWRES;
 			}
 			releaseScreenBuffers();
 		}
 
 		llwarns << "Unable to allocate screen buffer at any resolution!" << llendl;
 	}
-}
 
+	return ret;
+}
 
 bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 {
@@ -865,10 +907,6 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 
 	if (LLPipeline::sRenderDeferred)
 	{
-		// Set this flag in case we crash while resizing window or allocating space for deferred rendering targets
-		gSavedSettings.setBOOL("RenderInitError", TRUE);
-		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
-
 		S32 shadow_detail = RenderShadowDetail;
 		BOOL ssao = RenderDeferredSSAO;
 		
@@ -880,7 +918,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		if (!mScreen.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		if (samples > 0)
 		{
-			if (!mFXAABuffer.allocate(nhpo2(resX), nhpo2(resY), GL_RGBA, FALSE, FALSE, LLTexUnit::TT_TEXTURE, FALSE, samples)) return false;
+			if (!mFXAABuffer.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_TEXTURE, FALSE, samples)) return false;
 		}
 		else
 		{
@@ -914,7 +952,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 			}
 		}
 
-		U32 width = nhpo2(U32(resX*scale))/2;
+		U32 width = (U32) (resX*scale);
 		U32 height = width;
 
 		if (shadow_detail > 1)
@@ -933,9 +971,11 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 			}
 		}
 
-		// don't disable shaders on next session
-		gSavedSettings.setBOOL("RenderInitError", FALSE);
-		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
+		//HACK make screenbuffer allocations start failing after 30 seconds
+		if (gSavedSettings.getBOOL("SimulateFBOFailure"))
+		{
+			return false;
+		}
 	}
 	else
 	{
@@ -2022,6 +2062,7 @@ void LLPipeline::grabReferences(LLCullResult& result)
 void LLPipeline::clearReferences()
 {
 	sCull = NULL;
+	mGroupSaveQ1.clear();
 }
 
 void check_references(LLSpatialGroup* group, LLDrawable* drawable)
@@ -2341,7 +2382,7 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 		bound_shader = true;
 		gOcclusionCubeProgram.bind();
 	}
-
+	
 	if (sUseOcclusion > 1)
 	{
 		if (mCubeVB.isNull())
@@ -2519,7 +2560,7 @@ void LLPipeline::doOcclusion(LLCamera& camera)
 			{
 				gOcclusionCubeProgram.bind();
 			}
-			}
+		}
 
 		if (mCubeVB.isNull())
 		{ //cube VB will be used for issuing occlusion queries
@@ -2576,11 +2617,6 @@ void LLPipeline::updateGL()
 			glu->mInQ = FALSE;
 			LLGLUpdate::sGLQ.pop_front();
 		}
-
-	{ //seed VBO Pools
-		LLFastTimer t(FTM_SEED_VBO_POOLS);
-		LLVertexBuffer::seedPools();
-	}
 	}
 
 	{ //seed VBO Pools
@@ -2593,26 +2629,59 @@ static LLFastTimer::DeclareTimer FTM_REBUILD_PRIORITY_GROUPS("Rebuild Priority G
 
 void LLPipeline::clearRebuildGroups()
 {
+	LLSpatialGroup::sg_vector_t	hudGroups;
+
 	mGroupQ1Locked = true;
 	// Iterate through all drawables on the priority build queue,
 	for (LLSpatialGroup::sg_vector_t::iterator iter = mGroupQ1.begin();
 		 iter != mGroupQ1.end(); ++iter)
 	{
 		LLSpatialGroup* group = *iter;
-		group->clearState(LLSpatialGroup::IN_BUILD_Q1);
+
+		// If the group contains HUD objects, save the group
+		if (group->isHUDGroup())
+		{
+			hudGroups.push_back(group);
+		}
+		// Else, no HUD objects so clear the build state
+		else
+		{
+			group->clearState(LLSpatialGroup::IN_BUILD_Q1);
+		}
 	}
+
+	// Clear the group
 	mGroupQ1.clear();
+
+	// Copy the saved HUD groups back in
+	mGroupQ1.assign(hudGroups.begin(), hudGroups.end());
 	mGroupQ1Locked = false;
+
+	// Clear the HUD groups
+	hudGroups.clear();
 
 	mGroupQ2Locked = true;
 	for (LLSpatialGroup::sg_vector_t::iterator iter = mGroupQ2.begin();
 		 iter != mGroupQ2.end(); ++iter)
 	{
 		LLSpatialGroup* group = *iter;
-		group->clearState(LLSpatialGroup::IN_BUILD_Q2);
-	}	
 
+		// If the group contains HUD objects, save the group
+		if (group->isHUDGroup())
+		{
+			hudGroups.push_back(group);
+		}
+		// Else, no HUD objects so clear the build state
+		else
+		{
+			group->clearState(LLSpatialGroup::IN_BUILD_Q2);
+		}
+	}	
+	// Clear the group
 	mGroupQ2.clear();
+
+	// Copy the saved HUD groups back in
+	mGroupQ2.assign(hudGroups.begin(), hudGroups.end());
 	mGroupQ2Locked = false;
 }
 
@@ -2635,6 +2704,7 @@ void LLPipeline::rebuildPriorityGroups()
 		group->clearState(LLSpatialGroup::IN_BUILD_Q1);
 	}
 
+	mGroupSaveQ1 = mGroupQ1;
 	mGroupQ1.clear();
 	mGroupQ1Locked = false;
 
@@ -3389,10 +3459,10 @@ void renderScriptedTouchBeacons(LLDrawable* drawablep)
 				if (facep)
 				{
 					gPipeline.mHighlightFaces.push_back(facep);
-				}
 			}
 		}
 	}
+}
 }
 
 void renderPhysicalBeacons(LLDrawable* drawablep)
@@ -3418,10 +3488,10 @@ void renderPhysicalBeacons(LLDrawable* drawablep)
 				if (facep)
 				{
 					gPipeline.mHighlightFaces.push_back(facep);
-				}
 			}
 		}
 	}
+}
 }
 
 void renderMOAPBeacons(LLDrawable* drawablep)
@@ -3458,10 +3528,10 @@ void renderMOAPBeacons(LLDrawable* drawablep)
 				if (facep)
 				{
 					gPipeline.mHighlightFaces.push_back(facep);
-				}
 			}
 		}
 	}
+}
 }
 
 void renderParticleBeacons(LLDrawable* drawablep)
@@ -3487,10 +3557,10 @@ void renderParticleBeacons(LLDrawable* drawablep)
 				if (facep)
 				{
 					gPipeline.mHighlightFaces.push_back(facep);
-				}
 			}
 		}
 	}
+}
 }
 
 void renderSoundHighlights(LLDrawable* drawablep)
@@ -3509,10 +3579,10 @@ void renderSoundHighlights(LLDrawable* drawablep)
 				if (facep)
 				{
 					gPipeline.mHighlightFaces.push_back(facep);
-				}
 			}
 		}
 	}
+}
 }
 
 void LLPipeline::postSort(LLCamera& camera)
@@ -3726,7 +3796,7 @@ void LLPipeline::postSort(LLCamera& camera)
 						if (facep)
 						{
 							gPipeline.mSelectedFaces.push_back(facep);
-						}
+					}
 					}
 					return true;
 				}
@@ -7113,11 +7183,11 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 	gGlowProgram.unbind();
 
-	if (LLRenderTarget::sUseFBO)
+	/*if (LLRenderTarget::sUseFBO)
 	{
 		LLFastTimer ftm(FTM_RENDER_BLOOM_FBO);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	}
+	}*/
 
 	gGLViewport[0] = gViewerWindow->getWorldViewRectRaw().mLeft;
 	gGLViewport[1] = gViewerWindow->getWorldViewRectRaw().mBottom;
@@ -7993,10 +8063,6 @@ void LLPipeline::renderDeferredLighting()
 		gGL.popMatrix();
 		stop_glerror();
 
-		//copy depth and stencil from deferred screen
-		//mScreen.copyContents(mDeferredScreen, 0, 0, mDeferredScreen.getWidth(), mDeferredScreen.getHeight(),
-		//					0, 0, mScreen.getWidth(), mScreen.getHeight(), GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
-
 		mScreen.bindTarget();
 		// clear color buffer here - zeroing alpha (glow) is important or it will accumulate against sky
 		glClearColor(0,0,0,0);
@@ -8767,8 +8833,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 			mWaterDis.flush();
 		}
 		last_update = LLDrawPoolWater::sNeedsReflectionUpdate && LLDrawPoolWater::sNeedsDistortionUpdate;
-
-		LLRenderTarget::unbindTarget();
 
 		LLPipeline::sReflectionRender = FALSE;
 

@@ -18,6 +18,12 @@
 	<panel.string name="text modify info 4">
 		你不能修改這些物件
 	</panel.string>
+	<panel.string name="text modify info 5">
+		無法跨地區修改這個物件
+	</panel.string>
+	<panel.string name="text modify info 6">
+		無法跨地區修改這些物件
+	</panel.string>
 	<panel.string name="text modify warning">
 		這個物件含有聯結的部分
 	</panel.string>
@@ -95,6 +101,9 @@
 		</combo_box>
 		<spinner label="價格： L$" name="Edit Cost"/>
 		<check_box label="顯示在搜尋中" name="search_check" tool_tip="讓其他人可以在搜尋結果中察看到此物件"/>
+		<text name="pathfinding_attributes_label">
+			尋徑屬性：
+		</text>
 		<text name="B:">
 			B:
 		</text>

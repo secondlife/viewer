@@ -119,8 +119,25 @@ public:
 	void createGLBuffers();
 	void createLUTBuffers();
 
-	void allocateScreenBuffer(U32 resX, U32 resY);
+	//allocate the largest screen buffer possible up to resX, resY
+	//returns true if full size buffer allocated, false if some other size is allocated
+	bool allocateScreenBuffer(U32 resX, U32 resY);
+
+	typedef enum {
+		FBO_SUCCESS_FULLRES = 0,
+		FBO_SUCCESS_LOWRES,
+		FBO_FAILURE
+	} eFBOStatus;
+
+private:
+	//implementation of above, wrapped for easy error handling
+	eFBOStatus doAllocateScreenBuffer(U32 resX, U32 resY);
+public:
+
+	//attempt to allocate screen buffers at resX, resY
+	//returns true if allocation successful, false otherwise
 	bool allocateScreenBuffer(U32 resX, U32 resY, U32 samples);
+
 	void allocatePhysicsBuffer();
 	
 	void resetVertexBuffers(LLDrawable* drawable);
@@ -676,6 +693,8 @@ protected:
 	LLDrawable::drawable_list_t 	mBuildQ2; // non-priority
 	LLSpatialGroup::sg_vector_t		mGroupQ1; //priority
 	LLSpatialGroup::sg_vector_t		mGroupQ2; // non-priority
+
+	LLSpatialGroup::sg_vector_t		mGroupSaveQ1; // a place to save mGroupQ1 until it is safe to unref
 
 	LLSpatialGroup::sg_vector_t		mMeshDirtyGroup; //groups that need rebuildMesh called
 	U32 mMeshDirtyQueryObject;

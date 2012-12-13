@@ -154,7 +154,7 @@ LLFloater* LLFloaterReg::getInstance(const std::string& name, const LLSD& key)
 					llwarns << "Failed to build floater type: '" << name << "'." << llendl;
 					return NULL;
 				}
-				bool success = res->buildFromFile(xui_file, NULL);
+				bool success = res->buildFromFile(xui_file);
 				if (!success)
 				{
 					llwarns << "Failed to build floater type: '" << name << "'." << llendl;

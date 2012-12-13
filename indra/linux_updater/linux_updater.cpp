@@ -251,7 +251,7 @@ std::string next_image_filename(std::string& image_path, LLDirIterator& iter)
 {
 	std::string image_filename;
 	iter.next(image_filename);
-	return image_path + "/" + image_filename;
+	return gDirUtilp->add(image_path, image_filename);
 }
 
 void on_window_closed(GtkWidget *sender, GdkEvent* event, gpointer data)

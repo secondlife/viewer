@@ -83,6 +83,7 @@
 #include "llinventoryfunctions.h"
 #include "llpanellogin.h"
 #include "llpanelblockedlist.h"
+#include "llmenuoptionpathfindingrebakenavmesh.h"
 #include "llmoveview.h"
 #include "llparcel.h"
 #include "llrootview.h"
@@ -4891,6 +4892,37 @@ class LLToolsEnablePathfindingView : public view_listener_t
 	}
 };
 
+class LLToolsDoPathfindingRebakeRegion : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		bool hasPathfinding = (LLPathfindingManager::getInstance() != NULL);
+
+		if (hasPathfinding)
+		{
+			LLMenuOptionPathfindingRebakeNavmesh::getInstance()->sendRequestRebakeNavmesh();
+		}
+
+		return hasPathfinding;
+	}
+};
+
+class LLToolsEnablePathfindingRebakeRegion : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		bool returnValue = false;
+
+		if (LLPathfindingManager::getInstance() != NULL)
+		{
+			LLMenuOptionPathfindingRebakeNavmesh *rebakeInstance = LLMenuOptionPathfindingRebakeNavmesh::getInstance();
+			returnValue = (rebakeInstance->canRebakeRegion() &&
+				(rebakeInstance->getMode() == LLMenuOptionPathfindingRebakeNavmesh::kRebakeNavMesh_Available));
+		}
+		return returnValue;
+	}
+};
+
 // Round the position of all root objects to the grid
 class LLToolsSnapObjectXY : public view_listener_t
 {
@@ -5149,12 +5181,6 @@ class LLEditDelete : public view_listener_t
 	}
 };
 
-bool enable_object_return()
-{
-	return (!LLSelectMgr::getInstance()->getSelection()->isEmpty() &&
-		(gAgent.isGodlike() || can_derez(DRD_RETURN_TO_OWNER)));
-}
-
 void handle_spellcheck_replace_with_suggestion(const LLUICtrl* ctrl, const LLSD& param)
 {
 	const LLContextMenu* menu = dynamic_cast<const LLContextMenu*>(ctrl->getParent());
@@ -5225,6 +5251,12 @@ bool enable_spellcheck_add_to_ignore(const LLUICtrl* ctrl)
 	const LLContextMenu* menu = dynamic_cast<const LLContextMenu*>(ctrl->getParent());
 	const LLSpellCheckMenuHandler* spellcheck_handler = (menu) ? dynamic_cast<const LLSpellCheckMenuHandler*>(menu->getSpawningView()) : NULL;
 	return (spellcheck_handler) && (spellcheck_handler->canAddToIgnore());
+}
+
+bool enable_object_return()
+{
+	return (!LLSelectMgr::getInstance()->getSelection()->isEmpty() &&
+		(gAgent.isGodlike() || can_derez(DRD_RETURN_TO_OWNER)));
 }
 
 bool enable_object_delete()
@@ -8367,6 +8399,8 @@ void initialize_menus()
 
 	view_listener_t::addMenu(new LLToolsEnablePathfinding(), "Tools.EnablePathfinding");
 	view_listener_t::addMenu(new LLToolsEnablePathfindingView(), "Tools.EnablePathfindingView");
+	view_listener_t::addMenu(new LLToolsDoPathfindingRebakeRegion(), "Tools.DoPathfindingRebakeRegion");
+	view_listener_t::addMenu(new LLToolsEnablePathfindingRebakeRegion(), "Tools.EnablePathfindingRebakeRegion");
 
 	// Help menu
 	// most items use the ShowFloater method

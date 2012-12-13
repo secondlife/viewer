@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Environment Editor Floater" title="環境設定">
+	<text name="note">
+		使用以下的選項自訂你 Viewer 的環境設定。
+	</text>
+	<radio_group name="region_settings_radio_group">
+		<radio_item label="使用地區設定" name="use_region_settings"/>
+		<radio_item label="自訂我的環境" name="use_my_settings"/>
+	</radio_group>
+	<panel name="user_environment_settings">
+		<text name="note">
+			注意：你的自訂設定不會被其他使用者看見。
+		</text>
+		<text name="water_settings_title">
+			水的設定
+		</text>
+		<combo_box name="water_settings_preset_combo">
+			<combo_box.item label="-選擇一個自訂配置-" name="item0"/>
+		</combo_box>
+		<text name="sky_dayc_settings_title">
+			天空 / 日循環
+		</text>
+		<radio_group name="sky_dayc_settings_radio_group">
+			<radio_item label="固定天空" name="my_sky_settings"/>
+			<radio_item label="日循環" name="my_dayc_settings"/>
+		</radio_group>
+		<combo_box name="sky_settings_preset_combo">
+			<combo_box.item label="-選擇一個自訂配置-" name="item0"/>
+		</combo_box>
+		<combo_box name="dayc_settings_preset_combo">
+			<combo_box.item label="-選擇一個自訂配置-" name="item0"/>
+		</combo_box>
+	</panel>
+	<button label="確定" name="ok_btn"/>
+	<button label="取消" name="cancel_btn"/>
+</floater>

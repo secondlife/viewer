@@ -150,7 +150,7 @@ public:
 	const LLFontDescriptor& getFontDesc() const;
 
 
-	static void initClass(F32 screen_dpi, F32 x_scale, F32 y_scale, const std::string& app_dir, const std::vector<std::string>& xui_paths, bool create_gl_textures = true);
+	static void initClass(F32 screen_dpi, F32 x_scale, F32 y_scale, const std::string& app_dir, bool create_gl_textures = true);
 
 	// Load sans-serif, sans-serif-small, etc.
 	// Slow, requires multiple seconds to load fonts.
