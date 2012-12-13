@@ -313,6 +313,8 @@ void LLOutputMonitorCtrl::switchIndicator(bool switch_on)
         if (getParent() && getParent()->isInVisibleChain())
         {
             notifyParentVisibilityChanged();
+            //Ignore toggled state in case it was set when parent visibility was hidden
+            mIndicatorToggled = false;
         }
         else
         {
