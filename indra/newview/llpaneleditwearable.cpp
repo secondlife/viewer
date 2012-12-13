@@ -1028,33 +1028,43 @@ void LLPanelEditWearable::updatePanelPickerControls(LLWearableType::EType type)
         }
 }
 
+void LLPanelEditWearable::incrementCofVersionLegacy()
+{
+
+}
+
 void LLPanelEditWearable::saveChanges(bool force_save_as)
 {
-        if (!mWearablePtr || !isDirty())
-        {
-                // do nothing if no unsaved changes
-                return;
-        }
+	if (!mWearablePtr || !isDirty())
+	{
+			// do nothing if no unsaved changes
+			return;
+	}
 
-        U32 index = gAgentWearables.getWearableIndex(mWearablePtr);
+	U32 index = gAgentWearables.getWearableIndex(mWearablePtr);
 
-        std::string new_name = mNameEditor->getText();
-        if (force_save_as)
-        {
-                // the name of the wearable has changed, re-save wearable with new name
-                LLAppearanceMgr::instance().removeCOFItemLinks(mWearablePtr->getItemID());
-                gAgentWearables.saveWearableAs(mWearablePtr->getType(), index, new_name, FALSE);
-                mNameEditor->setText(mWearableItem->getName());
-        }
-        else
-        {
-                gAgentWearables.saveWearable(mWearablePtr->getType(), index, TRUE, new_name);
-        }
+	std::string new_name = mNameEditor->getText();
+	if (force_save_as)
+	{
+			// the name of the wearable has changed, re-save wearable with new name
+			LLAppearanceMgr::instance().removeCOFItemLinks(mWearablePtr->getItemID());
+			gAgentWearables.saveWearableAs(mWearablePtr->getType(), index, new_name, FALSE);
+			mNameEditor->setText(mWearableItem->getName());
+	}
+	else
+	{
+			gAgentWearables.saveWearable(mWearablePtr->getType(), index, TRUE, new_name);
+	}
 
-        if (gAgentAvatarp->isUsingServerBakes())
-        {
-        	LLAppearanceMgr::getInstance()->incrementCofVersion();
-        }
+	if (getRegion() && getRegion()->getCentralBakeVersion() > 0)
+	{
+		LLAppearanceMgr::getInstance()->incrementCofVersion();
+	}
+	else
+	{
+		// *HACK This should be removed when all regions support the IncrementCOFVersion capability.
+		incrementCofVersionLegacy();
+	}
 }
 
 void LLPanelEditWearable::revertChanges()

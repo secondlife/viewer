@@ -113,6 +113,9 @@ private:
 
 	void setWearablePanelVisibilityChangeCallback(LLPanel* bodypart_panel);
 
+	// *HACK Remove this when serverside texture baking is available on all regions.
+	void incrementCofVersionLegacy();
+
 	// the pointer to the wearable we're editing. NULL means we're not editing a wearable.
 	LLViewerWearable *mWearablePtr;
 	LLViewerInventoryItem* mWearableItem;
