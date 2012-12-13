@@ -191,7 +191,6 @@ public:
 
 	S32 mNumUnknownUpdates;
 	S32 mNumDeadObjectUpdates;
-	S32 mNumUnknownKills;
 	S32 mNumDeadObjects;
 protected:
 	std::vector<U64>	mOrphanParents;	// LocalID/ip,port of orphaned objects

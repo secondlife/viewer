@@ -107,7 +107,6 @@ LLViewerObjectList::LLViewerObjectList()
 	mNumNewObjects = 0;
 	mWasPaused = FALSE;
 	mNumDeadObjectUpdates = 0;
-	mNumUnknownKills = 0;
 	mNumUnknownUpdates = 0;
 }
 
@@ -1342,16 +1341,7 @@ BOOL LLViewerObjectList::killObject(LLViewerObject *objectp)
 
 	if (objectp)
 	{
-		if (objectp->isDead())
-		{
-			// This object is already dead.  Don't need to do more.
-			return TRUE;
-		}
-		else
-		{
-			objectp->markDead();
-		}
-
+		objectp->markDead(); // does the right thing if object already dead
 		return TRUE;
 	}
 
