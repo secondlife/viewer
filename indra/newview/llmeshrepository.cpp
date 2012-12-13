@@ -361,7 +361,20 @@ public:
 		mModelData(model_data),
 		mObserverHandle(observer_handle)
 	{
+		if (mThread)
+		{
+			mThread->startRequest();
+		}
 	}
+
+	~LLWholeModelFeeResponder()
+	{
+		if (mThread)
+		{
+			mThread->stopRequest();
+		}
+	}
+
 	virtual void completed(U32 status,
 						   const std::string& reason,
 						   const LLSD& content)
@@ -372,7 +385,6 @@ public:
 			cc = llsd_from_file("fake_upload_error.xml");
 		}
 			
-		mThread->mPendingUploads--;
 		dump_llsd_to_file(cc,make_dump_name("whole_model_fee_response_",dump_num));
 
 		LLWholeModelFeeObserver* observer = mObserverHandle.get();
@@ -415,7 +427,20 @@ public:
 		mModelData(model_data),
 		mObserverHandle(observer_handle)
 	{
+		if (mThread)
+		{
+			mThread->startRequest();
+		}
 	}
+
+	~LLWholeModelUploadResponder()
+	{
+		if (mThread)
+		{
+			mThread->stopRequest();
+		}
+	}
+
 	virtual void completed(U32 status,
 						   const std::string& reason,
 						   const LLSD& content)
@@ -426,7 +451,6 @@ public:
 			cc = llsd_from_file("fake_upload_error.xml");
 		}
 
-		mThread->mPendingUploads--;
 		dump_llsd_to_file(cc,make_dump_name("whole_model_upload_response_",dump_num));
 		
 		LLWholeModelUploadObserver* observer = mObserverHandle.get();
@@ -1622,7 +1646,7 @@ void LLMeshUploadThread::doWholeModelUpload()
 			mCurlRequest->process();
 			//sleep for 10ms to prevent eating a whole core
 			apr_sleep(10000);
-		} while (!LLAppViewer::isQuitting() && mCurlRequest->getQueued() > 0);
+		} while (!LLAppViewer::isQuitting() && mPendingUploads > 0);
 	}
 
 	delete mCurlRequest;
@@ -1644,7 +1668,6 @@ void LLMeshUploadThread::requestWholeModelFee()
 	wholeModelToLLSD(model_data,false);
 	dump_llsd_to_file(model_data,make_dump_name("whole_model_fee_request_",dump_num));
 
-	mPendingUploads++;
 	LLCurlRequest::headers_t headers;
 
 	{
@@ -1661,7 +1684,7 @@ void LLMeshUploadThread::requestWholeModelFee()
 		mCurlRequest->process();
 		//sleep for 10ms to prevent eating a whole core
 		apr_sleep(10000);
-	} while (!LLApp::isQuitting() && mCurlRequest->getQueued() > 0);
+	} while (!LLApp::isQuitting() && mPendingUploads > 0);
 
 	delete mCurlRequest;
 	mCurlRequest = NULL;
