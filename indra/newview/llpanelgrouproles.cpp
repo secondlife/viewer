@@ -745,7 +745,6 @@ LLPanelGroupMembersSubTab::LLPanelGroupMembersSubTab()
 	mHasMatch(FALSE),
 	mNumOwnerAdditions(0)
 {
-	mUdpateSessionID = LLUUID::null;
 }
 
 LLPanelGroupMembersSubTab::~LLPanelGroupMembersSubTab()
@@ -1427,10 +1426,17 @@ U64 LLPanelGroupMembersSubTab::getAgentPowersBasedOnRoleChanges(const LLUUID& ag
 		return GP_NO_POWERS;
 	}
 
-	LLGroupMemberData* member_data = gdatap->mMembers[agent_id];
-	if ( !member_data )
+	LLGroupMgrGroupData::member_list_t::iterator iter = gdatap->mMembers.find(agent_id);
+	if ( iter == gdatap->mMembers.end() )
 	{
 		llwarns << "LLPanelGroupMembersSubTab::getAgentPowersBasedOnRoleChanges() -- No member data for member with UUID " << agent_id << llendl;
+		return GP_NO_POWERS;
+	}
+
+	LLGroupMemberData* member_data = (*iter).second;
+	if (!member_data)
+	{
+		llwarns << "LLPanelGroupMembersSubTab::getAgentPowersBasedOnRoleChanges() -- Null member data for member with UUID " << agent_id << llendl;
 		return GP_NO_POWERS;
 	}
 
@@ -1548,10 +1554,6 @@ void LLPanelGroupMembersSubTab::update(LLGroupChange gc)
 		mMemberProgress = gdatap->mMembers.begin();
 		mPendingMemberUpdate = TRUE;
 		mHasMatch = FALSE;
-		// Generate unique ID for current updateMembers()- see onNameCache for details.
-		// Using unique UUID is perhaps an overkill but this way we are perfectly safe
-		// from coincidences.
-		mUdpateSessionID.generate();
 	}
 	else
 	{
@@ -1579,14 +1581,14 @@ void LLPanelGroupMembersSubTab::update(LLGroupChange gc)
 	}
 }
 
-void LLPanelGroupMembersSubTab::addMemberToList(LLUUID id, LLGroupMemberData* data)
+void LLPanelGroupMembersSubTab::addMemberToList(LLGroupMemberData* data)
 {
 	if (!data) return;
 	LLUIString donated = getString("donation_area");
 	donated.setArg("[AREA]", llformat("%d", data->getContribution()));
 
 	LLNameListCtrl::NameItem item_params;
-	item_params.value = id;
+	item_params.value = data->getID();
 
 	item_params.columns.add().column("name").font.name("SANSSERIF_SMALL").style("NORMAL");
 
@@ -1600,17 +1602,12 @@ void LLPanelGroupMembersSubTab::addMemberToList(LLUUID id, LLGroupMemberData* da
 	mHasMatch = TRUE;
 }
 
-void LLPanelGroupMembersSubTab::onNameCache(const LLUUID& update_id, LLGroupMemberData* member, const LLUUID& id, const LLAvatarName& av_name)
+void LLPanelGroupMembersSubTab::onNameCache(const LLUUID& update_id, LLGroupMemberData* member, const LLAvatarName& av_name)
 {
-	// Update ID is used to determine whether member whose id is passed
-	// into onNameCache() was passed after current or previous user-initiated update.
-	// This is needed to avoid probable duplication of members in list after changing filter
-	// or adding of members of another group if gets for their names were called on
-	// previous update. If this id is from get() called from older update,
-	// we do nothing.
-	if (mUdpateSessionID != update_id) return;
-	
-	if (!member)
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
+	if (!gdatap
+		|| gdatap->getMemberVersion() != update_id
+		|| !member)
 	{
 		return;
 	}
@@ -1618,7 +1615,7 @@ void LLPanelGroupMembersSubTab::onNameCache(const LLUUID& update_id, LLGroupMemb
 	// trying to avoid unnecessary hash lookups
 	if (matchesSearchFilter(av_name.getUserName()))
 	{
-		addMemberToList(id, member);
+		addMemberToList(member);
 		if(!mMembersList->getEnabled())
 		{
 			mMembersList->setEnabled(TRUE);
@@ -1672,14 +1669,14 @@ void LLPanelGroupMembersSubTab::updateMembers()
 		{
 			if (matchesSearchFilter(av_name.getUserName()))
 			{
-				addMemberToList(mMemberProgress->first, mMemberProgress->second);
+				addMemberToList(mMemberProgress->second);
 			}
 		}
 		else
 		{
 			// If name is not cached, onNameCache() should be called when it is cached and add this member to list.
 			LLAvatarNameCache::get(mMemberProgress->first, boost::bind(&LLPanelGroupMembersSubTab::onNameCache,
-																	   this, mUdpateSessionID, mMemberProgress->second, _1, _2));
+									this, gdatap->getMemberVersion(), mMemberProgress->second, _2));
 		}
 	}
 
