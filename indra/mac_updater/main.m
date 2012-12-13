@@ -1,8 +1,8 @@
 /** 
- * @file lldir_mac.h
- * @brief Definition of directory utilities class for Mac OS X
+ * @file main.m
+ * @brief 
  *
- * $LicenseInfo:firstyear=2000&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2006&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -22,35 +22,13 @@
  * 
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
- */ 
+ */
 
-#if !LL_DARWIN
-#error This header must not be included when compiling for any target other than Mac OS. Consider including lldir.h instead.
-#endif // !LL_DARWIN
+#import <Cocoa/Cocoa.h>
 
-#ifndef LL_LLDIR_MAC_H
-#define LL_LLDIR_MAC_H
-
-#include "lldir.h"
-
-#include <dirent.h>
-
-class LLDir_Mac : public LLDir
+int main(int argc, char *argv[])
 {
-public:
-	LLDir_Mac();
-	virtual ~LLDir_Mac();
+    int retVal = NSApplicationMain(argc, (const char **)argv);
 
-	/*virtual*/ void initAppDirs(const std::string &app_name,
-		const std::string& app_read_only_data_dir);
-
-	virtual std::string getCurPath();
-	virtual bool fileExists(const std::string &filename) const;
-
-	/*virtual*/ std::string getLLPluginLauncher();
-	/*virtual*/ std::string getLLPluginFilename(std::string base_name);
-};
-
-#endif // LL_LLDIR_MAC_H
-
-
+    return retVal;
+}
