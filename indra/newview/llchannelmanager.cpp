@@ -29,7 +29,7 @@
 #include "llchannelmanager.h"
 
 #include "llappviewer.h"
-#include "llnotificationstorage.h"
+#include "llpersistentnotificationstorage.h"
 #include "llviewercontrol.h"
 #include "llviewerwindow.h"
 #include "llrootview.h"

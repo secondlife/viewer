@@ -1026,7 +1026,7 @@ protected:
 
 // Stores only persistent notifications.
 // Class users can use connectChanged() to process persistent notifications
-// (see LLNotificationStorage for example).
+// (see LLPersistentNotificationStorage for example).
 class LLPersistentNotificationChannel : public LLNotificationChannel
 {
 	LOG_CLASS(LLPersistentNotificationChannel);

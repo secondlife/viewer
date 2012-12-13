@@ -27,32 +27,24 @@
 #ifndef LL_NOTIFICATIONSTORAGE_H
 #define LL_NOTIFICATIONSTORAGE_H
 
-#include "llnotifications.h"
+#include <string>
 
-// Class that saves not responded(unread) notifications.
-// Unread notifications are saved in open_notifications.xml in SL account folder
-//
-// Notifications that should be saved(if unread) are marked with persist="true" in notifications.xml
-// Notifications using functor responders are saved automatically (see llviewermessage.cpp
-// lure_callback_reg for example).
-// Notifications using object responders(LLOfferInfo) need additional tuning. Responder object should
-// be a) serializable(implement LLNotificationResponderInterface),
-// b) registered with LLResponderRegistry (found in llnotificationstorage.cpp).
-class LLPersistentNotificationStorage : public LLSingleton<LLPersistentNotificationStorage>
+#include "llerror.h"
+
+class LLSD;
+
+class LLNotificationStorage
 {
-	LOG_CLASS(LLPersistentNotificationStorage);
+	LOG_CLASS(LLNotificationStorage);
 public:
+	LLNotificationStorage(std::string pFileName);
+	~LLNotificationStorage();
 
-	LLPersistentNotificationStorage();
-
-	void saveNotifications();
-
-	void loadNotifications();
+protected:
+	bool writeNotifications(const LLSD& pNotificationData) const;
+	bool readNotifications(LLSD& pNotificationData) const;
 
 private:
-
-	bool onPersistentChannelChanged(const LLSD& payload);
-
 	std::string mFileName;
 };
 
