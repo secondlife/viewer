@@ -23,14 +23,14 @@ include_directories(
 set(mac_crash_logger_SOURCE_FILES
     mac_crash_logger.cpp
     llcrashloggermac.cpp
-	llcrashloggermacdelegate.mm
-	)
+    llcrashloggermacdelegate.mm
+    )
 
 set(mac_crash_logger_HEADER_FILES
     CMakeLists.txt
 
     llcrashloggermac.h
-	llcrashloggermacdelegate.h
+    llcrashloggermacdelegate.h
     )
 
 set_source_files_properties(${mac_crash_logger_HEADER_FILES}

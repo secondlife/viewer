@@ -56,3 +56,5 @@ LLMacUpdater mUpdater;
 @end
 
 #endif //LL_MAC_UPDATE_DELEGATE_H
+
+

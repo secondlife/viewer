@@ -49,3 +49,5 @@ public:
     NSWindow* mPluginWindow;
     int mHackState;
 };
+
+

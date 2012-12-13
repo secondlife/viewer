@@ -19,13 +19,13 @@ include_directories(
 
 set(mac_updater_SOURCE_FILES
     main.m
-	MacUpdaterAppDelegate.mm
-	mac_updater.cpp
+    MacUpdaterAppDelegate.mm
+    mac_updater.cpp
     )
 
 set(mac_updater_HEADER_FILES
     MacUpdaterAppDelegate.h
-	mac_updater.h
+    mac_updater.h
     CMakeLists.txt
     )
 
@@ -63,7 +63,7 @@ target_link_libraries(mac-updater
     ${OPENSSL_LIBRARIES}
     ${CRYPTO_LIBRARIES}
     ${COCOA_LIBRARIES}
-	${BOOST_FILESYSTEM_LIBRARY}
+    ${BOOST_FILESYSTEM_LIBRARY}
     ${IOKIT_LIBRARY}
     ${CURL_LIBRARIES}
     ${CARES_LIBRARIES}
