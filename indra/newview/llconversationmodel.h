@@ -30,8 +30,8 @@
 #include <boost/signals2.hpp>
 
 #include "llavatarname.h"
-#include "llfolderviewitem.h"
-#include "llfolderviewmodel.h"
+#include "../llui/llfolderviewitem.h"
+#include "../llui/llfolderviewmodel.h"
 #include "llviewerfoldertype.h"
 
 // Implementation of conversations list
