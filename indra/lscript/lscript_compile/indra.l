@@ -315,6 +315,8 @@ extern "C" { int yyerror(const char *fmt, ...); }
 "ATTACH_HUD_BOTTOM_LEFT" { count(); yylval.ival = 36; return(INTEGER_CONSTANT); }
 "ATTACH_HUD_BOTTOM"		{ count(); yylval.ival = 37; return(INTEGER_CONSTANT); }
 "ATTACH_HUD_BOTTOM_RIGHT"	{ count(); yylval.ival = 38; return(INTEGER_CONSTANT); }
+"ATTACH_NECK"   { count(); yylval.ival = 39; return(INTEGER_CONSTANT); }
+"ATTACH_AVATAR_CENTER"   { count(); yylval.ival = 40; return(INTEGER_CONSTANT); }
 
 "LAND_LEVEL"		{ count(); yylval.ival = E_LANDBRUSH_LEVEL; return(INTEGER_CONSTANT); }
 "LAND_RAISE"		{ count(); yylval.ival = E_LANDBRUSH_RAISE; return(INTEGER_CONSTANT); }
