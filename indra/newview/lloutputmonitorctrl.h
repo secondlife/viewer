@@ -108,6 +108,8 @@ public:
 	 * It will be applied in next draw and parent will be notified.
 	 */
 	virtual void	switchIndicator(bool switch_on);
+    bool getIndicatorToggled() { return mIndicatorToggled;}
+    void setIndicatorToggled(bool value) { mIndicatorToggled = value;}
 
 private:
 
@@ -148,9 +150,7 @@ private:
 	/** uuid of a speaker being monitored */
 	LLUUID			mSpeakerId;
 
-	/** indicates if the instance is dirty and should notify parent */
-	bool			mIsSwitchDirty;
-	bool			mShouldSwitchOn;
+    bool mIndicatorToggled;
 };
 
 #endif
