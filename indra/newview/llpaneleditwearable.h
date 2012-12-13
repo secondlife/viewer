@@ -54,6 +54,7 @@ public:
 	/*virtual*/ BOOL 		postBuild();
 	/*virtual*/ BOOL		isDirty() const;	// LLUICtrl
 	/*virtual*/ void		draw();	
+				void		onClose();
 
 	// changes camera angle to default for selected subpart
 	void				changeCamera(U8 subpart);

@@ -28,6 +28,7 @@
 
 #include "llfloaterreg.h"
 #include "llfloatersidepanelcontainer.h"
+#include "llpaneleditwearable.h"
 
 // newview includes
 #include "llsidetraypanelcontainer.h"
@@ -72,7 +73,16 @@ void LLFloaterSidePanelContainer::onClickCloseBtn()
 			panel_appearance->showOutfitsInventoryPanel();
 		}
 	}
-
+	
+	if ( panel_outfit_edit )
+	{
+		LLSidepanelAppearance* panel_appearance = dynamic_cast<LLSidepanelAppearance*>(getPanel("appearance"));
+		if ( panel_appearance )
+		{
+			panel_appearance->getWearable()->onClose();
+			panel_appearance->showOutfitsInventoryPanel();
+		}
+	}
 	LLFloater::onClickCloseBtn();
 }
 
