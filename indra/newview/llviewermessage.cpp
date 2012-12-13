@@ -4506,7 +4506,6 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 		if (id == LLUUID::null)
 		{
 			LL_DEBUGS("Messaging") << "Unknown kill for local " << local_id << LL_ENDL;
-			gObjectList.mNumUnknownKills++;
 			continue;
 		}
 		else
@@ -4530,18 +4529,12 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 				// Do the kill
 				gObjectList.killObject(objectp);
 			}
-			else
-			{
-				LL_WARNS("Messaging") << "Object in UUID lookup, but not on object list in kill!" << LL_ENDL;
-				gObjectList.mNumUnknownKills++;
-			}
 		}
 
 		// We should remove the object from selection after it is marked dead by gObjectList to make LLToolGrab,
         // which is using the object, release the mouse capture correctly when the object dies.
         // See LLToolGrab::handleHoverActive() and LLToolGrab::handleHoverNonPhysical().
 		LLSelectMgr::getInstance()->removeObjectFromSelections(id);
-
 	}
 }
 

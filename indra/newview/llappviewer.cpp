@@ -4334,11 +4334,6 @@ void LLAppViewer::idle()
 				llinfos << "Dead object updates: " << gObjectList.mNumDeadObjectUpdates << llendl;
 				gObjectList.mNumDeadObjectUpdates = 0;
 			}
-			if (gObjectList.mNumUnknownKills)
-			{
-				llinfos << "Kills on unknown objects: " << gObjectList.mNumUnknownKills << llendl;
-				gObjectList.mNumUnknownKills = 0;
-			}
 			if (gObjectList.mNumUnknownUpdates)
 			{
 				llinfos << "Unknown object updates: " << gObjectList.mNumUnknownUpdates << llendl;
