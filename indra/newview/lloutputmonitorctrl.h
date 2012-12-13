@@ -28,10 +28,10 @@
 #define LL_LLOUTPUTMONITORCTRL_H
 
 #include "v4color.h"
-#include "llview.h"
+#include "../llui/llview.h"
 #include "llmutelist.h"
 #include "llspeakingindicatormanager.h"
-#include "lluiimage.h"
+#include "../llui/lluiimage.h"
 
 class LLTextBox;
 class LLUICtrlFactory;
