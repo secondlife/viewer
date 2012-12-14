@@ -341,16 +341,28 @@ public:
 	virtual void doItem(LLFolderViewItem* item) = 0;
 };
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLSelectFirstFilteredItem
+//
+// This will select the first *item* found in the hierarchy. If no item can be
+// selected, the first matching folder will.
+// Since doFolder() is done first but we prioritize item selection, we let the 
+// first filtered folder set the selection and raise a folder flag.
+// The selection might be overridden by the first filtered item in doItem()  
+// which checks an item flag. Since doFolder() checks the item flag too, the first
+// item will still be selected if items were to be done first and folders second.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLSelectFirstFilteredItem : public LLFolderViewFunctor
 {
 public:
-	LLSelectFirstFilteredItem() : mItemSelected(FALSE) {}
+	LLSelectFirstFilteredItem() : mItemSelected(FALSE), mFolderSelected(FALSE) {}
 	virtual ~LLSelectFirstFilteredItem() {}
 	virtual void doFolder(LLFolderViewFolder* folder);
 	virtual void doItem(LLFolderViewItem* item);
-	BOOL wasItemSelected() { return mItemSelected; }
+	BOOL wasItemSelected() { return mItemSelected || mFolderSelected; }
 protected:
 	BOOL mItemSelected;
+	BOOL mFolderSelected;
 };
 
 class LLOpenFilteredFolders : public LLFolderViewFunctor
