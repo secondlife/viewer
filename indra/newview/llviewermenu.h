@@ -27,7 +27,7 @@
 #ifndef LL_LLVIEWERMENU_H
 #define LL_LLVIEWERMENU_H
 
-#include "llmenugl.h"
+#include "../llui/llmenugl.h"
 #include "llsafehandle.h"
 
 class LLMessageSystem;

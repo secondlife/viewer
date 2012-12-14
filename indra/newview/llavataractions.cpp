@@ -315,15 +315,11 @@ static const char* get_profile_floater_name(const LLUUID& avatar_id)
 
 static void on_avatar_name_show_profile(const LLUUID& agent_id, const LLAvatarName& av_name)
 {
-	std::string username = av_name.getUserName();
-	
-	llinfos << "opening web profile for " << username << llendl;		
-	std::string url = getProfileURL(username);
+	std::string url = getProfileURL(av_name.getAccountName());
 
 	// PROFILES: open in webkit window
 	LLFloaterWebContent::Params p;
-	p.url(url).
-		id(agent_id.asString());
+	p.url(url).id(agent_id.asString());
 	LLFloaterReg::showInstance(get_profile_floater_name(agent_id), p);
 }
 

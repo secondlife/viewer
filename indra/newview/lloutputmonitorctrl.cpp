@@ -73,8 +73,7 @@ LLOutputMonitorCtrl::LLOutputMonitorCtrl(const LLOutputMonitorCtrl::Params& p)
 	mAutoUpdate(p.auto_update),
 	mSpeakerId(p.speaker_id),
 	mIsAgentControl(false),
-	mIsSwitchDirty(false),
-	mShouldSwitchOn(false),
+	mIndicatorToggled(false),
 	mShowParticipantsSpeaking(false)
 {
 	//static LLUIColor output_monitor_muted_color = LLUIColorTable::instance().getColor("OutputMonitorMutedColor", LLColor4::orange);
@@ -116,26 +115,6 @@ void LLOutputMonitorCtrl::setPower(F32 val)
 
 void LLOutputMonitorCtrl::draw()
 {
-	// see also switchIndicator()
-	if (mIsSwitchDirty)
-	{
-		mIsSwitchDirty = false;
-		if (mShouldSwitchOn)
-		{
-			// just notify parent visibility may have changed
-			notifyParentVisibilityChanged();
-		}
-		else
-		{
-			// make itself invisible and notify parent about this
-			setVisible(FALSE);
-			notifyParentVisibilityChanged();
-
-			// no needs to render for invisible element
-			return;
-		}
-	}
-
 	// Copied from llmediaremotectrl.cpp
 	// *TODO: Give the LLOutputMonitorCtrl an agent-id to monitor, then
 	// call directly into LLVoiceClient::getInstance() to ask if that agent-id is muted, is
@@ -323,26 +302,28 @@ void LLOutputMonitorCtrl::onChange()
 // virtual
 void LLOutputMonitorCtrl::switchIndicator(bool switch_on)
 {
-	// ensure indicator is visible in case it is not in visible chain
-	// to be called when parent became visible next time to notify parent that visibility is changed.
-	setVisible(TRUE);
 
-	// if parent is in visible chain apply switch_on state and notify it immediately
-	if (getParent() && getParent()->isInVisibleChain())
-	{
-		LL_DEBUGS("SpeakingIndicator") << "Indicator is in visible chain, notifying parent: " << mSpeakerId << LL_ENDL;
-		setVisible((BOOL)switch_on);
-		notifyParentVisibilityChanged();
-	}
+    if(getVisible() != (BOOL)switch_on)
+    {
+        setVisible(switch_on);
+        
+        //Let parent adjust positioning of icons adjacent to speaker indicator
+        //(when speaker indicator hidden, adjacent icons move to right and when speaker
+        //indicator visible, adjacent icons move to the left) 
+        if (getParent() && getParent()->isInVisibleChain())
+        {
+            notifyParentVisibilityChanged();
+            //Ignore toggled state in case it was set when parent visibility was hidden
+            mIndicatorToggled = false;
+        }
+        else
+        {
+            //Makes sure to only adjust adjacent icons when parent becomes visible
+            //(!mIndicatorToggled ensures that changes of TFT and FTF are discarded, real state changes are TF or FT)
+            mIndicatorToggled = !mIndicatorToggled;
+        }
 
-	// otherwise remember necessary state and mark itself as dirty.
-	// State will be applied in next draw when parents chain becomes visible.
-	else
-	{
-		LL_DEBUGS("SpeakingIndicator") << "Indicator is not in visible chain, parent won't be notified: " << mSpeakerId << LL_ENDL;
-		mIsSwitchDirty = true;
-		mShouldSwitchOn = switch_on;
-	}
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////
