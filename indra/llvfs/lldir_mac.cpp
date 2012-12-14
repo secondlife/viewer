@@ -77,7 +77,9 @@ LLDir_Mac::LLDir_Mac()
         
         boost::filesystem::path executablepath(*executablepathstr);
         
-        mExecutableFilename = executablepath.filename();
+# ifndef BOOST_SYSTEM_NO_DEPRECATED
+#endif
+        mExecutableFilename = executablepath.filename().string();
         mExecutableDir = executablepath.parent_path().string();
 		
 		// mAppRODataDir

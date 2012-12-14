@@ -197,7 +197,7 @@ bool LLMacUpdater::findAppBundleOnDiskImage(const boost::filesystem::path& dir_p
     {
         if ( boost::filesystem::is_directory(itr->status()) )
         {
-            std::string dir_name = itr->string();
+            std::string dir_name = itr->path().string();
             if ( isApplication(dir_name) ) 
             {
                 if(isFSRefViewerBundle(dir_name))
@@ -399,7 +399,7 @@ bool LLMacUpdater::moveApplication (const boost::filesystem::path& app_dir,
         //Grab filename from installdir append to tempdir move set aside_dir to moved path.
         std::string install_str = app_dir.parent_path().string();
         std::string temp_str = temp_dir.string();
-        std::string app_str = app_dir.filename();
+        std::string app_str = app_dir.filename().string();
         aside_dir = boost::filesystem::path( boost::filesystem::operator/(temp_dir,app_str) );
         std::cout << "Attempting to move " << app_dir.string() << " to " << aside_dir.string() << std::endl;
     
