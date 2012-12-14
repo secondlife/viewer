@@ -682,7 +682,12 @@ BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, B
 	// fixme: actually, it's REALLY important for picking that we get at
 	// least 8 bits each of red,green,blue.  Alpha we can be a bit more
 	// relaxed about if we have to.
-	if(colorBits < 24)
+#if LL_SOLARIS && defined(__sparc)
+//  again the __sparc required because Xsun support, 32bit are very pricey on SPARC
+	if(colorBits < 24)		//HACK:  on SPARC allow 24-bit color
+#else
+	if (colorBits < 32)
+#endif
 	{
 		close();
 		setupFailure(
@@ -692,9 +697,9 @@ BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, B
 			"You may also need to adjust the X11 setting in SMF.  To do so use\n"
 			"  'svccfg -s svc:/application/x11/x11-server setprop options/default_depth=24'\n"
 #else
-			"Second Life requires at least 24-bit color  to run in a window.\n"
+			"Second Life requires True Color (32-bit) to run in a window.\n"
 			"Please go to Control Panels -> Display -> Settings and\n"
-			"set the screen to 24-bit color.\n"
+			"set the screen to 32-bit color.\n"
 #endif
 			"Alternately, if you choose to run fullscreen, Second Life\n"
 			"will automatically adjust the screen each time it runs.",
