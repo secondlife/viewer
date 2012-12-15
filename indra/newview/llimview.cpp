@@ -857,7 +857,8 @@ bool LLIMModel::addToHistory(const LLUUID& session_id, const std::string& from, 
 
 bool LLIMModel::logToFile(const std::string& file_name, const std::string& from, const LLUUID& from_id, const std::string& utf8_text)
 {
-	if (gSavedPerAccountSettings.getBOOL("LogInstantMessages"))
+	if (gSavedPerAccountSettings.getBOOL("LogInstantMessages")
+			&& gSavedSettings.getBOOL("KeepConversationLogTranscripts"))
 	{	
 		std::string from_name = from;
 
