@@ -135,6 +135,7 @@ private:
 
 	/*virtual*/ void refresh();
 
+    /*virtual*/ void onTearOffClicked();
 	/*virtual*/ void onClickCloseBtn();
 
 	// Update the window title and input field help text

@@ -260,6 +260,8 @@ void LLOutputMonitorCtrl::setSpeakerId(const LLUUID& speaker_id, const LLUUID& s
 	if (speaker_id.isNull() && mSpeakerId.notNull())
 	{
 		LLSpeakingIndicatorManager::unregisterSpeakingIndicator(mSpeakerId, this);
+        switchIndicator(false);
+        mSpeakerId = speaker_id;
 	}
 
 	if (speaker_id.isNull() || (speaker_id == mSpeakerId))

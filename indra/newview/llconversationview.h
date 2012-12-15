@@ -146,7 +146,6 @@ protected:
 	void onInfoBtnClick();
 
 private:
-	void onCurrentVoiceSessionChanged(const LLUUID& session_id);
 
     LLAvatarIconCtrl* mAvatarIcon;
 	LLButton * mInfoBtn;
