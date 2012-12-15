@@ -1247,6 +1247,17 @@ BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool
     BOOL handled = TRUE;
     LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(session_id);
 
+	// On selection, stop the flash state on all conversation widgets
+	conversations_widgets_map::iterator widget_it = mConversationsWidgets.begin();
+	for (;widget_it != mConversationsWidgets.end(); ++widget_it)
+	{
+		LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(widget_it->second);
+		if (widget)
+		{
+			widget->setFlashState(false);
+		}
+	}
+	
     /* widget processing */
     if (select_widget)
     {
@@ -1723,16 +1734,7 @@ void LLFloaterIMContainer::flashConversationItemWidget(const LLUUID& session_id,
 
 	if (widget)
 	{
-        //Start flash
-		if (is_flashes)
-		{
-	        widget->getFlashTimer()->startFlashing();
-		}
-        //Stop flash
-		else
-		{
-			widget->getFlashTimer()->stopFlashing();
-		}
+		widget->setFlashState(is_flashes);
 	}
 }
 
