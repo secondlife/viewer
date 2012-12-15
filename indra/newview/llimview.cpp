@@ -2478,8 +2478,8 @@ void LLIMMgr::addMessage(
 		new_session_id = computeSessionID(dialog, other_participant_id);
 	}
 
-	// Open conversation log if offline messages are present
-	if (is_offline_msg)
+	// Open conversation log if offline messages are present and user allows a Call Log
+	if (is_offline_msg && gSavedSettings.getBOOL("KeepConversationLogTranscripts"))
 	{
 		LLFloaterConversationLog* floater_log =
 				LLFloaterReg::getTypedInstance<LLFloaterConversationLog>("conversation");
