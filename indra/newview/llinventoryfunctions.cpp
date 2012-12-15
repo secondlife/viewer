@@ -1031,14 +1031,12 @@ void LLSelectFirstFilteredItem::doItem(LLFolderViewItem *item)
 
 void LLSelectFirstFilteredItem::doFolder(LLFolderViewFolder* folder)
 {
-	if (folder->LLFolderViewItem::passedFilter() && !mItemSelected)
+	// Skip if folder or item already found, if not filtered or if no parent (root folder is not selectable)
+	if (!mFolderSelected && !mItemSelected && folder->LLFolderViewItem::passedFilter() && folder->getParentFolder())
 	{
 		folder->getRoot()->setSelection(folder, FALSE, FALSE);
-		if (folder->getParentFolder())
-		{
-			folder->getParentFolder()->setOpenArrangeRecursively(TRUE, LLFolderViewFolder::RECURSE_UP);
-		}
-		mItemSelected = TRUE;
+		folder->getParentFolder()->setOpenArrangeRecursively(TRUE, LLFolderViewFolder::RECURSE_UP);
+		mFolderSelected = TRUE;
 	}
 }
 
