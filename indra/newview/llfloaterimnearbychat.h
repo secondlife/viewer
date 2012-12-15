@@ -83,8 +83,8 @@ public:
 
 protected:
 	static BOOL matchChatTypeTrigger(const std::string& in_str, std::string* out_str);
-	static void onChatBoxKeystroke(LLTextEditor* caller, void* userdata);
-	static void onChatBoxFocusLost(LLFocusableElement* caller, void* userdata);
+	void onChatBoxKeystroke();
+	void onChatBoxFocusLost();
 	void onChatBoxFocusReceived();
 
 	void sendChat( EChatType type );
