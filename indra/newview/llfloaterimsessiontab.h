@@ -149,6 +149,7 @@ protected:
 	LLFolderView* mConversationsRoot;
 	LLScrollContainer* mScroller;
 
+    LLOutputMonitorCtrl* mSpeakingIndicator;
 	LLChatHistory* mChatHistory;
 	LLChatEntry* mInputEditor;
 	int mInputEditorTopPad; // padding between input field and chat history
