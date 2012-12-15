@@ -74,6 +74,9 @@ public:
 	// Also used for backwards compatibility with systems like voice and muting
 	std::string getUserName() const;
 	
+	// Returns "james.linden" or the legacy name for very old names
+	std::string getAccountName() const { return mUsername; }
+
 	// Debug print of the object
 	void dump() const;
 	
