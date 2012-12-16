@@ -779,18 +779,57 @@ void LLPipeline::allocatePhysicsBuffer()
 	}
 }
 
-void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
+bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 {
 	refreshCachedSettings();
-	U32 samples = RenderFSAASamples;
+	
+	bool save_settings = sRenderDeferred;
+	if (save_settings)
+	{
+		// Set this flag in case we crash while resizing window or allocating space for deferred rendering targets
+		gSavedSettings.setBOOL("RenderInitError", TRUE);
+		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
+	}
 
-	//try to allocate screen buffers at requested resolution and samples
+	eFBOStatus ret = doAllocateScreenBuffer(resX, resY);
+
+	if (save_settings)
+	{
+		// don't disable shaders on next session
+		gSavedSettings.setBOOL("RenderInitError", FALSE);
+		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
+	}
+	
+	if (ret == FBO_FAILURE)
+	{ //FAILSAFE: screen buffer allocation failed, disable deferred rendering if it's enabled
+		//NOTE: if the session closes successfully after this call, deferred rendering will be 
+		// disabled on future sessions
+		if (LLPipeline::sRenderDeferred)
+		{
+			gSavedSettings.setBOOL("RenderDeferred", FALSE);
+			LLPipeline::refreshCachedSettings();
+		}
+	}
+
+	return ret == FBO_SUCCESS_FULLRES;
+}
+
+
+LLPipeline::eFBOStatus LLPipeline::doAllocateScreenBuffer(U32 resX, U32 resY)
+{
+	// try to allocate screen buffers at requested resolution and samples
 	// - on failure, shrink number of samples and try again
 	// - if not multisampled, shrink resolution and try again (favor X resolution over Y)
 	// Make sure to call "releaseScreenBuffers" after each failure to cleanup the partially loaded state
 
+	U32 samples = RenderFSAASamples;
+
+	eFBOStatus ret = FBO_SUCCESS_FULLRES;
 	if (!allocateScreenBuffer(resX, resY, samples))
 	{
+		//failed to allocate at requested specification, return false
+		ret = FBO_FAILURE;
+
 		releaseScreenBuffers();
 		//reduce number of samples 
 		while (samples > 0)
@@ -798,7 +837,7 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 			samples /= 2;
 			if (allocateScreenBuffer(resX, resY, samples))
 			{ //success
-				return;
+				return FBO_SUCCESS_LOWRES;
 			}
 			releaseScreenBuffers();
 		}
@@ -811,22 +850,23 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 			resY /= 2;
 			if (allocateScreenBuffer(resX, resY, samples))
 			{
-				return;
+				return FBO_SUCCESS_LOWRES;
 			}
 			releaseScreenBuffers();
 
 			resX /= 2;
 			if (allocateScreenBuffer(resX, resY, samples))
 			{
-				return;
+				return FBO_SUCCESS_LOWRES;
 			}
 			releaseScreenBuffers();
 		}
 
 		llwarns << "Unable to allocate screen buffer at any resolution!" << llendl;
 	}
-}
 
+	return ret;
+}
 
 bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 {
@@ -854,10 +894,6 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 
 	if (LLPipeline::sRenderDeferred)
 	{
-		// Set this flag in case we crash while resizing window or allocating space for deferred rendering targets
-		gSavedSettings.setBOOL("RenderInitError", TRUE);
-		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
-
 		S32 shadow_detail = RenderShadowDetail;
 		BOOL ssao = RenderDeferredSSAO;
 		
@@ -869,7 +905,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		if (!mScreen.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		if (samples > 0)
 		{
-			if (!mFXAABuffer.allocate(nhpo2(resX), nhpo2(resY), GL_RGBA, FALSE, FALSE, LLTexUnit::TT_TEXTURE, FALSE, samples)) return false;
+			if (!mFXAABuffer.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_TEXTURE, FALSE, samples)) return false;
 		}
 		else
 		{
@@ -903,7 +939,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 			}
 		}
 
-		U32 width = nhpo2(U32(resX*scale))/2;
+		U32 width = (U32) (resX*scale);
 		U32 height = width;
 
 		if (shadow_detail > 1)
@@ -922,9 +958,11 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 			}
 		}
 
-		// don't disable shaders on next session
-		gSavedSettings.setBOOL("RenderInitError", FALSE);
-		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
+		//HACK make screenbuffer allocations start failing after 30 seconds
+		if (gSavedSettings.getBOOL("SimulateFBOFailure"))
+		{
+			return false;
+		}
 	}
 	else
 	{
@@ -7117,11 +7155,11 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 	gGlowProgram.unbind();
 
-	if (LLRenderTarget::sUseFBO)
+	/*if (LLRenderTarget::sUseFBO)
 	{
 		LLFastTimer ftm(FTM_RENDER_BLOOM_FBO);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	}
+	}*/
 
 	gGLViewport[0] = gViewerWindow->getWorldViewRectRaw().mLeft;
 	gGLViewport[1] = gViewerWindow->getWorldViewRectRaw().mBottom;
@@ -7997,10 +8035,6 @@ void LLPipeline::renderDeferredLighting()
 		gGL.popMatrix();
 		stop_glerror();
 
-		//copy depth and stencil from deferred screen
-		//mScreen.copyContents(mDeferredScreen, 0, 0, mDeferredScreen.getWidth(), mDeferredScreen.getHeight(),
-		//					0, 0, mScreen.getWidth(), mScreen.getHeight(), GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
-
 		mScreen.bindTarget();
 		// clear color buffer here - zeroing alpha (glow) is important or it will accumulate against sky
 		glClearColor(0,0,0,0);
@@ -8771,8 +8805,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 			mWaterDis.flush();
 		}
 		last_update = LLDrawPoolWater::sNeedsReflectionUpdate && LLDrawPoolWater::sNeedsDistortionUpdate;
-
-		LLRenderTarget::unbindTarget();
 
 		LLPipeline::sReflectionRender = FALSE;
 
