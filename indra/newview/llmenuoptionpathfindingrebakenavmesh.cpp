@@ -94,8 +94,7 @@ void LLMenuOptionPathfindingRebakeNavmesh::initialize()
 
 void LLMenuOptionPathfindingRebakeNavmesh::quit()
 {
-	llassert(mIsInitialized);
-	if (mIsInitialized)
+	if (mIsInitialized)		// Quitting from the login screen leaves this uninitialized
 	{
 		if (mNavMeshSlot.connected())
 		{
