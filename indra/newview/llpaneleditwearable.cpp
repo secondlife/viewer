@@ -856,6 +856,14 @@ void LLPanelEditWearable::draw()
         LLPanel::draw();
 }
 
+void LLPanelEditWearable::onClose()
+{
+	if ( isDirty() )
+	{
+		revertChanges();
+	}
+}
+
 void LLPanelEditWearable::setVisible(BOOL visible)
 {
         if (!visible)

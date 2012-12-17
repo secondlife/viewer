@@ -47,7 +47,7 @@ public:
 	virtual ~LLSidepanelAppearance();
 
 	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
+	/*virtual*/ void onOpen(const LLSD& key);	
 
 	void refreshCurrentOutfitName(const std::string& name = "");
 
@@ -64,6 +64,7 @@ public:
 	void showDefaultSubpart();
 	void updateScrollingPanelList();
 	void updateToVisibility( const LLSD& new_visibility );
+	LLPanelEditWearable* getWearable(){ return mEditWearable; }
 
 private:
 	void onFilterEdit(const std::string& search_string);
