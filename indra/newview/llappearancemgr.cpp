@@ -418,6 +418,11 @@ public:
 		LLViewerInventoryItem *item = gInventory.getItem(item_id);
 		if (item)
 		{
+			if (item->getParentUUID() == mDstCatID)
+			{
+				LL_DEBUGS("Avatar") << "item " << item_id << " name " << item->getName() << " is already a child of " << mDstCatID << llendl;
+				return false;
+			}
 			LL_DEBUGS("Avatar") << "linking item " << item_id << " name " << item->getName() << " to " << mDstCatID << llendl;
 			// create an inventory item link.
 			link_inventory_item(gAgent.getID(),
@@ -436,7 +441,7 @@ public:
 			LLViewerInventoryCategory *catp = gInventory.getCategory(item_id);
 			if (!catp)
 			{
-				llwarns << "id not found as inventory item or category " << item_id << llendl;
+				llwarns << "link request failed, id not found as inventory item or category " << item_id << llendl;
 				return false;
 			}
 			const LLUUID cof = LLAppearanceMgr::instance().getCOF();
@@ -1621,7 +1626,7 @@ void LLAppearanceMgr::purgeBaseOutfitLink(const LLUUID& category)
 	}
 }
 
-void LLAppearanceMgr::purgeCategory(const LLUUID& category, bool keep_outfit_links)
+void LLAppearanceMgr::purgeCategory(const LLUUID& category, bool keep_outfit_links, LLInventoryModel::item_array_t* keep_items)
 {
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;
@@ -1634,7 +1639,14 @@ void LLAppearanceMgr::purgeCategory(const LLUUID& category, bool keep_outfit_lin
 			continue;
 		if (item->getIsLinkType())
 		{
-			gInventory.purgeObject(item->getUUID());
+			if (keep_items && keep_items->find(item) != LLInventoryModel::item_array_t::FAIL)
+			{
+				llinfos << "preserved item" << llendl;
+			}
+			else
+			{
+				gInventory.purgeObject(item->getUUID());
+			}
 		}
 	}
 }
@@ -1746,33 +1758,22 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 	getDescendentsOfAssetType(category, gest_items, LLAssetType::AT_GESTURE, false);
 	removeDuplicateItems(gest_items);
 	
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-	LL_DEBUGS("Avatar") << self_av_string() << "Linking body items" << LL_ENDL;
-#endif
-
 	// Create links to new COF contents.
 	LL_DEBUGS("Avatar") << self_av_string() << "creating LLCallAfterInventoryLinkMgr" << LL_ENDL;
+
+	LLInventoryModel::item_array_t all_items;
+	all_items += body_items;
+	all_items += wear_items;
+	all_items += obj_items;
+	all_items += gest_items;
+
+	// Will link all the above items.
 	bool update_base_outfit_ordering = !append;
 	LLCallAfterInventoryLinkMgr *link_waiter =
-		new LLCallAfterInventoryLinkMgr(body_items,cof,"update_appearance_on_destroy",
+		new LLCallAfterInventoryLinkMgr(all_items,cof,"update_appearance_on_destroy",
 										boost::bind(&LLAppearanceMgr::updateAppearanceFromCOF,
 													LLAppearanceMgr::getInstance(),
 													update_base_outfit_ordering));
-
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-	LL_DEBUGS("Avatar") << self_av_string() << "Linking wear items" << LL_ENDL;
-#endif
-	link_waiter->addItems(wear_items);
-
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-	LL_DEBUGS("Avatar") << self_av_string() << "Linking obj items" << LL_ENDL;
-#endif
-	link_waiter->addItems(obj_items);
-
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-	LL_DEBUGS("Avatar") << self_av_string() << "Linking gesture items" << LL_ENDL;
-#endif
-	link_waiter->addItems(gest_items);
 
 	// Add link to outfit if category is an outfit. 
 	if (!append)
@@ -1785,7 +1786,7 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 	// carried over (e.g. keeping old shape if the new outfit does not
 	// contain one)
 	bool keep_outfit_links = append;
-	purgeCategory(cof, keep_outfit_links);
+	purgeCategory(cof, keep_outfit_links, &all_items);
 	gInventory.notifyObservers();
 
 	LL_DEBUGS("Avatar") << self_av_string() << "waiting for LLUpdateAppearanceOnDestroy" << LL_ENDL;
