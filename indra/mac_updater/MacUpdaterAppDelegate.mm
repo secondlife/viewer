@@ -126,6 +126,8 @@ void sendProgress(int cur, int max, const std::string str)
 
 bool copyDir(const std::string& src_dir, const std::string& dest_dir)
 {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+
     NSString* file = [NSString stringWithCString:src_dir.c_str() 
                                          encoding:[NSString defaultCStringEncoding]];
     NSString* toParent = [NSString stringWithCString:dest_dir.c_str() 
@@ -137,6 +139,8 @@ bool copyDir(const std::string& src_dir, const std::string& dest_dir)
     if (!result) {
         NSLog(@"Error during copy: %@", [error localizedDescription]);
     }
+    [pool release];
+    
     return result;
 }
 
@@ -178,26 +182,38 @@ bool copyDir(const std::string& src_dir, const std::string& dest_dir)
 
 bool isDirWritable(const std::string& dir_name)
 {
-    
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+
     NSString *fullPath = [NSString stringWithCString:dir_name.c_str() 
                                             encoding:[NSString defaultCStringEncoding]];
 
     NSFileManager *fm = [NSFileManager defaultManager];
     bool result = [fm isWritableFileAtPath:fullPath];
+    [pool release];
     
 	return result;
 }
 
 std::string* getUserTrashFolder()
 {
+    std::string *result;
+    
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+
     NSString *trash_str=[NSHomeDirectory() stringByAppendingPathComponent:@".Trash"];
-    return NSToString( trash_str );
+    
+    result = NSToString( trash_str );
+    
+    [pool release];
+    return result;
 
 }
 
 bool isFSRefViewerBundle(const std::string& targetURL)
 {
 	bool result = false;
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+
     NSString *fullPath = [NSString stringWithCString:targetURL.c_str() 
                                             encoding:[NSString defaultCStringEncoding]];
     NSBundle *targetBundle = [NSBundle bundleWithPath:fullPath];
@@ -211,6 +227,8 @@ bool isFSRefViewerBundle(const std::string& targetURL)
     {
         std::cout << "Target bundle ID mismatch." << std::endl;
     }
+    
+    [pool release];
     
 	return result;
 }

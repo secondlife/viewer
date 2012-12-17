@@ -32,16 +32,22 @@
 
 std::string* getSystemTempFolder()
 {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     NSString * tempDir = NSTemporaryDirectory();
     if (tempDir == nil)
         tempDir = @"/tmp";
-    return ( new std::string([tempDir UTF8String]) );
+    std::string *result = ( new std::string([tempDir UTF8String]) );
+    [pool release];
+    
+    return result;
 }
 
 //findSystemDirectory scoped exclusively to this file. 
 std::string* findSystemDirectory(NSSearchPathDirectory searchPathDirectory,
                                    NSSearchPathDomainMask domainMask)
 {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    
     std::string *result;
     NSString *path = nil;
     
@@ -60,19 +66,30 @@ std::string* findSystemDirectory(NSSearchPathDirectory searchPathDirectory,
         
         result = new std::string([path UTF8String]);        
     }
+    [pool release];
     return result;
 }
 
 std::string* getSystemExecutableFolder()
 {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+
     NSString *bundlePath = [[NSBundle mainBundle] executablePath];
-    return (new std::string([bundlePath UTF8String]));  
+    std::string *result = (new std::string([bundlePath UTF8String]));  
+    [pool release];
+
+    return result;
 }
 
 std::string* getSystemResourceFolder()
 {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+
     NSString *bundlePath = [[NSBundle mainBundle] resourcePath];
-    return (new std::string([bundlePath UTF8String]));
+    std::string *result = (new std::string([bundlePath UTF8String]));
+    [pool release];
+    
+    return result;
 }
 
 std::string* getSystemCacheFolder()
