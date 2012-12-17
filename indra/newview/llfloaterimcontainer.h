@@ -110,7 +110,7 @@ private:
 	avatarID_panel_map_t mSessions;
 	boost::signals2::connection mNewMessageConnection;
 
-	/*virtual*/ void computeResizeLimits(S32& new_min_width, S32& new_min_height);
+	/*virtual*/ void computeResizeLimits(S32& new_min_width, S32& new_min_height) {}
 
 	void onNewMessageReceived(const LLSD& data);
 
@@ -153,6 +153,7 @@ private:
 	void toggleAllowTextChat(const LLUUID& participant_uuid);
 	void toggleMute(const LLUUID& participant_id, U32 flags);
 	void openNearbyChat();
+	void assignResizeLimits();
 
 	LLButton* mExpandCollapseBtn;
 	LLButton* mStubCollapseBtn;

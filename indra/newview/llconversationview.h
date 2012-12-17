@@ -83,7 +83,7 @@ public:
 
 	virtual void refresh();
 
-	LLFlashTimer * getFlashTimer() { return mFlashTimer; }
+	void setFlashState(bool flash_state);
 
 private:
 
@@ -94,6 +94,7 @@ private:
 	LLTextBox*				mSessionTitle;
 	LLOutputMonitorCtrl*	mSpeakingIndicator;
 	LLFlashTimer*			mFlashTimer;
+	bool					mFlashStateOn;
 
 	bool					mCollapsedMode;
     bool                    mHasArrow;

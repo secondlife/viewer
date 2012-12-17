@@ -2668,7 +2668,7 @@ void LLVivoxVoiceClient::checkFriend(const LLUUID& id)
 		// *NOTE: For now, we feed legacy names to Vivox because I don't know
 		// if their service can support a mix of new and old clients with
 		// different sorts of names.
-		std::string name = av_name.getUserName();
+		std::string name = av_name.getAccountName();
 
 		const LLRelationship* relationInfo = LLAvatarTracker::instance().getBuddyInfo(id);
 		bool canSeeMeOnline = false;

@@ -51,8 +51,8 @@
 #include "llconversationview.h"
 #include "llcallbacklist.h"
 #include "llworld.h"
-
 #include "llsdserialize.h"
+
 //
 // LLFloaterIMContainer
 //
@@ -171,6 +171,9 @@ BOOL LLFloaterIMContainer::postBuild()
 	// Open IM session with selected participant on double click event
 	mConversationsListPanel->setDoubleClickCallback(boost::bind(&LLFloaterIMContainer::doToSelected, this, LLSD("im")));
 
+	// The resize limits for LLFloaterIMContainer should be updated, based on current values of width of conversation and message panels
+	mConversationsPane->getResizeBar()->setResizeListener(boost::bind(&LLFloaterIMContainer::assignResizeLimits, this));
+
 	// Create the root model and view for all conversation sessions
 	LLConversationItem* base_item = new LLConversationItem(getRootViewModel());
 
@@ -247,6 +250,7 @@ void LLFloaterIMContainer::onOpen(const LLSD& key)
 {
 	LLMultiFloater::onOpen(key);
 	openNearbyChat();
+	assignResizeLimits();
 }
 
 // virtual
@@ -306,26 +310,6 @@ void LLFloaterIMContainer::onCloseFloater(LLUUID& id)
 {
 	mSessions.erase(id);
 	setFocus(TRUE);
-}
-
-// virtual
-void LLFloaterIMContainer::computeResizeLimits(S32& new_min_width, S32& new_min_height)
-{
-	// possibly increase floater's minimum height according to children's minimums
-	for (S32 tab_idx = 0; tab_idx < mTabContainer->getTabCount(); ++tab_idx)
-	{
-		LLFloater* floaterp = dynamic_cast<LLFloater*>(mTabContainer->getPanelByIndex(tab_idx));
-		if (floaterp)
-		{
-			new_min_height = llmax(new_min_height, floaterp->getMinHeight());
-		}
-	}
-
-	S32 conversations_pane_min_dim = mConversationsPane->getRelevantMinDim();
-	S32 messages_pane_min_dim = mMessagesPane->getRelevantMinDim();
-
-	// set floater's minimum width according to relevant minimal children's dimensionals
-	new_min_width = conversations_pane_min_dim + messages_pane_min_dim + LLPANEL_BORDER_WIDTH*2;
 }
 
 void LLFloaterIMContainer::onNewMessageReceived(const LLSD& data)
@@ -728,6 +712,15 @@ void LLFloaterIMContainer::updateState(bool collapse, S32 delta_width)
         setResizeLimits(expanded_min_size, expanded_min_size);
 	}
 
+    assignResizeLimits();
+}
+
+void LLFloaterIMContainer::assignResizeLimits()
+{
+	const LLRect& conv_rect = mConversationsPane->isCollapsed() ? LLRect() : mConversationsPane->getRect();
+	S32 msg_limits  = mMessagesPane->isCollapsed() ? 0 : mMessagesPane->getExpandedMinDim();
+	S32 x_limits = conv_rect.getWidth() + msg_limits;
+	setResizeLimits(x_limits + LLPANEL_BORDER_WIDTH * 3, getMinHeight());
 }
 
 void LLFloaterIMContainer::onAddButtonClicked()
@@ -1247,6 +1240,17 @@ BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool
     BOOL handled = TRUE;
     LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(session_id);
 
+	// On selection, stop the flash state on all conversation widgets
+	conversations_widgets_map::iterator widget_it = mConversationsWidgets.begin();
+	for (;widget_it != mConversationsWidgets.end(); ++widget_it)
+	{
+		LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(widget_it->second);
+		if (widget)
+		{
+			widget->setFlashState(false);
+		}
+	}
+	
     /* widget processing */
     if (select_widget)
     {
@@ -1723,16 +1727,7 @@ void LLFloaterIMContainer::flashConversationItemWidget(const LLUUID& session_id,
 
 	if (widget)
 	{
-        //Start flash
-		if (is_flashes)
-		{
-	        widget->getFlashTimer()->startFlashing();
-		}
-        //Stop flash
-		else
-		{
-			widget->getFlashTimer()->stopFlashing();
-		}
+		widget->setFlashState(is_flashes);
 	}
 }
 

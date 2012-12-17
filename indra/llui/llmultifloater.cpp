@@ -41,8 +41,8 @@ LLMultiFloater::LLMultiFloater(const LLSD& key, const LLFloater::Params& params)
 	  mTabContainer(NULL),
 	  mTabPos(LLTabContainer::TOP),
 	  mAutoResize(TRUE),
-	  mOrigMinWidth(0),
-	  mOrigMinHeight(0)
+	  mOrigMinWidth(params.min_width),
+	  mOrigMinHeight(params.min_height)
 {
 }
 

@@ -32,7 +32,6 @@
 
 #include "lllocalcliprect.h"
 #include "llpanel.h"
-#include "llresizebar.h"
 #include "llcriticaldamp.h"
 #include "boost/foreach.hpp"
 
@@ -796,6 +795,11 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
 				}
 				else
 				{
+					if (new_auto_resize_headroom < 1.f)
+					{
+						new_auto_resize_headroom = 1.f;
+					}
+
 					F32 new_fractional_size = llclamp(total_visible_fraction * (F32)(panelp->mTargetDim - panelp->getRelevantMinDim() + delta_auto_resize_headroom) 
 														/ new_auto_resize_headroom,
 													MIN_FRACTIONAL_SIZE,

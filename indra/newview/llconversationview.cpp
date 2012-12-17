@@ -98,14 +98,20 @@ LLConversationViewSession::~LLConversationViewSession()
 	mFlashTimer->unset();
 }
 
+void LLConversationViewSession::setFlashState(bool flash_state)
+{
+	mFlashStateOn = flash_state;
+	(flash_state ? mFlashTimer->startFlashing() : mFlashTimer->stopFlashing());
+}
+
 bool LLConversationViewSession::isHighlightAllowed()
 {
-	return mFlashTimer->isFlashingInProgress() || mIsSelected;
+	return mFlashStateOn || mIsSelected;
 }
 
 bool LLConversationViewSession::isHighlightActive()
 {
-	return mFlashTimer->isFlashingInProgress() ? mFlashTimer->isCurrentlyHighlighted() : mIsCurSelection;
+	return (mFlashStateOn ? (mFlashTimer->isFlashingInProgress() ? mFlashTimer->isCurrentlyHighlighted() : true) : mIsCurSelection);
 }
 
 BOOL LLConversationViewSession::postBuild()
