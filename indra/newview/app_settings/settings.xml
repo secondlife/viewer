@@ -8128,6 +8128,18 @@
     <integer>0</integer>
   </map>
 
+  <key>RenderDepthOfFieldInEditMode</key>
+  <map>
+    <key>Comment</key>
+    <string>Whether to use depth of field effect when in edit mode</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+
   <key>CameraDoFResScale</key>
   <map>
     <key>Comment</key>
