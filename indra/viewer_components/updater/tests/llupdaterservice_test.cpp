@@ -63,7 +63,7 @@ class LLDir_Mock : public LLDir
 							const std::string &mask, 
 							std::string &fname) {}
 	std::string getCurPath() { return ""; }
-	BOOL fileExists(const std::string &filename) const { return false; }
+	bool fileExists(const std::string &filename) const { return false; }
 	std::string getLLPluginLauncher() { return ""; }
 	std::string getLLPluginFilename(std::string base_name) { return ""; }
 
