@@ -75,11 +75,13 @@ if (DARWIN)
     llkeyboardmacosx.cpp
     llwindowmacosx.cpp
     llwindowmacosx-objc.mm
+    llopenglview-objc.mm
     )
   list(APPEND llwindow_HEADER_FILES
     llkeyboardmacosx.h
     llwindowmacosx.h
     llwindowmacosx-objc.h
+    llopenglview-objc.h
     )
 
   # We use a bunch of deprecated system APIs.

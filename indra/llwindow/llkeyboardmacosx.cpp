@@ -30,7 +30,7 @@
 #include "llkeyboardmacosx.h"
 #include "llwindowcallbacks.h"
 
-#include <Carbon/Carbon.h>
+#include "llwindowmacosx-objc.h"
 
 LLKeyboardMacOSX::LLKeyboardMacOSX()
 {
@@ -162,23 +162,23 @@ LLKeyboardMacOSX::LLKeyboardMacOSX()
 
 void LLKeyboardMacOSX::resetMaskKeys()
 {
-	U32 mask = GetCurrentEventKeyModifiers();
+	U32 mask = getModifiers();
 
 	// MBW -- XXX -- This mirrors the operation of the Windows version of resetMaskKeys().
 	//    It looks a bit suspicious, as it won't correct for keys that have been released.
 	//    Is this the way it's supposed to work?
 
-	if(mask & shiftKey)
+	if(mask & MAC_SHIFT_KEY)
 	{
 		mKeyLevel[KEY_SHIFT] = TRUE;
 	}
 
-	if(mask & (controlKey))
+	if(mask & (MAC_CTRL_KEY))
 	{
 		mKeyLevel[KEY_CONTROL] = TRUE;
 	}
 
-	if(mask & optionKey)
+	if(mask & MAC_ALT_KEY)
 	{
 		mKeyLevel[KEY_ALT] = TRUE;
 	}
@@ -201,17 +201,17 @@ MASK LLKeyboardMacOSX::updateModifiers(const U32 mask)
 	// translate the mask
 	MASK out_mask = 0;
 
-	if(mask & shiftKey)
+	if(mask & MAC_SHIFT_KEY)
 	{
 		out_mask |= MASK_SHIFT;
 	}
 
-	if(mask & (controlKey | cmdKey))
+	if(mask & (MAC_CTRL_KEY | MAC_CMD_KEY))
 	{
 		out_mask |= MASK_CONTROL;
 	}
 
-	if(mask & optionKey)
+	if(mask & MAC_ALT_KEY)
 	{
 		out_mask |= MASK_ALT;
 	}
@@ -231,7 +231,12 @@ BOOL LLKeyboardMacOSX::handleKeyDown(const U16 key, const U32 mask)
 	{
 		handled = handleTranslatedKeyDown(translated_key, translated_mask);
 	}
-
+	if (!handled)
+	{
+		LL_INFOS("Keyboard") << "Unhandled key: " << mTranslateKeyMap[key] << LL_ENDL;
+	} else {
+		LL_INFOS("Keyboard") << "Handled key: " << mTranslateKeyMap[key] << LL_ENDL;
+	}
 	return handled;
 }
 
@@ -255,16 +260,16 @@ BOOL LLKeyboardMacOSX::handleKeyUp(const U16 key, const U32 mask)
 MASK LLKeyboardMacOSX::currentMask(BOOL for_mouse_event)
 {
 	MASK result = MASK_NONE;
-	U32 mask = GetCurrentEventKeyModifiers();
+	U32 mask = getModifiers();
 
-	if (mask & shiftKey)			result |= MASK_SHIFT;
-	if (mask & controlKey)			result |= MASK_CONTROL;
-	if (mask & optionKey)			result |= MASK_ALT;
+	if (mask & MAC_SHIFT_KEY)			result |= MASK_SHIFT;
+	if (mask & MAC_CTRL_KEY)			result |= MASK_CONTROL;
+	if (mask & MAC_ALT_KEY)			result |= MASK_ALT;
 
 	// For keyboard events, consider Command equivalent to Control
 	if (!for_mouse_event)
 	{
-		if (mask & cmdKey) result |= MASK_CONTROL;
+		if (mask & MAC_CMD_KEY) result |= MASK_CONTROL;
 	}
 
 	return result;

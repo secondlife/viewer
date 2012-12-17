@@ -26,6 +26,9 @@
  */
 
 #include <AppKit/AppKit.h>
+#include <Cocoa/Cocoa.h>
+#include "llwindowmacosx-objc.h"
+#include "llopenglview-objc.h"
 
 /*
  * These functions are broken out into a separate file because the
@@ -33,8 +36,6 @@
  * llcommon/stdtypes.h.  This makes it impossible to use the standard
  * linden headers with any objective-C++ source.
  */
-
-#include "llwindowmacosx-objc.h"
 
 void setupCocoa()
 {
@@ -83,6 +84,51 @@ CursorRef createImageCursor(const char *fullpath, int hotspotX, int hotspotY)
 	return (CursorRef)cursor;
 }
 
+void setArrowCursor()
+{
+	NSCursor *cursor = [NSCursor arrowCursor];
+	[cursor set];
+}
+
+void setIBeamCursor()
+{
+	NSCursor *cursor = [NSCursor IBeamCursor];
+	[cursor set];
+}
+
+void setPointingHandCursor()
+{
+	NSCursor *cursor = [NSCursor pointingHandCursor];
+	[cursor set];
+}
+
+void setCopyCursor()
+{
+	NSCursor *cursor = [NSCursor dragCopyCursor];
+	[cursor set];
+}
+
+void setCrossCursor()
+{
+	NSCursor *cursor = [NSCursor crosshairCursor];
+	[cursor set];
+}
+
+void hideNSCursor()
+{
+	[NSCursor hide];
+}
+
+void showNSCursor()
+{
+	[NSCursor unhide];
+}
+
+void hideNSCursorTillMove(bool hide)
+{
+	[NSCursor setHiddenUntilMouseMoves:hide];
+}
+
 // This is currently unused, since we want all our cursors to persist for the life of the app, but I've included it for completeness.
 OSErr releaseImageCursor(CursorRef ref)
 {
@@ -118,3 +164,174 @@ OSErr setImageCursor(CursorRef ref)
 	return noErr;
 }
 
+// Now for some unholy juggling between generic pointers and casting them to Obj-C objects!
+// Note: things can get a bit hairy from here.  This is not for the faint of heart.
+
+NSWindowRef createNSWindow(int x, int y, int width, int height)
+{
+	LLNSWindow *window = [[LLNSWindow alloc]initWithContentRect:NSMakeRect(x, y, width, height)
+						styleMask:NSTitledWindowMask | NSResizableWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask | NSTexturedBackgroundWindowMask backing:NSBackingStoreBuffered defer:NO];
+	[window makeKeyAndOrderFront:nil];
+	[window setAcceptsMouseMovedEvents:TRUE];
+	return window;
+}
+
+GLViewRef createOpenGLView(NSWindowRef window)
+{
+	LLOpenGLView *glview = [[LLOpenGLView alloc]initWithFrame:[(LLNSWindow*)window frame] withSamples:0 andVsync:FALSE];
+	[(LLNSWindow*)window setContentView:glview];
+	return glview;
+}
+
+void glSwapBuffers(void* context)
+{
+	[(NSOpenGLContext*)context flushBuffer];
+}
+
+CGLContextObj getCGLContextObj(NSWindowRef window)
+{
+	LLOpenGLView *glview = [(LLNSWindow*)window contentView];
+	return [glview getCGLContextObj];
+}
+
+CGLPixelFormatObj* getCGLPixelFormatObj(NSWindowRef window)
+{
+	LLOpenGLView *glview = [(LLNSWindow*)window contentView];
+	return [glview getCGLPixelFormatObj];
+}
+
+void getContentViewBounds(NSWindowRef window, float* bounds)
+{
+	bounds[0] = [[(LLNSWindow*)window contentView] bounds].origin.x;
+	bounds[1] = [[(LLNSWindow*)window contentView] bounds].origin.y;
+	bounds[2] = [[(LLNSWindow*)window contentView] bounds].size.width;
+	bounds[3] = [[(LLNSWindow*)window contentView] bounds].size.height;
+}
+
+void getWindowSize(NSWindowRef window, float* size)
+{
+	NSRect frame = [(LLNSWindow*)window frame];
+	size[0] = frame.origin.x;
+	size[1] = frame.origin.y;
+	size[2] = frame.size.width;
+	size[3] = frame.size.height;
+}
+
+void setWindowSize(NSWindowRef window, int width, int height)
+{
+	NSRect frame = [(LLNSWindow*)window frame];
+	frame.size.width = width;
+	frame.size.height = height;
+	[(LLNSWindow*)window setFrame:frame display:TRUE];
+}
+
+void setWindowPos(NSWindowRef window, float* pos)
+{
+	NSPoint point;
+	point.x = pos[0];
+	point.y = pos[1];
+	[(LLNSWindow*)window setFrameOrigin:point];
+}
+
+void getCursorPos(NSWindowRef window, float* pos)
+{
+	NSPoint mLoc;
+	mLoc = [(LLNSWindow*)window mouseLocationOutsideOfEventStream];
+	pos[0] = mLoc.x;
+	pos[1] = mLoc.y;
+}
+
+void makeWindowOrderFront(NSWindowRef window)
+{
+	[(LLNSWindow*)window makeKeyAndOrderFront:nil];
+}
+
+void convertScreenToWindow(NSWindowRef window, float *coord)
+{
+	NSPoint point;
+	point.x = coord[0];
+	point.y = coord[1];
+	point = [(LLNSWindow*)window convertScreenToBase:point];
+	coord[0] = point.x;
+	coord[1] = point.y;
+}
+
+void convertWindowToScreen(NSWindowRef window, float *coord)
+{
+	NSPoint point;
+	point.x = coord[0];
+	point.y = coord[1];
+	point = [(LLNSWindow*)window convertBaseToScreen:point];
+	coord[0] = point.x;
+	coord[1] = point.y;
+}
+
+void registerKeyUpCallback(NSWindowRef window, std::tr1::function<void(unsigned short, unsigned int)> callback)
+{
+	[(LLNSWindow*)window registerKeyUpCallback:callback];
+}
+
+void registerKeyDownCallback(NSWindowRef window, std::tr1::function<void(unsigned short, unsigned int)> callback)
+{
+	[(LLNSWindow*)window registerKeyDownCallback:callback];
+}
+
+void registerUnicodeCallback(NSWindowRef window, std::tr1::function<void(wchar_t, unsigned int)> callback)
+{
+	[(LLNSWindow*)window registerUnicodeCallback:callback];
+}
+
+void registerMouseUpCallback(NSWindowRef window, MouseCallback callback)
+{
+	[(LLNSWindow*)window registerMouseUpCallback:callback];
+}
+
+void registerMouseDownCallback(NSWindowRef window, MouseCallback callback)
+{
+	[(LLNSWindow*)window registerMouseDownCallback:callback];
+}
+
+void registerRightMouseUpCallback(NSWindowRef window, MouseCallback callback)
+{
+	[(LLNSWindow*)window registerRightMouseUpCallback:callback];
+}
+
+void registerRightMouseDownCallback(NSWindowRef window, MouseCallback callback)
+{
+	[(LLNSWindow*)window registerRightMouseDownCallback:callback];
+}
+
+void registerDoubleClickCallback(NSWindowRef window, MouseCallback callback)
+{
+	[(LLNSWindow*)window registerDoubleClickCallback:callback];
+}
+
+void registerResizeEventCallback(GLViewRef glview, ResizeCallback callback)
+{
+	[(LLOpenGLView*)glview registerResizeCallback:callback];
+}
+
+void registerMouseMovedCallback(NSWindowRef window, MouseCallback callback)
+{
+	[(LLNSWindow*)window registerMouseMovedCallback:callback];
+}
+
+void registerScrollCallback(NSWindowRef window, ScrollWheelCallback callback)
+{
+	[(LLNSWindow*)window registerScrollCallback:callback];
+}
+
+void registerMouseExitCallback(NSWindowRef window, VoidCallback callback)
+{
+	[(LLNSWindow*)window registerMouseExitCallback:callback];
+}
+
+void registerDeltaUpdateCallback(NSWindowRef window, MouseCallback callback)
+{
+	[(LLNSWindow*)window registerDeltaUpdateCallback:callback];
+}
+
+unsigned int getModifiers()
+{
+	return [NSEvent modifierFlags];
+}

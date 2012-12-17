@@ -2428,6 +2428,7 @@ void LLViewerWindow::draw()
 // Takes a single keydown event, usually when UI is visible
 BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 {
+	LL_INFOS("Keyboard Handling") << "Handling key " << key << LL_ENDL;
 	// hide tooltips on keypress
 	LLToolTipMgr::instance().blockToolTips();
 
