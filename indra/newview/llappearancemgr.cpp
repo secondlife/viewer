@@ -217,12 +217,12 @@ public:
 		if (ll_frand()<gSavedSettings.getF32("InventoryDebugSimulateOpFailureRate"))
 		{
 			// simulate server failure by not sending the request.
-			return;
+			// do nothing
+			LL_DEBUGS("Avatar") << "simulating failure by not sending request for item " << item_id << " linked_id " << linked_id << llendl;
 		}
-		
-		if (!requestOperation(linked_id))
+		else if (!requestOperation(linked_id))
 		{
-			LL_DEBUGS("Avatar") << "item_id " << item_id << " linked_id " << linked_id << " not requested" << llendl;
+			LL_DEBUGS("Avatar") << "item_id " << item_id << " linked_id " << linked_id << " requestOperation false, skipping" << llendl;
 			return;
 		}
 
@@ -237,7 +237,6 @@ public:
 		{
 			mRetryCounts[linked_id]++;
 		}
-
 	}
 
 	virtual bool requestOperation(const LLUUID& item_id) = 0;
