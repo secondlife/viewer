@@ -198,44 +198,30 @@ public:
 	// Request or re-request operation for specified item.
 	void addItem(const LLUUID& item_id)
 	{
-		LLUUID linked_id;
-		if (gInventory.getItem(item_id))
-		{
-			linked_id = gInventory.getItem(item_id)->getLinkedUUID();
-		}
-		else if (gInventory.getCategory(item_id))
-		{
-			linked_id = item_id;
-		}
-		else
-		{
-			llwarns << "no referent found for item_id " << item_id << llendl;
-			return;
-		}
-		LL_DEBUGS("Avatar") << "item_id " << item_id << " -> linked_id " << linked_id << llendl;
+		LL_DEBUGS("Avatar") << "item_id " << item_id << llendl;
 		
 		if (ll_frand()<gSavedSettings.getF32("InventoryDebugSimulateOpFailureRate"))
 		{
 			// simulate server failure by not sending the request.
 			// do nothing
-			LL_DEBUGS("Avatar") << "simulating failure by not sending request for item " << item_id << " linked_id " << linked_id << llendl;
+			LL_DEBUGS("Avatar") << "simulating failure by not sending request for item " << item_id << llendl;
 		}
-		else if (!requestOperation(linked_id))
+		else if (!requestOperation(item_id))
 		{
-			LL_DEBUGS("Avatar") << "item_id " << item_id << " linked_id " << linked_id << " requestOperation false, skipping" << llendl;
+			LL_DEBUGS("Avatar") << "item_id " << item_id << " requestOperation false, skipping" << llendl;
 			return;
 		}
 
 		mPendingRequests++;
 		// On a re-request, this will reset the timer.
-		mWaitTimes[linked_id] = LLTimer();
-		if (mRetryCounts.find(linked_id) == mRetryCounts.end())
+		mWaitTimes[item_id] = LLTimer();
+		if (mRetryCounts.find(item_id) == mRetryCounts.end())
 		{
-			mRetryCounts[linked_id] = 0;
+			mRetryCounts[item_id] = 0;
 		}
 		else
 		{
-			mRetryCounts[linked_id]++;
+			mRetryCounts[item_id]++;
 		}
 	}
 
@@ -435,7 +421,7 @@ public:
 			LL_DEBUGS("Avatar") << "linking item " << item_id << " name " << item->getName() << " to " << mDstCatID << llendl;
 			// create an inventory item link.
 			link_inventory_item(gAgent.getID(),
-								item_id,
+								item->getLinkedUUID(),
 								mDstCatID,
 								item->getName(),
 								item->LLInventoryItem::getDescription(),
