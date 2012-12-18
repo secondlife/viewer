@@ -675,7 +675,6 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 		{
 			mMemberProgress = gdatap->mMembers.begin();
 			mPendingMemberUpdate = TRUE;
-			mUdpateSessionID.generate();
 
 			sSDTime = 0.0f;
 			sElementTime = 0.0f;
@@ -738,7 +737,7 @@ void LLPanelGroupGeneral::updateMembers()
 			{
 				mAvatarNameCacheConnection.disconnect();
 			}
-			mAvatarNameCacheConnection = LLAvatarNameCache::get(mMemberProgress->first, boost::bind(&LLPanelGroupGeneral::onNameCache, this, mUdpateSessionID, member, _1, _2));
+			mAvatarNameCacheConnection = LLAvatarNameCache::get(mMemberProgress->first, boost::bind(&LLPanelGroupGeneral::onNameCache, this, gdatap->getMemberVersion(), member, _2));
 		}
 	}
 
@@ -776,10 +775,15 @@ void LLPanelGroupGeneral::addMember(LLGroupMemberData* member)
 	}
 }
 
-void LLPanelGroupGeneral::onNameCache(const LLUUID& update_id, LLGroupMemberData* member, const LLUUID& id, const LLAvatarName& av_name)
+void LLPanelGroupGeneral::onNameCache(const LLUUID& update_id, LLGroupMemberData* member, const LLAvatarName& av_name)
 {
-	if (!member || update_id != mUdpateSessionID)
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
+
+	if (!gdatap
+		|| !gdatap->isMemberDataComplete()
+		|| gdatap->getMemberVersion() != update_id)
 	{
+		// Stale data
 		return;
 	}
 

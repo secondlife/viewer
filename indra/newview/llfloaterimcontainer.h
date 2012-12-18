@@ -32,11 +32,11 @@
 
 #include "llimview.h"
 #include "llevents.h"
-#include "llfloater.h"
-#include "llmultifloater.h"
+#include "../llui/llfloater.h"
+#include "../llui/llmultifloater.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llgroupmgr.h"
-#include "lltrans.h"
+#include "../llui/lltrans.h"
 #include "llconversationmodel.h"
 #include "llconversationview.h"
 
@@ -174,7 +174,9 @@ public:
 	void setNearbyDistances();
 	void reSelectConversation();
 	void updateSpeakBtnState();
+	static bool isConversationLoggingAllowed();
 	void flashConversationItemWidget(const LLUUID& session_id, bool is_flashes);
+	boost::signals2::connection mMicroChangedSignal;
 
 private:
 	LLConversationViewSession* createConversationItemWidget(LLConversationItem* item);

@@ -141,6 +141,17 @@ BOOL  LLAvatarListItem::postBuild()
 	return TRUE;
 }
 
+void LLAvatarListItem::handleVisibilityChange ( BOOL new_visibility )
+{
+    //Adjust positions of icons (info button etc) when 
+    //speaking indicator visibility was changed/toggled while panel was closed (not visible)
+    if(new_visibility && mSpeakingIndicator->getIndicatorToggled())
+    {
+        updateChildren();
+        mSpeakingIndicator->setIndicatorToggled(false);
+    }
+}
+
 void LLAvatarListItem::fetchAvatarName()
 {
 	if (mAvatarId.notNull())

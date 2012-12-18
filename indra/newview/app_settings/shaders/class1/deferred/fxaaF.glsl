@@ -2093,7 +2093,6 @@ uniform sampler2D diffuseMap;
 uniform vec2 rcp_screen_res;
 uniform vec4 rcp_frame_opt;
 uniform vec4 rcp_frame_opt2;
-uniform vec2 screen_res;
 VARYING vec2 vary_fragcoord;
 VARYING vec2 vary_tc;
 

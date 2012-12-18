@@ -63,7 +63,7 @@ public:
 
 	virtual void setupCtrls	(LLPanel* parent);
 
-	void onNameCache(const LLUUID& update_id, LLGroupMemberData* member, const LLUUID& id, const LLAvatarName& av_name);
+	void onNameCache(const LLUUID& update_id, LLGroupMemberData* member, const LLAvatarName& av_name);
 private:
 	void	reset();
 
@@ -90,7 +90,6 @@ private:
 	BOOL			mChanged;
 	BOOL			mFirstUse;
 	std::string		mIncompleteMemberDataStr;
-	LLUUID			mUdpateSessionID;
 
 	// Group information (include any updates in updateChanged)
 	LLLineEditor		*mGroupNameEditor;

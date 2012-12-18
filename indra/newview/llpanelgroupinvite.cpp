@@ -504,7 +504,7 @@ void LLPanelGroupInvite::addUsers(uuid_vec_t& agent_ids)
 				}
 				else
 				{
-					names.push_back(av_name.getUserName());
+					names.push_back(av_name.getAccountName());
 				}
 			}
 		}
@@ -517,7 +517,7 @@ void LLPanelGroupInvite::addUserCallback(const LLUUID& id, const LLAvatarName& a
 	std::vector<std::string> names;
 	uuid_vec_t agent_ids;
 	agent_ids.push_back(id);
-	names.push_back(av_name.getUserName());
+	names.push_back(av_name.getAccountName());
 
 	mImplementation->addUsers(names, agent_ids);
 }

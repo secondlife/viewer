@@ -98,14 +98,20 @@ LLConversationViewSession::~LLConversationViewSession()
 	mFlashTimer->unset();
 }
 
+void LLConversationViewSession::setFlashState(bool flash_state)
+{
+	mFlashStateOn = flash_state;
+	(flash_state ? mFlashTimer->startFlashing() : mFlashTimer->stopFlashing());
+}
+
 bool LLConversationViewSession::isHighlightAllowed()
 {
-	return mFlashTimer->isFlashingInProgress() || mIsSelected;
+	return mFlashStateOn || mIsSelected;
 }
 
 bool LLConversationViewSession::isHighlightActive()
 {
-	return mFlashTimer->isFlashingInProgress() ? mFlashTimer->isCurrentlyHighlighted() : mIsCurSelection;
+	return (mFlashStateOn ? (mFlashTimer->isFlashingInProgress() ? mFlashTimer->isCurrentlyHighlighted() : true) : mIsCurSelection);
 }
 
 BOOL LLConversationViewSession::postBuild()
@@ -223,10 +229,11 @@ BOOL LLConversationViewSession::handleMouseDown( S32 x, S32 y, MASK mask )
 
     //This node (conversation) was selected and a child (participant) was not
     if(result && getRoot()->getCurSelectedItem() == this)
-    {
-        (LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container"))->
-            selectConversationPair(session_id, false);
-    }
+	{
+		LLFloaterIMContainer *im_container = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
+		im_container->selectConversationPair(session_id, false);
+		im_container->collapseMessagesPane(false);
+	}
 
 	return result;
 }
@@ -340,14 +347,6 @@ void LLConversationViewSession::onCurrentVoiceSessionChanged(const LLUUID& sessi
 	if (vmi)
 	{
 		bool is_active = vmi->getUUID() == session_id;
-		bool is_nearby = vmi->getType() == LLConversationItem::CONV_SESSION_NEARBY;
-
-		if (is_nearby)
-		{
-			mSpeakingIndicator->setSpeakerId(is_active ? gAgentID : LLUUID::null);
-		}
-
-		mSpeakingIndicator->switchIndicator(is_active);
 		mCallIconLayoutPanel->setVisible(is_active);
 	}
 }
@@ -408,7 +407,6 @@ BOOL LLConversationViewParticipant::postBuild()
 	mInfoBtn->setClickedCallback(boost::bind(&LLConversationViewParticipant::onInfoBtnClick, this));
 	mInfoBtn->setVisible(false);
 
-	mActiveVoiceChannelConnection = LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLConversationViewParticipant::onCurrentVoiceSessionChanged, this, _1));
 	mSpeakingIndicator = getChild<LLOutputMonitorCtrl>("speaking_indicator");
 
     if (!sStaticInitialized)
@@ -476,21 +474,6 @@ S32 LLConversationViewParticipant::arrange(S32* width, S32* height)
     updateChildren();
 
     return arranged;
-}
-
-void LLConversationViewParticipant::onCurrentVoiceSessionChanged(const LLUUID& session_id)
-{
-	LLConversationItemParticipant* participant_model = dynamic_cast<LLConversationItemParticipant*>(getViewModelItem());
-	
-	if (participant_model)
-	{
-		LLConversationItemSession* parent_session = participant_model->getParentSession();
-		if (parent_session)
-		{
-			bool is_active = (parent_session->getUUID() == session_id);
-			mSpeakingIndicator->switchIndicator(is_active);
-		}
-	}
 }
 
 void LLConversationViewParticipant::refresh()

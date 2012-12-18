@@ -419,7 +419,7 @@ void LLFeatureManager::parseGPUTable(std::string filename)
 
 		// setup the tokenizer
 		std::string buf(buffer);
-		std::string cls, label, expr, supported;
+		std::string cls, label, expr, supported, stats_based, expected_gl_version;
 		boost_tokenizer tokens(buf, boost::char_separator<char>("\t\n"));
 		boost_tokenizer::iterator token_iter = tokens.begin();
 
@@ -440,6 +440,14 @@ void LLFeatureManager::parseGPUTable(std::string filename)
 		{
 			supported = *token_iter++;
 		}
+		if (token_iter != tokens.end())
+		{
+			stats_based = *token_iter++;
+		}
+		if (token_iter != tokens.end())
+		{
+			expected_gl_version = *token_iter++;
+		}
 
 		if (label.empty() || expr.empty() || cls.empty() || supported.empty())
 		{
@@ -450,7 +458,9 @@ void LLFeatureManager::parseGPUTable(std::string filename)
 		json << "{'label' : '" << label << "',\n" << 
 			"'regexp' : '" << expr << "',\n" <<
 			"'class' : '" << cls << "',\n" <<
-			"'supported' : '" << supported << "'\n},\n";
+			"'supported' : '" << supported << "',\n" <<
+			"'stats_based' : " << stats_based <<  ",\n" <<
+			"'gl_version' : " << expected_gl_version << "\n},\n";
 #endif
 
 		for (U32 i = 0; i < expr.length(); i++)	 /*Flawfinder: ignore*/
@@ -489,6 +499,10 @@ void LLFeatureManager::parseGPUTable(std::string filename)
 	{
 		LL_WARNS("RenderInit") << "GPU '" << rawRenderer << "' not recognized" << LL_ENDL;
 	}
+
+#if LL_DARWIN // never go over "Mid" settings by default on OS X
+	mGPUClass = llmin(mGPUClass, GPU_CLASS_2);
+#endif
 }
 
 // responder saves table into file
@@ -698,32 +712,27 @@ void LLFeatureManager::setGraphicsLevel(S32 level, bool skipFeatures)
 			{ //same as low, but with "Basic Shaders" enabled
 				maskFeatures("Low");
 			}
-			maskFeatures("Class0");
 			break;
 		case 1:
-			maskFeatures("Mid");
-			maskFeatures("Class1");
+			maskFeatures("LowMid");
 			break;
 		case 2:
-			maskFeatures("High");
-			maskFeatures("Class2");
+			maskFeatures("Mid");
 			break;
 		case 3:
-			maskFeatures("High");
-			maskFeatures("Class3");
+			maskFeatures("MidHigh");
 			break;
 		case 4:
 			maskFeatures("High");
-			maskFeatures("Class4");
 			break;
 		case 5:
-			maskFeatures("High");
-			maskFeatures("Class5");
+			maskFeatures("HighUltra");
 			break;
-		
+		case 6:
+			maskFeatures("Ultra");
+			break;
 		default:
 			maskFeatures("Low");
-			maskFeatures("Class0");
 			break;
 	}
 

@@ -580,6 +580,15 @@ BOOL LLScrollListCtrl::addItem( LLScrollListItem* item, EAddPosition pos, BOOL r
 			addColumn(col_params);
 		}
 
+		S32 num_cols = item->getNumColumns();
+		S32 i = 0;
+		for (LLScrollListCell* cell = item->getColumn(i); i < num_cols; cell = item->getColumn(++i))
+		{
+			if (i >= (S32)mColumnsIndexed.size()) break;
+
+			cell->setWidth(mColumnsIndexed[i]->getWidth());
+		}
+
 		updateLineHeightInsert(item);
 
 		updateLayout();
@@ -1832,8 +1841,7 @@ void LLScrollListCtrl::copyNameToClipboard(std::string id, bool is_group)
 	{
 		LLAvatarName av_name;
 		LLAvatarNameCache::get(LLUUID(id), &av_name);
-		// Note: Will return an empty string if the avatar name was not cached for that id. Fine in that case.
-		name = av_name.getUserName();
+		name = av_name.getAccountName();
 	}
 	LLUrlAction::copyURLToClipboard(name);
 }

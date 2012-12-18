@@ -561,7 +561,7 @@ void LLAvatarNameCache::eraseUnrefreshed()
             {
                 const LLUUID& agent_id = it->first;
                 LL_DEBUGS("AvNameCache") << agent_id 
-                                         << " user '" << av_name.getUserName() << "' "
+                                         << " user '" << av_name.getAccountName() << "' "
                                          << "expired " << now - av_name.mExpires << " secs ago"
                                          << LL_ENDL;
                 sCache.erase(it++);

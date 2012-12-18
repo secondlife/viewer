@@ -27,10 +27,10 @@
 #ifndef LL_LLCONVERSATIONVIEW_H
 #define LL_LLCONVERSATIONVIEW_H
 
-#include "llfolderviewitem.h"
+#include "../llui/llfolderviewitem.h"
 
 #include "llavatariconctrl.h"
-#include "llbutton.h"
+#include "../llui/llbutton.h"
 #include "lloutputmonitorctrl.h"
 
 class LLTextBox;
@@ -83,7 +83,7 @@ public:
 
 	virtual void refresh();
 
-	LLFlashTimer * getFlashTimer() { return mFlashTimer; }
+	void setFlashState(bool flash_state);
 
 private:
 
@@ -94,6 +94,7 @@ private:
 	LLTextBox*				mSessionTitle;
 	LLOutputMonitorCtrl*	mSpeakingIndicator;
 	LLFlashTimer*			mFlashTimer;
+	bool					mFlashStateOn;
 
 	bool					mCollapsedMode;
     bool                    mHasArrow;
@@ -146,7 +147,6 @@ protected:
 	void onInfoBtnClick();
 
 private:
-	void onCurrentVoiceSessionChanged(const LLUUID& session_id);
 
     LLAvatarIconCtrl* mAvatarIcon;
 	LLButton * mInfoBtn;

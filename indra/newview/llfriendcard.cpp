@@ -533,7 +533,7 @@ void LLFriendCardsManager::addFriendCardToInventory(const LLUUID& avatarID)
 	bool shouldBeAdded = true;
 	LLAvatarName av_name;
 	LLAvatarNameCache::get(avatarID, &av_name);
-	const std::string& name = av_name.getUserName();
+	const std::string& name = av_name.getAccountName();
 
 	lldebugs << "Processing buddy name: " << name 
 		<< ", id: " << avatarID

@@ -54,6 +54,7 @@ LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
   ,  mSessionID(session_id.asUUID())
   , mConversationsRoot(NULL)
   , mScroller(NULL)
+  , mSpeakingIndicator(NULL)
   , mChatHistory(NULL)
   , mInputEditor(NULL)
   , mInputEditorTopPad(0)
@@ -167,7 +168,7 @@ void LLFloaterIMSessionTab::addToHost(const LLUUID& session_id)
 			if (!conversp->isNearbyChat()
 					|| gSavedSettings.getBOOL("NearbyChatIsNotTornOff"))
 			{
-				floater_container->addFloater(conversp, !floater_container->getVisible(), LLTabContainer::RIGHT_OF_CURRENT);
+				floater_container->addFloater(conversp, false, LLTabContainer::RIGHT_OF_CURRENT);
 			}
 			else
 			{
@@ -206,6 +207,8 @@ BOOL LLFloaterIMSessionTab::postBuild()
 	mScroller = LLUICtrlFactory::create<LLFolderViewScrollContainer>(scroller_params);
 	mScroller->setFollowsAll();
 	
+    mSpeakingIndicator = getChild<LLOutputMonitorCtrl>("speaking_indicator");
+
 	// Insert that scroller into the panel widgets hierarchy
 	mParticipantListPanel->addChild(mScroller);	
 	
@@ -693,7 +696,6 @@ void LLFloaterIMSessionTab::updateCallBtnState(bool callIsActive)
 	voiceButton->setToolTip(
 			callIsActive? getString("end_call_button_tooltip") : getString("start_call_button_tooltip"));
 
-	LLFloaterIMContainer::getInstance()->updateSpeakBtnState();
 	enableDisableCallBtn();
 
 }

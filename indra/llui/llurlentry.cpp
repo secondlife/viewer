@@ -619,7 +619,7 @@ LLUrlEntryAgentUserName::LLUrlEntryAgentUserName()
 
 std::string LLUrlEntryAgentUserName::getName(const LLAvatarName& avatar_name)
 {
-	return avatar_name.getUserName();
+	return avatar_name.getAccountName();
 }
 
 //

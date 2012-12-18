@@ -88,6 +88,11 @@ LLFloaterIMContainer::~LLFloaterIMContainer()
 	mNewMessageConnection.disconnect();
 	LLTransientFloaterMgr::getInstance()->removeControlView(LLTransientFloaterMgr::IM, this);
 
+	if (mMicroChangedSignal.connected())
+	{
+		mMicroChangedSignal.disconnect();
+	}
+
 	gSavedPerAccountSettings.setBOOL("ConversationsListPaneCollapsed", mConversationsPane->isCollapsed());
 	gSavedPerAccountSettings.setBOOL("ConversationsMessagePaneCollapsed", mMessagesPane->isCollapsed());
 
@@ -213,7 +218,7 @@ BOOL LLFloaterIMContainer::postBuild()
 	collapseMessagesPane(gSavedPerAccountSettings.getBOOL("ConversationsMessagePaneCollapsed"));
 	collapseConversationsPane(gSavedPerAccountSettings.getBOOL("ConversationsListPaneCollapsed"));
 	LLAvatarNameCache::addUseDisplayNamesCallback(boost::bind(&LLFloaterIMSessionTab::processChatHistoryStyleUpdate));
-
+	mMicroChangedSignal = LLVoiceClient::getInstance()->MicroChangedCallback(boost::bind(&LLFloaterIMContainer::updateSpeakBtnState, this));
 	if (! mMessagesPane->isCollapsed())
 	{
 		S32 list_width = gSavedPerAccountSettings.getS32("ConversationsListPaneWidth");
@@ -886,41 +891,46 @@ void LLFloaterIMContainer::getSelectedUUIDs(uuid_vec_t& selected_uuids)
 
 const LLConversationItem * LLFloaterIMContainer::getCurSelectedViewModelItem()
 {
-    LLConversationItem * conversationItem = NULL;
+    LLConversationItem * conversation_item = NULL;
 
     if(mConversationsRoot && 
         mConversationsRoot->getCurSelectedItem() && 
         mConversationsRoot->getCurSelectedItem()->getViewModelItem())
     {
-		LLFloaterIMSessionTab *selectedSession = LLFloaterIMSessionTab::getConversation(mSelectedSession);
-		if (selectedSession && selectedSession->isTornOff())
+		LLFloaterIMSessionTab *selected_session_floater = LLFloaterIMSessionTab::getConversation(mSelectedSession);
+		if (selected_session_floater && !selected_session_floater->getHost())
 		{
-			conversationItem = selectedSession->getCurSelectedViewModelItem();
+			conversation_item = selected_session_floater->getCurSelectedViewModelItem();
 		}
 		else
 		{
-			conversationItem = static_cast<LLConversationItem *>(mConversationsRoot->getCurSelectedItem()->getViewModelItem());
+			conversation_item = static_cast<LLConversationItem *>(mConversationsRoot->getCurSelectedItem()->getViewModelItem());
 		}
 	}
 
-    return conversationItem;
+    return conversation_item;
 }
 
 void LLFloaterIMContainer::getParticipantUUIDs(uuid_vec_t& selected_uuids)
 {
     //Find the conversation floater associated with the selected id
-    const LLConversationItem * conversationItem = getCurSelectedViewModelItem();
+    const LLConversationItem * conversation_item = getCurSelectedViewModelItem();
 
-    if(conversationItem->getType() == LLConversationItem::CONV_PARTICIPANT)
+	if (NULL == conversation_item)
+	{
+		return;
+	}
+
+    if (conversation_item->getType() == LLConversationItem::CONV_PARTICIPANT)
     {
         getSelectedUUIDs(selected_uuids);
     }
     //When a one-on-one conversation exists, retrieve the participant id from the conversation floater
-    else if(conversationItem->getType() == LLConversationItem::CONV_SESSION_1_ON_1)
+    else if(conversation_item->getType() == LLConversationItem::CONV_SESSION_1_ON_1)
     {
-        LLFloaterIMSession *conversationFloater = LLFloaterIMSession::findInstance(conversationItem->getUUID());
-        LLUUID participantID = conversationFloater->getOtherParticipantUUID();
-        selected_uuids.push_back(participantID);
+        LLFloaterIMSession * conversation_floaterp = LLFloaterIMSession::findInstance(conversation_item->getUUID());
+        LLUUID participant_id = conversation_floaterp->getOtherParticipantUUID();
+        selected_uuids.push_back(participant_id);
     }    
 }
 
@@ -1229,14 +1239,25 @@ void LLFloaterIMContainer::showConversation(const LLUUID& session_id)
 void LLFloaterIMContainer::selectConversation(const LLUUID& session_id)
 {
     selectConversationPair(session_id, true);
-	}
+}
 
 // Synchronous select the conversation item and the conversation floater
 BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool select_widget)
 {
     BOOL handled = TRUE;
-    LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(session_id);
+    LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(session_id);
 
+	// On selection, stop the flash state on all conversation widgets
+	conversations_widgets_map::iterator widget_it = mConversationsWidgets.begin();
+	for (;widget_it != mConversationsWidgets.end(); ++widget_it)
+	{
+		LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(widget_it->second);
+		if (widget)
+		{
+			widget->setFlashState(false);
+		}
+	}
+	
     /* widget processing */
     if (select_widget)
     {
@@ -1249,26 +1270,29 @@ BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool
 
     /* floater processing */
 
-    if (session_id != getSelectedSession())
-    {
-        // Store the active session
-        setSelectedSession(session_id);
+	if (NULL != session_floater)
+	{
+		if (session_id != getSelectedSession())
+		{
+			// Store the active session
+			setSelectedSession(session_id);
 
 		
 
-		if (session_floater->getHost())
-		{
-			// Always expand the message pane if the panel is hosted by the container
-			collapseMessagesPane(false);
-			// Switch to the conversation floater that is being selected
-			selectFloater(session_floater);
+			if (session_floater->getHost())
+			{
+				// Always expand the message pane if the panel is hosted by the container
+				collapseMessagesPane(false);
+				// Switch to the conversation floater that is being selected
+				selectFloater(session_floater);
+			}
 		}
-    }
 
-	// Set the focus on the selected floater
-	if (!session_floater->hasFocus())
-	{
-		session_floater->setFocus(TRUE);
+		// Set the focus on the selected floater
+		if (!session_floater->hasFocus())
+		{
+			session_floater->setFocus(TRUE);
+		}
 	}
 
     return handled;
@@ -1378,12 +1402,14 @@ LLConversationItem* LLFloaterIMContainer::addConversationListItem(const LLUUID& 
 	// set the widget to minimized mode if conversations pane is collapsed
 	widget->toggleCollapsedMode(mConversationsPane->isCollapsed());
 
-    if (isWidgetSelected)
-    {
-        selectConversation(uuid);
-        // scroll to newly added item
-        mConversationsRoot->scrollToShowSelection();
-    }
+	if (isWidgetSelected || 0 == mConversationsRoot->getSelectedCount())
+	{
+		selectConversationPair(uuid, true);
+		widget->requestArrange();
+
+		// scroll to newly added item
+		mConversationsRoot->scrollToShowSelection();
+	}
 
 	return item;
 }
@@ -1461,7 +1487,7 @@ LLConversationViewParticipant* LLFloaterIMContainer::createConversationViewParti
 	params.rect = LLRect (0, 24, panel_rect.getWidth(), 0);
 	params.tool_tip = params.name;
 	params.participant_id = item->getUUID();
-    params.folder_indentation = 42;
+    params.folder_indentation = 27;
 
 	return LLUICtrlFactory::create<LLConversationViewParticipant>(params);
 }
@@ -1696,6 +1722,11 @@ void LLFloaterIMContainer::updateSpeakBtnState()
 	mSpeakBtn->setEnabled(LLAgent::isActionAllowed("speak"));
 }
 
+bool LLFloaterIMContainer::isConversationLoggingAllowed()
+{
+	return gSavedSettings.getBOOL("KeepConversationLogTranscripts");
+}
+
 void LLFloaterIMContainer::flashConversationItemWidget(const LLUUID& session_id, bool is_flashes)
 {
     //Finds the conversation line item to flash using the session_id
@@ -1703,16 +1734,7 @@ void LLFloaterIMContainer::flashConversationItemWidget(const LLUUID& session_id,
 
 	if (widget)
 	{
-        //Start flash
-		if (is_flashes)
-		{
-	        widget->getFlashTimer()->startFlashing();
-		}
-        //Stop flash
-		else
-		{
-			widget->getFlashTimer()->stopFlashing();
-		}
+		widget->setFlashState(is_flashes);
 	}
 }
 
