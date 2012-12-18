@@ -392,6 +392,7 @@ public:
 	LLDynamicArray<LLUUID> mMapAvatarIDs;
 
 	static LLViewerRegion* sCurRegionp;
+	static BOOL sVOCacheCullingEnabled; //vo cache culling enabled or not.
 private:
 	LLViewerRegionImpl * mImpl;
 

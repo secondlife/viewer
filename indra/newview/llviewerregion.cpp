@@ -87,6 +87,7 @@ const F32 CAP_REQUEST_TIMEOUT = 18;
 const S32 MAX_CAP_REQUEST_ATTEMPTS = 30;
 
 LLViewerRegion* LLViewerRegion::sCurRegionp = NULL;
+BOOL LLViewerRegion::sVOCacheCullingEnabled = FALSE;
 
 typedef std::map<std::string, std::string> CapabilityMap;
 
@@ -141,7 +142,6 @@ public:
 	LLVOCacheEntry::vocache_entry_map_t	  mCacheMap; //all cached entries
 	LLVOCacheEntry::vocache_entry_set_t   mActiveSet; //all active entries;
 	LLVOCacheEntry::vocache_entry_set_t   mWaitingSet; //entries waiting for LLDrawable to be generated.	
-	std::set< LLPointer<LLVOCacheEntry> > mDummyEntries; //dummy vo cache entries, for LLSpatialBridge use.
 	std::set< LLviewerOctreeGroup* >      mVisibleGroups; //visible groupa
 	LLVOCachePartition*                   mVOCachePartition;
 	LLVOCacheEntry::vocache_entry_set_t   mVisibleEntries; //must-be-created visible entries wait for objects creation.	
@@ -841,17 +841,8 @@ void LLViewerRegion::removeActiveCacheEntry(LLVOCacheEntry* entry, LLDrawable* d
 	{
 		return;
 	}
-	if(entry->isDummy())
-	{
-		mImpl->mDummyEntries.insert(entry); //keep a copy to prevent from being deleted.
-		addToVOCacheTree(entry);
-	}
-	else if(!drawablep->getParent()) //root node
-	{
-		addToVOCacheTree(entry);
-		mImpl->mVisibleEntries.erase(entry);
-	}
-	else //child node
+
+	if(drawablep->getParent()) //child object
 	{
 		LLViewerOctreeEntry* parent_oct_entry = drawablep->getParent()->getEntry();
 		if(parent_oct_entry && parent_oct_entry->hasVOCacheEntry())
@@ -860,7 +851,19 @@ void LLViewerRegion::removeActiveCacheEntry(LLVOCacheEntry* entry, LLDrawable* d
 			parent->addChild(entry);
 		}
 	}
+	else //insert to vo cache tree.
+	{
+		//shift to the local regional space from agent space
+		const LLVector3 pos = drawablep->getVObj()->getPositionRegion();
+		LLVector4a vec(pos[0], pos[1], pos[2]);
+		LLVector4a shift; 
+		shift.setSub(vec, entry->getPositionGroup());
+		entry->shift(shift);
+		
+		addToVOCacheTree(entry);
+	}
 
+	mImpl->mVisibleEntries.erase(entry);
 	mImpl->mActiveSet.erase(entry);
 	mImpl->mWaitingSet.erase(entry);
 	entry->setState(LLVOCacheEntry::INACTIVE);
@@ -878,7 +881,10 @@ void LLViewerRegion::addVisibleGroup(LLviewerOctreeGroup* group)
 
 void LLViewerRegion::addToVOCacheTree(LLVOCacheEntry* entry)
 {
-	static BOOL vo_cache_culling_enabled = gSavedSettings.getBOOL("ObjectCacheViewCullingEnabled");
+	if(!sVOCacheCullingEnabled)
+	{
+		return;
+	}
 
 	if(mDead || !entry || !entry->getEntry())
 	{
@@ -954,12 +960,13 @@ F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 	//process visible entries
 	max_time *= 0.5f; //only use up to half available time to update entries.
 
+#if 1
 	for(LLVOCacheEntry::vocache_entry_set_t::iterator iter = mImpl->mVisibleEntries.begin(); iter != mImpl->mVisibleEntries.end();)
 	{
 		LLVOCacheEntry* vo_entry = *iter;
 		vo_entry->calcSceneContribution(camera_origin, needs_update, mImpl->mLastCameraUpdate);
 
-		if(vo_entry->getState() < LLVOCacheEntry::WAITING && !vo_entry->isDummy())
+		if(vo_entry->getState() < LLVOCacheEntry::WAITING)
 		{			
 			mImpl->mWaitingList.insert(vo_entry);
 		}
@@ -987,12 +994,7 @@ F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 
 		if(!vo_entry->getNumOfChildren())
 		{
-			if(vo_entry->isDummy())
-			{
-				mImpl->mDummyEntries.erase(vo_entry);
-				iter = mImpl->mVisibleEntries.erase(iter);
-			}
-			else if(vo_entry->getState() >= LLVOCacheEntry::WAITING)
+			if(vo_entry->getState() >= LLVOCacheEntry::WAITING)
 			{
 				iter = mImpl->mVisibleEntries.erase(iter);
 			}
@@ -1011,6 +1013,7 @@ F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 		//	break;
 		//}
 	}
+#endif
 
 	//process visible groups
 	std::set< LLviewerOctreeGroup* >::iterator group_iter = mImpl->mVisibleGroups.begin();
@@ -1027,11 +1030,6 @@ F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 			if((*i)->hasVOCacheEntry())
 			{
 				LLVOCacheEntry* vo_entry = (LLVOCacheEntry*)(*i)->getVOCacheEntry();
-				if(vo_entry->isDummy())
-				{
-					addVisibleCacheEntry(vo_entry); //for LLSpatialBridge.
-					continue;
-				}
 
 				vo_entry->calcSceneContribution(camera_origin, needs_update, mImpl->mLastCameraUpdate);				
 				mImpl->mWaitingList.insert(vo_entry);
@@ -1118,6 +1116,11 @@ BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 
 F32 LLViewerRegion::killInvisibleObjects(F32 max_time)
 {
+	if(!sVOCacheCullingEnabled)
+	{
+		return max_time;
+	}
+
 	std::vector<LLDrawable*> delete_list;
 	for(LLVOCacheEntry::vocache_entry_set_t::iterator iter = mImpl->mActiveSet.begin();
 		iter != mImpl->mActiveSet.end(); ++iter)
@@ -1695,13 +1698,6 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLViewerObjec
 
 LLVOCacheEntry* LLViewerRegion::getCacheEntryForOctree(U32 local_id)
 {
-	static BOOL vo_cache_culling_enabled = gSavedSettings.getBOOL("ObjectCacheViewCullingEnabled");
-
-	if(!vo_cache_culling_enabled)
-	{
-		return NULL;
-	}
-
 	LLVOCacheEntry* entry = getCacheEntry(local_id);
 	removeFromVOCacheTree(entry);
 
@@ -1741,44 +1737,6 @@ bool LLViewerRegion::probeCache(U32 local_id, U32 crc, U8 &cache_miss_type)
 			}
 
 			addVisibleCacheEntry(entry);
-#if 0
-			if(entry->isBridgeChild()) //bridge child
-			{
-				addVisibleCacheEntry(entry);
-			}
-			else
-			{
-				U32 parent_id = entry->getParentID();
-				if(parent_id > 0) //has parent
-				{
-					LLVOCacheEntry* parent = getCacheEntry(parent_id);
-				
-					if(parent) //parent cached
-					{
-						parent->addChild(entry);
-
-						if(parent->isState(LLVOCacheEntry::INACTIVE))
-						{
-							//addToVOCacheTree(parent);
-							addVisibleCacheEntry(parent);
-						}
-						else //parent visible
-						{
-							addVisibleCacheEntry(parent);
-						}
-					}
-					else //parent not cached. This should not happen, but just in case...
-					{
-						addVisibleCacheEntry(entry);
-					}
-				}
-				else //root node
-				{
-					//addToVOCacheTree(entry);
-					addVisibleCacheEntry(entry);
-				}
-			}
-#endif
 			return true;
 		}
 		else

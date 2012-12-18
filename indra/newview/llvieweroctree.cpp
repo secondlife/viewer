@@ -675,6 +675,8 @@ void LLViewerOctreeCull::traverse(const OctreeNode* n)
 	}
 }
 	
+//------------------------------------------
+//agent space group culling
 S32 LLViewerOctreeCull::AABBInFrustumNoFarClipGroupBounds(const LLviewerOctreeGroup* group)
 {
 	return mCamera->AABBInFrustumNoFarClip(group->mBounds[0], group->mBounds[1]);
@@ -685,6 +687,14 @@ S32 LLViewerOctreeCull::AABBSphereIntersectGroupExtents(const LLviewerOctreeGrou
 	return AABBSphereIntersect(group->mExtents[0], group->mExtents[1], mCamera->getOrigin(), mCamera->mFrustumCornerDist);
 }
 
+S32 LLViewerOctreeCull::AABBInFrustumGroupBounds(const LLviewerOctreeGroup* group)
+{
+	return mCamera->AABBInFrustum(group->mBounds[0], group->mBounds[1]);
+}
+//------------------------------------------
+
+//------------------------------------------
+//agent space object set culling
 S32 LLViewerOctreeCull::AABBInFrustumNoFarClipObjectBounds(const LLviewerOctreeGroup* group)
 {
 	return mCamera->AABBInFrustumNoFarClip(group->mObjectBounds[0], group->mObjectBounds[1]);
@@ -695,15 +705,47 @@ S32 LLViewerOctreeCull::AABBSphereIntersectObjectExtents(const LLviewerOctreeGro
 	return AABBSphereIntersect(group->mObjectExtents[0], group->mObjectExtents[1], mCamera->getOrigin(), mCamera->mFrustumCornerDist);
 }
 
-S32 LLViewerOctreeCull::AABBInFrustumGroupBounds(const LLviewerOctreeGroup* group)
-{
-	return mCamera->AABBInFrustum(group->mBounds[0], group->mBounds[1]);
-}
-
 S32 LLViewerOctreeCull::AABBInFrustumObjectBounds(const LLviewerOctreeGroup* group)
 {
 	return mCamera->AABBInFrustum(group->mObjectBounds[0], group->mObjectBounds[1]);
 }
+//------------------------------------------
+
+//------------------------------------------
+//local regional space group culling
+S32 LLViewerOctreeCull::AABBInRegionFrustumNoFarClipGroupBounds(const LLviewerOctreeGroup* group)
+{
+	return mCamera->AABBInRegionFrustumNoFarClip(group->mBounds[0], group->mBounds[1]);
+}
+
+S32 LLViewerOctreeCull::AABBInRegionFrustumGroupBounds(const LLviewerOctreeGroup* group)
+{
+	return mCamera->AABBInRegionFrustum(group->mBounds[0], group->mBounds[1]);
+}
+
+S32 LLViewerOctreeCull::AABBRegionSphereIntersectGroupExtents(const LLviewerOctreeGroup* group, const LLVector3& shift)
+{
+	return AABBSphereIntersect(group->mExtents[0], group->mExtents[1], mCamera->getOrigin() - shift, mCamera->mFrustumCornerDist);
+}
+//------------------------------------------
+
+//------------------------------------------
+//local regional space object culling
+S32 LLViewerOctreeCull::AABBInRegionFrustumObjectBounds(const LLviewerOctreeGroup* group)
+{
+	return mCamera->AABBInRegionFrustum(group->mObjectBounds[0], group->mObjectBounds[1]);
+}
+
+S32 LLViewerOctreeCull::AABBInRegionFrustumNoFarClipObjectBounds(const LLviewerOctreeGroup* group)
+{
+	return mCamera->AABBInRegionFrustumNoFarClip(group->mObjectBounds[0], group->mObjectBounds[1]);
+}
+
+S32 LLViewerOctreeCull::AABBRegionSphereIntersectObjectExtents(const LLviewerOctreeGroup* group, const LLVector3& shift)
+{
+	return AABBSphereIntersect(group->mObjectExtents[0], group->mObjectExtents[1], mCamera->getOrigin() - shift, mCamera->mFrustumCornerDist);
+}
+//------------------------------------------
 
 //virtual 
 bool LLViewerOctreeCull::checkObjects(const OctreeNode* branch, const LLviewerOctreeGroup* group)

@@ -1473,19 +1473,6 @@ void LLSpatialBridge::shiftPos(const LLVector4a& vec)
 
 void LLSpatialBridge::cleanupReferences()
 {	
-	LLPointer<LLVOCacheEntry> dummy_entry;
-	if (mDrawable && mDrawable->isDead() && mDrawable->getEntry()->hasVOCacheEntry())
-	{
-		//create a dummy entry to insert the entire LLSpatialBridge to the vo_cache partition so it can be reloaded.
-
-		dummy_entry = new LLVOCacheEntry();
-		dummy_entry->setOctreeEntry(mEntry);
-		dummy_entry->addChild((LLVOCacheEntry*)mDrawable->getEntry()->getVOCacheEntry());
-		//llassert(!mDrawable->getParent());
-		
-		//mDrawable->mParent = this;
-	}
-
 	LLDrawable::cleanupReferences();
 	if (mDrawable)
 	{

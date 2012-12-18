@@ -280,12 +280,25 @@ public:
 	virtual bool earlyFail(LLviewerOctreeGroup* group);
 	virtual void traverse(const OctreeNode* n);
 	
-	S32 AABBInFrustumNoFarClipGroupBounds(const LLviewerOctreeGroup* group);
+	//agent space group cull
+	S32 AABBInFrustumNoFarClipGroupBounds(const LLviewerOctreeGroup* group);	
 	S32 AABBSphereIntersectGroupExtents(const LLviewerOctreeGroup* group);
-	S32 AABBInFrustumNoFarClipObjectBounds(const LLviewerOctreeGroup* group);
-	S32 AABBSphereIntersectObjectExtents(const LLviewerOctreeGroup* group);
 	S32 AABBInFrustumGroupBounds(const LLviewerOctreeGroup* group);
+
+	//agent space object set cull
+	S32 AABBInFrustumNoFarClipObjectBounds(const LLviewerOctreeGroup* group);
+	S32 AABBSphereIntersectObjectExtents(const LLviewerOctreeGroup* group);	
 	S32 AABBInFrustumObjectBounds(const LLviewerOctreeGroup* group);
+	
+	//local region space group cull
+	S32 AABBInRegionFrustumNoFarClipGroupBounds(const LLviewerOctreeGroup* group);
+	S32 AABBInRegionFrustumGroupBounds(const LLviewerOctreeGroup* group);
+	S32 AABBRegionSphereIntersectGroupExtents(const LLviewerOctreeGroup* group, const LLVector3& shift);
+
+	//local region space object set cull
+	S32 AABBInRegionFrustumNoFarClipObjectBounds(const LLviewerOctreeGroup* group);
+	S32 AABBInRegionFrustumObjectBounds(const LLviewerOctreeGroup* group);
+	S32 AABBRegionSphereIntersectObjectExtents(const LLviewerOctreeGroup* group, const LLVector3& shift);	
 	
 	virtual S32 frustumCheck(const LLviewerOctreeGroup* group) = 0;
 	virtual S32 frustumCheckObjects(const LLviewerOctreeGroup* group) = 0;
