@@ -417,6 +417,10 @@ void LLPanelGroupInvite::impl::onAvatarNameCache(const LLUUID& agent_id,
 
 	if (selfp)
 	{
+		if (selfp->mAvatarNameCacheConnection.connected())
+		{
+			selfp->mAvatarNameCacheConnection.disconnect();
+		}
 		std::vector<std::string> names;
 		uuid_vec_t agent_ids;
 		agent_ids.push_back(agent_id);

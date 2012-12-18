@@ -6208,6 +6208,7 @@ void LLVivoxVoiceClient::lookupName(const LLUUID &id)
 void LLVivoxVoiceClient::onAvatarNameCache(const LLUUID& agent_id,
 										   const LLAvatarName& av_name)
 {
+	mAvatarNameCacheConnection.disconnect();
 	std::string display_name = av_name.getDisplayName();
 	avatarNameResolved(agent_id, display_name);
 }

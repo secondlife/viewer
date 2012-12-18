@@ -233,7 +233,7 @@ void LLFloaterInspect::refresh()
 			{
 				mOwnerNameCacheConnection.disconnect();
 			}
-			mOwnerNameCacheConnection = LLAvatarNameCache::get(idOwner, boost::bind(&LLFloaterInspect::setDirty, this));
+			mOwnerNameCacheConnection = LLAvatarNameCache::get(idOwner, boost::bind(&LLFloaterInspect::onGetOwnerNameCallback, this));
 		}
 
 		if (LLAvatarNameCache::get(idCreator, &av_name))
@@ -247,7 +247,7 @@ void LLFloaterInspect::refresh()
 			{
 				mCreatorNameCacheConnection.disconnect();
 			}
-			mCreatorNameCacheConnection = LLAvatarNameCache::get(idCreator, boost::bind(&LLFloaterInspect::setDirty, this));
+			mCreatorNameCacheConnection = LLAvatarNameCache::get(idCreator, boost::bind(&LLFloaterInspect::onGetCreatorNameCallback, this));
 		}
 		
 		row["id"] = obj->getObject()->getID();
@@ -294,6 +294,18 @@ void LLFloaterInspect::onFocusReceived()
 
 void LLFloaterInspect::dirty()
 {
+	setDirty();
+}
+
+void LLFloaterInspect::onGetOwnerNameCallback()
+{
+	mOwnerNameCacheConnection.disconnect();
+	setDirty();
+}
+
+void LLFloaterInspect::onGetCreatorNameCallback()
+{
+	mCreatorNameCacheConnection.disconnect();
 	setDirty();
 }
 

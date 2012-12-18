@@ -79,18 +79,13 @@ LLPanelPlaceProfile::LLPanelPlaceProfile()
 	mForSalePanel(NULL),
 	mYouAreHerePanel(NULL),
 	mSelectedParcelID(-1),
-	mAccordionCtrl(NULL),
-	mAvatarNameCacheConnection()
+	mAccordionCtrl(NULL)
 {}
 
 // virtual
 LLPanelPlaceProfile::~LLPanelPlaceProfile()
 {
 	gIdleCallbacks.deleteFunction(&LLPanelPlaceProfile::updateYouAreHereBanner, this);
-	if (mAvatarNameCacheConnection.connected())
-	{
-		mAvatarNameCacheConnection.disconnect();
-	}
 }
 
 // virtual
@@ -504,11 +499,7 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 			std::string parcel_owner =
 				LLSLURL("agent", parcel->getOwnerID(), "inspect").getSLURLString();
 			mParcelOwner->setText(parcel_owner);
-			if (mAvatarNameCacheConnection.connected())
-			{
-				mAvatarNameCacheConnection.disconnect();
-			}
-			mAvatarNameCacheConnection = LLAvatarNameCache::get(region->getOwner(), boost::bind(&LLPanelPlaceInfo::onAvatarNameCache, _1, _2, mRegionOwnerText));
+			LLAvatarNameCache::get(region->getOwner(), boost::bind(&LLPanelPlaceInfo::onAvatarNameCache, _1, _2, mRegionOwnerText));
 		}
 
 		if(LLParcel::OS_LEASE_PENDING == parcel->getOwnershipStatus())
@@ -530,11 +521,7 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 		const LLUUID& auth_buyer_id = parcel->getAuthorizedBuyerID();
 		if(auth_buyer_id.notNull())
 		{
-			if (mAvatarNameCacheConnection.connected())
-			{
-				mAvatarNameCacheConnection.disconnect();
-			}
-			mAvatarNameCacheConnection = LLAvatarNameCache::get(auth_buyer_id, boost::bind(&LLPanelPlaceInfo::onAvatarNameCache, _1, _2, mSaleToText));
+			LLAvatarNameCache::get(auth_buyer_id, boost::bind(&LLPanelPlaceInfo::onAvatarNameCache, _1, _2, mSaleToText));
 			
 			// Show sales info to a specific person or a group he belongs to.
 			if (auth_buyer_id != gAgent.getID() && !gAgent.isInGroup(auth_buyer_id))

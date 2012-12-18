@@ -328,6 +328,8 @@ void LLFloaterReporter::setFromAvatarID(const LLUUID& avatar_id)
 
 void LLFloaterReporter::onAvatarNameCache(const LLUUID& avatar_id, const LLAvatarName& av_name)
 {
+	mAvatarNameCacheConnection.disconnect();
+
 	if (mObjectID == avatar_id)
 	{
 		mOwnerName = av_name.getCompleteName();

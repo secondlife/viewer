@@ -446,6 +446,8 @@ void LLConversationItemParticipant::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 void LLConversationItemParticipant::onAvatarNameCache(const LLAvatarName& av_name)
 {
+	mAvatarNameCacheConnection.disconnect();
+
 	mName = av_name.getUserName();
 	mDisplayName = av_name.getDisplayName();
 	mNeedsRefresh = true;

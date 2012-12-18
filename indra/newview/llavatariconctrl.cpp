@@ -313,6 +313,8 @@ void LLAvatarIconCtrl::processProperties(void* data, EAvatarProcessorType type)
 
 void LLAvatarIconCtrl::onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name)
 {
+	mAvatarNameCacheConnection.disconnect();
+
 	if (agent_id == mAvatarId)
 	{
 		// Most avatar icon controls are next to a UI element that shows

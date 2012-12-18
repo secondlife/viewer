@@ -372,7 +372,9 @@ void LLUrlEntryAgent::callObservers(const std::string &id,
 void LLUrlEntryAgent::onAvatarNameCache(const LLUUID& id,
 										const LLAvatarName& av_name)
 {
-	std::string label = av_name.getCompleteName();
+	mAvatarNameCacheConnection.disconnect();
+	
+ 	std::string label = av_name.getCompleteName();
 
 	// received the agent name from the server - tell our observers
 	callObservers(id.asString(), label, mIcon);
@@ -525,6 +527,8 @@ LLUrlEntryAgentName::LLUrlEntryAgentName() :
 void LLUrlEntryAgentName::onAvatarNameCache(const LLUUID& id,
 										const LLAvatarName& av_name)
 {
+	mAvatarNameCacheConnection.disconnect();
+
 	std::string label = getName(av_name);
 	// received the agent name from the server - tell our observers
 	callObservers(id.asString(), label, mIcon);
@@ -562,7 +566,7 @@ std::string LLUrlEntryAgentName::getLabel(const std::string &url, const LLUrlLab
 		{
 			mAvatarNameCacheConnection.disconnect();
 		}
-		mAvatarNameCacheConnection = LLAvatarNameCache::get(agent_id, boost::bind(&LLUrlEntryAgentCompleteName::onAvatarNameCache, this, _1, _2));
+		mAvatarNameCacheConnection = LLAvatarNameCache::get(agent_id, boost::bind(&LLUrlEntryAgentName::onAvatarNameCache, this, _1, _2));
 		addObserver(agent_id_string, url, cb);
 		return LLTrans::getString("LoadingData");
 	}

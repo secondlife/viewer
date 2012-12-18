@@ -1609,6 +1609,8 @@ void LLPanelGroupMembersSubTab::addMemberToList(LLGroupMemberData* data)
 
 void LLPanelGroupMembersSubTab::onNameCache(const LLUUID& update_id, LLGroupMemberData* member, const LLAvatarName& av_name)
 {
+	mAvatarNameCacheConnection.disconnect();
+
 	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 	if (!gdatap
 		|| gdatap->getMemberVersion() != update_id

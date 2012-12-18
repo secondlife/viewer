@@ -459,6 +459,8 @@ void LLAvatarListItem::setNameInternal(const std::string& name, const std::strin
 
 void LLAvatarListItem::onAvatarNameCache(const LLAvatarName& av_name)
 {
+	mAvatarNameCacheConnection.disconnect();
+
 	setAvatarName(av_name.getDisplayName());
 	setAvatarToolTip(av_name.getUserName());
 

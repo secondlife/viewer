@@ -518,5 +518,6 @@ void LLConversationLog::onNewMessageReceived(const LLSD& data)
 
 void LLConversationLog::onAvatarNameCache(const LLUUID& participant_id, const LLAvatarName& av_name, const LLIMModel::LLIMSession* session)
 {
+	mAvatarNameCacheConnection.disconnect();
 	updateConversationName(session, av_name.getCompleteName());
 }

@@ -341,6 +341,8 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 
 void LLIMModel::LLIMSession::onAdHocNameCache(const LLAvatarName& av_name)
 {
+	mAvatarNameCacheConnection.disconnect();
+
 	if (!av_name.isValidName())
 	{
 		S32 separator_index = mName.rfind(" ");
@@ -2178,6 +2180,7 @@ void LLIncomingCallDialog::onAvatarNameCache(const LLUUID& agent_id,
 											 const LLAvatarName& av_name,
 											 const std::string& call_type)
 {
+	mAvatarNameCacheConnection.disconnect();
 	std::string title = av_name.getCompleteName();
 	setCallerName(title, av_name.getCompleteName(), call_type);
 }

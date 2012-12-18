@@ -199,6 +199,8 @@ void LLFloaterVoiceVolume::onAvatarNameCache(
 		const LLUUID& agent_id,
 		const LLAvatarName& av_name)
 {
+	mAvatarNameCacheConnection.disconnect();
+
 	if (agent_id != mAvatarID)
 	{
 		return;

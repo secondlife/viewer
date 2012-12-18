@@ -552,6 +552,8 @@ private:
 
 	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name)
 	{
+		mAvatarNameCacheConnection.disconnect();
+
 		mFrom = av_name.getDisplayName();
 
 		LLTextBox* user_name = getChild<LLTextBox>("user_name");

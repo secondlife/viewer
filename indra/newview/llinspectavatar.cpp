@@ -269,6 +269,8 @@ void LLInspectAvatar::onAvatarNameCache(
 		const LLUUID& agent_id,
 		const LLAvatarName& av_name)
 {
+	mAvatarNameCacheConnection.disconnect();
+
 	if (agent_id == mAvatarID)
 	{
 		getChild<LLUICtrl>("user_name")->setValue(av_name.getDisplayName());

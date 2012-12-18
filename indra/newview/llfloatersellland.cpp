@@ -246,6 +246,8 @@ void LLFloaterSellLandUI::updateParcelInfo()
 
 void LLFloaterSellLandUI::onBuyerNameCache(const LLAvatarName& av_name)
 {
+	mAvatarNameCacheConnection.disconnect();
+
 	getChild<LLUICtrl>("sell_to_agent")->setValue(av_name.getCompleteName());
 	getChild<LLUICtrl>("sell_to_agent")->setToolTip(av_name.getUserName());
 }

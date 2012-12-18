@@ -393,6 +393,8 @@ void LLNameListCtrl::onAvatarNameCache(const LLUUID& agent_id,
 									   const LLAvatarName& av_name,
 									   LLHandle<LLNameListItem> item)
 {
+	mAvatarNameCacheConnection.disconnect();
+
 	std::string name;
 	if (mShortNames)
 		name = av_name.getDisplayName();

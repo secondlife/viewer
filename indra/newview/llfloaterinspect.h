@@ -62,7 +62,8 @@ protected:
 	bool mDirty;
 
 private:
-	void onGetAvNameCallback(const LLUUID& idCreator, const LLAvatarName& av_name);
+	void onGetOwnerNameCallback();
+	void onGetCreatorNameCallback();
 	
 	LLFloaterInspect(const LLSD& key);
 	virtual ~LLFloaterInspect(void);
