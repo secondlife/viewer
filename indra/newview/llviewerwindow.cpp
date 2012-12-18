@@ -4247,7 +4247,8 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	F32 scale_factor = 1.0f ;
 	if (!keep_window_aspect || (image_width > window_width) || (image_height > window_height))
 	{	
-		if ((image_width > window_width || image_height > window_height) && LLPipeline::sRenderDeferred && !show_ui)
+		if ((image_width <= gGLManager.mGLMaxTextureSize && image_height <= gGLManager.mGLMaxTextureSize) && 
+			(image_width > window_width || image_height > window_height) && LLPipeline::sRenderDeferred && !show_ui)
 		{
 			if (scratch_space.allocate(image_width, image_height, GL_RGBA, true, true))
 			{
@@ -4274,12 +4275,12 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 
 		if (!reset_deferred)
 		{
-		// if image cropping or need to enlarge the scene, compute a scale_factor
-		F32 ratio = llmin( (F32)window_width / image_width , (F32)window_height / image_height) ;
-		snapshot_width  = (S32)(ratio * image_width) ;
-		snapshot_height = (S32)(ratio * image_height) ;
-		scale_factor = llmax(1.0f, 1.0f / ratio) ;
-	}
+			// if image cropping or need to enlarge the scene, compute a scale_factor
+			F32 ratio = llmin( (F32)window_width / image_width , (F32)window_height / image_height) ;
+			snapshot_width  = (S32)(ratio * image_width) ;
+			snapshot_height = (S32)(ratio * image_height) ;
+			scale_factor = llmax(1.0f, 1.0f / ratio) ;
+		}
 	}
 	
 	if (show_ui && scale_factor > 1.f)
