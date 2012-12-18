@@ -150,6 +150,10 @@ BOOL LLTexLayerSetBuffer::renderTexLayerSet()
 		gAlphaMaskProgram.bind();
 		gAlphaMaskProgram.setMinimumAlpha(0.004f);
 	}
+	else
+	{
+		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.00f);
+	}
 
 	LLVertexBuffer::unbind();
 
@@ -1915,9 +1919,15 @@ LLGLTexture* LLTexLayerStaticImageList::getTexture(const std::string& file_name,
 		{
 			if( (image_raw->getComponents() == 1) && is_mask )
 			{
-				// Note: these are static, unchanging images so it's ok to assume
-				// that once an image is a mask it's always a mask.
-				tex->setExplicitFormat( GL_ALPHA8, GL_ALPHA );
+				// Convert grayscale alpha masks from single channel into RGBA.
+				// Fill RGB with black to allow fixed function gl calls
+				// to match shader implementation.
+				LLPointer<LLImageRaw> alpha_image_raw = image_raw;
+				image_raw = new LLImageRaw(image_raw->getWidth(),
+										   image_raw->getHeight(),
+										   4);
+
+				image_raw->copyUnscaledAlphaMask(alpha_image_raw, LLColor4U::black);
 			}
 			tex->createGLTexture(0, image_raw, 0, TRUE, LLGLTexture::LOCAL);
 
