@@ -877,8 +877,14 @@ U32 LLUUID::getRandomSeed()
    static unsigned char seed[16];		/* Flawfinder: ignore */
    
    getNodeID(&seed[0]);
-   seed[6]='\0';
-   seed[7]='\0';
+
+   // Incorporate the pid into the seed to prevent
+   // processes that start on the same host at the same
+   // time from generating the same seed.
+   pid_t pid = LLApp::getPid();
+
+   seed[6]=(unsigned char)(pid >> 8);
+   seed[7]=(unsigned char)(pid);
    getSystemTime((uuid_time_t *)(&seed[8]));
 
    LLMD5 md5_seed;
