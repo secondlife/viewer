@@ -199,14 +199,8 @@ public:
 	void addItem(const LLUUID& item_id)
 	{
 		LL_DEBUGS("Avatar") << "item_id " << item_id << llendl;
-		
-		if (ll_frand()<gSavedSettings.getF32("InventoryDebugSimulateOpFailureRate"))
-		{
-			// simulate server failure by not sending the request.
-			// do nothing
-			LL_DEBUGS("Avatar") << "simulating failure by not sending request for item " << item_id << llendl;
-		}
-		else if (!requestOperation(item_id))
+
+		if (!requestOperation(item_id))
 		{
 			LL_DEBUGS("Avatar") << "item_id " << item_id << " requestOperation false, skipping" << llendl;
 			return;
@@ -384,6 +378,11 @@ public:
 		LLViewerInventoryItem *item = gInventory.getItem(item_id);
 		llassert(item);
 		LL_DEBUGS("Avatar") << "copying item " << item_id << llendl;
+		if (ll_frand() < gSavedSettings.getF32("InventoryDebugSimulateOpFailureRate"))
+		{
+			LL_DEBUGS("Avatar") << "simulating failure by not sending request for item " << item_id << llendl;
+			return true;
+		}
 		copy_inventory_item(
 			gAgent.getID(),
 			item->getPermissions().getOwner(),
@@ -425,6 +424,11 @@ public:
 			}
 			LL_DEBUGS("Avatar") << "linking item " << item_id << " name " << item->getName() << " to " << mDstCatID << llendl;
 			// create an inventory item link.
+			if (ll_frand() < gSavedSettings.getF32("InventoryDebugSimulateOpFailureRate"))
+			{
+				LL_DEBUGS("Avatar") << "simulating failure by not sending request for item " << item_id << llendl;
+				return true;
+			}
 			link_inventory_item(gAgent.getID(),
 								item->getLinkedUUID(),
 								mDstCatID,
@@ -433,7 +437,7 @@ public:
 								LLAssetType::AT_LINK,
 								new LLBoostFuncInventoryCallback(
 									boost::bind(&LLCallAfterInventoryBatchMgr::onOp,this,item_id,_1,LLTimer())));
-			request_sent = true;
+			return true;
 		}
 		else
 		{
@@ -451,6 +455,11 @@ public:
 
 			if (catp && catp->getPreferredType() == LLFolderType::FT_OUTFIT)
 			{
+				if (ll_frand() < gSavedSettings.getF32("InventoryDebugSimulateOpFailureRate"))
+				{
+					LL_DEBUGS("Avatar") << "simulating failure by not sending request for item " << item_id << llendl;
+					return true;
+				}
 				LL_DEBUGS("Avatar") << "linking folder " << item_id << " name " << catp->getName() << " to cof " << cof << llendl;
 				link_inventory_item(gAgent.getID(), item_id, cof, catp->getName(), "",
 									LLAssetType::AT_LINK_FOLDER, 
