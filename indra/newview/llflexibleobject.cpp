@@ -444,7 +444,7 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 		return ;
 	}
 
-	// stinson 11/12/2012: Need to check with davep on the following.
+	// Fix for MAINT-1894
 	// Skipping the flexible update if render res is negative.  If we were to continue with a negative value,
 	// the subsequent S32 num_render_sections = 1<<mRenderRes; code will specify a really large number of
 	// render sections which will then create a length exception in the std::vector::resize() method.
