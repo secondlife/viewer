@@ -424,9 +424,9 @@ namespace LLTrace
 		//
 		// members
 		//
-		U64 						mSelfTimeCounter,
-									mTotalTimeCounter;
-		U32 mCalls;
+		U64		mSelfTimeCounter,
+				mTotalTimeCounter;
+		U32		mCalls;
 	};
 
 
@@ -509,6 +509,268 @@ namespace LLTrace
 			trace_t::getPrimaryAccumulator().add(LLUnits::rawValue(converted_value));
 		}
 	};
-}
 
+struct MemStatAccumulator
+{
+	MemStatAccumulator()
+	:	mSize(0),
+		mChildSize(0),
+		mAllocatedCount(0),
+		mDeallocatedCount(0)
+	{}
+
+	void addSamples(const MemStatAccumulator& other)
+	{
+		mSize += other.mSize;
+		mChildSize += other.mChildSize;
+		mAllocatedCount += other.mAllocatedCount;
+		mDeallocatedCount += other.mDeallocatedCount;
+	}
+
+	void reset(const MemStatAccumulator* other)
+	{
+		mSize = 0;
+		mChildSize = 0;
+		mAllocatedCount = 0;
+		mDeallocatedCount = 0;
+	}
+
+	size_t		mSize,
+				mChildSize;
+	int			mAllocatedCount,
+				mDeallocatedCount;
+};
+
+class MemStat : public TraceType<MemStatAccumulator>
+{
+public:
+	typedef TraceType<MemStatAccumulator> trace_t;
+	MemStat(const char* name)
+	:	trace_t(name)
+	{}
+};
+
+// measures effective memory footprint of specified type
+// specialize to cover different types
+
+template<typename T>
+struct MemFootprint
+{
+	static size_t measure(const T& value)
+	{
+		return sizeof(T);
+	}
+
+	static size_t measure()
+	{
+		return sizeof(T);
+	}
+};
+
+template<typename T>
+struct MemFootprint<T*>
+{
+	static size_t measure(const T* value)
+	{
+		if (!value)
+		{
+			return 0;
+		}
+		return MemFootprint<T>::measure(*value);
+	}
+
+	static size_t measure()
+	{
+		return MemFootPrint<T>::measure();
+	}
+};
+
+template<typename T>
+struct MemFootprint<std::basic_string<T> >
+{
+	static size_t measure(const std::basic_string<T>& value)
+	{
+		return value.capacity() * sizeof(T);
+	}
+
+	static size_t measure()
+	{
+		return sizeof(std::basic_string<T>);
+	}
+};
+
+template<typename T>
+struct MemFootprint<std::vector<T> >
+{
+	static size_t measure(const std::vector<T>& value)
+	{
+		return value.capacity() * MemFootPrint<T>::measure();
+	}
+
+	static size_t measure()
+	{
+		return sizeof(std::vector<T>);
+	}
+};
+
+template<typename T>
+struct MemFootprint<std::list<T> >
+{
+	static size_t measure(const std::list<T>& value)
+	{
+		return value.size() * (MemFootPrint<T>::measure() + sizeof(void*) * 2);
+	}
+
+	static size_t measure()
+	{
+		return sizeof(std::list<T>);
+	}
+};
+
+template<typename T>
+class MemTrackable
+{
+	template<typename TRACKED, typename TRACKED_IS_TRACKER>
+	struct TrackMemImpl;
+
+	typedef MemTrackable<T> mem_trackable_t;
+
+public:
+	typedef void mem_trackable_tag_t;
+
+	~MemTrackable()
+	{
+		memDisclaim(mMemFootprint);
+	}
+
+	void* operator new(size_t allocation_size) 
+	{
+		// reserve 8 bytes for allocation size (and preserving 8 byte alignment of structs)
+		void* allocation = ::operator new(allocation_size + 8);
+		*(size_t*)allocation = allocation_size;
+		MemStatAccumulator& accumulator = sStat.getPrimaryAccumulator();
+		accumulator.mSize += allocation_size;
+		accumulator.mAllocatedCount++;
+		return (void*)((char*)allocation + 8);
+	}
+
+	void operator delete(void* ptr)
+	{
+		size_t* allocation_size = (size_t*)((char*)ptr - 8);
+		MemStatAccumulator& accumulator = sStat.getPrimaryAccumulator();
+		accumulator.mSize -= *allocation_size;
+		accumulator.mAllocatedCount--;
+		accumulator.mDeallocatedCount++;
+		::delete((char*)ptr - 8);
+	}
+
+	void *operator new [](size_t size)
+	{
+		size_t* result = (size_t*)malloc(size + 8);
+		*result = size;
+		MemStatAccumulator& accumulator = sStat.getPrimaryAccumulator();
+		accumulator.mSize += size;
+		accumulator.mAllocatedCount++;
+		return (void*)((char*)result + 8);
+	}
+
+	void operator delete[](void* ptr)
+	{
+		size_t* allocation_size = (size_t*)((char*)ptr - 8);
+		MemStatAccumulator& accumulator = sStat.getPrimaryAccumulator();
+		accumulator.mSize -= *allocation_size;
+		accumulator.mAllocatedCount--;
+		accumulator.mDeallocatedCount++;
+		::delete[]((char*)ptr - 8);
+	}
+
+	// claim memory associated with other objects/data as our own, adding to our calculated footprint
+	template<typename T>
+	T& memClaim(T& value)
+	{
+		TrackMemImpl<T>::claim(*this, value);
+		return value;
+	}
+
+	template<typename T>
+	const T& memClaim(const T& value)
+	{
+		TrackMemImpl<T>::claim(*this, value);
+		return value;
+	}
+
+
+	void memClaim(size_t size)
+	{
+		MemStatAccumulator& accumulator = sStat.getPrimaryAccumulator();
+		mMemFootprint += size;
+		accumulator.mSize += size;
+	}
+
+	// remove memory we had claimed from our calculated footprint
+	template<typename T>
+	T& memDisclaim(T& value)
+	{
+		TrackMemImpl<T>::disclaim(*this, value);
+		return value;
+	}
+
+	template<typename T>
+	const T& memDisclaim(const T& value)
+	{
+		TrackMemImpl<T>::disclaim(*this, value);
+		return value;
+	}
+
+	void memDisclaim(size_t size)
+	{
+		MemStatAccumulator& accumulator = sStat.getPrimaryAccumulator();
+		accumulator.mSize -= size;
+		mMemFootprint -= size;
+	}
+
+private:
+	size_t mMemFootprint;
+
+	template<typename TRACKED, typename TRACKED_IS_TRACKER = void>
+	struct TrackMemImpl
+	{
+		static void claim(mem_trackable_t& tracker, const TRACKED& tracked)
+		{
+			MemStatAccumulator& accumulator = sStat.getPrimaryAccumulator();
+			size_t footprint = MemFootprint<TRACKED>::measure(tracked);
+			accumulator.mSize += footprint;
+			tracker.mMemFootprint += footprint;
+		}
+
+		static void disclaim(mem_trackable_t& tracker, const TRACKED& tracked)
+		{
+			MemStatAccumulator& accumulator = sStat.getPrimaryAccumulator();
+			size_t footprint = MemFootprint<TRACKED>::measure(tracked);
+			accumulator.mSize -= footprint;
+			tracker.mMemFootprint -= footprint;
+		}
+	};
+
+	template<typename TRACKED>
+	struct TrackMemImpl<TRACKED, typename TRACKED::mem_trackable_tag_t>
+	{
+		static void claim(mem_trackable_t& tracker, TRACKED& tracked)
+		{
+			MemStatAccumulator& accumulator = sStat.getPrimaryAccumulator();
+			accumulator.mChildSize += MemFootprint<TRACKED>::measure(tracked);
+		}
+
+		static void disclaim(mem_trackable_t& tracker, TRACKED& tracked)
+		{
+			MemStatAccumulator& accumulator = sStat.getPrimaryAccumulator();
+			accumulator.mChildSize -= MemFootprint<TRACKED>::measure(tracked);
+		}
+	};
+	static MemStat sStat;
+};
+
+template<typename T> MemStat MemTrackable<T>::sStat(typeid(T).name());
+
+}
 #endif // LL_LLTRACE_H

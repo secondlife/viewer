@@ -30,6 +30,7 @@
 #include "lluuid.h"
 #include "llstring.h"
 #include "llthread.h"
+#include "lltrace.h"
 
 const S32 MIN_IMAGE_MIP =  2; // 4x4, only used for expand/contract power of 2
 const S32 MAX_IMAGE_MIP = 11; // 2048x2048
@@ -110,7 +111,9 @@ protected:
 //============================================================================
 // Image base class
 
-class LLImageBase : public LLThreadSafeRefCount
+class LLImageBase 
+:	public LLThreadSafeRefCount,
+	public LLTrace::MemTrackable<LLImageBase>
 {
 protected:
 	virtual ~LLImageBase();

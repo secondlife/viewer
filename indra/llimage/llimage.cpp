@@ -157,7 +157,8 @@ void LLImageBase::sanityCheck()
 // virtual
 void LLImageBase::deleteData()
 {
-	FREE_MEM(sPrivatePoolp, mData) ;
+	FREE_MEM(sPrivatePoolp, mData);
+	memDisclaim(mDataSize);
 	mData = NULL;
 	mDataSize = 0;
 }
@@ -201,6 +202,7 @@ U8* LLImageBase::allocateData(S32 size)
 			mBadBufferAllocation = true ;
 		}
 		mDataSize = size;
+		memClaim(mDataSize);
 	}
 
 	return mData;
@@ -222,7 +224,9 @@ U8* LLImageBase::reallocateData(S32 size)
 		FREE_MEM(sPrivatePoolp, mData) ;
 	}
 	mData = new_datap;
+	memDisclaim(mDataSize);
 	mDataSize = size;
+	memClaim(mDataSize);
 	return mData;
 }
 
@@ -1584,7 +1588,9 @@ static void avg4_colors2(const U8* a, const U8* b, const U8* c, const U8* d, U8*
 void LLImageBase::setDataAndSize(U8 *data, S32 size)
 { 
 	ll_assert_aligned(data, 16);
+	memDisclaim(mDataSize);
 	mData = data; mDataSize = size; 
+	memClaim(mDataSize);
 }	
 
 //static

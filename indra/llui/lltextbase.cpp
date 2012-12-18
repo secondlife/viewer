@@ -561,7 +561,7 @@ void LLTextBase::drawText()
 		if ( (mSpellCheckStart != start) || (mSpellCheckEnd != end) )
 		{
 			const LLWString& wstrText = getWText(); 
-			mMisspellRanges.clear();
+			memDisclaim(mMisspellRanges).clear();
 
 			segment_set_t::const_iterator seg_it = getSegIterContaining(start);
 			while (mSegments.end() != seg_it)
@@ -632,6 +632,7 @@ void LLTextBase::drawText()
 
 			mSpellCheckStart = start;
 			mSpellCheckEnd = end;
+			memClaim(mMisspellRanges);
 		}
 	}
 
@@ -890,10 +891,12 @@ void LLTextBase::createDefaultSegment()
 	// ensures that there is always at least one segment
 	if (mSegments.empty())
 	{
+		memDisclaim(mSegments);
 		LLStyleConstSP sp(new LLStyle(getDefaultStyleParams()));
 		LLTextSegmentPtr default_segment = new LLNormalTextSegment( sp, 0, getLength() + 1, *this);
 		mSegments.insert(default_segment);
 		default_segment->linkToDocument(this);
+		memClaim(mSegments);
 	}
 }
 
@@ -903,6 +906,8 @@ void LLTextBase::insertSegment(LLTextSegmentPtr segment_to_insert)
 	{
 		return;
 	}
+
+	memDisclaim(mSegments);
 
 	segment_set_t::iterator cur_seg_iter = getSegIterContaining(segment_to_insert->getStart());
 	S32 reflow_start_index = 0;
@@ -976,6 +981,7 @@ void LLTextBase::insertSegment(LLTextSegmentPtr segment_to_insert)
 
 	// layout potentially changed
 	needsReflow(reflow_start_index);
+	memClaim(mSegments);
 }
 
 BOOL LLTextBase::handleMouseDown(S32 x, S32 y, MASK mask)
@@ -1271,8 +1277,11 @@ void LLTextBase::replaceWithSuggestion(U32 index)
 			removeStringNoUndo(it->first, it->second - it->first);
 
 			// Insert the suggestion in its place
+			memDisclaim(mSuggestionList);
 			LLWString suggestion = utf8str_to_wstring(mSuggestionList[index]);
 			insertStringNoUndo(it->first, utf8str_to_wstring(mSuggestionList[index]));
+			memClaim(mSuggestionList);
+
 			setCursorPos(it->first + (S32)suggestion.length());
 
 			break;
@@ -1334,7 +1343,7 @@ bool LLTextBase::isMisspelledWord(U32 pos) const
 void LLTextBase::onSpellCheckSettingsChange()
 {
 	// Recheck the spelling on every change
-	mMisspellRanges.clear();
+	memDisclaim(mMisspellRanges).clear();
 	mSpellCheckStart = mSpellCheckEnd = -1;
 }
 
@@ -1593,7 +1602,7 @@ LLRect LLTextBase::getTextBoundingRect()
 
 void LLTextBase::clearSegments()
 {
-	mSegments.clear();
+	memDisclaim(mSegments).clear();
 	createDefaultSegment();
 }
 
@@ -3057,7 +3066,9 @@ void LLNormalTextSegment::setToolTip(const std::string& tooltip)
 		llwarns << "LLTextSegment::setToolTip: cannot replace keyword tooltip." << llendl;
 		return;
 	}
+	memDisclaim(mTooltip);
 	mTooltip = tooltip;
+	memClaim(mTooltip);
 }
 
 bool LLNormalTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const

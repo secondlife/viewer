@@ -50,7 +50,10 @@ class LLUrlMatch;
 /// includes a start/end offset from the start of the string, a
 /// style to render with, an optional tooltip, etc.
 ///
-class LLTextSegment : public LLRefCount, public LLMouseHandler
+class LLTextSegment 
+:	public LLRefCount, 
+	public LLMouseHandler,
+	public LLTrace::MemTrackable<LLTextSegment>
 {
 public:
 	LLTextSegment(S32 start, S32 end) : mStart(start), mEnd(end){};
