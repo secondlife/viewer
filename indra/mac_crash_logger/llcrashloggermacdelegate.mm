@@ -1,8 +1,8 @@
 /** 
- * @file llversionviewer.h
- * @brief
+ * @file llcrashloggermacdelegate.mm
+ * @brief Mac OSX crash logger implementation
  *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2003&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -24,18 +24,52 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVERSIONVIEWER_H
-#define LL_LLVERSIONVIEWER_H
 
-const S32 LL_VERSION_MAJOR = 3;
-const S32 LL_VERSION_MINOR = 4;
-const S32 LL_VERSION_PATCH = 5;
-const S32 LL_VERSION_BUILD = 0;
+/*
+#import "llcrashloggermacdelegate.h"
+#include <iostream>
 
-const char * const LL_CHANNEL = "Second Life Developer";
+extern std::string gUserNotes;
+extern bool gSendReport;
+extern bool gRememberChoice;
 
-#if LL_DARWIN
-const char * const LL_VERSION_BUNDLE_ID = "com.secondlife.indra.viewer";
-#endif
+@implementation LLCrashLoggerMacDelegate
 
-#endif
+- (void)setWindow:(NSWindow *)window
+{
+    _window = window;
+}
+
+- (NSWindow *)window
+{
+    return _window;
+}
+
+- (void)dealloc
+{
+    [super dealloc];
+}
+
+std::string* NSToString( NSString *ns_str )
+{
+    return ( new std::string([ns_str UTF8String]) );
+}
+
+- (IBAction)remember:(id)sender
+{
+    gRememberChoice = [rememberCheck state];
+}
+
+- (IBAction)send:(id)sender
+{
+    std::string* user_input = NSToString([crashText stringValue]);
+    gUserNotes = *user_input;
+    gSendReport = true;
+}
+
+- (IBAction)cancel:(id)sender
+{
+    [ _window close];
+}
+@end
+*/
