@@ -76,6 +76,17 @@ template<typename T> T getMaterialField(const LLSD& data, const std::string& fie
 	return (T)LLSD();
 }
 
+// GCC didn't like the generic form above for some reason
+template<> LLUUID getMaterialField(const LLSD& data, const std::string& field, const LLSD::Type field_type)
+{
+	if ( (data.has(field)) && (field_type == data[field].type()) )
+	{
+		return data[field].asUUID();
+	}
+	llerrs << "Missing or mistyped field '" << field << "' in material definition" << llendl;
+	return LLUUID::null;
+}
+
 /**
  * LLMaterial class
  */
