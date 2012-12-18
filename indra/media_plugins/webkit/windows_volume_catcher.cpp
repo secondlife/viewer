@@ -48,18 +48,37 @@ private:
 	set_volume_func_t mSetVolumeFunc;
 	set_mute_func_t mSetMuteFunc;
 
+	// tests if running on Vista, 7, 8 + once in CTOR
+	bool isWindowsVistaOrHigher();
+
 	F32 	mVolume;
 	F32 	mPan;
+	bool mSystemIsVistaOrHigher;
 };
-VolumeCatcherImpl::VolumeCatcherImpl()
-:	mVolume(1.0f),	// default volume is max
-	mPan(0.f)		// default pan is centered
+
+bool VolumeCatcherImpl::isWindowsVistaOrHigher()
 {
-	HMODULE handle = ::LoadLibrary(L"winmm.dll");
-	if(handle)
+	OSVERSIONINFO osvi;
+	ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	GetVersionEx(&osvi);
+	return osvi.dwMajorVersion >= 6;
+}
+
+VolumeCatcherImpl::VolumeCatcherImpl()
+:	mVolume(1.0f),			// default volume is max
+	mPan(0.f)				// default pan is centered
+{
+	mSystemIsVistaOrHigher = isWindowsVistaOrHigher();
+
+	if ( mSystemIsVistaOrHigher )
 	{
-		mSetVolumeFunc = (set_volume_func_t)::GetProcAddress(handle, "setPluginVolume");
-		mSetMuteFunc = (set_mute_func_t)::GetProcAddress(handle, "setPluginMute");
+		HMODULE handle = ::LoadLibrary(L"winmm.dll");
+		if(handle)
+		{
+			mSetVolumeFunc = (set_volume_func_t)::GetProcAddress(handle, "setPluginVolume");
+			mSetMuteFunc = (set_mute_func_t)::GetProcAddress(handle, "setPluginMute");
+		}
 	}
 }
 
@@ -67,18 +86,29 @@ VolumeCatcherImpl::~VolumeCatcherImpl()
 {
 }
 
-
 void VolumeCatcherImpl::setVolume(F32 volume)
 {
 	mVolume = volume;
 
-	if (mSetMuteFunc)
+	if ( mSystemIsVistaOrHigher )
 	{
-		mSetMuteFunc(volume == 0.f);
+		// set both left/right to same volume
+		// TODO: use pan value to set independently
+		DWORD left_channel  = (DWORD)(mVolume * 65535.0f);
+		DWORD right_channel =  (DWORD)(mVolume * 65535.0f);
+		DWORD hw_volume = left_channel << 16 | right_channel;
+		::waveOutSetVolume(NULL, hw_volume);
 	}
-	if (mSetVolumeFunc)
+	else
 	{
-		mSetVolumeFunc(mVolume);
+		if (mSetMuteFunc)
+		{
+			mSetMuteFunc(volume == 0.f);
+		}
+		if (mSetVolumeFunc)
+		{
+			mSetVolumeFunc(mVolume);
+		}
 	}
 }
 
