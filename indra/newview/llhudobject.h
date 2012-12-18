@@ -39,8 +39,6 @@
 #include "lldrawpool.h"		// TODO: eliminate, unused below
 #include <list>
 
-#define XXX_STINSON_CHUI_REWORK // temporarily re-enabling the in-world voice-dot
-
 class LLViewerCamera;
 class LLFontGL;
 class LLFace;
@@ -96,9 +94,7 @@ public:
 		LL_HUD_EFFECT_EDIT,
 		LL_HUD_EFFECT_LOOKAT,
 		LL_HUD_EFFECT_POINTAT,
-#ifdef XXX_STINSON_CHUI_REWORK
 		LL_HUD_EFFECT_VOICE_VISUALIZER,	// Ventrella
-#endif // XXX_STINSON_CHUI_REWORK
 		LL_HUD_NAME_TAG,
 		LL_HUD_EFFECT_BLOB
 	};

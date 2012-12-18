@@ -99,6 +99,9 @@ public:
 	void setPositioned(bool b) { mPositioned = b; };
 
 	void onVisibilityChange(const LLSD& new_visibility);
+	bool enableGearMenuItem(const LLSD& userdata);
+	void GearDoToSelected(const LLSD& userdata);
+	bool checkGearMenuItem(const LLSD& userdata);
 
 	// Implements LLVoiceClientStatusObserver::onChange() to enable the call
 	// button when voice is available

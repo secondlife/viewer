@@ -198,6 +198,8 @@ BOOL LLFloaterIMSessionTab::postBuild()
 	mTearOffBtn = getChild<LLButton>("tear_off_btn");
 	mTearOffBtn->setCommitCallback(boost::bind(&LLFloaterIMSessionTab::onTearOffClicked, this));
 
+	mGearBtn = getChild<LLButton>("gear_btn");
+
 	mParticipantListPanel = getChild<LLLayoutPanel>("speakers_list_panel");
 	
 	// Add a scroller for the folder (participant) view
@@ -241,11 +243,11 @@ BOOL LLFloaterIMSessionTab::postBuild()
 	// Now ready to build the conversation and participants list
 	buildConversationViewParticipant();
 	refreshConversation();
-		
+
 	// Zero expiry time is set only once to allow initial update.
 	mRefreshTimer->setTimerExpirySec(0);
 	mRefreshTimer->start();
-
+	initBtns();
 	return result;
 }
 
@@ -771,6 +773,53 @@ void LLFloaterIMSessionTab::onTearOffClicked()
 		forceReshape();
 	}
 	refreshConversation();
+	updateGearBtn();
+}
+
+void LLFloaterIMSessionTab::updateGearBtn()
+{
+
+	BOOL prevVisibility = mGearBtn->getVisible();
+	mGearBtn->setVisible(checkIfTornOff() && mIsP2PChat);
+
+
+	// Move buttons if Gear button changed visibility
+	if(prevVisibility != mGearBtn->getVisible())
+	{
+		LLRect gear_btn_rect =  mGearBtn->getRect();
+		LLRect add_btn_rect = getChild<LLButton>("add_btn")->getRect();
+		LLRect call_btn_rect = getChild<LLButton>("voice_call_btn")->getRect();
+		S32 gap_width = call_btn_rect.mLeft - add_btn_rect.mRight;
+		S32 right_shift = gear_btn_rect.getWidth() + gap_width;
+		if(mGearBtn->getVisible())
+		{
+			// Move buttons to the right to give space for Gear button
+			add_btn_rect.translate(right_shift,0);
+			call_btn_rect.translate(right_shift,0);
+		}
+		else
+		{
+			add_btn_rect.translate(-right_shift,0);
+			call_btn_rect.translate(-right_shift,0);
+		}
+		getChild<LLButton>("add_btn")->setRect(add_btn_rect);
+		getChild<LLButton>("voice_call_btn")->setRect(call_btn_rect);
+	}
+}
+
+void LLFloaterIMSessionTab::initBtns()
+{
+	LLRect gear_btn_rect =  mGearBtn->getRect();
+	LLRect add_btn_rect = getChild<LLButton>("add_btn")->getRect();
+	LLRect call_btn_rect = getChild<LLButton>("voice_call_btn")->getRect();
+	S32 gap_width = call_btn_rect.mLeft - add_btn_rect.mRight;
+	S32 right_shift = gear_btn_rect.getWidth() + gap_width;
+
+	add_btn_rect.translate(-right_shift,0);
+	call_btn_rect.translate(-right_shift,0);
+
+	getChild<LLButton>("add_btn")->setRect(add_btn_rect);
+	getChild<LLButton>("voice_call_btn")->setRect(call_btn_rect);
 }
 
 // static

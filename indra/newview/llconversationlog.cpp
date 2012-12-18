@@ -191,7 +191,8 @@ LLConversationLog::LLConversationLog()
 	if (ctrl)
 	{
 		ctrl->getSignal()->connect(boost::bind(&LLConversationLog::enableLogging, this, _2));
-		if (ctrl->getValue().asBoolean())
+		if (ctrl->getValue().asBoolean()
+				&& gSavedSettings.getBOOL("KeepConversationLogTranscripts"))
 		{
 			enableLogging(true);
 		}

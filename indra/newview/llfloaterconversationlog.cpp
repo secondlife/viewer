@@ -67,7 +67,8 @@ BOOL LLFloaterConversationLog::postBuild()
 	if (ctrl)
 	{
 		ctrl->getSignal()->connect(boost::bind(&LLFloaterConversationLog::onCallLoggingEnabledDisabled, this, _2));
-		onCallLoggingEnabledDisabled(ctrl->getValue().asBoolean());
+		onCallLoggingEnabledDisabled(ctrl->getValue().asBoolean()
+				&& gSavedSettings.getBOOL("KeepConversationLogTranscripts"));
 	}
 
 	return LLFloater::postBuild();

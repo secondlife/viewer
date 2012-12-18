@@ -857,7 +857,8 @@ bool LLIMModel::addToHistory(const LLUUID& session_id, const std::string& from, 
 
 bool LLIMModel::logToFile(const std::string& file_name, const std::string& from, const LLUUID& from_id, const std::string& utf8_text)
 {
-	if (gSavedPerAccountSettings.getBOOL("LogInstantMessages"))
+	if (gSavedPerAccountSettings.getBOOL("LogInstantMessages")
+			&& gSavedSettings.getBOOL("KeepConversationLogTranscripts"))
 	{	
 		std::string from_name = from;
 
@@ -2477,8 +2478,8 @@ void LLIMMgr::addMessage(
 		new_session_id = computeSessionID(dialog, other_participant_id);
 	}
 
-	// Open conversation log if offline messages are present
-	if (is_offline_msg)
+	// Open conversation log if offline messages are present and user allows a Call Log
+	if (is_offline_msg && gSavedSettings.getBOOL("KeepConversationLogTranscripts"))
 	{
 		LLFloaterConversationLog* floater_log =
 				LLFloaterReg::getTypedInstance<LLFloaterConversationLog>("conversation");

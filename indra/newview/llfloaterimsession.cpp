@@ -83,6 +83,9 @@ LLFloaterIMSession::LLFloaterIMSession(const LLUUID& session_id)
 	setOverlapsScreenChannel(true);
 
 	LLTransientFloaterMgr::getInstance()->addControlView(LLTransientFloaterMgr::IM, this);
+    mEnableCallbackRegistrar.add("Avatar.EnableGearItem", boost::bind(&LLFloaterIMSession::enableGearMenuItem, this, _2));
+    mCommitCallbackRegistrar.add("Avatar.GearDoToSelected", boost::bind(&LLFloaterIMSession::GearDoToSelected, this, _2));
+    mEnableCallbackRegistrar.add("Avatar.CheckGearItem", boost::bind(&LLFloaterIMSession::checkGearMenuItem, this, _2));
 
 	setDocked(true);
 }
@@ -188,6 +191,36 @@ void LLFloaterIMSession::onSendMsg( LLUICtrl* ctrl, void* userdata )
 	LLFloaterIMSession* self = (LLFloaterIMSession*) userdata;
 	self->sendMsgFromInputEditor();
 	self->setTyping(false);
+}
+
+bool LLFloaterIMSession::enableGearMenuItem(const LLSD& userdata)
+{
+    std::string command = userdata.asString();
+    uuid_vec_t selected_uuids;
+    selected_uuids.push_back(mOtherParticipantUUID);
+
+	LLFloaterIMContainer* floater_container = LLFloaterIMContainer::getInstance();
+	return floater_container->enableContextMenuItem(command, selected_uuids);
+}
+
+void LLFloaterIMSession::GearDoToSelected(const LLSD& userdata)
+{
+	std::string command = userdata.asString();
+    uuid_vec_t selected_uuids;
+    selected_uuids.push_back(mOtherParticipantUUID);
+
+	LLFloaterIMContainer* floater_container = LLFloaterIMContainer::getInstance();
+	floater_container->doToParticipants(command, selected_uuids);
+}
+
+bool LLFloaterIMSession::checkGearMenuItem(const LLSD& userdata)
+{
+	std::string command = userdata.asString();
+	uuid_vec_t selected_uuids;
+	selected_uuids.push_back(mOtherParticipantUUID);
+
+	LLFloaterIMContainer* floater_container = LLFloaterIMContainer::getInstance();
+	return floater_container->checkContextMenuItem(command, selected_uuids);
 }
 
 void LLFloaterIMSession::sendMsgFromInputEditor()
