@@ -175,7 +175,7 @@ public:
 		mFailCount(0),
 		mCompletionOrFailureCalled(false),
 		mRetryCount(0),
-		LLEventTimer(retry_after)
+		LLEventTimer(5.0)
 	{
 		if (!mTrackingPhase.empty())
 		{
