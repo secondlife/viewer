@@ -424,24 +424,6 @@ void LLVOCacheEntry::calcSceneContribution(const LLVector3& camera_origin, bool 
 	setVisible();
 }
 
-U32 LLVOCacheEntry::getParentID()
-{
-	if(!(mState & CHILD))
-	{
-		return 0; //not a child
-	}
-
-	U32 parent_id = 0;
-	LLDataPackerBinaryBuffer* dp = getDP();
-	if(dp)
-	{
-		dp->reset();
-		dp->unpackU32(parent_id, "ParentID");
-		dp->reset();
-	}
-	return parent_id;
-}
-
 //-------------------------------------------------------------------
 //LLVOCachePartition
 //-------------------------------------------------------------------
@@ -471,24 +453,31 @@ void LLVOCachePartition::removeEntry(LLViewerOctreeEntry* entry)
 class LLVOCacheOctreeCull : public LLViewerOctreeCull
 {
 public:
-	LLVOCacheOctreeCull(LLCamera* camera, LLViewerRegion* regionp) : LLViewerOctreeCull(camera), mRegionp(regionp) {}
+	LLVOCacheOctreeCull(LLCamera* camera, LLViewerRegion* regionp, const LLVector3& shift) : LLViewerOctreeCull(camera), mRegionp(regionp) 
+	{
+		mLocalShift = shift;
+	}
 
 	virtual S32 frustumCheck(const LLviewerOctreeGroup* group)
 	{
-		S32 res = AABBInFrustumNoFarClipGroupBounds(group);
+		//S32 res = AABBInRegionFrustumGroupBounds(group);
+		
+		S32 res = AABBInRegionFrustumNoFarClipGroupBounds(group);
 		if (res != 0)
 		{
-			res = llmin(res, AABBSphereIntersectGroupExtents(group));
+			res = llmin(res, AABBRegionSphereIntersectGroupExtents(group, mLocalShift));
 		}
 		return res;
 	}
 
 	virtual S32 frustumCheckObjects(const LLviewerOctreeGroup* group)
 	{
-		S32 res = AABBInFrustumNoFarClipObjectBounds(group);
+		//S32 res = AABBInRegionFrustumObjectBounds(group);
+
+		S32 res = AABBInRegionFrustumNoFarClipObjectBounds(group);
 		if (res != 0)
 		{
-			res = llmin(res, AABBSphereIntersectObjectExtents(group));
+			res = llmin(res, AABBRegionSphereIntersectObjectExtents(group, mLocalShift));
 		}
 		return res;
 	}
@@ -500,10 +489,16 @@ public:
 
 private:
 	LLViewerRegion* mRegionp;
+	LLVector3       mLocalShift; //shift vector from agent space to local region space.
 };
 
 S32 LLVOCachePartition::cull(LLCamera &camera)
 {
+	if(!LLViewerRegion::sVOCacheCullingEnabled)
+	{
+		return 0;
+	}
+
 	if(mVisitedTime == LLViewerOctreeEntryData::getCurrentFrame())
 	{
 		return 0; //already visited.
@@ -511,8 +506,12 @@ S32 LLVOCachePartition::cull(LLCamera &camera)
 	mVisitedTime = LLViewerOctreeEntryData::getCurrentFrame();
 
 	((LLviewerOctreeGroup*)mOctree->getListener(0))->rebound();
-		
-	LLVOCacheOctreeCull culler(&camera, mRegionp);
+
+	//localize the camera
+	LLVector3 region_agent = mRegionp->getOriginAgent();
+	camera.calcRegionFrustumPlanes(region_agent);
+
+	LLVOCacheOctreeCull culler(&camera, mRegionp, region_agent);
 	culler.traverse(mOctree);
 
 	return 0;

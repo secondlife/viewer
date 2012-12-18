@@ -98,7 +98,6 @@ public:
 	S32 getHitCount() const			{ return mHitCount; }
 	S32 getCRCChangeCount() const	{ return mCRCChangeCount; }
 	S32 getMinVisFrameRange()const;	
-	U32 getParentID();
 
 	void calcSceneContribution(const LLVector3& camera_origin, bool needs_update, U32 last_update);
 	void setSceneContribution(F32 scene_contrib) {mSceneContrib = scene_contrib;}
@@ -118,7 +117,6 @@ public:
 	LLVOCacheEntry* getChild(S32 i) {return mChildrenList[i];}
 	S32  getNumOfChildren()         {return mChildrenList.size();}
 	void clearChildrenList()        {mChildrenList.clear();}
-	bool isDummy()                  {return !mBuffer;}	
 
 public:
 	typedef std::map<U32, LLPointer<LLVOCacheEntry> >	   vocache_entry_map_t;
