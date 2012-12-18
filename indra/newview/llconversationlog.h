@@ -141,7 +141,14 @@ public:
 private:
 
 	LLConversationLog();
-
+	virtual ~LLConversationLog()
+	{
+		if (mAvatarNameCacheConnection.connected())
+		{
+			mAvatarNameCacheConnection.disconnect();
+		}
+	}
+	
 	void enableLogging(bool enable);
 
 	/**
@@ -176,6 +183,7 @@ private:
 	LLFriendObserver* mFriendObserver;		// Observer of the LLAvatarTracker instance
 
 	boost::signals2::connection newMessageSignalConnection;
+	boost::signals2::connection mAvatarNameCacheConnection;
 };
 
 class LLConversationLogObserver

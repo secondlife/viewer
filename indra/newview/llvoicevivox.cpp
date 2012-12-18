@@ -316,7 +316,9 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 	mCaptureBufferRecording(false),
 	mCaptureBufferRecorded(false),
 	mCaptureBufferPlaying(false),
-	mPlayRequestCount(0)
+	mPlayRequestCount(0),
+
+	mAvatarNameCacheConnection()
 {	
 	mSpeakerVolume = scale_speaker_volume(0);
 
@@ -349,6 +351,10 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 
 LLVivoxVoiceClient::~LLVivoxVoiceClient()
 {
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
 }
 
 //---------------------------------------------------
@@ -6192,9 +6198,11 @@ void LLVivoxVoiceClient::notifyFriendObservers()
 
 void LLVivoxVoiceClient::lookupName(const LLUUID &id)
 {
-	LLAvatarNameCache::get(id,
-		boost::bind(&LLVivoxVoiceClient::onAvatarNameCache,
-			this, _1, _2));
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
+	mAvatarNameCacheConnection = LLAvatarNameCache::get(id, boost::bind(&LLVivoxVoiceClient::onAvatarNameCache, this, _1, _2));
 }
 
 void LLVivoxVoiceClient::onAvatarNameCache(const LLUUID& agent_id,

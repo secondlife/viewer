@@ -185,7 +185,8 @@ void LLConversationLogFriendObserver::changed(U32 mask)
 /*             LLConversationLog implementation                         */
 /************************************************************************/
 
-LLConversationLog::LLConversationLog()
+LLConversationLog::LLConversationLog() :
+	mAvatarNameCacheConnection()
 {
 	LLControlVariable* ctrl = gSavedPerAccountSettings.getControl("LogInstantMessages").get();
 	if (ctrl)
@@ -251,7 +252,11 @@ void LLConversationLog::createConversation(const LLIMModel::LLIMSession* session
 
 		if (LLIMModel::LLIMSession::P2P_SESSION == session->mSessionType)
 		{
-			LLAvatarNameCache::get(session->mOtherParticipantID, boost::bind(&LLConversationLog::onAvatarNameCache, this, _1, _2, session));
+			if (mAvatarNameCacheConnection.connected())
+			{
+				mAvatarNameCacheConnection.disconnect();
+			}
+			mAvatarNameCacheConnection = LLAvatarNameCache::get(session->mOtherParticipantID, boost::bind(&LLConversationLog::onAvatarNameCache, this, _1, _2, session));
 		}
 
 		notifyObservers();

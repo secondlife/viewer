@@ -421,16 +421,15 @@ LLConversationItemParticipant::~LLConversationItemParticipant()
 
 void LLConversationItemParticipant::fetchAvatarName()
 {
-	// Disconnect any previous avatar name cache connection
-	if (mAvatarNameCacheConnection.connected())
-	{
-		mAvatarNameCacheConnection.disconnect();
-	}
-
 	// Request the avatar name from the cache
 	llassert(getUUID().notNull());
 	if (getUUID().notNull())
 	{
+		// Disconnect any previous avatar name cache connection
+		if (mAvatarNameCacheConnection.connected())
+		{
+			mAvatarNameCacheConnection.disconnect();
+		}
 		mAvatarNameCacheConnection = LLAvatarNameCache::get(getUUID(), boost::bind(&LLConversationItemParticipant::onAvatarNameCache, this, _2));
 	}
 }

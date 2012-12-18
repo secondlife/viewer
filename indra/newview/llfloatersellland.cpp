@@ -81,6 +81,7 @@ private:
 	LLUUID					mAuthorizedBuyer;
 	bool					mParcelSoldWithObjects;
 	SelectionObserver 		mParcelSelectionObserver;
+	boost::signals2::connection mAvatarNameCacheConnection;
 	
 	void updateParcelInfo();
 	void refreshUI();
@@ -129,13 +130,18 @@ LLFloater* LLFloaterSellLand::buildFloater(const LLSD& key)
 LLFloaterSellLandUI::LLFloaterSellLandUI(const LLSD& key)
 :	LLFloater(key),
 	mParcelSelectionObserver(this),
-	mRegion(0)
+	mRegion(0),
+	mAvatarNameCacheConnection()
 {
 	LLViewerParcelMgr::getInstance()->addObserver(&mParcelSelectionObserver);
 }
 
 LLFloaterSellLandUI::~LLFloaterSellLandUI()
 {
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
 	LLViewerParcelMgr::getInstance()->removeObserver(&mParcelSelectionObserver);
 }
 
@@ -230,8 +236,11 @@ void LLFloaterSellLandUI::updateParcelInfo()
 
 	if(mSellToBuyer)
 	{
-		LLAvatarNameCache::get(mAuthorizedBuyer, 
-			boost::bind(&LLFloaterSellLandUI::onBuyerNameCache, this, _2));
+		if (mAvatarNameCacheConnection.connected())
+		{
+			mAvatarNameCacheConnection.disconnect();
+		}
+		mAvatarNameCacheConnection = LLAvatarNameCache::get(mAuthorizedBuyer, boost::bind(&LLFloaterSellLandUI::onBuyerNameCache, this, _2));
 	}
 }
 

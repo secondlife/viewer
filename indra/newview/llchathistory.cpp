@@ -539,13 +539,12 @@ private:
 
 	void fetchAvatarName()
 	{
-		if (mAvatarNameCacheConnection.connected())
-		{
-			mAvatarNameCacheConnection.disconnect();
-		}
-		
 		if (mAvatarID.notNull())
 		{
+			if (mAvatarNameCacheConnection.connected())
+			{
+				mAvatarNameCacheConnection.disconnect();
+			}
 			mAvatarNameCacheConnection = LLAvatarNameCache::get(mAvatarID,
 				boost::bind(&LLChatHistoryHeader::onAvatarNameCache, this, _1, _2));
 		}

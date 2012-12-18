@@ -261,13 +261,12 @@ void LLAvatarIconCtrl::setValue(const LLSD& value)
 
 void LLAvatarIconCtrl::fetchAvatarName()
 {
-	if (mAvatarNameCacheConnection.connected())
-	{
-		mAvatarNameCacheConnection.disconnect();
-	}
-
 	if (mAvatarId.notNull())
 	{
+		if (mAvatarNameCacheConnection.connected())
+		{
+			mAvatarNameCacheConnection.disconnect();
+		}
 		mAvatarNameCacheConnection = LLAvatarNameCache::get(mAvatarId, boost::bind(&LLAvatarIconCtrl::onAvatarNameCache, this, _1, _2));
 	}
 }

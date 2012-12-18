@@ -38,7 +38,7 @@ class LLPanelPlaceProfile : public LLPanelPlaceInfo
 public:
 	LLPanelPlaceProfile();
 	/*virtual*/ ~LLPanelPlaceProfile();
-
+	
 	/*virtual*/ BOOL postBuild();
 
 	/*virtual*/ void resetLocation();
@@ -116,6 +116,8 @@ private:
 	LLTextEditor*		mResaleText;
 	LLTextBox*			mSaleToText;
 	LLAccordionCtrl*	mAccordionCtrl;
+
+	boost::signals2::connection mAvatarNameCacheConnection;
 };
 
 #endif // LL_LLPANELPLACEPROFILE_H

@@ -94,7 +94,7 @@ void LLAvatarActions::requestFriendshipDialog(const LLUUID& id, const std::strin
 	LLRecentPeople::instance().add(id);
 }
 
-void on_avatar_name_friendship(const LLUUID& id, const LLAvatarName av_name)
+static void on_avatar_name_friendship(const LLUUID& id, const LLAvatarName av_name)
 {
 	LLAvatarActions::requestFriendshipDialog(id, av_name.getCompleteName());
 }
@@ -195,8 +195,7 @@ void LLAvatarActions::startIM(const LLUUID& id)
 	if (id.isNull())
 		return;
 
-	LLAvatarNameCache::get(id,
-		boost::bind(&on_avatar_name_cache_start_im, _1, _2));
+	LLAvatarNameCache::get(id, boost::bind(&on_avatar_name_cache_start_im, _1, _2));
 }
 
 // static
@@ -231,8 +230,7 @@ void LLAvatarActions::startCall(const LLUUID& id)
 	{
 		return;
 	}
-	LLAvatarNameCache::get(id,
-		boost::bind(&on_avatar_name_cache_start_call, _1, _2));
+	LLAvatarNameCache::get(id, boost::bind(&on_avatar_name_cache_start_call, _1, _2));
 }
 
 // static

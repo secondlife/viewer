@@ -743,13 +743,18 @@ LLPanelGroupMembersSubTab::LLPanelGroupMembersSubTab()
 	mChanged(FALSE),
 	mPendingMemberUpdate(FALSE),
 	mHasMatch(FALSE),
-	mNumOwnerAdditions(0)
+	mNumOwnerAdditions(0),
+	mAvatarNameCacheConnection()
 {
 	mUdpateSessionID = LLUUID::null;
 }
 
 LLPanelGroupMembersSubTab::~LLPanelGroupMembersSubTab()
 {
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
 	if (mMembersList)
 	{
 		gSavedSettings.setString("GroupMembersSortOrder", mMembersList->getSortColumnName());
@@ -1678,8 +1683,12 @@ void LLPanelGroupMembersSubTab::updateMembers()
 		else
 		{
 			// If name is not cached, onNameCache() should be called when it is cached and add this member to list.
-			LLAvatarNameCache::get(mMemberProgress->first, boost::bind(&LLPanelGroupMembersSubTab::onNameCache,
-																	   this, mUdpateSessionID, mMemberProgress->second, _1, _2));
+			// *TODO : Add one callback per fetched avatar name
+			if (mAvatarNameCacheConnection.connected())
+			{
+				mAvatarNameCacheConnection.disconnect();
+			}
+			mAvatarNameCacheConnection = LLAvatarNameCache::get(mMemberProgress->first, boost::bind(&LLPanelGroupMembersSubTab::onNameCache, this, mUdpateSessionID, mMemberProgress->second, _1, _2));
 		}
 	}
 

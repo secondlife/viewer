@@ -89,6 +89,8 @@ public:
 	void (*mCloseCallback)(void* data);
 
 	void* mCloseCallbackUserData;
+
+	boost::signals2::connection mAvatarNameCacheConnection;
 };
 
 
@@ -102,12 +104,17 @@ LLPanelGroupInvite::impl::impl(const LLUUID& group_id):
 	mGroupName( NULL ),
 	mConfirmedOwnerInvite( false ),
 	mCloseCallback( NULL ),
-	mCloseCallbackUserData( NULL )
+	mCloseCallbackUserData( NULL ),
+	mAvatarNameCacheConnection()
 {
 }
 
 LLPanelGroupInvite::impl::~impl()
 {
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
 }
 
 void LLPanelGroupInvite::impl::addUsers(const std::vector<std::string>& names,
@@ -380,8 +387,24 @@ void LLPanelGroupInvite::impl::callbackAddUsers(const uuid_vec_t& agent_ids, voi
 	std::vector<std::string> names;
 	for (S32 i = 0; i < (S32)agent_ids.size(); i++)
 	{
-		LLAvatarNameCache::get(agent_ids[i],
-			boost::bind(&LLPanelGroupInvite::impl::onAvatarNameCache, _1, _2, user_data));
+		LLAvatarName av_name;
+		if (LLAvatarNameCache::get(agent_ids[i], &av_name))
+		{
+			LLPanelGroupInvite::impl::onAvatarNameCache(agent_ids[i], av_name, user_data);
+		}
+		else 
+		{
+			impl* selfp = (impl*) user_data;
+			if (selfp)
+			{
+				if (selfp->mAvatarNameCacheConnection.connected())
+				{
+					selfp->mAvatarNameCacheConnection.disconnect();
+				}
+				// *TODO : Add a callback per avatar name being fetched.
+				selfp->mAvatarNameCacheConnection = LLAvatarNameCache::get(agent_ids[i],boost::bind(&LLPanelGroupInvite::impl::onAvatarNameCache, _1, _2, user_data));
+			}
+		}
 	}	
 	
 }
@@ -473,8 +496,7 @@ void LLPanelGroupInvite::addUsers(uuid_vec_t& agent_ids)
 				if (!LLAvatarNameCache::get(agent_id, &av_name))
 				{
 					// actually it should happen, just in case
-					LLAvatarNameCache::get(LLUUID(agent_id), boost::bind(
-							&LLPanelGroupInvite::addUserCallback, this, _1, _2));
+					//LLAvatarNameCache::get(LLUUID(agent_id), boost::bind(&LLPanelGroupInvite::addUserCallback, this, _1, _2));
 					// for this special case!
 					//when there is no cached name we should remove resident from agent_ids list to avoid breaking of sequence
 					// removed id will be added in callback

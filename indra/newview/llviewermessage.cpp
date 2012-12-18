@@ -2254,7 +2254,7 @@ static std::string clean_name_from_task_im(const std::string& msg,
 	return msg;
 }
 
-void notification_display_name_callback(const LLUUID& id,
+static void notification_display_name_callback(const LLUUID& id,
 					  const LLAvatarName& av_name,
 					  const std::string& name, 
 					  LLSD& substitutions, 
@@ -2278,7 +2278,7 @@ protected:
 };
 
 // Callback for name resolution of a god/estate message
-void god_message_name_cb(const LLAvatarName& av_name, LLChat chat, std::string message)
+static void god_message_name_cb(const LLAvatarName& av_name, LLChat chat, std::string message)
 {	
 	LLSD args;
 	args["NAME"] = av_name.getCompleteName();
@@ -3212,12 +3212,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			args["NAME"] = name;
 			LLSD payload;
 			payload["from_id"] = from_id;
-			LLAvatarNameCache::get(from_id, boost::bind(&notification_display_name_callback,
-														 _1,
-														 _2,
-														 "FriendshipAccepted",
-														 args,
-														 payload));
+			LLAvatarNameCache::get(from_id, boost::bind(&notification_display_name_callback,_1,_2,"FriendshipAccepted",args,payload));
 		}
 		break;
 
@@ -5651,11 +5646,9 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 									_1, _2, _3,
 									notification, final_args, payload));
 	}
-	else {
-		LLAvatarNameCache::get(name_id,
-							   boost::bind(&money_balance_avatar_notify,
-										   _1, _2,
-										   notification, final_args, payload));										   
+	else 
+	{
+		LLAvatarNameCache::get(name_id, boost::bind(&money_balance_avatar_notify, _1, _2, notification, final_args, payload));										   
 	}
 }
 

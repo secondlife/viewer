@@ -143,13 +143,12 @@ BOOL  LLAvatarListItem::postBuild()
 
 void LLAvatarListItem::fetchAvatarName()
 {
-	if (mAvatarNameCacheConnection.connected())
-	{
-		mAvatarNameCacheConnection.disconnect();
-	}
-
 	if (mAvatarId.notNull())
 	{
+		if (mAvatarNameCacheConnection.connected())
+		{
+			mAvatarNameCacheConnection.disconnect();
+		}
 		mAvatarNameCacheConnection = LLAvatarNameCache::get(getAvatarId(), boost::bind(&LLAvatarListItem::onAvatarNameCache, this, _2));
 	}
 }

@@ -53,6 +53,7 @@ namespace LLViewerDisplayName
 		sNameChangedSignal.connect(cb); 
 	}
 
+	void doNothing() { }
 }
 
 class LLSetDisplayNameResponder : public LLHTTPClient::Responder
@@ -139,9 +140,9 @@ public:
 			LLUUID agent_id = gAgent.getID();
 			// Flush stale data
 			LLAvatarNameCache::erase( agent_id );
-			// Queue request for new data
-			LLAvatarName ignored;
-			LLAvatarNameCache::get( agent_id, &ignored );
+			// Queue request for new data: nothing to do on callback though...
+			// Note: no need to disconnect the callback as it never gets out of scope
+			LLAvatarNameCache::get(agent_id, boost::bind(&LLViewerDisplayName::doNothing));
 			// Kill name tag, as it is wrong
 			LLVOAvatar::invalidateNameTag( agent_id );
 		}

@@ -81,12 +81,14 @@ private:
 	LLUUID				mAvatarID;
 	// Need avatar name information to spawn friend add request
 	LLAvatarName		mAvatarName;
+	boost::signals2::connection mAvatarNameCacheConnection;
 };
 
 LLFloaterVoiceVolume::LLFloaterVoiceVolume(const LLSD& sd)
 :	LLInspect(LLSD())		// single_instance, doesn't really need key
 ,	mAvatarID()				// set in onOpen()  *Note: we used to show partner's name but we dont anymore --angela 3rd Dec*
 ,	mAvatarName()
+,   mAvatarNameCacheConnection()
 {
 	LLTransientFloaterMgr::getInstance()->addControlView(LLTransientFloaterMgr::GLOBAL, this);
 	LLTransientFloater::init(this);
@@ -94,6 +96,10 @@ LLFloaterVoiceVolume::LLFloaterVoiceVolume(const LLSD& sd)
 
 LLFloaterVoiceVolume::~LLFloaterVoiceVolume()
 {
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
 	LLTransientFloaterMgr::getInstance()->removeControlView(this);
 }
 
@@ -126,8 +132,11 @@ void LLFloaterVoiceVolume::onOpen(const LLSD& data)
 	getChild<LLUICtrl>("avatar_name")->setValue("");
 	updateVolumeControls();
 
-	LLAvatarNameCache::get(mAvatarID,
-		boost::bind(&LLFloaterVoiceVolume::onAvatarNameCache, this, _1, _2));
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
+	mAvatarNameCacheConnection = LLAvatarNameCache::get(mAvatarID, boost::bind(&LLFloaterVoiceVolume::onAvatarNameCache, this, _1, _2));
 }
 
 void LLFloaterVoiceVolume::updateVolumeControls()

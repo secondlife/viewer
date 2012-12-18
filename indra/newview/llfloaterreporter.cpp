@@ -103,7 +103,8 @@ LLFloaterReporter::LLFloaterReporter(const LLSD& key)
 	mPicking( FALSE), 
 	mPosition(),
 	mCopyrightWarningSeen( FALSE ),
-	mResourceDatap(new LLResourceData())
+	mResourceDatap(new LLResourceData()),
+	mAvatarNameCacheConnection()
 {
 }
 
@@ -187,6 +188,11 @@ BOOL LLFloaterReporter::postBuild()
 // virtual
 LLFloaterReporter::~LLFloaterReporter()
 {
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
+
 	// child views automatically deleted
 	mObjectID 		= LLUUID::null;
 
@@ -313,7 +319,11 @@ void LLFloaterReporter::setFromAvatarID(const LLUUID& avatar_id)
 	std::string avatar_link = LLSLURL("agent", mObjectID, "inspect").getSLURLString();
 	getChild<LLUICtrl>("owner_name")->setValue(avatar_link);
 
-	LLAvatarNameCache::get(avatar_id, boost::bind(&LLFloaterReporter::onAvatarNameCache, this, _1, _2));
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
+	mAvatarNameCacheConnection = LLAvatarNameCache::get(avatar_id, boost::bind(&LLFloaterReporter::onAvatarNameCache, this, _1, _2));
 }
 
 void LLFloaterReporter::onAvatarNameCache(const LLUUID& avatar_id, const LLAvatarName& av_name)

@@ -253,7 +253,8 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 	mTextIMPossible(true),
 	mOtherParticipantIsAvatar(true),
 	mStartCallOnInitialize(false),
-	mStartedAsIMCall(voice)
+	mStartedAsIMCall(voice),
+	mAvatarNameCacheConnection()
 {
 	// set P2P type by default
 	mSessionType = P2P_SESSION;
@@ -334,9 +335,7 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 	// history files have consistent (English) names in different locales.
 	if (isAdHocSessionType() && IM_SESSION_INVITE == mType)
 	{
-		LLAvatarNameCache::get(mOtherParticipantID,
-							   boost::bind(&LLIMModel::LLIMSession::onAdHocNameCache,
-							   this, _2));
+		mAvatarNameCacheConnection = LLAvatarNameCache::get(mOtherParticipantID,boost::bind(&LLIMModel::LLIMSession::onAdHocNameCache,this, _2));
 	}
 }
 
@@ -450,6 +449,11 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 
 LLIMModel::LLIMSession::~LLIMSession()
 {
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
+
 	delete mSpeakers;
 	mSpeakers = NULL;
 
@@ -2056,7 +2060,8 @@ BOOL LLOutgoingCallDialog::postBuild()
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 LLIncomingCallDialog::LLIncomingCallDialog(const LLSD& payload) :
-LLCallDialog(payload)
+LLCallDialog(payload),
+mAvatarNameCacheConnection()
 {
 }
 
@@ -2126,9 +2131,11 @@ BOOL LLIncomingCallDialog::postBuild()
 	else
 	{
 		// Get the full name information
-		LLAvatarNameCache::get(caller_id,
-			boost::bind(&LLIncomingCallDialog::onAvatarNameCache,
-				this, _1, _2, call_type));
+		if (mAvatarNameCacheConnection.connected())
+		{
+			mAvatarNameCacheConnection.disconnect();
+		}
+		mAvatarNameCacheConnection = LLAvatarNameCache::get(caller_id, boost::bind(&LLIncomingCallDialog::onAvatarNameCache, this, _1, _2, call_type));
 	}
 
 	setIcon(session_id, caller_id);

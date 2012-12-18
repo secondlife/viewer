@@ -1832,6 +1832,7 @@ void LLScrollListCtrl::copyNameToClipboard(std::string id, bool is_group)
 	{
 		LLAvatarName av_name;
 		LLAvatarNameCache::get(LLUUID(id), &av_name);
+		// Note: Will return an empty string if the avatar name was not cached for that id. Fine in that case.
 		name = av_name.getUserName();
 	}
 	LLUrlAction::copyURLToClipboard(name);

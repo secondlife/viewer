@@ -142,6 +142,7 @@ public:
 		void onAdHocNameCache(const LLAvatarName& av_name);
 
 		static LLUUID generateHash(const std::set<LLUUID>& sorted_uuids);
+		boost::signals2::connection mAvatarNameCacheConnection;
 	};
 	
 
@@ -547,7 +548,14 @@ class LLIncomingCallDialog : public LLCallDialog
 {
 public:
 	LLIncomingCallDialog(const LLSD& payload);
-
+	~LLIncomingCallDialog()
+	{
+		if (mAvatarNameCacheConnection.connected())
+		{
+			mAvatarNameCacheConnection.disconnect();
+		}
+	}
+	
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 
@@ -563,6 +571,8 @@ private:
 	void onAvatarNameCache(const LLUUID& agent_id,
 		const LLAvatarName& av_name,
 		const std::string& call_type);
+
+	boost::signals2::connection mAvatarNameCacheConnection;
 
 	/*virtual*/ void onLifetimeExpired();
 };

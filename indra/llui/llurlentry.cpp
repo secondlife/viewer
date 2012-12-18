@@ -340,7 +340,8 @@ std::string LLUrlEntrySLURL::getLocation(const std::string &url) const
 // secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
 // x-grid-location-info://lincoln.lindenlab.com/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
 //
-LLUrlEntryAgent::LLUrlEntryAgent()
+LLUrlEntryAgent::LLUrlEntryAgent() :
+	mAvatarNameCacheConnection()
 {
 	mPattern = boost::regex(APP_HEADER_REGEX "/agent/[\\da-f-]+/\\w+",
 							boost::regex::perl|boost::regex::icase);
@@ -456,9 +457,11 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 	}
 	else
 	{
-		LLAvatarNameCache::get(agent_id,
-			boost::bind(&LLUrlEntryAgent::onAvatarNameCache,
-				this, _1, _2));
+		if (mAvatarNameCacheConnection.connected())
+		{
+			mAvatarNameCacheConnection.disconnect();
+		}
+		mAvatarNameCacheConnection = LLAvatarNameCache::get(agent_id, boost::bind(&LLUrlEntryAgent::onAvatarNameCache, this, _1, _2));
 		addObserver(agent_id_string, url, cb);
 		return LLTrans::getString("LoadingData");
 	}
@@ -515,7 +518,8 @@ std::string LLUrlEntryAgent::getIcon(const std::string &url)
 // secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/(completename|displayname|username)
 // x-grid-location-info://lincoln.lindenlab.com/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/(completename|displayname|username)
 //
-LLUrlEntryAgentName::LLUrlEntryAgentName()
+LLUrlEntryAgentName::LLUrlEntryAgentName() :
+	mAvatarNameCacheConnection()
 {}
 
 void LLUrlEntryAgentName::onAvatarNameCache(const LLUUID& id,
@@ -554,9 +558,11 @@ std::string LLUrlEntryAgentName::getLabel(const std::string &url, const LLUrlLab
 	}
 	else
 	{
-		LLAvatarNameCache::get(agent_id,
-			boost::bind(&LLUrlEntryAgentCompleteName::onAvatarNameCache,
-				this, _1, _2));
+		if (mAvatarNameCacheConnection.connected())
+		{
+			mAvatarNameCacheConnection.disconnect();
+		}
+		mAvatarNameCacheConnection = LLAvatarNameCache::get(agent_id, boost::bind(&LLUrlEntryAgentCompleteName::onAvatarNameCache, this, _1, _2));
 		addObserver(agent_id_string, url, cb);
 		return LLTrans::getString("LoadingData");
 	}

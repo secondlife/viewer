@@ -1814,15 +1814,13 @@ void LLPostponedNotification::onGroupNameCache(const LLUUID& id,
 
 void LLPostponedNotification::fetchAvatarName(const LLUUID& id)
 {
-	if (mAvatarNameCacheConnection.connected())
-	{
-		mAvatarNameCacheConnection.disconnect();
-	}
-
 	if (id.notNull())
 	{
-		mAvatarNameCacheConnection = LLAvatarNameCache::get(id,
-			boost::bind(&LLPostponedNotification::onAvatarNameCache, this, _1, _2));
+		if (mAvatarNameCacheConnection.connected())
+		{
+			mAvatarNameCacheConnection.disconnect();
+		}
+		mAvatarNameCacheConnection = LLAvatarNameCache::get(id, boost::bind(&LLPostponedNotification::onAvatarNameCache, this, _1, _2));
 	}
 }
 

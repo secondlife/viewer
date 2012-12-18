@@ -88,6 +88,7 @@ private:
 	// an in-flight request for avatar properties from LLAvatarPropertiesProcessor
 	// is represented by this object
 	LLFetchAvatarData*	mPropertiesRequest;
+	boost::signals2::connection mAvatarNameCacheConnection;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -140,7 +141,8 @@ LLInspectAvatar::LLInspectAvatar(const LLSD& sd)
 :	LLInspect( LLSD() ),	// single_instance, doesn't really need key
 	mAvatarID(),			// set in onOpen()  *Note: we used to show partner's name but we dont anymore --angela 3rd Dec* 
 	mAvatarName(),
-	mPropertiesRequest(NULL)
+	mPropertiesRequest(NULL),
+	mAvatarNameCacheConnection()
 {
 	// can't make the properties request until the widgets are constructed
 	// as it might return immediately, so do it in onOpen.
@@ -151,6 +153,10 @@ LLInspectAvatar::LLInspectAvatar(const LLSD& sd)
 
 LLInspectAvatar::~LLInspectAvatar()
 {
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
 	// clean up any pending requests so they don't call back into a deleted
 	// view
 	delete mPropertiesRequest;
@@ -226,9 +232,11 @@ void LLInspectAvatar::requestUpdate()
 
 	getChild<LLUICtrl>("avatar_icon")->setValue(LLSD(mAvatarID) );
 
-	LLAvatarNameCache::get(mAvatarID,
-			boost::bind(&LLInspectAvatar::onAvatarNameCache,
-				this, _1, _2));
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
+	mAvatarNameCacheConnection = LLAvatarNameCache::get(mAvatarID,boost::bind(&LLInspectAvatar::onAvatarNameCache,this, _1, _2));
 }
 
 void LLInspectAvatar::processAvatarData(LLAvatarData* data)

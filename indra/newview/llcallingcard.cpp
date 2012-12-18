@@ -704,9 +704,7 @@ void LLAvatarTracker::processNotify(LLMessageSystem* msg, bool online)
 		if(chat_notify)
 		{
 			// Look up the name of this agent for the notification
-			LLAvatarNameCache::get(agent_id,
-				boost::bind(&on_avatar_name_cache_notify,
-					_1, _2, online, payload));
+			LLAvatarNameCache::get(agent_id,boost::bind(&on_avatar_name_cache_notify,_1, _2, online, payload));
 		}
 
 		mModifyMask |= LLFriendObserver::ONLINE;

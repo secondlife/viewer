@@ -641,6 +641,7 @@ protected:
 	void lookupName(const LLUUID &id);
 	void onAvatarNameCache(const LLUUID& id, const LLAvatarName& av_name);
 	void avatarNameResolved(const LLUUID &id, const std::string &name);
+	boost::signals2::connection mAvatarNameCacheConnection;
 
 	/////////////////////////////
 	// Voice fonts
