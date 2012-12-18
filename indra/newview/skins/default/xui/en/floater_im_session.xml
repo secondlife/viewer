@@ -79,6 +79,21 @@
                  tool_tip="View/sort options"
                  top="5"
                  width="31" />
+             <menu_button
+				 menu_filename="menu_im_conversation.xml"
+				 follows="top|left"
+				 height="25"
+				 image_hover_unselected="Toolbar_Middle_Over"
+				 image_overlay="OptionsMenu_Off"
+				 image_selected="Toolbar_Middle_Selected"
+				 image_unselected="Toolbar_Middle_Off"
+				 layout="topleft"
+			 	 top="5"
+			 	 left_pad="4"
+				 name="gear_btn"
+				 visible="false"
+				 tool_tip="Actions on selected person"
+				 width="31"/>
              <button
                  enabled="false"
                  follows="top|left"
