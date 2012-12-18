@@ -1,8 +1,8 @@
 /** 
- * @file mac_crash_logger.cpp
- * @brief Mac OSX crash logger implementation
+ * @file MacUpdaterAppDelegate.h
+ * @brief 
  *
- * $LicenseInfo:firstyear=2003&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2006&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -24,32 +24,37 @@
  * $/LicenseInfo$
  */
 
-#include "linden_common.h"
-#include "llcrashloggermac.h"
-#include "indra_constants.h"
 
+#import <Cocoa/Cocoa.h>
 #include <iostream>
-    
-int main(int argc, char **argv)
+#include "mac_updater.h"
+
+#ifndef LL_MAC_UPDATE_DELEGATE_H
+#define LL_MAC_UPDATE_DELEGATE_H
+
+@interface MacUpdaterAppDelegate : NSObject <NSApplicationDelegate>
 {
-	LLCrashLoggerMac app;
-	app.parseCommandOptions(argc, argv);
-
-	if (! app.init())
-	{
-		llwarns << "Unable to initialize application." << llendl;
-		return 1;
-	}
-    if (app.getCrashBehavior() != CRASH_BEHAVIOR_ALWAYS_SEND)
-    {
-//        return NSApplicationMain(argc, (const char **)argv);
-    }
-
-	app.mainLoop();
-
-	app.cleanup();
-
-	llinfos << "Crash reporter finished normally." << llendl;
-    
-	return 0;
+    IBOutlet NSProgressIndicator *mProgressBar;
+    IBOutlet NSTextField *mProgressText;
 }
+- (void)setWindow:(NSWindow *)newWindow;
+- (NSWindow *)window;
+- (IBAction)cancel:(id)sender;
+- (void) setProgress:(int)cur max:(int) max;
+- (void) setProgressText:(const std::string&)str;
+- (int) parse_args:(NSArray *) args;
+- (void)stopAlert;
+- (void)stopAlertDidEnd:(NSAlert *)alert returnCode:(int)returnCode contextInfo:(void *)contextInfo;
+
+
+NSWindow *_window;
+bool mAnimated;
+double mProgressPercentage;
+@property (assign) IBOutlet NSWindow *window;
+LLMacUpdater mUpdater;
+
+@end
+
+#endif //LL_MAC_UPDATE_DELEGATE_H
+
+

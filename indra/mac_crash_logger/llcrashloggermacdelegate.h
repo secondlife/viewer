@@ -1,8 +1,8 @@
 /** 
- * @file llversionviewer.h
- * @brief
+ * @file llcrashloggermacdelegate.h
+ * @brief Mac OSX crash logger implementation
  *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2003&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -24,18 +24,29 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVERSIONVIEWER_H
-#define LL_LLVERSIONVIEWER_H
+/*
+#import <Cocoa/Cocoa.h>
 
-const S32 LL_VERSION_MAJOR = 3;
-const S32 LL_VERSION_MINOR = 4;
-const S32 LL_VERSION_PATCH = 5;
-const S32 LL_VERSION_BUILD = 0;
+@interface LLCrashLoggerMacDelegate : NSObject <NSApplicationDelegate>
+{
+    IBOutlet NSTextField *crashText;
+    IBOutlet NSButton *rememberCheck;
+    
+    NSWindow *_window;
+    bool mRemember;
 
-const char * const LL_CHANNEL = "Second Life Developer";
+}
 
-#if LL_DARWIN
-const char * const LL_VERSION_BUNDLE_ID = "com.secondlife.indra.viewer";
-#endif
+- (void)setWindow:(NSWindow *)newWindow;
+- (NSWindow *)window;
 
-#endif
+- (IBAction)remember:(id)sender;
+- (IBAction)send:(id)sender;
+- (IBAction)cancel:(id)sender;
+
+@property (assign) IBOutlet NSWindow *window;
+
+@end
+*/
+
+
