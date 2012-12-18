@@ -96,6 +96,8 @@ public:
 	virtual void updateMessages() {}
 	LLConversationItem* getCurSelectedViewModelItem();
 
+	void forceReshape();
+
 protected:
 
 	// callback for click on any items of the visual states menu

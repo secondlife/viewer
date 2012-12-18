@@ -177,6 +177,7 @@ void LLFloaterIMSessionTab::addToHost(const LLUUID& session_id)
 				// LLFloater::mLastHostHandle = floater_container (a "future" host)
 				conversp->setHost(floater_container);
 				conversp->setHost(NULL);
+				conversp->forceReshape();
 			}
 			// Added floaters share some state (like sort order) with their host
 			conversp->setSortOrder(floater_container->getSortOrder());
@@ -224,7 +225,8 @@ BOOL LLFloaterIMSessionTab::postBuild()
 
 	setOpenPositioning(LLFloaterEnums::POSITIONING_RELATIVE);
 
-	mSaveRect = isTornOff();
+	mSaveRect = isNearbyChat()
+					&&  !gSavedSettings.getBOOL("NearbyChatIsNotTornOff");
 	initRectControl();
 
 	if (isChatMultiTab())
@@ -649,6 +651,15 @@ void LLFloaterIMSessionTab::updateHeaderAndToolbar()
 
 	showTranslationCheckbox();
 }
+ 
+void LLFloaterIMSessionTab::forceReshape()
+{
+    LLRect floater_rect = getRect();
+    reshape(llmax(floater_rect.getWidth(), this->getMinWidth()),
+    		llmax(floater_rect.getHeight(), this->getMinHeight()),
+    		true);
+}
+
 
 void LLFloaterIMSessionTab::reshapeChatHistory()
 {
@@ -755,6 +766,10 @@ void LLFloaterIMSessionTab::onTearOffClicked()
     mSaveRect = isTornOff();
     initRectControl();
 	LLFloater::onClickTearOff(this);
+	if (isTornOff())
+	{
+		forceReshape();
+	}
 	refreshConversation();
 }
 
