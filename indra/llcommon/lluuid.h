@@ -31,6 +31,8 @@
 #include "stdtypes.h"
 #include "llpreprocessor.h"
 
+class LLMutex;
+
 const S32 UUID_BYTES = 16;
 const S32 UUID_WORDS = 4;
 const S32 UUID_STR_LENGTH = 37;	// actually wrong, should be 36 and use size below
@@ -118,6 +120,7 @@ public:
 	static BOOL validate(const std::string& in_string); // Validate that the UUID string is legal.
 
 	static const LLUUID null;
+	static LLMutex * mMutex;
 
 	static U32 getRandomSeed();
 	static S32 getNodeID(unsigned char * node_id);
