@@ -149,7 +149,7 @@ void on_new_message(const LLSD& msg)
     }
 
     // do not show notification in "do not disturb" mode or it goes from agent
-    if (gAgent.isDoNotDisturb() || gAgent.getID() == participant_id)
+    if (gAgent.getID() == participant_id)
     {
         return;
     }
@@ -2500,7 +2500,7 @@ void LLIMMgr::addMessage(
 	}
 
 	bool new_session = !hasSession(new_session_id);
-	if (new_session && !gAgent.isDoNotDisturb())
+	if (new_session)
 	{
 		LLAvatarName av_name;
 		if (LLAvatarNameCache::get(other_participant_id, &av_name) && !name_is_setted)
@@ -2543,7 +2543,7 @@ void LLIMMgr::addMessage(
 		}
 
         //Play sound for new conversations
-        if(gSavedSettings.getBOOL("PlaySoundNewConversation") == TRUE)
+		if (!gAgent.isDoNotDisturb() && (gSavedSettings.getBOOL("PlaySoundNewConversation") == TRUE))
         {
             make_ui_sound("UISndNewIncomingIMSession");
         }

@@ -774,6 +774,9 @@ protected:
 	virtual void onDelete(LLNotificationPtr p) {}
 	virtual void onChange(LLNotificationPtr p) {}
 
+	virtual void onFilterPass(LLNotificationPtr p) {}
+	virtual void onFilterFail(LLNotificationPtr p) {}
+
 	bool updateItem(const LLSD& payload, LLNotificationPtr pNotification);
 	LLNotificationFilter mFilter;
 };

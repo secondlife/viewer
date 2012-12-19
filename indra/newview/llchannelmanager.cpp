@@ -29,6 +29,7 @@
 #include "llchannelmanager.h"
 
 #include "llappviewer.h"
+#include "lldonotdisturbnotificationstorage.h"
 #include "llpersistentnotificationstorage.h"
 #include "llviewercontrol.h"
 #include "llviewerwindow.h"
@@ -138,6 +139,7 @@ void LLChannelManager::onLoginCompleted()
 	}
 
 	LLPersistentNotificationStorage::getInstance()->loadNotifications();
+	LLDoNotDisturbNotificationStorage::getInstance()->initialize();
 }
 
 //--------------------------------------------------------------------------

@@ -992,10 +992,12 @@ bool LLNotificationChannelBase::updateItem(const LLSD& payload, LLNotificationPt
 	bool abortProcessing = false;
 	if (passesFilter)
 	{
+		onFilterPass(pNotification);
 		abortProcessing = mPassedFilter(payload);
 	}
 	else
 	{
+		onFilterFail(pNotification);
 		abortProcessing = mFailedFilter(payload);
 	}
 	

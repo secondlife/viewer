@@ -37,6 +37,7 @@
 
 #include "llagent.h"
 #include "llagentcamera.h"
+#include "llcommunicationchannel.h"
 #include "llfloaterreg.h"
 #include "llmeshrepository.h"
 #include "llnotificationhandler.h"
@@ -1557,7 +1558,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	mViewerWindowListener.reset(new LLViewerWindowListener(this));
 
 	mSystemChannel.reset(new LLNotificationChannel("System", "Visible", LLNotificationFilters::includeEverything));
-	mCommunicationChannel.reset(new LLNotificationChannel("Communication", "Visible", !boost::bind(&LLAgent::isDoNotDisturb, &gAgent)));
+	mCommunicationChannel.reset(new LLCommunicationChannel("Communication", "Visible"));
 	mAlertsChannel.reset(new LLNotificationsUI::LLViewerAlertHandler("VW_alerts", "alert"));
 	mModalAlertsChannel.reset(new LLNotificationsUI::LLViewerAlertHandler("VW_alertmodal", "alertmodal"));
 

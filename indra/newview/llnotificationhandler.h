@@ -119,7 +119,6 @@ public:
 /**
  * Handler for chat message notifications. 
  */
-// XXX stinson 12/06/2012 : can I just remove the LLChatHandler class?
 class LLChatHandler : public LLEventHandler
 {
 public:
