@@ -4,6 +4,7 @@
 #include "llpanelprofile.h"
 #include "lluictrlfactory.h"
 #include "llexperiencecache.h"
+#include "llagent.h"
 
 #include "llpanelexperiences.h"
 
@@ -26,6 +27,61 @@ void* LLPanelExperiences::create( void* data )
 	return new LLPanelExperiences();
 }
 
+void ExperienceResult(LLHandle<LLPanelExperiences> panel, const LLSD& experience)
+{
+	LLPanelExperiences* experiencePanel = panel.get();
+	if(experiencePanel)
+	{
+		experiencePanel->addExperienceInfo(experience);
+	}
+}
+
+class LLExperienceListResponder : public LLHTTPClient::Responder
+{
+public:
+	LLExperienceListResponder(const LLHandle<LLPanelExperiences>& parent):mParent(parent)
+	{
+	}
+
+	LLHandle<LLPanelExperiences> mParent;
+
+	virtual void result(const LLSD& content)
+	{
+		if(mParent.isDead())
+			return;
+
+		LLSD experiences = content["experiences"];
+		LLSD::array_const_iterator it = experiences.beginArray();
+		for( /**/ ; it != experiences.endArray(); ++it)
+		{
+			LLUUID public_key = it->asUUID();
+
+			LLExperienceCache::get(public_key, LLExperienceCache::PUBLIC_KEY, boost::bind(ExperienceResult, mParent, _1));
+		}
+	}
+};
+
+void LLPanelExperiences::addExperienceInfo(const LLSD& experience)
+{
+	LLExperienceItem* item = new LLExperienceItem();
+	if(experience.has(LLExperienceCache::NAME))
+	{
+		item->setExperienceName(experience[LLExperienceCache::NAME].asString());
+	}
+	else if(experience.has("error"))
+	{
+		item->setExperienceName(experience["error"].asString());
+	}
+
+	if(experience.has(LLExperienceCache::PUBLIC_KEY))
+	{
+		item->setExperienceDescription(experience[LLExperienceCache::PUBLIC_KEY].asString());
+	}
+
+	mExperiencesList->addItem(item);
+
+}
+
 
 BOOL LLPanelExperiences::postBuild( void )
 {
@@ -35,15 +91,15 @@ BOOL LLPanelExperiences::postBuild( void )
 		mExperiencesList->setNoItemsCommentText(getString("no_experiences"));
 	}
 
-	const LLExperienceCache::cache_t& experiences = LLExperienceCache::getCached();
 
-	LLExperienceCache::cache_t::const_iterator it = experiences.begin();
-	for( ; it != experiences.end() && mExperiencesList->getChildCount() < 10 ; ++it)
+	LLViewerRegion* region = gAgent.getRegion();
+	if (region)
 	{
-		LLExperienceItem* item = new LLExperienceItem();
-		item->setExperienceName(it->second.mDisplayName);
-		item->setExperienceDescription(it->second.mDescription);
-		mExperiencesList->addItem(item);
+		std::string lookup_url=region->getCapability("GetExperiences"); 
+		if(!lookup_url.empty())
+		{
+			LLHTTPClient::get(lookup_url, new LLExperienceListResponder(getDerivedHandle<LLPanelExperiences>()));
+		}
 	}
 
 	mExperiencesAccTab = getChild<LLAccordionCtrlTab>("tab_experiences");
@@ -71,17 +127,6 @@ void LLPanelExperiences::updateData()
 	if(isDirty())
 	{
 		mNoExperiences = false;
-
-		/*
-		mNoItemsLabel->setValue(LLTrans::getString("PicksClassifiedsLoadingText"));
-		mNoItemsLabel->setVisible(TRUE);
-
-		mPicksList->clear();
-		LLAvatarPropertiesProcessor::getInstance()->sendAvatarPicksRequest(getAvatarId());
-
-		mClassifiedsList->clear();
-		LLAvatarPropertiesProcessor::getInstance()->sendAvatarClassifiedsRequest(getAvatarId());
-		*/
 	}
 }
 
@@ -179,10 +224,13 @@ LLExperienceItem::LLExperienceItem()
 	buildFromFile("panel_experience_info.xml");
 }
 
-void LLExperienceItem::init( LLExperienceData* experience_data )
+void LLExperienceItem::init( LLSD* experience_data )
 {
-	setExperienceDescription(experience_data->mDescription);
-	setExperienceName(experience_data->mDisplayName);
+	if(experience_data)
+	{
+		setExperienceDescription(experience_data->has(LLExperienceCache::PUBLIC_KEY)?(*experience_data)[LLExperienceCache::PUBLIC_KEY].asString() : std::string());
+		setExperienceName(experience_data->has(LLExperienceCache::NAME)?(*experience_data)[LLExperienceCache::NAME].asString() : std::string());
+	}
 }
 
 void LLExperienceItem::setExperienceDescription( const std::string& val )

@@ -4818,12 +4818,12 @@ void LLAppViewer::idleExperienceCache()
 	LLViewerRegion* region = gAgent.getRegion();
 	if (!region) return;
 	
-	std::string lookup_url=region->getCapability("GetDisplayNames"); // use GetDisplayNames for testing round trip
+	std::string lookup_url=region->getCapability("GetExperienceInfo"); 
 	if(!lookup_url.empty() && lookup_url.back() != '/')
 	{
 		lookup_url += '/';
 	}
-
+	
 	LLExperienceCache::setLookupURL(lookup_url);
 
 	LLExperienceCache::idle();

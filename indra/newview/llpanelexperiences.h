@@ -31,7 +31,6 @@
 #include "llflatlistview.h"
 #include "llpanelavatar.h"
 
-class LLExperienceData;
 class LLExperienceItem;
 class LLPanelProfile; 
 
@@ -69,7 +68,7 @@ public:
 	LLExperienceItem* getSelectedExperienceItem();
 
 	void setProfilePanel(LLPanelProfile* profile_panel);
-
+	void addExperienceInfo(const LLSD& experience);
 protected:
 
 	void onListCommit(const LLFlatListView* f_list);
@@ -97,7 +96,7 @@ public:
 	LLExperienceItem();
 	~LLExperienceItem();
 
-	void init(LLExperienceData* experience_data);
+	void init(LLSD* experience_data);
 	/*virtual*/ BOOL postBuild();
 	void update();
 

@@ -23,25 +23,26 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
+#include "llexperiencecache.h"
 
-#include "linden_common.h"
 #include "llavatarname.h"
 #include "llframetimer.h"
 #include "llhttpclient.h"
 #include "llsdserialize.h"
 #include <set>
 #include <map>
-#include "boost\tokenizer.hpp"
+#include "boost/tokenizer.hpp"
 
-#include "llexperiencecache.h"
+
 
 
 
 namespace LLExperienceCache
 {
+	const std::string& MAP_KEY = PUBLIC_KEY;
 	std::string sLookupURL;
 
-	typedef std::set<LLUUID> ask_queue_t;
+	typedef std::map<LLUUID, std::string> ask_queue_t;
 	ask_queue_t sAskQueue;
 
 	typedef std::map<LLUUID, F64> pending_queue_t;
@@ -65,20 +66,40 @@ namespace LLExperienceCache
 	bool max_age_from_cache_control(const std::string& cache_control, S32 *max_age);
 	void eraseExpired();
 
-	void processExperience( const LLUUID& agent_id, const LLExperienceData& experience ) 
+	void processExperience( const LLUUID& public_key, const LLSD& experience ) 
 	{
-		sCache[agent_id]=experience;
+		sCache[public_key]=experience;
+		LLSD & row = sCache[public_key];
 
-		sPendingQueue.erase(agent_id);
+		if(row.has("expires"))
+		{
+			row["expires"] = row["expires"].asReal() + LLFrameTimer::getTotalSeconds();
+		}
+
+		if(row.has(PUBLIC_KEY))
+		{
+			sPendingQueue.erase(row[PUBLIC_KEY].asUUID());
+		}
+
+		if(row.has(PRIVATE_KEY))
+		{
+			sPendingQueue.erase(row[PRIVATE_KEY].asUUID());
+		}
+
+		if(row.has(CREATOR_KEY))
+		{
+			sPendingQueue.erase(row[CREATOR_KEY].asUUID());
+		}
+
 			
 		//signal
-		signal_map_t::iterator sig_it =	sSignalMap.find(agent_id);
+		signal_map_t::iterator sig_it =	sSignalMap.find(public_key);
 		if (sig_it != sSignalMap.end())
 		{
 			callback_signal_t* signal = sig_it->second;
-			(*signal)(agent_id, experience);
+			(*signal)(experience);
 
-			sSignalMap.erase(agent_id);
+			sSignalMap.erase(public_key);
 
 			delete signal;
 		}
@@ -109,7 +130,7 @@ namespace LLExperienceCache
 			std::string cache_control = cache_control_header.asString();
 			if (max_age_from_cache_control(cache_control, &max_age))
 			{
-				LL_DEBUGS("ExperienceCache") 
+				LL_WARNS("ExperienceCache") 
 					<< "got expiration from headers, max_age " << max_age 
 					<< LL_ENDL;
 				F64 now = LLFrameTimer::getTotalSeconds();
@@ -186,16 +207,14 @@ namespace LLExperienceCache
 		S32 parse_count = LLSDSerialize::fromXMLDocument(data, istr);
 		if(parse_count < 1) return;
 
-		LLSD agents = data["agents"];
+		LLSD experiences = data["experiences"];
 
-		LLUUID agent_id;
-		LLExperienceData experience;
-		LLSD::map_const_iterator it = agents.beginMap();
-		for(; it != agents.endMap() ; ++it)
+		LLUUID public_key;
+		LLSD::map_const_iterator it = experiences.beginMap();
+		for(; it != experiences.endMap() ; ++it)
 		{
-			agent_id.set(it->first);
-			experience.fromLLSD( it->second);
-			sCache[agent_id]=experience;
+			public_key.set(it->first);
+			sCache[public_key]=it->second;
 		}
 
 		LL_INFOS("ExperienceCache") << "loaded " << sCache.size() << LL_ENDL;
@@ -203,16 +222,20 @@ namespace LLExperienceCache
 
 	void exportFile(std::ostream& ostr)
 	{
-		LLSD agents;
+		LLSD experiences;
 
 		cache_t::const_iterator it =sCache.begin();
 		for( ; it != sCache.end() ; ++it)
 		{
-			agents[it->first.asString()] = it->second.asLLSD();
+			if(!it->second.has(PUBLIC_KEY) || it->second[PUBLIC_KEY].asUUID().isNull() ||
+				it->second.has("error"))
+				continue;
+
+			experiences[it->first.asString()] = it->second;
 		}
 
 		LLSD data;
-		data["agents"] = agents;
+		data["experiences"] = experiences;
 
 		LLSDSerialize::toPrettyXML(data, ostr);
 	}
@@ -220,8 +243,8 @@ namespace LLExperienceCache
 	class LLExperienceResponder : public LLHTTPClient::Responder
 	{
 	public:
-		LLExperienceResponder(const std::vector<LLUUID>& agent_ids)
-			:mAgentIds(agent_ids)
+		LLExperienceResponder(const ask_queue_t& keys)
+			:mKeys(keys)
 		{
 
 		}
@@ -233,60 +256,65 @@ namespace LLExperienceCache
 
 		virtual void result(const LLSD& content)
 		{
-			LLSD agents = content["agents"];
-			LLSD::array_const_iterator it = agents.beginArray();
-			for( /**/ ; it != agents.endArray(); ++it)
+			LLSD experiences = content["experience_keys"];
+			LLSD::array_const_iterator it = experiences.beginArray();
+			for( /**/ ; it != experiences.endArray(); ++it)
 			{
 				const LLSD& row = *it;
-				LLUUID agent_id = row["id"].asUUID();
+				LLUUID public_key = row[PUBLIC_KEY].asUUID();
 
-				LLExperienceData experience;
 
-				if(experience.fromLLSD(row))
+				LL_INFOS("ExperienceCache") << "Received result for " << public_key 
+					<< " display '" << row[LLExperienceCache::NAME].asString() << "'" << LL_ENDL ;
+
+				processExperience(public_key, row);
+			}
+
+			LLSD error_ids = content["error_ids"];
+			LLSD::map_const_iterator errIt = error_ids.beginMap();
+			for( /**/ ; errIt != error_ids.endMap() ; ++errIt )
+			{
+				LLUUID id = LLUUID(errIt->first);			
+				for( it = errIt->second.beginArray(); it != errIt->second.endArray() ; ++it)
 				{
-					LL_DEBUGS("ExperienceCache") << __FUNCTION__ << "Received result for " << agent_id 
-						<< "display '" << experience.mDisplayName << "'" << LL_ENDL ;
+					LL_INFOS("ExperienceCache") << "Clearing error result for " << id 
+						<< " of type '" << it->asString() << "'" << LL_ENDL ;
 
-					processExperience(agent_id, experience);
+					erase(id, it->asString());
 				}
 			}
 
-			LLSD unresolved_agents = content["bad_ids"];
-			S32 num_unresolved = unresolved_agents.size();
-			if(num_unresolved > 0)
-			{
-				LL_DEBUGS("ExperienceCache") << __FUNCTION__ << "Ignoring " << num_unresolved 
-					<< " bad ids" << LL_ENDL ;
-			}
-
-			LL_DEBUGS("ExperienceCache") << __FUNCTION__ << sCache.size() << " cached experiences" << LL_ENDL;
+			LL_INFOS("ExperienceCache") << sCache.size() << " cached experiences" << LL_ENDL;
 		}
 
-		void error(U32 status, const std::string& reason)
+		virtual void error(U32 status, const std::string& reason)
 		{
-			// We're going to construct a dummy record and cache it for a while,
-			// either briefly for a 503 Service Unavailable, or longer for other
-			// errors.
-			F64 retry_timestamp = errorRetryTimestamp(status);
-
-			LLExperienceData experience;
-			experience.mDisplayName = LLExperienceCache::DUMMY_NAME;
-			experience.mDescription = LLExperienceCache::DUMMY_NAME;
-			experience.mExpires = retry_timestamp;
-
-			// Add dummy records for all agent IDs in this request
-			std::vector<LLUUID>::const_iterator it = mAgentIds.begin();
-			for ( ; it != mAgentIds.end(); ++it)
+ 			LL_WARNS("ExperienceCache") << "Request failed "<<status<<" "<<reason<< LL_ENDL;
+ 			// We're going to construct a dummy record and cache it for a while,
+ 			// either briefly for a 503 Service Unavailable, or longer for other
+ 			// errors.
+ 			F64 retry_timestamp = errorRetryTimestamp(status);
+ 
+ 
+ 			// Add dummy records for all agent IDs in this request
+ 			ask_queue_t::const_iterator it = mKeys.begin();
+ 			for ( ; it != mKeys.end(); ++it)
 			{
-				LLExperienceCache::processExperience((*it), experience);
-			}
+				LLSD exp;
+				exp["expires"]=retry_timestamp;
+				exp[it->second] = it->first;
+				exp["key_type"] = it->second;
+				exp["uuid"] = it->first;
+				exp["error"] = (LLSD::Integer)status;
+ 				LLExperienceCache::processExperience(it->first, exp);
+ 			}
+
 		}
 
 		// Return time to retry a request that generated an error, based on
 		// error type and headers.  Return value is seconds-since-epoch.
 		F64 errorRetryTimestamp(S32 status)
 		{
-			F64 now = LLFrameTimer::getTotalSeconds();
 
 			// Retry-After takes priority
 			LLSD retry_after = mHeaders["retry-after"];
@@ -297,7 +325,7 @@ namespace LLExperienceCache
 				if (delta_seconds > 0)
 				{
 					// ...valid delta-seconds
-					return now + F64(delta_seconds);
+					return F64(delta_seconds);
 				}
 			}
 
@@ -313,78 +341,87 @@ namespace LLExperienceCache
 			{
 				// ...service unavailable, retry soon
 				const F64 SERVICE_UNAVAILABLE_DELAY = 600.0; // 10 min
-				return now + SERVICE_UNAVAILABLE_DELAY;
+				return SERVICE_UNAVAILABLE_DELAY;
+			}
+			else if (status == 499)
+			{
+				// ...we were probably too busy, retry quickly
+				const F64 BUSY_DELAY = 10.0; // 10 seconds
+				return BUSY_DELAY;
+
 			}
 			else
 			{
 				// ...other unexpected error
 				const F64 DEFAULT_DELAY = 3600.0; // 1 hour
-				return now + DEFAULT_DELAY;
+				return DEFAULT_DELAY;
 			}
 		}
 
 	private:
-		std::vector<LLUUID> mAgentIds;
+		ask_queue_t mKeys;
 		LLSD mHeaders;
 	};
 
 	void requestExperiences() 
 	{
-		if(sAskQueue.empty())
+		if(sAskQueue.empty() || sLookupURL.empty())
 			return;
 
 		F64 now = LLFrameTimer::getTotalSeconds();
 
-		const U32 NAME_URL_MAX = 4096;
-		const U32 NAME_URL_SEND_THRESHOLD = 3000;
+		const U32 EXP_URL_SEND_THRESHOLD = 3000;
 
-		std::string url;
-		url.reserve(NAME_URL_MAX);
 
-		std::vector<LLUUID> agent_ids;
-		agent_ids.reserve(128);
+		std::ostringstream ostr;
 
-		url += sLookupURL;
+		ask_queue_t keys;
 
-		std::string arg="?ids=";
+		ostr << sLookupURL;
+
+		char arg='?';
 
 		int request_count = 0;
 		for(ask_queue_t::const_iterator it = sAskQueue.begin() ; it != sAskQueue.end() && request_count < sMaximumLookups; ++it)
 		{
-			const LLUUID& agent_id = *it;
+			const LLUUID& key = it->first;
+			const std::string& key_type = it->second;
+
+			ostr << arg << key_type << '=' << key.asString() ;
 		
-			url += arg;
-			url += agent_id.asString();
-			agent_ids.push_back(agent_id);
+			keys[key]=key_type;
 			request_count++;
 
-			sPendingQueue[agent_id] = now;
+			sPendingQueue[key] = now;
 
-			arg[0]='&';
+			arg='&';
 
-			if(url.size() > NAME_URL_SEND_THRESHOLD)
+			if(ostr.tellp() > EXP_URL_SEND_THRESHOLD)
 			{
-				 LLHTTPClient::get(url, new LLExperienceResponder(agent_ids));
-				 url = sLookupURL;
-				 arg[0]='?';
-				 agent_ids.clear();
+				LL_INFOS("ExperienceCache") <<  " query: " << ostr.str() << LL_ENDL;
+				LLHTTPClient::get(ostr.str(), new LLExperienceResponder(keys));
+				ostr.clear();
+				ostr.str(sLookupURL);
+				arg='?';
+				keys.clear();
 			}
 		}
 
-		if(url.size() > sLookupURL.size())
+		if(ostr.tellp() > sLookupURL.size())
 		{
-			LLHTTPClient::get(url, new LLExperienceResponder(agent_ids));
+			LL_INFOS("ExperienceCache") <<  " query: " << ostr.str() << LL_ENDL;
+			LLHTTPClient::get(ostr.str(), new LLExperienceResponder(keys));
 		}
 
 		sAskQueue.clear();
 	}
 
-	bool isRequestPending(const LLUUID& agent_id)
+	bool isRequestPending(const LLUUID& public_key)
 	{
 		bool isPending = false;
 		const F64 PENDING_TIMEOUT_SECS = 5.0 * 60.0;
 
-		pending_queue_t::const_iterator it = sPendingQueue.find(agent_id);
+		pending_queue_t::const_iterator it = sPendingQueue.find(public_key);
 
 		if(it != sPendingQueue.end())
 		{
@@ -399,6 +436,10 @@ namespace LLExperienceCache
 	void setLookupURL( const std::string& lookup_url )
 	{
 		sLookupURL = lookup_url;
+		if(!sLookupURL.empty())
+		{
+			sLookupURL += "id/";
+		}
 	}
 
 	bool hasLookupURL()
@@ -429,87 +470,136 @@ namespace LLExperienceCache
 		}
 	}
 
-	void erase( const LLUUID& agent_id )
+	struct FindByKey
 	{
-		sCache.erase(agent_id);
+		FindByKey(const LLUUID& key, const std::string& key_type):mKey(key), mKeyType(key_type){}
+		const LLUUID& mKey;
+		const std::string& mKeyType;
+
+		bool operator()(cache_t::value_type& experience)
+		{
+			return experience.second.has(mKeyType) && experience.second[mKeyType].asUUID() == mKey;
+		}
+	};
+
+
+	cache_t::iterator Find(const LLUUID& key, const std::string& key_type)
+	{
+		LL_INFOS("ExperienceCache") << " searching for " << key << " of type " << key_type << LL_ENDL;
+		if(key_type == MAP_KEY)
+		{
+			return sCache.find(key);
+		}
+
+		return std::find_if(sCache.begin(), sCache.end(), FindByKey(key, key_type));
+	}
+
+
+	void erase( const LLUUID& key, const std::string& key_type )
+	{
+		cache_t::iterator it = Find(key, key_type);
+				
+		if(it != sCache.end())
+		{
+			sCache.erase(it);
+		}
 	}
 
 	void eraseExpired()
 	{
-		S32 expired_count = 0;
 		F64 now = LLFrameTimer::getTotalSeconds();
 		cache_t::iterator it = sCache.begin();
 		while (it != sCache.end())
 		{
 			cache_t::iterator cur = it;
+			LLSD& exp = cur->second;
 			++it;
-			const LLExperienceData& experience = cur->second;
-			if (experience.mExpires < now)
+			if(exp.has("expires") && exp["expires"].asReal() < now)
 			{
-				sCache.erase(cur);
-				expired_count++;
+				if(exp.has("key_type") && exp.has("uuid"))
+				{
+					fetch(exp["uuid"].asUUID(), exp["key_type"].asString(), true);
+					sCache.erase(cur);
+				}
+				else if(exp.has(MAP_KEY))
+				{
+					LLUUID id = exp[MAP_KEY];
+					if(!id.isNull())
+					{
+						fetch(id, MAP_KEY, true);
+					}
+				}
 			}
 		}
 	}
 
-
-	void fetch( const LLUUID& agent_id ) 
+	
+	bool fetch( const LLUUID& key, const std::string& key_type, bool refresh/* = true*/ ) 
 	{
-		LL_DEBUGS("ExperienceCache") << __FUNCTION__ << "queue request for agent" << agent_id << LL_ENDL ;
-		sAskQueue.insert(agent_id);
+		if(!key.isNull() && !isRequestPending(key) && (refresh || Find(key, key_type)==sCache.end()))
+		{
+			LL_INFOS("ExperienceCache") << " queue request for " << key_type << " " << key << LL_ENDL ;
+			sAskQueue[key]=key_type;
+
+			return true;
+		}
+		return false;
 	}
 
-	void insert( const LLUUID& agent_id, const LLExperienceData& experience_data )
+	void insert(const LLSD& experience_data )
 	{
-		sCache[agent_id]=experience_data;
+		if(experience_data.has(MAP_KEY))
+		{
+			sCache[experience_data[MAP_KEY].asUUID()]=experience_data;
+		}
+		else
+		{
+			LL_WARNS("ExperienceCache") << ": Ignoring cache insert of experience which is missing " << MAP_KEY << LL_ENDL;
+		}
 	}
 
-	bool get( const LLUUID& agent_id, LLExperienceData* experience_data )
+	bool get( const LLUUID& key, const std::string& key_type, LLSD& experience_data )
 	{
-		cache_t::const_iterator it = sCache.find(agent_id);
+		if(key.isNull()) return false;
+		cache_t::const_iterator it = Find(key, key_type);
+	
 		if (it != sCache.end())
 		{
-			llassert(experience_data);
-			*experience_data = it->second;
+			experience_data = it->second;
 			return true;
 		}
 		
-		if(!isRequestPending(agent_id))
-		{
-			fetch(agent_id);
-		}
+		fetch(key, key_type);
 
 		return false;
 	}
 
 
-
-	void get( const LLUUID& agent_id, callback_slot_t slot )
+	void get( const LLUUID& key, const std::string& key_type, callback_slot_t slot )
 	{
-		cache_t::const_iterator it = sCache.find(agent_id);
+		if(key.isNull()) return;
+
+		cache_t::const_iterator it = Find(key, key_type);
 		if (it != sCache.end())
 		{
 			// ...name already exists in cache, fire callback now
 			callback_signal_t signal;
 			signal.connect(slot);
-			signal(agent_id, it->second);
+			
+			signal(it->second);
 			return;
 		}
 
-		// schedule a request
-		if (!isRequestPending(agent_id))
-		{
-			sAskQueue.insert(agent_id);
-		}
+		fetch(key, key_type);
 
 		// always store additional callback, even if request is pending
-		signal_map_t::iterator sig_it = sSignalMap.find(agent_id);
+		signal_map_t::iterator sig_it = sSignalMap.find(key);
 		if (sig_it == sSignalMap.end())
 		{
 			// ...new callback for this id
 			callback_signal_t* signal = new callback_signal_t();
 			signal->connect(slot);
-			sSignalMap[agent_id] = signal;
+			sSignalMap[key] = signal;
 		}
 		else
 		{
@@ -519,31 +609,4 @@ namespace LLExperienceCache
 		}
 	}
 
-}
-
-static const std::string EXPERIENCE_NAME("username");
-static const std::string EXPERIENCE_DESCRIPTION("display_name");
-static const std::string EXPERIENCE_EXPIRATION("display_name_expires");
-
-bool LLExperienceData::fromLLSD( const LLSD& sd )
-{
-	mDisplayName = sd[EXPERIENCE_NAME].asString();
-	mDescription = sd[EXPERIENCE_DESCRIPTION].asString();
-	LLDate expiration = sd[EXPERIENCE_EXPIRATION];
-	mExpires = expiration.secondsSinceEpoch();
-
-	if(mDisplayName.empty() || mDescription.empty()) return false;
-
-	mDescription += " % Hey, this is a description!";
-	return true;
-}
-
-LLSD LLExperienceData::asLLSD() const
-{
-	LLSD sd;
-	sd[EXPERIENCE_NAME] = mDisplayName;
-	sd[EXPERIENCE_DESCRIPTION] = mDescription.substr(0, llmin(mDescription.size(),mDescription.find(" %")));
-	sd[EXPERIENCE_EXPIRATION] = LLDate(mExpires);
-
-	return sd;
 }

@@ -29,36 +29,35 @@
 #ifndef LL_LLEXPERIENCECACHE_H
 #define LL_LLEXPERIENCECACHE_H
 
-#include <string>
+#include "linden_common.h"
 #include <boost/signals2.hpp>
 
+class LLSD;
 class LLUUID;
-
-
-class LLExperienceData
-{
-public:
-	bool fromLLSD(const LLSD& sd);
-	LLSD asLLSD() const;
-
-
-	std::string mDisplayName;
-	std::string mDescription;
-	F64 mExpires;
-};
 
 
 
 namespace LLExperienceCache
 {
+	const std::string PUBLIC_KEY	= "public-id";
+	const std::string PRIVATE_KEY	= "private-id";
+	const std::string CREATOR_KEY	= "creator-id";
+	const std::string NAME			= "name";
+	const std::string PROPERTIES	= "properties";
+	const std::string EXPIRES		= "expires";  
+
+	const int EXPERIENCE_INVALID    = (1 << 0);
+	const int EXPERIENCE_NORMAL     = (1 << 1);
+	const int EXPERIENCE_REGION     = (1 << 2);
+	const static F64 DEFAULT_EXPIRATION = 600.0;
+
 	// dummy name used when we have nothing else
 	const std::string DUMMY_NAME = "\?\?\?";
 	// Callback types for get() below
-	typedef boost::signals2::signal<
-		void (const LLUUID& agent_id, const LLExperienceData& experience)>
+	typedef boost::signals2::signal<void (const LLSD& experience)>
 		callback_signal_t;
 	typedef callback_signal_t::slot_type callback_slot_t;
-	typedef std::map<LLUUID, LLExperienceData> cache_t;
+	typedef std::map<LLUUID, LLSD> cache_t;
 
 
 	void setLookupURL(const std::string& lookup_url);
@@ -70,14 +69,14 @@ namespace LLExperienceCache
 	void exportFile(std::ostream& ostr);
 	void importFile(std::istream& istr);
 	void initClass();
-
-	void erase(const LLUUID& agent_id);
-	void fetch(const LLUUID& agent_id);
-	void insert(const LLUUID& agent_id, const LLExperienceData& experience_data);
-	bool get(const LLUUID& agent_id, LLExperienceData* experience_data);
+	
+	void erase(const LLUUID& key, const std::string& key_type);
+	bool fetch(const LLUUID& key, const std::string& key_type, bool refresh = false);
+	void insert(LLSD& experience_data);
+	bool get(const LLUUID& key, const std::string& key_type, LLSD& experience_data);
 
 	// If name information is in cache, callback will be called immediately.
-	void get(const LLUUID& agent_id, callback_slot_t slot);
+	void get(const LLUUID& key, const std::string& key_type, callback_slot_t slot);
 
 	const cache_t& getCached();
 };
