@@ -31,6 +31,7 @@
 
 #include "llerror.h"
 
+class LLNotificationResponderInterface;
 class LLSD;
 
 class LLNotificationStorage
@@ -43,6 +44,8 @@ public:
 protected:
 	bool writeNotifications(const LLSD& pNotificationData) const;
 	bool readNotifications(LLSD& pNotificationData) const;
+
+	LLNotificationResponderInterface* createResponder(const std::string& pNotificationName, const LLSD& pParams) const;
 
 private:
 	std::string mFileName;

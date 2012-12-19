@@ -36,34 +36,6 @@
 #include "llscriptfloater.h"
 #include "llviewermessage.h"
 
-class LLResponderRegistry
-{
-public:
-
-	static void registerResponders();
-
-	static LLNotificationResponderInterface* createResponder(const std::string& notification_name, const LLSD& params);
-
-protected:
-
-private:
-	template<typename RESPONDER_TYPE>
-	static LLNotificationResponderInterface* create(const LLSD& params)
-	{
-		RESPONDER_TYPE* responder = new RESPONDER_TYPE();
-		responder->fromLLSD(params);
-		return responder;
-	}
-
-	typedef boost::function<LLNotificationResponderInterface* (const LLSD& params)> responder_constructor_t;
-
-	static void add(const std::string& notification_name, const responder_constructor_t& ctr);
-
-	typedef std::map<std::string, responder_constructor_t> build_map_t;
-
-	static build_map_t sBuildMap;
-};
-
 LLPersistentNotificationStorage::LLPersistentNotificationStorage()
 	: LLSingleton<LLPersistentNotificationStorage>()
 	, LLNotificationStorage(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "open_notifications.xml"))
@@ -114,7 +86,6 @@ static LLFastTimer::DeclareTimer FTM_LOAD_NOTIFICATIONS("Load Notifications");
 void LLPersistentNotificationStorage::loadNotifications()
 {
 	LLFastTimer _(FTM_LOAD_NOTIFICATIONS);
-	LLResponderRegistry::registerResponders();
 
 	LLNotifications::instance().getChannel("Persistent")->
 		connectChanged(boost::bind(&LLPersistentNotificationStorage::onPersistentChannelChanged, this, _1));
@@ -144,8 +115,7 @@ void LLPersistentNotificationStorage::loadNotifications()
 		LLSD notification_params = *notification_it;
 		LLNotificationPtr notification(new LLNotification(notification_params));
 
-		LLNotificationResponderPtr responder(LLResponderRegistry::
-			createResponder(notification_params["name"], notification_params["responder"]));
+		LLNotificationResponderPtr responder(createResponder(notification_params["name"], notification_params["responder"]));
 		notification->setResponseFunctor(responder);
 
 		instance.add(notification);
@@ -170,41 +140,6 @@ bool LLPersistentNotificationStorage::onPersistentChannelChanged(const LLSD& pay
 		saveNotifications();
 	}
 	return false;
-}
-
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-
-LLResponderRegistry::build_map_t LLResponderRegistry::sBuildMap;
-
-void LLResponderRegistry::registerResponders()
-{
-	sBuildMap.clear();
-
-	add("ObjectGiveItem", &create<LLOfferInfo>);
-	add("UserGiveItem", &create<LLOfferInfo>);
-}
-
-LLNotificationResponderInterface* LLResponderRegistry::createResponder(const std::string& notification_name, const LLSD& params)
-{
-	build_map_t::const_iterator it = sBuildMap.find(notification_name);
-	if(sBuildMap.end() == it)
-	{
-		return NULL;
-	}
-	responder_constructor_t ctr = it->second;
-	return ctr(params);
-}
-
-void LLResponderRegistry::add(const std::string& notification_name, const responder_constructor_t& ctr)
-{
-	if(sBuildMap.find(notification_name) != sBuildMap.end())
-	{
-		llwarns << "Responder is already registered : " << notification_name << llendl;
-		llassert(!"Responder already registered");
-	}
-	sBuildMap[notification_name] = ctr;
 }
 
 // EOF
