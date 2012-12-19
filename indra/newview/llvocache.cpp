@@ -64,18 +64,6 @@ LLVOCacheEntry::LLVOCacheEntry(U32 local_id, U32 crc, LLDataPackerBinaryBuffer &
 	mBuffer = new U8[dp.getBufferSize()];
 	mDP.assignBuffer(mBuffer, dp.getBufferSize());
 	mDP = dp;
-
-	if(dp.getBufferSize() > 0)
-	{
-		U32 parent_id = 0;
-		dp.reset();
-		dp.unpackU32(parent_id, "ParentID");
-		dp.reset();
-		if(parent_id > 0)
-		{
-			mState |= CHILD; //is a child
-		}
-	}
 }
 
 LLVOCacheEntry::LLVOCacheEntry()
@@ -222,16 +210,6 @@ void LLVOCacheEntry::setOctreeEntry(LLViewerOctreeEntry* entry)
 	}
 
 	LLViewerOctreeEntryData::setOctreeEntry(entry);
-}
-
-void LLVOCacheEntry::setBridgeChild()
-{
-	mState |= BRIDGE_CHILD;
-}
-	
-void LLVOCacheEntry::clearBridgeChild()
-{
-	mState &= ~BRIDGE_CHILD;
 }
 
 void LLVOCacheEntry::copyTo(LLVOCacheEntry* new_entry)

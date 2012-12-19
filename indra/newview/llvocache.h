@@ -51,8 +51,7 @@ public:
 
 	enum
 	{
-		CHILD        = 0x00010000, //has parent
-		BRIDGE_CHILD = 0x00020000  //is a child of a spatial bridge.
+		ADD_TO_CACHE_TREE = 0x00010000, //has parent
 	};
 
 	struct CompareVOCacheEntry
@@ -85,14 +84,13 @@ public:
 	LLVOCacheEntry();	
 
 	void setState(U32 state);
-	bool isState(U32 state)   {return (mState & 0xffff) == state;}
-	U32  getState() const     {return (mState & 0xffff);}
-	U32  getFullState() const {return mState;}
-
-	void setBridgeChild();  
-	void clearBridgeChild(); 
-	bool isBridgeChild()     {return mState & BRIDGE_CHILD;}
-
+	void clearState(U32 state) {mState &= ~state;}
+	void addState(U32 state)   {mState |= state;}
+	bool isState(U32 state)    {return (mState & 0xffff) == state;}
+	bool hasState(U32 state)   {return mState & state;}
+	U32  getState() const      {return (mState & 0xffff);}
+	U32  getFullState() const  {return mState;}
+	
 	U32 getLocalID() const			{ return mLocalID; }
 	U32 getCRC() const				{ return mCRC; }
 	S32 getHitCount() const			{ return mHitCount; }

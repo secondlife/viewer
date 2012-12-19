@@ -132,6 +132,7 @@ public:
 	BOOL isDead() const									{return mDead;}
 	BOOL isOrphaned() const								{ return mOrphaned; }
 	BOOL isParticleSource() const;
+	void EnableToCacheTree(bool enabled);
 
 	virtual LLVOAvatar* asAvatar();
 

@@ -1099,11 +1099,6 @@ LLSpatialBridge::LLSpatialBridge(LLDrawable* root, BOOL render_by_group, U32 dat
 	{
 		part->put(this);
 	}
-
-	if(mDrawable->getEntry()->hasVOCacheEntry())
-	{
-		((LLVOCacheEntry*)mDrawable->getEntry()->getVOCacheEntry())->setBridgeChild();
-	}
 }
 
 LLSpatialBridge::~LLSpatialBridge()

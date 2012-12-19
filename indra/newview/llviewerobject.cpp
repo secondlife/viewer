@@ -323,6 +323,22 @@ void LLViewerObject::deleteTEImages()
 	mTEImages = NULL;
 }
 
+//if enabled, add this object to vo cache tree when removed from rendering.
+void LLViewerObject::EnableToCacheTree(bool enabled)
+{
+	if(mDrawable.notNull() && mDrawable->getEntry() && mDrawable->getEntry()->hasVOCacheEntry())
+	{
+		if(enabled)
+		{
+			((LLVOCacheEntry*)mDrawable->getEntry()->getVOCacheEntry())->addState(LLVOCacheEntry::ADD_TO_CACHE_TREE);
+		}
+		else
+		{
+			((LLVOCacheEntry*)mDrawable->getEntry()->getVOCacheEntry())->clearState(LLVOCacheEntry::ADD_TO_CACHE_TREE);
+		}
+	}
+}
+
 void LLViewerObject::markDead()
 {
 	if (!mDead)

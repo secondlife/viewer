@@ -894,6 +894,10 @@ void LLViewerRegion::addToVOCacheTree(LLVOCacheEntry* entry)
 	{
 		return;
 	}
+	if(!entry->hasState(LLVOCacheEntry::ADD_TO_CACHE_TREE))
+	{
+		return; //can not add to vo cache tree.
+	}
 
 	mImpl->mVOCachePartition->addEntry(entry->getEntry());
 }
@@ -1132,7 +1136,7 @@ F32 LLViewerRegion::killInvisibleObjects(F32 max_time)
 	}
 	for(S32 i = 0; i < delete_list.size(); i++)
 	{
-		gObjectList.killObject(delete_list[i]->getVObj());
+		gObjectList.killObject(delete_list[i]->getVObj(), true);
 	}
 	delete_list.clear();
 
