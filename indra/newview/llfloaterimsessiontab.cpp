@@ -177,6 +177,7 @@ void LLFloaterIMSessionTab::addToHost(const LLUUID& session_id)
 				// LLFloater::mLastHostHandle = floater_container (a "future" host)
 				conversp->setHost(floater_container);
 				conversp->setHost(NULL);
+				conversp->forceReshape();
 			}
 			// Added floaters share some state (like sort order) with their host
 			conversp->setSortOrder(floater_container->getSortOrder());
@@ -196,6 +197,8 @@ BOOL LLFloaterIMSessionTab::postBuild()
 
 	mTearOffBtn = getChild<LLButton>("tear_off_btn");
 	mTearOffBtn->setCommitCallback(boost::bind(&LLFloaterIMSessionTab::onTearOffClicked, this));
+
+	mGearBtn = getChild<LLButton>("gear_btn");
 
 	mParticipantListPanel = getChild<LLLayoutPanel>("speakers_list_panel");
 	
@@ -224,7 +227,8 @@ BOOL LLFloaterIMSessionTab::postBuild()
 
 	setOpenPositioning(LLFloaterEnums::POSITIONING_RELATIVE);
 
-	mSaveRect = isTornOff();
+	mSaveRect = isNearbyChat()
+					&&  !gSavedSettings.getBOOL("NearbyChatIsNotTornOff");
 	initRectControl();
 
 	if (isChatMultiTab())
@@ -239,11 +243,11 @@ BOOL LLFloaterIMSessionTab::postBuild()
 	// Now ready to build the conversation and participants list
 	buildConversationViewParticipant();
 	refreshConversation();
-		
+
 	// Zero expiry time is set only once to allow initial update.
 	mRefreshTimer->setTimerExpirySec(0);
 	mRefreshTimer->start();
-
+	initBtns();
 	return result;
 }
 
@@ -649,6 +653,15 @@ void LLFloaterIMSessionTab::updateHeaderAndToolbar()
 
 	showTranslationCheckbox();
 }
+ 
+void LLFloaterIMSessionTab::forceReshape()
+{
+    LLRect floater_rect = getRect();
+    reshape(llmax(floater_rect.getWidth(), this->getMinWidth()),
+    		llmax(floater_rect.getHeight(), this->getMinHeight()),
+    		true);
+}
+
 
 void LLFloaterIMSessionTab::reshapeChatHistory()
 {
@@ -735,19 +748,6 @@ void LLFloaterIMSessionTab::onOpen(const LLSD& key)
 	}
 }
 
-// virtual
-void LLFloaterIMSessionTab::onClose(bool app_quitting)
-{
-	// Always suppress the IM from the conversations list on close if present for any reason
-	if (LLFloaterIMSessionTab::isChatMultiTab())
-	{
-		LLFloaterIMContainer* im_box = LLFloaterIMContainer::findInstance();
-		if (im_box)
-		{
-            im_box->removeConversationListItem(mKey);
-        }
-    }
-}
 
 void LLFloaterIMSessionTab::onTearOffClicked()
 {
@@ -755,7 +755,58 @@ void LLFloaterIMSessionTab::onTearOffClicked()
     mSaveRect = isTornOff();
     initRectControl();
 	LLFloater::onClickTearOff(this);
+	if (isTornOff())
+	{
+		forceReshape();
+	}
 	refreshConversation();
+	updateGearBtn();
+}
+
+void LLFloaterIMSessionTab::updateGearBtn()
+{
+
+	BOOL prevVisibility = mGearBtn->getVisible();
+	mGearBtn->setVisible(checkIfTornOff() && mIsP2PChat);
+
+
+	// Move buttons if Gear button changed visibility
+	if(prevVisibility != mGearBtn->getVisible())
+	{
+		LLRect gear_btn_rect =  mGearBtn->getRect();
+		LLRect add_btn_rect = getChild<LLButton>("add_btn")->getRect();
+		LLRect call_btn_rect = getChild<LLButton>("voice_call_btn")->getRect();
+		S32 gap_width = call_btn_rect.mLeft - add_btn_rect.mRight;
+		S32 right_shift = gear_btn_rect.getWidth() + gap_width;
+		if(mGearBtn->getVisible())
+		{
+			// Move buttons to the right to give space for Gear button
+			add_btn_rect.translate(right_shift,0);
+			call_btn_rect.translate(right_shift,0);
+		}
+		else
+		{
+			add_btn_rect.translate(-right_shift,0);
+			call_btn_rect.translate(-right_shift,0);
+		}
+		getChild<LLButton>("add_btn")->setRect(add_btn_rect);
+		getChild<LLButton>("voice_call_btn")->setRect(call_btn_rect);
+	}
+}
+
+void LLFloaterIMSessionTab::initBtns()
+{
+	LLRect gear_btn_rect =  mGearBtn->getRect();
+	LLRect add_btn_rect = getChild<LLButton>("add_btn")->getRect();
+	LLRect call_btn_rect = getChild<LLButton>("voice_call_btn")->getRect();
+	S32 gap_width = call_btn_rect.mLeft - add_btn_rect.mRight;
+	S32 right_shift = gear_btn_rect.getWidth() + gap_width;
+
+	add_btn_rect.translate(-right_shift,0);
+	call_btn_rect.translate(-right_shift,0);
+
+	getChild<LLButton>("add_btn")->setRect(add_btn_rect);
+	getChild<LLButton>("voice_call_btn")->setRect(call_btn_rect);
 }
 
 // static

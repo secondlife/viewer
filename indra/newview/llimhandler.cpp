@@ -38,7 +38,7 @@ using namespace LLNotificationsUI;
 
 //--------------------------------------------------------------------------
 LLIMHandler::LLIMHandler()
-:	LLSysHandler("IM Notifications", "notifytoast")
+:	LLCommunicationNotificationHandler("IM Notifications", "notifytoast")
 {
 	// Getting a Channel for our notifications
 	mChannel = LLChannelManager::getInstance()->createNotificationChannel()->getHandle();

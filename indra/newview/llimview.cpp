@@ -149,7 +149,7 @@ void on_new_message(const LLSD& msg)
     }
 
     // do not show notification in "do not disturb" mode or it goes from agent
-    if (gAgent.isDoNotDisturb() || gAgent.getID() == participant_id)
+    if (gAgent.getID() == participant_id)
     {
         return;
     }
@@ -160,10 +160,16 @@ void on_new_message(const LLSD& msg)
     LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(session_id);
 
     //session floater not focused (visible or not)
-    bool sessionFloaterNotFocused = session_floater && !session_floater->hasFocus(); 
+    bool session_floater_not_focused = session_floater && !session_floater->hasFocus();
+    //conv. floater is closed
+    bool conversation_floater_is_closed =
+    		!(  im_box
+    		    && im_box->isInVisibleChain()
+                && !im_box->isMinimized());
 
     //conversation floater not focused (visible or not)
-    bool conversationFloaterNotFocused = im_box && !im_box->hasFocus();
+    bool conversation_floater_not_focused =
+    		conversation_floater_is_closed || !im_box->hasFocus();
 
     if ("toast" == action)
     {
@@ -187,12 +193,12 @@ void on_new_message(const LLSD& msg)
         }
 
         //User is not focused on conversation containing the message
-        if(sessionFloaterNotFocused)
+        if(session_floater_not_focused)
         {
             im_box->flashConversationItemWidget(session_id, true);
 
             //The conversation floater isn't focused/open
-            if(conversationFloaterNotFocused)
+            if(conversation_floater_not_focused)
             {
                 gToolBarView->flashCommand(LLCommandId("chat"), true);
 
@@ -204,23 +210,29 @@ void on_new_message(const LLSD& msg)
             }
         }
     }
+
     else if ("flash" == action)
     {
-        //User is not focused on conversation containing the message
-        if(sessionFloaterNotFocused && conversationFloaterNotFocused)
-        {
-            gToolBarView->flashCommand(LLCommandId("chat"), true); 
-        }
-        //conversation floater is open but a different conversation is focused
-        else if(sessionFloaterNotFocused)
-        {
-            im_box->flashConversationItemWidget(session_id, true);
-        }
+    	if (session_floater_not_focused)
+    	{
+    		//User is not focused on conversation containing the message
+
+            if(conversation_floater_not_focused)
+            {
+                gToolBarView->flashCommand(LLCommandId("chat"), true);
+            }
+            //conversation floater is open but a different conversation is focused
+            else
+            {
+                im_box->flashConversationItemWidget(session_id, true);
+            }
+    	}
     }
+
     else if("openconversations" == action)
     {
         //User is not focused on conversation containing the message
-        if(sessionFloaterNotFocused)
+        if(session_floater_not_focused)
         {
             //Flash line item
             im_box->flashConversationItemWidget(session_id, true);
@@ -2543,7 +2555,7 @@ void LLIMMgr::addMessage(
 		}
 
         //Play sound for new conversations
-        if(gSavedSettings.getBOOL("PlaySoundNewConversation") == TRUE)
+		if (!gAgent.isDoNotDisturb() && (gSavedSettings.getBOOL("PlaySoundNewConversation") == TRUE))
         {
             make_ui_sound("UISndNewIncomingIMSession");
         }
@@ -2699,12 +2711,13 @@ LLUUID LLIMMgr::addSession(
 	{
 		LLFloaterIMSession* im_floater = LLFloaterIMSession::findInstance(floater_id);
 
-		if (im_floater && im_floater->getStartConferenceInSameFloater())
+		if (im_floater)
 		{
 			// The IM floater should be initialized with a new session_id
 			// so that it is found by that id when creating a chiclet in LLFloaterIMSession::onIMChicletCreated,
 			// and a new floater is not created.
 			im_floater->initIMSession(session_id);
+            im_floater->reloadMessages();
 		}
 	}
 

@@ -99,6 +99,9 @@ public:
 	void setPositioned(bool b) { mPositioned = b; };
 
 	void onVisibilityChange(const LLSD& new_visibility);
+	bool enableGearMenuItem(const LLSD& userdata);
+	void GearDoToSelected(const LLSD& userdata);
+	bool checkGearMenuItem(const LLSD& userdata);
 
 	// Implements LLVoiceClientStatusObserver::onChange() to enable the call
 	// button when voice is available
@@ -124,8 +127,6 @@ public:
 	//used as a callback on receiving new IM message
 	static void sRemoveTypingIndicator(const LLSD& data);
 	static void onIMChicletCreated(const LLUUID& session_id);
-
-	bool getStartConferenceInSameFloater() const { return mStartConferenceInSameFloater; }
     const LLUUID& getOtherParticipantUUID() {return mOtherParticipantUUID;}
 
 	static boost::signals2::connection setIMFloaterShowedCallback(const floater_showed_signal_t::slot_type& cb);
@@ -184,8 +185,6 @@ private:
 
 	bool mSessionInitialized;
 	LLSD mQueuedMsgsForInit;
-
-	bool mStartConferenceInSameFloater;
 
 	uuid_vec_t mInvitedParticipants;
 

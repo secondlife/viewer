@@ -38,7 +38,7 @@ using namespace LLNotificationsUI;
 
 //--------------------------------------------------------------------------
 LLGroupHandler::LLGroupHandler()
-:	LLSysHandler("Group Notifications", "groupnotify")
+:	LLCommunicationNotificationHandler("Group Notifications", "groupnotify")
 {
 	// Getting a Channel for our notifications
 	LLScreenChannel* channel = LLChannelManager::getInstance()->createNotificationChannel();

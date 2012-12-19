@@ -39,7 +39,7 @@ using namespace LLNotificationsUI;
 
 //--------------------------------------------------------------------------
 LLScriptHandler::LLScriptHandler()
-:	LLSysHandler("Notifications", "notify")
+:	LLSystemNotificationHandler("Notifications", "notify")
 {
 	// Getting a Channel for our notifications
 	LLScreenChannel* channel = LLChannelManager::getInstance()->createNotificationChannel();

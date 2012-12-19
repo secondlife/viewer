@@ -35,6 +35,11 @@
 
 using namespace LLNotificationsUI;
 
+LLBrowserNotification::LLBrowserNotification()
+	: LLSystemNotificationHandler("Browser", "browser")
+{
+}
+
 bool LLBrowserNotification::processNotification(const LLNotificationPtr& notification)
 {
 	LLUUID media_id = notification->getPayload()["media_id"].asUUID();

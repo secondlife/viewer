@@ -42,7 +42,7 @@ using namespace LLNotificationsUI;
 
 //--------------------------------------------------------------------------
 LLTipHandler::LLTipHandler()
-:	LLSysHandler("NotificationTips", "notifytip")
+:	LLSystemNotificationHandler("NotificationTips", "notifytip")
 {
 	// Getting a Channel for our notifications
 	LLScreenChannel* channel = LLChannelManager::getInstance()->createNotificationChannel();

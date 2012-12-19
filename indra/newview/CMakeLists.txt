@@ -137,6 +137,7 @@ set(viewer_SOURCE_FILES
     llcommanddispatcherlistener.cpp
     llcommandhandler.cpp
     llcommandlineparser.cpp
+    llcommunicationchannel.cpp
     llcompilequeue.cpp
     llconfirmationmanager.cpp
     llconversationlog.cpp
@@ -152,6 +153,7 @@ set(viewer_SOURCE_FILES
     lldebugview.cpp
     lldelayedgestureerror.cpp
     lldirpicker.cpp
+    lldonotdisturbnotificationstorage.cpp
     lldndbutton.cpp
     lldrawable.cpp
     lldrawpool.cpp
@@ -448,6 +450,7 @@ set(viewer_SOURCE_FILES
     llpathfindingobject.cpp
     llpathfindingobjectlist.cpp
     llpathfindingpathtool.cpp
+    llpersistentnotificationstorage.cpp
     llphysicsmotion.cpp
     llphysicsshapebuilderutil.cpp
     llplacesinventorybridge.cpp
@@ -722,6 +725,7 @@ set(viewer_HEADER_FILES
     llcommanddispatcherlistener.h
     llcommandhandler.h
     llcommandlineparser.h
+    llcommunicationchannel.h
     llcompilequeue.h
     llconfirmationmanager.h
     llconversationlog.h
@@ -737,6 +741,7 @@ set(viewer_HEADER_FILES
     lldebugview.h
     lldelayedgestureerror.h
     lldirpicker.h
+    lldonotdisturbnotificationstorage.h
     lldndbutton.h
     lldrawable.h
     lldrawpool.h
@@ -1021,6 +1026,7 @@ set(viewer_HEADER_FILES
     llpathfindingobject.h
     llpathfindingobjectlist.h
     llpathfindingpathtool.h
+    llpersistentnotificationstorage.h
     llphysicsmotion.h
     llphysicsshapebuilderutil.h
     llplacesinventorybridge.h

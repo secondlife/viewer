@@ -27,6 +27,7 @@
 #ifndef LL_LLNOTIFICATIONHANDLER_H
 #define LL_LLNOTIFICATIONHANDLER_H
 
+#include <boost/intrusive_ptr.hpp>
 
 #include "llwindow.h"
 
@@ -86,22 +87,37 @@ protected:
 /**
  * Handler for system notifications.
  */
-class LLSysHandler : public LLEventHandler, public LLNotificationChannel
+class LLNotificationHandler : public LLEventHandler, public LLNotificationChannel
 {
 public:
-	LLSysHandler(const std::string& name, const std::string& notification_type);
-	virtual ~LLSysHandler() {};
+	LLNotificationHandler(const std::string& name, const std::string& notification_type, const std::string& parentName);
+	virtual ~LLNotificationHandler() {};
 
 	// base interface functions
-	/*virtual*/ void onAdd(LLNotificationPtr p) { processNotification(p); }
-	/*virtual*/ void onLoad(LLNotificationPtr p) { processNotification(p); }
-	/*virtual*/ void onDelete(LLNotificationPtr p) { if (mChannel.get()) mChannel.get()->removeToastByNotificationID(p->getID());}
+	virtual void onAdd(LLNotificationPtr p) { processNotification(p); }
+	virtual void onChange(LLNotificationPtr p) { processNotification(p); }
+	virtual void onLoad(LLNotificationPtr p) { processNotification(p); }
+	virtual void onDelete(LLNotificationPtr p) { if (mChannel.get()) mChannel.get()->removeToastByNotificationID(p->getID());}
 
-	virtual bool processNotification(const LLNotificationPtr& notify)=0;
+	virtual bool processNotification(const LLNotificationPtr& notify) = 0;
+};
+
+class LLSystemNotificationHandler : public LLNotificationHandler
+{
+public:
+	LLSystemNotificationHandler(const std::string& name, const std::string& notification_type);
+	virtual ~LLSystemNotificationHandler() {};
+};
+
+class LLCommunicationNotificationHandler : public LLNotificationHandler
+{
+public:
+	LLCommunicationNotificationHandler(const std::string& name, const std::string& notification_type);
+	virtual ~LLCommunicationNotificationHandler() {};
 };
 
 /**
- * Handler for chat message notifications.
+ * Handler for chat message notifications. 
  */
 class LLChatHandler : public LLEventHandler
 {
@@ -115,67 +131,62 @@ public:
  * Handler for IM notifications.
  * It manages life time of IMs, group messages.
  */
-class LLIMHandler : public LLSysHandler
+class LLIMHandler : public LLCommunicationNotificationHandler
 {
 public:
 	LLIMHandler();
 	virtual ~LLIMHandler();
+	bool processNotification(const LLNotificationPtr& p);
 
 protected:
-	bool processNotification(const LLNotificationPtr& p);
-	/*virtual*/ void initChannel();
+	virtual void initChannel();
 };
 
 /**
  * Handler for system informational notices.
  * It manages life time of tip notices.
  */
-class LLTipHandler : public LLSysHandler
+class LLTipHandler : public LLSystemNotificationHandler
 {
 public:
 	LLTipHandler();
 	virtual ~LLTipHandler();
 
-	// base interface functions
-	/*virtual*/ void onChange(LLNotificationPtr p) { processNotification(p); }
-	/*virtual*/ bool processNotification(const LLNotificationPtr& p);
+	virtual bool processNotification(const LLNotificationPtr& p);
 
 protected:
-	/*virtual*/ void initChannel();
+	virtual void initChannel();
 };
 
 /**
  * Handler for system informational notices.
  * It manages life time of script notices.
  */
-class LLScriptHandler : public LLSysHandler
+class LLScriptHandler : public LLSystemNotificationHandler
 {
 public:
 	LLScriptHandler();
 	virtual ~LLScriptHandler();
 
-	/*virtual*/ void onDelete(LLNotificationPtr p);
-	// base interface functions
-	/*virtual*/ bool processNotification(const LLNotificationPtr& p);
+	virtual void onDelete(LLNotificationPtr p);
+	virtual bool processNotification(const LLNotificationPtr& p);
 
 protected:
-	/*virtual*/ void onDeleteToast(LLToast* toast);
-	/*virtual*/ void initChannel();
+	virtual void onDeleteToast(LLToast* toast);
+	virtual void initChannel();
 };
 
 
 /**
  * Handler for group system notices.
  */
-class LLGroupHandler : public LLSysHandler
+class LLGroupHandler : public LLCommunicationNotificationHandler
 {
 public:
 	LLGroupHandler();
 	virtual ~LLGroupHandler();
 	
-	// base interface functions
-	/*virtual*/ void onChange(LLNotificationPtr p) { processNotification(p); }
-	/*virtual*/ bool processNotification(const LLNotificationPtr& p);
+	virtual bool processNotification(const LLNotificationPtr& p);
 
 protected:
 	virtual void initChannel();
@@ -184,15 +195,14 @@ protected:
 /**
  * Handler for alert system notices.
  */
-class LLAlertHandler : public LLSysHandler
+class LLAlertHandler : public LLSystemNotificationHandler
 {
 public:
 	LLAlertHandler(const std::string& name, const std::string& notification_type, bool is_modal);
 	virtual ~LLAlertHandler();
 
-	/*virtual*/ void onChange(LLNotificationPtr p);
-	/*virtual*/ void onLoad(LLNotificationPtr p) { processNotification(p); }
-	/*virtual*/ bool processNotification(const LLNotificationPtr& p);
+	virtual void onChange(LLNotificationPtr p);
+	virtual bool processNotification(const LLNotificationPtr& p);
 
 protected:
 	virtual void initChannel();
@@ -200,67 +210,85 @@ protected:
 	bool	mIsModal;
 };
 
+class LLViewerAlertHandler  : public LLSystemNotificationHandler
+{
+	LOG_CLASS(LLViewerAlertHandler);
+public:
+	LLViewerAlertHandler(const std::string& name, const std::string& notification_type);
+	virtual ~LLViewerAlertHandler() {};
+
+	virtual void onDelete(LLNotificationPtr p) {};
+	virtual bool processNotification(const LLNotificationPtr& p);
+
+protected:
+	virtual void initChannel() {};
+};
+
 /**
  * Handler for offers notices.
  * It manages life time of offer notices.
  */
-class LLOfferHandler : public LLSysHandler
+class LLOfferHandler : public LLCommunicationNotificationHandler
 {
 public:
 	LLOfferHandler();
 	virtual ~LLOfferHandler();
 
-	// base interface functions
-	/*virtual*/ void onChange(LLNotificationPtr p);
-	/*virtual*/ void onDelete(LLNotificationPtr notification);
-	/*virtual*/ bool processNotification(const LLNotificationPtr& p);
+	virtual void onChange(LLNotificationPtr p);
+	virtual void onDelete(LLNotificationPtr notification);
+	virtual bool processNotification(const LLNotificationPtr& p);
 
 protected:
-	/*virtual*/ void initChannel();
+	virtual void initChannel();
 };
 
 /**
  * Handler for UI hints.
  */
-class LLHintHandler : public LLNotificationChannel
+class LLHintHandler : public LLSystemNotificationHandler
 {
 public:
-	LLHintHandler() : LLNotificationChannel("Hints", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "hint"))
-	{}
+	LLHintHandler();
 	virtual ~LLHintHandler() {}
 
-	/*virtual*/ void onAdd(LLNotificationPtr p);
-	/*virtual*/ void onLoad(LLNotificationPtr p);
-	/*virtual*/ void onDelete(LLNotificationPtr p);
+	virtual void onAdd(LLNotificationPtr p);
+	virtual void onLoad(LLNotificationPtr p);
+	virtual void onDelete(LLNotificationPtr p);
+	virtual bool processNotification(const LLNotificationPtr& p);
+
+protected:
+	virtual void initChannel() {};
 };
 
 /**
  * Handler for browser notifications
  */
-class LLBrowserNotification : public LLNotificationChannel
+class LLBrowserNotification : public LLSystemNotificationHandler
 {
 public:
-	LLBrowserNotification()
-	: LLNotificationChannel("Browser", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "browser"))
-	{}
-	/*virtual*/ void onAdd(LLNotificationPtr p) { processNotification(p); }
-	/*virtual*/ void onChange(LLNotificationPtr p) { processNotification(p); }
-	bool processNotification(const LLNotificationPtr& p);
+	LLBrowserNotification();
+	virtual ~LLBrowserNotification() {}
+
+	virtual bool processNotification(const LLNotificationPtr& p);
+
+protected:
+	virtual void initChannel() {};
 };
 	
 /**
  * Handler for outbox notifications
  */
-class LLOutboxNotification : public LLNotificationChannel
+class LLOutboxNotification : public LLSystemNotificationHandler
 {
 public:
-	LLOutboxNotification()
-	:	LLNotificationChannel("Outbox", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "outbox"))
-	{}
-	/*virtual*/ void onAdd(LLNotificationPtr p) { processNotification(p); }
-	/*virtual*/ void onChange(LLNotificationPtr p) { }
-	/*virtual*/ void onDelete(LLNotificationPtr p);
-	bool processNotification(const LLNotificationPtr& p);
+	LLOutboxNotification();
+	virtual ~LLOutboxNotification() {};
+	virtual void onChange(LLNotificationPtr p) { }
+	virtual void onDelete(LLNotificationPtr p);
+	virtual bool processNotification(const LLNotificationPtr& p);
+
+protected:
+	virtual void initChannel() {};
 };
 	
 class LLHandlerUtil

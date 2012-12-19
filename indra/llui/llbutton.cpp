@@ -613,29 +613,11 @@ void LLButton::draw()
 	static LLCachedControl<bool> sEnableButtonFlashing(*LLUI::sSettingGroups["config"], "EnableButtonFlashing", true);
 	F32 alpha = mUseDrawContextAlpha ? getDrawContext().mAlpha : getCurrentTransparency();
 
-	bool flash = false;
 	if (mFlashingTimer)
 	{
 		mFlashing = mFlashingTimer->isFlashingInProgress();
-		flash = mFlashing && (!sEnableButtonFlashing || mFlashingTimer->isCurrentlyHighlighted());
 	}
-	else 
-	{
-		if(mFlashing)
-		{
-			if ( sEnableButtonFlashing)
-			{
-				F32 elapsed = mFrameTimer.getElapsedTimeF32();
-				S32 flash_count = S32(elapsed * mButtonFlashRate * 2.f);
-				// flash on or off?
-				flash = (flash_count % 2 == 0) || flash_count > S32((F32)mButtonFlashCount * 2.f);
-			}
-			else
-			{ // otherwise just highlight button in flash color
-				flash = true;
-			}
-		}
-	}
+	bool flash = mFlashing && sEnableButtonFlashing;
 
 	bool pressed_by_keyboard = FALSE;
 	if (hasFocus())
@@ -660,7 +642,8 @@ void LLButton::draw()
 	bool selected = getToggleState();
 	
 	bool use_glow_effect = FALSE;
-	LLColor4 glow_color = LLColor4::white;
+	LLColor4 highlighting_color = LLColor4::white;
+	LLColor4 glow_color;
 	LLRender::eBlendType glow_type = LLRender::BT_ADD_WITH_ALPHA;
 	LLUIImage* imagep = NULL;
 	if (pressed && mDisplayPressedState)
@@ -733,10 +716,15 @@ void LLButton::draw()
 			LLColor4 flash_color = mFlashBgColor.get();
 			use_glow_effect = TRUE;
 			glow_type = LLRender::BT_ALPHA; // blend the glow
-			if (mNeedsHighlight) // highlighted AND flashing
-				glow_color = (glow_color*0.5f + flash_color*0.5f) % 2.0f; // average between flash and highlight colour, with sum of the opacity
-			else
+
+			if (mFlashingTimer->isCurrentlyHighlighted())
+			{
 				glow_color = flash_color;
+			}
+			else if (mNeedsHighlight)
+			{
+                glow_color = highlighting_color;
+			}
 		}
 	}
 
@@ -785,7 +773,7 @@ void LLButton::draw()
 	if (use_glow_effect)
 	{
 		mCurGlowStrength = lerp(mCurGlowStrength,
-					mFlashing ? (flash? 1.0 : 0.0)
+					mFlashing ? (mFlashingTimer->isCurrentlyHighlighted() || mNeedsHighlight? 1.0 : 0.0)
 					: mHoverGlowStrength,
 					LLCriticalDamp::getInterpolant(0.05f));
 	}

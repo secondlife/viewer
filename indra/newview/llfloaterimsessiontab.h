@@ -77,7 +77,6 @@ public:
 
 	// LLFloater overrides
 	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ void onClose(bool app_quitting);
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void draw();
 	/*virtual*/ void setVisible(BOOL visible);
@@ -92,9 +91,12 @@ public:
 
 	void setSortOrder(const LLConversationSort& order);
 	virtual void onTearOffClicked();
-	
+	void updateGearBtn();
+	void initBtns();
 	virtual void updateMessages() {}
 	LLConversationItem* getCurSelectedViewModelItem();
+
+	void forceReshape();
 
 protected:
 
@@ -157,6 +159,8 @@ protected:
 	LLButton* mExpandCollapseBtn;
 	LLButton* mTearOffBtn;
 	LLButton* mCloseBtn;
+	LLButton* mGearBtn;
+
 
 private:
 	// Handling selection and contextual menu
