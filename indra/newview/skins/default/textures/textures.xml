@@ -365,6 +365,8 @@ with the same filename but different name
 
   <texture name="Nearby_chat_icon" file_name="icons/nearby_chat_icon.png" preload="false" />
 
+  <texture name="Notices_Unread" file_name="bottomtray/Notices_Unread.png" preload="true" />
+
   <texture name="NoEntryLines" file_name="world/NoEntryLines.png" use_mips="true" preload="false" />
   <texture name="NoEntryPassLines" file_name="world/NoEntryPassLines.png" use_mips="true" preload="false" />
 

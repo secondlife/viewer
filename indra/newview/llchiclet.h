@@ -29,9 +29,69 @@
 
 #include "llavatariconctrl.h"
 #include "llbutton.h"
+#include "llnotifications.h"
+#include "lltextbox.h"
 
 class LLMenuGL;
 class LLFloaterIMSession;
+
+/**
+ * Class for displaying amount of messages/notifications(unread).
+ */
+class LLChicletNotificationCounterCtrl : public LLTextBox
+{
+public:
+
+	struct Params :	public LLInitParam::Block<Params, LLTextBox::Params>
+	{
+		/**
+		 * Contains maximum displayed count of unread messages. Default value is 9.
+		 *
+		 * If count is less than "max_unread_count" will be displayed as is.
+		 * Otherwise 9+ will be shown (for default value).
+		 */
+		Optional<S32> max_displayed_count;
+
+		Params();
+	};
+
+	/**
+	 * Sets number of notifications
+	 */
+	virtual void setCounter(S32 counter);
+
+	/**
+	 * Returns number of notifications
+	 */
+	virtual S32 getCounter() const { return mCounter; }
+
+	/**
+	 * Returns width, required to display amount of notifications in text form.
+	 * Width is the only valid value.
+	 */
+	/*virtual*/ LLRect getRequiredRect();
+
+	/**
+	 * Sets number of notifications using LLSD
+	 */
+	/*virtual*/ void setValue(const LLSD& value);
+
+	/**
+	 * Returns number of notifications wrapped in LLSD
+	 */
+	/*virtual*/ LLSD getValue() const;
+
+protected:
+
+	LLChicletNotificationCounterCtrl(const Params& p);
+	friend class LLUICtrlFactory;
+
+private:
+
+	S32 mCounter;
+	S32 mInitialWidth;
+	S32 mMaxDisplayedCount;
+};
 
 /**
  * Class for displaying avatar's icon in P2P chiclet.
@@ -104,7 +164,7 @@ public:
 		Params();
 	};
 
-	/*virtual*/ ~LLChiclet();
+	virtual ~LLChiclet() {}
 
 	/**
 	 * Associates chat session id with chiclet.
@@ -115,6 +175,11 @@ public:
 	 * Returns associated chat session.
 	 */
 	virtual const LLUUID& getSessionId() const { return mSessionId; }
+
+	/**
+	 * Sets show counter state.
+	 */
+	virtual void setShowCounter(bool show) { mShowCounter = show; }
 
 	/**
 	 * Connects chiclet clicked event with callback.
@@ -193,6 +258,22 @@ public:
 	 * It is used for default setting up of chicklet:click handler, etc.  
 	 */
 	BOOL postBuild();
+
+	/**
+	 * Sets IM session name. This name will be displayed in chiclet tooltip.
+	 */
+	virtual void setIMSessionName(const std::string& name) { setToolTip(name); }
+
+	/**
+	 * Sets id of person/group user is chatting with.
+	 * Session id should be set before calling this
+	 */
+	virtual void setOtherParticipantId(const LLUUID& other_participant_id) { mOtherParticipantId = other_participant_id; }
+
+	/**
+	 * Enables/disables the counter control for a chiclet.
+	 */
+	virtual void enableCounterControl(bool enable);
 
 	/**
 	* Sets required width for a chiclet according to visible controls.
@@ -364,6 +445,131 @@ protected:
 
 private:
 	LLChicletInvOfferIconCtrl* mChicletIconCtrl;
+};
+
+/**
+ * Implements notification chiclet. Used to display total amount of unread messages 
+ * across all IM sessions, total amount of system notifications. See EXT-3147 for details
+ */
+class LLSysWellChiclet : public LLChiclet
+{
+public:
+		
+	struct Params : public LLInitParam::Block<Params, LLChiclet::Params>
+	{
+		Optional<LLButton::Params> button;
+
+		Optional<LLChicletNotificationCounterCtrl::Params> unread_notifications;
+
+		/**
+		 * Contains maximum displayed count of unread messages. Default value is 9.
+		 *
+		 * If count is less than "max_unread_count" will be displayed as is.
+		 * Otherwise 9+ will be shown (for default value).
+		 */
+		Optional<S32> max_displayed_count;
+
+		Params();
+	};
+
+	/*virtual*/ void setCounter(S32 counter);
+
+	// *TODO: mantipov: seems getCounter is not necessary for LLNotificationChiclet
+	// but inherited interface requires it to implement. 
+	// Probably it can be safe removed.
+	/*virtual*/S32 getCounter() { return mCounter; }
+
+	boost::signals2::connection setClickCallback(const commit_callback_t& cb);
+
+	/*virtual*/ ~LLSysWellChiclet();
+
+	void setToggleState(BOOL toggled);
+
+	void setNewMessagesState(bool new_messages);
+	//this method should change a widget according to state of the SysWellWindow 
+	virtual void updateWidget(bool is_window_empty);
+
+protected:
+
+	LLSysWellChiclet(const Params& p);
+	friend class LLUICtrlFactory;
+
+	/**
+	 * Change Well 'Lit' state from 'Lit' to 'Unlit' and vice-versa.
+	 *
+	 * There is an assumption that it will be called 2*N times to do not change its start state.
+	 * @see FlashToLitTimer
+	 */
+	void changeLitState(bool blink);
+
+	/**
+	 * Displays menu.
+	 */
+	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+
+	virtual void createMenu() = 0;
+
+protected:
+	class FlashToLitTimer;
+	LLButton* mButton;
+	S32 mCounter;
+	S32 mMaxDisplayedCount;
+	bool mIsNewMessagesState;
+
+	LLFlashTimer* mFlashToLitTimer;
+	LLContextMenu* mContextMenu;
+};
+
+class LLNotificationChiclet : public LLSysWellChiclet
+{
+	LOG_CLASS(LLNotificationChiclet);
+			
+	friend class LLUICtrlFactory;
+public:
+	struct Params : public LLInitParam::Block<Params, LLSysWellChiclet::Params>{};
+		
+protected:
+	struct ChicletNotificationChannel : public LLNotificationChannel
+	{
+		ChicletNotificationChannel(LLNotificationChiclet* chiclet) 
+			: LLNotificationChannel(LLNotificationChannel::Params().filter(filterNotification).name(chiclet->getSessionId().asString()))
+			, mChiclet(chiclet)
+		{
+			// connect counter handlers to the signals
+			connectToChannel("Group Notifications");
+			connectToChannel("Offer");
+			connectToChannel("Notifications");
+		}
+				
+		static bool filterNotification(LLNotificationPtr notify);
+		// connect counter updaters to the corresponding signals
+		/*virtual*/ void onAdd(LLNotificationPtr p) { mChiclet->setCounter(++mChiclet->mUreadSystemNotifications); }
+		/*virtual*/ void onDelete(LLNotificationPtr p) { mChiclet->setCounter(--mChiclet->mUreadSystemNotifications); }
+				
+		LLNotificationChiclet* const mChiclet;
+	};
+				
+	boost::scoped_ptr<ChicletNotificationChannel> mNotificationChannel;
+				
+	LLNotificationChiclet(const Params& p);
+				
+	/**
+	 * Processes clicks on chiclet menu.
+	 */
+	void onMenuItemClicked(const LLSD& user_data);
+				
+	/**
+	 * Enables chiclet menu items.
+	 */
+	bool enableMenuItem(const LLSD& user_data);
+				
+	/**
+	 * Creates menu.
+	 */
+	/*virtual*/ void createMenu();
+
+	/*virtual*/ void setCounter(S32 counter);
+	S32 mUreadSystemNotifications;
 };
 
 /**

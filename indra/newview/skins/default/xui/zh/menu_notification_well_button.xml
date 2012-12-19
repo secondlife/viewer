@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Notification Well Button Context Menu">
+	<menu_item_call label="全部關閉" name="Close All"/>
+</context_menu>
