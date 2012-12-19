@@ -126,7 +126,13 @@ LLResponderRegistry::LLResponderRegistry()
 	, mBuildMap()
 {
 	add("ObjectGiveItem", &create<LLOfferInfo>);
+	add("OwnObjectGiveItem", &create<LLOfferInfo>);
 	add("UserGiveItem", &create<LLOfferInfo>);
+
+	add("TeleportOffered", &create<LLOfferInfo>);
+	add("TeleportOffered_MaturityExceeded", &create<LLOfferInfo>);
+
+	add("OfferFriendship", &create<LLOfferInfo>);
 }
 
 LLResponderRegistry::~LLResponderRegistry()

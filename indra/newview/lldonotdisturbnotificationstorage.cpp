@@ -98,8 +98,6 @@ void LLDoNotDisturbNotificationStorage::loadNotifications()
 {
 	LLFastTimer _(FTM_LOAD_DND_NOTIFICATIONS);
 	
-	LL_INFOS("stinsonDebug") << "STINSON DEBUG: loading notifiations" << LL_ENDL;
-
 	LLSD input;
 	if (!readNotifications(input) ||input.isUndefined())
 	{
@@ -127,8 +125,6 @@ void LLDoNotDisturbNotificationStorage::loadNotifications()
 		LLSD notification_params = *notification_it;
 		LLNotificationPtr notification(new LLNotification(notification_params));
 		
-		LL_INFOS("stinsonDebug") << "STINSON DEBUG: loading notification of type '" << notification->getType() << "'" << LL_ENDL;
-
 		const LLUUID& notificationID = notification->id();
 		if (instance.find(notificationID))
 		{
@@ -136,8 +132,17 @@ void LLDoNotDisturbNotificationStorage::loadNotifications()
 		}
 		else
 		{
-			LLNotificationResponderPtr responder(createResponder(notification_params["name"], notification_params["responder"]));
-			notification->setResponseFunctor(responder);
+			LLNotificationResponderInterface* responder = createResponder(notification_params["name"], notification_params["responder"]);
+			if (responder == NULL)
+			{
+				LL_WARNS("LLDoNotDisturbNotificationStorage") << "cannot create responder for notification of type '"
+					<< notification->getType() << "'" << LL_ENDL;
+			}
+			else
+			{
+				LLNotificationResponderPtr responderPtr(responder);
+				notification->setResponseFunctor(responderPtr);
+			}
 			
 			instance.add(notification);
 		}
