@@ -2699,12 +2699,13 @@ LLUUID LLIMMgr::addSession(
 	{
 		LLFloaterIMSession* im_floater = LLFloaterIMSession::findInstance(floater_id);
 
-		if (im_floater && im_floater->getStartConferenceInSameFloater())
+		if (im_floater)
 		{
 			// The IM floater should be initialized with a new session_id
 			// so that it is found by that id when creating a chiclet in LLFloaterIMSession::onIMChicletCreated,
 			// and a new floater is not created.
 			im_floater->initIMSession(session_id);
+            im_floater->reloadMessages();
 		}
 	}
 

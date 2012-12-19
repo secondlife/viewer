@@ -38,7 +38,7 @@
          name="conversations_layout_panel"
          min_dim="38"
          width="225"
-         expanded_min_dim="200">
+         expanded_min_dim="156">
             <layout_stack
              animate="false" 
              follows="left|top|right"
@@ -108,7 +108,7 @@
                      image_unselected="Toolbar_Middle_Off"
                      layout="topleft"
                      top="5"
-                     left="5"
+                     left="1"
                      name="expand_collapse_btn"
                      tool_tip="Collapse/Expand this list"
                      width="31" />
@@ -128,7 +128,7 @@
          auto_resize="true"
          user_resize="true"
          name="messages_layout_panel"
-         expanded_min_dim="225">
+         expanded_min_dim="222">
             <panel_container
              bottom="-1"
              follows="all"
