@@ -41,6 +41,7 @@
 #include "llchannelmanager.h"
 #include "llchicletbar.h"
 #include "llconsole.h"
+#include "lldonotdisturbnotificationstorage.h"
 #include "llenvmanager.h"
 #include "llfirstuse.h"
 #include "llfloatercamera.h"
@@ -1389,11 +1390,16 @@ BOOL LLAgent::getAFK() const
 //-----------------------------------------------------------------------------
 // setDoNotDisturb()
 //-----------------------------------------------------------------------------
-void LLAgent::setDoNotDisturb(bool pIsDotNotDisturb)
+void LLAgent::setDoNotDisturb(bool pIsDoNotDisturb)
 {
-	mIsDoNotDisturb = pIsDotNotDisturb;
-	sendAnimationRequest(ANIM_AGENT_DO_NOT_DISTURB, (pIsDotNotDisturb ? ANIM_REQUEST_START : ANIM_REQUEST_STOP));
-	LLNotificationsUI::LLChannelManager::getInstance()->muteAllChannels(pIsDotNotDisturb);
+	bool isDoNotDisturbSwitchedOff = (mIsDoNotDisturb && !pIsDoNotDisturb);
+	mIsDoNotDisturb = pIsDoNotDisturb;
+	sendAnimationRequest(ANIM_AGENT_DO_NOT_DISTURB, (pIsDoNotDisturb ? ANIM_REQUEST_START : ANIM_REQUEST_STOP));
+	LLNotificationsUI::LLChannelManager::getInstance()->muteAllChannels(pIsDoNotDisturb);
+	if (isDoNotDisturbSwitchedOff)
+	{
+		LLDoNotDisturbNotificationStorage::getInstance()->loadNotifications();
+	}
 }
 
 //-----------------------------------------------------------------------------
