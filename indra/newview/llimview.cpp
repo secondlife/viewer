@@ -155,6 +155,8 @@ void on_new_message(const LLSD& msg)
     }
 
     // execution of the action
+	llinfos << "Merov debug : on_new_message action = " << action << llendl;
+	
 
     LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
     LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(session_id);
@@ -174,13 +176,11 @@ void on_new_message(const LLSD& msg)
     if ("toast" == action)
     {
         // Skip toasting if we have open window of IM with this session id
-        if (
-            session_floater
+        if (session_floater
             && session_floater->isInVisibleChain()
             && session_floater->hasFocus()
             && !session_floater->isMinimized()
-            && !(session_floater->getHost()
-            && session_floater->getHost()->isMinimized())
+            && !(session_floater->getHost() && session_floater->getHost()->isMinimized())
             )
         {
             return;
@@ -222,10 +222,10 @@ void on_new_message(const LLSD& msg)
                 gToolBarView->flashCommand(LLCommandId("chat"), true);
             }
             //conversation floater is open but a different conversation is focused
-            else
-            {
+            //else
+            //{
                 im_box->flashConversationItemWidget(session_id, true);
-            }
+            //}
     	}
     }
 

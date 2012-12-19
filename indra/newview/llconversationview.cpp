@@ -109,6 +109,7 @@ void LLConversationViewSession::startFlashing()
 {
 	if (mFlashStateOn && !mFlashStarted)
 	{
+		llinfos << "Merov debug : Start the flashing for " << getName() << llendl;
 		mFlashStarted = true;
 		mFlashTimer->startFlashing();
 	}
