@@ -73,8 +73,7 @@ LLFloaterIMSession::LLFloaterIMSession(const LLUUID& session_id)
 	mTypingTimer(),
 	mTypingTimeoutTimer(),
 	mPositioned(false),
-	mSessionInitialized(false),
-	mStartConferenceInSameFloater(false)
+	mSessionInitialized(false)
 {
 	mIsNearbyChat = false;
 
@@ -461,8 +460,6 @@ void LLFloaterIMSession::addP2PSessionParticipants(const LLSD& notification, con
 	{
 		return;
 	}
-
-	mStartConferenceInSameFloater = true;
 
 	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(mSessionID);
 
