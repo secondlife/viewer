@@ -34,7 +34,7 @@
 #include "lltimer.h"
 #include "lltrace.h"
 
-class LL_COMMON_API LLStopWatchControlsMixinCommon
+class LLStopWatchControlsMixinCommon
 {
 public:
 	virtual ~LLStopWatchControlsMixinCommon() {}
@@ -101,7 +101,7 @@ private:
 
 namespace LLTrace
 {
-	class LL_COMMON_API Recording : public LLStopWatchControlsMixin<Recording>
+	class Recording : public LLStopWatchControlsMixin<Recording>
 	{
 	public:
 		Recording();
@@ -126,6 +126,10 @@ namespace LLTrace
 		LLUnit<LLUnits::Seconds, F64> getPerSec(const TraceType<TimeBlockAccumulator>& stat) const;
 		LLUnit<LLUnits::Seconds, F64> getPerSec(const TraceType<TimeBlockAccumulator::SelfTimeAspect>& stat) const;
 		F32 getPerSec(const TraceType<TimeBlockAccumulator::CallCountAspect>& stat) const;
+
+		// Memory accessors
+		LLUnit<LLUnits::Bytes, U32> getSum(const TraceType<MemStatAccumulator>& stat) const;
+		LLUnit<LLUnits::Bytes, F32> getPerSec(const TraceType<MemStatAccumulator>& stat) const;
 
 		// Count accessors
 		F64 getSum(const TraceType<CountAccumulator<F64> >& stat) const;
@@ -226,7 +230,8 @@ namespace LLTrace
 		LLCopyOnWritePointer<AccumulatorBuffer<MeasurementAccumulator<F64> > >	mMeasurementsFloat;
 		LLCopyOnWritePointer<AccumulatorBuffer<CountAccumulator<S64> > >		mCounts;
 		LLCopyOnWritePointer<AccumulatorBuffer<MeasurementAccumulator<S64> > >	mMeasurements;
-		LLCopyOnWritePointer<AccumulatorBuffer<TimeBlockAccumulator> >				mStackTimers;
+		LLCopyOnWritePointer<AccumulatorBuffer<TimeBlockAccumulator> >			mStackTimers;
+		LLCopyOnWritePointer<AccumulatorBuffer<MemStatAccumulator> >			mMemStats;
 
 		LLTimer			mSamplingTimer;
 		F64				mElapsedSeconds;

@@ -1233,8 +1233,8 @@ bool LLAppViewer::mainLoop()
 	while (!LLApp::isExiting())
 	{
 		LLFastTimer _(FTM_FRAME);
-		LLTrace::TimeBlock::nextFrame(); 
 		LLTrace::get_frame_recording().nextPeriod();
+		LLTrace::TimeBlock::logStats();
 
 		LLTrace::getMasterThreadRecorder().pullFromSlaveThreads();
 

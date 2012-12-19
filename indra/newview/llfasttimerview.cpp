@@ -58,6 +58,7 @@ static const S32 MAX_VISIBLE_HISTORY = 10;
 static const S32 LINE_GRAPH_HEIGHT = 240;
 
 const S32 FTV_MAX_DEPTH = 8;
+const S32 HISTORY_NUM = 300;
 
 std::vector<LLTrace::TimeBlock*> ft_display_idx; // line of table entry for display purposes (for collapse)
 
@@ -77,6 +78,19 @@ static timer_tree_iterator_t end_timer_tree()
 	return timer_tree_iterator_t(); 
 }
 
+S32 get_depth(const TimeBlock* blockp)
+{
+	S32 depth = 0;
+	TimeBlock* timerp = blockp->mParent;
+	while(timerp)
+	{
+		depth++;
+		if (timerp->getParent() == timerp) break;
+		timerp = timerp->mParent;
+	}
+	return depth;
+}
+
 LLFastTimerView::LLFastTimerView(const LLSD& key)
 :	LLFloater(key),
 	mHoverTimer(NULL),
@@ -88,7 +102,8 @@ LLFastTimerView::LLFastTimerView(const LLSD& key)
 	mHoverID(NULL),
 	mHoverBarIndex(-1),
 	mPrintStats(-1),
-	mRecording(&LLTrace::get_frame_recording())
+	mRecording(&LLTrace::get_frame_recording()),
+	mPauseHistory(false)
 {}
 
 LLFastTimerView::~LLFastTimerView()
@@ -102,13 +117,12 @@ LLFastTimerView::~LLFastTimerView()
 
 void LLFastTimerView::onPause()
 {
-	LLTrace::TimeBlock::sPauseHistory = !LLTrace::TimeBlock::sPauseHistory;
+	mPauseHistory = !mPauseHistory;
 	// reset scroll to bottom when unpausing
-	if (!LLTrace::TimeBlock::sPauseHistory)
+	if (!mPauseHistory)
 	{
 		mRecording = new LLTrace::PeriodicRecording(LLTrace::get_frame_recording());
 		mScrollIndex = 0;
-		LLTrace::TimeBlock::sResetHistory = true;
 		getChild<LLButton>("pause_btn")->setLabel(getString("pause"));
 	}
 	else
@@ -239,14 +253,14 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 	if (hasMouseCapture())
 	{
 		F32 lerp = llclamp(1.f - (F32) (x - mGraphRect.mLeft) / (F32) mGraphRect.getWidth(), 0.f, 1.f);
-		mScrollIndex = llround( lerp * (F32)(LLTrace::TimeBlock::HISTORY_NUM - MAX_VISIBLE_HISTORY));
+		mScrollIndex = llround( lerp * (F32)(HISTORY_NUM - MAX_VISIBLE_HISTORY));
 		mScrollIndex = llclamp(	mScrollIndex, 0, frame_recording.getNumPeriods());
 		return TRUE;
 	}
 	mHoverTimer = NULL;
 	mHoverID = NULL;
 
-	if(LLTrace::TimeBlock::sPauseHistory && mBarRect.pointInRect(x, y))
+	if(mPauseHistory && mBarRect.pointInRect(x, y))
 	{
 		mHoverBarIndex = llmin(mRecording->getNumPeriods() - 1, 
 								MAX_VISIBLE_HISTORY - ((y - mBarRect.mBottom) * (MAX_VISIBLE_HISTORY + 2) / mBarRect.getHeight()));
@@ -322,7 +336,7 @@ static std::string get_tooltip(LLTrace::TimeBlock& timer, S32 history_index, LLT
 
 BOOL LLFastTimerView::handleToolTip(S32 x, S32 y, MASK mask)
 {
-	if(LLTrace::TimeBlock::sPauseHistory && mBarRect.pointInRect(x, y))
+	if(mPauseHistory && mBarRect.pointInRect(x, y))
 	{
 		// tooltips for timer bars
 		if (mHoverTimer)
@@ -362,10 +376,10 @@ BOOL LLFastTimerView::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
 	LLTrace::PeriodicRecording& frame_recording = *mRecording;
 
-	LLTrace::TimeBlock::sPauseHistory = TRUE;
+	mPauseHistory = true;
 	mScrollIndex = llclamp(	mScrollIndex + clicks,
 							0,
-							llmin(frame_recording.getNumPeriods(), (S32)LLTrace::TimeBlock::HISTORY_NUM - MAX_VISIBLE_HISTORY));
+							llmin(frame_recording.getNumPeriods(), (S32)HISTORY_NUM - MAX_VISIBLE_HISTORY));
 	return TRUE;
 }
 
@@ -448,9 +462,9 @@ void LLFastTimerView::draw()
 			const F32 HUE_INCREMENT = 0.23f;
 			hue = fmodf(hue + HUE_INCREMENT, 1.f);
 			// saturation increases with depth
-			F32 saturation = clamp_rescale((F32)idp->getDepth(), 0.f, 3.f, 0.f, 1.f);
+			F32 saturation = clamp_rescale((F32)get_depth(idp), 0.f, 3.f, 0.f, 1.f);
 			// lightness alternates with depth
-			F32 lightness = idp->getDepth() % 2 ? 0.5f : 0.6f;
+			F32 lightness = get_depth(idp) % 2 ? 0.5f : 0.6f;
 
 			LLColor4 child_color;
 			child_color.setHSL(hue, saturation, lightness);
@@ -509,15 +523,15 @@ void LLFastTimerView::draw()
 			{
 				tdesc = llformat("%s [%.1f]",idp->getName().c_str(),ms.value());
 			}
-			dx = (texth+4) + idp->getDepth()*8;
+			dx = (texth+4) + get_depth(idp)*8;
 
 			LLColor4 color = LLColor4::white;
-			if (idp->getDepth() > 0)
+			if (get_depth(idp) > 0)
 			{
 				S32 line_start_y = (top + bottom) / 2;
 				S32 line_end_y = line_start_y + ((texth + 2) * (cur_line - display_line[idp->getParent()])) - texth;
 				gl_line_2d(x + dx - 8, line_start_y, x + dx, line_start_y, color);
-				S32 line_x = x + (texth + 4) + ((idp->getDepth() - 1) * 8);
+				S32 line_x = x + (texth + 4) + ((get_depth(idp) - 1) * 8);
 				gl_line_2d(line_x, line_start_y, line_x, line_end_y, color);
 				if (idp->getCollapsed() && !idp->getChildren().empty())
 				{
@@ -696,7 +710,7 @@ void LLFastTimerView::draw()
 				S32 prev_delta_x = deltax.empty() ? 0 : deltax.back();
 				deltax.push_back(dx);
 				
-				int level = idp->getDepth() - 1;
+				int level = get_depth(idp) - 1;
 				
 				while ((S32)xpos.size() > level + 1)
 				{
@@ -710,7 +724,7 @@ void LLFastTimerView::draw()
 					sublevel_dx[level] = dx;
 					sublevel_right[level] = sublevel_left[level] + sublevel_dx[level];
 				}
-				else if (prev_id && prev_id->getDepth() < idp->getDepth())
+				else if (prev_id && prev_id->getDepth() < get_depth(idp))
 				{
 					U64 sublevelticks = 0;
 
@@ -821,10 +835,10 @@ void LLFastTimerView::draw()
 
 		//highlight visible range
 		{
-			S32 first_frame = LLTrace::TimeBlock::HISTORY_NUM - mScrollIndex;
+			S32 first_frame = HISTORY_NUM - mScrollIndex;
 			S32 last_frame = first_frame - MAX_VISIBLE_HISTORY;
 				
-			F32 frame_delta = ((F32) (mGraphRect.getWidth()))/(LLTrace::TimeBlock::HISTORY_NUM-1);
+			F32 frame_delta = ((F32) (mGraphRect.getWidth()))/(HISTORY_NUM-1);
 				
 			F32 right = (F32) mGraphRect.mLeft + frame_delta*first_frame;
 			F32 left = (F32) mGraphRect.mLeft + frame_delta*last_frame;
@@ -889,7 +903,7 @@ void LLFastTimerView::draw()
 					cur_max = llmax(cur_max, time);
 					cur_max_calls = llmax(cur_max_calls, calls);
 				}
-				F32 x = mGraphRect.mRight - j * (F32)(mGraphRect.getWidth())/(LLTrace::TimeBlock::HISTORY_NUM-1);
+				F32 x = mGraphRect.mRight - j * (F32)(mGraphRect.getWidth())/(HISTORY_NUM-1);
 				F32 y = mDisplayHz 
 					? mGraphRect.mBottom + (1.f / time.value()) * ((F32) mGraphRect.getHeight() / (1.f / max_time.value()))
 					: mGraphRect.mBottom + time / max_time * (F32)mGraphRect.getHeight();

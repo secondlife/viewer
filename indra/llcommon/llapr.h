@@ -48,6 +48,19 @@ extern LL_COMMON_API apr_thread_mutex_t* gLogMutexp;
 extern apr_thread_mutex_t* gCallStacksLogMutexp;
 
 struct apr_dso_handle_t;
+/**
+ * @brief Function which appropriately logs error or remains quiet on
+ * APR_SUCCESS.
+ * @return Returns <code>true</code> if status is an error condition.
+ */
+bool LL_COMMON_API ll_apr_warn_status(apr_status_t status);
+/// There's a whole other APR error-message function if you pass a DSO handle.
+bool LL_COMMON_API ll_apr_warn_status(apr_status_t status, apr_dso_handle_t* handle);
+
+void LL_COMMON_API ll_apr_assert_status(apr_status_t status);
+void LL_COMMON_API ll_apr_assert_status(apr_status_t status, apr_dso_handle_t* handle);
+
+extern "C" LL_COMMON_API apr_pool_t* gAPRPoolp; // Global APR memory pool
 
 /** 
  * @brief initialize the common apr constructs -- apr itself, the
@@ -285,26 +298,26 @@ protected:
 	{
 		llassert(sInitialized);
 		void* ptr;
-		//apr_status_t result =
+		apr_status_t result =
 		apr_threadkey_private_get(&ptr, mThreadKey);
-		//if (result != APR_SUCCESS)
-		//{
-		//	ll_apr_warn_status(s);
-		//	llerrs << "Failed to get thread local data" << llendl;
-		//}
+		if (result != APR_SUCCESS)
+		{
+			ll_apr_warn_status(result);
+			llerrs << "Failed to get thread local data" << llendl;
+		}
 		return ptr;
 	}
 
 	LL_FORCE_INLINE const void* get() const
 	{
 		void* ptr;
-		//apr_status_t result =
+		apr_status_t result =
 		apr_threadkey_private_get(&ptr, mThreadKey);
-		//if (result != APR_SUCCESS)
-		//{
-		//	ll_apr_warn_status(s);
-		//	llerrs << "Failed to get thread local data" << llendl;
-		//}
+		if (result != APR_SUCCESS)
+		{
+			ll_apr_warn_status(result);
+			llerrs << "Failed to get thread local data" << llendl;
+		}
 		return ptr;
 	}
 
@@ -378,19 +391,5 @@ public:
 		return get() == other;
 	}
 };
-
-/**
- * @brief Function which appropriately logs error or remains quiet on
- * APR_SUCCESS.
- * @return Returns <code>true</code> if status is an error condition.
- */
-bool LL_COMMON_API ll_apr_warn_status(apr_status_t status);
-/// There's a whole other APR error-message function if you pass a DSO handle.
-bool LL_COMMON_API ll_apr_warn_status(apr_status_t status, apr_dso_handle_t* handle);
-
-void LL_COMMON_API ll_apr_assert_status(apr_status_t status);
-void LL_COMMON_API ll_apr_assert_status(apr_status_t status, apr_dso_handle_t* handle);
-
-extern "C" LL_COMMON_API apr_pool_t* gAPRPoolp; // Global APR memory pool
 
 #endif // LL_LLAPR_H

@@ -43,13 +43,20 @@ ThreadRecorder::ThreadRecorder()
 
 	mRootTimerData = new CurTimerData();
 	mRootTimerData->mTimerData = &TimeBlock::getRootTimer();
-	mRootTimerData->mTimerTreeData = new TimeBlockTreeNode[AccumulatorBuffer<TimeBlockAccumulator>::getDefaultBuffer().size()];
+
 	TimeBlock::sCurTimerData = mRootTimerData;
+	TimeBlock::getRootTimer().getPrimaryAccumulator().mActiveCount = 1;
+
+	// initialize parent pointers in time blocks
+	for (LLInstanceTracker<TimeBlock>::instance_iter it = LLInstanceTracker<TimeBlock>::beginInstances(), end_it = LLInstanceTracker<TimeBlock>::endInstances(); 
+		it != end_it; 
+		++it)
+	{
+		it->getPrimaryAccumulator().mParent = it->mParent;
+	}
 
 	mRootTimer = new BlockTimer(TimeBlock::getRootTimer());
 	mRootTimerData->mCurTimer = mRootTimer;
-
-	mRootTimerData->mTimerTreeData[TimeBlock::getRootTimer().getIndex()].mActiveCount = 1;
 }
 
 ThreadRecorder::~ThreadRecorder()
@@ -62,7 +69,6 @@ ThreadRecorder::~ThreadRecorder()
 	}
 	get_thread_recorder() = NULL;
 	TimeBlock::sCurTimerData = NULL;
-	delete [] mRootTimerData->mTimerTreeData;
 	delete mRootTimerData;
 }
 

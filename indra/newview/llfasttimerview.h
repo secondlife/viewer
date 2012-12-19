@@ -95,6 +95,7 @@ private:
 	S32                           mPrintStats;
 	LLRect                        mGraphRect;
 	LLTrace::PeriodicRecording*	  mRecording;
+	bool						  mPauseHistory;
 };
 
 #endif

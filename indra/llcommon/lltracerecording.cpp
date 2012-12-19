@@ -44,7 +44,8 @@ Recording::Recording()
 	mMeasurementsFloat(new AccumulatorBuffer<MeasurementAccumulator<F64> >()),
 	mCounts(new AccumulatorBuffer<CountAccumulator<S64> >()),
 	mMeasurements(new AccumulatorBuffer<MeasurementAccumulator<S64> >()),
-	mStackTimers(new AccumulatorBuffer<TimeBlockAccumulator>())
+	mStackTimers(new AccumulatorBuffer<TimeBlockAccumulator>()),
+	mMemStats(new AccumulatorBuffer<MemStatAccumulator>())
 {}
 
 Recording::Recording( const Recording& other )
@@ -57,6 +58,7 @@ Recording::Recording( const Recording& other )
 	mCounts            = other.mCounts;
 	mMeasurements      = other.mMeasurements;
 	mStackTimers       = other.mStackTimers;
+	mMemStats		   = other.mMemStats;
 
 	LLStopWatchControlsMixin::initTo(other.getPlayState());
 }
@@ -84,6 +86,7 @@ void Recording::handleReset()
 	mCounts.write()->reset();
 	mMeasurements.write()->reset();
 	mStackTimers.write()->reset();
+	mMemStats.write()->reset();
 
 	mElapsedSeconds = 0.0;
 	mSamplingTimer.reset();
@@ -98,6 +101,7 @@ void Recording::handleStart()
 void Recording::handleStop()
 {
 	mElapsedSeconds += mSamplingTimer.getElapsedTimeF64();
+	LLTrace::TimeBlock::processTimes();
 	LLTrace::get_thread_recorder()->deactivate(this);
 }
 
@@ -107,8 +111,8 @@ void Recording::handleSplitTo(Recording& other)
 	other.restart();
 	other.mMeasurementsFloat.write()->reset(mMeasurementsFloat);
 	other.mMeasurements.write()->reset(mMeasurements);
+	//TODO: figure out how to get seamless handoff of timing stats
 }
-
 
 void Recording::makePrimary()
 {
@@ -117,6 +121,7 @@ void Recording::makePrimary()
 	mCounts.write()->makePrimary();
 	mMeasurements.write()->makePrimary();
 	mStackTimers.write()->makePrimary();
+	mMemStats.write()->makePrimary();
 }
 
 bool Recording::isPrimary() const
@@ -131,6 +136,7 @@ void Recording::makeUnique()
 	mCounts.makeUnique();
 	mMeasurements.makeUnique();
 	mStackTimers.makeUnique();
+	mMemStats.makeUnique();
 }
 
 void Recording::appendRecording( const Recording& other )
@@ -140,6 +146,7 @@ void Recording::appendRecording( const Recording& other )
 	mCounts.write()->addSamples(*other.mCounts);
 	mMeasurements.write()->addSamples(*other.mMeasurements);
 	mStackTimers.write()->addSamples(*other.mStackTimers);
+	mMemStats.write()->addSamples(*other.mMemStats);
 	mElapsedSeconds += other.mElapsedSeconds;
 }
 
@@ -172,6 +179,16 @@ LLUnit<LLUnits::Seconds, F64> Recording::getPerSec(const TraceType<TimeBlockAccu
 F32 Recording::getPerSec(const TraceType<TimeBlockAccumulator::CallCountAspect>& stat) const
 {
 	return (F32)(*mStackTimers)[stat.getIndex()].mCalls / mElapsedSeconds;
+}
+
+LLUnit<LLUnits::Bytes, U32> Recording::getSum(const TraceType<MemStatAccumulator>& stat) const
+{
+	return (*mMemStats)[stat.getIndex()].mAllocatedCount;
+}
+
+LLUnit<LLUnits::Bytes, F32> Recording::getPerSec(const TraceType<MemStatAccumulator>& stat) const
+{
+	return (F32)(*mMemStats)[stat.getIndex()].mAllocatedCount / mElapsedSeconds;
 }
 
 

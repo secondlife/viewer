@@ -82,18 +82,21 @@ namespace LLTrace
 		enum StaticAllocationMarker { STATIC_ALLOC };
 
 		AccumulatorBuffer(StaticAllocationMarker m)
-		:	mStorageSize(64),
-			mNextStorageSlot(0),
-			mStorage(new ACCUMULATOR[DEFAULT_ACCUMULATOR_BUFFER_SIZE])
-		{}
+		:	mStorageSize(0),
+			mStorage(NULL),
+			mNextStorageSlot(0)
+		{
+			resize(DEFAULT_ACCUMULATOR_BUFFER_SIZE);
+		}
 
 	public:
 
 		AccumulatorBuffer(const AccumulatorBuffer& other = getDefaultBuffer())
-		:	mStorageSize(other.mStorageSize),
-			mStorage(new ACCUMULATOR[other.mStorageSize]),
+		:	mStorageSize(0),
+			mStorage(NULL),
 			mNextStorageSlot(other.mNextStorageSlot)
 		{
+			resize(other.mStorageSize);
 			for (S32 i = 0; i < mNextStorageSlot; i++)
 			{
 				mStorage[i] = other.mStorage[i];
@@ -181,9 +184,12 @@ namespace LLTrace
 		{
 			ACCUMULATOR* old_storage = mStorage;
 			mStorage = new ACCUMULATOR[new_size];
-			for (S32 i = 0; i < mStorageSize; i++)
+			if (old_storage)
 			{
-				mStorage[i] = old_storage[i];
+				for (S32 i = 0; i < mStorageSize; i++)
+				{
+					mStorage[i] = old_storage[i];
+				}
 			}
 			mStorageSize = new_size;
 			delete[] old_storage;
@@ -300,14 +306,14 @@ namespace LLTrace
 				mNumSamples += other.mNumSamples;
 				mMean = mMean * weight + other.mMean * (1.f - weight);
 
+				// combine variance (and hence standard deviation) of 2 different sized sample groups using
+				// the following formula: http://www.mrc-bsu.cam.ac.uk/cochrane/handbook/chapter_7/7_7_3_8_combining_groups.htm
 				F64 n_1 = (F64)mNumSamples,
 					n_2 = (F64)other.mNumSamples;
 				F64 m_1 = mMean,
 					m_2 = other.mMean;
 				F64 sd_1 = getStandardDeviation(),
 					sd_2 = other.getStandardDeviation();
-				// combine variance (and hence standard deviation) of 2 different sized sample groups using
-				// the following formula: http://www.mrc-bsu.cam.ac.uk/cochrane/handbook/chapter_7/7_7_3_8_combining_groups.htm
 				if (n_1 == 0)
 				{
 					mVarianceSum = other.mVarianceSum;
@@ -405,6 +411,7 @@ namespace LLTrace
 	{
 	public:
 		typedef LLUnit<LLUnits::Seconds, F64> value_t;
+		typedef TimeBlockAccumulator self_t;
 
 		// fake class that allows us to view call count aspect of timeblock accumulator
 		struct CallCountAspect 
@@ -418,15 +425,20 @@ namespace LLTrace
 		};
 
 		TimeBlockAccumulator();
-		void addSamples(const TimeBlockAccumulator& other);
-		void reset(const TimeBlockAccumulator* other);
+		void addSamples(const self_t& other);
+		void reset(const self_t* other);
 
 		//
 		// members
 		//
-		U64		mSelfTimeCounter,
-				mTotalTimeCounter;
-		U32		mCalls;
+		U64							mSelfTimeCounter,
+									mTotalTimeCounter;
+		U32							mCalls;
+		class TimeBlock*			mParent;		// last acknowledged parent of this time block
+		class TimeBlock*			mLastCaller;	// used to bootstrap tree construction
+		U16							mActiveCount;	// number of timers with this ID active on stack
+		bool						mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame
+
 	};
 
 
@@ -459,16 +471,6 @@ namespace LLTrace
 			:	TraceType<TimeBlockAccumulator>(name, description)
 		{}
 	};
-
-	class TimeBlockTreeNode
-	{
-	public:
-		TimeBlockTreeNode();
-		class TimeBlock*			mLastCaller;	// used to bootstrap tree construction
-		U16							mActiveCount;	// number of timers with this ID active on stack
-		bool						mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame
-	};
-
 
 	template <typename T = F64>
 	class Measurement
@@ -604,7 +606,7 @@ struct MemFootprint<std::vector<T> >
 {
 	static size_t measure(const std::vector<T>& value)
 	{
-		return value.capacity() * MemFootPrint<T>::measure();
+		return value.capacity() * MemFootprint<T>::measure();
 	}
 
 	static size_t measure()
@@ -618,7 +620,7 @@ struct MemFootprint<std::list<T> >
 {
 	static size_t measure(const std::list<T>& value)
 	{
-		return value.size() * (MemFootPrint<T>::measure() + sizeof(void*) * 2);
+		return value.size() * (MemFootprint<T>::measure() + sizeof(void*) * 2);
 	}
 
 	static size_t measure()
