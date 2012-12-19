@@ -748,19 +748,6 @@ void LLFloaterIMSessionTab::onOpen(const LLSD& key)
 	}
 }
 
-// virtual
-void LLFloaterIMSessionTab::onClose(bool app_quitting)
-{
-	// Always suppress the IM from the conversations list on close if present for any reason
-	if (LLFloaterIMSessionTab::isChatMultiTab())
-	{
-		LLFloaterIMContainer* im_box = LLFloaterIMContainer::findInstance();
-		if (im_box)
-		{
-            im_box->removeConversationListItem(mKey);
-        }
-    }
-}
 
 void LLFloaterIMSessionTab::onTearOffClicked()
 {
