@@ -128,6 +128,7 @@ protected:
 	static LLUIColor			sFgColor;
 	static LLUIColor			sFgDisabledColor;
 	static LLUIColor			sHighlightBgColor;
+	static LLUIColor			sFlashBgColor;
 	static LLUIColor			sFocusOutlineColor;
 	static LLUIColor			sMouseOverColor;
 	static LLUIColor			sFilterBGColor;
@@ -141,6 +142,8 @@ protected:
 	virtual void addFolder(LLFolderViewFolder*) { }
 	virtual bool isHighlightAllowed();
 	virtual bool isHighlightActive();
+	virtual bool isFlashing() { return false; }
+	virtual void setFlashState(bool) { }
 
 	static LLFontGL* getLabelFontForStyle(U8 style);
 
@@ -269,7 +272,7 @@ public:
 	//	virtual void handleDropped();
 	virtual void draw();
 	void drawOpenFolderArrow(const Params& default_params, const LLUIColor& fg_color);
-    void drawHighlight(const BOOL showContent, const BOOL hasKeyboardFocus, const LLUIColor &bgColor, const LLUIColor &outlineColor, const LLUIColor &mouseOverColor);
+    void drawHighlight(const BOOL showContent, const BOOL hasKeyboardFocus, const LLUIColor &selectColor, const LLUIColor &flashColor, const LLUIColor &outlineColor, const LLUIColor &mouseOverColor);
     void drawLabel(const LLFontGL * font, const F32 x, const F32 y, const LLColor4& color, F32 &right_x);
 	virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 									EDragAndDropType cargo_type,

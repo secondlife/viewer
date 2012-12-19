@@ -58,6 +58,7 @@ protected:
 
 	/*virtual*/ bool isHighlightAllowed();
 	/*virtual*/ bool isHighlightActive();
+	/*virtual*/ bool isFlashing() { return mFlashStateOn; }
 
 	LLFloaterIMContainer* mContainer;
 	
@@ -83,11 +84,12 @@ public:
 
 	virtual void refresh();
 
-	void setFlashState(bool flash_state);
+	/*virtual*/ void setFlashState(bool flash_state);
 
 private:
 
 	void onCurrentVoiceSessionChanged(const LLUUID& session_id);
+	void startFlashing();
 
 	LLPanel*				mItemPanel;
 	LLPanel*				mCallIconLayoutPanel;
@@ -95,6 +97,7 @@ private:
 	LLOutputMonitorCtrl*	mSpeakingIndicator;
 	LLFlashTimer*			mFlashTimer;
 	bool					mFlashStateOn;
+	bool					mFlashStarted;
 
 	bool					mCollapsedMode;
     bool                    mHasArrow;

@@ -101,7 +101,17 @@ LLConversationViewSession::~LLConversationViewSession()
 void LLConversationViewSession::setFlashState(bool flash_state)
 {
 	mFlashStateOn = flash_state;
-	(flash_state ? mFlashTimer->startFlashing() : mFlashTimer->stopFlashing());
+	mFlashStarted = false;
+	mFlashTimer->stopFlashing();
+}
+
+void LLConversationViewSession::startFlashing()
+{
+	if (mFlashStateOn && !mFlashStarted)
+	{
+		mFlashStarted = true;
+		mFlashTimer->startFlashing();
+	}
 }
 
 bool LLConversationViewSession::isHighlightAllowed()
@@ -198,8 +208,11 @@ void LLConversationViewSession::draw()
 		drawOpenFolderArrow(default_params, sFgColor);
 	}
 
+	// Indicate that flash can start (moot operation if already started, done or not flashing)
+	startFlashing();
+
 	// draw highlight for selected items
-	drawHighlight(show_context, true, sHighlightBgColor, sFocusOutlineColor, sMouseOverColor);
+	drawHighlight(show_context, true, sHighlightBgColor, sFlashBgColor, sFocusOutlineColor, sMouseOverColor);
 
 	// Draw children if root folder, or any other folder that is open. Do not draw children when animating to closed state or you get rendering overlap.
 	bool draw_children = getRoot() == static_cast<LLFolderViewFolder*>(this) || isOpen();
@@ -427,6 +440,7 @@ void LLConversationViewParticipant::draw()
 	static LLUIColor sFgDisabledColor = LLUIColorTable::instance().getColor("MenuItemDisabledColor", DEFAULT_WHITE);
     static LLUIColor sHighlightFgColor = LLUIColorTable::instance().getColor("MenuItemHighlightFgColor", DEFAULT_WHITE);
     static LLUIColor sHighlightBgColor = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", DEFAULT_WHITE);
+    static LLUIColor sFlashBgColor = LLUIColorTable::instance().getColor("MenuItemFlashBgColor", DEFAULT_WHITE);
     static LLUIColor sFocusOutlineColor = LLUIColorTable::instance().getColor("InventoryFocusOutlineColor", DEFAULT_WHITE);
     static LLUIColor sMouseOverColor = LLUIColorTable::instance().getColor("InventoryMouseOverColor", DEFAULT_WHITE);
 
@@ -450,7 +464,7 @@ void LLConversationViewParticipant::draw()
 		color = mIsSelected ? sHighlightFgColor : sFgColor;
 	}
 
-    drawHighlight(show_context, mIsSelected, sHighlightBgColor, sFocusOutlineColor, sMouseOverColor);
+    drawHighlight(show_context, mIsSelected, sHighlightBgColor, sFlashBgColor, sFocusOutlineColor, sMouseOverColor);
     drawLabel(font, text_left, y, color, right_x);
 	refresh();
 
