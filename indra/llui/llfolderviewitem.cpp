@@ -1481,17 +1481,20 @@ void LLFolderViewFolder::extendSelectionTo(LLFolderViewItem* new_selection)
 
 void LLFolderViewFolder::destroyView()
 {
-	std::for_each(mItems.begin(), mItems.end(), DeletePointer());
-	mItems.clear();
+    while (!mItems.empty())
+    {
+    	LLFolderViewItem *itemp = mItems.back();
+    	itemp->destroyView(); // LLFolderViewItem::destroyView() removes entry from mItems
+    }
 
 	while (!mFolders.empty())
 	{
 		LLFolderViewFolder *folderp = mFolders.back();
-		folderp->destroyView(); // removes entry from mFolders
+		folderp->destroyView(); // LLFolderVievFolder::destroyView() removes entry from mFolders
 	}
 
 	LLFolderViewItem::destroyView();
-	}
+}
 
 // extractItem() removes the specified item from the folder, but
 // doesn't delete it.
