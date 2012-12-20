@@ -59,6 +59,7 @@ public:
 	F32  getSamplingTime() const { return mSamplingTime;}
 	F32  getDiffPixelRatio() const { return mDiffPixelRatio;}
 	bool isEnabled()const {return mEnabled;}
+	bool needsUpdate() const;
 	
 private:
 	void freezeScene();

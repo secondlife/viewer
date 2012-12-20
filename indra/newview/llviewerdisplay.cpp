@@ -1228,10 +1228,12 @@ void render_ui(F32 zoom_factor, int subfield)
 		glh_set_current_modelview(glh_copy_matrix(gGLLastModelView));
 	}
 	
+	if(LLSceneMonitor::getInstance()->needsUpdate())
 	{
 		gGL.pushMatrix();
 		gViewerWindow->setup2DRender();
 		LLSceneMonitor::getInstance()->compare();
+		gViewerWindow->setup3DRender();
 		gGL.popMatrix();
 	}
 

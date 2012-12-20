@@ -211,6 +211,7 @@ void LLSceneMonitor::unfreezeScene()
 void LLSceneMonitor::capture()
 {
 	static U32 last_capture_time = 0;
+
 	if(last_capture_time == gFrameCount)
 	{
 		return;
@@ -237,6 +238,11 @@ void LLSceneMonitor::capture()
 
 	mCurTarget = NULL;
 	mNeedsUpdateDiff = TRUE;
+}
+
+bool LLSceneMonitor::needsUpdate() const
+{
+	return mNeedsUpdateDiff;
 }
 
 void LLSceneMonitor::compare()
