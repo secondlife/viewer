@@ -29,14 +29,25 @@
 
 #include "lldonotdisturbnotificationstorage.h"
 
+#define XXX_STINSON_HIDE_NOTIFICATIONS_ON_DND_EXIT 0
+
+#if XXX_STINSON_HIDE_NOTIFICATIONS_ON_DND_EXIT
+#include "llchannelmanager.h"
+#endif // XXX_STINSON_HIDE_NOTIFICATIONS_ON_DND_EXIT
 #include "llcommunicationchannel.h"
 #include "lldir.h"
 #include "llerror.h"
 #include "llfasttimer_class.h"
 #include "llnotifications.h"
+#include "llnotificationhandler.h"
 #include "llnotificationstorage.h"
+#if XXX_STINSON_HIDE_NOTIFICATIONS_ON_DND_EXIT
+#include "llscreenchannel.h"
+#endif // XXX_STINSON_HIDE_NOTIFICATIONS_ON_DND_EXIT
+#include "llscriptfloater.h"
 #include "llsd.h"
 #include "llsingleton.h"
+#include "lluuid.h"
 
 LLDoNotDisturbNotificationStorage::LLDoNotDisturbNotificationStorage()
 	: LLSingleton<LLDoNotDisturbNotificationStorage>()
@@ -85,6 +96,76 @@ static LLFastTimer::DeclareTimer FTM_LOAD_DND_NOTIFICATIONS("Load DND Notificati
 
 void LLDoNotDisturbNotificationStorage::loadNotifications()
 {
+	LLFastTimer _(FTM_LOAD_DND_NOTIFICATIONS);
+	
+	LLSD input;
+	if (!readNotifications(input) ||input.isUndefined())
+	{
+		return;
+	}
+	
+	LLSD& data = input["data"];
+	if (data.isUndefined())
+	{
+		return;
+	}
+
+#if XXX_STINSON_HIDE_NOTIFICATIONS_ON_DND_EXIT
+	LLNotificationsUI::LLScreenChannel* notification_channel =
+		dynamic_cast<LLNotificationsUI::LLScreenChannel*>(LLNotificationsUI::LLChannelManager::getInstance()->
+		findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
+#endif // XXX_STINSON_HIDE_NOTIFICATIONS_ON_DND_EXIT
+	
+	LLNotifications& instance = LLNotifications::instance();
+	
+	for (LLSD::array_const_iterator notification_it = data.beginArray();
+		 notification_it != data.endArray();
+		 ++notification_it)
+	{
+		LLSD notification_params = *notification_it;
+		LLNotificationPtr notification(new LLNotification(notification_params));
+		
+		const LLUUID& notificationID = notification->id();
+		if (instance.find(notificationID))
+		{
+			instance.update(notification);
+		}
+		else
+		{
+			LLNotificationResponderInterface* responder = createResponder(notification_params["name"], notification_params["responder"]);
+			if (responder == NULL)
+			{
+				LL_WARNS("LLDoNotDisturbNotificationStorage") << "cannot create responder for notification of type '"
+					<< notification->getType() << "'" << LL_ENDL;
+			}
+			else
+			{
+				LLNotificationResponderPtr responderPtr(responder);
+				notification->setResponseFunctor(responderPtr);
+			}
+			
+			instance.add(notification);
+		}
+
+#if XXX_STINSON_HIDE_NOTIFICATIONS_ON_DND_EXIT
+		// hide script floaters so they don't confuse the user and don't overlap startup toast
+		LLScriptFloaterManager::getInstance()->setFloaterVisible(notification->getID(), false);
+		
+		if(notification_channel)
+		{
+			// hide saved toasts so they don't confuse the user
+			notification_channel->hideToast(notification->getID());
+		}
+#endif // XXX_STINSON_HIDE_NOTIFICATIONS_ON_DND_EXIT
+	}
+
+	// Clear the communication channel history and rewrite the save file to empty it as well
+	LLNotificationChannelPtr channelPtr = getCommunicationChannel();
+	LLCommunicationChannel *commChannel = dynamic_cast<LLCommunicationChannel*>(channelPtr.get());
+	llassert(commChannel != NULL);
+	commChannel->clearHistory();
+	
+	saveNotifications();
 }
 
 LLNotificationChannelPtr LLDoNotDisturbNotificationStorage::getCommunicationChannel() const

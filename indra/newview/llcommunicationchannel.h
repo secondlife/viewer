@@ -46,6 +46,8 @@ public:
 	typedef std::multimap<LLDate, LLNotificationPtr> history_list_t;
 	history_list_t::const_iterator beginHistory() const;
 	history_list_t::const_iterator endHistory() const;
+	
+	void clearHistory();
 
 protected:
 	virtual void onFilterFail(LLNotificationPtr pNotificationPtr);

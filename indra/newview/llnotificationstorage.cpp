@@ -29,13 +29,38 @@
 #include "llnotificationstorage.h"
 
 #include <string>
+#include <map>
 
 #include "llerror.h"
 #include "llfile.h"
+#include "llnotifications.h"
 #include "llpointer.h"
 #include "llsd.h"
 #include "llsdserialize.h"
+#include "llsingleton.h"
+#include "llviewermessage.h"
 
+
+class LLResponderRegistry : public LLSingleton<LLResponderRegistry>
+{
+public:
+	LLResponderRegistry();
+	~LLResponderRegistry();
+	
+	LLNotificationResponderInterface* createResponder(const std::string& pNotificationName, const LLSD& pParams);
+	
+protected:
+	
+private:
+	template<typename RESPONDER_TYPE> static LLNotificationResponderInterface* create(const LLSD& pParams);
+	
+	typedef boost::function<LLNotificationResponderInterface* (const LLSD& params)> responder_constructor_t;
+	
+	void add(const std::string& pNotificationName, const responder_constructor_t& pConstructor);
+	
+	typedef std::map<std::string, responder_constructor_t> build_map_t;
+	build_map_t mBuildMap;
+};
 
 LLNotificationStorage::LLNotificationStorage(std::string pFileName)
 	: mFileName(pFileName)
@@ -89,4 +114,54 @@ bool LLNotificationStorage::readNotifications(LLSD& pNotificationData) const
 	}
 
 	return didFileRead;
+}
+
+LLNotificationResponderInterface* LLNotificationStorage::createResponder(const std::string& pNotificationName, const LLSD& pParams) const
+{
+	return LLResponderRegistry::getInstance()->createResponder(pNotificationName, pParams);
+}
+
+LLResponderRegistry::LLResponderRegistry()
+	: LLSingleton<LLResponderRegistry>()
+	, mBuildMap()
+{
+	add("ObjectGiveItem", &create<LLOfferInfo>);
+	add("OwnObjectGiveItem", &create<LLOfferInfo>);
+	add("UserGiveItem", &create<LLOfferInfo>);
+
+	add("TeleportOffered", &create<LLOfferInfo>);
+	add("TeleportOffered_MaturityExceeded", &create<LLOfferInfo>);
+
+	add("OfferFriendship", &create<LLOfferInfo>);
+}
+
+LLResponderRegistry::~LLResponderRegistry()
+{
+}
+
+LLNotificationResponderInterface* LLResponderRegistry::createResponder(const std::string& pNotificationName, const LLSD& pParams)
+{
+	build_map_t::const_iterator it = mBuildMap.find(pNotificationName);
+	if(mBuildMap.end() == it)
+	{
+		return NULL;
+	}
+	responder_constructor_t ctr = it->second;
+	return ctr(pParams);
+}
+
+template<typename RESPONDER_TYPE> LLNotificationResponderInterface* LLResponderRegistry::create(const LLSD& pParams)
+{
+	RESPONDER_TYPE* responder = new RESPONDER_TYPE();
+	responder->fromLLSD(pParams);
+	return responder;
+}
+	
+void LLResponderRegistry::add(const std::string& pNotificationName, const responder_constructor_t& pConstructor)
+{
+	if (mBuildMap.find(pNotificationName) != mBuildMap.end())
+	{
+		LL_ERRS("LLResponderRegistry") << "Responder is already registered : " << pNotificationName << LL_ENDL;
+	}
+	mBuildMap.insert(std::make_pair<std::string, responder_constructor_t>(pNotificationName, pConstructor));
 }
