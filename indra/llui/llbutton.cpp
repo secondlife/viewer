@@ -311,7 +311,7 @@ void LLButton::onCommit()
 	{
 		make_ui_sound("UISndClickRelease");
 	}
-
+	
 	if (mIsToggle)
 	{
 		toggleState();
@@ -613,10 +613,6 @@ void LLButton::draw()
 	static LLCachedControl<bool> sEnableButtonFlashing(*LLUI::sSettingGroups["config"], "EnableButtonFlashing", true);
 	F32 alpha = mUseDrawContextAlpha ? getDrawContext().mAlpha : getCurrentTransparency();
 
-	if (mFlashingTimer)
-	{
-		mFlashing = mFlashingTimer->isFlashingInProgress();
-	}
 	bool flash = mFlashing && sEnableButtonFlashing;
 
 	bool pressed_by_keyboard = FALSE;
@@ -701,7 +697,8 @@ void LLButton::draw()
 		imagep = mImageDisabled;
 	}
 
-	if (mFlashing)
+	// Selected has a higher priority than flashing. If both are set, flashing is ignored.
+	if (mFlashing && !selected)
 	{
 		// if button should flash and we have icon for flashing, use it as image for button
 		if(flash && mImageFlash)
@@ -711,13 +708,13 @@ void LLButton::draw()
 			imagep = mImageFlash;
 		}
 		// else use usual flashing via flash_color
-		else
+		else if (mFlashingTimer)
 		{
 			LLColor4 flash_color = mFlashBgColor.get();
 			use_glow_effect = TRUE;
 			glow_type = LLRender::BT_ALPHA; // blend the glow
 
-			if (mFlashingTimer->isCurrentlyHighlighted())
+			if (mFlashingTimer->isCurrentlyHighlighted() || !mFlashingTimer->isFlashingInProgress())
 			{
 				glow_color = flash_color;
 			}
@@ -773,8 +770,7 @@ void LLButton::draw()
 	if (use_glow_effect)
 	{
 		mCurGlowStrength = lerp(mCurGlowStrength,
-					mFlashing ? (mFlashingTimer->isCurrentlyHighlighted() || mNeedsHighlight? 1.0 : 0.0)
-					: mHoverGlowStrength,
+					mFlashing ? (mFlashingTimer->isCurrentlyHighlighted() || !mFlashingTimer->isFlashingInProgress() || mNeedsHighlight? 1.0 : 0.0) : mHoverGlowStrength,
 					LLCriticalDamp::getInterpolant(0.05f));
 	}
 	else
@@ -961,23 +957,18 @@ void LLButton::setToggleState(BOOL b)
 	{
 		setControlValue(b); // will fire LLControlVariable callbacks (if any)
 		setValue(b);        // may or may not be redundant
+		setFlashing(false);	// stop flash state whenever the selected/unselected state if reset
 		// Unselected label assignments
 		autoResize();
 	}
 }
 
-void LLButton::setFlashing( bool b )	
+void LLButton::setFlashing(bool b)	
 { 
 	if (mFlashingTimer)
 	{
-		if (b)
-		{
-			mFlashingTimer->startFlashing();
-		}
-		else
-		{
-			mFlashingTimer->stopFlashing();
-		}
+		mFlashing = b; 
+		(b ? mFlashingTimer->startFlashing() : mFlashingTimer->stopFlashing());
 	}
 	else if (b != mFlashing)
 	{
