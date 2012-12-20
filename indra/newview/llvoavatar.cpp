@@ -5811,6 +5811,7 @@ void LLVOAvatar::debugColorizeSubMeshes(U32 i, const LLColor4& color)
 // virtual
 void LLVOAvatar::updateMeshTextures()
 {
+	static S32 update_counter = 0;
 	mBakedTextureDebugText.clear();
 	
 	// if user has never specified a texture, assign the default
@@ -5840,7 +5841,8 @@ void LLVOAvatar::updateMeshTextures()
 	std::vector<BOOL> use_lkg_baked_layer; // lkg = "last known good"
 	use_lkg_baked_layer.resize(mBakedTextureDatas.size(), false);
 
-	mBakedTextureDebugText +=          "indx layerset linvld ltda ilb ulkg ltid\n";
+	mBakedTextureDebugText += llformat("%06d\n",update_counter++);
+	mBakedTextureDebugText += "indx layerset linvld ltda ilb ulkg ltid\n";
 	for (U32 i=0; i < mBakedTextureDatas.size(); i++)
 	{
 		is_layer_baked[i] = isTextureDefined(mBakedTextureDatas[i].mTextureIndex);

@@ -79,6 +79,15 @@ public:
 		MAX_GL_IMAGE_CATEGORY
 	};
 
+	typedef enum 
+	{
+		DELETED = 0,         //removed from memory
+		DELETION_CANDIDATE,  //ready to be removed from memory
+		INACTIVE,            //not be used for the last certain period (i.e., 30 seconds).
+		ACTIVE,              //just being used, can become inactive if not being used for a certain time (10 seconds).
+		NO_DELETE = 99       //stay in memory, can not be removed.
+	} LLGLTextureState;
+
 	static S32 getTotalNumOfCategories() ;
 	static S32 getIndexFromCategory(S32 category) ;
 	static S32 getCategoryFromIndex(S32 index) ;
@@ -143,6 +152,8 @@ public:
 	U32        getTexelsInGLTexture() const ;
 	BOOL       isGLTextureCreated() const ;
 	S32        getDiscardLevelInAtlas() const ;
+	LLGLTextureState getTextureState() const { return mTextureState; }
+	
 	//---------------------------------------------------------------------------------------------
 	//end of functions to access LLImageGL
 	//---------------------------------------------------------------------------------------------
@@ -179,14 +190,6 @@ protected:
 	S8 mDontDiscard;			// Keep full res version of this image (for UI, etc)
 
 protected:
-	typedef enum 
-	{
-		DELETED = 0,         //removed from memory
-		DELETION_CANDIDATE,  //ready to be removed from memory
-		INACTIVE,            //not be used for the last certain period (i.e., 30 seconds).
-		ACTIVE,              //just being used, can become inactive if not being used for a certain time (10 seconds).
-		NO_DELETE = 99       //stay in memory, can not be removed.
-	} LLGLTextureState;
 	LLGLTextureState  mTextureState ;
 
 
