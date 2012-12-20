@@ -2488,16 +2488,23 @@ void LLIMMgr::addMessage(
 	}
 
 	// Open conversation log if offline messages are present and user allows a Call Log
-	if (is_offline_msg && gSavedSettings.getBOOL("KeepConversationLogTranscripts"))
-	{
-		LLFloaterConversationLog* floater_log =
-				LLFloaterReg::getTypedInstance<LLFloaterConversationLog>("conversation");
-		if (floater_log && !(floater_log->isFrontmost()))
+	if (is_offline_msg)
+    {
+		if (gSavedSettings.getBOOL("KeepConversationLogTranscripts"))
 		{
-            floater_log->openFloater();
-			floater_log->setFrontmost(TRUE);
+			LLFloaterConversationLog* floater_log =
+					LLFloaterReg::getTypedInstance<LLFloaterConversationLog>("conversation");
+			if (floater_log && !(floater_log->isFrontmost()))
+			{
+				floater_log->openFloater();
+				floater_log->setFrontmost(TRUE);
+			}
 		}
-	}
+		else
+		{
+           gToolBarView->flashCommand(LLCommandId("chat"), true);
+		}
+    }
 
 	//*NOTE session_name is empty in case of incoming P2P sessions
 	std::string fixed_session_name = from;
