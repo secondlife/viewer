@@ -40,6 +40,7 @@
 LLSysWellWindow::LLSysWellWindow(const LLSD& key) : LLTransientDockableFloater(NULL, true,  key),
 													mChannel(NULL),
 													mMessageList(NULL),
+													mSysWellChiclet(NULL),
 													NOTIFICATION_WELL_ANCHOR_NAME("notification_well_panel"),
 													IM_WELL_ANCHOR_NAME("im_well_panel"),
 													mIsReshapedByUser(false)
@@ -79,6 +80,15 @@ void LLSysWellWindow::onStartUpToastClick(S32 x, S32 y, MASK mask)
 	setVisible(TRUE);
 }
 
+void LLSysWellWindow::setSysWellChiclet(LLSysWellChiclet* chiclet) 
+{ 
+	mSysWellChiclet = chiclet;
+	if(NULL != mSysWellChiclet)
+	{
+		mSysWellChiclet->updateWidget(isWindowEmpty());
+	}
+}
+
 //---------------------------------------------------------------------------------
 LLSysWellWindow::~LLSysWellWindow()
 {
@@ -89,6 +99,10 @@ void LLSysWellWindow::removeItemByID(const LLUUID& id)
 {
 	if(mMessageList->removeItemByValue(id))
 	{
+		if (NULL != mSysWellChiclet)
+		{
+			mSysWellChiclet->updateWidget(isWindowEmpty());
+		}
 		reshapeWindow();
 	}
 	else
@@ -334,6 +348,7 @@ void LLNotificationWellWindow::addItem(LLSysWellItem::Params p)
 	LLSysWellItem* new_item = new LLSysWellItem(p);
 	if (mMessageList->addItem(new_item, value, ADD_TOP))
 	{
+		mSysWellChiclet->updateWidget(isWindowEmpty());
 		reshapeWindow();
 		new_item->setOnItemCloseCallback(boost::bind(&LLNotificationWellWindow::onItemClose, this, _1));
 		new_item->setOnItemClickCallback(boost::bind(&LLNotificationWellWindow::onItemClick, this, _1));
