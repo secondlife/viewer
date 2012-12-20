@@ -1101,7 +1101,14 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
 	uuid_vec_t uuids;
 	getParticipantUUIDs(uuids);
 
-    if("can_activate_group" == item)
+
+	// If nothing is selected, everything needs to be disabled
+	if (uuids.size() <= 0)
+    {
+        return false;
+    }
+
+	if("can_activate_group" == item)
     {
     	LLUUID selected_group_id = getCurSelectedViewModelItem()->getUUID();
     	return gAgent.getGroupID() != selected_group_id;
@@ -1116,12 +1123,6 @@ bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_v
 	{
 		return gSavedSettings.getBOOL("KeepConversationLogTranscripts");
 	}
-
-	// If nothing is selected, everything needs to be disabled
-	if (uuids.size() <= 0)
-    {
-        return false;
-    }
 	
 	// Extract the single select info
 	bool is_single_select = (uuids.size() == 1);
@@ -1229,6 +1230,20 @@ void LLFloaterIMContainer::showConversation(const LLUUID& session_id)
     selectConversationPair(session_id, true);
 }
 
+void LLFloaterIMContainer::clearAllFlashStates()
+{
+	llinfos << "Merov debug : clear all flash states" << llendl;
+	conversations_widgets_map::iterator widget_it = mConversationsWidgets.begin();
+	for (;widget_it != mConversationsWidgets.end(); ++widget_it)
+	{
+		LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(widget_it->second);
+		if (widget)
+		{
+			widget->setFlashState(false);
+		}
+	}
+}
+
 void LLFloaterIMContainer::selectConversation(const LLUUID& session_id)
 {
     selectConversationPair(session_id, true);
@@ -1240,17 +1255,6 @@ BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool
     BOOL handled = TRUE;
     LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(session_id);
 
-	// On selection, stop the flash state on all conversation widgets
-	conversations_widgets_map::iterator widget_it = mConversationsWidgets.begin();
-	for (;widget_it != mConversationsWidgets.end(); ++widget_it)
-	{
-		LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(widget_it->second);
-		if (widget)
-		{
-			widget->setFlashState(false);
-		}
-	}
-	
     /* widget processing */
     if (select_widget)
     {

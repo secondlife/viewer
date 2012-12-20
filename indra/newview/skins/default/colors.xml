@@ -11,9 +11,9 @@
 	<color
 	 name="EmphasisColor_35"
 	 value="0.38 0.694 0.573 0.35" />
-    <color
-    name="BeaconColor"
-    value="1 .67 .2 1" />	 
+	<color
+	 name="BeaconColor"
+    value="0.749 0.298 0 1" />	 
 	<color
 	 name="White"
 	 value="1 1 1 1" />
@@ -525,6 +525,9 @@
     <color
      name="MenuItemHighlightBgColor"
      reference="EmphasisColor_35" />
+    <color
+     name="MenuItemFlashBgColor"
+     reference="BeaconColor" />
     <color
      name="MenuItemHighlightFgColor"
      reference="White" />

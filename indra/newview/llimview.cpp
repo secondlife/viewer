@@ -155,7 +155,6 @@ void on_new_message(const LLSD& msg)
     }
 
     // execution of the action
-
     LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
     LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(session_id);
 
@@ -174,13 +173,11 @@ void on_new_message(const LLSD& msg)
     if ("toast" == action)
     {
         // Skip toasting if we have open window of IM with this session id
-        if (
-            session_floater
+        if (session_floater
             && session_floater->isInVisibleChain()
             && session_floater->hasFocus()
             && !session_floater->isMinimized()
-            && !(session_floater->getHost()
-            && session_floater->getHost()->isMinimized())
+            && !(session_floater->getHost() && session_floater->getHost()->isMinimized())
             )
         {
             return;
@@ -222,10 +219,10 @@ void on_new_message(const LLSD& msg)
                 gToolBarView->flashCommand(LLCommandId("chat"), true);
             }
             //conversation floater is open but a different conversation is focused
-            else
-            {
+            //else
+            //{
                 im_box->flashConversationItemWidget(session_id, true);
-            }
+            //}
     	}
     }
 
@@ -2491,16 +2488,23 @@ void LLIMMgr::addMessage(
 	}
 
 	// Open conversation log if offline messages are present and user allows a Call Log
-	if (is_offline_msg && gSavedSettings.getBOOL("KeepConversationLogTranscripts"))
-	{
-		LLFloaterConversationLog* floater_log =
-				LLFloaterReg::getTypedInstance<LLFloaterConversationLog>("conversation");
-		if (floater_log && !(floater_log->isFrontmost()))
+	if (is_offline_msg)
+    {
+		if (gSavedSettings.getBOOL("KeepConversationLogTranscripts"))
 		{
-            floater_log->openFloater();
-			floater_log->setFrontmost(TRUE);
+			LLFloaterConversationLog* floater_log =
+					LLFloaterReg::getTypedInstance<LLFloaterConversationLog>("conversation");
+			if (floater_log && !(floater_log->isFrontmost()))
+			{
+				floater_log->openFloater();
+				floater_log->setFrontmost(TRUE);
+			}
 		}
-	}
+		else
+		{
+           gToolBarView->flashCommand(LLCommandId("chat"), true);
+		}
+    }
 
 	//*NOTE session_name is empty in case of incoming P2P sessions
 	std::string fixed_session_name = from;
