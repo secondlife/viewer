@@ -1101,7 +1101,14 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
 	uuid_vec_t uuids;
 	getParticipantUUIDs(uuids);
 
-    if("can_activate_group" == item)
+
+	// If nothing is selected, everything needs to be disabled
+	if (uuids.size() <= 0)
+    {
+        return false;
+    }
+
+	if("can_activate_group" == item)
     {
     	LLUUID selected_group_id = getCurSelectedViewModelItem()->getUUID();
     	return gAgent.getGroupID() != selected_group_id;
@@ -1116,12 +1123,6 @@ bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_v
 	{
 		return gSavedSettings.getBOOL("KeepConversationLogTranscripts");
 	}
-
-	// If nothing is selected, everything needs to be disabled
-	if (uuids.size() <= 0)
-    {
-        return false;
-    }
 	
 	// Extract the single select info
 	bool is_single_select = (uuids.size() == 1);
