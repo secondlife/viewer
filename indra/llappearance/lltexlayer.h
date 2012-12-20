@@ -160,7 +160,7 @@ public:
 	BOOL					findNetColor(LLColor4* color) const;
 	/*virtual*/ BOOL		blendAlphaTexture(S32 x, S32 y, S32 width, S32 height); // Multiplies a single alpha texture against the frame buffer
 	/*virtual*/ void		gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height);
-	BOOL					renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLColor4 &layer_color);
+	void					renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLColor4 &layer_color, bool force_render);
 	void					addAlphaMask(U8 *data, S32 originX, S32 originY, S32 width, S32 height);
 	/*virtual*/ BOOL		isInvisibleAlphaMask() const;
 
