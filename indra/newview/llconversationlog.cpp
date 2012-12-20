@@ -187,16 +187,23 @@ void LLConversationLogFriendObserver::changed(U32 mask)
 
 LLConversationLog::LLConversationLog()
 {
-	LLControlVariable* ctrl = gSavedPerAccountSettings.getControl("LogInstantMessages").get();
-	if (ctrl)
+	LLControlVariable* log_instant_message = gSavedPerAccountSettings.getControl("LogInstantMessages").get();
+	LLControlVariable* keep_convers_log = gSavedSettings.getControl("KeepConversationLogTranscripts").get();
+	bool is_log_message = false;
+	bool is_keep_log = false;
+
+	if (log_instant_message)
 	{
-		ctrl->getSignal()->connect(boost::bind(&LLConversationLog::enableLogging, this, _2));
-		if (ctrl->getValue().asBoolean()
-				&& gSavedSettings.getBOOL("KeepConversationLogTranscripts"))
-		{
-			enableLogging(true);
-		}
+		log_instant_message->getSignal()->connect(boost::bind(&LLConversationLog::enableLogging, this, _2));
+		is_log_message = log_instant_message->getValue().asBoolean();
 	}
+	if (keep_convers_log)
+	{
+		keep_convers_log->getSignal()->connect(boost::bind(&LLConversationLog::enableLogging, this, _2));
+		is_keep_log = keep_convers_log->getValue().asBoolean();
+	}
+
+	enableLogging(is_log_message && is_keep_log);
 }
 
 void LLConversationLog::enableLogging(bool enable)
