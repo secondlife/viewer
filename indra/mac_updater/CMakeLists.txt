@@ -18,14 +18,10 @@ include_directories(
     )
 
 set(mac_updater_SOURCE_FILES
-    main.m
-    MacUpdaterAppDelegate.mm
     mac_updater.cpp
     )
 
 set(mac_updater_HEADER_FILES
-    MacUpdaterAppDelegate.h
-    mac_updater.h
     CMakeLists.txt
     )
 
@@ -36,7 +32,7 @@ list(APPEND mac_updater_SOURCE_FILES ${mac_updater_HEADER_FILES})
 
 
 set(mac_updater_RESOURCE_FILES
-  AutoUpdater.nib
+  AutoUpdater.nib/
   )
 set_source_files_properties(
   ${mac_updater_RESOURCE_FILES}
@@ -52,19 +48,13 @@ add_executable(mac-updater
 
 set_target_properties(mac-updater
   PROPERTIES
-  MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/MacUpdater-Info.plist
+  MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist
   )
-
-find_library(COCOA_LIBRARY Cocoa)
-find_library(IOKIT_LIBRARY IOKit)
 
 target_link_libraries(mac-updater
     ${LLVFS_LIBRARIES}
     ${OPENSSL_LIBRARIES}
     ${CRYPTO_LIBRARIES}
-    ${COCOA_LIBRARIES}
-    ${BOOST_FILESYSTEM_LIBRARY}
-    ${IOKIT_LIBRARY}
     ${CURL_LIBRARIES}
     ${CARES_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
@@ -72,16 +62,10 @@ target_link_libraries(mac-updater
 
 add_custom_command(
   TARGET mac-updater POST_BUILD
-#  COMMAND ${CMAKE_COMMAND}
-#  ARGS
-#    -E
-#    copy_directory
-#    ${CMAKE_CURRENT_SOURCE_DIR}/AutoUpdater.nib
-#    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/mac-updater.app/Contents/Resources/AutoUpdater.nib
   COMMAND ${CMAKE_COMMAND}
   ARGS
     -E
-    copy
+    copy_directory
     ${CMAKE_CURRENT_SOURCE_DIR}/AutoUpdater.nib
     ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/mac-updater.app/Contents/Resources/AutoUpdater.nib
   )
