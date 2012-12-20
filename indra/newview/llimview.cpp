@@ -155,9 +155,6 @@ void on_new_message(const LLSD& msg)
     }
 
     // execution of the action
-	llinfos << "Merov debug : on_new_message action = " << action << llendl;
-	
-
     LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
     LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(session_id);
 
