@@ -134,6 +134,7 @@ public:
 	void resetTextureStats();	
 	void setMaxVirtualSizeResetInterval(S32 interval)const {mMaxVirtualSizeResetInterval = interval;}
 	void resetMaxVirtualSizeResetCounter()const {mMaxVirtualSizeResetCounter = mMaxVirtualSizeResetInterval;}
+	S32 getMaxVirtualSizeResetCounter() const { return mMaxVirtualSizeResetCounter; }
 
 	virtual F32  getMaxVirtualSize() ;
 
@@ -306,6 +307,7 @@ public:
 	// the priority list, and cause horrible things to happen.
 	void setDecodePriority(F32 priority = -1.0f);
 	F32 getDecodePriority() const { return mDecodePriority; };
+	F32 getAdditionalDecodePriority() const { return mAdditionalDecodePriority; };
 
 	void setAdditionalDecodePriority(F32 priority) ;
 	
