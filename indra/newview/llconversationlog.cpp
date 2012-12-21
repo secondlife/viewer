@@ -236,17 +236,20 @@ void LLConversationLog::logConversation(const LLUUID& session_id, BOOL has_offli
 	const LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(session_id);
 	LLConversation* conversation = findConversation(session);
 
-	if (session && conversation)
+    if (session)
 	{
-		if(has_offline_msg)
+    	if (conversation)
 		{
-			updateOfflineIMs(session, has_offline_msg);
+			if(has_offline_msg)
+			{
+				updateOfflineIMs(session, has_offline_msg);
+			}
+			updateConversationTimestamp(conversation);
 		}
-		updateConversationTimestamp(conversation);
-	}
-	else if (session && !conversation)
-	{
-		createConversation(session);
+		else
+		{
+			createConversation(session);
+		}
 	}
 }
 
@@ -307,19 +310,17 @@ void LLConversationLog::updateConversationTimestamp(LLConversation* conversation
 
 LLConversation* LLConversationLog::findConversation(const LLIMModel::LLIMSession* session)
 {
-	if (!session)
+	if (session)
 	{
-		return NULL;
-	}
+		const LLUUID session_id = session->isOutgoingAdHoc() ? session->generateOutgouigAdHocHash() : session->mSessionID;
 
-	const LLUUID session_id = session->isOutgoingAdHoc() ? session->generateOutgouigAdHocHash() : session->mSessionID;
-
-	conversations_vec_t::iterator conv_it = mConversations.begin();
-	for(; conv_it != mConversations.end(); ++conv_it)
-	{
-		if (conv_it->getSessionID() == session_id)
+		conversations_vec_t::iterator conv_it = mConversations.begin();
+		for(; conv_it != mConversations.end(); ++conv_it)
 		{
-			return &*conv_it;
+			if (conv_it->getSessionID() == session_id)
+			{
+				return &*conv_it;
+			}
 		}
 	}
 
@@ -411,8 +412,8 @@ bool LLConversationLog::saveToFile(const std::string& filename)
 		// [1343221177] 0 1 0 John Doe| 7e4ec5be-783f-49f5-71dz-16c58c64c145 4ec62a74-c246-0d25-2af6-846beac2aa55 john.doe|
 		// [1343222639] 2 0 0 Ad-hoc Conference| c3g67c89-c479-4c97-b21d-32869bcfe8rc 68f1c33e-4135-3e3e-a897-8c9b23115c09 Ad-hoc Conference hash597394a0-9982-766d-27b8-c75560213b9a|
 
-		fprintf(fp, "[%d] %d %d %d %s| %s %s %s|\n",
-				(S32)conv_it->getTime(),
+		fprintf(fp, "[%ld] %d %d %d %s| %s %s %s|\n",
+				conv_it->getTime(),
 				(S32)conv_it->getConversationType(),
 				(S32)0,
 				(S32)conv_it->hasOfflineMessages(),
@@ -446,7 +447,7 @@ bool LLConversationLog::loadFromFile(const std::string& filename)
 	char history_file_name[MAX_STRING];
 	int has_offline_ims;
 	int stype;
-	S32 time;
+	time_t time;
 	// before CHUI-348 it was a flag of conversation voice state
 	int prereserved_unused;
 
@@ -456,7 +457,7 @@ bool LLConversationLog::loadFromFile(const std::string& filename)
 		part_id_buffer[0]	= '\0';
 		conv_id_buffer[0]	= '\0';
 
-		sscanf(buffer, "[%d] %d %d %d %[^|]| %s %s %[^|]|",
+		sscanf(buffer, "[%ld] %d %d %d %[^|]| %s %s %[^|]|",
 				&time,
 				&stype,
 				&prereserved_unused,
