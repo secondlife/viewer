@@ -160,6 +160,7 @@ void on_new_message(const LLSD& msg)
 
     //session floater not focused (visible or not)
     bool session_floater_not_focused = session_floater && !session_floater->hasFocus();
+
     //conv. floater is closed
     bool conversation_floater_is_closed =
     		!(  im_box
@@ -210,20 +211,16 @@ void on_new_message(const LLSD& msg)
 
     else if ("flash" == action)
     {
-    	if (session_floater_not_focused)
+    	if (conversation_floater_not_focused)
     	{
-    		//User is not focused on conversation containing the message
-
-            if(conversation_floater_not_focused)
+            if(session_floater_not_focused)
             {
+            	//User is not focused on conversation containing the message
                 gToolBarView->flashCommand(LLCommandId("chat"), true);
             }
-            //conversation floater is open but a different conversation is focused
-            //else
-            //{
-                im_box->flashConversationItemWidget(session_id, true);
-            //}
-    	}
+
+            im_box->flashConversationItemWidget(session_id, true);
+        }
     }
 
     else if("openconversations" == action)
