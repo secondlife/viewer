@@ -1913,14 +1913,15 @@ void LLFolderView::updateMenuOptions(LLMenuGL* menu)
 
 	// Successively filter out invalid options
 
-	U32 flags = FIRST_SELECTED_ITEM;
+	U32 multi_select_flag = (mSelectedItems.size() > 1 ? ITEM_IN_MULTI_SELECTION : 0x0);
+	U32 flags = multi_select_flag | FIRST_SELECTED_ITEM;
 	for (selected_items_t::iterator item_itor = mSelectedItems.begin();
 			item_itor != mSelectedItems.end();
 			++item_itor)
 	{
 		LLFolderViewItem* selected_item = (*item_itor);
 		selected_item->buildContextMenu(*menu, flags);
-		flags = 0x0;
+		flags = multi_select_flag;
 	}
 
 	addNoOptions(menu);

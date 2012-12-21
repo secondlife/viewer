@@ -1232,7 +1232,6 @@ void LLFloaterIMContainer::showConversation(const LLUUID& session_id)
 
 void LLFloaterIMContainer::clearAllFlashStates()
 {
-	llinfos << "Merov debug : clear all flash states" << llendl;
 	conversations_widgets_map::iterator widget_it = mConversationsWidgets.begin();
 	for (;widget_it != mConversationsWidgets.end(); ++widget_it)
 	{
