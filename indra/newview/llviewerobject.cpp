@@ -3282,12 +3282,6 @@ void LLViewerObject::boostTexturePriority(BOOL boost_children /* = TRUE */)
 			 iter != mChildList.end(); iter++)
 		{
 			LLViewerObject* child = *iter;
-
-			if(child == gAgentAvatarp)
-			{
-				//no need to boost self avatar textures when sit.
-				continue;
-			}
 			child->boostTexturePriority();
 		}
 	}

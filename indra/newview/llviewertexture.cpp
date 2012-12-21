@@ -1764,7 +1764,7 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 	else if (pixel_priority < 0.001f && !have_all_data)
 	{
 		// Not on screen but we might want some data
-		if (mBoostLevel > BOOST_HIGH)
+		if (mBoostLevel > BOOST_SELECTED)
 		{
 			// Always want high boosted images
 			priority = 1.f;
