@@ -3678,13 +3678,14 @@ public:
 
 		if (status)
 		{
-			LL_WARNS("Texture") << "Successfully delivered asset metrics to grid."
-								<< LL_ENDL;
+			LL_DEBUGS("Texture") << "Successfully delivered asset metrics to grid."
+								 << LL_ENDL;
 		}
 		else
 		{
-			LL_WARNS("Texture") << "Error delivering asset metrics to grid.  Reason:  "
-								<< status.toString() << LL_ENDL;
+			LL_WARNS("Texture") << "Error delivering asset metrics to grid.  Status:  "
+								<< status.toHex()
+								<< ", Reason:  " << status.toString() << LL_ENDL;
 		}
 	}
 }; // end class AssetReportHandler
