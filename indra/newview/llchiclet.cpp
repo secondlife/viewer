@@ -76,7 +76,7 @@ LLSysWellChiclet::LLSysWellChiclet(const Params& p)
 
 LLSysWellChiclet::~LLSysWellChiclet()
 {
-	delete mFlashToLitTimer;
+	mFlashToLitTimer->unset();
 }
 
 void LLSysWellChiclet::setCounter(S32 counter)

@@ -13173,7 +13173,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>0.25</real>
+      <real>0.5</real>
     </map>
     <key>WindLightUseAtmosShaders</key>
     <map>
