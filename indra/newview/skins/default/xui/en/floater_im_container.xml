@@ -3,9 +3,8 @@
  can_close="true"  
  can_minimize="true"
  can_resize="true"
- height="230"
+ height="210"
  layout="topleft"
- min_height="50"
  name="floater_im_box"
  help_topic="floater_im_box"
  save_rect="true"
@@ -15,7 +14,7 @@
  title="CONVERSATIONS"
  bottom="-50"
  right="-5"
- width="500">
+ width="450">
     <string
      name="collapse_icon"
      value="Conv_toolbar_collapse"/>
@@ -37,7 +36,6 @@
          user_resize="true"        
          name="conversations_layout_panel"
          min_dim="38"
-         width="225"
          expanded_min_dim="156">
             <layout_stack
              animate="false" 
@@ -121,7 +119,6 @@
              opaque="true"
              top_pad="0"
              left="5"
-             height="390"
              right="-1"/>
         </layout_panel>
         <layout_panel

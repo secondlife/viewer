@@ -206,7 +206,7 @@
        auto_resize="true"
        visible="true"
        name="left_part_holder"
-       min_width="225">
+       min_width="221">
         <panel
          name="trnsAndChat_panel"
          follows="all"
