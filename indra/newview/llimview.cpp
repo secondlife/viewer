@@ -964,7 +964,7 @@ const std::string LLIMModel::getName(const LLUUID& session_id) const
 {
 	LLIMSession* session = findIMSession(session_id);
 
-	if (!session) 
+	if (!session)
 	{
 		llwarns << "session " << session_id << "does not exist " << llendl;
 		return LLTrans::getString("no_session_message");
