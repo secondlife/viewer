@@ -54,23 +54,25 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
+using namespace LLTrace;
+
 static const S32 MAX_VISIBLE_HISTORY = 10;
 static const S32 LINE_GRAPH_HEIGHT = 240;
 
 const S32 FTV_MAX_DEPTH = 8;
 const S32 HISTORY_NUM = 300;
 
-std::vector<LLTrace::TimeBlock*> ft_display_idx; // line of table entry for display purposes (for collapse)
+std::vector<TimeBlock*> ft_display_idx; // line of table entry for display purposes (for collapse)
 
-typedef LLTreeDFSIter<LLTrace::TimeBlock, LLTrace::TimeBlock::child_const_iter> timer_tree_iterator_t;
+typedef LLTreeDFSIter<TimeBlock, TimeBlock::child_const_iter> timer_tree_iterator_t;
 
 BOOL LLFastTimerView::sAnalyzePerformance = FALSE;
 
-static timer_tree_iterator_t begin_timer_tree(LLTrace::TimeBlock& id) 
+static timer_tree_iterator_t begin_timer_tree(TimeBlock& id) 
 { 
 	return timer_tree_iterator_t(&id, 
-							boost::bind(boost::mem_fn(&LLTrace::TimeBlock::beginChildren), _1), 
-							boost::bind(boost::mem_fn(&LLTrace::TimeBlock::endChildren), _1));
+							boost::bind(boost::mem_fn(&TimeBlock::beginChildren), _1), 
+							boost::bind(boost::mem_fn(&TimeBlock::endChildren), _1));
 }
 
 static timer_tree_iterator_t end_timer_tree() 
@@ -81,12 +83,12 @@ static timer_tree_iterator_t end_timer_tree()
 S32 get_depth(const TimeBlock* blockp)
 {
 	S32 depth = 0;
-	TimeBlock* timerp = blockp->mParent;
+	TimeBlock* timerp = blockp->getParent();
 	while(timerp)
 	{
 		depth++;
 		if (timerp->getParent() == timerp) break;
-		timerp = timerp->mParent;
+		timerp = timerp->getParent();
 	}
 	return depth;
 }
@@ -102,13 +104,13 @@ LLFastTimerView::LLFastTimerView(const LLSD& key)
 	mHoverID(NULL),
 	mHoverBarIndex(-1),
 	mPrintStats(-1),
-	mRecording(&LLTrace::get_frame_recording()),
+	mRecording(&get_frame_recording()),
 	mPauseHistory(false)
 {}
 
 LLFastTimerView::~LLFastTimerView()
 {
-	if (mRecording != &LLTrace::get_frame_recording())
+	if (mRecording != &get_frame_recording())
 	{
 		delete mRecording;
 	}
@@ -121,17 +123,17 @@ void LLFastTimerView::onPause()
 	// reset scroll to bottom when unpausing
 	if (!mPauseHistory)
 	{
-		mRecording = new LLTrace::PeriodicRecording(LLTrace::get_frame_recording());
+		mRecording = new PeriodicRecording(get_frame_recording());
 		mScrollIndex = 0;
 		getChild<LLButton>("pause_btn")->setLabel(getString("pause"));
 	}
 	else
 	{
-		if (mRecording != &LLTrace::get_frame_recording())
+		if (mRecording != &get_frame_recording())
 		{
 			delete mRecording;
 		}
-		mRecording = &LLTrace::get_frame_recording();
+		mRecording = &get_frame_recording();
 
 		getChild<LLButton>("pause_btn")->setLabel(getString("run"));
 	}
@@ -170,7 +172,7 @@ BOOL LLFastTimerView::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	return LLFloater::handleRightMouseDown(x, y, mask);
 }
 
-LLTrace::TimeBlock* LLFastTimerView::getLegendID(S32 y)
+TimeBlock* LLFastTimerView::getLegendID(S32 y)
 {
 	S32 idx = (getRect().getHeight() - y) / (LLFontGL::getFontMonospace()->getLineHeight()+2) - 5;
 
@@ -197,7 +199,7 @@ BOOL LLFastTimerView::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	if (x < mBarRect.mLeft) 
 	{
-		LLTrace::TimeBlock* idp = getLegendID(y);
+		TimeBlock* idp = getLegendID(y);
 		if (idp)
 		{
 			idp->setCollapsed(!idp->getCollapsed());
@@ -248,7 +250,7 @@ BOOL LLFastTimerView::handleMouseUp(S32 x, S32 y, MASK mask)
 
 BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 {
-	LLTrace::PeriodicRecording& frame_recording = *mRecording;
+	PeriodicRecording& frame_recording = *mRecording;
 
 	if (hasMouseCapture())
 	{
@@ -306,7 +308,7 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 	}
 	else if (x < mBarRect.mLeft) 
 	{
-		LLTrace::TimeBlock* timer_id = getLegendID(y);
+		TimeBlock* timer_id = getLegendID(y);
 		if (timer_id)
 		{
 			mHoverID = timer_id;
@@ -317,9 +319,9 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 }
 
 
-static std::string get_tooltip(LLTrace::TimeBlock& timer, S32 history_index, LLTrace::PeriodicRecording& frame_recording)
+static std::string get_tooltip(TimeBlock& timer, S32 history_index, PeriodicRecording& frame_recording)
 {
-	F64 ms_multiplier = 1000.0 / (F64)LLTrace::TimeBlock::countsPerSecond();
+	F64 ms_multiplier = 1000.0 / (F64)TimeBlock::countsPerSecond();
 
 	std::string tooltip;
 	if (history_index < 0)
@@ -359,7 +361,7 @@ BOOL LLFastTimerView::handleToolTip(S32 x, S32 y, MASK mask)
 		// tooltips for timer legend
 		if (x < mBarRect.mLeft) 
 		{
-			LLTrace::TimeBlock* idp = getLegendID(y);
+			TimeBlock* idp = getLegendID(y);
 			if (idp)
 			{
 				LLToolTipMgr::instance().show(get_tooltip(*idp, -1,  *mRecording));
@@ -374,7 +376,7 @@ BOOL LLFastTimerView::handleToolTip(S32 x, S32 y, MASK mask)
 
 BOOL LLFastTimerView::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
-	LLTrace::PeriodicRecording& frame_recording = *mRecording;
+	PeriodicRecording& frame_recording = *mRecording;
 
 	mPauseHistory = true;
 	mScrollIndex = llclamp(	mScrollIndex + clicks,
@@ -383,15 +385,15 @@ BOOL LLFastTimerView::handleScrollWheel(S32 x, S32 y, S32 clicks)
 	return TRUE;
 }
 
-static LLTrace::TimeBlock FTM_RENDER_TIMER("Timers", true);
+static TimeBlock FTM_RENDER_TIMER("Timers", true);
 
-static std::map<LLTrace::TimeBlock*, LLColor4> sTimerColors;
+static std::map<TimeBlock*, LLColor4> sTimerColors;
 
 void LLFastTimerView::draw()
 {
 	LLFastTimer t(FTM_RENDER_TIMER);
 
-	LLTrace::PeriodicRecording& frame_recording = *mRecording;
+	PeriodicRecording& frame_recording = *mRecording;
 
 	std::string tdesc;
 
@@ -457,7 +459,7 @@ void LLFastTimerView::draw()
 			it != timer_tree_iterator_t();
 			++it)
 		{
-			LLTrace::TimeBlock* idp = (*it);
+			TimeBlock* idp = (*it);
 
 			const F32 HUE_INCREMENT = 0.23f;
 			hue = fmodf(hue + HUE_INCREMENT, 1.f);
@@ -480,12 +482,12 @@ void LLFastTimerView::draw()
 		LLLocalClipRect clip(LLRect(margin, y, LEGEND_WIDTH, margin));
 		S32 cur_line = 0;
 		ft_display_idx.clear();
-		std::map<LLTrace::TimeBlock*, S32> display_line;
+		std::map<TimeBlock*, S32> display_line;
 		for (timer_tree_iterator_t it = begin_timer_tree(getFrameTimer());
 			it != timer_tree_iterator_t();
 			++it)
 		{
-			LLTrace::TimeBlock* idp = (*it);
+			TimeBlock* idp = (*it);
 			display_line[idp] = cur_line;
 			ft_display_idx.push_back(idp);
 			cur_line++;
@@ -541,7 +543,7 @@ void LLFastTimerView::draw()
 
 			x += dx;
 			BOOL is_child_of_hover_item = (idp == mHoverID);
-			LLTrace::TimeBlock* next_parent = idp->getParent();
+			TimeBlock* next_parent = idp->getParent();
 			while(!is_child_of_hover_item && next_parent)
 			{
 				is_child_of_hover_item = (mHoverID == next_parent);
@@ -694,14 +696,14 @@ void LLFastTimerView::draw()
 			std::vector<S32> deltax;
 			xpos.push_back(x_start);
 			
-			LLTrace::TimeBlock* prev_id = NULL;
+			TimeBlock* prev_id = NULL;
 
 			S32 i = 0;
 			for(timer_tree_iterator_t it = begin_timer_tree(getFrameTimer());
 				it != end_timer_tree();
 				++it, ++i)
 			{
-				LLTrace::TimeBlock* idp = (*it);
+				TimeBlock* idp = (*it);
 				F32 frac = tidx == -1
 					? (frame_recording.getPeriodMean(*idp) / total_time) 
 					: (frame_recording.getPrevRecordingPeriod(tidx).getSum(*idp).value() / total_time.value());
@@ -724,11 +726,11 @@ void LLFastTimerView::draw()
 					sublevel_dx[level] = dx;
 					sublevel_right[level] = sublevel_left[level] + sublevel_dx[level];
 				}
-				else if (prev_id && prev_id->getDepth() < get_depth(idp))
+				else if (prev_id && get_depth(prev_id) < get_depth(idp))
 				{
 					U64 sublevelticks = 0;
 
-					for (LLTrace::TimeBlock::child_const_iter it = prev_id->beginChildren();
+					for (TimeBlock::child_const_iter it = prev_id->beginChildren();
 						it != prev_id->endChildren();
 						++it)
 					{
@@ -770,7 +772,7 @@ void LLFastTimerView::draw()
 					S32 scale_offset = 0;
 
 					BOOL is_child_of_hover_item = (idp == mHoverID);
-					LLTrace::TimeBlock* next_parent = idp->getParent();
+					TimeBlock* next_parent = idp->getParent();
 					while(!is_child_of_hover_item && next_parent)
 					{
 						is_child_of_hover_item = (mHoverID == next_parent);
@@ -866,7 +868,7 @@ void LLFastTimerView::draw()
 			it != end_timer_tree();
 			++it)
 		{
-			LLTrace::TimeBlock* idp = (*it);
+			TimeBlock* idp = (*it);
 				
 			//fatten highlighted timer
 			if (mHoverID == idp)
@@ -968,7 +970,7 @@ void LLFastTimerView::draw()
 			it != end_timer_tree();
 			++it)
 		{
-			LLTrace::TimeBlock* idp = (*it);
+			TimeBlock* idp = (*it);
 
 			if (!first)
 			{
@@ -990,7 +992,7 @@ void LLFastTimerView::draw()
 			it != end_timer_tree();
 			++it)
 		{
-			LLTrace::TimeBlock* idp = (*it);
+			TimeBlock* idp = (*it);
 
 			if (!first)
 			{
@@ -1527,13 +1529,13 @@ void LLFastTimerView::outputAllMetrics()
 //static
 void LLFastTimerView::doAnalysis(std::string baseline, std::string target, std::string output)
 {
-	if(LLTrace::TimeBlock::sLog)
+	if(TimeBlock::sLog)
 	{
 		doAnalysisDefault(baseline, target, output) ;
 		return ;
 	}
 
-	if(LLTrace::TimeBlock::sMetricLog)
+	if(TimeBlock::sMetricLog)
 	{
 		LLMetricPerformanceTesterBasic::doAnalysisMetrics(baseline, target, output) ;
 		return ;
@@ -1544,7 +1546,7 @@ void	LLFastTimerView::onClickCloseBtn()
 	setVisible(false);
 }
 
-LLTrace::TimeBlock& LLFastTimerView::getFrameTimer()
+TimeBlock& LLFastTimerView::getFrameTimer()
 {
 	return FTM_FRAME;
 }

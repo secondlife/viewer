@@ -122,6 +122,18 @@ void Recording::makePrimary()
 	mMeasurements.write()->makePrimary();
 	mStackTimers.write()->makePrimary();
 	mMemStats.write()->makePrimary();
+
+	ThreadRecorder* thread_recorder = get_thread_recorder().get();
+	AccumulatorBuffer<TimeBlockAccumulator>& timer_accumulator_buffer = *mStackTimers.write();
+	// update stacktimer parent pointers
+	for (S32 i = 0, end_i = mStackTimers->size(); i < end_i; i++)
+	{
+		TimeBlockTreeNode* tree_node = thread_recorder->getTimeBlockTreeNode(i);
+		if (tree_node)
+		{
+			timer_accumulator_buffer[i].mParent = tree_node->mParent;
+		}
+	}
 }
 
 bool Recording::isPrimary() const
@@ -145,9 +157,19 @@ void Recording::appendRecording( const Recording& other )
 	mMeasurementsFloat.write()->addSamples(*other.mMeasurementsFloat);
 	mCounts.write()->addSamples(*other.mCounts);
 	mMeasurements.write()->addSamples(*other.mMeasurements);
-	mStackTimers.write()->addSamples(*other.mStackTimers);
 	mMemStats.write()->addSamples(*other.mMemStats);
+
+	mStackTimers.write()->addSamples(*other.mStackTimers);
 	mElapsedSeconds += other.mElapsedSeconds;
+}
+
+void Recording::mergeRecording( const Recording& other)
+{
+	mCountsFloat.write()->addSamples(*other.mCountsFloat);
+	mMeasurementsFloat.write()->addSamples(*other.mMeasurementsFloat);
+	mCounts.write()->addSamples(*other.mCounts);
+	mMeasurements.write()->addSamples(*other.mMeasurements);
+	mMemStats.write()->addSamples(*other.mMemStats);
 }
 
 LLUnit<LLUnits::Seconds, F64> Recording::getSum(const TraceType<TimeBlockAccumulator>& stat) const

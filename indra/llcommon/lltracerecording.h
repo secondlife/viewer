@@ -114,7 +114,11 @@ namespace LLTrace
 
 		void makeUnique();
 
+		// accumulate data from subsequent, non-overlapping recording
 		void appendRecording(const Recording& other);
+
+		// gather data from recording, ignoring time relationship (for example, pulling data from slave threads)
+		void mergeRecording(const Recording& other);
 
 		void update();
 

@@ -66,5 +66,34 @@ LLThreadLocalPointer<ThreadRecorder>& get_thread_recorder()
 	return s_thread_recorder;
 }
 
+TimeBlockTreeNode::TimeBlockTreeNode() 
+:	mBlock(NULL),
+	mParent(NULL),
+	mNeedsSorting(false)
+{}
+
+void TimeBlockTreeNode::setParent( TimeBlock* parent )
+{
+	llassert_always(parent != mBlock);
+	llassert_always(parent != NULL);
+
+	TimeBlockTreeNode* parent_tree_node = get_thread_recorder()->getTimeBlockTreeNode(parent->getIndex());
+	if (!parent_tree_node) return;
+
+	if (mParent)
+	{
+		std::vector<TimeBlock*>& children = mParent->getChildren();
+		std::vector<TimeBlock*>::iterator found_it = std::find(children.begin(), children.end(), mBlock);
+		if (found_it != children.end())
+		{
+			children.erase(found_it);
+		}
+	}
+
+	mParent = parent;
+	mBlock->getPrimaryAccumulator()->mParent = parent;
+	parent_tree_node->mChildren.push_back(mBlock);
+	parent_tree_node->mNeedsSorting = true;
 }
 
+}

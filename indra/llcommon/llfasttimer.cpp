@@ -35,6 +35,7 @@
 #include "llunit.h"
 #include "llsd.h"
 #include "lltracerecording.h"
+#include "lltracethreadrecorder.h"
 
 #include <boost/bind.hpp>
 #include <queue>
@@ -167,52 +168,16 @@ U64 TimeBlock::countsPerSecond() // counts per second for the *64-bit* timer
 
 TimeBlock::TimeBlock(const char* name, bool open, TimeBlock* parent)
 :	TraceType(name),
-	mCollapsed(true),
-	mParent(NULL),
-	mNeedsSorting(false)
+	mCollapsed(true)
 {
 	setCollapsed(!open);
-
-	if (parent)
-	{
-		setParent(parent);
-	}
-	else
-	{
-		mParent = this;
-	}
 }
 
-void TimeBlock::setParent(TimeBlock* parent)
+TimeBlockTreeNode& TimeBlock::getTreeNode() const
 {
-	llassert_always(parent != this);
-	llassert_always(parent != NULL);
-
-	if (mParent)
-	{
-		//// subtract our accumulated from previous parent
-		//for (S32 i = 0; i < HISTORY_NUM; i++)
-		//{
-		//	mParent->mCountHistory[i] -= mCountHistory[i];
-		//}
-
-		//// subtract average timing from previous parent
-		//mParent->mCountAverage -= mCountAverage;
-
-		std::vector<TimeBlock*>& children = mParent->getChildren();
-		std::vector<TimeBlock*>::iterator found_it = std::find(children.begin(), children.end(), this);
-		if (found_it != children.end())
-		{
-			children.erase(found_it);
-		}
-	}
-
-	mParent = parent;
-	if (parent)
-	{
-		parent->getChildren().push_back(this);
-		parent->mNeedsSorting = true;
-	}
+	TimeBlockTreeNode* nodep = LLTrace::get_thread_recorder()->getTimeBlockTreeNode(getIndex());
+	llassert(nodep);
+	return *nodep;
 }
 
 // static
@@ -232,17 +197,17 @@ void TimeBlock::processTimes()
 
 		// bootstrap tree construction by attaching to last timer to be on stack
 		// when this timer was called
-		if (timer.mParent == &TimeBlock::getRootTimer())
+		if (timer.getParent() == &TimeBlock::getRootTimer())
 		{
-			TimeBlockAccumulator& accumulator = timer.getPrimaryAccumulator();
+			TimeBlockAccumulator* accumulator = timer.getPrimaryAccumulator();
 
-			if (accumulator.mLastCaller)
+			if (accumulator->mLastCaller)
 			{
-				timer.setParent(accumulator.mLastCaller);
-				accumulator.mParent = accumulator.mLastCaller;
+				timer.setParent(accumulator->mLastCaller);
+				accumulator->mParent = accumulator->mLastCaller;
 			}
 			// no need to push up tree on first use, flag can be set spuriously
-			accumulator.mMoveUpTree = false;
+			accumulator->mMoveUpTree = false;
 		}
 	}
 
@@ -256,25 +221,25 @@ void TimeBlock::processTimes()
 		TimeBlock* timerp = *it;
 
 		// sort timers by time last called, so call graph makes sense
-		if (timerp->mNeedsSorting)
+		if (timerp->getTreeNode().mNeedsSorting)
 		{
-			std::sort(timerp->getChildren().begin(), timerp->getChildren().end(), SortTimerByName());
+			std::sort(timerp->beginChildren(), timerp->endChildren(), SortTimerByName());
 		}
 
 		// skip root timer
 		if (timerp != &TimeBlock::getRootTimer())
 		{
-			TimeBlockAccumulator& accumulator = timerp->getPrimaryAccumulator();
+			TimeBlockAccumulator* accumulator = timerp->getPrimaryAccumulator();
 
-			if (accumulator.mMoveUpTree)
+			if (accumulator->mMoveUpTree)
 			{
 				// since ancestors have already been visited, re-parenting won't affect tree traversal
 				//step up tree, bringing our descendants with us
 				LL_DEBUGS("FastTimers") << "Moving " << timerp->getName() << " from child of " << timerp->getParent()->getName() <<
 					" to child of " << timerp->getParent()->getParent()->getName() << LL_ENDL;
 				timerp->setParent(timerp->getParent()->getParent());
-				accumulator.mParent = timerp->mParent;
-				accumulator.mMoveUpTree = false;
+				accumulator->mParent = timerp->getParent();
+				accumulator->mMoveUpTree = false;
 
 				// don't bubble up any ancestors until descendants are done bubbling up
 				// as ancestors may call this timer only on certain paths, so we want to resolve
@@ -286,15 +251,15 @@ void TimeBlock::processTimes()
 
 	// walk up stack of active timers and accumulate current time while leaving timing structures active
 	BlockTimer* cur_timer = cur_data->mCurTimer;
-	TimeBlockAccumulator& accumulator = cur_data->mTimerData->getPrimaryAccumulator();
+	TimeBlockAccumulator* accumulator = cur_data->mTimerData->getPrimaryAccumulator();
 	// root defined by parent pointing to self
 	while(cur_timer && cur_timer->mLastTimerData.mCurTimer != cur_timer)
 	{
 		U64 cumulative_time_delta = cur_time - cur_timer->mStartTime;
 		U64 self_time_delta = cumulative_time_delta - cur_data->mChildTime;
 		cur_data->mChildTime = 0;
-		accumulator.mSelfTimeCounter += self_time_delta;
-		accumulator.mTotalTimeCounter += cumulative_time_delta;
+		accumulator->mSelfTimeCounter += self_time_delta;
+		accumulator->mTotalTimeCounter += cumulative_time_delta;
 
 		cur_timer->mStartTime = cur_time;
 
@@ -316,10 +281,10 @@ void TimeBlock::processTimes()
 		++it)
 	{
 		TimeBlock& timer = *it;
-		TimeBlockAccumulator& accumulator = timer.getPrimaryAccumulator();
+		TimeBlockAccumulator* accumulator = timer.getPrimaryAccumulator();
 
-		accumulator.mLastCaller = NULL;
-		accumulator.mMoveUpTree = false;
+		accumulator->mLastCaller = NULL;
+		accumulator->mMoveUpTree = false;
 	}
 
 	// traverse tree in DFS post order, or bottom up
@@ -338,19 +303,19 @@ void TimeBlock::processTimes()
 }
 
 
-std::vector<TimeBlock*>::const_iterator TimeBlock::beginChildren()
+std::vector<TimeBlock*>::iterator TimeBlock::beginChildren()
 { 
-	return mChildren.begin(); 
+	return getTreeNode().mChildren.begin(); 
 }
 
-std::vector<TimeBlock*>::const_iterator TimeBlock::endChildren()
+std::vector<TimeBlock*>::iterator TimeBlock::endChildren()
 {
-	return mChildren.end();
+	return getTreeNode().mChildren.end();
 }
 
 std::vector<TimeBlock*>& TimeBlock::getChildren()
 {
-	return mChildren;
+	return getTreeNode().mChildren;
 }
 
 //static

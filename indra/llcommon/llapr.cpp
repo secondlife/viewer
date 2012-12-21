@@ -542,12 +542,12 @@ void LLThreadLocalPointerBase::destroyAllThreadLocalStorage()
 {
 	if (sInitialized)
 	{
-		for (LLInstanceTracker<LLThreadLocalPointerBase>::instance_iter it = beginInstances(), end_it = endInstances();
-			it != end_it;
-			++it)
-		{
-			(*it).destroyStorage();
-		}
+		//for (LLInstanceTracker<LLThreadLocalPointerBase>::instance_iter it = beginInstances(), end_it = endInstances();
+		//	it != end_it;
+		//	++it)
+		//{
+		//	(*it).destroyStorage();
+		//}
 		sInitialized = false;
 	}
 }

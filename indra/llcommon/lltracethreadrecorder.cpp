@@ -38,25 +38,37 @@ namespace LLTrace
 
 ThreadRecorder::ThreadRecorder()
 {
+	//NB: the ordering of initialization in this function is very fragile due to a large number of implicit dependencies
 	get_thread_recorder() = this;
-	mFullRecording.start();
 
 	mRootTimerData = new CurTimerData();
 	mRootTimerData->mTimerData = &TimeBlock::getRootTimer();
-
 	TimeBlock::sCurTimerData = mRootTimerData;
-	TimeBlock::getRootTimer().getPrimaryAccumulator().mActiveCount = 1;
 
-	// initialize parent pointers in time blocks
+	mNumTimeBlockTreeNodes = AccumulatorBuffer<TimeBlockAccumulator>::getDefaultBuffer()->size();
+	mTimeBlockTreeNodes = new TimeBlockTreeNode[mNumTimeBlockTreeNodes];
+
+	mFullRecording.start();
+
+	TimeBlock& root_timer = TimeBlock::getRootTimer();
+
+	// initialize time block parent pointers
 	for (LLInstanceTracker<TimeBlock>::instance_iter it = LLInstanceTracker<TimeBlock>::beginInstances(), end_it = LLInstanceTracker<TimeBlock>::endInstances(); 
 		it != end_it; 
 		++it)
 	{
-		it->getPrimaryAccumulator().mParent = it->mParent;
+		TimeBlock& time_block = *it;
+		TimeBlockTreeNode& tree_node = mTimeBlockTreeNodes[it->getIndex()];
+		tree_node.mBlock = &time_block;
+		tree_node.mParent = &root_timer;
+
+		it->getPrimaryAccumulator()->mParent = &root_timer;
 	}
 
-	mRootTimer = new BlockTimer(TimeBlock::getRootTimer());
+	mRootTimer = new BlockTimer(root_timer);
 	mRootTimerData->mCurTimer = mRootTimer;
+
+	TimeBlock::getRootTimer().getPrimaryAccumulator()->mActiveCount = 1;
 }
 
 ThreadRecorder::~ThreadRecorder()
@@ -70,7 +82,18 @@ ThreadRecorder::~ThreadRecorder()
 	get_thread_recorder() = NULL;
 	TimeBlock::sCurTimerData = NULL;
 	delete mRootTimerData;
+	delete[] mTimeBlockTreeNodes;
 }
+
+TimeBlockTreeNode* ThreadRecorder::getTimeBlockTreeNode(S32 index)
+{
+	if (0 <= index && index < mNumTimeBlockTreeNodes)
+	{
+		return &mTimeBlockTreeNodes[index];
+	}
+	return NULL;
+}
+
 
 void ThreadRecorder::activate( Recording* recording )
 {
@@ -112,6 +135,13 @@ std::list<ThreadRecorder::ActiveRecording>::iterator ThreadRecorder::update( Rec
 
 	return it;
 }
+
+AccumulatorBuffer<CountAccumulator<F64> > 		gCountsFloat;
+AccumulatorBuffer<MeasurementAccumulator<F64> >	gMeasurementsFloat;
+AccumulatorBuffer<CountAccumulator<S64> >		gCounts;
+AccumulatorBuffer<MeasurementAccumulator<S64> >	gMeasurements;
+AccumulatorBuffer<TimeBlockAccumulator>			gStackTimers;
+AccumulatorBuffer<MemStatAccumulator>			gMemStats;
 
 void ThreadRecorder::deactivate( Recording* recording )
 {
@@ -169,22 +199,41 @@ void SlaveThreadRecorder::pushToMaster()
 	mFullRecording.stop();
 	{
 		LLMutexLock(getMasterThreadRecorder().getSlaveListMutex());
-		mSharedData.copyFrom(mFullRecording);
+		mSharedData.appendFrom(mFullRecording);
 	}
 	mFullRecording.start();
 }
 
-void SlaveThreadRecorder::SharedData::copyFrom( const Recording& source )
+void SlaveThreadRecorder::SharedData::appendFrom( const Recording& source )
 {
 	LLMutexLock lock(&mRecordingMutex);
 	mRecording.appendRecording(source);
 }
 
-void SlaveThreadRecorder::SharedData::copyTo( Recording& sink )
+void SlaveThreadRecorder::SharedData::appendTo( Recording& sink )
 {
 	LLMutexLock lock(&mRecordingMutex);
 	sink.appendRecording(mRecording);
 }
+
+void SlaveThreadRecorder::SharedData::mergeFrom( const Recording& source )
+{
+	LLMutexLock lock(&mRecordingMutex);
+	mRecording.mergeRecording(source);
+}
+
+void SlaveThreadRecorder::SharedData::mergeTo( Recording& sink )
+{
+	LLMutexLock lock(&mRecordingMutex);
+	sink.mergeRecording(mRecording);
+}
+
+void SlaveThreadRecorder::SharedData::reset()
+{
+	LLMutexLock lock(&mRecordingMutex);
+	mRecording.reset();
+}
+
 
 ///////////////////////////////////////////////////////////////////////
 // MasterThreadRecorder
@@ -203,7 +252,9 @@ void MasterThreadRecorder::pullFromSlaveThreads()
 		it != end_it;
 		++it)
 	{
-		(*it)->mSharedData.copyTo(target_recording);
+		// ignore block timing info for now
+		(*it)->mSharedData.mergeTo(target_recording);
+		(*it)->mSharedData.reset();
 	}
 }
 

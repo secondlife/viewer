@@ -77,21 +77,21 @@ namespace LLTrace
 	template<typename ACCUMULATOR>
 	class AccumulatorBuffer : public LLRefCount
 	{
+		typedef AccumulatorBuffer<ACCUMULATOR> self_t;
 		static const U32 DEFAULT_ACCUMULATOR_BUFFER_SIZE = 64;
 	private:
-		enum StaticAllocationMarker { STATIC_ALLOC };
+		struct StaticAllocationMarker { };
 
 		AccumulatorBuffer(StaticAllocationMarker m)
 		:	mStorageSize(0),
 			mStorage(NULL),
 			mNextStorageSlot(0)
 		{
-			resize(DEFAULT_ACCUMULATOR_BUFFER_SIZE);
 		}
 
 	public:
 
-		AccumulatorBuffer(const AccumulatorBuffer& other = getDefaultBuffer())
+		AccumulatorBuffer(const AccumulatorBuffer& other = *getDefaultBuffer())
 		:	mStorageSize(0),
 			mStorage(NULL),
 			mNextStorageSlot(other.mNextStorageSlot)
@@ -107,8 +107,7 @@ namespace LLTrace
 		{
 			if (sPrimaryStorage == mStorage)
 			{
-				//TODO pick another primary?
-				sPrimaryStorage = NULL;
+				sPrimaryStorage = getDefaultBuffer()->mStorage;
 			}
 			delete[] mStorage;
 		}
@@ -182,6 +181,8 @@ namespace LLTrace
 
 		void resize(size_t new_size)
 		{
+			if (new_size <= mStorageSize) return;
+
 			ACCUMULATOR* old_storage = mStorage;
 			mStorage = new ACCUMULATOR[new_size];
 			if (old_storage)
@@ -193,16 +194,33 @@ namespace LLTrace
 			}
 			mStorageSize = new_size;
 			delete[] old_storage;
+
+			self_t* default_buffer = getDefaultBuffer();
+			if (this != default_buffer
+				&& new_size > default_buffer->size())
+			{
+				//NB: this is not thread safe, but we assume that all resizing occurs during static initialization
+				default_buffer->resize(new_size);
+			}
 		}
 
-		size_t size()
+		size_t size() const
 		{
 			return mNextStorageSlot;
 		}
 
-		static AccumulatorBuffer<ACCUMULATOR>& getDefaultBuffer()
+		static self_t* getDefaultBuffer()
 		{
-			static AccumulatorBuffer sBuffer(STATIC_ALLOC);
+			// this buffer is allowed to leak so that trace calls from global destructors have somewhere to put their data
+			// so as not to trigger an access violation
+			//TODO: make this thread local but need to either demand-init apr or remove apr dependency
+			static self_t* sBuffer = new AccumulatorBuffer(StaticAllocationMarker());
+			static bool sInitialized = false;
+			if (!sInitialized)
+			{
+				sBuffer->resize(DEFAULT_ACCUMULATOR_BUFFER_SIZE);
+				sInitialized = true;
+			}
 			return sBuffer;
 		}
 
@@ -233,13 +251,13 @@ namespace LLTrace
 			mName(name),
 			mDescription(description ? description : "")	
 		{
-			mAccumulatorIndex = AccumulatorBuffer<ACCUMULATOR>::getDefaultBuffer().reserveSlot();
+			mAccumulatorIndex = AccumulatorBuffer<ACCUMULATOR>::getDefaultBuffer()->reserveSlot();
 		}
 
-		LL_FORCE_INLINE ACCUMULATOR& getPrimaryAccumulator() const
+		LL_FORCE_INLINE ACCUMULATOR* getPrimaryAccumulator() const
 		{
 			ACCUMULATOR* accumulator_storage = AccumulatorBuffer<ACCUMULATOR>::getPrimaryStorage();
-			return accumulator_storage[mAccumulatorIndex];
+			return &accumulator_storage[mAccumulatorIndex];
 		}
 
 		size_t getIndex() const { return mAccumulatorIndex; }
@@ -472,6 +490,22 @@ namespace LLTrace
 		{}
 	};
 
+	class TimeBlock;
+	class TimeBlockTreeNode
+	{
+	public:
+		TimeBlockTreeNode();
+
+		void setParent(TimeBlock* parent);
+		TimeBlock* getParent() { return mParent; }
+
+		TimeBlock*					mBlock;
+		TimeBlock*					mParent;	
+		std::vector<TimeBlock*>		mChildren;
+		bool						mNeedsSorting;
+	};
+
+
 	template <typename T = F64>
 	class Measurement
 	:	public TraceType<MeasurementAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >
@@ -488,7 +522,7 @@ namespace LLTrace
 		void sample(UNIT_T value)
 		{
 			T converted_value(value);
-			trace_t::getPrimaryAccumulator().sample(LLUnits::rawValue(converted_value));
+			trace_t::getPrimaryAccumulator()->sample(LLUnits::rawValue(converted_value));
 		}
 	};
 
@@ -508,7 +542,7 @@ namespace LLTrace
 		void add(UNIT_T value)
 		{
 			T converted_value(value);
-			trace_t::getPrimaryAccumulator().add(LLUnits::rawValue(converted_value));
+			trace_t::getPrimaryAccumulator()->add(LLUnits::rawValue(converted_value));
 		}
 	};
 
@@ -650,19 +684,25 @@ public:
 		// reserve 8 bytes for allocation size (and preserving 8 byte alignment of structs)
 		void* allocation = ::operator new(allocation_size + 8);
 		*(size_t*)allocation = allocation_size;
-		MemStatAccumulator& accumulator = sStat.getPrimaryAccumulator();
-		accumulator.mSize += allocation_size;
-		accumulator.mAllocatedCount++;
+		MemStatAccumulator* accumulator = sStat.getPrimaryAccumulator();
+		if (accumulator)
+		{
+			accumulator->mSize += allocation_size;
+			accumulator->mAllocatedCount++;
+		}
 		return (void*)((char*)allocation + 8);
 	}
 
 	void operator delete(void* ptr)
 	{
 		size_t* allocation_size = (size_t*)((char*)ptr - 8);
-		MemStatAccumulator& accumulator = sStat.getPrimaryAccumulator();
-		accumulator.mSize -= *allocation_size;
-		accumulator.mAllocatedCount--;
-		accumulator.mDeallocatedCount++;
+		MemStatAccumulator* accumulator = sStat.getPrimaryAccumulator();
+		if (accumulator)
+		{
+			accumulator->mSize -= *allocation_size;
+			accumulator->mAllocatedCount--;
+			accumulator->mDeallocatedCount++;
+		}
 		::delete((char*)ptr - 8);
 	}
 
@@ -670,19 +710,25 @@ public:
 	{
 		size_t* result = (size_t*)malloc(size + 8);
 		*result = size;
-		MemStatAccumulator& accumulator = sStat.getPrimaryAccumulator();
-		accumulator.mSize += size;
-		accumulator.mAllocatedCount++;
+		MemStatAccumulator* accumulator = sStat.getPrimaryAccumulator();
+		if (accumulator)
+		{
+			accumulator->mSize += size;
+			accumulator->mAllocatedCount++;
+		}
 		return (void*)((char*)result + 8);
 	}
 
 	void operator delete[](void* ptr)
 	{
 		size_t* allocation_size = (size_t*)((char*)ptr - 8);
-		MemStatAccumulator& accumulator = sStat.getPrimaryAccumulator();
-		accumulator.mSize -= *allocation_size;
-		accumulator.mAllocatedCount--;
-		accumulator.mDeallocatedCount++;
+		MemStatAccumulator* accumulator = sStat.getPrimaryAccumulator();
+		if (accumulator)
+		{
+			accumulator->mSize -= *allocation_size;
+			accumulator->mAllocatedCount--;
+			accumulator->mDeallocatedCount++;
+		}
 		::delete[]((char*)ptr - 8);
 	}
 
@@ -704,9 +750,12 @@ public:
 
 	void memClaim(size_t size)
 	{
-		MemStatAccumulator& accumulator = sStat.getPrimaryAccumulator();
+		MemStatAccumulator* accumulator = sStat.getPrimaryAccumulator();
 		mMemFootprint += size;
-		accumulator.mSize += size;
+		if (accumulator)
+		{
+			accumulator->mSize += size;
+		}
 	}
 
 	// remove memory we had claimed from our calculated footprint
@@ -726,8 +775,11 @@ public:
 
 	void memDisclaim(size_t size)
 	{
-		MemStatAccumulator& accumulator = sStat.getPrimaryAccumulator();
-		accumulator.mSize -= size;
+		MemStatAccumulator* accumulator = sStat.getPrimaryAccumulator();
+		if (accumulator)
+		{
+			accumulator->mSize -= size;
+		}
 		mMemFootprint -= size;
 	}
 
@@ -739,18 +791,24 @@ private:
 	{
 		static void claim(mem_trackable_t& tracker, const TRACKED& tracked)
 		{
-			MemStatAccumulator& accumulator = sStat.getPrimaryAccumulator();
-			size_t footprint = MemFootprint<TRACKED>::measure(tracked);
-			accumulator.mSize += footprint;
-			tracker.mMemFootprint += footprint;
+			MemStatAccumulator* accumulator = sStat.getPrimaryAccumulator();
+			if (accumulator)
+			{
+				size_t footprint = MemFootprint<TRACKED>::measure(tracked);
+				accumulator->mSize += footprint;
+				tracker.mMemFootprint += footprint;
+			}
 		}
 
 		static void disclaim(mem_trackable_t& tracker, const TRACKED& tracked)
 		{
-			MemStatAccumulator& accumulator = sStat.getPrimaryAccumulator();
-			size_t footprint = MemFootprint<TRACKED>::measure(tracked);
-			accumulator.mSize -= footprint;
-			tracker.mMemFootprint -= footprint;
+			MemStatAccumulator* accumulator = sStat.getPrimaryAccumulator();
+			if (accumulator)
+			{
+				size_t footprint = MemFootprint<TRACKED>::measure(tracked);
+				accumulator->mSize -= footprint;
+				tracker.mMemFootprint -= footprint;
+			}
 		}
 	};
 
@@ -759,14 +817,20 @@ private:
 	{
 		static void claim(mem_trackable_t& tracker, TRACKED& tracked)
 		{
-			MemStatAccumulator& accumulator = sStat.getPrimaryAccumulator();
-			accumulator.mChildSize += MemFootprint<TRACKED>::measure(tracked);
+			MemStatAccumulator* accumulator = sStat.getPrimaryAccumulator();
+			if (accumulator)
+			{
+				accumulator->mChildSize += MemFootprint<TRACKED>::measure(tracked);
+			}
 		}
 
 		static void disclaim(mem_trackable_t& tracker, TRACKED& tracked)
 		{
-			MemStatAccumulator& accumulator = sStat.getPrimaryAccumulator();
-			accumulator.mChildSize -= MemFootprint<TRACKED>::measure(tracked);
+			MemStatAccumulator* accumulator = sStat.getPrimaryAccumulator();
+			if (accumulator)
+			{
+				accumulator->mChildSize -= MemFootprint<TRACKED>::measure(tracked);
+			}
 		}
 	};
 	static MemStat sStat;

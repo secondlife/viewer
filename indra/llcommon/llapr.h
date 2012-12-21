@@ -296,7 +296,7 @@ protected:
 
 	LL_FORCE_INLINE void* get()
 	{
-		llassert(sInitialized);
+		// llassert(sInitialized);
 		void* ptr;
 		apr_status_t result =
 		apr_threadkey_private_get(&ptr, mThreadKey);

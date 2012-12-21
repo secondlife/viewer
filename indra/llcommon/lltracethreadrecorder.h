@@ -50,6 +50,8 @@ namespace LLTrace
 
 		virtual void pushToMaster() = 0;
 
+		TimeBlockTreeNode* getTimeBlockTreeNode(S32 index);
+
 	protected:
 		struct ActiveRecording
 		{
@@ -64,7 +66,9 @@ namespace LLTrace
 		std::list<ActiveRecording>	mActiveRecordings;
 
 		struct CurTimerData*	mRootTimerData;
-		class BlockTimer*				mRootTimer;
+		class BlockTimer*		mRootTimer;
+		TimeBlockTreeNode*		mTimeBlockTreeNodes;
+		size_t					mNumTimeBlockTreeNodes;
 	};
 
 	class LL_COMMON_API MasterThreadRecorder : public ThreadRecorder
@@ -104,8 +108,11 @@ namespace LLTrace
 		class SharedData
 		{
 		public:
-			void copyFrom(const Recording& source);
-			void copyTo(Recording& sink);
+			void appendFrom(const Recording& source);
+			void appendTo(Recording& sink);
+			void mergeFrom(const Recording& source);
+			void mergeTo(Recording& sink);
+			void reset();
 		private:
 			LLMutex		mRecordingMutex;
 			Recording	mRecording;
