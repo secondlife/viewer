@@ -34,6 +34,7 @@
 #include "llrefcount.h"
 #include "llunit.h"
 #include "llapr.h"
+#include "llthreadlocalpointer.h"
 
 #include <list>
 

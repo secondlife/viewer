@@ -42,7 +42,6 @@
 #include "apr_atomic.h"
 
 #include "llstring.h"
-#include "llinstancetracker.h"
 
 extern LL_COMMON_API apr_thread_mutex_t* gLogMutexp;
 extern apr_thread_mutex_t* gCallStacksLogMutexp;
@@ -170,14 +169,17 @@ public:
 	LLAtomic32<Type>(Type x) {apr_atomic_set32(&mData, apr_uint32_t(x)); };
 	~LLAtomic32<Type>() {};
 
-	operator const Type() { apr_uint32_t data = apr_atomic_read32(&mData); return Type(data); }
+	operator const Type() { return get(); }
 	Type operator =(const Type& x) { apr_atomic_set32(&mData, apr_uint32_t(x)); return Type(mData); }
 	void operator -=(Type x) { apr_atomic_sub32(&mData, apr_uint32_t(x)); }
 	void operator +=(Type x) { apr_atomic_add32(&mData, apr_uint32_t(x)); }
 	Type operator ++(int) { return apr_atomic_inc32(&mData); } // Type++
-	Type operator --(int) { return apr_atomic_dec32(&mData); } // approximately --Type (0 if final is 0, non-zero otherwise)
+	Type operator ++()	  { apr_atomic_inc32(&mData); return get();  } // ++Type
+	Type operator --(int) { const Type result(get()); apr_atomic_dec32(&mData); return result; } // Type-- 
+	Type operator --()	  { return apr_atomic_dec32(&mData); } // approximately --Type (0 if final is 0, non-zero otherwise)
 	
 private:
+	const Type get() { apr_uint32_t data = apr_atomic_read32(&mData); return Type(data); }
 	apr_uint32_t mData;
 };
 
@@ -262,134 +264,5 @@ public:
 //*******************************************************************************************************************************
 };
 
-class LLThreadLocalPointerBase : public LLInstanceTracker<LLThreadLocalPointerBase>
-{
-public:
-	LLThreadLocalPointerBase()
-	:	mThreadKey(NULL)
-	{
-		if (sInitialized)
-		{
-			initStorage();
-		}
-	}
-
-	LLThreadLocalPointerBase( const LLThreadLocalPointerBase& other)
-		:	mThreadKey(NULL)
-	{
-		if (sInitialized)
-		{
-			initStorage();
-		}
-	}
-
-	~LLThreadLocalPointerBase()
-	{
-		destroyStorage();
-	}
-
-	static void initAllThreadLocalStorage();
-	static void destroyAllThreadLocalStorage();
-
-protected:
-	void set(void* value);
-
-	LL_FORCE_INLINE void* get()
-	{
-		// llassert(sInitialized);
-		void* ptr;
-		apr_status_t result =
-		apr_threadkey_private_get(&ptr, mThreadKey);
-		if (result != APR_SUCCESS)
-		{
-			ll_apr_warn_status(result);
-			llerrs << "Failed to get thread local data" << llendl;
-		}
-		return ptr;
-	}
-
-	LL_FORCE_INLINE const void* get() const
-	{
-		void* ptr;
-		apr_status_t result =
-		apr_threadkey_private_get(&ptr, mThreadKey);
-		if (result != APR_SUCCESS)
-		{
-			ll_apr_warn_status(result);
-			llerrs << "Failed to get thread local data" << llendl;
-		}
-		return ptr;
-	}
-
-	void initStorage();
-	void destroyStorage();
-
-protected:
-	apr_threadkey_t* mThreadKey;
-	static bool		sInitialized;
-};
-
-template <typename T>
-class LLThreadLocalPointer : public LLThreadLocalPointerBase
-{
-public:
-
-	LLThreadLocalPointer()
-	{}
-
-	explicit LLThreadLocalPointer(T* value)
-	{
-		set(value);
-	}
-
-
-	LLThreadLocalPointer(const LLThreadLocalPointer<T>& other)
-	:	LLThreadLocalPointerBase(other)
-	{
-		set(other.get());		
-	}
-
-	LL_FORCE_INLINE T* get()
-	{
-		return (T*)LLThreadLocalPointerBase::get();
-	}
-
-	const T* get() const
-	{
-		return (const T*)LLThreadLocalPointerBase::get();
-	}
-
-	T* operator -> ()
-	{
-		return (T*)get();
-	}
-
-	const T* operator -> () const
-	{
-		return (T*)get();
-	}
-
-	T& operator*()
-	{
-		return *(T*)get();
-	}
-
-	const T& operator*() const
-	{
-		return *(T*)get();
-	}
-
-	LLThreadLocalPointer<T>& operator = (T* value)
-	{
-		set((void*)value);
-		return *this;
-	}
-
-	bool operator ==(T* other)
-	{
-		if (!sInitialized) return false;
-		return get() == other;
-	}
-};
 
 #endif // LL_LLAPR_H

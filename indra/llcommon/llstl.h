@@ -31,6 +31,7 @@
 #include <algorithm>
 #include <map>
 #include <vector>
+#include <list>
 #include <set>
 #include <deque>
 #include <typeinfo>

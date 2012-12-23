@@ -70,7 +70,12 @@ protected:
         StaticBase():
             sIterationNestDepth(0)
         {}
-        S32 sIterationNestDepth;
+
+		void incrementDepth();
+		void decrementDepth();
+		U32 getDepth();
+	private:
+		U32 sIterationNestDepth;
     };
 };
 
@@ -99,12 +104,12 @@ public:
 		instance_iter(const typename InstanceMap::iterator& it)
 		:	mIterator(it)
 		{
-			++getStatic().sIterationNestDepth;
+			getStatic().incrementDepth();
 		}
 
 		~instance_iter()
 		{
-			--getStatic().sIterationNestDepth;
+			getStatic().decrementDepth();
 		}
 
 
@@ -133,18 +138,18 @@ public:
 		key_iter(typename InstanceMap::iterator it)
 			:	mIterator(it)
 		{
-			++getStatic().sIterationNestDepth;
+			getStatic().incrementDepth();
 		}
 
 		key_iter(const key_iter& other)
 			:	mIterator(other.mIterator)
 		{
-			++getStatic().sIterationNestDepth;
+			getStatic().incrementDepth();
 		}
 
 		~key_iter()
 		{
-			--getStatic().sIterationNestDepth;
+			getStatic().decrementDepth();
 		}
 
 
@@ -203,7 +208,7 @@ protected:
 	virtual ~LLInstanceTracker() 
 	{ 
 		// it's unsafe to delete instances of this type while all instances are being iterated over.
-		llassert_always(getStatic().sIterationNestDepth == 0);
+		llassert_always(getStatic().getDepth() == 0);
 		remove_();		
 	}
 	virtual void setKey(KEY key) { remove_(); add_(key); }
@@ -262,18 +267,18 @@ public:
 		instance_iter(const typename InstanceSet::iterator& it)
 		:	mIterator(it)
 		{
-			++getStatic().sIterationNestDepth;
+			getStatic().incrementDepth();
 		}
 
 		instance_iter(const instance_iter& other)
 		:	mIterator(other.mIterator)
 		{
-			++getStatic().sIterationNestDepth;
+			getStatic().incrementDepth();
 		}
 
 		~instance_iter()
 		{
-			--getStatic().sIterationNestDepth;
+			getStatic().decrementDepth();
 		}
 
 	private:
@@ -306,7 +311,7 @@ protected:
 	virtual ~LLInstanceTracker()
 	{
 		// it's unsafe to delete instances of this type while all instances are being iterated over.
-		llassert_always(getStatic().sIterationNestDepth == 0);
+		llassert_always(getStatic().getDepth() == 0);
 		getSet_().erase(static_cast<T*>(this));
 	}
 
