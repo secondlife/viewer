@@ -137,6 +137,7 @@ void LLPanelBlockedList::updateButtons()
 {
 	bool hasSelected = NULL != mBlockedList->getSelectedItem();
 	getChildView("unblock_btn")->setEnabled(hasSelected);
+	getChildView("blocked_gear_btn")->setEnabled(hasSelected);
 }
 
 void LLPanelBlockedList::unblockItem()
