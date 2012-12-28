@@ -606,8 +606,8 @@ void LLFloaterIMSessionTab::updateHeaderAndToolbar()
 	// prevent start conversation before its container
     LLFloaterIMContainer::getInstance();
 
-	bool is_torn_off = checkIfTornOff();
-	if (!is_torn_off)
+	bool is_not_torn_off = !checkIfTornOff();
+	if (is_not_torn_off)
 	{
 		hideAllStandardButtons();
 	}
@@ -616,7 +616,7 @@ void LLFloaterIMSessionTab::updateHeaderAndToolbar()
 
 	// Participant list should be visible only in torn off floaters.
 	bool is_participant_list_visible =
-			is_torn_off
+			!is_not_torn_off
 			&& gSavedSettings.getBOOL("IMShowControlPanel")
 			&& !mIsP2PChat;
 
@@ -624,22 +624,28 @@ void LLFloaterIMSessionTab::updateHeaderAndToolbar()
 
 	// Display collapse image (<<) if the floater is hosted
 	// or if it is torn off but has an open control panel.
-	bool is_expanded = !is_torn_off || is_participant_list_visible;
+	bool is_expanded = is_not_torn_off || is_participant_list_visible;
 	mExpandCollapseBtn->setImageOverlay(getString(is_expanded ? "collapse_icon" : "expand_icon"));
+	mExpandCollapseBtn->setToolTip(
+			is_not_torn_off?
+				getString("expcol_button_not_tearoff_tooltip") :
+				(is_expanded?
+					getString("expcol_button_tearoff_and_expanded_tooltip") :
+					getString("expcol_button_tearoff_and_collapsed_tooltip")));
 
 	// toggle floater's drag handle and title visibility
 	if (mDragHandle)
 	{
-		mDragHandle->setTitleVisible(is_torn_off);
+		mDragHandle->setTitleVisible(!is_not_torn_off);
 	}
 
 	// The button (>>) should be disabled for torn off P2P conversations.
-	mExpandCollapseBtn->setEnabled(!is_torn_off || !mIsP2PChat);
+	mExpandCollapseBtn->setEnabled(is_not_torn_off || !mIsP2PChat);
 
-	mTearOffBtn->setImageOverlay(getString(is_torn_off? "return_icon" : "tear_off_icon"));
-	mTearOffBtn->setToolTip(getString(!is_torn_off? "tooltip_to_separate_window" : "tooltip_to_main_window"));
+	mTearOffBtn->setImageOverlay(getString(is_not_torn_off? "tear_off_icon" : "return_icon"));
+	mTearOffBtn->setToolTip(getString(is_not_torn_off? "tooltip_to_separate_window" : "tooltip_to_main_window"));
 
-	mCloseBtn->setVisible(!is_torn_off && !mIsNearbyChat);
+	mCloseBtn->setVisible(is_not_torn_off && !mIsNearbyChat);
 
 	enableDisableCallBtn();
 
