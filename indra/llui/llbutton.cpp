@@ -311,7 +311,7 @@ void LLButton::onCommit()
 	{
 		make_ui_sound("UISndClickRelease");
 	}
-	
+
 	if (mIsToggle)
 	{
 		toggleState();
@@ -613,8 +613,6 @@ void LLButton::draw()
 	static LLCachedControl<bool> sEnableButtonFlashing(*LLUI::sSettingGroups["config"], "EnableButtonFlashing", true);
 	F32 alpha = mUseDrawContextAlpha ? getDrawContext().mAlpha : getCurrentTransparency();
 
-	bool flash = mFlashing && sEnableButtonFlashing;
-
 	bool pressed_by_keyboard = FALSE;
 	if (hasFocus())
 	{
@@ -642,6 +640,17 @@ void LLButton::draw()
 	LLColor4 glow_color;
 	LLRender::eBlendType glow_type = LLRender::BT_ADD_WITH_ALPHA;
 	LLUIImage* imagep = NULL;
+
+    //  Cancel sticking of color, if the button is pressed,
+	//  or when a flashing of the previously selected button is ended
+	if (mFlashingTimer
+		&& ((selected && !mFlashingTimer->isFlashingInProgress()) || pressed))
+	{
+		mFlashing = false;
+	}
+
+	bool flash = mFlashing && sEnableButtonFlashing;
+
 	if (pressed && mDisplayPressedState)
 	{
 		imagep = selected ? mImagePressedSelected : mImagePressed;
@@ -697,8 +706,7 @@ void LLButton::draw()
 		imagep = mImageDisabled;
 	}
 
-	// Selected has a higher priority than flashing. If both are set, flashing is ignored.
-	if (mFlashing && !selected)
+	if (mFlashing)
 	{
 		// if button should flash and we have icon for flashing, use it as image for button
 		if(flash && mImageFlash)
