@@ -33,8 +33,6 @@
 
 #include "lltimer.h"
 
-//#include <Carbon/Carbon.h>
-//#include <AGL/agl.h>
 #include <ApplicationServices/ApplicationServices.h>
 #include <OpenGL/OpenGL.h>
 

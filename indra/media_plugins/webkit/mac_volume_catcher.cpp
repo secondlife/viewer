@@ -35,7 +35,6 @@
 
 #include "volume_catcher.h"
 
-#include <Carbon/Carbon.h>
 #include <QuickTime/QuickTime.h>
 #include <AudioUnit/AudioUnit.h>
 

@@ -57,7 +57,7 @@ NSWindowRef createNSWindow(int x, int y, int width, int height);
 #include <OpenGL/OpenGL.h>
 GLViewRef createOpenGLView(NSWindowRef window);
 void glSwapBuffers(void* context);
-CGLContextObj getCGLContextObj(NSWindowRef window);
+CGLContextObj getCGLContextObj(GLViewRef view);
 void getContentViewBounds(NSWindowRef window, float* bounds);
 void getWindowSize(NSWindowRef window, float* size);
 void setWindowSize(NSWindowRef window, int width, int height);
@@ -80,5 +80,7 @@ void registerMouseMovedCallback(NSWindowRef window, MouseCallback callback);
 void registerScrollCallback(NSWindowRef window, ScrollWheelCallback callback);
 void registerMouseExitCallback(NSWindowRef window, VoidCallback callback);
 void registerDeltaUpdateCallback(NSWindowRef window, MouseCallback callback);
+NSWindowRef getMainAppWindow();
+GLViewRef getGLView(NSWindowRef window);
 
 unsigned int getModifiers();

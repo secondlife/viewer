@@ -41,6 +41,7 @@ class LLImageDecodeThread;
 class LLTextureFetch;
 class LLWatchdogTimeout;
 class LLUpdaterService;
+class LLViewerJoystick;
 
 class LLAppViewer : public LLApp
 {
@@ -250,6 +251,8 @@ private:
 	std::string mSerialNumber;
 	bool mPurgeCache;
     bool mPurgeOnExit;
+	bool mMainLoopInitialized;
+	LLViewerJoystick* joystick;
 
 	bool mSavedFinalSnapshot;
 	bool mSavePerAccountSettings;		// only save per account settings if login succeeded

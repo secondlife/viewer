@@ -31,6 +31,7 @@
 #endif
 
 #include "llappviewermacosx.h"
+#include "llappviewermacosx-objc.h"
 #include "llcommandlineparser.h"
 
 #include "llmemtype.h"
@@ -53,7 +54,7 @@ namespace
 	int gArgC;
 	char** gArgV;
 	
-	bool sCrashReporterIsRunning = false;
+	LLAppViewerMacOSX* gViewerAppPtr;
 	
 	OSErr AEQuitHandler(const AppleEvent *messagein, AppleEvent *reply, long refIn)
 	{
@@ -65,55 +66,61 @@ namespace
 	}
 }
 
-int main( int argc, char **argv ) 
+bool initViewer()
 {
 	LLMemType mt1(LLMemType::MTYPE_STARTUP);
-
-#if LL_SOLARIS && defined(__sparc)
-	asm ("ta\t6");		 // NOTE:  Make sure memory alignment is enforced on SPARC
-#endif
-
+	
 	// Set the working dir to <bundle>/Contents/Resources
 	if (chdir(gDirUtilp->getAppRODataDir().c_str()) == -1)
 	{
 		llwarns << "Could not change directory to "
-				<< gDirUtilp->getAppRODataDir() << ": " << strerror(errno)
-				<< llendl;
+		<< gDirUtilp->getAppRODataDir() << ": " << strerror(errno)
+		<< llendl;
 	}
-
-	LLAppViewerMacOSX* viewer_app_ptr = new LLAppViewerMacOSX();
-
-	viewer_app_ptr->setErrorHandler(LLAppViewer::handleViewerCrash);
-
-	// Store off the command line args for use later.
-	gArgC = argc;
-	gArgV = argv;
 	
-	bool ok = viewer_app_ptr->init();
+	gViewerAppPtr = new LLAppViewerMacOSX();
+	
+	gViewerAppPtr->setErrorHandler(LLAppViewer::handleViewerCrash);
+	
+	
+	
+	bool ok = gViewerAppPtr->init();
 	if(!ok)
 	{
 		llwarns << "Application init failed." << llendl;
-		return -1;
 	}
+	
+	return ok;
+}
 
-		// Run the application main loop
-	if(!LLApp::isQuitting()) 
+void handleQuit()
+{
+	if(!LLApp::isError())
 	{
-		viewer_app_ptr->mainLoop();
+		gViewerAppPtr->cleanup();
 	}
+	
+	delete gViewerAppPtr;
+	gViewerAppPtr = NULL;
+}
 
-	if (!LLApp::isError())
+bool runMainLoop()
+{
+	bool ret = LLApp::isQuitting();
+	if (!ret)
 	{
-		//
-		// We don't want to do cleanup here if the error handler got called -
-		// the assumption is that the error handler is responsible for doing
-		// app cleanup if there was a problem.
-		//
-		viewer_app_ptr->cleanup();
+		ret = gViewerAppPtr->mainLoop();
 	}
-	delete viewer_app_ptr;
-	viewer_app_ptr = NULL;
-	return 0;
+	
+	return ret;
+}
+
+int main( int argc, char **argv ) 
+{
+	// Store off the command line args for use later.
+	gArgC = argc;
+	gArgV = argv;
+	return createNSApp(argc, (const char**)argv);
 }
 
 LLAppViewerMacOSX::LLAppViewerMacOSX()
@@ -258,33 +265,6 @@ bool LLAppViewerMacOSX::restoreErrorTrap()
 	return reset_count == 0;
 }
 
-static OSStatus CarbonEventHandler(EventHandlerCallRef inHandlerCallRef, 
-								   EventRef inEvent, 
-								   void* inUserData)
-{
-    ProcessSerialNumber psn;
-	
-    GetEventParameter(inEvent, 
-					  kEventParamProcessID, 
-					  typeProcessSerialNumber, 
-					  NULL, 
-					  sizeof(psn), 
-					  NULL, 
-					  &psn);
-	
-    if( GetEventKind(inEvent) == kEventAppTerminated ) 
-	{
-		Boolean matching_psn = FALSE;	
-		OSErr os_result = SameProcess(&psn, (ProcessSerialNumber*)inUserData, &matching_psn);
-		if(os_result >= 0 && matching_psn)
-		{
-			sCrashReporterIsRunning = false;
-			QuitApplicationEventLoop();
-		}
-    }
-    return noErr;
-}
-
 void LLAppViewerMacOSX::handleCrashReporting(bool reportFreeze)
 {
 	// This used to use fork&exec, but is switched to LSOpenApplication to 
@@ -306,72 +286,6 @@ void LLAppViewerMacOSX::handleCrashReporting(bool reportFreeze)
 	 	appParams.version = 0;
 		appParams.flags = kLSLaunchNoParams | kLSLaunchStartClassic;
 		appParams.application = &appRef;
-		
-		if(reportFreeze)
-		{
-			// Make sure freeze reporting launches the crash logger synchronously, lest 
-			// Log files get changed by SL while the logger is running.
-		
-			// *NOTE:Mani A better way - make a copy of the data that the crash reporter will send
-			// and let SL go about its business. This way makes the mac work like windows and linux
-			// and is the smallest patch for the issue. 
-			sCrashReporterIsRunning = false;
-			ProcessSerialNumber o_psn;
-
-			static EventHandlerRef sCarbonEventsRef = NULL;
-			static const EventTypeSpec kEvents[] = 
-			{
-				{ kEventClassApplication, kEventAppTerminated }
-			};
-			
-			// Install the handler to detect crash logger termination
-			InstallEventHandler(GetApplicationEventTarget(), 
-								(EventHandlerUPP) CarbonEventHandler,
-								GetEventTypeCount(kEvents),
-								kEvents,
-								&o_psn,
-								&sCarbonEventsRef
-								);
-			
-			// Remove, temporarily the quit handler - which has *crash* behavior before 
-			// the mainloop gets running!
-			AERemoveEventHandler(kCoreEventClass, 
-								 kAEQuitApplication, 
-								 NewAEEventHandlerUPP(AEQuitHandler),
-								 false);
-
-			// Launch the crash reporter.
-			os_result = LSOpenApplication(&appParams, &o_psn);
-			
-			if(os_result >= 0)
-			{	
-				sCrashReporterIsRunning = true;
-			}
-
-			while(sCrashReporterIsRunning)
-			{
-				RunApplicationEventLoop();
-			}
-
-			// Re-install the apps quit handler.
-			AEInstallEventHandler(kCoreEventClass, 
-								  kAEQuitApplication, 
-								  NewAEEventHandlerUPP(AEQuitHandler),
-								  0, 
-								  false);
-			
-			// Remove the crash reporter quit handler.
-			RemoveEventHandler(sCarbonEventsRef);
-		}
-		else
-		{
-			appParams.flags |= kLSLaunchAsync;
-			clear_signals();
-
-			ProcessSerialNumber o_psn;
-			os_result = LSOpenApplication(&appParams, &o_psn);
-		}
-		
 	}
 }
 
@@ -504,74 +418,4 @@ OSErr AEGURLHandler(const AppleEvent *messagein, AppleEvent *reply, long refIn)
 	}
 	
 	return(result);
-}
-
-OSStatus simpleDialogHandler(EventHandlerCallRef handler, EventRef event, void *userdata)
-{
-	OSStatus result = eventNotHandledErr;
-	OSStatus err;
-	UInt32 evtClass = GetEventClass(event);
-	UInt32 evtKind = GetEventKind(event);
-	WindowRef window = (WindowRef)userdata;
-	
-	if((evtClass == kEventClassCommand) && (evtKind == kEventCommandProcess))
-	{
-		HICommand cmd;
-		err = GetEventParameter(event, kEventParamDirectObject, typeHICommand, NULL, sizeof(cmd), NULL, &cmd);
-		
-		if(err == noErr)
-		{
-			switch(cmd.commandID)
-			{
-				case kHICommandOK:
-					QuitAppModalLoopForWindow(window);
-					result = noErr;
-				break;
-				
-				case kHICommandCancel:
-					QuitAppModalLoopForWindow(window);
-					result = userCanceledErr;
-				break;
-			}
-		}
-	}
-	
-	return(result);
-}
-
-void init_apple_menu(const char* product)
-{
-	// Load up a proper menu bar.
-	{
-		OSStatus err;
-		IBNibRef nib = NULL;
-		// NOTE: DO NOT translate or brand this string.  It's an internal name in the .nib file, and MUST match exactly.
-		err = CreateNibReference(CFSTR("SecondLife"), &nib);
-		
-		if(err == noErr)
-		{
-			// NOTE: DO NOT translate or brand this string.  It's an internal name in the .nib file, and MUST match exactly.
-			SetMenuBarFromNib(nib, CFSTR("MenuBar"));
-		}
-
-		if(nib != NULL)
-		{
-			DisposeNibReference(nib);
-		}
-	}
-	
-	// Install a handler for 'gurl' AppleEvents.  This is how secondlife:// URLs get passed to the viewer.
-	
-	if(AEInstallEventHandler('GURL', 'GURL', NewAEEventHandlerUPP(AEGURLHandler),0, false) != noErr)
-	{
-		// Couldn't install AppleEvent handler.  This error shouldn't be fatal.
-		llinfos << "Couldn't install 'GURL' AppleEvent handler.  Continuing..." << llendl;
-	}
-
-	// Install a handler for 'quit' AppleEvents.  This makes quitting the application from the dock work.
-	if(AEInstallEventHandler(kCoreEventClass, kAEQuitApplication, NewAEEventHandlerUPP(AEQuitHandler),0, false) != noErr)
-	{
-		// Couldn't install AppleEvent handler.  This error shouldn't be fatal.
-		llinfos << "Couldn't install Quit AppleEvent handler.  Continuing..." << llendl;
-	}
 }

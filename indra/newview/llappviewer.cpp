@@ -250,10 +250,6 @@ static LLAppViewerListener sAppViewerListener(LLAppViewer::instance);
 //----------------------------------------------------------------------------
 // viewer.cpp - these are only used in viewer, should be easily moved.
 
-#if LL_DARWIN
-extern void init_apple_menu(const char* product);
-#endif // LL_DARWIN
-
 extern BOOL gRandomizeFramerate;
 extern BOOL gPeriodicSlowFrame;
 extern BOOL gDebugGL;
@@ -1196,43 +1192,56 @@ static LLFastTimer::DeclareTimer FTM_SERVICE_CALLBACK("Callback");
 static LLFastTimer::DeclareTimer FTM_AGENT_AUTOPILOT("Autopilot");
 static LLFastTimer::DeclareTimer FTM_AGENT_UPDATE("Update");
 
+LLMemType mt1(LLMemType::MTYPE_MAIN);
+
 bool LLAppViewer::mainLoop()
 {
-	LLMemType mt1(LLMemType::MTYPE_MAIN);
-	mMainloopTimeout = new LLWatchdogTimeout();
+	if (!mMainLoopInitialized)
+	{
+		mMainloopTimeout = new LLWatchdogTimeout();
+		
+		//-------------------------------------------
+		// Run main loop until time to quit
+		//-------------------------------------------
+		
+		// Create IO Pump to use for HTTP Requests.
+		gServicePump = new LLPumpIO(gAPRPoolp);
+		LLHTTPClient::setPump(*gServicePump);
+		LLCurl::setCAFile(gDirUtilp->getCAFile());
+		
+		// Note: this is where gLocalSpeakerMgr and gActiveSpeakerMgr used to be instantiated.
+		
+		LLVoiceChannel::initClass();
+		LLVoiceClient::getInstance()->init(gServicePump);
+		LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLCallFloater::sOnCurrentChannelChanged, _1), true);
+		
+		joystick = LLViewerJoystick::getInstance();
+		joystick->setNeedsReset(true);
+		
+		
+		// As we do not (yet) send data on the mainloop LLEventPump that varies
+		// with each frame, no need to instantiate a new LLSD event object each
+		// time. Obviously, if that changes, just instantiate the LLSD at the
+		// point of posting.
+		mMainLoopInitialized = true;
+	}
+	LLEventPump& mainloop(LLEventPumps::instance().obtain("mainloop"));
 	
-	//-------------------------------------------
-	// Run main loop until time to quit
-	//-------------------------------------------
-
-	// Create IO Pump to use for HTTP Requests.
-	gServicePump = new LLPumpIO(gAPRPoolp);
-	LLHTTPClient::setPump(*gServicePump);
-	LLCurl::setCAFile(gDirUtilp->getCAFile());
-
-	// Note: this is where gLocalSpeakerMgr and gActiveSpeakerMgr used to be instantiated.
-
-	LLVoiceChannel::initClass();
-	LLVoiceClient::getInstance()->init(gServicePump);
-	LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLCallFloater::sOnCurrentChannelChanged, _1), true);
+    LLSD newFrame;
+	
 	LLTimer frameTimer,idleTimer;
 	LLTimer debugTime;
-	LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
-	joystick->setNeedsReset(true);
-
-    LLEventPump& mainloop(LLEventPumps::instance().obtain("mainloop"));
-    // As we do not (yet) send data on the mainloop LLEventPump that varies
-    // with each frame, no need to instantiate a new LLSD event object each
-    // time. Obviously, if that changes, just instantiate the LLSD at the
-    // point of posting.
-    LLSD newFrame;
-
+	
 	//LLPrivateMemoryPoolTester::getInstance()->run(false) ;
 	//LLPrivateMemoryPoolTester::getInstance()->run(true) ;
 	//LLPrivateMemoryPoolTester::destroy() ;
 
 	// Handle messages
+#ifdef LL_DARWIN
+	if (!LLApp::isExiting())
+#else
 	while (!LLApp::isExiting())
+#endif
 	{
 		LLFastTimer::nextFrame(); // Should be outside of any timer instances
 
@@ -1510,34 +1519,37 @@ bool LLAppViewer::mainLoop()
 		}
 	}
 
-	// Save snapshot for next time, if we made it through initialization
-	if (STATE_STARTED == LLStartUp::getStartupState())
+	if (LLApp::isExiting())
 	{
-		try
+		// Save snapshot for next time, if we made it through initialization
+		if (STATE_STARTED == LLStartUp::getStartupState())
 		{
-			saveFinalSnapshot();
-		}
-		catch(std::bad_alloc)
-		{
-			llwarns << "Bad memory allocation when saveFinalSnapshot() is called!" << llendl ;
-
-			//stop memory leaking simulation
-			LLFloaterMemLeak* mem_leak_instance =
-				LLFloaterReg::findTypedInstance<LLFloaterMemLeak>("mem_leaking");
-			if(mem_leak_instance)
+			try
 			{
-				mem_leak_instance->stop() ;				
-			}	
+				saveFinalSnapshot();
+			}
+			catch(std::bad_alloc)
+			{
+				llwarns << "Bad memory allocation when saveFinalSnapshot() is called!" << llendl ;
+				
+				//stop memory leaking simulation
+				LLFloaterMemLeak* mem_leak_instance =
+				LLFloaterReg::findTypedInstance<LLFloaterMemLeak>("mem_leaking");
+				if(mem_leak_instance)
+				{
+					mem_leak_instance->stop() ;
+				}
+			}
 		}
+		
+		delete gServicePump;
+		
+		destroyMainloopTimeout();
+		
+		llinfos << "Exiting main_loop" << llendflush;
 	}
-	
-	delete gServicePump;
 
-	destroyMainloopTimeout();
-
-	llinfos << "Exiting main_loop" << llendflush;
-
-	return true;
+	return LLApp::isExiting();
 }
 
 void LLAppViewer::flushVFSIO()
@@ -2618,8 +2630,6 @@ bool LLAppViewer::initConfiguration()
 	//}
 
 #if LL_DARWIN
-	// Initialize apple menubar and various callbacks
-	init_apple_menu(LLTrans::getString("APP_NAME").c_str());
 
 #if __ppc__
 	// If the CPU doesn't have Altivec (i.e. it's not at least a G4), don't go any further.

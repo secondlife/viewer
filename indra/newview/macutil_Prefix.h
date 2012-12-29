@@ -32,7 +32,6 @@
  *
  */
 
-#include <Carbon/Carbon.h>
 #include "fix_macros.h"
 
 #undef verify

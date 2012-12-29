@@ -1231,6 +1231,10 @@ source_group("CMake Rules" FILES ViewerInstall.cmake)
 
 if (DARWIN)
   LIST(APPEND viewer_SOURCE_FILES llappviewermacosx.cpp)
+  LIST(APPEND viewer_SOURCE_FILES llappviewermacosx-objc.h)
+  LIST(APPEND viewer_SOURCE_FILES llappviewermacosx-objc.mm)
+  LIST(APPEND viewer_SOURCE_FILES llappviewermacosx-delegate.h)
+  LIST(APPEND viewer_SOURCE_FILES llappviewermacosx-delegate.mm)
 
   find_library(AGL_LIBRARY AGL)
   find_library(APPKIT_LIBRARY AppKit)
@@ -1251,7 +1255,7 @@ if (DARWIN)
     macview.r
     gpu_table.txt
     Info-SecondLife.plist
-    SecondLife.nib/
+    SecondLife.xib/
     # CMake doesn't seem to support Xcode language variants well just yet
     English.lproj/InfoPlist.strings
     English.lproj/language.txt

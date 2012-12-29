@@ -19,9 +19,12 @@
 
 - (void)windowResized:(NSNotification *)notification;
 {
-	NSSize size = [[self window] frame].size;
-	
-	mResizeCallback(size.width, size.height);
+	if (mResizeCallback != nil)
+	{
+		NSSize size = [[self window] frame].size;
+		
+		mResizeCallback(size.width, size.height);
+	}
 }
 
 - (void)dealloc
@@ -194,23 +197,29 @@
 }
 
 - (void) keyDown:(NSEvent *)theEvent {
-	mKeyDownCallback([theEvent keyCode], [theEvent modifierFlags]);
-	
-	NSString *chars = [theEvent charactersIgnoringModifiers];
-	for (uint i = 0; i < [chars length]; i++)
+	if (mKeyDownCallback != nil && mUnicodeCallback != nil)
 	{
-		mUnicodeCallback([chars characterAtIndex:i], [theEvent modifierFlags]);
-	}
-	
-	// The viewer expects return to be submitted separately as a unicode character.
-	if ([theEvent keyCode] == 3 || [theEvent keyCode] == 13)
-	{
-		mUnicodeCallback([theEvent keyCode], [theEvent modifierFlags]);
+		mKeyDownCallback([theEvent keyCode], [theEvent modifierFlags]);
+		
+		NSString *chars = [theEvent charactersIgnoringModifiers];
+		for (uint i = 0; i < [chars length]; i++)
+		{
+			mUnicodeCallback([chars characterAtIndex:i], [theEvent modifierFlags]);
+		}
+		
+		// The viewer expects return to be submitted separately as a unicode character.
+		if ([theEvent keyCode] == 3 || [theEvent keyCode] == 13)
+		{
+			mUnicodeCallback([theEvent keyCode], [theEvent modifierFlags]);
+		}
 	}
 }
 
 - (void) keyUp:(NSEvent *)theEvent {
-	mKeyUpCallback([theEvent keyCode], [theEvent modifierFlags]);
+	if (mKeyUpCallback != nil)
+	{
+		mKeyUpCallback([theEvent keyCode], [theEvent modifierFlags]);
+	}
 }
 
 - (void)flagsChanged:(NSEvent *)theEvent {
@@ -219,41 +228,59 @@
 
 - (void) mouseDown:(NSEvent *)theEvent
 {
-	if ([theEvent clickCount] == 2)
+	if (mMouseDoubleClickCallback != nil && mMouseDownCallback != nil)
 	{
-		mMouseDoubleClickCallback(mMousePos, [theEvent modifierFlags]);
-	} else if ([theEvent clickCount] == 1) {
-		mMouseDownCallback(mMousePos, [theEvent modifierFlags]);
+		if ([theEvent clickCount] == 2)
+		{
+			mMouseDoubleClickCallback(mMousePos, [theEvent modifierFlags]);
+		} else if ([theEvent clickCount] == 1) {
+			mMouseDownCallback(mMousePos, [theEvent modifierFlags]);
+		}
 	}
 }
 
 - (void) mouseUp:(NSEvent *)theEvent
 {
-	mMouseUpCallback(mMousePos, [theEvent modifierFlags]);
+	if (mMouseUpCallback != nil)
+	{
+		mMouseUpCallback(mMousePos, [theEvent modifierFlags]);
+	}
 }
 
 - (void) rightMouseDown:(NSEvent *)theEvent
 {
-	mRightMouseDownCallback(mMousePos, [theEvent modifierFlags]);
+	if (mRightMouseDownCallback != nil)
+	{
+		mRightMouseDownCallback(mMousePos, [theEvent modifierFlags]);
+	}
 }
 
 - (void) rightMouseUp:(NSEvent *)theEvent
 {
-	mRightMouseUpCallback(mMousePos, [theEvent modifierFlags]);
+	if (mRightMouseUpCallback != nil)
+	{
+		mRightMouseUpCallback(mMousePos, [theEvent modifierFlags]);
+	}
 }
 
 - (void)mouseMoved:(NSEvent *)theEvent {
-	float mouseDeltas[2] = {
-		[theEvent deltaX],
-		[theEvent deltaZ]
-	};
-	
-	mDeltaUpdateCallback(mouseDeltas, 0);
-	
-	NSPoint mPoint = [theEvent locationInWindow];
-	mMousePos[0] = mPoint.x;
-	mMousePos[1] = mPoint.y;
-	mMouseMovedCallback(mMousePos, 0);
+	if (mDeltaUpdateCallback != nil && mMouseMovedCallback != nil)
+	{
+		float mouseDeltas[2] = {
+			[theEvent deltaX],
+			[theEvent deltaZ]
+		};
+		
+		mDeltaUpdateCallback(mouseDeltas, 0);
+		
+		NSPoint mPoint = [theEvent locationInWindow];
+		mMousePos[0] = mPoint.x;
+		mMousePos[1] = mPoint.y;
+		if (mMouseMovedCallback != nil)
+		{
+			mMouseMovedCallback(mMousePos, 0);
+		}
+	}
 }
 
 // NSWindow doesn't trigger mouseMoved when the mouse is being clicked and dragged.
@@ -261,27 +288,36 @@
 
 - (void) mouseDragged:(NSEvent *)theEvent
 {
-	float mouseDeltas[2] = {
-		[theEvent deltaX],
-		[theEvent deltaZ]
-	};
-	
-	mDeltaUpdateCallback(mouseDeltas, 0);
-	
-	NSPoint mPoint = [theEvent locationInWindow];
-	mMousePos[0] = mPoint.x;
-	mMousePos[1] = mPoint.y;
-	mMouseMovedCallback(mMousePos, 0);
+	if (mDeltaUpdateCallback != nil && mMouseMovedCallback != nil)
+	{
+		float mouseDeltas[2] = {
+			[theEvent deltaX],
+			[theEvent deltaZ]
+		};
+		
+		mDeltaUpdateCallback(mouseDeltas, 0);
+		
+		NSPoint mPoint = [theEvent locationInWindow];
+		mMousePos[0] = mPoint.x;
+		mMousePos[1] = mPoint.y;
+		mMouseMovedCallback(mMousePos, 0);
+	}
 }
 
 - (void) scrollWheel:(NSEvent *)theEvent
 {
-	mScrollWhellCallback(-[theEvent deltaY]);
+	if (mScrollWhellCallback != nil)
+	{
+		mScrollWhellCallback(-[theEvent deltaY]);
+	}
 }
 
 - (void) mouseExited:(NSEvent *)theEvent
 {
-	mMouseExitCallback();
+	if (mMouseExitCallback != nil)
+	{
+		mMouseExitCallback();
+	}
 }
 
 - (void) registerKeyDownCallback:(KeyCallback)callback
@@ -350,3 +386,13 @@
 }
 
 @end
+
+void setLLNSWindowRef(LLNSWindow* window)
+{
+	winRef = window;
+}
+
+void setLLOpenGLViewRef(LLOpenGLView* view)
+{
+	glviewRef = view;
+}

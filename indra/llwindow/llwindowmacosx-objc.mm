@@ -54,10 +54,10 @@ void setupCocoa()
 		//   http://developer.apple.com/samplecode/CarbonCocoa_PictureCursor/index.html
 		
 		//	Needed for Carbon based applications which call into Cocoa
-		NSApplicationLoad();
+		// NSApplicationLoad();
 
 		//	Must first call [[[NSWindow alloc] init] release] to get the NSWindow machinery set up so that NSCursor can use a window to cache the cursor image
-		[[[NSWindow alloc] init] release];
+		//[[[NSWindow alloc] init] release];
 
 		[pool release];
 		
@@ -188,10 +188,9 @@ void glSwapBuffers(void* context)
 	[(NSOpenGLContext*)context flushBuffer];
 }
 
-CGLContextObj getCGLContextObj(NSWindowRef window)
+CGLContextObj getCGLContextObj(GLViewRef view)
 {
-	LLOpenGLView *glview = [(LLNSWindow*)window contentView];
-	return [glview getCGLContextObj];
+	return [(LLOpenGLView *)view getCGLContextObj];
 }
 
 CGLPixelFormatObj* getCGLPixelFormatObj(NSWindowRef window)
@@ -329,6 +328,16 @@ void registerMouseExitCallback(NSWindowRef window, VoidCallback callback)
 void registerDeltaUpdateCallback(NSWindowRef window, MouseCallback callback)
 {
 	[(LLNSWindow*)window registerDeltaUpdateCallback:callback];
+}
+
+NSWindowRef getMainAppWindow()
+{
+	return winRef;
+}
+
+GLViewRef getGLView(NSWindowRef window)
+{
+	return glviewRef;
 }
 
 unsigned int getModifiers()

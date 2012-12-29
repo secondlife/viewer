@@ -38,7 +38,6 @@
 #include "lldir.h"
 #include "indra_constants.h"
 
-#include <Carbon/Carbon.h>
 #include <OpenGL/OpenGL.h>
 
 extern BOOL gDebugWindowProc;
@@ -342,7 +341,7 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 	if (mWindow == NULL)
 	{
 		LL_INFOS("Window") << "Creating window..." << LL_ENDL;
-		mWindow = createNSWindow(x, y, width, height);
+		mWindow = getMainAppWindow();
 		LL_INFOS("Window") << "Registering key callbacks..." << LL_ENDL;
 		registerKeyDownCallback(mWindow, callKeyDown);
 		registerKeyUpCallback(mWindow, callKeyUp);
@@ -361,9 +360,11 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 	if(mContext == NULL)
 	{
 		LL_INFOS("Window") << "Creating GL view..." << LL_ENDL;
+		// Our OpenGL view is already defined within SecondLife.xib.
+		// Get the view instead.
 		mGLView = createOpenGLView(mWindow);
 		registerResizeEventCallback(mGLView, callResize);
-		mContext = getCGLContextObj(mWindow);
+		mContext = getCGLContextObj(mGLView);
 		// Since we just created the context, it needs to be set up.
 		glNeedsInit = TRUE;
 	}
@@ -576,132 +577,6 @@ void LLWindowMacOSX::gatherInput()
 	{
 		stopDockTileBounce();
 	}
-	
-	EventRecord evt;
-	while(WaitNextEvent(everyEvent, &evt, 0, NULL))
-	{
-		//			printf("WaitNextEvent returned true, event is %d.\n", evt.what);
-		switch(evt.what)
-		{
-			case mouseDown:
-			{
-				short part;
-				WindowRef window;
-				long selectResult;
-				part = FindWindow(evt.where, &window);
-				switch ( part )
-				{
-					case inMenuBar:
-						selectResult = MenuSelect(evt.where);
-						
-						HiliteMenu(0);
-						break;
-				}
-			}
-				break;
-				
-			case kHighLevelEvent:
-				AEProcessAppleEvent (&evt);
-				break;
-				
-			case updateEvt:
-				// We shouldn't be getting these regularly (since our window will be buffered), but we need to handle them correctly...
-				BeginUpdate((WindowRef)evt.message);
-				EndUpdate((WindowRef)evt.message);
-				break;
-				
-		}
-	}
-	/*
-	U32 event = getLatestEvent(mWindow);
-	switch (event) {
-		case 0:
-			// Nothing's happened since our last handled event.
-			break;
-			
-		case 1:
-		{
-			gKeyboard->handleKeyDown(getKeyDown(mWindow), getModifiers(mWindow));
-			mCallbacks->handleUnicodeChar(getLastCharacter(mWindow), gKeyboard->currentMask(FALSE)); // currentMask has the appropriately translated modifiers.
-			mLastModifiers = gKeyboard->currentMask(FALSE);
-		}
-			break;
-			
-		case 2:
-			gKeyboard->handleKeyUp(getKeyUp(mWindow), getModifiers(mWindow));
-			mLastModifiers = gKeyboard->currentMask(FALSE);
-			break;
-			
-		case 3:
-			break;
-			
-		case 4:
-		{
-			LLCoordScreen	inCoords;
-			LLCoordGL		outCoords;
-			float*			mouseCoords = getMouseDown(mWindow);
-			inCoords.mX = llround(mouseCoords[0]);
-			inCoords.mY = llround(mouseCoords[1]);
-			convertCoords(inCoords, &outCoords);
-			mCallbacks->handleMouseDown(this, outCoords, getModifiers(mWindow));
-			mLastModifiers = gKeyboard->currentMask(FALSE);
-		}
-			break;
-		case 5:
-		{
-			LLCoordScreen	inCoords;
-			LLCoordGL		outCoords;
-			float*			mouseCoords = getMouseUp(mWindow);
-			inCoords.mX = llround(mouseCoords[0]);
-			inCoords.mY = llround(mouseCoords[1]);
-			convertCoords(inCoords, &outCoords);
-			mCallbacks->handleMouseUp(this, outCoords, getModifiers(mWindow));
-			mLastModifiers = gKeyboard->currentMask(FALSE);
-		}
-			break;
-		case 6:
-		{
-			LLCoordScreen	inCoords;
-			LLCoordGL		outCoords;
-			float*			mouseCoords = getRightMouseDown(mWindow);
-			inCoords.mX = llround(mouseCoords[0]);
-			inCoords.mY = llround(mouseCoords[1]);
-			convertCoords(inCoords, &outCoords);
-			mCallbacks->handleRightMouseDown(this, outCoords, getModifiers(mWindow));
-			mLastModifiers = gKeyboard->currentMask(FALSE);
-		}
-			break;
-		case 7:
-		{
-			LLCoordScreen	inCoords;
-			LLCoordGL		outCoords;
-			float*			mouseCoords = getRightMouseDown(mWindow);
-			inCoords.mX = llround(mouseCoords[0]);
-			inCoords.mY = llround(mouseCoords[1]);
-			convertCoords(inCoords, &outCoords);
-			mCallbacks->handleRightMouseDown(this, outCoords, getModifiers(mWindow));
-			mLastModifiers = gKeyboard->currentMask(FALSE);
-		}
-			break;
-		case 8: // Double click
-		{
-			LLCoordScreen	inCoords;
-			LLCoordGL		outCoords;
-			float*			mouseCoords = getRightMouseDown(mWindow);
-			inCoords.mX = llround(mouseCoords[0]);
-			inCoords.mY = llround(mouseCoords[1]);
-			convertCoords(inCoords, &outCoords);
-			mCallbacks->handleDoubleClick(this, outCoords, getModifiers(mWindow));
-			mLastModifiers = gKeyboard->currentMask(FALSE);
-		}
-			break;
-		case 10: // Text input (for IMEs)
-			
-			break;
-		default:
-			break;
-			
-	}*/
 	
 	updateCursor();
 }
